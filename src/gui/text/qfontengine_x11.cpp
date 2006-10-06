@@ -1746,7 +1746,7 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
     return g;
 }
 #ifndef QT_NO_XRENDER
-bool QFontEngineFT::loadTransformedGlyphSet(glyph_t *glyphs, int num_glyphs, const QMatrix &matrix, GlyphSet *gs)
+bool QFontEngineFT::loadTransformedGlyphSet(glyph_t *glyphs, int num_glyphs, const QTransform &matrix, GlyphSet *gs)
 {
     // don't try to load huge fonts
     if (fontDef.pixelSize * sqrt(matrix.det()) >= 64) {

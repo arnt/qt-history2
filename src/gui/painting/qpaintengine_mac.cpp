@@ -260,6 +260,7 @@ inline static QPaintEngine::PaintEngineFeatures qt_mac_cg_features()
     // Supports all except gradients...
     return QPaintEngine::PaintEngineFeatures(QPaintEngine::AllFeatures
             & ~QPaintEngine::PaintOutsidePaintEvent
+            & ~QPaintEngine::PerspectiveTransform
             & (~(QPaintEngine::ConicalGradientFill | QPaintEngine::BrushStroke))
 #ifndef QMAC_NATIVE_GRADIENTS
             & (~(QPaintEngine::LinearGradientFill|QPaintEngine::RadialGradientFill))
@@ -421,7 +422,7 @@ QCoreGraphicsPaintEngine::updateFont(const QFont &)
 }
 
 void
-QCoreGraphicsPaintEngine::updateMatrix(const QMatrix &matrix)
+QCoreGraphicsPaintEngine::updateTransform(const QTransform &matrix)
 {
     Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());

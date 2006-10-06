@@ -42,12 +42,13 @@ public:
                             QImage::Format monoFormat = QImage::Format_MonoLSB);
 
     QBitmap transformed(const QMatrix &) const;
+    QBitmap transformed(const QTransform &matrix) const;
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT_CONSTRUCTOR QBitmap(int w, int h, bool clear);
     inline QT3_SUPPORT_CONSTRUCTOR QBitmap(const QSize &, bool clear);
     QT3_SUPPORT_CONSTRUCTOR QBitmap(int w, int h, const uchar *bits, bool isXbitmap=false);
     QT3_SUPPORT_CONSTRUCTOR QBitmap(const QSize &, const uchar *bits, bool isXbitmap=false);
-    inline QT3_SUPPORT QBitmap xForm(const QMatrix &matrix) const { return transformed(matrix); }
+    inline QT3_SUPPORT QBitmap xForm(const QMatrix &matrix) const { return transformed(QTransform(matrix)); }
     QT3_SUPPORT_CONSTRUCTOR QBitmap(const QImage &image) { *this = fromImage(image); }
     QT3_SUPPORT QBitmap &operator=(const QImage &image) { *this = fromImage(image); return *this; }
 #endif

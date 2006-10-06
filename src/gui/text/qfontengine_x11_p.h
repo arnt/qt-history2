@@ -233,7 +233,7 @@ public:
     int xglyph_format;
 
     QList<Font> transformedFonts;
-    bool loadTransformedGlyphSet(glyph_t *glyphs, int num_glyphs, const QMatrix &matrix, GlyphSet *gs);
+    bool loadTransformedGlyphSet(glyph_t *glyphs, int num_glyphs, const QTransform &matrix, GlyphSet *gs);
 #endif
     inline Glyph *cachedGlyph(glyph_t g) const { return fnt.glyph_data.value(g); }
 private:

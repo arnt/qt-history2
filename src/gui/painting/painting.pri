@@ -27,7 +27,8 @@ HEADERS += \
         painting/qstylepainter.h \
         painting/qtessellator_p.h \
 	painting/qmatrix.h \
-	painting/qwmatrix.h
+	painting/qwmatrix.h \
+	painting/qtransform.h 
 
 
 SOURCES += \
@@ -49,7 +50,8 @@ SOURCES += \
         painting/qstylepainter.cpp \
         painting/qtessellator.cpp \
 	painting/qregion.cpp \
-	painting/qmatrix.cpp
+	painting/qmatrix.cpp \
+	painting/qtransform.cpp 
 
 	DEFINES += QT_RASTER_IMAGEENGINE
         win32:DEFINES += QT_RASTER_PAINTENGINE

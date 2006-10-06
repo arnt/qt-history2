@@ -15,6 +15,7 @@
 #include "private/qbezier_p.h"
 #include "private/qmath_p.h"
 #include "qline.h"
+#include "qtransform.h"
 
 // #define QPP_STROKE_DEBUG
 
@@ -201,7 +202,7 @@ void QStrokerOps::end()
 
     \sa begin()
 */
-void QStrokerOps::strokePath(const QPainterPath &path, void *customData, const QMatrix &matrix)
+void QStrokerOps::strokePath(const QPainterPath &path, void *customData, const QTransform &matrix)
 {
     if (path.isEmpty())
         return;
@@ -272,7 +273,7 @@ void QStrokerOps::strokePath(const QPainterPath &path, void *customData, const Q
 */
 
 void QStrokerOps::strokePolygon(const QPointF *points, int pointCount, bool implicit_close,
-                                void *data, const QMatrix &matrix)
+                                void *data, const QTransform &matrix)
 {
     if (!pointCount)
         return;
@@ -302,7 +303,7 @@ void QStrokerOps::strokePolygon(const QPointF *points, int pointCount, bool impl
     rect. The \a matrix is used to transform the coordinates before
     they enter the stroker.
 */
-void QStrokerOps::strokeEllipse(const QRectF &rect, void *data, const QMatrix &matrix)
+void QStrokerOps::strokeEllipse(const QRectF &rect, void *data, const QTransform &matrix)
 {
     int count = 0;
     QPointF pts[12];

@@ -1040,10 +1040,10 @@ void QRenderRule::drawBackground(QPainter *p, const QRect& rect)
         QBrush brush = background()->brush;
         if (brush.style() >= Qt::LinearGradientPattern
             && brush.style() <= Qt::ConicalGradientPattern) {
-            QMatrix m;
+            QTransform m;
             m.translate(fillRect.left(), fillRect.top());
             m.scale(fillRect.width(), fillRect.height());
-            brush.setMatrix(m);
+            brush.setTransform(m);
         }
         p->fillRect(fillRect, brush);
     }

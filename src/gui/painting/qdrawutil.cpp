@@ -666,7 +666,7 @@ static void qDrawMotifArrow(QPainter *p, Qt::ArrowType type, bool down,
     QPolygon bTop;                                // top shadow.
     QPolygon bBot;                                // bottom shadow.
     QPolygon bLeft;                                // left shadow.
-    QMatrix        matrix;                                // xform matrix
+    QTransform matrix;                            // xform matrix
     bool vertical = type == Qt::UpArrow || type == Qt::DownArrow;
     bool horizontal = !vertical;
     int         dim = w < h ? w : h;
@@ -753,13 +753,13 @@ static void qDrawMotifArrow(QPainter *p, Qt::ArrowType type, bool down,
 
     QPen     savePen   = p->pen();                // save current pen
     QBrush   saveBrush = p->brush();                // save current brush
-    QMatrix wxm = p->matrix();
+    QTransform wxm = p->transform();
     QPen     pen(Qt::NoPen);
     const QBrush &brush = pal.brush(QPalette::Button);
 
     p->setPen(pen);
     p->setBrush(brush);
-    p->setMatrix(matrix, true);                // set transformation matrix
+    p->setTransform(matrix, true);                // set transformation matrix
     p->drawPolygon(bFill);                        // fill arrow
     p->setBrush(Qt::NoBrush);                        // don't fill
 
@@ -770,7 +770,7 @@ static void qDrawMotifArrow(QPainter *p, Qt::ArrowType type, bool down,
     p->setPen(CBOT);
     p->drawLines(bBot);
 
-    p->setMatrix(wxm);
+    p->setTransform(wxm);
     p->setBrush(saveBrush);                        // restore brush
     p->setPen(savePen);                        // restore pen
 

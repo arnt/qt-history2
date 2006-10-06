@@ -1518,46 +1518,7 @@ QPainterPath QPainterPath::toReversed() const
 */
 QList<QPolygonF> QPainterPath::toSubpathPolygons(const QMatrix &matrix) const
 {
-    Q_D(const QPainterPath);
-    QList<QPolygonF> flatCurves;
-    if (isEmpty())
-        return flatCurves;
-
-    QPolygonF current;
-    for (int i=0; i<elementCount(); ++i) {
-        const QPainterPath::Element &e = d->elements.at(i);
-        switch (e.type) {
-        case QPainterPath::MoveToElement:
-            if (current.size() > 1)
-                flatCurves += current;
-            current.clear();
-            current.reserve(16);
-            current += QPointF(e.x, e.y) * matrix;
-            break;
-        case QPainterPath::LineToElement:
-            current += QPointF(e.x, e.y) * matrix;
-            break;
-        case QPainterPath::CurveToElement: {
-            Q_ASSERT(d->elements.at(i+1).type == QPainterPath::CurveToDataElement);
-            Q_ASSERT(d->elements.at(i+2).type == QPainterPath::CurveToDataElement);
-            QBezier bezier = QBezier::fromPoints(QPointF(d->elements.at(i-1).x, d->elements.at(i-1).y) * matrix,
-                                       QPointF(e.x, e.y) * matrix,
-                                       QPointF(d->elements.at(i+1).x, d->elements.at(i+1).y) * matrix,
-                                                 QPointF(d->elements.at(i+2).x, d->elements.at(i+2).y) * matrix);
-            bezier.addToPolygon(&current);
-            i+=2;
-            break;
-        }
-        case QPainterPath::CurveToDataElement:
-            Q_ASSERT(!"QPainterPath::toSubpathPolygons(), bad element type");
-            break;
-        }
-    }
-
-    if (current.size()>1)
-        flatCurves += current;
-
-    return flatCurves;
+    return toSubpathPolygons(QTransform(matrix));
 }
 
 /*!
@@ -1577,20 +1538,7 @@ QList<QPolygonF> QPainterPath::toSubpathPolygons(const QMatrix &matrix) const
 */
 QPolygonF QPainterPath::toFillPolygon(const QMatrix &matrix) const
 {
-
-    QList<QPolygonF> flats = toSubpathPolygons(matrix);
-    QPolygonF polygon;
-    if (flats.isEmpty())
-        return polygon;
-    QPointF first = flats.first().first();
-    for (int i=0; i<flats.size(); ++i) {
-        polygon += flats.at(i);
-        if (!flats.at(i).isClosed())
-            polygon += flats.at(i).first();
-        if (i > 0)
-            polygon += first;
-    }
-    return polygon;
+    return toFillPolygon(QTransform(matrix));
 }
 
 static inline bool rect_intersects(const QRectF &r1, const QRectF &r2)
@@ -1625,93 +1573,7 @@ static inline bool rect_intersects(const QRectF &r1, const QRectF &r2)
 
 QList<QPolygonF> QPainterPath::toFillPolygons(const QMatrix &matrix) const
 {
-    QList<QPolygonF> polys;
-
-    QList<QPolygonF> subpaths = toSubpathPolygons(matrix);
-    int count = subpaths.size();
-
-    if (count == 0)
-        return polys;
-
-    QList<QRectF> bounds;
-    for (int i=0; i<count; ++i)
-        bounds += subpaths.at(i).boundingRect();
-
-#ifdef QPP_FILLPOLYGONS_DEBUG
-    printf("QPainterPath::toFillPolygons, subpathCount=%d\n", count);
-    for (int i=0; i<bounds.size(); ++i)
-        qDebug() << " bounds" << i << bounds.at(i);
-#endif
-
-    QVector< QList<int> > isects;
-    isects.resize(count);
-
-    // find all intersections
-    for (int j=0; j<count; ++j) {
-        if (subpaths.at(j).size() <= 2)
-            continue;
-        QRectF cbounds = bounds.at(j);
-        for (int i=0; i<count; ++i) {
-            if (rect_intersects(cbounds, bounds.at(i))) {
-                isects[j] << i;
-            }
-        }
-    }
-
-#ifdef QPP_FILLPOLYGONS_DEBUG
-    printf("Intersections before flattening:\n");
-    for (int i = 0; i < count; ++i) {
-        printf("%d: ", i);
-        for (int j = 0; j < isects[i].size(); ++j) {
-            printf("%d ", isects[i][j]);
-        }
-        printf("\n");
-    }
-#endif
-
-    // flatten the sets of intersections
-    for (int i=0; i<count; ++i) {
-        const QList<int> &current_isects = isects.at(i);
-        for (int j=0; j<current_isects.size(); ++j) {
-            int isect_j = current_isects.at(j);
-            if (isect_j == i)
-                continue;
-            for (int k=0; k<isects[isect_j].size(); ++k) {
-                int isect_k = isects[isect_j][k];
-                if (isect_k != i && !isects.at(i).contains(isect_k)) {
-                    isects[i] += isect_k;
-                }
-            }
-            isects[isect_j].clear();
-        }
-    }
-
-#ifdef QPP_FILLPOLYGONS_DEBUG
-    printf("Intersections after flattening:\n");
-    for (int i = 0; i < count; ++i) {
-        printf("%d: ", i);
-        for (int j = 0; j < isects[i].size(); ++j) {
-            printf("%d ", isects[i][j]);
-        }
-        printf("\n");
-    }
-#endif
-
-    // Join the intersected subpaths as rewinded polygons
-    for (int i=0; i<count; ++i) {
-        const QList<int> &subpath_list = isects[i];
-        if (!subpath_list.isEmpty()) {
-            QPolygonF buildUp;
-            for (int j=0; j<subpath_list.size(); ++j) {
-                buildUp += subpaths.at(subpath_list.at(j));
-                if (!buildUp.isClosed())
-                    buildUp += buildUp.first();
-            }
-            polys += buildUp;
-        }
-    }
-
-    return polys;
+    return toFillPolygons(QTransform(matrix));
 }
 
 static void qt_painterpath_isect_line(const QPointF &p1, const QPointF &p2, const QPointF &pos,
@@ -2374,11 +2236,11 @@ QPainterPath QPainterPathStroker::createStroke(const QPainterPath &path) const
     QPainterPathStrokerPrivate *d = const_cast<QPainterPathStrokerPrivate *>(d_func());
     QPainterPath stroke;
     if (d->dashPattern.isEmpty()) {
-        d->stroker.strokePath(path, &stroke, QMatrix());
+        d->stroker.strokePath(path, &stroke, QTransform());
     } else {
         QDashStroker dashStroker(&d->stroker);
         dashStroker.setDashPattern(d->dashPattern);
-        dashStroker.strokePath(path, &stroke, QMatrix());
+        dashStroker.strokePath(path, &stroke, QTransform());
     }
     stroke.setFillRule(Qt::WindingFill);
     return stroke;
@@ -2525,4 +2387,159 @@ void QPainterPathStroker::setDashPattern(const QVector<qreal> &dashPattern)
 QVector<qreal> QPainterPathStroker::dashPattern() const
 {
     return d_func()->dashPattern;
+}
+
+QList<QPolygonF> QPainterPath::toSubpathPolygons(const QTransform &matrix) const
+{
+    
+    Q_D(const QPainterPath);
+    QList<QPolygonF> flatCurves;
+    if (isEmpty())
+        return flatCurves;
+
+    QPolygonF current;
+    for (int i=0; i<elementCount(); ++i) {
+        const QPainterPath::Element &e = d->elements.at(i);
+        switch (e.type) {
+        case QPainterPath::MoveToElement:
+            if (current.size() > 1)
+                flatCurves += current;
+            current.clear();
+            current.reserve(16);
+            current += QPointF(e.x, e.y) * matrix;
+            break;
+        case QPainterPath::LineToElement:
+            current += QPointF(e.x, e.y) * matrix;
+            break;
+        case QPainterPath::CurveToElement: {
+            Q_ASSERT(d->elements.at(i+1).type == QPainterPath::CurveToDataElement);
+            Q_ASSERT(d->elements.at(i+2).type == QPainterPath::CurveToDataElement);
+            QBezier bezier = QBezier::fromPoints(QPointF(d->elements.at(i-1).x, d->elements.at(i-1).y) * matrix,
+                                       QPointF(e.x, e.y) * matrix,
+                                       QPointF(d->elements.at(i+1).x, d->elements.at(i+1).y) * matrix,
+                                                 QPointF(d->elements.at(i+2).x, d->elements.at(i+2).y) * matrix);
+            bezier.addToPolygon(&current);
+            i+=2;
+            break;
+        }
+        case QPainterPath::CurveToDataElement:
+            Q_ASSERT(!"QPainterPath::toSubpathPolygons(), bad element type");
+            break;
+        }
+    }
+
+    if (current.size()>1)
+        flatCurves += current;
+
+    return flatCurves;
+}
+
+QList<QPolygonF> QPainterPath::toFillPolygons(const QTransform &matrix) const
+{
+    
+    QList<QPolygonF> polys;
+
+    QList<QPolygonF> subpaths = toSubpathPolygons(matrix);
+    int count = subpaths.size();
+
+    if (count == 0)
+        return polys;
+
+    QList<QRectF> bounds;
+    for (int i=0; i<count; ++i)
+        bounds += subpaths.at(i).boundingRect();
+
+#ifdef QPP_FILLPOLYGONS_DEBUG
+    printf("QPainterPath::toFillPolygons, subpathCount=%d\n", count);
+    for (int i=0; i<bounds.size(); ++i)
+        qDebug() << " bounds" << i << bounds.at(i);
+#endif
+
+    QVector< QList<int> > isects;
+    isects.resize(count);
+
+    // find all intersections
+    for (int j=0; j<count; ++j) {
+        if (subpaths.at(j).size() <= 2)
+            continue;
+        QRectF cbounds = bounds.at(j);
+        for (int i=0; i<count; ++i) {
+            if (rect_intersects(cbounds, bounds.at(i))) {
+                isects[j] << i;
+            }
+        }
+    }
+
+#ifdef QPP_FILLPOLYGONS_DEBUG
+    printf("Intersections before flattening:\n");
+    for (int i = 0; i < count; ++i) {
+        printf("%d: ", i);
+        for (int j = 0; j < isects[i].size(); ++j) {
+            printf("%d ", isects[i][j]);
+        }
+        printf("\n");
+    }
+#endif
+
+    // flatten the sets of intersections
+    for (int i=0; i<count; ++i) {
+        const QList<int> &current_isects = isects.at(i);
+        for (int j=0; j<current_isects.size(); ++j) {
+            int isect_j = current_isects.at(j);
+            if (isect_j == i)
+                continue;
+            for (int k=0; k<isects[isect_j].size(); ++k) {
+                int isect_k = isects[isect_j][k];
+                if (isect_k != i && !isects.at(i).contains(isect_k)) {
+                    isects[i] += isect_k;
+                }
+            }
+            isects[isect_j].clear();
+        }
+    }
+
+#ifdef QPP_FILLPOLYGONS_DEBUG
+    printf("Intersections after flattening:\n");
+    for (int i = 0; i < count; ++i) {
+        printf("%d: ", i);
+        for (int j = 0; j < isects[i].size(); ++j) {
+            printf("%d ", isects[i][j]);
+        }
+        printf("\n");
+    }
+#endif
+
+    // Join the intersected subpaths as rewinded polygons
+    for (int i=0; i<count; ++i) {
+        const QList<int> &subpath_list = isects[i];
+        if (!subpath_list.isEmpty()) {
+            QPolygonF buildUp;
+            for (int j=0; j<subpath_list.size(); ++j) {
+                buildUp += subpaths.at(subpath_list.at(j));
+                if (!buildUp.isClosed())
+                    buildUp += buildUp.first();
+            }
+            polys += buildUp;
+        }
+    }
+
+    return polys;
+}
+
+QPolygonF QPainterPath::toFillPolygon(const QTransform &matrix) const
+{
+    
+    QList<QPolygonF> flats = toSubpathPolygons(matrix);
+    QPolygonF polygon;
+    if (flats.isEmpty())
+        return polygon;
+    QPointF first = flats.first().first();
+    for (int i=0; i<flats.size(); ++i) {
+        polygon += flats.at(i);
+        if (!flats.at(i).isClosed())
+            polygon += flats.at(i).first();
+        if (i > 0)
+            polygon += first;
+    }
+    return polygon;
 }

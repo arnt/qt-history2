@@ -95,13 +95,15 @@ static inline uint line_emulation(uint emulation)
 }
 
 
-QMatrix QPainterPrivate::viewMatrix() const
+QTransform QPainterPrivate::viewTransform() const
 {
-    QMatrix m;
+    QTransform m;
     if (state->VxF) {
         qreal scaleW = qreal(state->vw)/qreal(state->ww);
         qreal scaleH = qreal(state->vh)/qreal(state->wh);
-        m.setMatrix(scaleW, 0, 0, scaleH, state->vx - state->wx*scaleW, state->vy - state->wy*scaleH);
+        m.setMatrix(scaleW, 0, 0,
+                    0, scaleH, 0,
+                    state->vx - state->wx*scaleW, state->vy - state->wy*scaleH, 1);
     }
     return m;
 }
@@ -142,7 +144,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
             strokeOffsetY = 1;
         } else {
             // In case of complex xform
-            if (state->txop > TxScale) {
+            if (state->txop > QTransform::TxScale) {
                 QPainterPathStroker stroker;
                 stroker.setWidth(penWidth);
                 stroker.setJoinStyle(state->pen.joinStyle());
@@ -172,7 +174,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
     QRect absPathRect(devMinX, devMinY, devMaxX - devMinX, devMaxY - devMinY);
 
     if (state->clipInfo.size() != 0) {
-        QPainterPath clipPath = q->clipPath() * q->deviceMatrix();
+        QPainterPath clipPath = q->clipPath() * q->deviceTransform();
         QRectF r = clipPath.boundingRect().intersected(absPathRect);
         absPathRect.setCoords((int) floor(r.left()), (int) floor(r.top()),
                               (int) ceil(r.right()), (int) ceil(r.bottom()));
@@ -197,7 +199,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
     p.d_ptr->original_device = original_device;
     p.setOpacity(state->opacity);
     p.translate(-absPathRect.x(), -absPathRect.y());
-    p.setMatrix(state->matrix, true);
+    p.setTransform(state->matrix, true);
     p.setPen(doStroke ? state->pen : QPen(Qt::NoPen));
     p.setBrush((op & FillDraw) ? state->brush : QBrush(Qt::NoBrush));
     p.setBackground(state->bgBrush);
@@ -211,10 +213,10 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
     p.drawPath(originalPath);
 
     p.end();
-
+    
     q->save();
     q->setViewTransformEnabled(false);
-    q->setMatrix(QMatrix(1, 0, 0, 1, -redirection_offset.x(), -redirection_offset.y()));
+    q->setTransform(QTransform(1, 0, 0, 1, -redirection_offset.x(), -redirection_offset.y()));
     updateState(state);
     engine->drawImage(absPathRect,
                  image,
@@ -250,7 +252,7 @@ void QPainterPrivate::drawStretchToDevice(const QPainterPath &path, DrawOperatio
     double sw = original_device->width();
     double sh = original_device->height();
 
-    QMatrix inv(1.0/sw, 0, 0, 1.0/sh, 0, 0);
+    QTransform inv(1.0/sw, 0, 0, 1.0/sh, 0, 0);
 
     QPen pen = state->pen;
     QBrush brush = state->brush;
@@ -311,28 +313,28 @@ void QPainterPrivate::init()
 
 void QPainterPrivate::updateMatrix()
 {
-    state->matrix = (state->WxF ? state->worldMatrix : QMatrix())
-                    * (state->VxF ? viewMatrix() : QMatrix());
+    state->matrix = (state->WxF ? state->worldMatrix : QTransform())
+                    * (state->VxF ? viewTransform() : QTransform());
 
     txinv = false;                                // no inverted matrix
-    state->txop  = TxNone;
+    state->txop  = QTransform::TxNone;
     if (state->matrix.m12()==0.0 && state->matrix.m21()==0.0
         && state->matrix.m11() >= 0.0 && state->matrix.m22() >= 0.0) {
         if (state->matrix.m11()==1.0 && state->matrix.m22()==1.0) {
             if (state->matrix.dx()!=0.0 || state->matrix.dy()!=0.0)
-                state->txop = TxTranslate;
+                state->txop = QTransform::TxTranslate;
         } else {
-            state->txop = TxScale;
+            state->txop = QTransform::TxScale;
         }
     } else {
-        state->txop = TxRotShear;
+        state->txop = QTransform::TxRotShear;
     }
     if (!redirection_offset.isNull()) {
-        state->txop |= TxTranslate;
+        state->txop |= QTransform::TxTranslate;
         state->WxF = true;
         // We want to translate in dev space so we do the adding of the redirection
         // offset manually.
-        state->matrix = QMatrix(state->matrix.m11(), state->matrix.m12(),
+        state->matrix = QTransform(state->matrix.m11(), state->matrix.m12(),
                               state->matrix.m21(), state->matrix.m22(),
                               state->matrix.dx()-redirection_offset.x(),
                               state->matrix.dy()-redirection_offset.y());
@@ -349,7 +351,7 @@ void QPainterPrivate::updateInvMatrix()
     Q_ASSERT(txinv == false);
     txinv = true;                                // creating inverted matrix
     bool invertible;
-    QMatrix m;
+    QTransform m;
     if (state->VxF) {
         m.translate(state->vx, state->vy);
         m.scale(1.0*state->vw/state->ww, 1.0*state->vh/state->wh);
@@ -441,7 +443,7 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
     // XForm properties
     if (s->state() & QPaintEngine::DirtyTransform) {
         xform = !s->matrix.isIdentity();
-    } else if (s->txop >= TxTranslate) {
+    } else if (s->txop >= QTransform::TxTranslate) {
         xform = true;
     }
 
@@ -486,6 +488,12 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
         s->emulationSpecifier |= QPaintEngine::PrimitiveTransform;
     else
         s->emulationSpecifier &= ~QPaintEngine::PrimitiveTransform;
+
+    // Perspective XForms
+    if (xform && !engine->hasFeature(QPaintEngine::PerspectiveTransform))
+        s->emulationSpecifier |= QPaintEngine::PerspectiveTransform;
+    else
+        s->emulationSpecifier &= ~QPaintEngine::PerspectiveTransform;
 
     // Constant opacity
     if (state->opacity != 1 && !engine->hasFeature(QPaintEngine::ConstantOpacity))
@@ -1144,10 +1152,10 @@ void QPainter::restore()
         // replay the list of clip states,
         for (int i=0; i<d->state->clipInfo.size(); ++i) {
             const QPainterClipInfo &info = d->state->clipInfo.at(i);
-            tmp->matrix.setMatrix(info.matrix.m11(), info.matrix.m12(),
-                                  info.matrix.m21(), info.matrix.m22(),
+            tmp->matrix.setMatrix(info.matrix.m11(), info.matrix.m12(), info.matrix.m13(),
+                                  info.matrix.m21(), info.matrix.m22(), info.matrix.m23(),
                                   info.matrix.dx() - d->redirection_offset.x(),
-                                  info.matrix.dy() - d->redirection_offset.y());
+                                  info.matrix.dy() - d->redirection_offset.y(), info.matrix.m33());
             tmp->clipOperation = info.operation;
             if (info.clipType == QPainterClipInfo::RegionClip) {
                 tmp->dirtyFlags = QPaintEngine::DirtyClipRegion | QPaintEngine::DirtyTransform;
@@ -1722,7 +1730,7 @@ QRegion QPainter::clipRegion() const
         switch (info.clipType) {
 
         case QPainterClipInfo::RegionClip: {
-            QMatrix matrix = (info.matrix * d->invMatrix);
+            QTransform matrix = (info.matrix * d->invMatrix);
             if (lastWasNothing) {
                 region = info.region * matrix;
                 lastWasNothing = false;
@@ -1741,7 +1749,7 @@ QRegion QPainter::clipRegion() const
         }
 
         case QPainterClipInfo::PathClip: {
-            QMatrix matrix = (info.matrix * d->invMatrix);
+            QTransform matrix = (info.matrix * d->invMatrix);
             if (lastWasNothing) {
                 region = QRegion((info.path * matrix).toFillPolygon().toPolygon(),
                                  info.path.fillRule());
@@ -1797,7 +1805,7 @@ QPainterPath QPainter::clipPath() const
         // For the simple case avoid conversion.
         if (d->state->clipInfo.size() == 1
             && d->state->clipInfo.at(0).clipType == QPainterClipInfo::PathClip) {
-            QMatrix matrix = (d->state->clipInfo.at(0).matrix * d->invMatrix);
+            QTransform matrix = (d->state->clipInfo.at(0).matrix * d->invMatrix);
             return d->state->clipInfo.at(0).path * matrix;
 
         // Fallback to clipRegion() for now, since we don't have isect/unite for paths
@@ -1930,22 +1938,7 @@ void QPainter::setClipRegion(const QRegion &r, Qt::ClipOperation op)
 
 void QPainter::setWorldMatrix(const QMatrix &matrix, bool combine)
 {
-    Q_D(QPainter);
-
-   if (!isActive()) {
-        qWarning("QPainter::setMatrix: Painter not active");
-        return;
-    }
-
-    if (combine)
-        d->state->worldMatrix = matrix * d->state->worldMatrix;                        // combines
-    else
-        d->state->worldMatrix = matrix;                                // set new matrix
-
-    if (!d->state->WxF)
-        setMatrixEnabled(true);
-    else
-        d->updateMatrix();
+    setWorldTransform(QTransform(matrix), combine);
 }
 
 /*!
@@ -1959,7 +1952,8 @@ void QPainter::setWorldMatrix(const QMatrix &matrix, bool combine)
 const QMatrix &QPainter::worldMatrix() const
 {
     Q_D(const QPainter);
-    return d->state->worldMatrix;
+    d->state->oldWorldMatrix = d->state->worldMatrix.toAffine();
+    return d->state->oldWorldMatrix;
 }
 
 /*!
@@ -1972,7 +1966,7 @@ const QMatrix &QPainter::worldMatrix() const
 
 void QPainter::setMatrix(const QMatrix &matrix, bool combine)
 {
-    setWorldMatrix(matrix, combine);
+    setWorldTransform(QTransform(matrix), combine);
 }
 
 /*!
@@ -1999,8 +1993,7 @@ const QMatrix &QPainter::matrix() const
 */
 QMatrix QPainter::combinedMatrix() const
 {
-    Q_D(const QPainter);
-    return d->state->worldMatrix * d->viewMatrix();
+    return combinedTransform().toAffine();
 }
 
 
@@ -2021,7 +2014,8 @@ QMatrix QPainter::combinedMatrix() const
 const QMatrix &QPainter::deviceMatrix() const
 {
     Q_D(const QPainter);
-    return d->state->matrix;
+    d->state->oldMatrix = d->state->matrix.toAffine();
+    return d->state->oldMatrix;
 }
 
 /*!
@@ -2034,24 +2028,7 @@ const QMatrix &QPainter::deviceMatrix() const
 */
 void QPainter::resetMatrix()
 {
-    Q_D(QPainter);
-#ifdef QT_DEBUG_DRAW
-    if (qt_show_painter_debug_output)
-        printf("QPainter::resetMatrix()\n");
-#endif
-    if (!isActive()) {
-        qWarning("QPainter::resetMatrix: Painter not active");
-        return;
-    }
-
-    d->state->wx = d->state->wy = d->state->vx = d->state->vy = 0;                        // default view origins
-    d->state->ww = d->state->vw = d->device->metric(QPaintDevice::PdmWidth);
-    d->state->wh = d->state->vh = d->device->metric(QPaintDevice::PdmHeight);
-    d->state->worldMatrix = QMatrix();
-    setMatrixEnabled(false);
-    setViewTransformEnabled(false);
-    if (d->engine)
-        d->engine->setDirty(QPaintEngine::DirtyTransform);
+    resetTransform();
 }
 
 
@@ -2140,9 +2117,9 @@ void QPainter::scale(qreal sx, qreal sy)
         printf("QPainter::scale(), sx=%f, sy=%f\n", sx, sy);
 #endif
 
-    QMatrix m;
+    QTransform m;
     m.scale(sx, sy);
-    setMatrix(m, true);
+    setTransform(m, true);
 }
 
 /*!
@@ -2158,9 +2135,9 @@ void QPainter::shear(qreal sh, qreal sv)
     if (qt_show_painter_debug_output)
         printf("QPainter::shear(), sh=%f, sv=%f\n", sh, sv);
 #endif
-    QMatrix m;
+    QTransform m;
     m.shear(sv, sh);
-    setMatrix(m, true);
+    setTransform(m, true);
 }
 
 /*!
@@ -2178,9 +2155,9 @@ void QPainter::rotate(qreal a)
     if (qt_show_painter_debug_output)
         printf("QPainter::rotate(), angle=%f\n", a);
 #endif
-    QMatrix m;
+    QTransform m;
     m.rotate(a);
-    setMatrix(m, true);
+    setTransform(m, true);
 }
 
 /*!
@@ -2199,9 +2176,9 @@ void QPainter::translate(const QPointF &offset)
         printf("QPainter::translate(), dx=%f, dy=%f\n", dx, dy);
 #endif
 
-    QMatrix m;
+    QTransform m;
     m.translate(dx, dy);
-    setMatrix(m, true);
+    setTransform(m, true);
 }
 
 /*!
@@ -2475,7 +2452,7 @@ void QPainter::drawRects(const QRectF *rects, int rectCount)
     }
 
     if (d->state->emulationSpecifier == QPaintEngine::PrimitiveTransform
-        && d->state->txop == QPainterPrivate::TxTranslate) {
+        && d->state->txop == QTransform::TxTranslate) {
         for (int i=0; i<rectCount; ++i) {
             QRectF r(rects[i].x() + d->state->matrix.dx(),
                      rects[i].y() + d->state->matrix.dy(),
@@ -2516,7 +2493,7 @@ void QPainter::drawRects(const QRect *rects, int rectCount)
     }
 
     if (d->state->emulationSpecifier == QPaintEngine::PrimitiveTransform
-        && d->state->txop == QPainterPrivate::TxTranslate) {
+        && d->state->txop == QTransform::TxTranslate) {
         for (int i=0; i<rectCount; ++i) {
             QRectF r(rects[i].x() + d->state->matrix.dx(),
                      rects[i].y() + d->state->matrix.dy(),
@@ -2596,7 +2573,7 @@ void QPainter::drawPoints(const QPointF *points, int pointCount)
     }
 
     if (d->state->emulationSpecifier == QPaintEngine::PrimitiveTransform
-        && d->state->txop == QPainterPrivate::TxTranslate) {
+        && d->state->txop == QTransform::TxTranslate) {
         // ### use drawPoints function
         for (int i=0; i<pointCount; ++i) {
             QPointF pt(points[i].x() + d->state->matrix.dx(),
@@ -2646,7 +2623,7 @@ void QPainter::drawPoints(const QPoint *points, int pointCount)
     }
 
     if (d->state->emulationSpecifier == QPaintEngine::PrimitiveTransform
-        && d->state->txop == QPainterPrivate::TxTranslate) {
+        && d->state->txop == QTransform::TxTranslate) {
         // ### use drawPoints function
         for (int i=0; i<pointCount; ++i) {
             QPointF pt(points[i].x() + d->state->matrix.dx(),
@@ -3095,7 +3072,7 @@ void QPainter::drawEllipse(const QRectF &r)
 
     if (d->state->emulationSpecifier) {
         if (d->state->emulationSpecifier == QPaintEngine::PrimitiveTransform
-            && d->state->txop == QPainterPrivate::TxTranslate) {
+            && d->state->txop == QTransform::TxTranslate) {
             rect.translate(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
         } else {
             QPainterPath path;
@@ -3134,7 +3111,7 @@ void QPainter::drawEllipse(const QRect &r)
 
     if (d->state->emulationSpecifier) {
         if (d->state->emulationSpecifier == QPaintEngine::PrimitiveTransform
-            && d->state->txop == QPainterPrivate::TxTranslate) {
+            && d->state->txop == QTransform::TxTranslate) {
             rect.translate(QPoint(qRound(d->state->matrix.dx()), qRound(d->state->matrix.dy())));
         } else {
             QPainterPath path;
@@ -3420,7 +3397,7 @@ void QPainter::drawLineSegments(const QPolygon &a, int index, int nlines)
     QVector<QLineF> lines;
     if (d->state->emulationSpecifier) {
         if (d->state->emulationSpecifier == QPaintEngine::PrimitiveTransform
-            && d->state->txop == QPainterPrivate::TxTranslate) {
+            && d->state->txop == QTransform::TxTranslate) {
             QPointF offset(d->state->matrix.dx(), d->state->matrix.dy());
             for (int i=index; i<index + nlines*2; i+=2)
                 lines << QLineF(a.at(i) + offset, a.at(i+1) + offset);
@@ -3467,7 +3444,7 @@ void QPainter::drawLines(const QLineF *lines, int lineCount)
 
     if (lineEmulation) {
         if (lineEmulation == QPaintEngine::PrimitiveTransform
-            && d->state->txop == QPainterPrivate::TxTranslate) {
+            && d->state->txop == QTransform::TxTranslate) {
             for (int i = 0; i < lineCount; ++i) {
                 QLineF line = lines[i];
                 line.translate(d->state->matrix.dx(), d->state->matrix.dy());
@@ -3512,7 +3489,7 @@ void QPainter::drawLines(const QLine *lines, int lineCount)
 
     if (lineEmulation) {
         if (lineEmulation == QPaintEngine::PrimitiveTransform
-            && d->state->txop == QPainterPrivate::TxTranslate) {
+            && d->state->txop == QTransform::TxTranslate) {
             for (int i = 0; i < lineCount; ++i) {
                 QLineF line = lines[i];
                 line.translate(d->state->matrix.dx(), d->state->matrix.dy());
@@ -4109,7 +4086,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 
     d->updateState(d->state);
 
-    if (d->state->txop > QPainterPrivate::TxTranslate
+    if (d->state->txop > QTransform::TxTranslate
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)
         || (d->state->opacity != 1.0 && !d->engine->hasFeature(QPaintEngine::ConstantOpacity))
         || ((sw != w || sh != h) && !d->engine->hasFeature(QPaintEngine::PixmapTransform)))
@@ -4121,7 +4098,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
         setBrush(QBrush(d->state->pen.color(), pm));
         setPen(Qt::NoPen);
         setBrushOrigin(QPointF(-sx, -sy));
-
+        
         drawRect(QRectF(0, 0, sw, sh));
         restore();
     } else {
@@ -4277,7 +4254,7 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
         return;
 
     if (!d->engine->hasFeature(QPaintEngine::PixmapTransform)
-        && (d->state->txop > QPainterPrivate::TxTranslate
+        && (d->state->txop > QTransform::TxTranslate
             || (sw != w || sh != h)))
     {
         QPixmap pm = QPixmap::fromImage(image, flags);
@@ -4285,7 +4262,7 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
         return;
     }
 
-    if (d->state->txop == QPainterPrivate::TxTranslate
+    if (d->state->txop == QTransform::TxTranslate
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
         x += qRound(d->state->matrix.dx());
         y += qRound(d->state->matrix.dy());
@@ -4681,11 +4658,11 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
         return;
 
     const RenderHints oldRenderHints = d->state->renderHints;
-    if (d->state->txop >= QPainterPrivate::TxScale) {
+    if (d->state->txop >= QTransform::TxScale) {
         // draw antialias decoration (underline/overline/strikeout) with
         // transformed text
 
-        const QMatrix &m = d->state->matrix;
+        const QTransform &m = d->state->matrix;
         bool isPlain45DegreeRotation =
             (qFuzzyCompare(m.m11(), qreal(0))
              && qFuzzyCompare(m.m12(), qreal(1))
@@ -4966,7 +4943,7 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
         fillRect(r, d->state->bgBrush);
 
     d->updateState(d->state);
-    if (d->state->txop > QPainterPrivate::TxTranslate
+    if (d->state->txop > QTransform::TxTranslate
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform))
     {
         save();
@@ -4981,7 +4958,7 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
 
     qreal x = r.x();
     qreal y = r.y();
-    if (d->state->txop == QPainterPrivate::TxTranslate
+    if (d->state->txop == QTransform::TxTranslate
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
         x += qRound(d->state->matrix.dx());
         y += qRound(d->state->matrix.dy());
@@ -5481,7 +5458,7 @@ void QPainter::map(int x, int y, int *rx, int *ry) const
 QPoint QPainter::xForm(const QPoint &p) const
 {
     Q_D(const QPainter);
-    if (d->state->txop == QPainterPrivate::TxNone)
+    if (d->state->txop == QTransform::TxNone)
         return p;
     return p * d->state->matrix;
 }
@@ -5497,7 +5474,7 @@ QPoint QPainter::xForm(const QPoint &p) const
 QRect QPainter::xForm(const QRect &r) const
 {
     Q_D(const QPainter);
-    if (d->state->txop == QPainterPrivate::TxNone)
+    if (d->state->txop == QTransform::TxNone)
         return r;
     return d->state->matrix.mapRect(r);
 }
@@ -5512,7 +5489,7 @@ QRect QPainter::xForm(const QRect &r) const
 QPolygon QPainter::xForm(const QPolygon &a) const
 {
     Q_D(const QPainter);
-    if (d->state->txop == QPainterPrivate::TxNone)
+    if (d->state->txop == QTransform::TxNone)
         return a;
     return a * d->state->matrix;
 }
@@ -5559,7 +5536,7 @@ QPolygon QPainter::xForm(const QPolygon &av, int index, int npoints) const
 QPoint QPainter::xFormDev(const QPoint &p) const
 {
     Q_D(const QPainter);
-    if(d->state->txop == QPainterPrivate::TxNone)
+    if(d->state->txop == QTransform::TxNone)
         return p;
     if (!d->txinv) {
         QPainter *that = (QPainter*)this;        // mutable
@@ -5586,7 +5563,7 @@ QPoint QPainter::xFormDev(const QPoint &p) const
 QRect QPainter::xFormDev(const QRect &r)  const
 {
     Q_D(const QPainter);
-    if (d->state->txop == QPainterPrivate::TxNone)
+    if (d->state->txop == QTransform::TxNone)
         return r;
     if (!d->txinv) {
         QPainter *that = (QPainter*)this;        // mutable
@@ -5615,7 +5592,7 @@ QRect QPainter::xFormDev(const QRect &r)  const
 QPolygon QPainter::xFormDev(const QPolygon &a) const
 {
     Q_D(const QPainter);
-    if (d->state->txop == QPainterPrivate::TxNone)
+    if (d->state->txop == QTransform::TxNone)
         return a;
     if (!d->txinv) {
         QPainter *that = (QPainter*)this;        // mutable
@@ -5645,7 +5622,7 @@ QPolygon QPainter::xFormDev(const QPolygon &ad, int index, int npoints) const
     int lastPoint = npoints < 0 ? ad.size() : index+npoints;
     QPolygon a(lastPoint-index);
     memcpy(a.data(), ad.data()+index, (lastPoint-index)*sizeof(QPoint));
-    if (d->state->txop == QPainterPrivate::TxNone)
+    if (d->state->txop == QTransform::TxNone)
         return a;
     if (!d->txinv) {
         QPainter *that = (QPainter*)this;        // mutable
@@ -6564,8 +6541,18 @@ QFont QPaintEngineState::font() const
 
 QMatrix QPaintEngineState::matrix() const
 {
-    return static_cast<const QPainterState *>(this)->matrix;
+    const QPainterState *st = static_cast<const QPainterState *>(this);
+
+    return st->matrix.toAffine();
 }
+
+QTransform QPaintEngineState::transform() const
+{
+    const QPainterState *st = static_cast<const QPainterState *>(this);
+
+    return st->matrix;
+}
+
 
 /*!
     Returns the clip operation in the current paint engine
@@ -6678,4 +6665,75 @@ QPainter *QPaintEngineState::painter() const
 qreal QPaintEngineState::opacity() const
 {
     return static_cast<const QPainterState *>(this)->opacity;
+}
+
+void QPainter::setTransform(const QTransform &transform, bool combine )
+{
+    setWorldTransform(transform, combine);
+}
+
+const QTransform & QPainter::transform() const
+{
+    return worldTransform();
+}
+
+const QTransform & QPainter::deviceTransform() const
+{
+    Q_D(const QPainter);
+    return d->state->matrix;
+}
+
+void QPainter::resetTransform()
+{
+     Q_D(QPainter);
+#ifdef QT_DEBUG_DRAW
+    if (qt_show_painter_debug_output)
+        printf("QPainter::resetMatrix()\n");
+#endif
+    if (!isActive()) {
+        qWarning("QPainter::resetMatrix: Painter not active");
+        return;
+    }
+
+    d->state->wx = d->state->wy = d->state->vx = d->state->vy = 0;                        // default view origins
+    d->state->ww = d->state->vw = d->device->metric(QPaintDevice::PdmWidth);
+    d->state->wh = d->state->vh = d->device->metric(QPaintDevice::PdmHeight);
+    d->state->worldMatrix = QTransform();
+    setMatrixEnabled(false);
+    setViewTransformEnabled(false);
+    if (d->engine)
+        d->engine->setDirty(QPaintEngine::DirtyTransform);
+}
+
+void QPainter::setWorldTransform(const QTransform &matrix, bool combine )
+{
+    Q_D(QPainter);
+
+   if (!isActive()) {
+        qWarning("QPainter::setWorldTransform: Painter not active");
+        return;
+    }
+
+    if (combine)
+        d->state->worldMatrix = matrix * d->state->worldMatrix;                        // combines
+    else
+        d->state->worldMatrix = matrix;                                // set new matrix
+
+    if (!d->state->WxF)
+        setMatrixEnabled(true);
+    else
+        d->updateMatrix();
+}
+
+const QTransform & QPainter::worldTransform() const
+{
+
+    Q_D(const QPainter);
+    return d->state->worldMatrix;
+}
+
+QTransform QPainter::combinedTransform() const
+{
+    Q_D(const QPainter);
+    return d->state->worldMatrix * d->viewTransform();
 }

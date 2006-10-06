@@ -33,6 +33,7 @@ class QLine;
 class QLineF;
 class QLocale;
 class QMatrix;
+class QTransform;
 class QStringList;
 class QTime;
 class QPoint;
@@ -118,7 +119,8 @@ class Q_CORE_EXPORT QVariant
         TextLength = 78,
         TextFormat = 79,
         Matrix = 80,
-        LastGuiType = Matrix,
+        Transform = 81, 
+        LastGuiType = Transform,
 
         UserType = 127,
 #ifdef QT3_SUPPORT

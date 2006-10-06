@@ -336,6 +336,11 @@ QBitmap QBitmap::fromData(const QSize &size, const uchar *bits, QImage::Format m
 
 QBitmap QBitmap::transformed(const QMatrix &matrix) const
 {
+    return transformed(QTransform(matrix));
+}
+
+QBitmap QBitmap::transformed(const QTransform &matrix) const
+{
     QBitmap bm = QPixmap::transformed(matrix);
     return bm;
 }

@@ -1150,6 +1150,7 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     \value LongLong a \l qlonglong
     \value Map  a QVariantMap
     \value Matrix  a QMatrix
+    \value Transform  a QTransform
     \value Palette  a QPalette
     \value Pen  a QPen
     \value Pixmap  a QPixmap

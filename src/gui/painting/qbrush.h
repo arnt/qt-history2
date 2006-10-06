@@ -19,6 +19,7 @@
 #include <QtCore/qvector.h>
 #include <QtGui/qcolor.h>
 #include <QtGui/qmatrix.h>
+#include <QtGui/qtransform.h>
 #include <QtGui/qimage.h>
 #include <QtGui/qpixmap.h>
 
@@ -57,6 +58,9 @@ public:
 
     inline const QMatrix &matrix() const;
     void setMatrix(const QMatrix &mat);
+
+    inline QTransform transform() const;
+    void setTransform(const QTransform &);
 
     QPixmap texture() const;
     void setTexture(const QPixmap &pixmap);
@@ -115,12 +119,14 @@ struct QBrushData
     QAtomic ref;
     Qt::BrushStyle style;
     QColor color;
-    QMatrix transform;
+    QMatrix    oldMatrix;
+    QTransform transform;
 };
 
 inline Qt::BrushStyle QBrush::style() const { return d->style; }
 inline const QColor &QBrush::color() const { return d->color; }
-inline const QMatrix &QBrush::matrix() const { return d->transform; }
+inline const QMatrix &QBrush::matrix() const { d->oldMatrix = d->transform.toAffine(); return d->oldMatrix; }
+inline QTransform QBrush::transform() const { return d->transform; }
 
 #ifdef QT3_SUPPORT
 inline QBrush::operator const QColor&() const { return d->color; }

@@ -1322,9 +1322,20 @@ void QGraphicsItem::ensureVisible(const QRectF &rect, int xmargin, int ymargin)
 */
 QMatrix QGraphicsItem::matrix() const
 {
+    return transform().toAffine();
+}
+
+/*!
+    Returns this item's transformation matrix. If no matrix has been set, the
+    identity matrix is returned.
+
+    \sa setTransform(), sceneTransform()
+*/
+QTransform QGraphicsItem::transform() const
+{
     if (!d_ptr->hasMatrix)
-        return QMatrix();
-    return qVariantValue<QMatrix>(d_ptr->extra(QGraphicsItemPrivate::ExtraMatrix));
+        return QTransform();
+    return qVariantValue<QTransform>(d_ptr->extra(QGraphicsItemPrivate::ExtraMatrix));
 }
 
 /*!
@@ -1353,8 +1364,38 @@ QMatrix QGraphicsItem::matrix() const
 */
 QMatrix QGraphicsItem::sceneMatrix() const
 {
-    QMatrix m = matrix() * QMatrix().translate(d_ptr->pos.x(), d_ptr->pos.y());
-    return d_ptr->parent ? m * d_ptr->parent->sceneMatrix() : m;
+    return sceneTransform().toAffine();
+}
+
+
+/*!
+    Returns this item's scene transformation matrix. This matrix can be used
+    to map coordinates and geometrical shapes from this item's local
+    coordinate system to the scene's coordinate system. To map coordinates
+    from the scene, you must first invert the returned matrix.
+
+    Example:
+
+    \code
+        QGraphicsRectItem rect;
+        rect.setPos(100, 100);
+
+        rect.sceneTransform().map(QPointF(0, 0));
+        // returns QPointF(100, 100);
+
+        rect.sceneTransform().inverted().map(QPointF(100, 100));
+        // returns QPointF(0, 0);
+    \endcode
+
+    Unlike transform(), which returns only an item's local transformation, this
+    function includes the item's (and any parents') position.
+
+    \sa transform(), setTransform(), scenePos(), {The Graphics View Coordinate System}
+*/
+QTransform QGraphicsItem::sceneTransform() const
+{
+    QTransform m = transform() * QTransform().translate(d_ptr->pos.x(), d_ptr->pos.y());
+    return d_ptr->parent ? m * d_ptr->parent->sceneTransform() : m;
 }
 
 /*!
@@ -1374,8 +1415,29 @@ QMatrix QGraphicsItem::sceneMatrix() const
 */
 void QGraphicsItem::setMatrix(const QMatrix &matrix, bool combine)
 {
-    QMatrix oldMatrix = this->matrix();
-    QMatrix newMatrix;
+    setTransform(QTransform(matrix), combine);
+}
+
+
+/*!
+    Sets the item's current transformation matrix to \a matrix.
+
+    If \a combine is true, then \a matrix is combined with the current matrix;
+    otherwise, \a matrix \e replaces the current matrix. \a combine is false
+    by default.
+
+    To simplify interation with items using a transformed view, QGraphicsItem
+    provides mapTo... and mapFrom... functions that can translate between
+    items' and the scene's coordinates. For example, you can call mapToScene()
+    to map an item coordiate to a scene coordinate, or mapFromScene() to map
+    from scene coordinates to item coordinates.
+
+    \sa transform(), rotate(), scale(), shear(), translate(), {The Graphics View Coordinate System}
+*/
+void QGraphicsItem::setTransform(const QTransform &matrix, bool combine )
+{
+    QTransform oldMatrix = this->transform();
+    QTransform newMatrix;
     if (!combine)
         newMatrix = matrix;
     else
@@ -1388,7 +1450,7 @@ void QGraphicsItem::setMatrix(const QMatrix &matrix, bool combine)
     qt_graphicsItem_fullUpdate(this);
     removeFromIndex();
     QVariant variant;
-    qVariantSetValue<QMatrix>(variant, newMatrix);
+    qVariantSetValue<QTransform>(variant, newMatrix);
     d_ptr->setExtra(QGraphicsItemPrivate::ExtraMatrix,
                     itemChange(ItemMatrixChange, variant));
     addToIndex();
@@ -1403,7 +1465,18 @@ void QGraphicsItem::setMatrix(const QMatrix &matrix, bool combine)
 */
 void QGraphicsItem::resetMatrix()
 {
-    setMatrix(QMatrix(), false);
+    resetTransform();
+}
+
+/*!
+    Resets this item's tranformation matrix to the identity matrix. This is
+    equivalent to calling \c setTransform(QTransform()).
+
+    \sa setMatrix(), matrix()
+*/
+void QGraphicsItem::resetTransform()
+{
+    setTransform(QTransform(), false);
 }
 
 /*!
@@ -1413,7 +1486,7 @@ void QGraphicsItem::resetMatrix()
 */
 void QGraphicsItem::rotate(qreal angle)
 {
-    setMatrix(QMatrix().rotate(angle), true);
+    setTransform(QTransform().rotate(angle), true);
 }
 
 /*!
@@ -1423,7 +1496,7 @@ void QGraphicsItem::rotate(qreal angle)
 */
 void QGraphicsItem::scale(qreal sx, qreal sy)
 {
-    setMatrix(QMatrix().scale(sx, sy), true);
+    setTransform(QTransform().scale(sx, sy), true);
 }
 
 /*!
@@ -1433,7 +1506,7 @@ void QGraphicsItem::scale(qreal sx, qreal sy)
 */
 void QGraphicsItem::shear(qreal sh, qreal sv)
 {
-    setMatrix(QMatrix().shear(sh, sv), true);
+    setTransform(QTransform().shear(sh, sv), true);
 }
 
 /*!
@@ -1447,7 +1520,7 @@ void QGraphicsItem::shear(qreal sh, qreal sv)
 */
 void QGraphicsItem::translate(qreal dx, qreal dy)
 {
-    setMatrix(QMatrix().translate(dx, dy), true);
+    setTransform(QTransform().translate(dx, dy), true);
 }
 
 /*!
@@ -1540,7 +1613,7 @@ QRectF QGraphicsItem::childrenBoundingRect() const
     QRectF childRect;
     foreach (QGraphicsItem *child, children()) {
         QPointF childPos = child->pos();
-        QMatrix matrix = child->matrix() * QMatrix().translate(childPos.x(), childPos.y());
+        QTransform matrix = child->transform() * QTransform().translate(childPos.x(), childPos.y());
         childRect |= matrix.mapRect(child->boundingRect() | child->childrenBoundingRect());
     }
     return childRect;
@@ -5695,15 +5768,15 @@ void QGraphicsItemGroup::addToGroup(QGraphicsItem *item)
         return;
     }
 
-    QMatrix oldSceneMatrix = item->sceneMatrix();
+    QTransform oldSceneMatrix = item->sceneTransform();
     item->setPos(mapFromItem(item, 0, 0));
     item->setParentItem(this);
-    item->setMatrix(oldSceneMatrix
-                    * sceneMatrix().inverted()
-                    * QMatrix().translate(-item->x(), -item->y()));
+    item->setTransform(oldSceneMatrix
+                       * sceneTransform().inverted()
+                       * QTransform().translate(-item->x(), -item->y()));
     item->d_func()->setIsMemberOfGroup(true);
     removeFromIndex();
-    d->itemsBoundingRect |= (item->matrix() * QMatrix().translate(item->x(), item->y()))
+    d->itemsBoundingRect |= (item->transform() * QTransform().translate(item->x(), item->y()))
                             .mapRect(item->boundingRect() | item->childrenBoundingRect());
     addToIndex();
 }

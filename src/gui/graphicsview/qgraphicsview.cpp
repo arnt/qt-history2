@@ -166,6 +166,7 @@
 #include <QtGui/qdesktopwidget.h>
 #include <QtGui/qevent.h>
 #include <QtGui/qlayout.h>
+#include <QtGui/qtransform.h>
 #include <QtGui/qmatrix.h>
 #include <QtGui/qpainter.h>
 #include <QtGui/qrubberband.h>
@@ -199,7 +200,7 @@ public:
     QPoint mousePressScreenPoint;
     QPointF lastMouseMoveScenePoint;
     Qt::MouseButton mousePressButton;
-    QMatrix matrix;
+    QTransform matrix;
     bool accelerateScrolling;
     qreal leftIndent;
     qreal topIndent;
@@ -929,7 +930,7 @@ void QGraphicsView::setSceneRect(const QRectF &rect)
 QMatrix QGraphicsView::matrix() const
 {
     Q_D(const QGraphicsView);
-    return d->matrix;
+    return d->matrix.toAffine();
 }
 
 /*!
@@ -967,27 +968,7 @@ QMatrix QGraphicsView::matrix() const
 */
 void QGraphicsView::setMatrix(const QMatrix &matrix, bool combine)
 {
-    Q_D(QGraphicsView);
-    QMatrix oldMatrix = d->matrix;
-    if (!combine)
-        d->matrix = matrix;
-    else
-        d->matrix = matrix * d->matrix;
-    if (oldMatrix == d->matrix)
-        return;
-
-    if (d->scene) {
-        d->recalculateContentSize();
-        d->centerView(d->transformationAnchor);
-    } else {
-        d->updateLastCenterPoint();
-    }
-
-    if (d->sceneInteractionAllowed)
-        d->replayLastMouseEvent();
-
-    // Any matrix operation requires a full update.
-    viewport()->update();
+    setTransform(QTransform(matrix), combine);
 }
 
 /*!
@@ -995,7 +976,7 @@ void QGraphicsView::setMatrix(const QMatrix &matrix, bool combine)
 */
 void QGraphicsView::resetMatrix()
 {
-    setMatrix(QMatrix());
+    resetTransform();
 }
 
 /*!
@@ -1006,9 +987,9 @@ void QGraphicsView::resetMatrix()
 void QGraphicsView::rotate(qreal angle)
 {
     Q_D(QGraphicsView);
-    QMatrix matrix = d->matrix;
+    QTransform matrix = d->matrix;
     matrix.rotate(angle);
-    setMatrix(matrix);
+    setTransform(matrix);
 }
 
 /*!
@@ -1019,9 +1000,9 @@ void QGraphicsView::rotate(qreal angle)
 void QGraphicsView::scale(qreal sx, qreal sy)
 {
     Q_D(QGraphicsView);
-    QMatrix matrix = d->matrix;
+    QTransform matrix = d->matrix;
     matrix.scale(sx, sy);
-    setMatrix(matrix);
+    setTransform(matrix);
 }
 
 /*!
@@ -1032,9 +1013,9 @@ void QGraphicsView::scale(qreal sx, qreal sy)
 void QGraphicsView::shear(qreal sh, qreal sv)
 {
     Q_D(QGraphicsView);
-    QMatrix matrix = d->matrix;
+    QTransform matrix = d->matrix;
     matrix.shear(sh, sv);
-    setMatrix(matrix);
+    setTransform(matrix);
 }
 
 /*!
@@ -1045,9 +1026,9 @@ void QGraphicsView::shear(qreal sh, qreal sv)
 void QGraphicsView::translate(qreal dx, qreal dy)
 {
     Q_D(QGraphicsView);
-    QMatrix matrix = d->matrix;
+    QTransform matrix = d->matrix;
     matrix.translate(dx, dy);
-    setMatrix(matrix);
+    setTransform(matrix);
 }
 
 /*!
@@ -1330,9 +1311,9 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
     itemList.clear();
 
     // Setup painter
-    QMatrix moveMatrix;
+    QTransform moveMatrix;
     moveMatrix.translate(-d->horizontalScroll(), -d->verticalScroll());
-    QMatrix painterMatrix = d->matrix * moveMatrix;
+    QTransform painterMatrix = d->matrix * moveMatrix;
 
     // Generate the style options
     QStyleOptionGraphicsItem *styleOptionArray = new QStyleOptionGraphicsItem[numItems];
@@ -1354,12 +1335,12 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
             option.state |= QStyle::State_Sunken;
 
         // Calculate a simple level-of-detail metric.
-        QMatrix neo = item->sceneMatrix() * painterMatrix;
+        QTransform neo = item->sceneTransform() * painterMatrix;
         QRectF mappedRect = neo.mapRect(QRectF(0, 0, 1, 1));
         qreal dx = neo.mapRect(QRectF(0, 0, 1, 1)).size().width();
         qreal dy = neo.mapRect(QRectF(0, 0, 1, 1)).size().height();
         option.levelOfDetail = qMin(dx, dy);
-        option.matrix = neo;
+        option.matrix = neo.toAffine();
 
         option.exposedRect = item->boundingRect();
         option.exposedRect &= neo.inverted().mapRect(targetRect);
@@ -1371,10 +1352,10 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
 
     // Transform the painter.
     painter->setClipRect(targetRect);
-    painter->setMatrix(painterMatrix
-                       * QMatrix().translate(targetRect.left(), targetRect.top())
-                       * QMatrix().scale(xratio, yratio)
-                       * QMatrix().translate(-sourceRect.left(), -sourceRect.top()));
+    painter->setTransform(painterMatrix
+                       * QTransform().translate(targetRect.left(), targetRect.top())
+                       * QTransform().scale(xratio, yratio)
+                       * QTransform().translate(-sourceRect.left(), -sourceRect.top()));
     QPainterPath path;
     path.addPolygon(mapToScene(sourceRect));
     painter->setClipPath(path);
@@ -1600,7 +1581,7 @@ QPolygonF QGraphicsView::mapToScene(const QPolygon &polygon) const
 QPainterPath QGraphicsView::mapToScene(const QPainterPath &path) const
 {
     Q_D(const QGraphicsView);
-    QMatrix moveMatrix;
+    QTransform moveMatrix;
     moveMatrix.translate(d->horizontalScroll(), d->verticalScroll());
     return (moveMatrix * d->matrix.inverted()).map(path);
 }
@@ -1673,7 +1654,7 @@ QPolygon QGraphicsView::mapFromScene(const QPolygonF &polygon) const
 QPainterPath QGraphicsView::mapFromScene(const QPainterPath &path) const
 {
     Q_D(const QGraphicsView);
-    QMatrix moveMatrix;
+    QTransform moveMatrix;
     moveMatrix.translate(-d->horizontalScroll(), -d->verticalScroll());
     return (d->matrix * moveMatrix).map(path);
 }
@@ -2364,10 +2345,10 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
                           d->renderHints & QPainter::Antialiasing);
     painter.setRenderHint(QPainter::SmoothPixmapTransform,
                           d->renderHints & QPainter::SmoothPixmapTransform);
-    QMatrix moveMatrix;
+    QTransform moveMatrix;
     moveMatrix.translate(-d->horizontalScroll(), -d->verticalScroll());
-    QMatrix painterMatrix = d->matrix * moveMatrix;
-    painter.setMatrix(painterMatrix);
+    QTransform painterMatrix = d->matrix * moveMatrix;
+    painter.setTransform(painterMatrix);
 
 #ifdef QGRAPHICSVIEW_DEBUG
     QTime stopWatch;
@@ -2418,7 +2399,7 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
 
         // Redraw exposed areas
         QPainter backgroundPainter(&d->backgroundPixmap);
-        backgroundPainter.setMatrix(painterMatrix);
+        backgroundPainter.setTransform(painterMatrix);
         foreach (QRect rect, d->backgroundPixmapExposed.rects()) {
             backgroundPainter.save();
             QRectF exposedSceneRect = mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect();
@@ -2429,11 +2410,11 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
         d->backgroundPixmapExposed = QRegion();
 
         // Blit the background from the background pixmap
-        QMatrix oldMatrix = painter.matrix();
-        painter.setMatrix(QMatrix());
+        QTransform oldMatrix = painter.transform();
+        painter.setTransform(QTransform());
         foreach (QRect rect, event->region().rects())
             painter.drawPixmap(rect, d->backgroundPixmap, rect);
-        painter.setMatrix(oldMatrix);
+        painter.setTransform(oldMatrix);
     } else {
         // Draw the background directly
         foreach (QRectF rect, exposedRects) {
@@ -2468,16 +2449,16 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
             option.state |= QStyle::State_Sunken;
 
         // Calculate a simple level-of-detail metric.
-        QMatrix itemSceneMatrix = item->sceneMatrix();
-        QMatrix neo = itemSceneMatrix * painter.matrix();
+        QTransform itemSceneMatrix = item->sceneTransform();
+        QTransform neo = itemSceneMatrix * painter.transform();
         QRectF mappedRect = neo.mapRect(QRectF(0, 0, 1, 1));
         qreal dx = neo.mapRect(QRectF(0, 0, 1, 1)).size().width();
         qreal dy = neo.mapRect(QRectF(0, 0, 1, 1)).size().height();
         option.levelOfDetail = qMin(dx, dy);
-        option.matrix = neo;
+        option.matrix = neo.toAffine(); //### discards perspective
 
         // Determine the item's exposed area
-        QMatrix reverseMap = itemSceneMatrix.inverted();
+        QTransform reverseMap = itemSceneMatrix.inverted();
         foreach (QRectF rect, exposedRects)
             option.exposedRect |= reverseMap.mapRect(rect);
         option.exposedRect &= item->boundingRect();
@@ -2685,6 +2666,82 @@ void QGraphicsView::drawItems(QPainter *painter, int numItems,
     Q_D(QGraphicsView);
     if (d->scene)
         d->scene->drawItems(painter, numItems, items, options, viewport());
+}
+
+/*!
+    Returns the current transformation matrix for the view. If no current
+    transformation is set, the identity matrix is returned.
+
+    \sa setTransform(), rotate(), scale(), shear(), translate()
+*/
+QTransform QGraphicsView::transform() const
+{
+    Q_D(const QGraphicsView);
+    return d->matrix;
+}
+
+
+/*!
+    Sets the view's current transformation matrix to \a matrix.
+
+    If \a combine is true, then \a matrix is combined with the current matrix;
+    otherwise, \a matrix \e replaces the current matrix. \a combine is false
+    by default.
+
+    The transformation matrix tranforms the scene into view coordinates. Using
+    the default transformation, provided by the identity matrix, one pixel in
+    the view represents one unit in the scene (e.g., a 10x10 rectangular item
+    is drawn using 10x10 pixels in the view). If a 2x2 scaling matrix is
+    applied, the scene will be drawn in 1:2 (e.g., a 10x10 rectangular item is
+    then drawn using 20x20 pixels in the view).
+
+    Example:
+
+    \code
+        QGraphicsScene scene;
+        scene.addText("GraphicsView rotated clockwise");
+
+        QGraphicsView view(&scene);
+        view.rotate(90); // the text is rendered with a 90 degree clockwise rotation
+        view.show();
+    \endcode
+
+    To simplify interation with items using a transformed view, QGraphicsView
+    provides mapTo... and mapFrom... functions that can translate between
+    scene and view coordinates. For example, you can call mapToScene() to map
+    a view coordiate to a floating point scene coordinate, or mapFromScene()
+    to map from floating point scene coordinates to view coordinates.
+
+    \sa transform(), rotate(), scale(), shear(), translate()
+*/
+void QGraphicsView::setTransform(const QTransform &matrix, bool combine )
+{
+    
+    Q_D(QGraphicsView);
+    QTransform oldMatrix = d->matrix;
+    if (!combine)
+        d->matrix = matrix;
+    else
+        d->matrix = matrix * d->matrix;
+    if (oldMatrix == d->matrix)
+        return;
+
+    if (d->scene) {
+        d->recalculateContentSize();
+        d->centerView(d->transformationAnchor);
+    } else {
+        d->updateLastCenterPoint();
+    }
+
+    if (d->sceneInteractionAllowed)
+        d->replayLastMouseEvent();
+
+    // Any matrix operation requires a full update.
+    viewport()->update();
+}
+void QGraphicsView::resetTransform()
+{
+    setTransform(QTransform());
 }
 
 #endif // QT_NO_GRAPHICSVIEW

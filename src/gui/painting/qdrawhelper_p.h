@@ -164,7 +164,7 @@ struct QSpanData
 #endif
     ProcessSpans blend;
     ProcessSpans unclipped_blend;
-    qreal m11, m12, m21, m22, dx, dy;   // inverse xform matrix
+    qreal m11, m12, m13, m21, m22, m23, dx, dy;   // inverse xform matrix
     enum Type {
         None,
         Solid,
@@ -183,7 +183,7 @@ struct QSpanData
     };
     void init(QRasterBuffer *rb, QRasterPaintEngine *pe = 0);
     void setup(const QBrush &brush, int alpha);
-    void setupMatrix(const QMatrix &matrix, int txop, int bilinear);
+    void setupMatrix(const QTransform &matrix, int txop, int bilinear);
     void initTexture(const QImage *image, int alpha, TextureData::Type = TextureData::Plain);
     void initGradient(const QGradient *g, int alpha);
     void adjustSpanMethods();

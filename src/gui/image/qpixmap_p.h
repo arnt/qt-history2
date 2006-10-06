@@ -107,6 +107,6 @@ struct QPixmapData { // internal pixmap data
 #  if defined(Q_WS_WIN)
 #    define QT_XFORM_TYPE_WINDOWSPIXMAP 2
 #  endif
-extern bool qt_xForm_helper(const QMatrix&, int, int, int, uchar*, int, int, int, const uchar*, int, int, int);
+extern bool qt_xForm_helper(const QTransform&, int, int, int, uchar*, int, int, int, const uchar*, int, int, int);
 
 #endif // QPIXMAP_P_H

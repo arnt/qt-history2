@@ -178,7 +178,7 @@ void QPicturePaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBr
     writeCmdLength(pos, QRectF(), false);
 }
 
-void QPicturePaintEngine::updateMatrix(const QMatrix &matrix)
+void QPicturePaintEngine::updateMatrix(const QTransform &matrix)
 {
     Q_D(QPicturePaintEngine);
 #ifdef QT_PICTURE_DEBUG
@@ -262,7 +262,7 @@ void QPicturePaintEngine::writeCmdLength(int pos, const QRectF &r, bool corr)
             br.setCoords(br.left() - w2, br.top() - w2,
                         br.right() + w2, br.bottom() + w2);
         }
-        br = painter()->matrix().mapRect(br);
+        br = painter()->transform().mapRect(br);
         if (painter()->hasClipping()) {
             QRect cr = painter()->clipRegion().boundingRect();
             br &= cr;
@@ -374,7 +374,7 @@ void QPicturePaintEngine::updateState(const QPaintEngineState &state)
     if (flags & DirtyBrush) updateBrush(state.brush(), state.brushOrigin());
     if (flags & DirtyBackground) updateBackground(state.backgroundMode(), state.backgroundBrush());
     if (flags & DirtyFont) updateFont(state.font());
-    if (flags & DirtyTransform) updateMatrix(state.matrix());
+    if (flags & DirtyTransform) updateMatrix(state.transform());
     if (flags & DirtyClipPath) updateClipPath(state.clipPath(), state.clipOperation());
     if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
     if (flags & DirtyHints) updateRenderHints(state.renderHints());

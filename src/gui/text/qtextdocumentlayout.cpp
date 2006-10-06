@@ -291,10 +291,10 @@ static void fillBackground(QPainter *p, const QRectF &rect, QBrush brush, QRectF
     if (brush.style() >= Qt::LinearGradientPattern && brush.style() <= Qt::ConicalGradientPattern) {
         if (gradientRect.isNull())
             gradientRect = rect;
-        QMatrix m;
+        QTransform m;
         m.translate(gradientRect.left(), gradientRect.top());
         m.scale(gradientRect.width(), gradientRect.height());
-        brush.setMatrix(m);
+        brush.setTransform(m);
     }
     p->fillRect(rect, brush);
 }

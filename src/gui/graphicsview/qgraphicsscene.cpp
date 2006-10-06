@@ -161,6 +161,7 @@
 #include <QtCore/qset.h>
 #include <QtCore/qtimer.h>
 #include <QtGui/qevent.h>
+#include <QtGui/qtransform.h>
 #include <QtGui/qmatrix.h>
 #include <QtGui/qpainter.h>
 #include <QtGui/qpolygon.h>
@@ -935,12 +936,12 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
             option.state |= QStyle::State_Sunken;
 
         // Calculate a simple level-of-detail metric.
-        QMatrix neo = item->sceneMatrix() * painter->matrix();
+        QTransform neo = item->sceneTransform() * painter->transform();
         QRectF mappedRect = neo.mapRect(QRectF(0, 0, 1, 1));
         qreal dx = neo.mapRect(QRectF(0, 0, 1, 1)).size().width();
         qreal dy = neo.mapRect(QRectF(0, 0, 1, 1)).size().height();
         option.levelOfDetail = qMin(dx, dy);
-        option.matrix = neo;
+        option.matrix = neo.toAffine(); //### discards perspective
 
         option.exposedRect = item->boundingRect();
         option.exposedRect &= neo.inverted().mapRect(targetRect);
@@ -1876,7 +1877,7 @@ QVariant QGraphicsScene::inputMethodQuery(Qt::InputMethodQuery query) const
     Q_D(const QGraphicsScene);
     if (!d->focusItem)
         return QVariant();
-    const QMatrix matrix = d->focusItem->sceneMatrix();
+    const QTransform matrix = d->focusItem->sceneTransform();
     QVariant value = d->focusItem->inputMethodQuery(query);
     if (value.type() == QVariant::RectF)
         value = matrix.mapRect(value.toRectF());
@@ -2678,7 +2679,7 @@ void QGraphicsScene::drawItems(QPainter *painter,
     for (int i = 0; i < numItems; ++i) {
         QGraphicsItem *item = items[i];
         painter->save();
-        painter->setMatrix(item->sceneMatrix(), true);
+        painter->setTransform(item->sceneTransform(), true);
         item->paint(painter, &options[i], widget);
         painter->restore();
     }
@@ -2721,7 +2722,7 @@ void QGraphicsScene::itemUpdated(QGraphicsItem *item, const QRectF &rect)
     QRectF boundingRect = item->boundingRect();
     if (!rect.isNull())
         boundingRect &= rect;
-    QRectF sceneBoundingRect = item->sceneMatrix().mapRect(boundingRect);
+    QRectF sceneBoundingRect = item->sceneTransform().mapRect(boundingRect);
 
     update(sceneBoundingRect);
 

@@ -22,6 +22,7 @@
 #include <qicon.h>
 #include <qmap.h>
 #include <qmatrix.h>
+#include <qtransform.h>
 #include <q3cstring.h>
 #include <qpen.h>
 #include <qpolygon.h>
@@ -157,6 +158,8 @@ private slots:
     void toRegExp();
 
     void matrix();
+
+    void transform();
 
     void url();
 
@@ -1254,6 +1257,19 @@ void tst_QVariant::matrix()
     QMetaType::destroy(QVariant::Matrix, mmatrix);
 }
 
+void tst_QVariant::transform()
+{
+    QVariant variant;
+    QTransform matrix = qVariantValue<QTransform>(variant);
+    QVERIFY(matrix.isIdentity());
+    qVariantSetValue(variant, QTransform().rotate(90));
+    QCOMPARE(QTransform().rotate(90), qVariantValue<QTransform>(variant));
+
+    void *mmatrix = QMetaType::construct(QVariant::Transform, 0);
+    QVERIFY(mmatrix);
+    QMetaType::destroy(QVariant::Transform, mmatrix);
+}
+
 void tst_QVariant::writeToReadFromDataStream_data()
 {
 
@@ -1559,6 +1575,7 @@ void tst_QVariant::typeName_data()
     QTest::newRow("43") << int(QVariant::RegExp) << QByteArray("QRegExp");
     QTest::newRow("44") << int(QVariant::UserType) << QByteArray("UserType");
     QTest::newRow("45") << int(QVariant::Matrix) << QByteArray("QMatrix");
+    QTest::newRow("46") << int(QVariant::Transform) << QByteArray("QTransform");
 }
 
 void tst_QVariant::typeName()

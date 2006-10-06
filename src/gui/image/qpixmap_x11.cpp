@@ -1789,6 +1789,11 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
 
 QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode) const
 {
+    return transformed(QTransform(matrix), mode);
+}
+
+QPixmap QPixmap::transformed(const QTransform &matrix, Qt::TransformationMode mode ) const
+{
     int           w = 0;
     int           h = 0;                                // size of target pixmap
     int           ws, hs;                                // size of source pixmap
@@ -1806,7 +1811,9 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     ws = width();
     hs = height();
 
-    QMatrix mat(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0.);
+    QTransform mat(matrix.m11(), matrix.m12(), matrix.m13(), 
+                   matrix.m21(), matrix.m22(), matrix.m23(), 
+                   0., 0., 1);
     bool complex_xform = false;
 
     if (mat.m12() == 0.0F && mat.m21() == 0.0F) {
@@ -1975,7 +1982,6 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
         return pm;
     }
 }
-
 
 /*!
   \internal

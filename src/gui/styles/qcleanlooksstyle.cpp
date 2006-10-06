@@ -1631,10 +1631,10 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
             // same rendering code for both orientations.
             if (vertical) {
                 rect = QRect(rect.left(), rect.top(), rect.height(), rect.width()); // flip width and height
-                QMatrix m;
+                QTransform m;
                 m.translate(rect.height()-1, -1.0);
                 m.rotate(90.0);
-                painter->setMatrix(m);
+                painter->setTransform(m);
             }
 
             int maxWidth = rect.width() - 4;
@@ -2094,7 +2094,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
             int y1 = r2.top();
             int y2 = r2.bottom();
 
-            QMatrix rotMatrix;
+            QTransform rotMatrix;
             bool flip = false;
             painter->setPen(shadow);
             QColor activeHighlight = option->palette.color(QPalette::Normal, QPalette::Highlight);
@@ -2105,19 +2105,19 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
                 rotMatrix.rotate(180);
                 rotMatrix.translate(0, -rect.height() + 1);
                 rotMatrix.scale(-1, 1);
-                painter->setMatrix(rotMatrix);
+                painter->setTransform(rotMatrix);
                 break;
             case QTabBar::RoundedWest:
                 rotMatrix.rotate(180 + 90);
                 rotMatrix.scale(-1, 1);
                 flip = true;
-                painter->setMatrix(rotMatrix);
+                painter->setTransform(rotMatrix);
                 break;
             case QTabBar::RoundedEast:
                 rotMatrix.rotate(90);
                 rotMatrix.translate(0, - rect.width() + 1);
                 flip = true;
-                painter->setMatrix(rotMatrix);
+                painter->setTransform(rotMatrix);
                 break;
             default:
                 painter->restore();

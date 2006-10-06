@@ -19,6 +19,7 @@
 #include <QtCore/qrect.h>
 #include <QtGui/qbrush.h>
 #include <QtGui/qfont.h>
+#include <QtGui/qtransform.h>
 #include <QtGui/qmatrix.h>
 #include <QtGui/qpen.h>
 

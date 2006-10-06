@@ -56,7 +56,7 @@ public:
     bool end();
 
     void updateState(const QPaintEngineState &state);
-    void updateMatrix(const QMatrix &matrix);
+    void updateMatrix(const QTransform &matrix);
 
     void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
     void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
@@ -155,8 +155,8 @@ public:
 
     void rasterize(QT_FT_Outline *outline, ProcessSpans callback, void *userData, QRasterBuffer *rasterBuffer);
 
-    QMatrix brushMatrix() const {
-        QMatrix m(matrix);
+    QTransform brushMatrix() const {
+        QTransform m(matrix);
         m.translate(brushOffset.x(), brushOffset.y());
         return m;
     }
@@ -164,7 +164,7 @@ public:
     QPointF brushOffset;
     QBrush brush;
     QPen pen;
-    QMatrix matrix;
+    QTransform matrix;
     int opacity;
 
     QPaintDevice *device;

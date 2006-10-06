@@ -75,6 +75,7 @@ public:
         BrushStroke               = 0x00000800, // Can render brush based pens
         ConstantOpacity           = 0x00001000, // Can render at constant opacity
         MaskedBrush               = 0x00002000, // Can fill with textures that has an alpha channel or mask
+        PerspectiveTransform      = 0x00004000, // Can do perspective transformations
         PaintOutsidePaintEvent    = 0x20000000, // Engine is capable of painting outside paint events
         /*                          0x10000000, // Used for emulating
                                     QGradient::StretchToDevice,
@@ -244,6 +245,7 @@ public:
     Qt::BGMode backgroundMode() const;
     QFont font() const;
     QMatrix matrix() const;
+    QTransform transform() const;
 
     Qt::ClipOperation clipOperation() const;
     QRegion clipRegion() const;

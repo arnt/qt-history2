@@ -157,6 +157,7 @@
     \value QLocale QLocale
     \value QBitmap QBitmap
     \value QMatrix QMatrix
+    \value QTransform QTransform
 
     \value User  Base value for user types
 
@@ -263,6 +264,7 @@ static const struct { const char * typeName; int type; } types[] = {
     {"QTextLength", QMetaType::QTextLength},
     {"QTextFormat", QMetaType::QTextFormat},
     {"QMatrix", QMetaType::QMatrix},
+    {"QTransform", QMetaType::QTransform},
 
     /* All Metatype builtins */
     {"void*", QMetaType::VoidStar},
@@ -621,6 +623,7 @@ bool QMetaType::save(QDataStream &stream, int type, const void *data)
     case QMetaType::QTextLength:
     case QMetaType::QTextFormat:
     case QMetaType::QMatrix:
+    case QMetaType::QTransform:
         if (!qMetaTypeGuiHelper)
             return false;
         qMetaTypeGuiHelper[type - FirstGuiType].saveOp(stream, data);
@@ -807,6 +810,7 @@ bool QMetaType::load(QDataStream &stream, int type, void *data)
     case QMetaType::QTextLength:
     case QMetaType::QTextFormat:
     case QMetaType::QMatrix:
+    case QMetaType::QTransform:
         if (!qMetaTypeGuiHelper)
             return false;
         qMetaTypeGuiHelper[type - FirstGuiType].loadOp(stream, data);

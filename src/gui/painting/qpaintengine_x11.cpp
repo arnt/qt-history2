@@ -444,10 +444,10 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     d->has_clipping = false;
     d->has_complex_xform = false;
     d->has_custom_pen = false;
-    d->matrix = QMatrix();
+    d->matrix = QTransform();
     d->pdev_depth = d->pdev->depth();
     d->render_hints = 0;
-    d->txop = QPainterPrivate::TxNone;
+    d->txop = QTransform::TxNone;
     d->use_path_fallback = false;
 #if !defined(QT_NO_XRENDER)
     d->composition_mode = PictOpOver;
@@ -606,7 +606,7 @@ void QX11PaintEngine::drawLines(const QLine *lines, int lineCount)
     if (d->has_pen) {
         for (int i = 0; i < lineCount; ++i) {
             QLineF linef;
-            if (d->txop == QPainterPrivate::TxNone) {
+            if (d->txop == QTransform::TxNone) {
                 linef = lines[i];
             } else {
                 linef = QLineF(d->matrix.map(lines[i].p1()), d->matrix.map(lines[i].p2()));
@@ -649,7 +649,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
 
         for (int i = 0; i < rectCount; ++i) {
             QRect r(rects[i]);
-            if (d->txop == QPainterPrivate::TxTranslate)
+            if (d->txop == QTransform::TxTranslate)
                 r.translate(offset);
             r = r.intersected(clip);
             if (r.isEmpty())
@@ -670,7 +670,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
         if (d->has_brush && d->has_pen) {
             for (int i = 0; i < rectCount; ++i) {
                 QRect r(rects[i]);
-                if (d->txop == QPainterPrivate::TxTranslate)
+                if (d->txop == QTransform::TxTranslate)
                     r.translate(offset);
                 r = r.intersected(clip);
                 if (r.isEmpty())
@@ -685,7 +685,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
             int numClipped = rectCount;
             for (int i = 0; i < rectCount; ++i) {
                 QRect r(rects[i]);
-                if (d->txop == QPainterPrivate::TxTranslate)
+                if (d->txop == QTransform::TxTranslate)
                     r.translate(offset);
                 r = r.intersected(clip);
                 if (r.isEmpty()) {
@@ -830,7 +830,7 @@ void QX11PaintEngine::updateState(const QPaintEngineState &state)
         flags |= DirtyBrush;
     }
 
-    if (flags & DirtyTransform) updateMatrix(state.matrix());
+    if (flags & DirtyTransform) updateMatrix(state.transform());
     if (flags & DirtyPen) updatePen(state.pen());
     if (flags & (DirtyBrush | DirtyBrushOrigin)) updateBrush(state.brush(), state.brushOrigin());
     if (flags & DirtyFont) updateFont(state.font());
@@ -869,7 +869,7 @@ void QX11PaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
     Q_D(QX11PaintEngine);
     d->render_hints = hints;
-    if ((d->txop > QPainterPrivate::TxTranslate)
+    if ((d->txop > QTransform::TxTranslate)
         || (hints & QPainter::Antialiasing))
         d->use_path_fallback = true;
     else
@@ -1153,7 +1153,7 @@ void QX11PaintEngine::drawEllipse(const QRect &rect)
     Q_D(QX11PaintEngine);
     QRect devclip(SHRT_MIN, SHRT_MIN, SHRT_MAX*2 - 1, SHRT_MAX*2 - 1);
     QRect r(rect);
-    if (d->txop == QPainterPrivate::TxTranslate)
+    if (d->txop == QTransform::TxTranslate)
         r.translate(qRound(d->matrix.dx()), qRound(d->matrix.dy()));
     if (d->use_path_fallback || devclip.intersected(r) != r) {
         QPainterPath path;
@@ -1432,7 +1432,7 @@ void QX11PaintEngine::drawPolygon(const QPointF *polygonPoints, int pointCount, 
 
 void QX11PaintEnginePrivate::fillPath(const QPainterPath &path, QX11PaintEnginePrivate::GCMode gc_mode, bool transform)
 {
-    QList<QPolygonF> polys = path.toFillPolygons(transform ? matrix : QMatrix());
+    QList<QPolygonF> polys = path.toFillPolygons(transform ? matrix : QTransform());
     for (int i = 0; i < polys.size(); ++i) {
         fillPolygon_dev(polys.at(i).data(), polys.at(i).size(), gc_mode,
                         path.fillRule() == Qt::OddEvenFill ? QPaintEngine::OddEvenMode : QPaintEngine::WindingMode);
@@ -1445,9 +1445,9 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
     if (path.isEmpty())
         return;
     bool adjust_coords = (d->has_alpha_pen || (d->cpen.style() > Qt::SolidLine)) && !(d->render_hints & QPainter::Antialiasing);
-    QMatrix old_matrix = d->matrix;
+    QTransform old_matrix = d->matrix;
     if (adjust_coords) {
-        d->matrix = QMatrix(d->matrix.m11(), d->matrix.m12(), d->matrix.m21(), d->matrix.m22(),
+        d->matrix = QTransform(d->matrix.m11(), d->matrix.m12(), d->matrix.m21(), d->matrix.m22(),
                             d->matrix.dx() + 0.5f, d->matrix.dy() + 0.5f);
     }
     if (d->has_brush)
@@ -1456,7 +1456,7 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
     if (d->has_pen
         && ((X11->use_xrender && (d->has_alpha_pen || d->has_alpha_brush
                                   || (d->render_hints & QPainter::Antialiasing)))
-            || (d->cpen.widthF() > 0 && d->txop > QPainterPrivate::TxTranslate)
+            || (d->cpen.widthF() > 0 && d->txop > QTransform::TxTranslate)
             || (d->cpen.style() > Qt::SolidLine))) {
         QPainterPathStroker stroker;
         if (d->cpen.style() == Qt::CustomDashLine)
@@ -1642,20 +1642,13 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
     }
 }
 
-void QX11PaintEngine::updateMatrix(const QMatrix &mtx)
+void QX11PaintEngine::updateMatrix(const QTransform &mtx)
 {
     Q_D(QX11PaintEngine);
     d->matrix = mtx;
-    if (mtx.m12() != 0 || mtx.m21() != 0)
-        d->txop = QPainterPrivate::TxRotShear;
-    else if (mtx.m11() != 1 || mtx.m22() != 1)
-        d->txop = QPainterPrivate::TxScale;
-    else if (mtx.dx() != 0 || mtx.dy() != 0)
-        d->txop = QPainterPrivate::TxTranslate;
-    else
-        d->txop = QPainterPrivate::TxNone;
+    d->txop = (QTransform::TransformationCodes)mtx.type();
 
-    d->has_complex_xform = (d->txop > QPainterPrivate::TxTranslate);
+    d->has_complex_xform = (d->txop > QTransform::TxTranslate);
 }
 
 /*
@@ -1800,7 +1793,7 @@ void QX11PaintEngine::drawBox(const QPointF &p, const QTextItemInt &ti)
 
     QVarLengthArray<QFixedPoint> positions;
     QVarLengthArray<glyph_t> glyphs;
-    QMatrix matrix;
+    QTransform matrix;
     matrix.translate(p.x(), p.y());
     ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
     if (glyphs.size() == 0)
@@ -1823,7 +1816,7 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItemInt &ti)
 {
     Q_D(QX11PaintEngine);
 
-    if (d->txop > QPainterPrivate::TxTranslate) {
+    if (d->txop > QTransform::TxTranslate) {
         // XServer or font don't support server side transformations, need to do it by hand
         QPaintEngine::drawTextItem(p, ti);
         return;
@@ -1834,7 +1827,7 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItemInt &ti)
 
     QVarLengthArray<QFixedPoint> positions;
     QVarLengthArray<glyph_t> glyphs;
-    QMatrix matrix = d->matrix;
+    QTransform matrix = d->matrix;
     matrix.translate(p.x(), p.y());
     ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
     if (glyphs.size() == 0)
@@ -1929,7 +1922,7 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
 
     QVarLengthArray<QFixedPoint> positions;
     QVarLengthArray<glyph_t> glyphs;
-    QMatrix matrix = d->matrix;
+    QTransform matrix = d->matrix;
     matrix.translate(p.x(), p.y());
     ft->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
     if (glyphs.count() == 0)
@@ -1942,13 +1935,13 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
                               && static_cast<const QPixmap *>(d->pdev)->data->type == QPixmap::BitmapType));
 
     GlyphSet transformedGlyphSet = 0;
-    if (d->txop >= QPainterPrivate::TxScale
+    if (d->txop >= QTransform::TxScale
         && xrenderPath) {
         drawTransformed = ft->loadTransformedGlyphSet(glyphs.data(), glyphs.size(), d->matrix, &transformedGlyphSet);
     }
 #endif
 
-    if ((d->txop >= QPainterPrivate::TxScale && !drawTransformed)) {
+    if ((d->txop >= QTransform::TxScale && !drawTransformed)) {
         QPaintEngine::drawTextItem(p, ti);
         return;
     }

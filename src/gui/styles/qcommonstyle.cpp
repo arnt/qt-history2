@@ -1236,10 +1236,10 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                     newRot = -90;
                 }
                 tr.setRect(0, 0, tr.height(), tr.width());
-                QMatrix m;
+                QTransform m;
                 m.translate(newX, newY);
                 m.rotate(newRot);
-                p->setMatrix(m, true);
+                p->setTransform(m, true);
             }
             tr.adjust(0, 0, pixelMetric(QStyle::PM_TabBarTabShiftHorizontal, tab, widget),
                             pixelMetric(QStyle::PM_TabBarTabShiftVertical, tab, widget));

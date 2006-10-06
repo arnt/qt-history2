@@ -63,8 +63,8 @@ namespace QPdf {
         StrokePath,
         FillAndStrokePath
     };
-    QByteArray generatePath(const QPainterPath &path, const QMatrix &matrix, PathFlags flags);
-    QByteArray generateMatrix(const QMatrix &matrix);
+    QByteArray generatePath(const QPainterPath &path, const QTransform &matrix, PathFlags flags);
+    QByteArray generateMatrix(const QTransform &matrix);
     QByteArray generateDashes(const QPen &pen);
     QByteArray patternForBrush(const QBrush &b);
 #ifdef USE_NATIVE_GRADIENTS
@@ -77,7 +77,7 @@ namespace QPdf {
         void strokePath(const QPainterPath &path);
         ByteStream *stream;
         bool first;
-        QMatrix matrix;
+        QTransform matrix;
         bool zeroWidth;
     private:
         QStroker basicStroker;

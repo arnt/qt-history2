@@ -254,7 +254,7 @@ bool QWin32PrintEngine::begin(QPaintDevice *)
 	d->state = QPrinter::Active;
     }
 
-    d->matrix = QMatrix();
+    d->matrix = QTransform();
     d->has_pen = true;
     d->pen = QColor(Qt::black);
     d->has_brush = false;
@@ -356,7 +356,7 @@ bool QWin32PrintEngine::abort()
 }
 
 extern void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
-                              bool convertToText, const QMatrix &matrix, const QPointF &topLeft);
+                              bool convertToText, const QTransform &matrix, const QPointF &topLeft);
 
 void QWin32PrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
@@ -552,11 +552,11 @@ void QWin32PrintEngine::updateClipPath(const QPainterPath &clipPath, Qt::ClipOpe
 
 }
 
-void QWin32PrintEngine::updateMatrix(const QMatrix &m)
+void QWin32PrintEngine::updateMatrix(const QTransform &m)
 {
     Q_D(QWin32PrintEngine);
 
-    QMatrix stretch(d->stretch_x, 0, 0, d->stretch_y, d->origin_x, d->origin_y);
+    QTransform stretch(d->stretch_x, 0, 0, d->stretch_y, d->origin_x, d->origin_y);
     d->painterMatrix = m;
     d->matrix = d->painterMatrix * stretch;
 
@@ -602,7 +602,7 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
     qreal xform_offset_x = 0;
     qreal xform_offset_y = 0;
     if (d->complex_xform) {
-        QMatrix adapted = QPixmap::trueMatrix(d->painterMatrix, pixmap.width(), pixmap.height());
+        QTransform adapted = QPixmap::trueMatrix(d->painterMatrix, pixmap.width(), pixmap.height());
         pixmap = pixmap.transformed(adapted);
         xform_offset_x = adapted.dx();
         xform_offset_y = adapted.dy();
@@ -630,7 +630,7 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
         QVector<QRect> rects = r.rects();
         RGNDATA *rgnd = (RGNDATA *) malloc(sizeof(RGNDATAHEADER) + sizeof(RECT) * rects.size());
 
-        QMatrix m(d->stretch_x, 0, 0, d->stretch_y,
+        QTransform m(d->stretch_x, 0, 0, d->stretch_y,
                   tx - xform_offset_x, ty - xform_offset_y);
         RECT *gdi_rect = (RECT *) rgnd->Buffer;
         for (int i=0; i<rects.size(); ++i) {
@@ -1294,7 +1294,7 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
         break;
 
     case PPK_PageRect:
-        value = QMatrix(1/d->stretch_x, 0, 0, 1/d->stretch_y, 0, 0).mapRect(d->devPageRect);
+        value = QTransform(1/d->stretch_x, 0, 0, 1/d->stretch_y, 0, 0).mapRect(d->devPageRect);
         break;
 
     case PPK_PageSize:
@@ -1310,7 +1310,7 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
         break;
 
     case PPK_PaperRect:
-        value = QMatrix(1/d->stretch_x, 0, 0, 1/d->stretch_y, 0, 0).mapRect(d->devPaperRect);
+        value = QTransform(1/d->stretch_x, 0, 0, 1/d->stretch_y, 0, 0).mapRect(d->devPaperRect);
         break;
 
     case PPK_PaperSource:

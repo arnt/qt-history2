@@ -2378,7 +2378,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 
             if (vertical) {
                 rect = QRect(rect.left(), rect.top(), rect.height(), rect.width()); // flip width and height
-                QMatrix m;
+                QTransform m;
                 if (bottomToTop) {
                     m.translate(0.0, rect.width());
                     m.rotate(-90);
@@ -2386,7 +2386,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     m.translate(rect.height(), 0.0);
                     m.rotate(90);
                 }
-                painter->setMatrix(m);
+                painter->setTransform(m);
             }
 
             int progressIndicatorPos = int(((bar->progress - bar->minimum) / double(bar->maximum - bar->minimum)) * rect.width());
@@ -2448,10 +2448,10 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             // same rendering code for both orientations.
             if (vertical) {
                 rect = QRect(rect.left(), rect.top(), rect.height(), rect.width()); // flip width and height
-                QMatrix m;
+                QTransform m;
                 m.translate(rect.height()-1, 0);
                 m.rotate(90.0);
-                painter->setMatrix(m);
+                painter->setTransform(m);
             }
 
             int maxWidth = rect.width() - 4;

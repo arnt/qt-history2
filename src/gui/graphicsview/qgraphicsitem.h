@@ -143,6 +143,11 @@ public:
     QMatrix sceneMatrix() const;
     void setMatrix(const QMatrix &matrix, bool combine = false);
     void resetMatrix();
+    QTransform transform() const;
+    QTransform sceneTransform() const;
+    void setTransform(const QTransform &matrix, bool combine = false);
+    void resetTransform();
+    
     void rotate(qreal angle);
     void scale(qreal sx, qreal sy);
     void shear(qreal sh, qreal sv);

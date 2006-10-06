@@ -65,7 +65,7 @@ void QPdfPage::streamImage(int w, int h, int object)
 inline QPaintEngine::PaintEngineFeatures qt_pdf_decide_features()
 {
     QPaintEngine::PaintEngineFeatures f = QPaintEngine::AllFeatures;
-    f &= ~(QPaintEngine::PorterDuff
+    f &= ~(QPaintEngine::PorterDuff | QPaintEngine::PerspectiveTransform
 #ifndef USE_NATIVE_GRADIENTS
            | QPaintEngine::LinearGradientFill
 #endif
@@ -143,8 +143,8 @@ void QPdfEngine::drawPixmap (const QRectF & rectangle, const QPixmap & pixmap, c
 
     *d->currentPage << "q\n";
     *d->currentPage
-        << QPdf::generateMatrix(QMatrix(rectangle.width() / sr.width(), 0, 0, rectangle.height() / sr.height(),
-                                        rectangle.x(), rectangle.y()) * (d->simplePen ? QMatrix() : d->stroker.matrix));
+        << QPdf::generateMatrix(QTransform(rectangle.width() / sr.width(), 0, 0, rectangle.height() / sr.height(),
+                                           rectangle.x(), rectangle.y()) * (d->simplePen ? QTransform() : d->stroker.matrix));
     bool bitmap = true;
     int object = d->addImage(image, &bitmap, qt_pixmap_id(pm));
     if (bitmap) {
@@ -169,8 +169,8 @@ void QPdfEngine::drawImage(const QRectF & rectangle, const QImage & image, const
 
     *d->currentPage << "q\n";
     *d->currentPage
-        << QPdf::generateMatrix(QMatrix(rectangle.width() / sr.width(), 0, 0, rectangle.height() / sr.height(),
-                                        rectangle.x(), rectangle.y()) * (d->simplePen ? QMatrix() : d->stroker.matrix));
+        << QPdf::generateMatrix(QTransform(rectangle.width() / sr.width(), 0, 0, rectangle.height() / sr.height(),
+                                           rectangle.x(), rectangle.y()) * (d->simplePen ? QTransform() : d->stroker.matrix));
     bool bitmap = false;
     int object = d->addImage(im, &bitmap, qt_image_id(im));
     d->currentPage->streamImage(image.width(), image.height(), object);
@@ -270,7 +270,7 @@ int QPdfEnginePrivate::gradientBrush(const QBrush &b, const QMatrix &matrix, int
     if (!gradient)
         return 0;
 
-    QMatrix inv = matrix.inverted();
+    QTransform inv = matrix.inverted();
     QPointF page_rect[4] = { inv.map(QPointF(0, 0)),
                              inv.map(QPointF(width_, 0)),
                              inv.map(QPointF(0, height_)),
@@ -366,7 +366,7 @@ int QPdfEnginePrivate::gradientBrush(const QBrush &b, const QMatrix &matrix, int
 }
 #endif
 
-int QPdfEnginePrivate::addBrushPattern(const QMatrix &m, bool *specifyColor, int *gStateObject)
+int QPdfEnginePrivate::addBrushPattern(const QTransform &m, bool *specifyColor, int *gStateObject)
 {
     int paintType = 2; // Uncolored tiling
     int w = 8;
@@ -375,7 +375,7 @@ int QPdfEnginePrivate::addBrushPattern(const QMatrix &m, bool *specifyColor, int
     *specifyColor = true;
     *gStateObject = 0;
 
-    QMatrix matrix = m;
+    QTransform matrix = m;
     matrix.translate(brushOrigin.x(), brushOrigin.y());
     matrix = matrix * pageMatrix();
     //qDebug() << brushOrigin << matrix;
@@ -420,7 +420,7 @@ int QPdfEnginePrivate::addBrushPattern(const QMatrix &m, bool *specifyColor, int
         }
         w = image.width();
         h = image.height();
-        QMatrix m(w, 0, 0, -h, 0, h);
+        QTransform m(w, 0, 0, -h, 0, h);
         QPdf::ByteStream s(&pattern);
         s << QPdf::generateMatrix(m);
         s << "/Im" << imageObject << " Do\n";
@@ -566,10 +566,10 @@ int QPdfEnginePrivate::addImage(const QImage &img, bool *bitmap, qint64 serial_n
     return object;
 }
 
-QMatrix QPdfEnginePrivate::pageMatrix() const
+QTransform QPdfEnginePrivate::pageMatrix() const
 {
     qreal scale = 72./resolution;
-    QMatrix tmp(scale, 0.0, 0.0, -scale, 0.0, height());
+    QTransform tmp(scale, 0.0, 0.0, -scale, 0.0, height());
     if (!fullPage)
         tmp.translate(resolution/3, resolution/3);
     return tmp;

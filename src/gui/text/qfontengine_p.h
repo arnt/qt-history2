@@ -129,7 +129,7 @@ public:
 #endif
     virtual void addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int nglyphs,
                                  QPainterPath *path, QTextItem::RenderFlags flags);
-    void getGlyphPositions(const QGlyphLayout *glyphs, int nglyphs, const QMatrix &matrix, QTextItem::RenderFlags flags,
+    void getGlyphPositions(const QGlyphLayout *glyphs, int nglyphs, const QTransform &matrix, QTextItem::RenderFlags flags,
                            QVarLengthArray<glyph_t> &glyphs_out, QVarLengthArray<QFixedPoint> &positions);
 
     virtual void addOutlineToPath(qreal, qreal, const QGlyphLayout *, int, QPainterPath *, QTextItem::RenderFlags flags);

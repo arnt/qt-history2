@@ -47,6 +47,8 @@ embedded {
 	       qglpixelbuffer_qws.cpp \
                qttessellator.cpp
     HEADERS += qttessellator_p.h
+	       qglpixelbuffer_qws.cpp
+
      	contains(QT_CONFIG, fontconfig) {
  		include($$QT_SOURCE_TREE/config.tests/unix/freetype/freetype.pri)
 	} else {

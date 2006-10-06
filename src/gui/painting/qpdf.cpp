@@ -90,7 +90,7 @@ const char *qt_int_to_string(int val, char *buf) {
 
 #define QT_PATH_ELEMENT(elm)
 
-QByteArray QPdf::generatePath(const QPainterPath &path, const QMatrix &matrix, PathFlags flags)
+QByteArray QPdf::generatePath(const QPainterPath &path, const QTransform &matrix, PathFlags flags)
 {
     QByteArray result;
     if (!path.elementCount())
@@ -152,7 +152,7 @@ QByteArray QPdf::generatePath(const QPainterPath &path, const QMatrix &matrix, P
     return result;
 }
 
-QByteArray QPdf::generateMatrix(const QMatrix &matrix)
+QByteArray QPdf::generateMatrix(const QTransform &matrix)
 {
     QByteArray result;
     ByteStream s(&result);
@@ -615,7 +615,7 @@ void QPdf::Stroker::strokePath(const QPainterPath &path)
     if (!stroker)
         return;
     first = true;
-    stroker->strokePath(path, this, zeroWidth ? matrix : QMatrix());
+    stroker->strokePath(path, this, zeroWidth ? matrix : QTransform());
     *stream << "h f\n";
 }
 
@@ -889,7 +889,7 @@ void QPdfBaseEngine::drawPath (const QPainterPath &p)
 
     if (d->simplePen) {
         // draw strokes natively in this case for better output
-        *d->currentPage << QPdf::generatePath(p, QMatrix(), d->hasBrush ? QPdf::FillAndStrokePath : QPdf::StrokePath);
+        *d->currentPage << QPdf::generatePath(p, QTransform(), d->hasBrush ? QPdf::FillAndStrokePath : QPdf::StrokePath);
     } else {
         if (d->hasBrush)
             *d->currentPage << QPdf::generatePath(p, d->stroker.matrix, QPdf::FillPath);
@@ -937,7 +937,7 @@ void QPdfBaseEngine::updateState(const QPaintEngineState &state)
     QPaintEngine::DirtyFlags flags = state.state();
 
     if (flags & DirtyTransform)
-        d->stroker.matrix = state.matrix();
+        d->stroker.matrix = state.transform();
 
     if (flags & DirtyPen) {
         d->pen = state.pen();
@@ -1006,7 +1006,7 @@ void QPdfBaseEngine::setupGraphicsState(QPaintEngine::DirtyFlags flags)
             }
             if (!d->allClipped) {
                 for (int i = 0; i < d->clips.size(); ++i) {
-                    *d->currentPage << QPdf::generatePath(d->clips.at(i), QMatrix(), QPdf::ClipPath);
+                    *d->currentPage << QPdf::generatePath(d->clips.at(i), QTransform(), QPdf::ClipPath);
                 }
             }
         }
@@ -1401,12 +1401,10 @@ bool QPdfBaseEnginePrivate::openPrintDevice()
                     cupsArgList << printerName;
                 }
 
-                const ppd_option_t* pageSizes = cups.pageSizes();
-		if (pageSizes) {
                     cupsArgList << QLatin1String("-o");
+                const ppd_option_t* pageSizes = cups.pageSizes();
                     cupsArgList << QString::fromLatin1("media=%1").arg(
                         QString::fromLocal8Bit(pageSizes->choices[pageSize].choice));
-		}
 
                 if (copies > 1) {
                     cupsArgList << QLatin1String("-#");
@@ -1467,6 +1465,7 @@ bool QPdfBaseEnginePrivate::openPrintDevice()
                 (void)execvp( "lpr", lprargs );
                 (void)execv( "/bin/lpr", lprargs);
                 (void)execv( "/usr/bin/lpr", lprargs);
+
 #endif
             } else {
                 // if no print program has been specified, be smart
@@ -1599,7 +1598,7 @@ void QPdfBaseEnginePrivate::drawTextItem(const QPointF &p, const QTextItemInt &t
 
     QVarLengthArray<glyph_t> glyphs;
     QVarLengthArray<QFixedPoint> positions;
-    QMatrix m;
+    QTransform m;
     m.translate(p.x(), p.y());
     ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, m, ti.flags,
                                      glyphs, positions);

@@ -51,7 +51,7 @@ public:
     void updateBrush(const QBrush &brush, const QPointF &pt);
     void updateFont(const QFont &font);
     void updateOpacity(qreal opacity);
-    void updateMatrix(const QMatrix &matrix);
+    void updateMatrix(const QTransform &matrix);
     void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
     void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
     void updateRenderHints(QPainter::RenderHints hints);
@@ -119,7 +119,7 @@ public:
         QBrush brush;
         uint clipEnabled : 1;
         QRegion clip;
-        QMatrix matrix;
+        QTransform matrix;
    } current;
 
     //state info (shared with QD)
@@ -144,7 +144,7 @@ public:
     float penOffset();
     QPointF devicePixelSize(CGContextRef context);
     float adjustPenWidth(float penWidth);
-    inline void setTransform(const QMatrix *matrix=0)
+    inline void setTransform(const QTransform *matrix=0)
     {
         CGContextConcatCTM(hd, CGAffineTransformInvert(CGContextGetCTM(hd)));
         CGAffineTransform xform = orig_xform;

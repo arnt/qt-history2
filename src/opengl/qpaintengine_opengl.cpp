@@ -355,7 +355,7 @@ public:
     QOpenGLPaintEnginePrivate()
         : opacity(1)
         , has_fast_pen(false)
-        , txop(QPainterPrivate::TxNone)
+        , txop(QTransform::TxNone)
         , inverseScale(1)
         , moveToCount(0)
 #ifndef Q_USE_QT_TESSELLATOR
@@ -451,10 +451,10 @@ public:
     uint has_brush : 1;
     uint has_fast_pen : 1;
 
-    QMatrix matrix;
+    QTransform matrix;
     GLubyte pen_color[4];
     GLubyte brush_color[4];
-    QPainterPrivate::TransformationCodes txop;
+    QTransform::TransformationCodes txop;
     QGLDrawable drawable;
 
     qreal inverseScale;
@@ -1418,7 +1418,7 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
 
     if (flags & DirtyTransform) {
         update_fast_pen = true;
-        updateMatrix(state.matrix());
+        updateMatrix(state.transform());
     }
 
     if (flags & DirtyPen) {
@@ -1463,7 +1463,7 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
         Q_D(QOpenGLPaintEngine);
         qreal pen_width = d->cpen.widthF();
         d->has_fast_pen =
-            (pen_width == 0 || (pen_width == 1 && d->txop <= QPainterPrivate::TxTranslate))
+            (pen_width == 0 || (pen_width == 1 && d->txop <= QTransform::TxTranslate))
             && d->cpen.style() == Qt::SolidLine
             && d->cpen.isSolid();
     }
@@ -1479,7 +1479,7 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
 
     if (has_mirrored_repeat && style == Qt::LinearGradientPattern) {
         const QLinearGradient *g = static_cast<const QLinearGradient *>(brush.gradient());
-        QMatrix m = brush.matrix();
+        QTransform m = brush.transform();
         QPointF start = m.map(g->start());
         QPointF stop;
 
@@ -1524,9 +1524,9 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
     } else if (has_glsl || has_frag_program) {
         if (style == Qt::RadialGradientPattern) {
             const QRadialGradient *g = static_cast<const QRadialGradient *>(brush.gradient());
-            QMatrix translate(1, 0, 0, 1, -g->focalPoint().x(), -g->focalPoint().y());
-            QMatrix gl_to_qt(1, 0, 0, -1, 0, pdev->height());
-            QMatrix inv_matrix = gl_to_qt * matrix.inverted() * brush.matrix().inverted() * translate;
+            QTransform translate(1, 0, 0, 1, -g->focalPoint().x(), -g->focalPoint().y());
+            QTransform gl_to_qt(1, 0, 0, -1, 0, pdev->height());
+            QTransform inv_matrix = gl_to_qt * matrix.inverted() * brush.transform().inverted() * translate;
 
             float pt[4] = {inv_matrix.dx(), inv_matrix.dy(), 0.f, 0.f};
             float inv[4] = {inv_matrix.m11(), inv_matrix.m21(),
@@ -1553,9 +1553,9 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
             createGradientPaletteTexture(*brush.gradient());
         } else if (style == Qt::ConicalGradientPattern) {
             const QConicalGradient *g = static_cast<const QConicalGradient *>(brush.gradient());
-            QMatrix translate(1, 0, 0, 1, -g->center().x(), -g->center().y());
-            QMatrix gl_to_qt(1, 0, 0, -1, 0, pdev->height());
-            QMatrix inv_matrix = gl_to_qt * matrix.inverted() * brush.matrix().inverted() * translate;
+            QTransform translate(1, 0, 0, 1, -g->center().x(), -g->center().y());
+            QTransform gl_to_qt(1, 0, 0, -1, 0, pdev->height());
+            QTransform inv_matrix = gl_to_qt * matrix.inverted() * brush.transform().inverted() * translate;
 
 
             float pt[4] = {inv_matrix.dx(), inv_matrix.dy(), 0.f, 0.f};
@@ -1839,16 +1839,16 @@ void QOpenGLPaintEnginePrivate::fillPath(const QPainterPath &path)
 #else
     GLfloat mat[4][4];
 #endif
-    QMatrix mtx = matrix;
+    QTransform mtx = matrix;
     mat[0][0] = mtx.m11();
     mat[0][1] = mtx.m12();
     mat[0][2] = 0;
-    mat[0][3] = 0;
+    mat[0][3] = mtx.m13();
 
     mat[1][0] = mtx.m21();
     mat[1][1] = mtx.m22();
     mat[1][2] = 0;
-    mat[1][3] = 0;
+    mat[1][3] = mtx.m23();
 
     mat[2][0] = 0;
     mat[2][1] = 0;
@@ -1941,7 +1941,7 @@ void QOpenGLPaintEngine::updateFont(const QFont &)
 {
 }
 
-void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
+void QOpenGLPaintEngine::updateMatrix(const QTransform &mtx)
 {
     Q_D(QOpenGLPaintEngine);
 
@@ -1955,12 +1955,12 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
     mat[0][0] = mtx.m11();
     mat[0][1] = mtx.m12();
     mat[0][2] = 0;
-    mat[0][3] = 0;
+    mat[0][3] = mtx.m13();
 
     mat[1][0] = mtx.m21();
     mat[1][1] = mtx.m22();
     mat[1][2] = 0;
-    mat[1][3] = 0;
+    mat[1][3] = mtx.m23();
 
     mat[2][0] = 0;
     mat[2][1] = 0;
@@ -1972,14 +1972,7 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
     mat[3][2] = 0;
     mat[3][3] = 1;
 
-    if (mtx.m12() != 0 || mtx.m21() != 0)
-        d->txop = QPainterPrivate::TxRotShear;
-    else if (mtx.m11() != 1 || mtx.m22() != 1)
-        d->txop = QPainterPrivate::TxScale;
-    else if (mtx.dx() != 0 || mtx.dy() != 0)
-        d->txop = QPainterPrivate::TxTranslate;
-    else
-        d->txop = QPainterPrivate::TxNone;
+    d->txop = (QTransform::TransformationCodes)mtx.type();
 
     // 1/10000 == 0.0001, so we have good enough res to cover curves
     // that span the entire widget...
@@ -2214,7 +2207,7 @@ void QOpenGLPaintEngine::drawPoints(const QPointF *points, int pointCount)
     d->setGradientOps(d->pen_brush_style);
 
     GLfloat pen_width = d->cpen.widthF();
-    if (pen_width > 1 || (pen_width > 0 && d->txop > QPainterPrivate::TxTranslate)) {
+    if (pen_width > 1 || (pen_width > 0 && d->txop > QTransform::TxTranslate)) {
         QPaintEngine::drawPoints(points, pointCount);
         return;
     }
@@ -2374,7 +2367,7 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
                 d->fillPath(stroke);
             } else {
                 d->beginPath(WindingMode);
-                d->stroker->strokePolygon(points, pointCount, mode != PolylineMode, d, QMatrix());
+                d->stroker->strokePolygon(points, pointCount, mode != PolylineMode, d, QTransform());
                 d->endPath();
             }
 #else
@@ -2529,7 +2522,7 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
                 d->fillPath(stroke);
             } else {
                 d->beginPath(WindingMode);
-                d->stroker->strokePath(path, d, QMatrix());
+                d->stroker->strokePath(path, d, QTransform());
                 d->endPath();
             }
         }
@@ -3000,7 +2993,7 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
     QVarLengthArray<QFixedPoint> positions;
     QVarLengthArray<glyph_t> glyphs;
-    QMatrix matrix;
+    QTransform matrix;
     matrix.translate(qRound(p.x()), qRound(p.y()));
     ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
 

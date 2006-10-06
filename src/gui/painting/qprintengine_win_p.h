@@ -48,7 +48,7 @@ public:
 
     void updateState(const QPaintEngineState &state);
 
-    void updateMatrix(const QMatrix &matrix);
+    void updateMatrix(const QTransform &matrix);
     void updateClipPath(const QPainterPath &clip, Qt::ClipOperation op);
 
     void drawPath(const QPainterPath &path);
@@ -212,8 +212,8 @@ public:
     QPen pen;
     QColor pen_color;
 
-    QMatrix painterMatrix;
-    QMatrix matrix;
+    QTransform painterMatrix;
+    QTransform matrix;
 };
 
 #endif // QT_NO_PRINTER

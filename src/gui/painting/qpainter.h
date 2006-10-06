@@ -27,6 +27,7 @@
 #include <QtGui/qpen.h>
 #include <QtGui/qbrush.h>
 #include <QtGui/qmatrix.h>
+#include <QtGui/qtransform.h>
 #include <QtGui/qfontinfo.h>
 #include <QtGui/qfontmetrics.h>
 #endif
@@ -45,6 +46,7 @@ class QPen;
 class QPolygon;
 class QTextItem;
 class QMatrix;
+class QTransform;
 
 class Q_GUI_EXPORT QPainter
 {
@@ -144,10 +146,19 @@ public:
     const QMatrix &deviceMatrix() const;
     void resetMatrix();
 
+    void setTransform(const QTransform &transform, bool combine = false);
+    const QTransform &transform() const;
+    const QTransform &deviceTransform() const;
+    void resetTransform();
+
     void setWorldMatrix(const QMatrix &matrix, bool combine = false);
     const QMatrix &worldMatrix() const;
+    
+    void setWorldTransform(const QTransform &matrix, bool combine = false);
+    const QTransform &worldTransform() const;
 
     QMatrix combinedMatrix() const;
+    QTransform combinedTransform() const;
 
     void setMatrixEnabled(bool enabled);
     bool matrixEnabled() const;
@@ -382,7 +393,7 @@ public:
 
     inline QT3_SUPPORT void setWorldXForm(bool enabled) { setMatrixEnabled(enabled); }
     inline QT3_SUPPORT bool hasWorldXForm() const { return matrixEnabled(); }
-    inline QT3_SUPPORT void resetXForm() { resetMatrix(); }
+    inline QT3_SUPPORT void resetXForm() { resetTransform(); }
 
     inline QT3_SUPPORT void setViewXForm(bool enabled) { setViewTransformEnabled(enabled); }
     inline QT3_SUPPORT bool hasViewXForm() const { return viewTransformEnabled(); }

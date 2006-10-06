@@ -60,7 +60,7 @@ public:
     void updateBrush(const QBrush &brush, const QPointF &pt);
     void updateRenderHints(QPainter::RenderHints hints);
     void updateFont(const QFont &font);
-    void updateMatrix(const QMatrix &matrix);
+    void updateMatrix(const QTransform &matrix);
     void updateClipRegion_dev(const QRegion &region, Qt::ClipOperation op);
 
     void drawLines(const QLine *lines, int lineCount);
@@ -122,7 +122,7 @@ public:
         gc = gc_brush = 0;
         dpy  = 0;
         xinfo = 0;
-        txop = QPainterPrivate::TxNone;
+        txop = QTransform::TxNone;
         has_clipping = false;
         render_hints = 0;
 #ifndef QT_NO_XRENDER
@@ -172,7 +172,7 @@ public:
     QPen cpen;
     QBrush cbrush;
     QRegion crgn;
-    QMatrix matrix;
+    QTransform matrix;
     qreal opacity;
 
     uint has_complex_xform : 1;
@@ -191,7 +191,7 @@ public:
 
     const QX11Info *xinfo;
     QPointF bg_origin;
-    QPainterPrivate::TransformationCodes txop;
+    QTransform::TransformationCodes txop;
     QPolygonClipper<qt_float_point, qt_float_point, float> polygonClipper;
 
     int xlibMaxLinePoints;

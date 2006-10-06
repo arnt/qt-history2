@@ -49,7 +49,7 @@ public:
     void updateBrush(const QBrush &brush, const QPointF &origin);
     void updateFont(const QFont &font);
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
-    void updateMatrix(const QMatrix &matrix);
+    void updateMatrix(const QTransform &matrix);
     void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
     void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
     void updateRenderHints(QPainter::RenderHints hints);

@@ -452,13 +452,13 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
     QPen        pen;
     QBrush      brush;
     QRegion     rgn;
-    QMatrix     matrix;
+    QTransform  matrix;
 
-    QMatrix worldMatrix = painter->matrix();
-    QMatrix oldWorldMatrix = worldMatrix;
+    QTransform worldMatrix = painter->transform();
+    QTransform oldWorldMatrix = worldMatrix;
     worldMatrix.scale(qreal(painter->device()->logicalDpiX()) / qreal(qt_defaultDpi()),
                       qreal(painter->device()->logicalDpiY()) / qreal(qt_defaultDpi()));
-    painter->setMatrix(worldMatrix);
+    painter->setTransform(worldMatrix);
 
     while (nrecords-- && !s.atEnd()) {
         s >> c;                 // read cmd
@@ -569,8 +569,8 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
 
             font = QFont(font, painter->device());
 
-            QMatrix matrix = painter->matrix();
-            painter->setMatrix(oldWorldMatrix);
+            QTransform matrix = painter->transform();
+            painter->setTransform(oldWorldMatrix);
 
             p.rx() *= painter->device()->logicalDpiX() / double(qt_defaultDpi());
             p.ry() *= painter->device()->logicalDpiY() / double(qt_defaultDpi());
@@ -578,7 +578,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             qt_format_text(font, QRectF(p, QSizeF(1, 1)), Qt::TextSingleLine | Qt::TextDontClip, str, /*brect=*/0, /*tabstops=*/0, /*...*/0, /*tabarraylen=*/0, painter);
 
             painter->setLayoutDirection(oldDir);
-            painter->setMatrix(matrix);
+            painter->setTransform(matrix);
             break;
         }
         case QPicturePrivate::PdcDrawPixmap: {
@@ -689,11 +689,12 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             break;
         case QPicturePrivate::PdcSetWMatrix:
             s >> matrix >> i_8;
-            matrix.setMatrix(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(),
+            matrix.setMatrix(matrix.m11(), matrix.m12(), 0,
+                             matrix.m21(), matrix.m22(), 0, 
                              matrix.dx() * painter->device()->logicalDpiX() / double(qt_defaultDpi()),
-                             matrix.dy() * painter->device()->logicalDpiY() / double(qt_defaultDpi()));
+                             matrix.dy() * painter->device()->logicalDpiY() / double(qt_defaultDpi()), 1);
             // i_8 is always false due to updateXForm() in qpaintengine_pic.cpp
-            painter->setMatrix(worldMatrix * matrix, false);
+            painter->setTransform(worldMatrix * matrix, false);
             oldWorldMatrix *= matrix;
             break;
 // #ifdef Q_Q3PAINTER

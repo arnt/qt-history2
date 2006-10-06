@@ -69,7 +69,7 @@ QFixed QFontEngine::averageCharWidth() const
 }
 
 
-void QFontEngine::getGlyphPositions(const QGlyphLayout *glyphs, int nglyphs, const QMatrix &matrix, QTextItem::RenderFlags flags,
+void QFontEngine::getGlyphPositions(const QGlyphLayout *glyphs, int nglyphs, const QTransform &matrix, QTextItem::RenderFlags flags,
                                     QVarLengthArray<glyph_t> &glyphs_out, QVarLengthArray<QFixedPoint> &positions)
 {
     QFixed xpos;
@@ -184,7 +184,7 @@ void QFontEngine::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs,
 
     QVarLengthArray<QFixedPoint> positions;
     QVarLengthArray<glyph_t> positioned_glyphs;
-    QMatrix matrix;
+    QTransform matrix;
     matrix.translate(x, y);
     getGlyphPositions(glyphs, numGlyphs, matrix, flags, positioned_glyphs, positions);
     addGlyphsToPath(positioned_glyphs.data(), positions.data(), positioned_glyphs.size(), path, flags);
@@ -472,7 +472,7 @@ void QFontEngineBox::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
 
     QVarLengthArray<QFixedPoint> positions;
     QVarLengthArray<glyph_t> positioned_glyphs;
-    QMatrix matrix;
+    QTransform matrix;
     matrix.translate(x, y);
     getGlyphPositions(glyphs, numGlyphs, matrix, flags, positioned_glyphs, positions);
     addGlyphsToPath(positioned_glyphs.data(), positions.data(), positioned_glyphs.size(), path, flags);

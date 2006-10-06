@@ -23,6 +23,7 @@ QT_BEGIN_HEADER
 QT_MODULE(Gui)
 
 class QMatrix;
+class QTransform;
 class QRect;
 class QVariant;
 

@@ -73,7 +73,7 @@
 
 #ifdef Q_WS_WIN
 void qt_draw_text_item(const QPointF &point, const QTextItemInt &ti, HDC hdc,
-                       bool convertToText, const QMatrix &xform, const QPointF &topLeft);
+                       bool convertToText, const QTransform &xform, const QPointF &topLeft);
 #endif
 
 // #define QT_DEBUG_DRAW
@@ -141,12 +141,14 @@ public:
       sets up the qt_path_iterator function that is used as a callback
       to get points.
     */
-    void setMatrix(const QMatrix &m, uint txop)
+    void setMatrix(const QTransform &m, uint txop)
     {
         m_m11 = m.m11();
         m_m12 = m.m12();
+        m_m13 = m.m13();
         m_m21 = m.m21();
         m_m22 = m.m22();
+        m_m23 = m.m23();
         m_dx = m.dx();
         m_dy = m.dy();
         m_txop = txop;
@@ -283,8 +285,10 @@ public:
     // Matrix
     qreal m_m11;
     qreal m_m12;
+    qreal m_m13;
     qreal m_m21;
     qreal m_m22;
+    qreal m_m23;
     qreal m_dx;
     qreal m_dy;
 
@@ -299,24 +303,52 @@ void QFTOutlineMapper::endOutline()
     const QPointF *elements;
 
     // Transform the outline
-    if (m_txop == QPainterPrivate::TxNone) {
+    if (m_txop == QTransform::TxNone) {
         elements = m_elements.data();
     } else {
-        if (m_txop == QPainterPrivate::TxTranslate) {
+        if (m_txop == QTransform::TxTranslate) {
             for (int i=0; i<m_elements.size(); ++i) {
                 const QPointF &e = m_elements.at(i);
                 m_elements_dev << QPointF(e.x() + m_dx, e.y() + m_dy);
             }
-        } else if (m_txop == QPainterPrivate::TxScale) {
-            for (int i=0; i<m_elements.size(); ++i) {
-                const QPointF &e = m_elements.at(i);
-                m_elements_dev << QPointF(m_m11 * e.x() + m_dx, m_m22 * e.y() + m_dy);
+        } else if (m_txop == QTransform::TxScale) {
+            bool affine = !m_m13 && !m_m23;
+            if (affine) {
+                for (int i=0; i<m_elements.size(); ++i) {
+                    const QPointF &e = m_elements.at(i);
+                    m_elements_dev << QPointF(m_m11 * e.x() + m_dx, m_m22 * e.y() + m_dy);
+                }
+            } else {
+                for (int i=0; i<m_elements.size(); ++i) {
+                    const QPointF &e = m_elements.at(i);
+                    qreal x = m_m11 * e.x() + m_dx;
+                    qreal y = m_m22 * e.y() + m_dy;
+                    qreal w = m_m13*e.x() + m_m23*e.y() + 1.;
+                    w = 1/w;
+                    x *= w;
+                    y *= w;
+                    m_elements_dev << QPointF(x, y);
+                }                
             }
         } else {
-            for (int i=0; i<m_elements.size(); ++i) {
-                const QPointF &e = m_elements.at(i);
-                m_elements_dev << QPointF(m_m11 * e.x() + m_m21 * e.y() + m_dx,
-                                          m_m22 * e.y() + m_m12 * e.x() + m_dy);
+            bool affine = !m_m13 && !m_m23;
+            if (affine) {
+                for (int i=0; i<m_elements.size(); ++i) {
+                    const QPointF &e = m_elements.at(i);
+                    m_elements_dev << QPointF(m_m11 * e.x() + m_m21 * e.y() + m_dx,
+                                              m_m22 * e.y() + m_m12 * e.x() + m_dy);
+                }
+            } else {
+                for (int i=0; i<m_elements.size(); ++i) {
+                    const QPointF &e = m_elements.at(i);
+                    qreal x = m_m11 * e.x() + m_m21 * e.y() + m_dx;
+                    qreal y = m_m22 * e.y() + m_m12 * e.x() + m_dy;
+                    qreal w = m_m13*e.x() + m_m23*e.y() + 1.;
+                    w = 1/w;
+                    x *= w;
+                    y *= w;
+                    m_elements_dev << QPointF(x, y);
+                }
             }
         }
         elements = m_elements_dev.data();
@@ -706,7 +738,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
             d->baseClip.addRegion(sysClip);
             d->deviceRect = sysClip.boundingRect();
             // Shift the baseclip to absolute
-            d->baseClip = d->baseClip * QMatrix(1, 0, 0, 1,
+            d->baseClip = d->baseClip * QTransform(1, 0, 0, 1,
                                                 -d->deviceRect.x(),
                                                 -d->deviceRect.y());
         }
@@ -783,8 +815,8 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
 
     d->rasterBuffer->resetClip();
 
-    d->matrix = QMatrix();
-    d->txop = QPainterPrivate::TxNone;
+    d->matrix = QTransform();
+    d->txop = QTransform::TxNone;
 
     d->outlineMapper->setMatrix(d->matrix, d->txop);
     d->outlineMapper->m_clipper.setBoundingRect(d->deviceRect.adjusted(-10, -10, 10, 10));
@@ -953,26 +985,27 @@ void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
 /*!
     \internal
 */
-void QRasterPaintEngine::updateMatrix(const QMatrix &matrix)
+void QRasterPaintEngine::updateMatrix(const QTransform &matrix)
 {
     Q_D(QRasterPaintEngine);
 
     d->matrix = matrix;
     d->int_xform = false;
-    if (d->matrix.m12() != 0 || d->matrix.m21() != 0) {
-        d->txop = QPainterPrivate::TxRotShear;
+    if (d->matrix.m12() != 0 || d->matrix.m21() != 0 ||
+        d->matrix.m13() != 0 || d->matrix.m23() != 0) {
+        d->txop = QTransform::TxRotShear;
     } else if (d->matrix.m11() != 1 || d->matrix.m22() != 1) {
-        d->txop = QPainterPrivate::TxScale;
+        d->txop = QTransform::TxScale;
         d->int_xform = qreal(int(d->matrix.dx())) == d->matrix.dx()
                             && qreal(int(d->matrix.dy())) == d->matrix.dy()
                             && qreal(int(d->matrix.m11())) == d->matrix.m11()
                             && qreal(int(d->matrix.m22())) == d->matrix.m22();
     } else if (d->matrix.dx() != 0 || d->matrix.dy() != 0) {
-        d->txop = QPainterPrivate::TxTranslate;
+        d->txop = QTransform::TxTranslate;
         d->int_xform = qreal(int(d->matrix.dx())) == d->matrix.dx()
                             && qreal(int(d->matrix.dy())) == d->matrix.dy();
     } else {
-        d->txop = QPainterPrivate::TxNone;
+        d->txop = QTransform::TxNone;
         d->int_xform = true;
     }
 
@@ -983,10 +1016,10 @@ void QRasterPaintEngine::updateMatrix(const QMatrix &matrix)
                            qreal(0.0001));
 
     d->outlineMapper->setMatrix(d->matrix, d->txop);
-    QMatrix penMatrix = (d->matrix.inverted()*d->pen.brush().matrix().inverted()).inverted();
+    QTransform penMatrix = (d->matrix.inverted()*d->pen.brush().transform().inverted()).inverted();
     d->penData.setupMatrix(penMatrix,
                            d->txop, d->bilinear);
-    QMatrix brushMatrix = (d->brushMatrix().inverted() * d->brush.matrix().inverted()).inverted();
+    QTransform brushMatrix = (d->brushMatrix().inverted() * d->brush.transform().inverted()).inverted();
     d->brushData.setupMatrix(brushMatrix, d->txop, d->bilinear);
 }
 
@@ -1003,7 +1036,7 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
 
     if (flags & DirtyTransform) {
         update_fast_pen = true;
-        updateMatrix(state.matrix());
+        updateMatrix(state.transform());
     }
 
     if (flags & DirtyOpacity) {
@@ -1057,7 +1090,7 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         d->brush = brush;
         d->brushOffset = state.brushOrigin();
         d->brushData.setup(d->brush, d->opacity);
-        d->brushData.setupMatrix((d->brushMatrix().inverted() * d->brush.matrix().inverted()).inverted(),
+        d->brushData.setupMatrix((d->brushMatrix().inverted() * d->brush.transform().inverted()).inverted(),
                                  d->txop, d->bilinear);
     }
 
@@ -1124,7 +1157,8 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
     if (update_fast_pen) {
         d->fast_pen = !d->antialiased
                       && (d->pen.widthF() == 0
-                          || d->pen.widthF() <= 1 && d->txop <= QPainterPrivate::TxTranslate);
+                          || d->pen.widthF() <= 1 &&
+                          d->txop <= QTransform::TxTranslate);
     }
 }
 
@@ -1160,7 +1194,7 @@ void QRasterPaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperat
         case Qt::UniteClip:
         case Qt::ReplaceClip:
         case Qt::NoClip:
-            d->outlineMapper->setMatrix(QMatrix(), QPainterPrivate::TxNone);
+            d->outlineMapper->setMatrix(QTransform(), QTransform::TxNone);
             d->updateClip_helper(d->baseClip, Qt::IntersectClip);
             d->outlineMapper->setMatrix(d->matrix, d->txop);
             break;
@@ -1235,7 +1269,7 @@ void QRasterPaintEngine::drawRects(const QRect *rects, int rectCount)
     qDebug(" - QRasterPaintEngine::drawRect(), rectCount=%d", rectCount);
 #endif
     Q_D(QRasterPaintEngine);
-    if (!d->antialiased && d->txop <= QPainterPrivate::TxTranslate) {
+    if (!d->antialiased && d->txop <= QTransform::TxTranslate) {
         int offset_x = int(d->matrix.dx());
         int offset_y = int(d->matrix.dy());
 
@@ -1317,11 +1351,11 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
         qreal width = d->pen.widthF();
         d->outlineMapper->beginOutline(Qt::WindingFill);
         if (width == 0) {
-            d->outlineMapper->setMatrix(QMatrix(), QPainterPrivate::TxNone);
+            d->outlineMapper->setMatrix(QTransform(), QTransform::TxNone);
             d->stroker->strokePath(path, d->outlineMapper, d->matrix);
         } else {
             d->outlineMapper->setMatrix(d->matrix, d->txop);
-            d->stroker->strokePath(path, d->outlineMapper, QMatrix());
+            d->stroker->strokePath(path, d->outlineMapper, QTransform());
         }
         d->outlineMapper->endOutline();
 
@@ -1422,14 +1456,15 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             d->outlineMapper->beginOutline(Qt::WindingFill);
             if (width == 0) {
                 d->basicStroker.setStrokeWidth(1);
-                d->outlineMapper->setMatrix(QMatrix(), QPainterPrivate::TxNone);
+                d->outlineMapper->setMatrix(QTransform(),
+                                            QTransform::TxNone);
                 d->stroker->strokePolygon(points, pointCount, needs_closing,
                                           d->outlineMapper, d->matrix);
             } else {
                 d->basicStroker.setStrokeWidth(width);
                 d->outlineMapper->setMatrix(d->matrix, d->txop);
                 d->stroker->strokePolygon(points, pointCount, needs_closing,
-                                          d->outlineMapper, QMatrix());
+                                          d->outlineMapper, QTransform());
             }
             d->outlineMapper->endOutline();
 
@@ -1492,40 +1527,99 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
         int m22 = int(d->matrix.m22());
         int dx = int(d->matrix.dx());
         int dy = int(d->matrix.dy());
+        int m13 = int(d->matrix.m13());
+        int m23 = int(d->matrix.m23());
+        bool affine = !m13 && !m23;
 
         int dashOffset = 0;
 
-        // Draw all the line segments.
-        for (int i=1; i<pointCount; ++i) {
-            if (d->pen.style() == Qt::SolidLine)
-                drawLine_midpoint_i(points[i-1].x() * m11 + dx, points[i-1].y() * m22 + dy,
-                                    points[i].x() * m11 + dx, points[i].y() * m22 + dy,
-                                    d->penData.blend, &d->penData,
-                                    i == pointCount - 1 ? mode_for_last : LineDrawIncludeLastPixel,
-                                    devRect);
-            else
-                drawLine_midpoint_dashed_i(points[i-1].x() * m11 + dx, points[i-1].y() * m22 + dy,
-                                           points[i].x() * m11 + dx, points[i].y() * m22 + dy,
-                                           &d->pen,
-                                           d->penData.blend, &d->penData,
-                                           i == pointCount - 1 ? mode_for_last : LineDrawIncludeLastPixel,
-                                           devRect, &dashOffset);
+        if (affine) {
+            // Draw all the line segments.
+            for (int i=1; i<pointCount; ++i) {
+                if (d->pen.style() == Qt::SolidLine)
+                    drawLine_midpoint_i(points[i-1].x() * m11 + dx, points[i-1].y() * m22 + dy,
+                                        points[i].x() * m11 + dx, points[i].y() * m22 + dy,
+                                        d->penData.blend, &d->penData,
+                                        i == pointCount - 1 ? mode_for_last : LineDrawIncludeLastPixel,
+                                        devRect);
+                else
+                    drawLine_midpoint_dashed_i(points[i-1].x() * m11 + dx, points[i-1].y() * m22 + dy,
+                                               points[i].x() * m11 + dx, points[i].y() * m22 + dy,
+                                               &d->pen,
+                                               d->penData.blend, &d->penData,
+                                               i == pointCount - 1 ? mode_for_last : LineDrawIncludeLastPixel,
+                                               devRect, &dashOffset);
 
-        }
+            }
 
-        // Polygons are implicitly closed.
-        if (needs_closing) {
-            if (d->pen.style() == Qt::SolidLine)
-                drawLine_midpoint_i(points[pointCount-1].x() * m11 + dx, points[pointCount-1].y() * m22 + dy,
-                                    points[0].x() * m11 + dx, points[0].y() * m22 + dy,
-                                    d->penData.blend, &d->penData, LineDrawIncludeLastPixel,
-                                    devRect);
-            else
-                drawLine_midpoint_dashed_i(points[pointCount-1].x() * m11 + dx, points[pointCount-1].y() * m22 + dy,
-                                    points[0].x() * m11 + dx, points[0].y() * m22 + dy,
-                                           &d->pen,
-                                           d->penData.blend, &d->penData, LineDrawIncludeLastPixel,
-                                           devRect, &dashOffset);
+            // Polygons are implicitly closed.
+            if (needs_closing) {
+                if (d->pen.style() == Qt::SolidLine)
+                    drawLine_midpoint_i(points[pointCount-1].x() * m11 + dx, points[pointCount-1].y() * m22 + dy,
+                                        points[0].x() * m11 + dx, points[0].y() * m22 + dy,
+                                        d->penData.blend, &d->penData, LineDrawIncludeLastPixel,
+                                        devRect);
+                else
+                    drawLine_midpoint_dashed_i(points[pointCount-1].x() * m11 + dx, points[pointCount-1].y() * m22 + dy,
+                                               points[0].x() * m11 + dx, points[0].y() * m22 + dy,
+                                               &d->pen,
+                                               d->penData.blend, &d->penData, LineDrawIncludeLastPixel,
+                                               devRect, &dashOffset);
+            }
+        } else {
+            // Draw all the line segments.
+            for (int i=1; i<pointCount; ++i) {
+                int x1 = points[i-1].x() * m11 + dx;
+                int y1 = points[i-1].y() * m22 + dy;
+                qreal w = m13*points[i-1].x() + m23*points[i-1].y() + 1.;
+                w = 1/w;
+                x1 = int(x1*w);
+                y1 = int(y1*w);
+                int x2 = points[i].x() * m11 + dx;
+                int y2 = points[i].y() * m22 + dy;
+                w = m13*points[i].x() + m23*points[i].y() + 1.;
+                w = 1/w;
+                x2 = int(x2*w);
+                y2 = int(y2*w);
+                
+                if (d->pen.style() == Qt::SolidLine)
+                    drawLine_midpoint_i(x1, y1, x2, y2,
+                                        d->penData.blend, &d->penData,
+                                        i == pointCount - 1 ? mode_for_last : LineDrawIncludeLastPixel,
+                                        devRect);
+                else
+                    drawLine_midpoint_dashed_i(x1, y1, x2, y2,
+                                               &d->pen,
+                                               d->penData.blend, &d->penData,
+                                               i == pointCount - 1 ? mode_for_last : LineDrawIncludeLastPixel,
+                                               devRect, &dashOffset);
+
+            }
+
+            int x1 = points[pointCount-1].x() * m11 + dx;
+            int y1 = points[pointCount-1].y() * m22 + dy;
+            qreal w = m13*points[pointCount-1].x() + m23*points[pointCount-1].y() + 1.;
+            w = 1/w;
+            x1 = int(x1*w);
+            y1 = int(y1*w);
+            int x2 = points[0].x() * m11 + dx;
+            int y2 = points[0].y() * m22 + dy;
+            w = m13*points[0].x() + m23*points[0].y() + 1.;
+            w = 1/w;
+            x2 = int(x2 * w);
+            y2 = int(y2 * w);
+            // Polygons are implicitly closed.
+            if (needs_closing) {
+                if (d->pen.style() == Qt::SolidLine)
+                    drawLine_midpoint_i(x1, y1, x2, y2,
+                                        d->penData.blend, &d->penData, LineDrawIncludeLastPixel,
+                                        devRect);
+                else
+                    drawLine_midpoint_dashed_i(x1, y1, x2, y2,
+                                               &d->pen,
+                                               d->penData.blend, &d->penData, LineDrawIncludeLastPixel,
+                                               devRect, &dashOffset);
+            }
         }
 
     }
@@ -1544,7 +1638,7 @@ void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, cons
     Q_D(QRasterPaintEngine);
 
     if (pixmap.depth() == 1) {
-        if (d->txop <= QPainterPrivate::TxTranslate
+        if (d->txop <= QTransform::TxTranslate
             && r.size() == sr.size()
             && r.size() == pixmap.size()) {
             d->drawBitmap(r.topLeft() + QPointF(d->matrix.dx(), d->matrix.dy()), pixmap, &d->penData);
@@ -1603,13 +1697,13 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
 
     bool stretch_sr = r.width() != sr.width() || r.height() != sr.height();
 
-    if (d->txop > QPainterPrivate::TxTranslate || stretch_sr) {
-        QMatrix copy = d->matrix;
+    if (d->txop > QTransform::TxTranslate || stretch_sr) {
+        QTransform copy = d->matrix;
         copy.translate(r.x(), r.y());
         if (stretch_sr)
             copy.scale(r.width() / sr.width(), r.height() / sr.height());
         copy.translate(-sr.x(), -sr.y());
-        textureData.setupMatrix(copy, QPainterPrivate::TxRotShear, d->bilinear);
+        textureData.setupMatrix(copy, QTransform::TxRotShear, d->bilinear);
 	textureData.adjustSpanMethods();
 
         bool wasAntialiased = d->antialiased;
@@ -1650,11 +1744,11 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
     textureData.type = QSpanData::Texture;
     textureData.initTexture(&image, d->opacity, TextureData::Tiled);
 
-    if (d->txop > QPainterPrivate::TxTranslate) {
-        QMatrix copy = d->matrix;
+    if (d->txop > QTransform::TxTranslate) {
+        QTransform copy = d->matrix;
         copy.translate(r.x(), r.y());
         copy.translate(-sr.x(), -sr.y());
-        textureData.setupMatrix(copy, QPainterPrivate::TxRotShear, d->bilinear);
+        textureData.setupMatrix(copy, QTransform::TxRotShear, d->bilinear);
 
         bool wasAntialiased = d->antialiased;
         if (!d->antialiased)
@@ -1834,8 +1928,9 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
         SelectObject(hdc, GetStockObject(BLACK_PEN));
         SetTextColor(hdc, RGB(0,0,0));
         qt_draw_text_item(QPointF(leftBearingReserve, ti.ascent.toReal()), ti, hdc,
-            false, QMatrix(d->matrix.m11(), d->matrix.m12(), d->matrix.m21(),
-            d->matrix.m22(), 0, 0), topLeft);
+                          false, QTransform(d->matrix.m11(), d->matrix.m12(),
+                                            d->matrix.m21(), d->matrix.m22(),
+                                            0, 0), topLeft);
 
         BitBlt(d->fontRasterBuffer->hdc(), 0, 0, devRect.width(), devRect.height(),
                hdc, 0, 0, SRCCOPY);
@@ -1889,8 +1984,8 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
 
         qt_draw_text_item(QPointF(leftBearingReserve, ti.ascent.toReal()), ti,
                           d->fontRasterBuffer->hdc(), false,
-                          QMatrix(d->matrix.m11(), d->matrix.m12(), d->matrix.m21(),
-                          d->matrix.m22(), 0, 0), topLeft);
+                          QTransform(d->matrix.m11(), d->matrix.m12(), d->matrix.m21(),
+                                     d->matrix.m22(), 0, 0), topLeft);
 
         if (clearType) {
             DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(NULL_BRUSH)));
@@ -1970,7 +2065,9 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     qreal bufferWidth = (ti.width + x_buffering).toReal() + leftBearingReserve;
     qreal bufferHeight = (ti.ascent + ti.descent + 1).toReal();
 
-    QMatrix m(d->matrix.m11(), d->matrix.m12(), d->matrix.m21(), d->matrix.m22(), 0, 0);
+    QTransform m(d->matrix.m11(), d->matrix.m12(), d->matrix.m13(), 
+                 d->matrix.m21(), d->matrix.m22(), d->matrix.m23(), 
+                 0, 0, 1);
     QRectF logRect(0, 0, bufferWidth, bufferHeight);
     QPointF topLeft = m.mapRect(logRect).topLeft();
 
@@ -2134,7 +2231,7 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
 
     double pw = d->pen.widthF();
 
-    if (!d->fast_pen && (d->txop > QPainterPrivate::TxTranslate || pw > 1)) {
+    if (!d->fast_pen && (d->txop > QTransform::TxTranslate || pw > 1)) {
         QBrush oldBrush = d->brush;
         d->brush = Qt::NoBrush;
 
@@ -2298,7 +2395,7 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
     if (d->fast_pen
         && (d->pen.style() == Qt::SolidLine || d->pen.style() == Qt::NoPen)
         && qMax(r.width(), r.height()) < 128 // integer math breakdown
-        && d->txop <= QPainterPrivate::TxScale) // no shear
+        && d->txop <= QTransform::TxScale) // no shear
     {
         const QRect devRect(0, 0, d->deviceRect.width(), d->deviceRect.height());
         drawEllipse_midpoint_i(QRect(int(r.x()), int(r.y()),
@@ -2330,11 +2427,11 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
         qreal width = d->pen.widthF();
         d->outlineMapper->beginOutline(Qt::WindingFill);
         if (width == 0) {
-            d->outlineMapper->setMatrix(QMatrix(), QPainterPrivate::TxNone);
+            d->outlineMapper->setMatrix(QTransform(), QTransform::TxNone);
             d->stroker->strokeEllipse(rect, d->outlineMapper, d->matrix);
         } else {
             d->outlineMapper->setMatrix(d->matrix, d->txop);
-            d->stroker->strokeEllipse(rect, d->outlineMapper, QMatrix());
+            d->stroker->strokeEllipse(rect, d->outlineMapper, QTransform());
         }
         d->outlineMapper->endOutline();
 
@@ -3326,7 +3423,7 @@ void QSpanData::init(QRasterBuffer *rb, QRasterPaintEngine *pe)
     txop = 0;
     bilinear = false;
     m11 = m22 = 1.;
-    m12 = m21 = dx = dy = 0.;
+    m12 = m13 = m21 = m23 = dx = dy = 0.;
 }
 
 void QSpanData::setup(const QBrush &brush, int alpha)
@@ -3450,13 +3547,15 @@ void QSpanData::adjustSpanMethods()
     }
 }
 
-void QSpanData::setupMatrix(const QMatrix &matrix, int tx, int bilin)
+void QSpanData::setupMatrix(const QTransform &matrix, int tx, int bilin)
 {
-    QMatrix inv = matrix.inverted();
+    QTransform inv = matrix.inverted();
     m11 = inv.m11();
     m12 = inv.m12();
+    m13 = inv.m13();
     m21 = inv.m21();
     m22 = inv.m22();
+    m23 = inv.m23();
     dx = inv.dx();
     dy = inv.dy();
     txop = tx;
@@ -3552,7 +3651,7 @@ void QSpanData::initGradient(const QGradient *g, int alpha)
 
 #ifdef Q_WS_WIN
 static void draw_text_item_win(const QPointF &_pos, const QTextItemInt &ti, HDC hdc,
-                               bool convertToText, const QMatrix &xform, const QPointF &topLeft)
+                               bool convertToText, const QTransform &xform, const QPointF &topLeft)
 {
 
     // Make sure we translate for systems that can't handle world transforms
@@ -3628,7 +3727,7 @@ static void draw_text_item_win(const QPointF &_pos, const QTextItemInt &ti, HDC 
             QVarLengthArray<QFixedPoint> positions;
             QVarLengthArray<glyph_t> _glyphs;
 
-            QMatrix matrix;
+            QTransform matrix;
             matrix.translate(baseline_pos.x(), baseline_pos.y());
             ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags,
                 _glyphs, positions);
@@ -3680,7 +3779,7 @@ static void draw_text_item_win(const QPointF &_pos, const QTextItemInt &ti, HDC 
 }
 
 void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
-                       bool convertToText, const QMatrix &xform, const QPointF &topLeft)
+                       bool convertToText, const QTransform &xform, const QPointF &topLeft)
 {
     Q_ASSERT(ti.fontEngine->type() != QFontEngine::Multi);
     draw_text_item_win(pos, ti, hdc, convertToText, xform, topLeft);

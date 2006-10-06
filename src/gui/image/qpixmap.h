@@ -19,6 +19,7 @@
 #include <QtCore/qnamespace.h>
 #include <QtCore/qstring.h> // char*->QString conversion
 #include <QtGui/qimage.h>
+#include <QtGui/qtransform.h>
 
 QT_BEGIN_HEADER
 
@@ -92,6 +93,8 @@ public:
     QPixmap scaledToHeight(int h, Qt::TransformationMode mode = Qt::FastTransformation) const;
     QPixmap transformed(const QMatrix &, Qt::TransformationMode mode = Qt::FastTransformation) const;
     static QMatrix trueMatrix(const QMatrix &m, int w, int h);
+    QPixmap transformed(const QTransform &, Qt::TransformationMode mode = Qt::FastTransformation) const;
+    static QTransform trueMatrix(const QTransform &m, int w, int h);
 
     QImage toImage() const;
     static QPixmap fromImage(const QImage &image, Qt::ImageConversionFlags flags = Qt::AutoColor);
@@ -167,7 +170,7 @@ public:
     QT3_SUPPORT bool convertFromImage(const QImage &img, Qt::ImageConversionFlags flags = Qt::AutoColor)
         { (*this) = fromImage(img, flags); return !isNull(); }
     inline QT3_SUPPORT operator QImage() const { return toImage(); }
-    inline QT3_SUPPORT QPixmap xForm(const QMatrix &matrix) const { return transformed(matrix); }
+    inline QT3_SUPPORT QPixmap xForm(const QMatrix &matrix) const { return transformed(QTransform(matrix)); }
     inline QT3_SUPPORT bool selfMask() const { return false; }
 private:
     void resize_helper(const QSize &s);

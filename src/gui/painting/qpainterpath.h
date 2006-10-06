@@ -114,6 +114,9 @@ public:
     QList<QPolygonF> toSubpathPolygons(const QMatrix &matrix = QMatrix()) const;
     QList<QPolygonF> toFillPolygons(const QMatrix &matrix = QMatrix()) const;
     QPolygonF toFillPolygon(const QMatrix &matrix = QMatrix()) const;
+    QList<QPolygonF> toSubpathPolygons(const QTransform &matrix) const;
+    QList<QPolygonF> toFillPolygons(const QTransform &matrix) const;
+    QPolygonF toFillPolygon(const QTransform &matrix) const;
 
     inline int elementCount() const;
     inline const QPainterPath::Element &elementAt(int i) const;
@@ -136,6 +139,7 @@ private:
     friend class QPainterPathStroker;
     friend class QPainterPathStrokerPrivate;
     friend class QMatrix;
+    friend class QTransform;
 
 #ifndef QT_NO_DATASTREAM
     friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QPainterPath &);
@@ -150,6 +154,7 @@ class QPainterPathPrivate
     friend class QPainterPathStroker;
     friend class QPainterPathStrokerPrivate;
     friend class QMatrix;
+    friend class QTransform;
 #ifndef QT_NO_DATASTREAM
     friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QPainterPath &);
     friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPainterPath &);

@@ -23,6 +23,7 @@
 #include "qicon.h"
 #include "qimage.h"
 #include "qkeysequence.h"
+#include "qtransform.h"
 #include "qmatrix.h"
 #include "qpalette.h"
 #include "qpen.h"
@@ -83,6 +84,9 @@ static void construct(QVariant::Private *x, const void *copy)
 #endif
     case QVariant::Matrix:
         v_construct<QMatrix>(x, copy);
+        break;
+    case QVariant::Transform:
+        v_construct<QTransform>(x, copy);
         break;
     case QVariant::TextFormat:
         v_construct<QTextFormat>(x, copy);
@@ -166,6 +170,9 @@ static void clear(QVariant::Private *d)
 #endif
     case QVariant::Matrix:
         v_clear<QMatrix>(d);
+        break;
+    case QVariant::Transform:
+        v_clear<QTransform>(d);
         break;
     case QVariant::TextFormat:
         v_clear<QTextFormat>(d);
@@ -273,6 +280,8 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
 #endif
     case QVariant::Matrix:
         return *v_cast<QMatrix>(a) == *v_cast<QMatrix>(b);
+    case QVariant::Transform:
+        return *v_cast<QTransform>(a) == *v_cast<QTransform>(b);
     case QVariant::TextFormat:
         return *v_cast<QTextFormat>(a) == *v_cast<QTextFormat>(b);
     case QVariant::TextLength:
@@ -438,6 +447,9 @@ static void streamDebug(QDebug dbg, const QVariant &v)
     case QVariant::Matrix:
         dbg.nospace() << qvariant_cast<QMatrix>(v);
         break;
+    case QVariant::Transform:
+        dbg.nospace() << qvariant_cast<QTransform>(v);
+        break;
     case QVariant::Pixmap:
 //        dbg.nospace() << qvariant_cast<QPixmap>(v); //FIXME
         break;
@@ -556,6 +568,7 @@ Q_DECL_METATYPE_HELPER(QPen)
 Q_DECL_METATYPE_HELPER(QTextLength)
 Q_DECL_METATYPE_HELPER(QTextFormat)
 Q_DECL_METATYPE_HELPER(QMatrix)
+Q_DECL_METATYPE_HELPER(QTransform)
 
 #ifdef QT_NO_DATASTREAM
 #  define Q_IMPL_METATYPE_HELPER(TYPE) \
@@ -604,7 +617,8 @@ static const QMetaTypeGuiHelper qVariantGuiHelper[] = {
     Q_IMPL_METATYPE_HELPER(QPen),
     Q_IMPL_METATYPE_HELPER(QTextLength),
     Q_IMPL_METATYPE_HELPER(QTextFormat),
-    Q_IMPL_METATYPE_HELPER(QMatrix)
+    Q_IMPL_METATYPE_HELPER(QMatrix),
+    Q_IMPL_METATYPE_HELPER(QTransform)
 };
 
 int qRegisterGuiVariant()

@@ -42,14 +42,14 @@ class QPainterClipInfo
 public:
     enum ClipType { RegionClip, PathClip };
 
-    QPainterClipInfo(const QPainterPath &p, Qt::ClipOperation op, const QMatrix &m) :
+    QPainterClipInfo(const QPainterPath &p, Qt::ClipOperation op, const QTransform &m) :
         clipType(PathClip), matrix(m), operation(op), path(p) { }
 
-    QPainterClipInfo(const QRegion &r, Qt::ClipOperation op, const QMatrix &m) :
+    QPainterClipInfo(const QRegion &r, Qt::ClipOperation op, const QTransform &m) :
         clipType(RegionClip), matrix(m), operation(op), region(r) { }
 
     ClipType clipType;
-    QMatrix matrix;
+    QTransform matrix;
     Qt::ClipOperation operation;
     QPainterPath path;
     QRegion region;
@@ -75,8 +75,10 @@ public:
     Qt::ClipOperation clipOperation;
     QPainter::RenderHints renderHints;
     QList<QPainterClipInfo> clipInfo;
-    QMatrix worldMatrix;       // World transformation matrix, not window and viewport
-    QMatrix matrix;            // Complete transformation matrix,
+    QTransform worldMatrix;       // World transformation matrix, not window and viewport
+    QTransform matrix;            // Complete transformation matrix,
+    QMatrix    oldWorldMatrix;    //### needed to preserve BIC, the methods in
+    QMatrix    oldMatrix;         //    QPainter return "const QMatrix &" so we need them
     int txop;
     int wx, wy, ww, wh;         // window rectangle
     int vx, vy, vw, vh;         // viewport rectangle
@@ -120,15 +122,8 @@ public:
     QPainterState *state;
     QVector<QPainterState*> states;
 
-    QMatrix invMatrix;
+    QTransform invMatrix;
     uint txinv:1;
-
-    enum TransformationCodes {
-        TxNone = 0,
-        TxTranslate = 1,
-        TxScale = 2,
-        TxRotShear = 3
-    };
 
     enum DrawOperation { StrokeDraw        = 0x1,
                          FillDraw          = 0x2,
@@ -150,7 +145,7 @@ public:
         return state->pen.style() != Qt::NoPen && state->pen.width() == 0 ? 1 : 0;
     }
 
-    QMatrix viewMatrix() const;
+    QTransform viewTransform() const;
 
     QPaintDevice *device;
     QPaintDevice *original_device;

@@ -121,10 +121,10 @@ public:
     inline void lineTo(qfixed x, qfixed y);
     inline void cubicTo(qfixed x1, qfixed y1, qfixed x2, qfixed y2, qfixed ex, qfixed ey);
 
-    void strokePath(const QPainterPath &path, void *data, const QMatrix &matrix);
+    void strokePath(const QPainterPath &path, void *data, const QTransform &matrix);
     void strokePolygon(const QPointF *points, int pointCount, bool implicit_close,
-                       void *data, const QMatrix &matrix);
-    void strokeEllipse(const QRectF &ellipse, void *data, const QMatrix &matrix);
+                       void *data, const QTransform &matrix);
+    void strokeEllipse(const QRectF &ellipse, void *data, const QTransform &matrix);
 
     QRectF clipRect() const { return m_clip_rect; }
     void setClipRect(const QRectF &clip) { m_clip_rect = clip; }

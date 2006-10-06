@@ -1028,7 +1028,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
 
     case CE_ProgressBarLabel:
         if (const QStyleOptionProgressBar *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(opt)) {
-            QMatrix oldMatrix = p->matrix();
+            QTransform oldMatrix = p->transform();
             QRect rect = pb->rect;
             bool vertical = false;
             bool invert = false;
@@ -1039,7 +1039,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 bottomToTop = pb2->bottomToTop;
             }
             if (vertical) {
-                QMatrix m;
+                QTransform m;
                 rect = QRect(rect.left(), rect.top(), rect.height(), rect.width()); // flip width and height
                 if (bottomToTop) {
                     m.translate(0.0, rect.width());
@@ -1048,7 +1048,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                     m.translate(rect.height(), 0.0);
                     m.rotate(90);
                 }
-                p->setMatrix(m);
+                p->setTransform(m);
             }
             const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, opt, widget);
             int u = rect.width() / unit_width;
@@ -1080,7 +1080,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                     p->drawText(rect, Qt::AlignCenter | Qt::TextSingleLine, pb->text);
                 }
             }
-            p->setMatrix(oldMatrix);
+            p->setTransform(oldMatrix);
             break;
         }
 
@@ -1304,7 +1304,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 inverted = pb2->invertedAppearance;
             }
 
-            QMatrix m;
+            QTransform m;
             if (vertical) {
                 rect = QRect(rect.left(), rect.top(), rect.height(), rect.width()); // flip width and height
                 m.translate(rect.height(), 0.0);
@@ -1329,7 +1329,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                  if (x > w)
                      x = 2 * w - x;
                  x = reverse ? rect.right() - x : x + rect.x();
-                 p->setMatrix(m);
+                 p->setTransform(m);
                  p->setPen(QPen(pal2.highlight().color(), 4));
                  p->drawLine(x, rect.y() + 1, x, rect.height() - fw);
 

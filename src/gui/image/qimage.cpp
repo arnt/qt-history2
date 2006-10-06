@@ -16,6 +16,7 @@
 #include "qbuffer.h"
 #include "qmap.h"
 #include "qmatrix.h"
+#include "qtransform.h"
 #include "qimagereader.h"
 #include "qimagewriter.h"
 #include "qstringlist.h"
@@ -3443,7 +3444,7 @@ QImage QImage::scaled(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::Transf
         return copy();
 
     QImage img;
-    QMatrix wm;
+    QTransform wm;
     wm.scale((double)newSize.width() / width(), (double)newSize.height() / height());
     img = transformed(wm, mode);
     return img;
@@ -3472,7 +3473,7 @@ QImage QImage::scaledToWidth(int w, Qt::TransformationMode mode) const
     if (w <= 0)
         return QImage();
 
-    QMatrix wm;
+    QTransform wm;
     double factor = (double) w / width();
     wm.scale(factor, factor);
     return transformed(wm, mode);
@@ -3501,7 +3502,7 @@ QImage QImage::scaledToHeight(int h, Qt::TransformationMode mode) const
     if (h <= 0)
         return QImage();
 
-    QMatrix wm;
+    QTransform wm;
     double factor = (double) h / height();
     wm.scale(factor, factor);
     return transformed(wm, mode);
@@ -3526,38 +3527,7 @@ QImage QImage::scaledToHeight(int h, Qt::TransformationMode mode) const
 */
 QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
 {
-    const qreal dt = qreal(0.);
-    qreal x1,y1, x2,y2, x3,y3, x4,y4;                // get corners
-    qreal xx = qreal(w);
-    qreal yy = qreal(h);
-
-    QMatrix mat(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0.);
-
-    mat.map(dt, dt, &x1, &y1);
-    mat.map(xx, dt, &x2, &y2);
-    mat.map(xx, yy, &x3, &y3);
-    mat.map(dt, yy, &x4, &y4);
-
-    qreal ymin = y1;                                // lowest y value
-    if (y2 < ymin) ymin = y2;
-    if (y3 < ymin) ymin = y3;
-    if (y4 < ymin) ymin = y4;
-    qreal xmin = x1;                                // lowest x value
-    if (x2 < xmin) xmin = x2;
-    if (x3 < xmin) xmin = x3;
-    if (x4 < xmin) xmin = x4;
-
-    qreal ymax = y1;                                // lowest y value
-    if (y2 > ymax) ymax = y2;
-    if (y3 > ymax) ymax = y3;
-    if (y4 > ymax) ymax = y4;
-    qreal xmax = x1;                                // lowest x value
-    if (x2 > xmax) xmax = x2;
-    if (x3 > xmax) xmax = x3;
-    if (x4 > xmax) xmax = x4;
-
-    mat.setMatrix(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), -xmin, -ymin);
-    return mat;
+    return trueMatrix(QTransform(matrix), w, h).toAffine();
 }
 
 /*!
@@ -3591,111 +3561,7 @@ QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
 */
 QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) const
 {
-    if (!d)
-        return QImage();
-
-    // source image data
-    int ws = width();
-    int hs = height();
-
-    // target image data
-    int wd;
-    int hd;
-
-    // compute size of target image
-    QMatrix mat = trueMatrix(matrix, ws, hs);
-    bool complex_xform = false;
-    bool scale_xform = false;
-    if (mat.m12() == 0.0F && mat.m21() == 0.0F) {
-        if (mat.m11() == 1.0F && mat.m22() == 1.0F) // identity matrix
-            return *this;
-        else if (mat.m11() == -1. && mat.m22() == -1.)
-            return rotated180(*this);
-
-        hd = int(qAbs(mat.m22()) * hs + 0.9999);
-        wd = int(qAbs(mat.m11()) * ws + 0.9999);
-        hd = qAbs(hd);
-        wd = qAbs(wd);
-        scale_xform = true;
-    } else if (mat.m11() == 0. && mat.m22() == 0.
-               && ((mat.m12() == 1. && mat.m21() == -1.)        // 90 degrees
-                   || (mat.m12() == -1. && mat.m21() == 1.))) { // -90 degrees
-        if (mat.m12() == 1. && mat.m21() == -1.)
-            return rotated90(*this);
-        else
-            return rotated270(*this);
-    } else {                                        // rotation or shearing
-        QPolygonF a(QRectF(0, 0, ws, hs));
-        a = mat.map(a);
-        QRectF r = a.boundingRect();
-        wd = int(qAbs(r.width()) + 0.9999);
-        hd = int(qAbs(r.height()) + 0.9999);
-        complex_xform = true;
-    }
-
-    if (wd == 0 || hd == 0)
-        return QImage();
-
-    // Make use of the pnmscale algorithm when we're scaling down
-    if (scale_xform && mode == Qt::SmoothTransformation && (wd < ws || hd < hs)) {
-        return ::smoothScaled(*this, wd, hd);
-    }
-
-    int bpp = depth();
-
-    int sbpl = bytesPerLine();
-    const uchar *sptr = bits();
-
-    QImage::Format target_format = d->format;
-
-    if (complex_xform || mode == Qt::SmoothTransformation)
-        target_format = Format_ARGB32_Premultiplied;
-
-    QImage dImage(wd, hd, target_format);
-    if (dImage.isNull())
-        return dImage;
-
-    if (target_format == QImage::Format_MonoLSB
-        || target_format == QImage::Format_Mono
-        || target_format == QImage::Format_Indexed8) {
-        dImage.d->colortable = d->colortable;
-        dImage.d->has_alpha_clut = d->has_alpha_clut | complex_xform;
-    }
-
-    dImage.d->dpmx = dotsPerMeterX();
-    dImage.d->dpmy = dotsPerMeterY();
-
-    // initizialize the data
-    if (bpp == 8 && dImage.d->colortable.size() < 256) {
-        // colors are left in the color table, so pick that one as transparent
-        dImage.d->colortable.append(0x0);
-        memset(dImage.bits(), dImage.d->colortable.size() - 1,
-               dImage.numBytes());
-    } else {
-        memset(dImage.bits(), 0, dImage.numBytes());
-    }
-
-    if (target_format == QImage::Format_RGB32
-        || target_format == QImage::Format_ARGB32_Premultiplied) {
-        QPainter p(&dImage);
-        if (mode == Qt::SmoothTransformation) {
-            p.setRenderHint(QPainter::Antialiasing);
-            p.setRenderHint(QPainter::SmoothPixmapTransform);
-        }
-        p.setMatrix(mat);
-        p.drawImage(QPoint(0, 0), *this);
-    } else {
-        bool invertible;
-        mat = mat.inverted(&invertible);                // invert matrix
-        if (!invertible)        // error, return null image
-            return QImage();
-
-        // create target image (some of the code is from QImage::copy())
-        int type = format() == Format_Mono ? QT_XFORM_TYPE_MSBFIRST : QT_XFORM_TYPE_LSBFIRST;
-        int dbpl = dImage.bytesPerLine();
-        qt_xForm_helper(mat, 0, type, bpp, dImage.bits(), dbpl, 0, hd, sptr, sbpl, ws, hs);
-    }
-    return dImage;
+    return transformed(QTransform(matrix), mode);
 }
 
 /*!
@@ -4798,7 +4664,7 @@ int QImage::metric(PaintDeviceMetric metric) const
                         trigx += m11;                                                      \
                         trigy += m12;
         // END OF MACRO
-bool qt_xForm_helper(const QMatrix &trueMat, int xoffset, int type, int depth,
+bool qt_xForm_helper(const QTransform &trueMat, int xoffset, int type, int depth,
                      uchar *dptr, int dbpl, int p_inc, int dHeight,
                      const uchar *sptr, int sbpl, int sWidth, int sHeight)
 {
@@ -5549,4 +5415,162 @@ static QImage rotated270(const QImage &image) {
         break;
     }
     return out;
+}
+
+QImage QImage::transformed(const QTransform &matrix, Qt::TransformationMode mode ) const
+{
+    if (!d)
+        return QImage();
+
+    // source image data
+    int ws = width();
+    int hs = height();
+
+    // target image data
+    int wd;
+    int hd;
+
+    // compute size of target image
+    QTransform mat = trueMatrix(matrix, ws, hs);
+    bool complex_xform = false;
+    bool scale_xform = false;
+    if (mat.m12() == 0.0F && mat.m21() == 0.0F) {
+        if (mat.m11() == 1.0F && mat.m22() == 1.0F) // identity matrix
+            return *this;
+        else if (mat.m11() == -1. && mat.m22() == -1.)
+            return rotated180(*this);
+
+        hd = int(qAbs(mat.m22()) * hs + 0.9999);
+        wd = int(qAbs(mat.m11()) * ws + 0.9999);
+        hd = qAbs(hd);
+        wd = qAbs(wd);
+        scale_xform = true;
+    } else if (mat.m11() == 0. && mat.m22() == 0.
+               && ((mat.m12() == 1. && mat.m21() == -1.)        // 90 degrees
+                   || (mat.m12() == -1. && mat.m21() == 1.))) { // -90 degrees
+        if (mat.m12() == 1. && mat.m21() == -1.)
+            return rotated90(*this);
+        else
+            return rotated270(*this);
+    } else {                                        // rotation or shearing
+        QPolygonF a(QRectF(0, 0, ws, hs));
+        a = mat.map(a);
+        QRectF r = a.boundingRect();
+        wd = int(qAbs(r.width()) + 0.9999);
+        hd = int(qAbs(r.height()) + 0.9999);
+        complex_xform = true;
+    }
+
+    if (wd == 0 || hd == 0)
+        return QImage();
+
+    // Make use of the pnmscale algorithm when we're scaling down
+    if (scale_xform && mode == Qt::SmoothTransformation && (wd < ws || hd < hs)) {
+        return ::smoothScaled(*this, wd, hd);
+    }
+
+    int bpp = depth();
+
+    int sbpl = bytesPerLine();
+    const uchar *sptr = bits();
+
+    QImage::Format target_format = d->format;
+
+    if (complex_xform || mode == Qt::SmoothTransformation)
+        target_format = Format_ARGB32_Premultiplied;
+
+    QImage dImage(wd, hd, target_format);
+    if (dImage.isNull())
+        return dImage;
+
+    if (target_format == QImage::Format_MonoLSB
+        || target_format == QImage::Format_Mono
+        || target_format == QImage::Format_Indexed8) {
+        dImage.d->colortable = d->colortable;
+        dImage.d->has_alpha_clut = d->has_alpha_clut | complex_xform;
+    }
+
+    dImage.d->dpmx = dotsPerMeterX();
+    dImage.d->dpmy = dotsPerMeterY();
+
+    switch (bpp) {
+        // initizialize the data
+        case 1:
+            memset(dImage.bits(), 0, dImage.numBytes());
+            break;
+        case 8:
+            if (dImage.d->colortable.size() < 256) {
+                // colors are left in the color table, so pick that one as transparent
+                dImage.d->colortable.append(0x0);
+                memset(dImage.bits(), dImage.d->colortable.size() - 1, dImage.numBytes());
+            } else {
+                memset(dImage.bits(), 0, dImage.numBytes());
+            }
+            break;
+        case 32:
+            memset(dImage.bits(), 0x00, dImage.numBytes());
+            break;
+    }
+
+    if (target_format == QImage::Format_RGB32
+        || target_format == QImage::Format_ARGB32_Premultiplied) {
+        QPainter p(&dImage);
+        if (mode == Qt::SmoothTransformation) {
+            p.setRenderHint(QPainter::Antialiasing);
+            p.setRenderHint(QPainter::SmoothPixmapTransform);
+        }
+        p.setTransform(mat);
+        p.drawImage(QPoint(0, 0), *this);
+    } else {
+        bool invertible;
+        mat = mat.inverted(&invertible);                // invert matrix
+        if (!invertible)        // error, return null image
+            return QImage();
+
+        // create target image (some of the code is from QImage::copy())
+        int type = format() == Format_Mono ? QT_XFORM_TYPE_MSBFIRST : QT_XFORM_TYPE_LSBFIRST;
+        int dbpl = dImage.bytesPerLine();
+        qt_xForm_helper(mat, 0, type, bpp, dImage.bits(), dbpl, 0, hd, sptr, sbpl, ws, hs);
+    }
+    return dImage;
+}
+
+QTransform QImage::trueMatrix(const QTransform &matrix, int w, int h)
+{
+    const qreal dt = qreal(0.);
+    qreal x1,y1, x2,y2, x3,y3, x4,y4;                // get corners
+    qreal xx = qreal(w);
+    qreal yy = qreal(h);
+
+    QTransform mat(matrix.m11(), matrix.m12(), matrix.m13(), 
+                   matrix.m21(), matrix.m22(), matrix.m23(), 
+                   0., 0., 1);
+
+    mat.map(dt, dt, &x1, &y1);
+    mat.map(xx, dt, &x2, &y2);
+    mat.map(xx, yy, &x3, &y3);
+    mat.map(dt, yy, &x4, &y4);
+
+    qreal ymin = y1;                                // lowest y value
+    if (y2 < ymin) ymin = y2;
+    if (y3 < ymin) ymin = y3;
+    if (y4 < ymin) ymin = y4;
+    qreal xmin = x1;                                // lowest x value
+    if (x2 < xmin) xmin = x2;
+    if (x3 < xmin) xmin = x3;
+    if (x4 < xmin) xmin = x4;
+
+    qreal ymax = y1;                                // lowest y value
+    if (y2 > ymax) ymax = y2;
+    if (y3 > ymax) ymax = y3;
+    if (y4 > ymax) ymax = y4;
+    qreal xmax = x1;                                // lowest x value
+    if (x2 > xmax) xmax = x2;
+    if (x3 > xmax) xmax = x3;
+    if (x4 > xmax) xmax = x4;
+
+    mat.setMatrix(matrix.m11(), matrix.m12(), matrix.m13(),
+                  matrix.m21(), matrix.m22(), matrix.m23(),
+                  -xmin, -ymin, 1);
+    return mat;
 }

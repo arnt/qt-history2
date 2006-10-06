@@ -318,8 +318,14 @@ QPixmap::operator QVariant() const
 */
 QMatrix QPixmap::trueMatrix(const QMatrix &m, int w, int h)
 {
+    return trueMatrix(QTransform(m), w, h).toAffine();
+}
+
+QTransform QPixmap::trueMatrix(const QTransform &m, int w, int h)
+{
     return QImage::trueMatrix(m, w, h);
 }
+
 
 /*!
     \fn bool QPixmap::isQBitmap() const
@@ -1106,7 +1112,7 @@ QPixmap QPixmap::scaled(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::Tran
         return copy();
 
     QPixmap pix;
-    QMatrix wm;
+    QTransform wm;
     wm.scale((double)newSize.width() / width(), (double)newSize.height() / height());
     pix = transformed(wm, mode);
     return pix;
@@ -1135,7 +1141,7 @@ QPixmap QPixmap::scaledToWidth(int w, Qt::TransformationMode mode) const
     if (w <= 0)
         return QPixmap();
 
-    QMatrix wm;
+    QTransform wm;
     double factor = (double) w / width();
     wm.scale(factor, factor);
     return transformed(wm, mode);
@@ -1164,7 +1170,7 @@ QPixmap QPixmap::scaledToHeight(int h, Qt::TransformationMode mode) const
     if (h <= 0)
         return QPixmap();
 
-    QMatrix wm;
+    QTransform wm;
     double factor = (double) h / height();
     wm.scale(factor, factor);
     return transformed(wm, mode);
