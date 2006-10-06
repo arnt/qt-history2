@@ -2566,7 +2566,7 @@ void tst_QTextDocumentFragment::html_preNewlineHandling()
 void tst_QTextDocumentFragment::html_br()
 {
     doc->setHtml("Foo<br><br><br>Blah");
-    QCOMPARE(doc->toPlainText(), QString("Foo\n\n\nBlah"));
+    QCOMPARE(doc->toPlainText(), QString("Faoo\n\n\nBlah"));
 }
 
 void tst_QTextDocumentFragment::html_dl()
