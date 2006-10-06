@@ -52,6 +52,7 @@ public:
     void updateFont(const QFont &font);
     void updateOpacity(qreal opacity);
     void updateMatrix(const QTransform &matrix);
+    void updateTransform(const QTransform &matrix);
     void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
     void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
     void updateRenderHints(QPainter::RenderHints hints);

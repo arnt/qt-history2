@@ -359,7 +359,7 @@ void QCoreGraphicsPaintEngine::updateState(const QPaintEngineState &state)
 {
     QPaintEngine::DirtyFlags flags = state.state();
     if(flags & DirtyTransform)
-        updateMatrix(state.matrix());
+        updateMatrix(state.transform());
 
     if(flags & DirtyPen)
         updatePen(state.pen());
@@ -422,7 +422,7 @@ QCoreGraphicsPaintEngine::updateFont(const QFont &)
 }
 
 void
-QCoreGraphicsPaintEngine::updateTransform(const QTransform &matrix)
+QCoreGraphicsPaintEngine::updateMatrix(const QTransform &matrix)
 {
     Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());

@@ -18,6 +18,7 @@
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qmatrix.h"
+#include "qtransform.h"
 #include "qdebug.h"
 #include <private/qdrawhelper_p.h>
 #ifdef QT_RASTER_PAINTENGINE
@@ -528,6 +529,11 @@ QPixmapData::macQDUpdateAlpha()
 
 QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode) const
 {
+    return transformed(QTransform(matrix), mode);
+}
+
+QPixmap QPixmap::transformed(const QTransform &transform, Qt::TransformationMode mode) const
+{
     if(isNull())
         return copy();
 
@@ -535,10 +541,10 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     const int ws = width();
     const int hs = height();
 
-    QMatrix mat(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0.);
-    if(matrix.m12() == 0.0F  && matrix.m21() == 0.0F &&
-         matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F) {
-        if(mat.m11() == 1.0F && mat.m22() == 1.0F) // identity matrix
+    QTransform mat(transform.m11(), transform.m12(), transform.m21(), transform.m22(), 0., 0.);
+    if(transform.m12() == 0.0F  && transform.m21() == 0.0F &&
+         transform.m11() >= 0.0F  && transform.m22() >= 0.0F) {
+        if(mat.m11() == 1.0F && mat.m22() == 1.0F) // identity transform
             return *this;
         h = int(qAbs(mat.m22()) * hs + 0.9999);
         w = int(qAbs(mat.m11()) * ws + 0.9999);
@@ -567,7 +573,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
         QPainter p(&pm);
         p.setRenderHint(QPainter::Antialiasing);
         p.setRenderHint(QPainter::SmoothPixmapTransform);
-        p.setMatrix(mat);
+        p.setTransform(mat);
         p.drawPixmap(0, 0, *this);
     } else {
         bool invertible;

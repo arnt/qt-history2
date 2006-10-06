@@ -319,6 +319,7 @@ void QPainterPrivate::updateMatrix()
     txinv = false;                                // no inverted matrix
     state->txop  = QTransform::TxNone;
     if (state->matrix.m12()==0.0 && state->matrix.m21()==0.0
+        && state->matrix.m13()==0.0 && state->matrix.m23()==0.0
         && state->matrix.m11() >= 0.0 && state->matrix.m22() >= 0.0) {
         if (state->matrix.m11()==1.0 && state->matrix.m22()==1.0) {
             if (state->matrix.dx()!=0.0 || state->matrix.dy()!=0.0)
@@ -4087,7 +4088,8 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
     d->updateState(d->state);
 
     if (d->state->txop > QTransform::TxTranslate
-        && !d->engine->hasFeature(QPaintEngine::PixmapTransform)
+        && (!d->engine->hasFeature(QPaintEngine::PixmapTransform)
+            || !d->engine->hasFeature(QPaintEngine::PerspectiveTransform))
         || (d->state->opacity != 1.0 && !d->engine->hasFeature(QPaintEngine::ConstantOpacity))
         || ((sw != w || sh != h) && !d->engine->hasFeature(QPaintEngine::PixmapTransform)))
     {
@@ -4098,7 +4100,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
         setBrush(QBrush(d->state->pen.color(), pm));
         setPen(Qt::NoPen);
         setBrushOrigin(QPointF(-sx, -sy));
-        
+
         drawRect(QRectF(0, 0, sw, sh));
         restore();
     } else {
@@ -4253,7 +4255,8 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
     if (w == 0 || h == 0 || sw <= 0 || sh <= 0)
         return;
 
-    if (!d->engine->hasFeature(QPaintEngine::PixmapTransform)
+    if ((!d->engine->hasFeature(QPaintEngine::PixmapTransform)
+           || !d->engine->hasFeature(QPaintEngine::PerspectiveTransform))
         && (d->state->txop > QTransform::TxTranslate
             || (sw != w || sh != h)))
     {

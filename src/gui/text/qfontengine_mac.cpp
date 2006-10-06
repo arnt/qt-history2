@@ -978,7 +978,7 @@ void QFontEngineMac::draw(CGContextRef ctx, qreal x, qreal y, const QTextItemInt
 {
     QVarLengthArray<QFixedPoint> positions;
     QVarLengthArray<glyph_t> glyphs;
-    QMatrix matrix;
+    QTransform matrix;
     matrix.translate(x, y);
     getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
     if (glyphs.size() == 0)
