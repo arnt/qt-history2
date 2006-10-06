@@ -492,7 +492,7 @@ void QWin32PrintEngine::updateState(const QPaintEngineState &state)
     Q_D(QWin32PrintEngine);
 
     if (state.state() & DirtyTransform) {
-        updateMatrix(state.matrix());
+        updateMatrix(state.transform());
     }
 
     if (state.state() & DirtyPen) {
