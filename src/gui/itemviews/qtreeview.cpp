@@ -1441,8 +1441,13 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *event)
         if (i == -1)
             return; // user clicked outside the items
 
-        // signal handlers may change the model
         const QModelIndex &index = d->viewItems.at(i).index;
+        if (d->pressedIndex != index) {
+            mousePressEvent(event);
+            return;
+        }
+
+        // signal handlers may change the model
         int column = d->header->logicalIndexAt(event->x());
         QPersistentModelIndex persistent = index.sibling(index.row(), column);
         emit doubleClicked(persistent);
