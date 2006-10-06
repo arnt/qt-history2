@@ -142,6 +142,11 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
         ...
     \endcode
 
+    You can also use QTimeLine with the 
+    \l{Graphics View}{Graphics View framework} for
+    animations. The QGraphicsItemAnimation class implements animation
+    of \l{QGraphicsItem}{QGraphicsItems} with a timeline.
+
     By default the timeline runs once, from the beginning and towards the end,
     upon which you must call start() again to restart from the beginning. To
     make the timeline loop, you can call setLoopCount(), passing the number of
@@ -168,7 +173,7 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
     finally grows slowly. For a custom timeline, you can reimplement
     valueForTime(), in which case QTimeLine's curveShape property is ignored.
 
-    \sa QProgressBar, QProgressDialog
+    \sa QProgressBar, QProgressDialog, QGraphicsItemAnimation
 */
 
 /*!
