@@ -343,6 +343,13 @@ private:
             [item setEnabled:action->isEnabled()];
             [item setState:action->isChecked() ? NSOnState : NSOffState];
             [item setToolTip:(NSString*)QCFString::toCFStringRef(action->toolTip())];
+            const QIcon icon = action->icon();
+            if(!icon.isNull()) {
+                const short scale = GetMBarHeight()-4;
+                NSImage *nsimage = qt_mac_create_ns_image(icon.pixmap(QSize(scale, scale)));
+                [item setImage: nsimage];
+                [nsimage release];
+            }
             if(action->menu()) {
                 QNSMenu *sub = [[QNSMenu alloc] initWithQMenu:action->menu()];
                 [item setSubmenu:sub];
