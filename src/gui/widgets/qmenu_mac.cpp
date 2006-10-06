@@ -609,7 +609,9 @@ OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
                             QMacMenuAction *action = mac_menu->actionItems.at(i);
                             if (action->action->isSeparator()) {
                                 bool hide = false;
-                                if (merged && merged == i) {
+                                if(!action->action->isVisible()) {
+                                    hide = true;
+                                } else if (merged && merged == i) {
                                     hide = true;
                                 } else {
                                     for(int l = i+1; l < mac_menu->actionItems.size(); ++l) {
