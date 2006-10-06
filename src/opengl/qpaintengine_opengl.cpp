@@ -1314,8 +1314,11 @@ bool qt_createGLSLProgram(QGLContext *ctx, GLuint &program, const char *shader_s
     return status_ok;
 }
 
-static bool qt_createFragmentProgram(GLuint &program, const char *shader_src)
+static bool qt_createFragmentProgram(QGLContext *ctx, GLuint &program, const char *shader_src)
 {
+#ifndef Q_WS_WIN
+    Q_UNUSED(ctx);
+#endif
     glGenProgramsARB(1, &program);
     glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, program);
     glProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
@@ -1510,13 +1513,13 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
             else
                 qWarning() << "QOpenGLPaintEngine: Unable to use conical gradient fragment shader.";
 
-            if (  qt_createFragmentProgram(d->ellipse_frag_program, ellipse_program)
-               && qt_createFragmentProgram(d->ellipse_aa_frag_program, ellipse_aa_program))
+            if (  qt_createFragmentProgram(ctx, d->ellipse_frag_program, ellipse_program)
+               && qt_createFragmentProgram(ctx, d->ellipse_aa_frag_program, ellipse_aa_program))
                 d->has_ellipse_program = true;
             else
                 qWarning() << "QOpenGLPaintEngine: Unable to use ellipse fragment shader.";
 
-            if (qt_createFragmentProgram(d->texture_copy_frag_program, texture_copy_program))
+            if (qt_createFragmentProgram(ctx, d->texture_copy_frag_program, texture_copy_program))
                 d->has_texture_copy_program = true;
             else
                 qWarning() << "QOpenGLPaintEngine: Unable to use texture copy fragment shader.";
@@ -3254,6 +3257,7 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
 void QOpenGLPaintEnginePrivate::activateEllipseProgram()
 {
+    QGL_FUNC_CONTEXT;
     static const float inv = 1.0f / 255.0f;
 
     if (brush_style == Qt::SolidPattern || !has_fast_brush) {
@@ -3302,6 +3306,7 @@ void QOpenGLPaintEnginePrivate::deactivateEllipseProgram()
 
 void QOpenGLPaintEnginePrivate::activateTextureCopyProgram()
 {
+    QGL_FUNC_CONTEXT;
     if (has_glsl) {
         glUseProgram(texture_copy_glsl_prog);
     } else {
