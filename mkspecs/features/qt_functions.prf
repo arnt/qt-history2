@@ -4,7 +4,7 @@ defineReplace(qtLibraryTarget) {
       QMAKE_FRAMEWORK_BUNDLE_NAME = $$RET
       export(QMAKE_FRAMEWORK_BUNDLE_NAME)
    }
-   contains(TEMPLATE, lib):CONFIG(debug, debug|release) {
+   contains(TEMPLATE, .*lib):CONFIG(debug, debug|release) {
       !debug_and_release|build_pass {
       	  #true:RET = $$member(RET, 0)_yummy
           mac:RET = $$member(RET, 0)_debug
