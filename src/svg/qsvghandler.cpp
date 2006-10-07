@@ -1279,6 +1279,10 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
             qreal offsetY = y;        // for relative commands
             switch (pathElem.toAscii()) {
             case 'm': {
+                if (arg.count() < 2) {
+                    arg.pop_front();
+                    break;
+                }
                 x = x0 = arg[0] + offsetX;
                 y = y0 = arg[1] + offsetY;
                 path.moveTo(x0, y0);
@@ -1286,6 +1290,10 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
             }
                 break;
             case 'M': {
+                if (arg.count() < 2) {
+                    arg.pop_front();
+                    break;
+                }
                 x = x0 = arg[0];
                 y = y0 = arg[1];
                 path.moveTo(x0, y0);
@@ -1301,6 +1309,10 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
             }
                 break;
             case 'l': {
+                if (arg.count() < 2) {
+                    arg.pop_front();
+                    break;
+                }
                 x = arg.front() + offsetX;
                 arg.pop_front();
                 y = arg.front() + offsetY;
@@ -1310,6 +1322,10 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
             }
                 break;
             case 'L': {
+                if (arg.count() < 2) {
+                    arg.pop_front();
+                    break;
+                }
                 x = arg.front(); arg.pop_front();
                 y = arg.front(); arg.pop_front();
                 path.lineTo(x, y);
@@ -1339,6 +1355,11 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
             }
                 break;
             case 'c': {
+                if (arg.count() < 6) {
+                    while (arg.count())
+                        arg.pop_front();
+                    break;
+                }
                 QPointF c1(arg[0]+offsetX, arg[1]+offsetY);
                 QPointF c2(arg[2]+offsetX, arg[3]+offsetY);
                 QPointF e(arg[4]+offsetX, arg[5]+offsetY);
@@ -1352,6 +1373,11 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
                 break;
             }
             case 'C': {
+                if (arg.count() < 6) {
+                    while (arg.count())
+                        arg.pop_front();
+                    break;
+                }
                 QPointF c1(arg[0], arg[1]);
                 QPointF c2(arg[2], arg[3]);
                 QPointF e(arg[4], arg[5]);
@@ -1365,6 +1391,11 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
                 break;
             }
             case 's': {
+                if (arg.count() < 4) {
+                    while (arg.count())
+                        arg.pop_front();
+                    break;
+                }
                 QPointF c1;
                 if (lastMode == 'c' || lastMode == 'C' ||
                     lastMode == 's' || lastMode == 'S')
@@ -1382,6 +1413,11 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
                 break;
             }
             case 'S': {
+                if (arg.count() < 4) {
+                    while (arg.count())
+                        arg.pop_front();
+                    break;
+                }
                 QPointF c1;
                 if (lastMode == 'c' || lastMode == 'C' ||
                     lastMode == 's' || lastMode == 'S')
@@ -1399,6 +1435,11 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
                 break;
             }
             case 'q': {
+                if (arg.count() < 4) {
+                    while (arg.count())
+                        arg.pop_front();
+                    break;
+                }
                 QPointF c(arg[0]+offsetX, arg[1]+offsetY);
                 QPointF e(arg[2]+offsetX, arg[3]+offsetY);
                 path.quadTo(c, e);
@@ -1410,6 +1451,11 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
                 break;
             }
             case 'Q': {
+                if (arg.count() < 4) {
+                    while (arg.count())
+                        arg.pop_front();
+                    break;
+                }
                 QPointF c(arg[0], arg[1]);
                 QPointF e(arg[2], arg[3]);
                 path.quadTo(c, e);
@@ -1421,6 +1467,11 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
                 break;
             }
             case 't': {
+                if (arg.count() < 2) {
+                    while (arg.count())
+                        arg.pop_front();
+                    break;
+                }
                 QPointF e(arg[0]+offsetX, arg[1]+offsetY);
                 QPointF c;
                 if (lastMode == 'q' || lastMode == 'Q' ||
@@ -1436,6 +1487,11 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
                 break;
             }
             case 'T': {
+                if (arg.count() < 2) {
+                    while (arg.count())
+                        arg.pop_front();
+                    break;
+                }
                 QPointF e(arg[0], arg[1]);
                 QPointF c;
                 if (lastMode == 'q' || lastMode == 'Q' ||
@@ -1451,6 +1507,11 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
                 break;
             }
             case 'a': {
+                if (arg.count() < 7) {
+                    while (arg.count())
+                        arg.pop_front();
+                    break;
+                }
                 qreal rx = arg[0];
                 qreal ry = arg[1];
                 qreal xAxisRotation = arg[2];
@@ -1473,6 +1534,11 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
             }
                 break;
             case 'A': {
+                if (arg.count() < 7) {
+                    while (arg.count())
+                        arg.pop_front();
+                    break;
+                }
                 qreal rx = arg[0];
                 qreal ry = arg[1];
                 qreal xAxisRotation = arg[2];
