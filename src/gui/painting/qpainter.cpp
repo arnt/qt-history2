@@ -375,6 +375,7 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
     bool conicalGradient = false;
     bool patternBrush = false;
     bool xform = false;
+    bool complexXform = false;
 
     bool skip = true;
 
@@ -444,8 +445,10 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
     // XForm properties
     if (s->state() & QPaintEngine::DirtyTransform) {
         xform = !s->matrix.isIdentity();
+        complexXform = !s->matrix.isAffine();
     } else if (s->txop >= QTransform::TxTranslate) {
         xform = true;
+        complexXform = !s->matrix.isAffine();
     }
 
     // Check alphablending
@@ -491,7 +494,7 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
         s->emulationSpecifier &= ~QPaintEngine::PrimitiveTransform;
 
     // Perspective XForms
-    if (xform && !engine->hasFeature(QPaintEngine::PerspectiveTransform))
+    if (complexXform && !engine->hasFeature(QPaintEngine::PerspectiveTransform))
         s->emulationSpecifier |= QPaintEngine::PerspectiveTransform;
     else
         s->emulationSpecifier &= ~QPaintEngine::PerspectiveTransform;
