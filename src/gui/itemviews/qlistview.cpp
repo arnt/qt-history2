@@ -1,4 +1,4 @@
-/****************************************************************************
+/***************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
 **
@@ -140,6 +140,10 @@ QListView::QListView(QWidget *parent)
 {
     setViewMode(ListMode);
     setSelectionMode(SingleSelection);
+
+    // ### move to an init function
+    d_func()->staticListView.qq = this;
+    d_func()->dynamicListView.qq = this;
 }
 
 /*!
@@ -150,6 +154,10 @@ QListView::QListView(QListViewPrivate &dd, QWidget *parent)
 {
     setViewMode(ListMode);
     setSelectionMode(SingleSelection);
+
+    // ### move to an init function
+    d_func()->staticListView.qq = this;
+    d_func()->dynamicListView.qq = this;
 }
 
 /*!
@@ -243,14 +251,14 @@ void QListView::setWrapping(bool enable)
 {
     Q_D(QListView);
     d->modeProperties |= uint(QListViewPrivate::Wrap);
-    d->wrap = enable;
+    d->setWrapping(enable);
     d->doDelayedItemsLayout();
 }
 
 bool QListView::isWrapping() const
 {
     Q_D(const QListView);
-    return d->wrap;
+    return d->isWrapping();
 }
 
 /*!
@@ -317,14 +325,14 @@ void QListView::setSpacing(int space)
 {
     Q_D(QListView);
     d->modeProperties |= uint(QListViewPrivate::Spacing);
-    d->spacing = space;
+    d->setSpacing(space);
     d->doDelayedItemsLayout();
 }
 
 int QListView::spacing() const
 {
     Q_D(const QListView);
-    return d->spacing;
+    return d->spacing();
 }
 
 /*!
@@ -372,14 +380,14 @@ void QListView::setGridSize(const QSize &size)
 {
     Q_D(QListView);
     d->modeProperties |= uint(QListViewPrivate::GridSize);
-    d->gridSize = size;
+    d->setGridSize(size);
     d->doDelayedItemsLayout();
 }
 
 QSize QListView::gridSize() const
 {
     Q_D(const QListView);
-    return d->gridSize;
+    return d->gridSize();
 }
 
 /*!
@@ -404,11 +412,11 @@ void QListView::setViewMode(ViewMode mode)
 
     if (mode == ListMode) {
         if (!(d->modeProperties & QListViewPrivate::Wrap))
-            d->wrap = false;
+            d->setWrapping(false);
         if (!(d->modeProperties & QListViewPrivate::Spacing))
-            d->spacing = 0;
+            d->setSpacing(0);
         if (!(d->modeProperties & QListViewPrivate::GridSize))
-            d->gridSize = QSize();
+            d->setGridSize(QSize());
         if (!(d->modeProperties & QListViewPrivate::Flow))
             d->flow = TopToBottom;
         if (!(d->modeProperties & QListViewPrivate::Movement))
@@ -417,11 +425,11 @@ void QListView::setViewMode(ViewMode mode)
             d->resizeMode = Fixed;
     } else {
         if (!(d->modeProperties & QListViewPrivate::Wrap))
-            d->wrap = true;
+            d->setWrapping(true);
         if (!(d->modeProperties & QListViewPrivate::Spacing))
-            d->spacing = 0;
+            d->setSpacing(0);
         if (!(d->modeProperties & QListViewPrivate::GridSize))
-            d->gridSize = QSize();
+            d->setGridSize(QSize());
         if (!(d->modeProperties & QListViewPrivate::Flow))
             d->flow = LeftToRight;
         if (!(d->modeProperties & QListViewPrivate::Movement))
@@ -473,17 +481,23 @@ bool QListView::isRowHidden(int row) const
 void QListView::setRowHidden(int row, bool hide)
 {
     Q_D(QListView);
-    if (hide && !isRowHidden(row)) {
-        d->removeItem(row);
-        d->hiddenRows.append(row);
-    } else if (!hide && isRowHidden(row)) {
-        d->hiddenRows.remove(d->hiddenRows.indexOf(row));
-        d->insertItem(row);
-    }
-    if (d->movement == Static)
+    const bool hidden = d->hiddenRows.contains(row);
+    if (d->movement == Static) {
+        if (hide && !hidden)
+            d->hiddenRows.append(row);
+        else if (!hide && hidden)
+            d->hiddenRows.remove(d->hiddenRows.indexOf(row));
         d->doDelayedItemsLayout();
-    else
+    } else {
+        if (hide && !hidden) {
+            d->dynamicListView.removeItem(row);
+            d->hiddenRows.append(row);
+        } else if (!hide && hidden) {
+            d->hiddenRows.remove(d->hiddenRows.indexOf(row));
+            d->dynamicListView.insertItem(row);
+        }
         d->viewport->update();
+    }
 }
 
 /*!
@@ -505,95 +519,94 @@ void QListView::scrollTo(const QModelIndex &index, ScrollHint hint)
     if (index.parent() != d->root || index.column() != d->column)
         return;
 
-    const QRect area = d->viewport->rect();
     const QRect rect = visualRect(index);
-    if (hint == EnsureVisible && area.contains(rect)) {
+    if (hint == EnsureVisible && d->viewport->rect().contains(rect)) {
         d->setDirtyRegion(rect);
         return;
     }
 
-    // vertical
-    if (d->flow == QListView::TopToBottom || d->wrap) {
-        const bool above = (hint == EnsureVisible && rect.top() < area.top());
-        const bool below = (hint == EnsureVisible && rect.bottom() > area.bottom());
-        int verticalValue = verticalScrollBar()->value();
-        if (verticalScrollMode() == QAbstractItemView::ScrollPerItem && d->movement == Static) {
-            const QListViewItem item = d->indexToListViewItem(index);
-            const int itemIndex = d->itemIndex(item);
-            verticalValue = qBound(0, verticalValue, d->flowPositions.count() - 1);
-            if (above)
-                verticalValue = d->perItemScrollToValue(itemIndex, verticalValue,
-                                                        area.height(), PositionAtTop,
-                                                        Qt::Vertical);
-            else if (below)
-                verticalValue = d->perItemScrollToValue(itemIndex, verticalValue,
-                                                        area.height(), PositionAtBottom,
-                                                        Qt::Vertical);
-            else if (hint != EnsureVisible)
-                verticalValue = d->perItemScrollToValue(itemIndex, verticalValue,
-                                                        area.height(), hint,
-                                                        Qt::Vertical);
-        } else {
-            if (hint == PositionAtTop || above)
-                verticalValue += rect.top();
-            else if (hint == PositionAtBottom || below)
-                verticalValue += rect.bottom() - area.height();
-            else if (hint == PositionAtCenter)
-                verticalValue += rect.top() - ((area.height() - rect.height()) / 2);
-        }
-        verticalScrollBar()->setValue(verticalValue);
-    }
+    if (d->flow == QListView::TopToBottom || d->isWrapping()) // vertical
+        verticalScrollBar()->setValue(d->verticalScrollToValue(index, rect, hint));
 
-    // horizontal
-    if (d->flow == QListView::LeftToRight || d->wrap) {
-        const bool leftOf = isRightToLeft()
-                            ? (rect.left() < area.left()) && (rect.right() < area.right())
-                            : rect.left() < area.left();
-        const bool rightOf = isRightToLeft()
-                             ? rect.right() > area.right()
-                             : (rect.right() > area.right()) && (rect.left() > area.left());
-        int horizontalValue = horizontalScrollBar()->value();
+    if (d->flow == QListView::LeftToRight || d->isWrapping()) // horizontal
+        horizontalScrollBar()->setValue(d->horizontalScrollToValue(index, rect, hint));
+}
 
-        if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem && d->movement == Static) {
-            const QListViewItem item = d->indexToListViewItem(index);
-            const int itemIndex = d->itemIndex(item);
-            horizontalValue = qBound(0, horizontalValue, d->flowPositions.count() - 1);
-            if (leftOf)
-                horizontalValue = d->perItemScrollToValue(itemIndex, horizontalValue,
-                                                          area.width(), PositionAtTop,
-                                                          Qt::Horizontal);
-            else if (rightOf)
-                horizontalValue = d->perItemScrollToValue(itemIndex, horizontalValue,
-                                                          area.width(), PositionAtBottom,
-                                                          Qt::Horizontal);
-            else if (hint != EnsureVisible) {
-                horizontalValue = d->perItemScrollToValue(itemIndex, horizontalValue,
-                                                          area.width(), hint,
-                                                      Qt::Horizontal);
-            }
-        } else {
-            if (isRightToLeft()) {
-                if (hint == PositionAtCenter) {
-                    horizontalValue += ((area.width() - rect.width()) / 2) - rect.left();
-                } else {
-                    if (leftOf)
-                        horizontalValue -= rect.left();
-                    else if (rightOf)
-                        horizontalValue += area.width() - rect.right();
-                }
+int QListViewPrivate::horizontalScrollToValue(const QModelIndex &index, const QRect &rect,
+                                              QListView::ScrollHint hint) const
+{
+    Q_Q(const QListView);
+    const QRect area = viewport->rect();
+    const bool leftOf = q->isRightToLeft()
+                        ? (rect.left() < area.left()) && (rect.right() < area.right())
+                        : rect.left() < area.left();
+    const bool rightOf = q->isRightToLeft()
+                         ? rect.right() > area.right()
+                         : (rect.right() > area.right()) && (rect.left() > area.left());
+    int horizontalValue = q->horizontalScrollBar()->value();
+
+    // ScrollPerItem
+    if (q->horizontalScrollMode() == QAbstractItemView::ScrollPerItem && movement == QListView::Static) {
+        const QListViewItem item = indexToListViewItem(index);
+        const int itemIndex = itemIndex(item);
+        // ### NOTE: this seems to trigger a gcc 4.1 compiler bug;
+        // horizontalPerItemValue is not called, leaving horizontalValue unchanged
+        // and breaking horzontal per item scrolling
+        horizontalValue = staticListView.horizontalPerItemValue(itemIndex,
+                                                                horizontalValue, area.width(),
+                                                                leftOf, rightOf, hint);
+    } else { // ScrollPerPixel
+        if (q->isRightToLeft()) {
+            if (hint == QListView::PositionAtCenter) {
+                horizontalValue += ((area.width() - rect.width()) / 2) - rect.left();
             } else {
-                if (hint == PositionAtCenter) {
-                    horizontalValue += rect.left() - ((area.width()- rect.width()) / 2);
-                } else {
-                    if (leftOf)
-                        horizontalValue += rect.left();
-                    else if (rightOf)
-                        horizontalValue += rect.right() - area.width();
-                }
+                if (leftOf)
+                    horizontalValue -= rect.left();
+                else if (rightOf)
+                    horizontalValue += area.width() - rect.right();
+            }
+       } else {
+            if (hint == QListView::PositionAtCenter) {
+                horizontalValue += rect.left() - ((area.width()- rect.width()) / 2);
+            } else {
+                if (leftOf)
+                    horizontalValue += rect.left();
+                else if (rightOf)
+                    horizontalValue += rect.right() - area.width();
             }
         }
-        horizontalScrollBar()->setValue(horizontalValue);
     }
+    return horizontalValue;
+}
+
+int QListViewPrivate::verticalScrollToValue(const QModelIndex &index, const QRect &rect,
+                                            QListView::ScrollHint hint) const
+{
+    Q_Q(const QListView);
+
+    const QRect area = viewport->rect();
+    const bool above = (hint == QListView::EnsureVisible && rect.top() < area.top());
+    const bool below = (hint == QListView::EnsureVisible && rect.bottom() > area.bottom());
+
+    int verticalValue = q->verticalScrollBar()->value();
+
+    // ScrollPerItem
+    if (q->verticalScrollMode() == QAbstractItemView::ScrollPerItem && movement == QListView::Static) {
+        const QListViewItem item = indexToListViewItem(index);
+        verticalValue = staticListView.verticalPerItemValue(itemIndex(item),
+                                                            verticalValue, area.height(),
+                                                            above, below, hint);
+
+    } else { // ScrollPerPixel
+        if (hint == QListView::PositionAtTop || above)
+            verticalValue += rect.top();
+        else if (hint == QListView::PositionAtBottom || below)
+            verticalValue += rect.bottom() - area.height();
+        else if (hint == QListView::PositionAtCenter)
+            verticalValue += rect.top() - ((area.height() - rect.height()) / 2);
+    }
+
+    return verticalValue;
 }
 
 /*!
@@ -628,63 +641,17 @@ void QListView::scrollContentsBy(int dx, int dy)
 
     dx = isRightToLeft() ? -dx : dx;
 
-    // ### reorder this logic
-    if (d->movement == Static) {
-        const bool vertical = verticalScrollMode() == QAbstractItemView::ScrollPerItem;
-        const bool horizontal = horizontalScrollMode() == QAbstractItemView::ScrollPerItem;
-        if (d->wrap) {
-            if (d->segmentPositions.isEmpty())
-                return;
-            const int max = d->segmentPositions.count() - 1;
-            if (horizontal && d->flow == TopToBottom && dx != 0) {
-                int currentValue = qBound(0, horizontalScrollBar()->value(), max);
-                int previousValue = qBound(0, currentValue + dx, max);
-                int currentCoordinate = d->segmentPositions.at(currentValue);
-                int previousCoordinate = d->segmentPositions.at(previousValue);
-                dx = previousCoordinate - currentCoordinate;
-            } else if (vertical && d->flow == LeftToRight && dy != 0) {
-                int currentValue = qBound(0, verticalScrollBar()->value(), max);
-                int previousValue = qBound(0, currentValue + dy, max);
-                int currentCoordinate = d->segmentPositions.at(currentValue);
-                int previousCoordinate = d->segmentPositions.at(previousValue);
-                dy = previousCoordinate - currentCoordinate;
-            }
-        } else {
-            if (d->flowPositions.isEmpty())
-                return;
-            const int max = d->flowPositions.count() - 1;
-            if (vertical && d->flow == TopToBottom && dy != 0) {
-                int currentValue = qBound(0, verticalScrollBar()->value(), max);
-                int previousValue = qBound(0, currentValue + dy, max);
-                int currentCoordinate = d->flowPositions.at(currentValue);
-                int previousCoordinate = d->flowPositions.at(previousValue);
-                dy = previousCoordinate - currentCoordinate;
-            } else if (horizontal && d->flow == LeftToRight && dx != 0) {
-                int currentValue = qBound(0, horizontalScrollBar()->value(), max);
-                int previousValue = qBound(0, currentValue + dx, max);
-                int currentCoordinate = d->flowPositions.at(currentValue);
-                int previousCoordinate = d->flowPositions.at(previousValue);
-                dx = previousCoordinate - currentCoordinate;
-            }
-        }
-    }
+    if (d->movement == Static)
+        d->staticListView.scrollContentsBy(dx, dy, d->isWrapping(), d->flow);
 
-    if (state() == DragSelectingState) {
-        if (dx > 0) // right
-            d->elasticBand.moveRight(d->elasticBand.right() + dx);
-        else if (dx < 0) // left
-            d->elasticBand.moveLeft(d->elasticBand.left() - dx);
-        if (dy > 0) // down
-            d->elasticBand.moveBottom(d->elasticBand.bottom() + dy);
-        else if (dy < 0) // up
-            d->elasticBand.moveTop(d->elasticBand.top() - dy);
-    }
+    if (state() == DragSelectingState)
+        d->dynamicListView.scrollElasticBandBy(dx, dy);
 
     d->scrollContentsBy(dx, dy);
 
     // update the dragged items
-    if (!d->draggedItems.isEmpty())
-        d->setDirtyRegion(d->draggedItemsRect().translated(dx, dy));
+    if (!d->dynamicListView.draggedItems.isEmpty())
+        d->setDirtyRegion(d->dynamicListView.draggedItemsRect().translated(dx, dy));
 }
 
 /*!
@@ -696,7 +663,7 @@ void QListView::scrollContentsBy(int dx, int dy)
 void QListView::resizeContents(int width, int height)
 {
     Q_D(QListView);
-    d->contentsSize = QSize(width, height);
+    d->setContentsSize(width, height);
 }
 
 /*!
@@ -704,7 +671,8 @@ void QListView::resizeContents(int width, int height)
 */
 QSize QListView::contentsSize() const
 {
-    return d_func()->contentsSize;
+    Q_D(const QListView);
+    return d->contentsSize();
 }
 
 /*!
@@ -713,16 +681,8 @@ QSize QListView::contentsSize() const
 void QListView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     Q_D(QListView);
-    if (d->movement != Static
-        && d->column >= topLeft.column()
-        && d->column <= bottomRight.column()) {
-        QStyleOptionViewItemV2 option = d->viewOptionsV2();
-        int bottom = qMin(d->items.count(), bottomRight.row() + 1);
-        for (int row = topLeft.row(); row < bottom; ++row) {
-            QModelIndex idx = d->model->index(row, d->column, d->root);
-            d->items[row].resize(d->itemSize(option, idx));
-        }
-    }
+    if (d->movement != Static)
+        d->dynamicListView.dataChanged(topLeft, bottomRight);
     QAbstractItemView::dataChanged(topLeft, bottomRight);
 }
 
@@ -732,6 +692,7 @@ void QListView::dataChanged(const QModelIndex &topLeft, const QModelIndex &botto
 void QListView::rowsInserted(const QModelIndex &parent, int start, int end)
 {
     Q_D(QListView);
+    // ### be smarter about inserted items
     // if the parent is above d->root in the tree, nothing will happen
     if (parent == d->root) {
         int count = (end - start + 1);
@@ -780,8 +741,8 @@ void QListView::mouseMoveEvent(QMouseEvent *e)
         && d->selectionMode != SingleSelection) {
         QRect rect(d->pressedPosition, e->pos() + QPoint(horizontalOffset(), verticalOffset()));
         rect = rect.normalized();
-        d->setDirtyRegion(d->mapToViewport(rect.united(d->elasticBand)));
-        d->elasticBand = rect;
+        d->setDirtyRegion(d->mapToViewport(rect.united(d->dynamicListView.elasticBand)));
+        d->dynamicListView.elasticBand = rect;
     }
 }
 
@@ -792,9 +753,9 @@ void QListView::mouseReleaseEvent(QMouseEvent *e)
 {
     Q_D(QListView);
     QAbstractItemView::mouseReleaseEvent(e);
-    if (d->elasticBand.isValid()) {
-        d->setDirtyRegion(d->mapToViewport(d->elasticBand));
-        d->elasticBand = QRect();
+    if (d->dynamicListView.elasticBand.isValid()) {
+        d->setDirtyRegion(d->mapToViewport(d->dynamicListView.elasticBand));
+        d->dynamicListView.elasticBand = QRect();
     }
 }
 
@@ -845,22 +806,23 @@ void QListView::resizeEvent(QResizeEvent *e)
 */
 void QListView::dragMoveEvent(QDragMoveEvent *e)
 {
+    // ### move implementation to dynamic
     Q_D(QListView);
     if (e->source() == this && d->movement != Static) {
         // the ignore by default
         e->ignore();
         if (d->canDecode(e)) {
             // get old dragged items rect
-            QRect itemsRect = d->itemsRect(d->draggedItems);
-            d->setDirtyRegion(itemsRect.translated(d->draggedItemsDelta()));
+            QRect itemsRect = d->dynamicListView.itemsRect(d->dynamicListView.draggedItems);
+            d->setDirtyRegion(itemsRect.translated(d->dynamicListView.draggedItemsDelta()));
             // update position
-            d->draggedItemsPos = e->pos();
+            d->dynamicListView.draggedItemsPos = e->pos();
             // get new items rect
-            d->setDirtyRegion(itemsRect.translated(d->draggedItemsDelta()));
+            d->setDirtyRegion(itemsRect.translated(d->dynamicListView.draggedItemsDelta()));
             // set the item under the cursor to current
             QModelIndex index;
             if (d->movement == Snap) {
-                QRect rect(d->snapToGrid(e->pos() + d->offset()), d->gridSize);
+                QRect rect(d->dynamicListView.snapToGrid(e->pos() + d->offset()), d->gridSize());
                 d->intersectingSet(rect);
                 index = d->intersectVector.count() > 0
                                     ? d->intersectVector.last() : QModelIndex();
@@ -868,7 +830,7 @@ void QListView::dragMoveEvent(QDragMoveEvent *e)
                 index = indexAt(e->pos());
             }
             // check if we allow drops here
-            if (e->source() == this && d->draggedItems.contains(index))
+            if (e->source() == this && d->dynamicListView.draggedItems.contains(index))
                 e->accept(); // allow changing item position
             else if (d->model->flags(index) & Qt::ItemIsDropEnabled)
                 e->accept(); // allow dropping on dropenabled items
@@ -888,10 +850,11 @@ void QListView::dragMoveEvent(QDragMoveEvent *e)
 */
 void QListView::dragLeaveEvent(QDragLeaveEvent *e)
 {
+    // ### move implementation to dynamic
     Q_D(QListView);
     if (d->movement != Static) {
-        d->viewport->update(d->draggedItemsRect()); // erase the area
-        d->draggedItemsPos = QPoint(-1, -1); // don't draw the dragged items
+        d->viewport->update(d->dynamicListView.draggedItemsRect()); // erase the area
+        d->dynamicListView.draggedItemsPos = QPoint(-1, -1); // don't draw the dragged items
     }
     QAbstractItemView::dragLeaveEvent(e);
 }
@@ -903,7 +866,7 @@ void QListView::dropEvent(QDropEvent *event)
 {
     Q_D(QListView);
     if (event->source() == this && d->movement != Static)
-        internalDrop(event);
+        internalDrop(event); // ### move to dynamic
     else
         QAbstractItemView::dropEvent(event);
 }
@@ -914,7 +877,7 @@ void QListView::dropEvent(QDropEvent *event)
 void QListView::startDrag(Qt::DropActions supportedActions)
 {
     Q_D(QListView);
-    if (d->movement != Static)
+    if (d->movement != Static) // ### move to dynamic
         internalDrag(supportedActions);
     else
         QAbstractItemView::startDrag(supportedActions);
@@ -928,12 +891,14 @@ void QListView::startDrag(Qt::DropActions supportedActions)
 */
 void QListView::internalDrop(QDropEvent *event)
 {
+    // ### move to dynamic class
     Q_D(QListView);
     QPoint offset(horizontalOffset(), verticalOffset());
     QPoint end = event->pos() + offset;
     QPoint start = d->pressedPosition;
     QPoint delta = (d->movement == Snap ?
-                    d->snapToGrid(end) - d->snapToGrid(start) : end - start);
+                    d->dynamicListView.snapToGrid(end)
+                    - d->dynamicListView.snapToGrid(start) : end - start);
     QList<QModelIndex> indexes = d->selectionModel->selectedIndexes();
     for (int i = 0; i < indexes.count(); ++i) {
         QModelIndex index = indexes.at(i);
@@ -942,11 +907,11 @@ void QListView::internalDrop(QDropEvent *event)
         QPoint dest = rect.topLeft() + delta;
         if (isRightToLeft())
             dest.setX(d->flipX(dest.x()) - rect.width());
-        d->moveItem(index.row(), dest);
+        d->dynamicListView.moveItem(index.row(), dest);
         d->setDirtyRegion(visualRect(index));
     }
     stopAutoScroll();
-    d->draggedItems.clear();
+    d->dynamicListView.draggedItems.clear();
     emit indexesMoved(indexes);
     event->accept(); // we have handled the event
 }
@@ -959,6 +924,8 @@ void QListView::internalDrop(QDropEvent *event)
 */
 void QListView::internalDrag(Qt::DropActions supportedActions)
 {
+    // #### move to dynamic class
+
     // This function does the same thing as in QAbstractItemView::startDrag(),
     // plus adding viewitems to the draggedItems list.
     // We need these items to draw the drag items
@@ -968,11 +935,11 @@ void QListView::internalDrag(Qt::DropActions supportedActions)
         QModelIndexList::ConstIterator it = indexes.constBegin();
         for (; it != indexes.constEnd(); ++it)
             if (d->model->flags(*it) & Qt::ItemIsDragEnabled)
-                d->draggedItems.push_back(*it);
+                d->dynamicListView.draggedItems.push_back(*it);
         QDrag *drag = new QDrag(this);
         drag->setMimeData(d->model->mimeData(indexes));
         Qt::DropAction action = drag->start(supportedActions);
-        d->draggedItems.clear();
+        d->dynamicListView.draggedItems.clear();
         if (action == Qt::MoveAction)
             d->clearOrRemove();
     }
@@ -1094,10 +1061,12 @@ void QListView::paintEvent(QPaintEvent *e)
     }
 
 #ifndef QT_NO_DRAGANDDROP
-    if (!d->draggedItems.isEmpty() && d->viewport->rect().contains(d->draggedItemsPos)) {
-        QPoint delta = d->draggedItemsDelta();
+    // #### move this implementation into a dynamic class
+    if (!d->dynamicListView.draggedItems.isEmpty()
+        && d->viewport->rect().contains(d->dynamicListView.draggedItemsPos)) {
+        QPoint delta = d->dynamicListView.draggedItemsDelta();
         painter.translate(delta.x(), delta.y());
-        d->drawItems(&painter, d->draggedItems);
+        d->dynamicListView.drawItems(&painter, d->dynamicListView.draggedItems);
     }
     // FIXME: Until the we can provide a proper drop indicator
     // in IconMode, it makes no sense to show it
@@ -1106,12 +1075,12 @@ void QListView::paintEvent(QPaintEvent *e)
 #endif
 
 #ifndef QT_NO_RUBBERBAND
-    if (d->elasticBand.isValid()) {
+    if (d->dynamicListView.elasticBand.isValid()) {
         QStyleOptionRubberBand opt;
         opt.initFrom(this);
         opt.shape = QRubberBand::Rectangle;
         opt.opaque = false;
-        opt.rect = d->mapToViewport(d->elasticBand).intersected(
+        opt.rect = d->mapToViewport(d->dynamicListView.elasticBand).intersected(
             d->viewport->rect().adjusted(-16, -16, 16, 16));
         painter.save();
         style()->drawControl(QStyle::CE_RubberBand, &opt, &painter);
@@ -1141,21 +1110,22 @@ QModelIndex QListView::indexAt(const QPoint &p) const
 int QListView::horizontalOffset() const
 {
     Q_D(const QListView);
+    // ### split into static and dynamic
     if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem && d->movement == Static ) {
-        if (d->wrap) {
-            if (d->flow == TopToBottom && !d->segmentPositions.isEmpty()) {
-                const int max = d->segmentPositions.count() - 1;
+        if (d->isWrapping()) {
+            if (d->flow == TopToBottom && !d->staticListView.segmentPositions.isEmpty()) {
+                const int max = d->staticListView.segmentPositions.count() - 1;
                 int currentValue = qBound(0, horizontalScrollBar()->value(), max);
-                int position = d->segmentPositions.at(currentValue);
+                int position = d->staticListView.segmentPositions.at(currentValue);
                 int maximumValue = qBound(0, horizontalScrollBar()->maximum(), max);
-                int maximum = d->segmentPositions.at(maximumValue);
+                int maximum = d->staticListView.segmentPositions.at(maximumValue);
                 return (isRightToLeft() ? maximum - position : position);
             }
             //return 0;
         } else {
-            if (d->flow == LeftToRight && !d->flowPositions.isEmpty()) {
-                int position = d->flowPositions.at(horizontalScrollBar()->value());
-                int maximum = d->flowPositions.at(horizontalScrollBar()->maximum());
+            if (d->flow == LeftToRight && !d->staticListView.flowPositions.isEmpty()) {
+                int position = d->staticListView.flowPositions.at(horizontalScrollBar()->value());
+                int maximum = d->staticListView.flowPositions.at(horizontalScrollBar()->maximum());
                 return (isRightToLeft() ? maximum - position : position);
             }
             //return 0;
@@ -1171,25 +1141,26 @@ int QListView::horizontalOffset() const
 */
 int QListView::verticalOffset() const
 {
+    // ## split into static and dynamic
     Q_D(const QListView);
     if (verticalScrollMode() == QAbstractItemView::ScrollPerItem && d->movement == Static) {
-        if (d->wrap) {
-            if (d->flow == LeftToRight && !d->segmentPositions.isEmpty()) {
+        if (d->isWrapping()) {
+            if (d->flow == LeftToRight && !d->staticListView.segmentPositions.isEmpty()) {
                 int value = verticalScrollBar()->value();
-                if (value >= d->segmentPositions.count()) {
+                if (value >= d->staticListView.segmentPositions.count()) {
                     qWarning("QListView: Vertical scrollbar is out of bounds");
                     return 0;
                 }
-                return d->segmentPositions.at(value);
+                return d->staticListView.segmentPositions.at(value);
             }
         } else {
-            if (d->flow == TopToBottom && !d->flowPositions.isEmpty()) {
+            if (d->flow == TopToBottom && !d->staticListView.flowPositions.isEmpty()) {
                 int value = verticalScrollBar()->value();
-                if (value >= d->flowPositions.count()) {
+                if (value >= d->staticListView.flowPositions.count()) {
                     qWarning("QListView: Vertical scrollbar is out of bounds");
                     return 0;
                 }
-                return d->flowPositions.at(value);
+                return d->staticListView.flowPositions.at(value);
             }
         }
     }
@@ -1221,9 +1192,9 @@ QModelIndex QListView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
     if (rect.isEmpty()) {
         return d->model->index(0, 0, d->root);
     }
-    if (d->gridSize.isValid()) rect.setSize(d->gridSize);
+    if (d->gridSize().isValid()) rect.setSize(d->gridSize());
 
-    QSize contents = d->contentsSize;
+    QSize contents = d->contentsSize();
     QPoint pos = rect.center();
     d->intersectVector.clear();
 
@@ -1307,8 +1278,7 @@ QModelIndex QListView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
     case MoveHome:
         return d->model->index(0, d->column, d->root);
     case MoveEnd:
-        return d->model->index(d->batchStartRow - 1, d->column, d->root);
-    }
+        return d->model->index(d->batchStartRow() - 1, d->column, d->root);}
 
     return current;
 }
@@ -1347,10 +1317,10 @@ void QListView::setPositionForIndex(const QPoint &position, const QModelIndex &i
         || index.column() != d->column)
         return;
     d->executePostedLayout();
-    if (index.row() >= d->items.count())
+    if (index.row() >= d->dynamicListView.items.count())
         return;
     d->setDirtyRegion(visualRect(index)); // update old position
-    d->moveItem(index.row(), position);
+    d->dynamicListView.moveItem(index.row(), position);
     d->setDirtyRegion(visualRect(index)); // update new position
 }
 
@@ -1419,7 +1389,7 @@ QRegion QListView::visualRegionForSelection(const QItemSelection &selection) con
         QModelIndex parent = selection.at(i).topLeft().parent();
         int t = selection.at(i).topLeft().row();
         int b = selection.at(i).bottomRight().row();
-        if (d->movement != Static || d->wrap) { // in non-static mode, we have to go through all selected items
+        if (d->movement != Static || d->isWrapping()) { // in non-static mode, we have to go through all selected items
             for (int r = t; r <= b; ++r)
                 selectionRegion += QRegion(visualRect(d->model->index(r, c, parent)));
         } else { // in static mode, we can optimize a bit
@@ -1483,77 +1453,79 @@ void QListView::updateGeometries()
         QStyleOptionViewItemV2 option = d->viewOptionsV2();
         QSize step = d->itemSize(option, index);
 
-        QSize csize = d->contentsSize;
+        QSize csize = d->contentsSize();
         QSize vsize = d->viewport->size();
         QSize max = maximumViewportSize();
-        if (max.width() >= d->contentsSize.width() && max.height() >= d->contentsSize.height())
+        if (max.width() >= d->contentsSize().width() && max.height() >= d->contentsSize().height())
             vsize = max;
 
         // ### reorder the logic
+
+        // ### split into static and dynamic
 
         const bool vertical = verticalScrollMode() == QAbstractItemView::ScrollPerItem;
         const bool horizontal = horizontalScrollMode() == QAbstractItemView::ScrollPerItem;
 
         if (d->flow == TopToBottom) {
-            if (horizontal && d->wrap && d->movement == Static) {
-                int steps = d->segmentPositions.count();
-                int pageSteps = d->perItemScrollingPageSteps(vsize.width(), csize.width());
+            if (horizontal && d->isWrapping() && d->movement == Static) {
+                int steps = d->staticListView.segmentPositions.count();
+                int pageSteps = d->staticListView.perItemScrollingPageSteps(vsize.width(), csize.width());
                 horizontalScrollBar()->setSingleStep(1);
                 horizontalScrollBar()->setPageStep(pageSteps);
                 horizontalScrollBar()->setRange(0, steps - pageSteps);
             } else {
-                horizontalScrollBar()->setSingleStep(step.width() + d->spacing);
+                horizontalScrollBar()->setSingleStep(step.width() + d->spacing());
                 horizontalScrollBar()->setPageStep(vsize.width());
-                horizontalScrollBar()->setRange(0, d->contentsSize.width() - vsize.width());
+                horizontalScrollBar()->setRange(0, d->contentsSize().width() - vsize.width());
             }
-            if (vertical && !d->wrap && d->movement == Static) {
-                int steps = d->flowPositions.count();
-                int pageSteps = d->perItemScrollingPageSteps(vsize.height(), csize.height());
+            if (vertical && !d->isWrapping() && d->movement == Static) {
+                int steps = d->staticListView.flowPositions.count();
+                int pageSteps = d->staticListView.perItemScrollingPageSteps(vsize.height(), csize.height());
                 verticalScrollBar()->setSingleStep(1);
                 verticalScrollBar()->setPageStep(pageSteps);
                 verticalScrollBar()->setRange(0, steps - pageSteps);
-    //            } else if (vertical && d->wrap && d->movement == Static) {
+    //            } else if (vertical && d->isWrapping() && d->movement == Static) {
                 // ### wrapped scrolling in flow direction
             } else {
-                verticalScrollBar()->setSingleStep(step.height() + d->spacing);
+                verticalScrollBar()->setSingleStep(step.height() + d->spacing());
                 verticalScrollBar()->setPageStep(vsize.height());
-                verticalScrollBar()->setRange(0, d->contentsSize.height() - vsize.height());
+                verticalScrollBar()->setRange(0, d->contentsSize().height() - vsize.height());
             }
         } else { // LeftToRight
-            if (horizontal && !d->wrap && d->movement == Static) {
-                int steps = d->flowPositions.count();
-                int pageSteps = d->perItemScrollingPageSteps(vsize.width(), csize.width());
+            if (horizontal && !d->isWrapping() && d->movement == Static) {
+                int steps = d->staticListView.flowPositions.count();
+                int pageSteps = d->staticListView.perItemScrollingPageSteps(vsize.width(), csize.width());
                 horizontalScrollBar()->setSingleStep(1);
                 horizontalScrollBar()->setPageStep(pageSteps);
                 horizontalScrollBar()->setRange(0, steps - pageSteps);
-//            } else if (horizontal && d->wrap && d->movement == Static) {
+//            } else if (horizontal && d->isWrapping() && d->movement == Static) {
                 // ### wrapped scrolling in flow direction
             } else {
-                horizontalScrollBar()->setSingleStep(step.width() + d->spacing);
+                horizontalScrollBar()->setSingleStep(step.width() + d->spacing());
                 horizontalScrollBar()->setPageStep(vsize.width());
-                horizontalScrollBar()->setRange(0, d->contentsSize.width() - vsize.width());
+                horizontalScrollBar()->setRange(0, d->contentsSize().width() - vsize.width());
             }
-            if (vertical && d->wrap && d->movement == Static) {
-                int steps = d->segmentPositions.count();
-                int pageSteps = d->perItemScrollingPageSteps(vsize.height(), csize.height());
+            if (vertical && d->isWrapping() && d->movement == Static) {
+                int steps = d->staticListView.segmentPositions.count();
+                int pageSteps = d->staticListView.perItemScrollingPageSteps(vsize.height(), csize.height());
                 verticalScrollBar()->setSingleStep(1);
                 verticalScrollBar()->setPageStep(pageSteps);
                 verticalScrollBar()->setRange(0, steps - pageSteps);
             } else {
-                verticalScrollBar()->setSingleStep(step.height() + d->spacing);
+                verticalScrollBar()->setSingleStep(step.height() + d->spacing());
                 verticalScrollBar()->setPageStep(vsize.height());
-                verticalScrollBar()->setRange(0, d->contentsSize.height() - vsize.height());
+                verticalScrollBar()->setRange(0, d->contentsSize().height() - vsize.height());
             }
         }
     }
     // if the scrollbars are turned off, we resize the contents to the viewport
-    if (d->movement == Static && !d->wrap) {
+    if (d->movement == Static && !d->isWrapping()) {
         if (d->flow == TopToBottom) {
             if (horizontalScrollBarPolicy() == Qt::ScrollBarAlwaysOff)
-                d->contentsSize = QSize(viewport()->width(), contentsSize().height());
+                d->setContentsSize(viewport()->width(), contentsSize().height());
         } else { // LeftToRight
             if (verticalScrollBarPolicy() == Qt::ScrollBarAlwaysOff)
-                d->contentsSize = QSize(contentsSize().width(), viewport()->height());
+                d->setContentsSize(contentsSize().width(), viewport()->height());
         }
     }
 
@@ -1651,28 +1623,40 @@ QListViewPrivate::QListViewPrivate()
     : QAbstractItemViewPrivate(),
       layoutMode(QListView::SinglePass),
       modeProperties(0),
-      batchStartRow(0),
-      batchSavedDeltaSeg(0),
-      batchSavedPosition(0),
       column(0),
       uniformItemSizes(false),
       batchSize(100),
       wrapItemText(false)
-{}
+{
+    staticListView.dd = this;
+
+    staticListView.batchSavedPosition = 0;
+    staticListView.batchStartRow = 0;
+    staticListView.batchSavedDeltaSeg = 0;
+
+    dynamicListView.dd = this;
+    staticListView.batchStartRow = 0;
+    staticListView.batchSavedDeltaSeg = 0;
+}
 
 void QListViewPrivate::clear()
 {
+    // ### split into dynamic and static
     // initialization of data structs
-    batchStartRow = 0;
-    batchSavedPosition = 0;
-    batchSavedDeltaSeg = 0;
     cachedItemSize = QSize();
-    tree.destroy();
-    items.clear();
-    moved.clear();
-    flowPositions.clear();
-    segmentPositions.clear();
-    segmentStartRows.clear();
+
+    dynamicListView.tree.destroy();
+    dynamicListView.items.clear();
+    dynamicListView.moved.clear();
+    dynamicListView.batchStartRow = 0;
+    dynamicListView.batchSavedDeltaSeg = 0;
+
+    staticListView.flowPositions.clear();
+    staticListView.segmentPositions.clear();
+    staticListView.segmentStartRows.clear();
+    staticListView.batchSavedPosition = 0;
+    staticListView.batchStartRow = 0;
+    staticListView.batchSavedDeltaSeg = 0;
 }
 
 void QListViewPrivate::prepareItemsLayout()
@@ -1690,77 +1674,10 @@ void QListViewPrivate::prepareItemsLayout()
     if (colCount <= 0)
         rowCount = 0; // no contents
     if (movement == QListView::Static) {
-        flowPositions.resize(rowCount);
+        staticListView.flowPositions.resize(rowCount);
     } else {
-        tree.create(qMax(rowCount - hiddenRows.count(), 0));
+        dynamicListView.tree.create(qMax(rowCount - hiddenRows.count(), 0));
     }
-}
-
-QPoint QListViewPrivate::initStaticLayout(const QRect &bounds, int spacing, int first)
-{
-    int x, y;
-    if (first == 0) {
-        flowPositions.clear();
-        segmentPositions.clear();
-        segmentStartRows.clear();
-        x = bounds.left() + spacing;
-        y = bounds.top() + spacing;
-        segmentPositions.append(flow == QListView::LeftToRight ? y : x);
-        segmentStartRows.append(0);
-    } else if (wrap) {
-        if (flow == QListView::LeftToRight) {
-            x = batchSavedPosition;
-            y = segmentPositions.last();
-        } else { // flow == QListView::TopToBottom
-            x = segmentPositions.last();
-            y = batchSavedPosition;
-        }
-    } else { // not first and not wrap
-        if (flow == QListView::LeftToRight) {
-            x = batchSavedPosition;
-            y = bounds.top() + spacing;
-        } else { // flow == QListView::TopToBottom
-            x = bounds.left() + spacing;
-            y = batchSavedPosition;
-        }
-    }
-    return QPoint(x, y);
-}
-
-QPoint QListViewPrivate::initDynamicLayout(const QRect &bounds, int spacing, int first)
-{
-    int x, y;
-    if (first == 0) {
-        x = bounds.x() + spacing;
-        y = bounds.y() + spacing;
-        items.reserve(model->rowCount(root) - hiddenRows.count());
-    } else {
-        const QListViewItem item = items.at(first - 1);
-        x = item.x;
-        y = item.y;
-        if (flow == QListView::LeftToRight)
-            x += (gridSize.isValid() ? gridSize.width() : item.w) + spacing;
-        else
-            y += (gridSize.isValid() ? gridSize.height() : item.h) + spacing;
-    }
-    return QPoint(x, y);
-}
-
-void QListViewPrivate::initBspTree(const QSize &contents)
-{
-    // remove all items from the tree
-    int leafCount = tree.leafCount();
-    for (int l = 0; l < leafCount; ++l)
-        tree.leaf(l).clear();
-    // we have to get the bounding rect of the items before we can initialize the tree
-    QBspTree::Node::Type type = QBspTree::Node::Both; // 2D
-    // simple heuristics to get better bsp
-    if (contents.height() / contents.width() >= 3)
-        type = QBspTree::Node::HorizontalPlane;
-    else if (contents.width() / contents.height() >= 3)
-        type = QBspTree::Node::VerticalPlane;
-    // build tree for the bounding rect (not just the contents rect)
-    tree.init(QRect(0, 0, contents.width(), contents.height()), type);
 }
 
 /*!
@@ -1768,28 +1685,26 @@ void QListViewPrivate::initBspTree(const QSize &contents)
 */
 bool QListViewPrivate::doItemsLayout(int delta)
 {
+    // ### split into static and dynamic
     int max = model->rowCount(root) - 1;
-    int first = batchStartRow;
+    int first = batchStartRow();
     int last = qMin(first + delta - 1, max);
 
     if (max < 0)
         return true; // nothing to do
 
-    if (movement == QListView::Static) {
-        doStaticLayout(layoutBounds, first, last);
-    } else {
-        if (last >= items.count())
-            createItems(last + 1);
-        doDynamicLayout(layoutBounds, first, last);
-    }
+    LayoutInformation info;
+    info.bounds = layoutBounds;
+    info.grid = gridSize();
+    info.spacing = (info.grid.isValid() ? 0 : spacing());
+    info.first = first;
+    info.last = last;
+    info.wrap = isWrapping();
+    info.flow = flow;
 
-    if (batchStartRow >= max) { // stop items layout
-        flowPositions.resize(flowPositions.count());
-        segmentPositions.resize(segmentPositions.count());
-        segmentStartRows.resize(segmentStartRows.count());
-        return true; // done
-    }
-    return false; // not done
+    if (movement == QListView::Static)
+        return staticListView.doBatchedItemLayout(info, max);
+    return dynamicListView.doBatchedItemLayout(info, max);
 }
 
 /*!
@@ -1801,321 +1716,20 @@ void QListViewPrivate::doItemsLayout(const QRect &bounds,
 {
     if (first.row() >= last.row() || !first.isValid() || !last.isValid())
         return;
+
+    LayoutInformation info;
+    info.bounds = bounds;
+    info.grid = gridSize();
+    info.spacing = (info.grid.isValid() ? 0 : spacing());
+    info.first = first.row();
+    info.last = last.row();
+    info.wrap = isWrapping();
+    info.flow = flow;
+
     if (movement == QListView::Static)
-        doStaticLayout(bounds, first.row(), last.row());
+        staticListView.doStaticLayout(info);
     else
-        doDynamicLayout(bounds, first.row(), last.row());
-}
-
-/*!
-  \internal
-*/
-void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
-{
-    const bool useItemSize = !gridSize.isValid();
-    const int gap = useItemSize ? spacing : 0; // if we are using a grid ,we don't use spacing
-    const QPoint topLeft = initStaticLayout(bounds, gap, first);
-    const QStyleOptionViewItemV2 option = viewOptionsV2();
-
-    // The static layout data structures are as follows:
-    // One vector contains the coordinate in the direction of layout flow.
-    // Another vector contains the coordinates of the segments.
-    // A third vector contains the index (model row) of the first item
-    // of each segment.
-
-    int segStartPosition;
-    int segEndPosition;
-    int deltaFlowPosition;
-    int deltaSegPosition;
-    int deltaSegHint;
-    int flowPosition;
-    int segPosition;
-
-    if (flow == QListView::LeftToRight) {
-        segStartPosition = bounds.left();
-        segEndPosition = bounds.width();
-        flowPosition = topLeft.x();
-        segPosition = topLeft.y();
-        deltaFlowPosition = gridSize.width(); // dx
-        deltaSegPosition = useItemSize ? batchSavedDeltaSeg : gridSize.height(); // dy
-        deltaSegHint = gridSize.height();
-    } else { // flow == QListView::TopToBottom
-        segStartPosition = bounds.top();
-        segEndPosition = bounds.height();
-        flowPosition = topLeft.y();
-        segPosition = topLeft.x();
-        deltaFlowPosition = gridSize.height(); // dy
-        deltaSegPosition = useItemSize ? batchSavedDeltaSeg : gridSize.width(); // dx
-        deltaSegHint = gridSize.width();
-    }
-
-    for (int row = first; row <= last; ++row) {
-        if (hiddenRows.contains(row)) {
-            flowPositions.append(flowPosition);
-        } else {
-            // if we are not using a grid, we need to find the deltas
-            if (useItemSize) {
-                QSize hint = itemSize(option, model->index(row, column, root));
-                if (flow == QListView::LeftToRight) {
-                    deltaFlowPosition = hint.width() + gap;
-                    deltaSegHint = hint.height() + gap;
-                } else { // TopToBottom
-                    deltaFlowPosition = hint.height() + gap;
-                    deltaSegHint = hint.width() + gap;
-                }
-            }
-            // create new segment
-            if (wrap && (flowPosition + deltaFlowPosition >= segEndPosition)) {
-                flowPosition = gap + segStartPosition;
-                segPosition += deltaSegPosition;
-                segmentPositions.append(segPosition);
-                segmentStartRows.append(row);
-                deltaSegPosition = 0;
-            }
-            // save the flow positon of this item
-            flowPositions.append(flowPosition);
-            // prepare for the next item
-            deltaSegPosition = qMax(deltaSegHint, deltaSegPosition);
-            flowPosition += gap + deltaFlowPosition;
-        }
-    }
-    // used when laying out next batch
-    batchSavedPosition = flowPosition;
-    batchSavedDeltaSeg = deltaSegPosition;
-    batchStartRow = last + 1;
-    // set the contents size
-    QRect rect = bounds;
-    if (flow == QListView::LeftToRight) {
-        rect.setRight(segmentPositions.count() == 1 ? flowPosition : bounds.right());
-        rect.setBottom(segPosition + deltaSegPosition);
-    } else { // TopToBottom
-        rect.setRight(segPosition + deltaSegPosition);
-        rect.setBottom(segmentPositions.count() == 1 ? flowPosition : bounds.bottom());
-    }
-    contentsSize = QSize(rect.right(), rect.bottom());
-    // if the new items are visble, update the viewport
-    QRect changedRect(topLeft, rect.bottomRight());
-    if (clipRect().intersects(changedRect))
-        viewport->update();
-}
-
-/*!
-  \internal
-*/
-void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
-{
-    const bool useItemSize = !gridSize.isValid();
-    const int gap = useItemSize ? spacing : 0;
-    const QPoint topLeft = initDynamicLayout(bounds, spacing, first);
-
-    int segStartPosition;
-    int segEndPosition;
-    int deltaFlowPosition;
-    int deltaSegPosition;
-    int deltaSegHint;
-    int flowPosition;
-    int segPosition;
-
-    if (flow == QListView::LeftToRight) {
-        segStartPosition = bounds.left() + spacing;
-        segEndPosition = bounds.right();
-        deltaFlowPosition = gridSize.width(); // dx
-        deltaSegPosition = (useItemSize ? batchSavedDeltaSeg : gridSize.height()); // dy
-        deltaSegHint = gridSize.height();
-        flowPosition = topLeft.x();
-        segPosition = topLeft.y();
-    } else { // flow == QListView::TopToBottom
-        segStartPosition = bounds.top() + spacing;
-        segEndPosition = bounds.bottom();
-        deltaFlowPosition = gridSize.height(); // dy
-        deltaSegPosition = (useItemSize ? batchSavedDeltaSeg : gridSize.width()); // dx
-        deltaSegHint = gridSize.width();
-        flowPosition = topLeft.y();
-        segPosition = topLeft.x();
-    }
-
-    if (moved.count() != items.count())
-        moved.resize(items.count());
-
-    QRect rect(QPoint(0, 0), topLeft);
-    QListViewItem *item = 0;
-    for (int row = first; row <= last; ++row) {
-        item = &items[row];
-        if (hiddenRows.contains(row)) {
-            item->invalidate();
-        } else {
-            // if we are not using a grid, we need to find the deltas
-            if (useItemSize) {
-                if (flow == QListView::LeftToRight)
-                    deltaFlowPosition = item->w + gap;
-                else
-                    deltaFlowPosition = item->h + gap;
-            } else {
-                item->w = qMin<int>(gridSize.width(), item->w);
-                item->h = qMin<int>(gridSize.height(), item->h);
-            }
-
-            // create new segment
-            if (wrap
-                && flowPosition + deltaFlowPosition > segEndPosition
-                && flowPosition > segStartPosition) {
-                flowPosition = segStartPosition;
-                segPosition += deltaSegPosition;
-                if (useItemSize)
-                    deltaSegPosition = 0;
-            }
-            // We must delay calculation of the seg adjustment, as this item
-            // may have caused a wrap to occur
-            if (useItemSize) {
-                if (flow == QListView::LeftToRight)
-                    deltaSegHint = item->h + gap;
-                else
-                    deltaSegHint = item->w + gap;
-                deltaSegPosition = qMax(deltaSegPosition, deltaSegHint);
-            }
-
-            // set the position of the item
-            if (!moved.testBit(row)) {
-                if (flow == QListView::LeftToRight) {
-                    if (useItemSize) {
-                        item->x = flowPosition;
-                        item->y = segPosition;
-                    } else { // use grid
-                        item->x = flowPosition + ((deltaFlowPosition - item->w) / 2);
-                        item->y = segPosition +  ((deltaSegPosition - item->h) / 2);
-                    }
-                } else { // TopToBottom
-                    if (useItemSize) {
-                        item->y = flowPosition;
-                        item->x = segPosition;
-                    } else {
-                        item->y = flowPosition + ((deltaFlowPosition - item->h) / 2);
-                        item->x = segPosition +  ((deltaSegPosition - item->w) / 2);
-                    }
-                }
-            }
-
-            // let the contents contain the new item
-            if (useItemSize)
-                rect |= item->rect();
-            else if (flow == QListView::LeftToRight)
-                rect |= QRect(flowPosition, segPosition, deltaFlowPosition, deltaSegPosition);
-            else // flow == TopToBottom
-                rect |= QRect(segPosition, flowPosition, deltaSegPosition, deltaFlowPosition);
-
-            // prepare for next item
-            flowPosition += deltaFlowPosition; // current position + item width + gap
-        }
-    }
-    batchSavedDeltaSeg = deltaSegPosition;
-    batchStartRow = last + 1;
-    bool done = (last >= model->rowCount(root) - 1);
-    // resize the content area
-    if (done || !bounds.contains(item->rect()))
-        contentsSize = QSize(rect.width(), rect.height());
-    // resize tree
-    int insertFrom = first;
-    if (done || first == 0) {
-        initBspTree(rect.size());
-        insertFrom = 0;
-    }
-    // insert items in tree
-    for (int row = insertFrom; row <= last; ++row)
-        tree.insertLeaf(items.at(row).rect(), row);
-    // if the new items are visble, update the viewport
-    QRect changedRect(topLeft, rect.bottomRight());
-    if (clipRect().intersects(changedRect))
-        viewport->update();
-}
-
-/*!
-  \internal
-  Finds the set of items intersecting with \a area.
-  In this function, itemsize is counted from topleft to the start of the next item.
-*/
-
-void QListViewPrivate::intersectingStaticSet(const QRect &area) const
-{
-    intersectVector.clear();
-    int segStartPosition;
-    int segEndPosition;
-    int flowStartPosition;
-    int flowEndPosition;
-    if (flow == QListView::LeftToRight) {
-        segStartPosition = area.top();
-        segEndPosition = area.bottom();
-        flowStartPosition = area.left();
-        flowEndPosition = area.right();
-    } else {
-        segStartPosition = area.left();
-        segEndPosition = area.right();
-        flowStartPosition = area.top();
-        flowEndPosition = area.bottom();
-    }
-    if (segmentPositions.isEmpty() || flowPositions.isEmpty())
-        return;
-    const int segLast = segmentPositions.count() - 1;
-    Q_ASSERT(segLast > -1);
-    int seg = qBinarySearch<int>(segmentPositions, segStartPosition, 0, segLast);
-    for (; seg <= segLast && segmentPositions.at(seg) <= segEndPosition; ++seg) {
-        int first = segmentStartRows.at(seg);
-        int last = (seg < segLast ? segmentStartRows.at(seg + 1) : batchStartRow) - 1;
-        int row = qBinarySearch<int>(flowPositions, flowStartPosition, first, last);
-        for (; row <= last && flowPositions.at(row) <= flowEndPosition; ++row) {
-            if (hiddenRows.contains(row))
-                continue;
-            QModelIndex index = model->index(row, column, root);
-            if (index.isValid())
-                intersectVector.append(index);
-            else
-                qWarning("intersectingStaticSet: row %d was invalid", row);
-        }
-    }
-}
-
-void QListViewPrivate::intersectingDynamicSet(const QRect &area) const
-{
-    intersectVector.clear();
-    QListViewPrivate *that = const_cast<QListViewPrivate*>(this);
-    QBspTree::Data data(static_cast<void*>(that));
-    that->tree.climbTree(area, &QListViewPrivate::addLeaf, data);
-}
-
-void QListViewPrivate::createItems(int to)
-{
-    int count = items.count();
-    QSize size;
-    QStyleOptionViewItemV2 option = viewOptionsV2();
-    for (int row = count; row < to; ++row) {
-        size = itemSize(option, model->index(row, column, root));
-        QListViewItem item(QRect(0, 0, size.width(), size.height()), row); // default pos
-        items.append(item);
-    }
-}
-
-void QListViewPrivate::drawItems(QPainter *painter, const QVector<QModelIndex> &indexes) const
-{
-    QStyleOptionViewItemV2 option = viewOptionsV2();
-    option.state &= ~QStyle::State_MouseOver;
-    QVector<QModelIndex>::const_iterator it = indexes.begin();
-    QListViewItem item = indexToListViewItem(*it);
-    for (; it != indexes.end(); ++it) {
-        item = indexToListViewItem(*it);
-        option.rect = viewItemRect(item);
-        delegateForIndex(*it)->paint(painter, option, *it);
-    }
-}
-
-QRect QListViewPrivate::itemsRect(const QVector<QModelIndex> &indexes) const
-{
-    QVector<QModelIndex>::const_iterator it = indexes.begin();
-    QListViewItem item = indexToListViewItem(*it);
-    QRect rect(item.x, item.y, item.w, item.h);
-    for (; it != indexes.end(); ++it) {
-        item = indexToListViewItem(*it);
-        rect |= viewItemRect(item);
-    }
-    return rect;
+        dynamicListView.doDynamicLayout(info);
 }
 
 QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) const
@@ -2123,135 +1737,17 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
     if (!index.isValid() || hiddenRows.contains(index.row()))
         return QListViewItem();
 
-    if (movement != QListView::Static)
-        if (index.row() < items.count())
-            return items.at(index.row());
-        else
-            return QListViewItem();
-
-    // movement == Static
-    if (flowPositions.isEmpty()
-        || segmentPositions.isEmpty()
-        || index.row() >= flowPositions.count())
-        return QListViewItem();
-
-    const int segment = qBinarySearch<int>(segmentStartRows, index.row(),
-                                           0, segmentStartRows.count() - 1);
-
-
-    QSize size = (uniformItemSizes && cachedItemSize.isValid())
-                 ? cachedItemSize : itemSize(viewOptionsV2(), index);
-
-    QPoint pos;
-    if (flow == QListView::LeftToRight) {
-        pos.setX(flowPositions.at(index.row()));
-        pos.setY(segmentPositions.at(segment));
-    } else { // TopToBottom
-        pos.setY(flowPositions.at(index.row()));
-        pos.setX(segmentPositions.at(segment));
-        if (wrap) { // make the items as wide as the segment
-            int right = (segment + 1 >= segmentPositions.count()
-                     ? contentsSize.width()
-                     : segmentPositions.at(segment + 1));
-            size.setWidth(right - pos.x());
-        }
-    }
-
-    return QListViewItem(QRect(pos, size), index.row());
+    if (movement == QListView::Static)
+        return staticListView.indexToListViewItem(index);
+    return dynamicListView.indexToListViewItem(index);
 }
+
 
 int QListViewPrivate::itemIndex(const QListViewItem &item) const
 {
-    int i = item.indexHint;
-    if (movement == QListView::Static || items.at(i) == item)
-        return i;
-    if (i >= items.count())
-        i = items.count() - 1;
-
-    int j = i;
-    int c = items.count();
-    bool a = true;
-    bool b = true;
-
-    while (a || b) {
-        if (a) {
-            if (items.at(i) == item) {
-                items.at(i).indexHint = i;
-                return i;
-            }
-            a = ++i < c;
-        }
-        if (b) {
-            if (items.at(j) == item) {
-                items.at(j).indexHint = j;
-                return j;
-            }
-            b = --j > -1;
-        }
-    }
-    return -1;
-}
-
-void QListViewPrivate::addLeaf(QVector<int> &leaf, const QRect &area,
-                               uint visited, QBspTree::Data data)
-{
-    QListViewItem *vi;
-    QListViewPrivate *_this = static_cast<QListViewPrivate *>(data.ptr);
-    for (int i = 0; i < leaf.count(); ++i) {
-        int idx = leaf.at(i);
-        if (idx < 0 || idx >= _this->items.count())
-            continue;
-        vi = &_this->items[idx];
-        Q_ASSERT(vi);
-        if (vi->rect().intersects(area) && vi->visited != visited) {
-            QModelIndex index = _this->listViewItemToIndex(*vi);
-            Q_ASSERT(index.isValid());
-            _this->intersectVector.append(index);
-            vi->visited = visited;
-        }
-    }
-}
-
-void QListViewPrivate::insertItem(int index)
-{
-    if (index >= 0 && index < items.count())
-        tree.insertLeaf(items.at(index).rect(), index);
-}
-
-void QListViewPrivate::removeItem(int index)
-{
-    if (index >= 0 && index < items.count())
-        tree.removeLeaf(items.at(index).rect(), index);
-}
-
-void QListViewPrivate::moveItem(int index, const QPoint &dest)
-{
-    // does not impact on the bintree itself or the contents rect
-    QListViewItem *item = &items[index];
-    QRect rect = item->rect();
-
-    // move the item without removing it from the tree
-    tree.removeLeaf(rect, index);
-    item->move(dest);
-    tree.insertLeaf(QRect(dest, rect.size()), index);
-
-    // resize the contents area
-    int w = rect.x() + rect.width();
-    int h = rect.y() + rect.height();
-    w = w > contentsSize.width() ? w : contentsSize.width();
-    h = h > contentsSize.height() ? h : contentsSize.height();
-    contentsSize = QSize(w, h);
-
-    if (moved.count() != items.count())
-        moved.resize(items.count());
-    moved.setBit(index, true);
-}
-
-QPoint QListViewPrivate::snapToGrid(const QPoint &pos) const
-{
-    int x = pos.x() - (pos.x() % gridSize.width());
-    int y = pos.y() - (pos.y() % gridSize.height());
-    return QPoint(x, y);
+    if (movement == QListView::Static)
+        return staticListView.itemIndex(item);
+    return dynamicListView.itemIndex(item);
 }
 
 QRect QListViewPrivate::mapToViewport(const QRect &rect) const
@@ -2259,43 +1755,17 @@ QRect QListViewPrivate::mapToViewport(const QRect &rect) const
     Q_Q(const QListView);
     if (!rect.isValid())
         return rect;
-    QRect result = rect;
 
-    // If the listview is in "listbox-mode", the items are as wide as the view.
-    if (!wrap && movement == QListView::Static) {
-        QSize vsize = viewport->size();
-        QSize csize = (q->horizontalScrollBarPolicy() == Qt::ScrollBarAlwaysOff ? vsize : contentsSize);
-	if (flow == QListView::TopToBottom) {
-	    if (q_func()->isRightToLeft()) // Adjust the rect by expanding the left edge
-	        result.setLeft(result.right() - qMax(csize.width(), vsize.width()));
-	    else // Adjust the rect by expanding the right edge
-	        result.setWidth(qMax(csize.width(), vsize.width()));
-	} else { // LeftToRight
-	    result.setHeight(qMax(csize.height(), vsize.height()));
-	}
-    }
+    QRect result = rect;
+    if (movement == QListView::Static) // ### hacky
+        result = staticListView.mapToViewport(rect, viewport->size(),
+                                              q->horizontalScrollBarPolicy(),
+                                              q->isRightToLeft());
 
     int dx = -q->horizontalOffset();
     int dy = -q->verticalOffset();
     result.adjust(dx, dy, dx, dy);
     return result;
-}
-
-QPoint QListViewPrivate::draggedItemsDelta() const
-{
-    if (movement == QListView::Snap) {
-        QPoint snapdelta = QPoint((offset().x() % gridSize.width()),
-                                  (offset().y() % gridSize.height()));
-        return snapToGrid(draggedItemsPos + snapdelta) - snapToGrid(pressedPosition) - snapdelta;
-    }
-    return draggedItemsPos - pressedPosition;
-}
-
-QRect QListViewPrivate::draggedItemsRect() const
-{
-    QRect rect = itemsRect(draggedItems);
-    rect.translate(draggedItemsDelta());
-    return rect;
 }
 
 QModelIndex QListViewPrivate::closestIndex(const QPoint &target,
@@ -2332,12 +1802,347 @@ QSize QListViewPrivate::itemSize(const QStyleOptionViewItem &option, const QMode
     return cachedItemSize;
 }
 
-int QListViewPrivate::perItemScrollingPageSteps(int length, int bounds) const
+QStyleOptionViewItemV2 QListViewPrivate::viewOptionsV2() const
+{
+    Q_Q(const QListView);
+    QStyleOptionViewItemV2 option = q->viewOptions();
+    if (wrapItemText)
+        option.features = QStyleOptionViewItemV2::WrapText;
+    return option;
+}
+
+/*
+ * Static ListView Implementation
+*/
+
+int QStaticListViewPrivate::verticalPerItemValue(int itemIndex, int verticalValue, int areaHeight,
+                                                 bool above, bool below, QListView::ScrollHint hint) const
+{
+    int value = qBound(0, verticalValue, flowPositions.count() - 1);
+    if (above)
+        return perItemScrollToValue(itemIndex, value,
+                                             areaHeight, QListView::PositionAtTop,
+                                             Qt::Vertical);
+    else if (below)
+        return perItemScrollToValue(itemIndex, value,
+                                             areaHeight, QListView::PositionAtBottom,
+                                             Qt::Vertical);
+    else if (hint != QListView::EnsureVisible)
+        return perItemScrollToValue(itemIndex, value,
+                                             areaHeight, hint,
+                                             Qt::Vertical);
+    return value;
+}
+
+int QStaticListViewPrivate::horizontalPerItemValue(int itemIndex, int horizontalValue, int areaWidth,
+                                                   bool leftOf, bool rightOf, QListView::ScrollHint hint) const
+{
+    // ### NOTE: due to somthing that looks like a gcc 4.1 compiler bug, this function is not called
+    // if we can't fix it or work around it, we have to make this function inline
+
+    //qDebug() << "horizontalPerItemValue" << leftOf << rightOf;
+    int value = qBound(0, horizontalValue, flowPositions.count() - 1);
+    if (leftOf)
+        return perItemScrollToValue(itemIndex, value,
+                                               areaWidth, QListView::PositionAtTop,
+                                               Qt::Horizontal);
+    else if (rightOf)
+        return perItemScrollToValue(itemIndex, value,
+                                               areaWidth, QListView::PositionAtBottom,
+                                               Qt::Horizontal);
+    else if (hint != QListView::EnsureVisible)
+        return perItemScrollToValue(itemIndex, value,
+                                               areaWidth, hint,
+                                               Qt::Horizontal);
+    return value;
+}
+
+void QStaticListViewPrivate::scrollContentsBy(int &dx, int &dy, bool wrap, QListView::Flow flow)
+{
+    // ### reorder this logic
+    const int verticalValue = qq->verticalScrollBar()->value();
+    const int horizontalValue = qq->horizontalScrollBar()->value();
+    const bool vertical = qq->verticalScrollMode() == QAbstractItemView::ScrollPerItem;
+    const bool horizontal = qq->horizontalScrollMode() == QAbstractItemView::ScrollPerItem;
+
+    if (wrap) {
+        if (segmentPositions.isEmpty())
+            return;
+        const int max = segmentPositions.count() - 1;
+        if (horizontal && flow == QListView::TopToBottom && dx != 0) {
+            int currentValue = qBound(0, horizontalValue, max);
+            int previousValue = qBound(0, currentValue + dx, max);
+            int currentCoordinate = segmentPositions.at(currentValue);
+            int previousCoordinate = segmentPositions.at(previousValue);
+            dx = previousCoordinate - currentCoordinate;
+        } else if (vertical && flow == QListView::LeftToRight && dy != 0) {
+            int currentValue = qBound(0, verticalValue, max);
+            int previousValue = qBound(0, currentValue + dy, max);
+            int currentCoordinate = segmentPositions.at(currentValue);
+            int previousCoordinate = segmentPositions.at(previousValue);
+            dy = previousCoordinate - currentCoordinate;
+        }
+    } else {
+        if (flowPositions.isEmpty())
+            return;
+        const int max = flowPositions.count() - 1;
+        if (vertical && flow == QListView::TopToBottom && dy != 0) {
+            int currentValue = qBound(0, verticalValue, max);
+            int previousValue = qBound(0, currentValue + dy, max);
+            int currentCoordinate = flowPositions.at(currentValue);
+            int previousCoordinate = flowPositions.at(previousValue);
+            dy = previousCoordinate - currentCoordinate;
+        } else if (horizontal && flow == QListView::LeftToRight && dx != 0) {
+            int currentValue = qBound(0, horizontalValue, max);
+            int previousValue = qBound(0, currentValue + dx, max);
+            int currentCoordinate = flowPositions.at(currentValue);
+            int previousCoordinate = flowPositions.at(previousValue);
+            dx = previousCoordinate - currentCoordinate;
+        }
+    }
+}
+
+bool QStaticListViewPrivate::doBatchedItemLayout(const LayoutInformation &info, int max)
+{
+    doStaticLayout(info);
+    if (batchStartRow >= max) { // stop items layout
+        flowPositions.resize(flowPositions.count());
+        segmentPositions.resize(segmentPositions.count());
+        segmentStartRows.resize(segmentStartRows.count());
+        return true; // done
+    }
+    return false; // not done
+}
+
+QListViewItem QStaticListViewPrivate::indexToListViewItem(const QModelIndex &index) const
+{
+    if (flowPositions.isEmpty()
+        || segmentPositions.isEmpty()
+        || index.row() >= flowPositions.count())
+        return QListViewItem();
+
+    const int segment = qBinarySearch<int>(segmentStartRows, index.row(),
+                                           0, segmentStartRows.count() - 1);
+
+
+    QSize size = (dd->uniformItemSizes && dd->cachedItemSize.isValid())
+                 ? dd->cachedItemSize : dd->itemSize(dd->viewOptionsV2(), index);
+
+    QPoint pos;
+    if (dd->flow == QListView::LeftToRight) {
+        pos.setX(flowPositions.at(index.row()));
+        pos.setY(segmentPositions.at(segment));
+    } else { // TopToBottom
+        pos.setY(flowPositions.at(index.row()));
+        pos.setX(segmentPositions.at(segment));
+        if (dd->isWrapping()) { // make the items as wide as the segment
+            int right = (segment + 1 >= segmentPositions.count()
+                     ? contentsSize.width()
+                     : segmentPositions.at(segment + 1));
+            size.setWidth(right - pos.x());
+        }
+    }
+
+    return QListViewItem(QRect(pos, size), index.row());
+}
+
+QPoint QStaticListViewPrivate::initStaticLayout(const LayoutInformation &info)
+{
+    int x, y;
+    if (info.first == 0) {
+        flowPositions.clear();
+        segmentPositions.clear();
+        segmentStartRows.clear();
+        x = info.bounds.left() + info.spacing;
+        y = info.bounds.top() + info.spacing;
+        segmentPositions.append(info.flow == QListView::LeftToRight ? y : x);
+        segmentStartRows.append(0);
+    } else if (info.wrap) {
+        if (info.flow == QListView::LeftToRight) {
+            x = batchSavedPosition;
+            y = segmentPositions.last();
+        } else { // flow == QListView::TopToBottom
+            x = segmentPositions.last();
+            y = batchSavedPosition;
+        }
+    } else { // not first and not wrap
+        if (info.flow == QListView::LeftToRight) {
+            x = batchSavedPosition;
+            y = info.bounds.top() + info.spacing;
+        } else { // flow == QListView::TopToBottom
+            x = info.bounds.left() + info.spacing;
+            y = batchSavedPosition;
+        }
+    }
+    return QPoint(x, y);
+}
+
+/*!
+  \internal
+*/
+void QStaticListViewPrivate::doStaticLayout(const LayoutInformation &info)
+{
+    const bool useItemSize = !info.grid.isValid();
+    const QPoint topLeft = initStaticLayout(info);
+    const QStyleOptionViewItemV2 option = dd->viewOptionsV2();
+
+    // The static layout data structures are as follows:
+    // One vector contains the coordinate in the direction of layout flow.
+    // Another vector contains the coordinates of the segments.
+    // A third vector contains the index (model row) of the first item
+    // of each segment.
+
+    int segStartPosition;
+    int segEndPosition;
+    int deltaFlowPosition;
+    int deltaSegPosition;
+    int deltaSegHint;
+    int flowPosition;
+    int segPosition;
+
+    if (info.flow == QListView::LeftToRight) {
+        segStartPosition = info.bounds.left();
+        segEndPosition = info.bounds.width();
+        flowPosition = topLeft.x();
+        segPosition = topLeft.y();
+        deltaFlowPosition = info.grid.width(); // dx
+        deltaSegPosition = useItemSize ? batchSavedDeltaSeg : info.grid.height(); // dy
+        deltaSegHint = info.grid.height();
+    } else { // flow == QListView::TopToBottom
+        segStartPosition = info.bounds.top();
+        segEndPosition = info.bounds.height();
+        flowPosition = topLeft.y();
+        segPosition = topLeft.x();
+        deltaFlowPosition = info.grid.height(); // dy
+        deltaSegPosition = useItemSize ? batchSavedDeltaSeg : info.grid.width(); // dx
+        deltaSegHint = info.grid.width();
+    }
+
+    for (int row = info.first; row <= info.last; ++row) {
+        if (dd->hiddenRows.contains(row)) {
+            flowPositions.append(flowPosition);
+        } else {
+            // if we are not using a grid, we need to find the deltas
+            if (useItemSize) {
+                QSize hint = dd->itemSize(option, dd->model->index(row, dd->column, dd->root));
+                if (info.flow == QListView::LeftToRight) {
+                    deltaFlowPosition = hint.width() + info.spacing;
+                    deltaSegHint = hint.height() + info.spacing;
+                } else { // TopToBottom
+                    deltaFlowPosition = hint.height() + info.spacing;
+                    deltaSegHint = hint.width() + info.spacing;
+                }
+            }
+            // create new segment
+            if (info.wrap && (flowPosition + deltaFlowPosition >= segEndPosition)) {
+                flowPosition = info.spacing + segStartPosition;
+                segPosition += deltaSegPosition;
+                segmentPositions.append(segPosition);
+                segmentStartRows.append(row);
+                deltaSegPosition = 0;
+            }
+            // save the flow positon of this item
+            flowPositions.append(flowPosition);
+            // prepare for the next item
+            deltaSegPosition = qMax(deltaSegHint, deltaSegPosition);
+            flowPosition += info.spacing + deltaFlowPosition;
+        }
+    }
+    // used when laying out next batch
+    batchSavedPosition = flowPosition;
+    batchSavedDeltaSeg = deltaSegPosition;
+    batchStartRow = info.last + 1;
+    // set the contents size
+    QRect rect = info.bounds;
+    if (info.flow == QListView::LeftToRight) {
+        rect.setRight(segmentPositions.count() == 1 ? flowPosition : info.bounds.right());
+        rect.setBottom(segPosition + deltaSegPosition);
+    } else { // TopToBottom
+        rect.setRight(segPosition + deltaSegPosition);
+        rect.setBottom(segmentPositions.count() == 1 ? flowPosition : info.bounds.bottom());
+    }
+    contentsSize = QSize(rect.right(), rect.bottom());
+    // if the new items are visble, update the viewport
+    QRect changedRect(topLeft, rect.bottomRight());
+    if (dd->clipRect().intersects(changedRect))
+        dd->viewport->update();
+}
+
+/*!
+  \internal
+  Finds the set of items intersecting with \a area.
+  In this function, itemsize is counted from topleft to the start of the next item.
+*/
+void QStaticListViewPrivate::intersectingStaticSet(const QRect &area) const
+{
+    dd->intersectVector.clear();
+    int segStartPosition;
+    int segEndPosition;
+    int flowStartPosition;
+    int flowEndPosition;
+    if (dd->flow == QListView::LeftToRight) {
+        segStartPosition = area.top();
+        segEndPosition = area.bottom();
+        flowStartPosition = area.left();
+        flowEndPosition = area.right();
+    } else {
+        segStartPosition = area.left();
+        segEndPosition = area.right();
+        flowStartPosition = area.top();
+        flowEndPosition = area.bottom();
+    }
+    if (segmentPositions.isEmpty() || flowPositions.isEmpty())
+        return;
+    const int segLast = segmentPositions.count() - 1;
+    Q_ASSERT(segLast > -1);
+    int seg = qBinarySearch<int>(segmentPositions, segStartPosition, 0, segLast);
+    for (; seg <= segLast && segmentPositions.at(seg) <= segEndPosition; ++seg) {
+        int first = segmentStartRows.at(seg);
+        int last = (seg < segLast ? segmentStartRows.at(seg + 1) : batchStartRow) - 1;
+        int row = qBinarySearch<int>(flowPositions, flowStartPosition, first, last);
+        for (; row <= last && flowPositions.at(row) <= flowEndPosition; ++row) {
+            if (dd->hiddenRows.contains(row))
+                continue;
+            QModelIndex index = dd->model->index(row, dd->column, dd->root);
+            if (index.isValid())
+                dd->intersectVector.append(index);
+            else
+                qWarning("intersectingStaticSet: row %d was invalid", row);
+        }
+    }
+}
+
+int QStaticListViewPrivate::itemIndex(const QListViewItem &item) const
+{
+    return item.indexHint;
+}
+
+QRect QStaticListViewPrivate::mapToViewport(const QRect &rect, const QSize &viewportSize,
+                                            Qt::ScrollBarPolicy horizontalPolicy,
+                                            bool rightToLeft) const
+{
+    if (wrap)
+        return rect;
+    // If the listview is in "listbox-mode", the items are as wide as the view.
+    QRect result = rect;
+    QSize csize = (horizontalPolicy == Qt::ScrollBarAlwaysOff ? viewportSize : contentsSize);
+    if (dd->flow == QListView::TopToBottom) {
+        if (rightToLeft) // Adjust the rect by expanding the left edge
+            result.setLeft(result.right() - qMax(csize.width(), viewportSize.width()));
+        else // Adjust the rect by expanding the right edge
+            result.setWidth(qMax(csize.width(), viewportSize.width()));
+    } else { // LeftToRight
+        result.setHeight(qMax(csize.height(), viewportSize.height()));
+    }
+    return result;
+}
+
+int QStaticListViewPrivate::perItemScrollingPageSteps(int length, int bounds) const
 {
     const QVector<int> positions = (wrap ? segmentPositions : flowPositions);
     if (positions.isEmpty() || bounds <= length)
         return positions.count();
-    if (uniformItemSizes) {
+    if (dd->uniformItemSizes) {
         for (int i = 1; i < positions.count(); ++i)
             if (positions.at(i) > 0)
                 return length / positions.at(i);
@@ -2357,9 +2162,9 @@ int QListViewPrivate::perItemScrollingPageSteps(int length, int bounds) const
     return qMax(pageSteps, 1);
 }
 
-int QListViewPrivate::perItemScrollToValue(int index, int scrollValue, int viewportSize,
-                                           QAbstractItemView::ScrollHint hint,
-                                           Qt::Orientation orientation) const
+int QStaticListViewPrivate::perItemScrollToValue(int index, int scrollValue, int viewportSize,
+                                                 QAbstractItemView::ScrollHint hint,
+                                                 Qt::Orientation orientation) const
 {
     if (index < 0)
         return scrollValue;
@@ -2385,7 +2190,7 @@ int QListViewPrivate::perItemScrollToValue(int index, int scrollValue, int viewp
         }
     } else { // wrapping
         Qt::Orientation flowOrientation =
-            (flow == QListView::LeftToRight ? Qt::Horizontal : Qt::Vertical);
+            (dd->flow == QListView::LeftToRight ? Qt::Horizontal : Qt::Vertical);
         if (flowOrientation == orientation) { // scrolling in the "flow" direction
             // ### wrapped scrolling in the flow direction
             return flowPositions.at(index); // ### always pixel based for now
@@ -2416,13 +2221,369 @@ int QListViewPrivate::perItemScrollToValue(int index, int scrollValue, int viewp
     return scrollValue;
 }
 
-QStyleOptionViewItemV2 QListViewPrivate::viewOptionsV2() const
+/*
+ * Dynamic ListView Implementation
+*/
+
+void QDynamicListViewPrivate::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
-    Q_Q(const QListView);
-    QStyleOptionViewItemV2 option = q->viewOptions();
-    if (wrapItemText)
-        option.features = QStyleOptionViewItemV2::WrapText;
-    return option;
+    if (dd->column >= topLeft.column() && dd->column <= bottomRight.column())  {
+        QStyleOptionViewItemV2 option = dd->viewOptionsV2();
+        int bottom = qMin(items.count(), bottomRight.row() + 1);
+        for (int row = topLeft.row(); row < bottom; ++row) {
+            QModelIndex idx = dd->model->index(row, dd->column, dd->root);
+            items[row].resize(dd->itemSize(option, idx));
+        }
+    }
 }
+
+bool QDynamicListViewPrivate::doBatchedItemLayout(const LayoutInformation &info, int max)
+{
+    if (info.last >= items.count()) {
+        createItems(info.last + 1);
+        doDynamicLayout(info);
+    }
+    return (batchStartRow >= max); // done
+}
+
+QListViewItem QDynamicListViewPrivate::indexToListViewItem(const QModelIndex &index) const
+{
+    if (index.row() < items.count())
+        return items.at(index.row());
+    return QListViewItem();
+}
+
+void QDynamicListViewPrivate::initBspTree(const QSize &contents)
+{
+    // remove all items from the tree
+    int leafCount = tree.leafCount();
+    for (int l = 0; l < leafCount; ++l)
+        tree.leaf(l).clear();
+    // we have to get the bounding rect of the items before we can initialize the tree
+    QBspTree::Node::Type type = QBspTree::Node::Both; // 2D
+    // simple heuristics to get better bsp
+    if (contents.height() / contents.width() >= 3)
+        type = QBspTree::Node::HorizontalPlane;
+    else if (contents.width() / contents.height() >= 3)
+        type = QBspTree::Node::VerticalPlane;
+    // build tree for the bounding rect (not just the contents rect)
+    tree.init(QRect(0, 0, contents.width(), contents.height()), type);
+}
+
+QPoint QDynamicListViewPrivate::initDynamicLayout(const LayoutInformation &info)
+{
+    int x, y;
+    if (info.first == 0) {
+        x = info.bounds.x() + info.spacing;
+        y = info.bounds.y() + info.spacing;
+        items.reserve(dd->model->rowCount(dd->root) - dd->hiddenRows.count());
+    } else {
+        const QListViewItem item = items.at(info.first - 1);
+        x = item.x;
+        y = item.y;
+        if (info.flow == QListView::LeftToRight)
+            x += (info.grid.isValid() ? info.grid.width() : item.w) + info.spacing;
+        else
+            y += (info.grid.isValid() ? info.grid.height() : item.h) + info.spacing;
+    }
+    return QPoint(x, y);
+}
+
+/*!
+  \internal
+*/
+void QDynamicListViewPrivate::doDynamicLayout(const LayoutInformation &info)
+{
+    const bool useItemSize = !info.grid.isValid();
+    const QPoint topLeft = initDynamicLayout(info);
+
+    int segStartPosition;
+    int segEndPosition;
+    int deltaFlowPosition;
+    int deltaSegPosition;
+    int deltaSegHint;
+    int flowPosition;
+    int segPosition;
+
+    if (info.flow == QListView::LeftToRight) {
+        segStartPosition = info.bounds.left() + info.spacing;
+        segEndPosition = info.bounds.right();
+        deltaFlowPosition = info.grid.width(); // dx
+        deltaSegPosition = (useItemSize ? batchSavedDeltaSeg : info.grid.height()); // dy
+        deltaSegHint = info.grid.height();
+        flowPosition = topLeft.x();
+        segPosition = topLeft.y();
+    } else { // flow == QListView::TopToBottom
+        segStartPosition = info.bounds.top() + info.spacing;
+        segEndPosition = info.bounds.bottom();
+        deltaFlowPosition = info.grid.height(); // dy
+        deltaSegPosition = (useItemSize ? batchSavedDeltaSeg : info.grid.width()); // dx
+        deltaSegHint = info.grid.width();
+        flowPosition = topLeft.y();
+        segPosition = topLeft.x();
+    }
+
+    if (moved.count() != items.count())
+        moved.resize(items.count());
+
+    QRect rect(QPoint(0, 0), topLeft);
+    QListViewItem *item = 0;
+    for (int row = info.first; row <= info.last; ++row) {
+        item = &items[row];
+        if (dd->hiddenRows.contains(row)) {
+            item->invalidate();
+        } else {
+            // if we are not using a grid, we need to find the deltas
+            if (useItemSize) {
+                if (info.flow == QListView::LeftToRight)
+                    deltaFlowPosition = item->w + info.spacing;
+                else
+                    deltaFlowPosition = item->h + info.spacing;
+            } else {
+                item->w = qMin<int>(info.grid.width(), item->w);
+                item->h = qMin<int>(info.grid.height(), item->h);
+            }
+
+            // create new segment
+            if (info.wrap
+                && flowPosition + deltaFlowPosition > segEndPosition
+                && flowPosition > segStartPosition) {
+                flowPosition = segStartPosition;
+                segPosition += deltaSegPosition;
+                if (useItemSize)
+                    deltaSegPosition = 0;
+            }
+            // We must delay calculation of the seg adjustment, as this item
+            // may have caused a wrap to occur
+            if (useItemSize) {
+                if (info.flow == QListView::LeftToRight)
+                    deltaSegHint = item->h + info.spacing;
+                else
+                    deltaSegHint = item->w + info.spacing;
+                deltaSegPosition = qMax(deltaSegPosition, deltaSegHint);
+            }
+
+            // set the position of the item
+            if (!moved.testBit(row)) {
+                if (info.flow == QListView::LeftToRight) {
+                    if (useItemSize) {
+                        item->x = flowPosition;
+                        item->y = segPosition;
+                    } else { // use grid
+                        item->x = flowPosition + ((deltaFlowPosition - item->w) / 2);
+                        item->y = segPosition +  ((deltaSegPosition - item->h) / 2);
+                    }
+                } else { // TopToBottom
+                    if (useItemSize) {
+                        item->y = flowPosition;
+                        item->x = segPosition;
+                    } else {
+                        item->y = flowPosition + ((deltaFlowPosition - item->h) / 2);
+                        item->x = segPosition +  ((deltaSegPosition - item->w) / 2);
+                    }
+                }
+            }
+
+            // let the contents contain the new item
+            if (useItemSize)
+                rect |= item->rect();
+            else if (info.flow == QListView::LeftToRight)
+                rect |= QRect(flowPosition, segPosition, deltaFlowPosition, deltaSegPosition);
+            else // flow == TopToBottom
+                rect |= QRect(segPosition, flowPosition, deltaSegPosition, deltaFlowPosition);
+
+            // prepare for next item
+            flowPosition += deltaFlowPosition; // current position + item width + gap
+        }
+    }
+    batchSavedDeltaSeg = deltaSegPosition;
+    batchStartRow = info.last + 1;
+    bool done = (info.last >= dd->model->rowCount(dd->root) - 1);
+    // resize the content area
+    if (done || !info.bounds.contains(item->rect()))
+        contentsSize = QSize(rect.width(), rect.height());
+    // resize tree
+    int insertFrom = info.first;
+    if (done || info.first == 0) {
+        initBspTree(rect.size());
+        insertFrom = 0;
+    }
+    // insert items in tree
+    for (int row = insertFrom; row <= info.last; ++row)
+        tree.insertLeaf(items.at(row).rect(), row);
+    // if the new items are visble, update the viewport
+    QRect changedRect(topLeft, rect.bottomRight());
+    if (dd->clipRect().intersects(changedRect))
+        dd->viewport->update();
+}
+
+void QDynamicListViewPrivate::intersectingDynamicSet(const QRect &area) const
+{
+    dd->intersectVector.clear();
+    QListViewPrivate *that = const_cast<QListViewPrivate*>(dd);
+    QBspTree::Data data(static_cast<void*>(that));
+    that->dynamicListView.tree.climbTree(area, &QDynamicListViewPrivate::addLeaf, data);
+}
+
+void QDynamicListViewPrivate::createItems(int to)
+{
+    int count = items.count();
+    QSize size;
+    QStyleOptionViewItemV2 option = dd->viewOptionsV2();
+    for (int row = count; row < to; ++row) {
+        size = dd->itemSize(option, dd->model->index(row, dd->column, dd->root));
+        QListViewItem item(QRect(0, 0, size.width(), size.height()), row); // default pos
+        items.append(item);
+    }
+}
+
+void QDynamicListViewPrivate::drawItems(QPainter *painter, const QVector<QModelIndex> &indexes) const
+{
+    QStyleOptionViewItemV2 option = dd->viewOptionsV2();
+    option.state &= ~QStyle::State_MouseOver;
+    QVector<QModelIndex>::const_iterator it = indexes.begin();
+    QListViewItem item = dd->indexToListViewItem(*it);
+    for (; it != indexes.end(); ++it) {
+        item = dd->indexToListViewItem(*it);
+        option.rect = dd->viewItemRect(item);
+        dd->delegateForIndex(*it)->paint(painter, option, *it);
+    }
+}
+
+QRect QDynamicListViewPrivate::itemsRect(const QVector<QModelIndex> &indexes) const
+{
+    QVector<QModelIndex>::const_iterator it = indexes.begin();
+    QListViewItem item = dd->indexToListViewItem(*it);
+    QRect rect(item.x, item.y, item.w, item.h);
+    for (; it != indexes.end(); ++it) {
+        item = dd->indexToListViewItem(*it);
+        rect |= dd->viewItemRect(item);
+    }
+    return rect;
+}
+
+int QDynamicListViewPrivate::itemIndex(const QListViewItem &item) const
+{
+    int i = item.indexHint;
+    if (items.at(i) == item)
+        return i;
+    if (i >= items.count())
+        i = items.count() - 1;
+
+    int j = i;
+    int c = items.count();
+    bool a = true;
+    bool b = true;
+
+    while (a || b) {
+        if (a) {
+            if (items.at(i) == item) {
+                items.at(i).indexHint = i;
+                return i;
+            }
+            a = ++i < c;
+        }
+        if (b) {
+            if (items.at(j) == item) {
+                items.at(j).indexHint = j;
+                return j;
+            }
+            b = --j > -1;
+        }
+    }
+    return -1;
+}
+
+void QDynamicListViewPrivate::addLeaf(QVector<int> &leaf, const QRect &area,
+                               uint visited, QBspTree::Data data)
+{
+    QListViewItem *vi;
+    QListViewPrivate *_this = static_cast<QListViewPrivate *>(data.ptr);
+    for (int i = 0; i < leaf.count(); ++i) {
+        int idx = leaf.at(i);
+        if (idx < 0 || idx >= _this->dynamicListView.items.count())
+            continue;
+        vi = &_this->dynamicListView.items[idx];
+        Q_ASSERT(vi);
+        if (vi->rect().intersects(area) && vi->visited != visited) {
+            QModelIndex index = _this->listViewItemToIndex(*vi);
+            Q_ASSERT(index.isValid());
+            _this->intersectVector.append(index);
+            vi->visited = visited;
+        }
+    }
+}
+
+void QDynamicListViewPrivate::insertItem(int index)
+{
+    if (index >= 0 && index < items.count())
+        tree.insertLeaf(items.at(index).rect(), index);
+}
+
+void QDynamicListViewPrivate::removeItem(int index)
+{
+    if (index >= 0 && index < items.count())
+        tree.removeLeaf(items.at(index).rect(), index);
+}
+
+void QDynamicListViewPrivate::moveItem(int index, const QPoint &dest)
+{
+    // does not impact on the bintree itself or the contents rect
+    QListViewItem *item = &items[index];
+    QRect rect = item->rect();
+
+    // move the item without removing it from the tree
+    tree.removeLeaf(rect, index);
+    item->move(dest);
+    tree.insertLeaf(QRect(dest, rect.size()), index);
+
+    // resize the contents area
+    int w = rect.x() + rect.width();
+    int h = rect.y() + rect.height();
+    w = w > contentsSize.width() ? w : contentsSize.width();
+    h = h > contentsSize.height() ? h : contentsSize.height();
+    contentsSize = QSize(w, h);
+
+    if (moved.count() != items.count())
+        moved.resize(items.count());
+    moved.setBit(index, true);
+}
+
+QPoint QDynamicListViewPrivate::snapToGrid(const QPoint &pos) const
+{
+    int x = pos.x() - (pos.x() % gridSize.width());
+    int y = pos.y() - (pos.y() % gridSize.height());
+    return QPoint(x, y);
+}
+
+QPoint QDynamicListViewPrivate::draggedItemsDelta() const
+{
+    if (dd->movement == QListView::Snap) {
+        QPoint snapdelta = QPoint((dd->offset().x() % gridSize.width()),
+                                  (dd->offset().y() % gridSize.height()));
+        return snapToGrid(draggedItemsPos + snapdelta) - snapToGrid(dd->pressedPosition) - snapdelta;
+    }
+    return draggedItemsPos - dd->pressedPosition;
+}
+
+QRect QDynamicListViewPrivate::draggedItemsRect() const
+{
+    QRect rect = itemsRect(draggedItems);
+    rect.translate(draggedItemsDelta());
+    return rect;
+}
+
+void QDynamicListViewPrivate::scrollElasticBandBy(int dx, int dy)
+{
+    if (dx > 0) // right
+        elasticBand.moveRight(elasticBand.right() + dx);
+    else if (dx < 0) // left
+        elasticBand.moveLeft(elasticBand.left() - dx);
+    if (dy > 0) // down
+        elasticBand.moveBottom(elasticBand.bottom() + dy);
+    else if (dy < 0) // up
+        elasticBand.moveTop(elasticBand.top() - dy);
+}
+
 
 #endif // QT_NO_LISTVIEW

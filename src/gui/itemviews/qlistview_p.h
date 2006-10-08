@@ -36,6 +36,8 @@
 class QListViewItem
 {
     friend class QListViewPrivate;
+    friend class QStaticListViewPrivate;
+    friend class QDynamicListViewPrivate;
 public:
     inline QListViewItem()
         : x(-1), y(-1), w(0), h(0), indexHint(-1), visited(0xffff) {}
@@ -69,41 +71,183 @@ private:
     uint visited;
 };
 
+struct LayoutInformation
+{
+    QRect bounds;
+    QSize grid;
+    int spacing;
+    int first;
+    int last;
+    bool wrap;
+    QListView::Flow flow;
+};
+
+class QStaticListViewPrivate
+{
+    friend class QListViewPrivate;
+public:
+    QVector<int> flowPositions;
+    QVector<int> segmentPositions;
+    QVector<int> segmentStartRows;
+
+    QSize contentsSize;
+
+    // used when laying out in batches
+    int batchStartRow;
+    int batchSavedDeltaSeg;
+    int batchSavedPosition;
+
+    bool wrap;
+    int spacing;
+    QSize gridSize;
+
+    bool doBatchedItemLayout(const LayoutInformation &info, int max);
+
+    QPoint initStaticLayout(const LayoutInformation &info);
+    void doStaticLayout(const LayoutInformation &info);
+    void intersectingStaticSet(const QRect &area) const;
+
+    int itemIndex(const QListViewItem &item) const;
+
+    int perItemScrollingPageSteps(int length, int bounds) const;
+
+    int perItemScrollToValue(int index, int value, int height,
+                             QAbstractItemView::ScrollHint hint,
+                             Qt::Orientation orientation) const;
+
+    QRect mapToViewport(const QRect &rect, const QSize &viewportSize,
+                        Qt::ScrollBarPolicy horizontalPolicy,
+                        bool rightToLeft) const;
+
+    QListViewItem indexToListViewItem(const QModelIndex &index) const;
+
+    void scrollContentsBy(int &dx, int &dy, bool wrap, QListView::Flow flow);
+
+    int verticalPerItemValue(int itemIndex, int verticalValue, int areaHeight,
+                       bool above, bool below, QListView::ScrollHint hint) const;
+    int horizontalPerItemValue(int itemIndex, int horizontalValue, int areaWidth,
+                       bool leftOf, bool rightOf, QListView::ScrollHint hint) const;
+
+    QListViewPrivate *dd;
+    QListView *qq;
+};
+
+class QDynamicListViewPrivate
+{
+    friend class QListViewPrivate;
+public:
+    QBspTree tree;
+    QVector<QListViewItem> items;
+    QBitArray moved;
+
+    QSize contentsSize;
+
+    QVector<QModelIndex> draggedItems; // indices to the tree.itemVector
+    mutable QPoint draggedItemsPos;
+
+    // used when laying out in batches
+    int batchStartRow;
+    int batchSavedDeltaSeg;
+
+    QRect elasticBand;
+
+    bool wrap;
+    int spacing;
+    QSize gridSize;
+
+    void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    bool doBatchedItemLayout(const LayoutInformation &info, int max);
+
+    void initBspTree(const QSize &contents);
+    QPoint initDynamicLayout(const LayoutInformation &info);
+    void doDynamicLayout(const LayoutInformation &info);
+    void intersectingDynamicSet(const QRect &area) const;
+
+    static void addLeaf(QVector<int> &leaf, const QRect &area,
+                        uint visited, QBspTree::Data data);
+
+    void insertItem(int index);
+    void removeItem(int index);
+    void moveItem(int index, const QPoint &dest);
+
+    int itemIndex(const QListViewItem &item) const;
+
+    void createItems(int to);
+    void drawItems(QPainter *painter, const QVector<QModelIndex> &indexes) const;
+    QRect itemsRect(const QVector<QModelIndex> &indexes) const;
+
+    QPoint draggedItemsDelta() const;
+    QRect draggedItemsRect() const;
+
+    QPoint snapToGrid(const QPoint &pos) const;
+
+    void scrollElasticBandBy(int dx, int dy);
+
+    QListViewItem indexToListViewItem(const QModelIndex &index) const;
+
+    QListViewPrivate *dd;
+    QListView *qq;
+};
+
 class QListViewPrivate: public QAbstractItemViewPrivate
 {
     Q_DECLARE_PUBLIC(QListView)
 public:
+    QDynamicListViewPrivate dynamicListView;
+    QStaticListViewPrivate staticListView;
+
     QListViewPrivate();
     ~QListViewPrivate() {}
 
     void clear();
     void prepareItemsLayout();
 
-    QPoint initStaticLayout(const QRect &bounds, int spacing, int first);
-    QPoint initDynamicLayout(const QRect &bounds, int spacing, int first);
-    void initBspTree(const QSize &contents);
-
     bool doItemsLayout(int num);
     void doItemsLayout(const QRect &bounds, const QModelIndex &first, const QModelIndex &last);
 
-    void doStaticLayout(const QRect &bounds, int first, int last);
-    void doDynamicLayout(const QRect &bounds, int first, int last);
-
-    void intersectingDynamicSet(const QRect &area) const;
-    void intersectingStaticSet(const QRect &area) const;
     inline void intersectingSet(const QRect &area, bool doLayout = true) const {
         if (doLayout) executePostedLayout();
         QRect a = (q_func()->isRightToLeft() ? flipX(area.normalized()) : area.normalized());
-        if (movement == QListView::Static) intersectingStaticSet(a);
-        else intersectingDynamicSet(a);
+        if (movement == QListView::Static) staticListView.intersectingStaticSet(a);
+        else dynamicListView.intersectingDynamicSet(a);
     }
 
-    void createItems(int to);
-    void drawItems(QPainter *painter, const QVector<QModelIndex> &indexes) const;
-    QRect itemsRect(const QVector<QModelIndex> &indexes) const;
+    inline int batchStartRow() const
+        { return (movement == QListView::Static
+          ? staticListView.batchStartRow : dynamicListView.batchStartRow); }
+
+    inline QSize contentsSize() const
+        { return (movement == QListView::Static
+          ? staticListView.contentsSize : dynamicListView.contentsSize); }
+    inline void setContentsSize(int w, int h)
+        { staticListView.contentsSize = QSize(w, h);
+          dynamicListView.contentsSize = QSize(w, h); }
+
+    inline void setGridSize(const QSize &size)
+        { staticListView.gridSize = size;
+          dynamicListView.gridSize = size; }
+    inline QSize gridSize() const
+        { return (movement == QListView::Static
+          ? staticListView.gridSize : dynamicListView.gridSize); }
+
+    inline void setWrapping(bool wrap)
+        { staticListView.wrap = wrap;
+          dynamicListView.wrap = wrap; }
+
+    inline bool isWrapping() const
+        { return (movement == QListView::Static
+          ? staticListView.wrap : dynamicListView.wrap); }
+
+    inline void setSpacing(int space)
+        { staticListView.spacing = space;
+          dynamicListView.spacing = space; }
+
+    inline int spacing() const
+        { return (movement == QListView::Static
+          ? staticListView.spacing : dynamicListView.spacing); }
 
     inline int flipX(int x) const
-        { return qMax(viewport->width(), contentsSize.width()) - x; }
+        { return qMax(viewport->width(), contentsSize().width()) - x; }
     inline QPoint flipX(const QPoint &p) const
         { return QPoint(flipX(p.x()), p.y()); }
     inline QRect flipX(const QRect &r) const
@@ -112,46 +256,24 @@ public:
     inline QRect viewItemRect(const QListViewItem &item) const
         { if (q_func()->isRightToLeft()) return flipX(item.rect()); return item.rect(); }
 
+    int itemIndex(const QListViewItem &item) const;
     QListViewItem indexToListViewItem(const QModelIndex &index) const;
     inline QModelIndex listViewItemToIndex(const QListViewItem &item) const
         { return model->index(itemIndex(item), column, root); }
 
-    int itemIndex(const QListViewItem &item) const;
-    static void addLeaf(QVector<int> &leaf, const QRect &area,
-                        uint visited, QBspTree::Data data);
-
-    void insertItem(int index);
-    void removeItem(int index);
-    void moveItem(int index, const QPoint &dest);
-
-    QPoint snapToGrid(const QPoint &pos) const;
     QRect mapToViewport(const QRect &rect) const;
-    QPoint draggedItemsDelta() const;
-    QRect draggedItemsRect() const;
 
     QModelIndex closestIndex(const QPoint &target, const QVector<QModelIndex> &candidates) const;
     QSize itemSize(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
-    int perItemScrollingPageSteps(int length, int bounds) const;
-
     bool selectionAllowed(const QModelIndex &index) const
-    {
-        if (movement == QListView::Static)
-            return index.isValid();
-        return true;
-    }
-
-    int perItemScrollToValue(int index, int value, int height,
-                             QAbstractItemView::ScrollHint hint,
-                             Qt::Orientation orientation) const;
+        { if (movement == QListView::Static) return index.isValid(); return true; }
 
     QStyleOptionViewItemV2 viewOptionsV2() const;
+    int horizontalScrollToValue(const QModelIndex &index, const QRect &rect, QListView::ScrollHint hint) const;
+    int verticalScrollToValue(const QModelIndex &index, const QRect &rect, QListView::ScrollHint hint) const;
 
-    QRect elasticBand;
-
-    bool wrap;
-    int spacing;
-    QSize gridSize;
+    //int spacing;
     QListView::Flow flow;
     QListView::Movement movement;
     QListView::ResizeMode resizeMode;
@@ -171,33 +293,13 @@ public:
 
     uint modeProperties : 8;
 
-    QSize contentsSize;
     QRect layoutBounds;
-
-    // used when laying out in batches
-    int batchStartRow;
-    int batchSavedDeltaSeg;
-    int batchSavedPosition;
 
     // used for intersecting set
     mutable QVector<QModelIndex> intersectVector;
 
-    // used when items are movable
-    QBspTree tree;
-    QVector<QListViewItem> items;
-    QBitArray moved;
-
-    // used when items are static
-    QVector<int> flowPositions;
-    QVector<int> segmentPositions;
-    QVector<int> segmentStartRows;
-
     // timers
     QBasicTimer batchLayoutTimer;
-
-    // used when dragging
-    QVector<QModelIndex> draggedItems; // indices to the tree.itemVector
-    mutable QPoint draggedItemsPos;
 
     // used for hidden items
     QVector<int> hiddenRows;

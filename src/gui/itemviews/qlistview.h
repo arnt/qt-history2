@@ -39,7 +39,7 @@ class Q_GUI_EXPORT QListView : public QAbstractItemView
     Q_PROPERTY(int modelColumn READ modelColumn WRITE setModelColumn)
     Q_PROPERTY(bool uniformItemSizes READ uniformItemSizes WRITE setUniformItemSizes)
     Q_PROPERTY(int batchSize READ batchSize WRITE setBatchSize)
-    Q_PROPERTY(bool wordWrap READ wordWrap WRITE setWordWrap) 
+    Q_PROPERTY(bool wordWrap READ wordWrap WRITE setWordWrap)
 
 public:
     enum Movement { Static, Free, Snap };
