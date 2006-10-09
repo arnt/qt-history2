@@ -548,11 +548,11 @@ int QListViewPrivate::horizontalScrollToValue(const QModelIndex &index, const QR
     // ScrollPerItem
     if (q->horizontalScrollMode() == QAbstractItemView::ScrollPerItem && movement == QListView::Static) {
         const QListViewItem item = indexToListViewItem(index);
-        const int itemIndex = itemIndex(item);
+        const int iIndex = itemIndex(item);
         // ### NOTE: this seems to trigger a gcc 4.1 compiler bug;
         // horizontalPerItemValue is not called, leaving horizontalValue unchanged
         // and breaking horzontal per item scrolling
-        horizontalValue = staticListView.horizontalPerItemValue(itemIndex,
+        horizontalValue = staticListView.horizontalPerItemValue(iIndex,
                                                                 horizontalValue, area.width(),
                                                                 leftOf, rightOf, hint);
     } else { // ScrollPerPixel
