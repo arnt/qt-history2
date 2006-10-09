@@ -2719,7 +2719,7 @@ void QOpenGLPaintEnginePrivate::drawFastEllipse(float *vertexArray, float *texCo
         DEBUG_ONCE_STR("QOpenGLPainterPrivate::drawFastEllipse(): Drawing fast antialiased ellipse");
 
         glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     } else
         DEBUG_ONCE_STR("QOpenGLPainterPrivate::drawFastEllipse(): Drawing fast aliased ellipse");
 
@@ -2773,7 +2773,10 @@ void QOpenGLPaintEnginePrivate::drawOffscreenEllipse(const QRectF &rect, float *
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     deactivateEllipseProgram();
 
-    offscreenFbo->release();
+    if (pdev->devType() == QInternal::FramebufferObject)
+        drawable.makeCurrent();
+    else
+        offscreenFbo->release();
 
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 

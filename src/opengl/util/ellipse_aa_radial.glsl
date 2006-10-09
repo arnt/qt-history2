@@ -20,6 +20,5 @@ void main()
     float b = 2.0*dot(A, B);
     float c = -dot(A, A);
     float val = (-b + sqrt(b*b - 4.0*a*c)) / (2.0*a);
-    gl_FragColor = texture1D(palette, val);
-    gl_FragColor.a *= ellipse_aa();
+    gl_FragColor = texture1D(palette, val) * ellipse_aa();
 }
