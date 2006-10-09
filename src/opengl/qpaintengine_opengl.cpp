@@ -209,6 +209,7 @@ public:
         , use_antialiasing(false)
         , offscreenFbo(0)
         , has_valid_offscreen_fbo(false)
+        , composition_mode(QPainter::CompositionMode_SourceOver)
         {}
 
     inline void setGLPen(const QColor &c) {
@@ -247,6 +248,7 @@ public:
     Qt::BrushStyle brush_style;
     Qt::BrushStyle pen_brush_style;
     qreal opacity;
+    QPainter::CompositionMode composition_mode;
 
     uint has_clipping : 1;
     uint has_pen : 1;
@@ -1820,6 +1822,9 @@ void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 
 void QOpenGLPaintEngine::updateCompositionMode(QPainter::CompositionMode composition_mode)
 {
+    Q_D(QOpenGLPaintEngine);
+    d->composition_mode = composition_mode;
+
     switch(composition_mode) {
     case QPainter::CompositionMode_DestinationOver:
         glBlendFunc(GL_ONE_MINUS_DST_ALPHA, GL_ONE);
@@ -2715,14 +2720,6 @@ void QOpenGLPaintEnginePrivate::drawFastEllipse(float *vertexArray, float *texCo
 #ifndef Q_WS_QWS
     Q_ASSERT(has_ellipse_program && has_brush && has_fast_brush);
 
-    if (use_antialiasing) {
-        DEBUG_ONCE_STR("QOpenGLPainterPrivate::drawFastEllipse(): Drawing fast antialiased ellipse");
-
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    } else
-        DEBUG_ONCE_STR("QOpenGLPainterPrivate::drawFastEllipse(): Drawing fast aliased ellipse");
-
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
@@ -2736,8 +2733,6 @@ void QOpenGLPaintEnginePrivate::drawFastEllipse(float *vertexArray, float *texCo
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 
-    if (use_antialiasing)
-        glDisable(GL_BLEND);
 #endif
 }
 
@@ -2745,6 +2740,8 @@ void QOpenGLPaintEnginePrivate::drawFastEllipse(float *vertexArray, float *texCo
 void QOpenGLPaintEnginePrivate::drawOffscreenEllipse(const QRectF &rect, float *vertexArray, float *texCoordArray)
 {
 #ifndef Q_WS_QWS
+    Q_Q(QOpenGLPaintEngine);
+
     Q_ASSERT(has_ellipse_program && has_brush);
 
     DEBUG_ONCE_STR("QOpenGLPainter: Drawing ellipse using offscreen buffer");
@@ -2778,7 +2775,7 @@ void QOpenGLPaintEnginePrivate::drawOffscreenEllipse(const QRectF &rect, float *
     else
         offscreenFbo->release();
 
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    q->updateCompositionMode(composition_mode);
 
     QRectF slimmed = rect.adjusted(1, 1, -1, -1);
 
@@ -2802,7 +2799,6 @@ void QOpenGLPaintEnginePrivate::drawOffscreenEllipse(const QRectF &rect, float *
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     glDisable(GL_TEXTURE_2D);
 
-    glDisable(GL_BLEND);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 #endif
