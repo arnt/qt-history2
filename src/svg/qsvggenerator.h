@@ -25,7 +25,7 @@ QT_MODULE(Svg)
     
 class QSvgGeneratorPrivate;
 
-class QSvgGenerator : public QPaintDevice
+class Q_SVG_EXPORT QSvgGenerator : public QPaintDevice
 {
     Q_DECLARE_PRIVATE(QSvgGenerator)
 public:
