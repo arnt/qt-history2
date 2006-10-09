@@ -676,6 +676,9 @@ void ResourceModel::changePrefix(const QModelIndex &model_idx, const QString &pr
     if (m_resource_file.prefix(prefix_idx) == ResourceFile::fixPrefix(prefix))
         return;
 
+    if(m_resource_file.contains(prefix))
+        return;
+
     m_resource_file.replacePrefix(prefix_idx, prefix);
     emit dataChanged(prefix_model_idx, prefix_model_idx);
     setDirty(true);
