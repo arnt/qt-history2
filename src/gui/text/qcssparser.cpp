@@ -189,6 +189,7 @@ static const QCssKnownValue pseudos[NumPseudos - 1] = {
     { "off", PseudoState_Unchecked },
     { "on", PseudoState_Checked },
     { "pressed", PseudoState_Pressed },
+    { "selected", PseudoState_Selected },
     { "unchecked" , PseudoState_Unchecked }
 };
 
