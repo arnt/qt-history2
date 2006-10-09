@@ -58,6 +58,9 @@ public:
 #ifndef QT_NO_MENU
     bool hasMenu() const;
 #endif
+#ifdef QT3_SUPPORT
+    bool userDefinedPopupDelay;
+#endif    
 };
 
 #ifndef QT_NO_MENU
@@ -225,6 +228,9 @@ void QToolButtonPrivate::init()
 {
     Q_Q(QToolButton);
     delay = q->style()->styleHint(QStyle::SH_ToolButton_PopupDelay, 0, q);
+#ifdef QT3_SUPPORT
+    userDefinedPopupDelay = false;
+#endif
     defaultAction = 0;
 #ifndef QT_NO_TOOLBAR
     if (qobject_cast<QToolBar*>(q->parentWidget()))
@@ -555,6 +561,10 @@ void QToolButton::changeEvent(QEvent *e)
         if (qobject_cast<QToolBar*>(parentWidget()))
             d->autoRaise = true;
     } else if (e->type() == QEvent::StyleChange) {
+
+#ifdef QT3_SUPPORT
+        if (!d->userDefinedPopupDelay)
+#endif
         d->delay = style()->styleHint(QStyle::SH_ToolButton_PopupDelay, 0, this);
     }
 #endif
@@ -844,6 +854,7 @@ void QToolButtonPrivate::popupTimerDone()
 void QToolButton::setPopupDelay(int delay)
 {
     Q_D(QToolButton);
+    d->userDefinedPopupDelay = true;
     d->delay = delay;
 
     update();
