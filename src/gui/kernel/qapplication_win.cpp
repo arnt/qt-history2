@@ -312,7 +312,7 @@ public:
     bool        translateConfigEvent(const MSG &msg);
     bool        translateCloseEvent(const MSG &msg);
     bool        translateTabletEvent(const MSG &msg, PACKET *localPacketBuf, int numPackets);
-    void        repolishStyle(QStyle &style) { setStyle(&style); }
+    void        repolishStyle(QStyle &style);
     inline void showChildren(bool spontaneous) { d_func()->showChildren(spontaneous); }
     inline void hideChildren(bool spontaneous) { d_func()->hideChildren(spontaneous); }
     inline uint testWindowState(uint teststate){ return dataPtr()->window_state & teststate; }
@@ -2360,6 +2360,12 @@ void QApplication::winMouseButtonUp()
 {
     qt_button_down = 0;
     releaseAutoCapture();
+}
+
+void QETWidget::repolishStyle(QStyle &style)
+{ 
+    QEvent e(QEvent::StyleChange);
+    QApplication::sendEvent(this, &e);
 }
 
 bool QETWidget::translateMouseEvent(const MSG &msg)
