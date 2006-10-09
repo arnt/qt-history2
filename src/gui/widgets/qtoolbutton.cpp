@@ -301,6 +301,8 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
     } else {
         if (menuButtonDown)
             opt.state  |= QStyle::State_Sunken;
+        if (hasMenu())
+            opt.features |= QStyleOptionToolButton::Menu;
     }
     if (arrowType != Qt::NoArrow)
         opt.features |= QStyleOptionToolButton::Arrow;
@@ -552,6 +554,8 @@ void QToolButton::changeEvent(QEvent *e)
     if (e->type() == QEvent::ParentChange) {
         if (qobject_cast<QToolBar*>(parentWidget()))
             d->autoRaise = true;
+    } else if (e->type() == QEvent::StyleChange) {
+        d->delay = style()->styleHint(QStyle::SH_ToolButton_PopupDelay, 0, this);
     }
 #endif
     QAbstractButton::changeEvent(e);
