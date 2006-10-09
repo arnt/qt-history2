@@ -566,9 +566,17 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
 
     if (textRect.width() < textLayoutSize.width()
         || textRect.height() < textLayoutSize.height()) {
-        const QString elided = option.fontMetrics.elidedText(text,
-                                                             option.textElideMode,
-                                                             textRect.width());
+        QString elided;
+        int start = 0;
+        int end = text.indexOf(QChar::LineSeparator, start);
+        if (end == -1) {
+            elided += option.fontMetrics.elidedText(text, option.textElideMode, textRect.width());
+        } else while (end != -1) {
+            elided += option.fontMetrics.elidedText(text.mid(start, end - start),
+                                                    option.textElideMode, textRect.width());
+            start = end + 1;
+            end = text.indexOf(QChar::LineSeparator, start);
+        }
         d->textLayout.setText(elided);
         textLayoutSize = d->doTextLayout(textRect.width());
     }
