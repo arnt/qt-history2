@@ -60,7 +60,7 @@ public:
 #endif
 #ifdef QT3_SUPPORT
     bool userDefinedPopupDelay;
-#endif    
+#endif
 };
 
 #ifndef QT_NO_MENU
@@ -516,7 +516,8 @@ void QToolButton::enterEvent(QEvent * e)
     Q_D(QToolButton);
     if (d->autoRaise)
         update();
-
+    if (d->defaultAction)
+        d->defaultAction->hover();
     QAbstractButton::enterEvent(e);
 }
 
@@ -792,7 +793,7 @@ void QToolButtonPrivate::popupTimerDone()
 #endif
     QPoint p;
     QRect screen = qApp->desktop()->availableGeometry(q);
-    QSize sh = actualMenu->sizeHint();
+    QSize sh = ((QToolButton*)(QMenu*)actualMenu)->receivers(SIGNAL(aboutToShow()))? QSize() : actualMenu->sizeHint();
     QRect rect = q->rect();
     if (horizontal) {
         if (q->isRightToLeft()) {
