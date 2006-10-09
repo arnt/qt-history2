@@ -30,14 +30,15 @@
 #include "qbitarray.h"
 #include "qbsptree_p.h"
 #include <limits.h>
+#include <qscrollbar.h>
 
 #ifndef QT_NO_LISTVIEW
 
 class QListViewItem
 {
     friend class QListViewPrivate;
-    friend class QStaticListViewPrivate;
-    friend class QDynamicListViewPrivate;
+    friend class QStaticListViewBase;
+    friend class QDynamicListViewBase;
 public:
     inline QListViewItem()
         : x(-1), y(-1), w(0), h(0), indexHint(-1), visited(0xffff) {}
@@ -71,7 +72,7 @@ private:
     uint visited;
 };
 
-struct LayoutInformation
+struct QListViewLayoutInfo
 {
     QRect bounds;
     QSize grid;
@@ -82,10 +83,60 @@ struct LayoutInformation
     QListView::Flow flow;
 };
 
-class QStaticListViewPrivate
+class QListView;
+class QListViewPrivate;
+
+class QCommonListViewBase
+{
+public:
+    inline int spacing() const;
+    inline bool isWrapping() const;
+    inline QSize gridSize() const;
+    inline QListView::Flow flow() const;
+    inline QListView::Movement movement() const;
+
+    inline QPoint offset() const;
+    inline QPoint pressedPosition() const;
+    inline bool uniformItemSizes() const;
+    inline int column() const;
+
+    inline int verticalScrollBarValue() const;
+    inline int horizontalScrollBarValue() const;
+    inline QListView::ScrollMode verticalScrollMode() const;
+    inline QListView::ScrollMode horizontalScrollMode() const;
+
+    inline QModelIndex modelIndex(int row) const;
+    inline int rowCount() const;
+
+    inline QStyleOptionViewItemV2 viewOptions() const;
+    inline QWidget *viewport() const;
+    inline QRect clipRect() const;
+
+    inline QSize cachedItemSize() const;
+    inline QRect viewItemRect(const QListViewItem &item) const;
+    inline QSize itemSize(const QStyleOptionViewItemV2 &opt, const QModelIndex &idx) const;
+    inline QAbstractItemDelegate *delegate(const QModelIndex &idx) const;
+
+    inline bool isHidden(int row) const;
+    inline int hiddenCount() const;
+
+    inline void clearIntersections() const;
+    inline void appendToIntersections(const QModelIndex &idx) const;
+
+    inline bool isRightToLeft() const;
+
+    inline void init(QListView *q, QListViewPrivate *d) { qq = q; dd = d; }
+
+    QListViewPrivate *dd;
+    QListView *qq;
+};
+
+class QStaticListViewBase : public QCommonListViewBase
 {
     friend class QListViewPrivate;
 public:
+    QStaticListViewBase() : batchStartRow(0), batchSavedDeltaSeg(0), batchSavedPosition(0) {}
+
     QVector<int> flowPositions;
     QVector<int> segmentPositions;
     QVector<int> segmentStartRows;
@@ -97,45 +148,38 @@ public:
     int batchSavedDeltaSeg;
     int batchSavedPosition;
 
-    bool wrap;
-    int spacing;
-    QSize gridSize;
+    bool doBatchedItemLayout(const QListViewLayoutInfo &info, int max);
 
-    bool doBatchedItemLayout(const LayoutInformation &info, int max);
-
-    QPoint initStaticLayout(const LayoutInformation &info);
-    void doStaticLayout(const LayoutInformation &info);
+    QPoint initStaticLayout(const QListViewLayoutInfo &info);
+    void doStaticLayout(const QListViewLayoutInfo &info);
     void intersectingStaticSet(const QRect &area) const;
 
     int itemIndex(const QListViewItem &item) const;
 
-    int perItemScrollingPageSteps(int length, int bounds) const;
+    int perItemScrollingPageSteps(int length, int bounds, bool wrap) const;
 
     int perItemScrollToValue(int index, int value, int height,
                              QAbstractItemView::ScrollHint hint,
-                             Qt::Orientation orientation) const;
+                             Qt::Orientation orientation, bool wrap) const;
 
-    QRect mapToViewport(const QRect &rect, const QSize &viewportSize,
-                        Qt::ScrollBarPolicy horizontalPolicy,
-                        bool rightToLeft) const;
+    QRect mapToViewport(const QRect &rect) const;
 
     QListViewItem indexToListViewItem(const QModelIndex &index) const;
 
-    void scrollContentsBy(int &dx, int &dy, bool wrap, QListView::Flow flow);
+    void scrollContentsBy(int &dx, int &dy);
 
     int verticalPerItemValue(int itemIndex, int verticalValue, int areaHeight,
-                       bool above, bool below, QListView::ScrollHint hint) const;
+                       bool above, bool below, bool wrap, QListView::ScrollHint hint) const;
     int horizontalPerItemValue(int itemIndex, int horizontalValue, int areaWidth,
-                       bool leftOf, bool rightOf, QListView::ScrollHint hint) const;
-
-    QListViewPrivate *dd;
-    QListView *qq;
+                       bool leftOf, bool rightOf, bool wrap, QListView::ScrollHint hint) const;
 };
 
-class QDynamicListViewPrivate
+class QDynamicListViewBase : public QCommonListViewBase
 {
     friend class QListViewPrivate;
 public:
+    QDynamicListViewBase() : batchStartRow(0), batchSavedDeltaSeg(0) {}
+
     QBspTree tree;
     QVector<QListViewItem> items;
     QBitArray moved;
@@ -151,16 +195,12 @@ public:
 
     QRect elasticBand;
 
-    bool wrap;
-    int spacing;
-    QSize gridSize;
-
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    bool doBatchedItemLayout(const LayoutInformation &info, int max);
+    bool doBatchedItemLayout(const QListViewLayoutInfo &info, int max);
 
     void initBspTree(const QSize &contents);
-    QPoint initDynamicLayout(const LayoutInformation &info);
-    void doDynamicLayout(const LayoutInformation &info);
+    QPoint initDynamicLayout(const QListViewLayoutInfo &info);
+    void doDynamicLayout(const QListViewLayoutInfo &info);
     void intersectingDynamicSet(const QRect &area) const;
 
     static void addLeaf(QVector<int> &leaf, const QRect &area,
@@ -184,17 +224,15 @@ public:
     void scrollElasticBandBy(int dx, int dy);
 
     QListViewItem indexToListViewItem(const QModelIndex &index) const;
-
-    QListViewPrivate *dd;
-    QListView *qq;
 };
 
 class QListViewPrivate: public QAbstractItemViewPrivate
 {
     Q_DECLARE_PUBLIC(QListView)
 public:
-    QDynamicListViewPrivate dynamicListView;
-    QStaticListViewPrivate staticListView;
+    // ### FIXME: we only need one at a time
+    QDynamicListViewBase dynamicListView;
+    QStaticListViewBase staticListView;
 
     QListViewPrivate();
     ~QListViewPrivate() {}
@@ -212,10 +250,10 @@ public:
         else dynamicListView.intersectingDynamicSet(a);
     }
 
+    // ### FIXME:
     inline int batchStartRow() const
         { return (movement == QListView::Static
           ? staticListView.batchStartRow : dynamicListView.batchStartRow); }
-
     inline QSize contentsSize() const
         { return (movement == QListView::Static
           ? staticListView.contentsSize : dynamicListView.contentsSize); }
@@ -223,36 +261,12 @@ public:
         { staticListView.contentsSize = QSize(w, h);
           dynamicListView.contentsSize = QSize(w, h); }
 
-    inline void setGridSize(const QSize &size)
-        { staticListView.gridSize = size;
-          dynamicListView.gridSize = size; }
-    inline QSize gridSize() const
-        { return (movement == QListView::Static
-          ? staticListView.gridSize : dynamicListView.gridSize); }
-
-    inline void setWrapping(bool wrap)
-        { staticListView.wrap = wrap;
-          dynamicListView.wrap = wrap; }
-
-    inline bool isWrapping() const
-        { return (movement == QListView::Static
-          ? staticListView.wrap : dynamicListView.wrap); }
-
-    inline void setSpacing(int space)
-        { staticListView.spacing = space;
-          dynamicListView.spacing = space; }
-
-    inline int spacing() const
-        { return (movement == QListView::Static
-          ? staticListView.spacing : dynamicListView.spacing); }
-
     inline int flipX(int x) const
         { return qMax(viewport->width(), contentsSize().width()) - x; }
     inline QPoint flipX(const QPoint &p) const
         { return QPoint(flipX(p.x()), p.y()); }
     inline QRect flipX(const QRect &r) const
         { return QRect(flipX(r.x()) - r.width(), r.y(), r.width(), r.height()); }
-
     inline QRect viewItemRect(const QListViewItem &item) const
         { if (q_func()->isRightToLeft()) return flipX(item.rect()); return item.rect(); }
 
@@ -273,7 +287,18 @@ public:
     int horizontalScrollToValue(const QModelIndex &index, const QRect &rect, QListView::ScrollHint hint) const;
     int verticalScrollToValue(const QModelIndex &index, const QRect &rect, QListView::ScrollHint hint) const;
 
-    //int spacing;
+
+    inline void setGridSize(const QSize &size) { grid = size; }
+    inline QSize gridSize() const { return grid; }
+    inline void setWrapping(bool b) { wrap = b; }
+    inline bool isWrapping() const { return wrap; }
+    inline void setSpacing(int s) { space = s; }
+    inline int spacing() const { return space; }
+
+    bool wrap;
+    int space;
+    QSize grid;
+
     QListView::Flow flow;
     QListView::Movement movement;
     QListView::ResizeMode resizeMode;
@@ -310,6 +335,48 @@ public:
     int batchSize;
     bool wrapItemText;
 };
+
+// inline implementations
+
+inline int QCommonListViewBase::spacing() const { return dd->spacing(); }
+inline bool QCommonListViewBase::isWrapping() const { return dd->isWrapping(); }
+inline QSize QCommonListViewBase::gridSize() const { return dd->gridSize(); }
+inline QListView::Flow QCommonListViewBase::flow() const { return dd->flow; }
+inline QListView::Movement QCommonListViewBase::movement() const { return dd->movement; }
+
+inline QPoint QCommonListViewBase::offset() const { return dd->offset(); }
+inline QPoint QCommonListViewBase::pressedPosition() const { return dd->pressedPosition; }
+inline bool QCommonListViewBase::uniformItemSizes() const { return dd->uniformItemSizes; }
+inline int QCommonListViewBase::column() const { return dd->column; }
+
+inline int QCommonListViewBase::verticalScrollBarValue() const { return qq->verticalScrollBar()->value(); }
+inline int QCommonListViewBase::horizontalScrollBarValue() const { return qq->horizontalScrollBar()->value(); }
+inline QListView::ScrollMode QCommonListViewBase::verticalScrollMode() const { return qq->verticalScrollMode(); }
+inline QListView::ScrollMode QCommonListViewBase::horizontalScrollMode() const { return qq->horizontalScrollMode(); }
+
+inline QModelIndex QCommonListViewBase::modelIndex(int row) const
+    { return dd->model->index(row, dd->column, dd->root); }
+inline int QCommonListViewBase::rowCount() const { return dd->model->rowCount(dd->root); }
+
+inline QStyleOptionViewItemV2 QCommonListViewBase::viewOptions() const { return dd->viewOptionsV2(); }
+inline QWidget *QCommonListViewBase::viewport() const { return dd->viewport; }
+inline QRect QCommonListViewBase::clipRect() const { return dd->clipRect(); }
+
+inline QSize QCommonListViewBase::cachedItemSize() const { return dd->cachedItemSize; }
+inline QRect QCommonListViewBase::viewItemRect(const QListViewItem &item) const { return dd->viewItemRect(item); }
+inline QSize QCommonListViewBase::itemSize(const QStyleOptionViewItemV2 &opt, const QModelIndex &idx) const
+    { return dd->itemSize(opt, idx); }
+
+inline QAbstractItemDelegate *QCommonListViewBase::delegate(const QModelIndex &idx) const
+    { return dd->delegateForIndex(idx); }
+
+inline bool QCommonListViewBase::isHidden(int row) const { return dd->hiddenRows.contains(row); }
+inline int QCommonListViewBase::hiddenCount() const { return dd->hiddenRows.count(); }
+
+inline void QCommonListViewBase::clearIntersections() const { dd->intersectVector.clear(); }
+inline void QCommonListViewBase::appendToIntersections(const QModelIndex &idx) const { dd->intersectVector.append(idx); }
+
+inline bool QCommonListViewBase::isRightToLeft() const { return qq->isRightToLeft(); }
 
 #endif // QT_NO_LISTVIEW
 
