@@ -91,11 +91,11 @@ QStringList ProFileEvaluator::qmake_feature_paths(/*QMakeProperty *prop=0*/)
     //}
     for(QStringList::Iterator concat_it = concat.begin();
         concat_it != concat.end(); ++concat_it)
-        feature_roots << (propertyValue("QT_INSTALL_PREFIX") + 
+        feature_roots << (propertyValue("QT_INSTALL_PREFIX") +
                           mkspecs_concat + (*concat_it));
     for(QStringList::Iterator concat_it = concat.begin();
         concat_it != concat.end(); ++concat_it)
-        feature_roots << (propertyValue("QT_INSTALL_DATA") + 
+        feature_roots << (propertyValue("QT_INSTALL_DATA") +
                           mkspecs_concat + (*concat_it));
     return feature_roots;
 }
@@ -184,6 +184,8 @@ bool ProFileEvaluator::visitProValue(ProValue *value)
             insertUnique(&m_valuemap, varName, v, false);
             break;
         case ProVariable::RemoveOperator:       // -
+            // fix me: interaction between AddOperator and RemoveOperator
+            insertUnique(&m_valuemap, QByteArray(varName).prepend('-'), v, false);
             break;
         case ProVariable::ReplaceOperator:      // ~
             {
@@ -1123,7 +1125,7 @@ void ProFileEvaluator::logMessage(const QString &message, MessageType mt)
     LogMessage msg;
     msg.m_msg = message;
     msg.m_type = mt;
-    
+
     ProFile *pro = currentProFile();
     if (pro) {
         msg.m_filename = pro->fileName();
