@@ -32,6 +32,7 @@
 #include <qtooltip.h>
 #include <qshareddata.h>
 #include <qradiobutton.h>
+#include <qtoolbutton.h>
 
 using namespace QCss;
 
@@ -246,7 +247,9 @@ static const char *knownStyleHints[] = {
     "opacity",
     "show-decoration-selected",
     "spinbox-click-autorepeat-rate",
-    "spincontrol-disable-on-bounds"
+    "spincontrol-disable-on-bounds",
+    "toolbox-selected-page-title-bold",
+    "toolbutton-popup-delay"
 };
 
 static const char **endKnownStyleHints = knownStyleHints + sizeof(knownStyleHints)/sizeof(char *);
@@ -1238,6 +1241,9 @@ enum PseudoElement {
     PseudoElement_SpinBoxDownArrow,
     PseudoElement_GroupBoxTitle,
     PseudoElement_GroupBoxIndicator,
+    PseudoElement_ToolButtonMenu,
+    PseudoElement_ToolButtonMenuArrow,
+    PseudoElement_ToolBoxTab,
     NumPseudoElements
 };
 
@@ -1260,7 +1266,10 @@ static struct PseudoElementInfo {
     { QStyle::SC_SpinBoxDown, "down-button" },
     { QStyle::SC_SpinBoxDown, "down-arrow" },
     { QStyle::SC_GroupBoxLabel, "title" },
-    { QStyle::SC_GroupBoxCheckBox, "indicator" }
+    { QStyle::SC_GroupBoxCheckBox, "indicator" },
+    { QStyle::SC_ToolButtonMenu, "drop-down" },
+    { QStyle::SC_None, "down-arrow" },
+    { QStyle::SC_None, "tab" }
 };
 
 QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QString &part, QStyle::State state) const
@@ -1274,7 +1283,7 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QString &part, 
                                  ? PseudoState_Enabled : PseudoState_Disabled;
     if (state & QStyle::State_Sunken)
         pseudoState |= PseudoState_Pressed;
-    if (state & QStyle::State_MouseOver || state & QStyle::State_Selected)
+    if (state & (QStyle::State_MouseOver | QStyle::State_Selected))
         pseudoState |= PseudoState_Hover;
     if (state & QStyle::State_HasFocus)
         pseudoState |= PseudoState_Focus;
@@ -1284,6 +1293,8 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QString &part, 
         pseudoState |= PseudoState_Off;
     if (state & QStyle::State_NoChange)
         pseudoState |= PseudoState_Indeterminate;
+    if (state & QStyle::State_Selected)
+        pseudoState |= PseudoState_Selected;
 
     if (renderRules.contains(pseudoState))
         return renderRules[pseudoState]; // already computed before
@@ -1347,6 +1358,13 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
             }
 #endif // QT_NO_SPINBOX
             break;
+        case PseudoElement_ToolButtonMenu:
+        case PseudoElement_ToolButtonMenuArrow:
+            state |= complex->state & QStyle::State_MouseOver;
+            if (complex->state & QStyle::State_Sunken ||
+                complex->activeSubControls & QStyle::SC_ToolButtonMenu)
+                state |= QStyle::State_Sunken;
+            break;
         case PseudoElement_None:
         default:
             // QStyle::State_On is set when the popup is being shown
@@ -1405,11 +1423,13 @@ static Qt::Alignment defaultPosition(int pe)
     case PseudoElement_Indicator:
         return Qt::AlignLeft | Qt::AlignVCenter;
     case PseudoElement_DropDown:
+    case PseudoElement_ToolButtonMenu:
         return Qt::AlignTop | Qt::AlignRight;
     case PseudoElement_DropDownArrow:
     case PseudoElement_SpinBoxDownArrow:
     case PseudoElement_SpinBoxUpArrow:
     case PseudoElement_DownArrow:
+    case PseudoElement_ToolButtonMenuArrow:
         return Qt::AlignCenter;
     case PseudoElement_MenuIndicator:
         return Qt::AlignBottom | Qt::AlignRight;
@@ -1431,6 +1451,7 @@ static QSize expandedSize(QSize sz, const QRect& rect, int pe)
             sz.setHeight(rect.height()/2);
         break;
     case PseudoElement_DropDown:
+    case PseudoElement_ToolButtonMenu:
         if (sz.height() == -1) 
             sz.setHeight(rect.height());
         break;
@@ -1709,19 +1730,16 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
 
     switch (cc) {
     case CC_ComboBox:
-        if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
-            if (rule.hasBorder() || rule.hasBox() || hasStyleRule(w, PseudoElement_DropDown)) {
-                rule.drawFrame(p, opt->rect);
-                QRenderRule subRule = renderRule(w, opt, PseudoElement_DropDown);
-                QRect r = positionRect(rule, subRule, PseudoElement_DropDown, opt->rect, opt->direction);
-                subRule.drawRule(p, r);
+        if (rule.hasBorder() || rule.hasBox() || hasStyleRule(w, PseudoElement_DropDown)) {
+            rule.drawFrame(p, opt->rect);
+            QRenderRule subRule = renderRule(w, opt, PseudoElement_DropDown);
+            QRect r = positionRect(rule, subRule, PseudoElement_DropDown, opt->rect, opt->direction);
+            subRule.drawRule(p, r);
 
-                QRenderRule subRule2 = renderRule(w, opt, PseudoElement_DropDownArrow);
-                r = positionRect(subRule, subRule2, PseudoElement_DropDownArrow, r, opt->direction);
-                subRule2.drawRule(p, r);
-            } else {
-                baseStyle()->drawComplexControl(cc, cb, p, w);
-            }
+            QRenderRule subRule2 = renderRule(w, opt, PseudoElement_DropDownArrow);
+            r = positionRect(subRule, subRule2, PseudoElement_DropDownArrow, r, opt->direction);
+            subRule2.drawRule(p, r);
+
             return;
         }
         break;
@@ -1777,6 +1795,35 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
         }
         break;
 
+    case CC_ToolButton:
+        if (rule.hasDrawable() || rule.hasBox() || hasStyleRule(w, PseudoElement_ToolButtonMenu)) {
+            if (const QStyleOptionToolButton *toolbutton
+                = qstyleoption_cast<const QStyleOptionToolButton *>(opt)) {
+
+                rule.drawFrame(p, opt->rect);
+
+                if (toolbutton->subControls & SC_ToolButtonMenu) {
+                    QRenderRule subRule1 = renderRule(w, opt, PseudoElement_ToolButtonMenu);
+                    QRect r = positionRect(rule, subRule1, PseudoElement_ToolButtonMenu, opt->rect, opt->direction);
+                    subRule1.drawRule(p, r);
+
+                    QRenderRule subRule2 = renderRule(w, opt, PseudoElement_ToolButtonMenuArrow);
+                    r = positionRect(subRule1, subRule2, PseudoElement_DownArrow, r, opt->direction);
+                    subRule2.drawRule(p, r);
+                } else if (toolbutton->features & QStyleOptionToolButton::Menu) {
+                    QRenderRule subRule2 = renderRule(w, PseudoElement_ToolButtonMenuArrow, opt->state);
+                    QRect r = positionRect(rule, subRule2, PseudoElement_DownArrow, opt->rect, opt->direction);
+                    subRule2.drawRule(p, r);
+                }
+
+                QStyleOptionToolButton label = *toolbutton;
+                label.rect = rule.contentsRect(opt->rect);
+                drawControl(CE_ToolButtonLabel, &label, p, w);
+                return;
+            }
+        }
+        break;
+
     default:
         break;
     }
@@ -1797,6 +1844,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
     switch (ce) {
     // Push button
     case CE_PushButton:
+    case CE_ToolButtonLabel:
         ParentStyle::drawControl(ce, opt, p, w);
         return;
 
@@ -1965,6 +2013,14 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         }
         break;
 
+    case CE_ToolBoxTab:
+        if (hasStyleRule(w, PseudoElement_ToolBoxTab)) {
+            QRenderRule subRule = renderRule(w, opt, PseudoElement_ToolBoxTab);
+            subRule.drawRule(p, opt->rect);
+            return;
+        }
+        break;
+
     default:
         break;
     }
@@ -2026,6 +2082,10 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         }
         return;
 
+    case PE_IndicatorButtonDropDown:
+        pseudoElement = PseudoElement_DropDown;
+        break;
+
     // how do we specify these in the css?
     case PE_FrameDefaultButton:
         return;
@@ -2059,6 +2119,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         }
         break;
 
+    case PE_PanelButtonTool:
     case PE_IndicatorToolBarHandle:
         if (rule.hasDrawable()) {
             rule.drawRule(p, opt->rect);
@@ -2121,6 +2182,7 @@ QStyle::SubControl QStyleSheetStyle::hitTestComplexControl(ComplexControl cc, co
     case CC_GroupBox:
     case CC_ComboBox:
     case CC_Slider:
+    case CC_ToolButton:
         return ParentStyle::hitTestComplexControl(cc, opt, pt, w);
     default:
         break;
@@ -2150,6 +2212,11 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
 
     switch (m) {
     case PM_MenuButtonIndicator:
+#ifndef QT_NO_TOOLBUTTON
+        // QToolButton adds this directly to the width
+        if (qobject_cast<const QToolButton *>(w) && (rule.hasBox() || rule.hasDrawable()))
+            return 0;
+#endif
         subRule = renderRule(w, opt, PseudoElement_MenuIndicator);
         if (subRule.hasContentsSize())
             return subRule.contentsSize().width();
@@ -2344,6 +2411,11 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
             return rule.boxSize(sz);
         break;
 
+    case CT_ToolButton:
+        if (rule.hasBorder() || rule.hasBox())
+            return rule.boxSize(sz);
+        break;
+
     default:
         break;
     }
@@ -2377,11 +2449,15 @@ QPixmap QStyleSheetStyle::standardPixmap(StandardPixmap standardPixmap, const QS
     return baseStyle()->standardPixmap(standardPixmap, option, w);
 }
 
-int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w,
+int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *widget,
                            QStyleHintReturn *shret) const
 {
+    const QWidget *w = widget;
+    if (sh == SH_ToolBox_SelectedPageTitleBold)
+       w = widget->parentWidget();
+
     if (!hasStyleRule(w))
-        return baseStyle()->styleHint(sh, opt, w, shret);
+        return baseStyle()->styleHint(sh, opt, widget, shret);
 
     QRenderRule rule = renderRule(w, opt);
     QString s;
@@ -2402,6 +2478,8 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
         case SH_SpinBox_ClickAutoRepeatRate: s = "spinbox-click-autorepeat-rate"; break;
         case SH_SpinControls_DisableOnBounds: s = "spincontrol-disable-on-bounds"; break;
         case SH_MessageBox_TextInteractionFlags: s = "messagebox-text-interaction-flags"; break;
+        case SH_ToolButton_PopupDelay: s = "toolbutton-popup-delay"; break;
+        case SH_ToolBox_SelectedPageTitleBold: s= "toolbox-selected-page-title-bold"; break;
         default: break;
     }
     if (!s.isEmpty() && rule.hasStyleHint(s)) {
@@ -2504,6 +2582,21 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
         }
         break;
 
+    case CC_ToolButton:
+        if (rule.hasDrawable() || rule.hasBox() || hasStyleRule(w, PseudoElement_DropDown)) {
+            switch (sc) {
+            case SC_ToolButton:
+                return rule.borderRect(opt->rect);
+            case SC_ToolButtonMenu: {
+                QRenderRule subRule = renderRule(w, opt, PseudoElement_DropDown);
+                return positionRect(rule, subRule, PseudoElement_DropDown, opt->rect, opt->direction);
+            }
+            default:
+                return opt->rect;
+            }
+        }
+        break;
+
     default:
         break;
     }
@@ -2513,7 +2606,7 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
 
 QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, const QWidget *w) const
 {
-    if (!hasStyleRule(w))
+    if ((se == SE_ToolBoxTabContents && !hasStyleRule(w->parentWidget())) || !hasStyleRule(w))
         return baseStyle()->subElementRect(se, opt, w);
 
     QRenderRule rule = renderRule(w, opt);
@@ -2565,6 +2658,13 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
             ir.setRect(ir.left() + ir.width() + spacing, cr.y(),
                        cr.width() - ir.width() - spacing, cr.height());
             return visualRect(opt->direction, opt->rect, ir);
+        }
+        break;
+
+    case SE_ToolBoxTabContents:
+        if (hasStyleRule(w->parentWidget(), PseudoElement_ToolBoxTab)) {
+            QRenderRule subRule = renderRule(w->parentWidget(), opt, PseudoElement_ToolBoxTab);
+            return visualRect(opt->direction, opt->rect, subRule.contentsRect(opt->rect));
         }
         break;
 
