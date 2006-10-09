@@ -3130,7 +3130,20 @@ bool QAbstractItemViewPrivate::shouldForwardEvent(QAbstractItemView::EditTrigger
 {
     if (!event || (trigger & editTriggers) != QAbstractItemView::AnyKeyPressed)
         return false;
-    return (event->type() == QEvent::KeyPress) || (event->type() == QEvent::InputMethod);
+
+    switch (event->type()) {
+        case QEvent::KeyPress:
+        case QEvent::InputMethod:
+        case QEvent::MouseButtonDblClick:
+        case QEvent::MouseButtonPress:
+        case QEvent::MouseButtonRelease:
+        case QEvent::MouseMove:
+            return true;
+        default:
+            break;
+    };
+
+    return false;
 }
 
 bool QAbstractItemViewPrivate::shouldAutoScroll(const QPoint &pos) const
