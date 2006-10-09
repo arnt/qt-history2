@@ -338,7 +338,8 @@ public:
         MirroredRepeat          = 0x00000020,
         FramebufferObject       = 0x00000040,
         StencilTwoSide          = 0x00000080,
-        StencilWrap             = 0x00000100
+        StencilWrap             = 0x00000100,
+        PackedDepthStencil      = 0x00000200
     };
     Q_DECLARE_FLAGS(Extensions, Extension)
 

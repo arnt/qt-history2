@@ -76,6 +76,13 @@
 #define GL_RENDERBUFFER_STENCIL_SIZE_EXT                        0x8D55
 #endif
 
+#ifndef GL_EXT_packed_depth_stencil
+#define GL_DEPTH_STENCIL_EXT                                    0x84F9
+#define GL_UNSIGNED_INT_24_8_EXT                                0x84FA
+#define GL_DEPTH24_STENCIL8_EXT                                 0x88F0
+#define GL_TEXTURE_STENCIL_SIZE_EXT                             0x88F1
+#endif
+
 // ### hm. should be part of the GL 1.2 spec..
 #ifndef GL_CLAMP_TO_EDGE
 #define GL_CLAMP_TO_EDGE                  0x812F
@@ -232,7 +239,7 @@ public:
     bool checkFramebufferStatus() const;
     GLuint texture;
     GLuint fbo;
-    GLuint depth_buffer;
+    GLuint depth_stencil_buffer;
     GLenum target;
     QSize size;
     uint valid : 1;
@@ -291,7 +298,7 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
     target = texture_target;
     // texture dimensions
 
-    glGetError(); // reset error state
+    while (glGetError() != GL_NO_ERROR) {} // reset error state
     glGenFramebuffersEXT(1, &fbo);
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
 
@@ -317,19 +324,21 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
     QT_CHECK_GLERROR();
     valid = checkFramebufferStatus();
 
-#ifdef DEPTH_BUFFER
-    // depth buffer
-    glGenRenderbuffersEXT(1, &depth_buffer);
-    Q_ASSERT(!glIsRenderbufferEXT(depth_buffer));
-    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_buffer);
-    Q_ASSERT(glIsRenderbufferEXT(depth_buffer));
-    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, size.width(), size.height());
-    int i = 0;
-    glGetRenderbufferParameterivEXT(GL_RENDERBUFFER_EXT, GL_RENDERBUFFER_DEPTH_SIZE_EXT, &i);
-    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
-                                 GL_RENDERBUFFER_EXT, depth_buffer);
-
-#endif
+    if (QGLExtensions::glExtensions & QGLExtensions::PackedDepthStencil) {
+        // depth and stencil buffer needs another extension
+        glGenRenderbuffersEXT(1, &depth_stencil_buffer);
+        Q_ASSERT(!glIsRenderbufferEXT(depth_stencil_buffer));
+        glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_stencil_buffer);
+        Q_ASSERT(glIsRenderbufferEXT(depth_stencil_buffer));
+        glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH24_STENCIL8_EXT, size.width(), size.height());
+        int i = 0;
+        glGetRenderbufferParameterivEXT(GL_RENDERBUFFER_EXT, GL_RENDERBUFFER_DEPTH_SIZE_EXT, &i);
+        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
+                                     GL_RENDERBUFFER_EXT, depth_stencil_buffer);
+        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
+                                     GL_RENDERBUFFER_EXT, depth_stencil_buffer);
+    }
+    
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
     checkFramebufferStatus();
     QT_CHECK_GLERROR();
@@ -443,9 +452,8 @@ QGLFramebufferObject::~QGLFramebufferObject()
 
     if (isValid()) {
 	glDeleteTextures(1, &d->texture);
-#ifdef DEPTH_BUFFER
-	glDeleteRenderbuffersEXT(1, &d->depth_buffer);
-#endif
+        if (QGLExtensions::glExtensions & QGLExtensions::PackedDepthStencil)
+            glDeleteRenderbuffersEXT(1, &d->depth_stencil_buffer);
 	glDeleteFramebuffersEXT(1, &d->fbo);
     }
     delete d_ptr;

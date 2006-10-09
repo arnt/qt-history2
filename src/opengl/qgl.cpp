@@ -3547,6 +3547,8 @@ void QGLExtensions::init_extensions()
         glExtensions |= StencilTwoSide;
     if (extensions.contains(QLatin1String("EXT_stencil_wrap")))
         glExtensions |= StencilWrap;
+    if (extensions.contains(QLatin1String("EXT_packed_depth_stencil")))
+        glExtensions |= PackedDepthStencil;
 
     QGLContext cx(QGLFormat::defaultFormat());
     if (glExtensions & TextureCompression) {
