@@ -751,7 +751,7 @@ bool QLineEdit::validateAndSet(const QString &newText, int newPos,
     \property QLineEdit::alignment
     \brief the alignment of the line edit
 
-    Only horizontal alignments are allowed in here, Qt::AlignJustify
+    Both horizontal and vertical alignment is allowed here, Qt::AlignJustify
     will map to Qt::AlignLeft.
 
     \sa Qt::Alignment

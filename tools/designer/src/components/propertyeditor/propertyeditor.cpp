@@ -559,22 +559,8 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
         if (qVariantCanConvert<FlagType>(value)) {
             FlagType f = qvariant_cast<FlagType>(value);
 
-            if (pname == QLatin1String("alignment")) {
-                // ### fixme!!!
-                if (qobject_cast<QLineEdit *>(object)) {
-                    QStringList align_keys = QStringList()
-                                             << QString::fromUtf8("Qt::AlignLeft")
-                                             << QString::fromUtf8("Qt::AlignHCenter")
-                                             << QString::fromUtf8("Qt::AlignRight");
-                    QMap<QString, QVariant> align_map;
-                    foreach (QString align, align_keys) {
-                        align_map.insert(align, f.items.value(align));
-                    }
-                    p = new MapProperty(align_map, uint(f.value.toInt() & Qt::AlignHorizontal_Mask),
-                                        QLatin1String("alignment"));
-                } else {
-                    p = new AlignmentProperty(f.items, Qt::Alignment(f.value.toInt()), pname);
-                }
+            if (pname == QLatin1String("alignment")) {                                                
+                    p = new AlignmentProperty(f.items, Qt::Alignment(f.value.toInt()), pname);                
             } else {
                 if (lang) {
                     QMap<QString, QVariant> items;
