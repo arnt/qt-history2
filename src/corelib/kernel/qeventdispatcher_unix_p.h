@@ -31,26 +31,9 @@
 
 #include <sys/types.h>
 #include <sys/time.h>
-
-// get time of day
-inline void getTime(timeval &t)
-{
-    gettimeofday(&t, 0);
-    // NTP-related fix
-    while (t.tv_usec >= 1000000l) {
-        t.tv_usec -= 1000000l;
-        ++t.tv_sec;
-    }
-    while (t.tv_usec < 0l) {
-        if (t.tv_sec > 0l) {
-            t.tv_usec += 1000000l;
-            --t.tv_sec;
-        } else {
-            t.tv_usec = 0l;
-            break;
-        }
-    }
-}
+#if !defined(_POSIX_MONOTONIC_CLOCK)
+#  define _POSIX_MONOTONIC_CLOCK -1
+#endif
 
 // Internal operator functions for timevals
 inline bool operator<(const timeval &t1, const timeval &t2)
@@ -98,12 +81,27 @@ struct QTimerInfo {
 
 class QTimerInfoList : public QList<QTimerInfo*>
 {
+#if (_POSIX_MONOTONIC_CLOCK-0 <= 0)
+    bool useMonotonicTimers;
+
+    timeval previousTime;
+    clock_t previousTicks;
+    int ticksPerSecond;
+    int msPerTick;
+
+    bool timeChanged(timeval *delta);
+#endif
 
 public:
     QTimerInfoList();
 
-    timeval watchtime;
-    void updateWatchTime(const timeval &currentTime);
+    void getTime(timeval &t);
+
+    timeval currentTime;
+    timeval updateCurrentTime();
+
+    // must call updateCurrentTime() first!
+    void repairTimersIfNeeded();
 
     bool timerWait(timeval &);
     void timerInsert(QTimerInfo *);

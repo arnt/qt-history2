@@ -79,6 +79,8 @@ unix {
                 kernel/qeventdispatcher_unix.cpp
             HEADERS += \
                 kernel/qeventdispatcher_unix_p.h
+
+   contains(QT_CONFIG, clock-monotonic):include($$QT_SOURCE_TREE/config.tests/unix/clock-monotonic/clock-monotonic.pri)
 }
 
 embedded:SOURCES += kernel/qsharedmemory_p.cpp

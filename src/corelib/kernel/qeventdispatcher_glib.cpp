@@ -121,9 +121,7 @@ static gboolean timerSourceCheck(GSource *source)
     if (src->timerList.isEmpty())
         return false;
 
-    timeval currentTime;
-    getTime(currentTime);
-    if (currentTime < src->timerList.first()->timeout)
+    if (src->timerList.updateCurrentTime() < src->timerList.first()->timeout)
         return false;
 
     return true;
@@ -139,9 +137,9 @@ static gboolean timerSourceDispatch(GSource *source, GSourceFunc, gpointer)
     QTimerInfo *begin = 0;
 
     while (maxCount--) {
-        getTime(currentTime);
+        currentTime = src->timerList.updateCurrentTime();
         if (first) {
-            src->timerList.updateWatchTime(currentTime);
+            src->timerList.repairTimersIfNeeded();
             first = false;
         }
 
@@ -456,9 +454,7 @@ void QEventDispatcherGlib::registerTimer(int timerId, int interval, QObject *obj
     t->id = timerId;
     t->interval.tv_sec  = interval / 1000;
     t->interval.tv_usec = (interval % 1000) * 1000;
-    timeval currentTime;
-    getTime(currentTime);
-    t->timeout = currentTime + t->interval;
+    t->timeout = d->timerSource->timerList.updateCurrentTime() + t->interval;
     t->obj = object;
     t->inTimerEvent = false;
 

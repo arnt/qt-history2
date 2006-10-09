@@ -25,6 +25,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#if (_POSIX_MONOTONIC_CLOCK-0 <= 0)
+#  include <sys/times.h>
+#endif
+
 Q_CORE_EXPORT bool qt_disable_lowpriority_timers=false;
 
 /*****************************************************************************
@@ -198,16 +202,129 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
 
 QTimerInfoList::QTimerInfoList()
 {
-    getTime(watchtime);
+#if (_POSIX_MONOTONIC_CLOCK-0 <= 0)
+    useMonotonicTimers = false;
+
+#  if (_POSIX_MONOTONIC_CLOCK == 0)
+    // detect if the system support monotonic timers
+    long x = sysconf(_SC_MONOTONIC_CLOCK);
+    useMonotonicTimers = x >= 200112L;
+#  endif
+
+    getTime(currentTime);
+
+    if (!useMonotonicTimers) {
+        // not using monotonic timers, initialize the timeChanged() machinery
+        previousTime = currentTime;
+
+        tms unused;
+        previousTicks = times(&unused);
+
+        ticksPerSecond = sysconf(_SC_CLK_TCK);
+        msPerTick = 1000/ticksPerSecond;
+    } else {
+        // detected monotonic timers
+        previousTime.tv_sec = previousTime.tv_usec = 0;
+        previousTicks = 0;
+        ticksPerSecond = 0;
+        msPerTick = 0;
+    }
+#else
+    // using monotonic timers unconditionally
+    getTime(currentTime);
+#endif
 }
 
-
-void QTimerInfoList::updateWatchTime(const timeval &currentTime)
+timeval QTimerInfoList::updateCurrentTime()
 {
-    if (currentTime < watchtime)        // clock was turned back
-        timerRepair(watchtime - currentTime);
-    watchtime = currentTime;
+    getTime(currentTime);
+    return currentTime;
 }
+
+#if (_POSIX_MONOTONIC_CLOCK-0 > 0)
+
+void QTimerInfoList::getTime(timeval &t)
+{
+    timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    t.tv_sec = ts.tv_sec;
+    t.tv_usec = ts.tv_nsec / 1000;
+}
+
+void QTimerInfoList::repairTimersIfNeeded()
+{
+}
+
+#else
+
+/*
+  Returns true if the real time clock has changed by more than 10%
+  relative to the processor time since the last time this function was
+  called. This presumably means that the system time has been changed.
+
+  If /a delta is nonzero, delta is set to our best guess at how much the system clock was changed.
+*/
+bool QTimerInfoList::timeChanged(timeval *delta)
+{
+    tms unused;
+    clock_t currentTicks = times(&unused);
+
+    int elapsedTicks = currentTicks - previousTicks;
+    timeval elapsedTime = currentTime - previousTime;
+    int elapsedMsecTicks = (elapsedTicks * 1000) / ticksPerSecond;
+    int deltaMsecs = (elapsedTime.tv_sec * 1000 + elapsedTime.tv_usec / 1000)
+                     - elapsedMsecTicks;
+
+    if (delta) {
+	delta->tv_sec = deltaMsecs / 1000;
+	delta->tv_usec = (deltaMsecs % 1000) * 1000;
+    }
+    previousTicks = currentTicks;
+    previousTime = currentTime;
+
+    // If tick drift is more than 10% off compared to realtime, we assume that the clock has
+    // been set. Of course, we have to allow for the tick granularity as well.
+
+     return (QABS(deltaMsecs) - msPerTick) * 10 > elapsedMsecTicks;
+}
+
+void QTimerInfoList::getTime(timeval &t)
+{
+    if (useMonotonicTimers) {
+        timespec ts;
+        clock_gettime(CLOCK_MONOTONIC, &ts);
+        t.tv_sec = ts.tv_sec;
+        t.tv_usec = ts.tv_nsec / 1000;
+        return;
+    }
+
+    gettimeofday(&t, 0);
+    // NTP-related fix
+    while (t.tv_usec >= 1000000l) {
+        t.tv_usec -= 1000000l;
+        ++t.tv_sec;
+    }
+    while (t.tv_usec < 0l) {
+        if (t.tv_sec > 0l) {
+            t.tv_usec += 1000000l;
+            --t.tv_sec;
+        } else {
+            t.tv_usec = 0l;
+            break;
+        }
+    }
+}
+
+void QTimerInfoList::repairTimersIfNeeded()
+{
+    if (useMonotonicTimers)
+        return;
+    timeval delta;
+    if (timeChanged(&delta))
+        timerRepair(delta);
+}
+
+#endif
 
 /*
   insert timer info into list
@@ -241,9 +358,8 @@ void QTimerInfoList::timerRepair(const timeval &diff)
 */
 bool QTimerInfoList::timerWait(timeval &tm)
 {
-    timeval currentTime;
-    getTime(currentTime);
-    updateWatchTime(currentTime);
+    timeval currentTime = updateCurrentTime();
+    repairTimersIfNeeded();
 
     if (isEmpty())
         return false;
@@ -279,7 +395,7 @@ int QEventDispatcherUNIX::select(int nfds, fd_set *readfds, fd_set *writefds, fd
     if (timeout) {
         // handle the case where select returns with a timeout, too
         // soon.
-        timeval tvStart = d->timerList.watchtime;
+        timeval tvStart = d->timerList.currentTime;
         timeval tvCurrent = tvStart;
         timeval originalTimeout = *timeout;
 
@@ -287,7 +403,7 @@ int QEventDispatcherUNIX::select(int nfds, fd_set *readfds, fd_set *writefds, fd
         do {
             timeval tvRest = originalTimeout + tvStart - tvCurrent;
             nsel = ::select(nfds, readfds, writefds, exceptfds, &tvRest);
-            getTime(tvCurrent);
+            d->timerList.getTime(tvCurrent);
         } while (nsel == 0 && (tvCurrent - tvStart) < originalTimeout);
 
         return nsel;
@@ -309,17 +425,16 @@ void QEventDispatcherUNIX::registerTimer(int timerId, int interval, QObject *obj
         return;
     }
 
+    Q_D(QEventDispatcherUNIX);
+
     QTimerInfo *t = new QTimerInfo;                // create timer
     t->id = timerId;
     t->interval.tv_sec  = interval / 1000;
     t->interval.tv_usec = (interval % 1000) * 1000;
-    timeval currentTime;
-    getTime(currentTime);
-    t->timeout = currentTime + t->interval;
+    t->timeout = d->timerList.updateCurrentTime() + t->interval;
     t->obj = obj;
     t->inTimerEvent = false;
 
-    Q_D(QEventDispatcherUNIX);
     d->timerList.timerInsert(t);                                // put timer in list
 }
 
@@ -561,9 +676,9 @@ int QEventDispatcherUNIX::activateTimers()
     QTimerInfo *begin = 0;
 
     while (maxCount--) {
-        getTime(currentTime);
+        currentTime = d->timerList.updateCurrentTime();
         if (first) {
-            d->timerList.updateWatchTime(currentTime);
+            d->timerList.repairTimersIfNeeded();
             first = false;
         }
 
