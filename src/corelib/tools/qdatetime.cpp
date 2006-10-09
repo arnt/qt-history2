@@ -3652,7 +3652,7 @@ int QDateTimeParser::sectionMaxSize(Section s, int count) const
 {
 #ifndef QT_NO_TEXTDATE
     int mcount = 12;
-    QString(*nameFunction)(int) = &QDate::longMonthName;
+    QString(*nameFunction)(int) = 0;
 #endif
 
     switch (s) {
@@ -3676,19 +3676,27 @@ int QDateTimeParser::sectionMaxSize(Section s, int count) const
 #ifdef QT_NO_TEXTDATE
         return 2;
 #else
-        nameFunction = &QDate::longDayName;
+        if (count <= 2)
+            return 2;
+        nameFunction = (count == 4 ? &QDate::longDayName : &QDate::shortDayName);
         mcount = 7;
         // fall through
 #endif
     case MonthSection:
+        if (count <= 2)
+            return 2;
+
 #ifdef QT_NO_TEXTDATE
         return 2;
 #else
-        if (count <= 3) {
-            return qMax(2, count);
-        } else {
+        if (s == MonthSection) {
+            nameFunction = count == 4
+                           ? &QDate::longMonthName : &QDate::shortMonthName;
+        }
+        Q_ASSERT(nameFunction);
+        {
             int ret = 0;
-            for (int i=1; i<=mcount; ++i) { // ### optimize? cache results?
+            for (int i=1; i<=mcount; ++i) {
                 ret = qMax(nameFunction(i).size(), ret);
             }
             return ret;
@@ -3853,7 +3861,7 @@ int QDateTimeParser::parseSection(int sectionIndex, QString &text, int index,
                     }
                 } else {
                     num += last;
-                    const bool done = used == sectionMaxSize(sectionIndex);
+                    const bool done = (used == sectionMaxSize(sectionIndex));
                     if (num < absoluteMin(sectionIndex)) {
                         state = done ? Invalid : Intermediate;
                         if (done)
@@ -4202,7 +4210,7 @@ int QDateTimeParser::findDay(const QString &str1, int startDay, int sectionIndex
                                   : &QDate::longDayName;
 
     for (int day=startDay; day<=7; ++day) {
-        QString str2 = nameFunction(day).toLower();
+        const QString str2 = nameFunction(day).toLower();
 
         if (str1.startsWith(str2)) {
             if (used)
@@ -4230,6 +4238,7 @@ int QDateTimeParser::findDay(const QString &str1, int startDay, int sectionIndex
                 *used = limit;
             if (usedDay)
                 *usedDay = nameFunction(day);
+
             return day;
         }
     }
