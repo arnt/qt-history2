@@ -4036,8 +4036,12 @@ if [ "$CFG_IPV6" != "no" ]; then
 fi
 
 # detect POSIX monotonic clocks
-if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/clock-monotonic "POSIX Monotonic Clock" $L_FLAGS $I_FLAGS $l_FLAGS; then
-    CFG_CLOCK_MONOTONIC=yes
+if [ "$CFG_CLOCK_MONOTONIC" = "auto" ]; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/clock-monotonic "POSIX Monotonic Clock" $L_FLAGS $I_FLAGS $l_FLAGS; then
+	CFG_CLOCK_MONOTONIC=yes
+    else
+	CFG_CLOCK_MONOTONIC=no
+    fi
 fi
 
 # find if the platform provides getaddrinfo (ipv6 dns lookups)
