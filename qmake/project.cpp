@@ -1344,9 +1344,10 @@ QMakeProject::read(uchar cmd)
         while(1) {
             bool finished = true;
             for(int i = configs.size()-1; i >= 0; --i) {
-                if(!processed.contains(configs[i])) {
-                    processed.insert(configs[i], true);
-                    if(doProjectInclude(configs[i], IncludeFlagFeature, vars) == IncludeSuccess) {
+		const QString config = configs[i].toLower();
+                if(!processed.contains(config)) {
+                    processed.insert(config, true);
+                    if(doProjectInclude(config, IncludeFlagFeature, vars) == IncludeSuccess) {
                         finished = false;
                         break;
                     }
