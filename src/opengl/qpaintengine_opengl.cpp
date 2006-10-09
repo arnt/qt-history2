@@ -1616,12 +1616,6 @@ void QOpenGLPaintEnginePrivate::fillPath(const QPainterPath &path)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    glDepthMask(GL_TRUE);
-    glStencilMask(~0);
-
-    glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
     for (int i = 0; i < polys.size(); ++i) {
         const QPolygonF &poly = polys.at(i);
         fillPolygon_dev(poly.data(), poly.count(),
@@ -1931,26 +1925,14 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
                 glDrawArrays(GL_LINE_STRIP, 0, 5);
                 glDisableClientState(GL_VERTEX_ARRAY);
             } else {
-                if (d->use_stencil_method)
-                {
-                    QPainterPath path; path.setFillRule(Qt::WindingFill);
-                    path.moveTo(left, top);
-                    path.lineTo(right, top);
-                    path.lineTo(right, bottom);
-                    path.lineTo(left, bottom);
-                    path.lineTo(left, top);
-                    QPainterPath stroke = qt_opengl_stroke_cache()->getStrokedPath(path, d->cpen);
-                    d->fillPath(stroke);
-                } else {
                 QPainterPath path; path.setFillRule(Qt::WindingFill);
                 path.moveTo(left, top);
                 path.lineTo(right, top);
                 path.lineTo(right, bottom);
                 path.lineTo(left, bottom);
                 path.lineTo(left, top);
-                QPainterPath stroke = strokeForPath(path, d->cpen);
+                QPainterPath stroke = qt_opengl_stroke_cache()->getStrokedPath(path, d->cpen);
                 d->fillPath(stroke);
-                }
             }
         }
     }
@@ -2008,19 +1990,11 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
             qt_glColor4ubv(d->pen_color);
             for (int i=0; i<lineCount; ++i) {
                 const QLineF &l = lines[i];
-                if (d->use_stencil_method) {
-                    QPainterPath path; path.setFillRule(Qt::WindingFill);
-                    path.moveTo(l.x1(), l.y1());
-                    path.lineTo(l.x2(), l.y2());
-                    QPainterPath stroke = strokeForPath(path, d->cpen);
-                    d->fillPath(stroke);
-                } else {
                 QPainterPath path; path.setFillRule(Qt::WindingFill);
                 path.moveTo(l.x1(), l.y1());
                 path.lineTo(l.x2(), l.y2());
                 QPainterPath stroke = strokeForPath(path, d->cpen);
                 d->fillPath(stroke);
-                }
             }
         }
     }
@@ -2053,16 +2027,6 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             glDisableClientState(GL_VERTEX_ARRAY);
         } else {
             qt_glColor4ubv(d->brush_color);
-            if (d->use_stencil_method) {
-                QPainterPath path;
-                path.setFillRule(mode == WindingMode ? Qt::WindingFill : Qt::OddEvenFill);
-                path.moveTo(points[0]);
-
-                for (int i=1; i<pointCount; ++i)
-                    path.lineTo(points[i]);
-                //path.closeSubpath();
-                d->fillPath(path);
-            } else {
             QPainterPath path;
             path.setFillRule(mode == WindingMode ? Qt::WindingFill : Qt::OddEvenFill);
             path.moveTo(points[0]);
@@ -2070,7 +2034,6 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
                 path.lineTo(points[i]);
             //path.closeSubpath();
             d->fillPath(path);
-            }
         }
     }
 
@@ -2095,22 +2058,11 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             }
             glDisableClientState(GL_VERTEX_ARRAY);
         } else {
-            if (d->use_stencil_method) {
-                QPainterPath path(points[0]);
-                for (int i = 1; i < pointCount; ++i)
-                    path.lineTo(points[i]);
-                QPainterPath stroke = qt_opengl_stroke_cache()->getStrokedPath(path, d->cpen);
-                d->fillPath(stroke);
-            } else {
             QPainterPath path(points[0]);
             for (int i = 1; i < pointCount; ++i)
                 path.lineTo(points[i]);
-
-            QPainterPath stroke = strokeForPath(path, d->cpen);
-            if (stroke.isEmpty())
-                return;
+            QPainterPath stroke = qt_opengl_stroke_cache()->getStrokedPath(path, d->cpen);
             d->fillPath(stroke);
-            }
         }
     }
 }
@@ -2125,7 +2077,7 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
     if (d->has_brush) {
         d->setGradientOps(d->brush_style);
         qt_glColor4ubv(d->brush_color);
-            d->fillPath(path);
+        d->fillPath(path);
     }
     if (d->has_pen) {
         qt_glColor4ubv(d->pen_color);
@@ -2186,13 +2138,8 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
             }
             glEnd(); // GL_LINE_STRIP
         } else {
-            if (d->use_stencil_method) {
-                QPainterPath stroke = qt_opengl_stroke_cache()->getStrokedPath(path, d->cpen);
-                d->fillPath(stroke);
-            } else {
-                QPainterPath npath = strokeForPath(path, d->cpen);
-                d->fillPath(npath);
-            }
+            QPainterPath stroke = qt_opengl_stroke_cache()->getStrokedPath(path, d->cpen);
+            d->fillPath(stroke);
         }
     }
 }
