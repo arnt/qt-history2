@@ -1,15 +1,28 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include "qsvggenerator.h"
 
-#include <QtGui/QPainterPath>
+#include "qpainterpath.h"
 
-#include <private/qpaintengine_p.h>
-#include <private/qtextengine_p.h>
+#include "private/qpaintengine_p.h"
+#include "private/qtextengine_p.h"
 
-#include <QtCore/QFile>
-#include <QtCore/QTextStream>
-#include <QtCore/QBuffer>
+#include "qfile.h"
+#include "qtextstream.h"
+#include "qbuffer.h"
 
-#include <qdebug.h>
+#include "qdebug.h"
 
 
 static void translate_color(const QColor &color, QString *color_string,
