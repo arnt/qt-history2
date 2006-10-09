@@ -35,6 +35,9 @@ private slots:
 
     void insertAtCurrentIndex();
 
+    void removeTab_data();
+    void removeTab();
+
     // New functianality in Qt 4.
 #if QT_VERSION >= 0x040200
     void setElideMode_data();
@@ -174,6 +177,34 @@ void tst_QTabBar::insertAtCurrentIndex()
 #else
     QSKIP("This behavior is not well-defined in Qt < 4.1.3", SkipAll);
 #endif
+}
+
+void tst_QTabBar::removeTab_data()
+{
+    QTest::addColumn<int>("currentIndex");
+    QTest::addColumn<int>("deleteIndex");
+    QTest::addColumn<int>("spyCount");
+    QTest::addColumn<int>("finalIndex");
+
+    QTest::newRow("deleteEnd") << 0 << 2 << 0 << 0;
+    QTest::newRow("deleteEndWithIndexOnEnd") << 2 << 2 << 1 << 1;
+    QTest::newRow("deleteMiddle") << 2 << 1 << 0 << 1;
+    QTest::newRow("deleteMiddleOnMiddle") << 1 << 1 << 1 << 1;
+}
+void tst_QTabBar::removeTab()
+{
+    QTabBar tabbar;
+
+    QFETCH(int, currentIndex);
+    QFETCH(int, deleteIndex);
+    tabbar.addTab("foo");
+    tabbar.addTab("bar");
+    tabbar.addTab("baz");
+    tabbar.setCurrentIndex(currentIndex);
+    QSignalSpy spy(&tabbar, SIGNAL(currentChanged(int)));
+    tabbar.removeTab(deleteIndex);
+    QTEST(spy.count(), "spyCount");
+    QTEST(tabbar.currentIndex(), "finalIndex");
 }
 
 #if QT_VERSION >= 0x040200

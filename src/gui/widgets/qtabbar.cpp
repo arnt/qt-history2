@@ -622,6 +622,10 @@ void QTabBar::removeTab(int index)
 #endif
         d->tabList.removeAt(index);
         if (index == d->currentIndex) {
+            // The current tab is going away, in order to make sure
+            // we emit that "current has changed", we need to reset this
+            // around.
+            d->currentIndex = -1;
             if (index == d->tabList.size()) {
                 setCurrentIndex(d->validIndex(index - 1) ? index - 1 : 0);
             } else {
