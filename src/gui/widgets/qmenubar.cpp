@@ -1229,10 +1229,12 @@ bool QMenuBar::event(QEvent *e)
 #endif
     case QEvent::Show:
 #ifdef QT3_SUPPORT
-        // If itemsDirty == true, updateGeometries sends the MenubarUpdated event.
-        if (!d->itemsDirty) {
-            QMenubarUpdatedEvent menubarUpdated(this);
-            QApplication::sendEvent(parentWidget(), &menubarUpdated);
+        if(QWidget *p = parentWidget()) {
+            // If itemsDirty == true, updateGeometries sends the MenubarUpdated event.
+            if (!d->itemsDirty) {
+                QMenubarUpdatedEvent menubarUpdated(this);
+                QApplication::sendEvent(p, &menubarUpdated);
+            }
         }
 #endif
         d->updateGeometries();
@@ -1240,8 +1242,10 @@ bool QMenuBar::event(QEvent *e)
 
 #ifdef QT3_SUPPORT
     case QEvent::Hide: {
-        QMenubarUpdatedEvent menubarUpdated(this);
-        QApplication::sendEvent(parentWidget(), &menubarUpdated);
+        if(QWidget *p = parentWidget()) {
+            QMenubarUpdatedEvent menubarUpdated(this);
+            QApplication::sendEvent(p, &menubarUpdated);
+        }
     } break;
 #endif
 
@@ -1985,17 +1989,17 @@ int QMenuBar::findIdForAction(QAction *act) const
     \value Raised
     \value MShadow
     \value NoFrame
-    \value Panel 
+    \value Panel
     \value StyledPanel
-    \value HLine 
-    \value VLine 
+    \value HLine
+    \value VLine
     \value GroupBoxPanel
-    \value WinPanel 
-    \value ToolBarPanel 
-    \value MenuBarPanel 
-    \value PopupPanel 
-    \value LineEditPanel 
-    \value TabWidgetPanel 
+    \value WinPanel
+    \value ToolBarPanel
+    \value MenuBarPanel
+    \value PopupPanel
+    \value LineEditPanel
+    \value TabWidgetPanel
     \value MShape
 */
 
@@ -2042,15 +2046,15 @@ int QMenuBar::findIdForAction(QAction *act) const
 /*!
     \fn void QMenuBar::setMargin(int margin)
     Sets the width of the margin around the contents of the widget to \a margin.
-    
+
     Use QWidget::setContentsMargins() instead.
     \sa margin(), QWidget::setContentsMargins()
 */
 
 /*!
-    \fn int QMenuBar::margin() const 
+    \fn int QMenuBar::margin() const
     Returns the with of the the margin around the contents of the widget.
-    
+
     Use QWidget::getContentsMargins() instead.
     \sa setMargin(), QWidget::getContentsMargins()
 */
