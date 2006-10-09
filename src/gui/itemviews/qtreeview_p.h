@@ -119,6 +119,10 @@ public:
 
     QStyleOptionViewItemV2 viewOptionsV2() const;
 
+    void updateChildCount(const int parentItem, const int delta);
+    void rowsRemoved(const QModelIndex &parent,
+                     int start, int end, bool before);
+
     QHeaderView *header;
     int indent;
 
