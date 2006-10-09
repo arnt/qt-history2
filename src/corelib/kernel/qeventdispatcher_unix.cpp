@@ -290,7 +290,6 @@ bool QTimerInfoList::timeChanged(timeval *delta)
 
 void QTimerInfoList::getTime(timeval &t)
 {
-#if (_POSIX_MONOTONIC_CLOCK-0 > 0)
     if (useMonotonicTimers) {
         timespec ts;
         clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -298,7 +297,6 @@ void QTimerInfoList::getTime(timeval &t)
         t.tv_usec = ts.tv_nsec / 1000;
         return;
     }
-#endif
 
     gettimeofday(&t, 0);
     // NTP-related fix
