@@ -1423,17 +1423,27 @@ static Qt::Alignment defaultPosition(int pe)
 
 static QSize expandedSize(QSize sz, const QRect& rect, int pe)
 {
+    // some magic for relative positioning since we dont support % metrics yet
     switch (pe) {
     case PseudoElement_SpinBoxUpButton:
     case PseudoElement_SpinBoxDownButton:
-        if (sz.height() == -1) sz.setHeight(rect.height()/2);
+        if (sz.height() == -1) 
+            sz.setHeight(rect.height()/2);
         break;
     case PseudoElement_DropDown:
-        if (sz.height() == -1) sz.setHeight(rect.height());
+        if (sz.height() == -1) 
+            sz.setHeight(rect.height());
         break;
     default:
         break;
     }
+
+    // expand to rectangle
+    if (sz.height() == -1)
+        sz.setHeight(rect.height());
+    if (sz.width() == -1)
+        sz.setWidth(rect.width());
+
     return sz;
 }
 
