@@ -766,7 +766,7 @@ Qt::Alignment QLineEdit::alignment() const
 void QLineEdit::setAlignment(Qt::Alignment alignment)
 {
     Q_D(QLineEdit);
-    d->alignment = alignment & Qt::AlignHorizontal_Mask;
+    d->alignment = alignment;        
     update();
 }
 
@@ -2180,8 +2180,20 @@ void QLineEdit::paintEvent(QPaintEvent *)
     p.setClipRect(r);
 
     QFontMetrics fm = fontMetrics();
-    QRect lineRect(r.x() + horizontalMargin, r.y() + (r.height() - fm.height() + 1) / 2,
-                    r.width() - 2*horizontalMargin, fm.height());
+    Qt::Alignment va = QStyle::visualAlignment(layoutDirection(), QFlag(d->alignment));        
+    switch (va & Qt::AlignVertical_Mask) {
+     case Qt::AlignBottom:
+         d->vscroll = r.y() + r.height() - fm.height() - verticalMargin;
+         break;
+     case Qt::AlignTop:
+         d->vscroll = r.y() + verticalMargin;
+         break;
+     default:
+         //center
+         d->vscroll = r.y() + (r.height() - fm.height() + 1) / 2;
+         break;
+    }
+    QRect lineRect(r.x() + horizontalMargin, d->vscroll, r.width() - 2*horizontalMargin, fm.height());
     QTextLine line = d->textLayout.lineAt(0);
 
     int cursor = d->cursor;
@@ -2196,10 +2208,8 @@ void QLineEdit::paintEvent(QPaintEvent *)
 
 
     int widthUsed = qRound(line.naturalTextWidth()) + 1 + minRB;
-    if ((minLB + widthUsed) <=  lineRect.width()) {
-        Qt::Alignment va = QStyle::visualAlignment(layoutDirection(), QFlag(d->alignment));
-        va &= ~(Qt::AlignAbsolute|Qt::AlignVertical_Mask);
-        switch (va) {
+    if ((minLB + widthUsed) <=  lineRect.width()) {        
+        switch (va & ~(Qt::AlignAbsolute|Qt::AlignVertical_Mask)) {
         case Qt::AlignRight:
             d->hscroll = widthUsed - lineRect.width() + 1;
             break;
@@ -2220,7 +2230,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
         d->hscroll = widthUsed - lineRect.width() + 1;
     }
     // the y offset is there to keep the baseline constant in case we have script changes in the text.
-    QPoint topLeft = lineRect.topLeft() - QPoint(d->hscroll, d->ascent-fm.ascent());
+    QPoint topLeft = lineRect.topLeft() - QPoint(d->hscroll, d->ascent - fm.ascent());
 
     // draw text, selections and cursors
     p.setPen(pal.text().color());
@@ -2546,7 +2556,7 @@ QRect QLineEditPrivate::cursorRect() const
         c += preeditCursor;
     cix += qRound(l.cursorToX(c));
     int ch = qMin(cr.height(), q->fontMetrics().height() + 1);
-    return QRect(cix-5, cr.y() + (cr.height() -  ch) / 2, 10, ch);
+    return QRect(cix-5, vscroll, 10, ch);
 }
 
 QRect QLineEditPrivate::adjustedContentsRect() const
