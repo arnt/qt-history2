@@ -133,6 +133,8 @@ int main( int argc, char **argv )
             standardSyntax = false;
     }
 
+    QString oldDir = QDir::currentPath();
+
     for ( i = 1; i < argc; i++ ) {
         if ( qstrcmp(argv[i], "-help") == 0 ) {
             printUsage();
@@ -185,8 +187,6 @@ int main( int argc, char **argv )
             f.close();
         }
 
-        QString oldDir = QDir::currentPath();
-
         codecForTr.clear();
 		codecForSource.clear();
 
@@ -207,9 +207,10 @@ int main( int argc, char **argv )
                          argv[i] );
             }
         } else if (QString(argv[i]).endsWith(".pro", Qt::CaseInsensitive)) {
+            QDir::setCurrent( QFileInfo(argv[i]).path() );
             QMap<QByteArray, QStringList> variables;
 
-            if(!evaluateProFile(QLatin1String(argv[i]), verbose, &variables))
+            if(!evaluateProFile(QFileInfo(argv[i]).fileName(), verbose, &variables))
                 return 2;
 
             sourceFiles = variables.value("SOURCES");
@@ -283,6 +284,7 @@ int main( int argc, char **argv )
     if ( tsFileNames.count() > 0) {
         updateTsFiles( fetchedTor, tsFileNames, codecForTr, noObsolete, verbose );
     }
+    QDir::setCurrent( oldDir );
 
     if ( numFiles == 0 ) {
         printUsage();
