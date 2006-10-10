@@ -410,8 +410,10 @@ QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr)
 
 QX11PaintEngine::~QX11PaintEngine()
 {
+#ifndef QT_NO_XRENDER
     Q_D(QX11PaintEngine);
     delete d->tessellator;
+#endif
 }
 
 bool QX11PaintEngine::begin(QPaintDevice *pdev)
