@@ -5720,12 +5720,13 @@ void QPainter::setRedirected(const QPaintDevice *device,
                              const QPoint &offset)
 {
     Q_ASSERT(device != 0);
-    QMutexLocker locker(globalRedirectionsMutex());
-    QPaintDeviceRedirectionList *redirections = globalRedirections();
-    Q_ASSERT(redirections != 0);
 
     QPoint roffset;
     QPaintDevice *rdev = redirected(replacement, &roffset);
+
+    QMutexLocker locker(globalRedirectionsMutex());
+    QPaintDeviceRedirectionList *redirections = globalRedirections();
+    Q_ASSERT(redirections != 0);
     *redirections += QPaintDeviceRedirection(device, rdev ? rdev : replacement, offset + roffset);
 }
 
