@@ -726,7 +726,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
                             QGLExtensions::glExtensions & QGLExtensions::StencilWrap;
     if (d->use_stencil_method && QGLExtensions::glExtensions & QGLExtensions::StencilTwoSide)
         d->has_stencil_face_ext = qt_resolve_stencil_face_extension(ctx);
-    d->use_stencil_method = false;
 
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
@@ -762,6 +761,8 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
         clearBits |= GL_ACCUM_BUFFER_BIT;
 #endif
         glClear(clearBits);
+    } else if (d->use_stencil_method) {
+        glClear(GL_STENCIL_BUFFER_BIT);
     }
     QSize sz(d->drawable.size());
     glViewport(0, 0, sz.width(), sz.height());
