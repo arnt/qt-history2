@@ -90,9 +90,10 @@ QList<QMacWindowChangeEvent*> *QMacWindowChangeEvent::change_events = 0;
 static struct {
     bool use_qt_time_limit;
     QWidget *last_widget;
+    int last_x, last_y;
     int last_modifiers, last_button;
     EventTime last_time;
-} qt_mac_dblclick = { false, 0, 0, 0, -2 };
+} qt_mac_dblclick = { false, 0, -1, -1, 0, 0, -2 };
 
 struct qt_mac_enum_mapper
 {
@@ -1757,7 +1758,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 break;
             }
 
-            if(qt_mac_dblclick.last_widget) {
+            if(qt_mac_dblclick.last_widget &&
+               qt_mac_dblclick.last_x != -1 && qt_mac_dblclick.last_y != -1 &&
+               QRect(qt_mac_dblclick.last_x-2, qt_mac_dblclick.last_y-2, 4, 4).contains(QPoint(where.h, where.v))) {
                 if(qt_mac_dblclick.use_qt_time_limit) {
                     EventTime now = GetEventTime(event);
                     if(qt_mac_dblclick.last_time != -2 && qt_mac_dblclick.last_widget == widget &&
@@ -1775,6 +1778,13 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 if(etype == QEvent::MouseButtonDblClick)
                     qt_mac_dblclick.last_widget = 0;
             }
+            if(etype != QEvent::MouseButtonDblClick) {
+                qt_mac_dblclick.last_x = where.h;
+                qt_mac_dblclick.last_y = where.v;
+            } else {
+                qt_mac_dblclick.last_x = qt_mac_dblclick.last_y = -1;
+            }
+
        }
 
         switch(ekind) {
