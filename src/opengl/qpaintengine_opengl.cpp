@@ -195,6 +195,7 @@ class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
 public:
     QOpenGLPaintEnginePrivate()
         : opacity(1)
+        , composition_mode(QPainter::CompositionMode_SourceOver)
         , has_fast_pen(false)
         , has_fast_brush(false)
         , txop(QTransform::TxNone)
@@ -209,7 +210,6 @@ public:
         , use_antialiasing(false)
         , offscreenFbo(0)
         , has_valid_offscreen_fbo(false)
-        , composition_mode(QPainter::CompositionMode_SourceOver)
         {}
 
     inline void setGLPen(const QColor &c) {
@@ -240,7 +240,7 @@ public:
     void drawVertexArrays();
     void fillPath(const QPainterPath &path);
     void fillPolygon_dev(const QPointF *polygonPoints, int pointCount,
-                         const QRectF &bounds, Qt::FillRule fill);
+                         Qt::FillRule fill);
 
     QPen cpen;
     QBrush cbrush;
@@ -1336,10 +1336,10 @@ public:
     int allocated;
     int size;
     void addTrap(const Trapezoid &trap);
-    QRect tessellate(const QPointF *points, int nPoints, bool winding) {
+    void tessellate(const QPointF *points, int nPoints, bool winding) {
         size = 0;
         setWinding(winding);
-        return QTessellator::tessellate(points, nPoints).toRect();
+        QTessellator::tessellate(points, nPoints);
     }
     void done() {
         if (allocated > 512) {
@@ -1403,9 +1403,8 @@ void QOpenGLTessellator::addTrap(const Trapezoid &trap)
 }
 
 void QOpenGLPaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int pointCount,
-                                                const QRectF &bounds, Qt::FillRule fill)
+                                                Qt::FillRule fill)
 {
-    Q_UNUSED(bounds);
     QOpenGLTessellator tessellator;
     tessellator.tessellate(polygonPoints, pointCount, fill == Qt::WindingFill);
 
@@ -1614,16 +1613,12 @@ void QOpenGLPaintEnginePrivate::fillPath(const QPainterPath &path)
         return;
     }
 
-    QList<QPolygonF> polys = path.toFillPolygons(matrix);
+    QPolygonF poly = path.toFillPolygon(matrix);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    for (int i = 0; i < polys.size(); ++i) {
-        const QPolygonF &poly = polys.at(i);
-        fillPolygon_dev(poly.data(), poly.count(),
-                        poly.boundingRect(),
-                        path.fillRule());
-    }
+    fillPolygon_dev(poly.data(), poly.count(),
+                    path.fillRule());
     glMatrixMode(GL_MODELVIEW);
 
 #ifndef Q_WS_QWS
@@ -2798,7 +2793,6 @@ void QOpenGLPaintEnginePrivate::drawOffscreenEllipse(const QRectF &rect, float *
     // draw the result to the screen
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     glDisable(GL_TEXTURE_2D);
-
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 #endif
