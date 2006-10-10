@@ -35,7 +35,6 @@ bool SvgalibPaintEngine::begin(QPaintDevice *dev)
     matrix = QMatrix();
     simpleMatrix = true;
     setClip(QRect(0, 0, device->width(), device->height()));
-    simpleClip = true;
     opaque = true;
     aliased = true;
     sourceOver = true;
