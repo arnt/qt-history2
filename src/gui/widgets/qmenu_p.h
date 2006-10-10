@@ -76,7 +76,7 @@ public:
     mutable QHash<QAction *, QWidget *> widgetItems;
     void calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAction*> &actionList) const;
     void updateActions();
-    const QRect popupGeometry(int screen) const;
+    QRect popupGeometry(int screen=-1) const;
     QList<QAction *> filterActions(const QList<QAction *> &actions) const;
     uint ncols : 4; //4 bits is probably plenty
     uint collapsibleSeparators : 1;
