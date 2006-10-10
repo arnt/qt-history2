@@ -90,11 +90,11 @@ protected:
         timer.start(100, this);
         fast = false;
     }
-    
+
     void enterEvent(QEvent *) {
         startTimer();
     }
-    
+
     void leaveEvent(QEvent *) {
         stopTimer();
     }
@@ -117,9 +117,9 @@ protected:
         const int mouseX = e->pos().x();
         const int mouseY = e->pos().y();
         const bool horizontallyInside = pos().x() < mouseX && mouseX < rect().right() + 1;
-        const bool verticallyOutside = (sliderAction == QAbstractSlider::SliderSingleStepAdd) ? 
+        const bool verticallyOutside = (sliderAction == QAbstractSlider::SliderSingleStepAdd) ?
                                         rect().bottom() + 1 < mouseY : mouseY < pos().y();
-        
+
         fast = horizontallyInside && verticallyOutside;
     }
 
@@ -242,6 +242,7 @@ public:
     void _q_rowsRemoved(const QModelIndex & parent, int start, int end);
     void updateArrow(QStyle::StateFlag state);
     bool updateHoverControl(const QPoint &pos);
+    QRect popupGeometry(int screen = -1) const;
     QStyle::SubControl newHoverControl(const QPoint &pos);
     int computeWidthHint() const;
     QSize recomputeSizeHint(QSize &sh) const;
