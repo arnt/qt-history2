@@ -7,7 +7,7 @@ win32-msvc*|win32-icc:QMAKE_LFLAGS += /BASE:0x60000000
 include(../qbase.pri)
 DEFINES -= QT_ASCII_CAST_WARNINGS
 
-PRECOMPILED_HEADER = other/qt_compat_pch.h
+!win32-icc:PRECOMPILED_HEADER = other/qt_compat_pch.h
 
 include(tools/tools.pri)
 include(sql/sql.pri)
