@@ -1530,6 +1530,8 @@ void QX11EmbedContainerPrivate::acceptClient(WId window)
 
     // This tells Qt that we wish to forward DnD messages to
     // our client.
+    if (!extra)
+        createExtra();
     extraData()->xDndProxy = client;
 
     unsigned int version = XEmbedVersion();
