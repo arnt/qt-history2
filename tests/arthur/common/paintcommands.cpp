@@ -109,11 +109,24 @@ struct PaintCommand {
     qPaintCommand command;
 };
 
-template <typename T> T image_load(const QString &fileName)
+template <typename T> T image_load(const QString &filepath)
 {
-    T t(fileName);
+    T t(filepath);
     if (t.isNull())
-        t = T("images/" + fileName);
+        t = T("images/" + filepath);
+    if (t.isNull()) {
+        QFileInfo fi(filepath);
+        QDir dir = fi.absoluteDir();
+        dir.cdUp();
+        dir.cd("images");
+        QString fileName = QString("%1/%2").arg(dir.absolutePath()).arg(fi.fileName());
+        t = T(fileName);
+        if (t.isNull() && !fileName.endsWith(".png")) {
+            fileName.append(".png");
+            t = T(fileName);
+        }
+    }
+        
     return t;
 }
 
@@ -464,21 +477,33 @@ void PaintCommands::insertAt(int commandIndex, const QStringList &newCommands)
 void PaintCommands::command_import(QRegExp re)
 {
     QString importFile(re.cap(1));
-    QFile file(filepath + QDir::separator() + importFile);
-    if (importFile.isEmpty() || !file.exists()) {
-        printf(" - importing non-existing file at line %d (%s)\n", currentCommandIndex, file.fileName().latin1());
-        return;
+    QFileInfo fi(filepath);
+    QDir dir = fi.absoluteDir();
+    QFile *file = new QFile(dir.absolutePath() + QDir::separator() + importFile);
+    if (importFile.isEmpty() || !file->exists()) {
+        dir.cdUp();
+        dir.cd("images");
+        delete file;
+        file = new QFile(dir.absolutePath() + QDir::separator() + importFile);
+        if (importFile.isEmpty() || !file->exists()) {
+            printf(" - importing non-existing file at line %d (%s)\n", currentCommandIndex,
+                   qPrintable(file->fileName()));
+            delete file;
+            return;
+        }
     }
-    if (!file.open(QIODevice::ReadOnly)) {
-        printf(" - failed to read file: '%s'\n", file.fileName().latin1());
+    if (!file->open(QIODevice::ReadOnly)) {
+        printf(" - failed to read file: '%s'\n", qPrintable(file->fileName()));
+        delete file;
         return;
     }
     if (verboseMode)
-        printf(" - importing file at line %d (%s)\n", currentCommandIndex, file.fileName().latin1());
+        printf(" - importing file at line %d (%s)\n", currentCommandIndex,
+               qPrintable(fi.fileName()));
 
-    QFileInfo fileinfo(file);
+    QFileInfo fileinfo(*file);
     commands[currentCommandIndex] = QString("# import file (%1) start").arg(fileinfo.fileName());
-    QTextStream textFile(&file);
+    QTextStream textFile(file);
     QString rawContent = textFile.read();
     QStringList importedData = rawContent.split('\n', QString::SkipEmptyParts);
     importedData.append(QString("# import file (%1) end ---").arg(fileinfo.fileName()));
@@ -487,8 +512,9 @@ void PaintCommands::command_import(QRegExp re)
     if (verboseMode) {
         printf(" - Command buffer now looks like:\n");
         for (int i = 0; i < commands.count(); ++i)
-            printf(" ---> {%s}\n", commands.at(i).latin1());
+            printf(" ---> {%s}\n", qPrintable(commands.at(i)));
     }
+    delete file;
 }
 
 void PaintCommands::command_begin_block(QRegExp re)
@@ -573,7 +599,20 @@ void PaintCommands::command_drawPixmap(QRegExp re)
     if (pm.isNull())
         pm = image_load<QPixmap>(re.cap(1));
     if (pm.isNull()) {
-        fprintf(stderr, "ERROR(drawPixmap): failed to load pixmap: '%s'\n", re.cap(1).latin1());
+        QFileInfo fi(filepath);
+        QDir dir = fi.absoluteDir();
+        dir.cdUp();
+        dir.cd("images");
+        QString fileName = QString("%1/%2").arg(dir.absolutePath()).arg(re.cap(1));
+        pm = QPixmap(fileName);
+        if (pm.isNull() && !fileName.endsWith(".png")) {
+            fileName.append(".png");
+            pm = QPixmap(fileName);
+        }
+    }
+    if (pm.isNull()) {
+        fprintf(stderr, "ERROR(drawPixmap): failed to load pixmap: '%s'\n",
+                qPrintable(re.cap(1)));
         return;
     }
 
@@ -609,10 +648,22 @@ void PaintCommands::command_drawImage(QRegExp re)
         im = image_load<QImage>(re.cap(1));
 
     if (im.isNull()) {
-        fprintf(stderr, "ERROR(drawImage): failed to load image: '%s'\n", re.cap(1).latin1());
+        QFileInfo fi(filepath);
+        QDir dir = fi.absoluteDir();
+        dir.cdUp();
+        dir.cd("images");
+        QString fileName = QString("%1/%2").arg(dir.absolutePath()).arg(re.cap(1));
+        im = QImage(fileName);
+        if (im.isNull() && !fileName.endsWith(".png")) {
+            fileName.append(".png");
+            im = QImage(fileName);
+        }
+    }
+    if (im.isNull()) {
+        fprintf(stderr, "ERROR(drawImage): failed to load image: '%s'\n", qPrintable(re.cap(1)));
         return;
     }
-
+    
     int tx = convertToInt(re.cap(2));
     int ty = convertToInt(re.cap(3));
     int tw = convertToInt(re.cap(4));
@@ -643,7 +694,20 @@ void PaintCommands::command_drawTiledPixmap(QRegExp re)
     if (pm.isNull())
         pm = image_load<QPixmap>(re.cap(1));
     if (pm.isNull()) {
-        fprintf(stderr, "ERROR(drawPixmap): failed to load pixmap: '%s'\n", re.cap(1).latin1());
+        QFileInfo fi(filepath);
+        QDir dir = fi.absoluteDir();
+        dir.cdUp();
+        dir.cd("images");
+        QString fileName = QString("%1/%2").arg(dir.absolutePath()).arg(re.cap(1));
+        pm = QPixmap(fileName);
+        if (pm.isNull() && !fileName.endsWith(".png")) {
+            fileName.append(".png");
+            pm = QPixmap(fileName);
+        }
+    }
+    if (pm.isNull()) {
+        fprintf(stderr, "ERROR(drawTiledPixmap): failed to load pixmap: '%s'\n",
+                qPrintable(re.cap(1)));
         return;
     }
 
