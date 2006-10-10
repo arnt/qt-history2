@@ -1,3 +1,6 @@
+path_addRect p 0 0 75 75
+path_addEllipse p 25 25 75 75
+
 translate 10 10
 
 begin_block setup_gradient
@@ -16,16 +19,14 @@ begin_block setup_gradient
  gradient_setLinear 0 0 100 100
 end_block
 
-setPen brush
-setBrush nobrush;
+setPen brush 0
+setBrush nobrush
 
 begin_block drawing
   save
     drawLine 0 0 100 100
 
     translate 0 100
-    path_addRect p 0 0 75 75
-    path_addEllipse p 25 25 75 75
     drawPath p
 
     translate 0 110
@@ -57,7 +58,7 @@ save
   restore
 
   setBrush dome_rgb32.png
-  setPen brush
+  setPen brush 0
   setBrush nobrush
 
   translate 110 0

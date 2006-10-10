@@ -36,16 +36,24 @@ translate 0 100
 scale 1 2
 repeat_block gradients
 
+resetMatrix
+translate 0 300
+brushTranslate 30 0
+brushScale 0.9 0.9
+brushRotate 20
+repeat_block gradients
+
 # Some helpful info perhaps?
 resetMatrix
 setPen black
 
 drawText 410 50 "No XForm"
 drawText 410 200 "scale 1x2"
-drawText 10 350 "50 deg"
-drawText 110 350 "230 deg"
-drawText 210 350 "50 deg w/alpha "
-drawText 310 350 "230 deg w/alpha"
+drawText 410 300 "brush transform"
+drawText 10 450 "50 deg"
+drawText 110 450 "230 deg"
+drawText 210 450 "50 deg w/alpha "
+drawText 310 450 "230 deg w/alpha"
 
 setPen 3f000000
 setBrush nobrush

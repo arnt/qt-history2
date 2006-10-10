@@ -39,7 +39,7 @@ setBrush green NoBrush
 drawRect 560 0 40 40
 gradient_setLinear 0 0 0 40
 drawRect 600 0 40 40
-setBrush face.png
+setBrush images/face.png
 drawRect 640 0 80 40
 end_block
 
@@ -62,7 +62,7 @@ translate 0 40
 repeat_block drawrects
 
 
-setBrush dot.png
+setBrush images/dot.png
 setPen nopen
 resetMatrix
 drawRect 0 200 50 50

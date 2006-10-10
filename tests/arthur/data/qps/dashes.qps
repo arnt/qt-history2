@@ -244,19 +244,19 @@ translate 620 40
 begin_block width_and_caps_texts
   drawText 0 0 "Width=1, FlatCap"
   translate 0 40
+  drawText 0 0 "Width=1, SquareCap"
+  translate 0 40
+  drawText 0 0 "Width=1, RoundCap"
+  translate 0 40
+  drawText 0 0 "Width=2, FlatCap"
+  translate 0 40
   drawText 0 0 "Width=2, SquareCap"
   translate 0 40
-  drawText 0 0 "Width=6, RoundCap"
+  drawText 0 0 "Width=2, RoundCap"
   translate 0 40
-  drawText 0 0 "Width=1, FlatCap"
+  drawText 0 0 "Width=6, FlatCap"
   translate 0 40
-  drawText 0 0 "Width=2, SquareCap"
-  translate 0 40
-  drawText 0 0 "Width=6, RoundCap"
-  translate 0 40
-  drawText 0 0 "Width=1, FlatCap"
-  translate 0 40
-  drawText 0 0 "Width=2, SqareCap"
+  drawText 0 0 "Width=6, SqareCap"
   translate 0 40
   drawText 0 0 "Width=6, RoundCap"
 end_block

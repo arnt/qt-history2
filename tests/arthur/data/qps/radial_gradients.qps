@@ -47,18 +47,26 @@ translate 0 100
 scale 1 2
 repeat_block gradients
 
+resetMatrix
+translate 0 300
+brushTranslate 30 0
+brushScale 0.9 0.9
+brushRotate 20
+repeat_block gradients
+
 # Some helpful info perhaps?
 resetMatrix
 setPen black
 
 drawText 610 50 "No XForm"
 drawText 610 200 "scale 1x2"
-drawText 10 350 "Pad"
-drawText 110 350 "Reflect"
-drawText 210 350 "Repeat"
-drawText 310 350 "Pad w/alpha"
-drawText 410 350 "Reflect w/alpha"
-drawText 510 350 "Repeat w/alpha"
+drawText 610 300 "brush transform"
+drawText 10 450 "Pad"
+drawText 110 450 "Reflect"
+drawText 210 450 "Repeat"
+drawText 310 450 "Pad w/alpha"
+drawText 410 450 "Reflect w/alpha"
+drawText 510 450 "Repeat w/alpha"
 
 # Radius and focal indicators
 setPen 3f000000
