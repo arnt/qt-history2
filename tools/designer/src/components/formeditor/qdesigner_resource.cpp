@@ -239,7 +239,7 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
 
         if (!allOK) {
             QMessageBox::warning(parentWidget->window(), QApplication::translate("Designer", "Qt Designer"),
-               QApplication::translate("Designer", "This file was created using designer from Qt-%1 and "
+               QApplication::translate("Designer", "This file was created using Designer from Qt-%1 and "
                            "could not be read. "
                            "Please run it through <b>uic3 -convert</b> to convert "
                            "it to Qt-4's ui format.").arg(version),
