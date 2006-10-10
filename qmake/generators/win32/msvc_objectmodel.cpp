@@ -843,6 +843,16 @@ bool VCCLCompilerTool::parseOption(const char* option)
             }
         }
         break;
+    case 'b':   // see http://msdn2.microsoft.com/en-us/library/ms173499.aspx
+        if (second == 'i' && third == 'g' && fourth == 'o') {
+            const char *o = option;
+            if (o[5] == 'b' && o[6] == 'j') {
+                AdditionalOptions += option;
+                break;
+            }
+        }
+        found = false;
+        break;
     case 'c':
         if(second == '\0') {
             CompileOnly = _True;
