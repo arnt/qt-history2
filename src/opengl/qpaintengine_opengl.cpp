@@ -203,7 +203,6 @@ public:
         , moveToCount(0)
         , shader_ctx(0)
         , grad_palette(0)
-        , has_glsl(false)
         , use_stencil_method(false)
         , has_stencil_face_ext(false)
         , has_ellipse_program(false)
@@ -284,7 +283,6 @@ public:
     GLuint ellipse_aa_frag_program;
     GLuint ellipse_aa_radial_frag_program;
 
-    bool has_glsl;
     bool use_stencil_method;
     bool has_stencil_face_ext;
     bool has_ellipse_program;
@@ -294,18 +292,6 @@ public:
     QSize offscreenSize;
     QSizeF invOffscreenSize;
     bool has_valid_offscreen_fbo;
-
-    GLuint radial_glsl_prog;
-    GLuint radial_glsl_shader;
-
-    GLuint conical_glsl_prog;
-    GLuint conical_glsl_shader;
-
-    GLuint ellipse_glsl_prog;
-    GLuint ellipse_glsl_shader;
-
-    GLuint ellipse_aa_glsl_prog;
-    GLuint ellipse_aa_glsl_shader;
 
     GLuint radial_inv_location;
     GLuint radial_inv_mat_offset_location;
@@ -376,14 +362,6 @@ static inline QPainterPath strokeForPath(const QPainterPath &path, const QPen &c
 #define GL_PROGRAM_FORMAT_ASCII_ARB       0x8875
 #endif
 
-// GLSL defines
-#ifndef GL_FRAGMENT_SHADER
-#define GL_FRAGMENT_SHADER 0x8B30
-#endif
-#ifndef GL_LINK_STATUS
-#define GL_LINK_STATUS 0x8B82
-#endif
-
 // Stencil wrap and two-side defines
 #ifndef GL_STENCIL_TEST_TWO_SIDE_EXT
 #define GL_STENCIL_TEST_TWO_SIDE_EXT 0x8910
@@ -402,28 +380,11 @@ extern QGLContextPrivate *qt_glctx_get_dptr(QGLContext *);
 #define glDeleteProgramsARB qt_glctx_get_dptr(ctx)->qt_glDeleteProgramsARB
 #define glGenProgramsARB qt_glctx_get_dptr(ctx)->qt_glGenProgramsARB
 #define glProgramLocalParameter4fvARB qt_glctx_get_dptr(ctx)->qt_glProgramLocalParameter4fvARB
-// GLSL definitions
-#define glCreateShader qt_glctx_get_dptr(ctx)->qt_glCreateShader
-#define glShaderSource qt_glctx_get_dptr(ctx)->qt_glShaderSource
-#define glCompileShader qt_glctx_get_dptr(ctx)->qt_glCompileShader
-#define glDeleteShader qt_glctx_get_dptr(ctx)->qt_glDeleteShader
 
 #define glCreateProgram qt_glctx_get_dptr(ctx)->qt_glCreateProgram
-#define glAttachShader qt_glctx_get_dptr(ctx)->qt_glAttachShader
-#define glDetachShader qt_glctx_get_dptr(ctx)->qt_glDetachShader
 #define glLinkProgram qt_glctx_get_dptr(ctx)->qt_glLinkProgram
 #define glUseProgram qt_glctx_get_dptr(ctx)->qt_glUseProgram
 #define glDeleteProgram qt_glctx_get_dptr(ctx)->qt_glDeleteProgram
-
-#define glGetShaderInfoLog qt_glctx_get_dptr(ctx)->qt_glGetShaderInfoLog
-#define glGetProgramiv qt_glctx_get_dptr(ctx)->qt_glGetProgramiv
-
-#define glGetUniformLocation qt_glctx_get_dptr(ctx)->qt_glGetUniformLocation
-#define glUniform4fv qt_glctx_get_dptr(ctx)->qt_glUniform4fv
-#define glUniform3fv qt_glctx_get_dptr(ctx)->qt_glUniform3fv
-#define glUniform2fv qt_glctx_get_dptr(ctx)->qt_glUniform2fv
-#define glUniform1fv qt_glctx_get_dptr(ctx)->qt_glUniform1fv
-#define glUniform1i qt_glctx_get_dptr(ctx)->qt_glUniform1i
 
 #define glActiveStencilFaceEXT qt_glctx_get_dptr(ctx)->qt_glActiveStencilFaceEXT
 
@@ -433,28 +394,11 @@ static _glBindProgramARB qt_glBindProgramARB = 0;
 static _glDeleteProgramsARB qt_glDeleteProgramsARB = 0;
 static _glGenProgramsARB qt_glGenProgramsARB = 0;
 static _glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB = 0;
-// GLSL definitions
-static _glCreateShader qt_glCreateShader = 0;
-static _glShaderSource qt_glShaderSource = 0;
-static _glCompileShader qt_glCompileShader = 0;
-static _glDeleteShader qt_glDeleteShader = 0;
 
 static _glCreateProgram qt_glCreateProgram = 0;
-static _glAttachShader qt_glAttachShader = 0;
-static _glDetachShader qt_glDetachShader = 0;
 static _glLinkProgram qt_glLinkProgram = 0;
 static _glUseProgram qt_glUseProgram = 0;
 static _glDeleteProgram qt_glDeleteProgram = 0;
-
-static _glGetShaderInfoLog qt_glGetShaderInfoLog = 0;
-static _glGetProgramiv qt_glGetProgramiv = 0;
-
-static _glGetUniformLocation qt_glGetUniformLocation = 0;
-static _glUniform4fv qt_glUniform4fv = 0;
-static _glUniform3fv qt_glUniform3fv = 0;
-static _glUniform2fv qt_glUniform2fv = 0;
-static _glUniform1fv qt_glUniform1fv = 0;
-static _glUniform1i qt_glUniform1i = 0;
 
 static _glActiveStencilFaceEXT qt_glActiveStencilFaceEXT = 0;
 
@@ -464,28 +408,10 @@ static _glActiveStencilFaceEXT qt_glActiveStencilFaceEXT = 0;
 #define glGenProgramsARB qt_glGenProgramsARB
 #define glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB
 
-// GLSL definitions
-#define glCreateShader qt_glCreateShader
-#define glShaderSource qt_glShaderSource
-#define glCompileShader qt_glCompileShader
-#define glDeleteShader qt_glDeleteShader
-
 #define glCreateProgram qt_glCreateProgram
-#define glAttachShader qt_glAttachShader
-#define glDetachShader qt_glDetachShader
 #define glLinkProgram qt_glLinkProgram
 #define glUseProgram qt_glUseProgram
 #define glDeleteProgram qt_glDeleteProgram
-
-#define glGetShaderInfoLog qt_glGetShaderInfoLog
-#define glGetProgramiv qt_glGetProgramiv
-
-#define glGetUniformLocation qt_glGetUniformLocation
-#define glUniform4fv qt_glUniform4fv
-#define glUniform3fv qt_glUniform3fv
-#define glUniform2fv qt_glUniform2fv
-#define glUniform1fv qt_glUniform1fv
-#define glUniform1i qt_glUniform1i
 
 #define glActiveStencilFaceEXT qt_glActiveStencilFaceEXT
 
@@ -502,9 +428,6 @@ static _glActiveStencilFaceEXT qt_glActiveStencilFaceEXT = 0;
 static const char *const radial_program =
 #include "util/radial.frag"
 
-static const char *const radial_glsl_program =
-#include "util/radial.glsl_quoted"
-
 /*  conical fragment program
     parameter: 0 = inv_matrix
                1 = inv_matrix_offset
@@ -515,9 +438,6 @@ static const char *const radial_glsl_program =
 static const char *const conical_program =
 #include "util/conical.frag"
 
-static const char *const conical_glsl_program =
-#include "util/conical.glsl_quoted"
-
 /*  ellipse fragment program
     parameter: 0 = solid_color
 
@@ -526,9 +446,6 @@ static const char *const conical_glsl_program =
 static const char *const ellipse_program =
 #include "util/ellipse.frag"
 
-static const char *const ellipse_glsl_program =
-#include "util/ellipse.glsl_quoted"
-
 /*  antialiased ellipse fragment program
     parameter: 1 = solid_color
 
@@ -536,9 +453,6 @@ static const char *const ellipse_glsl_program =
 */
 static const char *const ellipse_aa_program =
 #include "util/ellipse_aa.frag"
-
-static const char *const ellipse_aa_glsl_program =
-#include "util/ellipse_aa.glsl_quoted"
 
 static const char *const ellipse_aa_radial_program =
 #include "util/ellipse_aa_radial.frag"
@@ -572,55 +486,6 @@ static bool qt_resolve_frag_program_extensions(QGLContext *ctx)
         && glGenProgramsARB
         && glProgramLocalParameter4fvARB;
 }
-
-static bool qt_resolve_GLSL_functions(QGLContext *ctx)
-{
-    if (glCreateShader != 0)
-        return true;
-
-    // GLSL
-    glCreateShader = (_glCreateShader) ctx->getProcAddress(QLatin1String("glCreateShader"));
-    glShaderSource = (_glShaderSource) ctx->getProcAddress(QLatin1String("glShaderSource"));
-    glCompileShader = (_glCompileShader) ctx->getProcAddress(QLatin1String("glCompileShader"));
-    glDeleteShader = (_glDeleteShader) ctx->getProcAddress(QLatin1String("glDeleteShader"));
-
-    glCreateProgram = (_glCreateProgram) ctx->getProcAddress(QLatin1String("glCreateProgram"));
-    glAttachShader = (_glAttachShader) ctx->getProcAddress(QLatin1String("glAttachShader"));
-    glDetachShader = (_glDetachShader) ctx->getProcAddress(QLatin1String("glDetachShader"));
-    glLinkProgram = (_glLinkProgram) ctx->getProcAddress(QLatin1String("glLinkProgram"));
-    glUseProgram = (_glUseProgram) ctx->getProcAddress(QLatin1String("glUseProgram"));
-    glDeleteProgram = (_glDeleteProgram) ctx->getProcAddress(QLatin1String("glDeleteProgram"));
-
-    glGetShaderInfoLog = (_glGetShaderInfoLog) ctx->getProcAddress(QLatin1String("glGetShaderInfoLog"));
-    glGetProgramiv = (_glGetProgramiv) ctx->getProcAddress(QLatin1String("glGetProgramiv"));
-
-    glGetUniformLocation = (_glGetUniformLocation) ctx->getProcAddress(QLatin1String("glGetUniformLocation"));
-    glUniform4fv = (_glUniform4fv) ctx->getProcAddress(QLatin1String("glUniform4fv"));
-    glUniform3fv = (_glUniform3fv) ctx->getProcAddress(QLatin1String("glUniform3fv"));
-    glUniform2fv = (_glUniform2fv) ctx->getProcAddress(QLatin1String("glUniform2fv"));
-    glUniform1fv = (_glUniform1fv) ctx->getProcAddress(QLatin1String("glUniform1fv"));
-    glUniform1i = (_glUniform1i) ctx->getProcAddress(QLatin1String("glUniform1i"));
-
-    return glCreateShader
-        && glShaderSource
-        && glCompileShader
-        && glDeleteShader
-        && glCreateProgram
-        && glAttachShader
-        && glDetachShader
-        && glLinkProgram
-        && glUseProgram
-        && glDeleteProgram
-        && glGetShaderInfoLog
-        && glGetProgramiv
-        && glGetUniformLocation
-        && glUniform4fv
-        && glUniform3fv
-        && glUniform2fv
-        && glUniform1fv
-        && glUniform1i;
-}
-
 
 class QGLStrokeCache
 {
@@ -810,10 +675,7 @@ inline void QOpenGLPaintEnginePrivate::setGradientOps(Qt::BrushStyle style)
 #ifndef Q_WS_QWS //###
     QGL_FUNC_CONTEXT;
     if (style == Qt::LinearGradientPattern) {
-        if (has_glsl)
-            glUseProgram(0);
-        else
-            glDisable(GL_FRAGMENT_PROGRAM_ARB);
+        glDisable(GL_FRAGMENT_PROGRAM_ARB);
         glEnable(GL_TEXTURE_GEN_S);
         glEnable(GL_TEXTURE_1D);
     } else {
@@ -821,24 +683,13 @@ inline void QOpenGLPaintEnginePrivate::setGradientOps(Qt::BrushStyle style)
         glDisable(GL_TEXTURE_1D);
 
         if (style == Qt::RadialGradientPattern) {
-            if (has_glsl)
-                glUseProgram(radial_glsl_prog);
-            else {
-                glEnable(GL_FRAGMENT_PROGRAM_ARB);
-                glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, radial_frag_program);
-            }
+            glEnable(GL_FRAGMENT_PROGRAM_ARB);
+            glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, radial_frag_program);
         } else if (style == Qt::ConicalGradientPattern) {
-            if (has_glsl)
-                glUseProgram(conical_glsl_prog);
-            else {
-                glEnable(GL_FRAGMENT_PROGRAM_ARB);
-                glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, conical_frag_program);
-            }
+            glEnable(GL_FRAGMENT_PROGRAM_ARB);
+            glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, conical_frag_program);
         } else {
-            if (has_glsl)
-                glUseProgram(0);
-            else
-                glDisable(GL_FRAGMENT_PROGRAM_ARB);
+            glDisable(GL_FRAGMENT_PROGRAM_ARB);
         }
     }
 #endif
@@ -856,23 +707,6 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
 
 QOpenGLPaintEngine::~QOpenGLPaintEngine()
 {
-}
-
-bool qt_createGLSLProgram(QGLContext *ctx, GLuint &program, const char *shader_src, GLuint &shader)
-{
-#ifndef Q_WS_WIN
-    Q_UNUSED(ctx);
-#endif
-    program = glCreateProgram();
-    shader = glCreateShader(GL_FRAGMENT_SHADER);
-    const char *shader_prog = shader_src;
-    glShaderSource(shader, 1, &shader_prog, NULL);
-    glCompileShader(shader);
-    glAttachShader(program, shader);
-    glLinkProgram(program);
-    GLint status_ok;
-    glGetProgramiv(program, GL_LINK_STATUS, &status_ok);
-    return status_ok;
 }
 
 static bool qt_createFragmentProgram(QGLContext *ctx, GLuint &program, const char *shader_src)
@@ -907,12 +741,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
                             QGLExtensions::glExtensions & QGLExtensions::StencilWrap;
     if (d->use_stencil_method && QGLExtensions::glExtensions & QGLExtensions::StencilTwoSide)
         d->has_stencil_face_ext = qt_resolve_stencil_face_extension(ctx);
-
-    // disable GLSL usage for now, since it seems there are bugs in
-    // some implementation regarding detection of the proper extensions
-    if (0 && (QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_2_0 ||
-              QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_ES_Version_2_0))
-        d->has_glsl = qt_resolve_GLSL_functions(ctx);
+    d->use_stencil_method = false;
 
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
@@ -992,22 +821,11 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
             glBindTexture(GL_TEXTURE_1D, 0);
             glDeleteTextures(1, &d->grad_palette);
 
-            if (d->has_glsl) {
-                glDeleteShader(d->radial_glsl_shader);
-                glDeleteProgram(d->radial_glsl_prog);
-                glDeleteShader(d->conical_glsl_shader);
-                glDeleteProgram(d->conical_glsl_prog);
-                glDeleteShader(d->ellipse_glsl_shader);
-                glDeleteProgram(d->ellipse_glsl_prog);
-                glDeleteShader(d->ellipse_aa_glsl_shader);
-                glDeleteProgram(d->ellipse_aa_glsl_prog);
-            } else if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram) {
-                glDeleteProgramsARB(1, &d->radial_frag_program);
-                glDeleteProgramsARB(1, &d->conical_frag_program);
-                glDeleteProgramsARB(1, &d->ellipse_frag_program);
-                glDeleteProgramsARB(1, &d->ellipse_aa_frag_program);
-                glDeleteProgramsARB(1, &d->ellipse_aa_radial_frag_program);
-            }
+            glDeleteProgramsARB(1, &d->radial_frag_program);
+            glDeleteProgramsARB(1, &d->conical_frag_program);
+            glDeleteProgramsARB(1, &d->ellipse_frag_program);
+            glDeleteProgramsARB(1, &d->ellipse_aa_frag_program);
+            glDeleteProgramsARB(1, &d->ellipse_aa_radial_frag_program);
 
             d->has_ellipse_program = false;
         }
@@ -1015,51 +833,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
         gccaps |= LinearGradientFill;
         glGenTextures(1, &d->grad_palette);
 
-        if (d->has_glsl) {
-            if (qt_createGLSLProgram(ctx, d->radial_glsl_prog, radial_glsl_program, d->radial_glsl_shader))
-                gccaps |= RadialGradientFill;
-            else
-                qWarning() << "QOpenGLPaintEngine: Unable to use radial gradient GLSL fragment shader.";
-
-            GLuint prog = d->radial_glsl_prog;
-            glUseProgram(prog);
-            d->radial_inv_location = glGetUniformLocation(prog, "inv_matrix");
-            d->radial_inv_mat_offset_location = glGetUniformLocation(prog, "inv_matrix_offset");
-            d->radial_fmp_location = glGetUniformLocation(prog, "fmp");
-            d->radial_fmp2_m_radius_location = glGetUniformLocation(prog, "fmp2_m_radius2");
-            d->radial_tex_location = glGetUniformLocation(prog, "palette");
-            glUseProgram(0);
-
-            if (qt_createGLSLProgram(ctx, d->conical_glsl_prog, conical_glsl_program, d->conical_glsl_shader))
-                gccaps |= ConicalGradientFill;
-            else
-                qWarning() << "QOpenGLPaintEngine: Unable to use conical gradient GLSL fragment shader.";
-
-            prog = d->conical_glsl_prog;
-            glUseProgram(prog);
-            d->conical_inv_location = glGetUniformLocation(prog, "inv_matrix");
-            d->conical_inv_mat_offset_location = glGetUniformLocation(prog, "inv_matrix_offset");
-            d->conical_angle_location = glGetUniformLocation(prog, "angle");
-            d->conical_tex_location = glGetUniformLocation(prog, "palette");
-            glUseProgram(0);
-
-            if (  qt_createGLSLProgram(ctx, d->ellipse_glsl_prog, ellipse_glsl_program, d->ellipse_glsl_shader)
-               && qt_createGLSLProgram(ctx, d->ellipse_aa_glsl_prog, ellipse_aa_glsl_program, d->ellipse_aa_glsl_shader))
-                d->has_ellipse_program = true;
-            else
-                qWarning() << "QOpenGLPaintEngine: Unable to use ellipse GLSL fragment shader.";
-
-            prog = d->ellipse_glsl_prog;
-            glUseProgram(prog);
-            d->ellipse_solid_color_location = glGetUniformLocation(prog, "solid_color");
-            glUseProgram(0);
-
-            prog = d->ellipse_aa_glsl_prog;
-            glUseProgram(prog);
-            d->ellipse_aa_solid_color_location = glGetUniformLocation(prog, "solid_color");
-            glUseProgram(0);
-
-        } else if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram) {
+        if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram) {
             glGenProgramsARB(1, &d->radial_frag_program);
             glGenProgramsARB(1, &d->conical_frag_program);
 
@@ -1107,8 +881,7 @@ bool QOpenGLPaintEngine::end()
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 
-    if (d->has_glsl)
-        glUseProgram(0); // GLSL program state is not part of GL_ALL_ATTRIB_BITS
+    glDisable(GL_FRAGMENT_PROGRAM_ARB);
     glFlush();
     d->drawable.swapBuffers();
     d->drawable.doneCurrent();
@@ -1250,7 +1023,7 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
 
         glBindTexture(GL_TEXTURE_1D, grad_palette);
         createGradientPaletteTexture(*brush.gradient());
-    } else if (has_glsl || has_frag_program) {
+    } else if (has_frag_program) {
         if (style == Qt::RadialGradientPattern) {
             const QRadialGradient *g = static_cast<const QRadialGradient *>(brush.gradient());
             QTransform translate(1, 0, 0, 1, -g->focalPoint().x(), -g->focalPoint().y());
@@ -1264,27 +1037,18 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
                              g->center().y() - g->focalPoint().y(), 0.f, 0.f};
             float f[4] = {-pt1[0]*pt1[0] - pt1[1]*pt1[1] + g->radius()*g->radius(), 0.f, 0.f, 0.f};
 
-            if (has_glsl) {
-                glUseProgram(radial_glsl_prog);
-                glUniform4fv(radial_inv_location, 1, inv);
-                glUniform2fv(radial_inv_mat_offset_location, 1, pt);
-                glUniform2fv(radial_fmp_location, 1, pt1);
-                glUniform1fv(radial_fmp2_m_radius_location, 1, f);
-                glUniform1i(radial_tex_location, 0);
-            } else {
-                glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, radial_frag_program);
+            glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, radial_frag_program);
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, inv); // inv_matrix
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, pt); // inv_matrix_offset
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 2, pt1); // fmp
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 4, f); // fmp2_m_radius2
+
+            if (has_ellipse_program) {
+                glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, ellipse_aa_radial_frag_program);
                 glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, inv); // inv_matrix
                 glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, pt); // inv_matrix_offset
                 glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 2, pt1); // fmp
                 glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 4, f); // fmp2_m_radius2
-
-                if (has_ellipse_program) {
-                    glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, ellipse_aa_radial_frag_program);
-                    glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, inv); // inv_matrix
-                    glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, pt); // inv_matrix_offset
-                    glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 2, pt1); // fmp
-                    glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 4, f); // fmp2_m_radius2
-                }
             }
             glBindTexture(GL_TEXTURE_1D, grad_palette);
             createGradientPaletteTexture(*brush.gradient());
@@ -1300,18 +1064,10 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
                             inv_matrix.m12(), inv_matrix.m22()};
             float angle[4] = {-(g->angle() * 2 * Q_PI) / 360.0, 0.f, 0.f, 0.f};
 
-            if (has_glsl) {
-                glUseProgram(conical_glsl_prog);
-                glUniform4fv(conical_inv_location, 1, inv);
-                glUniform2fv(conical_inv_mat_offset_location, 1, pt);
-                glUniform1fv(conical_angle_location, 1, angle);
-                glUniform1i(radial_tex_location, 0);
-            } else {
-                glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, conical_frag_program);
-                glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, inv); // inv_matrix
-                glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, pt); // inv_matrix_offset
-                glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 4, angle); // angle
-            }
+            glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, conical_frag_program);
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, inv); // inv_matrix
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, pt); // inv_matrix_offset
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 4, angle); // angle
             glBindTexture(GL_TEXTURE_1D, grad_palette);
             createGradientPaletteTexture(*brush.gradient());
         }
@@ -1319,10 +1075,7 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
 
     glDisable(GL_TEXTURE_1D);
     glDisable(GL_TEXTURE_GEN_S);
-    if (has_glsl)
-        glUseProgram(0);
-    else
-        glDisable(GL_FRAGMENT_PROGRAM_ARB);
+    glDisable(GL_FRAGMENT_PROGRAM_ARB);
 #endif
 }
 
@@ -2674,23 +2427,13 @@ void QOpenGLPaintEnginePrivate::activateEllipseProgram()
         }
 
         if (use_antialiasing) {
-            if (has_glsl) {
-                glUseProgram(ellipse_aa_glsl_prog);
-                glUniform4fv(ellipse_aa_solid_color_location, 1, solid_color);
-            } else {
-                glEnable(GL_FRAGMENT_PROGRAM_ARB);
-                glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, ellipse_aa_frag_program);
-                glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, solid_color);
-            }
+            glEnable(GL_FRAGMENT_PROGRAM_ARB);
+            glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, ellipse_aa_frag_program);
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, solid_color);
         } else {
-            if (has_glsl) {
-                glUseProgram(ellipse_glsl_prog);
-                glUniform4fv(ellipse_solid_color_location, 1, solid_color);
-            } else {
-                glEnable(GL_FRAGMENT_PROGRAM_ARB);
-                glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, ellipse_frag_program);
-                glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, solid_color);
-            }
+            glEnable(GL_FRAGMENT_PROGRAM_ARB);
+            glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, ellipse_frag_program);
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, solid_color);
         }
     } else if (brush_style == Qt::RadialGradientPattern) {
         glEnable(GL_FRAGMENT_PROGRAM_ARB);
@@ -2910,14 +2653,11 @@ void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
 #ifndef Q_WS_QWS
     Q_D(QOpenGLPaintEngine);
 
-    DEBUG_ONCE_STR(d->has_glsl ? "QOpenGLPainter: Using GLSL" : "QOpenGLPainter: Using fragment programs");
-
-    bool can_draw =
-        (  d->has_ellipse_program
-        && d->has_brush
-        && (  d->has_fast_brush
-           || d->has_valid_offscreen_fbo
-           || !d->use_antialiasing));
+    bool can_draw = (d->has_ellipse_program
+                     && d->has_brush
+                     && (d->has_fast_brush
+                         || d->has_valid_offscreen_fbo
+                         || !d->use_antialiasing));
 
     if (can_draw) {
         int grow = d->use_antialiasing ? 4 : 0;
