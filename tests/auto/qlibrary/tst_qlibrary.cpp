@@ -78,6 +78,7 @@ private slots:
     void resolve();
     void unload_data();
     void unload();
+    void unload_after_implicit_load();
     void isLibrary_data();
     void isLibrary();
     void version_data();
@@ -202,6 +203,17 @@ void tst_QLibrary::unload()
     } else {
 	QVERIFY( !ok );
     }
+}
+
+void tst_QLibrary::unload_after_implicit_load()
+{
+    QLibrary library( "mylib" );
+    void *p = library.resolve("version");
+    QVERIFY(p); // Check if it was loaded
+    QVERIFY(library.isLoaded());
+    QVERIFY(library.unload());
+    QCOMPARE(library.isLoaded(), false);
+
 }
 
 void tst_QLibrary::resolve_data()

@@ -820,10 +820,8 @@ void QLibrary::setFileNameAndVersion(const QString &fileName, int verNum)
 */
 void *QLibrary::resolve(const char *symbol)
 {
-    if (!d)
+    if (!load()) 
         return 0;
-    if (!d->pHnd)
-        d->load();
     return d->resolve(symbol);
 }
 
