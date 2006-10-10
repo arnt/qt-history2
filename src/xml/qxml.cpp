@@ -1214,6 +1214,7 @@ QXmlInputSource::QXmlInputSource(QIODevice *dev)
 {
     init();
     d->inputDevice = dev;
+    d->inputDevice->setTextModeEnabled(false);
 }
 
 #ifdef QT3_SUPPORT
@@ -1414,7 +1415,7 @@ void QXmlInputSource::fetchData()
                     if (!device->waitForReadyRead(-1))
                         break;
                     int ret = device->read(rawData.data() + size, QSAX_BUFF_SIZE - size);
-                    if (ret == 0)
+                    if (ret <= 0)
                         break;
                     size += ret;
                 }
@@ -1422,9 +1423,6 @@ void QXmlInputSource::fetchData()
 
             rawData.resize(qMax(qint64(0), size));
         }
-
-//        qDebug() << "QXmlInputSource::fetchData():" << device->atEnd() << escapeBuff(rawData);
-
     }
 
     setData(fromRawData(rawData));
