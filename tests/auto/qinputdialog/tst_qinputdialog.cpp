@@ -43,8 +43,13 @@ private slots:
 
 static QString stripFraction(const QString &s)
 {
-    if (!s.contains('.')) return s;
-    const int period = s.indexOf('.');
+    int period;
+    if (s.contains('.'))
+        period = s.indexOf('.');
+    else if (s.contains(','))
+        period = s.indexOf(',');
+    else
+        return s;
     int end;
     for (end = s.size() - 1; end > period && s[end] == '0'; --end) ;
     return s.left(end + (end == period ? 0 : 1));
@@ -122,6 +127,8 @@ static void testInvalidateAndRestore(
         normalizeNumericString(ledit->text()),
         normalizeNumericString(QString("%1").arg(sbox->value())));
 }
+
+template <typename T> void findChild(); // Fwd. decl. required by some compilers
 
 template <typename SpinBoxType, typename ValueType>
 static void testGetNumeric(QInputDialog *dialog, SpinBoxType * = 0, ValueType * = 0)
