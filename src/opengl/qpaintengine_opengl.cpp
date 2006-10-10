@@ -381,11 +381,6 @@ extern QGLContextPrivate *qt_glctx_get_dptr(QGLContext *);
 #define glGenProgramsARB qt_glctx_get_dptr(ctx)->qt_glGenProgramsARB
 #define glProgramLocalParameter4fvARB qt_glctx_get_dptr(ctx)->qt_glProgramLocalParameter4fvARB
 
-#define glCreateProgram qt_glctx_get_dptr(ctx)->qt_glCreateProgram
-#define glLinkProgram qt_glctx_get_dptr(ctx)->qt_glLinkProgram
-#define glUseProgram qt_glctx_get_dptr(ctx)->qt_glUseProgram
-#define glDeleteProgram qt_glctx_get_dptr(ctx)->qt_glDeleteProgram
-
 #define glActiveStencilFaceEXT qt_glctx_get_dptr(ctx)->qt_glActiveStencilFaceEXT
 
 #else
@@ -395,11 +390,6 @@ static _glDeleteProgramsARB qt_glDeleteProgramsARB = 0;
 static _glGenProgramsARB qt_glGenProgramsARB = 0;
 static _glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB = 0;
 
-static _glCreateProgram qt_glCreateProgram = 0;
-static _glLinkProgram qt_glLinkProgram = 0;
-static _glUseProgram qt_glUseProgram = 0;
-static _glDeleteProgram qt_glDeleteProgram = 0;
-
 static _glActiveStencilFaceEXT qt_glActiveStencilFaceEXT = 0;
 
 #define glProgramStringARB qt_glProgramStringARB
@@ -407,11 +397,6 @@ static _glActiveStencilFaceEXT qt_glActiveStencilFaceEXT = 0;
 #define glDeleteProgramsARB qt_glDeleteProgramsARB
 #define glGenProgramsARB qt_glGenProgramsARB
 #define glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB
-
-#define glCreateProgram qt_glCreateProgram
-#define glLinkProgram qt_glLinkProgram
-#define glUseProgram qt_glUseProgram
-#define glDeleteProgram qt_glDeleteProgram
 
 #define glActiveStencilFaceEXT qt_glActiveStencilFaceEXT
 
