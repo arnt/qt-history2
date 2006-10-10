@@ -242,6 +242,8 @@ public:
     void fillPolygon_dev(const QPointF *polygonPoints, int pointCount,
                          Qt::FillRule fill);
 
+    void strokePathFastPen(const QPainterPath &path);
+
     QPen cpen;
     QBrush cbrush;
     QRegion crgn;
@@ -274,7 +276,6 @@ public:
     void drawFastEllipse(float *vertexArray, float *texCoordArray);
     void drawOffscreenEllipse(float *vertexArray, float *texCoordArray);
     void drawStencilEllipse(float *vertexArray, float *texCoordArray);
-    void drawEllipsePen(const QRectF &rect);
 
     QGLContext *shader_ctx;
     GLuint grad_palette;
@@ -331,9 +332,9 @@ static inline QPainterPath strokeForPath(const QPainterPath &path, const QPen &c
     stroker.setMiterLimit(cpen.miterLimit());
 
     qreal width = cpen.widthF();
-    if (width == 0) {
+    if (width == 0)
         stroker.setWidth(1);
-    } else
+    else
         stroker.setWidth(width);
 
     QPainterPath stroke = stroker.createStroke(path);
@@ -1833,6 +1834,66 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
     }
 }
 
+void QOpenGLPaintEnginePrivate::strokePathFastPen(const QPainterPath &path)
+{
+#ifndef Q_WS_QWS
+    QBezier beziers[32];
+    for (int i=0; i<path.elementCount(); ++i) {
+        const QPainterPath::Element &e = path.elementAt(i);
+        switch (e.type) {
+        case QPainterPath::MoveToElement:
+            if (i != 0)
+                glEnd(); // GL_LINE_STRIP
+            glBegin(GL_LINE_STRIP);
+            glVertex2d(e.x, e.y);
+            break;
+        case QPainterPath::LineToElement:
+            glVertex2d(e.x, e.y);
+            break;
+
+        case QPainterPath::CurveToElement:
+        {
+            QPointF sp = path.elementAt(i-1);
+            QPointF cp2 = path.elementAt(i+1);
+            QPointF ep = path.elementAt(i+2);
+            i+=2;
+
+            qreal inverseScaleHalf = inverseScale / 2;
+            beziers[0] = QBezier::fromPoints(sp, e, cp2, ep);
+            QBezier *b = beziers;
+            while (b >= beziers) {
+                // check if we can pop the top bezier curve from the stack
+                qreal l = qAbs(b->x4 - b->x1) + qAbs(b->y4 - b->y1);
+                qreal d;
+                if (l > inverseScale) {
+                    d = qAbs( (b->x4 - b->x1)*(b->y1 - b->y2)
+                              - (b->y4 - b->y1)*(b->x1 - b->x2) )
+                        + qAbs( (b->x4 - b->x1)*(b->y1 - b->y3)
+                                - (b->y4 - b->y1)*(b->x1 - b->x3) );
+                    d /= l;
+                } else {
+                    d = qAbs(b->x1 - b->x2) + qAbs(b->y1 - b->y2) +
+                        qAbs(b->x1 - b->x3) + qAbs(b->y1 - b->y3);
+                }
+                if (d < inverseScaleHalf || b == beziers + 31) {
+                    // good enough, we pop it off and add the endpoint
+                    glVertex2d(b->x4, b->y4);
+                    --b;
+                } else {
+                    // split, second half of the polygon goes lower into the stack
+                    b->split(b+1, b);
+                    ++b;
+                }
+            }
+        } // case CurveToElement
+        default:
+            break;
+        } // end of switch
+    }
+    glEnd(); // GL_LINE_STRIP
+#endif
+}
+
 void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
 {
     Q_D(QOpenGLPaintEngine);
@@ -1848,65 +1909,10 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
     if (d->has_pen) {
         qt_glColor4ubv(d->pen_color);
         d->setGradientOps(d->pen_brush_style);
-        if (d->has_fast_pen) {
-            QBezier beziers[32];
-            for (int i=0; i<path.elementCount(); ++i) {
-                const QPainterPath::Element &e = path.elementAt(i);
-                switch (e.type) {
-                case QPainterPath::MoveToElement:
-                    if (i != 0)
-                        glEnd(); // GL_LINE_STRIP
-                    glBegin(GL_LINE_STRIP);
-                    glVertex2d(e.x, e.y);
-                    break;
-                case QPainterPath::LineToElement:
-                    glVertex2d(e.x, e.y);
-                    break;
-
-                case QPainterPath::CurveToElement:
-                {
-                    QPointF sp = path.elementAt(i-1);
-                    QPointF cp2 = path.elementAt(i+1);
-                    QPointF ep = path.elementAt(i+2);
-                    i+=2;
-
-                    qreal inverseScaleHalf = d->inverseScale / 2;
-                    beziers[0] = QBezier::fromPoints(sp, e, cp2, ep);
-                    QBezier *b = beziers;
-                    while (b >= beziers) {
-                        // check if we can pop the top bezier curve from the stack
-                        qreal l = qAbs(b->x4 - b->x1) + qAbs(b->y4 - b->y1);
-                        qreal d;
-                        if (l > d_func()->inverseScale) {
-                            d = qAbs( (b->x4 - b->x1)*(b->y1 - b->y2)
-                                      - (b->y4 - b->y1)*(b->x1 - b->x2) )
-                                + qAbs( (b->x4 - b->x1)*(b->y1 - b->y3)
-                                        - (b->y4 - b->y1)*(b->x1 - b->x3) );
-                            d /= l;
-                        } else {
-                            d = qAbs(b->x1 - b->x2) + qAbs(b->y1 - b->y2) +
-                                qAbs(b->x1 - b->x3) + qAbs(b->y1 - b->y3);
-                        }
-                        if (d < inverseScaleHalf || b == beziers + 31) {
-                            // good enough, we pop it off and add the endpoint
-                            glVertex2d(b->x4, b->y4);
-                            --b;
-                        } else {
-                            // split, second half of the polygon goes lower into the stack
-                            b->split(b+1, b);
-                            ++b;
-                        }
-                    }
-                } // case CurveToElement
-                default:
-                    break;
-                } // end of switch
-            }
-            glEnd(); // GL_LINE_STRIP
-        } else {
-            QPainterPath stroke = qt_opengl_stroke_cache()->getStrokedPath(path, d->cpen);
-            d->fillPath(stroke);
-        }
+        if (d->has_fast_pen)
+            d->strokePathFastPen(path);
+        else
+            d->fillPath(qt_opengl_stroke_cache()->getStrokedPath(path, d->cpen));
     }
 }
 
@@ -2601,51 +2607,6 @@ void QOpenGLPaintEnginePrivate::drawStencilEllipse(float *vertexArray, float *te
 #endif
 }
 
-
-void QOpenGLPaintEnginePrivate::drawEllipsePen(const QRectF &rect)
-{
-#ifndef Q_WS_QWS
-    Q_ASSERT(has_pen);
-
-    setGradientOps(pen_brush_style);
-    qt_glColor4ubv(pen_color);
-
-    QPainterPath path;
-    path.addEllipse(rect);
-
-    QPolygonF polygon = path.toFillPolygon();
-    const int pointCount = polygon.size();
-
-    const QPointF *points = polygon.data();
-
-    if (has_fast_pen) {
-        QVarLengthArray<float> vertexArray((pointCount + 1) * 2);
-        glVertexPointer(2, GL_FLOAT, 0, vertexArray.data());
-
-        for (int i = 0; i < pointCount; ++i) {
-            vertexArray[i * 2] = points[i].x();
-            vertexArray[i * 2 + 1] = points[i].y();
-        }
-
-        vertexArray[pointCount * 2] = points[0].x();
-        vertexArray[pointCount * 2 + 1] = points[0].y();
-
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glDrawArrays(GL_LINE_STRIP, 0, pointCount + 1);
-        glDisableClientState(GL_VERTEX_ARRAY);
-    } else {
-        QPainterPath path(points[0]);
-
-        for (int i = 1; i < pointCount; ++i)
-            path.lineTo(points[i]);
-
-        QPainterPath stroke = strokeForPath(path, cpen);
-        fillPath(stroke);
-    }
-#endif
-}
-
-
 void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
 {
 #ifndef Q_WS_QWS
@@ -2662,35 +2623,47 @@ void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
         d->composition_mode == QPainter::CompositionMode_SourceAtop ||
         d->composition_mode == QPainter::CompositionMode_Xor;
 
-    bool can_draw = d->has_ellipse_program && d->has_brush && brush_supported && composition_mode_supported;
+    bool can_draw = !d->has_brush || d->has_ellipse_program && brush_supported && composition_mode_supported;
 
     if (can_draw) {
-        int grow = d->use_antialiasing ? 4 : 0;
+        if (d->has_brush) {
+            int grow = d->use_antialiasing ? 4 : 0;
 
-        float vertexArray[4 * 2];
-        float texCoordArray[4 * 2];
+            float vertexArray[4 * 2];
+            float texCoordArray[4 * 2];
 
-        QRectF boundingRect = grow ? rect.adjusted(-grow, -grow, grow, grow) : rect;
-        qt_add_rect_to_array(boundingRect, vertexArray);
+            QRectF boundingRect = grow ? rect.adjusted(-grow, -grow, grow, grow) : rect;
+            qt_add_rect_to_array(boundingRect, vertexArray);
 
-        if (grow) {
-            float wfactor = 2 * grow / float(rect.width());
-            float hfactor = 2 * grow / float(rect.height());
+            if (grow) {
+                float wfactor = 2 * grow / float(rect.width());
+                float hfactor = 2 * grow / float(rect.height());
 
-            qt_add_texcoords_to_array(-1.0 - wfactor, -1.0 - hfactor, 1.0 + wfactor, 1.0 + hfactor, texCoordArray);
-        } else {
-            qt_add_texcoords_to_array(-1.0, -1.0, 1.0, 1.0, texCoordArray);
+                qt_add_texcoords_to_array(-1.0 - wfactor, -1.0 - hfactor, 1.0 + wfactor, 1.0 + hfactor, texCoordArray);
+            } else {
+                qt_add_texcoords_to_array(-1.0, -1.0, 1.0, 1.0, texCoordArray);
+            }
+
+            if (d->has_fast_brush)
+                d->drawFastEllipse(vertexArray, texCoordArray);
+            else if (d->use_antialiasing)
+                d->drawOffscreenEllipse(vertexArray, texCoordArray);
+            else
+                d->drawStencilEllipse(vertexArray, texCoordArray);
         }
+        
+        if (d->has_pen) {
+            d->setGradientOps(d->pen_brush_style);
+            qt_glColor4ubv(d->pen_color);
 
-        if (d->has_fast_brush)
-            d->drawFastEllipse(vertexArray, texCoordArray);
-        else if (d->use_antialiasing)
-            d->drawOffscreenEllipse(vertexArray, texCoordArray);
-        else
-            d->drawStencilEllipse(vertexArray, texCoordArray);
+            QPainterPath path;
+            path.addEllipse(rect);
 
-        if (d->has_pen)
-            d->drawEllipsePen(rect);
+            if (d->has_fast_pen)
+                d->strokePathFastPen(path);
+            else
+                d->fillPath(strokeForPath(path, d->cpen));
+        }
     } else {
         DEBUG_ONCE_STR("QOpenGLPaintEngine: Falling back to QPaintEngine::drawEllipse()");
 
