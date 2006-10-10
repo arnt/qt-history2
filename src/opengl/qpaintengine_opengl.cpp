@@ -2479,6 +2479,7 @@ void QOpenGLPaintEnginePrivate::drawOffscreenEllipse(const QRectF &rect, float *
 
     offscreenFbo->bind();
     // draw the brush to the offscreen
+    glDisable(GL_BLEND);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -2521,6 +2522,8 @@ void QOpenGLPaintEnginePrivate::drawOffscreenEllipse(const QRectF &rect, float *
     // draw the result to the screen
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     glDisable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 #endif
@@ -2617,17 +2620,13 @@ void QOpenGLPaintEnginePrivate::drawEllipsePen(const QRectF &rect)
         glDrawArrays(GL_LINE_STRIP, 0, pointCount + 1);
         glDisableClientState(GL_VERTEX_ARRAY);
     } else {
-            QPainterPath path(points[0]);
+        QPainterPath path(points[0]);
 
-            for (int i = 1; i < pointCount; ++i)
-                path.lineTo(points[i]);
+        for (int i = 1; i < pointCount; ++i)
+            path.lineTo(points[i]);
 
         QPainterPath stroke = strokeForPath(path, cpen);
-
-            if (stroke.isEmpty())
-                return;
-
-            fillPath(stroke);
+        fillPath(stroke);
     }
 #endif
 }
@@ -2638,11 +2637,17 @@ void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
 #ifndef Q_WS_QWS
     Q_D(QOpenGLPaintEngine);
 
-    bool can_draw = (d->has_ellipse_program
-                     && d->has_brush
-                     && (d->has_fast_brush
-                         || d->has_valid_offscreen_fbo
-                         || !d->use_antialiasing));
+    bool can_draw =
+        (d->has_ellipse_program
+        && d->has_brush
+        && (  d->has_fast_brush
+           || d->has_valid_offscreen_fbo
+           || !d->use_antialiasing) && (d->composition_mode == QPainter::CompositionMode_SourceOver ||
+               d->composition_mode == QPainter::CompositionMode_Destination ||
+               d->composition_mode == QPainter::CompositionMode_DestinationOver ||
+               d->composition_mode == QPainter::CompositionMode_DestinationOut ||
+               d->composition_mode == QPainter::CompositionMode_SourceAtop ||
+               d->composition_mode == QPainter::CompositionMode_Xor));
 
     if (can_draw) {
         int grow = d->use_antialiasing ? 4 : 0;
