@@ -13,5 +13,5 @@ float ellipse_aa()
     vec2 gradFxy = vec2(ddx(Fxy), ddy(Fxy));
     float g = inversesqrt(dot(gradFxy, gradFxy));
 
-    return smoothstep(-1.0, 1.0, Fxy * g);
+    return smoothstep(-0.55, 0.55, Fxy * g);
 }

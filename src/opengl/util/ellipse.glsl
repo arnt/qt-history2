@@ -1,9 +1,4 @@
-void ellipse()
-{
-    vec2 st = gl_TexCoord[0].st;
-
-    discard (dot(st, st) > 1);
-}
+#include "ellipse_functions.glsl"
 
 uniform vec4 solid_color;
 
