@@ -27,7 +27,7 @@
 
 QT_BEGIN_HEADER
 
-QT_MODULE(Qt3Support)
+QT_MODULE(Qt3SupportLight)
 
 #ifndef QT_NO_ICONVIEW
 
