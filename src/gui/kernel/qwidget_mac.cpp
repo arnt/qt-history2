@@ -1732,18 +1732,11 @@ void QWidgetPrivate::show_sys()
         return;
     q->setAttribute(Qt::WA_Mapped);
 
-    if(q->isWindow()) {
-        QDesktopWidget *dsk = QApplication::desktop();
-        if(!topData()->is_moved && dsk) {
-            int movex = q->x(), movey = q->y();
-            QRect r = q->frameGeometry();
-            QRect avail = dsk->availableGeometry(dsk->screenNumber(q));
-            if(r.bottom() > avail.bottom())
-                movey = avail.bottom() - r.height();
-            if(r.right() > avail.right())
-                movex = avail.right() - r.width();
-            q->move(qMax(avail.left(), movex), qMax(avail.top(), movey));
-        }
+    if(q->isWindow() && !topData()->is_moved) {
+        if(QWidget *p = q->parentWidget())
+            RepositionWindow(qt_mac_window_for(q), qt_mac_window_for(p), kWindowCenterOnParentWindow);
+        else
+            RepositionWindow(qt_mac_window_for(q), 0, kWindowCenterMainScreen);
     }
     data.fstrut_dirty = true;
     if(q->isWindow()) {
