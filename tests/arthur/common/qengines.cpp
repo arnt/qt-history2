@@ -94,7 +94,8 @@ void RasterEngine::render(const QStringList &qpsScript,
                           const QString &absFilePath)
 {
     QPainter pt(&image);
-    PaintCommands pcmd(&pt, qpsScript, 800, 800);
+    PaintCommands pcmd(qpsScript, 800, 800);
+    pcmd.setPainter(&pt);
     pcmd.setFilePath(absFilePath);
     pcmd.runCommands();
     pt.end();
@@ -155,7 +156,8 @@ void NativeEngine::render(const QStringList &qpsScript,
                           const QString &absFilePath)
 {
     QPainter pt(&pixmap);
-    PaintCommands pcmd(&pt, qpsScript, 800, 800);
+    PaintCommands pcmd(qpsScript, 800, 800);
+    pcmd.setPainter(&pt);
     pcmd.setFilePath(absFilePath);
     pcmd.runCommands();
     pt.end();
@@ -222,7 +224,8 @@ void GLEngine::render(const QStringList &qpsScript,
     else
         p = new QPainter(widget);
 
-    PaintCommands pcmd(p, qpsScript, 800, 800);
+    PaintCommands pcmd(qpsScript, 800, 800);
+    pcmd.setPainter(p);
     pcmd.setFilePath(absFilePath);
     pcmd.runCommands();
     p->end();
@@ -296,7 +299,8 @@ void PDFEngine::render(const QStringList &qpsScript,
                        const QString &absFilePath)
 {
     QPainter pt(printer);
-    PaintCommands pcmd(&pt, qpsScript, 800, 800);
+    PaintCommands pcmd(qpsScript, 800, 800);
+    pcmd.setPainter(&pt);
     pcmd.setFilePath(absFilePath);
     pcmd.runCommands();
     pt.end();
@@ -393,7 +397,8 @@ void PSEngine::render(const QStringList &qpsScript,
                       const QString &absFilePath)
 {
     QPainter pt(printer);
-    PaintCommands pcmd(&pt, qpsScript, 800, 800);
+    PaintCommands pcmd(qpsScript, 800, 800);
+    pcmd.setPainter(&pt);
     pcmd.setFilePath(absFilePath);
     pcmd.runCommands();
     pt.end();
@@ -509,7 +514,8 @@ void WinPrintEngine::render(const QStringList &qpsScript,
                       const QString &absFilePath)
 {
     QPainter pt(printer);
-    PaintCommands pcmd(&pt, qpsScript, 800, 800);
+    PaintCommands pcmd(qpsScript, 800, 800);
+    pcmd.setPainter(&pt);
     pcmd.setFilePath(absFilePath);
     pcmd.runCommands();
     pt.end();

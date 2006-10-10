@@ -8,7 +8,7 @@ DEPENDPATH += .
 INCLUDEPATH += .
 DESTDIR = ../bin
 
-QT += svg opengl xml
+QT += svg opengl xml qt3support
 
 # Input
 HEADERS += datagenerator.h \

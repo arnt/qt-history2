@@ -9,7 +9,7 @@ DESTDIR = ../bin
 
 CONFIG += console
 
-QT += svg opengl xml
+QT += svg opengl xml qt3support
 
 # Input
 HEADERS += htmlgenerator.h

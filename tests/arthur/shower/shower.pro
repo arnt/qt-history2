@@ -7,7 +7,7 @@ DEPENDPATH += .
 INCLUDEPATH += .
 DESTDIR = ../bin
 
-QT += xml opengl svg
+QT += xml opengl svg qt3support
 
 # Input
 HEADERS += shower.h

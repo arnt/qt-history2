@@ -9,7 +9,7 @@ DESTDIR = ../bin
 
 CONFIG += console
 
-QT += xml opengl svg
+QT += xml opengl svg qt3support
 
 # Input
 HEADERS += performancediff.h
