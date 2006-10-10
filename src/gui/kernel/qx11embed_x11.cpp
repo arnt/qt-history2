@@ -489,6 +489,10 @@ void QX11EmbedWidget::embedInto(WId id)
     default:
         break;
     }
+    QTLWExtra* x = d->extra ? d->extra->topextra : 0;
+    if (x)
+        x->frameStrut.setCoords(0, 0, 0, 0);
+    d->data.fstrut_dirty = false;
 }
 
 /*! \internal
