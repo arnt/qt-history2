@@ -12,6 +12,7 @@
 ****************************************************************************/
 // QtCore
 #include <qdebug.h>
+#include <qmutex.h>
 
 // QtGui
 #include "qbitmap.h"
@@ -5696,6 +5697,7 @@ struct QPaintDeviceRedirection
 
 typedef QList<QPaintDeviceRedirection> QPaintDeviceRedirectionList;
 Q_GLOBAL_STATIC(QPaintDeviceRedirectionList, globalRedirections)
+Q_GLOBAL_STATIC(QMutex, globalRedirectionsMutex)
 
 /*!
     Redirects all paint commands for the given paint \a device, to the
@@ -5718,6 +5720,7 @@ void QPainter::setRedirected(const QPaintDevice *device,
                              const QPoint &offset)
 {
     Q_ASSERT(device != 0);
+    QMutexLocker locker(globalRedirectionsMutex());
     QPaintDeviceRedirectionList *redirections = globalRedirections();
     Q_ASSERT(redirections != 0);
 
@@ -5736,13 +5739,15 @@ void QPainter::setRedirected(const QPaintDevice *device,
 void QPainter::restoreRedirected(const QPaintDevice *device)
 {
     Q_ASSERT(device != 0);
+    QMutexLocker locker(globalRedirectionsMutex());
     QPaintDeviceRedirectionList *redirections = globalRedirections();
     Q_ASSERT(redirections != 0);
-    for (int i = redirections->size()-1; i >= 0; --i)
+    for (int i = redirections->size()-1; i >= 0; --i) {
         if (redirections->at(i) == device) {
             redirections->removeAt(i);
             return;
         }
+    }
 }
 
 /*!
@@ -5754,6 +5759,7 @@ void QPainter::restoreRedirected(const QPaintDevice *device)
 QPaintDevice *QPainter::redirected(const QPaintDevice *device, QPoint *offset)
 {
     Q_ASSERT(device != 0);
+    QMutexLocker locker(globalRedirectionsMutex());
     QPaintDeviceRedirectionList *redirections = globalRedirections();
     Q_ASSERT(redirections != 0);
     for (int i = redirections->size()-1; i >= 0; --i)
@@ -5770,6 +5776,7 @@ QPaintDevice *QPainter::redirected(const QPaintDevice *device, QPoint *offset)
 
 void qt_painter_removePaintDevice(QPaintDevice *dev)
 {
+    QMutexLocker locker(globalRedirectionsMutex());
     if(QPaintDeviceRedirectionList *redirections = globalRedirections()) {
         for (int i = 0; i < redirections->size(); ) {
             if(redirections->at(i) == dev || redirections->at(i).replacement == dev)
