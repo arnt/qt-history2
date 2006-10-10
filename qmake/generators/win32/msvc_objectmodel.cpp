@@ -839,9 +839,11 @@ bool VCCLCompilerTool::parseOption(const char* option)
                 const char *o = option;
                 if (o[6] == 'S' && o[7] == 'S' && o[8] == 'E') {
                     EnableEnhancedInstructionSet = o[9] == '2' ? archSSE2 : archSSE;
+                    break;
                 }
             }
         }
+        found = false;
         break;
     case 'b':   // see http://msdn2.microsoft.com/en-us/library/ms173499.aspx
         if (second == 'i' && third == 'g' && fourth == 'o') {
