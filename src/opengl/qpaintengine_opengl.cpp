@@ -194,7 +194,8 @@ class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
     Q_DECLARE_PUBLIC(QOpenGLPaintEngine)
 public:
     QOpenGLPaintEnginePrivate()
-        : opacity(1)
+        : current_style(Qt::NoBrush)
+        , opacity(1)
         , composition_mode(QPainter::CompositionMode_SourceOver)
         , has_fast_pen(false)
         , has_fast_brush(false)
@@ -246,6 +247,7 @@ public:
     QRegion crgn;
     Qt::BrushStyle brush_style;
     Qt::BrushStyle pen_brush_style;
+    Qt::BrushStyle current_style;
     qreal opacity;
     QPainter::CompositionMode composition_mode;
 
@@ -270,7 +272,7 @@ public:
     void deactivateEllipseProgram();
 
     void drawFastEllipse(float *vertexArray, float *texCoordArray);
-    void drawOffscreenEllipse(const QRectF &rect, float *vertexArray, float *texCoordArray);
+    void drawOffscreenEllipse(float *vertexArray, float *texCoordArray);
     void drawStencilEllipse(float *vertexArray, float *texCoordArray);
     void drawEllipsePen(const QRectF &rect);
 
@@ -280,6 +282,7 @@ public:
     GLuint radial_frag_program;
     GLuint conical_frag_program;
     GLuint ellipse_frag_program;
+    GLuint ellipse_aa_copy_frag_program;
     GLuint ellipse_aa_frag_program;
     GLuint ellipse_aa_radial_frag_program;
 
@@ -441,6 +444,15 @@ static const char *const ellipse_aa_program =
 
 static const char *const ellipse_aa_radial_program =
 #include "util/ellipse_aa_radial.frag"
+
+/*  antialiased ellipse fragment program
+    parameter: 0 = texture_inv_size
+
+               This program is included from ellipse_aa_copy.frag, see also src/opengl/util/README-GLSL
+*/
+static const char *const ellipse_aa_copy_program =
+#include "util/ellipse_aa_copy.frag"
+
 
 bool qt_resolve_stencil_face_extension(QGLContext *ctx)
 {
@@ -659,6 +671,9 @@ inline void QOpenGLPaintEnginePrivate::setGradientOps(Qt::BrushStyle style)
 {
 #ifndef Q_WS_QWS //###
     QGL_FUNC_CONTEXT;
+
+    current_style = style;
+
     if (style == Qt::LinearGradientPattern) {
         glDisable(GL_FRAGMENT_PROGRAM_ARB);
         glEnable(GL_TEXTURE_GEN_S);
@@ -807,11 +822,14 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
             glBindTexture(GL_TEXTURE_1D, 0);
             glDeleteTextures(1, &d->grad_palette);
 
-            glDeleteProgramsARB(1, &d->radial_frag_program);
-            glDeleteProgramsARB(1, &d->conical_frag_program);
-            glDeleteProgramsARB(1, &d->ellipse_frag_program);
-            glDeleteProgramsARB(1, &d->ellipse_aa_frag_program);
-            glDeleteProgramsARB(1, &d->ellipse_aa_radial_frag_program);
+            if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram) {
+                glDeleteProgramsARB(1, &d->radial_frag_program);
+                glDeleteProgramsARB(1, &d->conical_frag_program);
+                glDeleteProgramsARB(1, &d->ellipse_frag_program);
+                glDeleteProgramsARB(1, &d->ellipse_aa_copy_frag_program);
+                glDeleteProgramsARB(1, &d->ellipse_aa_frag_program);
+                glDeleteProgramsARB(1, &d->ellipse_aa_radial_frag_program);
+            }
 
             d->has_ellipse_program = false;
         }
@@ -841,6 +859,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
                 qWarning() << "QOpenGLPaintEngine: Unable to use conical gradient fragment shader.";
 
             if (  qt_createFragmentProgram(ctx, d->ellipse_frag_program, ellipse_program)
+               && qt_createFragmentProgram(ctx, d->ellipse_aa_copy_frag_program, ellipse_aa_copy_program)
                && qt_createFragmentProgram(ctx, d->ellipse_aa_frag_program, ellipse_aa_program)
                && qt_createFragmentProgram(ctx, d->ellipse_aa_radial_frag_program, ellipse_aa_radial_program))
                 d->has_ellipse_program = true;
@@ -848,6 +867,13 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
                 qWarning() << "QOpenGLPaintEngine: Unable to use ellipse fragment shader.";
         }
 #endif
+    }
+
+    if (d->has_ellipse_program && d->has_valid_offscreen_fbo) {
+        GLfloat inv_texture_size[4] = { d->invOffscreenSize.width(), d->invOffscreenSize.height(), 0.0f, 0.0f };
+
+        glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, d->ellipse_aa_copy_frag_program);
+        glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, inv_texture_size);
     }
 
     setDirty(QPaintEngine::DirtyPen);
@@ -953,7 +979,8 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
         d->has_fast_brush =
             (d->has_brush
             && (d->brush_style == Qt::SolidPattern
-               || d->brush_style == Qt::RadialGradientPattern && d->use_antialiasing));
+               || d->brush_style == Qt::RadialGradientPattern && d->use_antialiasing
+               || d->composition_mode == QPainter::CompositionMode_Clear));
     }
 }
 
@@ -2399,10 +2426,10 @@ void QOpenGLPaintEnginePrivate::activateEllipseProgram()
     QGL_FUNC_CONTEXT;
     static const float inv = 1.0f / 255.0f;
 
-    if (brush_style == Qt::SolidPattern || !has_fast_brush) {
+    if (brush_style == Qt::SolidPattern || composition_mode == QPainter::CompositionMode_Clear || !has_fast_brush) {
         float solid_color[4];
 
-        if (has_fast_brush) {
+        if (brush_style == Qt::SolidPattern) {
             const GLubyte *col = brush_color;
 
             for (int i = 0; i < 4; ++i)
@@ -2411,6 +2438,9 @@ void QOpenGLPaintEnginePrivate::activateEllipseProgram()
             for (int i = 0; i < 4; ++i)
                 solid_color[i] = 1.0f;
         }
+
+        if (composition_mode == QPainter::CompositionMode_Clear)
+            glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
 
         if (use_antialiasing) {
             glEnable(GL_FRAGMENT_PROGRAM_ARB);
@@ -2436,6 +2466,9 @@ void QOpenGLPaintEnginePrivate::activateEllipseProgram()
 void QOpenGLPaintEnginePrivate::deactivateEllipseProgram()
 {
     setGradientOps(Qt::NoBrush);
+
+    if (composition_mode == QPainter::CompositionMode_Clear)
+        glBlendFunc(GL_ZERO, GL_ZERO);
 }
 
 
@@ -2443,6 +2476,8 @@ void QOpenGLPaintEnginePrivate::drawFastEllipse(float *vertexArray, float *texCo
 {
 #ifndef Q_WS_QWS
     Q_ASSERT(has_ellipse_program && has_brush && has_fast_brush);
+
+    DEBUG_ONCE_STR("QOpenGLPaintEnginePrivate: Drawing fast ellipse");
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -2461,68 +2496,46 @@ void QOpenGLPaintEnginePrivate::drawFastEllipse(float *vertexArray, float *texCo
 }
 
 
-void QOpenGLPaintEnginePrivate::drawOffscreenEllipse(const QRectF &rect, float *vertexArray, float *texCoordArray)
+void QOpenGLPaintEnginePrivate::drawOffscreenEllipse(float *vertexArray, float *texCoordArray)
 {
 #ifndef Q_WS_QWS
     Q_Q(QOpenGLPaintEngine);
+    QGL_FUNC_CONTEXT;
 
     Q_ASSERT(has_ellipse_program && has_brush);
 
-    DEBUG_ONCE_STR("QOpenGLPainter: Drawing ellipse using offscreen buffer");
+    DEBUG_ONCE_STR("QOpenGLPainterPrivate: Drawing ellipse using offscreen buffer");
 
     glVertexPointer(2, GL_FLOAT, 0, vertexArray);
     glTexCoordPointer(2, GL_FLOAT, 0, texCoordArray);
 
     glEnableClientState(GL_VERTEX_ARRAY);
-
     setGradientOps(brush_style);
     qt_glColor4ubv(brush_color);
-
     offscreenFbo->bind();
+
     // draw the brush to the offscreen
     glDisable(GL_BLEND);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
     glEnable(GL_BLEND);
-    glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
-
-    setGradientOps(Qt::NoBrush);
-
-    activateEllipseProgram();
-    // mask out the coverage in the offscreen
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    deactivateEllipseProgram();
 
     if (pdev->devType() == QInternal::FramebufferObject)
         drawable.makeCurrent();
     else
         offscreenFbo->release();
 
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
     q->updateCompositionMode(composition_mode);
 
-    QRectF slimmed = rect.adjusted(1, 1, -1, -1);
+    setGradientOps(Qt::NoBrush);
 
-    qt_add_rect_to_array(slimmed, vertexArray);
-
-    for (int i = 1; i < 8; i += 2) {
-        QPointF mapped = matrix.map(QPointF(vertexArray[i & ~1], vertexArray[i]));
-
-        mapped.setX(mapped.x() * invOffscreenSize.width());
-        mapped.setY(1 - mapped.y() * invOffscreenSize.height());
-
-        texCoordArray[i & ~1] = mapped.x();
-        texCoordArray[i] = mapped.y();
-    }
-
-    glColor4f(1, 1, 1, 1);
-
-    glEnable(GL_TEXTURE_2D);
+    // copy from offscreen to screen using antialiased ellipse mask
     glBindTexture(GL_TEXTURE_2D, offscreenFbo->texture());
-    // draw the result to the screen
+    glEnable(GL_FRAGMENT_PROGRAM_ARB);
+    glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, ellipse_aa_copy_frag_program);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_FRAGMENT_PROGRAM_ARB);
     glBindTexture(GL_TEXTURE_2D, 0);
 
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -2638,17 +2651,18 @@ void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
 #ifndef Q_WS_QWS
     Q_D(QOpenGLPaintEngine);
 
-    bool can_draw =
-        (d->has_ellipse_program
-        && d->has_brush
-        && (  d->has_fast_brush
-           || d->has_valid_offscreen_fbo
-           || !d->use_antialiasing) && (d->composition_mode == QPainter::CompositionMode_SourceOver ||
-               d->composition_mode == QPainter::CompositionMode_Destination ||
-               d->composition_mode == QPainter::CompositionMode_DestinationOver ||
-               d->composition_mode == QPainter::CompositionMode_DestinationOut ||
-               d->composition_mode == QPainter::CompositionMode_SourceAtop ||
-               d->composition_mode == QPainter::CompositionMode_Xor));
+    bool brush_supported = d->has_fast_brush || d->has_valid_offscreen_fbo || !d->use_antialiasing;
+
+    bool composition_mode_supported =
+        d->composition_mode == QPainter::CompositionMode_Clear ||
+        d->composition_mode == QPainter::CompositionMode_SourceOver ||
+        d->composition_mode == QPainter::CompositionMode_Destination ||
+        d->composition_mode == QPainter::CompositionMode_DestinationOver ||
+        d->composition_mode == QPainter::CompositionMode_DestinationOut ||
+        d->composition_mode == QPainter::CompositionMode_SourceAtop ||
+        d->composition_mode == QPainter::CompositionMode_Xor;
+
+    bool can_draw = d->has_ellipse_program && d->has_brush && brush_supported && composition_mode_supported;
 
     if (can_draw) {
         int grow = d->use_antialiasing ? 4 : 0;
@@ -2671,7 +2685,7 @@ void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
         if (d->has_fast_brush)
             d->drawFastEllipse(vertexArray, texCoordArray);
         else if (d->use_antialiasing)
-            d->drawOffscreenEllipse(boundingRect, vertexArray, texCoordArray);
+            d->drawOffscreenEllipse(vertexArray, texCoordArray);
         else
             d->drawStencilEllipse(vertexArray, texCoordArray);
 
