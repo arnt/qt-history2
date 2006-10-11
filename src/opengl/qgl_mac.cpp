@@ -697,15 +697,16 @@ void QGLWidget::setContext(QGLContext *context, const QGLContext* shareContext, 
     d->glcx = context;
     if(!d->glcx->isValid())
         d->glcx->create(shareContext ? shareContext : oldcx);
-    if(deleteOldContext)
+    if(deleteOldContext && oldcx)
         delete oldcx;
 }
 
 void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget* shareWidget)
 {
     Q_Q(QGLWidget);
-    watcher = new QMacGLWindowChangeEvent(q);
     initContext(context, shareWidget);
+    watcher = new QMacGLWindowChangeEvent(q);
+    olcx = 0;
 
     if(q->isValid() && glcx->format().hasOverlay()) {
         olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), q);
