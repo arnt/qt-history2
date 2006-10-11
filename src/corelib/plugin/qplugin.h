@@ -44,7 +44,7 @@ typedef QObject *(*QtPluginInstanceFunction)();
 
 #define Q_PLUGIN_INSTANCE(IMPLEMENTATION) \
         { \
-            static QPointer<IMPLEMENTATION> _instance; \
+            static QPointer<QObject> _instance; \
             if (!_instance)      \
                 _instance = new IMPLEMENTATION; \
             return _instance; \
