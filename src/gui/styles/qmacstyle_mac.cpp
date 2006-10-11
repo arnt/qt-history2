@@ -318,9 +318,8 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         // However, this doesn't work for German, therefore only do it for English,
         // I suppose it would be better to do some sort of lookups for languages
         // that like to have really long words.
-        QString buttonText = psh->text();
-        if (buttonText == QLatin1String("OK") || buttonText == QLatin1String("&OK")
-            || buttonText == QLatin1String("Cancel") || buttonText == QLatin1String("&Cancel"))
+        QString buttonText = removeMnemonics(psh->text());
+        if (buttonText == QLatin1String("OK") || buttonText == QLatin1String("Cancel"))
             minw = 77 - 8;
         if (buttonText.contains(QLatin1Char('\n')))
             ret = QSize(minw, -1);
@@ -4567,7 +4566,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
                 sz.transpose();
             if (newStyleTabs) {
                 int defaultTabHeight;
-                int defaultExtraSpace;
+                int defaultExtraSpace = 0; // Remove spurious gcc warning (AFAIK)
                 QFontMetrics fm = opt->fontMetrics;
                 switch (AquaSize) {
                 case QAquaSizeUnknown:
@@ -4622,8 +4621,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         }
         break;
     case QStyle::CT_PushButton:
-        sz = QWindowsStyle::sizeFromContents(ct, opt, csz, widget);
-        sz = QSize(sz.width() + 16, sz.height()); // No idea why, but it was in the old style.
+        sz.rwidth() += 32;
         break;
     case QStyle::CT_MenuItem:
         if (const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
