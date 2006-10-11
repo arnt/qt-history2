@@ -170,6 +170,16 @@ public:
     inline QSet<T> &operator+=(const T &value) { insert(value); return *this; }
     inline QSet<T> &operator-=(const QSet<T> &other) { subtract(other); return *this; }
     inline QSet<T> &operator-=(const T &value) { remove(value); return *this; }
+    inline QSet<T> operator|(const QSet<T> &other) const
+        { QSet<T> result = *this; result |= other; return result; }
+    inline QSet<T> operator&(const QSet<T> &other) const
+        { QSet<T> result = *this; result &= other; return result; }
+    inline QSet<T> operator+(const QSet<T> &other) const
+        { QSet<T> result = *this; result += other; return result; }
+    inline QSet<T> operator-(const QSet<T> &other) const
+        { QSet<T> result = *this; result -= other; return result; }
+#if QT_VERSION < 0x050000
+    // ### for binary compatibility; remove in Qt 5
     inline QSet<T> operator|(const QSet<T> &other)
         { QSet<T> result = *this; result |= other; return result; }
     inline QSet<T> operator&(const QSet<T> &other)
@@ -178,6 +188,7 @@ public:
         { QSet<T> result = *this; result += other; return result; }
     inline QSet<T> operator-(const QSet<T> &other)
         { QSet<T> result = *this; result -= other; return result; }
+#endif
 
     QList<T> toList() const;
     inline QList<T> values() const { return toList(); }

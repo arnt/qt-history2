@@ -534,8 +534,8 @@
 */
 
 /*!
-    \fn QSet<T> QSet::operator|(const QSet<T> &other)
-    \fn QSet<T> QSet::operator+(const QSet<T> &other)
+    \fn QSet<T> QSet::operator|(const QSet<T> &other) const
+    \fn QSet<T> QSet::operator+(const QSet<T> &other) const
 
     Returns the union of this set and \a other.
 
@@ -543,7 +543,7 @@
 */
 
 /*!
-    \fn QSet<T> QSet::operator&(const QSet<T> &other)
+    \fn QSet<T> QSet::operator&(const QSet<T> &other) const
 
     Returns the intersection of this set and \a other.
 
@@ -551,11 +551,21 @@
 */
 
 /*!
-    \fn QSet<T> QSet::operator-(const QSet<T> &other)
+    \fn QSet<T> QSet::operator-(const QSet<T> &other) const
 
     Returns the set difference of this set with \a other.
 
     \sa subtract(), operator-=(), operator|(), operator&()
+*/
+
+/*!
+    \fn QSet<T> QSet::operator-(const QSet<T> &other)
+    \fn QSet<T> QSet::operator|(const QSet<T> &other)
+    \fn QSet<T> QSet::operator+(const QSet<T> &other)
+    \fn QSet<T> QSet::operator&(const QSet<T> &other)
+    \internal
+
+    These will go away in Qt 5.
 */
 
 /*!
