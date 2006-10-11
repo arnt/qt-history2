@@ -115,10 +115,10 @@ template <typename T> T image_load(const QString &filepath)
 
     if (t.isNull())
         t = T(":images/" + filepath);
-    
+
     if (t.isNull())
         t = T("images/" + filepath);
-    
+
     if (t.isNull()) {
         QFileInfo fi(filepath);
         QDir dir = fi.absoluteDir();
@@ -131,7 +131,7 @@ template <typename T> T image_load(const QString &filepath)
             t = T(fileName);
         }
     }
-        
+
     return t;
 }
 
@@ -485,18 +485,29 @@ void PaintCommands::command_import(QRegExp re)
     QFileInfo fi(filepath);
     QDir dir = fi.absoluteDir();
     QFile *file = new QFile(dir.absolutePath() + QDir::separator() + importFile);
+
+    if (importFile.isEmpty() || !file->exists()) {
+        dir.cdUp();
+        dir.cd("data");
+        dir.cd("qps");
+        delete file;
+        file = new QFile(dir.absolutePath() + QDir::separator() + importFile);
+    }
+
     if (importFile.isEmpty() || !file->exists()) {
         dir.cdUp();
         dir.cd("images");
         delete file;
         file = new QFile(dir.absolutePath() + QDir::separator() + importFile);
-        if (importFile.isEmpty() || !file->exists()) {
-            printf(" - importing non-existing file at line %d (%s)\n", currentCommandIndex,
-                   qPrintable(file->fileName()));
-            delete file;
-            return;
-        }
     }
+
+    if (importFile.isEmpty() || !file->exists()) {
+        printf(" - importing non-existing file at line %d (%s)\n", currentCommandIndex,
+               qPrintable(file->fileName()));
+        delete file;
+        return;
+    }
+
     if (!file->open(QIODevice::ReadOnly)) {
         printf(" - failed to read file: '%s'\n", qPrintable(file->fileName()));
         delete file;
@@ -668,7 +679,7 @@ void PaintCommands::command_drawImage(QRegExp re)
         fprintf(stderr, "ERROR(drawImage): failed to load image: '%s'\n", qPrintable(re.cap(1)));
         return;
     }
-    
+
     int tx = convertToInt(re.cap(2));
     int ty = convertToInt(re.cap(3));
     int tw = convertToInt(re.cap(4));
