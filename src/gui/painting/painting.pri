@@ -131,8 +131,8 @@ x11|embedded {
         contains(QT_CONFIG,qtopia) {
             DEFINES += QT_NO_CUPS QT_NO_LPR
         } else {
-            SOURCES += painting\qcups.cpp
-            HEADERS += painting\qcups_p.h
+            SOURCES += painting/qcups.cpp
+            HEADERS += painting/qcups_p.h
         }
 } else {
 	DEFINES += QT_NO_CUPS QT_NO_LPR
