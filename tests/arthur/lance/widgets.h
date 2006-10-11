@@ -35,6 +35,21 @@ public:
 
         currentPoint = -1;
         showControlPoints = false;
+        type = WidgetType;
+        checkersBackground = true;
+        verboseMode = false;
+    }
+    void setVerboseMode(bool v)
+    {
+        verboseMode = v;
+    }
+    void setCheckersBackground(bool b)
+    {
+        checkersBackground = b;
+    }
+    void setType(DeviceType t)
+    {
+        type = t;
     }
 
     ~OnScreenWidget()
@@ -50,6 +65,9 @@ public:
     {
         QPainter pt(this);
         PaintCommands cmd(cmds, 800, 800);
+        cmd.setVerboseMode(verboseMode);
+        cmd.setCheckersBackground(checkersBackground);
+        cmd.setType(type);
         cmd.setPainter(&pt);
         cmd.setControlPoints(controlPoints);
         cmd.setFilePath(QFileInfo(filename).absolutePath());
@@ -132,6 +150,10 @@ public:
 
     QStringList cmds;
     QString filename;
+
+    bool verboseMode;
+    bool checkersBackground;
+    DeviceType type;
 };
 
 #endif

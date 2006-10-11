@@ -25,7 +25,7 @@ setBrush 0x7f0000ff
 drawEllipse 30 30 40 40
 
 # a black rectangle around
-setCompositionMode Source
+setCompositionMode SourceOver
 setPen black
 setBrush nobrush
 drawRect 0.5 0.5 99 99

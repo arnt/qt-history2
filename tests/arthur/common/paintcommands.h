@@ -36,7 +36,7 @@ public:
     PaintCommands(const QStringList &cmds, int w, int h)
         : painter(0), surface_painter(0),
           commands(cmds), gradientSpread(QGradient::PadSpread),
-          width(w), height(h), verboseMode(false),
+          width(w), height(h), verboseMode(false), type(WidgetType), 
           checkers_background(true)
     { }
 

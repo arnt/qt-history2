@@ -299,6 +299,9 @@ int main(int argc, char **argv)
             case WidgetType:
                 {
                     qWidget = new OnScreenWidget<QWidget>;
+                    qWidget->setVerboseMode(verboseMode);
+                    qWidget->setType(type);
+                    qWidget->setCheckersBackground(checkers_background);
                     qWidget->filename = files.at(j);
                     qWidget->setWindowTitle(fileinfo.filePath());
                     qWidget->cmds = content;
