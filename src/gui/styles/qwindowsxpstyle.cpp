@@ -3462,16 +3462,16 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
             const int height = tb->rect.height();
             const int width = tb->rect.width();
             int buttonHeight = height - 9;
-	        int buttonWidth = buttonHeight;
+            int buttonWidth = buttonHeight;
 
-	        SIZE sz;
-	        XPThemeData theme(widget, 0, "WINDOW", WP_CLOSEBUTTON, CBS_NORMAL);
-	        if (pGetThemePartSize(theme.handle(), NULL, WP_CLOSEBUTTON, CBS_NORMAL, NULL, TS_TRUE, &sz) == S_OK) {
-		        buttonHeight = sz.cy;
-		        buttonWidth = sz.cx;
-	        }
+            SIZE sz;
+            XPThemeData theme(widget, 0, "WINDOW", WP_CLOSEBUTTON, CBS_NORMAL);
+            if (pGetThemePartSize(theme.handle(), NULL, WP_CLOSEBUTTON, CBS_NORMAL, NULL, TS_TRUE, &sz) == S_OK) {
+                buttonHeight = sz.cy;
+                buttonWidth = sz.cx;
+            }
             
-	        int controlTop = option->rect.bottom() - buttonHeight - 2;    			
+            int controlTop = option->rect.bottom() - buttonHeight - 1;    			
             if (tb->titleBarState & Qt::WindowMinimized)
                 controlTop = (height - buttonHeight)/2;
             const int frameWidth = pixelMetric(PM_MDIFrameWidth, option, widget);
@@ -3480,22 +3480,22 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
             const bool maximizeHint = (tb->titleBarFlags & Qt::WindowMaximizeButtonHint) != 0;
             const bool contextHint = (tb->titleBarFlags & Qt::WindowContextHelpButtonHint) != 0;
             const bool shadeHint = (tb->titleBarFlags & Qt::WindowShadeButtonHint) != 0;
-	        
+                
             switch (sc) {
             case SC_TitleBarLabel:
                 rect = QRect(frameWidth, 0, width - (buttonWidth + frameWidth + 10), height);
                 if (isToolTitle) {
-		            if (sysmenuHint) {
+                    if (sysmenuHint) {
                         rect.adjust(0, 0, -buttonWidth - 3, 0);
-		            }
-		            if (minimizeHint || maximizeHint)
+                    }
+                    if (minimizeHint || maximizeHint)
                         rect.adjust(0, 0, -buttonWidth - 2, 0);
                 } else {
-		            if (sysmenuHint) {
-			            const int leftOffset = height - 8;
+                    if (sysmenuHint) {
+                        const int leftOffset = height - 8;
                         rect.adjust(leftOffset, 0, 0, 0);
-		            }
-		            if (minimizeHint)
+                    }
+                    if (minimizeHint)
                         rect.adjust(0, 0, -buttonWidth - 2, 0);
                     if (maximizeHint)
                         rect.adjust(0, 0, -buttonWidth - 2, 0);
@@ -3507,14 +3507,14 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
                 break;
 
             case SC_TitleBarCloseButton:
-                rect = QRect(width - (buttonWidth + 2) - controlTop  + 2, controlTop,
+                rect = QRect(width - (buttonWidth + 2) - controlTop, controlTop,
                              buttonWidth, buttonHeight);
                 break;
 
             case SC_TitleBarMaxButton:
             case SC_TitleBarShadeButton:
             case SC_TitleBarUnshadeButton:
-                rect = QRect(width - ((buttonWidth + 2) * 2) - controlTop  + 2, controlTop,
+                rect = QRect(width - ((buttonWidth + 2) * 2) - controlTop, controlTop,
                              buttonWidth, buttonHeight);
                 break;
 
@@ -3526,16 +3526,16 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
                         offset *= 2;
                     else
                         offset *= 3;
-                    rect = QRect(width - offset - controlTop + 2, controlTop,
+                    rect = QRect(width - offset - controlTop, controlTop,
                                  buttonWidth, buttonHeight);
                 }
                 break;
 
             case SC_TitleBarSysMenu:
                 {
-		            const int controlTop = 6;
-		            const int controlHeight = height - controlTop - 3;
-		            QSize iconSize = tb->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal).size();
+                    const int controlTop = 6;
+                    const int controlHeight = height - controlTop - 3;
+                    QSize iconSize = tb->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal).size();
                     if (tb->icon.isNull())
                         iconSize = QSize(controlHeight, controlHeight);
                     int hPad = (controlHeight - iconSize.height())/2;
