@@ -1059,7 +1059,7 @@ Build System
 
 - QRegExp
 
-      * Added RegExp2 syntax, providing greedy qualifiers (+, *, etc.).
+      * Added RegExp2 syntax, providing greedy quantifiers (+, *, etc.).
 
       * Marks (QChar::isMark()) are now treated as word characters,
         affecting the behavior of '\b', '\w', and '\W' for languages
