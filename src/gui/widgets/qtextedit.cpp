@@ -171,9 +171,9 @@ void QTextEditPrivate::_q_repaintContents(const QRectF &contentsRect)
     }
     const int xOffset = horizontalOffset();
     const int yOffset = verticalOffset();
-    const QRect visibleRect(xOffset, yOffset, viewport->width(), viewport->height());
+    const QRectF visibleRect(xOffset, yOffset, viewport->width(), viewport->height());
 
-    QRect r = contentsRect.toRect().intersected(visibleRect);
+    QRect r = contentsRect.intersected(visibleRect).toRect();
     if (r.isEmpty())
         return;
 
