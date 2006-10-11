@@ -508,6 +508,7 @@ void QBrush::detach(Qt::BrushStyle newStyle)
     x->ref = 1;
     x->style = newStyle;
     x->color = d->color;
+    x->transform = d->transform;
     x = qAtomicSetPtr(&d, x);
     if (!x->ref.deref())
         cleanUp(x);
