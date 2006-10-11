@@ -115,6 +115,37 @@ static void dump(QDebug debug, const QDockWidgetLayout &layout)
 #endif // QT_NO_TEXTSTREAM
 */
 
+/* Like qGeomCalc, but if the sizeHints happen to add up to the available
+   space, give each widget it's sizeHint. The sizeHints are initialized from
+   their current sizes, this way we avoid unnecessary resizes. */
+static void myGeomCalc(QVector<QLayoutStruct> &chain, int start, int count,
+                         int pos, int space, int spacer)
+{
+    bool chain_ok = true;
+    int sum = 0;
+    for (int i = start; i < start + count; ++i) {
+        QLayoutStruct &ls = chain[i];
+
+        if (ls.empty)
+            continue;
+
+        if (ls.sizeHint < 0 || ls.sizeHint < ls.minimumSize
+            || ls.sizeHint > ls.maximumSize) {
+            chain_ok = false;
+            break;
+        }
+
+        ls.size = ls.sizeHint;
+        ls.pos = pos + sum;
+        sum += ls.size;
+    }
+
+//    qDebug() << "myGeomCalc:" << sum << space;
+
+    if (!chain_ok || sum != space)
+        qGeomCalc(chain, start, count, pos, space, spacer);
+}
+
 /******************************************************************************
 ** QDockAreaLayoutItem
 */
@@ -497,11 +528,11 @@ void QDockAreaLayoutInfo::fitItems()
         bool gap = item.gap;
         if (!first && !gap && !prev_gap) {
             QLayoutStruct &ls = layout_struct_list[j++];
-            ls.empty = false;
             ls.init();
             ls.minimumSize = sep;
             ls.maximumSize = sep;
             ls.sizeHint = sep;
+            ls.empty = false;
         }
 
         QLayoutStruct &ls = layout_struct_list[j++];
@@ -516,7 +547,7 @@ void QDockAreaLayoutInfo::fitItems()
             ls.maximumSize = pick(o, item.maximumSize());
             ls.expansive = item.expansive(o);
             if (ls.expansive) {
-                ls.sizeHint = ls.minimumSize;
+                ls.sizeHint = item.size == -1 ? pick(o, item.sizeHint()) : item.size;
                 ls.stretch = item.size == -1 ? pick(o, item.sizeHint()) : item.size;
             } else {
                 ls.sizeHint = item.size == -1 ? pick(o, item.sizeHint()) : item.size;
@@ -528,7 +559,7 @@ void QDockAreaLayoutInfo::fitItems()
     }
     layout_struct_list.resize(j);
 
-    qGeomCalc(layout_struct_list, 0, j, pick(o, rect.topLeft()), pick(o, rect.size()), 0);
+    myGeomCalc(layout_struct_list, 0, j, pick(o, rect.topLeft()), pick(o, rect.size()), 0);
 
     j = 0;
     prev_gap = false;
@@ -1698,6 +1729,7 @@ bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, const QList<QDockWid
             } else {
                 int dummy;
                 stream >> item.pos >> item.size >> dummy >> dummy;
+//                qDebug() << widget << item.pos << item.size;
                 widget->setFloating(false);
                 widget->setVisible(flags & StateFlagVisible);
             }

@@ -1945,6 +1945,83 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
             r = visualRect(opt->direction, opt->rect, r);
         }
         break;
+
+    case SE_DockWidgetCloseButton:
+    case SE_DockWidgetFloatButton:
+    case SE_DockWidgetTitleBarText:
+    case SE_DockWidgetIcon: {
+        int iconSize = pixelMetric(PM_SmallIconSize, opt, widget);
+        int buttonMargin = pixelMetric(PM_DockWidgetTitleBarButtonMargin, opt, widget);
+        int margin = pixelMetric(QStyle::PM_DockWidgetTitleMargin, opt, widget);
+        QRect rect = opt->rect;
+
+        const QStyleOptionDockWidget *dwOpt
+            = qstyleoption_cast<const QStyleOptionDockWidget*>(opt);
+        bool canClose = dwOpt == 0 ? true : dwOpt->closable;
+        bool canFloat = dwOpt == 0 ? false : dwOpt->floatable;
+
+        int right = rect.right();
+        int left = rect.left();
+
+        QRect closeRect;
+        if (canClose) {
+            QPixmap pm = standardIcon(QStyle::SP_TitleBarCloseButton,
+                                        opt, widget).pixmap(iconSize);
+            QSize sz = pm.size() + QSize(buttonMargin, buttonMargin);
+            closeRect = QRect(right - sz.width(),
+                                rect.center().y() - sz.height()/2,
+                                sz.width(), sz.height());
+            right = closeRect.left() - margin;
+        }
+        if (sr == SE_DockWidgetCloseButton) {
+            r = visualRect(opt->direction, rect, closeRect);
+            break;
+        }
+
+        QRect floatRect;
+        if (canFloat) {
+            QPixmap pm = standardIcon(QStyle::SP_TitleBarNormalButton,
+                                        opt, widget).pixmap(iconSize);
+            QSize sz = pm.size() + QSize(buttonMargin, buttonMargin);
+            floatRect = QRect(right - sz.width(),
+                                rect.center().y() - sz.height()/2,
+                                sz.width(), sz.height());
+            right = floatRect.left() - margin;
+        }
+        if (sr == SE_DockWidgetFloatButton) {
+            r = visualRect(opt->direction, rect, floatRect);
+            break;
+        }
+
+        QRect iconRect;
+        if (const QDockWidget *dw = qobject_cast<const QDockWidget*>(widget)) {
+            QIcon icon;
+            if (dw->isFloating())
+                icon = dw->windowIcon();
+            if (!icon.isNull()
+                    && icon.serialNumber() != qApp->windowIcon().serialNumber()) {
+                QSize sz = icon.pixmap(r.height()).size();
+                iconRect = QRect(left, rect.center().y() - sz.height()/2,
+                                    sz.width(), sz.height());
+                left = iconRect.right() + margin;
+            }
+        }
+        if (sr == SE_DockWidgetIcon) {
+            r = visualRect(opt->direction, rect, iconRect);
+            break;
+        }
+
+        QRect textRect = QRect(left, rect.top(),
+                                right - left + 1, rect.height());
+        if (sr == SE_DockWidgetTitleBarText) {
+            r = visualRect(opt->direction, rect, textRect);
+            break;
+        }
+
+        break;
+    }
+
+
     default:
         break;
     }
@@ -3206,6 +3283,10 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
 
     case PM_ButtonMargin:
         ret = 6;
+        break;
+
+    case PM_DockWidgetTitleBarButtonMargin:
+        ret = 2;
         break;
 
     case PM_ButtonDefaultIndicator:

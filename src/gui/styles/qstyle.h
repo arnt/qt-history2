@@ -286,6 +286,11 @@ public:
         SE_LineEditContents,
         SE_FrameContents,
 
+        SE_DockWidgetCloseButton,
+        SE_DockWidgetFloatButton,
+        SE_DockWidgetTitleBarText,
+        SE_DockWidgetIcon,
+
         // do not add any values below/greater than this
         SE_CustomBase = 0xf0000000
     };
@@ -475,6 +480,7 @@ public:
         PM_MessageBoxIconSize,
         PM_ButtonIconSize,
 
+        PM_DockWidgetTitleBarButtonMargin,
 
         // do not add any values below/greater than this
         PM_CustomBase = 0xf0000000

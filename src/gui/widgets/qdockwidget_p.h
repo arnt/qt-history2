@@ -38,21 +38,6 @@ class QDockWidgetTitleButton;
 class QSpacerItem;
 class QDockWidgetItem;
 
-//We need access to insertItem and addChildWidget in QDockWidget
-class QDockWidgetBoxLayout : public QVBoxLayout
-{
-public:
-    QDockWidgetBoxLayout(QWidget *parent = 0)
-        : QVBoxLayout(parent) {}
-#ifdef Q_NO_USING_KEYWORD
-    inline void addChildWidget(QWidget *widget) { QVBoxLayout::addChildWidget(widget); }
-    inline void insertItem(int index, QLayoutItem *item) { QVBoxLayout::insertItem(index, item); }
-#else
-    using QVBoxLayout::addChildWidget;
-    using QVBoxLayout::insertItem;
-#endif
-};
-
 class QDockWidgetPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QDockWidget)
@@ -67,12 +52,11 @@ class QDockWidgetPrivate : public QWidgetPrivate
 
 public:
     inline QDockWidgetPrivate()
-	: QWidgetPrivate(), state(0), widget(0),
+	: QWidgetPrivate(), state(0),
           features(QDockWidget::DockWidgetClosable
                    | QDockWidget::DockWidgetMovable
                    | QDockWidget::DockWidgetFloatable),
-          allowedAreas(Qt::AllDockWidgetAreas), top(0), box(0),
-          topSpacer(0), floatButton(0), closeButton(0), resizer(0)
+          allowedAreas(Qt::AllDockWidgetAreas), resizer(0)
     { }
 
     void init();
@@ -82,20 +66,10 @@ public:
     QStyleOptionDockWidget getStyleOption();
 
     void updateButtons();
-    void relayout();
     DragState *state;
-
-    QWidget *widget;
 
     QDockWidget::DockWidgetFeatures features;
     Qt::DockWidgetAreas allowedAreas;
-
-    QGridLayout *top;
-    QDockWidgetBoxLayout *box;
-    QSpacerItem *topSpacer;
-    QRect titleArea;
-    QDockWidgetTitleButton *floatButton;
-    QDockWidgetTitleButton *closeButton;
 
     QWidgetResizeHandler *resizer;
 #ifndef QT_NO_ACTION

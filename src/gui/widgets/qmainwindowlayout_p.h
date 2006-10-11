@@ -41,7 +41,7 @@ class QWidgetAnimator;
 class QTabBar;
 class QRubberBand;
 
-class QMainWindowLayout : public QLayout
+class Q_AUTOTEST_EXPORT QMainWindowLayout : public QLayout
 {
     Q_OBJECT
 

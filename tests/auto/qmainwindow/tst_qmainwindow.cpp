@@ -18,6 +18,9 @@
 #include <qstyle.h>
 #include <qtoolbar.h>
 #include <qpushbutton.h>
+#include <qtextedit.h>
+#include <private/qmainwindowlayout_p.h>
+#include <private/qdockwidgetlayout_p.h>
 
 
 //TESTED_FILES=
@@ -59,6 +62,9 @@ private slots:
     void createPopupMenu();
     void iconSizeChanged();
     void toolButtonStyleChanged();
+
+    void saveRestore();
+    void saveRestore_data();
 };
 
 // Testing get/set functions
@@ -1205,6 +1211,234 @@ void tst_QMainWindow::createPopupMenu()
         QCOMPARE(actions.at(3), toolbar2.toggleViewAction());
 
         delete menu;
+    }
+}
+
+struct AddDockWidget
+{
+    enum Mode { AddMode, SplitMode, TabMode };
+
+    AddDockWidget() {}
+    AddDockWidget(const QString &_name, Qt::DockWidgetArea _a)
+        : name(_name), mode(AddMode), a(_a) {}
+    AddDockWidget(const QString &_name, const QString &_other, Qt::Orientation _o)
+        : name(_name), mode(SplitMode), o(_o), other(_other) {}
+    AddDockWidget(const QString &_name, const QString &_other)
+        : name(_name), mode(TabMode), other(_other) {}
+
+    QString name;
+    Mode mode;
+
+    Qt::Orientation o;
+    Qt::DockWidgetArea a;
+    QString other;
+
+    void apply(QMainWindow *mw) const;
+};
+
+typedef QList<AddDockWidget> AddList;
+Q_DECLARE_METATYPE(AddList)
+
+void AddDockWidget::apply(QMainWindow *mw) const
+{
+    QDockWidget *dw = new QDockWidget();
+    QWidget *w = new QWidget();
+    w->setMinimumSize(100, 50);
+    dw->setWidget(w);
+
+    dw->setObjectName(name);
+    dw->setWindowTitle(name);
+
+    QDockWidget *other = 0;
+    if (mode == SplitMode || mode == TabMode) {
+        other = qFindChild<QDockWidget*>(mw, this->other);
+        QVERIFY(other != 0);
+    }
+
+    switch (mode) {
+        case AddMode:
+            mw->addDockWidget(a, dw);
+            break;
+        case SplitMode:
+            mw->splitDockWidget(other, dw, o);
+            break;
+        case TabMode:
+            mw->tabifyDockWidget(other, dw);
+            break;
+    }
+}
+
+struct MoveSeparator
+{
+    MoveSeparator() {}
+    MoveSeparator(int _delta, const QString &_name)
+        : delta(_delta), name(_name) {}
+    MoveSeparator(int _delta, int _area)
+        : delta(_delta), area(_area) {}
+
+    int delta;
+    int area;
+    QString name;
+
+    void apply(QMainWindow *mw) const;
+};
+
+typedef QList<MoveSeparator> MoveList;
+Q_DECLARE_METATYPE(MoveList)
+
+void MoveSeparator::apply(QMainWindow *mw) const
+{
+    QMainWindowLayout *l = qobject_cast<QMainWindowLayout*>(mw->layout());
+    QVERIFY(l);
+
+    QList<int> path;
+    if (name.isEmpty()) {
+        path << area;
+    } else {
+        QDockWidget *dw = qFindChild<QDockWidget*>(mw, name);
+        QVERIFY(dw != 0);
+        path = l->dockWidgetLayout.indexOf(dw);
+    }
+    QVERIFY(!path.isEmpty());
+
+    QVector<QLayoutStruct> cache;
+
+    l->dockWidgetLayout.separatorMove(path, QPoint(0, 0), QPoint(delta, delta), &cache);
+}
+
+QMap<QString, QRect> dockWidgetGeometries(QMainWindow *mw)
+{
+    QMap<QString, QRect> result;
+    QList<QDockWidget*> dockWidgets = qFindChildren<QDockWidget*>(mw);
+    foreach (QDockWidget *dw, dockWidgets)
+        result.insert(dw->objectName(), dw->geometry());
+    return result;
+}
+
+#define COMPARE_DOCK_WIDGET_GEOS(_oldGeos, _newGeos) \
+{ \
+    QMap<QString, QRect> __oldGeos = _oldGeos; \
+    QMap<QString, QRect> __newGeos = _newGeos; \
+    QCOMPARE(__newGeos.keys(), __oldGeos.keys()); \
+    QStringList __keys = __newGeos.keys(); \
+    foreach (const QString &key, __keys) { \
+        QRect __r1 = __oldGeos[key]; \
+        QRect __r2 = __newGeos[key]; \
+        if (__r1 != __r2) \
+            qWarning() << key << __r1 << __r2; \
+    } \
+    QCOMPARE(__newGeos, __oldGeos); \
+}
+
+void tst_QMainWindow::saveRestore_data()
+{
+    QTest::addColumn<AddList >("addList");
+    QTest::addColumn<MoveList >("moveList");
+
+    QTest::newRow("1") << (AddList()
+                            << AddDockWidget("left", Qt::LeftDockWidgetArea))
+                       << (MoveList()
+                            << MoveSeparator(100, QDockWidgetLayout::LeftPos));
+
+    QTest::newRow("2") << (AddList()
+                            << AddDockWidget("left", Qt::LeftDockWidgetArea)
+                            << AddDockWidget("right", Qt::RightDockWidgetArea))
+                       << (MoveList()
+                            << MoveSeparator(70, QDockWidgetLayout::LeftPos)
+                            << MoveSeparator(-40, QDockWidgetLayout::RightPos));
+    QTest::newRow("3") << (AddList()
+                            << AddDockWidget("left", Qt::LeftDockWidgetArea)
+                            << AddDockWidget("right1", Qt::RightDockWidgetArea)
+                            << AddDockWidget("right2", Qt::RightDockWidgetArea))
+                       << (MoveList()
+                            << MoveSeparator(70, QDockWidgetLayout::LeftPos)
+                            << MoveSeparator(-40, QDockWidgetLayout::RightPos));
+
+    QTest::newRow("4") << (AddList()
+                            << AddDockWidget("left", Qt::LeftDockWidgetArea)
+                            << AddDockWidget("right1", Qt::RightDockWidgetArea)
+                            << AddDockWidget("right2a", Qt::RightDockWidgetArea)
+                            << AddDockWidget("right2b", "right2a", Qt::Horizontal)
+                          )
+                       << (MoveList()
+                          << MoveSeparator(70, QDockWidgetLayout::LeftPos)
+                          << MoveSeparator(-40, QDockWidgetLayout::RightPos)
+                          << MoveSeparator(-30, "right1")
+                          << MoveSeparator(30, "right2a")
+                          );
+}
+
+void tst_QMainWindow::saveRestore()
+{
+    QFETCH(AddList, addList);
+    QFETCH(MoveList, moveList);
+
+    QByteArray stateData;
+    QMap<QString, QRect> dockWidgetGeos;
+    QSize size;
+
+    {
+        QMainWindow mainWindow;
+        mainWindow.setDockNestingEnabled(true);
+        QTextEdit centralWidget("The rain in Spain falls mainly on the plains");
+        mainWindow.setCentralWidget(&centralWidget);
+
+        foreach (const AddDockWidget &adw, addList)
+            adw.apply(&mainWindow);
+
+        mainWindow.show();
+
+        foreach (const MoveSeparator &ms, moveList)
+            ms.apply(&mainWindow);
+
+        dockWidgetGeos = dockWidgetGeometries(&mainWindow);
+        size = mainWindow.size();
+        stateData = mainWindow.saveState();
+
+        mainWindow.layout()->setGeometry(mainWindow.rect());
+        COMPARE_DOCK_WIDGET_GEOS(dockWidgetGeos, dockWidgetGeometries(&mainWindow));
+
+#if 0
+        QEventLoop eventLoop;
+        QPushButton quitButton("Quit", &centralWidget);
+        quitButton.setGeometry(0, 0, 100, 40);
+        connect(&quitButton, SIGNAL(clicked()), &eventLoop, SLOT(quit()));
+        quitButton.show();
+        eventLoop.exec();
+#endif
+    }
+
+    // restoreState() after show
+    {
+        QMainWindow mainWindow;
+        mainWindow.setDockNestingEnabled(true);
+        QTextEdit centralWidget("The rain in Spain falls mainly on the plains");
+        mainWindow.setCentralWidget(&centralWidget);
+
+        foreach (const AddDockWidget &adw, addList)
+            adw.apply(&mainWindow);
+
+        mainWindow.show();
+        mainWindow.restoreState(stateData);
+
+        COMPARE_DOCK_WIDGET_GEOS(dockWidgetGeos, dockWidgetGeometries(&mainWindow));
+    }
+
+    // restoreState() before show
+    {
+        QMainWindow mainWindow;
+        mainWindow.setDockNestingEnabled(true);
+        QTextEdit centralWidget("The rain in Spain falls mainly on the plains");
+        mainWindow.setCentralWidget(&centralWidget);
+
+        foreach (const AddDockWidget &adw, addList)
+            adw.apply(&mainWindow);
+        mainWindow.resize(size);
+        mainWindow.restoreState(stateData);
+        COMPARE_DOCK_WIDGET_GEOS(dockWidgetGeos, dockWidgetGeometries(&mainWindow));
+
+        mainWindow.show();
+        COMPARE_DOCK_WIDGET_GEOS(dockWidgetGeos, dockWidgetGeometries(&mainWindow));
     }
 }
 

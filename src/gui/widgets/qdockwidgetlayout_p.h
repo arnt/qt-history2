@@ -71,7 +71,7 @@ struct QDockAreaLayoutItem
     bool gap;
 };
 
-class QDockAreaLayoutInfo
+class Q_AUTOTEST_EXPORT QDockAreaLayoutInfo
 {
 public:
     QDockAreaLayoutInfo();
@@ -196,7 +196,7 @@ static inline int pick_perp(Qt::Orientation o, const QSize &s)
 { return o == Qt::Vertical ? s.width() : s.height(); }
 
 class QWidgetItem;
-class QDockWidgetLayout
+class Q_AUTOTEST_EXPORT QDockWidgetLayout
 {
 public:
     enum DockPos {

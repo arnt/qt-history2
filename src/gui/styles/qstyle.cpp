@@ -1119,6 +1119,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value PM_ButtonMargin  Amount of whitespace between push button
         labels and the frame.
+    \value PM_DockWidgetTitleButtonMargin  Amount of whitespace between dock widget's
+        title bar button labels and the frame.
     \value PM_ButtonDefaultIndicator  Width of the default-button indicator frame.
     \value PM_MenuButtonIndicator  Width of the menu button indicator
         proportional to the widget height.

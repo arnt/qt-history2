@@ -832,8 +832,7 @@ bool QMainWindow::restoreState(const QByteArray &state, int version)
     if (stream.status() != QDataStream::Ok || marker != QMainWindowLayout::VersionMarker || v != version)
         return false;
     bool restored = d_func()->layout->restoreState(stream);
-    if (isVisible())
-        QApplication::postEvent(this, new QResizeEvent(size(), size()));
+    layout()->setGeometry(rect());
     return restored;
 }
 

@@ -407,6 +407,7 @@ void QMainWindowLayout::addDockWidget(Qt::DockWidgetArea area,
         = QDockWidgetLayout::DockPos(positionForArea(area));
     addChildWidget(dockwidget);
     dockWidgetLayout.addDockWidget(pos, dockwidget, orientation);
+//    dockwidget->d_func()->relayout();
 }
 
 void QMainWindowLayout::tabifyDockWidget(QDockWidget *first, QDockWidget *second)

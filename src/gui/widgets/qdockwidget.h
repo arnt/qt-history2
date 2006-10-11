@@ -93,6 +93,7 @@ private:
     friend class QDockWidgetLayout;
     friend class QDockWidgetItem;
     friend class QMainWindowLayout;
+    friend class QDWLayout;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QDockWidget::DockWidgetFeatures)
