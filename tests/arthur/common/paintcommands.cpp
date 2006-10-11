@@ -112,8 +112,13 @@ struct PaintCommand {
 template <typename T> T image_load(const QString &filepath)
 {
     T t(filepath);
+
+    if (t.isNull())
+        t = T(":images/" + filepath);
+    
     if (t.isNull())
         t = T("images/" + filepath);
+    
     if (t.isNull()) {
         QFileInfo fi(filepath);
         QDir dir = fi.absoluteDir();

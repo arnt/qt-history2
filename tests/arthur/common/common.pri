@@ -14,3 +14,5 @@ HEADERS += \
 	paintcommands.h \
 	qengines.h \
 	framework.h
+
+RESOURCES += images.qrc
