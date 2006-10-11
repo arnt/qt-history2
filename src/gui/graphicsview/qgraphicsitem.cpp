@@ -1405,7 +1405,7 @@ QTransform QGraphicsItem::sceneTransform() const
     otherwise, \a matrix \e replaces the current matrix. \a combine is false
     by default.
 
-    To simplify interation with items using a transformed view, QGraphicsItem
+    To simplify interaction with items using a transformed view, QGraphicsItem
     provides mapTo... and mapFrom... functions that can translate between
     items' and the scene's coordinates. For example, you can call mapToScene()
     to map an item coordiate to a scene coordinate, or mapFromScene() to map
@@ -3874,11 +3874,10 @@ void QGraphicsEllipseItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
     Q_UNUSED(widget);
     painter->setPen(d->pen);
     painter->setBrush(d->brush);
-    if (d->spanAngle != 360 * 10) {
+    if ((d->spanAngle != 0) && (qAbs(d->spanAngle) % (360 * 16) == 0))
         painter->drawEllipse(d->rect);
-    } else {
+    else
         painter->drawPie(d->rect, d->startAngle, d->spanAngle);
-    }
 
     if (option->state & QStyle::State_Selected) {
         painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
