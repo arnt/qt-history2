@@ -32,6 +32,10 @@
 #include <private/qabstractitemmodel_p.h>
 #include <qdebug.h>
 
+#ifdef Q_WS_X11
+#include <private/qt_x11_p.h>
+#endif
+
 QComboBoxPrivate::QComboBoxPrivate()
     : QWidgetPrivate(),
       model(QAbstractItemModelPrivate::staticEmptyModel()),
