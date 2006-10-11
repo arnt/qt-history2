@@ -14,7 +14,6 @@
 #include <QLineEdit>
 #include <QComboBox>
 #include <QDialogButtonBox>
-#include <qdebug.h>
 #include <qinputdialog.h>
 
 //TESTED_CLASS=QInputDialog
@@ -58,28 +57,6 @@ static QString stripFraction(const QString &s)
 static QString normalizeNumericString(const QString &s)
 {
     return stripFraction(s); // assumed to be sufficient
-}
-
-template <typename SpinBoxType>
-static void testInitialState(
-    SpinBoxType* sbox, QPushButton *okButton, QLineEdit *ledit)
-{
-    QVERIFY(sbox->value() >= sbox->minimum());
-    QVERIFY(sbox->value() <= sbox->maximum());
-    QVERIFY(sbox->hasAcceptableInput());
-    QCOMPARE(
-        normalizeNumericString(ledit->selectedText()),
-        normalizeNumericString(QString("%1").arg(sbox->value())));
-    QVERIFY(okButton->isEnabled());
-}
-
-static void testInitialState(QPushButton *okButton, QLineEdit *ledit)
-{
-    QVERIFY(ledit->hasAcceptableInput());
-    QCOMPARE(
-        normalizeNumericString(ledit->selectedText()),
-        normalizeNumericString(ledit->text()));
-    QVERIFY(okButton->isEnabled());
 }
 
 template <typename SpinBoxType>
@@ -128,7 +105,7 @@ static void testInvalidateAndRestore(
         normalizeNumericString(QString("%1").arg(sbox->value())));
 }
 
-template <typename T> void findChild(); // Fwd. decl. required by some compilers
+template <typename T> void findChild(); // Required by some compilers
 
 template <typename SpinBoxType, typename ValueType>
 static void testGetNumeric(QInputDialog *dialog, SpinBoxType * = 0, ValueType * = 0)
@@ -144,7 +121,14 @@ static void testGetNumeric(QInputDialog *dialog, SpinBoxType * = 0, ValueType * 
     QPushButton *okButton = bbox->button(QDialogButtonBox::Ok);
     Q_ASSERT(okButton);
 
-    testInitialState<SpinBoxType>(sbox, okButton, ledit);
+    QVERIFY(sbox->value() >= sbox->minimum());
+    QVERIFY(sbox->value() <= sbox->maximum());
+    QVERIFY(sbox->hasAcceptableInput());
+    QCOMPARE(
+        normalizeNumericString(ledit->selectedText()),
+        normalizeNumericString(QString("%1").arg(sbox->value())));
+    QVERIFY(okButton->isEnabled());
+
     const ValueType origValue = sbox->value();
 
     testInvalidateAndRestore<SpinBoxType, ValueType>(sbox, okButton, ledit);
@@ -169,7 +153,9 @@ static void testGetText(QInputDialog *dialog)
     QPushButton *okButton = bbox->button(QDialogButtonBox::Ok);
     Q_ASSERT(okButton);
 
-    testInitialState(okButton, ledit);
+    QVERIFY(ledit->hasAcceptableInput());
+    QCOMPARE(ledit->selectedText(), ledit->text());
+    QVERIFY(okButton->isEnabled());
     const QString origValue = ledit->text();
 
     testTypingValue(ledit, okButton, origValue);
