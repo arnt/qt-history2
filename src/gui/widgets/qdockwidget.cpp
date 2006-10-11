@@ -334,6 +334,8 @@ int QDWLayout::titleHeight() const
 
 void QDWLayout::setGeometry(const QRect &geometry)
 {
+//    qDebug() << "QDWLayout::setGeometry():" << geometry;
+
     QDockWidget *q = qobject_cast<QDockWidget*>(parentWidget());
 
     int fw = 0;

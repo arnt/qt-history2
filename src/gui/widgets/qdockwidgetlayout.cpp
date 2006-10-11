@@ -115,37 +115,6 @@ static void dump(QDebug debug, const QDockWidgetLayout &layout)
 #endif // QT_NO_TEXTSTREAM
 */
 
-/* Like qGeomCalc, but if the sizeHints happen to add up to the available
-   space, give each widget it's sizeHint. The sizeHints are initialized from
-   their current sizes, this way we avoid unnecessary resizes. */
-static void myGeomCalc(QVector<QLayoutStruct> &chain, int start, int count,
-                         int pos, int space, int spacer)
-{
-    bool chain_ok = true;
-    int sum = 0;
-    for (int i = start; i < start + count; ++i) {
-        QLayoutStruct &ls = chain[i];
-
-        if (ls.empty)
-            continue;
-
-        if (ls.sizeHint < 0 || ls.sizeHint < ls.minimumSize
-            || ls.sizeHint > ls.maximumSize) {
-            chain_ok = false;
-            break;
-        }
-
-        ls.size = ls.sizeHint;
-        ls.pos = pos + sum;
-        sum += ls.size;
-    }
-
-//    qDebug() << "myGeomCalc:" << sum << space;
-
-    if (!chain_ok || sum != space)
-        qGeomCalc(chain, start, count, pos, space, spacer);
-}
-
 /******************************************************************************
 ** QDockAreaLayoutItem
 */
@@ -193,22 +162,10 @@ bool QDockAreaLayoutItem::skip() const
     return true;
 }
 
-static QSize adjustForFrame(QWidget *widget)
-{
-    if (widget->isWindow())
-        return QSize(0, 0);
-    int fw = widget->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth);
-    QSize result(2*fw, fw);
-#ifdef Q_OS_WIN
-    result += QSize(0, 3);
-#endif
-    return result;
-}
-
 QSize QDockAreaLayoutItem::minimumSize() const
 {
     if (widgetItem != 0)
-        return qSmartMinSize(widgetItem) + adjustForFrame(widgetItem->widget());
+        return qSmartMinSize(widgetItem);
     if (subinfo != 0)
         return subinfo->minimumSize();
     return QSize(0, 0);
@@ -246,7 +203,6 @@ QSize QDockAreaLayoutItem::sizeHint() const
         s = s.boundedTo(w->maximumSize())
             .expandedTo(w->minimumSize());
 
-        s += adjustForFrame(w);
         return s;
     }
     if (subinfo != 0)
@@ -559,7 +515,7 @@ void QDockAreaLayoutInfo::fitItems()
     }
     layout_struct_list.resize(j);
 
-    myGeomCalc(layout_struct_list, 0, j, pick(o, rect.topLeft()), pick(o, rect.size()), 0);
+    qGeomCalc(layout_struct_list, 0, j, pick(o, rect.topLeft()), pick(o, rect.size()), 0);
 
     j = 0;
     prev_gap = false;
@@ -2190,9 +2146,9 @@ void QDockWidgetLayout::getGrid(QVector<QLayoutStruct> *_ver_struct_list,
     if (!docks[TopPos].isEmpty())
         center_rect.setTop(rect.top() + docks[TopPos].rect.height() + sep);
     if (!docks[RightPos].isEmpty())
-        center_rect.setRight(rect.right() - docks[RightPos].rect.width() - sep - 1);
+        center_rect.setRight(rect.right() - docks[RightPos].rect.width() - sep);
     if (!docks[BottomPos].isEmpty())
-        center_rect.setBottom(rect.bottom() - docks[BottomPos].rect.height() - sep - 1);
+        center_rect.setBottom(rect.bottom() - docks[BottomPos].rect.height() - sep);
 
     QSize left_hint = docks[LeftPos].size();
     if (!left_hint.isValid())
