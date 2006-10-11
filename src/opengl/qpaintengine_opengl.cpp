@@ -925,6 +925,9 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
     if (flags & DirtyTransform) {
         update_fast_pen = true;
         updateMatrix(state.transform());
+        // brush setup depends on transform state
+        if (state.brush().style() != Qt::NoBrush)
+            flags |= DirtyBrush;
     }
 
     if (flags & DirtyPen) {
