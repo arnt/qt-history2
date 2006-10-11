@@ -1,4 +1,4 @@
 # -*-Mode:makefile-*-
 TEMPLATE      = subdirs
-SUBDIRS       = common datagenerator htmlgenerator \
+SUBDIRS       = datagenerator htmlgenerator \
 	performancediff shower lance
