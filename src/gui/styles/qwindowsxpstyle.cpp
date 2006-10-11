@@ -3333,7 +3333,7 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
             if (theme.isValid()) {
                 SIZE size;
                 pGetThemePartSize(theme.handle(), 0, WP_CAPTION, CS_ACTIVE, 0, TS_TRUE, &size);
-                res = size.cy+1;
+                res = size.cy;
             }
         }
         break;
@@ -3384,7 +3384,7 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
             res = 0;
         break;
 
-    default:
+	default:
         res = QWindowsStyle::pixelMetric(pm, option, widget);
     }
 
@@ -3458,73 +3458,89 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
         if (const QStyleOptionTitleBar *tb = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
             if (!buttonVisible(sc, tb))
                 return rect;
-            const bool isToolTitle = false; // widget->testWFlags(Qt::WA_WState_Tool)
+            const bool isToolTitle = false;
             const int height = tb->rect.height();
             const int width = tb->rect.width();
-            const int controlTop = 6; //widget->testWFlags(Qt::WA_WState_Tool) ? 4 : 6;
-            const int controlHeight = height - controlTop - 3;
+            int buttonHeight = height - 9;
+	        int buttonWidth = buttonHeight;
 
+	        SIZE sz;
+	        XPThemeData theme(widget, 0, "WINDOW", WP_CLOSEBUTTON, CBS_NORMAL);
+	        if (pGetThemePartSize(theme.handle(), NULL, WP_CLOSEBUTTON, CBS_NORMAL, NULL, TS_TRUE, &sz) == S_OK) {
+		        buttonHeight = sz.cy;
+		        buttonWidth = sz.cx;
+	        }
+            
+	        int controlTop = option->rect.bottom() - buttonHeight - 2;    			
+            if (tb->titleBarState & Qt::WindowMinimized)
+                controlTop = (height - buttonHeight)/2;
+            const int frameWidth = pixelMetric(PM_MDIFrameWidth, option, widget);
             const bool sysmenuHint  = (tb->titleBarFlags & Qt::WindowSystemMenuHint) != 0;
             const bool minimizeHint = (tb->titleBarFlags & Qt::WindowMinimizeButtonHint) != 0;
             const bool maximizeHint = (tb->titleBarFlags & Qt::WindowMaximizeButtonHint) != 0;
             const bool contextHint = (tb->titleBarFlags & Qt::WindowContextHelpButtonHint) != 0;
             const bool shadeHint = (tb->titleBarFlags & Qt::WindowShadeButtonHint) != 0;
-
+	        
             switch (sc) {
             case SC_TitleBarLabel:
-                rect = QRect(0, 0, width, height);
+                rect = QRect(frameWidth, 0, width - (buttonWidth + frameWidth + 10), height);
                 if (isToolTitle) {
-                    if (sysmenuHint)
-                        rect.adjust(0, 0, -controlHeight-3, 0);
-                    if (minimizeHint || maximizeHint)
-                        rect.adjust(0, 0, -controlHeight-2, 0);
+		            if (sysmenuHint) {
+                        rect.adjust(0, 0, -buttonWidth - 3, 0);
+		            }
+		            if (minimizeHint || maximizeHint)
+                        rect.adjust(0, 0, -buttonWidth - 2, 0);
                 } else {
-                    if (sysmenuHint)
-                        rect.adjust(controlHeight+3, 0, -controlHeight-3, 0);
-                    if (minimizeHint)
-                        rect.adjust(0, 0, -controlHeight-2, 0);
+		            if (sysmenuHint) {
+			            const int leftOffset = height - 8;
+                        rect.adjust(leftOffset, 0, 0, 0);
+		            }
+		            if (minimizeHint)
+                        rect.adjust(0, 0, -buttonWidth - 2, 0);
                     if (maximizeHint)
-                        rect.adjust(0, 0, -controlHeight-2, 0);
+                        rect.adjust(0, 0, -buttonWidth - 2, 0);
                     if (contextHint)
-                        rect.adjust(0, 0, -controlHeight-2, 0);
+                        rect.adjust(0, 0, -buttonWidth - 2, 0);
                     if (shadeHint)
-                        rect.adjust(0, 0, -controlHeight-2, 0);
+                        rect.adjust(0, 0, -buttonWidth - 2, 0);
                 }
                 break;
 
             case SC_TitleBarCloseButton:
-                rect = QRect(width - (controlHeight + 2) - controlTop, controlTop,
-                             controlHeight, controlHeight);
+                rect = QRect(width - (buttonWidth + 2) - controlTop  + 2, controlTop,
+                             buttonWidth, buttonHeight);
                 break;
 
             case SC_TitleBarMaxButton:
             case SC_TitleBarShadeButton:
             case SC_TitleBarUnshadeButton:
-                rect = QRect(width - ((controlHeight + 2) * 2) - controlTop, controlTop,
-                             controlHeight, controlHeight);
+                rect = QRect(width - ((buttonWidth + 2) * 2) - controlTop  + 2, controlTop,
+                             buttonWidth, buttonHeight);
                 break;
 
             case SC_TitleBarMinButton:
             case SC_TitleBarNormalButton:
                 {
-                    int offset = controlHeight + 2;
+                    int offset = buttonWidth + 2;
                     if (!maximizeHint)
                         offset *= 2;
                     else
                         offset *= 3;
-                    rect = QRect(width - offset - controlTop, controlTop,
-                                 controlHeight, controlHeight);
+                    rect = QRect(width - offset - controlTop + 2, controlTop,
+                                 buttonWidth, buttonHeight);
                 }
                 break;
 
             case SC_TitleBarSysMenu:
                 {
-                    QSize iconSize = tb->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal).size();
+		            const int controlTop = 6;
+		            const int controlHeight = height - controlTop - 3;
+		            QSize iconSize = tb->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal).size();
                     if (tb->icon.isNull())
                         iconSize = QSize(controlHeight, controlHeight);
                     int hPad = (controlHeight - iconSize.height())/2;
                     int vPad = (controlHeight - iconSize.width())/2;
-                    rect = QRect(3 + vPad, controlTop + hPad, iconSize.width(), controlHeight - hPad);
+		            rect = QRect(frameWidth + hPad, controlTop + vPad, iconSize.width(), iconSize.height());
                 }
                 break;
             }
