@@ -29,9 +29,12 @@ class ProjectBuilderMakefileGenerator : public UnixMakefileGenerator
     QMap<QString, QString> keys;
     QString keyFor(const QString &file);
     QString fixForOutput(const QString &file);
-    QString fixListForOutput(const QString &where);
+    QStringList fixListForOutput(const QString &where);
     int     reftypeForFile(const QString &where);
     QString projectSuffix() const;
+    enum { SettingsAsList=0x01, SettingsNoQuote=0x02 };
+    inline QString writeSettings(QString var, QString val, int flags=0, int indent_level=0) { return writeSettings(var, QStringList(val), flags); }
+    QString writeSettings(QString var, QStringList vals, int flags=0, int indent_level=0);
 
 public:
     ProjectBuilderMakefileGenerator();
