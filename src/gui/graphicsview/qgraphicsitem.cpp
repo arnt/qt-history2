@@ -1099,7 +1099,7 @@ void QGraphicsItem::setAcceptsHoverEvents(bool enabled)
 
 /*!
     Returns true if this item handles child events (i.e., all events
-    intented for any of its children are instead sent to this item);
+    intended for any of its children are instead sent to this item);
     otherwise, false is returned.
 
     This property is useful for item groups; it allows one item to
@@ -1107,6 +1107,8 @@ void QGraphicsItem::setAcceptsHoverEvents(bool enabled)
     children handling their events individually.
 
     The default is to return false; children handle their own events.
+    The exception for this is if the item is a QGraphicsItemGroup, then 
+    it defaults to return true.
 
     \sa setHandlesChildEvents()
 */
