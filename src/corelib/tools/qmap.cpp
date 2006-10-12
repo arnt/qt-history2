@@ -611,7 +611,18 @@ void QMapData::dump()
     internal data structure is optimized for fast lookup by key, not
     by value.
 
-    \sa value(), values()
+    \sa value(), keys()
+*/
+
+/*! \fn Key QMap::key(const T &value, const Key &defaultKey) const
+    \overload
+
+    Returns the first key with value \a value, or \a defaultKey if
+    the map contains no item with value \a value.
+
+    This function can be slow (\l{linear time}), because QMap's
+    internal data structure is optimized for fast lookup by key, not
+    by value.
 */
 
 /*! \fn QList<T> QMap::values() const
@@ -621,7 +632,7 @@ void QMapData::dump()
     all of its values will be in the list, and not just the most
     recently inserted one.
 
-    \sa keys()
+    \sa keys(), value()
 */
 
 /*! \fn QList<T> QMap::values(const Key &key) const

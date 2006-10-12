@@ -289,47 +289,71 @@ void tst_QMap::beginEnd()
 void tst_QMap::key()
 {
     {
+        QString def("default value");
+
         QMap<QString, int> map1;
         QCOMPARE(map1.key(1), QString());
+        QCOMPARE(map1.key(1, def), def);
 
         map1.insert("one", 1);
         QCOMPARE(map1.key(1), QString("one"));
+        QCOMPARE(map1.key(1, def), QString("one"));
         QCOMPARE(map1.key(2), QString());
+        QCOMPARE(map1.key(2, def), def);
 
         map1.insert("two", 2);
         QCOMPARE(map1.key(1), QString("one"));
+        QCOMPARE(map1.key(1, def), QString("one"));
         QCOMPARE(map1.key(2), QString("two"));
+        QCOMPARE(map1.key(2, def), QString("two"));
         QCOMPARE(map1.key(3), QString());
+        QCOMPARE(map1.key(3, def), def);
 
         map1.insert("deux", 2);
         QCOMPARE(map1.key(1), QString("one"));
-        QCOMPARE(map1.key(2), QString("deux"));
+        QCOMPARE(map1.key(1, def), QString("one"));
+        QVERIFY(map1.key(2) == "deux" || map1.key(2) == "two");
+        QVERIFY(map1.key(2, def) == "deux" || map1.key(2, def) == "two");
         QCOMPARE(map1.key(3), QString());
-
-        map1.insert("duo", 2);
-        QCOMPARE(map1.key(2), QString("deux"));
+        QCOMPARE(map1.key(3, def), def);
     }
 
     {
+        int def = 666;
+
         QMap<int, QString> map2;
         QCOMPARE(map2.key("one"), 0);
+        QCOMPARE(map2.key("one", def), def);
 
         map2.insert(1, "one");
         QCOMPARE(map2.key("one"), 1);
+        QCOMPARE(map2.key("one", def), 1);
         QCOMPARE(map2.key("two"), 0);
+        QCOMPARE(map2.key("two", def), def);
 
         map2.insert(2, "two");
         QCOMPARE(map2.key("one"), 1);
+        QCOMPARE(map2.key("one", def), 1);
         QCOMPARE(map2.key("two"), 2);
+        QCOMPARE(map2.key("two", def), 2);
         QCOMPARE(map2.key("three"), 0);
+        QCOMPARE(map2.key("three", def), def);
 
         map2.insert(3, "two");
         QCOMPARE(map2.key("one"), 1);
+        QCOMPARE(map2.key("one", def), 1);
         QCOMPARE(map2.key("two"), 2);
+        QCOMPARE(map2.key("two", def), 2);
         QCOMPARE(map2.key("three"), 0);
+        QCOMPARE(map2.key("three", def), def);
 
         map2.insert(-1, "two");
         QCOMPARE(map2.key("two"), -1);
+        QCOMPARE(map2.key("two", def), -1);
+
+        map2.insert(0, "zero");
+        QCOMPARE(map2.key("zero"), 0);
+        QCOMPARE(map2.key("zero", def), 0);
     }
 }
 

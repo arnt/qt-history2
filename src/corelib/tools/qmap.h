@@ -151,6 +151,7 @@ public:
 
     bool contains(const Key &key) const;
     const Key key(const T &value) const;
+    const Key key(const T &value, const Key &defaultKey) const;
     const T value(const Key &key) const;
     const T value(const Key &key, const T &defaultValue) const;
     T &operator[](const Key &key);
@@ -754,6 +755,12 @@ Q_OUTOFLINE_TEMPLATE QList<Key> QMap<Key, T>::keys(const T &avalue) const
 template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE const Key QMap<Key, T>::key(const T &avalue) const
 {
+    return key(avalue, Key());
+}
+
+template <class Key, class T>
+Q_OUTOFLINE_TEMPLATE const Key QMap<Key, T>::key(const T &avalue, const Key &defaultKey) const
+{
     const_iterator i = begin();
     while (i != end()) {
         if (i.value() == avalue)
@@ -761,7 +768,7 @@ Q_OUTOFLINE_TEMPLATE const Key QMap<Key, T>::key(const T &avalue) const
         ++i;
     }
 
-    return Key();
+    return defaultKey;
 }
 
 template <class Key, class T>
