@@ -651,16 +651,7 @@ void QOpenGLPaintEnginePrivate::createGradientPaletteTexture(const QGradient& g)
     else
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 
-    if (!(QGLExtensions::glExtensions & QGLExtensions::GenerateMipmap))
-        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    else if (g.type() == QGradient::ConicalGradient || g.spread() == QGradient::PadSpread) {
-        // disable mipmaps for pad gradients and conical gradients
-        glTexParameteri(GL_TEXTURE_1D, GL_GENERATE_MIPMAP_SGIS, GL_FALSE);
-        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    } else {
-        glTexParameteri(GL_TEXTURE_1D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    }
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, qt_opengl_gradient_cache()->paletteSize(),
                  0, GL_BGRA, GL_UNSIGNED_BYTE, palbuf);
@@ -2654,7 +2645,7 @@ void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
             else
                 d->drawStencilEllipse(vertexArray, texCoordArray);
         }
-        
+
         if (d->has_pen) {
             d->setGradientOps(d->pen_brush_style);
             qt_glColor4ubv(d->pen_color);
