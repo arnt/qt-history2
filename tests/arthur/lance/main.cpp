@@ -51,7 +51,7 @@ static void printHelp()
            "    -picture        Prints into a picture, then shows the result in a label\n"
            "    -printer        Prints the commands to a file called output.ps|pdf\n"
            "    -highres        Prints in highres mod\n"
-           "    -grab           Paints the files to a pixmap called filename_qps.png\n"
+           "    -grab           Paints the files to an image called filename_qps.png\n"
            "    -i              Interactive mode.\n"
            "    -v              Verbose.\n"
            "    -bg-white       No checkers background\n"
@@ -259,6 +259,11 @@ int main(int argc, char **argv)
 #ifndef QT_NO_OPENGL
     OnScreenWidget<QGLWidget> *qGLWidget = 0;
 #endif
+    QLabel *label = new QLabel;
+    QPalette palette = label->palette();
+    palette.setColor(QPalette::Active, QPalette::Window, QBrush(Qt::white));
+    label->setPalette(palette);
+
     if (interactive) {
         runInteractive();
         if (!files.isEmpty())
@@ -287,7 +292,6 @@ int main(int argc, char **argv)
                 QString pmFile = QString(files.at(j)).replace(".", "_") + ".png";
                 QPixmap pixmap(pmFile);
                 if (!pixmap.isNull()) {
-                    QLabel *label = new QLabel;
                     label->setWindowTitle("VERIFY: " + pmFile);
                     label->setPixmap(pixmap);
                     label->show();
@@ -323,10 +327,9 @@ int main(int argc, char **argv)
                 QImage new_image(image.bits(), image.width(), image.height(), QImage::Format_ARGB32_Premultiplied);
                 image.save("output_image.png", "PNG");
 
-                QLabel *l = new QLabel(0);
-                l->setPixmap(QPixmap::fromImage(new_image));
-                l->resize(l->sizeHint());
-                l->show();
+                label->setPixmap(QPixmap::fromImage(new_image));
+                label->resize(label->sizeHint());
+                label->show();
                 break;
             }
             case OpenGLType:
@@ -381,7 +384,6 @@ int main(int argc, char **argv)
                     pt.end();
                     bitmap.save("output_bitmap.png", "PNG");
 
-                    QLabel *label = new QLabel(0);
                     label->setPixmap(bitmap);
                     label->resize(label->sizeHint());
                     label->show();
@@ -401,10 +403,9 @@ int main(int argc, char **argv)
                     pcmd.runCommands();
                     pt.end();
                     image.convertToFormat(QImage::Format_ARGB32).save("output_image.png", "PNG");
-                    QLabel *l = new QLabel(0);
-                    l->setPixmap(QPixmap::fromImage(image));
-                    l->resize(l->sizeHint());
-                    l->show();
+                    label->setPixmap(QPixmap::fromImage(image));
+                    label->resize(label->sizeHint());
+                    label->show();
                     break;
                 }
 
@@ -421,11 +422,10 @@ int main(int argc, char **argv)
                     pt.begin(&image);
                     pt.drawPicture(0, 0, pic);
                     pt.end();
-                    QLabel *l = new QLabel(0);
-                    l->setWindowTitle(fileinfo.absolutePath());
-                    l->setPixmap(QPixmap::fromImage(image));
-                    l->resize(l->sizeHint());
-                    l->show();
+                    label->setWindowTitle(fileinfo.absolutePath());
+                    label->setPixmap(QPixmap::fromImage(image));
+                    label->resize(label->sizeHint());
+                    label->show();
                     break;
                 }
 
@@ -466,15 +466,21 @@ int main(int argc, char **argv)
 #endif
             case GrabType:
                 {
-                    QPixmap pixmap(width, height);
-                    pixmap.fill(Qt::white);
-                    QPainter pt(&pixmap);
+                    QImage image(width, height, QImage::Format_ARGB32_Premultiplied);
+                    image.fill(QColor(Qt::white).rgb());
+                    QPainter pt(&image);
                     pcmd.setPainter(&pt);
                     pcmd.setFilePath(fileinfo.absolutePath());
                     pcmd.runCommands();
                     pt.end();
+                    QImage image1(width, height, QImage::Format_RGB32);
+                    image1.fill(QColor(Qt::white).rgb());
+                    QPainter pt1(&image1);
+                    pt1.drawImage(QPointF(0, 0), image);
+                    pt1.end();
+                    
                     QString filename = QString(files.at(j)).replace(".", "_") + ".png";
-                    pixmap.save(filename, "PNG");
+                    image1.save(filename, "PNG");
                     printf("%s grabbed to %s\n", qPrintable(files.at(j)), qPrintable(filename));
                     break;
                 }
