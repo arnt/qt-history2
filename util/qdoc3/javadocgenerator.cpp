@@ -99,7 +99,7 @@ void JavadocGenerator::endText(const Node *relative, CodeMarker *marker)
     oldDevice = 0;
 
     buffer.replace("&", "&amp;");
-    buffer.replace("\"", "&quote;");
+    buffer.replace("\"", "&quot;");
     out() << buffer;
     buffer.clear();
 }
