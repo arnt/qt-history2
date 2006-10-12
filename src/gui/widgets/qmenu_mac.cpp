@@ -925,11 +925,11 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
             data.whichData |= kMenuItemDataCmdKeyGlyph;
         } else {
             data.whichData |= kMenuItemDataCmdKeyModifiers;
+            data.whichData |= kMenuItemDataCmdKey;
             qt_mac_get_accel(accel[0], (quint32*)&data.cmdKeyModifiers, (quint32*)&data.cmdKeyGlyph);
             if (data.cmdKeyGlyph) {
                 data.whichData |= kMenuItemDataCmdKeyGlyph;
             } else {
-                data.whichData |= kMenuItemDataCmdKey;
                 data.cmdKey = (UniChar)accel[0];
             }
         }
