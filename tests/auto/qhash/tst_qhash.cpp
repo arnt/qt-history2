@@ -457,44 +457,71 @@ void tst_QHash::erase()
 void tst_QHash::key()
 {
     {
+        QString def("default value");
+
         QHash<QString, int> hash1;
         QCOMPARE(hash1.key(1), QString());
+        QCOMPARE(hash1.key(1, def), def);
 
         hash1.insert("one", 1);
         QCOMPARE(hash1.key(1), QString("one"));
+        QCOMPARE(hash1.key(1, def), QString("one"));
         QCOMPARE(hash1.key(2), QString());
+        QCOMPARE(hash1.key(2, def), def);
 
         hash1.insert("two", 2);
         QCOMPARE(hash1.key(1), QString("one"));
+        QCOMPARE(hash1.key(1, def), QString("one"));
         QCOMPARE(hash1.key(2), QString("two"));
+        QCOMPARE(hash1.key(2, def), QString("two"));
         QCOMPARE(hash1.key(3), QString());
+        QCOMPARE(hash1.key(3, def), def);
 
         hash1.insert("deux", 2);
         QCOMPARE(hash1.key(1), QString("one"));
+        QCOMPARE(hash1.key(1, def), QString("one"));
         QVERIFY(hash1.key(2) == "deux" || hash1.key(2) == "two");
+        QVERIFY(hash1.key(2, def) == "deux" || hash1.key(2, def) == "two");
         QCOMPARE(hash1.key(3), QString());
+        QCOMPARE(hash1.key(3, def), def);
     }
 
     {
+        int def = 666;
+
         QHash<int, QString> hash2;
         QCOMPARE(hash2.key("one"), 0);
+        QCOMPARE(hash2.key("one", def), def);
 
         hash2.insert(1, "one");
         QCOMPARE(hash2.key("one"), 1);
+        QCOMPARE(hash2.key("one", def), 1);
         QCOMPARE(hash2.key("two"), 0);
+        QCOMPARE(hash2.key("two", def), def);
 
         hash2.insert(2, "two");
         QCOMPARE(hash2.key("one"), 1);
+        QCOMPARE(hash2.key("one", def), 1);
         QCOMPARE(hash2.key("two"), 2);
+        QCOMPARE(hash2.key("two", def), 2);
         QCOMPARE(hash2.key("three"), 0);
+        QCOMPARE(hash2.key("three", def), def);
 
         hash2.insert(3, "two");
         QCOMPARE(hash2.key("one"), 1);
+        QCOMPARE(hash2.key("one", def), 1);
         QCOMPARE(hash2.key("two"), 2);
+        QCOMPARE(hash2.key("two", def), 2);
         QCOMPARE(hash2.key("three"), 0);
+        QCOMPARE(hash2.key("three", def), def);
 
         hash2.insert(-1, "two");
         QCOMPARE(hash2.key("two"), -1);
+        QCOMPARE(hash2.key("two", def), -1);
+
+        hash2.insert(0, "zero");
+        QCOMPARE(hash2.key("zero"), 0);
+        QCOMPARE(hash2.key("zero", def), 0);
     }
 }
 

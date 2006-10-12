@@ -839,7 +839,7 @@ void QHashData::checkSanity()
 
     The order is guaranteed to be the same as that used by keys().
 
-    \sa keys()
+    \sa keys(), value()
 */
 
 /*! \fn QList<T> QHash::values(const Key &key) const
@@ -864,7 +864,18 @@ void QHashData::checkSanity()
     internal data structure is optimized for fast lookup by key, not
     by value.
 
-    \sa value(), values()
+    \sa value(), keys()
+*/
+
+/*! \fn Key QHash::key(const T &value, const Key &defaultKey) const
+    \overload
+
+    Returns the first key with value \a value, or \a defaultKey if
+    the hash contains no item with value \a value.
+
+    This function can be slow (\l{linear time}), because QHash's
+    internal data structure is optimized for fast lookup by key, not
+    by value.
 */
 
 /*! \fn int QHash::count(const Key &key) const
