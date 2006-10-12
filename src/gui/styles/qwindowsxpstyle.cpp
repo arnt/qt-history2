@@ -2081,17 +2081,17 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
 
             if (btn->features & QStyleOptionButton::HasMenu) {
                 int mbiw = 0, mbih = 0;
-                XPThemeData theme(widget, 0, "TOOLBAR", TP_SPLITBUTTONDROPDOWN);
+                XPThemeData theme(widget, 0, "TOOLBAR", TP_DROPDOWNBUTTON);
                 if (theme.isValid()) {
                     SIZE size;
-                    pGetThemePartSize(theme.handle(), 0, theme.partId, theme.stateId, 0, TS_TRUE, &size);
-                    mbiw = size.cx;
-                    mbih = size.cy;
+                    if (pGetThemePartSize(theme.handle(), 0, theme.partId, theme.stateId, 0, TS_TRUE, &size) == S_OK) {
+                        mbiw = size.cx;
+                        mbih = size.cy;
+                    }
                 }
-
-                QRect ir = btn->rect;
+                QRect ir = subElementRect(SE_PushButtonContents, option, widget);
                 QStyleOptionButton newBtn = *btn;
-                newBtn.rect = QRect(ir.right() - mbiw - 1, (ir.height()/2) - (mbih/2), mbiw, mbih);
+                newBtn.rect = QRect(ir.right() - mbiw - 1, (option->rect.height()/2) - (mbih/2), mbiw, mbih);
                 drawPrimitive(PE_IndicatorArrowDown, &newBtn, p, widget);
             }
             return;
@@ -2604,51 +2604,71 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
     case CC_ComboBox:
         if (const QStyleOptionComboBox *cmb = qstyleoption_cast<const QStyleOptionComboBox *>(option))
         {
-            if (sub & SC_ComboBoxEditField) {
-                partId = EP_EDITTEXT;
-                if (!(flags & State_Enabled))
-                    stateId = ETS_DISABLED;
-                else if (flags & State_HasFocus)
-                    stateId = ETS_FOCUSED;
-                else
-                    stateId = ETS_NORMAL;
-                XPThemeData theme(widget, p, "EDIT", partId, stateId, r);
+            if (cmb->editable || QSysInfo::WindowsVersion < QSysInfo::WV_VISTA) {
+                if (sub & SC_ComboBoxEditField) {
+                    partId = EP_EDITTEXT;
+                    if (!(flags & State_Enabled))
+                        stateId = ETS_DISABLED;
+                    else if (flags & State_HasFocus)
+                        stateId = ETS_FOCUSED;
+                    else
+                        stateId = ETS_NORMAL;
+                    XPThemeData theme(widget, p, "EDIT", partId, stateId, r);
 
-                d->drawBackground(theme);
-                if (!cmb->editable) {
-                    QRect re = subControlRect(CC_ComboBox, option, SC_ComboBoxEditField, widget);
-                    if (widget && widget->hasFocus()) {
-                        p->fillRect(re, option->palette.highlight());
-                        p->setPen(option->palette.highlightedText().color());
-                        p->setBackground(option->palette.highlight());
-                    } else {
-                        p->fillRect(re, option->palette.base());
-                        p->setPen(option->palette.text().color());
-                        p->setBackground(option->palette.base());
+                    d->drawBackground(theme);
+                    if (!cmb->editable) {
+                        QRect re = subControlRect(CC_ComboBox, option, SC_ComboBoxEditField, widget);
+                        if (widget && widget->hasFocus()) {
+                            p->fillRect(re, option->palette.highlight());
+                            p->setPen(option->palette.highlightedText().color());
+                            p->setBackground(option->palette.highlight());
+                        } else {
+                            p->fillRect(re, option->palette.base());
+                            p->setPen(option->palette.text().color());
+                            p->setBackground(option->palette.base());
+                        }
                     }
                 }
-            }
 
-            if (sub & SC_ComboBoxArrow) {
-                XPThemeData theme(widget, p, "COMBOBOX");
-                theme.rect = subControlRect(CC_ComboBox, option, SC_ComboBoxArrow, widget);
-                partId = CP_DROPDOWNBUTTON;
+                if (sub & SC_ComboBoxArrow) {
+                    if (QSysInfo::WindowsVersion < QSysInfo::WV_VISTA || (cmb->activeSubControls == SC_ComboBoxArrow && (cmb->state & (State_Sunken | State_MouseOver)))) {
+                        XPThemeData theme(widget, p, "COMBOBOX");
+                        theme.rect = subControlRect(CC_ComboBox, option, SC_ComboBoxArrow, widget);
+                        partId = CP_DROPDOWNBUTTON;
+                        if (!(flags & State_Enabled))
+                            stateId = CBXS_DISABLED;
+                        else if (cmb->activeSubControls == SC_ComboBoxArrow && (cmb->state & State_Sunken))
+                            stateId = CBXS_PRESSED;
+                        else if (cmb->activeSubControls == SC_ComboBoxArrow && (cmb->state & State_MouseOver))
+                            stateId = CBXS_HOT;
+                        else
+                            stateId = CBXS_NORMAL;
+                        theme.partId = partId;
+                        theme.stateId = stateId;
+                        d->drawBackground(theme);
+                    } else {
+                        QRect subRect = subControlRect(CC_ComboBox, option, SC_ComboBoxArrow, widget);
+                        QStyleOption opt;
+                        opt.palette = option->palette;
+                        opt.rect = subRect.adjusted(2, 2, 0, 0);
+                        opt.state = option->state;
+                        drawPrimitive(PE_IndicatorArrowDown, &opt, p, widget);
+                    }
+                }
 
-                if (!(flags & State_Enabled))
-                    stateId = CBXS_DISABLED;
-                else if (cmb->activeSubControls == SC_ComboBoxArrow && (cmb->state & State_Sunken))
-                    stateId = CBXS_PRESSED;
-                else if (cmb->activeSubControls == SC_ComboBoxArrow && (cmb->state & State_MouseOver))
-                    stateId = CBXS_HOT;
-                else
-                    stateId = CBXS_NORMAL;
-                theme.partId = partId;
-                theme.stateId = stateId;
-                d->drawBackground(theme);
+            } else {
+                if (sub & SC_ComboBoxFrame) {
+                    QStyleOptionButton btn;
+                    btn.palette = option->palette;
+                    btn.rect = option->rect.adjusted(-1, -1, 1, 1);
+                    btn.state = option->state;
+                    btn.features = QStyleOptionButton::HasMenu;
+                    drawControl(QStyle::CE_PushButton, &btn, p, widget);
+                }
+
             }
-        }
+       }
         break;
-
     case CC_ScrollBar:
         if (const QStyleOptionSlider *scrollbar = qstyleoption_cast<const QStyleOptionSlider *>(option))
         {
@@ -3591,7 +3611,6 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
         return QWindowsStyle::sizeFromContents(ct, option, contentsSize, widget);
 
     QSize sz(contentsSize);
-
     switch (ct) {
     case CT_LineEdit:
     case CT_ComboBox:
