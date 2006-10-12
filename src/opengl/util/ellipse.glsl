@@ -1,10 +1,14 @@
-#include "ellipse_functions.glsl"
-
 uniform vec4 solid_color;
 
 void main()
 {
-    ellipse();
+    vec2 st = gl_TexCoord[0].st;
+    vec2 r = gl_TexCoord[0].pq;
 
-    gl_FragColor = solid_color;
+    vec2 n = st/r;
+    float eps = dot(n, n);
+    if (eps < 1.)
+	gl_FragColor = solid_color;
+    else 
+	discard;
 }

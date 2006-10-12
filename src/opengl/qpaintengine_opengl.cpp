@@ -850,10 +850,10 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
             else
                 qWarning() << "QOpenGLPaintEngine: Unable to use conical gradient fragment shader.";
 
-            if (  qt_createFragmentProgram(ctx, d->ellipse_frag_program, ellipse_program)
-               && qt_createFragmentProgram(ctx, d->ellipse_aa_copy_frag_program, ellipse_aa_copy_program)
-               && qt_createFragmentProgram(ctx, d->ellipse_aa_frag_program, ellipse_aa_program)
-               && qt_createFragmentProgram(ctx, d->ellipse_aa_radial_frag_program, ellipse_aa_radial_program))
+            if (qt_createFragmentProgram(ctx, d->ellipse_frag_program, ellipse_program)
+                && qt_createFragmentProgram(ctx, d->ellipse_aa_copy_frag_program, ellipse_aa_copy_program)
+                && qt_createFragmentProgram(ctx, d->ellipse_aa_frag_program, ellipse_aa_program)
+                && qt_createFragmentProgram(ctx, d->ellipse_aa_radial_frag_program, ellipse_aa_radial_program))
                 d->has_ellipse_program = true;
             else
                 qWarning() << "QOpenGLPaintEngine: Unable to use ellipse fragment shader.";
@@ -2441,16 +2441,15 @@ void QOpenGLPaintEnginePrivate::activateEllipseProgram()
 
         if (composition_mode == QPainter::CompositionMode_Clear)
             glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
-
+        
         if (use_antialiasing) {
             glEnable(GL_FRAGMENT_PROGRAM_ARB);
             glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, ellipse_aa_frag_program);
-            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, solid_color);
         } else {
             glEnable(GL_FRAGMENT_PROGRAM_ARB);
             glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, ellipse_frag_program);
-            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, solid_color);
         }
+        glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, solid_color);
     } else if (brush_style == Qt::RadialGradientPattern) {
         glEnable(GL_FRAGMENT_PROGRAM_ARB);
         glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, ellipse_aa_radial_frag_program);
@@ -2483,7 +2482,7 @@ void QOpenGLPaintEnginePrivate::drawFastEllipse(float *vertexArray, float *texCo
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
     glVertexPointer(2, GL_FLOAT, 0, vertexArray);
-    glTexCoordPointer(2, GL_FLOAT, 0, texCoordArray);
+    glTexCoordPointer(4, GL_FLOAT, 0, texCoordArray);
 
     activateEllipseProgram();
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
@@ -2507,7 +2506,7 @@ void QOpenGLPaintEnginePrivate::drawOffscreenEllipse(float *vertexArray, float *
     DEBUG_ONCE_STR("QOpenGLPainterPrivate: Drawing ellipse using offscreen buffer");
 
     glVertexPointer(2, GL_FLOAT, 0, vertexArray);
-    glTexCoordPointer(2, GL_FLOAT, 0, texCoordArray);
+    glTexCoordPointer(4, GL_FLOAT, 0, texCoordArray);
 
     glEnableClientState(GL_VERTEX_ARRAY);
     setGradientOps(brush_style);
@@ -2562,7 +2561,7 @@ void QOpenGLPaintEnginePrivate::drawStencilEllipse(float *vertexArray, float *te
 
     // draw the coverage to the stencil buffer
     glVertexPointer(2, GL_FLOAT, 0, vertexArray);
-    glTexCoordPointer(2, GL_FLOAT, 0, texCoordArray);
+    glTexCoordPointer(4, GL_FLOAT, 0, texCoordArray);
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -2624,19 +2623,35 @@ void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
             int grow = d->use_antialiasing ? 4 : 0;
 
             float vertexArray[4 * 2];
-            float texCoordArray[4 * 2];
+            float texCoordArray[4 * 4];
 
             QRectF boundingRect = grow ? rect.adjusted(-grow, -grow, grow, grow) : rect;
             qt_add_rect_to_array(boundingRect, vertexArray);
 
-            if (grow) {
-                float wfactor = 2 * grow / float(rect.width());
-                float hfactor = 2 * grow / float(rect.height());
+            boundingRect.translate(-boundingRect.center());
+            qreal left = boundingRect.left();
+            qreal right = boundingRect.right();
+            qreal top = boundingRect.top();
+            qreal bottom = boundingRect.bottom();
+            float rx = rect.width()/2.;
+            float ry = rect.height()/2.;
 
-                qt_add_texcoords_to_array(-1.0 - wfactor, -1.0 - hfactor, 1.0 + wfactor, 1.0 + hfactor, texCoordArray);
-            } else {
-                qt_add_texcoords_to_array(-1.0, -1.0, 1.0, 1.0, texCoordArray);
-            }
+            texCoordArray[0] = left;
+            texCoordArray[1] = top;
+            texCoordArray[2] = rx;
+            texCoordArray[3] = ry;
+            texCoordArray[4] = right;
+            texCoordArray[5] = top;
+            texCoordArray[6] = rx;
+            texCoordArray[7] = ry;
+            texCoordArray[8] = right;
+            texCoordArray[9] = bottom;
+            texCoordArray[10] = rx;
+            texCoordArray[11] = ry;
+            texCoordArray[12] = left;
+            texCoordArray[13] = bottom;
+            texCoordArray[14] = rx;
+            texCoordArray[15] = ry;
 
             if (d->has_fast_brush)
                 d->drawFastEllipse(vertexArray, texCoordArray);

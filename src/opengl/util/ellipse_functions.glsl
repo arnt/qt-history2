@@ -1,17 +1,25 @@
-void ellipse()
-{
-    vec2 st = gl_TexCoord[0].st;
+// ellipse equation
 
-    discard (dot(st, st) > 1);
-}
+// x^2/a^2 + y^2/b^2 = 1
+//
+// f(x,y) = x^2/rx + y^2/ry
+
+// df/dx = 2x/rx
+// df/dy = 2y/ry
+
+// f(x,y) = 1 + e ~= 1 + sqrt((df/dx)^2 + (df/dy)^2)*dist
 
 float ellipse_aa()
 {
     vec2 st = gl_TexCoord[0].st;
+    vec2 r = gl_TexCoord[0].pq;
 
-    float Fxy = 1 - dot(st, st);
-    vec2 gradFxy = vec2(ddx(Fxy), ddy(Fxy));
-    float g = inversesqrt(dot(gradFxy, gradFxy));
+    vec2 n = st/r;
+	
+    float eps = 1. - dot(n, n);
+    vec2 r2 = r*r;
+    vec2 grad = 2.*st/r2;
+    float g = inversesqrt(dot(grad, grad));
 
-    return smoothstep(-0.55, 0.55, Fxy * g);
+    return smoothstep(-0.55, 0.55, eps * g);
 }

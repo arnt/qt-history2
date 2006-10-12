@@ -1,7 +1,9 @@
-#include "ellipse_functions.glsl"
+uniform vec2 r; // r_x and r_y
 
 uniform sampler2D texture;
 uniform vec2 inv_texture_size;
+
+#include "ellipse_functions.glsl"
 
 void main()
 {
