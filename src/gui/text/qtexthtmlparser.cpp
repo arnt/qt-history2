@@ -307,6 +307,41 @@ static QChar resolveEntity(const QString &entity)
     return e->code;
 }
 
+static const uint windowsLatin1ExtendedCharacters[0xA0 - 0x80] = {
+    0x20ac, // 0x80
+    0x0081, // 0x81 direct mapping
+    0x201a, // 0x82
+    0x0192, // 0x83
+    0x201e, // 0x84
+    0x2026, // 0x85
+    0x2020, // 0x86
+    0x2021, // 0x87
+    0x02C6, // 0x88
+    0x2030, // 0x89
+    0x0160, // 0x8A
+    0x2039, // 0x8B
+    0x0152, // 0x8C
+    0x008D, // 0x8D direct mapping
+    0x017D, // 0x8E
+    0x008F, // 0x8F directmapping
+    0x0090, // 0x90 directmapping
+    0x2018, // 0x91
+    0x2019, // 0x92
+    0x201C, // 0x93
+    0X201D, // 0x94
+    0x2022, // 0x95
+    0x2013, // 0x96
+    0x2014, // 0x97
+    0x02DC, // 0x98
+    0x2122, // 0x99
+    0x0161, // 0x9A
+    0x203A, // 0x9B
+    0x0153, // 0x9C
+    0x009D, // 0x9D direct mapping
+    0x017E, // 0x9E
+    0x0178  // 0x9F
+};
+
 // the displayMode value is according to the what are blocks in the piecetable, not
 // what the w3c defines.
 static const QTextHtmlElement elements[Html_NumElements]= {
@@ -794,10 +829,10 @@ QString QTextHtmlParser::parseEntity()
             base = 16;
         }
 
-        int uc = entity.toInt(&ok, base);
+        uint uc = entity.toUInt(&ok, base);
         if (ok) {
-            if (uc == 151) // ### hack for designer manual
-                uc = '-';
+            if (uc >= 0x80 && uc < 0x80 + (sizeof(windowsLatin1ExtendedCharacters)/sizeof(windowsLatin1ExtendedCharacters[0])))
+                uc = windowsLatin1ExtendedCharacters[uc - 0x80];
             QString str;
             if (uc > 0xffff) {
                 // surrogate pair
