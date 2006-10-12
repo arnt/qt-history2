@@ -149,6 +149,7 @@ private:
     void command_save(QRegExp re);
     void command_scale(QRegExp re);
     void command_setBackground(QRegExp re);
+    void command_setOpacity(QRegExp re);
     void command_setBgMode(QRegExp re);
     void command_setBrush(QRegExp re);
     void command_setBrushOrigin(QRegExp re);

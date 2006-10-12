@@ -212,6 +212,7 @@ void PaintCommands::runCommands()
         static QRegExp mapQuadToQuad("mapQuadToQuad\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)");
         static QRegExp setMatrix("setMatrix\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)\\s+(-?[.\\w]*)");
         static QRegExp setBackground("setBackground\\s+#?(\\w*)\\s*(\\w*)?");
+        static QRegExp setOpacity("setOpacity\\s+(-?[\\w.]*)");
         static QRegExp setBgMode("setBackgroundMode\\s+(\\w*)");
         static QRegExp setBrush("setBrush\\s+(#?[\\w.:\\/]*)\\s*(\\w*)?");
         static QRegExp setBrushOrigin("setBrushOrigin\\s*(-?\\w*)\\s+(-?\\w*)");
@@ -271,6 +272,7 @@ void PaintCommands::runCommands()
         // Setters
         commandTable.append(PaintCommand(setBgMode,           &PaintCommands::command_setBgMode));
         commandTable.append(PaintCommand(setBackground,       &PaintCommands::command_setBackground));
+        commandTable.append(PaintCommand(setOpacity,          &PaintCommands::command_setOpacity));
         commandTable.append(PaintCommand(setBrush,            &PaintCommands::command_setBrush));
         commandTable.append(PaintCommand(setBrushOrigin,      &PaintCommands::command_setBrushOrigin));
         commandTable.append(PaintCommand(brushTranslate,      &PaintCommands::command_brushTranslate));
@@ -1425,6 +1427,16 @@ void PaintCommands::command_setBackground(QRegExp re)
     painter->setBackground(QBrush(color, Qt::BrushStyle(style)));
 }
 
+void PaintCommands::command_setOpacity(QRegExp re)
+{
+    QStringList caps = re.capturedTexts();
+    double opacity = convertToDouble(caps.at(1));
+
+    if (verboseMode)
+        printf(" - setOpacity(%lf)\n", opacity);
+
+    painter->setOpacity(opacity);
+}
 
 void PaintCommands::command_setBgMode(QRegExp re)
 {
