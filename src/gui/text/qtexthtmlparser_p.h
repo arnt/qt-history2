@@ -97,9 +97,10 @@ enum QTextHTMLElements {
     Html_thead,
     Html_tbody,
     Html_tfoot,
-    Html_html,
+    Html_caption,
 
     // misc...
+    Html_html,
     Html_style,
     Html_title,
     Html_meta,
@@ -208,6 +209,7 @@ struct QTextHtmlParserNode {
             case Html_thead:
             case Html_tbody:
             case Html_tfoot: return (parentId == Html_table);
+            case Html_caption: return (parentId == Html_table);
             default: break;
         }
         return true;

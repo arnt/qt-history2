@@ -317,6 +317,7 @@ static const QTextHtmlElement elements[Html_NumElements]= {
     { "blockquote", Html_blockquote, QTextHtmlElement::DisplayBlock },
     { "body",       Html_body,       QTextHtmlElement::DisplayBlock },
     { "br",         Html_br,         QTextHtmlElement::DisplayInline },
+    { "caption",    Html_caption,    QTextHtmlElement::DisplayBlock },
     { "center",     Html_center,     QTextHtmlElement::DisplayBlock },
     { "cite",       Html_cite,       QTextHtmlElement::DisplayInline },
     { "code",       Html_code,       QTextHtmlElement::DisplayInline },
@@ -601,41 +602,6 @@ int QTextHtmlParser::topMargin(int i) const
     if (!i)
         return 0;
     return at(i).margin[MarginTop];
-    // we do margin collapsing in QTextDocumentFragment
-#if 0
-    int m = 0;
-    const QTextHtmlParserNode *node;
-    while (i) {
-        node = &at(i);
-        if (!node->isBlock)
-            return 0;
-        m = qMax(m, node->margin[MarginTop]);
-
-        // collapsing margins across table cells makes no sense
-        if (node->isTableCell)
-            break;
-
-        // don't collapse margins across list items
-        // (the top margin of the list is merged as part of the block
-        // merging in documentfragment.cpp)
-        if (node->isListItem)
-            break;
-
-        // <ul>
-        //  ..
-        //  <ul> <-- this one should not take the first <ul>'s margin into account
-        if (node->isNestedList(this))
-            break;
-
-        // get previous block
-        while (i-1 && !at(i-1).isBlock)
-            --i;
-        if (i && node->parent == at(i).parent)
-            break;
-        i = node->parent;
-    }
-    return m;
-#endif
 }
 
 int QTextHtmlParser::bottomMargin(int i) const
@@ -643,39 +609,6 @@ int QTextHtmlParser::bottomMargin(int i) const
     if (!i)
         return 0;
     return at(i).margin[MarginBottom];
-#if 0
-    // we do margin collapsing in QTextDocumentFragment
-    int m = 0;
-    const QTextHtmlParserNode *node;
-    while (i) {
-        node = &at(i);
-        if (!node->isBlock)
-            return 0;
-        m = qMax(m, node->margin[MarginBottom]);
-
-        // collapsing margins across table cells makes no sense
-        if (node->isTableCell)
-            break;
-
-        // don't collapse margins across list items
-        if (node->isListItem)
-            break;
-
-        // <ul>
-        //  ..
-        //  <ul> <-- this one should not take the first <ul>'s margin into account
-        if (node->isNestedList(this))
-            break;
-
-        // get next block
-        while (i+1 < count() && !at(i+1).isBlock)
-            ++i;
-        if (i && node->parent == at(i).parent)
-            break;
-        i = node->parent;
-    }
-    return m;
-#endif
 }
 
 void QTextHtmlParser::eatSpace()
@@ -1069,7 +1002,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     if (parent->displayMode == QTextHtmlElement::DisplayNone)
         displayMode = QTextHtmlElement::DisplayNone;
 
-    if (parent->id != Html_table) {
+    if (parent->id != Html_table || id == Html_caption) {
         alignment = parent->alignment;
     }
     // we don't paint per-row background colors, yet. so as an

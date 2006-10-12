@@ -176,6 +176,7 @@ private slots:
     void html_tableStrangeNewline();
     void html_tableStrangeNewline2();
     void html_tableStrangeNewline3();
+    void html_caption();
 
 private:
     inline void setHtml(const QString &html)
@@ -2637,6 +2638,29 @@ void tst_QTextDocumentFragment::html_tableStrangeNewline3()
     cell = table->cellAt(0, 1);
     QCOMPARE(cell.firstCursorPosition().block().text(), QString("Foo"));
     QVERIFY(cell.firstCursorPosition().block() == cell.lastCursorPosition().block());
+}
+
+void tst_QTextDocumentFragment::html_caption()
+{
+    doc->setHtml("<table border align=center>"
+                 "<caption>This <b>   is a</b> Caption!</caption>"
+                 "<tr><td>Blah</td></tr>"
+                 "</table>");
+
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::NextBlock);
+
+    QCOMPARE(cursor.block().text(), QString("This is a Caption!"));
+    QVERIFY(cursor.blockFormat().alignment() == Qt::AlignHCenter);
+
+    cursor.movePosition(QTextCursor::NextBlock);
+    QTextTable *table = cursor.currentTable();
+    QVERIFY(table);
+    QCOMPARE(table->rows(), 1);
+    QCOMPARE(table->columns(), 1);
+
+    QTextTableCell cell = table->cellAt(0, 0);
+    QCOMPARE(cell.firstCursorPosition().block().text(), QString("Blah"));
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)

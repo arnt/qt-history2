@@ -962,6 +962,7 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
         table.frame = cursor.insertFrame(fmt);
         table.isTextFrame = true;
     } else {
+        const int oldPos = cursor.position();
         QTextTable *textTable = cursor.insertTable(table.rows, table.columns, fmt.toTableFormat());
         table.frame = textTable;
 
@@ -978,6 +979,7 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
             }
 
         table.currentCell = TableCellIterator(textTable);
+        cursor.setPosition(oldPos); // restore for caption support which needs to be inserted right before the table
     }
     return table;
 }
