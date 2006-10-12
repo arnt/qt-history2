@@ -314,7 +314,7 @@ class PropertyNode;
 class FunctionNode : public LeafNode
 {
 public:
-    enum Metaness { Plain, Signal, Slot, Ctor, Dtor, MacroWithParams, MacroWithoutParams };
+    enum Metaness { Plain, Signal, Slot, Ctor, Dtor, MacroWithParams, MacroWithoutParams, Native };
     enum Virtualness { NonVirtual, ImpureVirtual, PureVirtual };
 
     FunctionNode(InnerNode *parent, const QString &name);

@@ -971,7 +971,7 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
     }
 }
 
-QString HtmlGenerator::fileExtension()
+QString HtmlGenerator::fileExtension(const Node * /* node */)
 {
     return "html";
 }
@@ -1286,7 +1286,7 @@ QString HtmlGenerator::generateListOfAllMemberFile(const InnerNode *inner, CodeM
     if (sections.isEmpty())
         return QString();
 
-    QString fileName = fileBase(inner) + "-members." + fileExtension();
+    QString fileName = fileBase(inner) + "-members." + fileExtension(inner);
     beginSubPage(inner->location(), fileName);
     QString title = "List of All Members for " + inner->name();
     generateHeader(title, inner, marker, false);
@@ -1322,10 +1322,10 @@ QString HtmlGenerator::generateLowStatusMemberFile(const InnerNode *inner, CodeM
 
     if (status == CodeMarker::Compat) {
         title = "Qt 3 Support Members for " + inner->name();
-        fileName = fileBase(inner) + "-qt3." + fileExtension();
+        fileName = fileBase(inner) + "-qt3." + fileExtension(inner);
     } else {
         title = "Obsolete Members for " + inner->name();
-        fileName = fileBase(inner) + "-obsolete." + fileExtension();
+        fileName = fileBase(inner) + "-obsolete." + fileExtension(inner);
     }
 
     beginSubPage(inner->location(), fileName);
@@ -1955,7 +1955,9 @@ QString HtmlGenerator::protect( const QString& string )
             APPEND("&gt;");
         } else if (ch == '"') {
             APPEND("&quot;");        
-        } else if (ch.unicode() > 0x00FF) {
+        } else if (ch.unicode() > 0x00FF
+                   || (ch == '/' && i + 1 < n && string.at(i) == '*')) {
+            // we escape '/*' for the Javadoc generator
             APPEND("&#x");
             html += QString::number(ch.unicode(), 16);
             html += QChar(';');

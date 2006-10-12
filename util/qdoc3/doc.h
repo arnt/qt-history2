@@ -30,6 +30,8 @@ public:
 
     Doc& operator=( const Doc& doc );
 
+    void renameParameters(const QStringList &oldNames, const QStringList &newNames);
+
     const Location &location() const;
     bool isEmpty() const;
     const QString& source() const;
@@ -62,6 +64,8 @@ public:
     static QString canonicalTitle(const QString &title);
 
 private:
+    void detach();
+
     DocPrivate *priv;
 };
 

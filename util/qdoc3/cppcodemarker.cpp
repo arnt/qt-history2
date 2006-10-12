@@ -584,6 +584,7 @@ const Node *CppCodeMarker::resolveTarget(const QString &target, const Tree *tree
                 && func->metaness() != FunctionNode::MacroWithoutParams)
             return func;
     } else if (target.contains("#")) {
+        // ### this doesn't belong here; get rid of TargetNode hack
         int hashAt = target.indexOf("#");
         QString link = target.left(hashAt);
         QString ref = target.mid(hashAt + 1);

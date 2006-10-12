@@ -12,6 +12,25 @@
 #include "node.h"
 #include "tree.h"
 
+static void setPass1JambifiedDoc(Node *javaNode, const Node *cppNode)
+{
+    Doc newDoc(cppNode->doc());
+
+    if (javaNode->type() == Node::Function) {
+        if (cppNode->type() == Node::Function) {
+            QStringList javaParams = static_cast<const FunctionNode *>(javaNode)->parameterNames();
+            QStringList cppParams = static_cast<const FunctionNode *>(cppNode)->parameterNames();
+            newDoc.renameParameters(cppParams, javaParams);
+        } else {
+            
+        }
+    } else {
+        
+    }
+
+    javaNode->setDoc(newDoc);
+}
+
 JambiApiParser::JambiApiParser(Tree *cppTree)
     : cppTre(cppTree), javaTre(0), metJapiTag(false)
 {
@@ -63,8 +82,27 @@ void JambiApiParser::parseSourceFile(const Location &location, const QString &fi
 
 void JambiApiParser::doneParsingSourceFiles(Tree * /* tree */)
 {
+    /*
+        Also import the overview documents.
+    */
+    foreach (Node *cppNode, cppTre->root()->childNodes()) {
+        if (cppNode->type() == Node::Fake) {
+            FakeNode *cppFake = static_cast<FakeNode *>(cppNode);
+            if (cppFake->subType() == FakeNode::Page) {
+                FakeNode *javaFake = new FakeNode(javaTre->root(), cppFake->name(),
+                                                  cppFake->subType());
+                javaFake->setTitle(cppFake->title());
+                javaFake->setSubTitle(cppFake->subTitle());
+                setPass1JambifiedDoc(javaFake, cppFake);
+            }
+        }
+    }
+
+    /*
+        Fix the docs.
+    */
     if (javaTre) {
-        jambifyDocs(javaTre->root());
+        jambifyDocsPass2(javaTre->root());
         javaTre = 0;
     }
 }
@@ -124,11 +162,15 @@ bool JambiApiParser::startElement(const QString & /* namespaceURI */,
                 info.javaNode = new EnumNode(javaParent, info.javaName);
             }
             info.javaNode->setLocation(japiLocation);
-            info.javaNode->setDoc(info.cppNode->doc());
+
+            setPass1JambifiedDoc(info.javaNode, info.cppNode);
         }
         classAndEnumStack.push(info);
     } else if (qName == "method") {
         QString javaSignature = attributes.value("java");
+        if (javaSignature.startsWith("private"))
+            return true;
+
         QString cppSignature = attributes.value("cpp");
 
         CppCodeParser cppParser;
@@ -137,24 +179,6 @@ bool JambiApiParser::startElement(const QString & /* namespaceURI */,
                                                                  true /* fuzzy */);
         if (!cppNode) {
             bool quiet = false;
-
-#if 0   // ### get rid of this
-            /*
-                Functions reimplemented from the second base class
-                sometimes aren't implemented in C++ (e.g.,
-                QWidget::heightMM(), inherited from QPaintDevice).
-            */
-            QString javaImplements = classAndEnumStack.top().javaImplements;
-            if (!javaImplements.isEmpty()) {
-                if (javaImplements.endsWith("Interface"))   // evil
-                    javaImplements.chop(9);
-                Node *otherCppClass = cppTre->findNode(QStringList(javaImplements), Node::Class);
-                if (otherCppClass
-                        && cppParser.findFunctionNode(cppSignature, cppTre, otherCppClass,
-                                                      true /* fuzzy */))
-                    quiet = true;
-            }
-#endif
 
             /*
                 Default constructors sometimes don't exist in C++.
@@ -167,30 +191,43 @@ bool JambiApiParser::startElement(const QString & /* namespaceURI */,
                                      .arg(cppSignature).arg(cppParent->name()));
         }
 
-        FunctionNode *javaNode = new FunctionNode(javaParent, javaSignature /* wrong! */);
-        javaNode->setLocation(japiLocation);
-        if (cppNode)
-            javaNode->setDoc(cppNode->doc());
+        FunctionNode *javaNode;
+        if (makeFunctionNode(javaParent, javaSignature, &javaNode)) {
+            javaNode->setLocation(japiLocation);
+            if (cppNode) {
+                // ### handle:
+                //  * reimps
+                //  * \internal
+                //  * properties
+
+                setPass1JambifiedDoc(javaNode, cppNode);
+            }
+        }
     } else if (qName == "variablesetter" || qName == "variablegetter") {
         QString javaSignature = attributes.value("java");
+        if (javaSignature.startsWith("private"))
+            return true;
+
         QString cppVariable = attributes.value("cpp");
 
         VariableNode *cppNode = static_cast<VariableNode *>(cppParent->findNode(cppVariable,
                                                                                 Node::Variable));
-        FunctionNode *javaNode = new FunctionNode(javaParent, javaSignature /* wrong! */);
-        javaNode->setLocation(japiLocation);
+        FunctionNode *javaNode;
+        if (makeFunctionNode(javaParent, javaSignature, &javaNode)) {
+            javaNode->setLocation(japiLocation);
 
-        if (!cppNode) {
+            if (!cppNode) {
 #if 0
-            japiLocation.warning(tr("Cannot find C++ variable '%1' ('%2')")
-                                 .arg(cppVariable).arg(cppParent->name()));
+                japiLocation.warning(tr("Cannot find C++ variable '%1' ('%2')")
+                                     .arg(cppVariable).arg(cppParent->name()));
 #endif
-            javaNode->setDoc(Doc(japiLocation,
-                                 "This method is used internally internal by Qt "
-                                 "Jambi. Do not use it in your applications.",
-                                 QSet<QString>()));
-        } else {
-            javaNode->setDoc(cppNode->doc());
+                javaNode->setDoc(Doc(japiLocation,
+                                     "This method is used internally by Qt Jambi.\n"
+                                     "Do not use it in your applications.",
+                                     QSet<QString>()));
+            } else {
+                javaNode->setDoc(cppNode->doc());
+            }
         }
     } else if (qName == "enum-value") {
         QString javaName = attributes.value("java");
@@ -222,7 +259,7 @@ bool JambiApiParser::fatalError(const QXmlParseException &exception)
     return true;
 }
 
-void JambiApiParser::jambifyDocs(Node *node)
+void JambiApiParser::jambifyDocsPass2(Node *node)
 {
     const Doc &doc = node->doc();
     if (!doc.isEmpty()) {
@@ -234,6 +271,77 @@ void JambiApiParser::jambifyDocs(Node *node)
     if (node->isInnerNode()) {
         InnerNode *innerNode = static_cast<InnerNode *>(node);
         foreach (Node *child, innerNode->childNodes())
-            jambifyDocs(child);
+            jambifyDocsPass2(child);
     }
+}
+
+bool JambiApiParser::makeFunctionNode(InnerNode *parent, const QString &synopsis,
+				      FunctionNode **funcPtr)
+{
+    Node::Access access = Node::Public;
+    FunctionNode::Metaness metaness = FunctionNode::Plain;
+    bool final = false;
+    bool statique = false;
+
+    QString mySynopsis = synopsis.simplified();
+    int oldLen;
+    do {
+        oldLen = mySynopsis.length();
+
+        if (mySynopsis.startsWith("public ")) {
+            mySynopsis.remove(0, 7);
+            access = Node::Public;
+        }
+        if (mySynopsis.startsWith("protected ")) {
+            mySynopsis.remove(0, 10);
+            access = Node::Protected;
+        }
+        if (mySynopsis.startsWith("private ")) {
+            mySynopsis.remove(0, 8);
+            access = Node::Private;
+        }
+        if (mySynopsis.startsWith("native ")) {
+            mySynopsis.remove(0, 7);
+            metaness = FunctionNode::Native;
+        }
+        if (mySynopsis.startsWith("final ")) {
+            mySynopsis.remove(0, 6);
+            final = true;
+        }
+        if (mySynopsis.startsWith("static ")) {
+            mySynopsis.remove(0, 7);
+            statique = true;
+        }
+    } while (oldLen != mySynopsis.length());
+
+    QRegExp funcRegExp("(.*) ([A-Za-z_0-9]+)\\((.*)\\)");
+    if (!funcRegExp.exactMatch(mySynopsis))
+        return false;
+
+    QString retType = funcRegExp.cap(1);
+    QString funcName = funcRegExp.cap(2);
+    QStringList params = funcRegExp.cap(3).split(",");
+
+    FunctionNode *func = new FunctionNode(parent, funcName);
+    func->setReturnType(retType);
+    func->setAccess(access);
+    func->setStatic(statique);
+    func->setConst(final);
+
+    QRegExp paramRegExp(" ?([^ ].*) ([A-Za-z_0-9]+) ?");
+
+    foreach (QString param, params) {
+        if (paramRegExp.exactMatch(param)) {
+            func->addParameter(Parameter(paramRegExp.cap(1), "", paramRegExp.cap(2)));
+        } else {
+            // problem
+        }
+    }
+
+    if (funcPtr) {
+        *funcPtr = func;
+    } else if (!parent) {
+        delete func;
+    }
+    return true;
 }

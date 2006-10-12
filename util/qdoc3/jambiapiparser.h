@@ -41,7 +41,8 @@ private:
     bool endElement(const QString &namespaceURI, const QString &localName,
                     const QString &qName);
     bool fatalError(const QXmlParseException &exception);
-    void jambifyDocs(Node *node);
+    void jambifyDocsPass2(Node *node);
+    bool makeFunctionNode(InnerNode *parent, const QString &synopsis, FunctionNode **funcPtr);
 
     Tree *cppTre;
     Tree *javaTre;

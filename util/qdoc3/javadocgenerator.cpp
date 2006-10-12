@@ -1,5 +1,49 @@
 #include "javadocgenerator.h"
 
+enum JavaSignatureSyntax {
+    GeneratedJdocFile,
+    JavadocRef
+};
+
+static QString javaSignature(const FunctionNode *func, JavaSignatureSyntax syntax)
+{
+    QString result;
+
+    if (syntax == GeneratedJdocFile) {
+        if (func->access() == Node::Public) {
+            result += "public ";
+        } else if (func->access() == Node::Protected) {
+            result += "protected ";
+        } else {
+            result += "private ";
+        }
+
+        if (func->isConst())
+            result += "final ";
+
+        if (func->isStatic())
+            result += "static ";
+
+        result += func->returnType();
+        result += ' ';
+    }
+
+    result += func->name();
+    result += '(';
+    for (int i = 0; i < func->parameters().count(); ++i) {
+        if (i != 0)
+            result += ", ";
+        result += func->parameters().at(i).leftType();
+        if (syntax == GeneratedJdocFile) {
+            result += ' ';
+            result += func->parameters().at(i).name();
+        }
+    }
+    result += ')';
+
+    return result;
+}
+
 JavadocGenerator::JavadocGenerator()
     : oldDevice(0), currentDepth(0)
 {
@@ -29,14 +73,20 @@ void JavadocGenerator::generateTree(const Tree *tree, CodeMarker *marker)
     HtmlGenerator::generateTree(tree, marker);
 }
 
-QString JavadocGenerator::fileExtension()
+QString JavadocGenerator::fileExtension(const Node *node)
 {
-    return "jdoc";
+    if (node->type() == Node::Fake) {
+        return "html";
+    } else {
+        return "jdoc";
+    }
 }
 
 void JavadocGenerator::startText(const Node *relative, CodeMarker *marker)
 {
+    Q_ASSERT(!oldDevice);
     oldDevice = out().device();
+    Q_ASSERT(oldDevice);
     out().setString(&buffer);
     HtmlGenerator::startText(relative, marker);
 }
@@ -44,8 +94,11 @@ void JavadocGenerator::startText(const Node *relative, CodeMarker *marker)
 void JavadocGenerator::endText(const Node *relative, CodeMarker *marker)
 {
     HtmlGenerator::endText(relative, marker);
+    Q_ASSERT(oldDevice);
     out().setDevice(oldDevice);
+    oldDevice = 0;
 
+    buffer.replace("&", "&amp;");
     buffer.replace("\"", "&quote;");
     out() << buffer;
     buffer.clear();
@@ -55,14 +108,6 @@ int JavadocGenerator::generateAtom(const Atom *atom, const Node *relative, CodeM
 {
     return HtmlGenerator::generateAtom(atom, relative, marker);
 }
-
-/*
-    enum
-    method
-    variablesetter
-    variablegetter
-    enum-value
-*/
 
 void JavadocGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *marker)
 {
@@ -83,7 +128,10 @@ void JavadocGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker 
                 out() << "/>\n";
             } else if (node->type() == Node::Function) {
                 generateIndent();
-                out() << "<method name=\"" << protect(node->name()) << "\"";
+                out() << "<method name=\""
+                      << protect(javaSignature(static_cast<FunctionNode *>(node),
+                                               GeneratedJdocFile))
+                      << "\"";
                 generateDoc(node, marker);
                 out() << "/>\n";
             }
@@ -110,9 +158,35 @@ void JavadocGenerator::generateBody(const Node *node, CodeMarker *marker)
     generateText(node->doc().body(), node, marker);
 }
 
-void JavadocGenerator::generateAlsoList(const Node *node, CodeMarker *marker)
+void JavadocGenerator::generateAlsoList(const Node * /* node */, CodeMarker * /* marker */)
 {
     // ###
+}
+
+QString JavadocGenerator::refForNode( const Node *node )
+{
+    if (node->type() == Node::Function)
+        return javaSignature(static_cast<const FunctionNode *>(node), JavadocRef);
+
+    return HtmlGenerator::refForNode(node);
+}
+
+QString JavadocGenerator::linkForNode( const Node *node, const Node *relative )
+{
+    if (node->type() == Node::Fake) {
+        return node->name();
+    } else {
+        if (!node->isInnerNode()) {
+            return linkForNode(node->parent(), relative) + "#" + refForNode(node);
+        } else {
+            return node->name() + ".html";
+        }
+    }
+}
+
+QString JavadocGenerator::refForAtom(Atom *atom, const Node *node)
+{
+    return HtmlGenerator::refForAtom(atom, node);
 }
 
 /*
@@ -138,7 +212,7 @@ void JavadocGenerator::generateDoc(const Node *node, CodeMarker *marker)
 {
     if (!node->doc().body().isEmpty()) {
         out() << " doc=\"/**\n";
-        generateText(node->doc().body(), node, marker);
-        out() << "\n*/\"";
+        generateText(node->doc().body(), node, marker); // ### handle '*/'
+        out() << " */\"";
     }
 }

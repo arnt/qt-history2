@@ -2096,6 +2096,29 @@ Doc &Doc::operator=( const Doc& doc )
     return *this;
 }
 
+void Doc::renameParameters(const QStringList &oldNames, const QStringList &newNames)
+{
+    if (priv && oldNames != newNames) {
+        detach();
+
+        priv->params = newNames.toSet();
+
+        Atom *atom = priv->text.firstAtom();
+        while (atom) {
+            if (atom->type() == Atom::FormattingLeft
+                    && atom->string() == ATOM_FORMATTING_PARAMETER) {
+                atom = atom->next();
+                if (!atom)
+                    return;
+                int index = oldNames.indexOf(atom->string());
+                if (index != -1 && index < newNames.count())
+                    atom->setString(newNames.at(index));
+            }
+            atom = atom->next();
+        }
+    }
+}
+
 const Location &Doc::location() const
 {
     static const Location dummy;
@@ -2475,4 +2498,19 @@ QString Doc::canonicalTitle(const QString &title)
     result = result.simplified();
     result.replace(QLatin1Char(' '), QLatin1Char('-'));
     return result;
+}
+
+void Doc::detach()
+{
+    if (!priv || priv->count == 1)
+        return;
+
+    --priv->count;
+
+    DocPrivate *newPriv = new DocPrivate(*priv);
+    newPriv->count = 1;
+    if (priv->extra)
+        newPriv->extra = new DocPrivateExtra(*priv->extra);
+
+    priv = newPriv;
 }

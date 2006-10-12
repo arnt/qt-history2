@@ -41,7 +41,10 @@ protected:
 			      CodeMarker *marker );
     virtual void generateClassLikeNode(const InnerNode *inner, CodeMarker *marker);
     virtual void generateFakeNode( const FakeNode *fake, CodeMarker *marker );
-    virtual QString fileExtension();
+    virtual QString fileExtension(const Node *node);
+    virtual QString refForNode( const Node *node );
+    virtual QString linkForNode( const Node *node, const Node *relative );
+    virtual QString refForAtom(Atom *atom, const Node *node);
 
 private:
     enum SubTitleSize { SmallSubTitle, LargeSubTitle };
@@ -96,9 +99,6 @@ private:
     QString fileBase( const Node *node, const SectionIterator& section );
 #endif
     QString fileName( const Node *node );
-    QString refForNode( const Node *node );
-    QString linkForNode( const Node *node, const Node *relative );
-    QString refForAtom(Atom *atom, const Node *node);
     void findAllClasses(const InnerNode *node);
     void findAllFunctions(const InnerNode *node);
     void findAllLegaleseTexts(const InnerNode *node);

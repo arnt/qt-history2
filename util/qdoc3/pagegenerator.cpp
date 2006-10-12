@@ -59,7 +59,7 @@ QString PageGenerator::fileBase(const Node *node)
 
 QString PageGenerator::fileName( const Node *node )
 {
-    return fileBase( node ) + "." + fileExtension();
+    return fileBase(node) + "." + fileExtension(node);
 }
 
 QString PageGenerator::outFileName()

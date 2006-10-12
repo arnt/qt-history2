@@ -4,6 +4,8 @@
 
 #include "javacodemarker.h"
 #include "node.h"
+#include "text.h"
+#include "tree.h"
 
 JavaCodeMarker::JavaCodeMarker()
 {
@@ -89,7 +91,7 @@ QString JavaCodeMarker::markedUpIncludes( const QStringList& /* includes */ )
     return QString();
 }
 
-QString JavaCodeMarker::functionBeginRegExp( const QString& funcName )
+QString JavaCodeMarker::functionBeginRegExp( const QString& /* funcName */)
 {
     return "^x$"; // ### invalid regexp
 }
@@ -105,9 +107,46 @@ QList<Section> JavaCodeMarker::sections(const InnerNode * /* inner */, SynopsisS
     return QList<Section>();
 }
 
-const Node *JavaCodeMarker::resolveTarget( const QString& /* target */,
-                                         const Tree * /* tree */,
-					 const Node * /* relative */ )
+const Node *JavaCodeMarker::resolveTarget(const QString &target, const Tree *tree,
+					  const Node *relative)
 {
+    if (target.endsWith("()")) {
+        const FunctionNode *func;
+        QString funcName = target;
+        funcName.chop(2);
+
+        QStringList path = funcName.split('.');
+        if ((func = tree->findFunctionNode(path, relative, Tree::SearchBaseClasses)))
+            return func;
+    } else if (target.contains("#")) {
+        int hashAt = target.indexOf("#");
+        QString link = target.left(hashAt);
+        QString ref = target.mid(hashAt + 1);
+        const Node *node;
+        if (link.isEmpty()) {
+            node = relative;
+        } else {
+            QStringList path(link);
+            node = tree->findNode(path, tree->root(), Tree::SearchBaseClasses);
+        }
+        if (node && node->isInnerNode()) {
+            const Atom *atom = node->doc().body().firstAtom();
+            while (atom) {
+                if (atom->type() == Atom::Target && atom->string() == ref) {
+                    Node *parentNode = const_cast<Node *>(node);
+                    return new TargetNode(static_cast<InnerNode*>(parentNode),
+                                          ref);
+                }
+                atom = atom->next();
+            }
+        }
+    } else {
+        QStringList path = target.split('.');
+        const Node *node;
+        if ((node = tree->findNode(path, relative,
+                                   Tree::SearchBaseClasses | Tree::SearchEnumValues
+                                   | Tree::NonFunction)))
+            return node;
+    }
     return 0;
 }

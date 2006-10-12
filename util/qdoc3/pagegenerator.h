@@ -25,7 +25,7 @@ public:
 
 protected:
     virtual QString fileBase(const Node *node);
-    virtual QString fileExtension() = 0;
+    virtual QString fileExtension(const Node *node) = 0;
     QString fileName( const Node *node );
     QString outFileName();
     void beginSubPage( const Location& location, const QString& fileName );

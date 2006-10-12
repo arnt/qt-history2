@@ -20,7 +20,7 @@ protected:
 			      CodeMarker *marker );
     virtual void generateClassLikeNode(const InnerNode *node, CodeMarker *marker);
     virtual void generateFakeNode( const FakeNode *fake, CodeMarker *marker );
-    virtual QString fileExtension();
+    virtual QString fileExtension(const Node *node);
 
 private:
     void generateHeader( const QString& name );

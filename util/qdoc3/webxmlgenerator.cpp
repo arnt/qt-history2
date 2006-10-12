@@ -40,7 +40,7 @@ QString WebXMLGenerator::format()
     return "WebXML";
 }
 
-QString WebXMLGenerator::fileExtension()
+QString WebXMLGenerator::fileExtension(const Node * /* node */)
 {
     return "xml";
 }

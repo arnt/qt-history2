@@ -30,7 +30,7 @@ protected:
 			      CodeMarker *marker );
     virtual void generateClassLikeNode(const InnerNode *inner, CodeMarker *marker);
     virtual void generateFakeNode( const FakeNode *fake, CodeMarker *marker );
-    virtual QString fileExtension();
+    virtual QString fileExtension(const Node *node);
 
     virtual const Atom *addAtomElements(QDomElement &parent, const Atom *atom,
                                  const Node *relative, CodeMarker *marker);
