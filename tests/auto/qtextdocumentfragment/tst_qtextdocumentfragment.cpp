@@ -173,6 +173,8 @@ private slots:
     void html_preNewlineHandling();
     void html_br();
     void html_dl();
+    void html_tableStrangeNewline();
+    void html_tableStrangeNewline2();
 
 private:
     inline void setHtml(const QString &html)
@@ -2573,6 +2575,34 @@ void tst_QTextDocumentFragment::html_dl()
 {
     doc->setHtml("<dl><dt>term<dd>data</dl>Text afterwards");
     QCOMPARE(doc->toPlainText(), QString("term\ndata\nText afterwards"));
+}
+
+void tst_QTextDocumentFragment::html_tableStrangeNewline()
+{
+    doc->setHtml("<table><tr><td>Foo</td></tr>\n</table>");
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::NextBlock);
+    QTextTable *table = cursor.currentTable();
+    QVERIFY(table);
+    QCOMPARE(table->rows(), 1);
+    QCOMPARE(table->columns(), 1);
+    const QTextTableCell cell = table->cellAt(0, 0);
+    QCOMPARE(cell.firstCursorPosition().block().text(), QString("Foo"));
+    QVERIFY(cell.firstCursorPosition().block() == cell.lastCursorPosition().block());
+}
+
+void tst_QTextDocumentFragment::html_tableStrangeNewline2()
+{
+    doc->setHtml("<table><tr><td>Foo</td></tr><tr>\n<td/></tr></table>");
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::NextBlock);
+    QTextTable *table = cursor.currentTable();
+    QVERIFY(table);
+    QCOMPARE(table->rows(), 2);
+    QCOMPARE(table->columns(), 1);
+    const QTextTableCell cell = table->cellAt(0, 0);
+    QCOMPARE(cell.firstCursorPosition().block().text(), QString("Foo"));
+    QVERIFY(cell.firstCursorPosition().block() == cell.lastCursorPosition().block());
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)

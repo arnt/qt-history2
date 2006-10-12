@@ -408,7 +408,7 @@ QTextHtmlImporter::QTextHtmlImporter(QTextDocument *_doc, const QString &_html, 
     }
 
     parse(html, resourceProvider ? resourceProvider : doc);
-    //dumpHtml();
+//    dumpHtml();
 }
 
 static QTextListFormat::Style nextListStyle(QTextListFormat::Style style)
@@ -429,6 +429,7 @@ void QTextHtmlImporter::import()
     for (int i = 0; i < count(); ++i) {
         const QTextHtmlParserNode *node = &at(i);
         wsm = node->wsm;
+        bool blockTagClosed = false;
 
         /*
          * process each node in three stages:
@@ -450,24 +451,9 @@ void QTextHtmlImporter::import()
          *      means there was a tag closing in the input html
          */
         if (i > 0 && (node->parent != i - 1)) {
-            const bool blockTagClosed = closeTag(i);
-            if (hasBlock && blockTagClosed)
+            blockTagClosed = closeTag(i);
+            if (blockTagClosed)
                 hasBlock = false;
-
-            // make sure there's a block for 'Blah' after <ul><li>foo</ul>Blah
-            if (blockTagClosed
-                && !hasBlock
-                && !node->isBlock
-                && !node->text.isEmpty()
-                && node->displayMode != QTextHtmlElement::DisplayNone) {
-
-                QTextBlockFormat block = node->blockFormat();
-                block.setIndent(indent);
-
-                appendBlock(block, node->charFormat());
-
-                hasBlock = true;
-            }
         }
 
         if (node->displayMode == QTextHtmlElement::DisplayNone) {
@@ -551,6 +537,21 @@ void QTextHtmlImporter::import()
             appendBlock(blockFormat);
             hasBlock = false;
             continue;
+        }
+
+        // make sure there's a block for 'Blah' after <ul><li>foo</ul>Blah
+        if (blockTagClosed
+            && !hasBlock
+            && !node->isBlock
+            && !node->text.isEmpty()
+            && node->displayMode != QTextHtmlElement::DisplayNone) {
+
+            QTextBlockFormat block = node->blockFormat();
+            block.setIndent(indent);
+
+            appendBlock(block, node->charFormat());
+
+            hasBlock = true;
         }
 
         if (node->isBlock) {
