@@ -920,6 +920,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
     } else { //respect some other items
         //shortcuts
         if (accel.isEmpty()) {
+            data.whichData |= kMenuItemDataCmdKey;
             data.whichData |= kMenuItemDataCmdKeyModifiers;
             data.whichData |= kMenuItemDataCmdKeyGlyph;
         } else {
