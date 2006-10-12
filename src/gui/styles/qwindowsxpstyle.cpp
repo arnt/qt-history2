@@ -3593,6 +3593,35 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
     QSize sz(contentsSize);
 
     switch (ct) {
+    case CT_LineEdit:
+    case CT_ComboBox:
+        {   
+            HTHEME theme = pOpenThemeData(QWindowsXPStylePrivate::winId(widget), L"Button");
+            MARGINS borderSize;
+            if (theme) {
+                int result = pGetThemeMargins(theme,
+                                              NULL,
+                                              BP_PUSHBUTTON,
+                                              PBS_NORMAL,
+                                              TMT_CONTENTMARGINS,
+                                              NULL,
+                                              &borderSize);
+                if (result == S_OK) {
+                    sz += QSize(borderSize.cxLeftWidth + borderSize.cxRightWidth - 2, 
+                                borderSize.cyBottomHeight + borderSize.cyTopHeight - 2);
+                }
+                sz += QSize(23, 0); //arrow button 
+            }
+        }
+        break;
+    case CT_SpinBox: 
+        {
+            //Spinbox adds frame twice
+            sz = QWindowsStyle::sizeFromContents(ct, option, contentsSize, widget);
+            int border = pixelMetric(PM_SpinBoxFrameWidth, option, widget);
+            sz -= QSize(2*border, 2*border);
+        }
+        break;
     case CT_TabWidget:
         sz += QSize(6, 6);
         break;
