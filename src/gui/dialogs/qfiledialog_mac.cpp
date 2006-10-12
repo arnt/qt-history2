@@ -26,6 +26,7 @@
 #include <private/qt_mac_p.h>
 #include <qregexp.h>
 #include <qbuffer.h>
+#include <qdebug.h>
 #include <qstringlist.h>
 #include <qtextcodec.h>
 #include <qdesktopwidget.h>
@@ -98,8 +99,8 @@ static QList<qt_mac_filter_name*> qt_mac_make_filters_list(const QString &filter
     for (QStringList::Iterator it = filts.begin(); it != filts.end(); ++it) {
         qt_mac_filter_name *filter = qt_mac_extract_filter((*it));
 #ifdef DEBUG_FILEDIALOG_FILTERS
-        qDebug("QFileDialog:%d Split out filter (%d) '%s' '%s'", __LINE__, ret.count(),
-               filter->regxp.latin1(), filter->description.latin1());
+        qDebug("QFileDialog:%d Split out filter (%d) '%s' '%s' [%s]", __LINE__, ret.count(),
+               filter->regxp.latin1(), filter->description.latin1(), (*it).latin1());
 #endif
         ret.append(filter);
     }
@@ -108,6 +109,7 @@ static QList<qt_mac_filter_name*> qt_mac_make_filters_list(const QString &filter
 
 struct qt_mac_nav_filter_type {
     int index;
+    bool saveDialog;
     QList<qt_mac_filter_name*> *filts;
 };
 
@@ -189,6 +191,17 @@ static void qt_mac_filedialog_event_proc(const NavEventCallbackMessage msg,
         qt_mac_nav_filter_type *t = (qt_mac_nav_filter_type *)myd;
         NavMenuItemSpec *s = (NavMenuItemSpec*)p->eventData.eventDataParms.param;
         t->index = s->menuType;
+        if(t->saveDialog) {
+            QString base = QCFString::toQString(NavDialogGetSaveFileName(p->context));
+            QFileInfo fi(base);
+            base = fi.baseName(true);
+            qt_mac_filter_name *fn = t->filts->at(t->index);
+            QStringList reg = QStringList::split(";", fn->regxp);
+            QString r = reg.first();
+            r  = r.right(r.length()-1);      // Strip the *
+            base += r;                        //"." + QString::number(s->menuType);
+            NavDialogSetSaveFileName(p->context, QCFString::toCFStringRef(base));
+        }
 #ifdef DEBUG_FILEDIALOG_FILTERS
         qDebug("QFileDialog:%d - Selected a filter: %ld", __LINE__, s->menuType);
 #endif
@@ -272,13 +285,14 @@ QStringList qt_mac_get_open_file_names(const QFileDialogArgs &args, QString *pwd
 
     QList<qt_mac_filter_name*> filts = qt_mac_make_filters_list(args.filter);
     qt_mac_nav_filter_type t;
+    t.saveDialog = false;
     t.index = 0;
     t.filts = &filts;
     if (filts.count() > 1) {
         int i = 0;
         CFStringRef *arr = static_cast<CFStringRef *>(malloc(sizeof(CFStringRef) * filts.count()));
         for (QList<qt_mac_filter_name*>::const_iterator it = filts.constBegin();
-                it != filts.constEnd(); ++it)
+             it != filts.constEnd(); ++it)
             arr[i++] = QCFString::toCFStringRef((*it)->description);
         options.popupExtension = CFArrayCreate(0, reinterpret_cast<const void **>(arr), filts.count(), 0);
     }
@@ -406,6 +420,7 @@ QString qt_mac_get_save_file_name(const QFileDialogArgs &args, QString *pwd,
 
     QList<qt_mac_filter_name*> filts = qt_mac_make_filters_list(args.filter);
     qt_mac_nav_filter_type t;
+    t.saveDialog = true;
     t.index = 0;
     t.filts = &filts;
     if (filts.count() > 1) {
