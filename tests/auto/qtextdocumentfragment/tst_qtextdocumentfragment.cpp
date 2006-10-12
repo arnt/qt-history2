@@ -175,6 +175,7 @@ private slots:
     void html_dl();
     void html_tableStrangeNewline();
     void html_tableStrangeNewline2();
+    void html_tableStrangeNewline3();
 
 private:
     inline void setHtml(const QString &html)
@@ -2601,6 +2602,39 @@ void tst_QTextDocumentFragment::html_tableStrangeNewline2()
     QCOMPARE(table->rows(), 2);
     QCOMPARE(table->columns(), 1);
     const QTextTableCell cell = table->cellAt(0, 0);
+    QCOMPARE(cell.firstCursorPosition().block().text(), QString("Foo"));
+    QVERIFY(cell.firstCursorPosition().block() == cell.lastCursorPosition().block());
+}
+
+void tst_QTextDocumentFragment::html_tableStrangeNewline3()
+{
+    doc->setHtml("<table border>"
+                 "<tr>"
+                 "<td>"
+                 "<ul>"
+                 "<li>Meh</li>"
+                 "</ul>"
+                 "</td>"
+                 "<td>\n"
+                 "<ul>"
+                 "<li>Foo</li>"
+                 "</ul>"
+                 "</td>"
+                 "</tr>"
+                 "</table>");
+
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::NextBlock);
+    QTextTable *table = cursor.currentTable();
+    QVERIFY(table);
+    QCOMPARE(table->rows(), 1);
+    QCOMPARE(table->columns(), 2);
+
+    QTextTableCell cell = table->cellAt(0, 0);
+    QCOMPARE(cell.firstCursorPosition().block().text(), QString("Meh"));
+    QVERIFY(cell.firstCursorPosition().block() == cell.lastCursorPosition().block());
+
+    cell = table->cellAt(0, 1);
     QCOMPARE(cell.firstCursorPosition().block().text(), QString("Foo"));
     QVERIFY(cell.firstCursorPosition().block() == cell.lastCursorPosition().block());
 }

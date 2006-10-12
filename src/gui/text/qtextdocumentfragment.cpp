@@ -566,6 +566,7 @@ void QTextHtmlImporter::import()
                         cursor.setPosition(cell.firstPosition());
                 }
                 hasBlock = true;
+                compressNextWhitespace = true;
 
                 if (node->background.style() != Qt::NoBrush) {
                     charFmt.setBackground(node->background);
