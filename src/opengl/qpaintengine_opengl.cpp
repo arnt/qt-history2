@@ -1056,7 +1056,7 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
                 glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, inv); // inv_matrix
                 glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, pt); // inv_matrix_offset
                 glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 2, pt1); // fmp
-                glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 4, f); // fmp2_m_radius2
+                glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 3, f); // fmp2_m_radius2
             }
             glBindTexture(GL_TEXTURE_1D, grad_palette);
             createGradientPaletteTexture(*brush.gradient());
@@ -2539,6 +2539,7 @@ void QOpenGLPaintEnginePrivate::drawOffscreenEllipse(float *vertexArray, float *
 
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
+    glTexCoord4f(.0, .0, .0, 1.);
 #endif
 }
 
@@ -2570,8 +2571,8 @@ void QOpenGLPaintEnginePrivate::drawStencilEllipse(float *vertexArray, float *te
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     deactivateEllipseProgram();
 
-    glDisable(GL_TEXTURE_COORD_ARRAY);
-
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glTexCoord4f(.0, .0, .0, 1.);
     // now draw the brush using the stencil buffer as mask
     glStencilFunc(GL_NOTEQUAL, 0, 1);
     glStencilMask(0);
