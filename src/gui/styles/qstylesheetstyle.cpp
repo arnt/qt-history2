@@ -2314,7 +2314,8 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
     if (!hasStyleRule(w)) {
 #ifndef QT_NO_SPINBOX
         // dont touch the size of a embedded lineedit in a styled spin box
-        if (ct == CT_LineEdit && w && qobject_cast<QAbstractSpinBox *>(w->parentWidget())) {
+        if (ct == CT_LineEdit && w && qobject_cast<QAbstractSpinBox *>(w->parentWidget())
+            && hasStyleRule(w->parentWidget())) {
             QRenderRule rule = renderRule(w->parentWidget(), opt);
             if (rule.hasBox() || rule.hasBorder())
                 return csz;
