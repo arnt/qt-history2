@@ -655,7 +655,9 @@ QAXUIElement QAccessibleHierarchyManager::createElementForInterface(const QInter
     }
 
     if (hiobj == 0) {
-        HIObjectCreate(kObjectQtAccessibility, 0, &hiobj);
+        const OSStatus err = HIObjectCreate(kObjectQtAccessibility, 0, &hiobj);
+        if (err)
+            qWarning("%s::%d: Qt internal error creating HIObject: %ld", __FILE__, __LINE__, err);
         weCreatedIt = true;
     }
 
@@ -1885,10 +1887,6 @@ static void registerQtAccessibilityHIObjectSubclass()
 
 void QAccessible::initialize()
 {
-    // Return if mac accessibility is not enabled.
-    if (!AXAPIEnabled())
-        return;
-
     registerQtAccessibilityHIObjectSubclass();
 }
 
