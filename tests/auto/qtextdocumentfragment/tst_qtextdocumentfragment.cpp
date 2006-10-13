@@ -178,6 +178,7 @@ private slots:
     void html_tableStrangeNewline3();
     void html_caption();
     void html_windowsEntities();
+    void html_eatenText();
 
 private:
     inline void setHtml(const QString &html)
@@ -2708,6 +2709,17 @@ void tst_QTextDocumentFragment::html_windowsEntities()
         doc->setHtml(html);
         QCOMPARE(doc->toPlainText(), QString(QChar(windowsLatin1ExtendedCharacters[i])));
     }
+}
+
+void tst_QTextDocumentFragment::html_eatenText()
+{
+    doc->setHtml("<h1>Test1</h1>\nTest2<h1>Test3</h1>");
+    cursor.movePosition(QTextCursor::Start);
+    QCOMPARE(cursor.block().text(), QString("Test1"));
+    cursor.movePosition(QTextCursor::NextBlock);
+    QCOMPARE(cursor.block().text(), QString("Test2"));
+    cursor.movePosition(QTextCursor::NextBlock);
+    QCOMPARE(cursor.block().text(), QString("Test3"));
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)
