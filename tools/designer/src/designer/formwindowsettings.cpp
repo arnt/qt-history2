@@ -78,12 +78,18 @@ void FormWindowSettings::accept()
 
     if (ui.pixmapFunctionGroupBox->isChecked())
         formWindow()->setPixmapFunction(ui.pixmapFunctionLineEdit->text());
+    else
+        formWindow()->setPixmapFunction(QString());
 
     if (ui.layoutDefaultGroupBox->isChecked())
         formWindow()->setLayoutDefault(ui.defaultMarginSpinBox->value(), ui.defaultSpacingSpinBox->value());
+    else
+        formWindow()->setLayoutDefault(INT_MIN, INT_MIN);
 
     if (ui.layoutFunctionGroupBox->isChecked())
         formWindow()->setLayoutFunction(ui.marginFunctionLineEdit->text(), ui.spacingFunctionLineEdit->text());
+    else
+        formWindow()->setLayoutFunction(QString(), QString());
 
     formWindow()->setIncludeHints(ui.includeHintsTextEdit->toPlainText().split(QLatin1String("\n")));
 
