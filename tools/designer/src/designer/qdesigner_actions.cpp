@@ -48,6 +48,8 @@
 #include <QtCore/QTimer>
 #include <QtXml/QDomDocument>
 
+#include <QtGui/QDesktopWidget>
+
 QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     : QObject(workbench),
       m_workbench(workbench), m_assistantClient(0), m_openDirectory(QString()),
@@ -495,6 +497,25 @@ void QDesignerActions::createForm()
     NewForm *dlg = new NewForm(workbench(), 0);
     dlg->setAttribute(Qt::WA_DeleteOnClose);
     dlg->setAttribute(Qt::WA_ShowModal);
+
+    QRect frameGeometry;
+    QRect availableGeometry = QApplication::desktop()->availableGeometry(core()->topLevel());
+    
+    if (workbench()->mode() == QDesignerWorkbench::DockedMode) {
+        frameGeometry = core()->topLevel()->frameGeometry();
+    } else
+        frameGeometry = availableGeometry;
+
+    QRect dlgRect = dlg->rect();
+    dlgRect.moveCenter(frameGeometry.center());
+
+    // make sure that parts of the dialog are not outside of screen
+    dlgRect.moveBottom(qMin(dlgRect.bottom(), availableGeometry.bottom()));
+    dlgRect.moveRight(qMin(dlgRect.right(), availableGeometry.right()));
+    dlgRect.moveLeft(qMax(dlgRect.left(), availableGeometry.left()));
+    dlgRect.moveTop(qMax(dlgRect.top(), availableGeometry.top()));
+
+    dlg->setGeometry(dlgRect);
     dlg->show();
 }
 
