@@ -1840,8 +1840,6 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItemInt &ti)
 
     XSetFont(d->dpy, d->gc, font_id);
 
-    QVarLengthArray<XChar2b> chars(glyphs.size());
-
     for (int i = 0; i < glyphs.size(); i++) {
         int xp = qRound(positions[i].x);
         int yp = qRound(positions[i].y);
