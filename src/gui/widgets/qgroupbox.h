@@ -23,6 +23,7 @@ QT_MODULE(Gui)
 #ifndef QT_NO_GROUPBOX
 
 class QGroupBoxPrivate;
+class QStyleOptionGroupBox;
 class Q_GUI_EXPORT QGroupBox : public QWidget
 {
     Q_OBJECT
@@ -68,6 +69,7 @@ protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);  
+    void initStyleOption(QStyleOptionGroupBox *option) const;
 
 #ifdef QT3_SUPPORT
 public:

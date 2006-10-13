@@ -1957,7 +1957,8 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
     if (!rect.isValid())
         return;
     // get the state of the section
-    QStyleOptionHeader opt = d->getStyleOption();
+    QStyleOptionHeader opt;
+    initStyleOption(&opt);
     QStyle::State state = QStyle::State_None;
     if (isEnabled())
         state |= QStyle::State_Enabled;
@@ -2056,7 +2057,8 @@ QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
         return qvariant_cast<QSize>(variant);
 
     // otherwise use the contents
-    QStyleOptionHeader opt = d->getStyleOption();
+    QStyleOptionHeader opt;
+    initStyleOption(&opt);
     QVariant var = d->model->headerData(logicalIndex, orientation(),
                                             Qt::FontRole);
     QFont fnt;
@@ -2380,19 +2382,24 @@ void QHeaderViewPrivate::updateSectionIndicator(int section, int position)
     sectionIndicator->show();
 }
 
-QStyleOptionHeader QHeaderViewPrivate::getStyleOption() const
+/*!
+    Initialize \a option with the values from this QHeaderView. This method
+    is useful for subclasses when they need a QStyleOptionHeader, but don't want
+    to fill in all the information themselves.
+
+    \sa QStyleOption::initFrom()
+*/
+void QHeaderView::initStyleOption(QStyleOptionHeader *option) const
 {
-    Q_Q(const QHeaderView);
-    QStyleOptionHeader opt;
-    opt.initFrom(q);
-    opt.state = QStyle::State_None | QStyle::State_Raised;
-    opt.orientation = orientation;
-    if (orientation == Qt::Horizontal)
-        opt.state |= QStyle::State_Horizontal;
-    if (q->isEnabled())
-        opt.state |= QStyle::State_Enabled;
-    opt.section = 0;
-    return opt;
+    Q_D(const QHeaderView);
+    option->initFrom(this);
+    option->state = QStyle::State_None | QStyle::State_Raised;
+    option->orientation = d->orientation;
+    if (d->orientation == Qt::Horizontal)
+        option->state |= QStyle::State_Horizontal;
+    if (isEnabled())
+        option->state |= QStyle::State_Enabled;
+    option->section = 0;
 }
 
 bool QHeaderViewPrivate::isSectionSelected(int section) const

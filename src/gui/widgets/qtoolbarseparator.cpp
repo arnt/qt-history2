@@ -20,13 +20,11 @@
 #include <qtoolbar.h>
 #include <qpainter.h>
 
-static QStyleOption getStyleOption(const QToolBarSeparator *tbs)
+void QToolBarSeparator::initStyleOption(QStyleOption *option) const
 {
-    QStyleOption opt;
-    opt.init(tbs);
-    if (tbs->orientation() == Qt::Horizontal)
-        opt.state |= QStyle::State_Horizontal;
-    return opt;
+    option->initFrom(this);
+    if (orientation() == Qt::Horizontal)
+        option->state |= QStyle::State_Horizontal;
 }
 
 QToolBarSeparator::QToolBarSeparator(QToolBar *parent)
@@ -44,7 +42,8 @@ Qt::Orientation QToolBarSeparator::orientation() const
 
 QSize QToolBarSeparator::sizeHint() const
 {
-    QStyleOption opt = getStyleOption(this);
+    QStyleOption opt;
+    initStyleOption(&opt);
     const int extent = style()->pixelMetric(QStyle::PM_ToolBarSeparatorExtent, &opt, this);
     return QSize(extent, extent);
 }
@@ -52,7 +51,8 @@ QSize QToolBarSeparator::sizeHint() const
 void QToolBarSeparator::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    QStyleOption opt = getStyleOption(this);
+    QStyleOption opt;
+    initStyleOption(&opt);
     style()->drawPrimitive(QStyle::PE_IndicatorToolBarSeparator, &opt, &p, this);
 }
 

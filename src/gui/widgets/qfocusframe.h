@@ -36,6 +36,7 @@ protected:
 
     bool eventFilter(QObject *, QEvent *);
     void paintEvent(QPaintEvent *);
+    void initStyleOption(QStyleOption *option) const;
 
 private:
     Q_DECLARE_PRIVATE(QFocusFrame)

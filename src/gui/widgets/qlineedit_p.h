@@ -56,7 +56,6 @@ public:
         delete [] maskData;
     }
     void init(const QString&);
-    QStyleOptionFrame getStyleOption() const;
 
     QString text;
     int cursor;

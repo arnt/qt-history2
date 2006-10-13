@@ -24,13 +24,11 @@
 
 #include <private/qmainwindowlayout_p.h>
 
-static QStyleOption getStyleOption(const QToolBarHandle *tbh)
+void QToolBarHandle::initStyleOption(QStyleOption *option) const
 {
-    QStyleOption opt;
-    opt.init(tbh);
-    if (tbh->orientation() == Qt::Horizontal)
-	opt.state |= QStyle::State_Horizontal;
-    return opt;
+    option->initFrom(this);
+    if (orientation() == Qt::Horizontal)
+	option->state |= QStyle::State_Horizontal;
 }
 
 QToolBarHandle::QToolBarHandle(QToolBar *parent)
@@ -66,7 +64,8 @@ Qt::Orientation QToolBarHandle::orientation() const
 
 QSize QToolBarHandle::sizeHint() const
 {
-    QStyleOption opt = getStyleOption(this);
+    QStyleOption opt;
+    initStyleOption(&opt);
     const int extent = style()->pixelMetric(QStyle::PM_ToolBarHandleExtent, &opt, this);
     return QSize(extent, extent);
 }
@@ -74,7 +73,8 @@ QSize QToolBarHandle::sizeHint() const
 void QToolBarHandle::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    QStyleOption opt = getStyleOption(this);
+    QStyleOption opt;
+    initStyleOption(&opt);
     style()->drawPrimitive(QStyle::PE_IndicatorToolBarHandle, &opt, &p, this);
 }
 

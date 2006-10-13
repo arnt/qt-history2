@@ -26,6 +26,7 @@ QT_MODULE(Gui)
 class QLineEdit;
 
 class QAbstractSpinBoxPrivate;
+class QStyleOptionSpinBox;
 
 class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
 {
@@ -116,6 +117,7 @@ protected:
     void timerEvent(QTimerEvent *event);
     void paintEvent(QPaintEvent *event);
     void showEvent(QShowEvent *event);
+    void initStyleOption(QStyleOptionSpinBox *option) const;
 
     QLineEdit *lineEdit() const;
     void setLineEdit(QLineEdit *edit);

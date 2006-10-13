@@ -24,6 +24,8 @@ QT_MODULE(Gui)
 #ifndef QT_NO_DATETIMEEDIT
 
 class QDateTimeEditPrivate;
+class QStyleOptionSpinBox;
+
 class Q_GUI_EXPORT QDateTimeEdit : public QAbstractSpinBox
 {
     Q_OBJECT
@@ -133,6 +135,7 @@ protected:
     virtual StepEnabled stepEnabled() const;
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void paintEvent(QPaintEvent *event);
+    void initStyleOption(QStyleOptionSpinBox *option) const;
 
 private:
     Q_DECLARE_PRIVATE(QDateTimeEdit)

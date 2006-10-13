@@ -23,6 +23,7 @@ QT_MODULE(Gui)
 #ifndef QT_NO_RUBBERBAND
 
 class QRubberBandPrivate;
+class QStyleOptionRubberBand;
 
 class Q_GUI_EXPORT QRubberBand : public QWidget
 {
@@ -53,6 +54,7 @@ protected:
     void showEvent(QShowEvent *);
     void resizeEvent(QResizeEvent *);
     void moveEvent(QMoveEvent *);
+    void initStyleOption(QStyleOptionRubberBand *option) const;
 
 private:
     Q_DECLARE_PRIVATE(QRubberBand)

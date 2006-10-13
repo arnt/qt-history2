@@ -24,6 +24,7 @@ QT_MODULE(Gui)
 
 class QToolButtonPrivate;
 class QMenu;
+class QStyleOptionToolButton;
 
 class Q_GUI_EXPORT QToolButton : public QAbstractButton
 {
@@ -92,6 +93,7 @@ protected:
 
     bool hitButton(const QPoint &pos) const;
     void nextCheckState();
+    void initStyleOption(QStyleOptionToolButton *option) const;
 
 private:
     Q_DISABLE_COPY(QToolButton)

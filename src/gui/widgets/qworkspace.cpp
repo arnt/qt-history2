@@ -63,7 +63,7 @@ public:
     bool isTool() const;
 
     QSize sizeHint() const;
-    QStyleOptionTitleBar getStyleOption() const;
+    void initStyleOption(QStyleOptionTitleBar *option) const;
 
 public slots:
     void setActive(bool);
@@ -124,7 +124,6 @@ public:
     bool moving : 1;
 
     int titleBarState() const;
-    QStyleOptionTitleBar getStyleOption() const;
     void readColors();
 };
 
@@ -136,24 +135,22 @@ inline int QWorkspaceTitleBarPrivate::titleBarState() const
     return (int)state;
 }
 
-QStyleOptionTitleBar QWorkspaceTitleBarPrivate::getStyleOption() const
+void QWorkspaceTitleBar::initStyleOption(QStyleOptionTitleBar *option) const
 {
-    Q_Q(const QWorkspaceTitleBar);
-    QStyleOptionTitleBar opt;
-    opt.init(q);
+    Q_D(const QWorkspaceTitleBar);
+    option->initFrom(this);
     //################
-    if (window && (flags & Qt::WindowTitleHint)) {
-        opt.text = window->windowTitle();
-        QIcon icon = window->windowIcon();
+    if (d->window && (d->flags & Qt::WindowTitleHint)) {
+        option->text = d->window->windowTitle();
+        QIcon icon = d->window->windowIcon();
         QSize s = icon.actualSize(QSize(64, 64));
-        opt.icon = icon.pixmap(s);
+        option->icon = icon.pixmap(s);
     }
-    opt.subControls = QStyle::SC_All;
-    opt.activeSubControls = QStyle::SC_None;
-    opt.titleBarState = titleBarState();
-    opt.titleBarFlags = flags;
-    opt.state &= ~QStyle::State_MouseOver;
-    return opt;
+    option->subControls = QStyle::SC_All;
+    option->activeSubControls = QStyle::SC_None;
+    option->titleBarState = d->titleBarState();
+    option->titleBarFlags = d->flags;
+    option->state &= ~QStyle::State_MouseOver;
 }
 
 QWorkspaceTitleBar::QWorkspaceTitleBar(QWidget *w, QWidget *parent, Qt::WindowFlags f)
@@ -182,10 +179,6 @@ QWorkspaceTitleBar::~QWorkspaceTitleBar()
 {
 }
 
-QStyleOptionTitleBar QWorkspaceTitleBar::getStyleOption() const
-{
-    return d_func()->getStyleOption();
-}
 
 #ifdef Q_WS_WIN
 static inline QRgb colorref2qrgb(COLORREF col)
@@ -265,7 +258,8 @@ void QWorkspaceTitleBar::mousePressEvent(QMouseEvent *e)
         }
 
         d->pressed = true;
-        QStyleOptionTitleBar opt = d->getStyleOption();
+        QStyleOptionTitleBar opt;
+        initStyleOption(&opt);
         QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt,
                                                                  e->pos(), this);
         switch (ctrl) {
@@ -329,7 +323,8 @@ void QWorkspaceTitleBar::mousePressEvent(QMouseEvent *e)
 
 void QWorkspaceTitleBar::contextMenuEvent(QContextMenuEvent *e)
 {
-    QStyleOptionTitleBar opt = d_func()->getStyleOption();
+    QStyleOptionTitleBar opt;
+    initStyleOption(&opt);
     QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt, e->pos(),
                                                              this);
     if(ctrl == QStyle::SC_TitleBarLabel || ctrl == QStyle::SC_TitleBarSysMenu) {
@@ -357,7 +352,8 @@ void QWorkspaceTitleBar::mouseReleaseEvent(QMouseEvent *e)
             return;
         }
         e->accept();
-        QStyleOptionTitleBar opt = d->getStyleOption();
+        QStyleOptionTitleBar opt;
+        initStyleOption(&opt);
         QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt,
                                                                  e->pos(), this);
 
@@ -425,7 +421,8 @@ void QWorkspaceTitleBar::mouseMoveEvent(QMouseEvent *e)
         return;
     }
 
-    QStyleOptionTitleBar opt = d->getStyleOption();
+    QStyleOptionTitleBar opt;
+    initStyleOption(&opt);
     QStyle::SubControl under_mouse = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt,
                                                                     e->pos(), this);
     if(under_mouse != d->lastControl) {
@@ -484,7 +481,8 @@ extern QString qt_setWindowTitle_helperHelper(const QString &, QWidget*);
 void QWorkspaceTitleBar::paintEvent(QPaintEvent *)
 {
     Q_D(QWorkspaceTitleBar);
-    QStyleOptionTitleBar opt = d->getStyleOption();
+    QStyleOptionTitleBar opt;
+    initStyleOption(&opt);
     opt.subControls = QStyle::SC_TitleBarLabel;
     opt.activeSubControls = d->buttonDown;
 
@@ -536,7 +534,8 @@ void QWorkspaceTitleBar::mouseDoubleClickEvent(QMouseEvent *e)
         return;
     }
     e->accept();
-    QStyleOptionTitleBar opt = d->getStyleOption();
+    QStyleOptionTitleBar opt;
+    initStyleOption(&opt);
     switch (style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt, e->pos(), this)) {
     case QStyle::SC_TitleBarLabel:
         emit doubleClicked();
@@ -636,9 +635,9 @@ bool QWorkspaceTitleBar::autoRaise() const
 
 QSize QWorkspaceTitleBar::sizeHint() const
 {
-    Q_D(const QWorkspaceTitleBar);
     ensurePolished();
-    QStyleOptionTitleBar opt = d->getStyleOption();
+    QStyleOptionTitleBar opt;
+    initStyleOption(&opt);
     QRect menur = style()->subControlRect(QStyle::CC_TitleBar, &opt,
                                           QStyle::SC_TitleBarSysMenu, this);
     return QSize(menur.width(), style()->pixelMetric(QStyle::PM_TitleBarHeight, &opt, this));
@@ -2862,7 +2861,8 @@ QWidget* QWorkspaceChild::iconWidget() const
         QWorkspaceTitleBar *tb = new QWorkspaceTitleBar(windowWidget(), frame);
         vbox->addWidget(tb);
         tb->setObjectName(QLatin1String("_workspacechild_icon_"));
-        QStyleOptionTitleBar opt = tb->getStyleOption();
+        QStyleOptionTitleBar opt;
+        tb->initStyleOption(&opt);
         int th = style()->pixelMetric(QStyle::PM_TitleBarHeight, &opt, tb);
         int iconSize = style()->pixelMetric(QStyle::PM_MDIMinimizedWidth, 0, this);
         if (!style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar)) {

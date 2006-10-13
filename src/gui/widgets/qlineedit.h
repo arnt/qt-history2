@@ -27,6 +27,7 @@ class QValidator;
 class QMenu;
 class QLineEditPrivate;
 class QCompleter;
+class QStyleOptionFrame;
 
 class Q_GUI_EXPORT QLineEdit : public QWidget
 {
@@ -175,6 +176,7 @@ protected:
 #endif
 
     void inputMethodEvent(QInputMethodEvent *);
+    void initStyleOption(QStyleOptionFrame *option) const;
 public:
     QVariant inputMethodQuery(Qt::InputMethodQuery) const;
     bool event(QEvent *);

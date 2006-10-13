@@ -39,22 +39,27 @@ public:
     QRect rect;
     QRubberBand::Shape shape;
     QRegion clipping;
-    QStyleOptionRubberBand getStyleOption() const;
     void updateMask();
 };
 
-QStyleOptionRubberBand QRubberBandPrivate::getStyleOption() const
+/*!
+    Initialize \a option with the values from this QRubberBand. This method
+    is useful for subclasses when they need a QStyleOptionRubberBand, but don't want
+    to fill in all the information themselves.
+
+    \sa QStyleOption::initFrom()
+*/
+void QRubberBand::initStyleOption(QStyleOptionRubberBand *option) const
 {
-    Q_Q(const QRubberBand);
-    QStyleOptionRubberBand opt;
-    opt.init(q);
-    opt.shape = shape;
+    if (!option)
+        return;
+    option->initFrom(this);
+    option->shape = d_func()->shape;
 #ifndef Q_WS_MAC
-    opt.opaque = true;
+    option->opaque = true;
 #else
-    opt.opaque = q->windowFlags() & RUBBERBAND_WINDOW_TYPE;
+    option->opaque = windowFlags() & RUBBERBAND_WINDOW_TYPE;
 #endif
-    return opt;
 }
 
 /*!
@@ -185,7 +190,8 @@ void QRubberBandPrivate::updateMask()
 {
     Q_Q(QRubberBand);
     QStyleHintReturnMask mask;
-    QStyleOptionRubberBand opt = getStyleOption();
+    QStyleOptionRubberBand opt;
+    q->initStyleOption(&opt);
     if (q->style()->styleHint(QStyle::SH_RubberBand_Mask, &opt, q, &mask)) {
         q->setMask(mask.region);
     } else {
@@ -198,10 +204,10 @@ void QRubberBandPrivate::updateMask()
 */
 void QRubberBand::paintEvent(QPaintEvent *)
 {
-    Q_D(QRubberBand);
-
     QStylePainter painter(this);
-    painter.drawControl(QStyle::CE_RubberBand, d->getStyleOption());
+    QStyleOptionRubberBand option;
+    initStyleOption(&option);
+    painter.drawControl(QStyle::CE_RubberBand, option);
 }
 
 /*!

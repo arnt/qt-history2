@@ -23,6 +23,7 @@ QT_MODULE(Gui)
 #ifndef QT_NO_MENUBAR
 
 class QMenuBarPrivate;
+class QStyleOptionMenuItem;
 #ifdef QT3_SUPPORT
 class QMenuItem;
 #endif
@@ -95,6 +96,7 @@ protected:
     void focusInEvent(QFocusEvent *);
     bool eventFilter(QObject *, QEvent *);
     bool event(QEvent *);
+    void initStyleOption(QStyleOptionMenuItem *option, const QAction *action) const;
 
 #ifdef QT3_SUPPORT
 public:

@@ -26,7 +26,7 @@
 #include <qmenu.h>
 #include <qpainter.h>
 #include <qpalette.h>
-#include <qstyle.h>
+#include <qstylepainter.h>
 #include <qdebug.h>
 
 #if defined(Q_WS_X11)
@@ -743,7 +743,8 @@ QSize QAbstractSpinBox::sizeHint() const
     }
     w += 2; // cursor blinking space
 
-    QStyleOptionSpinBox opt = d->getStyleOption();
+    QStyleOptionSpinBox opt;
+    initStyleOption(&opt);
     QSize hint(w, h);
     QSize extra(35, 6);
     opt.rect.setSize(hint + extra);
@@ -774,7 +775,8 @@ QSize QAbstractSpinBox::minimumSizeHint() const
     int w = fm.width(QLatin1String("1000"));
     w += 2; // cursor blinking space
 
-    QStyleOptionSpinBox opt = d->getStyleOption();
+    QStyleOptionSpinBox opt;
+    initStyleOption(&opt);
     QSize hint(w, h);
     QSize extra(35, 6);
     opt.rect.setSize(hint + extra);
@@ -798,11 +800,10 @@ QSize QAbstractSpinBox::minimumSizeHint() const
 
 void QAbstractSpinBox::paintEvent(QPaintEvent *)
 {
-    Q_D(QAbstractSpinBox);
-
-    QStyleOptionSpinBox opt = d->getStyleOption();
-    QPainter p(this);
-    style()->drawComplexControl(QStyle::CC_SpinBox, &opt, &p, this);
+    QStyleOptionSpinBox opt;
+    initStyleOption(&opt);
+    QStylePainter p(this);
+    p.drawComplexControl(QStyle::CC_SpinBox, opt);
 }
 
 /*!
@@ -1246,7 +1247,8 @@ QStyle::SubControl QAbstractSpinBoxPrivate::newHoverControl(const QPoint &pos)
 {
     Q_Q(QAbstractSpinBox);
 
-    QStyleOptionSpinBox opt = getStyleOption();
+    QStyleOptionSpinBox opt;
+    q->initStyleOption(&opt);
     opt.subControls = QStyle::SC_All;
     hoverControl = q->style()->hitTestComplexControl(QStyle::CC_SpinBox, &opt, pos, q);
     hoverRect = q->style()->subControlRect(QStyle::CC_SpinBox, &opt, hoverControl, q);
@@ -1289,7 +1291,8 @@ QString QAbstractSpinBoxPrivate::stripped(const QString &t, int *pos) const
 void QAbstractSpinBoxPrivate::updateEditFieldGeometry()
 {
     Q_Q(QAbstractSpinBox);
-    QStyleOptionSpinBox opt = getStyleOption();
+    QStyleOptionSpinBox opt;
+    q->initStyleOption(&opt);
     opt.subControls = QStyle::SC_SpinBoxEditField;
     edit->setGeometry(q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
                                                  QStyle::SC_SpinBoxEditField, q));
@@ -1397,7 +1400,8 @@ void QAbstractSpinBoxPrivate::init()
 {
     Q_Q(QAbstractSpinBox);
 
-    const QStyleOptionSpinBox opt = getStyleOption();
+    QStyleOptionSpinBox opt;
+    q->initStyleOption(&opt);
     spinClickTimerInterval = q->style()->styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, &opt, q);
 
     spinClickThresholdTimerInterval = thresholdTime;
@@ -1456,40 +1460,42 @@ void QAbstractSpinBoxPrivate::updateState(bool up)
 
 
 /*!
-    \internal
+    Initialize \a option with the values from this QSpinBox. This method
+    is useful for subclasses when they need a QStyleOptionSpinBox, but don't want
+    to fill in all the information themselves.
 
-    Creates a QStyleOptionSpinBox with the right flags set.
+    \sa QStyleOption::initFrom()
 */
-
-QStyleOptionSpinBox QAbstractSpinBoxPrivate::getStyleOption() const
+void QAbstractSpinBox::initStyleOption(QStyleOptionSpinBox *option) const
 {
-    Q_Q(const QAbstractSpinBox);
-    QStyleOptionSpinBox opt;
-    opt.init(q);
-    opt.activeSubControls = 0;
-    opt.buttonSymbols = buttonSymbols;
-    opt.subControls = QStyle::SC_SpinBoxFrame;
-    if (buttonSymbols != QAbstractSpinBox::NoButtons) {
-        opt.subControls |= QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown;
-        if (buttonState & Up) {
-            opt.activeSubControls = QStyle::SC_SpinBoxUp;
-        } else if (buttonState & Down) {
-            opt.activeSubControls = QStyle::SC_SpinBoxDown;
+    if (!option)
+        return;
+
+    Q_D(const QAbstractSpinBox);
+    option->initFrom(this);
+    option->activeSubControls = QStyle::SC_None;
+    option->buttonSymbols = d->buttonSymbols;
+    option->subControls = QStyle::SC_SpinBoxFrame;
+    if (d->buttonSymbols != QAbstractSpinBox::NoButtons) {
+        option->subControls |= QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown;
+        if (d->buttonState & Up) {
+            option->activeSubControls = QStyle::SC_SpinBoxUp;
+        } else if (d->buttonState & Down) {
+            option->activeSubControls = QStyle::SC_SpinBoxDown;
         }
     }
 
-    if (buttonState) {
-        opt.state |= QStyle::State_Sunken;
+    if (d->buttonState) {
+        option->state |= QStyle::State_Sunken;
     } else {
-        opt.activeSubControls = hoverControl;
+        option->activeSubControls = d->hoverControl;
     }
 
-    opt.stepEnabled = q->style()->styleHint(QStyle::SH_SpinControls_DisableOnBounds)
-                      ? q->stepEnabled()
+    option->stepEnabled = style()->styleHint(QStyle::SH_SpinControls_DisableOnBounds)
+                      ? stepEnabled()
                       : (QAbstractSpinBox::StepDownEnabled|QAbstractSpinBox::StepUpEnabled);
 
-    opt.frame = frame;
-    return opt;
+    option->frame = d->frame;
 }
 
 /*!

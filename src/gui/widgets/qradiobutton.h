@@ -21,6 +21,7 @@ QT_BEGIN_HEADER
 QT_MODULE(Gui)
 
 class QRadioButtonPrivate;
+class QStyleOptionButton;
 
 class Q_GUI_EXPORT QRadioButton : public QAbstractButton
 {
@@ -37,6 +38,7 @@ protected:
     bool hitButton(const QPoint &) const;
     void paintEvent(QPaintEvent *);
     void mouseMoveEvent(QMouseEvent *);
+    void initStyleOption(QStyleOptionButton *button) const;
 
 #ifdef QT3_SUPPORT
 public:

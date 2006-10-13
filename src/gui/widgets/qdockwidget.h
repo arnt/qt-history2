@@ -25,6 +25,7 @@ QT_MODULE(Gui)
 class QDockWidgetLayout;
 class QDockWidgetPrivate;
 class QMainWindow;
+class QStyleOptionDockWidget;
 
 class Q_GUI_EXPORT QDockWidget : public QWidget
 {
@@ -84,6 +85,7 @@ protected:
     void closeEvent(QCloseEvent *event);
     void paintEvent(QPaintEvent *event);
     bool event(QEvent *event);
+    void initStyleOption(QStyleOptionDockWidget *option) const;
 
 private:
     Q_DECLARE_PRIVATE(QDockWidget)

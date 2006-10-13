@@ -40,7 +40,6 @@ public:
     bool invertedAppearance;
     QProgressBar::Direction textDirection;
     QString format;
-    QStyleOptionProgressBarV2 getStyleOption() const;
     inline int bound(int val) const { return qMax(minimum-1, qMin(maximum, val)); }
     bool repaintRequired() const;
 };
@@ -62,22 +61,35 @@ void QProgressBarPrivate::init()
     q->setAttribute(Qt::WA_WState_OwnSizePolicy, false);
 }
 
-QStyleOptionProgressBarV2 QProgressBarPrivate::getStyleOption() const
+/*!
+    Initialize \a option with the values from this QProgressBar. This method is useful
+    for subclasses when they need a QStyleOptionProgressBar or QStyleOptionProgressBarV2,
+    but don't want to fill in all the information themselves. This function will check the version
+    of the QStyleOptionProgressBar and fill in the additional values for a
+    QStyleOptionProgressBarV2.
+
+    \sa QStyleOption::initFrom()
+*/
+void QProgressBar::initStyleOption(QStyleOptionProgressBar *option) const
 {
-    QStyleOptionProgressBarV2 opt;
-    opt.init(q_func());
+    if (!option)
+        return;
+    Q_D(const QProgressBar);
+    option->initFrom(this);
 
-    opt.minimum = minimum;
-    opt.maximum = maximum;
-    opt.progress = value;
-    opt.textAlignment = alignment;
-    opt.textVisible = textVisible;
-    opt.text = q_func()->text();
-    opt.orientation = orientation;
-    opt.invertedAppearance = invertedAppearance;
-    opt.bottomToTop = (textDirection == QProgressBar::BottomToTop);
+    option->minimum = d->minimum;
+    option->maximum = d->maximum;
+    option->progress = d->value;
+    option->textAlignment = d->alignment;
+    option->textVisible = d->textVisible;
+    option->text = text();
 
-    return opt;
+    if (QStyleOptionProgressBarV2 *optionV2
+            = qstyleoption_cast<QStyleOptionProgressBarV2 *>(option)) {
+        optionV2->orientation = d->orientation;
+        optionV2->invertedAppearance = d->invertedAppearance;
+        optionV2->bottomToTop = (d->textDirection == QProgressBar::BottomToTop);
+    }
 }
 
 bool QProgressBarPrivate::repaintRequired() const
@@ -94,7 +106,8 @@ bool QProgressBarPrivate::repaintRequired() const
         return true;
 
     // Check if the bar needs to be repainted
-    QStyleOptionProgressBarV2 opt = getStyleOption();
+    QStyleOptionProgressBarV2 opt;
+    q->initStyleOption(&opt);
     int cw = q->style()->pixelMetric(QStyle::PM_ProgressBarChunkWidth, &opt, q);
     QRect groove  = q->style()->subElementRect(QStyle::SE_ProgressBarGroove, &opt, q);
     // This expression is basically
@@ -320,7 +333,8 @@ Qt::Alignment QProgressBar::alignment() const
 void QProgressBar::paintEvent(QPaintEvent *)
 {
     QStylePainter paint(this);
-    QStyleOptionProgressBarV2 opt = d_func()->getStyleOption();
+    QStyleOptionProgressBarV2 opt;
+    initStyleOption(&opt);
     paint.drawControl(QStyle::CE_ProgressBar, opt);
     d_func()->lastPaintedValue = d_func()->value;
 }
@@ -332,7 +346,8 @@ QSize QProgressBar::sizeHint() const
 {
     ensurePolished();
     QFontMetrics fm = fontMetrics();
-    QStyleOptionProgressBarV2 opt = d_func()->getStyleOption();
+    QStyleOptionProgressBarV2 opt;
+    initStyleOption(&opt);
     int cw = style()->pixelMetric(QStyle::PM_ProgressBarChunkWidth, &opt, this);
     QSize size = QSize(cw * 7 + fm.width(QLatin1Char('0')) * 4, fm.height() + 8);
     if (opt.orientation == Qt::Vertical)

@@ -21,10 +21,8 @@
 #include <qevent.h>
 #include <qfontmetrics.h>
 #include <qmainwindow.h>
-#include <qpainter.h>
 #include <qrubberband.h>
-#include <qstyle.h>
-#include <qstyleoption.h>
+#include <qstylepainter.h>
 #include <qtoolbutton.h>
 #include <qdebug.h>
 
@@ -38,7 +36,7 @@
 #endif
 
 
-static inline bool hasFeature(QDockWidget *dockwidget, QDockWidget::DockWidgetFeature feature)
+static inline bool hasFeature(const QDockWidget *dockwidget, QDockWidget::DockWidgetFeature feature)
 { return (dockwidget->features() & feature) == feature; }
 
 
@@ -359,7 +357,8 @@ void QDWLayout::setGeometry(const QRect &geometry)
 #endif
 #endif
 
-    QStyleOptionDockWidget opt = q->d_func()->getStyleOption();
+    QStyleOptionDockWidget opt;
+    q->initStyleOption(&opt);
 
     if (QLayoutItem *item = item_list[CloseButton]) {
         QRect r = q->style()->subElementRect(QStyle::SE_DockWidgetCloseButton, &opt, q);
@@ -414,19 +413,25 @@ void QDockWidgetPrivate::init()
     updateButtons();
 }
 
-QStyleOptionDockWidget QDockWidgetPrivate::getStyleOption()
-{
-    Q_Q(QDockWidget);
-    QDWLayout *layout = qobject_cast<QDWLayout*>(q->layout());
+/*!
+    Initialize \a option with the values from this QDockWidget. This method
+    is useful for subclasses when they need a QStyleOptionDockWidget, but don't want
+    to fill in all the information themselves.
 
-    QStyleOptionDockWidget opt;
-    opt.init(q);
-    opt.rect = layout->titleArea();
-    opt.title = q->windowTitle();
-    opt.closable = hasFeature(q, QDockWidget::DockWidgetClosable);
-    opt.movable = hasFeature(q, QDockWidget::DockWidgetMovable);
-    opt.floatable = hasFeature(q, QDockWidget::DockWidgetFloatable);
-    return opt;
+    \sa QStyleOption::initFrom()
+*/
+void QDockWidget::initStyleOption(QStyleOptionDockWidget *option) const
+{
+    if (!option)
+        return;
+    QDWLayout *dwlayout = qobject_cast<QDWLayout*>(layout());
+
+    option->initFrom(this);
+    option->rect = dwlayout->titleArea();
+    option->title = windowTitle();
+    option->closable = hasFeature(this, QDockWidget::DockWidgetClosable);
+    option->movable = hasFeature(this, QDockWidget::DockWidgetMovable);
+    option->floatable = hasFeature(this, QDockWidget::DockWidgetFloatable);
 }
 
 void QDockWidgetPrivate::_q_toggleView(bool b)
@@ -445,7 +450,8 @@ void QDockWidgetPrivate::updateButtons()
     Q_Q(QDockWidget);
     QDWLayout *layout = qobject_cast<QDWLayout*>(q->layout());
 
-    QStyleOptionDockWidget opt = getStyleOption();
+    QStyleOptionDockWidget opt;
+    q->initStyleOption(&opt);
 
     bool canClose = hasFeature(q, QDockWidget::DockWidgetClosable);
     bool canFloat = hasFeature(q, QDockWidget::DockWidgetFloatable);
@@ -889,20 +895,20 @@ void QDockWidget::closeEvent(QCloseEvent *event)
 void QDockWidget::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
-    QPainter p(this);
+    QStylePainter p(this);
     // ### Add PixelMetric to change spacers, so style may show border
     // when not floating.
     if (isFloating()) {
         QStyleOptionFrame framOpt;
         framOpt.init(this);
-        style()->drawPrimitive(QStyle::PE_FrameDockWidget, &framOpt, &p, this);
+        p.drawPrimitive(QStyle::PE_FrameDockWidget, framOpt);
     }
 
     // Title must be painted after the frame, since the areas overlap, and
     // the title may wish to extend out to all sides (eg. XP style)
-    Q_D(QDockWidget);
-    QStyleOptionDockWidget titleOpt = d->getStyleOption();
-    style()->drawControl(QStyle::CE_DockWidgetTitle, &titleOpt, &p, this);
+    QStyleOptionDockWidget titleOpt;
+    initStyleOption(&titleOpt);
+    p.drawControl(QStyle::CE_DockWidgetTitle, titleOpt);
 }
 
 /*! \reimp */

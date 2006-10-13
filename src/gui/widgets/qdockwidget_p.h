@@ -63,8 +63,6 @@ public:
     void _q_toggleView(bool); // private slot
     void _q_toggleTopLevel(); // private slot
 
-    QStyleOptionDockWidget getStyleOption();
-
     void updateButtons();
     DragState *state;
 

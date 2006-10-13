@@ -43,7 +43,6 @@ public:
     QPushButtonPrivate():autoDefault(Auto), defaultButton(false), flat(false), menuOpen(false){}
     void init();
     void _q_popupPressed();
-    QStyleOptionButton getStyleOption() const;
     QDialog *dialogParent() const;
     QPointer<QMenu> menu;
     uint autoDefault : 2;
@@ -274,32 +273,40 @@ void QPushButtonPrivate::init()
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 }
 
-QStyleOptionButton QPushButtonPrivate::getStyleOption() const
+/*!
+    Initialize \a option with the values from this QPushButton. This method is useful
+    for subclasses when they need a QStyleOptionButton, but don't want to fill
+    in all the information themselves.
+
+    \sa QStyleOption::initFrom()
+*/
+void QPushButton::initStyleOption(QStyleOptionButton *option) const
 {
-    Q_Q(const QPushButton);
-    QStyleOptionButton opt;
-    opt.init(q);
-    opt.features = QStyleOptionButton::None;
-    if (flat)
-        opt.features |= QStyleOptionButton::Flat;
+    if (!option)
+        return;
+
+    Q_D(const QPushButton);
+    option->initFrom(this);
+    option->features = QStyleOptionButton::None;
+    if (d->flat)
+        option->features |= QStyleOptionButton::Flat;
 #ifndef QT_NO_MENU
-    if (menu)
-        opt.features |= QStyleOptionButton::HasMenu;
+    if (d->menu)
+        option->features |= QStyleOptionButton::HasMenu;
 #endif
-    if (q->autoDefault() || defaultButton)
-        opt.features |= QStyleOptionButton::AutoDefaultButton;
-    if (defaultButton)
-        opt.features |= QStyleOptionButton::DefaultButton;
-    if (down || menuOpen)
-        opt.state |= QStyle::State_Sunken;
-    if (checked)
-        opt.state |= QStyle::State_On;
-    if (!flat && !down)
-        opt.state |= QStyle::State_Raised;
-    opt.text = text;
-    opt.icon = icon;
-    opt.iconSize = q->iconSize();
-    return opt;
+    if (autoDefault() || d->defaultButton)
+        option->features |= QStyleOptionButton::AutoDefaultButton;
+    if (d->defaultButton)
+        option->features |= QStyleOptionButton::DefaultButton;
+    if (d->down || d->menuOpen)
+        option->state |= QStyle::State_Sunken;
+    if (d->checked)
+        option->state |= QStyle::State_On;
+    if (!d->flat && !d->down)
+        option->state |= QStyle::State_Raised;
+    option->text = d->text;
+    option->icon = d->icon;
+    option->iconSize = iconSize();
 }
 
 void QPushButton::setAutoDefault(bool enable)
@@ -348,12 +355,12 @@ bool QPushButton::isDefault() const
 */
 QSize QPushButton::sizeHint() const
 {
-    Q_D(const QPushButton);
     ensurePolished();
 
     int w = 0, h = 0;
 
-    QStyleOptionButton opt = d->getStyleOption();
+    QStyleOptionButton opt;
+    initStyleOption(&opt);
 
     // calculate contents size...
 #ifndef QT_NO_ICON
@@ -388,9 +395,10 @@ QSize QPushButton::sizeHint() const
 */
 void QPushButton::paintEvent(QPaintEvent *)
 {
-    Q_D(QPushButton);
     QStylePainter p(this);
-    p.drawControl(QStyle::CE_PushButton, d->getStyleOption());
+    QStyleOptionButton option;
+    initStyleOption(&option);
+    p.drawControl(QStyle::CE_PushButton, option);
 }
 
 

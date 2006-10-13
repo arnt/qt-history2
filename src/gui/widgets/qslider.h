@@ -72,6 +72,7 @@ protected:
     void mousePressEvent(QMouseEvent *ev);
     void mouseReleaseEvent(QMouseEvent *ev);
     void mouseMoveEvent(QMouseEvent *ev);
+    void initStyleOption(QStyleOptionSlider *option) const;
 
 #ifdef QT3_SUPPORT
 public:
@@ -89,7 +90,7 @@ public Q_SLOTS:
 
 private:
     friend Q_GUI_EXPORT QStyleOptionSlider qt_qsliderStyleOption(QSlider *slider);
-    
+
     Q_DISABLE_COPY(QSlider)
     Q_DECLARE_PRIVATE(QSlider)
 };

@@ -21,6 +21,7 @@ QT_BEGIN_HEADER
 QT_MODULE(Gui)
 
 class QCheckBoxPrivate;
+class QStyleOptionButton;
 
 class Q_GUI_EXPORT QCheckBox : public QAbstractButton
 {
@@ -51,6 +52,7 @@ protected:
     void nextCheckState();
     void paintEvent(QPaintEvent *);
     void mouseMoveEvent(QMouseEvent *);
+    void initStyleOption(QStyleOptionButton *option) const;
 
 #ifdef QT3_SUPPORT
 public:

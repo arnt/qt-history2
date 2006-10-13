@@ -75,7 +75,6 @@ public:
     QString getAmPmText(AmPm ap, Case cs) const;
     bool isRightToLeft() const { return qApp->layoutDirection() == Qt::RightToLeft; }
     int cursorPosition() const { return edit ? edit->cursorPosition() : -1; }
-    virtual QStyleOptionSpinBox getStyleOption() const;
     virtual QStyle::SubControl newHoverControl(const QPoint &pos);
     virtual void updateEditFieldGeometry();
 
@@ -705,7 +704,8 @@ QSize QDateTimeEdit::sizeHint() const
     }
     w += 2; // cursor blinking space
 
-    QStyleOptionSpinBox opt = d->getStyleOption();
+    QStyleOptionSpinBox opt;
+    initStyleOption(&opt);
     QSize hint(w, h);
     QSize extra(35, 6);
     opt.rect.setSize(hint + extra);
@@ -1914,7 +1914,9 @@ void QDateTimeEdit::paintEvent(QPaintEvent *event)
         return;
     }
 
-    QStyleOptionSpinBox opt = d->getStyleOption();
+    QStyleOptionSpinBox opt;
+    initStyleOption(&opt);
+
     QStyleOptionComboBox optCombo;
 
     optCombo.init(this);
@@ -1966,17 +1968,28 @@ void QDateTimeEditPrivate::interpret(EmitPolicy ep)
     }
 }
 
-QStyleOptionSpinBox QDateTimeEditPrivate::getStyleOption() const
+/*!
+    Initialize \a option with the values from this QDataTimeEdit. This method
+    is useful for subclasses when they need a QStyleOptionSpinBox, but don't want
+    to fill in all the information themselves.
+
+    \sa QStyleOption::initFrom()
+*/
+void QDateTimeEdit::initStyleOption(QStyleOptionSpinBox *option) const
 {
-    QStyleOptionSpinBox opt = QAbstractSpinBoxPrivate::getStyleOption();
-    if (showCalendarPopup()) {
-        opt.subControls = QStyle::SC_ComboBoxFrame| QStyle::SC_ComboBoxEditField| QStyle::SC_ComboBoxArrow;
-        if (arrowState == QStyle::State_Sunken)
-            opt.state |= QStyle::State_Sunken;
+    if (!option)
+        return;
+
+    Q_D(const QDateTimeEdit);
+    QAbstractSpinBox::initStyleOption(option);
+    if (d->showCalendarPopup()) {
+        option->subControls = QStyle::SC_ComboBoxFrame | QStyle::SC_ComboBoxEditField
+                           | QStyle::SC_ComboBoxArrow;
+        if (d->arrowState == QStyle::State_Sunken)
+            option->state |= QStyle::State_Sunken;
         else
-            opt.state &= ~QStyle::State_Sunken;
+            option->state &= ~QStyle::State_Sunken;
     }
-    return opt;
 }
 
 void QDateTimeEditPrivate::_q_resetButton()

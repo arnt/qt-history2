@@ -52,6 +52,7 @@ public:
     void mouseReleaseEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
     void paintEvent(QPaintEvent *e);
+    void initStyleOption(QStyleOption *option) const;
 
 public Q_SLOTS:
     void setOrientation(Qt::Orientation orientation);

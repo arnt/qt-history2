@@ -78,8 +78,6 @@ public:
     QLineEdit *lineEdit();
     virtual void updateEdit();
 
-    virtual QStyleOptionSpinBox getStyleOption() const;
-
     virtual void emitSignals(EmitPolicy ep, const QVariant &old);
     virtual void interpret(EmitPolicy ep);
     virtual QString textFromValue(const QVariant &n) const;

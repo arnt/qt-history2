@@ -30,7 +30,6 @@ public:
     }
     void updateSize();
     void update();
-    QStyleOption getStyleOption() const;
 };
 
 void QFocusFramePrivate::update()
@@ -57,18 +56,25 @@ void QFocusFramePrivate::updateSize()
         return;
     q->setGeometry(geom);
     QStyleHintReturnMask mask;
-    QStyleOption opt = getStyleOption();
+    QStyleOption opt;
+    q->initStyleOption(&opt);
     if (q->style()->styleHint(QStyle::SH_FocusFrame_Mask, &opt, q, &mask))
         q->setMask(mask.region);
 }
 
-QStyleOption QFocusFramePrivate::getStyleOption() const
+/*!
+    Initialize \a option with the values from this QFocusFrame. This method is useful
+    for subclasses when they need a QStyleOption, but don't want to fill
+    in all the information themselves.
+
+    \sa QStyleOption::initFrom()
+*/
+void QFocusFrame::initStyleOption(QStyleOption *option) const
 {
-    Q_Q(const QFocusFrame);
-    QStyleOption opt;
-    opt.init(q);
-    opt.rect = q->rect();
-    return opt;
+    if (!option)
+        return;
+
+    option->initFrom(this);
 }
 
 /*!
@@ -168,9 +174,10 @@ QFocusFrame::widget() const
 void
 QFocusFrame::paintEvent(QPaintEvent *)
 {
-    Q_D(QFocusFrame);
     QStylePainter p(this);
-    p.drawControl(QStyle::CE_FocusFrame, d->getStyleOption());
+    QStyleOption option;
+    initStyleOption(&option);
+    p.drawControl(QStyle::CE_FocusFrame, option);
 }
 
 

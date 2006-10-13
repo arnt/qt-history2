@@ -352,7 +352,8 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
         }
 
         //let the style modify the above size..
-        QStyleOptionMenuItem opt = getStyleOption(action);
+        QStyleOptionMenuItem opt;
+        q->initStyleOption(&opt, action);
         sz = q->style()->sizeFromContents(QStyle::CT_MenuBarItem, &opt, sz, q);
 
         if(!sz.isEmpty()) {
@@ -437,31 +438,37 @@ void QMenuBarPrivate::_q_actionHovered()
     }
 }
 
+/*!
+    Initialize \a option with the values from the menu bar and information from \a action. This method
+    is useful for subclasses when they need a QStyleOptionMenuItem, but don't want
+    to fill in all the information themselves.
 
-QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) const
+    \sa QStyleOption::initFrom() QMenu::initStyleOption()
+*/
+void QMenuBar::initStyleOption(QStyleOptionMenuItem *option, const QAction *action) const
 {
-    Q_Q(const QMenuBar);
-    QStyleOptionMenuItem opt;
-    opt.palette = q->palette();
-    opt.state = QStyle::State_None;
-    if (q->isEnabled() && action->isEnabled())
-        opt.state |= QStyle::State_Enabled;
+    if (!option || !action)
+        return;
+    Q_D(const QMenuBar);
+    option->palette = palette();
+    option->state = QStyle::State_None;
+    if (isEnabled() && action->isEnabled())
+        option->state |= QStyle::State_Enabled;
     else
-        opt.palette.setCurrentColorGroup(QPalette::Disabled);
-    opt.fontMetrics = q->fontMetrics();
-    if (currentAction && currentAction == action) {
-        opt.state |= QStyle::State_Selected;
-        if (popupState && !closePopupMode)
-            opt.state |= QStyle::State_Sunken;
+        option->palette.setCurrentColorGroup(QPalette::Disabled);
+    option->fontMetrics = fontMetrics();
+    if (d->currentAction && d->currentAction == action) {
+        option->state |= QStyle::State_Selected;
+        if (d->popupState && !d->closePopupMode)
+            option->state |= QStyle::State_Sunken;
     }
-    if (q->hasFocus() || currentAction)
-        opt.state |= QStyle::State_HasFocus;
-    opt.menuRect = q->rect();
-    opt.menuItemType = QStyleOptionMenuItem::Normal;
-    opt.checkType = QStyleOptionMenuItem::NotCheckable;
-    opt.text = action->text();
-    opt.icon = action->icon();
-    return opt;
+    if (hasFocus() || d->currentAction)
+        option->state |= QStyle::State_HasFocus;
+    option->menuRect = rect();
+    option->menuItemType = QStyleOptionMenuItem::Normal;
+    option->checkType = QStyleOptionMenuItem::NotCheckable;
+    option->text = action->text();
+    option->icon = action->icon();
 }
 
 /*!
@@ -836,7 +843,8 @@ void QMenuBar::paintEvent(QPaintEvent *e)
             continue;
 
         emptyArea -= adjustedActionRect;
-        QStyleOptionMenuItem opt = d->getStyleOption(action);
+        QStyleOptionMenuItem opt;
+        initStyleOption(&opt, action);
         opt.rect = adjustedActionRect;
         p.setClipRect(adjustedActionRect);
         style()->drawControl(QStyle::CE_MenuBarItem, &opt, &p, this);

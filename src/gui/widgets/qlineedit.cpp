@@ -75,22 +75,36 @@ extern void qt_mac_secure_keyboard(bool); //qapplication_mac.cpp
 #define verticalMargin 1
 #define horizontalMargin 2
 
-QStyleOptionFrame QLineEditPrivate::getStyleOption() const
+
+/*!
+    Initialize \a option with the values from this QLineEdit. This method
+    is useful for subclasses when they need a QStyleOptionFrame or QStyleOptionFrameV2, but don't want
+    to fill in all the information themselves. This function will check the version
+    of the QStyleOptionFrame and fill in the additional values for a
+    QStyleOptionFrameV2.
+
+    \sa QStyleOption::initFrom()
+*/
+void QLineEdit::initStyleOption(QStyleOptionFrame *option) const
 {
-    Q_Q(const QLineEdit);
-    QStyleOptionFrame opt;
-    opt.init(q);
-    opt.rect = q->contentsRect();
-    opt.lineWidth = frame ? q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth) : 0;
-    opt.midLineWidth = 0;
-    opt.state |= QStyle::State_Sunken;
-    if (readOnly)
-        opt.state |= QStyle::State_ReadOnly;
+    if (!option)
+        return;
+
+    Q_D(const QLineEdit);
+    option->initFrom(this);
+    option->rect = contentsRect();
+    option->lineWidth = d->frame ? style()->pixelMetric(QStyle::PM_DefaultFrameWidth, option, this)
+                                 : 0;
+    option->midLineWidth = 0;
+    option->state |= QStyle::State_Sunken;
+    if (d->readOnly)
+        option->state |= QStyle::State_ReadOnly;
 #ifdef QT_KEYPAD_NAVIGATION
-    if (q->hasEditFocus())
-        opt.state |= QStyle::State_HasEditFocus;
+    if (hasEditFocus())
+        option->state |= QStyle::State_HasEditFocus;
 #endif
-    return opt;
+    if (QStyleOptionFrameV2 *optionV2 = qstyleoption_cast<QStyleOptionFrameV2 *>(option))
+        optionV2->features = QStyleOptionFrameV2::None;
 }
 
 /*!
@@ -383,7 +397,8 @@ QString QLineEdit::displayText() const
     QString res = d->text;
 
     if (d->echoMode == Password || d->echoMode == PasswordEchoOnEdit) {
-        QStyleOptionFrame opt = d->getStyleOption();
+        QStyleOptionFrameV2 opt;
+        initStyleOption(&opt);
         res.fill(style()->styleHint(QStyle::SH_LineEdit_PasswordCharacter, &opt, this));
     }
     return (res.isNull() ? QString::fromLatin1("") : res);
@@ -660,7 +675,8 @@ QSize QLineEdit::sizeHint() const
             + d->topmargin + d->bottommargin;
     int w = fm.width(QLatin1Char('x')) * 17 + 2*horizontalMargin
             + d->leftmargin + d->rightmargin; // "some"
-    QStyleOptionFrame opt = d->getStyleOption();
+    QStyleOptionFrameV2 opt;
+    initStyleOption(&opt);
     return (style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w, h).
                                       expandedTo(QApplication::globalStrut()), this));
 }
@@ -680,7 +696,8 @@ QSize QLineEdit::minimumSizeHint() const
     int h = fm.height() + qMax(2*horizontalMargin, fm.leading())
             + d->topmargin + d->bottommargin;
     int w = fm.maxWidth() + d->leftmargin + d->rightmargin;
-    QStyleOptionFrame opt = d->getStyleOption();
+    QStyleOptionFrameV2 opt;
+    initStyleOption(&opt);
     return (style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w, h).
                                       expandedTo(QApplication::globalStrut()), this));
 }
@@ -1453,7 +1470,8 @@ bool QLineEdit::event(QEvent * e)
         // should be timerEvent, is here for binary compatibility
         int timerId = ((QTimerEvent*)e)->timerId();
         if (timerId == d->cursorTimer) {
-            QStyleOptionFrame opt = d->getStyleOption();
+            QStyleOptionFrameV2 opt;
+            initStyleOption(&opt);
             if(!hasSelectedText()
                || style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, this))
                 d->setCursorVisible(!d->cursorVisible);
@@ -2104,7 +2122,8 @@ void QLineEdit::focusInEvent(QFocusEvent *e)
         int cft = QApplication::cursorFlashTime();
         d->cursorTimer = cft ? startTimer(cft/2) : -1;
     }
-    QStyleOptionFrame opt = d->getStyleOption();
+    QStyleOptionFrameV2 opt;
+    initStyleOption(&opt);
     if((!hasSelectedText() && d->textLayout.preeditAreaText().isEmpty())
        || style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, this))
         d->setCursorVisible(true);
@@ -2174,13 +2193,14 @@ void QLineEdit::paintEvent(QPaintEvent *)
     QRect r = rect();
     const QPalette &pal = palette();
 
-    QStyleOptionFrame panel = d->getStyleOption();
+    QStyleOptionFrameV2 panel;
+    initStyleOption(&panel);
     style()->drawPrimitive(QStyle::PE_PanelLineEdit, &panel, &p, this);
     r = style()->subElementRect(QStyle::SE_LineEditContents, &panel, this);
     p.setClipRect(r);
 
     QFontMetrics fm = fontMetrics();
-    Qt::Alignment va = QStyle::visualAlignment(layoutDirection(), QFlag(d->alignment));        
+    Qt::Alignment va = QStyle::visualAlignment(layoutDirection(), QFlag(d->alignment));
     switch (va & Qt::AlignVertical_Mask) {
      case Qt::AlignBottom:
          d->vscroll = r.y() + r.height() - fm.height() - verticalMargin;
@@ -2562,7 +2582,8 @@ QRect QLineEditPrivate::cursorRect() const
 QRect QLineEditPrivate::adjustedContentsRect() const
 {
     Q_Q(const QLineEdit);
-    QStyleOptionFrame opt = getStyleOption();
+    QStyleOptionFrameV2 opt;
+    q->initStyleOption(&opt);
     return q->style()->subElementRect(QStyle::SE_LineEditContents, &opt, q);
 }
 
@@ -2617,7 +2638,8 @@ void QLineEditPrivate::moveCursor(int pos, bool mark)
         if (!adjustedContentsRect().contains(cursorRect()))
             q->update();
     }
-    QStyleOptionFrame opt = getStyleOption();
+    QStyleOptionFrameV2 opt;
+    q->initStyleOption(&opt);
     if (mark && !q->style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, q))
         setCursorVisible(false);
     if (mark || selDirty) {

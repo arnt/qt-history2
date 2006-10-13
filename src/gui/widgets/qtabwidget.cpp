@@ -149,7 +149,6 @@ public:
     void _q_showTab(int);
     void _q_removeTab(int);
     void init();
-    QStyleOptionTabWidgetFrame getStyleOption() const;
 
     QTabBar *tabs;
     QStackedWidget *stack;
@@ -192,46 +191,57 @@ void QTabWidgetPrivate::init()
     q->setFocusProxy(tabs);
 }
 
-QStyleOptionTabWidgetFrame QTabWidgetPrivate::getStyleOption() const
+/*!
+    Initialize \a option with the values from this QTabWidget. This method is useful
+    for subclasses when they need a QStyleOptionTabWidgetFrame, but don't want to fill
+    in all the information themselves.
+
+    \sa QStyleOption::initFrom() QTabBar::initStyleOption()
+*/
+void QTabWidget::initStyleOption(QStyleOptionTabWidgetFrame *option) const
 {
-    Q_Q(const QTabWidget);
-    QStyleOptionTabWidgetFrame option;
-    option.init(q);
+    if (!option)
+        return;
 
-    int exth = q->style()->pixelMetric(QStyle::PM_TabBarBaseHeight, 0, q);
-    QSize t(0, stack->frameWidth());
-    if (tabs->isVisibleTo(const_cast<QTabWidget *>(q)))
-        t = tabs->sizeHint();
+    Q_D(const QTabWidget);
+    option->initFrom(this);
 
-    if (rightCornerWidget)
-        option.rightCornerWidgetSize
-            = rightCornerWidget->sizeHint().boundedTo(t - QSize(exth, exth));
+    int exth = style()->pixelMetric(QStyle::PM_TabBarBaseHeight, 0, this);
+    QSize t(0, d->stack->frameWidth());
+    if (d->tabs->isVisibleTo(const_cast<QTabWidget *>(this)))
+        t = d->tabs->sizeHint();
+
+    if (d->rightCornerWidget)
+        option->rightCornerWidgetSize
+            = d->rightCornerWidget->sizeHint().boundedTo(t - QSize(exth, exth));
     else
-        option.rightCornerWidgetSize = QSize(0, 0);
+        option->rightCornerWidgetSize = QSize(0, 0);
 
-    if (leftCornerWidget)
-        option.leftCornerWidgetSize
-            = leftCornerWidget->sizeHint().boundedTo(t - QSize(exth, exth));
+    if (d->leftCornerWidget)
+        option->leftCornerWidgetSize
+                            = d->leftCornerWidget->sizeHint().boundedTo(t - QSize(exth, exth));
     else
-        option.leftCornerWidgetSize = QSize(0, 0);
+        option->leftCornerWidgetSize = QSize(0, 0);
 
-    switch (pos) {
+    switch (d->pos) {
     case QTabWidget::North:
-        option.shape = shape == QTabWidget::Rounded ? QTabBar::RoundedNorth : QTabBar::TriangularNorth;
+        option->shape = d->shape == QTabWidget::Rounded ? QTabBar::RoundedNorth
+                                                        : QTabBar::TriangularNorth;
         break;
     case QTabWidget::South:
-        option.shape = shape == QTabWidget::Rounded ? QTabBar::RoundedSouth : QTabBar::TriangularSouth;
+        option->shape = d->shape == QTabWidget::Rounded ? QTabBar::RoundedSouth
+                                                        : QTabBar::TriangularSouth;
         break;
     case QTabWidget::West:
-        option.shape = shape == QTabWidget::Rounded ? QTabBar::RoundedWest : QTabBar::TriangularWest;
+        option->shape = d->shape == QTabWidget::Rounded ? QTabBar::RoundedWest
+                                                        : QTabBar::TriangularWest;
         break;
     case QTabWidget::East:
-        option.shape = shape == QTabWidget::Rounded ? QTabBar::RoundedEast : QTabBar::TriangularEast;
+        option->shape = d->shape == QTabWidget::Rounded ? QTabBar::RoundedEast
+                                                        : QTabBar::TriangularEast;
         break;
     }
-    option.tabBarSize = t;
-
-    return option;
+    option->tabBarSize = t;
 }
 
 /*!
@@ -628,7 +638,8 @@ void QTabWidget::setUpLayout(bool onlyCheck)
         d->dirty = true;
         return; // we'll do it later
     }
-    QStyleOptionTabWidgetFrame option = d->getStyleOption();
+    QStyleOptionTabWidgetFrame option;
+    initStyleOption(&option);
 
     QRect tabRect = style()->subElementRect(QStyle::SE_TabWidgetTabBar, &option, this);
     d->panelRect = style()->subElementRect(QStyle::SE_TabWidgetTabPane, &option, this);
@@ -947,7 +958,7 @@ void QTabWidget::paintEvent(QPaintEvent *)
     Q_D(QTabWidget);
     QStylePainter p(this);
     QStyleOptionTabWidgetFrame opt;
-    opt = d->getStyleOption();
+    initStyleOption(&opt);
     opt.rect = d->panelRect;
     p.drawPrimitive(QStyle::PE_FrameTabWidget, opt);
 }

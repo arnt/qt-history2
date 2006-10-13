@@ -112,7 +112,6 @@ public:
     //syncronous operation (ie exec())
     QEventLoop *eventLoop;
     QPointer<QAction> syncAction;
-    QStyleOptionMenuItem getStyleOption(const QAction *action) const;
 
     //search buffer
     QString searchBuffer;

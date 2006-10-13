@@ -219,6 +219,7 @@ protected:
     void contextMenuEvent(QContextMenuEvent *e);
     void inputMethodEvent(QInputMethodEvent *);
     QVariant inputMethodQuery(Qt::InputMethodQuery) const;
+    void initStyleOption(QStyleOptionComboBox *option) const;
 
 #ifdef QT3_SUPPORT
 public:

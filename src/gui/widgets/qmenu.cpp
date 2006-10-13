@@ -229,7 +229,8 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
         }
 
         //let the style modify the above size..
-        QStyleOptionMenuItem opt = getStyleOption(action);
+        QStyleOptionMenuItem opt;
+        q->initStyleOption(&opt, action);
         opt.rect = q->rect();
         sz = q->style()->sizeFromContents(QStyle::CT_MenuItem, &opt, sz, q);
 
@@ -859,46 +860,55 @@ void QMenuPrivate::_q_actionHovered()
     }
 }
 
-QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
+/*!
+    Initialize \a option with the values from this menu and information from \a action. This method
+    is useful for subclasses when they need a QStyleOptionMenuItem, but don't want
+    to fill in all the information themselves.
+
+    \sa QStyleOption::initFrom() QMenuBar::initStyleOption()
+*/
+void QMenu::initStyleOption(QStyleOptionMenuItem *option, const QAction *action) const
 {
-    Q_Q(const QMenu);
-    QStyleOptionMenuItem opt;
-    opt.initFrom(q);
-    opt.palette = q->palette();
-    opt.state = QStyle::State_None;
+    if (!option || !action)
+        return;
 
-    if (q->window()->isActiveWindow())
-        opt.state |= QStyle::State_Active;
-    if (q->isEnabled() && action->isEnabled()
+    Q_D(const QMenu);
+    option->initFrom(this);
+    option->palette = palette();
+    option->state = QStyle::State_None;
+
+    if (window()->isActiveWindow())
+        option->state |= QStyle::State_Active;
+    if (isEnabled() && action->isEnabled()
             && (!action->menu() || action->menu()->isEnabled()))
-        opt.state |= QStyle::State_Enabled;
+        option->state |= QStyle::State_Enabled;
     else
-        opt.palette.setCurrentColorGroup(QPalette::Disabled);
+        option->palette.setCurrentColorGroup(QPalette::Disabled);
 
-    opt.font = action->font();
+    option->font = action->font();
 
-    if (currentAction && currentAction == action && !currentAction->isSeparator()) {
-        opt.state |= QStyle::State_Selected
-                     | (mouseDown ? QStyle::State_Sunken : QStyle::State_None);
+    if (d->currentAction && d->currentAction == action && !d->currentAction->isSeparator()) {
+        option->state |= QStyle::State_Selected
+                     | (d->mouseDown ? QStyle::State_Sunken : QStyle::State_None);
     }
 
-    opt.menuHasCheckableItems = hasCheckableItems;
+    option->menuHasCheckableItems = d->hasCheckableItems;
     if (!action->isCheckable()) {
-        opt.checkType = QStyleOptionMenuItem::NotCheckable;
+        option->checkType = QStyleOptionMenuItem::NotCheckable;
     } else {
-        opt.checkType = (action->actionGroup() && action->actionGroup()->isExclusive())
+        option->checkType = (action->actionGroup() && action->actionGroup()->isExclusive())
                             ? QStyleOptionMenuItem::Exclusive : QStyleOptionMenuItem::NonExclusive;
-        opt.checked = action->isChecked();
+        option->checked = action->isChecked();
     }
     if (action->menu())
-        opt.menuItemType = QStyleOptionMenuItem::SubMenu;
+        option->menuItemType = QStyleOptionMenuItem::SubMenu;
     else if (action->isSeparator())
-        opt.menuItemType = QStyleOptionMenuItem::Separator;
-    else if (defaultAction == action)
-	    opt.menuItemType = QStyleOptionMenuItem::DefaultItem;
+        option->menuItemType = QStyleOptionMenuItem::Separator;
+    else if (d->defaultAction == action)
+	    option->menuItemType = QStyleOptionMenuItem::DefaultItem;
     else
-        opt.menuItemType = QStyleOptionMenuItem::Normal;
-    opt.icon = action->icon();
+        option->menuItemType = QStyleOptionMenuItem::Normal;
+    option->icon = action->icon();
     QString textAndAccel = action->text();
 #ifndef QT_NO_SHORTCUT
     if (textAndAccel.indexOf(QLatin1Char('\t')) == -1) {
@@ -907,11 +917,10 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
             textAndAccel += QLatin1Char('\t') + QString(seq);
     }
 #endif
-    opt.text = textAndAccel;
-    opt.tabWidth = tabWidth;
-    opt.maxIconWidth = maxIconWidth;
-    opt.menuRect = q->rect();
-    return opt;
+    option->text = textAndAccel;
+    option->tabWidth = d->tabWidth;
+    option->maxIconWidth = d->maxIconWidth;
+    option->menuRect = rect();
 }
 
 /*!
@@ -1715,7 +1724,8 @@ void QMenu::paintEvent(QPaintEvent *e)
         emptyArea -= adjustedActionReg;
         p.setClipRegion(adjustedActionReg);
 
-        QStyleOptionMenuItem opt = d->getStyleOption(action);
+        QStyleOptionMenuItem opt;
+        initStyleOption(&opt, action);
         opt.rect = adjustedActionRect;
         style()->drawControl(QStyle::CE_MenuItem, &opt, &p, this);
     }

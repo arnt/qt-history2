@@ -2883,7 +2883,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
                 w += 2 * windowsArrowHMargin;
             else if (mi->menuItemType == QStyleOptionMenuItem::DefaultItem) {
                 // adjust the font and add the difference in size.
-                // it would be better if the font could be adjusted in the getStyleOptions qmenu func!!
+                // it would be better if the font could be adjusted in the initStyleOption qmenu func!!
                 QFontMetrics fm(mi->font);
                 QFont fontBold = mi->font;
                 fontBold.setBold(true);

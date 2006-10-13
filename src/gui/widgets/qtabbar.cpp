@@ -42,69 +42,82 @@ inline static bool verticalTabs(QTabBar::Shape shape)
            || shape == QTabBar::TriangularEast;
 }
 
-QStyleOptionTabV2 QTabBarPrivate::getStyleOption(int tab) const
+/*!
+    Initialize \a option with the values from the tab at \a tabIndex. This method
+    is useful for subclasses when they need a QStyleOptionTab or QStyleOptionTabV2, but don't want
+    to fill in all the information themselves. This function will check the version
+    of the QStyleOptionTab and fill in the additional values for a
+    QStyleOptionTabV2.
+
+    \sa QStyleOption::initFrom() QTabWidget::initStyleOption()
+*/
+void QTabBar::initStyleOption(QStyleOptionTab *option, int tabIndex) const
 {
-    Q_Q(const QTabBar);
-    QStyleOptionTabV2 opt;
-    const QTabBarPrivate::Tab *ptab = &tabList.at(tab);
-    opt.init(q);
-    opt.state &= ~(QStyle::State_HasFocus | QStyle::State_MouseOver);
-    opt.rect = q->tabRect(tab);
-    bool isCurrent = tab == currentIndex;
-    opt.row = 0;
-    if (tab == pressedIndex)
-        opt.state |= QStyle::State_Sunken;
+    Q_D(const QTabBar);
+    int totalTabs = d->tabList.size();
+
+    if (!option || (tabIndex < 0 || tabIndex >= totalTabs))
+        return;
+
+    const QTabBarPrivate::Tab &tab = d->tabList.at(tabIndex);
+    option->initFrom(this);
+    option->state &= ~(QStyle::State_HasFocus | QStyle::State_MouseOver);
+    option->rect = tabRect(tabIndex);
+    bool isCurrent = tabIndex == d->currentIndex;
+    option->row = 0;
+    if (tabIndex == d->pressedIndex)
+        option->state |= QStyle::State_Sunken;
     if (isCurrent)
-        opt.state |= QStyle::State_Selected;
-    if (isCurrent && q->hasFocus())
-        opt.state |= QStyle::State_HasFocus;
-    if (!ptab->enabled)
-        opt.state &= ~QStyle::State_Enabled;
-    if (q->isActiveWindow())
-        opt.state |= QStyle::State_Active;
-    if (opt.rect == hoverRect)
-        opt.state |= QStyle::State_MouseOver;
-    opt.shape = shape;
-    opt.text = ptab->text;
+        option->state |= QStyle::State_Selected;
+    if (isCurrent && hasFocus())
+        option->state |= QStyle::State_HasFocus;
+    if (!tab.enabled)
+        option->state &= ~QStyle::State_Enabled;
+    if (isActiveWindow())
+        option->state |= QStyle::State_Active;
+    if (option->rect == d->hoverRect)
+        option->state |= QStyle::State_MouseOver;
+    option->shape = d->shape;
+    option->text = tab.text;
 
-    if (ptab->textColor.isValid())
-        opt.palette.setColor(q->foregroundRole(), ptab->textColor);
+    if (tab.textColor.isValid())
+        option->palette.setColor(foregroundRole(), tab.textColor);
 
-    opt.icon = ptab->icon;
-    opt.iconSize = q->iconSize();  // Will get the default value then.
+    option->icon = tab.icon;
+    if (QStyleOptionTabV2 *optionV2 = qstyleoption_cast<QStyleOptionTabV2 *>(option))
+        optionV2->iconSize = iconSize();  // Will get the default value then.
 
-    int totalTabs = tabList.size();
 
-    if (tab > 0 && tab - 1 == currentIndex)
-        opt.selectedPosition = QStyleOptionTab::PreviousIsSelected;
-    else if (tab < totalTabs - 1 && tab + 1 == currentIndex)
-        opt.selectedPosition = QStyleOptionTab::NextIsSelected;
+    if (tabIndex > 0 && tabIndex - 1 == d->currentIndex)
+        option->selectedPosition = QStyleOptionTab::PreviousIsSelected;
+    else if (tabIndex < totalTabs - 1 && tabIndex + 1 == d->currentIndex)
+        option->selectedPosition = QStyleOptionTab::NextIsSelected;
     else
-        opt.selectedPosition = QStyleOptionTab::NotAdjacent;
+        option->selectedPosition = QStyleOptionTab::NotAdjacent;
 
-    if (tab == 0) {
+    if (tabIndex == 0) {
         if (totalTabs > 1)
-            opt.position = QStyleOptionTab::Beginning;
+            option->position = QStyleOptionTab::Beginning;
         else
-            opt.position = QStyleOptionTab::OnlyOneTab;
-    } else if (tab == totalTabs - 1) {
-        opt.position = QStyleOptionTab::End;
+            option->position = QStyleOptionTab::OnlyOneTab;
+    } else if (tabIndex == totalTabs - 1) {
+        option->position = QStyleOptionTab::End;
     } else {
-        opt.position = QStyleOptionTab::Middle;
+        option->position = QStyleOptionTab::Middle;
     }
 #ifndef QT_NO_TABWIDGET
-    if (const QTabWidget *tw = qobject_cast<const QTabWidget *>(q->parentWidget())) {
+    if (const QTabWidget *tw = qobject_cast<const QTabWidget *>(parentWidget())) {
         if (tw->cornerWidget(Qt::TopLeftCorner) || tw->cornerWidget(Qt::BottomLeftCorner))
-            opt.cornerWidgets |= QStyleOptionTab::LeftCornerWidget;
+            option->cornerWidgets |= QStyleOptionTab::LeftCornerWidget;
         if (tw->cornerWidget(Qt::TopRightCorner) || tw->cornerWidget(Qt::BottomRightCorner))
-            opt.cornerWidgets |= QStyleOptionTab::RightCornerWidget;
+            option->cornerWidgets |= QStyleOptionTab::RightCornerWidget;
     }
-    int hframe  = q->style()->pixelMetric(QStyle::PM_TabBarTabHSpace, &opt, q);
+    int hframe  = style()->pixelMetric(QStyle::PM_TabBarTabHSpace, option, this);
 
-    opt.text = q->fontMetrics().elidedText(opt.text, elideMode, 1 + (verticalTabs(shape) ? ptab->rect.height() : ptab->rect.width()) - hframe,
-                                           Qt::TextShowMnemonic);
+    option->text = fontMetrics().elidedText(option->text, d->elideMode,
+                        1 + (verticalTabs(d->shape) ? tab.rect.height() : tab.rect.width()) - hframe,
+                        Qt::TextShowMnemonic);
 #endif
-    return opt;
 }
 
 /*!
@@ -997,7 +1010,8 @@ QSize QTabBar::tabSizeHint(int index) const
 {
     Q_D(const QTabBar);
     if (const QTabBarPrivate::Tab *tab = d->at(index)) {
-        QStyleOptionTabV2 opt = d->getStyleOption(index);
+        QStyleOptionTabV2 opt;
+        initStyleOption(&opt, index);
         opt.text = d->tabList.at(index).text;
         QSize iconSize = tab->icon.isNull() ? QSize() : opt.iconSize;
         int hframe  = style()->pixelMetric(QStyle::PM_TabBarTabHSpace, &opt, this);
@@ -1178,7 +1192,8 @@ void QTabBar::paintEvent(QPaintEvent *)
     QStyleOptionTab cutTab;
     QStyleOptionTab selectedTab;
     for (int i = 0; i < d->tabList.count(); ++i) {
-        QStyleOptionTabV2 tab = d->getStyleOption(i);
+        QStyleOptionTabV2 tab;
+        initStyleOption(&tab, i);
         if (!(tab.state & QStyle::State_Enabled)) {
             tab.palette.setCurrentColorGroup(QPalette::Disabled);
         }
@@ -1206,7 +1221,8 @@ void QTabBar::paintEvent(QPaintEvent *)
 
     // Draw the selected tab last to get it "on top"
     if (selected >= 0) {
-        QStyleOptionTabV2 tab = d->getStyleOption(selected);
+        QStyleOptionTabV2 tab;
+        initStyleOption(&tab, selected);
         p.drawControl(QStyle::CE_TabBarTab, tab);
     }
     if (d->drawBase)

@@ -23,6 +23,7 @@ QT_MODULE(Gui)
 #ifndef QT_NO_ITEMVIEWS
 
 class QHeaderViewPrivate;
+class QStyleOptionHeader;
 
 class Q_GUI_EXPORT QHeaderView : public QAbstractItemView
 {
@@ -183,6 +184,7 @@ protected:
     QModelIndex moveCursor(CursorAction, Qt::KeyboardModifiers);
     void setSelection(const QRect&, QItemSelectionModel::SelectionFlags);
     QRegion visualRegionForSelection(const QItemSelection &selection) const;
+    void initStyleOption(QStyleOptionHeader *option) const;
 
 private:
     Q_PRIVATE_SLOT(d_func(), void _q_sectionsRemoved(const QModelIndex &parent, int logicalFirst, int logicalLast))

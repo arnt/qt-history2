@@ -26,6 +26,7 @@ QT_MODULE(Gui)
 #ifndef QT_NO_MENU
 
 class QMenuPrivate;
+class QStyleOptionMenuItem;
 #ifdef QT3_SUPPORT
 class QMenuItem;
 #include <QtGui/qpixmap.h>
@@ -130,6 +131,7 @@ protected:
     void timerEvent(QTimerEvent *);
     bool event(QEvent *);
     bool focusNextPrevChild(bool next);
+    void initStyleOption(QStyleOptionMenuItem *option, const QAction *action) const;
 
 private Q_SLOTS:
     void internalSetSloppyAction();

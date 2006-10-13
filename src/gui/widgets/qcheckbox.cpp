@@ -32,7 +32,6 @@ public:
     uint hovering : 1;
     uint publishedState : 2;
     void init();
-    QStyleOptionButton getStyleOption() const;
 };
 
 /*!
@@ -110,8 +109,6 @@ public:
     The default is false; i.e. the checkbox has only two states.
 */
 
-
-
 void QCheckBoxPrivate::init()
 {
     Q_Q(QCheckBox);
@@ -119,27 +116,34 @@ void QCheckBoxPrivate::init()
     q->setMouseTracking(true);
 }
 
-QStyleOptionButton QCheckBoxPrivate::getStyleOption() const
+/*!
+    Initialize \a option with the values from this QCheckBox. This method is useful
+    for subclasses when they need a QStyleOptionButton, but don't want to fill
+    in all the information themselves.
+
+    \sa QStyleOption::initFrom()
+*/
+void QCheckBox::initStyleOption(QStyleOptionButton *option) const
 {
-    Q_Q(const QCheckBox);
-    QStyleOptionButton opt;
-    opt.init(q);
-    if (down)
-        opt.state |= QStyle::State_Sunken;
-    if (tristate && noChange)
-        opt.state |= QStyle::State_NoChange;
+    if (!option)
+        return;
+    Q_D(const QCheckBox);
+    option->initFrom(this);
+    if (d->down)
+        option->state |= QStyle::State_Sunken;
+    if (d->tristate && d->noChange)
+        option->state |= QStyle::State_NoChange;
     else
-        opt.state |= checked ? QStyle::State_On : QStyle::State_Off;
-    if (q->testAttribute(Qt::WA_Hover) &&  q->underMouse()) {
-        if (hovering)
-            opt.state |= QStyle::State_MouseOver;
+        option->state |= d->checked ? QStyle::State_On : QStyle::State_Off;
+    if (testAttribute(Qt::WA_Hover) && underMouse()) {
+        if (d->hovering)
+            option->state |= QStyle::State_MouseOver;
         else
-            opt.state &= ~QStyle::State_MouseOver;
+            option->state &= ~QStyle::State_MouseOver;
     }
-    opt.text = text;
-    opt.icon = icon;
-    opt.iconSize = q->iconSize();
-    return opt;
+    option->text = d->text;
+    option->icon = d->icon;
+    option->iconSize = iconSize();
 }
 
 /*!
@@ -224,10 +228,10 @@ void QCheckBox::setCheckState(Qt::CheckState state)
 */
 QSize QCheckBox::sizeHint() const
 {
-    Q_D(const QCheckBox);
     ensurePolished();
     QFontMetrics fm = fontMetrics();
-    QStyleOptionButton opt = d->getStyleOption();
+    QStyleOptionButton opt;
+    initStyleOption(&opt);
     QSize sz = style()->itemTextRect(fm, QRect(0, 0, 1, 1), Qt::TextShowMnemonic, false,
                                      text()).size();
     if (!opt.icon.isNull())
@@ -240,9 +244,9 @@ QSize QCheckBox::sizeHint() const
 */
 void QCheckBox::paintEvent(QPaintEvent *)
 {
-    Q_D(QCheckBox);
     QStylePainter p(this);
-    QStyleOptionButton opt = d->getStyleOption();
+    QStyleOptionButton opt;
+    initStyleOption(&opt);
     p.drawControl(QStyle::CE_CheckBox, opt);
 }
 
@@ -270,8 +274,8 @@ void QCheckBox::mouseMoveEvent(QMouseEvent *e)
 /*!\reimp*/
 bool QCheckBox::hitButton(const QPoint &pos) const
 {
-    Q_D(const QCheckBox);
-    QStyleOptionButton opt = d->getStyleOption();
+    QStyleOptionButton opt;
+    initStyleOption(&opt);
     return style()->subElementRect(QStyle::SE_CheckBoxClickRect, &opt, this).contains(pos);
 }
 

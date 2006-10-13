@@ -25,6 +25,7 @@ QT_MODULE(Gui)
 
 class QTabBar;
 class QTabWidgetPrivate;
+class QStyleOptionTabWidgetFrame;
 
 class Q_GUI_EXPORT QTabWidget : public QWidget
 {
@@ -121,6 +122,7 @@ protected:
     QTabBar* tabBar() const;
     void changeEvent(QEvent *);
     bool event(QEvent *);
+    void initStyleOption(QStyleOptionTabWidgetFrame *option) const;
 
 #ifdef QT3_SUPPORT
 public:

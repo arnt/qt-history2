@@ -23,6 +23,7 @@ QT_MODULE(Gui)
 #ifndef QT_NO_PROGRESSBAR
 
 class QProgressBarPrivate;
+class QStyleOptionProgressBar;
 
 class Q_GUI_EXPORT QProgressBar : public QWidget
 {
@@ -83,6 +84,7 @@ Q_SIGNALS:
 protected:
     bool event(QEvent *e);
     void paintEvent(QPaintEvent *);
+    void initStyleOption(QStyleOptionProgressBar *option) const;
 
 private:
     Q_DECLARE_PRIVATE(QProgressBar)

@@ -223,7 +223,6 @@ public:
     ~QComboBoxPrivate() {}
     void init();
     QComboBoxPrivateContainer* viewContainer();
-    QStyleOptionComboBox getStyleOption() const;
     void updateLineEditGeometry();
     void _q_returnPressed();
     void _q_complete();
