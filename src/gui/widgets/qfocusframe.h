@@ -21,6 +21,8 @@ QT_BEGIN_HEADER
 QT_MODULE(Gui)
 
 class QFocusFramePrivate;
+class QStyleOption;
+
 class Q_GUI_EXPORT QFocusFrame : public QWidget
 {
     Q_OBJECT

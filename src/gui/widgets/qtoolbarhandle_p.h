@@ -29,6 +29,7 @@
 
 #ifndef QT_NO_TOOLBAR
 
+class QStyleOption;
 class QToolBar;
 
 class QToolBarHandle : public QWidget
