@@ -80,6 +80,7 @@ protected:
 
     static QString trimmedTrailing(const QString &string);
     static bool matchAhead( const Atom *atom, Atom::Type expectedAtomType );
+    static void supplementAlsoList(const Node *node, QList<Text> &alsoList);
 
 private:
     void generateOverload( const Node *node, CodeMarker *marker );

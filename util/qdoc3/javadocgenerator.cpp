@@ -10,6 +10,8 @@ static QString javaSignature(const FunctionNode *func, JavaSignatureSyntax synta
     QString result;
 
     if (syntax == GeneratedJdocFile) {
+        // ### @Deprecated?
+
         if (func->access() == Node::Public) {
             result += "public ";
         } else if (func->access() == Node::Protected) {
@@ -18,14 +20,21 @@ static QString javaSignature(const FunctionNode *func, JavaSignatureSyntax synta
             result += "private ";
         }
 
+        if (func->metaness() == FunctionNode::Native)
+            result += "native ";
+
         if (func->isConst())
             result += "final ";
+
+        // ### func->metaness() == FunctionNode::Abstract
 
         if (func->isStatic())
             result += "static ";
 
-        result += func->returnType();
-        result += ' ';
+        if (!func->returnType().isEmpty()) {
+            result += func->returnType();
+            result += ' ';
+        }
     }
 
     result += func->name();
@@ -82,26 +91,34 @@ QString JavadocGenerator::fileExtension(const Node *node)
     }
 }
 
+static int textDepth = 0;
+
 void JavadocGenerator::startText(const Node *relative, CodeMarker *marker)
 {
-    Q_ASSERT(!oldDevice);
-    oldDevice = out().device();
-    Q_ASSERT(oldDevice);
-    out().setString(&buffer);
+    if (textDepth++ == 0) {
+        Q_ASSERT(!oldDevice);
+        oldDevice = out().device();
+        Q_ASSERT(oldDevice);
+        out().setString(&buffer);
+    }
     HtmlGenerator::startText(relative, marker);
 }
 
 void JavadocGenerator::endText(const Node *relative, CodeMarker *marker)
 {
     HtmlGenerator::endText(relative, marker);
-    Q_ASSERT(oldDevice);
-    out().setDevice(oldDevice);
-    oldDevice = 0;
+    if (--textDepth == 0) {
+        Q_ASSERT(oldDevice);
+        out().setDevice(oldDevice);
+        oldDevice = 0;
 
-    buffer.replace("&", "&amp;");
-    buffer.replace("\"", "&quot;");
-    out() << buffer;
-    buffer.clear();
+        buffer.replace("&", "&amp;");
+        buffer.replace("\"", "&quot;");
+        buffer.replace("<", "&lt;");
+        buffer.replace(">", "&gt;");
+        out() << buffer;
+        buffer.clear();
+    }
 }
 
 int JavadocGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMarker *marker)
@@ -158,9 +175,16 @@ void JavadocGenerator::generateBody(const Node *node, CodeMarker *marker)
     generateText(node->doc().body(), node, marker);
 }
 
-void JavadocGenerator::generateAlsoList(const Node * /* node */, CodeMarker * /* marker */)
+void JavadocGenerator::generateAlsoList( const Node *node, CodeMarker *marker )
 {
-    // ###
+    QList<Text> alsoList = node->doc().alsoList();
+    supplementAlsoList(node, alsoList);
+    // ### need to fix properties
+
+    foreach (Text text, alsoList) {
+	out() << "\n@see ";
+        generateText(text, node, marker);
+    }
 }
 
 QString JavadocGenerator::refForNode( const Node *node )
@@ -213,6 +237,7 @@ void JavadocGenerator::generateDoc(const Node *node, CodeMarker *marker)
     if (!node->doc().body().isEmpty()) {
         out() << " doc=\"/**\n";
         generateText(node->doc().body(), node, marker); // ### handle '*/'
+        generateAlsoList(node, marker);
         out() << " */\"";
     }
 }

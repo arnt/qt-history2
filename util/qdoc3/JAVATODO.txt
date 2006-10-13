@@ -1,0 +1,9 @@
+  * enums etc.
+  * obsolete functions:
+    * generate standard text
+    * don't show code snippet
+  * no link to class itself
+  * add /cpp
+  * generate proper links between modules (core, gui)
+  * why doesn't allKeys() work?
+

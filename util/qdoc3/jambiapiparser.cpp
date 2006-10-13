@@ -314,7 +314,8 @@ bool JambiApiParser::makeFunctionNode(InnerNode *parent, const QString &synopsis
         }
     } while (oldLen != mySynopsis.length());
 
-    QRegExp funcRegExp("(.*) ([A-Za-z_0-9]+)\\((.*)\\)");
+    // method or constructor
+    QRegExp funcRegExp("(?:(.*) )?([A-Za-z_0-9]+)\\((.*)\\)");
     if (!funcRegExp.exactMatch(mySynopsis))
         return false;
 
@@ -327,6 +328,7 @@ bool JambiApiParser::makeFunctionNode(InnerNode *parent, const QString &synopsis
     func->setAccess(access);
     func->setStatic(statique);
     func->setConst(final);
+    func->setMetaness(metaness);
 
     QRegExp paramRegExp(" ?([^ ].*) ([A-Za-z_0-9]+) ?");
 

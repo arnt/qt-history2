@@ -158,7 +158,7 @@ void HtmlGenerator::startText(const Node * /* relative */, CodeMarker * /* marke
     inTableHeader = false;
     numTableRows = 0;
     threeColumnEnumValueTable = true;
-    link = "";
+    link.clear();
     sectionNumber.clear();
 }
 
@@ -174,14 +174,11 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         break;
     case Atom::AutoLink:
         if (!inLink && !inContents && !inSectionHeading) {
-            link = getLink(atom, relative, marker);
+            QString link = getLink(atom, relative, marker);
             if (!link.isEmpty()) {
-                out() << "<a href=\"" << link << "\">";
-                inLink = true;
+                beginLink(link, relative, marker);
                 generateLink(atom, relative, marker);
-                if (inLink)
-                    out() << "</a>";
-                inLink = false;
+                endLink();
             } else {
                 out() << protect(atom->string());
             }
@@ -275,15 +272,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         break;
     case Atom::FormattingRight:
         if ( atom->string() == ATOM_FORMATTING_LINK ) {
-            if (inLink) {
-                if ( link.isEmpty() ) {
-                    if (showBrokenLinks)
-                        out() << "</i>";
-                } else {
-                    out() << "</a>";
-                }
-            }
-            inLink = false;
+            endLink();
         } else {
             out() << formattingRightMap()[atom->string()];
         }
@@ -383,29 +372,12 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         out() << "</div>";
         break;
     case Atom::Link:
-        link = getLink(atom, relative, marker);
-        if (link.isEmpty()) {
-            if (showBrokenLinks)
-                out() << "<i>";
-            relative->doc().location().warning(
-                tr("Cannot link to '%1' in %2").arg(atom->string())
-                .arg(marker->plainFullName(relative)));
-        } else {
-            out() << "<a href=\"" << link << "\">";
-        }
-        inLink = true;
+        beginLink(getLink(atom, relative, marker), relative, marker);
         skipAhead = 1;
         break;
     case Atom::LinkNode:
-        link = linkForNode( CodeMarker::nodeForString(atom->string()),
-                            relative );
-        if ( link.isEmpty() ) {
-            if (showBrokenLinks)
-                out() << "<i>";
-        } else {
-            out() << "<a href=\"" << link << "\">";
-        }
-        inLink = true;
+        beginLink(linkForNode(CodeMarker::nodeForString(atom->string()), relative), relative,
+                  marker);
         skipAhead = 1;
         break;
     case Atom::ListLeft:
@@ -518,10 +490,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         in_para = true;
         break;
     case Atom::ParaRight:
-        if (inLink) {
-            out() << "</a>\n";
-            inLink = false;
-        }
+        endLink();
         if (in_para) {
             out() << "</p>\n";
             in_para = false;
@@ -1855,9 +1824,12 @@ void HtmlGenerator::generateSectionInheritedList(const Section& section, const N
     }
 }
 
-void HtmlGenerator::generateLink(const Atom *atom, const Node * /* relative */, CodeMarker * /* marker */)
+void HtmlGenerator::generateLink(const Atom *atom, const Node * /* relative */, CodeMarker *marker)
 {
-    if (funcLeftParen.indexIn(atom->string()) != -1) {
+    static QRegExp camelCase("[A-Z][A-Z][a-z]|[a-z][A-Z0-9]|_");
+
+    if (funcLeftParen.indexIn(atom->string()) != -1 && marker->recognizeLanguage("Cpp")) {
+        // hack for C++: move () outside of link
         int k = funcLeftParen.pos( 1 );
         out() << protect( atom->string().left(k) );
         if ( link.isEmpty() ) {
@@ -1868,6 +1840,17 @@ void HtmlGenerator::generateLink(const Atom *atom, const Node * /* relative */, 
         }
         inLink = false;
         out() << protect(atom->string().mid(k));
+    } else if (marker->recognizeLanguage("Java")) {
+        bool func = atom->string().endsWith("()");
+        bool tt = (func || atom->string().contains(camelCase));
+        if (tt)
+            out() << "<tt>";
+        if (func) {
+            out() << protect(atom->string().left(atom->string().length() - 2));
+        } else {
+            out() << protect(atom->string());
+        }
+        out() << "</tt>";
     } else {
         out() << protect(atom->string());
     }
@@ -2419,7 +2402,6 @@ const Node *HtmlGenerator::findNodeForTarget(const QString &target,
 {
     const Node *node = 0;
 
-
     if (target.isEmpty()) {
         node = relative;
     } else if (target.endsWith(".html")) {
@@ -2577,4 +2559,31 @@ void HtmlGenerator::generateMacRef(const Node *node, CodeMarker *marker)
     QStringList macRefs = marker->macRefsForNode(node);
     foreach (QString macRef, macRefs)
         out() << "<a name=\"" << "//apple_ref/" << macRef << "\" />\n";
+}
+
+void HtmlGenerator::beginLink(const QString &link, const Node *relative, CodeMarker *marker)
+{
+    this->link = link;
+    if (link.isEmpty()) {
+        if (showBrokenLinks)
+            out() << "<i>";
+        relative->doc().location().warning(tr("Cannot link to '%1' in %2").arg(link)
+                .arg(marker->plainFullName(relative)));
+    } else {
+        out() << "<a href=\"" << link << "\">";
+    }
+    inLink = true;
+}
+
+void HtmlGenerator::endLink()
+{
+    if (inLink) {
+        if (link.isEmpty()) {
+            if (showBrokenLinks)
+                out() << "</i>";
+        } else {
+            out() << "</a>";
+        }
+    }
+    inLink = false;
 }

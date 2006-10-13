@@ -340,53 +340,7 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 void Generator::generateAlsoList( const Node *node, CodeMarker *marker )
 {
     QList<Text> alsoList = node->doc().alsoList();
-
-    if (node->type() == Node::Function) {
-        const FunctionNode *func = static_cast<const FunctionNode *>(node);
-        if (func->overloadNumber() == 1) {
-            QString alternateName;
-            const FunctionNode *alternateFunc = 0;
-
-            if (func->name().startsWith("set") && func->name().size() >= 4) {
-                alternateName = func->name()[3].toLower();
-                alternateName += func->name().mid(4);
-                alternateFunc = func->parent()->findFunctionNode(alternateName);
-
-                if (!alternateFunc) {
-                    alternateName = "is" + func->name().mid(3);
-                    alternateFunc = func->parent()->findFunctionNode(alternateName);
-                    if (!alternateFunc) {
-                        alternateName = "has" + func->name().mid(3);
-                        alternateFunc = func->parent()->findFunctionNode(alternateName);
-                    }
-                }
-            } else if (!func->name().isEmpty()) {
-                alternateName = "set";
-                alternateName += func->name()[0].toUpper();
-                alternateName += func->name().mid(1);
-                alternateFunc = func->parent()->findFunctionNode(alternateName);
-            }
-
-            if (alternateFunc && alternateFunc->access() != Node::Private) {
-                int i;
-                for (i = 0; i < alsoList.size(); ++i) {
-                    if (alsoList.at(i).toString().contains(alternateName))
-                        break;
-                }
-
-                if (i == alsoList.size()) {
-                    alternateName += "()";
-
-                    Text also;
-                    also << Atom(Atom::Link, alternateName)
-                         << Atom(Atom::FormattingLeft, ATOM_FORMATTING_LINK)
-                         << alternateName
-                         << Atom(Atom::FormattingRight, ATOM_FORMATTING_LINK);
-                    alsoList.prepend(also);
-                }
-            }
-        }
-    }
+    supplementAlsoList(node, alsoList);
 
     if (!alsoList.isEmpty()) {
 	Text text;
@@ -591,6 +545,56 @@ void Generator::unknownAtom( const Atom *atom )
 bool Generator::matchAhead( const Atom *atom, Atom::Type expectedAtomType )
 {
     return atom->next() != 0 && atom->next()->type() == expectedAtomType;
+}
+
+void Generator::supplementAlsoList(const Node *node, QList<Text> &alsoList)
+{
+    if (node->type() == Node::Function) {
+        const FunctionNode *func = static_cast<const FunctionNode *>(node);
+        if (func->overloadNumber() == 1) {
+            QString alternateName;
+            const FunctionNode *alternateFunc = 0;
+
+            if (func->name().startsWith("set") && func->name().size() >= 4) {
+                alternateName = func->name()[3].toLower();
+                alternateName += func->name().mid(4);
+                alternateFunc = func->parent()->findFunctionNode(alternateName);
+
+                if (!alternateFunc) {
+                    alternateName = "is" + func->name().mid(3);
+                    alternateFunc = func->parent()->findFunctionNode(alternateName);
+                    if (!alternateFunc) {
+                        alternateName = "has" + func->name().mid(3);
+                        alternateFunc = func->parent()->findFunctionNode(alternateName);
+                    }
+                }
+            } else if (!func->name().isEmpty()) {
+                alternateName = "set";
+                alternateName += func->name()[0].toUpper();
+                alternateName += func->name().mid(1);
+                alternateFunc = func->parent()->findFunctionNode(alternateName);
+            }
+
+            if (alternateFunc && alternateFunc->access() != Node::Private) {
+                int i;
+                for (i = 0; i < alsoList.size(); ++i) {
+                    if (alsoList.at(i).toString().contains(alternateName))
+                        break;
+                }
+
+                if (i == alsoList.size()) {
+                    alternateName += "()";
+
+                    Text also;
+                    also << Atom(Atom::Link, alternateName)
+                         << Atom(Atom::FormattingLeft, ATOM_FORMATTING_LINK)
+                         << alternateName
+                         << Atom(Atom::FormattingRight, ATOM_FORMATTING_LINK);
+                    alsoList.prepend(also);
+                }
+            }
+        }
+    }
 }
 
 QMap<QString, QString>& Generator::formattingLeftMap()

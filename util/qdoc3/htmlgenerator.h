@@ -111,6 +111,8 @@ private:
     virtual void generateIndex(const QString &fileBase, const QString &url,
                                const QString &title);
     void generateMacRef(const Node *node, CodeMarker *marker);
+    void beginLink(const QString &link, const Node *relative, CodeMarker *marker);
+    void endLink();
 
 #if 0
     NavigationBar currentNavigationBar;
