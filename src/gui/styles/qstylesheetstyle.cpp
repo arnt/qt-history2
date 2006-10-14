@@ -64,6 +64,11 @@ struct QStyleSheetBackgroundData : public QSharedData
                               Qt::Alignment a, QCss::Origin o)
         : brush(b), pixmap(p), repeat(r), position(a), origin(o) { }
 
+    bool isTransparent() const {
+        if (brush.style() != Qt::NoBrush)
+            return !brush.isOpaque();
+        return pixmap.isNull() ? false : pixmap.hasAlpha();
+    }
     QBrush brush;
     QPixmap pixmap;
     QCss::Repeat repeat;
@@ -180,7 +185,7 @@ public:
 
     const QStyleSheetPaletteData *palette() const { return pal; }
     const QStyleSheetBoxData *box() const { return b; }
-        const QStyleSheetBackgroundData *background() const { return bg; }
+    const QStyleSheetBackgroundData *background() const { return bg; }
     const QStyleSheetBorderData *border() const { return bd; }
     const QStyleSheetGeometryData *geometry() const { return geo; }
     const QStyleSheetPositionData *position() const { return p; }
@@ -1358,6 +1363,9 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
             }
 #endif // QT_NO_SPINBOX
             break;
+        case PseudoElement_GroupBoxTitle:
+            state |= (opt->state & (QStyle::State_MouseOver | QStyle::State_Sunken));
+            break;
         case PseudoElement_ToolButtonMenu:
         case PseudoElement_ToolButtonMenuArrow:
             state |= complex->state & QStyle::State_MouseOver;
@@ -1774,22 +1782,59 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
         break;
 
     case CC_GroupBox:
-        if (rule.hasDrawable() || rule.hasBox() || hasStyleRule(w, PseudoElement_GroupBoxTitle)
-            || hasStyleRule(w, PseudoElement_GroupBoxIndicator)) {
+        if (rule.hasDrawable() || rule.hasBox() || hasStyleRule(w, PseudoElement_GroupBoxTitle)) {
             if (const QStyleOptionGroupBox *gb = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
-                QStyleOptionGroupBox newGb(*gb);
-                newGb.subControls &= ~(QStyle::SC_GroupBoxLabel | QStyle::SC_GroupBoxCheckBox);
-                ParentStyle::drawComplexControl(cc, &newGb, p, w);
-                QRenderRule labelRule = renderRule(w, opt, PseudoElement_GroupBoxTitle);
-                if (labelRule.hasDrawable()) {
-                    QRect r1 = subControlRect(CC_GroupBox, opt, SC_GroupBoxLabel, w);
-                    QRect r2 = subControlRect(CC_GroupBox, opt, SC_GroupBoxCheckBox, w);
-                    labelRule.drawRule(p, r1.united(r2));
+                QRect labelRect, checkBoxRect, titleRect;
+                bool hasTitle = (gb->subControls & QStyle::SC_GroupBoxCheckBox) || !gb->text.isEmpty();
+                QRenderRule titleRule = renderRule(w, opt, PseudoElement_GroupBoxTitle);
+
+                bool clipSet = false;
+
+                if (hasTitle) {
+                    labelRect = subControlRect(CC_GroupBox, opt, SC_GroupBoxLabel, w);
+                    if (gb->subControls & QStyle::SC_GroupBoxCheckBox) {
+                        checkBoxRect = subControlRect(CC_GroupBox, opt, SC_GroupBoxCheckBox, w);
+                        titleRect = titleRule.boxRect(checkBoxRect.united(labelRect));
+                    } else {
+                        titleRect = titleRule.boxRect(labelRect);
+                    }
+                    if (titleRule.hasBackground() && !titleRule.background()->isTransparent()) {
+                        clipSet = true;
+                        p->save();
+                        p->setClipRegion(QRegion(opt->rect) - titleRect);
+                    }
                 }
-                newGb.subControls = QStyle::SC_GroupBoxLabel;
-                if (gb->subControls & QStyle::SC_GroupBoxCheckBox)
-                    newGb.subControls |= QStyle::SC_GroupBoxCheckBox;
-                ParentStyle::drawComplexControl(cc, &newGb, p, w);
+
+                rule.drawRule(p, opt->rect);
+
+                if (clipSet)
+                    p->restore();
+
+                // draw background and frame of the title
+                if (hasTitle)
+                    titleRule.drawRule(p, titleRect);
+
+                // draw the indicator
+                if (gb->subControls & QStyle::SC_GroupBoxCheckBox) {
+                    QStyleOptionButton box;
+                    box.QStyleOption::operator=(*gb);
+                    box.rect = checkBoxRect;
+                    drawPrimitive(PE_IndicatorCheckBox, &box, p, w);
+                    drawPrimitive(PE_IndicatorCheckBox, &box, p, w);
+                }
+
+                // draw the text
+                if (!gb->text.isEmpty()) {
+                    int alignment = int(Qt::AlignCenter);
+                    if (!styleHint(QStyle::SH_UnderlineShortcut, opt, w))
+                        alignment |= Qt::TextHideMnemonic;
+
+                    QPalette pal = gb->palette;
+                    pal.setColor(QPalette::WindowText, gb->textColor);
+                    titleRule.configurePalette(&pal, QPalette::WindowText, QPalette::Window);
+                    drawItemText(p, labelRect,  alignment, pal, gb->state & State_Enabled,
+                                 gb->text, QPalette::WindowText);
+                }
             }
             return;
         }
@@ -2297,8 +2342,9 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
         break;
 
     case PM_CheckBoxLabelSpacing: // group box
-        if (rule.hasBox() && rule.box()->spacing != -1)
-            return rule.box()->spacing;
+        subRule = renderRule(w, PseudoElement_GroupBoxTitle);
+        if (subRule.hasBox() && subRule.box()->spacing != -1)
+            return subRule.box()->spacing;
         break;
 
     default:
@@ -2481,6 +2527,9 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
         case SH_MessageBox_TextInteractionFlags: s = "messagebox-text-interaction-flags"; break;
         case SH_ToolButton_PopupDelay: s = "toolbutton-popup-delay"; break;
         case SH_ToolBox_SelectedPageTitleBold: s= "toolbox-selected-page-title-bold"; break;
+        case SH_GroupBox_TextLabelColor:
+            if (rule.hasPalette() && rule.palette()->foreground.isValid())
+                return rule.palette()->foreground.rgba();
         default: break;
     }
     if (!s.isEmpty() && rule.hasStyleHint(s)) {
@@ -2575,8 +2624,10 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
                         } else {
                             r = QRect(r.left(), r.center().y() - ih/2, iw, ih);
                         }
+                        return r;
+                    } else {
+                        return labelRule.contentsRect(r);
                     }
-                    return r;
                 }
                 }
             }
@@ -2602,7 +2653,7 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
         break;
     }
 
-    return baseStyle()->subControlRect(cc, opt, sc, w);;
+    return baseStyle()->subControlRect(cc, opt, sc, w);
 }
 
 QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, const QWidget *w) const
