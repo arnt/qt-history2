@@ -1887,9 +1887,17 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
     QRenderRule rule = renderRule(w, opt);
 
     switch (ce) {
+    case CE_ToolButtonLabel:
+        if (const QStyleOptionToolButton *btn = qstyleoption_cast<const QStyleOptionToolButton *>(opt)) {
+            QStyleOptionToolButton butOpt(*btn);
+            rule.configurePalette(&butOpt.palette, QPalette::ButtonText, QPalette::Button);
+            ParentStyle::drawControl(ce, &butOpt, p, w);
+            return;
+        }
+        break;
+
     // Push button
     case CE_PushButton:
-    case CE_ToolButtonLabel:
         ParentStyle::drawControl(ce, opt, p, w);
         return;
 
