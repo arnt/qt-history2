@@ -443,7 +443,7 @@ static QString quoteNewline(const QString &s)
 }
 
 QTextHtmlParserNode::QTextHtmlParserNode()
-    : parent(0), id(-1), isBlock(false), isListItem(false), isListStart(false), isTableCell(false), isAnchor(false),
+    : parent(0), id(-1), isBlock(false), isListStart(false), isTableCell(false), isAnchor(false),
       fontItalic(Unspecified), fontUnderline(Unspecified), fontOverline(Unspecified), fontStrikeOut(Unspecified), fontFixedPitch(Unspecified),
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false), hasFontPixelSize(false), hasFontSizeAdjustment(false),
       hasCssBlockIndent(false), hasCssListIndent(false), isEmptyParagraph(false), isTextFrame(false), direction(3),
@@ -713,7 +713,6 @@ void QTextHtmlParser::parseTag()
         node->id = -1;
     }
 
-    node->isListItem = (node->id == Html_li);
     node->isListStart = (node->id == Html_ol || node->id == Html_ul);
     node->isTableCell = (node->id == Html_td || node->id == Html_th);
 

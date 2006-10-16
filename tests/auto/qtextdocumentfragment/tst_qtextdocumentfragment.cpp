@@ -181,6 +181,7 @@ private slots:
     void html_eatenText();
     void html_hrMargins();
     void html_blockQuoteMargins();
+    void html_definitionListMargins();
 
 private:
     inline void setHtml(const QString &html)
@@ -2760,6 +2761,26 @@ void tst_QTextDocumentFragment::html_blockQuoteMargins()
     QCOMPARE(block.blockFormat().bottomMargin(), qreal(12.));
 }
 
+void tst_QTextDocumentFragment::html_definitionListMargins()
+{
+    doc->setHtml("Foo<dl><dt>tag<dd>data</dl>Bar");
+    QCOMPARE(doc->blockCount(), 4);
+
+    cursor.movePosition(QTextCursor::Start);
+    QTextBlock block = cursor.block();
+    QCOMPARE(block.text(), QString("Foo"));
+
+    block = block.next();
+    QCOMPARE(block.text(), QString("tag"));
+    QCOMPARE(block.blockFormat().topMargin(), qreal(8.));
+
+    block = block.next();
+    QCOMPARE(block.text(), QString("data"));
+    QCOMPARE(block.blockFormat().bottomMargin(), qreal(8.));
+
+    block = block.next();
+    QCOMPARE(block.text(), QString("Bar"));
+}
 
 QTEST_MAIN(tst_QTextDocumentFragment)
 #include "tst_qtextdocumentfragment.moc"

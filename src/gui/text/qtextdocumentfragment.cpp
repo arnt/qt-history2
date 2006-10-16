@@ -588,13 +588,15 @@ void QTextHtmlImporter::import()
 
             // for list items we may want to collapse with the bottom margin of the
             // list.
-            if (node->isListItem) {
-                if (node->parent && at(node->parent).isListStart) {
-                    const int listId = node->parent;
-                    const QTextHtmlParserNode *list = &at(listId);
-                    if (list->children.last() == i /* == index of node */)
-                        bottomMargin = qMax(bottomMargin, this->bottomMargin(listId));
-                }
+            const QTextHtmlParserNode *parentNode = node->parent ? &at(node->parent) : 0;
+            if ((node->id == Html_li
+                 || node->id == Html_dt
+                 || node->id == Html_dd)
+                && parentNode
+                && (parentNode->isListStart || parentNode->id == Html_dl)
+                && (parentNode->children.last() == i)
+               ) {
+                bottomMargin = qMax(bottomMargin, this->bottomMargin(node->parent));
             }
 
             block.setBottomMargin(bottomMargin);
@@ -602,7 +604,7 @@ void QTextHtmlImporter::import()
             block.setLeftMargin(leftMargin(i));
             block.setRightMargin(rightMargin(i));
 
-            if (!node->isListItem
+            if (node->id != Html_li
                 && indent != 0
                 && (lists.isEmpty()
                     || !hasBlock
@@ -640,7 +642,7 @@ void QTextHtmlImporter::import()
                 }
             }
 
-            if (node->isListItem && !lists.isEmpty()) {
+            if (node->id == Html_li && !lists.isEmpty()) {
                 List &l = lists.last();
                 if (l.list) {
                     l.list->add(cursor.block());

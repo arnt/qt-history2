@@ -138,7 +138,6 @@ struct QTextHtmlParserNode {
     QVector<int> children;
     int id;
     uint isBlock : 1;
-    uint isListItem : 1;
     uint isListStart : 1;
     uint isTableCell : 1;
     uint isAnchor : 1;
@@ -197,7 +196,7 @@ struct QTextHtmlParserNode {
     inline bool allowedInContext(int parentId) const
     {
         switch (id) {
-            case Html_dd: return (parentId == Html_dt || parentId == Html_dl);
+            case Html_dd:
             case Html_dt: return (parentId == Html_dl);
             case Html_tr: return (parentId == Html_table
                                   || parentId == Html_thead
