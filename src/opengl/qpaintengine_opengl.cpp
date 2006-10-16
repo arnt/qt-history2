@@ -381,6 +381,11 @@ static inline QPainterPath strokeForPath(const QPainterPath &path, const QPen &c
 #ifndef GL_DECR_WRAP_EXT
 #define GL_DECR_WRAP_EXT 0x8508
 #endif
+
+#ifndef GL_TEXTURE1
+#define GL_TEXTURE1 0x84C1
+#endif
+
 extern QGLContextPrivate *qt_glctx_get_dptr(QGLContext *);
 
 #ifdef Q_WS_WIN
@@ -392,6 +397,8 @@ extern QGLContextPrivate *qt_glctx_get_dptr(QGLContext *);
 
 #define glActiveStencilFaceEXT qt_glctx_get_dptr(ctx)->qt_glActiveStencilFaceEXT
 
+#define glMultiTexCoord4f qt_glctx_get_dptr(ctx)->qt_glMultiTexCoord4f
+
 #else
 static _glProgramStringARB qt_glProgramStringARB = 0;
 static _glBindProgramARB qt_glBindProgramARB = 0;
@@ -401,6 +408,8 @@ static _glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB = 0;
 
 static _glActiveStencilFaceEXT qt_glActiveStencilFaceEXT = 0;
 
+static _glMultiTexCoord4f qt_glMultiTexCoord4f = 0;
+
 #define glProgramStringARB qt_glProgramStringARB
 #define glBindProgramARB qt_glBindProgramARB
 #define glDeleteProgramsARB qt_glDeleteProgramsARB
@@ -408,6 +417,8 @@ static _glActiveStencilFaceEXT qt_glActiveStencilFaceEXT = 0;
 #define glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB
 
 #define glActiveStencilFaceEXT qt_glActiveStencilFaceEXT
+
+#define glMultiTexCoord4f qt_glMultiTexCoord4f
 
 #endif // Q_WS_WIN
 
@@ -467,6 +478,16 @@ static const char *const ellipse_aa_copy_program =
 static const char *const trapezoid_aa_program =
 #include "util/trap_exact_aa.frag"
 
+bool qt_resolve_version_1_3_functions(QGLContext *ctx)
+{
+    if (glMultiTexCoord4f != 0)
+        return true;
+
+    QGLContext cx(QGLFormat::defaultFormat());
+    glMultiTexCoord4f = (_glMultiTexCoord4f) ctx->getProcAddress(QLatin1String("glMultiTexCoord4f"));
+
+    return glMultiTexCoord4f;
+}
 
 bool qt_resolve_stencil_face_extension(QGLContext *ctx)
 {
@@ -747,6 +768,9 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     if (d->use_stencil_method && QGLExtensions::glExtensions & QGLExtensions::StencilTwoSide)
         d->has_stencil_face_ext = qt_resolve_stencil_face_extension(ctx);
 
+    if (QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_3)
+        qt_resolve_version_1_3_functions(ctx);
+        
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glMatrixMode(GL_MODELVIEW);
