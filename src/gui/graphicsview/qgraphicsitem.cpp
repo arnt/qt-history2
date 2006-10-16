@@ -1447,10 +1447,10 @@ void QGraphicsItem::setTransform(const QTransform &matrix, bool combine )
     if (oldMatrix == newMatrix)
         return;
 
-    d_ptr->hasMatrix = !newMatrix.isIdentity();
-
     qt_graphicsItem_fullUpdate(this);
     removeFromIndex();
+    d_ptr->hasMatrix = !newMatrix.isIdentity();
+
     QVariant variant;
     qVariantSetValue<QTransform>(variant, newMatrix);
     d_ptr->setExtra(QGraphicsItemPrivate::ExtraMatrix,
