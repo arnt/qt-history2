@@ -918,20 +918,14 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
         GetMenuItemProperty(action->menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(caused), 0, &caused);
         SetMenuItemProperty(data.submenuHandle, 0, kMenuCreatorQt, kMenuPropertyCausedQWidget, sizeof(caused), &caused);
     } else { //respect some other items
-        //shortcuts
-        if (accel.isEmpty()) {
-            data.whichData |= kMenuItemDataCmdKey;
-            data.whichData |= kMenuItemDataCmdKeyModifiers;
-            data.whichData |= kMenuItemDataCmdKeyGlyph;
-        } else {
-            data.whichData |= kMenuItemDataCmdKeyModifiers;
-            data.whichData |= kMenuItemDataCmdKey;
+        //shortcuts (say we are setting them all so that we can also clear them).
+        data.whichData |= kMenuItemDataCmdKey;
+        data.whichData |= kMenuItemDataCmdKeyModifiers;
+        data.whichData |= kMenuItemDataCmdKeyGlyph;
+        if (!accel.isEmpty()) {
             qt_mac_get_accel(accel[0], (quint32*)&data.cmdKeyModifiers, (quint32*)&data.cmdKeyGlyph);
-            if (data.cmdKeyGlyph) {
-                data.whichData |= kMenuItemDataCmdKeyGlyph;
-            } else {
+            if (data.cmdKeyGlyph == 0)
                 data.cmdKey = (UniChar)accel[0];
-            }
         }
     }
 
