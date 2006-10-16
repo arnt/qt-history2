@@ -333,7 +333,7 @@ QVariant QMacPasteboardMimeImage::convertToMime(const QString &mime, QList<QByte
 QList<QByteArray> QMacPasteboardMimeImage::convertFromMime(const QString &mime, QVariant variant, QString flav)
 {
     QList<QByteArray> ret;
-    if(!canConvent(mime, flav))
+    if(!canConvert(mime, flav))
         return ret;
     QImage img = qvariant_cast<QImage>(variant);
 
