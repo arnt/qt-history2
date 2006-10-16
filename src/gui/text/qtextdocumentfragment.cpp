@@ -818,6 +818,7 @@ bool QTextHtmlImporter::closeTag(int i)
             // claim to have closed one for the creation of a new one
             // in import()
             blockTagClosed = false;
+            compressNextWhitespace = true;
         } else if (closedNode->isTableCell && !tables.isEmpty()) {
             Table &t = tables.last();
             if (!t.isTextFrame)
