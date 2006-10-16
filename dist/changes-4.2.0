@@ -88,8 +88,6 @@ New features
   only testing the real possible shortcuts, such as Ctrl+Shift+= and Ctrl++
   on an English keyboard.
 
-- Support for reading and writing TIFF images.
-
 - Improved and enhanced QMessageBox to support native look and feel on many
   common platforms.
 
@@ -707,8 +705,6 @@ Build System
 
       * Added support for reading negative BMP images.
 
-      * Added support for TIFF images.
-
       * Improved handling of invalid devices.
 
       * Added optimizations to ensure that the most likely formats and plugins
@@ -727,8 +723,6 @@ Build System
 
       * Ensured that an error is reported when attempting to write an image
         to a non-writable device.
-
-      * Added support for TIFF images.
 
       * It is now possible to query the supported options of an image by
         calling supportedOptions().
