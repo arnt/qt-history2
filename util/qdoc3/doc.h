@@ -32,6 +32,7 @@ public:
 
     void renameParameters(const QStringList &oldNames, const QStringList &newNames);
     void simplifyEnumDoc();
+    void setBody(const Text &body);
 
     const Location &location() const;
     bool isEmpty() const;

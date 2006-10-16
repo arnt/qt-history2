@@ -214,12 +214,39 @@ bool JambiApiParser::startElement(const QString & /* namespaceURI */,
         if (makeFunctionNode(javaParent, javaSignature, &javaNode)) {
             javaNode->setLocation(japiLocation);
             if (cppNode) {
-                // ### handle:
-                //  * reimps
-                //  * \internal
-                //  * properties
+                int overloadNo = cppNode->parameters().count() - javaNode->parameters().count() + 1;
+                if (overloadNo == 1) {
+                    setPass1JambifiedDoc(javaNode, cppNode);
+                } else {
+                    Text text;
 
-                setPass1JambifiedDoc(javaNode, cppNode);
+                    text << Atom::ParaLeft << "Equivalent to "
+                         << Atom(Atom::Link, javaNode->name() + "()")
+                         << Atom(Atom::FormattingLeft, ATOM_FORMATTING_LINK)
+                         << javaNode->name()
+                         << Atom(Atom::FormattingRight, ATOM_FORMATTING_LINK)
+                         << "(";
+
+                    for (int i = 0; i < cppNode->parameters().count(); ++i) {
+                        if (i > 0)
+                            text << ", ";
+                        if (i < javaNode->parameters().count()) {
+                            text << Atom(Atom::FormattingLeft, ATOM_FORMATTING_PARAMETER)
+                                 << javaNode->parameters().at(i).name()
+                                 << Atom(Atom::FormattingRight, ATOM_FORMATTING_PARAMETER);
+                        } else {
+                            // ### convert to Java
+                            text << cppNode->parameters().at(i).defaultValue();
+                        }
+                    }
+
+                    text << ").";
+
+                    Doc doc;
+                    doc.setBody(text);
+                    javaNode->setDoc(doc);
+                }
+                javaNode->setOverload(overloadNo > 1);
             }
         }
     } else if (qName == "variablesetter" || qName == "variablegetter") {

@@ -2141,10 +2141,8 @@ void Doc::renameParameters(const QStringList &oldNames, const QStringList &newNa
 
 void Doc::simplifyEnumDoc()
 {
-qCritical("SIMPLIFY DOC");
     if (priv) {
         if (priv->isEnumDocSimplifiable()) {
-qCritical("   SIMPLIFIABLE");
             detach();
 
             Text newText;
@@ -2165,6 +2163,12 @@ qCritical("   SIMPLIFIABLE");
             priv->text = newText;
         }
     }
+}
+
+void Doc::setBody(const Text &text)
+{
+    detach();
+    priv->text = text;
 }
 
 const Location &Doc::location() const
@@ -2550,7 +2554,11 @@ QString Doc::canonicalTitle(const QString &title)
 
 void Doc::detach()
 {
-    if (!priv || priv->count == 1)
+    if (!priv) {
+        priv = new DocPrivate;
+        return;
+    }
+    if (priv->count == 1)
         return;
 
     --priv->count;

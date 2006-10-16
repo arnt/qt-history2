@@ -1,4 +1,5 @@
-  * enums etc.
+  * enum:
+    * generate "Do not use." for \omitvalue
   * obsolete functions:
     * generate standard text
     * don't show code snippet
