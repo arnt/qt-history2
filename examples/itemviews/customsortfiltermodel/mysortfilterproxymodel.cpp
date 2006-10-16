@@ -53,7 +53,7 @@ bool MySortFilterProxyModel::lessThan(const QModelIndex &left,
     if (leftData.type() == QVariant::DateTime) {
         return leftData.toDateTime() < rightData.toDateTime();
     } else {
-        QRegExp *emailPattern = new QRegExp("(\\w*@[\\w\\.]*)");
+        QRegExp *emailPattern = new QRegExp("([\\w\\.]*@[\\w\\.]*)");
 
         QString leftString = leftData.toString();
         if(left.column() == 1 && emailPattern->indexIn(leftString) != -1)
