@@ -301,9 +301,8 @@ QString QMacPasteboardMimeImage::mimeFor(QString flav)
 
 bool QMacPasteboardMimeImage::canConvert(const QString &mime, QString flav)
 {
-    if(flav == QLatin1String("com.apple.pict") && mime == QLatin1String("application/x-qt-image"))
-        return true;
-    return false;
+    return flav == QLatin1String("com.apple.pict")
+            && mime == QLatin1String("application/x-qt-image");
 }
 
 QVariant QMacPasteboardMimeImage::convertToMime(const QString &mime, QList<QByteArray> data, QString flav)
@@ -311,7 +310,7 @@ QVariant QMacPasteboardMimeImage::convertToMime(const QString &mime, QList<QByte
     if(data.count() > 1)
         qWarning("QMacPasteboardMimeAnyMime: Cannot handle multiple member data");
     QVariant ret;
-    if(mime != QLatin1String("application/x-qt-image") || flav != QLatin1String("com.apple.pict"))
+    if(!canConvert(mime, flav))
         return ret;
     QByteArray &a = data.first();
     PicHandle pic = (PicHandle)NewHandle(a.size());
@@ -334,7 +333,7 @@ QVariant QMacPasteboardMimeImage::convertToMime(const QString &mime, QList<QByte
 QList<QByteArray> QMacPasteboardMimeImage::convertFromMime(const QString &mime, QVariant variant, QString flav)
 {
     QList<QByteArray> ret;
-    if(mime != QLatin1String("application/x-qt-image") || flav != QLatin1String("com.apple.pict"))
+    if(!canConvent(mime, flav))
         return ret;
     QImage img = qvariant_cast<QImage>(variant);
 
@@ -396,14 +395,12 @@ QString QMacPasteboardMimeFileUri::mimeFor(QString flav)
 
 bool QMacPasteboardMimeFileUri::canConvert(const QString &mime, QString flav)
 {
-    if(mime == QLatin1String("text/uri-list"))
-        return flav == QLatin1String("public.file-url");
-    return false;
+    return mime == QLatin1String("text/uri-list") && flav == QLatin1String("public.file-url");
 }
 
 QVariant QMacPasteboardMimeFileUri::convertToMime(const QString &mime, QList<QByteArray> data, QString flav)
 {
-    if(mime != QLatin1String("text/uri-list") || flav != QLatin1String("public.file-url"))
+    if(!canConvert(mime, flav))
         return QVariant();
     QList<QVariant> ret;
     for(int i = 0; i < data.size(); ++i) {
@@ -418,7 +415,7 @@ QVariant QMacPasteboardMimeFileUri::convertToMime(const QString &mime, QList<QBy
 QList<QByteArray> QMacPasteboardMimeFileUri::convertFromMime(const QString &mime, QVariant data, QString flav)
 {
     QList<QByteArray> ret;
-    if(mime != QLatin1String("text/uri-list") || flav != QLatin1String("public.file-url"))
+    if(!canConvert(mime, flav))
         return ret;
     QList<QVariant> urls = data.toList();
     for(int i = 0; i < urls.size(); ++i) {
