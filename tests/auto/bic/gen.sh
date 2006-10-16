@@ -9,7 +9,7 @@ if [ "$#" -lt 2 ]; then
 fi
 
 if [ "$1" = "-all" ]; then
-    modules="QtCore QtGui QtSql QtNetwork QtXml QtOpenGL Qt3Support"
+    modules="QtCore QtGui QtSql QtSvg QtNetwork QtXml QtOpenGL Qt3Support QtTest QtDBus"
 else
     modules="$1"
 fi
