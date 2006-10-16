@@ -104,9 +104,9 @@ QString Text::toString() const
     return str;
 }
 
-Text Text::subText( Atom::Type left, Atom::Type right ) const
+Text Text::subText( Atom::Type left, Atom::Type right, const Atom *from ) const
 {
-    const Atom *begin = firstAtom();
+    const Atom *begin = from ? from : firstAtom();
     const Atom *end;
 
     while ( begin != 0 && begin->type() != left )

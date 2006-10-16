@@ -185,6 +185,7 @@ public:
 
     void addAlso( const Text& also );
     void constructExtra();
+    bool isEnumDocSimplifiable() const;
 
     // ### move some of this in DocPrivateExtra
     Location loc;
@@ -220,6 +221,25 @@ void DocPrivate::constructExtra()
 {
     if ( extra == 0 )
 	extra = new DocPrivateExtra;
+}
+
+bool DocPrivate::isEnumDocSimplifiable() const
+{
+    bool justMetColon = false;
+    int numValueTables = 0;
+
+    const Atom *atom = text.firstAtom();
+    while (atom) {
+        if (atom->type() == Atom::AutoLink || atom->type() == Atom::String) {
+            justMetColon = atom->string().endsWith(":");
+        } else if (atom->type() == Atom::ListLeft && atom->string() == ATOM_LIST_VALUE) {
+            if (justMetColon || numValueTables > 0)
+                return false;
+            ++numValueTables;
+        }
+        atom = atom->next();
+    }
+    return true;
 }
 
 class DocParser
@@ -2115,6 +2135,34 @@ void Doc::renameParameters(const QStringList &oldNames, const QStringList &newNa
                     atom->setString(newNames.at(index));
             }
             atom = atom->next();
+        }
+    }
+}
+
+void Doc::simplifyEnumDoc()
+{
+qCritical("SIMPLIFY DOC");
+    if (priv) {
+        if (priv->isEnumDocSimplifiable()) {
+qCritical("   SIMPLIFIABLE");
+            detach();
+
+            Text newText;
+
+            Atom *atom = priv->text.firstAtom();
+            while (atom) {
+                if (atom->type() == Atom::ListLeft && atom->string() == ATOM_LIST_VALUE) {
+                    while (atom && (atom->type() != Atom::ListRight
+                                    || atom->string() != ATOM_LIST_VALUE))
+                        atom = atom->next();
+                    if (atom)
+                        atom = atom->next();
+                } else {
+                    newText << *atom;
+                    atom = atom->next();
+                }
+            }
+            priv->text = newText;
         }
     }
 }

@@ -13,6 +13,7 @@
 #include "codechunk.h"
 #include "doc.h"
 #include "location.h"
+#include "text.h"
 
 class InnerNode;
 
@@ -231,13 +232,17 @@ public:
     EnumItem() { }
     EnumItem( const QString& name, const QString& value )
 	: nam( name ), val( value ) { }
+    EnumItem( const QString& name, const QString& value, const Text &txt )
+	: nam( name ), val( value ), txt(txt) { }
 
     const QString& name() const { return nam; }
     const QString& value() const { return val; }
+    const Text &text() const { return txt; }
 
 private:
     QString nam;
     QString val;
+    Text txt;
 };
 
 class TypedefNode;

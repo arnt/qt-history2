@@ -24,11 +24,30 @@ static void setPass1JambifiedDoc(Node *javaNode, const Node *cppNode)
         } else {
             
         }
-    } else {
+    } else {    // ### enum names?
         
     }
 
     javaNode->setDoc(newDoc);
+}
+
+static Text findEnumText(Node *javaEnum, const QString &enumItemName)
+{
+    const Text &body = javaEnum->doc().body();
+    const Atom *atom = body.firstAtom();
+    while (atom) {
+        if (atom->type() == Atom::ListTagLeft && atom->string() == ATOM_LIST_VALUE) {
+            atom = atom->next();
+            if (atom) {
+                // ### paras?
+                if (atom->string() == enumItemName)
+                    return body.subText(Atom::ListItemLeft, Atom::ListItemRight, atom);
+            }
+        } else {
+            atom = atom->next();
+        }
+    }
+    return Text();
 }
 
 JambiApiParser::JambiApiParser(Tree *cppTree)
@@ -234,9 +253,10 @@ bool JambiApiParser::startElement(const QString & /* namespaceURI */,
         QString cppName = attributes.value("cpp");
         QString value = attributes.value("value");
 
-        EnumItem item(javaName, value);
-        if (javaEnum)
+        if (javaEnum) {
+            EnumItem item(javaName, value, findEnumText(javaEnum, javaName));
             javaEnum->addItem(item);
+        }
     }
 
     return true;
@@ -263,9 +283,11 @@ void JambiApiParser::jambifyDocsPass2(Node *node)
 {
     const Doc &doc = node->doc();
     if (!doc.isEmpty()) {
-        Doc newDoc;
-//        newDoc.setLocation(doc.location());
-
+        if (node->type() == Node::Enum) {
+            Doc newDoc(doc);
+            newDoc.simplifyEnumDoc();
+            node->setDoc(newDoc);
+        }
     }
 
     if (node->isInnerNode()) {

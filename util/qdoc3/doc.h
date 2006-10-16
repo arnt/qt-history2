@@ -31,6 +31,7 @@ public:
     Doc& operator=( const Doc& doc );
 
     void renameParameters(const QStringList &oldNames, const QStringList &newNames);
+    void simplifyEnumDoc();
 
     const Location &location() const;
     bool isEmpty() const;

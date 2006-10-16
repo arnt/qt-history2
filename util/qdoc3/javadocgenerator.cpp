@@ -139,10 +139,27 @@ void JavadocGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker 
             generateClassLikeNode(static_cast<InnerNode *>(node), marker);
         } else {
             if (node->type() == Node::Enum) {
+                EnumNode *enume = static_cast<EnumNode *>(node);
+
                 generateIndent();
                 out() << "<enum name=\"" << protect(node->name()) << "\"";
                 generateDoc(node, marker);
-                out() << "/>\n";
+                out() << ">\n";
+
+                ++currentDepth;
+                const QList<EnumItem> &items = enume->items();
+                for (int i = 0; i < items.count(); ++i) {
+                    const EnumItem &item = items.at(i);
+                    if (!item.text().isEmpty()) {
+                        generateIndent();
+                        out() << "<enum-value name=\"" << protect(item.name()) << "\"";
+                        generateDoc(item.text(), enume, marker);
+                        out() << "/>\n";
+                    }
+                }
+                --currentDepth;
+
+                out() << "</enum>\n";
             } else if (node->type() == Node::Function) {
                 generateIndent();
                 out() << "<method name=\""
@@ -234,10 +251,21 @@ void JavadocGenerator::generateIndent()
 
 void JavadocGenerator::generateDoc(const Node *node, CodeMarker *marker)
 {
-    if (!node->doc().body().isEmpty()) {
+    const Text &text = node->doc().body();
+    if (!text.isEmpty()) {
         out() << " doc=\"/**\n";
-        generateText(node->doc().body(), node, marker); // ### handle '*/'
-        generateAlsoList(node, marker);
+        generateText(text, node, marker);
+        if (node)
+            generateAlsoList(node, marker);
+        out() << " */\"";
+    }
+}
+
+void JavadocGenerator::generateDoc(const Text &text, const Node *node, CodeMarker *marker)
+{
+    if (!text.isEmpty()) {
+        out() << " doc=\"/**\n";
+        generateText(text, node, marker);
         out() << " */\"";
     }
 }

@@ -37,6 +37,7 @@ private:
                        const QString &title);
     void generateIndent();
     void generateDoc(const Node *node, CodeMarker *marker);
+    void generateDoc(const Text &text, const Node *node, CodeMarker *marker);
 
     QString buffer;
     QIODevice *oldDevice;
