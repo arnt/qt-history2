@@ -532,7 +532,9 @@ void QTextHtmlImporter::import()
             hasBlock = false;
             continue;
         } else if (node->id == Html_hr) {
-            QTextBlockFormat blockFormat;
+            QTextBlockFormat blockFormat = node->blockFormat();
+            blockFormat.setTopMargin(topMargin(i));
+            blockFormat.setBottomMargin(bottomMargin(i));
             blockFormat.setProperty(QTextFormat::BlockTrailingHorizontalRulerWidth, node->width);
             appendBlock(blockFormat);
             hasBlock = false;

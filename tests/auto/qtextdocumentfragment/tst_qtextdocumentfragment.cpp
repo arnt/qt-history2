@@ -179,6 +179,7 @@ private slots:
     void html_caption();
     void html_windowsEntities();
     void html_eatenText();
+    void html_hrMargins();
 
 private:
     inline void setHtml(const QString &html)
@@ -2720,6 +2721,29 @@ void tst_QTextDocumentFragment::html_eatenText()
     QCOMPARE(cursor.block().text(), QString("Test2"));
     cursor.movePosition(QTextCursor::NextBlock);
     QCOMPARE(cursor.block().text(), QString("Test3"));
+}
+
+void tst_QTextDocumentFragment::html_hrMargins()
+{
+    doc->setHtml("<p>Test<hr/>Blah");
+    QCOMPARE(doc->blockCount(), 3);
+
+    cursor.movePosition(QTextCursor::Start);
+    QTextBlock block = cursor.block();
+    QCOMPARE(block.text(), QString("Test"));
+    QVERIFY(block.blockFormat().bottomMargin() <= qreal(12.));
+    QTextBlock first = block;
+
+    cursor.movePosition(QTextCursor::NextBlock);
+    block = cursor.block();
+    QTextBlock hr = block;
+    QVERIFY(qMax(first.blockFormat().bottomMargin(), block.blockFormat().topMargin()) > 0);
+
+    cursor.movePosition(QTextCursor::NextBlock);
+    block = cursor.block();
+    QVERIFY(qMax(hr.blockFormat().bottomMargin(), block.blockFormat().topMargin()) > 0);
+
+    QCOMPARE(block.text(), QString("Blah"));
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)
