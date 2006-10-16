@@ -120,6 +120,7 @@ void tst_Bic::sizesAndVTables_data()
 #elif defined Q_OS_MAC && defined(__powerpc__)
     archFileName400 = "data/%1.4.0.0.macx-gcc-ppc32.txt";
     archFileName410 = "data/%1.4.1.0.macx-gcc-ppc32.txt";
+    archFileName420 = "data/%1.4.2.0.macx-gcc-ppc32.txt";
 #elif defined Q_OS_MAC && defined(__i386__)
     archFileName410 = "data/%1.4.1.0.macx-gcc-ia32.txt";
     archFileName420 = "data/%1.4.2.0.macx-gcc-ia32.txt";
