@@ -1733,10 +1733,13 @@ void QWidgetPrivate::show_sys()
     q->setAttribute(Qt::WA_Mapped);
 
     if(q->isWindow() && !topData()->is_moved) {
-        if(QWidget *p = q->parentWidget())
+        q->createWinId();
+        if (QWidget *p = q->parentWidget()) {
+            p->createWinId();
             RepositionWindow(qt_mac_window_for(q), qt_mac_window_for(p), kWindowCenterOnParentWindow);
-        else
+        } else {
             RepositionWindow(qt_mac_window_for(q), 0, kWindowCenterMainScreen);
+        }
     }
     data.fstrut_dirty = true;
     if(q->isWindow()) {
