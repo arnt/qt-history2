@@ -106,7 +106,9 @@ private:
 
     struct List
     {
+        inline List() : listNode(0) {}
         QTextListFormat format;
+        int listNode;
         QPointer<QTextList> list;
     };
     QVector<List> lists;

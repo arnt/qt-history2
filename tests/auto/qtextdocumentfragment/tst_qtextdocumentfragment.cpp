@@ -182,6 +182,7 @@ private slots:
     void html_hrMargins();
     void html_blockQuoteMargins();
     void html_definitionListMargins();
+    void html_listMargins();
 
 private:
     inline void setHtml(const QString &html)
@@ -2777,6 +2778,27 @@ void tst_QTextDocumentFragment::html_definitionListMargins()
     block = block.next();
     QCOMPARE(block.text(), QString("data"));
     QCOMPARE(block.blockFormat().bottomMargin(), qreal(8.));
+
+    block = block.next();
+    QCOMPARE(block.text(), QString("Bar"));
+}
+
+void tst_QTextDocumentFragment::html_listMargins()
+{
+    doc->setHtml("Foo<ol><li>First<li>Second</ol>Bar");
+    QCOMPARE(doc->blockCount(), 4);
+
+    cursor.movePosition(QTextCursor::Start);
+    QTextBlock block = cursor.block();
+    QCOMPARE(block.text(), QString("Foo"));
+
+    block = block.next();
+    QCOMPARE(block.text(), QString("First"));
+    QCOMPARE(block.blockFormat().topMargin(), qreal(12.));
+
+    block = block.next();
+    QCOMPARE(block.text(), QString("Second"));
+    QCOMPARE(block.blockFormat().bottomMargin(), qreal(12.));
 
     block = block.next();
     QCOMPARE(block.text(), QString("Bar"));

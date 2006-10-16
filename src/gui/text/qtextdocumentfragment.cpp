@@ -497,6 +497,7 @@ void QTextHtmlImporter::import()
 
             List l;
             l.format = listFmt;
+            l.listNode = i;
             lists.append(l);
             compressNextWhitespace = true;
 
@@ -648,6 +649,11 @@ void QTextHtmlImporter::import()
                     l.list->add(cursor.block());
                 } else {
                     l.list = cursor.createList(l.format);
+                    const qreal listTopMargin = topMargin(l.listNode);
+                    if (listTopMargin > block.topMargin()) {
+                        block.setTopMargin(listTopMargin);
+                        cursor.mergeBlockFormat(block);
+                    }
                 }
             }
 
