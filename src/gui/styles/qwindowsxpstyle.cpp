@@ -3349,12 +3349,10 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
 
     case PM_TitleBarHeight:
         {
-            XPThemeData theme(widget, 0, "WINDOW", WP_CAPTION, CS_ACTIVE);
-            if (theme.isValid()) {
-                SIZE size;
-                pGetThemePartSize(theme.handle(), 0, WP_CAPTION, CS_ACTIVE, 0, TS_TRUE, &size);
-                res = size.cy;
-            }
+            if (widget && (widget->windowType() == Qt::Tool))
+                res = GetSystemMetrics(SM_CYSMCAPTION) + GetSystemMetrics(SM_CXSIZEFRAME);
+            else 
+                res = GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXSIZEFRAME);
         }
         break;
 
@@ -3481,17 +3479,10 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
             const bool isToolTitle = false;
             const int height = tb->rect.height();
             const int width = tb->rect.width();
-            int buttonHeight = height - 9;
-            int buttonWidth = buttonHeight;
+            int buttonHeight = GetSystemMetrics(SM_CYSIZE) - 4;
+            int buttonWidth = GetSystemMetrics(SM_CXSIZE) - 4;
 
-            SIZE sz;
-            XPThemeData theme(widget, 0, "WINDOW", WP_CLOSEBUTTON, CBS_NORMAL);
-            if (pGetThemePartSize(theme.handle(), NULL, WP_CLOSEBUTTON, CBS_NORMAL, NULL, TS_TRUE, &sz) == S_OK) {
-                buttonHeight = sz.cy;
-                buttonWidth = sz.cx;
-            }
-            
-            int controlTop = option->rect.bottom() - buttonHeight - 1;    			
+            int controlTop = option->rect.bottom() - buttonHeight - 2;    			
             if (tb->titleBarState & Qt::WindowMinimized)
                 controlTop = (height - buttonHeight)/2;
             const int frameWidth = pixelMetric(PM_MDIFrameWidth, option, widget);
@@ -3527,14 +3518,14 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
                 break;
 
             case SC_TitleBarCloseButton:
-                rect = QRect(width - (buttonWidth + 2) - controlTop, controlTop,
+                rect = QRect(width - (buttonWidth + 2) - controlTop + 1, controlTop,
                              buttonWidth, buttonHeight);
                 break;
 
             case SC_TitleBarMaxButton:
             case SC_TitleBarShadeButton:
             case SC_TitleBarUnshadeButton:
-                rect = QRect(width - ((buttonWidth + 2) * 2) - controlTop, controlTop,
+                rect = QRect(width - ((buttonWidth + 2) * 2) - controlTop + 1, controlTop,
                              buttonWidth, buttonHeight);
                 break;
 
@@ -3546,7 +3537,7 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
                         offset *= 2;
                     else
                         offset *= 3;
-                    rect = QRect(width - offset - controlTop, controlTop,
+                    rect = QRect(width - offset - controlTop + 1, controlTop,
                                  buttonWidth, buttonHeight);
                 }
                 break;
