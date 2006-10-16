@@ -737,10 +737,18 @@ void QTextHtmlParser::parseTag()
         if (txt.at(pos) == QLatin1Char('/'))
             tagClosed = true;
 
-
         pos++;
     }
     pos++;
+
+    // in a white-space preserving environment strip off a initial newline
+    // since the element itself already generates a newline
+    if ((node->wsm == QTextHtmlParserNode::WhiteSpacePre
+         || node->wsm == QTextHtmlParserNode::WhiteSpacePreWrap)
+        && node->isBlock) {
+        if (pos < len - 1 && txt.at(pos) == QLatin1Char('\n'))
+            ++pos;
+    }
 
     if (node->mayNotHaveChildren() || tagClosed) {
         newNode(node->parent);
@@ -774,6 +782,17 @@ void QTextHtmlParser::parseCloseTag()
     // html such as <font>blah</font></font>
     if (!p)
         return;
+
+    // in a white-space preserving environment strip off a trailing newline
+    // since the closing of the opening block element will automatically result
+    // in a new block for elements following the <pre>
+    // ...foo\n</pre><p>blah -> foo</pre><p>blah
+    if ((at(p).wsm == QTextHtmlParserNode::WhiteSpacePre
+         || at(p).wsm == QTextHtmlParserNode::WhiteSpacePreWrap)
+        && at(p).isBlock) {
+        if (at(last()).text.endsWith(QLatin1Char('\n')))
+            nodes[last()].text.chop(1);
+    }
 
     newNode(at(p).parent);
     resolveNode();

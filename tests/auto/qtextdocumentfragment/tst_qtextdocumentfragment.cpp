@@ -2566,6 +2566,8 @@ void tst_QTextDocumentFragment::html_preNewlineHandling_data()
                           << QString("Foo\nBar");
     QTest::newRow("pre6") << QString("<pre>Foo<b>Bar</b>Blah\n</pre>\nMooh")
                           << QString("FooBarBlah\nMooh");
+    QTest::newRow("pre7") << QString("<pre>\nPara1\n</pre>\n<pre>\nPara2\n</pre>")
+                          << QString("Para1\nPara2");
 }
 
 void tst_QTextDocumentFragment::html_preNewlineHandling()
