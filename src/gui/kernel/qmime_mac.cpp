@@ -311,7 +311,7 @@ QVariant QMacPasteboardMimeImage::convertToMime(const QString &mime, QList<QByte
     if(data.count() > 1)
         qWarning("QMacPasteboardMimeAnyMime: Cannot handle multiple member data");
     QVariant ret;
-    if(mime != QLatin1String("application/x-qt-image") || flav == QLatin1String("com.apple.pict"))
+    if(mime != QLatin1String("application/x-qt-image") || flav != QLatin1String("com.apple.pict"))
         return ret;
     QByteArray &a = data.first();
     PicHandle pic = (PicHandle)NewHandle(a.size());
