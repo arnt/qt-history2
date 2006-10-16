@@ -645,49 +645,27 @@ void tst_QDate::yearsZeroToNinetyNine()
     }
 
     {
-        QDate dt(0, 2, 3);
-        QCOMPARE(dt.year(), 1900);
-        QCOMPARE(dt.month(), 2);
-        QCOMPARE(dt.day(), 3);
-    }
-
-    {
         QDate dt(1, 2, 3);
-        QCOMPARE(dt.year(), 1901);
-        QCOMPARE(dt.month(), 2);
-        QCOMPARE(dt.day(), 3);
-    }
-
-    {
-        QDate dt(98, 2, 3);
-        QCOMPARE(dt.year(), 1998);
+        QCOMPARE(dt.year(), 1);
         QCOMPARE(dt.month(), 2);
         QCOMPARE(dt.day(), 3);
     }
 
     {
         QDate dt(99, 2, 3);
-        QCOMPARE(dt.year(), 1999);
-        QCOMPARE(dt.month(), 2);
-        QCOMPARE(dt.day(), 3);
-    }
-
-    {
-        QDate dt(100, 2, 3);
-        QCOMPARE(dt.year(), 100);
+        QCOMPARE(dt.year(), 99);
         QCOMPARE(dt.month(), 2);
         QCOMPARE(dt.day(), 3);
     }
 
     QVERIFY(!QDate::isValid(0, 2, 3));
-
     QVERIFY(QDate::isValid(1, 2, 3));
     QVERIFY(QDate::isValid(-1, 2, 3));
 
     {
         QDate dt;
         dt.setYMD(1, 2, 3);
-        QCOMPARE(dt.year(), 1901);
+        QCOMPARE(dt.year(), 1);
         QCOMPARE(dt.month(), 2);
         QCOMPARE(dt.day(), 3);
     }
@@ -702,7 +680,6 @@ void tst_QDate::yearsZeroToNinetyNine()
         dt.setDate(0, 2, 3);
         QVERIFY(!dt.isValid());
     }
-
 }
 
 void tst_QDate::toString()
