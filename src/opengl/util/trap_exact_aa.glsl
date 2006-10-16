@@ -30,6 +30,8 @@ float quad_aa()
         bottomRightX = temp;
     }
 
+    float area = 1 - topExcluded - bottomExcluded;
+
     float leftExcluded = 0;
 
     if (topLeftX > left) {
@@ -40,7 +42,7 @@ float quad_aa()
             leftExcluded = 1;
         } else if (bottomLeftX > left) {
             if (topLeftX > right) { // left < bottom < right < top
-                leftExcluded = 1 - 0.5 * (right - bottomLeftX) * (rightIntersectY - bottom);
+                leftExcluded = area - 0.5 * (right - bottomLeftX) * (rightIntersectY - bottom);
             } else { // left < bottom < top < right
                 leftExcluded = (bottomLeftX - left + 0.5 * (topLeftX - bottomLeftX)) * (top - bottom);
             }
@@ -61,7 +63,7 @@ float quad_aa()
             rightExcluded = 1;
         } else if (topRightX < right) {
             if (bottomRightX < left) { // bottom < left < top < right
-                rightExcluded = 1 - 0.5 * (topRightX - left) * (top - leftIntersectY);
+                rightExcluded = area - 0.5 * (topRightX - left) * (top - leftIntersectY);
             } else { // left < bottom < top < right
                 rightExcluded = (right - topRightX + 0.5 * (topRightX - bottomRightX)) * (top - bottom);
             }
@@ -72,7 +74,7 @@ float quad_aa()
         }
     }
 
-    return 1 - leftExcluded - rightExcluded - topExcluded - bottomExcluded;
+    return area - leftExcluded - rightExcluded;
 }
 
 void main()
