@@ -13,6 +13,7 @@ public:
     void terminateGenerator();
     QString format();
     void generateTree(const Tree *tree, CodeMarker *marker);
+    QString typeString(const Node *node);
 
 protected:
     QString fileExtension(const Node *node);

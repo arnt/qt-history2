@@ -18,17 +18,32 @@ static void setPass1JambifiedDoc(Node *javaNode, const Node *cppNode)
 
     if (javaNode->type() == Node::Function) {
         if (cppNode->type() == Node::Function) {
+            const FunctionNode *cppFunc = static_cast<const FunctionNode *>(cppNode);
             QStringList javaParams = static_cast<const FunctionNode *>(javaNode)->parameterNames();
-            QStringList cppParams = static_cast<const FunctionNode *>(cppNode)->parameterNames();
+            QStringList cppParams = cppFunc->parameterNames();
             newDoc.renameParameters(cppParams, javaParams);
-        } else {
-            
+
+            if (cppNode->access() == Node::Private && cppFunc->reimplementedFrom()) {
+                Text text;
+                text << Atom::ParaLeft << "This function is reimplemented for internal reasons."
+                     << Atom::ParaRight;
+                newDoc.setBody(text);
+            }
         }
-    } else {    // ### enum names?
+    } else {    // ### enum value names?
         
     }
 
     javaNode->setDoc(newDoc);
+}
+
+static void setStatus(Node *javaNode, const Node *cppNode)
+{
+    if (cppNode->status() == Node::Compat) {
+        javaNode->setStatus(Node::Obsolete);
+    } else {
+        javaNode->setStatus(cppNode->status());
+    }
 }
 
 static Text findEnumText(Node *javaEnum, const QString &enumItemName)
@@ -112,6 +127,7 @@ void JambiApiParser::doneParsingSourceFiles(Tree * /* tree */)
                                                   cppFake->subType());
                 javaFake->setTitle(cppFake->title());
                 javaFake->setSubTitle(cppFake->subTitle());
+                setStatus(javaFake, cppFake);
                 setPass1JambifiedDoc(javaFake, cppFake);
             }
         }
@@ -181,6 +197,7 @@ bool JambiApiParser::startElement(const QString & /* namespaceURI */,
                 info.javaNode = new EnumNode(javaParent, info.javaName);
             }
             info.javaNode->setLocation(japiLocation);
+            setStatus(info.javaNode, info.cppNode);
 
             setPass1JambifiedDoc(info.javaNode, info.cppNode);
         }
@@ -214,6 +231,8 @@ bool JambiApiParser::startElement(const QString & /* namespaceURI */,
         if (makeFunctionNode(javaParent, javaSignature, &javaNode)) {
             javaNode->setLocation(japiLocation);
             if (cppNode) {
+                setStatus(javaNode, cppNode);
+
                 int overloadNo = cppNode->parameters().count() - javaNode->parameters().count() + 1;
                 if (overloadNo == 1) {
                     setPass1JambifiedDoc(javaNode, cppNode);
@@ -272,7 +291,8 @@ bool JambiApiParser::startElement(const QString & /* namespaceURI */,
                                      "Do not use it in your applications.",
                                      QSet<QString>()));
             } else {
-                javaNode->setDoc(cppNode->doc());
+                setPass1JambifiedDoc(javaNode, cppNode);
+                setStatus(javaNode, cppNode);
             }
         }
     } else if (qName == "enum-value") {

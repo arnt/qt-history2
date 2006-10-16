@@ -2516,6 +2516,10 @@ void HtmlGenerator::generateStatus( const Node *node, CodeMarker *marker )
     Text text;
 
     switch ( node->status() ) {
+    case Node::Obsolete:
+        if (node->isInnerNode())
+	    Generator::generateStatus(node, marker);
+        break;
     case Node::Compat:
         if (node->isInnerNode()) {
             text << Atom::ParaLeft << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "

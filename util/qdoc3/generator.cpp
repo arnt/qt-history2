@@ -629,19 +629,24 @@ void Generator::generateStatus( const Node *node, CodeMarker *marker )
 	     << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD ) << Atom::ParaRight;
 	break;
     case Node::Deprecated:
-	text << Atom::ParaLeft << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "
-	     << typeString( node ) << " is deprecated."
-             << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD ) << Atom::ParaRight;
+	text << Atom::ParaLeft;
+        if (node->isInnerNode())
+            text << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD );
+        text << "This " << typeString( node ) << " is deprecated.";
+        if (node->isInnerNode())
+            text << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD );
+        text << Atom::ParaRight;
 	break;
     case Node::Obsolete:
-        if (node->isInnerNode()) {
-	    text << Atom::ParaLeft << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "
-	         << typeString( node ) << " is obsolete."
-	         << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD )
-	         << " It is provided to keep old source code working. We strongly advise against "
-                 << "using it in new code." << Atom::ParaRight;
-        }
-        break;
+	text << Atom::ParaLeft;
+        if (node->isInnerNode())
+            text << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD );
+        text << "This " << typeString( node ) << " is obsolete.";
+        if (node->isInnerNode())
+            text << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD );
+        text << " It is provided to keep old source code working. We strongly advise against "
+             << "using it in new code." << Atom::ParaRight;
+	break;
     case Node::Compat:
         // reimplemented in HtmlGenerator subclass
         if (node->isInnerNode()) {

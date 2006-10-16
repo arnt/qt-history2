@@ -91,6 +91,15 @@ QString JavadocGenerator::fileExtension(const Node *node)
     }
 }
 
+QString JavadocGenerator::typeString(const Node *node)
+{
+    if (node->type() == Node::Function) {
+        return "method";
+    } else {
+        return HtmlGenerator::typeString(node);
+    }
+}
+
 static int textDepth = 0;
 
 void JavadocGenerator::startText(const Node *relative, CodeMarker *marker)
@@ -150,12 +159,14 @@ void JavadocGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker 
                 const QList<EnumItem> &items = enume->items();
                 for (int i = 0; i < items.count(); ++i) {
                     const EnumItem &item = items.at(i);
+                    generateIndent();
+                    out() << "<enum-value name=\"" << protect(item.name()) << "\"";
                     if (!item.text().isEmpty()) {
-                        generateIndent();
-                        out() << "<enum-value name=\"" << protect(item.name()) << "\"";
                         generateDoc(item.text(), enume, marker);
-                        out() << "/>\n";
+                    } else {
+                        out() << " doc=\"Internal.";
                     }
+                    out() << "/>\n";
                 }
                 --currentDepth;
 
@@ -254,6 +265,7 @@ void JavadocGenerator::generateDoc(const Node *node, CodeMarker *marker)
     const Text &text = node->doc().body();
     if (!text.isEmpty()) {
         out() << " doc=\"/**\n";
+        Generator::generateStatus(node, marker);
         generateText(text, node, marker);
         if (node)
             generateAlsoList(node, marker);
@@ -263,9 +275,11 @@ void JavadocGenerator::generateDoc(const Node *node, CodeMarker *marker)
 
 void JavadocGenerator::generateDoc(const Text &text, const Node *node, CodeMarker *marker)
 {
-    if (!text.isEmpty()) {
-        out() << " doc=\"/**\n";
+    out() << " doc=\"/**\n";
+    if (text.isEmpty()) {
+        out() << "Internal.";
+    } else {
         generateText(text, node, marker);
-        out() << " */\"";
     }
+    out() << " */\"";
 }
