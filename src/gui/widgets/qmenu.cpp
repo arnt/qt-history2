@@ -1865,7 +1865,11 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
         if (action->menu())
             action->menu()->d_func()->setFirstActionActive();
         else
-            d->activateAction(action, QAction::Trigger);
+#ifdef Q_WS_WIN
+            if (e->button() == Qt::LeftButton)
+#endif
+                d->activateAction(action, QAction::Trigger);
+        
     } else if (d->motions > 6) {
         d->hideUpToMenuBar();
     }
