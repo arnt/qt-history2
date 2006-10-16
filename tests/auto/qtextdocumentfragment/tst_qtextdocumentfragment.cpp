@@ -1154,6 +1154,9 @@ void tst_QTextDocumentFragment::html_whitespace_data()
 
     QTest::newRow("br-with-whitespace") << QString("Foo<br>\nBlah")
                                         << QString("Foo\nBlah");
+
+    QTest::newRow("collapse-p-with-newline") << QString("Foo<p>\n<p>\n<p>\n<p>\n<p>\n<p>\nBar")
+            << QString("Foo\nBar");
 }
 
 void tst_QTextDocumentFragment::html_whitespace()

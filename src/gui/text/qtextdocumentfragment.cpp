@@ -452,7 +452,9 @@ void QTextHtmlImporter::import()
          */
         if (i > 0 && (node->parent != i - 1)) {
             blockTagClosed = closeTag(i);
-            if (blockTagClosed)
+            if (blockTagClosed
+                && node->id != Html_p // collapse <p> tags, so don't set hasBlock to false
+               )
                 hasBlock = false;
         }
 
@@ -856,13 +858,10 @@ bool QTextHtmlImporter::closeTag(int i)
                    || closedNode->id == Html_h6
                   ) {
             blockTagClosed = true;
-        } else if (closedNode->isBlock) {
-            // blockTagClosed may result in the creation of a
-            // new block
-            if (!closedNode->text.isEmpty())
-                blockTagClosed = true;
         } else if (closedNode->id == Html_br) {
             compressNextWhitespace = true;
+        } else if (closedNode->isBlock) {
+            blockTagClosed = true;
         }
 
         closedNode = &at(closedNode->parent);
