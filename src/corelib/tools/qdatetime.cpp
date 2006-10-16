@@ -209,18 +209,14 @@ static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* d
     isValid() returns false. Any date before 2 January 4713 B.C. is
     considered invalid.
 
-    \warning For historical reasons, if \a y is in the range 0 to 99,
-    it is interpreted as a year in the range 1900 to 1999. New code
-    should not rely on this behavior as it might be changed in a
-    future release.
+    \warning Years 0 to 99 are interpreted as is. If you want to
+    specify the year 2010, you must write 2010, not 10.
 
     \sa isValid()
 */
 
 QDate::QDate(int y, int m, int d)
 {
-    if (uint(y) <= 99u)
-        y += 1900;
     setDate(y, m, d);
 }
 
