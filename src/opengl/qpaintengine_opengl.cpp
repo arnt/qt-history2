@@ -770,7 +770,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 
     if (QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_3)
         qt_resolve_version_1_3_functions(ctx);
-        
+
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glMatrixMode(GL_MODELVIEW);
@@ -920,7 +920,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 bool QOpenGLPaintEngine::end()
 {
     Q_D(QOpenGLPaintEngine);
-    QGL_D_FUNC_CONTEXT;
 #ifndef Q_WS_QWS
     glPopAttrib();
 #endif
@@ -1764,13 +1763,13 @@ void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
             float top = tessellator.vertices[j + 1];
             float bottom = tessellator.vertices[j + 5];
 
-            qreal minX = std::min(x0, x1), maxX = std::max(x2, x3);
+            qreal minX = qMin(x0, x1), maxX = qMax(x2, x3);
 
             if (qFuzzyCompare(top, bottom) || qFuzzyCompare(minX, maxX) || qFuzzyCompare(x0, x2) && qFuzzyCompare(x1, x3))
                 continue;
 
-            float xpadding = 0.6;
-            float ypadding = 0.6;
+            float xpadding = 0.6f;
+            float ypadding = 0.6f;
 
             const QRectF rect = QRectF(QPointF(minX, top), QSizeF(maxX - minX, bottom - top)).adjusted(-xpadding, -ypadding, xpadding, ypadding);
 
@@ -2586,8 +2585,8 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         QGLGlyphCoord *g = qt_glyph_cache()->lookup(ti.fontEngine, glyphs[i]);
 
         // we don't cache glyphs with no width/height
-	if (!g)
-	    continue;
+        if (!g)
+            continue;
 
         qreal x1, x2, y1, y2;
         x1 = g->x;
@@ -2632,7 +2631,7 @@ void QOpenGLPaintEnginePrivate::activateEllipseProgram()
 
         if (composition_mode == QPainter::CompositionMode_Clear)
             glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
-        
+
         if (use_antialiasing) {
             glEnable(GL_FRAGMENT_PROGRAM_ARB);
             glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, ellipse_aa_frag_program);
