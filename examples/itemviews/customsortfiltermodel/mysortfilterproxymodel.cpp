@@ -23,13 +23,13 @@ MySortFilterProxyModel::MySortFilterProxyModel(QObject *parent)
 void MySortFilterProxyModel::setFilterMinimumDate(const QDate &date)
 {
     minDate = date;
-    clear();
+    filterChanged();
 }
 
 void MySortFilterProxyModel::setFilterMaximumDate(const QDate &date)
 {
     maxDate = date;
-    clear();
+    filterChanged();
 }
 
 bool MySortFilterProxyModel::filterAcceptsRow(int sourceRow,
@@ -53,7 +53,7 @@ bool MySortFilterProxyModel::lessThan(const QModelIndex &left,
     if (leftData.type() == QVariant::DateTime) {
         return leftData.toDateTime() < rightData.toDateTime();
     } else {
-        return QString::localeAwareCompare(leftData.toString(), 
+        return QString::localeAwareCompare(leftData.toString(),
                                            rightData.toString()) < 0;
     }
 }
