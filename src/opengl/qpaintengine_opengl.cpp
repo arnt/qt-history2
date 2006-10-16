@@ -1680,6 +1680,7 @@ void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
 {
 #ifndef Q_WS_QWS
     Q_Q(QOpenGLPaintEngine);
+    QGL_FUNC_CONTEXT;
 
     glDisable(GL_MULTISAMPLE);
 
