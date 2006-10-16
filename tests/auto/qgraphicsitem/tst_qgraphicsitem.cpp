@@ -65,6 +65,7 @@ class tst_QGraphicsItem : public QObject
     Q_OBJECT
 
 private slots:
+
     void construction();
     void destruction();
     void scene();
@@ -83,6 +84,7 @@ private slots:
     void scenePos();
     void matrix();
     void sceneMatrix();
+    void setMatrix();
     void zValue();
     void shape();
     void contains();
@@ -1029,6 +1031,35 @@ void tst_QGraphicsItem::sceneMatrix()
 
     delete child;
     delete parent;
+}
+
+void tst_QGraphicsItem::setMatrix()
+{
+    QGraphicsScene scene;
+    qRegisterMetaType<QList<QRectF> >("QList<QRectF>");
+    QSignalSpy spy(&scene, SIGNAL(changed(QList<QRectF>)));
+    QRectF unrotatedRect(-12, -34, 56, 78);
+    QGraphicsRectItem item(unrotatedRect, 0, &scene);
+    scene.update(scene.sceneRect());
+    QApplication::instance()->processEvents();
+
+    item.setMatrix(QMatrix().rotate(12.34));
+    QRectF rotatedRect = scene.sceneRect();
+    QVERIFY(unrotatedRect != rotatedRect);
+    scene.update(scene.sceneRect());
+    QApplication::instance()->processEvents();
+
+    item.setMatrix(QMatrix());
+    scene.update(scene.sceneRect());
+    QApplication::instance()->processEvents();
+
+    QList<QRectF> rlist = qVariantValue<QList<QRectF> >(spy.last().at(0));
+    QVERIFY(rlist.size() == 5);
+    QCOMPARE(rlist.at(0), rotatedRect);   // From item.setMatrix() (clearing rotated rect)
+    QCOMPARE(rlist.at(1), rotatedRect);   // ---''---              ---''---
+    QCOMPARE(rlist.at(2), unrotatedRect); // ---''---              (painting unrotated rect)
+    QCOMPARE(rlist.at(3), unrotatedRect); // ---''---              ---''---
+    QCOMPARE(rlist.at(4), rotatedRect);   // From scene.update() (largest rect so far)
 }
 
 static QList<QGraphicsItem *> paintedItems;
