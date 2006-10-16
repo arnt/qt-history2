@@ -2192,6 +2192,24 @@ void tst_QTextDocumentFragment::css_float()
     QTextFormat f = o->format();
     QVERIFY(f.isFrameFormat());
     QVERIFY(f.toFrameFormat().position() == QTextFrameFormat::FloatRight);
+
+    setHtml("<img src=\"foo\" align=right>");
+    fmt = doc->begin().begin().fragment().charFormat();
+    QVERIFY(fmt.isImageFormat());
+    o = doc->objectForFormat(fmt);
+    QVERIFY(o);
+    f = o->format();
+    QVERIFY(f.isFrameFormat());
+    QVERIFY(f.toFrameFormat().position() == QTextFrameFormat::FloatRight);
+
+    setHtml("<img src=\"foo\" align=left>");
+    fmt = doc->begin().begin().fragment().charFormat();
+    QVERIFY(fmt.isImageFormat());
+    o = doc->objectForFormat(fmt);
+    QVERIFY(o);
+    f = o->format();
+    QVERIFY(f.isFrameFormat());
+    QVERIFY(f.toFrameFormat().position() == QTextFrameFormat::FloatLeft);
 }
 
 void tst_QTextDocumentFragment::css_textIndent()

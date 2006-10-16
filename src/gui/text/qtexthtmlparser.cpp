@@ -1598,9 +1598,9 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
 
             // HTML4 compat
             if (node->id == Html_img) {
-                if (node->alignment == Qt::AlignLeft)
+                if (node->alignment & Qt::AlignLeft)
                     node->cssFloat = QTextFrameFormat::FloatLeft;
-                else if (node->alignment == Qt::AlignRight)
+                else if (node->alignment & Qt::AlignRight)
                     node->cssFloat = QTextFrameFormat::FloatRight;
             }
         } else if (key == QLatin1String("dir")) {
