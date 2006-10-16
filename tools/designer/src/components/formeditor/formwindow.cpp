@@ -1227,6 +1227,7 @@ void FormWindow::paste()
     QList<QWidget*> l(selectedWidgets());
     if (l.count() == 1) {
         w = l.first();
+        w = m_core->widgetFactory()->containerOfWidget(w);
         if (LayoutInfo::layoutType(m_core, w) != LayoutInfo::NoLayout ||
              (!core()->widgetDataBase()->isContainer(w) &&
                w != mainContainer()))
