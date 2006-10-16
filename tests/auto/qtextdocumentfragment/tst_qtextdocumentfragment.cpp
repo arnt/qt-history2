@@ -180,6 +180,7 @@ private slots:
     void html_windowsEntities();
     void html_eatenText();
     void html_hrMargins();
+    void html_blockQuoteMargins();
 
 private:
     inline void setHtml(const QString &html)
@@ -2745,6 +2746,20 @@ void tst_QTextDocumentFragment::html_hrMargins()
 
     QCOMPARE(block.text(), QString("Blah"));
 }
+
+void tst_QTextDocumentFragment::html_blockQuoteMargins()
+{
+    doc->setHtml("<blockquote>Bar</blockquote>");
+    QCOMPARE(doc->blockCount(), 1);
+    cursor.movePosition(QTextCursor::Start);
+    QTextBlock block = cursor.block();
+    QCOMPARE(block.text(), QString("Bar"));
+    QCOMPARE(block.blockFormat().leftMargin(), qreal(40.));
+    QCOMPARE(block.blockFormat().rightMargin(), qreal(40.));
+    QCOMPARE(block.blockFormat().topMargin(), qreal(12.));
+    QCOMPARE(block.blockFormat().bottomMargin(), qreal(12.));
+}
+
 
 QTEST_MAIN(tst_QTextDocumentFragment)
 #include "tst_qtextdocumentfragment.moc"

@@ -1179,6 +1179,8 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
             fontFixedPitch = On;
             break;
         case Html_blockquote:
+            margin[QTextHtmlParser::MarginTop] = 12;
+            margin[QTextHtmlParser::MarginBottom] = 12;
             margin[QTextHtmlParser::MarginLeft] = 40;
             margin[QTextHtmlParser::MarginRight] = 40;
             break;
