@@ -3078,8 +3078,9 @@ static QString qulltoa(qulonglong l, int base, const QLocalePrivate &locale)
 {
     ushort buff[65]; // length of MAX_ULLONG in base 2
     ushort *p = buff + 65;
+    const QChar _zero = locale.zero();
 
-    if (base != 10 || locale.zero().unicode() == '0') {
+    if (base != 10 || _zero.unicode() == '0') {
         while (l != 0) {
             int c = l % base;
 
@@ -3097,7 +3098,7 @@ static QString qulltoa(qulonglong l, int base, const QLocalePrivate &locale)
         while (l != 0) {
             int c = l % base;
 
-            *(--p) = locale.zero().unicode() + c;
+            *(--p) = _zero.unicode() + c;
 
             l /= base;
         }
@@ -3274,8 +3275,10 @@ QString QLocalePrivate::doubleToString(double d,
             free(buff);
 #endif // QT_QLOCALE_USES_FCVT
 
-        if (zero().unicode() != '0') {
-            ushort z = zero().unicode() - '0';
+        const QChar _zero = zero();
+
+        if (_zero.unicode() != '0') {
+            ushort z = _zero.unicode() - '0';
             for (int i = 0; i < digits.length(); ++i)
                 reinterpret_cast<ushort *>(digits.data())[i] += z;
         }
@@ -3572,7 +3575,8 @@ bool QLocalePrivate::numberToCLocale(const QString &num,
     const QChar *uc = num.unicode();
     int l = num.length();
     int idx = 0;
-    const ushort zeroUnicode = zero().unicode();
+    const QChar _zero = zero();
+    const ushort zeroUnicode = _zero.unicode();
     const ushort tenUnicode = zeroUnicode + 10;
 
     // Skip whitespace
@@ -3580,6 +3584,8 @@ bool QLocalePrivate::numberToCLocale(const QString &num,
         ++idx;
     if (idx == l)
         return false;
+
+    const QChar _group = group();
 
     while (idx < l) {
         char out;
@@ -3597,7 +3603,7 @@ bool QLocalePrivate::numberToCLocale(const QString &num,
             out = ',';
         // In several languages group() is the char 0xA0, which looks like a space.
         // People use a regular space instead of it and complain it doesn't work.
-        else if (group().unicode() == 0xA0 && in.unicode() == ' ')
+        else if (_group.unicode() == 0xA0 && in.unicode() == ' ')
             out = ',';
         else if (in == exponential() || in == exponential().toUpper())
             out = 'e';
