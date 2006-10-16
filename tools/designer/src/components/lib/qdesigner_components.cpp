@@ -148,6 +148,11 @@ QDesignerActionEditorInterface *QDesignerComponents::createActionEditor(QDesigne
     Returns a new resource editor with the given \a parent for the \a core interface.*/
 QWidget *QDesignerComponents::createResourceEditor(QDesignerFormEditorInterface *core, QWidget *parent)
 {
+    if (QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension*>(core->extensionManager(), core)) {
+        QWidget *w = lang->createResourceBrowser(parent);
+        if (w)
+            return w;
+    }
     return new qdesigner_internal::ResourceEditor(core, parent);
 }
 

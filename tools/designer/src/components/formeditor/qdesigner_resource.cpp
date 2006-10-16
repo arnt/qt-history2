@@ -886,10 +886,16 @@ DomProperty *QDesignerResource::createIconProperty(const QVariant &v) const
         qrc_path = pixmapToQrcPath(pixmap);
     }
 
-    if (qrc_path.isEmpty())
-        icon_path = workingDirectory().relativeFilePath(icon_path);
-    else
+    if (qrc_path.isEmpty()) {
+        QDesignerFormEditorInterface *core = m_formWindow->core();
+
+        QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension*>(core->extensionManager(), core);
+
+        if (!lang || !lang->isLanguageResource(icon_path))
+            icon_path = workingDirectory().relativeFilePath(icon_path);
+    } else {
         qrc_path = workingDirectory().relativeFilePath(qrc_path);
+    }
 
     r->setText(icon_path);
     if (!qrc_path.isEmpty())

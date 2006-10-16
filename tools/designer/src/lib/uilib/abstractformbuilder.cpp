@@ -753,11 +753,6 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
                 return QPixmap();
             }
 
-            if (qrc_path.isEmpty())
-                icon_path = workingDirectory().absoluteFilePath(icon_path);
-            else
-                qrc_path = workingDirectory().absoluteFilePath(qrc_path);
-
             if (p->kind() == DomProperty::IconSet) {
                 QIcon icon = nameToIcon(icon_path, qrc_path);
 
@@ -1667,11 +1662,6 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
                 icon_path = pixmapToFilePath(pixmap);
                 qrc_path = pixmapToQrcPath(pixmap);
             }
-
-            if (qrc_path.isEmpty())
-                icon_path = workingDirectory().relativeFilePath(icon_path);
-            else
-                qrc_path = workingDirectory().relativeFilePath(qrc_path);
 
 			icon_path = icon_path.replace(QLatin1Char('\\'), QLatin1Char('/'));
 			qrc_path = qrc_path.replace(QLatin1Char('\\'), QLatin1Char('/'));

@@ -4,6 +4,7 @@ INCLUDEPATH += $$PWD
 
 HEADERS += $$PWD/abstractformeditor.h \
     $$PWD/abstractformeditorplugin.h \
+    $$PWD/abstractresourcebrowser.h \
     $$PWD/abstractpropertyeditor.h \
     $$PWD/abstractformwindow.h \
     $$PWD/abstractformwindowtool.h \
@@ -27,6 +28,7 @@ HEADERS += $$PWD/abstractformeditor.h \
 
 SOURCES += $$PWD/abstractformeditor.cpp \
     $$PWD/abstractformeditorplugin.cpp \
+    $$PWD/abstractresourcebrowser.cpp \
     $$PWD/abstractpropertyeditor.cpp \
     $$PWD/abstractformwindow.cpp \
     $$PWD/abstractformwindowtool.cpp \

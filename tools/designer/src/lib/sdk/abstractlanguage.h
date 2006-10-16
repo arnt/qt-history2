@@ -32,6 +32,7 @@ QT_BEGIN_HEADER
 class QDialog;
 class QWidget;
 class QDesignerFormWindowInterface;
+class QDesignerResourceBrowserInterface;
 
 class QDesignerLanguageExtension
 {
@@ -39,13 +40,15 @@ public:
     virtual ~QDesignerLanguageExtension() {}
 
     virtual QDialog *createFormWindowSettingsDialog(QDesignerFormWindowInterface *formWindow, QWidget *parentWidget) = 0;
+    virtual QDesignerResourceBrowserInterface *createResourceBrowser(/*QDesignerFormWindowInterface *formWindow, */QWidget *parentWidget) = 0;
+    virtual bool isLanguageResource(const QString &path) const = 0;
 
     virtual QString classNameOf(QObject *object) const = 0;
     virtual QString enumerator(const QString &neutralName) const = 0;
     virtual QString neutralEnumerator(const QString &enumName) const = 0;
 };
 
-Q_DECLARE_EXTENSION_INTERFACE(QDesignerLanguageExtension, "com.trolltech.Qt.Designer.Language")
+Q_DECLARE_EXTENSION_INTERFACE(QDesignerLanguageExtension, "com.trolltech.Qt.Designer.Language.2")
 
 QT_END_HEADER
 

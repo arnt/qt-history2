@@ -34,6 +34,8 @@ class QDesignerFormWindowInterface;
 class QListWidgetItem;
 class QModelIndex;
 
+class QDesignerResourceBrowserInterface;
+
 namespace qdesigner_internal {
 
 namespace Ui
@@ -63,15 +65,20 @@ private slots:
 
     void setFile(const QString &path);
     void setQrc(const QString &qrc, const QString &file);
+    void setLanguagePath(const QString &path);
     void cdUp();
 
-    void itemActivated(QListWidgetItem *item);
+    void itemActivated(QListWidgetItem *item); // File page
     void currentItemChanged(QListWidgetItem *item);
-    void itemActivated(const QString &qrc_path, const QString &file_name);
+    
+    void itemActivated(const QString &qrc_path, const QString &file_name); // QRC page
     void itemChanged(const QString &qrc_path, const QString &file_name);
+    
+    void itemActivated(const QString &file_name); // Language plugin page
+    void itemChanged(const QString &file_name);
 
 private:
-    enum InputBox { FileBox, ResourceBox };
+    enum InputBox { FileBox, ResourceBox, LanguageBox };
 
     void setActiveBox(InputBox box);
     InputBox activeBox() const;
@@ -84,16 +91,22 @@ private:
     struct FileData {
         QString file;
     } m_file_data;
+    struct LanguageData {
+        QString file;
+    } m_language_data;
     struct ResourceData {
         QString file;
         QString qrc;
     } m_resource_data;
     ResourceEditor *m_resource_editor;
+    QDesignerResourceBrowserInterface *m_language_editor;
 
     static QString defaultQrcPath();
     static QString defaultFilePath(QDesignerFormWindowInterface *form);
+    static QString defaultLanguagePath();
     static void setDefaultQrcPath(const QString &path);
     static void setDefaultFilePath(const QString &path);
+    static void setDefaultLanguagePath(const QString &path);
     static InputBox previousInputBox();
     static void setPreviousInputBox(InputBox box);
 

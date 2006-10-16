@@ -44,10 +44,13 @@ QIcon QSimpleResource::nameToIcon(const QString &filePath, const QString &qrcPat
     QString file_path = filePath;
     QString qrc_path = qrcPath;
 
-    if (qrc_path.isEmpty())
-        file_path = workingDirectory().absoluteFilePath(file_path);
-    else
+    if (qrc_path.isEmpty()) {
+        QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension*>(core()->extensionManager(), core());
+        if (!lang || !lang->isLanguageResource(file_path))
+            file_path = workingDirectory().absoluteFilePath(file_path);
+    } else {
         qrc_path = workingDirectory().absoluteFilePath(qrc_path);
+    }
 
     return core()->iconCache()->nameToIcon(file_path, qrc_path);
 }
@@ -56,8 +59,11 @@ QString QSimpleResource::iconToFilePath(const QIcon &pm) const
 {
     QString file_path = core()->iconCache()->iconToFilePath(pm);
     QString qrc_path = core()->iconCache()->iconToQrcPath(pm);
-    if (qrc_path.isEmpty())
-        return workingDirectory().relativeFilePath(file_path);
+    if (qrc_path.isEmpty()) {
+        QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension*>(core()->extensionManager(), core());
+        if (!lang || !lang->isLanguageResource(file_path))
+            return workingDirectory().relativeFilePath(file_path);
+    }
 
     return file_path;
 }
@@ -76,10 +82,13 @@ QPixmap QSimpleResource::nameToPixmap(const QString &filePath, const QString &qr
     QString file_path = filePath;
     QString qrc_path = qrcPath;
 
-    if (qrc_path.isEmpty())
-        file_path = workingDirectory().absoluteFilePath(file_path);
-    else
+    if (qrc_path.isEmpty()) {
+        QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension*>(core()->extensionManager(), core());
+        if (!lang || !lang->isLanguageResource(file_path))
+            file_path = workingDirectory().absoluteFilePath(file_path);
+    } else {
         qrc_path = workingDirectory().absoluteFilePath(qrc_path);
+    }
 
     return core()->iconCache()->nameToPixmap(file_path, qrc_path);
 }
@@ -88,8 +97,11 @@ QString QSimpleResource::pixmapToFilePath(const QPixmap &pm) const
 {
     QString file_path = core()->iconCache()->pixmapToFilePath(pm);
     QString qrc_path = core()->iconCache()->pixmapToQrcPath(pm);
-    if (qrc_path.isEmpty())
-        return workingDirectory().relativeFilePath(file_path);
+    if (qrc_path.isEmpty()) {
+        QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension*>(core()->extensionManager(), core());
+        if (!lang || !lang->isLanguageResource(file_path))
+            return workingDirectory().relativeFilePath(file_path);
+    }
 
     return file_path;
 }
