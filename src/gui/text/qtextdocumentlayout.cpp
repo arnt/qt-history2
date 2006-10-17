@@ -1221,7 +1221,7 @@ QLayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextT
         if (isFrameInCell(cell, frame)) {
             QTextFrameData *cd = data(frame);
             cd->sizeDirty = true;
-                layoutFrame(frame, frame->firstPosition(), frame->lastPosition(), width, -1);
+            layoutFrame(frame, frame->firstPosition(), frame->lastPosition(), width, -1);
             layoutStruct.minimumWidth = qMax(layoutStruct.minimumWidth, cd->minimumWidth);
             layoutStruct.maximumWidth = qMin(layoutStruct.maximumWidth, cd->maximumWidth);
 
@@ -1238,8 +1238,10 @@ QLayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextT
     // layoutFlow with regards to the cell height (layoutStruct->y), so for a safety measure we
     // do that here. For example with <td><img align="right" src="..." />blah</td>
     // when the image happens to be higher than the text
-    for (int i = 0; i < floats.size(); ++i)
-        layoutStruct.y = qMax(layoutStruct.y, data(floats.at(i))->size.height());
+    for (int i = 0; i < floats.size(); ++i) {
+        QTextFrameData *cd = data(floats.at(i));
+        layoutStruct.y = qMax(layoutStruct.y, cd->position.y() + cd->size.height());
+    }
 
     // constraint the maximumWidth by the minimum width of the fixed size floats, to
     // keep them visible
@@ -1607,8 +1609,10 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
         // inline image
         QTextCharFormat format = q->format(startPos - 1);
         QTextObjectInterface *iface = q->handlerForObject(format.objectType());
-        if (iface)
+        if (iface) {
             fd->size = iface->intrinsicSize(q->document(), startPos - 1, format).toSize();
+            fd->minimumWidth = fd->maximumWidth = fd->size.width();
+        }
         fd->sizeDirty = false;
         return QRectF();
     }
@@ -2434,10 +2438,8 @@ void QTextDocumentLayout::drawInlineObject(QPainter *p, const QRectF &rect, QTex
     QRectF r = rect;
     if (frame) {
         QTextFrameData *fd = data(frame);
-        if (fd->flow_position != QTextFrameFormat::InFlow) {
-            r = QRectF(fd->position, fd->size);
-            r.translate(data(frame->parentFrame())->position);
-        }
+        if (fd->flow_position != QTextFrameFormat::InFlow)
+            r = frameBoundingRect(frame);
     }
 //    qDebug() << "drawObject at" << r;
     QAbstractTextDocumentLayout::drawInlineObject(p, r, item, posInDocument, format);
