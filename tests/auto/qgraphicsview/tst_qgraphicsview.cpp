@@ -76,6 +76,7 @@ private slots:
     void mapFromScenePath();
     void sendEvent();
     void cursor();
+    void cursor2();
     void transformationAnchor();
     void resizeAnchor();
 };
@@ -1399,8 +1400,6 @@ void tst_QGraphicsView::cursor()
     view.viewport()->setCursor(Qt::PointingHandCursor);
     QCOMPARE(view.viewport()->cursor().shape(), Qt::PointingHandCursor);
 
-    QTest::mouseMove(&view, view.mapFromScene(0, 0));
-
     QMouseEvent event(QEvent::MouseMove,
                       view.mapFromScene(0, 0),
                       Qt::NoButton, 0, 0);
@@ -1414,6 +1413,38 @@ void tst_QGraphicsView::cursor()
                        Qt::NoButton, 0, 0);
     QApplication::sendEvent(view.viewport(), &event2);
 
+    qApp->processEvents();
+    QCOMPARE(view.viewport()->cursor().shape(), Qt::PointingHandCursor);
+}
+
+// Tests correct cursor update when moving directly from an item with its own cursor
+// into an item without its own cursor.
+void tst_QGraphicsView::cursor2()
+{
+    QGraphicsScene scene;
+    QGraphicsItem *item = scene.addRect(QRectF(-10, -10, 20, 20));
+    item->setCursor(Qt::IBeamCursor);
+    item->setZValue(1);
+
+    QGraphicsItem *item2 = scene.addRect(QRectF(-20, -20, 40, 40));
+    item2->setZValue(0);
+
+    QGraphicsView view(&scene);
+    view.setFixedSize(400, 400);
+    view.show();
+
+    view.viewport()->setCursor(Qt::PointingHandCursor);
+
+    // Move to inner rectangle ...
+    QMouseEvent event1(QEvent::MouseMove, view.mapFromScene(0, 0), Qt::NoButton, 0, 0);
+    QApplication::sendEvent(view.viewport(), &event1);
+    qApp->processEvents();
+    QCOMPARE(view.viewport()->cursor().shape(), Qt::IBeamCursor);
+
+    // Move to outer rectangle ...
+    QMouseEvent event2(
+        QEvent::MouseMove, view.mapFromScene(0, 0) - QPoint(15, 0), Qt::NoButton, 0, 0);
+    QApplication::sendEvent(view.viewport(), &event2);
     qApp->processEvents();
     QCOMPARE(view.viewport()->cursor().shape(), Qt::PointingHandCursor);
 }
