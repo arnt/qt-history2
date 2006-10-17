@@ -793,7 +793,7 @@ bool QODBCResult::fetchFirst()
     return true;
 }
 
-bool QODBCResult::fetchPrior()
+bool QODBCResult::fetchPrevious()
 {
     if (isForwardOnly())
         return false;

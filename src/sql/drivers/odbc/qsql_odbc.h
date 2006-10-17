@@ -75,7 +75,7 @@ protected:
     bool fetchNext();
     bool fetchFirst();
     bool fetchLast();
-    bool fetchPrior();
+    bool fetchPrevious();
     bool fetch(int i);
     bool reset (const QString& query);
     QVariant data(int field);
