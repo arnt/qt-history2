@@ -739,7 +739,7 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
                                  const char* bg = 0, const char* button = 0)
 {
 
-    QString resFont, resFG, resBG, resEF, sysFont, selectBackground, selectForeground;
+    QString resFont, resFG, resBG, resButton, resEF, sysFont, selectBackground, selectForeground;
 
     QApplication::setEffectEnabled(Qt::UI_General, false);
     QApplication::setEffectEnabled(Qt::UI_AnimateMenu, false);
@@ -838,6 +838,8 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
                         resFG = value;
                     else if (!bg && key == QLatin1String("background"))
                         resBG = value;
+                    else if (!button && key == QLatin1String("button.background"))
+                        resButton = value;
                     else if (key == QLatin1String("text.selectbackground")) {
                         selectBackground = value;
                     } else if (key == QLatin1String("text.selectforeground")) {
@@ -859,6 +861,8 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
         resFG = QString::fromLocal8Bit(fg);
     if (resBG.isEmpty())
         resBG = QString::fromLocal8Bit(bg);
+    if (resButton.isEmpty())
+        resButton = QString::fromLocal8Bit(button);
     if (!qt_app_has_font && !resFont.isEmpty()) { // set application font
         QFont fnt;
         fnt.setRawName(resFont);
@@ -893,6 +897,9 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
     }
 
     if ((button || !resBG.isEmpty() || !resFG.isEmpty())) {// set app colors
+        bool allowX11ColorNames = QColor::allowX11ColorNames();
+        QColor::setAllowX11ColorNames(true);
+
         (void) QApplication::style();  // trigger creation of application style and system palettes
         QColor btn;
         QColor bg;
@@ -907,8 +914,8 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
         if (!fg.isValid())
             fg = QApplicationPrivate::sys_pal->color(QPalette::Active, QPalette::WindowText);
 
-        if (button)
-            btn = QColor(QString::fromLocal8Bit(button));
+        if (!resButton.isEmpty())
+            btn = QColor(resButton);
         else if (!resBG.isEmpty())
             btn = bg;
         if (!btn.isValid())
@@ -958,6 +965,8 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
         }
 
         QApplicationPrivate::setSystemPalette(pal);
+
+        QColor::setAllowX11ColorNames(allowX11ColorNames);
     }
 
     if (!resEF.isEmpty()) {
