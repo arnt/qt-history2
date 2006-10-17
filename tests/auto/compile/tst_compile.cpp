@@ -472,11 +472,12 @@ void tst_Compiler::templateCallOrder()
     QCOMPARE(whatWasCalled, 1);
     whatWasCalled = 0;
 
-    // call it with a char *
+    /* call it with a char * - AMBIGOUS, fails on several compilers
     char *c = 0;
-    callOrderFunc((void *)c);
+    callOrderFunc(c);
     QCOMPARE(whatWasCalled, 1);
     whatWasCalled = 0;
+    */
 
     // now try the case when there is no C function
     callOrderNoCFunc(f);
