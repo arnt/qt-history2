@@ -202,6 +202,8 @@ public:
 
     QSize minimumContentsSize() const
     { return geo ? QSize(geo->minWidth, geo->minHeight) : QSize(0, 0); }
+    QSize minimumSize() const
+    { return boxSize(minimumContentsSize()); }
 
     QSize contentsSize() const
     { return geo ? QSize(geo->width, geo->height) : (imageRect.isValid() ? imageRect.size() : QSize()); }
@@ -250,6 +252,12 @@ static const char *knownStyleHints[] = {
     "messagebox-text-interaction-flags",
     "mouse-tracking",
     "opacity",
+    "scrollbar-contextmenu",
+    "scrollbar-leftclick-absolute-position",
+    "scrollbar-middleclick-absolute-position",
+    "scrollbar-roll-between-buttons",
+    "scrollbar-scroll-when-pointer-leaves-control",
+    "scrollview-frame-around-contents",
     "show-decoration-selected",
     "spinbox-click-autorepeat-rate",
     "spincontrol-disable-on-bounds",
@@ -1245,6 +1253,13 @@ enum PseudoElement {
     PseudoElement_ToolButtonMenu,
     PseudoElement_ToolButtonMenuArrow,
     PseudoElement_ToolBoxTab,
+    PseudoElement_ScrollBarSlider,
+    PseudoElement_ScrollBarAddPage,
+    PseudoElement_ScrollBarSubPage,
+    PseudoElement_ScrollBarAddLine,
+    PseudoElement_ScrollBarSubLine,
+    PseudoElement_ScrollBarFirst,
+    PseudoElement_ScrollBarLast,
     NumPseudoElements
 };
 
@@ -1270,7 +1285,14 @@ static struct PseudoElementInfo {
     { QStyle::SC_GroupBoxCheckBox, "indicator" },
     { QStyle::SC_ToolButtonMenu, "drop-down" },
     { QStyle::SC_None, "down-arrow" },
-    { QStyle::SC_None, "tab" }
+    { QStyle::SC_None, "tab" },
+    { QStyle::SC_ScrollBarSlider, "slider" },
+    { QStyle::SC_ScrollBarAddPage, "add-page" },
+    { QStyle::SC_ScrollBarSubPage, "sub-page" },
+    { QStyle::SC_ScrollBarAddLine, "add-line" },
+    { QStyle::SC_ScrollBarSubLine, "sub-line" },
+    { QStyle::SC_ScrollBarFirst, "first" },
+    { QStyle::SC_ScrollBarLast, "last" }
 };
 
 QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QString &part, QStyle::State state) const
@@ -1334,13 +1356,13 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
             QStyle::SubControl subControl = knownPseudoElements[pseudoElement].subControl;
 
             if (!(complex->activeSubControls & subControl))
-                state = QStyle::State(opt->state & QStyle::State_Enabled);
+                state = QStyle::State(state & QStyle::State_Enabled);
         }
 
         switch (pseudoElement) {
         case PseudoElement_DropDown:
         case PseudoElement_DropDownArrow:
-            state |= (opt->state & QStyle::State_On); // propagate popup state as on/off
+            state |= (state & QStyle::State_On); // propagate popup state as on/off
             break;
         case PseudoElement_SpinBoxUpButton:
         case PseudoElement_SpinBoxDownButton:
@@ -1360,7 +1382,7 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
 #endif // QT_NO_SPINBOX
             break;
         case PseudoElement_GroupBoxTitle:
-            state |= (opt->state & (QStyle::State_MouseOver | QStyle::State_Sunken));
+            state |= (state & (QStyle::State_MouseOver | QStyle::State_Sunken));
             break;
         case PseudoElement_ToolButtonMenu:
         case PseudoElement_ToolButtonMenuArrow:
@@ -1370,12 +1392,16 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
                 state |= QStyle::State_Sunken;
             break;
         case PseudoElement_None:
-        default:
             // QStyle::State_On is set when the popup is being shown
             // Propagate EditField Pressed state
-            if ((complex->activeSubControls & QStyle::SC_ComboBoxEditField)
-                && (!(opt->state & QStyle::State_MouseOver)))
-                state = opt->state | QStyle::State_Sunken;
+            if (qstyleoption_cast<const QStyleOptionComboBox *>(opt)
+                && (complex->activeSubControls & QStyle::SC_ComboBoxEditField)
+                && (!(state & QStyle::State_MouseOver))) {
+                state |= QStyle::State_Sunken;
+            }
+            break;
+        default:
+            break;
         }
     } else {
         // Add hacks for simple controls here
@@ -1433,6 +1459,7 @@ static Qt::Alignment defaultPosition(int pe)
     case PseudoElement_SpinBoxDownArrow:
     case PseudoElement_SpinBoxUpArrow:
     case PseudoElement_DownArrow:
+    case PseudoElement_UpArrow:
     case PseudoElement_ToolButtonMenuArrow:
         return Qt::AlignCenter;
     case PseudoElement_MenuIndicator:
@@ -1865,6 +1892,14 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
         }
         break;
 
+    case CC_ScrollBar:
+        if (rule.hasDrawable() || rule.hasBox()) {
+            rule.drawRule(p, opt->rect);
+            ParentStyle::drawComplexControl(cc, opt, p, w);
+            return;
+        }
+        break;
+
     default:
         break;
     }
@@ -1881,6 +1916,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
     }
 
     QRenderRule rule = renderRule(w, opt);
+    int pe1 = PseudoElement_None, pe2 = PseudoElement_None;
 
     switch (ce) {
     case CE_ToolButtonLabel:
@@ -2062,16 +2098,59 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         }
         break;
 
-    case CE_ToolBoxTab:
+    case CE_ToolBoxTab: 
         if (hasStyleRule(w, PseudoElement_ToolBoxTab)) {
             QRenderRule subRule = renderRule(w, opt, PseudoElement_ToolBoxTab);
             subRule.drawRule(p, opt->rect);
             return;
         }
         break;
+        
+    case CE_ScrollBarAddPage: 
+        pe1 = PseudoElement_ScrollBarAddPage;
+        break;
+        
+    case CE_ScrollBarSubPage: 
+        pe1 = PseudoElement_ScrollBarSubPage; 
+        break;
+        
+    case CE_ScrollBarAddLine: 
+        pe1 = PseudoElement_ScrollBarAddLine;
+        pe2 = PseudoElement_DownArrow;
+        break;
+        
+    case CE_ScrollBarSubLine: 
+        pe1 = PseudoElement_ScrollBarSubLine; 
+        pe2 = PseudoElement_UpArrow;
+        break;
+        
+    case CE_ScrollBarFirst:   
+        pe1 = PseudoElement_ScrollBarFirst; 
+        break;
+        
+    case CE_ScrollBarLast:    
+        pe1 = PseudoElement_ScrollBarLast; 
+        break;
+        
+    case CE_ScrollBarSlider:  
+        pe1 = PseudoElement_ScrollBarSlider; 
+        break;
 
     default:
         break;
+    }
+
+    if (pe1 != PseudoElement_None) {
+        if (!hasStyleRule(w, pe1))
+            return;
+        QRenderRule subRule = renderRule(w, opt, pe1);
+        subRule.drawRule(p, opt->rect);
+        if (pe2 != PseudoElement_None) {
+            QRenderRule subSubRule = renderRule(w, opt, pe2);
+            QRect r = positionRect(subRule, subSubRule, pe2, opt->rect, opt->direction);
+            subSubRule.drawRule(p, r);
+        }
+        return;
     }
 
     baseStyle()->drawControl(ce, opt, p, w);
@@ -2228,6 +2307,13 @@ QStyle::SubControl QStyleSheetStyle::hitTestComplexControl(ComplexControl cc, co
                                  const QPoint &pt, const QWidget *w) const
 {
     switch (cc) {
+    case CC_ScrollBar:
+        if (hasStyleRule(w)) {
+            QRenderRule rule = renderRule(w, opt);
+            if (!rule.hasBorder() && !rule.hasBox() && !rule.hasDrawable())
+                break;
+        }
+        // intentionally falls through
     case CC_GroupBox:
     case CC_ComboBox:
     case CC_Slider:
@@ -2351,6 +2437,23 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
             return subRule.box()->spacing;
         break;
 
+    case PM_ScrollBarExtent:
+        if (rule.hasContentsSize()) {
+            QSize sz = rule.size();
+            if (const QStyleOptionSlider *sb = qstyleoption_cast<const QStyleOptionSlider *>(opt))
+                return sb->orientation == Qt::Horizontal ? sz.height() : sz.width();
+        }
+        break;
+
+    case PM_ScrollBarSliderMin:
+        if (hasStyleRule(w, PseudoElement_ScrollBarSlider)) {
+            subRule = renderRule(w, PseudoElement_ScrollBarSlider);
+            QSize msz = subRule.minimumSize();
+            if (const QStyleOptionSlider *sb = qstyleoption_cast<const QStyleOptionSlider *>(opt))
+                return sb->orientation == Qt::Horizontal ? msz.width() : msz.height();
+        }
+        break;
+        
     default:
         break;
     }
@@ -2429,6 +2532,7 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
 
     case CT_Menu:
     case CT_MenuBar: // already has everything!
+    case CT_ScrollBar:
         if (rule.hasBox() || rule.hasBorder())
             return sz;
         break;
@@ -2534,6 +2638,13 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
         case SH_GroupBox_TextLabelColor:
             if (rule.hasPalette() && rule.palette()->foreground.isValid())
                 return rule.palette()->foreground.rgba();
+            break;
+        case SH_ScrollView_FrameOnlyAroundContents: s = "scrollview-frame-around-contents"; break;
+        case SH_ScrollBar_ContextMenu: s = "scrollbar-contextmenu"; break;
+        case SH_ScrollBar_LeftClickAbsolutePosition: s = "scrollbar-leftclick-absolute-position"; break;
+        case SH_ScrollBar_MiddleClickAbsolutePosition: s = "scrollbar-middleclick-absolute-position"; break;
+        case SH_ScrollBar_RollBetweenButtons: s = "scrollbar-roll-between-buttons"; break;
+        case SH_ScrollBar_ScrollWhenPointerLeavesControl: s = "scrollbar-scroll-when-pointer-leaves-control"; break;
         default: break;
     }
     if (!s.isEmpty() && rule.hasStyleHint(s)) {
@@ -2653,6 +2764,63 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
         }
         break;
 
+    case CC_ScrollBar:
+        if (const QStyleOptionSlider *sb = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
+            if (rule.hasDrawable() || rule.hasBox()) {
+                QRenderRule subRule;
+                PseudoElement pe = PseudoElement_None;
+                switch (sc) {
+                case SC_ScrollBarGroove:
+                    return rule.contentsRect(opt->rect);
+                case SC_ScrollBarAddPage:
+                case SC_ScrollBarSubPage:
+                case SC_ScrollBarSlider: {
+                    QRect cr = rule.contentsRect(opt->rect);
+                    int maxlen = (sb->orientation == Qt::Horizontal) ? cr.width() : cr.height();
+                    int sliderlen;
+
+                    if (sb->maximum != sb->minimum) {
+                        uint range = sb->maximum - sb->minimum;
+                        sliderlen = (qint64(sb->pageStep) * maxlen) / (range + sb->pageStep);
+
+                        int slidermin = pixelMetric(PM_ScrollBarSliderMin, sb, w);
+                        if (sliderlen < slidermin || range > INT_MAX / 2)
+                            sliderlen = slidermin;
+                        if (sliderlen > maxlen)
+                            sliderlen = maxlen;
+                    } else {
+                        sliderlen = maxlen;
+                    }
+ 
+                    int sliderstart = (sb->orientation == Qt::Horizontal ? cr.left() : cr.top())
+                        + sliderPositionFromValue(sb->minimum, sb->maximum, sb->sliderPosition, 
+                                                  maxlen - sliderlen, sb->upsideDown);
+
+                    QRect sr = (sb->orientation == Qt::Horizontal)
+                               ? QRect(sliderstart, cr.top(), sliderlen, cr.height())
+                               : QRect(cr.left(), sliderstart, cr.width(), sliderlen);
+                    if (sc == SC_ScrollBarSlider) {
+                        return sr;
+                    } else if (sc == SC_ScrollBarSubPage) {
+                        return QRect(cr.topLeft(), sb->orientation == Qt::Horizontal ? sr.bottomLeft() : sr.topRight());
+                    } else { // SC_ScrollBarAddPage
+                        return QRect(sb->orientation == Qt::Horizontal ? sr.topRight() : sr.bottomLeft(), cr.bottomRight());
+                    }
+                    break;
+                }
+                case SC_ScrollBarAddLine: pe = PseudoElement_ScrollBarAddLine; break;
+                case SC_ScrollBarSubLine: pe = PseudoElement_ScrollBarSubLine; break;
+                case SC_ScrollBarFirst: pe = PseudoElement_ScrollBarFirst; break;
+                case SC_ScrollBarLast: pe = PseudoElement_ScrollBarLast; break;
+                default: break;
+                }
+                if (!hasStyleRule(w, pe))
+                    return QRect();
+                subRule = renderRule(w, opt, pe);
+                return positionRect(rule, subRule, pe, opt->rect, opt->direction);
+            }
+        }
+        break;
     default:
         break;
     }
