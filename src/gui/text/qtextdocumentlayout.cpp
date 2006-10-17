@@ -1275,7 +1275,7 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
     td->cellPadding = fmt.cellPadding();
     const qreal margin = td->margin + td->border + td->padding;
 
-    qreal totalWidth = fmt.width().value(td->contentsWidth);
+    qreal totalWidth = td->contentsWidth;
     // two (vertical) borders per cell per column
     totalWidth -= columns * 2 * td->border;
     // inter-cell spacing
