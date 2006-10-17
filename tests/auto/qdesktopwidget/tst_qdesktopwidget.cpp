@@ -10,6 +10,7 @@
 
 #include <QtTest/QtTest>
 #include <QtGui/QDesktopWidget>
+#include <QDebug>
 
 //TESTED_CLASS=qdesktopwidget
 
@@ -28,7 +29,8 @@ public slots:
 private slots:
     void numScreens();
     void primaryScreen();
-    void screenNumber();
+    void screenNumberForQWidget();
+    void screenNumberForQPoint();
     void availableGeometry();
 };
 
@@ -73,7 +75,7 @@ void tst_QDesktopWidget::availableGeometry()
     QCOMPARE(desktop.screenGeometry(desktop.primaryScreen()), total);
 }
 
-void tst_QDesktopWidget::screenNumber()
+void tst_QDesktopWidget::screenNumberForQWidget()
 {
     QDesktopWidget desktop;
 
@@ -87,6 +89,28 @@ void tst_QDesktopWidget::screenNumber()
     QVERIFY(widgetScreen < desktop.numScreens());
 }
 
+void tst_QDesktopWidget::screenNumberForQPoint()
+{
+    // make sure QDesktopWidget::screenNumber(QPoint) returns the correct screen
+    QDesktopWidget *desktopWidget = QApplication::desktop();
+    QRect allScreens;
+    for (int i = 0; i < desktopWidget->numScreens(); ++i) {
+        QRect screenGeometry = desktopWidget->screenGeometry(i);
+        QCOMPARE(desktopWidget->screenNumber(screenGeometry.center()), i);
+        allScreens |= screenGeometry;
+    }
+
+    // make sure QDesktopWidget::screenNumber(QPoint) returns a valid screen for points that aren't on any screen
+    int screen;
+    screen = desktopWidget->screenNumber(allScreens.topLeft() - QPoint(1, 1));
+    QVERIFY(screen >= 0 && screen < desktopWidget->numScreens());
+    screen = desktopWidget->screenNumber(allScreens.topRight() + QPoint(1, 1));
+    QVERIFY(screen >= 0 && screen < desktopWidget->numScreens());
+    screen = desktopWidget->screenNumber(allScreens.bottomLeft() - QPoint(1, 1));
+    QVERIFY(screen >= 0 && screen < desktopWidget->numScreens());
+    screen = desktopWidget->screenNumber(allScreens.bottomRight() + QPoint(1, 1));
+    QVERIFY(screen >= 0 && screen < desktopWidget->numScreens());
+}
 
 QTEST_MAIN(tst_QDesktopWidget)
 #include "tst_qdesktopwidget.moc"
