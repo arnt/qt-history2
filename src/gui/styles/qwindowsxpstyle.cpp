@@ -38,18 +38,6 @@
 #include <qlabel.h>
 #include <qdebug.h>
 
-#ifdef Q_CC_GNU
-#  include <w32api.h>
-#  if (__W32API_MAJOR_VERSION >= 3 || (__W32API_MAJOR_VERSION == 2 && __W32API_MINOR_VERSION >= 5))
-#    ifdef _WIN32_WINNT
-#      undef _WIN32_WINNT
-#    endif
-#    define _WIN32_WINNT 0x0501
-#    include <commctrl.h>
-#  endif
-#endif
-
-
 // Undefined for some compile environments
 #ifndef TMT_TEXTCOLOR
 #  define TMT_TEXTCOLOR 3803
