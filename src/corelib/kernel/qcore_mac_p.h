@@ -110,10 +110,9 @@ private:
     QString string;
 };
 
-#ifdef __LP64__
-# define QT_MAC_POINTER_REFCON(x) SRefCon(x)
-#else
-# define QT_MAC_POINTER_REFCON(x) (long)x
+#if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_5)
+typedef float CGFloat;
+#define SRefCon(x) (long)x
 #endif
 
 #endif // QCORE_MAC_P_H
