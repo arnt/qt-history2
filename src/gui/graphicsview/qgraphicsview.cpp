@@ -961,7 +961,7 @@ QMatrix QGraphicsView::matrix() const
     To simplify interation with items using a transformed view, QGraphicsView
     provides mapTo... and mapFrom... functions that can translate between
     scene and view coordinates. For example, you can call mapToScene() to map
-    a view coordiate to a floating point scene coordinate, or mapFromScene()
+    a view coordinate to a floating point scene coordinate, or mapFromScene()
     to map from floating point scene coordinates to view coordinates.
 
     \sa matrix(), rotate(), scale(), shear(), translate()
@@ -2234,6 +2234,8 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
         }
         if (d->lastItemUnderCursor->hasCursor())
             viewport()->setCursor(d->lastItemUnderCursor->cursor());
+        else
+            viewport()->setCursor(d->viewCursor);
     } else {
         if (d->hasViewCursor) {
             d->hasViewCursor = false;
