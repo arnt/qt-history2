@@ -161,11 +161,7 @@ void JavadocGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker 
                     const EnumItem &item = items.at(i);
                     generateIndent();
                     out() << "<enum-value name=\"" << protect(item.name()) << "\"";
-                    if (!item.text().isEmpty()) {
-                        generateDoc(item.text(), enume, marker);
-                    } else {
-                        out() << " doc=\"Internal.";
-                    }
+                    generateDoc(item.text(), enume, marker);
                     out() << "/>\n";
                 }
                 --currentDepth;
