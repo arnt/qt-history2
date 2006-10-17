@@ -208,7 +208,7 @@ static QString numericEntity( int ch )
            .arg( ch, 0, 16 );
 }
 
-static QString protect( const QByteArray& str )
+QString protect( const QByteArray& str )
 {
     QString result;
     int len = (int) str.length();
@@ -396,7 +396,7 @@ bool MetaTranslator::load( const QString& filename )
     return ok;
 }
 
-bool MetaTranslator::save( const QString& filename) const
+bool MetaTranslator::saveTS( const QString& filename) const
 {
     QFile f( filename );
     if ( !f.open(QIODevice::WriteOnly) )
@@ -495,6 +495,16 @@ bool MetaTranslator::save( const QString& filename) const
     t << "</TS>\n";
     f.close();
     return true;
+}
+
+bool MetaTranslator::save( const QString& filename) const
+{
+    if (filename.endsWith(QLatin1String(".xlf")) ) {    
+        // XLIFF documents use the .xlf extension. 
+        // No other extension is recommended by the specification.
+        return saveXLIFF(filename);
+    }
+    return saveTS(filename);
 }
 
 bool MetaTranslator::release( const QString& filename, bool verbose,

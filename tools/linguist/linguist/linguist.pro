@@ -24,6 +24,7 @@ SOURCES        += finddialog.cpp \
         printout.cpp \
         trwindow.cpp \
         messagestreeview.cpp \
+        ../shared/xliff.cpp \
         ../shared/simtexth.cpp \
 	../shared/metatranslator.cpp \
 	../shared/translator.cpp

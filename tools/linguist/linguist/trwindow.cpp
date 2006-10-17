@@ -352,7 +352,7 @@ void TrWindow::save()
 void TrWindow::saveAs()
 {
     QString newFilename = QFileDialog::getSaveFileName(this, QString(), filename,
-        tr( "Qt translation source (*.ts)\nAll files (*)"));
+        tr( "Qt translation source (*.ts)\nXLIFF localization file (*.xlf)\nAll files (*)"));
     if (!newFilename.isEmpty()) {
         filename = newFilename;
         save();
