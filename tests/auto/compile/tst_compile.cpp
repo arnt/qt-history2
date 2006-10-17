@@ -444,9 +444,15 @@ void callOrderFunc(void *)
 }
 
 template <typename T>
-void callOrderFunc(void *, T * = 0)
+void callOrderFunc(T *)
 {
     whatWasCalled = 2;
+}
+
+template <typename T>
+void callOrderNoCFunc(T *)
+{
+    whatWasCalled = 3;
 }
 
 /*
@@ -464,11 +470,22 @@ void tst_Compiler::templateCallOrder()
     void *f = 0;
     callOrderFunc(f);
     QCOMPARE(whatWasCalled, 1);
+    whatWasCalled = 0;
 
     // call it with a char *
     char *c = 0;
-    callOrderFunc(c);
+    callOrderFunc((void *)c);
     QCOMPARE(whatWasCalled, 1);
+    whatWasCalled = 0;
+
+    // now try the case when there is no C function
+    callOrderNoCFunc(f);
+    QCOMPARE(whatWasCalled, 3);
+    whatWasCalled = 0;
+
+    callOrderNoCFunc(c);
+    QCOMPARE(whatWasCalled, 3);
+    whatWasCalled = 0;
 }
 
 QTEST_APPLESS_MAIN(tst_Compiler)
