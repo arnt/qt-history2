@@ -86,6 +86,9 @@ private slots:
     void setCurrentSection();
     void setCurrentSection_data();
 
+    void setCurrentSectionIndex();
+    void setCurrentSectionIndex_data();
+
     void minimumDate_data();
     void minimumDate();
     void maximumDate_data();
@@ -2446,19 +2449,22 @@ void tst_QDateTimeEdit::task98554()
     QCOMPARE(testWidget->time(), QTime(0, 0, 10, 0));
 }
 
-static QList<int> makeList(int val1, int val2 = -1, int val3 = -1, int val4 = -1, int val5 = -1, int val6 = -1, int val7 = -1)
+static QList<int> makeList(int val1, int val2 = -1, int val3 = -1, int val4 = -1,
+                           int val5 = -1, int val6 = -1, int val7 = -1,
+                           int val8 = -1, int val9 = -1, int val10 = -1,
+                           int val11 = -1, int val12 = -1, int val13 = -1, int val14 = -1)
 {
     QList<int> ret;
-    Q_ASSERT(val1 >= 0);
-    ret << val1;
-    if (val2 < 0) {return ret;} else {ret << val2;}
-    if (val3 < 0) {return ret;} else {ret << val3;}
-    if (val4 < 0) {return ret;} else {ret << val4;}
-    if (val5 < 0) {return ret;} else {ret << val5;}
-    if (val6 < 0) {return ret;} else {ret << val6;}
-    if (val7 >= 0) {ret << val2;}
+    const int *ints[] = { &val1, &val2, &val3, &val4, &val5, &val6, &val7, &val8,
+                          &val9, &val10, &val11, &val12, &val13, &val14, 0 };
+    int index = 0;
+    while (ints[index] && *ints[index] >= 0) {
+        ret.append(*ints[index]);
+        ++index;
+    }
     return ret;
 }
+
 
 
 void tst_QDateTimeEdit::setCurrentSection_data()
@@ -2570,6 +2576,75 @@ void tst_QDateTimeEdit::calendarPopup()
     QVERIFY(wid2 == 0);
     timeEdit.hide();
 }
+
+void tst_QDateTimeEdit::setCurrentSectionIndex_data()
+{
+    QTest::addColumn<QString>("format");
+    QTest::addColumn<QDateTime>("dateTime");
+    QTest::addColumn<QList<int> >("setCurrentSectionsIndex");
+    QTest::addColumn<QList<int> >("expectedSectionsAt");
+    QTest::addColumn<QList<int> >("expectedCursorPositions");
+
+    QTest::newRow("Test1") << QString("dd/MM/yyyy hh:mm:ss.zzz d/M/yy h:m:s.z")
+                           << QDateTime(QDate(2001, 1, 1), QTime(1, 2, 3, 4))
+                           << makeList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)
+                           << makeList(QDateTimeEdit::DaySection,
+                                       QDateTimeEdit::MonthSection,
+                                       QDateTimeEdit::YearSection,
+
+                                       QDateTimeEdit::HourSection,
+                                       QDateTimeEdit::MinuteSection,
+                                       QDateTimeEdit::SecondSection,
+                                       QDateTimeEdit::MSecSection,
+
+                                       QDateTimeEdit::DaySection,
+                                       QDateTimeEdit::MonthSection,
+                                       QDateTimeEdit::YearSection,
+
+                                       QDateTimeEdit::HourSection,
+                                       QDateTimeEdit::MinuteSection,
+                                       QDateTimeEdit::SecondSection,
+                                       QDateTimeEdit::MSecSection)
+                           << makeList(0, 3, 6,
+                                       11, 14, 17, 20,
+                                       24, 26, 28,
+                                       31, 33, 35, 37);
+
+    QTest::newRow("Test2") << QString("yyyy/123/MM")
+                           << QDateTime(QDate(2001, 1, 1), QTime())
+                           << makeList(1, 0)
+                           << makeList(QDateTimeEdit::MonthSection,
+                                       QDateTimeEdit::YearSection)
+                           << makeList(9, 0);
+}
+
+void tst_QDateTimeEdit::setCurrentSectionIndex()
+{
+    QFETCH(QString, format);
+    QFETCH(QDateTime, dateTime);
+    QFETCH(QList<int>, setCurrentSectionsIndex);
+    QFETCH(QList<int>, expectedSectionsAt);
+    QFETCH(QList<int>, expectedCursorPositions);
+
+    Q_ASSERT(setCurrentSectionsIndex.size() == expectedCursorPositions.size());
+    Q_ASSERT(expectedSectionsAt.size() == expectedCursorPositions.size());
+    testWidget->setDisplayFormat(format);
+    testWidget->setDateTime(dateTime);
+#ifdef Q_WS_MAC
+    QTest::keyClick(testWidget, Qt::Key_Left, Qt::ControlModifier);
+#else
+    QTest::keyClick(testWidget, Qt::Key_Home);
+#endif
+
+    testWidget->resize(400, 100);
+    for (int i=0; i<setCurrentSectionsIndex.size(); ++i) {
+        testWidget->setCurrentSectionIndex(setCurrentSectionsIndex.at(i));
+        QCOMPARE(testWidget->currentSectionIndex(), setCurrentSectionsIndex.at(i));
+        QCOMPARE(testWidget->sectionAt(setCurrentSectionsIndex.at(i)), (QDateTimeEdit::Section)expectedSectionsAt.at(i));
+        QCOMPARE(testWidget->lineEdit()->cursorPosition(), expectedCursorPositions.at(i));
+    }
+}
+
 
 #endif
 QTEST_MAIN(tst_QDateTimeEdit)
