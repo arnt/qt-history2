@@ -324,9 +324,13 @@ bool FormWindow::handleMousePressEvent(QWidget * /*widget*/, QWidget *managedWid
 
     bool inLayout = LayoutInfo::isWidgetLaidout(m_core, managedWidget);
 
+    bool selected = isWidgetSelected(managedWidget);
     // if the dragged widget is not in a layout, raise it
-    if (inLayout == false)
+    if (inLayout == false) {
         managedWidget->raise();
+        if (selected)
+            selectWidget(managedWidget, true);
+    }
 
     if (isMainContainer(managedWidget) == true) { // press was on the formwindow
         clearSelection(false);
@@ -336,8 +340,6 @@ bool FormWindow::handleMousePressEvent(QWidget * /*widget*/, QWidget *managedWid
         startRectDraw(mapFromGlobal(e->globalPos()), this, Rubber);
         return true;
     }
-
-    bool selected = isWidgetSelected(managedWidget);
 
     if (e->modifiers() & Qt::ShiftModifier) {
         // shift-click - toggle selection state of widget
