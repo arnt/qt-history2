@@ -35,7 +35,8 @@
 #include "private/qcssparser_p.h"
 
 enum QTextHTMLElements {
-    Html_qt,
+    Html_unknown = -1,
+    Html_qt = 0,
     Html_body,
 
     Html_a,
@@ -112,7 +113,7 @@ enum QTextHTMLElements {
 struct QTextHtmlElement
 {
     const char *name;
-    int id;
+    QTextHTMLElements id;
     enum DisplayMode { DisplayBlock, DisplayInline, DisplayTable, DisplayNone } displayMode;
 };
 
@@ -136,10 +137,7 @@ struct QTextHtmlParserNode {
     QStringList attributes;
     int parent;
     QVector<int> children;
-    int id;
-    uint isBlock : 1;
-    uint isListStart : 1;
-    uint isTableCell : 1;
+    QTextHTMLElements id;
     uint isAnchor : 1;
     uint fontItalic : 2; // Tristate
     uint fontUnderline : 2; // Tristate
@@ -189,6 +187,13 @@ struct QTextHtmlParserNode {
     QTextBlockFormat blockFormat() const;
 
     WhiteSpaceMode wsm;
+
+    inline bool isListStart() const
+    { return id == Html_ol || id == Html_ul; }
+    inline bool isTableCell() const
+    { return id == Html_td || id == Html_th; }
+    inline bool isBlock() const
+    { return displayMode == QTextHtmlElement::DisplayBlock; }
 
     inline bool isNotSelfNesting() const
     { return id == Html_p || id == Html_li; }

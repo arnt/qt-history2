@@ -471,7 +471,7 @@ void QTextHtmlImporter::import()
                 doc->rootFrame()->setFrameFormat(fmt);
                 const_cast<QTextHtmlParserNode *>(node)->background = QBrush();
             }
-        } else if (node->isListStart) {
+        } else if (node->isListStart()) {
 
             QTextListFormat::Style style = node->listStyle;
 
@@ -547,7 +547,7 @@ void QTextHtmlImporter::import()
         // make sure there's a block for 'Blah' after <ul><li>foo</ul>Blah
         if (blockTagClosed
             && !hasBlock
-            && !node->isBlock
+            && !node->isBlock()
             && !node->text.isEmpty()
             && node->displayMode != QTextHtmlElement::DisplayNone) {
 
@@ -559,11 +559,11 @@ void QTextHtmlImporter::import()
             hasBlock = true;
         }
 
-        if (node->isBlock) {
+        if (node->isBlock()) {
             QTextBlockFormat block;
             QTextCharFormat charFmt;
 
-            if (node->isTableCell && !tables.isEmpty()) {
+            if (node->isTableCell() && !tables.isEmpty()) {
                 Table &t = tables.last();
                 if (!t.isTextFrame && !t.currentCell.atEnd()) {
                     const QTextTableCell cell = t.currentCell.cell();
@@ -596,7 +596,7 @@ void QTextHtmlImporter::import()
                  || node->id == Html_dt
                  || node->id == Html_dd)
                 && parentNode
-                && (parentNode->isListStart || parentNode->id == Html_dl)
+                && (parentNode->isListStart() || parentNode->id == Html_dl)
                 && (parentNode->children.last() == i)
                ) {
                 bottomMargin = qMax(bottomMargin, this->bottomMargin(node->parent));
@@ -626,7 +626,7 @@ void QTextHtmlImporter::import()
             if (wsm == QTextHtmlParserNode::WhiteSpacePre)
                 block.setNonBreakableLines(true);
 
-            if (node->background.style() != Qt::NoBrush && !node->isTableCell)
+            if (node->background.style() != Qt::NoBrush && !node->isTableCell())
                 block.setBackground(node->background);
 
             if (hasBlock && (!node->isEmptyParagraph || forceBlockMerging)) {
@@ -819,12 +819,12 @@ bool QTextHtmlImporter::closeTag(int i)
             // in import()
             blockTagClosed = false;
             compressNextWhitespace = true;
-        } else if (closedNode->isTableCell && !tables.isEmpty()) {
+        } else if (closedNode->isTableCell() && !tables.isEmpty()) {
             Table &t = tables.last();
             if (!t.isTextFrame)
                 ++tables.last().currentCell;
             blockTagClosed = true;
-        } else if (closedNode->isListStart && !lists.isEmpty()) {
+        } else if (closedNode->isListStart() && !lists.isEmpty()) {
             lists.resize(lists.size() - 1);
             --indent;
             blockTagClosed = true;
@@ -840,7 +840,7 @@ bool QTextHtmlImporter::closeTag(int i)
             blockTagClosed = true;
         } else if (closedNode->id == Html_br) {
             compressNextWhitespace = true;
-        } else if (closedNode->isBlock) {
+        } else if (closedNode->isBlock()) {
             blockTagClosed = true;
         }
 
@@ -885,7 +885,7 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
         int colsInRow = 0;
 
         foreach (int cell, at(row).children)
-            if (at(cell).isTableCell) {
+            if (at(cell).isTableCell()) {
 
                 const QTextHtmlParserNode &c = at(cell);
                 const int currentColumn = colsInRow;
@@ -958,7 +958,7 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
         TableCellIterator it(textTable);
         foreach (int row, rowNodes)
             foreach (int cell, at(row).children)
-            if (at(cell).isTableCell) {
+            if (at(cell).isTableCell()) {
                 const QTextHtmlParserNode &c = at(cell);
 
                 if (c.tableCellColSpan > 1 || c.tableCellRowSpan > 1)

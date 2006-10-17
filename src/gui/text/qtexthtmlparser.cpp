@@ -443,8 +443,8 @@ static QString quoteNewline(const QString &s)
 }
 
 QTextHtmlParserNode::QTextHtmlParserNode()
-    : parent(0), id(-1), isBlock(false), isListStart(false), isTableCell(false), isAnchor(false),
-      fontItalic(Unspecified), fontUnderline(Unspecified), fontOverline(Unspecified), fontStrikeOut(Unspecified), fontFixedPitch(Unspecified),
+    : parent(0), id(Html_unknown), isAnchor(false), fontItalic(Unspecified), fontUnderline(Unspecified),
+      fontOverline(Unspecified), fontStrikeOut(Unspecified), fontFixedPitch(Unspecified),
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false), hasFontPixelSize(false), hasFontSizeAdjustment(false),
       hasCssBlockIndent(false), hasCssListIndent(false), isEmptyParagraph(false), isTextFrame(false), direction(3),
       displayMode(QTextHtmlElement::DisplayInline), fontPointSize(-1), fontPixelSize(-1), fontSizeAdjustment(0),
@@ -581,7 +581,7 @@ QTextHtmlParserNode *QTextHtmlParser::newNode(int parent)
         newNode = lastNode;
         newNode->tag.clear();
         newNode->text.clear();
-        newNode->id = -1;
+        newNode->id = Html_unknown;
     } else {
         nodes.resize(nodes.size() + 1);
         newNode = &nodes.last();
@@ -621,9 +621,9 @@ int QTextHtmlParser::margin(int i, int mar) const {
         || mar == MarginRight) {
         while (i) {
             node = &at(i);
-            if (!node->isBlock)
+            if (!node->isBlock())
                 break;
-            if (node->isTableCell)
+            if (node->isTableCell())
                 break;
             m += node->margin[mar];
             i = node->parent;
@@ -707,14 +707,10 @@ void QTextHtmlParser::parseTag()
     const QTextHtmlElement *elem = ::lookupElement(node->tag);
     if (elem) {
         node->id = elem->id;
-        node->isBlock = (elem->displayMode == QTextHtmlElement::DisplayBlock);
         node->displayMode = elem->displayMode;
     } else {
-        node->id = -1;
+        node->id = Html_unknown;
     }
-
-    node->isListStart = (node->id == Html_ol || node->id == Html_ul);
-    node->isTableCell = (node->id == Html_td || node->id == Html_th);
 
     node->attributes.clear();
     // _need_ at least one space after the tag name, otherwise there can't be attributes
@@ -745,7 +741,7 @@ void QTextHtmlParser::parseTag()
     // since the element itself already generates a newline
     if ((node->wsm == QTextHtmlParserNode::WhiteSpacePre
          || node->wsm == QTextHtmlParserNode::WhiteSpacePreWrap)
-        && node->isBlock) {
+        && node->isBlock()) {
         if (pos < len - 1 && txt.at(pos) == QLatin1Char('\n'))
             ++pos;
     }
@@ -789,7 +785,7 @@ void QTextHtmlParser::parseCloseTag()
     // ...foo\n</pre><p>blah -> foo</pre><p>blah
     if ((at(p).wsm == QTextHtmlParserNode::WhiteSpacePre
          || at(p).wsm == QTextHtmlParserNode::WhiteSpacePreWrap)
-        && at(p).isBlock) {
+        && at(p).isBlock()) {
         if (at(last()).text.endsWith(QLatin1Char('\n')))
             nodes[last()].text.chop(1);
     }
@@ -985,7 +981,7 @@ QTextHtmlParserNode *QTextHtmlParser::resolveParent()
     // <body><b><p>Foo<p>Bar <-- Foo and Bar should be bold.
     //
     if (node->id == Html_p) {
-        while (p && !at(p).isBlock)
+        while (p && !at(p).isBlock())
             p = at(p).parent;
 
         if (!p || at(p).id != Html_p)
@@ -1022,12 +1018,12 @@ void QTextHtmlParser::resolveNode()
 
 bool QTextHtmlParserNode::isNestedList(const QTextHtmlParser *parser) const
 {
-    if (!isListStart)
+    if (!isListStart())
         return false;
 
     int p = parent;
     while (p) {
-        if (parser->at(p).isListStart)
+        if (parser->at(p).isListStart())
             return true;
         p = parser->at(p).parent;
     }
@@ -1060,7 +1056,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     }
     // we don't paint per-row background colors, yet. so as an
     // exception inherit the background color here
-    if (parent->id == Html_tr && isTableCell) {
+    if (parent->id == Html_tr && isTableCell()) {
         background = parent->background;
     }
 
