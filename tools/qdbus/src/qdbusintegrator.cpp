@@ -588,7 +588,7 @@ void QDBusConnectionPrivate::deliverCall(const CallDeliveryEvent& data) const
 
     // add the input parameters
     int i;
-    for (i = 1; i <= msg.arguments().count(); ++i) {
+    for (i = 1; i <= qMin(msg.arguments().count(), metaTypes.count() - 1); ++i) {
         int id = metaTypes[i];
         if (id == QDBusMetaTypeId::message)
             break;

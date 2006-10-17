@@ -31,6 +31,28 @@
 namespace QDBusUtil
 {
     /*!
+        \internal
+        \fn bool QDBusUtil::isValidPartOfObjectPath(const QString &part)
+        See QDBusUtil::isValidObjectPath
+    */
+    bool isValidPartOfObjectPath(const QString &part)
+    {
+        if (part.isEmpty())
+            return false;       // can't be valid if it's empty
+
+        const QChar *c = part.unicode();
+        for (int i = 0; i < part.length(); ++i) {
+            register ushort u = c[i].unicode();
+            if (!((u >= 'a' && u <= 'z') ||
+                  (u >= 'A' && u <= 'Z') ||
+                  (u >= '0' && u <= '9') ||
+                  u == '_'))
+                return false;
+        }
+        return true;
+    }
+
+    /*!
         \fn bool QDBusUtil::isValidInterfaceName(const QString &ifaceName)
         Returns true if this is \a ifaceName is a valid interface name.
 
@@ -170,9 +192,8 @@ namespace QDBusUtil
         Q_ASSERT(parts.count() >= 1);
         parts.removeFirst();    // it starts with /, so we get an empty first part
 
-        QRegExp regex(QLatin1String("[a-zA-Z0-9_]+"));
         for (int i = 0; i < parts.count(); ++i)
-            if (!regex.exactMatch(parts.at(i)))
+            if (!isValidPartOfObjectPath(parts.at(i)))
                 return false;
 
         return true;
