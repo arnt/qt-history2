@@ -94,6 +94,7 @@ typedef void (APIENTRY *_glUniform1i) (GLint, GLint);
 typedef void (APIENTRY *_glActiveStencilFaceEXT) (GLenum );
 
 typedef void (APIENTRY *_glMultiTexCoord4f) (GLenum, GLfloat, GLfloat, GLfloat, GLfloat);
+typedef void (APIENTRY *_glClientActiveTexture) (GLenum);
 
 // EXT_GL_framebuffer_object
 typedef GLboolean (APIENTRYP PFNGLISRENDERBUFFEREXTPROC) (GLuint renderbuffer);
@@ -214,6 +215,7 @@ public:
         qt_glActiveStencilFaceEXT = 0;
 
         qt_glMultiTexCoord4f = 0;
+        qt_glClientActiveTexture = 0;
 
         qt_glIsRenderbufferEXT = 0;
         qt_glBindRenderbufferEXT = 0;
@@ -311,6 +313,7 @@ public:
     _glActiveStencilFaceEXT qt_glActiveStencilFaceEXT;
 
     _glMultiTexCoord4f qt_glMultiTexCoord4f;
+    _glClientActiveTexture qt_glClientActiveTexture;
 
     PFNGLISRENDERBUFFEREXTPROC qt_glIsRenderbufferEXT;
     PFNGLBINDRENDERBUFFEREXTPROC qt_glBindRenderbufferEXT;

@@ -398,6 +398,7 @@ extern QGLContextPrivate *qt_glctx_get_dptr(QGLContext *);
 #define glActiveStencilFaceEXT qt_glctx_get_dptr(ctx)->qt_glActiveStencilFaceEXT
 
 #define glMultiTexCoord4f qt_glctx_get_dptr(ctx)->qt_glMultiTexCoord4f
+#define glClientActiveTexture qt_glctx_get_dptr(ctx)->qt_glClientActiveTexture
 
 #else
 static _glProgramStringARB qt_glProgramStringARB = 0;
@@ -409,6 +410,7 @@ static _glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB = 0;
 static _glActiveStencilFaceEXT qt_glActiveStencilFaceEXT = 0;
 
 static _glMultiTexCoord4f qt_glMultiTexCoord4f = 0;
+static _glClientActiveTexture qt_glClientActiveTexture = 0;
 
 #define glProgramStringARB qt_glProgramStringARB
 #define glBindProgramARB qt_glBindProgramARB
@@ -419,6 +421,7 @@ static _glMultiTexCoord4f qt_glMultiTexCoord4f = 0;
 #define glActiveStencilFaceEXT qt_glActiveStencilFaceEXT
 
 #define glMultiTexCoord4f qt_glMultiTexCoord4f
+#define glClientActiveTexture qt_glClientActiveTexture
 
 #endif // Q_WS_WIN
 
@@ -485,8 +488,9 @@ bool qt_resolve_version_1_3_functions(QGLContext *ctx)
 
     QGLContext cx(QGLFormat::defaultFormat());
     glMultiTexCoord4f = (_glMultiTexCoord4f) ctx->getProcAddress(QLatin1String("glMultiTexCoord4f"));
+    glClientActiveTexture = (_glClientActiveTexture) ctx->getProcAddress(QLatin1String("glClientActiveTexture"));
 
-    return glMultiTexCoord4f;
+    return glMultiTexCoord4f && glClientActiveTexture;
 }
 
 bool qt_resolve_stencil_face_extension(QGLContext *ctx)
