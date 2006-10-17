@@ -145,6 +145,7 @@ public:
         TextVerticalAlignment = 0x2021,
         TextOutline = 0x2022,
         TextUnderlineStyle = 0x2023,
+        TextToolTip = 0x2024,
 
         IsAnchor = 0x2030,
         AnchorHref = 0x2031,
@@ -373,6 +374,11 @@ public:
     { setProperty(TextOutline, pen); }
     inline QPen textOutline() const
     { return penProperty(TextOutline); }
+
+    inline void setToolTip(const QString &tip)
+    { setProperty(TextToolTip, tip); }
+    inline QString toolTip() const
+    { return stringProperty(TextToolTip); }
 
     inline void setAnchor(bool anchor)
     { setProperty(IsAnchor, anchor); }

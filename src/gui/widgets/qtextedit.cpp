@@ -938,6 +938,9 @@ bool QTextEdit::event(QEvent *e)
         return result;
     } else if (e->type() == QEvent::ShortcutOverride) {
         d->sendControlEvent(e);
+    } else if (e->type() == QEvent::ToolTip) {
+        if ((window()->testAttribute(Qt::WA_AlwaysShowToolTips) || isActiveWindow()))
+            d->sendControlEvent(e);
     }
     return QAbstractScrollArea::event(e);
 }

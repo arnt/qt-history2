@@ -502,6 +502,8 @@ QTextCharFormat QTextHtmlParserNode::charFormat() const
         format.setAnchorHref(anchorHref);
         format.setAnchorName(anchorName);
     }
+    if (!toolTip.isEmpty())
+        format.setToolTip(toolTip);
 
     return format;
 }
@@ -1613,6 +1615,8 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
                 node->direction = Qt::LeftToRight;
             else if (value == QLatin1String("rtl"))
                 node->direction = Qt::RightToLeft;
+        } else if (key == QLatin1String("title")) {
+            node->toolTip = value;
         }
     }
 

@@ -430,6 +430,7 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     \value TextVerticalAlignment
     \value TextOutline
     \value TextUnderlineStyle
+    \value TextToolTip Specifies the (optional) tool tip to be displayed for a fragment of text.
 
     \value IsAnchor
     \value AnchorHref
@@ -1297,6 +1298,19 @@ void QTextCharFormat::setUnderlineStyle(UnderlineStyle style)
     Sets the pen used to draw the outlines of characters to the given \a pen.
 */
 
+/*!
+    \fn void QTextCharFormat::setToolTip(const QString &tip)
+    \since 4.3
+
+    Sets the tool tip that is supposed to be used for a fragment of text.
+*/
+
+/*!
+    \fn QString QTextCharFormat::toolTip() const
+    \since 4.3
+
+    Returns the tool tip that is displayed for a fragment of text.
+*/
 
 /*!
     \fn void QTextFormat::setForeground(const QBrush &brush)

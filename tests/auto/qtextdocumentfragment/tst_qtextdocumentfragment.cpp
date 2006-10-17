@@ -183,6 +183,7 @@ private slots:
     void html_blockQuoteMargins();
     void html_definitionListMargins();
     void html_listMargins();
+    void html_titleAttribute();
 
 private:
     inline void setHtml(const QString &html)
@@ -2834,6 +2835,14 @@ void tst_QTextDocumentFragment::html_listMargins()
 
     block = block.next();
     QCOMPARE(block.text(), QString("Bar"));
+}
+
+void tst_QTextDocumentFragment::html_titleAttribute()
+{
+    doc->setHtml("<span title=\"this is my title\">Test</span>");
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::NextCharacter);
+    QCOMPARE(cursor.charFormat().toolTip(), QString("this is my title"));
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)

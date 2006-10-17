@@ -168,6 +168,7 @@ struct QTextHtmlParserNode {
     QTextListFormat::Style listStyle;
     QString anchorHref;
     QString anchorName;
+    QString toolTip;
     QString imageName;
     qreal imageWidth;
     qreal imageHeight;

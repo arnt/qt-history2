@@ -44,6 +44,7 @@
 #include <qurl.h>
 #include <qdesktopservices.h>
 #include <qinputcontext.h>
+#include <qtooltip.h>
 
 #ifndef QT_NO_SHORTCUT
 #include <qkeysequence.h>
@@ -844,6 +845,12 @@ void QTextControl::processEvent(QEvent *e, const QMatrix &matrix, QWidget *conte
         case QEvent::EnabledChange:
             d->isEnabled = e->isAccepted();
             break;
+
+        case QEvent::ToolTip: {
+            QHelpEvent *ev = static_cast<QHelpEvent *>(e);
+            d->showToolTip(ev->globalPos(), matrix.map(ev->pos()), contextWidget);
+            break;
+        }
 
 #ifndef QT_NO_DRAGANDDROP
         case QEvent::DragEnter: {
@@ -2221,6 +2228,14 @@ void QTextControlPrivate::activateLinkUnderCursor()
     else
 #endif
         emit q_func()->linkActivated(href);
+}
+
+void QTextControlPrivate::showToolTip(const QPoint &globalPos, const QPointF &pos, QWidget *contextWidget)
+{
+    const QString toolTip = q_func()->cursorForPosition(pos).charFormat().toolTip();
+    if (toolTip.isEmpty())
+        return;
+    QToolTip::showText(globalPos, toolTip, contextWidget);
 }
 
 bool QTextControl::setFocusToNextOrPreviousAnchor(bool next)

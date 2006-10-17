@@ -532,6 +532,11 @@ void QTextHtmlImporter::import()
                 fmt.setHeight(node->imageHeight);
 
             cursor.insertImage(fmt, QTextFrameFormat::Position(node->cssFloat));
+
+            cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+            cursor.mergeCharFormat(node->charFormat());
+            cursor.movePosition(QTextCursor::Right);
+
             hasBlock = false;
             continue;
         } else if (node->id == Html_hr) {
