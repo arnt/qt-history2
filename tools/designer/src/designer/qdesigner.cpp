@@ -76,27 +76,29 @@ void QDesigner::initialize()
 
     QString resourceDir = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
 
-    for (int i = 1; i < argc(); ++i)
+    QStringList args = arguments();
+
+    for (int i = 1; i < args.count(); ++i)
     {
-        if (QString::fromLocal8Bit(argv()[i]) == QLatin1String("-server")) {
+        if (args.at(i) == QLatin1String("-server")) {
             m_server = new QDesignerServer();
             printf("%d\n", m_server->serverPort());
             fflush(stdout);
-        } else if (QString::fromLocal8Bit(argv()[i]) == QLatin1String("-client")) {
+        } else if (args.at(i) == QLatin1String("-client")) {
             bool ok = true;
-            if (i + 1 < argc()) {
-                quint16 port = QString::fromLocal8Bit(argv()[++i]).toUShort(&ok);
+            if (i + 1 < args.count()) {
+                quint16 port = args.at(++i).toUShort(&ok);
                 if (ok)
                     m_client = new QDesignerClient(port, this);
             }
-        } else if (QString::fromLocal8Bit(argv()[i]) == QLatin1String("-resourcedir")) {
-            if (i + 1 < argc()) {
-                resourceDir = QFile::decodeName(argv()[++i]);
+        } else if (args.at(i) == QLatin1String("-resourcedir")) {
+            if (i + 1 < args.count()) {
+                resourceDir = QFile::decodeName(args.at(++i).toLocal8Bit());
             } else {
                 // issue a warning
             }
         } else {
-            files.append(QString::fromLocal8Bit(argv()[i]));
+            files.append(args.at(i));
         }
     }
 
