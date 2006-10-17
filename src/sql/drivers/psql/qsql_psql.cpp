@@ -58,6 +58,11 @@ Q_DECLARE_METATYPE(PGresult*)
 template <typename T>
 inline void PQfreemem(T *t, int = 0) { free(t); }
 
+inline void qPQfreemem(void *buffer)
+{
+    PQfreemem(buffer);
+}
+
 class QPSQLDriverPrivate
 {
 public:
@@ -307,7 +312,7 @@ QVariant QPSQLResult::data(int i)
         size_t len;
         unsigned char *data = PQunescapeBytea((unsigned char*)val, &len);
         QByteArray ba((const char*)data, len);
-        PQfreemem(data);
+        qPQfreemem(data);
         return QVariant(ba);
     }
     default:
@@ -883,7 +888,7 @@ QString QPSQLDriver::formatValue(const QSqlField &field,
             r += QLatin1Char('\'');
             r += QLatin1String((const char*)data);
             r += QLatin1Char('\'');
-            PQfreemem(data);
+            qPQfreemem(data);
             break;
         }
         default:
