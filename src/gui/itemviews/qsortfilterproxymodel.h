@@ -80,6 +80,7 @@ public Q_SLOTS:
     void setFilterWildcard(const QString &pattern);
     void setFilterFixedString(const QString &pattern);
     void clear();
+    void invalidate();
 
 protected:
     virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
@@ -87,6 +88,7 @@ protected:
     virtual bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
 
     void filterChanged();
+    void invalidateFilter();
 
 public:
 #ifdef Q_NO_USING_KEYWORD

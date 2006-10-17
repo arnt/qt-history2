@@ -1823,9 +1823,9 @@ void QSortFilterProxyModel::setFilterRole(int role)
 }
 
 /*!
-    Clears this sorting filter model, removing all mapping.
+    \obsolete
 
-    \sa filterChanged()
+    This function is obsolete. Use invalidate() instead.
 */
 void QSortFilterProxyModel::clear()
 {
@@ -1836,15 +1836,42 @@ void QSortFilterProxyModel::clear()
 }
 
 /*!
-   \since 4.2
-   Updates the mapping to reflect a change in the filter.
+   \since 4.3
+
+    Invalidates the current sorting and filtering.
+
+    \sa invalidateFilter()
+*/
+void QSortFilterProxyModel::invalidate()
+{
+    Q_D(QSortFilterProxyModel);
+    emit layoutAboutToBeChanged();
+    d->clear_mapping();
+    emit layoutChanged();
+}
+
+/*!
+   \obsolete
+
+    This function is obsolete. Use invalidateFilter() instead.
+*/
+void QSortFilterProxyModel::filterChanged()
+{
+    Q_D(QSortFilterProxyModel);
+    d->filter_changed();
+}
+
+/*!
+   \since 4.3
+
+   Invalidates the current filtering.
 
    This function should be called if you are implementing custom filtering
    (e.g. filterAcceptsRow()), and your filter parameters have changed.
 
-   \sa clear()
+   \sa invalidate()
 */
-void QSortFilterProxyModel::filterChanged()
+void QSortFilterProxyModel::invalidateFilter()
 {
     Q_D(QSortFilterProxyModel);
     d->filter_changed();
