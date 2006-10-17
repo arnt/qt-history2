@@ -55,7 +55,10 @@ static QString classNameForObjectName(const QDomElement &widget, const QString &
                 str.read(name);
                 if (str.text() == objectName)
                     return w.attribute(QLatin1String("class"));
-            } else if (child.tagName() == QLatin1String("widget")) {
+            } else if (child.tagName() == QLatin1String("widget")
+                || child.tagName() == QLatin1String("vbox")
+                || child.tagName() == QLatin1String("hbox")
+                || child.tagName() == QLatin1String("grid")) {
                 widgetStack.prepend(child);
             }
             child = child.nextSibling().toElement();
