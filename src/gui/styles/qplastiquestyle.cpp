@@ -3007,8 +3007,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             // Find text width and title rect
             int textWidth = option->fontMetrics.width(dockWidget->title);
             int margin = 4;
-            QRect titleRect = visualRect(dockWidget->direction, dockWidget->rect,
-                                         dockWidget->rect.adjusted(margin, 0, -margin * 2 - 26, 0));
+            QRect titleRect = subElementRect(SE_DockWidgetTitleBarText, option, widget);
 
             // Chop and insert ellide into title if text is too wide
             QString title = elliditide(dockWidget->title, dockWidget->fontMetrics, titleRect, &textWidth);
@@ -3068,6 +3067,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 
             painter->restore();
         }
+
         break;
 #endif // QT_NO_DOCKWIDGET
 #ifndef QT_NO_TOOLBAR
@@ -5271,7 +5271,7 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
     case PM_MaximumDragDistance:
         return -1;
     case PM_DockWidgetTitleMargin:
-        return 0;
+        return 2;
     default:
         break;
     }

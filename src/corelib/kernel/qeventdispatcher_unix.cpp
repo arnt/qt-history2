@@ -285,7 +285,7 @@ bool QTimerInfoList::timeChanged(timeval *delta)
     // If tick drift is more than 10% off compared to realtime, we assume that the clock has
     // been set. Of course, we have to allow for the tick granularity as well.
 
-     return (QABS(deltaMsecs) - msPerTick) * 10 > elapsedMsecTicks;
+     return (qAbs(deltaMsecs) - msPerTick) * 10 > elapsedMsecTicks;
 }
 
 void QTimerInfoList::getTime(timeval &t)

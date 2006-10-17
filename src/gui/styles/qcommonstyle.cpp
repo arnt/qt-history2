@@ -2012,7 +2012,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
         }
 
         QRect textRect = QRect(left, rect.top(),
-                                right - left + 1, rect.height());
+                                right - left, rect.height());
         if (sr == SE_DockWidgetTitleBarText) {
             r = visualRect(opt->direction, rect, textRect);
             break;
@@ -3169,7 +3169,7 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
                 }
 
                 QRect frameRect = groupBox->rect;
-                
+
                 if (sc == SC_GroupBoxFrame) {
                     frameRect.setTop(topMargin);
                     ret = frameRect;

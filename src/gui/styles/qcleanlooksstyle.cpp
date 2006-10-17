@@ -1520,9 +1520,9 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
             painter->drawRect(r);
 
             if (!dwOpt->title.isEmpty()) {
-                QRect titleRect = visualRect(dwOpt->direction, r, option->rect.adjusted(5, 0, -35, 0));
+                QRect titleRect = subElementRect(SE_DockWidgetTitleBarText, option, widget);
                 QString titleText = painter->fontMetrics().elidedText(dwOpt->title, Qt::ElideRight, titleRect.width());
-                drawItemText(painter, 
+                drawItemText(painter,
                              titleRect,
                              Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
                              dwOpt->state & State_Enabled, titleText,
@@ -2056,10 +2056,10 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
                                 && tab->position == QStyleOptionTab::Beginning));
             bool onlyTab = tab->position == QStyleOptionTab::OnlyOneTab;
             bool leftCornerWidget = (tab->cornerWidgets & QStyleOptionTab::LeftCornerWidget);
-            
-            bool atBeginning = ((tab->position == (tab->direction == Qt::LeftToRight ? 
+
+            bool atBeginning = ((tab->position == (tab->direction == Qt::LeftToRight ?
                                 QStyleOptionTab::Beginning : QStyleOptionTab::End)) || onlyTab);
-            
+
             bool onlyOne = tab->position == QStyleOptionTab::OnlyOneTab;
             bool previousSelected =
                 ((!rtlHorTabs
@@ -3221,7 +3221,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     frame.lineWidth = groupBox->lineWidth;
                     frame.midLineWidth = groupBox->midLineWidth;
                     frame.rect = subControlRect(CC_GroupBox, option, SC_GroupBoxFrame, widget);
-                    
+
                     painter->save();
                     QRegion region(groupBox->rect);
                     bool ltr = groupBox->direction == Qt::LeftToRight;
@@ -3230,7 +3230,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                         painter->setClipRegion(region);
                     frame.palette.setBrush(QPalette::Dark, option->palette.mid().color().light(110));
                     drawPrimitive(PE_FrameGroupBox, &frame, painter);
-                    painter->restore();  
+                    painter->restore();
                 }
             }
             // Draw title
@@ -3310,12 +3310,12 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     if (horizontal) {
                         painter->setBrush(gradient2);
                         painter->setPen(QPen(activeHighlight.dark(130), 0));
-                        
+
                         if (slider->upsideDown)
                             painter->drawRect(QRect(handle.right(), groove.top(), groove.right() , groove.height()));
                         else
                             painter->drawRect(QRect(groove.left(), groove.top(), handle.left() , groove.height()));
-                      
+
                     } else {
                         painter->setBrush(gradient2);
                         painter->setPen(QPen(activeHighlight.dark(150), 0));
@@ -3514,7 +3514,7 @@ int QCleanlooksStyle::pixelMetric(PixelMetric metric, const QStyleOption *option
         ret = 32;
         break;
     case PM_DockWidgetTitleMargin:
-        ret = 2;
+        ret = 1;
         break;
     case PM_MenuBarVMargin:
         ret = 1;
@@ -3547,6 +3547,9 @@ int QCleanlooksStyle::pixelMetric(PixelMetric metric, const QStyleOption *option
         break;
     case PM_ButtonIconSize:
         ret = 24;
+        break;
+    case PM_DockWidgetTitleBarButtonMargin:
+        ret = 4;
         break;
     default:
         break;
@@ -4095,6 +4098,14 @@ QRect QCleanlooksStyle::subElementRect(SubElement sr, const QStyleOption *opt, c
     case SE_PushButtonFocusRect:
         r.adjust(0, 1, 0, -1);
         break;
+    case SE_DockWidgetTitleBarText: {
+        if (QApplication::layoutDirection() == Qt::LeftToRight)
+            r.adjust(4, 0, 0, 0);
+        else
+            r.adjust(0, 0, -4, 0);
+
+        break;
+    }
     default:
         break;
     }

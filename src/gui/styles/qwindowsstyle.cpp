@@ -382,7 +382,10 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
         ret = 24;
         break;
     case PM_DockWidgetTitleMargin:
-        ret = 3;
+        ret = 2;
+        break;
+    case PM_DockWidgetTitleBarButtonMargin:
+        ret = 4;
         break;
 #if defined(Q_WS_WIN)
     case PM_DockWidgetFrameWidth:
@@ -773,7 +776,7 @@ QPixmap convertHIconToPixmap( const HICON icon)
 
     ICONINFO iconinfo;
     GetIconInfo(icon, &iconinfo); //x and y Hotspot describes the icon center
-    
+
     BITMAPINFOHEADER bitmapInfo;
     bitmapInfo.biSize        = sizeof(BITMAPINFOHEADER);
     bitmapInfo.biWidth       = iconinfo.xHotspot * 2;
@@ -791,7 +794,7 @@ QPixmap convertHIconToPixmap( const HICON icon)
     HBITMAP winBitmap = CreateDIBSection(hdc, (BITMAPINFO*)&bitmapInfo, DIB_RGB_COLORS, (VOID**)&bits, NULL, 0);
     HGDIOBJ oldhdc = (HBITMAP)SelectObject(hdc, winBitmap);
     DrawIconEx( hdc, 0, 0, icon, iconinfo.xHotspot * 2, iconinfo.yHotspot * 2, 0, 0, DI_NORMAL);
-    
+
     QPixmap::HBitmapFormat alphaType = QPixmap::PremultipliedAlpha;
     QPixmap iconpixmap = QPixmap::fromWinHBITMAP(winBitmap, alphaType);
     QImage img = iconpixmap.toImage();
@@ -1579,7 +1582,7 @@ case PE_FrameDockWidget:
     case PE_FrameStatusBar:
         qDrawShadePanel(p, opt->rect, opt->palette, true, 1, 0);
         break;
-    
+
     case PE_FrameTabWidget:
         if (use2000style) {
             QRect rect = opt->rect;
@@ -1725,7 +1728,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     text_flags |= Qt::TextHideMnemonic;
                 text_flags |= Qt::AlignLeft;
                 if (t >= 0) {
-                    QRect vShortcutRect = visualRect(opt->direction, menuitem->rect, 
+                    QRect vShortcutRect = visualRect(opt->direction, menuitem->rect,
                         QRect(textRect.topRight(), QPoint(menuitem->rect.right(), textRect.bottom())));
                     if (dis && !act) {
                         p->setPen(menuitem->palette.light().color());
@@ -2353,7 +2356,8 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 palette.setColor(QPalette::Window, inactiveCaptionTextColor);
                 bool active = dwOpt->state & State_Active;
                 const int indent = p->fontMetrics().descent();
-                drawItemText(p, r.adjusted(indent + 1, - menuOffset, -indent - 1, -1),
+                QRect titleRect = subElementRect(SE_DockWidgetTitleBarText, opt, widget);
+                drawItemText(p, titleRect,
                             Qt::AlignLeft | Qt::AlignVCenter, palette,
                             dwOpt->state & State_Enabled, dwOpt->title,
                             floating ? (active ? QPalette::BrightText : QPalette::Window) : QPalette::WindowText);
@@ -2376,6 +2380,15 @@ QRect QWindowsStyle::subElementRect(SubElement sr, const QStyleOption *opt, cons
     case SE_ToolBoxTabContents:
         r = visualRect(opt->direction, opt->rect, opt->rect);
         break;
+    case SE_DockWidgetTitleBarText: {
+        r = QCommonStyle::subElementRect(sr, opt, w);
+        int m = pixelMetric(PM_DockWidgetTitleMargin, opt, w);
+        if (QApplication::layoutDirection() == Qt::LeftToRight)
+            r.adjust(m, 0, 0, 0);
+        else
+            r.adjust(0, 0, -m, 0);
+        break;
+    }
     default:
         r = QCommonStyle::subElementRect(sr, opt, w);
     }
@@ -3061,14 +3074,14 @@ IconTheme QWindowsStylePrivate::parseIndexFile(const QString &themeName) const
                 }
             }
         }
-    }	
+    }
 
     if (q->inherits("QPlastiqueStyle")) {
         QFileInfo fileInfo("/usr/share/icons/default.kde");
         QDir dir(fileInfo.canonicalFilePath());
         QString defaultKDETheme = dir.exists() ? dir.dirName() : "crystalsvg";
         if (!parents.contains(defaultKDETheme) && themeName != defaultKDETheme)
-            parents.append(defaultKDETheme);        
+            parents.append(defaultKDETheme);
     } else if (parents.isEmpty() && themeName != "hicolor") {
         parents.append("hicolor");
     }
