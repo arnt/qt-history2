@@ -1704,7 +1704,9 @@ void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
 
     glDisable(GL_MULTISAMPLE);
 
-    QList<QPolygonF> polys = path.toFillPolygons(matrix);
+    QList<QPolygonF> polys; // = path.toFillPolygons(matrix);
+
+    polys << path.toFillPolygon(matrix);
 
     if (polys.isEmpty())
         return;
@@ -1727,6 +1729,7 @@ void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
     Qt::BrushStyle last_style = current_style;
     setGradientOps(Qt::NoBrush);
 
+    // clear mask
     glBlendFunc(GL_ZERO, GL_ZERO);
     glVertexPointer(2, GL_FLOAT, 0, vertexArray);
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -1738,6 +1741,12 @@ void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE);
 
+    QVector<GLfloat> pathVertices;
+    QVector<GLfloat> pathTexCoords;
+    QVector<GLfloat> pathMultiTexCoords;
+
+    int trapezoid = 0;
+
     for (int i = 0; i < polys.size(); ++i) {
         const QPolygonF &poly = polys.at(i);
 
@@ -1745,7 +1754,22 @@ void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
         QOpenGLTessellator tessellator;
         tessellator.tessellate(poly.data(), poly.count(), path.fillRule() == Qt::WindingFill);
 
-        DEBUG_ONCE qDebug() << "Trapezoid count:" << tessellator.size / 12;
+        // six vertices per trapezoid, two GLfloats per vertex
+        pathVertices.resize(12 * trapezoid + tessellator.size);
+
+        // top and bottom y values
+        pathTexCoords.resize(pathVertices.size());
+        // line equation parameters for left and right lines to get x from y (x = ay + b)
+        pathMultiTexCoords.resize(2 * pathVertices.size());
+
+        GLfloat *vertexData = pathVertices.data();
+        GLfloat *texCoordData = pathTexCoords.data();
+        GLfloat *multiTexCoordData = pathMultiTexCoords.data();
+
+        int vertexDataIndex = 12 * trapezoid;
+        int texCoordDataIndex = 12 * trapezoid;
+        int multiTexCoordDataIndex = 24 * trapezoid;
+
         for (int j = 0; j < tessellator.size; j += 12) {
             float x0 = tessellator.vertices[j]; // top left
             float x1 = tessellator.vertices[j + 4]; // bottom left
@@ -1757,6 +1781,7 @@ void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
 
             qreal minX = qMin(x0, x1), maxX = qMax(x2, x3);
 
+            // skip winding lines and empty trapezoids
             if (qFuzzyCompare(top, bottom) || qFuzzyCompare(minX, maxX) || qFuzzyCompare(x0, x2) && qFuzzyCompare(x1, x3))
                 continue;
 
@@ -1770,18 +1795,53 @@ void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
             top = offscreenSize.height() - top;
             bottom = offscreenSize.height() - bottom;
 
-            float leftB = x1 + (x0 - x1) * (0 - bottom) / (top - bottom);
-            float rightB = x3 + (x2 - x3) * (0 - bottom) / (top - bottom);
+            float reciprocal = bottom / (bottom - top);
 
-            float leftA = qFuzzyCompare(top, 0) ? (x1 - leftB) / bottom : (x0 - leftB) / top;
-            float rightA = qFuzzyCompare(top, 0) ? (x3 - rightB) / bottom : (x2 - rightB) / top;
+            float leftB = x1 + (x0 - x1) * reciprocal;
+            float rightB = x3 + (x2 - x3) * reciprocal;
 
-            glTexCoord2f(top, bottom);
-            glMultiTexCoord4f(GL_TEXTURE1, leftA, leftB, rightA, rightB);
+            const bool topZero = qFuzzyCompare(top, 0);
 
-            glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+            reciprocal = topZero ? 1.0f / bottom : 1.0f / top;
+
+            float leftA = topZero ? (x1 - leftB) * reciprocal : (x0 - leftB) * reciprocal;
+            float rightA = topZero ? (x3 - rightB) * reciprocal : (x2 - rightB) * reciprocal;
+
+            for (int k = 0; k < 6; ++k) {
+                int vertexIndex = k < 5 ? k & 0x3 : 2;
+
+                vertexData[vertexDataIndex++] = vertexArray[2 * vertexIndex];
+                vertexData[vertexDataIndex++] = vertexArray[2 * vertexIndex + 1];
+
+                texCoordData[texCoordDataIndex++] = top;
+                texCoordData[texCoordDataIndex++] = bottom;
+
+                multiTexCoordData[multiTexCoordDataIndex++] = leftA;
+                multiTexCoordData[multiTexCoordDataIndex++] = leftB;
+                multiTexCoordData[multiTexCoordDataIndex++] = rightA;
+                multiTexCoordData[multiTexCoordDataIndex++] = rightB;
+            }
+
+            ++trapezoid;
         }
     }
+
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glVertexPointer(2, GL_FLOAT, 0, pathVertices.constData());
+    glTexCoordPointer(2, GL_FLOAT, 0, pathTexCoords.constData());
+
+    glClientActiveTexture(GL_TEXTURE1);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glTexCoordPointer(4, GL_FLOAT, 0, pathMultiTexCoords.constData());
+
+    // draw mask
+    glDrawArrays(GL_TRIANGLES, 0, 6 * trapezoid);
+
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glClientActiveTexture(GL_TEXTURE0);
+
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
     qt_add_rect_to_array(boundingRect, vertexArray);
 
@@ -1805,7 +1865,7 @@ void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
 
     qt_add_rect_to_array(slimmed, vertexArray);
 
-    GLfloat texCoordArray[4 * 4];
+    GLfloat texCoordArray[2 * 4];
 
     for (int i = 0; i < 8; i += 2) {
         texCoordArray[i] = vertexArray[i] * invOffscreenSize.width();
