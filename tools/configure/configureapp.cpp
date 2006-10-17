@@ -1563,7 +1563,7 @@ void Configure::generateCachefile()
         for( QStringList::Iterator var = qmakeVars.begin(); var != qmakeVars.end(); ++var ) {
 	    cacheStream << (*var) << endl;
 	}
-	cacheStream << "CONFIG         += " << qmakeConfig.join( " " ) << " incremental create_prl link_prl depend_includepath" << endl;
+	cacheStream << "CONFIG         += " << qmakeConfig.join( " " ) << " incremental create_prl link_prl depend_includepath QTDIR_build" << endl;
 	QString mkspec_path=dictionary[ "QT_SOURCE_TREE" ] + "\\mkspecs\\" + dictionary[ "QMAKESPEC" ];
 	if(QFile::exists(mkspec_path))
 	    cacheStream << "QMAKESPEC       = " << mkspec_path << endl;
