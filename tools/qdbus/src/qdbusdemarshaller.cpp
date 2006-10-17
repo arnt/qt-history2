@@ -108,7 +108,7 @@ inline QDBusVariant QDBusDemarshaller::toVariant()
     return QDBusVariant( sub.toVariantInternal() );
 }
 
-inline QVariant QDBusDemarshaller::toVariantInternal()
+QVariant QDBusDemarshaller::toVariantInternal()
 {
     switch (dbus_message_iter_get_arg_type(&iterator)) {
     case DBUS_TYPE_BYTE:
