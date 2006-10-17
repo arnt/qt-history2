@@ -898,18 +898,20 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
         QColor bg;
         QColor fg;
         if (!resBG.isEmpty())
-            bg = QColor(QString(resBG));
-        else
+            bg = QColor(resBG);
+        if (!bg.isValid())
             bg = QApplicationPrivate::sys_pal->color(QPalette::Active, QPalette::Window);
+
         if (!resFG.isEmpty())
-            fg = QColor(QString(resFG));
-        else
+            fg = QColor(resFG);
+        if (!fg.isValid())
             fg = QApplicationPrivate::sys_pal->color(QPalette::Active, QPalette::WindowText);
+
         if (button)
-            btn = QColor(button);
+            btn = QColor(QString::fromLocal8Bit(button));
         else if (!resBG.isEmpty())
             btn = bg;
-        else
+        if (!btn.isValid())
             btn = QApplicationPrivate::sys_pal->color(QPalette::Active, QPalette::Button);
 
         int h,s,v;
@@ -928,10 +930,13 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
         pal.setColorGroup(QPalette::Disabled, disabled, btn, btn.light(125),
                           btn.dark(), btn.dark(150), disabled, Qt::white, Qt::white, bg);
 
+        QColor highlight, highlightText;
         if (!selectBackground.isEmpty() && !selectForeground.isEmpty()) {
-            QColor highlight = QColor(selectBackground);
-            QColor highlightText = QColor(selectForeground);
+            highlight = QColor(selectBackground);
+            highlightText = QColor(selectForeground);
+        }
 
+        if (highlight.isValid() && highlightText.isValid()) {
             pal.setColor(QPalette::Highlight, highlight);
             pal.setColor(QPalette::HighlightedText, highlightText);
 
