@@ -3096,7 +3096,15 @@ public:
 
 int QCustomRasterPaintDevice::metric(PaintDeviceMetric m) const
 {
-    Q_ASSERT(widget);
+    switch (m) {
+    case PdmWidth:
+        return widget->frameGeometry().width();
+    case PdmHeight:
+        return widget->frameGeometry().height();
+    default:
+        break;
+    }
+
     return (static_cast<MetricAccessor*>(widget)->metric(m));
 }
 
