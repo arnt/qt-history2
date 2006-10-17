@@ -1241,77 +1241,112 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
     case PE_IndicatorArrowUp:
     case PE_IndicatorArrowDown:
     case PE_IndicatorArrowRight:
-    case PE_IndicatorArrowLeft: {
-        QPoint points[7];
-        switch (pe) {
-            case PE_IndicatorArrowUp:
-                points[0] = QPoint(-4, 1);
-                points[1] = QPoint(2, 1);
-                points[2] = QPoint(-3, 0);
-                points[3] = QPoint(1, 0);
-                points[4] = QPoint(-2, -1);
-                points[5] = QPoint(0, -1);
-                points[6] = QPoint(-1, -2);
-                break;
-            case PE_IndicatorArrowDown:
-                points[0] = QPoint(-4, -2);
-                points[1] = QPoint(2, -2);
-                points[2] = QPoint(-3, -1);
-                points[3] = QPoint(1, -1);
-                points[4] = QPoint(-2, 0);
-                points[5] = QPoint(0, 0);
-                points[6] = QPoint(-1, 1);
-                break;
-            case PE_IndicatorArrowRight:
-                points[0] = QPoint(-2, -3);
-                points[1] = QPoint(-2, 3);
-                points[2] = QPoint(-1, -2);
-                points[3] = QPoint(-1, 2);
-                points[4] = QPoint(0, -1);
-                points[5] = QPoint(0, 1);
-                points[6] = QPoint(1, 0);
-                break;
-            case PE_IndicatorArrowLeft:
-                points[0] = QPoint(0, -3);
-                points[1] = QPoint(0, 3);
-                points[2] = QPoint(-1, -2);
-                points[3] = QPoint(-1, 2);
-                points[4] = QPoint(-2, -1);
-                points[5] = QPoint(-2, 1);
-                points[6] = QPoint(-3, 0);
-                break;
-            default:
-                break;
-        }
-        p->save();
-        if (opt->state & State_Sunken)
-            p->translate(pixelMetric(PM_ButtonShiftHorizontal),
-                         pixelMetric(PM_ButtonShiftVertical));
-        if (opt->state & State_Enabled) {
-            p->translate(opt->rect.x() + opt->rect.width() / 2,
-                         opt->rect.y() + opt->rect.height() / 2);
-            p->setPen(opt->palette.buttonText().color());
-            p->drawLine(points[0], points[1]);
-            p->drawLine(points[2], points[3]);
-            p->drawLine(points[4], points[5]);
-            p->drawPoint(points[6]);
-        } else {
-            p->translate(opt->rect.x() + opt->rect.width() / 2 + 1,
-                         opt->rect.y() + opt->rect.height() / 2 + 1);
-            p->setPen(opt->palette.light().color());
-            p->drawLine(points[0], points[1]);
-            p->drawLine(points[2], points[3]);
-            p->drawLine(points[4], points[5]);
-            p->drawPoint(points[6]);
-            p->translate(-1, -1);
-            p->setPen(opt->palette.mid().color());
-            p->drawLine(points[0], points[1]);
-            p->drawLine(points[2], points[3]);
-            p->drawLine(points[4], points[5]);
-            p->drawPoint(points[6]);
+    case PE_IndicatorArrowLeft: 
+        {
+            p->save();
+#ifdef Q_WS_WIN
+            QFont font("Marlett");
+            font.setPixelSize(opt->rect.height());
+            p->setFont(font);
+            QRect textRect = opt->rect;
+
+            if (opt->state & State_Sunken)
+                p->translate(pixelMetric(PM_ButtonShiftHorizontal),
+                             pixelMetric(PM_ButtonShiftVertical));            
+            char symbol = 0;
+            if (pe == PE_IndicatorArrowUp)
+                symbol = '5';
+            else if (pe == PE_IndicatorArrowDown)
+                symbol = '6';
+            else if (pe == PE_IndicatorArrowLeft)
+                symbol = '3';
+            else if (pe == PE_IndicatorArrowRight)
+                symbol = '4';
+
+            if (opt->state & State_Enabled) {
+                p->setPen(opt->palette.buttonText().color());
+                p->drawText(textRect, QString(symbol));            
+            }
+            else {
+                p->translate(1, 1);
+                p->setPen(opt->palette.light().color());
+                p->drawText(textRect, QString(symbol));            
+                p->translate(-1, -1);
+                p->setPen(opt->palette.mid().color());
+                p->drawText(textRect, QString(symbol));            
+            }
+#else
+            QPoint points[7];
+            switch (pe) {
+                case PE_IndicatorArrowUp:
+                    points[0] = QPoint(-4, 1);
+                    points[1] = QPoint(2, 1);
+                    points[2] = QPoint(-3, 0);
+                    points[3] = QPoint(1, 0);
+                    points[4] = QPoint(-2, -1);
+                    points[5] = QPoint(0, -1);
+                    points[6] = QPoint(-1, -2);
+                    break;
+                case PE_IndicatorArrowDown:
+                    points[0] = QPoint(-4, -2);
+                    points[1] = QPoint(2, -2);
+                    points[2] = QPoint(-3, -1);
+                    points[3] = QPoint(1, -1);
+                    points[4] = QPoint(-2, 0);
+                    points[5] = QPoint(0, 0);
+                    points[6] = QPoint(-1, 1);
+                    break;
+                case PE_IndicatorArrowRight:
+                    points[0] = QPoint(-2, -3);
+                    points[1] = QPoint(-2, 3);
+                    points[2] = QPoint(-1, -2);
+                    points[3] = QPoint(-1, 2);
+                    points[4] = QPoint(0, -1);
+                    points[5] = QPoint(0, 1);
+                    points[6] = QPoint(1, 0);
+                    break;
+                case PE_IndicatorArrowLeft:
+                    points[0] = QPoint(0, -3);
+                    points[1] = QPoint(0, 3);
+                    points[2] = QPoint(-1, -2);
+                    points[3] = QPoint(-1, 2);
+                    points[4] = QPoint(-2, -1);
+                    points[5] = QPoint(-2, 1);
+                    points[6] = QPoint(-3, 0);
+                    break;
+                default:
+                    break;
+            }
+            if (opt->state & State_Sunken)
+                p->translate(pixelMetric(PM_ButtonShiftHorizontal),
+                            pixelMetric(PM_ButtonShiftVertical));
+            if (opt->state & State_Enabled) {
+                p->translate(opt->rect.x() + opt->rect.width() / 2,
+                            opt->rect.y() + opt->rect.height() / 2);
+                p->setPen(opt->palette.buttonText().color());
+                p->drawLine(points[0], points[1]);
+                p->drawLine(points[2], points[3]);
+                p->drawLine(points[4], points[5]);
+                p->drawPoint(points[6]);
+            } else {
+                p->translate(opt->rect.x() + opt->rect.width() / 2 + 1,
+                            opt->rect.y() + opt->rect.height() / 2 + 1);
+                p->setPen(opt->palette.light().color());
+                p->drawLine(points[0], points[1]);
+                p->drawLine(points[2], points[3]);
+                p->drawLine(points[4], points[5]);
+                p->drawPoint(points[6]);
+                p->translate(-1, -1);
+                p->setPen(opt->palette.mid().color());
+                p->drawLine(points[0], points[1]);
+                p->drawLine(points[2], points[3]);
+                p->drawLine(points[4], points[5]);
+                p->drawPoint(points[6]);
+            }
+#endif
         }
         p->restore();
-        break; }
+        break;
     case PE_IndicatorCheckBox: {
         QBrush fill;
         if (opt->state & State_NoChange)
@@ -2049,7 +2084,11 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             QStyleOption buttonOpt = *opt;
             if (!(buttonOpt.state & State_Sunken))
                 buttonOpt.state |= State_Raised;
-            drawPrimitive(PE_PanelButtonBevel, &buttonOpt, p, widget);
+            QPalette pal(opt->palette);
+            pal.setColor(QPalette::Button, opt->palette.light().color());
+            pal.setColor(QPalette::Light, opt->palette.button().color());
+            qDrawWinButton(p, opt->rect, pal, opt->state & (State_Sunken | State_On),
+                           &opt->palette.brush(QPalette::Button));
         }
         PrimitiveElement arrow;
         if (opt->state & State_Horizontal) {
@@ -2063,7 +2102,9 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             else
                 arrow = PE_IndicatorArrowUp;
         }
-        drawPrimitive(arrow, opt, p, widget);
+        QStyleOption arrowOpt = *opt;
+        arrowOpt.rect = opt->rect.adjusted(2, 2, -2, -2);
+        drawPrimitive(arrow, &arrowOpt, p, widget);
         break; }
     case CE_ScrollBarAddPage:
     case CE_ScrollBarSubPage: {
@@ -2099,7 +2140,11 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             QStyleOptionButton buttonOpt;
             buttonOpt.QStyleOption::operator=(*opt);
             buttonOpt.state = State_Enabled | State_Raised;
-            drawPrimitive(PE_PanelButtonBevel, &buttonOpt, p, widget);
+
+            QPalette pal(opt->palette);
+            pal.setColor(QPalette::Button, opt->palette.light().color());
+            pal.setColor(QPalette::Light, opt->palette.button().color());
+            qDrawWinButton(p, opt->rect, pal, false, &opt->palette.brush(QPalette::Button));
         }
         break;
 #endif // QT_NO_SCROLLBAR
