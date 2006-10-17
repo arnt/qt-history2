@@ -568,6 +568,21 @@ QDateTimeEdit::Section QDateTimeEdit::sectionAt(int index) const
     return d->convertToPublic(d->sectionType(index));
 }
 
+/*!
+  \since 4.3
+
+  \property QDateTimeEdit::sectionCount
+
+  \brief the number of sections displayed.
+  If the format is 'yyyy/yy/yyyy', sectionCount returns 3
+*/
+
+int QDateTimeEdit::sectionCount() const
+{
+    Q_D(const QDateTimeEdit);
+    return d->sectionNodes.size();
+}
+
 
 /*!
   \since 4.3
