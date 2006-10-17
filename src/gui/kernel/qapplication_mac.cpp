@@ -976,7 +976,7 @@ void qt_init(QApplicationPrivate *priv, int)
             app_proc_ae_handlerUPP = AEEventHandlerUPP(QApplicationPrivate::globalAppleEventProcessor);
             for(uint i = 0; i < sizeof(app_apple_events) / sizeof(QMacAppleEventTypeSpec); ++i)
                 AEInstallEventHandler(app_apple_events[i].mac_class, app_apple_events[i].mac_id,
-                                      app_proc_ae_handlerUPP, SRefCon(qApp), true);
+                                      app_proc_ae_handlerUPP, QT_MAC_POINTER_REFCON(qApp), true);
         }
 
         if(QApplicationPrivate::app_style) {
@@ -1979,7 +1979,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                                   sizeof(nr), 0, &nr);
 
             QRect newRect(nr.left, nr.top, nr.right - nr.left, nr.bottom - nr.top);
- 
+
             QTLWExtra * const tlwExtra = reinterpret_cast<QETWidget*>(static_cast<QWidget*>(widget))->maybeTopData();
             if (tlwExtra && tlwExtra->isSetGeometry == 1) {
                 static_cast<QWidget*>(widget)->d_func()->setGeometry_sys_helper(

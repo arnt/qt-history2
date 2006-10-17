@@ -58,15 +58,15 @@
 
 /*
     Helper class that automates refernce counting for CFtypes.
-    After constructing the QCFType object, it can be copied like a 
-    value-based type. 
-    
+    After constructing the QCFType object, it can be copied like a
+    value-based type.
+
     Note that you must own the object you are wrapping.
-    This is typically the case if you get the object from a Core 
-    Foundation function with the word "Create" or "Copy" in it. If 
-    you got the object from a "Get" function, either retain it or use 
-    constructFromGet(). One exception to this rule is the 
-    HIThemeGet*Shape functions, which in reality are "Copy" functions. 
+    This is typically the case if you get the object from a Core
+    Foundation function with the word "Create" or "Copy" in it. If
+    you got the object from a "Get" function, either retain it or use
+    constructFromGet(). One exception to this rule is the
+    HIThemeGet*Shape functions, which in reality are "Copy" functions.
 */
 template <typename T>
 class Q_CORE_EXPORT QCFType
@@ -89,7 +89,7 @@ public:
     inline T *operator&() { return &type; }
     static QCFType constructFromGet(const T &t)
     {
-        CFRetain(t);  
+        CFRetain(t);
         return QCFType<T>(t);
     }
 protected:
@@ -109,5 +109,11 @@ public:
 private:
     QString string;
 };
+
+#ifdef __LP64__
+# define QT_MAC_POINTER_REFCON(x) SRefCon(x)
+#else
+# define QT_MAC_POINTER_REFCON(x) (long)x
+#endif
 
 #endif // QCORE_MAC_P_H
