@@ -382,6 +382,10 @@ static inline QPainterPath strokeForPath(const QPainterPath &path, const QPen &c
 #define GL_DECR_WRAP_EXT 0x8508
 #endif
 
+#ifndef GL_TEXTURE0
+#define GL_TEXTURE0 0x84C0
+#endif
+
 #ifndef GL_TEXTURE1
 #define GL_TEXTURE1 0x84C1
 #endif
