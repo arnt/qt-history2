@@ -86,9 +86,6 @@ private slots:
     void setCurrentSection();
     void setCurrentSection_data();
 
-    void setCurrentSectionIndex();
-    void setCurrentSectionIndex_data();
-
     void minimumDate_data();
     void minimumDate();
     void maximumDate_data();
@@ -144,6 +141,10 @@ private slots:
 
 #if QT_VERSION >= 0x040200
     void setSelectedSection();
+    void setCurrentSectionIndex();
+    void setCurrentSectionIndex_data();
+    void sectionCount_data();
+    void sectionCount();
 #endif
 private:
     EditorDateEdit* testWidget;
@@ -2644,6 +2645,24 @@ void tst_QDateTimeEdit::setCurrentSectionIndex()
         QCOMPARE(testWidget->lineEdit()->cursorPosition(), expectedCursorPositions.at(i));
     }
 }
+
+void tst_QDateTimeEdit::sectionCount_data()
+{
+    QTest::addColumn<QString>("format");
+    QTest::addColumn<int>("expectedSectionCount");
+    QTest::newRow("yyyy/123/MM") << QString("yyyy/123/MM") << 2;
+    QTest::newRow("yyyy/yy/yyyy") << QString("yyyy/yy/yyyy") << 3;
+    QTest::newRow("h hh hhh hhhh") << QString("h hh hhh hhhh") << 6;
+}
+
+void tst_QDateTimeEdit::sectionCount()
+{
+    QFETCH(QString, format);
+    QFETCH(int, expectedSectionCount);
+    testWidget->setDisplayFormat(format);
+    QCOMPARE(testWidget->sectionCount(), expectedSectionCount);
+}
+
 
 
 #endif
