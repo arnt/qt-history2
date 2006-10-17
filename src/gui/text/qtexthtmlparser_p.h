@@ -230,6 +230,8 @@ struct QTextHtmlParserNode {
 
     void applyCssDeclarations(const QVector<QCss::Declaration> &declarations, const QTextDocument *resrouceProvider);
 
+    bool hasOnlyWhitespace() const;
+
     int margin[4];
     friend class QTextHtmlParser;
 };

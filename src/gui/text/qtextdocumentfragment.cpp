@@ -548,8 +548,8 @@ void QTextHtmlImporter::import()
         if (blockTagClosed
             && !hasBlock
             && !node->isBlock()
-            && !node->text.isEmpty()
-            && node->displayMode != QTextHtmlElement::DisplayNone) {
+            && !node->text.isEmpty() && !node->hasOnlyWhitespace()
+            && node->displayMode == QTextHtmlElement::DisplayInline) {
 
             QTextBlockFormat block = node->blockFormat();
             block.setIndent(indent);
@@ -675,8 +675,6 @@ void QTextHtmlImporter::import()
             setNamedAnchorInNextOutput = true;
             namedAnchor = node->anchorName;
         }
-        if (node->text.isEmpty())
-            continue;
 
         if (appendNodeText(i))
             hasBlock = false; // if we actually appended text then we don't
@@ -824,6 +822,7 @@ bool QTextHtmlImporter::closeTag(int i)
             if (!t.isTextFrame)
                 ++tables.last().currentCell;
             blockTagClosed = true;
+            compressNextWhitespace = true;
         } else if (closedNode->isListStart() && !lists.isEmpty()) {
             lists.resize(lists.size() - 1);
             --indent;

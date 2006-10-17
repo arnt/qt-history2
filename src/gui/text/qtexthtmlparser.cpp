@@ -1370,6 +1370,14 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
     }
 }
 
+bool QTextHtmlParserNode::hasOnlyWhitespace() const
+{
+    for (int i = 0; i < text.count(); ++i)
+        if (!text.at(i).isSpace())
+            return false;
+    return true;
+}
+
 static bool setIntAttribute(int *destination, const QString &value)
 {
     bool ok = false;
