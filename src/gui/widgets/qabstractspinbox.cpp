@@ -1569,6 +1569,8 @@ void QAbstractSpinBoxPrivate::setValue(const QVariant &val, EmitPolicy ep,
 void QAbstractSpinBoxPrivate::updateEdit()
 {
     Q_Q(QAbstractSpinBox);
+    if (type == QVariant::Invalid)
+        return;
     const QString newText = specialValue() ? specialValueText : prefix + textFromValue(value) + suffix;
     if (newText == edit->displayText())
         return;
