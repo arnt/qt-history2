@@ -113,6 +113,8 @@ public:
     QAction *aboutQtAction() const;
     QAction *aboutDesignerAction() const;
 
+    virtual bool eventFilter(QObject *watched, QEvent *event);
+
 public slots:
     void activeFormWindowChanged(QDesignerFormWindowInterface *formWindow);
     void createForm();
