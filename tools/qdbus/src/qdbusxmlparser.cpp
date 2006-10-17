@@ -49,7 +49,7 @@ parseAnnotations(const QDomElement& elem)
 }
 
 static QDBusIntrospection::Arguments
-parseArgs(const QDomElement& elem, const QLatin1String& direction, bool acceptEmpty = false)
+parseArgs(const QDomElement& elem, const QLatin1String& direction, bool acceptEmpty)
 {
     QDBusIntrospection::Arguments retval;
     QDomNodeList list = elem.elementsByTagName(QLatin1String("arg"));
@@ -143,8 +143,8 @@ QDBusXmlParser::interfaces() const
             methodData.name = methodName;
 
             // parse arguments
-            methodData.inputArgs = parseArgs(method, QLatin1String("in"));
-            methodData.outputArgs = parseArgs(method, QLatin1String("out"));
+            methodData.inputArgs = parseArgs(method, QLatin1String("in"), true);
+            methodData.outputArgs = parseArgs(method, QLatin1String("out"), false);
             methodData.annotations = parseAnnotations(method);
 
             // add it
