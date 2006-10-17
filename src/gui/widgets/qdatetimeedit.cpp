@@ -551,6 +551,54 @@ void QDateTimeEdit::setCurrentSection(Section section)
 }
 
 /*!
+  \since 4.3
+
+  Returns the Section at \a index.
+
+  If the format is 'yyyy/MM/dd', sectionAt(0) returns YearSection,
+  sectionAt(1) returns MonthSection, and sectionAt(2) returns
+  YearSection,
+*/
+
+QDateTimeEdit::Section QDateTimeEdit::sectionAt(int index) const
+{
+    Q_D(const QDateTimeEdit);
+    if (index < 0 || index >= d->sectionNodes.size())
+        return NoSection;
+    return d->convertToPublic(d->sectionType(index));
+}
+
+
+/*!
+  \since 4.3
+
+  \property QDateTimeEdit::currentSectionIndex
+
+  \brief the current section index of the spinbox
+
+  If the format is 'yyyy/MM/dd', the displayText is '2001/05/21' and
+  the cursorPosition is 5 currentSectionIndex returns 1. If the
+  cursorPosition is 3 currentSectionIndex is 0 etc.
+
+  \a setCurrentSection()
+  \sa currentSection()
+*/
+
+int QDateTimeEdit::currentSectionIndex() const
+{
+    Q_D(const QDateTimeEdit);
+    return d->currentSectionIndex;
+}
+
+void QDateTimeEdit::setCurrentSectionIndex(int index)
+{
+    Q_D(QDateTimeEdit);
+    if (index < 0 || index >= d->sectionNodes.size())
+        return;
+    d->edit->setCursorPosition(d->sectionPos(index));
+}
+
+/*!
   \since 4.2
 
   Selects \a section. If \a section doesn't exist in the currently

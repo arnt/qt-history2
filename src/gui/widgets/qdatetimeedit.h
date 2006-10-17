@@ -43,7 +43,7 @@ class Q_GUI_EXPORT QDateTimeEdit : public QAbstractSpinBox
     Q_PROPERTY(Sections displayedSections READ displayedSections)
     Q_PROPERTY(QString displayFormat READ displayFormat WRITE setDisplayFormat)
     Q_PROPERTY(bool calendarPopup READ calendarPopup WRITE setCalendarPopup)
-
+    Q_PROPERTY(int currentSectionIndex READ currentSectionIndex WRITE setCurrentSectionIndex)
 public:
     enum Section {
         NoSection = 0x0000,
@@ -92,7 +92,11 @@ public:
 
     Sections displayedSections() const;
     Section currentSection() const;
+    Section sectionAt(int index) const;
     void setCurrentSection(Section section);
+
+    int currentSectionIndex() const;
+    void setCurrentSectionIndex(int index);
 
     void setSelectedSection(Section section);
 
