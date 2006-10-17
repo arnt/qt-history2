@@ -910,7 +910,6 @@ bool QIBaseResult::exec()
                 *((ISC_TIME*)d->inda->sqlvar[para].sqldata) = toTime(val.toTime());
                 break;
             case SQL_TYPE_DATE:
-                qDebug() << "bindig date";
                 *((ISC_DATE*)d->inda->sqlvar[para].sqldata) = toDate(val.toDate());
                 break;
             case SQL_VARYING:
