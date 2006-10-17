@@ -384,7 +384,7 @@ void QScrollBarPrivate::init()
 /*! \reimp */
 void QScrollBar::contextMenuEvent(QContextMenuEvent *event)
 {
-    if (!style()->styleHint(QStyle::SH_ScrollBar_ContextMenu)) {
+    if (!style()->styleHint(QStyle::SH_ScrollBar_ContextMenu, 0, this)) {
         QAbstractSlider::contextMenuEvent(event);
         return ;
     }
