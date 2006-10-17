@@ -1107,7 +1107,7 @@ void QWidgetPrivate::createWindow_sys()
     }
 
     Rect r;
-    SetRect(&r, data.crect.left(), data.crect.top(), data.crect.right(), data.crect.bottom());
+    SetRect(&r, data.crect.left(), data.crect.top(), data.crect.right() + 1, data.crect.bottom() + 1);
     data.fstrut_dirty = true;
     WindowRef windowRef = 0;
     if (OSStatus ret = qt_mac_create_window(topExtra->wclass, wattr, &r, &windowRef))
@@ -1907,11 +1907,9 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
                             bounds.bottom - bounds.top);
                 if(orect != nrect) { // no real point..
                     Rect oldr;
-                    if(QTLWExtra *tlextra = d->topData())
-                        SetRect(&oldr, tlextra->normalGeometry.left(), tlextra->normalGeometry.top(),
-                                tlextra->normalGeometry.right()+1, tlextra->normalGeometry.bottom()+1);
-                    else
-                        SetRect(&oldr, orect.x(), orect.y(), orect.right(), orect.bottom());
+                    QTLWExtra *tlextra = d->topData();
+                    SetRect(&oldr, tlextra->normalGeometry.left(), tlextra->normalGeometry.top(),
+                        tlextra->normalGeometry.right() + 1, tlextra->normalGeometry.bottom() + 1);
                     SetWindowUserState(window, &oldr);
 
                     SetWindowStandardState(window, &bounds);
@@ -2121,10 +2119,33 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 {
     Q_Q(QWidget);
     Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
+
+    if(q->windowType() == Qt::Desktop)
+        return;
+
+    // Special case for resizing a window: call SetWindowBounds which will
+    // send us a kWindowBoundsChangeSizeChanged event, whose handler  
+    // calls setGeometry_sys_helper(). 
+    // The reason for doing it this way is that SetWindowBounds 
+    // repaints the window immediately and the only way we can send our resize
+    // events at the proper time (after the window has been resized but before 
+    // the paint) is to handle the BoundsChange event.
+    if (q->isWindow()) {
+        topData()->isSetGeometry = 1;
+        topData()->isMove = isMove;
+        Rect r; SetRect(&r, x, y, x + w, y + h);
+        SetWindowBounds(qt_mac_window_for(q), kWindowContentRgn, &r);
+        topData()->isSetGeometry = 0;
+    } else {
+        setGeometry_sys_helper(x, y, w, h, isMove);
+    }
+}
+
+void QWidgetPrivate::setGeometry_sys_helper(int x, int y, int w, int h, bool isMove)
+{
+    Q_Q(QWidget);
     if(q->isWindow() && isMove)
         topData()->is_moved = 1;
-    if((q->windowType() == Qt::Desktop))
-        return;
     if(QWExtra *extra = extraData()) {        // any size restrictions?
         if(q->isWindow()) {
             WindowPtr window = qt_mac_window_for(q);
@@ -2171,14 +2192,9 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     data.crect = QRect(x, y, w, h);
 
     if(q->isWindow()) {
-        //update the widget also..
+        //update the widget.
         HIRect bounds = CGRectMake(0, 0, w, h);
         HIViewSetFrame(qt_mac_hiview_for(q), &bounds);
-
-        Rect r; SetRect(&r, x, y, x+w, y+h);
-        HIViewSetDrawingEnabled(qt_mac_hiview_for(q), false);
-        SetWindowBounds(qt_mac_window_for(q), kWindowContentRgn, &r);
-        HIViewSetDrawingEnabled(qt_mac_hiview_for(q), true);
     } else {
         setWSGeometry();
     }
@@ -2301,6 +2317,7 @@ void QWidgetPrivate::createTLSysExtra()
     extra->topextra->group = 0;
     extra->topextra->is_moved = 0;
     extra->topextra->resizer = 0;
+    extra->topextra->isSetGeometry = 0;
 }
 
 void QWidgetPrivate::deleteTLSysExtra()

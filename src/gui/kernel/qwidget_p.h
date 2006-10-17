@@ -98,6 +98,8 @@ struct QTLWExtra {
     WindowGroupRef group;
     uint is_moved: 1;
     uint resizer : 4;
+    uint isSetGeometry : 1;
+    uint isMove : 1;
 #endif
 #if defined(Q_WS_QWS) && !defined (QT_NO_QWS_MANAGER)
     QWSManager *qwsManager;
@@ -263,6 +265,9 @@ public:
     void setParent_sys(QWidget *parent, Qt::WindowFlags);
     void deactivateWidgetCleanup();
     void setGeometry_sys(int, int, int, int, bool);
+#ifdef Q_WS_MAC
+    void setGeometry_sys_helper(int, int, int, int, bool);
+#endif
     void show_recursive();
     void show_helper();
     void show_sys();
