@@ -1246,9 +1246,11 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             p->save();
 #ifdef Q_WS_WIN
             QFont font("Marlett");
-            font.setPixelSize(opt->rect.height());
+            int size = qMin(opt->rect.height(), opt->rect.width());
+            font.setPixelSize(size);
             p->setFont(font);
-            QRect textRect = opt->rect;
+            QRect textRect(opt->rect.left(), opt->rect.height(), size, size);
+            textRect.moveCenter(opt->rect.center());
 
             if (opt->state & State_Sunken)
                 p->translate(pixelMetric(PM_ButtonShiftHorizontal),
@@ -2400,7 +2402,6 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 QPalette palette = dwOpt->palette;
                 palette.setColor(QPalette::Window, inactiveCaptionTextColor);
                 bool active = dwOpt->state & State_Active;
-                const int indent = p->fontMetrics().descent();
                 QRect titleRect = subElementRect(SE_DockWidgetTitleBarText, opt, widget);
                 drawItemText(p, titleRect,
                             Qt::AlignLeft | Qt::AlignVCenter, palette,
@@ -2889,6 +2890,84 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
         }
         break;
 #endif // QT_NO_COMBOBOX
+#ifndef QT_NO_SPINBOX
+    case CC_SpinBox:
+        if (const QStyleOptionSpinBox *sb = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
+            QStyleOptionSpinBox copy = *sb;
+            PrimitiveElement pe;
+
+            if (sb->frame && (sb->subControls & SC_SpinBoxFrame)) {
+                QRect r = subControlRect(CC_SpinBox, sb, SC_SpinBoxFrame, widget);
+                qDrawWinPanel(p, r, sb->palette, true);
+            }
+
+            QPalette shadePal(opt->palette);
+            shadePal.setColor(QPalette::Button, opt->palette.light().color());
+            shadePal.setColor(QPalette::Light, opt->palette.button().color());
+                    
+            if (sb->subControls & SC_SpinBoxUp) {
+                copy.subControls = SC_SpinBoxUp;
+                QPalette pal2 = sb->palette;
+                if (!(sb->stepEnabled & QAbstractSpinBox::StepUpEnabled)) {
+                    pal2.setCurrentColorGroup(QPalette::Disabled);
+                    copy.state &= ~State_Enabled;
+                }
+
+                copy.palette = pal2;
+
+                if (sb->activeSubControls == SC_SpinBoxUp && (sb->state & State_Sunken)) {
+                    copy.state |= State_On;
+                    copy.state |= State_Sunken;
+                } else {
+                    copy.state |= State_Raised;
+                    copy.state &= ~State_Sunken;
+                }
+                pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinPlus
+                                                                       : PE_IndicatorSpinUp);
+
+                copy.rect = subControlRect(CC_SpinBox, sb, SC_SpinBoxUp, widget);
+                qDrawWinButton(p, copy.rect, shadePal, copy.state & (State_Sunken | State_On),
+                                &copy.palette.brush(QPalette::Button));
+                copy.rect.adjust(3, 0, -4, 0);
+                drawPrimitive(pe, &copy, p, widget);
+            }
+
+            if (sb->subControls & SC_SpinBoxDown) {
+                copy.subControls = SC_SpinBoxDown;
+                copy.state = sb->state;
+                QPalette pal2 = sb->palette;
+                if (!(sb->stepEnabled & QAbstractSpinBox::StepDownEnabled)) {
+                    pal2.setCurrentColorGroup(QPalette::Disabled);
+                    copy.state &= ~State_Enabled;
+                }
+                copy.palette = pal2;
+
+                if (sb->activeSubControls == SC_SpinBoxDown && (sb->state & State_Sunken)) {
+                    copy.state |= State_On;
+                    copy.state |= State_Sunken;
+                } else {
+                    copy.state |= State_Raised;
+                    copy.state &= ~State_Sunken;
+                }
+                pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinMinus
+                                                                       : PE_IndicatorSpinDown);
+
+                copy.rect = subControlRect(CC_SpinBox, sb, SC_SpinBoxDown, widget);
+                qDrawWinButton(p, copy.rect, shadePal, copy.state & (State_Sunken | State_On),
+                                &copy.palette.brush(QPalette::Button));
+                
+                copy.rect.adjust(3, 0, -4, 0);
+                if (pe == PE_IndicatorArrowUp || pe == PE_IndicatorArrowDown) {
+                    copy.rect = copy.rect.adjusted(1, 1, -1, -1);
+                    drawPrimitive(pe, &copy, p, widget);
+                }
+                else {
+                    drawPrimitive(pe, &copy, p, widget);
+                }
+            }
+        }
+        break;
+#endif // QT_NO_SPINBOX
     default:
         QCommonStyle::drawComplexControl(cc, opt, p, widget);
     }
