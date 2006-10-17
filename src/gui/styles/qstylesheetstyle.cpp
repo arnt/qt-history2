@@ -1069,15 +1069,11 @@ void QRenderRule::drawImage(QPainter *p, const QRect &rect)
 {
     if (!hasImage())
         return;
-    if (geo && QSize(geo->width, geo->height).isValid()) {
-        // align center if we had a width, height set
-        QRect aligned = QStyle::alignedRect(Qt::LeftToRight, QFlag(Qt::AlignCenter), imageRect.size(), rect);
-        QRect inter = aligned.intersected(rect);
-        p->drawPixmap(inter.x(), inter.y(), image, imageRect.x() + inter.x() - aligned.x(),
-                      imageRect.y() + inter.y() - aligned.y(), inter.width(), inter.height());
-    } else {
-        p->drawPixmap(rect, image, imageRect);
-    }
+    // draw center aligned
+    QRect aligned = QStyle::alignedRect(Qt::LeftToRight, QFlag(Qt::AlignCenter), imageRect.size(), rect);
+    QRect inter = aligned.intersected(rect);
+    p->drawPixmap(inter.x(), inter.y(), image, imageRect.x() + inter.x() - aligned.x(),
+                  imageRect.y() + inter.y() - aligned.y(), inter.width(), inter.height());
 }
 
 void QRenderRule::drawRule(QPainter *p, const QRect& rect)
