@@ -1,3 +1,5 @@
+  * properties
+
   * generate proper links between modules (core, gui)
   * no link to class itself
   * add // C++

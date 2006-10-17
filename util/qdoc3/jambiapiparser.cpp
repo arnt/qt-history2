@@ -202,7 +202,7 @@ bool JambiApiParser::startElement(const QString & /* namespaceURI */,
             setPass1JambifiedDoc(info.javaNode, info.cppNode);
         }
         classAndEnumStack.push(info);
-    } else if (qName == "method") {
+    } else if (qName == "method" || qName == "signal") {
         QString javaSignature = attributes.value("java");
         if (javaSignature.startsWith("private"))
             return true;
@@ -230,6 +230,9 @@ bool JambiApiParser::startElement(const QString & /* namespaceURI */,
         FunctionNode *javaNode;
         if (makeFunctionNode(javaParent, javaSignature, &javaNode)) {
             javaNode->setLocation(japiLocation);
+            if (qName == "signal")
+                javaNode->setMetaness(FunctionNode::Signal);
+
             if (cppNode) {
                 setStatus(javaNode, cppNode);
 

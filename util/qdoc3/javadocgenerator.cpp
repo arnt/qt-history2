@@ -2,7 +2,8 @@
 
 enum JavaSignatureSyntax {
     GeneratedJdocFile,
-    JavadocRef
+    JavadocRef,
+    SlotSignature
 };
 
 static QString javaSignature(const FunctionNode *func, JavaSignatureSyntax syntax)
@@ -10,8 +11,6 @@ static QString javaSignature(const FunctionNode *func, JavaSignatureSyntax synta
     QString result;
 
     if (syntax == GeneratedJdocFile) {
-        // ### @Deprecated?
-
         if (func->access() == Node::Public) {
             result += "public ";
         } else if (func->access() == Node::Protected) {
@@ -37,13 +36,17 @@ static QString javaSignature(const FunctionNode *func, JavaSignatureSyntax synta
         }
     }
 
-    result += func->name();
+    if (syntax == SlotSignature) {
+        result += "void mySlot";
+    } else {
+        result += func->name();
+    }
     result += '(';
     for (int i = 0; i < func->parameters().count(); ++i) {
         if (i != 0)
             result += ", ";
         result += func->parameters().at(i).leftType();
-        if (syntax == GeneratedJdocFile) {
+        if (syntax != JavadocRef) {
             result += ' ';
             result += func->parameters().at(i).name();
         }
@@ -94,7 +97,8 @@ QString JavadocGenerator::fileExtension(const Node *node)
 QString JavadocGenerator::typeString(const Node *node)
 {
     if (node->type() == Node::Function) {
-        return "method";
+        const FunctionNode *func = static_cast<const FunctionNode *>(node);
+        return func->metaness() == FunctionNode::Signal ? "signal" : "method";
     } else {
         return HtmlGenerator::typeString(node);
     }
@@ -161,17 +165,18 @@ void JavadocGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker 
                     const EnumItem &item = items.at(i);
                     generateIndent();
                     out() << "<enum-value name=\"" << protect(item.name()) << "\"";
-                    generateDoc(item.text(), enume, marker);
+                    generateEnumItemDoc(item.text(), enume, marker);
                     out() << "/>\n";
                 }
                 --currentDepth;
 
                 out() << "</enum>\n";
             } else if (node->type() == Node::Function) {
+                FunctionNode *func = static_cast<FunctionNode *>(node);
                 generateIndent();
-                out() << "<method name=\""
-                      << protect(javaSignature(static_cast<FunctionNode *>(node),
-                                               GeneratedJdocFile))
+                out() << (func->metaness() == FunctionNode::Signal ? "<signal" : "<method")
+                      << " name=\""
+                      << protect(javaSignature(func, GeneratedJdocFile))
                       << "\"";
                 generateDoc(node, marker);
                 out() << "/>\n";
@@ -263,13 +268,26 @@ void JavadocGenerator::generateDoc(const Node *node, CodeMarker *marker)
         out() << " doc=\"/**\n";
         Generator::generateStatus(node, marker);
         generateText(text, node, marker);
+        if (node && node->type() == Node::Function) {
+            const FunctionNode *func = static_cast<const FunctionNode *>(node);
+            if (func->metaness() == FunctionNode::Signal) {
+                QString slotSignature = javaSignature(func, GeneratedJdocFile);
+                
+                // ### could add several signatures
+                Text text;
+                text << Atom::ParaLeft << "Compatible slot signature:" << Atom::ParaRight
+                     << Atom(Atom::Code,
+                             marker->markedUpCode(javaSignature(func, SlotSignature), 0, ""));
+                generateText(text, node, marker);
+            }
+        }
         if (node)
             generateAlsoList(node, marker);
         out() << " */\"";
     }
 }
 
-void JavadocGenerator::generateDoc(const Text &text, const Node *node, CodeMarker *marker)
+void JavadocGenerator::generateEnumItemDoc(const Text &text, const Node *node, CodeMarker *marker)
 {
     out() << " doc=\"/**\n";
     if (text.isEmpty()) {
