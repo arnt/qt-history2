@@ -65,8 +65,10 @@ private:
     class Object;
     static Object *block;
 public:
-    QMacBlockingFunction();
-    ~QMacBlockingFunction();
+    inline QMacBlockingFunction()  { addRef(); }
+    inline ~QMacBlockingFunction() { subRef(); }
+    static void addRef();
+    static void subRef();
     static bool blocking() { return block != 0; }
 };
 

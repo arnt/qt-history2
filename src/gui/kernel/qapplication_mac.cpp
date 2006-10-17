@@ -132,7 +132,6 @@ static bool        appNoGrab        = false;        // mouse/keyboard grabbing
 static bool qt_mac_press_and_hold_context = false;
 static EventLoopTimerRef mac_context_timer = 0;
 static EventLoopTimerUPP mac_context_timerUPP = 0;
-static DMExtendedNotificationUPP mac_display_changeUPP = 0;
 static EventHandlerRef app_proc_handler = 0;
 static EventHandlerUPP app_proc_handlerUPP = 0;
 static AEEventHandlerUPP app_proc_ae_handlerUPP = NULL;
@@ -162,9 +161,15 @@ extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
 extern void qt_mac_command_set_enabled(MenuRef, UInt32, bool); //qmenu_mac.cpp
 
 /* Resolution change magic */
-static void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
+static void qt_mac_display_change_callbk(CGDirectDisplayID, CGDisplayChangeSummaryFlags flags, void *)
 {
-    if(msg == kDMNotifyEvent && qApp) {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+    const bool resized = flags & kCGDisplayDesktopShapeChangedFlag;
+#else
+    Q_UNUSED(flags);
+    const bool resized = true;
+#endif
+    if(resized && qApp) {
         if(QDesktopWidget *dw = qApp->desktop()) {
             QResizeEvent *re = new QResizeEvent(dw->size(), dw->size());
             QApplication::postEvent(dw, re);
@@ -831,6 +836,16 @@ static EventTypeSpec app_events[] = {
     { kEventClassWindow, kEventWindowHidden },
     { kEventClassWindow, kEventWindowBoundsChanging },
     { kEventClassWindow, kEventWindowExpanded },
+    { kEventClassWindow, kEventWindowClosed },
+    { kEventClassWindow, kEventWindowZoomed },
+    { kEventClassWindow, kEventWindowCollapsed },
+    { kEventClassWindow, kEventWindowToolbarSwitchMode },
+    { kEventClassWindow, kEventWindowProxyBeginDrag },
+    { kEventClassWindow, kEventWindowProxyEndDrag },
+    { kEventClassWindow, kEventWindowResizeStarted },
+    { kEventClassWindow, kEventWindowResizeCompleted },
+    { kEventClassWindow, kEventWindowDragStarted },
+    { kEventClassWindow, kEventWindowDragCompleted },
 
     { kEventClassMouse, kEventMouseWheelMoved },
     { kEventClassMouse, kEventMouseDown },
@@ -896,16 +911,11 @@ bool qt_sendSpontaneousEvent(QObject *obj, QEvent *event)
 void qt_init(QApplicationPrivate *priv, int)
 {
     if(qt_is_gui_used) {
+        CGDisplayRegisterReconfigurationCallback(qt_mac_display_change_callbk, 0);
         ProcessSerialNumber psn;
         if(GetCurrentProcess(&psn) == noErr) {
-            if(!mac_display_changeUPP) {
-                mac_display_changeUPP = NewDMExtendedNotificationUPP(qt_mac_display_change_callbk);
-                DMRegisterExtendedNotifyProc(mac_display_changeUPP, 0, 0, &psn);
-            }
-#ifdef Q_WS_MAC
             TransformProcessType(&psn, kProcessTransformToForegroundApplication);
             SetFrontProcess(&psn);
-#endif
         }
     }
 
@@ -994,15 +1004,7 @@ void qt_init(QApplicationPrivate *priv, int)
 
 void qt_cleanup()
 {
-    if (mac_display_changeUPP) {
-        ProcessSerialNumber psn;
-        if(GetCurrentProcess(&psn) == noErr) {
-            DMRemoveExtendedNotifyProc(mac_display_changeUPP, 0, &psn, kNilOptions);
-            DisposeDMExtendedNotificationUPP(mac_display_changeUPP);
-            mac_display_changeUPP = 0;
-        }
-    }
-
+    CGDisplayRemoveReconfigurationCallback(qt_mac_display_change_callbk, 0);
     qt_release_app_proc_handler();
     if(app_proc_handlerUPP) {
         DisposeEventHandlerUPP(app_proc_handlerUPP);
@@ -1116,7 +1118,9 @@ static QWidget *qt_mac_recursive_widgetAt(QWidget *widget, int x, int y)
 
 void QApplication::beep()
 {
+#ifndef __LP64__
     SysBeep(0);
+#endif
 }
 
 
@@ -1124,170 +1128,6 @@ void QApplication::beep()
   Main event loop
  *****************************************************************************/
 
-/*!
-    \internal
-*/
-bool QApplicationPrivate::do_mouse_down(const QPoint &pt, bool *mouse_down_unhandled)
-{
-    Q_Q(QApplication);
-    //find the widget/part
-    QWidget *widget = 0;
-    short windowPart = qt_mac_window_at(pt.x(), pt.y(), &widget);
-
-    //close down the popups
-    int popup_close_count = 0;
-    if(inPopupMode() && widget != q->activePopupWidget()) {
-        while(inPopupMode()) {
-            q->activePopupWidget()->close();
-            ++popup_close_count;
-            if(windowPart == inContent)
-                break;
-        }
-    }
-
-    //handle the down
-    if(mouse_down_unhandled)
-        (*mouse_down_unhandled) = false;
-    if(windowPart == inMenuBar) {
-        Point mac_pt;
-        mac_pt.h = pt.x();
-        mac_pt.v = pt.y();
-        QMacBlockingFunction block;
-        MenuSelect(mac_pt); //allow menu tracking
-        return false;
-    } else if(!widget) {
-        if(mouse_down_unhandled)
-            (*mouse_down_unhandled) = true;
-        return false;
-    } else if(windowPart != inGoAway && windowPart != inCollapseBox) {
-        if(!(GetCurrentKeyModifiers() & cmdKey)) {
-            widget->raise();
-            if(widget->isWindow() && widget->windowType() != Qt::Desktop
-               && widget->windowType() != Qt::Popup && !qt_mac_is_macsheet(widget)
-               && (widget->isModal() || !::qobject_cast<QDockWidget *>(widget))) {
-                const bool wasActive = widget->window()->isActiveWindow();
-                if(!wasActive && windowPart == inContent) {
-                    HIViewRef child;
-                    const HIPoint hiPT = CGPointMake(pt.x() - widget->geometry().x(), pt.y() - widget->geometry().y());
-                    Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
-                    bool clickThrough = true;
-                    if(HIViewGetSubviewHit((HIViewRef)widget->internalWinId(), &hiPT, true, &child) == noErr && child) {
-                        QWidget *w = QWidget::find((WId)child);
-                        if(!qt_mac_can_clickThrough(w))
-                            clickThrough = false;
-                    } else if(!qt_mac_can_clickThrough(widget)) {
-                        clickThrough = false;
-                    }
-                    if(!clickThrough) {
-                        if(mouse_down_unhandled)
-                            (*mouse_down_unhandled) = true;
-                        return false;
-                    }
-                }
-            }
-        }
-    }
-    if(windowPart == inContent)
-        return !popup_close_count; //just return and let the event loop process
-
-    WindowPtr window = qt_mac_window_for(widget);
-    if(windowPart == inGoAway || windowPart == inCollapseBox ||
-       windowPart == inZoomIn || windowPart == inZoomOut
-       || windowPart == inToolbarButton) {
-        Point mac_pt;
-        mac_pt.h = pt.x();
-        mac_pt.v = pt.y();
-        QMacBlockingFunction block;
-        if(!TrackBox(window, mac_pt, windowPart))
-            return false;
-    }
-
-    switch(windowPart) {
-    case inStructure:
-    case inDesk:
-        break;
-    case inGoAway:
-        widget->d_func()->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
-        break;
-    case inToolbarButton: {
-        QToolBarChangeEvent ev(!(GetCurrentKeyModifiers() & cmdKey));
-        QApplication::sendSpontaneousEvent(widget, &ev);
-        break; }
-    case inProxyIcon: {
-        QIconDragEvent e;
-        QApplication::sendSpontaneousEvent(widget, &e);
-        if(e.isAccepted())
-            break;
-        //fall through if not accepted
-        }
-    case inDrag: {
-        {
-            Point mac_pt;
-            mac_pt.h = pt.x();
-            mac_pt.v = pt.y();
-            QMacBlockingFunction block;
-            DragWindow(window, mac_pt, 0);
-        }
-        QPoint np, op(widget->data->crect.x(), widget->data->crect.y());
-        {
-#ifdef __LP64__
-            np = widget->mapToGlobal(QPoint(0,0));
-#else
-            QMacSavedPortInfo savedInfo(widget);
-            Point p = { 0, 0 };
-            LocalToGlobal(&p);
-            np = QPoint(p.h, p.v);
-#endif
-        }
-        if(np != op)
-            widget->data->crect = QRect(np, widget->data->crect.size());
-        break; }
-    case inGrow: {
-        Rect limits;
-        SetRect(&limits, -2, 0, 0, 0);
-        if(QWExtra *extra = ((QETWidget*)widget)->extraData())
-            SetRect(&limits, extra->minw, extra->minh,
-                    extra->maxw < 32767 ? extra->maxw : 32767,
-                    extra->maxh < 32767 ? extra->maxh : 32767);
-        Rect growWindowSize;
-        Boolean success;
-        {
-            Point mac_pt;
-            mac_pt.h = pt.x();
-            mac_pt.v = pt.y();
-            QMacBlockingFunction block;
-            success = ResizeWindow(window, mac_pt, limits.left == -2 ? 0 : &limits, &growWindowSize);
-        }
-        if(success) {
-            // nw/nh might not match the actual size if setSizeIncrement is used
-            int nw = growWindowSize.right - growWindowSize.left;
-            int nh = growWindowSize.bottom - growWindowSize.top;
-            if(nw != widget->width() || nh != widget->height()) {
-                if(nw < q->desktop()->width() && nw > 0 && nh < q->desktop()->height() && nh > 0) {
-                    widget->resize(nw, nh);
-                }
-            }
-        }
-        break;
-    }
-    case inCollapseBox: {
-        widget->setWindowState(widget->windowState() | Qt::WindowMinimized);
-        //we send a hide to be like X11/Windows
-        QEvent e(QEvent::Hide);
-        QApplication::sendSpontaneousEvent(widget, &e);
-        break; }
-    case inZoomIn:
-        widget->setWindowState(widget->windowState() & ~Qt::WindowMaximized);
-        break;
-    case inZoomOut:
-        widget->setWindowState(widget->windowState() | Qt::WindowMaximized);
-        break;
-    default:
-        qDebug("Qt: internal: Unhandled case in mouse_down.. %d", windowPart);
-        break;
-    }
-    return false;
-}
 
 bool QApplicationPrivate::modalState()
 {
@@ -1356,9 +1196,8 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
         return true;
 
     bool block_event  = false;
-    bool paint_event = false;
 
-    UInt32 ekind = GetEventKind(event), eclass=GetEventClass(event);
+    UInt32 /*ekind = GetEventKind(event), */eclass=GetEventClass(event);
     switch(eclass) {
     case kEventClassMouse:
         if(!top->isActiveWindow())
@@ -1368,13 +1207,10 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
     case kEventClassKeyboard:
         block_event = true;
         break;
-    case kEventClassWindow:
-        paint_event = (ekind == kEventWindowUpdate);
-        break;
     }
 
     if((!QApplication::activeWindow() || QApplicationPrivate::isBlockedByModal(QApplication::activeWindow())) &&
-       top->isWindow() && (block_event || paint_event))
+       top->isWindow() && block_event)
         top->raise();
 
 #ifdef DEBUG_MODAL_EVENTS
@@ -1704,10 +1540,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         //This mouse button state stuff looks like this on purpose
         //although it looks hacky it is VERY intentional..
         if(widget && app_do_modal && !qt_try_modal(widget, event)) {
-            if(ekind == kEventMouseDown && qt_mac_is_macsheet(QApplication::activeModalWidget())) {
+            if(ekind == kEventMouseDown && qt_mac_is_macsheet(QApplication::activeModalWidget()))
                 QApplication::activeModalWidget()->parentWidget()->activateWindow(); //sheets have a parent
-                app->d_func()->do_mouse_down(QPoint(where.h, where.v), 0);
-            }
             break;
         }
 
@@ -1757,15 +1591,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         }
 
         if(ekind == kEventMouseDown) {
-            bool mouse_down_unhandled;
-            if(!app->d_func()->do_mouse_down(QPoint(where.h, where.v), &mouse_down_unhandled)) {
-                if(mouse_down_unhandled) {
-                    handled_event = false;
-                    break;
-                }
-                break;
-            }
-
+            if(!(GetCurrentKeyModifiers() & cmdKey))
+                widget->window()->raise();
             if(qt_mac_dblclick.last_widget &&
                qt_mac_dblclick.last_x != -1 && qt_mac_dblclick.last_y != -1 &&
                QRect(qt_mac_dblclick.last_x-2, qt_mac_dblclick.last_y-2, 4, 4).contains(QPoint(where.h, where.v))) {
@@ -1970,6 +1797,31 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             widget->setWindowState((widget->windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
             QShowEvent qse;
             QApplication::sendSpontaneousEvent(widget, &qse);
+        } else if(ekind == kEventWindowResizeStarted || ekind == kEventWindowDragStarted) {
+            QMacBlockingFunction::addRef();
+        } else if(ekind == kEventWindowResizeCompleted || ekind == kEventWindowDragCompleted) {
+            QMacBlockingFunction::subRef();
+        } else if(ekind == kEventWindowClosed) {
+            widget->d_func()->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
+        } else if(ekind == kEventWindowZoomed) {
+            UInt32 windowPart;
+            GetEventParameter(event, kEventParamWindowPartCode, typeWindowPartCode, 0,
+                                  sizeof(windowPart), 0, &windowPart);
+            if(windowPart == inZoomIn)
+                widget->setWindowState(widget->windowState() & ~Qt::WindowMaximized);
+            else if(windowPart == inZoomOut)
+                widget->setWindowState(widget->windowState() | Qt::WindowMaximized);
+        } else if(ekind == kEventWindowToolbarSwitchMode) {
+            QToolBarChangeEvent ev(!(GetCurrentKeyModifiers() & cmdKey));
+            QApplication::sendSpontaneousEvent(widget, &ev);
+        } else if(ekind == kEventWindowProxyBeginDrag) {
+            QIconDragEvent e;
+            QApplication::sendSpontaneousEvent(widget, &e);
+        } else if(ekind == kEventWindowCollapsed) {
+            widget->setWindowState(widget->windowState() | Qt::WindowMinimized);
+            //we send a hide to be like X11/Windows
+            QEvent e(QEvent::Hide);
+            QApplication::sendSpontaneousEvent(widget, &e);
         } else if(ekind == kEventWindowBoundsChanging) {
             UInt32 flags = 0;
             GetEventParameter(event, kEventParamAttributes, typeUInt32, 0,

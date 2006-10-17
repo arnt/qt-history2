@@ -608,13 +608,13 @@ protected:
     }
 };
 QMacBlockingFunction::Object *QMacBlockingFunction::block = 0;
-QMacBlockingFunction::QMacBlockingFunction()
+void QMacBlockingFunction::addRef()
 {
     if(!block)
         block = new QMacBlockingFunction::Object;
     block->addRef();
 }
-QMacBlockingFunction::~QMacBlockingFunction()
+void QMacBlockingFunction::subRef()
 {
     Q_ASSERT(block);
     if(!block->subRef()) {
