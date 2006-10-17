@@ -836,9 +836,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
         }
 
         d->has_valid_offscreen_fbo = d->offscreenFbo->isValid();
-
-        if (!d->has_valid_offscreen_fbo)
-            qWarning() << "QOpenGLPaintEngine: Unable to create valid framebuffer object.";
 #endif
     }
 
@@ -1741,11 +1738,6 @@ void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE);
 
-    GLfloat texCoordArray[4 * 4];
-    glTexCoordPointer(4, GL_FLOAT, 0, texCoordArray);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
     for (int i = 0; i < polys.size(); ++i) {
         const QPolygonF &poly = polys.at(i);
 
@@ -1791,8 +1783,6 @@ void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
         }
     }
 
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
     qt_add_rect_to_array(boundingRect, vertexArray);
 
     glVertexPointer(2, GL_FLOAT, 0, vertexArray);
@@ -1815,6 +1805,7 @@ void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
 
     qt_add_rect_to_array(slimmed, vertexArray);
 
+    GLfloat texCoordArray[4 * 4];
 
     for (int i = 0; i < 8; i += 2) {
         texCoordArray[i] = vertexArray[i] * invOffscreenSize.width();
@@ -1983,7 +1974,6 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             path.moveTo(points[0]);
             for (int i=1; i<pointCount; ++i)
                 path.lineTo(points[i]);
-            //path.closeSubpath();
             d->fillPath(path);
         }
     }
