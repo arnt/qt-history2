@@ -25,6 +25,10 @@ class tst_QDBusConnection: public QObject
 {
     Q_OBJECT
 
+    int signalsReceived;
+public slots:
+    void oneSlot() { ++signalsReceived; }
+
 private slots:
     void noConnection();
     void connectToBus();
@@ -37,6 +41,8 @@ private slots:
     void registerObject();
 
     void callSelf();
+
+    void slotsWithLessParameters();
 
 public:
     QString serviceName() const { return "com.trolltech.Qt.Autotests.QDBusConnection"; }
@@ -372,6 +378,32 @@ void tst_QDBusConnection::callSelf()
     msg << 44;
     reply = connection.call(msg);
     QCOMPARE(reply.arguments().value(0).toInt(), 45);
+}
+
+void tst_QDBusConnection::slotsWithLessParameters()
+{
+    QDBusConnection con = QDBusConnection::sessionBus();
+
+    QDBusMessage signal = QDBusMessage::createSignal("/", "com.trolltech.TestCase",
+                                                     "oneSignal");
+    signal << "one parameter";
+
+    signalsReceived = 0;
+    QVERIFY(con.connect(con.baseService(), signal.path(), signal.interface(),
+                        signal.member(), this, SLOT(oneSlot())));
+    QVERIFY(con.send(signal));
+    QTest::qWait(100);
+    QCOMPARE(signalsReceived, 1);
+
+    // disconnect and try with a signature
+    signalsReceived = 0;
+    QVERIFY(con.disconnect(con.baseService(), signal.path(), signal.interface(),
+                           signal.member(), this, SLOT(oneSlot())));
+    QVERIFY(con.connect(con.baseService(), signal.path(), signal.interface(),
+                        signal.member(), "s", this, SLOT(oneSlot())));
+    QVERIFY(con.send(signal));
+    QTest::qWait(100);
+    QCOMPARE(signalsReceived, 1);
 }
 
 QTEST_MAIN(tst_QDBusConnection)
