@@ -638,7 +638,9 @@ private:
     friend class QShortcutPrivate;
 
 #ifdef Q_WS_MAC
+#ifndef __LP64__
     friend class QMacSavedPortInfo;
+#endif
     friend class QCoreGraphicsPaintEnginePrivate;
     friend QPoint qt_mac_posInWindow(const QWidget *w);
     friend WindowPtr qt_mac_window_for(const QWidget *w);

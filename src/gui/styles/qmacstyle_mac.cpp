@@ -1360,7 +1360,9 @@ void QMacStyle::polish(QPalette &pal)
     QPixmap px(200, 200);
     QColor pc(Qt::black);
     {
+#ifndef __LP64__
         QMacSavedPortInfo port(&px);
+#endif
         SetThemeBackground(kThemeBrushDialogBackgroundActive, px.depth(), true);
         const Rect qdRect = { 0, 0, px.width(), px.height() };
         EraseRect(&qdRect);
@@ -2792,7 +2794,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                     tti.version = qt_mac_hitheme_version;
                     tti.state = tds;
                     QColor textColor = btn->palette.buttonText().color();
-                    float colorComp[] = { textColor.redF(), textColor.greenF(),
+                    CGFloat colorComp[] = { textColor.redF(), textColor.greenF(),
                                           textColor.blueF(), textColor.alphaF() };
                     CGContextSetFillColorSpace(cg, QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()));
                     CGContextSetFillColor(cg, colorComp);
@@ -2964,7 +2966,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 tti.version = qt_mac_hitheme_version;
                 tti.state = tds;
                 QColor textColor = myTab.palette.windowText().color();
-                float colorComp[] = { textColor.redF(), textColor.greenF(),
+                CGFloat colorComp[] = { textColor.redF(), textColor.greenF(),
                                       textColor.blueF(), textColor.alphaF() };
                 CGContextSetFillColorSpace(cg, QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()));
                 CGContextSetFillColor(cg, colorComp);
@@ -3118,7 +3120,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 int mh = contentRect.height() - 2 * macItemFrame;
                 int xp = contentRect.x();
                 xp += macItemFrame;
-                float outWidth, outHeight, outBaseline;
+                CGFloat outWidth, outHeight, outBaseline;
                 HIThemeGetTextDimensions(checkmark, 0, &tti, &outWidth, &outHeight,
                                          &outBaseline);
                 QRect r(xp, contentRect.y(), mw, mh);
@@ -3961,7 +3963,7 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                 tti.version = qt_mac_hitheme_version;
                 tti.state = tds;
                 QColor textColor = groupBox->palette.windowText().color();
-                float colorComp[] = { textColor.redF(), textColor.greenF(),
+                CGFloat colorComp[] = { textColor.redF(), textColor.greenF(),
                                       textColor.blueF(), textColor.alphaF() };
                 CGContextSetFillColorSpace(cg, QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()));
                 CGContextSetFillColor(cg, colorComp);
@@ -4398,8 +4400,8 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                     tti.options = kHIThemeTextBoxOptionNone;
                     tti.truncationPosition = kHIThemeTextTruncationNone;
                     tti.truncationMaxLines = 1 + groupBox->text.count(QLatin1Char('\n'));
-                    float width;
-                    float height;
+                    CGFloat width;
+                    CGFloat height;
                     QCFString groupText = removeMnemonics(groupBox->text);
                     HIThemeGetTextDimensions(groupText, 0, &tti, &width, &height, 0);
                     tw = int(width);

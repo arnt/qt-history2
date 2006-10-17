@@ -339,7 +339,7 @@ bool QFontEngineMacMulti::stringToCMap(const QChar *str, int len, QGlyphLayout *
 
     e = ATSUSetTextPointerLocation(textLayout, (UniChar *)(str), 0, len, len);
     if (e != noErr) {
-        qWarning("Qt: internal: %ld: Error ATSUSetTextPointerLocation %s: %d", e, __FILE__, __LINE__);
+        qWarning("Qt: internal: %ld: Error ATSUSetTextPointerLocation %s: %d", long(e), __FILE__, __LINE__);
         return false;
     }
 
@@ -358,7 +358,7 @@ bool QFontEngineMacMulti::stringToCMap(const QChar *str, int len, QGlyphLayout *
     Q_ASSERT(sizeof(void *) <= sizeof(UInt32));
     e = ATSUSetTextLayoutRefCon(textLayout, reinterpret_cast<UInt32>(&nfo));
     if (e != noErr) {
-        qWarning("Qt: internal: %ld: Error ATSUSetTextLayoutRefCon %s: %d", e, __FILE__, __LINE__);
+        qWarning("Qt: internal: %ld: Error ATSUSetTextLayoutRefCon %s: %d", long(e), __FILE__, __LINE__);
         return false;
     }
 
@@ -412,7 +412,7 @@ bool QFontEngineMacMulti::stringToCMap(const QChar *str, int len, QGlyphLayout *
         Q_ASSERT(attributeCount < maxAttributeCount + 1);
         e = ATSUSetLayoutControls(textLayout, attributeCount, tags, sizes, values);
         if (e != noErr) {
-            qWarning("Qt: internal: %ld: Error ATSUSetLayoutControls %s: %d", e, __FILE__, __LINE__);
+            qWarning("Qt: internal: %ld: Error ATSUSetLayoutControls %s: %d", long(e), __FILE__, __LINE__);
             return false;
         }
 
@@ -420,7 +420,7 @@ bool QFontEngineMacMulti::stringToCMap(const QChar *str, int len, QGlyphLayout *
 
     e = ATSUSetRunStyle(textLayout, style, 0, len);
     if (e != noErr) {
-        qWarning("Qt: internal: %ld: Error ATSUSetRunStyle %s: %d", e, __FILE__, __LINE__);
+        qWarning("Qt: internal: %ld: Error ATSUSetRunStyle %s: %d", long(e), __FILE__, __LINE__);
         return false;
     }
 
@@ -455,13 +455,13 @@ bool QFontEngineMacMulti::stringToCMap(const QChar *str, int len, QGlyphLayout *
                                  /*iLocationX =*/ 0, /*iLocationY =*/ 0,
                                  &rect);
         if (e != noErr) {
-            qWarning("Qt: internal: %ld: Error ATSUMeasureTextImage %s: %d", e, __FILE__, __LINE__);
+            qWarning("Qt: internal: %ld: Error ATSUMeasureTextImage %s: %d", long(e), __FILE__, __LINE__);
             return false;
         }
     }
 
     if (!nfo.callbackCalled) {
-            qWarning("Qt: internal: %ld: Error ATSUMeasureTextImage did not trigger callback %s: %d", e, __FILE__, __LINE__);
+            qWarning("Qt: internal: %ld: Error ATSUMeasureTextImage did not trigger callback %s: %d", long(e), __FILE__, __LINE__);
             return false;
     }
 

@@ -161,7 +161,7 @@ QMacInputContext::globalEventProcessor(EventHandlerCallRef, EventRef event, void
                 break;
             }
 
-            UInt32 unilen = 0;
+            ByteCount unilen = 0;
             GetEventParameter(event, kEventParamTextInputSendText, typeUnicodeText,
                               0, 0, &unilen, 0);
             UniChar *unicode = (UniChar*)NewPtr(unilen);
@@ -181,7 +181,7 @@ QMacInputContext::globalEventProcessor(EventHandlerCallRef, EventRef event, void
                 handled_event = true;
                 context->reset();
             } else {
-                UInt32 rngSize = 0;
+                ByteCount rngSize = 0;
                 OSStatus err = GetEventParameter(event, kEventParamTextInputSendHiliteRng, typeTextRangeArray, 0,
                                                  0, &rngSize, 0);
                 QVarLengthArray<TextRangeArray> highlight(rngSize);
@@ -260,7 +260,7 @@ QMacInputContext::globalEventProcessor(EventHandlerCallRef, EventRef event, void
             GetEventParameter(event, kEventParamTextInputSendKeyboardEvent, typeEventRef, 0,
                               sizeof(key_ev), 0, &key_ev);
             QString text;
-            UInt32 unilen = 0;
+            ByteCount unilen = 0;
             if(GetEventParameter(key_ev, kEventParamKeyUnicodes, typeUnicodeText, 0, 0, &unilen, 0) == noErr) {
                 UniChar *unicode = (UniChar*)NewPtr(unilen);
                 GetEventParameter(key_ev, kEventParamKeyUnicodes, typeUnicodeText, 0, unilen, 0, unicode);

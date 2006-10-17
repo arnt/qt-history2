@@ -112,7 +112,7 @@ Q_GUI_EXPORT CGContextRef qt_mac_cg_context(const QPaintDevice *pdev)
             return 0;
 
         if(OSStatus err = CreateCGContextForPort(port, &ret)) {
-            qWarning("QPaintDevice: Unable to create CGContext for port %p [%ld]", port, err);
+            qWarning("QPaintDevice: Unable to create CGContext for port %p [%ld]", port, long(err));
             return 0;
         }
         SyncCGContextOriginWithPort(ret, port);

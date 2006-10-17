@@ -782,7 +782,9 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
 {
     if (px.isNull())
         return 0;
+#ifndef __LP64__
     QMacSavedPortInfo pi; //save the current state
+#endif
     //create icon
     IconFamilyHandle iconFamily = reinterpret_cast<IconFamilyHandle>(NewHandle(0));
     //create data
@@ -835,7 +837,7 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
             //set the family data to the Handle
             OSStatus set = SetIconFamilyData(iconFamily, images[i].mac_type, hdl);
             if(set != noErr)
-                qWarning("%s: %d -- Something went very wrong!! %ld", __FILE__, __LINE__, set);
+                qWarning("%s: %d -- Something went very wrong!! %ld", __FILE__, __LINE__, long(set));
             DisposeHandle(hdl);
         }
     }

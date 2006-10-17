@@ -772,7 +772,7 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
             kCGPatternTilingNoDistortion, true, &callbks);
     CGColorSpaceRef cs = CGColorSpaceCreatePattern(0);
     CGContextSetFillColorSpace(d->hd, cs);
-    float component = 1.0; //just one
+    CGFloat component = 1.0; //just one
     CGContextSetFillPattern(d->hd, pat, &component);
     CGSize phase = CGSizeApplyAffineTransform(CGSizeMake(-(p.x()-r.x()), -(p.y()-r.y())), trans);
     CGContextSetPatternPhase(d->hd, phase);
@@ -903,7 +903,7 @@ QCoreGraphicsPaintEnginePrivate::setStrokePen(const QPen &pen)
 //    CGContextSetMiterLimit(hd, pen.miterLimit());
 
     //pen style
-    QVector<float> linedashes;
+    QVector<CGFloat> linedashes;
     if(pen.style() == Qt::CustomDashLine) {
         QVector<qreal> customs = pen.dashPattern();
         for(int i = 0; i < customs.size(); ++i)
@@ -927,7 +927,7 @@ QCoreGraphicsPaintEnginePrivate::setStrokePen(const QPen &pen)
         linedashes.append(1);
         linedashes.append(1);
     }
-    const float cglinewidth = pen.widthF() <= 0.0f ? 1.0f : float(pen.widthF());
+    const CGFloat cglinewidth = pen.widthF() <= 0.0f ? 1.0f : float(pen.widthF());
     for(int i = 0; i < linedashes.size(); ++i) {
         linedashes[i] *= cglinewidth;
         if(cglinecap == kCGLineCapSquare || cglinecap == kCGLineCapRound) {
@@ -972,7 +972,7 @@ QCoreGraphicsPaintEnginePrivate::setFillBrush(const QBrush &brush, const QPointF
     } else if(bs != Qt::SolidPattern && bs != Qt::NoBrush) {
         int width = 0, height = 0;
         QMacPattern *qpattern = new QMacPattern;
-        float components[4] = { 1.0, 1.0, 1.0, 1.0 };
+        CGFloat components[4] = { 1.0, 1.0, 1.0, 1.0 };
         CGColorSpaceRef base_colorspace = 0;
         if(bs == Qt::TexturePattern) {
             qpattern->data.pixmap = brush.texture();

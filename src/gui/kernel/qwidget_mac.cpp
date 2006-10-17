@@ -169,7 +169,7 @@ Q_GUI_EXPORT HIViewRef qt_mac_hiview_for(WindowPtr w)
     if(err == errUnknownControl)
         ret = HIViewGetRoot(w);
     else if(err != noErr)
-        qWarning("That cannot happen! %d [%ld]", __LINE__, err);
+        qWarning("That cannot happen! %d [%ld]", __LINE__, long(err));
     return ret;
 }
 
@@ -1112,7 +1112,7 @@ void QWidgetPrivate::createWindow_sys()
     WindowRef windowRef = 0;
     if (OSStatus ret = qt_mac_create_window(topExtra->wclass, wattr, &r, &windowRef))
         qWarning("QWidget: Internal error: %s:%d: If you reach this error please contact Trolltech and include the\n"
-                "      WidgetFlags used in creating the widget (%ld)", __FILE__, __LINE__, ret);
+                "      WidgetFlags used in creating the widget (%ld)", __FILE__, __LINE__, long(ret));
     if (!desktop)
         SetAutomaticControlDragTrackingEnabledForWindow(windowRef, true);
     HIWindowChangeFeatures(windowRef, kWindowCanCollapse, 0);
@@ -2389,6 +2389,17 @@ void QWidget::clearMask()
     setMask(QRegion());
 }
 
+#ifdef __LP64__
+
+extern "C" {
+    typedef struct CGSConnection *CGSConnectionRef;
+    typedef struct CGSWindow *CGSWindowRef;
+    extern OSStatus CGSSetWindowAlpha(CGSConnectionRef, CGSWindowRef, float);
+    extern CGSWindowRef GetNativeWindowFromWindowRef(WindowRef);
+    extern CGSConnectionRef _CGSDefaultConnection();
+}
+#endif
+
 void QWidget::setWindowOpacity(qreal level)
 {
     Q_D(QWidget);
@@ -2400,7 +2411,12 @@ void QWidget::setWindowOpacity(qreal level)
     d->topData()->opacity = (uchar)(level * 255);
     if (!testAttribute(Qt::WA_WState_Created))
         return;
+#ifdef __LP64__
+    CGSSetWindowAlpha(_CGSDefaultConnection(),
+                      GetNativeWindowFromWindowRef(qt_mac_window_for(this)), level);
+#else
     QMacSavedPortInfo::setWindowAlpha(this, level);
+#endif
 }
 
 qreal QWidget::windowOpacity() const

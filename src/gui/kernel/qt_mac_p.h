@@ -195,6 +195,7 @@ public:
     bool sync() const;
 };
 
+#ifndef __LP64__
 #include "qpaintdevice.h"
 extern WindowPtr qt_mac_window_for(const QWidget*); //qwidget_mac.cpp
 extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
@@ -319,6 +320,7 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
     }
     DisposeRgn(clip);
 }
+#endif // __LP64__
 
 #ifdef check
 # undef check

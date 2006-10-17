@@ -469,6 +469,7 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
     d->interrupt = false;
     emit awake();
 
+#ifndef __LP64__
     if(!qt_mac_safe_pdev) { //create an empty widget and this can be used for a port anytime
         QWidget *tlw = new QWidget;
         tlw->setAttribute(Qt::WA_DeleteOnClose);
@@ -476,6 +477,7 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
         tlw->hide();
         qt_mac_safe_pdev = tlw;
     }
+#endif
 
     bool retVal = false;
     for (;;) {

@@ -40,7 +40,7 @@ QString qt_mac_get_style_name()
     if (c) {
         GetTheme(c);
         Str255 str;
-        long int s = 256;
+        SInt32 s = 256;
         if(!GetCollectionItem(c, kThemeNameTag, 0, &s, &str)) {
             extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
             ret = qt_mac_from_pascal_string(str);

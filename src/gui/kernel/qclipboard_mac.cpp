@@ -215,7 +215,7 @@ QMacPasteboard::pasteBoard() const
 OSStatus QMacPasteboard::promiseKeeper(PasteboardRef paste, PasteboardItemID id, CFStringRef flavor, void *data)
 {
     QMacPasteboard *qpaste = (QMacPasteboard*) data;
-    const int promise_id = (int)id;
+    const long promise_id = (long)id;
 
     { //protect the marker!
         extern int qt_mac_mime_type; //qmime_mac.cpp
@@ -228,19 +228,19 @@ OSStatus QMacPasteboard::promiseKeeper(PasteboardRef paste, PasteboardItemID id,
     }
 
     if(promise_id < 0 || promise_id >= qpaste->promises.size()) {
-        qDebug("Pasteboard: %d: Unexpected [%d]!", __LINE__, promise_id); //shouldn't happen
+        qDebug("Pasteboard: %d: Unexpected [%ld]!", __LINE__, promise_id); //shouldn't happen
         return cantGetFlavorErr;
     }
 
     QMacPasteboard::Promise promise = qpaste->promises[promise_id];
     const QString flavorAsQString = QCFString::toQString(flavor);
 #ifdef DEBUG_PASTEBOARD
-    qDebug("PasteBoard: Calling in promise for %s[%d] [%s] (%s)", qPrintable(promise.mime), promise_id,
+    qDebug("PasteBoard: Calling in promise for %s[%ld] [%s] (%s)", qPrintable(promise.mime), promise_id,
            qPrintable(QCFString::toQString(flavorAsQString),
            qPrintable(promise.convertor->convertorName()));
 #endif
     if(!promise.convertor->canConvert(promise.mime, flavorAsQString)) {
-        qDebug("Pasteboard: %d: Unexpected [%d]!", __LINE__, promise_id); //shouldn't happen
+        qDebug("Pasteboard: %d: Unexpected [%ld]!", __LINE__, promise_id); //shouldn't happen
         return cantGetFlavorErr;
     }
     QList<QByteArray> md = promise.convertor->convertFromMime(promise.mime, promise.data, flavorAsQString);
@@ -260,7 +260,7 @@ QMacPasteboard::hasOSType(int c_flavor) const
 
     sync();
 
-    UInt32 cnt = 0;
+    ItemCount cnt = 0;
     if(PasteboardGetItemCount(paste, &cnt) || !cnt)
         return false;
 
@@ -304,7 +304,7 @@ QMacPasteboard::hasFlavor(QString c_flavor) const
 
     sync();
 
-    UInt32 cnt = 0;
+    ItemCount cnt = 0;
     if(PasteboardGetItemCount(paste, &cnt) || !cnt)
         return false;
 
@@ -417,7 +417,7 @@ QMacPasteboard::formats() const
     sync();
 
     QStringList ret;
-    UInt32 cnt = 0;
+    ItemCount cnt = 0;
     if(PasteboardGetItemCount(paste, &cnt) || !cnt)
         return ret;
 
@@ -474,7 +474,7 @@ QMacPasteboard::hasFormat(const QString &format) const
 
     sync();
 
-    UInt32 cnt = 0;
+    ItemCount cnt = 0;
     if(PasteboardGetItemCount(paste, &cnt) || !cnt)
         return false;
 
@@ -531,7 +531,7 @@ QMacPasteboard::retrieveData(const QString &format, QVariant::Type) const
 
     sync();
 
-    UInt32 cnt = 0;
+    ItemCount cnt = 0;
     if(PasteboardGetItemCount(paste, &cnt) || !cnt)
         return QByteArray();
 

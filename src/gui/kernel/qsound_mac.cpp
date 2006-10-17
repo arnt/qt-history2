@@ -16,6 +16,22 @@
 
 #ifndef QT_NO_SOUND
 
+#ifdef __LP64__
+
+class QAuServerMac : public QAuServer {
+    Q_OBJECT
+public:
+    QAuServerMac(QObject* parent) : QAuServer(parent) {}
+    ~QAuServerMac(){}
+
+    void play(const QString& filename){}
+    void play(QSound *s){}
+    void stop(QSound*){}
+    bool okay() { return true; }
+};
+
+#else
+
 #include <qdir.h>
 #include <qpixmap.h>
 #include <qpainter.h>
@@ -180,6 +196,8 @@ QAuServer* qt_new_audio_server()
 {
     return new QAuServerMac(qApp);
 }
+
+#endif
 
 #include "qsound_mac.moc"
 

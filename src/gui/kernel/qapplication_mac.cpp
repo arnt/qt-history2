@@ -961,7 +961,9 @@ void qt_init(QApplicationPrivate *priv, int)
         QMacInputContext::initialize();
         QApplicationPrivate::inputContext = new QMacInputContext;
 
+#ifndef __LP64__
         RegisterAppearanceClient();
+#endif
         if(QApplication::desktopSettingsAware())
             qt_mac_update_os_settings();
 
@@ -974,7 +976,7 @@ void qt_init(QApplicationPrivate *priv, int)
             app_proc_ae_handlerUPP = AEEventHandlerUPP(QApplicationPrivate::globalAppleEventProcessor);
             for(uint i = 0; i < sizeof(app_apple_events) / sizeof(QMacAppleEventTypeSpec); ++i)
                 AEInstallEventHandler(app_apple_events[i].mac_class, app_apple_events[i].mac_id,
-                                      app_proc_ae_handlerUPP, (long)qApp, true);
+                                      app_proc_ae_handlerUPP, SRefCon(qApp), true);
         }
 
         if(QApplicationPrivate::app_style) {
@@ -1228,10 +1230,14 @@ bool QApplicationPrivate::do_mouse_down(const QPoint &pt, bool *mouse_down_unhan
         }
         QPoint np, op(widget->data->crect.x(), widget->data->crect.y());
         {
+#ifdef __LP64__
+            np = widget->mapToGlobal(QPoint(0,0));
+#else
             QMacSavedPortInfo savedInfo(widget);
             Point p = { 0, 0 };
             LocalToGlobal(&p);
             np = QPoint(p.h, p.v);
+#endif
         }
         if(np != op)
             widget->data->crect = QRect(np, widget->data->crect.size());
@@ -1428,7 +1434,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     OSStatus err = ShowSheetWindow(window, qt_mac_window_for(widget->parentWidget()));
                     if(err != noErr)
                         qWarning("Qt: QWidget: Unable to show as sheet %s::%s [%ld]", widget->metaObject()->className(),
-                                 widget->objectName().toLocal8Bit().constData(), err);
+                                 widget->objectName().toLocal8Bit().constData(), long(err));
                     just_show = true;
                 }
                 if(just_show) //at least the window will be visible, but the sheet flag doesn't work sadly (probalby too many sheets)
@@ -1593,8 +1599,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         }
         int wheel_delta=0;
         if(ekind == kEventMouseWheelMoved) {
-            long int mdelt = 0;
-            GetEventParameter(event, kEventParamMouseWheelDelta, typeLongInteger, 0,
+            int mdelt = 0;
+            GetEventParameter(event, kEventParamMouseWheelDelta, typeSInt32, 0,
                               sizeof(mdelt), 0, &mdelt);
             wheel_delta = mdelt * 120;
         }

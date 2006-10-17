@@ -238,7 +238,7 @@ bool QMacPrintEngine::newPage()
             abort();
         } else {
             // Not sure what the problem is...
-            qWarning("QMacPrintEngine::newPage: Cannot end current page. %ld", err);
+            qWarning("QMacPrintEngine::newPage: Cannot end current page. %ld", long(err));
             d->state = QPrinter::Error;
         }
         return false;
@@ -386,7 +386,7 @@ void QMacPrintEnginePrivate::initialize()
         OSStatus err = PMSessionSetDocumentFormatGeneration(session, kPMDocumentFormatPDF,
                                                             contextArray, 0);
         if(err != noErr) {
-            qWarning("QMacPrintEngine::initialize: Cannot set format generation to PDF: %ld", err);
+            qWarning("QMacPrintEngine::initialize: Cannot set format generation to PDF: %ld", long(err));
             state = QPrinter::Error;
         }
     }
@@ -419,7 +419,7 @@ bool QMacPrintEnginePrivate::newPage_helper()
     OSStatus err = PMSessionGetGraphicsContext(session, kPMGraphicsContextCoreGraphics,
                                                reinterpret_cast<void **>(&cgContext));
     if(err != noErr) {
-        qWarning("QMacPrintEngine::newPage: Cannot retrieve CoreGraphics context: %ld", err);
+        qWarning("QMacPrintEngine::newPage: Cannot retrieve CoreGraphics context: %ld", long(err));
         state = QPrinter::Error;
         return false;
     }
@@ -573,7 +573,7 @@ void QMacPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &va
     case PPK_PrinterName: {
         OSStatus status = PMSessionSetCurrentPrinter(d->session, QCFString(value.toString()));
         if (status == noErr)
-            qWarning("QMacPrintEngine::setPrinterName: Error setting printer: %ld", status);
+            qWarning("QMacPrintEngine::setPrinterName: Error setting printer: %ld", long(status));
         break; }
     case PPK_SuppressSystemPrintStatus:
         d->suppressStatus = value.toBool();
@@ -645,7 +645,7 @@ QVariant QMacPrintEngine::property(PrintEnginePropertyKey key) const
         QCFType<CFArrayRef> printerList;
         OSStatus status = PMSessionCreatePrinterList(d->session, &printerList, &currIndex, &unused);
         if (status != noErr)
-            qWarning("QMacPrintEngine::printerName: Problem getting list of printers: %ld", status);
+            qWarning("QMacPrintEngine::printerName: Problem getting list of printers: %ld", long(status));
         if (printerList && currIndex < CFArrayGetCount(printerList)) {
             const CFStringRef name = static_cast<CFStringRef>(CFArrayGetValueAtIndex(printerList, currIndex));
             if (name)

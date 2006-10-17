@@ -339,7 +339,7 @@ static Boolean qt_KeyEventComparatorProc(EventRef inEvent, void *data)
 {
     UInt32 ekind = GetEventKind(inEvent),
            eclass = GetEventClass(inEvent);
-    return (eclass == kEventClassKeyboard && ekind == (UInt32)data);
+    return (eclass == kEventClassKeyboard && (void *)ekind == data);
 }
 
 static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent, int *qtKey,
@@ -374,7 +374,7 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
                                   const_cast<const void **>(reinterpret_cast<void **>(&uchrData)));
         if(err != noErr) {
             qWarning("Qt::internal::unable to get keyboardlayout %ld %s:%d",
-                     err, __FILE__, __LINE__);
+                     long(err), __FILE__, __LINE__);
         }
     }
 
@@ -416,7 +416,7 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
             }
         } else {
             qWarning("Qt::internal::UCKeyTranslate is returnining %ld %s:%d",
-                     err, __FILE__, __LINE__);
+                     long(err), __FILE__, __LINE__);
         }
     } else {
         // The road less travelled; use KeyTranslate
@@ -462,7 +462,7 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
             translatedChar = KeyTranslate(keyboard_layout, tmp_mod | keyCode, &tmp_state);
         }
         {
-            UInt32 unilen = 0;
+            ByteCount unilen = 0;
             if(GetEventParameter(keyEvent, kEventParamKeyUnicodes, typeUnicodeText, 0, 0, &unilen, 0)
                     == noErr && unilen == 2) {
                 GetEventParameter(keyEvent, kEventParamKeyUnicodes, typeUnicodeText, 0, unilen, 0, outChar);
@@ -508,7 +508,7 @@ QKeyMapperPrivate::updateKeyboard()
                                   const_cast<const void **>(reinterpret_cast<void **>(&uchrData)));
         if(err != noErr) {
             qWarning("Qt::internal::unable to get unicode keyboardlayout %ld %s:%d",
-                     err, __FILE__, __LINE__);
+                     long(err), __FILE__, __LINE__);
         }
     }
 
@@ -521,7 +521,7 @@ QKeyMapperPrivate::updateKeyboard()
                                   const_cast<const void **>(reinterpret_cast<void **>(&happy)));
         if(err != noErr) {
             qFatal("Qt::internal::unable to get non-unicode layout, cannot procede %ld %s:%d",
-                     err, __FILE__, __LINE__);
+                     long(err), __FILE__, __LINE__);
         }
         keyboard_layout_format.other = happy;
         keyboard_mode = OtherMode;

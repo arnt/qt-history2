@@ -484,7 +484,7 @@ static OSStatus qt_mac_widget_in_menu_eventHandler(EventHandlerCallRef er, Event
             if (GetMenuItemProperty(menu, item, kMenuCreatorQt, kMenuPropertyWidgetActionWidget,
                                  sizeof(widget), 0, &widget) == noErr) {
                 short width = short(widget->sizeHint().width());
-                SetEventParameter(event, kEventParamMenuItemWidth, typeShortInteger,
+                SetEventParameter(event, kEventParamMenuItemWidth, typeSInt16,
                                   sizeof(short), &width);
                 result = noErr;
             }
@@ -499,7 +499,7 @@ static OSStatus qt_mac_widget_in_menu_eventHandler(EventHandlerCallRef er, Event
             if (GetMenuItemProperty(menu, item, kMenuCreatorQt, kMenuPropertyWidgetActionWidget,
                                      sizeof(widget), 0, &widget) == noErr && widget) {
                 short height = short(widget->sizeHint().height());
-                SetEventParameter(event, kEventParamMenuItemHeight, typeShortInteger,
+                SetEventParameter(event, kEventParamMenuItemHeight, typeSInt16,
                                   sizeof(short), &height);
                 result = noErr;
             }
