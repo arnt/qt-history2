@@ -25,6 +25,12 @@
 extern QDBUS_EXPORT QString qDBusGenerateMetaObjectXml(QString interface, const QMetaObject *mo,
                                                        const QMetaObject *base, int flags);
 
+static inline QString typeNameToXml(const char *typeName)
+{
+    QString retval = QLatin1String(typeName);
+    return retval.replace(QLatin1Char('<'), QLatin1String("&lt;"));
+}
+
 // implement the D-Bus org.freedesktop.DBus.Introspectable interface
 // we do that by analysing the metaObject of all the adaptor interfaces
 
@@ -65,7 +71,7 @@ static QString generateInterfaceXml(const QMetaObject *mo, int flags, int method
             if (QDBusMetaType::signatureToType(signature) == QVariant::Invalid) {
                 const char *typeName = QVariant::typeToName(QVariant::Type(typeId));
                 retval += QString::fromLatin1(">\n      <annotation name=\"com.trolltech.QtDBus.QtTypeName\" value=\"%3\"/>\n    </property>\n")
-                          .arg(QLatin1String(typeName));
+                          .arg(typeNameToXml(typeName));
             } else {
                 retval += QLatin1String("/>\n");
             }
@@ -104,12 +110,12 @@ static QString generateInterfaceXml(const QMetaObject *mo, int flags, int method
             const char *typeName = QDBusMetaType::typeToSignature(typeId);
             if (typeName) {
                 xml += QString(QLatin1String("      <arg type=\"%1\" direction=\"out\"/>\n"))
-                       .arg(QLatin1String(typeName));
+                       .arg(typeNameToXml(typeName));
 
                 // do we need to describe this argument?
                 if (QDBusMetaType::signatureToType(typeName) == QVariant::Invalid)
                     xml += QString::fromLatin1("      <annotation name=\"com.trolltech.QtDBus.QtTypeName.Out0\" value=\"%1\"/>\n")
-                           .arg(QLatin1String(mm.typeName()));
+                           .arg(typeNameToXml(mm.typeName()));
             } else
                 continue;
         }
@@ -155,7 +161,7 @@ static QString generateInterfaceXml(const QMetaObject *mo, int flags, int method
                 xml += QString::fromLatin1("      <annotation name=\"com.trolltech.QtDBus.QtTypeName.%1%2\" value=\"%3\"/>\n")
                        .arg(isOutput ? QLatin1String("Out") : QLatin1String("In"))
                        .arg(isOutput ? j - 1 : j - inputCount)
-                       .arg(QLatin1String(typeName));
+                       .arg(typeNameToXml(typeName));
             }
         }
 
@@ -199,10 +205,10 @@ QString qDBusGenerateMetaObjectXml(QString interface, const QMetaObject *mo, con
             } else if (interface.startsWith(QLatin1Char('Q')) &&
                        interface.length() >= 2 && interface.at(1).isUpper()) {
                 // assume it's Qt
-                interface.prepend( QLatin1String("com.trolltech.Qt."));
+                interface.prepend(QLatin1String("com.trolltech.Qt."));
             } else if (!QCoreApplication::instance()||
                        QCoreApplication::instance()->applicationName().isEmpty()) {
-                interface.prepend( QLatin1String("local."));
+                interface.prepend(QLatin1String("local."));
             } else {
                 interface.prepend(QLatin1Char('.')).prepend(QCoreApplication::instance()->applicationName());
                 QStringList domainName =
