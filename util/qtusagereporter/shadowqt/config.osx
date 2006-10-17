@@ -1,6 +1,6 @@
 #!/bin/sh
 
 #/home/espenr/dev/qt-4.1.4/configure -DQT_NO_LIBRARY -no-opengl -no-zlib -no-stl -release -static -no-qt3support
-$QTDIR/configure -DQT_NO_LIBRARY -no-opengl -no-zlib -no-stl -release -static -no-qt3support -universal
+$QTDIR/configure -no-opengl -qt-zlib -release -static -no-qt3support -universal
 cd src
-make sub-tools-moc sub-corelib sub-network
+make sub-tools-moc sub-tools-rcc sub-corelib sub-network
