@@ -926,7 +926,7 @@ void QSortFilterProxyModelPrivate::_q_sourceLayoutChanged()
 {
     Q_Q(QSortFilterProxyModel);
     if (saved_persistent_indexes.isEmpty()) {
-        q->clear();
+        q->invalidate();
         return;
     }
 
@@ -1179,7 +1179,7 @@ QSortFilterProxyModel::QSortFilterProxyModel(QObject *parent)
     d->filter_column = 0;
     d->filter_role = Qt::DisplayRole;
     d->dynamic_sortfilter = false;
-    connect(this, SIGNAL(modelReset()), this, SLOT(clear()));
+    connect(this, SIGNAL(modelReset()), this, SLOT(invalidate()));
 }
 
 /*!
