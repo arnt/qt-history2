@@ -42,6 +42,9 @@ extern QRegion qt_mac_convert_mac_region(RgnHandle rgn); //qregion_mac.cpp
 
 static int qt_pixmap_serial = 0;
 
+Q_GUI_EXPORT quint32 *qt_mac_pixmap_get_base(const QPixmap *pix) { return pix->data->pixels; }
+Q_GUI_EXPORT int qt_mac_pixmap_get_bytes_per_line(const QPixmap *pix) { return pix->data->nbytes / pix->data->h; }
+
 static void qt_mac_cgimage_data_free(void *memory, const void *, size_t)
 {
     free(memory);

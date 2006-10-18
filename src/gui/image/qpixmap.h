@@ -200,6 +200,8 @@ private:
     friend CGImageRef qt_mac_create_imagemask(const QPixmap &, const QRectF &rect);
     friend IconRef qt_mac_create_iconref(const QPixmap &);
     friend QPixmap qt_mac_unmultiplyPixmapAlpha(const QPixmap &);
+    friend quint32 *qt_mac_pixmap_get_base(const QPixmap *);
+    friend int qt_mac_pixmap_get_bytes_per_line(const QPixmap *);
 #endif
     friend struct QPixmapData;
     friend class QBitmap;
