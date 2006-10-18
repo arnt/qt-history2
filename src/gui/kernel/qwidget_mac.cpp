@@ -2124,11 +2124,11 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         return;
 
     // Special case for resizing a window: call SetWindowBounds which will
-    // send us a kWindowBoundsChangeSizeChanged event, whose handler  
-    // calls setGeometry_sys_helper(). 
-    // The reason for doing it this way is that SetWindowBounds 
+    // send us a kWindowBoundsChangeSizeChanged event, whose handler
+    // calls setGeometry_sys_helper().
+    // The reason for doing it this way is that SetWindowBounds
     // repaints the window immediately and the only way we can send our resize
-    // events at the proper time (after the window has been resized but before 
+    // events at the proper time (after the window has been resized but before
     // the paint) is to handle the BoundsChange event.
     if (q->isWindow()) {
         topData()->isSetGeometry = 1;
@@ -2158,6 +2158,7 @@ void QWidgetPrivate::setGeometry_sys_helper(int x, int y, int w, int h, bool isM
                     ChangeWindowAttributes(window, kWindowFullZoomAttribute, kWindowNoAttributes);
             }
         }
+
         w = qMin(w,extra->maxw);
         h = qMin(h,extra->maxh);
         w = qMax(w,extra->minw);
@@ -2192,6 +2193,15 @@ void QWidgetPrivate::setGeometry_sys_helper(int x, int y, int w, int h, bool isM
     data.crect = QRect(x, y, w, h);
 
     if(q->isWindow()) {
+        if(QWExtra *extra = extraData()) { //set constraints
+            const float max_f(20000);
+#define SF(x) ((x > max_f) ? max_f : x)
+            HISize max = CGSizeMake(SF(extra->maxw), SF(extra->maxh));
+            HISize min = CGSizeMake(SF(extra->minw), SF(extra->minh));
+#undef SF
+            SetWindowResizeLimits(qt_mac_window_for(q), &min, &max);
+        }
+
         //update the widget.
         HIRect bounds = CGRectMake(0, 0, w, h);
         HIViewSetFrame(qt_mac_hiview_for(q), &bounds);
