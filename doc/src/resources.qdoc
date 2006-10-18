@@ -11,9 +11,9 @@
     (icons, translation files, etc.) and you don't want to run the
     risk of losing the files.
 
-    The resource system is based on tight cooperation between \c
-    qmake, \c rcc (Qt's resource compiler), and QFile. It obsoletes
-    Qt 3's \c qembed tool and the
+    The resource system is based on tight cooperation between \l qmake,
+    \l rcc (Qt's resource compiler), and QFile. It obsoletes Qt 3's
+    \c qembed tool and the
     \l{http://doc.trolltech.com/qq/qq05-iconography.html#imagestorage}{image
     collection} mechanism.
 
@@ -84,14 +84,27 @@
     for locale strings.
 
 
-    \section2 Binary resources
+    \section2 External Binary Resources
 
-    For a binary resource to be created you must create the resource data
-    (commonly given the \c .rcc extension) by passing the -binary switch to
-    rcc. Once the binary resource is created you can register the resource
-    with the QResource API. 
+    For an external binary resource to be created you must create the resource
+    data (commonly given the \c .rcc extension) by passing the -binary switch to
+    \l rcc. Once the binary resource is created you can register the resource
+    with the QResource API.
 
-    \section2 Compiled in resources    
+    For example, a set of resource data specified in a \c .qrc file can be
+    compiled in the following way:
+
+    \code
+    rcc -binary myresource.qrc -o myresource.rcc
+    \endcode
+
+    In the application, this resource would be registered with code like this:
+
+    \code
+    QResource::registerResource("/path/to/myresource.rcc");
+    \endcode
+
+    \section2 Compiled-In Resources
 
     For a resource to be compiled into the binary the \c .qrc file must be
     mentioned in the application's \c .pro file so that \c qmake knows
@@ -107,8 +120,8 @@
     static C++ arrays of compressed binary data. The \c
     qrc_application.cpp file is automatically regenerated whenever
     the \c .qrc file changes or one of the files that it refers to
-    changes. If you don't use \c .pro files, you can either invoke \c
-    rcc manually or add build rules to your build system.
+    changes. If you don't use \c .pro files, you can either invoke
+    \c rcc manually or add build rules to your build system.
 
     \image resources.png Building resources into an application
 

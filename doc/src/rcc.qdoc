@@ -18,14 +18,15 @@
 
     \table
     \header \o Option         \o Argument \o Description
-    \row    \o \c{-o}         \o          \o Write output to file rather than stdout
-    \row    \o \c{-name}      \o \c name  \o Create an external initialization function with name
-    \row    \o \c{-threshold} \o \c level \o Threshold to consider compressing files
-    \row    \o \c{-compress}  \o \c level \o Compress input files by level
-    \row    \o \c{-root}      \o \c path  \o Prefix resource access path with root path
-    \row    \o \c{-no-compress} \o        \o Disable all compression
-    \row    \o \c{-version}   \o          \o Display version
-    \row    \o \c{-help}      \o          \o Display usage information
+    \row    \o \c{-o}         \o          \o Writes output to file rather than stdout.
+    \row    \o \c{-name}      \o \c name  \o Creates an external initialization function with name.
+    \row    \o \c{-threshold} \o \c level \o Specifies a threshold to use when compressing files.
+    \row    \o \c{-compress}  \o \c level \o Compresses input files by the given level.
+    \row    \o \c{-root}      \o \c path  \o Prefixes the resource access path with root path.
+    \row    \o \c{-no-compress} \o        \o Disables all compression.
+    \row    \o \c{-binary}    \o          \o Outputs a binary file for use as a dynamic resource.
+    \row    \o \c{-version}   \o          \o Displays version information.
+    \row    \o \c{-help}      \o          \o Displays usage information.
     \endtable
 
     See also \l{The Qt Resource System} for more information about embedding resources
