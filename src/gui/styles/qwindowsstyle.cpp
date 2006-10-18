@@ -2895,7 +2895,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
         if (const QStyleOptionSpinBox *sb = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
             QStyleOptionSpinBox copy = *sb;
             PrimitiveElement pe;
-
+            bool enabled = opt->state & State_Enabled;
             if (sb->frame && (sb->subControls & SC_SpinBoxFrame)) {
                 QRect r = subControlRect(CC_SpinBox, sb, SC_SpinBoxFrame, widget);
                 qDrawWinPanel(p, r, sb->palette, true);
@@ -2928,7 +2928,13 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 copy.rect = subControlRect(CC_SpinBox, sb, SC_SpinBoxUp, widget);
                 qDrawWinButton(p, copy.rect, shadePal, copy.state & (State_Sunken | State_On),
                                 &copy.palette.brush(QPalette::Button));
-                copy.rect.adjust(3, 0, -4, 0);
+                copy.rect.adjust(4, 1, -5, -1);
+                if (!enabled || !(sb->stepEnabled & QAbstractSpinBox::StepUpEnabled) ) {
+                    QStyleOptionSpinBox lightCopy = copy;
+                    lightCopy.rect.adjust(1, 1, 1, 1);
+                    lightCopy.palette.setBrush(QPalette::ButtonText, copy.palette.light());
+                    drawPrimitive(pe, &lightCopy, p, widget);
+                }
                 drawPrimitive(pe, &copy, p, widget);
             }
 
@@ -2954,16 +2960,15 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
 
                 copy.rect = subControlRect(CC_SpinBox, sb, SC_SpinBoxDown, widget);
                 qDrawWinButton(p, copy.rect, shadePal, copy.state & (State_Sunken | State_On),
-                                &copy.palette.brush(QPalette::Button));
-                
-                copy.rect.adjust(3, 0, -4, 0);
-                if (pe == PE_IndicatorArrowUp || pe == PE_IndicatorArrowDown) {
-                    copy.rect = copy.rect.adjusted(1, 1, -1, -1);
-                    drawPrimitive(pe, &copy, p, widget);
+                                &copy.palette.brush(QPalette::Button));                
+                copy.rect.adjust(4, 0, -5, -1);
+                if (!enabled || !(sb->stepEnabled & QAbstractSpinBox::StepDownEnabled) ) {
+                    QStyleOptionSpinBox lightCopy = copy;
+                    lightCopy.rect.adjust(1, 1, 1, 1);
+                    lightCopy.palette.setBrush(QPalette::ButtonText, copy.palette.light());
+                    drawPrimitive(pe, &lightCopy, p, widget);
                 }
-                else {
-                    drawPrimitive(pe, &copy, p, widget);
-                }
+                drawPrimitive(pe, &copy, p, widget);                
             }
         }
         break;
