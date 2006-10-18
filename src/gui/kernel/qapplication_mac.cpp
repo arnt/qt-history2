@@ -1591,8 +1591,27 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         }
 
         if(ekind == kEventMouseDown) {
-            if(!(GetCurrentKeyModifiers() & cmdKey))
-                widget->window()->raise();
+            if(!widget) {
+                const short windowPart = qt_mac_window_at(where.h, where.v, 0);
+                if(windowPart == inMenuBar) {
+                    QMacBlockingFunction block;
+                    MenuSelect(where); //allow menu tracking
+                }
+            } else if(!(GetCurrentKeyModifiers() & cmdKey)) {
+                QWidget *window = widget->window();
+                window->raise();
+                if(window->windowType() != Qt::Desktop
+                   && window->windowType() != Qt::Popup && !qt_mac_is_macsheet(window)
+                   && (window->isModal() || !::qobject_cast<QDockWidget *>(window))) {
+                    const bool wasActive = window->isActiveWindow();
+                    window->activateWindow();
+                    if(!wasActive && !qt_mac_can_clickThrough(widget)) {
+                        handled_event = false;
+                        break;
+                    }
+                }
+            }
+
             if(qt_mac_dblclick.last_widget &&
                qt_mac_dblclick.last_x != -1 && qt_mac_dblclick.last_y != -1 &&
                QRect(qt_mac_dblclick.last_x-2, qt_mac_dblclick.last_y-2, 4, 4).contains(QPoint(where.h, where.v))) {
