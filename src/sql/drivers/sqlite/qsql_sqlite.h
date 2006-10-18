@@ -42,6 +42,7 @@ protected:
     int numRowsAffected();
     QVariant lastInsertId() const;
     QSqlRecord record() const;
+    void virtual_hook(int id, void *data);
 
 private:
     QSQLiteResultPrivate* d;
@@ -49,7 +50,7 @@ private:
 
 class QSQLiteDriver : public QSqlDriver
 {
-    Q_OBJECT 
+    Q_OBJECT
     friend class QSQLiteResult;
 public:
     explicit QSQLiteDriver(QObject *parent = 0);

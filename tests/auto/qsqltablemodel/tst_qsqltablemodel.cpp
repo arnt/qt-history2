@@ -648,7 +648,7 @@ void tst_QSqlTableModel::sqlite_bigTable()
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
 
-    if (db.driverName() != "QSQLITE")
+    if (!db.driverName().startsWith("QSQLITE"))
         QSKIP("SQLite specific test", SkipSingle);
 
     QSqlQuery q(db);
@@ -668,7 +668,6 @@ void tst_QSqlTableModel::sqlite_bigTable()
     QSqlRecord rec = model.record();
     rec.setValue("id", 424242);
     rec.setValue("name", "Guillaume");
-    QEXPECT_FAIL("", "See task 128671", Continue);
     QVERIFY_SQL(model, model.insertRecord(-1, rec));
 
     model.clear();

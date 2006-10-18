@@ -46,6 +46,7 @@ protected:
     int size();
     int numRowsAffected();
     QSqlRecord record() const;
+    void virtual_hook(int id, void *data);
 
 private:
     QSQLite2ResultPrivate* d;

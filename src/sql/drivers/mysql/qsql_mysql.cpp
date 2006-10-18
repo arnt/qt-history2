@@ -905,11 +905,11 @@ bool QMYSQLDriver::hasFeature(DriverFeature f) const
         return false;
     case NamedPlaceholders:
     case BatchOperations:
+    case SimpleLocking:
         return false;
     case QuerySize:
     case BLOB:
     case LastInsertId:
-        return true;
     case Unicode:
         return true;
     case PreparedQueries:

@@ -17,6 +17,18 @@
 #include <qdatetime.h>
 #include <qvector.h>
 
+/*
+   QSqlCachedResult is a convenience class for databases that only allow
+   forward only fetching. It will cache all the results so we can iterate
+   backwards over the results again.
+
+   All you need to do is to inherit from QSqlCachedResult and reimplement
+   gotoNext(). gotoNext() will have a reference to the internal cache and
+   will give you an index where you can start filling in your data. Special
+   case: If the user actually wants a forward-only query, idx will be -1
+   to indicate that we are not interested in the actual values.
+*/
+
 static const uint initial_cache_size = 128;
 
 class QSqlCachedResultPrivate

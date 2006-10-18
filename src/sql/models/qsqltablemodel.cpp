@@ -19,6 +19,7 @@
 #include "qsqlindex.h"
 #include "qsqlquery.h"
 #include "qsqlrecord.h"
+#include "qsqlresult.h"
 
 #include "qsqltablemodel_p.h"
 
@@ -147,6 +148,11 @@ bool QSqlTableModelPrivate::exec(const QString &stmt, bool prepStatement,
     // lazy initialization of editQuery
     if (editQuery.driver() != db.driver())
         editQuery = QSqlQuery(db);
+
+    // workaround for In-Process databases - remove all read locks
+    // from the table to make sure the editQuery succeeds
+    if (db.driver()->hasFeature(QSqlDriver::SimpleLocking))
+        const_cast<QSqlResult *>(query.result())->detachFromResultSet();
 
     if (prepStatement) {
         if (editQuery.lastQuery() != stmt) {

@@ -1190,6 +1190,7 @@ bool QIBaseDriver::hasFeature(DriverFeature f) const
     case NamedPlaceholders:
     case LastInsertId:
     case BatchOperations:
+    case SimpleLocking:
         return false;
     case Transactions:
     case PreparedQueries:

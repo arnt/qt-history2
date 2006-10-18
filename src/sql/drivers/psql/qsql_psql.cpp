@@ -488,6 +488,7 @@ bool QPSQLDriver::hasFeature(DriverFeature f) const
     case PreparedQueries:
     case NamedPlaceholders:
     case PositionalPlaceholders:
+    case SimpleLocking:
         return false;
     case BLOB:
         return d->pro >= QPSQLDriver::Version71;

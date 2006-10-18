@@ -149,6 +149,7 @@ bool QSqlDriver::isOpenError() const
     \value PositionalPlaceholders  Whether the driver supports the use of positional placeholders.
     \value LastInsertId  Whether the driver supports returning the Id of the last touched row.
     \value BatchOperations  Whether the driver supports batched operations, see QSqlResult::execBatch()
+    \value SimpleLocking  Whether the driver disallows a write lock on a table while other queries have a read lock on it.
 
     More information about supported features can be found in the
     \l{sql-driver.html}{Qt SQL driver} documentation.

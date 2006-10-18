@@ -510,13 +510,12 @@ bool QTDSDriver::hasFeature(DriverFeature f) const
 {
     switch (f) {
     case Transactions:
-        return false;
     case QuerySize:
+    case Unicode:
+    case SimpleLocking:
         return false;
     case BLOB:
         return true;
-    case Unicode:
-        return false;
     default:
         return false;
     }

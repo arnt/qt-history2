@@ -224,6 +224,16 @@ QSQLiteResult::~QSQLiteResult()
     delete d;
 }
 
+void QSQLiteResult::virtual_hook(int id, void *data)
+{
+    if (id == DetachFromResultSet) {
+        if (d->stmt)
+            sqlite3_reset(d->stmt);
+        return;
+    }
+    QSqlResult::virtual_hook(id, data);
+}
+
 bool QSQLiteResult::reset(const QString &query)
 {
     if (!prepare(query))
@@ -398,6 +408,7 @@ bool QSQLiteDriver::hasFeature(DriverFeature f) const
     case LastInsertId:
     case PreparedQueries:
     case PositionalPlaceholders:
+    case SimpleLocking:
         return true;
     case QuerySize:
     case NamedPlaceholders:

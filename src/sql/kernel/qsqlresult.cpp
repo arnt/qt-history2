@@ -888,6 +888,13 @@ bool QSqlResult::execBatch(bool arrayBind)
     return false;
 }
 
+/*! \internal
+ */
+void QSqlResult::detachFromResultSet()
+{
+    if (driver()->hasFeature(QSqlDriver::SimpleLocking))
+        virtual_hook(DetachFromResultSet, 0);
+}
 
 /*!
     Returns the low-level database handle for this result set

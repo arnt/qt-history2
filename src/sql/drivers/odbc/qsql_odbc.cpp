@@ -1351,6 +1351,7 @@ bool QODBCDriver::hasFeature(DriverFeature f) const
     case NamedPlaceholders:
     case LastInsertId:
     case BatchOperations:
+    case SimpleLocking:
         return false;
     }
     return false;

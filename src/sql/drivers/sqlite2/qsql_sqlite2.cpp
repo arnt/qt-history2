@@ -215,6 +215,15 @@ QSQLite2Result::~QSQLite2Result()
     delete d;
 }
 
+void QSQLite2Result::virtual_hook(int id, void *data)
+{
+    if (id == DetachFromResultSet) {
+        d->finalize();
+        return;
+    }
+    QSqlResult::virtual_hook(id, data);
+}
+
 /*
    Execute \a query.
 */
@@ -310,6 +319,7 @@ bool QSQLite2Driver::hasFeature(DriverFeature f) const
 {
     switch (f) {
     case Transactions:
+    case SimpleLocking:
         return true;
     case Unicode:
         return d->utf8;
