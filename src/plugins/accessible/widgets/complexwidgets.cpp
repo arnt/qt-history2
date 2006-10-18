@@ -372,7 +372,7 @@ QString QAccessibleItemView::text(Text t, int child) const
         return QAccessibleWidget::text(t, child);
 
     QAccessibleItemRow item(itemView(), childIndex(child));
-    return item.text(t, child);
+    return item.text(t, 1);
 }
 
 void QAccessibleItemView::setText(Text t, int child, const QString &text)
@@ -383,7 +383,7 @@ void QAccessibleItemView::setText(Text t, int child, const QString &text)
     }
 
     QAccessibleItemRow item(itemView(), childIndex(child));
-    item.setText(t, child, text);
+    item.setText(t, 1, text);
 }
 
 QRect QAccessibleItemView::rect(int child) const

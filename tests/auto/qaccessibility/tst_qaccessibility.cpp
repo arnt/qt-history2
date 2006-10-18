@@ -58,6 +58,7 @@ private slots:
     void menuTest();
     void spinBoxTest();
     void textEditTest();
+    void listViewTest();
 
 private:
     QWidget *createGUI();
@@ -2089,6 +2090,26 @@ void tst_QAccessibility::textEditTest()
     QCOMPARE(iface->text(QAccessible::Value, 4), QString("hello world"));
     QCOMPARE(iface->text(QAccessible::Value, 5), QString("how are you today?"));
     QCOMPARE(iface->text(QAccessible::Value, 6), QString());
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+#endif
+}
+
+void tst_QAccessibility::listViewTest()
+{
+#ifdef QTEST_ACCESSIBILITY
+    QListWidget listView;
+    listView.addItem("A");
+    listView.addItem("B");
+    listView.addItem("C");
+
+    QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(&listView);
+    QCOMPARE(iface->role(0), QAccessible::List);
+    QCOMPARE(iface->role(1), QAccessible::Row);
+    QCOMPARE(iface->childCount(), 3);
+    QCOMPARE(iface->text(QAccessible::Value, 1), QString("A"));
+    QCOMPARE(iface->text(QAccessible::Value, 2), QString("B"));
+    QCOMPARE(iface->text(QAccessible::Value, 3), QString("C"));
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
