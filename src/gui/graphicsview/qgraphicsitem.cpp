@@ -139,7 +139,8 @@
     Items are painted by the view, starting with the parent items and then
     drawing children, in ascending stacking order. You can set an item's
     stacking order by calling setZValue(), and test it by calling
-    zValue(). Stacking order applies to sibling items; parents are always
+    zValue(), where items with low z-values are painted before items with
+    high z-values. Stacking order applies to sibling items; parents are always
     drawn before their children.
 
     QGraphicsItem receives events from QGraphicsScene through the virtual
