@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qfont.h"
+#include "qdebug.h"
 #include "qpaintdevice.h"
 #include "qfontdatabase.h"
 #include "qfontmetrics.h"
@@ -117,10 +118,8 @@ Q_GUI_EXPORT int qt_defaultDpi()
 #elif defined(Q_WS_WIN)
     dpi = GetDeviceCaps(shared_dc,LOGPIXELSY);
 #elif defined(Q_WS_MAC)
-    short hr;
-    short mdpi;
-    ScreenRes(&hr, &mdpi);
-    dpi = int(mdpi);
+    CGDirectDisplayID screen = CGMainDisplayID();
+    dpi = (CGDisplayPixelsWide(screen) / CGDisplayScreenSize(screen).width) * 25.4;
 #elif defined(Q_WS_QWS)
     if (!qt_screen)
         return 72;
