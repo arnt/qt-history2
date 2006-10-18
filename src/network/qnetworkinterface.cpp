@@ -211,9 +211,10 @@ void QNetworkAddressEntry::setBroadcast(const QHostAddress &newBroadcast)
     host where the program is being run. Each network interface may
     contain zero or more IP addresses, each of which is optionally
     associated with a netmask and/or a broadcast address. The list of
-    such trios can be obtained with entries(). Alternatively, the
-    addresses() convenience function returns only IP addresses, when
-    the netmask or the broadcast addresses aren't necessary.
+    such trios can be obtained with addressEntries(). Alternatively,
+    when the netmask or the broadcast addresses aren't necessary, use
+    the allAddresses() convenience function to obtain just the IP
+    addresses.
 
     QNetworkInterface also reports the interface's hardware address with
     hardwareAddress().
@@ -253,7 +254,7 @@ void QNetworkAddressEntry::setBroadcast(const QHostAddress &newBroadcast)
 */
 
 /*!
-    Constructs an empty QNetworkInterface object.
+    Constructs an empty network interface object.
 */
 QNetworkInterface::QNetworkInterface()
     : d(0)
@@ -333,7 +334,7 @@ QString QNetworkInterface::hardwareAddress() const
     along with their associated netmasks and broadcast addresses.
 
     If the netmask or broadcast address information is not necessary,
-    you can call the addresses() function to obtain just the IP
+    you can call the allAddresses() function to obtain just the IP
     addresses.
 */
 QList<QNetworkAddressEntry> QNetworkInterface::addressEntries() const
@@ -391,8 +392,9 @@ QList<QNetworkInterface> QNetworkInterface::allInterfaces()
 
 /*!
     This convenience function returns all IP addresses found on the
-    host machine. It is equivalent to calling addresses() in all the
-    objects returned by allInterfaces().
+    host machine. It is equivalent to calling addressEntries() on all the
+    objects returned by allInterfaces() to obtain lists of QHostAddress
+    objects then calling QHostAddress::ip() on each of these.
 */
 QList<QHostAddress> QNetworkInterface::allAddresses()
 {
