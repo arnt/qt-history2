@@ -1859,7 +1859,7 @@ void QPainter::setClipRect(const QRectF &rect, Qt::ClipOperation op)
 /*!
     \fn void QPainter::setClipRegion(const QRegion &region, Qt::ClipOperation operation)
 
-    Sets the clip region to the givne \a region using the given clip
+    Sets the clip region to the given \a region using the specified clip
     \a operation. The default clip operation is to replace the current
     clip region.
 
@@ -4556,9 +4556,8 @@ static QPainterPath generateWavyPath(qreal minWidth, QPaintDevice *device)
         xs = i*(2*radius);
         ys = 0;
 
-        //the way we draw arc's sucks!!! we need to move
-        // to the start of the new arc to not have the path
-        // be implicetly connected for us
+        // we need to move to the start of the new arc to not have the path
+        // be implicitly connected for us
         path.arcMoveTo(xs, ys, 2*radius, 2*radius, 0);
         path.arcTo(xs, ys, 2*radius, 2*radius, 0, endAngle);
         up = !up;

@@ -2849,8 +2849,9 @@ void QAbstractItemView::scrollDirtyRegion(int dx, int dy)
 /*!
   Returns the offset of the dirty regions in the view.
 
-  If you use scrollDirtyRegion() and implementa paintEvent() in a subclass of QAbstractItemView,
-  you should translate the area given by the paint event with the offset returned from this function.
+  If you use scrollDirtyRegion() and implement a paintEvent() in a subclass of
+  QAbstractItemView, you should translate the area given by the paint event with
+  the offset returned from this function.
 
   \sa scrollDirtyRegion(), setDirtyRegion()
 */

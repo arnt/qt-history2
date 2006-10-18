@@ -1112,7 +1112,7 @@ QTextBlock QTextDocument::end() const
 
 /*!
     \property QTextDocument::pageSize
-    \brief the page size that should be used for layouting the document
+    \brief the page size that should be used for laying out the document
 
     \sa modificationChanged()
 */

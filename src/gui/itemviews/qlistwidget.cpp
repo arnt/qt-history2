@@ -417,7 +417,7 @@ Qt::DropActions QListModel::supportedDropActions() const
     List items are typically used to display text() and an icon(). These are
     set with the setText() and setIcon() functions. The appearance of the text
     can be customized with setFont(), setForeground(), and setBackground().
-    List item's text can be aligned using the setTextAlignment() function.
+    Text in list items can be aligned using the setTextAlignment() function.
     Tooltips, status tips and "What's This?" help can be added to list items
     with setToolTip(), setStatusTip(), and setWhatsThis().
 
