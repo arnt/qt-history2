@@ -2110,6 +2110,21 @@ void tst_QAccessibility::listViewTest()
     QCOMPARE(iface->text(QAccessible::Value, 1), QString("A"));
     QCOMPARE(iface->text(QAccessible::Value, 2), QString("B"));
     QCOMPARE(iface->text(QAccessible::Value, 3), QString("C"));
+    
+    QAccessibleInterface *childA = 0;
+    QCOMPARE(iface->navigate(QAccessible::Child, 1, &childA), 0);
+    QVERIFY(childA);
+    QCOMPARE(childA->text(QAccessible::Value, 1), QString("A"));
+
+    QAccessibleInterface *childB = 0;
+    QCOMPARE(iface->navigate(QAccessible::Child, 2, &childB), 0);
+    QVERIFY(childB);
+    QCOMPARE(childB->text(QAccessible::Value, 1), QString("B"));
+
+    QAccessibleInterface *childC = 0;
+    QCOMPARE(iface->navigate(QAccessible::Child, 3, &childC), 0);
+    QVERIFY(childC);
+    QCOMPARE(childC->text(QAccessible::Value, 1), QString("C"));
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
