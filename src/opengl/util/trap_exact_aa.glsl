@@ -3,8 +3,7 @@ float quad_aa()
     float top = min(gl_FragCoord.y + 0.5, gl_TexCoord[0].x);
     float bottom = max(gl_FragCoord.y - 0.5, gl_TexCoord[0].y);
 
-    float topExcluded = (gl_FragCoord.y + 0.5) - top;
-    float bottomExcluded = bottom - (gl_FragCoord.y - 0.5);
+    float area = top - bottom;
 
     float left = gl_FragCoord.x - 0.5;
     float right = gl_FragCoord.x + 0.5;
@@ -29,8 +28,6 @@ float quad_aa()
         topRightX = bottomRightX;
         bottomRightX = temp;
     }
-
-    float area = 1 - topExcluded - bottomExcluded;
 
     float leftExcluded = 0;
 
@@ -57,7 +54,7 @@ float quad_aa()
 
     if (bottomRightX < right) {
         float leftIntersectY = bottom + (top - bottom) * (left - bottomRightX) / (topRightX - bottomRightX);
-        float rightIntersectY = bottom + (top - bottom) * (right - bottomRightX) / (topRightX - bottomRightX);;
+        float rightIntersectY = bottom + (top - bottom) * (right - bottomRightX) / (topRightX - bottomRightX);
 
         if (topRightX < left) { // bottom < top < left
             rightExcluded = 1;
