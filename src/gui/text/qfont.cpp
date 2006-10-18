@@ -118,8 +118,8 @@ Q_GUI_EXPORT int qt_defaultDpi()
 #elif defined(Q_WS_WIN)
     dpi = GetDeviceCaps(shared_dc,LOGPIXELSY);
 #elif defined(Q_WS_MAC)
-    CGDirectDisplayID screen = CGMainDisplayID();
-    dpi = (CGDisplayPixelsWide(screen) / CGDisplayScreenSize(screen).width) * 25.4;
+    extern float qt_mac_defaultDpi();
+    dpi = qt_mac_defaultDpi();
 #elif defined(Q_WS_QWS)
     if (!qt_screen)
         return 72;

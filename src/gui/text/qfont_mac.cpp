@@ -27,11 +27,17 @@
 #include "qtextengine_p.h"
 #include <stdlib.h>
 
+float qt_mac_defaultDpi()
+{
+    CGDirectDisplayID screen = CGMainDisplayID();
+    return (CGDisplayPixelsWide(screen) / CGDisplayScreenSize(screen).width) * 25.4;
+}
+
 int qt_mac_pixelsize(const QFontDef &def, int dpi)
 {
     float ret;
     if(def.pixelSize == -1)
-        ret = def.pointSize *  dpi / 72.;
+        ret = def.pointSize *  dpi / qt_mac_defaultDpi();
     else
         ret = def.pixelSize;
     return qRound(ret);
@@ -40,7 +46,7 @@ int qt_mac_pointsize(const QFontDef &def, int dpi)
 {
     float ret;
     if(def.pointSize < 0)
-        ret = def.pixelSize * 72. / float(dpi);
+        ret = def.pixelSize * qt_mac_defaultDpi() / float(dpi);
     else
         ret = def.pointSize;
     return qRound(ret);
