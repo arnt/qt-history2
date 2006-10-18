@@ -66,9 +66,9 @@ void GroupBoxTaskMenu::editTitle()
         m_editor->selectAll();
         m_editor->setBackgroundRole(m_groupbox->backgroundRole());
         m_editor->setObjectName(QLatin1String("__qt__passive_m_editor"));
-        connect(m_editor, SIGNAL(returnPressed()), m_editor, SLOT(deleteLater()));
+        connect(m_editor, SIGNAL(editingFinished()), m_editor, SLOT(deleteLater()));
         connect(m_editor, SIGNAL(textChanged(QString)), this, SLOT(updateText(QString)));
-        m_editor->installEventFilter(this); // ### we need this??
+
         QStyleOption opt; // ## QStyleOptionGroupBox
         opt.init(m_groupbox);
         QRect r = QRect(QPoint(), m_groupbox->size());

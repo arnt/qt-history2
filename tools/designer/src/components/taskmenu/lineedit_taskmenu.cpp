@@ -72,7 +72,7 @@ void LineEditTaskMenu::editText()
         m_editor->setText(m_lineEdit->text());
         m_editor->selectAll();
         m_editor->setBackgroundRole(m_lineEdit->backgroundRole());
-        connect(m_editor, SIGNAL(returnPressed()), m_editor, SLOT(deleteLater()));
+        connect(m_editor, SIGNAL(editingFinished()), m_editor, SLOT(deleteLater()));
         connect(m_editor, SIGNAL(textChanged(QString)), this, SLOT(updateText(QString)));
 
         QStyleOption opt;
