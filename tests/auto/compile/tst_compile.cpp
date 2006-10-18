@@ -472,8 +472,8 @@ void tst_Compiler::templateCallOrder()
     QCOMPARE(whatWasCalled, 1);
     whatWasCalled = 0;
 
-    /* call it with a char * - AMBIGOUS, fails on several compilers
     char *c = 0;
+    /* call it with a char * - AMBIGOUS, fails on several compilers
     callOrderFunc(c);
     QCOMPARE(whatWasCalled, 1);
     whatWasCalled = 0;
