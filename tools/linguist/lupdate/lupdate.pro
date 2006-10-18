@@ -24,7 +24,8 @@ SOURCES         = fetchtr.cpp \
                   ../shared/translator.cpp \
                   ../shared/proparser.cpp \
                   ../shared/profileevaluator.cpp \
-                  ../shared/simtexth.cpp
+                  ../shared/simtexth.cpp \
+                  ../shared/xliff.cpp
 
 PROPARSERPATH = ../shared
 INCLUDEPATH += $$PROPARSERPATH
