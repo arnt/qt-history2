@@ -8,70 +8,50 @@ float quad_aa()
     float left = gl_FragCoord.x - 0.5;
     float right = gl_FragCoord.x + 0.5;
 
-    vec2 leftLineEq = gl_TexCoord[1].xy;
-    vec2 rightLineEq = gl_TexCoord[1].zw;
+    // use line equations to compute intersections of left/right edges with top/bottom of truncated pixel
+    vec4 vecX = gl_TexCoord[1].xxzz * vec2(top, bottom).xyxy + gl_TexCoord[1].yyww;
 
-    float topLeftX = leftLineEq.x * top + leftLineEq.y;
-    float topRightX = rightLineEq.x * top + rightLineEq.y;
+    // transform right line to left to be able to use same calculations for both
+    vecX.zw = 2 * gl_FragCoord.x - vecX.zw;
 
-    float bottomLeftX = leftLineEq.x * bottom + leftLineEq.y;
-    float bottomRightX = rightLineEq.x * bottom + rightLineEq.y;
+    vec2 topX = vec2(vecX.x, vecX.z);
+    vec2 bottomX = vec2(vecX.y, vecX.w);
 
-    if (topLeftX < bottomLeftX) {
-        float temp = topLeftX;
-        topLeftX = bottomLeftX;
-        bottomLeftX = temp;
-    }
+    // transform lines such that top intersection is to the right of bottom intersection
+    vec2 topXTemp = max(topX, bottomX);
+    vec2 bottomXTemp = min(topX, bottomX);
 
-    if (topRightX < bottomRightX) {
-        float temp = topRightX;
-        topRightX = bottomRightX;
-        bottomRightX = temp;
-    }
+    vec2 vecLeftRight = vec2(left, right);
 
-    float leftExcluded = 0;
+    // compute the intersections of the lines with the left and right edges of the pixel
+    vec4 intersectY = bottom + area * (vecLeftRight.xyxy - bottomXTemp.xxyy) / (topXTemp.xxyy - bottomXTemp.xxyy);
 
-    if (topLeftX > left) {
-        float leftIntersectY = bottom + (top - bottom) * (left - bottomLeftX) / (topLeftX - bottomLeftX);
-        float rightIntersectY = bottom + (top - bottom) * (right - bottomLeftX) / (topLeftX - bottomLeftX);
+    // avoid NaN
+    if (abs(topXTemp.x - bottomXTemp.x) < 0.00000001)
+        intersectY.xy = 0;
 
-        if (bottomLeftX > right) { // right < bottom < top
-            leftExcluded = 1;
-        } else if (bottomLeftX > left) {
-            if (topLeftX > right) { // left < bottom < right < top
-                leftExcluded = area - 0.5 * (right - bottomLeftX) * (rightIntersectY - bottom);
-            } else { // left < bottom < top < right
-                leftExcluded = (bottomLeftX - left + 0.5 * (topLeftX - bottomLeftX)) * (top - bottom);
-            }
-        } else if (topLeftX > right) { // bottom < left < right < top
-            leftExcluded = (top - rightIntersectY + 0.5 * (rightIntersectY - leftIntersectY)) * (right - left);
-        } else if (topLeftX > left) { // bottom < left < top < right
-            leftExcluded = 0.5 * (top - leftIntersectY) * (topLeftX - left);
-        }
-    }
+    // avoid NaN
+    if (abs(topXTemp.y - bottomXTemp.y) < 0.00000001)
+        intersectY.zw = 0;
 
-    float rightExcluded = 0;
+    vec2 temp = mix(area - 0.5 * (right - bottomXTemp) * (intersectY.yw - bottom), // left < bottom < right < top
+                    (bottomXTemp - left + 0.5 * (topXTemp - bottomXTemp)) * area,    // left < bottom < top < right
+                    step(topXTemp, right));
 
-    if (bottomRightX < right) {
-        float leftIntersectY = bottom + (top - bottom) * (left - bottomRightX) / (topRightX - bottomRightX);
-        float rightIntersectY = bottom + (top - bottom) * (right - bottomRightX) / (topRightX - bottomRightX);
+    vec2 excluded = 0.5 * (top - intersectY.xz) * (topXTemp - left); // bottom < left < top < right
 
-        if (topRightX < left) { // bottom < top < left
-            rightExcluded = 1;
-        } else if (topRightX < right) {
-            if (bottomRightX < left) { // bottom < left < top < right
-                rightExcluded = area - 0.5 * (topRightX - left) * (top - leftIntersectY);
-            } else { // left < bottom < top < right
-                rightExcluded = (right - topRightX + 0.5 * (topRightX - bottomRightX)) * (top - bottom);
-            }
-        } else if (bottomRightX < left) { // bottom < left < right < top
-            rightExcluded = (leftIntersectY - bottom + 0.5 * (rightIntersectY - leftIntersectY)) * (right - left);
-        } else { // left < bottom < right < top
-            rightExcluded = 0.5 * (rightIntersectY - bottom) * (right - bottomRightX);
-        }
-    }
+    excluded = mix((top - intersectY.yw + 0.5 * (intersectY.yw - intersectY.xz)) * (right - left), // bottom < left < right < top
+                   excluded, step(topXTemp, right));
 
-    return area - leftExcluded - rightExcluded;
+    excluded = mix(temp, // left < bottom < right (see calculation of temp)
+                   excluded, step(bottomXTemp, left));
+
+    excluded = mix(vec2(area, area), // right < bottom < top
+                   excluded, step(bottomXTemp, right));
+
+    excluded *= step(left, topXTemp);
+
+    return area - excluded.x - excluded.y;
 }
 
 void main()
