@@ -3,5 +3,5 @@
 # The snippets that don't work are commented out.
 
 TEMPLATE        = subdirs
-SUBDIRS         = rsslisting \
+SUBDIRS         = rsslisting
 #                  simpleparse
