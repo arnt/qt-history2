@@ -721,6 +721,22 @@ static HIViewRef qt_mac_create_widget(HIViewRef parent)
     return ret;
 }
 
+static QSize qt_mac_desktopSize()
+{
+    int w = 0, h = 0;
+    CGDisplayCount cg_count;
+    CGGetActiveDisplayList(0, 0, &cg_count);
+    QVector<CGDirectDisplayID> displays(cg_count);
+    CGGetActiveDisplayList(cg_count, displays.data(), &cg_count);
+    Q_ASSERT(cg_count == (CGDisplayCount)displays.size());
+    for(int i = 0; i < (int)cg_count; ++i) {
+        CGRect r = CGDisplayBounds(displays.at(i));
+        w = qMax<int>(w, qRound(r.origin.x + r.size.width));
+        h = qMax<int>(h, qRound(r.origin.y + r.size.height));
+    }
+    return QSize(w, h);
+}
+
 bool qt_mac_can_clickThrough(const QWidget *w)
 {
     static int qt_mac_carbon_clickthrough = -1;
@@ -846,12 +862,8 @@ bool QWidgetPrivate::qt_create_root_win() {
     if(qt_root_win)
         return false;
     Rect r;
-    int w = 0, h = 0;
-    for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g)) {
-        w = qMax<int>(w, (*g)->gdRect.right);
-        h = qMax<int>(h, (*g)->gdRect.bottom);
-    }
-    SetRect(&r, 0, 0, w, h);
+    const QSize desktopSize = qt_mac_desktopSize();
+    SetRect(&r, 0, 0, desktopSize.width(), desktopSize.height());
     qt_mac_create_window(kOverlayWindowClass, kWindowNoAttributes, &r, &qt_root_win);
     if(!qt_root_win)
         return false;
@@ -1248,13 +1260,9 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     bool desktop = (type == Qt::Desktop);
 
     if (desktop) {
-        int w = 0, h = 0;
-        for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g)) {
-            w = qMax<int>(w, (*g)->gdRect.right);
-            h = qMax<int>(h, (*g)->gdRect.bottom);
-        }
+        QSize desktopSize = qt_mac_desktopSize();
         q->setAttribute(Qt::WA_WState_Visible);
-        data.crect.setRect(0, 0, w, h);
+        data.crect.setRect(0, 0, desktopSize.width(), desktopSize.height());
         dialog = popup = false;                  // force these flags off
     } else {
         q->setAttribute(Qt::WA_WState_Visible, false);
@@ -1281,7 +1289,6 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         initializeWindow=true;
 
     hd = 0;
-    cg_hd = 0;
     if(window) {                                // override the old window (with a new HIViewRef)
         HIViewRef hiview = (HIViewRef)window, parent = 0;
         CFRetain(hiview);
@@ -2299,11 +2306,11 @@ int QWidget::metric(PaintDeviceMetric m) const
     case PdmDpiX:
     case PdmPhysicalDpiX: {
         extern float qt_mac_defaultDpi_x(); //qpaintdevice_mac.cpp
-        return qt_mac_defaultDpi_x(); }
+        return int(qt_mac_defaultDpi_x()); }
     case PdmDpiY:
     case PdmPhysicalDpiY: {
         extern float qt_mac_defaultDpi_y(); //qpaintdevice_mac.cpp
-        return qt_mac_defaultDpi_y(); }
+        return int(qt_mac_defaultDpi_y()); }
     default: //leave this so the compiler complains when new ones are added
         qWarning("QWidget::metric: Unhandled parameter %d", m);
         return QPaintDevice::metric(m);

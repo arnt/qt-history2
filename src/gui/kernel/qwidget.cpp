@@ -80,8 +80,6 @@ QWidgetPrivate::QWidgetPrivate(int version) :
         ,hd(0)
 #if defined(Q_WS_X11)
         ,picture(0)
-#elif defined(Q_WS_MAC)
-        ,cg_hd(0)
 #endif
         ,polished(0)
 
