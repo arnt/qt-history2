@@ -1072,6 +1072,7 @@ int main(int argc, char **argv)
 /*!
     \page qdbusxml2cpp.html
     \title QtDBus XML compiler (qdbusxml2cpp)
+    \keyword qdbusxml2cpp
 
     The QtDBus XML compiler is a tool that can be used to parse interface descriptions and produce
     static code representing those interfaces, which can then be used to make calls to remote
