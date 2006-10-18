@@ -1055,6 +1055,10 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
     if (flags & DirtyPen) {
         update_fast_pen = true;
         d->pen = state.pen();
+
+        if (d->pen.style() == Qt::CustomDashLine && d->pen.dashPattern().size() == 0)
+            d->pen.setStyle(Qt::SolidLine);
+
         d->basicStroker.setJoinStyle(d->pen.joinStyle());
         d->basicStroker.setCapStyle(d->pen.capStyle());
         d->basicStroker.setMiterLimit(d->pen.miterLimit());
