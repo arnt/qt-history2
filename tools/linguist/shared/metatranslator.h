@@ -134,7 +134,6 @@ private:
 */
 #define ContextComment "QT_LINGUIST_INTERNAL_CONTEXT_COMMENT"
 
-QString protect( const QByteArray& str );
 bool saveXLIFF( const MetaTranslator &mt, const QString& filename);
 
 #endif

@@ -42,6 +42,81 @@ static void writeIndent(QTextStream *t, int indent)
     }
 }
 
+static QString numericEntity( int ch )
+{
+    QString name;
+    char escapechar;
+    switch (ch) {
+        case '\a':  //0x07
+            name = QLatin1String("bel");
+            escapechar = 'a';
+            break;
+        case '\b':  //0x08
+            name = QLatin1String("bs");
+            escapechar = 'b';
+            break;
+        case '\t':  //0x09
+            name = QLatin1String("tab");
+            escapechar = 't';
+            break;
+        case '\n':  //0x0a
+            name = QLatin1String("lf");
+            escapechar = 'n';
+            break;
+        case '\v':  //0x0b
+            name = QLatin1String("vt");
+            escapechar = 'v';
+            break;
+        case '\f':  //0x0c
+            name = QLatin1String("ff");
+            escapechar = 'f';
+            break;
+        case '\r':  //0x0d
+            name = QLatin1String("cr");
+            escapechar = 'r';
+            break;
+        default:
+            // write the numerical value if not all the others did match ???
+            break;
+    }
+    static int id = 0;
+    return QString::fromAscii("<ph id=\"%1\" ctype=\"x-ch-%2\">\\%3</ph>")
+                            .arg(++id)
+                            .arg(name)
+                            .arg(escapechar);
+}
+
+static QString protect( const QByteArray& str )
+{
+    QString result;
+    int len = (int) str.length();
+    for ( int k = 0; k < len; k++ ) {
+        switch( str[k] ) {
+        case '\"':
+            result += QString( "&quot;" );
+            break;
+        case '&':
+            result += QString( "&amp;" );
+            break;
+        case '>':
+            result += QString( "&gt;" );
+            break;
+        case '<':
+            result += QString( "&lt;" );
+            break;
+        case '\'':
+            result += QString( "&apos;" );
+            break;
+        default:
+            if ( (uchar) str[k] < 0x20 && str[k] != '\n' )
+                result += numericEntity( (uchar) str[k] );
+            else
+                result += str[k];
+        }
+    }
+    return result;
+}
+
 static void writeLineNumber(QTextStream *t, const MetaTranslatorMessage &msg, int indent)
 {
     if (msg.lineNumber() != -1) {
@@ -216,96 +291,5 @@ bool MetaTranslator::saveXLIFF( const QString& filename) const
     return true;
 }
 
-
-#if 0
-
-#if 0
-class QXmlWriterHandler : public QXmlDefaultHandler
-{
-    QXmlWriterHandler() {}
-    virtual ~QXmlWriterHandler() {}
-    QXmlWriterHandler(QFile *file);
-    virtual bool characters ( const QString & ch );
-    virtual bool endDocument();
-
-    virtual bool endElement( const QString & namespaceURI, const QString & localName, 
-                                const QString & qName );
-    virtual bool startDocument ();
-    virtual bool startElement ( const QString & namespaceURI, const QString & localName, 
-                                const QString & qName, const QXmlAttributes & atts );
-
-private:
-    void writeindent();
-private:
-    QTextStream m_t;
-    int m_indent;
-    int m_currentindent;
-};
-#endif
-
-
-
-// Experimental; Preferred, but its more work for little gain.
-QXmlWriterHandler::QXmlWriterHandler(QFile *file)
-    : m_t( file ) {
-    m_indent = 2;
-    m_currentindent = 0;
-}
-
-bool QXmlWriterHandler::characters ( const QString & ch )
-{
-    m_t << ch;
-    return true;
-}
-
-bool QXmlWriterHandler::endDocument ()
-{
-    return true;
-}
-
-bool QXmlWriterHandler::endElement ( const QString & namespaceURI, const QString & localName, 
-                                    const QString & qName )
-{
-    writeindent();
-    // Assume no namespace or global namespace.
-    m_t << "</" << localName << ">";
-    m_currentindent+=m_indent;        
-    return true;
-}
-
-bool QXmlWriterHandler::startDocument () 
-{
-    if (m_t.status() == QTextStream::Ok) {
-        m_t << "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
-        return true;
-    }
-    return false;
-}
-
-bool QXmlWriterHandler::startElement ( const QString & namespaceURI, const QString & localName, 
-                                const QString & qName, const QXmlAttributes & atts )
-{
-    writeindent();
-    // Assume no namespace or global namespace.
-    m_t << "<" << localName;
-    if (m_currentindent == 0) {
-        m_t << " xmlns=\"urn:oasis:names:tc:xliff:document:1.1\"";
-    }
-    for (int i = 0; i < atts.count(); ++i) {
-        m_t << " " << atts.localName(i) << "=\"" << atts.value(i) << "\"";
-    }
-    m_t << ">\n";
-    m_currentindent+=m_indent;
-    return true;
-}
-
-void QXmlWriterHandler::writeindent() {
-    m_t.setFieldAlignment(QTextStream::AlignRight);
-    m_t.setFieldWidth(m_currentindent - 1);
-    m_t << " ";
-    m_t.setFieldWidth(0);
-}
-
-#endif
 
 

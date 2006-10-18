@@ -208,7 +208,7 @@ static QString numericEntity( int ch )
            .arg( ch, 0, 16 );
 }
 
-QString protect( const QByteArray& str )
+static QString protect( const QByteArray& str )
 {
     QString result;
     int len = (int) str.length();
