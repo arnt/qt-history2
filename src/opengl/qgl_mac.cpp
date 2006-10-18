@@ -49,6 +49,9 @@
 /*****************************************************************************
   Externals
  *****************************************************************************/
+QRegion qt_mac_get_widget_rgn(const QWidget *widget);
+extern quint32 *qt_mac_pixmap_get_base(const QPixmap *);
+extern int qt_mac_pixmap_get_bytes_per_line(const QPixmap *);
 extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
 extern QPoint qt_mac_posInWindow(const QWidget *); //qwidget_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
@@ -78,7 +81,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
     Q_D(QGLContext);
     d->cx = 0;
-    d->vi = chooseMacVisual(GetMainDevice());
+    d->vi = chooseMacVisual();
     if(!d->vi)
         return false;
 
@@ -265,12 +268,10 @@ AGLPixelFormat QGLContextPrivate::tryFormat(const QGLFormat &format)
     simple-minded, so override this method in your subclass if your
     application has spcific requirements on visual selection.
 
-    \a device is currently ignored.
-
     \sa chooseContext()
 */
 
-void *QGLContext::chooseMacVisual(GDHandle /* device */)
+void *QGLContext::chooseMacVisual()
 {
     Q_D(QGLContext);
     AGLPixelFormat fmt;
@@ -326,53 +327,20 @@ void QGLContext::makeCurrent()
         qgl_context_storage.localData()->context = this;
 }
 
-static QRegion qt_mac_get_widget_rgn(const QWidget *widget)
-{
-    if(!widget->isVisible() || widget->isMinimized())
-        return QRegion();
-    const QRect wrect = QRect(qt_mac_posInWindow(widget), widget->size());
-    if(!wrect.isValid())
-        return QRegion();
-
-    RgnHandle macr = qt_mac_get_rgn();
-    GetControlRegion((HIViewRef)widget->winId(), kControlStructureMetaPart, macr);
-    OffsetRgn(macr, wrect.x(), wrect.y());
-    QRegion ret = qt_mac_convert_mac_region(macr);
-
-    QPoint clip_pos = wrect.topLeft();
-    for(const QWidget *last_clip = 0, *clip = widget; clip; last_clip = clip, clip = clip->parentWidget()) {
-        if(clip != widget) {
-            GetControlRegion((HIViewRef)clip->winId(), kControlStructureMetaPart, macr);
-            OffsetRgn(macr, clip_pos.x(), clip_pos.y());
-            ret &= qt_mac_convert_mac_region(macr);
-        }
-        const QObjectList &children = clip->children();
-        for(int i = children.size()-1; i >= 0; --i) {
-            if(QWidget *child = qobject_cast<QWidget*>(children.at(i))) {
-                if(child == last_clip)
-                    break;
-                if(child->isVisible() && !child->isMinimized() && !child->isTopLevel()) {
-                    const QRect childRect = QRect(clip_pos+child->pos(), child->size());
-                    if(childRect.isValid() && wrect.intersects(childRect)) {
-                        GetControlRegion((HIViewRef)child->winId(), kControlStructureMetaPart, macr);
-                        OffsetRgn(macr, childRect.x(), childRect.y());
-                        ret -= qt_mac_convert_mac_region(macr);
-                    }
-                }
-            }
-        }
-        if(clip->isWindow())
-            break;
-        clip_pos -= clip->pos();
-    }
-    qt_mac_dispose_rgn(macr);
-    return ret;
-}
-
 void QGLContext::updatePaintDevice()
 {
     Q_D(QGLContext);
     d->update = false;
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+    if(d->paintDevice->devType() == QInternal::Widget) {
+        QWidget *w = (QWidget *)d->paintDevice;
+        aglSetHIViewRef((AGLContext)d->cx, (HIViewRef)w->winId());
+    } else if(d->paintDevice->devType() == QInternal::Pixmap) {
+        QPixmap *pm = (QPixmap *)d->paintDevice;
+        aglSetOffScreen((AGLContext)d->cx, pm->width(), pm->height(),
+                        qt_mac_pixmap_get_bytes_per_line(pm), qt_mac_pixmap_get_base(pm));
+    }
+#else
     if(d->paintDevice->devType() == QInternal::Widget) {
         //get control information
         QWidget *w = (QWidget *)d->paintDevice;
@@ -432,7 +400,9 @@ void QGLContext::updatePaintDevice()
         PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)pm->macQDHandle());
         aglSetOffScreen((AGLContext)d->cx, pm->width(), pm->height(),
                         GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
-    } else {
+    }
+#endif
+    else {
         qWarning("QGLContext::updatePaintDevice(): Not sure how to render OpenGL on this device!");
     }
     aglUpdateContext((AGLContext)d->cx);
@@ -520,26 +490,11 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
 
 static CFBundleRef qt_getOpenGLBundle()
 {
-    SInt16 frameworksVRefNum;
-    SInt32 frameworksDirID;
     CFBundleRef bundle = 0;
-
-    OSStatus err = FindFolder(kSystemDomain, kFrameworksFolderType, kDontCreateFolder,
-                              &frameworksVRefNum, &frameworksDirID);
-    if (err == noErr) {
-        FSSpec spec;
-        FSRef ref;
-
-        Str255 framework_name;
-        qt_mac_to_pascal_string(QLatin1String("OpenGL.framework"), framework_name);
-        err = FSMakeFSSpec(frameworksVRefNum, frameworksDirID, framework_name, &spec);
-        if (err == noErr) {
-            FSpMakeFSRef(&spec, &ref);
-            QCFType<CFURLRef> url = CFURLCreateFromFSRef(kCFAllocatorDefault, &ref);
-            if (url)
-                bundle = CFBundleCreate(kCFAllocatorDefault, url);
-        }
-    }
+    QCFType<CFURLRef> url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault,
+                 QCFString::toCFStringRef("/System/Library/Frameworks/OpenGL.framework"), kCFURLPOSIXPathStyle, false);
+    if (url)
+        bundle = CFBundleCreate(kCFAllocatorDefault, url);
     return bundle;
 }
 
@@ -552,6 +507,8 @@ void *QGLContext::getProcAddress(const QString &proc) const
 /*****************************************************************************
   QGLWidget AGL-specific code
  *****************************************************************************/
+
+#if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_5)
 
 /****************************************************************************
   Hacks to glue AGL to an HIView
@@ -595,8 +552,6 @@ protected:
         }
     }
 };
-
-
 OSStatus QMacGLWindowChangeEvent::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *)
 {
 #if 0 //not really needed right now, but just so I remember
@@ -619,6 +574,49 @@ OSStatus QMacGLWindowChangeEvent::globalEventProcessor(EventHandlerCallRef er, E
     }
     return CallNextEventHandler(er, event);
 }
+QRegion qt_mac_get_widget_rgn(const QWidget *widget)
+{
+    if(!widget->isVisible() || widget->isMinimized())
+        return QRegion();
+    const QRect wrect = QRect(qt_mac_posInWindow(widget), widget->size());
+    if(!wrect.isValid())
+        return QRegion();
+
+    RgnHandle macr = qt_mac_get_rgn();
+    GetControlRegion((HIViewRef)widget->winId(), kControlStructureMetaPart, macr);
+    OffsetRgn(macr, wrect.x(), wrect.y());
+    QRegion ret = qt_mac_convert_mac_region(macr);
+
+    QPoint clip_pos = wrect.topLeft();
+    for(const QWidget *last_clip = 0, *clip = widget; clip; last_clip = clip, clip = clip->parentWidget()) {
+        if(clip != widget) {
+            GetControlRegion((HIViewRef)clip->winId(), kControlStructureMetaPart, macr);
+            OffsetRgn(macr, clip_pos.x(), clip_pos.y());
+            ret &= qt_mac_convert_mac_region(macr);
+        }
+        const QObjectList &children = clip->children();
+        for(int i = children.size()-1; i >= 0; --i) {
+            if(QWidget *child = qobject_cast<QWidget*>(children.at(i))) {
+                if(child == last_clip)
+                    break;
+                if(child->isVisible() && !child->isMinimized() && !child->isTopLevel()) {
+                    const QRect childRect = QRect(clip_pos+child->pos(), child->size());
+                    if(childRect.isValid() && wrect.intersects(childRect)) {
+                        GetControlRegion((HIViewRef)child->winId(), kControlStructureMetaPart, macr);
+                        OffsetRgn(macr, childRect.x(), childRect.y());
+                        ret -= qt_mac_convert_mac_region(macr);
+                    }
+                }
+            }
+        }
+        if(clip->isWindow())
+            break;
+        clip_pos -= clip->pos();
+    }
+    qt_mac_dispose_rgn(macr);
+    return ret;
+}
+#endif
 
 bool QGLWidget::event(QEvent *e)
 {
@@ -705,7 +703,9 @@ void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget* shareWidget)
 {
     Q_Q(QGLWidget);
     initContext(context, shareWidget);
+#if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_5)
     watcher = new QMacGLWindowChangeEvent(q);
+#endif
     olcx = 0;
 
     if(q->isValid() && glcx->format().hasOverlay()) {
@@ -716,7 +716,6 @@ void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget* shareWidget)
             glcx->d_func()->glFormat.setOverlay(false);
         }
     }
-
     updatePaintDevice();
 }
 

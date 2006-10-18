@@ -249,7 +249,10 @@ protected:
     virtual void* chooseVisual();
 #endif
 #if defined(Q_WS_MAC)
-    virtual void* chooseMacVisual(GDHandle);
+#ifndef __LP64__
+    virtual void* chooseMacVisual(GDHandle) { return chooseMacVisual(); }
+#endif
+    virtual void* chooseMacVisual();
 #endif
 
     bool deviceIsPixmap() const;

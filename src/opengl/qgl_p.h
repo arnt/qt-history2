@@ -169,7 +169,9 @@ public:
 #elif defined(Q_WS_MAC)
     QGLContext *olcx;
     void updatePaintDevice();
+#if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_5)
     QMacWindowChangeEvent *watcher;
+#endif
 #elif defined(Q_WS_QWS)
     QGLDirectPainter *directPainter;
     void resizeHandler(const QSize &);

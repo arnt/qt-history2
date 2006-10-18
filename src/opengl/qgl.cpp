@@ -2453,7 +2453,7 @@ QGLWidget::~QGLWidget()
 #if defined(Q_WGL)
     delete d->olcx;
 #endif
-#ifdef Q_WS_MAC
+#if defined(Q_WS_MAC) && (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_5)
     delete d->watcher;
     d->watcher = 0;
 #endif
