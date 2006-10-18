@@ -27,10 +27,11 @@ TRANSLATOR qdesigner_internal::TableWidgetEditor
 using namespace qdesigner_internal;
 
 TableWidgetEditor::TableWidgetEditor(QDesignerFormWindowInterface *form, QWidget *parent)
-    : QDialog(parent), m_updating(false)
+    : QDialog(parent),
+      m_form(form),
+      m_updating(false)
 {
     ui.setupUi(this);
-    m_form = form;
     QIcon resetIcon = createIconSet(QString::fromUtf8("editdelete.png"));
     ui.deletePixmapItemButton->setIcon(resetIcon);
     ui.deletePixmapColumnButton->setIcon(resetIcon);
@@ -67,7 +68,7 @@ void TableWidgetEditor::fillContentsFromTableWidget(QTableWidget *tableWidget)
     ui.columnsListWidget->clear();
     ui.rowsListWidget->clear();
 
-    int colCount = ui.tableWidget->columnCount();
+    const int colCount = ui.tableWidget->columnCount();
     for (int col = 0; col < colCount; col++) {
         QTableWidgetItem *headerItem = ui.tableWidget->horizontalHeaderItem(col);
         QListWidgetItem *item = new QListWidgetItem(ui.columnsListWidget);
@@ -81,7 +82,7 @@ void TableWidgetEditor::fillContentsFromTableWidget(QTableWidget *tableWidget)
     if (colCount > 0)
         ui.columnsListWidget->setCurrentRow(0);
 
-    int rowCount = ui.tableWidget->rowCount();
+    const int rowCount = ui.tableWidget->rowCount();
     for (int row = 0; row < rowCount; row++) {
         QTableWidgetItem *headerItem = ui.tableWidget->verticalHeaderItem(row);
         QListWidgetItem *item = new QListWidgetItem(ui.rowsListWidget);
@@ -112,7 +113,7 @@ void TableWidgetEditor::copyContents(QTableWidget *sourceWidget, QTableWidget *d
 {
     destWidget->clear();
 
-    int colCount = sourceWidget->columnCount();
+    const int colCount = sourceWidget->columnCount();
     destWidget->setColumnCount(colCount);
     for (int col = 0; col < colCount; col++) {
         QTableWidgetItem *origHeaderItem = sourceWidget->horizontalHeaderItem(col);
@@ -129,7 +130,7 @@ void TableWidgetEditor::copyContents(QTableWidget *sourceWidget, QTableWidget *d
         }
     }
 
-    int rowCount = sourceWidget->rowCount();
+    const int rowCount = sourceWidget->rowCount();
     destWidget->setRowCount(rowCount);
     for (int row = 0; row < rowCount; row++) {
         QTableWidgetItem *origHeaderItem = sourceWidget->verticalHeaderItem(row);
@@ -235,14 +236,18 @@ void TableWidgetEditor::updateEditor()
 {
     for (int i = 0; i < ui.columnsListWidget->count(); i++) {
         QTableWidgetItem *headerItem = ui.tableWidget->horizontalHeaderItem(i);
-        if (!headerItem)
+        if (!headerItem) {
             headerItem = new QTableWidgetItem;
+            ui.tableWidget->setHorizontalHeaderItem(i,headerItem);
+        }
         headerItem->setText(ui.columnsListWidget->item(i)->text());
     }
     for (int i = 0; i < ui.rowsListWidget->count(); i++) {
         QTableWidgetItem *headerItem = ui.tableWidget->verticalHeaderItem(i);
-        if (!headerItem)
+        if (!headerItem) {
             headerItem = new QTableWidgetItem;
+            ui.tableWidget->setVerticalHeaderItem ( i,headerItem);
+        }
         headerItem->setText(ui.rowsListWidget->item(i)->text());
     }
     QListWidgetItem *currentColumn = ui.columnsListWidget->currentItem();
@@ -261,7 +266,7 @@ void TableWidgetEditor::updateEditor()
 
     if (currentColumn) {
         currentColumnEnabled = true;
-        int idx = ui.columnsListWidget->currentRow();
+        const int idx = ui.columnsListWidget->currentRow();
         if (idx > 0)
             moveColumnUpEnabled = true;
         if (idx < ui.columnsListWidget->count() - 1)
@@ -270,7 +275,7 @@ void TableWidgetEditor::updateEditor()
 
     if (currentRow) {
         currentRowEnabled = true;
-        int idx = ui.rowsListWidget->currentRow();
+        const int idx = ui.rowsListWidget->currentRow();
         if (idx > 0)
             moveRowUpEnabled = true;
         if (idx < ui.rowsListWidget->count() - 1)
@@ -307,13 +312,13 @@ void TableWidgetEditor::updateEditor()
     QIcon itemIcon, columnIcon, rowIcon;
 
     if (currentColumn) {
-        int col = ui.columnsListWidget->currentRow();
+        const int col = ui.columnsListWidget->currentRow();
         if (ui.tableWidget->horizontalHeaderItem(col))
             columnIcon = ui.tableWidget->horizontalHeaderItem(col)->icon();
     }
 
     if (currentRow) {
-        int row = ui.rowsListWidget->currentRow();
+        const int row = ui.rowsListWidget->currentRow();
         if (ui.tableWidget->verticalHeaderItem(row))
             rowIcon = ui.tableWidget->verticalHeaderItem(row)->icon();
     }
@@ -345,8 +350,8 @@ void TableWidgetEditor::on_itemTextLineEdit_textEdited(const QString &text)
     if (!currentColumn || !currentRow)
         return;
 
-    int row = ui.rowsListWidget->currentRow();
-    int col = ui.columnsListWidget->currentRow();
+    const int row = ui.rowsListWidget->currentRow();
+    const int col = ui.columnsListWidget->currentRow();
     QTableWidgetItem *curItem = ui.tableWidget->item(row, col);
     if (!curItem)
         curItem = new QTableWidgetItem;
@@ -362,8 +367,8 @@ void TableWidgetEditor::on_deletePixmapItemButton_clicked()
     if (!currentColumn || !currentRow)
         return;
 
-    int row = ui.rowsListWidget->currentRow();
-    int col = ui.columnsListWidget->currentRow();
+    const int row = ui.rowsListWidget->currentRow();
+    const int col = ui.columnsListWidget->currentRow();
     QTableWidgetItem *curItem = ui.tableWidget->item(row, col);
     if (!curItem)
         curItem = new QTableWidgetItem;
@@ -381,8 +386,8 @@ void TableWidgetEditor::on_previewPixmapItemButton_clicked()
     if (!currentColumn || !currentRow)
         return;
 
-    int row = ui.rowsListWidget->currentRow();
-    int col = ui.columnsListWidget->currentRow();
+    const int row = ui.rowsListWidget->currentRow();
+    const int col = ui.columnsListWidget->currentRow();
     QTableWidgetItem *curItem = ui.tableWidget->item(row, col);
 
     FindIconDialog dialog(m_form, this);
@@ -501,9 +506,9 @@ void TableWidgetEditor::on_newColumnButton_clicked()
     if (currentColumn)
         idx = ui.columnsListWidget->currentRow() + 1;
 
-    QString newColumnString = tr("New Column");
+    const QString newColumnString = tr("New Column");
 
-    int columnCount = ui.tableWidget->columnCount();
+    const int columnCount = ui.tableWidget->columnCount();
     ui.tableWidget->setColumnCount(columnCount + 1);
 
     QTableWidgetItem *headerItem = ui.tableWidget->horizontalHeaderItem(columnCount);
@@ -549,7 +554,7 @@ void TableWidgetEditor::on_deleteColumnButton_clicked()
     m_updating = true;
 
     int idx = ui.columnsListWidget->currentRow();
-    int columnCount = ui.tableWidget->columnCount();
+    const int columnCount = ui.tableWidget->columnCount();
 
     moveColumnsRight(idx, columnCount - 1);
     ui.tableWidget->setColumnCount(columnCount - 1);
@@ -570,7 +575,7 @@ void TableWidgetEditor::on_moveColumnUpButton_clicked()
     if (!currentColumn)
         return;
 
-    int idx = ui.columnsListWidget->currentRow();
+    const int idx = ui.columnsListWidget->currentRow();
 
     if (idx == 0)
         return;
@@ -598,8 +603,8 @@ void TableWidgetEditor::on_moveColumnDownButton_clicked()
     if (!currentColumn)
         return;
 
-    int idx = ui.columnsListWidget->currentRow();
-    int columnCount = ui.tableWidget->columnCount();
+    const int idx = ui.columnsListWidget->currentRow();
+    const int columnCount = ui.tableWidget->columnCount();
 
     if (idx == columnCount - 1)
         return;
@@ -613,7 +618,7 @@ void TableWidgetEditor::on_moveColumnDownButton_clicked()
 
     QListWidgetItem *currentRow = ui.rowsListWidget->currentItem();
     if (currentRow) {
-        int row = ui.rowsListWidget->currentRow();
+        const int row = ui.rowsListWidget->currentRow();
         ui.tableWidget->setCurrentCell(row, idx + 1);
     }
 
@@ -627,7 +632,7 @@ void TableWidgetEditor::on_previewPixmapColumnButton_clicked()
     if (!currentColumn)
         return;
 
-    int currentRow = ui.columnsListWidget->currentRow();
+    const int currentRow = ui.columnsListWidget->currentRow();
 
     FindIconDialog dialog(m_form, this);
     QString file_path;
@@ -668,7 +673,7 @@ void TableWidgetEditor::on_deletePixmapColumnButton_clicked()
         return;
 
     curItem->setIcon(QIcon());
-    int col = ui.columnsListWidget->currentRow();
+    const int col = ui.columnsListWidget->currentRow();
     QTableWidgetItem *headerItem = ui.tableWidget->horizontalHeaderItem(col);
     if (headerItem)
         headerItem->setIcon(QIcon());
@@ -687,7 +692,7 @@ void TableWidgetEditor::on_newRowButton_clicked()
 
     QString newRowString = tr("New Row");
 
-    int rowCount = ui.tableWidget->rowCount();
+    const int rowCount = ui.tableWidget->rowCount();
     ui.tableWidget->setRowCount(rowCount + 1);
 
     QTableWidgetItem *headerItem = ui.tableWidget->verticalHeaderItem(rowCount);
@@ -699,7 +704,7 @@ void TableWidgetEditor::on_newRowButton_clicked()
 
     QListWidgetItem *currentCol = ui.columnsListWidget->currentItem();
     if (currentCol) {
-        int col = ui.columnsListWidget->currentRow();
+        const int col = ui.columnsListWidget->currentRow();
         ui.tableWidget->setCurrentCell(idx, col);
     }
 
@@ -733,7 +738,7 @@ void TableWidgetEditor::on_deleteRowButton_clicked()
         return;
 
     int idx = ui.rowsListWidget->currentRow();
-    int rowCount = ui.tableWidget->rowCount();
+    const int rowCount = ui.tableWidget->rowCount();
 
     moveRowsUp(idx, rowCount - 1);
     ui.tableWidget->setRowCount(rowCount - 1);
@@ -754,7 +759,7 @@ void TableWidgetEditor::on_moveRowUpButton_clicked()
     if (!currentRow)
         return;
 
-    int idx = ui.rowsListWidget->currentRow();
+    const int idx = ui.rowsListWidget->currentRow();
 
     if (idx == 0)
         return;
@@ -782,8 +787,8 @@ void TableWidgetEditor::on_moveRowDownButton_clicked()
     if (!currentRow)
         return;
 
-    int idx = ui.rowsListWidget->currentRow();
-    int rowCount = ui.tableWidget->rowCount();
+    const int idx = ui.rowsListWidget->currentRow();
+    const int rowCount = ui.tableWidget->rowCount();
 
     if (idx == rowCount - 1)
         return;
@@ -811,7 +816,7 @@ void TableWidgetEditor::on_previewPixmapRowButton_clicked()
     if (!currentRow)
         return;
 
-    int current = ui.rowsListWidget->currentRow();
+    const int current = ui.rowsListWidget->currentRow();
 
     FindIconDialog dialog(m_form, this);
     QString file_path;
@@ -851,7 +856,7 @@ void TableWidgetEditor::on_deletePixmapRowButton_clicked()
         return;
 
     curItem->setIcon(QIcon());
-    int row = ui.rowsListWidget->currentRow();
+    const int row = ui.rowsListWidget->currentRow();
     QTableWidgetItem *headerItem = ui.tableWidget->verticalHeaderItem(row);
     if (headerItem)
         headerItem->setIcon(QIcon());
