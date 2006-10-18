@@ -267,6 +267,10 @@ void QHeaderView::initialize()
 */
 void QHeaderView::setModel(QAbstractItemModel *model)
 {
+    // Don't optimize away:
+    // if (model == this->model())
+    //      return;
+    // This is the only way to reset moved sections
     Q_D(QHeaderView);
     if (d->model) {
         if (d->orientation == Qt::Horizontal) {
