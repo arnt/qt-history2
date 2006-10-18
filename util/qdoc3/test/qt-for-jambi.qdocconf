@@ -1,4 +1,4 @@
 include(qt.qdocconf)
 
-sourcedirs       = $QTDIR/src/corelib/io
+#sourcedirs       = $QTDIR/src/corelib/io
 outputformats    =
