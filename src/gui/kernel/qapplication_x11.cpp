@@ -838,7 +838,7 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
                         resFG = value;
                     else if (!bg && key == QLatin1String("background"))
                         resBG = value;
-                    else if (!button && key == QLatin1String("button.background"))
+                    else if (!bg && !button && key == QLatin1String("button.background"))
                         resButton = value;
                     else if (key == QLatin1String("text.selectbackground")) {
                         selectBackground = value;
