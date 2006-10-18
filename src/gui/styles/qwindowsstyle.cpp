@@ -1515,6 +1515,11 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                 }
                 if (use2000style && pe == PE_Frame && (frame->state & State_Raised))
                     qDrawWinButton(p, frame->rect, popupPal, frame->state & State_Sunken);
+                else if (use2000style && pe == PE_Frame && (frame->state & State_Sunken))
+                {
+                    popupPal.setColor(QPalette::Midlight, frame->palette.background().color());
+                    qDrawWinPanel(p, frame->rect, popupPal, frame->state & State_Sunken);
+                }
                 else
                     qDrawWinPanel(p, frame->rect, popupPal, frame->state & State_Sunken);
             } else {
@@ -2828,11 +2833,15 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
     case CC_ComboBox:
         if (const QStyleOptionComboBox *cmb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
             QBrush editBrush = cmb->palette.brush(QPalette::Base);
-            if ((cmb->subControls & SC_ComboBoxFrame) && cmb->frame)
-                qDrawWinPanel(p, opt->rect, opt->palette, true, &editBrush);
-            else
+            if ((cmb->subControls & SC_ComboBoxFrame) && cmb->frame) {
+                QPalette shadePal = opt->palette;
+                if (use2000style)
+                    shadePal.setColor(QPalette::Midlight, Qt::transparent);
+                qDrawWinPanel(p, opt->rect, shadePal, true, &editBrush);
+            }
+            else {
                 p->fillRect(opt->rect, editBrush);
-
+            }
             if (cmb->subControls & SC_ComboBoxArrow) {
                 State flags = State_None;
 
@@ -2898,7 +2907,10 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
             bool enabled = opt->state & State_Enabled;
             if (sb->frame && (sb->subControls & SC_SpinBoxFrame)) {
                 QRect r = subControlRect(CC_SpinBox, sb, SC_SpinBoxFrame, widget);
-                qDrawWinPanel(p, r, sb->palette, true);
+                QPalette shadePal = sb->palette;
+                if (use2000style)
+                    shadePal.setColor(QPalette::Midlight, Qt::transparent);
+                qDrawWinPanel(p, r, shadePal, true);
             }
 
             QPalette shadePal(opt->palette);
