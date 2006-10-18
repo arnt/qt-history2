@@ -14,7 +14,8 @@ SOURCES         = main.cpp \
                   ../shared/metatranslator.cpp \
                   ../shared/translator.cpp \
                   ../shared/profileevaluator.cpp \
-                  ../shared/proparser.cpp
+                  ../shared/proparser.cpp \
+                  ../shared/xliff.cpp
 
 QT += xml
 include( ../../../src/qt_professional.pri )
