@@ -1821,6 +1821,12 @@ void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
             d->updateSectionIndicator(d->section, pos);
             break;
         } // not moving
+    case QHeaderViewPrivate::SelectSections:
+        if (!d->clickableSections) {
+            int section = logicalIndexAt(pos);
+            updateSection(section);
+        }
+        // fall through
     case QHeaderViewPrivate::NoState:
         if (d->clickableSections) {
             int section = logicalIndexAt(pos);
