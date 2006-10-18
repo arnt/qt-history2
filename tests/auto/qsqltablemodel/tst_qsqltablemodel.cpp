@@ -57,6 +57,8 @@ private slots:
     void tablesAndSchemas();
     void whitespaceInIdentifiers();
     void primaryKeyOrder();
+
+    void sqlite_bigTable();
 };
 
 tst_QSqlTableModel::tst_QSqlTableModel()
@@ -638,6 +640,40 @@ void tst_QSqlTableModel::setFilter()
 
     QCOMPARE(model.rowCount(), 1);
     QCOMPARE(model.data(model.index(0, 0)).toInt(), 2);
+}
+
+void tst_QSqlTableModel::sqlite_bigTable()
+{
+    QFETCH_GLOBAL(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (db.driverName() != "QSQLITE")
+        QSKIP("SQLite specific test", SkipSingle);
+
+    QSqlQuery q(db);
+    QVERIFY_SQL(q, q.exec("create table foo(id int primary key, name varchar)"));
+    QVERIFY_SQL(q, q.prepare("insert into foo(id, name) values (?, ?)"));
+    for (int i = 0; i < 10000; ++i) {
+        q.addBindValue(i);
+        q.addBindValue(QString::number(i));
+        QVERIFY_SQL(q, q.exec());
+    }
+    q.clear();
+
+    QSqlTableModel model(0, db);
+    model.setTable("foo");
+    QVERIFY_SQL(model, model.select());
+
+    QSqlRecord rec = model.record();
+    rec.setValue("id", 424242);
+    rec.setValue("name", "Guillaume");
+    QEXPECT_FAIL("", "See task 128671", Continue);
+    QVERIFY_SQL(model, model.insertRecord(-1, rec));
+
+    model.clear();
+
+    QVERIFY_SQL(q, q.exec("drop table foo"));
 }
 
 QTEST_MAIN(tst_QSqlTableModel)
