@@ -826,7 +826,7 @@ void QToolButtonPrivate::popupTimerDone()
                 p.rx() -= sh.width();
             }
         } else {
-            if (q->mapToGlobal(QPoint(rect.right(), 0)).x() + sh.width() <= screen.width()) {
+            if (q->mapToGlobal(QPoint(rect.right(), 0)).x() + sh.width() <= screen.right()) {
                 p = q->mapToGlobal(rect.topRight());
             } else {
                 p = q->mapToGlobal(rect.topLeft() - QPoint(sh.width(), 0));
