@@ -2298,12 +2298,12 @@ int QWidget::metric(PaintDeviceMetric m) const
         return INT_MAX;
     case PdmDpiX:
     case PdmPhysicalDpiX: {
-        CGDirectDisplayID screen = CGMainDisplayID();
-        return (CGDisplayPixelsWide(screen) / CGDisplayScreenSize(screen).width) * 25.4; }
+        extern float qt_mac_defaultDpi_x(); //qpaintdevice_mac.cpp
+        return qt_mac_defaultDpi_x(); }
     case PdmDpiY:
     case PdmPhysicalDpiY: {
-        CGDirectDisplayID screen = CGMainDisplayID();
-        return (CGDisplayPixelsHigh(screen) / CGDisplayScreenSize(screen).height) * 25.4; }
+        extern float qt_mac_defaultDpi_y(); //qpaintdevice_mac.cpp
+        return qt_mac_defaultDpi_y(); }
     default: //leave this so the compiler complains when new ones are added
         qWarning("QWidget::metric: Unhandled parameter %d", m);
         return QPaintDevice::metric(m);

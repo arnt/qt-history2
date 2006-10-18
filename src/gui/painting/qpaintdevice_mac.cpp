@@ -53,6 +53,29 @@ int QPaintDevice::metric(PaintDeviceMetric) const
     return 0;
 }
 
+/*! \internal */
+float qt_mac_defaultDpi_x()
+{
+    static float ret = 0;
+    if(!ret) {
+        CGDirectDisplayID screen = CGMainDisplayID();
+        ret = (CGDisplayPixelsWide(screen) / CGDisplayScreenSize(screen).width) * 25.4;
+    }
+    return ret;
+}
+
+/*! \internal */
+float qt_mac_defaultDpi_y()
+{
+    static float ret = 0;
+    if(!ret) {
+        CGDirectDisplayID screen = CGMainDisplayID();
+        ret = (CGDisplayPixelsHigh(screen) / CGDisplayScreenSize(screen).height) * 25.4;
+    }
+    return ret;
+}
+
+
 /*! \internal
 
     Returns the QuickDraw CGrafPtr of the paint device. 0 is returned
