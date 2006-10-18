@@ -1364,7 +1364,6 @@ void QOpenGLPaintEnginePrivate::fillVertexArray(Qt::FillRule fillRule)
 
             glCullFace(GL_BACK);
             glStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP_EXT);
-            glClear(GL_STENCIL_BUFFER_BIT);
             drawVertexArrays();
 
             glCullFace(GL_FRONT);
