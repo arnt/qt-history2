@@ -662,7 +662,10 @@ QObject::QObject(QObjectPrivate &dd, QObject *parent)
 /*!
     Destroys the object, deleting all its child objects.
 
-    All signals to and from the object are automatically disconnected.
+    All signals to and from the object are automatically disconnected, and
+    any pending posted events for the object are removed from the event
+    queue. However, it is often safer to use deleteLater() rather than
+    deleting a QObject subclass directly.
 
     \warning All child objects are deleted. If any of these objects
     are on the stack or global, sooner or later your program will
@@ -673,9 +676,9 @@ QObject::QObject(QObjectPrivate &dd, QObject *parent)
     \warning Deleting a QObject while pending events are waiting to
     be delivered can cause a crash. You must not delete the QObject
     directly if it exists in a different thread than the one currently
-    executing. Use the deleteLater() method instead, which will cause
-    the event loop to delete the object after all pending events have
-    been delivered to it.
+    executing. Use deleteLater() instead, which will cause the event
+    loop to delete the object after all pending events have been
+    delivered to it.
 
     \sa deleteLater()
 */
@@ -1965,6 +1968,10 @@ void QObject::removeEventFilter(QObject *obj)
     dialog) will \e not perform the deferred deletion; for the object to be
     deleted, the control must return to the event loop from which
     deleteLater() was called.
+
+    \bold{Note:} It is safe to call this function more than once; when the
+    first deferred deletion event is delivered, any pending events for the
+    object are removed from the event queue.
 
     \sa destroyed(), QPointer
 */
