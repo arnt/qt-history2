@@ -125,6 +125,13 @@ Q_CORE_EXPORT uint qGlobalPostedEventsCount()
 }
 
 
+void qt_set_current_thread_to_main_thread()
+{
+    QCoreApplicationPrivate::theMainThread = QThread::currentThread();
+}
+
+
+
 QCoreApplication *QCoreApplication::self = 0;
 QAbstractEventDispatcher *QCoreApplicationPrivate::eventDispatcher = 0;
 uint QCoreApplicationPrivate::attribs;
@@ -790,14 +797,6 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
         delete event;
         return;
     }
-
-#ifndef QT_NO_THREAD
-    // uberhack for enabling some threading features for Qt Jambi
-    if (receiver == (QObject *) 0xfeedface && event == (QEvent *) 0xc0ffee) {
-        QCoreApplicationPrivate::theMainThread = QThread::currentThread();
-        return;
-    }
-#endif
 
     QReadLocker locker(QObjectPrivate::readWriteLock());
     if (!QObjectPrivate::isValidObject(receiver)) {

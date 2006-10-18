@@ -1399,6 +1399,7 @@ public:
         CreateThreadForAdoption,
         RefAdoptedThread,
         DerefAdoptedThread,
+        SetCurrentThreadToMainThread,
         LastInternalFunction
     };
 

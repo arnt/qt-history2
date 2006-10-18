@@ -2639,7 +2639,7 @@ bool QInternal::activateCallbacks(Callback cb, void **parameters)
 
 bool QInternal::callFunction(InternalFunction func, void **args)
 {
-    Q_ASSERT_X(func >= 0 || func < QInternal::LastInternalFunction,
+    Q_ASSERT_X(func >= 0,
                "QInternal::callFunction()", "Callback id must be a valid id");
 #ifndef QT_NO_QOBJECT
     switch (func) {
@@ -2653,6 +2653,10 @@ bool QInternal::callFunction(InternalFunction func, void **args)
         return true;
     case QInternal::DerefAdoptedThread:
         QThreadData::get2((QThread *) *args)->deref();
+        return true;
+    case QInternal::SetCurrentThreadToMainThread:
+        extern void qt_set_current_thread_to_main_thread();
+        qt_set_current_thread_to_main_thread();
         return true;
     default:
         break;
