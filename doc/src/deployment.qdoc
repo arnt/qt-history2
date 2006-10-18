@@ -1375,7 +1375,7 @@
 
     \section2 Mac OS X Version Dependencies
 
-    Qt 4.x has been designed to be built and deployed on Mac OS X 10.2
+    Qt 4.2 has been designed to be built and deployed on Mac OS X 10.3
     up until the current version as of this writing, Mac OS X 10.4 and
     all their minor releases. Qt acheives this by using "weak
     linking." This means that Qt tests if a function added in newer
@@ -1393,7 +1393,7 @@
     linking to work for your application. You can add:
 
     \code
-    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.2
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.3
     \endcode
 
     to your .pro file and qmake will take care of this for you.
@@ -1412,8 +1412,8 @@
     If you want to deploy to versions of Mac OS X earlier than 10.3.9,
     you must build with GCC 3.3 which is the default on Mac OS X
     10.3. GCC 3.3 is also available on the Mac OS X 10.4 "Xcode Tools"
-    CD and as a download for Mac OS X 10.2 from Apple (\l
-    {https://connect.apple.com/}{connect.apple.com}). You can use
+    CD and as a download for earlier versions of Mac OS X from Apple
+    (\l {https://connect.apple.com/}{connect.apple.com}). You can use
     Apple's \c gcc_select(1) command line tool to switch the default
     complier on your system.
 
