@@ -80,7 +80,7 @@ static QString numericEntity( int ch )
             break;
     }
     static int id = 0;
-    return QString::fromAscii("<ph id=\"%1\" ctype=\"x-ch-%2\">\\%3</ph>")
+    return QString::fromAscii("<ph id=\"ph%1\" ctype=\"x-ch-%2\">\\%3</ph>")
                             .arg(++id)
                             .arg(name)
                             .arg(escapechar);
