@@ -106,7 +106,7 @@ RichTextEditorToolBar::RichTextEditorToolBar(RichTextEditor *editor,
 
     m_bold_action = createCheckableAction(createIconSet(QLatin1String("textbold.png")),
             tr("Bold"), editor, SLOT(setFontBold(bool)), this);
-    m_bold_action->setShortcut(tr("CTRL+b"));
+    m_bold_action->setShortcut(tr("CTRL+B"));
     addAction(m_bold_action);
 
     m_italic_action = createCheckableAction(createIconSet(QLatin1String("textitalic.png")),
