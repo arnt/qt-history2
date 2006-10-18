@@ -266,6 +266,7 @@ struct Q_GUI_EXPORT Declaration
     bool intValue(int *i, const char *unit = 0) const;
     bool realValue(qreal *r, const char *unit = 0) const;
 
+    QSize sizeValue() const;
     QRect rectValue() const;
     QString uriValue() const;
 

@@ -941,11 +941,8 @@ bool Declaration::realValue(qreal *real, const char *unit) const
     return ok;
 }
 
-bool Declaration::intValue(int *i, const char *unit) const
+static bool intValue(const Value &v, int *i, const char *unit)
 {
-    if (values.count() != 1)
-        return false;
-    const Value &v = values.first();
     if (unit && v.type != Value::Length)
         return false;
     QString s = v.variant.toString();
@@ -959,6 +956,25 @@ bool Declaration::intValue(int *i, const char *unit) const
     if (ok)
         *i = val;
     return ok;
+}
+
+bool Declaration::intValue(int *i, const char *unit) const
+{
+    if (values.count() != 1)
+        return false;
+    return ::intValue(values.first(), i, unit);
+}
+
+QSize Declaration::sizeValue() const
+{
+    int x[2] = { 0, 0 };
+    if (values.count() > 0)
+        ::intValue(values.at(0), &x[0], "px");
+    if (values.count() > 1)
+        ::intValue(values.at(1), &x[1], "px");
+    else
+        x[1] = x[0];
+    return QSize(x[0], x[1]);
 }
 
 QRect Declaration::rectValue() const
