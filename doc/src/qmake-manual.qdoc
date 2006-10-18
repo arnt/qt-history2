@@ -1002,6 +1002,14 @@
     \row    \o warn_on  \o The compiler should output as many warnings as possible.
             This is ignored if \c warn_off is specified.
     \row    \o warn_off \o The compiler should output as few warnings as possible.
+    \omit
+    \row    \o qt_debug \o Specifies that the project should be built against
+            debug versions of the Qt libraries specified using the
+            \l{#QT}{QT} variable.
+    \row    \o qt_release \o Specifies that the project should be built against
+            release versions of the Qt libraries specified using the
+            \l{#QT}{QT} variable.
+    \endomit
     \endtable
 
     Since the \c debug option overrides the \c release option when both are
@@ -1528,6 +1536,13 @@
 
     \e{This is used on Mac OS X only.}
 
+    \section1 QMAKE_CC
+
+    This variable specifies the C compiler that will be used when building
+    projects containing C source code. Only the file name of the compiler
+    executable needs to be specified as long as it is on a path contained
+    in the \c PATH variable when the Makefile is processed.
+
     \target QMAKE_CFLAGS_DEBUG
     \section1 QMAKE_CFLAGS_DEBUG
 
@@ -1623,6 +1638,13 @@
 
     This variable contains any files which are not generated files (such as moc and uic
     generated files) and object files that should be removed when using "make clean".
+
+    \section1 QMAKE_CXX
+
+    This variable specifies the C++ compiler that will be used when building
+    projects containing C++ source code. Only the file name of the compiler
+    executable needs to be specified as long as it is on a path contained
+    in the \c PATH variable when the Makefile is processed.
 
     \target QMAKE_CXXFLAGS_DEBUG
     \section1 QMAKE_CXXFLAGS_DEBUG
@@ -2603,10 +2625,8 @@
 
     Returns the directory name part of the specified file. For example:
 
-    \code
-       FILE = /etc/X11R6/XF86Config
-       DIRNAME = dirname($$FILE) #/etc/X11R6
-    \endcode
+    \quotefromfile snippets/qmake/dirname.pro
+    \printuntil dirname
 
     \section1 error(string)
 
