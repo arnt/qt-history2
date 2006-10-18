@@ -888,26 +888,49 @@ QString QLibrary::errorString() const
 }
 
 /*!
+    \enum QLibrary::LoadHint
+
+    This enum describes the possible hints that can be used to change the way
+    libraries are handled when they are loaded.
+
+    \value ResolveAllSymbolsHint   Try to resolve all symbols in a library as
+           soon as it is loaded.
+    \value ExportExternalSymbolsHint   Export unresolved symbols in the library
+           so that they can be resolved in other dynamically-loaded libraries.
+    \value LoadArchiveMemberHint   Allow the file name of the library to specify
+           a particular object file within an archive file.
+
+    \sa loadHints
+*/
+
+/*!
     \property QLibrary::loadHints
     \brief Give the load() function some hints on how it should behave.
 
     You can give some hints on how the symbols are resolved. Usually,
     the symbols are not resolved at load time, but resolved lazily,
-    (that is, when resolve() is called).  If you set the loadHint to
+    (that is, when resolve() is called). If you set the loadHint to
     ResolveAllSymbolsHint, then all symbols will be resolved at load time
-    if the platform supports it. Setting ExportExternalSymbolsHint will
-    make the external symbols in the library available for resolution
-    in subsequent loaded libraries. If LoadArchiveMemberHint is set, the fileName
+    if the platform supports it.
+
+    Setting ExportExternalSymbolsHint will make the external symbols in the
+    library available for resolution in subsequent loaded libraries.
+
+    If LoadArchiveMemberHint is set, the file name
     is composed of two components: A path which is a reference to an
     archive file followed by the second component which is the reference to
     the archive member. For instance, the fileName \c libGL.a(shr_64.o) will refer
     to the library \c shr_64.o in the archive file named \c libGL.a. This
     is only supported on the AIX platform.
-    The interpretation of the loadHints is platform dependent, and if
+
+    The interpretation of the load hints is platform dependent, and if
     you use it you are probably making some assumptions on which platform
     you are compiling for, so use them only if you understand the consequences
     of them.
 
+    By default, none of these flags are set, so libraries will be loaded with
+    lazy symbol resolution, and will not export external symbols for resolution
+    in other dynamically-loaded libraries.
 */
 void QLibrary::setLoadHints(LoadHints hints)
 {
