@@ -1956,21 +1956,32 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
         XRenderPictFormat *maskFormat = XRenderFindStandardFormat(X11->display, ft->xglyph_format);
 
         enum { t_min = SHRT_MIN >> 1, t_max = SHRT_MAX >> 1};
-        QFixed xp = positions[0].x;
-        QFixed yp = positions[0].y;
 
-        // better return instead of crashing the X server
-        if (xp.toInt() < t_min || xp.toInt() > t_max
-            || yp.toInt() < t_min || yp.toInt() > t_max)
+        int i = 0;
+        for (; i < glyphs.size()
+               && (positions[i].x < t_min || positions[i].x > t_max
+                   || positions[i].y < t_min || positions[i].y > t_max);
+               ++i)
+            ;
+
+        if (i >= glyphs.size())
             return;
+        ++i;
+
+        QFixed xp = positions[i - 1].x;
+        QFixed yp = positions[i - 1].y;
 
         XGlyphElt32 elt;
         elt.glyphset = glyphSet;
-        elt.chars = &glyphs[0];
+        elt.chars = &glyphs[i - 1];
         elt.nchars = 1;
         elt.xOff = qRound(xp);
         elt.yOff = qRound(yp);
-        for (int i = 1; i < glyphs.size(); ++i) {
+        for (; i < glyphs.size(); ++i) {
+            if (positions[i].x < t_min || positions[i].x > t_max
+                || positions[i].y < t_min || positions[i].y > t_max) {
+                break;
+            }
             QFontEngineFT::Glyph *g = ft->cachedGlyph(glyphs[i - 1]);
             if (g
                 && positions[i].x == xp + g->advance
