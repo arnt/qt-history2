@@ -5354,7 +5354,7 @@ QRect QPainter::viewport() const
 /*! \fn bool QPainter::hasWorldXForm() const
     \compat
 
-    Use matrixEnabled() instead.
+    Use worldMatrixEnabled() instead.
 */
 
 /*! \fn void QPainter::resetXForm()
@@ -5372,7 +5372,7 @@ QRect QPainter::viewport() const
 /*! \fn void QPainter::setWorldXForm(bool enabled)
     \compat
 
-    Use setMatrixEnabled() instead.
+    Use setWorldMatrixEnabled() instead.
 */
 /*!
     Enables view transformations if \a enable is true, or disables
@@ -5404,14 +5404,14 @@ void QPainter::setViewTransformEnabled(bool enable)
 #ifdef QT3_SUPPORT
 
 /*!
-    Use the world matrix() combined with QMatrix::dx() instead.
+    Use the worldMatrix() combined with QMatrix::dx() instead.
 
     \oldcode
         QPainter painter(this);
         qreal x = painter.translationX();
     \newcode
         QPainter painter(this);
-        qreal x = painter.matrix().dx();
+        qreal x = painter.worldMatrix().dx();
     \endcode
 */
 qreal QPainter::translationX() const
@@ -5421,14 +5421,14 @@ qreal QPainter::translationX() const
 }
 
 /*!
-    Use the world matrix() combined with QMatrix::dy() instead.
+    Use the worldMatrix() combined with QMatrix::dy() instead.
 
     \oldcode
         QPainter painter(this);
         qreal y = painter.translationY();
     \newcode
         QPainter painter(this);
-        qreal y = painter.matrix().dy();
+        qreal y = painter.worldMatrix().dy();
     \endcode
 */
 qreal QPainter::translationY() const
@@ -5447,9 +5447,8 @@ qreal QPainter::translationY() const
 */
 void QPainter::map(int x, int y, int *rx, int *ry) const
 {
-    Q_D(const QPainter);
     QPoint p(x, y);
-    p = p * d->state->matrix;
+    p = p * combinedMatrix();
     *rx = p.x();
     *ry = p.y();
 }
@@ -5457,7 +5456,7 @@ void QPainter::map(int x, int y, int *rx, int *ry) const
 /*!
     \fn QPoint QPainter::xForm(const QPoint &point) const
 
-    Use \a point * matrix() instead.
+    Use \a point * combinedMatrix() instead.
 */
 
 QPoint QPainter::xForm(const QPoint &p) const
@@ -5465,7 +5464,7 @@ QPoint QPainter::xForm(const QPoint &p) const
     Q_D(const QPainter);
     if (d->state->txop == QTransform::TxNone)
         return p;
-    return p * d->state->matrix;
+    return p * combinedMatrix();
 }
 
 
@@ -5473,7 +5472,7 @@ QPoint QPainter::xForm(const QPoint &p) const
     \fn QRect QPainter::xForm(const QRect &rectangle) const
     \overload
 
-    Use \a rectangle * matrix() instead.
+    Use \a rectangle * combinedMatrix() instead.
 */
 
 QRect QPainter::xForm(const QRect &r) const
@@ -5481,14 +5480,14 @@ QRect QPainter::xForm(const QRect &r) const
     Q_D(const QPainter);
     if (d->state->txop == QTransform::TxNone)
         return r;
-    return d->state->matrix.mapRect(r);
+    return combinedMatrix().mapRect(r);
 }
 
 /*!
     \fn QPolygon QPainter::xForm(const QPolygon &polygon) const
     \overload
 
-    Use \a polygon * matrix() instead.
+    Use \a polygon * combinedMatrix() instead.
 */
 
 QPolygon QPainter::xForm(const QPolygon &a) const
@@ -5496,45 +5495,44 @@ QPolygon QPainter::xForm(const QPolygon &a) const
     Q_D(const QPainter);
     if (d->state->txop == QTransform::TxNone)
         return a;
-    return a * d->state->matrix;
+    return a * combinedMatrix();
 }
 
 /*!
     \fn QPolygon QPainter::xForm(const QPolygon &polygon, int index, int count) const
     \overload
 
-    Use matrix() combined with QPolygon::mid() instead.
+    Use combinedMatrix() combined with QPolygon::mid() instead.
 
     \oldcode
         QPainter painter(this);
         QPolygon transformed = painter.xForm(polygon, index, count)
     \newcode
         QPainter painter(this);
-        QPolygon transformed = polygon.mid(index, count) * painter.matrix();
+        QPolygon transformed = polygon.mid(index, count) * painter.combinedMatrix();
     \endcode
 */
 
 QPolygon QPainter::xForm(const QPolygon &av, int index, int npoints) const
 {
-    Q_D(const QPainter);
     int lastPoint = npoints < 0 ? av.size() : index+npoints;
     QPolygon a(lastPoint-index);
     memcpy(a.data(), av.data()+index, (lastPoint-index)*sizeof(QPoint));
-    return a * d->state->matrix;
+    return a * combinedMatrix();
 }
 
 /*!
     \fn QPoint QPainter::xFormDev(const QPoint &point) const
     \overload
 
-    Use  matrix() combined with QMatrix::inverted() instead.
+    Use  combinedMatrix() combined with QMatrix::inverted() instead.
 
     \oldcode
         QPainter painter(this);
         QPoint transformed = painter.xFormDev(point);
     \newcode
         QPainter painter(this);
-        QPoint transformed = point * painter.matrix().inverted();
+        QPoint transformed = point * painter.combinedMatrix().inverted();
     \endcode
 */
 
@@ -5543,25 +5541,21 @@ QPoint QPainter::xFormDev(const QPoint &p) const
     Q_D(const QPainter);
     if(d->state->txop == QTransform::TxNone)
         return p;
-    if (!d->txinv) {
-        QPainter *that = (QPainter*)this;        // mutable
-        that->d_ptr->updateInvMatrix();
-    }
-    return p * d->invMatrix;
+    return p * combinedMatrix().inverted();
 }
 
 /*!
     \fn QPoint QPainter::xFormDev(const QRect &rectangle) const
     \overload
 
-    Use  matrix() combined with QMatrix::inverted() instead.
+    Use  combineMatrix() combined with QMatrix::inverted() instead.
 
     \oldcode
         QPainter painter(this);
         QRect transformed = painter.xFormDev(rectangle);
     \newcode
         QPainter painter(this);
-        QRect transformed = rectangle * painter.matrix().inverted();
+        QRect transformed = rectangle * painter.combinedMatrix().inverted();
     \endcode
 */
 
@@ -5570,11 +5564,7 @@ QRect QPainter::xFormDev(const QRect &r)  const
     Q_D(const QPainter);
     if (d->state->txop == QTransform::TxNone)
         return r;
-    if (!d->txinv) {
-        QPainter *that = (QPainter*)this;        // mutable
-        that->d_ptr->updateInvMatrix();
-    }
-    return d->invMatrix.mapRect(r);
+    return combinedMatrix().inverted().mapRect(r);
 }
 
 /*!
@@ -5583,14 +5573,14 @@ QRect QPainter::xFormDev(const QRect &r)  const
     \fn QPoint QPainter::xFormDev(const QPolygon &polygon) const
     \overload
 
-    Use  matrix() combined with QMatrix::inverted() instead.
+    Use  combinedMatrix() combined with QMatrix::inverted() instead.
 
     \oldcode
         QPainter painter(this);
         QPolygon transformed = painter.xFormDev(rectangle);
     \newcode
         QPainter painter(this);
-        QPolygon transformed = polygon * painter.matrix().inverted();
+        QPolygon transformed = polygon * painter.combinedMatrix().inverted();
     \endcode
 */
 
@@ -5599,25 +5589,21 @@ QPolygon QPainter::xFormDev(const QPolygon &a) const
     Q_D(const QPainter);
     if (d->state->txop == QTransform::TxNone)
         return a;
-    if (!d->txinv) {
-        QPainter *that = (QPainter*)this;        // mutable
-        that->d_ptr->updateInvMatrix();
-    }
-    return a * d->invMatrix;
+    return a * combinedMatrix().inverted();
 }
 
 /*!
     \fn QPolygon QPainter::xFormDev(const QPolygon &polygon, int index, int count) const
     \overload
 
-    Use matrix() combined with QPolygon::mid() and QMatrix::inverted() instead.
+    Use combinedMatrix() combined with QPolygon::mid() and QMatrix::inverted() instead.
 
     \oldcode
         QPainter painter(this);
         QPolygon transformed = painter.xFormDev(polygon, index, count);
     \newcode
         QPainter painter(this);
-        QPolygon transformed = polygon.mid(index, count) * painter.matrix().inverted();
+        QPolygon transformed = polygon.mid(index, count) * painter.combinedMatrix().inverted();
     \endcode
 */
 
@@ -5629,11 +5615,7 @@ QPolygon QPainter::xFormDev(const QPolygon &ad, int index, int npoints) const
     memcpy(a.data(), ad.data()+index, (lastPoint-index)*sizeof(QPoint));
     if (d->state->txop == QTransform::TxNone)
         return a;
-    if (!d->txinv) {
-        QPainter *that = (QPainter*)this;        // mutable
-        that->d_ptr->updateInvMatrix();
-    }
-    return a * d->invMatrix;
+    return a * combinedMatrix().inverted();
 }
 
 /*!
