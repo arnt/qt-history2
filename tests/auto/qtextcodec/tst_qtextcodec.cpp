@@ -91,6 +91,9 @@ void tst_QTextCodec::toUnicode()
         QVERIFY(c != 0);
 	QString uniString = c->toUnicode( ba );
 	QCOMPARE( ba, c->fromUnicode( uniString ) );
+        char ch = '\0';
+        QVERIFY(c->toUnicode(&ch, 1).isEmpty());
+        QVERIFY(c->toUnicode(&ch, 1).isNull());
     } else {
         QFAIL("File could not be opened");
     }
