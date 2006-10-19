@@ -1560,6 +1560,8 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
             if (slider->subControls & SC_SliderTickmarks) {
                 QStyleOptionSlider tmpSlider = *slider;
                 tmpSlider.subControls = SC_SliderTickmarks;
+                int frameWidth = pixelMetric(PM_DefaultFrameWidth);
+                tmpSlider.rect.translate(frameWidth - 1, 0);
                 QCommonStyle::drawComplexControl(cc, &tmpSlider, p, widget);
             }
         }
