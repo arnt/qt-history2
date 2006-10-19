@@ -254,7 +254,7 @@ static bool QT_FASTCALL _char(char **ptr, char expected, ErrorInfo *errorInfo)
         return true;
     }
 
-    errorInfo->setParams(*ptr, "", expected, *((*ptr)));
+    errorInfo->setParams(*ptr, "", QLatin1Char(expected), QLatin1Char(*((*ptr))));
     return false;
 }
 
@@ -268,7 +268,7 @@ static bool QT_FASTCALL _HEXDIG(char **ptr, char *dig, ErrorInfo *errorInfo)
     }
 
     errorInfo->setParams(*ptr, QT_TRANSLATE_NOOP(QUrl, "expected hexdigit number (0-9, a-f, A-F)"),
-                         '\0', ch);
+                         QLatin1Char('\0'), QLatin1Char(ch));
     return false;
 }
 
@@ -323,7 +323,7 @@ static bool QT_FASTCALL _subDelims(char **ptr, char *c, ErrorInfo *errorInfo)
         errorInfo->setParams(*ptr, QT_TRANSLATE_NOOP(QUrl, "expected sub-delimiter ")
                              + QString("(\"!\", \"$\", \"&\", \"\'\", \"(\", \")\",")
                              + QString("\"*\", \"+\", \",\", \";\", \"=\")"),
-                             '\0', ch);
+                             QLatin1Char('\0'), QLatin1Char(ch));
         return false;
     }
 }
@@ -366,7 +366,8 @@ static bool QT_FASTCALL _unreserved(char **ptr, char *c, ErrorInfo *errorInfo)
         return true;
     default:
         errorInfo->setParams(*ptr, QT_TRANSLATE_NOOP(QUrl, "expected unreserved (alpha, digit,")
-                             + QString("\'=\', \'.\', \'_\', \'~\'"), '\0', ch);
+                             + QString("\'=\', \'.\', \'_\', \'~\'"),
+                             QLatin1Char('\0'), QLatin1Char(ch));
         return false;
     }
 }
@@ -400,7 +401,7 @@ static bool QT_FASTCALL _IPvFuture(char **ptr, QByteArray *host, ErrorInfo *erro
     char ch = *((*ptr)++);
     if (ch != 'v') {
         *ptr = ptrBackup;
-        errorInfo->setParams(*ptr, "", 'v', ch);
+        errorInfo->setParams(*ptr, "", QLatin1Char('v'), QLatin1Char(ch));
         return false;
     }
 
@@ -419,13 +420,13 @@ static bool QT_FASTCALL _IPvFuture(char **ptr, QByteArray *host, ErrorInfo *erro
     char c = *((*ptr)++);
     if (c != '.') {
         *ptr = ptrBackup;
-        errorInfo->setParams(*ptr, "", '.', c);
+        errorInfo->setParams(*ptr, "", QLatin1Char('.'), QLatin1Char(c));
         return false;
     }
 
     if (!_unreserved(ptr, &ch, errorInfo) && !_subDelims(ptr, &ch, errorInfo) && (ch = *((*ptr)++)) != ':') {
         *ptr = ptrBackup;
-        errorInfo->setParams(*ptr, "", ':', ch);
+        errorInfo->setParams(*ptr, "", QLatin1Char(':'), QLatin1Char(ch));
         return false;
     }
 
@@ -465,7 +466,8 @@ static bool QT_FASTCALL _decOctet(char **ptr, QByteArray *octet, ErrorInfo *erro
     char c1 = **ptr;
 
     if (c1 < '0' || c1 > '9') {
-        errorInfo->setParams(*ptr, QT_TRANSLATE_NOOP(QUrl, "expected decimal digit (0-9)"), '\0', c1);
+        errorInfo->setParams(*ptr, QT_TRANSLATE_NOOP(QUrl, "expected decimal digit (0-9)"),
+                             QLatin1Char('\0'), QLatin1Char(c1));
         return false;
     }
 
@@ -494,7 +496,8 @@ static bool QT_FASTCALL _decOctet(char **ptr, QByteArray *octet, ErrorInfo *erro
     // If there is a three digit number larger than 255, reject the
     // whole token.
     if (c1 >= '2' && c2 >= '5' && c3 > '5') {
-        errorInfo->setParams(*ptr, QT_TRANSLATE_NOOP(QUrl, "digit number larger than 255"), '\0', '\0');
+        errorInfo->setParams(*ptr, QT_TRANSLATE_NOOP(QUrl, "digit number larger than 255"),
+                             QLatin1Char('\0'), QLatin1Char('\0'));
         return false;
     }
 
@@ -518,7 +521,7 @@ static bool QT_FASTCALL _IPv4Address(char **ptr, QByteArray *c, ErrorInfo *error
         char ch = *((*ptr)++);
         if (ch != '.') {
             *ptr = ptrBackup;
-            errorInfo->setParams(*ptr, "", '.', ch);
+            errorInfo->setParams(*ptr, "", QLatin1Char('.'), QLatin1Char(ch));
             return false;
         }
 
@@ -618,7 +621,8 @@ static bool QT_FASTCALL _IPv6Address(char **ptr, QByteArray *host, ErrorInfo *er
                 if (rightHexColons != 0) {
                     *ptr = ptrBackup;
                     errorInfo->setParams(*ptr, QT_TRANSLATE_NOOP(QUrl,
-                                         "too many colons (\':\'))"), '\0', '\0');
+                                         "too many colons (\':\'))"),
+                                         QLatin1Char('\0'), QLatin1Char('\0'));
                     return false;
                 }
 
@@ -667,7 +671,8 @@ static bool QT_FASTCALL _IPv6Address(char **ptr, QByteArray *host, ErrorInfo *er
     // based on the case we need to check that the number of leftHexColons is valid
     if (leftHexColons > (canBeCase - 2)) {
         *ptr = ptrBackup;
-        errorInfo->setParams(*ptr, QT_TRANSLATE_NOOP(QUrl, "too many colons (\':\')"), '\0', '\0');
+        errorInfo->setParams(*ptr, QT_TRANSLATE_NOOP(QUrl, "too many colons (\':\')"),
+                             QLatin1Char('\0'), QLatin1Char('\0'));
         return false;
     }
 
@@ -829,7 +834,7 @@ static bool QT_FASTCALL _pchar(char **ptr, char pc[], ErrorInfo *errorInfo)
         return true;
 
     errorInfo->setParams(*ptr, QT_TRANSLATE_NOOP(QUrl, "expected pchar (unreserved / pct-encoded"
-                         "/ sub-delims / \":\" / \"@\""), '\0', c);
+                         "/ sub-delims / \":\" / \"@\""), QLatin1Char('\0'), QLatin1Char(c));
     return false;
 }
 
@@ -896,7 +901,7 @@ static bool QT_FASTCALL _pathAbs(char **ptr, QByteArray *path, ErrorInfo *errorI
     char ch = *((*ptr)++);
     if (ch != '/') {
         *ptr = ptrBackup;
-        errorInfo->setParams(*ptr, "", '/', ch);
+        errorInfo->setParams(*ptr, "", QLatin1Char('/'), QLatin1Char(ch));
         return false;
     }
 
@@ -3275,13 +3280,13 @@ void QUrlPrivate::validate() const
         if (!host.isEmpty() || port != -1 || !userName.isEmpty() || !password.isEmpty()) {
             that->isValid = false;
             that->errorInfo.setParams(0, QT_TRANSLATE_NOOP(QUrl, "expected empty host, username,"
-                                      "port and password"), '\0', '\0');
+                                      "port and password"), QLatin1Char('\0'), QLatin1Char('\0'));
         }
     } else if (scheme == QLatin1String("ftp") || scheme == QLatin1String("http")) {
         if (host.isEmpty() && !path.isEmpty()) {
             that->isValid = false;
             that->errorInfo.setParams(0, QT_TRANSLATE_NOOP(QUrl, "the host is empty, but not the path"),
-                                      '\0', '\0');
+                                      QLatin1Char('\0'), QLatin1Char('\0'));
         }
     }
 }
@@ -3289,10 +3294,11 @@ void QUrlPrivate::validate() const
 void QUrlPrivate::parse(ParseOptions parseOptions) const
 {
     QUrlPrivate *that = (QUrlPrivate *)this;
-    that->errorInfo.setParams(0, "", '\0', '\0');
+    that->errorInfo.setParams(0, "", QLatin1Char('\0'), QLatin1Char('\0'));
     if (encodedOriginal.isEmpty()) {
         that->isValid = false;
-        that->errorInfo.setParams(0, QT_TRANSLATE_NOOP(QUrl, "empty"), '\0', '\0');
+        that->errorInfo.setParams(0, QT_TRANSLATE_NOOP(QUrl, "empty"),
+                                  QLatin1Char('\0'), QLatin1Char('\0'));
         QURL_SETFLAG(that->stateFlags, Validated | Parsed);
         return;
     }
@@ -3344,7 +3350,8 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
         (void) _fragment(ptr, &__fragment, &errorInfo);
     } else if (ch != '\0') {
         that->isValid = false;
-        that->errorInfo.setParams(*ptr, QT_TRANSLATE_NOOP(QUrl, "expected end of URL"), '\0', ch);
+        that->errorInfo.setParams(*ptr, QT_TRANSLATE_NOOP(QUrl, "expected end of URL"),
+                                  QLatin1Char('\0'), QLatin1Char(ch));
         QURL_SETFLAG(that->stateFlags, Validated | Parsed);
 #if defined (QURL_DEBUG)
         qDebug("QUrlPrivate::parse(), unrecognized: %c%s", ch, *ptr);
