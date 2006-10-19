@@ -1,7 +1,5 @@
   * check reimplementation of interface functions (e.g. QWidget::widthMM())
-  * omit "see alsos" that don't work instead of showing them as broken links
   * fix enum value table (e.g. QCoreApplication.Encoding.html)
-  * compatible slot signature -> <b>Compatible Slot Signature[s]:</b> etc.
   * handle 'e.g.' and 'i.e.' in HTML, somehow, e.g. QAbstractEventDispatcher::interrupt()
   * overloads in general seem broken, e.g. QAbstractEventDispatcher::instance()
   * handle '::' in doc, e.g. in QAbstractEventDispatcher's detailed desc
@@ -25,3 +23,4 @@
         * example: foo -> isFoo()
 
   * lowercase, and remove final stop, in \brief texts for variables and properties
+  * omit "see alsos" that don't work instead of showing them as broken links

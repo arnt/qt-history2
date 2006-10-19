@@ -6,8 +6,11 @@ enum JavaSignatureSyntax {
     SlotSignature
 };
 
-static QString javaSignature(const FunctionNode *func, JavaSignatureSyntax syntax)
+static QString javaSignature(const FunctionNode *func, JavaSignatureSyntax syntax,
+                             int maxParams = 65535)
 {
+    maxParams = qMin(maxParams, func->parameters().count());
+
     QString result;
 
     if (syntax == GeneratedJdocFile) {
@@ -42,7 +45,7 @@ static QString javaSignature(const FunctionNode *func, JavaSignatureSyntax synta
         result += func->name();
     }
     result += '(';
-    for (int i = 0; i < func->parameters().count(); ++i) {
+    for (int i = 0; i < maxParams; ++i) {
         if (i != 0)
             result += ", ";
         result += func->parameters().at(i).leftType();
@@ -241,7 +244,9 @@ void JavadocGenerator::generateAlsoList( const Node *node, CodeMarker *marker )
     QList<Text> alsoList = node->doc().alsoList();
     supplementAlsoList(node, alsoList);
 
-    if (node->type() == Node::Fake) {
+    if (node->type() == Node::Fake
+            || (node->type() == Node::Function
+                && static_cast<const FunctionNode *>(node)->metaness() == FunctionNode::Signal)) {
         Text text;
 
         if (!alsoList.isEmpty()) {
@@ -350,13 +355,31 @@ void JavadocGenerator::generateDoc(const Node *node, CodeMarker *marker)
         if (node && node->type() == Node::Function) {
             const FunctionNode *func = static_cast<const FunctionNode *>(node);
             if (func->metaness() == FunctionNode::Signal) {
-                QString slotSignature = javaSignature(func, GeneratedJdocFile);
-                
-                // ### could add several signatures
+                QStringList slotSignatures;
+                for (int i = func->parameters().count(); i >= 0; --i)
+                    slotSignatures += javaSignature(func, SlotSignature, i);
+
                 Text text;
-                text << Atom::ParaLeft << "Compatible slot signature:" << Atom::ParaRight
-                     << Atom(Atom::Code,
-                             marker->markedUpCode(javaSignature(func, SlotSignature), 0, ""));
+
+                text << Atom(Atom::ListLeft, ATOM_LIST_TAG)
+                     << Atom(Atom::ListTagLeft, ATOM_LIST_TAG)
+                     << Atom(Atom::FormattingLeft, ATOM_FORMATTING_BOLD);
+
+                if (slotSignatures.count() == 1) {
+                    text << "Compatible Slot Signature:";
+                } else {
+                    text << "Compatible Slot Signatures:";
+                }
+
+                text << Atom(Atom::FormattingRight, ATOM_FORMATTING_BOLD)
+                     << Atom(Atom::ListTagRight, ATOM_LIST_TAG);
+
+                for (int i = 0; i < slotSignatures.count(); ++i) {
+                    text << Atom(Atom::ListItemLeft, ATOM_LIST_TAG)
+                         << Atom(Atom::C, marker->markedUpCode(slotSignatures.at(i), 0, ""))
+                         << Atom(Atom::ListItemRight, ATOM_LIST_TAG);
+                }
+                text << Atom(Atom::ListRight, ATOM_LIST_TAG);
                 generateText(text, node, marker);
             }
         }
