@@ -56,6 +56,15 @@ static QString javaSignature(const FunctionNode *func, JavaSignatureSyntax synta
     return result;
 }
 
+static QString packageName(const Node *node)
+{
+    while (node && node->type() != Node::Class && node->type() != Node::Fake)
+        node = node->parent();
+    if (!node)
+        return QString();
+    return node->moduleName();
+}
+
 JavadocGenerator::JavadocGenerator()
     : oldDevice(0), currentDepth(0)
 {
@@ -129,6 +138,7 @@ void JavadocGenerator::endText(const Node *relative, CodeMarker *marker)
         buffer.replace("\"", "&quot;");
         buffer.replace("<", "&lt;");
         buffer.replace(">", "&gt;");
+        buffer.replace("*/", "*<!-- noop -->/");
         out() << buffer;
         buffer.clear();
     }
@@ -226,15 +236,39 @@ QString JavadocGenerator::refForNode( const Node *node )
 
 QString JavadocGenerator::linkForNode( const Node *node, const Node *relative )
 {
+    // ### EVIL, relative should never be null
+    if (!relative)
+        relative = node;
+
+    QString result;
     if (node->type() == Node::Fake) {
-        return node->name();
+        result = node->name();
     } else {
         if (!node->isInnerNode()) {
-            return linkForNode(node->parent(), relative) + "#" + refForNode(node);
+            result = linkForNode(node->parent(), relative) + "#" + refForNode(node);
         } else {
-            return node->name() + ".html";
+            result = node->name() + ".html";
         }
     }
+
+    QStringList nodePackage = packageName(node).split(".");
+    QStringList relativePackage = packageName(relative).split(".");
+    if (nodePackage == QStringList(QString()) || relativePackage == QStringList(QString()))
+        qFatal("I'm in trouble [%s][%s]", qPrintable(node->name()), qPrintable(relative->name()));
+
+    int i = nodePackage.count() - 1;
+    while (nodePackage.value(i) != relativePackage.value(i)) {
+        result.prepend(nodePackage.at(i) + "/");
+        --i;
+    }
+
+    ++i;
+    while (i < relativePackage.count()) {
+        result.prepend("../");
+        ++i;
+    }
+
+    return result;
 }
 
 QString JavadocGenerator::refForAtom(Atom *atom, const Node *node)

@@ -34,6 +34,7 @@ public:
     virtual void initializeGenerator(const Config &config);
     virtual void terminateGenerator();
     virtual QString format() = 0;
+    virtual bool canHandleFormat(const QString &format) { return format == this->format(); }
     virtual void generateTree(const Tree *tree, CodeMarker *marker) = 0;
 
     static void initialize( const Config& config );

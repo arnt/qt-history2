@@ -9,7 +9,7 @@ language                = Java
 
 sources                 = $JAMBI/doc/japi/qdoc.japi
 outputformats           = javadoc
-outputdir               = $JAMBI/doc/jdoc
+outputdir               = $JAMBI/doc/html/com/trolltech/qt
 
 HTML.stylesheets        = classic.css
 HTML.postheader         = ""

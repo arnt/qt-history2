@@ -34,7 +34,7 @@ static void setPass1JambifiedDoc(Node *javaNode, const Node *cppNode)
         
     }
 
-    javaNode->setDoc(newDoc);
+    javaNode->setDoc(newDoc, true);
 }
 
 static void setStatus(Node *javaNode, const Node *cppNode)
@@ -125,6 +125,7 @@ void JambiApiParser::doneParsingSourceFiles(Tree * /* tree */)
             if (cppFake->subType() == FakeNode::Page) {
                 FakeNode *javaFake = new FakeNode(javaTre->root(), cppFake->name(),
                                                   cppFake->subType());
+                javaFake->setModuleName("com.trolltech.qt");    // ### hard-coded
                 javaFake->setTitle(cppFake->title());
                 javaFake->setSubTitle(cppFake->subTitle());
                 setStatus(javaFake, cppFake);
@@ -193,6 +194,7 @@ bool JambiApiParser::startElement(const QString & /* namespaceURI */,
         } else {
             if (qName == "class") {
                 info.javaNode = new ClassNode(javaParent, info.javaName); // ###
+                info.javaNode->setModuleName(attributes.value("package"));
             } else {
                 info.javaNode = new EnumNode(javaParent, info.javaName);
             }
@@ -266,7 +268,7 @@ bool JambiApiParser::startElement(const QString & /* namespaceURI */,
 
                     Doc doc;
                     doc.setBody(text);
-                    javaNode->setDoc(doc);
+                    javaNode->setDoc(doc, true);
                 }
                 javaNode->setOverload(overloadNo > 1);
             }
@@ -292,7 +294,7 @@ bool JambiApiParser::startElement(const QString & /* namespaceURI */,
                 javaNode->setDoc(Doc(japiLocation,
                                      "This method is used internally by Qt Jambi.\n"
                                      "Do not use it in your applications.",
-                                     QSet<QString>()));
+                                     QSet<QString>()), true);
             } else {
                 setPass1JambifiedDoc(javaNode, cppNode);
                 setStatus(javaNode, cppNode);
@@ -336,7 +338,7 @@ void JambiApiParser::jambifyDocsPass2(Node *node)
         if (node->type() == Node::Enum) {
             Doc newDoc(doc);
             newDoc.simplifyEnumDoc();
-            node->setDoc(newDoc);
+            node->setDoc(newDoc, true);
         }
     }
 

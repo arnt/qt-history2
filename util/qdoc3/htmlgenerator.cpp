@@ -372,8 +372,15 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         out() << "</div>";
         break;
     case Atom::Link:
-        beginLink(getLink(atom, relative, marker), relative, marker);
-        skipAhead = 1;
+        {
+            QString myLink = getLink(atom, relative, marker);
+            if (myLink.isEmpty())
+                relative->doc().location().warning(tr("Cannot link to '%1' in %2")
+                        .arg(atom->string())
+                        .arg(marker->plainFullName(relative)));
+            beginLink(myLink, relative, marker);
+            skipAhead = 1;
+        }
         break;
     case Atom::LinkNode:
         beginLink(linkForNode(CodeMarker::nodeForString(atom->string()), relative), relative,
@@ -2571,8 +2578,6 @@ void HtmlGenerator::beginLink(const QString &link, const Node *relative, CodeMar
     if (link.isEmpty()) {
         if (showBrokenLinks)
             out() << "<i>";
-        relative->doc().location().warning(tr("Cannot link to '%1' in %2").arg(link)
-                .arg(marker->plainFullName(relative)));
     } else {
         out() << "<a href=\"" << link << "\">";
     }

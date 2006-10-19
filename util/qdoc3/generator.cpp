@@ -770,7 +770,7 @@ const Atom *Generator::generateAtomList(const Atom *atom, const Node *relative, 
     while (atom) {
 	if (atom->type() == Atom::FormatIf) {
 	    int numAtoms0 = numAtoms;
-	    bool rightFormat = ( atom->string() == format() );
+	    bool rightFormat = canHandleFormat(atom->string());
 	    atom = generateAtomList(atom->next(), relative, marker, generate && rightFormat,
 				    numAtoms);
 	    if (!atom)

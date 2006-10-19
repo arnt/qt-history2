@@ -12,6 +12,7 @@ public:
     void initializeGenerator(const Config &config);
     void terminateGenerator();
     QString format();
+    bool canHandleFormat(const QString &format) { return format == "HTML" || format == "javadoc"; }
     void generateTree(const Tree *tree, CodeMarker *marker);
     QString typeString(const Node *node);
 
