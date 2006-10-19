@@ -9,6 +9,9 @@
 #include "node.h"
 #include "tree.h"
 
+static const char USED_INTERNALLY[] = "This method is used internally by Qt Jambi.\n"
+                                      "Do not use it in your applications.";
+
 static Text textWithFixedBrief(const Text &text, const Text &beforeBrief,
                                const Text &afterBrief)
 {
@@ -65,10 +68,15 @@ static void setPass1JambifiedDoc(Node *javaNode, const Node *cppNode, const QStr
                 QStringList cppParams = cppFunc->parameterNames();
                 newDoc.renameParameters(cppParams, javaParams);
 
-                if (cppNode->access() == Node::Private && cppFunc->reimplementedFrom()) {
+                if (cppNode->access() == Node::Private) {
                     Text text;
-                    text << Atom::ParaLeft << "This function is reimplemented for internal reasons."
-                         << Atom::ParaRight;
+                    text << Atom::ParaLeft;
+                    if (cppFunc->reimplementedFrom()) {
+                        text << "This function is reimplemented for internal reasons.";
+                    } else {
+                        text << USED_INTERNALLY;
+                    }
+                    text << Atom::ParaRight;
                     newDoc.setBody(text);
                 }
             }
@@ -200,6 +208,7 @@ void JambiApiParser::doneParsingSourceFiles(Tree * /* tree */)
         Fix the docs.
     */
     if (javaTre) {
+        javaTre->resolveInheritance();
         jambifyDocsPass2(javaTre->root());
         javaTre = 0;
     }
@@ -240,10 +249,12 @@ bool JambiApiParser::startElement(const QString & /* namespaceURI */,
     if (qName == "class" || qName == "enum") {
         Node::Type type = (qName == "class") ? Node::Class : Node::Enum;
 
+        QString javaExtends = attributes.value("java-extends");
+        QString javaImplements = attributes.value("javaimplements");
+
         ClassOrEnumInfo info;
         info.tag = qName;
         info.javaName = attributes.value("java");
-        info.javaImplements = attributes.value("javaimplements");
         info.cppName = attributes.value("cpp");
         info.cppNode = cppTre->findNode(info.cppName.split("::"), type, cppParent);
         if (!info.cppNode && type == Node::Class) {
@@ -255,8 +266,16 @@ bool JambiApiParser::startElement(const QString & /* namespaceURI */,
             japiLocation.warning(tr("Cannot find C++ class or enum '%1'").arg(info.cppName));
         } else {
             if (qName == "class") {
-                info.javaNode = new ClassNode(javaParent, info.javaName); // ###
-                info.javaNode->setModuleName(attributes.value("package"));
+                ClassNode *javaClass = new ClassNode(javaParent, info.javaName);
+                javaClass->setModuleName(attributes.value("package"));
+                if (!javaExtends.isEmpty())
+                    javaTre->addBaseClass(javaClass, Node::Public, javaExtends.split('.'),
+                                          javaExtends);
+                if (!javaImplements.isEmpty())
+                    javaTre->addBaseClass(javaClass, Node::Public, javaImplements.split('.'),
+                                          javaExtends);
+
+                info.javaNode = javaClass;
             } else {
                 info.javaNode = new EnumNode(javaParent, info.javaName);
             }
@@ -353,14 +372,9 @@ bool JambiApiParser::startElement(const QString & /* namespaceURI */,
                 japiLocation.warning(tr("Cannot find C++ variable '%1' ('%2')")
                                      .arg(cppVariable).arg(cppParent->name()));
 #endif
-                javaNode->setDoc(Doc(japiLocation,
-                                     "This method is used internally by Qt Jambi.\n"
-                                     "Do not use it in your applications.",
+                javaNode->setDoc(Doc(japiLocation, USED_INTERNALLY,
                                      QSet<QString>()), true);
             } else {
-
-
-
                 setPass1JambifiedDoc(javaNode, cppNode, qName);
                 setStatus(javaNode, cppNode);
             }

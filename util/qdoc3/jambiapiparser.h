@@ -14,7 +14,6 @@ struct ClassOrEnumInfo
 {
     QString tag;
     QString javaName;
-    QString javaImplements;
     QString cppName;
     Node *javaNode;
     Node *cppNode;
