@@ -344,7 +344,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
     case Atom::Image:
     case Atom::InlineImage:
         {
-            QString fileName = imageFileName(relative->doc().location(), atom->string());
+            QString fileName = imageFileName(relative, atom->string());
             QString text;
             if ( atom->next() != 0 )
                 text = atom->next()->string();
@@ -1848,6 +1848,7 @@ void HtmlGenerator::generateLink(const Atom *atom, const Node * /* relative */, 
         inLink = false;
         out() << protect(atom->string().mid(k));
     } else if (marker->recognizeLanguage("Java")) {
+	// hack for Java: remove () and use <tt> when appropriate
         bool func = atom->string().endsWith("()");
         bool tt = (func || atom->string().contains(camelCase));
         if (tt)

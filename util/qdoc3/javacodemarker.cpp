@@ -144,8 +144,7 @@ const Node *JavaCodeMarker::resolveTarget(const QString &target, const Tree *tre
         QStringList path = target.split('.');
         const Node *node;
         if ((node = tree->findNode(path, relative,
-                                   Tree::SearchBaseClasses | Tree::SearchEnumValues
-                                   | Tree::NonFunction)))
+                                   Tree::SearchBaseClasses | Tree::SearchEnumValues)))
             return node;
     }
     return 0;

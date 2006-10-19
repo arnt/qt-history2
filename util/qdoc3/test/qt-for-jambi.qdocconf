@@ -1,11 +1,10 @@
 include(qt.qdocconf)
 
 # Comment out for full run:
-# sourcedirs       = $QTDIR/src/corelib/io
+# sourcedirs       = $QTDIR/doc/src $QTDIR/src/corelib/tools
 
 sourcedirs      += $JAMBI/doc/src
 exampledirs     += $JAMBI/com/trolltech/examples
-imagedirs       += $JAMBI/doc/src/images
 
 macro.QJ         = "Qt Jambi"
 macro.QC         = "Qt/C++"

@@ -1,8 +1,5 @@
 /*
     jambiapiparser.cpp
-
-    TODO:
-        * deal with enum_1
 */
 
 #include <QtXml>
@@ -12,22 +9,68 @@
 #include "node.h"
 #include "tree.h"
 
+static Text textWithFixedBrief(const Text &text, const Text &beforeBrief,
+                               const Text &afterBrief)
+{
+    Text result;
+    
+    const Atom *atom = text.firstAtom();
+    while (atom) {
+        if (atom->type() == Atom::BriefLeft) {
+            result << Atom::ParaLeft << beforeBrief;
+        } else if (atom->type() == Atom::BriefRight) {
+            result << afterBrief << Atom::ParaRight;
+        } else {
+            result << *atom;
+        }
+        atom = atom->next();
+    }
+
+    return result;
+}
+
 static void setPass1JambifiedDoc(Node *javaNode, const Node *cppNode)
 {
     Doc newDoc(cppNode->doc());
 
     if (javaNode->type() == Node::Function) {
+        const FunctionNode *javaFunc = static_cast<const FunctionNode *>(javaNode);
         if (cppNode->type() == Node::Function) {
             const FunctionNode *cppFunc = static_cast<const FunctionNode *>(cppNode);
-            QStringList javaParams = static_cast<const FunctionNode *>(javaNode)->parameterNames();
-            QStringList cppParams = cppFunc->parameterNames();
-            newDoc.renameParameters(cppParams, javaParams);
+            if (const PropertyNode *property = cppFunc->associatedProperty()) {
+                newDoc = property->doc();
+                Text text(newDoc.body());
 
-            if (cppNode->access() == Node::Private && cppFunc->reimplementedFrom()) {
-                Text text;
-                text << Atom::ParaLeft << "This function is reimplemented for internal reasons."
-                     << Atom::ParaRight;
+                Node *mutableCppNode = const_cast<Node *>(cppNode);
+                if (property->getters().contains(mutableCppNode)) {
+                    text = textWithFixedBrief(text, Text("Returns "), Text("."));
+                } else if (property->setters().contains(mutableCppNode)) {
+                    Text afterBrief;
+                    if (javaFunc->parameterNames().count() == 1
+                            && !javaFunc->parameterNames().first().isEmpty()) {
+                        afterBrief << " to "
+                                   << Atom(Atom::FormattingLeft, ATOM_FORMATTING_PARAMETER)
+                                   << javaFunc->parameterNames().first()
+                                   << Atom(Atom::FormattingRight, ATOM_FORMATTING_PARAMETER);
+                    }
+                    afterBrief << ".";
+                    text = textWithFixedBrief(text, Text("Sets "), afterBrief);
+                } else if (property->resetters().contains(mutableCppNode)) {
+                    text = textWithFixedBrief(text, Text("Resets "), Text("."));
+                }
+
                 newDoc.setBody(text);
+            } else {
+                QStringList javaParams = javaFunc->parameterNames();
+                QStringList cppParams = cppFunc->parameterNames();
+                newDoc.renameParameters(cppParams, javaParams);
+
+                if (cppNode->access() == Node::Private && cppFunc->reimplementedFrom()) {
+                    Text text;
+                    text << Atom::ParaLeft << "This function is reimplemented for internal reasons."
+                         << Atom::ParaRight;
+                    newDoc.setBody(text);
+                }
             }
         }
     } else {    // ### enum value names?

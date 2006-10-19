@@ -518,17 +518,16 @@ QString Generator::typeString( const Node *node )
     }
 }
 
-QString Generator::imageFileName( const Location& location,
-				  const QString& fileBase )
+QString Generator::imageFileName( const Node *relative, const QString& fileBase )
 {
     QString userFriendlyFilePath;
-    QString filePath = Config::findFile(location, imageFiles, imageDirs, fileBase,
+    QString filePath = Config::findFile(relative->doc().location(), imageFiles, imageDirs, fileBase,
 					imgFileExts[format()], userFriendlyFilePath);
     if (filePath.isEmpty())
 	return "";
 
     return "images/"
-           + Config::copyFile(location, filePath, userFriendlyFilePath, outputDir() + "/images");
+           + Config::copyFile(relative->doc().location(), filePath, userFriendlyFilePath, outputDir() + "/images");
 }
 
 void Generator::setImageFileExtensions( const QStringList& extensions )

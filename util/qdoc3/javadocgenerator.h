@@ -15,6 +15,7 @@ public:
     bool canHandleFormat(const QString &format) { return format == "HTML" || format == "javadoc"; }
     void generateTree(const Tree *tree, CodeMarker *marker);
     QString typeString(const Node *node);
+    QString imageFileName(const Node *relative, const QString &fileBase);
 
 protected:
     QString fileExtension(const Node *node);

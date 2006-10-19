@@ -11,6 +11,10 @@ sources                 = $JAMBI/doc/japi/qdoc.japi
 outputformats           = javadoc
 outputdir               = $JAMBI/doc/html/com/trolltech/qt
 
+imagedirs               = $QTDIR/doc/src/images \
+                          $QTDIR/examples \
+                          $JAMBI/doc/src/images
+
 HTML.stylesheets        = classic.css
 HTML.postheader         = ""
 

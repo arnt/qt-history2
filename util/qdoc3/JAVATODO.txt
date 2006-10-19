@@ -1,8 +1,11 @@
-  * properties, \sa to properties
+  * link to images
+  * variables
   * replace QString with String, etc.
+  * enum_1
 
-  * no link to class itself
-  * add // C++
-  * support \ifjava
-  * support Java-only /*! ... */ comments
   * fix stylesheet
+  * no link to class itself
+  * \sa to properties with nonstandard naming
+  * support \ifjava
+  * add // C++
+  * support Java-only /*! ... */ comments

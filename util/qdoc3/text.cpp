@@ -8,14 +8,19 @@
 #include <stdio.h>
 
 Text::Text()
-    : first( 0 ), last( 0 )
+    : first(0), last(0)
 {
 }
 
-Text::Text( const Text& text )
+Text::Text(const QString &str)
+    : first(0), last(0)
 {
-    first = 0;
-    last = 0;
+    operator<<(str);
+}
+
+Text::Text( const Text& text )
+    : first(0), last(0)
+{
     operator=( text );
 }
 

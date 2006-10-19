@@ -71,7 +71,7 @@ protected:
     QString indent( int level, const QString& markedCode );
     QString plainCode( const QString& markedCode );
     virtual QString typeString( const Node *node );
-    QString imageFileName( const Location& location, const QString& fileBase );
+    virtual QString imageFileName( const Node *relative, const QString& fileBase );
     void setImageFileExtensions( const QStringList& extensions );
     void unknownAtom( const Atom *atom );
     QMap<QString, QString> &formattingLeftMap();

@@ -11,6 +11,7 @@ class Text
 {
 public:
     Text();
+    explicit Text(const QString &str);
     Text( const Text& text );
     ~Text();
 

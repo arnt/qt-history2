@@ -77,6 +77,11 @@ JavadocGenerator::~JavadocGenerator()
 void JavadocGenerator::initializeGenerator(const Config &config)
 {
     HtmlGenerator::initializeGenerator(config);
+
+    formattingLeftMap().insert(ATOM_FORMATTING_PARAMETER,
+                               formattingLeftMap().value(ATOM_FORMATTING_TELETYPE));
+    formattingRightMap().insert(ATOM_FORMATTING_PARAMETER,
+                                formattingRightMap().value(ATOM_FORMATTING_TELETYPE));
 }
 
 void JavadocGenerator::terminateGenerator()
@@ -111,6 +116,20 @@ QString JavadocGenerator::typeString(const Node *node)
     } else {
         return HtmlGenerator::typeString(node);
     }
+}
+
+QString JavadocGenerator::imageFileName(const Node *relative, const QString& fileBase)
+{
+    QString result = HtmlGenerator::imageFileName(relative, fileBase);
+    if (!result.isEmpty()) {
+        QString package = packageName(relative);
+        int numSubPackages = package.count('.') - 2;
+        while (numSubPackages > 0) {
+            result.prepend("../");
+            --numSubPackages;
+        }
+    }
+    return result;
 }
 
 static int textDepth = 0;
