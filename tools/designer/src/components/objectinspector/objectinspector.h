@@ -51,9 +51,7 @@ private:
     QDesignerFormEditorInterface *m_core;
     TreeWidget *m_treeWidget;
     QPointer<QDesignerFormWindowInterface> m_formWindow;
-    ObjectItem *m_root;
     QPointer<QObject> m_selected;
-    bool m_ignoreNextUpdate;
 };
 
 }  // namespace qdesigner_internal

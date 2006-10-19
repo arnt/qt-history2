@@ -42,12 +42,12 @@ using namespace qdesigner_internal;
 
 ObjectInspector::ObjectInspector(QDesignerFormEditorInterface *core, QWidget *parent)
     : QDesignerObjectInspectorInterface(parent),
-      m_core(core)
+      m_core(core),
+      m_treeWidget(new TreeWidget(this))
 {
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
 
-    m_treeWidget = new TreeWidget(this);
     vbox->addWidget(m_treeWidget);
 
     m_treeWidget->setColumnCount(2);
@@ -116,15 +116,15 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
     if (fw && fw->cursor())
         m_selected = core()->propertyEditor()->object();
 
-    int xoffset = m_treeWidget->horizontalScrollBar()->value();
-    int yoffset = m_treeWidget->verticalScrollBar()->value();
+    const int xoffset = m_treeWidget->horizontalScrollBar()->value();
+    const int yoffset = m_treeWidget->verticalScrollBar()->value();
 
     m_treeWidget->clear();
 
     if (!fw || !fw->mainContainer())
         return;
 
-    QDesignerWidgetDataBaseInterface *db = fw->core()->widgetDataBase();
+    const QDesignerWidgetDataBaseInterface *db = fw->core()->widgetDataBase();
 
     m_treeWidget->setUpdatesEnabled(false);
 
