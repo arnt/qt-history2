@@ -43,5 +43,7 @@ private:
 
 #endif
 
+QT_END_HEADER
+
 #endif
 
