@@ -2399,6 +2399,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     t << endl << endl;
 
     QStringList targetSuffixes;
+    const QString abs_source_path = project->first("QMAKE_ABSOLUTE_SOURCE_PATH");
     targetSuffixes << "make_default" << "make_first" << "all" << "clean" << "distclean"
                    << QString((flags & SubTargetInstalls) ? "install_subtargets" : "install")
                    << QString((flags & SubTargetInstalls) ? "uninstall_subtargets" : "uninstall");
@@ -2406,95 +2407,81 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     // generate target rules
     for(int target = 0; target < targets.size(); ++target) {
         SubTarget *subtarget = targets.at(target);
-        bool have_dir = !subtarget->directory.isEmpty();
-        QString mkfile = subtarget->makefile, cdin, cdout;
-        if(have_dir) {
-            mkfile.prepend(targets.at(target)->directory + Option::dir_sep);
-            if(project->isActiveConfig("cd_change_global")) {
-                cdin = "\n\tcd " + subtarget->directory + "\n\t";
+        QString in_directory = subtarget->directory;
+        if(!in_directory.isEmpty() && !in_directory.endsWith(Option::dir_sep))
+            in_directory += Option::dir_sep;
+        QString out_directory = in_directory;
+        if(!abs_source_path.isEmpty() && out_directory.startsWith(abs_source_path))
+            out_directory = Option::output_dir + out_directory.mid(abs_source_path.length());
 
-		QDir pwd(Option::output_dir);
-		QStringList in = subtarget->directory.split(Option::dir_sep), out;
-		for(int i = 0; i < in.size(); i++) {
-		    if(in.at(i) == "..")
-			out.prepend(fileInfo(pwd.path()).fileName());
-		    else if(in.at(i) != ".")
-			out.prepend("..");
-		    pwd.cd(in.at(i));
-		}
-                cdout = "\n\t@cd " + out.join(Option::dir_sep);
-            } else {
-                cdin = "\n\tcd " + subtarget->directory + " && ";
-            }
-        } else {
-            cdin = "\n\t";
+        QString mkfile = subtarget->makefile;
+        if(!in_directory.isEmpty())
+            mkfile.prepend(out_directory + Option::dir_sep);
+
+        QString in_directory_cdin, in_directory_cdout, out_directory_cdin, out_directory_cdout;
+#define MAKE_CD_IN_AND_OUT(directory) \
+        if(!directory.isEmpty()) {               \
+            if(project->isActiveConfig("cd_change_global")) { \
+                directory ## _cdin = "\n\tcd " + directory + "\n\t";        \
+		QDir pwd(Option::output_dir); \
+		QStringList in = directory.split(Option::dir_sep), out; \
+		for(int i = 0; i < in.size(); i++) { \
+		    if(in.at(i) == "..") \
+			out.prepend(fileInfo(pwd.path()).fileName()); \
+		    else if(in.at(i) != ".") \
+			out.prepend(".."); \
+		    pwd.cd(in.at(i)); \
+		} \
+                directory ## _cdout = "\n\t@cd " + out.join(Option::dir_sep); \
+            } else { \
+                directory ## _cdin = "\n\tcd " + directory + " && ";  \
+            } \
+        } else { \
+            directory ## _cdin = "\n\t"; \
         }
+        MAKE_CD_IN_AND_OUT(in_directory);
+        MAKE_CD_IN_AND_OUT(out_directory);
 
         //qmake it
         if(!subtarget->profile.isEmpty()) {
-            QString directory = subtarget->directory;
-            if(!directory.isEmpty() && !directory.endsWith(Option::dir_sep))
-               directory += Option::dir_sep;
-            QString out, in = fileFixify(directory + subtarget->profile, directory);
-            out = " -o " + subtarget->makefile;
-            if(in.startsWith(directory))
-                in = in.mid(directory.length());
+            QString out = out_directory + "/" + subtarget->makefile,
+                     in = fileFixify(in_directory + subtarget->profile, in_directory);
+            if(in.startsWith(in_directory))
+                in = in.mid(in_directory.length());
             t << mkfile << ": " << "\n\t";
-            if(have_dir) {
-                t << mkdir_p_asstring(directory)
-                  << cdin
-                  << "$(QMAKE) " << in << buildArgs(directory) << out
-                  << cdout << endl;
+            if(!in_directory.isEmpty()) {
+                t << mkdir_p_asstring(in_directory)
+                  << in_directory_cdin
+                  << "$(QMAKE) " << in << buildArgs(in_directory) << " -o " << out
+                  << in_directory_cdout << endl;
             } else {
-                t << "$(QMAKE) " << in << buildArgs(directory) << out << endl;
+                t << "$(QMAKE) " << in << buildArgs(in_directory) << " -o " << out << endl;
             }
             t << subtarget->target << "-qmake_all: ";
             if(project->isEmpty("QMAKE_NOFORCE"))
                 t <<  " FORCE";
             t << "\n\t";
-            if(have_dir) {
-                t << mkdir_p_asstring(directory)
-                  << cdin
-                  << "$(QMAKE) " << in << buildArgs(directory) << out
-                  << cdout << endl;
+            if(!in_directory.isEmpty()) {
+                t << mkdir_p_asstring(in_directory)
+                  << in_directory_cdin
+                  << "$(QMAKE) " << in << buildArgs(in_directory) << " -o " << out
+                  << in_directory_cdout << endl;
             } else {
-                t << "$(QMAKE) " << in << buildArgs(directory) << out << endl;
+                t << "$(QMAKE) " << in << buildArgs(in_directory) << " -o " << out << endl;
             }
         }
 
         QString makefilein = " -f " + subtarget->makefile;
 
         { //actually compile
-            QString cdin, cdout;
-            if(have_dir) {
-                if(project->isActiveConfig("cd_change_global")) {
-                    cdin = "\n\tcd " + subtarget->directory + "\n\t";
-
-                    QDir pwd(Option::output_dir);
-                    QStringList in = subtarget->directory.split(Option::dir_sep), out;
-                    for(int i = 0; i < in.size(); i++) {
-                        if(in.at(i) == "..")
-                            out.prepend(fileInfo(pwd.path()).fileName());
-                        else if(in.at(i) != ".")
-                            out.prepend("..");
-                        pwd.cd(in.at(i));
-                    }
-                    cdout = "\n\t@cd " + out.join(Option::dir_sep);
-                } else {
-                    cdin = "\n\tcd " + subtarget->directory + " && ";
-                }
-            } else {
-                cdin = "\n\t";
-            }
-
             t << subtarget->target << ": " << mkfile;
             if(!subtarget->depends.isEmpty())
                 t << " " << valList(subtarget->depends);
             if(project->isEmpty("QMAKE_NOFORCE"))
                 t <<  " FORCE";
-            t << cdin
+            t << out_directory_cdin
               << "$(MAKE)" << makefilein
-              << cdout << endl;
+              << out_directory_cdout << endl;
         }
 
         for(int suffix = 0; suffix < targetSuffixes.size(); ++suffix) {
@@ -2514,9 +2501,9 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
                     t << " " << targets.at(target-1)->target << "-" << targetSuffixes.at(suffix) << "-ordered ";
                 if(project->isEmpty("QMAKE_NOFORCE"))
                     t <<  " FORCE";
-                t << cdin
+                t << out_directory_cdin
                   << "$(MAKE)" << makefilein << " " << s
-                  << cdout << endl;
+                  << out_directory_cdout << endl;
             }
             t << subtarget->target << "-" << targetSuffixes.at(suffix) << ": " << mkfile;
             if(!subtarget->depends.isEmpty())
@@ -2524,9 +2511,9 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
                                     "-"+targetSuffixes.at(suffix));
             if(project->isEmpty("QMAKE_NOFORCE"))
                 t <<  " FORCE";
-            t << cdin
+            t << out_directory_cdin
               << "$(MAKE)" << makefilein << " " << s
-              << cdout << endl;
+              << out_directory_cdout << endl;
         }
     }
     t << endl;
@@ -2605,31 +2592,20 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
             }
             for(int target = 0; target < targets.size(); ++target) {
                 SubTarget *subtarget = targets.at(target);
+                QString in_directory = subtarget->directory;
+                if(!in_directory.isEmpty() && !in_directory.endsWith(Option::dir_sep))
+                    in_directory += Option::dir_sep;
+                QString out_directory = in_directory;
+                if(!abs_source_path.isEmpty() && out_directory.startsWith(abs_source_path))
+                    out_directory = Option::output_dir + out_directory.mid(abs_source_path.length());
+
                 if(!recurse.contains(subtarget->name))
                     continue;
-                bool have_dir = !subtarget->directory.isEmpty();
-                QString mkfile = subtarget->makefile, cdin, cdout;
-                if(have_dir) {
-                    mkfile.prepend(targets.at(target)->directory + Option::dir_sep);
-                    if(project->isActiveConfig("cd_change_global")) {
-                        cdin = "\n\tcd " + subtarget->directory + "\n\t";
-
-                        QDir pwd(Option::output_dir);
-                        QStringList in = subtarget->directory.split(Option::dir_sep), out;
-                        for(int i = 0; i < in.size(); i++) {
-                            if(in.at(i) == "..")
-                                out.prepend(fileInfo(pwd.path()).fileName());
-                            else if(in.at(i) != ".")
-                                out.prepend("..");
-                            pwd.cd(in.at(i));
-                        }
-                        cdout = "\n\t@cd " + out.join(Option::dir_sep);
-                    } else {
-                        cdin = "\n\tcd " + subtarget->directory + " && ";
-                    }
-                } else {
-                    cdin = "\n\t";
-                }
+                QString mkfile = subtarget->makefile;
+                if(!in_directory.isEmpty())
+                    mkfile.prepend(out_directory + Option::dir_sep);
+                QString out_directory_cdin, out_directory_cdout;
+                MAKE_CD_IN_AND_OUT(out_directory);
 
                 //don't need the makefile arg if it isn't changed
                 QString makefilein;
@@ -2656,10 +2632,10 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
                     sub_targ = project->first((*qut_it) + ".recurse_target");
 
                 //write the commands
-                if(have_dir) {
-                    t << cdin
+                if(!out_directory.isEmpty()) {
+                    t << out_directory_cdin
                       << "$(MAKE)" << makefilein << " " << sub_targ
-                      << cdout << endl;
+                      << out_directory_cdout << endl;
                 } else {
                     t << "\n\t"
                       << "$(MAKE)" << makefilein << " " << sub_targ << endl;
