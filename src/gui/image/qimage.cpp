@@ -209,12 +209,12 @@ static int depthForFormat(QImage::Format format)
 
 QImageData * QImageData::create(const QSize &size, QImage::Format format, int numColors)
 {
-    int width = size.width();
-    int height = size.height();
+    uint width = size.width();
+    uint height = size.height();
     if (width <= 0 || height <= 0 || numColors < 0 || format == QImage::Format_Invalid)
         return 0;                                // invalid parameter(s)
 
-    int depth = 0;
+    uint depth = 0;
     switch(format) {
     case QImage::NImageFormats:
     case QImage::Format_Invalid:
@@ -241,6 +241,15 @@ QImageData * QImageData::create(const QSize &size, QImage::Format format, int nu
         break;
     }
 
+    const int bytes_per_line = ((width * depth + 31) >> 5) << 2; // bytes per scanline (must be multiple of 8)
+
+    // sanity check for potential overflows
+    if (INT_MAX/depth < width
+        || bytes_per_line <= 0
+        || INT_MAX/uint(bytes_per_line) < height
+        || INT_MAX/sizeof(uchar *) < uint(height))
+        return 0;
+
     QImageData *d = new QImageData;
     d->colortable.resize(numColors);
     if (depth == 1) {
@@ -257,7 +266,7 @@ QImageData * QImageData::create(const QSize &size, QImage::Format format, int nu
     d->format = format;
     d->has_alpha_clut = false;
 
-    d->bytes_per_line = ((width * d->depth + 31) >> 5) << 2; // bytes per scanline (must be multiple of 8)
+    d->bytes_per_line = bytes_per_line;
 
     d->nbytes = d->bytes_per_line*height;
     d->data  = (uchar *)malloc(d->nbytes);
@@ -784,7 +793,13 @@ QImage::QImage(uchar* data, int width, int height, Format format)
     : QPaintDevice()
 {
     d = 0;
-    if (format == Format_Invalid || width <= 0 || height <= 0 || !data)
+    const int depth = depthForFormat(format);
+    const int bytes_per_line = ((width * d->depth + 31)/32) * 4;
+    if (format == Format_Invalid || width <= 0 || height <= 0 || !data
+        || INT_MAX/sizeof(uchar *) < uint(height)
+        || INT_MAX/uint(depth) < uint(width)
+        || bytes_per_line <= 0
+        || INT_MAX/uint(bytes_per_line) < uint(height))
         return;                                        // invalid parameter(s)
     d = new QImageData;
     d->ref.ref();
@@ -793,10 +808,10 @@ QImage::QImage(uchar* data, int width, int height, Format format)
     d->data = data;
     d->width = width;
     d->height = height;
-    d->depth = depthForFormat(format);
+    d->depth = depth;
     d->format = format;
 
-    d->bytes_per_line = ((width * d->depth + 31)/32) * 4;
+    d->bytes_per_line = bytes_per_line;
     d->nbytes = d->bytes_per_line * height;
 }
 
@@ -1056,7 +1071,13 @@ QImage::QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int
     Format f = formatFor(depth, bitOrder);
     if (f == Format_Invalid)
         return;
-    if (w <= 0 || h <= 0 || numColors < 0 || !data)
+
+    const int bytes_per_line = ((w*depth+31)/32)*4;        // bytes per scanline
+    if (w <= 0 || h <= 0 || numColors < 0 || !data
+        || INT_MAX/sizeof(uchar *) < uint(h)
+        || INT_MAX/uint(depth) < uint(w)
+        || bytes_per_line <= 0
+        || INT_MAX/uint(bytes_per_line) < uint(h))
         return;                                        // invalid parameter(s)
     d = new QImageData;
     d->ref.ref();
@@ -1070,7 +1091,7 @@ QImage::QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int
     if (depth == 32)
         numColors = 0;
 
-    d->bytes_per_line = ((w*depth+31)/32)*4;        // bytes per scanline
+    d->bytes_per_line = bytes_per_line;
     d->nbytes = d->bytes_per_line * h;
     if (colortable) {
         d->colortable.resize(numColors);
@@ -1105,7 +1126,11 @@ QImage::QImage(uchar* data, int w, int h, int depth, int bpl, const QRgb* colort
     Format f = formatFor(depth, bitOrder);
     if (f == Format_Invalid)
         return;
-    if (!data || w <= 0 || h <= 0 || depth <= 0 || numColors < 0)
+    if (!data || w <= 0 || h <= 0 || depth <= 0 || numColors < 0
+        || INT_MAX/sizeof(uchar *) < uint(h)
+        || INT_MAX/uint(depth) < uint(w)
+        || bpl <= 0
+        || INT_MAX/uint(bpl) < uint(h))
         return;                                        // invalid parameter(s)
 
     d = new QImageData;
