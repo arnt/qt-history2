@@ -241,27 +241,34 @@ void JavadocGenerator::generateAlsoList( const Node *node, CodeMarker *marker )
     QList<Text> alsoList = node->doc().alsoList();
     supplementAlsoList(node, alsoList);
 
-    Text text;
+    if (node->type() == Node::Fake) {
+        Text text;
 
-    if (!alsoList.isEmpty()) {
-        text << Atom(Atom::ListLeft, ATOM_LIST_TAG)
-             << Atom(Atom::ListTagLeft, ATOM_LIST_TAG)
-             << Atom(Atom::FormattingLeft, ATOM_FORMATTING_BOLD)
-             << "See Also:"
-             << Atom(Atom::FormattingRight, ATOM_FORMATTING_BOLD)
-             << Atom(Atom::ListTagRight, ATOM_LIST_TAG)
-             << Atom(Atom::ListItemLeft, ATOM_LIST_TAG);
+        if (!alsoList.isEmpty()) {
+            text << Atom(Atom::ListLeft, ATOM_LIST_TAG)
+                 << Atom(Atom::ListTagLeft, ATOM_LIST_TAG)
+                 << Atom(Atom::FormattingLeft, ATOM_FORMATTING_BOLD)
+                 << "See Also:"
+                 << Atom(Atom::FormattingRight, ATOM_FORMATTING_BOLD)
+                 << Atom(Atom::ListTagRight, ATOM_LIST_TAG)
+                 << Atom(Atom::ListItemLeft, ATOM_LIST_TAG);
 
-        for (int i = 0; i < alsoList.count(); ++i) {
-            if (i != 0)
-                text << ", ";
-            text << alsoList.at(i);
+            for (int i = 0; i < alsoList.count(); ++i) {
+                if (i != 0)
+                    text << ", ";
+                text << alsoList.at(i);
+            }
+            text << Atom(Atom::ListItemRight, ATOM_LIST_TAG)
+                 << Atom(Atom::ListRight, ATOM_LIST_TAG);
         }
-        text << Atom(Atom::ListItemRight, ATOM_LIST_TAG)
-             << Atom(Atom::ListRight, ATOM_LIST_TAG);
-    }
 
-    generateText(text, node, marker);
+        generateText(text, node, marker);
+    } else {
+        foreach (Text text, alsoList) {
+            out() << "\n@see ";
+            generateText(text, node, marker);
+        }
+    }
 }
 
 QString JavadocGenerator::refForNode( const Node *node )
