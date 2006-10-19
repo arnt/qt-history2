@@ -138,7 +138,6 @@ void qt_adopted_thread_watcher_function(void *)
         const uint handleCount = qt_adopted_thread_handles.count();
 
         if (handleCount == 1) {
-            CloseHandle(qt_adopted_thread_watcher_handle);
             qt_adopted_thread_watcher_handle = 0;
             qt_adopted_thread_watcher_mutex.unlock();
             break;
