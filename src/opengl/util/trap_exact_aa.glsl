@@ -27,20 +27,20 @@ float quad_aa()
     vec4 intersectY = bottom + area * (vecLeftRight.xyxy - bottomXTemp.xxyy) / (topXTemp.xxyy - bottomXTemp.xxyy);
 
     // avoid NaN
-    if (abs(topXTemp.x - bottomXTemp.x) < 0.00000001)
+    if ((topXTemp.x - bottomXTemp.x) < 0.00000001)
         intersectY.xy = 0;
 
     // avoid NaN
-    if (abs(topXTemp.y - bottomXTemp.y) < 0.00000001)
+    if ((topXTemp.y - bottomXTemp.y) < 0.00000001)
         intersectY.zw = 0;
 
     vec2 temp = mix(area - 0.5 * (right - bottomXTemp) * (intersectY.yw - bottom), // left < bottom < right < top
-                    (bottomXTemp - left + 0.5 * (topXTemp - bottomXTemp)) * area,    // left < bottom < top < right
+                    (0.5 * (topXTemp + bottomXTemp) - left) * area,    // left < bottom < top < right
                     step(topXTemp, right));
 
     vec2 excluded = 0.5 * (top - intersectY.xz) * (topXTemp - left); // bottom < left < top < right
 
-    excluded = mix((top - intersectY.yw + 0.5 * (intersectY.yw - intersectY.xz)) * (right - left), // bottom < left < right < top
+    excluded = mix((top - 0.5 * (intersectY.yw + intersectY.xz)) * (right - left), // bottom < left < right < top
                    excluded, step(topXTemp, right));
 
     excluded = mix(temp, // left < bottom < right (see calculation of temp)
