@@ -144,42 +144,18 @@
 
     <category name="Item Views (Model-Based)">
         <widget class="QListView" name="List View" icon="widgets/listbox.png">
-            <property name="geometry">
-                <rect>
-                    <x>0</x>
-                    <y>0</y>
-                    <width>120</width>
-                    <height>80</height>
-                </rect>
-            </property>
             <property name="objectName">
                 <string notr="true">listView</string>
             </property>
         </widget>
 
         <widget class="QTreeView" name="Tree View" icon="widgets/listview.png">
-            <property name="geometry">
-                <rect>
-                    <x>0</x>
-                    <y>0</y>
-                    <width>120</width>
-                    <height>80</height>
-                </rect>
-            </property>
             <property name="objectName">
                 <string notr="true">treeView</string>
             </property>
         </widget>
 
         <widget class="QTableView" name="Table View" icon="widgets/table.png">
-            <property name="geometry">
-                <rect>
-                    <x>0</x>
-                    <y>0</y>
-                    <width>120</width>
-                    <height>80</height>
-                </rect>
-            </property>
             <property name="objectName">
                 <string notr="true">tableView</string>
             </property>
@@ -188,41 +164,17 @@
 
     <category name="Item Widgets (Item-Based)">
         <widget class="QListWidget" name="List Widget" icon="widgets/listbox.png">
-            <property name="geometry">
-                <rect>
-                    <x>0</x>
-                    <y>0</y>
-                    <width>120</width>
-                    <height>80</height>
-                </rect>
-            </property>
             <property name="objectName">
                 <string notr="true">listWidget</string>
             </property>
         </widget>
         <widget class="QTreeWidget" name="Tree Widget" icon="widgets/listview.png">
-            <property name="geometry">
-                <rect>
-                    <x>0</x>
-                    <y>0</y>
-                    <width>120</width>
-                    <height>80</height>
-                </rect>
-            </property>
             <property name="objectName">
                 <string notr="true">treeWidget</string>
             </property>
         </widget>
 
         <widget class="QTableWidget" name="Table Widget" icon="widgets/table.png">
-            <property name="geometry">
-                <rect>
-                    <x>0</x>
-                    <y>0</y>
-                    <width>120</width>
-                    <height>80</height>
-                </rect>
-            </property>
             <property name="objectName">
                 <string notr="true">tableWidget</string>
             </property>
@@ -592,14 +544,6 @@
         <widget class="QGraphicsView" name="Graphics View" icon="widgets/graphicsview.png">
             <property name="objectName">
                 <string notr="true">graphicsView</string>
-            </property>
-            <property name="geometry" >
-                <rect>
-                    <x>0</x>
-                    <y>0</y>
-                    <width>104</width>
-                    <height>64</height>
-                </rect>
             </property>
         </widget>
 
