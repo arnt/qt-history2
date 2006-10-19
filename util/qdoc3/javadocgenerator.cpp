@@ -117,7 +117,7 @@ static int textDepth = 0;
 
 void JavadocGenerator::startText(const Node *relative, CodeMarker *marker)
 {
-    if (textDepth++ == 0) {
+    if (textDepth++ == 0 && relative->type() != Node::Fake) {
         Q_ASSERT(!oldDevice);
         oldDevice = out().device();
         Q_ASSERT(oldDevice);
@@ -129,11 +129,14 @@ void JavadocGenerator::startText(const Node *relative, CodeMarker *marker)
 void JavadocGenerator::endText(const Node *relative, CodeMarker *marker)
 {
     HtmlGenerator::endText(relative, marker);
-    if (--textDepth == 0) {
+    if (--textDepth == 0 && relative->type() != Node::Fake) {
         Q_ASSERT(oldDevice);
         out().setDevice(oldDevice);
         oldDevice = 0;
 
+        /*
+            Need to escape XML metacharacters in .jdoc files.
+        */
         buffer.replace("&", "&amp;");
         buffer.replace("\"", "&quot;");
         buffer.replace("<", "&lt;");
@@ -218,12 +221,28 @@ void JavadocGenerator::generateAlsoList( const Node *node, CodeMarker *marker )
 {
     QList<Text> alsoList = node->doc().alsoList();
     supplementAlsoList(node, alsoList);
-    // ### need to fix properties
 
-    foreach (Text text, alsoList) {
-	out() << "\n@see ";
-        generateText(text, node, marker);
+    Text text;
+
+    if (!alsoList.isEmpty()) {
+        text << Atom(Atom::ListLeft, ATOM_LIST_TAG)
+             << Atom(Atom::ListTagLeft, ATOM_LIST_TAG)
+             << Atom(Atom::FormattingLeft, ATOM_FORMATTING_BOLD)
+             << "See Also:"
+             << Atom(Atom::FormattingRight, ATOM_FORMATTING_BOLD)
+             << Atom(Atom::ListTagRight, ATOM_LIST_TAG)
+             << Atom(Atom::ListItemLeft, ATOM_LIST_TAG);
+
+        for (int i = 0; i < alsoList.count(); ++i) {
+            if (i != 0)
+                text << ", ";
+            text << alsoList.at(i);
+        }
+        text << Atom(Atom::ListItemRight, ATOM_LIST_TAG)
+             << Atom(Atom::ListRight, ATOM_LIST_TAG);
     }
+
+    generateText(text, node, marker);
 }
 
 QString JavadocGenerator::refForNode( const Node *node )

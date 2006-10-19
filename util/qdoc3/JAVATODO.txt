@@ -1,6 +1,6 @@
-  * properties
+  * properties, \sa to properties
+  * replace QString with String, etc.
 
-  * generate proper links between modules (core, gui)
   * no link to class itself
   * add // C++
   * support \ifjava
