@@ -29,7 +29,7 @@ static Text textWithFixedBrief(const Text &text, const Text &beforeBrief,
     return result;
 }
 
-static void setPass1JambifiedDoc(Node *javaNode, const Node *cppNode)
+static void setPass1JambifiedDoc(Node *javaNode, const Node *cppNode, const QString &qName = "")
 {
     Doc newDoc(cppNode->doc());
 
@@ -72,9 +72,28 @@ static void setPass1JambifiedDoc(Node *javaNode, const Node *cppNode)
                     newDoc.setBody(text);
                 }
             }
+        } else if (cppNode->type() == Node::Variable) {
+            Text text(newDoc.body());
+
+            if (qName == "variablegetter") {
+                text = textWithFixedBrief(text, Text("Returns "), Text("."));
+            } else if (qName == "variablesetter") {
+                Text afterBrief;
+                if (javaFunc->parameterNames().count() == 1
+                        && !javaFunc->parameterNames().first().isEmpty()) {
+                    afterBrief << " to "
+                               << Atom(Atom::FormattingLeft, ATOM_FORMATTING_PARAMETER)
+                               << javaFunc->parameterNames().first()
+                               << Atom(Atom::FormattingRight, ATOM_FORMATTING_PARAMETER);
+                }
+                afterBrief << ".";
+                text = textWithFixedBrief(text, Text("Sets "), afterBrief);
+            }
+
+            newDoc.setBody(text);
         }
     } else {    // ### enum value names?
-        
+
     }
 
     javaNode->setDoc(newDoc, true);
@@ -339,7 +358,10 @@ bool JambiApiParser::startElement(const QString & /* namespaceURI */,
                                      "Do not use it in your applications.",
                                      QSet<QString>()), true);
             } else {
-                setPass1JambifiedDoc(javaNode, cppNode);
+
+
+
+                setPass1JambifiedDoc(javaNode, cppNode, qName);
                 setStatus(javaNode, cppNode);
             }
         }

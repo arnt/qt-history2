@@ -1,11 +1,16 @@
-  * link to images
-  * variables
+  * why isn't QStyleOptionFrame(int version) marked as internal?
   * replace QString with String, etc.
+  * nested classes
   * enum_1
 
   * fix stylesheet
   * no link to class itself
-  * \sa to properties with nonstandard naming
   * support \ifjava
   * add // C++
   * support Java-only /*! ... */ comments
+
+  * links to property names have to be fixed
+        * example: version 1 in QStyleOptionFrame
+        * example: foo -> isFoo()
+
+  * lowercase, and remove final stop, in \brief texts for variables and properties
