@@ -324,7 +324,6 @@ QStyleOption &QStyleOption::operator=(const QStyleOption &other)
 
 /*!
     \class QStyleOptionFocusRect
-
     \brief The QStyleOptionFocusRect class is used to describe the
     parameters for drawing a focus rectangle with QStyle.
 
@@ -407,7 +406,6 @@ QStyleOptionFocusRect::QStyleOptionFocusRect(int version)
 
 /*!
     \class QStyleOptionFrame
-
     \brief The QStyleOptionFrame class is used to describe the
     parameters for drawing a frame.
 
@@ -502,8 +500,9 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
 
 /*!
     \variable QStyleOptionFrame::midLineWidth
-    \brief the mid-line width for drawing the frame This is usually used in
-    drawing sunken or raised frames.
+    \brief the mid-line width for drawing the frame
+
+    This is usually used in drawing sunken or raised frames.
 
     The default value is 0.
 
@@ -512,7 +511,6 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
 
 /*!
     \class QStyleOptionFrameV2
-
     \brief The QStyleOptionFrameV2 class is used to describe the
     parameters necessary for drawing a frame in Qt 4.1 or above.
 
@@ -755,7 +753,6 @@ QStyleOptionViewItemV2 &QStyleOptionViewItemV2::operator=(const QStyleOptionView
 
 /*!
     \class QStyleOptionGroupBox
-
     \brief The QStyleOptionGroupBox class describes the parameters for
     drawing a group box.
 
@@ -812,7 +809,6 @@ QStyleOptionViewItemV2 &QStyleOptionViewItemV2::operator=(const QStyleOptionView
 
 /*!
     \variable QStyleOptionGroupBox::lineWidth
-
     \brief the line width for drawing the panel
 
     The default value is 0.
@@ -832,7 +828,6 @@ QStyleOptionViewItemV2 &QStyleOptionViewItemV2::operator=(const QStyleOptionView
 
 /*!
     \variable QStyleOptionGroupBox::text
-
     \brief the text of the group box
 
     The default value is an empty string.
@@ -842,7 +837,6 @@ QStyleOptionViewItemV2 &QStyleOptionViewItemV2::operator=(const QStyleOptionView
 
 /*!
     \variable QStyleOptionGroupBox::textAlignment
-
     \brief the alignment of the group box title
 
     The default value is Qt::AlignLeft.
@@ -852,7 +846,6 @@ QStyleOptionViewItemV2 &QStyleOptionViewItemV2::operator=(const QStyleOptionView
 
 /*!
     \variable QStyleOptionGroupBox::textColor
-
     \brief the color of the group box title
 
     The default value is an invalid color with the RGB value (0, 0,
@@ -1185,7 +1178,7 @@ QStyleOptionButton::QStyleOptionButton(int version)
 
 /*!
     \variable QStyleOptionButton::iconSize
-    \brief The size of the icon for the button
+    \brief the size of the icon for the button
 
     The default value is QSize(-1, -1), i.e. an invalid size.
 */
@@ -1194,7 +1187,6 @@ QStyleOptionButton::QStyleOptionButton(int version)
 #ifndef QT_NO_TOOLBAR
 /*!
     \class QStyleOptionToolBar
-
     \brief The QStyleOptionToolBar class is used to describe the
     parameters for drawing a toolbar.
 
@@ -1510,7 +1502,6 @@ QStyleOptionTab::QStyleOptionTab(int version)
 
 /*!
     \variable QStyleOptionTab::selectedPosition
-
     \brief the position of the selected tab in relation to this tab
 
     The default value is NotAdjacent, i.e. the tab is not adjacent to
@@ -1519,9 +1510,10 @@ QStyleOptionTab::QStyleOptionTab(int version)
 
 /*!
     \variable QStyleOptionTab::cornerWidgets
-
     \brief an OR combination of CornerWidget values indicating the
-    corner widgets of the tab bar; the default value is NoCornerWidgets
+    corner widgets of the tab bar
+
+    The default value is NoCornerWidgets.
 
     \sa CornerWidget
 */
@@ -1529,7 +1521,6 @@ QStyleOptionTab::QStyleOptionTab(int version)
 
 /*!
     \variable QStyleOptionTab::shape
-
     \brief the tab shape used to draw the tab; by default
     QTabBar::RoundedNorth
 
@@ -1620,7 +1611,6 @@ QStyleOptionTab::QStyleOptionTab(int version)
 
 /*!
     \variable QStyleOptionTabV2::iconSize
-
     \brief the size for the icons
 
     The default value is QSize(-1, -1), i.e. an invalid size; use
@@ -1696,7 +1686,6 @@ QStyleOptionTabV2 &QStyleOptionTabV2::operator=(const QStyleOptionTab &other)
 
 /*!
     \class QStyleOptionProgressBar
-
     \brief The QStyleOptionProgressBar class is used to describe the
     parameters necessary for drawing a progress bar.
 
@@ -1782,7 +1771,7 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
 
 /*!
     \variable QStyleOptionProgressBar::minimum
-    \brief The minimum value for the progress bar
+    \brief the minimum value for the progress bar
 
     This is the minimum value in the progress bar. The default value
     is 0.
@@ -2122,7 +2111,6 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 
 /*!
     \variable QStyleOptionMenuItem::menuItemType
-
     \brief the type of menu item
 
     The default value is \l Normal.
@@ -2132,7 +2120,7 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 
 /*!
     \variable QStyleOptionMenuItem::checkType
-    \brief The type of checkmark of the menu item
+    \brief the type of checkmark of the menu item
 
     The default value is \l NotCheckable.
 
@@ -2291,7 +2279,7 @@ QStyleOptionComplex::QStyleOptionComplex(int version, int type)
 /*!
     \variable QStyleOptionComplex::activeSubControls
     \brief a bitwise OR of the various sub-controls that are active
-    (pressed) for the complex control.
+    (pressed) for the complex control
 
     The default value is QStyle::SC_None.
 
@@ -2704,7 +2692,7 @@ QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
 
 /*!
     \variable QStyleOptionQ3ListViewItem::height
-    \brief The height of the item
+    \brief the height of the item
 
     This doesn't include the height of the item's children. The default height is 0.
 
@@ -2713,7 +2701,7 @@ QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
 
 /*!
     \variable QStyleOptionQ3ListViewItem::totalHeight
-    \brief The total height of the item, including its children
+    \brief the total height of the item, including its children
 
     The default total height is 0.
 
@@ -2722,7 +2710,9 @@ QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
 
 /*!
     \variable QStyleOptionQ3ListViewItem::itemY
-    \brief The Y-coordinate for the item; the default value is 0
+    \brief the Y-coordinate for the item
+
+    The default value is 0.
 
     \sa Q3ListViewItem::itemPos()
 */
@@ -2841,23 +2831,28 @@ QStyleOptionQ3ListView::QStyleOptionQ3ListView(int version)
 
 /*!
     \variable QStyleOptionQ3ListView::sortColumn
-    \brief the sort column of the list view; the default value is 0
+    \brief the sort column of the list view
+
+    The default value is 0.
 
     \sa Q3ListView::sortColumn()
 */
 
 /*!
     \variable QStyleOptionQ3ListView::itemMargin
-    \brief the margin for items in the list view; the default value is 0
+    \brief the margin for items in the list view
+
+    The default value is 0.
 
     \sa Q3ListView::itemMargin()
 */
 
 /*!
     \variable QStyleOptionQ3ListView::treeStepSize
-
     \brief the number of pixel to offset children items from their
-    parents; the default value is 0
+    parents
+
+    The default value is 0.
 
     \sa Q3ListView::treeStepSize()
 */
@@ -2950,15 +2945,16 @@ QStyleOptionQ3DockWindow::QStyleOptionQ3DockWindow(int version)
 
 /*!
     \variable QStyleOptionQ3DockWindow::docked
+    \brief whether the dock window is currently docked
 
-    \brief indicates whether the dock window is currently docked; the
-    default value is false
+    The default value is false.
 */
 
 /*!
     \variable QStyleOptionQ3DockWindow::closeEnabled
-    \brief indicates wheter the dock window has a close button; ; the
-    default value is false
+    \brief whether the dock window has a close button
+
+    The default value is false.
 */
 
 /*!
@@ -3045,23 +3041,23 @@ QStyleOptionDockWidget::QStyleOptionDockWidget(int version)
 
 /*!
     \variable QStyleOptionDockWidget::closable
-
-    \brief Indicates that the dock window is closable; true by
-    default.
+    \brief whether the dock window is closable
+    
+    The default value is true.
 */
 
 /*!
     \variable QStyleOptionDockWidget::movable
+    \brief whether the dock window is movable
 
-    \brief Indicates that the dock window is movable; false by
-    default.
+    The default value is false.
 */
 
 /*!
     \variable QStyleOptionDockWidget::floatable
+    \brief whether the dock window is floatable
 
-    \brief Indicates that the dock window is floatable; true by
-    default.
+    The default value is true.
 */
 
 /*!
@@ -3155,7 +3151,6 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
 
 /*!
     \variable QStyleOptionToolButton::features
-
     \brief an OR combination of the tool button's features
 
     The default value is \l None.
@@ -3199,7 +3194,6 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
 
 /*!
     \variable QStyleOptionToolButton::toolButtonStyle
-
     \brief a Qt::ToolButtonStyle value describing the appearance of
     the tool button
 
@@ -3623,7 +3617,7 @@ QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
 
 /*!
     \variable QStyleOptionTitleBar::titleBarState
-    \brief The state of the title bar
+    \brief the state of the title bar
 
     This is basically the window state of the underlying widget. The
     default value is 0.
@@ -3687,7 +3681,6 @@ QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
 
 /*!
     \variable QStyleOptionViewItem::textElideMode
-
     \brief where ellipsis should be added for text that is too long to fit
     into an item
 
@@ -3944,7 +3937,6 @@ QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(int version)
 
 /*!
     \class QStyleOptionTabBarBase
-
     \brief The QStyleOptionTabBarBase class is used to describe
     the base of a tabbar, i.e. the part that the tabbar usually
     overlaps with.
@@ -4019,7 +4011,6 @@ QStyleOptionTabBarBase::QStyleOptionTabBarBase(int version)
 
 /*!
     \variable QStyleOptionTabBarBase::shape
-
     \brief the shape of the tabbar
 
     The default value is QTabBar::RoundedNorth.
@@ -4027,7 +4018,6 @@ QStyleOptionTabBarBase::QStyleOptionTabBarBase(int version)
 
 /*!
     \variable QStyleOptionTabBarBase::tabBarRect
-
     \brief the rectangle containing all the tabs
 
     The default value is a null rectangle, i.e. a rectangle with both
@@ -4036,7 +4026,6 @@ QStyleOptionTabBarBase::QStyleOptionTabBarBase(int version)
 
 /*!
     \variable QStyleOptionTabBarBase::selectedTabRect
-
     \brief the rectangle containing the selected tab
 
     This rectangle is contained within the tabBarRect. The default
