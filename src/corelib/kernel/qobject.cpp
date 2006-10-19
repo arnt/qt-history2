@@ -1233,8 +1233,16 @@ QThread *QObject::thread() const
 /*!
     Changes the thread affinity for this object and its children. The
     object cannot be moved if it has a parent. Event processing will
-    continue in the \a targetThread. To move an object to the main
-    thread, pass QCoreApplication::thread() as the \a targetThread.
+    continue in the \a targetThread.
+
+    To move an object to the main thread, use QApplication::instance()
+    to retrieve a pointer to the current application, and then use
+    QApplication::thread() to retrieve the thread in which the
+    application lives. For example:
+
+    \code
+        myObject->moveToThread(QApplication::instance()->thread());
+    \endcode
 
     If \a targetThread is zero, all event processing for this object
     and its children stops.
