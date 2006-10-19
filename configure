@@ -5138,23 +5138,6 @@ EXEC=""
 # build makefiles based on the configuration
 #-------------------------------------------------------------------------------
 
-echo "Finding project files. Please wait..."
-if [ -z "$QMAKE_PROJECTS" ]; then
-    QMAKE_PROJECTS=`find "$relpath/." -name '*.pro' -print | sed 's-/\./-/-'`
-else
-    QT_PROJECTS=
-    for a in `echo $QMAKE_PROJECTS`; do
-        put_in="$a"
-        for leave_out in `echo $QMAKE_IGNORE_PROJECTS`; do
-            if [ "$put_in" = "$leave_out" ]; then
-                put_in=
-                break;
-            fi
-        done
-        [ '!' -z "$put_in" ] && QT_PROJECTS="$QT_PROJECTS $put_in"
-    done
-fi
-
 echo "Creating makefiles. Please wait..."
 
 QMAKE="$outpath/bin/qmake"
