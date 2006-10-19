@@ -386,7 +386,8 @@ QWidget *QMainWindow::centralWidget() const
     Sets the given \a widget to be the main window's central widget.
 
     Note: QMainWindow takes ownership of the \a widget pointer and
-    deletes it at the appropriate time.
+    deletes it at the appropriate time. The previous widget will be
+    deleted
 
     \sa centralWidget()
 */
