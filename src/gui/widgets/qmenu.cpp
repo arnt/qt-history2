@@ -194,8 +194,13 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
         QFontMetrics fm(action->font().resolve(q->font()));
         QSize sz;
 
+        //let the style modify the above size..
+        QStyleOptionMenuItem opt;
+        q->initStyleOption(&opt, action);
+        opt.rect = q->rect();
+
         if (QWidget *w = widgetItems.value(action)) {
-            sz = w->sizeHint();
+          sz=w->sizeHint().expandedTo(w->minimumSize()).expandedTo(w->minimumSizeHint()).boundedTo(w->maximumSize());
         } else {
             //calc what I think the size is..
             if (action->isSeparator()) {
@@ -226,13 +231,9 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
                         sz.setHeight(is_sz.height());
                 }
             }
+          sz = q->style()->sizeFromContents(QStyle::CT_MenuItem, &opt, sz, q);
         }
 
-        //let the style modify the above size..
-        QStyleOptionMenuItem opt;
-        q->initStyleOption(&opt, action);
-        opt.rect = q->rect();
-        sz = q->style()->sizeFromContents(QStyle::CT_MenuItem, &opt, sz, q);
 
         if (!sz.isEmpty()) {
             max_column_width = qMax(max_column_width, sz.width());
@@ -248,12 +249,14 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
             actionList.append(action);
         }
     }
+
     if (tabWidth)
         max_column_width += tabWidth; //finally add in the tab width
 
     //calculate position
     int x = hmargin;
     y = vmargin;
+
     for(int i = 0; i < actionList.count(); i++) {
         QAction *action = actionList.at(i);
         QRect &rect = actionRects[action];
