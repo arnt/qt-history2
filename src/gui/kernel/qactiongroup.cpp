@@ -104,9 +104,11 @@ void QActionGroupPrivate::_q_actionHovered()
     Actions can be added to an action group using addAction(), but it
     is usually more convenient to specify a group when creating
     actions; this ensures that actions are automatically created with
-    a parent. Actions can be visually separated from each other
-    using addSeparator(). Action groups are added to widgets with the
-    QWidget::addActions() function.
+    a parent. Actions can be visually separated from each other by
+    adding a separator action to the group; create an action and use
+    QAction's \l {QAction::}{setSeparator()} function to make it
+    considered a separator. Action groups are added to widgets with
+    the QWidget::addActions() function.
 
     \sa QAction
 */
