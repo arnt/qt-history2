@@ -28,6 +28,7 @@ typedef QList<IntPair> IntPairList;
 Q_DECLARE_METATYPE(IntList)
 Q_DECLARE_METATYPE(IntPair)
 Q_DECLARE_METATYPE(IntPairList)
+Q_DECLARE_METATYPE(QModelIndex)
 
 #endif // QT_VERSION
 
@@ -83,6 +84,7 @@ private slots:
     void selectionFilteredOut();
     void match_data();
     void match();
+    void insertIntoChildrenlessItem();
 #endif // QT_VERSION
 
 protected:
@@ -1616,6 +1618,42 @@ void tst_QSortFilterProxyModel::match()
     QCOMPARE(indexes.count(), expectedProxyItems.count());
     for (int i = 0; i < indexes.count(); ++i)
         QCOMPARE(indexes.at(i).row(), expectedProxyItems.at(i));
+}
+
+void tst_QSortFilterProxyModel::insertIntoChildrenlessItem()
+{
+    QStandardItemModel model;
+    QStandardItem *itemA = new QStandardItem("a");
+    model.appendRow(itemA);
+    QStandardItem *itemB = new QStandardItem("b");
+    model.appendRow(itemB);
+    QStandardItem *itemC = new QStandardItem("c");
+    model.appendRow(itemC);
+
+    QSortFilterProxyModel proxy;
+    proxy.setSourceModel(&model);
+
+    QSignalSpy colsInsertedSpy(&proxy, SIGNAL(columnsInserted(const QModelIndex&, int, int)));
+    QSignalSpy rowsInsertedSpy(&proxy, SIGNAL(rowsInserted(const QModelIndex&, int, int)));
+
+    (void)proxy.rowCount(QModelIndex()); // force mapping of "a", "b", "c"
+    QCOMPARE(colsInsertedSpy.count(), 0);
+    QCOMPARE(rowsInsertedSpy.count(), 0);
+
+    // now add a child to itemB ==> should get insert notification from the proxy
+    itemB->appendRow(new QStandardItem("a.0"));
+    QCOMPARE(colsInsertedSpy.count(), 1);
+    QCOMPARE(rowsInsertedSpy.count(), 1);
+
+    QVariantList args = colsInsertedSpy.takeFirst();
+    QCOMPARE(qvariant_cast<QModelIndex>(args.at(0)), proxy.mapFromSource(itemB->index()));
+    QCOMPARE(qvariant_cast<int>(args.at(1)), 0);
+    QCOMPARE(qvariant_cast<int>(args.at(2)), 0);
+
+    args = rowsInsertedSpy.takeFirst();
+    QCOMPARE(qvariant_cast<QModelIndex>(args.at(0)), proxy.mapFromSource(itemB->index()));
+    QCOMPARE(qvariant_cast<int>(args.at(1)), 0);
+    QCOMPARE(qvariant_cast<int>(args.at(2)), 0);
 }
 
 #endif // QT_VERSION

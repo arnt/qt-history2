@@ -573,7 +573,25 @@ void QSortFilterProxyModelPrivate::source_items_inserted(
         return;
     IndexMap::const_iterator it = source_index_mapping.constFind(source_parent);
     if (it == source_index_mapping.constEnd()) {
-        // Don't care, since we don't have mapping for this index
+        if (source_parent.isValid()) {
+            QModelIndex source_grand_parent = source_parent.parent();
+            it = source_index_mapping.constFind(source_grand_parent);
+            if (it == source_index_mapping.constEnd()) {
+                // Don't care, since we don't have mapping for the grand parent
+                return;
+            }
+        }
+        it = create_mapping(source_parent);
+        Mapping *m = it.value();
+        QModelIndex proxy_parent = source_to_proxy(source_parent);
+        if (m->source_rows.count() > 0) {
+            q->beginInsertRows(proxy_parent, 0, m->source_rows.count() - 1);
+            q->endInsertRows();
+        }
+        if (m->source_columns.count() > 0) {
+            q->beginInsertColumns(proxy_parent, 0, m->source_columns.count() - 1);
+            q->endInsertColumns();
+        }
         return;
     }
 
