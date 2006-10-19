@@ -278,7 +278,7 @@ QStyleOption &QStyleOption::operator=(const QStyleOption &other)
 
 /*!
     \variable QStyleOption::rect
-    \brief the area that should be used for various calculations and painting.
+    \brief the area that should be used for various calculations and painting
 
     This can have different meanings for different types of elements.
     For example, for a \l QStyle::CE_PushButton element it would be
@@ -398,7 +398,7 @@ QStyleOptionFocusRect::QStyleOptionFocusRect(int version)
 
 /*!
     \variable QStyleOptionFocusRect::backgroundColor
-    \brief The background color on which the focus rectangle is being drawn.
+    \brief the background color on which the focus rectangle is being drawn
 
     The default value is an invalid color with the RGB value (0, 0,
     0). An invalid color is a color that is not properly set up for
@@ -493,7 +493,7 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
 
 /*!
     \variable QStyleOptionFrame::lineWidth
-    \brief The line width for drawing the frame.
+    \brief the line width for drawing the frame
 
     The default value is 0.
 
@@ -502,7 +502,7 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
 
 /*!
     \variable QStyleOptionFrame::midLineWidth
-    \brief The mid-line width for drawing the frame. This is usually used in
+    \brief the mid-line width for drawing the frame This is usually used in
     drawing sunken or raised frames.
 
     The default value is 0.
@@ -678,7 +678,7 @@ QStyleOptionFrameV2 &QStyleOptionFrameV2::operator=(const QStyleOptionFrame &oth
 
 /*!
     \variable QStyleOptionViewItemV2::features
-    \brief a bitwise OR of the features that describe this view item.
+    \brief a bitwise OR of the features that describe this view item
 
     \sa ViewItemFeature
 */
@@ -822,7 +822,7 @@ QStyleOptionViewItemV2 &QStyleOptionViewItemV2::operator=(const QStyleOptionView
 
 /*!
     \variable QStyleOptionGroupBox::midLineWidth
-    \brief The mid-line width for drawing the panel.
+    \brief the mid-line width for drawing the panel
 
     The mid-line width is usually used when drawing sunken or raised
     group box frames. The default value is 0.
@@ -984,7 +984,7 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
 
 /*!
     \variable QStyleOptionHeader::text
-    \brief The text of the header.
+    \brief the text of the header
 
     The default value is an empty string.
 */
@@ -1006,7 +1006,7 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
 
 /*!
     \variable QStyleOptionHeader::iconAlignment
-    \brief The alignment flags for the icon of the header.
+    \brief the alignment flags for the icon of the header
 
     The default value is Qt::AlignLeft.
 */
@@ -1161,21 +1161,21 @@ QStyleOptionButton::QStyleOptionButton(int version)
 
 /*!
     \variable QStyleOptionButton::features
-    \brief a bitwise OR of the features that describe this button.
+    \brief a bitwise OR of the features that describe this button
 
     \sa ButtonFeature
 */
 
 /*!
     \variable QStyleOptionButton::text
-    \brief The text of the button.
+    \brief the text of the button
 
     The default value is an empty string.
 */
 
 /*!
     \variable QStyleOptionButton::icon
-    \brief The icon of the button.
+    \brief the icon of the button
 
     The default value is an empty icon, i.e. an icon with neither a
     pixmap nor a filename.
@@ -1538,14 +1538,14 @@ QStyleOptionTab::QStyleOptionTab(int version)
 
 /*!
     \variable QStyleOptionTab::text
-    \brief The text of the tab.
+    \brief the text of the tab
 
     The default value is an empty string.
 */
 
 /*!
     \variable QStyleOptionTab::icon
-    \brief The icon for the tab.
+    \brief the icon for the tab
 
     The default value is an empty icon, i.e. an icon with neither a
     pixmap nor a filename.
@@ -1832,7 +1832,7 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
 
 /*!
     \variable QStyleOptionProgressBar::progress
-    \brief the current progress for the progress bar.
+    \brief the current progress for the progress bar
 
     The current progress. A value of QStyleOptionProgressBar::minimum
     - 1 indicates that the progress hasn't started yet. The default
@@ -1964,8 +1964,9 @@ QStyleOptionProgressBarV2 &QStyleOptionProgressBarV2::operator=(const QStyleOpti
 
 /*!
     \variable QStyleOptionProgressBarV2::invertedAppearance
-    \brief whether the progress bar's appearance is inverted; the
-    default value is false
+    \brief whether the progress bar's appearance is inverted
+    
+    The default value is false.
 
     \sa QProgressBar::invertedAppearance
 */
@@ -1973,7 +1974,9 @@ QStyleOptionProgressBarV2 &QStyleOptionProgressBarV2::operator=(const QStyleOpti
 /*!
     \variable QStyleOptionProgressBarV2::bottomToTop
     \brief whether the text reads from bottom to top when the progress
-    bar is vertical; the default value is false
+    bar is vertical
+
+    The default value is false.
 
     \sa QProgressBar::textDirection
 */
@@ -2138,12 +2141,16 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 
 /*!
     \variable QStyleOptionMenuItem::checked
-    \brief whether the menu item is checked or not; by default false.
+    \brief whether the menu item is checked or not
+
+    The default value is false.
 */
 
 /*!
     \variable QStyleOptionMenuItem::menuHasCheckableItems
-    \brief whether the menu as a whole has checkable items or not; by default true
+    \brief whether the menu as a whole has checkable items or not
+
+    The default value is true.
 
     If this option is set to false, then the menu has no checkable
     items. This makes it possible for GUI styles to save some
@@ -2179,7 +2186,7 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 
 /*!
     \variable QStyleOptionMenuItem::maxIconWidth
-    \brief the maximum icon width for the icon in the menu item.
+    \brief the maximum icon width for the icon in the menu item
 
     This can be used for drawing the icon into the correct place or
     properly aligning items. The variable must be set regardless of
@@ -2188,7 +2195,7 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 
 /*!
     \variable QStyleOptionMenuItem::tabWidth
-    \brief The tab width for the menu item.
+    \brief the tab width for the menu item
 
     The tab width is the distance between the text of the menu item
     and the shortcut. The default value is 0.
@@ -2197,7 +2204,7 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 
 /*!
     \variable QStyleOptionMenuItem::font
-    \brief The font used for the menu item text.
+    \brief the font used for the menu item text
 
     This is the font that should be used for drawing the menu text
     minus the shortcut. The shortcut is usually drawn using the
@@ -2422,7 +2429,7 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
 
 /*!
     \variable QStyleOptionSlider::dialWrapping
-    \brief whether or not the dial should wrap or not
+    \brief whether the dial should wrap or not
 
     The default value is false, i.e. the dial is not wrapped.
 
@@ -2586,7 +2593,7 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
 
 /*!
     \variable QStyleOptionSpinBox::frame
-    \brief whether the spin box has a frame.
+    \brief whether the spin box has a frame
 
     The default value is false, i.e. the spin box has no frame.
 */
@@ -2722,7 +2729,7 @@ QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
 
 /*!
     \variable QStyleOptionQ3ListViewItem::childCount
-    \brief The number of children the item has.
+    \brief the number of children the item has
 */
 
 /*!
@@ -2857,7 +2864,9 @@ QStyleOptionQ3ListView::QStyleOptionQ3ListView(int version)
 
 /*!
     \variable QStyleOptionQ3ListView::rootIsDecorated
-    \brief whether root items are decorated; the default value is false
+    \brief whether root items are decorated
+
+    The default value is false.
 
     \sa Q3ListView::rootIsDecorated()
 */
@@ -3173,7 +3182,7 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
 
 /*!
     \variable QStyleOptionToolButton::text
-    \brief The text of the tool button.
+    \brief the text of the tool button
 
     This value is only used if toolButtonStyle is
     Qt::ToolButtonTextUnderIcon, Qt::ToolButtonTextBesideIcon, or
@@ -3292,8 +3301,9 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
 
 /*!
     \variable QStyleOptionComboBox::editable
-
-    \brief whether or not the combobox is editable or not; the default
+    \brief whether or not the combobox is editable or not
+    
+    the default
     value is false
 
     \sa QComboBox::isEditable()
@@ -3302,9 +3312,9 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
 
 /*!
     \variable QStyleOptionComboBox::frame
+    \brief whether the combo box has a frame
 
-    \brief indicates whether whether the combo box has a frame; the
-    default value is true
+    The default value is true.
 */
 
 /*!
@@ -3331,7 +3341,7 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
 
 /*!
     \variable QStyleOptionComboBox::popupRect
-    \brief The popup rectangle for the combobox.
+    \brief the popup rectangle for the combobox
 
     The default value is a null rectangle, i.e. a rectangle with both
     the width and the height set to 0.
@@ -3417,7 +3427,7 @@ QStyleOptionToolBox::QStyleOptionToolBox(int version)
 
 /*!
     \variable QStyleOptionToolBox::icon
-    \brief The icon for the tool box tab.
+    \brief the icon for the tool box tab
 
    The default value is an empty icon, i.e. an icon with neither a
    pixmap nor a filename.
@@ -3425,7 +3435,7 @@ QStyleOptionToolBox::QStyleOptionToolBox(int version)
 
 /*!
     \variable QStyleOptionToolBox::text
-    \brief The text for the tool box tab.
+    \brief the text for the tool box tab
 
     The default value is an empty string.
 */
@@ -3514,9 +3524,9 @@ QStyleOptionRubberBand::QStyleOptionRubberBand(int version)
 
 /*!
     \variable QStyleOptionRubberBand::opaque
+    \brief whether the rubber band is required to be drawn in an opaque style
 
-    \brief whether the rubber band is required to be drawn in an opque
-    style; the default value is true
+    The default value is true.
 */
 #endif // QT_NO_RUBBERBAND
 
@@ -3665,7 +3675,6 @@ QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
 
 /*!
     \variable QStyleOptionViewItem::showDecorationSelected
-
     \brief whether the decoration should be highlighted on selected
     items
 
@@ -3912,20 +3921,20 @@ QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(int version)
 
 /*!
     \variable QStyleOptionTabWidgetFrame::tabBarSize
-    \brief The size of the tab bar.
+    \brief the size of the tab bar
 
     The default value is QSize(-1, -1), i.e. an invalid size.
 */
 
 /*!
     \variable QStyleOptionTabWidgetFrame::rightCornerWidgetSize
-    \brief The size of the right-corner widget.
+    \brief the size of the right-corner widget
 
     The default value is QSize(-1, -1), i.e. an invalid size.
 */
 
 /*! \variable QStyleOptionTabWidgetFrame::leftCornerWidgetSize
-    \brief The size of the left-corner widget.
+    \brief the size of the left-corner widget
 
     The default value is QSize(-1, -1), i.e. an invalid size.
 */
@@ -4341,10 +4350,7 @@ QStyleHintReturn::~QStyleHintReturn()
 
 /*!
     \variable QStyleHintReturnMask::region
-
-    \brief The returned region.
-
-    This variable contains the region for style hints that return a QRegion.
+    \brief the region for style hints that return a QRegion
 */
 
 /*!
