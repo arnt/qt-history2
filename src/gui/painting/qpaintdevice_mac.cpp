@@ -85,9 +85,7 @@ float qt_mac_defaultDpi_y()
 
 Q_GUI_EXPORT GrafPtr qt_mac_qd_context(const QPaintDevice *device)
 {
-    if (device->devType() == QInternal::Widget) {
-        return static_cast<GrafPtr>(static_cast<const QWidget *>(device)->handle());
-    } else if (device->devType() == QInternal::Pixmap) {
+    if (device->devType() == QInternal::Pixmap) {
         return static_cast<GrafPtr>(static_cast<const QPixmap *>(device)->macQDHandle());
     } else if (device->devType() == QInternal::Printer) {
         QPaintEngine *engine = static_cast<const QPrinter *>(device)->paintEngine();
@@ -99,9 +97,8 @@ Q_GUI_EXPORT GrafPtr qt_mac_qd_context(const QPaintDevice *device)
 /*! \internal
 
     Returns the CoreGraphics CGContextRef of the paint device. 0 is
-    returned if it can't be established. It is the caller's
-    responsiblity to CGContextRelease the context when finished using
-    it.
+    returned if it can't be obtained. It is the caller's responsiblity to
+    CGContextRelease the context when finished using it.
 */
 
 Q_GUI_EXPORT CGContextRef qt_mac_cg_context(const QPaintDevice *pdev)
@@ -129,20 +126,8 @@ Q_GUI_EXPORT CGContextRef qt_mac_cg_context(const QPaintDevice *pdev)
         CGContextScaleCTM(ret, 1, -1);
         return ret;
     } else if(pdev->devType() == QInternal::Widget) {
-        CGContextRef ret = 0;
-        GrafPtr port = qt_mac_qd_context(pdev);
-        if(!port)
-            return 0;
-
-        if(OSStatus err = CreateCGContextForPort(port, &ret)) {
-            qWarning("QPaintDevice: Unable to create CGContext for port %p [%ld]", port, long(err));
-            return 0;
-        }
-        SyncCGContextOriginWithPort(ret, port);
-        Rect port_rect;
-        GetPortBounds(port, &port_rect);
-        CGContextTranslateCTM(ret, 0, (port_rect.bottom - port_rect.top));
-        CGContextScaleCTM(ret, 1, -1);
+        CGContextRef ret = static_cast<CGContextRef>(static_cast<const QWidget *>(pdev)->handle());
+        CGContextRetain(ret);
         return ret;
     }
     return 0;

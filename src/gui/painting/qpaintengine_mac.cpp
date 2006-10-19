@@ -49,7 +49,6 @@ extern int qt_antialiasing_threshold; // QApplication.cpp
 extern CGImageRef qt_mac_create_imagemask(const QPixmap &px, const QRectF &sr); //qpixmap_mac.cpp
 extern QPoint qt_mac_posInWindow(const QWidget *w); //qwidget_mac.cpp
 extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
-extern GrafPtr qt_mac_qd_context(const QPaintDevice *); //qpaintdevice_mac.cpp
 extern CGContextRef qt_mac_cg_context(const QPaintDevice *); //qpaintdevice_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 extern const uchar *qt_patternForBrush(int, bool); //qbrush.cpp
@@ -282,7 +281,7 @@ QCoreGraphicsPaintEngine::~QCoreGraphicsPaintEngine()
 {
 }
 
-    bool
+bool
 QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
 {
     Q_D(QCoreGraphicsPaintEngine);
@@ -298,6 +297,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
     d->pdev = pdev;
     d->hd = qt_mac_cg_context(pdev);
     if(d->hd) {
+        CGContextSaveGState(d->hd);
         d->orig_xform = CGContextGetCTM(d->hd);
         if(d->shading) {
             CGShadingRelease(d->shading);
@@ -348,6 +348,7 @@ QCoreGraphicsPaintEngine::end()
     }
     d->pdev = 0;
     if(d->hd) {
+        CGContextRestoreGState(d->hd);
         CGContextSynchronize(d->hd);
         CGContextRelease(d->hd);
         d->hd = 0;
@@ -546,12 +547,11 @@ QCoreGraphicsPaintEngine::drawPoints(const QPointF *points, int pointCount)
         CGPathAddLineToPoint(path, 0, x, y);
     }
 
-    const bool nedPenWidthChange = !d->cosmeticPen && !(state->renderHints() & QPainter::Antialiasing);
-
-    if (nedPenWidthChange)
+    const bool needPenWidthChange = !d->cosmeticPen && !(state->renderHints() & QPainter::Antialiasing);
+    if (needPenWidthChange)
         CGContextSetLineWidth(d->hd, d->current.pen.widthF());
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke, path);
-    if (nedPenWidthChange)
+    if (needPenWidthChange)
         CGContextSetLineWidth(d->hd, d->adjustPenWidth(d->current.pen.widthF()));
 
     CGPathRelease(path);

@@ -480,12 +480,17 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                 }
 
                 //update qd port
-                GrafPtr old_qdref = 0;
-                GDHandle old_device = 0;
-                if(GetEventParameter(event, kEventParamGrafPort, typeGrafPtr, 0, sizeof(old_qdref), 0, &old_qdref) != noErr)
-                    GetGWorld(&old_qdref, &old_device); //just use the global port..
-                if(old_qdref)
-                    widget->d_func()->hd = old_qdref;
+                GrafPtr cg_hd = 0;
+                CGContextRef cg = 0;
+                if(GetEventParameter(event, kEventParamCGContextRef, typeCGContextRef, 0, sizeof(cg), 0, &cg) != noErr) {
+                    GDHandle dev = 0;
+                    if(GetEventParameter(event, kEventParamGrafPort, typeGrafPtr, 0, sizeof(cg_hd), 0, &cg_hd) != noErr)
+                        GetGWorld(&cg_hd, &dev); //just use the global port..
+                    if(cg_hd)
+                        QDBeginCGContext(cg_hd, &cg);
+                }
+                widget->d_func()->hd = cg;
+                CGContextSaveGState(cg);
 
 #ifdef DEBUG_WIDGET_PAINT
                 const bool doDebug = true;
@@ -594,12 +599,14 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                     if(!widget->testAttribute(Qt::WA_PaintOutsidePaintEvent) && widget->paintingActive())
                         qWarning("QWidget: It is dangerous to leave painters active on a widget outside of the PaintEvent");
                 }
-                SetGWorld(old_qdref, old_device); //restore the state..
 
                 //remove the old pointers, not necessary long-term, but short term it simplifies things --Sam
                 widget->d_func()->clp_serial++;
                 widget->d_func()->clp = QRegion();
                 widget->d_func()->hd = 0;
+                CGContextRestoreGState(cg);
+                if(cg_hd)
+                    QDEndCGContext(cg_hd, &cg);
             } else if(!HIObjectIsOfClass((HIObjectRef)hiview, kObjectQWidget)) {
                 CallNextEventHandler(er, event);
             }

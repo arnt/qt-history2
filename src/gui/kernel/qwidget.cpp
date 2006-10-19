@@ -1604,7 +1604,7 @@ void QWidgetPrivate::paintBackground(QPainter *painter, const QRect &rect, bool 
 
     const QBrush autoFillBrush = q->palette().brush(q->backgroundRole());
 
-    if (asRoot && !(q->autoFillBackground() && autoFillBrush.isOpaque())) {
+    if ((asRoot && !(q->autoFillBackground() && autoFillBrush.isOpaque()))) {
         const QBrush bg = q->palette().brush(QPalette::Window);
 #ifdef Q_WS_QWS
         if (painter->paintEngine()->hasFeature(QPaintEngine::PorterDuff))
