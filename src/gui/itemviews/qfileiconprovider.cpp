@@ -17,6 +17,9 @@
 #include <qstyle.h>
 #include <qapplication.h>
 #include <qdir.h>
+#if defined(Q_WS_WIN)
+#  include "qt_windows.h"
+#endif
 
 /*!
   \class QFileIconProvider

@@ -27,9 +27,6 @@
 #include <qapplication.h>
 #include <private/qabstractitemmodel_p.h>
 #include <qdebug.h>
-#if defined(Q_WS_WIN)
-#  include "qt_windows.h"
-#endif
 
 /*!
     \enum QDirModel::Roles
