@@ -1826,8 +1826,8 @@ QPixmap QPixmap::transformed(const QTransform &matrix, Qt::TransformationMode mo
             return *this;
         scaledHeight = qAbs(mat.m22()) * hs + 0.9999;
         scaledWidth = qAbs(mat.m11()) * ws + 0.9999;
-        h = qAbs(int(h));
-        w = qAbs(int(w));
+        h = qAbs(int(scaledHeight));
+        w = qAbs(int(scaledWidth));
     } else {                                        // rotation or shearing
         QPolygonF a(QRectF(0, 0, ws+1, hs+1));
         a = mat.map(a);
