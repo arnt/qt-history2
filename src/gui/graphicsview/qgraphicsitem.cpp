@@ -4764,6 +4764,9 @@ QVariant QGraphicsPixmapItem::extension(const QVariant &variant) const
     to provide a reasonable implementation of boundingRect(), shape(),
     and contains(). You can set the font by calling setFont().
 
+    It is possible to make the item editable by setting the Qt::TextEditable flag
+    using setTextInteractionFlags().
+
     \sa QGraphicsSimpleTextItem, QGraphicsPathItem, QGraphicsRectItem,
         QGraphicsEllipseItem, QGraphicsPixmapItem, QGraphicsPolygonItem,
         QGraphicsLineItem, {The Graphics View Framework}
@@ -5343,6 +5346,9 @@ QTextControl *QGraphicsTextItemPrivate::textControl() const
     The default for a QGraphicsTextItem is Qt::NoTextInteraction. Setting a
     value different to Qt::NoTextInteraction will also set the ItemIsFocusable
     QGraphicsItem flag.
+
+    By default, the text is read-only. To transform the item into an editor,
+    set the Qt::TextEditable flag.
 */
 void QGraphicsTextItem::setTextInteractionFlags(Qt::TextInteractionFlags flags)
 {
