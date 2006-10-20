@@ -24,7 +24,7 @@ class NewForm: public QDialog
 {
     Q_OBJECT
 public:
-    NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget);
+    NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget, const QString &fileName = QString());
     virtual ~NewForm();
 
     QDesignerWorkbench *workbench() const;
@@ -43,6 +43,7 @@ private:
     QDesignerWorkbench *m_workbench;
     Ui::NewForm ui;
     QPushButton *createButton;
+    QString m_fileName;
 };
 
 #endif // NEWFORM_H

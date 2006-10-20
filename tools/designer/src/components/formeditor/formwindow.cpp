@@ -1194,7 +1194,7 @@ void FormWindow::setFileName(const QString &fileName)
 QString FormWindow::contents() const
 {
     QBuffer b;
-    if (!b.open(QIODevice::WriteOnly))
+    if (!mainContainer() || !b.open(QIODevice::WriteOnly))
         return QString();
 
     QDesignerResource resource(const_cast<FormWindow*>(this));
@@ -1553,12 +1553,6 @@ void FormWindow::setContents(QIODevice *dev)
 
     QDesignerResource r(this);
     QWidget *w = r.load(dev, this);
-    if (w == 0) {
-        setFileName(QString());
-        w = core()->widgetFactory()->createWidget(QLatin1String("QWidget"), this);
-        w->resize(400, 300);
-    }
-
     setMainContainer(w);
 
     setUpdatesEnabled(saved);

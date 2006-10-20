@@ -461,12 +461,7 @@ bool QDesignerWorkbench::eventFilter(QObject *object, QEvent *event)
             if (!e->mimeData()->hasFormat("text/uri-list"))
                 return false;
             foreach (QUrl url, e->mimeData()->urls()) {
-                QString fileName = url.toLocalFile();
-                if (fileName.endsWith(".ui"))
-                    readInForm(url.toLocalFile());
-                else
-                    QMessageBox::critical(m_workspace, tr("Opening Form"),
-                        tr("Cannot open file %1!").arg(fileName));
+                readInForm(url.toLocalFile());
             }
             e->acceptProposedAction();
             return true;

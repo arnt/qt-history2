@@ -37,13 +37,14 @@ enum NewForm_CustomRole
     TemplateNameRole = Qt::UserRole + 100
 };
 
-NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget)
+NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget, const QString &fileName)
     : QDialog(parentWidget,
 #ifdef Q_WS_MAC
             Qt::Tool |
 #endif
             Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
-      m_workbench(workbench)
+      m_workbench(workbench),
+      m_fileName(fileName)
 {
     ui.setupUi(this);
     ui.treeWidget->setItemDelegate(new qdesigner_internal::SheetDelegate(ui.treeWidget, this));
@@ -105,6 +106,7 @@ void NewForm::on_buttonBox_clicked(QAbstractButton *btn)
         break;
     case QDialogButtonBox::ActionRole:
         hide();
+        m_fileName.clear();
         if (m_workbench->actionManager()->openForm())
             close();
         else
@@ -116,16 +118,23 @@ void NewForm::on_buttonBox_clicked(QAbstractButton *btn)
 
             int maxUntitled = 0;
             int totalWindows = m_workbench->formWindowCount();
-            // This will cause some problems with i18n, but for now I need the string to be "static"
-            QRegExp rx(QLatin1String("untitled( (\\d+))?"));
-            for (int i = 0; i < totalWindows; ++i) {
-                QString title = m_workbench->formWindow(i)->windowTitle();
-                title = title.replace(QLatin1String("[*]"), QLatin1String(""));
-                if (rx.indexIn(title) != 1) {
-                    if (maxUntitled == 0)
+            if(m_fileName.isEmpty()) {
+                // This will cause some problems with i18n, but for now I need the string to be "static"
+                QRegExp rx(QLatin1String("untitled( (\\d+))?"));
+                for (int i = 0; i < totalWindows; ++i) {
+                    QString title = m_workbench->formWindow(i)->windowTitle();
+                    title = title.replace(QLatin1String("[*]"), QLatin1String(""));
+                    if (rx.indexIn(title) != 1) {
+                        if (maxUntitled == 0)
+                            ++maxUntitled;
+                        if (rx.numCaptures() > 1)
+                            maxUntitled = qMax(rx.cap(2).toInt(), maxUntitled);
+                    }
+                }
+            } else {
+                for (int i = 0; i < totalWindows; ++i) {
+                    if (m_fileName == m_workbench->formWindow(i)->editor()->fileName())
                         ++maxUntitled;
-                    if (rx.numCaptures() > 1)
-                        maxUntitled = qMax(rx.cap(2).toInt(), maxUntitled);
                 }
             }
 
@@ -144,12 +153,18 @@ void NewForm::on_buttonBox_clicked(QAbstractButton *btn)
                     formWindow->resize(container->size());
             }
             QString newTitle = QLatin1String("untitled");
-            if (maxUntitled)
+            if (!m_fileName.isEmpty())
+                newTitle = QFileInfo(m_fileName).fileName();
+
+            if (maxUntitled) {
                 newTitle += QLatin1String(" ") + QString::number(maxUntitled + 1);
+                if (!m_fileName.isEmpty())
+                    m_fileName.replace(QFileInfo(m_fileName).fileName(), newTitle);
+            }
 
             newTitle.append(QLatin1String("[*]"));
             formWindow->setWindowTitle(newTitle);
-            formWindow->editor()->setFileName("");
+            formWindow->editor()->setFileName(m_fileName.isEmpty() ? "" : m_fileName);
             formWindow->show();
         }
         break;

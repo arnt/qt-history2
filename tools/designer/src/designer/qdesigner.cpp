@@ -80,25 +80,26 @@ void QDesigner::initialize()
 
     for (int i = 1; i < args.count(); ++i)
     {
-        if (args.at(i) == QLatin1String("-server")) {
+        QString argument = args.at(i);
+        if (argument == QLatin1String("-server")) {
             m_server = new QDesignerServer();
             printf("%d\n", m_server->serverPort());
             fflush(stdout);
-        } else if (args.at(i) == QLatin1String("-client")) {
+        } else if (argument == QLatin1String("-client")) {
             bool ok = true;
             if (i + 1 < args.count()) {
                 quint16 port = args.at(++i).toUShort(&ok);
                 if (ok)
                     m_client = new QDesignerClient(port, this);
             }
-        } else if (args.at(i) == QLatin1String("-resourcedir")) {
+        } else if (argument == QLatin1String("-resourcedir")) {
             if (i + 1 < args.count()) {
                 resourceDir = QFile::decodeName(args.at(++i).toLocal8Bit());
             } else {
                 // issue a warning
             }
-        } else {
-            files.append(args.at(i));
+        } else if (!files.contains(argument)) {
+            files.append(argument);
         }
     }
 

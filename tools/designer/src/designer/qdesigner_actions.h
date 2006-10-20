@@ -145,6 +145,7 @@ private slots:
     void showWidgetSpecificHelp();
     void showFormSettings();
     void backupForms();
+    void createForm(const QString &fileName);
 
 private:
     bool saveFormAs(QDesignerFormWindowInterface *fw);
@@ -152,6 +153,8 @@ private:
     void updateRecentFileActions();
     void addRecentFile(const QString &fileName);
     void showHelp(const QString &help);
+    QRect fixDialogRect(const QRect &rect) const;
+    void showNewFormDialog(const QString &fileName) const;
     QString fixResourceFileBackupPath(QDesignerFormWindowInterface *fwi, const QDir& backupDir);
 
 private:

@@ -49,6 +49,7 @@
 #include <QtXml/QDomDocument>
 
 #include <QtGui/QDesktopWidget>
+#include <QtCore/QMetaObject>
 
 QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     : QObject(workbench),
@@ -494,55 +495,47 @@ void QDesignerActions::editWidgetsSlot()
 
 void QDesignerActions::createForm()
 {
-    NewForm *dlg = new NewForm(workbench(), 0);
+    showNewFormDialog(QString());
+}
+
+void QDesignerActions::showNewFormDialog(const QString &fileName) const
+{
+    NewForm *dlg = new NewForm(workbench(), 0, fileName);
     dlg->setAttribute(Qt::WA_DeleteOnClose);
     dlg->setAttribute(Qt::WA_ShowModal);
 
-    QRect frameGeometry;
-    QRect availableGeometry = QApplication::desktop()->availableGeometry(core()->topLevel());
-    
-    if (workbench()->mode() == QDesignerWorkbench::DockedMode) {
-        frameGeometry = core()->topLevel()->frameGeometry();
-    } else
-        frameGeometry = availableGeometry;
-
-    QRect dlgRect = dlg->rect();
-    dlgRect.moveCenter(frameGeometry.center());
-
-    // make sure that parts of the dialog are not outside of screen
-    dlgRect.moveBottom(qMin(dlgRect.bottom(), availableGeometry.bottom()));
-    dlgRect.moveRight(qMin(dlgRect.right(), availableGeometry.right()));
-    dlgRect.moveLeft(qMax(dlgRect.left(), availableGeometry.left()));
-    dlgRect.moveTop(qMax(dlgRect.top(), availableGeometry.top()));
-
-    dlg->setGeometry(dlgRect);
+    dlg->setGeometry(fixDialogRect(dlg->rect()));
     dlg->show();
+}
+
+void QDesignerActions::createForm(const QString &fileName)
+{
+    QFileInfo fInfo(fileName);
+    QString path = fInfo.absolutePath();
+
+    if (QDir(path).exists())
+        path += QLatin1Char('/') + fInfo.fileName();
+    else
+        path.clear();
+
+    showNewFormDialog(path);
 }
 
 bool QDesignerActions::openForm()
 {
-    QString fileName;
-    QString dir = m_openDirectory;
-    while (1) {
-        fileName = QFileDialog::getOpenFileName(
-                core()->topLevel(),
-                tr("Open Form"), dir,
-                tr("Designer UI files (*.ui);;All Files (*)"), 0, QFileDialog::DontUseSheet);
-        if (fileName.isEmpty())
-            return false;
-        if (QFileInfo(fileName).suffix() != QLatin1String("ui"))
-            fileName.append(QLatin1String(".ui"));
-        QFileInfo fi(fileName);
-        if (fi.exists())
-            break;
+    QStringList fileNames = QFileDialog::getOpenFileNames(core()->topLevel(), tr("Open Form"),
+        m_openDirectory, tr("Designer UI files (*.ui);;All Files (*)"), 0, QFileDialog::DontUseSheet);
 
-        QMessageBox::warning(core()->topLevel(), tr("Open"), tr("%1\nFile not found.\nPlease verify the "
-                                "correct file name was given.").arg(fi.fileName()));
-        //dir = fi.absolutePath();
-        dir = fileName;
+    if (fileNames.isEmpty())
+        return false;
+
+    bool atLeastOne = false;
+    foreach (QString fileName, fileNames) {
+        if (readInForm(fileName) && !atLeastOne)
+            atLeastOne = true;
     }
 
-    return readInForm(fileName);
+    return atLeastOne;
 }
 
 bool QDesignerActions::saveFormAs(QDesignerFormWindowInterface *fw)
@@ -560,11 +553,12 @@ bool QDesignerActions::saveFormAs(QDesignerFormWindowInterface *fw)
     while (1) {
         saveFile = QFileDialog::getSaveFileName(fw, tr("Save form as"),
                 dir,
-                tr("Designer UI files (*.ui)"), 0, QFileDialog::DontConfirmOverwrite);
+                tr("Designer UI files (*.ui);;All Files (*)"), 0, QFileDialog::DontConfirmOverwrite);
         if (saveFile.isEmpty())
             return false;
 
-        if (QFileInfo(saveFile).suffix() != QLatin1String("ui"))
+        QFileInfo fInfo(saveFile);
+        if (fInfo.suffix().isEmpty() && !fInfo.fileName().endsWith(QChar('.')))
             saveFile.append(QLatin1String(".ui"));
 
         QFileInfo fi(saveFile);
@@ -718,9 +712,6 @@ static QSize checkSize(const QSize &size)
 bool QDesignerActions::readInForm(const QString &fileName)
 {
     QString fn = fileName;
-    QString suffix = QFileInfo(fn).suffix();
-    if (suffix != QLatin1String("ui") && suffix != QLatin1String("bak"))
-        fn.append(QLatin1String(".ui"));
 
     // First make sure that we don't have this one open already.
     QDesignerFormWindowManagerInterface *formWindowManager = core()->formWindowManager();
@@ -738,13 +729,33 @@ bool QDesignerActions::readInForm(const QString &fileName)
     // Otherwise load it.
     QFile f(fn);
     if (!f.open(QFile::ReadOnly)) {
-        QMessageBox box(QMessageBox::Warning, tr("Read Error"), tr("Couldn't open file"),
-                        QMessageBox::Ok, core()->topLevel());
-        box.setInformativeText(tr("%1 could not be opened.\nReason: %2").arg(f.fileName()).arg(f.errorString()));
+        QMessageBox box(QMessageBox::Warning, tr("Read error"), 
+            tr("The specified ui file <b>%1</b> could not be found. Do you want to update the file location or generate a new form?").arg(fn),
+            QMessageBox::Cancel, core()->topLevel());
+        QPushButton *updateButton = box.addButton(tr("&Update"), QMessageBox::ActionRole);
+        QPushButton *newButton = box.addButton(tr("&New Form"), QMessageBox::ActionRole);
         box.exec();
-        return false;
-    }
 
+        if (box.clickedButton() == box.button(QMessageBox::Cancel))
+            return false;
+        
+        if (box.clickedButton() == updateButton) {
+           fn = QFileDialog::getOpenFileName(core()->topLevel(),
+               tr("Open Form"), m_openDirectory,
+               tr("Designer UI files (*.ui);;All Files (*)"), 0, QFileDialog::DontUseSheet);
+            
+            if (fn.isEmpty())
+                return false;
+
+            f.setFileName(fn);
+            if (!f.open(QFile::ReadOnly))
+                return false;
+        } else if (box.clickedButton() == newButton) {
+            QMetaObject::invokeMethod(this, "createForm", Qt::QueuedConnection, Q_ARG(QString, fn));
+            return false;
+        }
+    }
+    
     m_openDirectory = QFileInfo(f).absolutePath();
 
     QDesignerFormWindow *formWindow = workbench()->createFormWindow();
@@ -757,7 +768,20 @@ bool QDesignerActions::readInForm(const QString &fileName)
         }
         editor->setFileName(fn);
         editor->setContents(&f);
-        Q_ASSERT(editor->mainContainer() != 0);
+        
+        if (!editor->mainContainer()) {
+            workbench()->removeFormWindow(formWindow);
+            formWindowManager->removeFormWindow(editor);
+            formWindowManager->core()->metaDataBase()->remove(editor);
+
+            QMessageBox box(QMessageBox::Warning, tr("Read error"), tr("Couldn't open file"),
+                            QMessageBox::Ok, core()->topLevel());
+            box.setText(tr("%1 could not be opened.\nReason: %2").arg(f.fileName()).arg("The file is not a valid Designer ui file!"));
+            box.exec();
+
+            return false;
+        }
+
         formWindow->updateWindowTitle(fn);
         formWindow->resize(editor->mainContainer()->size());
         formWindowManager->setActiveFormWindow(editor);
@@ -769,7 +793,7 @@ bool QDesignerActions::readInForm(const QString &fileName)
         }
     }
     formWindow->show();
-    addRecentFile(fileName);
+    addRecentFile(fn);
     formWindow->editor()->setDirty(false);
     return true;
 }
@@ -1251,4 +1275,26 @@ QString QDesignerActions::fixResourceFileBackupPath(QDesignerFormWindowInterface
     }
     
     return domDoc.toString();
+}
+
+QRect QDesignerActions::fixDialogRect(const QRect &rect) const
+{
+    QRect frameGeometry;
+    QRect availableGeometry = QApplication::desktop()->availableGeometry(core()->topLevel());
+    
+    if (workbench()->mode() == QDesignerWorkbench::DockedMode) {
+        frameGeometry = core()->topLevel()->frameGeometry();
+    } else
+        frameGeometry = availableGeometry;
+
+    QRect dlgRect = rect;
+    dlgRect.moveCenter(frameGeometry.center());
+
+    // make sure that parts of the dialog are not outside of screen
+    dlgRect.moveBottom(qMin(dlgRect.bottom(), availableGeometry.bottom()));
+    dlgRect.moveRight(qMin(dlgRect.right(), availableGeometry.right()));
+    dlgRect.moveLeft(qMax(dlgRect.left(), availableGeometry.left()));
+    dlgRect.moveTop(qMax(dlgRect.top(), availableGeometry.top()));
+
+    return dlgRect;
 }
