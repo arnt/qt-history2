@@ -89,6 +89,8 @@ class QListViewPrivate;
 class QCommonListViewBase
 {
 public:
+    inline QCommonListViewBase(QListView *q, QListViewPrivate *d) { qq = q; dd = d; }
+
     inline int spacing() const;
     inline bool isWrapping() const;
     inline QSize gridSize() const;
@@ -125,17 +127,17 @@ public:
 
     inline bool isRightToLeft() const;
 
-    inline void init(QListView *q, QListViewPrivate *d) { qq = q; dd = d; }
-
     QListViewPrivate *dd;
     QListView *qq;
 };
 
+// ### rename to QListModeViewBase
 class QStaticListViewBase : public QCommonListViewBase
 {
     friend class QListViewPrivate;
 public:
-    QStaticListViewBase() : batchStartRow(0), batchSavedDeltaSeg(0), batchSavedPosition(0) {}
+    QStaticListViewBase(QListView *q, QListViewPrivate *d) : QCommonListViewBase(q, d),
+        batchStartRow(0), batchSavedDeltaSeg(0), batchSavedPosition(0) {}
 
     QVector<int> flowPositions;
     QVector<int> segmentPositions;
@@ -172,13 +174,17 @@ public:
                        bool above, bool below, bool wrap, QListView::ScrollHint hint) const;
     int horizontalPerItemValue(int itemIndex, int horizontalValue, int areaWidth,
                        bool leftOf, bool rightOf, bool wrap, QListView::ScrollHint hint) const;
+
+    void clear();
 };
 
+// ### rename to QIconModeViewBase
 class QDynamicListViewBase : public QCommonListViewBase
 {
     friend class QListViewPrivate;
 public:
-    QDynamicListViewBase() : batchStartRow(0), batchSavedDeltaSeg(0) {}
+    QDynamicListViewBase(QListView *q, QListViewPrivate *d) : QCommonListViewBase(q, d),
+        batchStartRow(0), batchSavedDeltaSeg(0) {}
 
     QBspTree tree;
     QVector<QListViewItem> items;
@@ -224,18 +230,16 @@ public:
     void scrollElasticBandBy(int dx, int dy);
 
     QListViewItem indexToListViewItem(const QModelIndex &index) const;
+
+    void clear();
 };
 
 class QListViewPrivate: public QAbstractItemViewPrivate
 {
     Q_DECLARE_PUBLIC(QListView)
 public:
-    // ### FIXME: we only need one at a time
-    QDynamicListViewBase dynamicListView;
-    QStaticListViewBase staticListView;
-
     QListViewPrivate();
-    ~QListViewPrivate() {}
+    ~QListViewPrivate();
 
     void clear();
     void prepareItemsLayout();
@@ -246,20 +250,20 @@ public:
     inline void intersectingSet(const QRect &area, bool doLayout = true) const {
         if (doLayout) executePostedLayout();
         QRect a = (q_func()->isRightToLeft() ? flipX(area.normalized()) : area.normalized());
-        if (movement == QListView::Static) staticListView.intersectingStaticSet(a);
-        else dynamicListView.intersectingDynamicSet(a);
+        if (viewMode == QListView::ListMode) staticListView->intersectingStaticSet(a);
+        else dynamicListView->intersectingDynamicSet(a);
     }
 
     // ### FIXME:
     inline int batchStartRow() const
-        { return (movement == QListView::Static
-          ? staticListView.batchStartRow : dynamicListView.batchStartRow); }
+        { return (viewMode == QListView::ListMode
+          ? staticListView->batchStartRow : dynamicListView->batchStartRow); }
     inline QSize contentsSize() const
-        { return (movement == QListView::Static
-          ? staticListView.contentsSize : dynamicListView.contentsSize); }
+        { return (viewMode == QListView::ListMode
+          ? staticListView->contentsSize : dynamicListView->contentsSize); }
     inline void setContentsSize(int w, int h)
-        { staticListView.contentsSize = QSize(w, h);
-          dynamicListView.contentsSize = QSize(w, h); }
+        { if (viewMode == QListView::ListMode) staticListView->contentsSize = QSize(w, h);
+          else dynamicListView->contentsSize = QSize(w, h); }
 
     inline int flipX(int x) const
         { return qMax(viewport->width(), contentsSize().width()) - x; }
@@ -281,7 +285,7 @@ public:
     QSize itemSize(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
     bool selectionAllowed(const QModelIndex &index) const
-        { if (movement == QListView::Static) return index.isValid(); return true; }
+        { if (viewMode == QListView::ListMode) return index.isValid(); return true; }
 
     QStyleOptionViewItemV2 viewOptionsV2() const;
     int horizontalScrollToValue(const QModelIndex &index, const QRect &rect, QListView::ScrollHint hint) const;
@@ -294,6 +298,12 @@ public:
     inline bool isWrapping() const { return wrap; }
     inline void setSpacing(int s) { space = s; }
     inline int spacing() const { return space; }
+
+    // ### FIXME: we only need one at a time
+    QDynamicListViewBase *dynamicListView;
+    QStaticListViewBase *staticListView;
+
+    // ### FIXME: see if we can move the members into the dynamic/static classes
 
     bool wrap;
     int space;
