@@ -85,6 +85,7 @@ private slots:
     void match_data();
     void match();
     void insertIntoChildrenlessItem();
+    void invalidateMappedChildren();
 #endif // QT_VERSION
 
 protected:
@@ -1654,6 +1655,43 @@ void tst_QSortFilterProxyModel::insertIntoChildrenlessItem()
     QCOMPARE(qvariant_cast<QModelIndex>(args.at(0)), proxy.mapFromSource(itemB->index()));
     QCOMPARE(qvariant_cast<int>(args.at(1)), 0);
     QCOMPARE(qvariant_cast<int>(args.at(2)), 0);
+}
+
+void tst_QSortFilterProxyModel::invalidateMappedChildren()
+{
+    QStandardItemModel model;
+
+    QSortFilterProxyModel proxy;
+    proxy.setSourceModel(&model);
+
+    QStandardItem *itemA = new QStandardItem("a");
+    model.appendRow(itemA);
+    QStandardItem *itemB = new QStandardItem("b");
+    itemA->appendRow(itemB);
+
+    QStandardItem *itemC = new QStandardItem("c");
+    itemB->appendRow(itemC);
+    itemC->appendRow(new QStandardItem("d"));
+
+    // force mappings
+    (void)proxy.hasChildren(QModelIndex());
+    (void)proxy.hasChildren(proxy.mapFromSource(itemA->index()));
+    (void)proxy.hasChildren(proxy.mapFromSource(itemB->index()));
+    (void)proxy.hasChildren(proxy.mapFromSource(itemC->index()));
+
+    itemB->removeRow(0); // should invalidate mapping of itemC
+    itemC = new QStandardItem("c");
+    itemA->appendRow(itemC);
+    itemC->appendRow(new QStandardItem("d"));
+
+    itemA->removeRow(1); // should invalidate mapping of itemC
+    itemC = new QStandardItem("c");
+    itemB->appendRow(itemC);
+    itemC->appendRow(new QStandardItem("d"));
+
+    QCOMPARE(proxy.rowCount(proxy.mapFromSource(itemA->index())), 1);
+    QCOMPARE(proxy.rowCount(proxy.mapFromSource(itemB->index())), 1);
+    QCOMPARE(proxy.rowCount(proxy.mapFromSource(itemC->index())), 1);
 }
 
 #endif // QT_VERSION

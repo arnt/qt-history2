@@ -700,6 +700,43 @@ void QSortFilterProxyModelPrivate::source_items_removed(
             proxy_to_source.replace(proxy_item, source_item - delta_item_count);
     }
     build_source_to_proxy_mapping(proxy_to_source, source_to_proxy);
+
+    // see if any mapped children should be (re)moved
+    QVector<QModelIndex>::iterator it2 = m->mapped_children.begin();
+    for ( ; it2 != m->mapped_children.end(); ) {
+        const QModelIndex source_child_index = *it2;
+        const int pos = (orient == Qt::Vertical)
+                        ? source_child_index.row()
+                        : source_child_index.column();
+        if (pos < start) {
+            // not affected by removal
+            ++it2;
+            continue;
+        } else if (pos <= end) {
+            // in the removed interval
+            it2 = m->mapped_children.erase(it2);
+            remove_from_mapping(source_child_index);
+        } else {
+            // below the removed items -- recompute the index
+            QModelIndex new_index;
+            if (orient == Qt::Vertical) {
+                new_index = model->index(pos - delta_item_count,
+                                         source_child_index.column(),
+                                         source_parent);
+            } else {
+                new_index = model->index(source_child_index.row(),
+                                         pos - delta_item_count,
+                                         source_parent);
+            }
+            *it2 = new_index;
+            ++it2;
+
+            // update mapping
+            Mapping *cm = source_index_mapping.take(source_child_index);
+            Q_ASSERT(cm);
+            source_index_mapping.insert(new_index, cm);
+        }
+    }
 }
 
 /*!
