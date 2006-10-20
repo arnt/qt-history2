@@ -666,7 +666,7 @@
            Example:
 
            \code
-        QTreeView { background-image: url(:/images/hydro.png) }
+        QFrame { background-image: url(:/images/hydro.png) }
            \endcode
 
     \row
@@ -681,7 +681,7 @@
            Example:
 
            \code
-        QTextEdit {
+        QFrame {
             background: white url(:/images/ring.png);
             background-repeat: repeat-y;
             background-position: left;
@@ -700,7 +700,7 @@
            Example:
 
            \code
-        QTextEdit {
+        QFrame {
             background: url(:/images/footer.png);
             background-position: bottom left;
         }
@@ -1713,12 +1713,12 @@
     \row
         \o \bold Color \target Color
         \o \tt{rgb(\e{r}, \e{g}, \e{b})} \BR
+           | \tt{rgba(\e{r}, \e{g}, \e{b}, \e{a})} \BR
            | \tt{#\e{rrggbb}} \BR
-           | \tt{#\e{aarrggbb}} \BR
            | \l{QColor::setNamedColor()}{Color Name}
-        \o Specifies a color as RGB (red, green, blue) or ARGB
-           (alpha, red, green, blue). The \c rgb() syntax can be used
-           with integer values between 0 and 255, or with
+        \o Specifies a color as RGB (red, green, blue) or RGBA
+           (red, green, blue, alpha). The \c rgb() or \a rgba() syntax can be
+           used with integer values between 0 and 255, or with
            percentages.
 
            Examples:
@@ -1726,7 +1726,7 @@
     \code
         QLabel { border-color: red }                    / * opaque red * /
         QLabel { border-color: #FF0000 }                / * opaque red * /
-        QLabel { border-color: #3FFF0000 }              / * 75% transparent red * /
+        QLabel { border-color: rgba(255, 0, 0, 75%) }   / * 75% transparent red * /
         QLabel { border-color: rgb(255, 0, 0) }         / * opaque red * /
         QLabel { border-color: rgb(100%, 0%, 0%) }      / * opaque red * /
     \endcode
