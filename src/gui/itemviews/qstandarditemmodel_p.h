@@ -50,11 +50,17 @@ public:
         { }
     virtual ~QStandardItemPrivate();
 
-    int childIndex(int row, int column) const;
+    inline int childIndex(int row, int column) const {
+        if ((row < 0) || (column < 0)
+            || (row >= rowCount()) || (column >= columnCount())) {
+            return -1;
+        }
+        return (row * columnCount()) + column;
+    }
     inline int childIndex(const QStandardItem *child) const {
         return children.indexOf(const_cast<QStandardItem*>(child));
     }
-    QPair<int, int> itemPosition(const QStandardItem *item) const;
+    QPair<int, int> position() const;
     void setChild(int row, int column, QStandardItem *item,
                   bool emitChanged = false);
     inline int rowCount() const {

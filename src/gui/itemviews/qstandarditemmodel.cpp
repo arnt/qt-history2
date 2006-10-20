@@ -72,20 +72,10 @@ QStandardItemPrivate::~QStandardItemPrivate()
 /*!
   \internal
 */
-int QStandardItemPrivate::childIndex(int row, int column) const
+QPair<int, int> QStandardItemPrivate::position() const
 {
-    if ((row < 0) || (column < 0) || (row >= rowCount()) || (column >= columnCount()))
-        return -1;
-    return (row * columnCount()) + column;
-}
-
-/*!
-  \internal
-*/
-QPair<int, int> QStandardItemPrivate::itemPosition(const QStandardItem *item) const
-{
-    if (QStandardItem *par = item->d_func()->parent) {
-        int idx = par->d_func()->childIndex(item);
+    if (QStandardItem *par = parent) {
+        int idx = par->d_func()->childIndex(q_func());
         if (idx == -1)
             return QPair<int, int>(-1, -1);
         return QPair<int, int>(idx / par->columnCount(), idx % par->columnCount());
@@ -1218,7 +1208,7 @@ void QStandardItem::setDropEnabled(bool dropEnabled)
 int QStandardItem::row() const
 {
     Q_D(const QStandardItem);
-    QPair<int, int> pos = d->itemPosition(this);
+    QPair<int, int> pos = d->position();
     return pos.first;
 }
 
@@ -1231,7 +1221,7 @@ int QStandardItem::row() const
 int QStandardItem::column() const
 {
     Q_D(const QStandardItem);
-    QPair<int, int> pos = d->itemPosition(this);
+    QPair<int, int> pos = d->position();
     return pos.second;
 }
 
@@ -2012,8 +2002,10 @@ QStandardItem *QStandardItemModel::itemFromIndex(const QModelIndex &index) const
 */
 QModelIndex QStandardItemModel::indexFromItem(const QStandardItem *item) const
 {
-    if (item && item->d_func()->parent)
-        return createIndex(item->row(), item->column(), item->d_func()->parent);
+    if (item && item->d_func()->parent) {
+        QPair<int, int> pos = item->d_func()->position();
+        return createIndex(pos.first, pos.second, item->d_func()->parent);
+    }
     return QModelIndex();
 }
 
