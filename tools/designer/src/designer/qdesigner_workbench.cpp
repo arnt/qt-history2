@@ -461,7 +461,8 @@ bool QDesignerWorkbench::eventFilter(QObject *object, QEvent *event)
             if (!e->mimeData()->hasFormat("text/uri-list"))
                 return false;
             foreach (QUrl url, e->mimeData()->urls()) {
-                readInForm(url.toLocalFile());
+                if (!url.toLocalFile().isEmpty())
+                    readInForm(url.toLocalFile());
             }
             e->acceptProposedAction();
             return true;
