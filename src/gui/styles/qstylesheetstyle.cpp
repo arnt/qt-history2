@@ -347,7 +347,7 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
             styleHints[decl.property] = hint;
         } else if (decl.property.compare(QLatin1String("image-region"), Qt::CaseInsensitive) == 0) {
             imageRect = decl.rectValue();
-        } else if (decl.propertyId == UnknownProperty) {
+        } else if (decl.propertyId == UnknownProperty && !decl.property.startsWith(QLatin1String("qproperty-"))) {
             qWarning("Unknown property %s", qPrintable(decl.property));
         }
     }
@@ -1259,11 +1259,27 @@ static struct PseudoElementInfo {
     { QStyle::SC_ScrollBarLast, "last" }
 };
 
+QVector<Declaration> declarations(const QWidget *w, const QString &part, int pseudoState = PseudoState_Unspecified)
+{
+    const QVector<StyleRule> &styleRules = styleRulesCache[w];
+    QVector<Declaration> decls;
+    for (int i = 0; i < styleRules.count(); i++) {
+        const Selector& selector = styleRules.at(i).selectors.at(0);
+        // Rules with pseudo elements dont cascade. This is an intentional
+        // diversion for CSS
+        if (part.compare(selector.pseudoElement(), Qt::CaseInsensitive) != 0)
+            continue;
+        const int cssState = selector.pseudoState();
+        if ((cssState == PseudoState_Unspecified) || ((cssState & pseudoState) == cssState))
+            decls += styleRules.at(i).declarations;
+    }
+    return decls;
+}
+
 static QRenderRule renderRule(const QWidget *w, const QString &part, QStyle::State state = QStyle::State_None) 
 {
     Q_ASSERT(w);
     Q_ASSERT(styleRulesCache.contains(w)); // style sheet rules must have been computed!
-    const QVector<StyleRule> &styleRules = styleRulesCache[w];
     QHash<int, QRenderRule> &renderRules = renderRulesCache[w][part];
 
     int pseudoState = (state & QStyle::State_Enabled)
@@ -1286,19 +1302,8 @@ static QRenderRule renderRule(const QWidget *w, const QString &part, QStyle::Sta
     if (renderRules.contains(pseudoState))
         return renderRules[pseudoState]; // already computed before
 
-    QVector<Declaration> declarations;
-    for (int i = 0; i < styleRules.count(); i++) {
-        const Selector& selector = styleRules.at(i).selectors.at(0);
-        // Rules with pseudo elements dont cascade. This is an intentional
-        // diversion for CSS
-        if (part.compare(selector.pseudoElement(), Qt::CaseInsensitive) != 0)
-            continue;
-        const int cssState = selector.pseudoState();
-        if ((cssState == PseudoState_Unspecified) || ((cssState & pseudoState) == cssState))
-            declarations += styleRules.at(i).declarations;
-    }
-
-    QRenderRule newRule(declarations);
+    QVector<Declaration> decls = declarations(w, part, pseudoState);
+    QRenderRule newRule(decls);
     renderRules[pseudoState] = newRule;
     return newRule;
 }
@@ -1521,6 +1526,45 @@ static QWidget *embeddedWidget(QWidget *w)
     return w;
 }
 
+static void setProperties(QWidget *w)
+{
+    QHash<QString, QVariant> propertyHash;
+    QVector<Declaration> decls = declarations(w, QString());
+    const QMetaObject *metaObject = w->metaObject();
+    // run through the declarations in order
+    for (int i = 0; i < decls.count(); i++) {
+        Declaration decl = decls.at(i);
+        QString property = decl.property;
+        if (!property.startsWith("qproperty-", Qt::CaseInsensitive))
+            continue;
+        property = property.mid(10); // strip "qproperty-"
+        const QVariant value = w->property(property.toLatin1()); // takes care of dynamic properties too
+        if (!value.isValid()) {
+            qWarning() << w << " does not have a property named " << property;
+            continue;
+        }
+        QVariant v;
+        switch (value.type()) {
+        case QVariant::Icon: v = QIcon(decl.uriValue()); break;
+        case QVariant::Image: v = QImage(decl.uriValue()); break;
+        case QVariant::Pixmap: v = QPixmap(decl.uriValue()); break;
+        case QVariant::Rect: v = decl.rectValue(); break;
+        case QVariant::Size: v = decl.sizeValue(); break;
+        case QVariant::Color: v = decl.colorValue(); break;
+        case QVariant::Brush: v = decl.brushValue(); break;
+        case QVariant::KeySequence: v = QKeySequence(decl.values.first().variant.toString());
+        default: v = decl.values.first().variant; break;
+        }
+        propertyHash[property] = v;
+    }
+    // apply the values
+    const QList<QString> properties = propertyHash.keys();
+    for (int i = 0; i < properties.count(); i++) {
+        const QString property = properties.at(i);
+        w->setProperty(property.toLatin1(), propertyHash[property.toLatin1()]);
+    }
+}
+
 // remember to revert changes in unsetPalette
 static void setPalette(QWidget *w)
 {
@@ -1591,6 +1635,7 @@ static void unsetPalette(QWidget *w)
 
 static void updateWidget(QWidget *widget)
 {
+    setProperties(widget);
     QEvent e(QEvent::StyleChange);
     QApplication::sendEvent(widget, &e);
     widget->update();
