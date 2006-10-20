@@ -115,8 +115,8 @@ void QPrintDialogPrivate::_q_okClicked()
 #ifndef QT_NO_MESSAGEBOX
     if (outputToFile && fileName->isModified() && QFileInfo(fileName->text()).exists()) {
         int confirm = QMessageBox::warning(
-            q, q->tr("File exists"),
-            q->tr("<qt>Do you want to overwrite it?</qt>"),
+            q, QPrintDialog::tr("File exists"),
+            QPrintDialog::tr("<qt>Do you want to overwrite it?</qt>"),
             QMessageBox::Yes, QMessageBox::No);
         if (confirm == QMessageBox::No)
             return;
