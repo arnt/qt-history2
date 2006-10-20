@@ -50,7 +50,7 @@
 #include <qdebug.h>
 
 typedef void (*QPrintDialogCreator)(QPrintDialog *parent);
-QPrintDialogCreator _qt_print_dialog_creator;
+Q_GUI_EXPORT QPrintDialogCreator _qt_print_dialog_creator;
 
 class QPrintDialogPrivate : public QAbstractPrintDialogPrivate
 {
