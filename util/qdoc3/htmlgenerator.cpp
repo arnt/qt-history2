@@ -1947,8 +1947,9 @@ QString HtmlGenerator::protect( const QString& string )
         } else if (ch == '"') {
             APPEND("&quot;");        
         } else if (ch.unicode() > 0x00FF
-                   || (ch == '/' && i + 1 < n && string.at(i) == '*')) {
-            // we escape '/*' for the Javadoc generator
+                   || (ch == '*' && i + 1 < n && string.at(i) == '/')
+                   || (ch == '.' && i > 2 && string.at(i - 2) == '.')) {
+            // we escape '*/' and the last dot in 'e.g.' and 'i.e.' for the Javadoc generator
             APPEND("&#x");
             html += QString::number(ch.unicode(), 16);
             html += QChar(';');

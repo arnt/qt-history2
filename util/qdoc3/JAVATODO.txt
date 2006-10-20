@@ -1,6 +1,5 @@
-  * check reimplementation of interface functions (e.g. QWidget::widthMM())
   * fix enum value table (e.g. QCoreApplication.Encoding.html)
-  * handle 'e.g.' and 'i.e.' in HTML, somehow, e.g. QAbstractEventDispatcher::interrupt()
+  * check reimplementation of interface functions (e.g. QWidget::widthMM())
   * overloads in general seem broken, e.g. QAbstractEventDispatcher::instance()
   * handle '::' in doc, e.g. in QAbstractEventDispatcher's detailed desc
   * make sure default constructor logic doesn't interfere with default params (e.g. QAbstractEventDispatcher ctors)
