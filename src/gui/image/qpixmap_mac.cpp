@@ -350,7 +350,9 @@ void QPixmap::detach()
     }
     if (data->count != 1) {
         *this = copy();
+#ifndef QT_MAC_NO_QUICKDRAW
         data->qd_alpha = 0; //leave it behind
+#endif
         data->ser_no = ++qt_pixmap_serial;
     }
     data->uninit = false;
@@ -395,11 +397,13 @@ int QPixmap::metric(PaintDeviceMetric m) const
 
 QPixmapData::~QPixmapData()
 {
+#ifndef QT_MAC_NO_QUICKDRAW
     macQDDisposeAlpha();
     if(qd_data) {
         DisposeGWorld(qd_data);
         qd_data = 0;
     }
+#endif
     if(cg_mask) {
         CGImageRelease(cg_mask);
         cg_mask = 0;
@@ -486,13 +490,12 @@ void
 QPixmapData::macSetHasAlpha(bool b)
 {
     has_alpha = b;
-#if 1
+#ifndef QT_MAC_NO_QUICKDRAW
     macQDDisposeAlpha(); //let it get created lazily
-#else
-    macQDUpdateAlpha();
 #endif
 }
 
+#ifndef QT_MAC_NO_QUICKDRAW
 void
 QPixmapData::macQDDisposeAlpha()
 {
@@ -528,6 +531,7 @@ QPixmapData::macQDUpdateAlpha()
         }
     }
 }
+#endif
 
 QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode) const
 {
@@ -617,6 +621,10 @@ void QPixmap::init(int w, int h, Type type)
     data->detach_no = 0;
     data->type = type;
     data->cg_mask = 0;
+#ifndef QT_MAC_NO_QUICKDRAW
+    data->qd_data = 0;
+    data->qd_alpha = 0;
+#endif
 
     bool make_null = w == 0 || h == 0;                // create null pixmap
     data->d = (type == PixmapType) ? 32 : 1;
@@ -655,27 +663,6 @@ void QPixmap::init(int w, int h, Type type)
 
     CGColorSpaceRelease(colorspace);
     CGDataProviderRelease(provider);
-
-    //create the qd data
-    Rect rect;
-    SetRect(&rect, 0, 0, w, h);
-    unsigned long qdformat = k32ARGBPixelFormat;
-    GWorldFlags qdflags = 0;
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
-    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
-        //we play such games so we can use the same buffer in CG as QD this
-        //makes our merge much simpler, at some point the hacks will go away
-        //because QD will be removed, but until that day this keeps them coexisting
-        if(QSysInfo::ByteOrder == QSysInfo::LittleEndian)
-            qdformat = k32BGRAPixelFormat;
-#if 0
-        qdflags |= kNativeEndianPixMap;
-#endif
-    }
-#endif
-    if(NewGWorldFromPtr(&data->qd_data, qdformat, &rect, 0, 0, qdflags,
-                        (char*)data->pixels, data->nbytes / h) != noErr)
-        qWarning("Qt: internal: QPixmap::init error (%d %d %d %d)", rect.left, rect.top, rect.right, rect.bottom);
 }
 
 int QPixmap::defaultDepth()
@@ -722,24 +709,80 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
     return pm;
 }
 
+/*! \internal
+
+    Returns the QuickDraw CGrafPtr of the pixmap. 0 is returned if it can't
+    be obtained. Do not hold the pointer around for long as it can be
+    relocated.
+
+    \warning This function is only available on Mac OS X.
+*/
+
 Qt::HANDLE QPixmap::macQDHandle() const
 {
+#ifndef QT_MAC_NO_QUICKDRAW
+    if(!data->qd_data) { //create the qd data
+        Rect rect;
+        SetRect(&rect, 0, 0, data->w, data->h);
+        unsigned long qdformat = k32ARGBPixelFormat;
+        GWorldFlags qdflags = 0;
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+        if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+            //we play such games so we can use the same buffer in CG as QD this
+            //makes our merge much simpler, at some point the hacks will go away
+            //because QD will be removed, but until that day this keeps them coexisting
+            if(QSysInfo::ByteOrder == QSysInfo::LittleEndian)
+                qdformat = k32BGRAPixelFormat;
+#if 0
+            qdflags |= kNativeEndianPixMap;
+#endif
+        }
+#endif
+        if(NewGWorldFromPtr(&data->qd_data, qdformat, &rect, 0, 0, qdflags,
+                            (char*)data->pixels, data->nbytes / data->h) != noErr)
+            qWarning("Qt: internal: QPixmap::init error (%d %d %d %d)", rect.left, rect.top, rect.right, rect.bottom);
+    }
     return data->qd_data;
+#else
+    return 0;
+#endif
 }
+
+/*! \internal
+
+    Returns the QuickDraw CGrafPtr of the pixmap's alpha channel. 0 is
+    returned if it can't be obtained. Do not hold the pointer around for
+    long as it can be relocated.
+
+    \warning This function is only available on Mac OS X.
+*/
 
 Qt::HANDLE QPixmap::macQDAlphaHandle() const
 {
+#ifndef QT_MAC_NO_QUICKDRAW
     if(data->has_alpha || data->has_mask) {
         if(!data->qd_alpha) //lazily created
             data->macQDUpdateAlpha();
         return data->qd_alpha;
     }
+#endif
     return 0;
 }
 
+/*! \internal
+
+    Returns the CoreGraphics CGContextRef of the pixmap. 0 is returned if
+    it can't be obtained. It is the caller's responsiblity to
+    CGContextRelease the context when finished using it.
+
+    \warning This function is only available on Mac OS X.
+*/
+
 Qt::HANDLE QPixmap::macCGHandle() const
 {
-    return data->cg_data;
+    CGImageRef ret = (CGImageRef)data->cg_data;
+    CGImageRetain(ret);
+    return ret;
 }
 
 bool QPixmap::hasAlpha() const
@@ -784,9 +827,7 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
 {
     if (px.isNull())
         return 0;
-#ifndef __LP64__
     QMacSavedPortInfo pi; //save the current state
-#endif
     //create icon
     IconFamilyHandle iconFamily = reinterpret_cast<IconFamilyHandle>(NewHandle(0));
     //create data

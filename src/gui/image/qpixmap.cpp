@@ -446,19 +446,19 @@ void QPixmap::resize_helper(const QSize &s)
         p.drawPixmap(0, 0, *this, 0, 0, qMin(width(), w), qMin(height(), h));
     }
 #if defined(Q_WS_MAC)
-    if(data->qd_alpha) {
+#ifndef QT_MAC_QUICKDRAW
+    if(data->qd_alpha)
         data->macQDUpdateAlpha();
-    } else
-#endif // Q_WS_X11
-#ifdef Q_WS_X11
-        if (data->x11_mask) {
-            pm.data->x11_mask = (Qt::HANDLE)XCreatePixmap(X11->display, RootWindow(data->xinfo.display(), data->xinfo.screen()),
-                                                          w, h, 1);
-            GC gc = XCreateGC(X11->display, pm.data->x11_mask, 0, 0);
-            XCopyArea(X11->display, data->x11_mask, pm.data->x11_mask, gc, 0, 0, qMin(width(), w), qMin(height(), h), 0, 0);
-            XFreeGC(X11->display, gc);
-        }
-#elif !defined(Q_WS_MAC)
+#endif
+#elif defined(Q_WS_X11)
+    if (data->x11_mask) {
+        pm.data->x11_mask = (Qt::HANDLE)XCreatePixmap(X11->display, RootWindow(data->xinfo.display(), data->xinfo.screen()),
+                                                      w, h, 1);
+        GC gc = XCreateGC(X11->display, pm.data->x11_mask, 0, 0);
+        XCopyArea(X11->display, data->x11_mask, pm.data->x11_mask, gc, 0, 0, qMin(width(), w), qMin(height(), h), 0, 0);
+        XFreeGC(X11->display, gc);
+    }
+#else
     if (data->mask) {
         QBitmap m = *data->mask;
         m.resize(w, h);

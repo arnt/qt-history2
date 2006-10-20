@@ -388,6 +388,7 @@ public:
 
     //these are here just for code compat (HIViews)
     QRegion clp;
+    Qt::HANDLE qd_hd;
     uint clp_serial : 8;
     inline QRegion clippedRegion(bool = true) { return clp; }
     inline uint clippedSerial(bool =true) { return clp_serial; }

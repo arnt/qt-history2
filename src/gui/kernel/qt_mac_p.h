@@ -197,10 +197,14 @@ public:
     bool sync() const;
 };
 
-#ifndef __LP64__
+#ifdef __LP64__
+# define QT_MAC_NO_QUICKDRAW
+#endif
+
+extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
+#ifndef QT_MAC_NO_QUICKDRAW
 #include "qpaintdevice.h"
 extern WindowPtr qt_mac_window_for(const QWidget*); //qwidget_mac.cpp
-extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
 class QMacSavedPortInfo
 {
     RgnHandle clip;
@@ -227,22 +231,7 @@ public:
         { return setClipRegion(w->d_func()->clippedRegion()); }
     static inline bool setPaintDevice(QPaintDevice *);
     static inline bool setPaintDevice(QWidget *, bool set_clip=false, bool with_child=true);
-    static inline void setWindowAlpha(QWidget *, float);
 };
-
-extern "C" {
-    typedef struct CGSConnection *CGSConnectionRef;
-    typedef struct CGSWindow *CGSWindowRef;
-    extern OSStatus CGSSetWindowAlpha(CGSConnectionRef, CGSWindowRef, float);
-    extern CGSWindowRef GetNativeWindowFromWindowRef(WindowRef);
-    extern CGSConnectionRef _CGSDefaultConnection();
-}
-inline void
-QMacSavedPortInfo::setWindowAlpha(QWidget *w, float l)
-{
-    CGSSetWindowAlpha(_CGSDefaultConnection(),
-                      GetNativeWindowFromWindowRef(qt_mac_window_for(w)), l);
-}
 
 inline bool
 QMacSavedPortInfo::setClipRegion(const QRect &rect)
@@ -322,7 +311,23 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
     }
     DisposeRgn(clip);
 }
-#endif // __LP64__
+#else
+class QMacSavedPortInfo
+{
+public:
+    inline QMacSavedPortInfo() { }
+    inline QMacSavedPortInfo(QPaintDevice *) { }
+    inline QMacSavedPortInfo(QWidget *, bool = false) { }
+    inline QMacSavedPortInfo(QPaintDevice *, const QRect &) { }
+    inline QMacSavedPortInfo(QPaintDevice *, const QRegion &) { }
+    ~QMacSavedPortInfo() { }
+    static inline bool setClipRegion(const QRect &) { }
+    static inline bool setClipRegion(const QRegion &) { }
+    static inline bool setClipRegion(QWidget *) { }
+    static inline bool setPaintDevice(QPaintDevice *) { }
+    static inline bool setPaintDevice(QWidget *, bool =false, bool =true) { }
+};
+#endif
 
 #ifdef check
 # undef check

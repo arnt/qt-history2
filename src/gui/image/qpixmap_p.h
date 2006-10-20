@@ -80,13 +80,15 @@ struct QPixmapData { // internal pixmap data
     void macSetHasAlpha(bool b);
     void macGetAlphaChannel(QPixmap *, bool asMask) const;
     void macSetAlphaChannel(const QPixmap *, bool asMask);
-    void macQDDisposeAlpha();
-    void macQDUpdateAlpha();
     quint32 *pixels;
     uint nbytes;
     QRectF cg_mask_rect;
     CGImageRef cg_data, cg_mask;
+#ifndef __LP64__
     GWorldPtr qd_data, qd_alpha;
+    void macQDDisposeAlpha();
+    void macQDUpdateAlpha();
+#endif
 #endif
     QPaintEngine *paintEngine;
 #if !defined(Q_WS_MAC)

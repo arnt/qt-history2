@@ -17,6 +17,7 @@
 #include "qbitmap.h"
 #include "qapplication.h"
 #include "qprinter.h"
+#include <qdebug.h>
 #include <private/qt_mac_p.h>
 #include <private/qprintengine_mac_p.h>
 #include <private/qpixmap_p.h>
@@ -81,13 +82,17 @@ float qt_mac_defaultDpi_y()
     Returns the QuickDraw CGrafPtr of the paint device. 0 is returned
     if it can't be obtained. Do not hold the pointer around for long
     as it can be relocated.
+
+    \warning This function is only available on Mac OS X.
 */
 
 Q_GUI_EXPORT GrafPtr qt_mac_qd_context(const QPaintDevice *device)
 {
     if (device->devType() == QInternal::Pixmap) {
         return static_cast<GrafPtr>(static_cast<const QPixmap *>(device)->macQDHandle());
-    } else if (device->devType() == QInternal::Printer) {
+    } else if(device->devType() == QInternal::Widget) {
+        return static_cast<GrafPtr>(static_cast<const QWidget *>(device)->macQDHandle());
+    } if(device->devType() == QInternal::Printer) {
         QPaintEngine *engine = static_cast<const QPrinter *>(device)->paintEngine();
         return static_cast<GrafPtr>(static_cast<const QMacPrintEngine *>(engine)->handle());
     }
@@ -99,6 +104,8 @@ Q_GUI_EXPORT GrafPtr qt_mac_qd_context(const QPaintDevice *device)
     Returns the CoreGraphics CGContextRef of the paint device. 0 is
     returned if it can't be obtained. It is the caller's responsiblity to
     CGContextRelease the context when finished using it.
+
+    \warning This function is only available on Mac OS X.
 */
 
 Q_GUI_EXPORT CGContextRef qt_mac_cg_context(const QPaintDevice *pdev)
@@ -124,12 +131,12 @@ Q_GUI_EXPORT CGContextRef qt_mac_cg_context(const QPaintDevice *pdev)
                      pm->data->w, pm->data->h, pm->data->nbytes);
         CGContextTranslateCTM(ret, 0, pm->data->h);
         CGContextScaleCTM(ret, 1, -1);
+        CGImageRelease(img);
         return ret;
     } else if(pdev->devType() == QInternal::Widget) {
-        CGContextRef ret = static_cast<CGContextRef>(static_cast<const QWidget *>(pdev)->handle());
+        CGContextRef ret = static_cast<CGContextRef>(static_cast<const QWidget *>(pdev)->macCGHandle());
         CGContextRetain(ret);
         return ret;
     }
     return 0;
 }
-

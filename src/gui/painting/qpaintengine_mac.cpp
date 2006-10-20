@@ -220,12 +220,10 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
         } else {
             w = pat->data.pixmap.width();
             h = pat->data.pixmap.height();
-            if(pat->data.pixmap.depth() == 1) {
+            if(pat->data.pixmap.depth() == 1)
                 pat->image = qt_mac_create_imagemask(pat->data.pixmap, pat->data.pixmap.rect());
-            } else {
+            else
                 pat->image = (CGImageRef)pat->data.pixmap.macCGHandle();
-                CGImageRetain(pat->image);
-            }
         }
     } else {
         w = CGImageGetWidth(pat->image);
@@ -633,8 +631,9 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
     } else if (differentSize) {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
         if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
-            image = CGImageCreateWithImageInRect(CGImageRef(pm.macCGHandle()),
-                                                 CGRectMake(qRound(sr.x()), qRound(sr.y()), qRound(sr.width()), qRound(sr.height())));
+            CGImageRef img = (CGImageRef)pm.macCGHandle();
+            image = CGImageCreateWithImageInRect(img, CGRectMake(qRound(sr.x()), qRound(sr.y()), qRound(sr.width()), qRound(sr.height())));
+            CGImageRelease(img);
         } else
 #endif
         {
@@ -647,9 +646,7 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
                                   kCGRenderingIntentDefault);
         }
     } else {
-        CGImageRef pixmapImage = CGImageRef(pm.macCGHandle());
-        CFRetain(pixmapImage);
-        image = pixmapImage;
+        image = (CGImageRef)pm.macCGHandle();
     }
     HIViewDrawCGImage(d->hd, &rect, image);
     if (doRestore)

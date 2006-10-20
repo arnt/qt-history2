@@ -1360,15 +1360,15 @@ void QMacStyle::polish(QPalette &pal)
     QPixmap px(200, 200);
     QColor pc(Qt::black);
     {
-#ifndef __LP64__
+#ifndef QT_MAC_NO_QUICKDRAW
         QMacSavedPortInfo port(&px);
-#endif
         SetThemeBackground(kThemeBrushDialogBackgroundActive, px.depth(), true);
         const Rect qdRect = { 0, 0, px.width(), px.height() };
         EraseRect(&qdRect);
         RGBColor c;
         GetThemeBrushAsColor(kThemeBrushDialogBackgroundActive, 32, true, &c);
         pc = QColor(c.red / 256, c.green / 256, c.blue / 256);
+#endif
     }
     QBrush background(pc, px);
     pal.setBrush(QPalette::All, QPalette::Window, background);
@@ -2461,7 +2461,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
         } break;
     case PE_FrameStatusBar:
         QCommonStyle::drawPrimitive(pe, opt, p, w);
-        break;        
+        break;
     default:
         QWindowsStyle::drawPrimitive(pe, opt, p, w);
         break;

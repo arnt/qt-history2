@@ -506,7 +506,9 @@ Qt::DropAction QDragManager::drag(QDrag *o)
     QRegion dragRegion(boundsPoint.h, boundsPoint.v, pix.width(), pix.height()), pixRegion;
     if(!pix.isNull()) {
         HIPoint hipoint = { -hotspot.x(), -hotspot.y() };
-        SetDragImageWithCGImage(dragRef, static_cast<CGImageRef>(pix.macCGHandle()), &hipoint, 0);
+        CGImageRef img = (CGImageRef)pix.macCGHandle();
+        SetDragImageWithCGImage(dragRef, img, &hipoint, 0);
+        CGImageRelease(img);
     }
 
     SetDragItemBounds(dragRef, (ItemReference)1 , &boundsRect);

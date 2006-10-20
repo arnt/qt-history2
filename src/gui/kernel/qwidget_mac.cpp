@@ -479,17 +479,26 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                     widget->d_func()->clp.translate(pt.x(), pt.y());
                 }
 
-                //update qd port
-                GrafPtr cg_hd = 0;
+                //update handles
+                GrafPtr qd = 0;
+                {
+                    GDHandle dev = 0;
+                    if(GetEventParameter(event, kEventParamGrafPort, typeGrafPtr, 0, sizeof(qd), 0, &qd) != noErr) {
+#ifndef __LP64__
+                        GetGWorld(&qd, &dev); //just use the global port..
+#endif
+                    }
+                }
+                bool end_cg_context = false;
                 CGContextRef cg = 0;
                 if(GetEventParameter(event, kEventParamCGContextRef, typeCGContextRef, 0, sizeof(cg), 0, &cg) != noErr) {
-                    GDHandle dev = 0;
-                    if(GetEventParameter(event, kEventParamGrafPort, typeGrafPtr, 0, sizeof(cg_hd), 0, &cg_hd) != noErr)
-                        GetGWorld(&cg_hd, &dev); //just use the global port..
-                    if(cg_hd)
-                        QDBeginCGContext(cg_hd, &cg);
+                    if(qd) {
+                        end_cg_context = true;
+                        QDBeginCGContext(qd, &cg);
+                    }
                 }
                 widget->d_func()->hd = cg;
+                widget->d_func()->qd_hd = qd;
                 CGContextSaveGState(cg);
 
 #ifdef DEBUG_WIDGET_PAINT
@@ -600,13 +609,13 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                         qWarning("QWidget: It is dangerous to leave painters active on a widget outside of the PaintEvent");
                 }
 
-                //remove the old pointers, not necessary long-term, but short term it simplifies things --Sam
                 widget->d_func()->clp_serial++;
                 widget->d_func()->clp = QRegion();
                 widget->d_func()->hd = 0;
+                widget->d_func()->qd_hd = 0;
                 CGContextRestoreGState(cg);
-                if(cg_hd)
-                    QDEndCGContext(cg_hd, &cg);
+                if(end_cg_context)
+                    QDEndCGContext(qd, &cg);
             } else if(!HIObjectIsOfClass((HIObjectRef)hiview, kObjectQWidget)) {
                 CallNextEventHandler(er, event);
             }
@@ -1378,6 +1387,38 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         CFRelease(destroyid);
     }
 }
+
+/*!
+    Returns the QuickDraw handle of the widget. Use of this function is not
+    portable. This function will return 0 if QuickDraw is not supported, or
+    if the handle could not be created.
+
+    \warning This function is only available on Mac OS X.
+*/
+
+Qt::HANDLE
+QWidget::macQDHandle() const
+{
+    Q_D(const QWidget);
+    return d->qd_hd;
+}
+
+/*!
+    Returns the CoreGraphics handle of the widget. Use of this function is
+    not portable. This function will return 0 if no painter context can be
+    established, or if the handle could not be created.
+
+    \warning This function is only available on Mac OS X.
+
+    \sa handle()
+*/
+
+Qt::HANDLE
+QWidget::macCGHandle() const
+{
+    return handle();
+}
+
 
 void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 {
@@ -2411,8 +2452,6 @@ void QWidget::clearMask()
     setMask(QRegion());
 }
 
-#ifdef __LP64__
-
 extern "C" {
     typedef struct CGSConnection *CGSConnectionRef;
     typedef struct CGSWindow *CGSWindowRef;
@@ -2420,7 +2459,6 @@ extern "C" {
     extern CGSWindowRef GetNativeWindowFromWindowRef(WindowRef);
     extern CGSConnectionRef _CGSDefaultConnection();
 }
-#endif
 
 void QWidget::setWindowOpacity(qreal level)
 {
@@ -2433,12 +2471,8 @@ void QWidget::setWindowOpacity(qreal level)
     d->topData()->opacity = (uchar)(level * 255);
     if (!testAttribute(Qt::WA_WState_Created))
         return;
-#ifdef __LP64__
     CGSSetWindowAlpha(_CGSDefaultConnection(),
                       GetNativeWindowFromWindowRef(qt_mac_window_for(this)), level);
-#else
-    QMacSavedPortInfo::setWindowAlpha(this, level);
-#endif
 }
 
 qreal QWidget::windowOpacity() const

@@ -504,6 +504,11 @@ public:
     Qt::HANDLE x11PictureHandle() const;
 #endif
 
+#if defined(Q_WS_MAC)
+    Qt::HANDLE macQDHandle() const;
+    Qt::HANDLE macCGHandle() const;
+#endif
+
 #if defined(Q_WS_WIN)
     HDC getDC() const;
     void releaseDC(HDC) const;
