@@ -128,7 +128,7 @@ QString JavadocGenerator::imageFileName(const Node *relative, const QString& fil
         QString package = packageName(relative);
         int numSubPackages = package.count('.') - 2;
         while (numSubPackages > 0) {
-            result.prepend("../");
+            result.prepend("%2E%2E/");  // javadoc 1.5.0_06 chokes on '../'
             --numSubPackages;
         }
     }
@@ -314,7 +314,7 @@ QString JavadocGenerator::linkForNode( const Node *node, const Node *relative )
 
     ++i;
     while (i < relativePackage.count()) {
-        result.prepend("../");
+        result.prepend("%2E%2E/");      // javadoc 1.5.0_06 chokes on '../'
         ++i;
     }
 
