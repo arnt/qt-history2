@@ -793,9 +793,12 @@ QImage::QImage(uchar* data, int width, int height, Format format)
     : QPaintDevice()
 {
     d = 0;
+
+    if (format == Format_Invalid )
+        return;
     const int depth = depthForFormat(format);
-    const int bytes_per_line = ((width * d->depth + 31)/32) * 4;
-    if (format == Format_Invalid || width <= 0 || height <= 0 || !data
+    const int bytes_per_line = ((width * depth + 31)/32) * 4;
+    if (width <= 0 || height <= 0 || !data
         || INT_MAX/sizeof(uchar *) < uint(height)
         || INT_MAX/uint(depth) < uint(width)
         || bytes_per_line <= 0
