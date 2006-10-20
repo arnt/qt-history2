@@ -100,11 +100,6 @@ private Q_SLOTS:
     void widgetDestroyed(QObject *);
 
 private:
-    void setPalette(QWidget *w);
-    QRenderRule renderRule(const QWidget *, const QString &, QStyle::State = QStyle::State_None) const;
-    QRenderRule renderRule(const QWidget *, int, QStyle::State = QStyle::State_None) const;
-    QRenderRule renderRule(const QWidget *, const QStyleOption *, int = 0 /* PseudoElement_None */) const;
-    bool hasStyleRule(const QWidget *, int = 0 /* PseudoElement_None */) const;
     int refcount;
 };
 

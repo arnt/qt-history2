@@ -160,7 +160,7 @@ class QRenderRule
 {
 public:
     QRenderRule() : pal(0), b(0), bg(0), bd(0), geo(0), p(0) { }
-   QRenderRule(const QVector<QCss::Declaration> &, const QWidget *, const QString&, QStyle *);
+   QRenderRule(const QVector<QCss::Declaration> &);
     ~QRenderRule() { }
 
     QRect borderRect(const QRect &r) const;
@@ -222,9 +222,6 @@ public:
     int styleHint(const QString& sh) const { return styleHints.value(sh); }
 
     void fixupBorder();
-#if 0
-    void fixupGeometry(const QWidget *w, QString part, QStyle *);
-#endif
 
     QSharedDataPointer<QStyleSheetPaletteData> pal;
     QSharedDataPointer<QStyleSheetBoxData> b;
@@ -267,8 +264,7 @@ static const char *knownStyleHints[] = {
 
 static const char **endKnownStyleHints = knownStyleHints + sizeof(knownStyleHints)/sizeof(char *);
 
-QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget *,
-                         const QString &, QStyle *)
+QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
 : pal(0), b(0), bg(0), bd(0), geo(0), p(0)
 {
     ValueExtractor v(declarations);
@@ -357,9 +353,6 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
     }
 
     fixupBorder();
-#if 0
-    fixupGeometry(widget, part, style);
-#endif
 }
 
 QRect QRenderRule::borderRect(const QRect& r) const
@@ -444,35 +437,6 @@ void QRenderRule::fixupBorder()
     }
     bi->cutBorderImage();
 }
-
-#if 0
-void QRenderRule::fixupGeometry(const QWidget *w, QString part, QStyle *style)
-{
-    if (part.isEmpty() || hasGeometry())
-        return;
-    int width = -1, height = -1;
-    part = part.toLower();
-    if (part.compare(QLatin1String("up-button")) == 0
-        || part.compare(QLatin1String("down-button")) == 0)
-        width = 16;
-    else if (part.compare(QLatin1String("drop-down")) == 0)
-        width = 16;
-    else if (part.compare(QLatin1String("indicator")) == 0) {
-        if (qobject_cast<const QRadioButton *>(w)) {
-            width = style->pixelMetric(QStyle::PM_ExclusiveIndicatorWidth, 0, w);
-            height = style->pixelMetric(QStyle::PM_ExclusiveIndicatorHeight, 0, w);
-        } else {
-            width = style->pixelMetric(QStyle::PM_IndicatorWidth, 0, w);
-            height = style->pixelMetric(QStyle::PM_IndicatorWidth, 0, w);
-        }
-    } else if (part.compare(QLatin1String("menu-indicator")) == 0) {
-        width = height = style->pixelMetric(QStyle::PM_MenuButtonIndicator, 0, w);
-    } else if (part.endsWith("-arrow")) {
-        width = height = 7;
-    }
-    geo = new QStyleSheetGeometryData(width, height, width, height);
-}
-#endif
 
 void QStyleSheetBorderImageData::cutBorderImage()
 {
@@ -1295,7 +1259,7 @@ static struct PseudoElementInfo {
     { QStyle::SC_ScrollBarLast, "last" }
 };
 
-QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QString &part, QStyle::State state) const
+static QRenderRule renderRule(const QWidget *w, const QString &part, QStyle::State state = QStyle::State_None) 
 {
     Q_ASSERT(w);
     Q_ASSERT(styleRulesCache.contains(w)); // style sheet rules must have been computed!
@@ -1334,18 +1298,18 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QString &part, 
             declarations += styleRules.at(i).declarations;
     }
 
-    QRenderRule newRule(declarations, w, part, baseStyle());
+    QRenderRule newRule(declarations);
     renderRules[pseudoState] = newRule;
     return newRule;
 }
 
 
-QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, int pseudoElement, QStyle::State state) const
+static QRenderRule renderRule(const QWidget *w, int pseudoElement, QStyle::State state = QStyle::State_None)
 {
     return renderRule(w, knownPseudoElements[pseudoElement].name, state);
 }
 
-QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *opt, int pseudoElement) const
+static QRenderRule renderRule(const QWidget *w, const QStyleOption *opt, int pseudoElement = PseudoElement_None)
 {
     Q_ASSERT(w && !styleRulesCache.value(w).isEmpty());
     QStyle::State state = opt ? opt->state : QStyle::State(QStyle::State_None);
@@ -1425,7 +1389,7 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
     return renderRule(w, knownPseudoElements[pseudoElement].name, state);
 }
 
-bool QStyleSheetStyle::hasStyleRule(const QWidget *w, int part) const
+static bool hasStyleRule(const QWidget *w, int part = PseudoElement_None)
 {
     const QVector<StyleRule> &styleRules = styleRulesCache.value(w);
     if (part == PseudoElement_None)
@@ -1558,7 +1522,7 @@ static QWidget *embeddedWidget(QWidget *w)
 }
 
 // remember to revert changes in unsetPalette
-void QStyleSheetStyle::setPalette(QWidget *w)
+static void setPalette(QWidget *w)
 {
     const QRenderRule &hoverRule = renderRule(w, PseudoElement_None, QStyle::State_MouseOver);
     if (hoverRule.hasDrawable())
