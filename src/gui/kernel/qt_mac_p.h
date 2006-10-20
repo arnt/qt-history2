@@ -321,11 +321,11 @@ public:
     inline QMacSavedPortInfo(QPaintDevice *, const QRect &) { }
     inline QMacSavedPortInfo(QPaintDevice *, const QRegion &) { }
     ~QMacSavedPortInfo() { }
-    static inline bool setClipRegion(const QRect &) { }
-    static inline bool setClipRegion(const QRegion &) { }
-    static inline bool setClipRegion(QWidget *) { }
-    static inline bool setPaintDevice(QPaintDevice *) { }
-    static inline bool setPaintDevice(QWidget *, bool =false, bool =true) { }
+    static inline bool setClipRegion(const QRect &) { return false; }
+    static inline bool setClipRegion(const QRegion &) { return false; }
+    static inline bool setClipRegion(QWidget *) { return false; }
+    static inline bool setPaintDevice(QPaintDevice *) { return false; }
+    static inline bool setPaintDevice(QWidget *, bool =false, bool =true) { return false; }
 };
 #endif
 

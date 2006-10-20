@@ -482,20 +482,18 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                 //update handles
                 GrafPtr qd = 0;
                 {
-                    GDHandle dev = 0;
                     if(GetEventParameter(event, kEventParamGrafPort, typeGrafPtr, 0, sizeof(qd), 0, &qd) != noErr) {
-#ifndef __LP64__
+#ifndef QT_MAC_NO_QUICKDRAW
+                        GDHandle dev = 0;
                         GetGWorld(&qd, &dev); //just use the global port..
 #endif
                     }
                 }
                 bool end_cg_context = false;
                 CGContextRef cg = 0;
-                if(GetEventParameter(event, kEventParamCGContextRef, typeCGContextRef, 0, sizeof(cg), 0, &cg) != noErr) {
-                    if(qd) {
-                        end_cg_context = true;
-                        QDBeginCGContext(qd, &cg);
-                    }
+                if(GetEventParameter(event, kEventParamCGContextRef, typeCGContextRef, 0, sizeof(cg), 0, &cg) != noErr && qd) {
+                    end_cg_context = true;
+                    QDBeginCGContext(qd, &cg);
                 }
                 widget->d_func()->hd = cg;
                 widget->d_func()->qd_hd = qd;

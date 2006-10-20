@@ -362,35 +362,34 @@ int QPixmap::metric(PaintDeviceMetric m) const
 {
     int val=0;
     switch (m) {
-        case PdmWidth:
-            val = width();
-            break;
-        case PdmHeight:
-            val = height();
-            break;
-        case PdmWidthMM:
-        case PdmHeightMM:
-            break;
-        case PdmNumColors:
-            val = 1 << depth();
-            break;
-        case PdmDpiX:
-        case PdmPhysicalDpiX:
-        case PdmDpiY:
-        case PdmPhysicalDpiY: {
-            if(GDHandle gd = GetMainDevice()) {
-                if (m == PdmDpiX || m == PdmPhysicalDpiX)
-                    val = Fix2Long((**(**gd).gdPMap).hRes);
-                else
-                    val = Fix2Long((**(**gd).gdPMap).vRes);
-            }
-            break; }
-        case PdmDepth:
-            val = depth();
-            break;
-        default:
-            val = 0;
-            qWarning("QPixmap::metric: Invalid metric command");
+    case PdmWidth:
+        val = width();
+        break;
+    case PdmHeight:
+        val = height();
+        break;
+    case PdmWidthMM:
+    case PdmHeightMM:
+        break;
+    case PdmNumColors:
+        val = 1 << depth();
+        break;
+    case PdmDpiX:
+    case PdmPhysicalDpiX: {
+        extern float qt_mac_defaultDpi_x(); //qpaintdevice_mac.cpp
+        val = int(qt_mac_defaultDpi_x());
+        break; }
+    case PdmDpiY:
+    case PdmPhysicalDpiY: {
+        extern float qt_mac_defaultDpi_y(); //qpaintdevice_mac.cpp
+        val = int(qt_mac_defaultDpi_y());
+        break; }
+    case PdmDepth:
+        val = depth();
+        break;
+    default:
+        val = 0;
+        qWarning("QPixmap::metric: Invalid metric command");
     }
     return val;
 }
@@ -667,12 +666,7 @@ void QPixmap::init(int w, int h, Type type)
 
 int QPixmap::defaultDepth()
 {
-    int ret = 32;
-    if(GDHandle gd = GetMainDevice()) {
-        if((**gd).gdCCDepth)
-            ret = (**gd).gdCCDepth;
-    }
-    return ret;
+    return 32;
 }
 
 QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
@@ -685,6 +679,9 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
         if(h == -1)
             h = widget->height() - y;
         pm = QPixmap(w, h);
+#ifdef QT_MAC_NO_QUICKDRAW
+# warning "Must implement grabwindow"
+#else
         extern WindowPtr qt_mac_window_for(const QWidget *); // qwidget_mac.cpp
         const BitMap *windowPort = 0;
         if((widget->windowType() == Qt::Desktop)) {
@@ -705,6 +702,7 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
         SetRect(&macSrcRect, x, y, x + w, y + h);
         SetRect(&macDstRect, 0, 0, w, h);
         CopyBits(windowPort, pixmapPort, &macSrcRect, &macDstRect, srcCopy, 0);
+#endif
     }
     return pm;
 }

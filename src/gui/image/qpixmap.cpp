@@ -34,9 +34,13 @@
 #include "qimagewriter.h"
 #include "qpaintengine.h"
 
+#ifdef Q_WS_MAC
+# include "private/qt_mac_p.h"
+#endif
+
 #if defined(Q_WS_X11)
-#include "qx11info_x11.h"
-#include <private/qt_x11_p.h>
+# include "qx11info_x11.h"
+# include <private/qt_x11_p.h>
 #endif
 
 typedef void (*_qt_pixmap_cleanup_hook)(int);
@@ -446,7 +450,7 @@ void QPixmap::resize_helper(const QSize &s)
         p.drawPixmap(0, 0, *this, 0, 0, qMin(width(), w), qMin(height(), h));
     }
 #if defined(Q_WS_MAC)
-#ifndef QT_MAC_QUICKDRAW
+#ifndef QT_MAC_NO_QUICKDRAW
     if(data->qd_alpha)
         data->macQDUpdateAlpha();
 #endif
