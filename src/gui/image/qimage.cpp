@@ -209,10 +209,10 @@ static int depthForFormat(QImage::Format format)
 
 QImageData * QImageData::create(const QSize &size, QImage::Format format, int numColors)
 {
+    if (!size.isValid() || numColors < 0 || format == QImage::Format_Invalid)
+        return 0;                                // invalid parameter(s)
     uint width = size.width();
     uint height = size.height();
-    if (width <= 0 || height <= 0 || numColors < 0 || format == QImage::Format_Invalid)
-        return 0;                                // invalid parameter(s)
 
     uint depth = 0;
     switch(format) {
