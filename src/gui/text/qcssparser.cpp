@@ -493,8 +493,11 @@ static QColor parseColorValue(Value v)
     if (lst.count() != 2)
         return QColor();
 
+    bool rgb = true;
+
     // function name
-    if (lst.at(0).compare(QLatin1String("rgb"), Qt::CaseInsensitive) != 0)
+    if ((lst.at(0).compare(QLatin1String("rgb"), Qt::CaseInsensitive) != 0)
+        && (rgb = (lst.at(0).compare(QLatin1String("rgba"), Qt::CaseInsensitive) != 0)))
         return QColor();
 
     Parser p(lst.at(1));
@@ -505,12 +508,13 @@ static QColor parseColorValue(Value v)
     if (!p.parseExpr(&colorDigits))
         return QColor();
 
-    if (colorDigits.count() != 5
+    if ((colorDigits.count() != (rgb ? 5 : 7))
         || colorDigits.at(1).type != Value::TermOperatorComma
-        || colorDigits.at(3).type != Value::TermOperatorComma)
+        || colorDigits.at(3).type != Value::TermOperatorComma
+        || (!rgb && colorDigits.at(5).type != Value::TermOperatorComma))
         return QColor();
 
-    for (int i = 0; i < 5; i += 2) {
+    for (int i = 0; i < (rgb ? 5 : 7); i += 2) {
         if (colorDigits.at(i).type == Value::Percentage) {
             colorDigits[i].variant = colorDigits.at(i).variant.toDouble() * 255. / 100.;
             colorDigits[i].type = Value::Number;
@@ -519,7 +523,8 @@ static QColor parseColorValue(Value v)
 
     return QColor(colorDigits.at(0).variant.toInt(),
                   colorDigits.at(2).variant.toInt(),
-                  colorDigits.at(4).variant.toInt());
+                  colorDigits.at(4).variant.toInt(),
+                  !rgb ? colorDigits.at(6).variant.toInt() : 255);
 }
 
 static QBrush parseBrushValue(Value v)

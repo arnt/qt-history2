@@ -733,6 +733,9 @@ void tst_CssParser::colorValue_data()
     QTest::newRow("hexcolor") << "color: #12af0e" << QColor(0x12, 0xaf, 0x0e);
     QTest::newRow("functional1") << "color: rgb(21, 45, 73)" << QColor(21, 45, 73);
     QTest::newRow("functional2") << "color: rgb(100%, 0%, 100%)" << QColor(0xff, 0, 0xff);
+    QTest::newRow("rgba") << "color: rgba(10, 20, 30, 40)" << QColor(10, 20, 30, 40);
+    QTest::newRow("invalid1") << "color: rgb(why, does, it, always, rain, on, me)" << QColor();
+    QTest::newRow("invalid2") << "color: rgba(i, meant, norway)" << QColor();
 }
 
 void tst_CssParser::colorValue()
@@ -744,7 +747,7 @@ void tst_CssParser::colorValue()
     QCss::Declaration decl;
     QVERIFY(parser.parseNextDeclaration(&decl));
     const QColor col = decl.colorValue();
-    QVERIFY(col.isValid());
+    QVERIFY(expectedColor.isValid() == col.isValid());
     QCOMPARE(col, expectedColor);
 }
 
