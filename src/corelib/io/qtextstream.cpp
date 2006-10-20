@@ -1306,7 +1306,7 @@ int QTextStream::fieldWidth() const
 
 /*!
     Sets the current number flags to \a flags. \a flags is a set of
-    flags from the NumberFlags enum, and describes options for
+    flags from the NumberFlag enum, and describes options for
     formatting generated code (e.g., whether or not to always write
     the base or sign of a number).
 
