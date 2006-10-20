@@ -427,15 +427,11 @@ void QTabBarPrivate::makeVisible(int index)
     else if (end > scrollOffset + available) // too far right
         scrollOffset = end - available + 1;
 
-    if (scrollOffset && end < available)  // need scrolling at all?
-        scrollOffset = 0;
-
     leftB->setEnabled(scrollOffset > 0);
     const int last = horiz ? tabList.last().rect.right() : tabList.last().rect.bottom();
     rightB->setEnabled(last - scrollOffset >= available);
     if (oldScrollOffset != scrollOffset)
         q->update();
-
 }
 
 void QTabBarPrivate::_q_scrollTabs()
