@@ -469,7 +469,7 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, QBidiCont
             } else if (b) {
                 b = false;
             } else {
-                if (j - rstart < 32000) 
+                if (j - rstart < 32000)
                     continue;
                 rstart = j;
             }
@@ -568,7 +568,7 @@ void QTextEngine::shapeText(int item) const
                 ScriptPlace(hdc, &fontEngine->script_cache, glyphs.data(), si.num_glyphs,
                              glyphAttributes.data(), &si.analysis, advances.data(), offsets.data(), &abc);
             }
-            if (res != S_OK) 
+            if (res != S_OK)
                 goto fail;
 
             ensureSpace(si.num_glyphs);
@@ -595,7 +595,7 @@ fail:
             int pos = 0;
             while (pos < len) {
                 const ushort uc = layoutData->string.at(si.position + pos).unicode();
-                const bool dontPrint = (uc == 0x00ad || qIsControlChar(uc));
+                const bool dontPrint = ((uc == 0x00ad && !fontEngine->symbol) || qIsControlChar(uc));
                 const int gp = lc[pos];
                 g[gp].attributes.dontPrint = dontPrint;
                 ++pos;
