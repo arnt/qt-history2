@@ -187,15 +187,9 @@ else
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
 
-    # fix license file to quote the right side
-    newlicense=`cat "$HOME"/.qt-license | sed -e 's/=\([^\"]\)/=\"\1/g' -e 's/\([^\"]\)$/\1\"/g' `
-    cat > "$HOME"/.qt-license-temp <<EOF
-$newlicense
-EOF
-
     # read in the license file
-    if [ -f "$HOME"/.qt-license ]; then
-        . "$HOME"/.qt-license >/dev/null 2>&1
+    if [ -f "$CFG_LICENSE_FILE" ]; then
+        . "$CFG_LICENSE_FILE" >/dev/null 2>&1
         if [ -z "$LicenseKeyExt" ]; then
             echo
             echo "You are using an old license file."
@@ -491,6 +485,7 @@ CFG_SQL_AVAILABLE=
 QT_DEFAULT_BUILD_PARTS="libs tools examples"
 CFG_BUILD_PARTS=""
 CFG_NOBUILD_PARTS=""
+CFG_LICENSE_FILE="$HOME/.qt-license"
 
 CFG_GFX_AVAILABLE="linuxfb transformed qvfb vnc"
 CFG_GFX_ON="linuxfb"
@@ -684,7 +679,7 @@ while [ "$#" -gt 0 ]; do
             UNKNOWN_ARG=yes
         fi
         ;;
-    -prefix|-docdir|-headerdir|-plugindir|-datadir|-libdir|-bindir|-translationdir|-sysconfdir|-examplesdir|-demosdir|-depths|-make|-nomake|-platform|-xplatform|-buildkey|-sdk)
+    -prefix|-docdir|-headerdir|-plugindir|-datadir|-libdir|-bindir|-translationdir|-sysconfdir|-examplesdir|-demosdir|-depths|-make|-nomake|-platform|-xplatform|-buildkey|-sdk|-license)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         shift
         VAL="$1"
@@ -812,6 +807,9 @@ while [ "$#" -gt 0 ]; do
             UNKNOWN_OPT=yes
         fi
         ;;
+    license)
+	CFG_LICENSE_FILE="$VAL"
+	;;
     gnumake)
         CFG_USE_GNUMAKE="$VAL"
         ;;
@@ -2425,7 +2423,7 @@ if [ "$OPT_HELP" = "yes" ]; then
 Usage:  $relconf [-prefix <dir>] [-prefix-install] [-bindir <dir>] [-libdir <dir>]
         [-docdir <dir>] [-headerdir <dir>] [-plugindir <dir> ] [-datadir <dir>]
         [-translationdir <dir>] [-sysconfdir <dir>] [-examplesdir <dir>]
-        [-demosdir <dir>] [-buildkey <key>] [-release] [-debug]  
+        [-demosdir <dir>] [-buildkey <key>] [-release] [-debug] [-license <license>]
         [-debug-and-release] [-shared] [-static] [-no-fast] [-fast] [-no-largefile]
         [-largefile] [-no-exceptions] [-exceptions] [-no-accessibility] 
         [-accessibility] [-no-stl] [-stl] [-no-sql-<driver>] [-sql-<driver>] 
@@ -2491,6 +2489,9 @@ Configure options:
  The defaults (*) are usually acceptable. A plus (+) denotes a default value
  that needs to be evaluated. If the evaluation succeeds, the feature is
  included. Here is a short explanation of each option:
+
+    -license <license> . Where to find your license for Qt. Defaults to:
+                            $CFG_LICENSE_FILE
 
  *  -release ........... Compile and link Qt with debugging turned off.
     -debug ............. Compile and link Qt with debugging turned on.
