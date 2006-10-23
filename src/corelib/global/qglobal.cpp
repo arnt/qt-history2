@@ -1455,15 +1455,18 @@ const int QSysInfo::ByteOrder = ((*((unsigned char *) &qt_one) == 0) ? BigEndian
 #include "private/qcore_mac_p.h"
 #include "qnamespace.h"
 
-// This function has descended from Apple Source Code (FSpLocationFromFullPath),
-// but changes have been made. [Creates a minimal alias from the full pathname]
+Q_CORE_EXPORT OSErr qt_mac_create_fsref(const QString &file, FSRef *fsref)
+{
+    return FSPathMakeRef(reinterpret_cast<const UInt8 *>(file.toUtf8().constData()), fsref, 0);
+}
+
+// Don't use this function, it won't work in 10.5 (Leopard) and up
 Q_CORE_EXPORT OSErr qt_mac_create_fsspec(const QString &file, FSSpec *spec)
 {
-    FSRef fref;
-    QByteArray utfs = file.toUtf8();
-    OSErr ret = FSPathMakeRef((const UInt8 *)utfs.data(), &fref, NULL);
-    if(ret == noErr)
-        ret = FSGetCatalogInfo(&fref, kFSCatInfoNone, NULL, NULL, spec, NULL);
+    FSRef fsref;
+    OSErr ret = qt_mac_create_fsref(file, &fsref);
+    if (ret == noErr)
+        ret = FSGetCatalogInfo(&fsref, kFSCatInfoNone, 0, 0, spec, 0);
     return ret;
 }
 

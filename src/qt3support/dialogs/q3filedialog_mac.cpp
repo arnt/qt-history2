@@ -118,16 +118,7 @@ static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
     qt_mac_filter_name *fn = t->filts->at(t->index);
     if(!fn)
         return true;
-    if(theItem->descriptorType == typeFSS) {
-        AliasHandle alias;
-        FSSpec      FSSpec;
-        AEGetDescData(theItem, &FSSpec, sizeof(FSSpec));
-        if(NewAlias(NULL, &FSSpec, &alias) != noErr)
-            return true;
-        QCFString aliasPath;
-        FSCopyAliasInfo(alias, 0, 0, &aliasPath, 0, 0);
-        file = aliasPath;
-    } else if(theItem->descriptorType == typeFSRef) {
+    if(theItem->descriptorType == typeFSRef) {
         FSRef ref;
         AEGetDescData(theItem, &ref, sizeof(ref));
         if(!str_buffer) {
@@ -204,7 +195,7 @@ static const NavEventUPP make_navProcUPP()
 }
 
 
-OSErr qt_mac_create_fsspec(const QString &path, FSSpec *spec); //qglobal.cpp
+extern OSErr qt_mac_create_fsref(const QString &, FSRef *); //qglobal.cpp
 
 QStringList Q3FileDialog::macGetOpenFileNames(const QString &filter, QString *pwd,
                                              QWidget *parent, const char* /*name*/,
@@ -284,10 +275,10 @@ QStringList Q3FileDialog::macGetOpenFileNames(const QString &filter, QString *pw
         }
     }
     if(pwd && !pwd->isEmpty()) {
-        FSSpec spec;
-        if(qt_mac_create_fsspec(*pwd, &spec) == noErr) {
+        FSRef fsref;
+        if(qt_mac_create_fsref(*pwd, &fsref) == noErr) {
             AEDesc desc;
-            if(AECreateDesc(typeFSS, &spec, sizeof(FSSpec), &desc) == noErr)
+            if(AECreateDesc(typeFSRef, &fsref, sizeof(FSRef), &desc) == noErr)
                 NavCustomControl(dlg, kNavCtlSetLocation, (void*)&desc);
         }
     }
@@ -455,10 +446,10 @@ QString Q3FileDialog::macGetSaveFileName(const QString &start, const QString &fi
         return retstr;
     }
     if (!workingDir.isEmpty()) {
-        FSSpec spec;
-        if (qt_mac_create_fsspec(workingDir, &spec) == noErr) {
+        FSRef fsref;
+        if (qt_mac_create_fsref(workingDir, &fsref) == noErr) {
             AEDesc desc;
-            if (AECreateDesc(typeFSS, &spec, sizeof(FSSpec), &desc) == noErr)
+            if (AECreateDesc(typeFSRef, &fsref, sizeof(FSRef), &desc) == noErr)
                 NavCustomControl(dlg, kNavCtlSetLocation, (void*)&desc);
         }
     }
