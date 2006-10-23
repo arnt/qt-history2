@@ -2458,10 +2458,12 @@ void QTreeViewPrivate::layout(int i)
     if (model->hasChildren(parent))
         count = model->rowCount(parent);
 
-    if (i == -1)
+    if (i == -1) {
         viewItems.resize(count);
-    else
-        viewItems.insert(i + 1, count, QTreeViewItem()); // expand
+    } else {
+        if (viewItems[i].total != (uint)count)
+            viewItems.insert(i + 1, count, QTreeViewItem()); // expand
+    }
 
     int first = i + 1;
     int level = (i >= 0 ? viewItems.at(i).level + 1 : 0);
