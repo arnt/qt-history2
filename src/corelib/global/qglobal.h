@@ -1215,12 +1215,6 @@ Q_CORE_EXPORT QT3_SUPPORT void qSystemWarning(const char *msg, int code = -1);
 Q_CORE_EXPORT void qErrnoWarning(int code, const char *msg, ...);
 Q_CORE_EXPORT void qErrnoWarning(const char *msg, ...);
 
-#ifdef QT_NO_DEBUG_OUTPUT
-#  define qDebug if(1); else qDebug
-#endif
-#ifdef QT_NO_WARNING_OUTPUT
-#  define qWarning if(1); else qWarning
-#endif
 #if (defined(QT_NO_DEBUG_OUTPUT) || defined(QT_NO_TEXTSTREAM)) && !defined(QT_NO_DEBUG_STREAM)
 #define QT_NO_DEBUG_STREAM
 #endif
@@ -1238,6 +1232,13 @@ Q_CORE_EXPORT_INLINE QDebug qWarning();
 Q_CORE_EXPORT_INLINE QDebug qCritical();
 #else
 inline QNoDebug qDebug();
+#endif
+
+#ifdef QT_NO_DEBUG_OUTPUT
+#  define qDebug if(1); else qDebug
+#endif
+#ifdef QT_NO_WARNING_OUTPUT
+#  define qWarning if(1); else qWarning
 #endif
 
 inline void qt_noop() {}
