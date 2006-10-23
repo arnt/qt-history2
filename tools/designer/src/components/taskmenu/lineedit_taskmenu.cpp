@@ -32,10 +32,9 @@ using namespace qdesigner_internal;
 
 LineEditTaskMenu::LineEditTaskMenu(QLineEdit *lineEdit, QObject *parent)
     : QDesignerTaskMenu(lineEdit, parent),
-      m_lineEdit(lineEdit)
+      m_lineEdit(lineEdit),
+      m_editTextAction(new QAction(tr("Change text..."), this))
 {
-    m_editTextAction = new QAction(this);
-    m_editTextAction->setText(tr("Change text..."));
     connect(m_editTextAction, SIGNAL(triggered()), this, SLOT(editText()));
     m_taskActions.append(m_editTextAction);
 
@@ -64,24 +63,14 @@ void LineEditTaskMenu::editText()
     if (!m_formWindow.isNull()) {
         connect(m_formWindow, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
         Q_ASSERT(m_lineEdit->parentWidget() != 0);
+	
+	QStyleOption opt;
+        opt.init(m_lineEdit);
 
-        m_editor = new InPlaceEditor(m_lineEdit, m_formWindow);
-        m_editor->setObjectName(QLatin1String("__qt__passive_m_editor"));
+        m_editor = InPlaceEditor::create(m_lineEdit, m_formWindow,m_lineEdit->text(),opt.rect);
 
-        m_editor->setFrame(false);
-        m_editor->setText(m_lineEdit->text());
-        m_editor->selectAll();
-        m_editor->setBackgroundRole(m_lineEdit->backgroundRole());
         connect(m_editor, SIGNAL(editingFinished()), m_editor, SLOT(deleteLater()));
         connect(m_editor, SIGNAL(textChanged(QString)), this, SLOT(updateText(QString)));
-
-        QStyleOption opt;
-        opt.init(m_lineEdit);
-        QRect r = opt.rect;
-
-        m_editor->setGeometry(QRect(m_lineEdit->mapTo(m_lineEdit->window(), r.topLeft()), r.size()));
-        m_editor->setFocus();
-        m_editor->show();
     }
 }
 

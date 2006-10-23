@@ -32,9 +32,10 @@ using namespace qdesigner_internal;
 
 GroupBoxTaskMenu::GroupBoxTaskMenu(QGroupBox *groupbox, QObject *parent)
     : QDesignerTaskMenu(groupbox, parent),
-      m_groupbox(groupbox)
+      m_groupbox(groupbox),
+      m_editTitleAction(new QAction(tr("Change title..."), this))
+   
 {
-    m_editTitleAction = new QAction(tr("Change title..."), this);
     connect(m_editTitleAction, SIGNAL(triggered()), this, SLOT(editTitle()));
     m_taskActions.append(m_editTitleAction);
 
@@ -60,25 +61,16 @@ void GroupBoxTaskMenu::editTitle()
         connect(fw, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
         Q_ASSERT(m_groupbox->parentWidget() != 0);
 
-        m_editor = new InPlaceEditor(m_groupbox, fw);
-        m_editor->setFrame(false);
-        m_editor->setText(m_groupbox->title());
-        m_editor->selectAll();
-        m_editor->setBackgroundRole(m_groupbox->backgroundRole());
-        m_editor->setObjectName(QLatin1String("__qt__passive_m_editor"));
+        QStyleOption opt; // ## QStyleOptionGroupBox
+        opt.init(m_groupbox);
+        const QRect r = QRect(QPoint(), QSize(m_groupbox->width(),20));
+        // ### m_groupbox->style()->subRect(QStyle::SR_GroupBoxTitle, &opt, m_groupbox);
+
+        m_editor = InPlaceEditor::create(m_groupbox, fw, m_groupbox->title(),r);
+
         connect(m_editor, SIGNAL(editingFinished()), m_editor, SLOT(deleteLater()));
         connect(m_editor, SIGNAL(textChanged(QString)), this, SLOT(updateText(QString)));
 
-        QStyleOption opt; // ## QStyleOptionGroupBox
-        opt.init(m_groupbox);
-        QRect r = QRect(QPoint(), m_groupbox->size());
-        // ### m_groupbox->style()->subRect(QStyle::SR_GroupBoxTitle, &opt, m_groupbox);
-        r.setHeight(20);
-
-        m_editor->setGeometry(QRect(m_groupbox->mapTo(m_groupbox->window(), r.topLeft()), r.size()));
-
-        m_editor->setFocus();
-        m_editor->show();
     }
 }
 

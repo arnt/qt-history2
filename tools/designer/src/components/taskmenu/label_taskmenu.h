@@ -21,7 +21,7 @@
 #include <QtDesigner/default_extensionfactory.h>
 
 class QDesignerFormWindowInterface;
-
+class QLineEdit;
 namespace qdesigner_internal {
 
 class LabelTaskMenu: public QDesignerTaskMenu
@@ -35,15 +35,18 @@ public:
     virtual QList<QAction*> taskActions() const;
 
 private slots:
-    void editText();
+    void editRichText();
+    void editPlainText();
     void editIcon();
     void updateText(const QString &text);
-
+    void updateSelection();
 private:
     QLabel *m_label;
     QPointer<QDesignerFormWindowInterface> m_formWindow;
+    QPointer<QLineEdit> m_editor;
     mutable QList<QAction*> m_taskActions;
-    QAction *m_editTextAction;
+    QAction *m_editRichTextAction;
+    QAction *m_editPlainTextAction;
 };
 
 class LabelTaskMenuFactory: public QExtensionFactory

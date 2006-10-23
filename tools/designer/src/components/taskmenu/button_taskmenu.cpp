@@ -32,10 +32,9 @@ using namespace qdesigner_internal;
 
 ButtonTaskMenu::ButtonTaskMenu(QAbstractButton *button, QObject *parent)
     : QDesignerTaskMenu(button, parent),
-      m_button(button)
+      m_button(button),
+      m_preferredEditAction(new QAction(tr("Change text..."), this))
 {
-    m_preferredEditAction = new QAction(this);
-    m_preferredEditAction->setText(tr("Change text..."));
     connect(m_preferredEditAction, SIGNAL(triggered()), this, SLOT(editText()));
     m_taskActions.append(m_preferredEditAction);
 
@@ -64,24 +63,15 @@ void ButtonTaskMenu::editText()
     if (!m_formWindow.isNull()) {
         connect(m_formWindow, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
         Q_ASSERT(m_button->parentWidget() != 0);
-
-        m_editor = new InPlaceEditor(m_button, m_formWindow);
-        m_editor->setObjectName(QLatin1String("__qt__passive_m_editor"));
-
-        m_editor->setFrame(false);
-        m_editor->setText(m_button->text());
-        m_editor->selectAll();
-        m_editor->setBackgroundRole(m_button->backgroundRole());
-        connect(m_editor, SIGNAL(editingFinished()), m_editor, SLOT(close()));
-        connect(m_editor, SIGNAL(textChanged(QString)), this, SLOT(updateText(QString)));
-
+        
         QStyleOptionButton opt;
         opt.init(m_button);
-        QRect r = m_button->style()->subElementRect(QStyle::SE_PushButtonContents, &opt, m_button);
+        const QRect r = m_button->style()->subElementRect(QStyle::SE_PushButtonContents, &opt, m_button);
 
-        m_editor->setGeometry(QRect(m_button->mapTo(m_button->window(), r.topLeft()), r.size()));
-        m_editor->setFocus();
-        m_editor->show();
+        m_editor = InPlaceEditor::create(m_button, m_formWindow,m_button->text(),r);
+        
+        connect(m_editor, SIGNAL(editingFinished()), m_editor, SLOT(close()));
+        connect(m_editor, SIGNAL(textChanged(QString)), this, SLOT(updateText(QString)));
     }
 }
 

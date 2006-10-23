@@ -23,15 +23,21 @@ namespace qdesigner_internal {
 class InPlaceEditor: public QLineEdit
 {
     Q_OBJECT
-public:
+    
     InPlaceEditor(QWidget *widget, QDesignerFormWindowInterface *fw);
+public:
     virtual ~InPlaceEditor();
 
     virtual bool eventFilter(QObject *object, QEvent *event);
 
+    // Create on form window and set focus.
+    static InPlaceEditor* create(QWidget *widget,
+                                 QDesignerFormWindowInterface *fw,
+                                 const QString& text,
+                                 const QRect& r);
 private:
     QWidget *m_widget;
-    bool m_noChildEvent;
+    const bool m_noChildEvent;
 };
 
 }  // namespace qdesigner_internal
