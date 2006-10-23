@@ -93,8 +93,8 @@ protected:
     void checkHierarchy(const QStringList &data, const QAbstractItemModel *model);
 
 private:
-    QStandardItemModel *model;
-    QSortFilterProxyModel *proxy;
+    QStandardItemModel *m_model;
+    QSortFilterProxyModel *m_proxy;
 };
 
 // Testing get/set functions
@@ -113,7 +113,7 @@ void tst_QSortFilterProxyModel::getSetCheck()
 }
 
 tst_QSortFilterProxyModel::tst_QSortFilterProxyModel()
-    : model(0)
+    : m_model(0), m_proxy(0)
 {
 
 }
@@ -129,15 +129,15 @@ void tst_QSortFilterProxyModel::initTestCase()
     qRegisterMetaType<IntList>("IntList");
     qRegisterMetaType<IntPair>("IntPair");
     qRegisterMetaType<IntPairList>("IntPairList");
-    model = new QStandardItemModel(0, 1);
-    proxy = new QSortFilterProxyModel();
-    proxy->setSourceModel(model);
+    m_model = new QStandardItemModel(0, 1);
+    m_proxy = new QSortFilterProxyModel();
+    m_proxy->setSourceModel(m_model);
 }
 
 void tst_QSortFilterProxyModel::cleanupTestCase()
 {
-    delete proxy;
-    delete model;
+    delete m_proxy;
+    delete m_model;
 }
 
 void tst_QSortFilterProxyModel::init()
@@ -146,10 +146,10 @@ void tst_QSortFilterProxyModel::init()
 
 void tst_QSortFilterProxyModel::cleanup()
 {
-    proxy->setFilterRegExp(QRegExp());
-    proxy->sort(-1, Qt::AscendingOrder);
-    model->clear();
-    model->insertColumns(0, 1);
+    m_proxy->setFilterRegExp(QRegExp());
+    m_proxy->sort(-1, Qt::AscendingOrder);
+    m_model->clear();
+    m_model->insertColumns(0, 1);
 }
 
 /*
@@ -304,40 +304,40 @@ void tst_QSortFilterProxyModel::sort()
     QFETCH(QStringList, initial);
     QFETCH(QStringList, expected);
     // prepare model
-    QVERIFY(model->insertRows(0, initial.count(), QModelIndex()));
-    QCOMPARE(model->rowCount(QModelIndex()), initial.count());
-    //model->insertColumns(0, 1, QModelIndex());
-    QCOMPARE(model->columnCount(QModelIndex()), 1);
-    for (int row = 0; row < model->rowCount(QModelIndex()); ++row) {
-        QModelIndex index = model->index(row, 0, QModelIndex());
-        model->setData(index, initial.at(row), Qt::DisplayRole);
+    QVERIFY(m_model->insertRows(0, initial.count(), QModelIndex()));
+    QCOMPARE(m_model->rowCount(QModelIndex()), initial.count());
+    //m_model->insertColumns(0, 1, QModelIndex());
+    QCOMPARE(m_model->columnCount(QModelIndex()), 1);
+    for (int row = 0; row < m_model->rowCount(QModelIndex()); ++row) {
+        QModelIndex index = m_model->index(row, 0, QModelIndex());
+        m_model->setData(index, initial.at(row), Qt::DisplayRole);
     }
     // make sure the proxy is unsorted
-    QCOMPARE(proxy->columnCount(QModelIndex()), 1);
-    QCOMPARE(proxy->rowCount(QModelIndex()), initial.count());
+    QCOMPARE(m_proxy->columnCount(QModelIndex()), 1);
+    QCOMPARE(m_proxy->rowCount(QModelIndex()), initial.count());
 
 //    qDebug() << proxy->rowCount(QModelIndex()) << model->rowCount(QModelIndex());
     
-    for (int row = 0; row < proxy->rowCount(QModelIndex()); ++row) {
-        QModelIndex index = proxy->index(row, 0, QModelIndex());
-        QCOMPARE(proxy->data(index, Qt::DisplayRole).toString(), initial.at(row));
-//        qDebug() << "*" << proxy->data(index, Qt::DisplayRole).toString();
+    for (int row = 0; row < m_proxy->rowCount(QModelIndex()); ++row) {
+        QModelIndex index = m_proxy->index(row, 0, QModelIndex());
+        QCOMPARE(m_proxy->data(index, Qt::DisplayRole).toString(), initial.at(row));
+//        qDebug() << "*" << m_proxy->data(index, Qt::DisplayRole).toString();
     }
     // sort
-    proxy->sort(0, static_cast<Qt::SortOrder>(sortOrder));
+    m_proxy->sort(0, static_cast<Qt::SortOrder>(sortOrder));
 #if QT_VERSION >= 0x040200
-    proxy->setSortCaseSensitivity(static_cast<Qt::CaseSensitivity>(sortCaseSensitivity));
+    m_proxy->setSortCaseSensitivity(static_cast<Qt::CaseSensitivity>(sortCaseSensitivity));
 #endif
 
     // make sure the model is unchanged
-    for (int row = 0; row < model->rowCount(QModelIndex()); ++row) {
-        QModelIndex index = model->index(row, 0, QModelIndex());
-        QCOMPARE(model->data(index, Qt::DisplayRole).toString(), initial.at(row));
+    for (int row = 0; row < m_model->rowCount(QModelIndex()); ++row) {
+        QModelIndex index = m_model->index(row, 0, QModelIndex());
+        QCOMPARE(m_model->data(index, Qt::DisplayRole).toString(), initial.at(row));
     }
     // make sure the proxy is sorted
-    for (int row = 0; row < proxy->rowCount(QModelIndex()); ++row) {
-        QModelIndex index = proxy->index(row, 0, QModelIndex());
-        QCOMPARE(proxy->data(index, Qt::DisplayRole).toString(), expected.at(row));
+    for (int row = 0; row < m_proxy->rowCount(QModelIndex()); ++row) {
+        QModelIndex index = m_proxy->index(row, 0, QModelIndex());
+        QCOMPARE(m_proxy->data(index, Qt::DisplayRole).toString(), expected.at(row));
     }
 }
 
@@ -430,12 +430,12 @@ void tst_QSortFilterProxyModel::sortHierarchy()
     QFETCH(QStringList, initial);
     QFETCH(QStringList, expected);
 
-    buildHierarchy(initial, model);
-    checkHierarchy(initial, model);
-    checkHierarchy(initial, proxy);
-    proxy->sort(0, static_cast<Qt::SortOrder>(sortOrder));
-    checkHierarchy(initial, model);
-    checkHierarchy(expected, proxy);
+    buildHierarchy(initial, m_model);
+    checkHierarchy(initial, m_model);
+    checkHierarchy(initial, m_proxy);
+    m_proxy->sort(0, static_cast<Qt::SortOrder>(sortOrder));
+    checkHierarchy(initial, m_model);
+    checkHierarchy(expected, m_proxy);
 }
 
 void tst_QSortFilterProxyModel::insertRows_data()
@@ -501,143 +501,351 @@ void tst_QSortFilterProxyModel::insertRows()
     QFETCH(QStringList, insert);
     QFETCH(int, position);
     // prepare model
-    model->insertRows(0, initial.count(), QModelIndex());
-    //model->insertColumns(0, 1, QModelIndex());
-    QCOMPARE(model->columnCount(QModelIndex()), 1);
-    QCOMPARE(model->rowCount(QModelIndex()), initial.count());
-    for (int row = 0; row < model->rowCount(QModelIndex()); ++row) {
-        QModelIndex index = model->index(row, 0, QModelIndex());
-        model->setData(index, initial.at(row), Qt::DisplayRole);
+    m_model->insertRows(0, initial.count(), QModelIndex());
+    //m_model->insertColumns(0, 1, QModelIndex());
+    QCOMPARE(m_model->columnCount(QModelIndex()), 1);
+    QCOMPARE(m_model->rowCount(QModelIndex()), initial.count());
+    for (int row = 0; row < m_model->rowCount(QModelIndex()); ++row) {
+        QModelIndex index = m_model->index(row, 0, QModelIndex());
+        m_model->setData(index, initial.at(row), Qt::DisplayRole);
     }
     // make sure the model correct before insert
-    for (int row = 0; row < model->rowCount(QModelIndex()); ++row) {
-        QModelIndex index = model->index(row, 0, QModelIndex());
-        QCOMPARE(model->data(index, Qt::DisplayRole).toString(), initial.at(row));
+    for (int row = 0; row < m_model->rowCount(QModelIndex()); ++row) {
+        QModelIndex index = m_model->index(row, 0, QModelIndex());
+        QCOMPARE(m_model->data(index, Qt::DisplayRole).toString(), initial.at(row));
     }
     // make sure the proxy is correct before insert
-    for (int row = 0; row < proxy->rowCount(QModelIndex()); ++row) {
-        QModelIndex index = proxy->index(row, 0, QModelIndex());
-        QCOMPARE(proxy->data(index, Qt::DisplayRole).toString(), initial.at(row));
+    for (int row = 0; row < m_proxy->rowCount(QModelIndex()); ++row) {
+        QModelIndex index = m_proxy->index(row, 0, QModelIndex());
+        QCOMPARE(m_proxy->data(index, Qt::DisplayRole).toString(), initial.at(row));
     }
     
     // insert the row
-    proxy->insertRows(position, insert.count(), QModelIndex());
-    QCOMPARE(model->rowCount(QModelIndex()), expected.count());
-    QCOMPARE(proxy->rowCount(QModelIndex()), expected.count());
+    m_proxy->insertRows(position, insert.count(), QModelIndex());
+    QCOMPARE(m_model->rowCount(QModelIndex()), expected.count());
+    QCOMPARE(m_proxy->rowCount(QModelIndex()), expected.count());
 
     // set the data for the inserted row
     for (int i = 0; i < insert.count(); ++i) {
-        QModelIndex index = proxy->index(position + i, 0, QModelIndex());
-        proxy->setData(index, insert.at(i), Qt::DisplayRole);
+        QModelIndex index = m_proxy->index(position + i, 0, QModelIndex());
+        m_proxy->setData(index, insert.at(i), Qt::DisplayRole);
      }
 
     // make sure the model correct after insert
-    for (int row = 0; row < model->rowCount(QModelIndex()); ++row) {
-        QModelIndex index = model->index(row, 0, QModelIndex());
-        QCOMPARE(model->data(index, Qt::DisplayRole).toString(), expected.at(row));
+    for (int row = 0; row < m_model->rowCount(QModelIndex()); ++row) {
+        QModelIndex index = m_model->index(row, 0, QModelIndex());
+        QCOMPARE(m_model->data(index, Qt::DisplayRole).toString(), expected.at(row));
     }
 
     // make sure the proxy is correct after insert
-    for (int row = 0; row < proxy->rowCount(QModelIndex()); ++row) {
-        QModelIndex index = proxy->index(row, 0, QModelIndex());
-        QCOMPARE(proxy->data(index, Qt::DisplayRole).toString(), expected.at(row));
+    for (int row = 0; row < m_proxy->rowCount(QModelIndex()); ++row) {
+        QModelIndex index = m_proxy->index(row, 0, QModelIndex());
+        QCOMPARE(m_proxy->data(index, Qt::DisplayRole).toString(), expected.at(row));
     }
 }
 
 void tst_QSortFilterProxyModel::removeRows_data()
 {
     QTest::addColumn<QStringList>("initial");
-    QTest::addColumn<QStringList>("expected");
-    QTest::addColumn<int>("remove_count");
+    QTest::addColumn<int>("sortOrder");
+    QTest::addColumn<QString>("filter");
     QTest::addColumn<int>("position");
+    QTest::addColumn<int>("count");
+    QTest::addColumn<bool>("success");
+    QTest::addColumn<QStringList>("expectedProxy");
+    QTest::addColumn<QStringList>("expectedSource");
 
-    QTest::newRow("remove one row in the middle")
+    QTest::newRow("remove one row in the middle [no sorting/filter]")
         << (QStringList()
             << "One"
             << "Two"
             << "Three"
             << "Four"
             << "Five")
-        << (QStringList()
+        << -1 // no sorting
+        << QString() // no filter
+        << 2 // position
+        << 1 // count
+        << true // success
+        << (QStringList() // expectedProxy
             << "One"
             << "Two"
             << "Four"
             << "Five")
-        << 1
-        << 2;
+        << (QStringList() // expectedSource
+            << "One"
+            << "Two"
+            << "Four"
+            << "Five");
 
-    QTest::newRow("remove one row in the begining")
+    QTest::newRow("remove one row in the beginning [no sorting/filter]")
         << (QStringList()
             << "One"
             << "Two"
             << "Three"
             << "Four"
             << "Five")
-        << (QStringList()
+        << -1 // no sorting
+        << QString() // no filter
+        << 0 // position
+        << 1 // count
+        << true // success
+        << (QStringList() // expectedProxy
             << "Two"
             << "Three"
             << "Four"
             << "Five")
-        << 1
-        << 0;
+        << (QStringList() // expectedSource
+            << "Two"
+            << "Three"
+            << "Four"
+            << "Five");
 
-    QTest::newRow("remove one row in the end")
+    QTest::newRow("remove one row in the end [no sorting/filter]")
         << (QStringList()
             << "One"
             << "Two"
             << "Three"
             << "Four"
             << "Five")
-        << (QStringList()
+        << -1 // no sorting
+        << QString() // no filter
+        << 4 // position
+        << 1 // count
+        << true // success
+        << (QStringList() // expectedProxy
             << "One"
             << "Two"
             << "Three"
             << "Four")
-        << 1
-        << 4;
+        << (QStringList() // expectedSource
+            << "One"
+            << "Two"
+            << "Three"
+            << "Four");
+
+    QTest::newRow("remove all [no sorting/filter]")
+        << (QStringList()
+            << "One"
+            << "Two"
+            << "Three"
+            << "Four"
+            << "Five")
+        << -1 // no sorting
+        << QString() // no filter
+        << 0 // position
+        << 5 // count
+        << true // success
+        << QStringList() // expectedProxy
+        << QStringList(); // expectedSource
+
+    QTest::newRow("remove one row past the end [no sorting/filter]")
+        << (QStringList()
+            << "One"
+            << "Two"
+            << "Three"
+            << "Four"
+            << "Five")
+        << -1 // no sorting
+        << QString() // no filter
+        << 5 // position
+        << 1 // count
+        << false // success
+        << (QStringList() // expectedProxy
+            << "One"
+            << "Two"
+            << "Three"
+            << "Four"
+            << "Five")
+        << (QStringList() // expectedSource
+            << "One"
+            << "Two"
+            << "Three"
+            << "Four"
+            << "Five");
+
+    QTest::newRow("remove row -1 [no sorting/filter]")
+        << (QStringList()
+            << "One"
+            << "Two"
+            << "Three"
+            << "Four"
+            << "Five")
+        << -1 // no sorting
+        << QString() // no filter
+        << -1 // position
+        << 1 // count
+        << false // success
+        << (QStringList() // expectedProxy
+            << "One"
+            << "Two"
+            << "Three"
+            << "Four"
+            << "Five")
+        << (QStringList() // expectedSource
+            << "One"
+            << "Two"
+            << "Three"
+            << "Four"
+            << "Five");
+
+    QTest::newRow("remove three rows in the middle [no sorting/filter]")
+        << (QStringList()
+            << "One"
+            << "Two"
+            << "Three"
+            << "Four"
+            << "Five")
+        << -1 // no sorting
+        << QString() // no filter
+        << 1 // position
+        << 3 // count
+        << true // success
+        << (QStringList() // expectedProxy
+            << "One"
+            << "Five")
+        << (QStringList() // expectedSource
+            << "One"
+            << "Five");
+
+    QTest::newRow("remove one row in the middle [ascending sorting, no filter]")
+        << (QStringList()
+            << "1"
+            << "5"
+            << "2"
+            << "4"
+            << "3")
+        << static_cast<int>(Qt::AscendingOrder)
+        << QString() // no filter
+        << 2 // position
+        << 1 // count
+        << true // success
+        << (QStringList() // expectedProxy
+            << "1"
+            << "2"
+            << "4"
+            << "5")
+        << (QStringList() // expectedSource
+            << "1"
+            << "5"
+            << "2"
+            << "4");
+
+    QTest::newRow("remove two rows in the middle [ascending sorting, no filter]")
+        << (QStringList()
+            << "1"
+            << "5"
+            << "2"
+            << "4"
+            << "3")
+        << static_cast<int>(Qt::AscendingOrder)
+        << QString() // no filter
+        << 2 // position
+        << 2 // count
+        << true // success
+        << (QStringList() // expectedProxy
+            << "1"
+            << "2"
+            << "5")
+        << (QStringList() // expectedSource
+            << "1"
+            << "5"
+            << "2");
+
+    QTest::newRow("remove two rows in the middle [descending sorting, no filter]")
+        << (QStringList()
+            << "1"
+            << "5"
+            << "2"
+            << "4"
+            << "3")
+        << static_cast<int>(Qt::DescendingOrder)
+        << QString() // no filter
+        << 2 // position
+        << 2 // count
+        << true // success
+        << (QStringList() // expectedProxy
+            << "5"
+            << "4"
+            << "1")
+        << (QStringList() // expectedSource
+            << "1"
+            << "5"
+            << "4");
+
+    QTest::newRow("remove one row in the middle [no sorting, filter=5|2|3]")
+        << (QStringList()
+            << "1"
+            << "5"
+            << "2"
+            << "4"
+            << "3")
+        << -1 // no sorting
+        << QString("5|2|3")
+        << 1 // position
+        << 1 // count
+        << true // success
+        << (QStringList() // expectedProxy
+            << "5"
+            << "3")
+        << (QStringList() // expectedSource
+            << "1"
+            << "5"
+            << "4"
+            << "3");
+
+    QTest::newRow("remove all [ascending sorting, no filter]")
+        << (QStringList()
+            << "1"
+            << "5"
+            << "2"
+            << "4"
+            << "3")
+        << static_cast<int>(Qt::AscendingOrder)
+        << QString() // no filter
+        << 0 // position
+        << 5 // count
+        << true // success
+        << QStringList() // expectedProxy
+        << QStringList(); // expectedSource
 }
 
 void tst_QSortFilterProxyModel::removeRows()
 {
     QFETCH(QStringList, initial);
-    QFETCH(QStringList, expected);
-    QFETCH(int, remove_count);
+    QFETCH(int, sortOrder);
+    QFETCH(QString, filter);
     QFETCH(int, position);
+    QFETCH(int, count);
+    QFETCH(bool, success);
+    QFETCH(QStringList, expectedProxy);
+    QFETCH(QStringList, expectedSource);
+
+    QStandardItemModel model;
+    QSortFilterProxyModel proxy;
+    proxy.setSourceModel(&model);
+    if (sortOrder != -1)
+        proxy.sort(0, static_cast<Qt::SortOrder>(sortOrder));
+    if (!filter.isEmpty())
+        proxy.setFilterRegExp(QRegExp(filter));
+
     // prepare model
-    model->insertRows(0, initial.count(), QModelIndex());
-    //model->insertColumns(0, 1, QModelIndex());
-    QCOMPARE(model->columnCount(QModelIndex()), 1);
-    QCOMPARE(model->rowCount(QModelIndex()), initial.count());
-    for (int row = 0; row < model->rowCount(QModelIndex()); ++row) {
-        QModelIndex index = model->index(row, 0, QModelIndex());
-        model->setData(index, initial.at(row), Qt::DisplayRole);
-    }
-    // make sure the model correct before remove
-    for (int row = 0; row < model->rowCount(QModelIndex()); ++row) {
-        QModelIndex index = model->index(row, 0, QModelIndex());
-        QCOMPARE(model->data(index, Qt::DisplayRole).toString(), initial.at(row));
-    }
-    // make sure the proxy is correct before remove
-    for (int row = 0; row < proxy->rowCount(QModelIndex()); ++row) {
-        QModelIndex index = proxy->index(row, 0, QModelIndex());
-        QCOMPARE(proxy->data(index, Qt::DisplayRole).toString(), initial.at(row));
-    }
+    foreach (QString s, initial)
+        model.appendRow(new QStandardItem(s));
     
-    // insert the row
-    proxy->removeRows(position, remove_count, QModelIndex());
-    QCOMPARE(model->rowCount(QModelIndex()), expected.count());
-    QCOMPARE(proxy->rowCount(QModelIndex()), expected.count());
+    // remove the rows
+    QCOMPARE(proxy.removeRows(position, count, QModelIndex()), success);
+    QCOMPARE(model.rowCount(QModelIndex()), expectedSource.count());
+    QCOMPARE(proxy.rowCount(QModelIndex()), expectedProxy.count());
 
-    // make sure the model correct after insert
-    for (int row = 0; row < model->rowCount(QModelIndex()); ++row) {
-        QModelIndex index = model->index(row, 0, QModelIndex());
-        QCOMPARE(model->data(index, Qt::DisplayRole).toString(), expected.at(row));
-    }
+    // make sure the model is correct after remove
+    for (int row = 0; row < model.rowCount(QModelIndex()); ++row)
+        QCOMPARE(model.item(row)->text(), expectedSource.at(row));
 
-    // make sure the proxy is correct after insert
-    for (int row = 0; row < proxy->rowCount(QModelIndex()); ++row) {
-        QModelIndex index = proxy->index(row, 0, QModelIndex());
-        QCOMPARE(proxy->data(index, Qt::DisplayRole).toString(), expected.at(row));
+    // make sure the proxy is correct after remove
+    for (int row = 0; row < proxy.rowCount(QModelIndex()); ++row) {
+        QModelIndex index = proxy.index(row, 0, QModelIndex());
+        QCOMPARE(proxy.data(index, Qt::DisplayRole).toString(), expectedProxy.at(row));
     }
 }
 
@@ -708,27 +916,27 @@ void tst_QSortFilterProxyModel::filter()
     QFETCH(QStringList, initial);
     QFETCH(QStringList, expected);
     // prepare model
-    QVERIFY(model->insertRows(0, initial.count(), QModelIndex()));
-    QCOMPARE(model->rowCount(QModelIndex()), initial.count());
+    QVERIFY(m_model->insertRows(0, initial.count(), QModelIndex()));
+    QCOMPARE(m_model->rowCount(QModelIndex()), initial.count());
     // set data
-    QCOMPARE(model->columnCount(QModelIndex()), 1);
-    for (int row = 0; row < model->rowCount(QModelIndex()); ++row) {
-        QModelIndex index = model->index(row, 0, QModelIndex());
-        model->setData(index, initial.at(row), Qt::DisplayRole);
+    QCOMPARE(m_model->columnCount(QModelIndex()), 1);
+    for (int row = 0; row < m_model->rowCount(QModelIndex()); ++row) {
+        QModelIndex index = m_model->index(row, 0, QModelIndex());
+        m_model->setData(index, initial.at(row), Qt::DisplayRole);
     }
-    proxy->setFilterRegExp(pattern);
+    m_proxy->setFilterRegExp(pattern);
     // make sure the proxy is unfiltered
-    QCOMPARE(proxy->columnCount(QModelIndex()), 1);
-    QCOMPARE(proxy->rowCount(QModelIndex()), expected.count());
+    QCOMPARE(m_proxy->columnCount(QModelIndex()), 1);
+    QCOMPARE(m_proxy->rowCount(QModelIndex()), expected.count());
     // make sure the model is unchanged
-    for (int row = 0; row < model->rowCount(QModelIndex()); ++row) {
-        QModelIndex index = model->index(row, 0, QModelIndex());
-        QCOMPARE(model->data(index, Qt::DisplayRole).toString(), initial.at(row));
+    for (int row = 0; row < m_model->rowCount(QModelIndex()); ++row) {
+        QModelIndex index = m_model->index(row, 0, QModelIndex());
+        QCOMPARE(m_model->data(index, Qt::DisplayRole).toString(), initial.at(row));
     }
     // make sure the proxy is filtered
-    for (int row = 0; row < proxy->rowCount(QModelIndex()); ++row) {
-        QModelIndex index = proxy->index(row, 0, QModelIndex());
-        QCOMPARE(proxy->data(index, Qt::DisplayRole).toString(), expected.at(row));
+    for (int row = 0; row < m_proxy->rowCount(QModelIndex()); ++row) {
+        QModelIndex index = m_proxy->index(row, 0, QModelIndex());
+        QCOMPARE(m_proxy->data(index, Qt::DisplayRole).toString(), expected.at(row));
     }
 }
 
@@ -797,15 +1005,14 @@ void tst_QSortFilterProxyModel::filterHierarchy()
     QFETCH(QString, pattern);
     QFETCH(QStringList, initial);
     QFETCH(QStringList, expected);
-    buildHierarchy(initial, model);
-    proxy->setFilterRegExp(pattern);
-    checkHierarchy(initial, model);
-    checkHierarchy(expected, proxy);
+    buildHierarchy(initial, m_model);
+    m_proxy->setFilterRegExp(pattern);
+    checkHierarchy(initial, m_model);
+    checkHierarchy(expected, m_proxy);
 }
 
 void tst_QSortFilterProxyModel::buildHierarchy(const QStringList &l, QAbstractItemModel *m)
 {
-    Q_ASSERT(model);
     int ind = 0;
     int row = 0;
     QStack<int> row_stack;
@@ -844,7 +1051,6 @@ void tst_QSortFilterProxyModel::buildHierarchy(const QStringList &l, QAbstractIt
 
 void tst_QSortFilterProxyModel::checkHierarchy(const QStringList &l, const QAbstractItemModel *m)
 {
-    Q_ASSERT(model);
     int row = 0;
     int indent = 0;
     QStack<int> row_stack;

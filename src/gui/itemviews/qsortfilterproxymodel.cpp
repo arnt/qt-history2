@@ -1563,10 +1563,31 @@ bool QSortFilterProxyModel::removeRows(int row, int count, const QModelIndex &pa
     QSortFilterProxyModelPrivate::Mapping *m = d->create_mapping(source_parent).value();
     if (row + count > m->source_rows.count())
         return false;
-    int source_row = (row >= m->source_rows.count()
-                      ? m->source_rows.at(m->source_rows.count()) + 1
-                      : m->source_rows.at(row));
-    return d->model->removeRows(source_row, count, source_parent);
+    if ((count == 1)
+        || ((d->sort_column < 0) && (m->proxy_rows.count() == m->source_rows.count()))) {
+        int source_row = m->source_rows.at(row);
+        return d->model->removeRows(source_row, count, source_parent);
+    }
+    // remove corresponding source intervals
+    // ### if this proves to be slow, we can switch to single-row removal
+    QVector<int> rows;
+    for (int i = row; i < row + count; ++i)
+        rows.append(m->source_rows.at(i));
+    qSort(rows.begin(), rows.end());
+    
+    int pos = rows.count() - 1;
+    bool ok = true;
+    while (pos >= 0) {
+        const int source_end = rows.at(pos--);
+        int source_start = source_end;
+        while ((pos >= 0) && (rows.at(pos) == (source_start - 1))) {
+            --source_start;
+            --pos;
+        }
+        ok = ok && d->model->removeRows(source_start, source_end - source_start + 1,
+                                        source_parent);
+    }
+    return ok;
 }
 
 /*!
