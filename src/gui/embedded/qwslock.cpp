@@ -31,6 +31,13 @@
 #error QWSLock currently requires semaphores
 #endif
 
+union semun {
+    int val;
+    struct semid_ds *buf;
+    unsigned short *array;
+    struct seminfo  *__buf;
+};
+
 QWSLock::QWSLock()
 {
     semId = semget(IPC_PRIVATE, 2, IPC_CREAT | 0666);
@@ -41,13 +48,16 @@ QWSLock::QWSLock()
     }
     QWSSignalHandler::instance()->addSemaphore(semId);
 
-    if (semctl(semId, BackingStore, SETVAL, 1) == -1) {
+    semun semval;
+    semval.val = 1;
+
+    if (semctl(semId, BackingStore, SETVAL, semval) == -1) {
         perror("QWSLock::QWSLock");
         qFatal("Unable to initialize backingstore semaphore");
     }
     lockCount[BackingStore] = 0;
 
-    if (semctl(semId, Communication, SETVAL, 1) == -1) {
+    if (semctl(semId, Communication, SETVAL, semval) == -1) {
         perror("QWSLock::QWSLock");
         qFatal("Unable to initialize communication semaphore");
     }
