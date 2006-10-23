@@ -1179,7 +1179,7 @@ QList<QGraphicsItem *> QGraphicsScene::collidingItems(const QGraphicsItem *item,
 /*!
     \fn QGraphicsItem *QGraphicsScene::itemAt(const QPointF &position) const
 
-    Returns the topmost item at the specified \a position, or 0 if
+    Returns the topmost visible item at the specified \a position, or 0 if
     there are no items at this position.
 
     \sa items(), collidingItems()
