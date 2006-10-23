@@ -2323,7 +2323,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     copy.state &= ~State_Sunken;
                 }
                 pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinPlus
-                                                                       : PE_IndicatorSpinUp);
+                      : PE_IndicatorSpinUp);
 
                 copy.rect = subControlRect(CC_SpinBox, sb, SC_SpinBoxUp, widget);
                 drawPrimitive(PE_PanelButtonBevel, &copy, p, widget);
@@ -2349,7 +2349,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     copy.state &= ~State_Sunken;
                 }
                 pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinMinus
-                                                                       : PE_IndicatorSpinDown);
+                      : PE_IndicatorSpinDown);
 
                 copy.rect = subControlRect(CC_SpinBox, sb, SC_SpinBoxDown, widget);
                 drawPrimitive(PE_PanelButtonBevel, &copy, p, widget);
@@ -2362,7 +2362,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 #ifndef QT_NO_TOOLBUTTON
     case CC_ToolButton:
         if (const QStyleOptionToolButton *toolbutton
-                = qstyleoption_cast<const QStyleOptionToolButton *>(opt)) {
+            = qstyleoption_cast<const QStyleOptionToolButton *>(opt)) {
             QRect button, menuarea;
             button = subControlRect(cc, toolbutton, SC_ToolButton, widget);
             menuarea = subControlRect(cc, toolbutton, SC_ToolButtonMenu, widget);
@@ -2405,7 +2405,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 fr.rect.adjust(3, 3, -3, -3);
                 if (toolbutton->features & QStyleOptionToolButton::Menu)
                     fr.rect.adjust(0, 0, -pixelMetric(QStyle::PM_MenuButtonIndicator,
-                                                         toolbutton, widget), 0);
+                                                      toolbutton, widget), 0);
                 drawPrimitive(PE_FrameFocusRect, &fr, p, widget);
             }
             QStyleOptionToolButton label = *toolbutton;
@@ -2451,9 +2451,9 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 down = tb->activeSubControls & SC_TitleBarCloseButton && (opt->state & State_Sunken);
                 if ((tb->titleBarFlags & Qt::WindowType_Mask) == Qt::Tool
 #ifndef QT_NO_DOCKWIDGET
-                     || qobject_cast<const QDockWidget *>(widget)
+                    || qobject_cast<const QDockWidget *>(widget)
 #endif
-                   )
+                    )
                     pm = standardPixmap(SP_DockWidgetCloseButton, &tool, widget);
                 else
                     pm = standardPixmap(SP_TitleBarCloseButton, &tool, widget);
@@ -2499,8 +2499,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                            SC_TitleBarNormalButton :
                                            SC_TitleBarMinButton);
                 QStyle::StandardPixmap spixmap = (tb->subControls & SC_TitleBarNormalButton ?
-                                               SP_TitleBarNormalButton :
-                                               SP_TitleBarMinButton);
+                                                  SP_TitleBarNormalButton :
+                                                  SP_TitleBarMinButton);
                 down = tb->activeSubControls & ctrl && (opt->state & State_Sunken);
                 pm = standardPixmap(spixmap, &tool, widget);
                 tool.rect = ir;
@@ -2698,24 +2698,22 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 
             // Draw title
             if ((groupBox->subControls & QStyle::SC_GroupBoxLabel) && !groupBox->text.isEmpty()) {
-                if (!groupBox->text.isEmpty()) {
-                    QColor textColor = groupBox->textColor;
-                    if (textColor.isValid())
-                        p->setPen(textColor);
-                    int alignment = int(groupBox->textAlignment);
-                    if (!styleHint(QStyle::SH_UnderlineShortcut, opt, widget))
-                        alignment |= Qt::TextHideMnemonic;
+                QColor textColor = groupBox->textColor;
+                if (textColor.isValid())
+                    p->setPen(textColor);
+                int alignment = int(groupBox->textAlignment);
+                if (!styleHint(QStyle::SH_UnderlineShortcut, opt, widget))
+                    alignment |= Qt::TextHideMnemonic;
 
-                    drawItemText(p, textRect,  Qt::TextShowMnemonic | Qt::AlignHCenter | alignment,
-                                 groupBox->palette, groupBox->state & State_Enabled, groupBox->text,
-                                 textColor.isValid() ? QPalette::NoRole : QPalette::WindowText);
+                drawItemText(p, textRect,  Qt::TextShowMnemonic | Qt::AlignHCenter | alignment,
+                             groupBox->palette, groupBox->state & State_Enabled, groupBox->text,
+                             textColor.isValid() ? QPalette::NoRole : QPalette::WindowText);
 
-                    if (groupBox->state & State_HasFocus) {
-                        QStyleOptionFocusRect fropt;
-                        fropt.QStyleOption::operator=(*groupBox);
-                        fropt.rect = textRect;
-                        drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
-                    }
+                if (groupBox->state & State_HasFocus) {
+                    QStyleOptionFocusRect fropt;
+                    fropt.QStyleOption::operator=(*groupBox);
+                    fropt.rect = textRect;
+                    drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
                 }
             }
 
