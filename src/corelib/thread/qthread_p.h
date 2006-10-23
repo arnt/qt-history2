@@ -65,7 +65,7 @@ class Q_CORE_EXPORT QThreadData
     QAtomic _ref;
 
 public:
-    QThreadData();
+    QThreadData(int initialRefCount = 1);
     ~QThreadData();
 
     static QThreadData *current();

@@ -1280,7 +1280,7 @@ void QObject::moveToThread(QThread *targetThread)
     }
 
     QThreadData *currentData = QThreadData::current();
-    QThreadData *targetData = targetThread ? QThreadData::get2(targetThread) : new QThreadData();
+    QThreadData *targetData = targetThread ? QThreadData::get2(targetThread) : new QThreadData(0);
     if (d->threadData->thread == 0 && currentData == targetData) {
         // one exception to the rule: we allow moving objects with no thread affinity to the current thread
         currentData = d->threadData;
@@ -1291,6 +1291,7 @@ void QObject::moveToThread(QThread *targetThread)
         return;
     }
 
+    // prepare to move
     d->moveToThread_helper();
 
     QWriteLocker locker(QObjectPrivate::readWriteLock());
@@ -1301,12 +1302,21 @@ void QObject::moveToThread(QThread *targetThread)
             targetData->postEventList.mutex.lock();
         }
     }
+
+    // keep currentData alive (since we've got it locked)
+    currentData->ref();
+
+    // move the object
     d_func()->setThreadData_helper(currentData, targetData);
+
     if (currentData != targetData) {
         targetData->postEventList.mutex.unlock();
         if (currentData)
             currentData->postEventList.mutex.unlock();
     }
+
+    // now currentData can commit suicide if it wants to
+    currentData->deref();
 }
 
 void QObjectPrivate::moveToThread_helper()
