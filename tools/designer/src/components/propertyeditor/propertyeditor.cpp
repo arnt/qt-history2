@@ -125,7 +125,7 @@ private:
     int indexOfPixmap(const QPixmap &pixmap);
 
     enum Mode { Icon, Pixmap };
-    Mode m_mode;
+    const Mode m_mode;
 
     QDesignerFormEditorInterface *m_core;
     QComboBox *m_combo;
@@ -220,16 +220,16 @@ void GraphicsPropertyEditor::populateCombo()
     QDesignerFormWindowInterface *form = m_core->formWindowManager()->activeFormWindow();
     if (form == 0)
         return;
-    QStringList qrc_list = form->resourceFiles();
+    const QStringList qrc_list = form->resourceFiles();
 
     m_combo->clear();
 
     QDesignerIconCacheInterface *cache = m_core->iconCache();
     if (m_mode == Icon) {
         m_combo->addItem(tr("<no icon>"));
-        QList<QIcon> icon_list = cache->iconList();
+        const QList<QIcon> icon_list = cache->iconList();
         foreach (QIcon icon, icon_list) {
-            QString qrc_path = cache->iconToQrcPath(icon);
+            const QString qrc_path = cache->iconToQrcPath(icon);
             if (!qrc_path.isEmpty() && !qrc_list.contains(qrc_path))
                 continue;
             m_combo->addItem(icon, QFileInfo(cache->iconToFilePath(icon)).fileName(),
@@ -237,9 +237,9 @@ void GraphicsPropertyEditor::populateCombo()
         }
     } else {
         m_combo->addItem(tr("<no pixmap>"));
-        QList<QPixmap> pixmap_list = cache->pixmapList();
+        const QList<QPixmap> pixmap_list = cache->pixmapList();
         foreach (QPixmap pixmap, pixmap_list) {
-            QString qrc_path = cache->iconToQrcPath(pixmap);
+            const QString qrc_path = cache->iconToQrcPath(pixmap);
             if (!qrc_path.isEmpty() && !qrc_list.contains(qrc_path))
                 continue;
             m_combo->addItem(QIcon(pixmap),
@@ -247,27 +247,27 @@ void GraphicsPropertyEditor::populateCombo()
                                 QVariant(pixmap));
         }
     }
-    bool blocked = m_combo->blockSignals(true);
+    const bool blocked = m_combo->blockSignals(true);
     m_combo->setCurrentIndex(0);
     m_combo->blockSignals(blocked);
 }
 
 GraphicsPropertyEditor::GraphicsPropertyEditor(QDesignerFormEditorInterface *core, const QIcon &pm,
                                                 QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent),
+      m_mode(Icon),
+      m_core(core)
 {
-    m_mode = Icon;
-    m_core = core;
     init();
     setIcon(pm);
 }
 
 GraphicsPropertyEditor::GraphicsPropertyEditor(QDesignerFormEditorInterface *core, const QPixmap &pm,
                                                 QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent),
+      m_mode(Pixmap),
+      m_core(core)
 {
-    m_mode = Pixmap;
-    m_core = core;
     init();
     setPixmap(pm);
 }
@@ -297,11 +297,11 @@ void GraphicsPropertyEditor::showDialog()
         if (!file_path.isEmpty()) {
             populateCombo();
             if (m_mode == Icon) {
-                QIcon icon = m_core->iconCache()->nameToIcon(file_path, qrc_path);
+                const QIcon icon = m_core->iconCache()->nameToIcon(file_path, qrc_path);
                 populateCombo();
                 setIcon(icon);
             } else {
-                QPixmap pixmap = m_core->iconCache()->nameToPixmap(file_path, qrc_path);
+                const QPixmap pixmap = m_core->iconCache()->nameToPixmap(file_path, qrc_path);
                 populateCombo();
                 setPixmap(pixmap);
             }
@@ -321,7 +321,7 @@ void GraphicsPropertyEditor::setIcon(const QIcon &pm)
 
     m_icon = pm;
 
-    bool blocked = m_combo->blockSignals(true);
+    const bool blocked = m_combo->blockSignals(true);
     m_combo->setCurrentIndex(indexOfIcon(m_icon));
     m_combo->blockSignals(blocked);
 
@@ -340,7 +340,7 @@ void GraphicsPropertyEditor::setPixmap(const QPixmap &pm)
 
     m_pixmap = pm;
 
-    bool blocked = m_combo->blockSignals(true);
+    const bool blocked = m_combo->blockSignals(true);
     m_combo->setCurrentIndex(indexOfPixmap(m_pixmap));
     m_combo->blockSignals(blocked);
 
@@ -350,9 +350,9 @@ void GraphicsPropertyEditor::setPixmap(const QPixmap &pm)
 }  // namespace qdesigner_internal
 
 IconProperty::IconProperty(QDesignerFormEditorInterface *core, const QIcon &value, const QString &name)
-    : AbstractProperty<QIcon>(value, name)
+    : AbstractProperty<QIcon>(value, name),
+      m_core(core)
 {
-    m_core = core;
 }
 
 void IconProperty::setValue(const QVariant &value)
@@ -362,7 +362,7 @@ void IconProperty::setValue(const QVariant &value)
 
 QString IconProperty::toString() const
 {
-    QString path = m_core->iconCache()->iconToFilePath(m_value);
+    const QString path = m_core->iconCache()->iconToFilePath(m_value);
     return QFileInfo(path).fileName();
 }
 
@@ -397,7 +397,7 @@ void IconProperty::updateEditorContents(QWidget *editor)
 void IconProperty::updateValue(QWidget *editor)
 {
     if (GraphicsPropertyEditor *ed = qobject_cast<GraphicsPropertyEditor*>(editor)) {
-        QIcon newValue = ed->icon();
+        const QIcon newValue = ed->icon();
 
         if (newValue.serialNumber() != m_value.serialNumber()) {
             m_value = newValue;
@@ -407,9 +407,9 @@ void IconProperty::updateValue(QWidget *editor)
 }
 
 PixmapProperty::PixmapProperty(QDesignerFormEditorInterface *core, const QPixmap &pixmap, const QString &name)
-    : AbstractProperty<QPixmap>(pixmap, name)
+    : AbstractProperty<QPixmap>(pixmap, name),
+      m_core(core)
 {
-    m_core = core;
 }
 
 void PixmapProperty::setValue(const QVariant &value)
@@ -419,7 +419,7 @@ void PixmapProperty::setValue(const QVariant &value)
 
 QString PixmapProperty::toString() const
 {
-    QString path = m_core->iconCache()->pixmapToFilePath(m_value);
+    const QString path = m_core->iconCache()->pixmapToFilePath(m_value);
     return QFileInfo(path).fileName();
 }
 
@@ -465,10 +465,10 @@ void PixmapProperty::updateValue(QWidget *editor)
 // -------------------------------------------------------------------------
 PaletteProperty::PaletteProperty(QDesignerFormEditorInterface *core, const QPalette &value, QWidget *selectedWidget,
                 const QString &name)
-    : AbstractProperty<QPalette>(value, name)
+    : AbstractProperty<QPalette>(value, name),
+      m_core(core),
+      m_selectedWidget(selectedWidget)
 {
-    m_selectedWidget = selectedWidget;
-    m_core = core;
 }
 
 void PaletteProperty::setValue(const QVariant &value)
@@ -483,7 +483,7 @@ void PaletteProperty::setValue(const QVariant &value)
                 parentPalette = m_selectedWidget->parentWidget()->palette();
         }
     }
-    uint mask = m_value.resolve();
+    const uint mask = m_value.resolve();
     m_value = m_value.resolve(parentPalette);
     m_value.resolve(mask);
 }
@@ -510,7 +510,7 @@ void PaletteProperty::updateEditorContents(QWidget *editor)
 void PaletteProperty::updateValue(QWidget *editor)
 {
     if (PaletteEditorButton *btn = qobject_cast<PaletteEditorButton*>(editor)) {
-        QPalette newValue = btn->palette();
+        const QPalette newValue = btn->palette();
 
         if (newValue.resolve() != m_value.resolve() || newValue != m_value) {
             m_value = newValue;
@@ -552,8 +552,8 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
         if (!m_prop_sheet->isVisible(i))
             continue;
 
-        QString pname = m_prop_sheet->propertyName(i);
-        QVariant value = m_prop_sheet->property(i);
+        const QString pname = m_prop_sheet->propertyName(i);
+        const QVariant value = m_prop_sheet->property(i);
 
         IProperty *p = 0;
         if (qVariantCanConvert<FlagType>(value)) {
@@ -567,7 +567,7 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                     QMapIterator<QString, QVariant> it (f.items);
                     while (it.hasNext()) {
                         it.next();
-                        QString id = lang->enumerator(it.key());
+                        const QString id = lang->enumerator(it.key());
                         items.insert(id, it.value());
                     }
                     f.items = items;
@@ -707,7 +707,7 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
             p->setChanged(m_prop_sheet->isChanged(i));
             p->setDirty(false);
 
-            QString pgroup = m_prop_sheet->propertyGroup(i);
+            const QString pgroup = m_prop_sheet->propertyGroup(i);
             int groupIndex = groups.indexOf(pgroup);
             if (groupIndex == -1) {
                 groupIndex = groups.count();
@@ -731,13 +731,13 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core,
             QWidget *parent, Qt::WindowFlags flags)
     : QDesignerPropertyEditorInterface(parent, flags),
       m_core(core),
-      m_properties(0)
+      m_editor(new QPropertyEditor(this)),
+      m_properties(0),
+      m_prop_sheet(0)
 {
     QVBoxLayout *lay = new QVBoxLayout(this);
     lay->setMargin(0);
-    m_editor = new QPropertyEditor(this);
     lay->addWidget(m_editor);
-    m_prop_sheet = 0;
 
     connect(m_editor, SIGNAL(propertyChanged(IProperty*)),
         this, SLOT(firePropertyChanged(IProperty*)));
@@ -801,7 +801,7 @@ void PropertyEditor::firePropertyChanged(IProperty *p)
         return;
 
     if (object() && p->parent() && p->propertyName() == QLatin1String("comment")) {
-        QString parentProperty = p->parent()->propertyName();
+        const QString parentProperty = p->parent()->propertyName();
         MetaDataBase *db = qobject_cast<MetaDataBase*>(core()->metaDataBase());
 
         if (db && db->item(object())) {
@@ -855,7 +855,7 @@ void PropertyEditor::setObject(QObject *object)
 
 void PropertyEditor::resetProperty(const QString &prop_name)
 {
-    int idx = m_prop_sheet->indexOf(prop_name);
+    const int idx = m_prop_sheet->indexOf(prop_name);
 
     if (idx == -1) {
         qWarning("PropertyEditor::resetProperty(): no property \"%s\"",
@@ -876,7 +876,7 @@ void PropertyEditor::resetProperty(const QString &prop_name)
 
 QString PropertyEditor::currentPropertyName() const
 {
-    QModelIndex index = m_editor->selectionModel()->currentIndex();
+    const QModelIndex index = m_editor->selectionModel()->currentIndex();
     if (index.isValid()) {
         IProperty *property = static_cast<IProperty*>(index.internalPointer());
 
