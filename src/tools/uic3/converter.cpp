@@ -316,7 +316,7 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
             while (!n2.isNull()) {
                 if (n2.tagName().toLower() == QLatin1String("slot")) {
                     QString name = n2.firstChild().toText().data();
-                    ui_custom_slots.append(fixMethod(name));
+                    ui_custom_slots.append(fixMethod(Parser::cleanArgs(name)));
                 }
                 n2 = n2.nextSibling().toElement();
             }
