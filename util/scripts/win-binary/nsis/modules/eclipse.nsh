@@ -18,7 +18,9 @@ var ECLIPSE_MINGW_LOCATION
 
 !define MODULE_ECLIPSE_QTSTARTUP_ID "com.trolltech.qtstartup_${MODULE_ECLIPSE_VERSION}"
 !define MODULE_ECLIPSE_QTPROJECT_ID "com.trolltech.qtproject_${MODULE_ECLIPSE_VERSION}"
+!define MODULE_ECLIPSE_QTPROJECT_X86_ID "com.trolltech.qtproject.win32.x86_${MODULE_ECLIPSE_VERSION}"
 !define MODULE_ECLIPSE_QTDESIGNER_ID "com.trolltech.qtdesigner_${MODULE_ECLIPSE_VERSION}"
+!define MODULE_ECLIPSE_QTDESIGNER_X86_ID "com.trolltech.qtdesigner.win32.x86_${MODULE_ECLIPSE_VERSION}"
 !define MODULE_ECLIPSE_QTHELP_ID "com.trolltech.help_${MODULE_ECLIPSE_VERSION}"
 
 LangString ModuleEclipsePageTitle ${LANG_ENGLISH} "Eclipse Installation Location"
@@ -46,6 +48,7 @@ Section "Qt Project Integration" ECLIPSE_SEC01
   SetOverwrite ifnewer
   File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTSTARTUP_ID}.jar"
   File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTPROJECT_ID}.jar"
+  File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTPROJECT_X86_ID}.jar"
 
   Call InstallQtModules
   
@@ -71,6 +74,7 @@ Section "Qt Designer Integration" ECLIPSE_SEC02
   SetOutPath "$ECLIPSE_LOCATION\plugins\"
   SetOverwrite ifnewer
   File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTDESIGNER_ID}.jar"
+  File "${MODULE_ECLIPSE_ROOT}\plugins\${MODULE_ECLIPSE_QTDESIGNER_X86_ID}.jar"
   
   Call InstallQtModules
   
@@ -229,6 +233,7 @@ Section un."Eclipse Integration"
   
     Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTSTARTUP_ID}.jar"
     Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTPROJECT_ID}.jar"
+    Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTPROJECT_X86_ID}.jar"
     Delete "$ECLIPSE_INSTDIR\qtproparser.dll"
     Delete "$SMPROGRAMS\$STARTMENU_STRING\Start Eclipse with MinGW.lnk"
     Delete "$ECLIPSE_INSTDIR\start.bat"
@@ -240,6 +245,7 @@ Section un."Eclipse Integration"
     call un.RegSvr
   
     Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTDESIGNER_ID}.jar"
+    Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTDESIGNER_X86_ID}.jar"
     Delete "$ECLIPSE_INSTDIR\QtDesigner4.dll"
     Delete "$ECLIPSE_INSTDIR\QtDesignerComponents4.dll"
     Delete "$ECLIPSE_INSTDIR\qtdesigner.dll"
