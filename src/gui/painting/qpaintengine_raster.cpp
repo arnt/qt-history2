@@ -328,7 +328,7 @@ void QFTOutlineMapper::endOutline()
                     x *= w;
                     y *= w;
                     m_elements_dev << QPointF(x, y);
-                }                
+                }
             }
         } else {
             bool affine = !m_m13 && !m_m23;
@@ -1585,7 +1585,7 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
                 w = 1/w;
                 x2 = int(x2*w);
                 y2 = int(y2*w);
-                
+
                 if (d->pen.style() == Qt::SolidLine)
                     drawLine_midpoint_i(x1, y1, x2, y2,
                                         d->penData.blend, &d->penData,
@@ -1797,6 +1797,19 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
 
     w = qMin(w, rb->width() - rx);
     h = qMin(h, rb->height() - ry);
+
+    if (w <= 0 || h <= 0)
+        return;
+
+    const QRect rect(rx, ry, w, h);
+    const QClipData *clip = d->rasterBuffer->clip;
+    if (clip) {
+        const QRect bound = QRect(clip->xmin, clip->ymin,
+                                  clip->xmax - clip->xmin,
+                                  clip->ymax - clip->ymin);
+        if ((bound & rect).isEmpty())
+            return;
+    }
 
     const int NSPANS = 256;
     QSpan spans[NSPANS];
@@ -2069,8 +2082,8 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     qreal bufferWidth = (ti.width + x_buffering).toReal() + leftBearingReserve;
     qreal bufferHeight = (ti.ascent + ti.descent + 1).toReal();
 
-    QTransform m(d->matrix.m11(), d->matrix.m12(), d->matrix.m13(), 
-                 d->matrix.m21(), d->matrix.m22(), d->matrix.m23(), 
+    QTransform m(d->matrix.m11(), d->matrix.m12(), d->matrix.m13(),
+                 d->matrix.m21(), d->matrix.m22(), d->matrix.m23(),
                  0, 0, 1);
     QRectF logRect(0, 0, bufferWidth, bufferHeight);
     QPointF topLeft = m.mapRect(logRect).topLeft();
