@@ -1690,15 +1690,33 @@ WId QWidget::winId() const
 }
 
 
-void QWidgetPrivate::createWinId()
- {
-     Q_Q(QWidget);
-     if (!q->testAttribute(Qt::WA_WState_Created)) {
-         if (!q->isWindow() && !q->parentWidget()->testAttribute(Qt::WA_WState_Created))
-             q->parentWidget()->d_func()->createWinId();
-         q->create();
-     }
- }
+void QWidgetPrivate::createWinId(WId winid)
+{
+    Q_Q(QWidget);
+    if (!q->testAttribute(Qt::WA_WState_Created)) {
+        if (!q->isWindow()) {
+            QWidgetPrivate *pd = q->parentWidget()->d_func();
+            if (!q->parentWidget()->testAttribute(Qt::WA_WState_Created))
+                pd->createWinId();
+
+            for (int i = 0; i < pd->children.size(); ++i) {
+                QWidget *w = qobject_cast<QWidget *>(pd->children.at(i));
+                if (w && !w->isWindow() && !w->testAttribute(Qt::WA_WState_Created))
+                    if (w!=q) {
+                        w->create();
+                    } else {
+                        w->create(winid);
+                        // if the window has already been created, we
+                        // need to raise it to its proper stacking position
+                        if (winid)
+                            w->raise();
+                    }
+            }
+        } else {
+            q->create();
+        }
+    }
+}
 
 
 /*!

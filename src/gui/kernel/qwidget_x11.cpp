@@ -834,11 +834,8 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
     q->setAttribute(Qt::WA_WState_Visible, false);
     q->setAttribute(Qt::WA_WState_Hidden, false);
     adjustFlags(data.window_flags, q);
-    //### simplify logic after TP
-    if (wasCreated && !q->isWindow() && !parent->testAttribute(Qt::WA_WState_Created))
-        parent->d_func()->createWinId();
-    if (parent && !q->isWindow() && parent->testAttribute(Qt::WA_WState_Created))
-        q->create();
+    if (!q->isWindow() && (wasCreated || parent->testAttribute(Qt::WA_WState_Created)))
+        createWinId();
     if (q->isWindow() || (!parent || parent->isVisible()) || explicitlyHidden)
         q->setAttribute(Qt::WA_WState_Hidden);
     q->setAttribute(Qt::WA_WState_ExplicitShowHide, explicitlyHidden);

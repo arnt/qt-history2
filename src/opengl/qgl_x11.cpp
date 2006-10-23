@@ -1145,14 +1145,12 @@ void QGLWidget::setContext(QGLContext *context,
     a.background_pixel = colmap.pixel(palette().color(backgroundRole()));
     a.border_pixel = colmap.pixel(Qt::black);
     Window p = RootWindow(X11->display, vi->screen);
-    if (parentWidget()) {
+    if (parentWidget())
         p = parentWidget()->winId();
-    }
 
     Window w = XCreateWindow(X11->display, p, x(), y(), width(), height(),
                               0, vi->depth, InputOutput, vi->visual,
                               CWBackPixel|CWBorderPixel|CWColormap, &a);
-
     Window *cmw;
     Window *cmwret;
     int count;
@@ -1184,10 +1182,8 @@ void QGLWidget::setContext(QGLContext *context,
         delete oldcx;
     oldcx = 0;
 
-    create(w);
-
-    XSetWMColormapWindows(X11->display, window()->winId(), cmw,
-                           count);
+    d->createWinId(w);
+    XSetWMColormapWindows(X11->display, window()->winId(), cmw, count);
     delete [] cmw;
 
     // calling QWidget::create() will always result in a new paint
