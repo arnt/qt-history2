@@ -106,6 +106,7 @@ QString MultiPageWidgetPlugin::domXml() const
 
 void MultiPageWidgetPlugin::currentIndexChanged(int index)
 {
+    Q_UNUSED(index);
     MultiPageWidget *widget = qobject_cast<MultiPageWidget*>(sender());
     if (widget) {
         QDesignerFormWindowInterface *form;
@@ -117,6 +118,7 @@ void MultiPageWidgetPlugin::currentIndexChanged(int index)
 
 void MultiPageWidgetPlugin::pageTitleChanged(const QString &title)
 {
+    Q_UNUSED(title);
     MultiPageWidget *widget = qobject_cast<MultiPageWidget*>(sender());
     if (widget) {
         QWidget *page = widget->widget(widget->currentIndex());
