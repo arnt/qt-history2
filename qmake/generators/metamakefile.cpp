@@ -248,8 +248,12 @@ SubdirsMetaMakefileGenerator::init()
     init_flag = true;
 
     if(Option::recursive) {
-        const QString old_output_dir = QDir::cleanPath(Option::output_dir);
-        const QString oldpwd = QDir::cleanPath(qmake_getpwd());
+        QString old_output_dir = QDir::cleanPath(Option::output_dir);
+        if(!old_output_dir.endsWith('/'))
+           old_output_dir += '/';
+        QString oldpwd = QDir::cleanPath(qmake_getpwd());
+        if(!oldpwd.endsWith('/'))
+           oldpwd += '/';
         const QStringList &subdirs = project->values("SUBDIRS");
         static int recurseDepth = -1;
         ++recurseDepth;
@@ -264,6 +268,11 @@ SubdirsMetaMakefileGenerator::init()
                 subdir = project->first(subdirs.at(i) + ".subdir");
             if(subdir.isDir())
                 subdir = QFileInfo(subdir.filePath() + "/" + subdir.fileName() + Option::pro_ext);
+            if(!subdir.isRelative()) { //we can try to make it relative
+                QString subdir_path = subdir.filePath();
+                if(subdir_path.startsWith(oldpwd))
+                    subdir = QFileInfo(subdir_path.mid(oldpwd.length()));
+            }
 
             //handle sub project
             QMakeProject *sub_proj = new QMakeProject(project->properties());
