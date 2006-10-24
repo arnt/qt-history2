@@ -1293,6 +1293,8 @@ QModelIndex QListView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
 /*!
     Returns the rectangle of the item at position \a index in the
     model. The rectangle is in contents coordinates.
+
+    \sa visualRect()
 */
 QRect QListView::rectForIndex(const QModelIndex &index) const
 {
