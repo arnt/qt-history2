@@ -127,7 +127,7 @@ Function MakeEclipseStartFile
   FileWrite $0 "set PATH=%PATH%;%SystemRoot%\System32$\r$\n"
   FileWrite $0 "$\r$\n"
   FileWrite $0 "echo Starting eclipse...$\r$\n"
-  FileWrite $0 "call $ECLIPSE_LOCATION\eclipse.exe"
+  FileWrite $0 'call \"$ECLIPSE_LOCATION\eclipse.exe\"'
   FileWrite $0 "$\r$\n"
   FileClose $0
   
