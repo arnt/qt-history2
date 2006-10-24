@@ -289,7 +289,9 @@
     argument is the new child item (i.e., a QGraphicsItem pointer). Do not
     pass this item to any item's setParentItem() function as this notification
     is delivered. The return value is unused; you cannot adjust anything in
-    this notification.
+    this notification. Note that the new child might not be fully constructed
+    when this notification is sent; calling pure virtual functions on
+    the child can lead to a crash.
 
     \value ItemChildRemovedChange A child is removed from this item. The value
     argument is the child item that is about to be removed (i.e., a
@@ -611,7 +613,6 @@ void QGraphicsItem::setParentItem(QGraphicsItem *parent)
         d_ptr->parent->d_func()->children.removeAll(this);
         qVariantSetValue<QGraphicsItem *>(variant, this);
         d_ptr->parent->itemChange(ItemChildRemovedChange, variant);
-        d_ptr->parent->update();
     }
 
     if ((d_ptr->parent = parent)) {
@@ -619,7 +620,6 @@ void QGraphicsItem::setParentItem(QGraphicsItem *parent)
         qVariantSetValue<QGraphicsItem *>(variant, this);
         d_ptr->parent->itemChange(ItemChildAddedChange, variant);
         addToIndex();
-        d_ptr->parent->update();
 
         // Optionally inherit ancestor event handling from the new parent
         if (!d_ptr->handlesChildEvents) {
