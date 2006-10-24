@@ -5328,15 +5328,21 @@ QTextControl *QGraphicsTextItemPrivate::textControl() const
 /*!
     \fn QGraphicsTextItem::linkActivated(const QString &link)
 
-    This signal is emitted when the user clicks on a link. \a link
-    is the link that was clicked.
+    This signal is emitted when the user clicks on a link on a text item
+    that enables Qt::LinksAccessibleByMouse or Qt::LinksAccessibleByKeyboard.
+    \a link is the link that was clicked.
+
+    \sa setTextInteractionFlags()
 */
 
 /*!
     \fn QGraphicsTextItem::linkHovered(const QString &link)
 
-    This signal is emitted when the user hovers over a link. \a link is
+    This signal is emitted when the user hovers over a link on a text item
+    that enables Qt::LinksAccessibleByMouse. \a link is
     the link that was hovered over.
+
+    \sa setTextInteractionFlags()
 */
 
 /*!
