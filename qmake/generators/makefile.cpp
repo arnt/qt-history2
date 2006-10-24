@@ -2444,10 +2444,12 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
 
         //qmake it
         if(!subtarget->profile.isEmpty()) {
-            QString out = out_directory + "/" + subtarget->makefile,
+            QString out = out_directory + subtarget->makefile,
                      in = fileFixify(in_directory + subtarget->profile, in_directory);
             if(in.startsWith(in_directory))
                 in = in.mid(in_directory.length());
+            if(out.startsWith(in_directory))
+                out = out.mid(in_directory.length());
             t << mkfile << ": " << "\n\t";
             if(!in_directory.isEmpty()) {
                 t << mkdir_p_asstring(in_directory)
