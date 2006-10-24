@@ -361,13 +361,13 @@ void Main::init()
     logoimg = 0;
 
     int i;
-    for ( i=0; i<canvas.width() / 56; i++) {
+    for ( i=0; i < int(canvas.width()) / 56; i++) {
 	addButterfly();
     }
-    for ( i=0; i<canvas.width() / 85; i++) {
+    for ( i=0; i < int(canvas.width()) / 85; i++) {
 	addHexagon();
     }
-    for ( i=0; i<canvas.width() / 128; i++) {
+    for ( i=0; i < int(canvas.width()) / 128; i++) {
 	addLogo();
     }
 }
