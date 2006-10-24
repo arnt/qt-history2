@@ -116,6 +116,7 @@ public:
     void scroll(const QRegion &area, int dx, int dy);
 
     const QImage image() const { return img; };
+    QPoint painterOffset() const;
 
 protected:
     QImage::Format preferredImageFormat(const QWidget *widget) const;

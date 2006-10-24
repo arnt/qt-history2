@@ -576,6 +576,20 @@ void QWSMemorySurface::endPaint(const QRegion &region)
     unlock(memlock);
 }
 
+QPoint QWSMemorySurface::painterOffset() const
+{
+    const QWidget *w = window();
+    if (!w)
+        return QPoint();
+
+    if (w->mask().isEmpty())
+        return QWSWindowSurface::painterOffset();
+
+    const QRegion region = w->mask()
+                           & w->frameGeometry().translated(-w->geometry().topLeft());
+    return -region.boundingRect().topLeft();
+}
+
 QWSLocalMemSurface::QWSLocalMemSurface()
     : QWSMemorySurface(), mem(0), memsize(0)
 {
@@ -588,7 +602,15 @@ QWSLocalMemSurface::QWSLocalMemSurface(QWidget *w)
 
 void QWSLocalMemSurface::setGeometry(const QRect &rect)
 {
-    const QSize size = rect.size();
+    QSize size = rect.size();
+
+    const QWidget *w = window();
+    if (w && !w->mask().isEmpty()) {
+        const QRegion region = w->mask()
+                               & rect.translated(-w->geometry().topLeft());
+        size = region.boundingRect().size();
+    }
+
     if (img.size() != size) {
         QImage::Format imageFormat = preferredImageFormat(window());
         const int bytesPerPixel = imageFormat == QImage::Format_RGB16 ? 2 : 4;
