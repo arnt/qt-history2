@@ -1104,11 +1104,10 @@
     function, and access the stored data using the event's data()
     function.
 
-    In Qt 4, custom events are created by subclassing QEvent and
-    reimplementing the \l{QEvent::type()}{type()} function to return a
-    value in the range allocated for user events. Event-specific data
-    can be stored in a way that is appropriate for your application.
-    Custom events are still delivered to each object's
+    In Qt 4, custom events are created by subclassing
+    QEvent. Event-specific data can be stored in a way that is
+    appropriate for your application. Custom events are still
+    delivered to each object's
     \l{QObject::customEvent()}{customEvent()} handler function, but as
     QEvent objects rather than as deprecated QCustomEvent objects.
 
