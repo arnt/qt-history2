@@ -574,6 +574,19 @@
     Edition are not allowed to link this plugin to the commercial editions of
     InterBase. Please use Firebird or the free edition of InterBase.
 
+    \section3 Stored procedures
+
+    InterBase/Firebird return OUT values as result set, so when calling stored
+    procedure, only IN values need to be bound via QSqlQuery::bindValue(). The
+    RETURN/OUT values can be retrieved via QSqlQuery::value(). Example:
+
+    \code
+    QSqlQuery q;
+    q.exec("execute procedure my_procedure");
+    q.next();
+    qDebug() << q.value(0); // outputs the first RETURN/OUT value
+    \endcode
+
     \section3 How to Build the Plugin on Unix and Mac OS X
 
     The following assumes InterBase or Firebird is installed in
