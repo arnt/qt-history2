@@ -734,7 +734,7 @@ bool QIBaseResultPrivate::isSelect()
         return false;
     int iLength = isc_vax_integer(&acBuffer[1], 2);
     queryType = isc_vax_integer(&acBuffer[3], iLength);
-    return (queryType == isc_info_sql_stmt_select);
+    return (queryType == isc_info_sql_stmt_select || queryType == isc_info_sql_stmt_exec_procedure);
 }
 
 bool QIBaseResultPrivate::transaction()
@@ -939,6 +939,9 @@ bool QIBaseResult::exec()
                 return false;
             cleanup();
         }
+        if (d->queryType == isc_info_sql_stmt_exec_procedure)
+            isc_dsql_execute2(d->status, &d->trans, &d->stmt, FBVERSION, d->inda, d->sqlda);
+        else
         isc_dsql_execute(d->status, &d->trans, &d->stmt, FBVERSION, d->inda);
         if (d->isError(QT_TRANSLATE_NOOP("QIBaseResult", "Unable to execute query")))
             return false;
@@ -946,7 +949,7 @@ bool QIBaseResult::exec()
         if (d->sqlda)
             init(d->sqlda->sqld);
 
-        if (d->queryType != isc_info_sql_stmt_select)
+        if (!isSelect())
              d->commit();
 
         setActive(true);
@@ -964,7 +967,18 @@ bool QIBaseResult::reset (const QString& query)
 
 bool QIBaseResult::gotoNext(QSqlCachedResult::ValueCache& row, int rowIdx)
 {
-    ISC_STATUS stat = isc_dsql_fetch(d->status, &d->stmt, FBVERSION, d->sqlda);
+    ISC_STATUS stat = 0;
+
+    // Stored Procedures are special - they populate our d->sqlda when executing,
+    // so we don't have to call isc_dsql_fetch
+    if (d->queryType == isc_info_sql_stmt_exec_procedure) {
+        // the first "fetch" shall succeed, all consecutive ones will fail since
+        // we only have one row to fetch for stored procedures
+        if (rowIdx != 0)
+            stat = 100;
+    } else {
+        stat = isc_dsql_fetch(d->status, &d->stmt, FBVERSION, d->sqlda);
+    }
 
     if (stat == 100) {
         // no more rows

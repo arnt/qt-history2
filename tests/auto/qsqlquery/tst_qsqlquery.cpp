@@ -103,6 +103,8 @@ private slots:
     void oraLong();
     void outValuesDB2_data();
     void outValuesDB2();
+    void storedProceduresIBase_data();
+    void storedProceduresIBase();
     void oraRowId_data();
     void oraRowId();
     void oraXmlType_data();
@@ -643,6 +645,53 @@ void tst_QSqlQuery::oraClob()
     QVERIFY(q.next());
     QCOMPARE(q.value(0).toString().count(), loong.count());
     QVERIFY(q.value(0).toString() == loong);
+}
+
+void tst_QSqlQuery::storedProceduresIBase_data()
+{
+    if (dbs.fillTestTable("QIBASE") == 0)
+        QSKIP("No Interbase database drivers are available in this Qt configuration", SkipAll);
+}
+
+void tst_QSqlQuery::storedProceduresIBase()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (!db.driverName().startsWith("QIBASE")) {
+        QSKIP("Test requires Interbase", SkipSingle);
+        return;
+    }
+
+    QSqlQuery q(db);
+    q.exec("drop procedure " + qTableName("TESTPROC"));
+
+    QVERIFY_SQL(q, q.exec("create procedure " + qTableName("TESTPROC") +
+                       " RETURNS (x integer, y varchar(20)) "
+                       "AS BEGIN "
+                       "  x = 42; "
+                       "  y = 'Hello Anders'; "
+                       "END"));
+
+    QVERIFY_SQL(q, q.prepare("execute procedure " + qTableName("TestProc")));
+    QVERIFY_SQL(q, q.exec());
+
+    // check for a valid result set
+    QSqlRecord rec = q.record();
+    QCOMPARE(rec.count(), 2);
+    QCOMPARE(rec.fieldName(0).toUpper(), QString("X"));
+    QCOMPARE(rec.fieldName(1).toUpper(), QString("Y"));
+
+    // the first next shall suceed
+    QVERIFY_SQL(q, q.next());
+    QCOMPARE(q.value(0).toInt(), 42);
+    QCOMPARE(q.value(1).toString(), QString("Hello Anders"));
+
+    // the second next shall fail
+    QVERIFY(!q.next());
+
+    q.exec("drop procedure " + qTableName("TestProc"));
 }
 
 void tst_QSqlQuery::outValuesDB2_data()
