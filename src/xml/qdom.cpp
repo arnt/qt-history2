@@ -2216,6 +2216,29 @@ QDomNode& QDomNode::operator=(const QDomNode &n)
 /*!
     Returns true if \a n and this DOM node are equal; otherwise
     returns false.
+
+    Any instance of QDomNode acts as a reference to an underlying data
+    structure in QDomDocument. The test for equality checks if the two
+    references point to the same underlying node. For example:
+
+    \code
+        QDomDocument document;
+        QDomElement element1 = document.documentElement();
+        QDomElement element2 = element1;
+    \endcode
+
+    The two nodes (QDomElement is a QDomNode subclass) both refer to
+    the document's root element, and \c {element1 == element2} will
+    return true. On the other hand:
+
+    \code
+        QDomElement element3 = document.createElement("MyElement");
+        QDomElement element4 = document.createElement("MyElement");
+    \endcode
+
+    Even though both nodes are empty elements carrying the same name,
+    \c {element3 == element4} will return false because they refer to
+    two different nodes in the underlying data structure.
 */
 bool QDomNode::operator== (const QDomNode& n) const
 {
