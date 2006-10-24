@@ -1037,9 +1037,19 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
         }
 
         if(op == "=") {
-            if(!varlist.isEmpty())
-                warn_msg(WarnParser, "Operator=(%s) clears variables previously set: %s:%d",
-                         var.toLatin1().constData(), parser.file.toLatin1().constData(), parser.line_no);
+            if(!varlist.isEmpty()) {
+                bool send_warning = false;
+                QSet<QString> incoming_vals = vallist.toSet();
+                for(int i = 0; i < varlist.size(); ++i) {
+                    if(!incoming_vals.contains(varlist.at(i))) {
+                        send_warning = true;
+                        break;
+                    }
+                }
+                if(send_warning)
+                    warn_msg(WarnParser, "Operator=(%s) clears variables previously set: %s:%d",
+                             var.toLatin1().constData(), parser.file.toLatin1().constData(), parser.line_no);
+            }
             varlist.clear();
         }
         for(QStringList::ConstIterator valit = vallist.begin();
