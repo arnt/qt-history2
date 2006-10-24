@@ -56,6 +56,8 @@ ObjectInspector::ObjectInspector(QDesignerFormEditorInterface *core, QWidget *pa
 
     m_treeWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     m_treeWidget->header()->setResizeMode(1, QHeaderView::Stretch);
+    m_treeWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
 
     m_treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -113,9 +115,6 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
 {
     m_formWindow = fw;
 
-    if (fw && fw->cursor())
-        m_selected = core()->propertyEditor()->object();
-
     const int xoffset = m_treeWidget->horizontalScrollBar()->value();
     const int yoffset = m_treeWidget->verticalScrollBar()->value();
 
@@ -123,29 +122,37 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
 
     if (!fw || !fw->mainContainer())
         return;
-
+    
+    const QDesignerFormWindowCursorInterface* cursor=fw->cursor();
     const QDesignerWidgetDataBaseInterface *db = fw->core()->widgetDataBase();
 
     m_treeWidget->setUpdatesEnabled(false);
 
-    QStack< QPair<QTreeWidgetItem*, QObject*> > workingList;
+    typedef QPair<QTreeWidgetItem*, QObject*> ItemObjectPair;
+    QStack<ItemObjectPair> workingList;
     QObject *rootObject = fw->mainContainer();
     workingList.append(qMakePair(new QTreeWidgetItem(m_treeWidget), rootObject));
-    QTreeWidgetItem *theSelectedItem = 0;
 
+    // remember the selection and apply later
+    typedef QVector<QTreeWidgetItem*> SelectionList;
+    SelectionList selectionList;
+        
     while (!workingList.isEmpty()) {
         QTreeWidgetItem *item = workingList.top().first;
         QObject *object = workingList.top().second;
         workingList.pop();
 
-        if (m_selected == object)
-            theSelectedItem = item;
+        const bool isWidget = object->isWidgetType();
+        
+        if (isWidget && cursor && cursor->isWidgetSelected(static_cast<QWidget*>(object))) {
+            selectionList.push_back(item);
+        }
 
         QString className = object->metaObject()->className();
         if (QDesignerWidgetDataBaseItemInterface *widgetItem = db->item(db->indexOfObject(object, true))) {
             className = widgetItem->name();
 
-            if (object->isWidgetType() && className == QLatin1String("QLayoutWidget")
+            if (isWidget && className == QLatin1String("QLayoutWidget")
                     && static_cast<QWidget*>(object)->layout()) {
                 className = QLatin1String(static_cast<QWidget*>(object)->layout()->metaObject()->className());
             }
@@ -157,7 +164,6 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
             className.remove(1, 8);
 
         item->setText(1, className);
-
         item->setData(0, 1000, qVariantFromValue(object));
 
         if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(object))
@@ -223,10 +229,20 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
 
     m_treeWidget->horizontalScrollBar()->setValue(xoffset);
     m_treeWidget->verticalScrollBar()->setValue(yoffset);
-
-    if (theSelectedItem) {
-        m_treeWidget->setCurrentItem(theSelectedItem);
-        m_treeWidget->scrollToItem(theSelectedItem);
+    
+    switch (selectionList.size()) {
+    case 0:
+        break;
+    case 1:
+        m_treeWidget->scrollToItem(selectionList[0]);
+        m_treeWidget->setCurrentItem(selectionList[0]);
+        break;
+    default:
+        foreach (QTreeWidgetItem* item, selectionList) {
+            item->setSelected(true);
+        }
+        m_treeWidget->scrollToItem(selectionList[0]);
+        break;
     }
 
     m_treeWidget->setUpdatesEnabled(true);
@@ -239,24 +255,41 @@ void ObjectInspector::slotSelectionChanged()
 {
     if (!m_formWindow)
         return;
-
     m_formWindow->clearSelection(false);
 
-    QList<QTreeWidgetItem*> items = m_treeWidget->selectedItems();
+    const QList<QTreeWidgetItem*> items = m_treeWidget->selectedItems();
+    if (!items.empty()) {
+        // sort objects
+        QVector<QWidget*> selectedWidgets;
+        QVector<QObject*> selectedObjects;
+        selectedWidgets.reserve(items.size());
+        selectedObjects.reserve(items.size());
 
-    foreach (QTreeWidgetItem *item, items) {
-        QObject *object = qvariant_cast<QObject *>(item->data(0, 1000));
-        m_selected = object;
-
-        QWidget *widget = qobject_cast<QWidget*>(object);
-
-        if (widget && m_formWindow->isManaged(widget)) {
-            m_formWindow->selectWidget(widget);
-        } else if (core()->metaDataBase()->item(object)) {
-            // refresh at least the property editor
-            core()->propertyEditor()->setObject(object);
+        foreach (QTreeWidgetItem *item, items) {
+            QObject *object = qvariant_cast<QObject *>(item->data(0, 1000));
+            QWidget *widget = qobject_cast<QWidget*>(object);
+            if (widget && m_formWindow->isManaged(widget)) {
+                selectedWidgets.push_back(widget);
+            } else {
+                if (core()->metaDataBase()->item(object)) {
+                    selectedObjects.push_back(object);
+                }
+            }
+        }
+        if (!selectedWidgets.empty()) {
+            // This will trigger an update
+            foreach (QWidget* widget, selectedWidgets) {
+                m_formWindow->selectWidget(widget);
+            }
+        } else {
+            if (!selectedObjects.empty()) {
+                // refresh at least the property editor
+                core()->propertyEditor()->setObject(selectedObjects[0]);
+                core()->propertyEditor()->setEnabled(selectedObjects.size() == 1);
+            }
         }
     }
+    
     QMetaObject::invokeMethod(m_formWindow->core()->formWindowManager(), "slotUpdateActions");
 }
 

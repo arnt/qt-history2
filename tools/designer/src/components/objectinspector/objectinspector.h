@@ -24,7 +24,6 @@ class QDesignerFormWindowInterface;
 namespace qdesigner_internal {
 
 class TreeWidget;
-class ObjectItem;
 
 class QT_OBJECTINSPECTOR_EXPORT ObjectInspector: public QDesignerObjectInspectorInterface
 {
@@ -51,7 +50,6 @@ private:
     QDesignerFormEditorInterface *m_core;
     TreeWidget *m_treeWidget;
     QPointer<QDesignerFormWindowInterface> m_formWindow;
-    QPointer<QObject> m_selected;
 };
 
 }  // namespace qdesigner_internal
