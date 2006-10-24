@@ -35,6 +35,12 @@ Q_DECLARE_METATYPE(QPainterPath)
 Q_DECLARE_METATYPE(QPointF)
 Q_DECLARE_METATYPE(QRectF)
 
+static void sendMouseMove(QWidget *widget, const QPoint &point)
+{
+    QMouseEvent event(QEvent::MouseMove, point, Qt::NoButton, 0, 0);
+    QApplication::sendEvent(widget, &event);
+}
+
 class tst_QGraphicsView : public QObject
 {
     Q_OBJECT
@@ -1400,25 +1406,13 @@ void tst_QGraphicsView::cursor()
     view.viewport()->setCursor(Qt::PointingHandCursor);
     QCOMPARE(view.viewport()->cursor().shape(), Qt::PointingHandCursor);
 
-    QMouseEvent event(QEvent::MouseMove,
-                      view.mapFromScene(0, 0),
-                      Qt::NoButton, 0, 0);
-    QApplication::sendEvent(view.viewport(), &event);
-
-    qApp->processEvents();
+    sendMouseMove(view.viewport(), view.mapFromScene(0, 0));
     QCOMPARE(view.viewport()->cursor().shape(), Qt::IBeamCursor);
 
-    QMouseEvent event2(QEvent::MouseMove,
-                       QPoint(5, 5),
-                       Qt::NoButton, 0, 0);
-    QApplication::sendEvent(view.viewport(), &event2);
-
-    qApp->processEvents();
+    sendMouseMove(view.viewport(), QPoint(5, 5));
     QCOMPARE(view.viewport()->cursor().shape(), Qt::PointingHandCursor);
 }
 
-// Tests correct cursor update when moving directly from an item with its own cursor
-// into an item without its own cursor.
 void tst_QGraphicsView::cursor2()
 {
     QGraphicsScene scene;
@@ -1428,25 +1422,60 @@ void tst_QGraphicsView::cursor2()
 
     QGraphicsItem *item2 = scene.addRect(QRectF(-20, -20, 40, 40));
     item2->setZValue(0);
-
+    
     QGraphicsView view(&scene);
+    view.viewport()->setCursor(Qt::PointingHandCursor);
     view.setFixedSize(400, 400);
     view.show();
 
-    view.viewport()->setCursor(Qt::PointingHandCursor);
-
-    // Move to inner rectangle ...
-    QMouseEvent event1(QEvent::MouseMove, view.mapFromScene(0, 0), Qt::NoButton, 0, 0);
-    QApplication::sendEvent(view.viewport(), &event1);
-    qApp->processEvents();
-    QCOMPARE(view.viewport()->cursor().shape(), Qt::IBeamCursor);
-
-    // Move to outer rectangle ...
-    QMouseEvent event2(
-        QEvent::MouseMove, view.mapFromScene(0, 0) - QPoint(15, 0), Qt::NoButton, 0, 0);
-    QApplication::sendEvent(view.viewport(), &event2);
-    qApp->processEvents();
+    sendMouseMove(view.viewport(), view.mapFromScene(-30, -30));
     QCOMPARE(view.viewport()->cursor().shape(), Qt::PointingHandCursor);
+    sendMouseMove(view.viewport(), view.mapFromScene(0, 0));
+    QCOMPARE(view.viewport()->cursor().shape(), Qt::IBeamCursor);
+    sendMouseMove(view.viewport(), view.mapFromScene(-30, -30));
+    QCOMPARE(view.viewport()->cursor().shape(), Qt::PointingHandCursor);
+    sendMouseMove(view.viewport(), view.mapFromScene(0, 0));
+    QCOMPARE(view.viewport()->cursor().shape(), Qt::IBeamCursor);
+    sendMouseMove(view.viewport(), view.mapFromScene(-15, 0));
+    QCOMPARE(view.viewport()->cursor().shape(), Qt::PointingHandCursor);
+
+    view.setDragMode(QGraphicsView::ScrollHandDrag);
+
+    sendMouseMove(view.viewport(), view.mapFromScene(-30, -30));
+    QCOMPARE(view.viewport()->cursor().shape(), Qt::OpenHandCursor);
+    sendMouseMove(view.viewport(), view.mapFromScene(0, 0));
+    QCOMPARE(view.viewport()->cursor().shape(), Qt::IBeamCursor);
+    sendMouseMove(view.viewport(), view.mapFromScene(-15, -15));
+    QCOMPARE(view.viewport()->cursor().shape(), Qt::OpenHandCursor);
+
+    view.setDragMode(QGraphicsView::NoDrag);
+    QCOMPARE(view.viewport()->cursor().shape(), Qt::ArrowCursor);
+    view.viewport()->setCursor(Qt::PointingHandCursor);
+    QCOMPARE(view.viewport()->cursor().shape(), Qt::PointingHandCursor);
+
+    item2->setCursor(Qt::SizeAllCursor);
+
+    sendMouseMove(view.viewport(), view.mapFromScene(-30, -30));
+    QCOMPARE(view.viewport()->cursor().shape(), Qt::PointingHandCursor);
+    sendMouseMove(view.viewport(), view.mapFromScene(-15, -15));
+    QCOMPARE(view.viewport()->cursor().shape(), Qt::SizeAllCursor);
+    sendMouseMove(view.viewport(), view.mapFromScene(0, 0));
+    QCOMPARE(view.viewport()->cursor().shape(), Qt::IBeamCursor);
+    sendMouseMove(view.viewport(), view.mapFromScene(-15, -15));
+    QCOMPARE(view.viewport()->cursor().shape(), Qt::SizeAllCursor);
+    sendMouseMove(view.viewport(), view.mapFromScene(0, 0));
+    QCOMPARE(view.viewport()->cursor().shape(), Qt::IBeamCursor);
+    sendMouseMove(view.viewport(), view.mapFromScene(-30, -30));
+    QCOMPARE(view.viewport()->cursor().shape(), Qt::PointingHandCursor);
+
+    view.setDragMode(QGraphicsView::ScrollHandDrag);
+
+    sendMouseMove(view.viewport(), view.mapFromScene(-30, -30));
+    QCOMPARE(view.viewport()->cursor().shape(), Qt::OpenHandCursor);
+    sendMouseMove(view.viewport(), view.mapFromScene(0, 0));
+    QCOMPARE(view.viewport()->cursor().shape(), Qt::IBeamCursor);
+    sendMouseMove(view.viewport(), view.mapFromScene(-15, -15));
+    QCOMPARE(view.viewport()->cursor().shape(), Qt::SizeAllCursor);
 }
 
 void tst_QGraphicsView::transformationAnchor()
