@@ -237,8 +237,8 @@ public:
     QRegion backgroundPixmapExposed;
 
 #ifndef QT_NO_CURSOR
-    QCursor viewCursor;
-    bool hasViewCursor;
+    QCursor originalCursor;
+    bool hasStoredOriginalCursor;
 #endif
 
     QGraphicsSceneDragDropEvent *lastDragDropEvent;
@@ -264,7 +264,7 @@ QGraphicsViewPrivate::QGraphicsViewPrivate()
 #endif
       handScrolling(false), cacheMode(0), mustResizeBackgroundPixmap(true),
 #ifndef QT_NO_CURSOR
-      hasViewCursor(false),
+      hasStoredOriginalCursor(false),
 #endif
       lastDragDropEvent(0)
 {
@@ -714,14 +714,21 @@ QGraphicsView::DragMode QGraphicsView::dragMode() const
 void QGraphicsView::setDragMode(DragMode mode)
 {
     Q_D(QGraphicsView);
+    if (d->dragMode == mode)
+        return;
+
+#ifndef QT_NO_CURSOR
+    if (d->dragMode == ScrollHandDrag)
+        viewport()->unsetCursor();
+#endif
+
     d->dragMode = mode;
+
 #ifndef QT_NO_CURSOR
     if (d->dragMode == ScrollHandDrag) {
-        d->hasViewCursor = true;
-        d->viewCursor = QCursor(Qt::OpenHandCursor);
-        viewport()->setCursor(d->viewCursor);
-    } else {
-        unsetCursor();
+        // Forget the stored viewport cursor when we enter scroll hand drag mode.
+        d->hasStoredOriginalCursor = false;
+        viewport()->setCursor(Qt::OpenHandCursor);
     }
 #endif
 }
@@ -1822,6 +1829,7 @@ bool QGraphicsView::event(QEvent *event)
 bool QGraphicsView::viewportEvent(QEvent *event)
 {
     Q_D(QGraphicsView);
+
     if (!d->scene)
         return QAbstractScrollArea::viewportEvent(event);
 
@@ -1837,12 +1845,6 @@ bool QGraphicsView::viewportEvent(QEvent *event)
         break;
     case QEvent::Leave:
         d->useLastMouseEvent = false;
-#ifndef QT_NO_CURSOR
-        if (d->hasViewCursor && !d->scene->mouseGrabberItem()) {
-            d->hasViewCursor = false;
-            viewport()->setCursor(d->viewCursor);
-        }
-#endif
         QApplication::sendEvent(d->scene, event);
         break;
 #ifndef QT_NO_TOOLTIP
@@ -2146,10 +2148,6 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
                && event->button() == Qt::LeftButton) {
         d->handScrolling = true;
 #ifndef QT_NO_CURSOR
-        if (!d->hasViewCursor) {
-            d->hasViewCursor = true;
-            d->viewCursor = viewport()->cursor();
-        }
         viewport()->setCursor(Qt::ClosedHandCursor);
 #endif
     }
@@ -2223,24 +2221,31 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
     QApplication::sendEvent(d->scene, &mouseEvent);
 
     // Store the last item under the mouse for use when replaying.
-    if ((d->lastItemUnderCursor = d->scene->itemAt(mapToScene(event->pos()))))
+    QList<QGraphicsItem *> itemsUnderCursor = d->scene->items(mapToScene(event->pos()));
+    if (!itemsUnderCursor.isEmpty()) {
+        d->lastItemUnderCursor = itemsUnderCursor.first();
         d->lastItemUnderCursorPos = d->lastItemUnderCursor->mapFromScene(mouseEvent.scenePos());
+    }
 
 #ifndef QT_NO_CURSOR
-    if (d->lastItemUnderCursor) {
-        if (!d->hasViewCursor) {
-            d->hasViewCursor = true;
-            d->viewCursor = viewport()->cursor();
+    // Find the topmost item under the mouse with a cursor.
+    foreach (QGraphicsItem *item, itemsUnderCursor) {
+        if (item->hasCursor()) {
+            if (!d->hasStoredOriginalCursor) {
+                // Store the original viewport cursor.
+                d->hasStoredOriginalCursor = true;
+                d->originalCursor = viewport()->cursor();
+            }
+            viewport()->setCursor(item->cursor());
+            return;
         }
-        if (d->lastItemUnderCursor->hasCursor())
-            viewport()->setCursor(d->lastItemUnderCursor->cursor());
-        else
-            viewport()->setCursor(d->viewCursor);
-    } else {
-        if (d->hasViewCursor) {
-            d->hasViewCursor = false;
-            viewport()->setCursor(d->viewCursor);
-        }
+    }
+
+    // No items with cursors found; revert to the view cursor.
+    if (d->hasStoredOriginalCursor) {
+        // Restore the original viewport cursor.
+        d->hasStoredOriginalCursor = false;
+        viewport()->setCursor(d->originalCursor);
     }
 #endif
 }
@@ -2267,10 +2272,10 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 #endif
     if (d->dragMode == QGraphicsView::ScrollHandDrag) {
 #ifndef QT_NO_CURSOR
-        if (d->hasViewCursor) {
-            d->hasViewCursor = false;
-            viewport()->setCursor(d->viewCursor);
-        }
+        // Restore the open hand cursor. ### There might be items
+        // under the mouse that have a valid cursor at this time, so
+        // we could repeat the steps from mouseMoveEvent().
+        viewport()->setCursor(Qt::OpenHandCursor);
 #endif
         d->handScrolling = false;
     }
