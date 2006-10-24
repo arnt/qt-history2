@@ -42,6 +42,7 @@ private slots:
     void navigation4();
     void navigation5();
     void navigation6();
+    void navigation7();
     void insertBlock();
     void insertWithBlockSeparator1();
     void insertWithBlockSeparator2();
@@ -360,6 +361,19 @@ void tst_QTextCursor::navigation6()
     cursor.movePosition(QTextCursor::Start);
     cursor.movePosition(QTextCursor::EndOfLine);
     QCOMPARE(cursor.position(), 8);
+}
+
+void tst_QTextCursor::navigation7()
+{
+    QVERIFY(doc->isEmpty());
+    for (int i = QTextCursor::Start; i <= QTextCursor::WordRight; ++i)
+        QVERIFY(!cursor.movePosition(QTextCursor::MoveOperation(i)));
+
+    doc->setPlainText("Hello World");
+    cursor.movePosition(QTextCursor::Start);
+    do {
+    } while (cursor.movePosition(QTextCursor::NextCharacter));
+    QVERIFY(true /*reached*/);
 }
 
 void tst_QTextCursor::insertBlock()

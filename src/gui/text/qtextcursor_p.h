@@ -46,10 +46,12 @@ public:
 
     void remove();
     void clearCells(QTextTable *table, int startRow, int startCol, int numRows, int numCols, QTextUndoCommand::Operation op);
-    inline void setPosition(int newPosition) {
+    inline bool setPosition(int newPosition) {
         Q_ASSERT(newPosition >= 0 && newPosition < priv->length());
+        bool moved = position != newPosition;
         position = newPosition;
         currentCharFormat = -1;
+        return moved;
     }
     void setX();
     bool canDelete(int pos) const;

@@ -471,7 +471,8 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
                 return false;
         }
     }
-    setPosition(newPosition);
+
+    const bool moved = setPosition(newPosition);
 
     if (mode == QTextCursor::MoveAnchor) {
         anchor = position;
@@ -483,7 +484,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     if (adjustX)
         setX();
 
-    return true;
+    return moved;
 }
 
 QTextTable *QTextCursorPrivate::complexSelectionTable() const
