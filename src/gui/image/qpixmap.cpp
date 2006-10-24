@@ -730,8 +730,12 @@ bool QPixmap::doImageIO(QImageWriter *writer, int quality) const
     Returns a number that identifies the contents of this QPixmap
     object. Distinct QPixmap objects can only have the same serial
     number if they refer to the same contents (but they don't have
-    to). Also, the serial number of a QPixmap may change during the
-    lifetime of the object.
+    to).
+
+    \warning The serial number doesn't necessarily change when
+    the pixmap is altered. This means that it may be dangerous to use
+    it as a cache key. For caching pixmaps, we recommend using the
+    QPixmapCache class whenever possible.
 */
 int QPixmap::serialNumber() const
 {

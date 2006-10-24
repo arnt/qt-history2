@@ -4842,8 +4842,11 @@ bool qt_xForm_helper(const QTransform &trueMat, int xoffset, int type, int depth
     Returns a number that identifies the contents of this
     QImage object. Distinct QImage objects can only have the same
     serial number if they refer to the same contents (but they don't
-    have to). Also, the serial number of a QImage may change during
-    the lifetime of the object.
+    have to).
+
+    \warning The serial number doesn't necessarily change when the
+    image is altered. This means that it may be dangerous to use
+    it as a cache key.
 
     \sa operator==()
 */

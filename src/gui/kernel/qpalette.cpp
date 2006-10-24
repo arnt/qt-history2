@@ -854,6 +854,10 @@ bool QPalette::isEqual(QPalette::ColorGroup group1, QPalette::ColorGroup group2)
     to). Also, the serial number of a QPalette may change during the
     lifetime of the object.
 
+    \warning The serial number doesn't necessarily change when the
+    palette is altered. This means that it may be dangerous to use it
+    as a cache key.
+
     \sa operator==()
 */
 int QPalette::serialNumber() const
