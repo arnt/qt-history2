@@ -1024,117 +1024,117 @@ void tst_QTextEdit::implicitClear()
     QVERIFY(ed->toPlainText().isEmpty());
 }
 
-void tst_QTextEdit::copyAvailable_data() 
+void tst_QTextEdit::copyAvailable_data()
 {
-    QTest::addColumn<pairListType>("keystrokes");    
-    QTest::addColumn<QList<bool>>("copyAvailable");
-    QTest::addColumn<QString>("function"); 
-    
+    QTest::addColumn<pairListType>("keystrokes");
+    QTest::addColumn<QList<bool> >("copyAvailable");
+    QTest::addColumn<QString>("function");
+
     pairListType keystrokes;
     QList<bool> copyAvailable;
 
-    keystrokes << qMakePair(Qt::Key_B, Qt::NoModifier) <<  qMakePair(Qt::Key_B, Qt::NoModifier) 
-               << qMakePair(Qt::Key_Left, Qt::ShiftModifier);    
+    keystrokes << qMakePair(Qt::Key_B, Qt::NoModifier) <<  qMakePair(Qt::Key_B, Qt::NoModifier)
+               << qMakePair(Qt::Key_Left, Qt::ShiftModifier);
     copyAvailable << true ;
-    QTest::newRow(QString("Case1 B,B, <- + shift | signals: true").toLatin1()) 
+    QTest::newRow(QString("Case1 B,B, <- + shift | signals: true").toLatin1())
         << keystrokes << copyAvailable << QString();
 
     keystrokes.clear();
     copyAvailable.clear();
 
-    keystrokes << qMakePair(Qt::Key_T, Qt::NoModifier) << qMakePair(Qt::Key_A, Qt::NoModifier) 
-               <<  qMakePair(Qt::Key_A, Qt::NoModifier) << qMakePair(Qt::Key_Left, Qt::ShiftModifier);    
+    keystrokes << qMakePair(Qt::Key_T, Qt::NoModifier) << qMakePair(Qt::Key_A, Qt::NoModifier)
+               <<  qMakePair(Qt::Key_A, Qt::NoModifier) << qMakePair(Qt::Key_Left, Qt::ShiftModifier);
     copyAvailable << true << false;
-    QTest::newRow(QString("Case2 T,A,A, <- + shift, cut() | signals: true, false").toLatin1()) 
+    QTest::newRow(QString("Case2 T,A,A, <- + shift, cut() | signals: true, false").toLatin1())
         << keystrokes << copyAvailable << QString("cut");
 
     keystrokes.clear();
     copyAvailable.clear();
 
-    keystrokes << qMakePair(Qt::Key_T, Qt::NoModifier) << qMakePair(Qt::Key_A, Qt::NoModifier) 
-               <<  qMakePair(Qt::Key_A, Qt::NoModifier) << qMakePair(Qt::Key_Left, Qt::ShiftModifier)  
-               << qMakePair(Qt::Key_Left, Qt::ShiftModifier)  << qMakePair(Qt::Key_Left, Qt::ShiftModifier);    
+    keystrokes << qMakePair(Qt::Key_T, Qt::NoModifier) << qMakePair(Qt::Key_A, Qt::NoModifier)
+               <<  qMakePair(Qt::Key_A, Qt::NoModifier) << qMakePair(Qt::Key_Left, Qt::ShiftModifier)
+               << qMakePair(Qt::Key_Left, Qt::ShiftModifier)  << qMakePair(Qt::Key_Left, Qt::ShiftModifier);
     copyAvailable << true;
-    QTest::newRow(QString("Case3 T,A,A, <- + shift, <- + shift, <- + shift, copy() | signals: true").toLatin1()) 
+    QTest::newRow(QString("Case3 T,A,A, <- + shift, <- + shift, <- + shift, copy() | signals: true").toLatin1())
         << keystrokes << copyAvailable << QString("copy");
 
     keystrokes.clear();
     copyAvailable.clear();
 
-    keystrokes << qMakePair(Qt::Key_T, Qt::NoModifier) << qMakePair(Qt::Key_A, Qt::NoModifier) 
-               <<  qMakePair(Qt::Key_A, Qt::NoModifier) << qMakePair(Qt::Key_Left, Qt::ShiftModifier)  
+    keystrokes << qMakePair(Qt::Key_T, Qt::NoModifier) << qMakePair(Qt::Key_A, Qt::NoModifier)
+               <<  qMakePair(Qt::Key_A, Qt::NoModifier) << qMakePair(Qt::Key_Left, Qt::ShiftModifier)
                << qMakePair(Qt::Key_Left, Qt::ShiftModifier)  << qMakePair(Qt::Key_Left, Qt::ShiftModifier)
-               << qMakePair(Qt::Key_X, Qt::ControlModifier);    
+               << qMakePair(Qt::Key_X, Qt::ControlModifier);
     copyAvailable << true << false;
-    QTest::newRow(QString("Case4 T,A,A, <- + shift, <- + shift, <- + shift, ctrl + x, paste() | signals: true, false").toLatin1()) 
+    QTest::newRow(QString("Case4 T,A,A, <- + shift, <- + shift, <- + shift, ctrl + x, paste() | signals: true, false").toLatin1())
         << keystrokes << copyAvailable << QString("paste");
 
     keystrokes.clear();
     copyAvailable.clear();
 
-    keystrokes << qMakePair(Qt::Key_B, Qt::NoModifier) <<  qMakePair(Qt::Key_B, Qt::NoModifier) 
-               << qMakePair(Qt::Key_Left, Qt::ShiftModifier) << qMakePair(Qt::Key_Left, Qt::NoModifier);        
+    keystrokes << qMakePair(Qt::Key_B, Qt::NoModifier) <<  qMakePair(Qt::Key_B, Qt::NoModifier)
+               << qMakePair(Qt::Key_Left, Qt::ShiftModifier) << qMakePair(Qt::Key_Left, Qt::NoModifier);
     copyAvailable << true << false;
-    QTest::newRow(QString("Case5 B,B, <- + shift, <- | signals: true, false").toLatin1()) 
+    QTest::newRow(QString("Case5 B,B, <- + shift, <- | signals: true, false").toLatin1())
         << keystrokes << copyAvailable << QString();
 
     keystrokes.clear();
     copyAvailable.clear();
-    
-    keystrokes << qMakePair(Qt::Key_B, Qt::NoModifier) <<  qMakePair(Qt::Key_A, Qt::NoModifier) 
+
+    keystrokes << qMakePair(Qt::Key_B, Qt::NoModifier) <<  qMakePair(Qt::Key_A, Qt::NoModifier)
                << qMakePair(Qt::Key_Left, Qt::ShiftModifier) << qMakePair(Qt::Key_Left, Qt::NoModifier)
                << qMakePair(Qt::Key_Right, Qt::ShiftModifier);
     copyAvailable << true << false << true << false;
-    QTest::newRow(QString("Case6 B,A, <- + shift, ->, <- + shift | signals: true, false, true, false").toLatin1()) 
+    QTest::newRow(QString("Case6 B,A, <- + shift, ->, <- + shift | signals: true, false, true, false").toLatin1())
         << keystrokes << copyAvailable << QString("cut");
 
     keystrokes.clear();
     copyAvailable.clear();
 
-    keystrokes << qMakePair(Qt::Key_T, Qt::NoModifier) << qMakePair(Qt::Key_A, Qt::NoModifier) 
-               <<  qMakePair(Qt::Key_A, Qt::NoModifier) << qMakePair(Qt::Key_Left, Qt::ShiftModifier)  
+    keystrokes << qMakePair(Qt::Key_T, Qt::NoModifier) << qMakePair(Qt::Key_A, Qt::NoModifier)
+               <<  qMakePair(Qt::Key_A, Qt::NoModifier) << qMakePair(Qt::Key_Left, Qt::ShiftModifier)
                << qMakePair(Qt::Key_Left, Qt::ShiftModifier)  << qMakePair(Qt::Key_Left, Qt::ShiftModifier)
-               << qMakePair(Qt::Key_X, Qt::ControlModifier);    
+               << qMakePair(Qt::Key_X, Qt::ControlModifier);
     copyAvailable << true << false << true;
-    QTest::newRow(QString("Case7 T,A,A, <- + shift, <- + shift, <- + shift, ctrl + x, undo() | signals: true, false, true").toLatin1()) 
-        << keystrokes << copyAvailable << QString("undo");       
+    QTest::newRow(QString("Case7 T,A,A, <- + shift, <- + shift, <- + shift, ctrl + x, undo() | signals: true, false, true").toLatin1())
+        << keystrokes << copyAvailable << QString("undo");
 }
 
-//Tests the copyAvailable slot for several cases 
+//Tests the copyAvailable slot for several cases
 void tst_QTextEdit::copyAvailable()
-{   
-    QFETCH(pairListType,keystrokes);    
+{
+    QFETCH(pairListType,keystrokes);
     QFETCH(QList<bool>, copyAvailable);
     QFETCH(QString, function);
 
     ed->clear();
     QApplication::clipboard()->clear();
-    QVERIFY(!ed->canPaste());    
-    QSignalSpy spyCopyAvailabe(ed, SIGNAL(copyAvailable(bool)));     
+    QVERIFY(!ed->canPaste());
+    QSignalSpy spyCopyAvailabe(ed, SIGNAL(copyAvailable(bool)));
 
     //Execute Keystrokes
     foreach(keyPairType keyPair, keystrokes) {
-        QTest::keyClick(ed, keyPair.first, keyPair.second );    
+        QTest::keyClick(ed, keyPair.first, keyPair.second );
     }
 
     //Execute ed->"function"
-    if (function == "cut") 
+    if (function == "cut")
         ed->cut();
     else if (function == "copy")
         ed->copy();
-    else if (function == "paste") 
+    else if (function == "paste")
         ed->paste();
-    else if (function == "undo") 
+    else if (function == "undo")
         ed->paste();
-    else if (function == "redo") 
+    else if (function == "redo")
         ed->paste();
-    
+
     //Compare spied signals
-    QEXPECT_FAIL("Case7 T,A,A, <- + shift, <- + shift, <- + shift, ctrl + x, undo() | signals: true, false, true", 
+    QEXPECT_FAIL("Case7 T,A,A, <- + shift, <- + shift, <- + shift, ctrl + x, undo() | signals: true, false, true",
         "Wrong undo selection behaviour. Should be fixed in some future release. (See task: 132482)", Abort);
-    QCOMPARE(spyCopyAvailabe.count(), copyAvailable.count());                 
-    for (int i=0;i<spyCopyAvailabe.count(); i++) {        
-        QVariant variantSpyCopyAvailable = spyCopyAvailabe.at(i).at(0);                        
+    QCOMPARE(spyCopyAvailabe.count(), copyAvailable.count());
+    for (int i=0;i<spyCopyAvailabe.count(); i++) {
+        QVariant variantSpyCopyAvailable = spyCopyAvailabe.at(i).at(0);
         QVERIFY2(variantSpyCopyAvailable.toBool() == copyAvailable.at(i), QString("Spied singnal: %1").arg(i).toLatin1());
     }
 }
