@@ -1246,7 +1246,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             p->save();
 #ifdef Q_WS_WIN
             QFont font("Marlett");
-            int size = qMin(opt->rect.height(), opt->rect.width());
+            int size = qMin(opt->rect.height(), opt->rect.width()) + 4;
             font.setPixelSize(size);
             p->setFont(font);
             QRect textRect(opt->rect.left(), opt->rect.height(), size, size);
@@ -1690,7 +1690,6 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             // windows always has a check column, regardless whether we have an icon or not
             int checkcol = qMax(menuitem->maxIconWidth, use2000style ? 20 : windowsCheckMarkWidth);
 
-
             QBrush fill = menuitem->palette.brush(act ? QPalette::Highlight : QPalette::Button);
             p->fillRect(menuitem->rect, fill);
 
@@ -2110,7 +2109,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 arrow = PE_IndicatorArrowUp;
         }
         QStyleOption arrowOpt = *opt;
-        arrowOpt.rect = opt->rect.adjusted(2, 2, -2, -2);
+        arrowOpt.rect = opt->rect.adjusted(4, 4, -4, -4);
         drawPrimitive(arrow, &arrowOpt, p, widget);
         break; }
     case CE_ScrollBarAddPage:
