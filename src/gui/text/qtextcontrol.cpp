@@ -1452,7 +1452,7 @@ void QTextControlPrivate::mouseReleaseEvent(Qt::MouseButton button, const QPoint
     const QTextCursor oldSelection = cursor;
 
 #ifndef QT_NO_DRAGANDDROP
-    if (mightStartDrag) {
+    if (mightStartDrag && (button & Qt::LeftButton)) {
         mousePressed = false;
         setCursorPosition(pos);
         cursor.clearSelection();
