@@ -91,6 +91,18 @@ void AbstractPropertyGroup::updateEditorContents(QWidget *editor)
     label->setText(toString());
 }
 
+QString AbstractPropertyGroup::toString() const
+{
+    QString text = QLatin1String("[");
+    for (int i=0; i<propertyCount(); ++i) {
+        if (i) 
+            text += QLatin1String(", ");
+        text += propertyAt(i)->toString();
+    }
+    text += QLatin1String("]");
+    return text;
+}
+    
 // -------------------------------------------------------------------------
 BoolProperty::BoolProperty(bool value, const QString &name)
     : AbstractProperty<bool>(value, name)
@@ -160,7 +172,7 @@ QVariant PointProperty::value() const
 
 void PointProperty::setValue(const QVariant &value)
 {
-    QPoint pt = value.toPoint();
+    const QPoint pt = value.toPoint();
     propertyAt(0)->setValue(pt.x());
     propertyAt(1)->setValue(pt.y());
 }
@@ -188,7 +200,7 @@ QVariant PointFProperty::value() const
 
 void PointFProperty::setValue(const QVariant &value)
 {
-    QPointF pt = value.toPointF();
+    const QPointF pt = value.toPointF();
     propertyAt(0)->setValue(pt.x());
     propertyAt(1)->setValue(pt.y());
 }
@@ -455,7 +467,7 @@ QVariant SizeProperty::value() const
 
 void SizeProperty::setValue(const QVariant &value)
 {
-    QSize pt = value.toSize();
+    const QSize pt = value.toSize();
     propertyAt(0)->setValue(pt.width());
     propertyAt(1)->setValue(pt.height());
 }
@@ -485,7 +497,7 @@ QVariant SizeFProperty::value() const
 
 void SizeFProperty::setValue(const QVariant &value)
 {
-    QSizeF pt = value.toSizeF();
+    const QSizeF pt = value.toSizeF();
     propertyAt(0)->setValue(pt.width());
     propertyAt(1)->setValue(pt.height());
 }
@@ -790,13 +802,13 @@ void FontProperty::setValue(const QVariant &value)
         }
     }
 
-    uint mask = m_font.resolve();
+    const uint mask = m_font.resolve();
     m_font = m_font.resolve(parentFont);
     m_font.resolve(mask);
 
     m_changed = mask != 0;
 
-    int family = fontDatabase()->families().indexOf(m_font.family());
+    const int family = fontDatabase()->families().indexOf(m_font.family());
     int pointSize = m_font.pointSize();
 
     if (pointSize < 1) {
@@ -830,11 +842,15 @@ QVariant FontProperty::decoration() const
 
 QString FontProperty::toString() const
 {
-    QString family = propertyAt(0)->toString();
-    QString pointSize = propertyAt(1)->value().toString();
-
-    return QLatin1String("  ")  // ### temp hack
-        + QLatin1String("[") + family + QLatin1String(", ") + pointSize + QLatin1String("]");
+    const QString family = propertyAt(0)->toString();
+    const QString pointSize = propertyAt(1)->value().toString();
+    QString rc(QLatin1String("  "));  // ### temp hack
+    rc += QLatin1String("[");
+    rc += family;
+    rc += QLatin1String(", ");
+    rc += pointSize;
+    rc += QLatin1String("]");
+    return rc;
 }
 
 // -------------------------------------------------------------------------
@@ -867,10 +883,10 @@ QVariant MapProperty::value() const
 void MapProperty::setValue(const QVariant &value)
 {
    if (qVariantCanConvert<EnumType>(value)) {
-        EnumType e = qvariant_cast<EnumType>(value);
+        const EnumType e = qvariant_cast<EnumType>(value);
         m_value = e.value;
     } else if (qVariantCanConvert<FlagType>(value)) {
-        FlagType e = qvariant_cast<FlagType>(value);
+        const FlagType e = qvariant_cast<FlagType>(value);
         m_value = e.value;
     } else {
         m_value = value;
@@ -884,7 +900,7 @@ QString MapProperty::toString() const
 
 int MapProperty::indexOf(const QVariant &value) const
 {
-    QString key = m_items.key(value);
+    const QString key = m_items.key(value);
     return comboKeys.indexOf(key);
 }
 
@@ -910,8 +926,8 @@ void MapProperty::updateEditorContents(QWidget *editor)
 void MapProperty::updateValue(QWidget *editor)
 {
     if (QComboBox *combo = qobject_cast<QComboBox*>(editor)) {
-        QString key = combo->currentText();
-        QVariant newValue = m_items.value(key);
+        const QString key = combo->currentText();
+        const QVariant newValue = m_items.value(key);
 
         if (newValue != m_value) {
             m_value = newValue;
@@ -931,7 +947,7 @@ QWidget *FlagsProperty::createEditor(QWidget *parent, const QObject *target, con
 {
     QList<FlagBoxModelItem> l;
     QMapIterator<QString, QVariant> it(items());
-    unsigned int v = m_value.toUInt();
+    const unsigned int v = m_value.toUInt();
     int initialIndex = -1;
     int i = 0;
     while (it.hasNext()) {

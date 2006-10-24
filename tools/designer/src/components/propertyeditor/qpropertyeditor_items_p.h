@@ -45,6 +45,8 @@ namespace qdesigner_internal {
 
 class QT_PROPERTYEDITOR_EXPORT IProperty
 {
+    IProperty(const IProperty&);
+    IProperty& operator=(const IProperty&);
 public:
     enum Kind
     {
@@ -88,6 +90,7 @@ public:
     virtual void setValue(const QVariant &value) = 0;
 
     virtual QString toString() const = 0;
+
     virtual QVariant decoration() const = 0;
 
     virtual bool hasEditor() const = 0;
@@ -138,7 +141,7 @@ public:
 
 protected:
     T m_value;
-    QString m_name;
+    const QString m_name;
 };
 
 class QT_PROPERTYEDITOR_EXPORT AbstractPropertyGroup: public IPropertyGroup
@@ -169,18 +172,8 @@ public:
     inline QVariant decoration() const
     { return QVariant(); }
 
-    QString toString() const
-    {
-        QString text = QLatin1String("[");
-        for (int i=0; i<propertyCount(); ++i) {
-            text += propertyAt(i)->toString();
-            if (i+1 < propertyCount())
-                text += QLatin1String(", ");
-        }
-        text += QLatin1String("]");
-        return text;
-    }
-
+    QString toString() const;
+    
     inline bool hasEditor() const
     { return true; }
 
@@ -194,7 +187,7 @@ public:
     { Q_UNUSED(parent); return 0; }
 
 protected:
-    QString m_name;
+    const QString m_name;
     QList<IProperty*> m_properties;
 };
 
@@ -235,7 +228,7 @@ public:
     QWidget *createExternalEditor(QWidget *parent);
 
 private:
-    QString m_name;
+    const QString m_name;
     QList<IProperty*> m_properties;
 };
 
