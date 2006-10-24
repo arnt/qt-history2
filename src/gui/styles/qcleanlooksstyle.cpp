@@ -1839,16 +1839,6 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
                                 painter->drawImage(QPoint(checkRect.center().x() - image.width() / 2,
                                                         checkRect.center().y() - image.height() / 2), image);
                             }
-                        } else if (checked) {
-                            int iconSize = qMax(menuItem->maxIconWidth, 20);
-                            QRect sunkenRect(option->rect.left() + 2,
-                                            option->rect.top() + (option->rect.height() - iconSize) / 2,
-                                            iconSize, iconSize);
-                            sunkenRect = visualRect(menuItem->direction, menuItem->rect, sunkenRect);
-
-                            QStyleOption opt = *option;
-                            opt.state |= State_Sunken;
-                            opt.rect = sunkenRect;
                         }
                     }
                 }
@@ -1884,10 +1874,18 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
                 QRect pmr(0, 0, pixw, pixh);
                 pmr.moveCenter(vCheckRect.center());
                 painter->setPen(menuItem->palette.text().color());
-                if (checkable && checked)
-                    painter->drawPixmap(QPoint(pmr.left() + 1, pmr.top() + 1), pixmap);
-                else
-                    painter->drawPixmap(pmr.topLeft(), pixmap);
+                if (checkable && checked) {
+                    QStyleOption opt = *option;
+                    if (act) {
+                        QColor activeColor = mergedColors(option->palette.background().color(), 
+                                                        option->palette.highlight().color());
+                        opt.palette.setBrush(QPalette::Button, activeColor);
+                    }
+                    opt.state |= State_Sunken;
+                    opt.rect = vCheckRect;
+                    drawPrimitive(PE_PanelButtonCommand, &opt, painter, widget);
+                }
+                painter->drawPixmap(pmr.topLeft(), pixmap);                
             }
             if (selected) {
                 painter->setPen(menuItem->palette.highlightedText().color());
