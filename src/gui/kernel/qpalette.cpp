@@ -848,17 +848,13 @@ bool QPalette::isEqual(QPalette::ColorGroup group1, QPalette::ColorGroup group2)
 }
 
 /*!
-    \fn int QPalette::serialNumber() const
+    Returns a number that identifies the contents of this QPalette
+    object. Distinct QPalette objects can only have the same serial
+    number if they refer to the same contents (but they don't have
+    to). Also, the serial number of a QPalette may change during the
+    lifetime of the object.
 
-    Returns a number that uniquely identifies this QPalette object.
-    The serial number is intended for caching. Its value may not be
-    used for anything other than equality testing.
-
-    Note that QPalette uses \l{implicit sharing}, and the serial number changes
-    during the lazy copy operation (when the palette is actually modified), not
-    during a shallow copy (copy constructor or assignment).
-
-    \sa QPixmap QPixmapCache QCache
+    \sa operator==()
 */
 int QPalette::serialNumber() const
 {

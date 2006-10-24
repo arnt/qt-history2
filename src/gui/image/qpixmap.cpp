@@ -727,18 +727,11 @@ bool QPixmap::doImageIO(QImageWriter *writer, int quality) const
 */
 
 /*!
-    \fn int QPixmap::serialNumber() const
-
-    Returns a number that uniquely identifies the contents of this
-    QPixmap object.
-
-    This means that multiple QPixmap objects only can have the same
-    serial number as long as they refer to the same contents. A null
-    pixmap has always a serial number of 0.
-
-    An example of where this is useful is for caching QPixmaps.
-
-    \sa {QPixmap#Pixmap Information}{Pixmap Information}
+    Returns a number that identifies the contents of this QPixmap
+    object. Distinct QPixmap objects can only have the same serial
+    number if they refer to the same contents (but they don't have
+    to). Also, the serial number of a QPixmap may change during the
+    lifetime of the object.
 */
 int QPixmap::serialNumber() const
 {

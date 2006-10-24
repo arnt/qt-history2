@@ -4845,11 +4845,7 @@ bool qt_xForm_helper(const QTransform &trueMat, int xoffset, int type, int depth
     have to). Also, the serial number of a QImage may change during
     the lifetime of the object.
 
-    A null image has always a serial number of 0.
-
-    Serial numbers are moslty useful in conjunction with cacheing.
-
-    \sa {QImage#Image Information}{Image Information}, operator==()
+    \sa operator==()
 */
 
 int QImage::serialNumber() const
