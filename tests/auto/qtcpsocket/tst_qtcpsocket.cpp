@@ -87,6 +87,7 @@ private slots:
     void readLineString();
     void readChunks();
     void waitForBytesWritten();
+    void waitForReadyRead();
     void flush();
     void synchronousApi();
     void dontCloseOnTimeout();
@@ -798,6 +799,14 @@ void tst_QTcpSocket::waitForBytesWritten()
     qint64 toWrite = socket.bytesToWrite();
     QVERIFY(socket.waitForBytesWritten(5000));
     QVERIFY(toWrite > socket.bytesToWrite());
+}
+
+//----------------------------------------------------------------------------------
+void tst_QTcpSocket::waitForReadyRead()
+{
+    QTcpSocket socket;
+    socket.connectToHost("shusaku.troll.no", 22);
+    socket.waitForReadyRead(0);
 }
 
 //----------------------------------------------------------------------------------
