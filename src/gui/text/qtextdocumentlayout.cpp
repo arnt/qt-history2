@@ -381,6 +381,8 @@ public:
     inline void ensureLayoutFinished() const
     { ensureLayoutedByPosition(INT_MAX); }
     void layoutStep() const;
+
+    QRectF frameBoundingRectInternal(QTextFrame *frame) const;
 };
 
 QTextDocumentLayoutPrivate::QTextDocumentLayoutPrivate()
@@ -2432,6 +2434,7 @@ void QTextDocumentLayout::positionInlineObject(QTextInlineObject item, int posIn
 void QTextDocumentLayout::drawInlineObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
                                            int posInDocument, const QTextFormat &format)
 {
+    Q_D(QTextDocumentLayout);
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
     QTextFrame *frame = qobject_cast<QTextFrame *>(document()->objectForFormat(f));
@@ -2439,7 +2442,7 @@ void QTextDocumentLayout::drawInlineObject(QPainter *p, const QRectF &rect, QTex
     if (frame) {
         QTextFrameData *fd = data(frame);
         if (fd->flow_position != QTextFrameFormat::InFlow)
-            r = frameBoundingRect(frame);
+            r = d->frameBoundingRectInternal(frame);
     }
 //    qDebug() << "drawObject at" << r;
     QAbstractTextDocumentLayout::drawInlineObject(p, r, item, posInDocument, format);
@@ -2564,8 +2567,14 @@ void QTextDocumentLayout::setFixedColumnWidth(int width)
 
 QRectF QTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
 {
+    Q_D(const QTextDocumentLayout);
+    d->ensureLayoutFinished();
+    return d->frameBoundingRectInternal(frame);
+}
+
+QRectF QTextDocumentLayoutPrivate::frameBoundingRectInternal(QTextFrame *frame) const
+{
     QPointF pos;
-    d_func()->ensureLayoutFinished();
     const int framePos = frame->firstPosition();
     QTextFrame *f = frame;
     while (f) {
