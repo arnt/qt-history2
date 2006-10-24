@@ -67,6 +67,7 @@ class tst_QGraphicsItem : public QObject
 private slots:
 
     void construction();
+    void constructionWithParent();
     void destruction();
     void scene();
     void parentItem();
@@ -198,6 +199,41 @@ void tst_QGraphicsItem::construction()
         QCOMPARE(item->data(0), QVariant());
         delete item;
     }
+}
+
+class BoundingRectItem : public QGraphicsRectItem
+{
+public:
+    BoundingRectItem(QGraphicsItem *parent = 0)
+        : QGraphicsRectItem(0, 0, parent ? 200 : 100, parent ? 200 : 100,
+                            parent)
+    {}
+
+    QRectF boundingRect() const
+    {
+        QRectF tmp = QGraphicsRectItem::boundingRect();
+        foreach (QGraphicsItem *child, children())
+            tmp |= child->boundingRect(); // <- might be pure virtual
+        return tmp;
+    }
+};
+
+void tst_QGraphicsItem::constructionWithParent()
+{
+    // This test causes a crash if item1 calls item2's pure virtuals before the
+    // object has been constructed.
+    QGraphicsItem *item0 = new BoundingRectItem;
+    QGraphicsItem *item1 = new BoundingRectItem;
+    QGraphicsScene scene;
+    scene.addItem(item0);
+    scene.addItem(item1);
+    QGraphicsItem *item2 = new BoundingRectItem(item1);
+    QCOMPARE(item1->children(), QList<QGraphicsItem *>() << item2);
+    QCOMPARE(item1->boundingRect(), QRectF(0, 0, 200, 200));
+
+    item2->setParentItem(item0);
+    QCOMPARE(item0->children(), QList<QGraphicsItem *>() << item2);
+    QCOMPARE(item0->boundingRect(), QRectF(0, 0, 200, 200));
 }
 
 static int itemDeleted = 0;
