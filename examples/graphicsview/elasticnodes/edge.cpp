@@ -67,10 +67,9 @@ void Edge::adjust()
     qreal length = line.length();
     QPointF edgeOffset((line.dx() * 10) / length, (line.dy() * 10) / length);
 
-    removeFromIndex();
+    prepareGeometryChange();
     sourcePoint = line.p1() + edgeOffset;
     destPoint = line.p2() - edgeOffset;
-    addToIndex();
 }
 
 QRectF Edge::boundingRect() const
