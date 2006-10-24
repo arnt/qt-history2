@@ -52,7 +52,7 @@ class QMakeProject
     QMakeProperty *prop;
     void reset();
     QMap<QString, QStringList> vars, base_vars, cache;
-    bool parse(const QString &text, QMap<QString, QStringList> &place);
+    bool parse(const QString &text, QMap<QString, QStringList> &place, int line_count=1);
 
     enum IncludeStatus {
         IncludeSuccess,

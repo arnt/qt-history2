@@ -33,7 +33,7 @@ QT = $$QT_ORDERED
 !isEmpty(QT_BUILD_TREE):QMAKE_LIBDIR = $$QT_BUILD_TREE/lib $$QMAKE_LIBDIR #as above, prepending prevents us from picking up "stale" libs
 QMAKE_LIBDIR += $$QMAKE_LIBDIR_QT
 for(QTLIB, $$list($$lower($$unique(QT)))) {
-   qlib_style = 
+   unset(qlib_style)
    !qt_debug:!qt_release {
       CONFIG(debug, debug|release):qlib_style = debug
       else:qlib_style = release
@@ -43,7 +43,7 @@ for(QTLIB, $$list($$lower($$unique(QT)))) {
       qlib_style = release
    }
 
-   qlib =
+   unset(qlib)
    isEqual(QTLIB, gui):qlib = QtGui
    else:isEqual(QTLIB, network):qlib = QtNetwork
    else:isEqual(QTLIB, xml):qlib = QtXml

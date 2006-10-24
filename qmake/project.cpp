@@ -579,7 +579,7 @@ QMakeProject::reset()
 }
 
 bool
-QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
+QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place, int numLines)
 {
     QString s = t.simplified();
     int hash_mark = s.indexOf("#");
@@ -977,7 +977,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
         fprintf(stdout, "%s %s %s\n", var.toLatin1().constData(), op.toLatin1().constData(), vals.toLatin1().constData());
     }
 
-    if(vals.contains('='))
+    if(vals.contains('=') && numLines > 1)
         warn_msg(WarnParser, "Detected possible line continuation: {%s} %s:%d",
                  var.toLatin1().constData(), parser.file.toLatin1().constData(), parser.line_no);
 
@@ -1039,11 +1039,14 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
         if(op == "=") {
             if(!varlist.isEmpty()) {
                 bool send_warning = false;
-                QSet<QString> incoming_vals = vallist.toSet();
-                for(int i = 0; i < varlist.size(); ++i) {
-                    if(!incoming_vals.contains(varlist.at(i))) {
-                        send_warning = true;
-                        break;
+                if(var != "TEMPLATE" && var != "TARGET") {
+                    QSet<QString> incoming_vals = vallist.toSet();
+                    for(int i = 0; i < varlist.size(); ++i) {
+                        const QString var = varlist.at(i).trimmed();
+                        if(!var.isEmpty() && !incoming_vals.contains(var)) {
+                            send_warning = true;
+                            break;
+                        }
                     }
                 }
                 if(send_warning)
@@ -1071,11 +1074,12 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 bool
 QMakeProject::read(QTextStream &file, QMap<QString, QStringList> &place)
 {
+    int numLines = 0;
     bool ret = true;
-    QString s, line;
+    QString s;
     while(!file.atEnd()) {
         parser.line_no++;
-        line = file.readLine().trimmed();
+        QString line = file.readLine().trimmed();
         int prelen = line.length();
 
         int hash_mark = line.indexOf("#");
@@ -1085,23 +1089,28 @@ QMakeProject::read(QTextStream &file, QMap<QString, QStringList> &place)
             if(!line.startsWith("#")) {
                 line.truncate(line.length() - 1);
                 s += line + Option::field_sep;
+                ++numLines;
             }
         } else if(!line.isEmpty() || (line.isEmpty() && !prelen)) {
             if(s.isEmpty() && line.isEmpty())
                 continue;
-            if(!line.isEmpty())
+            if(!line.isEmpty()) {
                 s += line;
+                ++numLines;
+            }
             if(!s.isEmpty()) {
-                if(!(ret = parse(s, place))) {
+                if(!(ret = parse(s, place, numLines))) {
                     s = "";
+                    numLines = 0;
                     break;
                 }
                 s = "";
+                numLines = 0;
             }
         }
     }
     if (!s.isEmpty())
-        ret = parse(s, place);
+        ret = parse(s, place, numLines);
     return ret;
 }
 

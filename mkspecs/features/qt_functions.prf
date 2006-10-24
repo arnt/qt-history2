@@ -1,16 +1,17 @@
 defineReplace(qtLibraryTarget) {
-   RET = $$1
+   unset(LIBRARY_NAME)
+   LIBRARY_NAME = $$1
    mac:!static:contains(QT_CONFIG, qt_framework) {
-      QMAKE_FRAMEWORK_BUNDLE_NAME = $$RET
+      QMAKE_FRAMEWORK_BUNDLE_NAME = $$LIBRARY_NAME
       export(QMAKE_FRAMEWORK_BUNDLE_NAME)
    }
    contains(TEMPLATE, .*lib):CONFIG(debug, debug|release) {
       !debug_and_release|build_pass {
-      	  #true:RET = $$member(RET, 0)_yummy
-          mac:RET = $$member(RET, 0)_debug
-	  else:win32:RET = $$member(RET, 0)d
+          mac:RET = $$member(LIBRARY_NAME, 0)_debug
+   	      else:win32:RET = $$member(LIBRARY_NAME, 0)d
       }
    }
+   isEmpty(RET):RET = $$LIBRARY_NAME
    return($$RET)
 }
 
@@ -18,7 +19,7 @@ defineTest(qtAddLibrary) {
     INCLUDEPATH = $$QMAKE_INCDIR_QT/$$1 $$INCLUDEPATH
     
     LIB_NAME = $$1
-    LINKAGE =
+    unset(LINKAGE)
     mac {
        CONFIG(qt_framework, qt_framework|qt_no_framework) { #forced
           QMAKE_CFLAGS *= -F$${QMAKE_LIBDIR_QT}
@@ -32,27 +33,27 @@ defineTest(qtAddLibrary) {
            LINKAGE = -framework $${LIB_NAME}
         } else:!qt_no_framework { #detection
            for(frmwrk_dir, $$list($$QMAKE_LIBDIR_QT $$QMAKE_LIBDIR $$(DYLD_FRAMEWORK_PATH) /Library/Frameworks)) {
-    	  exists($${frmwrk_dir}/$${LIB_NAME}.framework) {
-    	     QMAKE_CFLAGS *= -F$${frmwrk_dir}
-    	     QMAKE_CXXFLAGS *= -F$${frmwrk_dir}
-    	     QMAKE_LIBDIR_FLAGS *= -F$${frmwrk_dir}
-    	     FRAMEWORK_INCLUDE = $$frmwrk_dir/$${LIB_NAME}.framework/Headers
-    	     !qt_no_framework_direct_includes:exists($$FRAMEWORK_INCLUDE) {
-    	        INCLUDEPATH -= $$FRAMEWORK_INCLUDE
-    	        INCLUDEPATH = $$FRAMEWORK_INCLUDE $$INCLUDEPATH
-                 }
-    	     LINKAGE = -framework $${LIB_NAME}
-       	     break()
+       	      exists($${frmwrk_dir}/$${LIB_NAME}.framework) {
+    	        QMAKE_CFLAGS *= -F$${frmwrk_dir}
+    	        QMAKE_CXXFLAGS *= -F$${frmwrk_dir}
+    	        QMAKE_LIBDIR_FLAGS *= -F$${frmwrk_dir}
+    	        FRAMEWORK_INCLUDE = $$frmwrk_dir/$${LIB_NAME}.framework/Headers
+    	        !qt_no_framework_direct_includes:exists($$FRAMEWORK_INCLUDE) {
+    	          INCLUDEPATH -= $$FRAMEWORK_INCLUDE
+    	          INCLUDEPATH = $$FRAMEWORK_INCLUDE $$INCLUDEPATH
+                }
+    	        LINKAGE = -framework $${LIB_NAME}
+       	        break()
               }
            }
        }
     }
     isEmpty(LINKAGE) {
-       LINKAGE = -l$${LIB_NAME}
        CONFIG(debug, debug|release) {
            win32:LINKAGE = -l$${LIB_NAME}d
            mac:LINKAGE = -l$${LIB_NAME}_debug
        }
+       isEmpty(LINKAGE):LINKAGE = -l$${LIB_NAME}
     }
     LIBS += $$LINKAGE
     export(LIBS)
