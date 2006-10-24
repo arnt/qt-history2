@@ -665,7 +665,7 @@ void QTableView::paintEvent(QPaintEvent *event)
         int top = 0;
         bool alternateBase = false;
         if (alternate && verticalHeader->sectionsHidden()) {
-            int verticalOffset = verticalHeader->offset();
+            uint verticalOffset = verticalHeader->offset();
             int row = verticalHeader->logicalIndex(top);
             for (int y = 0;
                  ((y += verticalHeader->sectionSize(top)) <= verticalOffset) && (top < bottom);
@@ -752,8 +752,8 @@ void QTableView::paintEvent(QPaintEvent *event)
         // Fill white space under and to the right of the viewport
         int viewportWidth = d->viewport->width();
         int viewportHeight = d->viewport->height();
-        int x = horizontalHeader->length() - horizontalHeader->offset();
-        int y = verticalHeader->length() - verticalHeader->offset();
+        uint x = horizontalHeader->length() - horizontalHeader->offset();
+        uint y = verticalHeader->length() - verticalHeader->offset();
         QRect bottomEmptyArea(0, y, viewportWidth, viewportHeight - y);
         if (y < viewportHeight && dirtyArea.intersects(bottomEmptyArea))
             painter.fillRect(bottomEmptyArea, option.palette.brush(QPalette::Base));
@@ -1262,8 +1262,8 @@ void QTableView::updateGeometries()
     // ### move this block into the if
     QSize vsize = d->viewport->size();
     QSize max = maximumViewportSize();
-    int horizontalLength = d->horizontalHeader->length();
-    int verticalLength = d->verticalHeader->length();
+    uint horizontalLength = d->horizontalHeader->length();
+    uint verticalLength = d->verticalHeader->length();
     if (max.width() >= horizontalLength && max.height() >= verticalLength)
         vsize = max;
 

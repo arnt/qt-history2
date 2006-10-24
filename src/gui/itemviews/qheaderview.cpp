@@ -356,7 +356,7 @@ int QHeaderView::offset() const
 void QHeaderView::setOffset(int newOffset)
 {
     Q_D(QHeaderView);
-    if (d->offset == newOffset)
+    if (d->offset == (uint)newOffset)
         return;
     int ndelta = d->offset - newOffset;
     d->offset = newOffset;
@@ -461,18 +461,19 @@ int QHeaderView::sectionSizeHint(int logicalIndex) const
 int QHeaderView::visualIndexAt(int position) const
 {
     Q_D(const QHeaderView);
+    uint vposition = position;
     d->executePostedLayout();
     const int count = d->sectionCount;
     if (count < 1)
         return -1;
 
     if (d->reverse())
-        position = d->viewport->width() - position;
-    position += d->offset;
+        vposition = d->viewport->width() - vposition;
+    vposition += d->offset;
 
-    if (position < 0 || position > length())
+    if (vposition > d->length)
         return -1;
-    int visual = d->headerVisualIndexAt(position);
+    int visual = d->headerVisualIndexAt(vposition);
     if (visual < 0)
         return -1;
 
@@ -2865,7 +2866,7 @@ void QHeaderViewPrivate::cascadingResize(int visual, int newSize)
     viewport->update();
 }
 
-void QHeaderViewPrivate::resizeSectionSpan(int visualIndex, int oldSize, int newSize)
+void QHeaderViewPrivate::resizeSectionSpan(int visualIndex, uint oldSize, uint newSize)
 {
     Q_Q(QHeaderView);
     QHeaderView::ResizeMode mode = headerSectionResizeMode(visualIndex);
@@ -2901,18 +2902,18 @@ int QHeaderViewPrivate::headerSectionPosition(int visual) const
     return -1;
 }
 
-int QHeaderViewPrivate::headerVisualIndexAt(int position) const
+int QHeaderViewPrivate::headerVisualIndexAt(uint position) const
 {
     // ### stupid iteration
-    int span_start_section = 0;
-    int span_position = 0;
+    uint span_start_section = 0;
+    uint span_position = 0;
     for (int i = 0; i < sectionSpans.count(); ++i) {
-        int next_span_start_section = span_start_section + sectionSpans.at(i).count;
-        int next_span_position = span_position + sectionSpans.at(i).size;
+        uint next_span_start_section = span_start_section + sectionSpans.at(i).count;
+        uint next_span_position = span_position + sectionSpans.at(i).size;
         if (position == span_position)
             return span_start_section; // spans with no size
         if (position > span_position && position < next_span_position) {
-            int position_in_span = position - span_position;
+            uint position_in_span = position - span_position;
             return span_start_section + (position_in_span / sectionSpans.at(i).sectionSize());
         }
         span_start_section = next_span_start_section;
