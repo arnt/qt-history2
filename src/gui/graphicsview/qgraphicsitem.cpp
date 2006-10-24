@@ -2868,7 +2868,7 @@ void QGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
         // Move all selected items
         foreach (QGraphicsItem *item, selectedItems) {
-            if ((item->flags() & ItemIsMovable) && !item->parentItem() || !item->parentItem()->isSelected()) {
+            if ((item->flags() & ItemIsMovable) && (!item->parentItem() || !item->parentItem()->isSelected())) {
                 item->setPos(item == this ? newPos : item->pos() + diff);
                 if (item->flags() & ItemIsSelectable)
                     item->setSelected(true);
