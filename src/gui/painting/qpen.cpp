@@ -591,7 +591,8 @@ qreal QPen::widthF() const
 /*!
     \fn QPen::setWidth(int width)
 
-    Sets the pen width to the given  \a width with integer point precision.
+    Sets the pen width to the given \a width in pixels with integer
+    precision.
 
     A line width of zero indicates a cosmetic pen. This means that the
     pen width is always drawn one pixel wide, independent of the \l
@@ -613,7 +614,8 @@ void QPen::setWidth(int width)
 }
 
 /*!
-    Sets the pen width to the given \a width with floating point precision.
+    Sets the pen width to the given \a width in pixels with floating point
+    precision.
 
     A line width of zero indicates a cosmetic pen. This means that the
     pen width is always drawn one pixel wide, independent of the \l
