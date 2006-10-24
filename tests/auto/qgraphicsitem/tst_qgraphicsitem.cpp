@@ -76,6 +76,7 @@ private slots:
     void visible();
     void enabled();
     void selected();
+    void selected2();
     void selected_group();
     void acceptedMouseButtons();
     void acceptsHoverEvents();
@@ -738,6 +739,36 @@ void tst_QGraphicsItem::selected()
     QCOMPARE(item2->values.size(), 1);
     QCOMPARE(item2->values.last(), true);
     QVERIFY(item2->isSelected());
+}
+
+void tst_QGraphicsItem::selected2()
+{
+    // Selecting an item, then moving another previously caused a crash.
+    QGraphicsScene scene;
+    QGraphicsItem *line1 = scene.addRect(QRectF(0, 0, 100, 100));
+    line1->setPos(-105, 0);
+    line1->setFlag(QGraphicsItem::ItemIsSelectable);
+
+    QGraphicsItem *line2 = scene.addRect(QRectF(0, 0, 100, 100));
+    line2->setFlag(QGraphicsItem::ItemIsMovable);
+
+    line1->setSelected(true);
+
+    {
+        QGraphicsSceneMouseEvent mousePress(QEvent::GraphicsSceneMousePress);
+        mousePress.setScenePos(QPointF(50, 50));
+        mousePress.setButton(Qt::LeftButton);
+        QApplication::sendEvent(&scene, &mousePress);
+        QVERIFY(mousePress.isAccepted());
+    }
+    {
+        QGraphicsSceneMouseEvent mouseMove(QEvent::GraphicsSceneMouseMove);
+        mouseMove.setScenePos(QPointF(60, 60));
+        mouseMove.setButton(Qt::LeftButton);
+        mouseMove.setButtons(Qt::LeftButton);
+        QApplication::sendEvent(&scene, &mouseMove);
+        QVERIFY(mouseMove.isAccepted());
+    }
 }
 
 void tst_QGraphicsItem::selected_group()
