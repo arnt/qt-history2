@@ -184,6 +184,7 @@ private slots:
     void html_definitionListMargins();
     void html_listMargins();
     void html_titleAttribute();
+    void html_compressDivs();
 
 private:
     inline void setHtml(const QString &html)
@@ -2843,6 +2844,13 @@ void tst_QTextDocumentFragment::html_titleAttribute()
     cursor.movePosition(QTextCursor::Start);
     cursor.movePosition(QTextCursor::NextCharacter);
     QCOMPARE(cursor.charFormat().toolTip(), QString("this is my title"));
+}
+
+void tst_QTextDocumentFragment::html_compressDivs()
+{
+    doc->setHtml("<p/><div/><div/><div/><div/>Test");
+    QCOMPARE(doc->blockCount(), 1);
+    QCOMPARE(doc->begin().text(), QString("Test"));
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)

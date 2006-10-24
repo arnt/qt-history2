@@ -452,8 +452,12 @@ void QTextHtmlImporter::import()
          */
         if (i > 0 && (node->parent != i - 1)) {
             blockTagClosed = closeTag(i);
+            // visually collapse subsequent block tags, but if the element after the closed block tag
+            // is for example an inline element (!isBlock) we have to make sure we start a new paragraph by setting
+            // hasBlock to false.
             if (blockTagClosed
-                && node->id != Html_p // collapse <p> tags, so don't set hasBlock to false
+                && !node->isBlock()
+                && node->id != Html_unknown
                )
                 hasBlock = false;
         }
