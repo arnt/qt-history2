@@ -1,5 +1,6 @@
 #include <qcoreapplication.h>
 #include <qdebug.h>
+#include <qvariant.h>
 
 #include <QtTest/QtTest>
 
@@ -234,19 +235,19 @@ void tst_QDBusReply::simpleTypes()
 
     QDBusReply<QDBusObjectPath> robjectpath = iface->call(QDBus::BlockWithGui, "retrieveObjectPath");
     QVERIFY(robjectpath.isValid());
-    QCOMPARE(robjectpath.value().value, adaptor->retrieveObjectPath().value);
+    QCOMPARE(robjectpath.value().path(), adaptor->retrieveObjectPath().path());
 
     QDBusReply<QDBusSignature> rsignature = iface->call(QDBus::BlockWithGui, "retrieveSignature");
     QVERIFY(rsignature.isValid());
-    QCOMPARE(rsignature.value().value, adaptor->retrieveSignature().value);
+    QCOMPARE(rsignature.value().signature(), adaptor->retrieveSignature().signature());
 
     QDBusReply<QDBusVariant> rdbusvariant = iface->call(QDBus::BlockWithGui, "retrieveVariant");
     QVERIFY(rdbusvariant.isValid());
-    QCOMPARE(rdbusvariant.value().value, adaptor->retrieveVariant().value);
+    QCOMPARE(rdbusvariant.value().variant(), adaptor->retrieveVariant().variant());
 
     QDBusReply<QVariant> rvariant = iface->call(QDBus::BlockWithGui, "retrieveVariant");
     QVERIFY(rvariant.isValid());
-    QCOMPARE(rvariant.value(), adaptor->retrieveVariant().value);
+    QCOMPARE(rvariant.value(), adaptor->retrieveVariant().variant());
 
     QDBusReply<QByteArray> rbytearray = iface->call(QDBus::BlockWithGui, "retrieveByteArray");
     QVERIFY(rbytearray.isValid());
