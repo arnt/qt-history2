@@ -178,7 +178,7 @@ public:
     void drawFrame(QPainter *, const QRect&);
     void drawImage(QPainter *p, const QRect &rect);
     void drawRule(QPainter *, const QRect&);
-    void configurePalette(QPalette *, QPalette::ColorGroup, const QWidget *w);
+    void configurePalette(QPalette *, QPalette::ColorGroup, const QWidget *, bool);
     void configurePalette(QPalette *p, QPalette::ColorRole fr, QPalette::ColorRole br);
 
     void getRadii(const QRect &br, QSize *tlr, QSize *trr, QSize *blr, QSize *brr) const;
@@ -1078,7 +1078,7 @@ void QRenderRule::configurePalette(QPalette *p, QPalette::ColorRole fr, QPalette
         p->setBrush(QPalette::AlternateBase, pal->alternateBackground);
 }
 
-void QRenderRule::configurePalette(QPalette *p, QPalette::ColorGroup cg, const QWidget *w)
+void QRenderRule::configurePalette(QPalette *p, QPalette::ColorGroup cg, const QWidget *w, bool embedded)
 {
 #ifdef QT_NO_COMBOBOX
     const bool isReadOnlyCombo = false;
@@ -1094,6 +1094,14 @@ void QRenderRule::configurePalette(QPalette *p, QPalette::ColorGroup cg, const Q
             p->setBrush(cg, w->backgroundRole(), bg->brush);
             //p->setBrush(cg, QPalette::Window, bg->brush);
         }
+    }
+
+    if (embedded) {
+        /* For embedded widgets (ComboBox, SpinBox and ScrollArea) we want the embedded widget
+         * to be transparent when we have a transparent background or border image */
+        if ((hasBackground() && background()->isTransparent())
+            || (hasBorder() && border()->hasBorderImage() && border()->borderImage()->middleRect.isValid()))
+            p->setBrush(cg, w->backgroundRole(), Qt::transparent);
     }
 
     if (!hasPalette())
@@ -1565,6 +1573,9 @@ static void setProperties(QWidget *w)
     }
 }
 
+static QHash<const QWidget *, int> customPaletteWidgets; // widgets whose palette we tampered
+static QHash<const QWidget *, int> customFontWidgets; // widgets whose font we tampered
+
 // remember to revert changes in unsetPalette
 static void setPalette(QWidget *w)
 {
@@ -1592,45 +1603,41 @@ static void setPalette(QWidget *w)
         { QStyle::State_Enabled, QPalette::Inactive }
     };
 
-#ifndef QT_NO_TOOLTIP
-    const bool isToolTip = QLatin1String(w->metaObject()->className()) == "QTipLabel";
-    QPalette p = isToolTip ? QToolTip::palette() : qApp->palette();
-#else
-    QPalette p = qApp->palette();
-#endif
-
+    QPalette p = w->palette();
     QWidget *ew = embeddedWidget(w);
 
     for (int i = 0; i < 3; i++) {
         QRenderRule rule = renderRule(w, PseudoElement_None, map[i].state);
-        if (i == 0)
+        if (i == 0) {
+            customFontWidgets[w] = rule.font.resolve() & ~w->font().resolve();
             w->setFont(rule.font);
+        }
 
-        rule.configurePalette(&p, map[i].group, ew);
+        rule.configurePalette(&p, map[i].group, ew, ew != w);
     }
 
-#ifndef QT_NO_TOOLTIP
-    isToolTip ? QToolTip::setPalette(p) : w->setPalette(p);
-#else
-    w->setPalette(p);
-#endif
+    if (w->palette() != p) {
+        customPaletteWidgets[w] = p.resolve() & ~w->palette().resolve();
+        w->setPalette(p);
+    }
 }
 
 static void unsetPalette(QWidget *w)
 {
-    QFont font;
-    QPalette pal;
-#ifndef QT_NO_TOOLTIP
-    const bool isToolTip = QLatin1String(w->metaObject()->className()) == "QTipLabel";
-    if (isToolTip) {
-        pal = QToolTip::palette();
-        font = QToolTip::font();
-    } else
-#endif
-        pal = qApp->palette(w);
-
-    w->setPalette(pal);
-    w->setFont(font);
+    if (customPaletteWidgets.contains(w)) {
+        QPalette p = QApplication::palette(w);
+        p.resolve(customPaletteWidgets[w]);
+        p.resolve(w->palette());
+        w->setPalette(p);
+        customPaletteWidgets.remove(w);
+    }
+    if (customFontWidgets.contains(w)) {
+        QFont f = QApplication::font();
+        f.resolve(customFontWidgets[w]);
+        f.resolve(w->font());
+        w->setFont(f);
+        customFontWidgets.remove(w);
+    }
 }
 
 static void updateWidget(QWidget *widget)
@@ -1673,10 +1680,14 @@ void QStyleSheetStyle::widgetDestroyed(QObject *o)
 {
     styleRulesCache.remove((const QWidget *)o);
     renderRulesCache.remove((const QWidget *)o);
+    customPaletteWidgets.remove((const QWidget *)o);
 }
 
 static bool unstylable(QWidget *w)
 {
+    if (w->windowType() == Qt::Desktop)
+        return true;
+
 #ifndef QT_NO_SCROLLAREA
     if (QAbstractScrollArea *sa = qobject_cast<QAbstractScrollArea *>(w->parentWidget())) {
         if (sa->viewport() == w)
@@ -1701,6 +1712,9 @@ static bool unstylable(QWidget *w)
 
 void QStyleSheetStyle::polish(QWidget *w)
 {
+    if (styleRulesCache.contains(w))
+        return;
+
     baseStyle()->polish(w);
     if (unstylable(w))
         return;
