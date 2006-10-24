@@ -846,7 +846,7 @@ bool QFSFileEngine::setCurrentPath(const QString &path)
     } , {
         r = ::SetCurrentDirectoryA(QFSFileEnginePrivate::win95Name(path));
     });
-    return r >= 0;
+    return r != 0;
 }
 
 /*!
