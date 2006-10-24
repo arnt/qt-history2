@@ -912,7 +912,7 @@ void tst_QTextEdit::shiftDownInLineLastShouldSelectToEnd()
     QCOMPARE(lineCount, totalLineCount);
 
     QTextCursor cursor = ed->textCursor();
-    QVERIFY(cursor.movePosition(QTextCursor::Start));
+    cursor.movePosition(QTextCursor::Start);
     ed->setTextCursor(cursor);
 
     for (int i = 0; i < lineCount; ++i) {
