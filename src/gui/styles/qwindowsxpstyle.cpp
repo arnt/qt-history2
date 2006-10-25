@@ -2171,7 +2171,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
 
             // draw sub menu arrow --------------------------------------------
             if (menuitem->menuItemType == QStyleOptionMenuItem::SubMenu) {
-                int dim = (h - 2 * windowsItemFrame) / 2;
+                int dim = (h - 2) / 2;
                 PrimitiveElement arrow;
                 arrow = (option->direction == Qt::RightToLeft) ? PE_IndicatorArrowLeft : PE_IndicatorArrowRight;
                 xpos = x + w - windowsArrowHMargin - windowsItemFrame - dim;
