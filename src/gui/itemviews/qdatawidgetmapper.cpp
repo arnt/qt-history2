@@ -477,10 +477,12 @@ QWidget *QDataWidgetMapper::mappedWidgetAt(int section) const
 {
     Q_D(const QDataWidgetMapper);
 
-    if (section < 0 || section > d->widgetMap.count())
-        return 0;
+    for (int i = 0; i < d->widgetMap.count(); ++i) {
+        if (d->widgetMap.at(i).section == section)
+            return d->widgetMap.at(i).widget;
+    }
 
-    return d->widgetMap.at(section).widget;
+    return 0;
 }
 
 /*!

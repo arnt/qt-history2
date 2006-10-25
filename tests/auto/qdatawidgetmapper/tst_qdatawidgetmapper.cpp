@@ -11,6 +11,7 @@ private slots:
     void currentIndexChanged();
     void changingValues();
     void setData();
+    void mappedWidgetAt();
 
     void comboBox();
 };
@@ -302,6 +303,27 @@ void tst_QDataWidgetMapper::comboBox()
     // make sure the new values are in the model
     QCOMPARE(model->data(model->index(0, 0)).toString(), QString("1"));
     QCOMPARE(model->data(model->index(0, 1)).toString(), QString("item 0 y"));
+}
+
+void tst_QDataWidgetMapper::mappedWidgetAt()
+{
+    QDataWidgetMapper mapper;
+    QAbstractItemModel *model = testModel(&mapper);
+    mapper.setModel(model);
+
+    QLineEdit lineEdit1;
+    QLineEdit lineEdit2;
+
+    mapper.addMapping(&lineEdit1, 1);
+    mapper.addMapping(&lineEdit2, 2);
+
+    QCOMPARE(mapper.mappedWidgetAt(1), &lineEdit1);
+    QCOMPARE(mapper.mappedWidgetAt(2), &lineEdit2);
+
+    mapper.addMapping(&lineEdit2, 4242);
+
+    QCOMPARE(mapper.mappedWidgetAt(2), (QWidget*)0);
+    QCOMPARE(mapper.mappedWidgetAt(4242), &lineEdit2);
 }
 
 QTEST_MAIN(tst_QDataWidgetMapper)
