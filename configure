@@ -5140,6 +5140,7 @@ EXEC=""
 #-------------------------------------------------------------------------------
 
 echo "Finding project files. Please wait..."
+"$outpath/bin/qmake" -prl -r "${relpath}/projects.pro"
 if [ -z "$QMAKE_PROJECTS" ]; then
     QMAKE_PROJECTS=`find "$relpath/." -name '*.pro' -print | sed 's-/\./-/-'`
 else
