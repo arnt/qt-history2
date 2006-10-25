@@ -1182,7 +1182,10 @@ void QGLWidget::setContext(QGLContext *context,
         delete oldcx;
     oldcx = 0;
 
-    d->createWinId(w);
+    if (testAttribute(Qt::WA_WState_Created))
+        create(w);
+    else
+        d->createWinId(w);
     XSetWMColormapWindows(X11->display, window()->winId(), cmw, count);
     delete [] cmw;
 
