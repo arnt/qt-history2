@@ -173,6 +173,11 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
 #endif // _POSIX_THREAD_SAFE_FUNCTIONS
     {
         QString fn = QFile::decodeName(QByteArray(file->d_name));
+        if (fn.isEmpty()) {
+            // unreadable entry
+            continue;
+        }
+
         const QString filePath = d->file + QLatin1Char('/') + fn;
         fi.setFile(filePath);
 
