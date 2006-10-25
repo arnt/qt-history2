@@ -352,7 +352,7 @@ public:
     HitPoint hitTest(QTextBlock bl, const QPointF &point, int *position, QTextLayout **l, Qt::HitTestAccuracy accuracy) const;
 
     QLayoutStruct layoutCell(QTextTable *t, const QTextTableCell &cell, qreal width,
-                            int layoutFrom, int layoutTo);
+                            int layoutFrom, int layoutTo, const QMultiHash<int, QTextFrame *> &childFrameMap);
     void setCellPosition(QTextTable *t, const QTextTableCell &cell, const QPointF &pos);
     QRectF layoutTable(QTextTable *t, int layoutFrom, int layoutTo);
 
@@ -1201,7 +1201,7 @@ static bool isFrameInCell(const QTextTableCell &cell, QTextFrame *frame)
 }
 
 QLayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTableCell &cell, qreal width,
-                                                    int layoutFrom, int layoutTo)
+                                                    int layoutFrom, int layoutTo, const QMultiHash<int, QTextFrame *> &childFrameMap)
 {
     LDEBUG << "layoutCell";
     QLayoutStruct layoutStruct;
@@ -1222,20 +1222,25 @@ QLayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextT
 
     QList<QTextFrame *> floats;
 
-    // ### speed up
-    // layout out child frames in that cell first
-    for (int i = 0; i < t->childFrames().size(); ++i){
-        QTextFrame *frame = t->childFrames().at(i);
-        if (isFrameInCell(cell, frame)) {
-            QTextFrameData *cd = data(frame);
-            cd->sizeDirty = true;
-            layoutFrame(frame, frame->firstPosition(), frame->lastPosition(), width, -1);
-            layoutStruct.minimumWidth = qMax(layoutStruct.minimumWidth, cd->minimumWidth);
-            layoutStruct.maximumWidth = qMin(layoutStruct.maximumWidth, cd->maximumWidth);
+    const QList<QTextFrame *> childFrames = childFrameMap.values(cell.row() + cell.column() * t->columns());
+    for (int i = 0; i < childFrames.size(); ++i) {
+        QTextFrame *frame = childFrames.at(i);
+        QTextFrameData *cd = data(frame);
 
-            if (cd->flow_position != QTextFrameFormat::InFlow)
-                floats.append(frame);
-        }
+        // inline images have firstPosition() > lastPosition() and for them we assume
+        // a constant min/max size. Normal frames (first <= last) however need to always
+        // be relayouted (see change 179571)
+        if (frame->firstPosition() <= frame->lastPosition())
+            cd->sizeDirty = true;
+
+        if (cd->sizeDirty)
+            layoutFrame(frame, frame->firstPosition(), frame->lastPosition(), width, -1);
+
+        layoutStruct.minimumWidth = qMax(layoutStruct.minimumWidth, cd->minimumWidth);
+        layoutStruct.maximumWidth = qMin(layoutStruct.maximumWidth, cd->maximumWidth);
+
+        if (cd->flow_position != QTextFrameFormat::InFlow)
+            floats.append(frame);
     }
 
     qreal floatMinWidth = layoutStruct.minimumWidth;
@@ -1273,6 +1278,16 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
     const int columns = table->columns();
 
     const QTextTableFormat fmt = table->format();
+
+    QMultiHash<int, QTextFrame *> childFrameMap;
+    {
+        const QList<QTextFrame *> children = table->childFrames();
+        for (int i = 0; i < children.count(); ++i) {
+            QTextFrame *frame = children.at(i);
+            QTextTableCell cell = table->cellAt(frame->firstPosition());
+            childFrameMap.insertMulti(cell.row() + cell.column() * rows, frame);
+        }
+    }
 
     QVector<QTextLength> columnWidthConstraints = fmt.columnWidthConstraints();
     if (columnWidthConstraints.size() != columns)
@@ -1319,7 +1334,7 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
             // to figure out the min and the max width lay out the cell at
             // maximum width. otherwise the maxwidth calculation sometimes
             // returns wrong values
-            QLayoutStruct layoutStruct = layoutCell(table, cell, INT_MAX, layoutFrom, layoutTo);
+            QLayoutStruct layoutStruct = layoutCell(table, cell, INT_MAX, layoutFrom, layoutTo, childFrameMap);
 
             // distribute the minimum width over all columns the cell spans
             qreal widthToDistribute = layoutStruct.minimumWidth + 2 * td->cellPadding;
@@ -1446,7 +1461,7 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
 
             const qreal width = td->cellWidth(c, cspan);
 //            qDebug() << "layoutCell for cell at row" << r << "col" << c;
-            QLayoutStruct layoutStruct = layoutCell(table, cell, width, layoutFrom, layoutTo);
+            QLayoutStruct layoutStruct = layoutCell(table, cell, width, layoutFrom, layoutTo, childFrameMap);
 
             td->heights[r] = qMax(td->heights.at(r), layoutStruct.y + 2 * td->cellPadding);
         }
@@ -1471,7 +1486,7 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
                     continue;
 
                 const qreal width = td->cellWidth(c, cspan);
-                QLayoutStruct layoutStruct = layoutCell(table, cell, width, layoutFrom, layoutTo);
+                QLayoutStruct layoutStruct = layoutCell(table, cell, width, layoutFrom, layoutTo, childFrameMap);
 
                 // the last row gets all the remaining space
                 qreal heightToDistribute = layoutStruct.y + 2 * td->cellPadding;
