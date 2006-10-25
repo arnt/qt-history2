@@ -75,6 +75,18 @@ bool MingwMakefileGenerator::writeMakefile(QTextStream &t)
 
     if(project->first("TEMPLATE") == "app" ||
        project->first("TEMPLATE") == "lib") {
+        if(Option::mkfile::do_stub_makefile) {
+            t << "QMAKE    = "        << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
+            QStringList &qut = project->values("QMAKE_EXTRA_TARGETS");
+            for(QStringList::ConstIterator it = qut.begin(); it != qut.end(); ++it)
+                t << *it << " ";
+            t << "first all clean install distclean uninstall: qmake" << endl
+              << "qmake_all:" << endl;
+            writeMakeQmake(t);
+            if(project->isEmpty("QMAKE_NOFORCE"))
+                t << "FORCE:" << endl << endl;
+            return true;
+        }
         writeMingwParts(t);
         return MakefileGenerator::writeMakefile(t);
     }

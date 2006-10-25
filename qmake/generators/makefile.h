@@ -71,7 +71,8 @@ protected:
     void writeExtraTargets(QTextStream &t);
     void writeExtraCompilerTargets(QTextStream &t);
     void writeExtraCompilerVariables(QTextStream &t);
-    virtual bool writeMakefile(QTextStream &);
+    virtual bool writeStubMakefile(QTextStream &t);
+    virtual bool writeMakefile(QTextStream &t);
 
     //generating subtarget makefiles
     struct SubTarget

@@ -87,6 +87,7 @@ bool Option::mkfile::do_deps = true;
 bool Option::mkfile::do_mocs = true;
 bool Option::mkfile::do_dep_heuristics = true;
 bool Option::mkfile::do_preprocess = false;
+bool Option::mkfile::do_stub_makefile = false;
 bool Option::mkfile::do_cache = true;
 QString Option::mkfile::cachefile;
 QStringList Option::mkfile::project_files;
@@ -244,6 +245,8 @@ Option::parseCommandLine(int argc, char **argv, int skip)
                         Option::mkfile::do_mocs = false;
                     } else if(opt == "nocache") {
                         Option::mkfile::do_cache = false;
+                    } else if(opt == "createstub") {
+                        Option::mkfile::do_stub_makefile = true;
                     } else if(opt == "nodependheuristics") {
                         Option::mkfile::do_dep_heuristics = false;
                     } else if(opt == "E") {

@@ -141,6 +141,7 @@ struct Option
         static bool do_mocs;
         static bool do_dep_heuristics;
         static bool do_preprocess;
+        static bool do_stub_makefile;
         static QString cachefile;
         static int cachefile_depth;
         static QStringList project_files;

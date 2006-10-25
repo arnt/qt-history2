@@ -2151,6 +2151,22 @@ MakefileGenerator::writeExtraVariables(QTextStream &t)
 }
 
 bool
+MakefileGenerator::writeStubMakefile(QTextStream &t)
+{
+    t << "QMAKE    = "        << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
+    QStringList &qut = project->values("QMAKE_EXTRA_TARGETS");
+    for(QStringList::ConstIterator it = qut.begin(); it != qut.end(); ++it)
+        t << *it << " ";
+    //const QString ofile = Option::fixPathToTargetOS(fileFixify(Option::output.fileName()));
+    t << "first all clean install distclean uninstall: " << "qmake" << endl
+      << "qmake_all:" << endl;
+    writeMakeQmake(t);
+    if(project->isEmpty("QMAKE_NOFORCE"))
+        t << "FORCE:" << endl << endl;
+    return true;
+}
+
+bool
 MakefileGenerator::writeMakefile(QTextStream &t)
 {
     t << "####### Compile" << endl << endl;
