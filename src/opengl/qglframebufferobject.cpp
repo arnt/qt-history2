@@ -451,8 +451,8 @@ QGLFramebufferObject::~QGLFramebufferObject()
     QGL_FUNC_CONTEXT;
 
     if (isValid()
-        && (ctx == QGLContext::currentContext()
-            || qgl_share_reg()->checkSharing(ctx, QGLContext::currentContext())))
+        && (d->ctx == QGLContext::currentContext()
+            || qgl_share_reg()->checkSharing(d->ctx, QGLContext::currentContext())))
     {
         glDeleteTextures(1, &d->texture);
         if (QGLExtensions::glExtensions & QGLExtensions::PackedDepthStencil)
