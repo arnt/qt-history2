@@ -30,6 +30,8 @@
 #endif
 
 /*!
+    \internal
+
     \class QWSTslibMouseHandler
     \ingroup qws
 

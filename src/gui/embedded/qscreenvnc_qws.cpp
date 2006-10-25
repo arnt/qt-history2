@@ -1084,6 +1084,8 @@ void QVNCServer::discardClient()
 //===========================================================================
 
 /*!
+    \internal
+
     \class QVNCScreen
     \ingroup qws
 

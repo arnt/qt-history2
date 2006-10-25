@@ -152,6 +152,8 @@ void QLinuxFbScreenPrivate::signalHandler(int signum)
 }
 
 /*!
+    \internal
+
     \class QLinuxFbScreen
     \ingroup qws
 

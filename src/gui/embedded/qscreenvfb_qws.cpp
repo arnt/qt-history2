@@ -67,6 +67,8 @@ QVFbScreenPrivate::~QVFbScreenPrivate()
 }
 
 /*!
+    \internal
+
     \class QVFbScreen
     \ingroup qws
 

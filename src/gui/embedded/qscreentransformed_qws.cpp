@@ -79,6 +79,8 @@ void qws_setScreenTransformation(int t)
 // ---------------------------------------------------------------------------
 
 /*!
+    \internal
+
     \class QTransformedScreen
     \ingroup qws
 
