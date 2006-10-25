@@ -1189,17 +1189,6 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPointF &offset, QPainter *p
     painter->restore();
 }
 
-static bool isFrameInCell(const QTextTableCell &cell, QTextFrame *frame)
-{
-    const int cellStart = cell.firstPosition();
-    const int cellEnd = cell.lastPosition();
-    const int frameStart = frame->firstPosition();
-    const int frameEnd = frame->lastPosition();
-
-    return cellStart <= frameStart && cellStart <= frameEnd
-           && cellEnd >= frameStart && cellEnd >= frameEnd;
-}
-
 QLayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTableCell &cell, qreal width,
                                                     int layoutFrom, int layoutTo, const QMultiHash<int, QTextFrame *> &childFrameMap)
 {
