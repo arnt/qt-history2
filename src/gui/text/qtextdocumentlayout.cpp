@@ -1222,7 +1222,7 @@ QLayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextT
 
     QList<QTextFrame *> floats;
 
-    const QList<QTextFrame *> childFrames = childFrameMap.values(cell.row() + cell.column() * t->columns());
+    const QList<QTextFrame *> childFrames = childFrameMap.values(cell.row() + cell.column() * t->rows());
     for (int i = 0; i < childFrames.size(); ++i) {
         QTextFrame *frame = childFrames.at(i);
         QTextFrameData *cd = data(frame);
