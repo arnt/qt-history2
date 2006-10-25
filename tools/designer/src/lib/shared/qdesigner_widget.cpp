@@ -12,25 +12,11 @@
 ****************************************************************************/
 
 #include "qdesigner_widget_p.h"
-#include "qdesigner_command_p.h"
-#include "layout_p.h"
-#include "invisible_widget_p.h"
 
 #include <QtDesigner/QtDesigner>
-#include <QtDesigner/QExtensionManager>
-
-#include <QtGui/QBitmap>
-#include <QtGui/QToolButton>
 #include <QtGui/QPainter>
-#include <QtGui/QApplication>
-#include <QtGui/QLayout>
-#include <QtGui/QAction>
-#include <QtGui/QMessageBox>
 #include <QtGui/qevent.h>
 
-#include <QtCore/qdebug.h>
-
-using namespace qdesigner_internal;
 
 static void paintGrid(QWidget *widget, QDesignerFormWindowInterface *formWindow, QPaintEvent *e, bool needFrame = false)
 {
@@ -100,7 +86,7 @@ void QDesignerLabel::updateBuddy()
         return;
     }
 
-    QList<QWidget *> widgets = qFindChildren<QWidget*>(topLevelWidget(), QString::fromUtf8(myBuddy));
+    const QList<QWidget *> widgets = qFindChildren<QWidget*>(topLevelWidget(), QString::fromUtf8(myBuddy));
     QListIterator<QWidget *> it(widgets);
     while (it.hasNext()) {
         QWidget *widget = it.next();
@@ -115,7 +101,6 @@ void QDesignerLabel::updateBuddy()
 QDesignerWidget::QDesignerWidget(QDesignerFormWindowInterface* formWindow, QWidget *parent)
     : QWidget(parent), m_formWindow(formWindow)
 {
-    need_frame = true;
     setBackgroundRole(QPalette::Window);
 }
 

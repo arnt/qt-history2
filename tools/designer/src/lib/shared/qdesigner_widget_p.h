@@ -26,25 +26,10 @@
 #define QDESIGNER_WIDGET_H
 
 #include "shared_global_p.h"
-#include "layoutdecoration.h"
-
-#include <QtDesigner/QDesignerMetaDataBaseInterface>
-
-#include <QtCore/QPointer>
-#include <QtCore/QPair>
-
-#include <QtGui/QGridLayout>
-#include <QtGui/QWidget>
 #include <QtGui/QDialog>
 #include <QtGui/QLabel>
-#include <QtGui/QPixmap>
 
 class QDesignerFormWindowInterface;
-class QAction;
-class QLayoutItem;
-class QVBoxLayout;
-class QHBoxLayout;
-class QGridLayout;
 
 class QDESIGNER_SHARED_EXPORT QDesignerWidget : public QWidget
 {
@@ -64,8 +49,6 @@ protected:
 
 private:
     QDesignerFormWindowInterface* m_formWindow;
-    uint need_frame : 1;
-    QPixmap grid;
 };
 
 class QDESIGNER_SHARED_EXPORT QDesignerDialog : public QDialog
