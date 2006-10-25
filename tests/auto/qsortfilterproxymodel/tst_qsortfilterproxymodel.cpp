@@ -60,6 +60,8 @@ private slots:
 //     void insertColumns();
     void removeRows_data();
     void removeRows();
+    void removeColumns_data();
+    void removeColumns();
     void insertAfterSelect();
     void removeAfterSelect();
     void filter_data();
@@ -544,6 +546,18 @@ void tst_QSortFilterProxyModel::insertRows()
     }
 }
 
+/*
+void tst_QSortFilterProxyModel::insertColumns_data()
+{
+    
+}
+
+void tst_QSortFilterProxyModel::insertColumns()
+{
+
+}
+*/
+
 void tst_QSortFilterProxyModel::removeRows_data()
 {
     QTest::addColumn<QStringList>("initial");
@@ -849,17 +863,249 @@ void tst_QSortFilterProxyModel::removeRows()
     }
 }
 
-/*
-void tst_QSortFilterProxyModel::insertColumns_data()
+class MyFilteredColumnProxyModel : public QSortFilterProxyModel
 {
+    Q_OBJECT
+public:
+    MyFilteredColumnProxyModel(QObject *parent = 0)
+        : QSortFilterProxyModel(parent) { }
+protected:
+    bool filterAcceptsColumn(int sourceColumn, const QModelIndex &) const
+    {
+        QString key = sourceModel()->headerData(sourceColumn, Qt::Horizontal).toString();
+        return key.contains(filterRegExp());
+    }
+};
+
+void tst_QSortFilterProxyModel::removeColumns_data()
+{
+    QTest::addColumn<QStringList>("initial");
+    QTest::addColumn<QString>("filter");
+    QTest::addColumn<int>("position");
+    QTest::addColumn<int>("count");
+    QTest::addColumn<bool>("success");
+    QTest::addColumn<QStringList>("expectedProxy");
+    QTest::addColumn<QStringList>("expectedSource");
+
+    QTest::newRow("remove one column in the middle [no filter]")
+        << (QStringList()
+            << "1"
+            << "2"
+            << "3"
+            << "4"
+            << "5")
+        << QString() // no filter
+        << 2 // position
+        << 1 // count
+        << true // success
+        << (QStringList() // expectedProxy
+            << "1"
+            << "2"
+            << "4"
+            << "5")
+        << (QStringList() // expectedSource
+            << "1"
+            << "2"
+            << "4"
+            << "5");
+
+    QTest::newRow("remove one column in the end [no filter]")
+        << (QStringList()
+            << "1"
+            << "2"
+            << "3"
+            << "4"
+            << "5")
+        << QString() // no filter
+        << 4 // position
+        << 1 // count
+        << true // success
+        << (QStringList() // expectedProxy
+            << "1"
+            << "2"
+            << "3"
+            << "4")
+        << (QStringList() // expectedSource
+            << "1"
+            << "2"
+            << "3"
+            << "4");
+
+    QTest::newRow("remove one column past the end [no filter]")
+        << (QStringList()
+            << "1"
+            << "2"
+            << "3"
+            << "4"
+            << "5")
+        << QString() // no filter
+        << 5 // position
+        << 1 // count
+        << false // success
+        << (QStringList() // expectedProxy
+            << "1"
+            << "2"
+            << "3"
+            << "4"
+            << "5")
+        << (QStringList() // expectedSource
+            << "1"
+            << "2"
+            << "3"
+            << "4"
+            << "5");
+
+    QTest::newRow("remove column -1 [no filter]")
+        << (QStringList()
+            << "1"
+            << "2"
+            << "3"
+            << "4"
+            << "5")
+        << QString() // no filter
+        << -1 // position
+        << 1 // count
+        << false // success
+        << (QStringList() // expectedProxy
+            << "1"
+            << "2"
+            << "3"
+            << "4"
+            << "5")
+        << (QStringList() // expectedSource
+            << "1"
+            << "2"
+            << "3"
+            << "4"
+            << "5");
+
+    QTest::newRow("remove all columns [no filter]")
+        << (QStringList()
+            << "1"
+            << "2"
+            << "3"
+            << "4"
+            << "5")
+        << QString() // no filter
+        << 0 // position
+        << 5 // count
+        << true // success
+        << QStringList() // expectedProxy
+        << QStringList(); // expectedSource
+
+    QTest::newRow("remove one column in the middle [filter=1|3|5]")
+        << (QStringList()
+            << "1"
+            << "2"
+            << "3"
+            << "4"
+            << "5")
+        << QString("1|3|5")
+        << 1 // position
+        << 1 // count
+        << true // success
+        << (QStringList() // expectedProxy
+            << "1"
+            << "5")
+        << (QStringList() // expectedSource
+            << "1"
+            << "2"
+            << "4"
+            << "5");
+
+    QTest::newRow("remove one column in the end [filter=1|3|5]")
+        << (QStringList()
+            << "1"
+            << "2"
+            << "3"
+            << "4"
+            << "5")
+        << QString("1|3|5")
+        << 2 // position
+        << 1 // count
+        << true // success
+        << (QStringList() // expectedProxy
+            << "1"
+            << "3")
+        << (QStringList() // expectedSource
+            << "1"
+            << "2"
+            << "3"
+            << "4");
+
+    QTest::newRow("remove one column past the end [filter=1|3|5]")
+        << (QStringList()
+            << "1"
+            << "2"
+            << "3"
+            << "4"
+            << "5")
+        << QString("1|3|5")
+        << 3 // position
+        << 1 // count
+        << false // success
+        << (QStringList() // expectedProxy
+            << "1"
+            << "3"
+            << "5")
+        << (QStringList() // expectedSource
+            << "1"
+            << "2"
+            << "3"
+            << "4"
+            << "5");
+
+    QTest::newRow("remove all columns [filter=1|3|5]")
+        << (QStringList()
+            << "1"
+            << "2"
+            << "3"
+            << "4"
+            << "5")
+        << QString("1|3|5")
+        << 0 // position
+        << 3 // count
+        << true // success
+        << QStringList() // expectedProxy
+        << (QStringList() // expectedSource
+            << "2"
+            << "4");
+}
+
+void tst_QSortFilterProxyModel::removeColumns()
+{
+    QFETCH(QStringList, initial);
+    QFETCH(QString, filter);
+    QFETCH(int, position);
+    QFETCH(int, count);
+    QFETCH(bool, success);
+    QFETCH(QStringList, expectedProxy);
+    QFETCH(QStringList, expectedSource);
+
+    QStandardItemModel model;
+    MyFilteredColumnProxyModel proxy;
+    proxy.setSourceModel(&model);
+    if (!filter.isEmpty())
+        proxy.setFilterRegExp(QRegExp(filter));
     
-}
+    // prepare model
+    model.setHorizontalHeaderLabels(initial);
+    
+    // remove the columns
+    QCOMPARE(proxy.removeColumns(position, count, QModelIndex()), success);
+    QCOMPARE(model.columnCount(QModelIndex()), expectedSource.count());
+    QCOMPARE(proxy.columnCount(QModelIndex()), expectedProxy.count());
 
-void tst_QSortFilterProxyModel::insertColumns()
-{
+    // make sure the model is correct after remove
+    for (int col = 0; col < model.columnCount(QModelIndex()); ++col)
+        QCOMPARE(model.horizontalHeaderItem(col)->text(), expectedSource.at(col));
 
+    // make sure the proxy is correct after remove
+    for (int col = 0; col < proxy.columnCount(QModelIndex()); ++col) {
+        QCOMPARE(proxy.headerData(col, Qt::Horizontal, Qt::DisplayRole).toString(),
+                 expectedProxy.at(col));
+    }
 }
-*/
 
 void tst_QSortFilterProxyModel::filter_data()
 {

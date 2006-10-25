@@ -1602,10 +1602,28 @@ bool QSortFilterProxyModel::removeColumns(int column, int count, const QModelInd
     QSortFilterProxyModelPrivate::Mapping *m = d->create_mapping(source_parent).value();
     if (column + count > m->source_columns.count())
         return false;
-    int source_column = (column >= m->source_columns.count()
-                         ? m->source_columns.at(m->source_columns.count()) + 1
-                         : m->source_columns.at(column));
-    return d->model->removeColumns(source_column, count, source_parent);
+    if ((count == 1) || (m->proxy_columns.count() == m->source_columns.count())) {
+        int source_column = m->source_columns.at(column);
+        return d->model->removeColumns(source_column, count, source_parent);
+    }
+    // remove corresponding source intervals
+    QVector<int> columns;
+    for (int i = column; i < column + count; ++i)
+        columns.append(m->source_columns.at(i));
+
+    int pos = columns.count() - 1;
+    bool ok = true;
+    while (pos >= 0) {
+        const int source_end = columns.at(pos--);
+        int source_start = source_end;
+        while ((pos >= 0) && (columns.at(pos) == (source_start - 1))) {
+            --source_start;
+            --pos;
+        }
+        ok = ok && d->model->removeColumns(source_start, source_end - source_start + 1,
+                                           source_parent);
+    }
+    return ok;
 }
 
 /*!
