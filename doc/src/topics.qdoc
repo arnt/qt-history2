@@ -100,7 +100,7 @@ the process of building and installing Qt applications.
 \endlist
 \o
 \list
-    \o \l {Cross Compiling Applications}
+    \o \l {Cross Compiling Qtopia Core Applications}
     \o \l {Deploying Qt Applications}
     \o \l {Installation}{Installing Qt}
     \o \l {Window System Specific Notes}

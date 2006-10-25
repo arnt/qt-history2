@@ -97,7 +97,7 @@
         \o \l{Deploying an Application on Qt/X11}{Qt/X11}
         \o \l{Deploying an Application on Qt/Windows}{Qt/Windows}
         \o \l{Deploying an Application on Qt/Mac}{Qt/Mac}
-        \o \l{Deploying an Application on Qtopia Core}{Qtopia Core}
+        \o \l{Deploying Qtopia Core Applications}{Qtopia Core}
     \endlist
 
     \sa Installation {Window System Specific Notes}

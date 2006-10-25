@@ -298,9 +298,9 @@
   Many improvements in Qt are specific to Qtopia Core and are concerned with
   graphics support and rendering performance.
 
-  \bold{Direct painting to the screen} can be enabled on by
-  \l{Performance Tuning#Bypassing the Backing Store}{bypassing the backing store}
-  on a per-application basis.
+  \bold{Direct painting to the screen} can be enabled on by \l{Qtopia
+  Core Performance Tuning#Bypassing the Backing Store}{bypassing the
+  backing store} on a per-application basis.
 
   \bold{Support for 18 and 24 bits-per-pixel color depths} has been added to the paint
   system. Color depths that assign 6 bits to each color (or alpha) channel are
