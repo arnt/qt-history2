@@ -91,6 +91,8 @@ static QHostAddress netmaskFromPrefixLength(uint len, int family)
             *ptr |= 0x80;
         }
 
+        if (len < 8)
+            break;
         len -= 8;
         ++ptr;
     }
