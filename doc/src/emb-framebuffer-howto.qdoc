@@ -1,8 +1,8 @@
 /*!
     \page qtopiacore- testingframebuffer.html
-    \contentspage {Qtopia Core}{Contents}
 
     \title Testing the Linux Framebuffer
+    \subtitle for Qtopia Core
     \ingroup qtopiacore
 
     To test that the Linux framebuffer is set up correctly, and that

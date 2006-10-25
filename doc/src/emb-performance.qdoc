@@ -1,19 +1,32 @@
+/****************************************************************************
+**
+** Copyright (C) 2006-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 /*!
     \page qtopiacore-performance.html
-    \contentspage Qtopia Core
 
-    \title Performance Tuning
+    \title Qtopia Core Performance Tuning
     \ingroup qtopiacore
 
-    When building embedded applications on low-powered devices, a
-    number of options are available that reduce the memory and/or CPU
-    requirements by making various trade-offs. These options range
-    from variations in programming style, to linking and memory
-    allocation.
+    When building embedded applications on low-powered devices, \l
+    {Qtopia Core} provides a number of options that reduce the memory
+    and/or CPU requirements by making various trade-offs. These
+    options range from variations in programming style, to linking and
+    memory allocation.
 
     But note that the most direct way of saving resources, is to avoid
-    compiling in features that are not required. See \l {Fine-Tuning
-    Features} for details.
+    compiling in features that are not required. See the \l {Fine-Tuning
+    Features in Qtopia Core}{fine tuning features} documentation for
+    details.
 
     \tableofcontents
 
@@ -22,25 +35,21 @@
     Rather than creating dialogs and widgets every time they are
     needed, and delete them when they are no longer required, create
     them once and use the QWidget::hide() and QWidget::show()
-    functions whenever appropiate.  To avoid a a slow startup of the
+    functions whenever appropiate. To avoid a slow startup of the
     application, delay the creation of dialogs and widgets until they
-    are requested.
-
-    This will improve CPU performance: The approach requires a little
-    more memory, but will be much faster.
+    are requested. All this will improve the CPU performance, it
+    requires a little more memory, but will be much faster.
 
     \section1 Static vs. Dynamic Linking
 
     A lot of CPU and memory is used by the ELF (Executable and Linking
     Format) linking process. Significant savings can be achieved by
-    using a static build of the application suite.
-
-    This means that rather than having dynamic Qt libraries and a
-    collection of executables which link dynamically to these
+    using a static build of the application suite; rather than having
+    a collection of executables which link dynamically to Qt's
     libraries, all the applications is built into into a single
-    executable which is statically linked to static Qt libraries.
+    executable which is statically linked to Qt's libraries.
 
-    This improves the start-up time and reduces memory usage, at the
+    This improves the start-up time and reduces memory usage at the
     expense of flexibility (to add a new application, you must
     recompile the single executable) and robustness (if one
     application has a bug, it might harm other applications).
@@ -60,17 +69,15 @@
     design each application as a stand-alone widget (or set of
     widgets) with only minimal code in the \c main() function. Then,
     write an application that provides a means of switching between
-    the applications.
+    the applications.  The \l Qtopia platform is an example using this
+    approach: It can be built either as a set of dynamically linked
+    executables, or as a single static application.
 
     Note that the application still should link dynamically against
     the standard C library and any other libraries which might be used
     by other applications on the target device.
 
     \endtable
-
-    The \l Qtopia platform is an example using this apporach: It can
-    be built either as a set of dynamically linked executables, or as
-    a single static application.
 
     When installing end-user applications, this approach may not be an
     option, but when building a single application suite for a device
@@ -121,23 +128,22 @@
 
     \section1 Bypassing the Backing Store
 
-    The backing store is a paint buffer that is used to reduce flicker,
-    and to support graphics operations such as blending. On some devices,
-    the memory requirements of the backing store are 
+    When rendering, Qt uses the concept of a backing store, i.e., a
+    paint buffer, to reduce flicker and to support graphics operations
+    such as blending.
 
-    \omit
-    Memory = number of visible top-level windows * size of each widget * bit depth
-    \endomit
+    \l {Qtopia Core}'s default behavior is for each client to render
+    its widgets into memory while the server is responsible for
+    putting the contents of the memory onto the screen. But when the
+    hardware is known and well defined, as is often the case with
+    software for embedded devices, it might be useful to bypass the
+    backing store, allowing the clients to manipulate the underlying
+    hardware directly.
 
-    To bypass the backing store for any given application, it must be executed
-    with the following value set in the running environment:
-
-    \code
-    QT_ONSCREEN_PAINT = 1
-    \endcode
-
-    This option only has an effect on opaque top-level windows. Enabling this
-    option also has the side effect that software-based mouse cursors will be
-    invisible when positioned any of the application's opaque windows since the
-    cursor image cannot be superimposed on them.
+    There are two approaches to direct painting: The first approach is
+    to set the Qt::WA_PaintOnScreen window attribute for each widget,
+    the other is to use the QDirectPainter class to reserve a region
+    of the framebuffer. For more information, see the \l { Qtopia Core
+    Architecture#Direct Painting}{direct painting} section of the \l {
+    Qtopia Core Architecture}{architecture} documentation.
 */

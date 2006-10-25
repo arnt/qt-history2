@@ -1,16 +1,29 @@
+/****************************************************************************
+**
+** Copyright (C) 2006-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 /*!
     \page qtopiacore-vnc.html
-    \contentspage {Qtopia Core}{Contents}
 
-    \title The VNC Protocol
+    \title The VNC Protocol and Qtopia Core
     \ingroup qtopiacore
 
     VNC (Virtual Network Computing) software makes it possible to view
     and interact with one computer (the "server") from any other
     computer or mobile device (the "viewer") anywhere on a network.
 
-    To run a Qtopia Core application using the VNC protocol, Qtopia
-    Core must be configured using the \c -qt-gfx-vnc option:
+    To run a \l {Qtopia Core} application using the VNC protocol, the
+    \l {Qtopia Core} library must be configured and compiled with the
+    \c -qt-gfx-vnc option:
 
     \code
         cd path/to/Qtopia/Core
@@ -18,11 +31,12 @@
         make
     \endcode
 
-    Then start a Qtopia Core master application (i.e. construct a
-    QApplication object with the QApplication::GuiServer flag or use
-    the -qws command line parameter. See the \l {Running Applications}
-    documentation for details). In addition, use the \c -display option to
-    specify the VNC server's driver. For example:
+    Then start a server application (i.e. construct a QApplication
+    object with the QApplication::GuiServer flag or use the -qws
+    command line parameter. See the \l {Running Qtopia Core
+    Applications}{running applications} documentation for
+    details). When runnng the application, use the \c -display option
+    to specify the VNC server's driver. For example:
 
     \code
         cd path/to/Qtopia/Core/examples/widgets/analogclock
@@ -30,17 +44,17 @@
     \endcode
 
     To interact with the application over the network, run a VNC
-    client pointing at the machine that is running the Qtopia Core
-    master application. VNC clients are available for a vast array of
-    display systems: X11, Windows, Amiga, DOS, VMS, and dozens of
-    others.  For example, using the X11 VNC client to view the
-    application from the same machine:
+    client pointing to the machine that is running the server
+    application. VNC clients are available for a vast array of display
+    systems: X11, Windows, Amiga, DOS, VMS, and dozens of others.  For
+    example, using the X11 VNC client to view the application from the
+    same machine:
 
     \code
         vncviewer localhost:0
     \endcode
 
-    Qtopia Core will create a 640 by 480 pixel display by
+    \l {Qtopia Core} will create a 640 by 480 pixel display by
     default. Alternatively, the QWS_SIZE environment variable can be
     used to set another size, e.g. \c QWS_SIZE=240x320.
 
@@ -48,8 +62,9 @@
     \row
     \o \bold {The Virtual Framebuffer}
 
-    \l {The Virtual Framebuffer} is an alternative technique
-    recommended for development and debugging purposes.
+    The \l {Qtopia Core's Virtual Framebuffer}{virtual framebuffer} is
+    an alternative technique recommended for development and debugging
+    purposes.
 
     The virtual framebuffer emulates a framebuffer using a shared
     memory region and the \c qvfb tool to display the framebuffer in a

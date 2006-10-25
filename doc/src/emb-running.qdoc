@@ -1,28 +1,38 @@
+/****************************************************************************
+**
+** Copyright (C) 2006-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 /*!
     \page qtopiacore-running.html
-    \contentspage {Qtopia Core}{Contents}
 
-    \title Running Applications
+    \title Running Qtopia Core Applications
     \ingroup qtopiacore
 
-    A Qtopia Core application requires a master application to be
-    running, or to be the master application itself. The master
-    application is responsible for managing top-level window regions,
-    pointer handling and character input. Any Qtopia Core application
-    can be the master application by constructing the QApplication
-    object with the QApplication::GuiServer type, or by running the
-    application with the \c{-qws} command line option.
+    A \l {Qtopia Core} application requires a server application to be
+    running, or to be the server application itself. Any \l {Qtopia
+    Core} application can be the server application by constructing
+    the QApplication object with the QApplication::GuiServer type, or
+    by running the application with the \c -qws command line option.
 
-    An application can be run using both single and multiple displays,
-    and various command line option are also available.
+    Applications can run using both single and multiple displays, and
+    various command line options are available.
 
     Note that this document assumes that you either are using the \l
-    {The Virtual Framebuffer}{Qtopia Core Virtual Framebuffer} or are
-    running Qtopia Core using the \l {The VNC Protocol}{VNC} protocol,
-    \e or that you have the Linux framebuffer configured correctly and
-    that no master process is running. (To test that the Linux
-    framebuffer is set up correctly, use the program provided by the
-    \l {Testing the Linux Framebuffer} document.)
+    {Qtopia Core's Virtual Framebuffer} or that you are running \l
+    {Qtopia Core} using the \l {The VNC Protocol and Qtopia Core}{VNC}
+    protocol, \e or that you have the Linux framebuffer configured
+    correctly and that no server process is running. (To test that the
+    Linux framebuffer is set up correctly, use the program provided by
+    the \l {Testing the Linux Framebuffer} document.)
 
     \tableofcontents
 
@@ -30,7 +40,7 @@
 
     To run the application using a single display, change to a Linux
     console and select an application to run, e.g. \l {Text
-    Edit}{demos/textedit}.  Run the application with the \c{-qws}
+    Edit}{demos/textedit}.  Run the application with the \c -qws
     option:
 
     \code
@@ -45,53 +55,67 @@
     during the \l {Installing Qtopia Core}{installation process}, you
     should see the \l {Text Edit} demo appear.
 
-    If the input methods don't work properly, the input driver and
-    device must be specified explicitly. For more information, please
+    It might be that the hardware drivers must be specified explicitly
+    to make everything work properly. For more information, please
     consult the following documentation:
 
     \list
-        \o \l {Pointer Handling}
-        \o \l {Character Input}
+        \o \l {Qtopia Core Pointer Handling}{Pointer Handling}
+        \o \l {Qtopia Core Character Input}{Character Input}
+        \o \l {Qtopia Core Display Management}{Display Management}
     \endlist
 
     \o
     \inlineimage qtopiacore-runningapplication.png
     \endtable
 
-    Additional applications should be run as clients, i.e. without the
-    \c{-qws} option. You can exit the master application at any time
-    using \gui{Ctrl+Alt+Backspace}.
+    Additional applications can be run as clients, i.e., by running
+    these applications \e without the \c -qws option they will connect
+    to the existing server as clients. You can exit the server
+    application at any time using \gui{Ctrl+Alt+Backspace}.
 
     \section1 Using Multiple Displays
 
     Qtopia Core also allows multiple displays to be used
-    simultaneously by running multiple Qtopia Core master
-    processes. This is achieved using the \c -display command line
-    parameter or the QWS_DISPLAY environment variable.
+    simultaneously. There are two ways of achieving this: Either run
+    multiple Qtopia Core server processes, or use \l {Qtopia Core}'s
+    ready-made \c Multi screen driver.
 
-    The \c -display parameter's syntax is:
-
-    \code
-        <gfx driver><:driver specific options><:display number>
-    \endcode
-
-    The valid drivers are \c LinuxFb, \c QVfb, \c VNC and \c
-    Transformed. For example, use the following code to run the
-    example and demo launcher \l {Qt Demo example}{Qt Demo}, on a
-    transformed display:
+    When running multiple server processes, the screen driver (and
+    display number) must be specified for each process using the \c
+    -display command line option or by setting the QWS_DISPLAY
+    environment variable. For example:
 
     \code
-        cd path/to/Qtopia/Core/examples/tools/qtdemo
-        qtdemo -qws -display transformed:rot90:1
+        ./myfirstserverapplication -qws -display "transformed:rot90:1"
+        ./mysecondserverapplication -qws -display "QVFb:2"
     \endcode
 
-    Alternatively, you can set the QWS_DISPLAY environment variable
-    before running the application. For example, if the current shell
-    is bash, ksh, zsh or sh:
+    See the \l {Qtopia Core Display Management}{display management}
+    documentation for more details on how to specify a screen
+    driver. Note that you must also specify the display (i.e., server
+    process) when starting client applications:
 
     \code
-        export QWS_DISPLAY=<gfx driver><:driver specific options><:display number>
+        ./myclientapplication -display "QVFb:2"
     \endcode
+
+    There is no way of moving a client from one display to another
+    when running multiple server processes. Using the \c Multi screen
+    driver, on the other hand, applications can easiliy be moved
+    between the various screens.
+
+    The \c Multi screen driver can be specified just like any other
+    screen driver by using the \c -display command line option or by
+    setting the QWS_DISPLAY environment variable. For example:
+
+    \code
+        ./myserverapplication -qws -display "Multi: QVFb:0
+                QVFb:1:offset=640,0 VNC:offset=640,0 :2"
+    \endcode
+
+    See the \l {Qtopia Core Display Management}{display management}
+    documentation for details regarding arguments.
 
     \section1 Command Line Options
 
@@ -134,7 +158,6 @@
     \code
         ./myapplication -name texteditapplication
     \endcode
-    See also qApp.
     \row
     \o \bold -title <title> \o
     Sets the application's title. For example:
@@ -151,7 +174,7 @@
     \o \bold -keyboard \o
     Enables the keyboard.
 
-    See also the \l {Pointer Handling} documentation.
+    See also: \l {Qtopia Core Character Input}.
     \row
     \o \bold -nokeyboard \o
     Disables the keyboard.
@@ -159,20 +182,19 @@
     \o \bold -mouse \o
     Enables the mouse cursor.
 
-    See also the \l {Pointer Handling} documentation.
+    See also: \l {Qtopia Core Pointer Handling}.
     \row
     \o \bold -nomouse \o
     Disables the mouse cursor.
     \row
     \o \bold -qws \o
-    Runs the application as a master application, i.e. constructs the
-    QApplication object with the QApplication::GuiServer type.
+    Runs the application as a server application, i.e. constructs a
+    QApplication object of the QApplication::GuiServer type.
     \row
     \o \bold -display \o
-    Specifies the display driver.
+    Specifies the screen driver.
 
-    See also the \l {Running Applications#Using Multiple
-    Displays}{Using Multiple Displays} documentation.
+    See also: \l {Qtopia Core Display Management}.
     \row
     \o \bold -decoration <style>\o
     Sets the application decoration. For example:
@@ -182,53 +204,6 @@
     The supported styles are \c windows, \c default and \c styled.
 
     See also QDecoration.
+
     \endtable
-
-
-    \omit
-    To try this functionality you can do the following:
-
-    \table 100%
-    \row
-    \o
-        \list 1
-        \o Change to VC 1 (virtual console one) and run the
-        example and demo launcher \l {Qt Demo example}{Qt Demo}:
-
-        \code
-            cd path/to/QtopiaCore/examples/tools/qtdemo
-            qtdemo -qws
-        \endcode
-
-        \image qtopiacore-runningqtdemo.png
-
-        \o Switch to VC 2 and run another one:
-
-        \code
-           cd path/to/QtopiaCore//examples/tools/qtdemo
-           qtdemo -qws -display :1
-        \endcode
-
-        Another launcher will be started. Start an application in this launcher.
-
-        \o Press \gui{Ctrl+Alt+F1} to get back to display 0.
-        \endlist
-
-        You can also start additional applications on a particular
-        display by specifying the display ID. Change to VC 3:
-
-        \code
-            cd path/to/QtopiaCore/examples/widgets/styles
-            ./styles -display :1
-        \endcode
-
-        will display the styles example on display :1 (i.e. VC 2).
-
-        Only the master process needs to specify the driver/device
-        part explicitly. The clients get the information they need
-        from the master when they connect. So once you have a master
-        server running using a particular driver, you can just use \c
-        client \c display \c n to use display \c n.
-    \endtable
-    \endomit
 */

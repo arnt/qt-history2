@@ -1,31 +1,52 @@
+/****************************************************************************
+**
+** Copyright (C) 2006-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 /*!
     \page qtopiacore-features.html
-    \contentspage {Qtopia Core}{Contents}
 
-    \title Fine-Tuning Features
+    \title Fine-Tuning Features in Qtopia Core
     \ingroup qtopiacore
 
-    On the Qtopia Core platform the set of applications is often
-    fixed, and reducing the size of Qt is important to save resources.
-    It is possible to optimize the Qt installation by avoiding to
-    compile the features that are not required, either by creating a
-    custom configuration file that defines the preferred subset of
-    Qt's functionality, or by using the \c configure script's feature
-    option.
+    It is often a fixed set of applications on an embedded device,
+    making it possible to save resources by minimizing the size of the
+    associated libraries. The Qt installation can easily be optimized
+    by avoiding to compile in the features that are not required.
 
-    A custom configuration file uses macros to disable the various
-    features, and can either be created manually or by using the \c
-    qconfig tool located in the \c /tools/qconfig directory.
+    To disable a particular feature, just run the \c configure script
+    with the \c -no-feature-<feature> option. For example:
+
+    \code
+        ./configure -no-feature-thread
+    \endcode
+
+    The feature can easily be enabled again by running \c configure
+    with the \c -feature-<feature> option.
+
+    You can also disable a \e set of features by creating a custom
+    configuration file that defines the preferred subset of Qt's
+    functionality. Such a file uses macros to disable the unwanted
+    features, and can be created manually or by using the \c qconfig
+    tool located in the \c /tools/qconfig directory.
 
     \image qtopiacore-qconfigtool.png
 
     The \c qconfig tool's interface displays all of Qt's
-    functionality, and allows the user to disable or enable the
-    relevant features. The user can open and edit any custom
-    configuration file located in the \c /src/corelib/global
-    directory. When creating a custom configuration file manually, a
-    description of the currently available Qt features can be found in
-    the \c /src/corelib/global/qfeatures.txt file.
+    functionality, and allows the user to both disable and enable
+    features. The user can open and edit any custom configuration file
+    located in the \c /src/corelib/global directory. When creating a
+    custom configuration file manually, a description of the currently
+    available Qt features can be found in the \c
+    /src/corelib/global/qfeatures.txt file.
 
     Note that some features depend on others; disabling any feature
     will automatically disable all features depending on it. The
@@ -33,27 +54,20 @@
     but they are also described in the \c
     /src/corelib/global/qfeatures.h file.
 
-    To use the custom configuration when running \c configure, it must
-    be saved in a file called \c qconfig-myfile.h in the \c
-    /src/corelib/global directory. Use the \c -qconfig option and pass
-    the configuration's filename without the \c qconfig- prefix and \c
-    .h extension, as argument. For example:
+    To be able to apply the custom configuration, it must be saved in
+    a file called \c qconfig-myfile.h in the \c /src/corelib/global
+    directory. Then use the \c configure script's \c -qconfig option
+    and pass the configuration's filename without the \c qconfig-
+    prefix and \c .h extension, as argument. For example:
 
     \code
-        configure -qconfig myfile
+        ./configure -qconfig myfile
     \endcode
 
-    Qt provides several ready-made custom configuration files defining
-    a minimal, small, medium and large installation, respectively,
-    located in the \c /src/corelib/global directory.
+    Qt provides several ready-made custom configuration files,
+    defining minimal, small, medium and large installations,
+    respectively. These files are located in the \c
+    /src/corelib/global directory.
 
-    To enable or disable a particular option, it might be easier to
-    just run \c configure with the \c -no-feature-<feature> or \c
-    -feature-<feature> option, respectively. For example:
-
-    \code
-        configure -no-feature-thread
-    \endcode
-
-    \sa {Performance Tuning}
+    \sa {Qtopia Core Performance Tuning}{Performance Tuning}
 */

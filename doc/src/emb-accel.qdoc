@@ -2,8 +2,9 @@
 **
 ** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -12,20 +13,20 @@
 
 /*!
     \page qtopiacore-accel.html
-    \contentspage {Qtopia Core}{Contents}
 
-    \title Adding an Accelerated Graphics Driver
+    \title Adding an Accelerated Graphics Driver in Qtopia Core
     \ingroup qtopiacore
 
-    Painting in Qtopia Core is a pure software implementation and is
-    normally performed in two steps: Each window is rendered onto a
-    QWSWindowSurface using QPaintEngine, and then the server composes
-    the surface images and copies them to the screen. Qtopia Core
-    uses QRasterPaintEngine (a raster-based implementation of
-    QPaintEngine) to implement painting operations and QScreen to
-    implement window composition.
+    In \l {Qtopia Core}, painting is a pure software implementation
+    and is normally performed in two steps: Each window is rendered
+    onto a QWSWindowSurface using QPaintEngine, and then the server
+    composes the surface images and copies them to the screen (see the
+    \l {Qtopia Core Architecture} documentation for details). \l
+    {Qtopia Core} uses QRasterPaintEngine (a raster-based
+    implementation of QPaintEngine) to implement painting operations
+    and QScreen to implement window composition.
 
-    Starting with Qtopia Core 4.2, it is possible to add an
+    Starting with \l {Qtopia Core} 4.2, it is possible to add an
     accelerated graphics driver to take advantage of available
     hardware resources, using the following approach:
 
@@ -47,10 +48,11 @@
     Implement the painting operations by subclassing the
     QRasterPaintEngine class.
 
-    To accelerate a graphics primitive, simply reimplement it in your
-    custom paint engine. If there are cases you do not want to
-    implement yourself (such as certain pens, brushes, modes, etc.),
-    you can just call the QRasterPaintEngine versions.
+    To accelerate a graphics primitive, simply reimplement the
+    corresponding function in your custom paint engine. If there is
+    functionality you do not want to reimplement (such as certain
+    pens, brushes, modes, etc.), you can just call the corresponding
+    base class implementation.
 
     \section1 Step 3: Make the Paint Device Aware of Your Paint Engine
 
@@ -68,12 +70,12 @@
     \o
 
     If you are writing a driver for a device with an graphic I/O
-    controller and no framebuffer support, the
+    controller but no framebuffer support, the
     QCustomRasterPaintDevice::memory() function must return 0 (meaning
-    no buffer available) in which case the paint engine will call the
+    no buffer available). Then, whenever a color or buffer should be
+    written into memory, the paint engine will call the
     QRasterPaintEngine::drawColorSpans() and
-    QRasterPaintEngine::drawBufferSpan() functions instead whenever a
-    color or buffer should be written into memory.
+    QRasterPaintEngine::drawBufferSpan() functions instead.
 
     Note that the default implementations of these functions only
     calls qFatal() with an error message; reimplement the functions
@@ -86,7 +88,7 @@
 
     Derive from the QWSWindowSurface class and reimplement its \l
     {QWSWindowSurface::}{paintDevice()} function. Make this function
-    return your custom raster paint device.
+    return a pointer to your custom raster paint device.
 
     \section1 Step 5: Enable the Screen to Create an Instance of Your Window Surface
 

@@ -1,77 +1,84 @@
+/****************************************************************************
+**
+** Copyright (C) 2006-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 /*!
     \group qtopiacore
+
     \title Qtopia Core
 
-    The Qtopia Core platform is a C++ framework for GUI and
-    application development for embedded devices. It runs on a variety
-    of processors, usually with Embedded Linux.  Qtopia Core provides
-    the standard Qt API for embedded devices with a lightweight
-    windowing system.
+    Qtopia Core is a C++ framework for GUI and application development
+    for embedded devices. It runs on a variety of processors, usually
+    with Embedded Linux.  Qtopia Core provides the standard Qt API for
+    embedded devices with a lightweight window system.
+
+    \image qtopiacore-architecture.png
+
+    Qtopia Core applications write directly to the framebuffer,
+    eliminating the need for the X Window System and saving memory.
+    The Linux framebuffer is enabled by default on all modern Linux
+    distributions. For information on older versions, see \l
+    http://en.tldp.org/HOWTO/Framebuffer-HOWTO.html. For development
+    and debugging purposes, Qtopia Core provides a \l {Qtopia Core's
+    Virtual Framebuffer}{virtual framebuffer}. It is also possible to
+    run an application using the \l {The VNC Protocol and Qtopia
+    Core}{VNC protocol}.
 
     \table 100%
-    \header \o Development \o Reference  \o Optimization
+    \header \o Getting Started \o Reference \o Features
     \row
     \o
      \list
-        \o \l {Installing Qtopia Core}
-        \o \l {Running Applications}
-        \o \l {Cross Compiling Applications}
-        \o \l {Porting Applications to Qtopia Core}
-        \o \l {Deploying an Application on Qtopia Core}
+        \o \l {Qtopia Core Architecture}{Architecture Overview}
+        \o \l {Installing Qtopia Core}{Installation}
+        \o \l {Running Qtopia Core Applications}{Running Applications}
+        \o \l {Qt Examples#Qtopia Core Examples}{Examples}
     \endlist
     \o
     \list
         \o \l {Qtopia Core Classes}{Classes}
-        \o \l {Environment Variables}
-        \o \l {Fonts}
-        \o \l {Pointer Handling}
-        \o \l {Character Input}
+        \o \l {Qtopia Core Environment Variables}{Environment Variables}
+        \o \l {Licenses for Fonts Used in Qtopia Core}{Font Licenses}
     \endlist
     \o
     \list
-        \o \l {Performance Tuning}
-        \o \l {Fine-Tuning Features}
-        \o \l {Adding an Accelerated Graphics Driver}
-    \endlist
-    \endtable
-
-    In addition to the class library, Qtopia Core provides means for
-    customizing and optimizing the final result: Memory consumption
-    can be fine-tuned by compiling out features that are not used, and
-    a number of options are available that reduce the memory and CPU
-    requirements by making various trade-offs. Keyboard and pointer
-    drivers can be specified, as weel as the font output's format. It
-    is also possible to make use of accelerated graphics hardware.
-
-    \table 100%
-    \row
-    \o {1, 2}
-    \bold { Qtopia Core versus Qt/X11 on Embedded Linux}
-
-    Qtopia Core applications write directly to the framebuffer,
-    eliminating the need for the X Window System and saving memory.
-
-    For development and debugging purposes, the Qtopia Core platform
-    provides a virtual framebuffer.
-
-    It also provides the option of running an application using the
-    VNC protocol.
-
-    \list
-        \o \l {The Virtual Framebuffer}
-        \o \l {The VNC Protocol}
+        \o \l {Qtopia Core Pointer Handling}{Pointer Handling}
+        \o \l {Qtopia Core Character Input}{Character Input}
+        \o \l {Qtopia Core Display Management}{Display Management}
+        \o \l {OpenGL in Qtopia Core}{OpenGL}
+        \o \l {Qtopia Core Fonts}{Fonts}
     \endlist
 
-    \o \image qtopiacore-architecture.png
+    \header \o Development \o Porting \o Optimization
     \row
     \o
-    \bold {The Linux Framebuffer}
-
-    The framebuffer is enabled by default on all modern Linux
-    distributions. For information on older versions, see \l
-    http://en.tldp.org/HOWTO/Framebuffer-HOWTO.html.
-
-    See also \l {Testing the Linux Framebuffer}.
-
+     \list
+        \o \l {Qtopia Core's Virtual Framebuffer}{Virtual Framebuffer}
+        \o \l {The VNC Protocol and Qtopia Core}{VNC Protocol}
+        \o \l {Testing the Linux Framebuffer}
+        \o \l {Cross Compiling Qtopia Core Applications}{Cross Compiling Applications}
+        \o \l {Deploying Qtopia Core Applications}{Deploying Applications}
+    \endlist
+    \o
+    \list
+        \o \l {Porting Qt Applications to Qtopia Core}
+        \o \l {Porting Qtopia Core to a New Architecture}
+        \o \l {Porting Qtopia Core to Another Operating System}
+    \endlist
+    \o
+    \list
+        \o \l {Qtopia Core Performance Tuning}{Performance Tuning}
+        \o \l {Fine-Tuning Features in Qtopia Core}{Fine-Tuning Features}
+        \o \l {Adding an Accelerated Graphics Driver in Qtopia Core}{Adding an Accelerated Graphics Driver}
+    \endlist
     \endtable
 */

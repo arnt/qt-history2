@@ -1,7 +1,18 @@
+/****************************************************************************
+ **
+ ** Copyright (C) 2006-$THISYEAR$ $TROLLTECH$. All rights reserved.
+ **
+ ** This file is part of the $MODULE$ of the Qt Toolkit.
+ **
+ ** $TROLLTECH_DUAL_LICENSE$
+ **
+ ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+ ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+ **
+ ****************************************************************************/
+
 /*!
     \page qtopiacore-install.html
-
-    \contentspage {Qtopia Core}
 
     \title Installing Qtopia Core
     \ingroup qtopiacore
@@ -14,7 +25,7 @@
 
     \section1 Step 1: Installing the License File (commercial editions only)
 
-    If you have the commercial edition of Qtopia Core, the first step
+    If you have the commercial edition of \l {Qtopia Core}, the first step
     is to install your license file as \c $HOME/.qt-license.
 
     For the open source version you do not need a license file.
@@ -39,10 +50,10 @@
 
     \section1 Step 3: Building the Library
 
-    Before building the Qtopia Core library, run the \c ./configure
+    Before building the \l {Qtopia Core} library, run the \c ./configure
     script to configure the library for your deployment architecture.
 
-    By default, Qtopia Core is configured for installation in the
+    By default, \l {Qtopia Core} is configured for installation in the
     \c{/usr/local/Trolltech/QtopiaCore-%VERSION%} directory, but this
     can be changed by using the \c{-prefix} option. Alternatively, the
     \c{-prefix-install} option can be used to specify a "local"
@@ -72,7 +83,7 @@
     On some systems the \c make utility is called differently, e.g. \c
     gmake. The \c configure script tells you which make utility to use.
 
-    If you did not configure Qtopia Core using the \c{-prefix-install}
+    If you did not configure \l {Qtopia Core} using the \c{-prefix-install}
     option, you need to install the library, demos, examples, tools,
     and tutorials in the appropriate place. To do this, type:
 
@@ -89,8 +100,8 @@
 
     \section1 Step 4: Adjusting the Environment Variables
 
-    In order to use Qtopia Core, the \c PATH variable must be extended
-    to locate \c qmake, \c moc and other Qtopia Core tools, and the \c
+    In order to use \l {Qtopia Core}, the \c PATH variable must be extended
+    to locate \c qmake, \c moc and other \l {Qtopia Core} tools, and the \c
     LD_LIBRARY_PATH must be extended for compilers that do not support
     \c rpath.
 
@@ -112,27 +123,22 @@
     If you use a different shell, please modify your environment
     variables accordingly.
 
-    For compilers that do not support \c rpath you must also extended
+    For compilers that do not support \c rpath you must also extend
     the \c LD_LIBRARY_PATH environment variable to include
     \c /usr/local/Trolltech/QtopiaCore-%VERSION%/lib. Note that on Linux
     with GCC, this step is not needed.
 
     \section1 Step 5: Enabling Framebuffer Support
 
-    Qtopia Core applications write directly to the framebuffer,
-    eliminating the need for the X Window System and saving
-    memory. The final step in the installation procedure is to enable
-    the framebuffer support.
-
-    For development and debugging, the Qtopia Core platform provides a
-    virtual framebuffer as well as the option of running Qtopia Core
-    as a VNC server. For a description of how to install the virtual
+    For development and debugging, \l {Qtopia Core} provides a virtual
+    framebuffer as well as the option of running \l {Qtopia Core} as a VNC
+    server. For a description of how to install the virtual
     framebuffer and how to use the VNC protocol, please consult the
     documentation at:
 
     \list
-       \o \l {The Virtual Framebuffer}
-       \o \l {The VNC Protocol}
+       \o \l {Qtopia Core's Virtual Framebuffer}
+       \o \l {The VNC Protocol and Qtopia Core}
     \endlist
 
     Note that the virtual framebuffer requires a Qt/X11
@@ -147,7 +153,7 @@
     the device permissions are correct, use the program provided by
     the \l {Testing the Linux Framebuffer} document.
 
-    That's all. Qtopia Core is now installed.
+    That's all. \l {Qtopia Core} is now installed.
 
     \table 100%
     \row
@@ -163,77 +169,10 @@
     possible to make use of accelerated graphics hardware.
 
     \list
-        \o \l {Fine-Tuning Features}
-        \o \l {Performance Tuning}
-        \o \l {Adding an Accelerated Graphics Driver}
+        \o \l {Fine-Tuning Features in Qtopia Core}
+        \o \l {Qtopia Core Performance Tuning}
+        \o \l {Adding an Accelerated Graphics Driver in Qtopia Core}
     \endlist
 
-    In addition, it is possible to specify the \l {Pointer
-    Handling}{pointer handling} as well as the \l{Character
-    Input}{character input} and \l {Fonts}{font formats}.
     \endtable
-
-\omit ### this doesn't exist anymore
-    \list
-    \o How to run the demonstration program.
-
-       Log into a virtual console and do this:
-
-        \code
-            cd ~/qtopia-core-commercial-VERSION/examples/launcher
-           ./start-demo
-        \endcode
-
-    \o Miscellaneous troubleshooting and known bugs.
-
-        To kill gpm, run the following command as root:
-
-        \code
-             gpm -k
-         \endcode
-
-        In some cases, if the server does not work, it will work when run as root.
-
-        Show processes using the framebuffer:
-
-        \code
-            fuser -v /dev/fb0
-        \endcode
-
-        Kill such processes:
-
-        \code
-            fuser -vk /dev/fb0
-        \endcode
-
-        or harsher:
-
-        \code
-            fuser -k -KILL /dev/fb0
-        \endcode
-
-        Show existing semaphores:
-
-        \code
-            ipcs
-        \endcode
-
-        Remove semaphores:
-
-        \code
-            ipcrm
-        \endcode
-
-        The communication between client and server is done through
-        the named pipe \c /tmp/qtembedded-username/QtEmbedded-0;
-        sometimes it may need to be deleted (e.g. if you run Qtopia
-        Core with root privileges then later as an unprivileged user).
-
-    \o This document shows how to use Qtopia Core with the Linux
-        framebuffer. For development and debugging purposes it is often
-        easier to use the \link emb-qvfb.html Qtopia Core virtual
-        framebuffer\endlink instead.
-    \endlist
-\endomit
-
 */

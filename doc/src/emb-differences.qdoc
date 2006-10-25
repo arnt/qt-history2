@@ -1,9 +1,7 @@
 /*!
     \page qtopiacore-differences.html
 
-    \contentspage {Qtopia Core}{Contents}
-
-    \title Porting Applications to Qtopia Core
+    \title Porting Qt Applications to Qtopia Core
     \ingroup porting
     \ingroup qtopiacore
 

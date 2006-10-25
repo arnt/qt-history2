@@ -1,8 +1,20 @@
+/****************************************************************************
+**
+** Copyright (C) 2006-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 /*!
     \page qtopiacore-deployment.html
-    \contentspage Qtopia Core
 
-    \title Deploying an Application on Qtopia Core
+    \title Deploying Qtopia Core Applications
     \ingroup qtopiacore
 
     The procedure of deploying an Qt application on \l {Qtopia Core}
@@ -25,8 +37,8 @@
 
     For that reason, the preferred fonts must be copied to the \c
     /lib/fonts/ directory, and the \c fontdir file must be customized
-    accordingly.  See the \l Fonts documentation for more details
-    about the supported font formats.
+    accordingly.  See the \l {Qtopia Core Fonts}{fonts} documentation
+    for more details about the supported font formats.
 
     Note that the application will look for the \c /lib/fonts/
     directory relative to the path set using the \c -prefix parameter
@@ -39,19 +51,22 @@
 
     In general, any variable value that differs from the provided
     default values must be set explicitly in the target device
-    environment.  Typically, these include the QWS_MOUSE_PROTO and
-    QWS_KEYBOARD variables specifying the drivers and devices for
-    pointer handling and character input.
+    environment.  Typically, these include the QWS_MOUSE_PROTO,
+    QWS_KEYBOARD and QWS_DISPLAY variables specifying the drivers for
+    pointer handling, character input and display management,
+    respectively.
 
-    Without the proper mouse and keyboard drivers, there is no way to
-    give any input to the application when it is installed on the
-    target device. By running the \c configure script using the \c
-    -qt-kbd-<mykeyboarddriver> and \c -qt-mouse-<mymousedriver>
-    options, the drivers are enabled, but in addition the drivers and
-    the preferred devices must be specified as the ones to use in the
-    target environment. See the \l {Pointer Handling} and \l
-    {Character Input} documentation for more information about how to
-    add custom drivers.
+    For example, without the proper mouse and keyboard drivers, there
+    is no way to give any input to the application when it is
+    installed on the target device. By running the \c configure script
+    using the \c -qt-kbd-<keyboarddriver> and \c
+    -qt-mouse-<mousedriver> options, the drivers are enabled, but in
+    addition the drivers and the preferred devices must be specified
+    as the ones to use in the target environment, by setting the
+    environment variables.
 
-    \sa {Running Applications}
+    See the \l {Qtopia Core Pointer Handling}{pointer handling}, \l
+    {Qtopia Core Character Input}{character input} and \l {Qtopia Core
+    Display Management}{display management} documentation for more
+    information.
 */

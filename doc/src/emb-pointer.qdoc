@@ -1,71 +1,163 @@
+/****************************************************************************
+**
+** Copyright (C) 2006-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 /*!
     \page qtopiacore-pointer.html
-    \contentspage {Qtopia Core}{Contents}
 
-    \title Pointer Handling
+    \title Qtopia Core Pointer Handling
     \ingroup qtopiacore
 
-    Pointer handling in Qtopia Core works for both mouse and
-    mouse-like devices such as touch panels and trackballs. The
-    various drivers can be enabled and disabled using the \c configure
-    script.
+    When running a \l {Qtopia Core} application, it either runs as a
+    server or connects to an existing server. The mouse driver is
+    loaded by the server application when it starts running, using
+    Qt's \l {How to Create Qt Plugins}{plugin system}.
 
-    For example:
+    Internally in the client/server protocol, all system generated
+    events, including pointer events, are passed to the server
+    application which then propagates the event to the appropiate
+    client. Note that pointer handling in \l {Qtopia Core} works for
+    both mouse and mouse-like devices such as touch panels and
+    trackballs.
 
-\if defined(QTOPIA_PHONE)
-   \code
-        ./configure -extra-qtopiacore-config -qt-mouse-tslib
-    \endcode
+    Contents:
 
-    To list the available mouse drivers run:
-    \code
-<qtopia-root-dir>/qtopiacore/qt/configure -embedded -help |grep -a1 mouse
-    \endcode
-    \bold{Note:} By default only the PC mouse driver is enabled.
-
-\else
-   \code
-        configure -qt-mouse-tslib
-    \endcode
-
-    Run \c{./configure -help} to list the available drivers. In the
-    default Qt configuration, only the "pc" mouse driver is enabled.
-\endif
+    \tableofcontents
 
     \section1 Available Drivers
 
-    Qtopia Core provides drivers for the MouseMan, IntelliMouse,
-    Microsoft, NEC Vr41XX, Linux Touch Panel and Yopy protocols as
-    well as the universal touch screen library, tslib.
-
-    Provided that the "pc" mouse driver is enabled, Qtopia Core will
-    try to auto-detect the mouse device if it is one of the supported
-    types on \c /dev/psaux or one of the \c /dev/ttyS?  serial
-    lines. If multiple mice are detected, all may be used
-    simultaneously. Note that Qtopia Core does not support
-    auto-detection of \e {touch panels} in which case the driver must
-    be specified explicitly to determine which device to use.
-
-    Other drivers can be added by deriving from the QWSMouseHandler
-    and QMouseDriverPlugin classes and using Qt's plugin mechanism.
+    \l {Qtopia Core} provides ready-made drivers for the MouseMan,
+    IntelliMouse, Microsoft, NEC Vr41XX, Linux Touch Panel and Yopy
+    protocols as well as the universal touch screen library,
+    tslib. Run the \c configure script to list the available drivers:
 
     \if defined(QTOPIA_PHONE)
-    For a tutorial on how to add a new keyboard driver plug-in see : \l {Tutorial: Implementing a Device Plug-in}.
+
+        \code
+            <qtopia-root-dir>/qtopiacore/qt/configure -embedded -help |grep -a1 mouse
+        \endcode
+
+        \bold{Note:} By default only the PC mouse driver is enabled.
+
+        The various drivers can be enabled and disabled using the \c
+        configure script. For example:
+
+        \code
+            ./configure -extra-qtopiacore-config -qt-mouse-tslib
+        \endcode
+
+    \else
+
+        \code
+            ./configure -help
+        \endcode
+
+        In the default Qt configuration, only the "pc" mouse driver is
+        enabled. The various drivers can be enabled and disabled using
+        the \c configure script. For example:
+
+        \code
+            configure -qt-mouse-tslib
+        \endcode
+    \endif
+
+    Custom mouse drivers can be implemented by subclassing the
+    QWSMouseHandler class and creating a mouse driver plugin (derived
+    from the QMouseDriverPlugin class). \l {Qtopia Core}'s
+    implementation of the QMouseDriverFactory class will automatically
+    detect the plugin, loading the driver into the server application
+    at runtime.
+
+    \if defined(QTOPIA_PHONE)
+        For a tutorial on how to add a new keyboard driver plug-in
+        see: \l {Tutorial: Implementing a Device Plug-in}.
     \endif
 
     \section1 Specifying a Driver
 
-    To specify which driver to use, set the QWS_MOUSE_PROTO
+    Provided that the "pc" mouse driver is enabled, \l {Qtopia Core} will
+    try to auto-detect the mouse device if it is one of the supported
+    types on \c /dev/psaux or one of the \c /dev/ttyS?  serial
+    lines. If multiple mice are detected, all may be used
+    simultaneously.
+
+    Note that \l {Qtopia Core} does not support auto-detection of \e
+    {touch panels} in which case the driver must be specified
+    explicitly to determine which device to use.
+
+    To manually specify which driver to use, set the QWS_MOUSE_PROTO
     environment variable. For example (if the current shell is bash,
     ksh, zsh or sh):
 
     \code
-         export QWS_MOUSE_PROTO=<driver>:<device>
+        export QWS_MOUSE_PROTO=<driver>[:<driver specific options>]
     \endcode
 
-    The \c <driver> argument is either \c MouseMan, \c IntelliMouse,
-    \c Microsoft, \c VR41xx, \c LinuxTP, \c Yopy or \c Tslib, and the
-    \c <device> argument is typically \c /dev/mouse for mouse devices
-    and \c /dev/ts for touch panels. Note that the latter argument is
-    optional.
+    The valid values for the \c <driver> argument are \c MouseMan, \c
+    IntelliMouse, \c Microsoft, \c VR41xx, \c LinuxTP, \c Yopy, \c
+    Tslib and \l {QMouseDriverPlugin::keys()}{keys} identifying custom
+    drivers, and the driver specific options are typically a device,
+    e.g., \c /dev/mouse for mouse devices and \c /dev/ts for touch
+    panels.
+
+    Note that the \c Vr41xx driver also accepts two optional
+    arguments: \c press=<value> defining a mouse click (the default
+    value is 750) and \c filter=<value> specifying the length of the
+    filter used to eliminate noise (the default length is 3). For
+    example:
+
+    \code
+        export QWS_MOUSE_PROTO="Vr41xx:press=500:/dev/misc/ts"
+    \endcode
+
+    \table
+    \header \o The Tslib Mouse Driver
+    \row
+    \o
+
+    The tslib mouse driver inherits the QWSCalibratedMouseHandler
+    class, providing calibration and noise reduction functionality in
+    addition to generating mouse events for devices using the
+    Universal Touch Screen Library.
+
+    To be able to compile this mouse handler, \l {Qtopia Core} must be
+    configured with the \c -qt-mouse-tslib option as described
+    above. In addition, the tslib headers and library must be present
+    in the build environment.
+
+    The tslib sources can be downloaded from \l
+    http://cvs.arm.linux.org.uk. Use the \c configure script's -L and
+    -I options to explicitly specify the location of the library and
+    its headers:
+
+    \code
+        ./configure  -L <path to tslib library> -I <path to tslib headers>
+    \endcode
+
+    In order to use this mouse driver, tslib must also be correctly
+    installed on the target machine. This includes providing a \c
+    ts.conf configuration file and setting the neccessary environment
+    variables (see the README file provided with tslib for details).
+
+    The \c ts.conf file will usually contain the following two lines:
+
+    \code
+         module_raw input
+         module linear
+    \endcode
+
+    To make \l {Qtopia Core} explicitly choose the tslib mouse
+    handler, set the QWS_MOUSE_PROTO environment variable as explained
+    above.
+
+    \endtable
 */

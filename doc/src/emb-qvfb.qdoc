@@ -1,16 +1,28 @@
+/****************************************************************************
+**
+** Copyright (C) 2006-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 /*!
     \page qtopiacore-qvfb.html
 
-    \contentspage {Qtopia Core}{Contents}
-
-    \title The Virtual Framebuffer
+    \title Qtopia Core's Virtual Framebuffer
+    \ingroup qtopiacore
 
     \l {Qtopia Core} applications write directly to the framebuffer,
     eliminating the need for the X Window System and saving
-    memory. For development and debugging purposes, the \l {Qtopia
-    Core} platform provides a virtual framebuffer allowing \l {Qtopia
-    Core} programs to be developed on a desktop machine, without
-    switching between consoles and X11.
+    memory. For development and debugging purposes, \l {Qtopia Core}
+    provides a virtual framebuffer allowing \l {Qtopia Core}
+    programs to be developed on a desktop machine, without switching
+    between consoles and X11.
 
     \image qtopiacore-virtualframebuffer.png
 
@@ -33,7 +45,7 @@
     \section1 Displaying the Virtual Framebuffer
 
     To run the \c qvfb tool displaying the virtual framebuffer, the
-    Qtopia Core library must be configured and compiled with the \c
+    \l {Qtopia Core} library must be configured and compiled with the \c
     -qvfb option:
 
     \code
@@ -58,23 +70,24 @@
     \table
     \header \o Option \o Description
     \row
-    \o \c {-width <width>}
+    \o \c {-width <value>}
     \o The width of the virtual framebuffer (default: 240).
     \row
-    \o \c {-height <height>}
+    \o \c {-height <value>}
     \o The height of the virtual framebuffer (default: 320).
     \row
-    \o \c {-depth <depth>}
+    \o \c {-depth <value>}
     \o The depth of the virtual framebuffer (1, 8 or 32; default: 8).
     \row
     \o \c -nocursor
     \o Do not display the X11 cursor in the framebuffer window.
     \row
     \o \c {-qwsdisplay <:id>}
-    \o The \l {Qtopia Core} display ID (default: :0).
+    \o The \l {Qtopia Core} display ID (default: 0).
     \row
     \o \c {-skin <name>.skin}
-    \o The preferred skin which must be located in Qt's \c /tools/qvfb/ directory.
+    \o The preferred skin. Note that the skin must be located in Qt's
+    \c /tools/qvfb/ directory.
     \row
     \o \c {-zoom <factor>}
     \o Scales the application view with the given factor.
@@ -83,12 +96,11 @@
 
     \section2 Skins
 
-    A skin is a set of XML and pixmap files that tell the vitual
-    framebuffer how it should look and how it should behave; a skin
-    can change the unrealistic display into a display that is
-    identical to the device being developed. To access the \c qvfb
-    tool's menus when a skin is activated, right-click over the
-    display.
+    A skin is a set of XML and pixmap files that tells the vitual
+    framebuffer what it should look like and how it should behave; a
+    skin can change the unrealistic default display into a display
+    that is similar to the target device. To access the \c qvfb tool's
+    menus when a skin is activated, right-click over the display.
 
     Note that a skin can have buttons which (when clicked) send
     signals to the Qtopia application running inside the virtual
@@ -270,10 +282,10 @@
     \section1 Running Applications Using the Virtual Framebuffer
 
     Once the virtual framebuffer (the \c qvfb application) is running,
-    it is ready for use: Start a Qtopia Core master application
-    (i.e. construct a QApplication object with the
-    QApplication::GuiServer flag or use the \c -qws command line
-    parameter. See the \l {Running Applications} documentation for
+    it is ready for use: Start a server application (i.e. construct a
+    QApplication object with the QApplication::GuiServer flag or use
+    the \c -qws command line parameter. See the \l {Running Qtopia
+    Core Applications}{running applications} documentation for
     details). For example:
 
     \code
@@ -283,10 +295,10 @@
     \endcode
 
     Note that as long as the virtual framebuffer is running and the
-    Qtopia Core library supports \c qvfb, Qtopia Core will
-    automatically detect it and use it by default. Alternatively, the
-    \c -display option can be used to specify the virtual framebuffer
-    driver. For example:
+    current \l {Qtopia Core} configuration supports \c qvfb, \l
+    {Qtopia Core} will automatically detect it and use it by
+    default. Alternatively, the \c -display option can be used to
+    specify the virtual framebuffer driver. For example:
 
     \code
         cd path/to/Qtopia/Core/examples/widgets/analogclock
@@ -294,8 +306,8 @@
         ./analogclock -qws -display QVFb:0
     \endcode
 
-    \warning If \c qvfb is not running (or the current Qtopia Core
-    library doesn't support it) and the driver is not explicitly
-    specified, Qtopia Core will write to the real framebuffer and the
-    X11 display will be corrupted.
+    \warning If \c qvfb is not running (or the current \l {Qtopia
+    Core} configuration doesn't support it) and the driver is not
+    explicitly specified, \l {Qtopia Core} will write to the real
+    framebuffer and the X11 display will be corrupted.
 */

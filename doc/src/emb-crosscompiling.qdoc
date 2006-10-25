@@ -2,8 +2,9 @@
 **
 ** Copyright (C) 2006-$THISYEAR$ $TROLLTECH$. All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -12,32 +13,31 @@
 
 /*!
     \page qtopiacore-crosscompiling.html
-    \contentspage {Qtopia Core}{Contents}
 
-    \title Cross-Compiling Applications
+    \title Cross-Compiling Qtopia Core Applications
     \ingroup qtopiacore
 
-    Cross-compiling is the process of executing a compile on one
-    machine, producing object/executable code for a different machine
-    or device.
+    Cross-compiling is the process of compiling an application on one
+    machine, producing executable code for a different machine or
+    device. To cross-compile a \l {Qtopia Core} application, use the
+    following approach:
 
     \tableofcontents
 
+    \section1 Step 1: Set the Cross-Compiler's Path
 
-    \section1 Step 1: Setting the Cross-Compiler's Path
-
-    Specify the cross compiler by setting the \c PATH environment
-    variable. For example, if the current shell is bash, ksh, zsh or
-    sh:
+    Specify which cross-compiler to use by setting the \c PATH
+    environment variable. For example, if the current shell is bash,
+    ksh, zsh or sh:
 
     \code
         export PATH=path/to/cross/compiler:$PATH
     \endcode
 
-    \section1 Step 2: Including the Required Libraries
+    \section1 Step 2: Include the Required Libraries
 
-    Make sure that all the libraries needed for the application, as
-    well as for the Qt libraries, are present in the tool chain. In
+    Make sure that all the third party libraries that the application
+    and the Qt libraries require, are present in the tool chain. In
     particular, if the zlib and jpeg libraries are not available, they
     must be included by running the \c configure script with the \c -L
     and \c -I options. For example:
@@ -48,58 +48,65 @@
     \endcode
 
     The JPEG source can be downloaded from \l http://www.ijg.org/. The
-    Qtopia Core distribution includes a version of the zlib source
+    \l {Qtopia Core} distribution includes a version of the zlib source
     that can be compiled into the Qtopia core library. If integrators
     wish to use a later version of the zlib library, it can be
     downloaded from the \l http://www.gzip.org/zlib/ website.
 
-    \section1 Step 3: Creating a Target Specific qmake Specification
+    \section1 Step 3: Create a Target Specific qmake Specification
 
-    The qmake tool requires a \c qmake.conf file describing the
-    platform and compiler specific default values used to generate
-    appropriate Makefiles. The standard Qtopia Core distribution
-    provides such files for several combinations of platforms and
-    compilers. These files are located in the \c mkspecs subdirectory.
+    The qmake tool requires a platform and compiler specific \c
+    qmake.conf file describing the various default values, to generate
+    the appropriate Makefiles. The standard \l {Qtopia Core}
+    distribution provides such files for several combinations of
+    platforms and compilers. These files are located in the
+    distribution's \c mkspecs subdirectory.
 
-    Create a \c qmake.conf fitting your target environment by copying
-    an already existing file. It is recommended to copy the entire
-    directory, for example:
+    Create a \c qmake.conf for your target environment by copying and
+    customizing an already existing file. For example:
 
     \code
         cp path/to/Qtopia/Core/mkspecs/qws/linux-mips-g++/...
            path/to/Qtopia/Core/mkspecs/qws/linux-myplatform-g++/...
     \endcode
 
-    Then customize the new platform specific \c qmake.conf file.
+    Note that it is recommended to copy the entire directory.
 
-    \section1 Step 4: Providing Mouse and Keyboard Drivers
+    \section1 Step 4: Provide Hardware Drivers
 
-    Without the proper mouse and keyboard drivers, you won't be able
-    to give any input to your application when it is installed on the
-    target device.
+    Without the proper mouse and keyboard drivers, you will not be
+    able to give any input to your application when it is installed on
+    the target device. You must also ensure that the appropriate
+    screen driver is present to make the server process able to put
+    the application's widgets on screen.
 
-    By default, Qtopia Core provides mouse drivers for the MouseMan,
-    IntelliMouse, Microsoft, NEC Vr41XX, Linux Touch Panel and Yopy
-    protocols as well as the universal touch screen library,
-    tslib. The provided keyboard drivers are SL5000, Yopy, Vr41XX,
-    console (TTY) and USB.
+    \l {Qtopia Core} provides serveral ready-made mouse, keyboard and
+    screen drivers, see the \l {Qtopia Core Pointer Handling}{pointer
+    handling}, \l {Qtopia Core Character Input}{character input} and
+    \l {Qtopia Core Display Management}{display management}
+    documentation for details.
 
-    Other drivers can be added by deriving from the QWSMouseHandler
-    and QMouseDriverPlugin classes, or the QWSKeyboardHandler and
-    QKbdDriverPlugin classes, and using Qt's plugin mechanism. See the
-    \l {How to Create Qt Plugins} documentation and the \l
+    In addition, custom drivers can be added by deriving from the
+    QWSMouseHandler, QWSKeyboardHandler and QScreen classes
+    respectively, and by creating corresponding plugins to make use of
+    Qt's plugin mechanism (dynamically loading the drivers into the
+    server application at runtime). Note that the plugins must be
+    located in a location where Qt will look for plugins, e.g., the
+    standard \c plugin directory.
+
+    See the \l {How to Create Qt Plugins} documentation and the \l
     {tools/plugandpaint}{Plug & Paint} example for details.
 
-    \section1 Step 5: Building the Target Specific Executable
+    \section1 Step 5: Build the Target Specific Executable
 
-    Before building the executable, run the \c configure script
-    specifying the platform architecture as well as the platform
-    specific mouse, keyboard and graphics drivers:
+    Before building the executable, you must specify the platform
+    architecture as well as the platform specific hardware drivers by
+    running the \c configure script:
 
     \code
         cd path/to/Qtopia/Core
-        ./configure -embedded myplatform -qt-kbd-<mykeyboarddriver>
-                    -qt-mouse-<mymousedriver> -qt-gfx-<mygraphicsdriver>
+        ./configure -embedded <platform> -qt-kbd-<keyboarddriver>
+                    -qt-mouse-<mousedriver> -qt-gfx-<screendriver>
 
         cd path/to/myApplication
         qmake -project
@@ -113,7 +120,8 @@
     \row
     \o \bold {See also:}
 
-    \l {Character Input}, \l {Pointer Handling} and \l {Deploying an
-    Application on Qtopia Core}.
+    \l {Qtopia Core Architecture} and \l {Deploying Qtopia Core
+    Applications}.
+
     \endtable
 */

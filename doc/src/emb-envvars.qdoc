@@ -2,8 +2,9 @@
 **
 ** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -13,18 +14,33 @@
 /*!
     \page qtopiacore-envvars.html
 
-    \contentspage {Qtopia Core}{Contents}
-
-    \title Environment Variables
+    \title Qtopia Core Environment Variables
     \ingroup qtopiacore
+
+    These environment variables are relevant to Qtopia Core users.
 
     \table
     \header \o Variable \o Description
 
     \row
+    \o \bold QT_ONSCREEN_PAINT \target QT_ONSCREEN_PAINT
+
+    \o If defined, the application will render its widgets directly on
+    screen. The affected regions of the screen will not be modified by
+    the screen driver unless another window with a higher focus
+    requests (parts of) the same region.
+
+    Setting this environment variable is equivalent to setting the
+    Qt::WA_PaintOnScreen attribute for all the widgets in the
+    application.
+
+    See also the Qtopia Core \l {Qtopia Core Architecture#Graphics
+    Rendering}{graphics rendering} documentation.
+
+    \row
     \o \bold QWS_SW_CURSOR \target QWS_SW_CURSOR
-    \o If defined, always use a software mouse cursor even when using an
-    accelerated driver that supports a hardware cursor.
+    \o If defined, the software mouse cursor is always used (even when using an
+    accelerated driver that supports a hardware cursor).
 
     \row
     \o \bold QWS_DISPLAY \target QWS_DISPLAY
@@ -34,20 +50,20 @@
     current shell is bash, ksh, zsh or sh:
 
     \code
-        export QWS_DISPLAY=<gfx driver><:driver specific options><:display number>
+         export QWS_DISPLAY=<driver>[:<driver specific options>]...
+                 [:<display num>]
     \endcode
 
-    The default value is an unaccelerated Linux framebuffer driver: \c
-    /dev/fb0.  Valid drivers are \c QVfb, \c LinuxFb (unaccelerated
-    Linux framebuffer), \c Transformed (for rotated displays), and \c
-    VNC (when running Qtopia Core as a VNC server).
+    The valid values for the \c <driver> argument are \c LinuxFb, \c
+    QVFb, \c VNC, \c Transformed, \c Multi and \l
+    {QScreenDriverPlugin::keys()}{keys} identifying custom drivers,
+    and the \c {<display num>} argument is used to separate screens
+    that are using the same screen driver and to enable multiple
+    displays (see the \l {Running Qtopia Core Applications}
+    documentation for more details).
 
-    Transformed displays have a special format: the specification
-    should include a rotation as a multiple of 90 degrees given as \c
-    rot<x>, for instance \c transformed:rot90.
-
-    See also \l {Running Applications}, \l {The Virtual Framebuffer}
-    and \l {The VNC Protocol}.
+    The driver specific options are described in the \l {Qtopia Core
+    Display Management}{display management} documentation.
 
     \row
     \o \bold QWS_SIZE \target QWS_SIZE
@@ -65,25 +81,31 @@
     \o \bold QWS_MOUSE_PROTO \target QWS_MOUSE_PROTO
     \o
 
-    Specifies the driver and device for pointer handling. For example, if the
+    Specifies the driver for pointer handling. For example, if the
     current shell is bash, ksh, zsh or sh:
 
     \code
-        export QWS_MOUSE_PROTO=<driver>:<device>
+        export QWS_MOUSE_PROTO=<driver>[:<driver specific options>]
     \endcode
 
-    The available drivers are \c MouseMan, \c IntelliMouse, \c
-    Microsoft, \c VR41xx, \c LinuxTP or \c Tslib, and the device is
-    typically \c /dev/mouse, or \c /dev/ts for touch panels. Note that
-    specifying the device is optional.
+    The valid values for the \c <driver> argument are \c MouseMan, \c
+    IntelliMouse, \c Microsoft, \c VR41xx, \c LinuxTP, \c Yopy. \c
+    Tslib and \l {QMouseDriverPlugin::keys()}{keys} identifying
+    custom drivers, and the driver specific options are typically a
+    device, e.g., \c /dev/mouse for mouse devices and \c /dev/ts for
+    touch panels.
 
-    The default value is \c Auto which enables auto-detection of the
-    mouse device if the "pc" mouse driver is enabled. Note that Qtopia
-    Core does not support auto-detection of touch panels in which case
-    the driver must be specified explicitly to determine which device
-    to use.
+    Note that the \c Vr41xx driver also accepts two optional
+    arguments: \c press=<value> defining a mouseclick (the default
+    value is 750) and \c filter=<value> specifying the length of the
+    filter used to eliminate noise (the default length is 3). For
+    example:
 
-    See also \l {Pointer Handling}.
+    \code
+        export QWS_MOUSE_PROTO="Vr41xx:press=500:/dev/misc/ts"
+    \endcode
+
+    See also \l {Qtopia Core Pointer Handling}.
 
     \row
     \o \bold QWS_KEYBOARD \target QWS_KEYBOARD
@@ -93,22 +115,26 @@
     current shell is bash, ksh, zsh or sh:
 
     \code
-        export QWS_KEYBOARD=<driver>:<device>
+         export QWS_KEYBOARD=<driver>[:<driver specific options>]
     \endcode
 
-    The available drivers are \c SL5000, \c Yopy, \c VR41xx, \c TTY or
-    \c USB, and the device is typically \c /dev/tty0. Note that
-    specifying the device is optional.
+    The valid values for the \c <driver> argument are \c SL5000, \c
+    Yopy, \c VR41xx, \c TTY, \c USB and \l
+    {QKbdDriverPlugin::keys()}{keys} identifying custom drivers,
+    and the driver specific options are typically a device, e.g., \c
+    /dev/tty0.
 
     Multiple keyboard drivers can be specified in one go:
 
     \code
-        export QWS_KEYBOARD=<driver> <driver> <driver>:<device>
+         export QWS_KEYBOARD="<driver>[:<driver specific options>]
+                 <driver>[:<driver specific options>]
+                 <driver>[:<driver specific options>]"
     \endcode
 
-    Input will be read from all of specified drivers.
+    Input will be read from all specified drivers.
 
-    See also \l {Character Input}.
+    See also \l {Qtopia Core Character Input}.
 
     \endtable
 */
