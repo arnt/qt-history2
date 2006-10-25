@@ -69,14 +69,21 @@ void Calibration::paintEvent(QPaintEvent*)
     p.fillRect(rect(), Qt::white);
 
     QPoint point = data.screenPoints[pressCount];
+
+    // Map to logical coordinates in case the screen is transformed
+    QSize screenSize(qt_screen->deviceWidth(), qt_screen->deviceHeight());
+    point = qt_screen->mapFromDevice(point, screenSize);
+
     p.fillRect(point.x() - 6, point.y() - 1, 13, 3, Qt::black);
     p.fillRect(point.x() - 1, point.y() - 6, 3, 13, Qt::black);
 }
 
 void Calibration::mouseReleaseEvent(QMouseEvent *event)
 {
+    // Map from device coordinates in case the screen is transformed
     QSize screenSize(qt_screen->width(), qt_screen->height());
     QPoint p = qt_screen->mapToDevice(event->pos(), screenSize);
+
     data.devPoints[pressCount] = p;
 
     if (++pressCount < 5)
