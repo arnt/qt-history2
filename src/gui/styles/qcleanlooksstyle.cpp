@@ -3327,7 +3327,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     QColor highlightedGradientStartColor = option->palette.button().color();
                     QColor highlightedGradientStopColor = option->palette.light().color();
                     QColor gradientStartColor = mergedColors(option->palette.button().color().light(120),
-                                               dark.light(150), 50);
+                                                dark.light(150), 50);
                     QColor gradientStopColor = gradientStartColor.dark(115);
                     QRect gradRect = handle.adjusted(1, 1, -1, -1);
 
@@ -3346,16 +3346,19 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 
                     QColor outline = option->state & State_Enabled ? dark : dark.light(130);
 
-                    qt_cleanlooks_draw_gradient(painter, horizontal ? gradRect.adjusted(1, 0, -1, 0) : gradRect.adjusted(0, 1, 0, -1),
+                    qt_cleanlooks_draw_gradient(painter, horizontal ? gradRect.adjusted(1, 0, -1, 0) : gradRect.adjusted(1, 1, -1, 0),
                                                 gradientStartColor,
                                                 gradientStopColor, TopDown, option->palette.button());
                     painter->setPen(Qt::white);
                     int yOff = horizontal ? 1 : 0;
-                    painter->drawLine(innerBorder.topLeft() + QPoint(0, yOff) , innerBorder.topRight() + QPoint(0, yOff));
-                    painter->drawLine(innerBorder.topLeft(), innerBorder.bottomLeft());
-                    painter->setPen(QPen(outline.light(140), 0));
-                    painter->drawLine(innerBorder.bottomLeft(), innerBorder.bottomRight());
-                    painter->drawLine(innerBorder.topRight(), innerBorder.bottomRight());
+                    int xOff = horizontal ? 0 : 1;
+                    painter->drawLine(innerBorder.topLeft() + QPoint(xOff, yOff) , 
+                                      innerBorder.topRight() + QPoint(-xOff, yOff));
+                    painter->drawLine(innerBorder.topLeft() + QPoint(xOff, yOff) , 
+                                      innerBorder.bottomLeft() + QPoint(xOff, -1));
+                    painter->setPen(QPen(gradientStopColor, 0));
+                    painter->drawLine(innerBorder.topRight() - QPoint(xOff, 0), 
+                                      innerBorder.bottomRight() - QPoint(xOff, 0));
 
                     painter->setPen(QPen(outline.dark(110), 1));
                     painter->drawLine(QPoint(r.left(), r.top() + 2), QPoint(r.left(), r.bottom() - 2));
