@@ -95,7 +95,7 @@ QWSVr41xxMouseHandlerPrivate::QWSVr41xxMouseHandlerPrivate(QWSVr41xxMouseHandler
     QRegExp filterRegExp("filter=(\\d+)");
     index = options.indexOf(filterRegExp);
     if (index != -1) {
-        filterSize = filterRegExp.cap(1).toInt();
+        filterSize = qMax(1, filterRegExp.cap(1).toInt());
         options.removeAt(index);
     }
     handler->setFilterSize(filterSize);
@@ -195,13 +195,18 @@ void QWSVr41xxMouseHandlerPrivate::readMouseData()
             tail = (tail + 1) % filterSize;
     }
 
+    if (nSamples == 0)
+        return;
+
     // send mouse events
-    while (tail != head) {
+    while (tail != head || filterSize == 1) {
         const ushort *data = samples.data() + tail * sampleLength;
         lastPos = QPoint(data[3] - data[4], data[2] - data[1]);
         handler->sendFiltered(lastPos, Qt::LeftButton);
         isPressed = true;
         tail = (tail + 1) % filterSize;
+        if (filterSize == 1)
+            break;
     }
 
     if (isPressed)

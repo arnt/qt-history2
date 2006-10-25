@@ -480,7 +480,7 @@ QPoint QWSCalibratedMouseHandler::transform(const QPoint &position)
 */
 void QWSCalibratedMouseHandler::setFilterSize(int size)
 {
-    samples.resize(size);
+    samples.resize(qMax(1, size));
     numSamples = 0;
     currSample = 0;
 }
@@ -518,36 +518,33 @@ bool QWSCalibratedMouseHandler::sendFiltered(const QPoint &position, int button)
     samples[currSample] = position;
     numSamples++;
     if (numSamples >= samples.count()) {
-        int maxd = 0;
-        int ignore = 0;
-        // throw away the "worst" sample
-        for (int i = 0; i < samples.count(); i++) {
-            int d = (mousePos - samples[i]).manhattanLength();
-            if (d > maxd) {
-                maxd = d;
-                ignore = i;
-            }
-        }
-        bool first = true;
-        QPoint pos;
-        // average the rest
-        for (int i = 0; i < samples.count(); i++) {
-            if (ignore != i) {
-                if (first) {
-                    pos = samples[i];
-                    first = false;
-                } else {
-                    pos += samples[i];
+
+        int ignore = -1;
+        if (samples.count() > 2) { // throw away the "worst" sample
+            int maxd = 0;
+            for (int i = 0; i < samples.count(); i++) {
+                int d = (mousePos - samples[i]).manhattanLength();
+                if (d > maxd) {
+                    maxd = d;
+                    ignore = i;
                 }
             }
         }
-        pos /= (int)(samples.count() - 1);
-        pos = transform(pos);
-        if (pos != mousePos || numSamples == samples.count()) {
-            mousePos = pos;
-            mouseChanged(mousePos, button);
-            sent = true;
+
+        // average the rest
+        QPoint pos(0, 0);
+        int numAveraged = 0;
+        for (int i = 0; i < samples.count(); i++) {
+            if (ignore == i)
+                continue;
+            pos += samples[i];
+            ++numAveraged;
         }
+        if (numAveraged)
+            pos /= numAveraged;
+
+        mouseChanged(transform(pos), button);
+        sent = true;
     }
     currSample++;
     if (currSample >= samples.count())
