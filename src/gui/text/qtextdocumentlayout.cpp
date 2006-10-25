@@ -1347,7 +1347,6 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
                     break;
             }
 
-            // ### colspans
             qreal maxW = td->maxWidths.at(i);
             if (layoutStruct.maximumWidth != INT_MAX) {
                 if (maxW == INT_MAX)
@@ -1355,7 +1354,18 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
                 else
                     maxW = qMax(maxW, layoutStruct.maximumWidth + 2 * td->cellPadding);
             }
-            td->maxWidths[i] = qMax(td->minWidths.at(i), maxW);
+            if (maxW == INT_MAX)
+                continue;
+
+            widthToDistribute = maxW;
+            for (int n = 0; n < cspan; ++n) {
+                const int col = i + n;
+                qreal w = widthToDistribute / (cspan - n);
+                td->maxWidths[col] = qMax(td->minWidths.at(col), w);
+                widthToDistribute -= td->maxWidths.at(col);
+                if (widthToDistribute <= 0)
+                    break;
+            }
         }
     }
 
