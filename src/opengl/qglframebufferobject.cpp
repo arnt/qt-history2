@@ -189,12 +189,12 @@ static bool qt_resolve_framebufferobject_extensions(QGLContext *)
 bool qt_resolve_framebufferobject_extensions(QGLContext *ctx)
 {
     if (glIsRenderbufferEXT != 0)
-	return true;
+        return true;
 
     if (ctx == 0) {
-	qWarning("QGLFramebufferObject: Unable to resolve framebuffer object extensions -"
-		 " make sure there is a current context when creating the framebuffer object.");
-	return false;
+        qWarning("QGLFramebufferObject: Unable to resolve framebuffer object extensions -"
+                 " make sure there is a current context when creating the framebuffer object.");
+        return false;
     }
 
     glIsRenderbufferEXT = (PFNGLISRENDERBUFFEREXTPROC) wglGetProcAddress("glIsRenderbufferEXT");
@@ -338,7 +338,7 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
         glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
                                      GL_RENDERBUFFER_EXT, depth_stencil_buffer);
     }
-    
+
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
     checkFramebufferStatus();
     QT_CHECK_GLERROR();
@@ -450,11 +450,14 @@ QGLFramebufferObject::~QGLFramebufferObject()
     Q_D(QGLFramebufferObject);
     QGL_FUNC_CONTEXT;
 
-    if (isValid()) {
-	glDeleteTextures(1, &d->texture);
+    if (isValid()
+        && (ctx == QGLContext::currentContext()
+            || qgl_share_reg()->checkSharing(ctx, QGLContext::currentContext())))
+    {
+        glDeleteTextures(1, &d->texture);
         if (QGLExtensions::glExtensions & QGLExtensions::PackedDepthStencil)
             glDeleteRenderbuffersEXT(1, &d->depth_stencil_buffer);
-	glDeleteFramebuffersEXT(1, &d->fbo);
+        glDeleteFramebuffersEXT(1, &d->fbo);
     }
     delete d_ptr;
 }
@@ -485,7 +488,7 @@ bool QGLFramebufferObject::isValid() const
 bool QGLFramebufferObject::bind()
 {
     if (!isValid())
-	return false;
+        return false;
     Q_D(QGLFramebufferObject);
     QGL_FUNC_CONTEXT;
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, d->fbo);
@@ -502,7 +505,7 @@ bool QGLFramebufferObject::bind()
 bool QGLFramebufferObject::release()
 {
     if (!isValid())
-	return false;
+        return false;
     Q_D(QGLFramebufferObject);
     QGL_FUNC_CONTEXT;
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
@@ -555,24 +558,24 @@ QImage QGLFramebufferObject::toImage() const
     // ### fix the read format so that we don't have to do all the byte swapping
     glReadPixels(0, 0, d->size.width(), d->size.height(), GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
-	// OpenGL gives RGBA; Qt wants ARGB
-	uint *p = (uint*)img.bits();
-	uint *end = p + w*h;
-	if (1) {
-	    while (p < end) {
-		uint a = *p << 24;
-		*p = (*p >> 8) | a;
-		p++;
-	    }
-	} else {
-	    while (p < end) {
-		*p = 0xFF000000 | (*p>>8);
-		++p;
-	    }
-	}
+        // OpenGL gives RGBA; Qt wants ARGB
+        uint *p = (uint*)img.bits();
+        uint *end = p + w*h;
+        if (1) {
+            while (p < end) {
+                uint a = *p << 24;
+                *p = (*p >> 8) | a;
+                p++;
+            }
+        } else {
+            while (p < end) {
+                *p = 0xFF000000 | (*p>>8);
+                ++p;
+            }
+        }
     } else {
-	// OpenGL gives ABGR (i.e. RGBA backwards); Qt wants ARGB
-	img = img.rgbSwapped();
+        // OpenGL gives ABGR (i.e. RGBA backwards); Qt wants ARGB
+        img = img.rgbSwapped();
     }
     const_cast<QGLFramebufferObject *>(this)->release();
     return img.mirrored();
