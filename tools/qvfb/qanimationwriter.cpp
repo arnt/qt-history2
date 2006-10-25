@@ -99,14 +99,10 @@ public:
 	    png_set_bgr(png_ptr);
 	}
 
-	png_bytep* row_pointers;
-	uint height = image.height();
-	uchar** jt = (uchar**)image.bits();
-	row_pointers=new png_bytep[height];
-	uint y;
-	for (y=0; y<height; y++) {
-		row_pointers[y]=jt[y];
-	}
+	int height = image.height();
+	png_bytep *row_pointers = new png_bytep[height];
+	for (int i = 0; i < height; ++i)
+            row_pointers[i] = (png_bytep)image.scanLine(i);
 	png_write_image(png_ptr, row_pointers);
 	delete [] row_pointers;
 	png_write_end(png_ptr, info_ptr);
@@ -264,7 +260,7 @@ void QAnimationWriter::setFrameRate(int r)
 
 void QAnimationWriter::appendFrame(const QImage& frm, const QPoint& offset)
 {
-    QImage frame = frm.convertToFormat(QImage::Format_RGB32);
+    const QImage frame = frm.convertToFormat(QImage::Format_RGB32);
     const int alignx = 1;
     if ( dev ) {
 	if ( prev.isNull() || !d->canCompose() ) {
@@ -275,14 +271,11 @@ void QAnimationWriter::appendFrame(const QImage& frm, const QPoint& offset)
 	    int w = frame.width();
 	    int h = frame.height();
 
-	    QRgb** jt = (QRgb**)frame.bits();
-	    QRgb** pjt = (QRgb**)prev.bits() + offset.y();
-
 	    // Find left edge of change
 	    done = false;
 	    for (minx = 0; minx < w && !done; minx++) {
 		for (int ty = 0; ty < h; ty++) {
-		    if ( jt[ty][minx] != pjt[ty][minx+offset.x()] ) {
+                    if (frame.pixel(minx, ty) != prev.pixel(minx + offset.x(), ty)) {
 			done = true;
 			break;
 		    }
@@ -294,7 +287,7 @@ void QAnimationWriter::appendFrame(const QImage& frm, const QPoint& offset)
 	    done = false;
 	    for (maxx = w-1; maxx >= 0 && !done; maxx--) {
 		for (int ty = 0; ty < h; ty++) {
-		    if ( jt[ty][maxx] != pjt[ty][maxx+offset.x()] ) {
+                    if (frame.pixel(maxx, ty) != prev.pixel(maxx + offset.x(), ty)) {
 			done = true;
 			break;
 		    }
@@ -306,7 +299,7 @@ void QAnimationWriter::appendFrame(const QImage& frm, const QPoint& offset)
 	    done = false;
 	    for (miny = 0; miny < h && !done; miny++) {
 		for (int tx = 0; tx < w; tx++) {
-		    if ( jt[miny][tx] != pjt[miny][tx+offset.x()] ) {
+		    if (frame.pixel(tx, miny) != prev.pixel(tx + offset.x(), miny)) {
 			done = true;
 			break;
 		    }
@@ -318,7 +311,7 @@ void QAnimationWriter::appendFrame(const QImage& frm, const QPoint& offset)
 	    done = false;
 	    for (maxy = h-1; maxy >= 0 && !done; maxy--) {
 		for (int tx = 0; tx < w; tx++) {
-		    if ( jt[maxy][tx] != pjt[maxy][tx+offset.x()] ) {
+                    if (frame.pixel(tx, maxy) != prev.pixel(tx + offset.x(), maxy)) {
 			done = true;
 			break;
 		    }
