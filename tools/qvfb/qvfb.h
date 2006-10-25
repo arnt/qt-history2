@@ -46,7 +46,7 @@ class QVFb: public QMainWindow
 {
     Q_OBJECT
 public:
-    QVFb( int display_id, int w, int h, int d, int r, const QString &skin, QWidget *parent = 0, Qt::WindowFlags wflags = 0 );
+    QVFb(int display_id, int w, int h, int d, int r, const QString &skin, QWidget *parent = 0, Qt::WindowFlags wflags = 0);
     ~QVFb();
 
     void enableCursor( bool e );
@@ -87,7 +87,7 @@ protected:
 
 private:
     void findSkins(const QString &currentSkin);
-    void init( int display_id, int w, int h, int d, int r, const QString& skin );
+    void init(int display_id, int w, int h, int d, int r, const QString& skin);
     Skin *skin;
     double skinscaleH,skinscaleV;
     QVFbView *view;

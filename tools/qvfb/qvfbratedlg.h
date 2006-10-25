@@ -23,13 +23,13 @@ class QVFbRateDialog : public QDialog
 {
     Q_OBJECT
 public:
-    QVFbRateDialog( int value, QWidget *parent=0 );
+    QVFbRateDialog(int value, QWidget *parent = 0);
 
 signals:
-    void updateRate( int r );
+    void updateRate(int r);
 
 protected slots:
-    void rateChanged( int r );
+    void rateChanged(int r);
     void cancel();
     void ok();
 

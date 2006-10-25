@@ -90,26 +90,26 @@ private:
 };
 
 QShMemViewProtocol::QShMemViewProtocol(int displayid, const QSize &s,
-        int d, QObject *parent)
+                                       int d, QObject *parent)
     : QVFbViewProtocol(displayid, parent), hdr(0), dataCache(0), lockId(-1)
 {
     int actualdepth=d;
 
     switch ( d ) {
-	case 12:
-	    actualdepth=16;
-	    break;
-	case 1:
-	case 4:
-	case 8:
-	case 16:
-	case 18:
-	case 24:
-	case 32:
-	    break;
+    case 12:
+        actualdepth=16;
+        break;
+    case 1:
+    case 4:
+    case 8:
+    case 16:
+    case 18:
+    case 24:
+    case 32:
+        break;
 
-	default:
-	    qFatal( "Unsupported bit depth %d\n", d );
+    default:
+        qFatal("Unsupported bit depth %d\n", d);
     }
 
     int w = s.width();

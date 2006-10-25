@@ -37,7 +37,7 @@ class QVFbView :
     Q_OBJECT
 public:
     enum Rotation { Rot0, Rot90, Rot180, Rot270 };
-    QVFbView( int id, int w, int h, int d, Rotation r, QWidget *parent = 0);
+    QVFbView(int id, int w, int h, int d, Rotation r, QWidget *parent = 0);
     virtual ~QVFbView();
 
     int displayId() const;
@@ -57,9 +57,9 @@ public:
     double gammaGreen() const { return ggreen; }
     double gammaBlue() const { return gblue; }
     void getGamma(int i, QRgb& rgb);
-    void skinKeyPressEvent( int code, const QString& text, bool autorep=FALSE );
-    void skinKeyReleaseEvent( int code, const QString& text, bool autorep=FALSE );
-    void skinMouseEvent( QMouseEvent *e );
+    void skinKeyPressEvent(int code, const QString& text, bool autorep=FALSE);
+    void skinKeyReleaseEvent(int code, const QString& text, bool autorep=FALSE);
+    void skinMouseEvent(QMouseEvent *e);
 
     double zoomH() const { return hzm; }
     double zoomV() const { return vzm; }
@@ -68,34 +68,34 @@ public:
     void setRate(int);
 
 public slots:
-    void setTouchscreenEmulation( bool );
-    void setLcdScreenEmulation( bool );
-    void setZoom( double, double );
-    void startAnimation( const QString& );
+    void setTouchscreenEmulation(bool);
+    void setLcdScreenEmulation(bool);
+    void setZoom(double, double);
+    void startAnimation(const QString&);
     void stopAnimation();
 
 protected slots:
     void refreshDisplay(const QRect &);
 
 protected:
-    QImage getBuffer( const QRect &r, int &leading ) const;
+    QImage getBuffer(const QRect &r, int &leading) const;
     void drawScreen();
-    void sendMouseData( const QPoint &pos, int buttons, int wheel );
-    void sendKeyboardData( QString unicode, int keycode, int modifiers,
-			   bool press, bool repeat );
-    //virtual bool eventFilter( QObject *obj, QEvent *e );
-    virtual void paintEvent( QPaintEvent *pe );
-    virtual void contextMenuEvent( QContextMenuEvent *e );
-    virtual void mousePressEvent( QMouseEvent *e );
-    virtual void mouseDoubleClickEvent( QMouseEvent *e );
-    virtual void mouseReleaseEvent( QMouseEvent *e );
-    virtual void mouseMoveEvent( QMouseEvent *e );
-    virtual void wheelEvent( QWheelEvent *e );
-    virtual void keyPressEvent( QKeyEvent *e );
-    virtual void keyReleaseEvent( QKeyEvent *e );
+    void sendMouseData(const QPoint &pos, int buttons, int wheel);
+    void sendKeyboardData(QString unicode, int keycode, int modifiers,
+			   bool press, bool repeat);
+    //virtual bool eventFilter(QObject *obj, QEvent *e);
+    virtual void paintEvent(QPaintEvent *pe);
+    virtual void contextMenuEvent(QContextMenuEvent *e);
+    virtual void mousePressEvent(QMouseEvent *e);
+    virtual void mouseDoubleClickEvent(QMouseEvent *e);
+    virtual void mouseReleaseEvent(QMouseEvent *e);
+    virtual void mouseMoveEvent(QMouseEvent *e);
+    virtual void wheelEvent(QWheelEvent *e);
+    virtual void keyPressEvent(QKeyEvent *e);
+    virtual void keyReleaseEvent(QKeyEvent *e);
 
 private:
-    void setDirty( const QRect& );
+    void setDirty(const QRect&);
     int viewdepth; // "faked" depth
     int rsh;
     int gsh;

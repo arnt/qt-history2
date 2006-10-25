@@ -37,7 +37,7 @@ QVFbViewProtocol::~QVFbViewProtocol() {}
 void QVFbViewProtocol::flushChanges() {}
 
 void QVFbViewProtocol::sendKeyboardData(QString unicode, int keycode,
-        int modifiers, bool press, bool repeat)
+                                        int modifiers, bool press, bool repeat)
 {
     if (keyHandler())
         keyHandler()->sendKeyboardData(unicode, keycode, modifiers, press, repeat);
@@ -76,7 +76,7 @@ QVFbKeyPipeProtocol::~QVFbKeyPipeProtocol()
 }
 
 void QVFbKeyPipeProtocol::sendKeyboardData(QString unicode, int keycode,
-        int modifiers, bool press, bool repeat)
+                                           int modifiers, bool press, bool repeat)
 {
     QVFbKeyData kd;
     kd.unicode = unicode[0].unicode();
@@ -117,7 +117,7 @@ QVFbMouseLinuxTP::QVFbMouseLinuxTP(int display_id)
     /* the timer is needed because a real touch screen send data as long as
        there is pressure.  And the linux tp driver will filter, requiring
        a minimum of 5 samples before it even registers a press.
-       */
+    */
     repeater = new QTimer(this);
     connect(repeater, SIGNAL(timeout()), this, SLOT(repeatLastPress()));
 }
