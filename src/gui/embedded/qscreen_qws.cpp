@@ -342,7 +342,7 @@ public:
     screen's operation type, and the lastOp() function returns the
     screens last operation.
 
-    \sa {Running Applications}, {Qtopia Core}
+    \sa {Running Qtopia Core Applications}
 */
 
 /*!
@@ -413,7 +413,7 @@ public:
     Reimplement this function to make accelerated drivers set up the
     graphics card. The default implementation does nothing.
 
-    \sa {Adding an Accelerated Graphics Driver}
+    \sa {Adding an Accelerated Graphics Driver in Qtopia Core}
 */
 
 /*!
@@ -437,7 +437,7 @@ public:
         Mach64:/dev/fb1:2
     \endcode
 
-    \sa disconnect(), {Running Applications}
+    \sa disconnect(), {Running Qtopia Core Applications}
 */
 
 /*!
@@ -484,7 +484,8 @@ public:
     to override the return value when implementing an accelerated
     driver.
 
-    \sa pixmapLinestepAlignment(), {Adding an Accelerated Graphics Driver}
+    \sa pixmapLinestepAlignment(), {Adding an Accelerated Graphics
+    Driver in Qtopia Core}
 */
 
 /*!
@@ -497,7 +498,8 @@ public:
     to override the return value when implementing an accelerated
     driver.
 
-    \sa pixmapOffsetAlignment(), {Adding an Accelerated Graphics Driver}
+    \sa pixmapOffsetAlignment(), {Adding an Accelerated Graphics
+    Driver in Qtopia Core}
 */
 
 /*!
@@ -1236,7 +1238,7 @@ static void blit_32_to_18(const blit_data *data)
     reimplementing this function requires that the solidFill()
     function is reimplemented as well.
 
-    \sa exposeRegion(), {Adding an Accelerated Graphics Driver}
+    \sa exposeRegion(), {Adding an Accelerated Graphics Driver in Qtopia Core}
 */
 void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &reg)
 {

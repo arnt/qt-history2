@@ -116,9 +116,9 @@ QWSEvent *QWSEvent::factory(int type)
     \value NoEvent No event has occurred.
     \value Connected An application has connected to the server.
     \value Mouse A mouse button is pressed or released, or the mouse cursor is moved.
-             See also \l {Pointer Handling}.
+             See also \l {Qtopia Core Pointer Handling}.
     \value Focus A window has lost or received focus.
-    \value Key A key is pressed or released. See also \l {Character Input}.
+    \value Key A key is pressed or released. See also \l {Qtopia Core Character Input}.
     \value Region A region has changed.
     \value Creation The server has created an ID, typically for a window.
     \value PropertyNotify A property has changed.

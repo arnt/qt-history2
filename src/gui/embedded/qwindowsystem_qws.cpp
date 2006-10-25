@@ -215,7 +215,7 @@ QWSWindowPrivate::QWSWindowPrivate()
     requestedRegion() function that returns the region of the display
     the window wants to draw on.
 
-    \sa QWSServer, {Running Applications}, {Qtopia Core}
+    \sa QWSServer, {Running Qtopia Core Applications}
 */
 
 /*!
@@ -551,7 +551,7 @@ void QWSClientPrivate::unlockCommunication()
     function which typically returns the name of this client's running
     application.
 
-    \sa QWSServer, QCopChannel, {Running Applications}
+    \sa QWSServer, QCopChannel, {Running Qtopia Core Applications}
 */
 
 /*!
@@ -856,7 +856,8 @@ void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type,
     addKeyboardFilter() function to filter the key events from
     physical keyboard drivers, the most recently added filter can be
     removed and deleted using the removeKeyboardFilter() function. See
-    \l {Character Input} and QWSKeyboardHandler for more information.
+    \l {Qtopia Core Character Input} and QWSKeyboardHandler for more
+    information.
 
     Finally, the keyMap() function returns the keyboard mapping table
     used to convert keyboard scancodes to Qt keycodes and Unicode
@@ -900,7 +901,7 @@ void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type,
     allows subclasses of QWSInputMethod to handle mouse events within
     the preedit text.
 
-    \sa QWSClient, {Qtopia Core}, {Running Applications}
+    \sa QWSClient, {Running Qtopia Core Applications}
 */
 
 /*!
@@ -1673,7 +1674,7 @@ void QWSServerPrivate::sendMaxWindowRectEvents(const QRect &rect)
     environment variable is not defined, to be the given \a
     mouseDriver. The default is platform-dependent.
 
-    \sa {Pointer Handling}
+    \sa {Qtopia Core Pointer Handling}
 */
 void QWSServer::setDefaultMouse(const char *m)
 {
@@ -1687,7 +1688,7 @@ void QWSServer::setDefaultMouse(const char *m)
     environment variable is not defined, to be the given \a
     keyboardDriver. The default is platform-dependent.
 
-    \sa {Character Input}
+    \sa {Qtopia Core Character Input}
 */
 void QWSServer::setDefaultKeyboard(const char *k)
 {
@@ -2004,7 +2005,7 @@ static int keyUnicode(int keycode)
             key event being sent); otherwise false.
     \endtable
 
-    \sa processKeyEvent(), {Character Input}
+    \sa processKeyEvent(), {Qtopia Core Character Input}
 */
 void QWSServer::sendKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
                              bool isPress, bool autoRepeat)
@@ -3406,7 +3407,7 @@ static QList<QWSServer::KeyboardFilter*> *keyFilters = 0;
 
     This function is typically called internally by keyboard drivers.
 
-    \sa sendKeyEvent(), addKeyboardFilter(), {Character Input}
+    \sa sendKeyEvent(), addKeyboardFilter(), {Qtopia Core Character Input}
 */
 void QWSServer::processKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
                                 bool isPress, bool autoRepeat)
@@ -3737,7 +3738,7 @@ QWSInputMethod::~QWSInputMethod()
     input is \l {QWSKeyboardHandler::beginAutoRepeat()}{auto
     repeated}.
 
-    \sa QWSKeyboardHandler, {Character Input}
+    \sa QWSKeyboardHandler, {Qtopia Core Character Input}
 */
 bool QWSInputMethod::filter(int unicode, int keycode, int modifiers, bool isPress, bool autoRepeat)
 {
@@ -3760,7 +3761,8 @@ bool QWSInputMethod::filter(int unicode, int keycode, int modifiers, bool isPres
     false. The mouse event is specified by the given \a position, \a
     state and \a wheel parameters.
 
-    \sa setInputResolution() QWSMouseHandler, {Pointer Handling}
+    \sa setInputResolution() QWSMouseHandler, {Qtopia Core Pointer
+    Handling}
 */
 bool QWSInputMethod::filter(const QPoint &position, int state, int wheel)
 {
@@ -4081,7 +4083,7 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
     to implement things like APM (advanced power management) suspended
     from a button without having to filter for it in all applications.
 
-    \sa QWSServer, QWSInputMethod {Character Input}
+    \sa QWSServer, QWSInputMethod, {Qtopia Core Character Input}
 */
 
 /*!

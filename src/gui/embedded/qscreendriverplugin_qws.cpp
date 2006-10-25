@@ -35,7 +35,7 @@
     Q_EXPORT_PLUGIN2() macro. See \l{How to Create Qt Plugins} for
     details.
 
-    \sa QScreen, QScreenDriverFactory, {Running Applications}
+    \sa QScreen, QScreenDriverFactory, {Running Qtopia Core Applications}
 */
 
 /*!
@@ -45,9 +45,10 @@
     by this plugin.
 
     \l {Qtopia Core} currently supports the following drivers by
-    default: \c QVfb (\l {Qtopia Core}'s virtual framebuffer), \c
+    default: \c QVfb (\l {Qtopia Core's virtual framebuffer}), \c
     LinuxFb (The Linux framebuffer), \c Transformed (for rotated
-    displays) and \c VNC (a \l {The VNC Protocol}{VNC} server).
+    displays) and \c VNC (a \l {The VNC Protocol and Qtopia Core}{VNC}
+    server).
 
     \sa create()
 */

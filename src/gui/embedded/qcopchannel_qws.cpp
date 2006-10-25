@@ -108,7 +108,7 @@ public:
     emitted with the given message and data when a QCopChannel
     subclass receives a message from its channel.
 
-    \sa QWSClient, {Running Applications}
+    \sa QWSClient, {Running Qtopia Core Applications}
 */
 
 /*!

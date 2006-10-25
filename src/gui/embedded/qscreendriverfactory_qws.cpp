@@ -102,9 +102,10 @@ QScreen *QScreenDriverFactory::create(const QString& key, int displayId)
     create screens for.
 
     \l {Qtopia Core} currently supports the following drivers by
-    default: \c QVfb (\l {Qtopia Core}'s virtual framebuffer), \c
+    default: \c QVfb (\l {Qtopia Core's Virtual Framebuffer}), \c
     LinuxFb (The Linux framebuffer), \c Transformed (for rotated
-    displays) and \c VNC (a \l {The VNC Protocol}{VNC} server).
+    displays) and \c VNC (a \l {The VNC Protocol and Qtopia Core}{VNC}
+    server).
 
     \sa create()
 */

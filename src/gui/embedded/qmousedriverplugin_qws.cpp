@@ -37,7 +37,8 @@
     Q_EXPORT_PLUGIN2() macro. See \l{How to Create Qt Plugins} for
     details.
 
-    \sa QMouseDriverFactory, QWSMouseHandler, {Pointer Handling}
+    \sa QMouseDriverFactory, QWSMouseHandler, {Qtopia Core Pointer
+    Handling}
 */
 
 /*!

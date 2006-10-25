@@ -53,7 +53,8 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     drivers are either built-in or dynamically loaded from a driver
     plugin (see \l QMouseDriverPlugin).
 
-    \sa QWSMouseHandler, QMouseDriverPlugin, {Pointer Handling}
+    \sa QWSMouseHandler, QMouseDriverPlugin, {Qtopia Core Pointer
+    Handling}
 */
 
 /*!

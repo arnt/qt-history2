@@ -574,7 +574,8 @@ static void qt_debug_path(const QPainterPath &path)
     The painting operations can be accelerated by deriving from the
     QRasterPaintEngine and QCustomRasterPaintDevice classes. Note that
     there are several other issues to be aware of; see the \l {Adding
-    an Accelerated Graphics Driver} documentation for details.
+    an Accelerated Graphics Driver in Qtopia Core} documentation for
+    details.
 
     \sa QCustomRasterPaintDevice, QPaintEngine
 */
@@ -3151,7 +3152,8 @@ int QCustomRasterPaintDevice::bytesPerLine() const
     The painting operations can be accelerated by deriving from the
     QRasterPaintEngine and QCustomRasterPaintDevice classes. Note that
     there are several other issues to be aware of; see the \l {Adding
-    an Accelerated Graphics Driver} documentation for details.
+    an Accelerated Graphics Driver in Qtopia Core} documentation for
+    details.
 
     \sa QRasterPaintEngine, QPaintDevice
 */

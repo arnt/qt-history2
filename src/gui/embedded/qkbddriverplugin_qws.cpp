@@ -37,7 +37,7 @@
     Q_EXPORT_PLUGIN2() macro (See \l{How to Create Qt Plugins} for
     details).
 
-    \sa QKbdDriverFactory, QWSKeyboardHandler, {Character Input}
+    \sa QKbdDriverFactory, QWSKeyboardHandler, {Qtopia Core Character Input}
 */
 
 /*!

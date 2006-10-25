@@ -109,8 +109,8 @@ public:
     (changing the position if necessary), and the pos() function
     returning the current mouse position.
 
-    \sa {Pointer Handling}, {qtopiacore/mousecalibration}{Mouse
-    Calibration Example}, {Qtopia Core}
+    \sa {Qtopia Core Pointer Handling},
+    {qtopiacore/mousecalibration}{Mouse Calibration Example}
 */
 
 

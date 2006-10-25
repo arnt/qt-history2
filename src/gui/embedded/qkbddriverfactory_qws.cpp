@@ -53,7 +53,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     drivers are either built-in or dynamically loaded from a driver
     plugin (see \l QKbdDriverPlugin for details).
 
-    \sa QWSKeyboardHandler, QKbdDriverPlugin, {Character Input}
+    \sa QWSKeyboardHandler, QKbdDriverPlugin, {Qtopia Core Character Input}
 */
 
 /*!

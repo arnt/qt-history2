@@ -86,7 +86,7 @@ private:
     endAutoRepeat(), and the transformDirKey() function enabling
     transformation of arrow keys according to the display orientation.
 
-    \sa {Character Input}, {Qtopia Core}
+    \sa {Qtopia Core Character Input}
 */
 
 
