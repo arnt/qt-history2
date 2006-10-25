@@ -314,6 +314,8 @@ void tst_QDataWidgetMapper::mappedWidgetAt()
     QLineEdit lineEdit1;
     QLineEdit lineEdit2;
 
+    QCOMPARE(mapper.mappedWidgetAt(432312), (QWidget*)0);
+
     mapper.addMapping(&lineEdit1, 1);
     mapper.addMapping(&lineEdit2, 2);
 
