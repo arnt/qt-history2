@@ -64,6 +64,7 @@ public:
     int ttyfd;
     long oldKdMode;
     QString ttyDevice;
+    QString displaySpec;
 
 private:
     static QLinuxFbScreenPrivate *instance;
@@ -233,6 +234,8 @@ QLinuxFbScreen::~QLinuxFbScreen()
 
 bool QLinuxFbScreen::connect(const QString &displaySpec)
 {
+    d_ptr->displaySpec = displaySpec;
+
     const QStringList args = displaySpec.split(":");
     if (args.contains("nographicsmodeswitch"))
         d_ptr->doGraphicsMode = false;
@@ -1038,11 +1041,9 @@ void QLinuxFbScreen::setMode(int nw,int nh,int nd)
 	qFatal("Error reading fixed information");
     }
 
-    w=vinfo.xres;
-    h=vinfo.yres;
-    d=vinfo.bits_per_pixel;
-    lstep=finfo.line_length;
-    size=h*lstep;
+    disconnect();
+    connect(d_ptr->displaySpec);
+    exposeRegion(region(), 0);
 }
 
 // save the state of the graphics card
