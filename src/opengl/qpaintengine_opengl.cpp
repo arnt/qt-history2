@@ -1842,7 +1842,7 @@ void QOpenGLPaintEngine::updateCompositionMode(QPainter::CompositionMode composi
                                    || composition_mode == QPainter::CompositionMode_SourceAtop
                                    || composition_mode == QPainter::CompositionMode_Xor;
 
-    if (d->has_fast_composition_mode || !d->use_antialiasing) {
+    if (d->has_fast_composition_mode) {
         d->fragment_composition_mode = COMPOSITION_MODE_BLEND_MODE;
         d->offscreen.setDrawableCopyNeeded(false);
     } else {
