@@ -10,7 +10,7 @@
     window onto a corresponding surface (stored in memory) using a
     paint engine, and then the server uses the screen driver to
     compose the surface images and copy them to the screen. (See the
-    \l {Qtopia Core Architecure} documentation for details.)
+    \l {Qtopia Core Architecture} documentation for details.)
 
     The rendering can be accelerated in two ways: Either by
     accelerating the copying of pixels to the screen, or by
