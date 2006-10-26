@@ -592,9 +592,19 @@
     The following assumes InterBase or Firebird is installed in
     \c{/opt/interbase}:
 
+    If you are using InterBase:
+
     \code
         cd $QTDIR/src/plugins/sqldrivers/ibase
         qmake -o Makefile "INCLUDEPATH+=/opt/interbase/include" "LIBS+=-L/opt/interbase/lib" ibase.pro
+        make
+    \endcode
+
+    If you are using Firebird, the Firebird library has to be set explicitely:
+
+    \code
+        cd $QTDIR/src/plugins/sqldrivers/ibase
+        qmake -o Makefile "INCLUDEPATH+=/opt/interbase/include" "LIBS+=-L/opt/interbase/lib -lfbclient" ibase.pro
         make
     \endcode
 
@@ -603,9 +613,19 @@
     The following assumes InterBase or Firebird is installed in
     \c{C:\interbase}:
 
+    If you are using InterBase:
+
     \code
         cd %QTDIR%\src\plugins\sqldrivers\ibase
         qmake -o Makefile "INCLUDEPATH+=C:\interbase\include" ibase.pro
+        nmake
+    \endcode
+
+    If you are using Firebird, the Firebird library has to be set explicitely:
+
+    \code
+        cd %QTDIR%\src\plugins\sqldrivers\ibase
+        qmake -o Makefile "INCLUDEPATH+=C:\interbase\include" "LIBS+=-lfbclient" ibase.pro
         nmake
     \endcode
 
