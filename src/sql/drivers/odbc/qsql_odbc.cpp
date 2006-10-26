@@ -115,13 +115,17 @@ static QString qWarnODBCHandle(int handleType, SQLHANDLE handle, int *nativeCode
 {
     SQLINTEGER nativeCode_ = 0;
     SQLSMALLINT msgLen = 0;
-    SQLRETURN r = SQL_ERROR;
+    SQLRETURN r = SQL_NO_DATA;
     SQLTCHAR state_[SQL_SQLSTATE_SIZE+1];
     SQLTCHAR description_[SQL_MAX_MESSAGE_LENGTH + 1];
+    QString result;
+    int i = 1;
+
     description_[0] = 0;
+    do {
     r = SQLGetDiagRec(handleType,
                          handle,
-                         1,
+                         i,
                          (SQLTCHAR*)state_,
                          &nativeCode_,
                          (SQLTCHAR*)description_,
@@ -131,13 +135,19 @@ static QString qWarnODBCHandle(int handleType, SQLHANDLE handle, int *nativeCode
     if (r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO) {
         if (nativeCode)
             *nativeCode = nativeCode_;
+            if (i != 1)
+                result += QLatin1Char(' ');
 #ifdef UNICODE
-        return QString((const QChar*)description_, msgLen);
+            result += QString((const QChar*)description_, msgLen);
 #else
-        return QString::fromLocal8Bit((const char*)description_);
+            result += QString::fromLocal8Bit((const char*)description_);
 #endif
+        } else if (r == SQL_ERROR || r == SQL_INVALID_HANDLE) {
+            return result;
     }
-    return QString();
+        ++i;
+    } while (r != SQL_NO_DATA);
+    return result;
 }
 
 static QString qODBCWarn(const QODBCPrivate* odbc, int *nativeCode = 0)
