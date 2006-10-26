@@ -79,6 +79,7 @@ QFontListView::QFontListView(QWidget *parent)
 /*!
   \class QFontDialog
   \ingroup dialogs
+  \ingroup text
   \mainclass
   \brief The QFontDialog class provides a dialog widget for selecting a font.
 
