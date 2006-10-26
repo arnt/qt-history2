@@ -438,7 +438,10 @@
     \typedef qreal
     \relates <QtGlobal>
 
-    Typedef for \c double.
+    Typedef for \c double on all platforms except for those using CPUs with
+    ARM architectures.
+    On ARM-based platforms, \c qreal is a typedef for \c float for performance
+    reasons.
 */
 
 /*! \typedef uchar
