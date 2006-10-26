@@ -1971,7 +1971,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
             closeRect = QRect(right - sz.width(),
                                 rect.center().y() - sz.height()/2,
                                 sz.width(), sz.height());
-            right = closeRect.left() - margin;
+            right = closeRect.left() - 1;
         }
         if (sr == SE_DockWidgetCloseButton) {
             r = visualRect(opt->direction, rect, closeRect);
@@ -1986,7 +1986,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
             floatRect = QRect(right - sz.width(),
                                 rect.center().y() - sz.height()/2,
                                 sz.width(), sz.height());
-            right = floatRect.left() - margin;
+            right = floatRect.left() - 1;
         }
         if (sr == SE_DockWidgetFloatButton) {
             r = visualRect(opt->direction, rect, floatRect);
