@@ -178,6 +178,10 @@ void QDesignerFormWindow::resizeEvent(QResizeEvent *rev)
 
     initialized = true;
     QMainWindow::resizeEvent(rev);
+
+    // update the maincontainer on resize
+    m_editor->mainContainer()->raise();
+    m_editor->mainContainer()->update();
 }
 
 void QDesignerFormWindow::geometryChanged()
