@@ -276,6 +276,11 @@ public:
 
     static QPixmap standardIcon(Icon icon);
 
+#ifdef qdoc
+public Q_SLOTS:
+    int exec();
+#endif
+
 protected:
     void resizeEvent(QResizeEvent *event);
     void showEvent(QShowEvent *event);

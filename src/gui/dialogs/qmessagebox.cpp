@@ -2308,5 +2308,23 @@ QPixmap QMessageBox::standardIcon(Icon icon)
     \endcode
 */
 
+/*!
+  \fn int QMessageBox::exec()
+
+  Shows the message box as a \l{QDialog#Modal Dialogs}{modal dialog},
+  blocking until the user closes it.
+
+  When using a QMessageBox with standard buttons, this functions returns a
+  \l StandardButton value indicating the standard button that was clicked.
+  When using QMessageBox with custom buttons, this function returns an
+  opaque value; use clickedButton() to determine which button was clicked.
+
+  Users cannot interact with any other window in the same
+  application until they close the dialog, either by clicking a
+  button or by using a mechanism provided by the window system.
+
+  \sa show(), result()
+*/
+
 #include "moc_qmessagebox.cpp"
 #endif // QT_NO_MESSAGEBOX
