@@ -1203,6 +1203,11 @@ QRect QWindowsXPStyle::subElementRect(SubElement sr, const QStyleOption *option,
 
     QRect rect(option->rect);
     switch(sr) {
+    case SE_DockWidgetCloseButton:
+    case SE_DockWidgetFloatButton:
+        rect = QWindowsStyle::subElementRect(sr, option, widget);
+        return rect.translated(0, 1);
+    break;
     case SE_TabWidgetTabContents:
         if (qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option))
         {
@@ -3072,7 +3077,7 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
     case PM_MenuBarPanelWidth:
         res = 0;
         break;
-
+        
     case PM_MenuPanelWidth:
     case PM_DefaultFrameWidth:
     case PM_SpinBoxFrameWidth:
@@ -3227,7 +3232,7 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
         res = 4;
         break;
     case PM_DockWidgetTitleMargin:
-        res = 3;
+        res = 4;
         break;
 
     case PM_ButtonShiftHorizontal:
