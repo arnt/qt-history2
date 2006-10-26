@@ -54,6 +54,9 @@ public slots:
     void cleanupTestCase();
     void init();
     void cleanup();
+
+    void selectionOrderTest();
+
 private slots:
     void getSetCheck();
     void setHeader();
@@ -86,6 +89,8 @@ private slots:
     void removeAfterSelect();
     void hiddenItems();
     void spanningItems();
+
+    void selection();
 };
 
 class QtTestModel: public QAbstractItemModel
@@ -1189,6 +1194,30 @@ void tst_QTreeView::spanningItems()
     QCOMPARE(view.currentIndex(), model.index(1, 0, QModelIndex()));
     QCOMPARE(view.header()->length() - view.indentation(),
              view.visualRect(model.index(1, 0, QModelIndex())).width());
+}
+
+void tst_QTreeView::selectionOrderTest()
+{
+    QVERIFY(((QItemSelectionModel*)sender())->currentIndex().row() != -1);
+}
+
+void tst_QTreeView::selection()
+{
+    QTreeView treeView;
+    QStandardItemModel m(10, 2);
+    for (int i=0;i < 10;++i)
+        m.setData(m.index(i, 0), i);
+    treeView.setModel(&m);
+
+    treeView.setSelectionBehavior(QAbstractItemView::SelectRows);
+    treeView.setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+    connect(treeView.selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(selectionOrderTest()));
+
+    treeView.show();
+
+    QTest::mousePress(treeView.viewport(), Qt::LeftButton, 0, treeView.visualRect(m.index(1, 0)).center());
+    QTest::keyPress(treeView.viewport(), Qt::Key_Down);
 }
 
 QTEST_MAIN(tst_QTreeView)
