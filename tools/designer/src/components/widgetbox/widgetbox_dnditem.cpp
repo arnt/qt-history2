@@ -11,14 +11,13 @@
 **
 ****************************************************************************/
 
+#include "widgetbox_dnditem.h"
 #include "ui4_p.h"
 #include <spacer_widget_p.h>
 #include <qdesigner_formbuilder_p.h>
 
-#include "widgetbox_dnditem.h"
 
-using namespace qdesigner_internal;
-
+namespace qdesigner_internal {
 /*******************************************************************************
 ** WidgetBoxResource
 */
@@ -53,9 +52,7 @@ QWidget *WidgetBoxResource::createWidget(const QString &widgetName, QWidget *par
 
 QWidget *WidgetBoxResource::create(DomWidget *ui_widget, QWidget *parent)
 {
-    QWidget *result = 0;
-
-    result = QDesignerFormBuilder::create(ui_widget, parent);
+    QWidget *result = QDesignerFormBuilder::create(ui_widget, parent);
     result->setFocusPolicy(Qt::NoFocus);
     result->setObjectName(ui_widget->attributeName());
 
@@ -68,7 +65,7 @@ QWidget *WidgetBoxResource::create(DomWidget *ui_widget, QWidget *parent)
 
 static QSize geometryProp(DomWidget *dw)
 {
-    QList<DomProperty*> prop_list = dw->elementProperty();
+    const QList<DomProperty*> prop_list = dw->elementProperty();
     foreach (DomProperty *prop, prop_list) {
         if (prop->attributeName() != QLatin1String("geometry"))
             continue;
@@ -113,7 +110,7 @@ static QWidget *decorationFromDomWidget(DomWidget *dom_widget, QDesignerFormEdit
     WidgetBoxResource builder(core);
     QWidget *w = builder.createWidget(dom_widget, result);
     QSize size = domWidgetSize(dom_widget);
-    QSize minimumSize = w->minimumSizeHint();
+    const QSize minimumSize = w->minimumSizeHint();
     if (!size.isValid())
         size = w->sizeHint();
     if (size.width() < minimumSize.width())
@@ -146,4 +143,5 @@ WidgetBoxDnDItem::WidgetBoxDnDItem(QDesignerFormEditorInterface *core,
     decoration->move(pos);
 
     init(dom_ui, 0, decoration, global_mouse_pos);
+}
 }

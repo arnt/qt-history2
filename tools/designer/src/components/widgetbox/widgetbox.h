@@ -14,21 +14,13 @@
 #ifndef WIDGETBOX_H
 #define WIDGETBOX_H
 
-#include <QtXml/QDomDocument>
 
 #include <QtDesigner/QtDesigner>
-
 #include "widgetbox_global.h"
+
 
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
-class QStackedLayout;
-class QDomElement;
-class QEvent;
-class QMenu;
-class QAction;
-class QActionGroup;
-class DomWidget;
 
 namespace qdesigner_internal {
 
