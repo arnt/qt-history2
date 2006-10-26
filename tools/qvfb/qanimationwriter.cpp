@@ -22,7 +22,7 @@
 class QAnimationWriterData
 {
 public:
-    QAnimationWriterData(QIODevice* d) : dev(d), framerate(1000) {}
+    QAnimationWriterData(QIODevice* d) : framerate(1000), dev(d) {}
     void setFrameRate(int d) { framerate = d; }
     virtual ~QAnimationWriterData() { }
     virtual void setImage(const QImage& src)=0;
@@ -258,121 +258,143 @@ void QAnimationWriter::setFrameRate(int r)
 
 void QAnimationWriter::appendFrame(const QImage& frm, const QPoint& offset)
 {
+    if (!dev)
+        return;
+
     const QImage frame = frm.convertToFormat(QImage::Format_RGB32);
     const int alignx = 1;
-    if (dev) {
-	if (prev.isNull() || !d->canCompose()) {
-	    d->setImage(frame);
-	} else {
-	    bool done;
-	    int minx, maxx, miny, maxy;
-	    int w = frame.width();
-	    int h = frame.height();
+    if (prev.isNull() || !d->canCompose()) {
+        d->setImage(frame);
+    } else {
+        bool done;
+        int minx, maxx, miny, maxy;
+        int w = frame.width();
+        int h = frame.height();
 
-	    // Find left edge of change
-	    done = false;
-	    for (minx = 0; minx < w && !done; ++minx) {
-		for (int ty = 0; ty < h; ++ty) {
-                    if (frame.pixel(minx, ty) != prev.pixel(minx + offset.x(), ty)) {
-			done = true;
-			break;
-		    }
-		}
-	    }
-	    --minx;
+        const quint32 *framePtr = reinterpret_cast<const quint32*>(frame.bits());
+        const quint32 *prevPtr = reinterpret_cast<const quint32*>(prev.bits());
+        const int frameStride = frame.bytesPerLine() / sizeof(quint32);
+        const int prevStride = prev.bytesPerLine() / sizeof(quint32);
 
-	    // Find right edge of change
-	    done = false;
-	    for (maxx = w-1; maxx >= 0 && !done; --maxx) {
-		for (int ty = 0; ty < h; ++ty) {
-                    if (frame.pixel(maxx, ty) != prev.pixel(maxx + offset.x(), ty)) {
-			done = true;
-			break;
-		    }
-		}
-	    }
-	    ++maxx;
+        // Find left edge of change
+        done = false;
+        for (minx = 0; minx < w && !done; ++minx) {
+            const quint32 *p1 = framePtr + minx;
+            const quint32 *p2 = prevPtr + minx + offset.x();
+            for (int y = 0; y < h; ++y) {
+                if (*p1 != *p2) {
+                    done = true;
+                    break;
+                }
+                p1 += frameStride;
+                p2 += prevStride;
+            }
+        }
+        --minx;
 
-	    // Find top edge of change
-	    done = false;
-	    for (miny = 0; miny < h && !done; ++miny) {
-		for (int tx = 0; tx < w; ++tx) {
-		    if (frame.pixel(tx, miny) != prev.pixel(tx + offset.x(), miny)) {
-			done = true;
-			break;
-		    }
-		}
-	    }
-	    --miny;
+        // Find right edge of change
+        done = false;
+        for (maxx = w-1; maxx >= 0 && !done; --maxx) {
+            const quint32 *p1 = framePtr + maxx;
+            const quint32 *p2 = prevPtr + maxx + offset.x();
+            for (int y = 0; y < h; ++y) {
+                if (*p1 != *p2) {
+                    done = true;
+                    break;
+                }
+                p1 += frameStride;
+                p2 += prevStride;
+            }
+        }
+        ++maxx;
 
-	    // Find right edge of change
-	    done = false;
-	    for (maxy = h-1; maxy >= 0 && !done; --maxy) {
-		for (int tx = 0; tx < w; ++tx) {
-                    if (frame.pixel(tx, maxy) != prev.pixel(tx + offset.x(), maxy)) {
-			done = true;
-			break;
-		    }
-		}
-	    }
-	    ++maxy;
+        // Find top edge of change
+        done = false;
+        for (miny = 0; miny < h && !done; ++miny) {
+            const quint32 *p1 = framePtr + miny * frameStride;
+            const quint32 *p2 = prevPtr + miny * prevStride + offset.x();
+            for (int x = 0; x < w; ++x) {
+                if (*p1 != *p2) {
+                    done = true;
+                    break;
+                }
+                ++p1;
+                ++p2;
+            }
+        }
+        --miny;
 
-	    if (minx > maxx)
-                minx = maxx = 0;
-	    if (miny > maxy)
-                miny = maxy = 0;
+        // Find right edge of change
+        done = false;
+        for (maxy = h-1; maxy >= 0 && !done; --maxy) {
+            const quint32 *p1 = framePtr + maxy * frameStride;
+            const quint32 *p2 = prevPtr + maxy * prevStride + offset.x();
+            for (int x = 0; x < w; ++x) {
+                if (*p1 != *p2) {
+                    done = true;
+                    break;
+                }
+                ++p1;
+                ++p2;
+            }
+        }
+        ++maxy;
 
-	    if (alignx > 1) {
-		minx -= minx % alignx;
-		maxx = maxx - maxx % alignx + alignx - 1;
-	    }
+        if (minx > maxx)
+            minx = maxx = 0;
+        if (miny > maxy)
+            miny = maxy = 0;
 
-	    int dw = maxx - minx + 1;
-	    int dh = maxy - miny + 1;
+        if (alignx > 1) {
+            minx -= minx % alignx;
+            maxx = maxx - maxx % alignx + alignx - 1;
+        }
 
-	    QImage diff(dw, dh, QImage::Format_ARGB32);
+        int dw = maxx - minx + 1;
+        int dh = maxy - miny + 1;
 
-	    int x, y;
-	    for (y = 0; y < dh; ++y) {
-		QRgb* li = (QRgb*)frame.scanLine(y+miny)+minx;
-		QRgb* lp = (QRgb*)prev.scanLine(y+miny+offset.y())+minx+offset.x();
-		QRgb* ld = (QRgb*)diff.scanLine(y);
-		if (alignx) {
-		    for (x = 0; x < dw; x += alignx) {
-			int i;
-			for (i = 0; i < alignx; ++i) {
-			    if (li[x+i] != lp[x+i])
-				break;
-			}
-			if (i == alignx) {
-			    // All the same
-			    for (i = 0; i < alignx; ++i)
-				ld[x+i] = qRgba(0,0,0,0);
-			} else {
-			    // Some different
-			    for (i = 0; i < alignx; ++i)
-				ld[x+i] = 0xff000000 | li[x+i];
-			}
-		    }
-		} else {
-		    for (x = 0; x < dw; ++x) {
-			if (li[x] != lp[x])
-			    ld[x] = 0xff000000 | li[x];
-			else
-			    ld[x] = qRgba(0,0,0,0);
-		    }
-		}
-	    }
-            qDebug("%d,%d  %d,%d",minx,miny,offset.x(),offset.y());
-	    d->composeImage(diff, QPoint(minx, miny) + offset);
-	}
-	if (prev.isNull() || prev.size() == frame.size() && offset == QPoint(0,0)) {
-	    prev = frame;
-	} else {
-            QPainter p(&prev);
-            p.drawImage(offset.x(), offset.y(), frame, 0, 0,
-                        frame.width(), frame.height());
-	}
+        QImage diff(dw, dh, QImage::Format_ARGB32);
+
+        int x, y;
+        for (y = 0; y < dh; ++y) {
+            QRgb* li = (QRgb*)frame.scanLine(y+miny)+minx;
+            QRgb* lp = (QRgb*)prev.scanLine(y+miny+offset.y())+minx+offset.x();
+            QRgb* ld = (QRgb*)diff.scanLine(y);
+            if (alignx) {
+                for (x = 0; x < dw; x += alignx) {
+                    int i;
+                    for (i = 0; i < alignx; ++i) {
+                        if (li[x+i] != lp[x+i])
+                            break;
+                    }
+                    if (i == alignx) {
+                        // All the same
+                        for (i = 0; i < alignx; ++i)
+                            ld[x+i] = qRgba(0,0,0,0);
+                    } else {
+                        // Some different
+                        for (i = 0; i < alignx; ++i)
+                            ld[x+i] = 0xff000000 | li[x+i];
+                    }
+                }
+            } else {
+                for (x = 0; x < dw; ++x) {
+                    if (li[x] != lp[x])
+                        ld[x] = 0xff000000 | li[x];
+                    else
+                        ld[x] = qRgba(0,0,0,0);
+                }
+            }
+        }
+
+        d->composeImage(diff, QPoint(minx, miny) + offset);
+    }
+    if (prev.isNull() || prev.size() == frame.size() && offset == QPoint(0,0)) {
+        prev = frame;
+    } else {
+        QPainter p(&prev);
+        p.drawImage(offset.x(), offset.y(), frame, 0, 0,
+                    frame.width(), frame.height());
     }
 }
 
