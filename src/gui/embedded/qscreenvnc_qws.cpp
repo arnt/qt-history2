@@ -1179,24 +1179,9 @@ bool QVNCScreen::connect(const QString &displaySpec)
     if (colon >= 0)
         driver.truncate(colon);
 
-    QScreen *screen;
     if (QScreenDriverFactory::keys().contains(driver, Qt::CaseInsensitive)) {
         const int id = getDisplayId(dspec);
-        screen = qt_get_screen(id, dspec.toLatin1().constData());
-
-        QScreen::d = screen->depth();
-        QScreen::w = screen->width();
-        QScreen::h = screen->height();
-        QScreen::dw = screen->deviceWidth();
-        QScreen::dh = screen->deviceHeight();
-        QScreen::lstep = screen->linestep();
-        QScreen::data = screen->base();
-        QScreen::physWidth = screen->physicalWidth();
-        QScreen::physHeight = screen->physicalHeight();
-        setOffset(screen->offset());
-
-        d_ptr->subscreen = screen;
-
+        d_ptr->subscreen = qt_get_screen(id, dspec.toLatin1().constData());
     } else { // create virtual screen
         d = qgetenv("QWS_DEPTH").toInt();
         if (!d)
@@ -1228,6 +1213,34 @@ bool QVNCScreen::connect(const QString &displaySpec)
             dh = h = sizeRegexp.cap(2).toInt();
         }
 
+        QWSServer::setDefaultMouse("None");
+        QWSServer::setDefaultKeyboard("None");
+    }
+    
+    configure();
+
+    // XXX
+    qt_screen = this;
+
+    return true;
+}
+
+void QVNCScreen::configure()
+{
+    const QScreen *screen = d_ptr->subscreen;
+    if (screen) {
+        QScreen::d = screen->depth();
+        QScreen::w = screen->width();
+        QScreen::h = screen->height();
+        QScreen::dw = screen->deviceWidth();
+        QScreen::dh = screen->deviceHeight();
+        QScreen::lstep = screen->linestep();
+        QScreen::data = screen->base();
+        QScreen::physWidth = screen->physicalWidth();
+        QScreen::physHeight = screen->physicalHeight();
+
+        setOffset(screen->offset());
+    } else {
         const int dpi = 72;
         physWidth = qRound(dw * 25.4 / dpi);
         physHeight = qRound(dh * 25.4 / dpi);
@@ -1236,10 +1249,9 @@ bool QVNCScreen::connect(const QString &displaySpec)
         size = h * lstep;
         mapsize = size;
 
-        QWSServer::setDefaultMouse("None");
-        QWSServer::setDefaultKeyboard("None");
-
 #ifndef QT_NO_QWS_MULTIPROCESS
+        if (d_ptr->shm)
+            delete d_ptr->shm;
         d_ptr->shm = new QSharedMemory(size, qws_qtePipeFilename(), displayId);
         if (!d_ptr->shm->create())
             qDebug("QVNCScreen could not create shared memory");
@@ -1247,14 +1259,11 @@ bool QVNCScreen::connect(const QString &displaySpec)
             qDebug("QVNCScreen could not attach to shared memory");
         QScreen::data = reinterpret_cast<uchar*>(d_ptr->shm->base());
 #else
+        if (QScreen::data)
+            delete[] QScreen::data;
         QScreen::data = new uchar[size];
 #endif
     }
-
-    // XXX
-    qt_screen = this;
-
-    return true;
 }
 
 /*!
@@ -1320,10 +1329,17 @@ void QVNCScreen::shutdownDevice()
 /*!
     \reimp
 */
-void QVNCScreen::setMode(int w,int h, int d)
+void QVNCScreen::setMode(int w, int h, int d)
 {
-    if (d_ptr->subscreen)
+    if (d_ptr->subscreen) {
         d_ptr->subscreen->setMode(w, h, d);
+    } else {
+        QScreen::dw = QScreen::w = w;
+        QScreen::dh = QScreen::h = h;
+        QScreen::d = d;
+    }
+    configure();
+    setDirty(region().boundingRect());
 }
 
 /*!

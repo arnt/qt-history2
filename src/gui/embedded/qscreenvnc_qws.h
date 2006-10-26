@@ -64,6 +64,8 @@ public:
     QRegion region() const;
 
 private:
+    void configure();
+
     friend class QVNCServer;
     friend class QVNCScreenPrivate;
     QVNCScreenPrivate *d_ptr;

@@ -58,6 +58,8 @@ static const int tileSize = 32;
 class QTransformedScreenPrivate
 {
 public:
+    QTransformedScreenPrivate()
+        : transformation(QTransformedScreen::None), subscreen(0) {}
     QTransformedScreen::Transformation transformation;
     QScreen *subscreen;
 };
@@ -182,10 +184,21 @@ bool QTransformedScreen::connect(const QString &displaySpec)
     if (dspec.endsWith(displayIdSpec))
         dspec = dspec.left(dspec.size() - displayIdSpec.size());
 
-    Transformation t = filterTransformation(dspec);
+    d_ptr->transformation = filterTransformation(dspec);
 
     const int id = getDisplayId(dspec);
-    QScreen *screen = qt_get_screen(id, dspec.toLatin1().constData());
+    d_ptr->subscreen = qt_get_screen(id, dspec.toLatin1().constData());
+    configure();
+
+    // XXX
+    qt_screen = this;
+
+    return true;
+}
+
+void QTransformedScreen::configure()
+{
+    const QScreen *screen = d_ptr->subscreen;
 
     QScreen::d = screen->depth();
     QScreen::w = screen->width();
@@ -198,16 +211,10 @@ bool QTransformedScreen::connect(const QString &displaySpec)
     QScreen::size = screen->screenSize();
     QScreen::physWidth = screen->physicalWidth();
     QScreen::physHeight = screen->physicalHeight();
+
     setOffset(screen->offset());
-
-    d_ptr->subscreen = screen;
-
-    setTransformation(t);
-
-    // XXX
-    qt_screen = this;
-
-    return true;
+    // ###: works because setTransformation recalculates unconditionally
+    setTransformation(d_ptr->transformation);
 }
 
 /*!
@@ -1243,8 +1250,11 @@ void QTransformedScreen::shutdownDevice()
 */
 void QTransformedScreen::setMode(int w,int h, int d)
 {
-    if (d_ptr->subscreen)
+    if (d_ptr->subscreen) {
         d_ptr->subscreen->setMode(w, h, d);
+        configure();
+        exposeRegion(region(), 0);
+    }
 }
 
 /*!
