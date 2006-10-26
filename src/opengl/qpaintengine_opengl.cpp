@@ -34,6 +34,8 @@
 
 #include "private/qtessellator_p.h"
 
+#include "util/fragmentprograms_p.h"
+
 #ifdef Q_WS_WIN
 #define QGL_FUNC_CONTEXT QGLContext *ctx = const_cast<QGLContext *>(drawable.context());
 #define QGL_D_FUNC_CONTEXT QGLContext *ctx = const_cast<QGLContext *>(d->drawable.context());
@@ -48,13 +50,99 @@
 #define QREAL_MAX 9e100
 #define QREAL_MIN -9e100
 
+// OpenGL constants
+#ifndef GL_MULTISAMPLE
+#define GL_MULTISAMPLE  0x809D
+#endif
+
+#ifndef GL_CLAMP_TO_EDGE
+#define GL_CLAMP_TO_EDGE 0x812F
+#endif
+
+#ifndef GL_IBM_texture_mirrored_repeat
+#define GL_MIRRORED_REPEAT_IBM            0x8370
+#endif
+
+#ifndef GL_SGIS_generate_mipmap
+#define GL_GENERATE_MIPMAP_SGIS           0x8191
+#define GL_GENERATE_MIPMAP_HINT_SGIS      0x8192
+#endif
+
+// ARB_fragment_program extension protos
+#ifndef GL_FRAGMENT_PROGRAM_ARB
+#define GL_FRAGMENT_PROGRAM_ARB           0x8804
+#define GL_PROGRAM_FORMAT_ASCII_ARB       0x8875
+#endif
+
+// Stencil wrap and two-side defines
+#ifndef GL_STENCIL_TEST_TWO_SIDE_EXT
+#define GL_STENCIL_TEST_TWO_SIDE_EXT 0x8910
+#endif
+#ifndef GL_INCR_WRAP_EXT
+#define GL_INCR_WRAP_EXT 0x8507
+#endif
+#ifndef GL_DECR_WRAP_EXT
+#define GL_DECR_WRAP_EXT 0x8508
+#endif
+
+#ifndef GL_TEXTURE0
+#define GL_TEXTURE0 0x84C0
+#endif
+
+#ifndef GL_TEXTURE1
+#define GL_TEXTURE1 0x84C1
+#endif
+
+extern QGLContextPrivate *qt_glctx_get_dptr(QGLContext *);
+
+#ifdef Q_WS_WIN
+#define glProgramStringARB qt_glctx_get_dptr(ctx)->qt_glProgramStringARB
+#define glBindProgramARB qt_glctx_get_dptr(ctx)->qt_glBindProgramARB
+#define glDeleteProgramsARB qt_glctx_get_dptr(ctx)->qt_glDeleteProgramsARB
+#define glGenProgramsARB qt_glctx_get_dptr(ctx)->qt_glGenProgramsARB
+#define glProgramLocalParameter4fvARB qt_glctx_get_dptr(ctx)->qt_glProgramLocalParameter4fvARB
+
+#define glActiveStencilFaceEXT qt_glctx_get_dptr(ctx)->qt_glActiveStencilFaceEXT
+
+#define glMultiTexCoord4f qt_glctx_get_dptr(ctx)->qt_glMultiTexCoord4f
+#define glActiveTexture qt_glctx_get_dptr(ctx)->qt_glActiveTexture
+
+#else
+static _glProgramStringARB qt_glProgramStringARB = 0;
+static _glBindProgramARB qt_glBindProgramARB = 0;
+static _glDeleteProgramsARB qt_glDeleteProgramsARB = 0;
+static _glGenProgramsARB qt_glGenProgramsARB = 0;
+static _glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB = 0;
+
+static _glActiveStencilFaceEXT qt_glActiveStencilFaceEXT = 0;
+
+static _glMultiTexCoord4f qt_glMultiTexCoord4f = 0;
+static _glActiveTexture qt_glActiveTexture = 0;
+
+#define glProgramStringARB qt_glProgramStringARB
+#define glBindProgramARB qt_glBindProgramARB
+#define glDeleteProgramsARB qt_glDeleteProgramsARB
+#define glGenProgramsARB qt_glGenProgramsARB
+#define glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB
+
+#define glActiveStencilFaceEXT qt_glActiveStencilFaceEXT
+
+#define glMultiTexCoord4f qt_glMultiTexCoord4f
+#define glActiveTexture qt_glActiveTexture
+
+#endif // Q_WS_WIN
+
 #define DISABLE_DEBUG_ONCE
 
 #ifdef DISABLE_DEBUG_ONCE
+#define DEBUG_OVERRIDE(state) ;
 #define DEBUG_ONCE_STR(str) ;
 #define DEBUG_ONCE if (0)
 #else
-#define DEBUG_ONCE for (static bool DEBUG_ONCE_FLAG = false; !DEBUG_ONCE_FLAG; DEBUG_ONCE_FLAG = true)
+static int DEBUG_OVERRIDE_FLAG = 0;
+static bool DEBUG_TEMP_FLAG;
+#define DEBUG_OVERRIDE(state) { state ? ++DEBUG_OVERRIDE_FLAG : --DEBUG_OVERRIDE_FLAG; }
+#define DEBUG_ONCE if ((DEBUG_TEMP_FLAG = DEBUG_OVERRIDE_FLAG) && 0) ; else for (static int DEBUG_ONCE_FLAG = false; !DEBUG_ONCE_FLAG || DEBUG_TEMP_FLAG; DEBUG_ONCE_FLAG = true, DEBUG_TEMP_FLAG = false)
 #define DEBUG_ONCE_STR(str) DEBUG_ONCE qDebug() << (str);
 #endif
 
@@ -67,6 +155,34 @@ static inline void qt_glColor4ubv(unsigned char *col)
 #endif
 }
 
+static void qt_add_rect_to_array(const QRectF &r, float *array)
+{
+    qreal left = r.left();
+    qreal right = r.right();
+    qreal top = r.top();
+    qreal bottom = r.bottom();
+
+    array[0] = left;
+    array[1] = top;
+    array[2] = right;
+    array[3] = top;
+    array[4] = right;
+    array[5] = bottom;
+    array[6] = left;
+    array[7] = bottom;
+}
+
+static void qt_add_texcoords_to_array(qreal x1, qreal y1, qreal x2, qreal y2, float *array)
+{
+    array[0] = x1;
+    array[1] = y1;
+    array[2] = x2;
+    array[3] = y1;
+    array[4] = x2;
+    array[5] = y2;
+    array[6] = x1;
+    array[7] = y2;
+}
 
 class QGLDrawable {
 public:
@@ -190,15 +306,248 @@ inline bool QGLDrawable::autoFillBackground() const
     return false;
 }
 
+class QGLOffscreen {
+public:
+    QGLOffscreen()
+        : offscreen(0),
+          context(0),
+          copy_needed(false),
+          use_fbo(QGLExtensions::glExtensions & QGLExtensions::FramebufferObject)
+    {}
+
+    inline void setDevice(QPaintDevice *pdev);
+
+    inline void setDrawableCopyNeeded(bool drawable_copy_needed);
+    inline bool isDrawableCopyNeeded() const;
+
+    inline void bind();
+    inline void bind(const QRectF &rect);
+    inline void release();
+
+    inline QSize offscreenSize() const;
+    inline QSize textureSize() const;
+
+    inline GLuint offscreenTexture();
+    inline GLuint drawableTexture();
+
+private:
+    QGLDrawable drawable;
+
+    QGLFramebufferObject *offscreen;
+    QGLContext *context;
+
+    QSize sz;
+
+    GLuint offscreen_texture;
+    GLuint drawable_texture;
+
+    bool drawable_fbo;
+
+    QRectF active_rect;
+    QRectF screen_rect;
+
+    bool copy_needed;
+    bool use_fbo;
+};
+
+inline void QGLOffscreen::setDevice(QPaintDevice *pdev)
+{
+    drawable.setDevice(pdev);
+
+    drawable_fbo = (pdev->devType() == QInternal::FramebufferObject);
+}
+
+inline void QGLOffscreen::setDrawableCopyNeeded(bool drawable_copy_needed)
+{
+    copy_needed = drawable_copy_needed;
+}
+
+inline bool QGLOffscreen::isDrawableCopyNeeded() const
+{
+    return copy_needed;
+}
+
+inline void QGLOffscreen::bind()
+{
+    bind(QRectF(QPointF(0.0, 0.0), drawable.size()));
+}
+
+static uint nextPowerOfTwo(uint v)
+{
+    v--;
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    ++v;
+    return v;
+}
+
+inline void QGLOffscreen::bind(const QRectF &rect)
+{
+#ifndef Q_WS_QWS
+    active_rect = rect;
+    screen_rect = rect.adjusted(-1, -1, 1, 1);
+
+    QSize needed_size(nextPowerOfTwo(drawable.size().width()), nextPowerOfTwo(drawable.size().height()));
+
+    bool needs_refresh = needed_size.width() > sz.width()
+                         || needed_size.height() > sz.height()
+                         || drawable.context() != context
+                         && !qgl_share_reg()->checkSharing(drawable.context(), context);
+
+    if (needs_refresh) {
+        sz = needed_size;
+
+        GLuint *textures[] = { &drawable_texture, &offscreen_texture };
+
+        int gen_count = use_fbo ? 1 : 2;
+
+        for (int i = 0; i < gen_count; ++i) {
+            if (context)
+                glDeleteTextures(1, textures[i]);
+
+            glGenTextures(1, textures[i]);
+            glBindTexture(GL_TEXTURE_2D, *textures[i]);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, sz.width(), sz.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        }
+    }
+
+    context = drawable.context();
+
+    if (!use_fbo || copy_needed) {
+        int left = qMax(0, static_cast<int>(screen_rect.left()));
+        int width = qMin(drawable.size().width() - left, static_cast<int>(screen_rect.width()) + 1);
+
+        int bottom = qMax(0, static_cast<int>(drawable.size().height() - screen_rect.bottom()));
+        int height = qMin(drawable.size().height() - bottom, static_cast<int>(screen_rect.height()) + 1);
+
+        glBindTexture(GL_TEXTURE_2D, drawable_texture);
+        glCopyTexSubImage2D(GL_TEXTURE_2D, 0, left, bottom, left, bottom, width, height);
+    }
+
+    if (use_fbo) {
+        if (!offscreen || needs_refresh) {
+            delete offscreen;
+
+            offscreen = new QGLFramebufferObject(sz.width(), sz.height());
+
+            offscreen_texture = offscreen->texture();
+
+            if (!offscreen->isValid())
+                DEBUG_ONCE qDebug() << "QGLOffscreen: Invalid offscreen fbo (size" << sz << ')';
+        }
+
+        offscreen->bind();
+    }
+#endif
+}
+
+inline void QGLOffscreen::release()
+{
+#ifndef Q_WS_QWS
+    if (use_fbo) {
+        if (drawable_fbo)
+            drawable.makeCurrent();
+        else
+            offscreen->release();
+    } else {
+        // copy buffer to offscreen
+        int left = qMax(0, static_cast<int>(screen_rect.left()));
+        int width = qMin(drawable.size().width() - left, static_cast<int>(screen_rect.width()) + 1);
+
+        int bottom = qMax(0, static_cast<int>(drawable.size().height() - screen_rect.bottom()));
+        int height = qMin(drawable.size().height() - bottom, static_cast<int>(screen_rect.height()) + 1);
+
+        glBindTexture(GL_TEXTURE_2D, offscreen_texture);
+        glCopyTexSubImage2D(GL_TEXTURE_2D, 0, left, bottom, left, bottom, width, height);
+
+        // copy back active_rect
+        glPushMatrix();
+        glLoadIdentity();
+
+        float inv_size_x = 1.0f / sz.width();
+        float inv_size_y = 1.0f / sz.height();
+
+        float x1 = active_rect.left() * inv_size_x;
+        float x2 = active_rect.right() * inv_size_x;
+        float y1 = (drawable.size().height() - active_rect.top()) * inv_size_y;
+        float y2 = (drawable.size().height() - active_rect.bottom()) * inv_size_y;
+
+        GLint src, dst;
+        glGetIntegerv(GL_BLEND_SRC, &src);
+        glGetIntegerv(GL_BLEND_DST, &dst);
+
+        glBlendFunc(GL_ONE, GL_ZERO);
+
+        float color[4];
+        glGetFloatv(GL_CURRENT_COLOR, color);
+        glColor4f(1, 1, 1, 1);
+
+        float vertexArray[8];
+        float texCoordArray[8];
+
+        qt_add_rect_to_array(active_rect, vertexArray);
+        qt_add_texcoords_to_array(x1, y1, x2, y2, texCoordArray);
+
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glVertexPointer(2, GL_FLOAT, 0, vertexArray);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glTexCoordPointer(2, GL_FLOAT, 0, texCoordArray);
+
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, drawable_texture);
+
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+        glDisable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        glDisableClientState(GL_VERTEX_ARRAY);
+
+        glPopMatrix();
+
+        glColor4fv(color);
+
+        glBlendFunc(src, dst);
+    }
+#endif
+}
+
+inline QSize QGLOffscreen::offscreenSize() const
+{
+    return use_fbo ? sz : drawable.size();
+}
+
+inline QSize QGLOffscreen::textureSize() const
+{
+    return sz;
+}
+
+inline GLuint QGLOffscreen::drawableTexture()
+{
+    return drawable_texture;
+}
+
+inline GLuint QGLOffscreen::offscreenTexture()
+{
+    return offscreen_texture;
+}
+
 class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
     Q_DECLARE_PUBLIC(QOpenGLPaintEngine)
 public:
     QOpenGLPaintEnginePrivate()
-        : current_style(Qt::NoBrush)
-        , opacity(1)
+        : opacity(1)
         , composition_mode(QPainter::CompositionMode_SourceOver)
         , has_fast_pen(false)
-        , has_fast_brush(false)
         , txop(QTransform::TxNone)
         , inverseScale(1)
         , moveToCount(0)
@@ -206,11 +555,8 @@ public:
         , grad_palette(0)
         , use_stencil_method(false)
         , has_stencil_face_ext(false)
-        , has_ellipse_program(false)
-        , has_trapezoid_program(false)
+        , use_fragment_programs(false)
         , use_antialiasing(false)
-        , offscreenFbo(0)
-        , has_valid_offscreen_fbo(false)
         {}
 
     inline void setGLPen(const QColor &c) {
@@ -240,7 +586,7 @@ public:
     void fillVertexArray(Qt::FillRule fillRule);
     void drawVertexArrays();
     void fillPath(const QPainterPath &path);
-    void fillPolygon_dev(const QPointF *polygonPoints, int pointCount,
+    void fillPolygon_dev(const QRectF &boundingRect, const QPointF *polygonPoints, int pointCount,
                          Qt::FillRule fill);
 
     void strokePathFastPen(const QPainterPath &path);
@@ -250,7 +596,6 @@ public:
     QRegion crgn;
     Qt::BrushStyle brush_style;
     Qt::BrushStyle pen_brush_style;
-    Qt::BrushStyle current_style;
     qreal opacity;
     QPainter::CompositionMode composition_mode;
 
@@ -258,63 +603,56 @@ public:
     uint has_pen : 1;
     uint has_brush : 1;
     uint has_fast_pen : 1;
-    uint has_fast_brush : 1;
 
     QTransform matrix;
     GLubyte pen_color[4];
     GLubyte brush_color[4];
     QTransform::TransformationCodes txop;
     QGLDrawable drawable;
+    QGLOffscreen offscreen;
 
     qreal inverseScale;
 
     int moveToCount;
     QPointF path_start;
 
-    void activateEllipseProgram();
-    void deactivateEllipseProgram();
-
-    void drawFastEllipse(float *vertexArray, float *texCoordArray);
-    void drawOffscreenEllipse(float *vertexArray, float *texCoordArray);
-    void drawStencilEllipse(float *vertexArray, float *texCoordArray);
-
     void drawOffscreenPath(const QPainterPath &path);
+
+    void composite(const QRectF &rect);
+    void composite(GLuint primitive, const float *vertexArray, int vertexCount);
+
+    bool createFragmentPrograms();
+    void deleteFragmentPrograms();
+    void updateFragmentProgramData(int locations[]);
 
     QGLContext *shader_ctx;
     GLuint grad_palette;
 
-    GLuint radial_frag_program;
-    GLuint conical_frag_program;
-    GLuint ellipse_frag_program;
-    GLuint ellipse_aa_copy_frag_program;
-    GLuint ellipse_aa_frag_program;
-    GLuint ellipse_aa_radial_frag_program;
-    GLuint trapezoid_aa_frag_program;
+    GLuint painter_fragment_programs[num_fragment_brushes][num_fragment_composition_modes];
+    GLuint mask_fragment_programs[num_fragment_masks];
 
     bool use_stencil_method;
     bool has_stencil_face_ext;
-    bool has_ellipse_program;
-    bool has_trapezoid_program;
+    bool use_fragment_programs;
     bool use_antialiasing;
 
-    QGLFramebufferObject *offscreenFbo;
-    QSize offscreenSize;
-    QSizeF invOffscreenSize;
-    bool has_valid_offscreen_fbo;
+    float inv_matrix_data[4];
+    float inv_matrix_offset_data[4];
+    float fmp_data[4];
+    float fmp2_m_radius2_data[4];
+    float angle_data[4];
+    float linear_data[4];
 
-    GLuint radial_inv_location;
-    GLuint radial_inv_mat_offset_location;
-    GLuint radial_fmp_location;
-    GLuint radial_fmp2_m_radius_location;
-    GLuint radial_tex_location;
+    float porterduff_ab_data[4];
+    float porterduff_xyz_data[4];
 
-    GLuint conical_inv_location;
-    GLuint conical_inv_mat_offset_location;
-    GLuint conical_angle_location;
-    GLuint conical_tex_location;
+    FragmentBrushType fragment_brush;
+    FragmentCompositionModeType fragment_composition_mode;
 
-    GLuint ellipse_solid_color_location;
-    GLuint ellipse_aa_solid_color_location;
+    bool has_fast_composition_mode;
+
+    void setPorterDuffData(float a, float b, float x, float y, float z);
+    void setInvMatrixData(const QTransform &inv_matrix);
 
     qreal max_x;
     qreal max_y;
@@ -347,144 +685,6 @@ static inline QPainterPath strokeForPath(const QPainterPath &path, const QPen &c
     return stroke;
 }
 
-
-#ifndef GL_MULTISAMPLE
-#define GL_MULTISAMPLE  0x809D
-#endif
-
-#ifndef GL_CLAMP_TO_EDGE
-#define GL_CLAMP_TO_EDGE 0x812F
-#endif
-
-#ifndef GL_IBM_texture_mirrored_repeat
-#define GL_MIRRORED_REPEAT_IBM            0x8370
-#endif
-
-#ifndef GL_SGIS_generate_mipmap
-#define GL_GENERATE_MIPMAP_SGIS           0x8191
-#define GL_GENERATE_MIPMAP_HINT_SGIS      0x8192
-#endif
-
-// ARB_fragment_program extension protos
-#ifndef GL_FRAGMENT_PROGRAM_ARB
-#define GL_FRAGMENT_PROGRAM_ARB           0x8804
-#define GL_PROGRAM_FORMAT_ASCII_ARB       0x8875
-#endif
-
-// Stencil wrap and two-side defines
-#ifndef GL_STENCIL_TEST_TWO_SIDE_EXT
-#define GL_STENCIL_TEST_TWO_SIDE_EXT 0x8910
-#endif
-#ifndef GL_INCR_WRAP_EXT
-#define GL_INCR_WRAP_EXT 0x8507
-#endif
-#ifndef GL_DECR_WRAP_EXT
-#define GL_DECR_WRAP_EXT 0x8508
-#endif
-
-#ifndef GL_TEXTURE0
-#define GL_TEXTURE0 0x84C0
-#endif
-
-#ifndef GL_TEXTURE1
-#define GL_TEXTURE1 0x84C1
-#endif
-
-extern QGLContextPrivate *qt_glctx_get_dptr(QGLContext *);
-
-#ifdef Q_WS_WIN
-#define glProgramStringARB qt_glctx_get_dptr(ctx)->qt_glProgramStringARB
-#define glBindProgramARB qt_glctx_get_dptr(ctx)->qt_glBindProgramARB
-#define glDeleteProgramsARB qt_glctx_get_dptr(ctx)->qt_glDeleteProgramsARB
-#define glGenProgramsARB qt_glctx_get_dptr(ctx)->qt_glGenProgramsARB
-#define glProgramLocalParameter4fvARB qt_glctx_get_dptr(ctx)->qt_glProgramLocalParameter4fvARB
-
-#define glActiveStencilFaceEXT qt_glctx_get_dptr(ctx)->qt_glActiveStencilFaceEXT
-
-#define glMultiTexCoord4f qt_glctx_get_dptr(ctx)->qt_glMultiTexCoord4f
-#define glClientActiveTexture qt_glctx_get_dptr(ctx)->qt_glClientActiveTexture
-
-#else
-static _glProgramStringARB qt_glProgramStringARB = 0;
-static _glBindProgramARB qt_glBindProgramARB = 0;
-static _glDeleteProgramsARB qt_glDeleteProgramsARB = 0;
-static _glGenProgramsARB qt_glGenProgramsARB = 0;
-static _glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB = 0;
-
-static _glActiveStencilFaceEXT qt_glActiveStencilFaceEXT = 0;
-
-static _glMultiTexCoord4f qt_glMultiTexCoord4f = 0;
-static _glClientActiveTexture qt_glClientActiveTexture = 0;
-
-#define glProgramStringARB qt_glProgramStringARB
-#define glBindProgramARB qt_glBindProgramARB
-#define glDeleteProgramsARB qt_glDeleteProgramsARB
-#define glGenProgramsARB qt_glGenProgramsARB
-#define glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB
-
-#define glActiveStencilFaceEXT qt_glActiveStencilFaceEXT
-
-#define glMultiTexCoord4f qt_glMultiTexCoord4f
-#define glClientActiveTexture qt_glClientActiveTexture
-
-#endif // Q_WS_WIN
-
-/*  radial fragment program
-    parameter: 0 = inv_matrix
-               1 = inv_matrix_offset
-               2 = fmp
-               4 = radius
-
-               This program is included from radial.frag, see also src/opengl/util/README-GLSL
-*/
-static const char *const radial_program =
-#include "util/radial.frag"
-
-/*  conical fragment program
-    parameter: 0 = inv_matrix
-               1 = inv_matrix_offset
-               4 = angle
-
-               This program is included from conical.frag, see also src/opengl/util/README-GLSL
-*/
-static const char *const conical_program =
-#include "util/conical.frag"
-
-/*  ellipse fragment program
-    parameter: 0 = solid_color
-
-               These programs are included from ellipse.frag, see also src/opengl/util/README-GLSL
-*/
-static const char *const ellipse_program =
-#include "util/ellipse.frag"
-
-/*  antialiased ellipse fragment program
-    parameter: 1 = solid_color
-
-               These programs are included from ellipse_aa.frag, see also src/opengl/util/README-GLSL
-*/
-static const char *const ellipse_aa_program =
-#include "util/ellipse_aa.frag"
-
-static const char *const ellipse_aa_radial_program =
-#include "util/ellipse_aa_radial.frag"
-
-/*  antialiased ellipse fragment program
-    parameter: 0 = texture_inv_size
-
-               This program is included from ellipse_aa_copy.frag, see also src/opengl/util/README-GLSL
-*/
-static const char *const ellipse_aa_copy_program =
-#include "util/ellipse_aa_copy.frag"
-
-/*  antialiased trapezoid fragment program
-
-               This program is included from trap_exact_aa_aa.frag, see also src/opengl/util/README-GLSL
-*/
-
-static const char *const trapezoid_aa_program =
-#include "util/trap_exact_aa.frag"
-
 bool qt_resolve_version_1_3_functions(QGLContext *ctx)
 {
     if (glMultiTexCoord4f != 0)
@@ -492,9 +692,9 @@ bool qt_resolve_version_1_3_functions(QGLContext *ctx)
 
     QGLContext cx(QGLFormat::defaultFormat());
     glMultiTexCoord4f = (_glMultiTexCoord4f) ctx->getProcAddress(QLatin1String("glMultiTexCoord4f"));
-    glClientActiveTexture = (_glClientActiveTexture) ctx->getProcAddress(QLatin1String("glClientActiveTexture"));
+    glActiveTexture = (_glActiveTexture) ctx->getProcAddress(QLatin1String("glActiveTexture"));
 
-    return glMultiTexCoord4f && glClientActiveTexture;
+    return glMultiTexCoord4f && glActiveTexture;
 }
 
 bool qt_resolve_stencil_face_extension(QGLContext *ctx)
@@ -704,26 +904,24 @@ void QOpenGLPaintEnginePrivate::createGradientPaletteTexture(const QGradient& g)
 inline void QOpenGLPaintEnginePrivate::setGradientOps(Qt::BrushStyle style)
 {
 #ifndef Q_WS_QWS //###
-    QGL_FUNC_CONTEXT;
-
-    current_style = style;
-
     if (style == Qt::LinearGradientPattern) {
-        glDisable(GL_FRAGMENT_PROGRAM_ARB);
-        glEnable(GL_TEXTURE_GEN_S);
-        glEnable(GL_TEXTURE_1D);
-    } else {
-        glDisable(GL_TEXTURE_GEN_S);
-        glDisable(GL_TEXTURE_1D);
-
-        if (style == Qt::RadialGradientPattern) {
-            glEnable(GL_FRAGMENT_PROGRAM_ARB);
-            glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, radial_frag_program);
-        } else if (style == Qt::ConicalGradientPattern) {
-            glEnable(GL_FRAGMENT_PROGRAM_ARB);
-            glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, conical_frag_program);
+        if (use_fragment_programs) {
+            fragment_brush = FRAGMENT_PROGRAM_BRUSH_LINEAR;
         } else {
-            glDisable(GL_FRAGMENT_PROGRAM_ARB);
+            glEnable(GL_TEXTURE_GEN_S);
+            glEnable(GL_TEXTURE_1D);
+        }
+    } else {
+        if (use_fragment_programs) {
+            if (style == Qt::RadialGradientPattern)
+                fragment_brush = FRAGMENT_PROGRAM_BRUSH_RADIAL;
+            else if (style == Qt::ConicalGradientPattern)
+                fragment_brush = FRAGMENT_PROGRAM_BRUSH_CONICAL;
+            else
+                fragment_brush = FRAGMENT_PROGRAM_BRUSH_SOLID;
+        } else {
+            glDisable(GL_TEXTURE_GEN_S);
+            glDisable(GL_TEXTURE_GEN_S);
         }
     }
 #endif
@@ -760,9 +958,10 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 {
     Q_D(QOpenGLPaintEngine);
     d->drawable.setDevice(pdev);
+    d->offscreen.setDevice(pdev);
+    d->offscreen.setDrawableCopyNeeded(true);
     d->has_clipping = false;
     d->has_fast_pen = false;
-    d->has_fast_brush = false;
     d->inverseScale = 1;
     d->opacity = 1;
     d->drawable.makeCurrent();
@@ -827,98 +1026,41 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 #endif
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
 
-    if (QGLExtensions::glExtensions & QGLExtensions::FramebufferObject) {
 #ifndef Q_WS_QWS
-        if (!d->offscreenFbo || d->offscreenSize != sz || d->drawable.context() != d->shader_ctx) {
-            delete d->offscreenFbo;
-            d->offscreenFbo = new QGLFramebufferObject(sz.width(), sz.height());
-
-            if (!d->offscreenFbo->isValid())
-                DEBUG_ONCE qDebug() << "QOpenGLPaintEngine: Invalid fbo," << "old size was" << d->offscreenSize << ", new size is" << sz;
-
-            d->offscreenSize = sz;
-            d->invOffscreenSize = QSizeF(1.0 / sz.width(), 1.0 / sz.height());
-        }
-
-        d->has_valid_offscreen_fbo = d->offscreenFbo->isValid();
-#endif
-    }
-
-    if ((QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat)
-        && d->drawable.context() != d->shader_ctx
+    if (d->drawable.context() != d->shader_ctx
         && !qgl_share_reg()->checkSharing(d->drawable.context(), d->shader_ctx))
     {
-#ifndef Q_WS_QWS
         if (d->shader_ctx) {
             glBindTexture(GL_TEXTURE_1D, 0);
             glDeleteTextures(1, &d->grad_palette);
 
-            if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram) {
-                glDeleteProgramsARB(1, &d->radial_frag_program);
-                glDeleteProgramsARB(1, &d->conical_frag_program);
-                glDeleteProgramsARB(1, &d->ellipse_frag_program);
-                glDeleteProgramsARB(1, &d->ellipse_aa_copy_frag_program);
-                glDeleteProgramsARB(1, &d->ellipse_aa_frag_program);
-                glDeleteProgramsARB(1, &d->ellipse_aa_radial_frag_program);
-                glDeleteProgramsARB(1, &d->trapezoid_aa_frag_program);
-            }
-
-            d->has_ellipse_program = false;
-            d->has_trapezoid_program = false;
+            if (d->use_fragment_programs)
+                d->deleteFragmentPrograms();
         }
         d->shader_ctx = d->drawable.context();
-        gccaps |= LinearGradientFill;
         glGenTextures(1, &d->grad_palette);
 
         if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram) {
-            glGenProgramsARB(1, &d->radial_frag_program);
-            glGenProgramsARB(1, &d->conical_frag_program);
+            d->use_fragment_programs = d->createFragmentPrograms();
 
-            while (glGetError() != GL_NO_ERROR) {} // reset the error state
-            glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, d->radial_frag_program);
-            glProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
-                               strlen(radial_program), (const GLbyte *) radial_program);
-            if (glGetError() == GL_NO_ERROR)
-                gccaps |= RadialGradientFill;
-            else
-                qWarning() << "QOpenGLPaintEngine: Unable to use radial gradient fragment shader.";
-
-            glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, d->conical_frag_program);
-            glProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
-                               strlen(conical_program), (const GLbyte *) conical_program);
-            if (glGetError() == GL_NO_ERROR)
-                gccaps |= ConicalGradientFill;
-            else
-                qWarning() << "QOpenGLPaintEngine: Unable to use conical gradient fragment shader.";
-
-            if (qt_createFragmentProgram(ctx, d->ellipse_frag_program, ellipse_program)
-                && qt_createFragmentProgram(ctx, d->ellipse_aa_copy_frag_program, ellipse_aa_copy_program)
-                && qt_createFragmentProgram(ctx, d->ellipse_aa_frag_program, ellipse_aa_program)
-                && qt_createFragmentProgram(ctx, d->ellipse_aa_radial_frag_program, ellipse_aa_radial_program))
-                d->has_ellipse_program = true;
-            else
-                qWarning() << "QOpenGLPaintEngine: Unable to use ellipse fragment shader.";
-
-            if (qt_createFragmentProgram(ctx, d->trapezoid_aa_frag_program, trapezoid_aa_program))
-                d->has_trapezoid_program = true;
-            else
-                qWarning() << "QOpenGLPaintEngine: Unable to use triangle fragment shader.";
+            if (!d->use_fragment_programs)
+                qWarning() << "QOpenGLPaintEngine: Failed to create fragment programs.";
         }
+
+        gccaps &= ~(RadialGradientFill | ConicalGradientFill | LinearGradientFill);
+
+        if (d->use_fragment_programs)
+            gccaps |= (RadialGradientFill | ConicalGradientFill | LinearGradientFill);
+        else if (QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat)
+            gccaps |= LinearGradientFill;
+    }
 #endif
-    }
-
-    if (d->has_ellipse_program && d->has_valid_offscreen_fbo) {
-        GLfloat inv_texture_size[4] = { d->invOffscreenSize.width(), d->invOffscreenSize.height(), 0.0f, 0.0f };
-
-        glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, d->ellipse_aa_copy_frag_program);
-        glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, inv_texture_size);
-    }
 
     setDirty(QPaintEngine::DirtyPen);
     setDirty(QPaintEngine::DirtyBrush);
+    setDirty(QPaintEngine::DirtyCompositionMode);
     return true;
 }
 
@@ -933,7 +1075,6 @@ bool QOpenGLPaintEngine::end()
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 
-    glDisable(GL_FRAGMENT_PROGRAM_ARB);
     glFlush();
     d->drawable.swapBuffers();
     d->drawable.doneCurrent();
@@ -947,7 +1088,6 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
     QPaintEngine::DirtyFlags flags = state.state();
 
     bool update_fast_pen = false;
-    bool update_fast_brush = false;
 
     if (flags & DirtyOpacity) {
         update_fast_pen = true;
@@ -976,7 +1116,6 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
 
     if (flags & DirtyBrush) {
         updateBrush(state.brush(), state.brushOrigin());
-        update_fast_brush = true;
     }
 
     if (flags & DirtyFont) {
@@ -1016,24 +1155,26 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
             && d->cpen.style() == Qt::SolidLine
             && d->cpen.isSolid();
     }
-
-    if (update_fast_brush) {
-        Q_D(QOpenGLPaintEngine);
-        d->has_fast_brush =
-            (d->has_brush
-            && (d->brush_style == Qt::SolidPattern
-               || d->brush_style == Qt::RadialGradientPattern && d->use_antialiasing
-               || d->composition_mode == QPainter::CompositionMode_Clear));
-    }
 }
+
+
+void QOpenGLPaintEnginePrivate::setInvMatrixData(const QTransform &inv_matrix)
+{
+    inv_matrix_data[0] = inv_matrix.m11();
+    inv_matrix_data[1] = inv_matrix.m21();
+    inv_matrix_data[2] = inv_matrix.m12();
+    inv_matrix_data[3] = inv_matrix.m22();
+
+    inv_matrix_offset_data[0] = inv_matrix.dx();
+    inv_matrix_offset_data[1] = inv_matrix.dy();
+}
+
 
 void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
 {
 #ifndef Q_WS_QWS
     bool has_mirrored_repeat = QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat;
-    bool has_frag_program = QGLExtensions::glExtensions & QGLExtensions::FragmentProgram;
     Qt::BrushStyle style = brush.style();
-    QGL_FUNC_CONTEXT;
 
     if (has_mirrored_repeat && style == Qt::LinearGradientPattern) {
         const QLinearGradient *g = static_cast<const QLinearGradient *>(brush.gradient());
@@ -1076,62 +1217,54 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
         setGLBrush(Qt::white);
         glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
         glTexGenfv(GL_S, GL_OBJECT_PLANE, tr);
+    }
 
-        glBindTexture(GL_TEXTURE_1D, grad_palette);
-        createGradientPaletteTexture(*brush.gradient());
-    } else if (has_frag_program) {
+    if (use_fragment_programs) {
         if (style == Qt::RadialGradientPattern) {
             const QRadialGradient *g = static_cast<const QRadialGradient *>(brush.gradient());
             QTransform translate(1, 0, 0, 1, -g->focalPoint().x(), -g->focalPoint().y());
             QTransform gl_to_qt(1, 0, 0, -1, 0, pdev->height());
             QTransform inv_matrix = gl_to_qt * matrix.inverted() * brush.transform().inverted() * translate;
 
-            float pt[4] = {inv_matrix.dx(), inv_matrix.dy(), 0.f, 0.f};
-            float inv[4] = {inv_matrix.m11(), inv_matrix.m21(),
-                            inv_matrix.m12(), inv_matrix.m22()};
-            float pt1[4] = {g->center().x() - g->focalPoint().x(),
-                             g->center().y() - g->focalPoint().y(), 0.f, 0.f};
-            float f[4] = {-pt1[0]*pt1[0] - pt1[1]*pt1[1] + g->radius()*g->radius(), 0.f, 0.f, 0.f};
+            setInvMatrixData(inv_matrix);
 
-            glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, radial_frag_program);
-            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, inv); // inv_matrix
-            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, pt); // inv_matrix_offset
-            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 2, pt1); // fmp
-            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 4, f); // fmp2_m_radius2
+            fmp_data[0] = g->center().x() - g->focalPoint().x();
+            fmp_data[1] = g->center().y() - g->focalPoint().y();
 
-            if (has_ellipse_program) {
-                glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, ellipse_aa_radial_frag_program);
-                glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, inv); // inv_matrix
-                glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, pt); // inv_matrix_offset
-                glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 2, pt1); // fmp
-                glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 3, f); // fmp2_m_radius2
-            }
-            glBindTexture(GL_TEXTURE_1D, grad_palette);
-            createGradientPaletteTexture(*brush.gradient());
+            fmp2_m_radius2_data[0] = -fmp_data[0] * fmp_data[0] - fmp_data[1] * fmp_data[1] + g->radius() * g->radius();
         } else if (style == Qt::ConicalGradientPattern) {
             const QConicalGradient *g = static_cast<const QConicalGradient *>(brush.gradient());
             QTransform translate(1, 0, 0, 1, -g->center().x(), -g->center().y());
             QTransform gl_to_qt(1, 0, 0, -1, 0, pdev->height());
             QTransform inv_matrix = gl_to_qt * matrix.inverted() * brush.transform().inverted() * translate;
 
+            setInvMatrixData(inv_matrix);
 
-            float pt[4] = {inv_matrix.dx(), inv_matrix.dy(), 0.f, 0.f};
-            float inv[4] = {inv_matrix.m11(), inv_matrix.m21(),
-                            inv_matrix.m12(), inv_matrix.m22()};
-            float angle[4] = {-(g->angle() * 2 * Q_PI) / 360.0, 0.f, 0.f, 0.f};
+            angle_data[0] = -(g->angle() * 2 * Q_PI) / 360.0;
+        } else if (style == Qt::LinearGradientPattern) {
+            const QLinearGradient *g = static_cast<const QLinearGradient *>(brush.gradient());
 
-            glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, conical_frag_program);
-            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, inv); // inv_matrix
-            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, pt); // inv_matrix_offset
-            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 4, angle); // angle
-            glBindTexture(GL_TEXTURE_1D, grad_palette);
-            createGradientPaletteTexture(*brush.gradient());
+            QTransform translate(1, 0, 0, 1, -g->start().x(), -g->start().y());
+            QTransform gl_to_qt(1, 0, 0, -1, 0, pdev->height());
+
+            QTransform inv_matrix = gl_to_qt * matrix.inverted() * brush.transform().inverted() * translate;
+
+            setInvMatrixData(inv_matrix);
+
+            QPointF l = g->finalStop() - g->start();
+
+            linear_data[0] = l.x();
+            linear_data[1] = l.y();
+
+            linear_data[2] = 1.0f / (l.x() * l.x() + l.y() * l.y());
         }
+
     }
 
-    glDisable(GL_TEXTURE_1D);
-    glDisable(GL_TEXTURE_GEN_S);
-    glDisable(GL_FRAGMENT_PROGRAM_ARB);
+    if (style >= Qt::LinearGradientPattern && style <= Qt::ConicalGradientPattern) {
+        glBindTexture(GL_TEXTURE_1D, grad_palette);
+        createGradientPaletteTexture(*brush.gradient());
+    }
 #endif
 }
 
@@ -1211,16 +1344,44 @@ void QOpenGLTessellator::addTrap(const Trapezoid &trap)
     vertices[size++] = bottom;
 }
 
-void QOpenGLPaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int pointCount,
+void QOpenGLPaintEnginePrivate::fillPolygon_dev(const QRectF &rect, const QPointF *polygonPoints, int pointCount,
                                                 Qt::FillRule fill)
 {
     QOpenGLTessellator tessellator;
     tessellator.tessellate(polygonPoints, pointCount, fill == Qt::WindingFill);
 
-    glVertexPointer(2, GL_FLOAT, 0, tessellator.vertices);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glDrawArrays(GL_TRIANGLES, 0, tessellator.size/2);
-    glDisableClientState(GL_VERTEX_ARRAY);
+    DEBUG_ONCE qDebug() << "QOpenGLPaintEnginePrivate: Drawing polygon with" << pointCount << "points using fillPolygon_dev";
+
+    if (use_fragment_programs) {
+        const QRectF screen_rect = rect.adjusted(-1, -1, 1, 1);
+        offscreen.bind(screen_rect);
+
+        // fill mask
+        float vertexArray[8];
+        qt_add_rect_to_array(screen_rect, vertexArray);
+
+        glBlendFunc(GL_ONE, GL_ZERO);
+
+        float color[4];
+        glGetFloatv(GL_CURRENT_COLOR, color);
+        glColor4f(1, 1, 1, 1);
+
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glVertexPointer(2, GL_FLOAT, 0, vertexArray);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        glDisableClientState(GL_VERTEX_ARRAY);
+
+        offscreen.release();
+
+        glColor4fv(color);
+
+        composite(GL_TRIANGLES, tessellator.vertices, tessellator.size / 2);
+    } else {
+        glVertexPointer(2, GL_FLOAT, 0, tessellator.vertices);
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glDrawArrays(GL_TRIANGLES, 0, tessellator.size/2);
+        glDisableClientState(GL_VERTEX_ARRAY);
+    }
 }
 
 
@@ -1317,6 +1478,8 @@ void QOpenGLPaintEnginePrivate::drawVertexArrays()
 
 void QOpenGLPaintEnginePrivate::fillVertexArray(Qt::FillRule fillRule)
 {
+    DEBUG_ONCE qDebug() << "QOpenGLPaintEnginePrivate: Drawing polygon using fillVertexArray (stencil method)";
+
     glStencilMask(~0);
 
     // Enable stencil.
@@ -1374,19 +1537,46 @@ void QOpenGLPaintEnginePrivate::fillVertexArray(Qt::FillRule fillRule)
         }
     }
 
-    // Enable stencil func.
-    glStencilFunc(GL_NOTEQUAL, 0, stencilMask);
-
     // Enable color writes.
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glStencilMask(0);
 
-    glBegin(GL_QUADS);
-    glVertex2f(min_x, min_y);
-    glVertex2f(max_x, min_y);
-    glVertex2f(max_x, max_y);
-    glVertex2f(min_x, max_y);
-    glEnd();
+    if (use_fragment_programs) {
+        QRectF rect(QPointF(min_x, min_y), QSizeF(max_x - min_x, max_y - min_y));
+
+        offscreen.bind(rect);
+
+        glBlendFunc(GL_ONE, GL_ZERO);
+
+        float color[4];
+        glGetFloatv(GL_CURRENT_COLOR, color);
+        glColor4f(1, 1, 1, 1);
+
+        // Fill mask to 1
+        glBegin(GL_QUADS);
+        glVertex2f(min_x, min_y);
+        glVertex2f(max_x, min_y);
+        glVertex2f(max_x, max_y);
+        glVertex2f(min_x, max_y);
+        glEnd();
+
+        offscreen.release();
+
+        glColor4fv(color);
+
+        // Enable stencil func.
+        glStencilFunc(GL_NOTEQUAL, 0, stencilMask);
+        composite(rect);
+    } else {
+        // Enable stencil func.
+        glStencilFunc(GL_NOTEQUAL, 0, stencilMask);
+        glBegin(GL_QUADS);
+        glVertex2f(min_x, min_y);
+        glVertex2f(max_x, min_y);
+        glVertex2f(max_x, max_y);
+        glVertex2f(min_x, max_y);
+        glEnd();
+    }
 
     glStencilMask(~0);
     glStencilFunc(GL_ALWAYS, 0, 0);
@@ -1415,7 +1605,7 @@ void QOpenGLPaintEnginePrivate::fillPath(const QPainterPath &path)
     if (path.isEmpty())
         return;
 
-    if (use_stencil_method && 1 || !(use_antialiasing && has_valid_offscreen_fbo)) {
+    if (use_stencil_method && !(use_antialiasing && use_fragment_programs)) {
         pathToVertexArrays(path);
         fillVertexArray(path.fillRule());
         return;
@@ -1424,11 +1614,11 @@ void QOpenGLPaintEnginePrivate::fillPath(const QPainterPath &path)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    if (0 && use_antialiasing && has_valid_offscreen_fbo)
+    if (use_antialiasing && use_fragment_programs)
         drawOffscreenPath(path);
     else {
         QPolygonF poly = path.toFillPolygon(matrix);
-        fillPolygon_dev(poly.data(), poly.count(),
+        fillPolygon_dev(poly.boundingRect(), poly.data(), poly.count(),
                         path.fillRule());
     }
 
@@ -1615,12 +1805,12 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpe
 
 void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
-    if (!(QGLExtensions::glExtensions & QGLExtensions::SampleBuffers))
-        return;
-
     Q_D(QOpenGLPaintEngine);
 
     d->use_antialiasing = hints & QPainter::Antialiasing;
+
+    if (!(QGLExtensions::glExtensions & QGLExtensions::SampleBuffers))
+        return;
 
     if (d->use_antialiasing)
         glEnable(GL_MULTISAMPLE);
@@ -1628,88 +1818,96 @@ void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
         glDisable(GL_MULTISAMPLE);
 }
 
+
+void QOpenGLPaintEnginePrivate::setPorterDuffData(float a, float b, float x, float y, float z)
+{
+    porterduff_ab_data[0] = a;
+    porterduff_ab_data[1] = b;
+
+    porterduff_xyz_data[0] = x;
+    porterduff_xyz_data[1] = y;
+    porterduff_xyz_data[2] = z;
+}
+
+
 void QOpenGLPaintEngine::updateCompositionMode(QPainter::CompositionMode composition_mode)
 {
     Q_D(QOpenGLPaintEngine);
     d->composition_mode = composition_mode;
 
+    d->has_fast_composition_mode = composition_mode == QPainter::CompositionMode_SourceOver
+                                   || composition_mode == QPainter::CompositionMode_Destination
+                                   || composition_mode == QPainter::CompositionMode_DestinationOver
+                                   || composition_mode == QPainter::CompositionMode_DestinationOut
+                                   || composition_mode == QPainter::CompositionMode_SourceAtop
+                                   || composition_mode == QPainter::CompositionMode_Xor;
+
+    if (d->has_fast_composition_mode || !d->use_antialiasing) {
+        d->fragment_composition_mode = COMPOSITION_MODE_BLEND_MODE;
+        d->offscreen.setDrawableCopyNeeded(false);
+    } else {
+        d->fragment_composition_mode = COMPOSITION_MODES_SIMPLE_PORTER_DUFF;
+        d->offscreen.setDrawableCopyNeeded(true);
+    }
+
     switch(composition_mode) {
     case QPainter::CompositionMode_DestinationOver:
         glBlendFunc(GL_ONE_MINUS_DST_ALPHA, GL_ONE);
+        d->setPorterDuffData(0, 1, 1, 1, 1);
         break;
     case QPainter::CompositionMode_Clear:
         glBlendFunc(GL_ZERO, GL_ZERO);
+        d->setPorterDuffData(0, 0, 0, 0, 0);
         break;
     case QPainter::CompositionMode_Source:
         glBlendFunc(GL_ONE, GL_ZERO);
+        d->setPorterDuffData(1, 0, 1, 1, 0);
         break;
     case QPainter::CompositionMode_Destination:
         glBlendFunc(GL_ZERO, GL_ONE);
+        d->setPorterDuffData(0, 1, 1, 0, 1);
         break;
     case QPainter::CompositionMode_SourceIn:
         glBlendFunc(GL_DST_ALPHA, GL_ZERO);
+        d->setPorterDuffData(0, 1, 1, 0, 0);
         break;
     case QPainter::CompositionMode_DestinationIn:
         glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
+        d->setPorterDuffData(0, 1, 1, 0, 0);
         break;
     case QPainter::CompositionMode_SourceOut:
         glBlendFunc(GL_ONE_MINUS_DST_ALPHA, GL_ZERO);
+        d->setPorterDuffData(0, 0, 0, 1, 0);
         break;
     case QPainter::CompositionMode_DestinationOut:
         glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
+        d->setPorterDuffData(0, 0, 0, 0, 1);
         break;
     case QPainter::CompositionMode_SourceAtop:
         glBlendFunc(GL_DST_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        d->setPorterDuffData(1, 0, 1, 0, 1);
         break;
     case QPainter::CompositionMode_DestinationAtop:
         glBlendFunc(GL_ONE_MINUS_DST_ALPHA, GL_SRC_ALPHA);
+        d->setPorterDuffData(0, 1, 1, 1, 0);
         break;
     case QPainter::CompositionMode_Xor:
         glBlendFunc(GL_ONE_MINUS_DST_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        d->setPorterDuffData(0, 0, 0, 1, 1);
         break;
     case QPainter::CompositionMode_SourceOver:
     default:
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+        d->setPorterDuffData(1, 0, 1, 1, 1);
     }
 }
-
-static void qt_add_rect_to_array(const QRectF &r, float *array)
-{
-    qreal left = r.left();
-    qreal right = r.right();
-    qreal top = r.top();
-    qreal bottom = r.bottom();
-
-    array[0] = left;
-    array[1] = top;
-    array[2] = right;
-    array[3] = top;
-    array[4] = right;
-    array[5] = bottom;
-    array[6] = left;
-    array[7] = bottom;
-}
-
-static void qt_add_texcoords_to_array(qreal x1, qreal y1, qreal x2, qreal y2, float *array)
-{
-    array[0] = x1;
-    array[1] = y1;
-    array[2] = x2;
-    array[3] = y1;
-    array[4] = x2;
-    array[5] = y2;
-    array[6] = x1;
-    array[7] = y2;
-}
-
 
 void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
 {
 #ifndef Q_WS_QWS
-    Q_Q(QOpenGLPaintEngine);
     QGL_FUNC_CONTEXT;
 
-    glDisable(GL_MULTISAMPLE);
+    DEBUG_ONCE_STR("QOpenGLPaintEnginePrivate::drawOffscreenPath()");
 
     QList<QPolygonF> polys; // = path.toFillPolygons(matrix);
 
@@ -1718,7 +1916,8 @@ void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
     if (polys.isEmpty())
         return;
 
-    offscreenFbo->bind();
+    if (has_clipping)
+        glDisable(GL_DEPTH_TEST);
 
     QRectF boundingRect = polys.at(0).boundingRect();
 
@@ -1730,30 +1929,20 @@ void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
     GLfloat vertexArray[4 * 2];
     qt_add_rect_to_array(boundingRect, vertexArray);
 
-    float last_color[4];
-    glGetFloatv(GL_CURRENT_COLOR, last_color);
-
-    Qt::BrushStyle last_style = current_style;
-    setGradientOps(Qt::NoBrush);
+    offscreen.bind(boundingRect);
 
     // clear mask
-    glBlendFunc(GL_ZERO, GL_ZERO);
+    glBlendFunc(GL_ZERO, GL_ZERO); // clear
     glVertexPointer(2, GL_FLOAT, 0, vertexArray);
     glEnableClientState(GL_VERTEX_ARRAY);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    glDisableClientState(GL_VERTEX_ARRAY);
 
+    glBlendFunc(GL_ONE, GL_ONE); // add mask
     glEnable(GL_FRAGMENT_PROGRAM_ARB);
-    glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, trapezoid_aa_frag_program);
+    glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, mask_fragment_programs[FRAGMENT_PROGRAM_MASK_TRAPEZOID_AA]);
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ONE);
-
-    QVector<GLfloat> pathVertices;
-    QVector<GLfloat> pathTexCoords;
-    QVector<GLfloat> pathMultiTexCoords;
-
-    int trapezoid = 0;
-
+    glBegin(GL_QUADS);
     for (int i = 0; i < polys.size(); ++i) {
         const QPolygonF &poly = polys.at(i);
 
@@ -1761,146 +1950,71 @@ void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
         QOpenGLTessellator tessellator;
         tessellator.tessellate(poly.data(), poly.count(), path.fillRule() == Qt::WindingFill);
 
-        // six vertices per trapezoid, two GLfloats per vertex
-        pathVertices.resize(12 * trapezoid + tessellator.size);
-
-        // top and bottom y values
-        pathTexCoords.resize(pathVertices.size());
-        // line equation parameters for left and right lines to get x from y (x = ay + b)
-        pathMultiTexCoords.resize(2 * pathVertices.size());
-
-        GLfloat *vertexData = pathVertices.data();
-        GLfloat *texCoordData = pathTexCoords.data();
-        GLfloat *multiTexCoordData = pathMultiTexCoords.data();
-
-        int vertexDataIndex = 12 * trapezoid;
-        int texCoordDataIndex = 12 * trapezoid;
-        int multiTexCoordDataIndex = 24 * trapezoid;
-
         for (int j = 0; j < tessellator.size; j += 12) {
-            float x0 = tessellator.vertices[j]; // top left
-            float x1 = tessellator.vertices[j + 4]; // bottom left
-            float x2 = tessellator.vertices[j + 2]; // top right
-            float x3 = tessellator.vertices[j + 10]; // bottom right
+            const float x0 = tessellator.vertices[j]; // top left
+            const float x1 = tessellator.vertices[j + 4]; // bottom left
+            const float x2 = tessellator.vertices[j + 2]; // top right
+            const float x3 = tessellator.vertices[j + 10]; // bottom right
 
-            float top = tessellator.vertices[j + 1];
-            float bottom = tessellator.vertices[j + 5];
+            const float top = tessellator.vertices[j + 1];
+            const float bottom = tessellator.vertices[j + 5];
 
-            qreal minX = qMin(x0, x1), maxX = qMax(x2, x3);
+            const float minX = qMin(x0, x1);
+            const float maxX = qMax(x2, x3);
 
             // skip winding lines and empty trapezoids
             if (qFuzzyCompare(top, bottom) || qFuzzyCompare(minX, maxX) || qFuzzyCompare(x0, x2) && qFuzzyCompare(x1, x3))
                 continue;
 
-            float xpadding = 0.6f;
-            float ypadding = 0.6f;
+            const float xpadding = 1.0f;
+            const float ypadding = 1.0f;
 
             const QRectF rect = QRectF(QPointF(minX, top), QSizeF(maxX - minX, bottom - top)).adjusted(-xpadding, -ypadding, xpadding, ypadding);
 
             qt_add_rect_to_array(rect, vertexArray);
 
-            top = offscreenSize.height() - top;
-            bottom = offscreenSize.height() - bottom;
+            const QSize sz = drawable.size();
 
-            float reciprocal = bottom / (bottom - top);
+            const float fragTop = sz.height() - top;
+            const float fragBottom = sz.height() - bottom;
 
-            float leftB = x1 + (x0 - x1) * reciprocal;
-            float rightB = x3 + (x2 - x3) * reciprocal;
+            const float reciprocalB = fragBottom / (fragBottom - fragTop);
 
-            const bool topZero = qFuzzyCompare(top, 0);
+            const float leftB = x1 + (x0 - x1) * reciprocalB;
+            const float rightB = x3 + (x2 - x3) * reciprocalB;
 
-            reciprocal = topZero ? 1.0f / bottom : 1.0f / top;
+            const bool topZero = qFuzzyCompare(fragTop, 0);
 
-            float leftA = topZero ? (x1 - leftB) * reciprocal : (x0 - leftB) * reciprocal;
-            float rightA = topZero ? (x3 - rightB) * reciprocal : (x2 - rightB) * reciprocal;
+            const float reciprocalA = topZero ? 1.0f / fragBottom : 1.0f / fragTop;
 
-            for (int k = 0; k < 6; ++k) {
-                int vertexIndex = k < 5 ? k & 0x3 : 2;
+            const float leftA = topZero ? (x1 - leftB) * reciprocalA : (x0 - leftB) * reciprocalA;
+            const float rightA = topZero ? (x3 - rightB) * reciprocalA : (x2 - rightB) * reciprocalA;
 
-                vertexData[vertexDataIndex++] = vertexArray[2 * vertexIndex];
-                vertexData[vertexDataIndex++] = vertexArray[2 * vertexIndex + 1];
+            glTexCoord2f(fragTop, fragBottom);
+            glMultiTexCoord4f(GL_TEXTURE1, leftA, leftB, rightA, rightB);
 
-                texCoordData[texCoordDataIndex++] = top;
-                texCoordData[texCoordDataIndex++] = bottom;
-
-                multiTexCoordData[multiTexCoordDataIndex++] = leftA;
-                multiTexCoordData[multiTexCoordDataIndex++] = leftB;
-                multiTexCoordData[multiTexCoordDataIndex++] = rightA;
-                multiTexCoordData[multiTexCoordDataIndex++] = rightB;
-            }
-
-            ++trapezoid;
+            glVertex2f(minX - xpadding, top - ypadding);
+            glVertex2f(maxX + xpadding, top - ypadding);
+            glVertex2f(maxX + xpadding, bottom + ypadding);
+            glVertex2f(minX - xpadding, bottom + ypadding);
         }
     }
+    glEnd();
 
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisable(GL_FRAGMENT_PROGRAM_ARB);
 
-    glVertexPointer(2, GL_FLOAT, 0, pathVertices.constData());
-    glTexCoordPointer(2, GL_FLOAT, 0, pathTexCoords.constData());
+    offscreen.release();
 
-    glClientActiveTexture(GL_TEXTURE1);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glTexCoordPointer(4, GL_FLOAT, 0, pathMultiTexCoords.constData());
+    if (has_clipping)
+        glEnable(GL_DEPTH_TEST);
 
-    // draw mask
-    glDrawArrays(GL_TRIANGLES, 0, 6 * trapezoid);
-
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glClientActiveTexture(GL_TEXTURE0);
-
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-    qt_add_rect_to_array(boundingRect, vertexArray);
-
-    glVertexPointer(2, GL_FLOAT, 0, vertexArray);
-
-    glBlendFunc(GL_DST_ALPHA, GL_ZERO);
-    setGradientOps(last_style);
-    glColor4fv(last_color);
-
-    // draw brush to offscreen
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-    if (pdev->devType() == QInternal::FramebufferObject)
-        drawable.makeCurrent();
-    else
-        offscreenFbo->release();
-
-    q->updateCompositionMode(composition_mode);
-
-    QRectF slimmed = boundingRect.adjusted(1, 1, -1, -1);
-
-    qt_add_rect_to_array(slimmed, vertexArray);
-
-    GLfloat texCoordArray[2 * 4];
-
-    for (int i = 0; i < 8; i += 2) {
-        texCoordArray[i] = vertexArray[i] * invOffscreenSize.width();
-        texCoordArray[i + 1] = 1.0f - vertexArray[i + 1] * invOffscreenSize.height();
-    }
-
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glTexCoordPointer(2, GL_FLOAT, 0, texCoordArray);
-
-    setGradientOps(Qt::NoBrush);
-    glColor4f(1, 1, 1, 1);
-
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, offscreenFbo->texture());
-    // draw the result to the screen
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    glDisable(GL_TEXTURE_2D);
-
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
-
-    glEnable(GL_MULTISAMPLE);
+    composite(boundingRect.adjusted(1, 1, -1, -1));
 #endif
 }
 
 void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
-    Q_D(QOpenGLPaintEngine);
+    //Q_D(QOpenGLPaintEngine);
 
     for (int i=0; i<rectCount; ++i) {
         QRectF r = rects[i];
@@ -1910,6 +2024,18 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
         qreal top = r.top();
         qreal bottom = r.bottom();
 
+        QPainterPath path;
+        path.setFillRule(Qt::WindingFill);
+
+        path.moveTo(left, top);
+        path.lineTo(right, top);
+        path.lineTo(right, bottom);
+        path.lineTo(left, bottom);
+        path.lineTo(left, top);
+
+        drawPath(path);
+
+#if 0
         float vertexArray[10];
         qt_add_rect_to_array(r, vertexArray);
 
@@ -1944,6 +2070,7 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
                 d->fillPath(stroke);
             }
         }
+#endif
     }
 }
 
@@ -2667,220 +2794,30 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 }
 
 
-void QOpenGLPaintEnginePrivate::activateEllipseProgram()
-{
-#ifndef Q_WS_QWS
-    QGL_FUNC_CONTEXT;
-    static const float inv = 1.0f / 255.0f;
-
-    if (brush_style == Qt::SolidPattern || composition_mode == QPainter::CompositionMode_Clear || !has_fast_brush) {
-        float solid_color[4];
-
-        if (brush_style == Qt::SolidPattern) {
-            const GLubyte *col = brush_color;
-
-            for (int i = 0; i < 4; ++i)
-                solid_color[i] = col[i] * inv;
-        } else {
-            for (int i = 0; i < 4; ++i)
-                solid_color[i] = 1.0f;
-        }
-
-        if (composition_mode == QPainter::CompositionMode_Clear)
-            glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
-
-        if (use_antialiasing) {
-            glEnable(GL_FRAGMENT_PROGRAM_ARB);
-            glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, ellipse_aa_frag_program);
-        } else {
-            glEnable(GL_FRAGMENT_PROGRAM_ARB);
-            glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, ellipse_frag_program);
-        }
-        glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, solid_color);
-    } else if (brush_style == Qt::RadialGradientPattern) {
-        glEnable(GL_FRAGMENT_PROGRAM_ARB);
-        glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, ellipse_aa_radial_frag_program);
-
-        DEBUG_ONCE_STR("QOpenGLPaintEnginePrivate: Using fast radial program");
-    } else {
-        Q_ASSERT(false);
-    }
-#endif
-}
-
-
-void QOpenGLPaintEnginePrivate::deactivateEllipseProgram()
-{
-    setGradientOps(Qt::NoBrush);
-
-    if (composition_mode == QPainter::CompositionMode_Clear)
-        glBlendFunc(GL_ZERO, GL_ZERO);
-}
-
-
-void QOpenGLPaintEnginePrivate::drawFastEllipse(float *vertexArray, float *texCoordArray)
-{
-#ifndef Q_WS_QWS
-    Q_ASSERT(has_ellipse_program && has_brush && has_fast_brush);
-
-    DEBUG_ONCE_STR("QOpenGLPaintEnginePrivate: Drawing fast ellipse");
-
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-    glVertexPointer(2, GL_FLOAT, 0, vertexArray);
-    glTexCoordPointer(4, GL_FLOAT, 0, texCoordArray);
-
-    activateEllipseProgram();
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    deactivateEllipseProgram();
-
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
-
-#endif
-}
-
-
-void QOpenGLPaintEnginePrivate::drawOffscreenEllipse(float *vertexArray, float *texCoordArray)
-{
-#ifndef Q_WS_QWS
-    Q_Q(QOpenGLPaintEngine);
-    QGL_FUNC_CONTEXT;
-
-    Q_ASSERT(has_ellipse_program && has_brush);
-
-    DEBUG_ONCE_STR("QOpenGLPainterPrivate: Drawing ellipse using offscreen buffer");
-
-    glVertexPointer(2, GL_FLOAT, 0, vertexArray);
-    glTexCoordPointer(4, GL_FLOAT, 0, texCoordArray);
-
-    glEnableClientState(GL_VERTEX_ARRAY);
-    setGradientOps(brush_style);
-    qt_glColor4ubv(brush_color);
-    offscreenFbo->bind();
-
-    // draw the brush to the offscreen
-    glDisable(GL_BLEND);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    glEnable(GL_BLEND);
-
-    if (pdev->devType() == QInternal::FramebufferObject)
-        drawable.makeCurrent();
-    else
-        offscreenFbo->release();
-
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-    q->updateCompositionMode(composition_mode);
-
-    setGradientOps(Qt::NoBrush);
-
-    // copy from offscreen to screen using antialiased ellipse mask
-    glBindTexture(GL_TEXTURE_2D, offscreenFbo->texture());
-    glEnable(GL_FRAGMENT_PROGRAM_ARB);
-    glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, ellipse_aa_copy_frag_program);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    glDisable(GL_FRAGMENT_PROGRAM_ARB);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glTexCoord4f(.0, .0, .0, 1.);
-#endif
-}
-
-
-void QOpenGLPaintEnginePrivate::drawStencilEllipse(float *vertexArray, float *texCoordArray)
-{
-#ifndef Q_WS_QWS
-    Q_ASSERT(has_ellipse_program && has_brush);
-
-    DEBUG_ONCE_STR("QOpenGLPainter: Drawing ellipse using stencil buffer");
-
-    // initialize the stencil buffer
-    glDepthMask(GL_FALSE);
-
-    glEnable(GL_STENCIL_TEST);
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    glStencilMask(1);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_INVERT);
-    glStencilFunc(GL_ALWAYS, 0, ~0);
-
-    // draw the coverage to the stencil buffer
-    glVertexPointer(2, GL_FLOAT, 0, vertexArray);
-    glTexCoordPointer(4, GL_FLOAT, 0, texCoordArray);
-
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-    activateEllipseProgram();
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    deactivateEllipseProgram();
-
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glTexCoord4f(.0, .0, .0, 1.);
-    // now draw the brush using the stencil buffer as mask
-    glStencilFunc(GL_NOTEQUAL, 0, 1);
-    glStencilMask(0);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-
-    glDepthMask(GL_TRUE);
-
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-    setGradientOps(brush_style);
-    qt_glColor4ubv(brush_color);
-
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-    // finally, clear the stencil buffer
-    glStencilMask(~0);
-    glStencilFunc(GL_ALWAYS, 0, 0);
-    glStencilOp(GL_ZERO, GL_ZERO, GL_ZERO);
-
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-    glDisable(GL_STENCIL_TEST);
-    glDisableClientState(GL_VERTEX_ARRAY);
-#endif
-}
-
 void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
 {
 #ifndef Q_WS_QWS
     Q_D(QOpenGLPaintEngine);
 
-    bool brush_supported = d->has_fast_brush || d->has_valid_offscreen_fbo || !d->use_antialiasing;
-
-    bool composition_mode_supported =
-        d->composition_mode == QPainter::CompositionMode_Clear ||
-        d->composition_mode == QPainter::CompositionMode_SourceOver ||
-        d->composition_mode == QPainter::CompositionMode_Destination ||
-        d->composition_mode == QPainter::CompositionMode_DestinationOver ||
-        d->composition_mode == QPainter::CompositionMode_DestinationOut ||
-        d->composition_mode == QPainter::CompositionMode_SourceAtop ||
-        d->composition_mode == QPainter::CompositionMode_Xor;
-
-    bool can_draw = !d->has_brush || d->has_ellipse_program && brush_supported && composition_mode_supported;
-
-    if (can_draw) {
+    // fall back to path rendering for now
+    if (0) {
         if (d->has_brush) {
             int grow = d->use_antialiasing ? 4 : 0;
 
             float vertexArray[4 * 2];
             float texCoordArray[4 * 4];
 
+            // TODO: growth should depend on screen space rectangle, not model space
             QRectF boundingRect = grow ? rect.adjusted(-grow, -grow, grow, grow) : rect;
             qt_add_rect_to_array(boundingRect, vertexArray);
 
-            boundingRect.translate(-boundingRect.center());
-            qreal left = boundingRect.left();
-            qreal right = boundingRect.right();
-            qreal top = boundingRect.top();
-            qreal bottom = boundingRect.bottom();
+            QRectF atOrigin = boundingRect;
+            atOrigin.translate(-atOrigin.center());
+
+            qreal left = atOrigin.left();
+            qreal right = atOrigin.right();
+            qreal top = atOrigin.top();
+            qreal bottom = atOrigin.bottom();
             float rx = rect.width()/2.;
             float ry = rect.height()/2.;
 
@@ -2901,12 +2838,17 @@ void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
             texCoordArray[14] = rx;
             texCoordArray[15] = ry;
 
-            if (d->has_fast_brush)
-                d->drawFastEllipse(vertexArray, texCoordArray);
-            else if (d->use_antialiasing)
-                d->drawOffscreenEllipse(vertexArray, texCoordArray);
-            else
-                d->drawStencilEllipse(vertexArray, texCoordArray);
+            d->setGradientOps(d->brush_style);
+            qt_glColor4ubv(d->brush_color);
+
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            glTexCoordPointer(4, GL_FLOAT, 0, texCoordArray);
+
+            d->composite(boundingRect);
+
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+            glTexCoord4f(0.0f, 0.0f, 0.0f, 1.0f);
         }
 
         if (d->has_pen) {
@@ -2928,6 +2870,176 @@ void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
     }
 #else
     QPaintEngine::drawEllipse(rect);
+#endif
+}
+
+
+void QOpenGLPaintEnginePrivate::updateFragmentProgramData(int locations[])
+{
+#ifndef Q_WS_QWS
+    QGL_FUNC_CONTEXT;
+
+    QSize sz = offscreen.textureSize();
+
+    float inv_buffer_size_data[4] = { 1.0f / sz.width(), 1.0f / sz.height(), 0.0f, 0.0f };
+
+    for (unsigned int i = 0; i < num_fragment_variables; ++i) {
+        int location = locations[i];
+
+        if (location < 0)
+            continue;
+
+        switch (i) {
+        case VAR_ANGLE:
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, location, angle_data);
+            break;
+        case VAR_LINEAR:
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, location, linear_data);
+            break;
+        case VAR_FMP:
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, location, fmp_data);
+            break;
+        case VAR_FMP2_M_RADIUS2:
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, location, fmp2_m_radius2_data);
+            break;
+        case VAR_INV_BUFFER_SIZE:
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, location, inv_buffer_size_data);
+            break;
+        case VAR_INV_MATRIX:
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, location, inv_matrix_data);
+            break;
+        case VAR_INV_MATRIX_OFFSET:
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, location, inv_matrix_offset_data);
+            break;
+        case VAR_PORTERDUFF_AB:
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, location, porterduff_ab_data);
+            break;
+        case VAR_PORTERDUFF_XYZ:
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, location, porterduff_xyz_data);
+            break;
+        case VAR_DST_TEXTURE:
+        case VAR_MASK_TEXTURE:
+        case VAR_PALETTE:
+            // texture variables, not handled here
+            break;
+        default:
+            qDebug() << "QOpenGLPaintEnginePrivate: Unhandled fragment variable:" << i;
+        }
+    }
+#endif
+}
+
+
+void QOpenGLPaintEnginePrivate::composite(const QRectF &rect)
+{
+#ifndef Q_WS_QWS
+    float vertexArray[8];
+    qt_add_rect_to_array(rect, vertexArray);
+
+    composite(GL_TRIANGLE_FAN, vertexArray, 4);
+#endif
+}
+
+
+void QOpenGLPaintEnginePrivate::composite(GLuint primitive, const float *vertexArray, int vertexCount)
+{
+#ifndef Q_WS_QWS
+    Q_Q(QOpenGLPaintEngine);
+    QGL_FUNC_CONTEXT;
+
+    DEBUG_ONCE_STR("QOpenGLPaintEnginePrivate: Using compositing program");
+
+    if (has_fast_composition_mode)
+        q->updateCompositionMode(composition_mode);
+    else
+        glBlendFunc(GL_ONE, GL_ZERO);
+
+    int *locations = painter_variable_locations[fragment_brush][fragment_composition_mode];
+
+    int texture_locations[] = { locations[VAR_DST_TEXTURE],
+                                locations[VAR_MASK_TEXTURE],
+                                locations[VAR_PALETTE] };
+
+    GLuint texture_targets[] = { GL_TEXTURE_2D,
+                                 GL_TEXTURE_2D,
+                                 GL_TEXTURE_1D };
+
+    GLuint textures[] = { offscreen.drawableTexture(),
+                          offscreen.offscreenTexture(),
+                          grad_palette };
+
+
+    const int num_textures = sizeof(textures) / sizeof(*textures);
+
+    Q_ASSERT(num_textures == sizeof(texture_locations) / sizeof(*texture_locations));
+    Q_ASSERT(num_textures == sizeof(texture_targets) / sizeof(*texture_targets));
+
+    for (int i = 0; i < num_textures; ++i)
+        if (texture_locations[i] >= 0) {
+            glActiveTexture(GL_TEXTURE0 + texture_locations[i]);
+            glBindTexture(texture_targets[i], textures[i]);
+        }
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(2, GL_FLOAT, 0, vertexArray);
+    glEnable(GL_FRAGMENT_PROGRAM_ARB);
+    glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, painter_fragment_programs[fragment_brush][fragment_composition_mode]);
+
+    updateFragmentProgramData(locations);
+
+    glDrawArrays(primitive, 0, vertexCount);
+
+    glDisable(GL_FRAGMENT_PROGRAM_ARB);
+    glDisableClientState(GL_VERTEX_ARRAY);
+
+    for (int i = 0; i < num_textures; ++i)
+        if (texture_locations[i] >= 0) {
+            glActiveTexture(GL_TEXTURE0 + texture_locations[i]);
+            glBindTexture(texture_targets[i], 0);
+        }
+
+    glActiveTexture(GL_TEXTURE0);
+
+    if (!has_fast_composition_mode)
+        q->updateCompositionMode(composition_mode);
+#endif
+}
+
+
+bool QOpenGLPaintEnginePrivate::createFragmentPrograms()
+{
+#ifndef Q_WS_QWS
+    QGLContext *ctx = const_cast<QGLContext *>(drawable.context());
+
+    DEBUG_ONCE_STR("QOpenGLPaintEnginePrivate: creating fragment programs");
+
+    for (unsigned int i = 0; i < num_fragment_masks; ++i)
+        if (!qt_createFragmentProgram(ctx, mask_fragment_programs[i], mask_fragment_program_sources[i])) {
+            DEBUG_ONCE qDebug() << "Couldn't create mask" << i << "fragment program:\n" << mask_fragment_program_sources[i];
+            return false;
+        }
+
+    for (unsigned int i = 0; i < num_fragment_brushes; ++i)
+        for (unsigned int j = 0; j < num_fragment_composition_modes; ++j)
+            if (!qt_createFragmentProgram(ctx, painter_fragment_programs[i][j], painter_fragment_program_sources[i][j])) {
+                DEBUG_ONCE qDebug() << "Couldn't create painter" << i << j << "fragment program\n:" << painter_fragment_program_sources[i][j];
+                return false;
+            }
+#endif
+
+    return true;
+}
+
+
+void QOpenGLPaintEnginePrivate::deleteFragmentPrograms()
+{
+#ifndef Q_WS_QWS
+    QGL_FUNC_CONTEXT;
+
+    DEBUG_ONCE_STR("QOpenGLPaintEnginePrivate: deleting fragment programs");
+
+    glDeleteProgramsARB(num_fragment_masks, mask_fragment_programs);
+    glDeleteProgramsARB(num_fragment_brushes * num_fragment_composition_modes, painter_fragment_programs[0]);
 #endif
 }
 

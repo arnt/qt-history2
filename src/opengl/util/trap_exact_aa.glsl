@@ -51,7 +51,7 @@ float quad_aa()
 
     excluded *= step(left, topXTemp);
 
-    return area - excluded.x - excluded.y;
+    return (area - excluded.x - excluded.y) * step(bottom, top);
 }
 
 void main()

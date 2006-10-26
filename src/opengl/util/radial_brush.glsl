@@ -4,7 +4,7 @@ uniform float fmp2_m_radius2;
 uniform vec4 inv_matrix;
 uniform vec2 inv_matrix_offset;
 
-void main()
+vec4 brush()
 {
     //     float2 A = frag_coord.xy;//mul(inv_matrix, frag_coord.xy) + inv_matrix_offset;
     mat2 mat;
@@ -18,5 +18,6 @@ void main()
     float b = 2.0*dot(A, B);
     float c = -dot(A, A);
     float val = (-b + sqrt(b*b - 4.0*a*c)) / (2.0*a);
-    gl_FragColor = texture1D(palette, val);
+    return texture1D(palette, val);
 }
+

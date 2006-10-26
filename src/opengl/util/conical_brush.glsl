@@ -5,7 +5,7 @@ uniform float angle;
 uniform vec4 inv_matrix;
 uniform vec2 inv_matrix_offset;
 
-void main()
+vec4 brush()
 {
     mat2 mat;
     mat[0][0] = inv_matrix.x;
@@ -19,5 +19,6 @@ void main()
  	A.y += 0.002;
     float t = (atan2(-A.y, A.x) + angle) / (2.0 * M_PI);
     float val = t - floor(t);
-    gl_FragColor = texture1D(palette, val);
+    return texture1D(palette, val);
 }
+

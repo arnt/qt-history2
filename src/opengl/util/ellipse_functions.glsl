@@ -1,3 +1,13 @@
+float ellipse()
+{
+    vec2 st = gl_TexCoord[0].st;
+
+    if (dot(st, st) > 1)
+        discard;
+
+    return 1.0;
+}
+
 // ellipse equation
 
 // x^2/a^2 + y^2/b^2 = 1
