@@ -2196,6 +2196,8 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             QPainterPath path(points[0]);
             for (int i = 1; i < pointCount; ++i)
                 path.lineTo(points[i]);
+            if (mode != PolylineMode)
+                path.lineTo(points[0]);
             QPainterPath stroke = qt_opengl_stroke_cache()->getStrokedPath(path, d->cpen);
             d->fillPath(stroke);
         }
