@@ -1296,6 +1296,7 @@ QString QFontDatabase::styleString(const QFontInfo &fontInfo)
 
     \ingroup environment
     \ingroup multimedia
+    \ingroup text
 
     The most common uses of this class are to query the database for
     the list of font families() and for the pointSizes() and styles()

@@ -250,6 +250,7 @@ QFontEngineData::~QFontEngineData()
     \ingroup multimedia
     \ingroup appearance
     \ingroup shared
+    \ingroup text
     \mainclass
 
     When you create a QFont object you specify various attributes that
@@ -1785,6 +1786,7 @@ QDataStream &operator>>(QDataStream &s, QFont &font)
 
     \ingroup multimedia
     \ingroup shared
+    \ingroup text
 
     The QFontInfo class provides the same access functions as QFont,
     e.g. family(), pointSize(), italic(), weight(), fixedPitch(),
