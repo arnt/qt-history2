@@ -2325,7 +2325,7 @@ QPointF QTextControl::anchorPosition(const QString &name) const
     QRectF r;
     for (QTextBlock block = d->doc->begin(); block.isValid(); block = block.next()) {
         QTextCharFormat format = block.charFormat();
-        if (format.isAnchor() && format.anchorName() == name) {
+        if (format.isAnchor() && format.anchorNames().contains(name)) {
             r = d->rectForPosition(block.position());
             break;
         }
@@ -2333,7 +2333,7 @@ QPointF QTextControl::anchorPosition(const QString &name) const
         for (QTextBlock::Iterator it = block.begin(); !it.atEnd(); ++it) {
             QTextFragment fragment = it.fragment();
             format = fragment.charFormat();
-            if (format.isAnchor() && format.anchorName() == name) {
+            if (format.isAnchor() && format.anchorNames().contains(name)) {
                 r = d->rectForPosition(fragment.position());
                 block = QTextBlock();
                 break;

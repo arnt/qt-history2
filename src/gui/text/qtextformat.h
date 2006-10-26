@@ -391,9 +391,12 @@ public:
     { return stringProperty(AnchorHref); }
 
     inline void setAnchorName(const QString &name)
-    { setProperty(AnchorName, name); }
-    inline QString anchorName() const
-    { return stringProperty(AnchorName); }
+    { setAnchorNames(QStringList(name)); }
+    QString anchorName() const;
+
+    inline void setAnchorNames(const QStringList &names)
+    { setProperty(AnchorName, names); }
+    QStringList anchorNames() const;
 
     inline void setTableCellRowSpan(int tableCellRowSpan);
     inline int tableCellRowSpan() const

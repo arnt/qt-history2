@@ -1046,7 +1046,7 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
 
     The color is set with setForeground(). If the text is intended to be used
     as an anchor (for hyperlinks), this can be enabled with setAnchor(). The
-    setAnchorHref() and setAnchorName() functions are used to specify the
+    setAnchorHref() and setAnchorNames() functions are used to specify the
     information about the hyperlink's destination and the anchor's name.
 
     If the text is written within a table, it can be made to span a number of
@@ -1351,7 +1351,7 @@ void QTextCharFormat::setUnderlineStyle(UnderlineStyle style)
 
     The way the text is rendered is independent of whether or not the format
     has a valid anchor defined. Use setAnchorHref(), and optionally
-    setAnchorName() to create a hypertext link.
+    setAnchorNames() to create a hypertext link.
 
     \sa isAnchor()
 */
@@ -1363,7 +1363,7 @@ void QTextCharFormat::setUnderlineStyle(UnderlineStyle style)
     Returns true if the text is formatted as an anchor; otherwise
     returns false.
 
-    \sa setAnchor() setAnchorHref() setAnchorName()
+    \sa setAnchor() setAnchorHref() setAnchorNames()
 */
 
 
@@ -1374,7 +1374,7 @@ void QTextCharFormat::setUnderlineStyle(UnderlineStyle style)
     This is typically a URL like "http://www.trolltech.com/index.html".
 
     The anchor will be displayed with the \a value as its display text;
-    if you want to display different text call setAnchorName().
+    if you want to display different text call setAnchorNames().
 
     To format the text as a hypertext link use setAnchor().
 */
@@ -1390,20 +1390,59 @@ void QTextCharFormat::setUnderlineStyle(UnderlineStyle style)
 
 /*!
     \fn void QTextCharFormat::setAnchorName(const QString &name)
+    \obsolete
+
+    This function is deprecated. Use setAnchorNames() instead.
 
     Sets the text format's anchor \a name. For the anchor to work as a
     hyperlink, the destination must be set with setAnchorHref() and
     the anchor must be enabled with setAnchor().
 */
 
+/*!
+    \fn void QTextCharFormat::setAnchorNames(const QStringList &names)
+
+    Sets the text format's anchor \a names. For the anchor to work as a
+    hyperlink, the destination must be set with setAnchorHref() and
+    the anchor must be enabled with setAnchor().
+*/
 
 /*!
     \fn QString QTextCharFormat::anchorName() const
+    \obsolete
+
+    This function is deprecated. Use anchorNames() instead.
 
     Returns the anchor name associated with this text format, or an empty
     string if none has been set. If the anchor name is set, text with this
     format can be the destination of a hypertext link.
 */
+QString QTextCharFormat::anchorName() const
+{
+    QVariant prop = property(AnchorName);
+    if (prop.type() == QVariant::StringList)
+        return prop.toStringList().value(0);
+    else if (prop.type() != QVariant::String)
+        return QString();
+    return prop.toString();
+}
+
+/*!
+    \fn QStringList QTextCharFormat::anchorNames() const
+
+    Returns the anchor names associated with this text format, or an empty
+    string list if none has been set. If the anchor names are set, text with this
+    format can be the destination of a hypertext link.
+*/
+QStringList QTextCharFormat::anchorNames() const
+{
+    QVariant prop = property(AnchorName);
+    if (prop.type() == QVariant::StringList)
+        return prop.toStringList();
+    else if (prop.type() != QVariant::String)
+        return QStringList();
+    return QStringList(prop.toString());
+}
 
 
 /*!

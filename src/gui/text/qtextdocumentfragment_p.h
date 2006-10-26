@@ -116,8 +116,7 @@ private:
 
     // insert a named anchor the next time we emit a char format,
     // either in a block or in regular text
-    bool setNamedAnchorInNextOutput;
-    QString namedAnchor;
+    QStringList namedAnchors;
 
 #ifdef Q_CC_SUN
     friend struct QTextHtmlImporter::Table;

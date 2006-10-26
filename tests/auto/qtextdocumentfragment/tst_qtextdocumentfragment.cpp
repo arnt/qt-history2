@@ -66,6 +66,7 @@ private slots:
     void hrefAnchor();
     void namedAnchorFragments();
     void namedAnchorFragments2();
+    void namedAnchorFragments3();
     void dontInheritAlignmentInTables();
     void cellBlockCount();
     void cellBlockCount2();
@@ -797,6 +798,27 @@ void tst_QTextDocumentFragment::namedAnchorFragments2()
     ++it;
 
     QCOMPARE(it.fragment().text(), QString::fromAscii("ello"));
+    QVERIFY(!it.fragment().charFormat().isAnchor());
+}
+
+void tst_QTextDocumentFragment::namedAnchorFragments3()
+{
+    setHtml("<a name=\"target\" /><a name=\"target2\"/><span>Text</span>");
+
+    QCOMPARE(doc->toPlainText(), QString("Text"));
+
+    QTextBlock::Iterator it = doc->begin().begin();
+    QVERIFY(!it.atEnd());
+
+    QCOMPARE(it.fragment().text(), QString::fromAscii("T"));
+    QVERIFY(it.fragment().charFormat().isAnchor());
+    QCOMPARE(it.fragment().charFormat().anchorName(), QString("target"));
+    QStringList targets; targets << "target" << "target2";
+    QCOMPARE(it.fragment().charFormat().anchorNames(), targets);
+
+    ++it;
+
+    QCOMPARE(it.fragment().text(), QString::fromAscii("ext"));
     QVERIFY(!it.fragment().charFormat().isAnchor());
 }
 

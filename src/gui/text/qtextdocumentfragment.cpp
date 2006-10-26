@@ -389,7 +389,7 @@ QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainT
 }
 
 QTextHtmlImporter::QTextHtmlImporter(QTextDocument *_doc, const QString &_html, const QTextDocument *resourceProvider)
-    : indent(0), setNamedAnchorInNextOutput(false), doc(_doc), containsCompleteDoc(false)
+    : indent(0), doc(_doc), containsCompleteDoc(false)
 {
     cursor = QTextCursor(doc);
     compressNextWhitespace = false;
@@ -681,8 +681,7 @@ void QTextHtmlImporter::import()
         }
 
         if (node->isAnchor && !node->anchorName.isEmpty()) {
-            setNamedAnchorInNextOutput = true;
-            namedAnchor = node->anchorName;
+            namedAnchors.append(node->anchorName);
         }
 
         if (appendNodeText(i))
@@ -762,16 +761,16 @@ bool QTextHtmlImporter::appendNodeText(int node)
             fmt.clearProperty(QTextFormat::BlockTopMargin);
             appendBlock(fmt, cursor.charFormat());
         } else {
-            if (setNamedAnchorInNextOutput) {
+            if (!namedAnchors.isEmpty()) {
                 if (!textToInsert.isEmpty()) {
                     cursor.insertText(textToInsert, format);
                     textToInsert.clear();
                 }
 
                 format.setAnchor(true);
-                format.setAnchorName(namedAnchor);
+                format.setAnchorNames(namedAnchors);
                 cursor.insertText(ch, format);
-                setNamedAnchorInNextOutput = false;
+                namedAnchors.clear();
                 format.clearProperty(QTextFormat::IsAnchor);
                 format.clearProperty(QTextFormat::AnchorName);
             } else {
@@ -983,10 +982,10 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
 
 void QTextHtmlImporter::appendBlock(const QTextBlockFormat &format, QTextCharFormat charFmt)
 {
-    if (setNamedAnchorInNextOutput) {
+    if (!namedAnchors.isEmpty()) {
         charFmt.setAnchor(true);
-        charFmt.setAnchorName(namedAnchor);
-        setNamedAnchorInNextOutput = false;
+        charFmt.setAnchorNames(namedAnchors);
+        namedAnchors.clear();
     }
 
     cursor.insertBlock(format, charFmt);
