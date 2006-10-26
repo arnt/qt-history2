@@ -1296,11 +1296,11 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
     if (edit(index, NoEditTriggers, event))
         return;
 
-    QRect rect(d->pressedPosition - offset, pos);
-    setSelection(rect, command);
-
     if (index.isValid())
         d->selectionModel->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
+
+    QRect rect(d->pressedPosition - offset, pos);
+    setSelection(rect, command);
 
     // signal handlers may change the model
     if (index.isValid())
