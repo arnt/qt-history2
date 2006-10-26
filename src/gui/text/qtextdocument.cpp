@@ -1882,15 +1882,30 @@ void QTextHtmlExporter::emitBlockAttributes(const QTextBlock &block)
     html += QString::number(format.indent());
     html += QLatin1String("px;");
 
-    QTextCharFormat diff = formatDifference(defaultCharFormat, block.charFormat()).toCharFormat();
+    const QTextCharFormat blockCharFmt = block.charFormat();
+    QTextCharFormat diff = formatDifference(defaultCharFormat, blockCharFmt).toCharFormat();
+
+    diff.clearProperty(QTextFormat::BackgroundBrush);
+    if (format.hasProperty(QTextFormat::BackgroundBrush)) {
+        QBrush bg = format.background();
+        if (bg.style() != Qt::NoBrush)
+            diff.setProperty(QTextFormat::BackgroundBrush, format.property(QTextFormat::BackgroundBrush));
+    }
+
     if (!diff.properties().isEmpty())
         emitCharFormatStyle(diff);
 
+#if 0
+    QBrush blockCharFmtBg = blockCharFmt.background();
+    if (blockCharFmtBg.style() != Qt::NoBrush) {
+        html += QLatin1String(" -qt-blockcharfmt-background-color:");
+        html += blockCharFmtBg.color().name();
+        html += QLatin1Char(';');
+    }
+#endif
+
     html += QLatin1Char('"');
 
-    QBrush bg = format.background();
-    if (bg != Qt::NoBrush)
-        emitAttribute("bgcolor", bg.color().name());
 }
 
 void QTextHtmlExporter::emitBlock(const QTextBlock &block)

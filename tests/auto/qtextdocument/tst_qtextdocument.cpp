@@ -614,11 +614,8 @@ void tst_QTextDocument::toHtml_data()
         cursor.insertText("Blah");
 
         QTest::newRow("bgcolor") << QTextDocumentFragment(&doc)
-                              <<
-#if QT_VERSION >= 0x040100
-                                    QString("EMPTYBLOCK") +
-#endif
-                                    QString("<p DEFAULTBLOCKSTYLE bgcolor=\"#0000ff\">Blah</p>");
+                                 << QString("EMPTYBLOCK") +
+                                    QString("<p OPENDEFAULTBLOCKSTYLE background-color:#0000ff;\">Blah</p>");
     }
 
     {
@@ -1083,14 +1080,15 @@ void tst_QTextDocument::toHtml_data()
 
         QTextCharFormat fmt;
         fmt.setForeground(QColor("#00ff00"));
-        fmt.setBackground(QColor("#0000ff"));
+//        fmt.setBackground(QColor("#0000ff"));
         cursor.setBlockCharFormat(fmt);
 
         fmt.setForeground(QBrush());
-        fmt.setBackground(QBrush());
+//        fmt.setBackground(QBrush());
         cursor.insertText("Test", fmt);
 
-        QTest::newRow("nostylebrush") << QTextDocumentFragment(&doc) << QString("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#00ff00; background-color:#0000ff;\">Test</p>");
+//        QTest::newRow("nostylebrush") << QTextDocumentFragment(&doc) << QString("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#00ff00; -qt-blockcharfmt-background-color:#0000ff;\">Test</p>");
+        QTest::newRow("nostylebrush") << QTextDocumentFragment(&doc) << QString("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#00ff00;\">Test</p>");
     }
 }
 
@@ -1103,21 +1101,14 @@ void tst_QTextDocument::toHtml()
 
     expectedOutput.prepend(htmlHead);
 
+    expectedOutput.replace("OPENDEFAULTBLOCKSTYLE", "style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;");
     expectedOutput.replace("DEFAULTBLOCKSTYLE", "style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"");
-#if QT_VERSION >= 0x040200
     expectedOutput.replace("EMPTYBLOCK", "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p>\n");
     if (expectedOutput.endsWith(QLatin1Char('\n')))
         expectedOutput.chop(1);
-#else
-    expectedOutput.replace("EMPTYBLOCK", "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p>");
-#endif
     expectedOutput.append(htmlTail);
 
     QString output = doc->toHtml();
-
-#if QT_VERSION <= 0x040100
-    QEXPECT_FAIL("span-bgcolor", "Fixed in >= 4.1.1", Continue);
-#endif
 
     QCOMPARE(output, expectedOutput);
 }

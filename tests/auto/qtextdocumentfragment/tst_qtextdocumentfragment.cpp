@@ -628,12 +628,7 @@ void tst_QTextDocumentFragment::html_listIndents4()
 
 void tst_QTextDocumentFragment::blockCharFormat()
 {
-    // slightly stricter check for 4.1
-#if QT_VERSION >= 0x040100
     const char html[] = "<p style=\"font-style:italic\"><span style=\"font-style:normal\">Test</span></p>";
-#else
-    const char html[] = "<p style=\"font-style:italic\">Test</p>";
-#endif
     setHtml(QString::fromLatin1(html));
     QVERIFY(doc->begin().charFormat().fontItalic());
 }
