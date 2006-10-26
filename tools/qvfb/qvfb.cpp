@@ -973,13 +973,18 @@ void AnimationSaveWidget::save()
 	    convertToMpeg(filename);
     } else {
 	filename = QFileDialog::getSaveFileName(this, tr("Save animation..."), "", "*.mng");
-	if ( !filename.isNull() ) {
-	    // This might be the simplest posix way to move a file.
-	    // For windows, might need to do something else
-	    ::link("/tmp/qvfb_tmp_animation.mng", filename.toLatin1().constData());
-	    ::unlink("/tmp/qvfb_tmp_animation.mng");
-	    statusText->setText( tr("Finished saving."));
-	    reset();
+	if (filename.isNull()) {
+            statusText->setText(tr("Save canceled."));
+        } else {
+            QFile::remove(filename);
+            bool success = QFile::rename(QLatin1String("/tmp/qvfb_tmp_animation.mng"),
+                                         filename);
+            if (success) {
+                statusText->setText(tr("Finished saving."));
+                reset();
+            } else {
+                statusText->setText(tr("Save failed!"));
+            }
 	}
     }
 }
