@@ -640,6 +640,7 @@ void QIcon::addFile(const QString &fileName, const QSize &size, Mode mode, State
 /*!
     \fn QDataStream &operator<<(QDataStream &stream, const QIcon &icon)
     \relates QIcon
+    \since 4.2
 
     Writes the given \a icon to the the given \a stream as a PNG
     image. If the icon contains more than one image, all images will
@@ -673,6 +674,7 @@ QDataStream &operator<<(QDataStream &s, const QIcon &icon)
 /*!
     \fn QDataStream &operator>>(QDataStream &stream, QIcon &icon)
     \relates QIcon
+    \since 4.2
 
     Reads an image, or a set of images, from the given \a stream into
     the given \a icon.
