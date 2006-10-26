@@ -91,6 +91,7 @@ private slots:
     void readBrokenLink();
     void readTextFile_data();
     void readTextFile();
+    void readTextFile2();
     void writeTextFile_data();
     void writeTextFile();
     /* void largeFileSupport(); */
@@ -833,6 +834,16 @@ void tst_QFile::readTextFile()
 
     QVERIFY(winfile.open(QFile::ReadOnly | QFile::Text));
     QCOMPARE(winfile.readAll(), out);
+}
+
+void tst_QFile::readTextFile2()
+{
+    QFile file("testlog.txt");
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+
+    const int fileSize = file.size();
+    QByteArray be = file.read(fileSize);
+    file.close();
 }
 
 void tst_QFile::writeTextFile_data()
