@@ -2860,9 +2860,11 @@ void QGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         QList<QGraphicsItem *> selectedItems;
         if (d_ptr->scene) {
             selectedItems = d_ptr->scene->selectedItems();
-        } else if (QGraphicsItem *parent = parentItem()) {
-            while (parent && parent->isSelected())
-                selectedItems << parent;
+        } else {
+            QGraphicsItem *parent = this;
+            while ((parent = parent->parentItem()))
+                if (parent->isSelected())
+                    selectedItems << parent;
         }
         selectedItems << this;
 
