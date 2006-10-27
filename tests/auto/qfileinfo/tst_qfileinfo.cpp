@@ -234,6 +234,8 @@ void tst_QFileInfo::exists_data()
     QTest::newRow("data6") << "resources/*" << false;
     QTest::newRow("data7") << "resources/*.foo" << false;
     QTest::newRow("data8") << "resources/*.ext1" << false;
+    QTest::newRow("data9") << "." << true;
+    QTest::newRow("data10") << ". " << false;
 
     QTest::newRow("simple dir") << "resources" << true;
     QTest::newRow("simple dir with slash") << "resources/" << true;
