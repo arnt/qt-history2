@@ -1279,8 +1279,117 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
 class QOpenGLTessellator : public QTessellator
 {
 public:
-    QOpenGLTessellator() : vertices(0), allocated(0), size(0) {}
-    ~QOpenGLTessellator() { free(vertices); }
+    QOpenGLTessellator() {}
+    ~QOpenGLTessellator() { }
+    inline void addTrapHelper(const Trapezoid &trap,
+                              qreal &topLeftX,
+                              qreal &topRightX,
+                              qreal &bottomLeftX,
+                              qreal &bottomRightX,
+                              qreal &top,
+                              qreal &bottom) {
+
+        top = Q27Dot5ToDouble(trap.top);
+        bottom = Q27Dot5ToDouble(trap.bottom);
+
+        Q27Dot5 y = trap.topLeft->y - trap.bottomLeft->y;
+
+        qreal m = (-Q27Dot5ToDouble(trap.topLeft->x) + Q27Dot5ToDouble(trap.bottomLeft->x)) / Q27Dot5ToDouble(y);
+        qreal tx = Q27Dot5ToDouble(trap.topLeft->x);
+        topLeftX = tx + m * (Q27Dot5ToDouble(trap.topLeft->y) - Q27Dot5ToDouble(trap.top));
+        bottomLeftX = tx + m * (Q27Dot5ToDouble(trap.topLeft->y) - Q27Dot5ToDouble(trap.bottom));
+
+//     qDebug() << "trap: top=" << Q27Dot5ToDouble(trap.top)
+//              << "bottom=" << Q27Dot5ToDouble(trap.bottom);
+//     qDebug() << "      topLeft=" << Q27Dot5ToDouble(trap.topLeft->x) << Q27Dot5ToDouble(trap.topLeft->y);
+//     qDebug() << "      bottomLeft=" << Q27Dot5ToDouble(trap.bottomLeft->x) << Q27Dot5ToDouble(trap.bottomLeft->y);
+
+//     qDebug() << " -> m=" << m << "tx=" << tx;
+//     qDebug() << " -> topLeftX" << topLeftX << "bottomLeftX" << bottomLeftX;
+
+        y = trap.topRight->y - trap.bottomRight->y;
+
+        m = (Q27Dot5ToDouble(-trap.topRight->x) + Q27Dot5ToDouble(trap.bottomRight->x)) / Q27Dot5ToDouble(y);
+        tx = Q27Dot5ToDouble(trap.topRight->x);
+        topRightX = tx + m * (Q27Dot5ToDouble(trap.topRight->y) - Q27Dot5ToDouble(trap.top));
+        bottomRightX = tx + m * (Q27Dot5ToDouble(trap.topRight->y) - Q27Dot5ToDouble(trap.bottom));
+    }
+};
+
+class QOpenGLImmediateModeTessellator : public QOpenGLTessellator
+{
+public:
+    QOpenGLImmediateModeTessellator(qreal offscrHeight) :
+        offscreenHeight(offscrHeight) {}
+    ~QOpenGLImmediateModeTessellator() {}
+    void addTrap(const Trapezoid &trap);
+    void tessellate(const QPointF *points, int nPoints, bool winding) {
+        setWinding(winding);
+        QTessellator::tessellate(points, nPoints);
+    }
+    void done() {}
+
+    qreal offscreenHeight;
+};
+
+void QOpenGLImmediateModeTessellator::addTrap(const Trapezoid &trap)
+{
+    qreal topLeftX;
+    qreal topRightX;
+    qreal bottomLeftX;
+    qreal bottomRightX;
+    qreal top;
+    qreal bottom;
+
+    addTrapHelper(trap, topLeftX, topRightX, bottomLeftX, bottomRightX,
+                  top, bottom);
+
+    qreal minX = qMin(topLeftX, bottomLeftX);
+    qreal maxX = qMax(topRightX, bottomRightX);
+
+    if (qFuzzyCompare(top, bottom) || qFuzzyCompare(minX, maxX) ||
+        qFuzzyCompare(topLeftX, topRightX) && qFuzzyCompare(bottomLeftX, bottomRightX))
+        return;
+
+    const qreal xpadding = 1.0;
+    const qreal ypadding = 1.0;
+    
+    qreal topDist = offscreenHeight - top;
+    qreal bottomDist = offscreenHeight - bottom;
+    
+    qreal reciprocal = bottomDist / (bottomDist - topDist);
+    
+    qreal leftB = bottomLeftX + (topLeftX - bottomLeftX) * reciprocal;
+    qreal rightB = bottomRightX + (topRightX - bottomRightX) * reciprocal;
+    
+    const bool topZero = qFuzzyCompare(top, 0);
+    
+    reciprocal = topZero ? 1.0f / bottomDist : 1.0f / topDist;
+    
+    qreal leftA = topZero ? (bottomLeftX - leftB) * reciprocal : (topLeftX - leftB) * reciprocal;
+    qreal rightA = topZero ? (bottomRightX - rightB) * reciprocal : (topRightX - rightB) * reciprocal;
+
+    glTexCoord2f(topDist, bottomDist);
+    glMultiTexCoord4f(GL_TEXTURE1, leftA, leftB, rightA, rightB);
+
+    glVertex2d(minX - xpadding, top - ypadding);
+    glVertex2d(maxX + xpadding, top - ypadding);
+    glVertex2d(maxX + xpadding, bottom + ypadding);
+    glVertex2d(minX - xpadding, bottom + ypadding);
+
+//    qDebug() << "addTrap(" << minX << maxX << top << bottom << topDist << bottomDist << leftA << leftB << rightA << rightB << ")"; 
+//      glVertex2d(topLeftX - xpadding, top - ypadding);
+//      glVertex2d(topRightX + xpadding, top - ypadding);
+//      glVertex2d(bottomRightX + xpadding, bottom + ypadding);
+//      glVertex2d(bottomLeftX - xpadding, bottom + ypadding);
+
+}
+
+class QOpenGLTrapezoidToArrayTessellator : public QOpenGLTessellator
+{
+public:
+    QOpenGLTrapezoidToArrayTessellator() : vertices(0), allocated(0), size(0) {}
+    ~QOpenGLTrapezoidToArrayTessellator() { free(vertices); }
     float *vertices;
     int allocated;
     int size;
@@ -1299,68 +1408,70 @@ public:
     }
 };
 
-void QOpenGLTessellator::addTrap(const Trapezoid &trap)
+void QOpenGLTrapezoidToArrayTessellator::addTrap(const Trapezoid &trap)
 {
+#ifndef Q_WS_QWS
+    if (size > allocated - 8) {
+#else
     if (size > allocated - 12) {
+#endif
         allocated = qMax(2*allocated, 512);
         vertices = (float *)realloc(vertices, allocated * sizeof(float));
     }
 
-    float top = Q27Dot5ToDouble(trap.top);
-    float bottom = Q27Dot5ToDouble(trap.bottom);
+    qreal topLeftX;
+    qreal topRightX;
+    qreal bottomLeftX;
+    qreal bottomRightX;
+    qreal top;
+    qreal bottom;
 
-    Q27Dot5 y = trap.topLeft->y - trap.bottomLeft->y;
-    if (!y)
-        return;
-    qreal m = (-Q27Dot5ToDouble(trap.topLeft->x) + Q27Dot5ToDouble(trap.bottomLeft->x)) / Q27Dot5ToDouble(y);
-    qreal tx = Q27Dot5ToDouble(trap.topLeft->x);
-    qreal topLeftX
-        = tx + m * (Q27Dot5ToDouble(trap.topLeft->y) - Q27Dot5ToDouble(trap.top));
-    qreal bottomLeftX
-        = tx + m * (Q27Dot5ToDouble(trap.topLeft->y) - Q27Dot5ToDouble(trap.bottom));
-//     qDebug() << "trap: top=" << Q27Dot5ToDouble(trap.top)
-//              << "bottom=" << Q27Dot5ToDouble(trap.bottom);
-//     qDebug() << "      topLeft=" << Q27Dot5ToDouble(trap.topLeft->x) << Q27Dot5ToDouble(trap.topLeft->y);
-//     qDebug() << "      bottomLeft=" << Q27Dot5ToDouble(trap.bottomLeft->x) << Q27Dot5ToDouble(trap.bottomLeft->y);
+    addTrapHelper(trap, topLeftX, topRightX, bottomLeftX, bottomRightX,
+                  top, bottom);
 
-//     qDebug() << " -> m=" << m << "tx=" << tx;
-//     qDebug() << " -> topLeftX" << topLeftX << "bottomLeftX" << bottomLeftX;
-
-    y = trap.topRight->y - trap.bottomRight->y;
-    if (!y)
-        return;
-    m = (Q27Dot5ToDouble(-trap.topRight->x) + Q27Dot5ToDouble(trap.bottomRight->x)) / Q27Dot5ToDouble(y);
-    tx = Q27Dot5ToDouble(trap.topRight->x);
-    qreal topRightX
-        = tx + m * (Q27Dot5ToDouble(trap.topRight->y) - Q27Dot5ToDouble(trap.top));
-    qreal bottomRightX
-        = tx + m * (Q27Dot5ToDouble(trap.topRight->y) - Q27Dot5ToDouble(trap.bottom));
-
+#ifndef Q_WS_QWS
     vertices[size++] = topLeftX;
     vertices[size++] = top;
     vertices[size++] = topRightX;
     vertices[size++] = top;
+    vertices[size++] = bottomRightX;
+    vertices[size++] = bottom;
     vertices[size++] = bottomLeftX;
     vertices[size++] = bottom;
-
-    vertices[size++] = bottomLeftX;
-    vertices[size++] = bottom;
+#else
+    vertices[size++] = topLeftX;
+    vertices[size++] = top;
     vertices[size++] = topRightX;
     vertices[size++] = top;
     vertices[size++] = bottomRightX;
     vertices[size++] = bottom;
+
+    vertices[size++] = bottomLeftX;
+    vertices[size++] = bottom;
+    vertices[size++] = topLeftX;
+    vertices[size++] = top;
+    vertices[size++] = bottomRightX;
+    vertices[size++] = bottom;
+#endif
 }
+
 
 void QOpenGLPaintEnginePrivate::fillPolygon_dev(const QRectF &rect, const QPointF *polygonPoints, int pointCount,
                                                 Qt::FillRule fill)
 {
-    QOpenGLTessellator tessellator;
+    QOpenGLTrapezoidToArrayTessellator tessellator;
     tessellator.tessellate(polygonPoints, pointCount, fill == Qt::WindingFill);
 
     DEBUG_ONCE qDebug() << "QOpenGLPaintEnginePrivate: Drawing polygon with" << pointCount << "points using fillPolygon_dev";
 
     bool fast_style = current_style == Qt::LinearGradientPattern
                       || current_style == Qt::SolidPattern;
+
+#ifndef Q_WS_QWS
+    GLenum geometry_mode = GL_QUADS;
+#else
+    GLenum geometry_mode = GL_TRIANGLES;
+#endif
 
     if (use_fragment_programs && !(fast_style && has_fast_composition_mode)) {
         const QRectF screen_rect = rect.adjusted(-1, -1, 1, 1);
@@ -1385,11 +1496,11 @@ void QOpenGLPaintEnginePrivate::fillPolygon_dev(const QRectF &rect, const QPoint
 
         glColor4fv(color);
 
-        composite(GL_TRIANGLES, tessellator.vertices, tessellator.size / 2);
+        composite(geometry_mode, tessellator.vertices, tessellator.size / 2);
     } else {
         glVertexPointer(2, GL_FLOAT, 0, tessellator.vertices);
         glEnableClientState(GL_VERTEX_ARRAY);
-        glDrawArrays(GL_TRIANGLES, 0, tessellator.size/2);
+        glDrawArrays(geometry_mode, 0, tessellator.size/2);
         glDisableClientState(GL_VERTEX_ARRAY);
     }
 }
@@ -1963,57 +2074,8 @@ void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
         const QPolygonF &poly = polys.at(i);
 
         // draw mask to offscreen
-        QOpenGLTessellator tessellator;
+        QOpenGLImmediateModeTessellator tessellator(drawable.size().height());
         tessellator.tessellate(poly.data(), poly.count(), path.fillRule() == Qt::WindingFill);
-
-        for (int j = 0; j < tessellator.size; j += 12) {
-            const float x0 = tessellator.vertices[j]; // top left
-            const float x1 = tessellator.vertices[j + 4]; // bottom left
-            const float x2 = tessellator.vertices[j + 2]; // top right
-            const float x3 = tessellator.vertices[j + 10]; // bottom right
-
-            const float top = tessellator.vertices[j + 1];
-            const float bottom = tessellator.vertices[j + 5];
-
-            const float minX = qMin(x0, x1);
-            const float maxX = qMax(x2, x3);
-
-            // skip winding lines and empty trapezoids
-            if (qFuzzyCompare(top, bottom) || qFuzzyCompare(minX, maxX) || qFuzzyCompare(x0, x2) && qFuzzyCompare(x1, x3))
-                continue;
-
-            const float xpadding = 1.0f;
-            const float ypadding = 1.0f;
-
-            const QRectF rect = QRectF(QPointF(minX, top), QSizeF(maxX - minX, bottom - top)).adjusted(-xpadding, -ypadding, xpadding, ypadding);
-
-            qt_add_rect_to_array(rect, vertexArray);
-
-            const QSize sz = drawable.size();
-
-            const float fragTop = sz.height() - top;
-            const float fragBottom = sz.height() - bottom;
-
-            const float reciprocalB = fragBottom / (fragBottom - fragTop);
-
-            const float leftB = x1 + (x0 - x1) * reciprocalB;
-            const float rightB = x3 + (x2 - x3) * reciprocalB;
-
-            const bool topZero = qFuzzyCompare(fragTop, 0);
-
-            const float reciprocalA = topZero ? 1.0f / fragBottom : 1.0f / fragTop;
-
-            const float leftA = topZero ? (x1 - leftB) * reciprocalA : (x0 - leftB) * reciprocalA;
-            const float rightA = topZero ? (x3 - rightB) * reciprocalA : (x2 - rightB) * reciprocalA;
-
-            glTexCoord2f(fragTop, fragBottom);
-            glMultiTexCoord4f(GL_TEXTURE1, leftA, leftB, rightA, rightB);
-
-            glVertex2f(minX - xpadding, top - ypadding);
-            glVertex2f(maxX + xpadding, top - ypadding);
-            glVertex2f(maxX + xpadding, bottom + ypadding);
-            glVertex2f(minX - xpadding, bottom + ypadding);
-        }
     }
     glEnd();
 
