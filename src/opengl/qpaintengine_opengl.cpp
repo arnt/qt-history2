@@ -1319,8 +1319,8 @@ public:
 class QOpenGLImmediateModeTessellator : public QOpenGLTessellator
 {
 public:
-    QOpenGLImmediateModeTessellator(qreal offscrHeight) :
-        offscreenHeight(offscrHeight) {}
+    QOpenGLImmediateModeTessellator(qreal offscrHeight, QGLContext *cx) :
+        offscreenHeight(offscrHeight), ctx(cx) {}
     ~QOpenGLImmediateModeTessellator() {}
     void addTrap(const Trapezoid &trap);
     void tessellate(const QPointF *points, int nPoints, bool winding) {
@@ -1330,6 +1330,7 @@ public:
     void done() {}
 
     qreal offscreenHeight;
+    QGLContext *ctx;
 };
 
 void QOpenGLImmediateModeTessellator::addTrap(const Trapezoid &trap)
@@ -2074,7 +2075,7 @@ void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
         const QPolygonF &poly = polys.at(i);
 
         // draw mask to offscreen
-        QOpenGLImmediateModeTessellator tessellator(drawable.size().height());
+        QOpenGLImmediateModeTessellator tessellator(drawable.size().height(), shader_ctx);
         tessellator.tessellate(poly.data(), poly.count(), path.fillRule() == Qt::WindingFill);
     }
     glEnd();
