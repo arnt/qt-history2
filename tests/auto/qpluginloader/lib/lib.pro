@@ -3,7 +3,7 @@ CONFIG += dll
 CONFIG -= staticlib
 SOURCES		= mylib.c
 TARGET = mylib
-DESTDIR = ../
+DESTDIR = ../bin
 QT = core
 
 win32-msvc: DEFINES += WIN32_MSVC

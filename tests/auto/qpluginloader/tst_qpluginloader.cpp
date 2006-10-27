@@ -9,8 +9,7 @@
 
 #include <QtTest/QtTest>
 #include <qdir.h>
-#include <qlibrary.h>
-#include <QtCore/QRegExp>
+#include <qpluginloader.h>
 
 // Helper macros to let us know if some suffixes are valid
 #define bundle_VALID    false
@@ -28,11 +27,13 @@
 # define dylib_VALID    true
 # define so_VALID       true
 # define SUFFIX         ".dylib"
+# define PREFIX         "lib"
 
 #elif defined(Q_OS_HPUX) && !defined(__ia64)
 # undef sl_VALID
 # define sl_VALID       true
 # define SUFFIX         ".sl"
+# define PREFIX         "lib"
 
 #elif defined(Q_OS_AIX)
 # undef a_VALID
@@ -40,21 +41,29 @@
 # define a_VALID        true
 # define so_VALID       true
 # define SUFFIX         ".a"
+# define PREFIX         "lib"
 
 #elif defined(Q_OS_WIN)
 # undef dll_VALID
 # define dll_VALID      true
 # define SUFFIX         ".dll"
+# define PREFIX         ""
 
 #else  // all other Unix
 # undef so_VALID
 # define so_VALID       true
 # define SUFFIX         ".so"
+# define PREFIX         "lib"
 #endif
 
+static QString sys_qualifiedLibraryName(const QString &fileName)
+{
+    QString currDir = QDir::currentPath();
+    return currDir + "/bin/" + PREFIX + fileName + SUFFIX;
+}
 
 //TESTED_CLASS=
-//TESTED_FILES=corelib/plugin/qlibrary.h corelib/plugin/qlibrary.cpp
+//TESTED_FILES=corelib/plugin/qpluginloader.h corelib/plugin/qpluginloader.cpp
 
 class QPluginLoader;
 class tst_QPluginLoader : public QObject
@@ -67,7 +76,6 @@ public:
 
 private slots:
     void errorString();
-    void errorString_data();
 
 };
 
@@ -81,37 +89,37 @@ tst_QPluginLoader::~tst_QPluginLoader()
 }
 
 
-typedef int (*VersionFunction)(void);
-
-
-void tst_QPluginLoader::errorString_data()
-{
-    QTest::addColumn<QString>("lib");
-    QTest::addColumn<bool>("result");
-    QTest::addColumn<QString>("error");
-
-    QString currDir = QDir::currentPath();
-#ifdef Q_OS_WIN32
-    //### Fix prefix/suffix problem for all platforms
-    QTest::newRow( "ok00" ) << currDir + "/mylib.dll" << false << "'.*' is not a plugin";
-#endif
-}
-
 void tst_QPluginLoader::errorString()
 {
-#ifdef Q_OS_WIN32
-    QFETCH( QString, lib );
-    QFETCH( bool, result );
-    QFETCH( QString, error );
 
-    QPluginLoader loader( lib );
-    bool ok = loader.load();
-    QCOMPARE(ok, result);
+    const QString unknown(QLatin1String("Unknown error"));
+    {
+    QPluginLoader loader( sys_qualifiedLibraryName("mylib"));     //not a plugin
+    QCOMPARE(loader.load(), false);
+    QVERIFY(loader.errorString() != unknown);
 
-    QRegExp re(error);
-    QVERIFY(re.exactMatch(loader.errorString()));
-#endif
+    QCOMPARE(loader.instance(), static_cast<QObject*>(0));
+    QVERIFY(loader.errorString() != unknown);
+
+    QCOMPARE(loader.unload(), false);
+    QVERIFY(loader.errorString() != unknown);
+    }
+
+    {
+    QPluginLoader loader( sys_qualifiedLibraryName("theplugin"));     //a plugin
+    QCOMPARE(loader.load(), true);
+    QCOMPARE(loader.errorString(), unknown);
+
+    QVERIFY(loader.instance() !=  static_cast<QObject*>(0));
+    QCOMPARE(loader.errorString(), unknown);
+
+    QCOMPARE(loader.unload(), true);
+    QCOMPARE(loader.errorString(), unknown);
+    }
 }
+
+
 
 QTEST_APPLESS_MAIN(tst_QPluginLoader)
 #include "tst_qpluginloader.moc"
+
