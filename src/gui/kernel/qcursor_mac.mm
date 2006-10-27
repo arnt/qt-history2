@@ -407,19 +407,9 @@ void QCursorData::update()
 
     if (cursorData) {
         bm = new QBitmap(QBitmap::fromData(QSize(16, 16), cursorData,
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-                    QImage::Format_Mono
-#else
-                    QImage::Format_MonoLSB
-#endif
-                    ));
+                    QImage::Format_Mono));
         bmm = new QBitmap(QBitmap::fromData(QSize(16, 16), cursorMaskData,
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-                    QImage::Format_Mono
-#else
-                    QImage::Format_MonoLSB
-#endif
-                    ));
+                    QImage::Format_Mono));
         initCursorFromBitmap();
     }
 
