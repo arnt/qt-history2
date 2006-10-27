@@ -1354,19 +1354,19 @@ void QOpenGLImmediateModeTessellator::addTrap(const Trapezoid &trap)
 
     const qreal xpadding = 1.0;
     const qreal ypadding = 1.0;
-    
+
     qreal topDist = offscreenHeight - top;
     qreal bottomDist = offscreenHeight - bottom;
-    
+
     qreal reciprocal = bottomDist / (bottomDist - topDist);
-    
+
     qreal leftB = bottomLeftX + (topLeftX - bottomLeftX) * reciprocal;
     qreal rightB = bottomRightX + (topRightX - bottomRightX) * reciprocal;
-    
-    const bool topZero = qFuzzyCompare(top, 0);
-    
+
+    const bool topZero = qFuzzyCompare(topDist, 0);
+
     reciprocal = topZero ? 1.0f / bottomDist : 1.0f / topDist;
-    
+
     qreal leftA = topZero ? (bottomLeftX - leftB) * reciprocal : (topLeftX - leftB) * reciprocal;
     qreal rightA = topZero ? (bottomRightX - rightB) * reciprocal : (topRightX - rightB) * reciprocal;
 
@@ -1378,7 +1378,7 @@ void QOpenGLImmediateModeTessellator::addTrap(const Trapezoid &trap)
     glVertex2d(maxX + xpadding, bottom + ypadding);
     glVertex2d(minX - xpadding, bottom + ypadding);
 
-//    qDebug() << "addTrap(" << minX << maxX << top << bottom << topDist << bottomDist << leftA << leftB << rightA << rightB << ")"; 
+//    qDebug() << "addTrap(" << minX << maxX << top << bottom << topDist << bottomDist << leftA << leftB << rightA << rightB << ")";
 //      glVertex2d(topLeftX - xpadding, top - ypadding);
 //      glVertex2d(topRightX + xpadding, top - ypadding);
 //      glVertex2d(bottomRightX + xpadding, bottom + ypadding);
