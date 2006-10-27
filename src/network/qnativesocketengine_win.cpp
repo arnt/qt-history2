@@ -1032,7 +1032,7 @@ int QNativeSocketEnginePrivate::nativeSelect(int timeout, bool selectForRead) co
 
     for (;;) {
 
-        int nextTimeOut = timeout - stopWatch.elapsed();
+        int nextTimeOut = qMax(0, timeout - stopWatch.elapsed());
 
         memset(&fds, 0, sizeof(fd_set));
         fds.fd_count = 1;
