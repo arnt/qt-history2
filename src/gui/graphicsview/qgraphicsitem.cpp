@@ -2858,14 +2858,8 @@ void QGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
         // Determine the list of selected items
         QList<QGraphicsItem *> selectedItems;
-        if (d_ptr->scene) {
+        if (d_ptr->scene)
             selectedItems = d_ptr->scene->selectedItems();
-        } else {
-            QGraphicsItem *parent = this;
-            while ((parent = parent->parentItem()))
-                if (parent->isSelected())
-                    selectedItems << parent;
-        }
         selectedItems << this;
 
         // Move all selected items
