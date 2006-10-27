@@ -578,6 +578,14 @@ void QGraphicsScenePrivate::sendHoverEvent(QEvent::Type type, QGraphicsItem *ite
 */
 void QGraphicsScenePrivate::sendMouseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
+    if (mouseEvent->button() == 0 && mouseEvent->buttons() == 0) {
+        // ### This is a temporary fix for until we get proper mouse
+        // grab events. mouseGrabberItem should be set to 0 if the
+        // view loses mouse grab.
+        mouseGrabberItem = 0;
+        return;
+    }
+    
     for (int i = 0x1; i <= 0x10; i <<= 1) {
         Qt::MouseButton button = Qt::MouseButton(i);
         mouseEvent->setButtonDownPos(button, mouseGrabberButtonDownPos.value(button, mouseGrabberItem->mapFromScene(mouseEvent->scenePos())));

@@ -1843,7 +1843,21 @@ bool QGraphicsView::viewportEvent(QEvent *event)
     case QEvent::Enter:
         QApplication::sendEvent(d->scene, event);
         break;
+    case QEvent::WindowDeactivate:
+        // ### This is a temporary fix for until we get proper mouse
+        // grab events. mouseGrabberItem should be set to 0 if we lose
+        // the mouse grab.
+        d->scene->d_func()->mouseGrabberItem = 0;
+        break;
     case QEvent::Leave:
+        // ### This is a temporary fix for until we get proper mouse
+        // grab events. mouseGrabberItem should be set to 0 if we lose
+        // the mouse grab.
+        if ((QApplication::activePopupWidget() && QApplication::activePopupWidget() != window())
+            || (QApplication::activeModalWidget() && QApplication::activeModalWidget() != window())
+            || (QApplication::activeWindow() != window())) {
+            d->scene->d_func()->mouseGrabberItem = 0;
+        }
         d->useLastMouseEvent = false;
         QApplication::sendEvent(d->scene, event);
         break;
