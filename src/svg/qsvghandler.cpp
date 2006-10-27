@@ -324,6 +324,72 @@ static QList<qreal> parseNumbersList(QString::const_iterator &itr)
     return points;
 }
 
+static QList<qreal> parseStringToNumbersList(const char *str,
+                                             int len,
+                                             int *currentItr)
+{
+    Q_ASSERT(currentItr);
+    QList<qreal> points;
+    const int maxLen = 127;//technically doubles can go til 308+ but whatever
+    char temp[maxLen+1];
+    int pos = 0;
+    int &iTmp = *currentItr;
+    char current =  str[iTmp];
+    while (isSvgSpace(current)) {
+        ++iTmp;
+        current = str[iTmp];
+    }
+    while (((current >= '0' && current <= '9') ||
+            current == '-' || current == '+' ||
+            current == '.') && len > iTmp) {
+        if (current == '-') {
+            temp[pos++] = current;
+            current = str[++iTmp];
+        } else if (current == '+') {
+            current = str[++iTmp];
+        }
+        while (current >= '0' && current <= '9' && pos < maxLen) {
+            temp[pos++] = current;
+            current = str[++iTmp];
+        }
+        if (current == '.' && pos < maxLen) {
+            temp[pos++] = current;
+            current = str[++iTmp];
+        }
+        while (current >= '0' && current <= '9' && pos < maxLen) {
+            temp[pos++] = current;
+            current = str[++iTmp];
+        }
+        if (current == 'e' && pos < maxLen) {
+            temp[pos++] = current;
+            current = str[++iTmp];
+            if ((current == '-' || current == '+') && pos < maxLen) {
+                temp[pos++] = current;
+                current = str[++iTmp];
+            }
+        }
+        while (current >= '0' && current <= '9' && pos < maxLen) {
+            temp[pos++] = current;
+            current = str[++iTmp];
+        }
+        while (isSvgSpace(current)) {
+            current = str[++iTmp];
+        }
+        if (current == ',')
+            current = str[++iTmp];
+        temp[pos] = '\0';
+        qreal val = strtod(temp, 0);
+        points.append(val);
+
+        //eat the rest of space
+        while (isSvgSpace(current)) {
+            current = str[++iTmp];
+        }
+        pos = 0;
+    }
+
+    return points;
+}
 static QList<qreal> parsePercentageList(QString::const_iterator &itr)
 {
     QList<qreal> points;
@@ -692,8 +758,11 @@ static void parseQPen(QPen &pen, QSvgNode *node,
             }
 
             if (!dashArray.isEmpty()) {
-                QString::const_iterator itr = dashArray.constBegin();
-                QList<qreal> dashes = parseNumbersList(itr);
+                QByteArray latin = dashArray.toLatin1();
+                int currentItr = 0;
+                QList<qreal> dashes = parseStringToNumbersList(latin.data(),
+                                                               latin.length(),
+                                                               &currentItr);
                 QVector<qreal> vec(dashes.size());
 
                 int i = 0;
@@ -1287,27 +1356,32 @@ static void pathArc(QPainterPath &path,
     }
 }
 
-static bool parsePathDataFast(const QString &data, QPainterPath &path)
+static bool parsePathDataFast(const QString &dataStr, QPainterPath &path)
 {
-    QString::const_iterator itr = data.constBegin();
     qreal x0 = 0, y0 = 0;              // starting point
     qreal x = 0, y = 0;                // current point
     char lastMode = 0;
-    QChar pathElem;
+    char pathElem;
     QPointF ctrlPt;
+    QByteArray latin = dataStr.toLatin1();
+    int itr = 0;
+    int len = latin.length();
+    const char *data = latin.data();
+    char current = data[itr];
 
-    while (itr != data.constEnd()) {
-        while ((*itr).isSpace())
-            ++itr;
-        pathElem = *itr;
-        ++itr;
-        QList<qreal> arg = parseNumbersList(itr);
-        if (pathElem == QLatin1Char('z') || pathElem == QLatin1Char('Z'))
+    while (itr < len) {
+        while (isSvgSpace(current))
+            current = data[++itr];
+        pathElem = current;
+        current = data[++itr];
+        QList<qreal> arg = parseStringToNumbersList(data, len, &itr);
+        current = data[itr];
+        if (pathElem == 'z' || pathElem == 'Z')
             arg.append(0);//dummy
         while (!arg.isEmpty()) {
             qreal offsetX = x;        // correction offsets
             qreal offsetY = y;        // for relative commands
-            switch (pathElem.toAscii()) {
+            switch (pathElem) {
             case 'm': {
                 if (arg.count() < 2) {
                     arg.pop_front();
@@ -1593,7 +1667,7 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
                 Q_ASSERT(!"invalid path data");
                 break;
             }
-            lastMode = pathElem.toAscii();
+            lastMode = pathElem;
         }
     }
     return true;
