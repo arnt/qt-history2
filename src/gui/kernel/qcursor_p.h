@@ -32,12 +32,6 @@
 
 # if defined (Q_WS_MAC)
 #  include "private/qt_mac_p.h"
-#  if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-#    define QMAC_USE_BIG_CURSOR_API
-#  endif
-#  ifndef QMAC_NO_FAKECURSOR
-     class QMacCursorWidget;
-#  endif
    class QMacAnimateCursor;
 # elif defined(Q_WS_X11)
 #  include "private/qt_x11_p.h"
@@ -68,26 +62,19 @@ struct QCursorData {
     Cursor hcurs;
     Pixmap pm, pmm;
 #elif defined (Q_WS_MAC)
-    enum { TYPE_None, TYPE_CursPtr, TYPE_ThemeCursor, TYPE_FakeCursor, TYPE_BigCursor } type;
+    enum { TYPE_None, TYPE_ImageCursor, TYPE_ThemeCursor } type;
     union {
         struct {
             uint my_cursor:1;
-            CursPtr   hcurs;
+            void *nscursor;
         } cp;
-#ifndef QMAC_NO_FAKECURSOR
-        struct {
-            QMacCursorWidget *widget;
-            CursPtr empty_curs;
-        } fc;
-#endif
-#ifdef QMAC_USE_BIG_CURSOR_API
-        char *big_cursor_name;
-#endif
         struct {
             QMacAnimateCursor *anim;
             ThemeCursor curs;
         } tc;
     } curs;
+    void initCursorFromBitmap();
+    void initCursorFromPixmap();
 #endif
     static bool initialized;
     void update();
