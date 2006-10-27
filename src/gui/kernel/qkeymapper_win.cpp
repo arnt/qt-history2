@@ -403,7 +403,12 @@ static inline int toKeyOrUnicode(int vk, int scancode, unsigned char *kbdBuffer)
     Q_ASSERT(vk > 0 && vk < 256);
     int code = 0;
     QChar unicodeBuffer[5];
-    int res = ToUnicode(vk, scancode, kbdBuffer, reinterpret_cast<LPWSTR>(unicodeBuffer), 5, 0);
+    int res = 0;
+    if (QSysInfo::WindowsVersion < QSysInfo::WV_NT)
+        res = ToAscii(vk, scancode, kbdBuffer, reinterpret_cast<LPWSTR>(unicodeBuffer), 0);
+    else
+        res = ToUnicode(vk, scancode, kbdBuffer, reinterpret_cast<LPWSTR>(unicodeBuffer), 5, 0);
+
     if (res)
         code = unicodeBuffer[0].toUpper().unicode();
 
@@ -698,19 +703,28 @@ bool QKeyMapperPrivate::translateKeyEvent(QWidget *widget, const MSG &msg, bool 
     bool isDeadKey = MapVirtualKey(msg.wParam, 2) & 0x80008000; // High-order on 95 is 0x8000
     bool isNumpad = (msg.wParam >= VK_NUMPAD0 && msg.wParam <= VK_NUMPAD9);
     quint32 nModifiers = 0;
-    // Map native modifiers to some bit representation
-    nModifiers |= (GetKeyState(VK_LSHIFT  ) & 0x80 ? ShiftLeft : 0);
-    nModifiers |= (GetKeyState(VK_RSHIFT  ) & 0x80 ? ShiftRight : 0);
-    nModifiers |= (GetKeyState(VK_LCONTROL) & 0x80 ? ControlLeft : 0);
-    nModifiers |= (GetKeyState(VK_RCONTROL) & 0x80 ? ControlRight : 0);
-    nModifiers |= (GetKeyState(VK_LMENU   ) & 0x80 ? AltLeft : 0);
-    nModifiers |= (GetKeyState(VK_RMENU   ) & 0x80 ? AltRight : 0);
-    nModifiers |= (GetKeyState(VK_LWIN    ) & 0x80 ? MetaLeft : 0);
-    nModifiers |= (GetKeyState(VK_RWIN    ) & 0x80 ? MetaRight : 0);
-    // Add Lock keys to the same bits
-    nModifiers |= (GetKeyState(VK_CAPITAL ) & 0x01 ? CapsLock : 0);
-    nModifiers |= (GetKeyState(VK_NUMLOCK ) & 0x01 ? NumLock : 0);
-    nModifiers |= (GetKeyState(VK_SCROLL  ) & 0x01 ? ScrollLock : 0);
+
+    if (QSysInfo::WindowsVersion < QSysInfo::WV_NT) {
+        nModifiers |= (GetKeyState(VK_SHIFT  ) < 0 ? ShiftAny : 0);
+        nModifiers |= (GetKeyState(VK_CONTROL) < 0 ? ControlAny : 0);
+        nModifiers |= (GetKeyState(VK_MENU   ) < 0 ? AltAny : 0);
+        nModifiers |= (GetKeyState(VK_LWIN   ) < 0 ? MetaLeft : 0);
+        nModifiers |= (GetKeyState(VK_RWIN   ) < 0 ? MetaRight : 0);
+    } else {
+        // Map native modifiers to some bit representation
+        nModifiers |= (GetKeyState(VK_LSHIFT  ) & 0x80 ? ShiftLeft : 0);
+        nModifiers |= (GetKeyState(VK_RSHIFT  ) & 0x80 ? ShiftRight : 0);
+        nModifiers |= (GetKeyState(VK_LCONTROL) & 0x80 ? ControlLeft : 0);
+        nModifiers |= (GetKeyState(VK_RCONTROL) & 0x80 ? ControlRight : 0);
+        nModifiers |= (GetKeyState(VK_LMENU   ) & 0x80 ? AltLeft : 0);
+        nModifiers |= (GetKeyState(VK_RMENU   ) & 0x80 ? AltRight : 0);
+        nModifiers |= (GetKeyState(VK_LWIN    ) & 0x80 ? MetaLeft : 0);
+        nModifiers |= (GetKeyState(VK_RWIN    ) & 0x80 ? MetaRight : 0);
+        // Add Lock keys to the same bits
+        nModifiers |= (GetKeyState(VK_CAPITAL ) & 0x01 ? CapsLock : 0);
+        nModifiers |= (GetKeyState(VK_NUMLOCK ) & 0x01 ? NumLock : 0);
+        nModifiers |= (GetKeyState(VK_SCROLL  ) & 0x01 ? ScrollLock : 0);
+    }
 
     // Get the modifier states (may be altered later, depending on key code)
     int state = 0;
