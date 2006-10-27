@@ -473,8 +473,12 @@ void tst_QFile::readAllStdin()
 void tst_QFile::readLineStdin()
 {
     QByteArray lotsOfData(1024, '@'); // 10 megs
-    for (int i = 0; i < lotsOfData.size(); i += 75)
-        lotsOfData[i] = '\n';
+    for (int i = 0; i < lotsOfData.size(); ++i) {
+        if ((i % 32) == 31)
+            lotsOfData[i] = '\n';
+        else
+            lotsOfData[i] = char('0' + i % 32);
+    }
 
     QProcess process;
     process.start("stdinprocess/stdinprocess line", QIODevice::Text | QIODevice::ReadWrite);
@@ -487,8 +491,16 @@ void tst_QFile::readLineStdin()
     }
 
     process.closeWriteChannel();
-    process.waitForFinished();
-    QCOMPARE(process.readAll().size(), lotsOfData.size() * 5);
+    QVERIFY(process.waitForFinished(5000));
+
+    QByteArray array = process.readAll();
+    QCOMPARE(array.size(), lotsOfData.size() * 5);
+    for (int i = 0; i < array.size(); ++i) {
+        if ((i % 32) == 31)
+            QCOMPARE(char(array[i]), '\n');
+        else
+            QCOMPARE(char(array[i]), char('0' + i % 32));
+    }
 }
 
 void tst_QFile::text()
@@ -838,12 +850,17 @@ void tst_QFile::readTextFile()
 
 void tst_QFile::readTextFile2()
 {
-    QFile file("testlog.txt");
-    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    {
+        QFile file("testlog.txt");
+        QVERIFY(file.open(QIODevice::ReadOnly));
+        file.read(4097);
+    }
 
-    const int fileSize = file.size();
-    QByteArray be = file.read(fileSize);
-    file.close();
+    {
+        QFile file("testlog.txt");
+        QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+        file.read(4097);
+    }
 }
 
 void tst_QFile::writeTextFile_data()
