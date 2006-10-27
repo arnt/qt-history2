@@ -451,8 +451,8 @@ int QDesktopWidget::screenNumber(const QWidget *widget) const
 
 /*!
     \overload
-    Returns the index of the screen that contains \a point, or -1 if
-    no screen contains the point.
+    Returns the index of the screen that contains the \a point, or the
+    screen which is the shortest distance from the \a point.
 
     \sa primaryScreen()
 */
