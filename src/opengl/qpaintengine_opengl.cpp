@@ -390,6 +390,8 @@ inline void QGLOffscreen::bind(const QRectF &rect)
     active_rect = rect;
     screen_rect = rect.adjusted(-1, -1, 1, 1);
 
+    DEBUG_ONCE qDebug() << "QGLOffscreen: binding offscreen (use_fbo =" << use_fbo << ')';
+
     QSize needed_size(nextPowerOfTwo(drawable.size().width()), nextPowerOfTwo(drawable.size().height()));
 
     bool needs_refresh = needed_size.width() > sz.width()
@@ -452,6 +454,7 @@ inline void QGLOffscreen::bind(const QRectF &rect)
 inline void QGLOffscreen::release()
 {
 #ifndef Q_WS_QWS
+    DEBUG_ONCE_STR("QGLOffscreen: releasing offscreen");
     if (use_fbo) {
         if (drawable_fbo)
             drawable.makeCurrent();
@@ -598,6 +601,8 @@ public:
     Qt::BrushStyle pen_brush_style;
     qreal opacity;
     QPainter::CompositionMode composition_mode;
+
+    Qt::BrushStyle current_style;
 
     uint has_clipping : 1;
     uint has_pen : 1;
@@ -904,8 +909,13 @@ void QOpenGLPaintEnginePrivate::createGradientPaletteTexture(const QGradient& g)
 inline void QOpenGLPaintEnginePrivate::setGradientOps(Qt::BrushStyle style)
 {
 #ifndef Q_WS_QWS //###
+    current_style = style;
+
+    glDisable(GL_TEXTURE_GEN_S);
+    glDisable(GL_TEXTURE_1D);
+
     if (style == Qt::LinearGradientPattern) {
-        if (use_fragment_programs) {
+        if (use_fragment_programs && (use_antialiasing || !has_fast_composition_mode)) {
             fragment_brush = FRAGMENT_PROGRAM_BRUSH_LINEAR;
         } else {
             glEnable(GL_TEXTURE_GEN_S);
@@ -919,9 +929,6 @@ inline void QOpenGLPaintEnginePrivate::setGradientOps(Qt::BrushStyle style)
                 fragment_brush = FRAGMENT_PROGRAM_BRUSH_CONICAL;
             else
                 fragment_brush = FRAGMENT_PROGRAM_BRUSH_SOLID;
-        } else {
-            glDisable(GL_TEXTURE_GEN_S);
-            glDisable(GL_TEXTURE_GEN_S);
         }
     }
 #endif
@@ -1352,7 +1359,10 @@ void QOpenGLPaintEnginePrivate::fillPolygon_dev(const QRectF &rect, const QPoint
 
     DEBUG_ONCE qDebug() << "QOpenGLPaintEnginePrivate: Drawing polygon with" << pointCount << "points using fillPolygon_dev";
 
-    if (use_fragment_programs) {
+    bool fast_style = current_style == Qt::LinearGradientPattern
+                      || current_style == Qt::SolidPattern;
+
+    if (use_fragment_programs && !(fast_style && has_fast_composition_mode)) {
         const QRectF screen_rect = rect.adjusted(-1, -1, 1, 1);
         offscreen.bind(screen_rect);
 
@@ -1478,8 +1488,6 @@ void QOpenGLPaintEnginePrivate::drawVertexArrays()
 
 void QOpenGLPaintEnginePrivate::fillVertexArray(Qt::FillRule fillRule)
 {
-    DEBUG_ONCE qDebug() << "QOpenGLPaintEnginePrivate: Drawing polygon using fillVertexArray (stencil method)";
-
     glStencilMask(~0);
 
     // Enable stencil.
@@ -1541,7 +1549,12 @@ void QOpenGLPaintEnginePrivate::fillVertexArray(Qt::FillRule fillRule)
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glStencilMask(0);
 
-    if (use_fragment_programs) {
+    bool fast_style = current_style == Qt::LinearGradientPattern
+                      || current_style == Qt::SolidPattern;
+
+    if (use_fragment_programs && !(fast_style && has_fast_composition_mode)) {
+        DEBUG_ONCE qDebug() << "QOpenGLPaintEnginePrivate: Drawing polygon using stencil method (fragment programs)";
+
         QRectF rect(QPointF(min_x, min_y), QSizeF(max_x - min_x, max_y - min_y));
 
         offscreen.bind(rect);
@@ -1568,6 +1581,8 @@ void QOpenGLPaintEnginePrivate::fillVertexArray(Qt::FillRule fillRule)
         glStencilFunc(GL_NOTEQUAL, 0, stencilMask);
         composite(rect);
     } else {
+        DEBUG_ONCE qDebug() << "QOpenGLPaintEnginePrivate: Drawing polygon using stencil method (no fragment programs)";
+
         // Enable stencil func.
         glStencilFunc(GL_NOTEQUAL, 0, stencilMask);
         glBegin(GL_QUADS);
@@ -1835,7 +1850,8 @@ void QOpenGLPaintEngine::updateCompositionMode(QPainter::CompositionMode composi
     Q_D(QOpenGLPaintEngine);
     d->composition_mode = composition_mode;
 
-    d->has_fast_composition_mode = composition_mode == QPainter::CompositionMode_SourceOver
+    d->has_fast_composition_mode = !d->use_antialiasing
+                                   || composition_mode == QPainter::CompositionMode_SourceOver
                                    || composition_mode == QPainter::CompositionMode_Destination
                                    || composition_mode == QPainter::CompositionMode_DestinationOver
                                    || composition_mode == QPainter::CompositionMode_DestinationOut
