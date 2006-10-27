@@ -832,8 +832,16 @@ void WriteInitialization::writeProperties(const QString &varName,
         case DomProperty::Number:
             propertyValue = QString::number(p->elementNumber());
             break;
+        case DomProperty::UInt:
+            propertyValue = QString::number(p->elementUInt()) + QLatin1String("u");
+            break;
         case DomProperty::LongLong:
-            propertyValue = QString::number(p->elementLongLong());
+            propertyValue = QLatin1String("Q_INT64_C(") + QString::number(p->elementLongLong())
+                        + QLatin1String(")");;
+            break;
+        case DomProperty::ULongLong:
+            propertyValue = QLatin1String("Q_UINT64_C(") + QString::number(p->elementULongLong())
+                        + QLatin1String(")");;
             break;
         case DomProperty::Float:
             propertyValue = QString::number(p->elementFloat());

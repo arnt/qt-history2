@@ -5091,13 +5091,13 @@ QDomElement DomPointF::write(QDomDocument &doc, const QString &tagName)
 
     if (m_children & X) {
         child = doc.createElement(QLatin1String("x"));
-        child.appendChild(doc.createTextNode(QString::number(m_x)));
+        child.appendChild(doc.createTextNode(QString::number(m_x, 'f', 15)));
         e.appendChild(child);
     }
 
     if (m_children & Y) {
         child = doc.createElement(QLatin1String("y"));
-        child.appendChild(doc.createTextNode(QString::number(m_y)));
+        child.appendChild(doc.createTextNode(QString::number(m_y, 'f', 15)));
         e.appendChild(child);
     }
 
@@ -5197,25 +5197,25 @@ QDomElement DomRectF::write(QDomDocument &doc, const QString &tagName)
 
     if (m_children & X) {
         child = doc.createElement(QLatin1String("x"));
-        child.appendChild(doc.createTextNode(QString::number(m_x)));
+        child.appendChild(doc.createTextNode(QString::number(m_x, 'f', 15)));
         e.appendChild(child);
     }
 
     if (m_children & Y) {
         child = doc.createElement(QLatin1String("y"));
-        child.appendChild(doc.createTextNode(QString::number(m_y)));
+        child.appendChild(doc.createTextNode(QString::number(m_y, 'f', 15)));
         e.appendChild(child);
     }
 
     if (m_children & Width) {
         child = doc.createElement(QLatin1String("width"));
-        child.appendChild(doc.createTextNode(QString::number(m_width)));
+        child.appendChild(doc.createTextNode(QString::number(m_width, 'f', 15)));
         e.appendChild(child);
     }
 
     if (m_children & Height) {
         child = doc.createElement(QLatin1String("height"));
-        child.appendChild(doc.createTextNode(QString::number(m_height)));
+        child.appendChild(doc.createTextNode(QString::number(m_height, 'f', 15)));
         e.appendChild(child);
     }
 
@@ -5325,13 +5325,13 @@ QDomElement DomSizeF::write(QDomDocument &doc, const QString &tagName)
 
     if (m_children & Width) {
         child = doc.createElement(QLatin1String("width"));
-        child.appendChild(doc.createTextNode(QString::number(m_width)));
+        child.appendChild(doc.createTextNode(QString::number(m_width, 'f', 15)));
         e.appendChild(child);
     }
 
     if (m_children & Height) {
         child = doc.createElement(QLatin1String("height"));
-        child.appendChild(doc.createTextNode(QString::number(m_height)));
+        child.appendChild(doc.createTextNode(QString::number(m_height, 'f', 15)));
         e.appendChild(child);
     }
 
@@ -5565,6 +5565,8 @@ void DomProperty::clear(bool clear_all)
     m_longLong = 0;
     m_char = 0;
     m_url = 0;
+    m_uInt = 0;
+    m_uLongLong = 0;
 }
 
 DomProperty::DomProperty()
@@ -5598,6 +5600,8 @@ DomProperty::DomProperty()
     m_longLong = 0;
     m_char = 0;
     m_url = 0;
+    m_uInt = 0;
+    m_uLongLong = 0;
 }
 
 DomProperty::~DomProperty()
@@ -5783,6 +5787,14 @@ void DomProperty::read(const QDomElement &node)
             DomUrl *v = new DomUrl();
             v->read(e);
             setElementUrl(v);
+            continue;
+        }
+        if (tag == QLatin1String("uint")) {
+            setElementUInt(e.text().toUInt());
+            continue;
+        }
+        if (tag == QLatin1String("ulonglong")) {
+            setElementULongLong(e.text().toULongLong());
             continue;
         }
     }
@@ -6022,6 +6034,20 @@ QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
             }
             break;
         }
+        case UInt: {
+            QDomElement child = doc.createElement(QLatin1String("uInt"));
+            QDomText text = doc.createTextNode(QString::number(elementUInt()));
+            child.appendChild(text);
+            e.appendChild(child);
+            break;
+        }
+        case ULongLong: {
+            QDomElement child = doc.createElement(QLatin1String("uLongLong"));
+            QDomText text = doc.createTextNode(QString::number(elementULongLong()));
+            child.appendChild(text);
+            e.appendChild(child);
+            break;
+        }
         default:
             break;
     }
@@ -6225,6 +6251,20 @@ void DomProperty::setElementUrl(DomUrl* a)
     clear(false);
     m_kind = Url;
     m_url = a;
+}
+
+void DomProperty::setElementUInt(uint a)
+{
+    clear(false);
+    m_kind = UInt;
+    m_uInt = a;
+}
+
+void DomProperty::setElementULongLong(qulonglong a)
+{
+    clear(false);
+    m_kind = ULongLong;
+    m_uLongLong = a;
 }
 
 void DomConnections::clear(bool clear_all)

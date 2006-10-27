@@ -1756,3 +1756,99 @@ void StringListProperty::updateValue(QWidget *editor)
         }
     }
 }
+
+// -------------------------------------------------------------------------
+UIntProperty::UIntProperty(uint value, const QString &name)
+    : AbstractProperty<uint>(value, name)
+{
+}
+
+void UIntProperty::setValue(const QVariant &value)
+{
+    m_value = value.toUInt();
+}
+
+QString UIntProperty::toString() const
+{
+    return QString::number(m_value);
+}
+
+QWidget *UIntProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
+{
+    QLineEdit *lineEdit = new QLineEdit(parent);
+    lineEdit->setFrame(0);
+    lineEdit->setValidator(new QULongLongValidator(0, UINT_MAX, lineEdit));
+    QObject::connect(lineEdit, SIGNAL(textChanged(QString)), target, receiver);
+
+    return lineEdit;
+}
+
+void UIntProperty::updateEditorContents(QWidget *editor)
+{
+    if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor)) {
+        uint v = lineEdit->text().toUInt();
+        if (v != m_value)
+            lineEdit->setText(QString::number(m_value));
+    }
+}
+
+void UIntProperty::updateValue(QWidget *editor)
+{
+    if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor)) {
+        uint newValue = lineEdit->text().toUInt();
+
+        if (newValue != m_value) {
+            m_value = newValue;
+            setChanged(true);
+        }
+
+    }
+}
+
+// -------------------------------------------------------------------------
+ULongLongProperty::ULongLongProperty(qulonglong value, const QString &name)
+    : AbstractProperty<qulonglong>(value, name)
+{
+}
+
+void ULongLongProperty::setValue(const QVariant &value)
+{
+    m_value = value.toULongLong();
+}
+
+QString ULongLongProperty::toString() const
+{
+    return QString::number(m_value);
+}
+
+QWidget *ULongLongProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
+{
+    QLineEdit *lineEdit = new QLineEdit(parent);
+    lineEdit->setFrame(0);
+    lineEdit->setValidator(new QULongLongValidator(lineEdit));
+    QObject::connect(lineEdit, SIGNAL(textChanged(QString)), target, receiver);
+
+    return lineEdit;
+}
+
+void ULongLongProperty::updateEditorContents(QWidget *editor)
+{
+    if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor)) {
+        qulonglong v = lineEdit->text().toULongLong();
+        if (v != m_value)
+            lineEdit->setText(QString::number(m_value));
+    }
+}
+
+void ULongLongProperty::updateValue(QWidget *editor)
+{
+    if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor)) {
+        qulonglong newValue = lineEdit->text().toULongLong();
+
+        if (newValue != m_value) {
+            m_value = newValue;
+            setChanged(true);
+        }
+
+    }
+}

@@ -2465,7 +2465,7 @@ public:
     inline void clearAttributeStdset() { m_has_attr_stdset = false; }
 
     // child element accessors
-    enum Kind { Unknown = 0, Bool, Color, Cstring, Cursor, Enum, Font, IconSet, Pixmap, Palette, Point, Rect, Set, SizePolicy, Size, String, StringList, Number, Float, Double, Date, Time, DateTime, PointF, RectF, SizeF, LongLong, Char, Url };
+    enum Kind { Unknown = 0, Bool, Color, Cstring, Cursor, Enum, Font, IconSet, Pixmap, Palette, Point, Rect, Set, SizePolicy, Size, String, StringList, Number, Float, Double, Date, Time, DateTime, PointF, RectF, SizeF, LongLong, Char, Url, UInt, ULongLong };
     inline Kind kind() { return m_kind; }
 
     inline QString elementBool() { return m_bool; }
@@ -2552,6 +2552,12 @@ public:
     inline DomUrl* elementUrl() { return m_url; }
     void setElementUrl(DomUrl* a);
 
+    inline uint elementUInt() { return m_uInt; }
+    void setElementUInt(uint a);
+
+    inline qulonglong elementULongLong() { return m_uLongLong; }
+    void setElementULongLong(qulonglong a);
+
 private:
     QString m_text;
     void clear(bool clear_all = true);
@@ -2593,6 +2599,8 @@ private:
     qlonglong m_longLong;
     DomChar* m_char;
     DomUrl* m_url;
+    uint m_uInt;
+    qulonglong m_uLongLong;
 
     DomProperty(const DomProperty &other);
     void operator = (const DomProperty&other);

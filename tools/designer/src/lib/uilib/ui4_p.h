@@ -251,7 +251,7 @@ private:
         Images = 1024,
         Includes = 2048,
         Resources = 4096,
-        Connections = 8192,
+        Connections = 8192
     };
 
     DomUI(const DomUI &other);
@@ -576,7 +576,7 @@ private:
     uint m_children;
     DomImageData* m_data;
     enum Child {
-        Data = 1,
+        Data = 1
     };
 
     DomImage(const DomImage &other);
@@ -755,7 +755,7 @@ private:
         Container = 16,
         SizePolicy = 32,
         Pixmap = 64,
-        Properties = 128,
+        Properties = 128
     };
 
     DomCustomWidget(const DomCustomWidget &other);
@@ -853,7 +853,7 @@ private:
     int m_verData;
     enum Child {
         HorData = 1,
-        VerData = 2,
+        VerData = 2
     };
 
     DomSizePolicyData(const DomSizePolicyData &other);
@@ -1354,7 +1354,7 @@ private:
     enum Child {
         Red = 1,
         Green = 2,
-        Blue = 4,
+        Blue = 4
     };
 
     DomColor(const DomColor &other);
@@ -1395,7 +1395,7 @@ private:
     uint m_children;
     DomColor* m_color;
     enum Child {
-        Color = 1,
+        Color = 1
     };
 
     DomGradientStop(const DomGradientStop &other);
@@ -1614,7 +1614,7 @@ private:
     uint m_children;
     DomBrush* m_brush;
     enum Child {
-        Brush = 1,
+        Brush = 1
     };
 
     DomColorRole(const DomColorRole &other);
@@ -1692,7 +1692,7 @@ private:
     enum Child {
         Active = 1,
         Inactive = 2,
-        Disabled = 4,
+        Disabled = 4
     };
 
     DomPalette(const DomPalette &other);
@@ -1781,7 +1781,7 @@ private:
         Underline = 32,
         StrikeOut = 64,
         Antialiasing = 128,
-        Kerning = 256,
+        Kerning = 256
     };
 
     DomFont(const DomFont &other);
@@ -1821,7 +1821,7 @@ private:
     int m_y;
     enum Child {
         X = 1,
-        Y = 2,
+        Y = 2
     };
 
     DomPoint(const DomPoint &other);
@@ -1875,7 +1875,7 @@ private:
         X = 1,
         Y = 2,
         Width = 4,
-        Height = 8,
+        Height = 8
     };
 
     DomRect(const DomRect &other);
@@ -1929,7 +1929,7 @@ private:
         HSizeType = 1,
         VSizeType = 2,
         HorStretch = 4,
-        VerStretch = 8,
+        VerStretch = 8
     };
 
     DomSizePolicy(const DomSizePolicy &other);
@@ -1969,7 +1969,7 @@ private:
     int m_height;
     enum Child {
         Width = 1,
-        Height = 2,
+        Height = 2
     };
 
     DomSize(const DomSize &other);
@@ -2016,7 +2016,7 @@ private:
     enum Child {
         Year = 1,
         Month = 2,
-        Day = 4,
+        Day = 4
     };
 
     DomDate(const DomDate &other);
@@ -2063,7 +2063,7 @@ private:
     enum Child {
         Hour = 1,
         Minute = 2,
-        Second = 4,
+        Second = 4
     };
 
     DomTime(const DomTime &other);
@@ -2131,7 +2131,7 @@ private:
         Second = 4,
         Year = 8,
         Month = 16,
-        Day = 32,
+        Day = 32
     };
 
     DomDateTime(const DomDateTime &other);
@@ -2276,7 +2276,7 @@ private:
     double m_y;
     enum Child {
         X = 1,
-        Y = 2,
+        Y = 2
     };
 
     DomPointF(const DomPointF &other);
@@ -2330,7 +2330,7 @@ private:
         X = 1,
         Y = 2,
         Width = 4,
-        Height = 8,
+        Height = 8
     };
 
     DomRectF(const DomRectF &other);
@@ -2370,7 +2370,7 @@ private:
     double m_height;
     enum Child {
         Width = 1,
-        Height = 2,
+        Height = 2
     };
 
     DomSizeF(const DomSizeF &other);
@@ -2403,7 +2403,7 @@ private:
     uint m_children;
     int m_unicode;
     enum Child {
-        Unicode = 1,
+        Unicode = 1
     };
 
     DomChar(const DomChar &other);
@@ -2436,7 +2436,7 @@ private:
     uint m_children;
     DomString* m_string;
     enum Child {
-        String = 1,
+        String = 1
     };
 
     DomUrl(const DomUrl &other);
@@ -2465,7 +2465,7 @@ public:
     inline void clearAttributeStdset() { m_has_attr_stdset = false; }
 
     // child element accessors
-    enum Kind { Unknown = 0, Bool, Color, Cstring, Cursor, Enum, Font, IconSet, Pixmap, Palette, Point, Rect, Set, SizePolicy, Size, String, StringList, Number, Float, Double, Date, Time, DateTime, PointF, RectF, SizeF, LongLong, Char, Url };
+    enum Kind { Unknown = 0, Bool, Color, Cstring, Cursor, Enum, Font, IconSet, Pixmap, Palette, Point, Rect, Set, SizePolicy, Size, String, StringList, Number, Float, Double, Date, Time, DateTime, PointF, RectF, SizeF, LongLong, Char, Url, UInt, ULongLong };
     inline Kind kind() { return m_kind; }
 
     inline QString elementBool() { return m_bool; }
@@ -2552,6 +2552,12 @@ public:
     inline DomUrl* elementUrl() { return m_url; }
     void setElementUrl(DomUrl* a);
 
+    inline uint elementUInt() { return m_uInt; }
+    void setElementUInt(uint a);
+
+    inline qulonglong elementULongLong() { return m_uLongLong; }
+    void setElementULongLong(qulonglong a);
+
 private:
     QString m_text;
     void clear(bool clear_all = true);
@@ -2593,6 +2599,8 @@ private:
     qlonglong m_longLong;
     DomChar* m_char;
     DomUrl* m_url;
+    uint m_uInt;
+    qulonglong m_uLongLong;
 
     DomProperty(const DomProperty &other);
     void operator = (const DomProperty&other);
@@ -2679,7 +2687,7 @@ private:
         Signal = 2,
         Receiver = 4,
         Slot = 8,
-        Hints = 16,
+        Hints = 16
     };
 
     DomConnection(const DomConnection &other);
@@ -2754,7 +2762,7 @@ private:
     int m_y;
     enum Child {
         X = 1,
-        Y = 2,
+        Y = 2
     };
 
     DomConnectionHint(const DomConnectionHint &other);

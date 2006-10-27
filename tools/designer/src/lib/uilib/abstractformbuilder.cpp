@@ -659,8 +659,16 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
         v = p->elementNumber();
     } break;
 
+    case DomProperty::UInt: {
+        v = p->elementUInt();
+    } break;
+
     case DomProperty::LongLong: {
         v = p->elementLongLong();
+    } break;
+
+    case DomProperty::ULongLong: {
+        v = p->elementULongLong();
     } break;
 
     case DomProperty::Double: {
@@ -1450,7 +1458,7 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
         } break;
 
         case QVariant::UInt: {
-            dom_prop->setElementNumber(v.toUInt());
+            dom_prop->setElementUInt(v.toUInt());
         } break;
 
         case QVariant::LongLong: {
@@ -1458,7 +1466,7 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
         } break;
 
         case QVariant::ULongLong: {
-            dom_prop->setElementLongLong(v.toULongLong());
+            dom_prop->setElementULongLong(v.toULongLong());
         } break;
 
         case QVariant::Double: {

@@ -609,6 +609,32 @@ public:
     void updateValue(QWidget *editor);
 };
 
+class QT_PROPERTYEDITOR_EXPORT UIntProperty: public AbstractProperty<uint>
+{
+public:
+    UIntProperty(uint value, const QString &name);
+
+    void setValue(const QVariant &value);
+    QString toString() const;
+
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
+    void updateEditorContents(QWidget *editor);
+    void updateValue(QWidget *editor);
+};
+
+class QT_PROPERTYEDITOR_EXPORT ULongLongProperty: public AbstractProperty<qulonglong>
+{
+public:
+    ULongLongProperty(qulonglong value, const QString &name);
+
+    void setValue(const QVariant &value);
+    QString toString() const;
+
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
+    void updateEditorContents(QWidget *editor);
+    void updateValue(QWidget *editor);
+};
+
 }  // namespace qdesigner_internal
 
 #endif // QPROPERTYEDITOR_ITEMS_P_H

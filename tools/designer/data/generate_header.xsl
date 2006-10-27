@@ -129,7 +129,11 @@
                 <xsl:call-template name="powers-of-two">
                     <xsl:with-param name="num" select="position() - 1"/>
                 </xsl:call-template>
-                <xsl:text>,&endl;</xsl:text>
+                <xsl:if test="position()!=last()">
+                    <xsl:text>,</xsl:text>
+                </xsl:if>
+                <xsl:text>&endl;</xsl:text>
+                                     
             </xsl:for-each>
             <xsl:text>    };&endl;</xsl:text>
         </xsl:if>

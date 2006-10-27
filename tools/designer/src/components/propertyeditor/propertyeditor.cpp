@@ -603,13 +603,13 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                 p = new IntProperty(value.toInt(), pname);
                 break;
             case QVariant::UInt:
-                p = new IntProperty(value.toUInt(), pname);
+                p = new UIntProperty(value.toUInt(), pname);
                 break;
             case QVariant::LongLong:
                 p = new LongLongProperty(value.toLongLong(), pname);
                 break;
             case QVariant::ULongLong:
-                p = new LongLongProperty(value.toULongLong(), pname);
+                p = new ULongLongProperty(value.toULongLong(), pname);
                 break;
             case QVariant::Double:
                 p = new DoubleProperty(value.toDouble(), pname);

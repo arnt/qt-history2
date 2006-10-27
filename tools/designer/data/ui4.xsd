@@ -455,6 +455,8 @@
                         <xs:element name="longLong" type="xs:longlong" />
                         <xs:element name="char" type="Char" />
                         <xs:element name="url" type="Url" />
+                        <xs:element name="uInt" type="xs:unsignedInt" />
+                        <xs:element name="uLongLong" type="xs:unsignedLong" />
                 </xs:choice>
                 <xs:attribute name="name" type="xs:string" />
                 <xs:attribute name="stdset" type="xs:integer" />
