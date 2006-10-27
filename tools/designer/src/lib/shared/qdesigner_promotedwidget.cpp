@@ -16,19 +16,16 @@
 #include <QtDesigner/QExtensionManager>
 
 #include <QtGui/QVBoxLayout>
-#include <QtCore/QEvent>
 #include <QtCore/QVariant>
-#include <QtCore/qdebug.h>
 
 namespace qdesigner_internal {
 
 PromotedWidgetPropertySheet::PromotedWidgetPropertySheet(QDesignerPromotedWidget *promoted,
                                 QExtensionManager *extension_manager, QObject *parent)
-    : QObject(parent)
+    : QObject(parent),
+      m_promoted(promoted),
+      m_sheet(qt_extension<QDesignerPropertySheetExtension*>(extension_manager, promoted->child()))
 {
-    m_promoted = promoted;
-    QWidget *child = promoted->child();
-    m_sheet = qt_extension<QDesignerPropertySheetExtension*>(extension_manager, child);
 }
 
 PromotedWidgetPropertySheet::~PromotedWidgetPropertySheet()
@@ -92,22 +89,15 @@ void PromotedWidgetPropertySheet::setAttribute(int index, bool b)
 
 QVariant PromotedWidgetPropertySheet::property(int index) const
 {
-    QVariant result;
 
-    QString name = propertyName(index);
-    if (name == QLatin1String("geometry")) {
-        result = m_promoted->geometry();
-    } else {
-        result = m_sheet->property(index);
-    }
-
-    return result;
+    if (propertyName(index) == QLatin1String("geometry")) 
+        return m_promoted->geometry();
+    return m_sheet->property(index);
 }
 
 void PromotedWidgetPropertySheet::setProperty(int index, const QVariant &value)
 {
-    QString name = propertyName(index);
-    if (name == QLatin1String("geometry")) {
+    if (propertyName(index) == QLatin1String("geometry")) {
         if (value.type() == QVariant::Rect)
             m_promoted->setGeometry(value.toRect());
     } else {
@@ -143,18 +133,20 @@ QObject *PromotedWidgetPropertySheetFactory::createExtension(QObject *object,
                                 parent);
 }
 
-QDesignerPromotedWidget::QDesignerPromotedWidget(QDesignerWidgetDataBaseItemInterface *item, QWidget *parent)
-    : QWidget(parent), m_child(0)
+QDesignerPromotedWidget::QDesignerPromotedWidget(const QDesignerWidgetDataBaseItemInterface *item, 
+                                                 QWidget *parent)
+    : QWidget(parent),
+      m_item(item),
+      m_custom_class_name(item->name().toUtf8()),
+      m_child(0)
 {
     (new QVBoxLayout(this))->setMargin(0);
-
-    m_item = item;
-    m_custom_class_name = item->name().toUtf8();
 }
 
 QDesignerPromotedWidget::~QDesignerPromotedWidget()
 {
 }
+
 
 void QDesignerPromotedWidget::setChildWidget(QWidget *widget)
 {
@@ -176,17 +168,16 @@ void QDesignerPromotedWidget::setChildWidget(QWidget *widget)
 
 QSize QDesignerPromotedWidget::sizeHint() const
 {
-    if (m_child == 0)
-        return QSize();
-    return m_child->sizeHint();
+    if (m_child) 
+        return m_child->sizeHint();
+    return QSize();
 }
 
 QSize QDesignerPromotedWidget::minimumSizeHint() const
 {
-    if (m_child == 0)
-        return QSize();
-    return m_child->minimumSizeHint();
+    if (m_child) 
+        return m_child->minimumSizeHint();
+    return QSize();
 }
-
-
+    
 } // namespace qdesigner_internal
