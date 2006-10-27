@@ -1719,6 +1719,7 @@ static void parseCSStoXMLAttrs(const QVector<QCss::Declaration> &declarations,
 static bool parseCSStoXMLAttrs(QString css,
                                QXmlAttributes &attributes)
 {
+#if 0
     css.prepend(QLatin1String("dummy {"));
     css.append(QLatin1Char('}'));
     QCss::StyleSheet sheet;
@@ -1727,6 +1728,39 @@ static bool parseCSStoXMLAttrs(QString css,
         return false;
     parseCSStoXMLAttrs(sheet.styleRules.at(0).declarations, attributes);
     return attributes.count();
+#else
+    // preprocess (for unicode escapes), tokenize and remove comments
+    QCss::Parser parser(css);
+
+    while (parser.hasNext()) {
+        parser.skipSpace();
+
+        if (!parser.hasNext())
+            break;
+        parser.next();
+        const QString key = parser.lexem();
+
+        parser.skipSpace();
+        if (!parser.test(QCss::COLON))
+            break;
+
+        parser.skipSpace();
+        if (!parser.hasNext())
+            break;
+
+        QString value;
+        do {
+            parser.next();
+            value += parser.lexem();
+        } while (parser.hasNext() && !parser.test(QCss::SEMICOLON));
+
+        attributes.append(key, QString(), key, value);
+
+        parser.skipSpace();
+    }
+
+    return attributes.count();
+#endif
 }
 
 static void cssStyleLookup(QSvgNode *node,
