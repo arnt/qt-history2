@@ -68,6 +68,15 @@ static QString xmlSimplify(const QString &str)
     return temp;
 }
 
+// http://www.w3.org/TR/SVGMobile12/types.html (<list of xxx>: wsp)
+static inline bool isSvgSpace(char c)
+{
+    return (c == 0x20 ||
+            c == 0x9  ||
+            c == 0xD  ||
+            c == 0xA);
+}
+
 
 class QSvgStyleSelector : public QCss::StyleSelector
 {
@@ -252,43 +261,64 @@ public:
         Q_UNUSED(node);
     }
 };
+
 static QList<qreal> parseNumbersList(QString::const_iterator &itr)
 {
     QList<qreal> points;
-    QString temp;
+    const int maxLen = 127;//technically doubles can go til 308+ but whatever
+    char temp[maxLen+1];
+    int pos = 0;
     while ((*itr).isSpace())
         ++itr;
-    while ((*itr).isNumber() ||
-           (*itr) == QLatin1Char('-') || (*itr) == QLatin1Char('+') ||
-           (*itr) == QLatin1Char('.')) {
-        temp = QString();
-
-        if ((*itr) == QLatin1Char('-'))
-            temp += *itr++;
-        else if ((*itr) == QLatin1Char('+'))
-            temp += *itr++;
-        while ((*itr).isDigit())
-            temp += *itr++;
-        if ((*itr) == QLatin1Char('.'))
-            temp += *itr++;
-        while ((*itr).isDigit())
-            temp += *itr++;
-        if (( *itr) == QLatin1Char('e')) {
-            temp += *itr++;
-            if ((*itr) == QLatin1Char('-') ||
-                (*itr) == QLatin1Char('+'))
-                temp += *itr++;
+    char current = (*itr).toLatin1();
+    while ((current >= '0' && current <= '9') ||
+           current == '-' || current == '+' ||
+           current == '.') {
+        if (current == '-') {
+            temp[pos++] = current;
+            current = (*(++itr)).toLatin1();
+        } else if (current == '+') {
+            current = (*(++itr)).toLatin1();
         }
-        while ((*itr).isDigit())
-            temp += *itr++;
-        while ((*itr).isSpace())
-            ++itr;
+        while (current >= '0' && current <= '9' && pos < maxLen) {
+            temp[pos++] = current;
+            current = (*(++itr)).toLatin1();
+        }
+        if (current == '.' && pos < maxLen) {
+            temp[pos++] = current;
+            current = (*(++itr)).toLatin1();
+        }
+        while (current >= '0' && current <= '9' && pos < maxLen) {
+            temp[pos++] = current;
+            current = (*(++itr)).toLatin1();
+        }
+        if (current == 'e' && pos < maxLen) {
+            temp[pos++] = current;
+            current = (*(++itr)).toLatin1();
+            if ((current == '-' || current == '+') && pos < maxLen) {
+                temp[pos++] = current;
+                current = (*(++itr)).toLatin1();
+            }
+        }
+        while (current >= '0' && current <= '9' && pos < maxLen) {
+            temp[pos++] = current;
+            current = (*(++itr)).toLatin1();
+        }
+        while (isSvgSpace(current)) {
+            current = (*(++itr)).toLatin1();
+        }
         if ((*itr) == QLatin1Char(','))
             ++itr;
-        points.append(temp.toDouble());
+        temp[pos] = '\0';
+        qreal val = strtod(temp, 0);
+        points.append(val);
+
         //eat the rest of space
-        while ((*itr).isSpace())
-            ++itr;
+        current = (*itr).toLatin1();
+        while (isSvgSpace(current)) {
+            current = (*(++itr)).toLatin1();
+        }
+        pos = 0;
     }
 
     return points;
@@ -1606,7 +1636,7 @@ static void parseCSStoXMLAttrs(const QVector<QCss::Declaration> &declarations,
                 break;
             }
         }
-            
+
         attributes.append(decl.property, QString(),
                           decl.property, valueStr);
     }
@@ -2495,14 +2525,14 @@ static QSvgStyleProperty *createRadialGradientNode(QSvgNode *node,
         ncy = cy.toDouble();
     if (!r.isEmpty())
         nr = r.toDouble();
-    
+
     qreal nfx = ncx;
     if (!fx.isEmpty())
         nfx = fx.toDouble();
     qreal nfy = ncy;
     if (!fy.isEmpty())
         nfy = fy.toDouble();
-    
+
     if (units == QLatin1String("userSpaceOnUse")) {
         needsResolving = false;
     }
