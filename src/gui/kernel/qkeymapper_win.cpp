@@ -17,6 +17,7 @@
 #include <qdebug.h>
 #include <private/qevent_p.h>
 #include <private/qlocale_p.h>
+#include <private/qapplication_p.h>
 #include <qwidget.h>
 #include <qapplication.h>
 
@@ -1043,9 +1044,7 @@ bool QKeyMapper::sendKeyEvent(QWidget *widget, bool grab,
                               quint32 nativeScanCode, quint32 nativeVirtualKey, quint32 nativeModifiers)
 {
     Q_UNUSED(count);
-#if 1 // ####### Enable Support stuff below
-    Q_UNUSED(grab);
-#elif defined QT3_SUPPORT && !defined(QT_NO_SHORTCUT)
+#if defined QT3_SUPPORT && !defined(QT_NO_SHORTCUT)
     if (type == QEvent::KeyPress
         && !grab
         && QApplicationPrivate::instance()->use_compat()) {
@@ -1053,7 +1052,7 @@ bool QKeyMapper::sendKeyEvent(QWidget *widget, bool grab,
         QKeyEventEx a(type, code, modifiers,
                       text, autorepeat, qMax(1, int(text.length())),
                       nativeScanCode, nativeVirtualKey, nativeModifiers);
-        if (QApplicationPrivate::instance()->qt_tryAccelEvent(this, &a))
+        if (QApplicationPrivate::instance()->qt_tryAccelEvent(widget, &a))
             return true;
     }
 #endif
