@@ -986,6 +986,8 @@ void QWidgetPrivate::determineWindowClass()
                 wclass = kSimpleWindowClass;
             } else if(wclass == kFloatingWindowClass) {
                 wclass = kToolbarWindowClass;
+            } else if (wclass  == kMovableModalWindowClass) {
+                wclass  = kModalWindowClass;
             }
         } else {
             if(wclass != kModalWindowClass)
