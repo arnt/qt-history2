@@ -470,8 +470,10 @@ void QTableView::setModel(QAbstractItemModel *model)
 void QTableView::setRootIndex(const QModelIndex &index)
 {
     Q_D(QTableView);
-    if (index == d->root)
+    if (index == d->root) {
+        viewport()->update();
         return;
+    }
     d->verticalHeader->setRootIndex(index);
     d->horizontalHeader->setRootIndex(index);
     QAbstractItemView::setRootIndex(index);
