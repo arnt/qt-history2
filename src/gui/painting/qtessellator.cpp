@@ -1128,9 +1128,6 @@ void QTessellatorPrivate::addIntersections()
         for (int i = 0; i < scanline.size - 1; ++i) {
             Edge *e1 = scanline.edges[i];
             Edge *e2 = scanline.edges[i + 1];
-            if (!e1->intersect_right && !e2->intersect_left)
-                continue;
-
             // check for intersection
             if (e1->intersect_right || e2->intersect_left)
                 addIntersection(e1, e2);
