@@ -111,7 +111,7 @@
 
     \code
         ./myserverapplication -qws -display "Multi: QVFb:0
-                QVFb:1:offset=640,0 VNC:offset=640,0 :2"
+                QVFb:1:offset=0,0 VNC:offset=640,0 :2"
     \endcode
 
     See the \l {Qtopia Core Display Management}{display management}
