@@ -15,7 +15,7 @@ contains(QT_CONFIG, system-mng) {
 !contains(QT_CONFIG, system-mng) {
         DEFINES += MNG_BUILD_SO
         DEFINES += MNG_NO_INCLUDE_JNG
-	INCLUDEPATH += ../../../3rdparty/libmng ../../../3rdparty/zlib
+	INCLUDEPATH += ../../../3rdparty/libmng
 	SOURCES  += \
             ../../../3rdparty/libmng/libmng_callback_xs.c \
             ../../../3rdparty/libmng/libmng_chunk_io.c \
@@ -36,6 +36,13 @@ contains(QT_CONFIG, system-mng) {
             ../../../3rdparty/libmng/libmng_trace.c \
             ../../../3rdparty/libmng/libmng_write.c \
             ../../../3rdparty/libmng/libmng_zlib.c
+}
+
+contains(QT_CONFIG, system-zlib) {
+        LIBS += -lz
+}
+!contains(QT_CONFIG, system-zlib) {
+        INCLUDEPATH +=  ../../../3rdparty/zlib
 }
 
 QTDIR_build:DESTDIR  = $$QT_BUILD_TREE/plugins/imageformats
