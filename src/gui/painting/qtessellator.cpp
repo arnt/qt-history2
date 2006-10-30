@@ -76,12 +76,7 @@ public:
         bool intersect_right;
         bool isLeftOf(const Edge &other, Q27Dot5 y) const;
         Q27Dot5 positionAt(Q27Dot5 y) const;
-        enum IntersectionStatus {
-            DontIntersect,
-            DoIntersect,
-            Coincide
-        };
-        IntersectionStatus intersect(const Edge &other, Q27Dot5 *x, Q27Dot5 *y) const;
+        bool intersect(const Edge &other, Q27Dot5 *y) const;
 
     };
 
@@ -240,28 +235,29 @@ static inline bool sameSign(qint64 a, qint64 b) {
     return (((qint64) ((quint64) a ^ (quint64) b)) >= 0 );
 }
 
-QTessellatorPrivate::Edge::IntersectionStatus QTessellatorPrivate::Edge::intersect(const Edge &other, Q27Dot5 *x, Q27Dot5 *y) const
+bool QTessellatorPrivate::Edge::intersect(const Edge &other, Q27Dot5 *y) const
 {
     qint64 a1 = v1->y - v0->y;
     qint64 b1 = v0->x - v1->x;
+
+    qint64 a2 = other.v1->y - other.v0->y;
+    qint64 b2 = other.v0->x - other.v1->x;
+
+    qint64 det = a1 * b2 - a2 * b1;
+    if (det == 0)
+        return false;
+    
     qint64 c1 = qint64(v1->x) * v0->y - qint64(v0->x) * v1->y;
 
     qint64 r3 = a1 * other.v0->x + b1 * other.v0->y + c1;
     qint64 r4 = a1 * other.v1->x + b1 * other.v1->y + c1;
 
-    if (r3 == 0 && r4 == 0)
-        return Coincide;
-
     // Check signs of r3 and r4.  If both point 3 and point 4 lie on
     // same side of line 1, the line segments do not intersect.
     QDEBUG() << "        " << r3 << r4;
-    if ( r3 != 0 &&
-         r4 != 0 &&
-         sameSign( r3, r4 ))
-        return ( DontIntersect );
+    if (r3 != 0 && r4 != 0 && sameSign( r3, r4 ))
+        return false;
 
-    qint64 a2 = other.v1->y - other.v0->y;
-    qint64 b2 = other.v0->x - other.v1->x;
     qint64 c2 = qint64(other.v1->x) * other.v0->y - qint64(other.v0->x) * other.v1->y;
 
     qint64 r1 = a2 * v0->x + b2 * v0->y + c2;
@@ -270,16 +266,8 @@ QTessellatorPrivate::Edge::IntersectionStatus QTessellatorPrivate::Edge::interse
     // Check signs of r1 and r2.  If both point 1 and point 2 lie
     // on same side of second line segment, the line segments do not intersect.
     QDEBUG() << "        " << r1 << r2;
-    if ( r1 != 0 &&
-         r2 != 0 &&
-         sameSign( r1, r2 ))
-        return ( DontIntersect );
-
-    // Line segments intersect: compute intersection point.
-
-    qint64 det = a1 * b2 - a2 * b1;
-    if ( det == 0 )
-        return ( DontIntersect );
+    if (r1 != 0 && r2 != 0 && sameSign( r1, r2 ))
+        return false;
 
     // The det/2 is to get rounding instead of truncating.  It
     // is added or subtracted to the numerator, depending upon the
@@ -287,13 +275,10 @@ QTessellatorPrivate::Edge::IntersectionStatus QTessellatorPrivate::Edge::interse
     qint64 offset = det < 0 ? -det : det;
     offset >>= 1;
 
-    qint64 num = b1 * c2 - b2 * c1;
-    *x = ( num < 0 ? num - offset : num + offset ) / det;
-
-    num = a2 * c1 - a1 * c2;
+    qint64 num = a2 * c1 - a1 * c2;
     *y = ( num < 0 ? num - offset : num + offset ) / det;
 
-    return ( DoIntersect );
+    return true;
 }
 
 #undef SAME_SIGNS
@@ -1031,18 +1016,14 @@ void QTessellatorPrivate::addIntersection(const Edge *e1, const Edge *e2)
     if (e2->edge == prev)
         return;
 
-    Q27Dot5 xi, yi;
-    QTessellatorPrivate::Edge::IntersectionStatus type = e1->intersect(*e2, &xi, &yi);
+    Q27Dot5 yi;
+    bool isect = e1->intersect(*e2, &yi);
     QDEBUG("checking edges %d and %d", e1->edge, e2->edge);
-    if (type == QTessellatorPrivate::Edge::DontIntersect) {
+    if (!isect) {
         QDEBUG() << "    no intersection";
         return;
     }
 
-    if (type == QTessellatorPrivate::Edge::Coincide) {
-        QDEBUG() << "    coinciding";
-        return;
-    }
     // don't emit an intersection if it's at the start of a line segment or above us
     if (yi < y) {
         QDEBUG() << "    yi < y";
@@ -1062,7 +1043,7 @@ void QTessellatorPrivate::addIntersection(const Edge *e1, const Edge *e2)
         yi = y;
     }
     QDEBUG() << "   between edges " << e1->edge << "and" << e2->edge << "at point ("
-             << Q27Dot5ToDouble(xi) << "/" << Q27Dot5ToDouble(yi) << ")";
+             << Q27Dot5ToDouble(yi) << ")";
 
     Intersection i1;
     i1.y = yi;
