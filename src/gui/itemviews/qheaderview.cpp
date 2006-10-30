@@ -1504,7 +1504,7 @@ void QHeaderView::initializeSections(int start, int end)
     int oldCount = d->sectionCount;
     d->sectionCount = end + 1;
 
-    if (!d->logicalIndices.isEmpty() && start > 0) {
+    if (!d->logicalIndices.isEmpty()) {
         d->logicalIndices.resize(d->sectionCount);
         d->visualIndices.resize(d->sectionCount);
         for (int i = start; i < d->sectionCount; ++i){

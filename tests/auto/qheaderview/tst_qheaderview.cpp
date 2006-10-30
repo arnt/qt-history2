@@ -91,6 +91,7 @@ private slots:
     void stretchSectionCount();
     void hiddenSectionCount();
     void focusPolicy();
+    void moveSectionAndReset();
 
 protected:
     QHeaderView *view;
@@ -1060,6 +1061,74 @@ void tst_QHeaderView::focusPolicy()
 
     QVERIFY(!widget.hasFocus());
     QVERIFY(!widget.header()->hasFocus());
+}
+
+class SimpleModel : public QAbstractItemModel
+{
+    Q_OBJECT
+public:
+
+    SimpleModel( QObject* parent=0)
+        : QAbstractItemModel(parent),
+        m_col_count(3) {}
+
+    QModelIndex parent(const QModelIndex &/*child*/) const
+    {
+        return QModelIndex();
+    }
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const
+    {
+        return hasIndex(row, column, parent) ? createIndex(row, column, 0) : QModelIndex();
+    }
+    int rowCount(const QModelIndex & /* parent */) const
+    {
+        return 8;
+    }
+    int columnCount(const QModelIndex &/*parent= QModelIndex()*/) const
+    {
+        return m_col_count;
+    }
+
+    QVariant data(const QModelIndex &index, int role) const
+    {
+        if (!index.isValid())
+        {
+            return QVariant();
+        }
+        if (role == Qt::DisplayRole) {
+            return QString::fromAscii("%1,%2").arg(index.row()).arg(index.column());
+        }
+        return QVariant();
+    }
+
+    void setColumnCount( int c )
+    {
+        m_col_count = c;
+    }
+
+private:
+    int m_col_count;
+};
+
+void tst_QHeaderView::moveSectionAndReset()
+{
+    SimpleModel m;
+    QHeaderView v(Qt::Horizontal);
+    v.setModel(&m);
+    int cc = 2;
+    for (cc = 2; cc < 4; ++cc) {
+        m.setColumnCount(cc);
+        int movefrom = 0;
+        int moveto;
+        for (moveto = 1; moveto < cc; ++moveto) {
+            v.moveSection(movefrom, moveto);
+            m.setColumnCount(cc - 1);
+            v.reset();
+            for (int i = 0; i < cc - 1; ++i) {
+                QCOMPARE(v.logicalIndex(v.visualIndex(i)), i);
+            }
+        }
+    }
 }
 
 QTEST_MAIN(tst_QHeaderView)
