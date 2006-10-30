@@ -1916,6 +1916,9 @@ void QDockWidgetLayout::saveState(QDataStream &stream) const
     }
 
     stream << centralWidgetRect.size();
+
+    for (int i = 0; i < 4; ++i)
+        stream << static_cast<int>(corners[i]);
 }
 
 bool QDockWidgetLayout::restoreState(QDataStream &stream, const QList<QDockWidget*> &dockwidgets)
@@ -1942,7 +1945,19 @@ bool QDockWidgetLayout::restoreState(QDataStream &stream, const QList<QDockWidge
     stream >> size;
     centralWidgetRect = QRect(QPoint(0, 0), size);
 
-    return stream.status() == QDataStream::Ok;
+    bool ok = stream.status() == QDataStream::Ok;
+
+    if (ok) {
+        int cornerData[4];
+        for (int i = 0; i < 4; ++i)
+            stream >> cornerData[i];
+        if (stream.status() == QDataStream::Ok) {
+            for (int i = 0; i < 4; ++i)
+                corners[i] = static_cast<Qt::DockWidgetArea>(cornerData[i]);
+        }
+    }
+
+    return ok;
 }
 
 QList<int> QDockWidgetLayout::indexOf(QDockWidget *dockWidget, IndexOfFlag flag) const
