@@ -2414,7 +2414,7 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
             QPainter p(&d->backgroundPixmap);
             p.fillRect(0, 0, d->backgroundPixmap.width(), d->backgroundPixmap.height(),
                        viewport()->palette().brush(viewport()->backgroundRole()));
-            d->backgroundPixmapExposed = QRegion(event->rect());
+            d->backgroundPixmapExposed = QRegion(viewport()->rect());
             d->mustResizeBackgroundPixmap = false;
         }
 
