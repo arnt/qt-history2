@@ -50,6 +50,7 @@
 
 #include <QtGui/QDesktopWidget>
 #include <QtCore/QMetaObject>
+#include <QtGui/QStatusBar>
 
 QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     : QObject(workbench),
@@ -155,8 +156,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 
     m_quitAction = new QAction(tr("&Quit"), this);
     m_quitAction->setShortcut(tr("CTRL+Q"));
-    connect(m_quitAction, SIGNAL(triggered()),
-            this, SLOT(shutdown()));
+    connect(m_quitAction, SIGNAL(triggered()), this, SLOT(shutdown()));
     m_fileActions->addAction(m_quitAction);
 
 //
@@ -586,8 +586,10 @@ bool QDesignerActions::saveFormAs(QDesignerFormWindowInterface *fw)
 
 void QDesignerActions::saveForm()
 {
-    if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow())
-        saveForm(fw);
+    if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow()) {
+        if (saveForm(fw))
+            showStatusBarMessage(tr("Form %1 successful saved...").arg(fw->fileName()));
+    }
 }
 
 void QDesignerActions::saveAllForms()
@@ -604,6 +606,11 @@ void QDesignerActions::saveAllForms()
             else
                 break;
         }
+    }
+
+    if (!fileNames.isEmpty()) {
+        fileNames.resize(fileNames.length() -2);
+        showStatusBarMessage(tr("Form %1 successful saved...").arg(fileNames));
     }
 }
 
@@ -625,8 +632,11 @@ void QDesignerActions::closeForm()
 
 void QDesignerActions::saveFormAs()
 {
-    if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow())
-        saveFormAs(fw);
+    if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow()) {
+        if (saveFormAs(fw))
+            showStatusBarMessage(tr("Form %1 successful saved...").arg(fw->fileName()));
+
+    }
 }
 
 void QDesignerActions::saveFormAsTemplate()
@@ -1323,4 +1333,13 @@ QRect QDesignerActions::fixDialogRect(const QRect &rect) const
     dlgRect.moveTop(qMax(dlgRect.top(), availableGeometry.top()));
 
     return dlgRect;
+}
+
+void QDesignerActions::showStatusBarMessage(const QString &message) const
+{
+    if (workbench()->mode() == QDesignerWorkbench::DockedMode) {
+        QStatusBar *bar = qDesigner->mainWindow()->statusBar();
+        if (bar && !bar->isHidden())
+            bar->showMessage(message, 3000);
+    }
 }

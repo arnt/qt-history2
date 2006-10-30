@@ -158,6 +158,7 @@ private:
     QRect fixDialogRect(const QRect &rect) const;
     void showNewFormDialog(const QString &fileName) const;
     QString fixResourceFileBackupPath(QDesignerFormWindowInterface *fwi, const QDir& backupDir);
+    void showStatusBarMessage(const QString &message) const;
 
 private:
     enum { MaxRecentFiles = 10 };
