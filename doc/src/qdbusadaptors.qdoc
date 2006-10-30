@@ -14,47 +14,54 @@
     \page usingadaptors.html
     \title Using QtDBus Adaptors
 
-    Adaptors are special classes that are attached to any QObject-derived class and provide the
-    interface to the external world using D-BUS. Adaptors are intended to be light-weight classes
-    whose main purpose is to relay calls to and from the real object, possibly validating or
-    converting the input from the external world and, thus, protecting the real object.
+    Adaptors are special classes that are attached to any QObject-derived class
+    and provide the interface to the external world using D-BUS. Adaptors are
+    intended to be lightweight classes whose main purpose is to relay calls to
+    and from the real object, possibly validating or converting the input from
+    the external world and, thus, protecting the real object.
 
-    Unlike multiple inheritance, adaptors can be added at any time to any object (but not removed),
-    which allows for greater flexibility when exporting existing classes. Another advantage of
-    adaptors is to provide similar but not identical functionality in methods of the same name in
-    different interfaces, a case which can be quite common when adding a new version of a standard
+    Unlike multiple inheritance, adaptors can be added at any time to any object
+    (but not removed), which allows for greater flexibility when exporting
+    existing classes. Another advantage of adaptors is to provide similar but not
+    identical functionality in methods of the same name in different interfaces,
+    a case which can be quite common when adding a new version of a standard
     interface to an object.
 
-    In order to use an adaptor, one must create a class which inherits QDBusAbstractAdaptor. Since
-    that is a standard QObject-derived class, the Q_OBJECT macro must appear in the declaration and
-    the source file must be processed with the \l {moc} tool. The class must also contain
-    one or more Q_CLASSINFO entries with the \c {"D-Bus Interface"} name, declaring which interfaces
-    it is exporting.
+    In order to use an adaptor, one must create a class which inherits
+    QDBusAbstractAdaptor. Since that is a standard QObject-derived class, the
+    Q_OBJECT macro must appear in the declaration and the source file must be
+    processed with the \l {moc} tool. The class must also contain one or more
+    Q_CLASSINFO entries with the \c {"D-Bus Interface"} name, declaring which
+    interfaces it is exporting.
 
-    Any public slot in the class will be accessible through the bus over messages of the MethodCall
-    type. (See \l {qdbusdeclaringslots.html}{the section on declaring slots} for more
-    information). Signals in the class will be automatically relayed over D-BUS. However, not all
-    types are allowed signals or slots' parameter lists: see \l {qdbustypesystem.html}{the section
-    on the QtDBus type system} for more information.
+    Any public slot in the class will be accessible through the bus over messages
+    of the MethodCall type. (See \l {Declaring Slots in D-BUS Adaptors} for more
+    information). Signals in the class will be automatically relayed over D-BUS.
+    However, not all types are allowed signals or slots' parameter lists: see
+    \l {The QtDBus Type System} for more information.
 
-    Also, any property declared with Q_PROPERTY will be automatically exposed over the Properties
-    interface on D-BUS. Since the QObject property system does not allow for non-readable
-    properties, it is not possible to declare write-only properties using adaptors.
+    Also, any property declared with Q_PROPERTY will be automatically exposed
+    over the Properties interface on D-BUS. Since the QObject property system
+    does not allow for non-readable properties, it is not possible to declare
+    write-only properties using adaptors.
 
     More information:
     \list
-      \o \l {qdbusdeclaringslots.html}{Declaring slots}
-      \o \l {qdbusdeclaringsignals.html}{Declaring signals}
-      \o \l {qdbustypesystem.html}{The QtDBus type system}
-      \o \l {adaptorexample.html}{An example of adaptors}
+      \o \l{Declaring Slots in D-BUS Adaptors}
+      \o \l{Declaring Signals in D-BUS Adaptors}
+      \o \l{The QtDBus Type System}
+      \o \l{D-BUS Adaptor Example}
     \endlist
 
     \sa QDBusAbstractAdaptor
 */
 
 /*!
-    \page adaptorexample.html
-    \title Example of an interface implemented with an adaptor
+    \page qdbusadaptorexample.html
+    \title D-BUS Adaptor Example
+
+    The following example code shows how a D-BUS interface can be implemented
+    using an adaptor.
 
     A sample usage of QDBusAbstractAdaptor is as follows:
     \code
@@ -176,11 +183,11 @@
 
             // add main window, etc.
             [...]
-            
+
             app.exec();
         }
     \endcode
-            
+
     Break-down analysis:
     \tableofcontents
 
@@ -358,13 +365,14 @@
 
 /*!
     \page qdbusdeclaringslots.html
-    \title Declaring slots
+    \title Declaring Slots in D-BUS Adaptors
 
-    Slots in D-BUS adaptors are declared just like normal, public slots, but their parameters must
-    follow certain rules (see \l {qdbustypesystem.html} for more information). Slots whose
-    parameters do not follow those rules or that are not public will not be accessible via D-BUS.
+    Slots in D-BUS adaptors are declared just like normal, public slots, but their
+    parameters must follow certain rules (see \l{The QtDBus Type System} for more
+    information). Slots whose parameters do not follow those rules or that are not
+    public will not be accessible via D-BUS.
 
-    Slots can have one parameter of type \c {const QDBusMessage &}, which must
+    Slots can have one parameter of type \c{const QDBusMessage &}, which must
     appear at the end of the input parameter list, before any output parameters.
     This parameter, if present, will be initialized with a copy of the
     current message being processed, which allows the callee to obtain
@@ -377,62 +385,69 @@
       \o Input-and-output
     \endlist
 
-    \section1 Asynchronous slots
-         Asynchronous slots are those that do not normally return any reply to the caller. For that
-         reason, they cannot take any output parameters. In most cases, by the time the first line
-         of the slot is run, the caller function has already resumed working.
+    \section1 Asynchronous Slots
+    Asynchronous slots are those that do not normally return any reply to the
+    caller. For that reason, they cannot take any output parameters. In most
+    cases, by the time the first line of the slot is run, the caller function
+    has already resumed working.
 
-         However, slots must rely on that behavior. Scheduling and message-dispatching issues could
-         change the order in which the slot is run. Code intending to synchronize with the caller
-         should provide its own method of synchronization.
+    However, slots must rely on that behavior. Scheduling and message-dispatching
+    issues could change the order in which the slot is run. Code intending to
+    synchronize with the caller should provide its own method of synchronization.
 
-         Asynchronous slots are marked by the keyword \c \l Q_ASYNC in the method
-         signature, before the \c void return type and the slot name. (See the \c quit slot in the
-         \l {adaptorexample.html}{adaptor example}).
+    Asynchronous slots are marked by the keyword \l Q_ASYNC in the method
+    signature, before the \c void return type and the slot name. (See the
+    \c quit() slot in the \l{D-BUS Adaptor Example}).
 
-    \section1 Input-only slots
-         Input-only slots are normal slots that take parameters passed by value or by constant
-         reference. However, unlike asynchronous slots, the caller is usually waiting for completion
-         of the callee before resuming operation. Therefore, non-asynchronous slots should not block
-         or should state it its documentation that they may do so.
+    \section1 Input-Only Slots
 
-         Input-only slots have no special marking in their signature, except that they take only
-         parameters passed by value or by constant reference. Optionally, slots can take a
-         QDBusMessage parameter as a last parameter, which can be used to perform additional
-         analysis of the method call message.
+    Input-only slots are normal slots that take parameters passed by value or
+    by constant reference. However, unlike asynchronous slots, the caller is
+    usually waiting for completion of the callee before resuming operation.
+    Therefore, non-asynchronous slots should not block or should state it its
+    documentation that they may do so.
 
-    \section1 Input and output slots
-         Like input-only slots, input-and-output slots are those that the caller is waiting for a
-         reply. Unlike input-only ones, though, this reply will contain data. Slots that output data
-         may contain non-constant references and may return a value as well. However, the output
-         parameters must all appear at the end of the argument list and may not have input arguments
-         interleaved. Optionally, a QDBusMessage argument may appear between the input and the
-         output arguments.
+    Input-only slots have no special marking in their signature, except that
+    they take only parameters passed by value or by constant reference.
+    Optionally, slots can take a QDBusMessage parameter as a last parameter,
+    which can be used to perform additional analysis of the method call message.
 
-    \section1 Automatic replies
+    \section1 Input and Output Slots
 
-    Method replies are generated automatically with the contents of the output parameters (if there
-    were any) by the QtDBus implementation. Slots need not worry about constructing proper
-    QDBusMessage objects and sending them over the connection.
+    Like input-only slots, input-and-output slots are those that the caller is
+    waiting for a reply. Unlike input-only ones, though, this reply will contain
+    data. Slots that output data may contain non-constant references and may
+    return a value as well. However, the output parameters must all appear at
+    the end of the argument list and may not have input arguments interleaved.
+    Optionally, a QDBusMessage argument may appear between the input and the
+    output arguments.
 
-    However, the possibility of doing so remains there. Should the slot find out it needs to send a
-    special reply or even an error, it can do so by using QDBusMessage::methodReply or
-    QDBusMessage::error on the QDBusMessage parameter and send it with QDBusConnection::send. The
+    \section1 Automatic Replies
+
+    Method replies are generated automatically with the contents of the output
+    parameters (if there were any) by the QtDBus implementation. Slots need not
+    worry about constructing proper QDBusMessage objects and sending them over
+    the connection.
+
+    However, the possibility of doing so remains there. Should the slot find out
+    it needs to send a special reply or even an error, it can do so by using
+    QDBusMessage::createReply() or QDBusMessage::createErrorReply() on the
+    QDBusMessage parameter and send it with QDBusConnection::send(). The
     QtDBus implementation will not generate any reply if the slot did so.
 
-    \warning When a caller places a method call and waits for a reply, it will only wait for so long.
-             Slots intending to take a long time to complete should make that fact clear in
-             documentation so that callers properly set higher timeouts.
+    \warning When a caller places a method call and waits for a reply, it will
+    only wait for a limited amount of time. Slots intending to take a long time
+    to complete should make that fact clear in documentation so that callers
+    properly set higher timeouts.
 
     \section1 Delayed Replies
 
     In some circumstances, the called slot may not be able to process
     the request immediately. This is frequently the case when the
-    request involves an I/O or networking operation which may be
-    blocking.
+    request involves an I/O or networking operation which may block.
 
     If this is the case, the slot should return control to the
-    application's main loop to avoid freezing the user interface and
+    application's main loop to avoid freezing the user interface, and
     resume the process later. To accomplish this, it should make use
     of the extra \c QDBusMessage parameter at the end of the input
     parameter list and request a delayed reply.
@@ -451,16 +466,18 @@
         {
             RequestData *data = new RequestData;
             data->request = request;
-            data->reply = QDBusMessage::methodReply(message);
+            message.setDelayedReply(true);
+            data->reply = message.createReply();
+            QDBusConnection::sessionBus().send(reply);
 
             appendRequest(data);
             return QString();    // value returned here will be ignored
         }
     \endcode
 
-    When the request is processed and a reply is available, it should be send using
-    the \c QDBusMessage object that was obtained. In our example, the reply code
-    could be something as follows:
+    When the request is processed and a reply is available, it should be sent
+    using the \c QDBusMessage object that was obtained. In our example, the
+    reply code could be something as follows:
 
     \code
         void sendReply(RequestData *data)
@@ -488,40 +505,43 @@
     resposibility of the called code to eventually send a reply to the
     caller.
 
-    \warning When a caller places a method call and waits for a reply, it will only wait for so long.
-             Slots intending to take a long time to complete should make that fact clear in
-             documentation so that callers properly set higher timeouts.
+    \warning When a caller places a method call and waits for a reply, it will
+    only wait for a limited amount of time. Slots intending to take a long time
+    to complete should make that fact clear in documentation so that callers
+    properly set higher timeouts.
 
-    \sa {usingadaptors.html}{Using adaptors},
-        {qdbusdeclaringsignals.html}{Declaring signals},
-        {qdbustypesystem.html}{The QtDBus type system}, QDBusConnection, QDBusMessage
+    \sa {Using QtDBus Adaptors}, {Declaring Signals in D-BUS Adaptors},
+        {The QtDBus Type System}, QDBusConnection, QDBusMessage
 */
 
 /*!
     \page qdbusdeclaringsignals.html
-    \title Declaring signals
+    \title Declaring Signals in D-BUS Adaptors
 
-    Any signal in a class derived from QDBusAbstractAdaptor will be automatically relayed into
-    D-BUS, provided that the signal's parameters conform to certain rules (see \l
-    {qdbustypesystem.html} for more information). No special code is necessary to make this relay.
+    Any signal in a class derived from QDBusAbstractAdaptor will be automatically
+    relayed into D-BUS, provided that the signal's parameters conform to certain
+    rules (see \l{The QtDBus Type System} for more information). No special code
+    is necessary to make this relay.
 
-    However, signals must still be emitted. The easiest way to emit an adaptor signal is to connect
-    another signal to it, so that the Qt signal/slot mechanism automatically emits the adaptor
-    signal too. This can be done in the adaptor's constructor, as has been done in the \l
-    {adaptorexample.html}{adaptor example}.
+    However, signals must still be emitted. The easiest way to emit an adaptor
+    signal is to connect another signal to it, so that Qt's signals and slots
+    mechanism automatically emits the adaptor signal, too. This can be done in
+    the adaptor's constructor, as has been done in the
+    \l{D-BUS Adaptor Example}{D-BUS Adaptor example}.
 
-    The convenience function QDBusAbstractAdaptor::setAutoRelaySignals can also be used to connect
-    or disconnect every signal in the real object to the same signal in the adaptor. It will inspect
-    the list of signals in both classes and connect those that have exact parameter match.
+    The QDBusAbstractAdaptor::setAutoRelaySignals() convenience function can also
+    be used to make and break connections between signals in the real object and
+    the corresponding signals in the adaptor. It will inspect the list of signals
+    in both classes and connect those whose parameters match exactly.
 
-    \sa {usingadaptors.html}{Using adaptors},
-        {qdbusdeclaringslots.html}{Declaring slots},
-        {qdbustypesystem.html}{The QtDBus type system}, QDBusAbstractAdaptor
+    \sa {Using QtDBus Adaptors},
+        {Declaring Slots in D-BUS Adaptors},
+        {The QtDBus Type System}, QDBusAbstractAdaptor
 */
 
 /*!
     \page qdbustypesystem.html
-    \title The QtDBus type system
+    \title The QtDBus Type System
 
     D-BUS has an extensible type system based on a few primitives and
     composition of the primitives in arrays and structures. QtDBus
@@ -529,12 +549,12 @@
     QDBusArgument class, allowing user programs to send and receive
     practically every C++ type over the bus.
 
-    \section1 Primitive types
+    \section1 Primitive Types
 
     The primitive types are supported natively by QDBusArgument and
     need no special customization to be sent or received. They are
     listed below, along with the C++ class they relate to:
-    
+
     \table
       \header
         \o Qt type
@@ -584,7 +604,7 @@
     non-primitive types natively, due to their widespread use in Qt
     applications: QStringList and QByteArray.
 
-    \section1 Compound types
+    \section1 Compound Types
 
     D-BUS specifies three types of aggregations of primitive types
     that allow one to create compound types. They are \c ARRAY, \c
@@ -595,33 +615,32 @@
     type. Maps or dictionaries are implemented as arrays of a pair of
     elements, so there can be zero or more elements in one map.
 
-    \section1 Extending the type system
+    \section1 Extending the Type System
 
     In order to use one's own type with QtDBus, the type has to be
-    declared as a Qt Meta Type with the Q_DECLARE_METATYPE() macro and
-    then registered with the qDBusRegisterMetaType() function. The
+    declared as a Qt meta-type with the Q_DECLARE_METATYPE() macro and
+    registered with the qDBusRegisterMetaType() function. The
     streaming operators \c{operator>>} and \c{operator<<} will be
     automatically found by the registration system.
-    
+
     QtDBus provides template specializations for arrays and maps for
-    use with Qt's \l {containers.html}{Container classes}, such as
+    use with Qt's \l{Container classes}{container classes}, such as
     QMap and QList, so it is not necessary to write the streaming
-    operator functions for those. For other types and specially for
-    types implementing structures, however, the operators have to be
-    explicitly implemented.
+    operator functions for those. For other types, and specially for
+    types implementing structures, the operators have to be explicitly
+    implemented.
 
     See the documentation for QDBusArgument for examples for
     structures, arrays and maps.
 
-    \section1 Type system in use
+    \section1 The Type System in Use
 
     All of the QtDBus types (primitives and user-defined alike) can be
     used to send and receive messages of all types over the bus.
 
-    
-
-    \warning You may not use any type that is not on the list above, including \a typedefs to the
-    types listed. This also includes QList<QVariant> and QMap<QString,QVariant>.
+    \warning You may not use any type that is not on the list above,
+    including \a typedefs to the types listed. This also includes
+    QList<QVariant> and QMap<QString,QVariant>.
 */
 
 /*!
