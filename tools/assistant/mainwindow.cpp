@@ -326,9 +326,14 @@ QString MainWindow::urlifyFileName(const QString &fileName)
 {
     QString name = fileName;
     QUrl url(name);
+
 #if defined(Q_OS_WIN32)
     if (!url.isValid() || url.scheme().isEmpty() || url.scheme().toLower() != "file:") {
+        int i = name.indexOf('#');
+        QString anchor = name.mid(i);
         name = name.toLower();
+        if (i > -1)
+            name.replace(i, anchor.length(), anchor);
         name.replace('\\', '/');
         foreach (QFileInfo drive, QDir::drives()) {
             if (name.startsWith(drive.absolutePath().toLower())) {
