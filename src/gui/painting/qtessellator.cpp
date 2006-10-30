@@ -81,7 +81,7 @@ public:
             DoIntersect,
             Coincide
         };
-        IntersectionStatus intersect(const Edge &other, Q27Dot5 *x, Q27Dot5 *y, qint64 *det = 0) const;
+        IntersectionStatus intersect(const Edge &other, Q27Dot5 *x, Q27Dot5 *y) const;
 
     };
 
@@ -240,7 +240,7 @@ static inline bool sameSign(qint64 a, qint64 b) {
     return (((qint64) ((quint64) a ^ (quint64) b)) >= 0 );
 }
 
-QTessellatorPrivate::Edge::IntersectionStatus QTessellatorPrivate::Edge::intersect(const Edge &other, Q27Dot5 *x, Q27Dot5 *y, qint64 *d) const
+QTessellatorPrivate::Edge::IntersectionStatus QTessellatorPrivate::Edge::intersect(const Edge &other, Q27Dot5 *x, Q27Dot5 *y) const
 {
     qint64 a1 = v1->y - v0->y;
     qint64 b1 = v0->x - v1->x;
@@ -278,8 +278,6 @@ QTessellatorPrivate::Edge::IntersectionStatus QTessellatorPrivate::Edge::interse
     // Line segments intersect: compute intersection point.
 
     qint64 det = a1 * b2 - a2 * b1;
-    if (d)
-        *d = det;
     if ( det == 0 )
         return ( DontIntersect );
 
@@ -1034,9 +1032,8 @@ void QTessellatorPrivate::addIntersection(const Edge *e1, const Edge *e2)
         return;
 
     Q27Dot5 xi, yi;
-    qint64 det;
-    QTessellatorPrivate::Edge::IntersectionStatus type = e1->intersect(*e2, &xi, &yi, &det);
-    QDEBUG("checking edges %d and %d,det=%lld", e1->edge, e2->edge, det);
+    QTessellatorPrivate::Edge::IntersectionStatus type = e1->intersect(*e2, &xi, &yi);
+    QDEBUG("checking edges %d and %d", e1->edge, e2->edge);
     if (type == QTessellatorPrivate::Edge::DontIntersect) {
         QDEBUG() << "    no intersection";
         return;
