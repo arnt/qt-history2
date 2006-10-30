@@ -1904,12 +1904,12 @@ void QDockWidgetLayout::saveState(QDataStream &stream) const
     stream << (uchar) DockWidgetStateMarker;
     int cnt = 0;
     for (int i = 0; i < PosCount; ++i) {
-        if (!docks[i].isEmpty())
+        if (!docks[i].item_list.isEmpty())
             ++cnt;
     }
     stream << cnt;
     for (int i = 0; i < PosCount; ++i) {
-        if (docks[i].isEmpty())
+        if (docks[i].item_list.isEmpty())
             continue;
         stream << i << docks[i].rect.size();
         docks[i].saveState(stream);
