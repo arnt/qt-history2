@@ -668,7 +668,7 @@ void QTableView::paintEvent(QPaintEvent *event)
             uint verticalOffset = verticalHeader->offset();
             int row = verticalHeader->logicalIndex(top);
             for (int y = 0;
-                 ((y += verticalHeader->sectionSize(top)) <= verticalOffset) && (top < bottom);
+                 ((uint)(y += verticalHeader->sectionSize(top)) <= verticalOffset) && (top < bottom);
                  ++top) {
                 row = verticalHeader->logicalIndex(top);
                 if (alternate && !verticalHeader->isSectionHidden(row))
@@ -750,8 +750,8 @@ void QTableView::paintEvent(QPaintEvent *event)
                                             ? QPalette::Normal : QPalette::Disabled);
 
         // Fill white space under and to the right of the viewport
-        int viewportWidth = d->viewport->width();
-        int viewportHeight = d->viewport->height();
+        uint viewportWidth = d->viewport->width();
+        uint viewportHeight = d->viewport->height();
         uint x = horizontalHeader->length() - horizontalHeader->offset();
         uint y = verticalHeader->length() - verticalHeader->offset();
         QRect bottomEmptyArea(0, y, viewportWidth, viewportHeight - y);
@@ -1264,7 +1264,7 @@ void QTableView::updateGeometries()
     QSize max = maximumViewportSize();
     uint horizontalLength = d->horizontalHeader->length();
     uint verticalLength = d->verticalHeader->length();
-    if (max.width() >= horizontalLength && max.height() >= verticalLength)
+    if ((uint)max.width() >= horizontalLength && (uint)max.height() >= verticalLength)
         vsize = max;
 
     // horizontal scrollbar
