@@ -1359,6 +1359,7 @@ void QMacStyle::polish(QPalette &pal)
 {
     QPixmap px(200, 200);
     QColor pc(Qt::black);
+#if !__LP64__
     {
 #ifndef QT_MAC_NO_QUICKDRAW
         QMacSavedPortInfo port(&px);
@@ -1370,6 +1371,15 @@ void QMacStyle::polish(QPalette &pal)
         pc = QColor(c.red / 256, c.green / 256, c.blue / 256);
 #endif
     }
+#else
+    {
+        // Use the new stuff from 10.4.
+        QPainter painter(&px);
+        QMacCGContext cg(&painter);
+        HIThemeSetFill(kThemeBrushDialogBackgroundActive, 0, cg, kHIThemeOrientationNormal);
+        CGContextFillRect(cg, CGRectMake(0, 0, 200, 200));
+    }
+#endif
     QBrush background(pc, px);
     pal.setBrush(QPalette::All, QPalette::Window, background);
     pal.setBrush(QPalette::All, QPalette::Button, background);
