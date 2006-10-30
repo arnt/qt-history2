@@ -148,8 +148,8 @@ private:
 #define QSLOT_CODE        1
 #define QSIGNAL_CODE        2
 
-#define Q_ARG(type, data) QArgument<type>(#type, data)
-#define Q_RETURN_ARG(type, data) QReturnArgument<type>(#type, data)
+#define Q_ARG(type, data) QArgument<type >(#type, data)
+#define Q_RETURN_ARG(type, data) QReturnArgument<type >(#type, data)
 
 class QObject;
 class QMetaMethod;
