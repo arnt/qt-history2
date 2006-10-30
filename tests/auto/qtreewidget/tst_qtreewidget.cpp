@@ -80,6 +80,9 @@ private slots:
     void changeDataWithSorting_data();
     void changeDataWithSorting();
 
+    void sortedIndexOfChild_data();
+    void sortedIndexOfChild();
+    
     // QTreeWidgetItem
     void itemOperatorLessThan();
     void addChild();
@@ -2135,19 +2138,6 @@ void tst_QTreeWidget::itemOperatorLessThan()
 {
     QTreeWidget tw;
     tw.setColumnCount(2);
-#if QT_VERSION >= 0x040200 // crashes below 4.2
-    {
-        QTreeWidgetItem item1(0);
-        QTreeWidgetItem item2(0);
-        QCOMPARE(item1 < item2, false);
-        item1.setText(1, "a");
-        item2.setText(1, "b");
-        QCOMPARE(item1 < item2, false);
-        item1.setText(0, "a");
-        item2.setText(0, "b");
-        QCOMPARE(item1 < item2, true);
-    }
-#endif
     {
         QTreeWidgetItem item1(&tw);
         QTreeWidgetItem item2(&tw);
@@ -2164,6 +2154,46 @@ void tst_QTreeWidget::itemOperatorLessThan()
         QCOMPARE(item1 < item2, true);
     }
 }
+
+void tst_QTreeWidget::sortedIndexOfChild_data()
+{
+    QTest::addColumn<int>("sortOrder");
+    QTest::addColumn<QStringList>("itemTexts");
+    QTest::addColumn<QList<int> >("expectedIndexes");
+
+    QTest::newRow("three ascending")
+        << int(Qt::AscendingOrder)
+        << (QStringList() << "A" << "B" << "C")
+        << (QList<int>() << 0 << 1 << 2);
+
+    
+    QTest::newRow("three descending")
+        << int(Qt::DescendingOrder)
+        << (QStringList() << "A" << "B" << "C")
+        << (QList<int>() << 2 << 1 << 0);
+}
+
+void tst_QTreeWidget::sortedIndexOfChild()
+{
+    QFETCH(int, sortOrder);
+    QFETCH(QStringList, itemTexts);
+    QFETCH(QList<int>, expectedIndexes);
+
+    QTreeWidget tw;
+    QList<QTreeWidgetItem*> itms;
+    QTreeWidgetItem *top = new QTreeWidgetItem(&tw, QStringList() << "top");
+
+    for (int i = 0; i < itemTexts.count(); ++i)
+        itms << new QTreeWidgetItem(top, QStringList() << itemTexts.at(i));
+
+    tw.sortItems(0, (Qt::SortOrder)sortOrder);
+    tw.expandAll();
+
+    QVERIFY(itms.count() == expectedIndexes.count());
+    for (int j = 0; j < expectedIndexes.count(); ++j)
+        QCOMPARE(top->indexOfChild(itms.at(j)), expectedIndexes.at(j));
+}
+
 
 QTEST_MAIN(tst_QTreeWidget)
 #include "tst_qtreewidget.moc"
