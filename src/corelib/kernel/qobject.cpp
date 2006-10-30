@@ -1845,7 +1845,7 @@ void QObjectPrivate::setParent_helper(QObject *o)
     if (parent) {
         // object hierarchies are constrained to a single thread
         if (threadData != parent->d_func()->threadData) {
-            qWarning("QObject::setParent: New parent must be in the same thread as the previous parent");
+            qWarning("QObject::setParent: Cannot set parent, new parent is in a different thread");
             parent = 0;
             return;
         }
