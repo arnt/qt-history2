@@ -76,7 +76,7 @@ public:
         bool intersect_right;
         bool isLeftOf(const Edge &other, Q27Dot5 y) const;
         Q27Dot5 positionAt(Q27Dot5 y) const;
-        bool intersect(const Edge &other, Q27Dot5 *y) const;
+        bool intersect(const Edge &other, Q27Dot5 *y, bool *det_positive) const;
 
     };
 
@@ -235,7 +235,7 @@ static inline bool sameSign(qint64 a, qint64 b) {
     return (((qint64) ((quint64) a ^ (quint64) b)) >= 0 );
 }
 
-bool QTessellatorPrivate::Edge::intersect(const Edge &other, Q27Dot5 *y) const
+bool QTessellatorPrivate::Edge::intersect(const Edge &other, Q27Dot5 *y, bool *det_positive) const
 {
     qint64 a1 = v1->y - v0->y;
     qint64 b1 = v0->x - v1->x;
@@ -278,6 +278,8 @@ bool QTessellatorPrivate::Edge::intersect(const Edge &other, Q27Dot5 *y) const
     qint64 num = a2 * c1 - a1 * c2;
     *y = ( num < 0 ? num - offset : num + offset ) / det;
 
+    *det_positive = (det > 0);
+
     return true;
 }
 
@@ -314,14 +316,7 @@ bool QTessellatorPrivate::Edge::isLeftOf(const Edge &other, Q27Dot5 y) const
     qint64 yi = ( num < 0 ? num - offset : num + offset ) / det;
 //     QDEBUG() << "    num=" << num << "offset=" << offset << "det=" << det;
 
-    if (yi > y) {
-        // intersection point below, we are to the left if the
-        // determinant is greater than 0
-//         QDEBUG() << "intersection point below" << yi << det;
-        return (det > 0);
-    }
-//     QDEBUG() << "intersection point above or same" << yi << det;
-    return (det < 0);
+    return ((yi > y) ^ (det < 0));
 }
 
 static inline bool compareVertex(const QTessellatorPrivate::Vertex *p1,
@@ -1017,7 +1012,8 @@ void QTessellatorPrivate::addIntersection(const Edge *e1, const Edge *e2)
         return;
 
     Q27Dot5 yi;
-    bool isect = e1->intersect(*e2, &yi);
+    bool det_positive;
+    bool isect = e1->intersect(*e2, &yi, &det_positive);
     QDEBUG("checking edges %d and %d", e1->edge, e2->edge);
     if (!isect) {
         QDEBUG() << "    no intersection";
@@ -1025,21 +1021,10 @@ void QTessellatorPrivate::addIntersection(const Edge *e1, const Edge *e2)
     }
 
     // don't emit an intersection if it's at the start of a line segment or above us
-    if (yi < y) {
-        QDEBUG() << "    yi < y";
-        QTessellatorPrivate::EdgeSorter sorter(y);
-        if (sorter(e1, e2))
+    if (yi <= y) {
+        if (!det_positive)
             return;
         QDEBUG() << "        ----->>>>>> WRONG ORDER!";
-        yi = y;
-    }
-    if (yi == y) {
-        // PERF: avoid the EdgeSorter as it calls Edge::intersect again.
-        // only add if the edges are not already in correct order
-        QTessellatorPrivate::EdgeSorter sorter(y);
-        //QDEBUG() << "yi == y" << e1->isLeftOf(*e2, y) << e1->positionAt(y) << e2->positionAt(y) << sorter(e1, e2);
-        if (sorter(e1, e2))
-            return;
         yi = y;
     }
     QDEBUG() << "   between edges " << e1->edge << "and" << e2->edge << "at point ("
