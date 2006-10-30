@@ -131,6 +131,11 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     connect(m_saveFormAsAction, SIGNAL(triggered()), this, SLOT(saveFormAs()));
     m_fileActions->addAction(m_saveFormAsAction);
 
+    m_saveAllFormsAction = new QAction(tr("Save A&ll Forms"), this);
+    m_saveAllFormsAction->setShortcut(tr("CTRL+SHIFT+S"));
+    connect(m_saveAllFormsAction, SIGNAL(triggered()), this, SLOT(saveAllForms()));
+    m_fileActions->addAction(m_saveAllFormsAction);
+
     m_saveFormAsTemplateAction = new QAction(tr("Save Form As &Template..."), this);
     connect(m_saveFormAsTemplateAction, SIGNAL(triggered()), this, SLOT(saveFormAsTemplate()));
     m_fileActions->addAction(m_saveFormAsTemplateAction);
@@ -409,6 +414,9 @@ QAction *QDesignerActions::saveFormAction() const
 QAction *QDesignerActions::saveFormAsAction() const
 { return m_saveFormAsAction; }
 
+QAction *QDesignerActions::saveAllFormsAction() const
+{ return m_saveAllFormsAction; }
+
 QAction *QDesignerActions::saveFormAsTemplateAction() const
 { return m_saveFormAsTemplateAction; }
 
@@ -580,6 +588,23 @@ void QDesignerActions::saveForm()
 {
     if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow())
         saveForm(fw);
+}
+
+void QDesignerActions::saveAllForms()
+{
+    QString fileNames;
+    QDesignerFormWindowManagerInterface *formWindowManager = core()->formWindowManager();
+    const int totalWindows = formWindowManager->formWindowCount();
+    for (int i = 0; i < totalWindows; ++i) {
+        QDesignerFormWindowInterface *fw = formWindowManager->formWindow(i);
+        if (fw && fw->isDirty()) {
+            formWindowManager->setActiveFormWindow(fw);
+            if (saveForm(fw))
+                fileNames.append(QFileInfo(fw->fileName()).fileName() + QString(", "));
+            else
+                break;
+        }
+    }
 }
 
 bool QDesignerActions::saveForm(QDesignerFormWindowInterface *fw)
@@ -917,6 +942,7 @@ void QDesignerActions::activeFormWindowChanged(QDesignerFormWindowInterface *for
 
     m_saveFormAction->setEnabled(enable);
     m_saveFormAsAction->setEnabled(enable);
+    m_saveAllFormsAction->setEnabled(enable);
     m_saveFormAsTemplateAction->setEnabled(enable);
     m_closeFormAction->setEnabled(enable);
 

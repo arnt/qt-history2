@@ -60,6 +60,7 @@ public:
     QAction *openFormAction() const;
     QAction *saveFormAction() const;
     QAction *saveFormAsAction() const;
+    QAction *saveAllFormsAction() const;
     QAction *saveFormAsTemplateAction() const;
     QAction *closeFormAction() const;
     QAction *quitAction() const;
@@ -126,6 +127,7 @@ signals:
 private slots:
     void saveForm();
     void saveFormAs();
+    void saveAllForms();
     void saveFormAsTemplate();
     void previewForm(QAction *action = 0);
     void previewFormLater(QAction *action = 0);
@@ -182,6 +184,7 @@ private:
     QAction *m_openFormAction;
     QAction *m_saveFormAction;
     QAction *m_saveFormAsAction;
+    QAction *m_saveAllFormsAction;
     QAction *m_saveFormAsTemplateAction;
     QAction *m_closeFormAction;
 
