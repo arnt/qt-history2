@@ -36,9 +36,25 @@
 
 using namespace QCss;
 
-static QHash<const QWidget *, QVector<QCss::StyleRule> > styleRulesCache;
+static QHash<const QWidget *, QVector<StyleRule> > *styleRulesCache = 0;
+typedef QHash<QString, QHash<int, QRenderRule> > QRenderRules;
+static QHash<const QWidget *, QRenderRules> *renderRulesCache = 0;
+static QHash<const QWidget *, int> *customPaletteWidgets = 0; // widgets whose palette we tampered
+static QHash<const QWidget *, int> *customFontWidgets = 0; // widgets whose font we tampered
 
 #define ceil(x) ((int)(x) + ((x) > 0 && (x) != (int)(x)))
+
+static void initStatics()
+{
+    static bool initialized = false;
+    if (initialized)
+        return;
+    initialized = true;
+    styleRulesCache = new QHash<const QWidget *, QVector<StyleRule> >;
+    renderRulesCache = new QHash<const QWidget *, QRenderRules>;
+    customPaletteWidgets = new QHash<const QWidget *, int>;
+    customFontWidgets = new QHash<const QWidget *, int>;
+}
 
 struct QStyleSheetBorderImageData : public QSharedData
 {
@@ -230,9 +246,6 @@ public:
     QSharedDataPointer<QStyleSheetGeometryData> geo;
     QSharedDataPointer<QStyleSheetPositionData> p;
 };
-
-typedef QHash<QString, QHash<int, QRenderRule> > QRenderRules;
-static QHash<const QWidget *, QRenderRules> renderRulesCache;
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 static const char *knownStyleHints[] = {
@@ -1269,7 +1282,7 @@ static struct PseudoElementInfo {
 
 QVector<Declaration> declarations(const QWidget *w, const QString &part, int pseudoState = PseudoState_Unspecified)
 {
-    const QVector<StyleRule> &styleRules = styleRulesCache[w];
+    const QVector<StyleRule> styleRules = styleRulesCache->value(w);
     QVector<Declaration> decls;
     for (int i = 0; i < styleRules.count(); i++) {
         const Selector& selector = styleRules.at(i).selectors.at(0);
@@ -1287,8 +1300,8 @@ QVector<Declaration> declarations(const QWidget *w, const QString &part, int pse
 static QRenderRule renderRule(const QWidget *w, const QString &part, QStyle::State state = QStyle::State_None) 
 {
     Q_ASSERT(w);
-    Q_ASSERT(styleRulesCache.contains(w)); // style sheet rules must have been computed!
-    QHash<int, QRenderRule> &renderRules = renderRulesCache[w][part];
+    Q_ASSERT(styleRulesCache->contains(w)); // style sheet rules must have been computed!
+    QHash<int, QRenderRule> &renderRules = (*renderRulesCache)[w][part];
 
     int pseudoState = (state & QStyle::State_Enabled)
                                  ? PseudoState_Enabled : PseudoState_Disabled;
@@ -1324,7 +1337,7 @@ static QRenderRule renderRule(const QWidget *w, int pseudoElement, QStyle::State
 
 static QRenderRule renderRule(const QWidget *w, const QStyleOption *opt, int pseudoElement = PseudoElement_None)
 {
-    Q_ASSERT(w && !styleRulesCache.value(w).isEmpty());
+    Q_ASSERT(w && !styleRulesCache->value(w).isEmpty());
     QStyle::State state = opt ? opt->state : QStyle::State(QStyle::State_None);
 
     if (const QStyleOptionComplex *complex = qstyleoption_cast<const QStyleOptionComplex *>(opt)) {
@@ -1404,7 +1417,7 @@ static QRenderRule renderRule(const QWidget *w, const QStyleOption *opt, int pse
 
 static bool hasStyleRule(const QWidget *w, int part = PseudoElement_None)
 {
-    const QVector<StyleRule> &styleRules = styleRulesCache.value(w);
+    const QVector<StyleRule> &styleRules = styleRulesCache->value(w);
     if (part == PseudoElement_None)
         return w && !styleRules.isEmpty();
 
@@ -1538,7 +1551,6 @@ static void setProperties(QWidget *w)
 {
     QHash<QString, QVariant> propertyHash;
     QVector<Declaration> decls = declarations(w, QString());
-    const QMetaObject *metaObject = w->metaObject();
     // run through the declarations in order
     for (int i = 0; i < decls.count(); i++) {
         Declaration decl = decls.at(i);
@@ -1573,9 +1585,6 @@ static void setProperties(QWidget *w)
     }
 }
 
-static QHash<const QWidget *, int> customPaletteWidgets; // widgets whose palette we tampered
-static QHash<const QWidget *, int> customFontWidgets; // widgets whose font we tampered
-
 // remember to revert changes in unsetPalette
 static void setPalette(QWidget *w)
 {
@@ -1609,7 +1618,7 @@ static void setPalette(QWidget *w)
     for (int i = 0; i < 3; i++) {
         QRenderRule rule = renderRule(w, PseudoElement_None, map[i].state);
         if (i == 0) {
-            customFontWidgets[w] = rule.font.resolve() & ~w->font().resolve();
+            customFontWidgets->insert(w, rule.font.resolve() & ~w->font().resolve());
             w->setFont(rule.font);
         }
 
@@ -1617,26 +1626,26 @@ static void setPalette(QWidget *w)
     }
 
     if (w->palette() != p) {
-        customPaletteWidgets[w] = p.resolve() & ~w->palette().resolve();
+        customPaletteWidgets->insert(w, p.resolve() & ~w->palette().resolve());
         w->setPalette(p);
     }
 }
 
 static void unsetPalette(QWidget *w)
 {
-    if (customPaletteWidgets.contains(w)) {
+    if (customPaletteWidgets->contains(w)) {
         QPalette p = QApplication::palette(w);
-        p.resolve(customPaletteWidgets[w]);
+        p.resolve(customPaletteWidgets->value(w));
         p.resolve(w->palette());
         w->setPalette(p);
-        customPaletteWidgets.remove(w);
+        customPaletteWidgets->remove(w);
     }
-    if (customFontWidgets.contains(w)) {
+    if (customFontWidgets->contains(w)) {
         QFont f = QApplication::font();
-        f.resolve(customFontWidgets[w]);
+        f.resolve(customFontWidgets->value(w));
         f.resolve(w->font());
         w->setFont(f);
-        customFontWidgets.remove(w);
+        customFontWidgets->remove(w);
     }
 }
 
@@ -1654,8 +1663,8 @@ static void updateWidgets(const QList<const QWidget *>& widgets)
     for (int i = 0; i < widgets.size(); ++i) {
         QWidget *widget = const_cast<QWidget *>(widgets.at(i));
         Q_ASSERT(widget);
-        styleRulesCache.remove(widget);
-        renderRulesCache.remove(widget);
+        styleRulesCache->remove(widget);
+        renderRulesCache->remove(widget);
         widget->style()->polish(widget);
     }
 }
@@ -1665,6 +1674,7 @@ static void updateWidgets(const QList<const QWidget *>& widgets)
 QStyleSheetStyle::QStyleSheetStyle(QStyle *base)
 : base(base), refcount(1)
 {
+    initStatics();
 }
 
 QStyle *QStyleSheetStyle::baseStyle() const
@@ -1678,9 +1688,9 @@ QStyle *QStyleSheetStyle::baseStyle() const
 
 void QStyleSheetStyle::widgetDestroyed(QObject *o)
 {
-    styleRulesCache.remove((const QWidget *)o);
-    renderRulesCache.remove((const QWidget *)o);
-    customPaletteWidgets.remove((const QWidget *)o);
+    styleRulesCache->remove((const QWidget *)o);
+    renderRulesCache->remove((const QWidget *)o);
+    customPaletteWidgets->remove((const QWidget *)o);
 }
 
 static bool unstylable(QWidget *w)
@@ -1712,7 +1722,7 @@ static bool unstylable(QWidget *w)
 
 void QStyleSheetStyle::polish(QWidget *w)
 {
-    if (styleRulesCache.contains(w))
+    if (styleRulesCache->contains(w))
         return;
 
     baseStyle()->polish(w);
@@ -1720,9 +1730,9 @@ void QStyleSheetStyle::polish(QWidget *w)
         return;
 
     QObject::connect(w, SIGNAL(destroyed(QObject*)), this, SLOT(widgetDestroyed(QObject*)));
-    renderRulesCache.remove(w);
+    renderRulesCache->remove(w);
     QVector<QCss::StyleRule> rules = styleRules(w);
-    styleRulesCache[w] = rules;
+    styleRulesCache->insert(w, rules);
     if (rules.isEmpty()) {
         unsetPalette(w);
     } else {
@@ -1733,8 +1743,8 @@ void QStyleSheetStyle::polish(QWidget *w)
 
 void QStyleSheetStyle::polish(QApplication *app)
 {
-    styleRulesCache.clear();
-    renderRulesCache.clear();
+    styleRulesCache->clear();
+    renderRulesCache->clear();
     baseStyle()->polish(app);
 }
 
@@ -1752,13 +1762,13 @@ void QStyleSheetStyle::repolish(QWidget *w)
 
 void QStyleSheetStyle::repolish(QApplication *)
 {
-    updateWidgets(styleRulesCache.keys());
+    updateWidgets(styleRulesCache->keys());
 }
 
 void QStyleSheetStyle::unpolish(QWidget *w)
 {
-    styleRulesCache.remove(w);
-    renderRulesCache.remove(w);
+    styleRulesCache->remove(w);
+    renderRulesCache->remove(w);
     baseStyle()->unpolish(w);
     unsetPalette(w);
     QObject::disconnect(w, SIGNAL(destroyed(QObject*)),
@@ -1767,8 +1777,8 @@ void QStyleSheetStyle::unpolish(QWidget *w)
 
 void QStyleSheetStyle::unpolish(QApplication *app)
 {
-    styleRulesCache.clear();
-    renderRulesCache.clear();
+    styleRulesCache->clear();
+    renderRulesCache->clear();
     baseStyle()->unpolish(app);
 }
 
