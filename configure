@@ -2423,7 +2423,7 @@ if [ "$OPT_HELP" = "yes" ]; then
 Usage:  $relconf [-prefix <dir>] [-prefix-install] [-bindir <dir>] [-libdir <dir>]
         [-docdir <dir>] [-headerdir <dir>] [-plugindir <dir> ] [-datadir <dir>]
         [-translationdir <dir>] [-sysconfdir <dir>] [-examplesdir <dir>]
-        [-demosdir <dir>] [-buildkey <key>] [-release] [-debug] [-license <license>]
+        [-demosdir <dir>] [-buildkey <key>] [-release] [-debug] [-license <file>]
         [-debug-and-release] [-shared] [-static] [-no-fast] [-fast] [-no-largefile]
         [-largefile] [-no-exceptions] [-exceptions] [-no-accessibility] 
         [-accessibility] [-no-stl] [-stl] [-no-sql-<driver>] [-sql-<driver>] 
@@ -2490,7 +2490,7 @@ Configure options:
  that needs to be evaluated. If the evaluation succeeds, the feature is
  included. Here is a short explanation of each option:
 
-    -license <license> . Where to find your license for Qt. Defaults to:
+    -license <file> .... Where to find your license for Qt. Defaults to:
                             $CFG_LICENSE_FILE
 
  *  -release ........... Compile and link Qt with debugging turned off.
