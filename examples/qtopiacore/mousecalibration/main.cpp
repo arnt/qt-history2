@@ -21,7 +21,7 @@
 
 int main(int argc, char **argv)
 {
-    QApplication app(argc, argv);
+    QApplication app(argc, argv, QApplication::GuiServer);
 
     if (!QWSServer::mouseHandler())
         qFatal("No mouse handler installed");
