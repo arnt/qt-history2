@@ -1055,6 +1055,7 @@ void tst_QGraphicsScene::mouseGrabberItem()
 
         for (int i = 0; i < 1000; ++i) {
             QGraphicsSceneMouseEvent moveEvent(QEvent::GraphicsSceneMouseMove);
+            moveEvent.setButtons(Qt::LeftButton);
             moveEvent.setScenePos(QPointF(i * 10, i * 10));
             moveEvent.setScreenPos(QPoint(100 + i * 10, 100 + i * 10));
             QApplication::sendEvent(&scene, &moveEvent);
@@ -1085,6 +1086,7 @@ void tst_QGraphicsScene::mouseGrabberItem()
     pressEvent.setScreenPos(QPoint(100, 100));
 
     QGraphicsSceneMouseEvent moveEvent(QEvent::GraphicsSceneMouseMove);
+    moveEvent.setButtons(Qt::LeftButton);
     moveEvent.setScenePos(QPointF(0, 0));
     moveEvent.setScreenPos(QPoint(100, 100));
 
