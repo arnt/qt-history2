@@ -467,31 +467,19 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
         }
         break; }
     case kEventClassMouse: {
-#if 0
-        return SendEventToApplication(event);
-#endif
-
         bool send_to_app = false;
-        {
-            WindowPartCode wpc;
-            if (GetEventParameter(event, kEventParamWindowPartCode, typeWindowPartCode, 0,
-                                  sizeof(wpc), 0, &wpc) == noErr && wpc != inContent)
-                send_to_app = true;
-        }
-        if(!send_to_app) {
-            WindowRef window;
-            if(GetEventParameter(event, kEventParamWindowRef, typeWindowRef, 0,
-                                 sizeof(window), 0, &window) == noErr) {
-                HIViewRef hiview;
-                if(HIViewGetViewForMouseEvent(HIViewGetRoot(window), event, &hiview) == noErr) {
-                    if(QWidget *w = QWidget::find((WId)hiview)) {
+        WindowRef window;
+        if(GetEventParameter(event, kEventParamWindowRef, typeWindowRef, 0,
+                             sizeof(window), 0, &window) == noErr) {
+            HIViewRef hiview;
+            if(HIViewGetViewForMouseEvent(HIViewGetRoot(window), event, &hiview) == noErr) {
+                if(QWidget *w = QWidget::find((WId)hiview)) {
 #if 0
-                        send_to_app = !w->isActiveWindow();
+                    send_to_app = !w->isActiveWindow();
 #else
-                        Q_UNUSED(w);
-                        send_to_app = true;
+                    Q_UNUSED(w);
+                    send_to_app = true;
 #endif
-                    }
                 }
             }
         }
@@ -2359,8 +2347,7 @@ void QWidgetPrivate::setGeometry_sys_helper(int x, int y, int w, int h, bool isM
 
     if(q->isWindow()) {
         if(QWExtra *extra = extraData()) { //set constraints
-            const float max_f(20000);
-#define SF(x) ((x > max_f) ? max_f : x)
+#define SF(x) qBound(0, x, 20000)
             HISize max = CGSizeMake(SF(extra->maxw), SF(extra->maxh));
             HISize min = CGSizeMake(SF(extra->minw), SF(extra->minh));
 #undef SF
