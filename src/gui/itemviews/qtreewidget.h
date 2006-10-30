@@ -166,6 +166,7 @@ private:
     void sortChildren(int column, Qt::SortOrder order, bool climb);
     QVariant childrenCheckState(int column) const;
     void itemChanged();
+    void executePendingSort() const;
 
     int rtti;
     // One item has a vector of column entries. Each column has a vector of (role, value) pairs.
@@ -205,7 +206,7 @@ inline void QTreeWidgetItem::setFont(int column, const QFont &afont)
 { setData(column, Qt::FontRole, afont); }
 
 inline int QTreeWidgetItem::indexOfChild(QTreeWidgetItem *achild) const
-{ return children.indexOf(achild); }
+{ executePendingSort(); return children.indexOf(achild); }
 
 #ifndef QT_NO_DATASTREAM
 Q_GUI_EXPORT QDataStream &operator<<(QDataStream &out, const QTreeWidgetItem &item);

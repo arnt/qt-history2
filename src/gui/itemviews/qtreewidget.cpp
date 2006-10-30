@@ -1839,6 +1839,15 @@ void QTreeWidgetItem::itemChanged()
         model->itemChanged(this);
 }
 
+/*!
+  \internal
+*/
+void QTreeWidgetItem::executePendingSort() const
+{
+    if (QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0))
+        model->executePendingSort();
+}
+
 
 #ifndef QT_NO_DATASTREAM
 /*!
