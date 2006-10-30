@@ -135,6 +135,9 @@ static void qt_mac_release_stays_on_top_group(Qt::WindowType type) //cleanup fun
 //find a QWidget from a WindowPtr
 QWidget *qt_mac_find_window(WindowPtr window)
 {
+    if(!window)
+        return 0;
+
     QWidget *ret;
     if(GetWindowProperty(window, kWidgetCreatorQt, kWidgetPropertyQWidget, sizeof(ret), 0, &ret) == noErr)
         return ret;
@@ -316,7 +319,19 @@ static OSStatus qt_mac_create_window(WindowClass wclass, WindowAttributes wattr,
 
 // window events
 static EventTypeSpec window_events[] = {
+    { kEventClassWindow, kEventWindowClose },
+    { kEventClassWindow, kEventWindowExpanded },
+    { kEventClassWindow, kEventWindowCollapsed },
+    { kEventClassWindow, kEventWindowToolbarSwitchMode },
+    { kEventClassWindow, kEventWindowProxyBeginDrag },
+    { kEventClassWindow, kEventWindowProxyEndDrag },
+    { kEventClassWindow, kEventWindowResizeStarted },
+    { kEventClassWindow, kEventWindowResizeCompleted },
+    { kEventClassWindow, kEventWindowDragStarted },
+    { kEventClassWindow, kEventWindowDragCompleted },
+    { kEventClassWindow, kEventWindowBoundsChanging },
     { kEventClassWindow, kEventWindowGetRegion },
+
     { kEventClassMouse, kEventMouseDown },
     { kEventClassMouse, kEventMouseUp }
 };
@@ -338,8 +353,36 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
     bool handled_event = true;
     UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
     switch(eclass) {
-    case kEventClassWindow:
-        if(ekind == kEventWindowGetRegion) {
+    case kEventClassWindow: {
+        WindowRef wid = 0;
+        GetEventParameter(event, kEventParamDirectObject, typeWindowRef, 0,
+                          sizeof(WindowRef), 0, &wid);
+        QWidget *widget = qt_mac_find_window(wid);
+        if(!widget) {
+            handled_event = false;
+        } else if(ekind == kEventWindowClose) {
+            widget->d_func()->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
+        } else if(ekind == kEventWindowExpanded) {
+            widget->setWindowState((widget->windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
+            QShowEvent qse;
+            QApplication::sendSpontaneousEvent(widget, &qse);
+        } else if(ekind == kEventWindowZoomed) {
+            UInt32 windowPart;
+            GetEventParameter(event, kEventParamWindowPartCode, typeWindowPartCode, 0,
+                                  sizeof(windowPart), 0, &windowPart);
+            if(windowPart == inZoomIn)
+                widget->setWindowState(widget->windowState() & ~Qt::WindowMaximized);
+            else if(windowPart == inZoomOut)
+                widget->setWindowState(widget->windowState() | Qt::WindowMaximized);
+        } else if(ekind == kEventWindowCollapsed) {
+            widget->setWindowState(widget->windowState() | Qt::WindowMinimized);
+            //we send a hide to be like X11/Windows
+            QEvent e(QEvent::Hide);
+            QApplication::sendSpontaneousEvent(widget, &e);
+        } else if(ekind == kEventWindowToolbarSwitchMode) {
+            QToolBarChangeEvent ev(!(GetCurrentKeyModifiers() & cmdKey));
+            QApplication::sendSpontaneousEvent(widget, &ev);
+        } else if(ekind == kEventWindowGetRegion) {
             WindowRef window;
             GetEventParameter(event, kEventParamDirectObject, typeWindowRef, 0,
                               sizeof(window), 0, &window);
@@ -352,10 +395,77 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
                               sizeof(rgn), 0, &rgn);
             if(QWidgetPrivate::qt_widget_rgn(qt_mac_find_window(window), wcode, rgn, false))
                 SetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, sizeof(rgn), &rgn);
+        } else if(ekind == kEventWindowProxyBeginDrag) {
+            QIconDragEvent e;
+            QApplication::sendSpontaneousEvent(widget, &e);
+        } else if(ekind == kEventWindowResizeStarted || ekind == kEventWindowDragStarted) {
+            QMacBlockingFunction::addRef();
+        } else if(ekind == kEventWindowResizeCompleted || ekind == kEventWindowDragCompleted) {
+            QMacBlockingFunction::subRef();
+        } else if(ekind == kEventWindowBoundsChanging) {
+            UInt32 flags = 0;
+            GetEventParameter(event, kEventParamAttributes, typeUInt32, 0,
+                                  sizeof(flags), 0, &flags);
+            Rect nr;
+            GetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, 0,
+                                  sizeof(nr), 0, &nr);
+
+            QRect newRect(nr.left, nr.top, nr.right - nr.left, nr.bottom - nr.top);
+
+            QTLWExtra * const tlwExtra = widget->d_func()->maybeTopData();
+            if (tlwExtra && tlwExtra->isSetGeometry == 1) {
+                widget->d_func()->setGeometry_sys_helper(newRect.left(), newRect.top(), newRect.width(), newRect.height(), tlwExtra->isMove);
+            } else {
+                //implicitly removes the maximized bit
+                if((widget->windowState() & Qt::WindowMaximized) &&
+                   IsWindowInStandardState((WindowPtr)widget->handle(), 0, 0))
+                    widget->setWindowState(widget->windowState() & ~Qt::WindowMaximized);
+
+                handled_event = false;
+                const QRect oldRect = widget->data->crect;
+                if((flags & kWindowBoundsChangeOriginChanged)) {
+                    if(nr.left != oldRect.x() || nr.top != oldRect.y()) {
+                        widget->data->crect.moveTo(nr.left, nr.top);
+                        QMoveEvent qme(widget->data->crect.topLeft(), oldRect.topLeft());
+                        QApplication::sendSpontaneousEvent(widget, &qme);
+                    }
+                }
+                if((flags & kWindowBoundsChangeSizeChanged)) {
+                    if (widget->isWindow()
+                            && widget->layout() && widget->layout()->hasHeightForWidth()) {
+                        QRect rect = widget->geometry();
+                        QSize newSize = QLayout::closestAcceptableSize(widget, newRect.size());
+                        int dh = newSize.height() - newRect.height();
+                        int dw = newSize.width() - newRect.width();
+                        if (dw != 0 || dh != 0) {
+                            handled_event = true;  // We want to change the bounds, so we handle the event
+
+                            // set the rect, so we can also do the resize down below (yes, we need to resize).
+                            newRect.setBottom(newRect.bottom() + dh);
+                            newRect.setRight(newRect.right() + dw);
+
+                            nr.left = newRect.x();
+                            nr.top = newRect.y();
+                            nr.right = nr.left + newRect.width();
+                            nr.bottom = nr.top + newRect.height();
+                            SetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, sizeof(Rect), &nr);
+                        }
+                    }
+
+                    if (oldRect.width() != newRect.width() || oldRect.height() != newRect.height()) {
+                        widget->data->crect.setSize(newRect.size());
+                        HIRect bounds = CGRectMake(0, 0, newRect.width(), newRect.height());
+                        HIViewSetFrame(qt_mac_hiview_for(widget), &bounds);
+                        QResizeEvent qre(newRect.size(), oldRect.size());
+                        QApplication::sendSpontaneousEvent(widget, &qre);
+                        qt_event_request_window_change();
+                    }
+                }
+            }
         } else {
             handled_event = false;
         }
-        break;
+        break; }
     case kEventClassMouse: {
 #if 0
         return SendEventToApplication(event);
