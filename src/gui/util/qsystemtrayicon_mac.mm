@@ -275,6 +275,7 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &, const QString &,
 #endif
         {
             NSMenu *m = [[QNSMenu alloc] initWithQMenu:icon->contextMenu()];
+            [m setAutoenablesItems: NO];
             [[NSNotificationCenter defaultCenter] addObserver:imageCell
                                                   selector:@selector(menuTrackingDone:)
                                                   name:NSMenuDidEndTrackingNotification
