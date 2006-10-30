@@ -69,8 +69,7 @@
   printing.
 
   \table
-  \row \o \inlineimage printer-rects.png
-  \o \bold{Printer and Painter Coordinate Systems}
+  \row \o \bold{Printer and Painter Coordinate Systems}
 
   The \l{QPrinter::}{paperRect()} and \l{QPrinter::}{pageRect()} functions
   provide information about the size of the paper used for printing and the
@@ -83,6 +82,8 @@
   coordinate system will coincide with the top-left corner of the page
   rectangle, and painting operations will be clipped to the bounds of the
   drawable part of the page.
+
+  \o \inlineimage printer-rects.png
   \endtable
 
   The paint system automatically uses the correct device metrics when painting
