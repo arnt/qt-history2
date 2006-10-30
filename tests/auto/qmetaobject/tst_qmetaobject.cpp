@@ -228,6 +228,7 @@ public slots:
             QString s8, QString s9, QString s10);
     QObject *sl11();
     const char *sl12();
+    QList<QString> sl13(QList<QString> l1);
     void testSender();
 
     void testReference(QString &str);
@@ -274,6 +275,8 @@ QObject *QtTestObject::sl11()
 { slotResult = "sl11"; return this; }
 const char *QtTestObject::sl12()
 { slotResult = "sl12"; return "foo"; }
+QList<QString> QtTestObject::sl13(QList<QString> l1)
+{ slotResult = "sl13"; return l1; }
 void QtTestObject::testReference(QString &str)
 { slotResult = "testReference:" + str; str = "gotcha"; }
 
@@ -368,6 +371,15 @@ void tst_QMetaObject::invokeMetaMember()
     QVERIFY(QMetaObject::invokeMethod(&obj, "sl12", Q_RETURN_ARG(char const * , ptr2)));
     QVERIFY(ptr2 != 0);
     QCOMPARE(obj.slotResult, QString("sl12"));
+
+    // test w/ template args
+    QList<QString> returnValue, argument;
+    argument << QString("one") << QString("two") << QString("three");
+    QVERIFY(QMetaObject::invokeMethod(&obj, "sl13",
+                                      Q_RETURN_ARG(QList<QString>, returnValue),
+                                      Q_ARG(QList<QString>, argument)));
+    QCOMPARE(returnValue, argument);
+    QCOMPARE(obj.slotResult, QString("sl13"));
 
     //test signals
     QVERIFY(QMetaObject::invokeMethod(&obj, "sig0"));
