@@ -733,7 +733,7 @@ void QAbstractSocketPrivate::_q_connectToNextAddress()
                                                                   "Connection refused")));
             }
             emit q->stateChanged(state);
-            emit q->error(QAbstractSocket::ConnectionRefusedError);
+            emit q->error(socketError);
             return;
         }
 
