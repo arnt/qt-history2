@@ -1294,10 +1294,12 @@ public:
 
         Q27Dot5 y = trap.topLeft->y - trap.bottomLeft->y;
 
-        qreal m = (-Q27Dot5ToDouble(trap.topLeft->x) + Q27Dot5ToDouble(trap.bottomLeft->x)) / Q27Dot5ToDouble(y);
+        qreal topLeftY = Q27Dot5ToDouble(trap.topLeft->y);
+
         qreal tx = Q27Dot5ToDouble(trap.topLeft->x);
-        topLeftX = tx + m * (Q27Dot5ToDouble(trap.topLeft->y) - Q27Dot5ToDouble(trap.top));
-        bottomLeftX = tx + m * (Q27Dot5ToDouble(trap.topLeft->y) - Q27Dot5ToDouble(trap.bottom));
+        qreal m = (-tx + Q27Dot5ToDouble(trap.bottomLeft->x)) / Q27Dot5ToDouble(y);
+        topLeftX = tx + m * (topLeftY - top);
+        bottomLeftX = tx + m * (topLeftY - bottom);
 
 //     qDebug() << "trap: top=" << Q27Dot5ToDouble(trap.top)
 //              << "bottom=" << Q27Dot5ToDouble(trap.bottom);
@@ -1309,10 +1311,12 @@ public:
 
         y = trap.topRight->y - trap.bottomRight->y;
 
-        m = (Q27Dot5ToDouble(-trap.topRight->x) + Q27Dot5ToDouble(trap.bottomRight->x)) / Q27Dot5ToDouble(y);
+        qreal topRightY = Q27Dot5ToDouble(trap.topRight->y);
+
         tx = Q27Dot5ToDouble(trap.topRight->x);
-        topRightX = tx + m * (Q27Dot5ToDouble(trap.topRight->y) - Q27Dot5ToDouble(trap.top));
-        bottomRightX = tx + m * (Q27Dot5ToDouble(trap.topRight->y) - Q27Dot5ToDouble(trap.bottom));
+        m = (-tx + Q27Dot5ToDouble(trap.bottomRight->x)) / Q27Dot5ToDouble(y);
+        topRightX = tx + m * (topRightY - Q27Dot5ToDouble(trap.top));
+        bottomRightX = tx + m * (topRightY - Q27Dot5ToDouble(trap.bottom));
     }
 };
 
@@ -1373,17 +1377,15 @@ void QOpenGLImmediateModeTessellator::addTrap(const Trapezoid &trap)
     glTexCoord2f(topDist, bottomDist);
     glMultiTexCoord4f(GL_TEXTURE1, leftA, leftB, rightA, rightB);
 
-    glVertex2d(minX - xpadding, top - ypadding);
-    glVertex2d(maxX + xpadding, top - ypadding);
-    glVertex2d(maxX + xpadding, bottom + ypadding);
-    glVertex2d(minX - xpadding, bottom + ypadding);
+    qreal leftX = minX - xpadding;
+    qreal rightX = maxX + xpadding;
+    qreal topY = top - ypadding;
+    qreal bottomY = bottom + ypadding;
 
-//    qDebug() << "addTrap(" << minX << maxX << top << bottom << topDist << bottomDist << leftA << leftB << rightA << rightB << ")";
-//      glVertex2d(topLeftX - xpadding, top - ypadding);
-//      glVertex2d(topRightX + xpadding, top - ypadding);
-//      glVertex2d(bottomRightX + xpadding, bottom + ypadding);
-//      glVertex2d(bottomLeftX - xpadding, bottom + ypadding);
-
+    glVertex2d(leftX, topY);
+    glVertex2d(rightX, topY);
+    glVertex2d(rightX, bottomY);
+    glVertex2d(leftX, bottomY);
 }
 
 class QOpenGLTrapezoidToArrayTessellator : public QOpenGLTessellator
@@ -2880,20 +2882,43 @@ void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
 #ifndef Q_WS_QWS
     Q_D(QOpenGLPaintEngine);
 
-    // fall back to path rendering for now
-    if (0) {
+    if (d->use_antialiasing && d->use_fragment_programs) {
         if (d->has_brush) {
-            int grow = d->use_antialiasing ? 4 : 0;
+            QPointF center = rect.center();
+
+            QPointF points[] = {
+                QPointF(rect.left(), center.y()),
+                QPointF(rect.right(), center.y()),
+                QPointF(center.x(), rect.top()),
+                QPointF(center.x(), rect.bottom())
+            };
+
+            qreal min_screen_delta_len = QREAL_MAX;
+
+            for (int i = 0; i < 4; ++i) {
+                QPointF delta = points[i] - center;
+
+                // normalize
+                delta /= sqrt(delta.x() * delta.x() + delta.y() * delta.y());
+
+                QPointF screen_delta(d->matrix.m11() * delta.x() + d->matrix.m21() * delta.y(),
+                                     d->matrix.m12() * delta.x() + d->matrix.m22() * delta.y());
+
+                min_screen_delta_len = qMin(min_screen_delta_len,
+                                            sqrt(screen_delta.x() * screen_delta.x() + screen_delta.y() * screen_delta.y()));
+            }
+
+            const qreal padding = 2.0f;
+
+            qreal grow = padding / min_screen_delta_len;
 
             float vertexArray[4 * 2];
             float texCoordArray[4 * 4];
 
-            // TODO: growth should depend on screen space rectangle, not model space
-            QRectF boundingRect = grow ? rect.adjusted(-grow, -grow, grow, grow) : rect;
+            QRectF boundingRect = rect.adjusted(-grow, -grow, grow, grow);
             qt_add_rect_to_array(boundingRect, vertexArray);
 
-            QRectF atOrigin = boundingRect;
-            atOrigin.translate(-atOrigin.center());
+            QRectF atOrigin = boundingRect.translated(-center);
 
             qreal left = atOrigin.left();
             qreal right = atOrigin.right();
@@ -2919,15 +2944,37 @@ void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
             texCoordArray[14] = rx;
             texCoordArray[15] = ry;
 
+            QRectF screenRect = d->matrix.mapRect(boundingRect);
+
+            if (d->has_clipping)
+                glDisable(GL_DEPTH_TEST);
+
+            d->offscreen.bind(screenRect);
+            glBlendFunc(GL_ONE, GL_ZERO); // set mask
+            glEnable(GL_FRAGMENT_PROGRAM_ARB);
+            glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, d->mask_fragment_programs[FRAGMENT_PROGRAM_MASK_ELLIPSE_AA]);
+
+            glEnableClientState(GL_VERTEX_ARRAY);
+            glVertexPointer(2, GL_FLOAT, 0, vertexArray);
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            glTexCoordPointer(4, GL_FLOAT, 0, texCoordArray);
+            glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+            glDisableClientState(GL_VERTEX_ARRAY);
+
+            glDisable(GL_FRAGMENT_PROGRAM_ARB);
+
+            d->offscreen.release();
+
+            if (d->has_clipping)
+                glEnable(GL_DEPTH_TEST);
+
             d->setGradientOps(d->brush_style);
             qt_glColor4ubv(d->brush_color);
 
-            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-            glTexCoordPointer(4, GL_FLOAT, 0, texCoordArray);
+            qreal shrink = grow * 0.5;
 
-            d->composite(boundingRect);
-
-            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+            d->composite(boundingRect.adjusted(shrink, shrink, -shrink, -shrink));
 
             glTexCoord4f(0.0f, 0.0f, 0.0f, 1.0f);
         }
@@ -2945,9 +2992,11 @@ void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
                 d->fillPath(strokeForPath(path, d->cpen));
         }
     } else {
-        DEBUG_ONCE_STR("QOpenGLPaintEngine: Falling back to QPaintEngine::drawEllipse()");
+        DEBUG_ONCE_STR("QOpenGLPaintEngine::drawEllipse(): falling back to drawPath()");
 
-        QPaintEngine::drawEllipse(rect);
+        QPainterPath path;
+        path.addEllipse(rect);
+        drawPath(path);
     }
 #else
     QPaintEngine::drawEllipse(rect);
