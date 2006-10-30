@@ -338,14 +338,15 @@
 /*! \fn void qCount(InputIterator begin, InputIterator end, const T &value, Size &n)
     \relates <QtAlgorithms>
 
-    Returns the number of occurrences of \a value in the range [\a begin, \a end).
+    Returns the number of occurrences of \a value in the range [\a begin, \a end)
+    in argument \a n, specified as a reference.
 
     Example:
 
     \code
        QList<int> list;
        list << 3 << 3 << 6 << 6 << 6 << 8;
-        
+
        int countOf6;
        qCount(list.begin(), list.end(), 6, countOf6);
        // countOf6 == 3
@@ -362,9 +363,13 @@
 */
 
 /*! \fn void qCount(const Container &container, const T &value, Size &n)
-    \relates <QtAlgorithms>
+\relates <QtAlgorithms>
 
-    \overload
+\overload
+
+Instead of operating on iterators, as in the other overload, this function
+operates on the specified \a container to obtain the number of instances
+of \a value in the variable passed as a reference in argument \a n.
 */
 
 /*! \fn void qSwap(T &var1, T &var2)

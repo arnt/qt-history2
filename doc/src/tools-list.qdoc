@@ -48,7 +48,7 @@
          \o Unix-based Qt configuration tool with online help.
     \row \o \l{qt3to4 - The Qt 3 to 4 Porting Tool}
          \o A tool to assist in porting applications from Qt 3 to Qt 4.
-    \row \o \l{qdbusxml2cpp - QtDBus XML compiler}
+    \row \o \l{QtDBus XML compiler (qdbusxml2cpp)}
          \o A tool to convert D-BUS interface descriptions to C++ source code.
     \endtable
 

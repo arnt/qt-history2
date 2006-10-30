@@ -458,7 +458,7 @@
     transferred to Qt so that they can be deleted when the corresponding drag and
     drop operations have been completed. The drag source has no control over how
     the drag and drop operation is performed once the object's
-    \l{Q3DragObject::}{start()} function is called, and it receives no information
+    \l{Q3DragObject::}{drag()} function is called, and it receives no information
     about how the operation ended.
 
     \code

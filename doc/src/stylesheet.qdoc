@@ -66,7 +66,7 @@
     technique, you can also achieve minor customizations that would
     normally require subclassing several style classes, such as
     specifying a \l{QStyle::styleHint()}{style hint}. The
-    \l{widget/stylesheet}{Style Sheet} example depicted below defines
+    \l{widgets/stylesheet}{Style Sheet} example depicted below defines
     two distinctive style sheets that you can try out and modify at
     will.
 
