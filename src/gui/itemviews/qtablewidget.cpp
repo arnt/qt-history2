@@ -1576,6 +1576,7 @@ void QTableWidgetPrivate::_q_emitItemEntered(const QModelIndex &index)
     Q_Q(QTableWidget);
     if (QTableWidgetItem *item = model()->item(index))
         emit q->itemEntered(item);
+    emit q->cellEntered(index.row(), index.column());
 }
 
 void QTableWidgetPrivate::_q_emitItemChanged(const QModelIndex &index)
