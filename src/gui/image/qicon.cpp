@@ -493,7 +493,8 @@ int QIcon::serialNumber() const
     return d ? d->serialNum : 0;
 }
 
-/*!  Returns a pixmap with the requested \a size, \a mode, and \a
+/*!  
+  Returns a pixmap with the requested \a size, \a mode, and \a
   state, generating one if necessary. The pixmap might be smaller than
   requested, but never larger.
 
@@ -511,7 +512,8 @@ QPixmap QIcon::pixmap(const QSize &size, Mode mode, State state) const
 
     \overload
 
-    Returns a pixmap of size QSize(\a w, \a h).
+    Returns a pixmap of size QSize(\a w, \a h). The pixmap might be smaller than
+    requested, but never larger.
 */
 
 /*!
@@ -519,7 +521,8 @@ QPixmap QIcon::pixmap(const QSize &size, Mode mode, State state) const
 
     \overload
 
-    Returns a pixmap of size QSize(\a extent, \a extent).
+    Returns a pixmap of size QSize(\a extent, \a extent). The pixmap might be smaller
+    than requested, but never larger.
 */
 
 /*!  Returns the actual size of the icon for the requested \a size, \a
