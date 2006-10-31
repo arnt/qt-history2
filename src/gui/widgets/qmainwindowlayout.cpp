@@ -1403,6 +1403,11 @@ void QMainWindowLayout::tabChanged()
 }
 #endif // QT_NO_TABBAR
 
+void QMainWindowLayout::keepSize(QDockWidget *w)
+{
+    dockWidgetLayout.keepSize(w);
+}
+
 QWidgetItem *QMainWindowLayout::unplug(QDockWidget *dockWidget)
 {
     QList<int> pathToDockWidget = dockWidgetLayout.indexOf(dockWidget);

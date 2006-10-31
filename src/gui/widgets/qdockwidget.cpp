@@ -645,9 +645,15 @@ void QDockWidgetPrivate::plug(const QRect &rect)
 {
     Q_Q(QDockWidget);
     q->hide();
-    q->setFloating(false);
+
+    q->setWindowFlags(Qt::FramelessWindowHint | Qt::Widget);
+
+    updateButtons();
+    resizer->setActive(QWidgetResizeHandler::Resize, false);
     q->setGeometry(rect);
     q->show();
+
+    emit q->topLevelChanged(false);
 }
 
 
@@ -818,8 +824,14 @@ void QDockWidget::setFloating(bool floating)
 
     const bool visible = isVisible();
 
-    setWindowFlags(Qt::FramelessWindowHint | (floating ? Qt::Tool : Qt::Widget));
+    if (!floating && parentWidget() != 0) {
+        QMainWindowLayout *layout
+            = qobject_cast<QMainWindowLayout*>(parentWidget()->layout());
+        if (layout != 0)
+            layout->keepSize(this);
+    }
 
+    setWindowFlags(Qt::FramelessWindowHint | (floating ? Qt::Tool : Qt::Widget));
 
     d->updateButtons();
     d->resizer->setActive(QWidgetResizeHandler::Resize, floating);
@@ -914,9 +926,16 @@ bool QDockWidget::event(QEvent *event)
 {
     Q_D(QDockWidget);
 
+    QMainWindow *win = qobject_cast<QMainWindow*>(parentWidget());
+    QMainWindowLayout *layout = 0;
+    if (win != 0)
+        layout = qobject_cast<QMainWindowLayout*>(win->layout());
+
     switch (event->type()) {
 #ifndef QT_NO_ACTION
     case QEvent::Hide:
+        if (layout != 0)
+            layout->keepSize(this);
         if (!isHidden())
             break;
         // fallthrough intended
@@ -932,10 +951,6 @@ bool QDockWidget::event(QEvent *event)
     case QEvent::ZOrderChange: {
         if (isFloating())
             break;
-        QMainWindow *win = qobject_cast<QMainWindow*>(parentWidget());
-        if (win == 0)
-            break;
-        QMainWindowLayout *layout = qobject_cast<QMainWindowLayout*>(win->layout());
         if (layout == 0)
             break;
         layout->raise(this);
