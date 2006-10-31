@@ -1392,6 +1392,10 @@ QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
     either being inserted as children of the item specified by \a row, \a column,
     and \a parent, or as siblings of the item.
 
+    When row and column are -1 it means that it is up to the model to decide
+    where to place the data.  This can occur in a tree when data is dropped
+    on a parent.  Models will usually append the data to the parent in this case.
+
     \sa supportedDropActions(), {Using Drag and Drop with Item Views}
 */
 bool QAbstractItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
