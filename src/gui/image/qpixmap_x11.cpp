@@ -2125,6 +2125,9 @@ Qt::HANDLE QPixmapData::x11ConvertToDefaultDepth()
 
 QPixmap QPixmap::copy(const QRect &rect) const
 {
+    if (isNull())
+        return QPixmap();
+
     if (data->type == BitmapType)
         return QBitmap::fromImage(toImage().copy(rect));
 

@@ -1102,7 +1102,7 @@ QPixmap QPixmap::scaled(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::Tran
 {
     if (isNull()) {
         qWarning("QPixmap::scaled: Pixmap is a null pixmap");
-        return copy();
+        return QPixmap();
     }
     if (s.isEmpty())
         return QPixmap();
