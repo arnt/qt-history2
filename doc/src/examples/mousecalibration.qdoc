@@ -4,7 +4,7 @@
 
     The Mouse Calibration example demonstrates how to write a simple
     program using the mechanisms provided by the QWSMouseHandler class
-    to calibrate the mouse handler.
+    to calibrate the mouse handler in \l {Qtopia Core}.
 
     Calibration is the process of mapping between physical
     (i.e. device) coordinates and logical coordinates.
@@ -39,16 +39,17 @@
     text and an \gui OK button.
 
     At this stage in the program, the mouse could be completely
-    uncalibrated, making the user unable to press the OK button. For
-    that reason we use the static QTimer::singleShot() function to
-    make the message box disappear after 10 seconds. The QTimer class
-    provides repetitive and single-shot timers: The single shot
-    function calls the given slot after the specified interval.
+    uncalibrated, making the user unable to press the \gui OK
+    button. For that reason we use the static QTimer::singleShot()
+    function to make the message box disappear after 10 seconds. The
+    QTimer class provides repetitive and single-shot timers: The
+    single shot function calls the given slot after the specified
+    interval.
 
     \skipto Calibration
     \printuntil exec
 
-    Next, we create an instance of the Calibration class which is a
+    Next, we create an instance of the \c Calibration class which is a
     dialog widget retrieving the required sample coordinates: The
     dialog sequentially presents five marks for the user to press,
     storing the device coordinates for the mouse press events.
@@ -91,7 +92,7 @@
 
     \section1 Calibration Class Implementation
 
-    In the constructor we first ensure that the Calibration dialog
+    In the constructor we first ensure that the \c Calibration dialog
     fills up the entire screen, has focus and will receive mouse
     events (the latter by making the dialog modal):
 
@@ -146,7 +147,7 @@
 
     The QWidget::paintEvent() function is reimplemented to receive the
     widget's paint events. A paint event is a request to repaint all
-    or part of the widget. It can happen as a result of
+    or parts of the widget. It can happen as a result of
     QWidget::repaint() or QWidget::update(), or because the widget was
     obscured and has now been uncovered, or for many other reasons.
     In our reimplementation of the function we simply draw a cross at
@@ -168,8 +169,8 @@
     (e.g. QWSPointerCalibrationData::TopLeft)
 
     We continue by drawing the next cross, or close the dialog by
-    calling the accept() slot if we have collected all the required
-    coordinate samples.
+    calling the QDialog::accept() slot if we have collected all the
+    required coordinate samples.
 
     \skipto accept
     \printuntil }
