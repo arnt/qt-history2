@@ -228,9 +228,15 @@ void QRubberBand::changeEvent(QEvent *e)
         break;
     }
 
-    // calling raise() on LayoutDirectionChange breaks QWidgetPrivate::setLayoutDirection_helper()
-    if (e->type() != QEvent::LayoutDirectionChange)
+    // calling raise() on LayoutDirectionChange breaks
+    // QWidgetPrivate::setLayoutDirection_helper()
+    // calling raise() on PaletteChange breaks
+    // QWidgetPrivate::propagatePaletteChange()
+    if (e->type() != QEvent::LayoutDirectionChange
+            && e->type() != QEvent::PaletteChange)
         raise();
+
+    // ### The raise should probably only be called on the ZOrderChange event
 }
 
 /*!
