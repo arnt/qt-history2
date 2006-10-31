@@ -1511,8 +1511,35 @@ void QX11PaintEngine::drawImage(const QRectF &r, const QImage &image, const QRec
         int w = qRound(r.width());
         int h = qRound(r.height());
         XImage *xi;
+        QImage im(image);
+        if (QSysInfo::ByteOrder == QSysInfo::BigEndian
+            || (ImageByteOrder(d->dpy) == MSBFirst && QSysInfo::ByteOrder == QSysInfo::LittleEndian))
+        {
+            for (int i=0; i < im.height(); i++) {
+                uint *p = (uint*)im.scanLine(i);
+                uint *end = p + im.width();
+                if (ImageByteOrder(d->dpy) == MSBFirst && QSysInfo::ByteOrder == QSysInfo::LittleEndian) {
+                    while (p < end) {
+                        *p = ((*p << 8) & 0xffffff00) | ((*p >> 24) & 0x000000ff);
+                        p++;
+                    }
+                } else if (ImageByteOrder(d->dpy) == LSBFirst && QSysInfo::ByteOrder == QSysInfo::BigEndian) {
+                    while (p < end) {
+                        *p = ((*p << 24) & 0xff000000) | ((*p << 8) & 0x00ff0000)
+                             | ((*p >> 8) & 0x0000ff00) | ((*p >> 24) & 0x000000ff);
+                        p++;
+                    }
+                } else if (ImageByteOrder(d->dpy) == MSBFirst && QSysInfo::ByteOrder == QSysInfo::BigEndian) {
+                    while (p < end) {
+                        *p = ((*p << 16) & 0x00ff0000) | ((*p >> 16) & 0x000000ff)
+                             | ((*p ) & 0xff00ff00);
+                        p++;
+                    }
+                }
+            }
+        }
         xi = XCreateImage(d->dpy, (Visual *) d->xinfo->visual(), d->pdev_depth, ZPixmap,
-                          0, (char *) image.scanLine(sy)+sx*sizeof(uint), w, h, 32, image.bytesPerLine());
+                          0, (char *) im.scanLine(sy)+sx*sizeof(uint), w, h, 32, im.bytesPerLine());
         XPutImage(d->dpy, d->hd, d->gc, xi, 0, 0, x, y, w, h);
         xi->data = 0; // QImage owns these bits
         XDestroyImage(xi);
