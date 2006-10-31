@@ -534,6 +534,19 @@ struct Group
     { return name == other.name; }
 };
 
+MetaDataBaseItem* PropertyEditor::metaDataBaseItem() const 
+{
+    QObject *o = object();
+    if (!o) 
+        return 0;
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(o))
+        o = promoted->child();
+
+    MetaDataBase* db = qobject_cast<MetaDataBase*>(core()->metaDataBase());
+    if (!db) return 0;
+    return static_cast<MetaDataBaseItem*>(db->item(o));
+}
+
 void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *object)
 {
     QList<Group> groups;
@@ -624,9 +637,8 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                 p = new StringProperty(QString::fromUtf8(value.toByteArray()), pname);
                 break;
             case QVariant::String: {
-                if (pname != QLatin1String("objectName")
-                        && qobject_cast<MetaDataBase*>(core()->metaDataBase()) && core()->metaDataBase()->item(object)) {
-                    MetaDataBaseItem *item = static_cast<MetaDataBaseItem*>(core()->metaDataBase()->item(object));
+                MetaDataBaseItem *item = metaDataBaseItem();
+                if (item && pname != QLatin1String("objectName")) {
                     p = new StringProperty(value.toString(), pname, true, item->propertyComment(pname));
                 } else {
                     StringProperty *sprop = new StringProperty(value.toString(), pname);
@@ -800,18 +812,16 @@ void PropertyEditor::firePropertyChanged(IProperty *p)
     if (isReadOnly())
         return;
 
-    if (object() && p->parent() && p->propertyName() == QLatin1String("comment")) {
-        const QString parentProperty = p->parent()->propertyName();
-        MetaDataBase *db = qobject_cast<MetaDataBase*>(core()->metaDataBase());
-
-        if (db && db->item(object())) {
-            MetaDataBaseItem *item = static_cast<MetaDataBaseItem*>(db->item(object()));
-            item->setPropertyComment(parentProperty, p->value().toString());
-            emit propertyChanged(parentProperty, p->parent()->value());
+    if (object()) {     
+        if (p->parent() && p->propertyName() == QLatin1String("comment")) {
+            const QString parentProperty = p->parent()->propertyName();
+            if (MetaDataBaseItem *item = metaDataBaseItem()) {
+                item->setPropertyComment(parentProperty, p->value().toString());
+                emit propertyChanged(parentProperty, p->parent()->value());
+            }
+            return;
         }
-        return;
     }
-
     emit propertyChanged(p->propertyName(), p->value());
 }
 

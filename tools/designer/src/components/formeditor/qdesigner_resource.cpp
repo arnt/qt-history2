@@ -463,24 +463,23 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
 
             int index = sheet->indexOf(propertyName);
             if (index != -1) {
-                const QMetaObject *meta = 0;
-                if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(o))
-                    meta = promoted->child()->metaObject();
-                else
-                    meta = o->metaObject();
+                QObject *realObject = o;
+                if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(o)) {
+                    realObject = promoted->child();
+                }
+                const QMetaObject *meta = realObject->metaObject();
                 QVariant v = toVariant(meta, p);
 
-                if (!core()->metaDataBase()->item(o)) {
-                    qWarning() << "** WARNING no ``meta database item'' for object:" << o;
+                MetaDataBaseItem *item = 0;
+                if (core()->metaDataBase())
+                    item = static_cast<MetaDataBaseItem*>(core()->metaDataBase()->item(realObject));
+
+                if (!item) {
+                    qWarning() << "** WARNING no ``meta database item'' for object:" << realObject;
                 }
 
-                if (p->kind() == DomProperty::String
-                        && qobject_cast<MetaDataBase*>(core()->metaDataBase())
-                        && core()->metaDataBase()->item(o))
-                {
+                if (p->kind() == DomProperty::String && item) {
                     DomString *str = p->elementString();
-                    MetaDataBaseItem *item = static_cast<MetaDataBaseItem*>(core()->metaDataBase()->item(o));
-
                     if (str->hasAttributeComment()) {
                         item->setPropertyComment(propertyName, str->attributeComment());
                     }
