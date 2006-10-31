@@ -1512,6 +1512,15 @@ void WriteInitialization::initializeTableWidget(DomWidget *w)
 
     // items
     QList<DomItem *> items = w->elementItem();
+    QString tempName;
+    if (!items.isEmpty()) {
+        // turn off sortingEnabled to force programmatic item order (setItem())
+        tempName = driver->unique(QLatin1String("__sortingEnabled"));
+        refreshOut << "\n";
+        refreshOut << option.indent << "bool " << tempName
+                   << " = " << varName << "->isSortingEnabled();\n";
+        refreshOut << option.indent << varName << "->setSortingEnabled(false);\n";
+    }
     for (int i = 0; i < items.size(); ++i) {
         DomItem *item = items.at(i);
         if (item->hasAttributeRow() && item->hasAttributeColumn()) {
@@ -1537,6 +1546,12 @@ void WriteInitialization::initializeTableWidget(DomWidget *w)
                     << itemName << ");\n";
             }
         }
+    }
+    if (!items.isEmpty()) {
+        // restore value of sortingEnabled
+        refreshOut << "\n";
+        refreshOut << option.indent << varName << "->setSortingEnabled(" << tempName << ");\n";
+        refreshOut << "\n";
     }
 }
 
