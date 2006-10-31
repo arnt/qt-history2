@@ -50,9 +50,13 @@ bool QMacPrintEngine::begin(QPaintDevice *dev)
             return false;
         }
     }
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+    OSStatus status = d->suppressStatus ? PMSessionBeginCGDocumentNoDialog(d->session, d->settings, d->format)
+                                        : PMSessionBeginCGDocument(d->session, d->settings, d->format);
+#else
     OSStatus status = d->suppressStatus ? PMSessionBeginDocumentNoDialog(d->session, d->settings, d->format)
                                         : PMSessionBeginDocument(d->session, d->settings, d->format);
-
+#endif
     if (status != noErr) {
         d->state = QPrinter::Error;
         return false;
@@ -160,7 +164,11 @@ void QMacPrintEnginePrivate::setPageSize(QPrinter::PageSize ps)
                 PMCopyPageFormat(tmp, format);
                 // reset the orientation and resolution as they are lost in the copy.
                 q->setProperty(QPrintEngine::PPK_Orientation, orient);
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+                PMPrinterSetOutputResolution(printer, settings, &resolution);
+#else
                 PMSetResolution(format, &resolution);
+#endif
                 if (PMSessionValidatePageFormat(session, format, kPMDontWantBoolean) != noErr) {
                     // Don't know, warn for the moment.
                     qWarning("QMacPrintEngine, problem setting format and resolution for this page size");
@@ -195,6 +203,7 @@ QList<QVariant> QMacPrintEnginePrivate::supportedResolutions() const
         PMResolution res;
         OSStatus status = PMPrinterGetPrinterResolutionCount(printer, &resCount);
         if (status  == kPMNotImplemented) {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_5)
             // *Sigh* we have to use the non-indexed version.
             if (PMPrinterGetPrinterResolution(printer, kPMMinSquareResolution, &res) == noErr)
                 resolutions.append(int(res.hRes));
@@ -208,6 +217,7 @@ QList<QVariant> QMacPrintEnginePrivate::supportedResolutions() const
                 if (!resolutions.contains(var))
                     resolutions.append(var);
             }
+#endif
         } else if (status == noErr) {
             // According to the docs, index start at 1.
             for (UInt32 i = 1; i <= resCount; ++i) {
@@ -215,7 +225,7 @@ QList<QVariant> QMacPrintEnginePrivate::supportedResolutions() const
                     resolutions.append(QVariant(int(res.hRes)));
             }
         } else {
-            qWarning("QMacPrintEngine::supportedResolutions: Unexpected error: %ld", status);
+            qWarning("QMacPrintEngine::supportedResolutions: Unexpected error: %d", status);
         }
     }
     return resolutions;
@@ -309,7 +319,11 @@ int QMacPrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const
         PMPrinter printer;
         if(PMSessionGetCurrentPrinter(d->session, &printer) == noErr) {
             PMResolution resolution;
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+            PMPrinterGetOutputResolution(printer, d->settings, &resolution);
+#else
             PMPrinterGetPrinterResolution(printer, kPMCurrentValue, &resolution);
+#endif
             val = (int)resolution.vRes;
             break;
         }
@@ -350,15 +364,17 @@ void QMacPrintEnginePrivate::initialize()
     if (PMCreateSession(&session) != noErr)
         session = 0;
 
-    PMTag res;
-    if (mode == QPrinter::HighResolution)
-        res = kPMMaxSquareResolution;
-    else
-        res = kPMDefaultResolution;
-
     PMPrinter printer;
     if (session && PMSessionGetCurrentPrinter(session, &printer) == noErr) {
-        if(PMPrinterGetPrinterResolution(printer, res, &resolution) != noErr)
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+        OSStatus err = PMPrinterGetOutputResolution(printer, settings, &resolution);
+#else
+        OSStatus err = PMPrinterGetPrinterResolution(printer,
+                                                     mode == QPrinter::HighResolution ?
+                                                     kPMMaxSquareResolution : kPMDefaultResolution,
+                                                     &resolution);
+#endif
+        if(err != noErr)
             qWarning("QPrinter::initialize: Cannot get printer resolution");
     }
 
@@ -367,29 +383,21 @@ void QMacPrintEnginePrivate::initialize()
     if (settingsOK && !settingsInitialized)
         settingsOK = PMSessionDefaultPrintSettings(session, settings) == noErr;
 
-
     bool formatInitialized = (format != 0);
     bool formatOK = !formatInitialized ? PMCreatePageFormat(&format) == noErr : true;
     if (formatOK) {
         if (!formatInitialized) {
             formatOK = PMSessionDefaultPageFormat(session, format) == noErr;
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+            if (session && PMSessionGetCurrentPrinter(session, &printer) == noErr)
+                formatOK = PMPrinterSetOutputResolution(printer, settings, &resolution) == noErr;
+#else
             formatOK = PMSetResolution(format, &resolution) == noErr;
+#endif
         }
         formatOK = PMSessionValidatePageFormat(session, format, kPMDontWantBoolean) == noErr;
     }
 
-    if(paintEngine->type() == QPaintEngine::CoreGraphics) {
-        CFStringRef strings[1] = { kPMGraphicsContextCoreGraphics };
-        QCFType<CFArrayRef> contextArray = CFArrayCreate(kCFAllocatorDefault,
-                                                         reinterpret_cast<const void **>(strings),
-                                                         1, &kCFTypeArrayCallBacks);
-        OSStatus err = PMSessionSetDocumentFormatGeneration(session, kPMDocumentFormatPDF,
-                                                            contextArray, 0);
-        if(err != noErr) {
-            qWarning("QMacPrintEngine::initialize: Cannot set format generation to PDF: %ld", long(err));
-            state = QPrinter::Error;
-        }
-    }
     if (!settingsOK || !formatOK) {
         qWarning("QMacPrintEngine::initialize: Unable to initialize QPainter");
         state = QPrinter::Error;
@@ -415,9 +423,14 @@ bool QMacPrintEnginePrivate::newPage_helper()
 
     QRect page = q->property(QPrintEngine::PPK_PageRect).toRect();
     QRect paper = q->property(QPrintEngine::PPK_PaperRect).toRect();
+
     CGContextRef cgContext;
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+    OSStatus err = PMSessionGetCGGraphicsContext(session, &cgContext);
+#else
     OSStatus err = PMSessionGetGraphicsContext(session, kPMGraphicsContextCoreGraphics,
                                                reinterpret_cast<void **>(&cgContext));
+#endif
     if(err != noErr) {
         qWarning("QMacPrintEngine::newPage: Cannot retrieve CoreGraphics context: %ld", long(err));
         state = QPrinter::Error;
@@ -547,7 +560,11 @@ void QMacPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &va
                 }
             }
         }
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+        PMPrinterSetOutputResolution(printer, d->settings, &resolution);
+#else
         PMSetResolution(d->format, &resolution);
+#endif
         PMSessionValidatePageFormat(d->session, d->format, kPMDontWantBoolean);
         break;
     }
@@ -571,7 +588,11 @@ void QMacPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &va
         d->setPageSize(QPrinter::PageSize(value.toInt()));
         break;
     case PPK_PrinterName: {
-        OSStatus status = PMSessionSetCurrentPrinter(d->session, QCFString(value.toString()));
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+        OSStatus status = PMPrintSettingsSetJobName(d->settings, QCFString(value.toString()));
+#else
+        OSStatus status = PMSetJobNameCFString(d->session, QCFString(value.toString()));
+#endif
         if (status == noErr)
             qWarning("QMacPrintEngine::setPrinterName: Error setting printer: %ld", long(status));
         break; }
@@ -654,8 +675,16 @@ QVariant QMacPrintEngine::property(PrintEnginePropertyKey key) const
 		break; }
     case PPK_Resolution: {
         PMResolution resolution;
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+        PMPrinter printer;
+        if (PMSessionGetCurrentPrinter(d->session, &printer) == noErr) {
+            if(PMPrinterGetOutputResolution(printer, d->settings, &resolution) == noErr)
+                ret = resolution.hRes;
+        }
+#else
         if (PMGetResolution(d->format, &resolution) == noErr)
             ret = resolution.hRes;
+#endif
         break;
     }
     case PPK_SupportedResolutions:
