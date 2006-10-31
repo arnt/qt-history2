@@ -3438,6 +3438,120 @@ void QRasterBuffer::flushToARGBImage(QImage *target) const
     }
 }
 
+
+class QGradientCache
+{
+    struct CacheInfo
+    {
+        inline CacheInfo(QGradientStops s, int op) :
+            stops(s), opacity(op) {}
+        uint buffer[GRADIENT_STOPTABLE_SIZE];
+        QGradientStops stops;
+        int opacity;
+    };
+
+    typedef QMultiHash<quint64, CacheInfo> QGradientColorTableHash;
+
+public:
+    inline const uint *getBuffer(const QGradientStops &stops, int opacity) {
+        quint64 hash_val = 0;
+
+        for (int i = 0; i < stops.size() && i <= 2; i++)
+            hash_val += stops[i].second.rgba();
+
+        QGradientColorTableHash::const_iterator it = cache.constFind(hash_val);
+
+        if (it == cache.constEnd())
+            return addCacheElement(hash_val, stops, opacity);
+        else {
+            do {
+                const CacheInfo &cache_info = it.value();
+                if (cache_info.stops == stops && cache_info.opacity == opacity)
+                    return cache_info.buffer;
+                ++it;
+            } while (it != cache.constEnd() && it.key() == hash_val);
+            // an exact match for these stops and opacity was not found, create new cache
+            return addCacheElement(hash_val, stops, opacity);
+        }
+    }
+
+    inline int paletteSize() const { return GRADIENT_STOPTABLE_SIZE; }
+protected:
+    inline int maxCacheSize() const { return 60; }
+    inline void generateGradientColorTable(const QGradientStops& s,
+                                           uint *colorTable,
+                                           int size, int opacity) const;
+    uint *addCacheElement(quint64 hash_val, const QGradientStops &stops, int opacity) {
+        if (cache.size() == maxCacheSize()) {
+            int elem_to_remove = qrand() % maxCacheSize();
+            cache.remove(cache.keys()[elem_to_remove]); // may remove more than 1, but OK
+        }
+        CacheInfo cache_entry(stops, opacity);
+        generateGradientColorTable(stops, cache_entry.buffer, paletteSize(), opacity);
+        return cache.insert(hash_val, cache_entry).value().buffer;
+    }
+
+    QGradientColorTableHash cache;
+};
+
+void QGradientCache::generateGradientColorTable(const QGradientStops& stops, uint *colorTable, int size, int opacity) const
+{
+    int stopCount = stops.count();
+    Q_ASSERT(stopCount > 0);
+
+    // The position where the gradient begins and ends
+    int begin_pos = int(stops[0].first * size);
+    int end_pos = int(stops[stopCount-1].first * size);
+
+    int pos = 0; // The position in the color table.
+
+    // Up to first point
+    while (pos <= begin_pos) {
+        colorTable[pos] = PREMUL(ARGB_COMBINE_ALPHA(stops[0].second.rgba(), opacity));
+        ++pos;
+    }
+
+    qreal incr = 1 / qreal(size); // the double increment.
+    qreal dpos = incr * pos; // The position in terms of 0-1.
+
+    int current_stop = 0; // We always interpolate between current and current + 1.
+
+    // Gradient area
+    while (pos < end_pos) {
+
+        Q_ASSERT(current_stop < stopCount);
+
+        uint current_color = PREMUL(ARGB_COMBINE_ALPHA(stops[current_stop].second.rgba(), opacity));
+        uint next_color = PREMUL(ARGB_COMBINE_ALPHA(stops[current_stop+1].second.rgba(), opacity));
+
+        int dist;
+        qreal diff = (stops[current_stop+1].first - stops[current_stop].first);
+        if (diff != 0.0)
+            dist = (int)(256*(dpos - stops[current_stop].first) / diff);
+        else
+            dist = 0;
+        int idist = 256 - dist;
+
+        colorTable[pos] = INTERPOLATE_PIXEL_256(current_color, idist, next_color, dist);
+
+        ++pos;
+        dpos += incr;
+
+        if (dpos > stops[current_stop+1].first) {
+            ++current_stop;
+        }
+    }
+
+    // After last point
+    while (pos < size) {
+        colorTable[pos] = PREMUL(ARGB_COMBINE_ALPHA(stops[stopCount-1].second.rgba(), opacity));
+        ++pos;
+    }
+}
+
+Q_GLOBAL_STATIC(QGradientCache, qt_gradient_cache)
+
+
 void QSpanData::init(QRasterBuffer *rb, QRasterPaintEngine *pe)
 {
     rasterBuffer = rb;
@@ -3467,7 +3581,8 @@ void QSpanData::setup(const QBrush &brush, int alpha)
             type = LinearGradient;
             const QLinearGradient *g = static_cast<const QLinearGradient *>(brush.gradient());
             gradient.alphaColor = !brush.isOpaque() || alpha != 256;
-            initGradient(g, alpha);
+            gradient.colorTable = const_cast<uint*>(qt_gradient_cache()->getBuffer(g->stops(), alpha));
+            gradient.spread = g->spread();
 
             gradient.linear.origin.x = g->start().x();
             gradient.linear.origin.y = g->start().y();
@@ -3481,7 +3596,8 @@ void QSpanData::setup(const QBrush &brush, int alpha)
             type = RadialGradient;
             const QRadialGradient *g = static_cast<const QRadialGradient *>(brush.gradient());
             gradient.alphaColor = !brush.isOpaque() || alpha != 256;
-            initGradient(g, alpha);
+            gradient.colorTable = const_cast<uint*>(qt_gradient_cache()->getBuffer(g->stops(), alpha));
+            gradient.spread = g->spread();
 
             QPointF center = g->center();
             gradient.radial.center.x = center.x();
@@ -3498,7 +3614,7 @@ void QSpanData::setup(const QBrush &brush, int alpha)
             type = ConicalGradient;
             const QConicalGradient *g = static_cast<const QConicalGradient *>(brush.gradient());
             gradient.alphaColor = !brush.isOpaque() || alpha != 256;
-            initGradient(g, alpha);
+            gradient.colorTable = const_cast<uint*>(qt_gradient_cache()->getBuffer(g->stops(), alpha));
             gradient.spread = QGradient::RepeatSpread;
 
             QPointF center = g->center();
@@ -3605,75 +3721,6 @@ void QSpanData::initTexture(const QImage *image, int alpha, TextureData::Type _t
     texture.type = _type;
 
     adjustSpanMethods();
-}
-
-void QSpanData::initGradient(const QGradient *g, int alpha)
-{
-    const QGradientStops stops = g->stops();
-    int stopCount = stops.count();
-    Q_ASSERT(stopCount > 0);
-
-    // The position where the gradient begins and ends
-    int begin_pos = int(stops[0].first * GRADIENT_STOPTABLE_SIZE);
-    int end_pos = int(stops[stopCount-1].first * GRADIENT_STOPTABLE_SIZE);
-
-    int pos = 0; // The position in the color table.
-
-    uint current_color;
-    uint next_color;
-
-    // Up to first point
-    current_color = PREMUL(ARGB_COMBINE_ALPHA(stops[0].second.rgba(), alpha));
-    while (pos<=begin_pos) {
-        gradient.colorTable[pos] = current_color;
-        ++pos;
-    }
-
-    qreal incr = 1 / qreal(GRADIENT_STOPTABLE_SIZE); // the double increment.
-    qreal dpos = incr * pos; // The position in terms of 0-1.
-
-    int current_stop = 0; // We always interpolate between current and current + 1.
-    qreal diff;
-
-    // Gradient area
-    if (pos < end_pos) {
-        next_color = PREMUL(ARGB_COMBINE_ALPHA(stops[1].second.rgba(), alpha));
-        diff = stops[1].first - stops[0].first;
-    }
-    while (pos < end_pos) {
-
-        Q_ASSERT(current_stop < stopCount);
-
-        int dist;
-        if (diff != 0.0)
-            dist = (int)(256*(dpos - stops[current_stop].first) / diff);
-        else
-            dist = 0;
-        int idist = 256 - dist;
-
-        gradient.colorTable[pos] = INTERPOLATE_PIXEL_256(current_color, idist, next_color, dist);
-
-        ++pos;
-        dpos += incr;
-
-        if (dpos > stops[current_stop+1].first) {
-            ++current_stop;
-            if (pos >= end_pos)
-                break;
-            current_color = next_color;
-            next_color = PREMUL(ARGB_COMBINE_ALPHA(stops[current_stop+1].second.rgba(), alpha));
-            diff = (stops[current_stop+1].first - stops[current_stop].first);
-        }
-    }
-
-    // After last point
-    current_color = PREMUL(ARGB_COMBINE_ALPHA(stops[stopCount - 1].second.rgba(), alpha));
-    while (pos < GRADIENT_STOPTABLE_SIZE) {
-        gradient.colorTable[pos] = current_color;
-        ++pos;
-    }
-
-    gradient.spread = g->spread();
 }
 
 #ifdef Q_WS_WIN
