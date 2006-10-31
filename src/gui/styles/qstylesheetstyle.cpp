@@ -41,6 +41,7 @@ typedef QHash<QString, QHash<int, QRenderRule> > QRenderRules;
 static QHash<const QWidget *, QRenderRules> *renderRulesCache = 0;
 static QHash<const QWidget *, int> *customPaletteWidgets = 0; // widgets whose palette we tampered
 static QHash<const QWidget *, int> *customFontWidgets = 0; // widgets whose font we tampered
+static QHash<const QWidget *, StyleSheet> *styleSheetCache = 0; // parsed style sheets
 
 #define ceil(x) ((int)(x) + ((x) > 0 && (x) != (int)(x)))
 
@@ -54,6 +55,7 @@ static void initStatics()
     renderRulesCache = new QHash<const QWidget *, QRenderRules>;
     customPaletteWidgets = new QHash<const QWidget *, int>;
     customFontWidgets = new QHash<const QWidget *, int>;
+    styleSheetCache = new QHash<const QWidget *, StyleSheet>;
 }
 
 struct QStyleSheetBorderImageData : public QSharedData
@@ -1184,25 +1186,37 @@ public:
 static QVector<QCss::StyleRule> styleRules(QWidget *w)
 {
     QStyleSheetStyleSelector styleSelector;
-    StyleSheet appSs;
-    Parser parser1(qApp->styleSheet());
-    if (!parser1.parse(&appSs))
-        qWarning("Could not parse application stylesheet");
-    appSs.origin = StyleSheetOrigin_Author;
-    styleSelector.styleSheets += appSs;
+    if (!qApp->styleSheet().isEmpty()) {
+        StyleSheet appSs;
+        if (!styleSheetCache->contains(0)) {
+            Parser parser1(qApp->styleSheet());
+            if (!parser1.parse(&appSs))
+                qWarning("Could not parse application stylesheet");
+           appSs.origin = StyleSheetOrigin_Author;
+            styleSheetCache->insert(0, appSs);
+        } else {
+            appSs = styleSheetCache->value(0);
+        }
+        styleSelector.styleSheets += appSs;
+    }
 
     QList<QCss::StyleSheet> widgetSs;
     for (QWidget *wid = w; wid; wid = wid->parentWidget()) {
         if (wid->styleSheet().isEmpty())
             continue;
         StyleSheet ss;
-        Parser parser(wid->styleSheet());
-        if (!parser.parse(&ss) && wid == w) {
-            Parser parser2(QLatin1String("* {") + wid->styleSheet() + QLatin1String("}"));
-            if (!parser2.parse(&ss))
-                qWarning("Could not parse stylesheet of widget %p", wid);
+        if (!styleSheetCache->contains(wid)) {
+            Parser parser(wid->styleSheet());
+            if (!parser.parse(&ss) && wid == w) {
+                Parser parser2(QLatin1String("* {") + wid->styleSheet() + QLatin1String("}"));
+                if (!parser2.parse(&ss))
+                   qWarning("Could not parse stylesheet of widget %p", wid);
+            }
+            ss.origin = StyleSheetOrigin_Inline;
+            styleSheetCache->insert(wid, ss);
+        } else {
+            ss = styleSheetCache->value(wid);
         }
-        ss.origin = StyleSheetOrigin_Inline;
         widgetSs.prepend(ss);
     }
 
@@ -1733,9 +1747,8 @@ void QStyleSheetStyle::polish(QWidget *w)
     renderRulesCache->remove(w);
     QVector<QCss::StyleRule> rules = styleRules(w);
     styleRulesCache->insert(w, rules);
-    if (rules.isEmpty()) {
-        unsetPalette(w);
-    } else {
+    unsetPalette(w);
+    if (!rules.isEmpty()) {
         setPalette(w);
     }
     updateWidget(w);
@@ -1757,11 +1770,13 @@ void QStyleSheetStyle::repolish(QWidget *w)
 {
     QList<const QWidget *> children = qFindChildren<const QWidget *>(w, QString());
     children.append(w);
+    styleSheetCache->remove(w);
     updateWidgets(children);
 }
 
 void QStyleSheetStyle::repolish(QApplication *)
 {
+    styleSheetCache->remove(0);
     updateWidgets(styleRulesCache->keys());
 }
 
@@ -1769,6 +1784,7 @@ void QStyleSheetStyle::unpolish(QWidget *w)
 {
     styleRulesCache->remove(w);
     renderRulesCache->remove(w);
+    styleSheetCache->remove(w);
     baseStyle()->unpolish(w);
     unsetPalette(w);
     QObject::disconnect(w, SIGNAL(destroyed(QObject*)),
@@ -1779,6 +1795,7 @@ void QStyleSheetStyle::unpolish(QApplication *app)
 {
     styleRulesCache->clear();
     renderRulesCache->clear();
+    styleSheetCache->remove(0);
     baseStyle()->unpolish(app);
 }
 
