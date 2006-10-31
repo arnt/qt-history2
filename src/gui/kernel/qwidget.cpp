@@ -4606,11 +4606,10 @@ bool QWidget::restoreGeometry(const QByteArray &geometry)
         restoredNormalGeometry = QRect(QPoint(0, frameHeight), sizeHint());
 
     const QDesktopWidget * const desktop = QApplication::desktop();
-    if (restoredScreenNumber < desktop->numScreens())
+    if (restoredScreenNumber >= desktop->numScreens())
         restoredScreenNumber = desktop->primaryScreen();
 
-    const QRect availableGeometry = desktop->isVirtualDesktop() ?
-        desktop->availableGeometry() : desktop->availableGeometry(restoredScreenNumber);
+    const QRect availableGeometry = desktop->availableGeometry(restoredScreenNumber);
 
     // Modify the restored geometry if we are about to restore to coordinates
     // that would make the window "lost". This happens if:
