@@ -1227,6 +1227,9 @@ bool QAbstractItemView::viewportEvent(QEvent *event)
         if (d->hover != old)
             d->viewport->update(visualRect(old)|visualRect(d->hover));
         break; }
+    case QEvent::Leave:
+        d->enteredIndex = QModelIndex();
+        break;
 #ifndef QT_NO_TOOLTIP
     case QEvent::ToolTip: {
         if (!isActiveWindow())
