@@ -880,6 +880,17 @@ void QMenuBar::paintEvent(QPaintEvent *e)
 /*!
   \reimp
 */
+void QMenuBar::setVisible(bool visible)
+{
+    Q_D(QMenuBar);
+    if(d->mac_menubar)
+        return;
+    QWidget::setVisible(visible);
+}
+
+/*!
+  \reimp
+*/
 void QMenuBar::mousePressEvent(QMouseEvent *e)
 {
     Q_D(QMenuBar);

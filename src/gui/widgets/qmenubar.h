@@ -78,6 +78,9 @@ public:
     MenuRef macMenu();
 #endif
 
+public Q_SLOTS:
+    virtual void setVisible(bool visible);
+
 Q_SIGNALS:
     void triggered(QAction *action);
     void hovered(QAction *action);
@@ -242,8 +245,8 @@ public:
 
     QT3_SUPPORT void setFrameRect(QRect) {}
     QT3_SUPPORT QRect frameRect() const { return QRect(); }
-    enum DummyFrame { Box, Sunken, Plain, Raised, MShadow, NoFrame, Panel, StyledPanel, 
-                      HLine, VLine, GroupBoxPanel, WinPanel, ToolBarPanel, MenuBarPanel, 
+    enum DummyFrame { Box, Sunken, Plain, Raised, MShadow, NoFrame, Panel, StyledPanel,
+                      HLine, VLine, GroupBoxPanel, WinPanel, ToolBarPanel, MenuBarPanel,
                       PopupPanel, LineEditPanel, TabWidgetPanel, MShape };
     QT3_SUPPORT void setFrameShadow(DummyFrame) {}
     QT3_SUPPORT DummyFrame frameShadow() const { return Plain; }
@@ -252,10 +255,10 @@ public:
     QT3_SUPPORT void setFrameStyle(int) {}
     QT3_SUPPORT int frameStyle() const  { return 0; }
     QT3_SUPPORT void setLineWidth(int) {}
-    QT3_SUPPORT int lineWidth() const { return 0; }    
+    QT3_SUPPORT int lineWidth() const { return 0; }
     QT3_SUPPORT void setMargin(int margin) { setContentsMargins(margin, margin, margin, margin); }
-    QT3_SUPPORT int margin() const 
-    { int margin; int dummy; getContentsMargins(&margin, &dummy, &dummy, &dummy);  return margin; }    
+    QT3_SUPPORT int margin() const
+    { int margin; int dummy; getContentsMargins(&margin, &dummy, &dummy, &dummy);  return margin; }
     QT3_SUPPORT void setMidLineWidth(int) {}
     QT3_SUPPORT int midLineWidth() const { return 0; }
 
