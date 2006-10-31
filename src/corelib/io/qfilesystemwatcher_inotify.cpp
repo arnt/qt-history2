@@ -74,6 +74,10 @@
 # define __NR_inotify_init      284
 # define __NR_inotify_add_watch 285
 # define __NR_inotify_rm_watch  286
+#elif defined (__hppa__)
+# define __NR_inotify_init      269
+# define __NR_inotify_add_watch 270
+# define __NR_inotify_rm_watch  271
 #else
 # error "This architecture is not supported. Please talk to qt-bugs@trolltech.com"
 #endif
