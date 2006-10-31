@@ -346,12 +346,11 @@ bool QEventDispatcherGlib::processEvents(QEventLoop::ProcessEventsFlags flags)
     else
         emit awake();
 
-    QEventLoop::ProcessEventsFlags saved_flags = d->postEventSource->flags;
+    // tell postEventSourcePrepare() about any new flags
     d->postEventSource->flags = flags;
     bool result = g_main_context_iteration(d->mainContext, canWait);
     while (!result && canWait)
         result = g_main_context_iteration(d->mainContext, canWait);
-    d->postEventSource->flags = saved_flags;
 
     if (canWait)
         emit awake();
