@@ -190,6 +190,8 @@ bool QPluginLoader::unload()
         did_load = false;
         return d->unload();
     }
+    if (d)  // Ouch
+        d->errorString = tr("The plugin was not loaded.");
     return false;
 }
 

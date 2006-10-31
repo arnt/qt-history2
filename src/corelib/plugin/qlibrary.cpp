@@ -564,8 +564,14 @@ bool QLibraryPrivate::isPlugin()
         settings.setValue(regkey, queried);
     }
 
-    if (!success)
+    if (!success) {
+        if (fileName.isEmpty()) {
+            errorString = QLibrary::tr("The shared library was not found.");
+        } else {
+            errorString = QLibrary::tr("The file '%1' is not a valid Qt plugin.").arg(fileName);
+        }
         return false;
+    }
 
     pluginState = IsNotAPlugin; // be pessimistic
 
@@ -600,6 +606,8 @@ bool QLibraryPrivate::isPlugin()
 #ifndef QT_NO_DEBUG_PLUGIN_CHECK
     } else if(debug != QLIBRARY_AS_DEBUG) {
         //don't issue a qWarning since we will hopefully find a non-debug? --Sam
+        errorString = QLibrary::tr("The plugin '%1' uses incompatible Qt library."
+                 " (Cannot mix debug and release libraries.)").arg(fileName);
 #endif
     } else {
         pluginState = IsAPlugin;
