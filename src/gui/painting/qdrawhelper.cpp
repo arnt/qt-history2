@@ -810,11 +810,15 @@ static const uint * QT_FASTCALL fetchLinearGradient(uint *buffer, const Operator
 
     const uint *end = buffer + length;
     if (affine) {
-        while (buffer < end) {
-            *buffer = qt_gradient_pixel(&data->gradient, t);
-
-            t += inc;
-            ++buffer;
+        if (inc > -1e-6 && inc < 1e-6) {
+            QT_MEMFILL_UINT(buffer, length, qt_gradient_pixel(&data->gradient, t));
+        } else {
+            while (buffer < end) {
+                *buffer = qt_gradient_pixel(&data->gradient, t);
+                
+                t += inc;
+                ++buffer;
+            }
         }
     } else {
         qreal rw = data->m23 * y + data->m13 * x + 1.;
