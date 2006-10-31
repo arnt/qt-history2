@@ -90,6 +90,7 @@ public:
     void refreshPageSizes();
 
     bool setupPrinter();
+    void updateWidgets();
 
     Ui::QPrintDialog ui;
     QList<QPrinterDescription> lprPrinters;
@@ -1200,6 +1201,23 @@ bool QPrintDialogPrivate::setupPrinter()
     return true;
 }
 
+void QPrintDialogPrivate::updateWidgets()
+{
+    Q_Q(QPrintDialog);
+    ui.gbPrintRange->setEnabled(options & QPrintDialog::PrintPageRange);
+    ui.rbPrintSelection->setEnabled(options & QPrintDialog::PrintSelection);
+    ui.chbPrintToFile->setEnabled(options & QPrintDialog::PrintToFile);
+    ui.chbCollate->setEnabled(options & QPrintDialog::PrintCollateCopies);
+
+    ui.sbFrom->setMinValue(minPage);
+    ui.sbTo->setMinValue(minPage);
+    ui.sbFrom->setMaxValue(maxPage);
+    ui.sbTo->setMaxValue(maxPage);
+
+    ui.sbFrom->setValue(fromPage);
+    ui.sbTo->setValue(toPage);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 QPrintDialog::QPrintDialog(QPrinter *printer, QWidget *parent) : QAbstractPrintDialog(*(new QPrintDialogPrivate), printer, parent)
@@ -1214,6 +1232,9 @@ QPrintDialog::~QPrintDialog()
 int QPrintDialog::exec()
 {
     Q_D(QPrintDialog);
+
+    d->updateWidgets();
+
   redo:
     int status = QDialog::exec();
     if (status == QDialog::Accepted)
