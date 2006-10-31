@@ -88,6 +88,7 @@ tst_QPluginLoader::~tst_QPluginLoader()
 {
 }
 
+//#define SHOW_ERRORS 1
 
 void tst_QPluginLoader::errorString()
 {
@@ -95,16 +96,53 @@ void tst_QPluginLoader::errorString()
     const QString unknown(QLatin1String("Unknown error"));
     {
     QPluginLoader loader( sys_qualifiedLibraryName("mylib"));     //not a plugin
-    QCOMPARE(loader.load(), false);
+    bool loaded = loader.load();
+#ifdef SHOW_ERRORS
+    qDebug() << loader.errorString();
+#endif
+    QCOMPARE(loaded, false);
     QVERIFY(loader.errorString() != unknown);
 
-    QCOMPARE(loader.instance(), static_cast<QObject*>(0));
+    QObject *obj = loader.instance();
+#ifdef SHOW_ERRORS
+    qDebug() << loader.errorString();
+#endif
+    QCOMPARE(obj, static_cast<QObject*>(0));
     QVERIFY(loader.errorString() != unknown);
 
-    QCOMPARE(loader.unload(), false);
+    bool unloaded = loader.unload();
+#ifdef SHOW_ERRORS
+    qDebug() << loader.errorString();
+#endif
+    QCOMPARE(unloaded, false);
     QVERIFY(loader.errorString() != unknown);
     }
 
+    {
+    QPluginLoader loader( sys_qualifiedLibraryName("nosuchfile"));     //not a file
+    bool loaded = loader.load();
+#ifdef SHOW_ERRORS
+    qDebug() << loader.errorString();
+#endif
+    QCOMPARE(loaded, false);
+    QVERIFY(loader.errorString() != unknown);
+
+    QObject *obj = loader.instance();
+#ifdef SHOW_ERRORS
+    qDebug() << loader.errorString();
+#endif
+    QCOMPARE(obj, static_cast<QObject*>(0));
+    QVERIFY(loader.errorString() != unknown);
+
+    bool unloaded = loader.unload();
+#ifdef SHOW_ERRORS
+    qDebug() << loader.errorString();
+#endif
+    QCOMPARE(unloaded, false);
+    QVERIFY(loader.errorString() != unknown);
+    }
+
+    
     {
     QPluginLoader loader( sys_qualifiedLibraryName("theplugin"));     //a plugin
     QCOMPARE(loader.load(), true);
