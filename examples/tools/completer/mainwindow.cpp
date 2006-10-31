@@ -177,9 +177,9 @@ void MainWindow::updateModel()
             completer->setPopup(treeView);
             treeView->setRootIsDecorated(false);
             treeView->header()->hide();
+            treeView->header()->setStretchLastSection(false);
             treeView->header()->setResizeMode(0, QHeaderView::Stretch);
-            treeView->header()->setResizeMode(1, QHeaderView::Fixed);
-            treeView->header()->resizeSection(1, treeView->fontMetrics().width("x")*3);
+            treeView->header()->setResizeMode(1, QHeaderView::ResizeToContents);
             contentsLabel->setText(tr("Enter name of your country"));
         }
         break;
