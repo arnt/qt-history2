@@ -1384,7 +1384,9 @@ QGLShareRegister* qgl_share_reg()
 
 
 /*!
-    Constructs an OpenGL context for the paint device \a device, which
+    \obsolete
+
+    Constructs an OpenGL context for the given paint \a device, which
     can be a widget or a pixmap. The \a format specifies several
     display options for the context.
 
@@ -1393,13 +1395,10 @@ QGLShareRegister* qgl_share_reg()
     will be used. After creation, the format() method will return the
     actual format obtained.
 
-    Note that after a QGLContext object has been constructed, \link
-    create() create()\endlink must be called explicitly to create
-    the actual OpenGL context. The context will be \link isValid()
-    invalid\endlink if it was not possible to obtain a GL context at
-    all.
-
-    \sa format(), isValid()
+    Note that after a QGLContext object has been constructed, \l
+    create() must be called explicitly to create the actual OpenGL
+    context. The context will be \l {isValid()}{invalid} if it was not
+    possible to obtain a GL context at all.
 */
 
 QGLContext::QGLContext(const QGLFormat &format, QPaintDevice *device)
@@ -1410,8 +1409,20 @@ QGLContext::QGLContext(const QGLFormat &format, QPaintDevice *device)
 }
 
 /*!
-    \overload
-    \internal
+    Constructs an OpenGL context with the given \a format which
+    specifies several display options for the context.
+
+    If the underlying OpenGL/Window system cannot satisfy all the
+    features requested in \a format, the nearest subset of features
+    will be used. After creation, the format() method will return the
+    actual format obtained.
+
+    Note that after a QGLContext object has been constructed, \l
+    create() must be called explicitly to create the actual OpenGL
+    context. The context will be \l {isValid()}{invalid} if it was not
+    possible to obtain a GL context at all.
+
+    \sa format(), isValid()
 */
 QGLContext::QGLContext(const QGLFormat &format)
 {
