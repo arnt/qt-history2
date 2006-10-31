@@ -105,10 +105,14 @@ static void qt_mac_clip_cg_reset(CGContextRef hd)
     CGContextConcatCTM(hd, CGAffineTransformInvert(old_xform));
 
     //do the clip reset
+#ifdef QT_MAC_NO_QUICKDRAW
+#   warning "This cannot work, we need a replacement function! --Sam"
+#else
     QRect qrect = QRect(0, 0, 99999, 999999);
     Rect qdr; SetRect(&qdr, qrect.left(), qrect.top(), qrect.right(),
             qrect.bottom());
     ClipCGContextToRegion(hd, &qdr, QRegion(qrect).handle(true));
+#endif
 
     //reset xforms
     CGContextConcatCTM(hd, CGAffineTransformInvert(CGContextGetCTM(hd)));
