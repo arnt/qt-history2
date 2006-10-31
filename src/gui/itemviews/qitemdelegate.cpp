@@ -334,10 +334,22 @@ void QItemDelegate::paint(QPainter *painter,
     QRect displayRect;
     value = index.data(Qt::DisplayRole);
     if (value.isValid()) {
-        if (value.type() == QVariant::Double)
-            text = QLocale().toString(value.toDouble());
-        else
-            text = QItemDelegatePrivate::replaceNewLine(value.toString());
+        switch (value.type()) {
+            case QVariant::Double:
+                text = QLocale().toString(value.toDouble());
+                break;
+            case QVariant::Int:
+            case QVariant::LongLong:
+                text = QLocale().toString(value.toLongLong());
+                break;
+            case QVariant::UInt:
+            case QVariant::ULongLong:
+                text = QLocale().toString(value.toULongLong());
+                break;
+            default:
+                text = QItemDelegatePrivate::replaceNewLine(value.toString());
+                break;
+        }
 
         displayRect = textRectangle(painter, d->textLayoutBounds(opt), opt.font, text);
     }
