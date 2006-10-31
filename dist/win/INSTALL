@@ -19,8 +19,8 @@ installation instructions provided instead of the ones in this document.
 
 3. Environment variables
 
-   In order to use Qt, some environment variables needs to be
-   extended.
+   In order to build and use Qt, the PATH environment variable needs
+   to be extended:
 
         PATH               - to locate qmake, moc and other Qt tools
 
