@@ -2881,6 +2881,7 @@ void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
 {
 #ifndef Q_WS_QWS
     Q_D(QOpenGLPaintEngine);
+    QGL_D_FUNC_CONTEXT
 
     if (d->use_antialiasing && d->use_fragment_programs) {
         if (d->has_brush) {
