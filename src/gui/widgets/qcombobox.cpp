@@ -2022,6 +2022,7 @@ void QComboBox::showPopup()
 
     container->raise();
     container->show();
+    container->updateScrollers();
     view()->setFocus();
 }
 
