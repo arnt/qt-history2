@@ -184,9 +184,9 @@ static void qt_mac_filedialog_event_proc(const NavEventCallbackMessage msg,
         if(t->saveDialog) {
             QString base = QCFString::toQString(NavDialogGetSaveFileName(p->context));
             QFileInfo fi(base);
-            base = fi.baseName(true);
+            base = fi.completeBaseName();
             qt_mac_filter_name *fn = t->filts->at(t->index);
-            QStringList reg = QStringList::split(";", fn->regxp);
+            QStringList reg = fn->regxp.split(";", QString::SkipEmptyParts); 
             QString r = reg.first();
             r  = r.right(r.length()-1);      // Strip the *
             base += r;                        //"." + QString::number(s->menuType);
