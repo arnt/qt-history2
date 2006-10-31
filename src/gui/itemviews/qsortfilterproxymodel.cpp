@@ -970,8 +970,12 @@ void QSortFilterProxyModelPrivate::_q_sourceReset()
 
 void QSortFilterProxyModelPrivate::_q_sourceLayoutAboutToBeChanged()
 {
-    QModelIndexList source_indexes = store_persistent_indexes();
+    Q_Q(QSortFilterProxyModel);
     saved_persistent_indexes.clear();
+    if (persistent.indexes.isEmpty())
+        return;
+    emit q->layoutAboutToBeChanged();
+    QModelIndexList source_indexes = store_persistent_indexes();
     QModelIndexList::const_iterator it;
     for(it = source_indexes.constBegin(); it != source_indexes.constEnd(); ++it)
         saved_persistent_indexes << (*it);
@@ -990,8 +994,6 @@ void QSortFilterProxyModelPrivate::_q_sourceLayoutChanged()
     it = saved_persistent_indexes.constBegin();
     for ( ; it != saved_persistent_indexes.constEnd(); ++it)
         source_indexes << (*it);
-
-    emit q->layoutAboutToBeChanged();
 
     qDeleteAll(source_index_mapping);
     source_index_mapping.clear();
