@@ -3283,6 +3283,10 @@ static void qt_drawFontLining(double x, double y, const QString &str, const QFon
    lists are deleted when the widget is destroyed.
 
    \warning This function only works reliably with ASCII strings.
+
+   To draw strings with unicode characters, or draw text to a
+   QGLPixelBuffer, open a QPainter and call QPainter::drawText()
+   instead.
 */
 
 void QGLWidget::renderText(int x, int y, const QString & str, const QFont & font, int listBase)
@@ -3329,6 +3333,11 @@ void QGLWidget::renderText(int x, int y, const QString & str, const QFont & font
     relative to the currently set projection and model matrices. This
     can be useful if you want to annotate models with text labels and
     have the labels move with the model as it is rotated etc.
+
+   To draw strings with unicode characters, or draw text to a
+   QGLPixelBuffer, open a QPainter and call QPainter::drawText()
+   instead. Note that you will have to do the screen-coordinate to
+   object-coordinate transform yourself.
 */
 void QGLWidget::renderText(double x, double y, double z, const QString & str, const QFont & font,
                            int listBase)
