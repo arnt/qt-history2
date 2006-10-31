@@ -693,7 +693,7 @@ QSize QLineEdit::minimumSizeHint() const
     Q_D(const QLineEdit);
     ensurePolished();
     QFontMetrics fm = fontMetrics();
-    int h = fm.height() + qMax(2*horizontalMargin, fm.leading())
+    int h = fm.height() + qMax(2*verticalMargin, fm.leading())
             + d->topmargin + d->bottommargin;
     int w = fm.maxWidth() + d->leftmargin + d->rightmargin;
     QStyleOptionFrameV2 opt;
