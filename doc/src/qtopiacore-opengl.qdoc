@@ -1,0 +1,79 @@
+/****************************************************************************
+**
+** Copyright (C) 2006-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+/*!
+    \page qtopiacore-opengl.html
+
+    \title Qtopia Core and OpenGL
+    \ingroup qtopiacore
+
+    Starting with the 4.2 release, \l {Qtopia Core} supports \l
+    {http://www.khronos.org/opengles/}{OpenGL ES} (OpenGL for Embedded
+    Systems). To be able to use the OpenGL API in \l {Qtopia Core}, it
+    must be integrated with the Q Window System (QWS). This is done by
+    providing an \l {http://www.khronos.org/egl/}{EGL} implementation,
+    i.e., a native platform window system interface.
+
+    \image qtopiacore-opengl.png
+
+    \l {http://www.khronos.org/egl/}{EGL} is an interface portable
+    layer for graphics resource management - and works between the
+    rendering API and the underlying native platform window
+    system. There are two ways of implementing \l
+    {http://www.khronos.org/egl/}{EGL} in \l{Qtopia Core}:
+
+    \tableofcontents
+
+    \warning This feature is under development and is subject to
+    change.
+
+    \section1 Simple Integration
+
+    The simple integration approach use a ready-made \l
+    {http://www.khronos.org/egl/}{EGL} implementation, only requiring
+    a simple custom interface between the \l
+    {http://www.khronos.org/egl/}{EGL} interface and QWS. To
+    illustrate, the current release of \l {Qtopia Core} provides a
+    simple example interface integrating the "Vanilla" EGL
+    implementation from \l {http://www.hybrid.fi/}{Hybrid Graphics
+    Ltd.} with QWS. The example is located in Qt's \c src/opengl
+    directory (\c qegl_qws.*).
+
+    \image qtopiacore-vanilla.png
+
+    Our example interface uses QImage to draw into the backingstore
+    enabling alpha blending with other windows.  It is important to
+    notice that the \l {http://www.khronos.org/egl/}{EGL} interface
+    requires that the image data is represented using native
+    types. Using the example interface as a basis for your own
+    integration, you must modify the \c qegl_qws_p.h and \c
+    qegl_qws.cpp files to ensure that the \c createNativePixmap() and
+    \c destroyNativePixmap() functions return the appropiate data. The
+    current implementation converts a QImage object to a "Vanilla"
+    pixmap.
+
+    Another approach to simple integration, is to implement the \c
+    createNativeWindow() function that enables the programmer to draw
+    directly onto the screen. Please note that this approach currently
+    requires more extensive modifications of the implementation
+    files. Please contact \l {mailto:qtbugs@trolltech.com}{Trolltech}
+    for more information.
+
+    \section1 Full Integration
+
+    It is also possible to do a full integration, taking the advantage
+    of accelerated hardware, but this requires a custom \l
+    {http://www.khronos.org/egl/}{EGL} implementation that is tailored
+    for the given platform. Please contact \l
+    {mailto:qtbugs@trolltech.com}{Trolltech} for more information.
+*/
