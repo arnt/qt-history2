@@ -1562,7 +1562,23 @@ bool QTreeWidgetItem::operator<(const QTreeWidgetItem &other) const
 */
 void QTreeWidgetItem::read(QDataStream &in)
 {
-    in >> values >> display;
+    // convert from streams written before we introduced display (4.2.0)
+    if (in.version() < QDataStream::Qt_4_2) {
+        display.clear();
+        in >> values;
+        // move the display value over to the display string list
+        for (int column = 0; column < values.count(); ++column) {
+            display << QVariant();
+            for (int i = 0; i < values.at(column).count(); ++i) {
+                if (values.at(column).at(i).role == Qt::DisplayRole) {
+                    display[column] = values.at(column).at(i).value;
+                    values[column].remove(i--);
+                }
+            }
+        }
+    } else {
+        in >> values >> display;
+    }
 }
 
 /*!
