@@ -285,7 +285,7 @@ sub syncHeader {
 ######################################################################
 sub fixPaths {
     my ($file, $dir) = @_;
-    $dir =~ s=^$basedir=$out_basedir= if(!($basedir eq $out_basedir));
+    $dir =~ s=^$basedir/=$out_basedir/= if(!($basedir eq $out_basedir));
     $file =~ s=\\=/=g;
     $dir =~ s=\\=/=g;
 
