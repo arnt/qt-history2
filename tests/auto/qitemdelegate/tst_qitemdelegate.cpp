@@ -12,6 +12,7 @@
 #include <qabstractitemview.h>
 #include <qstandarditemmodel.h>
 #include <qapplication.h>
+#include <qdatetimeedit.h>
 #include <qlistview.h>
 #include <qtableview.h>
 #include <qtreeview.h>
@@ -66,8 +67,8 @@ public:
                       const QModelIndex &index, int role) const
         { return QItemDelegate::rect(option, index, role); }
 
-    inline bool QItemDelegatePublic::eventFilter(QObject *object,
-                                                 QEvent *event)
+    inline bool eventFilter(QObject *object,
+                            QEvent *event)
         { return QItemDelegate::eventFilter(object, event); }
 
     mutable bool displayedSomething;
@@ -144,6 +145,7 @@ private slots:
     void doLayout();
     void rect();
     void eventFilter();
+    void dateTimeEditor();
 
 protected:
     void resetRect(QRect& checkRect, QRect& pixmapRect,
@@ -430,6 +432,55 @@ void tst_QItemDelegate::eventFilter()
     delete event;
 }
 
+void tst_QItemDelegate::dateTimeEditor()
+{
+    QTime time(7, 16, 34);
+    QDate date(2006, 10, 31);
+    
+    QTableWidgetItem *item1 = new QTableWidgetItem;
+    item1->setData(Qt::DisplayRole, time);
+
+    QTableWidgetItem *item2 = new QTableWidgetItem;
+    item2->setData(Qt::DisplayRole, date);
+    
+    QTableWidgetItem *item3 = new QTableWidgetItem;
+    item3->setData(Qt::DisplayRole, QDateTime(date, time));
+
+    QTableWidget widget(1, 3);
+    widget.setItem(0, 0, item1);
+    widget.setItem(0, 1, item2);
+    widget.setItem(0, 2, item3);
+    widget.show();
+
+    widget.editItem(item1);
+
+    QTestEventLoop::instance().enterLoop(1);
+
+    QTimeEdit *timeEditor = widget.findChild<QTimeEdit *>();
+    QVERIFY(timeEditor);
+    QCOMPARE(timeEditor->time(), time);
+
+    widget.clearFocus();
+    widget.setFocus();
+    widget.editItem(item2);
+
+    QTestEventLoop::instance().enterLoop(1);
+
+    QDateEdit *dateEditor = widget.findChild<QDateEdit *>();
+    QVERIFY(dateEditor);
+    QCOMPARE(dateEditor->date(), date);
+
+    widget.clearFocus();
+    widget.setFocus();
+    widget.editItem(item3);
+
+    QTestEventLoop::instance().enterLoop(1);
+
+    QDateTimeEdit *dateTimeEditor = widget.findChild<QDateTimeEdit *>();
+    QVERIFY(dateTimeEditor);
+    QCOMPARE(dateTimeEditor->date(), date);
+    QCOMPARE(dateTimeEditor->time(), time);
+}
 
 QTEST_MAIN(tst_QItemDelegate)
 #include "tst_qitemdelegate.moc"
