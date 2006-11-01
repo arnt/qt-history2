@@ -41,6 +41,12 @@
 #  define QLIBRARY_AS_DEBUG true
 #endif
 
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+// We don't use separate debug and release libs on UNIX, so we want
+// to allow loading plugins, regardless of how they were built.
+#  define QT_NO_DEBUG_PLUGIN_CHECK
+#endif
+
 Q_GLOBAL_STATIC(QMutex, qt_library_mutex)
 
 /*!
