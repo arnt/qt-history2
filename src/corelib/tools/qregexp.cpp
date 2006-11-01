@@ -3683,8 +3683,8 @@ bool QRegExp::exactMatch(const QString &str) const
     The \a caretMode parameter can be used to instruct whether \bold{^}
     should match at index 0 or at \a offset.
 
-    You might prefer to use QString::find(), QString::contains(), or
-    even QStringList::filter(). To replace matches use
+    You might prefer to use QString::indexOf(), QString::contains(),
+    or even QStringList::filter(). To replace matches use
     QString::replace().
 
     Example:
