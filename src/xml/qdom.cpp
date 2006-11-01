@@ -2106,6 +2106,14 @@ void QDomNodePrivate::setLocation(int lineNumber, int columnNumber)
     which return a QDomNode, e.g. firstChild(). You can make an
     independent (deep) copy of the node with cloneNode().
 
+    A QDomNode can be null, much like a null pointer. Creating a copy 
+    of a null node results in another null node. It is not
+    possible to modify a null node, but it is possible to assign another,
+    possibly non-null node to it. In this case, the copy of the null node
+    will remain null. You can check if a QDomNode is null by calling isNull().
+    The empty constructor of a QDomNode (or any of the derived classes) creates 
+    a null node.
+
     Nodes are inserted with insertBefore(), insertAfter() or
     appendChild(). You can replace one node with another using
     replaceChild() and remove a node with removeChild().
