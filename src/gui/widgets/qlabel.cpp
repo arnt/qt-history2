@@ -293,6 +293,10 @@ void QLabelPrivate::init()
     in read-only mode instead. QTextEdit can also provide a scrollbar
     when necessary.
 
+    Note: This function enables mouse tracking if \atext contains rich
+    text, and disables mouse tracking when setting plain text on a rich
+    text label.
+
     \sa setTextFormat(), setBuddy(), alignment
 */
 
@@ -301,8 +305,11 @@ void QLabel::setText(const QString &text)
     Q_D(QLabel);
     if (d->text == text)
         return;
+
+    bool wasRichText = d->isRichText();
     d->clearContents();
     d->text = text;
+
     if (!d->doc) {
         d->doc = new QTextDocument(this);
         d->doc->setUndoRedoEnabled(false);
@@ -315,7 +322,8 @@ void QLabel::setText(const QString &text)
         d->ensureTextControl();
     } else {
         d->doc->setPlainText(text);
-        setMouseTracking(false);
+        if (wasRichText)
+            setMouseTracking(false);
 #ifndef QT_NO_SHORTCUT
         if (d->buddy)
             d->updateShortcut();
