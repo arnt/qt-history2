@@ -140,10 +140,10 @@ QString qDBusIntrospectObject(const QDBusConnectionPrivate::ObjectTreeNode *node
 
 static QDBusMessage qDBusPropertyError(const QDBusMessage &msg, const QString &interface_name)
 {
-    return QDBusMessage::createError(QLatin1String(DBUS_ERROR_INVALID_ARGS),
-                         QString::fromLatin1("Interface %1 was not found in object %2")
-                        .arg(interface_name)
-                        .arg(msg.path()));
+    return msg.createErrorReply(QLatin1String(DBUS_ERROR_INVALID_ARGS),
+                                QString::fromLatin1("Interface %1 was not found in object %2")
+                                .arg(interface_name)
+                                .arg(msg.path()));
 }
 
 QDBusMessage qDBusPropertyGet(const QDBusConnectionPrivate::ObjectTreeNode *node,
