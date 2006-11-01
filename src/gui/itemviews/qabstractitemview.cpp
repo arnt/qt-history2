@@ -1510,7 +1510,7 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
 
         if (index.isValid() && d->showDropIndicator) {
             QRect rect = visualRect(index);
-            d->dropIndicatorPosition = d->position(event->pos(), rect);
+            d->dropIndicatorPosition = d->position(event->pos(), rect, index);
             switch (d->dropIndicatorPosition) {
             case AboveItem:
                 if (d->model->flags(index.parent()) & Qt::ItemIsDropEnabled) {
@@ -1634,10 +1634,8 @@ bool QAbstractItemViewPrivate::dropOn(QDropEvent *event, int *dropRow, int *drop
     if (model->supportedDropActions() & event->proposedAction()) {
         int row = -1;
         int col = -1;
-        if ((index != root) &&
-            (model->flags(index) & Qt::ItemIsDropEnabled
-            || model->flags(index.parent()) & Qt::ItemIsDropEnabled)) {
-            dropIndicatorPosition = position(event->pos(), q->visualRect(index));
+        if (index != root) {
+            dropIndicatorPosition = position(event->pos(), q->visualRect(index), index);
             switch (dropIndicatorPosition) {
             case QAbstractItemView::AboveItem:
                 row = index.row();
@@ -1665,19 +1663,31 @@ bool QAbstractItemViewPrivate::dropOn(QDropEvent *event, int *dropRow, int *drop
 }
 
 QAbstractItemView::DropIndicatorPosition
-QAbstractItemViewPrivate::position(const QPoint &pos, const QRect &rect) const
+QAbstractItemViewPrivate::position(const QPoint &pos, const QRect &rect, const QModelIndex &index) const
 {
+    QAbstractItemView::DropIndicatorPosition r = QAbstractItemView::OnViewport;
     if (!overwrite) {
         const int margin = 2;
-        if (pos.y() - rect.top() < margin) return QAbstractItemView::AboveItem;
-        if (rect.bottom() - pos.y() < margin) return QAbstractItemView::BelowItem;
-        if (rect.contains(pos, true)) return QAbstractItemView::OnItem;
+        if (pos.y() - rect.top() < margin) {
+            r = QAbstractItemView::AboveItem;
+        } else if (rect.bottom() - pos.y() < margin) {
+            r = QAbstractItemView::BelowItem;
+        } else if (rect.contains(pos, true)) {
+            r = QAbstractItemView::OnItem;
+        }
     } else {
         QRect touchingRect = rect;
         touchingRect.adjust(-1, -1, 1, 1);
-        if (touchingRect.contains(pos, false)) return QAbstractItemView::OnItem;
+        if (touchingRect.contains(pos, false)) {
+            r = QAbstractItemView::OnItem;
+        }
     }
-    return QAbstractItemView::OnViewport;
+
+    if (r == QAbstractItemView::OnItem
+        && (!(model->flags(index) & Qt::ItemIsDropEnabled) || !(model->flags(index.parent()) & Qt::ItemIsDropEnabled)))
+        r = pos.y() < rect.center().y() ? QAbstractItemView::AboveItem : QAbstractItemView::BelowItem;
+
+    return r;
 }
 
 #endif // QT_NO_DRAGANDDROP
