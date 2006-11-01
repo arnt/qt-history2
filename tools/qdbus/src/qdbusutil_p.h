@@ -45,6 +45,8 @@ namespace QDBusUtil
 
     QDBUS_EXPORT bool isValidErrorName(const QString &errorName);
 
+    QDBUS_EXPORT bool isValidPartOfObjectPath(const QString &path);
+
     QDBUS_EXPORT bool isValidObjectPath(const QString &path);
 
     QDBUS_EXPORT bool isValidSignature(const QString &signature);

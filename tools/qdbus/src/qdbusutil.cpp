@@ -16,9 +16,32 @@
 #include <dbus/dbus.h>
 
 #include <QtCore/qstringlist.h>
-#include <QtCore/qregexp.h>
 
 #include "qdbusargument.h"
+
+static inline bool isValidCharacterNoDash(const QChar &c)
+{
+    register ushort u = c.unicode();
+    return (u >= 'a' && u <= 'z')
+            || (u >= 'A' && u <= 'Z')
+            || (u >= '0' && u <= '9')
+            || (u == '_');
+}
+
+static inline bool isValidCharacter(const QChar &c)
+{
+    register ushort u = c.unicode();
+    return (u >= 'a' && u <= 'z')
+            || (u >= 'A' && u <= 'Z')
+            || (u >= '0' && u <= '9')
+            || (u == '_') || (u == '-');
+}
+
+static inline bool isValidNumber(const QChar &c)
+{
+    register ushort u = c.unicode();
+    return (u >= '0' && u <= '9');
+}
 
 /*!
     \namespace QDBusUtil
@@ -41,14 +64,10 @@ namespace QDBusUtil
             return false;       // can't be valid if it's empty
 
         const QChar *c = part.unicode();
-        for (int i = 0; i < part.length(); ++i) {
-            register ushort u = c[i].unicode();
-            if (!((u >= 'a' && u <= 'z') ||
-                  (u >= 'A' && u <= 'Z') ||
-                  (u >= '0' && u <= '9') ||
-                  u == '_'))
+        for (int i = 0; i < part.length(); ++i)
+            if (!isValidCharacterNoDash(c[i]))
                 return false;
-        }
+
         return true;
     }
 
@@ -98,10 +117,16 @@ namespace QDBusUtil
         if (parts.count() < 1)
             return false;
 
-        QRegExp regex(QLatin1String("[a-zA-Z0-9_-]+"));
-        for (int i = 0; i < parts.count(); ++i)
-            if (!regex.exactMatch(parts.at(i)))
-                return false;
+        for (int i = 0; i < parts.count(); ++i) {
+            const QString &part = parts.at(i);
+            if (part.isEmpty())
+                 return false;
+
+            const QChar* c = part.unicode();
+            for (int j = 0; j < part.length(); ++j)
+                if (!isValidCharacter(c[j]))
+                    return false;
+        }
 
         return true;
     }
@@ -133,10 +158,18 @@ namespace QDBusUtil
         if (parts.count() < 1)
             return false;
 
-        QRegExp regex(QLatin1String("[a-zA-Z_-][a-zA-Z0-9_-]*"));
-        for (int i = 0; i < parts.count(); ++i)
-            if (!regex.exactMatch(parts.at(i)))
+        for (int i = 0; i < parts.count(); ++i) {
+            const QString &part = parts.at(i);
+            if (part.isEmpty())
                 return false;
+
+            const QChar *c = part.unicode();
+            if (isValidNumber(c[0]))
+                return false;
+            for (int j = 0; j < part.length(); ++j)
+                if (!isValidCharacter(c[j]))
+                    return false;
+        }
 
         return true;
     }
@@ -152,8 +185,13 @@ namespace QDBusUtil
         if (memberName.isEmpty() || memberName.length() > DBUS_MAXIMUM_NAME_LENGTH)
             return false;
 
-        QRegExp regex(QLatin1String("[a-zA-Z_][a-zA-Z0-9_]*"));
-        return regex.exactMatch(memberName);
+        const QChar* c = memberName.unicode();
+        if (isValidNumber(c[0]))
+            return false;
+        for (int j = 0; j < memberName.length(); ++j)
+            if (!isValidCharacterNoDash(c[j]))
+                return false;
+        return true;
     }
 
     /*!

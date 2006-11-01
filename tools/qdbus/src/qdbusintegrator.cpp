@@ -1323,6 +1323,10 @@ void QDBusConnectionPrivate::messageResultReceived(DBusPendingCall *pending, voi
             connection->postCallDeliveryEvent(e);
         else
             qDBusDebug() << "Deliver failed!";
+
+        // ### emit a signal or call a slot if the method retuned an error
+        //if (msg.type() == QDBusMessage::ErrorMessage)
+        //    emit call->errorHandler->callWithCallbackFailed(QDBusError(msg), call->message);
     }
     dbus_pending_call_unref(pending);
     delete call;

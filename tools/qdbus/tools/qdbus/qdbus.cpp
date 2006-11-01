@@ -199,14 +199,8 @@ static void placeCall(const QString &service, const QString &path, const QString
     QVariantList params;
     for (int i = 0; !args.isEmpty() && i < types.count(); ++i) {
         int id = QVariant::nameToType(types.at(i));
-        if ((id == QVariant::UserType || id == QVariant::Map) && types.at(i) != "QDBusVariant") {
-            fprintf(stderr, "Sorry, can't pass arg of type %s yet\n",
-                    types.at(i).constData());
-            exit(1);
-        }
         if (id == QVariant::UserType)
             id = QMetaType::type(types.at(i));
-
         Q_ASSERT(id);
 
         QVariant p;
@@ -217,18 +211,42 @@ static void placeCall(const QString &service, const QString &path, const QString
         else
             p = argument = args.takeFirst();
 
-        if (id < int(QVariant::UserType)) {
-            // avoid calling it for QVariant
+        if (id == int(QMetaType::UChar)) {
+            // special case: QVariant::convert doesn't convert to/from
+            // UChar because it can't decide if it's a character or a number
+            p = qVariantFromValue<uchar>(p.toUInt());
+        } else if (id < int(QMetaType::User) && id != int(QVariant::Map)) {
             p.convert(QVariant::Type(id));
             if (p.type() == QVariant::Invalid) {
                 fprintf(stderr, "Could not convert '%s' to type '%s'.\n",
                         qPrintable(argument), types.at(i).constData());
                 exit(1);
             }
-        } else if (types.at(i) == "QDBusVariant") {
+        } else if (id == qMetaTypeId<QDBusVariant>()) {
             QDBusVariant tmp(p);
             p = qVariantFromValue(tmp);
+        } else if (id == qMetaTypeId<QDBusObjectPath>()) {
+            QDBusObjectPath path(argument);
+            if (path.path().isNull()) {
+                fprintf(stderr, "Cannot pass argument '%s' because it is not a valid object path.\n",
+                        qPrintable(argument));
+                exit(1);
+            }
+            p = qVariantFromValue(path);
+        } else if (id == qMetaTypeId<QDBusSignature>()) {
+            QDBusSignature sig(argument);
+            if (sig.signature().isNull()) {
+                fprintf(stderr, "Cannot pass argument '%s' because it is not a valid signature.\n",
+                        qPrintable(argument));
+                exit(1);
+            }
+            p = qVariantFromValue(sig);
+        } else {
+            fprintf(stderr, "Sorry, can't pass arg of type '%s'.\n",
+                    types.at(i).constData());
+            exit(1);
         }
+
         params += p;
     }
     if (params.count() != types.count() || !args.isEmpty()) {
