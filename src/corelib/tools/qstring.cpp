@@ -2695,7 +2695,7 @@ QString QString::left(int len)  const
 {
     if (d == &shared_null)
         return QString();
-    if (len > d->size || len < 0)
+    if (len >= d->size || len < 0)
         return *this;
     return QString((const QChar*) d->data, len);
 }
@@ -2720,7 +2720,7 @@ QString QString::right(int len) const
 {
     if (d == &shared_null)
         return QString();
-    if (len > d->size || len < 0)
+    if (len >= d->size || len < 0)
         return *this;
     return QString((const QChar*) d->data + d->size - len, len);
 }
