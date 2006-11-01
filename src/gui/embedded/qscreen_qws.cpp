@@ -41,22 +41,36 @@ ClearCacheFunc QScreen::clearCacheFunc = 0;
     \class QScreenCursor
     \ingroup qws
 
-    \brief The QScreenCursor class manages the onscreen mouse cursor.
+    \brief The QScreenCursor class manages the screen cursor.
 
     Note that this class is non-portable, and that it is only
     available in \l {Qtopia Core}.
 
-    QScreenCursor provides an implementation of a software mouse
-    cursor and can be subclassed by hardware drivers which support a
-    hardware mouse cursor. There may only be one QScreenCursor at a
-    time; it is constructed by the QScreen class or one of its
-    descendants, i.e. QScreen act as a factory for the screen cursor
-    and the QScreenCursor class should never be instantiated
-    explicitly.
+    QScreenCursor implements a software cursor, but can be subclassed
+    to support hardware cursors as well. When deriving from the
+    QScreenCursor class it is important to maintain the cursor's
+    image, position, hot spot (the point within the cursor's image
+    that will be the position of the associated mouse events) and
+    visibility as well as informing whether it is hardware accelerated
+    or not.
 
-    The QWSServer class provides some means of controlling the
-    cursor's appearance with the QWSServer::isCursorVisible() and
-    QWSServer::setCursorVisible() functions.
+    Note that there may only be one screen cursor at a time. Use the
+    static instance() function to retrieve a pointer to the current
+    screen cursor. Typically, the cursor is constructed by the QScreen
+    class or one of its descendants, i.e. the QScreenCursor class
+    should never be instantiated explicitly.
+
+    Use the move() function to change the position of the cursor, and
+    the set() function to alter its image or its hot spot. In
+    addition, you can find out whether the cursor is accelerated or
+    not, using the isAccelerated() function, and the boundingRect()
+    function returns the cursor's bounding rectangle.
+
+    The cursor's appearance can be controlled using the isVisible(),
+    hide() and show() functions; alternatively the QWSServer class
+    provides some means of controlling the cursor's appearance using
+    the QWSServer::isCursorVisible() and QWSServer::setCursorVisible()
+    functions.
 
     \sa QScreen, QWSServer
 */
@@ -65,14 +79,12 @@ ClearCacheFunc QScreen::clearCacheFunc = 0;
     \fn static QScreenCursor* QScreenCursor::instance()
     \since 4.2
 
-    Returns a pointer to the application's QScreenCursor instance.
+    Returns a pointer to the application's unique screen cursor.
 */
 
 extern bool qws_sw_cursor;
 
 /*!
-    \internal
-
     Constructs a screen cursor
 */
 QScreenCursor::QScreenCursor()
@@ -85,19 +97,16 @@ QScreenCursor::QScreenCursor()
 }
 
 /*!
-    \internal
-
-    Destroys a screen cursor, deleting its cursor image and
-    under-cursor storage
+    Destroys the screen cursor.
 */
 QScreenCursor::~QScreenCursor()
 {
 }
 
 /*!
-    \internal
+    Hides the cursor from the screen.
 
-    Hide the mouse cursor from the screen.
+    \sa show()
 */
 void QScreenCursor::hide()
 {
@@ -109,11 +118,9 @@ void QScreenCursor::hide()
 }
 
 /*!
-    \internal
+    Shows the mouse cursor.
 
-    Show the mouse cursor again after it has been hidden. Note that hides
-    and shows are not nested; show() should always re-display the cursor no
-    matter how many hide()s preceded it.
+    \sa hide()
 */
 void QScreenCursor::show()
 {
@@ -125,13 +132,13 @@ void QScreenCursor::show()
 }
 
 /*!
-    \internal
+    Sets the cursor's image to be the given \a image.
 
-    Sets a mouse cursor to \a image. The QImage is 32 bit, with an alpha
-    channel containing either only 255 or 0 (that is, display the pixel
-    or not) or a full alpha channel, depending on what
-    supportsAlphaCursor() returns. \a hotx and \a hoty are the point within
-    the QImage where mouse events actually 'come from'.
+    The \a hotx and \a hoty parameters define the cursor's hot spot,
+    i.e., the point within the cursor's image that will be the
+    position of the associated mouse events.
+
+    \sa move()
 */
 void QScreenCursor::set(const QImage &image, int hotx, int hoty)
 {
@@ -146,12 +153,13 @@ void QScreenCursor::set(const QImage &image, int hotx, int hoty)
 }
 
 /*!
-    \internal
+    Moves the mouse cursor to the given position, i.e., (\a x, \a y).
 
-    Move the mouse cursor to point (\a x, \a y) on the screen. This should be done
-    in such a way that the hotspot of the cursor is at (x,y) - e.g. if the
-    hotspot is at 5,5 within the image then the top left of the image should
-    be at x-5,y-5
+    Note that the given position defines the top-left corner of the
+    cursor's image, i.e., not the cursor's hot spot (the position of
+    the associated mouse events).
+
+    \sa set()
 */
 void QScreenCursor::move(int x, int y)
 {
@@ -162,6 +170,18 @@ void QScreenCursor::move(int x, int y)
 }
 
 
+/*!
+    \fn void QScreenCursor::initSoftwareCursor ()
+
+    Initializes the screen cursor.
+
+    This function is typically called from the screen driver when
+    initializing the device. Alternatively, the cursor can be set
+    directly using the pointer returned by the static instance()
+    function.
+
+    \sa QScreen::initDevice()
+*/
 void QScreenCursor::initSoftwareCursor()
 {
     qt_screencursor = new QScreenCursor;
@@ -172,8 +192,9 @@ void QScreenCursor::initSoftwareCursor()
 
 
 /*!
-    \internal
     \fn QRect QScreenCursor::boundingRect () const
+
+    Returns the cursor's bounding rectangle.
 */
 
 /*!
@@ -182,29 +203,95 @@ void QScreenCursor::initSoftwareCursor()
 */
 
 /*!
-    \internal
     \fn QImage QScreenCursor::image () const
+
+    Returns the cursor's image.
 */
 
-/*!
-    \internal
-    \fn void QScreenCursor::initSoftwareCursor ()
-*/
 
 /*!
-    \internal
     \fn bool QScreenCursor::isAccelerated () const
+
+    Returns true if the cursor is accelerated; otherwise false.
 */
 
 /*!
-    \internal
     \fn bool QScreenCursor::isVisible () const
+
+    Returns true if the cursor is visible; otherwise false.
 */
 
 /*!
     \internal
     \fn bool QScreenCursor::supportsAlphaCursor () const
 */
+
+/*
+    \variable QScreenCursor::cursor
+
+    \brief the cursor's image.
+
+    \sa image()
+*/
+
+/*
+    \variable QScreenCursor::size
+
+    \brief the cursor's size
+*/
+
+/*
+    \variable QScreenCursor::pos
+
+    \brief the cursor's position, i.e., the position of the top-left
+    corner of the crsor's image
+
+    \sa set(), move()
+*/
+
+/*
+    \variable QScreenCursor::hotspot
+
+    \brief the cursor's hotspot, i.e., the point within the cursor's
+    image that will be the position of the associated mouse events.
+
+    \sa set(), move()
+*/
+
+/*
+    \variable QScreenCursor::enable
+
+    \brief whether the cursor is visible or not
+
+    \sa isVisible()
+*/
+
+/*
+    \variable QScreenCursor::hwaccel
+
+    \brief holds whether the cursor is accelerated or not
+
+    If the cursor is not accelerated, its image will be included by
+    the screen when it composites the window surfaces.
+
+    \sa isAccelerated()
+
+*/
+
+/*
+    \variable QScreenCursor::supportsAlpha
+*/
+
+/*!
+    \internal
+    \macro qt_screencursor
+    \relates QScreenCursor
+
+    A global pointer referring to the unique screen cursor. It is
+    equivalent to the pointer returned by the
+    QScreenCursor::instance() function.
+*/
+
 
 
 class QScreenPrivate
