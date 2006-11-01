@@ -72,14 +72,13 @@ void QDBusConnectionManager::removeConnection(const QString &name)
 
     QDBusConnectionPrivate *d = 0;
     d = connectionHash.take(name);
-    if (d && !d->ref.deref()) {
+    if (d && !d->ref.deref())
         delete d;
-    } else if (d) {
-        d->closeConnection();
-        qWarning("QDBusConnection: closed connection %s"
-                 "is still referred to by other QDBusConnection objects",
-                 name.toLocal8Bit().constData());
-    }
+    // Static objects may be keeping the connection open.
+    // However, it is harmless to have outstanding references to a connection that is
+    // closing as long as those references will be soon dropped without being used.
+
+    // ### Output a warning if connections are being used after they have been removed.
 }
 
 QDBusConnectionManager::~QDBusConnectionManager()
