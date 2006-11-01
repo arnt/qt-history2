@@ -3235,11 +3235,11 @@ void QWSServerPrivate::request_region(int wid, const QString &surfaceKey,
     else
         r = region;
 
+    bool isShow = !changingw->isVisible() && !region.isEmpty();
+
     setWindowRegion(changingw, r);
 
     Q_Q(QWSServer);
-
-    bool isShow = !changingw->isVisible() && !region.isEmpty();
 
     if (isShow)
         emit q->windowEvent(changingw, QWSServer::Show);
