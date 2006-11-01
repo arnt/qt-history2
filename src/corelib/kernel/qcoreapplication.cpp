@@ -1458,7 +1458,7 @@ QString QCoreApplication::applicationFilePath()
     QT_WA({
         wchar_t module_name[256];
         GetModuleFileNameW(0, module_name, sizeof(module_name) / sizeof(wchar_t));
-        filePath = QString::fromUtf16(module_name);
+        filePath = QString::fromUtf16((ushort *)module_name);
     }, {
         char module_name[256];
         GetModuleFileNameA(0, module_name, sizeof(module_name));
