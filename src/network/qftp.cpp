@@ -1201,13 +1201,11 @@ int QFtpPrivate::addCommand(QFtpCommand *cmd)
  *********************************************************************/
 /*!
     \class QFtp
-    \brief The QFtp class provides an implementation of the FTP protocol.
+    \brief The QFtp class provides an implementation of the client side of FTP protocol.
 
     \ingroup io
     \module network
     \mainclass
-
-    This class provides a client for the FTP protocol.
 
     The class works asynchronously, so there are no blocking
     functions. If an operation cannot be executed immediately, the
@@ -1234,7 +1232,7 @@ int QFtpPrivate::addCommand(QFtpCommand *cmd)
     simply achieved:
 
     \code
-    QFtp *ftp = new QFtp(this); // this is an optional QObject parent
+    QFtp *ftp = new QFtp(parent);
     ftp->connectToHost("ftp.trolltech.com");
     ftp->login();
     \endcode
@@ -1338,6 +1336,10 @@ int QFtpPrivate::addCommand(QFtpCommand *cmd)
     If you are an experienced network programmer and want to have
     complete control you can use rawCommand() to execute arbitrary FTP
     commands.
+
+    \warning The current version of QFtp doesn't fully support
+    non-Unix FTP servers. We hope to fix this in a future version of
+    Qt.
 
     \sa QHttp, {FTP Example}
 */
