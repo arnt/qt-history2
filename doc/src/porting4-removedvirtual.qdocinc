@@ -559,7 +559,7 @@
 \row \o void QWidget::imStartEvent(QIMEvent *) \o Reimplement QWidget::inputMethodEvent() instead.
 \row \o void QWidget::move(int, int) \o Setter.
 \row \o void QWidget::paletteChange(const QPalette &) \o Reimplement QWidget::changeEvent() and handle QEvent::PaletteChange and/or QEvent::ApplicationPaletteChange.
-\row \o void QWidget::polish() \o Reimplement QWidget::polishEvent() instead.
+\row \o void QWidget::polish() \o Reimplement event() and handle the QEvent::Polish event type.
 \row \o void QWidget::reparent(QWidget *, WFlags, const QPoint &, bool) \o Reimplement QWidget::event() and handle QEvent::Reparent.
 \row \o void QWidget::resize(int, int) \o Reimplement QWidget::resizeEvent() instead.
 \row \o void QWidget::setAcceptDrops(bool) \o Setter.
