@@ -4074,16 +4074,32 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
     \class QWSServer::KeyboardFilter
     \ingroup qws
 
-    \brief The KeyboardFilter class provides a global keyboard event filter.
+    \brief The KeyboardFilter class is a base class for global
+    keyboard event filters.
 
     Note that this class is only available in \l {Qtopia Core}.
 
-    KeyboardFilter is used to implement a global, low-level filter on
-    key events in the \l {Qtopia Core} server application; this can be used
-    to implement things like APM (advanced power management) suspended
-    from a button without having to filter for it in all applications.
+    In \l {Qtopia Core}, all system generated events, including
+    keyboard events, are passed to the server application which then
+    propagates the event to the appropiate client. The KeyboardFilter
+    class is used to implement a global, low-level filter on the
+    server side. The server applies the filter to all keyboard events
+    before passing them on to the clients:
 
-    \sa QWSServer, QWSInputMethod, {Qtopia Core Character Input}
+    \image qwsserver_keyboardfilter.png
+
+    This feature can, for example, be used to filter things like APM
+    (advanced power management) suspended from a button without having
+    to filter for it in all applications.
+
+    To add a new keyboard filter you must first create the filter by
+    deriving from this class, reimplementing the pure virtual filter()
+    function. Then you can install the filter on the server using
+    QWSServer's \l {QWSServer::}{addKeyboardFilter()}
+    function. QWSServer also provides a \l
+    {QWSServer::}{removeKeyboardFilter()} function.
+
+    \sa {Qtopia Core Architecture}, QWSServer, QWSInputMethod
 */
 
 /*!
@@ -4095,31 +4111,21 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
 /*!
     \fn bool QWSServer::KeyboardFilter::filter(int unicode, int keycode, int modifiers, bool isPress, bool autoRepeat)
 
-    Returns true if the specified key event should be filtered,
-    stopping the event from being processed any further; otherwise
-    returns false.
+    Reimplement this function to return true if a given key event
+    should be stopped from being processed any further; otherwise
+    return false.
 
-    \table
-    \header \o Parameter \o Description
-    \row
-        \o \a unicode
-        \o The unicode value of the key.
-    \row
-        \o \a keycode
-        \o The Qt keycode value as defined by the Qt::Key enum.
-    \row
-        \o \a modifiers
-        \o An OR combination of Qt::KeyboardModifier values, indicating whether
-            \gui Shift/Alt/Ctrl keys are pressed.
-    \row
-        \o \a isPress
-        \o True if the event is a key press event; otherwise false.
-    \row
-        \o \a autoRepeat
-        \o True if the event is caused by auto repeat (i.e. the
-            user has held the key down and this is the second or subsequent
-            key event being sent); otherwise false.
-    \endtable
+    A key event can be identified by the given \a unicode value and
+    the \a keycode, \a modifiers, \a isPress and \a autoRepeat
+    parameters.
+
+    The \a keycode parameter is the Qt keycode value as defined by the
+    Qt::Key enum. The \a modifiers is an OR combination of
+    Qt::KeyboardModifier values, indicating whether \gui
+    Shift/Alt/Ctrl keys are pressed. The \a isPress parameter is true
+    if the event is a key press event and \a autoRepeat is true if the
+    event is caused by auto repeat (i.e. the user has held the key
+    down and this is the second or subsequent key event being sent).
 */
 
 #include "moc_qwindowsystem_qws.cpp"
