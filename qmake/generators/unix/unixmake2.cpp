@@ -663,10 +663,11 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             //copy the icon
             if(!project->isEmpty("ICON")) {
                 QString dir = project->first("DESTDIR") + project->first("QMAKE_BUNDLE") + "/Contents/Resources/";
-                t << dir << icon.section(Option::dir_sep, -1) << ": " << icon << "\n\t"
+                const QString icon_path = escapeFilePath(dir + icon.section(Option::dir_sep, -1));
+                t << icon_path << ": " << icon << "\n\t"
                   << mkdir_p_asstring(dir) << "\n\t"
-                  << "@$(DEL_FILE) " << dir << icon.section(Option::dir_sep, -1) << "\n\t"
-                  << "@$(COPY_FILE) " << icon << " " << dir << endl;
+                  << "@$(DEL_FILE) " << icon_path << "\n\t"
+                  << "@$(COPY_FILE) " << escapeFilePath(icon) << " " << icon_path << endl;
             }
         } else {
             t << "@$(DEL_FILE) " << info_plist_out << "\n\t"
