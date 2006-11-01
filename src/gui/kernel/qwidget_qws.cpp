@@ -267,6 +267,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WindowFlags f)
 {
     Q_Q(QWidget);
+    bool wasCreated = q->testAttribute(Qt::WA_WState_Created);
      if (q->isVisible() && q->parentWidget() && parent != q->parentWidget())
         q->parentWidget()->d_func()->invalidateBuffer(q->geometry());
 #ifndef QT_NO_CURSOR
@@ -312,7 +313,7 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WindowFlags f)
     adjustFlags(data.window_flags, q);
     // keep compatibility with previous versions, we need to preserve the created state
     // (but we recreate the winId for the widget being reparented, again for compability)
-    if (wasCreated && (!q->isWindow() || parent->testAttribute(Qt::WA_WState_Created)))
+    if (wasCreated && (!q->isWindow() || newparent->testAttribute(Qt::WA_WState_Created)))
         createWinId();
     if (q->isWindow() || (!newparent || newparent->isVisible()) || explicitlyHidden)
         q->setAttribute(Qt::WA_WState_Hidden);
