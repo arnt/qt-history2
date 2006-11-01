@@ -21,6 +21,7 @@
 #include <qlineedit.h>
 #include <qvalidator.h>
 #include <qtablewidget.h>
+#include <qtreewidget.h>
 
 #include <QItemDelegate>
 #include <QAbstractItemDelegate>
@@ -146,6 +147,7 @@ private slots:
     void rect();
     void eventFilter();
     void dateTimeEditor();
+    void validIndex();
 
 protected:
     void resetRect(QRect& checkRect, QRect& pixmapRect,
@@ -480,6 +482,62 @@ void tst_QItemDelegate::dateTimeEditor()
     QVERIFY(dateTimeEditor);
     QCOMPARE(dateTimeEditor->date(), date);
     QCOMPARE(dateTimeEditor->time(), time);
+}
+
+class CustomDelegate : public QItemDelegate
+{
+    Q_OBJECT
+public:
+    CustomDelegate(QObject *parent = 0) : QItemDelegate(parent) {}
+    mutable QLineEdit *ledit;
+private:
+    QWidget *createEditor(
+        QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &) const
+    {
+        ledit = new QLineEdit(parent);
+        return ledit;
+    }
+    void setEditorData(QWidget *editor, const QModelIndex &index) const
+    {
+        QVERIFY(index.isValid());
+        QVERIFY(index.model());
+        QVariant value = index.model()->data(index, Qt::DisplayRole);
+        QCOMPARE(ledit, static_cast<QLineEdit*>(editor));
+        ledit->setText(value.toString());
+    }
+    void setModelData(QWidget *, QAbstractItemModel *, const QModelIndex &index) const
+    {
+        QVERIFY(index.isValid());
+    }
+};
+
+class CustomTreeWidget : public QTreeWidget
+{
+public:
+    void commitData(QWidget * = 0)
+    {
+        QLineEdit dummy;
+        QAbstractItemView::commitData(&dummy);
+    }
+};
+
+void tst_QItemDelegate::validIndex()
+{
+    CustomTreeWidget view;
+    CustomDelegate delegate;
+    view.setItemDelegate(&delegate);
+    QTreeWidgetItem *item = new QTreeWidgetItem(&view);
+    item->setText(0, QString());
+    item->setData(0, Qt::UserRole, QString());
+    item->setFlags(item->flags() | Qt::ItemIsEditable);
+
+    // direct commit
+    view.commitData();
+
+    // indirect commit
+    view.edit(view.indexAt(QPoint(0, 0)));
+    QTest::keyClick(delegate.ledit, Qt::Key_Return);
+    QApplication::processEvents();
 }
 
 QTEST_MAIN(tst_QItemDelegate)
