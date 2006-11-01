@@ -92,6 +92,22 @@ void qt_mac_set_cursor(const QCursor *c, const QPoint &)
     currentCursor = c->d;
 }
 
+void qt_mac_update_cursor()
+{
+    QCursor cursor(Qt::ArrowCursor);
+    if(QApplication::overrideCursor()) {
+        cursor = *QApplication::overrideCursor();
+    } else {
+        for(QWidget *w = QApplication::widgetAt(QCursor::pos()); w; w = w->parentWidget()) {
+            if(w->testAttribute(Qt::WA_SetCursor)) {
+                cursor = w->cursor();
+                break;
+            }
+        }
+    }
+    qt_mac_set_cursor(&cursor, QCursor::pos());
+}
+
 static int nextCursorId = Qt::BitmapCursor;
 
 QCursorData::QCursorData(Qt::CursorShape s)

@@ -76,6 +76,7 @@ extern void qt_event_request_showsheet(QWidget *); //qapplication_mac.cpp
 extern void qt_event_request_window_change(); //qapplication_mac.cpp
 extern IconRef qt_mac_create_iconref(const QPixmap &); //qpixmap_mac.cpp
 extern void qt_mac_set_cursor(const QCursor *, const QPoint &); //qcursor_mac.cpp
+extern void qt_mac_update_cursor(); //qcursor_mac.cpp
 extern bool qt_nograb();
 extern CGImageRef qt_mac_create_cgimage(const QPixmap &, bool); //qpixmap_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
@@ -1675,37 +1676,12 @@ void QWidgetPrivate::updateSystemBackground()
 
 void QWidgetPrivate::setCursor_sys(const QCursor &cursor)
 {
-    Q_Q(QWidget);
-    if(qApp && q->isEnabled() && qApp->activeWindow() &&
-       QApplication::widgetAt(QCursor::pos()) == q) {
-        const QCursor *n = &cursor;
-        if(QApplication::overrideCursor())
-            n = QApplication::overrideCursor();
-        qt_mac_set_cursor(n, QCursor::pos());
-    }
+    qt_mac_update_cursor();
 }
 
 void QWidgetPrivate::unsetCursor_sys()
 {
-    Q_Q(QWidget);
-    if(qApp && q->isEnabled() && qApp->activeWindow() &&
-       QApplication::widgetAt(QCursor::pos()) == q) {
-        const QCursor *n = 0;
-        if(QApplication::overrideCursor()) {
-            n = QApplication::overrideCursor();
-        } else {
-            for(QWidget *p = q; p; p = p->parentWidget()) {
-                QWExtra *extra = p->d_func()->extraData();
-                if(extra && extra->curs) {
-                    n = extra->curs;
-                    break;
-                }
-            }
-        }
-        const QCursor def(Qt::ArrowCursor);
-        if(!n) n = &def; //I give up..
-        qt_mac_set_cursor(n, QCursor::pos());
-    }
+    qt_mac_update_cursor();
 }
 
 void QWidgetPrivate::setWindowTitle_sys(const QString &caption)
