@@ -35,9 +35,6 @@ public:
     static bool isSupportedType(QVariant::Type type);
     static QString displayText(const QVariant &value);
 
-private slots:
-    void commitAndCloseEditor();
-
 private:
     mutable QRegExp boolExp;
     mutable QRegExp byteArrayExp;
