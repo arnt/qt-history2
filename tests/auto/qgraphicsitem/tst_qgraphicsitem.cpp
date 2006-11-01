@@ -721,7 +721,7 @@ void tst_QGraphicsItem::selected()
     QCOMPARE(item->values.last(), true);
     QVERIFY(item->isSelected());
 
-    QGraphicsScene scene;
+    QGraphicsScene scene(-100, -100, 200, 200);
     scene.addItem(item);
     QCOMPARE(scene.selectedItems(), QList<QGraphicsItem *>() << item);
     item->setSelected(false);
@@ -733,6 +733,7 @@ void tst_QGraphicsItem::selected()
 
     // Interactive selection
     QGraphicsView view(&scene);
+    view.setFixedSize(100, 100);
     view.show();
 
     qApp->processEvents();
@@ -2325,8 +2326,11 @@ void tst_QGraphicsItem::handlesChildEvents2()
 
     QGraphicsView view(&scene);
     view.show();
-    
-    QMouseEvent event(QEvent::MouseButtonPress, view.mapFromScene(5, 5), Qt::LeftButton, 0, 0);
+
+    QTestEventLoop::instance().enterLoop(1);
+
+    QMouseEvent event(QEvent::MouseButtonPress, view.mapFromScene(5, 5),
+                      view.viewport()->mapToGlobal(view.mapFromScene(5, 5)), Qt::LeftButton, 0, 0);
     QApplication::sendEvent(view.viewport(), &event);
 
     QCOMPARE(root->numMouseEvents(), 1);
