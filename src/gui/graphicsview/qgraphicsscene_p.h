@@ -88,6 +88,9 @@ public:
     QMap<Qt::MouseButton, QPointF> mouseGrabberButtonDownScenePos;
     QMap<Qt::MouseButton, QPoint> mouseGrabberButtonDownScreenPos;
     QList<QGraphicsItem *> possibleMouseGrabbersForEvent(QGraphicsSceneMouseEvent *event);
+    QList<QGraphicsItem *> itemsAtPosition(const QPoint &screenPos,
+                                           const QPointF &scenePos,
+                                           QWidget *widget) const;
     void storeMouseButtonsForMouseGrabber(QGraphicsSceneMouseEvent *event);
 
     QList<QGraphicsView *> views;

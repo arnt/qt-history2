@@ -445,11 +445,9 @@ void QGraphicsScenePrivate::purgeRemovedItems()
 */
 QList<QGraphicsItem *> QGraphicsScenePrivate::possibleMouseGrabbersForEvent(QGraphicsSceneMouseEvent *event)
 {
-    Q_Q(QGraphicsScene);
     QList<QGraphicsItem *> possibleMouseGrabbers;
-    foreach (QGraphicsItem *item, q->items(event->scenePos())) {
-        if ((item->acceptedMouseButtons() & event->button())
-            && item->contains(item->mapFromScene(event->scenePos()))) {
+    foreach (QGraphicsItem *item, itemsAtPosition(event->screenPos(), event->scenePos(), event->widget())) {
+        if (item->acceptedMouseButtons() & event->button()) {
             if (!item->isEnabled()) {
                 // Disabled mouse-accepting items discard mouse events.
                 break;
@@ -458,6 +456,23 @@ QList<QGraphicsItem *> QGraphicsScenePrivate::possibleMouseGrabbersForEvent(QGra
         }
     }
     return possibleMouseGrabbers;
+}
+
+/*!
+    Returns all items for the screen position in \a event.
+*/
+QList<QGraphicsItem *> QGraphicsScenePrivate::itemsAtPosition(const QPoint &screenPos,
+                                                              const QPointF &scenePos,
+                                                              QWidget *widget) const
+{
+    Q_Q(const QGraphicsScene);
+    QGraphicsView *view = widget ? qobject_cast<QGraphicsView *>(widget->parentWidget()) : 0;
+    QList<QGraphicsItem *> items;
+    if (view)
+        items = view->items(view->viewport()->mapFromGlobal(screenPos));
+    else
+        items = q->items(scenePos);
+    return items;
 }
 
 /*!
@@ -616,7 +631,9 @@ void QGraphicsScenePrivate::mousePressEventHandler(QGraphicsSceneMouseEvent *mou
 
     // Set focus on the topmost enabled item that can take focus.
     bool setFocus = false;
-    foreach (QGraphicsItem *item, q->items(mouseEvent->scenePos())) {
+    foreach (QGraphicsItem *item, itemsAtPosition(mouseEvent->screenPos(),
+                                                  mouseEvent->scenePos(),
+                                                  mouseEvent->widget())) {
         if (item->isEnabled() && (item->flags() & QGraphicsItem::ItemIsFocusable)) {
             setFocus = true;
             if (item != q->focusItem())
@@ -2151,7 +2168,9 @@ void QGraphicsScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 
     // Find the topmost enabled items under the cursor. They are all
     // candidates for accepting drag & drop events.
-    foreach (QGraphicsItem *item, items(event->scenePos())) {
+    foreach (QGraphicsItem *item, d->itemsAtPosition(event->screenPos(),
+                                                     event->scenePos(),
+                                                     event->widget())) {
         if (!item->isEnabled() || !item->acceptDrops())
             continue;
 
@@ -2292,7 +2311,10 @@ void QGraphicsScene::helpEvent(QGraphicsSceneHelpEvent *helpEvent)
 {
 #ifndef QT_NO_TOOLTIP
     // Find the first item that does tooltips
-    QList<QGraphicsItem *> itemsAtPos = items(helpEvent->scenePos());
+    Q_D(QGraphicsScene);
+    QList<QGraphicsItem *> itemsAtPos = d->itemsAtPosition(helpEvent->screenPos(),
+                                                           helpEvent->scenePos(),
+                                                           helpEvent->widget());
     QGraphicsItem *toolTipItem = 0;
     for (int i = 0; i < itemsAtPos.size(); ++i) {
         QGraphicsItem *tmp = itemsAtPos.at(i);
@@ -2323,9 +2345,10 @@ void QGraphicsScene::helpEvent(QGraphicsSceneHelpEvent *helpEvent)
 */
 bool QGraphicsScenePrivate::dispatchHoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
 {
-    Q_Q(QGraphicsScene);
     // Find the first item that accepts hover events
-    QList<QGraphicsItem *> itemsAtPos = q->items(hoverEvent->scenePos());
+    QList<QGraphicsItem *> itemsAtPos = itemsAtPosition(hoverEvent->screenPos(),
+                                                        hoverEvent->scenePos(),
+                                                        hoverEvent->widget());
     QGraphicsItem *item = 0;
     for (int i = 0; i < itemsAtPos.size(); ++i) {
         QGraphicsItem *tmp = itemsAtPos.at(i);
@@ -2569,7 +2592,9 @@ void QGraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent)
 void QGraphicsScene::wheelEvent(QGraphicsSceneWheelEvent *wheelEvent)
 {
     Q_D(QGraphicsScene);
-    foreach (QGraphicsItem *item, items(wheelEvent->scenePos())) {
+    foreach (QGraphicsItem *item, d->itemsAtPosition(wheelEvent->screenPos(),
+                                                     wheelEvent->scenePos(),
+                                                     wheelEvent->widget())) {
         wheelEvent->setPos(item->mapFromScene(wheelEvent->scenePos()));
         wheelEvent->accept();
         d->sendEvent(item, wheelEvent);

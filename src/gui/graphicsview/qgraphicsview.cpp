@@ -1416,7 +1416,7 @@ QList<QGraphicsItem *> QGraphicsView::items(const QPoint &pos) const
     Q_D(const QGraphicsView);
     if (!d->scene)
         return QList<QGraphicsItem *>();
-    return d->scene->items(mapToScene(pos));
+    return d->scene->items(mapToScene(pos.x(), pos.y(), 2, 2));
 }
 
 /*!
@@ -1509,7 +1509,10 @@ QList<QGraphicsItem *> QGraphicsView::items(const QPainterPath &path, Qt::ItemSe
 QGraphicsItem *QGraphicsView::itemAt(const QPoint &pos) const
 {
     Q_D(const QGraphicsView);
-    return d->scene ? d->scene->itemAt(mapToScene(pos)) : 0;
+    if (!d->scene)
+        return 0;
+    QList<QGraphicsItem *> itemsAtPos = items(pos);
+    return itemsAtPos.isEmpty() ? 0 : itemsAtPos.first();
 }
 
 /*!
@@ -1522,6 +1525,10 @@ QGraphicsItem *QGraphicsView::itemAt(const QPoint &pos) const
 
 /*!
     Returns the viewport coordinate \a point mapped to scene coordinates.
+
+    Note: It can be useful to map the whole rectangle covered by the pixel at
+    \a point instead of the point itself. To do this, you can call
+    mapToScene(QRect(\a point, QSize(2, 2))).
 
     \sa mapFromScene()
 */
@@ -1865,6 +1872,7 @@ bool QGraphicsView::viewportEvent(QEvent *event)
     case QEvent::ToolTip: {
         QHelpEvent *toolTip = static_cast<QHelpEvent *>(event);
         QGraphicsSceneHelpEvent helpEvent(QEvent::GraphicsSceneHelp);
+        helpEvent.setWidget(viewport());
         helpEvent.setScreenPos(toolTip->globalPos());
         helpEvent.setScenePos(mapToScene(toolTip->pos()));
         QApplication::sendEvent(d->scene, &helpEvent);
@@ -2235,7 +2243,7 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
     QApplication::sendEvent(d->scene, &mouseEvent);
 
     // Store the last item under the mouse for use when replaying.
-    QList<QGraphicsItem *> itemsUnderCursor = d->scene->items(mapToScene(event->pos()));
+    QList<QGraphicsItem *> itemsUnderCursor = items(event->pos());
     if (!itemsUnderCursor.isEmpty()) {
         d->lastItemUnderCursor = itemsUnderCursor.first();
         d->lastItemUnderCursorPos = d->lastItemUnderCursor->mapFromScene(mouseEvent.scenePos());
