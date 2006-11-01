@@ -61,6 +61,8 @@ public:
 #ifndef QT_NO_TOOLBAR
     void addToolBarBreak(Qt::ToolBarArea area);
     void insertToolBarBreak(QToolBar *before);
+    void removeToolBarBreak(QToolBar *before);
+
     void addToolBar(Qt::ToolBarArea area, QToolBar *toolbar, bool needAddChildWidget = true);
     void insertToolBar(QToolBar *before, QToolBar *toolbar);
     Qt::ToolBarArea toolBarArea(QToolBar *toolbar) const;
@@ -188,7 +190,8 @@ public:
     */
     static int nextVisible(int index, const ToolBarLineInfo &lineInfo);
     static int prevVisible(int index, const ToolBarLineInfo &lineInfo);
-    QList<ToolBarLineInfo> tb_layout_info, *save_tb_layout_info;
+    // list of lines ordered by position
+    QList<ToolBarLineInfo> tb_layout_info;
 #endif
 };
 

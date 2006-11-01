@@ -167,9 +167,6 @@ QMainWindowLayout::QMainWindowLayout(QMainWindow *mainwindow)
 #ifndef QT_NO_DOCKWIDGET
     , dockWidgetLayout(mainwindow), savedDockWidgetLayout(mainwindow)
 #endif
-#ifndef QT_NO_TOOLBAR
-      , save_tb_layout_info(0)
-#endif
 {
 #ifndef QT_NO_DOCKWIDGET
     gapIndicator = new QRubberBand(QRubberBand::Rectangle, mainwindow);
@@ -296,6 +293,29 @@ void QMainWindowLayout::insertToolBarBreak(QToolBar *before)
                 for (int j = 0 ; j < itemsToMove ; ++j)
                     newLine.list.prepend(lineInfo.list.takeLast());
                 tb_layout_info.insert(line + 1, newLine);
+                return;
+            }
+        }
+    }
+}
+
+void QMainWindowLayout::removeToolBarBreak(QToolBar *before)
+{
+    // Attempt to locate toolbar at beginning of line
+    for (int line = 0; line < tb_layout_info.size(); ++line) {
+        const ToolBarLineInfo &lineInfo = tb_layout_info[line];
+        for (int i = 0; i < lineInfo.list.size(); ++i) {
+            const ToolBarLayoutInfo &info = lineInfo.list.at(i);
+            if (info.item->widget() == before) {
+		// ToolBar not at beginning of line
+                if (i)
+                    return;
+		// Cannot remove break in front of first ToolBar
+                if (line == 0 || tb_layout_info[line].pos !=  tb_layout_info[line-1].pos)
+                    return;
+                // Append items to previous and remove line
+                tb_layout_info[line-1].list += tb_layout_info[line].list;
+                tb_layout_info.removeAt(line);
                 return;
             }
         }

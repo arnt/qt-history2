@@ -473,6 +473,16 @@ void QMainWindow::insertToolBarBreak(QToolBar *before)
 { d_func()->layout->insertToolBarBreak(before); }
 
 /*!
+    Removes a toolbar break previously inserted before the toolbar specified by \a before.
+*/
+
+void QMainWindow::removeToolBarBreak(QToolBar *before)
+{
+    Q_D(QMainWindow);
+    d->layout->removeToolBarBreak(before);
+}
+
+/*!
     Adds the \a toolbar into the specified \a area in this main
     window. The \a toolbar is placed at the end of the current tool
     bar block (i.e. line). If the main window already manages \a toolbar
