@@ -120,7 +120,7 @@ QTransform QTransform::transposed() const
 QTransform QTransform::inverted(bool *invertible) const
 {
     qreal det = determinant();
-    if (qFuzzyCompare(det, 0.0)) {
+    if (qFuzzyCompare(det, qreal(0.0))) {
         if (invertible)
             *invertible = false;
         return QTransform();
@@ -527,7 +527,7 @@ bool QTransform::squareToQuad(const QPolygonF &quad, QTransform &trans)
     double ay  = dy0 - dy1 + dy2 - dy3;
 
     if (!ax && !ay) { //afine transform
-        trans.setMatrix(dx1 - dx0, dy1 - dy0,  0, 
+        trans.setMatrix(dx1 - dx0, dy1 - dy0,  0,
                         dx2 - dx1, dy2 - dy1,  0,
                         dx0,       dy0,  1);
     } else {
@@ -535,27 +535,27 @@ bool QTransform::squareToQuad(const QPolygonF &quad, QTransform &trans)
         double ax2 = dx3 - dx2;
         double ay1 = dy1 - dy2;
         double ay2 = dy3 - dy2;
-        
+
         /*determinants */
         double gtop    =  ax  * ay2 - ax2 * ay;
         double htop    =  ax1 * ay  - ax  * ay1;
         double bottom  =  ax1 * ay2 - ax2 * ay1;
-        
+
         double a, b, c, d, e, f, g, h;  /*i is always 1*/
-        
+
         if (!bottom)
             return false;
-        
+
         g = gtop/bottom;
         h = htop/bottom;
-        
+
         a = dx1 - dx0 + g * dx1;
         b = dx3 - dx0 + h * dx3;
         c = dx0;
         d = dy1 - dy0 + g * dy1;
         e = dy3 - dy0 + h * dy3;
         f = dy0;
-        
+
         trans.setMatrix(a, d, g,
                         b, e, h,
                         c, f, 1.0);
@@ -569,7 +569,7 @@ bool QTransform::quadToSquare(const QPolygonF &quad, QTransform &trans)
 {
     if (!squareToQuad(quad, trans))
         return false;
-    
+
     bool invertible = false;
     trans = trans.inverted(&invertible);
 

@@ -53,7 +53,7 @@ public:
     bool isTranslating() const;
 
     int type() const;
-    
+
     qreal determinant() const;
     qreal det() const;
 
@@ -72,11 +72,11 @@ public:
     void setMatrix(qreal m11, qreal m12, qreal m13,
                    qreal m21, qreal m22, qreal m23,
                    qreal m31, qreal m32, qreal m33);
-    
+
     QTransform inverted(bool *invertible = 0) const;
     QTransform adjoint() const;
     QTransform transposed() const;
-    
+
     QTransform &translate(qreal dx, qreal dy);
     QTransform &scale(qreal sx, qreal sy);
     QTransform &shear(qreal sh, qreal sv);
@@ -88,7 +88,7 @@ public:
     static bool quadToQuad(const QPolygonF &one,
                            const QPolygonF &two,
                            QTransform &result);
-    
+
     bool operator==(const QTransform &) const;
     bool operator!=(const QTransform &) const;
 
@@ -99,7 +99,7 @@ public:
     QTransform &operator=(const QTransform &);
 
     operator QVariant() const;
-    
+
     void reset();
     QPoint       map(const QPoint &p) const;
     QPointF      map(const QPointF &p) const;
@@ -116,14 +116,14 @@ public:
     void map(qreal x, qreal y, qreal *tx, qreal *ty) const;
 
     QMatrix toAffine() const;
-    
+
 private:
     class Private;
     Private *d;
     qreal m_11, m_12, m_13;
     qreal m_21, m_22, m_23;
     qreal m_31, m_32, m_33;
-    
+
 };
 Q_DECLARE_TYPEINFO(QTransform, Q_MOVABLE_TYPE);
 
@@ -148,25 +148,25 @@ inline bool QTransform::isInvertible() const
 #if 1
 inline bool QTransform::isScaling() const
 {
-    return !qFuzzyCompare(m_11, 1.0) ||
-           !qFuzzyCompare(m_22, 1.0);
+    return !qFuzzyCompare(m_11, qreal(1.0)) ||
+        !qFuzzyCompare(m_22, qreal(1.0));
 }
 inline bool QTransform::isRotating() const
 {
-    return !qFuzzyCompare(m_12, 0.0) ||
-           !qFuzzyCompare(m_21, 0.0);
+    return !qFuzzyCompare(m_12, qreal(0.0)) ||
+        !qFuzzyCompare(m_21, qreal(0.0));
 }
 #endif
 inline bool QTransform::isTranslating() const
 {
-    return !qFuzzyCompare(m_31, 0.0) ||
-           !qFuzzyCompare(m_32, 0.0);
+    return !qFuzzyCompare(m_31, qreal(0.0)) ||
+        !qFuzzyCompare(m_32, qreal(0.0));
 }
 
 inline qreal QTransform::determinant() const
-{ 
+{
     return m_11*(m_33*m_22-m_32*m_23) -
-        m_21*(m_33*m_12-m_32*m_13)+m_31*(m_23*m_12-m_22*m_13);   
+        m_21*(m_33*m_12-m_32*m_13)+m_31*(m_23*m_12-m_22*m_13);
 }
 inline qreal QTransform::det() const
 {
