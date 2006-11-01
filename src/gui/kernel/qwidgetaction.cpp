@@ -57,6 +57,9 @@
     bar on Mac OS X, the widget will be added and function but there are some
     limitations:
     \list 1
+        \o The widget is reparented away from the QMenu to the native menu
+        view. If you show the menu some other place (e.g. as a popup menu), the
+        widget will not be there.
         \o Focus/Keyboard handling of the widget is not possible
         \o Mouse tracking on the widget currently does not work
         \o Connecting the triggered() signal to a slot that opens a modal
