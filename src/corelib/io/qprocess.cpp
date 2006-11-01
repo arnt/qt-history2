@@ -699,7 +699,10 @@ QProcess::QProcess(QObject *parent)
 }
 
 /*!
-    Destructs the QProcess object.
+    Destructs the QProcess object, i.e., killing the process.
+
+    Note that this function will not return until the process is
+    terminated.
 */
 QProcess::~QProcess()
 {
