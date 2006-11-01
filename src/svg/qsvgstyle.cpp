@@ -158,7 +158,7 @@ void QSvgGradientStyle::apply(QPainter *p, const QRectF &rect, QSvgNode *)
     if (!m_link.isEmpty()) {
         resolveStops();
     }
-    
+
     m_oldFill = p->brush();
 
     //resolving stop colors
@@ -212,10 +212,10 @@ void QSvgGradientStyle::apply(QPainter *p, const QRectF &rect, QSvgNode *)
     } else {
         brush = QBrush(*m_gradient);
     }
-    
+
     if (!m_matrix.isIdentity())
         brush.setMatrix(m_matrix);
-    
+
     p->setBrush(brush);
 }
 
@@ -412,7 +412,7 @@ QSvgAnimateTransform::QSvgAnimateTransform(int startMs, int endMs, int byMs )
     m_totalRunningTime = m_to - m_from;
 }
 
-void QSvgAnimateTransform::setArgs(TransformType type, const QList<qreal> &args)
+void QSvgAnimateTransform::setArgs(TransformType type, const QVector<qreal> &args)
 {
     m_type = type;
     m_args = args;
@@ -713,7 +713,7 @@ void QSvgFontStyle::setTextAnchor(const QString &anchor)
 QSvgOpacityStyle::QSvgOpacityStyle(qreal opacity)
     : m_opacity(opacity)
 {
-    
+
 }
 
 void QSvgOpacityStyle::apply(QPainter *p, const QRectF &, QSvgNode *)

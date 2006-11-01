@@ -41,37 +41,37 @@ template <class T> class QSvgRefCounter
 {
 public:
     QSvgRefCounter() { t = 0; }
-    QSvgRefCounter(T *_t) 
-    { 
-        t = _t; 
-        if (t) 
-            t->ref(); 
+    QSvgRefCounter(T *_t)
+    {
+        t = _t;
+        if (t)
+            t->ref();
     }
-    QSvgRefCounter(const QSvgRefCounter &other) 
-    { 
-        t = other.t; 
-        if (t) 
-            t->ref(); 
+    QSvgRefCounter(const QSvgRefCounter &other)
+    {
+        t = other.t;
+        if (t)
+            t->ref();
     }
-    QSvgRefCounter &operator =(T *_t) 
-    { 
+    QSvgRefCounter &operator =(T *_t)
+    {
         if(_t)
             _t->ref();
-        if (t) 
-            t->deref(); 
-        t = _t; 
+        if (t)
+            t->deref();
+        t = _t;
         return *this;
     }
-    QSvgRefCounter &operator =(const QSvgRefCounter &other) 
-    { 
+    QSvgRefCounter &operator =(const QSvgRefCounter &other)
+    {
         if(other.t)
             other.t->ref();
-        if (t) 
-            t->deref(); 
-        t = other.t; 
+        if (t)
+            t->deref();
+        t = other.t;
         return *this;
     }
-    ~QSvgRefCounter() 
+    ~QSvgRefCounter()
     {
         if (t)
             t->deref();
@@ -79,7 +79,7 @@ public:
 
     inline T *operator->() const { return t; }
     inline operator T*() const { return t; }
-    
+
 private:
     T *t;
 };
@@ -89,15 +89,15 @@ class QSvgRefCounted
 public:
     QSvgRefCounted() { _ref = 0; }
     virtual ~QSvgRefCounted() {}
-    void ref() { 
-        ++_ref; 
-//        qDebug() << this << ": adding ref, now " << _ref; 
+    void ref() {
+        ++_ref;
+//        qDebug() << this << ": adding ref, now " << _ref;
     }
-    void deref() { 
-//        qDebug() << this << ": removing ref, now " << _ref; 
+    void deref() {
+//        qDebug() << this << ": removing ref, now " << _ref;
         if(!--_ref) {
 //            qDebug("     deleting");
-            delete this; 
+            delete this;
         }
     }
 private:
@@ -384,7 +384,7 @@ public:
     };
 public:
     QSvgAnimateTransform(int startMs, int endMs, int by = 0);
-    void setArgs(TransformType type, const QList<qreal> &args);
+    void setArgs(TransformType type, const QVector<qreal> &args);
     void setFreeze(bool freeze);
     void setRepeatCount(qreal repeatCount);
     virtual void apply(QPainter *p, const QRectF &, QSvgNode *node);
@@ -396,7 +396,7 @@ private:
     qreal m_from, m_to, m_by;
     qreal m_totalRunningTime;
     TransformType m_type;
-    QList<qreal> m_args;
+    QVector<qreal> m_args;
     int m_count;
     QMatrix m_transform;
     QMatrix m_oldWorldMatrix;
