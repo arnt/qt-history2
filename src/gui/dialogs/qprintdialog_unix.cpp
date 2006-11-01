@@ -1209,10 +1209,10 @@ void QPrintDialogPrivate::updateWidgets()
     ui.chbPrintToFile->setEnabled(options & QPrintDialog::PrintToFile);
     ui.chbCollate->setEnabled(options & QPrintDialog::PrintCollateCopies);
 
-    ui.sbFrom->setMinValue(minPage);
-    ui.sbTo->setMinValue(minPage);
-    ui.sbFrom->setMaxValue(maxPage);
-    ui.sbTo->setMaxValue(maxPage);
+    ui.sbFrom->setMinimum(minPage);
+    ui.sbTo->setMinimum(minPage);
+    ui.sbFrom->setMaximum(maxPage);
+    ui.sbTo->setMaximum(maxPage);
 
     ui.sbFrom->setValue(fromPage);
     ui.sbTo->setValue(toPage);
