@@ -2607,7 +2607,7 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
                         ++src_x;
                         ++len;
                     }
-                    spans[n].len = len;
+                    spans[n].len = ((len + spans[n].x) > xmax) ? (xmax - spans[n].x) : len;
                     x += len;
                     ++n;
                     if (n == spanCount) {
@@ -2634,7 +2634,7 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
                         ++src_x;
                         ++len;
                     }
-                    spans[n].len = len;
+                    spans[n].len = ((len + spans[n].x) > xmax) ? (xmax - spans[n].x) : len;
                     x += len;
                     ++n;
                     if (n == spanCount) {
