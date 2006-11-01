@@ -882,9 +882,11 @@ void QMenuBar::paintEvent(QPaintEvent *e)
 */
 void QMenuBar::setVisible(bool visible)
 {
+#ifdef Q_WS_MAC
     Q_D(QMenuBar);
     if(d->mac_menubar)
         return;
+#endif
     QWidget::setVisible(visible);
 }
 
