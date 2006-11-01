@@ -517,10 +517,14 @@ void QDockWidgetPrivate::mousePressEvent(QMouseEvent *event)
 
     if (event->button() != Qt::LeftButton)
         return;
+
     if (!titleArea.contains(event->pos()))
         return;
     // check if the tool window is movable... do nothing if it is not
     if (!::hasFeature(q, QDockWidget::DockWidgetMovable))
+        return;
+
+    if (!::hasFeature(q, QDockWidget::DockWidgetFloatable))
         return;
 
     if (qobject_cast<QMainWindow*>(q->parentWidget()) == 0)
