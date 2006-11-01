@@ -26,9 +26,6 @@
 #include <private/qwindowsurface_qws_p.h>
 #include <qdebug.h>
 
-static const bool simple_8bpp_alloc = true; //### 8bpp support not done
-static const int max_lock_time = -1; // infinite
-
 // #define QT_USE_MEMCPY_DUFF
 
 #ifndef QT_NO_QWS_CURSOR
@@ -720,10 +717,10 @@ int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
     if (d == 8) {
         if (grayscale)
             return qGray(r, g, b);
+
         // First we look to see if we match a default color
-        QRgb myrgb=qRgb(r,g,b);
-        int pos= (r + 25) / 51 * 36 + (g + 25) / 51 * 6 + (b + 25) / 51;
-        if (simple_8bpp_alloc || screenclut[pos] == myrgb) {
+        const int pos = (r + 25) / 51 * 36 + (g + 25) / 51 * 6 + (b + 25) / 51;
+        if (pos < screencols && screenclut[pos] == qRgb(r, g, b)) {
             return pos;
         }
 
@@ -732,7 +729,7 @@ int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
         unsigned int diff;
         int dr,dg,db;
 
-        for (int loopc = 0; loopc < 256; loopc++) {
+        for (int loopc = 0; loopc < screencols; ++loopc) {
             dr = qRed(screenclut[loopc]) - r;
             dg = qGreen(screenclut[loopc]) - g;
             db = qBlue(screenclut[loopc]) - b;
@@ -747,8 +744,8 @@ int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
         }
     } else if (d == 4) {
         ret = qGray(r, g, b) >> 4;
-    } else if (d == 1 && simple_8bpp_alloc) {
-        ret = qGray(r, g, b) > 128;
+    } else if (d == 1) {
+        ret = qGray(r, g, b) >= 128;
     } else {
         qFatal("cannot alloc %dbpp color", d);
     }
