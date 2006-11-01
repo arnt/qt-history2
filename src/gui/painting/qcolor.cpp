@@ -498,20 +498,19 @@ void QColor::setNamedColor(const QString &name)
         return;
     }
 
-    QByteArray n = name.toLatin1();
-    if (n.startsWith('#')) {
+    if (name.startsWith('#')) {
         QRgb rgb;
-        if (qt_get_hex_rgb(n, &rgb)) {
+        if (qt_get_hex_rgb(name.constData(), name.length(), &rgb)) {
             setRgb(rgb);
         } else {
-            qWarning("QColor::setNamedColor: Could not parse color '%s'", n.constData());
+            qWarning("QColor::setNamedColor: Could not parse color '%s'", name.toLatin1().constData());
             invalidate();
         }
         return;
     }
 
     QRgb rgb;
-    if (qt_get_named_rgb(n, &rgb)) {
+    if (qt_get_named_rgb(name.constData(), name.length(), &rgb)) {
         setRgb(rgb);
     } else {
 #ifdef Q_WS_X11
@@ -519,12 +518,12 @@ void QColor::setNamedColor(const QString &name)
         if (allowX11ColorNames()
             && QApplication::instance()
             && QX11Info::display()
-            && XParseColor(QX11Info::display(), QX11Info::appColormap(), n.constData(), &result)) {
+            && XParseColor(QX11Info::display(), QX11Info::appColormap(), name.toLatin1().constData(), &result)) {
             setRgb(result.red >> 8, result.green >> 8, result.blue >> 8);
         } else
 #endif
         {
-            qWarning("QColor::setNamedColor: Unknown color name '%s'", n.constData());
+            qWarning("QColor::setNamedColor: Unknown color name '%s'", name.toLatin1().constData());
             invalidate();
         }
     }
