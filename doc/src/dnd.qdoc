@@ -395,17 +395,16 @@
 
     \section1 Interoperating with Other Applications
 
-    On X11, the public \l{http://www.newplanetsoftware.com/xdnd/}{XDND protocol}
-    is used, while on Windows Qt uses the OLE standard, and Qt/Mac uses the
-    Carbon Drag Manager. On X11, XDND uses MIME, so no translation is
-    necessary. The Qt API is the same regardless of the platform. On
-    Windows, MIME-aware applications can communicate by using clipboard
-    format names that are MIME types. Already some Windows applications
-    use MIME naming conventions for their clipboard formats. Internally,
-    Qt has facilities for translating proprietary clipboard formats to and
-    from MIME types. This interface will be made public at some time, but
-    if you need to do such translations now, contact your Qt Technical
-    Support service.
+    On X11, the public \l{http://www.newplanetsoftware.com/xdnd/}{XDND
+    protocol} is used, while on Windows Qt uses the OLE standard, and
+    Qt/Mac uses the Carbon Drag Manager. On X11, XDND uses MIME, so no
+    translation is necessary. The Qt API is the same regardless of the
+    platform. On Windows, MIME-aware applications can communicate by
+    using clipboard format names that are MIME types. Already some
+    Windows applications use MIME naming conventions for their
+    clipboard formats. Internally, Qt uses QWindowsMime and
+    QMacPasteboardMime for translating proprietary clipboard formats
+    to and from MIME types.
 
     On X11, Qt also supports drops via the Motif Drag & Drop Protocol. The
     implementation incorporates some code that was originally written by
@@ -433,7 +432,7 @@
     Note: The Motif Drag \& Drop Protocol only allows receivers to
     request data in response to a QDropEvent. If you attempt to
     request data in response to e.g. a QDragMoveEvent, an empty
-    QByteArray is returned.  
+    QByteArray is returned.
 */
 
 /*!
