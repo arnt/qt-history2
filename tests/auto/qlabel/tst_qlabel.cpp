@@ -48,6 +48,7 @@ private slots:
     void setNum();
     void clear();
     void wordWrap();
+    void hasMouseTracking();
 
 private:
     QLabel *testWidget;
@@ -251,6 +252,24 @@ void tst_QLabel::wordWrap()
     label.setWordWrap(false);
     label.setText("<b>rich text</b>");
     QVERIFY(!label.wordWrap());
+}
+
+void tst_QLabel::hasMouseTracking()
+{
+    QLabel label;
+
+    label.setMouseTracking(true);
+    QVERIFY(label.hasMouseTracking());
+    label.setText("Plain Text");
+    QVERIFY(label.hasMouseTracking());;
+    label.setText("More Plain Text");
+    QVERIFY(label.hasMouseTracking());;
+
+    label.setMouseTracking(false);
+    label.setText("<u>Rich Text</u>");
+    QVERIFY(label.hasMouseTracking());
+    label.setText("Plain Text");
+    QVERIFY(!label.hasMouseTracking());
 }
 
 QTEST_MAIN(tst_QLabel)
