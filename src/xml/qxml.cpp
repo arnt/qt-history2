@@ -933,6 +933,17 @@ int QXmlAttributes::index(const QString& qName) const
     return -1;
 }
 
+/*! \overload
+  */
+int QXmlAttributes::index(const QLatin1String& qName) const
+{
+    for (int i = 0; i < attList.size(); ++i) {
+        if (attList.at(i).qname == qName)
+            return i;
+    }
+    return -1;
+}
+
 /*!
     \overload
 
@@ -1066,6 +1077,16 @@ QString QXmlAttributes::value(int index) const
     \sa {Namespace Support via Features}
 */
 QString QXmlAttributes::value(const QString& qName) const
+{
+    int i = index(qName);
+    if (i == -1)
+        return QString();
+    return attList.at(i).value;
+}
+
+/*! \overload
+  */
+QString QXmlAttributes::value(const QLatin1String& qName) const
 {
     int i = index(qName);
     if (i == -1)
