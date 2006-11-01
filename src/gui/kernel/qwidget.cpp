@@ -1016,7 +1016,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     Q_D(QWidget);
     if (testAttribute(Qt::WA_WState_Created) && window == 0)
         return;
-    setAttribute(Qt::WA_WState_Created);                        // set created flag
 
     Qt::WindowType type = windowType();
     Qt::WindowFlags &flags = data->window_flags;
@@ -1043,6 +1042,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     if ( type != Qt::Widget && type != Qt::Window && type != Qt::Dialog)
         setAttribute(Qt::WA_QuitOnClose, false);
 
+    setAttribute(Qt::WA_WState_Created);                        // set created flag
     d->create_sys(window, initializeWindow, destroyOldWindow);
 
     // a real toplevel window needs a backing store
