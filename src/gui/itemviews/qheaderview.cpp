@@ -718,7 +718,7 @@ void QHeaderView::swapSections(int first, int second)
 
     Resizes the section specified by \a logicalIndex to the \a size measured in pixels.
 
-    \sa sectionResized(), resizeMode()
+    \sa sectionResized(), resizeMode(), sectionSize()
 */
 
 void QHeaderView::resizeSection(int logical, int size)
