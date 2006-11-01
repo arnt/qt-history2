@@ -72,7 +72,7 @@ private slots:
 
     void visualRect_data();
     void visualRect();
-    
+
     void fetchMore();
     void setHeaders();
 
@@ -84,7 +84,7 @@ private slots:
 
     void rowViewportPosition_data();
     void rowViewportPosition();
-    
+
     void rowAt_data();
     void rowAt();
 
@@ -117,6 +117,8 @@ private slots:
 
     void span_data();
     void span();
+
+    void checkHeaderReset();
 };
 
 // Testing get/set functions
@@ -2337,8 +2339,47 @@ void tst_QTableView::span()
         QModelIndex hidden = model.index(rowCount - 1, hiddenColumn);
         QVERIFY(view.isIndexHidden(hidden));
     }
-	
-    // a comment    
+
+    // a comment
+}
+
+
+class Model : public QAbstractTableModel {
+
+Q_OBJECT
+
+public:
+    Model(QObject * parent = 0) : QAbstractTableModel(parent) {
+    }
+
+    int rowCount(const QModelIndex &) const {
+        return rows;
+    }
+    int columnCount(const QModelIndex &) const {
+        return columns;
+    }
+    QVariant data(const QModelIndex &index, int role) const
+    {
+        return QVariant();
+    }
+    void res() { reset(); }
+
+    int rows;
+    int columns;
+};
+
+void tst_QTableView::checkHeaderReset()
+{
+    QTableView view;
+    Model m;
+    m.rows = 3;
+    m.columns = 3;
+    view.setModel(&m);
+
+    m.rows = 4;
+    m.columns = 4;
+    m.res();
+    QCOMPARE(view.horizontalHeader()->count(), 4);
 }
 
 QTEST_MAIN(tst_QTableView)
