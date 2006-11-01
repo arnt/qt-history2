@@ -119,6 +119,8 @@ private slots:
     void span();
 
     void checkHeaderReset();
+
+    void tabFocus();
 };
 
 // Testing get/set functions
@@ -2380,6 +2382,94 @@ void tst_QTableView::checkHeaderReset()
     m.columns = 4;
     m.res();
     QCOMPARE(view.horizontalHeader()->count(), 4);
+}
+
+void tst_QTableView::tabFocus()
+{
+    // QTableView enables tabKeyNavigation by default, but you should be able
+    // to change focus on an empty table view, or on a table view that doesn't
+    // have this property set.
+    QWidget window;
+
+    QTableView *view = new QTableView(&window);
+    QLineEdit *edit = new QLineEdit(&window);
+
+    window.show();
+    window.setFocus();
+
+    qApp->processEvents();
+
+    // window
+    QVERIFY(window.hasFocus());
+    QVERIFY(!view->hasFocus());
+    QVERIFY(!edit->hasFocus());
+
+    for (int i = 0; i < 2; ++i) {
+        // tab to view
+        QTest::keyPress(qApp->focusWidget(), Qt::Key_Tab);
+        QVERIFY(!window.hasFocus());
+        QVERIFY(view->hasFocus());
+        QVERIFY(!edit->hasFocus());
+        
+        // tab to edit
+        QTest::keyPress(qApp->focusWidget(), Qt::Key_Tab);
+        QVERIFY(!window.hasFocus());
+        QVERIFY(!view->hasFocus());
+        QVERIFY(edit->hasFocus());
+    }
+
+    // backtab to view
+    QTest::keyPress(qApp->focusWidget(), Qt::Key_Backtab);
+    QVERIFY(!window.hasFocus());
+    QVERIFY(view->hasFocus());
+    QVERIFY(!edit->hasFocus());
+
+    // backtab to edit
+    QTest::keyPress(qApp->focusWidget(), Qt::Key_Backtab);
+    QVERIFY(!window.hasFocus());
+    QVERIFY(!view->hasFocus());
+    QVERIFY(edit->hasFocus());
+
+    QStandardItemModel *model = new QStandardItemModel;
+    view->setModel(model);
+
+    // backtab to view
+    QTest::keyPress(qApp->focusWidget(), Qt::Key_Backtab);
+    QVERIFY(!window.hasFocus());
+    QVERIFY(view->hasFocus());
+    QVERIFY(!edit->hasFocus());
+
+    // backtab to edit
+    QTest::keyPress(qApp->focusWidget(), Qt::Key_Backtab);
+    QVERIFY(!window.hasFocus());
+    QVERIFY(!view->hasFocus());
+    QVERIFY(edit->hasFocus());
+
+    model->insertRow(0, new QStandardItem("Hei"));
+    model->insertRow(0, new QStandardItem("Hei"));
+    model->insertRow(0, new QStandardItem("Hei"));
+
+    // backtab to view
+    QTest::keyPress(qApp->focusWidget(), Qt::Key_Backtab);
+    QVERIFY(!window.hasFocus());
+    QVERIFY(view->hasFocus());
+    QVERIFY(!edit->hasFocus());
+
+    // backtab to edit doesn't work
+    QTest::keyPress(qApp->focusWidget(), Qt::Key_Backtab);
+    QVERIFY(!window.hasFocus());
+    QVERIFY(view->hasFocus());
+    QVERIFY(!edit->hasFocus());
+
+    view->setTabKeyNavigation(false);
+
+    // backtab to edit
+    QTest::keyPress(qApp->focusWidget(), Qt::Key_Backtab);
+    QVERIFY(!window.hasFocus());
+    QVERIFY(!view->hasFocus());
+    QVERIFY(edit->hasFocus());
+
+    delete model;
 }
 
 QTEST_MAIN(tst_QTableView)
