@@ -35,9 +35,21 @@ Q_DECLARE_METATYPE(QPainterPath)
 Q_DECLARE_METATYPE(QPointF)
 Q_DECLARE_METATYPE(QRectF)
 
+static void sendMousePress(QWidget *widget, const QPoint &point, Qt::MouseButton button = Qt::LeftButton)
+{
+    QMouseEvent event(QEvent::MouseButtonPress, point, widget->mapToGlobal(point), button, 0, 0);
+    QApplication::sendEvent(widget, &event);
+}
+
 static void sendMouseMove(QWidget *widget, const QPoint &point)
 {
     QMouseEvent event(QEvent::MouseMove, point, Qt::NoButton, 0, 0);
+    QApplication::sendEvent(widget, &event);
+}
+
+static void sendMouseRelease(QWidget *widget, const QPoint &point, Qt::MouseButton button = Qt::LeftButton)
+{
+    QMouseEvent event(QEvent::MouseButtonRelease, point, widget->mapToGlobal(point), button, 0, 0);
     QApplication::sendEvent(widget, &event);
 }
 
@@ -71,6 +83,7 @@ private slots:
     void itemsInPoly();
     void itemsInPath();
     void itemAt();
+    void itemAt2();
     void mapToScene();
     void mapToScenePoint();
     void mapToSceneRect();
@@ -120,7 +133,7 @@ class TestItem : public QGraphicsItem
 {
 public:
     QRectF boundingRect() const
-    { return QRectF(-10, -10, 10, 10); }
+    { return QRectF(-10, -10, 20, 20); }
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
     { hints = painter->renderHints(); painter->drawRect(boundingRect()); }
@@ -217,27 +230,28 @@ void tst_QGraphicsView::interactive()
     TestItem *item = new TestItem;
     QCOMPARE(item->events.size(), 0);
 
-    QGraphicsScene scene;
+    QGraphicsScene scene(-200, -200, 400, 400);
     scene.addItem(item);
 
     QGraphicsView view(&scene);
+    view.setFixedSize(300, 300);
     QCOMPARE(item->events.size(), 0);
     view.show();
-    view.repaint();
+
+    QTestEventLoop::instance().enterLoop(1);
     QCOMPARE(item->events.size(), 0);
 
+    QPoint itemPoint = view.mapFromScene(item->scenePos());
+    QVERIFY(view.itemAt(itemPoint));
+
     for (int i = 0; i < 100; ++i) {
-        QMouseEvent pressEvent(QEvent::MouseButtonPress, view.viewport()->rect().center(),
-                               Qt::LeftButton, Qt::LeftButton, 0);
-        QApplication::sendEvent(view.viewport(), &pressEvent);
+        sendMousePress(view.viewport(), itemPoint);
         QCOMPARE(item->events.size(), i * 3 + 1);
         QCOMPARE(item->events.last(), QEvent::GraphicsSceneMousePress);
-        QMouseEvent releaseEvent(QEvent::MouseButtonRelease, view.viewport()->rect().center(),
-                                 Qt::LeftButton, Qt::LeftButton, 0);
-        QApplication::sendEvent(view.viewport(), &releaseEvent);
+        sendMouseRelease(view.viewport(), itemPoint);
         QCOMPARE(item->events.size(), i * 3 + 2);
         QCOMPARE(item->events.last(), QEvent::GraphicsSceneMouseRelease);
-        QContextMenuEvent contextEvent(QContextMenuEvent::Mouse, view.viewport()->rect().center());
+        QContextMenuEvent contextEvent(QContextMenuEvent::Mouse, itemPoint);
         QApplication::sendEvent(view.viewport(), &contextEvent);
         QCOMPARE(item->events.size(), i * 3 + 3);
         QCOMPARE(item->events.last(), QEvent::GraphicsSceneContextMenu);
@@ -246,17 +260,13 @@ void tst_QGraphicsView::interactive()
     view.setInteractive(false);
 
     for (int i = 0; i < 100; ++i) {
-        QMouseEvent pressEvent(QEvent::MouseButtonPress, view.viewport()->rect().center(),
-                               Qt::LeftButton, Qt::LeftButton, 0);
-        QApplication::sendEvent(view.viewport(), &pressEvent);
+        sendMousePress(view.viewport(), itemPoint);
         QCOMPARE(item->events.size(), 300);
         QCOMPARE(item->events.last(), QEvent::GraphicsSceneContextMenu);
-        QMouseEvent releaseEvent(QEvent::MouseButtonRelease, view.viewport()->rect().center(),
-                                 Qt::LeftButton, Qt::LeftButton, 0);
-        QApplication::sendEvent(view.viewport(), &releaseEvent);
+        sendMouseRelease(view.viewport(), itemPoint);
         QCOMPARE(item->events.size(), 300);
         QCOMPARE(item->events.last(), QEvent::GraphicsSceneContextMenu);
-        QContextMenuEvent contextEvent(QContextMenuEvent::Mouse, view.viewport()->rect().center());
+        QContextMenuEvent contextEvent(QContextMenuEvent::Mouse, itemPoint);
         QApplication::sendEvent(view.viewport(), &contextEvent);
         QCOMPARE(item->events.size(), 300);
         QCOMPARE(item->events.last(), QEvent::GraphicsSceneContextMenu);
@@ -1105,6 +1115,50 @@ void tst_QGraphicsView::itemAt()
     QCOMPARE(view.itemAt(view.viewport()->rect().center())->zValue(), qreal(3));
 }
 
+void tst_QGraphicsView::itemAt2()
+{
+    // test precision of the itemAt() function with items that are smaller
+    // than 1 pixel.
+    QGraphicsScene scene(0, 0, 100, 100);
+
+    // Add a 0.5x0.5 item at position 0 on the scene, top-left corner at -0.25, -0.25.
+    QGraphicsItem *item = scene.addRect(QRectF(-0.25, -0.25, 0.5, 0.5), QPen(Qt::black, 0.1));
+
+    QGraphicsView view(&scene);
+    view.setFixedSize(200, 200);
+    view.setTransformationAnchor(QGraphicsView::NoAnchor);
+    view.setRenderHint(QPainter::Antialiasing);
+    view.show();
+
+    QTestEventLoop::instance().enterLoop(1);
+    
+    QPoint itemViewPoint = view.mapFromScene(item->scenePos());
+
+    for (int i = 0; i < 3; ++i) {
+        QVERIFY(view.itemAt(itemViewPoint));
+        QVERIFY(!view.items(itemViewPoint).isEmpty());
+        QVERIFY(view.itemAt(itemViewPoint + QPoint(-1, 0)));
+        QVERIFY(!view.items(itemViewPoint + QPoint(-1, 0)).isEmpty());
+        QVERIFY(view.itemAt(itemViewPoint + QPoint(-1, -1)));
+        QVERIFY(!view.items(itemViewPoint + QPoint(-1, -1)).isEmpty());
+        QVERIFY(view.itemAt(itemViewPoint + QPoint(0, -1)));
+        QVERIFY(!view.items(itemViewPoint + QPoint(0, -1)).isEmpty());
+        item->moveBy(0.1, 0);
+    }
+
+    // Here
+    QVERIFY(view.itemAt(itemViewPoint));
+    QVERIFY(!view.items(itemViewPoint).isEmpty());
+    QVERIFY(view.itemAt(itemViewPoint + QPoint(0, -1)));
+    QVERIFY(!view.items(itemViewPoint + QPoint(0, -1)).isEmpty());
+
+    // Not here
+    QVERIFY(!view.itemAt(itemViewPoint + QPoint(-1, 0)));
+    QVERIFY(view.items(itemViewPoint + QPoint(-1, 0)).isEmpty());
+    QVERIFY(!view.itemAt(itemViewPoint + QPoint(-1, -1)));
+    QVERIFY(view.items(itemViewPoint + QPoint(-1, -1)).isEmpty());
+}
+
 void tst_QGraphicsView::mapToScene()
 {
     // Uncomment the commented-out code to see what's going on. It doesn't
@@ -1244,21 +1298,43 @@ void tst_QGraphicsView::mapToScenePath()
 
 void tst_QGraphicsView::mapFromScenePoint()
 {
-    QGraphicsScene scene;
-    QGraphicsView view(&scene);
-    view.rotate(90);
-    view.scale(10, 10);
-    view.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    view.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    view.show();
+    {
+        QGraphicsScene scene;
+        QGraphicsView view(&scene);
+        view.rotate(90);
+        view.scale(10, 10);
+        view.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        view.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        view.show();
 
-    QPoint mapped = view.mapFromScene(0, 0);
-    QPoint center = view.viewport()->rect().center();
-    if (qAbs(mapped.x() - center.x()) >= 2
-        || qAbs(mapped.y() - center.y()) >= 2) {
-        QString error = QString("Compared values are not the same\n\tActual: (%1, %2)\n\tExpected: (%3, %4)")
-                        .arg(mapped.x()).arg(mapped.y()).arg(center.x()).arg(center.y());
-        QFAIL(qPrintable(error));
+        QPoint mapped = view.mapFromScene(0, 0);
+        QPoint center = view.viewport()->rect().center();
+        if (qAbs(mapped.x() - center.x()) >= 2
+            || qAbs(mapped.y() - center.y()) >= 2) {
+            QString error = QString("Compared values are not the same\n\tActual: (%1, %2)\n\tExpected: (%3, %4)")
+                            .arg(mapped.x()).arg(mapped.y()).arg(center.x()).arg(center.y());
+            QFAIL(qPrintable(error));
+        }
+    }
+    {
+        QGraphicsScene scene(0, 0, 100, 100);
+        scene.addRect(QRectF(0, 0, 100, 100), QPen(Qt::black, 1));
+        QGraphicsView view(&scene);
+        view.setFixedSize(104, 104);
+        view.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        view.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        view.show();
+
+        QCOMPARE(view.mapFromScene(0, 0), QPoint(0, 0));
+        QCOMPARE(view.mapFromScene(0.4, 0.4), QPoint(0, 0));
+        QCOMPARE(view.mapFromScene(0.5, 0.5), QPoint(1, 1));
+        QCOMPARE(view.mapFromScene(0.9, 0.9), QPoint(1, 1));
+        QCOMPARE(view.mapFromScene(1.0, 1.0), QPoint(1, 1));
+        QCOMPARE(view.mapFromScene(100, 100), QPoint(100, 100));
+        QCOMPARE(view.mapFromScene(100.5, 100.5), QPoint(101, 101));
+        QCOMPARE(view.mapToScene(0, 0), QPointF(0, 0));
+        QCOMPARE(view.mapToScene(1, 1), QPointF(1, 1));
+        QCOMPARE(view.mapToScene(100, 100), QPointF(100, 100));
     }
 }
 
@@ -1359,29 +1435,32 @@ void tst_QGraphicsView::sendEvent()
     scene.addItem(item);
     item->setFlag(QGraphicsItem::ItemIsFocusable);
     item->setFlag(QGraphicsItem::ItemIsMovable);
-    item->setFocus();
 
     QGraphicsView view(&scene);
     view.show();
+
+    QTestEventLoop::instance().enterLoop(1);
+
+    item->setFocus();
 
     QCOMPARE(scene.focusItem(), (QGraphicsItem *)item);
     QCOMPARE(item->events.size(), 1);
     QCOMPARE(item->events.last(), QEvent::FocusIn);
 
-    QMouseEvent mousePressEvent(QEvent::MouseButtonPress, view.rect().center(),
-                                Qt::LeftButton, Qt::LeftButton, 0);
-    QApplication::sendEvent(view.viewport(), &mousePressEvent);
+    QPoint itemPoint = view.mapFromScene(item->scenePos());
+    sendMousePress(view.viewport(), itemPoint);
     QCOMPARE(item->events.size(), 2);
     QCOMPARE(item->events.last(), QEvent::GraphicsSceneMousePress);
 
-    QMouseEvent mouseMoveEvent(QEvent::MouseMove, view.rect().center(),
+    QMouseEvent mouseMoveEvent(QEvent::MouseMove, itemPoint, view.viewport()->mapToGlobal(itemPoint),
                                 Qt::LeftButton, Qt::LeftButton, 0);
     QApplication::sendEvent(view.viewport(), &mouseMoveEvent);
     QCOMPARE(item->events.size(), 3);
     QCOMPARE(item->events.last(), QEvent::GraphicsSceneMouseMove);
 
-    QMouseEvent mouseReleaseEvent(QEvent::MouseButtonRelease, view.rect().center(),
-                                Qt::LeftButton, Qt::LeftButton, 0);
+    QMouseEvent mouseReleaseEvent(QEvent::MouseButtonRelease, itemPoint,
+                                  view.viewport()->mapToGlobal(itemPoint),
+                                  Qt::LeftButton, Qt::LeftButton, 0);
     QApplication::sendEvent(view.viewport(), &mouseReleaseEvent);
     QCOMPARE(item->events.size(), 4);
     QCOMPARE(item->events.last(), QEvent::GraphicsSceneMouseRelease);
