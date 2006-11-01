@@ -1186,7 +1186,8 @@ bool QAbstractItemView::focusNextPrevChild(bool next)
     if (d->tabKeyNavigation) {
         QKeyEvent event(QEvent::KeyPress, next ? Qt::Key_Tab : Qt::Key_Backtab, Qt::NoModifier);
         keyPressEvent(&event);
-        return true;
+        if (event.isAccepted())
+            return true;
     }
     return QAbstractScrollArea::focusNextPrevChild(next);
 }

@@ -379,6 +379,11 @@ QStyleOptionViewItemV2 QTableViewPrivate::viewOptionsV2() const
     The QTableView class is one of the \l{Model/View Classes}
     and is part of Qt's \l{Model/View Programming}{model/view framework}.
 
+    You can navigate the cells in the table by clicking on a cell with the
+    mouse, or by using the arrow keys. Because QTableView enables
+    \l{QAbstractItemView::tabKeyNavigation}{tabKeyNavigation} by default, you
+    can also hit Tab and Backtab to move from cell to cell.
+
     QTableView implements the interfaces defined by the
     QAbstractItemView class to allow it to display data provided by
     models derived from the QAbstractItemModel class.
