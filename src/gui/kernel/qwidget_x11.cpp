@@ -834,7 +834,9 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
     q->setAttribute(Qt::WA_WState_Visible, false);
     q->setAttribute(Qt::WA_WState_Hidden, false);
     adjustFlags(data.window_flags, q);
-    if (!q->isWindow() && (wasCreated || parent->testAttribute(Qt::WA_WState_Created)))
+    // keep compatibility with previous versions, we need to preserve the created state
+    // (but we recreate the winId for the widget being reparented, again for compability)
+    if (wasCreated || (!q->isWindow() && parent->testAttribute(Qt::WA_WState_Created)))
         createWinId();
     if (q->isWindow() || (!parent || parent->isVisible()) || explicitlyHidden)
         q->setAttribute(Qt::WA_WState_Hidden);
@@ -842,41 +844,38 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
 
     if (wasCreated) {
         QObjectList chlist = q->children();
-        if (q->internalWinId() != 0) {
-            for (int i = 0; i < chlist.size(); ++i) { // reparent children
-                QObject *obj = chlist.at(i);
-                if (obj->isWidgetType()) {
-                    QWidget *w = (QWidget *)obj;
-                    if (!w->testAttribute(Qt::WA_WState_Created))
-                        continue;
-                    if (xinfo.screen() != w->d_func()->xinfo.screen()) {
-                        // ### force setParent() to not shortcut out (because
-                        // ### we're setting the parent to the current parent)
-                        w->d_func()->parent = 0;
-                        w->setParent(q);
-                    } else if (!w->isWindow()) {
-                        w->d_func()->invalidateBuffer(w->rect());
-                        XReparentWindow(X11->display, w->internalWinId(), q->internalWinId(),
-                                        w->geometry().x(), w->geometry().y());
-                    } else if (isTransient(w)) {
-                        /*
-                          when reparenting toplevel windows with toplevel-transient children,
-                          we need to make sure that the window manager gets the updated
-                          WM_TRANSIENT_FOR information... unfortunately, some window managers
-                          don't handle changing WM_TRANSIENT_FOR before the toplevel window is
-                          visible, so we unmap and remap all toplevel-transient children *after*
-                          the toplevel parent has been mapped.  thankfully, this is easy in Qt :)
+        for (int i = 0; i < chlist.size(); ++i) { // reparent children
+            QObject *obj = chlist.at(i);
+            if (obj->isWidgetType()) {
+                QWidget *w = (QWidget *)obj;
+                if (!w->testAttribute(Qt::WA_WState_Created))
+                    continue;
+                if (xinfo.screen() != w->d_func()->xinfo.screen()) {
+                    // ### force setParent() to not shortcut out (because
+                    // ### we're setting the parent to the current parent)
+                    w->d_func()->parent = 0;
+                    w->setParent(q);
+                } else if (!w->isWindow()) {
+                    w->d_func()->invalidateBuffer(w->rect());
+                    XReparentWindow(X11->display, w->internalWinId(), q->internalWinId(),
+                                    w->geometry().x(), w->geometry().y());
+                } else if (isTransient(w)) {
+                    /*
+                      when reparenting toplevel windows with toplevel-transient children,
+                      we need to make sure that the window manager gets the updated
+                      WM_TRANSIENT_FOR information... unfortunately, some window managers
+                      don't handle changing WM_TRANSIENT_FOR before the toplevel window is
+                      visible, so we unmap and remap all toplevel-transient children *after*
+                      the toplevel parent has been mapped.  thankfully, this is easy in Qt :)
 
-                          note that the WM_TRANSIENT_FOR hint is actually updated in
-                          QWidgetPrivate::show_sys()
-                        */
-                        XUnmapWindow(X11->display, w->internalWinId());
-                        QApplication::postEvent(w, new QEvent(QEvent::ShowWindowRequest));
-                    }
+                      note that the WM_TRANSIENT_FOR hint is actually updated in
+                      QWidgetPrivate::show_sys()
+                    */
+                    XUnmapWindow(X11->display, w->internalWinId());
+                    QApplication::postEvent(w, new QEvent(QEvent::ShowWindowRequest));
                 }
             }
-        } else {
-            uncreateRecursively(false);
+
         }
         qPRCreate(q, old_winid);
         updateSystemBackground();

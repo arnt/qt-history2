@@ -551,25 +551,16 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
     q->setAttribute(Qt::WA_WState_Visible, false);
     q->setAttribute(Qt::WA_WState_Hidden, false);
     adjustFlags(data.window_flags, q);
-
-    //create parent chain if child was previously created
-    bool parentCreated = parent && parent->testAttribute(Qt::WA_WState_Created);
-    if (wasCreated && !q->isWindow() && !parentCreated)
-        parent->d_func()->createWinId();
-
-    //delayed creation: don't create the widget if it was not previously created, and it is not being reparented into a created parent
-    if (wasCreated || !q->isWindow() && parentCreated)
-        q->create();
-
+    // keep compatibility with previous versions, we need to preserve the created state
+    // (but we recreate the winId for the widget being reparented, again for compability)
+    if (wasCreated || (!q->isWindow() && parent->testAttribute(Qt::WA_WState_Created)))
+        createWinId();
     if (q->isWindow() || (!parent || parent->isVisible()) || explicitlyHidden)
         q->setAttribute(Qt::WA_WState_Hidden);
     q->setAttribute(Qt::WA_WState_ExplicitShowHide, explicitlyHidden);
 
     if (wasCreated) {
-        if (q->internalWinId() != 0)
-            reparentChildren();
-        else
-            uncreateRecursively(false);
+        reparentChildren();
     }
 
     if (extra && !extra->mask.isEmpty()) {

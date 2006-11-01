@@ -1605,23 +1605,18 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
     q->setAttribute(Qt::WA_WState_Visible, false);
     q->setAttribute(Qt::WA_WState_Hidden, false);
     adjustFlags(data.window_flags, q);
-    //### simplify logic after TP
-    if (wasCreated && !q->isWindow() && !parent->testAttribute(Qt::WA_WState_Created))
-        parent->d_func()->createWinId();
-    if (parent && !q->isWindow() && parent->testAttribute(Qt::WA_WState_Created))
-        q->create(0, true, false);
+    // keep compatibility with previous versions, we need to preserve the created state
+    // (but we recreate the winId for the widget being reparented, again for compability)
+    if (wasCreated && (!q->isWindow() || parent->testAttribute(Qt::WA_WState_Created)))
+        createWinId();
     if (q->isWindow() || (!parent || parent->isVisible()) || explicitlyHidden)
         q->setAttribute(Qt::WA_WState_Hidden);
     q->setAttribute(Qt::WA_WState_ExplicitShowHide, explicitlyHidden);
 
     if (wasCreated) {
-        if (q->data->winid != 0) {
-            transferChildren();
-            if (topData && !topData->caption.isEmpty())
-                setWindowTitle_helper(topData->caption);
-        } else {
-            uncreateRecursively(false);
-        }
+        transferChildren();
+        if (topData && !topData->caption.isEmpty())
+            setWindowTitle_helper(topData->caption);
     }
 
     if (q->testAttribute(Qt::WA_AcceptDrops)

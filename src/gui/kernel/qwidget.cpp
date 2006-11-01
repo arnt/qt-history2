@@ -980,17 +980,6 @@ void QWidgetPrivate::createRecursively()
     }
 }
 
-void QWidgetPrivate::uncreateRecursively(bool includeThis)
-{
-    Q_Q(QWidget);
-    for (int i = 0; i < children.size(); ++i) {
-        QWidget *child = qobject_cast<QWidget *>(children.at(i));
-        if (child &&  !child->isWindow() && child->testAttribute(Qt::WA_WState_Created))
-            child->d_func()->uncreateRecursively();
-    }
-    if (includeThis)
-        q->destroy(true, false);
- }
 
 
 

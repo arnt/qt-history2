@@ -129,6 +129,8 @@ private slots:
     void setMaximumSize();
     void setFixedSize();
 
+    void winId();
+
 #ifdef Q_WS_WIN
     void getDC();
 #endif
@@ -2724,6 +2726,63 @@ void tst_QWidget::setFixedSize()
     QCOMPARE(w.size(), defaultSize + QSize(50, 50));
     QEXPECT_FAIL("", "Bug in <= 4.2", Continue);
     QVERIFY(!w.testAttribute(Qt::WA_Resized));
+}
+
+void tst_QWidget::winId()
+{
+    QWidget *parent = new QWidget;
+    QWidget *w1 = new QWidget;
+    QWidget *w2 = new QWidget;
+    QWidget *w3 = new QWidget;
+    w1->setParent(parent);
+    w2->setParent(w1);
+    w3->setParent(w2);
+
+    WId winId1 = w1->winId();
+    WId winId2 = w2->winId();
+    WId winId3 = w3->winId();
+
+    // reparenting should change the winId of the widget being reparented, but not of its children
+    w1->setParent(0);
+    QVERIFY(w1->winId() != winId1);
+    winId1 = w1->winId();
+    QCOMPARE(w2->winId(), winId2);
+    QCOMPARE(w3->winId(), winId3);
+
+    w1->setParent(parent);
+    QVERIFY(w1->winId() != winId1);
+    winId1 = w1->winId();
+    QCOMPARE(w2->winId(), winId2);
+    QCOMPARE(w3->winId(), winId3);
+
+    w2->setParent(0);
+    QVERIFY(w2->winId() != winId2);
+    winId2 = w2->winId();
+    QCOMPARE(w3->winId(), winId3);
+
+    w2->setParent(parent);
+    QVERIFY(w2->winId() != winId2);
+    winId2 = w2->winId();
+    QCOMPARE(w3->winId(), winId3);
+
+    w2->setParent(w1);
+    QVERIFY(w2->winId() != winId2);
+    winId2 = w2->winId();
+    QCOMPARE(w3->winId(), winId3);
+
+    w3->setParent(0);
+    QVERIFY(w3->winId() != winId3);
+    winId3 = w3->winId();
+
+    w3->setParent(w1);
+    QVERIFY(w3->winId() != winId3);
+    winId3 = w3->winId();
+
+    w3->setParent(w2);
+    QVERIFY(w3->winId() != winId3);
+    winId3 = w3->winId();
+
+    delete parent;
 }
 
 #ifdef Q_WS_WIN
