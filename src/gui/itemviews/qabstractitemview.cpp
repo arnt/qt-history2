@@ -635,11 +635,13 @@ void QAbstractItemView::setItemDelegateForRow(int row, QAbstractItemDelegate *de
                    this, SLOT(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)));
         disconnect(rowDelegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
     }
-    d->rowDelegates.insert(row, delegate);
     if (delegate) {
+        d->rowDelegates.insert(row, delegate);
         connect(delegate, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)),
                 this, SLOT(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)));
         connect(delegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
+    } else {
+        d->rowDelegates.remove(row);
     }
 }
 
@@ -670,11 +672,13 @@ void QAbstractItemView::setItemDelegateForColumn(int column, QAbstractItemDelega
                    this, SLOT(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)));
         disconnect(columnDelegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
     }
-    d->columnDelegates.insert(column, delegate);
     if (delegate) {
+        d->columnDelegates.insert(column, delegate);
         connect(delegate, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)),
                 this, SLOT(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)));
         connect(delegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
+    } else {
+        d->columnDelegates.remove(column);
     }
 }
 
