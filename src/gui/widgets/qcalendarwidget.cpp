@@ -29,6 +29,7 @@
 #include <qlabel.h>
 #include <qspinbox.h>
 #include <qmenu.h>
+#include <qapplication.h>
 
 enum {
     RowCount = 6,
@@ -543,6 +544,17 @@ QModelIndex QCalendarView::moveCursor(CursorAction cursorAction, Qt::KeyboardMod
 
 void QCalendarView::keyPressEvent(QKeyEvent *event)
 {
+#ifdef QT_KEYPAD_NAVIGATION
+    if (event->key() == Qt::Key_Select) {
+        if (QApplication::keypadNavigationEnabled()) {
+            if (!hasEditFocus()) {
+                setEditFocus(true);
+                return;
+            }
+        }
+    }
+#endif
+
     if (!readOnly) {
         switch (event->key()) {
             case Qt::Key_Return:
