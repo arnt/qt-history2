@@ -2192,7 +2192,7 @@ void QAbstractItemView::commitData(QWidget *editor)
         return;
     QAbstractItemDelegate *delegate = d->delegateForIndex(index);
     editor->removeEventFilter(delegate);
-    d->itemDelegate->setModelData(editor, d->model, index);
+    delegate->setModelData(editor, d->model, index);
     editor->installEventFilter(delegate);
 }
 
