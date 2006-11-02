@@ -223,9 +223,9 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
                 continue;
         }
         if (filterPermissions
-            && !((doReadable && fi.isReadable())
-                 || (doWritable && fi.isWritable())
-                 || (doExecutable && fi.isExecutable()))) {
+            && ((doReadable && !fi.isReadable())
+                || (doWritable && !fi.isWritable())
+                || (doExecutable && !fi.isExecutable()))) {
             continue;
         }
         if (!includeSystem && ((fi.exists() && !fi.isFile() && !fi.isDir() && !fi.isSymLink())
