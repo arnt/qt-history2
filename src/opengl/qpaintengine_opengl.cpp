@@ -36,6 +36,8 @@
 
 #include "util/fragmentprograms_p.h"
 
+extern QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
+
 #ifdef Q_WS_WIN
 #define QGL_FUNC_CONTEXT QGLContext *ctx = const_cast<QGLContext *>(drawable.context());
 #define QGL_D_FUNC_CONTEXT QGLContext *ctx = const_cast<QGLContext *>(d->drawable.context());
@@ -598,6 +600,7 @@ public:
     QBrush cbrush;
     QRegion crgn;
     Qt::BrushStyle brush_style;
+    QPointF brush_origin;
     Qt::BrushStyle pen_brush_style;
     qreal opacity;
     QPainter::CompositionMode composition_mode;
@@ -927,8 +930,12 @@ inline void QOpenGLPaintEnginePrivate::setGradientOps(Qt::BrushStyle style)
                 fragment_brush = FRAGMENT_PROGRAM_BRUSH_RADIAL;
             else if (style == Qt::ConicalGradientPattern)
                 fragment_brush = FRAGMENT_PROGRAM_BRUSH_CONICAL;
-            else
+            else if (style == Qt::SolidPattern)
                 fragment_brush = FRAGMENT_PROGRAM_BRUSH_SOLID;
+            else if (style == Qt::TexturePattern)
+                fragment_brush = FRAGMENT_PROGRAM_BRUSH_TEXTURE;
+            else
+                fragment_brush = FRAGMENT_PROGRAM_BRUSH_PATTERN;
         }
     }
 #endif
@@ -972,6 +979,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     d->inverseScale = 1;
     d->opacity = 1;
     d->drawable.makeCurrent();
+    d->matrix = QTransform();
 
     QGLContext *ctx = const_cast<QGLContext *>(d->drawable.context());
     if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram)
@@ -1056,10 +1064,10 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
                 qWarning() << "QOpenGLPaintEngine: Failed to create fragment programs.";
         }
 
-        gccaps &= ~(RadialGradientFill | ConicalGradientFill | LinearGradientFill);
+        gccaps &= ~(RadialGradientFill | ConicalGradientFill | LinearGradientFill | PatternBrush);
 
         if (d->use_fragment_programs)
-            gccaps |= (RadialGradientFill | ConicalGradientFill | LinearGradientFill);
+            gccaps |= (RadialGradientFill | ConicalGradientFill | LinearGradientFill | PatternBrush);
         else if (QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat)
             gccaps |= LinearGradientFill;
     }
@@ -1121,7 +1129,7 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
         updatePen(state.pen());
     }
 
-    if (flags & DirtyBrush) {
+    if (flags & (DirtyBrush | DirtyBrushOrigin)) {
         updateBrush(state.brush(), state.brushOrigin());
     }
 
@@ -1264,6 +1272,13 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
             linear_data[1] = l.y();
 
             linear_data[2] = 1.0f / (l.x() * l.x() + l.y() * l.y());
+        } else if (style != Qt::SolidPattern) {
+            QTransform translate(1, 0, 0, 1, brush_origin.x(), brush_origin.y());
+            QTransform gl_to_qt(1, 0, 0, -1, 0, pdev->height());
+
+            QTransform inv_matrix = gl_to_qt * matrix.inverted() * brush.transform().inverted() * translate;
+
+            setInvMatrixData(inv_matrix);
         }
 
     }
@@ -1369,7 +1384,7 @@ void QOpenGLImmediateModeTessellator::addTrap(const Trapezoid &trap)
 
     const bool topZero = qFuzzyCompare(topDist, 0);
 
-    reciprocal = topZero ? 1.0f / bottomDist : 1.0f / topDist;
+    reciprocal = topZero ? 1.0 / bottomDist : 1.0 / topDist;
 
     qreal leftA = topZero ? (bottomLeftX - leftB) * reciprocal : (topLeftX - leftB) * reciprocal;
     qreal rightA = topZero ? (bottomRightX - rightB) * reciprocal : (topRightX - rightB) * reciprocal;
@@ -1804,11 +1819,12 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
     }
 }
 
-void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
+void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 {
     Q_D(QOpenGLPaintEngine);
     d->cbrush = brush;
     d->brush_style = brush.style();
+    d->brush_origin = origin;
     d->has_brush = (d->brush_style != Qt::NoBrush);
 
     // This is to update the gradient GL settings even when
@@ -3014,6 +3030,17 @@ void QOpenGLPaintEnginePrivate::updateFragmentProgramData(int locations[])
 
     float inv_buffer_size_data[4] = { 1.0f / sz.width(), 1.0f / sz.height(), 0.0f, 0.0f };
 
+    // default inv size 0.125f == 1.0f / 8.0f for pattern brushes
+    float inv_brush_texture_size_data[4] = { 0.125f, 0.125f };
+
+    // texture patterns have their own size
+    if (current_style == Qt::TexturePattern) {
+        QSize sz = cbrush.texture().size();
+
+        inv_brush_texture_size_data[0] = 1.0f / sz.width();
+        inv_brush_texture_size_data[1] = 1.0f / sz.height();
+    }
+
     for (unsigned int i = 0; i < num_fragment_variables; ++i) {
         int location = locations[i];
 
@@ -3048,9 +3075,13 @@ void QOpenGLPaintEnginePrivate::updateFragmentProgramData(int locations[])
         case VAR_PORTERDUFF_XYZ:
             glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, location, porterduff_xyz_data);
             break;
+        case VAR_INV_BRUSH_TEXTURE_SIZE:
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, location, inv_brush_texture_size_data);
+            break;
         case VAR_DST_TEXTURE:
         case VAR_MASK_TEXTURE:
         case VAR_PALETTE:
+        case VAR_BRUSH_TEXTURE:
             // texture variables, not handled here
             break;
         default:
@@ -3091,6 +3122,8 @@ void QOpenGLPaintEnginePrivate::composite(GLuint primitive, const float *vertexA
                                 locations[VAR_MASK_TEXTURE],
                                 locations[VAR_PALETTE] };
 
+    int brush_texture_location = locations[VAR_BRUSH_TEXTURE];
+
     GLuint texture_targets[] = { GL_TEXTURE_2D,
                                  GL_TEXTURE_2D,
                                  GL_TEXTURE_1D };
@@ -3098,7 +3131,6 @@ void QOpenGLPaintEnginePrivate::composite(GLuint primitive, const float *vertexA
     GLuint textures[] = { offscreen.drawableTexture(),
                           offscreen.offscreenTexture(),
                           grad_palette };
-
 
     const int num_textures = sizeof(textures) / sizeof(*textures);
 
@@ -3110,6 +3142,18 @@ void QOpenGLPaintEnginePrivate::composite(GLuint primitive, const float *vertexA
             glActiveTexture(GL_TEXTURE0 + texture_locations[i]);
             glBindTexture(texture_targets[i], textures[i]);
         }
+
+    if (brush_texture_location >= 0) {
+        glActiveTexture(GL_TEXTURE0 + brush_texture_location);
+
+        if (current_style == Qt::TexturePattern)
+            drawable.bindTexture(cbrush.texture());
+        else
+            drawable.bindTexture(qt_pixmapForBrush(current_style, false));
+
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    }
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, vertexArray);
@@ -3128,6 +3172,11 @@ void QOpenGLPaintEnginePrivate::composite(GLuint primitive, const float *vertexA
             glActiveTexture(GL_TEXTURE0 + texture_locations[i]);
             glBindTexture(texture_targets[i], 0);
         }
+
+    if (brush_texture_location >= 0) {
+        glActiveTexture(GL_TEXTURE0 + brush_texture_location);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
 
     glActiveTexture(GL_TEXTURE0);
 

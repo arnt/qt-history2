@@ -4,6 +4,8 @@
 enum FragmentVariable {
     VAR_INV_MATRIX,
     VAR_PALETTE,
+    VAR_INV_BRUSH_TEXTURE_SIZE,
+    VAR_BRUSH_TEXTURE,
     VAR_PORTERDUFF_AB,
     VAR_INV_MATRIX_OFFSET,
     VAR_FMP,
@@ -21,6 +23,8 @@ enum FragmentBrushType {
     FRAGMENT_PROGRAM_BRUSH_RADIAL,
     FRAGMENT_PROGRAM_BRUSH_CONICAL,
     FRAGMENT_PROGRAM_BRUSH_LINEAR,
+    FRAGMENT_PROGRAM_BRUSH_TEXTURE,
+    FRAGMENT_PROGRAM_BRUSH_PATTERN,
 };
 
 enum FragmentCompositionModeType {
@@ -33,9 +37,9 @@ enum FragmentMaskType {
     FRAGMENT_PROGRAM_MASK_ELLIPSE_AA,
 };
 
-static const unsigned int num_fragment_variables = 12;
+static const unsigned int num_fragment_variables = 14;
 
-static const unsigned int num_fragment_brushes = 4;
+static const unsigned int num_fragment_brushes = 6;
 static const unsigned int num_fragment_composition_modes = 2;
 static const unsigned int num_fragment_masks = 2;
 
@@ -445,6 +449,129 @@ static const char *FragmentProgram_FRAGMENT_PROGRAM_BRUSH_LINEAR_COMPOSITION_MOD
     "END\n"
     ;
 
+static const char *FragmentProgram_FRAGMENT_PROGRAM_BRUSH_TEXTURE_COMPOSITION_MODES_SIMPLE_PORTER_DUFF =
+    "!!ARBfp1.0\n"
+    "PARAM c[7] = { program.local[0..3],\n"
+    "		{ 1 },\n"
+    "		program.local[5..6] };\n"
+    "TEMP R0;\n"
+    "TEMP R1;\n"
+    "TEMP R2;\n"
+    "TEMP R3;\n"
+    "TEMP R4;\n"
+    "MUL R0.zw, fragment.position.xyxy, c[1].xyxy;\n"
+    "MUL R4.xy, fragment.position, c[0];\n"
+    "TEX R1, R4, texture[0], 2D;\n"
+    "ADD R0.z, R0, R0.w;\n"
+    "MUL R0.xy, fragment.position, c[1].zwzw;\n"
+    "ADD R0.w, R0.x, R0.y;\n"
+    "ADD R0.xy, R0.zwzw, c[2];\n"
+    "MUL R0.xy, R0, c[3];\n"
+    "MOV R0.y, -R0;\n"
+    "TEX R0, R0, texture[2], 2D;\n"
+    "MUL R2.xyz, R1, c[6].y;\n"
+    "MUL R3.xyz, R2, R0.w;\n"
+    "MUL R2.xyz, R0, c[6].x;\n"
+    "MUL R0.xyz, R0, c[5].y;\n"
+    "ADD R2.w, -R1, c[4].x;\n"
+    "MAD R2.xyz, R2, R1.w, R3;\n"
+    "MAD R2.xyz, R0, R2.w, R2;\n"
+    "ADD R2.w, -R0, c[4].x;\n"
+    "MUL R0.xyz, R1, c[5].z;\n"
+    "MAD R0.xyz, R0, R2.w, R2;\n"
+    "ADD R2.y, -R1.w, c[4].x;\n"
+    "MUL R2.x, R0.w, R1.w;\n"
+    "MUL R2.z, R1.w, R2.w;\n"
+    "MUL R2.y, R0.w, R2;\n"
+    "DP3 R0.w, R2, c[5];\n"
+    "ADD R0, R0, -R1;\n"
+    "TEX R2.x, R4, texture[1], 2D;\n"
+    "MAD result.color, R2.x, R0, R1;\n"
+    "END\n"
+    ;
+
+static const char *FragmentProgram_FRAGMENT_PROGRAM_BRUSH_TEXTURE_COMPOSITION_MODE_BLEND_MODE =
+    "!!ARBfp1.0\n"
+    "PARAM c[4] = { program.local[0..3] };\n"
+    "TEMP R0;\n"
+    "TEMP R1;\n"
+    "MUL R0.zw, fragment.position.xyxy, c[0].xyxy;\n"
+    "ADD R0.z, R0, R0.w;\n"
+    "MUL R0.xy, fragment.position, c[0].zwzw;\n"
+    "ADD R0.w, R0.x, R0.y;\n"
+    "ADD R0.xy, R0.zwzw, c[1];\n"
+    "MUL R0.xy, R0, c[2];\n"
+    "MUL R0.zw, fragment.position.xyxy, c[3].xyxy;\n"
+    "TEX R1.x, R0.zwzw, texture[0], 2D;\n"
+    "MOV R0.y, -R0;\n"
+    "TEX R0, R0, texture[1], 2D;\n"
+    "MUL result.color, R0, R1.x;\n"
+    "END\n"
+    ;
+
+static const char *FragmentProgram_FRAGMENT_PROGRAM_BRUSH_PATTERN_COMPOSITION_MODES_SIMPLE_PORTER_DUFF =
+    "!!ARBfp1.0\n"
+    "PARAM c[7] = { program.local[0..3],\n"
+    "		{ 1 },\n"
+    "		program.local[5..6] };\n"
+    "TEMP R0;\n"
+    "TEMP R1;\n"
+    "TEMP R2;\n"
+    "TEMP R3;\n"
+    "TEMP R4;\n"
+    "MUL R0.zw, fragment.position.xyxy, c[1].xyxy;\n"
+    "ADD R0.z, R0, R0.w;\n"
+    "MUL R0.xy, fragment.position, c[1].zwzw;\n"
+    "ADD R0.w, R0.x, R0.y;\n"
+    "ADD R0.xy, R0.zwzw, c[2];\n"
+    "MUL R0.xy, R0, c[3];\n"
+    "MOV R0.y, -R0;\n"
+    "TEX R1.x, R0, texture[2], 2D;\n"
+    "MUL R4.xy, fragment.position, c[0];\n"
+    "TEX R0, R4, texture[0], 2D;\n"
+    "MUL R1, fragment.color.primary, R1.x;\n"
+    "MUL R2.xyz, R0, c[6].y;\n"
+    "MUL R3.xyz, R2, R1.w;\n"
+    "MUL R2.xyz, R1, c[6].x;\n"
+    "MUL R1.xyz, R1, c[5].y;\n"
+    "ADD R2.w, -R0, c[4].x;\n"
+    "MAD R2.xyz, R2, R0.w, R3;\n"
+    "MAD R2.xyz, R1, R2.w, R2;\n"
+    "ADD R2.w, -R1, c[4].x;\n"
+    "MUL R1.xyz, R0, c[5].z;\n"
+    "MAD R1.xyz, R1, R2.w, R2;\n"
+    "ADD R2.y, -R0.w, c[4].x;\n"
+    "MUL R2.x, R1.w, R0.w;\n"
+    "MUL R2.y, R1.w, R2;\n"
+    "MUL R2.z, R0.w, R2.w;\n"
+    "DP3 R1.w, R2, c[5];\n"
+    "ADD R2, R1, -R0;\n"
+    "TEX R1.x, R4, texture[1], 2D;\n"
+    "MAD result.color, R1.x, R2, R0;\n"
+    "END\n"
+    ;
+
+static const char *FragmentProgram_FRAGMENT_PROGRAM_BRUSH_PATTERN_COMPOSITION_MODE_BLEND_MODE =
+    "!!ARBfp1.0\n"
+    "PARAM c[4] = { program.local[0..3] };\n"
+    "TEMP R0;\n"
+    "TEMP R1;\n"
+    "MUL R0.zw, fragment.position.xyxy, c[0].xyxy;\n"
+    "ADD R0.z, R0, R0.w;\n"
+    "MUL R0.xy, fragment.position, c[0].zwzw;\n"
+    "ADD R0.w, R0.x, R0.y;\n"
+    "ADD R0.xy, R0.zwzw, c[1];\n"
+    "MUL R0.xy, R0, c[2];\n"
+    "MOV R0.w, -R0.y;\n"
+    "MOV R0.z, R0.x;\n"
+    "MUL R0.xy, fragment.position, c[3];\n"
+    "TEX R1.x, R0.zwzw, texture[1], 2D;\n"
+    "TEX R0.x, R0, texture[0], 2D;\n"
+    "MUL R1, fragment.color.primary, R1.x;\n"
+    "MUL result.color, R1, R0.x;\n"
+    "END\n"
+    ;
+
 static const char *mask_fragment_program_sources[num_fragment_masks] = {
     FragmentProgram_FRAGMENT_PROGRAM_MASK_TRAPEZOID_AA,
     FragmentProgram_FRAGMENT_PROGRAM_MASK_ELLIPSE_AA,
@@ -467,24 +594,40 @@ static const char *painter_fragment_program_sources[num_fragment_brushes][num_fr
         FragmentProgram_FRAGMENT_PROGRAM_BRUSH_LINEAR_COMPOSITION_MODES_SIMPLE_PORTER_DUFF,
         FragmentProgram_FRAGMENT_PROGRAM_BRUSH_LINEAR_COMPOSITION_MODE_BLEND_MODE,
     },
+    {
+        FragmentProgram_FRAGMENT_PROGRAM_BRUSH_TEXTURE_COMPOSITION_MODES_SIMPLE_PORTER_DUFF,
+        FragmentProgram_FRAGMENT_PROGRAM_BRUSH_TEXTURE_COMPOSITION_MODE_BLEND_MODE,
+    },
+    {
+        FragmentProgram_FRAGMENT_PROGRAM_BRUSH_PATTERN_COMPOSITION_MODES_SIMPLE_PORTER_DUFF,
+        FragmentProgram_FRAGMENT_PROGRAM_BRUSH_PATTERN_COMPOSITION_MODE_BLEND_MODE,
+    },
 };
 
 static int painter_variable_locations[num_fragment_brushes][num_fragment_composition_modes][num_fragment_variables] = {
     {
-        { -1, -1, 3, -1, -1, -1, -1, 0, 1, 0, -1, 2, },
-        { -1, -1, -1, -1, -1, -1, -1, 0, 0, -1, -1, -1, },
+        { -1, -1, -1, -1, 3, -1, -1, -1, -1, 0, 1, 0, -1, 2, },
+        { -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, -1, -1, -1, },
     },
     {
-        { 1, 2, 7, 2, 3, 5, -1, 0, 1, 0, -1, 6, },
-        { 0, 1, -1, 1, 2, 4, -1, 5, 0, -1, -1, -1, },
+        { 1, 2, -1, -1, 7, 2, 3, 5, -1, 0, 1, 0, -1, 6, },
+        { 0, 1, -1, -1, -1, 1, 2, 4, -1, 5, 0, -1, -1, -1, },
     },
     {
-        { 1, 2, 8, 2, -1, -1, -1, 0, 1, 0, 5, 7, },
-        { 0, 1, -1, 1, -1, -1, -1, 6, 0, -1, 4, -1, },
+        { 1, 2, -1, -1, 8, 2, -1, -1, -1, 0, 1, 0, 5, 7, },
+        { 0, 1, -1, -1, -1, 1, -1, -1, -1, 6, 0, -1, 4, -1, },
     },
     {
-        { 1, 2, 6, 2, -1, -1, 3, 0, 1, 0, -1, 5, },
-        { 0, 1, -1, 1, -1, -1, 2, 3, 0, -1, -1, -1, },
+        { 1, 2, -1, -1, 6, 2, -1, -1, 3, 0, 1, 0, -1, 5, },
+        { 0, 1, -1, -1, -1, 1, -1, -1, 2, 3, 0, -1, -1, -1, },
+    },
+    {
+        { 1, -1, 3, 2, 6, 2, -1, -1, -1, 0, 1, 0, -1, 5, },
+        { 0, -1, 2, 1, -1, 1, -1, -1, -1, 3, 0, -1, -1, -1, },
+    },
+    {
+        { 1, -1, 3, 2, 6, 2, -1, -1, -1, 0, 1, 0, -1, 5, },
+        { 0, -1, 2, 1, -1, 1, -1, -1, -1, 3, 0, -1, -1, -1, },
     },
 };
 
