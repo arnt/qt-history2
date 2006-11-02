@@ -146,6 +146,27 @@
 
     Delegates are described in the section on \l{Delegate Classes}.
 
+    \section2 Sorting
+
+    There are two ways of approaching sorting in the model/view
+    architecture; which approach to choose depends on your underlying
+    model.
+
+    If your model is sortable, i.e, if it reimplements the
+    QAbstractItemModel::sort() function, both QTableView and QTreeView
+    provide an API that allows you to sort your model data
+    programmatically. In addition, you can enable interactive sorting
+    (i.e. allowing the users to sort the data by clicking the view's
+    headers), by connecting the QHeaderView::sectionClicked() signal
+    to the QTableView::sortByColumn() slot or the
+    QTreeView::sortByColumn() slot, respectively.
+
+    The alternative approach, if your model do not have the required
+    interface or if you want to use a list view to present your data,
+    is to use a proxy model to transform the structure of your model
+    before presenting the data in the view. This is covered in detail
+    in the section on \l {Proxy Models}.
+
     \section2 Convenience Classes
 
     A number of \e convenience classes are derived from the standard view
