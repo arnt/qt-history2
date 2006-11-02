@@ -707,6 +707,19 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
                     }
                 }
             }
+        } else if(*(buffer+x) == '\'' || *(buffer+x) == '"') {
+            const char term = *(buffer+(x++));
+            while(x < buffer_len) {
+                if(*(buffer+x) == term)
+                    break;
+                if(*(buffer+x) == '\\') {
+                    x+=2;
+                } else {
+                    if(qmake_endOfLine(*(buffer+x)))
+                        ++line_count;
+                    ++x;
+                }
+            }
         }
         if(((buffer_len > x+2 &&  *(buffer+x+1) == 'Q' && *(buffer+x+2) == '_')
                    ||
