@@ -195,6 +195,8 @@ private slots:
     void globalColor();
 
     void variantMap();
+
+    void invalidAsByteArray();
 };
 
 Q_DECLARE_METATYPE(QDate)
@@ -2079,6 +2081,16 @@ void tst_QVariant::variantMap()
 
     QVariant v3 = QVariant(QMetaType::type("QMap<QString, QVariant>"), &map);
     QCOMPARE(qvariant_cast<QVariantMap>(v3).value("test").toInt(), 42);
+}
+
+void tst_QVariant::invalidAsByteArray()
+{
+    QVariant v;
+    QByteArray &a = v.asByteArray();
+    a.resize(2);
+    a[0] = 'a';
+    a[1] = 'b';
+    QCOMPARE(v, QVariant(QByteArray("ab")));
 }
 
 QTEST_MAIN(tst_QVariant)
