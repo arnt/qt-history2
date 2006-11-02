@@ -140,7 +140,13 @@ void WriteIncludes::acceptCustomWidget(DomCustomWidget *node)
     bool global = true;
     if (node->elementHeader() && node->elementHeader()->text().size()) {
         global = node->elementHeader()->attributeLocation().toLower() == QLatin1String("global");
-        m_includes.insert(node->elementHeader()->text(), global);
+        QString header = node->elementHeader()->text();
+        QString qtHeader = m_classToHeader.value(node->elementClass()); // check if the class is a built-in qt class
+        if (!qtHeader.isEmpty()) {
+            global = true;
+            header = qtHeader;
+        }
+        m_includes.insert(header, global);
     } else {
         add(node->elementClass());
     }
