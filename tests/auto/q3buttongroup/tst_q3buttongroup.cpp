@@ -91,10 +91,16 @@ void tst_q3buttongroup::nonExclusiveButtons()
 void tst_q3buttongroup::buttonIds()
 {
     Q3ButtonGroup group(0, Qt::Vertical, "ButtonGroup");
+    group.setExclusive(true);
+    QVERIFY(group.isExclusive());
 
     for (int i=0; i < 10; i++) {
         QRadioButton *button = new QRadioButton(QString("Button_%1").arg(i + 1) , &group);
         QCOMPARE(group.id(button) , i);
+        int id = group.insert(button);
+        QCOMPARE(id, i);
+        group.setButton(id);
+        QCOMPARE(group.selectedId(), id);
     }
 
     QCheckBox *button2 = new QCheckBox(QString("manuallyAdded"));
