@@ -1,16 +1,19 @@
 uniform sampler1D palette;
-uniform vec4 inv_matrix;
-uniform vec2 inv_matrix_offset;
 uniform vec3 linear;
+uniform vec3 inv_matrix_m0;
+uniform vec3 inv_matrix_m1;
+uniform vec3 inv_matrix_m2;
 
 vec4 brush()
 {
-    mat2 mat;
+    mat3 mat;
 
-    mat[0] = inv_matrix.xy;
-    mat[1] = inv_matrix.zw;
+    mat[0] = inv_matrix_m0;
+    mat[1] = inv_matrix_m1;
+    mat[2] = inv_matrix_m2;
 
-    vec2 A = gl_FragCoord.xy * mat + inv_matrix_offset;
+    vec3 hcoords = mat * vec3(gl_FragCoord.xy, 1);
+    vec2 A = hcoords.xy / hcoords.z;
 
     float val = dot(linear.xy, A) * linear.z;
 

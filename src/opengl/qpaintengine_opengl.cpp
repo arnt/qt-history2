@@ -644,8 +644,7 @@ public:
     bool use_fragment_programs;
     bool use_antialiasing;
 
-    float inv_matrix_data[4];
-    float inv_matrix_offset_data[4];
+    float inv_matrix_data[3][4];
     float fmp_data[4];
     float fmp2_m_radius2_data[4];
     float angle_data[4];
@@ -1177,13 +1176,17 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
 
 void QOpenGLPaintEnginePrivate::setInvMatrixData(const QTransform &inv_matrix)
 {
-    inv_matrix_data[0] = inv_matrix.m11();
-    inv_matrix_data[1] = inv_matrix.m21();
-    inv_matrix_data[2] = inv_matrix.m12();
-    inv_matrix_data[3] = inv_matrix.m22();
+    inv_matrix_data[0][0] = inv_matrix.m11();
+    inv_matrix_data[1][0] = inv_matrix.m21();
+    inv_matrix_data[2][0] = inv_matrix.m31();
 
-    inv_matrix_offset_data[0] = inv_matrix.dx();
-    inv_matrix_offset_data[1] = inv_matrix.dy();
+    inv_matrix_data[0][1] = inv_matrix.m12();
+    inv_matrix_data[1][1] = inv_matrix.m22();
+    inv_matrix_data[2][1] = inv_matrix.m32();
+
+    inv_matrix_data[0][2] = inv_matrix.m13();
+    inv_matrix_data[1][2] = inv_matrix.m23();
+    inv_matrix_data[2][2] = inv_matrix.m33();
 }
 
 
@@ -3065,11 +3068,14 @@ void QOpenGLPaintEnginePrivate::updateFragmentProgramData(int locations[])
         case VAR_INV_BUFFER_SIZE:
             glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, location, inv_buffer_size_data);
             break;
-        case VAR_INV_MATRIX:
-            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, location, inv_matrix_data);
+        case VAR_INV_MATRIX_M0:
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, location, inv_matrix_data[0]);
             break;
-        case VAR_INV_MATRIX_OFFSET:
-            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, location, inv_matrix_offset_data);
+        case VAR_INV_MATRIX_M1:
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, location, inv_matrix_data[1]);
+            break;
+        case VAR_INV_MATRIX_M2:
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, location, inv_matrix_data[2]);
             break;
         case VAR_PORTERDUFF_AB:
             glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, location, porterduff_ab_data);

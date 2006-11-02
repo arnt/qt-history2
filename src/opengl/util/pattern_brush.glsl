@@ -1,16 +1,19 @@
 uniform sampler2D brush_texture;
 uniform vec2 inv_brush_texture_size;
-uniform vec4 inv_matrix;
-uniform vec2 inv_matrix_offset;
+uniform vec3 inv_matrix_m0;
+uniform vec3 inv_matrix_m1;
+uniform vec3 inv_matrix_m2;
 
 vec4 brush()
 {
-    mat2 mat;
+    mat3 mat;
 
-    mat[0] = inv_matrix.xy;
-    mat[1] = inv_matrix.zw;
+    mat[0] = inv_matrix_m0;
+    mat[1] = inv_matrix_m1;
+    mat[2] = inv_matrix_m2;
 
-    vec2 coords = gl_FragCoord.xy * mat + inv_matrix_offset;
+    vec3 hcoords = mat * vec3(gl_FragCoord.xy, 1);
+    vec2 coords = hcoords.xy / hcoords.z;
 
     coords *= inv_brush_texture_size;
 
