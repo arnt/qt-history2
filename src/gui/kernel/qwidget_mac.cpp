@@ -2367,10 +2367,6 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     if(!updatesEnabled() &&  (valid_rect || children().isEmpty()))
         return;
 
-    if (HIViewGetNeedsDisplay(qt_mac_hiview_for(this))) {
-        update(valid_rect ? r : rect());
-        return;
-    }
     if(!valid_rect) {        // scroll children
         QPoint pd(dx, dy);
         QWidgetList moved;
@@ -2395,6 +2391,12 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
             QApplication::sendEvent(w, &e);
         }
     }
+
+    if (HIViewGetNeedsDisplay(qt_mac_hiview_for(this))) {
+        update(valid_rect ? r : rect());
+        return;
+    }
+
     if(isVisible()) {
         HIRect scrollrect = CGRectMake(r.x(), r.y(), r.width(), r.height());
         HIViewScrollRect(qt_mac_hiview_for(this), valid_rect ? &scrollrect : 0, dx, dy);
