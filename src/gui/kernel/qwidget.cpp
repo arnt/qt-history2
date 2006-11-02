@@ -5038,13 +5038,6 @@ void QWidget::setVisible(bool visible)
         QWidget *pw = parentWidget();
         if (!testAttribute(Qt::WA_WState_Created)
             && (isWindow() || pw->testAttribute(Qt::WA_WState_Created))) {
-            /* If we are a toplevel, and our parent is a dialog, we have to
-               make sure that that the parent is created first. Otherwise, if
-               the dialog happens to be modal, the modality gets messed up. */
-            if (pw && !pw->testAttribute(Qt::WA_WState_Created)
-                && pw->windowType() == Qt::Dialog && pw->isWindow())
-                pw->create();
-
             create();
         }
 
