@@ -139,8 +139,10 @@ private slots:
     void cursorPos();
     void calendarPopup();
 
+
 #if QT_VERSION >= 0x040200
     void setSelectedSection();
+    void reverseTest();
     void setCurrentSectionIndex();
     void setCurrentSectionIndex_data();
     void sectionCount_data();
@@ -2577,6 +2579,40 @@ void tst_QDateTimeEdit::calendarPopup()
     QVERIFY(wid2 == 0);
     timeEdit.hide();
 }
+
+class RestoreLayoutDirectioner
+{
+public:
+    RestoreLayoutDirectioner(Qt::LayoutDirection was)
+        : old(was)
+    {}
+
+    ~RestoreLayoutDirectioner()
+    {
+        QApplication::setLayoutDirection(old);
+    }
+private:
+    const Qt::LayoutDirection old;
+};
+
+void tst_QDateTimeEdit::reverseTest()
+{
+    const RestoreLayoutDirectioner restorer(QApplication::layoutDirection());
+    QApplication::setLayoutDirection(Qt::RightToLeft);
+    testWidget->setDisplayFormat("dd/MM/yyyy");
+    testWidget->setDate(QDate(2001, 3, 30));
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("2001/03/30"));
+#ifdef Q_WS_MAC
+    QTest::keyClick(testWidget, Qt::Key_Right, Qt::ControlModifier);
+#else
+    QTest::keyClick(testWidget, Qt::Key_End);
+#endif
+    QCOMPARE(testWidget->currentSection(), QDateTimeEdit::DaySection);
+    QTest::keyClick(testWidget, Qt::Key_Up);
+    QCOMPARE(testWidget->date(), QDate(2001, 3, 31));
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("2001/03/31"));
+}
+
 
 void tst_QDateTimeEdit::setCurrentSectionIndex_data()
 {
