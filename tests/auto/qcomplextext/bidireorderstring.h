@@ -66,6 +66,11 @@ const LV logical_visual[] = {
     { "data56", "\"[\327\220]\"", "\"[\327\220]\"", QChar::DirL },
     { "data57", "\331\204\330\250 \331\202\330\250", "\330\250\331\202 \330\250\331\204", QChar::DirR },
     { "data58", "\331\204\330\250 \331\202\330\250", "\330\250\331\202 \330\250\331\204", QChar::DirL },
+    { "data59", "3layout", "3layout", QChar::DirL },
+    { "data60", "3layout", "3layout", QChar::DirR },
+    { "data61", "3l", "3l", QChar::DirR },
+    { "data62", "3la", "3la", QChar::DirR },
+    { "data63", "3lay", "3lay", QChar::DirR },
 
 // explicit levels
 // LRE: \342\200\252
