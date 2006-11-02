@@ -83,6 +83,9 @@ QAbstractPrintDialog::QAbstractPrintDialog(QAbstractPrintDialogPrivate &ptr,
 /*!
     Sets the set of options that should be enabled in the print dialog
     to \a options.
+
+    Note that this function has no effect on Mac OS X. See the QPrintDialog
+    documentation for more information.
 */
 void QAbstractPrintDialog::setEnabledOptions(PrintDialogOptions options)
 {
@@ -92,6 +95,9 @@ void QAbstractPrintDialog::setEnabledOptions(PrintDialogOptions options)
 
 /*!
     Adds the option \a option to the set of enabled options in this dialog.
+
+    Note that this function has no effect on Mac OS X. See the QPrintDialog
+    documentation for more information.
 */
 void QAbstractPrintDialog::addEnabledOption(PrintDialogOption option)
 {
@@ -266,7 +272,9 @@ QPrinter *QAbstractPrintDialog::printer() const
 
     On Windows and Mac OS X, the native print dialog is used, which
     means that some QWidget and QDialog properties set on the dialog
-    won't be respected.
+    won't be respected. In addition, the native print dialog on Mac OS X does
+    not support setting printer options, i.e. QAbstractPrintDialog::setEnabledOptions()
+    and QAbstractPrintDialog::addEnabledOption() have no effect.
 
     \sa QPageSetupDialog, QPrinter, {Pixelator Example}, {Order Form Example},
         {Image Viewer Example}, {Scribble Example}
