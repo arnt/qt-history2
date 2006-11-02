@@ -345,6 +345,8 @@ void QDialogButtonBoxPrivate::layoutButtons()
             // Only the first one
             QAbstractButton *button = acceptRoleList.first();
             buttonLayout->addWidget(button);
+            if (QPushButton *pb = qobject_cast<QPushButton *>(button))
+                pb->setDefault(true);
             button->show();
         }
             break;
