@@ -604,8 +604,15 @@ bool QXIMInputContext::x11FilterEvent(QWidget *keywidget, XEvent *event)
         count = XmbLookupString(data->ic, &event->xkey, string.data(), string.size(),
                                 &key, &status);
     }
-    if (count > 0)
+    if (count > 0) {
+        // XmbLookupString() gave us some text, convert it to unicode
         text = qt_input_mapper->toUnicode(string.constData() , count);
+        if (text.isEmpty()) {
+            // codec couldn't convert to unicode? this can happen when running in the
+            // C locale (or with no LANG set). try converting from latin-1
+            text = QString::fromLatin1(string.constData(), count);
+        }
+    }
 
 #if 0
     if (!(xim_style & XIMPreeditCallbacks) || !isComposing()) {
