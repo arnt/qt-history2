@@ -1621,7 +1621,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             bool sunken = button->state & State_Sunken;
             bool unchanged = button->state & State_NoChange;
             bool enabled = button->state & State_Enabled;
-            if (enabled && (on || sunken || unchanged)) {
+            if (on || (enabled && sunken) || unchanged) {
                 p->setRenderHint(QPainter::Antialiasing);
                 QBrush pointBrush = qMapBrushToRect(button->palette.text(), rect);
                 if (sunken)
@@ -1673,7 +1673,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             bool on = button->state & State_On;
             bool sunken = button->state & State_Sunken;
             bool enabled = button->state & State_Enabled;
-            if (enabled && (on || sunken)) {
+            if (on || (enabled && sunken)) {
                 p->setPen(Qt::NoPen);
                 QBrush pointBrush = qMapBrushToRect(button->palette.text(), rect);
                 if (sunken)
