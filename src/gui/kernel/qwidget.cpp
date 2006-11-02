@@ -1013,6 +1013,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         type = Qt::Window;
         flags |= Qt::Window;
     }
+
+    if (parentWidget() && (type & Qt::Window) && !parentWidget()->testAttribute(Qt::WA_WState_Created) && !isModal())
+        parentWidget()->createWinId();
+
 #ifdef QT3_SUPPORT
     if (flags & Qt::WStaticContents)
         setAttribute(Qt::WA_StaticContents);
@@ -1950,7 +1954,7 @@ QStyle* QWidget::setStyle(const QString &style)
     prevents widgets in other windows from getting input. The value of
     this property controls which windows are blocked when the widget
     is visible. Changing this property while the window is visible has
-    no effect; you must hide() the wiget first, then show() it again.
+    no effect; you must hide() the widget first, then show() it again.
 
     By default, this property is Qt::NonModal.
 
