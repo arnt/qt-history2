@@ -48,7 +48,7 @@ public:
     ~QCompleterPrivate() { delete popup; }
     void init(QAbstractItemModel *model = 0);
 
-    QWidget *widget;
+    QPointer<QWidget> widget;
     QCompletionModel *proxy;
     QAbstractItemView *popup;
     QCompleter::CompletionMode mode;

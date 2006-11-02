@@ -1048,7 +1048,8 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
               return true;
         }
 
-        // Handle popup navigation keys.
+        // Handle popup navigation keys. These are hardcoded because up/down might make the
+        // widget do something else (lineedit cursor moves to home/end on mac, for instance)
         switch (key) {
         case Qt::Key_End:
         case Qt::Key_Home:
@@ -1087,11 +1088,11 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
         // Send the event to the widget. If the widget accepted the event, do nothing
         // If the widget did not accept the event, provide a default implementation
         d->eatFocusOut = false;
-        QApplication::sendEvent(d->widget, ke);
+        (static_cast<QObject *>(d->widget))->event(ke);
         d->eatFocusOut = true;
-        if (e->isAccepted()) {
+        if (!d->widget || e->isAccepted() || !d->popup->isVisible()) {
             // widget lost focus, hide the popup
-            if (!d->widget->hasFocus())
+            if (d->widget && !d->widget->hasFocus())
                 d->popup->hide();
             return true;
         }
