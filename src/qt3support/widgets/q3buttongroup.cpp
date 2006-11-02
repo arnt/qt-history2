@@ -191,7 +191,6 @@ void Q3ButtonGroup::setExclusive(bool enable)
 int Q3ButtonGroup::insert(QAbstractButton *button, int id)
 {
     remove(button);
-    fixChildren();
     return insert_helper(button, id);
 }
 
