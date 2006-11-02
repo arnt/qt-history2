@@ -87,6 +87,7 @@ Function InstallProjectTemplates
   !insertmacro InstallProjectTemplate "${MODULE_VSIP_ROOT}\Projects\Qt4ConsoleProject" "Qt4ConsoleProject"
   !insertmacro InstallProjectTemplate "${MODULE_VSIP_ROOT}\Projects\Qt4LibProject" "Qt4LibProject"
   !insertmacro InstallProjectTemplate "${MODULE_VSIP_ROOT}\Projects\Qt4ActiveQtServerProject" "Qt4ActiveQtServerProject"
+  !insertmacro InstallProjectTemplate "${MODULE_VSIP_ROOT}\Projects\Qt4DesignerPluginProject" "Qt4DesignerPluginProject"
   
   !ifndef MODULE_ADDIN7X
   # install the class wizard
@@ -145,6 +146,7 @@ Function un.InstallProjectTemplates
   !insertmacro UnInstallProjectTemplate "Qt4ConsoleProject"
   !insertmacro UnInstallProjectTemplate "Qt4LibProject"
   !insertmacro UnInstallProjectTemplate "Qt4ActiveQtServerProject"
+  !insertmacro UnInstallProjectTemplate "Qt4DesignerPluginProject"
 
   RmDir "$ProjectInstDir"
   RmDir "$0\projects"
