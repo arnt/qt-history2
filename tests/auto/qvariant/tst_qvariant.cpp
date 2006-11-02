@@ -524,6 +524,7 @@ void tst_QVariant::toInt_data()
     QTest::addColumn<int>("result");
     QTest::addColumn<bool>("valueOK");
 
+    QTest::newRow( "invalid" ) << QVariant()  << 0 << false;
     QTest::newRow( "int" ) << QVariant( 123 ) << 123 << true;
     QTest::newRow( "double" ) << QVariant( 3.1415927 ) << 3 << true;
     QTest::newRow( "uint" ) << QVariant( 123u ) << 123 << true;
@@ -559,9 +560,8 @@ void tst_QVariant::toInt()
     QFETCH( QVariant, value );
     QFETCH( int, result );
     QFETCH( bool, valueOK );
-    QVERIFY( value.isValid() );
 //    QEXPECT_FAIL("QByteArray", "Expected to not yet be able to convert QByteArray to int", Abort);
-    QVERIFY( value.canConvert( QVariant::Int ) );
+    QVERIFY( value.isValid() == value.canConvert( QVariant::Int ) );
     bool ok;
     int i = value.toInt( &ok );
     QCOMPARE( i, result );

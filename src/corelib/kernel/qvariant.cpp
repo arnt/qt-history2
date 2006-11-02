@@ -457,7 +457,7 @@ static qlonglong qConvertToNumber(const QVariant::Private *d, bool *ok)
         return qlonglong(qMetaTypeUNumber(d));
     }
 
-    ok = false;
+    *ok = false;
     return Q_INT64_C(0);
 }
 
