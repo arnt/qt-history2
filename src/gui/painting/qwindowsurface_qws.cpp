@@ -372,17 +372,16 @@ void QWSWindowSurface::setGeometry(const QRect &rect)
 static inline void flushUpdate(QWidget *widget, const QRegion &region,
                                const QPoint &offset)
 {
-    static QWSYellowSurface surface(true);
     static int delay = -1;
 
-    if (delay == -1) {
+    if (delay == -1)
         delay = qgetenv("QT_FLUSH_UPDATE").toInt() * 10;
-        surface.setDelay(delay);
-    }
 
     if (delay == 0)
         return;
 
+    static QWSYellowSurface surface(true);
+    surface.setDelay(delay);
     surface.flush(widget, region, offset);
 }
 
