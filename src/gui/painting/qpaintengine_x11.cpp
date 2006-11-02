@@ -1980,7 +1980,9 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
 
         const QColor &pen = d->cpen.color();
         ::Picture src = X11->getSolidFill(d->scrn, pen);
-        XRenderPictFormat *maskFormat = XRenderFindStandardFormat(X11->display, ft->xglyph_format);
+        // XRenderPictFormat *maskFormat = XRenderFindStandardFormat(X11->display, ft->xglyph_format);
+        // using a mask format other than 0 causes bitmap/XLFD fonts to garbled
+        XRenderPictFormat *maskFormat = 0;
 
         enum { t_min = SHRT_MIN >> 1, t_max = SHRT_MAX >> 1};
 
