@@ -1050,22 +1050,26 @@ QList<QVariant> QWin32PrintEnginePrivate::queryResolutions() const
     DWORD numRes;
     LONG *enumRes;
     DWORD errRes;
+    QList<QVariant> list;
 
     QT_WA({
 	numRes = DeviceCapabilities(reinterpret_cast<const wchar_t *>(name.utf16()),
 	                            reinterpret_cast<const wchar_t *>(port.utf16()),
 				    DC_ENUMRESOLUTIONS, 0, 0);
+        if (numRes == (DWORD)-1)
+            return list;
 	enumRes = (LONG*)malloc(numRes * 2 * sizeof(LONG));
         errRes = DeviceCapabilities(reinterpret_cast<const wchar_t *>(name.utf16()),
 	                            reinterpret_cast<const wchar_t *>(port.utf16()),
 				    DC_ENUMRESOLUTIONS, (LPWSTR)enumRes, 0);
     }, {
 	numRes = DeviceCapabilitiesA(name.toLocal8Bit(), port.toLocal8Bit(), DC_ENUMRESOLUTIONS, 0, 0);
+        if (numRes == (DWORD)-1)
+            return list;
 	enumRes = (LONG*)malloc(numRes * 2 * sizeof(LONG));
 	errRes = DeviceCapabilitiesA(name.toLocal8Bit(), port.toLocal8Bit(), DC_ENUMRESOLUTIONS, (LPSTR)enumRes, 0);
     });
 
-    QList<QVariant> list;
     if (errRes == (DWORD)-1) {
         qErrnoWarning("QWin32PrintEngine::queryResolutions: DeviceCapabilities failed");
         return list;
@@ -1331,10 +1335,11 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
         break;
 
     case PPK_Resolution:
-        value = d->resolution;
+        if (d->resolution || !d->name.isEmpty())
+            value = d->resolution;
         break;
 
-    case PPK_SupportedResolutions:
+    case PPK_SupportedResolutions: 
         value = d->queryResolutions();
         break;
 
