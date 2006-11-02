@@ -20,7 +20,6 @@
 #include "qline.h"
 #include "qdebug.h"
 
-Q_GUI_EXPORT
 const uchar *qt_patternForBrush(int brushStyle, bool invert)
 {
     Q_ASSERT(brushStyle > Qt::SolidPattern && brushStyle < Qt::LinearGradientPattern);
@@ -64,7 +63,6 @@ const uchar *qt_patternForBrush(int brushStyle, bool invert)
     return pat_tbl[brushStyle - Qt::Dense1Pattern];
 }
 
-Q_GUI_EXPORT
 QPixmap qt_pixmapForBrush(int brushStyle, bool invert)
 {
     QPixmap pm;
@@ -79,6 +77,7 @@ QPixmap qt_pixmapForBrush(int brushStyle, bool invert)
     return pm;
 }
 
+Q_GUI_EXPORT
 QImage qt_imageForBrush(int brushStyle, bool invert)
 {
     QImage image(8, 8, QImage::Format_MonoLSB);

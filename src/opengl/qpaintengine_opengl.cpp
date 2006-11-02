@@ -36,7 +36,7 @@
 
 #include "util/fragmentprograms_p.h"
 
-extern QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
+extern QImage qt_imageForBrush(int brushStyle, bool invert); //in qbrush.cpp
 
 #ifdef Q_WS_WIN
 #define QGL_FUNC_CONTEXT QGLContext *ctx = const_cast<QGLContext *>(drawable.context());
@@ -669,6 +669,8 @@ public:
 
     QDataBuffer<QPointF> tess_points;
     QVector<int> tess_points_stops;
+
+    QImage pattern_image;
 };
 
 static inline QPainterPath strokeForPath(const QPainterPath &path, const QPen &cpen) {
@@ -3146,10 +3148,12 @@ void QOpenGLPaintEnginePrivate::composite(GLuint primitive, const float *vertexA
     if (brush_texture_location >= 0) {
         glActiveTexture(GL_TEXTURE0 + brush_texture_location);
 
-        if (current_style == Qt::TexturePattern)
-            drawable.bindTexture(cbrush.texture());
-        else
-            drawable.bindTexture(qt_pixmapForBrush(current_style, false));
+        if (current_style == Qt::TexturePattern) {
+            drawable.bindTexture(cbrush.textureImage());
+        } else {
+            pattern_image = qt_imageForBrush(current_style, true);
+            drawable.bindTexture(pattern_image);
+        }
 
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
