@@ -1402,7 +1402,6 @@ void QApplication::setGlobalStrut(const QSize& strut)
 */
 QPalette QApplication::palette()
 {
-    QApplicationPrivate::checkInstance("palette");
     if (!QApplicationPrivate::app_pal)
         QApplicationPrivate::app_pal = new QPalette(Qt::black);
     return *QApplicationPrivate::app_pal;
