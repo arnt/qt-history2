@@ -385,7 +385,7 @@ void QHeaderView::setOffsetToSectionPosition(int visualIndex)
 {
     Q_D(QHeaderView);
     if (visualIndex > -1 && visualIndex < d->sectionCount) {
-        int position = d->headerSectionPosition(visualIndex);
+        int position = d->headerSectionPosition(d->adjustedVisualIndex(visualIndex));
         setOffset(position);
     }
 }
@@ -2952,6 +2952,24 @@ int QHeaderViewPrivate::viewSectionSizeHint(int logical) const
                 : parent->sizeHintForRow(logical));
     }
     return 0;
+}
+
+int QHeaderViewPrivate::adjustedVisualIndex(int visualIndex) const
+{
+    if (hiddenSectionSize.count() > 0) {
+        int adjustedVisualIndex = visualIndex;
+        int currentVisualIndex = 0;
+        for (int i = 0; i < sectionSpans.count(); ++i) {
+            if (sectionSpans.at(i).size == 0)
+                adjustedVisualIndex += sectionSpans.at(i).count;
+            else
+                currentVisualIndex += sectionSpans.at(i).count;
+            if (currentVisualIndex >= visualIndex)
+                break;
+        }
+        visualIndex = adjustedVisualIndex;
+    }
+    return visualIndex;
 }
 
 #endif // QT_NO_ITEMVIEWS

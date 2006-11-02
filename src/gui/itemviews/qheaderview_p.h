@@ -275,6 +275,7 @@ public:
 
     // other
     int viewSectionSizeHint(int logical) const;
+    int adjustedVisualIndex(int visualIndex) const;
 
 };
 

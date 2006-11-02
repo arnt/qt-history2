@@ -1286,7 +1286,8 @@ void QTableView::updateGeometries()
                 break;
             ++columnsInViewport;
         }
-        horizontalScrollBar()->setRange(0, columnCount - columnsInViewport);
+        horizontalScrollBar()->setRange(0, columnCount - columnsInViewport
+                                        - d->horizontalHeader->hiddenSectionCount());
         horizontalScrollBar()->setPageStep(columnsInViewport);
     } else { // ScrollPerPixel
         horizontalScrollBar()->setPageStep(vsize.width());
@@ -1305,7 +1306,8 @@ void QTableView::updateGeometries()
                 break;
             ++rowsInViewport;
         }
-        verticalScrollBar()->setRange(0, rowCount - rowsInViewport);
+        verticalScrollBar()->setRange(0, rowCount - rowsInViewport
+                                      - d->verticalHeader->hiddenSectionCount());
         verticalScrollBar()->setPageStep(rowsInViewport);
     } else { // ScrollPerPixel
         verticalScrollBar()->setPageStep(vsize.height());
