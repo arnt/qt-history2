@@ -3485,10 +3485,8 @@ bool QDateTimeParser::parseFormat(const QString &newFormat)
     const QLatin1Char slash('\\');
     const QLatin1Char zero('0');
     if (newFormat == displayFormat && !newFormat.isEmpty()) {
-        //&& layoutDirection == QApplication::layoutDirection()) {
         return true;
     }
-    //layoutDirection = QApplication::layoutDirection();
 
     QDTPDEBUGN("parseFormat: %s", newFormat.toLatin1().constData());
 
@@ -3605,14 +3603,6 @@ bool QDateTimeParser::parseFormat(const QString &newFormat)
     sectionNodes = newSectionNodes;
     display = newDisplay;
     last.pos = -1;
-    reversedFormat.clear();
-    if (isRightToLeft()) {
-        for (int i=newSectionNodes.size() - 1; i>=0; --i) {
-            reversedFormat += newSeparators.at(i + 1);
-            reversedFormat += sectionFormat(i);
-        }
-        reversedFormat += newSeparators.at(0);
-    }
 
 //     for (int i=0; i<sectionNodes.size(); ++i) {
 //         QDTPDEBUG << sectionName(sectionNodes.at(i).type) << sectionNodes.at(i).count;

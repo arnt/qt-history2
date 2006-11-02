@@ -73,7 +73,6 @@ public:
     QVariant getMaximum() const { return maximum; }
     QString valueToText(const QVariant &var) const { return textFromValue(var); }
     QString getAmPmText(AmPm ap, Case cs) const;
-    bool isRightToLeft() const { return qApp->layoutDirection() == Qt::RightToLeft; }
     int cursorPosition() const { return edit ? edit->cursorPosition() : -1; }
     virtual QStyle::SubControl newHoverControl(const QPoint &pos);
     virtual void updateEditFieldGeometry();
@@ -88,7 +87,7 @@ public:
     QDateTimeEdit::Sections sections;
     mutable bool cacheGuard;
 
-    QString defaultDateFormat, defaultTimeFormat;
+    QString defaultDateFormat, defaultTimeFormat, unreversedFormat;
     Qt::LayoutDirection layoutDirection;
     mutable QVariant conflictGuard;
     bool hasHadFocus, formatExplicitlySet, calendarPopup;
@@ -689,13 +688,34 @@ QString QDateTimeEdit::sectionText(Section section) const
 QString QDateTimeEdit::displayFormat() const
 {
     Q_D(const QDateTimeEdit);
-    return d->displayFormat;
+    return isRightToLeft() ? d->unreversedFormat : d->displayFormat;
+}
+
+template<typename T> static inline QList<T> reverse(const QList<T> &l)
+{
+    QList<T> ret;
+    for (int i=l.size() - 1; i>=0; --i)
+        ret.append(l.at(i));
+    return ret;
 }
 
 void QDateTimeEdit::setDisplayFormat(const QString &format)
 {
     Q_D(QDateTimeEdit);
     if (d->parseFormat(format)) {
+        d->unreversedFormat.clear();
+        if (isRightToLeft()) {
+            d->unreversedFormat = format;
+            d->displayFormat.clear();
+            for (int i=d->sectionNodes.size() - 1; i>=0; --i) {
+                d->displayFormat += d->separators.at(i + 1);
+                d->displayFormat += d->sectionFormat(i);
+            }
+            d->displayFormat += d->separators.at(0);
+            d->separators = reverse(d->separators);
+            d->sectionNodes = reverse(d->sectionNodes);
+        }
+
         d->formatExplicitlySet = true;
         d->sections = d->convertSections(d->display);
         d->clearCache();
@@ -795,7 +815,9 @@ bool QDateTimeEdit::event(QEvent *event)
     switch (event->type()) {
     case QEvent::ApplicationLayoutDirectionChange: {
         const bool was = d->formatExplicitlySet;
-        setDisplayFormat(d->displayFormat);
+        const QString oldFormat = d->displayFormat;
+        d->displayFormat.clear();
+        setDisplayFormat(oldFormat);
         d->formatExplicitlySet = was;
         break; }
     default:
@@ -996,7 +1018,7 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *event)
     default:
         break;
     }
-    if (QApplication::isRightToLeft())
+    if (isRightToLeft())
         first = !first;
 
     d->setSelected(first ? 0 : d->sectionNodes.size() - 1);
@@ -1088,8 +1110,7 @@ void QDateTimeEdit::stepBy(int steps)
 QString QDateTimeEdit::textFromDateTime(const QDateTime &dateTime) const
 {
     Q_D(const QDateTimeEdit);
-
-    return dateTime.toString(d->reversedFormat.isEmpty() ? d->displayFormat : d->reversedFormat);
+    return dateTime.toString(d->displayFormat);
 }
 
 
@@ -1542,9 +1563,9 @@ int QDateTimeEditPrivate::closestSection(int pos, bool forward) const
 
 int QDateTimeEditPrivate::nextPrevSection(int current, bool forward) const
 {
-    if (QApplication::isRightToLeft())
+    Q_Q(const QDateTimeEdit);
+    if (q->isRightToLeft())
         forward = !forward;
-
 
     switch (current) {
     case FirstSectionIndex: return forward ? 0 : FirstSectionIndex;
