@@ -1187,6 +1187,9 @@ void QMacStylePrivate::drawColorlessButton(const HIRect &macRect, HIThemeButtonD
     int width = int(macRect.size.width) + extraWidth;
     int height = int(macRect.size.height) + extraHeight;
 
+    if (width <= 0 || height <= 0)
+        return;   // nothing to draw
+
     QString key = QLatin1String("$qt_mac_style_ctb_") + QString::number(bdi->kind) + QLatin1Char('_')
                   + QString::number(bdi->value) + QLatin1Char('_') + QString::number(width)
                   + QLatin1Char('_') + QString::number(height);
