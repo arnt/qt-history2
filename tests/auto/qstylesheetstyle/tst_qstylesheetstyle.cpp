@@ -103,6 +103,13 @@ void tst_QStyleSheetStyle::windowStyleSheet()
     QVERIFY(COLOR(w1) == APPCOLOR(w1));
     w1.setStyleSheet("* { color: red }");
     QVERIFY(COLOR(w1) == QColor("red"));
+
+    qApp->setStyleSheet("* { color: green }");
+    QVERIFY(COLOR(w1) == QColor("red"));
+    w1.setStyleSheet("");
+    QVERIFY(COLOR(w1) == QColor("green"));
+    qApp->setStyleSheet("");
+    QVERIFY(COLOR(w1) == APPCOLOR(w1));
 }
 
 void tst_QStyleSheetStyle::widgetStyleSheet()
@@ -149,6 +156,11 @@ void tst_QStyleSheetStyle::reparentWithNoChildStyleSheet()
 
     c1.setParent(&p1);
     QVERIFY(COLOR(c1) == QColor("red"));
+
+    qApp->setStyleSheet("* { color: blue }");
+    c1.setParent(0);
+    QVERIFY(COLOR(c1) == QColor("blue"));
+    delete pb;
 }
 
 void tst_QStyleSheetStyle::reparentWithChildStyleSheet()
