@@ -126,6 +126,8 @@ private:
     friend void *qt_getClipRects(const QRegion &r, int &num);
 #elif defined(Q_WS_MAC)
     friend QRegion qt_mac_convert_mac_region(RgnHandle rgn);
+#elif defined(QT_EXPERIMENTAL_REGIONS)
+    friend QRect qt_region_innerRect(const QRegion &region);
 #endif
     void exec(const QByteArray &ba, int ver = 0);
     struct QRegionData {
