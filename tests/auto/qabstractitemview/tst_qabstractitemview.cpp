@@ -139,6 +139,7 @@ private slots:
     void noModel();
     void dragSelect();
     void rowDelegate();
+    void columnDelegate();
 };
 
 class MyAbstractItemDelegate : public QAbstractItemDelegate
@@ -573,6 +574,23 @@ void tst_QAbstractItemView::rowDelegate()
     view.show();
 
     QModelIndex index = model.index(3, 0);
+    view.openPersistentEditor(index);
+    QWidget *w = view.indexWidget(index);
+    QVERIFY(w);
+    QCOMPARE(w->metaObject()->className(), "QWidget");
+}
+
+void tst_QAbstractItemView::columnDelegate()
+{
+    QStandardItemModel model(4,4);
+    MyAbstractItemDelegate delegate;
+
+    QTableView view;
+    view.setModel(&model);
+    view.setItemDelegateForColumn(3, &delegate);
+    view.show();
+
+    QModelIndex index = model.index(0, 3);
     view.openPersistentEditor(index);
     QWidget *w = view.indexWidget(index);
     QVERIFY(w);
