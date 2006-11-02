@@ -2453,6 +2453,7 @@ void QMenu::actionEvent(QActionEvent *e)
 
     if (isVisible()) {
         d->updateActions();
+	resize(sizeHint());
         update();
     }
 }
