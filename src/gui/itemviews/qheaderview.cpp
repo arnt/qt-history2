@@ -1389,7 +1389,7 @@ void QHeaderView::sectionsInserted(const QModelIndex &parent, int logicalFirst, 
         lastSection = qMax(d->model->rowCount(d->root) -  1, 0);
     int oldCount = d->sectionCount;
     int oldLastSection = qMax(oldCount - 1, 0);
-    initializeSections(qMin(oldLastSection, logicalFirst), lastSection);
+    initializeSections(qMin(oldLastSection + 1, logicalFirst), lastSection);
     resizeSections();
     emit sectionCountChanged(oldCount, count());
 }
@@ -1517,6 +1517,8 @@ void QHeaderView::initializeSections(int start, int end)
         d->stretchSections = d->sectionCount;
     else if (d->globalResizeMode == ResizeToContents)
          d->contentsSections = d->sectionCount;
+    if (!d->sectionHidden.isEmpty())
+        d->sectionHidden.resize(d->sectionCount);
 
     d->createSectionSpan(start, end, (end - start + 1) * d->defaultSectionSize, d->globalResizeMode);
     //Q_ASSERT(d->headerLength() == d->length);
