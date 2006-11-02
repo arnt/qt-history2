@@ -8305,7 +8305,12 @@ QRect QWidgetPrivate::frameStrut() const
         return QRect(0, 0, 1, 1);
     }
 
-    if (data.fstrut_dirty && q->isVisible() && q->testAttribute(Qt::WA_WState_Created))
+    if (data.fstrut_dirty
+#ifndef Q_WS_WIN
+        // ### Fix properly for 4.3
+        && q->isVisible()
+#endif
+        && q->testAttribute(Qt::WA_WState_Created))
         const_cast<QWidgetPrivate *>(this)->updateFrameStrut();
 
     return maybeTopData() ? maybeTopData()->frameStrut : QRect();

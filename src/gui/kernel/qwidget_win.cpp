@@ -547,6 +547,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
     bool explicitlyHidden = q->testAttribute(Qt::WA_WState_Hidden) && q->testAttribute(Qt::WA_WState_ExplicitShowHide);
 
     data.window_flags = f;
+    data.fstrut_dirty = true;
     q->setAttribute(Qt::WA_WState_Created, false);
     q->setAttribute(Qt::WA_WState_Visible, false);
     q->setAttribute(Qt::WA_WState_Hidden, false);
@@ -1309,16 +1310,14 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         if (q->windowType() == Qt::Desktop) {
             data.crect.setRect(x, y, w, h);
         } else if (q->isWindow()) {
-            if (!q->isVisible())
-                updateFrameStrut();
-            QRect fr(q->frameGeometry());
+            QRect fs(frameStrut());
             if (extra) {
-                fr.setLeft(fr.left() + x - data.crect.left());
-                fr.setTop(fr.top() + y - data.crect.top());
-                fr.setRight(fr.right() + (x + w - 1) - data.crect.right());
-                fr.setBottom(fr.bottom() + (y + h - 1) - data.crect.bottom());
+                fs.setLeft(x - fs.left());
+                fs.setTop(y - fs.top());
+                fs.setRight((x + w - 1) + fs.right());
+                fs.setBottom((y + h - 1) + fs.bottom());
             }
-            MoveWindow(q->internalWinId(), fr.x(), fr.y(), fr.width(), fr.height(), true);
+            MoveWindow(q->internalWinId(), fs.x(), fs.y(), fs.width(), fs.height(), true);
             if (!q->isVisible())
                 InvalidateRect(q->internalWinId(), 0, FALSE);
             RECT rect;
