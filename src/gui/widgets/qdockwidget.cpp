@@ -900,9 +900,7 @@ void QDockWidget::changeEvent(QEvent *event)
 /*! \reimp */
 void QDockWidget::closeEvent(QCloseEvent *event)
 {
-    Q_D(QDockWidget);
-    if (!(d->features & DockWidgetClosable))
-        event->ignore();
+    QWidget::closeEvent(event);
 }
 
 /*! \reimp */
