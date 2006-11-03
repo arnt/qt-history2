@@ -1035,15 +1035,28 @@ void QCalendarWidgetPrivate::updateHeader()
 
 void QCalendarWidgetPrivate::update()
 {
-    QDate currentDate = m_model->date;
+    QDate currentSelectedDate = m_model->date;
+    QDate currentDate = getCurrentDate(); //The current item in the month
     int row, column;
-    m_model->cellForDate(currentDate, &row, &column);
+    m_model->cellForDate(currentSelectedDate, &row, &column);
     QModelIndex idx;
     m_selection->clear();
+    //Set the selected date if it's in the month being shown
     if (row != -1 && column != -1) {
         idx = m_model->index(row, column);
         m_selection->setCurrentIndex(idx, QItemSelectionModel::SelectCurrent);
     }
+    //Make sure that the current item is set properly
+    row = -1;
+    column = -1;
+    m_model->cellForDate(currentDate, &row, &column);
+    if (row != -1 && column != -1)
+    {
+        m_selection->setCurrentIndex(m_model->index(row, column),
+                                                  QItemSelectionModel::NoUpdate);
+    }
+    //Redraw the calendar
+    m_view->viewport()->update();
 }
 
 void QCalendarWidgetPrivate::paintCell(QPainter *painter, const QRect &rect, const QDate &date) const
