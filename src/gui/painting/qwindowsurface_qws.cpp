@@ -1013,6 +1013,8 @@ QWSDirectPainterSurface::~QWSDirectPainterSurface()
 QWSDirectPainterSurface::QWSDirectPainterSurface(bool isClient)
     : QWSWindowSurface((QWidget*)0)
 {
+    setSurfaceFlags(Opaque);
+
     if (isClient) {
         winId  = QWidget::qwsDisplay()->takeId();
         QWidget::qwsDisplay()->nameRegion(winId,
@@ -1061,6 +1063,8 @@ bool QWSDirectPainterSurface::attach(const QByteArray &ba)
 {
     if (ba.size() > 0 && ba.at(0) == 'r')
         setReserved();
+    setSurfaceFlags(surfaceFlags() | Opaque);
+
     return true;
 }
 
