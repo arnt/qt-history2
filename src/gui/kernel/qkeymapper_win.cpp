@@ -493,9 +493,18 @@ static void qt_show_system_menu(QWidget* tlw)
     EnableMenuItem(menu, SC_MAXIMIZE, ! (tlw->windowFlags() & Qt::WindowMaximizeButtonHint) || maximized?disabled:enabled);
     EnableMenuItem(menu, SC_RESTORE, maximized?enabled:disabled);
 
-    EnableMenuItem(menu, SC_SIZE, maximized?disabled:enabled);
+    // We should _not_ check with the setFixedSize(x,y) case here, since Windows is not able to check
+    // this and our menu here would be out-of-sync with the menu produced by mouse-click on the
+    // System Menu, or right-click on the titlebar.
+    EnableMenuItem(menu, SC_SIZE, (tlw->windowFlags() & Qt::MSWindowsFixedSizeDialogHint) || maximized?disabled:enabled);
     EnableMenuItem(menu, SC_MOVE, maximized?disabled:enabled);
     EnableMenuItem(menu, SC_CLOSE, enabled);
+    // Set bold on close menu item
+    MENUITEMINFO closeItem;
+    closeItem.cbSize = sizeof(MENUITEMINFO);
+    closeItem.fMask = MIIM_STATE;
+    closeItem.fState = MFS_DEFAULT;
+    SetMenuItemInfo(menu, SC_CLOSE, FALSE, &closeItem);
 #endif
 
 #undef enabled
