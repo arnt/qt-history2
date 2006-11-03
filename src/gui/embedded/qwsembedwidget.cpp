@@ -33,6 +33,7 @@ class QWSEmbedWidgetPrivate : public QWidgetPrivate
 public:
     QWSEmbedWidgetPrivate(int winId);
     void updateWindow();
+    void resize(const QSize &size);
 
     QWidget *window;
     WId windowId;
@@ -68,6 +69,19 @@ void QWSEmbedWidgetPrivate::updateWindow()
     command.setData(windowId, embeddedId, QWSEmbedEvent::StartEmbed);
     QWSDisplay::instance()->d->sendCommand(command);
     window->installEventFilter(q);
+}
+
+void QWSEmbedWidgetPrivate::resize(const QSize &size)
+{
+    if (!window)
+        return;
+
+    Q_Q(QWSEmbedWidget);
+
+    QWSEmbedCommand command;
+    command.setData(windowId, embeddedId, QWSEmbedEvent::Region,
+                    QRect(q->mapToGlobal(QPoint(0, 0)), size));
+    QWSDisplay::instance()->d->sendCommand(command);
 }
 
 /*!
@@ -131,13 +145,7 @@ void QWSEmbedWidget::changeEvent(QEvent *event)
 void QWSEmbedWidget::resizeEvent(QResizeEvent*)
 {
     Q_D(QWSEmbedWidget);
-    if (!d->window)
-        return;
-
-    QWSEmbedCommand command;
-    command.setData(d->windowId, d->embeddedId, QWSEmbedEvent::Region,
-                    QRect(mapToGlobal(QPoint(0, 0)), geometry().size()));
-    QWSDisplay::instance()->d->sendCommand(command);
+    d->resize(rect().size());
 }
 
 /*!
@@ -147,5 +155,24 @@ void QWSEmbedWidget::moveEvent(QMoveEvent*)
 {
     resizeEvent(0);
 }
+
+/*!
+    \reimp
+*/
+void QWSEmbedWidget::hideEvent(QHideEvent*)
+{
+    Q_D(QWSEmbedWidget);
+    d->resize(QSize());
+}
+
+/*!
+    \reimp
+*/
+void QWSEmbedWidget::showEvent(QShowEvent*)
+{
+    Q_D(QWSEmbedWidget);
+    d->resize(rect().size());
+}
+
 
 #endif // QT_NO_QWSEMBEDWIDGET
