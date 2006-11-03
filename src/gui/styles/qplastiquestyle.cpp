@@ -713,8 +713,8 @@ static QString uniqueName(const QString &key, const QStyleOption *option, const 
 {
     QString tmp;
     const QStyleOptionComplex *complexOption = qstyleoption_cast<const QStyleOptionComplex *>(option);
-    tmp.sprintf("%s-%d-%d-%d-%dx%d", key.toLatin1().constData(), uint(option->state),
-                complexOption ? uint(complexOption->activeSubControls) : uint(0),
+    tmp.sprintf("%s-%d-%d-%d-%d-%dx%d", key.toLatin1().constData(), uint(option->state),
+                option->direction, complexOption ? uint(complexOption->activeSubControls) : uint(0),
                 option->palette.serialNumber(), size.width(), size.height());
     return tmp;
 }
