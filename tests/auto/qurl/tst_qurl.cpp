@@ -141,6 +141,10 @@ private slots:
     void setAuthority_data();
     void setAuthority();
     void errorString();
+
+#ifdef QT3_SUPPORT
+    void dirPath();
+#endif
 };
 
 // Testing get/set functions
@@ -3228,6 +3232,13 @@ void tst_QUrl::errorString()
     QCOMPARE(u.errorString(), QString("Invalid URL \"http://strange<username>@ok_hostname/\": "
             "error at position 14: expected end of URL, but found '<'"));
 }
+
+#ifdef QT3_SUPPORT
+void tst_QUrl::dirPath()
+{
+    QCOMPARE(QUrl("http://www.vg.no/test/file.txt").dirPath(), QString("/test"));
+}
+#endif
 
 QTEST_MAIN(tst_QUrl)
 #include "tst_qurl.moc"
