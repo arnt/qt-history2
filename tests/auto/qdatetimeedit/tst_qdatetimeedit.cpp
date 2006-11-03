@@ -139,6 +139,7 @@ private slots:
     void cursorPos();
     void calendarPopup();
 
+    void hour12Test();
 
 #if QT_VERSION >= 0x040200
     void setSelectedSection();
@@ -2699,8 +2700,36 @@ void tst_QDateTimeEdit::sectionCount()
     QCOMPARE(testWidget->sectionCount(), expectedSectionCount);
 }
 
+void tst_QDateTimeEdit::hour12Test()
+{
+    testWidget->setDisplayFormat("hh a");
+    testWidget->setTime(QTime(0, 0, 0));
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("12 am"));
+    for (int i=0; i<11; ++i) {
+        QTest::keyClick(testWidget, Qt::Key_Up);
+    }
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("11 am"));
+    QTest::keyClick(testWidget, Qt::Key_Up);
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("12 pm"));
+    for (int i=0; i<11; ++i) {
+        QTest::keyClick(testWidget, Qt::Key_Up);
+    }
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("11 pm"));
+    QTest::keyClick(testWidget, Qt::Key_Up);
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("11 pm"));
+    for (int i=0; i<12; ++i) {
+        QTest::keyClick(testWidget, Qt::Key_Down);
+    }
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("11 am"));
+    QTest::keyClick(testWidget, Qt::Key_1);
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("1 am"));
+    QTest::keyClick(testWidget, Qt::Key_3);
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("1 am"));
+}
+
 
 
 #endif
 QTEST_MAIN(tst_QDateTimeEdit)
 #include "tst_qdatetimeedit.moc"
+
