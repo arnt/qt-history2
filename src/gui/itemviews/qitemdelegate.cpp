@@ -605,9 +605,10 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
         textLayoutSize = d->doTextLayout(textRect.width());
     }
 
-    textRect.setTop(textRect.top() + (textRect.height()/2) - (textLayoutSize.toSize().height()/2));
-
-    d->textLayout.draw(painter, textRect.topLeft(), QVector<QTextLayout::FormatRange>(), textRect);
+    const QSize layoutSize(textRect.width(), int(textLayoutSize.height()));
+    const QRect layoutRect = QStyle::alignedRect(option.direction, option.displayAlignment,
+                                                  layoutSize, textRect);
+    d->textLayout.draw(painter, layoutRect.topLeft(), QVector<QTextLayout::FormatRange>(), layoutRect);
 }
 
 /*!
