@@ -78,9 +78,10 @@ int Q3SvgDevice::metric(PaintDeviceMetric m) const
     \compat
 
     Q3Picture can also read and write SVG (Scalable Vector Graphics)
-    files; these files are in an XML format specified by \link
-    http://www.w3.org/Graphics/SVG/ W3C\endlink. (See the load() and
-    save() functions.)
+    files; these files are in an XML format specified by \l {
+    http://www.w3.org/Graphics/SVG/ W3C}. Note that when using the
+    load() and save() functions to read and write SVG files, the
+    format must be specified.
 
     \sa QPicture
 */
@@ -102,8 +103,6 @@ int Q3SvgDevice::metric(PaintDeviceMetric m) const
     Loads the picture in the specified \a format from a file with the
     given \a fileName. Returns true if the file is loaded successfully;
     otherwise returns false.
-
-    \sa save()
 */
 bool Q3Picture::load(const QString &fileName, const char *format)
 {
@@ -118,6 +117,14 @@ bool Q3Picture::load(const QString &fileName, const char *format)
 
     Loads the picture in the specified \a format from the given \a device.
     Returns true if the file is loaded successfully; otherwise returns false.
+
+    Note that when using the load() function to read SVG files, the
+    format must be specified. For example:
+
+    \code
+        Q3Picture picture;
+        picture.load("drawing.svg", SVG);
+    \endcode
 
     \sa save()
 */
@@ -169,6 +176,18 @@ bool Q3Picture::save(const QString &fileName, const char *format)
     \fn bool Q3Picture::save(QIODevice *device, const char *format)
 
     Saves the picture in the specified \a format to the given \a device.
+
+    Note that when using the save() function to save SVG files, the
+    format must be specified. For example:
+
+    \code
+         Q3Picture picture;
+         QPainter painter;
+         painter.begin(&picture);           // paint in picture
+         ...
+         painter.end();                     // painting done
+         picture.save("drawing.svg", SVG);  // save picture
+    \endcode
 
     \sa load()
 */
