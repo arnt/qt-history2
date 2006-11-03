@@ -77,6 +77,8 @@ void WriteIncludes::acceptUI(DomUI *node)
 
     TreeWalker::acceptUI(node);
 
+    QString locals;
+
     QMapIterator<QString, bool> it(m_includes);
     while (it.hasNext()) {
         it.next();
@@ -88,8 +90,12 @@ void WriteIncludes::acceptUI(DomUI *node)
         if (it.value())
             output << "#include <" << header << ">\n";
         else
-            output << "#include \"" << header << "\"\n";
+            locals += QLatin1String("#include \"") + header + QLatin1String("\"\n");
     }
+
+    if (!locals.isEmpty())
+        output << locals;
+
     output << "\n";
 }
 
