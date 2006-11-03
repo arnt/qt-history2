@@ -2086,19 +2086,16 @@ void QTreeView::selectAll()
 void QTreeView::expandAll()
 {
     Q_D(QTreeView);
+    d->viewItems.clear();
     d->expandedIndexes.clear();
-    QStack<QModelIndex> parents;
-    parents.push(QModelIndex());
-    while (!parents.isEmpty()) {
-        const QModelIndex parent = parents.pop();
-        for (int row = 0; row < model()->rowCount(parent); ++row) {
-            QModelIndex child = model()->index(row, 0, parent);
-            if (model()->hasChildren(child))
-                parents.push(child);
-            d->expandedIndexes.append(child);
-        }
+    d->delayedLayout.stop();
+    d->layout(-1);
+    for (int i = 0; i < d->viewItems.count(); ++i) {
+        d->viewItems[i].expanded = true;
+        d->layout(i);
+        d->expandedIndexes.append(d->viewItems.at(i).index);
     }
-    doItemsLayout();
+    updateGeometries();
     d->viewport->update();
 }
 
@@ -2985,7 +2982,7 @@ void QTreeViewPrivate::rowsRemoved(const QModelIndex &parent,
     Q_Q(QTreeView);
     const int parentItem = viewIndex(parent);
     if ((parentItem != -1) || (parent == root)) {
-        
+
         const uint childLevel = (parentItem == -1)
                                 ? uint(0) : viewItems.at(parentItem).level + 1;
         const int firstChildItem = parentItem + 1;
