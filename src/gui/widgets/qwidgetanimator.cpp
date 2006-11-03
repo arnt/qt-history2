@@ -64,6 +64,8 @@ void QWidgetAnimator::animate(QWidget *widget, const QRect &_final_geometry, boo
     QRect final_geometry = _final_geometry;
 
     QRect r = widget->geometry();
+    if (r.right() < 0 || r.bottom() < 0)
+        r = QRect();
 
     if (r.isNull() || final_geometry.isNull())
         animate = false;
