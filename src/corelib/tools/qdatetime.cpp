@@ -3343,7 +3343,7 @@ int QDateTimeParser::absoluteMax(int s) const
     const SectionNode sn = sectionNode(s);
     switch (sn.type) {
     case Hour24Section:
-    case Hour12Section: return 23; // we want to be able to toggle the hour field and change ampm
+    case Hour12Section: return 23; // this is special-cased in parseSection. We want it to be 23 for the stepBy case.
     case MinuteSection:
     case SecondSection: return 59;
     case MSecSection: return 999;
@@ -3828,6 +3828,14 @@ int QDateTimeParser::parseSection(int sectionIndex, QString &text, int index,
                     if (sectiontext.at(digits - 1).isSpace()) // loc.toUInt will allow spaces at the end
                         break;
                     int tmp = (int)loc.toUInt(sectiontext.left(digits), &ok, 10);
+                    if (ok && sn.type == Hour12Section) {
+                        if (tmp > 12) {
+                            tmp = -1;
+                            ok = false;
+                        } else if (tmp == 12) {
+                            tmp = 0;
+                        }
+                    }
                     if (ok && tmp <= absMax) {
                         QDTPDEBUG << sectiontext.left(digits) << tmp << digits;
                         last = tmp;
