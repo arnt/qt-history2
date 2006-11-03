@@ -1081,21 +1081,38 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         if (const QStyleOptionToolBox *tb = qstyleoption_cast<const QStyleOptionToolBox *>(opt)) {
             int d = 20 + tb->rect.height() - 3;
             QPolygon a(7);
-            a.setPoint(0, -1, tb->rect.height() + 1);
-            a.setPoint(1, -1, 1);
-            a.setPoint(2, tb->rect.width() - d, 1);
-            a.setPoint(3, tb->rect.width() - 20, tb->rect.height() - 2);
-            a.setPoint(4, tb->rect.width() - 1, tb->rect.height() - 2);
-            a.setPoint(5, tb->rect.width() - 1, tb->rect.height() + 1);
-            a.setPoint(6, -1, tb->rect.height() + 1);
+            if (tb->direction != Qt::RightToLeft) {
+                a.setPoint(0, -1, tb->rect.height() + 1);
+                a.setPoint(1, -1, 1);
+                a.setPoint(2, tb->rect.width() - d, 1);
+                a.setPoint(3, tb->rect.width() - 20, tb->rect.height() - 2);
+                a.setPoint(4, tb->rect.width() - 1, tb->rect.height() - 2);
+                a.setPoint(5, tb->rect.width() - 1, tb->rect.height() + 1);
+                a.setPoint(6, -1, tb->rect.height() + 1);
+            } else {
+                a.setPoint(0, tb->rect.width(), tb->rect.height() + 1);
+                a.setPoint(1, tb->rect.width(), 1);
+                a.setPoint(2, d - 1, 1);
+                a.setPoint(3, 20 - 1, tb->rect.height() - 2);
+                a.setPoint(4, 0, tb->rect.height() - 2);
+                a.setPoint(5, 0, tb->rect.height() + 1);
+                a.setPoint(6, tb->rect.width(), tb->rect.height() + 1);
+            }
 
             p->setPen(tb->palette.mid().color().dark(150));
             p->drawPolygon(a);
             p->setPen(tb->palette.light().color());
-            p->drawLine(0, 2, tb->rect.width() - d, 2);
-            p->drawLine(tb->rect.width() - d - 1, 2, tb->rect.width() - 21, tb->rect.height() - 1);
-            p->drawLine(tb->rect.width() - 20, tb->rect.height() - 1,
-                        tb->rect.width(), tb->rect.height() - 1);
+            if (tb->direction != Qt::RightToLeft) {
+                p->drawLine(0, 2, tb->rect.width() - d, 2);
+                p->drawLine(tb->rect.width() - d - 1, 2, tb->rect.width() - 21, tb->rect.height() - 1);
+                p->drawLine(tb->rect.width() - 20, tb->rect.height() - 1,
+                            tb->rect.width(), tb->rect.height() - 1);
+            } else {
+                p->drawLine(tb->rect.width() - 1, 2, d - 1, 2);
+                p->drawLine(d, 2, 20, tb->rect.height() - 1);
+                p->drawLine(19, tb->rect.height() - 1,
+                            -1, tb->rect.height() - 1);
+            }
             p->setBrush(Qt::NoBrush);
         }
         break;

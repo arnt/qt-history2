@@ -2930,43 +2930,30 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             int diag = toolBox->rect.height() - 2;
 
             // The essential points
-            QPoint rightMost(toolBox->rect.right(), toolBox->rect.bottom() - 2);
-            QPoint rightEdge(toolBox->rect.right() - width / 10, toolBox->rect.bottom() - 2);
-            QPoint leftEdge(toolBox->rect.right() - width / 10 - diag, toolBox->rect.top());
-            QPoint leftMost(toolBox->rect.left(), toolBox->rect.top());
+            QPoint rightMost;
+            QPoint rightEdge;
+            QPoint leftEdge;
+            QPoint leftMost;
+            QPoint leftOne;
+            QPoint rightOne;
             QPoint upOne(0, -1);
             QPoint downOne(0, 1);
-            QPoint leftOne(-1, 0);
-            QPoint rightOne(1, 0);
 
-            // The upper path
-            QPainterPath upperPath(rightMost + rightOne);
-            upperPath.lineTo(rightEdge);
-            upperPath.lineTo(leftEdge);
-            upperPath.lineTo(leftMost + leftOne);
-            upperPath.lineTo(toolBox->rect.topLeft() + leftOne + upOne);
-            upperPath.lineTo(toolBox->rect.topRight() + rightOne + upOne);
-            upperPath.lineTo(rightMost + rightOne);
-
-            // The lower path
-            QPainterPath lowerPath(rightMost + rightOne);
-            lowerPath.lineTo(rightEdge);
-            lowerPath.lineTo(leftEdge);
-            lowerPath.lineTo(leftMost + leftOne);
-            lowerPath.lineTo(toolBox->rect.bottomLeft() + leftOne + downOne);
-            lowerPath.lineTo(toolBox->rect.bottomRight() + rightOne + downOne);
-            lowerPath.lineTo(rightMost);
-
-            //painter->fillRect(option->rect, toolBox->palette.base());
-
-            // Fill the tab
-            // if (toolBox->selectedPosition == QStyleOptionToolBox::PreviousIsSelected) {
-            //    painter->fillPath(upperPath, toolBox->palette.base());
-            //    painter->fillPath(lowerPath, toolBox->palette.background());
-            // } else {
-            //    painter->fillPath(upperPath, toolBox->palette.background());
-            //    painter->fillPath(lowerPath, toolBox->palette.base());
-            // }
+            if (toolBox->direction != Qt::RightToLeft) {
+                rightMost = QPoint(toolBox->rect.right(), toolBox->rect.bottom() - 2);
+                rightEdge = QPoint(toolBox->rect.right() - width / 10, toolBox->rect.bottom() - 2);
+                leftEdge = QPoint(toolBox->rect.right() - width / 10 - diag, toolBox->rect.top());
+                leftMost = QPoint(toolBox->rect.left(), toolBox->rect.top());
+                leftOne = QPoint(-1, 0);
+                rightOne = QPoint(1, 0);
+            } else {
+                rightMost = QPoint(toolBox->rect.left(), toolBox->rect.bottom() - 2);
+                rightEdge = QPoint(toolBox->rect.left() + width / 10, toolBox->rect.bottom() - 2);
+                leftEdge = QPoint(toolBox->rect.left() + width / 10 + diag, toolBox->rect.top());
+                leftMost = QPoint(toolBox->rect.right(), toolBox->rect.top());
+                leftOne = QPoint(1, 0);
+                rightOne = QPoint(-1, 0);
+            }
 
             // Draw the outline
             painter->setPen(borderColor);
