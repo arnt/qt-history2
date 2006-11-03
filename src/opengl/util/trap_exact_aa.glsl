@@ -11,6 +11,8 @@ float quad_aa()
     // use line equations to compute intersections of left/right edges with top/bottom of truncated pixel
     vec4 vecX = gl_TexCoord[1].xxzz * vec2(top, bottom).xyxy + gl_TexCoord[1].yyww;
 
+    vec2 invA = gl_TexCoord[0].zw;
+
     // transform right line to left to be able to use same calculations for both
     vecX.zw = 2 * gl_FragCoord.x - vecX.zw;
 
@@ -21,18 +23,13 @@ float quad_aa()
     vec2 topXTemp = max(topX, bottomX);
     vec2 bottomXTemp = min(topX, bottomX);
 
+    // make sure line slope reflects mirrored lines
+    invA = mix(invA, -invA, step(topX, bottomX));
+
     vec2 vecLeftRight = vec2(left, right);
 
     // compute the intersections of the lines with the left and right edges of the pixel
-    vec4 intersectY = bottom + area * (vecLeftRight.xyxy - bottomXTemp.xxyy) / (topXTemp.xxyy - bottomXTemp.xxyy);
-
-    // avoid NaN
-    if ((topXTemp.x - bottomXTemp.x) < 0.00000001)
-        intersectY.xy = 0;
-
-    // avoid NaN
-    if ((topXTemp.y - bottomXTemp.y) < 0.00000001)
-        intersectY.zw = 0;
+    vec4 intersectY = bottom + (vecLeftRight.xyxy - bottomXTemp.xxyy) * invA.xxyy;
 
     vec2 temp = mix(area - 0.5 * (right - bottomXTemp) * (intersectY.yw - bottom), // left < bottom < right < top
                     (0.5 * (topXTemp + bottomXTemp) - left) * area,    // left < bottom < top < right

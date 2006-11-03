@@ -1043,6 +1043,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glEnable(GL_BLEND);
+    d->composition_mode = QPainter::CompositionMode_SourceOver;
 
 #ifndef Q_WS_QWS
     if (d->drawable.context() != d->shader_ctx
@@ -1394,7 +1395,11 @@ void QOpenGLImmediateModeTessellator::addTrap(const Trapezoid &trap)
     qreal leftA = topZero ? (bottomLeftX - leftB) * reciprocal : (topLeftX - leftB) * reciprocal;
     qreal rightA = topZero ? (bottomRightX - rightB) * reciprocal : (topRightX - rightB) * reciprocal;
 
-    glTexCoord2f(topDist, bottomDist);
+    qreal invLeftA = qFuzzyCompare(leftA, 0.0) ? 0.0 : 1.0 / leftA;
+    qreal invRightA = qFuzzyCompare(rightA, 0.0) ? 0.0 : 1.0 / rightA;
+
+    // fragment program needs the negative of invRightA as it mirrors the line
+    glTexCoord4f(topDist, bottomDist, invLeftA, -invRightA);
     glMultiTexCoord4f(GL_TEXTURE1, leftA, leftB, rightA, rightB);
 
     qreal leftX = minX - xpadding;
@@ -1406,6 +1411,8 @@ void QOpenGLImmediateModeTessellator::addTrap(const Trapezoid &trap)
     glVertex2d(rightX, topY);
     glVertex2d(rightX, bottomY);
     glVertex2d(leftX, bottomY);
+
+    glTexCoord4f(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 class QOpenGLTrapezoidToArrayTessellator : public QOpenGLTessellator
