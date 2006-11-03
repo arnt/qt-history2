@@ -2851,7 +2851,7 @@ void QWSServerPrivate::update_regions()
 {
     static QRegion prevAvailable = QRect(0, 0, qt_screen->width(), qt_screen->height());
     QRegion available = QRect(0, 0, qt_screen->width(), qt_screen->height());
-    QRegion unbuffered;
+    QRegion reserved;
 
     QList<QWSWindow*> transparentWindows;
     QList<QRegion> transparentRegions;
@@ -2873,17 +2873,17 @@ void QWSServerPrivate::update_regions()
             r &= w->d->embedder->requested_region;
 #endif // QT_NO_QWSEMBEDWIDGET
 
-        if (!w->isOpaque()) {
+        QWSWindowSurface *surface = w->windowSurface();
+        if (surface && (surface->isReserved() || !surface->isBuffered())) {
+            available -= r;
+            reserved += r;
+        } else if (!w->isOpaque()) {
             transparentWindows.append(w);
             transparentRegions.append(r);
             continue;
+        } else {
+            available -= r;
         }
-
-        available -= r;
-
-        QWSWindowSurface *surface = w->windowSurface();
-        if (surface && !surface->isBuffered())
-            unbuffered += r;
 
         if (r == w->allocatedRegion())
             continue;
@@ -2896,7 +2896,7 @@ void QWSServerPrivate::update_regions()
     // Adjust transparent windows for nonbuffered regions
     for (int i = 0; i < transparentWindows.count(); ++i) {
         QWSWindow *w = transparentWindows.at(i);
-        const QRegion r = transparentRegions.at(i) - unbuffered;
+        const QRegion r = transparentRegions.at(i) - reserved;
 
         if (r == w->allocatedRegion())
             continue;
