@@ -24,7 +24,6 @@ TRANSLATOR qdesigner_internal::FormWindowManager
 #include "connectionedit_p.h"
 
 #include <QtDesigner/QtDesigner>
-#include <qdesigner_promotedwidget_p.h>
 #include <qdesigner_command_p.h>
 #include <layoutinfo_p.h>
 #include <qlayout_widget_p.h>
@@ -259,11 +258,6 @@ QWidget *FormWindowManager::findManagedWidget(FormWindow *fw, QWidget *w)
             break;
         w = w->parentWidget();
     }
-
-    QWidget *parent = w->parentWidget();
-    if (parent != 0 && qobject_cast<QDesignerPromotedWidget*>(parent) != 0)
-        w = parent;
-
     return w;
 }
 

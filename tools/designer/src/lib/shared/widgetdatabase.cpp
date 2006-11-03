@@ -38,6 +38,11 @@ WidgetDataBaseItem::WidgetDataBaseItem(const QString &name, const QString &group
       m_promoted(0)
 {
 }
+    
+WidgetDataBaseItem* WidgetDataBaseItem::clone() const {
+    return  new WidgetDataBaseItem(*this);    
+}
+
 
 QString WidgetDataBaseItem::name() const
 {
@@ -244,7 +249,7 @@ int WidgetDataBase::indexOfObject(QObject *object, bool /*resolveName*/) const
         id = lang->classNameOf(object);
 
     if (id.isEmpty())
-        id = QString::fromUtf8 (WidgetFactory::classNameOf(object));
+        id = WidgetFactory::classNameOf(m_core,object);
 
     return QDesignerWidgetDataBaseInterface::indexOfClassName(id);
 }

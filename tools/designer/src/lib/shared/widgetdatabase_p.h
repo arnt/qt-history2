@@ -44,6 +44,8 @@ class QDESIGNER_SHARED_EXPORT WidgetDataBaseItem: public QDesignerWidgetDataBase
 public:
     WidgetDataBaseItem(const QString &name = QString(),
                        const QString &group = QString());
+    
+    virtual WidgetDataBaseItem* clone() const;
 
     QString name() const;
     void setName(const QString &name);

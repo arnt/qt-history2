@@ -22,10 +22,8 @@
 
 // shared
 #include <iconloader_p.h>
-#include <qdesigner_promotedwidget_p.h>
 #include <qdesigner_utils_p.h>
 #include <qdesigner_command_p.h>
-#include <metadatabase_p.h>
 
 #include "paletteeditorbutton.h"
 #include <QtGui/QtGui>
@@ -534,17 +532,15 @@ struct Group
     { return name == other.name; }
 };
 
-MetaDataBaseItem* PropertyEditor::metaDataBaseItem() const 
+QDesignerMetaDataBaseItemInterface* PropertyEditor::metaDataBaseItem() const 
 {
     QObject *o = object();
     if (!o) 
         return 0;
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(o))
-        o = promoted->child();
-
-    MetaDataBase* db = qobject_cast<MetaDataBase*>(core()->metaDataBase());
-    if (!db) return 0;
-    return static_cast<MetaDataBaseItem*>(db->item(o));
+    QDesignerMetaDataBaseInterface *db = core()->metaDataBase();
+    if (!db) 
+        return 0;
+    return db->item(o);
 }
 
 void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *object)
@@ -637,7 +633,7 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                 p = new StringProperty(QString::fromUtf8(value.toByteArray()), pname);
                 break;
             case QVariant::String: {
-                MetaDataBaseItem *item = metaDataBaseItem();
+                const QDesignerMetaDataBaseItemInterface *item = metaDataBaseItem();
                 if (item && pname != QLatin1String("objectName")) {
                     p = new StringProperty(value.toString(), pname, true, item->propertyComment(pname));
                 } else {
@@ -815,7 +811,7 @@ void PropertyEditor::firePropertyChanged(IProperty *p)
     if (object()) {     
         if (p->parent() && p->propertyName() == QLatin1String("comment")) {
             const QString parentProperty = p->parent()->propertyName();
-            if (MetaDataBaseItem *item = metaDataBaseItem()) {
+            if (QDesignerMetaDataBaseItemInterface *item = metaDataBaseItem()) {
                 item->setPropertyComment(parentProperty, p->value().toString());
                 emit propertyChanged(parentProperty, p->parent()->value());
             }

@@ -24,11 +24,10 @@ TRANSLATOR qdesigner_internal::FormWindow
 #include "widgetselection.h"
 
 // shared
-#include <qdesigner_promotedwidget_p.h>
 #include <qdesigner_tabwidget_p.h>
 #include <qdesigner_toolbox_p.h>
 #include <qdesigner_stackedbox_p.h>
-#include "qdesigner_resource.h"
+#include <qdesigner_resource.h>
 #include <qdesigner_command_p.h>
 #include <qdesigner_widget_p.h>
 #include <qdesigner_utils_p.h>
@@ -44,6 +43,16 @@ TRANSLATOR qdesigner_internal::FormWindow
 
 #include <QtGui>
 #include <QtDebug>
+
+namespace {
+    // Not available from shared due to linkage problems
+    bool isWidgetPromoted(QDesignerFormEditorInterface *core, QWidget* widget) {
+        QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
+        if (!item)
+            return false;
+        return !item->customClassName().isEmpty();
+    }
+}
 
 namespace qdesigner_internal {
 
@@ -856,14 +865,12 @@ QWidget *FormWindow::createWidget(DomUI *ui, const QRect &rc, QWidget *target)
     QWidget *container = findContainer(target, false);
     if (!container)
         return 0;
-
     if (isMainContainer(container)) {
         if (QMainWindow *mw = qobject_cast<QMainWindow*>(container)) {
             Q_ASSERT(mw->centralWidget() != 0);
             container = mw->centralWidget();
         }
     }
-
     QDesignerResource resource(this);
     QList<QWidget*> widgets = resource.paste(ui, container);
     Q_ASSERT(widgets.size() == 1); // multiple-paste from DomUI not supported yet
@@ -1289,9 +1296,6 @@ void FormWindow::manageWidget(QWidget *w)
 
     setCursorToAll(Qt::ArrowCursor, w);
 
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(w))
-        manageWidget(promoted->child());
-
     emit changed();
     emit widgetManaged(w);
 }
@@ -1450,10 +1454,9 @@ void FormWindow::finishContextMenu(QWidget *w, QWidget *, QContextMenuEvent *e)
     QMenu *menu = createPopupMenu(w);
     if (menu && taskMenu) {
         QList<QAction *> acts = taskMenu->taskActions();
-        if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(w)) {
+        if (isWidgetPromoted(core(),w)) {
             QDesignerTaskMenuExtension *baseTaskMenu =
-                qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(),
-                                                          promoted->child());
+                qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(),w);
             if (baseTaskMenu) {
                 // "inherit" proper actions from base class's task menu
                 QList<QAction *> baseActs = baseTaskMenu->taskActions();
@@ -1693,9 +1696,6 @@ QMenu *FormWindow::createPopupMenu(QWidget *w)
 
     QMenu *popup = new QMenu(this);
 
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(w))
-        w = promoted->child();
-
     if (qobject_cast<QDesignerTabWidget*>(w)) {
         QDesignerTabWidget *tabWidget = static_cast<QDesignerTabWidget*>(w);
         if (tabWidget->count()) {
@@ -1822,7 +1822,7 @@ QWidget *FormWindow::findContainer(QWidget *w, bool excludeLayout) const
                 continue;
             }
 
-            bool isContainer = widgetDataBase->isContainer(w, true) || w == mainContainer();
+            bool isContainer =  widgetDataBase->isContainer(w, true) || w == mainContainer();
 
             if (!isContainer || (excludeLayout && qobject_cast<QLayoutWidget*>(w))) { // ### skip QSplitter
                 w = w->parentWidget();
@@ -1899,7 +1899,7 @@ QWidget *FormWindow::containerAt(const QPoint &pos)
 
 static QWidget *childAt_SkipDropLine(QWidget *w, QPoint pos)
 {
-    QObjectList child_list = w->children();
+   QObjectList child_list = w->children();
     for (int i = child_list.size() - 1; i >= 0; --i) {
         QObject *child_obj = child_list[i];
         if (qobject_cast<WidgetHandle*>(child_obj) != 0)
@@ -2122,10 +2122,8 @@ void FormWindow::editContents()
         if (QDesignerTaskMenuExtension *taskMenu = qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(), widget)) {
             if (QAction *a = taskMenu->preferredEditAction()) {
                 a->trigger();
-            } else if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget)) {
-                QDesignerTaskMenuExtension *baseTaskMenu =
-                    qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(),
-                                                              promoted->child());
+            } else if (isWidgetPromoted(core(),widget)) {
+                QDesignerTaskMenuExtension *baseTaskMenu = qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(),widget);
                 if (QAction *b = baseTaskMenu->preferredEditAction())
                     b->trigger();
             }
@@ -2141,7 +2139,6 @@ void FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidg
     QWidget *parent = target;
     if (parent == 0)
         parent = mainContainer();
-
     // You can only drop stuff onto the central widget of a QMainWindow
     // ### generalize to use container extension
     if (QMainWindow *main_win = qobject_cast<QMainWindow*>(target)) {
@@ -2184,7 +2181,6 @@ void FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidg
             if (dest == this) {
                 if (deco == 0) {
                     parent = container;
-
                     if (parent != widget->parent()) {
                         ReparentWidgetCommand *cmd = new ReparentWidgetCommand(dest);
                         cmd->init(widget, parent);

@@ -18,8 +18,8 @@
 #include "layout_p.h"
 #include "qlayout_widget_p.h"
 #include "qdesigner_widget_p.h"
-#include "qdesigner_promotedwidget_p.h"
 #include "qdesigner_menu_p.h"
+#include "metadatabase_p.h"
 
 #include <QtCore/qdebug.h>
 
@@ -107,7 +107,7 @@ bool QDesignerFormWindowCommand::hasLayout(QWidget *widget) const
 {
     QDesignerFormEditorInterface *core = formWindow()->core();
     if (widget && LayoutInfo::layoutType(core, widget) != LayoutInfo::NoLayout) {
-        QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
+        const QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
         return item != 0;
     }
 
@@ -289,13 +289,6 @@ void SetPropertyCommand::redo()
         act->setData(QVariant(true)); // it triggers signal "changed" in QAction
         act->setData(QVariant(false));
     }
-
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(m_object)) {
-        if (m_propertyName == QLatin1String("minimumSize"))
-            promoted->setMinimumSize(m_newValue.toSize());
-        else if (m_propertyName == QLatin1String("maximumSize"))
-            promoted->setMaximumSize(m_newValue.toSize());
-    }
 }
 
 void SetPropertyCommand::undo()
@@ -337,13 +330,6 @@ void SetPropertyCommand::undo()
         // emit act->changed(); cannot emit, signal is protected
         act->setData(QVariant(true)); // it triggers signal "changed" in QAction
         act->setData(QVariant(false));
-    }
-
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(m_object)) {
-        if (m_propertyName == QLatin1String("minimumSize"))
-            promoted->setMinimumSize(m_oldValue.toSize());
-        else if (m_propertyName == QLatin1String("maximumSize"))
-            promoted->setMaximumSize(m_oldValue.toSize());
     }
 }
 
@@ -511,17 +497,12 @@ void ResetPropertyCommand::redo()
     Q_ASSERT(m_propertySheet);
     Q_ASSERT(m_index != -1);
 
-    QObject *obj = m_object;
-    QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(obj);
-    if (promoted)
-        obj = promoted->child();
-
     QVariant new_value;
 
     if (m_propertySheet->reset(m_index)) {
         new_value = m_propertySheet->property(m_index);
     } else {
-        int item_idx =  formWindow()->core()->widgetDataBase()->indexOfObject(obj);
+        int item_idx =  formWindow()->core()->widgetDataBase()->indexOfObject(m_object);
         if (item_idx == -1) {
             new_value = m_oldValue; // We simply don't know the value in this case
         } else {
@@ -548,13 +529,6 @@ void ResetPropertyCommand::redo()
         checkParent(widget, parentWidget);
     } else if (m_propertyName == QLatin1String("objectName")) {
         checkObjectName(m_object);
-    }
-
-    if (promoted) {
-        if (m_propertyName == QLatin1String("minimumSize"))
-            promoted->setMinimumSize(new_value.toSize());
-        else if (m_propertyName == QLatin1String("maximumSize"))
-            promoted->setMaximumSize(new_value.toSize());
     }
 
     if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
@@ -587,12 +561,6 @@ void ResetPropertyCommand::undo()
             propertyEditor->setPropertyValue(propertyName(), m_oldValue, m_changed);
     }
 
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(m_object)) {
-        if (m_propertyName == QLatin1String("minimumSize"))
-            promoted->setMinimumSize(m_oldValue.toSize());
-        else if (m_propertyName == QLatin1String("maximumSize"))
-            promoted->setMaximumSize(m_oldValue.toSize());
-    }
 }
 
 // ---- InsertWidgetCommand ----
@@ -931,133 +899,54 @@ void ReparentWidgetCommand::undo()
     m_widget->show();
 }
 
-// ---- PromoteToCustomWidgetCommand ----
-
-static void replace_widget_item(QDesignerFormWindowInterface *fw, QWidget *wgt, QWidget *promoted)
-{
-    QDesignerFormEditorInterface *core = fw->core();
-    QWidget *parent = wgt->parentWidget();
-
-    promoted->setMinimumSize(wgt->minimumSize());
-    promoted->setMaximumSize(wgt->maximumSize());
-
-    QRect info;
-    int splitter_idx = -1;
-    if (QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), parent)) {
-        if (QSplitter *splitter = qobject_cast<QSplitter*>(parent)) {
-            splitter_idx = splitter->indexOf(wgt);
-            Q_ASSERT(splitter_idx != -1);
-            wgt->setParent(0);
-        } else {
-            QLayout *layout = LayoutInfo::managedLayout(core, parent);
-            Q_ASSERT(layout != 0);
-
-            int old_index = layout->indexOf(wgt);
-            Q_ASSERT(old_index != -1);
-
-            info = deco->itemInfo(old_index);
-
-            QLayoutItem *item = layout->takeAt(old_index);
-            delete item;
-            layout->activate();
-        }
-    }
-
-    if (qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), parent)) {
-        if (QSplitter *splitter = qobject_cast<QSplitter*>(parent)) {
-            splitter->insertWidget(splitter_idx, promoted);
-        } else {
-            QLayout *layout = LayoutInfo::managedLayout(core, parent);
-            Q_ASSERT(layout != 0);
-
-            // ### check if `info' is valid!
-
-            switch (LayoutInfo::layoutType(core, layout)) {
-                default: Q_ASSERT(0); break;
-
-                case LayoutInfo::VBox:
-                    insert_into_box_layout(static_cast<QBoxLayout*>(layout), info.top(), promoted);
-                    break;
-
-                case LayoutInfo::HBox:
-                    insert_into_box_layout(static_cast<QBoxLayout*>(layout), info.left(), promoted);
-                    break;
-
-                case LayoutInfo::Grid:
-                    add_to_grid_layout(static_cast<QGridLayout*>(layout), promoted, info.top(), info.left(), info.height(), info.width());
-                    break;
-            }
-        }
-    }
-}
-
 PromoteToCustomWidgetCommand::PromoteToCustomWidgetCommand
                                 (QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(QApplication::translate("Command", "Promote to custom widget"), formWindow)
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Promote to custom widget"), formWindow),
+      m_widget(0)
 {
-    m_widget = 0;
-    m_promoted = 0;
 }
 
-void PromoteToCustomWidgetCommand::init(QDesignerWidgetDataBaseItemInterface *item,
-                                        QWidget *widget)
+    
+void PromoteToCustomWidgetCommand::init(QWidget *widget,const QString &customClassName)
 {
     m_widget = widget;
-    m_promoted = new QDesignerPromotedWidget(item, widget->parentWidget());
+    m_customClassName = customClassName;
 }
 
 void PromoteToCustomWidgetCommand::redo()
 {
-    m_promoted->setObjectName(QLatin1String("__qt__promoted_") + m_widget->objectName());
-    m_promoted->setGeometry(m_widget->geometry());
-
-    replace_widget_item(formWindow(), m_widget, m_promoted);
-
-    m_promoted->setChildWidget(m_widget);
-    formWindow()->manageWidget(m_promoted);
-
-    formWindow()->clearSelection();
-    formWindow()->selectWidget(m_promoted);
-    m_promoted->show();
+    promoteWidget(core(),m_widget, m_customClassName );
+    formWindow()->emitSelectionChanged();
+    formWindow()->clearSelection(); // force update of properties, class name, etc.
+    formWindow()->selectWidget(m_widget);
 }
 
 void PromoteToCustomWidgetCommand::undo()
 {
-    m_promoted->setChildWidget(0);
-    m_widget->setParent(m_promoted->parentWidget());
-    m_widget->setGeometry(m_promoted->geometry());
-
-    replace_widget_item(formWindow(), m_promoted, m_widget);
-
-    formWindow()->manageWidget(m_widget);
-    formWindow()->unmanageWidget(m_promoted);
-
-    m_promoted->hide();
-    m_widget->show();
-
-    formWindow()->clearSelection();
-    formWindow()->selectWidget(m_promoted);
+    demoteWidget(core(),m_widget);
+    formWindow()->clearSelection(); // force update of properties, class name, etc.
+    formWindow()->selectWidget(m_widget);
 }
 
 // ---- DemoteFromCustomWidgetCommand ----
 
 DemoteFromCustomWidgetCommand::DemoteFromCustomWidgetCommand
                                     (QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(QApplication::translate("Command", "Demote from custom widget"), formWindow)
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Demote from custom widget"), formWindow),
+      m_promote_cmd(new PromoteToCustomWidgetCommand(formWindow))
 {
-    m_promote_cmd = new PromoteToCustomWidgetCommand(formWindow);
 }
 
-void DemoteFromCustomWidgetCommand::init(QDesignerPromotedWidget *promoted)
+void DemoteFromCustomWidgetCommand::init(QWidget *promoted)
 {
-    m_promote_cmd->m_widget = promoted->child();
-    m_promote_cmd->m_promoted = promoted;
+    const QDesignerMetaDataBaseItemInterface *item = core()->metaDataBase()->item(promoted);
+    Q_ASSERT(item);    
+    m_promote_cmd->init(promoted,item->customClassName());
 }
 
 void DemoteFromCustomWidgetCommand::redo()
 {
     m_promote_cmd->undo();
-    m_promote_cmd->m_widget->show();
 }
 
 void DemoteFromCustomWidgetCommand::undo()

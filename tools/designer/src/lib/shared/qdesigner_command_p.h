@@ -65,7 +65,6 @@ class QMainWindow;
 
 namespace qdesigner_internal {
 
-class QDesignerPromotedWidget;
 class Layout;
 
 class QDESIGNER_SHARED_EXPORT QDesignerFormEditorCommand: public QUndoCommand
@@ -411,20 +410,20 @@ class QDESIGNER_SHARED_EXPORT PromoteToCustomWidgetCommand : public QDesignerFor
 {
 public:
     PromoteToCustomWidgetCommand(QDesignerFormWindowInterface *formWindow);
-    void init(QDesignerWidgetDataBaseItemInterface *item, QWidget *widget);
+    void init(QWidget *widget,const QString &customClassName);
     virtual void redo();
     virtual void undo();
+
 private:
     QWidget *m_widget;
-    QDesignerPromotedWidget *m_promoted;
-    friend class DemoteFromCustomWidgetCommand;
+    QString m_customClassName;
 };
 
 class QDESIGNER_SHARED_EXPORT DemoteFromCustomWidgetCommand : public QDesignerFormWindowCommand
 {
 public:
     DemoteFromCustomWidgetCommand(QDesignerFormWindowInterface *formWindow);
-    void init(QDesignerPromotedWidget *promoted);
+    void init(QWidget *promoted);
     virtual void redo();
     virtual void undo();
 private:

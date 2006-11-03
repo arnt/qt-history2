@@ -17,6 +17,7 @@ TRANSLATOR qdesigner_internal::WidgetFactory
 
 #include "widgetfactory_p.h"
 #include "widgetdatabase_p.h"
+#include "metadatabase_p.h"
 #include "qlayout_widget_p.h"
 #include "qdesigner_widget_p.h"
 #include "qdesigner_tabwidget_p.h"
@@ -26,7 +27,6 @@ TRANSLATOR qdesigner_internal::WidgetFactory
 #include "qdesigner_menubar_p.h"
 #include "qdesigner_menu_p.h"
 #include "qdesigner_dockwidget_p.h"
-#include "qdesigner_promotedwidget_p.h"
 #include "abstractformwindow.h"
 
 // shared
@@ -78,9 +78,6 @@ void WidgetFactory::loadPlugins()
 
 QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentWidget) const
 {
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
-        parentWidget = promoted->child();
-
     QDesignerFormWindowInterface *fw = m_formWindow;
     if (! fw)
         fw = QDesignerFormWindowInterface::findFormWindow(parentWidget);
@@ -142,28 +139,23 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
 #undef DECLARE_WIDGET_1
 
     if (w == 0) {
+        const QLatin1String fallBackBaseClass("QWidget");
         QDesignerWidgetDataBaseInterface *db = core()->widgetDataBase();
         QDesignerWidgetDataBaseItemInterface *item = db->item(db->indexOfClassName(widgetName));
-
-        if (item == 0) {
-            item = new WidgetDataBaseItem(widgetName, tr("%1 Widget").arg(widgetName));
-            item->setCustom(true);
-            item->setPromoted(true);
-            item->setExtends(QLatin1String("QWidget"));
-            item->setContainer(true);
-            item->setIncludeFile(widgetName.toLower() + QLatin1String(".h"));
-            db->append(item);
-        }
-
+        if (item == 0) {            
+            // Emergency: Create, derived from QWidget
+            QString includeFile = widgetName.toLower();
+            includeFile +=  QLatin1String(".h");
+            item = db->appendDerived(widgetName,tr("%1 Widget").arg(widgetName),fallBackBaseClass, includeFile, true, true);
+            Q_ASSERT(item);
+        }               
         QString baseClass = item->extends();
-        if (baseClass.isEmpty())
-            baseClass = QLatin1String("QWidget");
-
-        QDesignerPromotedWidget *promoted = new QDesignerPromotedWidget(item, parentWidget);
-        QWidget *child = createWidget(baseClass, promoted);
-        promoted->setChildWidget(child);
-
-        w = promoted;
+        if (baseClass.isEmpty()) {
+            // Currently happens in the case of Q3-Support widgets
+            baseClass =fallBackBaseClass;
+        }
+        w = createWidget(baseClass, parentWidget);
+        promoteWidget(core(),w,widgetName);
     }
 
     Q_ASSERT(w != 0);
@@ -174,10 +166,17 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
     return w;
 }
 
-const char *WidgetFactory::classNameOf(QObject* o)
+QString WidgetFactory::classNameOf(QDesignerFormEditorInterface *c, QObject* o)
 {
     if (o == 0)
-        return 0;
+        return QString();
+    
+    // check promoted before designer special
+    if (o->isWidgetType()) {
+        const QString customClassName = promotedCustomClassName(c,qobject_cast<QWidget*>(o));
+        if (!customClassName.isEmpty()) 
+            return customClassName;
+    }
 
     if (qobject_cast<QDesignerTabWidget*>(o))
         return "QTabWidget";
@@ -201,8 +200,6 @@ const char *WidgetFactory::classNameOf(QObject* o)
         return "QAxWidget";
     else if (qstrcmp(o->metaObject()->className(), "QDesignerQ3WidgetStack") == 0)
         return "Q3WidgetStack";
-    else if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(o))
-        return promoted->customClassName();
 
     return o->metaObject()->className();
 }
@@ -279,9 +276,7 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *parentLayout, int
  */
 QWidget* WidgetFactory::containerOfWidget(QWidget *w) const
 {
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(w))
-        return containerOfWidget(promoted->child());
-    else if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), w))
+    if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), w))
         return container->widget(container->currentIndex());
 
     return w;
@@ -300,10 +295,6 @@ QWidget* WidgetFactory::widgetOfContainer(QWidget *w) const
     // ### cleanup
     if (!w)
         return 0;
-
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(w))
-        return widgetOfContainer(promoted->child());
-
     if (w->parentWidget() && w->parentWidget()->parentWidget() &&
          w->parentWidget()->parentWidget()->parentWidget() &&
          qobject_cast<QToolBox*>(w->parentWidget()->parentWidget()->parentWidget()))

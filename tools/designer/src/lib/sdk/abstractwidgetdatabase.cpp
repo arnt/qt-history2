@@ -15,6 +15,10 @@
 #include <QtCore/qdebug.h>
 #include <qalgorithms.h>
 
+namespace {
+    const bool debugWidgetDataBase=false;
+    const  QLatin1String qWidgetName("QWidget");
+}
 /*!
     \class QDesignerWidgetDataBaseInterface
     \brief The QDesignerWidgetDataBaseInterface class provides an interface that is used to
@@ -65,6 +69,9 @@ int QDesignerWidgetDataBaseInterface::indexOf(QDesignerWidgetDataBaseItemInterfa
 */
 void QDesignerWidgetDataBaseInterface::insert(int index, QDesignerWidgetDataBaseItemInterface *item)
 {
+    if (debugWidgetDataBase) 
+        qDebug() << "insert at " << index << " " << item->name() << " derived from " << item->extends(); 
+ 
     m_items.insert(index, item);
 }
 
@@ -72,7 +79,77 @@ void QDesignerWidgetDataBaseInterface::insert(int index, QDesignerWidgetDataBase
 */
 void QDesignerWidgetDataBaseInterface::append(QDesignerWidgetDataBaseItemInterface *item)
 {
+    if (debugWidgetDataBase) 
+        qDebug() << "append " << item->name() << " derived from " << item->extends(); 
     m_items.append(item);
+}
+
+/*!
+    \fn QDesignerWidgetDataBaseItemInterface *QDesignerWidgetDataBaseInterface::appendDerived(const QString &className,
+                                                                                      const QString &group,
+                                                                                      const QString &baseClassName,
+                                                                                      const QString &includeFile,
+                                                                                      bool promoted,
+                                                                                      bool custom)
+
+    Appends a derived class to the database inheriting the data of the base class. Used
+    for custom and promoted widgets.
+
+    Depending on whether an entry exists, the existing or a newly created entry is
+    returned. A return value of 0 indicates that the base class could not be found.
+
+*/
+
+
+QDesignerWidgetDataBaseItemInterface *QDesignerWidgetDataBaseInterface::appendDerived(const QString &className,
+                                                                                      const QString &group,
+                                                                                      const QString &baseClassName,
+                                                                                      const QString &includeFile,
+                                                                                      bool promoted,
+                                                                                      bool custom)
+{
+    if (debugWidgetDataBase) 
+        qDebug() << "appendDerived " << className << " derived from " << baseClassName;
+    // Check whether item already exists.
+    QDesignerWidgetDataBaseItemInterface *derivedItem = 0;
+    const int existingIndex = indexOfClassName(className);
+    if ( existingIndex != -1)
+        derivedItem =  item(existingIndex);
+    if (derivedItem) {
+        // Check the existing item for base class mismatch. This will likely
+        // happen when loading a file written by an instance with missing plugins.
+        // In that case, just warn and ignore the file properties.
+        // Note that for legacy reasons "extends" is empty for plugins, etc.
+        const QString existingBaseClass = derivedItem->extends();
+        const bool baseMatches = baseClassName ==  existingBaseClass ||
+                                 (existingBaseClass.isEmpty() &&  baseClassName == qWidgetName);
+        if (!baseMatches) 
+            qWarning() << "** WARNING The base class of " << className << " (" << baseClassName 
+            <<") does not correspond to the one in the widget database (" <<  existingBaseClass << ").";
+        return derivedItem;
+    }
+    // Create this item, inheriting its base properties
+    const int baseIndex = indexOfClassName(baseClassName);
+    if (baseIndex == -1) {
+        if (debugWidgetDataBase) 
+            qDebug() << "appendDerived failed due to missing base class";
+        return 0;
+    }
+    const QDesignerWidgetDataBaseItemInterface *baseItem = item(baseIndex);
+    derivedItem = baseItem->clone();
+    // Sort of hack: If base class is QWidget, we most likely
+    // do not want to inherit the container attribute.
+    if (baseItem->name() == qWidgetName) 
+        derivedItem->setContainer(false);
+    // set new props
+    derivedItem->setName(className);
+    derivedItem->setGroup(group);
+    derivedItem->setCustom(custom);
+    derivedItem->setPromoted(promoted);
+    derivedItem->setExtends(baseClassName);
+    derivedItem->setIncludeFile(includeFile);
+    append(derivedItem);
+    return derivedItem;
 }
 
 /*!
@@ -143,6 +220,12 @@ bool QDesignerWidgetDataBaseInterface::isCustom(QObject *object, bool resolveNam
     This class enables individual items in the widget database to be accessed and modified.
     Changes to the widget database itself are made through the QDesignerWidgetDataBaseInterface
     class.
+*/
+
+/*!
+    \fn virtual QDesignerWidgetDataBaseItemInterface* clone() const = 0;
+
+    Clones the instance.
 */
 
 /*!

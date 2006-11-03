@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "metadatabase_p.h"
+#include "widgetdatabase_p.h"
 
 // sdk
 #include <QtDesigner/QtDesigner>
@@ -19,6 +20,10 @@
 // Qt
 #include <QtCore/qalgorithms.h>
 #include <QtCore/qdebug.h>
+
+namespace {
+    const bool debugMetaDatabase = false;
+}
 
 namespace qdesigner_internal {
 
@@ -53,13 +58,23 @@ void MetaDataBaseItem::setName(const QString &name)
     Q_ASSERT(m_object);
     m_object->setObjectName(name);
 }
+    
+QString MetaDataBaseItem::customClassName() const
+{
+    return m_customClassName;
+}
+void MetaDataBaseItem::setCustomClassName(const QString &customClassName)
+{
+    m_customClassName = customClassName;
+}
 
-QList<QWidget*> MetaDataBaseItem::tabOrder() const
+
+QDesignerMetaDataBaseItemInterface::TabOrder  MetaDataBaseItem::tabOrder() const
 {
     return m_tabOrder;
 }
 
-void MetaDataBaseItem::setTabOrder(const QList<QWidget*> &tabOrder)
+void MetaDataBaseItem::setTabOrder(const TabOrder &tabOrder)
 {
     m_tabOrder = tabOrder;
 }
@@ -99,11 +114,17 @@ void MetaDataBase::add(QObject *object)
     MetaDataBaseItem *item = m_items.value(object);
     if (item != 0) {
         item->setEnabled(true);
+        if (debugMetaDatabase) {
+            qDebug() << "MetaDataBase::add: Existing item for " << object->metaObject()->className() << item->name();
+        }
         return;
     }
 
     item = new MetaDataBaseItem(object);
     m_items.insert(object, item);
+    if (debugMetaDatabase) {
+        qDebug() << "MetaDataBase::add: New item " << object->metaObject()->className() << item->name();
+    }
     connect(object, SIGNAL(destroyed(QObject*)),
         this, SLOT(slotDestroyed(QObject*)));
 
@@ -152,9 +173,66 @@ void MetaDataBase::dump()
     QHashIterator<QObject *, MetaDataBaseItem*> it(m_items);
     while (it.hasNext()) {
         it.next();
-
         qDebug() << it.value() << "item:" << it.key() << "comments:" << it.value()->comments();
     }
+}
+
+// promotion convenience
+bool promoteWidget(QDesignerFormEditorInterface *core,QWidget *widget,const QString &customClassName)
+{
+    QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
+    if (!item) {
+        core->metaDataBase()->add(widget);
+        item = core->metaDataBase()->item(widget);
+    }
+    // Recursive promotion occurs if there is a plugin missing.
+    const QString oldCustomClassName = item->customClassName();
+    if (!oldCustomClassName.isEmpty()) {
+        qWarning() << "WARNING: Recursive promotion of " << oldCustomClassName << " to " << customClassName
+            << ". A plugin is missing.";
+    }
+    item->setCustomClassName(customClassName);  
+    if (debugMetaDatabase) {
+        qDebug() << "Promoting " << widget->metaObject()->className() << " to " << customClassName;
+    }
+    return true;
+}
+
+void demoteWidget(QDesignerFormEditorInterface *core,QWidget *widget)
+{
+    QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
+    Q_ASSERT(item);
+    item->setCustomClassName(QString());
+    if (debugMetaDatabase) {
+        qDebug() << "Demoting " << widget;
+    }
+}
+
+bool isPromoted(QDesignerFormEditorInterface *core, QWidget* widget)
+{
+    QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
+    if (!item)
+        return false;
+    return !item->customClassName().isEmpty();
+}
+
+QString promotedCustomClassName(QDesignerFormEditorInterface *core, QWidget* widget)
+{
+    QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
+    if (!item)
+        return QString();
+    return item->customClassName();
+}
+ 
+QString promotedExtends(QDesignerFormEditorInterface *core, QWidget* widget)
+{
+    const QString customClassName = promotedCustomClassName(core,widget);
+    if (customClassName.isEmpty())
+        return QString();
+    const int i = core->widgetDataBase()->indexOfClassName(customClassName);
+    if (i == -1)
+        return QString();
+    return core->widgetDataBase()->item(i)->extends();
 }
 
 

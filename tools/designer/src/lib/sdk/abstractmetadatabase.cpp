@@ -112,12 +112,38 @@ QDesignerMetaDataBaseInterface::~QDesignerMetaDataBaseInterface()
 */
 
 /*!
+    \fn QString QDesignerMetaDataBaseItemInterface::customClassName() const
+
+    Returns the custom class name of the item in the database.
+
+    \sa setCustomClassName()
+*/
+
+/*!
+    \fn void QDesignerMetaDataBaseItemInterface::setCustomClassName(const QString &customClassName)
+
+    Sets the custom class name of the item to the given \a customClassName.
+
+    \sa customClassName()
+*/
+
+/*!
+    \typedef TabOrder
+    \relates QWidget
+
+    Synonym for QList<QWidget *>. A list of widgets in the order defined by the form's tab order.
+    \sa setTabOrder(), tabOrder()
+*/
+
+
+/*!
     \fn QList<QWidget*> QDesignerMetaDataBaseItemInterface::tabOrder() const
 
     Returns a list of widgets in the order defined by the form's tab order.
 
     \sa setTabOrder()
 */
+
 
 /*!
     \fn void QDesignerMetaDataBaseItemInterface::setTabOrder(const QList<QWidget*> &tabOrder)
@@ -141,4 +167,21 @@ QDesignerMetaDataBaseInterface::~QDesignerMetaDataBaseInterface()
     If \a enabled is true, the item is enabled; otherwise it is disabled.
 
     \sa enabled()
+*/
+
+/*!
+    \fn void QDesignerMetaDataBaseItemInterface::propertyComment(const QString &name) const
+
+    Returns the comment associated with the textual property \a name.
+
+    \sa setPropertyComment()
+*/
+
+
+/*!
+    \fn void QDesignerMetaDataBaseItemInterface::setPropertyComment(const QString &name, const QString &comment)
+
+    Sets the comment associated with the textual property a name to \a comment.
+
+    \sa comments()
 */

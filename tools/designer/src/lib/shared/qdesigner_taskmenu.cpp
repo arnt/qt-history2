@@ -13,13 +13,12 @@
 
 #include "qdesigner_taskmenu_p.h"
 #include "qdesigner_command_p.h"
-#include "qdesigner_promotedwidget_p.h"
-#include <QtGui/QUndoCommand>
 #include "richtexteditor_p.h"
 #include "stylesheeteditor_p.h"
 #include "promotetocustomwidgetdialog_p.h"
 #include "widgetfactory_p.h"
 #include "widgetdatabase_p.h"
+#include "metadatabase_p.h"
 #include "qlayout_widget_p.h"
 #include "spacer_widget_p.h"
 #include "layout_p.h"
@@ -115,9 +114,12 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
     connect(m_promoteToCustomWidgetAction, SIGNAL(triggered()), this, SLOT(promoteToCustomWidget()));
 
     QString demote_string = tr("Demote from Custom Widget");
-    if (const QDesignerPromotedWidget *promoted = qobject_cast<const QDesignerPromotedWidget*>(widget))
-        demote_string = tr("Demote to ") + promoted->item()->extends();
-
+    
+    const QString extends = promotedExtends(formWindow()->core(),widget);
+    if (!extends.isEmpty()) {
+        demote_string = tr("Demote to ");
+        demote_string += extends;
+    }
     m_demoteFromCustomWidgetAction = new QAction(demote_string, this);
     connect(m_demoteFromCustomWidgetAction, SIGNAL(triggered()), this, SLOT(demoteFromCustomWidget()));
 }
@@ -230,10 +232,10 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
 
     if (!isMainContainer) {
         actions.append(m_separator);
-        if (qobject_cast<const QDesignerPromotedWidget*>(m_widget) == 0)
-            actions.append(m_promoteToCustomWidgetAction);
-        else
+        if (isPromoted(formWindow->core(),m_widget))
             actions.append(m_demoteFromCustomWidgetAction);
+        else
+            actions.append(m_promoteToCustomWidgetAction);
     }
 
     return actions;
@@ -300,49 +302,44 @@ void QDesignerTaskMenu::promoteToCustomWidget()
     QWidget *wgt = widget();
     QDesignerWidgetDataBaseInterface *db = core->widgetDataBase();
 
-    Q_ASSERT(qobject_cast<QDesignerPromotedWidget*>(wgt) == 0);
+    Q_ASSERT(!isPromoted(core,wgt));
 
-    QString base_class_name = QLatin1String(WidgetFactory::classNameOf(wgt));
+    const QString base_class_name = WidgetFactory::classNameOf(core,wgt);
 
     PromoteToCustomWidgetDialog dialog(db, base_class_name);
     if (!dialog.exec())
         return;
 
-    QString custom_class_name = dialog.customClassName();
-    QString include_file = dialog.includeFile();
-
-    QDesignerWidgetDataBaseItemInterface *item = 0;
-    int idx = db->indexOfClassName(custom_class_name);
-    if (idx == -1) {
-        item = new WidgetDataBaseItem(custom_class_name, tr("Promoted Widgets"));
-        item->setCustom(true);
-        item->setPromoted(true);
-        item->setExtends(base_class_name);
-        db->append(item);
-    } else {
-        item = db->item(idx);
-    }
+    const QString custom_class_name = dialog.customClassName();
+    const QString include_file = dialog.includeFile();
+    
+    QDesignerWidgetDataBaseItemInterface *item = db->appendDerived(custom_class_name,
+                                                                   tr("Promoted Widgets"),
+                                                                   base_class_name,
+                                                                   include_file,
+                                                                   true,true);
+    Q_ASSERT(item);
+    // To be a 100% sure, if item already exists.
     item->setIncludeFile(include_file);
 
     // ### use the undo stack
     // fw->beginCommand(tr("Promote to custom widget"));
 
     PromoteToCustomWidgetCommand *cmd = new PromoteToCustomWidgetCommand(fw);
-    cmd->init(item, wgt);
+    cmd->init(wgt, custom_class_name );
     fw->commandHistory()->push(cmd);
 }
 
 void QDesignerTaskMenu::demoteFromCustomWidget()
 {
     QDesignerFormWindowInterface *fw = formWindow();
-    QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget());
-    Q_ASSERT(promoted != 0);
+    Q_ASSERT(isPromoted(fw->core(),widget()));
 
     // ### use the undo stack
     //fw->beginCommand(tr("Demote to ") + promoted->item()->extends());
 
     DemoteFromCustomWidgetCommand *cmd = new DemoteFromCustomWidgetCommand(fw);
-    cmd->init(promoted);
+    cmd->init(widget());
     fw->commandHistory()->push(cmd);
 }
 

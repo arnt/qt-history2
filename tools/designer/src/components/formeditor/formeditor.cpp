@@ -36,7 +36,6 @@
 #include <pluginmanager_p.h>
 #include <qdesigner_taskmenu_p.h>
 #include <qdesigner_propertysheet_p.h>
-#include <qdesigner_promotedwidget_p.h>
 
 using namespace qdesigner_internal;
 
@@ -72,8 +71,6 @@ FormEditor::FormEditor(QObject *parent)
     mgr->registerExtensions(new QLayoutWidgetPropertySheetFactory(mgr),     Q_TYPEID(QDesignerPropertySheetExtension));
     mgr->registerExtensions(new SpacerPropertySheetFactory(mgr),            Q_TYPEID(QDesignerPropertySheetExtension));
     mgr->registerExtensions(new LinePropertySheetFactory(mgr),              Q_TYPEID(QDesignerPropertySheetExtension));
-    mgr->registerExtensions(new PromotedWidgetPropertySheetFactory(mgr),    Q_TYPEID(QDesignerPropertySheetExtension));
-
     mgr->registerExtensions(new QDesignerTaskMenuFactory(mgr),              Q_TYPEID(QDesignerTaskMenuExtension));
 
     setExtensionManager(mgr);

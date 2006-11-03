@@ -43,22 +43,28 @@ public:
     virtual QString name() const;
     virtual void setName(const QString &name);
 
-    virtual QList<QWidget*> tabOrder() const;
-    virtual void setTabOrder(const QList<QWidget*> &tabOrder);
+    virtual TabOrder tabOrder() const;
+    virtual void setTabOrder(const TabOrder &tabOrder);
 
     virtual bool enabled() const;
     virtual void setEnabled(bool b);
+    
+    virtual QString customClassName() const;
+    virtual void setCustomClassName(const QString &customClassName);
 
-    QString propertyComment(const QString &name) const;
-    void setPropertyComment(const QString &name, const QString &comment);
+    virtual QString propertyComment(const QString &name) const;
+    virtual void setPropertyComment(const QString &name, const QString &comment);
 
-    QHash<QString, QString> comments() const { return m_comments; }
+    typedef QHash<QString, QString> PropertyComments;
+    
+    const PropertyComments &comments() const { return m_comments; }
 
 private:
     QObject *m_object;
-    QList<QWidget*> m_tabOrder;
-    QHash<QString, QString> m_comments;
+    TabOrder m_tabOrder;
+    PropertyComments m_comments;
     bool m_enabled;
+    QString m_customClassName;
 };
 
 class QDESIGNER_SHARED_EXPORT MetaDataBase: public QDesignerMetaDataBaseInterface
@@ -86,6 +92,14 @@ private:
     typedef QHash<QObject *, MetaDataBaseItem*> ItemMap;
     ItemMap m_items;
 };
+    
+    // promotion convenience
+    bool promoteWidget(QDesignerFormEditorInterface *core,QWidget *widget,const QString &customClassName);
+    void demoteWidget(QDesignerFormEditorInterface *core,QWidget *widget); 
+    bool isPromoted(QDesignerFormEditorInterface *core, QWidget* w);
+    QString promotedCustomClassName(QDesignerFormEditorInterface *core, QWidget* w);
+    QString promotedExtends(QDesignerFormEditorInterface *core, QWidget* w);
+    
 
 } // namespace qdesigner_internal
 

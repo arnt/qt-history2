@@ -22,7 +22,9 @@
 
 #include <QtCore/QHash>
 #include <QtCore/QStack>
+#include <QtCore/QList>
 
+class DomCustomWidget;
 class DomCustomWidgets;
 
 class QDesignerContainerExtension;
@@ -113,6 +115,8 @@ protected:
     static QString qtify(const QString &name);
 
 private:
+    typedef QList<DomCustomWidget*> DomCustomWidgetList;
+    void addCustomWidgetsToWidgetDatabase(DomCustomWidgetList& list);
     FormWindow *m_formWindow;
     bool m_isMainWidget;
     QHash<QString, QString> m_internal_to_qt;

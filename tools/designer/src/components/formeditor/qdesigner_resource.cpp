@@ -29,13 +29,11 @@
 #include <spacer_widget_p.h>
 #include <resourcefile_p.h>
 #include <pluginmanager_p.h>
-#include <metadatabase_p.h>
 #include <widgetfactory_p.h>
 #include <abstractlanguage.h>
 
 #include <qdesigner_widget_p.h>
 #include <qlayout_widget_p.h>
-#include <qdesigner_promotedwidget_p.h>
 #include <qdesigner_utils_p.h>
 #include <ui4_p.h>
 
@@ -304,9 +302,6 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
 
 QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
 {
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
-        parentWidget = promoted->child();
-
     QString className = ui_widget->attributeClass();
     if (!m_isMainWidget && className == QLatin1String("QWidget") && ui_widget->elementLayout().size() &&
                 !ui_widget->hasAttributeNative()) {
@@ -386,9 +381,6 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
 
 QLayout *QDesignerResource::create(DomLayout *ui_layout, QLayout *layout, QWidget *parentWidget)
 {
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
-        parentWidget = promoted->child();
-
     QLayout *l = QAbstractFormBuilder::create(ui_layout, layout, parentWidget);
 
     if (QGridLayout *gridLayout = qobject_cast<QGridLayout*>(l))
@@ -399,9 +391,6 @@ QLayout *QDesignerResource::create(DomLayout *ui_layout, QLayout *layout, QWidge
 
 QLayoutItem *QDesignerResource::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWidget *parentWidget)
 {
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
-        parentWidget = promoted->child();
-
     if (ui_layoutItem->kind() == DomLayoutItem::Spacer) {
         QHash<QString, DomProperty*> properties = propertyMap(ui_layoutItem->elementSpacer()->elementProperty());
 
@@ -438,18 +427,7 @@ QLayoutItem *QDesignerResource::create(DomLayoutItem *ui_layoutItem, QLayout *la
 void QDesignerResource::changeObjectName(QObject *o, QString objName)
 {
     m_formWindow->unify(o, objName, true);
-
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(o)) {
-        if (objName.startsWith(QLatin1String("__qt__promoted_"))) {
-            promoted->setObjectName(objName);
-            promoted->child()->setObjectName(objName.mid(15));
-        } else {
-            promoted->child()->setObjectName(objName);
-            promoted->setObjectName(QLatin1String("__qt__promoted_") + objName);
-        }
-    } else {
-        o->setObjectName(objName);
-    }
+    o->setObjectName(objName);
 
 }
 
@@ -463,19 +441,14 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
 
             int index = sheet->indexOf(propertyName);
             if (index != -1) {
-                QObject *realObject = o;
-                if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(o)) {
-                    realObject = promoted->child();
-                }
-                const QMetaObject *meta = realObject->metaObject();
-                QVariant v = toVariant(meta, p);
+                QVariant v = toVariant(o->metaObject(), p);
 
-                MetaDataBaseItem *item = 0;
+                QDesignerMetaDataBaseItemInterface *item = 0;
                 if (core()->metaDataBase())
-                    item = static_cast<MetaDataBaseItem*>(core()->metaDataBase()->item(realObject));
+                    item = core()->metaDataBase()->item(o);
 
                 if (!item) {
-                    qWarning() << "** WARNING no ``meta database item'' for object:" << realObject;
+                    qWarning() << "** WARNING no ``meta database item'' for object:" << o;
                 }
 
                 if (p->kind() == DomProperty::String && item) {
@@ -509,9 +482,6 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
 
 QWidget *QDesignerResource::createWidget(const QString &widgetName, QWidget *parentWidget, const QString &_name)
 {
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
-        parentWidget = promoted->child();
-
     QString name = _name;
     QString className = widgetName;
     if (m_isMainWidget)
@@ -543,9 +513,6 @@ QWidget *QDesignerResource::createWidget(const QString &widgetName, QWidget *par
 
 QLayout *QDesignerResource::createLayout(const QString &layoutName, QObject *parent, const QString &name)
 {
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parent))
-        parent = promoted->child();
-
     QWidget *layoutBase = 0;
     QLayout *layout = qobject_cast<QLayout*>(parent);
 
@@ -617,8 +584,6 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
         w = saveWidget(dockWidget, ui_parentWidget);
     else if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), widget))
         w = saveWidget(widget, container, ui_parentWidget);
-    else if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget))
-        w = createDom(promoted->child(), ui_parentWidget, recursive);
     else
         w = QAbstractFormBuilder::createDom(widget, ui_parentWidget, recursive);
 
@@ -634,10 +599,10 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
 
     w->setAttributeName(widget->objectName());
 
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget)) {
+    if (!item->customClassName().isEmpty()) { // is promoted?
         Q_ASSERT(widgetInfo != 0);
 
-        w->setAttributeName(promoted->child()->objectName());
+        w->setAttributeName(widget->objectName());
         w->setAttributeClass(widgetInfo->name());
 
         QList<DomProperty*> prop_list = w->elementProperty();
@@ -740,26 +705,84 @@ DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_lay
     return ui_item;
 }
 
+    
+void QDesignerResource::addCustomWidgetsToWidgetDatabase(DomCustomWidgetList& custom_widget_list)
+{
+    // Perform one iteration of adding the custom widgets to the database,
+    // looking up the base class and inheriting its data.
+    // Remove the succeeded custom widgets from the list.
+    // Classes whose base class could not be found are left in the list.
+    QDesignerWidgetDataBaseInterface *db = m_formWindow->core()->widgetDataBase();
+    for (int i=0; i < custom_widget_list.size(); ) {
+        bool classInserted = false;
+        DomCustomWidget *custom_widget = custom_widget_list[i];
+        const QString customClassName = custom_widget->elementClass();
+        const QString base_class = custom_widget->elementExtends();
+        QString includeFile;
+        if (DomHeader *header = custom_widget->elementHeader())
+            includeFile = header->text();
+        const bool domIsContainer = custom_widget->elementContainer();
+        // Append a new item
+        if (base_class.isEmpty()) {
+            WidgetDataBaseItem *item = new WidgetDataBaseItem(customClassName);
+            item->setPromoted(false);
+            item->setGroup(QApplication::translate("Designer", "Custom Widgets"));
+            item->setIncludeFile(includeFile);
+            item->setContainer(domIsContainer);
+            item->setCustom(true);
+            db->append(item);
+            custom_widget_list.removeAt(i);
+            classInserted = true;
+        } else {
+            // Create a new entry cloned from base class. Note that this will ignore existing
+            // classes, eg, plugin custom widgets.
+            QDesignerWidgetDataBaseItemInterface *item = 
+                db->appendDerived(customClassName, QApplication::translate("Designer", "Promoted Widgets"),
+                                  base_class,includeFile,true,true);
+            // Ok, base class found.
+            if (item) {
+                // Hack to accommodate for old UI-files in which "contains" is not set properly:
+                // Apply "contains" from DOM only if true (else, eg classes from QFrame might not accept
+                // dropping child widgets on them as container=false)
+                if (domIsContainer) 
+                    item->setContainer(domIsContainer);
+                custom_widget_list.removeAt(i);
+                classInserted = true;
+            }
+        }
+        // Skip failed item.
+        if (!classInserted)
+            i++;
+    }
+    
+}
 void QDesignerResource::createCustomWidgets(DomCustomWidgets *dom_custom_widgets)
 {
     if (dom_custom_widgets == 0)
         return;
-    QList<DomCustomWidget*> custom_widget_list = dom_custom_widgets->elementCustomWidget();
-    QDesignerWidgetDataBaseInterface *db = m_formWindow->core()->widgetDataBase();
-    foreach(DomCustomWidget *custom_widget, custom_widget_list) {
-        WidgetDataBaseItem *item
-            = new WidgetDataBaseItem(custom_widget->elementClass());
-        QString base_class = custom_widget->elementExtends();
-        item->setExtends(base_class);
-        item->setPromoted(!base_class.isEmpty());
-        item->setGroup(base_class.isEmpty() ? QApplication::translate("Designer", "Custom Widgets")
-                                                : QApplication::translate("Designer", "Promoted Widgets"));
-        if (DomHeader *header = custom_widget->elementHeader())
-            item->setIncludeFile(header->text());
-        item->setContainer(custom_widget->elementContainer());
-        item->setCustom(true);
-        db->append(item);
+    DomCustomWidgetList custom_widget_list = dom_custom_widgets->elementCustomWidget();
+    // Attempt to insert each item derived from its base class.
+    // This should at most require two iterations in the event that the classes are out of order
+    // (derived first, max depth: promoted custom plugin = 2)
+    for (int iteration = 0;  iteration < 2;  iteration++) {
+        addCustomWidgetsToWidgetDatabase(custom_widget_list);
+        if (custom_widget_list.empty())
+            return;
     }
+    // Oops, there are classes left whose base class could not be found.
+    // Default them to QWidget with warnings.
+    const QString fallBackBaseClass = QLatin1String("QWidget");
+    for (int i=0; i < custom_widget_list.size(); i++ ) {
+        DomCustomWidget *custom_widget = custom_widget_list[i];
+        const QString customClassName = custom_widget->elementClass();
+        const QString base_class = custom_widget->elementExtends();
+        qWarning() << "** WARNING The base class " << base_class << " of the custom widget class " << customClassName 
+            << " could not be found. Defaulting to " << fallBackBaseClass << '.';
+        custom_widget->setElementExtends(fallBackBaseClass);
+    }
+    // One more pass.
+    addCustomWidgetsToWidgetDatabase(custom_widget_list);
+    Q_ASSERT(custom_widget_list.empty());
 }
 
 DomTabStops *QDesignerResource::saveTabStops()
@@ -1026,9 +1049,6 @@ bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
         return false;
     } else if (prop == QLatin1String("geometry") && obj->isWidgetType()) {
         QWidget *check_widget = qobject_cast<QWidget*>(obj);
-         if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(obj->parent()))
-            check_widget = promoted;
-
          if (m_selected && m_selected == check_widget)
              return true;
 
@@ -1201,10 +1221,17 @@ DomCustomWidgets *QDesignerResource::saveCustomWidgets()
     if (m_usedCustomWidgets.isEmpty())
         return 0;
 
-    QList<DomCustomWidget*> custom_widget_list;
+    // We would like the list to be in order of the widget database indexes 
+    // to ensure that base classes come first (nice optics)
+    QDesignerWidgetDataBaseInterface *db = m_formWindow->core()->widgetDataBase();
+    typedef QMap<int,DomCustomWidget*>  OrderedDBIndexDomCustomWidgetMap;
+    OrderedDBIndexDomCustomWidgetMap orderedMap;
+
     foreach (QDesignerWidgetDataBaseItemInterface *item, m_usedCustomWidgets.keys()) {
+        const QString name = item->name();
         DomCustomWidget *custom_widget = new DomCustomWidget;
-        custom_widget->setElementClass(item->name());
+        
+        custom_widget->setElementClass(name);
         if (item->isContainer())
             custom_widget->setElementContainer(item->isContainer());
 
@@ -1215,11 +1242,11 @@ DomCustomWidgets *QDesignerResource::saveCustomWidgets()
             custom_widget->setElementExtends(item->extends());
         }
 
-        custom_widget_list.append(custom_widget);
+        orderedMap.insert(db->indexOfClassName(name), custom_widget);
     }
 
     DomCustomWidgets *customWidgets = new DomCustomWidgets;
-    customWidgets->setElementCustomWidget(custom_widget_list);
+    customWidgets->setElementCustomWidget(orderedMap.values());
     return customWidgets;
 }
 
@@ -1240,11 +1267,11 @@ QList<DomProperty*> QDesignerResource::computeProperties(QObject *object)
                 continue;
 
             if (DomProperty *p = createProperty(object, propertyName, value)) {
-                if (p->kind() == DomProperty::String && qobject_cast<MetaDataBase*>(core()->metaDataBase())) {
-                    MetaDataBaseItem *item = static_cast<MetaDataBaseItem*>(core()->metaDataBase()->item(object));
-
-                    if (item && !item->propertyComment(propertyName).isEmpty()) {
-                        p->elementString()->setAttributeComment(item->propertyComment(propertyName));
+                if (p->kind() == DomProperty::String) {
+                    if (const QDesignerMetaDataBaseItemInterface *item = core()->metaDataBase()->item(object)) {
+                        const QString propertyComment = item->propertyComment(propertyName);
+                        if (!propertyComment.isEmpty())
+                            p->elementString()->setAttributeComment(propertyComment);
                     }
                 }
 
@@ -1460,7 +1487,5 @@ QActionGroup *QDesignerResource::createActionGroup(QObject *parent, const QStrin
 
 void QDesignerResource::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget))
-        widget = promoted->child();
     QAbstractFormBuilder::loadExtraInfo(ui_widget, widget, parentWidget);
 }

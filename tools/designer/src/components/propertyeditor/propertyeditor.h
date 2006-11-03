@@ -57,7 +57,7 @@ private:
     static IProperty *createSpecialProperty(const QVariant &value, const QString &name);
 
 private:
-    MetaDataBaseItem *metaDataBaseItem() const;
+     QDesignerMetaDataBaseItemInterface *metaDataBaseItem() const;
                 
     QDesignerFormEditorInterface *m_core;
     QPropertyEditor *m_editor;

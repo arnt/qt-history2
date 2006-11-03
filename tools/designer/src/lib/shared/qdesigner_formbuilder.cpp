@@ -13,7 +13,6 @@
 
 #include "qdesigner_formbuilder_p.h"
 #include "qdesigner_widget_p.h"
-#include "qdesigner_promotedwidget_p.h"
 
 // sdk
 #include <QtDesigner/extrainfo.h>
@@ -106,8 +105,6 @@ void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*>
     Q_ASSERT(sheet != 0);
 
     const QMetaObject *meta = o->metaObject();
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(o))
-        meta = promoted->child()->metaObject();
 
     foreach (DomProperty *p, properties) {
         QVariant v = toVariant(meta, p);
@@ -144,10 +141,7 @@ DomWidget *QDesignerFormBuilder::createDom(QWidget *widget, DomWidget *ui_parent
 
 QWidget *QDesignerFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget)
 {
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
-        parentWidget = promoted->child();
     QWidget *widget = QFormBuilder::create(ui_widget, parentWidget);
-
     if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(m_core->extensionManager(), widget)) {
         extra->loadWidgetExtraInfo(ui_widget);
     }
@@ -157,15 +151,11 @@ QWidget *QDesignerFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidge
 
 QLayout *QDesignerFormBuilder::create(DomLayout *ui_layout, QLayout *layout, QWidget *parentWidget)
 {
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
-        parentWidget = promoted->child();
     return QFormBuilder::create(ui_layout, layout, parentWidget);
 }
 
 void QDesignerFormBuilder::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget))
-        widget = promoted->child();
     QFormBuilder::loadExtraInfo(ui_widget, widget, parentWidget);
 }
 

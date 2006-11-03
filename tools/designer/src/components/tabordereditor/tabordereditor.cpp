@@ -28,7 +28,6 @@
 #include <qdesigner_widget_p.h>
 #include <qdesigner_utils_p.h>
 #include <qlayout_widget_p.h>
-#include <qdesigner_promotedwidget_p.h>
 
 #define BG_ALPHA                32
 #define VBOX_MARGIN             1
@@ -158,8 +157,11 @@ bool TabOrderEditor::skipWidget(QWidget *w) const
         return true;
     }
 
-    if (qobject_cast<QDesignerPromotedWidget*>(w) != 0)
-        return true;
+    // Is promoted?
+    if (const QDesignerMetaDataBaseItemInterface *item = formWindow()->core()->metaDataBase()->item(w)) {
+        if (item && !item->customClassName().isEmpty()) 
+            return true;
+    }
 
     QExtensionManager *ext = formWindow()->core()->extensionManager();
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(ext, w)) {
@@ -180,7 +182,7 @@ void TabOrderEditor::initTabOrder()
 
     QDesignerFormEditorInterface *core = formWindow()->core();
 
-    if (QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(formWindow())) {
+    if (const QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(formWindow())) {
         m_tab_order_list = item->tabOrder();
     }
 

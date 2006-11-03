@@ -18,6 +18,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
+#include <QtCore/QHash>
 
 QT_BEGIN_HEADER
 
@@ -34,12 +35,21 @@ public:
     virtual QString name() const = 0;
     virtual void setName(const QString &name) = 0;
 
-    virtual QList<QWidget*> tabOrder() const = 0;
-    virtual void setTabOrder(const QList<QWidget*> &tabOrder) = 0;
+    typedef QList<QWidget*> TabOrder;
+    
+    virtual TabOrder tabOrder() const = 0;
+    virtual void setTabOrder(const TabOrder &tabOrder) = 0;
 
     virtual bool enabled() const = 0;
     virtual void setEnabled(bool b) = 0;
+    
+    virtual QString customClassName() const = 0;
+    virtual void setCustomClassName(const QString &customClassName) = 0;
+    
+    virtual QString propertyComment(const QString &name) const = 0;
+    virtual void setPropertyComment(const QString &name, const QString &comment) = 0;
 };
+
 
 class QDESIGNER_SDK_EXPORT QDesignerMetaDataBaseInterface: public QObject
 {
@@ -55,7 +65,7 @@ public:
     virtual QList<QObject*> objects() const = 0;
 
     virtual QDesignerFormEditorInterface *core() const = 0;
-
+    
 Q_SIGNALS:
     void changed();
 };

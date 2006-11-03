@@ -62,7 +62,7 @@ public:
 
     virtual QDesignerFormEditorInterface *core() const;
 
-    static const char* classNameOf(QObject* o);
+    static QString classNameOf(QDesignerFormEditorInterface *core, QObject* o);
 
     QDesignerFormWindowInterface *currentFormWindow(QDesignerFormWindowInterface *fw);
 

@@ -22,7 +22,6 @@ TRANSLATOR qdesigner_internal::ObjectInspector
 
 // shared
 #include <tree_widget_p.h>
-#include <qdesigner_promotedwidget_p.h>
 
 // Qt
 #include <QtGui/QAction>
@@ -166,9 +165,6 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
         item->setText(1, className);
         item->setData(0, 1000, qVariantFromValue(object));
 
-        if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(object))
-            object = promoted->child();
-
         QString objectName = object->objectName();
         if (objectName.isEmpty())
             objectName = tr("<noname>");
@@ -191,12 +187,7 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
                 workingList.append(qMakePair(pageItem, page));
             }
         } else {
-            QList<QObject*> children;
-            if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(object))
-                children = promoted->child()->children();
-            else
-                children = object->children();
-
+            QList<QObject*> children = object->children();
             qSort(children.begin(), children.end(), ObjectInspector::sortEntry);
 
             foreach (QObject *child, children) {
