@@ -1281,13 +1281,15 @@ void QTableView::updateGeometries()
         int columnsInViewport = 0;
         for (int width = 0, column = columnCount - 1; column >= 0; --column) {
             int logical = d->horizontalHeader->logicalIndex(column);
-            width += d->horizontalHeader->sectionSize(logical);
-            if (width > viewportWidth)
-                break;
-            ++columnsInViewport;
+            if (!d->horizontalHeader->isSectionHidden(logical)) {
+                width += d->horizontalHeader->sectionSize(logical);
+                if (width > viewportWidth)
+                    break;
+                ++columnsInViewport;
+            }
         }
-        horizontalScrollBar()->setRange(0, columnCount - columnsInViewport
-                                        - d->horizontalHeader->hiddenSectionCount());
+        const int visibleColumns = columnCount - d->horizontalHeader->hiddenSectionCount();
+        horizontalScrollBar()->setRange(0, visibleColumns - columnsInViewport);
         horizontalScrollBar()->setPageStep(columnsInViewport);
     } else { // ScrollPerPixel
         horizontalScrollBar()->setPageStep(vsize.width());
@@ -1301,13 +1303,15 @@ void QTableView::updateGeometries()
         int rowsInViewport = 0;
         for (int height = 0, row = rowCount - 1; row >= 0; --row) {
             int logical = d->verticalHeader->logicalIndex(row);
-            height += d->verticalHeader->sectionSize(logical);
-            if (height > viewportHeight)
-                break;
-            ++rowsInViewport;
+            if (!d->verticalHeader->isSectionHidden(logical)) {
+                height += d->verticalHeader->sectionSize(logical);
+                if (height > viewportHeight)
+                    break;
+                ++rowsInViewport;
+            }
         }
-        verticalScrollBar()->setRange(0, rowCount - rowsInViewport
-                                      - d->verticalHeader->hiddenSectionCount());
+        const int visibleRows = rowCount - d->verticalHeader->hiddenSectionCount();
+        verticalScrollBar()->setRange(0, visibleRows - rowsInViewport);
         verticalScrollBar()->setPageStep(rowsInViewport);
     } else { // ScrollPerPixel
         verticalScrollBar()->setPageStep(vsize.height());
