@@ -5465,6 +5465,7 @@ bool Q3IconView::eventFilter(QObject * o, QEvent * e)
                 }
             }
             return true;
+#ifndef QT_NO_TOOLTIP
         case QHelpEvent::ToolTip:
         {
             if (wordWrapIconText() || !showToolTips())
@@ -5480,6 +5481,7 @@ bool Q3IconView::eventFilter(QObject * o, QEvent * e)
             QToolTip::showText(he->globalPos(), item->itemText, viewport());
             return true;
         }
+#endif
         default:
             // nothing
             break;

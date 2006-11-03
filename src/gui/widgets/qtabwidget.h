@@ -145,9 +145,30 @@ public:
     inline QT3_SUPPORT QIcon tabIconSet(QWidget * w) const  {return tabIcon(indexOf(w)); }
     inline QT3_SUPPORT void setTabIconSet(QWidget * w, const QIcon & icon) { setTabIcon(indexOf(w), icon); }
 
-    inline QT3_SUPPORT void removeTabToolTip(QWidget * w) {setTabToolTip(indexOf(w), QString());}
-    inline QT3_SUPPORT void setTabToolTip(QWidget * w, const QString & tip) {setTabToolTip(indexOf(w), tip);}
-    inline QT3_SUPPORT QString tabToolTip(QWidget * w) const { return tabToolTip(indexOf(w)); }
+    inline QT3_SUPPORT void removeTabToolTip(QWidget * w) {
+#ifndef QT_NO_TOOLTIP
+        setTabToolTip(indexOf(w), QString());
+#else
+        Q_UNUSED(w);
+#endif
+    }
+    inline QT3_SUPPORT void setTabToolTip(QWidget * w, const QString & tip) {
+#ifndef QT_NO_TOOLTIP
+        setTabToolTip(indexOf(w), tip);}
+#else
+        Q_UNUSED(w);
+        Q_UNUSED(tip);
+#endif
+    }
+
+    inline QT3_SUPPORT QString tabToolTip(QWidget * w) const {
+#ifndef QT_NO_TOOLTIP
+        return tabToolTip(indexOf(w));
+#else
+        Q_UNUSED(w);
+        return QString();
+#endif
+    }
 
     inline QT3_SUPPORT QWidget * currentPage() const { return currentWidget(); }
     inline QT3_SUPPORT QWidget *page(int index) const { return widget(index); }

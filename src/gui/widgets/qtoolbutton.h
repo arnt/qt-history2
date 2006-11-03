@@ -123,7 +123,15 @@ public:
     QT3_SUPPORT void setOffIconSet(const QIcon&);
     inline QT3_SUPPORT void setIconSet(const QIcon &icon){setIcon(icon);}
     QT3_SUPPORT void setIconSet(const QIcon &, bool on);
-    inline QT3_SUPPORT void setTextLabel(const QString &text, bool tooltip = true) { setText(text); if (tooltip)setToolTip(text);}
+    inline QT3_SUPPORT void setTextLabel(const QString &text, bool tooltip = true) {
+        setText(text);
+#ifndef QT_NO_TOOLTIP
+        if (tooltip)
+            setToolTip(text);
+#else
+        Q_UNUSED(tooltip);
+#endif
+    }
     inline QT3_SUPPORT QString textLabel() const { return text(); }
     QT3_SUPPORT QIcon onIconSet() const;
     QT3_SUPPORT QIcon offIconSet() const;

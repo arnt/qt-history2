@@ -2038,8 +2038,10 @@ bool Q3DockWindow::event(QEvent *e)
     {
         QString s = Q3Frame::windowTitle();
         titleBar->setWindowTitle(s);
+#ifndef QT_NO_TOOLTIP
         horHandle->setToolTip(s);
         verHandle->setToolTip(s);
+#endif
         break;
     }
     default:

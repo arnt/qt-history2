@@ -3706,6 +3706,7 @@ bool Q3ListView::eventFilter(QObject * o, QEvent * e)
         case QEvent::FocusOut:
             focusOutEvent(fe);
             return true;
+#ifndef QT_NO_TOOLTIP
         case QEvent::ToolTip:
         {
             if (!showToolTips())
@@ -3729,6 +3730,7 @@ bool Q3ListView::eventFilter(QObject * o, QEvent * e)
                 QToolTip::showText(he->globalPos(), item->text(col), viewport());
             return true;
         }
+#endif
         default:
             // nothing
             break;

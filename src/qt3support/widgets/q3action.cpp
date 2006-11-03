@@ -307,8 +307,12 @@ void Q3ActionPrivate::update(uint upd)
             btn->setToggleButton(toggleaction);
             if (!text.isEmpty())
                 btn->setTextLabel(text, false);
+#ifndef QT_NO_TOOLTIP
             btn->setToolTip(toolTip());
+#endif
+#ifndef QT_NO_STATUSTIP
             btn->setStatusTip(statusTip());
+#endif
 #ifndef QT_NO_WHATSTHIS
             QWhatsThis::remove(btn);
             if (!whatsthis.isEmpty())

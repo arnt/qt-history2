@@ -101,7 +101,9 @@ QSystemTrayIconSys::QSystemTrayIconSys(QSystemTrayIcon *q)
     }
     trayIcons.append(this);
     setMouseTracking(true);
+#ifndef QT_NO_TOOLTIP
     setToolTip(q->toolTip());
+#endif
     if (sysTrayWindow != None)
         addToTray();
 }
@@ -250,7 +252,9 @@ void QSystemTrayIconPrivate::updateToolTip_sys()
 {
     if (!sys)
         return;
+#ifndef QT_NO_TOOLTIP
     sys->setToolTip(toolTip);
+#endif
 }
 
 bool QSystemTrayIconPrivate::isSystemTrayAvailable_sys()

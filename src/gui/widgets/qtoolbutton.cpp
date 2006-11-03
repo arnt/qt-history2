@@ -179,9 +179,9 @@ QToolButton::QToolButton(QWidget * parent, const char *name)
 */
 
 QToolButton::QToolButton(const QIcon& icon, const QString &textLabel,
-                          const QString& statusTip,
-                          QObject * receiver, const char *slot,
-                          QWidget * parent, const char *name)
+                         const QString& statusTip,
+                         QObject * receiver, const char *slot,
+                         QWidget * parent, const char *name)
     : QAbstractButton(*new QToolButtonPrivate, parent)
 {
     Q_D(QToolButton);
@@ -191,10 +191,16 @@ QToolButton::QToolButton(const QIcon& icon, const QString &textLabel,
     setText(textLabel);
     if (receiver && slot)
         connect(this, SIGNAL(clicked()), receiver, slot);
+#ifndef QT_NO_TOOLTIP
     if (!textLabel.isEmpty())
         setToolTip(textLabel);
+#endif
+#ifndef QT_NO_STATUSTIP
     if (!statusTip.isEmpty())
         setStatusTip(statusTip);
+#else
+    Q_UNUSED(statusTip);
+#endif
 }
 
 

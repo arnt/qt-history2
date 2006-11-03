@@ -1482,12 +1482,14 @@ void Q3MainWindow::childEvent(QChildEvent* e)
 bool Q3MainWindow::event(QEvent * e)
 {
     Q_D(Q3MainWindow);
+#ifndef QT_NO_STATUSTIP
     if (e->type() == QEvent::StatusTip) {
         if (d->sb) {
             d->sb->showMessage(static_cast<QStatusTipEvent*>(e)->tip());
             return true;
         }
     }
+#endif
     if (e->type() == QEvent::ToolBarChange) {
         // Keep compatibility with the Qt 3 main window, use the real main window
         // or reimplement if you want proper handling.
