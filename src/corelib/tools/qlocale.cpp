@@ -635,7 +635,8 @@ QVariant QSystemLocale::query(QueryType type, QVariant in = QVariant()) const
         QString result = getWinLocaleInfo(locale_info);
         if (format_string)
             result = winToQtFormat(result);
-        return result;
+        if (!result.isEmpty())
+            return result;
     }
     return QVariant();
 }
