@@ -245,10 +245,6 @@ bool QWin32PrintEngine::begin(QPaintDevice *)
     }
 
     if (!ok) {
-	if (d->hdc) {
-	    DeleteDC(d->hdc);
-	    d->hdc = 0;
-	}
 	d->state = QPrinter::Idle;
     } else {
 	d->state = QPrinter::Active;
