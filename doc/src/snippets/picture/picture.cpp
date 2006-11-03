@@ -46,7 +46,7 @@ int main()
         // PIC READ
         QPictureIO iio;
         QPixmap  pixmap;
-        iio.setFileName("vegeburger.bmp");
+        iio.setFileName("vegeburger.pic");
         if (iio.read()) {        // OK
             QPicture picture = iio.picture();
             QPainter painter(&pixmap);
@@ -62,8 +62,8 @@ int main()
         QPainter painter(&picture);
         painter.drawPixmap(0, 0, pixmap);
         iio.setPicture(picture);
-        iio.setFileName("vegeburger.bmp");
-        iio.setFormat("BMP");
+        iio.setFileName("vegeburger.pic");
+        iio.setFormat("PIC");
         if (iio.write())
             return true; // returned true if written successfully
     }
