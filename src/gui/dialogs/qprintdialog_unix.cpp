@@ -1203,7 +1203,6 @@ bool QPrintDialogPrivate::setupPrinter()
 
 void QPrintDialogPrivate::updateWidgets()
 {
-    Q_Q(QPrintDialog);
     ui.gbPrintRange->setEnabled(options & QPrintDialog::PrintPageRange);
     ui.rbPrintSelection->setEnabled(options & QPrintDialog::PrintSelection);
     ui.chbPrintToFile->setEnabled(options & QPrintDialog::PrintToFile);
