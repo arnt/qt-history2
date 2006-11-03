@@ -4845,7 +4845,7 @@ bool qt_xForm_helper(const QTransform &trueMat, int xoffset, int type, int depth
     have to).
 
     \warning The serial number doesn't necessarily change when the
-    image is altered. This means that it may be dangerous to use
+    image is altered. This means that it may be dangerous to use
     it as a cache key.
 
     \sa operator==()

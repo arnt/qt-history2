@@ -855,7 +855,7 @@ bool QPalette::isEqual(QPalette::ColorGroup group1, QPalette::ColorGroup group2)
     lifetime of the object.
 
     \warning The serial number doesn't necessarily change when the
-    palette is altered. This means that it may be dangerous to use it
+    palette is altered. This means that it may be dangerous to use it
     as a cache key.
 
     \sa operator==()
