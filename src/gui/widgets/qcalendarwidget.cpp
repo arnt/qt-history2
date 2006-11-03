@@ -780,9 +780,9 @@ public:
     void _q_yearEditingFinished();
     void _q_yearClicked();
 
-    void createHeader(QWidget *widget);
+    void createNavigationBar(QWidget *widget);
     void updateMonthMenu();
-    void updateHeader();
+    void updateNavigationBar();
     void updateCurrentPage(QDate &newDate);
     inline QDate getCurrentDate();
 
@@ -798,10 +798,10 @@ public:
     QMap<int, QAction *> monthToAction;
     QCalToolButton *yearButton;
     QSpinBox *yearEdit;
-    QWidget *headerBackground;
+    QWidget *navBarBackground;
     QSpacerItem *spaceHolder;
 
-    bool headerVisible;
+    bool navBarVisible;
 };
 
 void QCalendarDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
@@ -834,18 +834,18 @@ QCalendarWidgetPrivate::QCalendarWidgetPrivate()
     m_view = 0;
     m_delegate = 0;
     m_selection = 0;
-    headerVisible = true;
+    navBarVisible = true;
 }
 
-void QCalendarWidgetPrivate::createHeader(QWidget *widget)
+void QCalendarWidgetPrivate::createNavigationBar(QWidget *widget)
 {
     Q_Q(QCalendarWidget);
-    headerBackground = new QWidget(widget);
-    headerBackground->setAutoFillBackground(true);
-    headerBackground->setBackgroundRole(QPalette::Highlight);
+    navBarBackground = new QWidget(widget);
+    navBarBackground->setAutoFillBackground(true);
+    navBarBackground->setBackgroundRole(QPalette::Highlight);
 
-    prevMonth = new QToolButton(headerBackground);
-    nextMonth = new QToolButton(headerBackground);
+    prevMonth = new QToolButton(navBarBackground);
+    nextMonth = new QToolButton(navBarBackground);
     prevMonth->setAutoRaise(true);
     nextMonth->setAutoRaise(true);
     prevMonth->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
@@ -858,7 +858,7 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
     prevMonth->setFocusProxy(m_view);
     nextMonth->setFocusProxy(m_view);
 
-    monthButton = new QCalToolButton(headerBackground);
+    monthButton = new QCalToolButton(navBarBackground);
     monthButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     monthButton->setAutoRaise(true);
     monthButton->setPopupMode(QToolButton::InstantPopup);
@@ -870,10 +870,10 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
         monthToAction[i] = act;
     }
     monthButton->setMenu(monthMenu);
-    yearButton = new QCalToolButton(headerBackground);
+    yearButton = new QCalToolButton(navBarBackground);
     yearButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     yearButton->setAutoRaise(true);
-    yearEdit = new QSpinBox(headerBackground);
+    yearEdit = new QSpinBox(navBarBackground);
 
     QFont font = q->font();
     font.setBold(true);
@@ -895,7 +895,7 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
     headerLayout->addWidget(yearButton);
     headerLayout->insertStretch(headerLayout->count());
     headerLayout->addWidget(nextMonth);
-    headerBackground->setLayout(headerLayout);
+    navBarBackground->setLayout(headerLayout);
 
     yearEdit->setFocusPolicy(Qt::StrongFocus);
     prevMonth->setFocusPolicy(Qt::StrongFocus);
@@ -1012,14 +1012,14 @@ void QCalendarWidgetPrivate::showMonth(int year, int month)
         return;
     Q_Q(QCalendarWidget);
     m_model->showMonth(year, month);
-    updateHeader();
+    updateNavigationBar();
     emit q->currentPageChanged(year, month);
     m_view->internalUpdate();
     update();
     updateMonthMenu();
 }
 
-void QCalendarWidgetPrivate::updateHeader()
+void QCalendarWidgetPrivate::updateNavigationBar()
 {
     monthButton->setText(QDate::longMonthName(m_model->shownMonth));
     yearButton->setText(QString::number(m_model->shownYear));
@@ -1201,12 +1201,12 @@ QCalendarWidget::QCalendarWidget(QWidget *parent)
     d->m_view->verticalHeader()->setResizeMode(QHeaderView::Stretch);
     d->m_view->verticalHeader()->setClickable(false);
     d->m_selection = d->m_view->selectionModel();
-    d->createHeader(this);
+    d->createNavigationBar(this);
     d->m_view->setFrameStyle(QFrame::NoFrame);
     d->m_delegate = new QCalendarDelegate(d, this);
     d->m_view->setItemDelegate(d->m_delegate);
     d->update();
-    d->updateHeader();
+    d->updateNavigationBar();
     setFocusPolicy(Qt::StrongFocus);
     setFocusProxy(d->m_view);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -1231,7 +1231,7 @@ QCalendarWidget::QCalendarWidget(QWidget *parent)
 
     layoutV->setMargin(0);
     layoutV->setSpacing(0);
-    layoutV->addWidget(d->headerBackground);
+    layoutV->addWidget(d->navBarBackground);
     layoutV->addWidget(d->m_view);
 }
 
@@ -1305,8 +1305,8 @@ QSize QCalendarWidget::minimumSizeHint() const
 
     //add the size of the header.
     QSize headerSize(0, 0);
-    if (d->headerVisible) {
-        int headerH = d->headerBackground->sizeHint().height();
+    if (d->navBarVisible) {
+        int headerH = d->navBarBackground->sizeHint().height();
         int headerW = 0;
 
         headerW += d->prevMonth->sizeHint().width();
@@ -1944,27 +1944,42 @@ void QCalendarWidget::setDateTextFormat(const QDate &date, const QTextCharFormat
 
 /*!
     \property QCalendarWidget::headerVisible
-    \brief whether the Header is shown or not
+    \brief whether the navigation bar is shown or not
 
-    When this property is set to true the next month, previous month,
-    month selection, year selection controls are shown on top
+    \obsolete
 
-    When the property is set to false, these controls are hidden.
-
-    The default value is true.
+    Use \l navigationBarVisible instead.
 */
 
 bool QCalendarWidget::isHeaderVisible() const
 {
     Q_D(const QCalendarWidget);
-    return d->headerVisible;
+    return d->navBarVisible;
 }
 
-void QCalendarWidget::setHeaderVisible(bool show)
+void QCalendarWidget::setHeaderVisible(bool visible)
+{
+    setNavigationBarVisible(visible);
+}
+
+/*!
+    \property QCalendarWidget::navigationBarVisible
+    \brief whether the navigation bar is shown or not
+
+    \since 4.3
+
+    When this property is true (the default), the next month,
+    previous month, month selection, year selection controls are
+    shown on top.
+
+    When the property is set to false, these controls are hidden.
+*/
+
+void QCalendarWidget::setNavigationBarVisible(bool visible)
 {
     Q_D(QCalendarWidget);
-    d->headerVisible = show;
-    (show)?d->headerBackground->show():d->headerBackground->hide();
+    d->navBarVisible = visible;
+    d->navBarBackground->setVisible(visible);
     updateGeometry();
 }
 
@@ -1975,7 +1990,7 @@ bool QCalendarWidget::event(QEvent *event)
 {
     Q_D(QCalendarWidget);
     if (event->type() == QEvent::FontChange || event->type() == QEvent::ApplicationFontChange) {
-        d->updateHeader();
+        d->updateNavigationBar();
         d->m_view->updateGeometry();
     }
     return QWidget::event(event);

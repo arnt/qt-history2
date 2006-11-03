@@ -42,7 +42,8 @@ class Q_GUI_EXPORT QCalendarWidget : public QWidget
     Q_PROPERTY(SelectionMode selectionMode READ selectionMode WRITE setSelectionMode)
     Q_PROPERTY(HorizontalHeaderFormat horizontalHeaderFormat READ horizontalHeaderFormat WRITE setHorizontalHeaderFormat)
     Q_PROPERTY(VerticalHeaderFormat verticalHeaderFormat READ verticalHeaderFormat WRITE setVerticalHeaderFormat)
-    Q_PROPERTY(bool headerVisible READ isHeaderVisible WRITE setHeaderVisible)
+    Q_PROPERTY(bool headerVisible READ isHeaderVisible WRITE setHeaderVisible STORED false DESIGNABLE false) // obsolete
+    Q_PROPERTY(bool navigationBarVisible READ isNavigationBarVisible WRITE setNavigationBarVisible)
 
 public:
     enum HorizontalHeaderFormat {
@@ -82,11 +83,13 @@ public:
     Qt::DayOfWeek firstDayOfWeek() const;
     void setFirstDayOfWeek(Qt::DayOfWeek dayOfWeek);
 
+    // ### Qt 5: eliminate these two
     bool isHeaderVisible() const;
     void setHeaderVisible(bool show); 
 
+    inline bool isNavigationBarVisible() const { return isHeaderVisible(); }
+
     bool isGridVisible() const;
-    void setGridVisible(bool show);
 
     SelectionMode selectionMode() const;
     void setSelectionMode(SelectionMode mode);
@@ -106,6 +109,7 @@ public:
     QMap<QDate, QTextCharFormat> dateTextFormat() const;
     QTextCharFormat dateTextFormat(const QDate &date) const;
     void setDateTextFormat(const QDate &date, const QTextCharFormat &color);
+
 protected:
     bool event(QEvent *event);
     void mousePressEvent(QMouseEvent *event);
@@ -118,6 +122,8 @@ public Q_SLOTS:
     void setSelectedDate(const QDate &date);
     void setDateRange(const QDate &min, const QDate &max);
     void setCurrentPage(int year, int month);
+    void setGridVisible(bool show);
+    void setNavigationBarVisible(bool visible);
     void showNextMonth();
     void showPreviousMonth();
     void showNextYear();
