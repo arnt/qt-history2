@@ -17,12 +17,15 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qregexp.h>
+#include <QtCore/qlocale.h>
 
 QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
 
 #ifndef QT_NO_VALIDATOR
+
+class QValidatorPrivate;
 
 class Q_GUI_EXPORT QValidator : public QObject
 {
@@ -41,6 +44,9 @@ public:
 #endif
     };
 
+    void setLocale(const QLocale &locale);
+    QLocale locale() const;
+
     virtual State validate(QString &, int &) const = 0;
     virtual void fixup(QString &) const;
 
@@ -50,9 +56,11 @@ public:
 #endif
 protected:
     QValidator(QObjectPrivate &d, QObject *parent);
+    QValidator(QValidatorPrivate &d, QObject *parent);
 
 private:
     Q_DISABLE_COPY(QValidator)
+    Q_DECLARE_PRIVATE(QValidator)
 };
 
 class Q_GUI_EXPORT QIntValidator : public QValidator

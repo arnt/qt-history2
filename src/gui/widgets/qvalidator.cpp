@@ -98,6 +98,16 @@
     \omitvalue Valid
 */
 
+class QValidatorPrivate : public QObjectPrivate{
+    Q_DECLARE_PUBLIC(QValidator);
+public:
+    QValidatorPrivate() : QObjectPrivate()
+    {
+    }
+
+    QLocale locale;
+};
+
 
 /*!
     Sets up the validator. The \a parent parameter is
@@ -105,7 +115,7 @@
 */
 
 QValidator::QValidator(QObject * parent)
-    : QObject(parent)
+    : QObject(*new QValidatorPrivate, parent)
 {
 }
 
@@ -117,7 +127,7 @@ QValidator::QValidator(QObject * parent)
 */
 
 QValidator::QValidator(QObject * parent, const char *name)
-    : QObject(parent)
+    : QObject(*new QValidatorPrivate, parent)
 {
     setObjectName(QString::fromAscii(name));
 }
@@ -132,6 +142,28 @@ QValidator::~QValidator()
 {
 }
 
+/*!
+    Returns the locale for the validator. The locale is by default initialized to the same as QLocale().
+    \sa setLocale
+    \sa QLocale::QLocale()
+*/
+QLocale QValidator::locale() const
+{
+    Q_D(const QValidator);
+    return d->locale;
+}
+/*!
+    Sets the locale that will be used for the validator. Unless setLocale has been called, 
+    the validator will use the default locale. If you want to override it with for instance
+    the C locale, you should call this function.
+
+    \sa locale
+*/
+void QValidator::setLocale(const QLocale &locale)
+{
+    Q_D(QValidator);
+    d->locale = locale;
+}
 
 /*!
     \fn QValidator::State QValidator::validate(QString &input, int &pos) const
@@ -382,12 +414,17 @@ QValidator::QValidator(QObjectPrivate &d, QObject *parent)
 {
 }
 
-class QDoubleValidatorPrivate : public QObjectPrivate
+QValidator::QValidator(QValidatorPrivate &d, QObject *parent)
+        : QObject(d, parent)
+{
+}
+
+class QDoubleValidatorPrivate : public QValidatorPrivate
 {
     Q_DECLARE_PUBLIC(QDoubleValidator);
 public:
     QDoubleValidatorPrivate()
-        : QObjectPrivate()
+        : QValidatorPrivate()
         , notation(QDoubleValidator::ScientificNotation)
     {
     }
@@ -523,7 +560,7 @@ QDoubleValidator::~QDoubleValidator()
 QValidator::State QDoubleValidator::validate(QString & input, int &) const
 {
     Q_D(const QDoubleValidator);
-    QRegExp empty(QString::fromLatin1("-?\\.?"));
+    QRegExp empty(QString::fromLatin1("-?%1?").arg(QRegExp::escape(locale().decimalPoint())));
     if (input.contains(QLatin1Char(' ')))
         return Invalid;
     if (b >= 0 && input.startsWith(QLatin1Char('-')))
@@ -531,7 +568,7 @@ QValidator::State QDoubleValidator::validate(QString & input, int &) const
     if (empty.exactMatch(input))
         return Intermediate;
     bool ok = true;
-    double entered = input.toDouble(&ok);
+    double entered = locale().toDouble(input, &ok);
     int nume = input.count(QLatin1Char('e'), Qt::CaseInsensitive);
     if ((!ok || nume > 0) && d->notation != ScientificNotation)
         return Invalid;
@@ -542,7 +579,7 @@ QValidator::State QDoubleValidator::validate(QString & input, int &) const
         int eePos = expexpexp.indexIn(input);
         if (eePos > 0 && nume == 1) {
             QString mantissa = input.left(eePos);
-            entered = mantissa.toDouble(&ok);
+            entered = locale().toDouble(mantissa, &ok);
             if (!ok)
                 return Invalid;
             if (expexpexp.cap(1).isEmpty())
@@ -554,7 +591,7 @@ QValidator::State QDoubleValidator::validate(QString & input, int &) const
         }
     }
 
-    int i = input.indexOf(QLatin1Char('.'));
+    int i = input.indexOf(locale().decimalPoint());
     if (i >= 0 && nume == 0) {
         // has decimal point (but no E), now count digits after that
         i++;
