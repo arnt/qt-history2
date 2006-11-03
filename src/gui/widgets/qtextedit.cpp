@@ -143,6 +143,10 @@ void QTextEditPrivate::init(const QString &html)
     QObject::connect(control, SIGNAL(cursorPositionChanged()), q, SIGNAL(cursorPositionChanged()));
 
     QTextDocument *doc = control->document();
+    // set a null page size initially to avoid any relayouting until the textedit
+    // is shown. relayoutDocument() will take care of setting the page size to the
+    // viewport dimensions later.
+    doc->setPageSize(QSize(0, 0));
     doc->documentLayout()->setPaintDevice(viewport);
     doc->setDefaultFont(q->font());
 
