@@ -899,7 +899,7 @@ void QPrintDialogPrivate::init()
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
     cups = (static_cast<QPSPrintEngine*>(printer->printEngine()))->cupsSupport();
 
-    if (QCUPSSupport::isAvailable()) {
+    if (QCUPSSupport::isAvailable() && cups->availablePrintersCount() > 0) {
         cupsPPD = cups->currentPPD();
         cupsPrinterCount = cups->availablePrintersCount();
         cupsPrinters = cups->availablePrinters();
