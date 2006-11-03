@@ -2104,7 +2104,7 @@ bool QGraphicsScene::event(QEvent *event)
         inputMethodEvent(static_cast<QInputMethodEvent *>(event));
         break;
     default:
-        return false;
+        return QObject::event(event);
     }
     return true;
 }
