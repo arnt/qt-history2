@@ -5346,8 +5346,14 @@ QString QUrl::fileName() const
 QString QUrl::dirPath() const
 {
     QFileInfo fileInfo(path());
-    if (fileInfo.isAbsolute())
-        return fileInfo.absolutePath();
+    if (fileInfo.isAbsolute()) {
+        QString absPath = fileInfo.absolutePath();
+#ifdef Q_OS_WIN
+        if (absPath.size() > 1 && absPath.at(1) == QLatin1Char(':'))
+            absPath = absPath.mid(2);
+#endif
+        return absPath;
+    }
     return fileInfo.path();
 }
 #endif
