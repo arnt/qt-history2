@@ -157,6 +157,7 @@ private slots:
     void contextMenuEvent();
     void update();
     void views();
+    void event();
     void invalidate();
 };
 
@@ -2192,6 +2193,28 @@ void tst_QGraphicsScene::views()
     view.setScene(0);
     QVERIFY(scene.views().size() == 1);
     QVERIFY(scene.views().at(0) == &view1);    
+}
+
+class CustomScene : public QGraphicsScene
+{
+public:
+    CustomScene() : gotTimerEvent(false)
+    { startTimer(10); }
+    
+    bool gotTimerEvent;
+protected:
+    void timerEvent(QTimerEvent *event)
+    {
+        gotTimerEvent = true;
+    }
+};
+
+void tst_QGraphicsScene::event()
+{
+    // Test that QGraphicsScene properly propagates events to QObject.
+    CustomScene scene;
+    QTestEventLoop::instance().enterLoop(1);
+    QVERIFY(scene.gotTimerEvent);
 }
 
 class SceneWithBackground : public QGraphicsScene
