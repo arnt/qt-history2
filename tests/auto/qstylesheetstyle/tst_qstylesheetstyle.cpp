@@ -20,6 +20,8 @@ private slots:
     void reparentWithChildStyleSheet();
     void repolish();
 
+    void sharedStyle();
+
 private:
     QColor COLOR(const QWidget& w) {
         w.ensurePolished();
@@ -195,6 +197,67 @@ void tst_QStyleSheetStyle::repolish()
     p1.setStyleSheet("");
     QVERIFY(COLOR(p1) == APPCOLOR(p1));
     QVERIFY(BACKGROUND(p1) == APPBACKGROUND(p1));
+}
+
+// Tests the feature that when the application has a stylesheet, all the widgets
+// that have a stylesheet just use the application proxy (they dont create a proxy
+// by themselves)
+void tst_QStyleSheetStyle::sharedStyle()
+{
+    qApp->setStyleSheet("* { color: red }");
+
+    // parent with no ss, child has ss
+    {
+    QWidget window;
+    QPushButton *pb = new QPushButton(&window);
+    pb->setStyleSheet("color: green");
+    QVERIFY(window.style() == qApp->style());
+    QVERIFY(pb->style() == qApp->style());
+    }
+
+    // parent with no ss, reparent a child with ss
+    {
+    QWidget window;
+    QPushButton *pb = new QPushButton;
+    QVERIFY(pb->style() == qApp->style());
+    pb->setStyleSheet("color: red");
+    QVERIFY(pb->style() == qApp->style());
+    pb->setParent(&window);
+    QVERIFY(pb->style() == qApp->style());
+    }
+
+    // parent with ss, child has ss
+    {
+    QWidget window;
+    window.setStyleSheet("color: gray");
+    QPushButton *pb = new QPushButton(&window);
+    QVERIFY(pb->style() == qApp->style());
+    pb->setStyleSheet("color: white");
+    QVERIFY(pb->style() == qApp->style());
+    }
+
+    // parent with ss, reparent a child with ss
+    {
+    QWidget window;
+    window.setStyleSheet("color: blue");
+    QPushButton *pb = new QPushButton;
+    QVERIFY(pb->style() == qApp->style());
+    pb->setStyleSheet("color: red");
+    QVERIFY(pb->style() == qApp->style());
+    pb->setParent(&window);
+    QVERIFY(pb->style() == qApp->style());
+    }
+
+    // parent with no ss, child with ss reparented out
+    {
+    QWidget window;
+    QPushButton *pb = new QPushButton(&window);
+    QVERIFY(pb->style() == qApp->style());
+    pb->setStyleSheet("color: white");
+    QVERIFY(pb->style() == qApp->style());
+    pb->setParent(0);
+    QVERIFY(pb->style() == qApp->style());
+    }
 }
 
 QTEST_MAIN(tst_QStyleSheetStyle)
