@@ -224,14 +224,16 @@ void QGroupBox::setTitle(const QString &title)
     \brief the group box title text
 
     The group box title text will have a keyboard shortcut if the title
-    contains an ampersand (\&) followed by a letter.
+    contains an ampersand ('&') followed by a letter.
 
     \code
         g->setTitle("&User information");
     \endcode
 
-    This produces "\underline{U}ser information"; \key Alt+U moves the keyboard
-    focus to the group box.
+    In the example above, \key Alt+U moves the keyboard focus to the
+    group box. See the \l {QShortcut#ampersand}{QShortcut}
+    documentation for details (to display an actual ampersand, use
+    '&&').
 
     There is no default title text.
 

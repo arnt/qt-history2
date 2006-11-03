@@ -49,17 +49,18 @@
     sets the text; setIcon() sets the icon. If a button is disabled, its label
     is changed to give the button a "disabled" appearance.
 
-    If the button is a text button with a string containing an ampersand (\&),
-    QAbstractButton creates an automatic shortcut key, called a mnemonic, that may
-    change based on the button translation. The following code creates
-    a push button labelled "Ro\underline{c}k & Roll" (where the c is underlined):
+    If the button is a text button with a string containing an
+    ampersand ('&'), QAbstractButton automatically creates a shortcut
+    key. For example:
 
     \code
         QPushButton *button = new QPushButton(tr("Ro&ck && Roll"), this);
     \endcode
 
-    In this example, the shortcut \key Alt+C is assigned to the button, so that when
-    the user presses \key Alt+C the button will call animateClick().
+    The \key Alt+C shortcut is assigned to the button, i.e., when the
+    user presses \key Alt+C the button will call animateClick(). See
+    the \l {QShortcut#ampersand}{QShortcut} documentation for details
+    (to display an actual ampersand, use '&&').
 
     You can also set a custom shortcut key using the setShortcut()
     function. This is useful mostly for buttons that do not have any
@@ -575,11 +576,15 @@ QAbstractButton::QAbstractButton(QAbstractButtonPrivate &dd, QWidget *parent)
 \property QAbstractButton::text
 \brief the text shown on the button
 
-This property will return a an empty string if the button has no text.
-If the text contains an ampersand character (\&), a mnemonic is
-automatically created for it. The character that follows the '\&' will be
-used as the shortcut key. Any previous mnemonic will be overwritten,
-or cleared if no mnemonic is defined by the text.
+If the button has no text, the text() function will return a an empty
+string.
+
+If the text contains an ampersand character ('&'), a shortcut is
+automatically created for it. The character that follows the '&' will
+be used as the shortcut key. Any previous shortcut will be
+overwritten, or cleared if no shortcut is defined by the text. See the
+\l {QShortcut#ampersand}{QShortcut} documentation for details (to
+display an actual ampersand, use '&&').
 
 There is no default text.
 */

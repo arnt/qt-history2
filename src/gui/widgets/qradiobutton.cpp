@@ -56,8 +56,18 @@ public:
     selected.
 
     Just like QPushButton, a radio button displays text, and
-    optionally a small icon. The text can be set in the constructor or
-    with setText(); the icon is set with setIcon().
+    optionally a small icon. The icon is set with setIcon(). The text
+    can be set in the constructor or with setText(). A shortcut key
+    can be specified by preceding the preferred character with an
+    ampersand in the text. For example:
+
+    \code
+        QRadioButton *button = new QRadioButton("Search from the &cursor", this);
+    \endcode
+
+    In this example the shortcut is \e{Alt+c}. See the \l
+    {QShortcut#ampersand}{QShortcut} documentation for details (to
+    display an actual ampersand, use '&&').
 
     Important inherited members: text(), setText(), text(),
     setDown(), isDown(), autoRepeat(), group(), setAutoRepeat(),

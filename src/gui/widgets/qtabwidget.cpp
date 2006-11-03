@@ -377,6 +377,15 @@ int QTabWidget::insertTab(int index, QWidget *w, const QIcon& icon, const QStrin
 
 /*!
     Defines a new \a label for the page at position \a index's tab.
+
+    If the provided text contains an ampersand character ('&'), a
+    shortcut is automatically created for it. The character that
+    follows the '&' will be used as the shortcut key. Any previous
+    shortcut will be overwritten, or cleared if no shortcut is defined
+    by the text. See the \l {QShortcut#ampersand}{QShortcut}
+    documentation for details (to display an actual ampersand, use
+    '&&').
+
 */
 void QTabWidget::setTabText(int index, const QString &label)
 {

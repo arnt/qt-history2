@@ -1017,10 +1017,10 @@ void QLabelPrivate::updateLabel()
     the keyboard focus is transferred to the label's buddy widget.
 
     The buddy mechanism is only available for QLabels that contain
-    plain text in which one letter is prefixed with an ampersand, \&.
-    This letter is set as the shortcut key. The letter is displayed
-    underlined, and the '\&' is not displayed (i.e. the Qt::TextShowMnemonic
-    alignment flag is turned on; see setAlignment()).
+    plain text in which one character is prefixed with an ampersand,
+    '&'.  This character is set as the shortcut key. See the \l
+    {QShortcut#ampersand}{QShortcut} documentation for details (to
+    display an actual ampersand, use '&&').
 
     In a dialog, you might create two data entry widgets and a label
     for each, and set up the geometry layout so each label is just to

@@ -61,9 +61,19 @@ public:
     enable it with setTristate(), and use checkState() to query the current
     toggle state.
 
-    Just like QPushButton, a checkbox button displays text, and
-    optionally a small icon. The text can be set in the constructor or
-    with setText(); the icon is set with setIcon().
+    Just like QPushButton, a checkbox displays text, and optionally a
+    small icon. The icon is set with setIcon(). The text can be set in
+    the constructor or with setText(). A shortcut key can be specified
+    by preceding the preferred character with an ampersand. For
+    example:
+
+    \code
+        QCheckBox *checkbox = new QCheckBox("C&ase sensitive", this);
+    \endcode
+
+    In this example the shortcut is \e{Alt+A}. See the \l
+    {QShortcut#ampersand}{QShortcut} documentation for details (to
+    display an actual ampersand, use '&&').
 
     Important inherited functions: text(), setText(), text(),
     pixmap(), setPixmap(), accel(), setAccel(), isToggleButton(),

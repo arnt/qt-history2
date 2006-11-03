@@ -36,6 +36,18 @@
     describe a keyboard shortcut, including the states of modifier
     keys such as \gui Shift, \gui Ctrl, and \gui Alt.
 
+    \target ampersand
+
+    On certain widgets, using '&' in front of a character will
+    autmatically create a mnemonic (a shortcut) for that character,
+    e.g. "E&xit" will create the shortcut \gui Alt+X. The widget might
+    consume and perform an action on a given shortcut. On X11 the
+    ampersand will not be shown and the character will be underlined,
+    while on Mac the shortcut might not be displayed at all (but it is
+    still there). On Windows, shortcuts are normally not displayed
+    until the user presses the \gui Alt key, but this is a setting the
+    user can change. To display an actual ampersand, use '&&'.
+
     For applications that use menus, it may be more convenient to
     use the convenience functions provided in the QMenu class to
     assign keyboard shortcuts to menu items as they are created.

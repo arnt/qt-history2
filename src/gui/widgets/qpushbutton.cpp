@@ -65,14 +65,17 @@ public:
     and Help.
 
     A command button is rectangular and typically displays a text
-    label describing its action. An underlined character in the label
-    (signified by preceding it with an ampersand in the text)
-    indicates a shortcut key, e.g.
+    label describing its action. A shortcut key can be specified by
+    preceding the preferred character with an ampersand in the
+    text. For example:
+
     \code
-        QPushButton *pb = new QPushButton("&Download", this);
+        QPushButton *button = new QPushButton("&Download", this);
     \endcode
-    In this example the shortcut is \e{Alt+D}, and the label text
-    will be displayed as \bold{\underline{D}ownload}.
+
+    In this example the shortcut is \e{Alt+D}. See the \l
+    {QShortcut#ampersand}{QShortcut} documentation for details (to
+    display an actual ampersand, use '&&').
 
     Push buttons display a textual label, and optionally a small
     icon. These can be set using the constructors and changed later
