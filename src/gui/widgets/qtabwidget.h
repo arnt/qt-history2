@@ -154,7 +154,7 @@ public:
     }
     inline QT3_SUPPORT void setTabToolTip(QWidget * w, const QString & tip) {
 #ifndef QT_NO_TOOLTIP
-        setTabToolTip(indexOf(w), tip);}
+        setTabToolTip(indexOf(w), tip);
 #else
         Q_UNUSED(w);
         Q_UNUSED(tip);
