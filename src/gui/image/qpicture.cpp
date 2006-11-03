@@ -29,6 +29,11 @@
 #include "qregion.h"
 #include "qdebug.h"
 
+void qt_format_text(const QFont &fnt, const QRectF &_r,
+                    int tf, const QString& str, QRectF *brect,
+                    int tabstops, int *, int tabarraylen,
+                    QPainter *painter);
+
 /*!
     \class QPicture
     \brief The QPicture class is a paint device that records and

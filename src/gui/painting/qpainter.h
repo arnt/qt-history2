@@ -414,9 +414,6 @@ public:
 private:
     Q_DISABLE_COPY(QPainter)
     friend class Q3Painter;
-    friend void qt_format_text(const QFont &font, const QRectF &_r, int tf, const QString& str,
-                               QRectF *brect, int tabstops, int* tabarray, int tabarraylen,
-                               QPainter *painter);
 
     QPainterPrivate *d_ptr;
 

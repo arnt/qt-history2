@@ -52,7 +52,7 @@ bool qt_show_painter_debug_output = true;
 extern QPixmap qt_pixmapForBrush(int style, bool invert);
 
 void qt_format_text(const QFont &font,
-                    const QRectF &_r, int tf, const QString& str, QRectF *brect,
+                    const QRectF &_r, int tf, const QTextOption *option, const QString& str, QRectF *brect,
                     int tabstops, int* tabarray, int tabarraylen,
                     QPainter *painter);
 
@@ -4355,7 +4355,7 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, QRect *br
     d->updateState(d->state);
 
     QRectF bounds;
-    qt_format_text(d->state->font, r, flags, str, br ? &bounds : 0, 0, 0, 0, this);
+    qt_format_text(d->state->font, r, flags, 0, str, br ? &bounds : 0, 0, 0, 0, this);
     if (br)
         *br = bounds.toRect();
 }
@@ -4419,7 +4419,7 @@ void QPainter::drawText(const QRectF &r, int flags, const QString &str, QRectF *
     Q_D(QPainter);
     d->updateState(d->state);
 
-    qt_format_text(d->state->font, r, flags, str, br, 0, 0, 0, this);
+    qt_format_text(d->state->font, r, flags, 0, str, br, 0, 0, 0, this);
 }
 
 /*!
@@ -4502,7 +4502,7 @@ void QPainter::drawText(const QRectF &r, const QString &text, const QTextOption 
     if (o.flags() & QTextOption::IncludeTrailingSpaces)
         flags |= Qt::TextIncludeTrailingSpaces;
 
-    qt_format_text(d->state->font, r, flags, text, 0, 0, 0, 0, this);
+    qt_format_text(d->state->font, r, flags, &o, text, 0, 0, 0, 0, this);
 }
 
 /*!
@@ -4900,7 +4900,7 @@ QRectF QPainter::boundingRect(const QRectF &r, const QString &text, const QTextO
         flags |= Qt::TextIncludeTrailingSpaces;
 
     QRectF br;
-    qt_format_text(d->state->font, r, flags, text, &br, 0, 0, 0, this);
+    qt_format_text(d->state->font, r, flags, &o, text, &br, 0, 0, 0, this);
     return br;
 }
 
@@ -5770,6 +5770,16 @@ void qt_painter_removePaintDevice(QPaintDevice *dev)
 
 void qt_format_text(const QFont &fnt, const QRectF &_r,
                     int tf, const QString& str, QRectF *brect,
+                    int tabstops, int *ta, int tabarraylen,
+                    QPainter *painter)
+{
+    qt_format_text(fnt, _r,
+                    tf, 0, str, brect,
+                    tabstops, ta, tabarraylen,
+                    painter);
+}
+void qt_format_text(const QFont &fnt, const QRectF &_r,
+                    int tf, const QTextOption *option, const QString& str, QRectF *brect,
                     int tabstops, int *, int tabarraylen,
                     QPainter *painter)
 {
@@ -5782,7 +5792,14 @@ void qt_format_text(const QFont &fnt, const QRectF &_r,
     bool showmnemonic = (tf & Qt::TextShowMnemonic);
     bool hidemnmemonic = (tf & Qt::TextHideMnemonic);
 
-    Qt::LayoutDirection layout_direction = painter ? painter->layoutDirection() : Qt::LeftToRight;
+    Qt::LayoutDirection layout_direction;
+    if(option)
+        layout_direction = option->textDirection();
+    else if (painter)
+        layout_direction = painter->layoutDirection();
+    else
+        layout_direction = Qt::LeftToRight;
+
     tf = QStyle::visualAlignment(layout_direction, QFlag(tf));
 
     bool isRightToLeft = layout_direction == Qt::RightToLeft;
