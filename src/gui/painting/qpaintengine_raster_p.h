@@ -243,9 +243,10 @@ inline void QClipData::appendSpan(int x, int length, int y, int coverage)
 
 inline void QClipData::appendSpans(const QSpan *s, int num)
 {
-    if (count + num >= allocated) {
-        while (allocated < count + num)
+    if (count + num > allocated) {
+        do {
             allocated *= 2;
+        } while (count + num > allocated);
         spans = (QSpan *)realloc(spans, allocated*sizeof(QSpan));
     }
     memcpy(spans+count, s, num*sizeof(QSpan));
