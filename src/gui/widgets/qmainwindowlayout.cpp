@@ -842,6 +842,14 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     // the order of the bottom and right tool bars needs to reversed
     for (int line = 0; line < tb_layout_info.size(); ++line) {
         const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
+
+        bool lineHidden = true;
+        for (int i = 0; i < lineInfo.list.size(); ++i)
+            lineHidden &= lineInfo.list.at(i).item->isEmpty();
+
+        if (lineHidden)
+            continue;
+
 	QSize tb_sz;
         for (int i = 0; i < lineInfo.list.size(); ++i) {
 	    const ToolBarLayoutInfo &info = lineInfo.list.at(i);

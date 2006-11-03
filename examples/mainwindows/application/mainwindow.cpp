@@ -175,20 +175,15 @@ void MainWindow::createMenus()
 
 void MainWindow::createToolBars()
 {
-fileToolBar = new QToolBar(tr("File"));
-fileToolBar->addAction(newAct);
-fileToolBar->addAction(openAct);
-fileToolBar->addAction(saveAct);
+    fileToolBar = addToolBar(tr("File"));
+    fileToolBar->addAction(newAct);
+    fileToolBar->addAction(openAct);
+    fileToolBar->addAction(saveAct);
 
-editToolBar = new QToolBar(tr("Edit"));
-editToolBar->addAction(cutAct);
-editToolBar->addAction(copyAct);
-editToolBar->addAction(pasteAct);
-
-addToolBar(Qt::BottomToolBarArea, fileToolBar);
-addToolBarBreak(Qt::BottomToolBarArea);
-addToolBar(Qt::BottomToolBarArea, editToolBar);
-addToolBarBreak(Qt::BottomToolBarArea);
+    editToolBar = addToolBar(tr("Edit"));
+    editToolBar->addAction(cutAct);
+    editToolBar->addAction(copyAct);
+    editToolBar->addAction(pasteAct);
 }
 
 void MainWindow::createStatusBar()
