@@ -1044,6 +1044,8 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     fontFamily = parent->fontFamily;
     hasFontPointSize = parent->hasFontPointSize;
     fontPointSize = parent->fontPointSize;
+    hasFontPixelSize = parent->hasFontPixelSize;
+    fontPixelSize = parent->fontPixelSize;
     fontSizeAdjustment = parent->fontSizeAdjustment;
     hasFontSizeAdjustment = parent->hasFontSizeAdjustment;
     fontWeight = parent->fontWeight;
