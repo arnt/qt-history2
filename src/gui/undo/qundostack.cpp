@@ -180,7 +180,9 @@ bool QUndoCommand::mergeWith(const QUndoCommand *command)
 
 /*!
     Applies a change to the document. This function must be implemented in
-    the derived class.
+    the derived class. Calling QUndoStack::push(),
+    QUndoStack::undo() or QUndoStack::redo() from this funciton leads to
+    undefined beahavior.
 
     The default implementation calls redo() on all child commands.
 
@@ -196,7 +198,9 @@ void QUndoCommand::redo()
 /*!
     Reverts a change to the document. After undo() is called, the state of
     the document should be the same as before redo() was called. This function must
-    be implemented in the derived class.
+    be implemented in the derived class. Calling QUndoStack::push(),
+    QUndoStack::undo() or QUndoStack::redo() from this funciton leads to
+    undefined beahavior.
 
     The default implementation calls undo() on all child commands in reverse order.
 
