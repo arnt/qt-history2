@@ -715,17 +715,18 @@ void QCompleterPrivate::init(QAbstractItemModel *m)
 #endif // QT_NO_LISTVIEW
 }
 
-void QCompleterPrivate::setCurrentIndex(const QModelIndex& index, bool select)
+void QCompleterPrivate::setCurrentIndex(QModelIndex index, bool select)
 {
-    if (!select)
+    if (!select) {
         popup->selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
-    else {
+    } else {
         if (!index.isValid())
             popup->selectionModel()->clear();
         else
             popup->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select
                                                             | QItemSelectionModel::Rows);
     }
+    index = popup->selectionModel()->currentIndex();
     if (!index.isValid())
         popup->scrollToTop();
     else
@@ -977,8 +978,10 @@ void QCompleter::setPopup(QAbstractItemView *popup)
 {
     Q_D(QCompleter);
     Q_ASSERT(popup != 0);
-    if (d->popup)
+    if (d->popup) {
+        QObject::disconnect(d->popup->selectionModel(), 0, this, 0);
         QObject::disconnect(d->popup, 0, this, 0);
+    }
     if (d->popup != popup)
         delete d->popup;
     if (popup->model() != d->proxy)
