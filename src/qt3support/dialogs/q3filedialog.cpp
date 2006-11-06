@@ -82,6 +82,10 @@
 #undef check
 #endif
 
+#if defined(Q_OS_OPENBSD)
+#include <sys/param.h>
+#endif
+
 /* XPM */
 static const char * const start_xpm[]={
     "16 15 8 1",
@@ -5157,7 +5161,7 @@ const QPixmap * QWindowsIconProvider::pixmap(const QFileInfo &fi)
                 }
                 if (filepath[0] == '"' && filepath[(int)filepath.length()-1] == '"')
                     filepath = filepath.mid(1, filepath.length()-2);
-                
+
                 resolveLibs();
 #ifndef Q_OS_TEMP
                 QT_WA({
@@ -5180,7 +5184,7 @@ const QPixmap * QWindowsIconProvider::pixmap(const QFileInfo &fi)
         } else {
             pix = defaultFile;
         }
-        
+
         cache[key] = pix;
         return &pix;
     } else {
