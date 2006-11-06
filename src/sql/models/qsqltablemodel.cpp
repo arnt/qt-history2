@@ -534,8 +534,9 @@ void QSqlTableModel::setQuery(const QSqlQuery &query)
 }
 
 /*!
-    Updates the row \a row in the currently active database table
-    with the values from \a values.
+    Updates the given \a row in the currently active database table
+    with the specified \a values. Returns true if successful; otherwise
+    returns false.
 
     This is a low-level method that operates directly on the database
     and should not be called directly. Use setData() to update values.

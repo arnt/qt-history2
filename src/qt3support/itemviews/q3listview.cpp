@@ -3871,7 +3871,7 @@ Q3ListViewItem * Q3ListViewItem::itemBelow() const
 
 
 /*!
-    \fn bool Q3ListViewItem::isOpen () const
+    \fn bool Q3ListViewItem::isOpen() const
 
     Returns true if this list view item has children \e and they are
     not explicitly hidden; otherwise returns false.
@@ -6757,6 +6757,9 @@ void Q3ListView::setOpen(Q3ListViewItem * item, bool open)
 
 
 /*!
+    Returns true if this list view item has children \e and they are
+    not explicitly hidden; otherwise returns false.
+
     Identical to \a{item}->isOpen(). Provided for completeness.
 
     \sa setOpen()

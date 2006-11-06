@@ -2119,7 +2119,8 @@ const QGLContext* QGLContext::currentContext()
 
     This semi-internal function is called by create(). It creates a
     system-dependent OpenGL handle that matches the format() of \a
-    shareContext as closely as possible.
+    shareContext as closely as possible, returning true if successful
+    or false if a suitable handle could not be found.
 
     On Windows, it calls the virtual function choosePixelFormat(),
     which finds a matching pixel format identifier. On X11, it calls

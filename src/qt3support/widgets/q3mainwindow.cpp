@@ -666,6 +666,9 @@ void QHideToolTip::maybeTip(const QPoint &pos)
 
 /*!
     \fn bool Q3MainWindow::toolBarsMovable() const
+
+    Returns true if the window allows its toolbars to be moved; otherwise
+    returns false.
 */
 
 /*!

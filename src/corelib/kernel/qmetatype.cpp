@@ -469,9 +469,11 @@ int QMetaType::type(const char *typeName)
 #ifndef QT_NO_DATASTREAM
 /*!
     Writes the object pointed to by \a data with the ID \a type to
-    the given \a stream. The type must have been registered with
-    qRegisterMetaType() and qRegisterMetaTypeStreamOperators()
-    beforehand.
+    the given \a stream. Returns true if the object is saved
+    successfully; otherwise returns false.
+
+    The type must have been registered with qRegisterMetaType() and
+    qRegisterMetaTypeStreamOperators() beforehand.
 
     Normally, you should not need to call this function directly.
     Instead, use QVariant's \c operator<<(), which relies on save()
@@ -650,9 +652,11 @@ bool QMetaType::save(QDataStream &stream, int type, const void *data)
 
 /*!
     Reads the object of the specified \a type from the given \a
-    stream into \a data. The type must have been registered with
-    qRegisterMetaType() and qRegisterMetaTypeStreamOperators()
-    beforehand.
+    stream into \a data. Returns true if the object is loaded
+    successfully; otherwise returns false.
+
+    The type must have been registered with qRegisterMetaType() and
+    qRegisterMetaTypeStreamOperators() beforehand.
 
     Normally, you should not need to call this function directly.
     Instead, use QVariant's \c operator>>(), which relies on load()

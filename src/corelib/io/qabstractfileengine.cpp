@@ -343,7 +343,9 @@ bool QAbstractFileEngine::open(QIODevice::OpenMode openMode)
 }
 
 /*!
-    Closes the file.
+    Closes the file, returning true if successful; otherwise returns false.
+
+    The default implementation always returns false.
 */
 bool QAbstractFileEngine::close()
 {
@@ -351,7 +353,10 @@ bool QAbstractFileEngine::close()
 }
 
 /*!
-    Flushes the open file.
+    Flushes the open file, returning true if successful; otherwise returns
+    false.
+
+    The default implementation always returns false.
 */
 bool QAbstractFileEngine::flush()
 {

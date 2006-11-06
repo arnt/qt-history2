@@ -167,7 +167,7 @@
 */
 
 /*!
-    \fn void QDecoration::paint(QPainter *painter, const QWidget *widget, int decorationRegion,
+    \fn bool QDecoration::paint(QPainter *painter, const QWidget *widget, int decorationRegion,
                                 DecorationState state)
 
     This virtual function allows subclasses of QDecoration to paint
@@ -176,6 +176,9 @@
 
     The specified \a decorationRegion is a bitmask of the values
     described by the DecorationRegion enum.
+
+    Returns true if any window decorations in the region specified
+    are repainted; otherwise returns false.
 */
 
 /*!

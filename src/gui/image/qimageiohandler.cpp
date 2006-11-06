@@ -308,8 +308,11 @@ QByteArray QImageIOHandler::format() const
 /*!
     \fn bool QImageIOHandler::read(QImage *image)
 
-    Read an image from the device, and stores it in \a image. For
-    image formats that support incremental loading, and for animation
+    Read an image from the device, and stores it in \a image.
+    Returns true if the image is successfully read; otherwise returns
+    false.
+
+    For image formats that support incremental loading, and for animation
     formats, the image handler can assume that \a image points to the
     previous frame.
 

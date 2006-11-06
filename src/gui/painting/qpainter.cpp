@@ -1361,6 +1361,8 @@ bool QPainter::begin(QPaintDevice *pd)
     don't normally need to call this since it is called by the
     destructor.
 
+    Returns true if the painter is no longer active; otherwise returns false.
+
     \sa begin(), isActive()
 */
 

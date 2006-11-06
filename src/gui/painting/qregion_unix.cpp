@@ -2756,7 +2756,10 @@ QVector<QRect> QRegion::rects() const
 }
 
 /*!
-  Sets the region using the array of rectangles specified by \a rects.
+  \fn void QRegion::setRects(const QRect *rects, int number)
+
+  Sets the region using the array of rectangles specified by \a rects and
+  \a number.
   The rectangles \e must be optimally Y-X sorted and follow these restrictions:
 
   \list

@@ -316,7 +316,8 @@ bool QCopChannel::send(const QString& channel, const QString& msg)
 
     Sends the given \a message on the specified \a channel with the
     given \a data.  The message will be distributed to all clients
-    subscribed to the channel.
+    subscribed to the channel. Returns true if the message is sent
+    successfully; otherwise returns false.
 
     It is recommended to use the DCOP convention. This is not a
     requirement, but you must ensure that the sender and receiver

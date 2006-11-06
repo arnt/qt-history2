@@ -73,7 +73,9 @@
 /*!
     \fn bool QStylePainter::begin(QWidget *widget)
 
-    Begin painting operations on widget \a widget.
+    Begin painting operations on the specified \a widget.
+    Returns true if the painter is ready to use; otherwise returns false.
+
     This is automatically called by the constructor that takes a QWidget.
 */
 
@@ -82,7 +84,9 @@
     \overload
 
     Begin painting operations on paint device \a pd as if it was \a
-    widget.  This is automatically called by the constructor that
+    widget.
+
+    This is automatically called by the constructor that
     takes a QPaintDevice and a QWidget.
 */
 

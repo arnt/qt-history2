@@ -1173,9 +1173,11 @@ void QCompleter::complete(const QRect& rect)
 }
 
 /*!
-    Sets the current row to the \a row specified. This function may be used
-    along with currentCompletion() to iterate through all the possible
-    completions.
+    Sets the current row to the \a row specified. Returns true if successful;
+    otherwise returns false.
+
+    This function may be used along with currentCompletion() to iterate
+    through all the possible completions.
 
     \sa currentCompletion(), completionCount()
 */

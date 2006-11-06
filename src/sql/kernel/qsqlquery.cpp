@@ -815,7 +815,10 @@ void QSqlQuery::clear()
 }
 
 /*!
-    Prepares the SQL query \a query for execution. The query may
+    Prepares the SQL query \a query for execution. Returns true if the
+    query is prepared successfully; otherwise returns false.
+
+    The query may
     contain placeholders for binding values. Both Oracle style
     colon-name (e.g., \c{:surname}), and ODBC style (\c{?})
     placeholders are supported; but they cannot be mixed in the same
@@ -882,6 +885,8 @@ bool QSqlQuery::exec()
     Executes a previously prepared SQL query in a batch. All the bound parameters
     have to be lists of variants. If the database doesn't support batch executions,
     the driver will simulate it using conventional exec() calls.
+
+    Returns true if the query is executed successfully; otherwise returns false.
 
     Example:
 

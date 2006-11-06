@@ -503,7 +503,8 @@ void QSqlResult::setForwardOnly(bool forward)
 
 /*!
     Prepares the given \a query, using the underlying database
-    functionality where possible.
+    functionality where possible. Returns true if the query is
+    prepared successfully; otherwise returns false.
 
     \sa prepare()
 */
@@ -528,7 +529,8 @@ bool QSqlResult::savePrepare(const QString& query)
 
 /*!
     Prepares the given \a query for execution; the query will normally
-    use placeholders so that it can be executed repeatedly.
+    use placeholders so that it can be executed repeatedly. Returns
+    true if the query is prepared successfully; otherwise returns false.
 
     \sa exec()
 */
@@ -546,7 +548,8 @@ bool QSqlResult::prepare(const QString& query)
 }
 
 /*!
-    Executes the query.
+    Executes the query, returning true if successful; otherwise returns
+    false.
 
     \sa prepare()
 */

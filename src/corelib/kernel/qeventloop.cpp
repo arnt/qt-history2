@@ -97,7 +97,8 @@ QEventLoop::~QEventLoop()
 
 /*!
     Processes pending events that match \a flags until there are no
-    more events to process.
+    more events to process. Returns true if pending events were handled;
+    otherwise returns false.
 
     This function is especially useful if you have a long running
     operation and want to show its progress without allowing user

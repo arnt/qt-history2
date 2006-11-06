@@ -2447,9 +2447,17 @@ void QGraphicsItem::removeSceneEventFilter(QGraphicsItem *filterItem)
 
 /*!
     Filters events for the item \a watched. \a event is the filtered
-    event. Reimplement this function after installing this item as an
-    event filter for another item to intersect all the other item's
-    events.
+    event.
+
+    Reimplementing this function in a subclass makes it possible
+    for the item to be used as an event filter for other items,
+    intercepting all the events send to those items before they are
+    able to respond.
+
+    Reimplementations must return true to prevent further processing of
+    a given event, ensuring that it will not be delivered to the watched
+    item, or return false to indicate that the event should be propagated
+    further by the event system.
 
     \sa installSceneEventFilter()
 */

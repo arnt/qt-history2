@@ -546,26 +546,31 @@ public:
 */
 
 /*!
-    \fn QScreen::initDevice()
+    \fn virtual bool QScreen::initDevice() = 0
 
     This function is called by the \l {Qtopia Core} server to
     initialize the framebuffer. Note that it is called \e before the
     connect() function.
 
-    The default implementation does nothing; reimplement this function
-    to set up the graphics card.
+    Reimplement this function to make accelerated drivers set up the
+    graphics card. The default implementation does nothing; subclasses
+    should return true to indicate success and false to indicate
+    failure.
 
     \sa shutdownDevice(), connect()
 */
 
 /*!
-    \fn QScreen::connect(const QString &displaySpec)
+    \fn virtual bool QScreen::connect(const QString &displaySpec) = 0
 
     This function is called by every \l {Qtopia Core} application on
     startup, and must be reimplemented to map in the framebuffer and
     the accelerated drivers that the graphics card control registers.
     Note that a server application will call the initDevice() function
     prior to this function.
+
+    Returns true if a connection to the screen device can be made;
+    otherwise returns false.
 
     The \a displaySpec argument is passed by the QWS_DISPLAY
     environment variable or the -display command line parameter, and

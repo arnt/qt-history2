@@ -314,7 +314,8 @@ int QTcpServer::socketDescriptor() const
 
 /*!
     Sets the socket descriptor this server should use when listening
-    for incoming connections to \a socketDescriptor.
+    for incoming connections to \a socketDescriptor. Returns true if
+    the socket is set successfully; otherwise returns false.
 
     The socket is assumed to be in listening state.
 

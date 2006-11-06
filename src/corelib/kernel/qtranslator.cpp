@@ -308,8 +308,10 @@ QTranslator::~QTranslator()
 /*!
     Loads \a filename + \a suffix (".qm" if the \a suffix is
     not specified), which may be an absolute file name or relative
-    to \a directory. The previous contents of this translator object
-    is discarded.
+    to \a directory. Returns true if the translation is successfully
+    loaded; otherwise returns false.
+
+    The previous contents of this translator object are discarded.
 
     If the file name does not exist, other file names are tried
     in the following order:

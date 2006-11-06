@@ -163,8 +163,8 @@ public:
 /*!
     \fn bool QWSWindowSurface::attach(const QByteArray &data)
 
-    Attach a server-side instance to a client side surface instance using
-    \a data.
+    Attaches a server-side instance to a client side surface instance using
+    \a data. Returns true if successful; otherwise returns false.
 */
 
 /*!

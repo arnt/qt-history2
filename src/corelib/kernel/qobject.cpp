@@ -2486,7 +2486,8 @@ bool QObject::connect(const QObject *sender, const char *signal,
     \threadsafe
 
     Disconnects \a signal in object \a sender from \a method in object
-    \a receiver.
+    \a receiver. Returns true if the connection is successfully broken;
+    otherwise returns false.
 
     A signal-slot connection is removed when either of the objects
     involved are destroyed.

@@ -204,12 +204,18 @@ int QAbstractEventDispatcher::registerTimer(int interval, QObject *object)
     \fn bool QAbstractEventDispatcher::unregisterTimer(int timerId)
 
     Unregisters the timer with the given \a timerId.
+    Returns true if successful; otherwise returns false.
+
+    \sa registerTimer(), unregisterTimers()
 */
 
 /*!
     \fn bool QAbstractEventDispatcher::unregisterTimers(QObject *object)
 
     Unregisters all the timers associated with the given \a object.
+    Returns true if all timers were successful removed; otherwise returns false.
+
+    \sa unregisterTimer(), registeredTimers()
 */
 
 /*!
