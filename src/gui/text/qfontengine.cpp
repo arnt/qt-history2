@@ -310,7 +310,7 @@ void QFontEngine::addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *glyp
     item.fontEngine = this;
     item.f = 0;
 
-    p.drawTextItem(QPointF(0, item.ascent.toReal()), item);
+    p.drawTextItem(QPointF(-metrics.x.toReal(), item.ascent.toReal()), item);
     p.end();
 
     QImage image = bm.toImage();
