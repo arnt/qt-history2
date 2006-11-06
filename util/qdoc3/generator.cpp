@@ -312,13 +312,14 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 		    ++a;
 	        }
 	    }
-/* Something like this return value check should be implemented at some point.
-            if (func->status() > Node::Obsolete && func->returnType() == "bool") {
+/* Something like this return value check should be implemented at some point. */
+            if (func->status() > Node::Obsolete && func->returnType() == "bool"
+                    && func->reimplementedFrom() == 0 && !func->isOverload()) {
                 QString body = func->doc().body().toString();
                 if (!body.contains("return", Qt::CaseInsensitive))
                     node->doc().location().warning(tr("Undocumented return value"));
             }
-*/
+
 	    if ( func->reimplementedFrom() != 0 )
 	        generateReimplementedFrom( func, marker );
         }
