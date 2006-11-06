@@ -40,7 +40,7 @@
                 <xsl:value-of select="$cap-name"/>
             </xsl:for-each>
             <xsl:text> };&endl;</xsl:text>
-            <xsl:text>    inline Kind kind() { return m_kind; }&endl;&endl;</xsl:text>
+            <xsl:text>    inline Kind kind() const { return m_kind; }&endl;&endl;</xsl:text>
         </xsl:if>
 
         <xsl:for-each select="$node/xs:element">
@@ -72,7 +72,7 @@
             <xsl:value-of select="$return-cpp-type"/>
             <xsl:text> element</xsl:text>
             <xsl:value-of select="$cap-name"/>
-            <xsl:text>() { return m_</xsl:text>
+            <xsl:text>() const { return m_</xsl:text>
             <xsl:value-of select="@name"/>
             <xsl:text>; }&endl;</xsl:text>
 
@@ -163,7 +163,7 @@
 
             <xsl:text>    inline bool hasAttribute</xsl:text>
             <xsl:value-of select="$cap-name"/>
-            <xsl:text>() { return m_has_attr_</xsl:text>
+            <xsl:text>() const { return m_has_attr_</xsl:text>
             <xsl:value-of select="@name"/>
             <xsl:text>; }&endl;</xsl:text>
 
@@ -171,7 +171,7 @@
             <xsl:value-of select="$cpp-return-type"/>
             <xsl:text> attribute</xsl:text>
             <xsl:value-of select="$cap-name"/>
-            <xsl:text>() { return m_attr_</xsl:text>
+            <xsl:text>() const { return m_attr_</xsl:text>
             <xsl:value-of select="@name"/>
             <xsl:text>; }&endl;</xsl:text>
 
@@ -211,7 +211,7 @@
         <xsl:text>();&endl;&endl;</xsl:text>
 
         <xsl:text>    void read(const QDomElement &amp;node);&endl;</xsl:text>
-        <xsl:text>    QDomElement write(QDomDocument &amp;doc, const QString &amp;tagName = QString());&endl;</xsl:text>
+        <xsl:text>    QDomElement write(QDomDocument &amp;doc, const QString &amp;tagName = QString()) const;&endl;</xsl:text>
         <xsl:text>    inline QString text() const { return m_text; }&endl;</xsl:text>
         <xsl:text>    inline void setText(const QString &amp;s) { m_text = s; }&endl;&endl;</xsl:text>
 

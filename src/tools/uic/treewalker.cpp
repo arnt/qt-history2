@@ -182,6 +182,8 @@ void TreeWalker::acceptProperty(DomProperty *property)
         case DomProperty::StringList:
         case DomProperty::Float:
         case DomProperty::Double:
+        case DomProperty::UInt:
+        case DomProperty::ULongLong:
             break;
     }
 }

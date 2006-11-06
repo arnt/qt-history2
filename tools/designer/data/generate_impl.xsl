@@ -614,7 +614,7 @@
 
         <xsl:text>QDomElement </xsl:text>
         <xsl:value-of select="$name"/>
-        <xsl:text>::write(QDomDocument &amp;doc, const QString &amp;tagName)&endl;</xsl:text>
+        <xsl:text>::write(QDomDocument &amp;doc, const QString &amp;tagName) const&endl;</xsl:text>
         <xsl:text>{&endl;</xsl:text>
 
         <xsl:text>    QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromUtf8("</xsl:text>
