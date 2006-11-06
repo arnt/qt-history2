@@ -1852,12 +1852,14 @@ QWSMouseHandler *QWSServer::mouseHandler()
 /*!
     \fn void QWSServer::setMouseHandler(QWSMouseHandler* handler)
 
-    Sets the primary mouse handler to be the given \a handler.
+    Sets the mouse driver to be the given \a handler.
 
-    Note that it is recommended to use the plugin mechanism instead,
-    deriving from the QMouseDriverPlugin class.
+    \l {Qtopia Core} provides several ready-made mouse drivers, and
+    custom drivers are typically added using Qt's plugin
+    mechanism. See the {Qtopia Core Pointer Handling} documentation
+    for details.
 
-    \sa mouseHandler(), QMouseDriverPlugin
+    \sa mouseHandler()
 */
 void QWSServer::setMouseHandler(QWSMouseHandler* mh)
 {
@@ -3102,10 +3104,12 @@ QWSKeyboardHandler* QWSServer::keyboardHandler()
 
     Sets the primary keyboard handler to be the given \a handler.
 
-    Note that it is recommended to use the plugin mechanism instead,
-    deriving from the QKbdDriverPlugin class.
+    \l {Qtopia Core} provides several ready-made keyboard drivers, and
+    custom drivers are typically added using Qt's plugin
+    mechanism. See the {Qtopia Core Character Input} documentation for
+    details.
 
-    \sa keyboardHandler(), QKbdDriverPlugin
+    \sa keyboardHandler()
 */
 void QWSServer::setKeyboardHandler(QWSKeyboardHandler* kh)
 {
