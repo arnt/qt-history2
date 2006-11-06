@@ -145,7 +145,9 @@ embedded {
 		kernel/qwidget_mac.cpp \
 		kernel/qkeymapper_mac.cpp
 
-        OBJECTIVE_SOURCES += kernel/qcursor_mac.mm
+        OBJECTIVE_SOURCES += \
+                kernel/qcursor_mac.mm \
+                kernel/qsound_mac.mm
 
         HEADERS += \
                 kernel/qeventdispatcher_mac_p.h

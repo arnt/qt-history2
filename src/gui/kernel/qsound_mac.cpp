@@ -16,21 +16,7 @@
 
 #ifndef QT_NO_SOUND
 
-#ifdef __LP64__
-
-class QAuServerMac : public QAuServer {
-    Q_OBJECT
-public:
-    QAuServerMac(QObject* parent) : QAuServer(parent) {}
-    ~QAuServerMac(){}
-
-    void play(const QString& filename){}
-    void play(QSound *s){}
-    void stop(QSound*){}
-    bool okay() { return true; }
-};
-
-#else
+#ifndef __LP64__
 
 #include <qdir.h>
 #include <qpixmap.h>
