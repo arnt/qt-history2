@@ -38,7 +38,6 @@ QStringList ScreenVfbDriver::keys() const
 
 QScreen* ScreenVfbDriver::create(const QString& driver, int displayId)
 {
-    printf("ScreenVfbDriver create %s\n", driver.toLatin1().constData());
     if (driver.toLower() == "qvfb")
         return new QVFbScreen(displayId);
 
