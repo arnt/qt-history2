@@ -1862,7 +1862,10 @@ void QWidgetPrivate::inheritStyle()
     QStyleSheetStyle *proxy = extra ? qobject_cast<QStyleSheetStyle *>(extra->style) : 0;
 
     if (!q->styleSheet().isEmpty()) {
-        // Since, we have a non-empty stylesheet, we are guaranteed to have a style proxy
+        if (!proxy)
+            proxy = qobject_cast<QStyleSheetStyle *>(qApp->style());
+        // Since, we have a non-empty stylesheet, we are guaranteed that either we or the
+        // the application is running a style sheet proxy
         Q_ASSERT(proxy);
         proxy->repolish(q);
         return;
@@ -1889,6 +1892,9 @@ void QWidgetPrivate::inheritStyle()
     if (origStyle == (extra ? extra->style : 0)) // is it any different?
         return;
 
+    // We could have inherited the proxy from our parent (which has a custom style)
+    // In such a case we need to start following the application style (i.e revert
+    // the propagation behavior of QStyleSheetStyle)
     if (!q->testAttribute(Qt::WA_SetStyle))
         origStyle = 0;
 
