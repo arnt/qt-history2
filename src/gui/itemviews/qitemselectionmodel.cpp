@@ -875,10 +875,8 @@ QItemSelectionModel::~QItemSelectionModel()
 */
 void QItemSelectionModel::select(const QModelIndex &index, QItemSelectionModel::SelectionFlags command)
 {
-    if (index.isValid()) {
-        QItemSelection selection(index, index);
-        select(selection, command);
-    }
+    QItemSelection selection(index, index);
+    select(selection, command);
 }
 
 /*!

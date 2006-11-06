@@ -2974,7 +2974,7 @@ QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(const QM
         case NoSelection: // Never update selection model
             return QItemSelectionModel::NoUpdate;
         case SingleSelection: // ClearAndSelect on valid index otherwise NoUpdate
-            if (!d->isIndexValid(index) || (event && event->type() == QEvent::MouseButtonRelease))
+            if (event && event->type() == QEvent::MouseButtonRelease)
                 return QItemSelectionModel::NoUpdate;
             return QItemSelectionModel::ClearAndSelect|d->selectionBehaviorFlags();
         case MultiSelection:
@@ -2990,8 +2990,7 @@ QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(const QM
 QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::multiSelectionCommand(
     const QModelIndex &index, const QEvent *event) const
 {
-    if (!index.isValid())
-        return QItemSelectionModel::NoUpdate;
+    Q_UNUSED(index);
 
     if (event) {
         switch (event->type()) {
