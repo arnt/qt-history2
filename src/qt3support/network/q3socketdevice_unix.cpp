@@ -166,7 +166,7 @@ int Q3SocketDevice::createNewSocket()
     (This function ignores errors; if there are any then a file
     descriptor leakage might result. As far as we know, the only error
     that can arise is EBADF, and that would of course not cause
-    leakage. There may be OS-specfic errors that we haven't come
+    leakage. There may be OS-specific errors that we haven't come
     across, however.)
 
     \sa open()

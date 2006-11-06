@@ -137,8 +137,8 @@
 #endif
 
 #if defined(Q_OS_DARWIN)
-#  define Q_OS_MAC /* Q_OS_MAC is mostly for compatiblity, but also more clear */
-#  define Q_OS_MACX /* Q_OS_MACX is only for compatiblity.*/
+#  define Q_OS_MAC /* Q_OS_MAC is mostly for compatibility, but also more clear */
+#  define Q_OS_MACX /* Q_OS_MACX is only for compatibility.*/
 #endif
 
 #if defined(Q_OS_MSDOS) || defined(Q_OS_OS2) || defined(Q_OS_WIN)

@@ -786,7 +786,7 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
   \i Qt::WA_WState_InPaintEvent Currently processing a paint event.
   \i Qt::WA_WState_Reparented The widget has been reparented.
   \i Qt::WA_WState_ConfigPending A configuration (resize/move) event is pending.
-  \i Qt::WA_WState_DND The widget supports drag and drop, see setAcceptDrops(). ### depricated
+  \i Qt::WA_WState_DND (Deprecated) The widget supports drag and drop, see setAcceptDrops().
   \endlist
 */
 
@@ -4979,7 +4979,7 @@ void QWidgetPrivate::show_helper()
 
 
     // popup handling: new popups and tools need to be raised, and
-    // exisiting popups must be closed. Also propagate the current
+    // existing popups must be closed. Also propagate the current
     // windows's KeyboardFocusChange status.
     if (q->isWindow()) {
         if ((q->windowType() == Qt::Tool) || (q->windowType() == Qt::Popup) || q->windowType() == Qt::ToolTip) {
@@ -7821,7 +7821,7 @@ void QWidget::updateMicroFocus()
     Returns the window system handle of the widget, for low-level
     access. Using this function is not portable.
 
-    An HDC aquired with getDC() has to be released with releaseDC().
+    An HDC acquired with getDC() has to be released with releaseDC().
 
     \warning Using this function is not portable.
 */
@@ -7834,7 +7834,7 @@ HDC QWidget::getDC() const
 }
 
 /*!
-    Releases the HDC \a hdc aquired by a previous call to getDC().
+    Releases the HDC \a hdc acquired by a previous call to getDC().
 
     \warning Using this function is not portable.
 */

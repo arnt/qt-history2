@@ -2046,7 +2046,7 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 		dispParams.rgdispidNamedArgs = 0;
 		dispParams.rgvarg = 0;
 
-		if (pcount) // Use malloc/free for eval package compability
+		if (pcount) // Use malloc/free for eval package compatibility
 		    dispParams.rgvarg = (VARIANTARG*)malloc(pcount * sizeof(VARIANTARG));
 		int p = 0;
 		for (p = 0; p < pcount; ++p) {

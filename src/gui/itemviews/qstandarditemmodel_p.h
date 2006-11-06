@@ -80,9 +80,9 @@ public:
             while (!stack.isEmpty()) {
                 QStandardItem *itm = stack.pop();
                 itm->d_func()->model = mod;
-                const QVector<QStandardItem*> &childs = itm->d_func()->children;
-                for (int i = 0; i < childs.count(); ++i) {
-                    QStandardItem *chi = childs.at(i);
+                const QVector<QStandardItem*> &childList = itm->d_func()->children;
+                for (int i = 0; i < childList.count(); ++i) {
+                    QStandardItem *chi = childList.at(i);
                     if (chi)
                         stack.push(chi);
                 }

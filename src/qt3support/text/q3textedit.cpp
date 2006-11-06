@@ -2027,7 +2027,7 @@ void Q3TextEdit::viewportResizeEvent(QResizeEvent *e)
 
 void Q3TextEdit::ensureCursorVisible()
 {
-    // Not visible or the user is draging the window, so don't position to caret yet
+    // Not visible or the user is dragging the window, so don't position to caret yet
     if (!updatesEnabled() || !isVisible() || isHorizontalSliderPressed() || isVerticalSliderPressed()) {
         d->ensureCursorVisibleInShowEvent = true;
         return;
@@ -6088,7 +6088,7 @@ Q3TextEditOptimPrivate::Tag *Q3TextEdit::optimInsertTag(int line, int index, con
     QMap<int,Q3TextEditOptimPrivate::Tag *>::ConstIterator it;
     if ((it = d->od->tagIndex.constFind(LOGOFFSET(line))) != d->od->tagIndex.constEnd()) {
         tmp = *it;
-        if (tmp->index >= index) { // the exisiting tag may be placed AFTER the one we want to insert
+        if (tmp->index >= index) { // the existing tag may be placed AFTER the one we want to insert
             tmp = tmp->prev;
         } else {
             while (tmp && tmp->next && tmp->next->line == line && tmp->next->index <= index)

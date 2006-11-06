@@ -575,7 +575,7 @@ QImageData::~QImageData()
 
     The mirrored() function returns a mirror of the image in the
     desired direction, the scaled() returns a copy of the image scaled
-    to a rectangle of the desired measures, the rgbSwapped() fucntion
+    to a rectangle of the desired measures, the rgbSwapped() function
     constructs a BGR image from a RGB image, and the alphaChannel()
     function constructs an image from this image's alpha channel.
 
@@ -4565,7 +4565,7 @@ void QImage::setText(const char* key, const char* lang, const QString& s)
 /*!
     \internal
 
-    Used by QPainter to retreive a paint engine for the image.
+    Used by QPainter to retrieve a paint engine for the image.
 */
 
 QPaintEngine *QImage::paintEngine() const

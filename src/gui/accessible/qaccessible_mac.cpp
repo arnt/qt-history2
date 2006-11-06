@@ -525,7 +525,7 @@ uint qHash(QAXUIElement element)
     child identifier, and the identity of a AXUIelementRef is determined by its
     HIObjectRef and identifier.
 
-    QAccessibleHierarchyManager recieves QObject::destroyed signals and deletes
+    QAccessibleHierarchyManager receives QObject::destroyed() signals and deletes
     the accessibility objects for destroyed objects.
 */
 class QAccessibleHierarchyManager : public QObject
@@ -764,7 +764,7 @@ static bool qt_mac_append_cf_uniq(CFMutableArrayRef array, CFTypeRef value)
 }
 
 /*
-    Gets the AccessibleObject paramter from an event.
+    Gets the AccessibleObject parameter from an event.
 */
 static inline AXUIElementRef getAccessibleObjectParameter(EventRef event)
 {
@@ -776,7 +776,7 @@ static inline AXUIElementRef getAccessibleObjectParameter(EventRef event)
 
 /*
     Returns an AXUIElementRef for the given child index of interface. Creates the element
-    if neccesary. Returns 0 if there is no child at that index. childIndex is 1-based.
+    if necessary. Returns 0 if there is no child at that index. childIndex is 1-based.
 */
 static AXUIElementRef lookupCreateChild(const QInterfaceItem interface, const int childIndex)
 {

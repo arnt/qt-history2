@@ -985,7 +985,7 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
         }
 
         // first, we diddle the event so that we can deliver
-        // it, and that noone will try to touch it later.
+        // it, and that no one will try to touch it later.
         pe.event->posted = false;
         QEvent * e = pe.event;
         QObject * r = pe.receiver;

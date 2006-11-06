@@ -199,7 +199,7 @@ QAbstractFileEngine *QAbstractFileEngine::create(const QString &fileName)
     isRelativePath(), fileFlags(), ownerId(), owner(), and fileTime()
     functions are applicable.
 
-    A QAbstractFileEngine subclass can be created to do syncronous network I/O
+    A QAbstractFileEngine subclass can be created to do synchronous network I/O
     based file system operations, local file system operations, or to operate
     as a resource system to access file based resources.
 

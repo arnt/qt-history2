@@ -205,7 +205,7 @@ static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* d
 /*!
     Constructs a date with year \a y, month \a m and day \a d.
 
-    If the specfied date is invalid, the date is not set and
+    If the specified date is invalid, the date is not set and
     isValid() returns false. Any date before 2 January 4713 B.C. is
     considered invalid.
 
@@ -717,7 +717,7 @@ bool QDate::setYMD(int y, int m, int d)
     Sets the date's \a year, \a month, and \a day. Returns true if
     the date is valid; otherwise returns false.
 
-    If the specfied date is invalid, the QDate object is set to be
+    If the specified date is invalid, the QDate object is set to be
     invalid. Any date before 2 January 4713 B.C. is considered
     invalid.
 
@@ -1365,8 +1365,8 @@ QString QTime::toString(Qt::DateFormat f) const
          \i the hour with a leading zero (00 to 23, even with AM/PM display)
     \row \i m \i the minute without a leading zero (0 to 59)
     \row \i mm \i the minute with a leading zero (00 to 59)
-    \row \i s \i the second whithout a leading zero (0 to 59)
-    \row \i ss \i the second whith a leading zero (00 to 59)
+    \row \i s \i the second without a leading zero (0 to 59)
+    \row \i ss \i the second with a leading zero (00 to 59)
     \row \i z \i the milliseconds without leading zeroes (0 to 999)
     \row \i zzz \i the milliseconds with leading zeroes (000 to 999)
     \row \i AP or A
@@ -1627,8 +1627,8 @@ QTime QTime::fromString(const QString& s, Qt::DateFormat f)
          \i the hour with a leading zero (00 to 23 or 01 to 12 if AM/PM display)
     \row \i m \i the minute without a leading zero (0 to 59)
     \row \i mm \i the minute with a leading zero (00 to 59)
-    \row \i s \i the second whithout a leading zero (0 to 59)
-    \row \i ss \i the second whith a leading zero (00 to 59)
+    \row \i s \i the second without a leading zero (0 to 59)
+    \row \i ss \i the second with a leading zero (00 to 59)
     \row \i z \i the milliseconds without leading zeroes (0 to 999)
     \row \i zzz \i the milliseconds with leading zeroes (000 to 999)
     \row \i AP
@@ -2200,8 +2200,8 @@ QString QDateTime::toString(Qt::DateFormat f) const
          \i the hour with a leading zero (00 to 23 or 01 to 12 if AM/PM display)
     \row \i m \i the minute without a leading zero (0 to 59)
     \row \i mm \i the minute with a leading zero (00 to 59)
-    \row \i s \i the second whithout a leading zero (0 to 59)
-    \row \i ss \i the second whith a leading zero (00 to 59)
+    \row \i s \i the second without a leading zero (0 to 59)
+    \row \i ss \i the second with a leading zero (00 to 59)
     \row \i z \i the milliseconds without leading zeroes (0 to 999)
     \row \i zzz \i the milliseconds with leading zeroes (000 to 999)
     \row \i AP
@@ -2648,8 +2648,8 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
             \i the hour with a leading zero (00 to 23, even with AM/PM display)
     \row \i m \i the minute without a leading zero (0 to 59)
     \row \i mm \i the minute with a leading zero (00 to 59)
-    \row \i s \i the second whithout a leading zero (0 to 59)
-    \row \i ss \i the second whith a leading zero (00 to 59)
+    \row \i s \i the second without a leading zero (0 to 59)
+    \row \i ss \i the second with a leading zero (00 to 59)
     \row \i z \i the milliseconds without leading zeroes (0 to 999)
     \row \i zzz \i the milliseconds with leading zeroes (000 to 999)
     \row \i AP or A

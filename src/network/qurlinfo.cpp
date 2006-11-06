@@ -343,7 +343,7 @@ void QUrlInfo::setSize(qint64 size)
 }
 
 /*!
-    Specifies that the URL has access permisions, \a p.
+    Specifies that the URL has access permissions \a p.
 
     If you call this function for an invalid URL info, this function
     turns it into a valid one.

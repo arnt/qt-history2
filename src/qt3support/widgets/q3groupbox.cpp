@@ -353,10 +353,10 @@ void Q3GroupBox::setColumnLayout(int strips, Qt::Orientation direction)
     d->vbox->addLayout(d->grid);
 
     // Add all children
-    QObjectList childs = children();
-    if (!childs.isEmpty()) {
-        for (int i = 0; i < childs.size(); ++i) {
-            QObject *o = childs.at(i);
+    QObjectList childList = children();
+    if (!childList.isEmpty()) {
+        for (int i = 0; i < childList.size(); ++i) {
+            QObject *o = childList.at(i);
             if (o->isWidgetType() && o != d->checkbox)
                 insertWid(static_cast<QWidget *>(o));
         }

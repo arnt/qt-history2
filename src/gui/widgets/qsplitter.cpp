@@ -1177,7 +1177,7 @@ int QSplitter::count() const
 
     This method is also used to handle the situation where a widget is created
     with the splitter as a parent but not explicitly added with insertWidget()
-    or addWidget(). This is for compatiblity and not the recommended way of
+    or addWidget(). This is for compatibility and not the recommended way of
     putting widgets into a splitter in new code. Please use insertWidget() or
     addWidget() in new code.
 

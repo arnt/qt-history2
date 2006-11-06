@@ -893,7 +893,7 @@ void *QLibrary::resolve(const QString &fileName, int verNum, const char *symbol)
 /*!
     \since 4.2
 
-    Returns a text string with the description of the last error that occured.
+    Returns a text string with the description of the last error that occurred.
     Currently, errorString will only be set if load(), unload() or resolve() for some reason fails.
 */
 QString QLibrary::errorString() const

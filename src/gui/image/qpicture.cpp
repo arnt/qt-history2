@@ -1280,7 +1280,7 @@ static QPictureHandler *get_picture_handler(const char *format)
     \skipto add
     \printuntil ...
 
-    Before the regulare expression test, all the 0 bytes in the file header are
+    Before the regular expression test, all the 0 bytes in the file header are
     converted to 1 bytes. This is done because when Qt was ASCII-based, QRegExp
     could not handle 0 bytes in strings.
 

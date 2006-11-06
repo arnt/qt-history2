@@ -1019,7 +1019,7 @@ struct QOCIBatchCleanupHandler
 
     ~QOCIBatchCleanupHandler()
     {
-        // deleting storage, lenght and indicator arrays
+        // deleting storage, length and indicator arrays
         for ( int j = 0; j < col.count(); ++j){
             delete[] col[j].lengths;
             delete[] col[j].indicators;

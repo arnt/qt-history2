@@ -1461,7 +1461,7 @@ bool QPdfBaseEnginePrivate::openPrintDevice()
                 }
                 lprargs[i] = 0;
 
-                // if the CUPS is available we expect lpr arround
+                // if the CUPS is available we expect lpr around
                 (void)execvp( "lpr", lprargs );
                 (void)execv( "/bin/lpr", lprargs);
                 (void)execv( "/usr/bin/lpr", lprargs);

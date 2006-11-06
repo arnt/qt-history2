@@ -408,7 +408,7 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
         return false;
     action->action->activate(action_e);
 
-    //now walk up firing for each "caused" widget (like in the platform independant menu)
+    //now walk up firing for each "caused" widget (like in the platform independent menu)
     QWidget *caused = 0;
     if (GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyCausedQWidget, sizeof(caused), 0, &caused) == noErr) {
         MenuRef caused_menu = 0;

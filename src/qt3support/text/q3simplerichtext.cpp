@@ -271,7 +271,7 @@ int Q3SimpleRichText::height() const
 }
 
 /*!
-    Adjusts the richt text object to a reasonable size.
+    Adjusts the rich text object to a reasonable size.
 
     \sa setWidth()
 */

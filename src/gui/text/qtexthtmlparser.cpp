@@ -120,7 +120,7 @@ static const struct QTextHtmlEntity { const char *name; quint16 code; } entities
     { "copy", 0x00a9 },
     { "crarr", 0x21b5 },
     { "cup", 0x222a },
-    { "curren", 0x00a4 },
+    { "cur" "ren", 0x00a4 },
     { "dArr", 0x21d3 },
     { "dagger", 0x2020 },
     { "darr", 0x2193 },

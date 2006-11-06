@@ -2324,7 +2324,7 @@ void QWorkspace::tile()
 }
 
 /*!
-    Arranges all iconized windows at the bottom of the workspace.
+    Arranges all iconified windows at the bottom of the workspace.
 
     \sa cascade(), tile()
 */

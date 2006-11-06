@@ -993,7 +993,7 @@ QString Q3SqlCursor::toString(const QSqlIndex& i, QSqlRecord* rec, const QString
     \endcode
 
     In the above example, a cursor is created on the 'prices' table
-    and a pointer to the insert buffer is aquired using primeInsert().
+    and a pointer to the insert buffer is acquired using primeInsert().
     Each field's value is set to the desired value and then insert()
     is called to insert the data into the database. Remember: all edit
     operations (insert(), update() and delete()) operate on the

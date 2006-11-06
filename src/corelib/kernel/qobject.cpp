@@ -730,7 +730,7 @@ QObject::~QObject()
           holding the postEventList.mutex for the object's thread,
           but since we hold the QObjectPrivate::readWriteLock(),
           nothing can go into QCoreApplication::postEvent(), which
-          effectively means noone can post new events, which is what
+          effectively means no one can post new events, which is what
           we are trying to prevent. this means we can safely check
           d->postedEvents, since we are fairly sure it will not
           change (it could, but only by decreasing, i.e. removing

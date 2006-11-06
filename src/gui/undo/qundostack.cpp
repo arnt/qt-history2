@@ -131,7 +131,7 @@ QUndoCommand::~QUndoCommand()
     A command ID is used in command compression. It must be an integer unique to
     this command's class, or -1 if the command doesn't support compression.
 
-    If the command supports compression this function must be overriden in the
+    If the command supports compression this function must be overridden in the
     derived class to return the correct ID. The base implementation returns -1.
 
     QUndoStack will only try to merge two commands if they have the same ID, and

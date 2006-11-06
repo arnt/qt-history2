@@ -1344,8 +1344,8 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         opt.rect = primitive;
 
         const bool expanded = viewItem.expanded;
-        const bool children = (((expanded && viewItem.total > 0)) // already layed out and has children
-                                || d->hasVisibleChildren(index)); // not layed out yet, so we don't know
+        const bool children = (((expanded && viewItem.total > 0)) // already laid out and has children
+                                || d->hasVisibleChildren(index)); // not laid out yet, so we don't know
         bool moreSiblings = false;
         if (d->hiddenIndexes.isEmpty())
             moreSiblings = (d->model->rowCount(parent) - 1 > index.row());
@@ -2204,7 +2204,7 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
         start = d->header->logicalIndexAt(0);
         end = d->header->logicalIndexAt(viewport()->width());
     } else {
-        // If the header has not been layed out yet, we use the model directly
+        // If the header has not been laid out yet, we use the model directly
         count = d->model->columnCount(index.parent());
     }
 

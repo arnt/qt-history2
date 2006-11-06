@@ -921,7 +921,7 @@ void QTextTable::mergeCells(const QTextCursor &cursor)
 /*!
     \since 4.1
 
-    Splits the specfied cell at \a row and \a column into an array of multiple
+    Splits the specified cell at \a row and \a column into an array of multiple
     cells with dimensions specified by \a numRows and \a numCols.
 */
 void QTextTable::splitCell(int row, int column, int numRows, int numCols)

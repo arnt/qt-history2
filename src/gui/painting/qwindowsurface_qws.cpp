@@ -156,7 +156,7 @@ public:
 /*!
     \fn const QByteArray QWSWindowSurface::data() const
 
-    Returns a QByteArray containing whatever data neccessary for creating a
+    Returns a QByteArray containing whatever data necessary for creating a
     server-side representation of the surface.
 */
 
@@ -338,7 +338,7 @@ void QWSWindowSurface::setSurfaceFlags(SurfaceFlags flags)
 /*!
     Set the geometry on the surface to \a rect.
 
-    This function is called whenever the area neccessary for the top-level
+    This function is called whenever the area necessary for the top-level
     window to be drawn is changed. The default implementation will communicate
     the geometry to the Qtopia Core GUI server and mark it as dirty.
 */

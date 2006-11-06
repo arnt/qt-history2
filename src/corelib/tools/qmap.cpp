@@ -171,7 +171,8 @@ void QMapData::dump()
     differences are:
 
     \list
-    \i QHash provides faster lookups than QMap.
+    \i QHash provides faster lookups than QMap. (See \l{Algorithmic
+       Complexity} for details.)
     \i When iterating over a QHash, the items are arbitrarily ordered.
        With QMap, the items are always sorted by key.
     \i The key type of a QHash must provide operator==() and a global

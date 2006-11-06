@@ -911,7 +911,7 @@ void Q3DataBrowser::clearValues()
     performs an insert on the default cursor. If there is no default
     form or no default cursor, nothing happens. If an error occurred
     during the insert into the database, handleError() is called and
-    false is returned. If the insert was successfull, the cursor is
+    false is returned. If the insert was successful, the cursor is
     refreshed and relocated to the newly inserted record, the
     cursorChanged() signal is emitted, and true is returned.
 
@@ -949,7 +949,7 @@ bool Q3DataBrowser::insertCurrent()
     performs an update on the default cursor. If there is no default
     form or no default cursor, nothing happens. If an error occurred
     during the update on the database, handleError() is called and
-    false is returned. If the update was successfull, the cursor is
+    false is returned. If the update was successful, the cursor is
     refreshed and relocated to the updated record, the cursorChanged()
     signal is emitted, and true is returned.
 
@@ -1214,7 +1214,7 @@ QSql::Confirm Q3DataBrowser::confirmEdit(QSql::Op m)
 
 /*!
     Protected virtual function which returns a confirmation for
-    cancelling an edit mode \a m. Derived classes can reimplement this
+    canceling an edit mode \a m. Derived classes can reimplement this
     function and provide their own confirmation dialog. The default
     implementation uses a message box which prompts the user to
     confirm the edit action.

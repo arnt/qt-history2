@@ -602,7 +602,7 @@ QByteArray QAxEventSink::findProperty(DISPID dispID)
 /*!
     \class QAxBase
     \brief The QAxBase class is an abstract class that provides an API
-    to initalize and access a COM object.
+    to initialize and access a COM object.
 
     \inmodule QAxContainer
 

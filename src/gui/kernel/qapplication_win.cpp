@@ -1915,7 +1915,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         case WT_PACKET:
             if (ptrWTPacketsGet) {
                 if ((nPackets = ptrWTPacketsGet(qt_tablet_context, QT_TABLET_NPACKETQSIZE, &localPacketBuf))) {
-                    if (!qt_button_down) // flush the Queue but dont send the events if the mouse is down
+                    if (!qt_button_down) // flush the queue but don't send the events if the mouse is down
                         result = widget->translateTabletEvent(msg, localPacketBuf, nPackets);
                 }
             }

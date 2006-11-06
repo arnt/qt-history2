@@ -340,7 +340,7 @@ QString QSqlDriver::escapeIdentifier(const QString &identifier, IdentifierType) 
     string will contain placeholders instead of values.
 
     This method can be used to manipulate tables without having to worry
-    about database-dependend SQL dialects. For non-prepared statements,
+    about database-dependent SQL dialects. For non-prepared statements,
     the values will be properly escaped.
 */
 QString QSqlDriver::sqlStatement(StatementType type, const QString &tableName,

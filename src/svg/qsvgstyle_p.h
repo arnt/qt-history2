@@ -236,7 +236,7 @@ public:
     void setPointSize(qreal size);
     qreal pointSize() const;
 
-    //### hack to avoid having a seperate style element for text-anchor
+    //### hack to avoid having a separate style element for text-anchor
     QString textAnchor() const;
     void setTextAnchor(const QString &anchor);
 

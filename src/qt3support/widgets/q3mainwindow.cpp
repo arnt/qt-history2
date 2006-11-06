@@ -234,15 +234,15 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *e) {
-        QObjectList childs = children();
-        if (childs.isEmpty())
+        QObjectList childList = children();
+        if (childList.isEmpty())
             return;
         QPainter p(this);
         p.setClipRegion(e->rect());
         p.fillRect(e->rect(), palette().brush(QPalette::Window));
         int x = 0;
-        for (int i = 0; i < childs.size(); ++i) {
-            QObject *o = childs.at(i);
+        for (int i = 0; i < childList.size(); ++i) {
+            QObject *o = childList.at(i);
             Q3DockWindow *dw = qobject_cast<Q3DockWindow*>(o);
             if (!dw || !dw->isVisible())
                 continue;
@@ -262,8 +262,8 @@ protected:
 
     void mousePressEvent(QMouseEvent *e) {
         pressed = true;
-        QObjectList childs = children();
-        if (childs.isEmpty())
+        QObjectList childList = children();
+        if (childList.isEmpty())
             return;
         mouseMoveEvent(e);
         pressedHandle = -1;
@@ -276,15 +276,15 @@ protected:
     }
 
     void mouseMoveEvent(QMouseEvent *e) {
-        QObjectList childs = children();
-        if (childs.isEmpty())
+        QObjectList childList = children();
+        if (childList.isEmpty())
             return;
         if (!pressed)
             return;
         int x = 0;
         if (e->y() >= 0 && e->y() <= height()) {
-            for (int i = 0; i < childs.size(); ++i) {
-                QObject *o = childs.at(i);
+            for (int i = 0; i < childList.size(); ++i) {
+                QObject *o = childList.at(i);
                 Q3DockWindow *dw = qobject_cast<Q3DockWindow*>(o);
                 if (!dw || !dw->isVisible())
                     continue;
@@ -308,12 +308,12 @@ protected:
         pressed = false;
         if (pressedHandle == -1)
             return;
-        QObjectList childs = children();
-        if (childs.isEmpty())
+        QObjectList childList = children();
+        if (childList.isEmpty())
             return;
         if (e->button() == Qt::LeftButton) {
             if (e->y() >= 0 && e->y() <= height()) {
-                QObject *o = childs.at(pressedHandle);
+                QObject *o = childList.at(pressedHandle);
                 Q3DockWindow *dw = qobject_cast<Q3DockWindow*>(o);
                 if (dw) {
                     dw->show();
@@ -336,11 +336,11 @@ protected:
 
     void updateState() {
         bool visible = true;
-        QObjectList childs = children();
-        if (childs.isEmpty())
+        QObjectList childList = children();
+        if (childList.isEmpty())
             return;
-        for (int i = 0; i < childs.size(); ++i) {
-            QObject *o = childs.at(i);
+        for (int i = 0; i < childList.size(); ++i) {
+            QObject *o = childList.at(i);
             Q3DockWindow *dw = qobject_cast<Q3DockWindow*>(o);
             if (!dw)
                 continue;
@@ -1782,9 +1782,9 @@ QList<Q3DockWindow *> Q3MainWindow::dockWindows(Qt::Dock dock) const
     }
     return lst;
     case Qt::DockMinimized: {
-        QObjectList childs = d->hideDock->children();
-        for (int i = 0; i < childs.size(); ++i) {
-            Q3DockWindow *dw = qobject_cast<Q3DockWindow*>(childs.at(i));
+        QObjectList childList = d->hideDock->children();
+        for (int i = 0; i < childList.size(); ++i) {
+            Q3DockWindow *dw = qobject_cast<Q3DockWindow*>(childList.at(i));
             if (dw)
                 lst.append(dw);
         }

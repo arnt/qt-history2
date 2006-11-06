@@ -600,7 +600,7 @@
 
     This enum describes the messages that can be sent to a message
     handler (QtMsgHandler). You can use the enum to identify and
-    associate the various message types with the appropiate
+    associate the various message types with the appropriate
     actions.
 
     \value QtDebugMsg

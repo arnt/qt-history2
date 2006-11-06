@@ -128,7 +128,7 @@ const ppd_file_t* QCUPSSupport::setCurrentPrinter(int index)
     // marking default options
     _ppdMarkDefaults(currPPD);
 
-    // marking options explicitely set
+    // marking options explicitly set
     _cupsMarkOptions(currPPD, printers[currPrinterIndex].num_options, printers[currPrinterIndex].options);
 
     // getting pointer to page sizes

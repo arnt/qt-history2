@@ -909,7 +909,7 @@ void QToolBar::childEvent(QChildEvent *event)
             if (item.widget == widget
                 && (widgetAction = qobject_cast<QWidgetAction *>(item.action))) {
                 removeAction(widgetAction);
-                // ### should we delete the action, or is it the programmers reponsibility?
+                // ### should we delete the action, or is it the programmer's responsibility?
                 // delete widgetAction;
             }
         }

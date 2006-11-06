@@ -906,7 +906,7 @@ QSql::Confirm Q3DataManager::confirmEdit(QWidget* parent, QSql::Op m)
 
 /*!  \internal
 
-  Virtual function which returns a confirmation for cancelling an edit
+  Virtual function which returns a confirmation for canceling an edit
   mode \a m.  Derived classes can reimplement this function and
   provide their own confirmation dialog.  The default implementation
   uses a message box which prompts the user to confirm the edit

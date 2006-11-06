@@ -616,7 +616,7 @@ QKeyMapperPrivate::translateKeyEvent(QWidget *widget, EventHandlerCallRef er, Ev
     switch(eclass)
     {
     case kEventClassKeyboard: {
-        // unfortunatly modifiers changed event looks quite different, so I have a separate
+        // unfortunately modifiers changed event looks quite different, so I have a separate
         // code path
         if(ekind == kEventRawKeyModifiersChanged) {
             //figure out changed modifiers, wish Apple would just send a delta

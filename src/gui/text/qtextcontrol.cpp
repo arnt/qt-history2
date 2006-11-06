@@ -1059,8 +1059,8 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
     }
 
     // schedule a repaint of the region of the cursor, as when we move it we
-    // want to make sure the old cursor disappears (not noticable when moving
-    // only a few pixels but noticable when jumping between cells in tables for
+    // want to make sure the old cursor disappears (not noticeable when moving
+    // only a few pixels but noticeable when jumping between cells in tables for
     // example)
     repaintSelection();
 

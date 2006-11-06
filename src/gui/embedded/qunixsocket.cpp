@@ -89,7 +89,7 @@ struct QUnixSocketRightsPrivate : public QSharedData
 };
 
 /*!
-  Create a new QUnixSocketRights instance containing the file desciptor \a fd.
+  Create a new QUnixSocketRights instance containing the file descriptor \a fd.
   \a fd will be dup(2)'d internally, so the application is free to close \a fd
   following this call.
 
@@ -1147,7 +1147,7 @@ void QUnixSocket::flush()
 }
 
 /*!
-  Returns the last error to have occured on this object.  This method is not
+  Returns the last error to have occurred on this object.  This method is not
   destructive, so multiple calls to QUnixSocket::error() will return the same
   value.  The error is only reset by a call to \l QUnixSocket::connect() or
   \l QUnixSocket::abort()
@@ -1203,7 +1203,7 @@ qint64 QUnixSocket::bytesToWrite() const
   \l QUnixSocket::bytesAvailable() and will always be greater than zero.  By
   default, the read buffer size is 1024 bytes.
 
-  The size of the read buffer is independant of the rights buffer, which can be
+  The size of the read buffer is independent of the rights buffer, which can be
   queried by \l QUnixSocket::rightsBufferSize().
 
   \sa QUnixSocket::setReadBufferSize()
@@ -1216,7 +1216,7 @@ qint64 QUnixSocket::readBufferSize() const
 /*!
   Sets the \a size of the socket's read buffer in bytes.
 
-  The size of the read buffer is independant of the rights buffer, which can be
+  The size of the read buffer is independent of the rights buffer, which can be
   set by \l QUnixSocket::setRightsBufferSize().
 
   Attempting to reduce the buffer size while bytes are available for reading
@@ -1245,7 +1245,7 @@ void QUnixSocket::setReadBufferSize(qint64 size)
   \l QUnixSocketMessage::rightsWereTruncated() flag will be set.  By default
   the rights buffer size is 0 entries - rights data cannot be received.
 
-  The size of the rights buffer is independant of the read buffer, which can be
+  The size of the rights buffer is independent of the read buffer, which can be
   queried by \l QUnixSocket::readBufferSize().
 
   \sa QUnixSocket::setRightsBufferSize()
@@ -1258,7 +1258,7 @@ qint64 QUnixSocket::rightsBufferSize() const
 /*!
   Sets the \a size of the socket's rights buffer in rights entries.
 
-  The size of the rights buffer is independant of the read buffer, which can be
+  The size of the rights buffer is independent of the read buffer, which can be
   set by \l QUnixSocket::setReadBufferSize().
 
   Attempting to reduce the buffer size while bytes are available for reading

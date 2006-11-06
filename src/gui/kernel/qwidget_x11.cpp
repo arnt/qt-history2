@@ -725,9 +725,9 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
     d->deactivateWidgetCleanup();
     if (testAttribute(Qt::WA_WState_Created)) {
         setAttribute(Qt::WA_WState_Created, false);
-        QObjectList childs = children();
-        for (int i = 0; i < childs.size(); ++i) { // destroy all widget children
-            register QObject *obj = childs.at(i);
+        QObjectList childList = children();
+        for (int i = 0; i < childList.size(); ++i) { // destroy all widget children
+            register QObject *obj = childList.at(i);
             if (obj->isWidgetType())
                 static_cast<QWidget*>(obj)->destroy(destroySubWindows,
                                                     destroySubWindows);

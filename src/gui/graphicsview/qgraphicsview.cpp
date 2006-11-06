@@ -738,11 +738,11 @@ void QGraphicsView::setDragMode(DragMode mode)
     \brief which parts of the view are cached
 
     QGraphicsView can cache pre-rendered content in a QPixmap, which is then
-    drawn onto the viewport. The purpose of such cacheing is to speed up the
+    drawn onto the viewport. The purpose of such caching is to speed up the
     total rendering time for areas that are slow to render.  Texture, gradient
     and alpha blended backgrounds, for example, can be notibly slow to render;
     especially with a transformed view. The CacheBackground flag enables
-    cacheing of the view's background. For example:
+    caching of the view's background. For example:
 
     \code
         QGraphicsView view;
@@ -791,11 +791,11 @@ void QGraphicsView::resetCachedContent()
         return;
 
     if (d->cacheMode & CacheBackground) {
-        // Background cacheing is enabled.
+        // Background caching is enabled.
         d->mustResizeBackgroundPixmap = true;
         viewport()->update();
     } else if (d->mustResizeBackgroundPixmap) {
-        // Background cacheing is disabled.
+        // Background caching is disabled.
         // Cleanup, free some resources.
         d->mustResizeBackgroundPixmap = false;
         d->backgroundPixmap = QPixmap();

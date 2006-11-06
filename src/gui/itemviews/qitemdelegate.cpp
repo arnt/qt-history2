@@ -1040,7 +1040,7 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
     } else if (event->type() == QEvent::FocusOut) {
         if (!editor->isActiveWindow() || (QApplication::focusWidget() != editor)) {
             QWidget *w = QApplication::focusWidget();
-            while (w) { // dont worry about focus changes internally in the editor
+            while (w) { // don't worry about focus changes internally in the editor
                 if (w == editor)
                     return false;
                 w = w->parentWidget();

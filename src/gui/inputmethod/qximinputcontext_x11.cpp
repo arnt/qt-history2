@@ -18,7 +18,7 @@
 ** Copyright (C) 2003-2004 immodule for Qt Project.  All rights reserved.
 **
 ** This file is written to contribute to $TROLLTECH$ under their own
-** licence. You may use this file under your Qt license. Following
+** license. You may use this file under your Qt license. Following
 ** description is copied from their original file headers. Contact
 ** immodule-qt@freedesktop.org if any conditions of this licensing are
 ** not clear to you.
@@ -675,7 +675,6 @@ QXIMInputContext::ICData *QXIMInputContext::createICData(QWidget *w)
                                            (char *) 0);
     }
 
-    Q_ASSERT(w->testAttribute(Qt::WA_WState_Created));
     if (preedit_attr) {
         data->ic = XCreateIC(xim,
                              XNInputStyle, xim_style,

@@ -154,7 +154,7 @@ struct QGradientBrushData : public QBrushData
     (depending on how you construct a brush). This style tells the
     painter to not fill shapes. The standard style for filling is
     Qt::SolidPattern. The style can be set when the brush is created
-    using the appropiate constructor, and in addition the setStyle()
+    using the appropriate constructor, and in addition the setStyle()
     function provides means for altering the style once the brush is
     constructed.
 
@@ -170,7 +170,7 @@ struct QGradientBrushData : public QBrushData
     style is either Qt::LinearGradientPattern,
     Qt::RadialGradientPattern or Qt::ConicalGradientPattern. The
     gradient can only be set when constructing the brush, while the
-    texture() can be set using the appropiate constructor or by using
+    texture() can be set using the appropriate constructor or by using
     the setTexture() function. The texture() defines the pixmap used
     when the current style is Qt::TexturePattern.
 

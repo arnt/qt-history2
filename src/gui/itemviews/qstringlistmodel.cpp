@@ -132,7 +132,7 @@ Qt::ItemFlags QStringListModel::flags(const QModelIndex &index) const
 }
 
 /*!
-    Sets the data for the specifed \a role in the item with the given
+    Sets the data for the specified \a role in the item with the given
     \a index in the model, to the provided \a value.
 
     The dataChanged() signal is emitted if the item is changed.

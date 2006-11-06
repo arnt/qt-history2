@@ -274,7 +274,7 @@ void QTransportAuth::registerPolicyReceiver( QObject *pr )
     if ( d->policyReceivers.contains( guard ))
         return;
     d->policyReceivers.append(guard);
-    // not every policy reciever needs setup - no error if this fails
+    // not every policy receiver needs setup - no error if this fails
     QMetaObject::invokeMethod( pr, "setupPolicyCheck" );
     if ( d->buffers.count() > 0 )
     {
@@ -308,12 +308,12 @@ void QTransportAuth::unregisterPolicyReceiver( QObject *pr )
             ++it;
         }
     }
-    // not every policy reciever needs tear down - no error if this fails
+    // not every policy receiver needs tear down - no error if this fails
     QMetaObject::invokeMethod( pr, "teardownPolicyCheck" );
 }
 
 /*!
-  Record a new transport connection with \a properies and \a descriptor.
+  Record a new transport connection with \a properties and \a descriptor.
 */
 QTransportAuth::Data *QTransportAuth::connectTransport( unsigned char properties, int descriptor )
 {
@@ -376,7 +376,7 @@ inline bool QTransportAuth::Data::connection() const
 }
 
 /*!
-  Assert that the transport is connnection oriented
+  Assert that the transport is connection oriented.
 
   \sa connection()
 */
@@ -973,7 +973,7 @@ void QAuthDevice::targetBytesWritten( qint64 bytes )
   Pre-process the message to determine what QWS command it is.  This
   information is used as the "request" for the purposes of authorization.
 
-  The request and other data on the connnection (id, PID etc) are forwarded
+  The request and other data on the connection (id, PID, etc.) are forwarded
   to all policy listeners by emitting a signal.
 
   The signal must be processed synchronously because on return the allow/deny
@@ -1116,7 +1116,7 @@ bool QAuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char 
 
   Otherwise return false.
 
-  If data is being recieved on a socket, it may be that more data is yet
+  If data is being received on a socket, it may be that more data is yet
   needed before authentication can proceed.
 
   Also the message may not be an authenticated at all.

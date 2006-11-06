@@ -1322,7 +1322,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
     case CE_Splitter:
         painter->save();
         {
-            //hover appearence
+            // hover appearance
             QBrush fillColor = option->palette.background().color();
             if (option->state & State_MouseOver && option->state & State_Enabled)
                 fillColor = fillColor.color().light(106);

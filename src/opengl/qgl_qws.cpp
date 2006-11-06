@@ -138,7 +138,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     d->dpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     QT_EGL_CHECK(d->dpy);
 
-    //Display initialization(dont care about the OGLES version numbers)
+    //Display initialization (don't care about the OGLES version numbers)
     if (!eglInitialize(d->dpy, NULL, NULL))
         return false;
 

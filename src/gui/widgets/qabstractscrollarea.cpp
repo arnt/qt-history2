@@ -71,9 +71,9 @@
     QHeaderView widget above or beside the scrolling area.
 
     For convenience, QAbstractScrollArea makes all viewport events available in
-    the virtual viewportEvent() handler.  QWidget's specialised
+    the virtual viewportEvent() handler.  QWidget's specialized
     handlers are remapped to viewport events in the cases where this
-    makes sense. The remapped specialised handlers are: paintEvent(),
+    makes sense. The remapped specialized handlers are: paintEvent(),
     mousePressEvent(), mouseReleaseEvent(), mouseDoubleClickEvent(),
     mouseMoveEvent(), wheelEvent(), dragEnterEvent(), dragMoveEvent(),
     dragLeaveEvent(), dropEvent(), contextMenuEvent().  and
@@ -238,7 +238,7 @@ void QAbstractScrollAreaPrivate::layoutChildren()
     const bool hasCornerWidget = (cornerWidget != 0);
 
 // If the scroll bars are at the very right and bottom of the window we
-// move their positions to be alligned with the size grip.
+// move their positions to be aligned with the size grip.
 #ifdef Q_WS_MAC
     QWidget * const window = q->window();
     // Check if a native sizegrip is present.
@@ -1045,7 +1045,7 @@ void QAbstractScrollArea::dropEvent(QDropEvent *)
     The default implementation simply calls update() on the entire
     viewport(), subclasses can reimplement this handler for
     optimization purposes, or - like QScrollArea - to move a contents
-    widget. The paramters \a dx and \a dy are there for convenience,
+    widget. The parameters \a dx and \a dy are there for convenience,
     so that the class knows how much should be scrolled (useful
     e.g. when doing pixel-shifts). You may just as well ignore these
     values and scroll directly to the position the scroll bars

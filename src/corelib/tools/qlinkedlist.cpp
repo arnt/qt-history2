@@ -37,7 +37,8 @@ QLinkedListData QLinkedListData::shared_null = {
        index-based API is more convenient than QLinkedList's
        iterator-based API, and it is usually faster than
        QVector because of the way it stores its items in
-       memory. It also expands to less code in your executable.
+       memory (see \l{Algorithmic Complexity} for details).
+       It also expands to less code in your executable.
     \i If you need a real linked list, with guarantees of \l{constant
        time} insertions in the middle of the list and iterators to
        items rather than indexes, use QLinkedList.

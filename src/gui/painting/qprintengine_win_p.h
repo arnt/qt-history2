@@ -125,7 +125,7 @@ public:
     QList<QVariant> queryResolutions() const;
 
     /* Resets the DC with changes in devmode. If the printer is active
-       this funciton only sets the reinit variable to true so it
+       this function only sets the reinit variable to true so it
        is handled in the next begin or newpage. */
     void doReinit();
 

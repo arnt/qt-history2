@@ -58,7 +58,7 @@
 
     In order to use this mouse handler, tslib must also be correctly
     installed on the target machine. This includes providing a \c
-    ts.conf configuration file and setting the neccessary environment
+    ts.conf configuration file and setting the necessary environment
     variables, see the README file provided with tslib for details.
 
     The ts.conf file will usually contain the following two lines

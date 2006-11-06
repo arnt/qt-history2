@@ -542,7 +542,7 @@ static bool hebrew_shape(QShaperItem *item)
 #endif
 
 // these groups correspond to the groups defined in the Unicode standard.
-// Some of these groups are equal whith regards to both joining and line breaking behaviour,
+// Some of these groups are equal with regards to both joining and line breaking behaviour,
 // and thus have the same enum value
 //
 // I'm not sure the mapping of syriac to arabic enums is correct with regards to justification, but as
@@ -2980,7 +2980,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
             //
             //      Uniscribe describes some moving operations for these
             //      matras here. For shaping however all pre matras need
-            //      to be at the begining of the syllable, so we just move
+            //      to be at the beginning of the syllable, so we just move
             //      them there now.
             if (matra_position == Split) {
                 splitMatra(uc, matra, len, base);
@@ -3823,7 +3823,7 @@ enum KhmerCharClassFlags {
 };
 
 
-// Characters that get refered to by name
+// Characters that get referred to by name
 enum KhmerChar {
     C_SIGN_ZWNJ     = 0x200C,
     C_SIGN_ZWJ      = 0x200D,
@@ -3883,8 +3883,8 @@ typedef unsigned long KhmerCharClass;
 //  _dr Dependent vowel placed behind the base (right of the base)
 //  _co Khmer combining mark COENG u17D2, combines with the consonant or independent vowel following
 //      it to create a subscript consonant or independent vowel
-//  _va Khmer split vowel in wich the first part is before the base and the second one above the base
-//  _vr Khmer split vowel in wich the first part is before the base and the second one behind (right of) the base
+//  _va Khmer split vowel in which the first part is before the base and the second one above the base
+//  _vr Khmer split vowel in which the first part is before the base and the second one behind (right of) the base
 //
 static const KhmerCharClass khmerCharClasses[] = {
     _c1, _c1, _c1, _c3, _c1, _c1, _c1, _c1, _c3, _c1, _c1, _c1, _c1, _c3, _c1, _c1, // 1780 - 178F
@@ -4914,7 +4914,7 @@ static void myanmar_attributes(int script, const QString &text, int from, int le
 //
 // A standard syllable is of the form L+V+T*. The above rules allow
 // nonstandard syllables L*V*T*. To transform them into standard
-// syllables fill characers L_f and V_f can be inserted.
+// syllables fill characters L_f and V_f can be inserted.
 
 enum {
     Hangul_SBase = 0xac00,

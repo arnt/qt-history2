@@ -50,7 +50,8 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     \list
     \i For most purposes, QList is the right class to use. Operations
        like prepend() and insert() are usually faster than with
-       QVector because of the way QList stores its items in memory,
+       QVector because of the way QList stores its items in memory
+       (see \l{Algorithmic Complexity} for details),
        and its index-based API is more convenient than QLinkedList's
        iterator-based API. It also expands to less code in your
        executable.

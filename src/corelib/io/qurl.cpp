@@ -48,7 +48,7 @@
     Call isValid() to check if the URL is valid. This can be done at
     any point during the constructing of a URL.
 
-    Constructing a query is particularily convenient through the use
+    Constructing a query is particularly convenient through the use
     of setQueryItems(), addQueryItem() and removeQueryItem(). Use
     setQueryDelimiters() to customize the delimiters used for
     generating the query string.
@@ -107,7 +107,7 @@
     characters. In TolerantMode, characters outside this range are
     automatically percent-encoded.
 
-    \o Any occurence of "[" and "]" following the host part of the
+    \o Any occurrence of "[" and "]" following the host part of the
     URL is percent-encoded.
 
     \endlist

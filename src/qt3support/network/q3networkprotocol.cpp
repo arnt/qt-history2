@@ -164,7 +164,7 @@ public:
 /*!
     \fn void Q3NetworkProtocol::createdDirectory( const QUrlInfo &i, Q3NetworkOperation *op )
 
-    This signal is emitted when mkdir() has been succesful and the
+    This signal is emitted when mkdir() has been successful and the
     directory has been created. \a i holds the information about the
     new directory. \a op is the pointer to the operation object which
     contains all the information about the operation, including the
@@ -179,7 +179,7 @@ public:
 /*!
     \fn void Q3NetworkProtocol::removed( Q3NetworkOperation *op )
 
-    This signal is emitted when remove() has been succesful and the
+    This signal is emitted when remove() has been succesiisful and the
     file has been removed. \a op holds the file name of the removed
     file in the first argument, accessible with op->arg( 0 ). \a op is
     the pointer to the operation object which contains all the
@@ -257,7 +257,7 @@ public:
 
     \value StInProgress  The operation is being processed.
 
-    \value StDone  The operation has been processed succesfully.
+    \value StDone  The operation has been processed successfully.
 
     \value StFailed  The operation has been processed but an error occurred.
 
@@ -687,7 +687,7 @@ void Q3NetworkProtocol::operationRemove( Q3NetworkOperation * )
 }
 
 /*!
-    When implementing a new newtork protocol, this method should be
+    When implementing a new network protocol, this method should be
     reimplemented if the protocol supports renaming children (files);
     this method should then process this Q3NetworkOperation.
 

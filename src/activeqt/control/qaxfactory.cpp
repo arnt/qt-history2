@@ -204,7 +204,7 @@ QUuid QAxFactory::appID() const
     \fn bool QAxFactory::createObjectWrapper(QObject *object, IDispatch **wrapper)
 
     Reimplement this function to provide the COM object for \a object
-    in \a wrapper. Return true if the function was successfull, otherwise
+    in \a wrapper. Return true if the function was successful; otherwise
     return false.
 
     The default implementation creates a generic automation wrapper based

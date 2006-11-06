@@ -1230,7 +1230,7 @@ QSql::Confirm Q3DataTable::confirmEdit( QSql::Op m )
 
 /*!
     Protected virtual function which returns a confirmation for
-    cancelling an edit mode of \a m. Derived classes can reimplement
+    canceling an edit mode of \a m. Derived classes can reimplement
     this function to provide their own cancel dialog. The default
     implementation uses a message box which prompts the user to
     confirm the cancel.

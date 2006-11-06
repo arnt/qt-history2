@@ -386,7 +386,7 @@ void QAbstractItemViewPrivate::init()
 /*!
   \fn bool QAbstractItemView::isIndexHidden(const QModelIndex &index) const
 
-  Returns true if the item refered to by the given \a index is hidden in the view,
+  Returns true if the item referred to by the given \a index is hidden in the view,
   otherwise returns false.
 
   Hiding is a view specific feature.  For example in TableView a column can be marked
@@ -1076,7 +1076,7 @@ bool QAbstractItemView::dragEnabled() const
     \value NoDragDrop Does not support dragging or dropping.
     \value DragOnly The view supports dragging of its own items
     \value DropOnly The view accepts drops
-    \value DragDrop The view supports both draging and dropping
+    \value DragDrop The view supports both dragging and dropping
     \value InternalMove only accepts move operations only from itself.
 
     \sa setDragDropMode()

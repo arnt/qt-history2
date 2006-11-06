@@ -204,7 +204,7 @@ static void query_colormap(QColormapPrivate *d, int screen)
             if (XAllocColor(display, d->colormap, &xcolor)) {
                 d->pixels[x] = xcolor.pixel;
             } else {
-                // some wierd stuff is going on...
+                // some weird stuff is going on...
                 d->pixels[x] = (qGray(rgb) < 127
                                 ? BlackPixel(display, screen)
                                 : WhitePixel(display, screen));

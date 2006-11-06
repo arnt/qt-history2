@@ -1171,7 +1171,7 @@ static QString readLink(const QString &link)
         hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
                                     IID_IShellLink, (LPVOID *)&psl);
 
-        if(hres == CO_E_NOTINITIALIZED) { // COM was not initalized
+        if(hres == CO_E_NOTINITIALIZED) { // COM was not initialized
             neededCoInit = true;
             CoInitialize(NULL);
             hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
@@ -1205,7 +1205,7 @@ static QString readLink(const QString &link)
         hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
                                     IID_IShellLinkA, (LPVOID *)&psl);
 
-        if(hres == CO_E_NOTINITIALIZED) { // COM was not initalized
+        if(hres == CO_E_NOTINITIALIZED) { // COM was not initialized
             neededCoInit = true;
             CoInitialize(NULL);
             hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
@@ -1260,7 +1260,7 @@ bool QFSFileEngine::link(const QString &newName)
         bool neededCoInit = false;
 
         hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
-        if(hres == CO_E_NOTINITIALIZED) { // COM was not initalized
+        if(hres == CO_E_NOTINITIALIZED) { // COM was not initialized
                 neededCoInit = true;
                 CoInitialize(NULL);
                 hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
@@ -1290,7 +1290,7 @@ bool QFSFileEngine::link(const QString &newName)
         bool neededCoInit = false;
 
         hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
-        if(hres == CO_E_NOTINITIALIZED) { // COM was not initalized
+        if(hres == CO_E_NOTINITIALIZED) { // COM was not initialized
             neededCoInit = true;
             CoInitialize(NULL);
             hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);

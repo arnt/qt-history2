@@ -30,11 +30,11 @@ class QWSHexDump
 {
 public:
 
-    QWSHexDump(const void *adress, int len, int wrapAt = 16)
+    QWSHexDump(const void *address, int len, int wrapAt = 16)
         : wrap(wrapAt), dataSize(len)
     {
         init();
-        data = reinterpret_cast<const char*>(adress);
+        data = reinterpret_cast<const char*>(address);
         if (len < 0)
             dataSize = 0;
     }

@@ -137,7 +137,7 @@ void QSystemTrayIconSys::addToTray()
     ev.xclient.format = 32;
     memcpy((char *)&ev.xclient.data, (const char *) l, sizeof(l));
     XSendEvent(display, sysTrayWindow, False, 0, &ev);
-    setMinimumSize(22, 22); // required atleast on gnome
+    setMinimumSize(22, 22); // required at least on GNOME
 }
 
 void QSystemTrayIconSys::updateIcon()

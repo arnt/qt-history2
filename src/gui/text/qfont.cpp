@@ -2271,7 +2271,7 @@ void QFontCache::cleanupPrinterFonts()
     {
         FC_DEBUG("  CLEAN engine data:");
 
-        // clean out all unused engine datas
+        // clean out all unused engine data
         EngineDataCache::Iterator it = engineDataCache.begin(),
                                  end = engineDataCache.end();
         while (it != end) {
@@ -2323,7 +2323,7 @@ void QFontCache::cleanupPrinterFonts()
                   it.value().data->name());
 
         if (--it.value().data->cache_count == 0) {
-            FC_DEBUG("    DELETE: last occurence in cache");
+            FC_DEBUG("    DELETE: last occurrence in cache");
 
             decreaseCost(it.value().data->cache_cost);
             delete it.value().data;
@@ -2437,7 +2437,7 @@ void QFontCache::timerEvent(QTimerEvent *)
     {
         FC_DEBUG("  CLEAN engine data:");
 
-        // clean out all unused engine datas
+        // clean out all unused engine data
         EngineDataCache::Iterator it = engineDataCache.begin(),
                                  end = engineDataCache.end();
         while (it != end) {

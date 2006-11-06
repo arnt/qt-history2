@@ -128,7 +128,7 @@ QWSEvent *QWSEvent::factory(int type)
     \value SelectionNotify A new selection has been created.
     \value MaxWindowRect The server has changed the maximum window for an application.
     \value QCopMessage A new Qt Cop message has appeared.
-    \value WindowOperation A window operation, e.g. resizing, has occured.
+    \value WindowOperation A window operation, e.g. resizing, has occurred.
     \value IMEvent An input method has been used  to enter text for languages with
               non-Latin alphabets. See also QWSInputMethod.
     \value IMQuery An input method query for a specified property has occurred.

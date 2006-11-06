@@ -829,7 +829,7 @@ void QDoubleSpinBox::setDecimals(int decimals)
     display the given \a value. The default implementation returns a string
     containing \a value printed using QLocale().toString(\a value,
     QLatin1Char('f'), decimals()) and will remove the thousand
-    seperator. Reimplementations may return anything.
+    separator. Reimplementations may return anything.
 
     Note: QDoubleSpinBox does not call this function for
     specialValueText() and that neither prefix() nor suffix() should

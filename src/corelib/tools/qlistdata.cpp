@@ -264,7 +264,8 @@ void **QListData::erase(void **xi)
     insertions in the middle, in addition to instantaneous
     index-based access. Furthermore, operations like prepend() and
     append() are very fast, because QList preallocates memory on both
-    sides of its internal array.
+    sides of its internal array. (See \l{Algorithmic Complexity}
+    for details.)
 
     Here's an example of a QList that stores integers and
     a QList that stores QDate values:

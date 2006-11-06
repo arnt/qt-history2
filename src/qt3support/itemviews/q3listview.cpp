@@ -80,7 +80,7 @@ struct Q3ListViewPrivate
           us to use the physical ordering of columns rather than the
           logical. Microsoft uses the logical ordering, so there is
           some virtue in doing so, although it prevents the user from
-          chosing the secondary key.
+          choosing the secondary key.
         */
         Q3ListViewItem * item;
         int numCols;

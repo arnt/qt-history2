@@ -613,7 +613,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     the parameters required to draw the elements, including
     QStyleOption::state which holds the style flags that are used when
     drawing. The table also describes which flags that are set when
-    casting the given option to the appropiate subclass.
+    casting the given option to the appropriate subclass.
 
     Note that if a primitive element is not listed here, it is because
     it uses a plain QStyleOption object.
@@ -751,7 +751,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     the parameters required to draw the controls, including
     QStyleOption::state which holds the style flags that are used when
     drawing. The table also describes which flags that are set when
-    casting the given option to the appropiate subclass.
+    casting the given option to the appropriate subclass.
 
     Note that if a control element is not listed here, it is because
     it uses a plain QStyleOption object.
@@ -1025,7 +1025,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     QStyleOption::state which holds the \l {QStyle::StateFlag}{style
     flags} that are used when drawing. The table also describes which
     flags that are set when casting the given \a option to the
-    appropiate subclass.
+    appropriate subclass.
 
     \table
     \header \o Complex Control \o QStyleOptionComplex Subclass \o Style Flag \o Remark
@@ -1082,7 +1082,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     option). The rectangle is defined in screen coordinates.
 
     The \a option argument is a pointer to QStyleOptionComplex or
-    one of its subclasses, and can be casted to the appropiate type
+    one of its subclasses, and can be casted to the appropriate type
     using the qstyleoption_cast() function. See drawComplexControl()
     for details. The \a widget is optional and can contain additional
     information for the function.
@@ -1280,7 +1280,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 /*!
     \enum QStyle::ContentsType
 
-    This enum describes the availble contents types. These are used to
+    This enum describes the available contents types. These are used to
     calculate sizes for the contents of various widgets.
 
     \value CT_CheckBox A check box, like QCheckBox.
@@ -1717,7 +1717,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     A standard pixmap is a pixmap that can follow some existing GUI
     style or guideline. The \a option argument can be used to pass
-    extra information required when defining the appropiate
+    extra information required when defining the appropriate
     pixmap. The \a widget argument is optional and can also be used to
     aid the determination of the pixmap.
 
@@ -1765,7 +1765,7 @@ QPoint QStyle::visualPos(Qt::LayoutDirection direction, const QRect &boundingRec
 }
 
 /*!
-     Returns a new rectangle of the specifed \a size that is aligned to the given \a
+     Returns a new rectangle of the specified \a size that is aligned to the given \a
      rectangle according to the specified \a alignment and \a direction.
  */
 QRect QStyle::alignedRect(Qt::LayoutDirection direction, Qt::Alignment alignment, const QSize &size, const QRect &rectangle)
@@ -1956,7 +1956,7 @@ QPalette QStyle::standardPalette() const
     The \a standardIcon is a standard pixmap which can follow some
     existing GUI style or guideline. The \a option argument can be
     used to pass extra information required when defining the
-    appropiate icon. The \a widget argument is optional and can also
+    appropriate icon. The \a widget argument is optional and can also
     be used to aid the determination of the icon.
 
     \warning Because of binary compatibility constraints, this
@@ -1996,7 +1996,7 @@ QIcon QStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *opti
     The \a standardIcon is a standard pixmap which can follow some
     existing GUI style or guideline. The \a option argument can be
     used to pass extra information required when defining the
-    appropiate icon. The \a widget argument is optional and can also
+    appropriate icon. The \a widget argument is optional and can also
     be used to aid the determination of the icon.
 
     \sa standardIcon()

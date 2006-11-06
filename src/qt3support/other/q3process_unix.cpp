@@ -792,7 +792,7 @@ bool Q3Process::start( QStringList *env )
 	if ( fd[0] )
 	    ::close( fd[0] );
 	if ( fd[1] )
-	    ::fcntl( fd[1], F_SETFD, FD_CLOEXEC ); // close on exec shows sucess
+	    ::fcntl( fd[1], F_SETFD, FD_CLOEXEC ); // close on exec shows success
 
 	if ( env == 0 ) { // inherit environment and start process
 #ifndef Q_OS_QNX4

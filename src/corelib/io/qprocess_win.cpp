@@ -505,7 +505,7 @@ void QProcessPrivate::startProcess()
     qDebug("Creating process");
     qDebug("   program : [%s]", program.latin1());
     qDebug("   args : %s", args.latin1());
-    qDebug("   pass enviroment : %s", environment.isEmpty() ? "no" : "yes");
+    qDebug("   pass environment : %s", environment.isEmpty() ? "no" : "yes");
 #endif
 
     DWORD dwCreationFlags = 0;

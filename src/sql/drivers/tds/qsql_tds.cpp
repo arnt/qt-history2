@@ -501,7 +501,7 @@ QTDSDriver::~QTDSDriver()
 {
     dberrhandle(0);
     dbmsghandle(0);
-    // dbexit also calls dbclose if neccessary
+    // dbexit also calls dbclose if necessary
     dbexit();
     delete d;
 }

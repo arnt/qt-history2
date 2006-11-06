@@ -4175,7 +4175,7 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
         // we need to stop one pixel before
         x2 = qMin(x2, devRect.width() - 1);
 
-        // completly clipped, so abort
+        // completely clipped, so abort
         if (x2 <= x1) {
             return;
         }
@@ -4312,7 +4312,7 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
         // we need to stop one pixel before
         y2 = qMin(y2, devRect.height() - 1);
 
-        // completly clipped, so abort
+        // completely clipped, so abort
         if (y2 <= y1) {
             return;
         }
@@ -4566,7 +4566,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
         // we need to stop one pixel before
         x2 = qMin(x2, devRect.width() - 1);
 
-        // completly clipped, so abort
+        // completely clipped, so abort
         if (x2 <= x1)
             goto flush_and_return;
 
@@ -4703,7 +4703,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
         // we need to stop one pixel before
         y2 = qMin(y2, devRect.height() - 1);
 
-        // completly clipped, so abort
+        // completely clipped, so abort
         if (y2 <= y1)
             goto flush_and_return;
 

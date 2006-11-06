@@ -397,7 +397,7 @@ QColor::QColor(QRgb color)
 
     Constructs a color with the given \a spec.
 
-    This funciton is primarly present to avoid that QColor::Invalid
+    This function is primarly present to avoid that QColor::Invalid
     becomes a valid color by accident.
 */
 

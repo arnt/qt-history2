@@ -897,7 +897,7 @@ void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type,
     and sendIMQuery() functions to send input method events and
     queries. Finally, QWSServer provides the IMMouse enum describing
     the various mouse events recognized by the
-    QWSInputMethod::mouseHandler() function. The latter funciton
+    QWSInputMethod::mouseHandler() function. The latter function
     allows subclasses of QWSInputMethod to handle mouse events within
     the preedit text.
 

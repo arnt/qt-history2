@@ -174,7 +174,7 @@ void QSvgGradientStyle::apply(QPainter *p, const QRectF &rect, QSvgNode *)
     }
 
     QBrush brush;
-    //we need to resolve boundries
+    //we need to resolve boundaries
     //the code is funky i'll have to verify it
     //(testcases right now are bugs/resolve_radial.svg
     // and bugs/resolve_linear.svg)

@@ -46,7 +46,7 @@
 
     You can set whether an item should be visible (i.e., drawn, and accepting
     events), by calling setVisible(). Hiding an item will also hide its
-    children. Similarily, you can enable or disable an item by calling
+    children. Similarly, you can enable or disable an item by calling
     setEnabled(). If you disable an item, all its children will also be
     disabled. By default, items are both visible and enabled. To toggle
     whether an item is selected or not, first enable selection by setting
@@ -118,7 +118,7 @@
     functions rotate(), scale(), translate(), or shear(). Item transformations
     accumulate from parent to child, so if both a parent and child item are
     rotated 90 degrees, the child's total transformation will be 180 degrees.
-    Similarily, if the item's parent is scaled to 2x its original size, its
+    Similarly, if the item's parent is scaled to 2x its original size, its
     children will also be twice as large. An item's transformation does not
     affect its own local geometry; all geometry functions (e.g., contains(),
     update(), and all the mapping functions) still operate in local
@@ -677,7 +677,7 @@ void QGraphicsItem::setFlag(GraphicsItemFlag flag, bool enabled)
     flags not in \a flags are disabled.
 
     If the item had focus and \a flags does not enable ItemIsFocusable, the
-    item loses focus as a result of calling this function. Similarily, if the
+    item loses focus as a result of calling this function. Similarly, if the
     item was selected, and \a flags does not enabled ItemIsSelectable, the
     item is automatically unselected.
 
@@ -829,7 +829,7 @@ bool QGraphicsItem::isVisible() const
     the grab is not regained by making the item visible again; it must receive
     a new mouse press to regain the mouse grab.
 
-    Similarily, an invisible item cannot have focus, so if the item has focus
+    Similarly, an invisible item cannot have focus, so if the item has focus
     when it becomes invisible, it will lose focus, and the focus is not
     regained by simply making the item visible again.
 

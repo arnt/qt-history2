@@ -139,7 +139,7 @@ private:
 #endif
     QConfFile(const QString &name, bool _userPerms);
 
-    friend class QConfFile_createsItself; // supress compiler warning
+    friend class QConfFile_createsItself; // silences compiler warning
 };
 
 class Q_AUTOTEST_EXPORT QSettingsPrivate

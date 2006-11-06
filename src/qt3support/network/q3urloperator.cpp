@@ -180,7 +180,7 @@ public:
 /*!
     \fn void Q3UrlOperator::removed( Q3NetworkOperation *op )
 
-    This signal is emitted when remove() has been succesful and the
+    This signal is emitted when remove() has been successful and the
     file has been removed.
 
     \a op is a pointer to the operation object which contains all the

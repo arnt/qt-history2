@@ -181,7 +181,7 @@ bool Q3Process::start( QStringList *env )
     SECURITY_ATTRIBUTES secAtt = { sizeof( SECURITY_ATTRIBUTES ), NULL, TRUE };
 #ifndef Q_OS_TEMP
     // I guess there is no stdin stdout and stderr on Q_OS_TEMP to dup
-    // CreatePipe and DupilcateHandle aren't avaliable for Q_OS_TEMP
+    // CreatePipe and DupilcateHandle aren't available for Q_OS_TEMP
     HANDLE tmpStdin, tmpStdout, tmpStderr;
     if ( comms & Stdin ) {
 	if ( !CreatePipe( &d->pipeStdin[0], &tmpStdin, &secAtt, 0 ) ) {

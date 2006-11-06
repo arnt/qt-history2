@@ -451,7 +451,7 @@ bool QTreeModel::setHeaderData(int section, Qt::Orientation orientation,
 /*!
   \reimp
 
-  Returns the flags for the item refered to the given \a index.
+  Returns the flags for the item referred to the given \a index.
 
 */
 

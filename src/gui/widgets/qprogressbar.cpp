@@ -128,7 +128,7 @@ bool QProgressBarPrivate::repaintRequired() const
     is still running.
 
     The progress bar uses the concept of \e steps. You set it up by
-    specifying the minumum and maximum possible step values, and it
+    specifying the minimum and maximum possible step values, and it
     will display the percentage of steps that have been completed
     when you later give it the current step value. The percentage is
     calculated by dividing the progress (value() - minimum()) divided

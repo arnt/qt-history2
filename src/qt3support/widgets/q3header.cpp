@@ -543,7 +543,7 @@ int Q3Header::handleAt(int p)
             (p > d->positions[index] + d->sizes[section] - GripMargin)) {
             if (index > 0 && p < d->positions[index]  + GripMargin)
                 section = d->i2s[--index];
-            // dont show icon if streaching is enabled it is at the end of the last section
+            // don't show icon if streaching is enabled it is at the end of the last section
             if (d->resize.testBit(section) && (d->fullSize == -2 || index != count() - 1)) {
                 return section;
             }

@@ -660,7 +660,7 @@ bool Q3Url::parse( const QString& url )
 	table[ 0 ][ 1 ] = Protocol;
 
 	// find the part between the protocol and the path as the meaning
-	// of that part is dependend on some chars
+	// of that part is dependent on some chars
 	++cs;
 	while ( url_[ cs ] == '/' )
 	    ++cs;

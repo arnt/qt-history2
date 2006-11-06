@@ -372,9 +372,9 @@ void Q3ToolBar::setOrientation(Qt::Orientation o)
     Q3DockWindow::setOrientation(o);
     if (d->extension)
         d->extension->setOrientation(o);
-    QObjectList childs = children();
-    for (int i = 0; i < childs.size(); ++i) {
-        Q3ToolBarSeparator* w = qobject_cast<Q3ToolBarSeparator*>(childs.at(i));
+    QObjectList childList = children();
+    for (int i = 0; i < childList.size(); ++i) {
+        Q3ToolBarSeparator* w = qobject_cast<Q3ToolBarSeparator*>(childList.at(i));
         if (w)
             w->setOrientation(o);
     }
@@ -523,9 +523,9 @@ QString Q3ToolBar::label() const
 
 void Q3ToolBar::clear()
 {
-    QObjectList childs = children();
-    for (int i = 0; i < childs.size(); ++i) {
-        QObject *obj = childs.at(i);
+    QObjectList childList = children();
+    for (int i = 0; i < childList.size(); ++i) {
+        QObject *obj = childList.at(i);
         if (obj->isWidgetType() && QLatin1String("qt_dockwidget_internal") != obj->objectName())
             delete obj;
     }

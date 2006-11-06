@@ -743,7 +743,7 @@ void QDateTimeEdit::setDisplayFormat(const QString &format)
     \since 4.2
 
     The calendar popup will be shown upon clicking the arrow button.
-    This property is valid only if there is a vaild date display format.
+    This property is valid only if there is a valid date display format.
 
     \sa setDisplayFormat()
 */

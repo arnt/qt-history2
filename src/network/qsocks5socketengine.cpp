@@ -760,7 +760,7 @@ void QSocks5SocketEnginePrivate::parseNewConnection()
     for (int i = inBuf.size() - 1; i >= 0 ; --i)
         data->controlSocket->ungetChar(inBuf.at(i));
 
-    // got a successfull reply
+    // got a successful reply
     socks5State = BindSuccess;
     if (socketState == QAbstractSocket::ListeningState)
         emitReadNotification();
@@ -790,7 +790,7 @@ void QSocks5SocketEnginePrivate::emitReadNotification()
     Q_Q(QSocks5SocketEngine);
     readNotificationActivated = true;
     if (readNotificationEnabled && !readNotificationPending) {
-        QSOCKS5_D_DEBUG << "queing readNotification";
+        QSOCKS5_D_DEBUG << "queueing readNotification";
         readNotificationPending = true;
         QMetaObject::invokeMethod(q, "_q_emitPendingReadNotification", Qt::QueuedConnection);
     }
@@ -811,7 +811,7 @@ void QSocks5SocketEnginePrivate::emitWriteNotification()
     Q_Q(QSocks5SocketEngine);
     writeNotificationActivated = true;
     if (writeNotificationEnabled && !writeNotificationPending) {
-        QSOCKS5_D_DEBUG << "queing writeNotification";
+        QSOCKS5_D_DEBUG << "queueing writeNotification";
         writeNotificationPending = true;
         QMetaObject::invokeMethod(q, "_q_emitPendingWriteNotification", Qt::QueuedConnection);
     }
@@ -1010,7 +1010,7 @@ void QSocks5SocketEnginePrivate::_q_controlSocketConnected()
 void QSocks5SocketEnginePrivate::_q_controlSocketReadNotification()
 {
     QSOCKS5_D_DEBUG << "_q_controlSocketReadNotification socks5state" <<  s5StateToString(socks5State)
-                    << "bytes avaliable" << data->controlSocket->bytesAvailable();
+                    << "bytes available" << data->controlSocket->bytesAvailable();
 
     if (data->controlSocket->bytesAvailable() == 0) {
         QSOCKS5_D_DEBUG << "########## bogus read why do we get these ... on windows only";
@@ -1133,11 +1133,11 @@ void QSocks5SocketEnginePrivate::_q_udpSocketReadNotification()
             return;
         }
         if (buf[pos++] != 0) { //### add fragmentation reading support
-            QSOCKS5_D_DEBUG << "dont support fragmentation yet disgarding";
+            QSOCKS5_D_DEBUG << "don't support fragmentation yet disgarding";
             return;
         }
         if (!qt_socks5_get_host_address_and_port(inBuf, &datagram.address, &datagram.port, &pos)) {
-            QSOCKS5_D_DEBUG << "failed to get addres from datagram disgarding";
+            QSOCKS5_D_DEBUG << "failed to get address from datagram disgarding";
             return;
         }
         datagram.data = QByteArray(&buf[pos], inBuf.size() - pos);

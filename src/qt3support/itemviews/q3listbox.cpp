@@ -2107,7 +2107,7 @@ void Q3ListBox::updateSelection()
                 if (d->dirtyDrag && !d->dragging) // emit after dragging stops
                     d->dirtyDrag = false;
                 else
-                    clearSelection(); // dont reset drag-selected items
+                    clearSelection(); // don't reset drag-selected items
                 d->pressedItem = 0;
                 if (i && i->isSelectable()) {
                     bool block = signalsBlocked();

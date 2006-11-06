@@ -359,7 +359,7 @@ QString Ui3Reader::getObjectName(const QDomElement& e)
 }
 
 /*! Extracts an layout name from \a e. It's stored in the 'name'
- property of the preceeding sibling (the first child of a QLayoutWidget).
+ property of the preceding sibling (the first child of a QLayoutWidget).
  */
 QString Ui3Reader::getLayoutName(const QDomElement& e)
 {

@@ -2726,7 +2726,7 @@ void QHeaderViewPrivate::removeSectionsFromSpans(int start, int end)
             length -= (change * section_size);
             // the change affects several spans
         } else if (end >= start_section && end <= end_section) {
-            // the some of the removed sections are inside the span, at the begining
+            // the some of the removed sections are inside the span, at the beginning
             int change = qMin((end - start_section + 1), end - start + 1);
             sectionSpans[i].count -= change;
             sectionSpans[i].size = section_size * sectionSpans.at(i).count;

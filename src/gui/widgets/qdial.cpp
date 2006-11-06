@@ -341,7 +341,7 @@ void QDial::setWrapping(bool enable)
     \brief whether wrapping is enabled
 
     If true, wrapping is enabled; otherwise some space is inserted at the bottom
-    of the dial to separate the ends of the range of vaild values.
+    of the dial to separate the ends of the range of valid values.
 
     If enabled, the arrow can be oriented at any angle on the dial. If disabled,
     the arrow will be restricted to the upper part of the dial; if it is rotated

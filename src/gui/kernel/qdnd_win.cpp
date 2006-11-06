@@ -834,7 +834,7 @@ Qt::DropAction QDragManager::drag(QDrag *o)
         } else {
             ret = translateToQDragDropAction(resultEffect);
         }
-        // Force it to be a copy if an unsupported operation occured.
+        // Force it to be a copy if an unsupported operation occurred.
         // This indicates a bug in the drop target.
         if (resultEffect != DROPEFFECT_NONE && !(resultEffect & allowedEffects))
             ret = Qt::CopyAction;

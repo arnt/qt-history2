@@ -456,7 +456,7 @@ void QTextDocument::setMaximumBlockCount(int maximum)
     \fn void QTextDocument::markContentsDirty(int position, int length)
 
     Marks the contents specified by the given \a position and \a length
-    as "dirty", informing the document that it needs to be layed out
+    as "dirty", informing the document that it needs to be laid out
     again.
 */
 void QTextDocument::markContentsDirty(int from, int length)

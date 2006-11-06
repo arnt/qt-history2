@@ -483,7 +483,7 @@ QIcon::operator QVariant() const
 
     A null icon always has a serial number of 0.
 
-    Serial numbers are mostly useful in conjunction with cacheing.
+    Serial numbers are mostly useful in conjunction with caching.
 
     \sa QPixmap::serialNumber()
 */

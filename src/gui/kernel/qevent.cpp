@@ -1545,7 +1545,7 @@ Qt::ButtonState QContextMenuEvent::state() const
     should be at most one format for every part of the preedit
     string. If several are specified for any character in the string the
     behaviour is undefined. A conforming implementation has to at least
-    honour the backgroundColor, textColor and fontUnderline properties
+    honor the backgroundColor, textColor and fontUnderline properties
     of the format.
 
     \value Cursor If set, a cursor should be shown inside the preedit

@@ -1350,7 +1350,7 @@ int QTableView::sizeHintForRow(int row) const
 
     int left = qMax(0, columnAt(0));
     int right = columnAt(d->viewport->width());
-    if (right == -1) // the table don't have enought columns to fill the viewport
+    if (right == -1) // the table don't have enough columns to fill the viewport
         right = d->model->columnCount(d->root) - 1;
 
     QStyleOptionViewItemV2 option = d->viewOptionsV2();
@@ -1388,7 +1388,7 @@ int QTableView::sizeHintForColumn(int column) const
 
     int top = qMax(0, rowAt(0));
     int bottom = rowAt(d->viewport->height());
-    if (!isVisible() || bottom == -1) // the table don't have enought rows to fill the viewport
+    if (!isVisible() || bottom == -1) // the table don't have enough rows to fill the viewport
         bottom = d->model->rowCount(d->root) - 1;
 
     QStyleOptionViewItemV2 option = d->viewOptionsV2();

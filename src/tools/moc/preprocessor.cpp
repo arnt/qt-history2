@@ -258,7 +258,7 @@ static Symbols tokenize(const QByteArray &input, int lineNum = 1, TokenizeMode m
                 case CPP_COMMENT:
                     while (*data && *data != '\n')
                         ++data;
-                    continue; // ignore safly, the newline is a seperator
+                    continue; // ignore safely, the newline is a separator
                 default:
                     continue; //ignore
                 }
@@ -391,7 +391,7 @@ static Symbols tokenize(const QByteArray &input, int lineNum = 1, TokenizeMode m
             case PP_CPP_COMMENT:
                 while (*data && *data != '\n')
                     ++data;
-                continue; // ignore safly, the newline is a seperator
+                continue; // ignore safely, the newline is a separator
             case PP_NEWLINE:
                 ++lineNum;
                 mode = TokenizeCpp;

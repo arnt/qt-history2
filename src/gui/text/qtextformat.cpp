@@ -74,10 +74,10 @@
 /*!
     \fn qreal QTextLength::rawValue() const
 
-    Returns the constraint value that is specific for the type of the lenght.
-    If the length is QTextLength::PercentageLengt then the raw value is in
+    Returns the constraint value that is specific for the type of the length.
+    If the length is QTextLength::PercentageLength then the raw value is in
     percent, in the range of 0 to 100. If the length is QTextLength::FixedLength
-    then that fixed amount is returned. For variable lengths zero is returned.
+    then that fixed amount is returned. For variable lengths, zero is returned.
 */
 
 /*!

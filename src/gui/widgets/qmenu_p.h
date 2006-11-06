@@ -109,7 +109,7 @@ public:
     void scrollMenu(QMenuScroller::ScrollDirection direction, bool page=false, bool active=false);
     void scrollMenu(QAction *action, QMenuScroller::ScrollLocation location, bool active=false);
 
-    //syncronous operation (ie exec())
+    //synchronous operation (ie exec())
     QEventLoop *eventLoop;
     QPointer<QAction> syncAction;
 

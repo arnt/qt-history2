@@ -2312,7 +2312,7 @@ QString QDomNode::nodeName() const
     \row \i QDomAttr \i The attribute value
     \row \i QDomCDATASection \i The content of the CDATA section
     \row \i QDomComment \i The comment
-    \row \i QDomProcessingInstruction \i The data of the processing intruction
+    \row \i QDomProcessingInstruction \i The data of the processing instruction
     \row \i QDomText \i The text
     \endtable
 
@@ -6748,10 +6748,10 @@ bool QDomDocument::setContent(const QString& text, bool namespaceProcessing, QSt
 
     Entity references are handled as follows:
     \list
-    \o References to internal general entities and character entities occuring in the
+    \o References to internal general entities and character entities occurring in the
         content are included. The result is a QDomText node with the references replaced
         by their corresponding entity values.
-    \o References to parameter entities occuring in the internal subset are included.
+    \o References to parameter entities occurring in the internal subset are included.
         The result is a QDomDocumentType node which contains entity and notation declarations
         with the references replaced by their corresponding entity values.
     \o Any general parsed entity reference which is not defined in the internal subset and

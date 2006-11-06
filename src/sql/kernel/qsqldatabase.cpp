@@ -1425,7 +1425,7 @@ QSqlRecord QSqlDatabase::recordInfo(const QSqlQuery& query) const
     database connection.
 
     Note that the connection is not opened, to use it, it is
-    neccessary to call open() first.
+    necessary to call open() first.
 */
 QSqlDatabase QSqlDatabase::cloneDatabase(const QSqlDatabase &other, const QString &connectionName)
 {

@@ -68,7 +68,7 @@
 
     Finally, the QDecoration class provides a couple of static
     functions, startMove() and startResize(), which start the move or
-    resize action by making the appropiate decoration region active
+    resize action by making the appropriate decoration region active
     and grabbing the mouse input.
 
     \sa QDecorationFactory, QDecorationPlugin, QDirectPainter

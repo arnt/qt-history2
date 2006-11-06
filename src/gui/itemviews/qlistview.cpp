@@ -87,8 +87,8 @@
 /*!
     \enum QListView::ViewMode
 
-    \value ListMode The items are layed out using TopToBottom flow, with Small size and Static movement
-    \value IconMode The items are layed out using LeftToRight flow, with Large size and Free movement
+    \value ListMode The items are laid out using TopToBottom flow, with Small size and Static movement
+    \value IconMode The items are laid out using LeftToRight flow, with Large size and Free movement
 */
 
 /*!
@@ -2040,7 +2040,7 @@ void QStaticListViewBase::doStaticLayout(const QListViewLayoutInfo &info)
                 segmentStartRows.append(row);
                 deltaSegPosition = 0;
             }
-            // save the flow positon of this item
+            // save the flow position of this item
             flowPositions.append(flowPosition);
             // prepare for the next item
             deltaSegPosition = qMax(deltaSegHint, deltaSegPosition);

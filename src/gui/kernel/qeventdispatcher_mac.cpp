@@ -384,7 +384,7 @@ void QEventDispatcherMac::registerSocketNotifier(QSocketNotifier *notifier)
         d->macSockets.insert(nativeSocket, socketInfo);
     }
 
-    // Increment read/write counters and select enable callbacks if neccesary.
+    // Increment read/write counters and select enable callbacks if necessary.
     if (type == QSocketNotifier::Read) {
         if (++socketInfo->read == 1)
              CFSocketEnableCallBacks(socketInfo->socket, kCFSocketReadCallBack);
@@ -429,7 +429,7 @@ void QEventDispatcherMac::unregisterSocketNotifier(QSocketNotifier *notifier)
         return;
     }
 
-    // Decrement read/write counters and disable callbacks if neccesary.
+    // Decrement read/write counters and disable callbacks if necessary.
     if (type == QSocketNotifier::Read) {
         if (--socketInfo->read == 0)
             CFSocketDisableCallBacks(socketInfo->socket, kCFSocketReadCallBack);

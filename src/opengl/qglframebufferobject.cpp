@@ -281,7 +281,7 @@ bool QGLFramebufferObjectPrivate::checkFramebufferStatus() const
         qDebug("QGLFramebufferObject: Framebuffer incomplete, missing read buffer.");
         break;
     default:
-        qDebug() <<"QGLFramebufferObject: An undefined error has occured: "<< status;
+        qDebug() <<"QGLFramebufferObject: An undefined error has occurred: "<< status;
         break;
     }
     return false;
@@ -413,7 +413,7 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
     (e.g. 256x512).
 
     It is important that you have a current GL context set when
-    creating the QGLFramebufferObject, otherwise the initalization
+    creating the QGLFramebufferObject, otherwise the initialization
     will fail.
 
     \sa size(), texture()

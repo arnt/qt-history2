@@ -1234,7 +1234,7 @@ void QColorDialogPrivate::setCurrentColor(QRgb rgb)
     _q_newColorTypedIn(rgb);
 }
 
-//sets all widgets exept cs to display rgb
+//sets all widgets except cs to display rgb
 void QColorDialogPrivate::_q_newColorTypedIn(QRgb rgb)
 {
     int h, s, v;

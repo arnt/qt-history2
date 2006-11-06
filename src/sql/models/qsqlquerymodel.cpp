@@ -364,7 +364,7 @@ void QSqlQueryModel::setQuery(const QString &query, const QSqlDatabase &db)
 }
 
 /*!
-    Clears the model and releases any aquired resource.
+    Clears the model and releases any acquired resource.
 */
 void QSqlQueryModel::clear()
 {

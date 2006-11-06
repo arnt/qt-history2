@@ -4616,7 +4616,7 @@ void Q3TextParagraph::paint(QPainter &painter, const QPalette &pal, Q3TextCursor
             flush |= (nextchr->rightToLeft != chr->rightToLeft);
             // we flush before and after tabs
             flush |= (chr->c == '\t' || nextchr->c == '\t');
-            // we flush on soft hypens
+            // we flush on soft hyphens
             if (chr->c.unicode() == 0xad) {
                 flush = true;
                 if (!nextchr->lineStart)
@@ -7061,7 +7061,7 @@ static const Entity entitylist [] = {
     { "copy", 0x00a9 },
     { "crarr", 0x21b5 },
     { "cup", 0x222a },
-    { "curren", 0x00a4 },
+    { "cur" "ren", 0x00a4 },
     { "dArr", 0x21d3 },
     { "dagger", 0x2020 },
     { "darr", 0x2193 },

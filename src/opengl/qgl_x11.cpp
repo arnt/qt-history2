@@ -499,7 +499,7 @@ void *QGLContext::tryVisual(const QGLFormat& f, int bufDepth)
             useTranspExt = !cstr.contains("Xi Graphics"); // bug workaround
             if (useTranspExt) {
                 // bug workaround - some systems (eg. FireGL) refuses to return an overlay
-                // visual if the GLX_TRANSPARENT_TYPE_EXT attribute is specfied, even if
+                // visual if the GLX_TRANSPARENT_TYPE_EXT attribute is specified, even if
                 // the implementation supports transparent overlays
                 int tmpSpec[] = { GLX_LEVEL, f.plane(), GLX_TRANSPARENT_TYPE_EXT,
                                   f.rgba() ? GLX_TRANSPARENT_RGB_EXT : GLX_TRANSPARENT_INDEX_EXT,

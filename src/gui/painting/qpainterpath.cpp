@@ -233,7 +233,7 @@ static void qt_debug_path(const QPainterPath &path)
 
     \section1 QPainterPath Conversion
 
-    For compatibilty reasons, it might be required to simplify the
+    For compatibility reasons, it might be required to simplify the
     representation of a painter path: QPainterPath provides the
     toFillPolygon(), toFillPolygons() and toSubpathPolygons()
     functions which convert the painter path into a polygon. The
@@ -1324,7 +1324,7 @@ static QRectF qt_painterpath_bezier_extrema(const QBezier &b)
         // specialcase quadratic curves to avoid div by zero
         if (qFuzzyCompare(ax, 0)) {
 
-            // linear curves are covered by initalization.
+            // linear curves are covered by initialization.
             if (!qFuzzyCompare(bx, 0)) {
                 qreal t = -cx / bx;
                 QT_BEZIER_CHECK_T(b, t);
@@ -1348,7 +1348,7 @@ static QRectF qt_painterpath_bezier_extrema(const QBezier &b)
         // specialcase quadratic curves to avoid div by zero
         if (qFuzzyCompare(ay, 0)) {
 
-            // linear curves are covered by initalization.
+            // linear curves are covered by initialization.
             if (!qFuzzyCompare(by, 0)) {
                 qreal t = -cy / by;
                 QT_BEZIER_CHECK_T(b, t);
@@ -1931,7 +1931,7 @@ bool QPainterPath::contains(const QRectF &rect) const
 {
     Q_D(QPainterPath);
 
-    // the path is empty or the control point rect doesn't completly
+    // the path is empty or the control point rect doesn't completely
     // cover the rectangle we abort stratight away.
     if (isEmpty() || !controlPointRect().contains(rect))
         return false;
@@ -1954,7 +1954,7 @@ bool QPainterPath::contains(const QRectF &rect) const
     }
 
     // If there exists a point inside that is not part of the path its
-    // because: rectangle lies completly outside path or a subpath
+    // because: rectangle lies completely outside path or a subpath
     // excludes parts of the rectangle. Both cases mean that the rect
     // is not contained
     if (!contains(rect.center()))
@@ -1964,7 +1964,7 @@ bool QPainterPath::contains(const QRectF &rect) const
     // check if they are still contained as a result of the fill
     // rule. This can only be the case for WindingFill though. For
     // OddEvenFill the rect will never be contained if it surrounds a
-    // subpath. (the case where two subpaths are completly identical
+    // subpath. (the case where two subpaths are completely identical
     // can be argued but we choose to neglect it).
     for (int i=0; i<d->elements.size(); ++i) {
         const Element &e = d->elements.at(i);
