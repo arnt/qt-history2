@@ -51,10 +51,10 @@
         class ZipEngineHandler : public QAbstractFileEngineHandler
         {
         public:
-            QAbstractSocketEngine *create(const QString &fileName) const;
+            QAbstractFileEngine *create(const QString &fileName) const;
         };
 
-        QAbstractSocketEngine *ZipEngineHandler::create(const QString &fileName) const
+        QAbstractFileEngine *ZipEngineHandler::create(const QString &fileName) const
         {
             // ZipEngineHandler returns a ZipEngine for all .zip files
             return fileName.toLower().endsWith(".zip") ? new ZipEngine(fileName) : 0;
