@@ -87,8 +87,9 @@ void QWSEmbedWidgetPrivate::resize(const QSize &size)
 /*!
     \class QWSEmbedWidget
     \since 4.2
+    \ingroup qws
 
-    \brief The QWSEmbedWidget class provides embedding of a top-level window.
+    \brief The QWSEmbedWidget class provides embedding of a top-level window on Qtopia Core.
 
     The window ID of the window to be embedded must be known and be passed
     in the constructor.
