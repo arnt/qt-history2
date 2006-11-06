@@ -427,33 +427,60 @@ void Win32MakefileGenerator::processFileTagsVar()
 void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
 {
     t << "clean: compiler_clean";
-    const char *clean_targets[] = { "OBJECTS", "QMAKE_CLEAN", "CLEAN_FILES", 0 };
-    for(int i = 0; clean_targets[i]; ++i) {
-        const QStringList &list = project->values(clean_targets[i]);
-        const QString del_statement("-$(DEL_FILE)");
-        if(project->isActiveConfig("no_delete_multiple_files")) {
-            for(QStringList::ConstIterator it = list.begin(); it != list.end(); ++it)
-                t << "\n\t" << del_statement << " " << escapeFilePath((*it));
-        } else {
-            QString files, file;
-            const int commandlineLimit = 2047; // NT limit, expanded
-            for(QStringList::ConstIterator it = list.begin(); it != list.end(); ++it) {
-                file = " " + escapeFilePath((*it));
-                if(del_statement.length() + files.length() +
-                   qMax(fixEnvVariables(file).length(), file.length()) > commandlineLimit) {
-                    t << "\n\t" << del_statement << files;
-                    files.clear();
+    {
+        const char *clean_targets[] = { "OBJECTS", "QMAKE_CLEAN", "CLEAN_FILES", 0 };
+        for(int i = 0; clean_targets[i]; ++i) {
+            const QStringList &list = project->values(clean_targets[i]);
+            const QString del_statement("-$(DEL_FILE)");
+            if(project->isActiveConfig("no_delete_multiple_files")) {
+                for(QStringList::ConstIterator it = list.begin(); it != list.end(); ++it)
+                    t << "\n\t" << del_statement << " " << escapeFilePath((*it));
+            } else {
+                QString files, file;
+                const int commandlineLimit = 2047; // NT limit, expanded
+                for(QStringList::ConstIterator it = list.begin(); it != list.end(); ++it) {
+                    file = " " + escapeFilePath((*it));
+                    if(del_statement.length() + files.length() +
+                       qMax(fixEnvVariables(file).length(), file.length()) > commandlineLimit) {
+                        t << "\n\t" << del_statement << files;
+                        files.clear();
+                    }
+                    files += file;
                 }
-                files += file;
+                if(!files.isEmpty())
+                    t << "\n\t" << del_statement << files;
             }
-            if(!files.isEmpty())
-                t << "\n\t" << del_statement << files;
         }
     }
     t << endl << endl;
 
-    t << "distclean: clean"
-      << "\n\t-$(DEL_FILE) \"$(DESTDIR_TARGET)\"" << endl;
+    t << "distclean: clean";
+    {
+        const char *clean_targets[] = { "QMAKE_DISTCLEAN", 0 };
+        for(int i = 0; clean_targets[i]; ++i) {
+            const QStringList &list = project->values(clean_targets[i]);
+            const QString del_statement("-$(DEL_FILE)");
+            if(project->isActiveConfig("no_delete_multiple_files")) {
+                for(QStringList::ConstIterator it = list.begin(); it != list.end(); ++it)
+                    t << "\n\t" << del_statement << " " << escapeFilePath((*it));
+            } else {
+                QString files, file;
+                const int commandlineLimit = 2047; // NT limit, expanded
+                for(QStringList::ConstIterator it = list.begin(); it != list.end(); ++it) {
+                    file = " " + escapeFilePath((*it));
+                    if(del_statement.length() + files.length() +
+                       qMax(fixEnvVariables(file).length(), file.length()) > commandlineLimit) {
+                        t << "\n\t" << del_statement << files;
+                        files.clear();
+                    }
+                    files += file;
+                }
+                if(!files.isEmpty())
+                    t << "\n\t" << del_statement << files;
+            }
+        }
+    }
+    t << "\n\t-$(DEL_FILE) \"$(DESTDIR_TARGET)\"" << endl;
     {
         QString ofile = Option::fixPathToTargetOS(fileFixify(Option::output.fileName()));
         if(!ofile.isEmpty())

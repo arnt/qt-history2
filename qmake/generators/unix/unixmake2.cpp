@@ -858,6 +858,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     } else {
         t << "\t-$(DEL_FILE) " << "$(TARGET)" << " " << endl;
     }
+    t << varGlue("QMAKE_DISTCLEAN","\t-$(DEL_FILE) "," ","\n");
     {
         QString ofile = Option::fixPathToTargetOS(fileFixify(Option::output.fileName()));
         if(!ofile.isEmpty())
