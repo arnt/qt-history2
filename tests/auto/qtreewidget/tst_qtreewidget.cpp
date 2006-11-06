@@ -77,6 +77,8 @@ private slots:
     void itemWidget();
     void insertItemsWithSorting_data();
     void insertItemsWithSorting();
+    void insertExpandedItemsWithSorting_data();
+    void insertExpandedItemsWithSorting();
     void changeDataWithSorting_data();
     void changeDataWithSorting();
 
@@ -2028,6 +2030,76 @@ void tst_QTreeWidget::insertItemsWithSorting()
 
         for (int k = 0; k < persistent.count(); ++k)
             QCOMPARE(persistent.at(k).row(), expectedRows.at(k));
+    }
+}
+
+void tst_QTreeWidget::insertExpandedItemsWithSorting_data()
+{
+    QTest::addColumn<QStringList>("parentText");
+    QTest::addColumn<QStringList>("childText");
+    QTest::addColumn<QStringList>("parentResult");
+    QTest::addColumn<QStringList>("childResult");
+    QTest::newRow("test 1")
+        << (QStringList() << "c" << "d" << "a" << "b")
+        << (QStringList() << "e" << "h" << "g" << "f")
+        << (QStringList() << "d" << "c" << "b" << "a")
+        << (QStringList() << "h" << "g" << "f" << "e");
+}
+
+class CustomTreeWidget : public QTreeWidget
+{
+    Q_OBJECT
+public:
+    QModelIndex indexFromItem(QTreeWidgetItem *item, int column = 0) const
+    { return QTreeWidget::indexFromItem(item, column); }
+};
+
+// From Task 134978
+void tst_QTreeWidget::insertExpandedItemsWithSorting()
+{
+    QFETCH(QStringList, parentText);
+    QFETCH(QStringList, childText);
+    QFETCH(QStringList, parentResult);
+    QFETCH(QStringList, childResult);
+
+    // create a tree with autosorting enabled
+    CustomTreeWidget tree;
+    tree.setSortingEnabled(true);
+
+    // insert expanded items in unsorted order
+    QList<QTreeWidgetItem *> items;
+    for (int i = 0; i < parentText.count(); ++i) {
+        QTreeWidgetItem *parent = new QTreeWidgetItem(&tree, QStringList(parentText.at(i)));
+        parent->setExpanded(true);
+        items << parent;
+        for (int j = 0; j < childText.count(); ++j) {
+            QTreeWidgetItem *child = new QTreeWidgetItem(parent, QStringList(childText.at(j)));
+            items << child;
+        }
+    }
+
+    // verify that the items are still expanded
+    foreach (QTreeWidgetItem *item, items)
+        QVERIFY(tree.visualRect(
+                    tree.indexFromItem(const_cast<QTreeWidgetItem *>(item))).isValid());
+
+    // verify that the tree is sorted
+    QAbstractItemModel *model = tree.model();
+    QList<QPersistentModelIndex> parents;
+    for (int i = 0; i < model->rowCount(QModelIndex()); ++i) {
+        QPersistentModelIndex parent = model->index(i, 0, QModelIndex());
+        parents << parent;
+    }
+    QList<QPersistentModelIndex> children;
+    for (int i = 0; i < model->rowCount(parents.first()); ++i) {
+        QPersistentModelIndex child = model->index(i, 0, parents.first());
+        children << child;
+    }
+    for (int i = 0; i < parentResult.count(); ++i) {
+        QTreeWidgetItem *item = tree.topLevelItem(i);
+        QCOMPARE(item->text(0), parentResult.at(i));
+        for (int j = 0; j < childResult.count(); ++j)
+            QCOMPARE(item->child(j)->text(0), childResult.at(j));
     }
 }
 
