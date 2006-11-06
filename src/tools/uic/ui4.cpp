@@ -4203,6 +4203,8 @@ void DomSizePolicy::clear(bool clear_all)
 
     if (clear_all) {
     m_text = QString();
+    m_has_attr_hSizeType = false;
+    m_has_attr_vSizeType = false;
     }
 
     m_children = 0;
@@ -4215,6 +4217,8 @@ void DomSizePolicy::clear(bool clear_all)
 DomSizePolicy::DomSizePolicy()
 {
     m_children = 0;
+    m_has_attr_hSizeType = false;
+    m_has_attr_vSizeType = false;
     m_hSizeType = 0;
     m_vSizeType = 0;
     m_horStretch = 0;
@@ -4227,6 +4231,10 @@ DomSizePolicy::~DomSizePolicy()
 
 void DomSizePolicy::read(const QDomElement &node)
 {
+    if (node.hasAttribute(QLatin1String("hsizetype")))
+        setAttributeHSizeType(node.attribute(QLatin1String("hsizetype")));
+    if (node.hasAttribute(QLatin1String("vsizetype")))
+        setAttributeVSizeType(node.attribute(QLatin1String("vsizetype")));
 
     for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
         if (!n.isElement())
@@ -4263,6 +4271,12 @@ QDomElement DomSizePolicy::write(QDomDocument &doc, const QString &tagName) cons
     QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromUtf8("sizepolicy") : tagName.toLower());
 
     QDomElement child;
+
+    if (hasAttributeHSizeType())
+        e.setAttribute(QLatin1String("hsizetype"), attributeHSizeType());
+
+    if (hasAttributeVSizeType())
+        e.setAttribute(QLatin1String("vsizetype"), attributeVSizeType());
 
     if (m_children & HSizeType) {
         child = doc.createElement(QLatin1String("hsizetype"));
@@ -5657,6 +5671,10 @@ void DomProperty::read(const QDomElement &node)
             setElementCursor(e.text().toInt());
             continue;
         }
+        if (tag == QLatin1String("cursorshape")) {
+            setElementCursorShape(e.text());
+            continue;
+        }
         if (tag == QLatin1String("enum")) {
             setElementEnum(e.text());
             continue;
@@ -5844,6 +5862,13 @@ QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName) const
         case Cursor: {
             QDomElement child = doc.createElement(QLatin1String("cursor"));
             QDomText text = doc.createTextNode(QString::number(elementCursor()));
+            child.appendChild(text);
+            e.appendChild(child);
+            break;
+        }
+        case CursorShape: {
+            QDomElement child = doc.createElement(QLatin1String("cursorShape"));
+            QDomText text = doc.createTextNode(elementCursorShape());
             child.appendChild(text);
             e.appendChild(child);
             break;
@@ -6083,6 +6108,13 @@ void DomProperty::setElementCursor(int a)
     clear(false);
     m_kind = Cursor;
     m_cursor = a;
+}
+
+void DomProperty::setElementCursorShape(const QString& a)
+{
+    clear(false);
+    m_kind = CursorShape;
+    m_cursorShape = a;
 }
 
 void DomProperty::setElementEnum(const QString& a)

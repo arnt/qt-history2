@@ -77,6 +77,7 @@ class QAbstractFormBuilderGadget: public QWidget
     Q_PROPERTY(QSizePolicy::Policy sizeType READ fakeSizeType)
     Q_PROPERTY(QPalette::ColorRole colorRole READ fakeColorRole)
     Q_PROPERTY(QPalette::ColorGroup colorGroup READ fakeColorGroup)
+    Q_PROPERTY(Qt::CursorShape cursorShape READ fakeCursorShape)
     Q_PROPERTY(Qt::BrushStyle brushStyle READ fakeBrushStyle)
     Q_PROPERTY(QGradient::Type gradientType READ fakeGradientType)
     Q_PROPERTY(QGradient::Spread gradientSpread READ fakeGradientSpread)
@@ -88,6 +89,7 @@ public:
     QSizePolicy::Policy fakeSizeType() const    { Q_ASSERT(0); return QSizePolicy::Expanding; }
     QPalette::ColorGroup fakeColorGroup() const { Q_ASSERT(0); return static_cast<QPalette::ColorGroup>(0); }
     QPalette::ColorRole fakeColorRole() const   { Q_ASSERT(0); return static_cast<QPalette::ColorRole>(0); }
+    Qt::CursorShape fakeCursorShape() const     { Q_ASSERT(0); return Qt::ArrowCursor; }
     Qt::BrushStyle fakeBrushStyle() const       { Q_ASSERT(0); return Qt::NoBrush; }
     QGradient::Type fakeGradientType() const    { Q_ASSERT(0); return QGradient::NoGradient; }
     QGradient::Spread fakeGradientSpread() const  { Q_ASSERT(0); return QGradient::PadSpread; }
@@ -793,6 +795,15 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
         v = qVariantFromValue(QCursor(static_cast<Qt::CursorShape>(p->elementCursor())));
     } break;
 
+    case DomProperty::CursorShape: {
+        int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("cursorShape");
+        Q_ASSERT(e_index != -1);
+        QMetaEnum cursorShape_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
+
+        int shape = cursorShape_enum.keyToValue(p->elementCursorShape().toLatin1());
+        v = qVariantFromValue(QCursor((Qt::CursorShape)shape));
+    } break;
+
     case DomProperty::Set: {
         QByteArray pname = p->attributeName().toUtf8();
         int index = meta->indexOfProperty(pname);
@@ -833,8 +844,24 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
         sizePolicy.setHorizontalStretch(sizep->elementHorStretch());
         sizePolicy.setVerticalStretch(sizep->elementVerStretch());
 
-        sizePolicy.setHorizontalPolicy((QSizePolicy::Policy) sizep->elementHSizeType());
-        sizePolicy.setVerticalPolicy((QSizePolicy::Policy) sizep->elementVSizeType());
+        int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("sizeType");
+        Q_ASSERT(e_index != -1);
+        QMetaEnum sizeType_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
+
+        if (sizep->hasElementHSizeType()) {
+            sizePolicy.setHorizontalPolicy((QSizePolicy::Policy) sizep->elementHSizeType());
+        } else if (sizep->hasAttributeHSizeType()) {
+            int sp = sizeType_enum.keyToValue(sizep->attributeHSizeType().toLatin1());
+            sizePolicy.setHorizontalPolicy((QSizePolicy::Policy)sp);
+        }
+
+        if (sizep->hasElementVSizeType()) {
+            sizePolicy.setVerticalPolicy((QSizePolicy::Policy) sizep->elementVSizeType());
+        } else if (sizep->hasAttributeVSizeType()) {
+            int sp = sizeType_enum.keyToValue(sizep->attributeVSizeType().toLatin1());
+            sizePolicy.setVerticalPolicy((QSizePolicy::Policy)sp);
+        }
+
         v = qVariantFromValue(sizePolicy);
     } break;
 
@@ -1560,7 +1587,11 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
         } break;
 
         case QVariant::Cursor: {
-            dom_prop->setElementCursor(qvariant_cast<QCursor>(v).shape());
+            int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("cursorShape");
+            Q_ASSERT(e_index != -1);
+            QMetaEnum cursorShape_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
+
+            dom_prop->setElementCursorShape(cursorShape_enum.valueToKey(qvariant_cast<QCursor>(v).shape()));
         } break;
 
         case QVariant::KeySequence: {
@@ -1592,8 +1623,12 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
             dom->setElementHorStretch(sizePolicy.horizontalStretch());
             dom->setElementVerStretch(sizePolicy.verticalStretch());
 
-            dom->setElementHSizeType(sizePolicy.horizontalPolicy());
-            dom->setElementVSizeType(sizePolicy.verticalPolicy());
+            int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("sizeType");
+            Q_ASSERT(e_index != -1);
+            QMetaEnum sizeType_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
+
+            dom->setAttributeHSizeType(sizeType_enum.valueToKey(sizePolicy.horizontalPolicy()));
+            dom->setAttributeVSizeType(sizeType_enum.valueToKey(sizePolicy.verticalPolicy()));
 
             dom_prop->setElementSizePolicy(dom);
         } break;

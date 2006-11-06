@@ -683,6 +683,10 @@ void WriteInitialization::writeProperties(const QString &varName,
             propertyValue = QString::fromLatin1("QCursor(static_cast<Qt::CursorShape>(%1))")
                             .arg(p->elementCursor());
             break;
+        case DomProperty::CursorShape:
+            propertyValue = QString::fromLatin1("QCursor(Qt::%1)")
+                            .arg(p->elementCursorShape());
+            break;
         case DomProperty::Enum:
             propertyValue = p->elementEnum();
             if (!propertyValue.contains(QLatin1String("::")))
@@ -783,10 +787,17 @@ void WriteInitialization::writeProperties(const QString &varName,
         case DomProperty::SizePolicy: {
             DomSizePolicy *sp = p->elementSizePolicy();
             QString spName = driver->unique(QLatin1String("sizePolicy"));
-            output << option.indent << "QSizePolicy " << spName << QString::fromLatin1(
-                "(static_cast<QSizePolicy::Policy>(%1), static_cast<QSizePolicy::Policy>(%2));\n")
+            if (sp->hasElementHSizeType() && sp->hasElementVSizeType()) {
+                output << option.indent << "QSizePolicy " << spName << QString::fromLatin1(
+                    "(static_cast<QSizePolicy::Policy>(%1), static_cast<QSizePolicy::Policy>(%2));\n")
                             .arg(sp->elementHSizeType())
                             .arg(sp->elementVSizeType());
+            } else if (sp->hasAttributeHSizeType() && sp->hasAttributeVSizeType()) {
+                output << option.indent << "QSizePolicy " << spName << QString::fromLatin1(
+                    "(QSizePolicy::%1, QSizePolicy::%2);\n")
+                            .arg(sp->attributeHSizeType())
+                            .arg(sp->attributeVSizeType());
+            }
             output << option.indent << spName << ".setHorizontalStretch("
                 << sp->elementHorStretch() << ");\n";
             output << option.indent << spName << ".setVerticalStretch("

@@ -336,6 +336,8 @@
                         <xs:element name="horStretch" type="xs:integer" />
                         <xs:element name="verStretch" type="xs:integer" />
                 </xs:sequence>
+                <xs:attribute name="hSizeType" type="xs:string" />
+                <xs:attribute name="vSizeType" type="xs:string" />
         </xs:complexType>
 
         <xs:complexType name="Size">
@@ -431,6 +433,7 @@
                         <xs:element name="color" type="Color" />
                         <xs:element name="cstring" type="xs:string" />
                         <xs:element name="cursor" type="xs:integer" />
+                        <xs:element name="cursorShape" type="xs:string" />
                         <xs:element name="enum" type="xs:string" />
                         <xs:element name="font" type ="Font" />
                         <xs:element name="iconSet" type="ResourcePixmap" />

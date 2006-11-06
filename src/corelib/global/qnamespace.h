@@ -38,6 +38,7 @@ Qt {
     Q_ENUMS(TextElideMode)
     Q_ENUMS(TextInteractionFlags)
     Q_ENUMS(WindowModality ToolBarAreas DayOfWeek)
+    Q_ENUMS(CursorShape)
 public:
 #endif
     enum GlobalColor {

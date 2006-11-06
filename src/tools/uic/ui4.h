@@ -1893,6 +1893,16 @@ public:
     inline void setText(const QString &s) { m_text = s; }
 
     // attribute accessors
+    inline bool hasAttributeHSizeType() const { return m_has_attr_hSizeType; }
+    inline QString attributeHSizeType() const { return m_attr_hSizeType; }
+    inline void setAttributeHSizeType(const QString& a) { m_attr_hSizeType = a; m_has_attr_hSizeType = true; }
+    inline void clearAttributeHSizeType() { m_has_attr_hSizeType = false; }
+
+    inline bool hasAttributeVSizeType() const { return m_has_attr_vSizeType; }
+    inline QString attributeVSizeType() const { return m_attr_vSizeType; }
+    inline void setAttributeVSizeType(const QString& a) { m_attr_vSizeType = a; m_has_attr_vSizeType = true; }
+    inline void clearAttributeVSizeType() { m_has_attr_vSizeType = false; }
+
     // child element accessors
     inline int elementHSizeType() const { return m_hSizeType; }
     void setElementHSizeType(int a);
@@ -1919,6 +1929,12 @@ private:
     void clear(bool clear_all = true);
 
     // attribute data
+    QString m_attr_hSizeType;
+    bool m_has_attr_hSizeType;
+
+    QString m_attr_vSizeType;
+    bool m_has_attr_vSizeType;
+
     // child element data
     uint m_children;
     int m_hSizeType;
@@ -2465,7 +2481,7 @@ public:
     inline void clearAttributeStdset() { m_has_attr_stdset = false; }
 
     // child element accessors
-    enum Kind { Unknown = 0, Bool, Color, Cstring, Cursor, Enum, Font, IconSet, Pixmap, Palette, Point, Rect, Set, SizePolicy, Size, String, StringList, Number, Float, Double, Date, Time, DateTime, PointF, RectF, SizeF, LongLong, Char, Url, UInt, ULongLong };
+    enum Kind { Unknown = 0, Bool, Color, Cstring, Cursor, CursorShape, Enum, Font, IconSet, Pixmap, Palette, Point, Rect, Set, SizePolicy, Size, String, StringList, Number, Float, Double, Date, Time, DateTime, PointF, RectF, SizeF, LongLong, Char, Url, UInt, ULongLong };
     inline Kind kind() const { return m_kind; }
 
     inline QString elementBool() const { return m_bool; }
@@ -2479,6 +2495,9 @@ public:
 
     inline int elementCursor() const { return m_cursor; }
     void setElementCursor(int a);
+
+    inline QString elementCursorShape() const { return m_cursorShape; }
+    void setElementCursorShape(const QString& a);
 
     inline QString elementEnum() const { return m_enum; }
     void setElementEnum(const QString& a);
@@ -2575,6 +2594,7 @@ private:
     DomColor* m_color;
     QString m_cstring;
     int m_cursor;
+    QString m_cursorShape;
     QString m_enum;
     DomFont* m_font;
     DomResourcePixmap* m_iconSet;
