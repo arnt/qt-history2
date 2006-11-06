@@ -1693,7 +1693,9 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
         default:
             if (QApplication::keypadNavigationEnabled()) {
                 if (!hasEditFocus() && !(event->modifiers() & Qt::ControlModifier)) {
-                    if (!event->text().isEmpty() && event->text().at(0).isPrint()) {
+                    if (!event->text().isEmpty() && event->text().at(0).isPrint()
+                        && !isReadOnly())
+                    {
                         setEditFocus(true);
                         clear();
                     } else {
