@@ -37,9 +37,9 @@
     For example, all the digit buttons (labeled \gui 0 to \gui 9)
     append a digit to the current operand. For these, we connect
     multiple buttons to the same slot (e.g., \c digitClicked()). The
-    categories are digits, unary operators (\gui{Sqrt}, \gui{x²},
+    categories are digits, unary operators (\gui{Sqrt}, \gui{x\unicode{178}},
     \gui{1/x}), additive operators (\gui{+}, \gui{-}), and
-    multiplicative operators (\gui{×}, \gui{÷}). The other buttons
+    multiplicative operators (\gui{\unicode{215}}, \gui{\unicode{247}}). The other buttons
     have their own slots.
 
     \printline private:
@@ -49,7 +49,7 @@
     widget construction. \c abortOperation() is called whenever a
     division by zero occurs or when a square root operation is
     applied to a negative number. \c calculate() applies a binary
-    operator (\gui{+}, \gui{-}, \gui{×}, or \gui{÷}).
+    operator (\gui{+}, \gui{-}, \gui{\unicode{215}}, or \gui{\unicode{247}}).
 
     \printline sumInMemory
     \printline sumSoFar
@@ -78,8 +78,8 @@
     \endlist
 
     Additive and multiplicative operators are treated differently
-    because they have different precedences. For example, \gui{1 + 2 ÷
-    3} is interpreted as \gui{1 + (2 ÷ 3)} because \gui{÷} has higher
+    because they have different precedences. For example, \gui{1 + 2 \unicode{247}
+    3} is interpreted as \gui{1 + (2 \unicode{247} 3)} because \gui{\unicode{247}} has higher
     precedence than \gui{+}.
 
     The table below shows the evolution of the calculator state as
@@ -91,11 +91,11 @@
     \row    \o \gui{1}               \o 1        \o 0          \o          \o               \o           \o \c false
     \row    \o \gui{1 +}             \o 1        \o 1          \o \gui{+}  \o               \o           \o \c true
     \row    \o \gui{1 + 2}           \o 2        \o 1          \o \gui{+}  \o               \o           \o \c false
-    \row    \o \gui{1 + 2 ÷}         \o 2        \o 1          \o \gui{+}  \o 2             \o \gui{÷}   \o \c true
-    \row    \o \gui{1 + 2 ÷ 3}       \o 3        \o 1          \o \gui{+}  \o 2             \o \gui{÷}   \o \c false
-    \row    \o \gui{1 + 2 ÷ 3 -}     \o 1.66667  \o 1.66667    \o \gui{-}  \o               \o           \o \c true
-    \row    \o \gui{1 + 2 ÷ 3 - 4}   \o 4        \o 1.66667    \o \gui{-}  \o               \o           \o \c false
-    \row    \o \gui{1 + 2 ÷ 3 - 4 =} \o -2.33333 \o 0          \o          \o               \o           \o \c true
+    \row    \o \gui{1 + 2 \unicode{247}}         \o 2        \o 1          \o \gui{+}  \o 2             \o \gui{\unicode{247}}   \o \c true
+    \row    \o \gui{1 + 2 \unicode{247} 3}       \o 3        \o 1          \o \gui{+}  \o 2             \o \gui{\unicode{247}}   \o \c false
+    \row    \o \gui{1 + 2 \unicode{247} 3 -}     \o 1.66667  \o 1.66667    \o \gui{-}  \o               \o           \o \c true
+    \row    \o \gui{1 + 2 \unicode{247} 3 - 4}   \o 4        \o 1.66667    \o \gui{-}  \o               \o           \o \c false
+    \row    \o \gui{1 + 2 \unicode{247} 3 - 4 =} \o -2.33333 \o 0          \o          \o               \o           \o \c true
     \endtable
 
     Unary operators, such as \gui Sqrt, require no special handling;
@@ -165,7 +165,7 @@
     Pressing one of the calculator's digit buttons will emit the
     button's \l{QToolButton::clicked()}{clicked()} signal, which will
     trigger the \c digitClicked() slot.
-    
+
     First, we find out which button sent the signal using
     QObject::sender(). This function returns the sender as a QObject
     pointer. Since we know that the sender is a \c Button object, we
@@ -217,9 +217,9 @@
     \printline pendingMultiplicativeOperator.isEmpty
     \printto pendingAdditiveOperator.isEmpty
 
-    If \gui{×} or \gui{÷} has been clicked earlier, without clicking
+    If \gui{\unicode{215}} or \gui{\unicode{247}} has been clicked earlier, without clicking
     \gui{=} afterward, the current value in the display is the right
-    operand of the \gui{×} or \gui{÷} operator and we can finally
+    operand of the \gui{\unicode{215}} or \gui{\unicode{247}} operator and we can finally
     perform the operation and update the display.
 
     \printline pendingAdditiveOperator.isEmpty
