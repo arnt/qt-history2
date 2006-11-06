@@ -1071,8 +1071,9 @@ void QListWidgetPrivate::_q_dataChanged(const QModelIndex &topLeft,
     \printuntil new QListWidgetItem(tr("Pine")
 
     If you need to insert a new item into the list at a particular position,
-    it is more convenient to construct the item without a parent widget and
-    use the insertItem() function to place it within the list:
+    it is more required to construct the item without a parent widget and
+    use the insertItem() function to place it within the list.  The list
+    widget will take ownership of the item.
 
     \skipto QListWidgetItem *newItem
     \printuntil newItem->setText
