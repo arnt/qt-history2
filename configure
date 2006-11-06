@@ -4646,6 +4646,10 @@ if [ "$CFG_LARGEFILE" = "yes" ]; then
     echo "#define QT_LARGEFILE_SUPPORT 64" >>"$outpath/src/corelib/global/qconfig.h.new"
 fi
 
+if [ "$CFG_FRAMEWORK" = "yes" ]; then
+    echo "#define QT_MAC_FRAMEWORK_BUILD" >>"$outpath/src/corelib/global/qconfig.h.new"
+fi
+
 "$unixtests/ptrsize.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath"
 echo "#define QT_POINTER_SIZE $?" >>"$outpath/src/corelib/global/qconfig.h.new"
 echo "" >>"$outpath/src/corelib/global/qconfig.h.new"
