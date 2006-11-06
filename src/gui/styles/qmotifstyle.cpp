@@ -376,14 +376,14 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
                 int y = 3 + (h%3)/2;
                 p->setPen(dark);
                 p->drawLine(8, 1, 8, h-2);
-                for(i=0; 2*i < a.size(); i ++) {
+                for (i=0; 2*i < a.size(); ++i) {
                     a.setPoint(2*i, 5, y+1+3*i);
                     a.setPoint(2*i+1, 2, y+2+3*i);
                 }
                 p->drawPoints(a);
                 p->setPen(light);
                 p->drawLine(9, 1, 9, h-2);
-                for(i=0; 2*i < a.size(); i++) {
+                for (i=0; 2*i < a.size(); i++) {
                     a.setPoint(2*i, 4, y+3*i);
                     a.setPoint(2*i+1, 1, y+1+3*i);
                 }
@@ -404,14 +404,14 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
                 int x = 3 + (w%3)/2;
                 p->setPen(dark);
                 p->drawLine(1, 8, w-2, 8);
-                for(i=0; 2*i < a.size(); i ++) {
+                for (i=0; 2*i < a.size(); ++i) {
                     a.setPoint(2*i, x+1+3*i, 6);
                     a.setPoint(2*i+1, x+2+3*i, 3);
                 }
                 p->drawPoints(a);
                 p->setPen(light);
                 p->drawLine(1, 9, w-2, 9);
-                for(i=0; 2*i < a.size(); i++) {
+                for (i=0; 2*i < a.size(); ++i) {
                     a.setPoint(2*i, x+3*i, 5);
                     a.setPoint(2*i+1, x+1+3*i, 2);
                 }

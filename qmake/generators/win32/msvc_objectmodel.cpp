@@ -2198,7 +2198,7 @@ XmlOutput &operator<<(XmlOutput &xml, const VCProjectSingleConfig &tool)
                 << (VCFilter&)tool.TranslationFiles
                 << (VCFilter&)tool.FormFiles
                 << (VCFilter&)tool.ResourceFiles;
-    for(int j = 0; j < tool.ExtraCompilersFiles.size(); ++j)
+    for (int j = 0; j < tool.ExtraCompilersFiles.size(); ++j)
         xml     << (VCFilter&)tool.ExtraCompilersFiles.at(j);
     xml     << (VCFilter&)tool.RootFiles
             << closetag(_Files)
@@ -2219,11 +2219,11 @@ void TreeNode::generateXML(XmlOutput &xml, const QString &tagName, VCProject &to
                 << attr("Filter", "");
         }
         // First round, do nested filters
-        for(it = children.constBegin(); it != end; it++)
+        for (it = children.constBegin(); it != end; ++it)
             if ((*it)->children.size())
                 (*it)->generateXML(xml, it.key(), tool, filter);
         // Second round, do leafs
-        for(it = children.constBegin(); it != end; it++)
+        for (it = children.constBegin(); it != end; ++it)
             if (!(*it)->children.size())
                 (*it)->generateXML(xml, it.key(), tool, filter);
 
@@ -2241,7 +2241,7 @@ void FlatNode::generateXML(XmlOutput &xml, const QString &/*tagName*/, VCProject
     if (children.size()) {
         ChildrenMapFlat::ConstIterator it = children.constBegin();
         ChildrenMapFlat::ConstIterator end = children.constEnd();
-        for( ; it != end; it++) {
+        for (; it != end; ++it) {
             tool.outputFileConfigs(xml, (*it), filter);
         }
     }

@@ -443,7 +443,7 @@ static QByteArray qt_create_environment(const QStringList &environment)
         }
 #ifdef UNICODE
         if (!(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)) {
-            for (QStringList::ConstIterator it = envStrings.constBegin(); it != envStrings.constEnd(); it++ ) {
+            for (QStringList::ConstIterator it = envStrings.constBegin(); it != envStrings.constEnd(); ++it) {
                 QString tmp = *it;
                 uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
                 envlist.resize(envlist.size() + tmpSize);
