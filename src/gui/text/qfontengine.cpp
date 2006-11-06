@@ -402,7 +402,7 @@ QFontEngine::Properties QFontEngine::properties() const
     p.descent = descent();
     p.leading = leading();
     p.emSquare = p.ascent;
-    p.boundingBox = QRectF(0, p.ascent.toReal(), maxCharWidth(), (p.ascent + p.descent).toReal());
+    p.boundingBox = QRectF(0, -p.ascent.toReal(), maxCharWidth(), (p.ascent + p.descent).toReal());
     p.italicAngle = 0;
     p.capHeight = p.ascent;
     p.lineWidth = lineThickness();
