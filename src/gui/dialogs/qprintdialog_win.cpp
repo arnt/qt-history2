@@ -45,7 +45,7 @@ public:
 
 #ifndef Q_OS_TEMP
 // If you change this function, make sure you also change the unicode equivalent
-static PRINTDLGA *qt_win_make_PRINTDLGA(QWidget *parent, QPrintDialogPrivate *d, HGLOBAL *tempDevNames)
+static PRINTDLGA *qt_win_make_PRINTDLGA(QWidget *parent, QPrintDialog *pdlg, QPrintDialogPrivate *d, HGLOBAL *tempDevNames)
 {
     PRINTDLGA *pd = new PRINTDLGA;
     memset(pd, 0, sizeof(PRINTDLGA));
@@ -67,19 +67,19 @@ static PRINTDLGA *qt_win_make_PRINTDLGA(QWidget *parent, QPrintDialogPrivate *d,
     pd->Flags = PD_RETURNDC;
     pd->Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
 
-    if (!(d->options & QPrintDialog::PrintSelection))
+    if (!pdlg->isOptionEnabled(QPrintDialog::PrintSelection))
         pd->Flags |= PD_NOSELECTION;
-    if (d->options & QPrintDialog::PrintPageRange) {
-        pd->nMinPage = d->minPage;
-        pd->nMaxPage = d->maxPage;
+    if (pdlg->isOptionEnabled(QPrintDialog::PrintPageRange)) {
+        pd->nMinPage = pdlg->minPage();
+        pd->nMaxPage = pdlg->maxPage();
     }
 
-    if(!(d->options & QPrintDialog::PrintToFile))
+    if(!pdlg->isOptionEnabled(QPrintDialog::PrintToFile))
         pd->Flags |= PD_DISABLEPRINTTOFILE;
 
-    if (d->printRange == QPrintDialog::Selection)
+    if (pdlg->printRange() == QPrintDialog::Selection)
         pd->Flags |= PD_SELECTION;
-    else if (d->printRange == QPrintDialog::PageRange)
+    else if (pdlg->printRange() == QPrintDialog::PageRange)
         pd->Flags |= PD_PAGENUMS;
     else
         pd->Flags |= PD_ALLPAGES;
@@ -93,8 +93,8 @@ static PRINTDLGA *qt_win_make_PRINTDLGA(QWidget *parent, QPrintDialogPrivate *d,
         pd->Flags |= PD_PRINTTOFILE;
     Q_ASSERT(!parent ||parent->testAttribute(Qt::WA_WState_Created));
     pd->hwndOwner = parent ? parent->winId() : 0;
-    pd->nFromPage = qMax(d->fromPage, d->minPage);
-    pd->nToPage   = qMin(d->toPage, d->maxPage);
+    pd->nFromPage = qMax(pdlg->fromPage(), pdlg->minPage());
+    pd->nToPage   = qMin(pdlg->toPage(), pdlg->maxPage());
     pd->nCopies = d->ep->num_copies;
 
     return pd;
@@ -108,20 +108,17 @@ static void qt_win_clean_up_PRINTDLGA(PRINTDLGA **pd)
 }
 
 // If you change this function, make sure you also change the unicode equivalent
-static void qt_win_read_back_PRINTDLGA(PRINTDLGA *pd, QPrintDialogPrivate *d)
+static void qt_win_read_back_PRINTDLGA(PRINTDLGA *pd, QPrintDialog *pdlg, QPrintDialogPrivate *d)
 {
     if (pd->Flags & PD_SELECTION) {
-        d->printRange = QPrintDialog::Selection;
-        d->fromPage = 0;
-        d->toPage = 0;
+        pdlg->setPrintRange(QPrintDialog::Selection);
+        pdlg->setFromTo(0, 0);
     } else if (pd->Flags & PD_PAGENUMS) {
-        d->printRange = QPrintDialog::PageRange;
-        d->fromPage = pd->nFromPage;
-        d->toPage = pd->nToPage;
+        pdlg->setPrintRange(QPrintDialog::PageRange);
+        pdlg->setFromTo(pd->nFromPage, pd->nToPage);
     } else {
-        d->printRange = QPrintDialog::AllPages;
-        d->fromPage = 0;
-        d->toPage = 0;
+        pdlg->setPrintRange(QPrintDialog::AllPages);
+        pdlg->setFromTo(0, 0);
     }
 
     d->ep->printToFile = (pd->Flags & PD_PRINTTOFILE) != 0;
@@ -133,7 +130,7 @@ static void qt_win_read_back_PRINTDLGA(PRINTDLGA *pd, QPrintDialogPrivate *d)
 
 #ifdef UNICODE
 // If you change this function, make sure you also change the ansi equivalent
-static PRINTDLGW *qt_win_make_PRINTDLGW(QWidget *parent, QPrintDialogPrivate *d, HGLOBAL *tempDevNames)
+static PRINTDLGW *qt_win_make_PRINTDLGW(QWidget *parent, QPrintDialog *pdlg, QPrintDialogPrivate *d, HGLOBAL *tempDevNames)
 {
     PRINTDLGW *pd = new PRINTDLGW;
     memset(pd, 0, sizeof(PRINTDLGW));
@@ -155,19 +152,19 @@ static PRINTDLGW *qt_win_make_PRINTDLGW(QWidget *parent, QPrintDialogPrivate *d,
     pd->Flags = PD_RETURNDC;
     pd->Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
 
-    if (!(d->options & QPrintDialog::PrintSelection))
+    if (!pdlg->isOptionEnabled(QPrintDialog::PrintSelection))
         pd->Flags |= PD_NOSELECTION;
-    if (d->options & QPrintDialog::PrintPageRange) {
-        pd->nMinPage = d->minPage;
-        pd->nMaxPage = d->maxPage;
+    if (pdlg->isOptionEnabled(QPrintDialog::PrintPageRange)) {
+        pd->nMinPage = pdlg->minPage();
+        pd->nMaxPage = pdlg->maxPage();
     }
 
-    if(!(d->options & QPrintDialog::PrintToFile))
+    if(!pdlg->isOptionEnabled(QPrintDialog::PrintToFile))
         pd->Flags |= PD_DISABLEPRINTTOFILE;
 
-    if (d->printRange == QPrintDialog::Selection)
+    if (pdlg->printRange() == QPrintDialog::Selection)
         pd->Flags |= PD_SELECTION;
-    else if (d->printRange == QPrintDialog::PageRange)
+    else if (pdlg->printRange() == QPrintDialog::PageRange)
         pd->Flags |= PD_PAGENUMS;
     else
         pd->Flags |= PD_ALLPAGES;
@@ -181,8 +178,8 @@ static PRINTDLGW *qt_win_make_PRINTDLGW(QWidget *parent, QPrintDialogPrivate *d,
         pd->Flags |= PD_PRINTTOFILE;
     Q_ASSERT(!parent ||parent->testAttribute(Qt::WA_WState_Created));
     pd->hwndOwner = parent ? parent->winId() : 0;
-    pd->nFromPage = qMax(d->fromPage, d->minPage);
-    pd->nToPage   = qMin(d->toPage, d->maxPage);
+    pd->nFromPage = qMax(pdlg->fromPage(), pdlg->minPage());
+    pd->nToPage   = qMin(pdlg->toPage(), pdlg->maxPage());
     pd->nCopies = d->ep->num_copies;
 
     return pd;
@@ -196,20 +193,17 @@ static void qt_win_clean_up_PRINTDLGW(PRINTDLGW **pd)
 }
 
 // If you change this function, make sure you also change the ansi equivalent
-static void qt_win_read_back_PRINTDLGW(PRINTDLGW *pd, QPrintDialogPrivate *d)
+static void qt_win_read_back_PRINTDLGW(PRINTDLGW *pd, QPrintDialog *pdlg, QPrintDialogPrivate *d)
 {
     if (pd->Flags & PD_SELECTION) {
-        d->printRange = QPrintDialog::Selection;
-        d->fromPage = 0;
-        d->toPage = 0;
+        pdlg->setPrintRange(QPrintDialog::Selection);
+        pdlg->setFromTo(0, 0);
     } else if (pd->Flags & PD_PAGENUMS) {
-        d->printRange = QPrintDialog::PageRange;
-        d->fromPage = pd->nFromPage;
-        d->toPage = pd->nToPage;
+        pdlg->setPrintRange(QPrintDialog::PageRange);
+        pdlg->setFromTo(pd->nFromPage, pd->nToPage);
     } else {
-        d->printRange = QPrintDialog::AllPages;
-        d->fromPage = 0;
-        d->toPage = 0;
+        pdlg->setPrintRange(QPrintDialog::AllPages);
+        pdlg->setFromTo(0, 0);
     }
 
     d->ep->printToFile = (pd->Flags & PD_PRINTTOFILE) != 0;
@@ -259,13 +253,13 @@ int QPrintDialog::exec()
     bool result;
     void *voidp;
     QT_WA({
-        PRINTDLGW *pd = qt_win_make_PRINTDLGW(parent, d, tempDevNames);
+        PRINTDLGW *pd = qt_win_make_PRINTDLGW(parent, this, d, tempDevNames);
         voidp = pd; // store until later
         result = PrintDlgW(pd);
         if (result && pd->hDC == 0)
             result = false;
     }, {
-        PRINTDLGA *pd = qt_win_make_PRINTDLGA(parent, d, tempDevNames);
+        PRINTDLGA *pd = qt_win_make_PRINTDLGA(parent, this, d, tempDevNames);
         voidp = pd; // store until later
         result = PrintDlgA(pd);
         if (result && pd->hDC == 0)
@@ -280,11 +274,11 @@ int QPrintDialog::exec()
     if (result) {
         QT_WA({
             PRINTDLGW *pd = reinterpret_cast<PRINTDLGW *>(voidp);
-            qt_win_read_back_PRINTDLGW(pd, d);
+            qt_win_read_back_PRINTDLGW(pd, this, d);
             qt_win_clean_up_PRINTDLGW(&pd);
         }, {
             PRINTDLGA *pd = reinterpret_cast<PRINTDLGA *>(voidp);
-            qt_win_read_back_PRINTDLGA(pd, d);
+            qt_win_read_back_PRINTDLGA(pd, this, d);
             qt_win_clean_up_PRINTDLGA(&pd);
         });
     }

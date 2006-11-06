@@ -1203,18 +1203,19 @@ bool QPrintDialogPrivate::setupPrinter()
 
 void QPrintDialogPrivate::updateWidgets()
 {
-    ui.gbPrintRange->setEnabled(options & QPrintDialog::PrintPageRange);
-    ui.rbPrintSelection->setEnabled(options & QPrintDialog::PrintSelection);
-    ui.chbPrintToFile->setEnabled(options & QPrintDialog::PrintToFile);
-    ui.chbCollate->setEnabled(options & QPrintDialog::PrintCollateCopies);
+    Q_Q(QPrintDialog);
+    ui.gbPrintRange->setEnabled(q->isOptionEnabled(QPrintDialog::PrintPageRange));
+    ui.rbPrintSelection->setEnabled(q->isOptionEnabled(QPrintDialog::PrintSelection));
+    ui.chbPrintToFile->setEnabled(q->isOptionEnabled(QPrintDialog::PrintToFile));
+    ui.chbCollate->setEnabled(q->isOptionEnabled(QPrintDialog::PrintCollateCopies));
 
-    ui.sbFrom->setMinimum(minPage);
-    ui.sbTo->setMinimum(minPage);
-    ui.sbFrom->setMaximum(maxPage);
-    ui.sbTo->setMaximum(maxPage);
+    ui.sbFrom->setMinimum(q->minPage());
+    ui.sbTo->setMinimum(q->minPage());
+    ui.sbFrom->setMaximum(q->maxPage());
+    ui.sbTo->setMaximum(q->maxPage());
 
-    ui.sbFrom->setValue(fromPage);
-    ui.sbTo->setValue(toPage);
+    ui.sbFrom->setValue(q->fromPage());
+    ui.sbTo->setValue(q->toPage());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -60,10 +60,10 @@ int QPrintDialog::exec()
     // It seems the only way that Carbon lets you use all is if the minimum
     // for the page range is 1. This _kind of_ makes sense if you think about
     // it. However, calling _q_setFirstPage or _q_setLastPage always enforces the range.
-    PMSetPageRange(d->ep->settings, d->minPage, d->maxPage);
+    PMSetPageRange(d->ep->settings, minPage(), maxPage());
     if (d->printRange == PageRange) {
-        PMSetFirstPage(d->ep->settings, d->fromPage, false);
-        PMSetLastPage(d->ep->settings, d->toPage, false);
+        PMSetFirstPage(d->ep->settings, fromPage(), false);
+        PMSetLastPage(d->ep->settings, toPage(), false);
     }
     { //simulate modality
 	QWidget modal_widg(0, Qt::Window);
@@ -73,25 +73,25 @@ int QPrintDialog::exec()
 	QApplicationPrivate::leaveModal(&modal_widg);
     }
     if (result) {
-        UInt32 page;
-        PMGetFirstPage(d->ep->settings, &page);
-        d->fromPage = page;
-        PMGetLastPage(d->ep->settings, &page);
-        d->toPage = qMin(UInt32(INT_MAX), page);
+        UInt32 frompage, topage;
+        PMGetFirstPage(d->ep->settings, &frompage);
+        PMGetLastPage(d->ep->settings, &topage);
+        topage = qMin(UInt32(INT_MAX), topage);
+        setFromTo(frompage, topage);
 
         // OK, I need to map these values back let's see
         // If from is 1 and to is INT_MAX, then print it all
         // (Apologies to the folks with more than INT_MAX pages)
         // ...that's a joke.
-        if (d->fromPage == 1 && d->toPage == INT_MAX) {
-            d->printRange = AllPages;
-            d->fromPage = d->toPage = 0;
+        if (fromPage() == 1 && toPage() == INT_MAX) {
+            setPrintRange(AllPages);
+            setFromTo(0,0);
         } else {
-            d->printRange = PageRange; // In a way a lie, but it shouldn't hurt.
+            setPrintRange(PageRange); // In a way a lie, but it shouldn't hurt.
             // Carbon hands us back a very large number here even for ALL, set it to max
             // in that case to follow the behavior of the other print dialogs.
-            if (d->maxPage < d->toPage)
-                d->toPage = d->maxPage;
+            if (maxPage() < toPage())
+                setFromTo(fromPage(), maxPage());
         }
         // Keep us in sync with file output
         PMDestinationType dest;
