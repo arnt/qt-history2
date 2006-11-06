@@ -1373,7 +1373,8 @@ void QCalendarWidget::setSelectedDate(const QDate &date)
 }
 
 /*!
-    Returns the year of the currently displayed month.
+    Returns the year of the currently displayed month. Months are 
+    numbered from 1 to 12.
 
     \sa monthShown(), setCurrentPage()
 */
@@ -1385,7 +1386,8 @@ int QCalendarWidget::yearShown() const
 }
 
 /*!
-    Returns the currently displayed month.
+    Returns the currently displayed month. Months are numbered from 1 to 
+    12.
 
     \sa yearShown(), setCurrentPage()
 */
@@ -1790,7 +1792,9 @@ void QCalendarWidget::setGridVisible(bool show)
     the keyboard.
 
     When the property is set to NoSelection, the user will be unable to select
-    dates, but they can still be selected programmatically.
+    dates, but they can still be selected programmatically. Note that the date 
+    that is selected when the property is set to NoSelection will still be 
+    the selected date of the calendar.
 
     The default value is SingleSelection.
 */
@@ -1841,6 +1845,10 @@ QTextCharFormat QCalendarWidget::headerTextFormat() const
 
 /*!
     Sets the text char format for rendering the header to \a format.
+    If you also set a weekday text format, this format's foreground and
+    background color will take precedence over the header's format. 
+    The other formatting information will still be decided by 
+    the header's format. 
 */
 void QCalendarWidget::setHeaderTextFormat(const QTextCharFormat &format)
 {
@@ -1863,6 +1871,8 @@ QTextCharFormat QCalendarWidget::weekdayTextFormat(Qt::DayOfWeek dayOfWeek) cons
 
 /*!
     Sets the text char format for rendering of day in the week \a dayOfWeek to \a format.
+    The format will take precedence over the header format in case of foreground 
+    and background color. Other text formatting information is taken from the headers format. 
 
     \sa setHeaderTextFormat()
 */
