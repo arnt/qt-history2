@@ -74,7 +74,7 @@ public:
     \endcode
 
     In this example the shortcut is \e{Alt+D}. See the \l
-    {QShortcut#ampersand}{QShortcut} documentation for details (to
+    {QShortcut#mnemonic}{QShortcut} documentation for details (to
     display an actual ampersand, use '&&').
 
     Push buttons display a textual label, and optionally a small

@@ -66,7 +66,7 @@ public:
     \endcode
 
     In this example the shortcut is \e{Alt+c}. See the \l
-    {QShortcut#ampersand}{QShortcut} documentation for details (to
+    {QShortcut#mnemonic}{QShortcut} documentation for details (to
     display an actual ampersand, use '&&').
 
     Important inherited members: text(), setText(), text(),

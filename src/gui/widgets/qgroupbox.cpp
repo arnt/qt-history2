@@ -231,7 +231,7 @@ void QGroupBox::setTitle(const QString &title)
     \endcode
 
     In the example above, \key Alt+U moves the keyboard focus to the
-    group box. See the \l {QShortcut#ampersand}{QShortcut}
+    group box. See the \l {QShortcut#mnemonic}{QShortcut}
     documentation for details (to display an actual ampersand, use
     '&&').
 

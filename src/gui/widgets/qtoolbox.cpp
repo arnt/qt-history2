@@ -583,7 +583,7 @@ void QToolBox::setItemEnabled(int index, bool enabled)
     mnemonic is automatically created for it. The character that
     follows the '&' will be used as the shortcut key. Any previous
     mnemonic will be overwritten, or cleared if no mnemonic is defined
-    by the text. See the \l {QShortcut#ampersand}{QShortcut}
+    by the text. See the \l {QShortcut#mnemonic}{QShortcut}
     documentation for details (to display an actual ampersand, use
     '&&').
 */

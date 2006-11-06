@@ -72,7 +72,7 @@ public:
     \endcode
 
     In this example the shortcut is \e{Alt+A}. See the \l
-    {QShortcut#ampersand}{QShortcut} documentation for details (to
+    {QShortcut#mnemonic}{QShortcut} documentation for details (to
     display an actual ampersand, use '&&').
 
     Important inherited functions: text(), setText(), text(),

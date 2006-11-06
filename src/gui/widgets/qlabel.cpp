@@ -1019,7 +1019,7 @@ void QLabelPrivate::updateLabel()
     The buddy mechanism is only available for QLabels that contain
     plain text in which one character is prefixed with an ampersand,
     '&'.  This character is set as the shortcut key. See the \l
-    {QShortcut#ampersand}{QShortcut} documentation for details (to
+    {QShortcut#mnemonic}{QShortcut} documentation for details (to
     display an actual ampersand, use '&&').
 
     In a dialog, you might create two data entry widgets and a label

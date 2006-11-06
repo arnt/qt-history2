@@ -382,7 +382,7 @@ int QTabWidget::insertTab(int index, QWidget *w, const QIcon& icon, const QStrin
     shortcut is automatically created for it. The character that
     follows the '&' will be used as the shortcut key. Any previous
     shortcut will be overwritten, or cleared if no shortcut is defined
-    by the text. See the \l {QShortcut#ampersand}{QShortcut}
+    by the text. See the \l {QShortcut#mnemonic}{QShortcut}
     documentation for details (to display an actual ampersand, use
     '&&').
 

@@ -59,7 +59,7 @@
 
     The \key Alt+C shortcut is assigned to the button, i.e., when the
     user presses \key Alt+C the button will call animateClick(). See
-    the \l {QShortcut#ampersand}{QShortcut} documentation for details
+    the \l {QShortcut#mnemonic}{QShortcut} documentation for details
     (to display an actual ampersand, use '&&').
 
     You can also set a custom shortcut key using the setShortcut()
@@ -583,7 +583,7 @@ If the text contains an ampersand character ('&'), a shortcut is
 automatically created for it. The character that follows the '&' will
 be used as the shortcut key. Any previous shortcut will be
 overwritten, or cleared if no shortcut is defined by the text. See the
-\l {QShortcut#ampersand}{QShortcut} documentation for details (to
+\l {QShortcut#mnemonic}{QShortcut} documentation for details (to
 display an actual ampersand, use '&&').
 
 There is no default text.
