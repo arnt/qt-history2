@@ -265,7 +265,7 @@ void QWSWindowSurface::setDirty(const QRegion &region) const
     QRegion unclipped = region;
     if (!d_ptr->clip.isEmpty()) {
 #ifdef QT_EXPERIMENTAL_REGIONS
-        if (!qt_region_innerRect(d_ptr->clip).contains(region.boundingRect()))
+        if (!qt_region_strictContains(d_ptr->clip, region.boundingRect()))
 #endif
         {
             d_ptr->clippedDirty += (region - d_ptr->clip);

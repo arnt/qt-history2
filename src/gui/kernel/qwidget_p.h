@@ -219,6 +219,15 @@ public:
     bool isOpaque() const;
     bool hasBackground() const;
 
+#ifdef QT_EXPERIMENTAL_REGIONS
+    QRegion getOpaqueRegion() const;
+    QRegion getOpaqueChildren() const;
+    void setDirtyOpaqueRegion();
+
+    mutable QRegion opaqueChildren;
+    mutable bool dirtyOpaqueChildren;
+#endif
+
     enum CloseMode {
         CloseNoEvent,
         CloseWithEvent,

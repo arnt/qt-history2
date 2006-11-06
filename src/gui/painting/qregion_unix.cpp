@@ -2705,10 +2705,10 @@ QRect QRegion::boundingRect() const
     function might return an empty rectangle even though the region is not
     empty.
 */
-QRect qt_region_innerRect(const QRegion &region)
+bool qt_region_strictContains(const QRegion &region, const QRect &rect)
 {
-    if (region.isEmpty())
-        return QRect();
+    if (region.isEmpty() || rect.isNull())
+        return false;
 
 #if 0 // TEST_INNERRECT
     static bool guard = false;
@@ -2731,7 +2731,11 @@ QRect qt_region_innerRect(const QRegion &region)
     }
     Q_ASSERT(maxArea <= region.d->qt_rgn->innerArea);
 #endif
-    return region.d->qt_rgn->innerRect;
+
+    const QRect r1 = region.d->qt_rgn->innerRect;
+    const QRect r2 = rect.normalized();
+    return (r2.left() >= r1.left() && r2.right() <= r1.right()
+            && r2.top() >= r1.top() && r2.bottom() <= r1.bottom());
 }
 #endif // QT_EXPERIMENTAL_REGIONS
 

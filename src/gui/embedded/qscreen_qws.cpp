@@ -1061,6 +1061,24 @@ void QScreen::exposeRegion(QRegion r, int changing)
     }
 #endif
     compose(0, r, blendRegion, blendBuffer, changing);
+
+#ifdef QT_EXPERIMENTAL_REGIONS
+    if (!blendBuffer.isNull()) {
+        const QPoint offset = blendRegion.boundingRect().topLeft();
+#ifndef QT_NO_QWS_CURSOR
+        if (qt_screencursor && !qt_screencursor->isAccelerated()) {
+            const QRect cursorRect = qt_screencursor->boundingRect();
+            if (blendRegion.intersects(cursorRect)) {
+                //### can be optimized...
+                QPainter p(&blendBuffer);
+                p.drawImage(cursorRect.topLeft() - offset,
+                            qt_screencursor->image());
+            }
+        }
+#endif // QT_NO_QWS_CURSOR
+        blit(blendBuffer, offset, blendRegion);
+    }
+#else
 #ifndef QT_NO_QWS_CURSOR
     if (qt_screencursor && !qt_screencursor->isAccelerated() && !blendBuffer.isNull()) {
         //### can be optimized...
@@ -1073,6 +1091,7 @@ void QScreen::exposeRegion(QRegion r, int changing)
         QPoint topLeft = blendRegion.boundingRect().topLeft();
         blit(blendBuffer, topLeft, blendRegion);
     }
+#endif // QT_EXPERIMENTAL_REGIONS
     setDirty(r.boundingRect());
 }
 

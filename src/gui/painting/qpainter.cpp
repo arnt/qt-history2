@@ -1848,6 +1848,27 @@ void QPainter::setClipRect(const QRectF &rect, Qt::ClipOperation op)
     Enables clipping, and sets the clip region to the given \a rectangle using the given
     clip \a operation.
 */
+#ifdef QT_EXPERIMENTAL_REGIONS
+void QPainter::setClipRect(const QRect &rect, Qt::ClipOperation op)
+{
+    if (!isActive())
+        return;
+
+    Q_D(QPainter);
+
+    if (!d->state->clipEnabled && (op == Qt::IntersectClip || op == Qt::UniteClip))
+        op = Qt::ReplaceClip;
+
+    d->state->clipRegion = rect;
+    d->state->clipOperation = op;
+    if (op == Qt::NoClip || op == Qt::ReplaceClip)
+        d->state->clipInfo.clear();
+    d->state->clipInfo << QPainterClipInfo(rect, op, d->state->worldMatrix);
+    d->state->clipEnabled = true;
+    d->state->dirtyFlags |= QPaintEngine::DirtyClipRegion | QPaintEngine::DirtyClipEnabled;
+    d->updateState(d->state);
+}
+#endif // QT_EXPERIMENTAL_REGIONS
 
 /*!
     \fn void QPainter::setClipRect(int x, int y, int width, int height, Qt::ClipOperation operation)
