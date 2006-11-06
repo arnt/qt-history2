@@ -345,6 +345,46 @@ static void testRevert(QSqlRelationalTableModel &model)
     QCOMPARE(model.data(model.index(0, 2)).toString(), QString("mister"));
     model.revertAll();
     QCOMPARE(model.data(model.index(0, 2)).toString(), QString("herr"));
+
+    // the following only works for OnManualSubmit
+    if (model.editStrategy() != QSqlTableModel::OnManualSubmit)
+        return;
+
+    /* revert inserted row */
+    QVERIFY(model.insertRows(4, 4));
+
+    /* make sure the new rows are initialized to nothing */
+    QVERIFY(model.data(model.index(4, 2)).toString().isEmpty());
+    QVERIFY(model.data(model.index(5, 2)).toString().isEmpty());
+    QVERIFY(model.data(model.index(6, 2)).toString().isEmpty());
+    QVERIFY(model.data(model.index(7, 2)).toString().isEmpty());
+
+    /* Set some values */
+    QVERIFY(model.setData(model.index(4, 0), 42, Qt::EditRole));
+    QVERIFY(model.setData(model.index(5, 0), 43, Qt::EditRole));
+    QVERIFY(model.setData(model.index(6, 0), 44, Qt::EditRole));
+    QVERIFY(model.setData(model.index(7, 0), 45, Qt::EditRole));
+
+    QVERIFY(model.setData(model.index(4, 2), 2, Qt::EditRole));
+    QVERIFY(model.setData(model.index(4, 2), "mister", Qt::DisplayRole));
+    QVERIFY(model.setData(model.index(5, 2), 2, Qt::EditRole));
+    QVERIFY(model.setData(model.index(5, 2), "mister", Qt::DisplayRole));
+    QVERIFY(model.setData(model.index(6, 2), 1, Qt::EditRole));
+    QVERIFY(model.setData(model.index(6, 2), "herr", Qt::DisplayRole));
+    QVERIFY(model.setData(model.index(7, 2), 2, Qt::EditRole));
+    QVERIFY(model.setData(model.index(7, 2), "mister", Qt::DisplayRole));
+
+    /* Now revert the newly inserted rows */
+    model.revertAll();
+
+    /* Insert rows again */
+    QVERIFY(model.insertRows(4, 4));
+
+    /* make sure the new rows are initialized to nothing */
+    QVERIFY(model.data(model.index(4, 2)).toString().isEmpty());
+    QVERIFY(model.data(model.index(5, 2)).toString().isEmpty());
+    QVERIFY(model.data(model.index(6, 2)).toString().isEmpty());
+    QVERIFY(model.data(model.index(7, 2)).toString().isEmpty());
 }
 
 void tst_QSqlRelationalTableModel::revert()

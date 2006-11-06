@@ -111,6 +111,7 @@ public:
     QSqlRecord baseRec; // the record without relations
     void clearChanges();
     void clearEditBuffer();
+    void revertCachedRow(int row);
 
     void translateFieldNames(int row, QSqlRecord &values) const;
 };
@@ -134,6 +135,24 @@ void QSqlRelationalTableModelPrivate::clearChanges()
         delete rel.model;
         rel.displayValues.clear();
     }
+}
+
+void QSqlRelationalTableModelPrivate::revertCachedRow(int row)
+{
+    if (cache.value(row).op == QSqlTableModelPrivate::Insert) {
+
+        for (int i = 0; i < relations.count(); ++i) {
+            const QHash<int, QVariant> displayValues = relations.at(i).displayValues;
+            QHash<int, QVariant> newValues;
+            for (QHash<int, QVariant>::const_iterator it = displayValues.constBegin();
+                 it != displayValues.constEnd(); ++it) {
+                newValues[it.key() > row ? it.key() - 1 : it.key()] = it.value();
+            }
+            relations[i].displayValues = newValues;
+        }
+    }
+
+    QSqlTableModelPrivate::revertCachedRow(row);
 }
 
 int QSqlRelationalTableModelPrivate::nameToIndex(const QString &name) const
