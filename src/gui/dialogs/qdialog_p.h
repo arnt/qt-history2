@@ -42,6 +42,7 @@ public:
         : mainDef(0), orientation(Qt::Horizontal),extension(0), doShowExtension(false),
 #ifndef QT_NO_SIZEGRIP
           resizer(0),
+          sizeGripEnabled(false),
 #endif
           rescode(0), eventLoop(0)
         {}
@@ -53,6 +54,7 @@ public:
     QSize size, min, max;
 #ifndef QT_NO_SIZEGRIP
     QSizeGrip* resizer;
+    bool sizeGripEnabled;
 #endif
     QPoint lastRMBPress;
 

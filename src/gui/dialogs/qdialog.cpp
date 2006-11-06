@@ -881,6 +881,11 @@ void QDialog::showExtension(bool showIt)
             setFixedSize(w, height() + s.height());
         }
         d->extension->show();
+#ifndef QT_NO_SIZEGRIP
+        const bool sizeGripEnabled = isSizeGripEnabled();
+        setSizeGripEnabled(false);
+        d->sizeGripEnabled = sizeGripEnabled;
+#endif
     } else {
         d->extension->hide();
         // workaround for CDE window manager that won't shrink with (-1,-1)
@@ -889,6 +894,9 @@ void QDialog::showExtension(bool showIt)
         resize(d->size);
         if (layout())
             layout()->setEnabled(true);
+#ifndef QT_NO_SIZEGRIP
+        setSizeGripEnabled(d->sizeGripEnabled);
+#endif
     }
 }
 
@@ -961,6 +969,11 @@ void QDialog::setSizeGripEnabled(bool enabled)
     Q_UNUSED(enabled);
 #else
     Q_D(QDialog);
+#ifndef QT_NO_SIZEGRIP
+    d->sizeGripEnabled = enabled;
+    if (enabled && d->doShowExtension)
+        return;
+#endif
     if (!enabled != !d->resizer) {
         if (enabled) {
             d->resizer = new QSizeGrip(this);
