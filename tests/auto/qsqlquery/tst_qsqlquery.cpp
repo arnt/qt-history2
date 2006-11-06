@@ -327,22 +327,23 @@ void tst_QSqlQuery::char1SelectUnicode()
 	QString uniStr(QChar(0xfb50));
 	QSqlQuery q(QString::null, db);
 
+        QString createQuery;
 	if (tst_Databases::isSqlServer(db)) {
-	    QVERIFY2(q.exec("create table " + qTableName("qtest_char1") + "(id nchar(1))"),
-		    tst_Databases::printError(q.lastError()));
+            createQuery = "create table " + qTableName("qtest_char1") + "(id nchar(1))";
 	} else if (db.driverName().startsWith("QDB2")
 		    || db.driverName().startsWith("QOCI")
 		    || db.driverName().startsWith("QPSQL")) {
-            QVERIFY2(q.exec("create table " + qTableName("qtest_char1") + " (id char(3))"),
-                    tst_Databases::printError(q.lastError()));
+            createQuery = "create table " + qTableName("qtest_char1") + " (id char(3))";
 	} else if (db.driverName().startsWith("QIBASE")) {
-	    QVERIFY2(q.exec("create table " + qTableName("qtest_char1") +
-			   " (id char(1) character set unicode_fss)"),
-		    tst_Databases::printError(q.lastError()));
+            createQuery = "create table " + qTableName("qtest_char1") +
+			   " (id char(1) character set unicode_fss)";
+        } else if (db.driverName().startsWith("QMYSQL")) {
+            createQuery = "create table " + qTableName("qtest_char1") + " (id char(1)) "
+                          "default character set utf8";
 	} else {
-	    QVERIFY2(q.exec("create table " + qTableName("qtest_char1") + " (id char(1))"),
-		    tst_Databases::printError(q.lastError()));
+            createQuery = "create table " + qTableName("qtest_char1") + " (id char(1))";
 	}
+        QVERIFY_SQL(q, q.exec(createQuery));
 	QVERIFY2(q.prepare("insert into " + qTableName("qtest_char1") + " values(?)"),
 		tst_Databases::printError(q.lastError()));
 	q.bindValue(0, uniStr);
