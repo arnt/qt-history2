@@ -274,35 +274,31 @@ static ShiftResult shift(const QBezier *orig, QBezier *shifted, qreal offset, qr
             return Circle;
     }
 
-    QLineF l = qline_shifted(points[0], points[1], offset);
-    points[0] = l.p1();
+    QPointF points_shifted[4];
 
-    if (np > 2) {
-        QLineF l2 = qline_shifted(points[1], points[2], offset);
-        QPointF intersection;
-        QLineF::IntersectType type = l.intersect(l2, &intersection);
-        if (type == QLineF::NoIntersection) {
-            points[1] = l.p2();
-        } else {
-            points[1] = intersection;
-        }
+    QLineF prev = QLineF(QPointF(), points[1] - points[0]);
+    QPointF prev_normal = prev.normalVector().unitVector().p2();
 
-        l = l2;
+    points_shifted[0] = points[0] + offset * prev_normal;
+
+    for (int i = 1; i < np - 1; ++i) {
+        QLineF next = QLineF(QPointF(), points[i + 1] - points[i]);
+        QPointF next_normal = next.normalVector().unitVector().p2();
+
+        QPointF normal_sum = prev_normal + next_normal;
+
+        qreal k = offset / (1.0 + prev_normal.x() * next_normal.x()
+                                + prev_normal.y() * next_normal.y());
+
+        points_shifted[i] = points[i] + k * normal_sum;
+
+        prev_normal = next_normal;
     }
-    if (np > 3) {
-        QLineF l2 = qline_shifted(points[2], points[3], offset);
-        QPointF intersection;
-        QLineF::IntersectType type = l.intersect(l2, &intersection);
-        if (type == QLineF::NoIntersection) {
-            points[2] = l2.p1();
-        } else {
-            points[2] = intersection;
-        }
-        l = l2;
-    }
-    points[np - 1] = l.p2();
 
-    *shifted = QBezier::fromPoints(points[map[0]], points[map[1]], points[map[2]], points[map[3]]);
+    points_shifted[np - 1] = points[np - 1] + offset * prev_normal;
+
+    *shifted = QBezier::fromPoints(points_shifted[map[0]], points_shifted[map[1]],
+                                   points_shifted[map[2]], points_shifted[map[3]]);
 
     return good_offset(orig, shifted, offset, threshold);
 }
