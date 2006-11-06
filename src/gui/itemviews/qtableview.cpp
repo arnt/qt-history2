@@ -533,8 +533,11 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
         delete d->horizontalHeader;
     d->horizontalHeader = header;
     d->horizontalHeader->setParent(this);
-    if (!d->horizontalHeader->model())
+    if (!d->horizontalHeader->model()) {
         d->horizontalHeader->setModel(d->model);
+        if (d->selectionModel)
+            d->horizontalHeader->setSelectionModel(d->selectionModel);
+    }
 
     connect(d->horizontalHeader,SIGNAL(sectionResized(int,int,int)),
             this, SLOT(columnResized(int,int,int)));
@@ -564,8 +567,11 @@ void QTableView::setVerticalHeader(QHeaderView *header)
         delete d->verticalHeader;
     d->verticalHeader = header;
     d->verticalHeader->setParent(this);
-    if (!d->verticalHeader->model())
+    if (!d->verticalHeader->model()) {
         d->verticalHeader->setModel(d->model);
+        if (d->selectionModel)
+            d->verticalHeader->setSelectionModel(d->selectionModel);
+    }
 
     connect(d->verticalHeader, SIGNAL(sectionResized(int,int,int)),
             this, SLOT(rowResized(int,int,int)));

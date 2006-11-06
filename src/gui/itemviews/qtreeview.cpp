@@ -269,8 +269,11 @@ void QTreeView::setHeader(QHeaderView *header)
     d->header = header;
     d->header->setParent(this);
 
-    if (!d->header->model())
+    if (!d->header->model()) {
         d->header->setModel(d->model);
+        if (d->selectionModel)
+            d->header->setSelectionModel(d->selectionModel);
+    }
 
     connect(d->header, SIGNAL(sectionResized(int,int,int)),
             this, SLOT(columnResized(int,int,int)));

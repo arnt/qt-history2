@@ -1659,6 +1659,10 @@ void QHeaderView::paintEvent(QPaintEvent *e)
             if (highlight)
                 sectionFont.setBold(true);
             painter.setFont(sectionFont);
+        } else if (highlight) {
+            QFont sectionFont = font();
+            sectionFont.setBold(true);
+            painter.setFont(sectionFont);
         }
         paintSection(&painter, currentSectionRect, logical);
         painter.restore();
