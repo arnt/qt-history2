@@ -939,21 +939,21 @@ void QDashStroker::processCurrentSubpath()
                 line_to_pos.x = qt_real_to_fixed(p2.x());
                 line_to_pos.y = qt_real_to_fixed(p2.y());
 
+                // If we have an offset, we're continuing a dash
+                // from a previous element and should only
+                // continue the current dash, without starting a
+                // new subpath.
+                if (!has_offset)
+                    m_stroker->moveTo(move_to_pos.x, move_to_pos.y);
+
                 if (!clipping
                     // if move_to is inside...
                     || (move_to_pos.x > clip_tl.x && move_to_pos.x < clip_br.x
                      && move_to_pos.y > clip_tl.y && move_to_pos.y < clip_br.y)
                     // Or if line_to is inside...
                     || (line_to_pos.x > clip_tl.x && line_to_pos.x < clip_br.x
-                        && line_to_pos.y > clip_tl.y && line_to_pos.y < clip_br.y))
+                     && line_to_pos.y > clip_tl.y && line_to_pos.y < clip_br.y))
                 {
-                    // If we have an offset, we're continuing a dash
-                    // from a previous element and should only
-                    // continue the current dash, without starting a
-                    // new subpath.
-                    if (!has_offset)
-                        m_stroker->moveTo(move_to_pos.x, move_to_pos.y);
-
                     m_stroker->lineTo(line_to_pos.x, line_to_pos.y);
                 }
             } else {
