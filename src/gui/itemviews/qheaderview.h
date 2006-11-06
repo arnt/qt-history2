@@ -128,6 +128,7 @@ public:
 public Q_SLOTS:
     void setOffset(int offset);
     void setOffsetToSectionPosition(int visualIndex);
+    void setOffsetToLastSection();
     void headerDataChanged(Qt::Orientation orientation, int logicalFirst, int logicalLast);
 
 Q_SIGNALS:

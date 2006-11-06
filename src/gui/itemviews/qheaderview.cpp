@@ -391,6 +391,19 @@ void QHeaderView::setOffsetToSectionPosition(int visualIndex)
 }
 
 /*!
+  \since 4.2
+  Sets the offset to make the last section visible.
+
+  \sa setOffset(), sectionPosition(), setOffsetToSectionPosition()
+*/
+void QHeaderView::setOffsetToLastSection()
+{
+    int size = (orientation() == Qt::Horizontal ? viewport()->width() : viewport()->height());
+    int position = length() - size;
+    setOffset(position);
+}
+
+/*!
   Returns the length along the orientation of the header.
 
   \sa sizeHint(), setResizeMode(), offset()

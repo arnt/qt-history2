@@ -1838,21 +1838,13 @@ void QTreeView::scrollContentsBy(int dx, int dy)
     dx = isRightToLeft() ? -dx : dx;
     if (dx) {
         if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem) {
-            int currentScrollbarValue = horizontalScrollBar()->value();
-            int previousScrollbarValue = currentScrollbarValue + dx; // -(-dx)
-            d->header->setOffsetToSectionPosition(currentScrollbarValue);
-            dx = 0;
-            if (previousScrollbarValue < currentScrollbarValue) { // scrolling right
-                for (int c = previousScrollbarValue; c < currentScrollbarValue; ++c) {
-                    int l = d->header->logicalIndex(c);
-                    dx -= d->header->sectionSize(l);
-                }
-            } else if (previousScrollbarValue > currentScrollbarValue) { // scrolling left
-                for (int c = previousScrollbarValue; c >= currentScrollbarValue; --c) {
-                    int l = d->header->logicalIndex(c);
-                    dx += d->header->sectionSize(l);
-                }
-            }
+            int oldOffset = d->header->offset();
+            if (horizontalScrollBar()->value() == horizontalScrollBar()->maximum())
+                d->header->setOffsetToLastSection();
+            else
+                d->header->setOffsetToSectionPosition(horizontalScrollBar()->value());
+            int newOffset = d->header->offset();
+            dx = isRightToLeft() ? newOffset - oldOffset : oldOffset - newOffset;
         } else {
             d->header->setOffset(horizontalScrollBar()->value());
         }
@@ -2144,7 +2136,7 @@ void QTreeView::updateGeometries()
         QRect vg = d->viewport->geometry();
         QRect geometryRect(vg.left(), vg.top() - hint.height(), vg.width(), hint.height());
         d->header->setGeometry(geometryRect);
-        d->header->setOffset(horizontalScrollBar()->value());
+        d->header->setOffset(horizontalScrollBar()->value()); // ### bug ???
         if (d->header->isHidden())
             QMetaObject::invokeMethod(d->header, "updateGeometries");
         d->updateScrollBars();
