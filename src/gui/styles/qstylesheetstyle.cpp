@@ -1300,7 +1300,7 @@ QVector<Declaration> declarations(const QWidget *w, const QString &part, int pse
     QVector<Declaration> decls;
     for (int i = 0; i < styleRules.count(); i++) {
         const Selector& selector = styleRules.at(i).selectors.at(0);
-        // Rules with pseudo elements dont cascade. This is an intentional
+        // Rules with pseudo elements don't cascade. This is an intentional
         // diversion for CSS
         if (part.compare(selector.pseudoElement(), Qt::CaseInsensitive) != 0)
             continue;
@@ -1478,7 +1478,7 @@ static Qt::Alignment defaultPosition(int pe)
 
 static QSize expandedSize(QSize sz, const QRect& rect, int pe)
 {
-    // some magic for relative positioning since we dont support % metrics yet
+    // some magic for relative positioning since we don't support % metrics yet
     switch (pe) {
     case PseudoElement_SpinBoxUpButton:
     case PseudoElement_SpinBoxDownButton:
@@ -2516,7 +2516,7 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
 {
     if (!hasStyleRule(w)) {
 #ifndef QT_NO_SPINBOX
-        // dont touch the size of a embedded lineedit in a styled spin box
+        // don't touch the size of a embedded lineedit in a styled spin box
         if (ct == CT_LineEdit && w && qobject_cast<QAbstractSpinBox *>(w->parentWidget())
             && hasStyleRule(w->parentWidget())) {
             QRenderRule rule = renderRule(w->parentWidget(), opt);
