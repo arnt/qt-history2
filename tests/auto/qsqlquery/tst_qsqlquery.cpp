@@ -1584,13 +1584,15 @@ void tst_QSqlQuery::prepare_bind_exec()
 
     QSqlQuery q(QString::null, db);
 
+    QString createQuery;
     if (tst_Databases::isSqlServer(db) || db.driverName().startsWith("QTDS")) {
-	QVERIFY2(q.exec("create table " + qTableName("qtest_prepare") + " (id int primary key, name nvarchar(20) null)"),
-		 tst_Databases::printError(q.lastError()));
+        createQuery = "create table " + qTableName("qtest_prepare") + " (id int primary key, name nvarchar(20) null)";
+    } else if (db.driverName().startsWith("QMYSQL")) {
+        createQuery = "create table " + qTableName("qtest_prepare") + " (id int not null primary key, name varchar(20)) default character set utf8";
     } else {
-	QVERIFY2(q.exec("create table " + qTableName("qtest_prepare") + " (id int not null primary key, name varchar(20))"),
-		 tst_Databases::printError(q.lastError()));
+        createQuery = "create table " + qTableName("qtest_prepare") + " (id int not null primary key, name varchar(20))";
     }
+    QVERIFY_SQL(q, q.exec(createQuery));
 
     QVERIFY(q.prepare("insert into " + qTableName("qtest_prepare") + " (id, name) values (:id, :name)"));
     int i;
