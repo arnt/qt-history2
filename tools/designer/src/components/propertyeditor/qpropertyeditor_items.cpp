@@ -775,11 +775,20 @@ FontProperty::FontProperty(const QFont &value, const QString &name, QWidget *sel
     i->setParent(this);
     m_properties << i;
 
-    i = new BoolProperty(value.styleStrategy() == QFont::PreferDefault, QLatin1String("Antialiasing"));
-    i->setFake(true);
-    i->setHasReset(true);
-    i->setParent(this);
-    m_properties << i;
+    QStringList keys;
+    keys << QString::fromUtf8("QFont::PreferDefault");
+    keys << QString::fromUtf8("QFont::NoAntialias");
+    keys << QString::fromUtf8("QFont::PreferAntialias");
+    QMap<QString, QVariant> map;
+    map[QString::fromUtf8("QFont::PreferDefault")] = QVariant(QFont::PreferDefault);
+    map[QString::fromUtf8("QFont::NoAntialias")] = QVariant(QFont::NoAntialias);
+    map[QString::fromUtf8("QFont::PreferAntialias")] = QVariant(QFont::PreferAntialias);
+
+    MapProperty *pa = new MapProperty(map, value.styleStrategy(), QLatin1String("Antialiasing"), keys);
+    pa->setFake(true);
+    pa->setHasReset(true);
+    pa->setParent(this);
+    m_properties << pa;
 
     m_font = value;
 }
@@ -824,7 +833,7 @@ void FontProperty::setValue(const QVariant &value)
     propertyAt(4)->setValue(m_font.underline());
     propertyAt(5)->setValue(m_font.strikeOut());
     propertyAt(6)->setValue(m_font.kerning());
-    propertyAt(7)->setValue(m_font.styleStrategy() == QFont::PreferDefault);
+    propertyAt(7)->setValue(m_font.styleStrategy());
 }
 
 QVariant FontProperty::decoration() const

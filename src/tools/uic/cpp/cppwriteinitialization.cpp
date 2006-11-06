@@ -735,6 +735,10 @@ void WriteInitialization::writeProperties(const QString &varName,
                 output << option.indent << fontName << ".setStyleStrategy("
                     << (f->elementAntialiasing() ? "QFont::PreferDefault" : "QFont::NoAntialias") << ");\n";
             }
+            if (f->hasElementStyleStrategy()) {
+                output << option.indent << fontName << ".setStyleStrategy(QFont::"
+                    << f->elementStyleStrategy() << ");\n";
+            }
             propertyValue = fontName;
             break;
         }

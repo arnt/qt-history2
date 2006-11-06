@@ -285,7 +285,7 @@ void QPropertyEditorDelegate::setModelData(QWidget *editor,
                 else if (property->propertyName() == QLatin1String("Kerning"))
                     f.setKerning(property->value().toBool());
                 else if (property->propertyName() == QLatin1String("Antialiasing"))
-                    f.setStyleStrategy(property->value().toBool() ? QFont::PreferDefault : QFont::NoAntialias);
+                    f.setStyleStrategy((QFont::StyleStrategy)property->value().toInt());
                 fontProperty->setValue(f);
                 model->setData(parentIndex, f, Qt::EditRole);
                 return;
@@ -338,7 +338,7 @@ void QPropertyEditorDelegate::resetProperty(const IProperty *property, QProperty
                 mask &= ~QFontPrivate::StrikeOut;
             else if (property->propertyName() == QLatin1String("Kerning"))
                 mask &= ~QFontPrivate::Kerning;
-            else if (property->propertyName() == QLatin1String("Antialias"))
+            else if (property->propertyName() == QLatin1String("Antialiasing"))
                 mask &= ~QFontPrivate::StyleStrategy;
             f.resolve(mask);
             if (mask) {

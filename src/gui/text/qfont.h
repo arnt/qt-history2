@@ -28,6 +28,8 @@ class Q3TextFormatCollection;
 
 class Q_GUI_EXPORT QFont
 {
+    Q_GADGET
+    Q_ENUMS(StyleStrategy)
 public:
     enum StyleHint {
         Helvetica,  SansSerif = Helvetica,

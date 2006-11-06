@@ -77,6 +77,7 @@ class QAbstractFormBuilderGadget: public QWidget
     Q_PROPERTY(QSizePolicy::Policy sizeType READ fakeSizeType)
     Q_PROPERTY(QPalette::ColorRole colorRole READ fakeColorRole)
     Q_PROPERTY(QPalette::ColorGroup colorGroup READ fakeColorGroup)
+    Q_PROPERTY(QFont::StyleStrategy styleStrategy READ fakeStyleStrategy)
     Q_PROPERTY(Qt::CursorShape cursorShape READ fakeCursorShape)
     Q_PROPERTY(Qt::BrushStyle brushStyle READ fakeBrushStyle)
     Q_PROPERTY(QGradient::Type gradientType READ fakeGradientType)
@@ -89,6 +90,7 @@ public:
     QSizePolicy::Policy fakeSizeType() const    { Q_ASSERT(0); return QSizePolicy::Expanding; }
     QPalette::ColorGroup fakeColorGroup() const { Q_ASSERT(0); return static_cast<QPalette::ColorGroup>(0); }
     QPalette::ColorRole fakeColorRole() const   { Q_ASSERT(0); return static_cast<QPalette::ColorRole>(0); }
+    QFont::StyleStrategy fakeStyleStrategy() const     { Q_ASSERT(0); return QFont::PreferDefault; }
     Qt::CursorShape fakeCursorShape() const     { Q_ASSERT(0); return Qt::ArrowCursor; }
     Qt::BrushStyle fakeBrushStyle() const       { Q_ASSERT(0); return Qt::NoBrush; }
     QGradient::Type fakeGradientType() const    { Q_ASSERT(0); return QGradient::NoGradient; }
@@ -709,8 +711,15 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
             f.setStrikeOut(font->elementStrikeOut());
         if (font->hasElementKerning())
             f.setKerning(font->elementKerning());
-        if (font->hasElementAntialiasing()) {
+        if (font->hasElementAntialiasing())
             f.setStyleStrategy(font->elementAntialiasing() ? QFont::PreferDefault : QFont::NoAntialias);
+        if (font->hasElementStyleStrategy()) {
+            int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("styleStrategy");
+            Q_ASSERT(e_index != -1);
+            QMetaEnum styleStrategy_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
+
+            int strategy = styleStrategy_enum.keyToValue(font->elementStyleStrategy().toLatin1());
+            f.setStyleStrategy((QFont::StyleStrategy)strategy);
         }
         v = qVariantFromValue(f);
     } break;
@@ -1581,8 +1590,13 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
                 fnt->setElementUnderline(font.underline());
             if (mask & QFontPrivate::Kerning)
                 fnt->setElementKerning(font.kerning());
-            if (mask & QFontPrivate::StyleStrategy)
-                fnt->setElementAntialiasing(font.styleStrategy() == QFont::PreferDefault);
+            if (mask & QFontPrivate::StyleStrategy) {
+                int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("styleStrategy");
+                Q_ASSERT(e_index != -1);
+                QMetaEnum styleStrategy_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
+
+                fnt->setElementStyleStrategy(styleStrategy_enum.valueToKey(font.styleStrategy()));
+            }
             dom_prop->setElementFont(fnt);
         } break;
 

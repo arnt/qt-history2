@@ -309,6 +309,7 @@
                         <xs:element name="underline" type="xs:boolean" />
                         <xs:element name="strikeOut" type="xs:boolean" />
                         <xs:element name="antialiasing" type="xs:boolean" />
+                        <xs:element name="styleStrategy" type="xs:string" />
                         <xs:element name="kerning" type="xs:boolean" />
                 </xs:sequence>
         </xs:complexType>

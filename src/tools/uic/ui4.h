@@ -1751,6 +1751,11 @@ public:
     inline bool hasElementAntialiasing() const { return m_children & Antialiasing; }
     void clearElementAntialiasing();
 
+    inline QString elementStyleStrategy() const { return m_styleStrategy; }
+    void setElementStyleStrategy(const QString& a);
+    inline bool hasElementStyleStrategy() const { return m_children & StyleStrategy; }
+    void clearElementStyleStrategy();
+
     inline bool elementKerning() const { return m_kerning; }
     void setElementKerning(bool a);
     inline bool hasElementKerning() const { return m_children & Kerning; }
@@ -1771,6 +1776,7 @@ private:
     bool m_underline;
     bool m_strikeOut;
     bool m_antialiasing;
+    QString m_styleStrategy;
     bool m_kerning;
     enum Child {
         Family = 1,
@@ -1781,7 +1787,8 @@ private:
         Underline = 32,
         StrikeOut = 64,
         Antialiasing = 128,
-        Kerning = 256
+        StyleStrategy = 256,
+        Kerning = 512
     };
 
     DomFont(const DomFont &other);
