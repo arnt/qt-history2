@@ -279,9 +279,7 @@ static QString widgetLabel(QDesignerFormEditorInterface *core, QWidget *widget)
 void OldSignalSlotDialog::populateSlotList(const QString &signal)
 {
     QString selectedName;
-    QList<QListWidgetItem *> list = m_slot_list->selectedItems();
-    if (list.size() > 0) {
-        QListWidgetItem *item = list.at(0);
+    if (QListWidgetItem * item = m_slot_list->currentItem()) {
         selectedName = item->text();
     }
     m_slot_list->clear();
@@ -311,12 +309,15 @@ void OldSignalSlotDialog::populateSlotList(const QString &signal)
 
     signatures.sort();
 
+    QListWidgetItem *curr = 0;
     foreach (QString sig, signatures) {
         QListWidgetItem *item = new QListWidgetItem(m_slot_list);
         item->setText(sig);
         if (sig == selectedName)
-            m_slot_list->setItemSelected(item, true);
+            curr = item;
     }
+    if (curr)
+        m_slot_list->setCurrentItem(curr);
 
     if (m_slot_list->selectedItems().isEmpty())
         m_ok_button->setEnabled(false);
@@ -325,9 +326,7 @@ void OldSignalSlotDialog::populateSlotList(const QString &signal)
 void OldSignalSlotDialog::populateSignalList()
 {
     QString selectedName;
-    QList<QListWidgetItem *> list = m_signal_list->selectedItems();
-    if (list.size() > 0) {
-        QListWidgetItem *item = list.at(0);
+    if (QListWidgetItem * item = m_signal_list->currentItem()) {
         selectedName = item->text();
     }
     m_signal_list->clear();
@@ -352,21 +351,23 @@ void OldSignalSlotDialog::populateSignalList()
 
     signatures.sort();
 
-    bool found_selected = false;
+    QListWidgetItem *curr = 0;
     foreach (QString sig, signatures) {
         QListWidgetItem *item = new QListWidgetItem(m_signal_list);
         item->setText(sig);
         if (!selectedName.isEmpty() && sig == selectedName) {
-            m_signal_list->setItemSelected(item, true);
-            found_selected = true;
+            curr = item;
         }
     }
 
-    if (!found_selected)
+    if (curr) {
+        m_signal_list->setCurrentItem(curr);
+    } else {
         selectedName.clear();
+    }
 
     populateSlotList(selectedName);
-    if (!found_selected) {
+    if (!curr) {
         m_slot_list->setEnabled(false);
     }
 }
@@ -485,8 +486,7 @@ void OldSignalSlotDialog::selectSignal(QListWidgetItem *item)
         m_slot_list->setEnabled(false);
         m_ok_button->setEnabled(false);
     } else {
-        m_signal_list->setItemSelected(item, true);
-        m_signal_list->scrollToItem(item);
+        m_signal_list->setCurrentItem(item);
         populateSlotList(item->text());
         m_slot_list->setEnabled(true);
         m_ok_button->setEnabled(!m_slot_list->selectedItems().isEmpty());
@@ -498,8 +498,7 @@ void OldSignalSlotDialog::selectSlot(QListWidgetItem *item)
     if (item == 0) {
         m_slot_list->clearSelection();
     } else {
-        m_slot_list->setItemSelected(item, true);
-        m_slot_list->scrollToItem(item);
+        m_slot_list->setCurrentItem(item);
     }
     m_ok_button->setEnabled(true);
 }
