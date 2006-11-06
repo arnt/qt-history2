@@ -43,6 +43,7 @@ private slots:
     void toolDialogPosition();
     void deleteMainDefault();
     void deleteInExec();
+    void showSizeGrip();
 
 private:
     QDialog *testWidget;
@@ -354,6 +355,46 @@ void tst_QDialog::deleteInExec()
     QDialog *dialog = new QDialog(0);
     QMetaObject::invokeMethod(dialog, "deleteLater", Qt::QueuedConnection);
     QCOMPARE(dialog->exec(), int(QDialog::Rejected));
+}
+
+// From Task 124269
+void tst_QDialog::showSizeGrip()
+{
+#ifndef QT_NO_SIZEGRIP
+    QDialog dialog(0);
+    dialog.show();
+    QWidget *ext = new QWidget(&dialog);
+    QVERIFY(!dialog.extension());
+    QVERIFY(!dialog.isSizeGripEnabled());
+
+    dialog.setSizeGripEnabled(true);
+    QVERIFY(dialog.isSizeGripEnabled());
+
+    dialog.setExtension(ext);
+    QVERIFY(dialog.extension() && !dialog.extension()->isVisible());
+    QVERIFY(dialog.isSizeGripEnabled());
+
+    // normal show/hide sequence
+    dialog.showExtension(true);
+    QVERIFY(dialog.extension() && dialog.extension()->isVisible());
+    QVERIFY(!dialog.isSizeGripEnabled());
+
+    dialog.showExtension(false);
+    QVERIFY(dialog.extension() && !dialog.extension()->isVisible());
+    QVERIFY(dialog.isSizeGripEnabled());
+
+    // show/hide sequence with interleaved size grip update
+    dialog.showExtension(true);
+    QVERIFY(dialog.extension() && dialog.extension()->isVisible());
+    QVERIFY(!dialog.isSizeGripEnabled());
+
+    dialog.setSizeGripEnabled(false);
+    QVERIFY(!dialog.isSizeGripEnabled());
+
+    dialog.showExtension(false);
+    QVERIFY(dialog.extension() && !dialog.extension()->isVisible());
+    QVERIFY(!dialog.isSizeGripEnabled());
+#endif
 }
 
 QTEST_MAIN(tst_QDialog)
