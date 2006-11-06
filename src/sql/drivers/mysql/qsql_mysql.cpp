@@ -432,6 +432,7 @@ QVariant QMYSQLResult::data(int field)
         return QVariant();
     }
 
+    int fieldLength = 0;
     const QMYSQLResultPrivate::QMyField &f = d->fields.at(field);
     QString val;
     if (d->preparedQuerys) {
@@ -439,14 +440,15 @@ QVariant QMYSQLResult::data(int field)
             return QVariant(f.type);
 
         if (f.type != QVariant::ByteArray)
-            val = d->tc->toUnicode(f.outField);
+            val = d->tc->toUnicode(f.outField, f.bufLength);
     } else {
         if (d->row[field] == NULL) {
             // NULL value
             return QVariant(f.type);
         }
+        fieldLength = mysql_fetch_lengths(d->result)[field];
         if (f.type != QVariant::ByteArray)
-            val = d->tc->toUnicode(d->row[field]);
+            val = d->tc->toUnicode(d->row[field], fieldLength);
     }
 
     switch(f.type) {
@@ -486,8 +488,7 @@ QVariant QMYSQLResult::data(int field)
         if (d->preparedQuerys) {
             ba = QByteArray(f.outField, f.bufLength);
         } else {
-            unsigned long* fl = mysql_fetch_lengths(d->result);
-            ba = QByteArray(d->row[field], fl[field]);
+            ba = QByteArray(d->row[field], fieldLength);
         }
         return QVariant(ba);
     }
