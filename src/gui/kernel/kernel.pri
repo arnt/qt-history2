@@ -129,11 +129,6 @@ embedded {
 		kernel/qkeymapper_qws.cpp
 }
 
-!x11:mac {
-	exists(qsound_mac.cpp):SOURCES += kernel/qsound_mac.cpp
-	else:SOURCES += kernel/qsound_qws.cpp
-}
-
 !embedded:!x11:mac {
 	SOURCES += \
 		kernel/qapplication_mac.cpp \
