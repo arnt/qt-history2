@@ -201,8 +201,6 @@ QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent) co
     if (row < 0 || column < 0 || column >= c)
         return QModelIndex();
 
-    //executePendingSort();
-
     QTreeWidgetItem *parentItem = parent.isValid() ? item(parent) : rootItem;
     if (parentItem && row < parentItem->childCount()) {
         QTreeWidgetItem *itm = parentItem->child(row);
@@ -653,7 +651,10 @@ bool QTreeModel::executePendingSort() const
         int column = view()->header()->sortIndicatorSection();
         Qt::SortOrder order = view()->header()->sortIndicatorOrder();
         QTreeModel *that = const_cast<QTreeModel*>(this);
-        that->sort(column, order); // will emit layoutChanged
+        const bool blocked = that->signalsBlocked();
+        that->blockSignals(true);
+        that->sort(column, order);
+        that->blockSignals(blocked);
         return true;
     }
     return false;
