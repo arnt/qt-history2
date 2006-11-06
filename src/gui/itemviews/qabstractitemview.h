@@ -193,6 +193,7 @@ public Q_SLOTS:
     void setCurrentIndex(const QModelIndex &index);
     void scrollToTop();
     void scrollToBottom();
+    void updateIndex(const QModelIndex &index);
 
 protected Q_SLOTS:
     virtual void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);

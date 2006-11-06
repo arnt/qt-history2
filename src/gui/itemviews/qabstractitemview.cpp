@@ -2525,6 +2525,20 @@ void QAbstractItemView::scrollToBottom()
 }
 
 /*!
+    \since 4.3
+
+    Updates the area occupied by the given \a index.
+
+    \sa update()
+*/
+void QAbstractItemView::updateIndex(const QModelIndex &index)
+{
+    Q_D(QAbstractItemView);
+    if (index.isValid())
+        d->viewport->update(visualRect(index));
+}
+
+/*!
     This slot is called when items are changed in the model. The
     changed items are those from \a topLeft to \a bottomRight
     inclusive. If just one item is changed \a topLeft == \a
