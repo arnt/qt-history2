@@ -748,6 +748,17 @@ void Tree::readIndexSection(const QDomElement &element,
     else
         section->setAccess(Node::Public);
 
+    QString threadSafety = element.attribute("threadsafety");
+    if (threadSafety == "non-reentrant")
+        section->setThreadSafeness(Node::NonReentrant);
+    else if (threadSafety == "reentrant")
+        section->setThreadSafeness(Node::Reentrant);
+    else if (threadSafety == "thread safe")
+        section->setThreadSafeness(Node::ThreadSafe);
+    else
+        section->setThreadSafeness(Node::UnspecifiedSafeness);
+
+    section->setModuleName(element.attribute("module"));
     section->setUrl(indexUrl);
 
     // Create some content for the node.
@@ -864,9 +875,27 @@ QDomElement Tree::generateIndexSection(QDomDocument &document, const Node *node)
             return QDomElement();
     }
 
+    QString threadSafety;
+    switch (node->threadSafeness()) {
+        case Node::NonReentrant:
+            threadSafety = "non-reentrant";
+            break;
+        case Node::Reentrant:
+            threadSafety = "reentrant";
+            break;
+        case Node::ThreadSafe:
+            threadSafety = "thread safe";
+            break;
+        case Node::UnspecifiedSafeness:
+        default:
+            threadSafety = "unspecified";
+            break;
+    }
+
     QString objName = node->name();
 
     element.setAttribute("access", access);
+    element.setAttribute("threadsafety", threadSafety);
     element.setAttribute("name", objName);
     element.setAttribute("href", fullDocumentName(node));
     element.setAttribute("location", node->location().fileName());
@@ -885,6 +914,11 @@ QDomElement Tree::generateIndexSection(QDomDocument &document, const Node *node)
             baseStrings.append(baseClassNode->name());
         }
         element.setAttribute("bases", baseStrings.join(","));
+        element.setAttribute("module", node->moduleName());
+    }
+
+    else if (node->type() == Node::Namespace) {
+        element.setAttribute("module", node->moduleName());
     }
 
     // Fake nodes (such as manual pages) contain subtypes, titles and other
