@@ -10,6 +10,7 @@
 #include "qbic.h"
 
 #include "QtCore/qfile.h"
+#include "QtCore/qdebug.h"
 
 void QBic::addBlacklistedClass(const QString &wildcard)
 {
@@ -53,6 +54,9 @@ static QStringList normalizedVTable(const QStringList &entry)
             sym.remove(1, 1);
 
         if (sym.startsWith(QLatin1String("-0")) || sym.startsWith(QLatin1String("0"))) {
+            if (sym.endsWith('u'))
+                sym.chop(1);
+
             bool isOk = false;
             qint64 num = sym.toLongLong(&isOk, 16);
             if (!isOk) {
@@ -101,7 +105,7 @@ QBic::Info QBic::parseOutput(const QByteArray &ba) const
 QBic::Info QBic::parseFile(const QString &fileName) const
 {
     QFile f(fileName);
-    if (!f.open(QIODevice::ReadOnly))
+    if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
         return Info();
 
     QByteArray ba = f.readAll();

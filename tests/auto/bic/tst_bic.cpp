@@ -124,9 +124,13 @@ void tst_Bic::sizesAndVTables_data()
 #elif defined Q_OS_MAC && defined(__i386__)
     archFileName410 = "data/%1.4.1.0.macx-gcc-ia32.txt";
     archFileName420 = "data/%1.4.2.0.macx-gcc-ia32.txt";
+#elif defined Q_OS_WIN && defined Q_CC_GNU
+    archFileName410 = "data/%1.4.1.0.win32-gcc-ia32.txt";
+    archFileName420 = "data/%1.4.2.0.win32-gcc-ia32.txt";
 #endif
 
-    if (archFileName400.isEmpty() && archFileName410.isEmpty())
+    if (archFileName400.isEmpty() && archFileName410.isEmpty()
+        && archFileName420.isEmpty())
         QSKIP("No reference files found for this platform", SkipAll);
 
 #if QT_VERSION >= 0x040100
@@ -166,15 +170,20 @@ QBic::Info tst_Bic::getCurrentInfo(const QString &libName)
     tmpQFile.write(tmpFileContents);
 
     QString qtDir = QString::fromLocal8Bit(getenv("QTDIR"));
+#ifdef Q_OS_WIN
+    qtDir.replace('\\', '/');
+#endif
     QString compilerName = "g++";
 
     QStringList args;
     args << "-c"
          << "-I" + qtDir + "/include"
+#ifndef Q_OS_WIN
          << "-I/usr/X11R6/include/"
+#endif
          << "-DQT_NO_STL" << "-DQT3_SUPPORT"
          << "-xc++"
-#ifndef Q_OS_AIX
+#if !defined(Q_OS_AIX) && !defined(Q_OS_WIN)
          << "-o" << "/dev/null"
 #endif
          << "-fdump-class-hierarchy"
@@ -184,6 +193,10 @@ QBic::Info tst_Bic::getCurrentInfo(const QString &libName)
     proc.start(compilerName, args, QIODevice::ReadOnly);
     if (!proc.waitForFinished(6000000)) {
         qWarning() << "gcc didn't finish" << proc.errorString();
+        return QBic::Info();
+    }
+    if (proc.exitCode() != 0) {
+        qWarning() << "gcc returned with" << proc.exitCode();
         return QBic::Info();
     }
 
