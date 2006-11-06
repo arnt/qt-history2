@@ -486,7 +486,7 @@ void QCompletionEngine::saveInCache(QString part, const QModelIndex& parent, con
     cost = cost + m.indices.cost() - old.indices.cost();
     if (cost * sizeof(int) > 1024 * 1024) {
         QMap<QModelIndex, CacheItem>::iterator it1 ;
-        for (it1 = cache.begin(); it1 != cache.end(); it1++) {
+        for (it1 = cache.begin(); it1 != cache.end(); ++it1) {
             CacheItem& ci = it1.value();
             int sz = ci.count()/2;
             QMap<QString, QMatchData>::iterator it2 = ci.begin();
