@@ -447,7 +447,7 @@ void QCopChannel::detach(QWSClient *cl)
         return;
 
     QCopServerMap::Iterator it = qcopServerMap->begin();
-    for (; it != qcopServerMap->end(); it++) {
+    for (; it != qcopServerMap->end(); ++it) {
       if (it.value().contains(cl)) {
         it.value().removeAll(cl);
         // If this was the last client in the channel, announce the channel as dead.
