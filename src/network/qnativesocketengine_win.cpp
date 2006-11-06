@@ -1027,28 +1027,18 @@ int QNativeSocketEnginePrivate::nativeSelect(int timeout, bool selectForRead) co
 
     int ret = 0;
 
-    QTime stopWatch;
-    stopWatch.start();
+    memset(&fds, 0, sizeof(fd_set));
+    fds.fd_count = 1;
+    fds.fd_array[0] = socketDescriptor;
 
-    for (;;) {
+    struct timeval tv;
+    tv.tv_sec = timeout / 1000;
+    tv.tv_usec = (timeout % 1000) * 1000;
 
-        int nextTimeOut = qMax(0, timeout - stopWatch.elapsed());
-
-        memset(&fds, 0, sizeof(fd_set));
-        fds.fd_count = 1;
-        fds.fd_array[0] = socketDescriptor;
-
-        struct timeval tv;
-        tv.tv_sec = nextTimeOut / 1000;
-        tv.tv_usec = (nextTimeOut % 1000) * 1000;
-
-        if (selectForRead)
-            ret = select(0, &fds, 0, 0, nextTimeOut < 0 ? 0 : &tv);
-        else
-            ret = select(0, 0, &fds, 0, nextTimeOut < 0 ? 0 : &tv);
-
-        break;
-    }
+    if (selectForRead)
+        ret = select(0, &fds, 0, 0, timeout < 0 ? 0 : &tv);
+    else
+        ret = select(0, 0, &fds, 0, timeout < 0 ? 0 : &tv);
 
     if (readEnabled)
         readNotifier->setEnabled(true);
