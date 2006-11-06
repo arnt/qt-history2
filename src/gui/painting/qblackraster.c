@@ -370,7 +370,7 @@ typedef struct  TBand_
 
 typedef struct TRaster_Instance_  TRaster_Instance;
 
-#define precision_bits 12
+#define precision_bits 11
 #define precision_step (1 << (precision_bits - 1))
 #define precision (1 << precision_bits)
 #define precision_shift (precision_bits - Pixel_Bits)
