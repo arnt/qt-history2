@@ -19,10 +19,8 @@
 #include <QtCore/QProcess>
 #include <QtCore/qglobal.h>
 #if defined(Q_OS_MAC) && defined(QT_MAC_FRAMEWORK_BUILD)
-#warning 1
 #  include <QtAssistantClient/qassistantclient_global.h>
 #else
-#warning 2
 #  include <QtAssistant/qassistantclient_global.h>
 #endif
 
