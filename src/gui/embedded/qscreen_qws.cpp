@@ -57,8 +57,9 @@ ClearCacheFunc QScreen::clearCacheFunc = 0;
     Note that there may only be one screen cursor at a time. Use the
     static instance() function to retrieve a pointer to the current
     screen cursor. Typically, the cursor is constructed by the QScreen
-    class or one of its descendants, i.e. the QScreenCursor class
-    should never be instantiated explicitly.
+    class or one of its descendants when it is initializing the
+    device; the QScreenCursor class should never be instantiated
+    explicitly.
 
     Use the move() function to change the position of the cursor, and
     the set() function to alter its image or its hot spot. In
@@ -308,125 +309,181 @@ public:
     \brief The QScreen class is a base class for implementing screen
     drivers in Qtopia Core.
 
-    Note that this class is only available in Qtopia Core. Custom
-    screen drivers derived from QScreen can be added by subclassing
-    the QScreenDriverPlugin class, using the QScreenDriverFactory
-    class to dynamically load the driver into the application, but
-    there should only be one screen object per application.
+    Note that this class is only available in \l {Qtopia Core}.
 
-    The QScreen class provides functions enabling framebuffer and
-    palette management and drawing on screen. The class also provides
-    information about several screen properties, e.g its
-    metrics. Finally, the QScreen class and its descendants act as
-    factories for the screen cursor, creating the cursor whenever
-    required.
+    When rendering, \l {Qtopia Core}'s default behavior is for each
+    client to render its widgets as well as its decorations into
+    memory, while the server copies the memory content to the device's
+    framebuffer using the screen driver. See the \l {Qtopia Core
+    Architecture} overview for details.
+
+    \image qtopiacore-drawingonscreen.png
+
+    The screen driver is loaded by the server application when it
+    starts running, using Qt's plugin system. \l {Qtopia Core}
+    provides ready-made drivers for several screen protocols, see the
+    \l {Qtopia Core Display Management}{display management}
+    documentation for details. Custom screen drivers can be
+    implemented by subclassing the QScreen class and creating a screen
+    driver plugin (derived from QScreenDriverPlugin). \l {Qtopia
+    Core}'s implementation of the QScreenDriverFactory class will
+    automatically detect the plugin, and load the driver into the
+    server application at runtime.
+
+    Starting with \l {Qtopia Core} 4.2, it is also possible to add an
+    accelerated graphics driver to take advantage of available
+    hardware resources. See the \l {Adding an Accelerated Graphics
+    Driver in Qtopia Core} documentation for details.
 
     \tableofcontents
 
     \section1 Framebuffer Management
 
-    When a \l {Qtopia Core} application starts, the connect() function
-    will be called to map in the framebuffer and the accelerated
-    drivers that the graphics card control registers, and when
-    initializing the framebuffer, the initDevice() function will be
-    called. The latter function can be reimplemented to set up the
-    graphics card (note that the default implementation does nothing).
+    When a \l {Qtopia Core} application starts running, it calls the
+    screen driver's connect() function to map into the framebuffer and
+    the accelerated drivers that the graphics card control
+    registers. Note that if the application acts as the server, the
+    application will call the initDevice() function prior to the
+    connect() function, to initialize the framebuffer. The
+    initDevice() function can be reimplemented to set up the graphics
+    card (note that the default implementation does nothing).
 
-    Likewise, just before a \l {Qtopia Core} application exits, the
-    disconnect() function will be called. This function should be
-    reimplemented to unmap the framebuffer. The shutdownDevice()
-    function is also called on shutdown, and can be reimplemented to
-    support graphics card specific cleanup.
+    Likewise, just before a \l {Qtopia Core} application exits, it
+    calls the screen driver's disconnect() function. The server
+    application will in addition call the shutdownDevice() function
+    before it calls disconnect(). Note that the default implementation
+    of the shutdownDevice() function only hides the mouse cursor.
 
-    The save() function allows subclasses of QScreen to save the state
-    of the graphics card. Hardware QScreen descendants should save the
-    state of the registers here to enable switching between virtual
-    consoles. The corresponding restore() function enables restoration
-    of a previously saved state of the graphics card. Note that the
-    default implementations of these two functions do nothing.
+    QScreen also provides the save() and restore() functions, making
+    it possible to save and restore the state of the graphics
+    card. Note that the default implementations do nothing. Hardware
+    screen drivers should reimplement these functions to save (and
+    restore) its registers, enabling swintching between virtual
+    consoles.
 
-    QScreen also provides the base() function returning a pointer to
-    the beginning of the framebuffer. Use the onCard() function to
+    In additon, you can use the base() function to retrieve a pointer
+    to the beginning of the framebuffer, and the region() function to
+    retrieve the framebuffer's region. Use the onCard() function to
     determine whether the framebuffer is within the graphics card's
-    memory. The totalSize() function returns the size of the available
-    graphics card memory, including the screen.
+    memory, and the totalSize() function to determine the size of the
+    available graphics card memory (including the screen). Finally,
+    you can use the offset() function to retrieve the offset between
+    the framebuffer's coordinates and the application's coordinate
+    system.
 
     \section1 Palette Management
 
-    For palette management, the QScreen class provides the clut()
-    function to retrieve the screen's color lookup table (i.e. its
-    color palette), and the numCols() function to determine the number
-    of entries in this table. The alloc() function can be used to
-    retrieve the index in the screen's palette which is the closest
-    match to a given RGB value, and the supportsDepth() function to
-    determine if the screen supports a given color depth.
+    QScreen provides several functions to retrieve information about
+    the color palette: The clut() function returns a pointer to the
+    color lookup table (i.e. its color palette). Use the numCols()
+    function to determine the number of entries in this table, and the
+    alloc() function to retrieve the palette index of the color that
+    is the closest match to a given RGB value.
+
+    To determine if the screen driver supports a given color depth,
+    use the supportsDepth() function that returns true of the
+    specified depth is supported.
 
     \section1 Drawing on Screen
 
-    When deriving from QScreen, either the blit() or the
-    exposeRegion() function must be reimplemented to enable drawing on
-    screen.
+    When a screen update is required, the \l {Qtopia Core} server runs
+    through all the top-level windows that intersect with the region
+    that is about to be updated, and ensures that the associated
+    clients have updated their memory buffer. Then the server calls
+    the exposeRegion() function that composes the window surfaces and
+    copies the content of memory to screen by calling the blit() and
+    solidFill() functions. See the \l {Qtopia Core Architecture}
+    overview for details.
 
     The blit() function copies a given region in a given image to a
-    specified point using device coordinates, and should be
-    reimplemented to make use of accelerated hardware. Note that
-    reimplementing blit() requires that the solidFill() function is
-    reimplemented as well. The solidFill() function allows subclasses
-    of QScreen to fill the given region of the screen with the
-    specified color. The exposeRegion() function paints a given region
-    on screen. Note that normally there is no need to call either of
-    these functions explicitly.
+    specified point using device coordinates, while the solidFill()
+    function fills the given region of the screen with the specified
+    color. Note that normally there is no need to call either of these
+    functions explicitly.
 
-    Reimplement the blank() function to control the display of
-    contents on the screen. The setDirty() function can be
-    reimplemented to indicate that a given rectangle of the screen has
-    been altered. Note that the default implementations of these two
-    latter functions do nothing.
+    In addition, QScreen provides the blank() function that can be
+    reimplemented to prevent any contents from being displayed on the
+    screen, and the setDirty() function that can be reimplemented to
+    indicate that a given rectangle of the screen has been
+    altered. Note that the default implementations of these functions
+    do nothing.
 
-    QScreen also provides the mapFromDevice() and mapToDevice()
-    function to map an object from the framebuffer coordinate system
-    to the coordinate space used by the application, and vice versa.
+    Reimplement the the mapFromDevice() and mapToDevice() functions to
+    map objects from the framebuffer coordinate system to the
+    coordinate space used by the application, and vice versa. Be aware
+    that the default implementations simply return the given objects
+    as they are.
 
-    See the QDirectPainter and QDecoration class documentation for
-    more information about drawing on screen.
+    \section1 Properties
 
-    \section1 Screen Properties
+    \table
+    \header \o Property \o Functions
+    \row
+    \o Size
+    \o
 
-    QScreen provides information about several screen properties: The
-    size of the screen can be retrieved using the screenSize()
-    function. Alternatively, its width and height can be retrieved
-    using the width() and height() functions respectively. QScreen
-    also provides the deviceWidth() and deviceHeight() functions which
-    returns the full size of the device. Note that these metrics can
-    differ from the ones used if the display is centered within the
+    The size of the screen can be retrieved using the screenSize()
+    function. The size is returned in bytes.
+
+    The framebuffer's logical width and height can be retrieved using
+    width() and height(), respectively. These functions return values
+    are given in pixels. Alternatively, the physicalWidth() and
+    physicalHeight() function returns the same metrics in
+    millimeters. QScreen also provides the deviceWidth() and
+    deviceHeight() functions returning the physical width and height
+    of the device in pixels. Note that the latter metrics can differ
+    from the ones used if the display is centered within the
     framebuffer.
 
-    The setMode() function allows subclasses of QScreen to set the
-    framebuffer to a new resolution (width and height) and bit depth.
-    The current depth of the framebuffer can be retrieved using the
-    depth() function.
+    \row
+    \o Resolution
+    \o
 
-    Use the pixmapDepth() function to obtain the preferred depth for
-    pixmaps. In addition, QScreen provides the pixmapOffsetAlignment()
-    function returning the value to which the start address of pixmaps
-    held in the graphics card's memory, should be aligned. The
-    pixmapLinestepAlignment() returns the value to which the \e
-    {individual scanlines} of pixmaps should be aligned.
+    Reimplement the setMode() function to be able to set the
+    framebuffer to a new resolution (width and height) and bit depth.
+
+    The current depth of the framebuffer can be always be retrieved
+    using the depth() function. Use the pixmapDepth() function to
+    obtain the preferred depth for pixmaps.
+
+    \row
+    \o Pixmap Alignment
+    \o
+
+    Use the pixmapOffsetAlignment() function to retrieve the value to
+    which the start address of pixmaps held in the graphics card's
+    memory, should be aligned.
+
+    Use the pixmapLinestepAlignment() to retrieve the value to which
+    the \e {individual scanlines} of pixmaps should be aligned.
+
+    \row
+    \o Image Display
+    \o
 
     The isInterlaced() function tells whether the screen is displaying
     images progressively, and the isTransformed() function whether it
     is rotated. The transformOrientation() function can be
     reimplemented to return the current rotation.
 
-    The linestep() function returns the length of each scanline of the
-    framebuffer.
+    \row
+    \o Scanlines
+    \o
 
-    The pixelType() returns the screen's pixel storage format as
-    described by the PixelType enum, the opType() function returns the
-    screen's operation type, and the lastOp() function returns the
-    screens last operation.
+    Use the linestep() function to retrieve the length of each
+    scanline of the framebuffer.
 
-    \sa {Running Qtopia Core Applications}
+    \row
+    \o Pixel Type
+    \o
+
+    The pixelType() function returns the screen's pixel storage format as
+    described by the PixelType enum.
+
+    \endtable
+
+    \sa QScreenCursor, QWSScreenSaver, {Qtopia Core Display
+    Management}
 */
 
 /*!
@@ -447,9 +504,10 @@ public:
 
     Returns a pointer to the application's QScreen instance.
 
-    If this screen consists of several subscreens, operations to this
-    instance will affect all subscreens. Use the subscreens() function
-    to retrieve access to a particular subscreen.
+    If this screen consists of several subscreens, operations to the
+    returned instance will affect all its subscreens. Use the
+    subscreens() function to retrieve access to a particular
+    subscreen.
 
     \sa subScreens(), subScreenIndexAt()
 */
@@ -458,8 +516,7 @@ public:
     \fn QList<QScreen*> QScreen::subScreens() const
     \since 4.2
 
-    Returns a list of this screen's subscreens. Use this function to
-    retrieve access to a particular subscreen. Use the
+    Returns a list of this screen's subscreens. Use the
     subScreenIndexAt() function to retrieve the index of a screen at a
     given position.
 
@@ -474,30 +531,31 @@ public:
     \fn int QScreen::physicalWidth() const
     \since 4.2
 
-    Returns the physical width of the screen (in millimeters).
+    Returns the physical width of the screen in millimeters.
 
-    \sa physicalHeight()
+    \sa width(), deviceWidth(), physicalHeight()
 */
 
 /*!
     \fn int QScreen::physicalHeight() const
     \since 4.2
 
-    Returns the physical height of the screen (in millimeters).
+    Returns the physical height of the screen in millimeters.
 
-    \sa physicalWidth()
+    \sa height(), deviceHeight(), physicalWidth()
 */
 
 /*!
     \fn QScreen::initDevice()
 
-    This function is called by the \l {Qtopia Core} server when
-    initializing the framebuffer.
+    This function is called by the \l {Qtopia Core} server to
+    initialize the framebuffer. Note that it is called \e before the
+    connect() function.
 
-    Reimplement this function to make accelerated drivers set up the
-    graphics card. The default implementation does nothing.
+    The default implementation does nothing; reimplement this function
+    to set up the graphics card.
 
-    \sa {Adding an Accelerated Graphics Driver in Qtopia Core}
+    \sa shutdownDevice(), connect()
 */
 
 /*!
@@ -506,6 +564,8 @@ public:
     This function is called by every \l {Qtopia Core} application on
     startup, and must be reimplemented to map in the framebuffer and
     the accelerated drivers that the graphics card control registers.
+    Note that a server application will call the initDevice() function
+    prior to this function.
 
     The \a displaySpec argument is passed by the QWS_DISPLAY
     environment variable or the -display command line parameter, and
@@ -521,41 +581,51 @@ public:
         Mach64:/dev/fb1:2
     \endcode
 
-    \sa disconnect(), {Running Qtopia Core Applications}
+    See \l {Qtopia Core Display Management} for more details.
+
+    \sa disconnect(), initDevice(), {Running Qtopia Core Applications}
 */
 
 /*!
     \fn QScreen::disconnect()
 
-    This function is called by every \l {Qtopia Core} application just
-    before exiting, and should be reimplemented to unmap the
-    framebuffer.
+    This function is called by every \l {Qtopia Core} application
+    before exiting, and must be reimplemented to unmap the
+    framebuffer. Note that a server application will call the
+    shutdownDevice() function prior to this function.
 
-    \sa connect()
+    \sa connect(), shutdownDevice(), {Running Qtopia Core
+    Applications}
 */
 
 /*!
     \fn QScreen::setMode(int width, int height, int depth)
 
-    This virtual function allows subclasses of QScreen to set the
-    framebuffer to a new resolution (\a width and \a height) and bit
-    \a depth.
+    Resets the framebuffer's resolution (\a width and \a height) and
+    bit \a depth.
 
-    After doing this any currently-existing paint engines will be
-    invalid and the screen should be completely redrawn. In a
+    Note that the default implementation does nothing; reimplement
+    this function to set the framebuffer's resolution.
+
+    After the resolution has been set, existing paint engines will be
+    invalid and the framebuffer should be completely redrawn. In a
     multiple-process situation, all other applications must be
-    notified to set the same mode and redraw.
-
-    Note that the default implementation does nothing.
+    notified to reset their mode and update themselves accordingly.
 */
 
 /*!
     \fn QScreen::blank(bool on)
 
-    Avoids displaying any contents on the screen if \a on is true;
-    otherwise the contents is shown.
+    Prevents the screen driver form displaying any content on the
+    screen.
 
-    The default implementation does nothing.
+    Note that the default implementation does nothing.
+
+    Reimplement this function to prevent the screen driver from
+    displaying any contents on the screen if \a on is true; otherwise
+    the contents is expected to be shown.
+
+    \sa blit()
 */
 
 /*!
@@ -564,42 +634,45 @@ public:
     Returns the value (in bits) to which the start address of pixmaps
     held in the graphics card's memory, should be aligned.
 
-    The default implementation returns 64. Reimplement this function
-    to override the return value when implementing an accelerated
-    driver.
+    Note that the default implementation returns 64; reimplement this
+    function to override the return value, e.g., when implementing an
+    accelerated driver (see the \l {Adding an Accelerated Graphics
+    Driver in Qtopia Core}{Adding an Accelerated Graphics Driver}
+    documentation for details).
 
-    \sa pixmapLinestepAlignment(), {Adding an Accelerated Graphics
-    Driver in Qtopia Core}
+    \sa pixmapLinestepAlignment()
 */
 
 /*!
     \fn int QScreen::pixmapLinestepAlignment()
 
     Returns the value (in bits) to which individual scanlines of
-    pixmaps held in the graphics card's memory, should be aligned.
+    pixmaps held in the graphics card's memory, should be
+    aligned.
 
-    The default implementation returns 64. Reimplement this function
-    to override the return value when implementing an accelerated
-    driver.
+    Note that the default implementation returns 64; reimplement this
+    function to override the return value, e.g., when implementing an
+    accelerated driver (see the \l {Adding an Accelerated Graphics
+    Driver in Qtopia Core}{Adding an Accelerated Graphics Driver}
+    documentation for details).
 
-    \sa pixmapOffsetAlignment(), {Adding an Accelerated Graphics
-    Driver in Qtopia Core}
+    \sa pixmapOffsetAlignment()
 */
 
 /*!
     \fn QScreen::width() const
 
-    Returns the width of the framebuffer, in pixels.
+    Returns the logical width of the framebuffer in pixels.
 
-    \sa deviceWidth(), height()
+    \sa deviceWidth(), physicalWidth(), height()
 */
 
 /*!
     \fn int QScreen::height() const
 
-    Returns the height of the framebuffer, in pixels.
+    Returns the logical height of the framebuffer in pixels.
 
-    \sa deviceHeight(), width()
+    \sa deviceHeight(), physicalHeight(), width()
 */
 
 /*!
@@ -608,7 +681,7 @@ public:
     Returns the depth of the framebuffer, in bits per pixel.
 
     Note that the returned depth is the number of bits each pixel
-    takes up rather than the number of significant bits, so 24bpp and
+    fills rather than the number of significant bits, so 24bpp and
     32bpp express the same range of colors (8 bits of red, green and
     blue).
 
@@ -626,33 +699,33 @@ public:
 /*!
     \fn QScreen::linestep() const
 
-    Returns the length of each scanline of the framebuffer, in bytes.
+    Returns the length of each scanline of the framebuffer in bytes.
 
-    \sa QDirectPainter::linestep()
+    \sa isInterlaced()
 */
 
 /*!
     \fn QScreen::deviceWidth() const
 
-    Returns the full width of the framebuffer device.
+    Returns the physical width of the framebuffer device in pixels.
 
     Note that the returned width can differ from the width which \l
     {Qtopia Core} will actually use, that is if the display is
     centered within the framebuffer.
 
-    \sa deviceHeight(), width()
+    \sa width(), physicalWidth(), deviceHeight()
 */
 
 /*!
     \fn QScreen::deviceHeight() const
 
-    Returns the full height of the framebuffer device.
+    Returns the full height of the framebuffer device in pixels.
 
     Note that the returned height can differ from the height which \l
     {Qtopia Core} will actually use, that is if the display is
     centered within the framebuffer.
 
-    \sa deviceWidth(), height()
+    \sa height(), physicalHeight(), deviceWidth()
 */
 
 /*!
@@ -660,7 +733,7 @@ public:
 
     Returns a pointer to the beginning of the framebuffer.
 
-    \sa onCard()
+    \sa onCard(), region(), totalSize()
 */
 
 /*!
@@ -685,21 +758,19 @@ public:
 /*!
     \fn QScreen::screenSize() const
 
-    Returns the size of the screen, in bytes.
+    Returns the size of the screen in bytes.
 
     The screen size is always located at the beginning of framebuffer
     memory, i.e. it can also be retrieved using the base() function.
 
-    \sa base()
+    \sa base(), region()
 */
 
 /*!
     \fn QScreen::totalSize() const
 
-    Returns the size of the available graphics card memory, including
-    the screen, in bytes.
-
-    Offscreen memory is only used by the accelerated drivers.
+    Returns the size of the available graphics card memory (including
+    the screen) in bytes.
 
     \sa onCard()
 */
@@ -708,21 +779,23 @@ public:
 // drivers
 
 /*!
-  \fn QScreen::QScreen(int displayId)
+    \fn QScreen::QScreen(int displayId)
 
-  Constructs a QScreen object. The \a displayId identifies the the \l
-  {Qtopia Core} server to connect to.
+    Constructs a new screen driver.
+
+    The \a displayId identifies the \l {Qtopia Core} server to connect
+    to.
 */
 
 /*!
     \fn QScreen::clut()
 
-    Returns the screen's color lookup table (i.e. its color
-    palette).
+    Returns a pointer to the screen's color lookup table (i.e. its
+    color palette).
 
-    Note that this function only apply in paletted modes, i.e. in
-    modes where only palette indexes (and not actual color values) are
-    stored in memory (e.g. 8-bit mode).
+    Note that this function only apply in paletted modes like 8-bit,
+    i.e. in modes where only the palette indexes (and not the actual
+    color values) are stored in memory.
 
     \sa alloc(), depth(), numCols()
 */
@@ -731,10 +804,10 @@ public:
     \fn int QScreen::numCols()
 
     Returns the number of entries in the screen's color lookup table
-    (i.e. its color palette). The color table can be retrieved using
-    the clut() function.
+    (i.e. its color palette). A pointer to the color table can be
+    retrieved using the clut() function.
 
-    \sa clut()
+    \sa clut(), alloc()
 */
 
 QScreen::QScreen(int display_id)
@@ -752,7 +825,7 @@ QScreen::QScreen(int display_id)
 }
 
 /*!
-  Destroys this QScreen object.
+    Destroys this screen driver.
 */
 
 QScreen::~QScreen()
@@ -761,11 +834,14 @@ QScreen::~QScreen()
 }
 
 /*!
-    This virtual function is called by the \l {Qtopia Core} server on
-    shutdown, and allows subclasses of QScreen to support graphics
-    card specific cleanup.
+    This function is called by the \l {Qtopia Core} server before it
+    calls the disconnect() function when exiting.
 
-    The default implementation simply hides the mouse cursor.
+    Note that the default implementation only hides the mouse cursor;
+    reimplement this function to do the necessary graphics card
+    specific cleanup.
+
+    \sa initDevice(), disconnect()
 */
 
 void QScreen::shutdownDevice()
@@ -780,9 +856,7 @@ extern bool qws_accel; //in qapplication_qws.cpp
 /*!
     \fn PixelType QScreen::pixelType() const
 
-    Returns  the pixel storage format of the screen.
-
-    \sa PixelType
+    Returns the pixel storage format of the screen.
 */
 
 /*!
@@ -791,11 +865,11 @@ extern bool qws_accel; //in qapplication_qws.cpp
     Returns the index in the screen's palette which is the closest
     match to the given RGB value (\a red, \a green, \a blue).
 
-    Note that this function only apply in paletted modes, i.e. in
-    modes where only palette indexes (and not actual color values) are
-    stored in memory (e.g. 8-bit mode).
+    Note that this function only apply in paletted modes like 8-bit,
+    i.e. in modes where only the palette indexes (and not the actual
+    color values) are stored in memory.
 
-    \sa clut()
+    \sa clut(), numCols()
 */
 
 int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
@@ -841,12 +915,11 @@ int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
 }
 
 /*!
-    This virtual function allows subclasses of QScreen to save the
-    state of the graphics card, and be able to restored it later.
+    Saves the current state of the graphics card.
 
-    Hardware QScreen descendants should save the state of the
-    registers here, if necessary, to enable switching between virtual
-    consoles (for example to and from X).
+    For example, hardware screen drivers should reimplement the save()
+    and restore() functions to save and restore its registers,
+    enabling swintching between virtual consoles.
 
     Note that the default implementation does nothing.
 
@@ -858,8 +931,11 @@ void QScreen::save()
 }
 
 /*!
-    This virtual function allows subclasses of QScreen to restore a
-    previously saved state of the graphics card.
+    Restores the previously saved state of the graphics card.
+
+    For example, hardware screen drivers should reimplement the save()
+    and restore() functions to save and restore its registers,
+    enabling swintching between virtual consoles.
 
     Note that the default implementation does nothing.
 
@@ -952,8 +1028,8 @@ bool QScreen::onCard(const unsigned char * p) const
     \overload
 
     If the specified \a buffer is within the graphics card's memory,
-    this function stores the offset (in bytes) from the start of
-    graphics card memory, in the location specified by the \a offset
+    this function stores the offset from the start of graphics card
+    memory (in bytes), in the location specified by the \a offset
     parameter.
 */
 
@@ -1033,17 +1109,20 @@ Q_GUI_EXPORT QScreen* qt_get_screen(int display_id, const char *spec)
 
 
 /*!
-    \fn void QScreen::exposeRegion(QRegion region, int windowIndex)
+    \fn void QScreen::exposeRegion(QRegion region, int windows)
 
-    Paints the given \a region on screen. The \a windowIndex parameter
-    refer to the affected windows.
+    This function is called by the \l {Qtopia Core} server whenever a
+    screen update is required. The default implementation composes the
+    affected \c windows and paints the given \a region on screen by
+    calling the blit() and solidFill() functions
 
     Note that there is no need to call this function explicitly, but
     it must be reimplemented in derived classes. It can also be
     reimplemented to make use of accelerated hardware, but this is
-    typically done by reimplementing the blit() function instead.
+    typically done by reimplementing the blit() and solidFill()
+    functions instead.
 
-    \sa blit()
+    \sa blit(), solidFill(), blank()
 */
 void QScreen::exposeRegion(QRegion r, int changing)
 {
@@ -1337,11 +1416,16 @@ static void blit_32_to_18(const blit_data *data)
     Copies the given \a region in the given \a image to the point
     specified by \a topLeft using device coordinates.
 
-    Reimplement this function to use accelerated hardware. Note that
-    reimplementing this function requires that the solidFill()
-    function is reimplemented as well.
+    This function is called from the exposeRegion() function; it is
+    not intended to be called explicitly.
 
-    \sa exposeRegion(), {Adding an Accelerated Graphics Driver in Qtopia Core}
+    Reimplement this function to make use of \l {Adding an Accelerated
+    Graphics Driver in Qtopia Core}{accelerated hardware}. Note that
+    this function must be reimplemented if the framebuffer format is
+    not supported by \l {Qtopia Core} (See the \l {Qtopia Core Display
+    Management}{Display Management} documentation for more details).
+
+    \sa exposeRegion(), solidFill(), blank()
 */
 void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &reg)
 {
@@ -1555,11 +1639,19 @@ static void fill_8(const fill_data *data)
 #endif // QT_QWS_DEPTH_8
 
 /*!
-   This virtual function allows subclasses of QScreen to fill the
-   given \a region of the screen with the specified \a color. Note
-   that this function is not intended to be called explicitly.
+    Fills the given \a region of the screen with the specified \a
+    color.
 
-   \sa blit()
+    This function is called from the exposeRegion() function; it is
+    not intended to be called explicitly.
+
+    Reimplement this function to make use of \l {Adding an Accelerated
+    Graphics Driver in Qtopia Core}{accelerated hardware}. Note that
+    this function must be reimplemented if the framebuffer format is
+    not supported by \l {Qtopia Core} (See the \l {Qtopia Core Display
+    Management}{Display Management} documentation for more details).
+
+    \sa exposeRegion(), blit(), blank()
 */
 // the base class implementation works in device coordinates, so that transformed drivers can use it
 void QScreen::solidFill(const QColor &color, const QRegion &region)
@@ -1620,12 +1712,20 @@ void QScreen::solidFill(const QColor &color, const QRegion &region)
 /*!
     \since 4.2
 
-    Creates a new QWSWindowSurface matching the name given by \a key.
+    Creates and returns a new window surface matching the given \a
+    key.
 
-    This function is used by the application that runs as a GuiServer when
-    when it needs to create a server side representation of a surface.
+    The server application will call this function whenever it needs
+    to create a server side representation of a window, e.g. when
+    copying the content of memory to the screeen using the screen
+    driver.
 
-    \sa QApplication::Type
+    Note that this function must be reimplemented when adding an
+    accelerated graphics driver. See the \l {Adding an Accelerated
+    Graphics Driver in Qtopia Core}{Adding an Accelerated Graphics
+    Driver} documentation for details.
+
+    \sa {Qtopia Core Architecture}
 */
 QWSWindowSurface* QScreen::createSurface(const QString &key) const
 {
@@ -1667,7 +1767,9 @@ static inline bool isWidgetPaintOnScreen(const QWidget *w)
 }
 
 /*!
-    Creates a new QWSWindowSurface for \a widget.
+    \overload
+
+    Creates and returns a new window surface for the given \a widget.
 */
 QWSWindowSurface* QScreen::createSurface(QWidget *widget) const
 {
@@ -1840,10 +1942,11 @@ void QScreen::paintBackground(const QRegion &r)
 /*!
     \fn QScreen::setDirty(const QRect& rectangle)
 
-    This virtual function allows subclasses of QScreen to indicate
-    that the given \a rectangle of the screen has been altered.
+    Marks the given \a rectangle as dirty.
 
-    Note that the default implementation does nothing.
+    Note that the default implementation does nothing; reimplement
+    this function to indicate that the given \a rectangle has been
+    altered.
 */
 
 void QScreen::setDirty(const QRect&)
@@ -1856,7 +1959,7 @@ void QScreen::setDirty(const QRect&)
     Returns true if the screen is transformed (for instance, rotated
     90 degrees); otherwise returns false.
 
-    \sa QTransformedScreen::transformation()
+    \sa transformOrientation(), isInterlaced()
 */
 
 bool QScreen::isTransformed() const
@@ -1867,10 +1970,14 @@ bool QScreen::isTransformed() const
 /*!
     \fn QScreen::isInterlaced() const
 
-    Returns true if the display is interlaced (for instance a
-    television screen); otherwise returns false.
+    Returns true if the display is interlaced (i.e. is displaying
+    images progressively like a television screen); otherwise returns
+    false.
 
-    If true, drawing is altered to look better on such displays.
+    If the display is interlaced, the drawing is altered to look
+    better.
+
+    \sa isTransformed(), linestep()
 */
 
 bool QScreen::isInterlaced() const
@@ -1881,13 +1988,12 @@ bool QScreen::isInterlaced() const
 /*!
     \fn QScreen::mapToDevice(const QSize &size) const
 
-    This virtual function allows subclasses of QScreen to map the
-    given object from the coordinate space used by the application to
-    the framebuffer coordinate system.
+    Maps the given \a size from the coordinate space used by the
+    application to the framebuffer coordinate system. Note that the
+    default implementation simply returns the given \a size as it is.
 
-    In the case of a \a size object, this means switching its height
-    and width. Note that the default implementation simply returns the
-    given \a size as it is.
+    Reimplement this function to use the given device's coordinate
+    system when mapping.
 
     \sa mapFromDevice()
 */
@@ -1900,13 +2006,12 @@ QSize QScreen::mapToDevice(const QSize &s) const
 /*!
     \fn QScreen::mapFromDevice(const QSize &size) const
 
-    This virtual function allows subclasses of QScreen to map the
-    given object from the framebuffer coordinate system to the
-    coordinate space used by the application.
+    Maps the given \a size from the framebuffer coordinate system to
+    the coordinate space used by the application. Note that the
+    default implementation simply returns the given \a size as it is.
 
-    In the case of a \a size object, this means switching its height
-    and width. Note that the default implementation simply returns the
-    given \a size as it is.
+    Reimplement this function to use the given device's coordinate
+    system when mapping.
 
     \sa mapToDevice()
 */
@@ -1920,13 +2025,10 @@ QSize QScreen::mapFromDevice(const QSize &s) const
     \fn QScreen::mapToDevice(const QPoint &point, const QSize &screenSize) const
     \overload
 
-    This virtual function allows subclasses of QScreen to map the
-    given object from the coordinate space used by the application to
-    the framebuffer coordinate system, passing the device's \a
-    screenSize as argument.
-
-    Note that the default implementation returns the given \a point as
-    it is.
+    Maps the given \a point from the coordinate space used by the
+    application to the framebuffer coordinate system, passing the
+    device's \a screenSize as argument. Note that the default
+    implementation returns the given \a point as it is.
 */
 
 QPoint QScreen::mapToDevice(const QPoint &p, const QSize &) const
@@ -1938,13 +2040,10 @@ QPoint QScreen::mapToDevice(const QPoint &p, const QSize &) const
     \fn QScreen::mapFromDevice(const QPoint &point, const QSize &screenSize) const
     \overload
 
-    This virtual function allows subclasses of QScreen to map the
-    given object from the framebuffer coordinate system to the
-    coordinate space used by the application, passing the device's \a
-    screenSize as argument.
-
-    Note that the default implementation returns the given \a point as
-    it is.
+    Maps the given \a point from the framebuffer coordinate system to
+    the coordinate space used by the application, passing the device's
+    \a screenSize as argument. Note that the default implementation
+    simply returns the given \a point as it is.
 */
 
 QPoint QScreen::mapFromDevice(const QPoint &p, const QSize &) const
@@ -1956,13 +2055,10 @@ QPoint QScreen::mapFromDevice(const QPoint &p, const QSize &) const
     \fn QScreen::mapToDevice(const QRect &rectangle, const QSize &screenSize) const
     \overload
 
-    This virtual function allows subclasses of QScreen to map the
-    given object from the coordinate space used by the application to
-    the framebuffer coordinate system, passing the device's \a
-    screenSize as argument.
-
-    Note that the default implementation returns the given \a
-    rectangle as it is.
+    Maps the given \a rectangle from the coordinate space used by the
+    application to the framebuffer coordinate system, passing the
+    device's \a screenSize as argument. Note that the default
+    implementation returns the given \a rectangle as it is.
 */
 
 QRect QScreen::mapToDevice(const QRect &r, const QSize &) const
@@ -1974,12 +2070,10 @@ QRect QScreen::mapToDevice(const QRect &r, const QSize &) const
     \fn QScreen::mapFromDevice(const QRect &rectangle, const QSize &screenSize) const
     \overload
 
-    This virtual function allows subclasses of QScreen to map the
-    given object from the framebuffer coordinate system to the
-    coordinate space used by the application, passing the device's \a
-    screenSize as argument.
-
-    The default implementation returns the given \a rectangle as it is.
+    Maps the given \a rectangle from the framebuffer coordinate system to
+    the coordinate space used by the application, passing the device's
+    \a screenSize as argument. Note that the default implementation
+    simply returns the given \a rectangle as it is.
 */
 
 QRect QScreen::mapFromDevice(const QRect &r, const QSize &) const
@@ -1991,11 +2085,9 @@ QRect QScreen::mapFromDevice(const QRect &r, const QSize &) const
     \fn QScreen::mapToDevice(const QImage &image) const
     \overload
 
-    This virtual function allows subclasses of QScreen to map the
-    given object from the coordinate space used by the application to
-    the framebuffer coordinate system.
-
-    The default implementation returns the given \a image as it is.
+    Maps the given \a image from the coordinate space used by the
+    application to the framebuffer coordinate system. Note that the
+    default implementation returns the given \a image as it is.
 */
 
 QImage QScreen::mapToDevice(const QImage &i) const
@@ -2007,11 +2099,9 @@ QImage QScreen::mapToDevice(const QImage &i) const
     \fn QScreen::mapFromDevice(const QImage &image) const
     \overload
 
-    This virtual function allows subclasses of QScreen to map the
-    given object from the framebuffer coordinate system to the
-    coordinate space used by the application.
-
-    The default implementation returns the given \a image as it is.
+    Maps the given \a image from the framebuffer coordinate system to
+    the coordinate space used by the application. Note that the
+    default implementation simply returns the given \a image as it is.
 */
 
 QImage QScreen::mapFromDevice(const QImage &i) const
@@ -2023,12 +2113,10 @@ QImage QScreen::mapFromDevice(const QImage &i) const
     \fn QScreen::mapToDevice(const QRegion &region, const QSize &screenSize) const
     \overload
 
-    This virtual function allows subclasses of QScreen to map the
-    given object from the coordinate space used by the application to
-    the framebuffer coordinate system, passing the device's \a
-    screenSize as argument.
-
-    The default implementation returns the given \a region as it is.
+    Maps the given \a region from the coordinate space used by the
+    application to the framebuffer coordinate system, passing the
+    device's \a screenSize as argument. Note that the default
+    implementation returns the given \a region as it is.
 */
 
 QRegion QScreen::mapToDevice(const QRegion &r, const QSize &) const
@@ -2040,12 +2128,10 @@ QRegion QScreen::mapToDevice(const QRegion &r, const QSize &) const
     \fn QScreen::mapFromDevice(const QRegion &region, const QSize &screenSize) const
     \overload
 
-    This virtual function allows subclasses of QScreen to map the
-    given object from the framebuffer coordinate system to the
-    coordinate space used by the application, passing the device's \a
-    screenSize as argument .
-
-    The default implementation returns the given \a region as it is.
+    Maps the given \a region from the framebuffer coordinate system to
+    the coordinate space used by the application, passing the device's
+    \a screenSize as argument. Note that the default implementation
+    simply returns the given \a region as it is.
 */
 
 QRegion QScreen::mapFromDevice(const QRegion &r, const QSize &) const
@@ -2056,10 +2142,10 @@ QRegion QScreen::mapFromDevice(const QRegion &r, const QSize &) const
 /*!
     \fn QScreen::transformOrientation() const
 
-    This virtual function allows subclasses of QScreen to return the
-    current rotation of the screeen as an integer value.
+    Returns the current rotation as an integer value.
 
-    The default implementation returns 0.
+    Note that the default implementation returns 0; reimplement this
+    function to override this value.
 
     \sa isTransformed()
 */
@@ -2100,7 +2186,9 @@ void QScreen::resumeUpdates()
     \fn QRegion QScreen::region() const
     \since 4.2
 
-    Returns the region covered by this screen.
+    Returns the region covered by this screen driver.
+
+    \sa base(), screenSize()
 */
 
 /*!
@@ -2114,7 +2202,8 @@ void QScreen::setOffset(const QPoint &p)
 /*!
     \since 4.2
 
-    Returns the logical offset of the screen.
+    Returns the logical offset of the screen, i.e., the offset between
+    (0,0) in screen coordinates and the application coordinate system.
 */
 QPoint QScreen::offset() const
 {
