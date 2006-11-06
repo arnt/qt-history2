@@ -1284,7 +1284,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             if (alternate)
                 painter->fillRect(opt.rect, fill);
         }
-        itemDelegate()->paint(painter, opt, modelIndex);
+        d->delegateForIndex(modelIndex)->paint(painter, opt, modelIndex);
     }
 
     if (currentRowHasFocus) {
