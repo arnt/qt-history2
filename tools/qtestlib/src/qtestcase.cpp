@@ -65,6 +65,22 @@
    \sa QCOMPARE()
 */
 
+/*! \macro QVERIFY2(condition, message)
+
+    \relates QTest
+
+    The QVERIFY2() macro behaves exactly like QVERIFY(), except that it outputs
+    a verbose \a message when \a condition is false. The \a message is a plain
+    C string.
+
+    Example:
+    \code
+    QVERIFY2(1 + 1 == 2, "A breach in basic arithmetic occured.");
+    \endcode
+
+    \sa QVERIFY(), QCOMPARE()
+*/
+
 /*! \macro QCOMPARE(actual, expected)
 
    \relates QTest
