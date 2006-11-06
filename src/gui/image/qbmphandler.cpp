@@ -273,16 +273,17 @@ static bool read_dib_body(QDataStream &s, const BMP_INFOHDR &bi, int offset, int
         if (!d->isSequential())
             d->seek(startpos + offset);                // start of image data
     }
-    
+
     int             bpl = image.bytesPerLine();
 #ifdef Q_WS_QWS
     //
     // Guess the number of bytes-per-line if we don't know how much
     // image data is in the file (bogus image ?).
     //
-    int bmpbpl = bi.biSizeImage > 0 ?
-        bi.biSizeImage / bi.biHeight :
-        (d->size() - offset) / bi.biHeight;
+    int bmpbpl = (bi.biHeight > 0 ? (bi.biSizeImage > 0 ?
+                                     bi.biSizeImage / bi.biHeight :
+                                     (d->size() - offset) / bi.biHeight)
+                                  : 0);
     int pad = bmpbpl-bpl;
 #endif
     uchar *data = image.bits();
