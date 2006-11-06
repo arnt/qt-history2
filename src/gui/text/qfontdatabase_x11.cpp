@@ -1711,7 +1711,7 @@ QFontEngine *QFontDatabase::loadXlfd(int screen, int script, const QFontDef &req
     }
 
     QFontEngine *fe = 0;
-    if (force_encoding_id != -1 || script != QUnicodeTables::Common
+    if (force_encoding_id != -1
         || (request.styleStrategy & QFont::NoFontMerging)
         || (desc.family && desc.family->writingSystems[QFontDatabase::Symbol] & QtFontFamily::Supported)) {
         if (desc.family) {
