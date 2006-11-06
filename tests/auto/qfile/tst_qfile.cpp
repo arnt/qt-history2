@@ -127,6 +127,9 @@ private slots:
 
     void rename_data();
     void rename();
+#ifdef Q_OS_WIN
+    void miscWithUncPathAsCurrentDir();
+#endif
 
 public:
 // disabled this test for the moment... it hangs
@@ -281,6 +284,8 @@ void tst_QFile::open_data()
 #ifdef Q_OS_WIN
     QTest::newRow("//./PhysicalDrive0") << QString("//./PhysicalDrive0") << int(QIODevice::ReadOnly)
                                         << (bool)TRUE << QFile::NoError;
+    QTest::newRow("uncFile") << "//gennan/testsharewritable/test.pri" << int(QIODevice::ReadOnly)
+                             << true << QFile::NoError;
 #endif
 }
 
@@ -311,6 +316,7 @@ void tst_QFile::size_data()
 
     QTest::newRow( "exist01" ) << QString("testfile.txt") << 245;
     QTest::newRow( "nonexist01" ) << QString("foo.txt") << 0;
+    QTest::newRow("unc") << QString("//gennan/testsharewritable/test.pri") << 34;
 }
 
 void tst_QFile::size()
@@ -1741,6 +1747,19 @@ void tst_QFile::rename()
 
     QFile::remove("renamefile");
 }
+
+#ifdef Q_OS_WIN
+void tst_QFile::miscWithUncPathAsCurrentDir()
+{
+    QString current = QDir::currentPath();
+    QVERIFY(QDir::setCurrent("//gennan/testsharewritable"));
+    QFile file("test.pri");
+    QVERIFY(file.exists());
+    QCOMPARE(int(file.size()), 34);
+    QVERIFY(file.open(QIODevice::ReadOnly));
+    QVERIFY(QDir::setCurrent(current));
+}
+#endif
 
 QTEST_MAIN(tst_QFile)
 #include "tst_qfile.moc"

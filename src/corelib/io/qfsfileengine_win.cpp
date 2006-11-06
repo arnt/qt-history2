@@ -278,6 +278,24 @@ static bool isUncPath(const QString &path)
     return path.startsWith("//") || path.startsWith("\\\\");
 }
 
+static bool isRelativePath(const QString &path)
+{
+    return !(path.startsWith(QLatin1Char('/'))
+           || (path.length() >= 2
+           && ((path.at(0).isLetter() && path.at(1) == ':')
+           || (path.at(0) == '/' && path.at(1) == '/')))); // drive, e.g. a:
+}
+
+static QString fixIfRelativeUncPath(const QString &path)
+{
+    if (isRelativePath(path)) {
+        QString currentPath = QDir::currentPath() + QLatin1Char('/');
+        if (currentPath.startsWith("//"))
+            return QString(path).prepend(currentPath);
+    }
+    return path;
+}
+
 // can be //server or //server/share
 static bool uncShareExists(const QString &server)
 {
@@ -446,24 +464,25 @@ void QFSFileEnginePrivate::init()
 #endif
 int QFSFileEnginePrivate::sysOpen(const QString &fileName, int flags)
 {
+    QString path = fixIfRelativeUncPath(fileName);
     flags |= _O_NOINHERIT;  // Do not inherit file handles.
 #if defined(_MSC_VER) && _MSC_VER >= 1400
 	QT_WA({
 		int fd;
         // Note that it is not documented that _wsopen_s will accept a path with the '\\?\' prefix,
         // but _wsopen_s eventually calls CreateFile with the same fileName argument.
-		_wsopen_s(&fd, (TCHAR*)QFSFileEnginePrivate::longFileName(fileName).utf16(), flags, _SH_DENYNO, _S_IREAD | _S_IWRITE);
+		_wsopen_s(&fd, (TCHAR*)QFSFileEnginePrivate::longFileName(path).utf16(), flags, _SH_DENYNO, _S_IREAD | _S_IWRITE);
 		return fd;
 	} , {
 		int fd;
-		_sopen_s(&fd, QFSFileEnginePrivate::win95Name(fileName), flags, _SH_DENYNO, _S_IREAD | _S_IWRITE);
+		_sopen_s(&fd, QFSFileEnginePrivate::win95Name(path), flags, _SH_DENYNO, _S_IREAD | _S_IWRITE);
 		return fd;
 	});
 #else
     QT_WA({
-	return ::_wopen((TCHAR*)QFSFileEnginePrivate::longFileName(fileName).utf16(), flags, _S_IREAD | _S_IWRITE);
+	return ::_wopen((TCHAR*)QFSFileEnginePrivate::longFileName(path).utf16(), flags, _S_IREAD | _S_IWRITE);
     } , {
-	return  QT_OPEN(QFSFileEnginePrivate::win95Name(fileName), flags, _S_IREAD | _S_IWRITE);
+	return  QT_OPEN(QFSFileEnginePrivate::win95Name(path), flags, _S_IREAD | _S_IWRITE);
     });
 #endif
 }
@@ -532,10 +551,11 @@ qint64 QFSFileEngine::size() const
     } else {
         bool ok = false;
         WIN32_FILE_ATTRIBUTE_DATA attribData;
+        QString path = fixIfRelativeUncPath(d->file);
         QT_WA({
-            ok = ::GetFileAttributesExW((TCHAR*)QFSFileEnginePrivate::longFileName(d->file).utf16(), GetFileExInfoStandard, &attribData);
+            ok = ::GetFileAttributesExW((TCHAR*)QFSFileEnginePrivate::longFileName(path).utf16(), GetFileExInfoStandard, &attribData);
         } , {
-            ok = ::GetFileAttributesExA(QFSFileEnginePrivate::win95Name(QFileInfo(d->file).absoluteFilePath()), GetFileExInfoStandard, &attribData);
+            ok = ::GetFileAttributesExA(QFSFileEnginePrivate::win95Name(QFileInfo(path).absoluteFilePath()), GetFileExInfoStandard, &attribData);
         });
         if (ok) {
             LARGE_INTEGER lInt;
@@ -1068,13 +1088,7 @@ bool QFSFileEnginePrivate::doStat() const
         if (file.isEmpty())
             return could_stat;
         QString fname = file.endsWith(".lnk") ? readLink(file) : file;
-        if (q_ptr->isRelativePath()) {
-            QString currentPath = QDir::currentPath() + QLatin1Char('/');
-            if (currentPath.startsWith("//")) {
-                // UNC
-                fname.prepend(currentPath);
-            }
-        }
+        fname = fixIfRelativeUncPath(fname);
 
         UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
 

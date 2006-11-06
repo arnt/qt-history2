@@ -182,10 +182,12 @@ void tst_QDir::mkdir_data()
     QStringList dirs;
     dirs << QDir::currentPath() + "/testdir/one/two/three"
          << QDir::currentPath() + "/testdir/two"
-         << QDir::currentPath() + "/testdir/two/three";
+         << QDir::currentPath() + "/testdir/two/three"
+         << "//gennan/testsharewritable/testDir";
     QTest::newRow("data0") << dirs.at(0) << true;
     QTest::newRow("data1") << dirs.at(1) << false;
     QTest::newRow("data2") << dirs.at(2) << false;
+    QTest::newRow("data3") << dirs.at(3) << false;
 
     // Ensure that none of these directories already exist
     QDir dir;
@@ -218,6 +220,7 @@ void tst_QDir::rmdir_data()
     QTest::newRow("data0") << QDir::currentPath() + "/testdir/one/two/three" << true;
     QTest::newRow("data1") << QDir::currentPath() + "/testdir/two/three" << false;
     QTest::newRow("data2") << QDir::currentPath() + "/testdir/two" << false;
+    QTest::newRow("data3") << "//gennan/testsharewritable/testDir" << false;
 }
 
 void tst_QDir::rmdir()
@@ -646,6 +649,10 @@ void tst_QDir::current_data()
 #endif
     QTest::newRow("nonexistant") << "testd" << QString();
     QTest::newRow("parent") << ".." << appPath;
+#ifdef Q_OS_WIN
+    QTest::newRow("uncpath") << "//gennan/testsharewritable" << "//gennan/testsharewritable";
+#endif
+    QTest::newRow("appPath") << appPath << appPath; 
 }
 
 void tst_QDir::current()
