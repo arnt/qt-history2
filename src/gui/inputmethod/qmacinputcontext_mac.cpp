@@ -20,6 +20,14 @@
 
 extern bool qt_sendSpontaneousEvent(QObject*, QEvent*);
 
+#if __LP64__
+typedef void * SRefCon;
+#else
+typedef SInt32 SRefCon;
+#define typeRefCon typeSInt32
+#define typeByteCount typeSInt32
+#endif  /* __LP64__ */
+
 static QTextFormat qt_mac_compose_format()
 {
     QTextCharFormat ret;
@@ -44,7 +52,13 @@ QMacInputContext::createTextDocument()
 {
     if(!textDocument) {
         InterfaceTypeList itl = { kUnicodeDocument };
-        NewTSMDocument(1, itl, &textDocument, (long)this);
+        NewTSMDocument(1, itl, &textDocument,
+#if !__LP64__
+                (SInt32)this
+#else
+                this
+#endif
+                );
     }
 }
 
@@ -128,8 +142,8 @@ QMacInputContext::cleanup()
 OSStatus
 QMacInputContext::globalEventProcessor(EventHandlerCallRef, EventRef event, void *)
 {
-    long refcon = 0;
-    GetEventParameter(event, kEventParamTextInputSendRefCon, typeLongInteger, 0,
+    SRefCon refcon = 0;
+    GetEventParameter(event, kEventParamTextInputSendRefCon, typeRefCon, 0,
                       sizeof(refcon), 0, &refcon);
     QMacInputContext *context = reinterpret_cast<QMacInputContext*>(refcon);
 
@@ -170,10 +184,10 @@ QMacInputContext::globalEventProcessor(EventHandlerCallRef, EventRef event, void
             QString text((QChar*)unicode, unilen / sizeof(UniChar));
             DisposePtr((char*)unicode);
 
-            long fixed_length = 0;
-            GetEventParameter(event, kEventParamTextInputSendFixLen, typeLongInteger, 0,
+            ByteCount fixed_length = 0;
+            GetEventParameter(event, kEventParamTextInputSendFixLen, typeByteCount, 0,
                               sizeof(fixed_length), 0, &fixed_length);
-            if(fixed_length == -1 || fixed_length == (long)unilen) {
+            if(fixed_length == ULONG_MAX || fixed_length == unilen) {
                 QInputMethodEvent e;
                 e.setCommitString(text);
                 context->currentText = QString();
