@@ -2135,12 +2135,12 @@
     \skipto ::newGame
     \printuntil }
 
-    This slot is activated when the user clicks the Restart button. It is
-    also called from the constructor. First it sets the number of shots
-    to 15. Note that this is the only place in the program where we set
-    the number of shots. Change it to whatever you like to change the
-    game rules. Next we reset the number of hits, restart the game, and
-    generate a new target.
+    This slot is activated when the user clicks the \gui {New Game}
+    button. It is also called from the constructor. First it sets the
+    number of shots to 15. Note that this is the only place in the
+    program where we set the number of shots. Change it to whatever
+    you like to change the game rules. Next we reset the number of
+    hits, restart the game, and generate a new target.
 
     \section2 \l{tutorial/t13/main.cpp}{t13/main.cpp}
 
