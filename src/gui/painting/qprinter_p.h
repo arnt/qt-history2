@@ -44,13 +44,13 @@ public:
         : printEngine(0)
         , paintEngine(0)
         , q_ptr(printer)
-        , use_default_engine(true)
         , options(QAbstractPrintDialog::PrintToFile | QAbstractPrintDialog::PrintPageRange)
         , printRange(QAbstractPrintDialog::AllPages)
         , minPage(1)
         , maxPage(1)
         , fromPage(0)
         , toPage(0)
+        , use_default_engine(true)
     {
     }
 

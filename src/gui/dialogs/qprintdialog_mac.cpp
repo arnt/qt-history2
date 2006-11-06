@@ -61,7 +61,7 @@ int QPrintDialog::exec()
     // for the page range is 1. This _kind of_ makes sense if you think about
     // it. However, calling _q_setFirstPage or _q_setLastPage always enforces the range.
     PMSetPageRange(d->ep->settings, minPage(), maxPage());
-    if (d->printRange == PageRange) {
+    if (printRange() == PageRange) {
         PMSetFirstPage(d->ep->settings, fromPage(), false);
         PMSetLastPage(d->ep->settings, toPage(), false);
     }
