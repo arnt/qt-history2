@@ -344,7 +344,7 @@ void HelpDialog::loadIndexFile()
     if (!indexFile.open(QFile::ReadOnly)) {
         buildKeywordDB();
         processEvents();
-        if(lwClosed)
+        if (lwClosed)
             return;
         if (!indexFile.open(QFile::ReadOnly)) {
             QMessageBox::warning(help, tr("Qt Assistant"), tr("Failed to load keyword index file\n"
@@ -396,7 +396,7 @@ quint32 HelpDialog::getFileAges()
     QStringList::const_iterator i = addDocuFiles.constBegin();
 
     quint32 fileAges = 0;
-    for(; i != addDocuFiles.constEnd(); ++i) {
+    for (; i != addDocuFiles.constEnd(); ++i) {
         QFileInfo fi(*i);
         if (fi.exists())
             fileAges += fi.lastModified().toTime_t();
@@ -419,7 +419,7 @@ void HelpDialog::buildKeywordDB()
 
     QList<IndexKeyword> lst;
     quint32 fileAges = 0;
-    for(i = addDocuFiles.begin(); i != addDocuFiles.end(); i++){
+    for (i = addDocuFiles.begin(); i != addDocuFiles.end(); ++i) {
         QFile file(*i);
         if (!file.exists()) {
             QMessageBox::warning(this, tr("Warning"),
@@ -431,7 +431,7 @@ void HelpDialog::buildKeywordDB()
         DocuParser *handler = DocuParser::createParser(*i);
         bool ok = handler->parse(&file);
         file.close();
-        if(!ok){
+        if (!ok){
             QString msg = QString::fromLatin1("In file %1:\n%2")
                           .arg(QFileInfo(file).absoluteFilePath())
                           .arg(handler->errorProtocol());
@@ -446,11 +446,11 @@ void HelpDialog::buildKeywordDB()
             QFileInfo fi(indItem->reference);
             lst.append(IndexKeyword(indItem->keyword, indItem->reference));
 
-            if(++counter%100 == 0) {
+            if (++counter%100 == 0) {
                 if (ui.progressPrepare)
                     ui.progressPrepare->setValue(counter);
                 processEvents();
-                if(lwClosed) {
+                if (lwClosed) {
                     return;
                 }
             }
@@ -478,7 +478,7 @@ void HelpDialog::setupTitleMap()
     bool needRebuild = false;
     if (Config::configuration()->profileName() == QLatin1String("default")) {
         const QStringList docuFiles = Config::configuration()->docFiles();
-        for(QStringList::ConstIterator it = docuFiles.begin(); it != docuFiles.end(); it++) {
+        for (QStringList::ConstIterator it = docuFiles.begin(); it != docuFiles.end(); ++it) {
             if (!QFile::exists(*it)) {
                 Config::configuration()->saveProfile(Profile::createDefaultProfile());
                 Config::configuration()->loadDefaultProfile();
@@ -498,7 +498,7 @@ void HelpDialog::setupTitleMap()
 
     titleMapDone = true;
     titleMap.clear();
-    for(QList<QPair<QString, ContentList> >::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
+    for (QList<QPair<QString, ContentList> >::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
         ContentList lst = (*it).second;
         foreach (ContentItem item, lst) {
             titleMap[item.reference] = item.title.trimmed();
@@ -543,7 +543,7 @@ void HelpDialog::buildContentDict()
     QStringList docuFiles = Config::configuration()->docFiles();
 
     quint32 fileAges = 0;
-    for(QStringList::iterator it = docuFiles.begin(); it != docuFiles.end(); it++) {
+    for (QStringList::iterator it = docuFiles.begin(); it != docuFiles.end(); ++it) {
         QFile file(*it);
         if (!file.exists()) {
             QMessageBox::warning(this, tr("Warning"),
@@ -553,7 +553,7 @@ void HelpDialog::buildContentDict()
         }
         fileAges += QFileInfo(file).lastModified().toTime_t();
         DocuParser *handler = DocuParser::createParser(*it);
-        if(!handler) {
+        if (!handler) {
             QMessageBox::warning(this, tr("Warning"),
             tr("Documentation file %1 is not compatible!\n"
                 "Skipping file.").arg(QFileInfo(file).absoluteFilePath()));
@@ -561,7 +561,7 @@ void HelpDialog::buildContentDict()
         }
         bool ok = handler->parse(&file);
         file.close();
-        if(ok) {
+        if (ok) {
             contentList += qMakePair(*it, QList<ContentItem>(handler->getContentItems()));
             delete handler;
         } else {
@@ -578,7 +578,7 @@ void HelpDialog::buildContentDict()
     if (contentOut.open(QFile::WriteOnly)) {
         QDataStream s(&contentOut);
         s << fileAges;
-        for(QList<QPair<QString, ContentList> >::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
+        for (QList<QPair<QString, ContentList> >::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
             s << *it;
         }
         contentOut.close();
@@ -829,7 +829,7 @@ void HelpDialog::insertContents()
     ui.listContents->setSorting(-1);
 #endif
 
-    for(QList<QPair<QString, ContentList> >::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
+    for (QList<QPair<QString, ContentList> >::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
         QTreeWidgetItem *newEntry;
 
         QTreeWidgetItem *contentEntry;
@@ -839,7 +839,7 @@ void HelpDialog::insertContents()
         bool root = false;
 
         QTreeWidgetItem *lastItem[64];
-        for(int j = 0; j < 64; ++j)
+        for (int j = 0; j < 64; ++j)
             lastItem[j] = 0;
 
         ContentList lst = (*it).second;
@@ -855,17 +855,17 @@ void HelpDialog::insertContents()
                 root = true;
             }
             else{
-                if((item.depth > depth) && root) {
+                if ((item.depth > depth) && root) {
                     depth = item.depth;
                     stack.push(contentEntry);
                 }
-                if(item.depth == depth) {
+                if (item.depth == depth) {
                     contentEntry = new QTreeWidgetItem(stack.top(), lastItem[ depth ]);
                     lastItem[ depth ] = contentEntry;
                     contentEntry->setText(0, item.title);
                     contentEntry->setData(0, LinkRole, item.reference);
                 }
-                else if(item.depth < depth) {
+                else if (item.depth < depth) {
                     stack.pop();
                     depth--;
                     item = *(--it);
@@ -894,13 +894,13 @@ QTreeWidgetItem * HelpDialog::locateLink(QTreeWidgetItem *item, const QString &l
 #else
     Qt::CaseSensitivity checkCase = Qt::CaseSensitive;
 #endif
-    for(int i = 0, childCount = item->childCount(); i<childCount; i++) {
+    for (int i = 0, childCount = item->childCount(); i<childCount; i++) {
         child = item->child(i);
         ///check whether it is this item
         if (link.startsWith(child->data(0, LinkRole).toString(), checkCase))
             break;
         //check if the link is a child of this item
-        else if(child->childCount()) {
+        else if (child->childCount()) {
             child = locateLink(child, link);
             if (child)
                 break;

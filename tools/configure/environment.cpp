@@ -422,7 +422,7 @@ static QByteArray qt_create_environment(const QStringList &environment)
                 pos += tmpSize;
             }
             // add the user environment
-            for (QStringList::ConstIterator it = environment.begin(); it != environment.end(); it++) {
+            for (QStringList::ConstIterator it = environment.begin(); it != environment.end(); ++it) {
                 QByteArray tmp = (*it).toLocal8Bit();
                 uint tmpSize = tmp.length() + 1;
                 envlist.resize(envlist.size() + tmpSize);

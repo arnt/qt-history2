@@ -1168,7 +1168,7 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &src)
     QStringList::Iterator sit = srcl.begin();
     QString stringSrc("$src");
     QString stringObj("$obj");
-    for(;sit != srcl.end() && oit != objl.end(); oit++, sit++) {
+    for(;sit != srcl.end() && oit != objl.end(); ++oit, ++sit) {
         if((*sit).isEmpty())
             continue;
 
