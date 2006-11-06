@@ -217,31 +217,23 @@ void writeIncludeFile(const QSet<QString> &variables,
         << "#define FRAGMENTPROGRAMS_H\n\n";
 
     out << "enum FragmentVariable {\n";
-
     foreach (QString str, variables)
         out << tab << "VAR_" << str.toUpper() << ",\n";
-
     out << "};\n\n";
 
     out << "enum FragmentBrushType {\n";
-
     foreach (QStringPair brush, brushes)
         out << tab << brush.first << ",\n";
-
     out << "};\n\n";
 
     out << "enum FragmentCompositionModeType {\n";
-
     foreach (QStringPair mode, compositionModes)
         out << tab << mode.first << ",\n";
-
     out << "};\n\n";
 
     out << "enum FragmentMaskType {\n";
-
     foreach (QStringPair mask, masks)
         out << tab << mask.first << ",\n";
-
     out << "};\n\n";
 
     out << "static const unsigned int num_fragment_variables = " << variables.size() << ";\n\n";
@@ -250,7 +242,7 @@ void writeIncludeFile(const QSet<QString> &variables,
     out << "static const unsigned int num_fragment_masks = " << masks.size() << ";\n\n";
 
     foreach (QStringPair mask, masks) {
-        const QString compiledSource = compiled[mask.first]["dummy"];
+        const QString compiledSource = compiled[mask.first]["MASK__"];
 
         out << "static const char *FragmentProgram_" << mask.first << " =\n"
             << trimmed(compiledSource)
@@ -268,14 +260,11 @@ void writeIncludeFile(const QSet<QString> &variables,
     }
 
     out << "static const char *mask_fragment_program_sources[num_fragment_masks] = {\n";
-
     foreach (QStringPair mask, masks)
         out << tab << "FragmentProgram_" << mask.first << ",\n";
-
     out << "};\n\n";
 
     out << "static const char *painter_fragment_program_sources[num_fragment_brushes][num_fragment_composition_modes] = {\n";
-
     foreach (QStringPair brush, brushes) {
         out << tab << "{\n";
 
@@ -284,11 +273,9 @@ void writeIncludeFile(const QSet<QString> &variables,
 
         out << tab << "},\n";
     }
-
     out << "};\n\n";
 
     out << "static int painter_variable_locations[num_fragment_brushes][num_fragment_composition_modes][num_fragment_variables] = {\n";
-
     foreach (QStringPair brush, brushes) {
         out << tab << "{\n";
 
@@ -305,9 +292,20 @@ void writeIncludeFile(const QSet<QString> &variables,
 
         out << tab << "},\n";
     }
-
     out << "};\n\n";
 
+    out << "static int mask_variable_locations[num_fragment_masks][num_fragment_variables] = {\n";
+    foreach (QStringPair mask, masks) {
+        out << tab << "{ ";
+
+        QList<int> locations = getLocations(variables, compiled[mask.first]["MASK__"]);
+
+        foreach (int location, locations)
+            out << location << ", ";
+
+        out << "},\n";
+    }
+    out << "};\n\n";
     out << "#endif\n";
 }
 
@@ -322,6 +320,9 @@ QList<QString> getVariables(QString program)
         if (line.startsWith("uniform")) {
             QString word = getWord(line, 3);
             result << word.left(word.size() - 1);
+        } else if (line.startsWith("#include")) {
+            QString file = getWord(line, 2);
+            result << getVariables(readSourceFile(file.mid(1, file.size() - 2)));
         }
     }
 
@@ -365,7 +366,7 @@ int main()
     compositionModes << QStringPair("COMPOSITION_MODE_BLEND_MODE", "");
 
     foreach (QStringPair mask, masks)
-        compiled[mask.first]["dummy"] = compileSource(mask.second);
+        compiled[mask.first]["MASK__"] = compileSource(mask.second);
 
     writeIncludeFile(variables, brushes, compositionModes, masks, compiled);
 
