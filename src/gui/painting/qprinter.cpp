@@ -50,12 +50,7 @@ void QPrinterPrivate::createDefaultEngines()
 #if !defined (QTOPIA_PRINTENGINE)
 #if defined (Q_OS_UNIX) && ! defined (Q_WS_MAC)
     if(outputFormat == QPrinter::NativeFormat) {
-#if !defined(QT_NO_CUPS)
-        if(QCUPSSupport::cupsVersion() >= 10200)
-            realOutputFormat = QPrinter::PdfFormat;
-        else
-#endif
-            realOutputFormat = QPrinter::PostScriptFormat;
+        realOutputFormat = QPrinter::PostScriptFormat;
     }
 #endif
 #endif
@@ -389,6 +384,13 @@ QPrinter::QPrinter(PrinterMode mode)
     d->printerMode = mode;
     d->outputFormat = QPrinter::NativeFormat;
     d->createDefaultEngines();
+#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
+    if (QCUPSSupport::cupsVersion() >= 10200
+        && QCUPSSupport().currentPPD()) {
+        setOutputFormat(QPrinter::PdfFormat);
+        d->outputFormat = QPrinter::NativeFormat;
+    }
+#endif
 }
 
 /*!
@@ -524,6 +526,19 @@ void QPrinter::setPrinterName(const QString &name)
 {
     Q_D(QPrinter);
     ABORT_IF_ACTIVE("QPrinter::setPrinterName");
+
+#if defined(Q_OS_UNIX) && !defined(QT_NO_CUPS)
+    if(d->use_default_engine
+       && d->outputFormat == QPrinter::NativeFormat) {
+       if (QCUPSSupport::cupsVersion() >= 10200
+           && QCUPSSupport::printerHasPPD(name.toLocal8Bit().constData()))
+            setOutputFormat(QPrinter::PdfFormat);
+       else
+            setOutputFormat(QPrinter::PostScriptFormat);
+        d->outputFormat = QPrinter::NativeFormat;
+    }
+#endif
+
     d->printEngine->setProperty(QPrintEngine::PPK_PrinterName, name);
 }
 

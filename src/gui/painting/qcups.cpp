@@ -259,6 +259,13 @@ QStringList QCUPSSupport::options() const
     return list;
 }
 
+bool QCUPSSupport::printerHasPPD(const char *printerName)
+{
+    if (!isAvailable())
+        return false;
+    return _cupsGetPPD(printerName) != 0;
+}
+
 void QCUPSSupport::collectMarkedOptions(QStringList& list, const ppd_group_t* group) const
 {
     if (group == 0) {

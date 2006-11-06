@@ -59,6 +59,8 @@ public:
 
     QStringList options() const;
 
+    static bool printerHasPPD(const char *printerName);
+
 private:
     void collectMarkedOptions(QStringList& list, const ppd_group_t* group = 0) const;
     void collectMarkedOptionsHelper(QStringList& list, const ppd_group_t* group) const;
