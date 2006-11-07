@@ -793,6 +793,11 @@ void tst_QMainWindow::insertToolBarBreak()
     QVERIFY(tb2.y() != tb3.y());
     QCOMPARE(tb4.x(), 0);
     QVERIFY(tb3.y() != tb4.y());
+    
+    QVERIFY(!mw.toolBarBreak(&tb1));    
+    QVERIFY(mw.toolBarBreak(&tb4));
+    mw.removeToolBarBreak(&tb4);
+    QVERIFY(!mw.toolBarBreak(&tb4));
 
 }
 
