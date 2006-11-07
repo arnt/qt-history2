@@ -1828,6 +1828,7 @@ void QGraphicsView::setupViewport(QWidget *widget)
     }
 
     widget->setMouseTracking(true);
+    widget->setAcceptDrops(acceptDrops());
 }
 
 /*!
