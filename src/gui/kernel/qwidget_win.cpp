@@ -363,14 +363,21 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         id = CreateWindowEx(exsty, cname, ttitle, style, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, parentw, 0, appinst, 0);
 #else
         const bool wasMoved = q->testAttribute(Qt::WA_Moved);
-        const int x = wasMoved ? data.crect.left() : CW_USEDEFAULT;
-        const int y = wasMoved ? data.crect.top() : CW_USEDEFAULT;
+        int x = wasMoved ? data.crect.left() : CW_USEDEFAULT;
+        int y = wasMoved ? data.crect.top() : CW_USEDEFAULT;
         int w = CW_USEDEFAULT;
         int h = CW_USEDEFAULT;
 
-        if (q->testAttribute(Qt::WA_Resized)) {
-            RECT rect = {0,0,0,0};
-            if (AdjustWindowRectEx(&rect, style & ~WS_OVERLAPPED, FALSE, exsty)) {
+        // Adjust for framestrut when needed
+        RECT rect = {0,0,0,0};
+        if (AdjustWindowRectEx(&rect, style & ~WS_OVERLAPPED, FALSE, exsty)) {
+            QTLWExtra *td = maybeTopData();
+            if (wasMoved && (td && !td->posFromMove)) {
+                x = data.crect.x() + rect.left;
+                y = data.crect.y() + rect.top;
+            }
+
+            if (q->testAttribute(Qt::WA_Resized)) {
                 w = data.crect.width() + (rect.right - rect.left);
                 h = data.crect.height() + (rect.bottom - rect.top);
             }
