@@ -92,6 +92,7 @@ private slots:
     void hiddenSectionCount();
     void focusPolicy();
     void moveSectionAndReset();
+    void saveRestore();
 
 protected:
     QHeaderView *view;
@@ -1129,6 +1130,28 @@ void tst_QHeaderView::moveSectionAndReset()
             }
         }
     }
+}
+
+void tst_QHeaderView::saveRestore()
+{
+    SimpleModel m;
+    QHeaderView h1(Qt::Horizontal);
+    h1.setModel(&m);
+    h1.swapSections(0, 2);
+    h1.resizeSection(1, 10);
+    QByteArray s1 = h1.saveState();
+
+    QHeaderView h2(Qt::Vertical);
+    h2.setModel(&m);
+    h2.restoreState(s1);
+
+    QCOMPARE(h2.logicalIndex(0), 2);
+    QCOMPARE(h2.logicalIndex(2), 0);
+    QCOMPARE(h2.sectionSize(1), 10);
+
+    QByteArray s2 = h2.saveState();
+
+    QVERIFY(s1 == s2);
 }
 
 QTEST_MAIN(tst_QHeaderView)
