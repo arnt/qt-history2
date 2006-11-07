@@ -2027,7 +2027,7 @@ void QOpenGLPaintEngine::updateCompositionMode(QPainter::CompositionMode composi
         break;
     case QPainter::CompositionMode_SourceIn:
         glBlendFunc(GL_DST_ALPHA, GL_ZERO);
-        d->setPorterDuffData(0, 1, 1, 0, 0);
+        d->setPorterDuffData(1, 0, 1, 0, 0);
         break;
     case QPainter::CompositionMode_DestinationIn:
         glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
