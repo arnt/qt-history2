@@ -4271,7 +4271,11 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 
             if (comboBox->editable) {
                 if (qobject_cast<const QComboBox *>(widget)
-                    || qobject_cast<const QAbstractSpinBox *>(widget)) {
+#ifndef QT_NO_SPINBOX
+                    || qobject_cast<const QAbstractSpinBox *>(widget)
+#endif
+                    )
+                {
                     QStyleOptionFrame frameOpt;
                     if (QLineEdit *lineedit = qFindChild<QLineEdit *>(widget))
                         frameOpt.initFrom(lineedit);
