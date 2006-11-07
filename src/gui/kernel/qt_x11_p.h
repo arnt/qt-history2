@@ -472,6 +472,8 @@ struct QX11Data
         _NET_VIRTUAL_ROOTS,
         _NET_WORKAREA,
 
+        _NET_WM_MOVERESIZE,
+
         _NET_WM_NAME,
         _NET_WM_ICON_NAME,
         _NET_WM_ICON,
@@ -551,6 +553,8 @@ struct QX11Data
         NAtoms
     };
     Atom atoms[NAtoms];
+
+    bool isSupportedByWM(Atom atom);
 };
 
 extern QX11Data *qt_x11Data;

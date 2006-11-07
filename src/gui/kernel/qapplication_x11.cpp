@@ -157,6 +157,8 @@ static const char * x11_atomnames = {
     "_NET_VIRTUAL_ROOTS\0"
     "_NET_WORKAREA\0"
 
+    "_NET_WM_MOVERESIZE\0"
+
     "_NET_WM_NAME\0"
     "_NET_WM_ICON_NAME\0"
     "_NET_WM_ICON\0"
@@ -1059,9 +1061,9 @@ static void qt_get_net_supported()
 }
 
 
-bool qt_net_supports(Atom atom)
+bool QX11Data::isSupportedByWM(Atom atom)
 {
-    if (! X11->net_supported_list)
+    if (!X11->net_supported_list)
         return false;
 
     bool supported = false;
@@ -1084,7 +1086,7 @@ static void qt_get_net_virtual_roots()
         delete [] X11->net_virtual_root_list;
     X11->net_virtual_root_list = 0;
 
-    if (!qt_net_supports(ATOM(_NET_VIRTUAL_ROOTS)))
+    if (!X11->isSupportedByWM(ATOM(_NET_VIRTUAL_ROOTS)))
         return;
 
     Atom type;
@@ -3990,8 +3992,8 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
 
         bool send_event = false;
 
-        if (qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT))
-            && qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))) {
+        if (X11->isSupportedByWM(ATOM(_NET_WM_STATE_MAXIMIZED_VERT))
+            && X11->isSupportedByWM(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))) {
             if (max && !isMaximized()) {
                 this->data->window_state = this->data->window_state | Qt::WindowMaximized;
                 send_event = true;
@@ -4001,7 +4003,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
             }
         }
 
-        if (qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN))) {
+        if (X11->isSupportedByWM(ATOM(_NET_WM_STATE_FULLSCREEN))) {
             if (full && !isFullScreen()) {
                 this->data->window_state = this->data->window_state | Qt::WindowFullScreen;
                 send_event = true;
@@ -4309,10 +4311,10 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
             data->crect = cr;
 
             uint old_state = data->window_state;
-            if (!qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT))
-                && !qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ)))
+            if (!X11->isSupportedByWM(ATOM(_NET_WM_STATE_MAXIMIZED_VERT))
+                && !X11->isSupportedByWM(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ)))
                 data->window_state &= ~Qt::WindowMaximized;
-            if (!qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN)))
+            if (!X11->isSupportedByWM(ATOM(_NET_WM_STATE_FULLSCREEN)))
                 data->window_state &= ~Qt::WindowFullScreen;
 
             if (old_state != data->window_state) {

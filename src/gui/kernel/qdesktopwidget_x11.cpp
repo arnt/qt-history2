@@ -22,9 +22,6 @@
 // defined in qwidget_x11.cpp
 extern int qt_x11_create_desktop_on_screen;
 
-// defined in qapplication_x11.cpp
-extern bool qt_net_supports(Atom atom);
-
 // function to update the workarea of the screen
 static bool qt_desktopwidget_workarea_dirty = true;
 void qt_desktopwidget_update_workarea()
@@ -220,7 +217,7 @@ const QRect QDesktopWidget::availableGeometry(int screen) const
     if (d->workareas[screen].isValid())
         return d->workareas[screen];
 
-    if (! isVirtualDesktop() && qt_net_supports(ATOM(_NET_WORKAREA))) {
+    if (! isVirtualDesktop() && X11->isSupportedByWM(ATOM(_NET_WORKAREA))) {
         Atom ret;
         int format, e;
         unsigned char *data = 0;

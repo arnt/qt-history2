@@ -155,9 +155,6 @@ static void do_size_hints(QWidget* widget, QWExtra *x);
 
 extern bool qt_broken_wm;
 
-// defined in qapplication_x11.cpp
-extern bool qt_net_supports(Atom);
-
 const uint stdWidgetEventMask =                        // X event mask
         (uint)(
             KeyPressMask | KeyReleaseMask |
@@ -340,7 +337,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         }
 
         if (type == Qt::SplashScreen) {
-            if (qt_net_supports(ATOM(_NET_WM_WINDOW_TYPE_SPLASH))) {
+            if (X11->isSupportedByWM(ATOM(_NET_WM_WINDOW_TYPE_SPLASH))) {
                 flags &= ~Qt::X11BypassWindowManagerHint;
             } else {
                 flags |= Qt::X11BypassWindowManagerHint | Qt::FramelessWindowHint;
@@ -1384,8 +1381,8 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
         QTLWExtra *top = d->topData();
 
         if ((oldstate & Qt::WindowMaximized) != (newstate & Qt::WindowMaximized)) {
-            if (qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))
-                && qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT))) {
+            if (X11->isSupportedByWM(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))
+                && X11->isSupportedByWM(ATOM(_NET_WM_STATE_MAXIMIZED_VERT))) {
                 if ((newstate & Qt::WindowMaximized) && !(oldstate & Qt::WindowFullScreen))
                     top->normalGeometry = geometry();
                 qt_change_net_wm_state(this, (newstate & Qt::WindowMaximized),
@@ -1418,7 +1415,7 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
         }
 
         if ((oldstate & Qt::WindowFullScreen) != (newstate & Qt::WindowFullScreen)) {
-            if (qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN))) {
+            if (X11->isSupportedByWM(ATOM(_NET_WM_STATE_FULLSCREEN))) {
                 if (newstate & Qt::WindowFullScreen)
                     top->normalGeometry = geometry();
                 qt_change_net_wm_state(this, (newstate & Qt::WindowFullScreen),
@@ -1634,8 +1631,8 @@ void QWidgetPrivate::show_sys()
         }
 
         if (q->isMaximized() && !q->isFullScreen()
-            && !(qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))
-                 && qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT)))) {
+            && !(X11->isSupportedByWM(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))
+                 && X11->isSupportedByWM(ATOM(_NET_WM_STATE_MAXIMIZED_VERT)))) {
             XMapWindow(X11->display, q->internalWinId());
             data.fstrut_dirty = true;
             qt_x11_wait_for_window_manager(q);
@@ -1660,7 +1657,7 @@ void QWidgetPrivate::show_sys()
             return;
         }
 
-        if (q->isFullScreen() && !qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN))) {
+        if (q->isFullScreen() && !X11->isSupportedByWM(ATOM(_NET_WM_STATE_FULLSCREEN))) {
             XMapWindow(X11->display, q->internalWinId());
             qt_x11_wait_for_window_manager(q);
             q->setAttribute(Qt::WA_Mapped);
@@ -1989,10 +1986,10 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     if ((q->windowType() == Qt::Desktop))
         return;
     if (q->isWindow()) {
-        if (!qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT))
-            && !qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ)))
+        if (!X11->isSupportedByWM(ATOM(_NET_WM_STATE_MAXIMIZED_VERT))
+            && !X11->isSupportedByWM(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ)))
             data.window_state &= ~Qt::WindowMaximized;
-        if (!qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN)))
+        if (!X11->isSupportedByWM(ATOM(_NET_WM_STATE_FULLSCREEN)))
             data.window_state &= ~Qt::WindowFullScreen;
         if (QTLWExtra *topData = maybeTopData())
             topData->normalGeometry = QRect(0,0,-1,-1);
@@ -2471,7 +2468,7 @@ void QWidgetPrivate::updateFrameStrut()
                 XFree(data_ret);
 
             break;
-        } else if (qt_net_supports(ATOM(_NET_VIRTUAL_ROOTS)) && X11->net_virtual_root_list) {
+        } else if (X11->isSupportedByWM(ATOM(_NET_VIRTUAL_ROOTS)) && X11->net_virtual_root_list) {
             int i = 0;
             while (X11->net_virtual_root_list[i] != 0) {
                 if (X11->net_virtual_root_list[i++] == p)

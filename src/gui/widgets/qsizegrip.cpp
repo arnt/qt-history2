@@ -75,8 +75,8 @@ static bool qt_sizegrip_atBottom(QWidget* sg)
 
     This widget works like the standard Windows resize handle. In the
     X11 version this resize handle generally works differently from
-    the one provided by the system; we hope to reduce this difference
-    in the future.
+    the one provided by the system if the X11 window manager does not
+    support necessary modern post-ICCCM specifications.
 
     Put this widget anywhere in a widget tree and the user can use it
     to resize the top-level window. Generally, this should be in the
@@ -207,6 +207,30 @@ void QSizeGrip::paintEvent(QPaintEvent *event)
 */
 void QSizeGrip::mousePressEvent(QMouseEvent * e)
 {
+    QWidget *tlw = qt_sizegrip_topLevelWidget(this);
+
+#ifdef Q_WS_X11
+    if (e->button() == Qt::LeftButton
+        && X11->isSupportedByWM(ATOM(_NET_WM_MOVERESIZE))
+        && tlw->isWindow()) {
+        XEvent xev;
+        xev.xclient.type = ClientMessage;
+        xev.xclient.message_type = ATOM(_NET_WM_MOVERESIZE);
+        xev.xclient.display = X11->display;
+        xev.xclient.window = tlw->winId();
+        xev.xclient.format = 32;
+        xev.xclient.data.l[0] = e->globalPos().x();
+        xev.xclient.data.l[1] = e->globalPos().y();
+        xev.xclient.data.l[2] = QApplication::reverseLayout() ? 6 : 4; // bottomleft/bottomright
+        xev.xclient.data.l[3] = Button1;
+        xev.xclient.data.l[4] = 0;
+        XUngrabPointer(X11->display, X11->time);
+        XSendEvent(X11->display, QX11Info::appRootWindow(x11Screen()), False,
+                   SubstructureRedirectMask | SubstructureNotifyMask, &xev);
+        return;
+    }
+#endif
+
     Q_D(QSizeGrip);
     d->gotMousePress = true;
     d->p = e->globalPos();
@@ -221,6 +245,15 @@ void QSizeGrip::mousePressEvent(QMouseEvent * e)
 */
 void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
 {
+    QWidget* tlw = qt_sizegrip_topLevelWidget(this);
+
+#ifdef Q_WS_X11
+    if (e->button() == Qt::LeftButton
+        && X11->isSupportedByWM(ATOM(_NET_WM_MOVERESIZE))
+        && tlw->isTopLevel())
+        return;
+#endif
+
     if (e->buttons() != Qt::LeftButton)
         return;
 
@@ -228,7 +261,6 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
     if (d->gotMousePress == false)
         return;
 
-    QWidget* tlw = qt_sizegrip_topLevelWidget(this);
     if (tlw->testAttribute(Qt::WA_WState_ConfigPending))
         return;
 
@@ -340,7 +372,7 @@ bool QSizeGrip::winEvent( MSG *m, long *result )
         // toplevel windows use the native size grip on Windows
         if (QWidget *w = qt_sizegrip_topLevelWidget(this)) {
             if (w->isWindow()) {
-                PostMessage(w->winId(), WM_SYSCOMMAND, 
+                PostMessage(w->winId(), WM_SYSCOMMAND,
                             qApp->isLeftToRight() ? SZ_SIZEBOTTOMRIGHT : SZ_SIZEBOTTOMLEFT, 0);
                 return true;
             }
