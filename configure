@@ -2126,7 +2126,7 @@ elif [ "$CFG_PRECOMPILE" = "yes" ] && [ "$CFG_UNIVERSAL_BINARY" = "yes" ]; then
 fi
 
 # auto-detect support for separate debug info in objcopy
-if [ "$CFG_SEPARATE_DEBUG_INFO" = "auto" ] && [ "$CFG_SHARED" = "yes" ]; then
+if [ "$CFG_SEPARATE_DEBUG_INFO" != "no" ] && [ "$CFG_SHARED" = "yes" ]; then
     COMPILER_WITH_FLAGS="$TEST_COMPILER `getQMakeConf | sed -n -e 's/QMAKE_CFLAGS[^_].*=//p'`"
     if "$unixtests/objcopy.test" "$COMPILER_WITH_FLAGS" "$OPT_VERBOSE"; then
        CFG_SEPARATE_DEBUG_INFO=no
