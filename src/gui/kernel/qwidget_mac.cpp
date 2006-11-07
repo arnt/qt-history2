@@ -456,7 +456,19 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
                     if (oldRect.width() != newRect.width() || oldRect.height() != newRect.height()) {
                         widget->data->crect.setSize(newRect.size());
                         HIRect bounds = CGRectMake(0, 0, newRect.width(), newRect.height());
-                        HIViewSetFrame(qt_mac_hiview_for(widget), &bounds);
+                        
+                        // If the WA_StaticContents attribute is set we can optimize the resize
+                        // by only repainting the newly exposed area. We do this by disabling
+                        // painting when setting the size of the view. The OS will invalidate
+                        // the newly exposed area for us.
+                        const bool staticContents = widget->testAttribute(Qt::WA_StaticContents);
+                        const HIViewRef view = qt_mac_hiview_for(widget);
+                        if (staticContents)
+                            HIViewSetDrawingEnabled(view, false);
+                        HIViewSetFrame(view, &bounds);
+                        if (staticContents)
+                            HIViewSetDrawingEnabled(view, true);
+
                         QResizeEvent qre(newRect.size(), oldRect.size());
                         QApplication::sendSpontaneousEvent(widget, &qre);
                         qt_event_request_window_change();
