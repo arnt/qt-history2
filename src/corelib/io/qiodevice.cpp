@@ -589,7 +589,11 @@ bool QIODevice::seek(qint64 pos)
     if (offset > 0 && !d->buffer.isEmpty()) {
         // When seeking forwards, we need to pop bytes off the front of the
         // buffer.
-        d->buffer.skip(offset);
+        do {
+            int bytesToSkip = int(qMin<qint64>(offset, INT_MAX));
+            d->buffer.skip(bytesToSkip);
+            offset -= bytesToSkip;
+        } while (offset > 0);
     } else if (offset < 0) {
         // When seeking backwards, an operation that is only allowed for
         // random-access devices, the buffer is cleared. The next read
