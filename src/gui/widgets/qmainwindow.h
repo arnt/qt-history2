@@ -88,6 +88,7 @@ public:
     void removeToolBarBreak(QToolBar *before);
 
     Qt::ToolBarArea toolBarArea(QToolBar *toolbar) const;
+    bool toolBarBreak(QToolBar *toolbar) const;
 #endif
 #ifndef QT_NO_DOCKWIDGET
     void addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget);

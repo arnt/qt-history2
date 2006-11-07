@@ -607,6 +607,18 @@ void QMainWindow::removeToolBar(QToolBar *toolbar)
 Qt::ToolBarArea QMainWindow::toolBarArea(QToolBar *toolbar) const
 { return d_func()->layout->toolBarArea(toolbar); }
 
+/*!
+
+    Returns whether there is a toolbar 
+    break before the \a toolbar.
+
+    \sa  addToolBarBreak(), insertToolBarBreak()
+*/
+bool QMainWindow::toolBarBreak(QToolBar *toolbar) const
+{
+    return d_func()->layout->toolBarBreak(toolbar);
+}
+
 #endif // QT_NO_TOOLBAR
 
 #ifndef QT_NO_DOCKWIDGET

@@ -255,6 +255,23 @@ void QMainWindowLayout::setCentralWidget(QWidget *cw)
 }
 
 #ifndef QT_NO_TOOLBAR
+
+
+
+QMainWindowLayout::ToolBarPosition QMainWindowLayout::findToolBar(const QWidget *toolbar) const
+{
+    for (int line = 0; line < tb_layout_info.size(); ++line) {
+        const ToolBarLineInfo &lineInfo = tb_layout_info[line];
+        for (int i = 0; i < lineInfo.list.size(); ++i) {
+            if (lineInfo.list.at(i).item->widget() == toolbar)
+                return ToolBarPosition(line,i);
+        }
+    }
+    return ToolBarPosition(-1, -1);    
+}
+   
+
+
 void QMainWindowLayout::addToolBarBreak(Qt::ToolBarArea area)
 {
     ToolBarLineInfo newLine;
@@ -282,44 +299,37 @@ void QMainWindowLayout::addToolBarBreak(Qt::ToolBarArea area)
 
 void QMainWindowLayout::insertToolBarBreak(QToolBar *before)
 {
-    for (int line = 0; line < tb_layout_info.size(); ++line) {
-        ToolBarLineInfo &lineInfo = tb_layout_info[line];
-        for (int i = 0; i < lineInfo.list.size(); ++i) {
-            const ToolBarLayoutInfo &info = lineInfo.list.at(i);
-            if (info.item->widget() == before) {
-                ToolBarLineInfo newLine;
-                newLine.pos = lineInfo.pos;
-                int itemsToMove = lineInfo.list.size() - i;
-                for (int j = 0 ; j < itemsToMove ; ++j)
-                    newLine.list.prepend(lineInfo.list.takeLast());
-                tb_layout_info.insert(line + 1, newLine);
-                return;
-            }
-        }
-    }
+
+    const ToolBarPosition position = findToolBar(before);
+    if (position.first < 0)
+        return;
+    ToolBarLineInfo &lineInfo = tb_layout_info[position.first];
+    ToolBarLineInfo newLine;
+    newLine.pos = lineInfo.pos;
+    const int itemsToMove = lineInfo.list.size() - position.second;
+    for (int j = 0 ; j < itemsToMove ; ++j)
+        newLine.list.prepend(lineInfo.list.takeLast());
+    tb_layout_info.insert(position.first + 1, newLine);
 }
+  
+bool QMainWindowLayout::toolBarBreak(const ToolBarPosition& position) const
+{
+    // not found or  ToolBar not at beginning of line
+    if (position.first < 0 || position.second)
+        return false;
+    // There must be a previous item with the same position
+    return position.first > 0 && tb_layout_info[position.first].pos ==  tb_layout_info[position.first -1].pos;
+}
+ 
 
 void QMainWindowLayout::removeToolBarBreak(QToolBar *before)
 {
-    // Attempt to locate toolbar at beginning of line
-    for (int line = 0; line < tb_layout_info.size(); ++line) {
-        const ToolBarLineInfo &lineInfo = tb_layout_info[line];
-        for (int i = 0; i < lineInfo.list.size(); ++i) {
-            const ToolBarLayoutInfo &info = lineInfo.list.at(i);
-            if (info.item->widget() == before) {
-		// ToolBar not at beginning of line
-                if (i)
-                    return;
-		// Cannot remove break in front of first ToolBar
-                if (line == 0 || tb_layout_info[line].pos !=  tb_layout_info[line-1].pos)
-                    return;
-                // Append items to previous and remove line
-                tb_layout_info[line-1].list += tb_layout_info[line].list;
-                tb_layout_info.removeAt(line);
-                return;
-            }
-        }
-    }
+    const ToolBarPosition position = findToolBar(before);
+    if (!toolBarBreak(position))
+        return;
+    // Append items to previous and remove line
+    tb_layout_info[position.first - 1].list += tb_layout_info[position.first].list;
+    tb_layout_info.removeAt(position.first);   
 }
 
 /*!
@@ -375,32 +385,21 @@ void QMainWindowLayout::insertToolBar(QToolBar *before, QToolBar *toolbar)
 {
     addChildWidget(toolbar);
 
-    for (int line = 0; line < tb_layout_info.size(); ++line) {
-        const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
-	for (int i = 0; i < lineInfo.list.size(); ++i) {
-	    const ToolBarLayoutInfo &info = lineInfo.list.at(i);
-	    if (info.item->widget() == before) {
+    const ToolBarPosition position = findToolBar(before);
+    if (position.first < 0)
+        return;
 
-                ToolBarLayoutInfo newInfo;
-                newInfo.item = new QWidgetItem(toolbar);
-                tb_layout_info[line].list.insert(i, newInfo);
-                return;
-            }
-        }
-    }
+    ToolBarLayoutInfo newInfo;
+    newInfo.item = new QWidgetItem(toolbar);
+    tb_layout_info[position.first].list.insert(position.second, newInfo);
 }
 
 Qt::ToolBarArea QMainWindowLayout::toolBarArea(QToolBar *toolbar) const
 {
-    for (int line = 0; line < tb_layout_info.size(); ++line) {
-        const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
-	for (int i = 0; i < lineInfo.list.size(); ++i) {
-	    const ToolBarLayoutInfo &info = lineInfo.list.at(i);
-	    if (info.item->widget() == toolbar)
-                return static_cast<Qt::ToolBarArea>(areaForPosition(lineInfo.pos));
-        }
-    }
-    return Qt::NoToolBarArea;
+    const ToolBarPosition position = findToolBar(toolbar);
+    if (position.first < 0)
+        return Qt::NoToolBarArea;
+    return static_cast<Qt::ToolBarArea>(areaForPosition(tb_layout_info[position.first].pos));
 }
 #endif // QT_NO_TOOLBAR
 
@@ -1669,14 +1668,8 @@ bool QMainWindowLayout::contains(QWidget *widget) const
 {
 #ifndef QT_NO_TOOLBAR
     // is it a toolbar?
-    for (int line = 0; line < tb_layout_info.size(); ++line) {
-        const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
-	for (int i = 0; i < lineInfo.list.size(); ++i) {
-	    const ToolBarLayoutInfo &info = lineInfo.list.at(i);
-	    if (info.item->widget() == widget)
-                return true;
-        }
-    }
+    if (findToolBar(widget).first >= 0)
+        return true;
 #endif
 
 #ifndef QT_NO_DOCKWIDGET

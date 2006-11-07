@@ -162,6 +162,16 @@ public:
 #endif
 
 #ifndef QT_NO_TOOLBAR
+    // Pair of line, index to indicate position of a toolbar
+    typedef QPair<int, int> ToolBarPosition;
+    // Find toolbar or return -1, -1
+    ToolBarPosition findToolBar(const QWidget *toolbar) const;
+    // Is there a break before this position
+    bool toolBarBreak(const ToolBarPosition& position) const;
+    // Is there a break before this position
+    inline bool toolBarBreak(const QWidget *toolbar) const { return toolBarBreak(findToolBar(toolbar)); }
+    
+    
     int locateToolBar(QToolBar *toolbar, const QPoint &mouse) const;
     bool dropToolBar(QToolBar *toolbar, const QPoint &mouse, const QPoint &offset);
 
