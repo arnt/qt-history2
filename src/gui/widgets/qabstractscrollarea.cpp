@@ -735,10 +735,16 @@ void QAbstractScrollArea::setViewportMargins(int left, int top, int right, int b
 }
 
 /*!
+    \fn bool QAbstractScrollArea::event(QEvent *event)
+
     \reimp
 
     This is the main event handler for the QAbstractScrollArea widget (\e not
-    the scrolling area viewport()). The event is passed in \a e.
+    the scrolling area viewport()). The specified \a event is a general event
+    object that may need to be cast to the appropriate class depending on its
+    type.
+
+    \sa QEvent::type()
 */
 bool QAbstractScrollArea::event(QEvent *e)
 {
@@ -796,8 +802,16 @@ bool QAbstractScrollArea::event(QEvent *e)
     return true;
 }
 
-/*!  The main event handler for the scrolling area (the viewport()
-  widget). It handles event \a e.
+/*!
+  \fn bool QAbstractScrollArea::viewportEvent(QEvent *event)
+
+  The main event handler for the scrolling area (the viewport() widget).
+  It handles the \a event specified, and can be called by subclasses to
+  provide reasonable default behavior.
+
+  Returns true to indicate to the event system that the event has been
+  handled, and needs no further processing; otherwise returns false to
+  indicate that the event should be propagated further.
 
   You can reimplement this function in a subclass, but we recommend
   using one of the specialized event handlers instead.
@@ -807,8 +821,7 @@ bool QAbstractScrollArea::event(QEvent *e)
   mouseMoveEvent(), wheelEvent(), dragEnterEvent(), dragMoveEvent(),
   dragLeaveEvent(), dropEvent(), contextMenuEvent(), and
   resizeEvent().
-
- */
+*/
 bool QAbstractScrollArea::viewportEvent(QEvent *e)
 {
     switch (e->type()) {

@@ -1650,6 +1650,7 @@ QByteArray QSplitter::saveState() const
 
 /*!
     Restores the splitter's layout to the \a state specified.
+    Returns true if the state is restored; otherwise returns false.
 
     Typically this is used in conjunction with QSettings to restore the size
     from a past session. Here is an example:
@@ -1660,6 +1661,9 @@ QByteArray QSplitter::saveState() const
     \skipto RESTORE
     \skipto QSettings
     \printuntil restoreState(
+
+    A failure to restore the splitter's layout may result from either
+    invalid or out-of-date data in the supplied byte array.
 
     \sa saveState()
 */

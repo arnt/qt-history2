@@ -753,12 +753,14 @@ void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget
     Qt::Vertical split places the second dock widget below the first.
 
     \e Note: if \a first is currently in a tabbed docked area, \a second will
-    be added as a new tab, not as a neighbor of \a next. This is because a
+    be added as a new tab, not as a neighbor of \a first. This is because a
     single tab can contain only one dock widget.
 
     \e Note: The Qt::LayoutDirection influences the order of the dock widgets
     in the two parts of the divided area. When right-to-left layout direction
     is enabled, the placing of the dock widgets will be reversed.
+
+    \sa tabifyDockWidget(), addDockWidget(), removeDockWidget()
 */
 void QMainWindow::splitDockWidget(QDockWidget *after, QDockWidget *dockwidget,
                                   Qt::Orientation orientation)

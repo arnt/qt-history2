@@ -1084,8 +1084,14 @@ QString QXmlAttributes::value(const QString& qName) const
     return attList.at(i).value;
 }
 
-/*! \overload
-  */
+/*!
+    \overload
+
+    Returns an attribute's value for the qualified name \a qName, or an
+    empty string if no attribute exists for the name given.
+
+    \sa {Namespace Support via Features}
+*/
 QString QXmlAttributes::value(const QLatin1String& qName) const
 {
     int i = index(qName);
