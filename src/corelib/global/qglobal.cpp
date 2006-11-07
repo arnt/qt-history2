@@ -450,6 +450,19 @@
     Convenience typedef for \c{unsigned char}.
 */
 
+/*!
+    \fn qt_set_sequence_auto_mnemonic(bool on)
+    \relates <QtGlobal>
+
+    Enables automatic mnemonics on Mac if \a on is true; otherwise
+    this feature is disabled.
+
+    Note that this function is only available on Mac where mnemonics
+    are disabled by default.
+
+    \sa {QShortcut#mnemonic}{QShortcut}
+*/
+
 /*! \typedef ushort
     \relates <QtGlobal>
 
