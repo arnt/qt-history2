@@ -150,7 +150,7 @@ void QAbstractItemViewPrivate::init()
     concerned with editing, for example, edit(), and commitData(),
     whilst others are keyboard and mouse event handlers.
 
-    \sa {Model/View Programming}, QAbstractItemModel, {Chart Example}
+    \sa {View Classes}, {Model/View Programming}, QAbstractItemModel, {Chart Example}
 */
 
 /*!

@@ -119,7 +119,7 @@
          \o A \l{Plastique Style Widget Gallery}{Plastique style} tree view.
     \endtable
 
-    \sa QListView, QTreeWidget, {Model/View Programming}, QAbstractItemModel, QAbstractItemView,
+    \sa QListView, QTreeWidget, {View Classes}, QAbstractItemModel, QAbstractItemView,
         {Dir View Example}
 */
 

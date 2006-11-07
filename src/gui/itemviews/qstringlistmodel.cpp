@@ -54,7 +54,7 @@
     \skipto QStringListModel
     \printuntil model->setStringList(list)
 
-    \sa QAbstractListModel, QAbstractItemModel, {Model/View Programming}
+    \sa QAbstractListModel, QAbstractItemModel, {Model Classes}
 */
 
 /*!

@@ -2472,6 +2472,8 @@ QMimeData *QTableWidget::mimeData(const QList<QTableWidgetItem*>) const
 /*!
     Handles the \a data supplied by a drag and drop operation that ended with
     the given \a action in the given \a row and \a column.
+    Returns true if the data and action can be handled by the model;
+    otherwise returns false.
 
     \sa supportedDropActions()
 */

@@ -424,7 +424,7 @@ QStyleOptionViewItemV2 QTableViewPrivate::viewOptionsV2() const
          \o A \l{Plastique Style Widget Gallery}{Plastique style} table view.
     \endtable
 
-    \sa QTableWidget, {Model/View Programming}, QAbstractItemModel, QAbstractItemView,
+    \sa QTableWidget, {View Classes}, QAbstractItemModel, QAbstractItemView,
         {Chart Example}, {Pixelator Example}, {Table Model Example}
 */
 

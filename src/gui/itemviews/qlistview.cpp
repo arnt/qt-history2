@@ -81,7 +81,7 @@
          \o A \l{Plastique Style Widget Gallery}{Plastique style} list view.
     \endtable
 
-    \sa {Model/View Programming}, QTreeView, QTableView, QListWidget
+    \sa {View Classes}, QTreeView, QTableView, QListWidget
 */
 
 /*!

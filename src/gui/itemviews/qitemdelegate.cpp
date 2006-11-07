@@ -224,7 +224,7 @@ QSizeF QItemDelegatePrivate::doTextLayout(int lineWidth) const
     updateEditorGeometry(). This process is described in the
     \l{Spin Box Delegate example}.
 
-    \sa {Model/View Programming}, QAbstractItemDelegate, {Spin Box Delegate Example},
+    \sa {Delegate Classes}, QAbstractItemDelegate, {Spin Box Delegate Example},
         {Settings Editor Example}, {Icons Example}
 */
 
