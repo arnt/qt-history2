@@ -98,6 +98,7 @@ private slots:
 #ifdef Q_OS_UNIX
     void isWritable();
 #endif
+    void isExecutable();
 	void testDecomposedUnicodeNames_data();
 	void testDecomposedUnicodeNames();
 };
@@ -755,6 +756,19 @@ void tst_QFileInfo::isWritable()
 }
 #endif
 
+void tst_QFileInfo::isExecutable()
+{
+    QString appPath = QCoreApplication::applicationDirPath();
+    appPath += "/tst_qfileinfo";
+#if defined(Q_OS_WIN)
+    appPath += ".exe";
+#endif
+    QFileInfo fi(appPath);
+    QCOMPARE(fi.isExecutable(), true);
+
+    QCOMPARE(QFileInfo("qfileinfo.pro").isExecutable(), false);
+}
+
 
 void tst_QFileInfo::testDecomposedUnicodeNames_data()
 {
@@ -771,7 +785,7 @@ void tst_QFileInfo::testDecomposedUnicodeNames_data()
 void tst_QFileInfo::testDecomposedUnicodeNames()
 {
 #ifndef Q_OS_MAC
-    Q_SKIP("This is a OS X only test (unless you know more about filesystems, then maybe you should try it ;)", SkipAll);
+    QSKIP("This is a OS X only test (unless you know more about filesystems, then maybe you should try it ;)", SkipAll);
 #endif
     QFETCH(QString, filePath);
 
