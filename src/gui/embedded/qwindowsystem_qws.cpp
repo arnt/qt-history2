@@ -125,19 +125,24 @@ static bool force_reject_strokeIM = false;
     \class QWSScreenSaver
     \ingroup qws
 
-    \brief The QWSScreenSaver class implements a screensaver in Qtopia
-    Core.
+    \brief The QWSScreenSaver class is a base class for screensavers
+    in Qtopia Core.
 
-    Derive from this class to define a custom screensaver, note that
-    there exists no default implementation. Reimplement the restore()
-    and save() functions. These functions are called whenever the
-    screensaver is activated or deactivated, respectively. Once the
-    custom screensave is created, use the QWSServer::setScreenSaver()
-    function to install it.
+    When running \l {Qtopia Core} applications, it is the server
+    application that installs and controls the screensaver. \l {Qtopia
+    Core} supports multilevel screen saving, i.e., it is possible to
+    specify several different levels of screen responsiveness. For
+    example, you can choose to first turn off the light before you
+    fully activate the screensaver.
 
-    QWSServer also provides means of controlling the screensaver, see
-    the \l {QWSServer#Display Handling}{QWSServer} class documentation
-    for details.
+    Note that there exists no default screensaver implementation.
+
+    To create a custom screen driver, derive from this class and
+    reimplement the restore() and save() functions. These functions
+    are called whenever the screensaver is activated or deactivated,
+    respectively. Once an instance of your custom screensaver is
+    created, you can use the QWSServer::setScreenSaver() function to
+    install it.
 
     \sa QWSServer, QScreen, {Qtopia Core}
 */
@@ -151,22 +156,29 @@ static bool force_reject_strokeIM = false;
 /*!
     \fn QWSScreenSaver::restore()
 
-    Reimplement this function to deactivate the screensaver.
+    Reimplement this function to deactivate the screensaver, restoring
+    the previously saved screen.
 
-    \sa QWSServer::screenSaverActivate(), save()
+    \sa save(), QWSServer::screenSaverActivate()
 */
 
 /*!
     \fn QWSScreenSaver::save(int level)
 
-    Reimplement this function to return true if the screensaver
-    successfully enters the timeout interval specified by the \a level
-    parameter; otherwise it should return false.
+    Reimplement this function to activate the screensaver, saving the
+    current screen.
 
-    The timeout intervals are typically specified using the
-    QWSServer::setScreenSaverIntervals() function.
+    \l {Qtopia Core} supports multilevel screen saving, i.e., it is
+    possible to specify several different levels of screen
+    responsiveness. For example, you can choose to first turn off the
+    light before you fully activate the screensaver. Use the
+    QWSServer::setScreenSaverIntervals() to specify the time intervals
+    between the different levels.
 
-    \sa QWSServer::screenSaverActivate(), restore()
+    This function should return true if the screensaver successfully
+    enters the given \a level; otherwise it should return false.
+
+    \sa restore(), QWSServer::screenSaverActivate()
 */
 
 class QWSWindowPrivate
