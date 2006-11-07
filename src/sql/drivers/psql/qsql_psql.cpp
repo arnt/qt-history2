@@ -900,15 +900,11 @@ QString QPSQLDriver::formatValue(const QSqlField &field,
     return r;
 }
 
-QString QPSQLDriver::escapeIdentifier(const QString &identifier, IdentifierType type) const
+QString QPSQLDriver::escapeIdentifier(const QString &identifier, IdentifierType) const
 {
     QString res = identifier;
     res.replace(QLatin1Char('"'), QLatin1String("\"\""));
     res.prepend(QLatin1Char('"')).append(QLatin1Char('"'));
-
-    if (type == QSqlDriver::TableName)
-        return res;
-
     res.replace(QLatin1Char('.'), QLatin1String("\".\""));
     return res;
 }
