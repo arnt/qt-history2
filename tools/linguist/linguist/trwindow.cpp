@@ -1202,35 +1202,32 @@ bool TrWindow::setNextMessage(QModelIndex *currentIndex, bool checkUnfinished)
 bool TrWindow::setPrevMessage(QModelIndex *currentIndex, bool checkUnfinished)
 {
     bool found = false;
-    if (currentIndex->isValid()) {
-        QModelIndex idx = *currentIndex;
-        do {
-            int row = idx.row() - 1;
-            QModelIndex par = idx.parent();
-            if (par.isValid()) {
-                row = idx.row() - 1;
-            } else {        //In case we are located on a top-level node
-                par = cmdl->index(row, 0);
-                row = cmdl->rowCount(par) - 1;
-            }
-
-            if (row < 0) {
-                int toprow = par.row() - 1;
-                if (toprow < 0) toprow = cmdl->rowCount() - 1;
-                par = cmdl->index(toprow, 0);
-                row = cmdl->rowCount(par) - 1;
-                idx = cmdl->index(row, 1, par);
-            } else {
-                idx = cmdl->index(row, 1, par);
-            }
-            found = checkUnfinished ? !cmdl->finished(idx) : true;
-            if (idx == *currentIndex) break;
-        } while(!found);
-
-        if (found) {
-            *currentIndex = idx;
-            tv->setCurrentIndex(*currentIndex);
+    Q_ASSERT(currentIndex);
+    QModelIndex idx = currentIndex->isValid() ? *currentIndex : cmdl->index(0, 0);
+    do {
+        int row = idx.row() - 1;
+        QModelIndex par = idx.parent();
+        if (!par.isValid()) {   //In case we are located on a top-level node
+            par = idx;
+            row = -1;
         }
+
+        if (row < 0) {
+            int toprow = par.row() - 1;
+            if (toprow < 0) toprow = cmdl->rowCount() - 1;
+            par = cmdl->index(toprow, 0);
+            row = cmdl->rowCount(par) - 1;
+            idx = cmdl->index(row, 1, par);
+        } else {
+            idx = cmdl->index(row, 1, par);
+        }
+        found = checkUnfinished ? !cmdl->finished(idx) : true;
+        if (idx == *currentIndex) break;
+    } while(!found);
+
+    if (found) {
+        *currentIndex = idx;
+        tv->setCurrentIndex(*currentIndex);
     }
     return found;
 }
