@@ -667,6 +667,20 @@ void QKeyMapperPrivate::updatePossibleKeyCodes(unsigned char *kbdBuffer, quint32
     setKbdState(buffer, true, true, true);
     keyLayout[vk_key]->qtKey[7] = toKeyOrUnicode(vk_key, scancode, buffer);
 
+    // If this vk_key a Dead Key
+    if (MapVirtualKey(vk_key, 2) & 0x80008000) { // (High-order dead key on Win 95 is 0x8000)
+        // Push a Space, then the original key through the low-level ToAscii functions.
+        // We do this because these functions (ToAscii / ToUnicode) will alter the internal state of
+        // the keyboard driver By doing the following, we set the keyboard driver state back to what
+        // it was before we wrecked it with the code above.
+        // We need to push the space with an empty keystate map, since the driver checks the map for
+        // transitions in modifiers, so this helps us capture all possible deadkeys.
+        unsigned char emptyBuffer[256];
+        memset(emptyBuffer, 0, sizeof(emptyBuffer));
+        ::ToAscii(VK_SPACE, 0, emptyBuffer, reinterpret_cast<LPWORD>(&buffer), 0);
+        ::ToAscii(vk_key, scancode, kbdBuffer, reinterpret_cast<LPWORD>(&buffer), 0);
+    }
+
 #ifdef DEBUG_KEYMAPPER
     qDebug("updatePossibleKeyCodes for virtual key = 0x%02x!", vk_key);
     for (int i = 0; i < 8; ++i) {
