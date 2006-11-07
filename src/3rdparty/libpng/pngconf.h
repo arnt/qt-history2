@@ -37,9 +37,7 @@
 #endif
 #else
 #ifndef __i386__ /* change this if MMX/SSE become supported on x86_64! */
-#ifndef PNG_NO_ASSEMBLER_CODE
 #define PNG_NO_ASSEMBLER_CODE
-#endif
 #endif
 #endif
 
