@@ -1718,6 +1718,7 @@ if [ -z "$PLATFORM" ]; then
         if [ "$PLATFORM_MAC" = "yes" ]; then
           PLATFORM=macx-g++
         # PLATFORM=macx-xcode
+        # PLATFORM=macx-g++-64
         else
           PLATFORM=darwin-g++
         fi
