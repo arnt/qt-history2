@@ -579,7 +579,7 @@ QCleanlooksStyle::~QCleanlooksStyle()
     \fn void QCleanlooksStyle::drawItemText(QPainter *painter, const QRect &rectangle, int alignment, const QPalette &palette,
                                     bool enabled, const QString& text, QPalette::ColorRole textRole) const
 
-    Draws the given \a text in the specified \c rectangle using the
+    Draws the given \a text in the specified \a rectangle using the
     provided \a painter and \a palette.
 
     Text is drawn using the painter's pen. If an explicit \a textRole

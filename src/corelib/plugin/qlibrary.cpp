@@ -123,6 +123,27 @@ Q_GLOBAL_STATIC(QMutex, qt_library_mutex)
     \sa QPluginLoader
 */
 
+/*!
+    \enum QLibrary::LoadHint
+
+    This enum gives hints as to how symbols are resolved by 
+    specifying load hints with the \c setLoadHints() function. 
+      
+    \value ResolveAllSymbolsHint
+	This value indicates that all symbols should be resolved at
+	load time, not when \c resolve() is called.	
+    \value ExportExternalSymbolsHint
+	This makes external symbols in the library available for
+	subsequent loaded libraries.	
+    \value LoadArchiveMemberHint
+	If this hint is given, the filename of the library consists of
+	two parts:
+	A path which is a reference to an archive file followed by 
+	the second component which is the reference to the archive 
+	member.	
+    \sa setLoadHints()
+*/
+
 struct qt_token_info
 {
     qt_token_info(const char *f, const ulong fc)

@@ -4,7 +4,7 @@
 
     The Mouse Calibration example demonstrates how to write a simple
     program using the mechanisms provided by the QWSMouseHandler class
-    to calibrate the mouse handler in \l {Qtopia Core}.
+    to calibrate the mouse handler in \l {Qtopia Core}. 
 
     Calibration is the process of mapping between physical
     (i.e. device) coordinates and logical coordinates.
@@ -39,12 +39,11 @@
     text and an \gui OK button.
 
     At this stage in the program, the mouse could be completely
-    uncalibrated, making the user unable to press the \gui OK
-    button. For that reason we use the static QTimer::singleShot()
-    function to make the message box disappear after 10 seconds. The
-    QTimer class provides repetitive and single-shot timers: The
-    single shot function calls the given slot after the specified
-    interval.
+    uncalibrated, making the user unable to press the \gui OK button. For
+    that reason we use the static QTimer::singleShot() function to
+    make the message box disappear after 10 seconds. The QTimer class
+    provides repetitive and single-shot timers: The single shot
+    function calls the given slot after the specified interval.
 
     \skipto Calibration
     \printuntil exec
@@ -100,14 +99,14 @@
     \skipto Calibration()
     \printuntil setModal(true)
 
-    Then we initialize the QWSPointerCalibrationData::screenPoints
+    Then we initialize the \l{QWSPointerCalibrationData::}{screenPoints}
     array:
 
     \skipto width
     \printuntil Center
 
-    In order to specify the calibration, the \l
-    {QWSPointerCalibrationData::screenPoints}{screenPoints} array must
+    In order to specify the calibration, the 
+    \l{QWSPointerCalibrationData::screenPoints}{screenPoints} array must
     contain the screen coordinates for the logical positions
     represented by the QWSPointerCalibrationData::Location enum
     (e.g. QWSPointerCalibrationData::TopLeft).  Since non-linearity is

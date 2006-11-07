@@ -500,9 +500,9 @@ QStringList QUiLoader::availableWidgets() const
 }
 
 /*!
-    Sets the working directory of the loader. The loader looks for
-    other resources, such as icons and resource files, in paths relative
-    to this directory.
+    Sets the working directory of the loader to \a dir. The loader 
+    looks for other resources, such as icons and resource files, 
+    in paths relative to this directory.
 
     \sa workingDirectory()
 */

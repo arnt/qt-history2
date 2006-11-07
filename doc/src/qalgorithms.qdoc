@@ -338,8 +338,8 @@
 /*! \fn void qCount(InputIterator begin, InputIterator end, const T &value, Size &n)
     \relates <QtAlgorithms>
 
-    Returns the number of occurrences of \a value in the range [\a begin, \a end)
-    in argument \a n, specified as a reference.
+    Returns the number of occurrences of \a value in the range [\a begin, \a end),
+    which is returned in \a n.
 
     Example:
 
