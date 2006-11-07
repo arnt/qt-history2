@@ -537,8 +537,8 @@ void TrWindow::findAgain()
                     foundWhere = FindDialog::Comments;
                     foundOffset = 0;
                     // fall-through
-                case FindDialog::Comments: // what about comments in messages?
-                    if (searchItem(c->fullContext(), scopeNo, mit)) {
+                case FindDialog::Comments:
+                    if (searchItem(m->comment(), scopeNo, mit)) {
                         finddlg->hide();
                         if (!delayedMsg.isEmpty())
                             statusBar()->showMessage(delayedMsg, MessageMS);
