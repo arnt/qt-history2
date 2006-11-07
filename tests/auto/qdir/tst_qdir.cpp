@@ -105,6 +105,8 @@ private slots:
     void homePath();
 
     void nativeSeparators();
+
+    void exists3();
 };
 
 // Testing get/set functions
@@ -1052,6 +1054,22 @@ void tst_QDir::nativeSeparators()
     QCOMPARE(QDir::fromNativeSeparators(QLatin1String("/")), QString("/"));
     QCOMPARE(QDir::fromNativeSeparators(QLatin1String("\\")), QString("\\"));
 #endif
+}
+
+// From Task 136989
+void tst_QDir::exists3()
+{
+    QString dirName("exists3_testdir");
+    QString fullPath(QDir::currentPath() + QLatin1String("/") + dirName);
+    if (!QFileInfo(fullPath).exists())
+        QVERIFY(QDir(QDir::currentPath()).mkdir(dirName));
+    QDir dir1(fullPath);
+    QDir dir2(QDir::currentPath());
+    QVERIFY(dir1.exists());
+    QVERIFY(dir2.rmdir(dirName));
+    QVERIFY(!dir2.exists(dirName));
+    QVERIFY(!dir1.exists("."));
+    QVERIFY(!dir1.exists());
 }
 
 QTEST_MAIN(tst_QDir)
