@@ -18,6 +18,9 @@
 #include <qpagesetupdialog.h>
 #include <qapplication.h>
 #include <qfileinfo.h>
+#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
+#include "private/qcups_p.h"
+#endif
 
 #ifndef QT_NO_PRINTER
 
@@ -386,8 +389,7 @@ QPrinter::QPrinter(PrinterMode mode)
     d->createDefaultEngines();
 
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
-    if (QCUPSSupport::cupsVersion() >= 10200
-        && QCUPSSupport().currentPPD()) {
+    if (QCUPSSupport::cupsVersion() >= 10200 && QCUPSSupport().currentPPD()) {
         setOutputFormat(QPrinter::PdfFormat);
         d->outputFormat = QPrinter::NativeFormat;
     }

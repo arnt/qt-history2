@@ -67,10 +67,6 @@ public:
 
     virtual Qt::HANDLE handle() const { return 0; };
 
-#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
-    QCUPSSupport* cupsSupport();
-#endif
-
 private:
     Q_DISABLE_COPY(QPSPrintEngine)
 };

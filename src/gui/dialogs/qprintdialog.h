@@ -51,7 +51,6 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_printToFileChanged(int))
     Q_PRIVATE_SLOT(d_func(), void _q_rbPrintRangeToggled(bool))
     Q_PRIVATE_SLOT(d_func(), void _q_printerChanged(int))
-    Q_PRIVATE_SLOT(d_func(), void _q_paperSizeChanged(int))
 #ifndef QT_NO_FILEDIALOG
     Q_PRIVATE_SLOT(d_func(), void _q_btnBrowseClicked())
 #endif

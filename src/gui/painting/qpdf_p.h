@@ -33,9 +33,13 @@
 #include "private/qfontsubset_p.h"
 #include "private/qpaintengine_p.h"
 #include "qprintengine.h"
-#include "private/qcups_p.h"
 
 #ifndef QT_NO_PRINTER
+
+#define PPK_CupsOptions QPrintEngine::PrintEnginePropertyKey(0xfe00)
+#define PPK_CupsPageRect QPrintEngine::PrintEnginePropertyKey(0xfe01)
+#define PPK_CupsPaperRect QPrintEngine::PrintEnginePropertyKey(0xfe02)
+#define PPK_CupsStringPageSize QPrintEngine::PrintEnginePropertyKey(0xfe03)
 
 const char *qt_real_to_string(qreal val, char *buf);
 const char *qt_int_to_string(int val, char *buf);
@@ -198,9 +202,6 @@ public:
     // the device the output is in the end streamed to.
     QIODevice *outDevice;
     int fd;
-#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
-    QCUPSSupport cups;
-#endif
 
     // printer options
     QString outputFileName;
@@ -220,6 +221,11 @@ public:
     QPrinter::PageSize pageSize;
     QPrinter::ColorMode colorMode;
     QPrinter::PaperSource paperSource;
+
+    QStringList cupsOptions;
+    QRect cupsPaperRect;
+    QRect cupsPageRect;
+    QString cupsStringPageSize;
 };
 
 #endif

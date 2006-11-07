@@ -837,15 +837,6 @@ QPrinter::PrinterState QPSPrintEngine::printerState() const
     return d->printerState;
 }
 
-#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
-
-QCUPSSupport* QPSPrintEngine::cupsSupport()
-{
-    Q_D(QPSPrintEngine);
-    return &d->cups;
-}
-
-#endif
 #endif // QT_NO_PRINTER
 
 
