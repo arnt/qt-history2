@@ -109,7 +109,7 @@ void QPrinterPrivate::createDefaultEngines()
   used. The big difference is that you must keep track of pages.
 
   QPrinter supports a number of settable parameters, most of which can be
-  changed by the end user through a \l{QAbstractPrintDialog} print dialog. In
+  changed by the end user through a \l{QPrintDialog}{print dialog}. In
   general, QPrinter passes these functions onto the underlying QPrintEngine.
 
   The most important parameters are:
@@ -137,31 +137,18 @@ void QPrinterPrivate::createDefaultEngines()
   printer dialog) and that applications are expected to obey. See
   QAbstractPrintDialog's documentation for more details.
 
-  Once QPainter::begin() has been called, you must call newPage() for each
-  page that you want to print \e before performing any painting operations.
+  When QPainter::begin() is called, the QPrinter it operates on is prepared for
+  a new page, enabling the QPainter to be used immediately to paint the first
+  page in a document. Once the first page has been painted, newPage() can be
+  called to request a new blank page to paint on, or QPainter::end() can be
+  called to finish printing. The second page and all following pages are
+  prepared using a call to newPage() before they are painted.
 
-  \table
-  \header \o Printer and Painter Coordinate Systems
-  \row \o \inlineimage printer-rects.png
-  \o The paperRect() and pageRect() functions provide information about
-  the size of the paper used for printing and the area on it that can be
-  painted on.
-
-  The rectangle returned by pageRect() typically lies inside the rectangle
-  returned by paperRect(). You do not need to take the positions and sizes
-  of these area into account when using a QPainter with a QPrinter as the
-  underlying paint device; the origin of the painter's coordinate system
-  will coincide with the top-left corner of the pageRect() and painting
-  operations will be clipped to the bounds of the drawable part of the page.
-  \endtable
-
-  The paint system automatically uses the correct device metrics when painting
-  text but, if you need to position text using information obtained from
-  font metrics, you need to ensure that the print device is specified when
-  you construct QFontMetrics and QFontMetricsF objects.
-
-  use you will probably also need to look at the device metrics for the
-  printer.
+  The first page in a document does not need to be preceded by a call to
+  newPage(). You only need to calling newPage() after QPainter::begin() if you
+  need to insert a blank page at the beginning of a printed document.
+  Similarly, calling newPage() after the last page in a document is painted will
+  result in a trailing blank page appended to the end of the printed document.
 
   If you want to abort the print job, abort() will try its best to
   stop printing. It may cancel the entire job or just part of it.
@@ -169,6 +156,8 @@ void QPrinterPrivate::createDefaultEngines()
   If your current locale converts "," to ".", you will need to set
   a locale that doesn't do this (e.g. the "C" locale) before using
   QPrinter.
+
+  \sa QPrintDialog, {Printing with Qt}
 */
 
 /*!
