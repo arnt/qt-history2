@@ -33,6 +33,11 @@
 
 #include <private/qwidget_p.h>
 
+#define SZ_SIZEBOTTOMRIGHT  0xf008
+#define SZ_SIZEBOTTOMLEFT   0xf007
+#define SZ_SIZETOPLEFT      0xf004
+#define SZ_SIZETOPRIGHT     0xf005
+
 class QSizeGripPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QSizeGrip)
@@ -326,5 +331,23 @@ bool QSizeGrip::event(QEvent *e)
     }
     return QWidget::event(e);
 }
+
+#ifdef Q_WS_WIN
+/*! \reimp */
+bool QSizeGrip::winEvent( MSG *m, long *result )
+{
+    if (m->message == WM_LBUTTONDOWN) {
+        // toplevel windows use the native size grip on Windows
+        if (QWidget *w = qt_sizegrip_topLevelWidget(this)) {
+            if (w->isWindow()) {
+                PostMessage(w->winId(), WM_SYSCOMMAND, 
+                            qApp->isLeftToRight() ? SZ_SIZEBOTTOMRIGHT : SZ_SIZEBOTTOMLEFT, 0);
+                return true;
+            }
+        }
+    }
+    return QWidget::winEvent(m, result);
+}
+#endif
 
 #endif //QT_NO_SIZEGRIP
