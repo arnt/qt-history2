@@ -54,7 +54,11 @@
     displayed for the first time (by calling
     QGraphicsScene::itemsBoundingRect()). To set the visualized area rectangle
     yourself, you can call setSceneRect(). This will adjust the scrollbars'
-    ranges appropriately.
+    ranges appropriately. Note that although the scene supports a virtually
+    unlimited size, the range of the scrollbars will never exceed the range of
+    an integer (INT_MIN, INT_MAX). When the scene is larger than the scroll
+    bars' values, you can choose to use translate() to navigate the scene
+    instead.
 
     QGraphicsView visualizes the scene by calling render(). By default, the
     items are drawn onto the viewport by using a regular QPainter, and using
@@ -309,8 +313,9 @@ void QGraphicsViewPrivate::recalculateContentSize()
             break;
         }
     } else {
-        q->horizontalScrollBar()->setRange(int(viewRect.left()),
-                                           int(viewRect.right() - width));
+        int left = int(qMax<qreal>(viewRect.left(), INT_MIN));
+        int right = int(qMin<qreal>(viewRect.right() - width, INT_MAX));
+        q->horizontalScrollBar()->setRange(left, right);
         q->horizontalScrollBar()->setPageStep(width);
         q->horizontalScrollBar()->setSingleStep(width / 20);
         leftIndent = 0;
@@ -334,8 +339,9 @@ void QGraphicsViewPrivate::recalculateContentSize()
             break;
         }
     } else {
-        q->verticalScrollBar()->setRange(int(viewRect.top()),
-                                         int(viewRect.bottom() - height));
+        int top = int(qMax<qreal>(viewRect.top(), INT_MIN));
+        int bottom = int(qMin<qreal>(viewRect.bottom() - height, INT_MAX));
+        q->verticalScrollBar()->setRange(top, bottom);
         q->verticalScrollBar()->setPageStep(height);
         q->verticalScrollBar()->setSingleStep(height / 20);
         topIndent = 0;
@@ -906,8 +912,10 @@ void QGraphicsView::setScene(QGraphicsScene *scene)
     and it changes with QGraphicsScene::sceneRect. Otherwise, the view's scene
     rect is unaffected by the scene.
 
-    Note: The maximum size of the view's scene rect is limited by the range of
-    QAbstractScrollArea's scrollbars, which operate in integer coordinates.
+    Note that although the scene supports a virtually unlimited size, the
+    range of the scrollbars will never exceed the range of an integer
+    (INT_MIN, INT_MAX). When the scene is larger than the scroll bars' values,
+    you can choose to use translate() to navigate the scene instead.
 
     \sa QGraphicsScene::sceneRect
 */
