@@ -7367,7 +7367,7 @@ void QWidget::setIcon(const QPixmap &i)
 /*!
     Return's the widget's icon.
 
-    Use windowIcon() instead().
+    Use windowIcon() instead.
 */
 const QPixmap *QWidget::icon() const
 {
@@ -8285,7 +8285,7 @@ void QWidget::languageChange() { }  // compat
 /*!
     \fn QString QWidget::iconText() const
 
-    Use windowIconText() instead().
+    Use windowIconText() instead.
 */
 
 /*!
