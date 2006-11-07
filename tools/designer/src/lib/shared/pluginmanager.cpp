@@ -151,6 +151,13 @@ void QDesignerPluginManager::registerPlugin(const QString &plugin)
     QPluginLoader loader(plugin);
     if (loader.load())
         m_registeredPlugins += plugin;
+    if (!loader.isLoaded()) {
+        qWarning("QDesignerPluginManager: failed to load plugin\n"
+                 " - pluginName='%s'\n"
+                 " - error='%s'\n",
+                 qPrintable(plugin),
+                 qPrintable(loader.errorString()));
+    }
 }
 
 bool QDesignerPluginManager::syncSettings()
