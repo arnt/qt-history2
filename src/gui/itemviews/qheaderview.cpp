@@ -31,6 +31,23 @@
 #include <qvariant.h>
 #include <private/qheaderview_p.h>
 
+#ifndef QT_NO_DATASTREAM
+#include <qdatastream.h>
+
+QDataStream &operator<<(QDataStream &out, const QHeaderViewPrivate::SectionSpan &span)
+{
+    span.write(out);
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, QHeaderViewPrivate::SectionSpan &span)
+{
+    span.read(in);
+    return in;
+}
+#endif
+
+
 /*!
     \class QHeaderView
 
@@ -1322,6 +1339,58 @@ bool QHeaderView::sectionsHidden() const
     Q_D(const QHeaderView);
     return !d->hiddenSectionSize.isEmpty();
 }
+
+#ifndef QT_NO_DATASTREAM
+/*!
+    \since 4.3
+
+    Saves the current state of this header view.
+    The \a version number is stored as part of the data.
+
+    To restore the saved state, pass the return value and \a version
+    number to restoreState().
+
+    \sa restoreState()
+*/
+QByteArray QHeaderView::saveState(int version) const
+{
+    Q_D(const QHeaderView);
+    QByteArray data;
+    QDataStream stream(&data, QIODevice::WriteOnly);
+    stream << QHeaderViewPrivate::VersionMarker;
+    stream << version;
+    d->write(stream);
+    return data;
+}
+
+/*!
+    \since 4.3
+    Restores the \a state of this header view.
+    The \a version number is compared with that stored in \a state.
+    If they do not match, the mainwindow's state is left unchanged,
+    and this function returns \c false; otherwise, the state
+    is restored, and this function returns \c true.
+
+    \sa saveState()
+*/
+bool QHeaderView::restoreState(const QByteArray &state, int version)
+{
+    Q_D(QHeaderView);
+    if (state.isEmpty())
+        return false;
+    QByteArray data = state;
+    QDataStream stream(&data, QIODevice::ReadOnly);
+    int marker;
+    int ver;
+    stream >> marker;
+    stream >> ver;
+    if (stream.status() != QDataStream::Ok
+        || marker != QHeaderViewPrivate::VersionMarker
+        || ver != version)
+        return false;
+    return d->read(stream);
+}
+#endif
 
 /*!
   Updates the changed header sections with the given \a orientation, from
@@ -2990,6 +3059,80 @@ int QHeaderViewPrivate::adjustedVisualIndex(int visualIndex) const
     }
     return visualIndex;
 }
+
+#ifndef QT_NO_DATASTREAM
+void QHeaderViewPrivate::write(QDataStream &out) const
+{
+    out << int(orientation);
+    out << int(sortIndicatorOrder);
+    out << sortIndicatorSection;
+    out << sortIndicatorShown;
+
+    out << visualIndices;
+    out << logicalIndices;
+
+    out << sectionHidden;
+    out << hiddenSectionSize;
+
+    out << length;
+    out << sectionCount;
+    out << movableSections;
+    out << clickableSections;
+    out << highlightSelected;
+    out << stretchLastSection;
+    out << cascadingResizing;
+    out << stretchSections;
+    out << contentsSections;
+    out << defaultSectionSize;
+    out << minimumSectionSize;
+
+    out << int(defaultAlignment);
+    out << int(globalResizeMode);
+
+    out << sectionSpans;
+}
+
+bool QHeaderViewPrivate::read(QDataStream &in)
+{
+    int orient, order, align, global;
+    in >> orient;
+    orientation = (Qt::Orientation)orient;
+
+    in >> order;
+    sortIndicatorOrder = (Qt::SortOrder)order;
+
+    in >> sortIndicatorSection;
+    in >> sortIndicatorShown;
+
+    in >> visualIndices;
+    in >> logicalIndices;
+
+    in >> sectionHidden;
+    in >> hiddenSectionSize;
+
+    in >> length;
+    in >> sectionCount;
+    in >> movableSections;
+    in >> clickableSections;
+    in >> highlightSelected;
+    in >> stretchLastSection;
+    in >> cascadingResizing;
+    in >> stretchSections;
+    in >> contentsSections;
+    in >> defaultSectionSize;
+    in >> minimumSectionSize;
+
+    in >> align;
+    defaultAlignment = (Qt::Alignment)align;
+
+    in >> global;
+    globalResizeMode = (QHeaderView::ResizeMode)global;
+
+    in >> sectionSpans;
+
+    return true;
+}
+#endif
 
 #endif // QT_NO_ITEMVIEWS
 

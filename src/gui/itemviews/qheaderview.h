@@ -125,6 +125,9 @@ public:
     bool sectionsMoved() const;
     bool sectionsHidden() const;
 
+    QByteArray saveState(int version = 0) const;
+    bool restoreState(const QByteArray &state, int version = 0);
+
 public Q_SLOTS:
     void setOffset(int offset);
     void setOffsetToSectionPosition(int visualIndex);

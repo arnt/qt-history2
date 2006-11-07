@@ -37,6 +37,8 @@ class QHeaderViewPrivate: public QAbstractItemViewPrivate
     Q_DECLARE_PUBLIC(QHeaderView)
 
 public:
+    enum StateVersion { VersionMarker = 0xff };
+
     QHeaderViewPrivate()
         : state(NoState),
           offset(0),
@@ -197,6 +199,7 @@ public:
     int target;
     int pressed;
     int hover;
+
     uint length;
     int sectionCount;
     bool movableSections;
@@ -224,6 +227,12 @@ public:
         inline SectionSpan(int length, int sections, QHeaderView::ResizeMode mode)
             : size(length), count(sections), resizeMode(mode) {}
         inline int sectionSize() const { return size / count; }
+#ifndef QT_NO_DATASTREAM
+        inline void write(QDataStream &out) const
+        { out << size; out << count; out << (int)resizeMode; }
+        inline void read(QDataStream &in)
+        { in >> size; in >> count; int m; in >> m; resizeMode = (QHeaderView::ResizeMode)m; }
+#endif
     };
 
     QVector<SectionSpan> sectionSpans;
@@ -276,6 +285,11 @@ public:
     // other
     int viewSectionSizeHint(int logical) const;
     int adjustedVisualIndex(int visualIndex) const;
+
+#ifndef QT_NO_DATASTREAM
+    void write(QDataStream &out) const;
+    bool read(QDataStream &in);
+#endif
 
 };
 
