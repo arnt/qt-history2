@@ -2374,7 +2374,7 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
 
     // Determine the exposed region
     QRegion exposedRegion = event->region();
-    if (!d->accelerateScrolling || !d->scene)
+    if (!d->accelerateScrolling)
         exposedRegion = viewport()->rect();
 
     // Set up the painter
