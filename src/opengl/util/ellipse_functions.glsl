@@ -1,3 +1,7 @@
+uniform vec3 inv_matrix_m0;
+uniform vec3 inv_matrix_m1;
+uniform vec3 inv_matrix_m2;
+
 float ellipse()
 {
     vec2 st = gl_TexCoord[0].st;
@@ -10,26 +14,48 @@ float ellipse()
 
 // ellipse equation
 
-// x^2/a^2 + y^2/b^2 = 1
+// s^2/a^2 + t^2/b^2 = 1
 //
-// f(x,y) = x^2/rx + y^2/ry
+// implicit equation:
+// g(s,t) = 1 - s^2/r_s^2 - t^2/r_t^2
 
-// df/dx = 2x/rx
-// df/dy = 2y/ry
+// distance from ellipse:
+// grad = [dg/dx dg/dy]
+// d(s, t) ~= g(s, t) / |grad|
 
-// f(x,y) = 1 + e ~= 1 + sqrt((df/dx)^2 + (df/dy)^2)*dist
+// dg/dx = dg/ds * ds/dx + dg/dt * dt/dx
+// dg/dy = dg/ds * ds/dy + dg/dt * dt/dy
 
 float ellipse_aa()
 {
-    vec2 st = gl_TexCoord[0].st;
-    vec2 r = gl_TexCoord[0].pq;
+    mat3 mat;
 
-    vec2 n = st/r;
-	
-    float eps = 1. - dot(n, n);
-    vec2 r2 = r*r;
-    vec2 grad = 2.*st/r2;
-    float g = inversesqrt(dot(grad, grad));
+    mat[0] = inv_matrix_m0;
+    mat[1] = inv_matrix_m1;
+    mat[2] = inv_matrix_m2;
 
-    return smoothstep(-0.55, 0.55, eps * g);
+    vec3 hcoords = mat * vec3(gl_FragCoord.xy, 1);
+    float inv_w = 1.0 / hcoords.z;
+    vec2 st = hcoords.xy * inv_w;
+
+    vec4 xy = vec4(mat[0].xy, mat[1].xy); 
+    vec2 h = vec2(mat[0].z, mat[1].z);
+
+    vec4 dstdxy = (xy.xzyw - h.xyxy * st.xxyy) * inv_w;
+ 
+    //dstdxy.x = (mat[0].x - mat[0].z * st.x) * inv_w; // ds/dx
+    //dstdxy.y = (mat[1].x - mat[1].z * st.x) * inv_w; // ds/dy
+    //dstdxy.z = (mat[0].y - mat[0].z * st.y) * inv_w; // dt/dx
+    //dstdxy.w = (mat[1].y - mat[1].z * st.y) * inv_w; // dt/dy
+
+    vec2 inv_r = gl_TexCoord[0].xy;
+    vec2 n = st * inv_r;
+    float g = 1.0 - dot(n, n);
+
+    vec2 dgdst = -2.0 * n * inv_r; 
+
+    vec2 grad = vec2(dot(dgdst, dstdxy.xz),
+                     dot(dgdst, dstdxy.yw));
+
+    return smoothstep(-0.5, 0.5, g * inversesqrt(dot(grad, grad)));
 }

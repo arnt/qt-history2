@@ -2942,36 +2942,21 @@ void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
             qreal grow = padding / min_screen_delta_len;
 
             float vertexArray[4 * 2];
-            float texCoordArray[4 * 4];
 
             QRectF boundingRect = rect.adjusted(-grow, -grow, grow, grow);
             qt_add_rect_to_array(boundingRect, vertexArray);
 
-            QRectF atOrigin = boundingRect.translated(-center);
+            // fragment program needs the inverse radii of the ellipse
+            glTexCoord2f(1.0f / (rect.width() * 0.5f),
+                         1.0f / (rect.height() * 0.5f));
 
-            qreal left = atOrigin.left();
-            qreal right = atOrigin.right();
-            qreal top = atOrigin.top();
-            qreal bottom = atOrigin.bottom();
-            float rx = rect.width()/2.;
-            float ry = rect.height()/2.;
+            QTransform translate(1, 0, 0, 1, -center.x(), -center.y());
+            QTransform gl_to_qt(1, 0, 0, -1, 0, d->pdev->height());
+            QTransform inv_matrix = gl_to_qt * d->matrix.inverted() * translate;
 
-            texCoordArray[0] = left;
-            texCoordArray[1] = top;
-            texCoordArray[2] = rx;
-            texCoordArray[3] = ry;
-            texCoordArray[4] = right;
-            texCoordArray[5] = top;
-            texCoordArray[6] = rx;
-            texCoordArray[7] = ry;
-            texCoordArray[8] = right;
-            texCoordArray[9] = bottom;
-            texCoordArray[10] = rx;
-            texCoordArray[11] = ry;
-            texCoordArray[12] = left;
-            texCoordArray[13] = bottom;
-            texCoordArray[14] = rx;
-            texCoordArray[15] = ry;
+            float m[3][4] = { { inv_matrix.m11(), inv_matrix.m12(), inv_matrix.m13() },
+                              { inv_matrix.m21(), inv_matrix.m22(), inv_matrix.m23() },
+                              { inv_matrix.m31(), inv_matrix.m32(), inv_matrix.m33() } };
 
             QRectF screenRect = d->matrix.mapRect(boundingRect);
 
@@ -2983,12 +2968,15 @@ void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
             glEnable(GL_FRAGMENT_PROGRAM_ARB);
             glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, d->mask_fragment_programs[FRAGMENT_PROGRAM_MASK_ELLIPSE_AA]);
 
+            int *locations = mask_variable_locations[FRAGMENT_PROGRAM_MASK_ELLIPSE_AA];
+
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, locations[VAR_INV_MATRIX_M0], m[0]);
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, locations[VAR_INV_MATRIX_M1], m[1]);
+            glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, locations[VAR_INV_MATRIX_M2], m[2]);
+
             glEnableClientState(GL_VERTEX_ARRAY);
             glVertexPointer(2, GL_FLOAT, 0, vertexArray);
-            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-            glTexCoordPointer(4, GL_FLOAT, 0, texCoordArray);
             glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
             glDisableClientState(GL_VERTEX_ARRAY);
 
             glDisable(GL_FRAGMENT_PROGRAM_ARB);
@@ -3004,8 +2992,6 @@ void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
             qreal shrink = grow * 0.5;
 
             d->composite(boundingRect.adjusted(shrink, shrink, -shrink, -shrink));
-
-            glTexCoord4f(0.0f, 0.0f, 0.0f, 1.0f);
         }
 
         if (d->has_pen) {
