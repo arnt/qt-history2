@@ -2009,6 +2009,9 @@ void QObject::deleteLater()
     a reimplementation of this function with the subclass name as
     context.
 
+    You can set the encoding for \a sourceText by calling QTextCodec::setCodecForTr().
+    By default \a sourceText is assumed to be in Latin-1 encoding.
+
     Example:
 
     \code
@@ -2065,7 +2068,7 @@ void QObject::deleteLater()
     translators while performing translations is not supported. Doing
     so will probably result in crashes or other undesirable behavior.
 
-    \sa trUtf8(), QApplication::translate(), {Internationalization with Qt}
+    \sa trUtf8(), QApplication::translate(), QTextCodec::setCodecForTr(), {Internationalization with Qt}
 */
 
 /*!
