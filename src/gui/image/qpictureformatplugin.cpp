@@ -15,7 +15,7 @@
 #if !defined(QT_NO_LIBRARY) && !defined(QT_NO_PICTURE)
 #include "qpicture.h"
 
-/*!
+/*! \obsolete
     \class QPictureFormatPlugin
     \brief The QPictureFormatPlugin class provides an abstract base for custom picture format plugins.
 

@@ -695,7 +695,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
         case QPicturePrivate::PdcSetWMatrix:
             s >> matrix >> i_8;
             matrix.setMatrix(matrix.m11(), matrix.m12(), 0,
-                             matrix.m21(), matrix.m22(), 0, 
+                             matrix.m21(), matrix.m22(), 0,
                              matrix.dx() * painter->device()->logicalDpiX() / double(qt_defaultDpi()),
                              matrix.dy() * painter->device()->logicalDpiY() / double(qt_defaultDpi()), 1);
             // i_8 is always false due to updateXForm() in qpaintengine_pic.cpp
@@ -987,7 +987,7 @@ QDataStream &operator>>(QDataStream &s, QPicture &r)
 #include "qapplication.h"
 #include "qpictureformatplugin.h"
 
-/*!
+/*! \obsolete
     Returns a string that specifies the picture format of the file \a
     fileName, or 0 if the file cannot be read or if the format is not
     recognized.
@@ -1004,7 +1004,7 @@ const char* QPicture::pictureFormat(const QString &fileName)
     return QPictureIO::pictureFormat(fileName);
 }
 
-/*!
+/*! \obsolete
     Returns a list of picture formats that are supported for picture
     input.
 
@@ -1023,7 +1023,7 @@ static QStringList qToStringList(const QList<QByteArray> arr)
     return list;
 }
 
-/*!
+/*! \obsolete
     Returns a list of picture formats that are supported for picture
     input.
 
@@ -1042,7 +1042,7 @@ QStringList QPicture::inputFormatList()
 }
 
 
-/*!
+/*! \obsolete
     Returns a list of picture formats that are supported for picture
     output.
 
@@ -1060,7 +1060,7 @@ QStringList QPicture::outputFormatList()
     return qToStringList(QPictureIO::outputFormats());
 }
 
-/*!
+/*! \obsolete
     Returns a list of picture formats that are supported for picture
     output.
 
@@ -1075,7 +1075,7 @@ QList<QByteArray> QPicture::outputFormats()
   QPictureIO member functions
  *****************************************************************************/
 
-/*!
+/*! \obsolete
     \class QPictureIO qpicture.h
 
     \brief The QPictureIO class contains parameters for loading and
