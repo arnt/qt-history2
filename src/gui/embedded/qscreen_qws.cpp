@@ -1118,7 +1118,7 @@ Q_GUI_EXPORT QScreen* qt_get_screen(int display_id, const char *spec)
 
     This function is called by the \l {Qtopia Core} server whenever a
     screen update is required. The default implementation composes the
-    affected \c windows and paints the given \a region on screen by
+    affected \a windows and paints the given \a region on screen by
     calling the blit() and solidFill() functions
 
     Note that there is no need to call this function explicitly, but
