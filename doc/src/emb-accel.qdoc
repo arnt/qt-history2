@@ -39,6 +39,16 @@
 
     Create a custom screen by deriving from the QScreen class.
 
+    The \l {QScreen::}{connect()}, \l {QScreen::}{disconnect()}, \l
+    {QScreen::}{initDevice()} and \l {QScreen::}{shutdownDevice()}
+    functions are declared as pure virtual functions in QScreen and
+    must be implemented. These functions are used to configure the
+    hardware, or query its configuration. The \l
+    {QScreen::}{connect()} and \l {QScreen::}{disconnect()} are called
+    by both the server and client processes, while the \l
+    {QScreen::}{initDevice()} and \l {QScreen::}{shutdownDevice()}
+    functions are only called by the server process.
+
     You might want to accelerate the final copying to the screen by
     reimplementing the \l {QScreen::}{blit()} and \l
     {QScreen::}{solidFill()} functions.
