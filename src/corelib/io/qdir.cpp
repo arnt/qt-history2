@@ -1471,8 +1471,11 @@ bool QDir::exists() const
 
     if(!d->data->fileEngine)
         return false;
-    const QAbstractFileEngine::FileFlags info = d->data->fileEngine->fileFlags(QAbstractFileEngine::DirectoryType
-                                                                       |QAbstractFileEngine::ExistsFlag);
+    const QAbstractFileEngine::FileFlags info =
+        d->data->fileEngine->fileFlags(
+            QAbstractFileEngine::DirectoryType
+            | QAbstractFileEngine::ExistsFlag
+            | QAbstractFileEngine::Refresh);
     if(!(info & QAbstractFileEngine::DirectoryType))
         return false;
     return info & QAbstractFileEngine::ExistsFlag;

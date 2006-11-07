@@ -50,7 +50,7 @@ public:
         LocalDiskFlag  = 0x0200000,
         ExistsFlag     = 0x0400000,
         RootFlag       = 0x0800000,
-        // Qt 4.2: Refresh   = 0x1000000,
+        Refresh        = 0x1000000,
 
         //masks
         PermsMask  = 0x0000FFFF,

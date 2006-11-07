@@ -353,7 +353,7 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(FileFlags type) const
 {
     Q_D(const QFSFileEngine);
     // Force a stat, so that we're guaranteed to get up-to-date results
-    if (type & QAbstractFileEngine::FileFlag(0x1000000)) { // QDir::Refresh
+    if (type & QAbstractFileEngine::FileFlag(QAbstractFileEngine::Refresh)) {
         d->tried_stat = 0;
         d->need_lstat = 1;
     }
