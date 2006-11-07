@@ -104,7 +104,7 @@
     \e pressed state, then to the \e unchecked state (isChecked() and
     isDown() are both false).
 
-    QAbstractButton provides five signals:
+    QAbstractButton provides four signals:
 
     \list 1
 
@@ -117,8 +117,7 @@
     released, when the shortcut key is typed, or when click() or
     animateClick() is called.
 
-    \o toggled(bool) is emitted when the state of a toggle button
-    changes.
+    \o toggled() is emitted when the state of a toggle button changes.
 
     \endlist
 
