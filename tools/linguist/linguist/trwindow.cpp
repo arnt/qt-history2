@@ -1168,34 +1168,33 @@ bool TrWindow::setPrevContext(int *currentrow, bool checkUnfinished)
 bool TrWindow::setNextMessage(QModelIndex *currentIndex, bool checkUnfinished)
 {
     bool found = false;
-    if (currentIndex->isValid()) {
-        QModelIndex idx = *currentIndex;
-        do {
-            int row = 0;
-            QModelIndex par = idx.parent();
-            if (par.isValid()) {
-                row = idx.row() + 1;
-            } else {        //In case we are located on a top-level node
-                par = idx;
-            }
-
-            if (row >= cmdl->rowCount(par)) {
-                int toprow = par.row() + 1;
-                if (toprow >= cmdl->rowCount()) toprow = 0;
-                par = cmdl->index(toprow, 0);
-                row = 0;
-                idx = cmdl->index(row, 1, par);
-            } else {
-                idx = cmdl->index(row, 1, par);
-            }
-            found = checkUnfinished ? !cmdl->finished(idx) : true;
-            if (idx == *currentIndex) break;
-        } while(!found);
-
-        if (found) {
-            *currentIndex = idx;
-            tv->setCurrentIndex(*currentIndex);
+    Q_ASSERT(currentIndex);
+    QModelIndex idx = currentIndex->isValid() ? *currentIndex : cmdl->index(0, 0);
+    do {
+        int row = 0;
+        QModelIndex par = idx.parent();
+        if (par.isValid()) {
+            row = idx.row() + 1;
+        } else {        //In case we are located on a top-level node
+            par = idx;
         }
+
+        if (row >= cmdl->rowCount(par)) {
+            int toprow = par.row() + 1;
+            if (toprow >= cmdl->rowCount()) toprow = 0;
+            par = cmdl->index(toprow, 0);
+            row = 0;
+            idx = cmdl->index(row, 1, par);
+        } else {
+            idx = cmdl->index(row, 1, par);
+        }
+        found = checkUnfinished ? !cmdl->finished(idx) : true;
+        if (idx == *currentIndex) break;
+    } while(!found);
+
+    if (found) {
+        *currentIndex = idx;
+        tv->setCurrentIndex(*currentIndex);
     }
     return found;
 }
