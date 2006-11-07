@@ -981,6 +981,9 @@ QFileInfo::isExecutable() const
 
 /*!
     Returns true if this is a `hidden' file; otherwise returns false.
+
+    \bold{Note:} This function returns true for the special entries
+    "." and ".." on Unix, even though QDir::entryList threats them as shown.
 */
 bool
 QFileInfo::isHidden() const
