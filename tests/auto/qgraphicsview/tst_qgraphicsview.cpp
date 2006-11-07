@@ -98,6 +98,7 @@ private slots:
     void cursor2();
     void transformationAnchor();
     void resizeAnchor();
+    void acceptDrops();
 };
 
 void tst_QGraphicsView::construction()
@@ -1643,6 +1644,43 @@ void tst_QGraphicsView::resizeAnchor()
             QTest::qWait(100);
         }
     }
+}
+
+void tst_QGraphicsView::acceptDrops()
+{
+    QGraphicsView view;
+
+    // Excepted default behavior.
+    QVERIFY(view.acceptDrops());
+    QVERIFY(view.viewport()->acceptDrops());
+
+    // Excepted behavior with no drops.
+    view.setAcceptDrops(false);
+    QVERIFY(!view.acceptDrops());
+    QVERIFY(!view.viewport()->acceptDrops());
+
+    // Setting a widget with drops on a QGraphicsView without drops.
+    QWidget *widget = new QWidget;
+    widget->setAcceptDrops(true);
+    view.setViewport(widget);
+    QVERIFY(!view.acceptDrops());
+    QVERIFY(!view.viewport()->acceptDrops());
+
+    // Switching the view to accept drops.
+    view.setAcceptDrops(true);
+    QVERIFY(view.acceptDrops());
+    QVERIFY(view.viewport()->acceptDrops());
+
+    // Setting a widget with no drops on a QGraphicsView with drops.
+    widget = new QWidget;
+    widget->setAcceptDrops(false);
+    view.setViewport(widget);
+    QVERIFY(view.viewport()->acceptDrops());
+    QVERIFY(view.acceptDrops());
+
+    // Switching the view to not accept drops.
+    view.setAcceptDrops(false);
+    QVERIFY(!view.viewport()->acceptDrops());
 }
 
 QTEST_MAIN(tst_QGraphicsView)
