@@ -21,21 +21,26 @@
     \ingroup qws
 
     \brief The QScreenDriverPlugin class is an abstract base class for
-    graphics driver plugins.
+    screen driver plugins.
 
     Note that this class is only available in \l {Qtopia Core}.
 
-    QScreenDriverPlugin is a simple plugin interface that makes it easy
-    to create custom graphics drivers that can be loaded dynamically into
-    applications using the QScreenDriverFactory class.
+    \l {Qtopia Core} provides ready-made drivers for several screen
+    protocols, see the \l {Qtopia Core Display Management}{display
+    management} documentation for details. Custom mouse drivers can be
+    implemented by subclassing the QScreen class and creating a screen
+    driver plugin.
 
-    Writing a custom graphics driver plugin is achieved by subclassing
-    QScreenDriverPlugin, reimplementing the pure virtual keys() and
-    create() functions, and exporting the class using the
-    Q_EXPORT_PLUGIN2() macro. See \l{How to Create Qt Plugins} for
-    details.
+    A screen driver plugin can be created by subclassing
+    QScreenDriverPlugin and reimplementing the pure virtual keys() and
+    create() functions. By exporting the derived class using the
+    Q_EXPORT_PLUGIN2() macro, \l {Qtopia Core}'s implementation of the
+    QScreenDriverFactory class will automatically detect the plugin
+    and load the driver into the server application at runtime.  See
+    \l{How to Create Qt Plugins} for details.
 
-    \sa QScreen, QScreenDriverFactory, {Running Qtopia Core Applications}
+    \sa QScreen, QScreenDriverFactory, {Qtopia Core Display
+    Management}
 */
 
 /*!
@@ -44,17 +49,15 @@
     Returns the list of valid keys, i.e. the screen drivers supported
     by this plugin.
 
-    \l {Qtopia Core} currently supports the following drivers by
-    default: \c QVfb (\l {Qtopia Core's virtual framebuffer}), \c
-    LinuxFb (The Linux framebuffer), \c Transformed (for rotated
-    displays) and \c VNC (a \l {The VNC Protocol and Qtopia Core}{VNC}
-    server).
+    \l {Qtopia Core} provides ready-made drivers for several screen
+    protocols, see the \l {Qtopia Core Display Management}{display
+    management} documentation for details.
 
     \sa create()
 */
 
 /*!
-    Constructs a graphics driver plugin with the given \a parent.
+    Constructs a screen driver plugin with the given \a parent.
 
     Note that this constructor is invoked automatically by the
     Q_EXPORT_PLUGIN2() macro, so there is no need for calling it
@@ -66,7 +69,7 @@ QScreenDriverPlugin::QScreenDriverPlugin(QObject *parent)
 }
 
 /*!
-    Destroys this graphics driver plugin.
+    Destroys this screen driver plugin.
 
     Note that Qt destroys a plugin automatically when it is no longer
     used, so there is no need for calling the destructor explicitly.
