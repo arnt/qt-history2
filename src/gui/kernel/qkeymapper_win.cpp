@@ -405,7 +405,7 @@ static inline int toKeyOrUnicode(int vk, int scancode, unsigned char *kbdBuffer)
     QChar unicodeBuffer[5];
     int res = 0;
     if (QSysInfo::WindowsVersion < QSysInfo::WV_NT)
-        res = ToAscii(vk, scancode, kbdBuffer, reinterpret_cast<LPWSTR>(unicodeBuffer), 0);
+        res = ToAscii(vk, scancode, kbdBuffer, reinterpret_cast<LPWORD>(unicodeBuffer), 0);
     else
         res = ToUnicode(vk, scancode, kbdBuffer, reinterpret_cast<LPWSTR>(unicodeBuffer), 5, 0);
 
