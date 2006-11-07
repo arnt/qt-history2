@@ -1187,7 +1187,7 @@ bool QPrintDialogPrivate::setupPrinter()
 
     // paper format
     QVariant val = ui.cbPaperSize->itemData(ui.cbPaperSize->currentIndex());
-    int ps;
+    int ps = p->pageSize();
     if (val.type() == QVariant::Int) {
         ps = val.toInt();
     }

@@ -1416,64 +1416,64 @@ bool QPdfBaseEnginePrivate::openPrintDevice()
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
             } else if (QCUPSSupport::isAvailable()) {
 
-                QStringList cupsArgList;
+                QList<QByteArray> cupsArgList;
 
-                cupsArgList << QLatin1String("lpr");
+                cupsArgList << "lpr";
 
                 if (!printerName.isEmpty()) {
-                    cupsArgList << QLatin1String("-P");
-                    cupsArgList << printerName;
+                    cupsArgList << "-P";
+                    cupsArgList << printerName.toLocal8Bit();
                 }
 
                 if (!cupsStringPageSize.isEmpty()) {
-                    cupsArgList << QLatin1String("-o");
-                    cupsArgList << QString::fromLatin1("media=%1").arg(cupsStringPageSize);
+                    cupsArgList << "-o";
+                    cupsArgList << QByteArray("media=") + cupsStringPageSize.toLocal8Bit();
                 }
 
                 if (copies > 1) {
-                    cupsArgList << QLatin1String("-#");
-                    cupsArgList << QString::number(copies);
+                    cupsArgList << "-#";
+                    cupsArgList << QByteArray::number(copies);
                 }
 
                 if (collate) {
-                    cupsArgList << QLatin1String("-o");
-                    cupsArgList << QLatin1String("Collate=True");
+                    cupsArgList << "-o";
+                    cupsArgList << "Collate=True";
                 }
 
                 if (pageOrder == QPrinter::LastPageFirst) {
-                    cupsArgList << QLatin1String("-o");
-                    cupsArgList << QLatin1String("outputorder=reverse");
+                    cupsArgList << "-o";
+                    cupsArgList << "outputorder=reverse";
                 }
 
                 if (duplex) {
-                    cupsArgList << QLatin1String("-o");
+                    cupsArgList << "-o";
                     if (orientation == QPrinter::Portrait)
-                        cupsArgList << QLatin1String("sides=two-sided-long-edge");
+                        cupsArgList << "sides=two-sided-long-edge";
                     else
-                        cupsArgList << QLatin1String("sides=two-sided-short-edge");
+                        cupsArgList << "sides=two-sided-short-edge";
                 }
 
                 if (orientation == QPrinter::Landscape) {
-                    cupsArgList << QLatin1String("-o");
-                    cupsArgList << QLatin1String("landscape");
+                    cupsArgList << "-o";
+                    cupsArgList << "landscape";
                 }
 
                 if (!title.isEmpty()) {
-                    cupsArgList << QLatin1String("-J");
-                    cupsArgList << title;
+                    cupsArgList << "-J";
+                    cupsArgList << title.toLocal8Bit();
                 }
 
                 QStringList::const_iterator it = cupsOptions.constBegin();
                 while (it != cupsOptions.constEnd()) {
-                    cupsArgList << QLatin1String("-o");
-                    cupsArgList << QString::fromLatin1("%1=%2").arg(*it).arg(*(it+1));
+                    cupsArgList << "-o";
+                    cupsArgList << (*it).toLocal8Bit() + "=" + (*(it+1)).toLocal8Bit();
                     it += 2;
                 }
 
                 char** lprargs = new char*[cupsArgList.count() + 1];
                 int i;
                 for (i = 0; i < cupsArgList.count(); ++i) {
-                    lprargs[i] = cupsArgList.at(i).toLocal8Bit().data();
+                    lprargs[i] = cupsArgList[i].data();
                 }
                 lprargs[i] = 0;
 

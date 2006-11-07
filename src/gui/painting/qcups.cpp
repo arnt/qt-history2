@@ -233,6 +233,8 @@ void QCUPSSupport::saveOptions(QList<const ppd_option_t*> options, QList<const c
 
 QRect QCUPSSupport::paperRect(const char *choice) const
 {
+    if (!currPPD)
+        return QRect();
     for (int i = 0; i < currPPD->num_sizes; ++i) {
         if (qstrcmp(currPPD->sizes[i].name, choice) == 0)
             return QRect(0, 0, qRound(currPPD->sizes[i].width), qRound(currPPD->sizes[i].length));
@@ -242,6 +244,8 @@ QRect QCUPSSupport::paperRect(const char *choice) const
 
 QRect QCUPSSupport::pageRect(const char *choice) const
 {
+    if (!currPPD)
+        return QRect();
     for (int i = 0; i < currPPD->num_sizes; ++i) {
         if (qstrcmp(currPPD->sizes[i].name, choice) == 0)
             return QRect(qRound(currPPD->sizes[i].left),
