@@ -64,7 +64,7 @@ SOURCES += \
         unix:LIBS  += -lpng
         win32:LIBS += libpng.lib
     } else {
-        !isEqual(QT_ARCH, i386):DEFINES += PNG_NO_ASSEMBLER_CODE PNG_NO_MMX_CODE
+        !isEqual(QT_ARCH, i386):DEFINES += PNG_NO_ASSEMBLER_CODE
         INCLUDEPATH  += ../3rdparty/libpng ../3rdparty/zlib
         SOURCES	+= ../3rdparty/libpng/png.c \
     	  ../3rdparty/libpng/pngerror.c \

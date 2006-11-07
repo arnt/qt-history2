@@ -35,6 +35,10 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#else
+#ifndef __i386__ /* change this if MMX/SSE become supported on x86_64! */
+#define PNG_NO_ASSEMBLER_CODE
+#endif
 #endif
 
 /*
