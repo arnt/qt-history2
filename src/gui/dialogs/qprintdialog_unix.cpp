@@ -1146,7 +1146,11 @@ bool QPrintDialogPrivate::setupPrinter()
         QFile f(file);
         QFileInfo fi(f);
         bool exists = fi.exists();
-        if((exists && !fi.isWritable()) || !f.open(QFile::WriteOnly)) {
+        if (exists && fi.isDir()) {
+            QMessageBox::warning(q, q->windowTitle(),
+			    QPrintDialog::tr("%1 is a directory.\nPlease choose a different file name.").arg(file));
+            return false;
+        } else if ((exists && !fi.isWritable()) || !f.open(QFile::WriteOnly)) {
             QMessageBox::warning(q, q->windowTitle(),
 			    QPrintDialog::tr("File %1 is not writable.\nPlease choose a different file name.").arg(file));
             return false;
