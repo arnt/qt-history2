@@ -18,6 +18,7 @@
 #include "qiodevice_p.h"
 #include "qfile.h"
 #include "qstringlist.h"
+#include <limits.h>
 
 #ifdef QIODEVICE_DEBUG
 void debugBinaryString(const QByteArray &input)
@@ -734,7 +735,7 @@ qint64 QIODevice::read(char *data, qint64 maxSize)
     bool moreToRead = true;
     do {
         int lastReadChunkSize = 0;
-        
+
         // Try reading from the buffer.
         if (!d->buffer.isEmpty()) {
             lastReadChunkSize = d->buffer.read(data + readSoFar, maxSize - readSoFar);
