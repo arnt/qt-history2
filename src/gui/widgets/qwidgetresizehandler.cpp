@@ -234,9 +234,13 @@ void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
         mh += 2 * fw + extrahei;
     }
 
+    QSize maxsize(childWidget->maximumSize());
+    if (childWidget != widget)
+        maxsize += QSize(2 * fw, 2 * fw + extrahei);
     QSize mpsize(widget->geometry().right() - pp.x() + 1,
                   widget->geometry().bottom() - pp.y() + 1);
-    mpsize = mpsize.expandedTo(widget->minimumSize()).expandedTo(QSize(mw, mh));
+    mpsize = mpsize.expandedTo(widget->minimumSize()).expandedTo(QSize(mw, mh))
+                    .boundedTo(maxsize);
     QPoint mp(widget->geometry().right() - mpsize.width() + 1,
                widget->geometry().bottom() - mpsize.height() + 1);
 
@@ -273,10 +277,6 @@ void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
     default:
         break;
     }
-
-    QSize maxsize(childWidget->maximumSize());
-    if (childWidget != widget)
-        maxsize += QSize(2 * fw, 2 * fw + extrahei);
 
     geom = QRect(geom.topLeft(),
                   geom.size().expandedTo(widget->minimumSize())
