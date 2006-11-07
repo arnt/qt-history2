@@ -23,9 +23,47 @@ int qt_mac_pointsize(const QFontDef &def, int dpi); //qfont_mac.cpp
 static void initializeDb()
 {
     QFontDatabasePrivate *db = privateDb();
-    if (!db || db->count)
+    if(!db || db->count)
         return;
 
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+    QCFType<CTFontCollectionRef> collection = CTFontCollectionCreateFromAvailableFonts(0);
+    if(!collection)
+        return;
+    QCFType<CFArrayRef> fonts = CTFontCollectionCreateMatchingFontDescriptors(collection);
+    if(!fonts)
+        return;
+    QString foundry_name = "CoreText";
+    const int numFonts = CFArrayGetCount(fonts);
+    for(int i = 0; i < numFonts; ++i) {
+        CTFontDescriptorRef font = (CTFontDescriptorRef)CFArrayGetValueAtIndex(fonts, i);
+
+        QCFString family_name = (CFStringRef)CTFontDescriptorCopyAttribute(font, kCTFontFamilyNameAttribute);
+        QtFontFamily *family = db->family(family_name, true);
+        for(int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws)
+            family->writingSystems[ws] = QtFontFamily::Supported;
+        QtFontFoundry *foundry = family->foundry(foundry_name, true);
+
+        QtFontStyle::Key styleKey;
+        if(QCFType<CFDictionaryRef> styles = (CFDictionaryRef)CTFontDescriptorCopyAttribute(font, kCTFontStyleNameAttribute)) {
+            if(QCFType<CFNumberRef> traits = (CFNumberRef)CFDictionaryGetValue(styles, kCTFontSymbolicTrait)) {
+                int i;
+                if(CFNumberGetValue(traits, kCFNumberIntType, &i)) {
+                    styleKey.style = (bool)(i & kCTFontItalicTrait);
+                    styleKey.weight = (i & kCTFontBoldTrait) ? QFont::Bold : QFont::Normal;
+                }
+            }
+        }
+
+        QtFontStyle *style = foundry->style(styleKey, true);
+        style->smoothScalable = true;
+        if(QCFType<CFNumberRef> size = (CFNumberRef)CTFontDescriptorCopyAttribute(font, kCTFontSizeAttribute)) {
+            int i;
+            if(CFNumberGetValue(size, kCFNumberIntType, &i))
+                style->pixelSize(i, true);
+        }
+    }
+#else
     FMFontFamilyIterator it;
     QString foundry_name = "ATSUI";
     if(!FMCreateFontFamilyIterator(NULL, NULL, kFMUseGlobalScopeOption, &it)) {
@@ -44,7 +82,6 @@ static void initializeDb()
             fam_name = familyStr;
 
             QtFontFamily *family = db->family(fam_name, true);
-            // ###
             for(int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws)
                 family->writingSystems[ws] = QtFontFamily::Supported;
             QtFontFoundry *foundry = family->foundry(foundry_name, true);
@@ -65,32 +102,13 @@ static void initializeDb()
                     QtFontStyle *style = foundry->style(styleKey, true);
                     style->pixelSize(font_size, true);
                     style->smoothScalable = true;
-#if 0
-                    if(!italic) {
-                        styleKey.style = QFont::StyleOblique;
-                        style = foundry->style(styleKey, true);
-                        style->smoothScalable = true;
-                        styleKey.style = QFont::StyleNormal;
-                    }
-                    if(weight < QFont::DemiBold) {
-                        // Can make bolder
-                        styleKey.weight = QFont::Bold;
-                        if(italic) {
-                            style = foundry->style(styleKey, true);
-                            style->smoothScalable = true;
-                        } else {
-                            styleKey.style = QFont::StyleOblique;
-                            style = foundry->style(styleKey, true);
-                            style->smoothScalable = true;
-                        }
-                    }
-#endif
                 }
                 FMDisposeFontFamilyInstanceIterator(&fit);
             }
         }
         FMDisposeFontFamilyIterator(&it);
     }
+#endif
 }
 
 static inline void load(const QString & = QString(), int = -1)
@@ -101,7 +119,7 @@ static inline void load(const QString & = QString(), int = -1)
 void QFontDatabase::load(const QFontPrivate *d, int script)
 {
     // sanity checks
-    if (!QFontCache::instance)
+    if(!QFontCache::instance)
         qWarning("QFont: Must construct a QApplication before a QFont");
     Q_ASSERT(script >= 0 && script < QUnicodeTables::ScriptCount);
     Q_UNUSED(script);
@@ -126,12 +144,12 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
     req.pointSize = qRound(qt_mac_pointsize(d->request, d->dpi));
 
     QFontEngine *e = QFontCache::instance->findEngine(key);
-    if (!e && qt_enable_test_font && req.family == QLatin1String("__Qt__Box__Engine__")) {
+    if(!e && qt_enable_test_font && req.family == QLatin1String("__Qt__Box__Engine__")) {
         e = new QTestFontEngine(req.pixelSize);
         e->fontDef = req;
     }
 
-    if (e) {
+    if(e) {
         Q_ASSERT(e->type() == QFontEngine::Multi || e->type() == QFontEngine::TestFontEngine);
         e->ref.ref();
         d->engineData->engine = e;
@@ -146,7 +164,7 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
     {
 	    QStringList subs_list;
 	    QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
-	    for (; it != end; ++it)
+	    for(; it != end; ++it)
 		    subs_list += QFont::substitutes(*it);
 	    family_list += subs_list;
     }
@@ -193,7 +211,7 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
 	fontDef.pixelSize = qt_mac_pixelsize(fontDef, d->dpi);
     {
 	QCFString actualName;
-	if (ATSFontFamilyGetName(familyRef, kATSOptionFlagsDefault, &actualName) == noErr)
+	if(ATSFontFamilyGetName(familyRef, kATSOptionFlagsDefault, &actualName) == noErr)
 	    fontDef.family = actualName;
     }
 
@@ -209,52 +227,45 @@ static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)
     ATSFontContainerRef handle;
     OSStatus e;
 
-    if (fnt->data.isEmpty()) {
-        // from qglobal.cpp
-        extern Q_CORE_EXPORT OSErr qt_mac_create_fsspec(const QString &, FSSpec *);
-        FSSpec spec;
-        if (qt_mac_create_fsspec(fnt->fileName, &spec) != noErr)
+    if(fnt->data.isEmpty()) {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+        extern OSErr qt_mac_create_fsref(const QString &, FSRef *); // qglobal.cpp
+        FSRef ref;
+        if(qt_mac_create_fsref(fnt->fileName, &ref) != noErr)
             return;
 
-        e = ATSFontActivateFromFileSpecification(&spec,
-                                           kATSFontContextLocal,
-                                           kATSFontFormatUnspecified,
-                                           0,
-                                           kATSOptionFlagsDefault,
-                                           &handle);
+        ATSFontActivateFromFileReference(&ref, kATSFontContextLocal, kATSFontFormatUnspecified, 0, kATSOptionFlagsDefault, &handle);
+#else
+        extern Q_CORE_EXPORT OSErr qt_mac_create_fsspec(const QString &, FSSpec *); // global.cpp
+        FSSpec spec;
+        if(qt_mac_create_fsspec(fnt->fileName, &spec) != noErr)
+            return;
+
+        e = ATSFontActivateFromFileSpecification(&spec, kATSFontContextLocal, kATSFontFormatUnspecified,
+                                           0, kATSOptionFlagsDefault, &handle);
+#endif
     } else {
-        e = ATSFontActivateFromMemory((void *)fnt->data.constData(),
-                                           fnt->data.size(),
-                                           kATSFontContextLocal,
-                                           kATSFontFormatUnspecified,
-                                           0,
-                                           kATSOptionFlagsDefault,
-                                           &handle);
+        e = ATSFontActivateFromMemory((void *)fnt->data.constData(), fnt->data.size(), kATSFontContextLocal,
+                                           kATSFontFormatUnspecified, 0, kATSOptionFlagsDefault, &handle);
 
         fnt->data = QByteArray();
     }
 
-    if (e != noErr)
+    if(e != noErr)
         return;
 
     ItemCount fontCount = 0;
-    e = ATSFontFindFromContainer(handle, kATSOptionFlagsDefault,
-                               /*iCount=*/0,
-                               /*ioArray=*/0,
-                               &fontCount);
-    if (e != noErr)
+    e = ATSFontFindFromContainer(handle, kATSOptionFlagsDefault, 0, 0, &fontCount);
+    if(e != noErr)
         return;
 
     QVarLengthArray<ATSFontRef> containedFonts(fontCount);
-    e = ATSFontFindFromContainer(handle, kATSOptionFlagsDefault,
-                               /*iCount=*/fontCount,
-                               /*ioArray=*/containedFonts.data(),
-                               &fontCount);
-    if (e != noErr)
+    e = ATSFontFindFromContainer(handle, kATSOptionFlagsDefault, fontCount, containedFonts.data(), &fontCount);
+    if(e != noErr)
         return;
 
     fnt->families.clear();
-    for (int i = 0; i < containedFonts.size(); ++i) {
+    for(int i = 0; i < containedFonts.size(); ++i) {
         QCFString family;
         ATSFontGetName(containedFonts[i], kATSOptionFlagsDefault, &family);
         fnt->families.append(family);
@@ -266,12 +277,12 @@ static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)
 bool QFontDatabase::removeApplicationFont(int handle)
 {
     QFontDatabasePrivate *db = privateDb();
-    if (handle < 0 || handle >= db->applicationFonts.count())
+    if(handle < 0 || handle >= db->applicationFonts.count())
         return false;
 
     OSStatus e = ATSFontDeactivate(db->applicationFonts.at(handle).handle,
                                    /*iRefCon=*/0, kATSOptionFlagsDefault);
-    if (e != noErr)
+    if(e != noErr)
         return false;
 
     db->applicationFonts[handle] = QFontDatabasePrivate::ApplicationFont();
@@ -283,9 +294,10 @@ bool QFontDatabase::removeApplicationFont(int handle)
 bool QFontDatabase::removeAllApplicationFonts()
 {
     QFontDatabasePrivate *db = privateDb();
-    for (int i = 0; i < db->applicationFonts.count(); ++i)
-        if (!removeApplicationFont(i))
+    for(int i = 0; i < db->applicationFonts.count(); ++i) {
+        if(!removeApplicationFont(i))
             return false;
+    }
     return true;
 }
 
