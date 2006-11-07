@@ -287,10 +287,15 @@ static ShiftResult shift(const QBezier *orig, QBezier *shifted, qreal offset, qr
 
         QPointF normal_sum = prev_normal + next_normal;
 
-        qreal k = offset / (1.0 + prev_normal.x() * next_normal.x()
-                                + prev_normal.y() * next_normal.y());
+        qreal r = 1.0 + prev_normal.x() * next_normal.x()
+                      + prev_normal.y() * next_normal.y();
 
-        points_shifted[i] = points[i] + k * normal_sum;
+        if (qFuzzyCompare(r, 0.0)) {
+            points_shifted[i] = points[i] + offset * prev_normal;
+        } else {
+            qreal k = offset / r;
+            points_shifted[i] = points[i] + k * normal_sum;
+        }
 
         prev_normal = next_normal;
     }
