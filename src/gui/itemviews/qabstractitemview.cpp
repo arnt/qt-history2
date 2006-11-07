@@ -26,6 +26,7 @@
 #include <qtooltip.h>
 #include <qdatetime.h>
 #include <qlineedit.h>
+#include <qspinbox.h>
 #include <qitemdelegate.h>
 #include <private/qabstractitemview_p.h>
 #include <private/qabstractitemmodel_p.h>
@@ -3214,9 +3215,14 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
             delegate->setEditorData(w, index);
             addEditor(index, w);
             QWidget::setTabOrder(q, w);
+            // Special cases for some editors containing QLineEdit
 #ifndef QT_NO_LINEEDIT
             if (QLineEdit *le = ::qobject_cast<QLineEdit*>(w))
                 le->selectAll();
+#endif
+#ifndef QT_NO_SPINBOX
+            if (QSpinBox *sb = ::qobject_cast<QSpinBox*>(w))
+                sb->selectAll();
 #endif
         }
     }
