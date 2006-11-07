@@ -167,6 +167,73 @@ class TestClass : public MyNamespace::TestSuperClass, public DONT_CONFUSE_MOC(My
                 "This is a "
                 "multiline Q_CLASSINFO"
                 "")
+
+    // a really really long string that we have to cut into pieces in the generated stringdata
+    // table, otherwise msvc craps out
+    Q_CLASSINFO("D-Bus Introspection", ""
+"  <interface name=\"org.kde.KCookieServer\" >\n"
+"    <method name=\"findCookies\" >\n"
+"      <arg direction=\"in\" type=\"s\" name=\"url\" />\n"
+"      <arg direction=\"in\" type=\"x\" name=\"windowId\" />\n"
+"      <arg direction=\"out\" type=\"s\" name=\"cookies\" />\n"
+"    </method>\n"
+"    <method name=\"findDomains\" >\n"
+"      <arg direction=\"out\" type=\"as\" name=\"domains\" />\n"
+"    </method>\n"
+"    <method name=\"findCookies\" >\n"
+"      <arg direction=\"in\" type=\"ai\" name=\"fields\" />\n"
+"      <arg direction=\"in\" type=\"s\" name=\"domain\" />\n"
+"      <arg direction=\"in\" type=\"s\" name=\"fqdn\" />\n"
+"      <arg direction=\"in\" type=\"s\" name=\"path\" />\n"
+"      <arg direction=\"in\" type=\"s\" name=\"name\" />\n"
+"      <arg direction=\"out\" type=\"as\" name=\"cookies\" />\n"
+"      <annotation value=\"QList&lt;int>\" name=\"com.trolltech.QtDBus.QtTypeName.In0\" />\n"
+"    </method>\n"
+"    <method name=\"findDOMCookies\" >\n"
+"      <arg direction=\"in\" type=\"s\" name=\"url\" />\n"
+"      <arg direction=\"in\" type=\"x\" name=\"windowId\" />\n"
+"      <arg direction=\"out\" type=\"s\" name=\"cookies\" />\n"
+"    </method>\n"
+"    <method name=\"addCookies\" >\n"
+"      <arg direction=\"in\" type=\"s\" name=\"url\" />\n"
+"      <arg direction=\"in\" type=\"ay\" name=\"cookieHeader\" />\n"
+"      <arg direction=\"in\" type=\"x\" name=\"windowId\"  />\n"
+"    </method>\n"
+"    <method name=\"deleteCookie\" >\n"
+"      <arg direction=\"in\" type=\"s\" name=\"domain\" />\n"
+"      <arg direction=\"in\" type=\"s\" name=\"fqdn\" />\n"
+"      <arg direction=\"in\" type=\"s\" name=\"path\" />\n"
+"      <arg direction=\"in\" type=\"s\" name=\"name\" />\n"
+"    </method>\n"
+"    <method name=\"deleteCookiesFromDomain\" >\n"
+"      <arg direction=\"in\" type=\"s\" name=\"domain\" />\n"
+"    </method>\n"
+"    <method name=\"deleteSessionCookies\" >\n"
+"      <arg direction=\"in\" type=\"x\" name=\"windowId\" />\n"
+"    </method>\n"
+"    <method name=\"deleteSessionCookiesFor\" >\n"
+"      <arg direction=\"in\" type=\"s\" name=\"fqdn\" />\n"
+"      <arg direction=\"in\" type=\"x\" name=\"windowId\" />\n"
+"    </method>\n"
+"    <method name=\"deleteAllCookies\" />\n"
+"    <method name=\"addDOMCookies\" >\n"
+"      <arg direction=\"in\" type=\"s\" name=\"url\" />\n"
+"      <arg direction=\"in\" type=\"ay\" name=\"cookieHeader\" />\n"
+"      <arg direction=\"in\" type=\"x\" name=\"windowId\" />\n"
+"    </method>\n"
+"    <method name=\"setDomainAdvice\" >\n"
+"      <arg direction=\"in\" type=\"s\" name=\"url\" />\n"
+"      <arg direction=\"in\" type=\"s\" name=\"advice\" />\n"
+"    </method>\n"
+"    <method name=\"getDomainAdvice\" >\n"
+"      <arg direction=\"in\" type=\"s\" name=\"url\" />\n"
+"      <arg direction=\"out\" type=\"s\" name=\"advice\" />\n"
+"    </method>\n"
+"    <method name=\"reloadPolicy\" />\n"
+"    <method name=\"shutdown\" />\n"
+"  </interface>\n"
+        "")
+
 public:
     inline TestClass() {}
 
@@ -553,16 +620,12 @@ void tst_Moc::classinfoWithEscapes()
 
 void tst_Moc::trNoopInClassInfo()
 {
-#if QT_VERSION >= 0x040101
     TestClass t;
     const QMetaObject *mobj = t.metaObject();
     QVERIFY(mobj);
-    QCOMPARE(mobj->classInfoCount(), 2);
+    QCOMPARE(mobj->classInfoCount(), 3);
     QCOMPARE(mobj->indexOfClassInfo("help"), 0);
     QCOMPARE(QString(mobj->classInfo(0).value()), QString("Opening this will let you configure something"));
-#else
-    QSKIP("Fixed in >= 4.1.1", SkipAll);
-#endif
 }
 
 void tst_Moc::ppExpressionEvaluation()

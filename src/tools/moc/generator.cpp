@@ -200,7 +200,22 @@ void Generator::generateCode()
             fprintf(out, "\"\"");
             len += 2;
         }
-        fprintf(out, "%s\\0", s.constData());
+        int idx = 0;
+        while (idx < s.length()) {
+            if (idx > 0) {
+                col = 0;
+                fprintf(out, "\"\n    \"");
+            }
+            int spanLen = qMin(70, s.length() - idx);
+            // avoid lines ending with \"
+            if (s.at(idx + spanLen - 1) == '\\' && spanLen < s.length())
+                ++spanLen;
+            fwrite(s.constData() + idx, 1, spanLen, out);
+            idx += spanLen;
+            col += spanLen;
+        }
+
+        fputs("\\0", out);
         col += len + 2;
     }
     fprintf(out, "\"\n};\n\n");
