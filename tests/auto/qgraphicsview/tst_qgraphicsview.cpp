@@ -372,6 +372,14 @@ void tst_QGraphicsView::setSceneRect()
     scene.setSceneRect(rect1);
     QCOMPARE(scene.sceneRect(), rect1);
     QCOMPARE(view.sceneRect(), rect2);
+
+    // extreme transformations will max out the scrollbars' ranges.
+    view.setSceneRect(-2000000, -2000000, 4000000, 4000000);
+    view.scale(9000, 9000);
+    QCOMPARE(view.horizontalScrollBar()->minimum(), INT_MIN);
+    QCOMPARE(view.horizontalScrollBar()->maximum(), INT_MAX);
+    QCOMPARE(view.verticalScrollBar()->minimum(), INT_MIN);
+    QCOMPARE(view.verticalScrollBar()->maximum(), INT_MAX);
 }
 
 void tst_QGraphicsView::viewport()
