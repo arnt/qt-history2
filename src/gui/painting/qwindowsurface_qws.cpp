@@ -295,10 +295,11 @@ void QWSWindowSurface::setClipRegion(const QRegion &clip)
         return;
 
     QRegion expose = (clip - d_ptr->clip);
+    QRegion dirtyExpose;
     d_ptr->clip = clip;
 
     if (isBuffered()) {
-        expose &= d_ptr->clippedDirty;
+        dirtyExpose = expose & d_ptr->clippedDirty;
         d_ptr->clippedDirty -= expose;
     }
 #ifndef QT_NO_QWS_MANAGER
@@ -315,8 +316,14 @@ void QWSWindowSurface::setClipRegion(const QRegion &clip)
     }
 #endif
 
-    if (window() && !expose.isEmpty())
-        window()->d_func()->invalidateBuffer(expose);
+    if (!window())
+        return;
+    if (!dirtyExpose.isEmpty()) {
+        d_ptr->dirty += expose;
+        window()->d_func()->invalidateBuffer(dirtyExpose);
+    } else if (!expose.isEmpty()) {
+        flush(window(), expose, QPoint());
+    }
 }
 
 /*!

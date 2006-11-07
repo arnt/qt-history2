@@ -3380,6 +3380,7 @@ void QETWidget::translateEmbedEvent(const QWSEmbedEvent *event)
     if (event->simpleData.type | QWSEmbedEvent::Region) {
         const QRegion region = event->region;
         setGeometry(region.boundingRect());
+        setVisible(!region.isEmpty());
     }
 }
 #endif // QT_NO_QWSEMBEDWIDGET
