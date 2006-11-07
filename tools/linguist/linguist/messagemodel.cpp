@@ -415,7 +415,11 @@ void MessageModel::sort(int column, Qt::SortOrder order)
     sortColumn = sSortColumn = column;
 
     qSort(cntxtList.begin(), cntxtList.end(), MessageModel::compare);
-    emit dataChanged(index(0,0), index(cntxtList.count()-1, 2));
+    //foreach(ContextItem *c, cmdl->contextList()) {
+    //    c->sortMessages(1, Qt::AscendingOrder);
+    //}
+
+    reset();
 }
 
 bool MessageModel::compare(const ContextItem *left, const ContextItem *right)
@@ -427,9 +431,14 @@ bool MessageModel::compare(const ContextItem *left, const ContextItem *right)
     switch (sSortColumn)
     {
     case 0: {
-        nleft =  (100 * left->finishedCount())/left->messageItemsInList();      //percent
-        nright = (100 * right->finishedCount())/right->messageItemsInList();    //percent
+        int totalItemsL = left->messageItemsInList() - left->obsolete();
+        nleft = totalItemsL ? (100 * left->finishedCount())/totalItemsL : 100; //percent
+        int totalItemsR = right->messageItemsInList() - right->obsolete();
+        nright = totalItemsR ? (100 * right->finishedCount())/totalItemsR : 100; //percent
 
+        if (nleft == 0 && nright == 0) {
+            nleft = totalItemsL > totalItemsR ? -1 : 1;
+        }
         if ((sortOrder == Qt::AscendingOrder) ? (nleft < nright) : (nleft > nright))
             return true;
         break; }
@@ -501,6 +510,27 @@ MessageItem *MessageModel::messageItem(int context, int message) const
     return 0;
 }
 
+MessageItem *MessageModel::findMessage(const char *context, const char *sourcetext, const char *comment /*= 0*/) const
+{
+    for (int c = 0; c < cntxtList.count(); ++c) {
+        ContextItem *ctx = cntxtList.at(c);
+        if (ctx->context() == QLatin1String(context)) {
+            QList<MessageItem*> items = ctx->messageItemList();
+            for (int i = 0; i < items.count(); ++i) {
+                MessageItem *mi = items.at(i);
+                if (mi->sourceText() == QLatin1String(sourcetext)) {
+                    if (comment) {
+                        if (mi->comment() != QLatin1String(comment)) continue;
+                    }
+                    return mi;
+                }
+            }
+            break;
+        }
+    }
+    return 0;
+}
+
 bool MessageModel::findMessage(int *contextNo, int *itemNo, const QString &findText, int findWhere, 
     bool matchSubstring, Qt::CaseSensitivity cs)
 {
@@ -530,7 +560,7 @@ bool MessageModel::findMessage(int *contextNo, int *itemNo, const QString &findT
                     searchText = m->translation();
                     break;
                 case Comments:
-                    searchText = c->fullContext();
+                    searchText = m->comment();
                     break;
             }
             if (matchSubstring) {
@@ -752,27 +782,6 @@ void MessageModel::updateStatistics()
     }
 
     emit statsChanged(m_srcWords, m_srcChars, m_srcCharsSpc, trW, trC, trCS);
-}
-
-MessageItem *MessageModel::findMessage(const char *context, const char *sourcetext, const char *comment /*= 0*/) const
-{
-    for (int c = 0; c < cntxtList.count(); ++c) {
-        ContextItem *ctx = cntxtList.at(c);
-        if (ctx->context() == QLatin1String(context)) {
-            QList<MessageItem*> items = ctx->messageItemList();
-            for (int i = 0; i < items.count(); ++i) {
-                MessageItem *mi = items.at(i);
-                if (mi->sourceText() == QLatin1String(sourcetext)) {
-                    if (comment) {
-                        if (mi->comment() != QLatin1String(comment)) continue;
-                    }
-                    return mi;
-                }
-            }
-            break;
-        }
-    }
-    return 0;
 }
 
 QTranslator *MessageModel::translator()

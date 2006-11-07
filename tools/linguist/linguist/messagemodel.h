@@ -226,6 +226,7 @@ public:
     inline int contextsInList() const {return cntxtList.count();}
     bool findMessage(int *contextNo, int *itemNo, const QString &findItem, int where, 
         bool matchSubstring, Qt::CaseSensitivity cs = Qt::CaseSensitive);
+    MessageItem *findMessage(const char *context, const char *sourcetext, const char *comment = 0) const;
 
     ContextItem *createContextItem(const QString &c)
     {
@@ -278,7 +279,6 @@ public:
                     Translator::SaveMode mode = Translator::Stripped );
     
     QTranslator *translator();
-    MessageItem *findMessage(const char *context, const char *sourcetext, const char *comment = 0) const;
 
     QLocale::Language language() const;
     void setLanguage(QLocale::Language lang);
