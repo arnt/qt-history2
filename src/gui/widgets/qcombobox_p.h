@@ -158,6 +158,7 @@ public:
     int spacing() const;
 
     QTimer blockMouseReleaseTimer;
+    QBasicTimer adjustSizeTimer;
     QPoint initialClickPosition;
 
 public Q_SLOTS:
@@ -173,6 +174,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *e);
     void showEvent(QShowEvent *e);
     void hideEvent(QHideEvent *e);
+    void timerEvent(QTimerEvent *timerEvent);
     QStyleOptionComboBox comboStyleOption() const;
 
 Q_SIGNALS:
@@ -245,6 +247,7 @@ public:
     QStyle::SubControl newHoverControl(const QPoint &pos);
     int computeWidthHint() const;
     QSize recomputeSizeHint(QSize &sh) const;
+    void adjustComboBoxSize();
     QString itemText(const QModelIndex &index) const;
     int itemRole() const;
 

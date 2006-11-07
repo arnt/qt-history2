@@ -246,6 +246,22 @@ QSize QComboBoxPrivate::recomputeSizeHint(QSize &sh) const
     return sh.expandedTo(QApplication::globalStrut());
 }
 
+void QComboBoxPrivate::adjustComboBoxSize()
+{
+    viewContainer()->adjustSizeTimer.start(20, container);
+}
+
+void QComboBoxPrivateContainer::timerEvent(QTimerEvent *timerEvent)
+{
+    if (timerEvent->timerId() == adjustSizeTimer.timerId()) {
+        adjustSizeTimer.stop();
+        if (combo->sizeAdjustPolicy() == QComboBox::AdjustToContents) {
+            combo->adjustSize();
+            combo->update();
+        }
+    }
+}
+
 QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView, QComboBox *parent)
     : QFrame(parent, Qt::Popup), combo(parent), view(0), top(0), bottom(0)
 {
@@ -779,6 +795,7 @@ void QComboBoxPrivate::_q_dataChanged(const QModelIndex &topLeft, const QModelIn
 
     if (sizeAdjustPolicy == QComboBox::AdjustToContents) {
         sizeHint = QSize();
+        adjustComboBoxSize();
         q->updateGeometry();
     }
 
@@ -809,6 +826,7 @@ void QComboBoxPrivate::_q_rowsInserted(const QModelIndex &parent, int start, int
 
     if (sizeAdjustPolicy == QComboBox::AdjustToContents) {
         sizeHint = QSize();
+        adjustComboBoxSize();
         q->updateGeometry();
     }
 
@@ -842,6 +860,7 @@ void QComboBoxPrivate::_q_rowsRemoved(const QModelIndex &parent, int /*start*/, 
 
     if (sizeAdjustPolicy == QComboBox::AdjustToContents) {
         sizeHint = QSize();
+        adjustComboBoxSize();
         q->updateGeometry();
     }
 
@@ -1280,6 +1299,7 @@ void QComboBox::setSizeAdjustPolicy(QComboBox::SizeAdjustPolicy policy)
 
     d->sizeAdjustPolicy = policy;
     d->sizeHint = QSize();
+    d->adjustComboBoxSize();
     updateGeometry();
 }
 
@@ -1312,6 +1332,7 @@ void QComboBox::setMinimumContentsLength(int characters)
             || d->sizeAdjustPolicy == AdjustToMinimumContentsLength
             || d->sizeAdjustPolicy == AdjustToMinimumContentsLengthWithIcon) {
         d->sizeHint = QSize();
+        d->adjustComboBoxSize();
         updateGeometry();
     }
 }
@@ -1781,7 +1802,7 @@ void QComboBox::insertItem(int index, const QIcon &icon, const QString &text, co
     new items are prepended to the list of existing items.
 
     \sa insertItem()
-*/
+    */
 void QComboBox::insertItems(int index, const QStringList &list)
 {
     Q_D(QComboBox);
