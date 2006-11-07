@@ -25,6 +25,7 @@
 #include <qwindowsstyle.h>
 #include <qinputcontext.h>
 #include <private/qstylesheetstyle_p.h>
+#include <QDesktopWidget>
 
 // I *MUST* have QtTest afterwards or this test won't work with newer headers
 #if defined(Q_WS_MAC)
@@ -130,6 +131,10 @@ private slots:
     void setFixedSize();
 
     void winId();
+
+    // tests QWidget::setGeometry() on windows only
+    void setWindowGeometry_data();
+    void setWindowGeometry();
 
 #ifdef Q_WS_WIN
     void getDC();
@@ -2783,6 +2788,76 @@ void tst_QWidget::winId()
     winId3 = w3->winId();
 
     delete parent;
+}
+
+void tst_QWidget::setWindowGeometry_data()
+{
+    QTest::addColumn<QRect>("rect");
+    QTest::addColumn<int>("windowFlags");
+
+    QList<QRect> rects;
+    rects << QRect(100, 100, 200, 200)
+          << QApplication::desktop()->availableGeometry().adjusted(50, 50, -50, -50);
+
+    QList<int> windowFlags;
+    windowFlags << 0
+                << Qt::FramelessWindowHint;
+
+    foreach (QRect rect, rects) {
+        foreach (int windowFlag, windowFlags) {
+            QTest::newRow(QString("%1,%2 %3x%4, flags %5")
+                          .arg(rect.x())
+                          .arg(rect.y())
+                          .arg(rect.width())
+                          .arg(rect.height())
+                          .arg(windowFlag, 0, 16))
+                << rect
+                << windowFlag;
+        }
+    }
+}
+
+void tst_QWidget::setWindowGeometry()
+{
+    QFETCH(QRect, rect);
+    QFETCH(int, windowFlags);
+
+    {
+        // test setGeometry() without actually showing the window
+        QWidget widget;
+        if (windowFlags != 0)
+            widget.setWindowFlags(Qt::WindowFlags(windowFlags));
+        widget.setGeometry(rect);
+        QApplication::processEvents();
+        QCOMPARE(widget.geometry(), rect);
+    }
+
+    {
+        // setGeometry() first, then show()
+        QWidget widget;
+        if (windowFlags != 0)
+            widget.setWindowFlags(Qt::WindowFlags(windowFlags));
+        widget.setGeometry(rect);
+        widget.show();
+#ifdef Q_WS_X11
+        qt_x11_wait_for_window_manager(&widget);
+#endif
+        QCOMPARE(widget.geometry(), rect);
+    }
+
+    {
+        // show() first, then setGeometry()
+        QWidget widget;
+        if (windowFlags != 0)
+            widget.setWindowFlags(Qt::WindowFlags(windowFlags));
+        widget.show();
+#ifdef Q_WS_X11
+        qt_x11_wait_for_window_manager(&widget);
+#endif
+        widget.setGeometry(rect);
+        QApplication::processEvents();
+        QCOMPARE(widget.geometry(), rect);
+    }
 }
 
 #ifdef Q_WS_WIN
