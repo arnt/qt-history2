@@ -111,6 +111,8 @@ public:
               int port,
               const QString& connOpts);
 
+    QString escapeIdentifier(const QString &identifier, IdentifierType type) const;
+
 protected:
     bool beginTransaction();
     bool commitTransaction();

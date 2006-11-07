@@ -73,7 +73,7 @@ tst_QSqlTableModel::~tst_QSqlTableModel()
 
 static bool testWhiteSpaceNames(const QString &name)
 {
-    return name.startsWith("QPSQL");
+    return name.startsWith("QPSQL") || name.startsWith("QODBC");
 }
 
 void tst_QSqlTableModel::dropTestTables()
