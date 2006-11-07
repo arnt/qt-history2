@@ -1105,10 +1105,9 @@ bool QFtpPI::startNextCmd()
     // should try the extended transfer connection commands EPRT and
     // EPSV. The PORT command also triggers setting up a listener, and
     // the address/port arguments are edited in.
+    QHostAddress address = commandSocket.localAddress();
     if (currentCmd.startsWith(QLatin1String("PORT"))) {
-        QHostAddress address = commandSocket.localAddress();
-
-        if (transferConnectionExtended) {
+        if ((address.protocol() == QTcpSocket::IPv6Protocol) && transferConnectionExtended) {
             int port = dtp.setupListener(address);
             currentCmd = QLatin1String("EPRT |");
             currentCmd += (address.protocol() == QTcpSocket::IPv4Protocol) ? QLatin1Char('1') : QLatin1Char('2');
@@ -1135,7 +1134,7 @@ bool QFtpPI::startNextCmd()
 
         currentCmd += QLatin1String("\r\n");
     } else if (currentCmd.startsWith(QLatin1String("PASV"))) {
-        if (transferConnectionExtended)
+        if ((address.protocol() == QTcpSocket::IPv6Protocol) && transferConnectionExtended)
             currentCmd = QLatin1String("EPSV\r\n");
     }
 
