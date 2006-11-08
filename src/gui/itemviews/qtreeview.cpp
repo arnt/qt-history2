@@ -400,6 +400,8 @@ int QTreeView::columnWidth(int column) const
 }
 
 /*!
+  \since 4.2
+
   Sets the width of the given \a column to the \a width specified.
 
   \sa columnWidth(), resizeColumnToContents()
