@@ -220,12 +220,19 @@
     control over the reserved region, i.e., the screen driver will
     never modify the given region.
 
+
     To draw on a region reserved by a QDirectPainter instance, the
-    application must get hold of a pointer to the framebuffer. This
-    can be done by quering the screen driver: The current screen
-    driver can always be identified using the static
-    QScreen::instance() function, and the QScreen::base() function
-    returns a pointer to the beginning of the framebuffer.
+    application must get hold of a pointer to the framebuffer. In
+    general, a pointer to the framebuffer can be retrieved using the
+    QDirectPainter::frameBuffer() function. But note that if the
+    current screen has subscreens, you must query the screen driver
+    instead to identify the correct subscreen. A pointer to the
+    current screen driver can always be retrieved using the static
+    QScreen::instance() function. Then use QScreen's \l
+    {QScreen::}{subScreenIndexAt()} and \l {QScreen::}{subScreens()}
+    functions to access the correct subscreen, and the subscreen's \l
+    {QScreen::}{base()} function to retrieve a pointer to the
+    framebuffer.
 
     \endtable
 
