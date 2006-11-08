@@ -608,7 +608,16 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
     const QSize layoutSize(textRect.width(), int(textLayoutSize.height()));
     const QRect layoutRect = QStyle::alignedRect(option.direction, option.displayAlignment,
                                                   layoutSize, textRect);
-    d->textLayout.draw(painter, layoutRect.topLeft(), QVector<QTextLayout::FormatRange>(), layoutRect);
+    // if we still overflow even after eliding the text, enable clipping
+    if (!hasClipping() && (textRect.width() < textLayoutSize.width()
+                           || textRect.height() < textLayoutSize.height())) {
+        painter->save();
+        painter->setClipRect(layoutRect);
+        d->textLayout.draw(painter, layoutRect.topLeft(), QVector<QTextLayout::FormatRange>(), layoutRect);
+        painter->restore();
+    } else {
+        d->textLayout.draw(painter, layoutRect.topLeft(), QVector<QTextLayout::FormatRange>(), layoutRect);
+    }
 }
 
 /*!
