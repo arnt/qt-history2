@@ -371,7 +371,9 @@ public:
     int readBufferOffset;
     qint64 readBufferStartDevicePos;
     QString endOfBufferState;
+#ifndef QT_NO_TEXTCODEC
     QTextCodec::ConverterState readBufferStartReadConverterState;
+#endif
     QString readBufferStartEndOfBufferState;
 
     // streaming parameters
@@ -775,7 +777,9 @@ inline void QTextStreamPrivate::consume(int size)
             readBufferOffset = 0;
             readBuffer.clear();
             readBufferStartDevicePos = device->pos();
+#ifndef QT_NO_TEXTCODEC
             copyConverterState(&readBufferStartReadConverterState, &readConverterState);
+#endif
             readBufferStartEndOfBufferState = endOfBufferState;
         }
     }
@@ -1128,10 +1132,14 @@ qint64 QTextStream::pos() const
 
         // Restore the codec converter state and end state to the read buffer
         // start state.
+#ifndef QT_NO_TEXTCODEC
         ::copyConverterState(&thatd->readConverterState, &d->readBufferStartReadConverterState);
+#endif
         thatd->endOfBufferState = d->readBufferStartEndOfBufferState;
+#ifndef QT_NO_TEXTCODEC
         if (d->readBufferStartDevicePos == 0)
             thatd->autoDetectUnicode = true;
+#endif
 
         // Rewind the device to get to the current position Ensure that
         // readBufferOffset is unaffected by fillReadBuffer()
