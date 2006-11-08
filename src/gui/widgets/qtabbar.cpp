@@ -242,9 +242,11 @@ void QTabBarPrivate::init()
 {
     Q_Q(QTabBar);
     leftB = new QToolButton(q);
+    leftB->setAutoRepeat(true);
     QObject::connect(leftB, SIGNAL(clicked()), q, SLOT(_q_scrollTabs()));
     leftB->hide();
     rightB = new QToolButton(q);
+    rightB->setAutoRepeat(true);
     QObject::connect(rightB, SIGNAL(clicked()), q, SLOT(_q_scrollTabs()));
     rightB->hide();
 #ifdef QT_KEYPAD_NAVIGATION
