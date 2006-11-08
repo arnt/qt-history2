@@ -1711,7 +1711,7 @@ void QAbstractItemView::focusInEvent(QFocusEvent *event)
 {
     Q_D(QAbstractItemView);
     QAbstractScrollArea::focusInEvent(event);
-    if (selectionModel() && !d->currentIndexSet) {
+    if (selectionModel() && !d->currentIndexSet && !currentIndex().isValid()) {
         selectionModel()->setCurrentIndex(
             moveCursor(MoveNext, Qt::NoModifier), // first visible index
             QItemSelectionModel::NoUpdate);
