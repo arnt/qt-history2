@@ -75,9 +75,9 @@ struct WriteInitialization : public TreeWalker
     void acceptImage(DomImage *image);
 
 private:
-    static QString domColor2QString(DomColor *c);
+    static QString domColor2QString(const DomColor *c);
 
-    QString pixCall(DomProperty *prop) const;
+    QString pixCall(const DomProperty *prop) const;
     QString trCall(const QString &str, const QString &comment = QString()) const;
     QString trCall(DomString *str) const;
 
@@ -119,10 +119,10 @@ private:
     bool isValidObject(const QString &name) const;
 
 private:
-    Uic *uic;
-    Driver *driver;
-    QTextStream &output;
-    const Option &option;
+    const Uic *m_uic;
+    Driver *m_driver;
+    QTextStream &m_output;
+    const Option &m_option;
     bool m_stdsetdef;
 
     struct Buddy
