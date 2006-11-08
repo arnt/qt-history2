@@ -15,13 +15,33 @@
 #include <qdebug.h>
 #include <qline.h>
 #include <qpolygon.h>
+#include <qvector.h>
+#include <qlist.h>
 
 #include <private/qnumeric_p.h>
 #include <private/qmath_p.h>
+
+//#define QDEBUG_BEZIER
+
+#ifdef FLOAT_ACCURACY
+#define INV_EPS (1L<<23)
+#else
+/* The value of 1.0 / (1L<<14) is enough for most applications */
+#define INV_EPS (1L<<14)
+#endif
+
+#define log2(x) (log(x)/log(2.))
+
+static inline double log4(double x)
+{
+    return 0.5 * log2(x);
+}
+
 /*!
   \internal
 */
-QBezier QBezier::fromPoints(const QPointF &p1, const QPointF &p2, const QPointF &p3, const QPointF &p4)
+QBezier QBezier::fromPoints(const QPointF &p1, const QPointF &p2,
+                              const QPointF &p3, const QPointF &p4)
 {
     QBezier b;
     b.x1 = p1.x();
@@ -288,7 +308,7 @@ static ShiftResult shift(const QBezier *orig, QBezier *shifted, qreal offset, qr
         QPointF normal_sum = prev_normal + next_normal;
 
         qreal r = 1.0 + prev_normal.x() * next_normal.x()
-                      + prev_normal.y() * next_normal.y();
+                  + prev_normal.y() * next_normal.y();
 
         if (qFuzzyCompare(r, (qreal)0.0)) {
             points_shifted[i] = points[i] + offset * prev_normal;
@@ -423,4 +443,366 @@ give_up:
 
     Q_ASSERT(o - curveSegments <= maxSegments);
     return o - curveSegments;
+}
+
+#if 0
+static inline bool IntersectBB(const QBezier &a, const QBezier &b)
+{
+    return a.bounds().intersects(b.bounds());
+}
+#else
+int IntersectBB(const QBezier &a, const QBezier &b)
+{
+    // Compute bounding box for a
+    double minax, maxax, minay, maxay;
+    if (a.x1 > a.x4)	 // These are the most likely to be extremal
+	minax = a.x4, maxax = a.x1;
+    else
+	minax = a.x1, maxax = a.x4;
+
+    if (a.x3 < minax)
+	minax = a.x3;
+    else if (a.x3 > maxax)
+	maxax = a.x3;
+
+    if (a.x2 < minax)
+	minax = a.x2;
+    else if (a.x2 > maxax)
+	maxax = a.x2;
+
+    if (a.y1 > a.y4)
+	minay = a.y4, maxay = a.y1;
+    else
+	minay = a.y1, maxay = a.y4;
+
+    if (a.y3 < minay)
+	minay = a.y3;
+    else if (a.y3 > maxay)
+	maxay = a.y3;
+
+    if (a.y2 < minay)
+	minay = a.y2;
+    else if (a.y2 > maxay)
+	maxay = a.y2;
+
+    // Compute bounding box for b
+    double minbx, maxbx, minby, maxby;
+    if (b.x1 > b.x4)
+	minbx = b.x4, maxbx = b.x1;
+    else
+	minbx = b.x1, maxbx = b.x4;
+
+    if (b.x3 < minbx)
+	minbx = b.x3;
+    else if (b.x3 > maxbx)
+	maxbx = b.x3;
+
+    if (b.x2 < minbx)
+	minbx = b.x2;
+    else if (b.x2 > maxbx)
+	maxbx = b.x2;
+
+    if (b.y1 > b.y4)
+	minby = b.y4, maxby = b.y1;
+    else
+	minby = b.y1, maxby = b.y4;
+
+    if (b.y3 < minby)
+	minby = b.y3;
+    else if (b.y3 > maxby)
+	maxby = b.y3;
+
+    if (b.y2 < minby)
+	minby = b.y2;
+    else if (b.y2 > maxby)
+	maxby = b.y2;
+
+    // Test bounding box of b against bounding box of a
+    if ((minax > maxbx) || (minay > maxby)  // Not >= : need boundary case
+	|| (minbx > maxax) || (minby > maxay))
+	return 0; // they don't intersect
+    else
+	return 1; // they intersect
+}
+#endif
+
+
+static QDebug operator<<(QDebug dbg, const QBezier &bz)
+{
+    dbg <<"["<<bz.x1<<", "<<bz.y1<<"], "
+        <<"["<<bz.x2<<", "<<bz.y2<<"], "
+        <<"["<<bz.x3<<", "<<bz.y3<<"], "
+        <<"["<<bz.x4<<", "<<bz.y4<<"]";
+    return dbg;
+}
+
+void RecursivelyIntersect(const QBezier &a, double t0, double t1, int deptha,
+			  const QBezier &b, double u0, double u1, int depthb,
+                          QVector< QList<qreal> > &parameters)
+{
+#ifdef QDEBUG_BEZIER
+    static int I = 0;
+    int currentD = I;
+    fprintf(stderr, "%d) t0 = %lf, t1 = %lf, deptha = %d\n"
+            "u0 = %lf, u1 = %lf, depthb = %d\n", I++, t0, t1, deptha,
+            u0, u1, depthb);
+#endif
+    if (deptha > 0) {
+	QBezier A[2];
+        a.split(&A[0], &A[1]);
+	double tmid = (t0+t1)*0.5;
+        //qDebug()<<"\t1)"<<A[0];
+        //qDebug()<<"\t2)"<<A[1];
+	deptha--;
+	if (depthb > 0) {
+	    QBezier B[2];
+            b.split(&B[0], &B[1]);
+            //qDebug()<<"\t3)"<<B[0];
+            //qDebug()<<"\t4)"<<B[1];
+	    double umid = (u0+u1)*0.5;
+	    depthb--;
+	    if (IntersectBB(A[0], B[0])) {
+                //fprintf(stderr, "\t 1 from %d\n", currentD);
+		RecursivelyIntersect(A[0], t0, tmid, deptha,
+				     B[0], u0, umid, depthb,
+				     parameters);
+            }
+	    if (IntersectBB(A[1], B[0])) {
+                //fprintf(stderr, "\t 2 from %d\n", currentD);
+		RecursivelyIntersect(A[1], tmid, t1, deptha,
+                                     B[0], u0, umid, depthb,
+                                     parameters);
+            }
+	    if (IntersectBB(A[0], B[1])) {
+                //fprintf(stderr, "\t 3 from %d\n", currentD);
+		RecursivelyIntersect(A[0], t0, tmid, deptha,
+                                     B[1], umid, u1, depthb,
+                                     parameters);
+            }
+	    if (IntersectBB(A[1], B[1])) {
+                //fprintf(stderr, "\t 4 from %d\n", currentD);
+		RecursivelyIntersect(A[1], tmid, t1, deptha,
+				     B[1], umid, u1, depthb,
+				     parameters);
+            }
+        } else {
+	    if (IntersectBB(A[0], b)) {
+                //fprintf(stderr, "\t 5 from %d\n", currentD);
+		RecursivelyIntersect(A[0], t0, tmid, deptha,
+				     b, u0, u1, depthb,
+				     parameters);
+            }
+	    if (IntersectBB(A[1], b)) {
+                //fprintf(stderr, "\t 6 from %d\n", currentD);
+		RecursivelyIntersect(A[1], tmid, t1, deptha,
+                                     b, u0, u1, depthb,
+                                     parameters);
+            }
+        }
+    } else {
+	if (depthb > 0) {
+	    QBezier B[2];
+            b.split(&B[0], &B[1]);
+	    double umid = (u0 + u1)*0.5;
+	    depthb--;
+	    if (IntersectBB(a, B[0])) {
+                //fprintf(stderr, "\t 7 from %d\n", currentD);
+		RecursivelyIntersect(a, t0, t1, deptha,
+                                     B[0], u0, umid, depthb,
+                                     parameters);
+            }
+	    if (IntersectBB(a, B[1])) {
+                //fprintf(stderr, "\t 8 from %d\n", currentD);
+		RecursivelyIntersect(a, t0, t1, deptha,
+                                     B[1], umid, u1, depthb,
+                                     parameters);
+            }
+        }
+	else {
+            // Both segments are fully subdivided; now do line segments
+	    double xlk = a.x4 - a.x1;
+	    double ylk = a.y4 - a.y1;
+	    double xnm = b.x4 - b.x1;
+	    double ynm = b.y4 - b.y1;
+	    double xmk = b.x1 - a.x1;
+	    double ymk = b.y1 - a.y1;
+	    double det = xnm * ylk - ynm * xlk;
+	    if (1.0 + det == 1.0) {
+		return;
+            } else {
+		double detinv = 1.0 / det;
+		double s = (xnm * ymk - ynm *xmk) * detinv;
+		double t = (xlk * ymk - ylk * xmk) * detinv;
+		if ((s < 0.0) || (s > 1.0) || (t < 0.0) || (t > 1.0))
+		    return;
+		parameters[0].append(t0 + s * (t1 - t0));
+                parameters[1].append(u0 + t * (u1 - u0));
+            }
+        }
+    }
+}
+
+QVector< QList<qreal> > QBezier::findIntersections(const QBezier &a, const QBezier &b)
+{
+    QVector< QList<qreal> > parameters(2);
+    if (IntersectBB(a, b)) {
+        QPointF la1(fabs((a.x3 - a.x2) - (a.x2 - a.x1)),
+                    fabs((a.y3 - a.y2) - (a.y2 - a.y1)));
+	QPointF la2(fabs((a.x4 - a.x3) - (a.x3 - a.x2)),
+                    fabs((a.y4 - a.y3) - (a.y3 - a.y2)));
+	QPointF la;
+	if (la1.x() > la2.x()) la.setX(la1.x()); else la.setX(la2.x());
+	if (la1.y() > la2.y()) la.setY(la1.y()); else la.setY(la2.y());
+	QPointF lb1(fabs((b.x3 - b.x2) - (b.x2 - b.x1)),
+                    fabs((b.y3 - b.y2) - (b.y2 - b.y1)));
+	QPointF lb2(fabs((b.x4 - b.x3) - (b.x3 - b.x2)),
+                    fabs((b.y4 - b.y3) - (b.y3 - b.y2)));
+	QPointF lb;
+	if (lb1.x() > lb2.x()) lb.setX(lb1.x()); else lb.setX(lb2.x());
+	if (lb1.y() > lb2.y()) lb.setY(lb1.y()); else lb.setY(lb2.y());
+	double l0;
+	if (la.x() > la.y())
+	    l0 = la.x();
+	else
+	    l0 = la.y();
+	int ra;
+	if (l0 * 0.75 * M_SQRT2 + 1.0 == 1.0)
+	    ra = 0;
+	else
+	    ra = (int)ceil(log4(M_SQRT2 * 6.0 / 8.0 * INV_EPS * l0));
+	if (lb.x() > lb.y())
+	    l0 = lb.x();
+	else
+	    l0 = lb.y();
+	int rb;
+	if (l0 * 0.75 * M_SQRT2 + 1.0 == 1.0)
+	    rb = 0;
+	else
+	    rb = (int)ceil(log4(M_SQRT2 * 6.0 / 8.0 * INV_EPS * l0));
+
+	RecursivelyIntersect(a, 0., 1., ra, b, 0., 1., rb, parameters);
+    }
+
+    qSort(parameters[0].begin(), parameters[0].end(), qLess<qreal>());
+    qSort(parameters[1].begin(), parameters[1].end(), qLess<qreal>());
+
+    return parameters;
+}
+
+void QBezier::parameterSplitLeft(double t, QBezier *left)
+{
+    left->x1 = x1;
+    left->y1 = y1;
+
+    left->x2 = x1 + t * ( x2 - x1 );
+    left->y2 = y1 + t * ( y2 - y1 );
+
+    left->x3 = x2 + t * ( x3 - x2 ); // temporary holding spot
+    left->y3 = y2 + t * ( y3 - y2 ); // temporary holding spot
+
+    x3 = x3 + t * ( x4 - x3 );
+    y3 = y3 + t * ( y4 - y3 );
+
+    x2 = left->x3 + t * ( x3 - left->x3);
+    y2 = left->y3 + t * ( y3 - left->y3);
+
+    left->x3 = left->x2 + t * ( left->x3 - left->x2 );
+    left->y3 = left->y2 + t * ( left->y3 - left->y2 );
+
+    left->x4 = x1 = left->x3 + t * (x2 - left->x3);
+    left->y4 = y1 = left->y3 + t * (y2 - left->y3);
+}
+
+QVector< QList<QBezier> > QBezier::splitAtIntersections(QBezier &b)
+{
+    QVector< QList<QBezier> > curves(2);
+
+    QVector< QList<qreal> > allInters = findIntersections(*this, b);
+
+    const QList<qreal> &inters1 = allInters[0];
+    const QList<qreal> &inters2 = allInters[1];
+    Q_ASSERT(inters1.count() == inters2.count());
+
+    int i;
+    for (i = 0; i < inters1.count(); ++i) {
+        qreal t1 = inters1.at(i);
+        qreal t2 = inters2.at(i);
+
+        QBezier curve1, curve2;
+        parameterSplitLeft(t1, &curve1);
+	b.parameterSplitLeft(t2, &curve2);
+        curves[0].append(curve1);
+        curves[0].append(curve2);
+    }
+    curves[0].append(*this);
+    curves[1].append(b);
+
+    return curves;
+}
+
+qreal QBezier::length(qreal error) const
+{
+    qreal length = 0.0;
+
+    addIfClose(&length, error);
+
+    return length;
+}
+
+void QBezier::addIfClose(qreal *length, qreal error) const
+{
+    QBezier left, right;     /* bez poly splits */
+
+    double len = 0.0;        /* arc length */
+    double chord;            /* chord length */
+
+    len = len + QLineF(QPointF(x1, y1),QPointF(x2, y2)).length();
+    len = len + QLineF(QPointF(x2, y2),QPointF(x3, y3)).length();
+    len = len + QLineF(QPointF(x3, y3),QPointF(x4, y4)).length();
+
+    chord = QLineF(QPointF(x1, y1),QPointF(x4, y4)).length();
+
+    if((len-chord) > error) {
+        split(&left, &right);                 /* split in two */
+        left.addIfClose(length, error);       /* try left side */
+        right.addIfClose(length, error);      /* try right side */
+        return;
+    }
+
+    *length = *length + len;
+
+    return;
+}
+
+qreal QBezier::tAtLength(qreal l) const
+{
+    qreal len = length();
+    qreal t   = 1.0;
+    const qreal error = 0.01;
+    if (l > len || qFuzzyCompare(l, len))
+        return t;
+
+    t *= 0.5;
+    //int iters = 0;
+    //qDebug()<<"LEN is "<<l<<len;
+    qreal lastBigger = 1.;
+    while (1) {
+        //qDebug()<<"\tt is "<<t;
+        QBezier right = *this;
+        QBezier left;
+        right.parameterSplitLeft(t, &left);
+        qreal lLen = left.length();
+        if (qAbs(lLen - l) < error)
+            break;
+
+        if (lLen < l) {
+            t += (lastBigger - t)*.5;
+        } else {
+            lastBigger = t;
+            t -= t*.5;
+        }
+        //++iters;
+    }
+    //qDebug()<<"number of iters is "<<iters;
+    return t;
 }
