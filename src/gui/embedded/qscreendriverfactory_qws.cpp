@@ -38,27 +38,34 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     \class QScreenDriverFactory
     \ingroup qws
 
-    \brief The QScreenDriverFactory class creates QScreen objects.
+    \brief The QScreenDriverFactory class creates screen driver
+    objects in Qtopia Core.
 
     Note that this class is only available in \l {Qtopia Core}.
 
-    The QScreen class and its descendants manage the framebuffer and
-    palette. QScreenDriverFactory creates a QScreen object using the
-    create() function and a key identifying the driver.
+    QScreenDriverFactory is used to detect and instantiate the
+    available screen drivers, allowing \l {Qtopia Core} to load the
+    preferred driver into the server application at runtime.  The
+    create() function returns a QScreen object representing the screen
+    driver identified by a given key. The valid keys (i.e. the
+    supported drivers) can be retrieved using the keys() function.
 
-    The valid keys (i.e. the supported drivers) can be retrieved using
-    the keys() function. The drivers are either built-in or
-    dynamically loaded from a driver plugin (see \l
-    QScreenDriverPlugin).
+
+    \l {Qtopia Core} provides several built-in screen drivers. In
+    addition, custom screen drivers can be added using Qt's plugin
+    mechanism, i.e. by subclassing the QScreen class and creating a
+    screen driver plugin (QScreenDriverPlugin). See the \l {Qtopia
+    Core Display Management}{display management} documentation for
+    details.
 
     \sa QScreen, QScreenDriverPlugin
 */
 
 /*!
-    Creates a QScreen object for the driver specified by the given \a
-    key using the display specified by \a displayId. The returned
-    QScreen object may be created from a built-in driver, or from a
-    driver plugin. Keys are case-insensitive.
+    Creates the screen driver specified by the given \a key, using the
+    display specified by the given \a displayId.
+
+    Note that the keys are case-insensitive.
 
     \sa keys()
 */
@@ -98,14 +105,7 @@ QScreen *QScreenDriverFactory::create(const QString& key, int displayId)
 }
 
 /*!
-    Returns the list of valid keys, i.e. the drivers this factory can
-    create screens for.
-
-    \l {Qtopia Core} currently supports the following drivers by
-    default: \c QVfb (\l {Qtopia Core's Virtual Framebuffer}), \c
-    LinuxFb (The Linux framebuffer), \c Transformed (for rotated
-    displays) and \c VNC (a \l {The VNC Protocol and Qtopia Core}{VNC}
-    server).
+    Returns the list of valid keys, i.e. the available screen drivers.
 
     \sa create()
 */
