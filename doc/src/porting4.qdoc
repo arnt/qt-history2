@@ -63,9 +63,9 @@
     however nearly all points of incompatibility cause compiler
     errors or run-time messages (rather than mysterious results). Qt
     4 includes many additional features and discards obsolete
-    functionality. Porting from Qt 3 to Qt 4 is straightforward, and
-    once completed makes the considerable additional power and
-    flexibility of Qt 4 available for use in your applications.
+    functionality. Porting from Qt 3 to Qt 4 requires some effort,
+    but once completed the considerable additional power and
+    flexibility of Qt 4 is available for use in your applications.
 
     To port code from Qt 3 to Qt 4:
 
