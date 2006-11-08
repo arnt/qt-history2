@@ -306,8 +306,8 @@ public:
     \class QScreen
     \ingroup qws
 
-    \brief The QScreen class is a base class for implementing screen
-    drivers in Qtopia Core.
+    \brief The QScreen class is a base class for screen drivers in
+    Qtopia Core.
 
     Note that this class is only available in \l {Qtopia Core}.
 
