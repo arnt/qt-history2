@@ -1904,7 +1904,7 @@ void QStaticListViewBase::scrollContentsBy(int &dx, int &dy)
 bool QStaticListViewBase::doBatchedItemLayout(const QListViewLayoutInfo &info, int max)
 {
     doStaticLayout(info);
-    if (batchStartRow >= max) { // stop items layout
+    if (batchStartRow > max) { // stop items layout
         flowPositions.resize(flowPositions.count());
         segmentPositions.resize(segmentPositions.count());
         segmentStartRows.resize(segmentStartRows.count());
@@ -2250,7 +2250,7 @@ bool QDynamicListViewBase::doBatchedItemLayout(const QListViewLayoutInfo &info, 
         createItems(info.last + 1);
         doDynamicLayout(info);
     }
-    return (batchStartRow >= max); // done
+    return (batchStartRow > max); // done
 }
 
 QListViewItem QDynamicListViewBase::indexToListViewItem(const QModelIndex &index) const

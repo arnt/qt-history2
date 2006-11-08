@@ -52,6 +52,7 @@ private slots:
     void singleSelectionRemoveColumn();
     void modelColumn();
     void hideFirstRow();
+    void batchedMode();
 };
 
 // Testing get/set functions
@@ -643,6 +644,55 @@ void tst_QListView::hideFirstRow()
     QTest::qWait(100);
 }
 
+void tst_QListView::batchedMode()
+{
+    QStringList items;
+    for (int i=0; i <3; ++i)
+        items << "item";
+    QStringListModel model(items);
+
+    QListView view;
+    view.setModel(&model);
+    view.setUniformItemSizes(true);
+    view.setViewMode(QListView::ListMode);
+    view.setLayoutMode(QListView::Batched);
+    view.setBatchSize(2);
+    view.resize(200,400);
+    view.show();
+    
+    QTest::qWait(100);
+    QBitArray ba;
+    for (int y = 0; y < view.height(); ++y) {
+        QModelIndex idx = view.indexAt( QPoint(1, y) );
+        if (!idx.isValid())
+            break;
+        if (idx.row() >= ba.size())
+            ba.resize(idx.row() + 1);
+        ba.setBit(idx.row(), true);
+    }
+    QCOMPARE(ba.size(), 3);
+
+
+    // Test the dynamic listview too.
+    view.setViewMode(QListView::IconMode);
+    view.setLayoutMode(QListView::Batched);
+    view.setFlow(QListView::TopToBottom);
+    view.setBatchSize(2);
+    
+    QTest::qWait(100);
+    
+    ba.clear();
+    for (int y = 0; y < view.height(); ++y) {
+        QModelIndex idx = view.indexAt( QPoint(1, y) );
+        if (!idx.isValid())
+            break;
+        if (idx.row() >= ba.size())
+            ba.resize(idx.row() + 1);
+        ba.setBit(idx.row(), true);
+    }
+    QCOMPARE(ba.size(), 3);
+    
+}
 
 
 QTEST_MAIN(tst_QListView)
