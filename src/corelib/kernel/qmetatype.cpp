@@ -1229,7 +1229,7 @@ void QMetaType::destroy(int type, void *data)
     QVariant.
 
     \code
-        qRegisterMetaTypeStreamOperator<MyClass>("MyClass");
+        qRegisterMetaTypeStreamOperators<MyClass>("MyClass");
     \endcode
 
     The stream operators should have the following signatures:
