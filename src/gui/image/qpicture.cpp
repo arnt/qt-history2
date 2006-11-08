@@ -460,7 +460,6 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
     QTransform  matrix;
 
     QTransform worldMatrix = painter->transform();
-    QTransform oldWorldMatrix = worldMatrix;
     worldMatrix.scale(qreal(painter->device()->logicalDpiX()) / qreal(qt_defaultDpi()),
                       qreal(painter->device()->logicalDpiY()) / qreal(qt_defaultDpi()));
     painter->setTransform(worldMatrix);
@@ -572,18 +571,9 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             else
                 painter->setLayoutDirection(Qt::LeftToRight);
 
-            font = QFont(font, painter->device());
-
-            QTransform matrix = painter->transform();
-            painter->setTransform(oldWorldMatrix);
-
-            p.rx() *= painter->device()->logicalDpiX() / double(qt_defaultDpi());
-            p.ry() *= painter->device()->logicalDpiY() / double(qt_defaultDpi());
-
             qt_format_text(font, QRectF(p, QSizeF(1, 1)), Qt::TextSingleLine | Qt::TextDontClip, str, /*brect=*/0, /*tabstops=*/0, /*...*/0, /*tabarraylen=*/0, painter);
 
             painter->setLayoutDirection(oldDir);
-            painter->setTransform(matrix);
             break;
         }
         case QPicturePrivate::PdcDrawPixmap: {
@@ -694,13 +684,8 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             break;
         case QPicturePrivate::PdcSetWMatrix:
             s >> matrix >> i_8;
-            matrix.setMatrix(matrix.m11(), matrix.m12(), 0,
-                             matrix.m21(), matrix.m22(), 0,
-                             matrix.dx() * painter->device()->logicalDpiX() / double(qt_defaultDpi()),
-                             matrix.dy() * painter->device()->logicalDpiY() / double(qt_defaultDpi()), 1);
             // i_8 is always false due to updateXForm() in qpaintengine_pic.cpp
-            painter->setTransform(worldMatrix * matrix, false);
-            oldWorldMatrix *= matrix;
+            painter->setTransform(matrix * worldMatrix, false);
             break;
 // #ifdef Q_Q3PAINTER
 //             case QPicturePrivate::PdcSaveWMatrix:
