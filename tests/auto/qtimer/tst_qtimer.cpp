@@ -47,6 +47,7 @@ private slots:
     void timerInfiniteRecursion();
     void recurringTimer_data();
     void recurringTimer();
+    void deleteLaterOnQTimer(); // long name, don't want to shadow QObject::deleteLater()
 };
 
 class TimerHelper : public QObject
@@ -276,7 +277,7 @@ public:
             emit done();
         }
     }
-    
+
     signals:
     void done();
 };
@@ -298,6 +299,18 @@ void tst_QTimer::recurringTimer()
     QTestEventLoop::instance().enterLoop(5);
 
     QCOMPARE(object.times, target);
+}
+
+void tst_QTimer::deleteLaterOnQTimer()
+{
+    QTimer *timer = new QTimer;
+    connect(timer, SIGNAL(timeout()), timer, SLOT(deleteLater()));
+    timer->setInterval(1000);
+    timer->setSingleShot(true);
+    timer->start();
+    QPointer<QTimer> pointer = timer;
+    QTestEventLoop::instance().enterLoop(5);
+    QVERIFY(pointer.isNull());
 }
 
 QTEST_MAIN(tst_QTimer)
