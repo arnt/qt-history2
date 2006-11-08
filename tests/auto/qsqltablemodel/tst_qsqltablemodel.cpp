@@ -101,15 +101,15 @@ void tst_QSqlTableModel::createTestTables()
         QSqlQuery q(db);
 
         QVERIFY2(q.exec("create table " + qTableName("test")
-                       + "(id int primary key, name varchar(20), title int)"),
+                       + "(id int, name varchar(20), title int)"),
                 q.lastError().text().toLatin1());
 
         QVERIFY2(q.exec("create table " + qTableName("test2")
-                       + "(id int primary key, title varchar(20))"),
+                       + "(id int, title varchar(20))"),
                 q.lastError().text().toLatin1());
 
         QVERIFY2(q.exec("create table " + qTableName("emptytable")
-                       + "(id int primary key)"),
+                       + "(id int)"),
                 q.lastError().text().toLatin1());
 
         if (testWhiteSpaceNames(db.driverName())) {
