@@ -332,10 +332,12 @@ static qreal toDouble(const QChar *&str)
         if (neg)
             val = -val;
     } else {
-        if(sizeof(qreal) == sizeof(double))
-            val = strtod(temp, 0);
-        else
+#ifdef Q_WS_QWS
+        if(sizeof(qreal) == sizeof(float))
             val = strtof(temp, 0);
+        else
+#endif
+            val = strtod(temp, 0);
     }
     return val;
 
@@ -728,8 +730,10 @@ static void parseQPen(QPen &pen, QSvgNode *node,
                 const QChar *s = dashArray.constData();
                 QVector<qreal> dashes = parseNumbersList(s);
                 qreal *d = dashes.data();
-                for (int i = 0; i < dashes.size(); ++i) {
-                    *d /= penw;
+                if (penw != 0)
+                    for (int i = 0; i < dashes.size(); ++i) {
+                        *d /= penw;
+                        ++d;
                 }
                 pen.setDashPattern(dashes);
             }
@@ -787,16 +791,20 @@ static QMatrix parseTransformationMatrix(const QString &value)
                 for (int i = 0; i < 3; ++i)
                     if (*(++str) != QLatin1Char(ident[i]))
                         goto error;
+                ++str;
                 state = Scale;
             } else if (*str == QLatin1Char('k')) {
                 if (*(++str) != QLatin1Char('e'))
                     goto error;
                 if (*(++str) != QLatin1Char('w'))
                     goto error;
-                if (*(++str) == QLatin1Char('X'))
+                ++str;
+                if (*str == QLatin1Char('X'))
                     state = SkewX;
-                else if (*(++str) == QLatin1Char('Y'))
+                else if (*str == QLatin1Char('Y'))
                     state = SkewY;
+                else
+                    goto error;
                 ++str;
             } else {
                 goto error;
@@ -962,8 +970,11 @@ static void parsePen(QSvgNode *node,
                 const QChar *s = dashArray.constData();
                 QVector<qreal> dashes = parseNumbersList(s);
                 qreal *d = dashes.data();
-                for (int i = 0; i < dashes.size(); ++i)
-                    *d /= penw;
+                if(penw != 0)
+                    for (int i = 0; i < dashes.size(); ++i) {
+                        *d /= penw;
+                        ++d;
+                    }
                 pen.setDashPattern(dashes);
             }
             if (!miterlimit.isEmpty())
