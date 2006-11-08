@@ -50,7 +50,8 @@ extern int qws_client_id;
 class QLinuxFbScreenPrivate
 {
 public:
-    QLinuxFbScreenPrivate();
+    Q_GLOBAL_STATIC(QLinuxFbScreenPrivate, instance);
+    ~QLinuxFbScreenPrivate();
 
     void openTty();
     void closeTty();
@@ -67,17 +68,21 @@ public:
     QString displaySpec;
 
 private:
-    static QLinuxFbScreenPrivate *instance;
+    QLinuxFbScreenPrivate();
     void installSignalHandler();
     static void signalHandler(int signum);
     QMap<int, sighandler_t> oldHandlers;
 };
 
-QLinuxFbScreenPrivate* QLinuxFbScreenPrivate::instance = 0;
-
 QLinuxFbScreenPrivate::QLinuxFbScreenPrivate()
     : fd(-1), doGraphicsMode(true), ttyfd(-1), oldKdMode(KD_TEXT)
 {
+    installSignalHandler();
+}
+
+QLinuxFbScreenPrivate::~QLinuxFbScreenPrivate()
+{
+    closeTty();
 }
 
 void QLinuxFbScreenPrivate::openTty()
@@ -110,8 +115,6 @@ void QLinuxFbScreenPrivate::openTty()
         const char termctl[] = "\033[9;0]\033[?33l\033[?25l\033[?1c";
         ::write(ttyfd, termctl, sizeof(termctl));
     }
-
-    installSignalHandler();
 }
 
 void QLinuxFbScreenPrivate::closeTty()
@@ -128,6 +131,7 @@ void QLinuxFbScreenPrivate::closeTty()
     }
 
     ::close(ttyfd);
+    ttyfd = -1;
 }
 
 void QLinuxFbScreenPrivate::installSignalHandler()
@@ -135,8 +139,6 @@ void QLinuxFbScreenPrivate::installSignalHandler()
     const int signums[] = { SIGHUP, SIGINT, SIGQUIT, SIGILL, SIGABRT, SIGFPE,
                             SIGSEGV, SIGTERM, SIGBUS };
     const int n = sizeof(signums)/sizeof(int);
-
-    instance = this;
 
     for (int i = 0; i < n; ++i) {
         int signum = signums[i];
@@ -147,8 +149,9 @@ void QLinuxFbScreenPrivate::installSignalHandler()
 
 void QLinuxFbScreenPrivate::signalHandler(int signum)
 {
-    signal(signum, instance->oldHandlers[signum]);
-    instance->closeTty();
+    QLinuxFbScreenPrivate *d_ptr = instance();
+    signal(signum, d_ptr->oldHandlers[signum]);
+    d_ptr->closeTty();
     raise(signum);
 }
 
@@ -205,7 +208,7 @@ void QLinuxFbScreenPrivate::signalHandler(int signum)
 */
 
 QLinuxFbScreen::QLinuxFbScreen(int display_id)
-    : QScreen(display_id), d_ptr(new QLinuxFbScreenPrivate)
+    : QScreen(display_id), d_ptr(QLinuxFbScreenPrivate::instance())
 {
     canaccel=false;
     clearCacheFunc = &clearCache;
@@ -217,7 +220,6 @@ QLinuxFbScreen::QLinuxFbScreen(int display_id)
 
 QLinuxFbScreen::~QLinuxFbScreen()
 {
-    delete d_ptr;
 }
 
 /*!
