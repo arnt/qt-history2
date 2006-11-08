@@ -3982,7 +3982,8 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                 unsigned long i;
                 for (i = 0; i < nitems; i++) {
                     if (states[i] == ATOM(_NET_WM_STATE_MAXIMIZED_VERT)
-                        || states[i] == ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))
+                        && states[i] == ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))
+                        // only set maximized if both horizontal and vertical properties are set
                         max = true;
                     else if (states[i] == ATOM(_NET_WM_STATE_FULLSCREEN))
                         full = true;
