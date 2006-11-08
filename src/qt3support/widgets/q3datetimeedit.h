@@ -29,7 +29,7 @@ class Q_COMPAT_EXPORT Q3DateTimeEditBase : public QWidget
     Q_OBJECT
 public:
     Q3DateTimeEditBase(QWidget* parent=0, const char* name=0)
-        : QWidget(parent) { setObjectName(name); }
+        : QWidget(parent) { setObjectName(QString::fromAscii(name)); }
 
     virtual bool setFocusSection(int sec) = 0;
     virtual QString sectionFormattedText(int sec) = 0;
