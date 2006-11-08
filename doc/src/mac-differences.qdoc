@@ -198,24 +198,29 @@
     \section2 Menu Bar
 
     Qt/Mac will automatically detect your menu bars for you and turn them
-    into Mac native menubars. Fitting this into your existing Qt application
+    into Mac native menu bars. Fitting this into your existing Qt application
     will normally be automatic, however, if you have special needs the Qt/Mac
     implementation currently selects a menu bar by starting at the active window
-    (i.e. QApplication::activeWindow()), and applying:
+    (i.e. QApplication::activeWindow()), and applying the following tests:
 
     \list 1
     \i If the window has a QMenuBar then it is used.
     \i If the window is a modal then its menu bar is used. If no menu bar is
        specified then a default menu bar is used (as documented below).
-    \i If the window has no parent then the default menub ar is used (as documented below).
+    \i If the window has no parent then the default menu bar is used (as documented
+       below).
     \endlist
 
-    The above 3 guidelines are followed all the way up the parent window chain until
+    These tests are followed all the way up the parent window chain until
     one of the above is satisifed. If all else fails a default menu bar will be
     created, the default menu bar on Qt/Mac is an empty menu bar, however you can
     create a different default menu bar by creating a parentless QMenuBar; the
     first one created will be designated the default menu bar, and will be
     used whenever a default menu bar is needed.
+
+    Note that using native menu bars introduces certain limitations on Qt classes.
+    See the \l{#Limitations}{list of limitations} below for more information about
+    these.
 
     \section2 Special Keys
 
@@ -229,13 +234,16 @@
     \section2 Menu Actions
 
     \list
-
-    \i Actions in into a QMenu with accelerators that have more than one
-    keystroke (QKeySequence) will not display correctly when the QMenu is
-    translated into a Mac native menubar. The first key will be displayed,
-    however the shortcut will still be activated as on all other
-    platforms.
-
+    \o Actions in into a QMenu with accelerators that have more than one
+       keystroke (QKeySequence) will not display correctly when the QMenu is
+       translated into a Mac native menu bar. The first key will be displayed,
+       however the shortcut will still be activated as on all other
+       platforms.
+    \o QMenu objects used in the native menu bar are not able to handle "show",
+       "hide", and "mouse move" events. Reimplementations of
+       \l{QMenu::}{showEvent()}, \l{QMenu::}{hideEvent()}, and
+       \l{QMenu::}{mouseMoveEvent()} in QMenu subclasses will not be called
+       for menus used in this way.
     \endlist
 
     \section2 Native Widgets
