@@ -56,7 +56,8 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         alternatingColors(false),
         textElideMode(Qt::ElideRight),
         verticalScrollMode(QAbstractItemView::ScrollPerItem),
-        horizontalScrollMode(QAbstractItemView::ScrollPerItem)
+        horizontalScrollMode(QAbstractItemView::ScrollPerItem),
+        currentIndexSet(false)
 {
 }
 
@@ -767,6 +768,7 @@ void QAbstractItemView::setCurrentIndex(const QModelIndex &index)
     if (d->selectionModel) {
         QItemSelectionModel::SelectionFlags command = selectionCommand(index, 0);
         d->selectionModel->setCurrentIndex(index, command);
+        d->currentIndexSet = true;
         if ((command & QItemSelectionModel::Current) == 0)
             d->pressedPosition = visualRect(currentIndex()).center() + d->offset();
     }
@@ -795,6 +797,7 @@ void QAbstractItemView::reset()
         d->releaseEditor(d->editorForIterator(it));
     d->editors.clear();
     d->persistent.clear();
+    d->currentIndexSet = false;
     setState(NoState);
     setRootIndex(QModelIndex());
 }
@@ -1708,7 +1711,7 @@ void QAbstractItemView::focusInEvent(QFocusEvent *event)
 {
     Q_D(QAbstractItemView);
     QAbstractScrollArea::focusInEvent(event);
-    if (!currentIndex().isValid() && selectionModel()) {
+    if (selectionModel() && !d->currentIndexSet) {
         selectionModel()->setCurrentIndex(
             moveCursor(MoveNext, Qt::NoModifier), // first visible index
             QItemSelectionModel::NoUpdate);
