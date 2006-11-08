@@ -50,7 +50,8 @@
     ### QWSDecoration
 \endomit
 
-    This document describes porting applications from Qt 3 to Qt 4.
+    This document describes the process of porting applications from
+    Qt 3 to Qt 4.
     If you haven't yet made the decision about porting, or are unsure
     about whether it is worth it, take a look at the \l{What's New in
     Qt 4}{key features} offered by Qt 4. See also
@@ -156,6 +157,28 @@
 
     ### Some headers don't include each other anymore...
 \endomit
+
+    \section1 Casting and Object Types
+
+    In Qt 3, it was possible to use the \c qt_cast() function to determine
+    whether instances of QObject subclasses could be safely cast to derived
+    types of those subclasses. For example, if a QFrame instance is passed
+    to a function whose signature specifies a QWidget pointer as its argument,
+    \c qt_cast() could be used to obtain a QFrame pointer so that the
+    instance's functions can be accessed.
+
+    In Qt 4, much of this functionality is provided by the qobject_cast()
+    function, and additional functions also provide similar functionality for
+    certain non-QObject types:
+
+    \table
+    \header \o Qt 3 function \o Qt 4 function
+    \row    \o T *qt_cast<T *>(QObject *) \o \l{qobject_cast()}{T *qobject_cast<T *>(QObject *)}
+    \row    \o                            \o \l{qgraphicsitem_cast()}{T qgraphicsitem_cast<T>(QGraphicsItem *)}
+    \row    \o                            \o \l{qstyleoption_cast()}{T qstyleoption_cast<T>(QStyleOption *)}
+    \row    \o                            \o \l{qvariant_cast()}{T qvariant_cast<T>(const QVariant &)}
+    \row    \o                            \o \l{qdbus_cast()}{T qdbus_cast(const QDBusArgument &)}
+    \endtable
 
 \omit
     \section1 Global Functions
