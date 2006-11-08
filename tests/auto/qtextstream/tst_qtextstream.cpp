@@ -152,6 +152,8 @@ private slots:
     void forcePoint();
     void forceSign();
     void read0d0d0a();
+    void numeralCase_data();
+    void numeralCase();
 
 #if QT_VERSION >= 0x040100
     // status
@@ -1396,6 +1398,75 @@ void tst_QTextStream::read0d0d0a()
     QTextStream stream(&file);
     while (!stream.atEnd())
         stream.readLine();
+}
+
+// ------------------------------------------------------------------------------
+
+Q_DECLARE_METATYPE(QTextStreamFunction);
+
+QTextStream &noop(QTextStream &s) { return s; }
+
+void tst_QTextStream::numeralCase_data()
+{
+    QTextStreamFunction noop_ = noop;
+    QTextStreamFunction bin_  = bin;
+    QTextStreamFunction oct_  = oct;
+    QTextStreamFunction hex_  = hex;
+    QTextStreamFunction base  = showbase;
+    QTextStreamFunction ucb   = uppercasebase;
+    QTextStreamFunction lcb   = lowercasebase;
+    QTextStreamFunction ucd   = uppercasedigits;
+    QTextStreamFunction lcd   = lowercasedigits;
+
+    QTest::addColumn<QTextStreamFunction>("func1");
+    QTest::addColumn<QTextStreamFunction>("func2");
+    QTest::addColumn<QTextStreamFunction>("func3");
+    QTest::addColumn<QTextStreamFunction>("func4");
+    QTest::addColumn<int>("value");
+    QTest::addColumn<QString>("expected");
+    QTest::newRow("dec 1") << noop_ << noop_ << noop_ << noop_ << 31 << "31";
+    QTest::newRow("dec 2") << noop_ << base  << noop_ << noop_ << 31 << "31";
+
+    QTest::newRow("hex 1")  << hex_  << noop_ << noop_ << noop_ << 31 << "1f";
+    QTest::newRow("hex 2")  << hex_  << noop_ << noop_ << lcd   << 31 << "1f";
+    QTest::newRow("hex 3")  << hex_  << noop_ << ucb   << noop_ << 31 << "1f";
+    QTest::newRow("hex 4")  << hex_  << noop_ << noop_ << ucd   << 31 << "1F";
+    QTest::newRow("hex 5")  << hex_  << noop_ << lcb   << ucd   << 31 << "1F";
+    QTest::newRow("hex 6")  << hex_  << noop_ << ucb   << ucd   << 31 << "1F";
+    QTest::newRow("hex 7")  << hex_  << base  << noop_ << noop_ << 31 << "0x1f";
+    QTest::newRow("hex 8")  << hex_  << base  << lcb   << lcd   << 31 << "0x1f";
+    QTest::newRow("hex 9")  << hex_  << base  << ucb   << noop_ << 31 << "0X1f";
+    QTest::newRow("hex 10") << hex_  << base  << ucb   << lcd   << 31 << "0X1f";
+    QTest::newRow("hex 11") << hex_  << base  << noop_ << ucd   << 31 << "0x1F";
+    QTest::newRow("hex 12") << hex_  << base  << lcb   << ucd   << 31 << "0x1F";
+    QTest::newRow("hex 13") << hex_  << base  << ucb   << ucd   << 31 << "0X1F";
+
+    QTest::newRow("bin 1") << bin_  << noop_ << noop_ << noop_ << 31 << "11111";
+    QTest::newRow("bin 2") << bin_  << base  << noop_ << noop_ << 31 << "0b11111";
+    QTest::newRow("bin 3") << bin_  << base  << lcb   << noop_ << 31 << "0b11111";
+    QTest::newRow("bin 4") << bin_  << base  << ucb   << noop_ << 31 << "0B11111";
+    QTest::newRow("bin 5") << bin_  << base  << noop_ << ucd   << 31 << "0b11111";
+    QTest::newRow("bin 6") << bin_  << base  << lcb   << ucd   << 31 << "0b11111";
+    QTest::newRow("bin 7") << bin_  << base  << ucb   << ucd   << 31 << "0B11111";
+
+    QTest::newRow("oct 1") << oct_  << noop_ << noop_ << noop_ << 31 << "37";
+    QTest::newRow("oct 2") << oct_  << base  << noop_ << noop_ << 31 << "037";
+}
+
+// From Task 125496
+void tst_QTextStream::numeralCase()
+{
+    QFETCH(QTextStreamFunction, func1);
+    QFETCH(QTextStreamFunction, func2);
+    QFETCH(QTextStreamFunction, func3);
+    QFETCH(QTextStreamFunction, func4);
+    QFETCH(int, value);
+    QFETCH(QString, expected);
+
+    QString str;
+    QTextStream stream(&str);
+    stream << func1 << func2 << func3 << func4 << value;
+    QCOMPARE(str, expected);
 }
 
 // ------------------------------------------------------------------------------
