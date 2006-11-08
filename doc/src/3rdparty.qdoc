@@ -100,12 +100,6 @@
     \l{http://www.sqlite.org/copyright.html}{SQLite Copyright} page on the
     SQLite web site for further information.
 
-    \section1 Tango Icon Theme
-    
-    \e{The Tango icon library contains a basic set of icons for the most common usage.} -- quoted from \l {http://tango.freedesktop.org/Tango_Icon_Library}{tango.freedesktop.org}.
-
-    See \c src/3rdparty/tango/COPYING for license details.
-
     \section1 Wintab API (\c wintab)
 
     Wintab is a de facto API for pointing devices on Windows. The
