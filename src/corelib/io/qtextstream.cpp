@@ -181,7 +181,7 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
                        there are no decimals.
     \value ForceSign  Always put the sign in numbers, even for positive numbers.
     \value UppercaseBase  Use uppercase versions of base prefixes ("0X", "0B").
-    \value UppercaseDigits  Use uppercare letters for expressing
+    \value UppercaseDigits  Use uppercase letters for expressing
                             digits 10 to 35 instead of lowercase.
 
     \sa setNumberFlags()
@@ -2079,26 +2079,28 @@ QTextStream &QTextStream::operator>>(char *c)
  */
 bool QTextStreamPrivate::putNumber(qulonglong number, bool negative)
 {
-    QString tmp;
+    QString prefix;
     if (negative)
-        tmp = QLatin1Char('-');
+        prefix = QLatin1Char('-');
     else if (numberFlags & QTextStream::ForceSign)
-        tmp = QLatin1Char('+');
+        prefix = QLatin1Char('+');
 
     if (numberFlags & QTextStream::ShowBase) {
         switch (integerBase) {
-        case 2: tmp += QLatin1String("0b"); break;
-        case 8: tmp += QLatin1String("0"); break;
-        case 16: tmp += QLatin1String("0x"); break;
+        case 2: prefix += QLatin1String("0b"); break;
+        case 8: prefix += QLatin1String("0"); break;
+        case 16: prefix += QLatin1String("0x"); break;
         default: break;
         }
+        if (numberFlags & QTextStream::UppercaseBase)
+            prefix = prefix.toUpper(); // ### in-place instead
     }
 
-    tmp += QString::number(number, integerBase ? integerBase : 10);
-    if (numberFlags & QTextStream::UppercaseBase)
-        tmp = tmp.toUpper(); // ### in-place instead
+    QString digits = QString::number(number, integerBase ? integerBase : 10);
+    if (numberFlags & QTextStream::UppercaseDigits)
+        digits = digits.toUpper(); // ### in-place instead
 
-    return putString(tmp);
+    return putString(prefix + digits);
 }
 
 /*!
