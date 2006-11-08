@@ -57,10 +57,45 @@ public:
     bool preparedQuerysEnabled;
 };
 
+static inline QString toUnicode(QTextCodec *tc, const char *str)
+{
+#ifdef QT_NO_TEXTCODEC
+    Q_UNUSED(tc);
+    return QString::fromLatin1(str);
+#else
+    return tc->toUnicode(str);
+#endif
+}
+
+static inline QString toUnicode(QTextCodec *tc, const char *str, int length)
+{
+#ifdef QT_NO_TEXTCODEC
+    Q_UNUSED(tc);
+    return QString::fromLatin1(str, length);
+#else
+    return tc->toUnicode(str, length);
+#endif
+}
+
+static inline QByteArray fromUnicode(QTextCodec *tc, const QString &str)
+{
+#ifdef QT_NO_TEXTCODEC
+    Q_UNUSED(tc);
+    return str.toLatin1();
+#else
+    return tc->fromUnicode(str);
+#endif
+}
+
 class QMYSQLResultPrivate : public QMYSQLDriverPrivate
 {
 public:
-    QMYSQLResultPrivate() : QMYSQLDriverPrivate(), result(0), tc(QTextCodec::codecForLocale()),
+    QMYSQLResultPrivate() : QMYSQLDriverPrivate(), result(0),
+#ifndef QT_NO_TEXTCODEC
+        tc(QTextCodec::codecForLocale()),
+#else
+        tc(0),
+#endif
         rowsAffected(0), hasBlobs(false)
 #if MYSQL_VERSION_ID >= 40108
         , stmt(0), meta(0), inBinds(0), outBinds(0)
@@ -101,6 +136,7 @@ public:
 #endif
 };
 
+#ifndef QT_NO_TEXTCODEC
 static QTextCodec* codec(MYSQL* mysql)
 {
 #if MYSQL_VERSION_ID >= 32321
@@ -110,13 +146,14 @@ static QTextCodec* codec(MYSQL* mysql)
 #endif
     return QTextCodec::codecForLocale();
 }
+#endif // QT_NO_TEXTCODEC
 
 static QSqlError qMakeError(const QString& err, QSqlError::ErrorType type,
                             const QMYSQLDriverPrivate* p)
 {
     const char *cerr = mysql_error(p->mysql);
     return QSqlError(QLatin1String("QMYSQL: ") + err,
-                     p->tc ? p->tc->toUnicode(cerr) : QString::fromLatin1(cerr),
+                     p->tc ? toUnicode(p->tc, cerr) : QString::fromLatin1(cerr),
                      type, mysql_errno(p->mysql));
 }
 
@@ -171,7 +208,7 @@ static QVariant::Type qDecodeMYSQLType(int mysqltype, uint flags)
 
 static QSqlField qToField(MYSQL_FIELD *field, QTextCodec *tc)
 {
-    QSqlField f(tc->toUnicode(field->name),
+    QSqlField f(toUnicode(tc, field->name),
                 qDecodeMYSQLType(int(field->type), field->flags));
     f.setRequired(IS_NOT_NULL(field->flags));
     f.setLength(field->length);
@@ -440,7 +477,7 @@ QVariant QMYSQLResult::data(int field)
             return QVariant(f.type);
 
         if (f.type != QVariant::ByteArray)
-            val = d->tc->toUnicode(f.outField, f.bufLength);
+            val = toUnicode(d->tc, f.outField, f.bufLength);
     } else {
         if (d->row[field] == NULL) {
             // NULL value
@@ -448,7 +485,7 @@ QVariant QMYSQLResult::data(int field)
         }
         fieldLength = mysql_fetch_lengths(d->result)[field];
         if (f.type != QVariant::ByteArray)
-            val = d->tc->toUnicode(d->row[field], fieldLength);
+            val = toUnicode(d->tc, d->row[field], fieldLength);
     }
 
     switch(f.type) {
@@ -516,7 +553,7 @@ bool QMYSQLResult::reset (const QString& query)
     cleanup();
     d->preparedQuerys = false;
 
-    const QByteArray encQuery(d->tc->fromUnicode(query));
+    const QByteArray encQuery(fromUnicode(d->tc, query));
     if (mysql_real_query(d->mysql, encQuery.data(), encQuery.length())) {
         setLastError(qMakeError(QCoreApplication::translate("QMYSQLResult", "Unable to execute query"),
                      QSqlError::StatementError, d));
@@ -651,7 +688,7 @@ bool QMYSQLResult::prepare(const QString& query)
         return false;
     }
 
-    const QByteArray encQuery(d->tc->fromUnicode(query));
+    const QByteArray encQuery(fromUnicode(d->tc, query));
     r = mysql_stmt_prepare(d->stmt, encQuery.constData(), encQuery.length());
     if (r != 0) {
         setLastError(qMakeStmtError(QCoreApplication::translate("QMYSQLResult",
@@ -760,7 +797,7 @@ bool QMYSQLResult::exec()
                     break;
                 case QVariant::String:
                 default: {
-                    QByteArray ba = d->tc->fromUnicode(val.toString());
+                    QByteArray ba = fromUnicode(d->tc, val.toString());
                     stringVector.append(ba);
                     currBind->buffer_type = MYSQL_TYPE_STRING;
                     currBind->buffer = const_cast<char *>(ba.constData());
@@ -868,7 +905,9 @@ QMYSQLDriver::QMYSQLDriver(MYSQL * con, QObject * parent)
     init();
     if (con) {
         d->mysql = (MYSQL *) con;
+#ifndef QT_NO_TEXTCODEC
         d->tc = codec(con);
+#endif
         setOpen(true);
         setOpenError(false);
     } else {
@@ -1015,7 +1054,9 @@ bool QMYSQLDriver::open(const QString& db,
     // force the communication to be utf8
     mysql_set_character_set(d->mysql, "utf8");
 #endif
+#ifndef QT_NO_TEXTCODEC
     d->tc = codec(d->mysql);
+#endif
 
 #if MYSQL_VERSION_ID >= 40108
     d->preparedQuerysEnabled = mysql_get_client_version() >= 40108
@@ -1059,7 +1100,7 @@ QStringList QMYSQLDriver::tables(QSql::TableType type) const
         row = mysql_fetch_row(tableRes);
         if (!row)
             break;
-        tl.append(d->tc->toUnicode(row[0]));
+        tl.append(toUnicode(d->tc, row[0]));
         i++;
     }
     mysql_free_result(tableRes);
@@ -1184,7 +1225,7 @@ QString QMYSQLDriver::formatValue(const QSqlField &field, bool trimStrings) cons
                 int escapedSize = int(mysql_real_escape_string(d->mysql, buffer,
                                       ba.data(), ba.size()));
                 r.reserve(escapedSize + 3);
-                r.append(QLatin1Char('\'')).append(d->tc->toUnicode(buffer)).append(QLatin1Char('\''));
+                r.append(QLatin1Char('\'')).append(toUnicode(d->tc, buffer)).append(QLatin1Char('\''));
                 delete[] buffer;
                 break;
             } else {
