@@ -18,10 +18,18 @@
     \ingroup qtopiacore
     \ingroup installation
 
+    This document describes how to install \l {Qtopia Core} in your
+    development environment:
+
     \tableofcontents
 
-    Note that the installation procedure is written for Linux, and may
-    need to be modified for other platforms.
+    Please see the \l {Cross-Compiling Qtopia Core Applications}{cross
+    compiling} and \l {Deploying Qtopia Core Applications}{deployment}
+    documentation for details on how to install \l {Qtopia Core} on
+    your target device.
+
+    Note also that this installation procedure is written for Linux,
+    and that it may need to be modified for other platforms.
 
     \section1 Step 1: Installing the License File (commercial editions only)
 
@@ -50,28 +58,28 @@
 
     \section1 Step 3: Building the Library
 
-    Before building the \l {Qtopia Core} library, run the \c ./configure
-    script to configure the library for your deployment architecture.
+    Before building the \l {Qtopia Core} library, run the \c
+    ./configure script to configure the library for your development
+    architecture. You can list all of the configuration system's
+    options by typing \c {./configure -help}.
 
-    By default, \l {Qtopia Core} is configured for installation in the
-    \c{/usr/local/Trolltech/QtopiaCore-%VERSION%} directory, but this
-    can be changed by using the \c{-prefix} option. Alternatively, the
-    \c{-prefix-install} option can be used to specify a "local"
-    installation within the source directory.
+    Note that by default, \l {Qtopia Core} is configured for
+    installation in the \c{/usr/local/Trolltech/QtopiaCore-%VERSION%}
+    directory, but this can be changed by using the \c{-prefix}
+    option. Alternatively, the \c{-prefix-install} option can be used
+    to specify a "local" installation within the source directory.
+
+    The configuration system is also designed to allow you to specify
+    your platform architecture:
 
     \code
         cd  ~/qtopia-core-commercial-src-%VERSION%
         ./configure -embedded [architecture]
     \endcode
 
-    The configuration system is designed to allow platform-specific
-    options to be added, typical architectures are x86 and arm. To get
-    a list of all available options, type \c {./configure -help}. In
-    general, all Linux systems which have framebuffer support can use
-    the "linux-generic-g++" platform. The configuration system also
-    supports cross-compilers. For example, to build on Linux/x86 for
-    the Linux/MIPSEL target, pass \c mips as parameter to the \c
-    configure script's \c -embedded option.
+    Typical architectures are x86 and arm, but in general, all Linux
+    systems which have framebuffer support can use the "generic"
+    architecture.
 
     To create the library and compile all the demos, examples, tools,
     and tutorials, type:
@@ -81,7 +89,8 @@
     \endcode
 
     On some systems the \c make utility is called differently, e.g. \c
-    gmake. The \c configure script tells you which make utility to use.
+    gmake. The \c configure script tells you which \c make utility to
+    use.
 
     If you did not configure \l {Qtopia Core} using the \c{-prefix-install}
     option, you need to install the library, demos, examples, tools,
@@ -92,11 +101,6 @@
     \endcode
 
     and enter the root password.
-
-    Only a small number of configurations are predefined.  You can
-    create your own custom configuration by adding new files to the \c
-    mkspecs/qws/ directory, using existing similar configurations as a
-    starting point.
 
     \section1 Step 4: Adjusting the Environment Variables
 
@@ -144,14 +148,11 @@
     Note that the virtual framebuffer requires a Qt/X11
     installation. See \l {Installing Qt/X11} for details.
 
-    No particular actions are required to enable the framebuffer on
-    target devices: The Linux framebuffer is enabled by default on all
-    modern Linux distributions. For information on older versions, see
-    \l http://en.tldp.org/HOWTO/Framebuffer-HOWTO.html.
-
-    To test that the Linux framebuffer is set up correctly, and that
-    the device permissions are correct, use the program provided by
-    the \l {Testing the Linux Framebuffer} document.
+    The Linux framebuffer, on the other hand, is enabled by default on
+    all modern Linux distributions. For information on older versions,
+    see \l http://en.tldp.org/HOWTO/Framebuffer-HOWTO.html. To test
+    that the Linux framebuffer is set up correctly, use the program
+    provided by the \l {Testing the Linux Framebuffer} document.
 
     That's all. \l {Qtopia Core} is now installed.
 

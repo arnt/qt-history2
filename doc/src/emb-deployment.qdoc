@@ -69,4 +69,15 @@
     {Qtopia Core Character Input}{character input} and \l {Qtopia Core
     Display Management}{display management} documentation for more
     information.
+
+    \section1 Qtopia Core Specific: Framebuffer Support
+
+    No particular actions are required to enable the framebuffer on
+    target devices: The Linux framebuffer is enabled by default on all
+    modern Linux distributions. For information on older versions, see
+    \l http://en.tldp.org/HOWTO/Framebuffer-HOWTO.html.
+
+    To test that the Linux framebuffer is set up correctly, and that
+    the device permissions are correct, use the program provided by
+    the \l {Testing the Linux Framebuffer} document.
 */
