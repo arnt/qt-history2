@@ -32,23 +32,35 @@
     \ingroup qws
 
     \brief The QDirectPainter class provides direct access to the
-    video hardware.
+    underlying hardware.
+
     \preliminary
 
-    When the hardware is known and well defined, as is often the case
-    with software for embedded devices, it may be useful to manipulate
-    the underlying video hardware directly. Note that this
-    functionality is only available in \l {Qtopia Core}.
+    Note that this class is only available in \l {Qtopia Core}.
 
-    Access to the video hardware is provided by the frameBuffer()
-    function which returns a pointer to the beginning of the display
-    memory.  In order to access the video hardware in a way that is
-    co-operative with other applications, a region of the screen must
-    be reserved for the application, QDirectPainter provides the
-    necessary functionality: The reserveRegion() function attempts to
-    reserve the given region and returns the region actually
-    reserved. The reserved region can also be retrieved using the
-    reservedRegion() function.
+    QDirectPainter allows a client application to reserve a region of
+    the framebuffer and render directly onto the screen. The client
+    application gets the complete control over the reserved region,
+    i.e. the affected region will never be modified by the screen
+    driver.
+
+    Use the reserveRegion() function to reserve a region. This
+    function will attempt to reserve the given region and return the
+    region actually reserved. The reserved region can also be
+    retrieved using the reservedRegion() function.
+
+    To draw on a region reserved by a QDirectPainter instance, the
+    application must get hold of a pointer to the framebuffer. In
+    general, a pointer to the framebuffer can be retrieved using the
+    QDirectPainter::frameBuffer() function. But note that if the
+    current screen has subscreens, you must query the screen driver
+    instead to identify the correct subscreen. A pointer to the
+    current screen driver can always be retrieved using the static
+    QScreen::instance() function. Then use QScreen's \l
+    {QScreen::}{subScreenIndexAt()} and \l {QScreen::}{subScreens()}
+    functions to access the correct subscreen, and the subscreen's \l
+    {QScreen::}{base()} function to retrieve a pointer to the
+    framebuffer.
 
     Depending on the hardware, it might be necessary to lock the video
     hardware for exclusive use while writing to it. This is possible
@@ -62,7 +74,14 @@
     of the framebuffer while the screenDepth(), screenWidth() and
     screenHeight() function return the screen metrics.
 
-    \sa QScreen, QDecoration
+    \sa QScreen, {Qtopia Core Architecture}
+*/
+
+/*!
+    \enum QDirectPainter::SurfaceFlag
+
+    \value NonReserved
+    \value Reserved
 */
 
 /*!
