@@ -77,9 +77,9 @@
         ./configure -embedded [architecture]
     \endcode
 
-    Typical architectures are x86 and arm, but in general, all Linux
-    systems which have framebuffer support can use the "generic"
-    architecture.
+    In general, all Linux systems which have framebuffer support can
+    use the \c generic architecture. Other typical architectures are
+    \c x86, \c arm, \c mips and \c powerpc.
 
     To create the library and compile all the demos, examples, tools,
     and tutorials, type:
