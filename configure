@@ -2803,8 +2803,9 @@ Qtopia Core only:
     -feature-<feature> .. Compile in <feature>. The available features
                           are described in src/corelib/global/qfeatures.txt
 
-    -embedded arch....... This will enable the embedded build, you must have a
+    -embedded <arch>..... This will enable the embedded build, you must have a
                           proper license for this switch to work.
+                          Example values for <arch>: arm i386 mips powerpc generic
 
     -little-endian ...... Target platform is little endian (LSB first).
     -big-endian ......... Target platform is big endian (MSB first).
