@@ -1397,7 +1397,6 @@ void QWidget::scroll(int dx, int dy)
             flags |= SW_ERASE;
         Q_ASSERT(testAttribute(Qt::WA_WState_Created));
         ScrollWindowEx(internalWinId(), dx, dy, 0, 0, 0, 0, flags);
-        d->scrollRect(rect(), dx, dy);
         UpdateWindow(internalWinId());
     }
 }
@@ -1425,7 +1424,6 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
             flags |= SW_ERASE;
         Q_ASSERT(testAttribute(Qt::WA_WState_Created));
         ScrollWindowEx(internalWinId(), dx, dy, &wr, &wr, 0, 0, flags);
-        d->scrollRect(rect(), dx, dy);
         UpdateWindow(internalWinId());
     }
 }
