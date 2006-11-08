@@ -1952,14 +1952,14 @@
     \value SizeHorCursor  \inlineimage cursor-sizeh.png
                           A cursor used for elements that are used to horizontally
                           resize top-level windows.
-    \value SizeFDiagCursor  \inlineimage cursor-sizef.png
-                          A cursor used for elements that are used to diagonally
-                          resize top-level windows at their top-left and
-                          bottom-right corners.
     \value SizeBDiagCursor  \inlineimage cursor-sizeb.png
                           A cursor used for elements that are used to diagonally
                           resize top-level windows at their top-right and
                           bottom-left corners.
+    \value SizeFDiagCursor  \inlineimage cursor-sizef.png
+                          A cursor used for elements that are used to diagonally
+                          resize top-level windows at their top-left and
+                          bottom-right corners.
     \value SizeAllCursor  \inlineimage cursor-sizeall.png
                           A cursor used for elements that are used to resize
                           top-level windows in any direction.
