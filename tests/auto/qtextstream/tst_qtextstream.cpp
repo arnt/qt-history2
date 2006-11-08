@@ -56,6 +56,8 @@ private slots:
     void readLineFromDevice();
     void readLineFromString_data();
     void readLineFromString();
+    void readLineFromTextDevice_data();
+    void readLineFromTextDevice();
     void readLineUntilNull();
 #if QT_VERSION >= 0x040103
     void readLineMaxlen_data();
@@ -145,6 +147,7 @@ private slots:
     void readNewlines();
     void seek();
     void pos();
+    void pos2();
     void readStdin();
     void readAllFromStdin();
     void read();
@@ -560,7 +563,6 @@ void tst_QTextStream::readLineFromDevice()
     QCOMPARE(list, lines);
 }
 
-#if QT_VERSION >= 0x040103
 // ------------------------------------------------------------------------------
 void tst_QTextStream::readLineMaxlen_data()
 {
@@ -615,7 +617,6 @@ void tst_QTextStream::readLineMaxlen()
         QCOMPARE(list, lines);
     }
 }
-#endif // QT_VERSION
 
 // ------------------------------------------------------------------------------
 void tst_QTextStream::readLineFromString_data()
@@ -637,6 +638,41 @@ void tst_QTextStream::readLineFromString()
         list << stream.readLine();
 
     QCOMPARE(list, lines);
+}
+
+// ------------------------------------------------------------------------------
+void tst_QTextStream::readLineFromTextDevice_data()
+{
+    generateLineData(false);
+}
+
+// ------------------------------------------------------------------------------
+void tst_QTextStream::readLineFromTextDevice()
+{
+    QFETCH(QByteArray, data);
+    QFETCH(QStringList, lines);
+
+    for (int i = 0; i < 4; ++i) {
+        QBuffer buffer(&data);
+
+        if (i < 2)
+            QVERIFY(buffer.open(QIODevice::ReadOnly | QIODevice::Text));
+        else
+            QVERIFY(buffer.open(QIODevice::ReadOnly));
+
+        QTextStream stream(&buffer);
+        QStringList list;
+        while (!stream.atEnd()) {
+            stream.pos(); // <- triggers side effects
+            QString line = stream.readLine();
+
+            if ((i & 1) && !QString(QTest::currentDataTag()).contains("utf16"))
+                stream.seek(stream.pos());
+            list << line;
+        }
+
+        QCOMPARE(list, lines);
+    }
 }
 
 // ------------------------------------------------------------------------------
@@ -1216,39 +1252,82 @@ void tst_QTextStream::pos()
     }
     {
         // Shift-JIS device
-        QFile file("shift-jis.txt");
-        QVERIFY(file.open(QIODevice::ReadOnly));
+        for (int i = 0; i < 2; ++i) {
+            QFile file("shift-jis.txt");
+            if (i == 0)
+                QVERIFY(file.open(QIODevice::ReadOnly));
+            else
+                QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
-        QTextStream stream(&file);
-        stream.setCodec("Shift-JIS");
-        QVERIFY(stream.codec());
+            QTextStream stream(&file);
+            stream.setCodec("Shift-JIS");
+            QVERIFY(stream.codec());
 
-        QCOMPARE(stream.pos(), qint64(0));
-        for (int i = 0; i <= file.size(); i += 7) {
-            QVERIFY(stream.seek(i));
-            QCOMPARE(stream.pos(), qint64(i));
+            QCOMPARE(stream.pos(), qint64(0));
+            for (int i = 0; i <= file.size(); i += 7) {
+                QVERIFY(stream.seek(i));
+                QCOMPARE(stream.pos(), qint64(i));
+            }
+            for (int j = file.size(); j >= 0; j -= 7) {
+                QVERIFY(stream.seek(j));
+                QCOMPARE(stream.pos(), qint64(j));
+            }
+
+            stream.seek(2089);
+            QString strtmp;
+            stream >> strtmp;
+            QCOMPARE(strtmp, QString("AUnicode"));
+            QCOMPARE(stream.pos(), qint64(2097));
+
+            stream.seek(43325);
+            stream >> strtmp;
+            QCOMPARE(strtmp, QString("Shift-JIS"));
+            stream >> strtmp;
+            QCOMPARE(strtmp, QString::fromUtf8("\343\201\247\346\233\270\343\201\213\343\202\214\343\201\237"));
+            QCOMPARE(stream.pos(), qint64(43345));
+            stream >> strtmp;
+            QCOMPARE(strtmp, QString("POD"));
+            QCOMPARE(stream.pos(), qint64(43349));
         }
-        for (int j = file.size(); j >= 0; j -= 7) {
-            QVERIFY(stream.seek(j));
-            QCOMPARE(stream.pos(), qint64(j));
-        }
-
-        stream.seek(2089);
-        QString strtmp;
-        stream >> strtmp;
-        QCOMPARE(strtmp, QString("AUnicode"));
-        QCOMPARE(stream.pos(), qint64(2097));
-
-        stream.seek(43325);
-        stream >> strtmp;
-        QCOMPARE(strtmp, QString("Shift-JIS"));
-        stream >> strtmp;
-        QCOMPARE(strtmp, QString::fromUtf8("\343\201\247\346\233\270\343\201\213\343\202\214\343\201\237"));
-        QCOMPARE(stream.pos(), qint64(43345));
-        stream >> strtmp;
-        QCOMPARE(strtmp, QString("POD"));
-        QCOMPARE(stream.pos(), qint64(43349));
     }
+}
+
+// ------------------------------------------------------------------------------
+void tst_QTextStream::pos2()
+{
+    QByteArray data("abcdef\r\nghijkl\r\n");
+    QBuffer buffer(&data);
+    QVERIFY(buffer.open(QIODevice::ReadOnly | QIODevice::Text));
+
+    QTextStream stream(&buffer);
+    
+    QChar ch;
+
+    QCOMPARE(stream.pos(), qint64(0));
+    stream >> ch;
+    QCOMPARE(ch, QChar('a'));
+    QCOMPARE(stream.pos(), qint64(1));
+
+    QString str;
+    stream >> str;
+    QCOMPARE(str, QString("bcdef"));
+    QCOMPARE(stream.pos(), qint64(6));
+
+    stream >> str;
+    QCOMPARE(str, QString("ghijkl"));
+    QCOMPARE(stream.pos(), qint64(14));
+
+    // Seek back and try again
+    stream.seek(1);
+    QCOMPARE(stream.pos(), qint64(1));
+    stream >> str;
+    QCOMPARE(str, QString("bcdef"));
+    QCOMPARE(stream.pos(), qint64(6));
+
+    stream.seek(6);
+    stream >> str;
+    QCOMPARE(str, QString("ghijkl"));
+    QCOMPARE(stream.pos(), qint64(14));
 }
 
 // ------------------------------------------------------------------------------
@@ -1295,9 +1374,6 @@ void tst_QTextStream::readAllFromStdin()
 // ------------------------------------------------------------------------------
 void tst_QTextStream::read()
 {
-#if QT_VERSION < 0x040100
-    QSKIP("QTextStream::read() was added in Qt 4.1", SkipAll);
-#else
     {
         QFile::remove("testfile");
         QFile file("testfile");
@@ -1307,9 +1383,7 @@ void tst_QTextStream::read()
         
         QVERIFY(file.open(QFile::ReadOnly));
         QTextStream stream(&file);
-#if QT_VERSION >= 0x040103
         QCOMPARE(stream.read(0), QString(""));
-#endif
         QCOMPARE(stream.read(4), QString("4.15"));
         QCOMPARE(stream.read(4), QString(" abc"));
         stream.seek(1);
@@ -1321,7 +1395,6 @@ void tst_QTextStream::read()
         // ### add tests for reading \r\n etc..
     }
 
-#if QT_VERSION >= 0x040103
     {
         // File larger than QTEXTSTREAM_BUFFERSIZE
         QFile::remove("testfile");
@@ -1338,9 +1411,6 @@ void tst_QTextStream::read()
         QCOMPARE(stream.read(10), QString("2345670123"));
         QCOMPARE(stream.readAll().size(), 16385-20);
     }
-#endif
-
-#endif
 }
 
 // ------------------------------------------------------------------------------
@@ -1349,11 +1419,7 @@ void tst_QTextStream::qbool()
     QString s;
     QTextStream stream(&s);
     stream << s.contains(QString("hei"));
-#if QT_VERSION < 0x040100
-    QCOMPARE(s, QString("0x0"));
-#else
     QCOMPARE(s, QString("0"));
-#endif
 }
 
 // ------------------------------------------------------------------------------
@@ -1389,9 +1455,6 @@ void tst_QTextStream::forceSign()
 // ------------------------------------------------------------------------------
 void tst_QTextStream::read0d0d0a()
 {
-#if QT_VERSION < 0x040104
-    QSKIP("Crashes in anything < 4.1.4", SkipSingle);
-#endif
     QFile file("task113817.txt");
     file.open(QIODevice::ReadOnly | QIODevice::Text);
 
@@ -2245,9 +2308,6 @@ void tst_QTextStream::readBomSeekBackReadBomAgain()
     QCOMPARE(Andreas, QString("Andreas"));
     stream.seek(0);
     stream >> Andreas;
-#if QT_VERSION < 0x040101
-    QEXPECT_FAIL("", "Up until Qt 4.1.1, QTextStream didn't reset BOM detection after seek(0).", Continue);
-#endif
     QCOMPARE(Andreas, QString("Andreas"));
 }
 
@@ -3659,7 +3719,6 @@ void tst_QTextStream::qt3_write_QByteArray( QTextStream *s )
     *s << cs;
 }
 
-#if QT_VERSION >= 0x040100
 // ------------------------------------------------------------------------------
 void tst_QTextStream::status_real_read_data()
 {
@@ -3728,7 +3787,6 @@ void tst_QTextStream::status_word_read()
     s >> w;
     QCOMPARE(s.status(), QTextStream::ReadPastEnd);
 }
-#endif
 
 // ------------------------------------------------------------------------------
 QTEST_APPLESS_MAIN(tst_QTextStream)
