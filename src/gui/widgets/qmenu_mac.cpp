@@ -906,9 +906,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
         if (data.style)
             data.whichData |= kMenuItemDataStyle;
         data.whichData |= kMenuItemDataFontID;
-        ATSUFONDtoFontID(FMGetFontFamilyFromATSFontFamilyRef(
-                             (ATSFontFamilyRef)action->action->font().handle()),
-                         0, (ATSUFontID*)&data.fontID);
+        data.fontID = action->action->font().macFontID();
     }
 
     if (action->action->menu()) { //submenu

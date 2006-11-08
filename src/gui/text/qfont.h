@@ -152,7 +152,9 @@ public:
 #else // !Q_WS_WIN
     Qt::HANDLE handle() const;
 #endif // Q_WS_WIN
-
+#ifdef Q_WS_MAC
+    quint32 macFontID() const;
+#endif
 
     // needed for X11
     void setRawName(const QString &);

@@ -592,20 +592,24 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
 
                 //update handles
                 GrafPtr qd = 0;
+                CGContextRef cg = 0;
+#ifndef QT_MAC_NO_QUICKDRAW
                 {
                     if(GetEventParameter(event, kEventParamGrafPort, typeGrafPtr, 0, sizeof(qd), 0, &qd) != noErr) {
-#ifndef QT_MAC_NO_QUICKDRAW
                         GDHandle dev = 0;
                         GetGWorld(&qd, &dev); //just use the global port..
-#endif
                     }
                 }
                 bool end_cg_context = false;
-                CGContextRef cg = 0;
                 if(GetEventParameter(event, kEventParamCGContextRef, typeCGContextRef, 0, sizeof(cg), 0, &cg) != noErr && qd) {
                     end_cg_context = true;
                     QDBeginCGContext(qd, &cg);
                 }
+#else
+                if(GetEventParameter(event, kEventParamCGContextRef, typeCGContextRef, 0, sizeof(cg), 0, &cg) != noErr) {
+                    Q_ASSERT(false);
+                }
+#endif
                 widget->d_func()->hd = cg;
                 widget->d_func()->qd_hd = qd;
                 CGContextSaveGState(cg);
@@ -723,8 +727,10 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                 widget->d_func()->hd = 0;
                 widget->d_func()->qd_hd = 0;
                 CGContextRestoreGState(cg);
+#ifndef QT_MAC_NO_QUICKDRAW
                 if(end_cg_context)
                     QDEndCGContext(qd, &cg);
+#endif
             } else if(!HIObjectIsOfClass((HIObjectRef)hiview, kObjectQWidget)) {
                 CallNextEventHandler(er, event);
             }
@@ -1686,7 +1692,7 @@ void QWidgetPrivate::updateSystemBackground()
 {
 }
 
-void QWidgetPrivate::setCursor_sys(const QCursor &cursor)
+void QWidgetPrivate::setCursor_sys(const QCursor &)
 {
     qt_mac_update_cursor();
 }

@@ -112,7 +112,8 @@ private:
 
 #if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_5)
 typedef float CGFloat;
-#define SRefCon(x) (long)x
+#define SRefCon SInt32
+#define URefCon UInt32
 #endif
 
 #endif // QCORE_MAC_P_H

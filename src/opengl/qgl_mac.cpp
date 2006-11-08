@@ -481,11 +481,7 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
         fstyle |= italic;
     if(fnt.underline())
         fstyle |= underline;
-    Str255 name;
-    FMGetFontFamilyName((FMFontFamily)((UInt32)fnt.handle()), name);
-    short fnum;
-    GetFNum(name, &fnum);
-    aglUseFont((AGLContext)d_func()->cx, (int)fnum, fstyle, QFontInfo(fnt).pointSize(), 0, 256, listBase);
+    aglUseFont((AGLContext)d_func()->cx, fnt.macFontID(), fstyle, QFontInfo(fnt).pointSize(), 0, 256, listBase);
 }
 
 static CFBundleRef qt_getOpenGLBundle()

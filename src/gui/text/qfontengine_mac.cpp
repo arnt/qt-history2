@@ -89,19 +89,19 @@ OSStatus QMacFontPath::closePath(void *data)
 
 #include "qscriptengine_p.h"
 
-QFontEngineMacMulti::QFontEngineMacMulti(const ATSFontFamilyRef &atsFamily, const QFontDef &fontDef, bool kerning)
+QFontEngineMacMulti::QFontEngineMacMulti(const ATSUFontID &fontID, const QFontDef &fontDef, bool kerning)
     : QFontEngineMulti(0)
 {
     this->fontDef = fontDef;
     this->kerning = kerning;
-    familyref = atsFamily;
+    this->fontID = fontID;
 
     OSStatus status;
 
     status = ATSUCreateTextLayout(&textLayout);
     Q_ASSERT(status == noErr);
 
-    const int maxAttributeCount = 4;
+    const int maxAttributeCount = 5;
     ATSUAttributeTag tags[maxAttributeCount + 1];
     ByteCount sizes[maxAttributeCount + 1];
     ATSUAttributeValuePtr values[maxAttributeCount + 1];
@@ -113,28 +113,9 @@ QFontEngineMacMulti::QFontEngineMacMulti(const ATSFontFamilyRef &atsFamily, cons
     values[attributeCount] = &size;
     ++attributeCount;
 
-//    QCFString familyStr;
-//    ATSFontFamilyGetName(familyref, kATSOptionFlagsDefault, &familyStr);
-//    qDebug() << "family" << (QString)familyStr;
-
-    FMFontFamily family = FMGetFontFamilyFromATSFontFamilyRef(familyref);
-    Q_ASSERT(family != kInvalidFontFamily);
-
-    FMFontStyle fntStyle = 0;
-    if (fontDef.weight >= QFont::Bold)
-        fntStyle |= ::bold;
-    if (fontDef.style != QFont::StyleNormal)
-        fntStyle |= ::italic;
-
-    FMFontStyle intrinsicStyle;
-    FMFont fnt;
-    status = FMGetFontFromFontFamilyInstance(family, fntStyle, &fnt, &intrinsicStyle);
-    Q_ASSERT(status == noErr);
-
     tags[attributeCount] = kATSUFontTag;
-    // KATSUFontID is typedef'ed to FMFont
-    sizes[attributeCount] = sizeof(FMFont);
-    values[attributeCount] = &fnt;
+    sizes[attributeCount] = sizeof(fontID);
+    values[attributeCount] = &this->fontID;
     ++attributeCount;
 
     status = ATSUCreateStyle(&style);
@@ -144,7 +125,7 @@ QFontEngineMacMulti::QFontEngineMacMulti(const ATSFontFamilyRef &atsFamily, cons
     status = ATSUSetAttributes(style, attributeCount, tags, sizes, values);
     Q_ASSERT(status == noErr);
 
-    QFontEngineMac *fe = new QFontEngineMac(style, fnt, fontDef, this);
+    QFontEngineMac *fe = new QFontEngineMac(style, fontID, fontDef, this);
     fe->ref.ref();
     engines.append(fe);
 }
@@ -173,11 +154,8 @@ struct QGlyphLayoutInfo
     QShaperItem *shaperItem;
 };
 
-static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector,
-                                 ATSULineRef lineRef,
-                                 UInt32 refCon,
-                                 void *operationExtraParameter,
-                                 ATSULayoutOperationCallbackStatus *callbackStatus)
+static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector, ATSULineRef lineRef, URefCon refCon,
+                                 void *operationExtraParameter, ATSULayoutOperationCallbackStatus *callbackStatus)
 {
     Q_UNUSED(selector);
     Q_UNUSED(operationExtraParameter);
@@ -307,17 +285,17 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector,
     return noErr;
 }
 
-int QFontEngineMacMulti::fontIndexForFMFont(FMFont font) const
+int QFontEngineMacMulti::fontIndexForFontID(ATSUFontID id) const
 {
-    for (int i = 0; i < engines.count(); ++i)
-        if (engineAt(i)->fmFont == font)
+    for (int i = 0; i < engines.count(); ++i) {
+        if (engineAt(i)->fontID == id)
             return i;
+    }
 
     QFontEngineMacMulti *that = const_cast<QFontEngineMacMulti *>(this);
-    QFontEngineMac *fe = new QFontEngineMac(style, font, fontDef, that);
+    QFontEngineMac *fe = new QFontEngineMac(style, id, fontDef, that);
     fe->ref.ref();
     that->engines.append(fe);
-
     return engines.count() - 1;
 }
 
@@ -356,7 +334,7 @@ bool QFontEngineMacMulti::stringToCMap(const QChar *str, int len, QGlyphLayout *
     nfo.mappedFonts = mappedFonts.data();
 
     Q_ASSERT(sizeof(void *) <= sizeof(UInt32));
-    e = ATSUSetTextLayoutRefCon(textLayout, reinterpret_cast<UInt32>(&nfo));
+    e = ATSUSetTextLayoutRefCon(textLayout, (URefCon)&nfo);
     if (e != noErr) {
         qWarning("Qt: internal: %ld: Error ATSUSetTextLayoutRefCon %s: %d", long(e), __FILE__, __LINE__);
         return false;
@@ -427,7 +405,7 @@ bool QFontEngineMacMulti::stringToCMap(const QChar *str, int len, QGlyphLayout *
     if (!(fontDef.styleStrategy & QFont::NoFontMerging)) {
         int pos = 0;
         do {
-            FMFont substFont = 0;
+            ATSUFontID substFont = 0;
             UniCharArrayOffset changedOffset = 0;
             UniCharCount changeCount = 0;
 
@@ -435,21 +413,17 @@ bool QFontEngineMacMulti::stringToCMap(const QChar *str, int len, QGlyphLayout *
                                      &substFont, &changedOffset,
                                      &changeCount);
             if (e == kATSUFontsMatched) {
-                int fontIdx = fontIndexForFMFont(substFont);
+                int fontIdx = fontIndexForFontID(substFont);
                 for (uint i = 0; i < changeCount; ++i)
                     mappedFonts[changedOffset + i] = fontIdx;
                 pos = changedOffset + changeCount;
-
                 ATSUSetRunStyle(textLayout, engineAt(fontIdx)->style, changedOffset, changeCount);
-
             } else if (e == kATSUFontsNotMatched) {
                 pos = changedOffset + changeCount;
             }
         } while (pos < len && e != noErr);
     }
-
-    // trigger the a layout
-    {
+    {    // trigger the a layout
         Rect rect;
         e = ATSUMeasureTextImage(textLayout, kATSUFromTextBeginning, kATSUToTextEnd,
                                  /*iLocationX =*/ 0, /*iLocationY =*/ 0,
@@ -466,7 +440,6 @@ bool QFontEngineMacMulti::stringToCMap(const QChar *str, int len, QGlyphLayout *
     }
 
     ATSUClearLayoutCache(textLayout, kATSUFromTextBeginning);
-
     return true;
 }
 
@@ -514,11 +487,12 @@ bool QFontEngineMacMulti::canRender(const QChar *string, int len)
     return e == noErr || e == kATSUFontsMatched;
 }
 
-QFontEngineMac::QFontEngineMac(ATSUStyle baseStyle, FMFont fmFont, const QFontDef &def, QFontEngineMacMulti *multiEngine)
-    : fmFont(fmFont), multiEngine(multiEngine), cmap(0), symbolCMap(false)
+QFontEngineMac::QFontEngineMac(ATSUStyle baseStyle, ATSUFontID fontID, const QFontDef &def, QFontEngineMacMulti *multiEngine)
+    : fontID(fontID), multiEngine(multiEngine), cmap(0), symbolCMap(false)
 {
     fontDef = def;
-    ATSFontRef atsFont = FMGetATSFontRefFromFont(fmFont);
+    ATSUCreateAndCopyStyle(baseStyle, &style);
+    ATSFontRef atsFont = FMGetATSFontRefFromFont(fontID);
     cgFont = CGFontCreateWithPlatformFont(&atsFont);
 
     const int maxAttributeCount = 4;
@@ -529,62 +503,40 @@ QFontEngineMac::QFontEngineMac(ATSUStyle baseStyle, FMFont fmFont, const QFontDe
 
     synthesisFlags = 0;
 
-    FMFontStyle fntStyle = 0;
-    if (fontDef.weight >= QFont::Bold)
-        fntStyle |= ::bold;
-    if (fontDef.style != QFont::StyleNormal)
-        fntStyle |= ::italic;
-
-    FMFontStyle intrinsicStyle;
-    FMFontFamily family;
-    OSStatus status = FMGetFontFamilyInstanceFromFont(fmFont, &family, &intrinsicStyle);
-    // this can sometimes fail, for example for devanagari. it's not critical though
-    if (status == noErr) {
-        Boolean atsuBold = false;
-        Boolean atsuItalic = false;
-
-        if ((fntStyle & ::italic)
-            && (!(intrinsicStyle & ::italic))) {
-            synthesisFlags |= SynthesizedItalic;
-
-            atsuItalic = true;
-            tags[attributeCount] = kATSUQDItalicTag;
-            sizes[attributeCount] = sizeof(atsuItalic);
-            values[attributeCount] = &atsuItalic;
-            ++attributeCount;
-        }
-        if ((fntStyle & ::bold)
-            && (!(intrinsicStyle & ::bold))) {
-            synthesisFlags |= SynthesizedBold;
-
-            atsuBold = true;
-            tags[attributeCount] = kATSUQDBoldfaceTag;
-            sizes[attributeCount] = sizeof(atsuBold);
-            values[attributeCount] = &atsuBold;
-            ++attributeCount;
-        }
+    //nasty synthesis for now, will fix later --Sam ###
+    Boolean atsuBold = false;
+    Boolean atsuItalic = false;
+    if (fontDef.weight >= QFont::Bold) {
+        synthesisFlags |= SynthesizedBold;
+        atsuBold = true;
+        tags[attributeCount] = kATSUQDBoldfaceTag;
+        sizes[attributeCount] = sizeof(atsuBold);
+        values[attributeCount] = &atsuBold;
+        ++attributeCount;
+    }
+    if (fontDef.style != QFont::StyleNormal) {
+        synthesisFlags |= SynthesizedItalic;
+        atsuItalic = true;
+        tags[attributeCount] = kATSUQDItalicTag;
+        sizes[attributeCount] = sizeof(atsuItalic);
+        values[attributeCount] = &atsuItalic;
+        ++attributeCount;
     }
 
-    ATSUCreateAndCopyStyle(baseStyle, &style);
-
     tags[attributeCount] = kATSUFontTag;
-    values[attributeCount] = &fmFont;
-    sizes[attributeCount] = sizeof(fmFont);
+    values[attributeCount] = &fontID;
+    sizes[attributeCount] = sizeof(fontID);
     ++attributeCount;
 
     Q_ASSERT(attributeCount < maxAttributeCount + 1);
-    status = ATSUSetAttributes(style, attributeCount, tags, sizes, values);
-    Q_ASSERT(status == noErr);
+    OSStatus err = ATSUSetAttributes(style, attributeCount, tags, sizes, values);
+    Q_ASSERT(err == noErr);
 
     int tmpFsType;
-    if (ATSFontGetTable(FMGetATSFontRefFromFont(fmFont),
-                        MAKE_TAG('O', 'S', '/', '2'),
-                        /*offset = */8,
-                        /*size = */2, &tmpFsType, 0) == noErr) {
+    if (ATSFontGetTable(atsFont, MAKE_TAG('O', 'S', '/', '2'), 8, 2, &tmpFsType, 0) == noErr)
        fsType = qFromBigEndian<quint16>(tmpFsType);
-    } else {
+    else
         fsType = 0;
-    }
 }
 
 QFontEngineMac::~QFontEngineMac()
@@ -594,12 +546,8 @@ QFontEngineMac::~QFontEngineMac()
         delete [] cmap;
 }
 
-static inline quint32 getUInt(unsigned char *p)
-{ return qFromBigEndian<quint32>(p); }
-
-static inline quint16 getUShort(unsigned char *p)
-{ return qFromBigEndian<quint16>(p); }
-
+static inline quint32 getUInt(unsigned char *p) { return qFromBigEndian<quint32>(p); }
+static inline quint16 getUShort(unsigned char *p) { return qFromBigEndian<quint16>(p); }
 
 static quint32 getGlyphIndex(unsigned char *table, unsigned int unicode)
 {
@@ -754,7 +702,7 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 {
     if (flags & QTextEngine::GlyphIndicesOnly) {
         if (!cmap) {
-            cmap = getCMap(FMGetATSFontRefFromFont(fmFont), symbolCMap);
+            cmap = getCMap(FMGetATSFontRefFromFont(fontID), symbolCMap);
             if (!cmap)
                 return false;
         }
@@ -852,25 +800,22 @@ QFixed QFontEngineMac::leading() const
 
 qreal QFontEngineMac::maxCharWidth() const
 {
-    ATSFontRef atsFont = FMGetATSFontRefFromFont(fmFont);
     ATSFontMetrics metrics;
-    ATSFontGetHorizontalMetrics(atsFont, kATSOptionFlagsDefault, &metrics);
+    ATSFontGetHorizontalMetrics(FMGetATSFontRefFromFont(fontID), kATSOptionFlagsDefault, &metrics);
     return metrics.maxAdvanceWidth * fontDef.pointSize;
 }
 
 QFixed QFontEngineMac::xHeight() const
 {
-    ATSFontRef atsFont = FMGetATSFontRefFromFont(fmFont);
     ATSFontMetrics metrics;
-    ATSFontGetHorizontalMetrics(atsFont, kATSOptionFlagsDefault, &metrics);
+    ATSFontGetHorizontalMetrics(FMGetATSFontRefFromFont(fontID), kATSOptionFlagsDefault, &metrics);
     return QFixed::fromReal(metrics.xHeight * fontDef.pointSize);
 }
 
 QFixed QFontEngineMac::averageCharWidth() const
 {
-    ATSFontRef atsFont = FMGetATSFontRefFromFont(fmFont);
     ATSFontMetrics metrics;
-    ATSFontGetHorizontalMetrics(atsFont, kATSOptionFlagsDefault, &metrics);
+    ATSFontGetHorizontalMetrics(FMGetATSFontRefFromFont(fontID), kATSOptionFlagsDefault, &metrics);
     return QFixed::fromReal(metrics.avgAdvanceWidth * fontDef.pointSize);
 }
 
@@ -1030,25 +975,29 @@ void QFontEngineMac::draw(CGContextRef ctx, qreal x, qreal y, const QTextItemInt
 
 QFontEngine::FaceId QFontEngineMac::faceId() const
 {
-    ATSFontRef atsFont = FMGetATSFontRefFromFont(fmFont);
-    FaceId face;
-
+    FaceId ret;
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+    FSRef ref;
+    if (ATSFontGetFileReference(FMGetATSFontRefFromFont(fontID), &ref) != noErr)
+        return ret;
+    ret.filename = QByteArray(128, 0);
+    FSRefMakePath(&ref, (UInt8 *)ret.filename.data(), ret.filename.size());
+#else
     FSSpec spec;
-    if (ATSFontGetFileSpecification(atsFont, &spec) != noErr)
-        return FaceId();
+    if (ATSFontGetFileSpecification(FMGetATSFontRefFromFont(fontID), &spec) != noErr)
+        return ret;
 
     FSRef ref;
     FSpMakeFSRef(&spec, &ref);
-
-    face.filename = QByteArray(128, 0);
-    FSRefMakePath(&ref, (UInt8 *)face.filename.data(), face.filename.size());
-
-    return face;
+    ret.filename = QByteArray(128, 0);
+    FSRefMakePath(&ref, (UInt8 *)ret.filename.data(), ret.filename.size());
+#endif
+    return ret;
 }
 
 QByteArray QFontEngineMac::getSfntTable(uint tag) const
 {
-    ATSFontRef atsFont = FMGetATSFontRefFromFont(fmFont);
+    ATSFontRef atsFont = FMGetATSFontRefFromFont(fontID);
 
     ByteCount length;
     OSStatus status = ATSFontGetTable(atsFont, tag, 0, 0, 0, &length);
@@ -1064,10 +1013,8 @@ QByteArray QFontEngineMac::getSfntTable(uint tag) const
 QFontEngine::Properties QFontEngineMac::properties() const
 {
     QFontEngine::Properties props = QFontEngine::properties();
-
-    ATSFontRef atsFont = FMGetATSFontRefFromFont(fmFont);
     QCFString psName;
-    if (ATSFontGetPostScriptName(atsFont, kATSOptionFlagsDefault, &psName) == noErr)
+    if (ATSFontGetPostScriptName(FMGetATSFontRefFromFont(fontID), kATSOptionFlagsDefault, &psName) == noErr)
         props.postscriptName = QString(psName).toUtf8();
     props.postscriptName = QPdf::stripSpecialCharacters(props.postscriptName);
     return props;

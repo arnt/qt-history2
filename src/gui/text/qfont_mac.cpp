@@ -63,12 +63,32 @@ void QFont::cleanup()
     delete QFontCache::instance;
 }
 
-// Returns an ATSFontRef
-Qt::HANDLE QFont::handle() const
+// Returns an ATSUFontID
+quint32 QFont::macFontID() const
 {
+#if 1
     QFontEngine *fe = d->engineForScript(QUnicodeTables::Common);
     if (fe && fe->type() == QFontEngine::Mac)
-        return (Qt::HANDLE)static_cast<QFontEngineMacMulti *>(fe)->fontFamilyRef();
+        return static_cast<QFontEngineMacMulti*>(fe)->macFontID();
+#else
+    Str255 name;
+    if(FMGetFontFamilyName((FMFontFamily)((UInt32)handle()), name) == noErr) {
+        short fnum;
+        GetFNum(name, &fnum);
+        return fnum;
+    }
+#endif
+    return 0;
+}
+
+// Returns an ATSUFonFamilyRef
+Qt::HANDLE QFont::handle() const
+{
+#if 0
+    QFontEngine *fe = d->engineForScript(QUnicodeTables::Common);
+    if (fe && fe->type() == QFontEngine::Mac)
+        return (Qt::HANDLE)static_cast<QFontEngineMacMulti*>(fe)->fontFamilyRef();
+#endif
     return 0;
 }
 

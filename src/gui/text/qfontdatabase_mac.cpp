@@ -156,15 +156,12 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
         return; // the font info and fontdef should already be filled
     }
 
-    ATSFontFamilyRef familyRef = 0;
-
     //find the font
     QStringList family_list = req.family.split(',');
     // append the substitute list for each family in family_list
     {
 	    QStringList subs_list;
-	    QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
-	    for(; it != end; ++it)
+	    for(QStringList::ConstIterator it = family_list.begin(); it != family_list.end(); ++it)
 		    subs_list += QFont::substitutes(*it);
 	    family_list += subs_list;
     }
@@ -173,34 +170,12 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
     family_list << QApplication::font().defaultFamily();
 
     //find it!
-    QHash<QString, ATSFontFamilyRef> mac_families;
-    {
-	ATSFontFamilyIterator iterator;
-	if(!ATSFontFamilyIteratorCreate(kATSFontContextGlobal, 0, 0,
-		                       kATSOptionFlagsRestrictedScope, &iterator)) {
-	    for(ATSFontFamilyRef family; ATSFontFamilyIteratorNext(iterator, &family) == noErr;) {
-		QCFString actualName;
-		if(ATSFontFamilyGetName(family, kATSOptionFlagsDefault, &actualName) == noErr)
-		    mac_families.insert(static_cast<QString>(actualName).toLower(), family);
-	    }
-	    ATSFontFamilyIteratorRelease(&iterator);
-	}
-    }
-    for(QStringList::ConstIterator it = family_list.constBegin(); it !=  family_list.constEnd(); ++it) {
-	if(mac_families.contains((*it).toLower())) {
-	    familyRef = mac_families.value((*it).toLower());
-	    break;
-	}
-	if(ATSFontFamilyRef family = ATSFontFamilyFindFromName(QCFString(*it), kATSOptionFlagsDefault)) {
-	    QCFString actualName;
-	    if(ATSFontFamilyGetName(family, kATSOptionFlagsDefault, &actualName) == noErr) {
-		if(static_cast<QString>(actualName) == (*it)) {
-		    familyRef = family;
+    ATSUFontID fontID = 0;
+    for(int i = 0; i < family_list.size(); ++i) {
+        QByteArray family_name = family_list.at(i).toUtf8();
+        if(ATSUFindFontFromName(family_name.data(), family_name.size(), kFontFullName,
+                                kFontNoPlatformCode, kFontNoScriptCode, kFontNoLanguageCode, &fontID) == noErr)
 		    break;
-		}
-	    }
-	    familyRef = family; //just take one if it isn't set yet
-	}
     }
 
     //fill in the engine's font definition
@@ -209,16 +184,27 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
 	fontDef.pointSize = qt_mac_pointsize(fontDef, d->dpi);
     else
 	fontDef.pixelSize = qt_mac_pixelsize(fontDef, d->dpi);
-    {
-	QCFString actualName;
-	if(ATSFontFamilyGetName(familyRef, kATSOptionFlagsDefault, &actualName) == noErr)
-	    fontDef.family = actualName;
+#if 0
+    ItemCount name_count;
+    if(ATSUCountFontNames(fontID, &name_count) == noErr && name_count) {
+        ItemCount actualName_size;
+        if(ATSUGetIndFontName(fontID, 0, 0, 0, &actualName_size, 0, 0, 0, 0) == noErr && actualName_size) {
+            QByteArray actualName(actualName_size);
+            if(ATSUGetIndFontName(fontID, 0, actualName_size, actualName.data(), &actualName_size, 0, 0, 0, 0) == noErr && actualName_size)
+                fontDef.family = QString::fromUtf8(actualName);
+        }
     }
+#else
+    {
+        QCFString actualName;
+        if(ATSFontGetName(FMGetATSFontRefFromFont(fontID), kATSOptionFlagsDefault, &actualName) == noErr)
+            fontDef.family = actualName;
+    }
+#endif
 
-    QFontEngine *engine = new QFontEngineMacMulti(familyRef, fontDef, d->kerning);
+    QFontEngine *engine = new QFontEngineMacMulti(fontID, fontDef, d->kerning);
     d->engineData->engine = engine;
     engine->ref.ref(); //a ref for the engineData->engine
-
     QFontCache::instance->insertEngine(key, engine);
 }
 

@@ -412,7 +412,7 @@ class QFontEngineMac : public QFontEngine
 {
     friend class QFontEngineMacMulti;
 public:
-    QFontEngineMac(ATSUStyle baseStyle, FMFont font, const QFontDef &def, QFontEngineMacMulti *multiEngine = 0);
+    QFontEngineMac(ATSUStyle baseStyle, ATSUFontID fontID, const QFontDef &def, QFontEngineMacMulti *multiEngine = 0);
     virtual ~QFontEngineMac();
 
     virtual bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
@@ -447,7 +447,7 @@ public:
     virtual QImage alphaMapForGlyph(glyph_t);
 
 private:
-    FMFont fmFont;
+    ATSUFontID fontID;
     QCFType<CGFontRef> cgFont;
     ATSUStyle style;
     int synthesisFlags;
@@ -461,7 +461,7 @@ class QFontEngineMacMulti : public QFontEngineMulti
 {
     friend class QFontEngineMac;
 public:
-    QFontEngineMacMulti(const ATSFontFamilyRef &family, const QFontDef &fontDef, bool kerning);
+    QFontEngineMacMulti(const ATSUFontID &fontID, const QFontDef &fontDef, bool kerning);
     virtual ~QFontEngineMacMulti();
 
     virtual bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
@@ -475,7 +475,7 @@ public:
 
     bool canRender(const QChar *string, int len);
 
-    inline ATSFontFamilyRef fontFamilyRef() const { return familyref; }
+    inline ATSUFontID macFontID() const { return fontID; }
 
 protected:
     virtual void loadEngine(int at);
@@ -484,9 +484,9 @@ private:
     inline const QFontEngineMac *engineAt(int i) const
     { return static_cast<const QFontEngineMac *>(engines.at(i)); }
 
-    int fontIndexForFMFont(FMFont font) const;
+    int fontIndexForFontID(ATSUFontID id) const;
 
-    ATSFontFamilyRef familyref;
+    ATSUFontID fontID;
     uint kerning : 1;
 
     mutable ATSUTextLayout textLayout;
