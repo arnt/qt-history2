@@ -1239,33 +1239,24 @@ bool QAbstractItemView::viewportEvent(QEvent *event)
     case QEvent::Leave:
         d->enteredIndex = QModelIndex();
         break;
-#ifndef QT_NO_TOOLTIP
-    case QEvent::ToolTip: {
-        if (!isActiveWindow())
-            break;
-        QHelpEvent *he = static_cast<QHelpEvent*>(event);
-        QVariant tooltip = d->model->data(indexAt(he->pos()), Qt::ToolTipRole);
-        if (qVariantCanConvert<QString>(tooltip)) {
-            QToolTip::showText(he->globalPos(), tooltip.toString(), this);
-            return true;
-        }
-        break;}
-#endif
-#ifndef QT_NO_WHATSTHIS
-    case QEvent::QueryWhatsThis: {
-        QHelpEvent *he = static_cast<QHelpEvent*>(event);
-        if (d->model->data(indexAt(he->pos()), Qt::WhatsThisRole).isValid())
-            return true;
-        break ; }
+    case QEvent::ToolTip:
+    case QEvent::QueryWhatsThis:
     case QEvent::WhatsThis: {
         QHelpEvent *he = static_cast<QHelpEvent*>(event);
-        QVariant whatsthis = d->model->data(indexAt(he->pos()), Qt::WhatsThisRole);
-        if (qVariantCanConvert<QString>(whatsthis)) {
-            QWhatsThis::showText(he->globalPos(), whatsthis.toString(), this);
-            return true;
-        }
-        break ; }
-#endif
+        const QModelIndex index = indexAt(he->pos());
+        QStyleOptionViewItem option = viewOptions();
+        option.rect = visualRect(index);
+        option.state |= (index == currentIndex() ? QStyle::State_HasFocus : QStyle::State_None);
+        bool retval = false;
+        // ### Qt 5: make this a normal function call to a virtual function
+        QMetaObject::invokeMethod(d->delegateForIndex(index), "helpEvent",
+                                  Q_RETURN_ARG(bool, retval),
+                                  Q_ARG(QHelpEvent *, he),
+                                  Q_ARG(QAbstractItemView *, this),
+                                  Q_ARG(QStyleOptionViewItem, option),
+                                  Q_ARG(QModelIndex, index));
+        return retval;
+    }
     case QEvent::FontChange:
         d->doDelayedItemsLayout(); // the size of the items will change
         break;
