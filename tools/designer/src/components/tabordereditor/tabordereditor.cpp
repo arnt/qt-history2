@@ -23,7 +23,7 @@
 
 #include <QtDesigner/QtDesigner>
 
-#include <QtGui/QUndoCommand>
+#include <metadatabase_p.h>
 #include <qdesigner_command_p.h>
 #include <qdesigner_widget_p.h>
 #include <qdesigner_utils_p.h>
@@ -157,11 +157,10 @@ bool TabOrderEditor::skipWidget(QWidget *w) const
         return true;
     }
 
-    // Is promoted?
-    if (const QDesignerMetaDataBaseItemInterface *item = formWindow()->core()->metaDataBase()->item(w)) {
-        if (item && !item->customClassName().isEmpty()) 
-            return true;
-    }
+
+    if (isPromoted(formWindow()->core(),w))
+        return true;
+
 
     QExtensionManager *ext = formWindow()->core()->extensionManager();
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(ext, w)) {

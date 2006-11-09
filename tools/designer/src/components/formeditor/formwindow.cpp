@@ -24,6 +24,7 @@ TRANSLATOR qdesigner_internal::FormWindow
 #include "widgetselection.h"
 
 // shared
+#include <metadatabase_p.h>
 #include <qdesigner_tabwidget_p.h>
 #include <qdesigner_toolbox_p.h>
 #include <qdesigner_stackedbox_p.h>
@@ -43,16 +44,6 @@ TRANSLATOR qdesigner_internal::FormWindow
 
 #include <QtGui>
 #include <QtDebug>
-
-namespace {
-    // Not available from shared due to linkage problems
-    bool isWidgetPromoted(QDesignerFormEditorInterface *core, QWidget* widget) {
-        QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
-        if (!item)
-            return false;
-        return !item->customClassName().isEmpty();
-    }
-}
 
 namespace qdesigner_internal {
 
@@ -1454,7 +1445,7 @@ void FormWindow::finishContextMenu(QWidget *w, QWidget *, QContextMenuEvent *e)
     QMenu *menu = createPopupMenu(w);
     if (menu && taskMenu) {
         QList<QAction *> acts = taskMenu->taskActions();
-        if (isWidgetPromoted(core(),w)) {
+        if (isPromoted(core(),w)) {
             QDesignerTaskMenuExtension *baseTaskMenu =
                 qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(),w);
             if (baseTaskMenu) {
@@ -2122,7 +2113,7 @@ void FormWindow::editContents()
         if (QDesignerTaskMenuExtension *taskMenu = qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(), widget)) {
             if (QAction *a = taskMenu->preferredEditAction()) {
                 a->trigger();
-            } else if (isWidgetPromoted(core(),widget)) {
+            } else if (isPromoted(core(),widget)) {
                 QDesignerTaskMenuExtension *baseTaskMenu = qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(),widget);
                 if (QAction *b = baseTaskMenu->preferredEditAction())
                     b->trigger();

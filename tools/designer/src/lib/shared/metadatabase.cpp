@@ -178,7 +178,7 @@ void MetaDataBase::dump()
 }
 
 // promotion convenience
-bool promoteWidget(QDesignerFormEditorInterface *core,QWidget *widget,const QString &customClassName)
+QDESIGNER_SHARED_EXPORT bool promoteWidget(QDesignerFormEditorInterface *core,QWidget *widget,const QString &customClassName)
 {
     QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
     if (!item) {
@@ -198,7 +198,7 @@ bool promoteWidget(QDesignerFormEditorInterface *core,QWidget *widget,const QStr
     return true;
 }
 
-void demoteWidget(QDesignerFormEditorInterface *core,QWidget *widget)
+QDESIGNER_SHARED_EXPORT void demoteWidget(QDesignerFormEditorInterface *core,QWidget *widget)
 {
     QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
     Q_ASSERT(item);
@@ -208,7 +208,7 @@ void demoteWidget(QDesignerFormEditorInterface *core,QWidget *widget)
     }
 }
 
-bool isPromoted(QDesignerFormEditorInterface *core, QWidget* widget)
+QDESIGNER_SHARED_EXPORT bool isPromoted(QDesignerFormEditorInterface *core, QWidget* widget)
 {
     QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
     if (!item)
@@ -216,7 +216,7 @@ bool isPromoted(QDesignerFormEditorInterface *core, QWidget* widget)
     return !item->customClassName().isEmpty();
 }
 
-QString promotedCustomClassName(QDesignerFormEditorInterface *core, QWidget* widget)
+QDESIGNER_SHARED_EXPORT QString promotedCustomClassName(QDesignerFormEditorInterface *core, QWidget* widget)
 {
     QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
     if (!item)
@@ -224,7 +224,7 @@ QString promotedCustomClassName(QDesignerFormEditorInterface *core, QWidget* wid
     return item->customClassName();
 }
  
-QString promotedExtends(QDesignerFormEditorInterface *core, QWidget* widget)
+QDESIGNER_SHARED_EXPORT QString promotedExtends(QDesignerFormEditorInterface *core, QWidget* widget)
 {
     const QString customClassName = promotedCustomClassName(core,widget);
     if (customClassName.isEmpty())

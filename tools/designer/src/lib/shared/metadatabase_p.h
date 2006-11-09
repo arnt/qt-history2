@@ -94,11 +94,11 @@ private:
 };
     
     // promotion convenience
-    bool promoteWidget(QDesignerFormEditorInterface *core,QWidget *widget,const QString &customClassName);
-    void demoteWidget(QDesignerFormEditorInterface *core,QWidget *widget); 
-    bool isPromoted(QDesignerFormEditorInterface *core, QWidget* w);
-    QString promotedCustomClassName(QDesignerFormEditorInterface *core, QWidget* w);
-    QString promotedExtends(QDesignerFormEditorInterface *core, QWidget* w);
+    QDESIGNER_SHARED_EXPORT bool promoteWidget(QDesignerFormEditorInterface *core,QWidget *widget,const QString &customClassName);
+    QDESIGNER_SHARED_EXPORT void demoteWidget(QDesignerFormEditorInterface *core,QWidget *widget); 
+    QDESIGNER_SHARED_EXPORT bool isPromoted(QDesignerFormEditorInterface *core, QWidget* w);
+    QDESIGNER_SHARED_EXPORT QString promotedCustomClassName(QDesignerFormEditorInterface *core, QWidget* w);
+    QDESIGNER_SHARED_EXPORT QString promotedExtends(QDesignerFormEditorInterface *core, QWidget* w);
     
 
 } // namespace qdesigner_internal
