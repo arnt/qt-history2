@@ -30,6 +30,10 @@
 #define INV_EPS (1L<<14)
 #endif
 
+#ifndef M_SQRT2
+#define M_SQRT2	1.41421356237309504880
+#endif
+
 #define log2(x) (log(x)/log(2.))
 
 static inline double log4(double x)
