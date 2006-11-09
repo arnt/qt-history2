@@ -1603,36 +1603,39 @@ static void qt_gl_image_cleanup(int serial)
         qt_gl_clean_cache(QString().sprintf("i%08x", serial));
 }
 
-
-QImage QGLContextPrivate::convertToBGRA(const QImage &image, bool force_premul)
+QImage QGLContextPrivate::convertToGLFormat(const QImage &image, bool force_premul,
+                                            GLenum texture_format)
 {
-    QImage img = image;
-
-    if ((force_premul && image.format() != QImage::Format_ARGB32_Premultiplied)
-        || (!force_premul && image.format() != QImage::Format_ARGB32_Premultiplied
-            && image.format() != QImage::Format_ARGB32)) {
-        img = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-    }
-
-    if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
-        // mirror + swizzle
-        QImage res = img.copy();
-        for (int i=0; i < img.height(); i++) {
-            uint *p = (uint*) img.scanLine(i);
-            uint *q = (uint*) res.scanLine(img.height() - i - 1);
-            uint *end = p + img.width();
-            while (p < end) {
-                *q = ((*p << 24) & 0xff000000)
-                     | ((*p >> 24) & 0x000000ff)
-                     | ((*p << 8) & 0x00ff0000)
-                     | ((*p >> 8) & 0x0000ff00);
-                p++;
-                q++;
-            }
+    if (texture_format == GL_BGRA) {
+        QImage img = image;
+        if ((force_premul && image.format() != QImage::Format_ARGB32_Premultiplied)
+            || (!force_premul && image.format() != QImage::Format_ARGB32_Premultiplied
+                && image.format() != QImage::Format_ARGB32)) {
+            img = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
         }
-        return res;
+
+        if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
+            // mirror + swizzle
+            QImage res = img.copy();
+            for (int i=0; i < img.height(); i++) {
+                uint *p = (uint*) img.scanLine(i);
+                uint *q = (uint*) res.scanLine(img.height() - i - 1);
+                uint *end = p + img.width();
+                while (p < end) {
+                    *q = ((*p << 24) & 0xff000000)
+                         | ((*p >> 24) & 0x000000ff)
+                         | ((*p << 8) & 0x00ff0000)
+                         | ((*p >> 8) & 0x0000ff00);
+                    p++;
+                    q++;
+                }
+            }
+            return res;
+        } else {
+            return img.mirrored();
+        }
     } else {
-        return img.mirrored();
+        return QGLWidget::convertToGLFormat(image);
     }
 }
 
@@ -1641,6 +1644,9 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint 
 {
     Q_Q(QGLContext);
 
+    // the GL_BGRA format is only present in GL version >= 1.2
+    GLenum texture_format = (QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_2)
+                            ? GL_BGRA : GL_RGBA;
     if (!qt_tex_cache) {
         qt_tex_cache = new QGLTextureCache(qt_tex_cache_limit);
         qt_pixmap_cleanup_hook = qt_gl_pixmap_cleanup;
@@ -1656,10 +1662,11 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint 
     // Note: the clean param is only true when a texture is bound
     // from the QOpenGLPaintEngine - in that case we have to force
     // a premultiplied texture format
+
     if (target == GL_TEXTURE_2D && (tx_w != image.width() || tx_h != image.height()))
-        tx = convertToBGRA(image.scaled(tx_w, tx_h), clean);
+        tx = convertToGLFormat(image.scaled(tx_w, tx_h), clean, texture_format);
     else
-        tx = convertToBGRA(image, clean);
+        tx = convertToGLFormat(image, clean, texture_format);
 
     GLuint tx_id;
     glGenTextures(1, &tx_id);
@@ -1675,7 +1682,7 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint 
         glTexParameterf(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
 
-    glTexImage2D(target, 0, format, tx.width(), tx.height(), 0, GL_BGRA,
+    glTexImage2D(target, 0, format, tx.width(), tx.height(), 0, texture_format,
                  GL_UNSIGNED_BYTE, tx.bits());
 
     // this assumes the size of a texture is always smaller than the max cache size

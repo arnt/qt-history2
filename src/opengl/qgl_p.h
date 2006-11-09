@@ -245,7 +245,7 @@ public:
     GLuint bindTexture(const QImage &image, GLenum target, GLint format, bool clean);
     bool textureCacheLookup(const QString &key, GLuint *id, qint64 *qt_id);
     void init(QPaintDevice *dev, const QGLFormat &format);
-    QImage convertToBGRA(const QImage &image, bool force_premul);
+    QImage convertToGLFormat(const QImage &image, bool force_premul, GLenum texture_format);
 
 #if defined(Q_WS_WIN)
     HGLRC rc;
