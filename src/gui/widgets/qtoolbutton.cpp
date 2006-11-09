@@ -40,6 +40,7 @@ public:
 #ifndef QT_NO_MENU
     void _q_buttonPressed();
     void popupTimerDone();
+    void _q_updateButtonDown();
 #endif
     void _q_actionTriggered();
     QPointer<QAction> menuAction; //the menu set by the user (setMenu)
@@ -843,7 +844,9 @@ void QToolButtonPrivate::popupTimerDone()
     p.ry() += 1;
     QPointer<QToolButton> that = q;
     actualMenu->setNoReplayFor(q);
+    QObject::connect(actualMenu, SIGNAL(aboutToHide()), q, SLOT(_q_updateButtonDown()));
     actualMenu->exec(p);
+    QObject::disconnect(actualMenu, SIGNAL(aboutToHide()), q, SLOT(_q_updateButtonDown()));
     if (mustDeleteActualMenu)
         delete actualMenu;
     if (!that)
@@ -851,6 +854,11 @@ void QToolButtonPrivate::popupTimerDone()
 
     if (repeat)
         q->setAutoRepeat(true);
+}
+
+void QToolButtonPrivate::_q_updateButtonDown()
+{
+    Q_Q(QToolButton);
     menuButtonDown = false;
     if (q->isDown())
         q->setDown(false);
