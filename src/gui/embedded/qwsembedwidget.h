@@ -37,6 +37,8 @@ protected:
     void changeEvent(QEvent *event);
     void resizeEvent(QResizeEvent *event);
     void moveEvent(QMoveEvent *event);
+    void hideEvent(QHideEvent *event);
+    void showEvent(QShowEvent *event);
 
 private:
     Q_DECLARE_PRIVATE(QWSEmbedWidget)
