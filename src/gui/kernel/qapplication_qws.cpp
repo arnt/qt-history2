@@ -3181,8 +3181,9 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
         QSize s(qt_screen->width(), qt_screen->height());
         for (int i = 0; i < QApplicationPrivate::popupWidgets->size(); ++i) {
             QWidget *w = QApplicationPrivate::popupWidgets->at(i);
-            //### alloc_region ???
-            if ((w->windowType() == Qt::Popup) && w->d_func()->localRequestedRegion().contains(globalPos - w->geometry().topLeft())) { //was alloc_region
+
+            if ((w->windowType() == Qt::Popup) && w->d_func()->localAllocatedRegion().contains(globalPos - w->geometry().topLeft()))
+            {
                 popup = w;
                 break;
             }
