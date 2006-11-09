@@ -25,6 +25,7 @@ private slots:
     void destroyIndeterminate();
     void text();
     void format();
+    void setValueRepaint();
 };
 
 // Testing get/set functions
@@ -123,6 +124,33 @@ void tst_QProgressBar::format()
     QCOMPARE(bar.text(), QString());
 }
 
+
+class ProgressBar : public QProgressBar
+{
+    void paintEvent(QPaintEvent *event)
+    {
+        repainted = true;
+        QProgressBar::paintEvent(event);
+    }
+public:
+    bool repainted;
+};
+
+void tst_QProgressBar::setValueRepaint()
+{
+    ProgressBar pbar;
+    pbar.setMinimum(0);
+    pbar.setMaximum(1000);
+    pbar.setFormat("%v");
+    pbar.show();
+    QApplication::processEvents();
+    for (int i = pbar.minimum(); i < pbar.maximum(); ++i) {
+        pbar.repainted = false;
+        pbar.setValue(i);
+        QApplication::processEvents();
+        QVERIFY(pbar.repainted);
+    }
+}
 
 QTEST_MAIN(tst_QProgressBar)
 #include "tst_qprogressbar.moc"
