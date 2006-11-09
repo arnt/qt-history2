@@ -2098,6 +2098,14 @@ void tst_QAccessibility::textEditTest()
 void tst_QAccessibility::listViewTest()
 {
 #ifdef QTEST_ACCESSIBILITY
+    {
+        QListView listView;
+        QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(&listView);
+        QVERIFY(iface);
+        QCOMPARE(iface->childCount(), 0);
+        delete iface;
+    }
+
     QListWidget listView;
     listView.addItem("A");
     listView.addItem("B");

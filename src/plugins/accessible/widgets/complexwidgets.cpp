@@ -363,6 +363,8 @@ QModelIndex QAccessibleItemView::childIndex(int child) const
 
 int QAccessibleItemView::childCount() const
 {
+    if (itemView()->model() == 0)
+        return 0;
     return itemView()->model()->rowCount();
 }
 
