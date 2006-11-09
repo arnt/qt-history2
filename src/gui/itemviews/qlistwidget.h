@@ -134,7 +134,7 @@ private:
     int rtti;
     QVector<QWidgetItemData> values;
     QListWidget *view;
-    QListModel *model;
+    void *id;
     Qt::ItemFlags itemFlags;
 };
 
