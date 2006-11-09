@@ -273,12 +273,12 @@ QVariant QPSQLResult::data(int i)
 #ifndef QT_NO_DATESTRING
             return QVariant(QDate::fromString(QString::fromLatin1(val), Qt::ISODate));
 #else
-            return QVariant(val);
+            return QVariant(QString::fromLatin1(val));
 #endif
         }
     case QVariant::Time: {
-#ifndef QT_NO_DATESTRING
         const QString str = QString::fromLatin1(val);
+#ifndef QT_NO_DATESTRING
         if (str.isEmpty())
             return QVariant(QTime());
         if (str.at(str.length() - 3) == QLatin1Char('+'))
@@ -286,12 +286,12 @@ QVariant QPSQLResult::data(int i)
             return QVariant(QTime::fromString(str.left(str.length() - 3), Qt::ISODate));
         return QVariant(QTime::fromString(str, Qt::ISODate));
 #else
-        return QVariant(val);
+        return QVariant(str);
 #endif
     }
     case QVariant::DateTime: {
-#ifndef QT_NO_DATESTRING
         QString dtval = QString::fromLatin1(val);
+#ifndef QT_NO_DATESTRING
         if (dtval.length() < 10)
             return QVariant(QDateTime());
         // remove the timezone
@@ -305,7 +305,7 @@ QVariant QPSQLResult::data(int i)
         else
             return QVariant(QDateTime::fromString(dtval, Qt::ISODate));
 #else
-        return QVariant(val);
+        return QVariant(dtval);
 #endif
     }
     case QVariant::ByteArray: {
