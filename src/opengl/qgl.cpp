@@ -22,6 +22,7 @@
 #include "qcolormap.h"
 #include "qcache.h"
 #include "qfile.h"
+#include "qlibrary.h"
 
 extern Q_GUI_EXPORT qint64 qt_image_id(const QImage &image);
 extern Q_GUI_EXPORT qint64 qt_pixmap_id(const QPixmap &pixmap);
@@ -3596,4 +3597,147 @@ void QGLWidgetPrivate::initContext(QGLContext *context, const QGLWidget* shareWi
         glcx = new QGLContext(QGLFormat::defaultFormat(), q);
 
     q->setAttribute(Qt::WA_NoSystemBackground);
+}
+
+#if defined(Q_WS_X11) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
+_glProgramStringARB qt_glProgramStringARB = 0;
+_glBindProgramARB qt_glBindProgramARB = 0;
+_glDeleteProgramsARB qt_glDeleteProgramsARB = 0;
+_glGenProgramsARB qt_glGenProgramsARB = 0;
+_glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB = 0;
+
+_glActiveStencilFaceEXT qt_glActiveStencilFaceEXT = 0;
+
+_glMultiTexCoord4f qt_glMultiTexCoord4f = 0;
+_glActiveTexture qt_glActiveTexture = 0;
+
+PFNGLISRENDERBUFFEREXTPROC qt_glIsRenderbufferEXT;
+PFNGLBINDRENDERBUFFEREXTPROC qt_glBindRenderbufferEXT;
+PFNGLDELETERENDERBUFFERSEXTPROC qt_glDeleteRenderbuffersEXT;
+PFNGLGENRENDERBUFFERSEXTPROC qt_glGenRenderbuffersEXT;
+PFNGLRENDERBUFFERSTORAGEEXTPROC qt_glRenderbufferStorageEXT;
+PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC qt_glGetRenderbufferParameterivEXT;
+PFNGLISFRAMEBUFFEREXTPROC qt_glIsFramebufferEXT;
+PFNGLBINDFRAMEBUFFEREXTPROC qt_glBindFramebufferEXT;
+PFNGLDELETEFRAMEBUFFERSEXTPROC qt_glDeleteFramebuffersEXT;
+PFNGLGENFRAMEBUFFERSEXTPROC qt_glGenFramebuffersEXT;
+PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC qt_glCheckFramebufferStatusEXT;
+PFNGLFRAMEBUFFERTEXTURE1DEXTPROC qt_glFramebufferTexture1DEXT;
+PFNGLFRAMEBUFFERTEXTURE2DEXTPROC qt_glFramebufferTexture2DEXT;
+PFNGLFRAMEBUFFERTEXTURE3DEXTPROC qt_glFramebufferTexture3DEXT;
+PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC qt_glFramebufferRenderbufferEXT;
+PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC qt_glGetFramebufferAttachmentParameterivEXT;
+PFNGLGENERATEMIPMAPEXTPROC qt_glGenerateMipmapEXT;
+
+bool qt_resolve_framebufferobject_extensions(QGLContext *)
+{
+    static bool resolved = false;
+    if (resolved && qt_glIsRenderbufferEXT)
+        return true;
+    else if (resolved)
+        return false;
+
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+    QLibrary lib(QLatin1String("GL"));
+#else // Q_WS_MAC
+    QLibrary lib(QLatin1String("/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib"));
+#endif
+
+    qt_glIsRenderbufferEXT = (PFNGLISRENDERBUFFEREXTPROC) lib.resolve("glIsRenderbufferEXT");
+    qt_glBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC) lib.resolve("glBindRenderbufferEXT");
+    qt_glDeleteRenderbuffersEXT = (PFNGLDELETERENDERBUFFERSEXTPROC) lib.resolve("glDeleteRenderbuffersEXT");
+    qt_glGenRenderbuffersEXT = (PFNGLGENRENDERBUFFERSEXTPROC) lib.resolve("glGenRenderbuffersEXT");
+    qt_glRenderbufferStorageEXT = (PFNGLRENDERBUFFERSTORAGEEXTPROC) lib.resolve("glRenderbufferStorageEXT");
+    qt_glGetRenderbufferParameterivEXT =
+        (PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC) lib.resolve("glGetRenderbufferParameterivEXT");
+    qt_glIsFramebufferEXT = (PFNGLISFRAMEBUFFEREXTPROC) lib.resolve("glIsFramebufferEXT");
+    qt_glBindFramebufferEXT = (PFNGLBINDFRAMEBUFFEREXTPROC) lib.resolve("glBindFramebufferEXT");
+    qt_glDeleteFramebuffersEXT = (PFNGLDELETEFRAMEBUFFERSEXTPROC) lib.resolve("glDeleteFramebuffersEXT");
+    qt_glGenFramebuffersEXT = (PFNGLGENFRAMEBUFFERSEXTPROC) lib.resolve("glGenFramebuffersEXT");
+    qt_glCheckFramebufferStatusEXT = (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC) lib.resolve("glCheckFramebufferStatusEXT");
+    qt_glFramebufferTexture1DEXT = (PFNGLFRAMEBUFFERTEXTURE1DEXTPROC) lib.resolve("glFramebufferTexture1DEXT");
+    qt_glFramebufferTexture2DEXT = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC) lib.resolve("glFramebufferTexture2DEXT");
+    qt_glFramebufferTexture3DEXT = (PFNGLFRAMEBUFFERTEXTURE3DEXTPROC) lib.resolve("glFramebufferTexture3DEXT");
+    qt_glFramebufferRenderbufferEXT = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC) lib.resolve("glFramebufferRenderbufferEXT");
+    qt_glGetFramebufferAttachmentParameterivEXT =
+        (PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC) lib.resolve("glGetFramebufferAttachmentParameterivEXT");
+    qt_glGenerateMipmapEXT = (PFNGLGENERATEMIPMAPEXTPROC) lib.resolve("glGenerateMipmapEXT");
+    resolved = true;
+    return qt_glIsRenderbufferEXT;
+}
+#else
+bool qt_resolve_framebufferobject_extensions(QGLContext *ctx)
+{
+    if (glIsRenderbufferEXT != 0)
+        return true;
+
+    if (ctx == 0) {
+        qWarning("QGLFramebufferObject: Unable to resolve framebuffer object extensions -"
+                 " make sure there is a current context when creating the framebuffer object.");
+        return false;
+    }
+
+    glIsRenderbufferEXT = (PFNGLISRENDERBUFFEREXTPROC) wglGetProcAddress("glIsRenderbufferEXT");
+    glBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC) wglGetProcAddress("glBindRenderbufferEXT");
+    glDeleteRenderbuffersEXT = (PFNGLDELETERENDERBUFFERSEXTPROC) wglGetProcAddress("glDeleteRenderbuffersEXT");
+    glGenRenderbuffersEXT = (PFNGLGENRENDERBUFFERSEXTPROC) wglGetProcAddress("glGenRenderbuffersEXT");
+    glRenderbufferStorageEXT = (PFNGLRENDERBUFFERSTORAGEEXTPROC) wglGetProcAddress("glRenderbufferStorageEXT");
+    glGetRenderbufferParameterivEXT =
+        (PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC) wglGetProcAddress("glGetRenderbufferParameterivEXT");
+    glIsFramebufferEXT = (PFNGLISFRAMEBUFFEREXTPROC) wglGetProcAddress("glIsFramebufferEXT");
+    glBindFramebufferEXT = (PFNGLBINDFRAMEBUFFEREXTPROC) wglGetProcAddress("glBindFramebufferEXT");
+    glDeleteFramebuffersEXT = (PFNGLDELETEFRAMEBUFFERSEXTPROC) wglGetProcAddress("glDeleteFramebuffersEXT");
+    glGenFramebuffersEXT = (PFNGLGENFRAMEBUFFERSEXTPROC) wglGetProcAddress("glGenFramebuffersEXT");
+    glCheckFramebufferStatusEXT = (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC) wglGetProcAddress("glCheckFramebufferStatusEXT");
+    glFramebufferTexture1DEXT = (PFNGLFRAMEBUFFERTEXTURE1DEXTPROC) wglGetProcAddress("glFramebufferTexture1DEXT");
+    glFramebufferTexture2DEXT = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC) wglGetProcAddress("glFramebufferTexture2DEXT");
+    glFramebufferTexture3DEXT = (PFNGLFRAMEBUFFERTEXTURE3DEXTPROC) wglGetProcAddress("glFramebufferTexture3DEXT");
+    glFramebufferRenderbufferEXT = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC) wglGetProcAddress("glFramebufferRenderbufferEXT");
+    glGetFramebufferAttachmentParameterivEXT =
+        (PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC) wglGetProcAddress("glGetFramebufferAttachmentParameterivEXT");
+    glGenerateMipmapEXT = (PFNGLGENERATEMIPMAPEXTPROC) wglGetProcAddress("glGenerateMipmapEXT");
+    return glIsRenderbufferEXT;
+}
+#endif
+
+bool qt_resolve_version_1_3_functions(QGLContext *ctx)
+{
+    if (glMultiTexCoord4f != 0)
+        return true;
+
+    QGLContext cx(QGLFormat::defaultFormat());
+    glMultiTexCoord4f = (_glMultiTexCoord4f) ctx->getProcAddress(QLatin1String("glMultiTexCoord4f"));
+    glActiveTexture = (_glActiveTexture) ctx->getProcAddress(QLatin1String("glActiveTexture"));
+
+    return glMultiTexCoord4f && glActiveTexture;
+}
+
+bool qt_resolve_stencil_face_extension(QGLContext *ctx)
+{
+    if (glActiveStencilFaceEXT != 0)
+        return true;
+
+    QGLContext cx(QGLFormat::defaultFormat());
+    glActiveStencilFaceEXT = (_glActiveStencilFaceEXT) ctx->getProcAddress(QLatin1String("glActiveStencilFaceEXT"));
+
+    return glActiveStencilFaceEXT;
+}
+
+bool qt_resolve_frag_program_extensions(QGLContext *ctx)
+{
+    if (glProgramStringARB != 0)
+        return true;
+
+    // ARB_fragment_program
+    glProgramStringARB = (_glProgramStringARB) ctx->getProcAddress(QLatin1String("glProgramStringARB"));
+    glBindProgramARB = (_glBindProgramARB) ctx->getProcAddress(QLatin1String("glBindProgramARB"));
+    glDeleteProgramsARB = (_glDeleteProgramsARB) ctx->getProcAddress(QLatin1String("glDeleteProgramsARB"));
+    glGenProgramsARB = (_glGenProgramsARB) ctx->getProcAddress(QLatin1String("glGenProgramsARB"));
+    glProgramLocalParameter4fvARB = (_glProgramLocalParameter4fvARB) ctx->getProcAddress(QLatin1String("glProgramLocalParameter4fvARB"));
+
+    return glProgramStringARB
+        && glBindProgramARB
+        && glDeleteProgramsARB
+        && glGenProgramsARB
+        && glProgramLocalParameter4fvARB;
 }

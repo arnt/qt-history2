@@ -386,6 +386,8 @@ public:
     ~QGLShareRegister() { reg.clear(); }
 
     bool checkSharing(const QGLContext *context1, const QGLContext *context2, const QGLContext * skip=0) {
+        if (context1 == context2)
+            return true;
         QList<const QGLContext *> shares = reg.values(context1);
         for (int k=0; k<shares.size(); ++k) {
             const QGLContext *ctx = shares.at(k);
@@ -419,4 +421,217 @@ private:
 };
 
 extern QGLShareRegister* qgl_share_reg();
+
+// OpenGL constants
+#ifndef GL_MULTISAMPLE
+#define GL_MULTISAMPLE  0x809D
+#endif
+
+#ifndef GL_CLAMP_TO_EDGE
+#define GL_CLAMP_TO_EDGE 0x812F
+#endif
+
+#ifndef GL_IBM_texture_mirrored_repeat
+#define GL_MIRRORED_REPEAT_IBM            0x8370
+#endif
+
+#ifndef GL_SGIS_generate_mipmap
+#define GL_GENERATE_MIPMAP_SGIS           0x8191
+#define GL_GENERATE_MIPMAP_HINT_SGIS      0x8192
+#endif
+
+// ARB_fragment_program extension protos
+#ifndef GL_FRAGMENT_PROGRAM_ARB
+#define GL_FRAGMENT_PROGRAM_ARB           0x8804
+#define GL_PROGRAM_FORMAT_ASCII_ARB       0x8875
+#endif
+
+// Stencil wrap and two-side defines
+#ifndef GL_STENCIL_TEST_TWO_SIDE_EXT
+#define GL_STENCIL_TEST_TWO_SIDE_EXT 0x8910
+#endif
+#ifndef GL_INCR_WRAP_EXT
+#define GL_INCR_WRAP_EXT 0x8507
+#endif
+#ifndef GL_DECR_WRAP_EXT
+#define GL_DECR_WRAP_EXT 0x8508
+#endif
+
+#ifndef GL_TEXTURE0
+#define GL_TEXTURE0 0x84C0
+#endif
+
+#ifndef GL_TEXTURE1
+#define GL_TEXTURE1 0x84C1
+#endif
+
+#ifndef GL_EXT_framebuffer_object
+#define GL_INVALID_FRAMEBUFFER_OPERATION_EXT                    0x0506
+#define GL_MAX_RENDERBUFFER_SIZE_EXT                            0x84E8
+#define GL_FRAMEBUFFER_BINDING_EXT                              0x8CA6
+#define GL_RENDERBUFFER_BINDING_EXT                             0x8CA7
+#define GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE_EXT               0x8CD0
+#define GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME_EXT               0x8CD1
+#define GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL_EXT             0x8CD2
+#define GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE_EXT     0x8CD3
+#define GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET_EXT        0x8CD4
+#define GL_FRAMEBUFFER_COMPLETE_EXT                             0x8CD5
+#define GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT                0x8CD6
+#define GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT        0x8CD7
+#define GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT      0x8CD8
+#define GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT                0x8CD9
+#define GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT                   0x8CDA
+#define GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT               0x8CDB
+#define GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT               0x8CDC
+#define GL_FRAMEBUFFER_UNSUPPORTED_EXT                          0x8CDD
+#define GL_MAX_COLOR_ATTACHMENTS_EXT                            0x8CDF
+#define GL_COLOR_ATTACHMENT0_EXT                                0x8CE0
+#define GL_COLOR_ATTACHMENT1_EXT                                0x8CE1
+#define GL_COLOR_ATTACHMENT2_EXT                                0x8CE2
+#define GL_COLOR_ATTACHMENT3_EXT                                0x8CE3
+#define GL_COLOR_ATTACHMENT4_EXT                                0x8CE4
+#define GL_COLOR_ATTACHMENT5_EXT                                0x8CE5
+#define GL_COLOR_ATTACHMENT6_EXT                                0x8CE6
+#define GL_COLOR_ATTACHMENT7_EXT                                0x8CE7
+#define GL_COLOR_ATTACHMENT8_EXT                                0x8CE8
+#define GL_COLOR_ATTACHMENT9_EXT                                0x8CE9
+#define GL_COLOR_ATTACHMENT10_EXT                               0x8CEA
+#define GL_COLOR_ATTACHMENT11_EXT                               0x8CEB
+#define GL_COLOR_ATTACHMENT12_EXT                               0x8CEC
+#define GL_COLOR_ATTACHMENT13_EXT                               0x8CED
+#define GL_COLOR_ATTACHMENT14_EXT                               0x8CEE
+#define GL_COLOR_ATTACHMENT15_EXT                               0x8CEF
+#define GL_DEPTH_ATTACHMENT_EXT                                 0x8D00
+#define GL_STENCIL_ATTACHMENT_EXT                               0x8D20
+#define GL_FRAMEBUFFER_EXT                                      0x8D40
+#define GL_RENDERBUFFER_EXT                                     0x8D41
+#define GL_RENDERBUFFER_WIDTH_EXT                               0x8D42
+#define GL_RENDERBUFFER_HEIGHT_EXT                              0x8D43
+#define GL_RENDERBUFFER_INTERNAL_FORMAT_EXT                     0x8D44
+#define GL_STENCIL_INDEX_EXT                                    0x8D45
+#define GL_STENCIL_INDEX1_EXT                                   0x8D46
+#define GL_STENCIL_INDEX4_EXT                                   0x8D47
+#define GL_STENCIL_INDEX8_EXT                                   0x8D48
+#define GL_STENCIL_INDEX16_EXT                                  0x8D49
+#define GL_RENDERBUFFER_RED_SIZE_EXT                            0x8D50
+#define GL_RENDERBUFFER_GREEN_SIZE_EXT                          0x8D51
+#define GL_RENDERBUFFER_BLUE_SIZE_EXT                           0x8D52
+#define GL_RENDERBUFFER_ALPHA_SIZE_EXT                          0x8D53
+#define GL_RENDERBUFFER_DEPTH_SIZE_EXT                          0x8D54
+#define GL_RENDERBUFFER_STENCIL_SIZE_EXT                        0x8D55
+#endif
+
+#ifndef GL_EXT_packed_depth_stencil
+#define GL_DEPTH_STENCIL_EXT                                    0x84F9
+#define GL_UNSIGNED_INT_24_8_EXT                                0x84FA
+#define GL_DEPTH24_STENCIL8_EXT                                 0x88F0
+#define GL_TEXTURE_STENCIL_SIZE_EXT                             0x88F1
+#endif
+
+// ### hm. should be part of the GL 1.2 spec..
+#ifndef GL_CLAMP_TO_EDGE
+#define GL_CLAMP_TO_EDGE                  0x812F
+#endif
+
+#if defined(Q_WS_X11) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
+
+extern _glProgramStringARB qt_glProgramStringARB;
+extern _glBindProgramARB qt_glBindProgramARB;
+extern _glDeleteProgramsARB qt_glDeleteProgramsARB;
+extern _glGenProgramsARB qt_glGenProgramsARB;
+extern _glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB;
+
+extern _glActiveStencilFaceEXT qt_glActiveStencilFaceEXT;
+
+extern _glMultiTexCoord4f qt_glMultiTexCoord4f;
+extern _glActiveTexture qt_glActiveTexture;
+
+#define glProgramStringARB qt_glProgramStringARB
+#define glBindProgramARB qt_glBindProgramARB
+#define glDeleteProgramsARB qt_glDeleteProgramsARB
+#define glGenProgramsARB qt_glGenProgramsARB
+#define glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB
+
+#define glActiveStencilFaceEXT qt_glActiveStencilFaceEXT
+
+#define glMultiTexCoord4f qt_glMultiTexCoord4f
+#define glActiveTexture qt_glActiveTexture
+
+extern PFNGLISRENDERBUFFEREXTPROC qt_glIsRenderbufferEXT;
+extern PFNGLBINDRENDERBUFFEREXTPROC qt_glBindRenderbufferEXT;
+extern PFNGLDELETERENDERBUFFERSEXTPROC qt_glDeleteRenderbuffersEXT;
+extern PFNGLGENRENDERBUFFERSEXTPROC qt_glGenRenderbuffersEXT;
+extern PFNGLRENDERBUFFERSTORAGEEXTPROC qt_glRenderbufferStorageEXT;
+extern PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC qt_glGetRenderbufferParameterivEXT;
+extern PFNGLISFRAMEBUFFEREXTPROC qt_glIsFramebufferEXT;
+extern PFNGLBINDFRAMEBUFFEREXTPROC qt_glBindFramebufferEXT;
+extern PFNGLDELETEFRAMEBUFFERSEXTPROC qt_glDeleteFramebuffersEXT;
+extern PFNGLGENFRAMEBUFFERSEXTPROC qt_glGenFramebuffersEXT;
+extern PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC qt_glCheckFramebufferStatusEXT;
+extern PFNGLFRAMEBUFFERTEXTURE1DEXTPROC qt_glFramebufferTexture1DEXT;
+extern PFNGLFRAMEBUFFERTEXTURE2DEXTPROC qt_glFramebufferTexture2DEXT;
+extern PFNGLFRAMEBUFFERTEXTURE3DEXTPROC qt_glFramebufferTexture3DEXT;
+extern PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC qt_glFramebufferRenderbufferEXT;
+extern PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC qt_glGetFramebufferAttachmentParameterivEXT;
+extern PFNGLGENERATEMIPMAPEXTPROC qt_glGenerateMipmapEXT;
+
+#define glIsRenderbufferEXT qt_glIsRenderbufferEXT
+#define glBindRenderbufferEXT qt_glBindRenderbufferEXT
+#define glDeleteRenderbuffersEXT qt_glDeleteRenderbuffersEXT
+#define glGenRenderbuffersEXT qt_glGenRenderbuffersEXT
+#define glRenderbufferStorageEXT qt_glRenderbufferStorageEXT
+#define glGetRenderbufferParameterivEXT qt_glGetRenderbufferParameterivEXT
+#define glIsFramebufferEXT qt_glIsFramebufferEXT
+#define glBindFramebufferEXT qt_glBindFramebufferEXT
+#define glDeleteFramebuffersEXT qt_glDeleteFramebuffersEXT
+#define glGenFramebuffersEXT qt_glGenFramebuffersEXT
+#define glCheckFramebufferStatusEXT qt_glCheckFramebufferStatusEXT
+#define glFramebufferTexture1DEXT qt_glFramebufferTexture1DEXT
+#define glFramebufferTexture2DEXT qt_glFramebufferTexture2DEXT
+#define glFramebufferTexture3DEXT qt_glFramebufferTexture3DEXT
+#define glFramebufferRenderbufferEXT qt_glFramebufferRenderbufferEXT
+#define glGetFramebufferAttachmentParameterivEXT qt_glGetFramebufferAttachmentParameterivEXT
+#define glGenerateMipmapEXT qt_glGenerateMipmapEXT
+
+extern bool qt_resolve_framebufferobject_extensions(QGLContext *ctx);
+
+#elif defined(Q_WS_WIN)
+
+#define glProgramStringARB qt_glctx_get_dptr(ctx)->qt_glProgramStringARB
+#define glBindProgramARB qt_glctx_get_dptr(ctx)->qt_glBindProgramARB
+#define glDeleteProgramsARB qt_glctx_get_dptr(ctx)->qt_glDeleteProgramsARB
+#define glGenProgramsARB qt_glctx_get_dptr(ctx)->qt_glGenProgramsARB
+#define glProgramLocalParameter4fvARB qt_glctx_get_dptr(ctx)->qt_glProgramLocalParameter4fvARB
+
+#define glActiveStencilFaceEXT qt_glctx_get_dptr(ctx)->qt_glActiveStencilFaceEXT
+
+#define glMultiTexCoord4f qt_glctx_get_dptr(ctx)->qt_glMultiTexCoord4f
+#define glActiveTexture qt_glctx_get_dptr(ctx)->qt_glActiveTexture
+
+#define glIsRenderbufferEXT qt_glctx_get_dptr(ctx)->qt_glIsRenderbufferEXT
+#define glBindRenderbufferEXT qt_glctx_get_dptr(ctx)->qt_glBindRenderbufferEXT
+#define glDeleteRenderbuffersEXT qt_glctx_get_dptr(ctx)->qt_glDeleteRenderbuffersEXT
+#define glGenRenderbuffersEXT qt_glctx_get_dptr(ctx)->qt_glGenRenderbuffersEXT
+#define glRenderbufferStorageEXT qt_glctx_get_dptr(ctx)->qt_glRenderbufferStorageEXT
+#define glGetRenderbufferParameterivEXT qt_glctx_get_dptr(ctx)->qt_glGetRenderbufferParameterivEXT
+#define glIsFramebufferEXT qt_glctx_get_dptr(ctx)->qt_glIsFramebufferEXT
+#define glBindFramebufferEXT qt_glctx_get_dptr(ctx)->qt_glBindFramebufferEXT
+#define glDeleteFramebuffersEXT qt_glctx_get_dptr(ctx)->qt_glDeleteFramebuffersEXT
+#define glGenFramebuffersEXT qt_glctx_get_dptr(ctx)->qt_glGenFramebuffersEXT
+#define glCheckFramebufferStatusEXT qt_glctx_get_dptr(ctx)->qt_glCheckFramebufferStatusEXT
+#define glFramebufferTexture1DEXT qt_glctx_get_dptr(ctx)->qt_glFramebufferTexture1DEXT
+#define glFramebufferTexture2DEXT qt_glctx_get_dptr(ctx)->qt_glFramebufferTexture2DEXT
+#define glFramebufferTexture3DEXT qt_glctx_get_dptr(ctx)->qt_glFramebufferTexture3DEXT
+#define glFramebufferRenderbufferEXT qt_glctx_get_dptr(ctx)->qt_glFramebufferRenderbufferEXT
+#define glGetFramebufferAttachmentParameterivEXT qt_glctx_get_dptr(ctx)->qt_glGetFramebufferAttachmentParameterivEXT
+#define glGenerateMipmapEXT qt_glctx_get_dptr(ctx)->qt_glGenerateMipmapEXT
+
+extern bool qt_resolve_framebufferobject_extensions(QGLContext *ctx);
+
+#endif
+
+bool qt_resolve_version_1_3_functions(QGLContext *ctx);
+bool qt_resolve_stencil_face_extension(QGLContext *ctx);
+bool qt_resolve_frag_program_extensions(QGLContext *ctx);
+
 #endif // QGL_P_H

@@ -52,87 +52,7 @@ extern QImage qt_imageForBrush(int brushStyle, bool invert); //in qbrush.cpp
 #define QREAL_MAX 9e100
 #define QREAL_MIN -9e100
 
-// OpenGL constants
-#ifndef GL_MULTISAMPLE
-#define GL_MULTISAMPLE  0x809D
-#endif
-
-#ifndef GL_CLAMP_TO_EDGE
-#define GL_CLAMP_TO_EDGE 0x812F
-#endif
-
-#ifndef GL_IBM_texture_mirrored_repeat
-#define GL_MIRRORED_REPEAT_IBM            0x8370
-#endif
-
-#ifndef GL_SGIS_generate_mipmap
-#define GL_GENERATE_MIPMAP_SGIS           0x8191
-#define GL_GENERATE_MIPMAP_HINT_SGIS      0x8192
-#endif
-
-// ARB_fragment_program extension protos
-#ifndef GL_FRAGMENT_PROGRAM_ARB
-#define GL_FRAGMENT_PROGRAM_ARB           0x8804
-#define GL_PROGRAM_FORMAT_ASCII_ARB       0x8875
-#endif
-
-// Stencil wrap and two-side defines
-#ifndef GL_STENCIL_TEST_TWO_SIDE_EXT
-#define GL_STENCIL_TEST_TWO_SIDE_EXT 0x8910
-#endif
-#ifndef GL_INCR_WRAP_EXT
-#define GL_INCR_WRAP_EXT 0x8507
-#endif
-#ifndef GL_DECR_WRAP_EXT
-#define GL_DECR_WRAP_EXT 0x8508
-#endif
-
-#ifndef GL_TEXTURE0
-#define GL_TEXTURE0 0x84C0
-#endif
-
-#ifndef GL_TEXTURE1
-#define GL_TEXTURE1 0x84C1
-#endif
-
 extern QGLContextPrivate *qt_glctx_get_dptr(QGLContext *);
-
-#ifdef Q_WS_WIN
-#define glProgramStringARB qt_glctx_get_dptr(ctx)->qt_glProgramStringARB
-#define glBindProgramARB qt_glctx_get_dptr(ctx)->qt_glBindProgramARB
-#define glDeleteProgramsARB qt_glctx_get_dptr(ctx)->qt_glDeleteProgramsARB
-#define glGenProgramsARB qt_glctx_get_dptr(ctx)->qt_glGenProgramsARB
-#define glProgramLocalParameter4fvARB qt_glctx_get_dptr(ctx)->qt_glProgramLocalParameter4fvARB
-
-#define glActiveStencilFaceEXT qt_glctx_get_dptr(ctx)->qt_glActiveStencilFaceEXT
-
-#define glMultiTexCoord4f qt_glctx_get_dptr(ctx)->qt_glMultiTexCoord4f
-#define glActiveTexture qt_glctx_get_dptr(ctx)->qt_glActiveTexture
-
-#else
-static _glProgramStringARB qt_glProgramStringARB = 0;
-static _glBindProgramARB qt_glBindProgramARB = 0;
-static _glDeleteProgramsARB qt_glDeleteProgramsARB = 0;
-static _glGenProgramsARB qt_glGenProgramsARB = 0;
-static _glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB = 0;
-
-static _glActiveStencilFaceEXT qt_glActiveStencilFaceEXT = 0;
-
-static _glMultiTexCoord4f qt_glMultiTexCoord4f = 0;
-static _glActiveTexture qt_glActiveTexture = 0;
-
-#define glProgramStringARB qt_glProgramStringARB
-#define glBindProgramARB qt_glBindProgramARB
-#define glDeleteProgramsARB qt_glDeleteProgramsARB
-#define glGenProgramsARB qt_glGenProgramsARB
-#define glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB
-
-#define glActiveStencilFaceEXT qt_glActiveStencilFaceEXT
-
-#define glMultiTexCoord4f qt_glMultiTexCoord4f
-#define glActiveTexture qt_glActiveTexture
-
-#endif // Q_WS_WIN
 
 #define DISABLE_DEBUG_ONCE
 
@@ -312,15 +232,27 @@ class QGLOffscreen {
 public:
     QGLOffscreen()
         : offscreen(0),
+          bound(false),
           context(0),
           copy_needed(false),
           use_fbo(QGLExtensions::glExtensions & QGLExtensions::FramebufferObject)
     {}
 
+    ~QGLOffscreen() {
+        glDeleteTextures(1, &drawable_texture);
+        if (use_fbo)
+            glDeleteTextures(1, &main_fbo_texture);
+        else
+            glDeleteTextures(1, &offscreen_texture);
+    }
+
     inline void setDevice(QPaintDevice *pdev);
 
     inline void setDrawableCopyNeeded(bool drawable_copy_needed);
     inline bool isDrawableCopyNeeded() const;
+
+    void begin();
+    void end();
 
     inline void bind();
     inline void bind(const QRectF &rect);
@@ -336,13 +268,21 @@ private:
     QGLDrawable drawable;
 
     QGLFramebufferObject *offscreen;
+    bool bound;
     QGLContext *context;
 
+    // size of textures. next power of 2 from drawable size.
     QSize sz;
 
+    // used as a fullscreen copy of the main window for rendering
+    // and copied back to main buffer at end()
+    GLuint main_fbo_texture;
+    // used for offscreen rendering of masks
     GLuint offscreen_texture;
+    // used to copy from the destination (main_fbo_texture)
+    // when rendering composition modes that require destination data in the fragment
+    // programs
     GLuint drawable_texture;
-
     bool drawable_fbo;
 
     QRectF active_rect;
@@ -386,6 +326,136 @@ static uint nextPowerOfTwo(uint v)
     return v;
 }
 
+void QGLOffscreen::begin()
+{
+    QSize needed_size(nextPowerOfTwo(drawable.size().width()), nextPowerOfTwo(drawable.size().height()));
+
+    bool needs_refresh = (needed_size.width() > sz.width()
+                          || needed_size.height() > sz.height()
+                          || drawable.context() != context)
+                         && !qgl_share_reg()->checkSharing(drawable.context(), context);
+    if (needs_refresh) {
+        if (use_fbo) {
+            if (!offscreen || needs_refresh) {
+
+                // delete old FBO and texture in its context
+                if (context) {
+                    context->makeCurrent();
+                    delete offscreen;
+                    glDeleteTextures(1, &main_fbo_texture);
+                    drawable.context()->makeCurrent();
+                }
+                
+                offscreen = new QGLFramebufferObject(needed_size.width(), needed_size.height());
+                
+                if (offscreen->isValid()) {
+                    offscreen_texture = offscreen->texture();
+                    offscreen->bind();
+                    // add one more texture as a color attachment to FBO
+                    glGenTextures(1, &main_fbo_texture);
+                    glBindTexture(GL_TEXTURE_2D, main_fbo_texture);
+                    
+#ifndef Q_WS_QWS
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, needed_size.width(), needed_size.height(), 0,
+                                 GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+#else
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, needed_size.width(), needed_size.height(), 0,
+                                 GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+#endif
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+#ifdef Q_WS_WIN
+                    QGLContext *ctx = drawable.context(); // needed to call glFramebufferTexture2DEXT
+#endif
+                    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT,
+                                              GL_TEXTURE_2D, main_fbo_texture, 0);                
+                    offscreen->release();
+
+                    if (!offscreen->isValid())
+                        glDeleteTextures(1, &main_fbo_texture);
+                }
+
+                if (!offscreen->isValid()) {
+                    qWarning("QGLOffscreen: Invalid offscreen fbo (size %dx%d)", needed_size.width(), needed_size.height());
+                    use_fbo = false;
+                    delete offscreen;
+                    offscreen = 0;
+                }
+            }
+        }
+
+        GLuint *textures[] = { &drawable_texture, &offscreen_texture };
+
+        int gen_count = use_fbo ? 1 : 2;
+
+        for (int i = 0; i < gen_count; ++i) {
+            if (context) {
+                context->makeCurrent();
+                glDeleteTextures(1, textures[i]);
+                drawable.context()->makeCurrent();
+            }
+
+            glGenTextures(1, textures[i]);
+            glBindTexture(GL_TEXTURE_2D, *textures[i]);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, needed_size.width(), needed_size.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        }
+        sz = needed_size;
+    }
+
+    context = drawable.context();
+    bound = false;
+}
+
+void QGLOffscreen::end()
+{
+    if (use_fbo && bound) {
+        offscreen->release();
+        if (drawable_fbo)
+            drawable.makeCurrent();
+        bound = false;
+
+        glDisable(GL_FRAGMENT_PROGRAM_ARB);
+        glDrawBuffer(GL_BACK);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glColor4f(1, 1, 1, 1);
+        glDisable(GL_DEPTH_TEST);
+        glBlendFunc(GL_ONE, GL_ZERO);
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, main_fbo_texture);
+        // draw the result to the screen
+
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0, drawable.size().height()/qreal(sz.height()));
+        glVertex2f(0.0, 0.0);
+
+        glTexCoord2f(drawable.size().width()/qreal(sz.width()),
+                     drawable.size().height()/qreal(sz.height()));
+        glVertex2f(drawable.size().width(), 0.0);
+        
+        glTexCoord2f(drawable.size().width()/qreal(sz.width()), 0.0);
+        glVertex2f(drawable.size().width(),
+                   drawable.size().height());
+
+        glTexCoord2f(0.0, 0.0);
+        glVertex2f(0, drawable.size().height());
+        glEnd();
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glColor4f(1, 1, 1, 1);
+    }
+}
+
 inline void QGLOffscreen::bind(const QRectF &rect)
 {
 #ifndef Q_WS_QWS
@@ -393,37 +463,6 @@ inline void QGLOffscreen::bind(const QRectF &rect)
     screen_rect = rect.adjusted(-1, -1, 1, 1);
 
     DEBUG_ONCE qDebug() << "QGLOffscreen: binding offscreen (use_fbo =" << use_fbo << ')';
-
-    QSize needed_size(nextPowerOfTwo(drawable.size().width()), nextPowerOfTwo(drawable.size().height()));
-
-    bool needs_refresh = needed_size.width() > sz.width()
-                         || needed_size.height() > sz.height()
-                         || drawable.context() != context
-                         && !qgl_share_reg()->checkSharing(drawable.context(), context);
-
-    if (needs_refresh) {
-        sz = needed_size;
-
-        GLuint *textures[] = { &drawable_texture, &offscreen_texture };
-
-        int gen_count = use_fbo ? 1 : 2;
-
-        for (int i = 0; i < gen_count; ++i) {
-            if (context)
-                glDeleteTextures(1, textures[i]);
-
-            glGenTextures(1, textures[i]);
-            glBindTexture(GL_TEXTURE_2D, *textures[i]);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, sz.width(), sz.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        }
-    }
-
-    context = drawable.context();
 
     if (!use_fbo || copy_needed) {
         int left = qMax(0, static_cast<int>(screen_rect.left()));
@@ -437,18 +476,16 @@ inline void QGLOffscreen::bind(const QRectF &rect)
     }
 
     if (use_fbo) {
-        if (!offscreen || needs_refresh) {
-            delete offscreen;
 
-            offscreen = new QGLFramebufferObject(sz.width(), sz.height());
-
-            offscreen_texture = offscreen->texture();
-
-            if (!offscreen->isValid())
-                DEBUG_ONCE qDebug() << "QGLOffscreen: Invalid offscreen fbo (size" << sz << ')';
+        if (!bound) {
+            // Need to copy all of main buffer to color attachment1 of framebuffer object on the first bind()
+            glBindTexture(GL_TEXTURE_2D, main_fbo_texture);
+            glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, drawable.size().width(), drawable.size().height());
+            offscreen->bind();
+            bound = true;
         }
-
-        offscreen->bind();
+        
+        glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
     }
 #endif
 }
@@ -458,10 +495,7 @@ inline void QGLOffscreen::release()
 #ifndef Q_WS_QWS
     DEBUG_ONCE_STR("QGLOffscreen: releasing offscreen");
     if (use_fbo) {
-        if (drawable_fbo)
-            drawable.makeCurrent();
-        else
-            offscreen->release();
+            glDrawBuffer(GL_COLOR_ATTACHMENT1_EXT);
     } else {
         // copy buffer to offscreen
         int left = qMax(0, static_cast<int>(screen_rect.left()));
@@ -692,48 +726,6 @@ static inline QPainterPath strokeForPath(const QPainterPath &path, const QPen &c
     QPainterPath stroke = stroker.createStroke(path);
     stroke.setFillRule(Qt::WindingFill);
     return stroke;
-}
-
-bool qt_resolve_version_1_3_functions(QGLContext *ctx)
-{
-    if (glMultiTexCoord4f != 0)
-        return true;
-
-    QGLContext cx(QGLFormat::defaultFormat());
-    glMultiTexCoord4f = (_glMultiTexCoord4f) ctx->getProcAddress(QLatin1String("glMultiTexCoord4f"));
-    glActiveTexture = (_glActiveTexture) ctx->getProcAddress(QLatin1String("glActiveTexture"));
-
-    return glMultiTexCoord4f && glActiveTexture;
-}
-
-bool qt_resolve_stencil_face_extension(QGLContext *ctx)
-{
-    if (glActiveStencilFaceEXT != 0)
-        return true;
-
-    QGLContext cx(QGLFormat::defaultFormat());
-    glActiveStencilFaceEXT = (_glActiveStencilFaceEXT) ctx->getProcAddress(QLatin1String("glActiveStencilFaceEXT"));
-
-    return glActiveStencilFaceEXT;
-}
-
-static bool qt_resolve_frag_program_extensions(QGLContext *ctx)
-{
-    if (glProgramStringARB != 0)
-        return true;
-
-    // ARB_fragment_program
-    glProgramStringARB = (_glProgramStringARB) ctx->getProcAddress(QLatin1String("glProgramStringARB"));
-    glBindProgramARB = (_glBindProgramARB) ctx->getProcAddress(QLatin1String("glBindProgramARB"));
-    glDeleteProgramsARB = (_glDeleteProgramsARB) ctx->getProcAddress(QLatin1String("glDeleteProgramsARB"));
-    glGenProgramsARB = (_glGenProgramsARB) ctx->getProcAddress(QLatin1String("glGenProgramsARB"));
-    glProgramLocalParameter4fvARB = (_glProgramLocalParameter4fvARB) ctx->getProcAddress(QLatin1String("glProgramLocalParameter4fvARB"));
-
-    return glProgramStringARB
-        && glBindProgramARB
-        && glDeleteProgramsARB
-        && glGenProgramsARB
-        && glProgramLocalParameter4fvARB;
 }
 
 class QGLStrokeCache
@@ -972,6 +964,7 @@ static bool qt_createFragmentProgram(QGLContext *ctx, GLuint &program, const cha
 bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 {
     Q_D(QOpenGLPaintEngine);
+
     d->drawable.setDevice(pdev);
     d->offscreen.setDevice(pdev);
     d->offscreen.setDrawableCopyNeeded(true);
@@ -1019,6 +1012,8 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
         glClearStencil(0);
     }
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+    d->offscreen.begin();    
 
     const QColor &c = d->drawable.backgroundColor();
     glClearColor(c.redF(), c.greenF(), c.blueF(), 1.0);
@@ -1084,6 +1079,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 bool QOpenGLPaintEngine::end()
 {
     Q_D(QOpenGLPaintEngine);
+    d->offscreen.end();
 #ifndef Q_WS_QWS
     glPopAttrib();
 #endif

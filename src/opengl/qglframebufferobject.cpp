@@ -19,205 +19,10 @@
 #include <qimage.h>
 
 // #define DEPTH_BUFFER
-
-#ifndef GL_EXT_framebuffer_object
-#define GL_INVALID_FRAMEBUFFER_OPERATION_EXT                    0x0506
-#define GL_MAX_RENDERBUFFER_SIZE_EXT                            0x84E8
-#define GL_FRAMEBUFFER_BINDING_EXT                              0x8CA6
-#define GL_RENDERBUFFER_BINDING_EXT                             0x8CA7
-#define GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE_EXT               0x8CD0
-#define GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME_EXT               0x8CD1
-#define GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL_EXT             0x8CD2
-#define GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE_EXT     0x8CD3
-#define GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET_EXT        0x8CD4
-#define GL_FRAMEBUFFER_COMPLETE_EXT                             0x8CD5
-#define GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT                0x8CD6
-#define GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT        0x8CD7
-#define GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT      0x8CD8
-#define GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT                0x8CD9
-#define GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT                   0x8CDA
-#define GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT               0x8CDB
-#define GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT               0x8CDC
-#define GL_FRAMEBUFFER_UNSUPPORTED_EXT                          0x8CDD
-#define GL_MAX_COLOR_ATTACHMENTS_EXT                            0x8CDF
-#define GL_COLOR_ATTACHMENT0_EXT                                0x8CE0
-#define GL_COLOR_ATTACHMENT1_EXT                                0x8CE1
-#define GL_COLOR_ATTACHMENT2_EXT                                0x8CE2
-#define GL_COLOR_ATTACHMENT3_EXT                                0x8CE3
-#define GL_COLOR_ATTACHMENT4_EXT                                0x8CE4
-#define GL_COLOR_ATTACHMENT5_EXT                                0x8CE5
-#define GL_COLOR_ATTACHMENT6_EXT                                0x8CE6
-#define GL_COLOR_ATTACHMENT7_EXT                                0x8CE7
-#define GL_COLOR_ATTACHMENT8_EXT                                0x8CE8
-#define GL_COLOR_ATTACHMENT9_EXT                                0x8CE9
-#define GL_COLOR_ATTACHMENT10_EXT                               0x8CEA
-#define GL_COLOR_ATTACHMENT11_EXT                               0x8CEB
-#define GL_COLOR_ATTACHMENT12_EXT                               0x8CEC
-#define GL_COLOR_ATTACHMENT13_EXT                               0x8CED
-#define GL_COLOR_ATTACHMENT14_EXT                               0x8CEE
-#define GL_COLOR_ATTACHMENT15_EXT                               0x8CEF
-#define GL_DEPTH_ATTACHMENT_EXT                                 0x8D00
-#define GL_STENCIL_ATTACHMENT_EXT                               0x8D20
-#define GL_FRAMEBUFFER_EXT                                      0x8D40
-#define GL_RENDERBUFFER_EXT                                     0x8D41
-#define GL_RENDERBUFFER_WIDTH_EXT                               0x8D42
-#define GL_RENDERBUFFER_HEIGHT_EXT                              0x8D43
-#define GL_RENDERBUFFER_INTERNAL_FORMAT_EXT                     0x8D44
-#define GL_STENCIL_INDEX_EXT                                    0x8D45
-#define GL_STENCIL_INDEX1_EXT                                   0x8D46
-#define GL_STENCIL_INDEX4_EXT                                   0x8D47
-#define GL_STENCIL_INDEX8_EXT                                   0x8D48
-#define GL_STENCIL_INDEX16_EXT                                  0x8D49
-#define GL_RENDERBUFFER_RED_SIZE_EXT                            0x8D50
-#define GL_RENDERBUFFER_GREEN_SIZE_EXT                          0x8D51
-#define GL_RENDERBUFFER_BLUE_SIZE_EXT                           0x8D52
-#define GL_RENDERBUFFER_ALPHA_SIZE_EXT                          0x8D53
-#define GL_RENDERBUFFER_DEPTH_SIZE_EXT                          0x8D54
-#define GL_RENDERBUFFER_STENCIL_SIZE_EXT                        0x8D55
-#endif
-
-#ifndef GL_EXT_packed_depth_stencil
-#define GL_DEPTH_STENCIL_EXT                                    0x84F9
-#define GL_UNSIGNED_INT_24_8_EXT                                0x84FA
-#define GL_DEPTH24_STENCIL8_EXT                                 0x88F0
-#define GL_TEXTURE_STENCIL_SIZE_EXT                             0x88F1
-#endif
-
-// ### hm. should be part of the GL 1.2 spec..
-#ifndef GL_CLAMP_TO_EDGE
-#define GL_CLAMP_TO_EDGE                  0x812F
-#endif
-
-#if defined(Q_WS_X11) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
-
-#define QGL_FUNC_CONTEXT
-
-PFNGLISRENDERBUFFEREXTPROC qt_glIsRenderbufferEXT;
-PFNGLBINDRENDERBUFFEREXTPROC qt_glBindRenderbufferEXT;
-PFNGLDELETERENDERBUFFERSEXTPROC qt_glDeleteRenderbuffersEXT;
-PFNGLGENRENDERBUFFERSEXTPROC qt_glGenRenderbuffersEXT;
-PFNGLRENDERBUFFERSTORAGEEXTPROC qt_glRenderbufferStorageEXT;
-PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC qt_glGetRenderbufferParameterivEXT;
-PFNGLISFRAMEBUFFEREXTPROC qt_glIsFramebufferEXT;
-PFNGLBINDFRAMEBUFFEREXTPROC qt_glBindFramebufferEXT;
-PFNGLDELETEFRAMEBUFFERSEXTPROC qt_glDeleteFramebuffersEXT;
-PFNGLGENFRAMEBUFFERSEXTPROC qt_glGenFramebuffersEXT;
-PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC qt_glCheckFramebufferStatusEXT;
-PFNGLFRAMEBUFFERTEXTURE1DEXTPROC qt_glFramebufferTexture1DEXT;
-PFNGLFRAMEBUFFERTEXTURE2DEXTPROC qt_glFramebufferTexture2DEXT;
-PFNGLFRAMEBUFFERTEXTURE3DEXTPROC qt_glFramebufferTexture3DEXT;
-PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC qt_glFramebufferRenderbufferEXT;
-PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC qt_glGetFramebufferAttachmentParameterivEXT;
-PFNGLGENERATEMIPMAPEXTPROC qt_glGenerateMipmapEXT;
-
-#define glIsRenderbufferEXT qt_glIsRenderbufferEXT
-#define glBindRenderbufferEXT qt_glBindRenderbufferEXT
-#define glDeleteRenderbuffersEXT qt_glDeleteRenderbuffersEXT
-#define glGenRenderbuffersEXT qt_glGenRenderbuffersEXT
-#define glRenderbufferStorageEXT qt_glRenderbufferStorageEXT
-#define glGetRenderbufferParameterivEXT qt_glGetRenderbufferParameterivEXT
-#define glIsFramebufferEXT qt_glIsFramebufferEXT
-#define glBindFramebufferEXT qt_glBindFramebufferEXT
-#define glDeleteFramebuffersEXT qt_glDeleteFramebuffersEXT
-#define glGenFramebuffersEXT qt_glGenFramebuffersEXT
-#define glCheckFramebufferStatusEXT qt_glCheckFramebufferStatusEXT
-#define glFramebufferTexture1DEXT qt_glFramebufferTexture1DEXT
-#define glFramebufferTexture2DEXT qt_glFramebufferTexture2DEXT
-#define glFramebufferTexture3DEXT qt_glFramebufferTexture3DEXT
-#define glFramebufferRenderbufferEXT qt_glFramebufferRenderbufferEXT
-#define glGetFramebufferAttachmentParameterivEXT qt_glGetFramebufferAttachmentParameterivEXT
-#define glGenerateMipmapEXT qt_glGenerateMipmapEXT
-
-static bool qt_resolve_framebufferobject_extensions(QGLContext *)
-{
-    static bool resolved = false;
-    if (resolved && qt_glIsRenderbufferEXT)
-        return true;
-    else if (resolved)
-        return false;
-
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
-    QLibrary lib(QLatin1String("GL"));
-#else // Q_WS_MAC
-    QLibrary lib(QLatin1String("/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib"));
-#endif
-
-    qt_glIsRenderbufferEXT = (PFNGLISRENDERBUFFEREXTPROC) lib.resolve("glIsRenderbufferEXT");
-    qt_glBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC) lib.resolve("glBindRenderbufferEXT");
-    qt_glDeleteRenderbuffersEXT = (PFNGLDELETERENDERBUFFERSEXTPROC) lib.resolve("glDeleteRenderbuffersEXT");
-    qt_glGenRenderbuffersEXT = (PFNGLGENRENDERBUFFERSEXTPROC) lib.resolve("glGenRenderbuffersEXT");
-    qt_glRenderbufferStorageEXT = (PFNGLRENDERBUFFERSTORAGEEXTPROC) lib.resolve("glRenderbufferStorageEXT");
-    qt_glGetRenderbufferParameterivEXT =
-        (PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC) lib.resolve("glGetRenderbufferParameterivEXT");
-    qt_glIsFramebufferEXT = (PFNGLISFRAMEBUFFEREXTPROC) lib.resolve("glIsFramebufferEXT");
-    qt_glBindFramebufferEXT = (PFNGLBINDFRAMEBUFFEREXTPROC) lib.resolve("glBindFramebufferEXT");
-    qt_glDeleteFramebuffersEXT = (PFNGLDELETEFRAMEBUFFERSEXTPROC) lib.resolve("glDeleteFramebuffersEXT");
-    qt_glGenFramebuffersEXT = (PFNGLGENFRAMEBUFFERSEXTPROC) lib.resolve("glGenFramebuffersEXT");
-    qt_glCheckFramebufferStatusEXT = (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC) lib.resolve("glCheckFramebufferStatusEXT");
-    qt_glFramebufferTexture1DEXT = (PFNGLFRAMEBUFFERTEXTURE1DEXTPROC) lib.resolve("glFramebufferTexture1DEXT");
-    qt_glFramebufferTexture2DEXT = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC) lib.resolve("glFramebufferTexture2DEXT");
-    qt_glFramebufferTexture3DEXT = (PFNGLFRAMEBUFFERTEXTURE3DEXTPROC) lib.resolve("glFramebufferTexture3DEXT");
-    qt_glFramebufferRenderbufferEXT = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC) lib.resolve("glFramebufferRenderbufferEXT");
-    qt_glGetFramebufferAttachmentParameterivEXT =
-        (PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC) lib.resolve("glGetFramebufferAttachmentParameterivEXT");
-    qt_glGenerateMipmapEXT = (PFNGLGENERATEMIPMAPEXTPROC) lib.resolve("glGenerateMipmapEXT");
-    resolved = true;
-    return qt_glIsRenderbufferEXT;
-}
-#elif defined(Q_WS_WIN)
-
+#ifdef Q_WS_WIN
 #define QGL_FUNC_CONTEXT QGLContext *ctx = d_ptr->ctx;
-
-#define glIsRenderbufferEXT qt_glctx_get_dptr(ctx)->qt_glIsRenderbufferEXT
-#define glBindRenderbufferEXT qt_glctx_get_dptr(ctx)->qt_glBindRenderbufferEXT
-#define glDeleteRenderbuffersEXT qt_glctx_get_dptr(ctx)->qt_glDeleteRenderbuffersEXT
-#define glGenRenderbuffersEXT qt_glctx_get_dptr(ctx)->qt_glGenRenderbuffersEXT
-#define glRenderbufferStorageEXT qt_glctx_get_dptr(ctx)->qt_glRenderbufferStorageEXT
-#define glGetRenderbufferParameterivEXT qt_glctx_get_dptr(ctx)->qt_glGetRenderbufferParameterivEXT
-#define glIsFramebufferEXT qt_glctx_get_dptr(ctx)->qt_glIsFramebufferEXT
-#define glBindFramebufferEXT qt_glctx_get_dptr(ctx)->qt_glBindFramebufferEXT
-#define glDeleteFramebuffersEXT qt_glctx_get_dptr(ctx)->qt_glDeleteFramebuffersEXT
-#define glGenFramebuffersEXT qt_glctx_get_dptr(ctx)->qt_glGenFramebuffersEXT
-#define glCheckFramebufferStatusEXT qt_glctx_get_dptr(ctx)->qt_glCheckFramebufferStatusEXT
-#define glFramebufferTexture1DEXT qt_glctx_get_dptr(ctx)->qt_glFramebufferTexture1DEXT
-#define glFramebufferTexture2DEXT qt_glctx_get_dptr(ctx)->qt_glFramebufferTexture2DEXT
-#define glFramebufferTexture3DEXT qt_glctx_get_dptr(ctx)->qt_glFramebufferTexture3DEXT
-#define glFramebufferRenderbufferEXT qt_glctx_get_dptr(ctx)->qt_glFramebufferRenderbufferEXT
-#define glGetFramebufferAttachmentParameterivEXT qt_glctx_get_dptr(ctx)->qt_glGetFramebufferAttachmentParameterivEXT
-#define glGenerateMipmapEXT qt_glctx_get_dptr(ctx)->qt_glGenerateMipmapEXT
-
-bool qt_resolve_framebufferobject_extensions(QGLContext *ctx)
-{
-    if (glIsRenderbufferEXT != 0)
-        return true;
-
-    if (ctx == 0) {
-        qWarning("QGLFramebufferObject: Unable to resolve framebuffer object extensions -"
-                 " make sure there is a current context when creating the framebuffer object.");
-        return false;
-    }
-
-    glIsRenderbufferEXT = (PFNGLISRENDERBUFFEREXTPROC) wglGetProcAddress("glIsRenderbufferEXT");
-    glBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC) wglGetProcAddress("glBindRenderbufferEXT");
-    glDeleteRenderbuffersEXT = (PFNGLDELETERENDERBUFFERSEXTPROC) wglGetProcAddress("glDeleteRenderbuffersEXT");
-    glGenRenderbuffersEXT = (PFNGLGENRENDERBUFFERSEXTPROC) wglGetProcAddress("glGenRenderbuffersEXT");
-    glRenderbufferStorageEXT = (PFNGLRENDERBUFFERSTORAGEEXTPROC) wglGetProcAddress("glRenderbufferStorageEXT");
-    glGetRenderbufferParameterivEXT =
-        (PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC) wglGetProcAddress("glGetRenderbufferParameterivEXT");
-    glIsFramebufferEXT = (PFNGLISFRAMEBUFFEREXTPROC) wglGetProcAddress("glIsFramebufferEXT");
-    glBindFramebufferEXT = (PFNGLBINDFRAMEBUFFEREXTPROC) wglGetProcAddress("glBindFramebufferEXT");
-    glDeleteFramebuffersEXT = (PFNGLDELETEFRAMEBUFFERSEXTPROC) wglGetProcAddress("glDeleteFramebuffersEXT");
-    glGenFramebuffersEXT = (PFNGLGENFRAMEBUFFERSEXTPROC) wglGetProcAddress("glGenFramebuffersEXT");
-    glCheckFramebufferStatusEXT = (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC) wglGetProcAddress("glCheckFramebufferStatusEXT");
-    glFramebufferTexture1DEXT = (PFNGLFRAMEBUFFERTEXTURE1DEXTPROC) wglGetProcAddress("glFramebufferTexture1DEXT");
-    glFramebufferTexture2DEXT = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC) wglGetProcAddress("glFramebufferTexture2DEXT");
-    glFramebufferTexture3DEXT = (PFNGLFRAMEBUFFERTEXTURE3DEXTPROC) wglGetProcAddress("glFramebufferTexture3DEXT");
-    glFramebufferRenderbufferEXT = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC) wglGetProcAddress("glFramebufferRenderbufferEXT");
-    glGetFramebufferAttachmentParameterivEXT =
-        (PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC) wglGetProcAddress("glGetFramebufferAttachmentParameterivEXT");
-    glGenerateMipmapEXT = (PFNGLGENERATEMIPMAPEXTPROC) wglGetProcAddress("glGenerateMipmapEXT");
-    return glIsRenderbufferEXT;
-}
+#else
+#define QGL_FUNC_CONTEXT
 #endif
 
 #define QT_CHECK_GLERROR()                                \
@@ -340,7 +145,7 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
     }
 
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-    checkFramebufferStatus();
+    valid = checkFramebufferStatus();
     QT_CHECK_GLERROR();
 }
 
@@ -492,7 +297,7 @@ bool QGLFramebufferObject::bind()
     Q_D(QGLFramebufferObject);
     QGL_FUNC_CONTEXT;
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, d->fbo);
-    return d->checkFramebufferStatus();
+    return d->valid = d->checkFramebufferStatus();
 }
 
 /*!
@@ -509,7 +314,7 @@ bool QGLFramebufferObject::release()
     Q_D(QGLFramebufferObject);
     QGL_FUNC_CONTEXT;
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-    return d->checkFramebufferStatus();
+    return d->valid = d->checkFramebufferStatus();
 }
 
 /*!
