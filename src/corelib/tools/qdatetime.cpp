@@ -1419,8 +1419,8 @@ bool QTime::setHMS(int h, int m, int s, int ms)
 }
 
 /*!
-    Returns a QTime object containing a time \a nsecs seconds later
-    than the time of this object (or earlier if \a nsecs is negative).
+    Returns a QTime object containing a time \a s seconds later
+    than the time of this object (or earlier if \a s is negative).
 
     Note that the time will wrap if it passes midnight.
 
@@ -1438,9 +1438,9 @@ bool QTime::setHMS(int h, int m, int s, int ms)
     \sa addMSecs(), secsTo(), QDateTime::addSecs()
 */
 
-QTime QTime::addSecs(int nsecs) const
+QTime QTime::addSecs(int s) const
 {
-    return addMSecs(nsecs * 1000);
+    return addMSecs(s * 1000);
 }
 
 /*!
@@ -2310,16 +2310,16 @@ QDateTime QDateTimePrivate::addMSecs(const QDateTime &dt, qint64 msecs)
 }
 
 /*!
-    Returns a QDateTime object containing a datetime \a nsecs seconds
-    later than the datetime of this object (or earlier if \a nsecs is
+    Returns a QDateTime object containing a datetime \a s seconds
+    later than the datetime of this object (or earlier if \a s is
     negative).
 
     \sa addMSecs(), secsTo(), addDays(), addMonths(), addYears()
 */
 
-QDateTime QDateTime::addSecs(int nsecs) const
+QDateTime QDateTime::addSecs(int s) const
 {
-    return d->addMSecs(*this, qint64(nsecs) * 1000);
+    return d->addMSecs(*this, qint64(s) * 1000);
 }
 
 /*!
