@@ -205,6 +205,7 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector, ATS
         nextCharStop -= item->from;
     }
 
+    nfo->glyphs[0].attributes.clusterStart = true;
     int glyphIdx = 0;
     int glyphIncrement = 1;
     if (nfo->flags & QTextEngine::RightToLeft) {
@@ -311,6 +312,65 @@ bool QFontEngineMacMulti::stringToCMap(const QChar *str, int len, QGlyphLayout *
         *nglyphs = len;
         return false;
     }
+
+    const int maxChars = qMax(1,
+                              int(SHRT_MAX / maxCharWidth())
+                              - 10 // subtract a few to be on the safe side
+                             );
+    if (len < maxChars)
+        return stringToCMapInternal(str, len, glyphs, nglyphs, flags, shaperItem);
+
+    int charIdx = 0;
+    int glyphIdx = 0;
+    QShaperItem tmpItem = *shaperItem;
+
+    do {
+        tmpItem.from = shaperItem->from + charIdx;
+
+        int charCount = qMin(maxChars, len - charIdx);
+
+        int lastWhitespace = tmpItem.from + charCount - 1;
+        int lastSoftBreak = lastWhitespace;
+        int lastCharStop = lastSoftBreak;
+        for (int i = lastCharStop; i >= tmpItem.from; --i) {
+            if (tmpItem.charAttributes[i].whiteSpace) {
+                lastWhitespace = i;
+                break;
+            } if (tmpItem.charAttributes[i].softBreak) {
+                lastSoftBreak = i;
+            } if (tmpItem.charAttributes[i].charStop) {
+                lastCharStop = i;
+            }
+        }
+        charCount = qMin(lastWhitespace, qMin(lastSoftBreak, lastCharStop)) - tmpItem.from + 1;
+        
+        int glyphCount = shaperItem->num_glyphs - glyphIdx;
+        if (glyphCount <= 0)
+            return false;
+        tmpItem.length = charCount;
+        tmpItem.num_glyphs = glyphCount;
+        tmpItem.glyphs = shaperItem->glyphs + glyphIdx;
+        tmpItem.log_clusters = shaperItem->log_clusters + charIdx;
+        if (!stringToCMapInternal(tmpItem.string->constData() + tmpItem.from,
+                                  tmpItem.length,
+                                  tmpItem.glyphs,
+                                  &glyphCount,
+                                  flags, &tmpItem)) {
+            return false;
+        }
+        for (int i = 0; i < charCount; ++i)
+            tmpItem.log_clusters[i] += charIdx;
+        glyphIdx += glyphCount;
+        charIdx += charCount;
+    } while (charIdx < len);
+    shaperItem->num_glyphs = *nglyphs = glyphIdx;
+
+    return true;
+}
+
+bool QFontEngineMacMulti::stringToCMapInternal(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, 
+                                               QTextEngine::ShaperFlags flags, QShaperItem *shaperItem) const
+{
     //qDebug() << "stringToCMap" << QString(str, len);
 
     OSStatus e = noErr;

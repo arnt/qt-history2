@@ -484,6 +484,9 @@ private:
     inline const QFontEngineMac *engineAt(int i) const
     { return static_cast<const QFontEngineMac *>(engines.at(i)); }
 
+    bool stringToCMapInternal(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags,
+                              QShaperItem *shaperItem) const;
+
     int fontIndexForFontID(ATSUFontID id) const;
 
     ATSUFontID fontID;
