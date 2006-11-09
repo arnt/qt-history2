@@ -406,6 +406,14 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
 
     if (action_e == QAction::Trigger && by_accel && action->ignore_accel) //no, not a real accel (ie tab)
         return false;
+    
+    // Unhighlight the highlighted menu item before triggering the action to 
+    // prevent items from staying highlighted while a modal dialog is shown.
+    // This also fixed the problem that parentless modal dialogs leave
+    // the menu item highlighted (since the menubar is cleared for these types of dialogs).  
+    if (action_e == QAction::Trigger)
+        HiliteMenu(0);
+        
     action->action->activate(action_e);
 
     //now walk up firing for each "caused" widget (like in the platform independent menu)
@@ -449,8 +457,6 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
                 caused_menu = 0;
         }
     }
-    if (action_e == QAction::Trigger)
-        HiliteMenu(0);
     return true;
 }
 
