@@ -52,7 +52,6 @@ contains(QT_CONFIG, system-zlib) {
 RESOURCES	+= qvfb.qrc \
                    ClamshellPhone.qrc \
                    PDAPhone.qrc \
-                   pda.qrc \
                    SmartPhone2.qrc \
                    SmartPhone.qrc \
                    SmartPhoneWithButtons.qrc \
