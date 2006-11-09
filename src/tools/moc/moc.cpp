@@ -252,11 +252,39 @@ void Moc::parseFunctionArguments(FunctionDef *def)
     }
 }
 
+bool Moc::testFunctionAttribute(FunctionDef *def)
+{
+    if (index < symbols.size() && testFunctionAttribute(symbols.at(index).token, def)) {
+        ++index;
+        return true;
+    }
+    return false;
+}
+
+bool Moc::testFunctionAttribute(Token tok, FunctionDef *def)
+{
+    switch (tok) {
+        case Q_MOC_COMPAT_TOKEN:
+        case Q_QT3_SUPPORT_TOKEN:
+            def->isCompat = true;
+            return true;
+        case Q_INVOKABLE_TOKEN:
+            def->isInvokable = true;
+            return true;
+        case Q_SCRIPTABLE_TOKEN:
+            def->isInvokable = def->isScriptable = true;
+            return true;
+        default: break;
+    }
+    return false;
+}
+
 // returns false if the function should be ignored
 bool Moc::parseFunction(FunctionDef *def, bool inMacro)
 {
     def->isVirtual = false;
-    while (test(INLINE) || test(STATIC) || test(VIRTUAL)) {
+    while (test(INLINE) || test(STATIC) || test(VIRTUAL)
+           || testFunctionAttribute(def)) {
         if (lookup() == VIRTUAL)
             def->isVirtual = true;
     }
@@ -276,12 +304,8 @@ bool Moc::parseFunction(FunctionDef *def, bool inMacro)
     } else {
         Type tempType = parseType();;
         while (!tempType.name.isEmpty() && lookup() != LPAREN) {
-            if (def->type.firstToken == Q_MOC_COMPAT_TOKEN || def->type.firstToken == Q_QT3_SUPPORT_TOKEN)
-                def->isCompat = true;
-            else if (def->type.firstToken == Q_INVOKABLE_TOKEN)
-                def->isInvokable = true;
-            else if (def->type.firstToken == Q_SCRIPTABLE_TOKEN)
-                def->isInvokable = def->isScriptable = true;
+            if (testFunctionAttribute(def->type.firstToken, def))
+                ; // fine
             else if (def->type.firstToken == Q_SIGNALS_TOKEN)
                 error();
             else if (def->type.firstToken == Q_SLOTS_TOKEN)
