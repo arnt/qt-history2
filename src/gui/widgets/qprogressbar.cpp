@@ -101,9 +101,15 @@ bool QProgressBarPrivate::repaintRequired() const
     int valueDifference = qAbs(value - lastPaintedValue);
 
     // Check if the text needs to be repainted
-    if ((value == minimum || value == maximum)
-            || (textVisible && valueDifference >= qAbs((maximum - minimum) / 100)))
+    if (value == minimum || value == maximum)
         return true;
+    if (textVisible) {
+        if ((format.contains(QLatin1String("%v"))))
+            return true;
+        if ((format.contains(QLatin1String("%p"))
+             && valueDifference >= qAbs((maximum - minimum) / 100)))
+            return true;
+    }
 
     // Check if the bar needs to be repainted
     QStyleOptionProgressBarV2 opt;
