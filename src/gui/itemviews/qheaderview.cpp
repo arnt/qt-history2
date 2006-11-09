@@ -1190,6 +1190,9 @@ Qt::SortOrder QHeaderView::sortIndicatorOrder() const
     this property set to true, ensuring that the view does not waste any of the
     space assigned to it for its header.
 
+    \bold{Also note:} If the value is set to true, this property will override the
+    resize mode set on the last section in the header.
+
     \sa setResizeMode()
 */
 bool QHeaderView::stretchLastSection() const
