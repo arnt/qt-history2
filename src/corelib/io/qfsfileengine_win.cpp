@@ -404,8 +404,8 @@ static QString nativeAbsoluteFilePath(const QString &path)
 {
     QString absPath = QT_WA_INLINE(nativeAbsoluteFilePathW(path), nativeAbsoluteFilePathA(path));
     // This is really ugly, but GetFullPathName strips off whitespace at the end.
-    // If you for instance write ". " in the lineedit of QFileDialog, 
-    // (which is an invalid filename) this function will strip the space off and viola, 
+    // If you for instance write ". " in the lineedit of QFileDialog,
+    // (which is an invalid filename) this function will strip the space off and viola,
     // the file is later reported as existing. Therefore, we re-add the whitespace that
     // was at the end of path in order to keep the filename invalid.
     int i = path.size() - 1;
@@ -446,9 +446,9 @@ QByteArray QFSFileEnginePrivate::win95Name(const QString &path)
 QString QFSFileEnginePrivate::longFileName(const QString &path)
 {
     QString absPath = nativeAbsoluteFilePath(path);
-    QString prefix = "\\\\?\\";
+    QString prefix = QLatin1String("\\\\?\\");
     if (isUncPath(path)) {
-        prefix = "\\\\?\\UNC\\";
+        prefix = QLatin1String("\\\\?\\UNC\\");
         absPath.remove(0, 2);
     }
     return prefix + absPath;
