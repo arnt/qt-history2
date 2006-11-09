@@ -27,7 +27,7 @@
 
     \l {Qtopia Core} provides ready-made drivers for several screen
     protocols, see the \l {Qtopia Core Display Management}{display
-    management} documentation for details. Custom mouse drivers can be
+    management} documentation for details. Custom screen drivers can be
     implemented by subclassing the QScreen class and creating a screen
     driver plugin.
 
