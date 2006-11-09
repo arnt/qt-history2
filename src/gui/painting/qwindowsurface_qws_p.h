@@ -94,6 +94,8 @@ private:
     QWSWindowSurfacePrivate *d_ptr;
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QWSWindowSurface::SurfaceFlags)
+
 class QWSLock;
 
 class Q_GUI_EXPORT QWSMemorySurface : public QWSWindowSurface
