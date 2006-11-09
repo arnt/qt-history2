@@ -842,13 +842,13 @@ static const uint * QT_FASTCALL fetchLinearGradient(uint *buffer, const Operator
 
     const uint *end = buffer + length;
     if (inc > -1e-5 && inc < 1e-5) {
-        QT_MEMFILL_UINT(buffer, length, qt_gradient_pixel_fixed(&data->gradient, t * FIXPT_SIZE));
+        QT_MEMFILL_UINT(buffer, length, qt_gradient_pixel_fixed(&data->gradient, int(t * FIXPT_SIZE)));
     } else {
         if (t+inc*length < qreal(INT_MAX >> (FIXPT_BITS + 1)) &&
             t+inc*length > qreal(INT_MIN >> (FIXPT_BITS + 1))) {
             // we can use fixed point math
-            int t_fixed = t * FIXPT_SIZE;
-            int inc_fixed = inc * FIXPT_SIZE;
+            int t_fixed = int(t * FIXPT_SIZE);
+            int inc_fixed = int(inc * FIXPT_SIZE);
             while (buffer < end) {
                 *buffer = qt_gradient_pixel_fixed(&data->gradient, t_fixed);
                 t_fixed += inc_fixed;
