@@ -1739,7 +1739,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
         ret = 1;
         break;
     case PM_DockWidgetFrameWidth:
-        ret = 0;
+        ret = 2;
         break;
     case PM_DockWidgetTitleMargin:
         ret = 0;
