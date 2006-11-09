@@ -38,8 +38,8 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     \class QScreenDriverFactory
     \ingroup qws
 
-    \brief The QScreenDriverFactory class creates screen driver
-    objects in Qtopia Core.
+    \brief The QScreenDriverFactory class creates screen drivers in
+    Qtopia Core.
 
     Note that this class is only available in \l {Qtopia Core}.
 

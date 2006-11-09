@@ -40,28 +40,34 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     \class QMouseDriverFactory
     \ingroup qws
 
-    \brief The QMouseDriverFactory class creates QWSMouseHandler
-    objects.
+    \brief The QMouseDriverFactory class creates mouse drivers in
+    Qtopia Core.
 
     Note that this class is only available in \l {Qtopia Core}.
 
-    The QWSMouseHandler class is used to implement mouse
-    drivers. QMouseDriverFactory creates a QWSMouseHandler object
-    using the create() function and a key identifying the driver.
+    QMouseDriverFactory is used to detect and instantiate the
+    available mouse drivers, allowing \l {Qtopia Core} to load the
+    preferred driver into the server application at runtime. The
+    create() function returns a QWSMouseHandler object representing
+    the mouse driver identified by a given key. The valid keys
+    (i.e. the supported drivers) can be retrieved using the keys()
+    function.
 
-    The valid keys can be retrieved using the keys() function.  The
-    drivers are either built-in or dynamically loaded from a driver
-    plugin (see \l QMouseDriverPlugin).
+    \l {Qtopia Core} provides several built-in mouse drivers. In
+    addition, custom mouse drivers can be added using Qt's plugin
+    mechanism, i.e. by subclassing the QWSMouseHandler class and
+    creating a mouse driver plugin (QMouseDriverPlugin). See the \l
+    {Qtopia Core Pointer Handling}{pointer handling} documentation for
+    details.
 
-    \sa QWSMouseHandler, QMouseDriverPlugin, {Qtopia Core Pointer
-    Handling}
+    \sa QWSMouseHandler, QMouseDriverPlugin
 */
 
 /*!
-    Creates a QWSMouseHandler object for the driver specified by the
-    given \a key, for the given \a device. The device is either a
-    built-in driver, or a driver from a driver plugin. Keys are
-    case-insensitive.
+    Creates the mouse driver specified by the given \a key, using the
+    display specified by the given \a displayId.
+
+    Note that the keys are case-insensitive.
 
     \sa keys()
 */
@@ -113,12 +119,7 @@ QWSMouseHandler *QMouseDriverFactory::create(const QString& key, const QString &
 }
 
 /*!
-    Returns the list of valid keys, i.e. the keys this factory can
-    create drivers for.
-
-    \l {Qtopia Core} currently supports the following drivers by
-    default: \c MouseMan, \c IntelliMouse, \c Microsoft, \c VR41xx, \c
-    LinuxTP, \c Yopy and \c Tslib.
+    Returns the list of valid keys, i.e. the available mouse drivers.
 
     \sa create()
 */

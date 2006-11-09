@@ -39,8 +39,7 @@
     and load the driver into the server application at runtime.  See
     \l{How to Create Qt Plugins} for details.
 
-    \sa QScreen, QScreenDriverFactory, {Qtopia Core Display
-    Management}
+    \sa QScreen, QScreenDriverFactory
 */
 
 /*!

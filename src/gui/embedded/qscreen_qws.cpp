@@ -311,22 +311,21 @@ public:
 
     Note that this class is only available in \l {Qtopia Core}.
 
+    \l {Qtopia Core} provides ready-made drivers for several screen
+    protocols, see the \l {Qtopia Core Display Management}{display
+    management} documentation for details. Custom screen drivers can
+    be implemented by subclassing the QScreen class and creating a
+    screen driver plugin (derived from QScreenDriverPlugin). \l
+    {Qtopia Core}'s implementation of the QScreenDriverFactory class
+    will automatically detect the plugin, and load the driver into the
+    server application at runtime using Qt's \l {How to Create Qt
+    Plugins}{plugin system}.
+
     When rendering, \l {Qtopia Core}'s default behavior is for each
     client to render its widgets as well as its decorations into
     memory, while the server copies the memory content to the device's
     framebuffer using the screen driver. See the \l {Qtopia Core
     Architecture} overview for details.
-
-    The screen driver is loaded by the server application when it
-    starts running, using Qt's plugin system. \l {Qtopia Core}
-    provides ready-made drivers for several screen protocols, see the
-    \l {Qtopia Core Display Management}{display management}
-    documentation for details. Custom screen drivers can be
-    implemented by subclassing the QScreen class and creating a screen
-    driver plugin (derived from QScreenDriverPlugin). \l {Qtopia
-    Core}'s implementation of the QScreenDriverFactory class will
-    automatically detect the plugin, and load the driver into the
-    server application at runtime.
 
     Starting with \l {Qtopia Core} 4.2, it is also possible to add an
     accelerated graphics driver to take advantage of available
@@ -480,7 +479,7 @@ public:
 
     \endtable
 
-    \sa QScreenCursor, QWSScreenSaver, {Qtopia Core Display
+    \sa QScreenDriverPlugin, QScreenDriverFactory, {Qtopia Core Display
     Management}
 */
 

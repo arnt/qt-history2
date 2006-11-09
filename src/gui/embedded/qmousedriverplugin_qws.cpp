@@ -27,28 +27,32 @@
 
     Note that this class is only available in \l {Qtopia Core}.
 
-    QMouseDriverPlugin is a simple plugin interface that makes it easy
-    to create custom mouse drivers that can be loaded dynamically
-    into applications using the QMouseDriverFactory class.
+    \l {Qtopia Core} provides ready-made drivers for several mouse
+    protocols, see the \l {Qtopia Core Pointer Handling}{pointer
+    handling} documentation for details. Custom mouse drivers can be
+    implemented by subclassing the QWSMouseHandler class and creating
+    a mouse driver plugin.
 
-    Writing a custom mouse driver plugin is achieved by subclassing
-    QMouseDriverPlugin, reimplementing the pure virtual keys() and
-    create() functions, and exporting the class with the
-    Q_EXPORT_PLUGIN2() macro. See \l{How to Create Qt Plugins} for
-    details.
+    A mouse driver plugin can be created by subclassing
+    QMouseDriverPlugin and reimplementing the pure virtual keys() and
+    create() functions. By exporting the derived class using the
+    Q_EXPORT_PLUGIN2() macro, \l {Qtopia Core}'s implementation of the
+    QMouseDriverFactory class will automatically detect the plugin and
+    load the driver into the server application at runtime. See \l
+    {How to Create Qt Plugins} for details.
 
-    \sa QMouseDriverFactory, QWSMouseHandler, {Qtopia Core Pointer
-    Handling}
+    \sa QWSMouseHandler, QMouseDriverFactory
 */
 
 /*!
     \fn QStringList QMouseDriverPlugin::keys() const
 
-    Returns the list of valid keys, i.e. mouse drivers supported by this plugin.
+    Returns the list of valid keys, i.e. the mouse drivers supported
+    by this plugin.
 
-    \l {Qtopia Core} currently supports the following drivers by
-    default: \c MouseMan, \c IntelliMouse, \c Microsoft, \c VR41xx, \c
-    LinuxTP, \c Yopy and \c Tslib.
+    \l {Qtopia Core} provides ready-made drivers for several mouse
+    protocols, see the \l {Qtopia Core Pointer Handling}{pointer
+    handling} documentation for details.
 
     \sa create()
 */
@@ -79,7 +83,7 @@ QMouseDriverPlugin::~QMouseDriverPlugin()
     \fn QScreen* QMouseDriverPlugin::create(const QString &key, const QString& device)
 
     Creates a driver matching the type specified by the given \a key
-    and \a device parameters. Keys are case-insensitive.
+    and \a device parameters. Note that keys are case-insensitive.
 
     \sa keys()
 */
