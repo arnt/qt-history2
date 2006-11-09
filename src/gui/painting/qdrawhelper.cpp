@@ -776,6 +776,40 @@ static uint qt_gradient_pixel(const GradientData *data, qreal pos)
     return data->colorTable[ipos];
 }
 
+#ifdef Q_WS_QWS
+
+#define FIXPT_BITS 9
+#define FIXPT_SIZE (2<<FIXPT_BITS)
+
+static uint qt_gradient_pixel_fixed(const GradientData *data, int fixed_pos)
+{
+    int ipos = (fixed_pos + FIXPT_SIZE / 2) >> FIXPT_BITS - 1;
+
+    // calculate the actual offset.
+    if (ipos < 0 || ipos >= GRADIENT_STOPTABLE_SIZE) {
+        if (data->spread == QGradient::RepeatSpread) {
+            ipos = ipos % GRADIENT_STOPTABLE_SIZE;
+            ipos = ipos < 0 ? GRADIENT_STOPTABLE_SIZE + ipos : ipos;
+
+        } else if (data->spread == QGradient::ReflectSpread) {
+            const int limit = GRADIENT_STOPTABLE_SIZE * 2 - 1;
+            ipos = ipos % limit;
+            ipos = ipos < 0 ? limit + ipos : ipos;
+            ipos = ipos >= GRADIENT_STOPTABLE_SIZE ? limit - ipos : ipos;
+
+        } else {
+            if (ipos < 0) ipos = 0;
+            else if (ipos >= GRADIENT_STOPTABLE_SIZE) ipos = GRADIENT_STOPTABLE_SIZE-1;
+        }
+    }
+
+    Q_ASSERT(ipos >= 0);
+    Q_ASSERT(ipos < GRADIENT_STOPTABLE_SIZE);
+
+    return data->colorTable[ipos];
+}
+#endif
+
 static void QT_FASTCALL getLinearGradientValues(LinearGradientValues *v, const QSpanData *data)
 {
     v->dx = data->gradient.linear.end.x - data->gradient.linear.origin.x;
@@ -789,7 +823,49 @@ static void QT_FASTCALL getLinearGradientValues(LinearGradientValues *v, const Q
     }
 }
 
+#ifdef Q_WS_QWS
+static const uint * QT_FASTCALL fetchLinearGradient(uint *buffer, const Operator *op, const QSpanData *data,
+                                                    int y, int x, int length)
+{
+    const uint *b = buffer;
+    qreal t, inc;
+    if (op->linear.l == 0) {
+        t = inc = 0;
+    } else {
+        qreal rx = data->m21 * y + data->m11 * x + data->dx;
+        qreal ry = data->m22 * y + data->m12 * x + data->dy;
+        t = op->linear.dx*rx + op->linear.dy*ry + op->linear.off;
+        inc = op->linear.dx * data->m11 + op->linear.dy * data->m12;
+        t *= GRADIENT_STOPTABLE_SIZE;
+        inc *= GRADIENT_STOPTABLE_SIZE;
+    }
 
+    const uint *end = buffer + length;
+    if (inc > -1e-5 && inc < 1e-5) {
+        QT_MEMFILL_UINT(buffer, length, qt_gradient_pixel_fixed(&data->gradient, t * FIXPT_SIZE));
+    } else {
+        if (t+inc*length < qreal(INT_MAX >> (FIXPT_BITS + 1)) &&
+            t+inc*length > qreal(INT_MIN >> (FIXPT_BITS + 1))) {
+            // we can use fixed point math
+            int t_fixed = t * FIXPT_SIZE;
+            int inc_fixed = inc * FIXPT_SIZE;
+            while (buffer < end) {
+                *buffer = qt_gradient_pixel_fixed(&data->gradient, t_fixed);
+                t_fixed += inc_fixed;
+                ++buffer;
+            }
+        } else {
+            // we have to fall back to float math
+            while (buffer < end) {
+                *buffer = qt_gradient_pixel(&data->gradient, t/GRADIENT_STOPTABLE_SIZE);
+                t += inc;
+                ++buffer;
+            }
+        }
+    }
+    return b;
+}
+#else
 static const uint * QT_FASTCALL fetchLinearGradient(uint *buffer, const Operator *op, const QSpanData *data,
                                                     int y, int x, int length)
 {
@@ -840,6 +916,7 @@ static const uint * QT_FASTCALL fetchLinearGradient(uint *buffer, const Operator
 
     return b;
 }
+#endif
 
 static inline qreal determinant(qreal a, qreal b, qreal c)
 {
@@ -895,7 +972,7 @@ static const uint * QT_FASTCALL fetchRadialGradient(uint *buffer, const Operator
             qreal det = determinant(op->radial.a, b , -(gx*gx + gy*gy));
             qreal s = realRoots(op->radial.a, b, sqrt(det));
 
-            *buffer = qt_gradient_pixel(&data->gradient,  s);
+        *buffer = qt_gradient_pixel(&data->gradient, s);
 
             rx += data->m11;
             ry += data->m12;
