@@ -394,7 +394,7 @@ void QWSManagerPrivate::dirtyRegion(int decorationRegion,
 */
 void QWSManagerPrivate::paint(QPaintDevice *paintDevice, const QRegion &region)
 {
-    if (dirtyRegions.empty())
+    if (dirtyRegions.empty() || !paintDevice || !paintDevice->paintEngine())
         return;
 
     QTLWExtra *topextra = managed->d_func()->extra->topextra;
