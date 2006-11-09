@@ -317,8 +317,6 @@ public:
     framebuffer using the screen driver. See the \l {Qtopia Core
     Architecture} overview for details.
 
-    \image qtopiacore-drawingonscreen.png
-
     The screen driver is loaded by the server application when it
     starts running, using Qt's plugin system. \l {Qtopia Core}
     provides ready-made drivers for several screen protocols, see the
