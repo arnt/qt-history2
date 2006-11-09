@@ -4300,6 +4300,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 dockOption.QStyleOption::operator=(*titleBar);
                 // Fixup palette distortion
                 dockOption.palette = QPalette();
+                dockOption.title = titleBar->text;
                 drawControl(CE_DockWidgetTitle, &dockOption, painter, widget);
                 break;
             }

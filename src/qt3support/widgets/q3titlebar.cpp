@@ -441,6 +441,8 @@ void Q3TitleBar::paintEvent(QPaintEvent *)
     opt.palette.setCurrentColorGroup(usesActiveColor() ? QPalette::Active : QPalette::Inactive);
 
     QPainter p(this);
+    if (!windowTitle().isEmpty())
+        opt.titleBarFlags |= Qt::WindowTitleHint;    
     style()->drawComplexControl(QStyle::CC_TitleBar, &opt, &p, this);
 }
 
