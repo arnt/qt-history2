@@ -1826,9 +1826,6 @@ QTabletEvent::~QTabletEvent()
 
     Returns the type of device that generated the event.
 
-    This is useful if you want to know which end of a pen was used
-    to draw on the tablet.
-
     \sa TabletDevice
 */
 
@@ -1927,7 +1924,7 @@ QTabletEvent::~QTabletEvent()
 
     Returns the z position of the device. Typically this is represented by a
     wheel on a 4D Mouse. If the device does not support a Z-axis, this value is
-    always zero. This is <em>not</em> the same as pressure.
+    always zero. This is \bold not the same as pressure.
 
     \sa pressure()
 */
