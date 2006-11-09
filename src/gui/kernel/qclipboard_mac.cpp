@@ -84,41 +84,25 @@ void QClipboard::ownerDestroyed()
 {
 }
 
-static int clipWatcherId = -1;
 
 void QClipboard::connectNotify(const char *signal)
 {
-    if(qstrcmp(signal,SIGNAL(dataChanged())) == 0 && clipWatcherId == -1)
-        clipWatcherId = startTimer(100);
+    Q_UNUSED(signal);
 }
 
 bool QClipboard::event(QEvent *e)
 {
-    bool check_clip = false;
-    if(e->type() == QEvent::Clipboard) {
-        check_clip = true;
-    } else if(clipWatcherId != -1  && e->type() == QEvent::Timer) {
-        QTimerEvent *te = (QTimerEvent *)e;
-        if(te->timerId() == clipWatcherId) {
-            if(!receivers(SIGNAL(dataChanged()))) {
-                killTimer(clipWatcherId);
-                clipWatcherId = -1;
-            } else {
-                check_clip = true;
-            }
-        }
+    if(e->type() != QEvent::Clipboard)
+        return QObject::event(e);
+
+    if (qt_mac_updateScrap(QClipboard::Clipboard)) {
+        qt_mac_pasteboard(QClipboard::Clipboard)->setMimeData(0);
+        emitChanged(QClipboard::Clipboard);
     }
 
-    if (check_clip) {
-        if (qt_mac_updateScrap(QClipboard::Clipboard)) {
-            qt_mac_pasteboard(QClipboard::Clipboard)->setMimeData(0);
-            emitChanged(QClipboard::Clipboard);
-        }
-
-        if (qt_mac_updateScrap(QClipboard::FindBuffer)) {
-            qt_mac_pasteboard(QClipboard::FindBuffer)->setMimeData(0);
-            emitChanged(QClipboard::FindBuffer);
-        }
+    if (qt_mac_updateScrap(QClipboard::FindBuffer)) {
+        qt_mac_pasteboard(QClipboard::FindBuffer)->setMimeData(0);
+        emitChanged(QClipboard::FindBuffer);
     }
 
     return QObject::event(e);

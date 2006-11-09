@@ -154,6 +154,10 @@ QClipboard::~QClipboard()
 
     This signal is emitted when the clipboard data is changed.
 
+    On Mac OS X and with Qt version 4.3 or higher, clipboard
+    changes made by other applications will only be detected
+    when the application is activated.
+
     \sa findBufferChanged(), selectionChanged(), changed()
 */
 
@@ -173,6 +177,9 @@ QClipboard::~QClipboard()
 
     This signal is emitted when the find buffer is changed. This only
     applies to Mac OS X.
+
+    With Qt version 4.3 or higher, clipboard changes made by other
+    applications will only be detected when the application is activated.
 
     \sa dataChanged(), selectionChanged(), changed()
 */
