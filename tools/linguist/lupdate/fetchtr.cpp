@@ -624,6 +624,10 @@ static QByteArray getFullyQualifiedClassName(const QList<QByteArray> &classes, c
             break;
         }
     }
+    if (context == ident && namespaces.count()) {
+        context = namespaces.join(QLatin1String("::")).toLatin1() + "::" + context;
+    }
+
     return context;
 }
 
@@ -649,7 +653,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
               Partial support for inlined functions.
             */
             yyTok = getToken();
-            if ( yyBraceDepth == (int) namespaces.count() &&
+            if ( yyBraceDepth == namespaces.count() &&
                  yyParenDepth == 0 ) {
                 do {
                     /*
@@ -686,7 +690,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
                 QByteArray ns = yyIdent;
                 yyTok = getToken();
                 if ( yyTok == Tok_LeftBrace &&
-                     yyBraceDepth == (int) namespaces.count() + 1 )
+                     yyBraceDepth == namespaces.count() + 1 )
                     namespaces.append( QString(ns) );
             }
             break;
@@ -826,9 +830,9 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
         case Tok_RightBrace:
         case Tok_Semicolon:
             if ( yyBraceDepth >= 0 &&
-                 yyBraceDepth + 1 == (int) namespaces.count() )
-                namespaces.removeAt( namespaces.size()-1 );
-            if ( yyBraceDepth == (int) namespaces.count() ) {
+                 yyBraceDepth + 1 == namespaces.count() )
+                namespaces.removeLast();
+            if ( yyBraceDepth == namespaces.count() ) {
                 if ( missing_Q_OBJECT ) {
                     if ( needs_Q_OBJECT.contains(functionContext) ) {
                         qWarning( "%s:%d: Class '%s' lacks Q_OBJECT macro",
