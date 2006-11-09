@@ -137,7 +137,7 @@ void DisplayWidget::paintEvent(QPaintEvent *event)
         avgRate = frameTime/numFrames;
         if (numFrames > 20) {
             testDrawSpeed = false;
-            if (avgRate > 20 && X11->use_xrender)
+            if (avgRate > 50 && X11->use_xrender)
                 QTimer::singleShot(0, this, SLOT(toggleXRender()));
         }
     }
