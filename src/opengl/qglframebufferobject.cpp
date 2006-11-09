@@ -297,7 +297,8 @@ bool QGLFramebufferObject::bind()
     Q_D(QGLFramebufferObject);
     QGL_FUNC_CONTEXT;
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, d->fbo);
-    return d->valid = d->checkFramebufferStatus();
+    d->valid = d->checkFramebufferStatus();
+    return d->valid;
 }
 
 /*!
@@ -313,8 +314,9 @@ bool QGLFramebufferObject::release()
         return false;
     Q_D(QGLFramebufferObject);
     QGL_FUNC_CONTEXT;
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-    return d->valid = d->checkFramebufferStatus();
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);    
+    d->valid = d->checkFramebufferStatus();
+    return d->valid;
 }
 
 /*!
