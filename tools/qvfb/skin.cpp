@@ -44,7 +44,7 @@ public:
 
     void setView(QVFbView*);
     void setPos(QPoint);
-    void handleMouseEvent(QEvent *ev);
+    bool handleMouseEvent(QEvent *ev);
 
 protected:
     bool event( QEvent *);
@@ -620,12 +620,14 @@ bool CursorWindow::eventFilter( QObject *, QEvent *ev)
 
 bool CursorWindow::event( QEvent *ev )
 {
-    handleMouseEvent(ev);
+    if (handleMouseEvent(ev))
+        return true;
     return QWidget::event(ev);
 }
 
-void CursorWindow::handleMouseEvent(QEvent *ev)
+bool CursorWindow::handleMouseEvent(QEvent *ev)
 {
+    bool handledEvent = false;
     static int inhere=0;
     if ( !inhere ) {
 	inhere++;
@@ -644,9 +646,9 @@ void CursorWindow::handleMouseEvent(QEvent *ev)
 			mouseRecipient = 0;
 		}
 		if ( mouseRecipient ) {
+		    setPos(gp);
 		    QMouseEvent me(e->type(),mouseRecipient==skin ? sp : vp,gp,e->button(),e->buttons(),e->modifiers());
 		    QApplication::sendEvent(mouseRecipient, &me);
-		    setPos(gp);
 		} else if ( !skin->parentWidget()->geometry().contains(gp) ) {
 		    hide();
 		} else {
@@ -654,10 +656,12 @@ void CursorWindow::handleMouseEvent(QEvent *ev)
 		}
 		if ( e->type() == QEvent::MouseButtonRelease )
 		    mouseRecipient = 0;
+		handledEvent = true;
 	    }
 	}
 	inhere--;
     }
+    return handledEvent;
 }
 
 void CursorWindow::setView(QVFbView* v)
