@@ -1704,7 +1704,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Matra, Matra, Matra, Matra,
     Matra, Invalid, Invalid, Matra,
     Matra, Invalid, Invalid, Matra,
-    Matra, Halant, UnknownForm, UnknownForm,
+    Matra, Halant, Consonant, UnknownForm,
 
     Invalid, Invalid, Invalid, Invalid,
     Invalid, Invalid, Invalid, VowelMark,
@@ -1716,7 +1716,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Other, Other, Other, Other,
     Other, Other, Other, Other,
 
-    Other, Other, Other, Other,
+    Consonant, Consonant, Other, Other,
     Other, Other, Other, Other,
     Other, Other, Other, Other,
     Other, Other, Other, Other,
