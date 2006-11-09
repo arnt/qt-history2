@@ -79,7 +79,7 @@
 
     In general, all Linux systems which have framebuffer support can
     use the \c generic architecture. Other typical architectures are
-    \c x86, \c arm, \c mips and \c powerpc.
+    \c x86, \c arm, and \c mips.
 
     To create the library and compile all the demos, examples, tools,
     and tutorials, type:
