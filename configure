@@ -2805,7 +2805,7 @@ Qtopia Core only:
 
     -embedded <arch>..... This will enable the embedded build, you must have a
                           proper license for this switch to work.
-                          Example values for <arch>: arm i386 mips powerpc generic
+                          Example values for <arch>: arm mips x86 generic
 
     -little-endian ...... Target platform is little endian (LSB first).
     -big-endian ......... Target platform is big endian (MSB first).
