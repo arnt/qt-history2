@@ -15,9 +15,12 @@
 #if !defined(QT_NO_LIBRARY) && !defined(QT_NO_PICTURE)
 #include "qpicture.h"
 
-/*! \obsolete
+/*!
+    \obsolete
+
     \class QPictureFormatPlugin
-    \brief The QPictureFormatPlugin class provides an abstract base for custom picture format plugins.
+    \brief The QPictureFormatPlugin class provides an abstract base
+    for custom picture format plugins.
 
     \ingroup plugins
 

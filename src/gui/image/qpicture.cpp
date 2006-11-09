@@ -233,10 +233,8 @@ void QPicture::setData(const char* data, uint size)
     Loads a picture from the file specified by \a fileName and returns
     true if successful; otherwise returns false.
 
-    By default, the file will be interpreted as being in the native
-    QPicture format. Specifying the \a format string is optional and
-    is only needed for importing picture data stored in a different
-    format.
+    Please note that the \a format parameter has been deprecated and
+    will have no effect.
 
     \sa save()
 */
@@ -285,8 +283,8 @@ bool QPicture::load(QIODevice *dev, const char *format)
     Saves a picture to the file specified by \a fileName and returns
     true if successful; otherwise returns false.
 
-    Specifying the file \a format string is optional. By default the
-    data will be saved in the native QPicture file format.
+    Please note that the \a format parameter has been deprecated and
+    will have no effect.
 
     \sa load()
 */
@@ -972,14 +970,12 @@ QDataStream &operator>>(QDataStream &s, QPicture &r)
 #include "qapplication.h"
 #include "qpictureformatplugin.h"
 
-/*! \obsolete
+/*!
+    \obsolete
+
     Returns a string that specifies the picture format of the file \a
     fileName, or 0 if the file cannot be read or if the format is not
     recognized.
-
-    The QPictureIO documentation lists the guaranteed supported picture
-    formats, or use QPicture::inputFormats() and QPicture::outputFormats()
-    to get lists that include the installed formats.
 
     \sa load() save()
 */
@@ -989,7 +985,9 @@ const char* QPicture::pictureFormat(const QString &fileName)
     return QPictureIO::pictureFormat(fileName);
 }
 
-/*! \obsolete
+/*!
+    \obsolete
+
     Returns a list of picture formats that are supported for picture
     input.
 
@@ -1008,7 +1006,9 @@ static QStringList qToStringList(const QList<QByteArray> arr)
     return list;
 }
 
-/*! \obsolete
+/*!
+    \obsolete
+
     Returns a list of picture formats that are supported for picture
     input.
 
@@ -1027,7 +1027,9 @@ QStringList QPicture::inputFormatList()
 }
 
 
-/*! \obsolete
+/*!
+    \obsolete
+
     Returns a list of picture formats that are supported for picture
     output.
 
@@ -1045,7 +1047,9 @@ QStringList QPicture::outputFormatList()
     return qToStringList(QPictureIO::outputFormats());
 }
 
-/*! \obsolete
+/*!
+    \obsolete
+
     Returns a list of picture formats that are supported for picture
     output.
 
@@ -1060,7 +1064,9 @@ QList<QByteArray> QPicture::outputFormats()
   QPictureIO member functions
  *****************************************************************************/
 
-/*! \obsolete
+/*!
+    \obsolete
+
     \class QPictureIO qpicture.h
 
     \brief The QPictureIO class contains parameters for loading and
