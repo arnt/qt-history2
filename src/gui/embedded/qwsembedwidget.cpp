@@ -157,23 +157,4 @@ void QWSEmbedWidget::moveEvent(QMoveEvent*)
     resizeEvent(0);
 }
 
-/*!
-    \reimp
-*/
-void QWSEmbedWidget::hideEvent(QHideEvent*)
-{
-    Q_D(QWSEmbedWidget);
-    d->resize(QSize());
-}
-
-/*!
-    \reimp
-*/
-void QWSEmbedWidget::showEvent(QShowEvent*)
-{
-    Q_D(QWSEmbedWidget);
-    d->resize(rect().size());
-}
-
-
 #endif // QT_NO_QWSEMBEDWIDGET
