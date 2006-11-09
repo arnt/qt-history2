@@ -134,3 +134,4 @@ QMAKE_PKGCONFIG_VARIABLES += moc_dir uic_dir
 
 include(qt_targets.pri)
 
+win32:DEFINES+=_USE_MATH_DEFINES

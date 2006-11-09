@@ -24,10 +24,6 @@
 #include <private/qunicodetables_p.h>
 #include <qbitmap.h>
 
-#ifndef M_PI
-#define M_PI 3.14159265358979
-#endif
-
 HDC   shared_dc            = 0;                // common dc for all fonts
 
 

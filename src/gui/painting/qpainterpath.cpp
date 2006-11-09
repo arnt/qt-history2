@@ -44,10 +44,6 @@
 #include <limits.h>
 #include <math.h>
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
 #if 0
 #include <performance.h>
 #else
@@ -2391,7 +2387,7 @@ QVector<qreal> QPainterPathStroker::dashPattern() const
 
 QList<QPolygonF> QPainterPath::toSubpathPolygons(const QTransform &matrix) const
 {
-    
+
     Q_D(const QPainterPath);
     QList<QPolygonF> flatCurves;
     if (isEmpty())
@@ -2436,7 +2432,7 @@ QList<QPolygonF> QPainterPath::toSubpathPolygons(const QTransform &matrix) const
 
 QList<QPolygonF> QPainterPath::toFillPolygons(const QTransform &matrix) const
 {
-    
+
     QList<QPolygonF> polys;
 
     QList<QPolygonF> subpaths = toSubpathPolygons(matrix);
@@ -2528,7 +2524,7 @@ QList<QPolygonF> QPainterPath::toFillPolygons(const QTransform &matrix) const
 
 QPolygonF QPainterPath::toFillPolygon(const QTransform &matrix) const
 {
-    
+
     QList<QPolygonF> flats = toSubpathPolygons(matrix);
     QPolygonF polygon;
     if (flats.isEmpty())
