@@ -1549,8 +1549,13 @@ void QProcess::start(const QString &program, OpenMode mode)
     The process may not exit as a result of calling this function (it is given
     the chance to prompt the user for any unsaved files, etc).
 
-    On Windows, terminate() posts a WM_CLOSE message to the process, and on
-    Unix and Mac OS X the SIGTERM signal is sent.
+    On Windows, terminate() posts a WM_CLOSE message to all toplevel windows
+    of the process and then to the main thread of the process itself. On Unix
+    and Mac OS X the SIGTERM signal is sent.
+
+    Console applications on Windows that do not run an event loop, or whose
+    event loop does not handle the WM_CLOSE message, can only be terminated by
+    calling kill().
 
     \sa kill()
 */
