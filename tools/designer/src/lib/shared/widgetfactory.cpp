@@ -142,11 +142,11 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
         const QLatin1String fallBackBaseClass("QWidget");
         QDesignerWidgetDataBaseInterface *db = core()->widgetDataBase();
         QDesignerWidgetDataBaseItemInterface *item = db->item(db->indexOfClassName(widgetName));
-        if (item == 0) {            
+        if (item == 0) {
             // Emergency: Create, derived from QWidget
             QString includeFile = widgetName.toLower();
             includeFile +=  QLatin1String(".h");
-            item = db->appendDerived(widgetName,tr("%1 Widget").arg(widgetName),fallBackBaseClass, includeFile, true, true);
+            item = appendDerived(db,widgetName,tr("%1 Widget").arg(widgetName),fallBackBaseClass, includeFile, true, true);
             Q_ASSERT(item);
         }               
         QString baseClass = item->extends();

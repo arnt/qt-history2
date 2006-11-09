@@ -44,8 +44,6 @@ class QDESIGNER_SHARED_EXPORT WidgetDataBaseItem: public QDesignerWidgetDataBase
 public:
     WidgetDataBaseItem(const QString &name = QString(),
                        const QString &group = QString());
-    
-    virtual WidgetDataBaseItem* clone() const;
 
     QString name() const;
     void setName(const QString &name);
@@ -116,17 +114,25 @@ public:
     virtual int indexOfObject(QObject *o, bool resolveName = true) const;
 
     void grabDefaultPropertyValues();
-
+    
 public slots:
     void loadPlugins();
 
 private:
     QList<QVariant> defaultPropertyValues(const QString &name);
-    WidgetDataBaseItem *createCustomWidgetItem(QDesignerCustomWidgetInterface *customWidget) const;
+    WidgetDataBaseItem *createCustomWidgetItem(const QDesignerCustomWidgetInterface *customWidget) const;
 
     QDesignerFormEditorInterface *m_core;
 };
 
+    
+QDESIGNER_SHARED_EXPORT QDesignerWidgetDataBaseItemInterface *appendDerived(QDesignerWidgetDataBaseInterface *db,
+                                                                            const QString &className,
+                                                                            const QString &group,
+                                                                            const QString &baseClassName,
+                                                                            const QString &includeFile,
+                                                                            bool promoted,
+                                                                            bool custom);
 } // namespace qdesigner_internal
 
 #endif // WIDGETDATABASE_H

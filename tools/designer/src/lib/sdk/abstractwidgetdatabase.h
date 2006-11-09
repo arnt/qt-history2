@@ -29,7 +29,6 @@ class QDebug;
 class QDesignerWidgetDataBaseItemInterface
 {
 public:
-    virtual QDesignerWidgetDataBaseItemInterface* clone() const = 0;
     virtual ~QDesignerWidgetDataBaseItemInterface() {}
 
     virtual QString name() const = 0;
@@ -85,14 +84,6 @@ public:
     virtual int indexOf(QDesignerWidgetDataBaseItemInterface *item) const;
     virtual void insert(int index, QDesignerWidgetDataBaseItemInterface *item);
     virtual void append(QDesignerWidgetDataBaseItemInterface *item);
-    
-    virtual QDesignerWidgetDataBaseItemInterface *appendDerived(const QString &className,
-                                                                const QString &group,
-                                                                const QString &baseClassName,
-                                                                const QString &includeFile,
-                                                                bool promoted,
-                                                                bool custom);
- 
 
     virtual int indexOfObject(QObject *object, bool resolveName = true) const;
     virtual int indexOfClassName(const QString &className, bool resolveName = true) const;

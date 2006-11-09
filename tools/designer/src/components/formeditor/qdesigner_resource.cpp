@@ -737,7 +737,7 @@ void QDesignerResource::addCustomWidgetsToWidgetDatabase(DomCustomWidgetList& cu
             // Create a new entry cloned from base class. Note that this will ignore existing
             // classes, eg, plugin custom widgets.
             QDesignerWidgetDataBaseItemInterface *item = 
-                db->appendDerived(customClassName, QApplication::translate("Designer", "Promoted Widgets"),
+                appendDerived(db, customClassName, QApplication::translate("Designer", "Promoted Widgets"),
                                   base_class,includeFile,true,true);
             // Ok, base class found.
             if (item) {

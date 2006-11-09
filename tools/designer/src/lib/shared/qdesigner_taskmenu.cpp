@@ -313,11 +313,11 @@ void QDesignerTaskMenu::promoteToCustomWidget()
     const QString custom_class_name = dialog.customClassName();
     const QString include_file = dialog.includeFile();
     
-    QDesignerWidgetDataBaseItemInterface *item = db->appendDerived(custom_class_name,
-                                                                   tr("Promoted Widgets"),
-                                                                   base_class_name,
-                                                                   include_file,
-                                                                   true,true);
+    QDesignerWidgetDataBaseItemInterface *item = appendDerived(db,custom_class_name,
+                                                               tr("Promoted Widgets"),
+                                                               base_class_name,
+                                                               include_file,
+                                                               true,true);
     Q_ASSERT(item);
     // To be a 100% sure, if item already exists.
     item->setIncludeFile(include_file);
