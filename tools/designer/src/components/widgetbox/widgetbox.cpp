@@ -45,7 +45,7 @@ namespace {
 /*******************************************************************************
 ** Tools
 */
-QDomElement childElement(QDomNode node, const QString &tag,
+QDomElement childElement(const QDomNode &node, const QString &tag,
                                 const QString &attr_name,
                                 const QString &attr_value)
 {
@@ -74,7 +74,7 @@ QDomElement childElement(QDomNode node, const QString &tag,
 }
 
 typedef QList<QDomElement> ElementList;
-void _childElementList(QDomNode node, const QString &tag,
+void _childElementList(const QDomNode &node, const QString &tag,
                                     const QString &attr_name,
                                     const QString &attr_value,
                                     ElementList *result)
@@ -114,7 +114,7 @@ QDomDocument stringToDom(const QString &xml)
     return result;
 }
 
-DomWidget *xmlToUi(QString xml)
+DomWidget *xmlToUi(const QString &xml)
 {
     QDomDocument doc;
     QString err_msg;
@@ -207,7 +207,7 @@ private:
     mutable QHash<QString, QIcon> m_pluginIcons;
     QStringList m_widgetNames;
 
-    CategoryList domToCateogryList(const QDomDocument &doc) const;
+    CategoryList domToCategoryList(const QDomDocument &doc) const;
     Category domToCategory(const QDomElement &cat_elt) const;
     CategoryList loadCustomCategoryList() const;
     QDomDocument categoryListToDom(const CategoryList &cat_list) const;
@@ -403,7 +403,7 @@ bool WidgetBoxTreeView::load()
         return false;
     }
 
-    const CategoryList cat_list = domToCateogryList(doc);
+    const CategoryList cat_list = domToCategoryList(doc);
     if (cat_list.isEmpty())
         return false;
 
@@ -435,17 +435,17 @@ bool WidgetBoxTreeView::load()
 
     QStringList closed_cat;
     for (int i = 0; i < topLevelItemCount(); ++i) {
-        QTreeWidgetItem *item = topLevelItem(i);
+        const QTreeWidgetItem *item = topLevelItem(i);
         if (!isItemExpanded(item))
             closed_cat.append(item->text(0));
     }
 
     closed_cat = settings.value(QLatin1String("Closed categories"), closed_cat).toStringList();
     for (int i = 0; i < closed_cat.size(); ++i) {
-        int cat_idx = indexOfCategory(closed_cat[i]);
+        const int cat_idx = indexOfCategory(closed_cat[i]);
         if (cat_idx == -1)
             continue;
-        QTreeWidgetItem *item = topLevelItem(cat_idx);
+        const QTreeWidgetItem *item = topLevelItem(cat_idx);
         if (item == 0)
             continue;
         setItemExpanded(item, false);
@@ -473,10 +473,10 @@ QDomDocument WidgetBoxTreeView::categoryListToDom(const CategoryList &cat_list) 
             if (wgt.type() == Widget::Custom)
                 continue;
 
-            DomWidget *dom_wgt = xmlToUi(widgetDomXml(wgt));
+            const DomWidget *dom_wgt = xmlToUi(widgetDomXml(wgt));
             QDomElement wgt_elt = dom_wgt->write(doc);
             wgt_elt.setAttribute(QLatin1String("name"), wgt.name());
-            QString iconName = wgt.iconName();
+            const QString iconName = wgt.iconName();
             if (!iconName.startsWith("__qt_icon__"))
               wgt_elt.setAttribute(QLatin1String("icon"), wgt.iconName());
             wgt_elt.setAttribute(QLatin1String("type"), QLatin1String("default"));
@@ -488,7 +488,7 @@ QDomDocument WidgetBoxTreeView::categoryListToDom(const CategoryList &cat_list) 
 }
 
 WidgetBoxTreeView::CategoryList
-    WidgetBoxTreeView::domToCateogryList(const QDomDocument &doc) const
+    WidgetBoxTreeView::domToCategoryList(const QDomDocument &doc) const
 {
     CategoryList result;
 
@@ -559,9 +559,9 @@ WidgetBoxTreeView::CategoryList WidgetBoxTreeView::loadCustomCategoryList() cons
 
     QDesignerPluginManager *pm = m_core->pluginManager();
 
-    QList<QDesignerCustomWidgetInterface*> customWidgets = pm->registeredCustomWidgets();
+    const QList<QDesignerCustomWidgetInterface*> customWidgets = pm->registeredCustomWidgets();
 
-    foreach (QDesignerCustomWidgetInterface *c, customWidgets) {
+    foreach (const QDesignerCustomWidgetInterface *c, customWidgets) {
         const QString dom_xml = c->domXml();
         if (dom_xml.isEmpty())
             continue;
@@ -623,6 +623,19 @@ QTreeWidgetItem *WidgetBoxTreeView::widgetToItem(const Widget &wgt,
       icon = createIconSet(icon_name);
     item->setIcon(0, icon);
     item->setData(0, Qt::UserRole, qVariantFromValue(wgt));
+    
+    const QDesignerWidgetDataBaseInterface *db = m_core->widgetDataBase();
+    const int dbIndex = db->indexOfClassName(wgt.name());
+    if (dbIndex != -1) {
+        const QDesignerWidgetDataBaseItemInterface *dbItem = db->item(dbIndex);
+        const QString toolTip = dbItem->toolTip();
+        if (!toolTip.isEmpty())
+            item->setToolTip(0, toolTip);
+        const QString whatsThis = dbItem->whatsThis();
+        if (!whatsThis.isEmpty())
+            item->setWhatsThis(0, whatsThis);
+    }
+
     blockSignals(block);
 
     if (editable) {
