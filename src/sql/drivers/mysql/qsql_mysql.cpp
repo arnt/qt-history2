@@ -87,6 +87,46 @@ static inline QByteArray fromUnicode(QTextCodec *tc, const QString &str)
 #endif
 }
 
+static inline QVariant qDateFromString(const QString &val)
+{
+#ifdef QT_NO_DATESTRING
+    Q_UNUSED(val);
+    return QVariant(val);
+#else
+    if (val.isEmpty())
+        return QVariant(QDate());
+    return QVariant(QDate::fromString(val, Qt::ISODate));
+#endif
+}
+
+static inline QVariant qTimeFromString(const QString &val)
+{
+#ifdef QT_NO_DATESTRING
+    Q_UNUSED(val);
+    return QVariant(val);
+#else
+    if (val.isEmpty())
+        return QVariant(QTime());
+    return QVariant(QTime::fromString(val, Qt::ISODate));
+#endif
+}
+
+static inline QVariant qDateTimeFromString(QString &val)
+{
+#ifdef QT_NO_DATESTRING
+    Q_UNUSED(val);
+    return QVariant(val);
+#else
+    if (val.isEmpty())
+        return QVariant(QDateTime());
+    if (val.length() == 14)
+        // TIMESTAMPS have the format yyyyMMddhhmmss
+        val.insert(4, QLatin1Char('-')).insert(7, QLatin1Char('-')).insert(10,
+                    QLatin1Char('T')).insert(13, QLatin1Char(':')).insert(16, QLatin1Char(':'));
+    return QVariant(QDateTime::fromString(val, Qt::ISODate));
+#endif
+}
+
 class QMYSQLResultPrivate : public QMYSQLDriverPrivate
 {
 public:
@@ -500,25 +540,11 @@ QVariant QMYSQLResult::data(int field)
     case QVariant::Double:
         return QVariant(val.toDouble());
     case QVariant::Date:
-        if (val.isEmpty()) {
-            return QVariant(QDate());
-        } else {
-            return QVariant(QDate::fromString(val, Qt::ISODate) );
-        }
+        return qDateFromString(val);
     case QVariant::Time:
-        if (val.isEmpty()) {
-            return QVariant(QTime());
-        } else {
-            return QVariant(QTime::fromString(val, Qt::ISODate));
-        }
+        return qTimeFromString(val);
     case QVariant::DateTime:
-        if (val.isEmpty())
-            return QVariant(QDateTime());
-        if (val.length() == 14)
-            // TIMESTAMPS have the format yyyyMMddhhmmss
-            val.insert(4, QLatin1Char('-')).insert(7, QLatin1Char('-')).insert(10,
-                    QLatin1Char('T')).insert(13, QLatin1Char(':')).insert(16, QLatin1Char(':'));
-        return QVariant(QDateTime::fromString(val, Qt::ISODate));
+        return qDateTimeFromString(val);
     case QVariant::ByteArray: {
 
         QByteArray ba;

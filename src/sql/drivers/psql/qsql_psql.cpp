@@ -273,7 +273,7 @@ QVariant QPSQLResult::data(int i)
 #ifndef QT_NO_DATESTRING
             return QVariant(QDate::fromString(QString::fromLatin1(val), Qt::ISODate));
 #else
-            return QVariant(QDate());
+            return QVariant(val);
 #endif
         }
     case QVariant::Time: {
@@ -286,7 +286,7 @@ QVariant QPSQLResult::data(int i)
             return QVariant(QTime::fromString(str.left(str.length() - 3), Qt::ISODate));
         return QVariant(QTime::fromString(str, Qt::ISODate));
 #else
-        return QVariant(QTime());
+        return QVariant(val);
 #endif
     }
     case QVariant::DateTime: {
@@ -305,7 +305,7 @@ QVariant QPSQLResult::data(int i)
         else
             return QVariant(QDateTime::fromString(dtval, Qt::ISODate));
 #else
-        return QVariant(QDateTime());
+        return QVariant(val);
 #endif
     }
     case QVariant::ByteArray: {
