@@ -939,9 +939,7 @@ DemoteFromCustomWidgetCommand::DemoteFromCustomWidgetCommand
 
 void DemoteFromCustomWidgetCommand::init(QWidget *promoted)
 {
-    const QDesignerMetaDataBaseItemInterface *item = core()->metaDataBase()->item(promoted);
-    Q_ASSERT(item);    
-    m_promote_cmd->init(promoted,item->customClassName());
+    m_promote_cmd->init(promoted,promotedCustomClassName(core(), promoted));
 }
 
 void DemoteFromCustomWidgetCommand::redo()

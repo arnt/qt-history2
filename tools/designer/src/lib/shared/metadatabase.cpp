@@ -69,7 +69,7 @@ void MetaDataBaseItem::setCustomClassName(const QString &customClassName)
 }
 
 
-QDesignerMetaDataBaseItemInterface::TabOrder  MetaDataBaseItem::tabOrder() const
+MetaDataBaseItem::TabOrder  MetaDataBaseItem::tabOrder() const
 {
     return m_tabOrder;
 }
@@ -180,10 +180,12 @@ void MetaDataBase::dump()
 // promotion convenience
 QDESIGNER_SHARED_EXPORT bool promoteWidget(QDesignerFormEditorInterface *core,QWidget *widget,const QString &customClassName)
 {
-    QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
+    MetaDataBase * db = qobject_cast<MetaDataBase*>(core->metaDataBase());
+    Q_ASSERT(db);
+    MetaDataBaseItem *item = static_cast<MetaDataBaseItem*>(db->item(widget));
     if (!item) {
-        core->metaDataBase()->add(widget);
-        item = core->metaDataBase()->item(widget);
+        db->add(widget);
+        item = static_cast<MetaDataBaseItem*>(db->item(widget));
     }
     // Recursive promotion occurs if there is a plugin missing.
     const QString oldCustomClassName = item->customClassName();
@@ -200,8 +202,9 @@ QDESIGNER_SHARED_EXPORT bool promoteWidget(QDesignerFormEditorInterface *core,QW
 
 QDESIGNER_SHARED_EXPORT void demoteWidget(QDesignerFormEditorInterface *core,QWidget *widget)
 {
-    QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
-    Q_ASSERT(item);
+    MetaDataBase * db = qobject_cast<MetaDataBase*>(core->metaDataBase());
+    Q_ASSERT(db);
+    MetaDataBaseItem *item = static_cast<MetaDataBaseItem*>(db->item(widget));
     item->setCustomClassName(QString());
     if (debugMetaDatabase) {
         qDebug() << "Demoting " << widget;
@@ -210,7 +213,10 @@ QDESIGNER_SHARED_EXPORT void demoteWidget(QDesignerFormEditorInterface *core,QWi
 
 QDESIGNER_SHARED_EXPORT bool isPromoted(QDesignerFormEditorInterface *core, QWidget* widget)
 {
-    QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
+    const MetaDataBase * db = qobject_cast<const MetaDataBase*>(core->metaDataBase());
+    if (!db) 
+        return false;
+    const MetaDataBaseItem *item = static_cast<const MetaDataBaseItem*>(db->item(widget));
     if (!item)
         return false;
     return !item->customClassName().isEmpty();
@@ -218,7 +224,10 @@ QDESIGNER_SHARED_EXPORT bool isPromoted(QDesignerFormEditorInterface *core, QWid
 
 QDESIGNER_SHARED_EXPORT QString promotedCustomClassName(QDesignerFormEditorInterface *core, QWidget* widget)
 {
-    QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
+    const MetaDataBase * db = qobject_cast<const MetaDataBase*>(core->metaDataBase());
+    if (!db) 
+        return QString();
+    const MetaDataBaseItem *item = static_cast<const MetaDataBaseItem*>(db->item(widget));
     if (!item)
         return QString();
     return item->customClassName();
@@ -234,6 +243,27 @@ QDESIGNER_SHARED_EXPORT QString promotedExtends(QDesignerFormEditorInterface *co
         return QString();
     return core->widgetDataBase()->item(i)->extends();
 }
+    
+QDESIGNER_SHARED_EXPORT QString propertyComment(QDesignerFormEditorInterface* core, QObject *o, const QString &propertyName) {
+    const MetaDataBase * db = qobject_cast<const MetaDataBase*>(core->metaDataBase());
+    if (!db)
+        return QString();
+    const MetaDataBaseItem *item = static_cast<const MetaDataBaseItem*>(db->item(o));
+    if (!item)
+        return QString();
+    return item->propertyComment(propertyName);
+}
+
+QDESIGNER_SHARED_EXPORT bool setPropertyComment(QDesignerFormEditorInterface* core, QObject *o, const QString &propertyName, const QString &value) {
+    MetaDataBase * db = qobject_cast<MetaDataBase*>(core->metaDataBase());
+    if (!db)
+        return false;
+    MetaDataBaseItem *item = static_cast<MetaDataBaseItem*>(db->item(o));
+    if (!item)
+        return false;  
+    item->setPropertyComment(propertyName, value);
+    return true;
+}    
 
 
 } // namespace qdesigner_internal

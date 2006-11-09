@@ -24,6 +24,7 @@
 
 // shared
 #include <widgetdatabase_p.h>
+#include <metadatabase_p.h>
 #include <layout_p.h>
 #include <layoutinfo_p.h>
 #include <spacer_widget_p.h>
@@ -62,7 +63,6 @@
 #include <QtCore/qdebug.h>
 
 #include <QtXml/QDomDocument>
-
 
 using namespace qdesigner_internal;
 
@@ -454,7 +454,7 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
                 if (p->kind() == DomProperty::String && item) {
                     DomString *str = p->elementString();
                     if (str->hasAttributeComment()) {
-                        item->setPropertyComment(propertyName, str->attributeComment());
+                        setPropertyComment(core(), o, propertyName, str->attributeComment());
                     }
                 }
 
@@ -599,7 +599,7 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
 
     w->setAttributeName(widget->objectName());
 
-    if (!item->customClassName().isEmpty()) { // is promoted?
+    if (isPromoted( core(), widget)) { // is promoted?
         Q_ASSERT(widgetInfo != 0);
 
         w->setAttributeName(widget->objectName());
@@ -1268,11 +1268,9 @@ QList<DomProperty*> QDesignerResource::computeProperties(QObject *object)
 
             if (DomProperty *p = createProperty(object, propertyName, value)) {
                 if (p->kind() == DomProperty::String) {
-                    if (const QDesignerMetaDataBaseItemInterface *item = core()->metaDataBase()->item(object)) {
-                        const QString propertyComment = item->propertyComment(propertyName);
-                        if (!propertyComment.isEmpty())
-                            p->elementString()->setAttributeComment(propertyComment);
-                    }
+                    const QString property_comment = propertyComment(m_formWindow->core(), object, propertyName);
+                    if (!property_comment.isEmpty())
+                        p->elementString()->setAttributeComment(property_comment);
                 }
 
                 properties.append(p);

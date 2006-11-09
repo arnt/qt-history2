@@ -25,7 +25,6 @@ class DomProperty;
 class QDesignerPropertySheetExtension;
 
 namespace qdesigner_internal {
-    class MetaDataBaseItem;
 
 class QT_PROPERTYEDITOR_EXPORT PropertyEditor: public QDesignerPropertyEditorInterface
 {

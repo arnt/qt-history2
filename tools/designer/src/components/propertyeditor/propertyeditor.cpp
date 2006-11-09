@@ -24,7 +24,7 @@
 #include <iconloader_p.h>
 #include <qdesigner_utils_p.h>
 #include <qdesigner_command_p.h>
-
+#include <metadatabase_p.h>
 #include "paletteeditorbutton.h"
 #include <QtGui/QtGui>
 
@@ -635,7 +635,8 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
             case QVariant::String: {
                 const QDesignerMetaDataBaseItemInterface *item = metaDataBaseItem();
                 if (item && pname != QLatin1String("objectName")) {
-                    p = new StringProperty(value.toString(), pname, true, item->propertyComment(pname));
+                    const QString comment = propertyComment(m_core, object, pname);
+                    p = new StringProperty(value.toString(), pname, true, comment );
                 } else {
                     StringProperty *sprop = new StringProperty(value.toString(), pname);
                     p = sprop;
@@ -811,11 +812,10 @@ void PropertyEditor::firePropertyChanged(IProperty *p)
     if (object()) {     
         if (p->parent() && p->propertyName() == QLatin1String("comment")) {
             const QString parentProperty = p->parent()->propertyName();
-            if (QDesignerMetaDataBaseItemInterface *item = metaDataBaseItem()) {
-                item->setPropertyComment(parentProperty, p->value().toString());
+            if (setPropertyComment(m_core, object(), parentProperty, p->value().toString())) {
                 emit propertyChanged(parentProperty, p->parent()->value());
+                return;
             }
-            return;
         }
     }
     emit propertyChanged(p->propertyName(), p->value());

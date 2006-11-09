@@ -42,18 +42,19 @@ public:
 
     virtual QString name() const;
     virtual void setName(const QString &name);
-
+    
+    typedef QList<QWidget*> TabOrder;
     virtual TabOrder tabOrder() const;
     virtual void setTabOrder(const TabOrder &tabOrder);
 
     virtual bool enabled() const;
     virtual void setEnabled(bool b);
     
-    virtual QString customClassName() const;
-    virtual void setCustomClassName(const QString &customClassName);
+    QString customClassName() const;
+    void setCustomClassName(const QString &customClassName);
 
-    virtual QString propertyComment(const QString &name) const;
-    virtual void setPropertyComment(const QString &name, const QString &comment);
+    QString propertyComment(const QString &name) const;
+    void setPropertyComment(const QString &name, const QString &comment);
 
     typedef QHash<QString, QString> PropertyComments;
     
@@ -100,7 +101,9 @@ private:
     QDESIGNER_SHARED_EXPORT QString promotedCustomClassName(QDesignerFormEditorInterface *core, QWidget* w);
     QDESIGNER_SHARED_EXPORT QString promotedExtends(QDesignerFormEditorInterface *core, QWidget* w);
     
-
+    // Property comment helpers
+    QDESIGNER_SHARED_EXPORT QString propertyComment(QDesignerFormEditorInterface* core, QObject *o, const QString &propertyName);
+    QDESIGNER_SHARED_EXPORT bool setPropertyComment(QDesignerFormEditorInterface* core, QObject *o, const QString &propertyName, const QString &value);
 } // namespace qdesigner_internal
 
 #endif // METADATABASE_H
