@@ -146,8 +146,8 @@ QModelIndex QListModel::index(QListWidgetItem *item) const
 {
     if (!item || !item->view || item->view->model() != this || items.isEmpty())
         return QModelIndex();
-    int row;
-    const int id = (int)item->id;
+    qint64 row;
+    const qint64 id = (qint64)item->id;
     if (id >= 0 && id < items.count() && items.at(id) == item) {
         row = id;
     } else { // we need to search for the item
