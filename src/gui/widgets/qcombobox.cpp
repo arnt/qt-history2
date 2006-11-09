@@ -69,8 +69,10 @@ QStyleOptionMenuItem QComboMenuDelegate::getStyleOption(const QStyleOptionViewIt
     menuOption.state = QStyle::State_None;
     if (mCombo->window()->isActiveWindow())
         menuOption.state = QStyle::State_Active;
-    if (option.state & QStyle::State_Enabled)
+    if ((option.state & QStyle::State_Enabled) && (index.model()->flags(index) & Qt::ItemIsEnabled))
         menuOption.state |= QStyle::State_Enabled;
+    else
+        menuOption.palette.setCurrentColorGroup(QPalette::Disabled);
     if (option.state & QStyle::State_Selected)
         menuOption.state |= QStyle::State_Selected;
     menuOption.checkType = QStyleOptionMenuItem::NonExclusive;
