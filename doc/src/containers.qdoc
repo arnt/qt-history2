@@ -782,7 +782,7 @@
        than a linear-time function, but faster than a quadratic-time
        function.
 
-    \o \bold{Quadratic time:} O(\e{n}²). A quadratic-time function
+    \o \bold{Quadratic time:} O(\e{n}\unicode{178}). A quadratic-time function
        executes in a time that is proportional to the square of the
        number of items stored in the container.
     \endlist

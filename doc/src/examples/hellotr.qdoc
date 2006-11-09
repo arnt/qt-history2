@@ -83,7 +83,7 @@
     and is easy to put under version control. If you edit this file
     manually, be aware that the default encoding for XML is UTF-8, not
     Latin1 (ISO 8859-1). One way to type in a Latin1 character such as
-    'ø' (Norwegian o with slash) is to use an XML entity:
+    '\oslash' (Norwegian o with slash) is to use an XML entity:
     "\&#xf8;". This will work for any Unicode 4.0 character.
 
     Once the translations are complete the \c lrelease program is used to

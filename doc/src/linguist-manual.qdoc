@@ -67,7 +67,7 @@
     \list
     \o A single phrase may need to be translated into several different
     forms depending on context, e.g. \e open in English might become \e
-    öffnen, "open file", or \e aufbauen, "open internet connection", in
+    \oumlffnen, "open file", or \e aufbauen, "open internet connection", in
     German.
     \o Keyboard accelerators may need to be changed but without
     introducing conflicts, e.g. "\&Quit" in English becomes "Avslutt" in

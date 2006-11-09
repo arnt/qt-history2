@@ -57,6 +57,16 @@ codeindent              = 1
 extraimages.HTML        = qt-logo \
                           trolltech-logo
 
+macro.br.HTML           = "<br />"
+macro.QD                = "\\e{Qt Designer}"
+macro.QA                = "\\e{Qt Assistant}"
+macro.eacute.HTML       = "&eacute;"
+macro.aring.HTML        = "&aring;"
+macro.oslash.HTML       = "&oslash;"
+macro.ouml.HTML         = "&ouml;"
+macro.Auml.HTML         = "&Auml;"
+macro.uuml.HTML         = "&uuml;"
+
 Cpp.ignoretokens        = QAXFACTORY_EXPORT \
                           QDESIGNER_COMPONENTS_LIBRARY \
                           QDESIGNER_EXTENSION_LIBRARY \
