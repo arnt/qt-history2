@@ -2010,6 +2010,12 @@ QString QDir::cleanPath(const QString &path)
                             iwrite = last;
                             last = -1;
                         }
+                    } else if (dotcount == 2 && i > 0 && p[i - 1] != QLatin1Char('.')) {
+                        eaten = true;
+                        used -= iwrite - qMax(0, last);
+                        iwrite = qMax(0, last);
+                        last = -1;
+                        ++i;
                     } else if(dotcount == 1) {
                         eaten = true;
                     }
