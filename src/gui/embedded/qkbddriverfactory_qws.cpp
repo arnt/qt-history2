@@ -40,26 +40,34 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     \class QKbdDriverFactory
     \ingroup qws
 
-    \brief The QKbdDriverFactory class creates QWSKeyboardHandler
-    objects.
+    \brief The QKbdDriverFactory class creates keyboard drivers in
+    Qtopia Core.
 
     Note that this class is only available in \l {Qtopia Core}.
 
-    The QWSKeyboardHandler class is used to implement keyboard
-    drivers. QKbdDriverFactory creates a QWSKeyboardHandler object
-    using the create() function and a key identifying the driver.
+    QKbdDriverFactory is used to detect and instantiate the available
+    keyboard drivers, allowing \l {Qtopia Core} to load the preferred
+    driver into the server application at runtime. The create()
+    function returns a QWSKeyboardHandler object representing the
+    keyboard driver identified by a given key. The valid keys
+    (i.e. the supported drivers) can be retrieved using the keys()
+    function.
 
-    The valid keys can be retrieved using the keys() function.  The
-    drivers are either built-in or dynamically loaded from a driver
-    plugin (see \l QKbdDriverPlugin for details).
+    \l {Qtopia Core} provides several built-in keyboard drivers. In
+    addition, custom keyboard drivers can be added using Qt's plugin
+    mechanism, i.e. by subclassing the QWSKeyboardHandler class and
+    creating a keyboard driver plugin (QKbdDriverPlugin). See the \l
+    {Qtopia Core Character Input}{character input} documentation for
+    details.
 
-    \sa QWSKeyboardHandler, QKbdDriverPlugin, {Qtopia Core Character Input}
+    \sa QWSKeyboardHandler, QKbdDriverPlugin
 */
 
 /*!
-    Creates a QWSKeyboardHandler object for the driver specified by
-    the given \a key, for the given \a device. The driver is either a
-    built-in driver, or a driver plugin. Keys are case-insensitive.
+    Creates the keyboard driver specified by the given \a key, using
+    the display specified by the given \a device.
+
+    Note that the keys are case-insensitive.
 
     \sa keys()
 */
@@ -110,11 +118,8 @@ QWSKeyboardHandler *QKbdDriverFactory::create(const QString& key, const QString&
 }
 
 /*!
-    Returns the list of valid keys, i.e. the keys this factory can
-    create drivers for.
-
-    \l {Qtopia Core} currently supports the following drivers by
-    default: \c SL5000, \c Yopy, \c VR41xx, \c TTY and \c USB.
+    Returns the list of valid keys, i.e. the available keyboard
+    drivers.
 
     \sa create()
 */

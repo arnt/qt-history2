@@ -27,17 +27,21 @@
 
     Note that this class is only available in \l {Qtopia Core}.
 
-    QKbdDriverPlugin is a simple plugin interface that makes it easy
-    to create custom keyboard drivers that can be loaded dynamically
-    into applications using the QKbdDriverFactory class.
+    \l {Qtopia Core} provides ready-made drivers for several keyboard
+    protocols, see the \l {Qtopia Core Character Input}{character
+    input} documentation for details. Custom keyboard drivers can be
+    implemented by subclassing the QWSKeyboardHandler class and
+    creating a keyboard driver plugin.
 
-    Writing a custom keyboard driver plugin is achieved by subclassing
-    QKbdDriverPlugin, reimplementing the pure virtual keys() and
-    create() functions, and exporting the class using the
-    Q_EXPORT_PLUGIN2() macro (See \l{How to Create Qt Plugins} for
-    details).
+    A keyboard driver plugin can be created by subclassing
+    QKbdDriverPlugin and reimplementing the pure virtual keys() and
+    create() functions. By exporting the derived class using the
+    Q_EXPORT_PLUGIN2() macro, \l {Qtopia Core}'s implementation of the
+    QKbdDriverFactory class will automatically detect the plugin and
+    load the driver into the server application at runtime. See \l
+    {How to Create Qt Plugins} for details.
 
-    \sa QKbdDriverFactory, QWSKeyboardHandler, {Qtopia Core Character Input}
+    \sa QKbdDriverFactory, QWSKeyboardHandler
 */
 
 /*!
@@ -46,8 +50,9 @@
     Returns the list of valid keys, i.e. the keyboard drivers
     supported by this plugin.
 
-    \l {Qtopia Core} currently supports the following drivers by
-    default: \c SL5000, \c Yopy, \c VR41xx, \c TTY and \c USB.
+    \l {Qtopia Core} provides ready-made drivers for several keyboard
+    protocols, see the \l {Qtopia Core Character Input}{character
+    input} documentation for details.
 
     \sa create()
 */
@@ -77,8 +82,8 @@ QKbdDriverPlugin::~QKbdDriverPlugin()
 /*!
     \fn QScreen *QKbdDriverPlugin::create(const QString &key, const QString &device)
 
-    Creates a driver matching the type specified by the given \a
-    key and \a device parameters. Keys are case-insensitive.
+    Creates a driver matching the type specified by the given \a key
+    and \a device parameters. Note that keys are case-insensitive.
 
     \sa keys()
 */
