@@ -42,6 +42,7 @@ private slots:
 
     void createAlphaMask_data();
     void createAlphaMask();
+    void createHeuristicMask();
 
     void dotsPerMeterZero();
 
@@ -249,7 +250,6 @@ void tst_QImage::setAlphaChannel()
 
 }
 
-
 void tst_QImage::convertToFormat_data()
 {
     QTest::addColumn<int>("inFormat");
@@ -320,7 +320,6 @@ void tst_QImage::convertToFormat_data()
 
     QTest::newRow("white mono -> rgb32") << int(QImage::Format_Mono) << 0x00000001u
                                          << int(QImage::Format_RGB32) << 0xffffffffu;
-
 #ifdef Q_WS_QWS
     QTest::newRow("red rgb16 -> argb32") << int(QImage::Format_RGB16) << 0xffff0000
                                          << int(QImage::Format_ARGB32) << 0xffff0000;
@@ -742,6 +741,41 @@ void tst_QImage::destructor()
     ptPix.end();
 
 }
+
+
+/* XPM */
+static const char *monoPixmap[] = {
+/* width height ncolors chars_per_pixel */
+"4 4 2 1",
+"x c #000000",
+". c #ffffff",
+/* pixels */
+"xxxx",
+"x..x",
+"x..x",
+"xxxx"
+};
+
+
+void tst_QImage::createHeuristicMask()
+{
+    QImage img(monoPixmap);
+    img = img.convertToFormat(QImage::Format_MonoLSB);
+    QImage mask = img.createHeuristicMask();
+    QImage newMask = mask.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+
+    // line 2
+    QVERIFY(newMask.pixel(0,1) != newMask.pixel(1,1));
+    QVERIFY(newMask.pixel(1,1) == newMask.pixel(2,1));
+    QVERIFY(newMask.pixel(2,1) != newMask.pixel(3,1));
+
+    // line 3
+    QVERIFY(newMask.pixel(0,2) != newMask.pixel(1,2));
+    QVERIFY(newMask.pixel(1,2) == newMask.pixel(2,2));
+    QVERIFY(newMask.pixel(2,2) != newMask.pixel(3,2));
+}
+
+
 
 QTEST_MAIN(tst_QImage)
 #include "tst_qimage.moc"
