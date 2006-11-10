@@ -163,7 +163,6 @@ public:
     inline void sortChildren(int column, Qt::SortOrder order)
         { sortChildren(column, order, false); }
 private:
-    // Qt 5 add private class and move private data into it
     void sortChildren(int column, Qt::SortOrder order, bool climb);
     QVariant childrenCheckState(int column) const;
     void itemChanged();
