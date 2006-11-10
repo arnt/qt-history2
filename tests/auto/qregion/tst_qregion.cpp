@@ -41,6 +41,9 @@ private slots:
     void intersects_rect_data();
     void intersects_rect();
     void contains_point();
+
+    void operator_plus_data();
+    void operator_plus();
 };
 
 Q_DECLARE_METATYPE(QPolygon)
@@ -401,6 +404,42 @@ void tst_QRegion::contains_point()
 {
     QCOMPARE(QRegion().contains(QPoint(1,1)),false);
     QCOMPARE(QRegion(0,0,2,2).contains(QPoint(1,1)),true);
+}
+
+void tst_QRegion::operator_plus_data()
+{
+    QTest::addColumn<QRegion>("dest");
+    QTest::addColumn<QRegion>("add");
+    QTest::addColumn<QRegion>("expected");
+
+    QTest::newRow("empty 1") << QRegion() << QRegion(QRect(10, 10, 10, 10))
+                             << QRegion(QRect(10, 10, 10, 10));
+    QTest::newRow("empty 2") << QRegion(QRect(10, 10, 10, 10)) << QRegion()
+                             << QRegion(QRect(10, 10, 10, 10));
+
+    QRegion expected;
+    QVector<QRect> rects;
+    rects << QRect(10, 10, 10, 10) << QRect(22, 10, 10, 10);
+    expected.setRects(rects.constData(), rects.size());
+    QTest::newRow("non overlapping") << QRegion(10, 10, 10, 10)
+                                     << QRegion(22, 10, 10, 10)
+                                     << expected;
+}
+
+void tst_QRegion::operator_plus()
+{
+    QFETCH(QRegion, dest);
+    QFETCH(QRegion, add);
+    QFETCH(QRegion, expected);
+
+    QCOMPARE(dest + add, expected);
+
+    dest += add;
+    if (dest != expected) {
+        qDebug() << "dest" << dest;
+        qDebug() << "expected" << expected;
+    }
+    QCOMPARE(dest, expected);
 }
 
 QTEST_MAIN(tst_QRegion)
