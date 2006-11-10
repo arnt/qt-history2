@@ -125,8 +125,10 @@ public:
     bool sectionsMoved() const;
     bool sectionsHidden() const;
 
+#ifndef QT_NO_DATASTREAM
     QByteArray saveState(int version = 0) const;
     bool restoreState(const QByteArray &state, int version = 0);
+#endif
 
 public Q_SLOTS:
     void setOffset(int offset);
@@ -145,6 +147,7 @@ Q_SIGNALS:
     void sectionHandleDoubleClicked(int logicalIndex);
     void sectionAutoResize(int logicalIndex, QHeaderView::ResizeMode mode);
     void geometriesChanged();
+    void sortIndicatorChanged(int logicalIndex, Qt::SortOrder order);
 
 protected Q_SLOTS:
     void updateSection(int logicalIndex);

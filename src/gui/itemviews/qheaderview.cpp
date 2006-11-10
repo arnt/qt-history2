@@ -210,6 +210,16 @@ QDataStream &operator>>(QDataStream &in, QHeaderViewPrivate::SectionSpan &span)
 */
 
 /*!
+    \fn void QHeaderView::sortIndicatorChanged(int logicalIndex, Qt::SortOrder order)
+
+    This signal is emitted when the section containing the sort indicator
+    or the order indicated is changed. The section's logical index is
+    specified by \a logicalIndex and the sort order is specified by \a order.
+
+    \sa setSortIndicator()
+*/
+
+/*!
     \fn void QHeaderView::sectionAutoResize(int logicalIndex, QHeaderView::ResizeMode mode)
 
     This signal is emitted when a section is automatically resized.
@@ -1152,6 +1162,8 @@ void QHeaderView::setSortIndicator(int logicalIndex, Qt::SortOrder order)
             updateSection(old);
         updateSection(logicalIndex);
     }
+
+    emit sortIndicatorChanged(logicalIndex, order);
 }
 
 /*!
