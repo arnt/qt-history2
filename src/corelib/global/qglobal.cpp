@@ -1680,21 +1680,18 @@ int QSysInfo::coreCount()
 {
     static int cores = 0;
     if (cores == 0) {
-/*
 #if defined(Q_OS_WIN32)
-	// Windows
+/*
+        // Windows
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo(&sysinfo);
 	cores = (int)sysinfo.dwNumberOfProcessors;
 */
-
-#if defined(Q_OS_MAC)
+#elif defined(Q_OS_MAC)
 	// Mac OS X
 	cores = MPProcessorsScheduled();
-#else
-/*
 #elif defined(Q_OS_HPUX)
-	// HP-UX
+/*	// HP-UX
 	struct pst_dynamic psd;
 	if (pstat_getdynamic(&psd, sizeof(psd), 1, 0) == -1) {
 	    perror("pstat_getdynamic");
@@ -1702,8 +1699,9 @@ int QSysInfo::coreCount()
 	} else {
 	    cores = (int)psd.psd_proc_cnt;
 	}
+*/
 #elif defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD) || defined(Q_OS_NETBSD) || defined(Q_OS_BSDI) || defined(Q_OS_MAC)
-	// FreeBSD, OpenBSD, NetBSD, BSD/OS
+/*	// FreeBSD, OpenBSD, NetBSD, BSD/OS
 	size_t len = sizeof(cores);
 	int mib[2];
 	mib[0] = CTL_HW;
@@ -1712,11 +1710,13 @@ int QSysInfo::coreCount()
 	    perror("sysctl");
 	    cores = 1;
 	}
-#elif defined(Q_OS_IRIX)
-	// IRIX
-	cores = (int)sysconf(_SC_NPROC_ONLN);
-#else
 */
+#elif defined(Q_OS_IRIX)
+/*
+        // IRIX
+	cores = (int)sysconf(_SC_NPROC_ONLN);
+*/
+#else
 	// Linux, Solaris, AIX, Tru64
 	cores = (int)sysconf(_SC_NPROCESSORS_ONLN);
 #endif
