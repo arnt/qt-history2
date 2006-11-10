@@ -33,7 +33,7 @@ class QToolBoxButton : public QAbstractButton
     Q_OBJECT
 public:
     QToolBoxButton(QWidget *parent)
-        : QAbstractButton(parent), selected(false)
+        : QAbstractButton(parent), selected(false), indexInPage(-1)
     {
         setBackgroundRole(QPalette::Window);
         setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
@@ -41,15 +41,18 @@ public:
     }
 
     inline void setSelected(bool b) { selected = b; update(); }
+    inline void setIndex(int newIndex) { indexInPage = newIndex; }
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
 protected:
+    void initStyleOption(QStyleOptionToolBox *opt) const;
     void paintEvent(QPaintEvent *);
 
 private:
     bool selected;
+    int indexInPage;
 };
 
 #include "qtoolbox.moc"
@@ -127,9 +130,14 @@ void QToolBoxPrivate::updateTabs()
 {
     QToolBoxButton *lastButton = currentPage ? currentPage->button : 0;
     bool after = false;
-    for (PageList::ConstIterator i = pageList.constBegin(); i != pageList.constEnd(); ++i) {
-        QToolBoxButton *tB = (*i).button;
-        QWidget *tW = (*i).widget;
+    int index = 0;
+    for (index = 0; index < pageList.count(); ++index) {
+        const Page &page = pageList.at(index);
+        QToolBoxButton *tB = page.button;
+        // update indexes, since the updates are delayed, the indexes will be correct
+        // when we actually paint.
+        tB->setIndex(index);
+        QWidget *tW = page.widget;
         if (after) {
             QPalette p = tB->palette();
             p.setColor(tB->backgroundRole(), tW->palette().color(tW->backgroundRole()));
@@ -139,7 +147,7 @@ void QToolBoxPrivate::updateTabs()
             tB->setBackgroundRole(QPalette::Window);
             tB->update();
         }
-        after = (*i).button == lastButton;
+        after = tB == lastButton;
     }
 }
 
@@ -164,20 +172,49 @@ QSize QToolBoxButton::minimumSizeHint() const
     return QSize(icone + 8, icone + 8);
 }
 
+void QToolBoxButton::initStyleOption(QStyleOptionToolBox *option) const
+{
+    if (!option)
+        return;
+    option->initFrom(this);
+    if (selected)
+        option->state |= QStyle::State_Selected;
+    if (isDown())
+        option->state |= QStyle::State_Sunken;
+    option->text = text();
+    option->icon = icon();
+
+    if (QStyleOptionToolBoxV2 *optionV2 = qstyleoption_cast<QStyleOptionToolBoxV2 *>(option)) {
+        QToolBox *toolBox = static_cast<QToolBox *>(parentWidget()); // I know I'm in a tool box.
+        int widgetCount = toolBox->count();
+        int currIndex = toolBox->currentIndex();
+        if (widgetCount == 1) {
+            optionV2->position = QStyleOptionToolBoxV2::OnlyOneTab;
+        } else if (indexInPage == 0) {
+            optionV2->position = QStyleOptionToolBoxV2::Beginning;
+        } else if (indexInPage == widgetCount - 1) {
+            optionV2->position = QStyleOptionToolBoxV2::End;
+        } else {
+            optionV2->position = QStyleOptionToolBoxV2::Middle;
+        }
+        if (currIndex == indexInPage - 1) {
+            optionV2->selectedPosition = QStyleOptionToolBoxV2::PreviousIsSelected;
+        } else if (currIndex == indexInPage + 1) {
+            optionV2->selectedPosition = QStyleOptionToolBoxV2::NextIsSelected;
+        } else {
+            optionV2->selectedPosition = QStyleOptionToolBoxV2::NotAdjacent;
+        }
+    }
+}
+
 void QToolBoxButton::paintEvent(QPaintEvent *)
 {
     QPainter paint(this);
     QString text = QAbstractButton::text();
     QPainter *p = &paint;
     const QPalette &pal = palette();
-    QStyleOptionToolBox opt;
-    opt.init(this);
-    if (selected)
-        opt.state |= QStyle::State_Selected;
-    if (isDown())
-        opt.state |= QStyle::State_Sunken;
-    opt.text = text;
-    opt.icon = icon();
+    QStyleOptionToolBoxV2 opt;
+    initStyleOption(&opt);
     style()->drawControl(QStyle::CE_ToolBoxTab, &opt, p, parentWidget());
 
     QPixmap pm = icon().pixmap(style()->pixelMetric(QStyle::PM_SmallIconSize), isEnabled() ? QIcon::Normal : QIcon::Disabled);

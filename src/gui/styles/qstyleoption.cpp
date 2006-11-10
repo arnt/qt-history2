@@ -1,14 +1,14 @@
 /****************************************************************************
-**
-** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
-**
-** This file is part of the $MODULE$ of the Qt Toolkit.
-**
-** $TROLLTECH_DUAL_LICENSE$
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
+ **
+ ** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
+ **
+ ** This file is part of the $MODULE$ of the Qt Toolkit.
+ **
+ ** $TROLLTECH_DUAL_LICENSE$
+ **
+ ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+ ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+ **
 ****************************************************************************/
 
 #include "qstyleoption.h"
@@ -3432,6 +3432,118 @@ QStyleOptionToolBox::QStyleOptionToolBox(int version)
     \brief the text for the tool box tab
 
     The default value is an empty string.
+*/
+
+/*!
+    \class QStyleOptionToolBoxV2
+    \brief The QStyleOptionToolBoxV2 class is used to describe the parameters necessary for drawing a frame in Qt 4.3 or above.
+
+    \since 4.3
+    QStyleOptionToolBoxV2 inherits QStyleOptionToolBox which is used for
+    drawing the tabs in a QToolBox.
+
+    An instance of the QStyleOptionToolBoxV2 class has \l type SO_ToolBox
+    and \l version 2.  The type is used internally by QStyleOption,
+    its subclasses, and qstyleoption_cast() to determine the type of
+    style option. In general you do not need to worry about this
+    unless you want to create your own QStyleOption subclass and your
+    own styles. The version is used by QStyleOption subclasses to
+    implement extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    If you create your own QStyle subclass, you should handle both
+    QStyleOptionToolBox and QStyleOptionToolBoxV2.
+
+    \sa QStyleOptionToolBox, QStyleOption
+*/
+
+/*!
+    Contsructs a QStyleOptionToolBoxV2 object.
+*/
+QStyleOptionToolBoxV2::QStyleOptionToolBoxV2()
+    : QStyleOptionToolBox(Version), position(Beginning), selectedPosition(NotAdjacent)
+{
+}
+
+/*!
+    \fn QStyleOptionToolBoxV2::QStyleOptionToolBoxV2(const QStyleOptionToolBoxV2 &other)
+
+    Constructs a QStyleOptionToolBoxV2 copy of the \a other style option.
+*/
+
+/*!
+    \internal
+*/
+QStyleOptionToolBoxV2::QStyleOptionToolBoxV2(int version)
+    : QStyleOptionToolBox(version), position(Beginning), selectedPosition(NotAdjacent)
+{
+}
+
+/*!
+    Constructs a QStyleOptionToolBoxV2 copy of the \a other style option
+    which can be either of the QStyleOptionToolBoxV2 or
+    QStyleOptionToolBox types.
+
+    If the \a other style option's version is 1, the new style option's \l
+    position value is set to \l QStyleOptionToolBoxV2::Beginning and \l
+    selectedPosition is set to \l QStyleOptionToolBoxV2::NotAdjacent. If its
+    version is 2, the \l position selectedPosition values are simply copied to
+    the new style option.
+
+    \sa version
+*/
+QStyleOptionToolBoxV2::QStyleOptionToolBoxV2(const QStyleOptionToolBox &other)
+{
+    QStyleOptionToolBox::operator=(other);
+
+    const QStyleOptionToolBoxV2 *f2 = qstyleoption_cast<const QStyleOptionToolBoxV2 *>(&other);
+    position = f2 ? f2->position : Beginning;
+    selectedPosition = f2 ? f2->selectedPosition : NotAdjacent;
+    version = Version;
+}
+
+/*!
+    Assigns the \a other style option to this style option. The \a
+    other style option can be either of the QStyleOptionToolBoxV2 or
+    QStyleOptionToolBox types.
+
+    If the \a{other} style option's version is 1, this style option's \l
+    position and \l selectedPosition values are set to \l
+    QStyleOptionToolBoxV2::Begining and \l QStyleOptionToolBoxV2::NotAdjacent
+    respectively. If its version is 2, these values are simply copied to this
+    style option.
+*/
+QStyleOptionToolBoxV2 &QStyleOptionToolBoxV2::operator=(const QStyleOptionToolBox &other)
+{
+    QStyleOptionToolBox::operator=(other);
+
+    const QStyleOptionToolBoxV2 *f2 = qstyleoption_cast<const QStyleOptionToolBoxV2 *>(&other);
+    position = f2 ? f2->position : Beginning;
+    selectedPosition = f2 ? f2->selectedPosition : NotAdjacent;
+    version = Version;
+    return *this;
+}
+
+
+/*! \enum QStyleOptionToolBox::SelectedPosition
+
+    This enum describes the position of the selected tab. Some styles
+    need to draw a tab differently depending on whether or not it is
+    adjacent to the selected tab.
+
+    \value NotAdjacent The tab is not adjacent to a selected tab (or is the selected tab).
+    \value NextIsSelected The next tab (typically the tab on the right) is selected.
+    \value PreviousIsSelected The previous tab (typically the tab on the left) is selected.
+
+    \sa selectedPosition
+*/
+
+/*!
+    \variable QStyleOptionToolBox::selectedPosition
+    \brief the position of the selected tab in relation to this tab
+
+    The default value is NotAdjacent, i.e. the tab is not adjacent to
+    a selected tab nor is it the selected tab.
 */
 
 #ifndef QT_NO_RUBBERBAND

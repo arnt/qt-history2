@@ -478,6 +478,25 @@ protected:
     QStyleOptionToolBox(int version);
 };
 
+class Q_GUI_EXPORT QStyleOptionToolBoxV2 : public QStyleOptionToolBox
+{
+public:
+    enum StyleOptionVersion { Version = 2 };
+    enum TabPosition { Beginning, Middle, End, OnlyOneTab };
+    enum SelectedPosition { NotAdjacent, NextIsSelected, PreviousIsSelected };
+
+    TabPosition position;
+    SelectedPosition selectedPosition;
+
+    QStyleOptionToolBoxV2();
+    QStyleOptionToolBoxV2(const QStyleOptionToolBoxV2 &other) : QStyleOptionToolBox(Version) { *this = other; }
+    QStyleOptionToolBoxV2(const QStyleOptionToolBox &other);
+    QStyleOptionToolBoxV2 &operator=(const QStyleOptionToolBox &other);
+
+protected:
+    QStyleOptionToolBoxV2(int version);
+};
+
 #ifndef QT_NO_RUBBERBAND
 class Q_GUI_EXPORT QStyleOptionRubberBand : public QStyleOption
 {
