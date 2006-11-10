@@ -800,7 +800,11 @@ static void miRegionOp(register QRegionPrivate &dest, const QRegionPrivate *reg1
      * Only do this stuff if the number of rectangles allocated is more than
      * twice the number of rectangles in the region (a simple optimization).
      */
+#ifdef QT_EXPERIMENTAL_REGIONS
+    if (qMax(4, dest.numRects) < (dest.rects.size() >> 1))
+#else
     if (dest.numRects < (dest.rects.size() >> 1))
+#endif
         dest.rects.resize(dest.numRects);
 }
 
@@ -1186,6 +1190,11 @@ static void SubtractRegion(QRegionPrivate *regM, QRegionPrivate *regS,
 
 #ifdef QT_EXPERIMENTAL_REGIONS
     if (regS->contains(*regM)) {
+        dest = QRegionPrivate();
+        return;
+    }
+
+    if (EqualRegion(regM, regS)) {
         dest = QRegionPrivate();
         return;
     }
@@ -2577,6 +2586,66 @@ QRegion QRegion::unite(const QRegion &r) const
     UnionRegion(d->qt_rgn, r.d->qt_rgn, *result.d->qt_rgn);
     return result;
 }
+
+#ifdef QT_EXPERIMENTAL_REGIONS
+
+static void qt_region_append_rects(QRegionPrivate *dest,
+                                   const QRegionPrivate *src)
+{
+    const int numRects = dest->numRects + src->numRects;
+    if (numRects > dest->rects.size())
+        dest->rects.resize(numRects);
+
+    // append rectangles
+    QRect *destRect = dest->rects.data() + dest->numRects;
+    const QRect *srcRect = src->rects.constData();
+    for (int i = 0; i < src->numRects; ++i)
+        *destRect++ = *srcRect++;
+
+    // update inner rectangle
+    if (dest->innerArea < dest->innerArea) {
+        dest->innerArea = src->innerArea;
+        dest->innerRect = src->innerRect;
+    }
+
+    // update extents
+    destRect = &dest->extents;
+    srcRect = &src->extents;
+    dest->extents.setCoords(qMin(destRect->left(),   srcRect->left()),
+                            qMax(destRect->right(),  srcRect->right()),
+                            qMin(destRect->top(),    srcRect->top()),
+                            qMax(destRect->bottom(), srcRect->bottom()));
+
+    dest->numRects = numRects;
+}
+
+QRegion& QRegion::operator+=(const QRegion &r)
+{
+    if (isEmpty())
+        return *this = r;
+    if (r.isEmpty())
+        return *this;
+
+    const QRect *rFirst = r.d->qt_rgn->rects.constData();
+    const QRect *myLast = d->qt_rgn->rects.constData()
+                          + (d->qt_rgn->numRects - 1);
+    // XXX: possible improvements:
+    //   - same technique for prepending
+    //   - nFirst->top() == myLast->bottom(), must possibly merge bands
+    //   - rFirst->left() == myLast->right(), merge rectangles, possibly bands
+    if (rFirst->top() > myLast->bottom()
+        || (rFirst->top() == myLast->top()
+            && rFirst->height() == myLast->height()
+            && rFirst->left() > myLast->right()))
+    {
+        detach();
+        qt_region_append_rects(d->qt_rgn, r.d->qt_rgn);
+        return *this;
+    }
+
+    return *this = unite(r);
+}
+#endif
 
 /*!
     \fn QRegion QRegion::intersect(const QRegion &r) const

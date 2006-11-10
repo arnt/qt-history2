@@ -426,8 +426,10 @@ QRegion& QRegion::operator|=(const QRegion &r)
 
     \sa intersected()
 */
+#if !defined(QT_EXPERIMENTAL_REGIONS) || defined(Q_WS_WIN)
 QRegion& QRegion::operator+=(const QRegion &r)
     { return *this = *this + r; }
+#endif
 
 /*!
     Applies the intersected() function to this region and \a r and
