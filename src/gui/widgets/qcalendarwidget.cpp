@@ -1035,28 +1035,15 @@ void QCalendarWidgetPrivate::updateNavigationBar()
 
 void QCalendarWidgetPrivate::update()
 {
-    QDate currentSelectedDate = m_model->date;
-    QDate currentDate = getCurrentDate(); //The current item in the month
+    QDate currentDate = m_model->date;
     int row, column;
-    m_model->cellForDate(currentSelectedDate, &row, &column);
+    m_model->cellForDate(currentDate, &row, &column);
     QModelIndex idx;
     m_selection->clear();
-    //Set the selected date if it's in the month being shown
     if (row != -1 && column != -1) {
         idx = m_model->index(row, column);
         m_selection->setCurrentIndex(idx, QItemSelectionModel::SelectCurrent);
     }
-    //Make sure that the current item is set properly
-    row = -1;
-    column = -1;
-    m_model->cellForDate(currentDate, &row, &column);
-    if (row != -1 && column != -1)
-    {
-        m_selection->setCurrentIndex(m_model->index(row, column),
-                                                  QItemSelectionModel::NoUpdate);
-    }
-    //Redraw the calendar
-    m_view->viewport()->update();
 }
 
 void QCalendarWidgetPrivate::paintCell(QPainter *painter, const QRect &rect, const QDate &date) const
@@ -1701,7 +1688,7 @@ void QCalendarWidget::setHorizontalHeaderFormat(QCalendarWidget::HorizontalHeade
         return;
 
     d->m_model->setHorizontalHeaderFormat(format);
-    d->update();
+    d->m_view->viewport()->update();
     d->m_view->updateGeometry();
 }
 
@@ -1747,7 +1734,7 @@ void QCalendarWidget::setVerticalHeaderFormat(QCalendarWidget::VerticalHeaderFor
     if (d->m_model->weekNumbersShown() == show)
         return;
     d->m_model->setWeekNumbersShown(show);
-    d->update();
+    d->m_view->viewport()->update();
     d->m_view->updateGeometry();
 }
 
@@ -1854,7 +1841,7 @@ void QCalendarWidget::setHeaderTextFormat(const QTextCharFormat &format)
 {
     Q_D(QCalendarWidget);
     d->m_model->m_headerFormat = format;
-    d->update();
+    d->m_view->viewport()->update();
     d->m_view->updateGeometry();
 }
 
@@ -1880,7 +1867,7 @@ void QCalendarWidget::setWeekdayTextFormat(Qt::DayOfWeek dayOfWeek, const QTextC
 {
     Q_D(QCalendarWidget);
     d->m_model->m_dayFormats[dayOfWeek] = format;
-    d->update();
+    d->m_view->viewport()->update();
     d->m_view->updateGeometry();
 }
 
@@ -1911,7 +1898,7 @@ void QCalendarWidget::setDateTextFormat(const QDate &date, const QTextCharFormat
 {
     Q_D(QCalendarWidget);
     d->m_model->m_dateFormats[date] = format;
-    d->update();
+    d->m_view->viewport()->update();
     d->m_view->updateGeometry();
 }
 
