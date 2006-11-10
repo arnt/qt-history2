@@ -44,6 +44,8 @@ private slots:
     void editItem();
     void takeItem_data();
     void takeItem();
+    void removeChild_data();
+    void removeChild();
     void setItemHidden();
     void setItemHidden2();
     void selectedItems_data();
@@ -465,6 +467,42 @@ void tst_QTreeWidget::takeItem()
             delete item;
         }
     }
+}
+
+void tst_QTreeWidget::removeChild_data()
+{
+    QTest::addColumn<int>("childCount");
+    QTest::addColumn<int>("removeAt");
+
+    QTest::newRow("10 remove 3") << 10 << 3;
+}
+
+void tst_QTreeWidget::removeChild()
+{
+    QFETCH(int, childCount);
+    QFETCH(int, removeAt);
+
+    QTreeWidgetItem *root = new QTreeWidgetItem;
+    for (int i = 0; i < childCount; ++i)
+        new QTreeWidgetItem(root, QStringList(QString::number(i)));
+
+    QCOMPARE(root->childCount(), childCount);
+    for (int j = 0; j < childCount; ++j)
+        QCOMPARE(root->child(j)->text(0), QString::number(j));
+
+    QTreeWidgetItem *remove = root->child(removeAt);
+    root->removeChild(remove);
+
+    QCOMPARE(root->childCount(), childCount - 1);
+    for (int k = 0; k < childCount; ++k) {
+        if (k == removeAt)
+            QCOMPARE(remove->text(0), QString::number(k));
+        else if (k < removeAt)
+            QCOMPARE(root->child(k)->text(0), QString::number(k));
+        else if (k > removeAt)
+            QCOMPARE(root->child(k - 1)->text(0), QString::number(k));
+    }
+    delete root;
 }
 
 void tst_QTreeWidget::setItemHidden()
