@@ -1150,6 +1150,20 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
                     d->rasterBuffer->clip = d->rasterBuffer->disabled_clip;
                     d->rasterBuffer->disabled_clip = 0;
                 }
+            } else {
+                if (!state.isClipEnabled()) {
+#ifdef QT_EXPERIMENTAL_REGIONS
+                    updateClipRegion(QRegion(), Qt::NoClip);
+#else
+                    updateClipPath(QPainterPath(), Qt::NoClip);
+#endif
+                } else {
+#ifdef QT_EXPERIMENTAL_REGIONS
+                    updateClipRegion(state.clipRegion(), state.clipOperation());
+#else
+                    updateClipPath(state.clipPath(), state.clipOperation());
+#endif
+                }
             }
             d->penData.adjustSpanMethods();
             d->brushData.adjustSpanMethods();
