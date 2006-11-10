@@ -202,9 +202,11 @@ public:
 
 /*!
     \property QPushButton::flat
-    \brief whether the border is disabled
+    \brief whether the button border is raised
 
-    This property's default is false.
+    This property's default is false. If this property is set, most styles will not
+    paint the button background unless the button is being pressed. \l setAutoFillBackground can 
+    be used to ensure that the background is filled using the QPalette::Button brush.
 */
 
 

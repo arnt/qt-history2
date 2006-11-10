@@ -685,11 +685,12 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 drawPrimitive(PE_FrameDefaultButton, opt, p, widget);
             if (btn->features & QStyleOptionButton::AutoDefaultButton)
                 br.setCoords(br.left() + dbi, br.top() + dbi, br.right() - dbi, br.bottom() - dbi);
-
-            QStyleOptionButton tmpBtn = *btn;
-            tmpBtn.rect = br;
-            drawPrimitive(PE_PanelButtonCommand, &tmpBtn, p, widget);
-
+            if (!(btn->features & QStyleOptionButton::Flat)
+                || btn->state & (State_Sunken | State_On)) {
+                QStyleOptionButton tmpBtn = *btn;
+                tmpBtn.rect = br;
+                drawPrimitive(PE_PanelButtonCommand, &tmpBtn, p, widget);
+            }
             if (btn->features & QStyleOptionButton::HasMenu) {
                 int mbi = pixelMetric(PM_MenuButtonIndicator, btn, widget);
                 QRect ir = btn->rect;
