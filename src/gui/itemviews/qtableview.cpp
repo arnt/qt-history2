@@ -1303,6 +1303,8 @@ void QTableView::updateGeometries()
         const int visibleColumns = columnCount - d->horizontalHeader->hiddenSectionCount();
         horizontalScrollBar()->setRange(0, visibleColumns - columnsInViewport);
         horizontalScrollBar()->setPageStep(columnsInViewport);
+        if (columnsInViewport >= visibleColumns)
+            d->horizontalHeader->setOffset(0);
     } else { // ScrollPerPixel
         horizontalScrollBar()->setPageStep(vsize.width());
         horizontalScrollBar()->setRange(0, horizontalLength - vsize.width());
@@ -1325,6 +1327,8 @@ void QTableView::updateGeometries()
         const int visibleRows = rowCount - d->verticalHeader->hiddenSectionCount();
         verticalScrollBar()->setRange(0, visibleRows - rowsInViewport);
         verticalScrollBar()->setPageStep(rowsInViewport);
+        if (rowsInViewport >= visibleRows)
+            d->verticalHeader->setOffset(0);
     } else { // ScrollPerPixel
         verticalScrollBar()->setPageStep(vsize.height());
         verticalScrollBar()->setRange(0, verticalLength - vsize.height());
