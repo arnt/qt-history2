@@ -84,8 +84,71 @@ struct QRegionPrivate {
             innerRect = rect;
         }
     }
+
+    inline void append(const QRegionPrivate *r);
+    inline bool canAppend(const QRegionPrivate *r) const;
+
 #endif
 };
+
+#ifdef QT_EXPERIMENTAL_REGIONS
+static inline bool isEmpty(const QRegionPrivate *preg)
+{
+    return !preg || preg->numRects == 0;
+}
+
+void QRegionPrivate::append(const QRegionPrivate *r)
+{
+    Q_ASSERT(!isEmpty(r));
+
+    const int newNumRects = numRects + r->numRects;
+    if (newNumRects > rects.size())
+        rects.resize(newNumRects);
+
+    // append rectangles
+    QRect *destRect = rects.data() + numRects;
+    const QRect *srcRect = r->rects.constData();
+    for (int i = 0; i < r->numRects; ++i)
+        *destRect++ = *srcRect++;
+
+    // update inner rectangle
+    if (innerArea < r->innerArea) {
+        innerArea = r->innerArea;
+        innerRect = r->innerRect;
+    }
+
+    // update extents
+    destRect = &extents;
+    srcRect = &r->extents;
+    extents.setCoords(qMin(destRect->left(), srcRect->left()),
+                      qMin(destRect->top(), srcRect->top()),
+                      qMax(destRect->right(), srcRect->right()),
+                      qMax(destRect->bottom(), srcRect->bottom()));
+
+    numRects = newNumRects;
+}
+
+bool QRegionPrivate::canAppend(const QRegionPrivate *r) const
+{
+    Q_ASSERT(!isEmpty(r));
+
+    const QRect *rFirst = r->rects.constData();
+    const QRect *myLast = rects.constData() + (numRects - 1);
+    // XXX: possible improvements:
+    //   - same technique for prepending
+    //   - nFirst->top() == myLast->bottom(), must possibly merge bands
+    //   - rFirst->left() == myLast->right(), merge rectangles, possibly bands
+    if (rFirst->top() > myLast->bottom()
+        || (rFirst->top() == myLast->top()
+            && rFirst->height() == myLast->height()
+            && rFirst->left() > myLast->right()))
+    {
+        return true;
+    }
+
+    return false;
+}
+#endif // QT_EXPERIMENTAL_REGIONS
 
 #if defined(Q_WS_X11)
 # include "qregion_x11.cpp"
@@ -96,10 +159,12 @@ static QRegionPrivate qrp;
 QRegion::QRegionData QRegion::shared_empty = {Q_ATOMIC_INIT(1), &qrp};
 #endif
 
+#ifndef QT_EXPERIMENTAL_REGIONS
 static inline bool isEmpty(const QRegionPrivate *preg)
 {
     return !preg || preg->numRects == 0;
 }
+#endif
 
 typedef void (*OverlapFunc)(register QRegionPrivate &dest, register const QRect *r1, const QRect *r1End,
                             register const QRect *r2, const QRect *r2End, register int y1, register int y2);
@@ -962,6 +1027,24 @@ static void UnionRegion(const QRegionPrivate *reg1, const QRegionPrivate *reg2, 
     */
     if (EqualRegion(reg1, reg2)) {
         dest = *reg1;
+        return;
+    }
+
+    /*
+      Can append reg2 to reg1
+    */
+    if (reg1->canAppend(reg2)) {
+        dest = *reg1;
+        dest.append(reg2);
+        return;
+    }
+
+    /*
+      Can append reg1 to reg2
+    */
+    if (reg2->canAppend(reg1)) {
+        dest = *reg2;
+        dest.append(reg1);
         return;
     }
 #else
@@ -2626,20 +2709,9 @@ QRegion& QRegion::operator+=(const QRegion &r)
     if (r.isEmpty())
         return *this;
 
-    const QRect *rFirst = r.d->qt_rgn->rects.constData();
-    const QRect *myLast = d->qt_rgn->rects.constData()
-                          + (d->qt_rgn->numRects - 1);
-    // XXX: possible improvements:
-    //   - same technique for prepending
-    //   - nFirst->top() == myLast->bottom(), must possibly merge bands
-    //   - rFirst->left() == myLast->right(), merge rectangles, possibly bands
-    if (rFirst->top() > myLast->bottom()
-        || (rFirst->top() == myLast->top()
-            && rFirst->height() == myLast->height()
-            && rFirst->left() > myLast->right()))
-    {
+    if (d->qt_rgn->canAppend(r.d->qt_rgn)) {
         detach();
-        qt_region_append_rects(d->qt_rgn, r.d->qt_rgn);
+        d->qt_rgn->append(r.d->qt_rgn);
         return *this;
     }
 
