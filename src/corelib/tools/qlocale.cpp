@@ -1079,10 +1079,14 @@ QVariant QSystemLocale::query(QueryType type, QVariant in = QVariant()) const
     switch(type) {
 //     case Name:
 //         return getMacLocaleName();
-    case DecimalPoint:
-        return getCFLocaleValue(kCFLocaleDecimalSeparator);
-    case GroupSeparator:
-        return getCFLocaleValue(kCFLocaleGroupingSeparator);
+    case DecimalPoint: {
+        QString value = getCFLocaleValue(kCFLocaleDecimalSeparator);
+        return value.isEmpty() ? QVariant() : value;
+    }
+    case GroupSeparator: {
+        QString value = getCFLocaleValue(kCFLocaleGroupingSeparator);
+        return value.isEmpty() ? QVariant() : value;
+    }
     case DateFormatLong:
     case DateFormatShort:
         return macToQtFormat(getMacDateFormat(type == DateFormatShort
