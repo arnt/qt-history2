@@ -65,7 +65,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 
 /*!
     Creates the mouse driver specified by the given \a key, using the
-    display specified by the given \a displayId.
+    display specified by the given \a device.
 
     Note that the keys are case-insensitive.
 
