@@ -778,12 +778,12 @@ static uint qt_gradient_pixel(const GradientData *data, qreal pos)
 
 #ifdef Q_WS_QWS
 
-#define FIXPT_BITS 9
-#define FIXPT_SIZE (2<<FIXPT_BITS)
+#define FIXPT_BITS 8
+#define FIXPT_SIZE (1<<FIXPT_BITS)
 
 static uint qt_gradient_pixel_fixed(const GradientData *data, int fixed_pos)
 {
-    int ipos = (fixed_pos + FIXPT_SIZE / 2) >> FIXPT_BITS - 1;
+    int ipos = ((fixed_pos + FIXPT_SIZE / 2) >> FIXPT_BITS) - 1;
 
     // calculate the actual offset.
     if (ipos < 0 || ipos >= GRADIENT_STOPTABLE_SIZE) {
