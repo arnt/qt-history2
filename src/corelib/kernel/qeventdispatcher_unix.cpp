@@ -175,7 +175,10 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
         char c[16];
         while (::read(thread_pipe[0], c, sizeof(c)) > 0)
             ;
-        wakeUps = 0;
+        if (!wakeUps.testAndSetRelease(1, 0)) {
+            // hopefully, this is dead code
+            qWarning("QEventDispatcherUNIX: internal error, wakeUps.testAndSetRelease(1, 0) failed!");
+        }
         ++nevents;
     }
 
@@ -821,7 +824,7 @@ bool QEventDispatcherUNIX::hasPendingEvents()
 void QEventDispatcherUNIX::wakeUp()
 {
     Q_D(QEventDispatcherUNIX);
-    if (d->wakeUps.testAndSet(0, 1)) {
+    if (d->wakeUps.testAndSetAcquire(0, 1)) {
         char c = 0;
         ::write( d->thread_pipe[1], &c, 1 );
     }
