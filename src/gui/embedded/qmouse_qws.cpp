@@ -175,11 +175,10 @@ public:
     Constructs a mouse driver. The \a driver and \a device arguments
     are passed by the QWS_MOUSE_PROTO environment variable.
 
-    The newly created driver becomes the primary mouse driver. Note
-    that once created, mouse drivers are controlled by the system and
-    should not be deleted.
-
-    \sa QWSServer::setMouseHandler()
+    Call the QWSServer::setMouseHandler() function to make the newly
+    created mouse driver, the primary driver. Note that the primary
+    driver is controlled by the system, i.e., the system will delete
+    it upon exit.
 */
 QWSMouseHandler::QWSMouseHandler(const QString &, const QString &)
     : mousePos(QWSServer::mousePosition), d_ptr(new QWSMouseHandlerPrivate)
@@ -189,8 +188,10 @@ QWSMouseHandler::QWSMouseHandler(const QString &, const QString &)
 /*!
     Destroys this mouse driver.
 
-    Do not call this function directly; once created, mouse drivers
-    are controlled by the system and should not be deleted.
+    Do not call this function if this driver is the primary mouse
+    handler, i.e., if QWSServer::setMouseHandler() function has been
+    called passing this driver as argument. The primary mouse
+    driver is deleted by the system.
 */
 QWSMouseHandler::~QWSMouseHandler()
 {
