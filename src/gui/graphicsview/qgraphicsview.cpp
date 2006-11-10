@@ -1352,9 +1352,7 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
         // Calculate a simple level-of-detail metric.
         QTransform neo = item->sceneTransform() * painterMatrix;
         QRectF mappedRect = neo.mapRect(QRectF(0, 0, 1, 1));
-        qreal dx = neo.mapRect(QRectF(0, 0, 1, 1)).size().width();
-        qreal dy = neo.mapRect(QRectF(0, 0, 1, 1)).size().height();
-        option.levelOfDetail = qMin(dx, dy);
+        option.levelOfDetail = qMin(mappedRect.width(), mappedRect.height());
         option.matrix = neo.toAffine();
 
         option.exposedRect = item->boundingRect();
@@ -2490,9 +2488,7 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
         QTransform itemSceneMatrix = item->sceneTransform();
         QTransform neo = itemSceneMatrix * painter.transform();
         QRectF mappedRect = neo.mapRect(QRectF(0, 0, 1, 1));
-        qreal dx = neo.mapRect(QRectF(0, 0, 1, 1)).size().width();
-        qreal dy = neo.mapRect(QRectF(0, 0, 1, 1)).size().height();
-        option.levelOfDetail = qMin(dx, dy);
+        option.levelOfDetail = qMin(mappedRect.width(), mappedRect.height());
         option.matrix = neo.toAffine(); //### discards perspective
 
         // Determine the item's exposed area

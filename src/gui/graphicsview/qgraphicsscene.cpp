@@ -963,9 +963,7 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
         // Calculate a simple level-of-detail metric.
         QTransform neo = item->sceneTransform() * painter->transform();
         QRectF mappedRect = neo.mapRect(QRectF(0, 0, 1, 1));
-        qreal dx = neo.mapRect(QRectF(0, 0, 1, 1)).size().width();
-        qreal dy = neo.mapRect(QRectF(0, 0, 1, 1)).size().height();
-        option.levelOfDetail = qMin(dx, dy);
+        option.levelOfDetail = qMin(mappedRect.width(), mappedRect.height());
         option.matrix = neo.toAffine(); //### discards perspective
 
         option.exposedRect = item->boundingRect();
