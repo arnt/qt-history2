@@ -70,7 +70,7 @@ public:
     { repaintOldAndNewSelection(QTextCursor()); }
     void repaintOldAndNewSelection(const QTextCursor &oldSelection);
 
-    void selectionChanged();
+    void selectionChanged(bool forceEmitSelectionChanged = false);
 
     void _q_updateCurrentCharFormatAndSelection();
 

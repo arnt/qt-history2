@@ -241,7 +241,7 @@ bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
     }
 #endif
 
-    selectionChanged();
+    selectionChanged(true);
 
     repaintOldAndNewSelection(oldSelection);
 
@@ -503,16 +503,20 @@ void QTextControlPrivate::repaintOldAndNewSelection(const QTextCursor &oldSelect
     }
 }
 
-void QTextControlPrivate::selectionChanged()
+void QTextControlPrivate::selectionChanged(bool forceEmitSelectionChanged /*=false*/)
 {
     Q_Q(QTextControl);
+    if (forceEmitSelectionChanged)
+        emit q->selectionChanged();
+
     bool current = cursor.hasSelection();
     if (current == lastSelectionState)
         return;
 
     lastSelectionState = current;
     emit q->copyAvailable(current);
-    emit q->selectionChanged();
+    if (!forceEmitSelectionChanged) 
+        emit q->selectionChanged();
     emit q->microFocusChanged();
 }
 
@@ -1462,8 +1466,10 @@ void QTextControlPrivate::mouseReleaseEvent(Qt::MouseButton button, const QPoint
     if (mousePressed) {
         mousePressed = false;
 #ifndef QT_NO_CLIPBOARD
-        if (interactionFlags & Qt::TextSelectableByMouse)
+        if (interactionFlags & Qt::TextSelectableByMouse) {
             setClipboardSelection();
+            selectionChanged(true);
+        }
     } else if (button == Qt::MidButton
                && (interactionFlags & Qt::TextEditable)
                && QApplication::clipboard()->supportsSelection()) {
