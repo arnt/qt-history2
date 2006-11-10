@@ -3765,10 +3765,10 @@ void QWidget::setCursor(const QCursor &cursor)
 {
     Q_D(QWidget);
 // On Mac we must set the cursor even if it is the ArrowCursor.
-#ifndef Q_WS_MAC 
+#ifndef Q_WS_MAC
     if (cursor.shape() != Qt::ArrowCursor
         || (d->extra && d->extra->curs))
-#endif        
+#endif
     {
         d->createExtra();
         delete d->extra->curs;
@@ -8461,3 +8461,11 @@ QWidgetData *qt_qwidget_data(QWidget *widget)
 */
 
 #include "moc_qwidget.cpp"
+
+/*!
+    \typedef WId
+    \relates QWidget
+
+    Platform dependent window identifier.
+*/
+
