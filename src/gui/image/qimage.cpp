@@ -3665,6 +3665,9 @@ QImage QImage::createHeuristicMask(bool clipTight) const
     int w = width();
     int h = height();
     QImage m(w, h, Format_MonoLSB);
+    m.setNumColors(2);
+    m.setColor(0, QColor(Qt::color0).rgba());
+    m.setColor(1, QColor(Qt::color1).rgba());
     m.fill(0xff);
 
     QRgb background = PIX(0,0);
