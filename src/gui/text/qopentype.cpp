@@ -418,19 +418,30 @@ bool QOpenType::positionAndAdd(QShaperItem *item, int availableGlyphs, bool doLo
                                            ? -positions[i].x_advance : positions[i].x_advance);
                 glyphs[i].advance.y -= QFixed::fromFixed(positions[i].y_advance);
             }
+
+            int back = 0;
             glyphs[i].offset.x = QFixed::fromFixed(positions[i].x_pos);
-            glyphs[i].offset.y = QFixed::fromFixed(-positions[i].y_pos);
-            int back = positions[i].back;
+            glyphs[i].offset.y = QFixed::fromFixed(positions[i].y_pos);
+            while (positions[i - back].back) {
+                back += positions[i - back].back;
+                glyphs[i].offset.x += QFixed::fromFixed(positions[i - back].x_pos);
+                glyphs[i].offset.y += QFixed::fromFixed(positions[i - back].y_pos);
+            }
+            glyphs[i].offset.y = -glyphs[i].offset.y;
+
             if (item->flags & QTextEngine::RightToLeft) {
+                // ### may need to go back multiple glyphs like in ltr
+                back = positions[i].back;
                 while (back--) {
                     glyphs[i].offset.x -= glyphs[i-back].advance.x;
                     glyphs[i].offset.y -= -glyphs[i-back].advance.y;
                 }
             } else {
-                while (back) {
+                back = 0;
+                while (positions[i - back].back) {
+                    back += positions[i - back].back;
                     glyphs[i].offset.x -= glyphs[i-back].advance.x;
                     glyphs[i].offset.y -= -glyphs[i-back].advance.y;
-                    --back;
                 }
             }
 //             DEBUG("   ->\tadv=%d\tpos=(%d/%d)",
