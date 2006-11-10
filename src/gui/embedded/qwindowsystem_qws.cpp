@@ -4140,8 +4140,8 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
     Qt::KeyboardModifier values, indicating whether \gui
     Shift/Alt/Ctrl keys are pressed. The \a isPress parameter is true
     if the event is a key press event and \a autoRepeat is true if the
-    event is caused by auto repeat (i.e. the user has held the key
-    down and this is the second or subsequent key event being sent).
+    event is caused by an auto-repeat mechanism and not an actual key
+    press.
 */
 
 #include "moc_qwindowsystem_qws.cpp"
