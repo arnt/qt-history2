@@ -1080,6 +1080,12 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
 #ifndef QT_NO_TOOLBOX
     case CE_ToolBoxTab:
         if (const QStyleOptionToolBox *tb = qstyleoption_cast<const QStyleOptionToolBox *>(opt)) {
+            drawControl(CE_ToolBoxTabShape, tb, p, widget);
+            drawControl(CE_ToolBoxTabLabel, tb, p, widget);
+        }
+        break;
+    case CE_ToolBoxTabShape:
+        if (const QStyleOptionToolBox *tb = qstyleoption_cast<const QStyleOptionToolBox *>(opt)) {
             int d = 20 + tb->rect.height() - 3;
             QPolygon a(7);
             if (tb->direction != Qt::RightToLeft) {
@@ -1230,6 +1236,51 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 break;
             }
             p->restore();
+        }
+        break;
+    case CE_ToolBoxTabLabel:
+        if (const QStyleOptionToolBox *tb = qstyleoption_cast<const QStyleOptionToolBox *>(opt)) {
+            bool enabled = tb->state & State_Enabled;
+            bool selected = tb->state & State_Selected;
+            QPixmap pm = tb->icon.pixmap(pixelMetric(QStyle::PM_SmallIconSize, tb, widget),
+                                         enabled ? QIcon::Normal : QIcon::Disabled);
+
+            QRect cr = subElementRect(QStyle::SE_ToolBoxTabContents, tb, widget);
+            QRect tr, ir;
+            int ih = 0;
+            if (pm.isNull()) {
+                tr = cr;
+                tr.adjust(4, 0, -8, 0);
+            } else {
+                int iw = pm.width() + 4;
+                ih = pm.height();
+                ir = QRect(cr.left() + 4, cr.top(), iw + 2, ih);
+                tr = QRect(ir.right(), cr.top(), cr.width() - ir.right() - 4, cr.height());
+            }
+
+            if (selected && styleHint(QStyle::SH_ToolBox_SelectedPageTitleBold, tb, widget)) {
+                QFont f(p->font());
+                f.setBold(true);
+                p->setFont(f);
+            }
+
+            QString txt = tb->fontMetrics.elidedText(tb->text, Qt::ElideRight, tr.width());
+
+            if (ih)
+                p->drawPixmap(ir.left(), (tb->rect.height() - ih) / 2, pm);
+
+            int alignment = Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic;
+            if (!styleHint(QStyle::SH_UnderlineShortcut, tb, widget))
+                alignment |= Qt::TextHideMnemonic;
+            drawItemText(p, tr, alignment, tb->palette, enabled, txt, QPalette::ButtonText);
+
+            if (!txt.isEmpty() && opt->state & State_HasFocus) {
+                QStyleOptionFocusRect opt;
+                opt.rect = tr;
+                opt.palette = tb->palette;
+                opt.state = QStyle::State_None;
+                drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p, widget);
+            }
         }
         break;
     case CE_TabBarTabLabel:

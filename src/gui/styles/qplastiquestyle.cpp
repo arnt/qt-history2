@@ -2922,7 +2922,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         break;
 #endif // QT_NO_MENUBAR
 #ifndef QT_NO_TOOLBOX
-    case CE_ToolBoxTab:
+    case CE_ToolBoxTabShape:
         if (const QStyleOptionToolBox *toolBox = qstyleoption_cast<const QStyleOptionToolBox *>(option)) {
             painter->save();
 

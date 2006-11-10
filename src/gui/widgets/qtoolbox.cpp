@@ -216,45 +216,6 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
     QStyleOptionToolBoxV2 opt;
     initStyleOption(&opt);
     style()->drawControl(QStyle::CE_ToolBoxTab, &opt, p, parentWidget());
-
-    QPixmap pm = icon().pixmap(style()->pixelMetric(QStyle::PM_SmallIconSize), isEnabled() ? QIcon::Normal : QIcon::Disabled);
-
-    QRect cr = style()->subElementRect(QStyle::SE_ToolBoxTabContents, &opt, this);
-    QRect tr, ir;
-    int ih = 0;
-    if (pm.isNull()) {
-        tr = cr;
-        tr.adjust(4, 0, -8, 0);
-    } else {
-        int iw = pm.width() + 4;
-        ih = pm.height();
-        ir = QRect(cr.left() + 4, cr.top(), iw + 2, ih);
-        tr = QRect(ir.right(), cr.top(), cr.width() - ir.right() - 4, cr.height());
-    }
-
-    if (selected && style()->styleHint(QStyle::SH_ToolBox_SelectedPageTitleBold, &opt, this)) {
-        QFont f(p->font());
-        f.setBold(true);
-        p->setFont(f);
-    }
-
-    QString txt = fontMetrics().elidedText(text, Qt::ElideRight, tr.width());
-
-    if (ih)
-        p->drawPixmap(ir.left(), (height() - ih) / 2, pm);
-
-    int alignment = Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic;
-    if (!style()->styleHint(QStyle::SH_UnderlineShortcut, 0, this))
-        alignment |= Qt::TextHideMnemonic;
-    style()->drawItemText(p, tr, alignment, pal, isEnabled(), txt, foregroundRole());
-
-    if (!txt.isEmpty() && hasFocus()) {
-        QStyleOptionFocusRect opt;
-        opt.rect = tr;
-        opt.palette = pal;
-        opt.state = QStyle::State_None;
-        style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p, this);
-    }
 }
 
 /*!

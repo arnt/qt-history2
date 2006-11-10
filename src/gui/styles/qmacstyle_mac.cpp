@@ -2691,7 +2691,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             }
         }
         break;
-    case CE_ToolBoxTab:
+    case CE_ToolBoxTabShape:
         QCommonStyle::drawControl(ce, opt, p, w);
         break;
     case CE_PushButtonBevel:

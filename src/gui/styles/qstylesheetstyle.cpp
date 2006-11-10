@@ -2148,7 +2148,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         }
         break;
 
-    case CE_ToolBoxTab: 
+    case CE_ToolBoxTabShape: 
         if (hasStyleRule(w, PseudoElement_ToolBoxTab)) {
             QRenderRule subRule = renderRule(w, opt, PseudoElement_ToolBoxTab);
             subRule.drawRule(p, opt->rect);

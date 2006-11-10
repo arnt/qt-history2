@@ -706,7 +706,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value CE_Q3DockWindowEmptyArea  The empty area of a QDockWidget.
 
-    \value CE_ToolBoxTab  The toolbox's tab area.
+    \value CE_ToolBoxTab  The toolbox's tab and label within a QToolBox.
     \value CE_SizeGrip  Window resize handle; see also QSizeGrip.
 
     \value CE_Header         A header.
@@ -730,6 +730,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     custom values must be greater than this value.
     \value CE_ComboBoxLabel The label of a non-editable QComboBox.
     \value CE_ToolBar A toolbar like QToolBar.
+    \value CE_ToolBoxTabShape  The toolbox's tab shape.
+    \value CE_ToolBoxTabLabel  The toolbox's tab label.
 
     \sa drawControl()
 */
