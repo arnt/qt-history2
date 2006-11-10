@@ -1679,6 +1679,15 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
 }
 
 /*!
+  Removes the given item indicated by \a child.
+  The removed item will not be deleted.
+*/
+void QTreeWidgetItem::removeChild(QTreeWidgetItem *child)
+{
+    (void)takeChild(children.indexOf(child));
+}
+
+/*!
   Removes the item at \a index and returns it, otherwise return 0.
 */
 QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)

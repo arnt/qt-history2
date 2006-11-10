@@ -153,6 +153,7 @@ public:
 
     void addChild(QTreeWidgetItem *child);
     void insertChild(int index, QTreeWidgetItem *child);
+    void removeChild(QTreeWidgetItem *child);
     QTreeWidgetItem *takeChild(int index);
 
     void addChildren(const QList<QTreeWidgetItem*> &children);
