@@ -443,13 +443,29 @@ void QPixmap::fill(const QColor &fillColor)
 }
 
 /*!
-    Returns the alpha channel of the pixmap. If the pixmap doesn't
-    have an alpha channel (i.e. the alpha channel's value equals
-    0xff), a null pixmap is returned.
+    Returns the alpha channel of the pixmap as a new grayscale QPixmap in which 
+    each pixel's red, green, and blue values are given the alpha value of the 
+    original pixmap. The color depth of the returned pixmap is the system depth 
+    on X11 and 8-bit on Windows and Mac OS X.
+
+    You can use this function while debugging 
+    to get a visible image of the alpha channel. If the pixmap doesn't have an 
+    alpha channel, i.e., the alpha channel's value for all pixels equals
+    0xff), a null pixmap is returned. You can check this with the \c isNull() 
+    function.
+
+    We show an example:
+
+    \quotefromfile snippets/alphachannel.cpp
+    \skipto /pixmap =/
+    \printuntil /update/
+
+    \image alphachannelimage.png The pixmap and channelImage QPixmaps
 
     \sa setAlphaChannel(), {QPixmap#Pixmap Information}{Pixmap
     Information}
 */
+
 QPixmap QPixmap::alphaChannel() const
 {
     if (!hasAlphaChannel())
