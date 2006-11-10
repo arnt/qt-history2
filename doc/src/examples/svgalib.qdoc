@@ -78,8 +78,8 @@
     query its configuration: \l {QScreen::}{connect()} and \l
     {QScreen::}{disconnect()} are called by both the server and client
     processes, while the \l {QScreen::}{initDevice()} and \l
-    {QScreen::}{shutdownDevice()} is only called by the server
-    process.
+    {QScreen::}{shutdownDevice()} functions are only called by the
+    server process.
 
     QScreen's \l {QScreen::}{setMode()} and \l {QScreen::}{blank()}
     functions are also pure virtual, but our driver's implementations
