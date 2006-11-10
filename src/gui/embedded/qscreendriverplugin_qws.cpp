@@ -82,7 +82,7 @@ QScreenDriverPlugin::~QScreenDriverPlugin()
     \fn QScreen* QScreenDriverPlugin::create(const QString &key, int displayId)
 
     Creates a driver matching the type specified by the given \a key
-    and \a device parameters. Note that keys are case-insensitive.
+    and \a displayId parameters. Note that keys are case-insensitive.
 
     \sa keys()
 */
