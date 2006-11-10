@@ -939,6 +939,7 @@ void QMessageBox::setText(const QString &text)
     d->label->setText(text);
     d->label->setWordWrap(d->label->textFormat() == Qt::RichText
         || (d->label->textFormat() == Qt::AutoText && Qt::mightBeRichText(text)));
+    d->updateSize();
 }
 
 /*!
