@@ -88,7 +88,7 @@ static Qt::DockWidgetArea dockWidgetArea(QDockWidget *me)
 
 void QMainWindowContainer::addWidget(QWidget *widget)
 {
-    // remove all the occurences of widget
+    // remove all the occurrences of widget
     m_widgets.removeAll(widget);
 
     // the

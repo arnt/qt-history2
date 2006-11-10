@@ -266,13 +266,13 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *parentLayout, int
 }
 
 /*!  Returns the widget into which children should be inserted when \a
-  w is a container known to the designer.
+  w is a container known to designer.
 
-  Usually that is \a w itself, sometimes it is different (e.g. a
-  tabwidget is known to the designer as a container but the child
+  Usually, it is \a w itself, but there are exceptions (for example, a
+  tabwidget is known to designer as a container, but the child
   widgets should be inserted into the current page of the
-  tabwidget. So in this case this function returns the current page of
-  the tabwidget.)
+  tabwidget. In this case, the current page of
+  the tabwidget  would be returned.)
  */
 QWidget* WidgetFactory::containerOfWidget(QWidget *w) const
 {
@@ -283,11 +283,11 @@ QWidget* WidgetFactory::containerOfWidget(QWidget *w) const
 }
 
 /*!  Returns the actual designer widget of the container \a w. This is
-  normally \a w itself, but might be a parent or grand parent of \a w
-  (e.g. when working with a tabwidget and \a w is the container which
-  contains and layouts childs, but the actual widget known to the
-  designer is the tabwidget which is the parent of \a w. So this
-  function returns the tabwidget then.)
+  normally \a w itself, but it might be a parent or grand parent of \a w
+  (for example, when working with a tabwidget and \a w is the container which
+  contains and layouts children, but the actual widget known to
+  designer is the tabwidget which is the parent of \a w. In this case,
+  the tabwidget would be returned.)
 */
 
 QWidget* WidgetFactory::widgetOfContainer(QWidget *w) const

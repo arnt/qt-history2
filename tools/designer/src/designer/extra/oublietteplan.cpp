@@ -112,7 +112,7 @@ void OublietteLevel::generateOubliette()
 
 
 
-    // Now that everything is built, go through and mark the inital room explored...
+    // Now that everything is built, go through and mark the initial room explored...
     for (int y = initalRoom.top(); y < initalRoom.bottom() + 1; ++y) {
         for (int x = initalRoom.left(); x < initalRoom.right() + 1; ++x) {
             Tile t = tile(x, y);

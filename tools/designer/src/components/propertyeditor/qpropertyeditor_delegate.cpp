@@ -126,7 +126,7 @@ bool QPropertyEditorDelegate::eventFilter(QObject *object, QEvent *event)
         case QEvent::FocusOut:
             if (!editor->isActiveWindow() || (QApplication::focusWidget() != editor)) {
                 QWidget *w = QApplication::focusWidget();
-                while (w) { // dont worry about focus changes internally in the editor
+                while (w) { // do not worry about focus changes internally in the editor
                     if (w == editor)
                         return false;
                     w = w->parentWidget();

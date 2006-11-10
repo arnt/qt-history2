@@ -1035,7 +1035,7 @@ void FormWindow::handleArrowKeyEvent(int key, bool modifier)
         y = 1;
     }
 
-    // check if a layed out widget is selected
+    // check if a laid out widget is selected
     for (int index=0; index<c->selectedWidgetCount(); ++index) {
         QWidget *w = c->selectedWidget(index);
         if (LayoutInfo::isWidgetLaidout(m_core, w))
