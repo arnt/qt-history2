@@ -2611,9 +2611,9 @@ static void qt_region_append_rects(QRegionPrivate *dest,
     // update extents
     destRect = &dest->extents;
     srcRect = &src->extents;
-    dest->extents.setCoords(qMin(destRect->left(),   srcRect->left()),
-                            qMax(destRect->right(),  srcRect->right()),
-                            qMin(destRect->top(),    srcRect->top()),
+    dest->extents.setCoords(qMin(destRect->left(), srcRect->left()),
+                            qMin(destRect->top(), srcRect->top()),
+                            qMax(destRect->right(), srcRect->right()),
                             qMax(destRect->bottom(), srcRect->bottom()));
 
     dest->numRects = numRects;
