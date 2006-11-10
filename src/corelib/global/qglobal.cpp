@@ -1691,7 +1691,7 @@ int QSysInfo::coreCount()
 #if defined(Q_OS_MAC)
 	// Mac OS X
 	cores = MPProcessorsScheduled();
-#endif
+#else
 /*
 #elif defined(Q_OS_HPUX)
 	// HP-UX
@@ -1716,10 +1716,10 @@ int QSysInfo::coreCount()
 	// IRIX
 	cores = (int)sysconf(_SC_NPROC_ONLN);
 #else
+*/
 	// Linux, Solaris, AIX, Tru64
 	cores = (int)sysconf(_SC_NPROCESSORS_ONLN);
 #endif
-*/
 	if (cores < 1)
 	    cores = 1;
     }
