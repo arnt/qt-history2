@@ -3749,27 +3749,32 @@ void QGradientCache::generateGradientColorTable(const QGradientStops& stops, uin
 
     int pos = 0; // The position in the color table.
 
-    // Up to first point
+    uint current_color;
+    uint next_color;
+
+     // Up to first point
+    current_color = PREMUL(ARGB_COMBINE_ALPHA(stops[0].second.rgba(), opacity));
     while (pos <= begin_pos) {
-        colorTable[pos] = PREMUL(ARGB_COMBINE_ALPHA(stops[0].second.rgba(), opacity));
+        colorTable[pos] = current_color;
         ++pos;
     }
 
     qreal incr = 1 / qreal(size); // the double increment.
     qreal dpos = incr * pos; // The position in terms of 0-1.
+    qreal diff;
 
     int current_stop = 0; // We always interpolate between current and current + 1.
 
     // Gradient area
+    if (pos < end_pos) {
+        next_color = PREMUL(ARGB_COMBINE_ALPHA(stops[1].second.rgba(), opacity));
+        diff = stops[1].first - stops[0].first;
+    }
     while (pos < end_pos) {
 
         Q_ASSERT(current_stop < stopCount);
 
-        uint current_color = PREMUL(ARGB_COMBINE_ALPHA(stops[current_stop].second.rgba(), opacity));
-        uint next_color = PREMUL(ARGB_COMBINE_ALPHA(stops[current_stop+1].second.rgba(), opacity));
-
         int dist;
-        qreal diff = (stops[current_stop+1].first - stops[current_stop].first);
         if (diff != 0.0)
             dist = (int)(256*(dpos - stops[current_stop].first) / diff);
         else
@@ -3783,12 +3788,18 @@ void QGradientCache::generateGradientColorTable(const QGradientStops& stops, uin
 
         if (dpos > stops[current_stop+1].first) {
             ++current_stop;
+            if (pos >= end_pos)
+                break;
+            current_color = next_color;
+            next_color = PREMUL(ARGB_COMBINE_ALPHA(stops[current_stop+1].second.rgba(), opacity));
+            diff = (stops[current_stop+1].first - stops[current_stop].first);
         }
     }
 
     // After last point
+    current_color = PREMUL(ARGB_COMBINE_ALPHA(stops[stopCount - 1].second.rgba(), opacity));
     while (pos < size) {
-        colorTable[pos] = PREMUL(ARGB_COMBINE_ALPHA(stops[stopCount-1].second.rgba(), opacity));
+        colorTable[pos] = current_color;
         ++pos;
     }
 }
