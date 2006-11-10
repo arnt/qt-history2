@@ -85,7 +85,7 @@ struct QRegionPrivate {
         }
     }
 
-    inline void append(const QRegionPrivate *r);
+    void append(const QRegionPrivate *r);
     inline bool canAppend(const QRegionPrivate *r) const;
 
 #endif
@@ -2671,37 +2671,6 @@ QRegion QRegion::unite(const QRegion &r) const
 }
 
 #ifdef QT_EXPERIMENTAL_REGIONS
-
-static void qt_region_append_rects(QRegionPrivate *dest,
-                                   const QRegionPrivate *src)
-{
-    const int numRects = dest->numRects + src->numRects;
-    if (numRects > dest->rects.size())
-        dest->rects.resize(numRects);
-
-    // append rectangles
-    QRect *destRect = dest->rects.data() + dest->numRects;
-    const QRect *srcRect = src->rects.constData();
-    for (int i = 0; i < src->numRects; ++i)
-        *destRect++ = *srcRect++;
-
-    // update inner rectangle
-    if (dest->innerArea < dest->innerArea) {
-        dest->innerArea = src->innerArea;
-        dest->innerRect = src->innerRect;
-    }
-
-    // update extents
-    destRect = &dest->extents;
-    srcRect = &src->extents;
-    dest->extents.setCoords(qMin(destRect->left(), srcRect->left()),
-                            qMin(destRect->top(), srcRect->top()),
-                            qMax(destRect->right(), srcRect->right()),
-                            qMax(destRect->bottom(), srcRect->bottom()));
-
-    dest->numRects = numRects;
-}
-
 QRegion& QRegion::operator+=(const QRegion &r)
 {
     if (isEmpty())
