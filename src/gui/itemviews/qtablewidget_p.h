@@ -179,8 +179,9 @@ public:
 class QTableWidgetItemPrivate
 {
 public:
-    QTableWidgetItemPrivate(QTableWidgetItem *item) : q(item) {}
+    QTableWidgetItemPrivate(QTableWidgetItem *item) : q(item), id(-1) {}
     QTableWidgetItem *q;
+    int id;
 };
 
 #endif // QT_NO_TABLEWIDGET

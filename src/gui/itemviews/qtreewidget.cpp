@@ -1397,6 +1397,7 @@ QTreeWidgetItem::~QTreeWidgetItem()
     }
 
     children.clear();
+    delete d;
 }
 
 /*!

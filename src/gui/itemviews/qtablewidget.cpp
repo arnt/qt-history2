@@ -140,7 +140,7 @@ void QTableModel::setItem(int row, int column, QTableWidgetItem *item)
 
     // set new
     if (item)
-        item->view = view;
+        item->d->id = i; 
     tableItems[i] = item;
 
     if (view && view->isSortingEnabled()
@@ -194,6 +194,7 @@ QTableWidgetItem *QTableModel::takeItem(int row, int column)
     QTableWidgetItem *itm = tableItems.value(i);
     if (itm) {
         itm->view = 0;
+        itm->d->id = -1;
         tableItems[i] = 0;
     }
     return itm;
@@ -320,10 +321,15 @@ QModelIndex QTableModel::index(const QTableWidgetItem *item) const
 {
     if (!item)
         return QModelIndex();
-    // ### this can be optimized (look at QListWidget)
-    int i = tableItems.indexOf(const_cast<QTableWidgetItem*>(item));
-    if (i < 0)
-        return QModelIndex();
+    int i = -1;
+    const int id = item->d->id;
+    if (id >= 0 && id < tableItems.count() && tableItems.at(id) == item) {
+        i = id;
+    } else { // we need to search for the item
+        i = tableItems.indexOf(const_cast<QTableWidgetItem*>(item));
+        if (i == -1) // not found
+            return QModelIndex();
+    }
     int row = i / columnCount();
     int col = i % columnCount();
     return QAbstractTableModel::index(row, col);

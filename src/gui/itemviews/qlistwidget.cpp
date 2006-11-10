@@ -586,6 +586,7 @@ QListWidgetItem::~QListWidgetItem()
 {
     if (QListModel *model = (view ? ::qobject_cast<QListModel*>(view->model()) : 0))
         model->remove(this);
+    delete d;
 }
 
 /*!
