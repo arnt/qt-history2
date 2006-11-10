@@ -127,5 +127,13 @@ class QTreeModelPrivate : public QAbstractItemModelPrivate
     Q_DECLARE_PUBLIC(QTreeModel)
 };
 
+class QTreeWidgetItemPrivate
+{
+public:
+    QTreeWidgetItemPrivate(QTreeWidgetItem *item) : q(item) {}
+    QTreeWidgetItem *q;
+    QVariantList display;
+};
+
 #endif // QT_NO_TREEWIDGET
 #endif // QTREEWIDGET_P_H

@@ -28,6 +28,7 @@ QT_MODULE(Gui)
 class QTreeWidget;
 class QTreeModel;
 class QWidgetItemData;
+class QTreeWidgetItemPrivate;
 
 class Q_GUI_EXPORT QTreeWidgetItem
 {
@@ -172,7 +173,7 @@ private:
     // One item has a vector of column entries. Each column has a vector of (role, value) pairs.
     QVector< QVector<QWidgetItemData> > values;
     QTreeWidget *view;
-    QVariantList display;
+    QTreeWidgetItemPrivate *d;
     QTreeWidgetItem *par;
     QList<QTreeWidgetItem*> children;
     Qt::ItemFlags itemFlags;

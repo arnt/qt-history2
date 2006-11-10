@@ -147,7 +147,7 @@ void QTreeModel::setColumnCount(int columns)
         headerItem->values.resize(columns);
         for (int i = count; i < columns; ++i) {// insert data without emitting the dataChanged signal
             headerItem->values[i].append(QWidgetItemData(Qt::DisplayRole, QString::number(i + 1)));
-            headerItem->display.append(QString::number(i + 1));
+            headerItem->d->display.append(QString::number(i + 1));
         }
         endInsertColumns();
     }
@@ -361,7 +361,7 @@ bool QTreeModel::insertColumns(int column, int count, const QModelIndex &parent)
     headerItem->values.resize(oldCount + count);
     for (int i = oldCount; i < oldCount + count; ++i) {
         headerItem->values[i].append(QWidgetItemData(Qt::DisplayRole, QString::number(i + 1)));
-        headerItem->display.append(QString::number(i + 1));
+        headerItem->d->display.append(QString::number(i + 1));
     }
 
     QStack<QTreeWidgetItem*> itemstack;
@@ -1196,7 +1196,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortO
     \sa type()
 */
 QTreeWidgetItem::QTreeWidgetItem(int type)
-    : rtti(type), view(0), par(0),
+    : rtti(type), view(0), d(new QTreeWidgetItemPrivate(this)), par(0),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled
@@ -1215,7 +1215,7 @@ QTreeWidgetItem::QTreeWidgetItem(int type)
     \sa type()
 */
 QTreeWidgetItem::QTreeWidgetItem(const QStringList &strings, int type)
-    : rtti(type), view(0), par(0),
+    : rtti(type), view(0), d(new QTreeWidgetItemPrivate(this)), par(0),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled
@@ -1236,7 +1236,7 @@ QTreeWidgetItem::QTreeWidgetItem(const QStringList &strings, int type)
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, int type)
-    : rtti(type), view(0), par(0),
+    : rtti(type), view(0), d(new QTreeWidgetItemPrivate(this)), par(0),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled
@@ -1261,7 +1261,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, int type)
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, const QStringList &strings, int type)
-    : rtti(type), view(0), par(0),
+    : rtti(type), view(0), d(new QTreeWidgetItemPrivate(this)), par(0),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled
@@ -1286,7 +1286,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, const QStringList &strings, 
     \sa type()
 */
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after, int type)
-    : rtti(type), view(0), par(0),
+    : rtti(type), view(0), d(new QTreeWidgetItemPrivate(this)), par(0),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled
@@ -1309,7 +1309,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after, int 
     \sa type()
 */
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, int type)
-    : rtti(type), view(0), par(0),
+    : rtti(type), view(0), d(new QTreeWidgetItemPrivate(this)), par(0),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled
@@ -1327,7 +1327,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, int type)
     \sa type()
 */
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, const QStringList &strings, int type)
-    : rtti(type), view(0), par(0),
+    : rtti(type), view(0), d(new QTreeWidgetItemPrivate(this)), par(0),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled
@@ -1350,7 +1350,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, const QStringList &str
     \sa type()
 */
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after, int type)
-    : rtti(type), view(0), par(0),
+    : rtti(type), view(0), d(new QTreeWidgetItemPrivate(this)), par(0),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled
@@ -1460,12 +1460,12 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
             else
                 values.resize(column + 1);
         }
-        if (display.count() <= column) {
-            for (int i = display.count() - 1; i < column - 1; ++i)
-                display.append(QVariant());
-            display.append(value);
-        } else if (display[column] != value) {
-            display[column] = value;
+        if (d->display.count() <= column) {
+            for (int i = d->display.count() - 1; i < column - 1; ++i)
+                d->display.append(QVariant());
+            d->display.append(value);
+        } else if (d->display[column] != value) {
+            d->display[column] = value;
         } else {
             return; // value is unchanged
         }
@@ -1525,8 +1525,8 @@ QVariant QTreeWidgetItem::data(int column, int role) const
     switch (role) {
     case Qt::EditRole:
     case Qt::DisplayRole:
-        if (column >= 0 && column < display.count())
-            return display.at(column);
+        if (column >= 0 && column < d->display.count())
+            return d->display.at(column);
         break;
     case Qt::CheckStateRole:
         // special case for check state in tristate
@@ -1565,20 +1565,20 @@ void QTreeWidgetItem::read(QDataStream &in)
 {
     // convert from streams written before we introduced display (4.2.0)
     if (in.version() < QDataStream::Qt_4_2) {
-        display.clear();
+        d->display.clear();
         in >> values;
         // move the display value over to the display string list
         for (int column = 0; column < values.count(); ++column) {
-            display << QVariant();
+            d->display << QVariant();
             for (int i = 0; i < values.at(column).count(); ++i) {
                 if (values.at(column).at(i).role == Qt::DisplayRole) {
-                    display[column] = values.at(column).at(i).value;
+                    d->display[column] = values.at(column).at(i).value;
                     values[column].remove(i--);
                 }
             }
         }
     } else {
-        in >> values >> display;
+        in >> values >> d->display;
     }
 }
 
@@ -1589,7 +1589,7 @@ void QTreeWidgetItem::read(QDataStream &in)
 */
 void QTreeWidgetItem::write(QDataStream &out) const
 {
-    out << values << display;
+    out << values << d->display;
 }
 
 /*!
@@ -1603,9 +1603,11 @@ void QTreeWidgetItem::write(QDataStream &out) const
     \sa data(), flags()
 */
 QTreeWidgetItem::QTreeWidgetItem(const QTreeWidgetItem &other)
-    : rtti(Type), values(other.values), view(0), display(other.display),
-      par(0), itemFlags(other.itemFlags)
+    : rtti(Type), values(other.values), view(0),
+      d(new QTreeWidgetItemPrivate(this)), par(0),
+      itemFlags(other.itemFlags)
 {
+    d->display = other.d->display;
 }
 
 /*!
@@ -1619,7 +1621,7 @@ QTreeWidgetItem::QTreeWidgetItem(const QTreeWidgetItem &other)
 QTreeWidgetItem &QTreeWidgetItem::operator=(const QTreeWidgetItem &other)
 {
     values = other.values;
-    display = other.display;
+    d->display = other.d->display;
     itemFlags = other.itemFlags;
     return *this;
 }

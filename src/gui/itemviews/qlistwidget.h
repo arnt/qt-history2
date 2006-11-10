@@ -27,6 +27,7 @@ QT_MODULE(Gui)
 class QListWidget;
 class QListModel;
 class QWidgetItemData;
+class QListWidgetItemPrivate;
 
 class Q_GUI_EXPORT QListWidgetItem
 {
@@ -134,7 +135,7 @@ private:
     int rtti;
     QVector<QWidgetItemData> values;
     QListWidget *view;
-    void *id;
+    QListWidgetItemPrivate *d;
     Qt::ItemFlags itemFlags;
 };
 

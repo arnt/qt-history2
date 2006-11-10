@@ -176,6 +176,13 @@ public:
     void _q_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 };
 
+class QTableWidgetItemPrivate
+{
+public:
+    QTableWidgetItemPrivate(QTableWidgetItem *item) : q(item) {}
+    QTableWidgetItem *q;
+};
+
 #endif // QT_NO_TABLEWIDGET
 
 #endif // QTABLEWIDGET_P_H

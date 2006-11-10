@@ -46,6 +46,7 @@ private:
 class QTableWidget;
 class QTableModel;
 class QWidgetItemData;
+class QTableWidgetItemPrivate;
 
 class Q_GUI_EXPORT QTableWidgetItem
 {
@@ -152,7 +153,7 @@ private:
     int rtti;
     QVector<QWidgetItemData> values;
     QTableWidget *view;
-    QTableModel *model;
+    QTableWidgetItemPrivate *d;
     Qt::ItemFlags itemFlags;
 };
 

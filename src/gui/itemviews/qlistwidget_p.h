@@ -127,6 +127,14 @@ public:
     bool sortingEnabled;
 };
 
+class QListWidgetItemPrivate
+{
+public:
+    QListWidgetItemPrivate(QListWidgetItem *item) : q(item), id(-1) {}
+    QListWidgetItem *q;
+    int id;
+};
+
 #endif // QT_NO_LISTWIDGET
 
 #endif // QLISTWIDGET_P_H

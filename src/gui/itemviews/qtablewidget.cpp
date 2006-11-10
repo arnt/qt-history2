@@ -79,14 +79,14 @@ bool QTableModel::removeRows(int row, int count, const QModelIndex &)
     for (int j = i; j < n + i; ++j) {
         oldItem = tableItems.at(j);
         if (oldItem)
-            oldItem->model = 0;
+            oldItem->view = 0;
         delete oldItem;
     }
     tableItems.remove(qMax(i, 0), n);
     for (int v = row; v < row + count; ++v) {
         oldItem = verticalHeaderItems.at(v);
         if (oldItem)
-            oldItem->model = 0;
+            oldItem->view = 0;
         delete oldItem;
     }
     verticalHeaderItems.remove(row, count);
@@ -106,7 +106,7 @@ bool QTableModel::removeColumns(int column, int count, const QModelIndex &)
         for (int j = i; j < i + count; ++j) {
             oldItem = tableItems.at(j);
             if (oldItem)
-                oldItem->model = 0;
+                oldItem->view = 0;
             delete oldItem;
         }
         tableItems.remove(i, count);
@@ -114,7 +114,7 @@ bool QTableModel::removeColumns(int column, int count, const QModelIndex &)
     for (int h=column; h<column+count; ++h) {
         oldItem = horizontalHeaderItems.at(h);
         if (oldItem)
-            oldItem->model = 0;
+            oldItem->view = 0;
         delete oldItem;
     }
     horizontalHeaderItems.remove(column, count);
@@ -133,15 +133,16 @@ void QTableModel::setItem(int row, int column, QTableWidgetItem *item)
 
     // remove old
     if (oldItem)
-        oldItem->model = 0;
+        oldItem->view = 0;
     delete tableItems.at(i);
+
+    QTableWidget *view = qobject_cast<QTableWidget*>(QObject::parent());
 
     // set new
     if (item)
-        item->model = this;
+        item->view = view;
     tableItems[i] = item;
 
-    QTableWidget *view = qobject_cast<QTableWidget*>(QObject::parent());
     if (view && view->isSortingEnabled()
         && view->horizontalHeader()->sortIndicatorSection() == column) {
         // sorted insertion
@@ -192,7 +193,7 @@ QTableWidgetItem *QTableModel::takeItem(int row, int column)
     long i = tableIndex(row, column);
     QTableWidgetItem *itm = tableItems.value(i);
     if (itm) {
-        itm->model = 0;
+        itm->view = 0;
         tableItems[i] = 0;
     }
     return itm;
@@ -244,11 +245,13 @@ void QTableModel::setHorizontalHeaderItem(int section, QTableWidgetItem *item)
         return;
 
     if (oldItem)
-        oldItem->model = 0;
+        oldItem->view = 0;
     delete oldItem;
 
+    QTableWidget *view = qobject_cast<QTableWidget*>(QObject::parent());
+
     if (item) {
-        item->model = this;
+        item->view = view;
         item->itemFlags = Qt::ItemFlags(int(item->itemFlags)|ItemIsHeaderItem);
     }
     horizontalHeaderItems[section] = item;
@@ -264,11 +267,13 @@ void QTableModel::setVerticalHeaderItem(int section, QTableWidgetItem *item)
         return;
 
     if (oldItem)
-        oldItem->model = 0;
+        oldItem->view = 0;
     delete oldItem;
 
+    QTableWidget *view = qobject_cast<QTableWidget*>(QObject::parent());
+
     if (item) {
-        item->model = this;
+        item->view = view;
         item->itemFlags = Qt::ItemFlags(int(item->itemFlags)|ItemIsHeaderItem);
     }
     verticalHeaderItems[section] = item;
@@ -281,7 +286,7 @@ QTableWidgetItem *QTableModel::takeHorizontalHeaderItem(int section)
         return 0;
     QTableWidgetItem *itm = horizontalHeaderItems.at(section);
     if (itm) {
-        itm->model = 0;
+        itm->view = 0;
         itm->itemFlags &= ~ItemIsHeaderItem;
         horizontalHeaderItems[section] = 0;
     }
@@ -294,7 +299,7 @@ QTableWidgetItem *QTableModel::takeVerticalHeaderItem(int section)
         return 0;
     QTableWidgetItem *itm = verticalHeaderItems.at(section);
     if (itm) {
-        itm->model = 0;
+        itm->view = 0;
         itm->itemFlags &= ~ItemIsHeaderItem;
         verticalHeaderItems[section] = 0;
     }
@@ -315,6 +320,7 @@ QModelIndex QTableModel::index(const QTableWidgetItem *item) const
 {
     if (!item)
         return QModelIndex();
+    // ### this can be optimized (look at QListWidget)
     int i = tableItems.indexOf(const_cast<QTableWidgetItem*>(item));
     if (i < 0)
         return QModelIndex();
@@ -394,9 +400,10 @@ bool QTableModel::setItemData(const QModelIndex &index, const QMap<int, QVariant
     if (!index.isValid())
         return false;
 
+    QTableWidget *view = qobject_cast<QTableWidget*>(QObject::parent());
     QTableWidgetItem *itm = item(index);
     if (itm) {
-        itm->model = 0; // prohibits item from calling itemChanged()
+        itm->view = 0; // prohibits item from calling itemChanged()
         bool changed = false;
         for (QMap<int, QVariant>::ConstIterator it = roles.begin(); it != roles.end(); ++it) {
             if (itm->data(it.key()) != it.value()) {
@@ -404,13 +411,12 @@ bool QTableModel::setItemData(const QModelIndex &index, const QMap<int, QVariant
                 changed = true;
             }
         }
-        itm->model = this;
+        itm->view = view;
         if (changed)
             itemChanged(itm);
         return true;
     }
 
-    QTableWidget *view = qobject_cast<QTableWidget*>(QObject::parent());
     if (!view)
         return false;
 
@@ -698,14 +704,14 @@ void QTableModel::clear()
 {
     for (int j = 0; j < verticalHeaderItems.count(); ++j) {
         if (verticalHeaderItems.at(j)) {
-            verticalHeaderItems.at(j)->model = 0;
+            verticalHeaderItems.at(j)->view = 0;
             delete verticalHeaderItems.at(j);
             verticalHeaderItems[j] = 0;
         }
     }
     for (int k = 0; k < horizontalHeaderItems.count(); ++k) {
         if (horizontalHeaderItems.at(k)) {
-            horizontalHeaderItems.at(k)->model = 0;
+            horizontalHeaderItems.at(k)->view = 0;
             delete horizontalHeaderItems.at(k);
             horizontalHeaderItems[k] = 0;
         }
@@ -717,7 +723,7 @@ void QTableModel::clearContents()
 {
     for (int i = 0; i < tableItems.count(); ++i) {
         if (tableItems.at(i)) {
-            tableItems.at(i)->model = 0;
+            tableItems.at(i)->view = 0;
             delete tableItems.at(i);
             tableItems[i] = 0;
         }
@@ -1052,9 +1058,10 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
 
     \sa flags()
 */
-void QTableWidgetItem::setFlags(Qt::ItemFlags aflags) {
+void QTableWidgetItem::setFlags(Qt::ItemFlags aflags)
+{
     itemFlags = aflags;
-    if (model)
+    if (QTableModel *model = (view ? ::qobject_cast<QTableModel*>(view->model()) : 0))
         model->itemChanged(this);
 }
 
@@ -1243,7 +1250,7 @@ void QTableWidgetItem::setFlags(Qt::ItemFlags aflags) {
     \sa type()
 */
 QTableWidgetItem::QTableWidgetItem(int type)
-    :  rtti(type), view(0), model(0),
+    :  rtti(type), view(0), d(new QTableWidgetItemPrivate(this)),
       itemFlags(Qt::ItemIsEditable
                 |Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
@@ -1259,7 +1266,7 @@ QTableWidgetItem::QTableWidgetItem(int type)
     \sa type()
 */
 QTableWidgetItem::QTableWidgetItem(const QString &text, int type)
-    :  rtti(type), view(0), model(0),
+    :  rtti(type), view(0), d(new QTableWidgetItemPrivate(this)),
       itemFlags(Qt::ItemIsEditable
                 |Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
@@ -1276,7 +1283,7 @@ QTableWidgetItem::QTableWidgetItem(const QString &text, int type)
     \sa type()
 */
 QTableWidgetItem::QTableWidgetItem(const QIcon &icon, const QString &text, int type)
-    :  rtti(type), view(0), model(0),
+    :  rtti(type), view(0), d(new QTableWidgetItemPrivate(this)),
        itemFlags(Qt::ItemIsEditable
                 |Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
@@ -1293,10 +1300,10 @@ QTableWidgetItem::QTableWidgetItem(const QIcon &icon, const QString &text, int t
 */
 QTableWidgetItem::~QTableWidgetItem()
 {
-    if (model)
+    if (QTableModel *model = (view ? ::qobject_cast<QTableModel*>(view->model()) : 0))
         model->removeItem(this);
-    model = 0;
     view = 0;
+    delete d;
 }
 
 /*!
@@ -1328,7 +1335,7 @@ void QTableWidgetItem::setData(int role, const QVariant &value)
     }
     if (!found)
         values.append(QWidgetItemData(role, value));
-    if (model)
+    if (QTableModel *model = (view ? ::qobject_cast<QTableModel*>(view->model()) : 0))
         model->itemChanged(this);
 }
 
@@ -1421,7 +1428,8 @@ QDataStream &operator<<(QDataStream &out, const QTableWidgetItem &item)
     \sa data(), flags()
 */
 QTableWidgetItem::QTableWidgetItem(const QTableWidgetItem &other)
-    : rtti(Type), values(other.values), view(0), model(0),
+    : rtti(Type), values(other.values), view(0),
+      d(new QTableWidgetItemPrivate(this)),
       itemFlags(other.itemFlags)
 {
 }
