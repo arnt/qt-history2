@@ -272,9 +272,9 @@ void tst_QDir::exists_data()
     QTest::newRow("unc 7") << "//gennan/testshare/adirthatshouldnotexist" << false;
     QTest::newRow("unc 8") << "//gennan/asharethatshouldnotexist" << false;
     QTest::newRow("unc 9") << "//foobar" << false;
-    
-    QTest::newRow("This drive should exist") <<  "C:/" << true; 
-    // find a non-existing drive and check if it does not exist 
+
+    QTest::newRow("This drive should exist") <<  "C:/" << true;
+    // find a non-existing drive and check if it does not exist
     QFileInfoList drives = QFSFileEngine::drives();
     QStringList driveLetters;
     for (int i = 0; i < drives.count(); ++i) {
@@ -378,6 +378,9 @@ void tst_QDir::entryList_data()
     QTest::newRow("QDir::AllEntries") << QString("entrylist/") << QStringList("*")
                               << int(QDir::AllEntries) << int(QDir::Name)
                               << QString(".,..,directory,file,linktodirectory.lnk,linktofile.lnk,writable").split(',');
+    QTest::newRow("QDir::AllEntries in unprintablenames")  << QDir::currentPath() + "/unprintablenames" << QStringList("*")
+                              << (int)(QDir::AllEntries) << (int)(QDir::Name)
+                              << QString::fromLatin1(".,..,\xfe\xff\xff\xfe,\xff\xfe").split(',');
     QTest::newRow("QDir::Files") << QString("entrylist/") << QStringList("*")
                                  << int(QDir::Files) << int(QDir::Name)
                                  << QString("file,linktofile.lnk,writable").split(',');
@@ -566,7 +569,7 @@ void tst_QDir::entryListWithSymLinks()
     dir.mkdir("myDir");
     QVERIFY(QFile::link("myDir", "myLinkToDir.lnk"));
     QVERIFY(QFile::link("tst_qdir.cpp", "myLinkToFile.lnk"));
-    
+
     {
         QStringList entryList = QDir().entryList();
         QVERIFY(entryList.contains("myDir"));
@@ -610,7 +613,7 @@ void tst_QDir::canonicalPath_data()
 	QTest::newRow("relative") << "." << appPath;
     QTest::newRow("relativeSubDir") << "./testData/../testData" << appPath + "/testData";
 
-#ifndef Q_WS_WIN	
+#ifndef Q_WS_WIN
     QTest::newRow("absPath") << appPath + "/testData/../testData" << appPath + "/testData";
 #else
     QTest::newRow("absPath") << appPath + "\\testData\\..\\testData" << appPath + "/testData";
@@ -979,7 +982,7 @@ void tst_QDir::dirName_data()
     QTest::newRow("slash0") << "c:/winnt/system32" << "system32";
     QTest::newRow("slash1") << "/winnt/system32" << "system32";
     QTest::newRow("slash2") << "c:/winnt/system32/kernel32.dll" << "kernel32.dll";
-#ifdef Q_OS_WIN    
+#ifdef Q_OS_WIN
     QTest::newRow("bslash0") << "c:\\winnt\\system32" << "system32";
     QTest::newRow("bslash1") << "\\winnt\\system32" << "system32";
     QTest::newRow("bslash2") << "c:\\winnt\\system32\\kernel32.dll" << "kernel32.dll";
@@ -1031,7 +1034,7 @@ void tst_QDir::matchAllDirs()
     dir.setFilter(QDir::Hidden);
     QVERIFY(dir.matchAllDirs() == false);
     QCOMPARE(dir.entryList().count(), 0);
-    
+
 }
 #endif
 
