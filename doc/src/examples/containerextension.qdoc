@@ -64,6 +64,51 @@
     and \c MultiPageWidgetContainerExtension classes. Finally, we will
     take a quick look at the \c MultiPageWidget class definition.
 
+    \bold {Note:} Currently, this particular example can only be used
+    for experimenting and prototyping within QDesigner's
+    workspace. The reason is that uic does not recognize the custom
+    container functionality, i.e., it will not generate the code
+    required to add pages to the container. This issue will be
+    resolved in the next minor release.
+
+    \omit
+
+    This is the current workaround:
+
+    QWidget *MultiPageWidgetPlugin::createWidget(QWidget *parent)
+    {
+        MultiPageWidget *widget = new MultiPageWidget(parent);
+
+        QDesignerWidgetDataBaseInterface *database = editor->widgetDataBase();
+        int index = database->indexOfObject(widget);
+        QDesignerWidgetDataBaseItemInterface *item = database->item(index);
+        item->setExtends("QStackedWidget");
+
+        connect(widget, SIGNAL(currentIndexChanged(int)),
+                this, SLOT(currentIndexChanged(int)));
+        connect(widget, SIGNAL(pageTitleChanged(const QString &)),
+                this, SLOT(pageTitleChanged(const QString &)));
+        return widget;
+    }
+
+    void MultiPageWidgetPlugin::initialize(QDesignerFormEditorInterface *formEditor)
+    {
+        if (initialized)
+            return;
+
+        editor = formEditor;
+
+        QExtensionManager *manager = formEditor->extensionManager();
+        QExtensionFactory *factory = new MultiPageWidgetExtensionFactory(manager);
+
+        Q_ASSERT(manager != 0);
+        manager->registerExtensions(factory, Q_TYPEID(QDesignerContainerExtension));
+
+        initialized = true;
+    }
+
+    \endomit
+
     \section1 The Project File: containerextension.pro
 
     The project file must contain some additional information to
