@@ -92,6 +92,8 @@ private slots:
     void addChild();
     void setData();
 
+    void expandAndCallapse();
+
 private:
     QTreeWidget *testWidget;
 };
@@ -2304,6 +2306,30 @@ void tst_QTreeWidget::sortedIndexOfChild()
         QCOMPARE(top->indexOfChild(itms.at(j)), expectedIndexes.at(j));
 }
 
+void tst_QTreeWidget::expandAndCallapse()
+{
+    QTreeWidget tw;
+    QTreeWidgetItem *top = new QTreeWidgetItem(&tw, QStringList() << "top");
+    QTreeWidgetItem *p;
+    for (int i = 0; i < 10; ++i) {
+        p = new QTreeWidgetItem(top, QStringList() << QString("%1").arg(i));
+        for (int j = 0; j < 10; ++j)
+            new QTreeWidgetItem(p, QStringList() << QString("%1").arg(j));
+    }
+    QSignalSpy spy0(&tw, SIGNAL(itemExpanded(QTreeWidgetItem *)));
+    QSignalSpy spy1(&tw, SIGNAL(itemCollapsed(QTreeWidgetItem *)));
+
+
+    tw.expandItem(p);
+    tw.collapseItem(p);
+    tw.expandItem(p);
+    tw.expandItem(top);
+    tw.collapseItem(top);
+    tw.collapseItem(top);
+
+    QCOMPARE(spy0.count(), 3);
+    QCOMPARE(spy1.count(), 2);
+}
 
 QTEST_MAIN(tst_QTreeWidget)
 #include "tst_qtreewidget.moc"
