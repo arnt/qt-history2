@@ -678,9 +678,11 @@ void SignalSlotEditor::modifyConnection(Connection *con)
 {
     SignalSlotConnection *sigslot_con = static_cast<SignalSlotConnection*>(con);
 
-    OldSignalSlotDialog dialog(m_form_window->core(),
-                                                    sigslot_con->widget(EndPoint::Source),
-                                                    sigslot_con->widget(EndPoint::Target));
+    OldSignalSlotDialog dialog(m_form_window->core(), 
+                               sigslot_con->widget(EndPoint::Source),
+                               sigslot_con->widget(EndPoint::Target),
+                               m_form_window->core()->topLevel());
+
     dialog.setSignalSlot(sigslot_con->signal(), sigslot_con->slot());
     dialog.setShowAllSignalsSlots(m_showAllSignalsSlots);
 
@@ -699,7 +701,11 @@ Connection *SignalSlotEditor::createConnection(QWidget *source, QWidget *destina
     Q_ASSERT(source != 0);
     Q_ASSERT(destination != 0);
 
-    OldSignalSlotDialog dialog(m_form_window->core(), source, destination);
+    OldSignalSlotDialog dialog(m_form_window->core(), 
+                               source, 
+                               destination,
+                               m_form_window->core()->topLevel());
+
     dialog.setShowAllSignalsSlots(m_showAllSignalsSlots);
 
     if (dialog.exec() == QDialog::Accepted) {

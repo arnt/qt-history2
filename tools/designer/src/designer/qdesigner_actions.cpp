@@ -508,7 +508,7 @@ void QDesignerActions::createForm()
 
 void QDesignerActions::showNewFormDialog(const QString &fileName) const
 {
-    NewForm *dlg = new NewForm(workbench(), 0, fileName);
+    NewForm *dlg = new NewForm(workbench(), workbench()->core()->topLevel(), fileName);
     dlg->setAttribute(Qt::WA_DeleteOnClose);
     dlg->setAttribute(Qt::WA_ShowModal);
 
