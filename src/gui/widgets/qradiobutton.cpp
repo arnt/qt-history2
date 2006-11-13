@@ -95,6 +95,7 @@ static void qRadioButtonInit(QRadioButton *button)
     button->setCheckable(true);
     button->setAutoExclusive(true);
     button->setMouseTracking(true);
+    button->setForegroundRole(QPalette::WindowText);
 }
 
 

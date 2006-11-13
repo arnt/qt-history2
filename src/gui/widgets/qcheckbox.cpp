@@ -124,6 +124,7 @@ void QCheckBoxPrivate::init()
     Q_Q(QCheckBox);
     q->setCheckable(true);
     q->setMouseTracking(true);
+    q->setForegroundRole(QPalette::WindowText);
 }
 
 /*!

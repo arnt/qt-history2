@@ -63,6 +63,7 @@ private slots:
     void accel();
     void setAccel();
     void group();
+    void foregroundRole();
 
 protected slots:
     void onClicked();
@@ -395,6 +396,10 @@ void tst_QCheckBox::group()
     QSKIP("This test is empty for now", SkipAll);
 }
 
+void tst_QCheckBox::foregroundRole()
+{
+    QVERIFY(testWidget->foregroundRole() == QPalette::WindowText);
+}
 
 QTEST_MAIN(tst_QCheckBox)
 #include "tst_qcheckbox.moc"
