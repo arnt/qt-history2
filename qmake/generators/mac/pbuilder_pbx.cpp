@@ -368,17 +368,35 @@ nextfile:
 
 class ProjectBuilderSources
 {
+    bool buildable, object_output;
     QString key, group, compiler;
 public:
-    ProjectBuilderSources(const QString &key, const QString &group=QString(), const QString &compiler=QString());
+    ProjectBuilderSources(const QString &key, bool buildable=false, const QString &group=QString(), const QString &compiler=QString(), bool producesObject=false);
     QStringList files(QMakeProject *project) const;
+    inline bool isBuildable() const { return buildable; }
     inline QString keyName() const { return key; }
     inline QString groupName() const { return group; }
     inline QString compilerName() const { return compiler; }
+    inline bool isObjectOutput(const QString &file) const {
+        bool ret = object_output;
+        for(int i = 0; !ret && i < Option::c_ext.size(); ++i) {
+            if(file.endsWith(Option::c_ext.at(i))) {
+                ret = true;
+                break;
+            }
+        }
+        for(int i = 0; !ret && i < Option::cpp_ext.size(); ++i) {
+            if(file.endsWith(Option::cpp_ext.at(i))) {
+                ret = true;
+                break;
+            }
+        }
+        return ret;
+    }
 };
 
-ProjectBuilderSources::ProjectBuilderSources(const QString &k, const QString &g,
-                                             const QString &c) : key(k), group(g), compiler(c)
+ProjectBuilderSources::ProjectBuilderSources(const QString &k, bool b,
+                                             const QString &g, const QString &c, bool o) : buildable(b), key(k), group(g), compiler(c), object_output(o)
 {
     if(group.isNull()) {
         if(k == "SOURCES")
@@ -465,8 +483,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     //DUMP SOURCES
     QMap<QString, QStringList> groups;
     QList<ProjectBuilderSources> sources;
-    sources.append(ProjectBuilderSources("SOURCES"));
-    sources.append(ProjectBuilderSources("GENERATED_SOURCES"));
+    sources.append(ProjectBuilderSources("SOURCES", true));
+    sources.append(ProjectBuilderSources("GENERATED_SOURCES", true));
     sources.append(ProjectBuilderSources("GENERATED_FILES"));
     sources.append(ProjectBuilderSources("HEADERS"));
     sources.append(ProjectBuilderSources("QMAKE_INTERNAL_INCLUDED_FILES"));
@@ -490,10 +508,18 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                         break;
                     }
                 }
-                if(duplicate)
-                    continue;
-                sources.append(ProjectBuilderSources(inputs.at(input),
-                                                     QString("Sources [") + name + "]", (*it)));
+                if(!duplicate) {
+                    bool isObj = project->values((*it) + ".CONFIG").indexOf("no_link") == -1;
+                    const QStringList &outputs = project->values((*it) + ".variable_out");
+                    for(int output = 0; output < outputs.size(); ++output) {
+                        if(outputs.at(output) != "OBJECT") {
+                            isObj = false;
+                            break;
+                        }
+                    }
+                    sources.append(ProjectBuilderSources(inputs.at(input), true,
+                                                         QString("Sources [") + name + "]", (*it), isObj));
+                }
             }
         }
     }
@@ -503,11 +529,6 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 
         QStringList files = fileFixify(sources.at(source).files(project));
         for(int f = 0; f < files.count(); ++f) {
-            bool buildable = false;
-            if(sources.at(source).keyName() == "SOURCES" ||
-               sources.at(source).keyName() == "GENERATED_SOURCES")
-                buildable = true;
-
             QString file = files[f];
             if(file.length() >= 2 && (file[0] == '"' || file[0] == '\'') && file[(int) file.length()-1] == file[0])
                 file = file.mid(1, file.length()-2);
@@ -567,7 +588,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                     t << "\t\t\t" << writeSettings("lastKnownFileType", filetype) << ";" << "\n";
             }
             t << "\t\t" << "};" << "\n";
-            if(buildable) { //build reference
+            if(sources.at(source).isBuildable()) { //build reference
                 QString build_key = keyFor(file + ".BUILDABLE");
                 t << "\t\t" << build_key << " = {" << "\n"
                   << "\t\t\t" << writeSettings("fileRef", src_key) << ";" << "\n"
@@ -576,21 +597,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                   << "\t\t\t\t" << writeSettings("ATTRIBUTES", QStringList(), SettingsAsList, 5) << ";" << "\n"
                   << "\t\t\t" << "};" << "\n"
                   << "\t\t" << "};" << "\n";
-
-                bool isObj = false;
-                for(int i = 0; !isObj && i < Option::c_ext.size(); ++i) {
-                    if(file.endsWith(Option::c_ext.at(i))) {
-                        isObj = true;
-                        break;
-                    }
-                }
-                for(int i = 0; !isObj && i < Option::cpp_ext.size(); ++i) {
-                    if(file.endsWith(Option::cpp_ext.at(i))) {
-                        isObj = true;
-                        break;
-                    }
-                }
-                if(isObj)
+                if(sources.at(source).isObjectOutput(file))
                     project->values("QMAKE_PBX_OBJ").append(build_key);
             }
         }
