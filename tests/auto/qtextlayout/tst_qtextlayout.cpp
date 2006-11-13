@@ -7,7 +7,7 @@
 **
 ****************************************************************************/
 
-/* 
+/*
     !!!!!! Warning !!!!!
     Please don't save this file in emacs. It contains utf8 text sequences emacs will
     silently convert to a series of question marks.
@@ -337,14 +337,14 @@ void tst_QTextLayout::breakAny()
     QString text = "ABCD";
 
     QTextLayout layout(text, testFont);
+    QTextLine line;
 
     QTextOption opt;
     opt.setWrapMode(QTextOption::WrapAnywhere);
     layout.setTextOption(opt);
-
     layout.beginLayout();
 
-    QTextLine line = layout.createLine();
+    line = layout.createLine();
     line.setLineWidth(testFont.pixelSize() * 2);
     QCOMPARE(line.textStart(), 0);
     QCOMPARE(line.textLength(), 2);
@@ -356,6 +356,19 @@ void tst_QTextLayout::breakAny()
 
     line = layout.createLine();
     QVERIFY(!line.isValid());
+
+    layout.endLayout();
+
+    text = "ABCD EFGH";
+    layout.setText(text);
+    layout.beginLayout();
+
+    line = layout.createLine();
+    line.setLineWidth(testFont.pixelSize() * 7);
+    QCOMPARE(line.textStart(), 0);
+    QCOMPARE(line.textLength(), 7);
+
+    layout.endLayout();
 }
 
 void tst_QTextLayout::cursorToXForInlineObjects()
@@ -388,12 +401,12 @@ void tst_QTextLayout::defaultWordSeparators_data()
     separators += QLatin1Char('\t');
     for (int i = 0; i < separators.count(); ++i) {
         QTest::newRow(QString::number(i).toAscii().data())
-            << QString::fromLatin1("abcd") + separators.at(i) + QString::fromLatin1("efgh") 
+            << QString::fromLatin1("abcd") + separators.at(i) + QString::fromLatin1("efgh")
             <<  0 << 4;
     }
 
     QTest::newRow("lineseparator")
-            << QString::fromLatin1("abcd") + QString(QChar::LineSeparator) + QString::fromLatin1("efgh") 
+            << QString::fromLatin1("abcd") + QString(QChar::LineSeparator) + QString::fromLatin1("efgh")
             << 0 << 5;
 }
 

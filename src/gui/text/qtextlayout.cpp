@@ -1345,7 +1345,7 @@ void QTextLine::layout_helper(int maxGlyphs)
                 }
                 goto found;
             }
-            if (sb_or_ws)
+            if (sb_or_ws && eng->option.wrapMode() != QTextOption::WrapAnywhere)
                 breakany = false;
         } else {
             while (pos < end && attributes[pos].whiteSpace) {
