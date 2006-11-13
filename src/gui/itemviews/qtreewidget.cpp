@@ -938,7 +938,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortO
     \fn void QTreeWidgetItem::setFlags(Qt::ItemFlags flags)
 
     Sets the flags for the item to the given \a flags. These determine whether
-    the item can be selected or modified.
+    the item can be selected or modified.  This is often used to disable an item.
 
     \sa flags()
 */
