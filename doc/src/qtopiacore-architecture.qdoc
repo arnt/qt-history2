@@ -220,7 +220,6 @@
     control over the reserved region, i.e., the screen driver will
     never modify the given region.
 
-
     To draw on a region reserved by a QDirectPainter instance, the
     application must get hold of a pointer to the framebuffer. In
     general, a pointer to the framebuffer can be retrieved using the
@@ -233,6 +232,10 @@
     functions to access the correct subscreen, and the subscreen's \l
     {QScreen::}{base()} function to retrieve a pointer to the
     framebuffer.
+
+    Note that \l {Qtopia Core} also provides the QWSEmbedWidget class,
+    making it possible to embed the reserved region (i.e., the
+    QDirectPainter object) in a regular widget.
 
     \endtable
 

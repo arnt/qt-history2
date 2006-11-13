@@ -89,15 +89,27 @@ void QWSEmbedWidgetPrivate::resize(const QSize &size)
     \since 4.2
     \ingroup qws
 
-    \brief The QWSEmbedWidget class provides embedding of a top-level window on Qtopia Core.
+    \brief The QWSEmbedWidget class enabels embedded top-level widgets
+    in Qtopia Core.
 
-    The window ID of the window to be embedded must be known and be passed
-    in the constructor.
+    Note that this class is only available in \l {Qtopia Core}.
+
+    QWSEmbedWidget inherits QWidget and acts as any other widget, but
+    in addition it is capable of embedding another top-level widget.
+
+    An example of use is when painting directly onto the screen using
+    the QDirectPainter class. Then the reserved region can be embedded
+    into an instance of the QWSEmbedWidget class, providing for
+    example event handling and size policies for the reserved region.
+
+    All that is required to embed a top-level widget is its window ID.
+
+    \sa {Qtopia Core Architecture}
 */
 
 /*!
-    Constructs a QWSEmbedWidget object which embeds the window with the given
-    \a id and \a parent.
+    Constructs a widget with the given \a parent, embedding the widget
+    identified by the given window \a id.
 */
 QWSEmbedWidget::QWSEmbedWidget(WId id, QWidget *parent)
     : QWidget(*new QWSEmbedWidgetPrivate(id), parent, 0)
@@ -107,7 +119,7 @@ QWSEmbedWidget::QWSEmbedWidget(WId id, QWidget *parent)
 }
 
 /*!
-    Destroys the QWSEmbedWidget object.
+    Destroys this widget.
 */
 QWSEmbedWidget::~QWSEmbedWidget()
 {

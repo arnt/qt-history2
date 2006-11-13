@@ -99,7 +99,7 @@
     the screenDepth(), screenWidth() and screenHeight() function
     return the screen metrics.
 
-    \sa QScreen, {Qtopia Core Architecture}
+    \sa QScreen, QWSEmbedWidget, {Qtopia Core Architecture}
 */
 
 /*!
