@@ -14,4 +14,4 @@ env		NSISPath		"%ProgramFiles%\NSIS"
 env		perlPath		"c:\Perl\bin"
 
 #where to find packages
-env		releaseLocation		"http://ares.troll.no/~harald/packages"
+env		releaseLocation		"http://ares.troll.no/~qt/packages"
