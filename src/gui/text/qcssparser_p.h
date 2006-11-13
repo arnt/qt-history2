@@ -498,7 +498,7 @@ enum TokenType {
     OR
 };
 
-struct Q_AUTOTEST_EXPORT Symbol
+struct Q_GUI_EXPORT Symbol
 {
     inline Symbol() : start(0), len(-1) {}
     TokenType token;
