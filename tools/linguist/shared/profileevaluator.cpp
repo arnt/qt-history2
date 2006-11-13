@@ -194,11 +194,14 @@ bool ProFileEvaluator::visitProValue(ProValue *value)
                 QChar sep = val.at(1);
                 QStringList func = val.split(sep);
                 if (func.count() < 3 || func.count() > 4) {
-                    logMessage(QString::fromAscii("~= operator (function s///) expects 3 or 4 arguments.\n"), MT_DebugLevel1);
+                    logMessage(QString::fromAscii(
+                        "~= operator (function s///) expects 3 or 4 arguments.\n"),
+                        MT_DebugLevel1);
                     return false;
                 }
                 if (func[0] != QLatin1String("s")) {
-                    logMessage(QString::fromAscii("~= operator can only handle s/// function.\n"), MT_DebugLevel1);
+                    logMessage(QString::fromAscii("~= operator can only handle s/// function.\n"),
+                        MT_DebugLevel1);
                     return false;
                 }
                 bool global = false, quote = false, case_sense = false;
@@ -407,7 +410,9 @@ QString ProFileEvaluator::expandVariableReferences(const QString &str)
                 }
                 if(term) {
                     if(unicode != term) {
-                        logMessage("Missing " + QString(term) + " terminator [found " + QString(unicode) + "]", MT_DebugLevel1);
+                        logMessage(QString::fromAscii(
+                            "Missing %1 terminator [found %2]").arg(QChar(term)).arg(QChar(unicode)), 
+                            MT_DebugLevel1);
                         if(ok)
                             *ok = false;
                         return QString();
@@ -539,8 +544,9 @@ QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const Q
             int beg=0, end=-1;
             if(func_t == E_SECTION) {
                 if(args.count() != 3 && args.count() != 4) {
-                    logMessage(QString::fromAscii("%2(var) section(var, sep, begin, end) requires three arguments.\n").arg(
-                        QString(func)));
+                    logMessage(QString::fromAscii(
+                        "%2(var) section(var, sep, begin, end) requires three arguments.\n")
+                        .arg(QString(func)));
                 } else {
                     var = args[0];
                     sep = args[1];
