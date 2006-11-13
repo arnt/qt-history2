@@ -31,13 +31,6 @@ enum
     LinkRole = Qt::UserRole + 1000
 };
 
-static QString stripAmpersand(const QString &str)
-{
-    QString s(str);
-    s = s.replace(QLatin1String("&"), QLatin1String(""));
-    return s;
-}
-
 static bool verifyDirectory(const QString &str)
 {
     QFileInfo dirInfo(str);
@@ -587,14 +580,14 @@ void HelpDialog::buildContentDict()
 
 void HelpDialog::currentTabChanged(int index)
 {
-    QString s = ui.tabWidget->tabText(index);
-    if (stripAmpersand(s).contains(tr("Index")))
+    QString s = ui.tabWidget->widget(index)->objectName();
+    if (s == QLatin1String("indexPage"))
         QTimer::singleShot(0, this, SLOT(loadIndexFile()));
-    else if (stripAmpersand(s).contains(tr("Bookmarks")))
+    else if (s == QLatin1String("bookmarkPage"))
         insertBookmarks();
-    else if (stripAmpersand(s).contains(tr("Contents")))
+    else if (s == QLatin1String("contentPage"))
         QTimer::singleShot(0, this, SLOT(insertContents()));
-    else if (stripAmpersand(s).contains(tr("Search")))
+    else if (s == QLatin1String("searchPage"))
         QTimer::singleShot(0, this, SLOT(setupFullTextIndex()));
 }
 
@@ -614,13 +607,13 @@ void HelpDialog::showTopic(QTreeWidgetItem *item)
 
 void HelpDialog::showTopic()
 {
-    QString text = ui.tabWidget->tabText(ui.tabWidget->currentIndex());
+    QString tabName = ui.tabWidget->currentWidget()->objectName();
 
-    if (stripAmpersand(text).contains(tr("Index")))
+    if (tabName == QLatin1String("indexPage"))
         showIndexTopic();
-    else if (stripAmpersand(text).contains(tr("Bookmarks")))
+    else if (tabName == QLatin1String("bookmarkPage"))
         showBookmarkTopic();
-    else if (stripAmpersand(text).contains(tr("Contents")))
+    else if (tabName == QLatin1String("contentPage"))
         showContentsTopic();
 }
 
@@ -1237,7 +1230,7 @@ void HelpDialog::showTreeItemMenu(const QPoint &pos)
 
     QAction *action = itemPopup->exec(treeWidget->viewport()->mapToGlobal(pos));
     if (action == actionOpenCurrentTab) {
-        if (stripAmpersand(ui.tabWidget->tabText(ui.tabWidget->currentIndex())).contains(tr("Contents")))
+        if (ui.tabWidget->currentWidget()->objectName() == QLatin1String("contentPage"))
             showContentsTopic();
         else
             showBookmarkTopic();
