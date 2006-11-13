@@ -72,6 +72,8 @@ private slots:
     void forwardAvailable(bool);
 
     void browserTabChanged();
+    void copyAvailable(bool yes);
+    void updateTabActions(int index);
 
 protected:
     void closeEvent(QCloseEvent *);

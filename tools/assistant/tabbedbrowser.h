@@ -39,6 +39,9 @@ public:
 
     void setTitle(HelpWindow*, const QString &);
 
+signals:
+    void tabCountChanged(int count);
+
 protected:
 	void keyPressEvent(QKeyEvent *);
 	bool eventFilter(QObject *o, QEvent *e);

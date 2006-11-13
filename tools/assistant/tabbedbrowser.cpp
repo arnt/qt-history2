@@ -133,6 +133,7 @@ HelpWindow *TabbedBrowser::createHelpWindow()
 HelpWindow *TabbedBrowser::newBackgroundTab()
 {
     HelpWindow *win = createHelpWindow();
+    emit tabCountChanged(ui.tab->count());
     return win;
 }
 
@@ -149,6 +150,8 @@ void TabbedBrowser::newTab(const QString &lnk)
     if(!link.isNull()) {
          win->setSource(link);
     }
+
+    emit tabCountChanged(ui.tab->count());
 }
 
 void TabbedBrowser::zoomIn()
@@ -264,6 +267,7 @@ void TabbedBrowser::closeTab()
     ui.tab->removeTab(ui.tab->indexOf(win));
     QTimer::singleShot(0, win, SLOT(deleteLater()));
     ui.tab->cornerWidget(Qt::TopRightCorner)->setEnabled(ui.tab->count() > 1);
+    emit tabCountChanged(ui.tab->count());
 }
 
 QStringList TabbedBrowser::sources() const
