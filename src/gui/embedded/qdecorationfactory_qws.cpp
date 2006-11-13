@@ -34,26 +34,30 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     \ingroup qws
     \ingroup appearance
 
-    \brief The QDecorationFactory class creates QDecoration objects.
+    \brief The QDecorationFactory class creates window decorations in
+    Qtopia Core.
 
     Note that this class is only available in \l {Qtopia Core}.
 
-    The QDecoration class is used to customize the appearance of top
-    level windows. QDecorationFactory creates a QDecoration object
-    using the create() function and a key identifying the
-    decoration.
+    QDecorationFactory is used to detect and instantiate the available
+    decorations, allowing \l {Qtopia Core} to load the preferred
+    decoration into the application at runtime. The create() function
+    returns a QDecoration object representing the decoration
+    identified by a given key. The valid keys (i.e. the supported
+    decorations) can be retrieved using the keys() function.
 
-    The valid keys can be retrieved using the keys() function. The
-    decorations are either built-in or dynamically loaded from a
-    decoration plugin (see \l QDecorationPlugin).
+    \l {Qtopia Core} provides three built-in decorations: \c Default,
+    \c Styled and \c Windows. In addition, custom decorations can be
+    added using Qt's \l {How to Create Qt Plugins}{plugin mechanism},
+    i.e. by subclassing the QDecoration class and creating a mouse
+    driver plugin (QDecorationPlugin).
 
     \sa QDecoration, QDecorationPlugin
 */
 
 /*!
-    Creates a QDecoration object for the decoration specified by the
-    given \a key. The \a key specifies either a built-in decoration,
-    or a decoration from a decoration plugin. Keys are case-insensitive.
+    Creates the decoration specified by the given \a key. Note that
+    the keys are case-insensitive.
 
     \sa keys()
 */
@@ -89,11 +93,7 @@ QDecoration *QDecorationFactory::create(const QString& key)
 }
 
 /*!
-    Returns the list of valid keys, i.e. the keys this factory can
-    create decorations for.
-
-    \l {Qtopia Core} currently supports the following decorations by
-    default: \c Default, \c Styled and \c Windows.
+    Returns the list of valid keys, i.e., the available decorations.
 
     \sa create()
 */

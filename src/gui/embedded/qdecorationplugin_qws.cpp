@@ -20,32 +20,34 @@
     \ingroup plugins
 
     \brief The QDecorationPlugin class is an abstract base class for
-    decoration plugins.
+    window decoration plugins.
 
     Note that this class is only available in \l {Qtopia Core}.
 
-    QDecorationPlugin is a simple plugin interface that makes it easy
-    to create custom decorations that can be loaded dynamically into
-    applications using the QDecorationFactory class.
+    \l {Qtopia Core} provides three ready-made decoration styles: \c
+    Default, \c Styled and \c Windows. Custom decorations can be
+    implemented by subclassing the QDecoration class and creating a
+    decoration plugin.
 
-    Writing a decoration plugin is achieved by subclassing
-    QDecorationPlugin, reimplementing the pure virtual keys() and
-    create() functions, and exporting the class using the
-    Q_EXPORT_PLUGIN2() macro. See \l{How to Create Qt Plugins} for
-    details.
+    A decoration plugin can be created by subclassing
+    QDecorationPlugin and implementing the pure virtual keys() and
+    create() functions. By exporting the derived class using the
+    Q_EXPORT_PLUGIN2() macro, \l {Qtopia Core}'s implementation of the
+    QDecorationFactory class will automatically detect the plugin and
+    load the driver into the application at runtime. See \l{How to
+    Create Qt Plugins} for details.
 
-    \sa QDecorationFactory, QDecoration
+    To actually apply a decoration, use the
+    QApplication::qwsSetDecoration() function.
+
+    \sa QDecoration, QDecorationFactory
 */
 
 /*!
     \fn QStringList QDecorationPlugin::keys() const
 
-    Returns the list of valid keys, i.e. the decoration keys supported
-    by this plugin.
-
-    A key is usually the class name of a custom decoration.  \l
-    {Qtopia Core} currently supports the following decorations by
-    default: \c Default, \c Styled and \c Windows.
+    Returns the list of valid keys, i.e., the decorations supported by
+    this plugin.
 
     \sa create()
 */
@@ -53,8 +55,8 @@
 /*!
     \fn QDecoration *QDecorationPlugin::create(const QString &key)
 
-    Creates a QDecoration object for the given decoration \a key. Keys
-    are case-insensitive.
+    Creates a decoration matching the given \a key. Note that keys are
+    case-insensitive.
 
     \sa keys()
 */
