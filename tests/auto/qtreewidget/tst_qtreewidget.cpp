@@ -86,11 +86,12 @@ private slots:
 
     void sortedIndexOfChild_data();
     void sortedIndexOfChild();
-    
+
     // QTreeWidgetItem
     void itemOperatorLessThan();
     void addChild();
     void setData();
+    void enableDisable();
 
     void expandAndCallapse();
 
@@ -1814,6 +1815,39 @@ void tst_QTreeWidget::setData()
     }
 }
 
+void tst_QTreeWidget::enableDisable()
+{
+    QTreeWidgetItem *itm = new QTreeWidgetItem();
+    for (int i = 0; i < 10; ++i)
+        new QTreeWidgetItem(itm);
+
+    // make sure all items are enabled
+    QVERIFY(itm->flags() & Qt::ItemIsEnabled);
+    for (int j = 0; j < itm->childCount(); ++j)
+        QVERIFY(itm->child(j)->flags() & Qt::ItemIsEnabled);
+
+    // disable root and make sure they are all disabled
+    itm->setFlags(itm->flags() & ~Qt::ItemIsEnabled);
+    QVERIFY(!(itm->flags() & Qt::ItemIsEnabled));
+    for (int k = 0; k < itm->childCount(); ++k)
+        QVERIFY(!(itm->child(k)->flags() & Qt::ItemIsEnabled));
+
+    // disable a child and make sure they are all still disabled
+    itm->child(5)->setFlags(itm->child(5)->flags() & ~Qt::ItemIsEnabled);
+    QVERIFY(!(itm->flags() & Qt::ItemIsEnabled));
+    for (int l = 0; l < itm->childCount(); ++l)
+        QVERIFY(!(itm->child(l)->flags() & Qt::ItemIsEnabled));
+
+    // enable root and make sure all items except one are enabled
+    itm->setFlags(itm->flags() | Qt::ItemIsEnabled);
+    QVERIFY(itm->flags() & Qt::ItemIsEnabled);
+    for (int m = 0; m < itm->childCount(); ++m)
+        if (m == 5)
+            QVERIFY(!(itm->child(m)->flags() & Qt::ItemIsEnabled));
+        else
+            QVERIFY(itm->child(m)->flags() & Qt::ItemIsEnabled);
+}
+
 void tst_QTreeWidget::match()
 {
     QTreeWidget tree;
@@ -2278,7 +2312,7 @@ void tst_QTreeWidget::sortedIndexOfChild_data()
         << (QStringList() << "A" << "B" << "C")
         << (QList<int>() << 0 << 1 << 2);
 
-    
+
     QTest::newRow("three descending")
         << int(Qt::DescendingOrder)
         << (QStringList() << "A" << "B" << "C")
