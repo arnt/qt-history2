@@ -932,7 +932,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
           << "\t\t\t" << writeSettings("name", escapeFilePath(grp)) << ";" << "\n"
           << "\t\t" << "};" << "\n";
     }
-    if(!project->isActiveConfig("console") && project->first("TEMPLATE") == "app") { //BUNDLE RESOURCES
+    if(project->isActiveConfig("app_bundle") && project->first("TEMPLATE") == "app") { //BUNDLE RESOURCES
         QString grp("Bundle Resources"), key = keyFor(grp);
         project->values("QMAKE_PBX_BUILDPHASES").append(key);
         t << "\t\t" << key << " = {" << "\n"
@@ -1270,7 +1270,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 
     }
     if(project->first("TEMPLATE") == "app") {
-        if(pbVersion < 38 && !project->isActiveConfig("console"))
+        if(pbVersion < 38 && project->isActiveConfig("app_bundle"))
             t << "\t\t\t\t" << writeSettings("WRAPPER_SUFFIX", "app") << ";" << "\n";
         t << "\t\t\t\t" << writeSettings("PRODUCT_NAME", fixForOutput(project->first("QMAKE_ORIG_TARGET"))) << ";" << "\n";
     } else {
@@ -1300,7 +1300,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     if(pbVersion >= 38)
         t << "\t\t\t" << writeSettings("isa", "PBXNativeTarget", SettingsNoQuote) << ";" << "\n";
     if(project->first("TEMPLATE") == "app") {
-        if(project->isActiveConfig("console")) {
+        if(!project->isActiveConfig("app_bundle")) {
             if(pbVersion >= 38) {
                 if(!project->isEmpty("QMAKE_PBX_PRODUCT_TYPE"))
                     t << "\t\t\t" << writeSettings("productType", project->first("QMAKE_PBX_PRODUCT_TYPE")) << ";" << "\n";
