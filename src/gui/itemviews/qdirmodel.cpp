@@ -1165,7 +1165,7 @@ void QDirModelPrivate::savePersistentIndexes()
 {
     Q_Q(QDirModel);
     savedPaths.clear();
-    const QList<QPersistentModelIndexData*> indexes = persistent.indexes;
+    const QVector<QPersistentModelIndexData*> indexes = persistent.indexes;
     for (int i = 0; i < indexes.count(); ++i) {
         QModelIndex idx = indexes.at(i)->index;
         QString path = q->filePath(idx);
