@@ -33,6 +33,10 @@
 #  include "../kernel/qt_x11_p.h"
 #endif
 
+#ifndef SPI_GETSNAPTODEFBUTTON
+#  define SPI_GETSNAPTODEFBUTTON  95
+#endif
+
 /*!
     \class QDialog
     \brief The QDialog class is the base class of dialog windows.
@@ -662,6 +666,16 @@ void QDialog::setVisible(bool visible)
         if (d->eventLoop)
             d->eventLoop->exit();
     }
+#ifdef Q_WS_WIN
+    if (d->mainDef && isActiveWindow()) {
+        bool snapToDefault = false;
+        if ( QT_WA_INLINE( SystemParametersInfo(SPI_GETSNAPTODEFBUTTON, 0, &snapToDefault, 0) ,
+                           SystemParametersInfoA(SPI_GETSNAPTODEFBUTTON, 0, &snapToDefault, 0) )) {
+            if (snapToDefault)
+                QCursor::setPos(d->mainDef->mapToGlobal(d->mainDef->rect().center()));
+        }
+    }
+#endif
 }
 
 /*!\reimp */
