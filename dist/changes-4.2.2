@@ -21,6 +21,21 @@ Designer
 General improvements
 --------------------
 
+- moc:
+
+  *  Split long string literals in the generated code to work around
+     MSVC limitations
+
+  * Fix crash on *BSD on invalid input
+
+- QTextDocument:
+
+  * Fix support for pixel font sizes in the HTML import
+
+- QLineEdit:
+
+  * Fix scrolling in lineedits with custom paddings
+
 - Item views
       
       * Fixed possible assert in QTreeView when painting if there were
@@ -42,4 +57,18 @@ General improvements
 
 Platform-Specific changes
 -------------------------
+
+- Qt/X11:
+
+  * Fixed positioning of text with stacking diacritics
+  * Fixes for Indic text rendering
+  * Fixed rendering of Greek and other latin scripts with
+    XLFD fonts
+  * Fix encoding detection of XLFD fonts
+
+  * QPrinter: Don't generate PDF on raw CUPS printers
+
+- Qt/Win:
+
+  * Fixed drawing of the 0xad character with symbol fonts
 
