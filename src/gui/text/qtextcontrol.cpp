@@ -515,7 +515,7 @@ void QTextControlPrivate::selectionChanged(bool forceEmitSelectionChanged /*=fal
 
     lastSelectionState = current;
     emit q->copyAvailable(current);
-    if (!forceEmitSelectionChanged) 
+    if (!forceEmitSelectionChanged)
         emit q->selectionChanged();
     emit q->microFocusChanged();
 }
@@ -615,6 +615,11 @@ void QTextControlPrivate::extendWordwiseSelection(int suggestedNewPosition, qrea
         setCursorPosition(wordStartPos, QTextCursor::KeepAnchor);
     else
         setCursorPosition(wordEndPos, QTextCursor::KeepAnchor);
+
+    if (interactionFlags & Qt::TextSelectableByMouse) {
+        setClipboardSelection();
+        selectionChanged(true);
+    }
 }
 
 void QTextControlPrivate::extendLinewiseSelection(int suggestedNewPosition)
@@ -636,6 +641,11 @@ void QTextControlPrivate::extendLinewiseSelection(int suggestedNewPosition)
         cursor.setPosition(selectedLineOnDoubleClick.selectionStart());
         cursor.setPosition(suggestedNewPosition, QTextCursor::KeepAnchor);
         cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+    }
+
+    if (interactionFlags & Qt::TextSelectableByMouse) {
+        setClipboardSelection();
+        selectionChanged(true);
     }
 }
 
