@@ -46,6 +46,7 @@ test -d "$OUTDIR/$TEST" || mkdir -p "$OUTDIR/$TEST"
 
 cd "$OUTDIR/$TEST"
 
+make distclean >/dev/null 2>&1
 "$OUTDIR/bin/qmake" -nocache -spec "$QMKSPEC" "LIBS*=$LIBPATH" "INCLUDEPATH*=$INCLUDEPATH" "QMAKE_CXXFLAGS*=$CXXFLAGS" "$SRCDIR/$TEST/$EXE.pro" -o "$OUTDIR/$TEST/Makefile" >/dev/null 2>&1
 
 if [ "$VERBOSE" = "yes" ]; then
