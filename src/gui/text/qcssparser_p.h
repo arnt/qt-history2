@@ -353,7 +353,7 @@ struct Q_GUI_EXPORT ValueExtractor
     void extractFont(QFont *font, int *fontSizeAdjustment);
     bool extractBackground(QBrush *, QString *, Repeat *, Qt::Alignment *, QCss::Origin *);
     bool extractGeometry(int *w, int *h, int *mw, int *mh);
-    bool extractPosition(int *l, int *t, int *r, int *b, QCss::Origin *, Qt::Alignment *, 
+    bool extractPosition(int *l, int *t, int *r, int *b, QCss::Origin *, Qt::Alignment *,
                          QCss::PositionMode *);
     bool extractBox(int *margins, int *paddings, int *spacing = 0);
     bool extractBorder(int *borders, QColor *colors, BorderStyle *Styles, QSize *radii);
@@ -441,7 +441,7 @@ public:
     virtual NodePtr duplicateNode(NodePtr node) = 0;
     virtual void freeNode(NodePtr node) = 0;
 
-    QList<StyleSheet> styleSheets;
+    QVector<StyleSheet> styleSheets;
     QString medium;
 private:
     void matchRules(NodePtr node, const QVector<StyleRule> &rules, StyleSheetOrigin origin,

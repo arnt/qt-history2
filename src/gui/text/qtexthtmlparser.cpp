@@ -1733,8 +1733,11 @@ void QTextHtmlParser::resolveStyleSheetImports(const QCss::StyleSheet &sheet)
 
 void QTextHtmlParser::importStyleSheet(const QString &href)
 {
-    if (externalStyleSheets.contains(href) || !resourceProvider)
+    if (!resourceProvider)
         return;
+    for (int i = 0; i < externalStyleSheets.count(); ++i)
+        if (externalStyleSheets.at(i).url == href)
+            return;
 
     QVariant res = resourceProvider->resource(QTextDocument::StyleSheetResource, href);
     QString css;
@@ -1748,7 +1751,7 @@ void QTextHtmlParser::importStyleSheet(const QString &href)
         QCss::Parser parser(css);
         QCss::StyleSheet sheet;
         parser.parse(&sheet);
-        externalStyleSheets.insert(href, sheet);
+        externalStyleSheets.append(ExternalStyleSheet(href, sheet));
         resolveStyleSheetImports(sheet);
     }
 }
@@ -1758,10 +1761,20 @@ QVector<QCss::Declaration> QTextHtmlParser::declarationsForNode(int node) const
     QVector<QCss::Declaration> decls;
 
     QTextHtmlStyleSelector selector(this);
+
+    int idx = 0;
+    selector.styleSheets.resize((resourceProvider ? 1 : 0)
+                                + externalStyleSheets.count()
+                                + inlineStyleSheets.count());
     if (resourceProvider)
-        selector.styleSheets += resourceProvider->docHandle()->parsedDefaultStyleSheet;
-    selector.styleSheets += externalStyleSheets.values();
-    selector.styleSheets += inlineStyleSheets;
+        selector.styleSheets[idx++] = resourceProvider->docHandle()->parsedDefaultStyleSheet;
+
+    for (int i = 0; i < externalStyleSheets.count(); ++i, ++idx)
+        selector.styleSheets[idx] = externalStyleSheets.at(i).sheet;
+
+    for (int i = 0; i < inlineStyleSheets.count(); ++i, ++idx)
+        selector.styleSheets[idx] = inlineStyleSheets.at(i);
+
     selector.medium = QLatin1String("screen");
 
     QCss::StyleSelector::NodePtr n;

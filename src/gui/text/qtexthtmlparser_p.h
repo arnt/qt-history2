@@ -293,8 +293,16 @@ protected:
     void resolveStyleSheetImports(const QCss::StyleSheet &sheet);
     void importStyleSheet(const QString &href);
 
-    QHash<QString, QCss::StyleSheet> externalStyleSheets;
-    QList<QCss::StyleSheet> inlineStyleSheets;
+    struct ExternalStyleSheet
+    {
+        inline ExternalStyleSheet() {}
+        inline ExternalStyleSheet(const QString &_url, const QCss::StyleSheet &_sheet)
+            : url(_url), sheet(_sheet) {}
+        QString url;
+        QCss::StyleSheet sheet;
+    };
+    QVector<ExternalStyleSheet> externalStyleSheets;
+    QVector<QCss::StyleSheet> inlineStyleSheets;
     const QTextDocument *resourceProvider;
 };
 

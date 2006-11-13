@@ -1200,7 +1200,7 @@ static QVector<QCss::StyleRule> styleRules(QWidget *w)
         styleSelector.styleSheets += appSs;
     }
 
-    QList<QCss::StyleSheet> widgetSs;
+    QVector<QCss::StyleSheet> widgetSs;
     for (QWidget *wid = w; wid; wid = wid->parentWidget()) {
         if (wid->styleSheet().isEmpty())
             continue;
@@ -1311,7 +1311,7 @@ QVector<Declaration> declarations(const QWidget *w, const QString &part, int pse
     return decls;
 }
 
-static QRenderRule renderRule(const QWidget *w, const QString &part, QStyle::State state = QStyle::State_None) 
+static QRenderRule renderRule(const QWidget *w, const QString &part, QStyle::State state = QStyle::State_None)
 {
     Q_ASSERT(w);
     Q_ASSERT(styleRulesCache->contains(w)); // style sheet rules must have been computed!
@@ -1482,12 +1482,12 @@ static QSize expandedSize(QSize sz, const QRect& rect, int pe)
     switch (pe) {
     case PseudoElement_SpinBoxUpButton:
     case PseudoElement_SpinBoxDownButton:
-        if (sz.height() == -1) 
+        if (sz.height() == -1)
             sz.setHeight(rect.height()/2);
         break;
     case PseudoElement_DropDown:
     case PseudoElement_ToolButtonMenu:
-        if (sz.height() == -1) 
+        if (sz.height() == -1)
             sz.setHeight(rect.height());
         break;
     default:
@@ -1527,7 +1527,7 @@ static QRect positionRect(const QRenderRule& rule1, const QRenderRule& rule2, in
         }
     } else {
         if (p)
-            r = originRect.adjusted(dir == Qt::LeftToRight ? p->left : p->right, p->top, 
+            r = originRect.adjusted(dir == Qt::LeftToRight ? p->left : p->right, p->top,
                                     dir == Qt::LeftToRight ? -p->right : -p->left, -p->bottom);
         if (rule2.hasContentsSize()) {
             QSize sz = expandedSize(rule2.size(), r, pe);
@@ -2148,42 +2148,42 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         }
         break;
 
-    case CE_ToolBoxTabShape: 
+    case CE_ToolBoxTabShape:
         if (hasStyleRule(w, PseudoElement_ToolBoxTab)) {
             QRenderRule subRule = renderRule(w, opt, PseudoElement_ToolBoxTab);
             subRule.drawRule(p, opt->rect);
             return;
         }
         break;
-        
-    case CE_ScrollBarAddPage: 
+
+    case CE_ScrollBarAddPage:
         pe1 = PseudoElement_ScrollBarAddPage;
         break;
-        
-    case CE_ScrollBarSubPage: 
-        pe1 = PseudoElement_ScrollBarSubPage; 
+
+    case CE_ScrollBarSubPage:
+        pe1 = PseudoElement_ScrollBarSubPage;
         break;
-        
-    case CE_ScrollBarAddLine: 
+
+    case CE_ScrollBarAddLine:
         pe1 = PseudoElement_ScrollBarAddLine;
         pe2 = PseudoElement_DownArrow;
         break;
-        
-    case CE_ScrollBarSubLine: 
-        pe1 = PseudoElement_ScrollBarSubLine; 
+
+    case CE_ScrollBarSubLine:
+        pe1 = PseudoElement_ScrollBarSubLine;
         pe2 = PseudoElement_UpArrow;
         break;
-        
-    case CE_ScrollBarFirst:   
-        pe1 = PseudoElement_ScrollBarFirst; 
+
+    case CE_ScrollBarFirst:
+        pe1 = PseudoElement_ScrollBarFirst;
         break;
-        
-    case CE_ScrollBarLast:    
-        pe1 = PseudoElement_ScrollBarLast; 
+
+    case CE_ScrollBarLast:
+        pe1 = PseudoElement_ScrollBarLast;
         break;
-        
-    case CE_ScrollBarSlider:  
-        pe1 = PseudoElement_ScrollBarSlider; 
+
+    case CE_ScrollBarSlider:
+        pe1 = PseudoElement_ScrollBarSlider;
         break;
 
     default:
@@ -2503,7 +2503,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
                 return sb->orientation == Qt::Horizontal ? msz.width() : msz.height();
         }
         break;
-        
+
     default:
         break;
     }
@@ -2841,9 +2841,9 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
                     } else {
                         sliderlen = maxlen;
                     }
- 
+
                     int sliderstart = (sb->orientation == Qt::Horizontal ? cr.left() : cr.top())
-                        + sliderPositionFromValue(sb->minimum, sb->maximum, sb->sliderPosition, 
+                        + sliderPositionFromValue(sb->minimum, sb->maximum, sb->sliderPosition,
                                                   maxlen - sliderlen, sb->upsideDown);
 
                     QRect sr = (sb->orientation == Qt::Horizontal)
