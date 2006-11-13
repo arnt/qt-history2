@@ -559,11 +559,13 @@ bool QWSMemorySurface::isValidFor(const QWidget *widget) const
     if (img == QImage())
         return true;
 
-    if (preferredImageFormat(widget) == img.format())
-        return true;
+    if (preferredImageFormat(widget) != img.format())
+        return false;
 
-    // could instead just set the size to 0 to force a resize
-    return false;
+    if (isOpaque() != isWidgetOpaque(widget))
+        return false;
+
+    return true;
 }
 
 void QWSMemorySurface::scroll(const QRegion &area, int dx, int dy)

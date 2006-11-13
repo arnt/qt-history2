@@ -3208,7 +3208,12 @@ void QWSServerPrivate::repaint_region(int wid, bool opaque, QRegion region)
     if (!changingw) {
         return;
     }
+
+    const bool isOpaque = changingw->opaque;
     changingw->opaque = opaque;
+    if (isOpaque != opaque)
+        update_regions();
+
     int level = windows.indexOf(changingw);
     exposeRegion(region, level);
 }
