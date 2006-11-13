@@ -318,7 +318,7 @@ public:
 
     void blitToScreen(const QRegion &globalrgn);
 #ifndef QT_NO_CURSOR
-    void updateCursor(const QRegion &r) const;
+    void updateCursor() const;
 #endif
 
     QScreen* getScreen() const;

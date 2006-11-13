@@ -406,20 +406,19 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height,
 void QWidgetPrivate::updateSystemBackground() {}
 
 #ifndef QT_NO_CURSOR
-
 void QWidgetPrivate::setCursor_sys(const QCursor &cursor)
 {
     Q_UNUSED(cursor);
-//    if (isVisible())
-//        d->updateCursor(d->paintableRegion());
-    //@@@@@@ cursor stuff
+    Q_Q(QWidget);
+    if (q->isVisible())
+        updateCursor();
 }
 
 void QWidgetPrivate::unsetCursor_sys()
 {
-//    if (isVisible())
-//        d->updateCursor(d->paintableRegion());
-    //@@@@@@ cursor stuff
+    Q_Q(QWidget);
+    if (q->isVisible())
+        updateCursor();
 }
 #endif //QT_NO_CURSOR
 
@@ -1039,16 +1038,26 @@ void QWidgetPrivate::updateFrameStrut()
 }
 
 #ifndef QT_NO_CURSOR
-void QWidgetPrivate::updateCursor(const QRegion &r) const
+void QWidgetPrivate::updateCursor() const
 {
     Q_Q(const QWidget);
-    //@@@ region stuff must be redone
-    if (qt_last_x && (!QWidget::mouseGrabber() || QWidget::mouseGrabber() == q) &&
-            qt_last_cursor != (WId)q->cursor().handle() && !qws_overrideCursor) {
-        QSize s(qt_screen->width(), qt_screen->height());
-        QPoint pos = qt_screen->mapToDevice(QPoint(*qt_last_x, *qt_last_y), s);
-        if (r.contains(pos))
-            QWidget::qwsDisplay()->selectCursor(const_cast<QWidget*>(q), q->cursor().handle());
+
+    if (QApplication::overrideCursor())
+        return;
+
+    if (qt_last_x
+        && (!QWidget::mouseGrabber() || QWidget::mouseGrabber() == q)
+        && qt_last_cursor != (WId)q->cursor().handle())
+    {
+        const QPoint pos(*qt_last_x, *qt_last_y);
+        const QPoint offset = q->mapToGlobal(QPoint());
+        if (!localAllocatedRegion().contains(pos - offset))
+            return;
+
+        const QWidget *w = q->childAt(q->mapFromGlobal(pos));
+        if (!w || w->cursor().handle() == q->cursor().handle())
+            QWidget::qwsDisplay()->selectCursor(const_cast<QWidget*>(q),
+                                                q->cursor().handle());
     }
 }
 #endif
