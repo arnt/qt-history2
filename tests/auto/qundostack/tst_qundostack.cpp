@@ -861,6 +861,63 @@ void tst_QUndoStack::clear()
                 true,       // indexChanged
                 true,       // undoChanged
                 true)       // redoChanged
+
+    str.clear();
+    stack.push(new InsertCommand(&str, 0, "hello"));
+    QCOMPARE(str, QString("hello"));
+    CHECK_STATE(false,      // clean
+                1,          // count
+                1,          // index
+                true,       // canUndo
+                "insert",   // undoText
+                false,      // canRedo
+                "",         // redoText
+                true,       // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
+
+    stack.push(new InsertCommand(&str, 2, "123"));
+    QCOMPARE(str, QString("he123llo"));
+    CHECK_STATE(false,      // clean
+                2,          // count
+                2,          // index
+                true,       // canUndo
+                "insert",   // undoText
+                false,      // canRedo
+                "",         // redoText
+                false,      // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
+
+    stack.setIndex(0);
+    QCOMPARE(str, QString());
+    CHECK_STATE(true,      // clean
+                2,          // count
+                0,          // index
+                false,      // canUndo
+                "",         // undoText
+                true,       // canRedo
+                "insert",   // redoText
+                true,       // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
+
+    stack.clear();
+    QCOMPARE(str, QString());
+    CHECK_STATE(true,       // clean
+                0,          // count
+                0,          // index
+                false,      // canUndo
+                "",         // undoText
+                false,      // canRedo
+                "",         // redoText
+                false,      // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
 }
 
 void tst_QUndoStack::childCommand()
