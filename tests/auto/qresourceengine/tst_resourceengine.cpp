@@ -396,7 +396,7 @@ void tst_ResourceEngine::checkUnregisterResource()
     QFileInfo fileInfo(file_check);
     fileInfo.setCaching(false);
     QVERIFY(fileInfo.exists());
-    QVERIFY(QResource::unregisterResource(rcc_file, root));
+    QVERIFY(!QResource::unregisterResource(rcc_file, root));
     QVERIFY(!QFile::exists(file_check));
     QCOMPARE((int)fileInfo.size(), size);
 }

@@ -57,7 +57,8 @@ public:
     { return tree == other.tree && names == other.names && payloads == other.payloads; }
     inline bool operator!=(const QResourceRoot &other) const
     { return !operator==(other); }
-    virtual bool isDynamicRoot() const { return false; }
+    enum ResourceRootType { Resource_Builtin, Resource_File, Resource_Buffer };
+    virtual ResourceRootType type() const { return Resource_Builtin; }
 
 protected:
     inline void setSource(const uchar *t, const uchar *n, const uchar *d) {
@@ -749,6 +750,54 @@ Q_CORE_EXPORT bool qUnregisterResourceData(int version, const unsigned char *tre
 
 //run time resource creation
 
+class QDynamicBufferResourceRoot: public QResourceRoot
+{
+    QString root;
+    const uchar *buffer;
+
+public:
+    inline QDynamicBufferResourceRoot(const QString &_root) : root(_root), buffer(0) { }
+    inline ~QDynamicBufferResourceRoot() { }
+    inline const uchar *mappingBuffer() const { return buffer; }
+    virtual QString mappingRoot() const { return root; }
+    virtual ResourceRootType type() const { return Resource_Buffer; }
+
+    bool registerSelf(const uchar *b) {
+        //setup the data now
+        int offset = 0;
+
+        //magic number
+        if(b[offset+0] != 'q' || b[offset+1] != 'r' ||
+           b[offset+2] != 'e' || b[offset+3] != 's') {
+            return false;
+        }
+        offset += 4;
+
+        const int version = (b[offset+0] << 24) + (b[offset+1] << 16) +
+                         (b[offset+2] << 8) + (b[offset+3] << 0);
+        offset += 4;
+
+        const int tree_offset = (b[offset+0] << 24) + (b[offset+1] << 16) +
+                                (b[offset+2] << 8) + (b[offset+3] << 0);
+        offset += 4;
+
+        const int data_offset = (b[offset+0] << 24) + (b[offset+1] << 16) +
+                                (b[offset+2] << 8) + (b[offset+3] << 0);
+        offset += 4;
+
+        const int name_offset = (b[offset+0] << 24) + (b[offset+1] << 16) +
+                                (b[offset+2] << 8) + (b[offset+3] << 0);
+        offset += 4;
+
+        if(version == 0x01) {
+            buffer = b;
+            setSource(b+tree_offset, b+name_offset, b+data_offset);
+            return true;
+        }
+        return false;
+    }
+};
+
 #if defined(Q_OS_UNIX)
 #define QT_USE_MMAP
 #endif
@@ -761,34 +810,37 @@ Q_CORE_EXPORT bool qUnregisterResourceData(int version, const unsigned char *tre
 #include <errno.h>
 #endif
 
-class QDynamicResourceRoot: public QResourceRoot
+
+
+class QDynamicFileResourceRoot: public QDynamicBufferResourceRoot
 {
-    QString root, fileName;
+    QString fileName;
     // for mmap'ed files, this is what needs to be unmapped.
     uchar *unmapPointer;
     unsigned int unmapLength;
-    bool fromMM;
 
 public:
-    inline QDynamicResourceRoot(const QString &_root) : root(_root), unmapPointer(0), unmapLength(0) { }
-    ~QDynamicResourceRoot() {
-        if (unmapPointer && unmapLength) {
+    inline QDynamicFileResourceRoot(const QString &_root) : QDynamicBufferResourceRoot(_root), unmapPointer(0), unmapLength(0) { }
+    ~QDynamicFileResourceRoot() {
 #if defined(QT_USE_MMAP)
-            if(fromMM)
-                munmap((char*)unmapPointer, unmapLength);
-            else
-#endif
-                delete [] unmapPointer;
+        if (unmapPointer) {
+            munmap((char*)unmapPointer, unmapLength);
             unmapPointer = 0;
             unmapLength = 0;
+        } else
+#endif
+        {
+            delete [] (uchar *)mappingBuffer();
         }
     }
     QString mappingFile() const { return fileName; }
-    virtual QString mappingRoot() const { return root; }
-    virtual bool isDynamicRoot() const { return true; }
+    virtual ResourceRootType type() const { return Resource_File; }
 
     bool registerSelf(const QString &f) {
-        bool ok = false;
+        bool fromMM = false;
+        uchar *data = 0;
+        unsigned int data_len = 0;
+
 #ifdef QT_USE_MMAP
 
 #ifndef MAP_FILE
@@ -815,73 +867,43 @@ public:
                          MAP_FILE | MAP_PRIVATE,    // swap-backed map from file
                          fd, 0));                   // from offset 0 of fd
                 if (ptr && ptr != reinterpret_cast<uchar *>(MAP_FAILED)) {
-                    unmapPointer = ptr;
-                    unmapLength = st.st_size;
+                    data = ptr;
+                    data_len = st.st_size;
                     fromMM = true;
-                    ok = true;
                 }
             }
             ::close(fd);
         }
 #endif // QT_USE_MMAP
-        if(!ok) {
+        if(!data) {
             QFile file(f);
             if (!file.exists())
                 return false;
-            unmapLength = file.size();
-            unmapPointer = new uchar[unmapLength];
+            data_len = file.size();
+            data = new uchar[unmapLength];
 
+            bool ok = false;
             if (file.open(QIODevice::ReadOnly))
-                ok = (unmapLength == (uint)file.read((char*)unmapPointer, unmapLength));
-
+                ok = (data_len == (uint)file.read((char*)data, data_len));
             if (!ok) {
-                delete [] unmapPointer;
-                unmapPointer = 0;
-                unmapLength = 0;
+                delete [] data;
+                data = 0;
+                data_len = 0;
                 return false;
             }
             fromMM = false;
         }
-        if(!ok) {
-	    fileName = QString();
-            return false;
-	}
-	fileName = f;
-
-        //setup the data now
-        int offset = 0;
-
-        //magic number
-        if(unmapPointer[offset+0] != 'q' || unmapPointer[offset+1] != 'r' ||
-           unmapPointer[offset+2] != 'e' || unmapPointer[offset+3] != 's') {
-            return false;
-        }
-        offset += 4;
-
-        const int version = (unmapPointer[offset+0] << 24) + (unmapPointer[offset+1] << 16) +
-                         (unmapPointer[offset+2] << 8) + (unmapPointer[offset+3] << 0);
-        offset += 4;
-
-        const int tree_offset = (unmapPointer[offset+0] << 24) + (unmapPointer[offset+1] << 16) +
-                                (unmapPointer[offset+2] << 8) + (unmapPointer[offset+3] << 0);
-        offset += 4;
-
-        const int data_offset = (unmapPointer[offset+0] << 24) + (unmapPointer[offset+1] << 16) +
-                                (unmapPointer[offset+2] << 8) + (unmapPointer[offset+3] << 0);
-        offset += 4;
-
-        const int name_offset = (unmapPointer[offset+0] << 24) + (unmapPointer[offset+1] << 16) +
-                                (unmapPointer[offset+2] << 8) + (unmapPointer[offset+3] << 0);
-        offset += 4;
-
-        if(version == 0x01) {
-            setSource(unmapPointer+tree_offset, unmapPointer+name_offset, unmapPointer+data_offset);
+        if(data && QDynamicBufferResourceRoot::registerSelf(data)) {
+            if(fromMM) {
+                unmapPointer = data;
+                unmapLength = data_len;
+            }
+            fileName = f;
             return true;
         }
         return false;
     }
 };
-
 
 static QString qt_resource_fixResourceRoot(QString r) {
     if(!r.isEmpty()) {
@@ -914,7 +936,7 @@ QResource::registerResource(const QString &rccFilename, const QString &resourceR
         return false;
     }
 
-    QDynamicResourceRoot *root = new QDynamicResourceRoot(r);
+    QDynamicFileResourceRoot *root = new QDynamicFileResourceRoot(r);
     if(root->registerSelf(rccFilename)) {
         root->ref.ref();
         QMutexLocker lock(resourceMutex());
@@ -928,9 +950,10 @@ QResource::registerResource(const QString &rccFilename, const QString &resourceR
 /*!
   \fn bool QResource::unregisterResource(const QString &rccFileName, const QString &mapRoot)
 
-  Unregisters the resource with the given \a rccFileName at the location in the
-  resource tree specified by \a mapRoot, and returns true if the resource is
-  successfully unloaded; otherwise returns false.
+  Unregisters the resource with the given \a rccFileName at the location in
+  the resource tree specified by \a mapRoot, and returns true if the
+  resource is successfully unloaded and no references exist for the
+  resource; otherwise returns false.
 
   \sa registerResource()
 */
@@ -944,19 +967,89 @@ QResource::unregisterResource(const QString &rccFilename, const QString &resourc
     ResourceList *list = resourceList();
     for(int i = 0; i < list->size(); ++i) {
         QResourceRoot *res = list->at(i);
-        if(res->isDynamicRoot()) {
-	    QDynamicResourceRoot *root = reinterpret_cast<QDynamicResourceRoot*>(res);
+        if(res->type() == QResourceRoot::Resource_File) {
+	    QDynamicFileResourceRoot *root = reinterpret_cast<QDynamicFileResourceRoot*>(res);
 	    if(root->mappingFile() == rccFilename && root->mappingRoot() == r) {
                 resourceList()->removeAt(i);
-                if(!root->ref.deref())
+                if(!root->ref.deref()) {
                     delete root;
-		return true;
+                    return true;
+                }
+                return false;
             }
 	}
     }
     return false;
 }
 
+
+/*!
+   \fn bool QResource::registerResource(const uchar *rccData, const QString &mapRoot)
+
+   Registers the resource with the given \a rccData at the location in the
+   resource tree specified by \a mapRoot, and returns true if the file is
+   successfully opened; otherwise returns false.
+
+   \warning The data must remain valid throughout the life of any QFile
+   that may reference the resource data.
+
+   \sa unregisterResource()
+*/
+
+bool
+QResource::registerResource(const uchar *rccData, const QString &resourceRoot)
+{
+    QString r = qt_resource_fixResourceRoot(resourceRoot);
+    if(!r.isEmpty() && r[0] != QLatin1Char('/')) {
+        qWarning("QDir::registerResource: Registering a resource [%p] must be rooted in an absolute path (start with /) [%s]",
+                 rccData, resourceRoot.toLocal8Bit().data());
+        return false;
+    }
+
+    QDynamicBufferResourceRoot *root = new QDynamicBufferResourceRoot(r);
+    if(root->registerSelf(rccData)) {
+        root->ref.ref();
+        QMutexLocker lock(resourceMutex());
+        resourceList()->append(root);
+        return true;
+    }
+    delete root;
+    return false;
+}
+
+/*!
+  \fn bool QResource::unregisterResource(const uchar *rccData, const QString &mapRoot)
+
+  Unregisters the resource with the given \a rccFileName at the location in the
+  resource tree specified by \a mapRoot, and returns true if the resource is
+  successfully unloaded and no references exist into the resource; otherwise returns false.
+
+  \sa registerResource()
+*/
+
+bool
+QResource::unregisterResource(const uchar *rccData, const QString &resourceRoot)
+{
+    QString r = qt_resource_fixResourceRoot(resourceRoot);
+
+    QMutexLocker lock(resourceMutex());
+    ResourceList *list = resourceList();
+    for(int i = 0; i < list->size(); ++i) {
+        QResourceRoot *res = list->at(i);
+        if(res->type() == QResourceRoot::Resource_Buffer) {
+	    QDynamicBufferResourceRoot *root = reinterpret_cast<QDynamicBufferResourceRoot*>(res);
+	    if(root->mappingBuffer() == rccData && root->mappingRoot() == r) {
+                resourceList()->removeAt(i);
+                if(!root->ref.deref()) {
+                    delete root;
+                    return true;
+                }
+		return false;
+            }
+	}
+    }
+    return false;
+}
 
 //file type handler
 class QResourceFileEngineHandler : public QAbstractFileEngineHandler
