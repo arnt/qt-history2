@@ -1735,7 +1735,7 @@ QModelIndex QTreeView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
 void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
     Q_D(QTreeView);
-    if (!selectionModel())
+    if (!selectionModel() || !rect.isValid())
         return;
 
     QPoint tl(isRightToLeft() ? qMax(rect.left(), rect.right())
@@ -1744,6 +1744,15 @@ void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
               qMax(rect.left(), rect.right()), qMax(rect.top(), rect.bottom()));
     QModelIndex topLeft = indexAt(tl);
     QModelIndex bottomRight = indexAt(br);
+
+    if (!topLeft.isValid() && !d->viewItems.isEmpty())
+        topLeft = d->viewItems.first().index;
+    if (!bottomRight.isValid() && !d->viewItems.isEmpty()) {
+        const int column = d->header->logicalIndex(d->header->count() - 1);
+        const QModelIndex index = d->viewItems.last().index;
+        bottomRight = index.sibling(index.row(), column);
+    }
+
     if (selectionBehavior() != SelectRows) {
         QItemSelection selection;
         if (topLeft.isValid() && bottomRight.isValid()) {
