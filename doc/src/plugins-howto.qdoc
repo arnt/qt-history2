@@ -15,6 +15,9 @@
     \title How to Create Qt Plugins
     \ingroup howto
 
+    \keyword QT_DEBUG_PLUGINS
+    \keyword QT_NO_PLUGIN_CHECK
+
     Qt provides two APIs for creating plugins:
 
     \list
@@ -308,6 +311,10 @@
        plugins were linked.
     \endlist
 
+    For debugging purposes, it is possible to override the run-time build key
+    checks by setting the \c QT_NO_PLUGIN_CHECK environment variable to a non-zero
+    value in the environment from which your application is launched.
+
     \section1 Static Plugins
 
     Plugins can be linked statically against your application. If you
@@ -357,7 +364,7 @@
         Q_IMPORT_PLUGIN(qjpeg)
         Q_IMPORT_PLUGIN(qgif)
         Q_IMPORT_PLUGIN(qkrcodecs)
-        
+
         int main(int argc, char *argv[])
         {
             QApplication app(argc, argv);
@@ -390,4 +397,68 @@
     plugin for details on how to do this.
 
     \sa QPluginLoader, QLibrary, {Plug & Paint Example}
+
+    \section1 The Plugin Cache
+
+    In order to speed up loading and validation of plugins, some of
+    the information that is collected when plugins are loaded is cached
+    through QSettings. This includes information about whether or not
+    a plugin was successfully loaded, so that subsequent load operations
+    don't try to load an invalid plugin. However, if the "last modified"
+    timestamp of a plugin has changed, the plugin's cache entry is
+    invalidated and the plugin is reloaded regardless of the values in
+    the cache entry, and the cache entry itself is updated with the new
+    result.
+
+    This also means that the timestamp must be updated each time the
+    plugin or any dependent resources (such as a shared library) is
+    updated, since the dependent resources might influence the result
+    of loading a plugin.
+
+    Sometimes, when developing plugins, it is necessary to remove entries
+    from the plugin cache. Since Qt uses QSettings to manage the plugin
+    cache, the locations of plugins are platform-dependent; see
+    \l{QSettings#Platform-Specific Notes}{the QSettings documentation}
+    for more information about each platform.
+
+    For example, on Windows the entries are stored in the registry, and the
+    paths for each plugin will typically begin with either of these two strings:
+
+    \code
+    HKEY_CURRENT_USER\Software\Trolltech\OrganizationDefaults\Qt Plugin Cache 4.2.debug
+    HKEY_CURRENT_USER\Software\Trolltech\OrganizationDefaults\Qt Plugin Cache 4.2.false
+    \endcode
+
+    \section1 Debugging Plugins
+
+    There are a number of issues that may prevent correctly-written plugins from
+    working with the applications that are designed to use them. Many of these
+    are related to differences in the way that plugins and applications have been
+    built, often arising from separate build systems and processes.
+
+    The following table contains descriptions of the common causes of problems
+    developers experience when creating plugins:
+
+    \table
+    \header \o Problem \o Cause \o Solution
+    \row \o Plugins sliently fail to load even when opened directly by the
+            application. \QD shows the plugin libraries in its
+            \gui{Help|About Plugins} dialog, but no plugins are listed under each
+            of them.
+         \o The application and its plugins are built in different modes.
+         \o Either share the same build information or build the plugins in both
+            debug and release modes by appending the \c debug_and_release to
+            the \l{qmake Variable Reference#CONFIG}{CONFIG} variable in each of
+            their project files.
+    \row \o A valid plugin that replaces an invalid (or broken) plugin fails to load.
+         \o The entry for the plugin in the plugin cache indicates that the original
+            plugin could not be loaded, causing Qt to ignore the replacement.
+         \o Either ensure that the plugin's timestamp is updated, or delete the
+            entry in the \l{#The Plugin Cache}{plugin cache}.
+    \endtable
+
+    You can also use the \c QT_DEBUG_PLUGINS environment variable to obtain
+    diagnostic information from Qt about each plugin it tries to load. Set this
+    variable to a non-zero value in the environment from which your application is
+    launched.
 */
