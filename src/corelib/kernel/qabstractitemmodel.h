@@ -45,7 +45,7 @@ public:
     inline const QAbstractItemModel *model() const { return m; }
     inline bool isValid() const { return (r >= 0) && (c >= 0) && (m != 0); }
     inline bool operator==(const QModelIndex &other) const
-        { return (other.r == r && other.c == c && other.p == p && other.m == m); }
+        { return (other.r == r && other.p == p && other.c == c && other.m == m); }
     inline bool operator!=(const QModelIndex &other) const
         { return !(*this == other); }
     inline bool operator<(const QModelIndex &other) const
@@ -238,7 +238,7 @@ protected:
     void changePersistentIndex(const QModelIndex &from, const QModelIndex &to);
     void changePersistentIndexList(const QModelIndexList &from, const QModelIndexList &to);
     QModelIndexList persistentIndexList() const;
-    
+
 private:
     Q_DECLARE_PRIVATE(QAbstractItemModel)
     Q_DISABLE_COPY(QAbstractItemModel)

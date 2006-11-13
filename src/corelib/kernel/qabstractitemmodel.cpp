@@ -29,10 +29,12 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
     Q_ASSERT(index.isValid()); // we will _never_ insert an invalid index in the list
     QPersistentModelIndexData *d = 0;
     QAbstractItemModel *model = const_cast<QAbstractItemModel*>(index.model());
-    QList<QPersistentModelIndexData*> *persistentIndexes = &(model->d_func()->persistent.indexes);
-    for (int i = 0; i < persistentIndexes->count(); ++i) {
-        if (persistentIndexes->at(i)->index == index) {
-            d = persistentIndexes->at(i);
+    const QVector<QPersistentModelIndexData*> persistentIndexes = model->d_func()->persistent.indexes;
+    // ### FIXME: with many persistent indexes, this becomes slow
+    const int count = persistentIndexes.count();
+    for (int i = 0; i < count; ++i) {
+        if (persistentIndexes.at(i)->index == index) {
+            d = persistentIndexes.at(i);
             break;
         }
     }
@@ -40,7 +42,7 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
         d = new QPersistentModelIndexData();
         d->model = model;
         d->index = index;
-        persistentIndexes->append(d);
+        model->d_func()->persistent.indexes.append(d);
     }
     Q_ASSERT(d);
     return d;
@@ -442,7 +444,7 @@ QAbstractItemModel *QAbstractItemModelPrivate::staticEmptyModel()
 void QAbstractItemModelPrivate::removePersistentIndexData(QPersistentModelIndexData *data)
 {
     int data_index = persistent.indexes.indexOf(data);
-    persistent.indexes.removeAt(data_index);
+    persistent.indexes.remove(data_index);
     Q_ASSERT(!persistent.indexes.contains(data));
     // update the references to moved persistent indexes
     for (int i = persistent.moved.count() - 1; i >= 0; --i) {
@@ -2172,7 +2174,7 @@ void QAbstractItemModel::changePersistentIndex(const QModelIndex &from, const QM
 {
     // ### optimize (use QMap ?)
     Q_D(QAbstractItemModel);
-    QList<QPersistentModelIndexData*> persistentIndexes = d->persistent.indexes;
+    QVector<QPersistentModelIndexData*> persistentIndexes = d->persistent.indexes;
     for (int i = 0; i < persistentIndexes.count(); ++i) {
         if (persistentIndexes.at(i)->index == from) {
             persistentIndexes.at(i)->index = to;
@@ -2197,7 +2199,7 @@ void QAbstractItemModel::changePersistentIndexList(const QModelIndexList &from,
 {
     // ### optimize (use QMap ?)
     Q_D(QAbstractItemModel);
-    QList<QPersistentModelIndexData*> persistentIndexes = d->persistent.indexes;
+    QVector<QPersistentModelIndexData*> persistentIndexes = d->persistent.indexes;
     QBitArray changed(persistentIndexes.count());
     for (int i = 0; i < from.count(); ++i) {
         if (from.at(i) == to.at(i))
@@ -2220,7 +2222,7 @@ void QAbstractItemModel::changePersistentIndexList(const QModelIndexList &from,
 QModelIndexList QAbstractItemModel::persistentIndexList() const
 {
     Q_D(const QAbstractItemModel);
-    QList<QPersistentModelIndexData*> persistentIndexes = d->persistent.indexes;
+    QVector<QPersistentModelIndexData*> persistentIndexes = d->persistent.indexes;
     QModelIndexList result;
     for (int i = 0; i < persistentIndexes.count(); ++i)
         result.append(persistentIndexes.at(i)->index);
