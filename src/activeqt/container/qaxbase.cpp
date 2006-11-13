@@ -20,6 +20,7 @@
 
 #include <quuid.h>
 #include <qhash.h>
+#include <qset.h>
 #include <qpair.h>
 #include <qmetaobject.h>
 #include <qsettings.h>
@@ -2185,6 +2186,10 @@ void MetaObjectGenerator::readEnumInfo()
         }
     }
 
+    int valueindex = 0;
+    QSet<QString> clashCheck;
+    int clashIndex = 0;
+
     int enum_serial = 0;
     UINT index = typelib->GetTypeInfoCount();
     for (UINT i = 0; i < index; ++i) {
@@ -2227,9 +2232,13 @@ void MetaObjectGenerator::readEnumInfo()
                             valueName = QString::fromUtf16((const ushort *)valuename).toLatin1();
                             SysFreeString(valuename);
                         } else {
-                            valueName = "value" + QByteArray::number(vd);
+                            valueName = "value" + QByteArray::number(valueindex++);
                         }
-                        // Store value
+
+                        if (clashCheck.contains(valueName))
+                            valueName += QByteArray::number(++clashIndex);
+
+                        clashCheck.insert(valueName);
                         addEnumValue(enumName, valueName, value);
                     }
                     enuminfo->ReleaseVarDesc(vardesc);
@@ -3479,7 +3488,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     // setup the parameters
     DISPPARAMS params;
     DISPID dispidNamed = DISPID_PROPERTYPUT;
-    params.cArgs = isProperty ? 1 : d->metaobj->numParameter(signature);
+    params.cArgs = d->metaobj->numParameter(signature);
     params.cNamedArgs = isProperty ? 1 : 0;
     params.rgdispidNamedArgs = isProperty ? &dispidNamed : 0;
     params.rgvarg = 0;
@@ -3499,6 +3508,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
         QVariant qvar;
         if (vt != QVariant::UserType)
             qvar = QVariant(vt, v[p + 1]);
+
         if (!qvar.isValid()) {
             if (type == "IDispatch*")
                 qVariantSetValue(qvar, *(IDispatch**)v[p+1]);
@@ -3508,6 +3518,8 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
                 qvar = *(QVariant*)v[p + 1];
             else if (mo->indexOfEnumerator(type) != -1)
                 qvar = *(int*)v[p + 1];
+            else
+                qvar = QVariant(QMetaType::type(type), v[p + 1]);
         }
 
         QVariantToVARIANT(qvar, params.rgvarg[params.cArgs - p - 1], type, out);
@@ -3524,7 +3536,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     EXCEPINFO excepinfo;
     memset(&excepinfo, 0, sizeof(excepinfo));
 
-    WORD wFlags = (isProperty && params.cArgs == 1) ? DISPATCH_PROPERTYPUT : DISPATCH_METHOD | DISPATCH_PROPERTYGET;
+    WORD wFlags = isProperty ? DISPATCH_PROPERTYPUT : DISPATCH_METHOD | DISPATCH_PROPERTYGET;
     hres = disp->Invoke(dispid, IID_NULL, LOCALE_USER_DEFAULT, wFlags, &params, pret, &excepinfo, &argerr);
 
     // set return value
