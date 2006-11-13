@@ -41,7 +41,7 @@ int main(int argc, char **argv)
     app.setOrganizationName("Trolltech");
     app.setApplicationName("Linguist");
     QString keybase(QString::number( (QT_VERSION >> 16) & 0xff ) +
-                     "." + QString::number( (QT_VERSION >> 8) & 0xff ) + "/" );
+                     QLatin1Char('.') + QString::number( (QT_VERSION >> 8) & 0xff ) + QLatin1Char('/') );
     QSettings config;
 
     QWidget tmp;

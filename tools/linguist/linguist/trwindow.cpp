@@ -1777,7 +1777,7 @@ bool TrWindow::danger( const MessageItem *m,
 void TrWindow::readConfig()
 {
     QString keybase(QString::number((QT_VERSION >> 16) & 0xff)
-                    + "." + QString::number((QT_VERSION >> 8) & 0xff) + "/");
+                    + QLatin1Char('.') + QString::number((QT_VERSION >> 8) & 0xff) + QLatin1Char('/'));
     QSettings config;
 
     QRect r( pos(), size() );
@@ -1793,8 +1793,8 @@ void TrWindow::readConfig()
 
 void TrWindow::writeConfig()
 {
-    QString keybase(QString::number( (QT_VERSION >> 16) & 0xff ) +
-                     "." + QString::number( (QT_VERSION >> 8) & 0xff ) + "/" );
+    QString keybase(QString::number( (QT_VERSION >> 16) & 0xff )
+                    + QLatin1Char('.') + QString::number((QT_VERSION >> 8) & 0xff) + QLatin1Char('/'));
     QSettings config;
     config.setValue(keybase + "RecentlyOpenedFiles", recentFiles);
     config.setValue(keybase + "Geometry/WindowGeometry", saveGeometry());
