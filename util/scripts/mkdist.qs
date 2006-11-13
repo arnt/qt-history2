@@ -9,7 +9,7 @@ const qdocCommand = qdocDir + "/qdoc3";
 
 const outputDir = System.getenv("PWD");
 
-const validPlatforms = ["win", "x11", "mac", "core"];
+const validPlatforms = ["win", "x11", "mac", "core", "all"];
 const validLicenses = ["opensource", "commercial", "preview-opensource", "preview-commercial", "eval"];
 const validSwitches = ["gzip", "bzip", "zip", "snapshots"]; // these are either true or false, set by -do-foo/-no-foo
 const validVars = ["branch", "version", "label"]; // variables with arbitrary values, set by -foo value
@@ -168,6 +168,11 @@ platformRemove["core"] = [ new RegExp("^LICENSE.QPL"),
                            new RegExp("_qnx6"),
                            new RegExp("_wce"),
                            new RegExp("_win") ];
+
+platformRemove["all"] = [  new RegExp("^doc/src"),
+                           new RegExp("_qnx4"),
+                           new RegExp("_qnx6"),
+                           new RegExp("_wce") ];
 
 var licenseRemove = new Array();
 
