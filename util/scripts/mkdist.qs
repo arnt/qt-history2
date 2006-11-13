@@ -941,6 +941,9 @@ function replaceTags(packageDir, fileList, replace)
         if (File.isFile(absFileName) && !isBinaryFile(absFileName)) {
             //only replace for non binary files
             content = File.read(absFileName);
+            if (content.find(/[\x80-\xff]/) != -1) {
+                warning("Found a high-byte non-ascii character in " + fileName);
+            }
             for (var i in replace) {
                 var re = new RegExp(i);
 		re.global = true;
