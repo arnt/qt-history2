@@ -422,10 +422,18 @@ void QUndoStack::clear()
 {
     Q_D(QUndoStack);
 
+    if (d->command_list.isEmpty())
+        return;
+
     d->macro_stack.clear();
     qDeleteAll(d->command_list);
     d->command_list.clear();
+
+    bool old_index = d->index;
     d->setIndex(0, true);
+
+    if (old_index == 0) // emit it anyway
+        emit indexChanged(0);
 }
 
 /*!
