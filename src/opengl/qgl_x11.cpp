@@ -882,7 +882,8 @@ void *QGLContext::getProcAddress(const QString &proc) const
     if (!glXGetProcAddressARB) {
         QString glxExt = QString(QLatin1String(glXGetClientString(QX11Info::display(), GLX_EXTENSIONS)));
         if (glxExt.contains(QLatin1String("GLX_ARB_get_proc_address"))) {
-            QLibrary lib(QLatin1String("GL"));
+            extern const QString qt_gl_library_name();
+            QLibrary lib(qt_gl_library_name());
             glXGetProcAddressARB = (qt_glXGetProcAddressARB) lib.resolve("glXGetProcAddressARB");
         }
         resolved = true;

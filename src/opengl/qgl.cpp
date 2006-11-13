@@ -3636,6 +3636,25 @@ PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC qt_glFramebufferRenderbufferEXT;
 PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC qt_glGetFramebufferAttachmentParameterivEXT;
 PFNGLGENERATEMIPMAPEXTPROC qt_glGenerateMipmapEXT;
 
+Q_GLOBAL_STATIC(QString, qt_gl_lib_name);
+
+Q_OPENGL_EXPORT void qt_set_gl_library_name(const QString& name)
+{
+    qt_gl_lib_name()->operator=(name);
+}
+
+Q_OPENGL_EXPORT const QString qt_gl_library_name()
+{
+    if (qt_gl_lib_name()->isNull()) {
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+        return QString("GL");
+#else // Q_WS_MAC
+        return QString("/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib");
+#endif
+    }
+    return *qt_gl_lib_name();
+}
+
 bool qt_resolve_framebufferobject_extensions(QGLContext *)
 {
     static bool resolved = false;
@@ -3644,11 +3663,7 @@ bool qt_resolve_framebufferobject_extensions(QGLContext *)
     else if (resolved)
         return false;
 
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
-    QLibrary lib(QLatin1String("GL"));
-#else // Q_WS_MAC
-    QLibrary lib(QLatin1String("/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib"));
-#endif
+    QLibrary lib(qt_gl_library_name());
 
     qt_glIsRenderbufferEXT = (PFNGLISRENDERBUFFEREXTPROC) lib.resolve("glIsRenderbufferEXT");
     qt_glBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC) lib.resolve("glBindRenderbufferEXT");
