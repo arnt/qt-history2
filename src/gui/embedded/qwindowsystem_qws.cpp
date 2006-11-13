@@ -156,7 +156,7 @@ static bool force_reject_strokeIM = false;
 /*!
     \fn QWSScreenSaver::restore()
 
-    Reimplement this function to deactivate the screensaver, restoring
+    Implement this function to deactivate the screensaver, restoring
     the previously saved screen.
 
     \sa save(), QWSServer::screenSaverActivate()
@@ -165,7 +165,7 @@ static bool force_reject_strokeIM = false;
 /*!
     \fn QWSScreenSaver::save(int level)
 
-    Reimplement this function to activate the screensaver, saving the
+    Implement this function to activate the screensaver, saving the
     current screen.
 
     \l {Qtopia Core} supports multilevel screen saving, i.e., it is
@@ -4127,8 +4127,8 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
 /*!
     \fn bool QWSServer::KeyboardFilter::filter(int unicode, int keycode, int modifiers, bool isPress, bool autoRepeat)
 
-    Reimplement this function to return true if a given key event
-    should be stopped from being processed any further; otherwise
+    Implement this function to return true if a given key event should
+    be stopped from being processed any further; otherwise it should
     return false.
 
     A key event can be identified by the given \a unicode value and

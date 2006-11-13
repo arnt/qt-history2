@@ -47,8 +47,8 @@
 /*!
     \fn QStringList QMouseDriverPlugin::keys() const
 
-    Returns the list of valid keys, i.e. the mouse drivers supported
-    by this plugin.
+    Implement this function to return the list of valid keys, i.e. the
+    mouse drivers supported by this plugin.
 
     \l {Qtopia Core} provides ready-made drivers for several mouse
     protocols, see the \l {Qtopia Core Pointer Handling}{pointer
@@ -82,8 +82,9 @@ QMouseDriverPlugin::~QMouseDriverPlugin()
 /*!
     \fn QScreen* QMouseDriverPlugin::create(const QString &key, const QString& device)
 
-    Creates a driver matching the type specified by the given \a key
-    and \a device parameters. Note that keys are case-insensitive.
+    Implement this function to create a driver matching the type
+    specified by the given \a key and \a device parameters. Note that
+    keys are case-insensitive.
 
     \sa keys()
 */

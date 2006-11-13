@@ -45,8 +45,8 @@
 /*!
     \fn QStringList QScreenDriverPlugin::keys() const
 
-    Returns the list of valid keys, i.e. the screen drivers supported
-    by this plugin.
+    Implement this function to return the list of valid keys, i.e. the
+    screen drivers supported by this plugin.
 
     \l {Qtopia Core} provides ready-made drivers for several screen
     protocols, see the \l {Qtopia Core Display Management}{display
@@ -81,8 +81,9 @@ QScreenDriverPlugin::~QScreenDriverPlugin()
 /*!
     \fn QScreen* QScreenDriverPlugin::create(const QString &key, int displayId)
 
-    Creates a driver matching the type specified by the given \a key
-    and \a displayId parameters. Note that keys are case-insensitive.
+    Implement this function to create a driver matching the type
+    specified by the given \a key and \a displayId parameters. Note
+    that keys are case-insensitive.
 
     \sa keys()
 */

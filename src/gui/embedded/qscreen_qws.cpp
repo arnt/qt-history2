@@ -549,9 +549,8 @@ public:
     initialize the framebuffer. Note that it is called \e before the
     connect() function.
 
-    Reimplement this function to make accelerated drivers set up the
-    graphics card. The default implementation does nothing; subclasses
-    should return true to indicate success and false to indicate
+    Implement this function to make accelerated drivers set up the
+    graphics card. Return true to indicate success and false to indicate
     failure.
 
     \sa shutdownDevice(), connect()
@@ -561,13 +560,13 @@ public:
     \fn virtual bool QScreen::connect(const QString &displaySpec) = 0
 
     This function is called by every \l {Qtopia Core} application on
-    startup, and must be reimplemented to map in the framebuffer and
-    the accelerated drivers that the graphics card control registers.
+    startup, and must be implemented to map in the framebuffer and the
+    accelerated drivers that the graphics card control registers.
     Note that a server application will call the initDevice() function
     prior to this function.
 
-    Returns true if a connection to the screen device can be made;
-    otherwise returns false.
+    Ensure that the function returns true if a connection to the
+    screen device can be made; otherwise return false.
 
     The \a displaySpec argument is passed by the QWS_DISPLAY
     environment variable or the -display command line parameter, and
@@ -592,7 +591,7 @@ public:
     \fn QScreen::disconnect()
 
     This function is called by every \l {Qtopia Core} application
-    before exiting, and must be reimplemented to unmap the
+    before exiting, and must be implemented to unmap the
     framebuffer. Note that a server application will call the
     shutdownDevice() function prior to this function.
 
@@ -603,11 +602,8 @@ public:
 /*!
     \fn QScreen::setMode(int width, int height, int depth)
 
-    Resets the framebuffer's resolution (\a width and \a height) and
-    bit \a depth.
-
-    Note that the default implementation does nothing; reimplement
-    this function to set the framebuffer's resolution.
+    Implement this function to reset the framebuffer's resolution (\a
+    width and \a height) and bit \a depth.
 
     After the resolution has been set, existing paint engines will be
     invalid and the framebuffer should be completely redrawn. In a

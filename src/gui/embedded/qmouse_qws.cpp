@@ -133,13 +133,9 @@ public:
 /*!
     \fn void QWSMouseHandler::suspend()
 
-    Suspends reading and handling of mouse events.
-
-    Note that the default implementation does nothing; reimplement
-    this function to control the flow of mouse
-    input. Reimplementations typically call the
-    QSocketNotifier::setEnabled() function to disable the socket
-    notifier.
+    Implement this function to suspend reading and handling of mouse
+    events, e.g., call the QSocketNotifier::setEnabled() function to
+    disable the socket notifier.
 
     \sa resume()
 */
@@ -147,13 +143,9 @@ public:
 /*!
     \fn void QWSMouseHandler::resume()
 
-    Resumes reading and handling mouse events.
-
-    Note that the default implementation does nothing; reimplement
-    this function to control the flow of mouse
-    input. Reimplementations typically call the
-    QSocketNotifier::setEnabled() function to enable the socket
-    notifier.
+    Implement this function to resume reading and handling mouse
+    events, e.g., call the QSocketNotifier::setEnabled() function to
+    enable the socket notifier.
 
     \sa suspend()
 */
