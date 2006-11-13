@@ -20,6 +20,7 @@
 #include <qtextcodec.h>
 #include <qbytearray.h>
 #include <qdatastream.h>
+#include <qdatetime.h>
 
 QTextCopyHelper::QTextCopyHelper(const QTextCursor &_source, const QTextCursor &_destination, bool forceCharFormat, const QTextCharFormat &fmt)
     : formatCollection(*_destination.d->priv->formatCollection()), originalText(_source.d->priv->buffer())
@@ -887,6 +888,8 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
             default: break;
         }
 
+    QVector<RowColSpanInfo> rowColSpans;
+
     int effectiveRow = 0;
     foreach (int row, rowNodes) {
         int colsInRow = 0;
@@ -897,6 +900,14 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
                 const QTextHtmlParserNode &c = at(cell);
                 const int currentColumn = colsInRow;
                 colsInRow += c.tableCellColSpan;
+
+                RowColSpanInfo spanInfo;
+                spanInfo.row = effectiveRow;
+                spanInfo.col = currentColumn;
+                spanInfo.colSpan = c.tableCellColSpan;
+                spanInfo.rowSpan = c.tableCellRowSpan;
+                if (spanInfo.colSpan > 1 || spanInfo.rowSpan > 1)
+                    rowColSpans.append(spanInfo);
 
                 if (c.tableCellRowSpan > 1) {
                     rowSpanCellsPerRow.resize(effectiveRow + c.tableCellRowSpan + 1);
@@ -962,17 +973,10 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
         QTextTable *textTable = cursor.insertTable(table.rows, table.columns, fmt.toTableFormat());
         table.frame = textTable;
 
-        TableCellIterator it(textTable);
-        foreach (int row, rowNodes)
-            foreach (int cell, at(row).children)
-            if (at(cell).isTableCell()) {
-                const QTextHtmlParserNode &c = at(cell);
-
-                if (c.tableCellColSpan > 1 || c.tableCellRowSpan > 1)
-                    textTable->mergeCells(it.row, it.column, c.tableCellRowSpan, c.tableCellColSpan);
-
-                ++it;
-            }
+        for (int i = 0; i < rowColSpans.count(); ++i) {
+            const RowColSpanInfo &nfo = rowColSpans.at(i);
+            textTable->mergeCells(nfo.row, nfo.col, nfo.rowSpan, nfo.colSpan);
+        }
 
         table.currentCell = TableCellIterator(textTable);
         cursor.setPosition(oldPos); // restore for caption support which needs to be inserted right before the table

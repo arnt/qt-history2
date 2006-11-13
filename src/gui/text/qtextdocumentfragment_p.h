@@ -163,6 +163,12 @@ private:
     };
     QVector<Table> tables;
 
+    struct RowColSpanInfo
+    {
+        int row, col;
+        int rowSpan, colSpan;
+    };
+
     QTextDocument *doc;
     QTextCursor cursor;
     QTextHtmlParserNode::WhiteSpaceMode wsm;
