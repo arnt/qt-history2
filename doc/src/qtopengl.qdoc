@@ -43,9 +43,12 @@
     but with much more non-OpenGL-specific GUI functionality, i.e. the
     whole Qt API.
 
-    \warning The QtOpenGL module is part of the \l{Qt Desktop Edition} and
-    the \l{Qt Open Source Edition}. It is available on Windows, X11,
-    and Mac OS X. The module is \e not part of \l{Qtopia Core}.
+    \warning The QtOpenGL module is part of the \l{Qt Desktop Edition}
+    and the \l{Qt Open Source Edition}. It is available on Windows,
+    X11, and Mac OS X. \l {Qtopia Core} supports OpenGL ES (OpenGL for
+    Embedded Systems). To be able to use the OpenGL API in \l {Qtopia
+    Core}, it must be integrated with the Q Window System (QWS). See
+    the \l {Qtopia Core and OpenGL} documentation for details.
 
     \section1 Installation
 
