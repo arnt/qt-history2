@@ -425,15 +425,23 @@ void QUndoStack::clear()
     if (d->command_list.isEmpty())
         return;
 
+    bool was_clean = isClean();
+
     d->macro_stack.clear();
     qDeleteAll(d->command_list);
     d->command_list.clear();
 
-    bool old_index = d->index;
-    d->setIndex(0, true);
+    d->index = 0;
+    d->clean_index = 0;
 
-    if (old_index == 0) // emit it anyway
-        emit indexChanged(0);
+    emit indexChanged(0);
+    emit canUndoChanged(false);
+    emit undoTextChanged(QString());
+    emit canRedoChanged(false);
+    emit redoTextChanged(QString());
+
+    if (!was_clean)
+        emit cleanChanged(true);
 }
 
 /*!
