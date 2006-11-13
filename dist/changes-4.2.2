@@ -21,6 +21,24 @@ Designer
 General improvements
 --------------------
 
+- Item views
+      
+      * Fixed possible assert in QTreeView when painting if there were
+        layouts pending.
+      
+      * Fixed possible segfault in QTreeView when a model emits layoutChanged().
+      
+      * Fixed QHeaderView and QTableView overflow issues when the length
+        of all the rows or columns went over max int.
+      
+      * When reset is emited by a QAbstractItemModel, QHeaderView will now
+        always update the header count().
+
+      * Fixed regression where QAbstractItemView::setRootIndex() wasn't 
+        always updating the view causing possibly painting errors.
+      
+      * Fixed QTreeWidget::setSortingEnabled() which could could cause
+        incorrect painting.
 
 Platform-Specific changes
 -------------------------
