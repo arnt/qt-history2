@@ -64,6 +64,9 @@ public:
     inline void setSpanning(bool span);
     inline bool isSpanning() const;
 
+    void setExpandable(bool expandable);
+    bool isExpandable() const;
+
     inline Qt::ItemFlags flags() const { return itemFlags; }
     inline void setFlags(Qt::ItemFlags flags);
 

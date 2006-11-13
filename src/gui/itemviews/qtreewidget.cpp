@@ -183,7 +183,8 @@ QModelIndex QTreeModel::index(const QTreeWidgetItem *item, int column) const
     QTreeWidgetItem *itm = const_cast<QTreeWidgetItem*>(item);
     if (!par)
         par = rootItem;
-    return createIndex(par->children.lastIndexOf(itm), column, itm);
+    const int row = par->children.lastIndexOf(itm);
+    return createIndex(row, column, itm);
 }
 
 /*!
@@ -197,7 +198,6 @@ QModelIndex QTreeModel::index(const QTreeWidgetItem *item, int column) const
 QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
     int c = columnCount(parent);
-
     if (row < 0 || column < 0 || column >= c)
         return QModelIndex();
 
@@ -277,7 +277,7 @@ bool QTreeModel::hasChildren(const QModelIndex &parent) const
     QTreeWidgetItem *itm = item(parent);
     if (!itm)
         return false;
-    return (itm->childCount() > 0);
+    return (itm->childCount() > 0) && itm->d->expandable;
 }
 
 /*!
@@ -1440,6 +1440,32 @@ QTreeWidgetItem *QTreeWidgetItem::clone() const
 }
 
 /*!
+  Sets the item to be expandable if \a expandable is true,
+  otherwise the item is not expandable.
+
+  \sa isExpandable()
+*/
+
+void QTreeWidgetItem::setExpandable(bool expandable)
+{
+    if (d->expandable == expandable)
+        return;
+    d->expandable = expandable;
+    if (QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0))
+        view->updateIndex(model->index(this, 0));
+}
+
+/*!
+  Returns true if the item is expandable, otherwise returns false.
+
+  \sa setExpandable()
+*/
+bool QTreeWidgetItem::isExpandable() const
+{
+    return d->expandable;
+}
+
+/*!
     Sets the value for the item's \a column and \a role to the given
     \a value.
 
@@ -1623,6 +1649,7 @@ QTreeWidgetItem &QTreeWidgetItem::operator=(const QTreeWidgetItem &other)
 {
     values = other.values;
     d->display = other.d->display;
+    d->expandable = other.d->expandable;
     itemFlags = other.itemFlags;
     return *this;
 }
