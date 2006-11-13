@@ -64,11 +64,14 @@ public:
     inline void setSpanning(bool span);
     inline bool isSpanning() const;
 
+    inline void setDisabled(bool disabled);
+    inline bool isDisabled() const;
+
     void setExpandable(bool expandable);
     bool isExpandable() const;
 
-    inline Qt::ItemFlags flags() const { return itemFlags; }
-    inline void setFlags(Qt::ItemFlags flags);
+    Qt::ItemFlags flags() const;
+    void setFlags(Qt::ItemFlags flags);
 
     inline QString text(int column) const
         { return data(column, Qt::DisplayRole).toString(); }
@@ -181,9 +184,6 @@ private:
     QList<QTreeWidgetItem*> children;
     Qt::ItemFlags itemFlags;
 };
-
-inline void QTreeWidgetItem::setFlags(Qt::ItemFlags aflags)
-{ itemFlags = aflags; itemChanged(); }
 
 inline void QTreeWidgetItem::setText(int column, const QString &atext)
 { setData(column, Qt::DisplayRole, atext); }
@@ -366,6 +366,12 @@ inline void QTreeWidgetItem::setSpanning(bool aspan)
 
 inline bool QTreeWidgetItem::isSpanning() const
 { return (view ? view->isItemSpanning(this) : false); }
+
+inline void QTreeWidgetItem::setDisabled(bool disabled)
+{ setFlags(disabled ? (flags() & ~Qt::ItemIsEnabled) : flags() | Qt::ItemIsEnabled); }
+
+inline bool QTreeWidgetItem::isDisabled() const
+{ return !(flags() & Qt::ItemIsEnabled); }
 
 #endif // QT_NO_TREEWIDGET
 

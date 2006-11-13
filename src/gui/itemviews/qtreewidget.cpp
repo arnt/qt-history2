@@ -922,28 +922,6 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortO
 */
 
 /*!
-    \fn Qt::ItemFlags QTreeWidgetItem::flags() const
-
-    Returns the flags used to describe the item. These determine whether
-    the item can be checked, edited, and selected.
-
-    The default value for flags is
-    Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsDragEnabled.
-    If the item was constructed with a parent, flags will in addition contain Qt::ItemIsDropEnabled.
-
-    \sa setFlags()
-*/
-
-/*!
-    \fn void QTreeWidgetItem::setFlags(Qt::ItemFlags flags)
-
-    Sets the flags for the item to the given \a flags. These determine whether
-    the item can be selected or modified.  This is often used to disable an item.
-
-    \sa flags()
-*/
-
-/*!
     \fn QString QTreeWidgetItem::text(int column) const
 
     Returns the text in the specified \a column.
@@ -1463,6 +1441,65 @@ void QTreeWidgetItem::setExpandable(bool expandable)
 bool QTreeWidgetItem::isExpandable() const
 {
     return d->expandable;
+}
+
+/*!
+    \fn void QTreeWidgetItem::setFlags(Qt::ItemFlags flags)
+
+    Sets the flags for the item to the given \a flags. These determine whether
+    the item can be selected or modified.  This is often used to disable an item.
+
+    \sa flags()
+*/
+void QTreeWidgetItem::setFlags(Qt::ItemFlags flags)
+{
+    const bool enable = (flags & Qt::ItemIsEnabled);
+    const bool changedState = (itemFlags & Qt::ItemIsEnabled) != enable;
+    const bool changedExplicit = d->disabled != !enable;
+
+    d->disabled = !enable;
+
+    if (enable && par && !(par->itemFlags & Qt::ItemIsEnabled)) // inherit from parent
+        itemFlags = flags & ~Qt::ItemIsEnabled;
+    else // this item is explicitly disabled or has no parent
+        itemFlags = flags;
+
+    if (changedState && changedExplicit) { // if the propagate the change to the children
+        QStack<QTreeWidgetItem*> parents;
+        parents.push(this);
+        while (!parents.isEmpty()) {
+            QTreeWidgetItem *parent = parents.pop();
+            for (int i = 0; i < parent->children.count(); ++i) {
+                QTreeWidgetItem *child = parent->children.at(i);
+                if (!child->d->disabled) { // if not explicitly disabled
+                    parents.push(child);
+                    if (enable)
+                        child->itemFlags = child->itemFlags | Qt::ItemIsEnabled;
+                    else
+                        child->itemFlags = child->itemFlags & ~Qt::ItemIsEnabled;
+                    child->itemChanged(); // ### we may want to optimize this
+                }
+            }
+        }
+    }
+    itemChanged();
+}
+
+/*!
+    \fn Qt::ItemFlags QTreeWidgetItem::flags() const
+
+    Returns the flags used to describe the item. These determine whether
+    the item can be checked, edited, and selected.
+
+    The default value for flags is
+    Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsDragEnabled.
+    If the item was constructed with a parent, flags will in addition contain Qt::ItemIsDropEnabled.
+
+    \sa setFlags()
+*/
+Qt::ItemFlags QTreeWidgetItem::flags() const
+{
+    return itemFlags;
 }
 
 /*!

@@ -130,10 +130,11 @@ class QTreeModelPrivate : public QAbstractItemModelPrivate
 class QTreeWidgetItemPrivate
 {
 public:
-    QTreeWidgetItemPrivate(QTreeWidgetItem *item) : q(item), expandable(true) {}
+    QTreeWidgetItemPrivate(QTreeWidgetItem *item) : q(item), expandable(true), disabled(false) {}
     QTreeWidgetItem *q;
     QVariantList display;
     uint expandable : 1;
+    uint disabled : 1;
 };
 
 #endif // QT_NO_TREEWIDGET
