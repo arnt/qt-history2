@@ -2588,9 +2588,9 @@ qreal QPainterPath::length() const
 /*!
     Returns percentage of the whole path at the specified length \a len.
 
-    Not that similar to other percent method, the percentage measurment
-    is not linear with regards to the length if curves are present
-    in the path. When curves are precent the percentage argument is mapped
+    Note that similarly to other percent methods, the percentage measurment
+    is not linear with regards to the length, if curves are present
+    in the path. When curves are present the percentage argument is mapped
     to the t parameter of the Bezier equations.
 */
 qreal QPainterPath::percentAtLength(qreal len) const
@@ -2701,9 +2701,9 @@ static inline QBezier bezierAtT(const QPainterPath &path, qreal t, qreal *starti
     Returns the point at at the percentage \a t of the current path.
     The argument \a t has to be between 0 and 1.
 
-    Not that similar to other percent method, the percentage measurment
-    is not linear with regards to the length if curves are present
-    in the path. When curves are precent the percentage argument is mapped
+    Note that similarly to other percent methods, the percentage measurment
+    is not linear with regards to the length, if curves are present
+    in the path. When curves are present the percentage argument is mapped
     to the t parameter of the Bezier equations.
 */
 QPointF QPainterPath::pointAtPercent(qreal t) const
@@ -2730,9 +2730,9 @@ QPointF QPainterPath::pointAtPercent(qreal t) const
     of the horizontal (x) axis. The argument \a t has to be between
     0 and 1.
 
-    Not that similar to other percent method, the percentage measurment
-    is not linear with regards to the length if curves are present
-    in the path. When curves are precent the percentage argument is mapped
+    Note that similarly to other percent methods, the percentage measurment
+    is not linear with regards to the length, if curves are present
+    in the path. When curves are present the percentage argument is mapped
     to the t parameter of the Bezier equations.
 */
 qreal QPainterPath::angleAtPercent(qreal t) const
@@ -2752,9 +2752,9 @@ qreal QPainterPath::angleAtPercent(qreal t) const
     Returns the slope of the path at the percentage \a t. The
     argument \a t has to be between 0 and 1.
 
-    Not that similar to other percent method, the percentage measurment
-    is not linear with regards to the length if curves are present
-    in the path. When curves are precent the percentage argument is mapped
+    Note that similarly to other percent methods, the percentage measurment
+    is not linear with regards to the length, if curves are present
+    in the path. When curves are present the percentage argument is mapped
     to the t parameter of the Bezier equations.
 */
 qreal QPainterPath::slopeAtPercent(qreal t) const
