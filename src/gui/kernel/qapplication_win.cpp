@@ -1081,6 +1081,15 @@ bool qt_sendSpontaneousEvent(QObject *receiver, QEvent *event)
     return QCoreApplication::sendSpontaneousEvent(receiver, event);
 }
 
+static bool qt_is_translatable_mouse_event(UINT message)
+{
+    return (message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ||
+                message >= WM_XBUTTONDOWN && message <= WM_XBUTTONDBLCLK)
+            && message != WM_MOUSEWHEEL
+
+            || message >= WM_NCMOUSEMOVE && message <= WM_NCMBUTTONDBLCLK;
+}
+
 extern "C"
 LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -1111,7 +1120,10 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
     msg.lParam = lParam;
     msg.pt.x = GET_X_LPARAM(lParam);
     msg.pt.y = GET_Y_LPARAM(lParam);
-    ClientToScreen(msg.hwnd, &msg.pt);         // the coords we get are client coords
+    // If it's a non-client-area message the coords are screen coords, otherwise they are
+    // client coords.
+    if (message < WM_NCMOUSEMOVE || message > WM_NCMBUTTONDBLCLK)
+        ClientToScreen(msg.hwnd, &msg.pt);
 
     /*
     // sometimes the autograb is not released, so the clickevent is sent
@@ -1254,9 +1266,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
     if (widget->winEvent(&msg, &res))                // send through widget filter
         RETURN(res);
 
-    if ((message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ||
-           message >= WM_XBUTTONDOWN && message <= WM_XBUTTONDBLCLK)
-         && message != WM_MOUSEWHEEL) {
+    if (qt_is_translatable_mouse_event(message)) {
         if (qApp->activePopupWidget() != 0) { // in popup mode
             POINT curPos = msg.pt;
             QWidget* w = QApplication::widgetAt(curPos.x, curPos.y);
@@ -1461,7 +1471,6 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             }
             break;
 
-#ifndef Q_OS_TEMP
         case WM_NCHITTEST:
             if (widget->isWindow()) {
                 QPoint pos = widget->mapFromGlobal(QPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
@@ -1477,24 +1486,6 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 
             result = false;
             break;
-        case WM_NCMOUSEMOVE:
-            {
-                // span the application wide cursor over the
-                // non-client area.
-                QCursor *c = qt_grab_cursor();
-                if (!c)
-                    c = QApplication::overrideCursor();
-                if (c)        // application cursor defined
-                    SetCursor(c->handle());
-                else
-                    result = false;
-                // generate leave event also when the caret enters
-                // the non-client area.
-                QApplicationPrivate::dispatchEnterLeave(0, QWidget::find(curWin));
-                curWin = 0;
-            }
-            break;
-#endif
 
         case WM_SYSCOMMAND: {
 #ifndef Q_OS_TEMP
@@ -2047,6 +2038,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         QEvent e(evt_type);
         result = qt_sendSpontaneousEvent(widget, &e);
     }
+
     if (result)
         RETURN(false);
 
@@ -2295,6 +2287,18 @@ static ushort mouseTbl[] = {
     WM_XBUTTONDOWN,      QEvent::MouseButtonPress,        Qt::XButton1,
     WM_XBUTTONUP,        QEvent::MouseButtonRelease,      Qt::XButton1,
     WM_XBUTTONDBLCLK,    QEvent::MouseButtonDblClick,     Qt::XButton1,
+
+    WM_NCMOUSEMOVE,      QEvent::NonClientAreaMouseMove,           0,
+    WM_NCLBUTTONDOWN,    QEvent::NonClientAreaMouseButtonPress,    Qt::LeftButton,
+    WM_NCLBUTTONUP,      QEvent::NonClientAreaMouseButtonRelease,  Qt::LeftButton,
+    WM_NCLBUTTONDBLCLK,  QEvent::NonClientAreaMouseButtonDblClick, Qt::LeftButton,
+    WM_NCRBUTTONDOWN,    QEvent::NonClientAreaMouseButtonPress,    Qt::RightButton,
+    WM_NCRBUTTONUP,      QEvent::NonClientAreaMouseButtonRelease,  Qt::RightButton,
+    WM_NCRBUTTONDBLCLK,  QEvent::NonClientAreaMouseButtonDblClick, Qt::RightButton,
+    WM_NCMBUTTONDOWN,    QEvent::NonClientAreaMouseButtonPress,    Qt::MidButton,
+    WM_NCMBUTTONUP,      QEvent::NonClientAreaMouseButtonRelease,  Qt::MidButton,
+    WM_NCMBUTTONDBLCLK,  QEvent::NonClientAreaMouseButtonDblClick, Qt::MidButton,
+
     0,                        0,                                0
 };
 
@@ -2434,7 +2438,6 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         }
     }
 
-
     for (i=0; (UINT)mouseTbl[i] != msg.message || !mouseTbl[i]; i += 3)
         ;
     if (!mouseTbl[i])
@@ -2452,40 +2455,50 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         }
     }
     state  = translateButtonState(msg.wParam, type, button); // button state
-    if (type == QEvent::MouseMove) {
+
+    if (type == QEvent::MouseMove || type == QEvent::NonClientAreaMouseMove) {
         if (!(state & Qt::MouseButtonMask))
             qt_button_down = 0;
+        
         QCursor *c = qt_grab_cursor();
         if (!c)
             c = QApplication::overrideCursor();
         if (c)                                // application cursor defined
             SetCursor(c->handle());
-        else {
+        else if (type != QEvent::NonClientAreaMouseMove) {
             QWidget *w = this; // use  widget cursor if widget is enabled
             while (!w->isWindow() && !w->isEnabled())
                 w = w->parentWidget();
             SetCursor(w->cursor().handle());
         }
-        if (curWin != internalWinId()) {                // new current window
-            QApplicationPrivate::dispatchEnterLeave(this, QWidget::find(curWin));
-            curWin = internalWinId();
+
+        HWND id = internalWinId();
+        if (type == QEvent::NonClientAreaMouseMove)
+            id = 0;
+
+        if (curWin != id) {                // new current window
+            QApplicationPrivate::dispatchEnterLeave(id == 0 ? 0 : this, QWidget::find(curWin));
+            curWin = id;
 #ifndef Q_OS_TEMP
-            static bool trackMouseEventLookup = false;
-            typedef BOOL (WINAPI *PtrTrackMouseEvent)(LPTRACKMOUSEEVENT);
-            static PtrTrackMouseEvent ptrTrackMouseEvent = 0;
-            if (!trackMouseEventLookup) {
-                trackMouseEventLookup = true;
-                ptrTrackMouseEvent = (PtrTrackMouseEvent)QLibrary::resolve("comctl32", "_TrackMouseEvent");
-            }
-            if (ptrTrackMouseEvent && !qApp->d_func()->inPopupMode()) {
-                // We always have to set the tracking, since
-                // Windows detects more leaves than we do..
-                TRACKMOUSEEVENT tme;
-                tme.cbSize = sizeof(TRACKMOUSEEVENT);
-                tme.dwFlags = 0x00000002;    // TME_LEAVE
-                tme.hwndTrack = curWin;      // Track on window receiving msgs
-                tme.dwHoverTime = (DWORD)-1; // HOVER_DEFAULT
-                ptrTrackMouseEvent(&tme);
+
+            if (curWin != 0) {
+                static bool trackMouseEventLookup = false;
+                typedef BOOL (WINAPI *PtrTrackMouseEvent)(LPTRACKMOUSEEVENT);
+                static PtrTrackMouseEvent ptrTrackMouseEvent = 0;
+                if (!trackMouseEventLookup) {
+                    trackMouseEventLookup = true;
+                    ptrTrackMouseEvent = (PtrTrackMouseEvent)QLibrary::resolve("comctl32", "_TrackMouseEvent");
+                }
+                if (ptrTrackMouseEvent && !qApp->d_func()->inPopupMode()) {
+                    // We always have to set the tracking, since
+                    // Windows detects more leaves than we do..
+                    TRACKMOUSEEVENT tme;
+                    tme.cbSize = sizeof(TRACKMOUSEEVENT);
+                    tme.dwFlags = 0x00000002;    // TME_LEAVE
+                    tme.hwndTrack = curWin;      // Track on window receiving msgs
+                    tme.dwHoverTime = (DWORD)-1; // HOVER_DEFAULT
+                    ptrTrackMouseEvent(&tme);
+                }
             }
 #endif // Q_OS_TEMP
         }
@@ -2515,7 +2528,14 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
 
     bool res = false;
 
+    bool nonClientAreaEvent = type >= QEvent::NonClientAreaMouseMove
+                                && type <= QEvent::NonClientAreaMouseButtonDblClick;
+
     if (qApp->d_func()->inPopupMode()) {                        // in popup mode
+
+        if (nonClientAreaEvent)
+            return false;
+
         replayPopupMouseEvent = false;
         QWidget* activePopupWidget = qApp->activePopupWidget();
         QWidget *target = activePopupWidget;
@@ -2551,11 +2571,11 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
 
         QPoint globalPos(gpos.x, gpos.y);
         pos = target->mapFromGlobal(globalPos);
-	QMouseEvent e(type, pos, globalPos,
-                      Qt::MouseButton(button),
-                      Qt::MouseButtons(state & Qt::MouseButtonMask),
-                      Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask));
-	res = QApplication::sendSpontaneousEvent(target, &e);
+	    QMouseEvent e(type, pos, globalPos,
+                        Qt::MouseButton(button),
+                        Qt::MouseButtons(state & Qt::MouseButtonMask),
+                        Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask));
+	    res = QApplication::sendSpontaneousEvent(target, &e);
         res = res && e.isAccepted();
 
         if (releaseAfter) {
@@ -2564,8 +2584,8 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         }
 
         if (type == QEvent::MouseButtonPress
-             && qApp->activePopupWidget() != activePopupWidget
-             && replayPopupMouseEvent) {
+            && qApp->activePopupWidget() != activePopupWidget
+            && replayPopupMouseEvent) {
             // the popup dissappeared. Replay the event
             QWidget* w = QApplication::widgetAt(gpos.x, gpos.y);
             if (w && !QApplicationPrivate::isBlockedByModal(w)) {
@@ -2577,8 +2597,8 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
                 LPARAM lParam = MAKELPARAM(widgetpt.x, widgetpt.y);
                 winPostMessage(w->internalWinId(), msg.message, msg.wParam, lParam);
             }
-         } else if (type == QEvent::MouseButtonRelease && button == Qt::RightButton
-                   && qApp->activePopupWidget() == activePopupWidget) {
+        } else if (type == QEvent::MouseButtonRelease && button == Qt::RightButton
+                && qApp->activePopupWidget() == activePopupWidget) {
             // popup still alive and received right-button-release
 	    QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, globalPos);
 	    bool res2 = QApplication::sendSpontaneousEvent( target, &e2 );
@@ -2616,13 +2636,13 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
              (state & Qt::MouseButtonMask) == 0) {
             qt_button_down = 0;
         }
-
         QMouseEvent e(type, pos, QPoint(gpos.x,gpos.y),
                       Qt::MouseButton(button),
                       Qt::MouseButtons(state & Qt::MouseButtonMask),
                       Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask));
         res = QApplication::sendSpontaneousEvent(widget, &e);
-        res = res && e.isAccepted();
+        // non client area events are only informational, you cannot "handle" them
+        res = res && e.isAccepted() && !nonClientAreaEvent;
         if (type == QEvent::MouseButtonRelease && button == Qt::RightButton) {
             QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, QPoint(gpos.x,gpos.y));
             bool res2 = QApplication::sendSpontaneousEvent(widget, &e2);

@@ -204,6 +204,12 @@ public:
 
         TabletEnterProximity = 171,
         TabletLeaveProximity = 172,
+
+        NonClientAreaMouseMove = 173,
+        NonClientAreaMouseButtonPress = 174,
+        NonClientAreaMouseButtonRelease = 175,
+        NonClientAreaMouseButtonDblClick = 176,
+
         User = 1000,                            // first user event id
         MaxUser = 65535                         // last user event id
     };

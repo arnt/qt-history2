@@ -1545,6 +1545,10 @@ void QMainWindowLayout::plug(QWidgetItem *dockWidgetItem, const QList<int> &path
         pluggingWidget = dockWidget;
         QRect globalRect = currentGapRect;
         globalRect.moveTopLeft(parentWidget()->mapToGlobal(globalRect.topLeft()));
+#ifndef Q_WS_X11
+        QDWLayout *layout = qobject_cast<QDWLayout*>(dockWidgetItem->widget()->layout());
+        globalRect.adjust(0, layout->titleHeight(), 0, 0);
+#endif
         widgetAnimator->animate(dockWidget, globalRect, animationEnabled);
     } else {
         dockWidget->d_func()->plug(currentGapRect);

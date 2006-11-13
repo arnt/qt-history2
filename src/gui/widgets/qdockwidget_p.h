@@ -48,6 +48,7 @@ class QDockWidgetPrivate : public QWidgetPrivate
         QWidgetItem *widgetItem;
         QList<int> pathToGap;
         bool ownWidgetItem;
+        bool nca;
     };
 
 public:
@@ -56,7 +57,7 @@ public:
           features(QDockWidget::DockWidgetClosable
                    | QDockWidget::DockWidgetMovable
                    | QDockWidget::DockWidgetFloatable),
-          allowedAreas(Qt::AllDockWidgetAreas), resizer(0)
+          allowedAreas(Qt::AllDockWidgetAreas)
     { }
 
     void init();
@@ -69,7 +70,10 @@ public:
     QDockWidget::DockWidgetFeatures features;
     Qt::DockWidgetAreas allowedAreas;
 
+#ifdef Q_WS_X11
     QWidgetResizeHandler *resizer;
+#endif
+
 #ifndef QT_NO_ACTION
     QAction *toggleViewAction;
 #endif
@@ -80,6 +84,12 @@ public:
     void mouseDoubleClickEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
+    void setWindowState(bool floating, bool unplug = false, const QRect &rect = QRect());
+    void nonClientAreaMouseEvent(QMouseEvent *event);
+    void initDrag(const QPoint &pos, bool nca);
+    void startDrag();
+    void endDrag();
+    void moveEvent(QMoveEvent *event);
 
     void unplug(const QRect &rect);
     void plug(const QRect &rect);

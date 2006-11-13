@@ -62,8 +62,14 @@ struct QLayoutStruct
 
 Q_GUI_EXPORT void qGeomCalc(QVector<QLayoutStruct> &chain, int start, int count,
                          int pos, int space, int spacer);
+Q_GUI_EXPORT QSize qSmartMinSize(const QSize &sizeHint, const QSize &minSizeHint,
+                                 const QSize &minSize, const QSize &maxSize,
+                                 const QSizePolicy &sizePolicy);
 Q_GUI_EXPORT QSize qSmartMinSize(const QWidgetItem *i);
 Q_GUI_EXPORT QSize qSmartMinSize(const QWidget *w);
+Q_GUI_EXPORT QSize qSmartMaxSize(const QSize &sizeHint,
+                                 const QSize &minSize, const QSize &maxSize,
+                                 const QSizePolicy &sizePolicy, Qt::Alignment align = 0);
 Q_GUI_EXPORT QSize qSmartMaxSize(const QWidgetItem *i, Qt::Alignment align = 0);
 Q_GUI_EXPORT QSize qSmartMaxSize(const QWidget *w, Qt::Alignment align = 0);
 

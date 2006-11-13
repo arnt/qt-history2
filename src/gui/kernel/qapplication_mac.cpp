@@ -1370,6 +1370,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
     case kEventClassMouse:
     {
         Point where;
+        bool inNonClientArea = false;
         GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, 0,
                           sizeof(where), 0, &where);
         if(ekind == kEventMouseMoved && qt_mac_app_fullscreen &&
@@ -1490,6 +1491,27 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 }
             }
         }
+        if (widget && widget->isWindow() && !widget->geometry().contains(QPoint(where.h, where.v))) {
+            inNonClientArea = true;
+            switch (etype) {
+            case QEvent::MouseButtonPress:
+                etype = QEvent::NonClientAreaMouseButtonPress;
+                break;
+            case QEvent::MouseButtonRelease:
+                etype = QEvent::NonClientAreaMouseButtonRelease;
+                break;
+            case QEvent::MouseButtonDblClick:
+                etype = QEvent::NonClientAreaMouseButtonDblClick;
+                break;
+            case QEvent::MouseMove:
+                etype = QEvent::NonClientAreaMouseMove;
+                break;
+            default:
+                break;
+            }
+        }
+
+
         if(qt_mac_find_window((FrontWindow()))) { //set the cursor up
             QCursor cursor(Qt::ArrowCursor);
             QWidget *cursor_widget = widget;
@@ -1618,7 +1640,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         switch(ekind) {
         case kEventMouseDragged:
         case kEventMouseMoved:
-            if((QWidget *)qt_mouseover != widget) {
+            if((QWidget *)qt_mouseover != widget || inNonClientArea) {
 #ifdef DEBUG_MOUSE_MAPS
                 qDebug("Entering: %p - %s (%s), Leaving %s (%s)", (QWidget*)widget,
                        widget ? widget->metaObject()->className() : "none",
@@ -1698,7 +1720,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 }
                 QMouseEvent qme(etype, plocal, p, buttonToSend, buttons, modifiers);
                 QApplication::sendSpontaneousEvent(widget, &qme);
-                if(!qme.isAccepted())
+                if(!qme.isAccepted() || inNonClientArea)
                     handled_event = false;
             }
 

@@ -167,8 +167,17 @@ bool QDockAreaLayoutItem::skip() const
 
 QSize QDockAreaLayoutItem::minimumSize() const
 {
-    if (widgetItem != 0)
+    if (widgetItem != 0) {
+        QWidget *w = widgetItem->widget();
+        if (QDWLayout *layout = qobject_cast<QDWLayout*>(w->layout())) {
+            // the dockwidget may be floating, but we want to know what size hints
+            // it will return when docked.
+            return qSmartMinSize(layout->dockedSizeHint(), layout->dockedMinimumSize(),
+                                    w->minimumSize(), w->maximumSize(),
+                                    w->sizePolicy());
+        }
         return qSmartMinSize(widgetItem);
+    }
     if (subinfo != 0)
         return subinfo->minimumSize();
     return QSize(0, 0);
@@ -176,8 +185,16 @@ QSize QDockAreaLayoutItem::minimumSize() const
 
 QSize QDockAreaLayoutItem::maximumSize() const
 {
-    if (widgetItem != 0)
+    if (widgetItem != 0) {
+        QWidget *w = widgetItem->widget();
+        if (QDWLayout *layout = qobject_cast<QDWLayout*>(w->layout())) {
+            // the dockwidget may be floating, but we want to know what size hints
+            // it will return when docked.
+            return qSmartMaxSize(layout->dockedSizeHint(), w->minimumSize(),
+                                    w->maximumSize(), w->sizePolicy());
+        }
         return qSmartMaxSize(widgetItem);
+    }
     if (subinfo != 0)
         return subinfo->maximumSize();
     return QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
@@ -1045,6 +1062,19 @@ void QDockAreaLayoutInfo::setCurrentTabId(quintptr id)
 
 #endif // QT_NO_TABBAR
 
+static QRect dockedGeometry(QWidget *widget)
+{
+    int titleHeight = 0;
+#ifndef Q_WS_X11
+    QDWLayout *layout = qobject_cast<QDWLayout*>(widget->layout());
+    if (layout != 0)
+        titleHeight = layout->titleHeight();
+#endif
+    QRect result = widget->geometry();
+    result.adjust(0, -titleHeight, 0, 0);
+    return result;
+}
+
 bool QDockAreaLayoutInfo::insertGap(QList<int> path, QWidgetItem *dockWidgetItem)
 {
     Q_ASSERT(!path.isEmpty());
@@ -1070,7 +1100,7 @@ bool QDockAreaLayoutInfo::insertGap(QList<int> path, QWidgetItem *dockWidgetItem
 
             QDockAreaLayoutInfo *subinfo = item.subinfo;
             QWidgetItem *widgetItem = item.widgetItem;
-            QRect r = subinfo == 0 ? widgetItem->geometry() : subinfo->rect;
+            QRect r = subinfo == 0 ? dockedGeometry(widgetItem->widget()) : subinfo->rect;
 
             Qt::Orientation opposite = o == Qt::Horizontal ? Qt::Vertical : Qt::Horizontal;
 #ifdef QT_NO_TABBAR
@@ -1132,7 +1162,8 @@ bool QDockAreaLayoutInfo::insertGap(QList<int> path, QWidgetItem *dockWidgetItem
             gap_size = space;
             sep_size = 0;
         } else {
-            gap_size = pick(o, dockWidgetItem->geometry().size());
+            QRect r = dockedGeometry(dockWidgetItem->widget());
+            gap_size = pick(o, r.size());
             if (prev != -1 && !item_list.at(prev).gap)
                 sep_size += sep;
             if (next != -1 && !item_list.at(next).gap)

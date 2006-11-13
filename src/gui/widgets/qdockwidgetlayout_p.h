@@ -28,7 +28,8 @@
 #include "QtCore/qlist.h"
 #include "QtCore/qrect.h"
 #include "QtCore/qpair.h"
-#include "QtGui/qsizepolicy.h"
+#include "QtCore/qlist.h"
+#include "QtGui/qlayout.h"
 
 #ifndef QT_NO_DOCKWIDGET
 
@@ -275,6 +276,37 @@ public:
     void keepSize(QDockWidget *w);
 
     QSet<QTabBar*> usedTabBars() const;
+};
+
+// this is the layout used by QDockWidget for its contents
+class QDWLayout : public QLayout
+{
+public:
+    QDWLayout(QWidget *parent = 0);
+    void addItem(QLayoutItem *item);
+    QLayoutItem *itemAt(int index) const;
+    QLayoutItem *takeAt(int index);
+    int count() const;
+
+    QSize dockedMinimumSize() const;
+    QSize minimumSize() const;
+    QSize dockedSizeHint() const;
+    QSize sizeHint() const;
+
+    void setGeometry(const QRect &r);
+
+    enum Role { Content, CloseButton, FloatButton, RoleCount };
+    QWidget *widget(Role r);
+    void setWidget(Role r, QWidget *w);
+
+    QRect titleArea() const { return _titleArea; }
+
+    int minimumTitleWidth() const;
+    int titleHeight() const;
+
+private:
+    QVector<QLayoutItem*> item_list;
+    QRect _titleArea;
 };
 
 // void dump(QDebug debug, const QDockWidgetLayout &layout);
