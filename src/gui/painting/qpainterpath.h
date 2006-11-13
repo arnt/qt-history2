@@ -122,6 +122,12 @@ public:
     inline const QPainterPath::Element &elementAt(int i) const;
     inline void setElementPositionAt(int i, qreal x, qreal y);
 
+    qreal   length() const;
+    qreal   percentAtLength(qreal t) const;
+    QPointF pointAtPercent(qreal t) const;
+    qreal   angleAtPercent(qreal t) const;
+    qreal   slopeAtPercent(qreal t) const;
+
     bool operator==(const QPainterPath &other) const;
     bool operator!=(const QPainterPath &other) const;
 

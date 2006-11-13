@@ -2539,3 +2539,240 @@ QPolygonF QPainterPath::toFillPolygon(const QTransform &matrix) const
     }
     return polygon;
 }
+
+
+//derivative of the equation
+static inline qreal slopeAt(qreal t, qreal a, qreal b, qreal c, qreal d)
+{
+    return 3*t*t*(d-3*c+3*b-a)+6*t*(c-2*b+a)+3*(b-a);
+}
+
+/*!
+    Returns the length of the current path.
+*/
+qreal QPainterPath::length() const
+{
+    Q_D(QPainterPath);
+    if (isEmpty())
+        return 0;
+
+    qreal len = 0;
+    for (int i=1; i<d->elements.size(); ++i) {
+        const Element &e = d->elements.at(i);
+
+        switch (e.type) {
+        case MoveToElement:
+            break;
+        case LineToElement:
+        {
+            len += QLineF(d->elements.at(i-1), e).length();
+            break;
+        }
+        case CurveToElement:
+        {
+            QBezier b = QBezier::fromPoints(d->elements.at(i-1),
+                                            e,
+                                            d->elements.at(i+1),
+                                            d->elements.at(i+2));
+            len += b.length();
+            i += 2;
+            break;
+        }
+        default:
+            break;
+        }
+    }
+    return len;
+}
+
+/*!
+    Returns percentage of the whole path at the specified length \a len.
+
+    Not that similar to other percent method, the percentage measurment
+    is not linear with regards to the length if curves are present
+    in the path. When curves are precent the percentage argument is mapped
+    to the t parameter of the Bezier equations.
+*/
+qreal QPainterPath::percentAtLength(qreal len) const
+{
+    Q_D(QPainterPath);
+    if (isEmpty() || len <= 0)
+        return 0;
+
+    qreal totalLength = length();
+    if (len > totalLength)
+        return 1;
+
+    qreal curLen = 0;
+    for (int i=1; i<d->elements.size(); ++i) {
+        const Element &e = d->elements.at(i);
+
+        switch (e.type) {
+        case MoveToElement:
+            break;
+        case LineToElement:
+        {
+            QLineF line(d->elements.at(i-1), e);
+            qreal llen = line.length();
+            curLen += llen;
+            if (curLen >= len) {
+                return len/totalLength ;
+            }
+
+            break;
+        }
+        case CurveToElement:
+        {
+            QBezier b = QBezier::fromPoints(d->elements.at(i-1),
+                                            e,
+                                            d->elements.at(i+1),
+                                            d->elements.at(i+2));
+            qreal blen = b.length();
+            qreal prevLen = curLen;
+            curLen += blen;
+
+            if (curLen >= len) {
+                qreal res = b.tAtLength(len - prevLen);
+                return (res * blen + prevLen)/totalLength;
+            }
+
+            i += 2;
+            break;
+        }
+        default:
+            break;
+        }
+    }
+
+    return 0;
+}
+
+static inline QBezier bezierAtT(const QPainterPath &path, qreal t, qreal *startingLength)
+{
+    *startingLength = 0;
+    if (t > 1)
+        return QBezier();
+
+    qreal curLen = 0;
+    qreal totalLength = path.length();
+
+    for (int i=0; i < path.elementCount(); ++i) {
+        const QPainterPath::Element &e = path.elementAt(i);
+
+        switch (e.type) {
+        case QPainterPath::MoveToElement:
+            break;
+        case QPainterPath::LineToElement:
+        {
+            QLineF line(path.elementAt(i-1), e);
+            qreal llen = line.length();
+            curLen += llen;
+            if (curLen/totalLength >= t) {
+                return QBezier::fromPoints(path.elementAt(i-1), path.elementAt(i-1),
+                                           e, e);
+            }
+            break;
+        }
+        case QPainterPath::CurveToElement:
+        {
+            QBezier b = QBezier::fromPoints(path.elementAt(i-1),
+                                            e,
+                                            path.elementAt(i+1),
+                                            path.elementAt(i+2));
+            qreal blen = b.length();
+            curLen += blen;
+
+            if (curLen/totalLength >= t) {
+                return b;
+            }
+
+            i += 2;
+            break;
+        }
+        default:
+            break;
+        }
+        *startingLength = curLen;
+    }
+    return QBezier();
+}
+
+/*!
+    Returns the point at at the percentage \a t of the current path.
+    The argument \a t has to be between 0 and 1.
+
+    Not that similar to other percent method, the percentage measurment
+    is not linear with regards to the length if curves are present
+    in the path. When curves are precent the percentage argument is mapped
+    to the t parameter of the Bezier equations.
+*/
+QPointF QPainterPath::pointAtPercent(qreal t) const
+{
+    if (t < 0 || t > 1) {
+        qWarning("QPainterPath::pointAtPercent accepts only values between 0 and 1");
+        return QPointF();
+    }
+        
+    if (isEmpty())
+        return QPointF();
+
+    qreal totalLength = length();
+    qreal curLen = 0;
+    QBezier b = bezierAtT(*this, t, &curLen);
+    qreal realT = t - (curLen/totalLength);
+
+    return b.pointAt(realT);
+}
+
+/*!
+    Returns the angle perpendicular to the slope of the path at the
+    percentage \a t. The angle is constructed with the reference frame
+    of the horizontal (x) axis. The argument \a t has to be between
+    0 and 1.
+
+    Not that similar to other percent method, the percentage measurment
+    is not linear with regards to the length if curves are present
+    in the path. When curves are precent the percentage argument is mapped
+    to the t parameter of the Bezier equations.
+*/
+qreal QPainterPath::angleAtPercent(qreal t) const
+{
+    if (t < 0 || t > 1) {
+        qWarning("QPainterPath::angleAtPercent accepts only values between 0 and 1");
+        return 0;
+    }
+    
+    qreal slope = slopeAtPercent(t);;
+    qreal angle = (atan((-slope)/(1.0))*180./M_PI);
+    return angle;
+}
+
+
+/*!
+    Returns the slope of the path at the percentage \a t. The
+    argument \a t has to be between 0 and 1.
+
+    Not that similar to other percent method, the percentage measurment
+    is not linear with regards to the length if curves are present
+    in the path. When curves are precent the percentage argument is mapped
+    to the t parameter of the Bezier equations.
+*/
+qreal QPainterPath::slopeAtPercent(qreal t) const
+{
+    if (t < 0 || t > 1) {
+        qWarning("QPainterPath::slopeAtPercent accepts only values between 0 and 1");
+        return 0;
+    }
+    
+    qreal totalLength = length();
+    qreal curLen = 0;
+    QBezier bez = bezierAtT(*this, t, &curLen);
+    qreal realT = t - (curLen/totalLength);
+
+    qreal m1 = slopeAt(realT, bez.x1, bez.x2, bez.x3, bez.x4);
+    qreal m2 = slopeAt(realT, bez.y1, bez.y2, bez.y3, bez.y4);
+    //tangent line
+    qreal slope = m2/m1;
+
+    return slope;
+}
