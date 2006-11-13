@@ -98,16 +98,17 @@ void Config::load()
 {
     const QString key = getVersionString() + QLatin1String("/");
 
-    const QString pKey = (profil->props[QLatin1String("name")] == QLatin1String("default"))
-        ? QString::fromLatin1(QT_VERSION_STR)
+    bool isDefaultProfile = profil->props[QLatin1String("name")] == QLatin1String("default");
+    const QString pKey = isDefaultProfile ? QString::fromLatin1(QT_VERSION_STR)
         : getVersionString();
 
     const QString profkey = pKey + QLatin1String("/Profile/") + profil->props[QLatin1String("name")] + QLatin1String("/");
 
     QSettings settings;
 
-    home = settings.value( profkey + QLatin1String("Homepage"),
-                           QLibraryInfo::location(QLibraryInfo::DocumentationPath) + QLatin1String("/html/index.html") ).toString();
+    home = settings.value(profkey + QLatin1String("Homepage"), QString()).toString();
+    if (home.isEmpty() && isDefaultProfile)
+        home = QLibraryInfo::location(QLibraryInfo::DocumentationPath) + QLatin1String("/html/index.html");
     src = settings.value( profkey + QLatin1String("Source") ).toStringList();
     sideBar = settings.value( key + QLatin1String("SideBarPage") ).toInt();
     if (qApp->type() != QApplication::Tty)
