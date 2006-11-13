@@ -330,10 +330,10 @@ void QGLOffscreen::begin()
 {
     QSize needed_size(nextPowerOfTwo(drawable.size().width()), nextPowerOfTwo(drawable.size().height()));
 
-    bool needs_refresh = (needed_size.width() > sz.width()
-                          || needed_size.height() > sz.height()
-                          || drawable.context() != context)
-                         && !qgl_share_reg()->checkSharing(drawable.context(), context);
+    bool needs_refresh = needed_size.width() > sz.width()
+                         || needed_size.height() > sz.height()
+                         || (drawable.context() != context
+                         && !qgl_share_reg()->checkSharing(drawable.context(), context));
     if (needs_refresh) {
         if (use_fbo) {
             if (!offscreen || needs_refresh) {
@@ -370,7 +370,7 @@ void QGLOffscreen::begin()
                     QGLContext *ctx = drawable.context(); // needed to call glFramebufferTexture2DEXT
 #endif
                     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT,
-                                              GL_TEXTURE_2D, main_fbo_texture, 0);                
+                                              GL_TEXTURE_2D, main_fbo_texture, 0);
                     offscreen->release();
 
                     if (!offscreen->isValid())
