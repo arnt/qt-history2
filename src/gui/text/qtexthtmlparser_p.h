@@ -184,8 +184,12 @@ struct QTextHtmlParserNode {
     int cssListIndent;
     qreal text_indent;
 
-    QTextCharFormat charFormat() const;
-    QTextBlockFormat blockFormat() const;
+    bool applyCharFormatProperties(QTextCharFormat *format) const;
+    bool applyBlockFormatProperties(QTextBlockFormat *format) const;
+    inline QTextCharFormat charFormat() const
+    { QTextCharFormat fmt; applyCharFormatProperties(&fmt); return fmt; }
+    inline QTextBlockFormat blockFormat() const
+    { QTextBlockFormat fmt; applyBlockFormatProperties(&fmt); return fmt; }
 
     WhiteSpaceMode wsm;
 

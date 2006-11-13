@@ -460,72 +460,105 @@ QTextHtmlParserNode::QTextHtmlParserNode()
     pageBreakPolicy = QTextFormat::PageBreak_Auto;
 }
 
-QTextCharFormat QTextHtmlParserNode::charFormat() const
+bool QTextHtmlParserNode::applyCharFormatProperties(QTextCharFormat *format) const
 {
-    QTextCharFormat format;
+    bool changed = false;
 
     if (fontItalic != Unspecified) {
-        format.setFontItalic(fontItalic == On);
+        format->setFontItalic(fontItalic == On);
+        changed = true;
     }
     if (fontUnderline != Unspecified) {
-        format.setFontUnderline(fontUnderline == On);
+        format->setFontUnderline(fontUnderline == On);
+        changed = true;
     }
     if (fontOverline != Unspecified) {
-        format.setFontOverline(fontOverline == On);
+        format->setFontOverline(fontOverline == On);
+        changed = true;
     }
     if (fontStrikeOut != Unspecified) {
-        format.setFontStrikeOut(fontStrikeOut == On);
+        format->setFontStrikeOut(fontStrikeOut == On);
+        changed = true;
     }
     if (fontFixedPitch != Unspecified) {
-        format.setFontFixedPitch(fontFixedPitch == On);
+        format->setFontFixedPitch(fontFixedPitch == On);
+        changed = true;
     }
-    if (fontFamily.size())
-        format.setFontFamily(fontFamily);
+    if (fontFamily.size()) {
+        format->setFontFamily(fontFamily);
+        changed = true;
+    }
 
-    if (hasFontPointSize)
-        format.setFontPointSize(fontPointSize);
-    else if (hasFontPixelSize)
-        format.setProperty(QTextFormat::FontPixelSize, fontPixelSize);
+    if (hasFontPointSize) {
+        format->setFontPointSize(fontPointSize);
+        changed = true;
+    } else if (hasFontPixelSize) {
+        format->setProperty(QTextFormat::FontPixelSize, fontPixelSize);
+        changed = true;
+    }
 
-    if (hasFontSizeAdjustment)
-        format.setProperty(QTextFormat::FontSizeAdjustment, fontSizeAdjustment);
-    if (fontWeight > 0)
-        format.setFontWeight(fontWeight);
-    if (foreground.style() != Qt::NoBrush)
-        format.setForeground(foreground);
-    if (background.style() != Qt::NoBrush)
-        format.setBackground(background);
-    if (verticalAlignment != QTextCharFormat::AlignNormal)
-        format.setVerticalAlignment(verticalAlignment);
+    if (hasFontSizeAdjustment) {
+        format->setProperty(QTextFormat::FontSizeAdjustment, fontSizeAdjustment);
+        changed = true;
+    }
+    if (fontWeight > 0) {
+        format->setFontWeight(fontWeight);
+        changed = true;
+    }
+    if (foreground.style() != Qt::NoBrush) {
+        format->setForeground(foreground);
+        changed = true;
+    }
+    if (background.style() != Qt::NoBrush) {
+        format->setBackground(background);
+        changed = true;
+    }
+    if (verticalAlignment != QTextCharFormat::AlignNormal) {
+        format->setVerticalAlignment(verticalAlignment);
+        changed = true;
+    }
     if (isAnchor) {
-        format.setAnchor(true);
-        format.setAnchorHref(anchorHref);
-        format.setAnchorName(anchorName);
+        format->setAnchor(true);
+        format->setAnchorHref(anchorHref);
+        format->setAnchorName(anchorName);
+        changed = true;
     }
-    if (!toolTip.isEmpty())
-        format.setToolTip(toolTip);
+    if (!toolTip.isEmpty()) {
+        format->setToolTip(toolTip);
+        changed = true;
+    }
 
-    return format;
+    return changed;
 }
 
-QTextBlockFormat QTextHtmlParserNode::blockFormat() const
+bool QTextHtmlParserNode::applyBlockFormatProperties(QTextBlockFormat *format) const
 {
-    QTextBlockFormat format;
+    bool changed = false;
 
-    if (alignment)
-        format.setAlignment(alignment);
-    if (direction < 2)
-        format.setLayoutDirection(Qt::LayoutDirection(direction));
+    if (alignment && alignment != format->alignment()) {
+        format->setAlignment(alignment);
+        changed = true;
+    }
+    if (direction < 2) {
+        format->setLayoutDirection(Qt::LayoutDirection(direction));
+        changed = true;
+    }
 
-    if (hasCssBlockIndent)
-        format.setIndent(cssBlockIndent);
-    if (text_indent != 0.)
-        format.setTextIndent(text_indent);
+    if (hasCssBlockIndent) {
+        format->setIndent(cssBlockIndent);
+        changed = true;
+    }
+    if (text_indent != 0.) {
+        format->setTextIndent(text_indent);
+        changed = true;
+    }
 
-    if (pageBreakPolicy != QTextFormat::PageBreak_Auto)
-        format.setPageBreakPolicy(pageBreakPolicy);
+    if (pageBreakPolicy != QTextFormat::PageBreak_Auto) {
+        format->setPageBreakPolicy(pageBreakPolicy);
+        changed = true;
+    }
 
-    return format;
+    return changed;
 }
 
 void QTextHtmlParser::dumpHtml()

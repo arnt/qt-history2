@@ -523,13 +523,7 @@ void QTextHtmlImporter::import()
             QTextImageFormat fmt;
             fmt.setName(node->imageName);
 
-            QTextCharFormat nodeFmt = node->charFormat();
-            if (nodeFmt.hasProperty(QTextFormat::IsAnchor))
-                fmt.setAnchor(nodeFmt.isAnchor());
-            if (nodeFmt.hasProperty(QTextFormat::AnchorHref))
-                fmt.setAnchorHref(nodeFmt.anchorHref());
-            if (nodeFmt.hasProperty(QTextFormat::AnchorName))
-                fmt.setAnchorName(nodeFmt.anchorName());
+            node->applyCharFormatProperties(&fmt);
 
             if (node->imageWidth >= 0)
                 fmt.setWidth(node->imageWidth);
@@ -572,6 +566,8 @@ void QTextHtmlImporter::import()
         if (node->isBlock()) {
             QTextBlockFormat block;
             QTextCharFormat charFmt;
+            bool modifiedBlockFormat = true;
+            bool modifiedCharFormat = true;
 
             if (node->isTableCell() && !tables.isEmpty()) {
                 Table &t = tables.last();
@@ -592,10 +588,18 @@ void QTextHtmlImporter::import()
             if (hasBlock) {
                 block = cursor.blockFormat();
                 charFmt = cursor.blockCharFormat();
+                modifiedBlockFormat = false;
+                modifiedCharFormat = false;
             }
 
             // collapse
-            block.setTopMargin(qMax(block.topMargin(), (qreal)topMargin(i)));
+            {
+                qreal tm = qreal(topMargin(i));
+                if (tm > block.topMargin()) {
+                    block.setTopMargin(tm);
+                    modifiedBlockFormat = true;
+                }
+            }
 
             int bottomMargin = this->bottomMargin(i);
 
@@ -612,10 +616,24 @@ void QTextHtmlImporter::import()
                 bottomMargin = qMax(bottomMargin, this->bottomMargin(node->parent));
             }
 
-            block.setBottomMargin(bottomMargin);
+            if (block.bottomMargin() != bottomMargin) {
+                block.setBottomMargin(bottomMargin);
+                modifiedBlockFormat = true;
+            }
 
-            block.setLeftMargin(leftMargin(i));
-            block.setRightMargin(rightMargin(i));
+            {
+                const qreal lm = leftMargin(i);
+                const qreal rm = rightMargin(i);
+
+                if (block.leftMargin() != lm) {
+                    block.setLeftMargin(lm);
+                    modifiedBlockFormat = true;
+                }
+                if (block.rightMargin() != rm) {
+                    block.setRightMargin(rm);
+                    modifiedBlockFormat = true;
+                }
+            }
 
             if (node->id != Html_li
                 && indent != 0
@@ -624,27 +642,35 @@ void QTextHtmlImporter::import()
                     || !lists.last().list
                     || lists.last().list->itemNumber(cursor.block()) == -1
                    )
-               )
-               block.setIndent(indent);
+               ) {
+                block.setIndent(indent);
+                modifiedBlockFormat = true;
+            }
 
-            block.merge(node->blockFormat());
-            charFmt.merge(node->charFormat());
+            modifiedBlockFormat |= node->applyBlockFormatProperties(&block);
+            modifiedCharFormat |= node->applyCharFormatProperties(&charFmt);
 
             // ####################
 //                block.setFloatPosition(node->cssFloat);
 
-            if (wsm == QTextHtmlParserNode::WhiteSpacePre)
+            if (wsm == QTextHtmlParserNode::WhiteSpacePre) {
                 block.setNonBreakableLines(true);
+                modifiedBlockFormat = true;
+            }
 
-            if (node->background.style() != Qt::NoBrush && !node->isTableCell())
+            if (node->background.style() != Qt::NoBrush && !node->isTableCell()) {
                 block.setBackground(node->background);
+                modifiedBlockFormat = true;
+            }
 
             if (hasBlock && (!node->isEmptyParagraph || forceBlockMerging)) {
                 if (cursor.position() == 0) {
                     containsCompleteDoc = true;
                 }
-                cursor.setBlockFormat(block);
-                cursor.setBlockCharFormat(charFmt);
+                if (modifiedBlockFormat)
+                    cursor.setBlockFormat(block);
+                if (modifiedCharFormat)
+                    cursor.setBlockCharFormat(charFmt);
             } else {
                 if (i == 1 && cursor.position() == 0 && node->isEmptyParagraph) {
                     containsCompleteDoc = true;
