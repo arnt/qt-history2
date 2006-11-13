@@ -8,35 +8,9 @@
 ****************************************************************************/
 
 #include <QtTest/QtTest>
-
-#include "qdatastream.h"
-#include <qdatastream.h>
-#include <qbitarray.h>
-#include <qwidget.h>
-#include <qdatetime.h>
-#include <qlist.h>
-#include <qvector.h>
-#include <qpixmap.h>
-#include <qbitmap.h>
-#include <qimage.h>
-#include <qpen.h>
-#include <qpolygon.h>
-#include <qwmatrix.h>
-#include <qapplication.h>
-#include <qbrush.h>
-#include <qregion.h>
-#include <qcursor.h>
-#include <qbuffer.h>
-#include <qfile.h>
-#include <qbytearray.h>
-#include <qwidget.h>
-#include <q3paintdevicemetrics.h>
-#include <qhash.h>
-#include <qmap.h>
-#include <qlinkedlist.h>
-#include <qregexp.h>
-
-#include <qdatastream.h>
+#include <QtGui/QtGui>
+#include <Qt3Support/Qt3Support>
+#include <QtSvg/QtSvg>
 
 Q_DECLARE_METATYPE(QBitArray)
 Q_DECLARE_METATYPE(qint64)
@@ -186,6 +160,8 @@ private slots:
     void status_QLinkedList_QList_QVector();
 
     void streamToAndFromQByteArray();
+
+    void streamRealDataTypes();
 
 private:
     void writebool(QDataStream *s);
@@ -2916,6 +2892,127 @@ void tst_QDataStream::streamToAndFromQByteArray()
     out >> y;
 
     QCOMPARE(y, x);
+}
+
+void tst_QDataStream::streamRealDataTypes()
+{
+    // Generate QPicture from SVG.
+    QSvgRenderer renderer(QLatin1String("gearflowers.svg"));
+    QVERIFY(renderer.isValid());
+    QPicture picture;
+    picture.setBoundingRect(QRect(QPoint(0, 0), renderer.defaultSize()));
+    QPainter painter(&picture);
+    renderer.render(&painter);
+    painter.end();
+    
+    // Generate path
+    QPainterPath path;
+    path.lineTo(10, 0);
+    path.cubicTo(0, 0, 10, 10, 20, 20);
+    path.arcTo(4, 5, 6, 7, 8, 9);
+    path.quadTo(1, 2, 3, 4);
+
+    QColor color(64, 64, 64);
+    color.setAlphaF(0.5);
+    QRadialGradient radialGradient(5, 6, 7, 8, 9);
+    QBrush radialBrush(radialGradient);
+    QConicalGradient conicalGradient(5, 6, 7);
+    QBrush conicalBrush(conicalGradient);
+
+    for (int i = 0; i < 2; ++i) {
+        QFile file;
+        if (i == 0) {
+            file.setFileName("datastream.q42");
+        } else {
+            file.setFileName("datastream.tmp");
+
+            // Generate data
+            QVERIFY(file.open(QIODevice::WriteOnly));
+            QDataStream stream(&file);
+            stream.setVersion(QDataStream::Qt_4_2);
+            stream << qreal(0) << qreal(1.0) << qreal(1.1) << qreal(3.14) << qreal(-3.14) << qreal(-1);
+            stream << QPointF(3, 5) << QRectF(-1, -2, 3, 4) << (QPolygonF() << QPointF(0, 0) << QPointF(1, 2));
+            stream << QMatrix().rotate(90).scale(2, 2);
+            stream << path;
+            stream << picture;
+            stream << QTextLength(QTextLength::VariableLength, 1.5);
+            stream << color;
+            stream << radialBrush << conicalBrush;
+            stream << QPen(QBrush(Qt::red), 1.5);
+            
+            file.close();
+        }
+
+        qreal a, b, c, d, e, f;
+        QPointF point;
+        QRectF rect;
+        QPolygonF polygon;
+        QMatrix matrix;
+        QPainterPath p;
+        QPicture pict;
+        QTextLength textLength;
+        QColor col;
+        QBrush rGrad;
+        QBrush cGrad;
+        QPen pen;
+
+        QVERIFY(file.open(QIODevice::ReadOnly));
+        QDataStream stream(&file);
+        stream.setVersion(QDataStream::Qt_4_2);
+
+        stream >> a >> b >> c >> d >> e >> f >> point
+               >> rect >> polygon >> matrix >> p;
+        if (i == 1)
+            stream >> pict;
+        stream >> textLength >> col >> rGrad >> cGrad
+               >> pen;
+
+        QCOMPARE(stream.status(), QDataStream::Ok);
+
+        QCOMPARE(a, qreal(0));
+        QCOMPARE(b, qreal(1.0));
+        QCOMPARE(c, qreal(1.1));
+        QCOMPARE(d, qreal(3.14));
+        QCOMPARE(e, qreal(-3.14));
+        QCOMPARE(f, qreal(-1));
+        QCOMPARE(point, QPointF(3, 5));
+        QCOMPARE(rect, QRectF(-1, -2, 3, 4));
+        QCOMPARE((QVector<QPointF> &)polygon, (QPolygonF() << QPointF(0, 0) << QPointF(1, 2)));
+        QCOMPARE(matrix, QMatrix().rotate(90).scale(2, 2));
+        QCOMPARE(p, path);
+
+        if (i == 0) {
+            QByteArray pictA, pictB;
+            QBuffer bufA, bufB;
+            QVERIFY(bufA.open(QIODevice::ReadWrite));
+            QVERIFY(bufB.open(QIODevice::ReadWrite));
+    
+            picture.save(&bufA);
+            pict.save(&bufB);
+    
+            QCOMPARE(pictA, pictB);
+        }
+        QCOMPARE(textLength, QTextLength(QTextLength::VariableLength, 1.5));
+        QCOMPARE(col, color);    
+        QCOMPARE(rGrad.style(), radialBrush.style());    
+        QCOMPARE(rGrad.matrix(), radialBrush.matrix());    
+        QCOMPARE(rGrad.gradient()->type(), radialBrush.gradient()->type());    
+        QCOMPARE(rGrad.gradient()->stops(), radialBrush.gradient()->stops());    
+        QCOMPARE(rGrad.gradient()->spread(), radialBrush.gradient()->spread());    
+        QCOMPARE(((QRadialGradient *)rGrad.gradient())->center(), ((QRadialGradient *)radialBrush.gradient())->center());
+        QCOMPARE(((QRadialGradient *)rGrad.gradient())->focalPoint(), ((QRadialGradient *)radialBrush.gradient())->focalPoint());
+        QCOMPARE(((QRadialGradient *)rGrad.gradient())->radius(), ((QRadialGradient *)radialBrush.gradient())->radius());
+        QCOMPARE(cGrad.style(), conicalBrush.style());    
+        QCOMPARE(cGrad.matrix(), conicalBrush.matrix());    
+        QCOMPARE(cGrad.gradient()->type(), conicalBrush.gradient()->type());    
+        QCOMPARE(cGrad.gradient()->stops(), conicalBrush.gradient()->stops());    
+        QCOMPARE(cGrad.gradient()->spread(), conicalBrush.gradient()->spread());    
+        QCOMPARE(((QConicalGradient *)cGrad.gradient())->center(), ((QConicalGradient *)conicalBrush.gradient())->center());
+        QCOMPARE(((QConicalGradient *)cGrad.gradient())->angle(), ((QConicalGradient *)conicalBrush.gradient())->angle());
+
+        QCOMPARE(cGrad, conicalBrush);    
+        QCOMPARE(pen.widthF(), qreal(1.5));
+    }
 }
 
 QTEST_MAIN(tst_QDataStream)

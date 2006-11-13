@@ -3,4 +3,4 @@ SOURCES  += tst_qdatastream.cpp
 
 
 # for qpaintdevicemetrics.h
-QT += qt3support
+QT += qt3support svg
