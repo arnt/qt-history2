@@ -822,9 +822,9 @@ QDataStream &operator<<(QDataStream &s, const QPen &p)
         s << (quint8)p.width();
         s << p.color();
     } else {
-        s << p.widthF();
+        s << double(p.widthF());
         s << p.brush();
-        s << p.miterLimit();
+        s << double(p.miterLimit());
         s << p.dashPattern();
     }
     return s;

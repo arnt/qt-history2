@@ -112,13 +112,15 @@ QTextLength::operator QVariant() const
 
 QDataStream &operator<<(QDataStream &stream, const QTextLength &length)
 {
-    return stream << qint32(length.lengthType) << length.fixedValueOrPercentage;
+    return stream << qint32(length.lengthType) << double(length.fixedValueOrPercentage);
 }
 
 QDataStream &operator>>(QDataStream &stream, QTextLength &length)
 {
     qint32 type;
-    stream >> type >> length.fixedValueOrPercentage;
+    double fixedValueOrPercentage;
+    stream >> type >> fixedValueOrPercentage;
+    length.fixedValueOrPercentage = fixedValueOrPercentage;
     length.lengthType = QTextLength::Type(type);
     return stream;
 }

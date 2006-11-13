@@ -1148,12 +1148,12 @@ QDataStream &operator<<(QDataStream &s, const QMatrix &m)
         s << (float)m.m11() << (float)m.m12() << (float)m.m21()
           << (float)m.m22() << (float)m.dx()  << (float)m.dy();
     } else {
-        s << m.m11()
-          << m.m12()
-          << m.m21()
-          << m.m22()
-          << m.dx()
-          << m.dy();
+        s << double(m.m11())
+          << double(m.m12())
+          << double(m.m21())
+          << double(m.m22())
+          << double(m.dx())
+          << double(m.dy());
     }
     return s;
 }

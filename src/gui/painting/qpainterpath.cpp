@@ -2055,7 +2055,7 @@ QDataStream &operator<<(QDataStream &s, const QPainterPath &p)
     for (int i=0; i < p.d_func()->elements.size(); ++i) {
         const QPainterPath::Element &e = p.d_func()->elements.at(i);
         s << int(e.type);
-        s << e.x << e.y;
+        s << double(e.x) << double(e.y);
     }
     s << p.d_func()->cStart;
     s << int(p.d_func()->fillRule);
