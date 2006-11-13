@@ -108,6 +108,13 @@
     has an AcceptRole, RejectRole, or HelpRole, the accepted(), rejected(), or
     helpRequested() signals are emitted respectively.
 
+    if you want a specific button to be default you need to call
+    QPushButton::setDefault() on it yourself. However, if there is no default
+    button set and to preserve which button is the default button across
+    platforms when using the QPushButton::autoDefault property, the first push
+    button with the accept role is made the default button when the
+    QDialogButtonBox is shown,
+
     \sa QMessageBox, QPushButton, QDialog
 */
 
@@ -345,8 +352,6 @@ void QDialogButtonBoxPrivate::layoutButtons()
             // Only the first one
             QAbstractButton *button = acceptRoleList.first();
             buttonLayout->addWidget(button);
-            if (QPushButton *pb = qobject_cast<QPushButton *>(button))
-                pb->setDefault(true);
             button->show();
         }
             break;
@@ -987,6 +992,25 @@ void QDialogButtonBox::changeEvent(QEvent *event)
 */
 bool QDialogButtonBox::event(QEvent *event)
 {
+    Q_D(QDialogButtonBox);
+    if (event->type() == QEvent::Show) {
+        QList<QAbstractButton *> acceptRoleList = d->buttonLists[AcceptRole];
+        QPushButton *firstAcceptButton = acceptRoleList.isEmpty() ? 0 : qobject_cast<QPushButton *>(acceptRoleList.at(0));
+        bool hasDefault = false;
+
+        for (int i = d->buttonLayout->count() - 1; i >= 0; --i) {
+            QLayoutItem *item = d->buttonLayout->itemAt(i);
+            if (QPushButton *pb = qobject_cast<QPushButton *>(item->widget())) {
+                if (pb->isDefault() && pb != firstAcceptButton) {
+                    hasDefault = true;
+                    break;
+                }
+            }
+        }
+        if (!hasDefault && firstAcceptButton)
+            firstAcceptButton->setDefault(true);
+    }
+
     return QWidget::event(event);
 }
 

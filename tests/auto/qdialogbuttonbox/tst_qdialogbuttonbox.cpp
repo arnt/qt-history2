@@ -62,6 +62,8 @@ private slots:
     void testSignals_data();
     void testSignals();
     void testSignalOrder();
+    void testDefaultButton_data();
+    void testDefaultButton();
 
 private:
     qint64 timeStamp;
@@ -623,6 +625,46 @@ void tst_QDialogButtonBox::testRemove()
     button->animateClick(0);
     QTest::qWait(100);
     QCOMPARE(clicked.count(), 0);
+}
+
+void tst_QDialogButtonBox::testDefaultButton_data()
+{
+    QTest::addColumn<int>("whenToSetDefault");  // -1 Do nothing, 0 after accept, 1 before accept
+    QTest::addColumn<int>("buttonToBeDefault");
+    QTest::addColumn<int>("indexThatIsDefault");
+
+    QTest::newRow("do nothing First Accept implicit") << -1 << -1 << 0;
+    QTest::newRow("First accept explicit before add") << 1 << 0 << 0;
+    QTest::newRow("First accept explicit after add") << 0 << 0 << 0;
+    QTest::newRow("second accept explicit before add") << 1 << 1 << 1;
+    QTest::newRow("second accept explicit after add") << 0 << 1 << 1;
+    QTest::newRow("third accept explicit befare add") << 1 << 2 << 2;
+    QTest::newRow("third accept explicit after add") << 0 << 2 << 2;
+}
+
+void tst_QDialogButtonBox::testDefaultButton()
+{
+    QFETCH(int, whenToSetDefault);
+    QFETCH(int, buttonToBeDefault);
+    QFETCH(int, indexThatIsDefault);
+    QDialogButtonBox buttonBox;
+    QPushButton *buttonArray[] = { new QPushButton("Foo"), new QPushButton("Bar"), new QPushButton("Baz") };
+
+    for (int i = 0; i < 3; ++i) {
+        if (whenToSetDefault == 1 && i == buttonToBeDefault)
+            buttonArray[i]->setDefault(true);
+        buttonBox.addButton(buttonArray[i], QDialogButtonBox::AcceptRole);
+        if (whenToSetDefault == 0 && i == buttonToBeDefault)
+            buttonArray[i]->setDefault(true);
+    }
+    buttonBox.show();
+
+    for (int i = 0; i < 3; ++i) {
+        if (i == indexThatIsDefault)
+            QVERIFY(buttonArray[i]->isDefault());
+        else
+            QVERIFY(!buttonArray[i]->isDefault());
+    }
 }
 
 QTEST_MAIN(tst_QDialogButtonBox)
