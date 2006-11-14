@@ -2543,7 +2543,7 @@ void QLineEditPrivate::updateTextLayout()
     QString str = q->displayText();
     QChar* uc = str.data();
     for (int i = 0; i < (int)str.length(); ++i) {
-        if (! uc[i].isPrint())
+        if (!uc[i].isPrint() || uc[i] == QChar::LineSeparator)
             uc[i] = QChar(0x0020);
     }
     textLayout.setFont(q->font());

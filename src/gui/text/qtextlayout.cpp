@@ -921,6 +921,9 @@ void QTextLayout::drawCursor(QPainter *p, const QPointF &pos, int cursorPosition
         }
     }
 
+    if (line >= d->lines.size())
+        return;
+
     QTextLine l(line, d);
     const QScriptLine &sl = d->lines[line];
 
