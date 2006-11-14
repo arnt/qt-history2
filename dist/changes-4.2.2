@@ -9,6 +9,7 @@ series.  Applications compiled for 4.0 or 4.1 will continue to run with 4.2.
 ****************************************************************************
 
 Configure / Compilation
+  * Unresolved zlib symbols on aix-g++ because of lacking "-lz" in gui/Makefile.
 
    * Fix compilation when an unsupported version of MySQL is auto-detected
      by the configure script
@@ -35,13 +36,20 @@ General improvements
 
   * Fix support for pixel font sizes in the HTML import
 
+- QFSFileEngine:
+  * Fixed broken UNC path support.
+  
 - QLineEdit:
 
   * Fix scrolling in lineedits with custom paddings
+  * Fixed crash on Linux when the text contains QChar::LineSeparator.
 
 - QCalendarWidget:
 
   * Fixed setting the text format(Repainting & date reset issues are corrected).  
+
+- QComboBox:
+  * Fixed wrong scroll arrows for the popup menu.
 
 - QWidget
   * Make setWindowTitle() work on hidden widgets that are never shown.
@@ -50,6 +58,9 @@ General improvements
 - Accessibility
 
    * Fix potential assert when navigating menus while assistive tools are running
+
+- QWorkspace
+  * Memory corruption, which caused crash inside Visual Studio.
 
 - Item views
       
@@ -69,6 +80,8 @@ General improvements
       
       * Fixed QTreeWidget::setSortingEnabled() which could could cause
         incorrect painting.
+      
+      * Fixed incorrect scrolling in QHeaderView when items are hidden.
 
       * QDataWidgetMapper::mappedWidgetAt() now always returns the right
         mapped index for a widget no matter in which order they were inserted
