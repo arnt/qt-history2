@@ -53,13 +53,38 @@
     properties of the stack's undo and redo actions; see
     QUndoStack::createUndoAction() and QUndoStack::createRedoAction().
 
+    QUndoCommand objects are owned by the stack they were pushed on.
+    QUndoStack deletes a command if it has been undone and a new command is pushed. For example:
+
+\code
+    MyCommand *command1 = new MyCommand();
+    stack->push(command1);
+    MyCommand *command2 = new MyCommand();
+    stack->push(command2);
+
+    stack->undo();
+
+    MyCommand *command3 = new MyCommand();
+    stack->push(command3); // command2 gets deleted
+\endcode
+
+    In effect, when a command is pushed, it becomes the top-most command
+    on the stack.
+
     To support command compression, QUndoCommand has an id() and the virtual function
     mergeWith(). These functions are used by QUndoStack::push().
 
     To support command macros, a QUndoCommand object can have any number of child
     commands. Undoing or redoing the parent command will cause the child
     commands to be undone or redone. A command can be assigned
-    to a parent explicitly in the constructor.
+    to a parent explicitly in the constructor. In this case, the command
+    will be owned by the parent.
+
+    The parent in this case is usually an empty command, in that it doesn't
+    provide its own implementation of undo() and redo(). Instead, it uses
+    the base implementations of these functions, which simply call undo() or
+    redo() on all its children. The parent should, however, have a meaningful
+    text().
 
     \code
     QUndoCommand *insertRed = new QUndoCommand(); // an empty command
@@ -113,8 +138,7 @@ QUndoCommand::QUndoCommand(QUndoCommand *parent)
 }
 
 /*!
-    Destroys the QUndoCommand object and all child commands. If the command was in a QUndoGroup,
-    removes it grom the group.
+    Destroys the QUndoCommand object and all child commands.
 
     \sa QUndoCommand()
 */
@@ -134,8 +158,8 @@ QUndoCommand::~QUndoCommand()
     If the command supports compression this function must be overridden in the
     derived class to return the correct ID. The base implementation returns -1.
 
-    QUndoStack will only try to merge two commands if they have the same ID, and
-    the ID is not -1.
+    QUndoStack::push() will only try to merge two commands if they have the
+    same ID, and the ID is not -1.
 
     \sa mergeWith(), QUndoStack::push()
 */
@@ -146,13 +170,13 @@ int QUndoCommand::id() const
 }
 
 /*!
-    Attempts to merge this command with the specified \a command. Returns true on
+    Attempts to merge this command with \a command. Returns true on
     success; otherwise returns false.
 
     If this function returns true, calling this command's redo() must have the same
-    effect as redoing both this command and the specified \a command.
+    effect as redoing both this command and \a command.
     Similarly, calling this command's undo() must have the same effect as undoing
-    both the specified \a command and this command.
+    \a command and this command.
 
     QUndoStack will only try to merge two commands if they have the same id, and
     the id is not -1.
@@ -301,7 +325,7 @@ void QUndoCommand::setText(const QString &text)
     by specifying a parent in the QUndoCommand constructor, or by using the
     convenience functions beginMacro() and endMacro().
 
-    Although command compression and macros appear to have the effect to the
+    Although command compression and macros appear to have the same effect to the
     user, they often have different uses in an application. Commands that
     perform small changes to a document may be usefully compressed if there is
     no need to individually record them, and if only larger changes are relevant
@@ -314,8 +338,8 @@ void QUndoCommand::setText(const QString &text)
 
     QUndoStack supports the concept of a clean state. When the
     document is saved to disk, the stack can be marked as clean using
-    setClean(). Whenever the stack returns to this state through the use
-    of undo/redo commands, it emits the signal cleanChanged(), which
+    setClean(). Whenever the stack returns to this state through undoing and
+    redoing commands, it emits the signal cleanChanged(). This signal
     is also emitted when the stack leaves the clean state. This signal is
     usually used to enable and disable the save actions in the application,
     and to update the document's title to reflect that it contains unsaved
@@ -451,14 +475,13 @@ void QUndoStack::clear()
     If \a cmd's id is not -1, and if the id is the same as that of the
     most recently executed command, QUndoStack will attempt to merge the two
     commands by calling QUndoCommand::mergeWith() on the most recently executed
-    command. If QUndoCommand::mergeWith() returns true, the \a cmd is deleted.
+    command. If QUndoCommand::mergeWith() returns true, \a cmd is deleted.
 
     In all other cases \a cmd is simply pushed on the stack.
 
-    If the current command index does not point to the top of the stack - ie.
-    if commands were undone before \a cmd was pushed - the current command and
+    If commands were undone before \a cmd was pushed, the current command and
     all commands above it are deleted. Hence \a cmd always ends up being the
-    top-most command on the stack.
+    top-most on the stack.
 
     Once a command is pushed, the stack takes ownership of it. There
     are no getters to return the command, since modifying it after it has
