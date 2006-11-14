@@ -456,7 +456,7 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
                     if (oldRect.width() != newRect.width() || oldRect.height() != newRect.height()) {
                         widget->data->crect.setSize(newRect.size());
                         HIRect bounds = CGRectMake(0, 0, newRect.width(), newRect.height());
-                        
+
                         // If the WA_StaticContents attribute is set we can optimize the resize
                         // by only repainting the newly exposed area. We do this by disabling
                         // painting when setting the size of the view. The OS will invalidate
@@ -1007,7 +1007,8 @@ bool QWidgetPrivate::qt_create_root_win() {
     Rect r;
     const QSize desktopSize = qt_mac_desktopSize();
     SetRect(&r, 0, 0, desktopSize.width(), desktopSize.height());
-    qt_mac_create_window(kOverlayWindowClass, kWindowNoAttributes, &r, &qt_root_win);
+    WindowAttributes wattr = (kWindowCompositingAttribute | kWindowStandardHandlerAttribute);
+    qt_mac_create_window(kOverlayWindowClass, wattr, &r, &qt_root_win);
     if(!qt_root_win)
         return false;
     qAddPostRoutine(qt_clean_root_win);
@@ -1483,6 +1484,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     } else if(desktop) {                        // desktop widget
         if(!qt_root_win)
             QWidgetPrivate::qt_create_root_win();
+        Q_ASSERT(qt_root_win);
         CFRetain(qt_root_win);
         if(HIViewRef hiview = HIViewGetRoot(qt_root_win)) {
             CFRetain(hiview);

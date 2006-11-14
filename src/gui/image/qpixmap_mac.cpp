@@ -878,7 +878,8 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
             //set the family data to the Handle
             OSStatus set = SetIconFamilyData(iconFamily, images[i].mac_type, hdl);
             if(set != noErr)
-                qWarning("%s: %d -- Something went very wrong!! %ld", __FILE__, __LINE__, long(set));
+                qWarning("%s: %d -- Unable to create icon data[%d]!! %ld",
+                         __FILE__, __LINE__, i, long(set));
             DisposeHandle(hdl);
         }
     }

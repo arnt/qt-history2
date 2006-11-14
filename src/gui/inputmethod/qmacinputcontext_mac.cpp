@@ -20,13 +20,10 @@
 
 extern bool qt_sendSpontaneousEvent(QObject*, QEvent*);
 
-#if __LP64__
-typedef void * SRefCon;
-#else
-typedef SInt32 SRefCon;
-#define typeRefCon typeSInt32
-#define typeByteCount typeSInt32
-#endif  /* __LP64__ */
+#if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_5)
+#  define typeRefCon typeSInt32
+#  define typeByteCount typeSInt32
+#endif
 
 static QTextFormat qt_mac_compose_format()
 {

@@ -393,7 +393,7 @@ bool QFontEngineMacMulti::stringToCMapInternal(const QChar *str, int len, QGlyph
         mappedFonts[i] = 0;
     nfo.mappedFonts = mappedFonts.data();
 
-    Q_ASSERT(sizeof(void *) <= sizeof(UInt32));
+    Q_ASSERT(sizeof(void *) <= sizeof(URefCon));
     e = ATSUSetTextLayoutRefCon(textLayout, (URefCon)&nfo);
     if (e != noErr) {
         qWarning("Qt: internal: %ld: Error ATSUSetTextLayoutRefCon %s: %d", long(e), __FILE__, __LINE__);
