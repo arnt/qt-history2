@@ -4218,6 +4218,8 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
     Draws the rectangular portion with the origin (\a{sx}, \a{sy}),
     width \a sw and height \a sh, of the given \a pixmap , at the
     point (\a{x}, \a{y}), with a width of \a w and a height of \a h.
+    If sw or sh are equal to zero the width/height of the pixmap
+    is used and adjusted by the offset sx/sy;
 */
 
 /*!
@@ -4234,8 +4236,8 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
     pixmap that is to be drawn. The default is (0, 0).
 
     (\a{sw}, \a{sh}) specifies the size of the pixmap that is to be drawn.
-    The default, (-1, -1), means all the way to the bottom-right of
-    the pixmap.
+    The default, (0, 0) (and negative) means all the way to the
+    bottom-right of the pixmap.
 */
 
 void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QRectF &sourceRect,
