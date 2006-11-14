@@ -393,7 +393,8 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
         skip = false;
 
         QBrush penBrush = s->pen.brush();
-        alpha = (!penBrush.isOpaque() || !s->brush.isOpaque());
+        alpha = (penBrush.style() != Qt::NoBrush && !penBrush.isOpaque())
+                || (s->brush.style() != Qt::NoBrush && !s->brush.isOpaque());
         linearGradient = ((penBrush.style() == Qt::LinearGradientPattern) ||
                            (s->brush.style() == Qt::LinearGradientPattern));
         radialGradient = ((penBrush.style() == Qt::RadialGradientPattern) ||
