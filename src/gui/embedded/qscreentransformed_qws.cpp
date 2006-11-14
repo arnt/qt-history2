@@ -58,10 +58,14 @@ static const int tileSize = 32;
 class QTransformedScreenPrivate
 {
 public:
-    QTransformedScreenPrivate()
-        : transformation(QTransformedScreen::None), subscreen(0) {}
+    QTransformedScreenPrivate(QTransformedScreen *parent)
+        : transformation(QTransformedScreen::None), subscreen(0), q(parent) {}
+
+    void configure();
+
     QTransformedScreen::Transformation transformation;
     QScreen *subscreen;
+    QTransformedScreen *q;
 };
 
 
@@ -129,14 +133,34 @@ void qws_setScreenTransformation(int t)
     identifies the Qtopia Core server to connect to.
 */
 QTransformedScreen::QTransformedScreen(int displayId)
-    : QScreen(displayId), d_ptr(new QTransformedScreenPrivate)
+    : QScreen(displayId)
 {
+    d_ptr = new QTransformedScreenPrivate(this);
     d_ptr->transformation = None;
     qt_trans_screen = this;
 
 #ifdef QT_REGION_DEBUG
     qDebug() << "QTransformedScreen::QTransformedScreen";
 #endif
+}
+
+void QTransformedScreenPrivate::configure()
+{
+    q->d = subscreen->depth();
+    q->w = subscreen->width();
+    q->h = subscreen->height();
+    q->dw = subscreen->deviceWidth();
+    q->dh = subscreen->deviceHeight();
+    q->lstep = subscreen->linestep();
+    q->data = subscreen->base();
+    q->lstep = subscreen->linestep();
+    q->size = subscreen->screenSize();
+    q->physWidth = subscreen->physicalWidth();
+    q->physHeight = subscreen->physicalHeight();
+
+    q->setOffset(subscreen->offset());
+    // ###: works because setTransformation recalculates unconditionally
+    q->setTransformation(transformation);
 }
 
 /*!
@@ -188,33 +212,12 @@ bool QTransformedScreen::connect(const QString &displaySpec)
 
     const int id = getDisplayId(dspec);
     d_ptr->subscreen = qt_get_screen(id, dspec.toLatin1().constData());
-    configure();
+    d_ptr->configure();
 
     // XXX
     qt_screen = this;
 
     return true;
-}
-
-void QTransformedScreen::configure()
-{
-    const QScreen *screen = d_ptr->subscreen;
-
-    QScreen::d = screen->depth();
-    QScreen::w = screen->width();
-    QScreen::h = screen->height();
-    QScreen::dw = screen->deviceWidth();
-    QScreen::dh = screen->deviceHeight();
-    QScreen::lstep = screen->linestep();
-    QScreen::data = screen->base();
-    QScreen::lstep = screen->linestep();
-    QScreen::size = screen->screenSize();
-    QScreen::physWidth = screen->physicalWidth();
-    QScreen::physHeight = screen->physicalHeight();
-
-    setOffset(screen->offset());
-    // ###: works because setTransformation recalculates unconditionally
-    setTransformation(d_ptr->transformation);
 }
 
 /*!
@@ -1252,7 +1255,7 @@ void QTransformedScreen::setMode(int w,int h, int d)
 {
     if (d_ptr->subscreen) {
         d_ptr->subscreen->setMode(w, h, d);
-        configure();
+        d_ptr->configure();
         exposeRegion(region(), 0);
     }
 }

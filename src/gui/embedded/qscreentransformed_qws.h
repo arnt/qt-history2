@@ -83,7 +83,7 @@ public:
     QRegion region() const;
 
 private:
-    void configure();
+    friend class QTransformedScreenPrivate;
     QTransformedScreenPrivate *d_ptr;
 };
 
