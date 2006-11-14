@@ -10,6 +10,9 @@ series.  Applications compiled for 4.0 or 4.1 will continue to run with 4.2.
 
 Configure / Compilation
 
+   * Fix compilation when an unsupported version of MySQL is auto-detected
+     by the configure script
+
 Demos / Examples
 
 Designer
@@ -36,9 +39,17 @@ General improvements
 
   * Fix scrolling in lineedits with custom paddings
 
+- QCalendarWidget:
+
+  * Fixed setting the text format(Repainting & date reset issues are corrected).  
+
 - QWidget
   * Make setWindowTitle() work on hidden widgets that are never shown.
     (Fixing a bug in QtSingleApplication on Windows.)
+
+- Accessibility
+
+   * Fix potential assert when navigating menus while assistive tools are running
 
 - Item views
       
@@ -59,11 +70,25 @@ General improvements
       * Fixed QTreeWidget::setSortingEnabled() which could could cause
         incorrect painting.
 
+      * QDataWidgetMapper::mappedWidgetAt() now always returns the right
+        mapped index for a widget no matter in which order they were inserted
+
 - Painting
 
       * Fixed memory corruption in QBitmap when source buffer was smaller than
 	the destination buffer (RasterEngine). 
 
+- SQL plugins
+
+      * Fixed incorrect translation of error strings in the Oracle plugin
+      * Make sure PQfreemem is called to free allocated buffers in PostgreSQL
+      * Prevent possible trailing garbage for TEXT fields in the MySQL plugin
+
+- QSqlRelationalTableModel
+
+      * Make sure the internal cache is correctly cleared when reverting inserted
+        rows.
+      
 
 Platform-Specific changes
 -------------------------
@@ -90,3 +115,10 @@ Platform-Specific changes
 
   * Fixed delivery of mouse events to overlapping popups.
   * QVFb: Fixed crash when switching between certain skins.
+
+
+****************************************************************************
+*                             QTestLib                                     *
+****************************************************************************
+
+   * Added missing documentation for QVERIFY2 macro
