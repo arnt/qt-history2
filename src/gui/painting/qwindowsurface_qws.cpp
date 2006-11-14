@@ -70,140 +70,253 @@ public:
 
 /*!
     \class QWSWindowSurface
-    \brief The QWSWindowSurface class provides the drawing area of a top-level
-    window.
     \since 4.2
     \ingroup qws
     \preliminary
 
-    This class is used for implementing different types of memory allocation
-    policies which are implemented in QScreen::createSurface(). There will be
-    two instances of this class for each top-level window; one used by the
-    application when drawing a window, and one used by the Qtopia Core
-    GUI server for doing window compositioning.
+    \brief The QWSWindowSurface class provides the drawing area for top-level
+    windows in Qtopia Core.
+
+    Note that this class is only available in Qtopia Core.
+
+    In \l {Qtopia Core}, the default behavior is for each client to
+    render its widgets into memory while the server is responsible for
+    putting the contents of the memory onto the
+    screen. QWSWindowSurface is used by the window system to implement
+    the associated memory allocation.
+
+    When a screen update is required, the server runs through all the
+    top-level windows that intersect with the region that is about to
+    be updated, and ensures that the associated clients have updated
+    their memory buffer. Then the server uses the screen driver to
+    copy the content of the memory to the screen. To locate the
+    relevant parts of memory, the driver is provided with the list of
+    top-level windows that intersect with the given region. Associated
+    with each of the top-level windows there is a window surface
+    representing the drawing area of the window.
+
+    When deriving from the QWSWindowSurface class, e.g., when adding
+    an \l {Adding an Accelerated Graphics Driver in Qtopia
+    Core}{accelerated graphics driver}, there are several pure virtual
+    functions that must be implemented. In addition, QWSWindowSurface
+    provides several virtual functions that can be reimplemented to
+    customize the drawing process.
+
+    \tableofcontents
+
+    \section1 Pure Virtual Functions
+
+    There are in fact two window surface instances for each top-level
+    window; one used by the application when drawing a window, and
+    another used by the server application to perform window
+    compositioning. Implement the attach() to create the server-side
+    representation of the surface. The data() function must be
+    implemented to provide the required data. In addition, the related
+    detach() function must be implemented to enable the window system
+    to detach the server-side instance from the client.
+
+    Implement the key() function to uniquely identify the surface
+    class, and the isValidFor() function to determine is a surface
+    corresponds to a given widget.
+
+    The geometry() function must be implemented to let the window
+    system determine the area required by the window surface
+    (QWSWindowSurface also provides a corresponding virtual
+    setGeometry() function that is called whenever the area necessary
+    for the top-level window to be drawn, changes). The image()
+    function is called by the window system during window
+    compositioning, and must be implemented to return an image of the
+    top-level window.
+
+    Finally, the paintDevice() function must be implemented to return
+    the appropriate paint device, and the scroll() function must be
+    implemented to scroll the given region of the surface the given
+    number of pixels.
+
+    \section1 Virtual Functions
+
+    When painting onto the surface, the window system will always call
+    the beginPaint() function before any painting operations are
+    performed. Likewise the endPaint() function is automatically
+    called when the painting is done. Reimplement the painterOffset()
+    function to alter the offset that is applied when drawing.
+
+    The window system uses the flush() function to put a given region
+    of the widget onto the screen, and the release() function to
+    deallocate the screen region corresponding to this window surface.
+
+    \section1 Other Members
+
+    QWSWindowSurface provides the window() function returning a
+    pointer to the top-level window the surface is representing. The
+    currently visible region of the associated widget can be retrieved
+    and set using the clipRegion() and setClipRegion() functions,
+    respectively.
+
+    When the window system performs the window compositioning, it uses
+    the SurfaceFlag enum describing the surface content. The currently
+    set surface flags can be retrieved and altered using the
+    surfaceFlags() and setSurfaceFlags() functions. In addition,
+    QWSWindowSurface provides the isBuffered(), isOpaque() and
+    isReserved() convenience functions.  Use the dirtyRegion()
+    function to retrieve the part of the widget that must be
+    repainted, and the setDirty() function to ensure that a region is
+    repainted.
+
+    \sa {Qtopia Core Architecture#Drawing on Screen}{Qtopia
+    Core Architecture}
 */
 
 /*!
     \fn QPaintDevice* QWSWindowSurface::paintDevice()
 
-    Returns the associated paint device.
+    Implement this function to return the appropriate paint device.
+
+    \sa painterOffset()
 */
 
 /*!
     \enum QWSWindowSurface::SurfaceFlag
 
-    This enum is used to specify various properties for the window surface.
-    It is used by QScreen to handle region allocation and composition properly.
+    This enum is used to describe the window surface's contents.  It
+    is used by the screen driver to handle region allocation and
+    composition.
 
-    \value Reserved
-    The surface contains a reserved area. Once allocated, a reserved area will
-    not be changed by the window system. Thus no other widgets can be drawn
-    on top of this.
+    \value Reserved The surface contains a reserved area. Once
+    allocated, a reserved area can not not be changed by the window
+    system, i.e., no other widgets can be drawn on top of this.
 
     \value Buffered
     The surface is in a memory area which is not part of a framebuffer.
-    A top-level window with QWidget::windowOpacity() other than 1.0 must use
-    a buffered surface in order to making blending with the background work.
+    (A top-level window with QWidget::windowOpacity() other than 1.0 must use
+    a buffered surface in order to making blending with the background work.)
 
     \value Opaque
     The surface contains only opaque pixels.
+
+    \sa surfaceFlags(), setSurfaceFlags()
 */
 
 /*!
     \fn void QWSWindowSurface::scroll(const QRegion &region, int dx, int dy)
 
-    Scrolls the given \a region \a dx pixels to the right and \a dy downward.
+    Scrolls the given \a region \a dx pixels to the right and \a dy
+    downward; both \a dx and \a dy may be negative.
 
-    Both \a dx and \a dy may be negative.
+    \sa geometry()
 */
 
 /*!
     \fn bool QWSWindowSurface::isValidFor(const QWidget *window) const
 
-    Returns true if the surface is a valid surface for the top-level \a window;
-    otherwise returns false.
+    Implement this function to return true if the surface is a valid
+    surface for the given top-level \a window; otherwise return
+    false.
+
+    \sa window(), key()
 */
 
 /*!
     \fn QRect QWSWindowSurface::geometry() const
 
-    Returns the geometry currently allocated by this surface.
+    Implement this function to return the currently allocated
+    area.
+
+    \sa setGeometry(), scroll(), image()
 */
 
 /*!
     \fn void QWSWindowSurface::beginPaint(const QRegion &region)
 
     This function is called before painting onto the surface begins,
-    with the \a region in which painting will occur.
+    with the \a region in which the painting will occur.
+
+    \sa endPaint(), paintDevice()
 */
 
 /*!
     \fn void QWSWindowSurface::endPaint(const QRegion &region)
 
     This function is called after painting onto the surface has ended,
-    with the \a region in which painting could occur.
+    with the \a region in which the painting was performed.
+
+    \sa beginPaint(), paintDevice()
 */
 
 /*!
     \fn const QString QWSWindowSurface::key() const
 
-    Returns a string that uniquely identifies the class of the surface.
+    Implement this function to return a string that uniquely
+    identifies the class of this surface.
 
-    This information is used for creating a a server-side representation of the
-    surface on the Qtopia Core GUI server.
+    \sa window(), isValidFor()
 */
 
 /*!
     \fn const QByteArray QWSWindowSurface::data() const
 
-    Returns a QByteArray containing whatever data necessary for creating a
+    Implement this function to return the data required for creating a
     server-side representation of the surface.
+
+    \sa attach()
 */
 
 /*!
     \fn bool QWSWindowSurface::attach(const QByteArray &data)
 
-    Attaches a server-side instance to a client side surface instance using
-    \a data. Returns true if successful; otherwise returns false.
+    Implement this function to attach a server-side surface instance
+    to the corresponding client side instance using the given \a
+    data. Return true if successful; otherwise return false.
+
+    \sa detach(), data()
 */
 
 /*!
     \fn void QWSWindowSurface::detach()
 
-    Detach a server-side instance from the client.
+    Implement this function to detach a server-side instance from the
+    client.
+
+    \sa attach(), release()
 */
 
 /*!
     \fn const QImage QWSWindowSurface::image() const
 
-    Returns an image of the top-level window.
+    Implement this function to return an image of the top-level window.
 
-    This function is called by the Qtopia Core GUI server when doing window
-    compositioning.
+    \sa geometry()
 */
 
 /*!
     \fn bool QWSWindowSurface::isReserved() const
 
-    Returns true if the Reserved SurfaceFlag is set; otherwise returns false.
+    Returns true if the QWSWindowSurface::Reserved is set; otherwise
+    returns false.
+
+    \sa surfaceFlags()
 */
 
 /*!
     \fn bool QWSWindowSurface::isBuffered() const
 
-    Returns true if the Buffered SurfaceFlag is set; otherwise returns false.
+    Returns true if the QWSWindowSurface::Buffered is set; otherwise returns false.
+
+    \sa surfaceFlags()
 */
 
 /*!
     \fn bool QWSWindowSurface::isOpaque() const
 
-    Returns true if the Opaque SurfaceFlag is set or the surface is
-    non-buffered; otherwise returns false.
+    Returns true if the QWSWindowSurface::Opaque is set; otherwise
+    returns false.
+
+    \sa surfaceFlags()
 */
 
 
 /*!
-    Creates an empty surface.
+    Constructs an empty surface.
 */
 QWSWindowSurface::QWSWindowSurface()
     : d_ptr(new QWSWindowSurfacePrivate)
@@ -211,7 +324,7 @@ QWSWindowSurface::QWSWindowSurface()
 }
 
 /*!
-    Constructs an empty surface for the top-level \a window.
+    Constructs an empty surface for the given top-level \a window.
 */
 QWSWindowSurface::QWSWindowSurface(QWidget *window)
     : d_ptr(new QWSWindowSurfacePrivate)
@@ -220,7 +333,7 @@ QWSWindowSurface::QWSWindowSurface(QWidget *window)
 }
 
 /*!
-    Destroys the surface.
+    Destroys this surface.
 */
 QWSWindowSurface::~QWSWindowSurface()
 {
@@ -228,7 +341,9 @@ QWSWindowSurface::~QWSWindowSurface()
 }
 
 /*!
-    Returns the offset to be used when painting into the paintDevice().
+    Returns the offset to be used when painting.
+
+    \sa paintDevice()
 */
 QPoint QWSWindowSurface::painterOffset() const
 {
@@ -239,7 +354,10 @@ QPoint QWSWindowSurface::painterOffset() const
 }
 
 /*!
-    Returns a pointer to the top-level window for this surface.
+    Returns a pointer to the top-level window associated with this
+    surface.
+
+    \sa isValidFor(), key()
 */
 QWidget *QWSWindowSurface::window() const
 {
@@ -247,7 +365,9 @@ QWidget *QWSWindowSurface::window() const
 }
 
 /*!
-    Returns the region which needs to be repainted.
+    Returns the region that must be repainted.
+
+    \sa setDirty()
 */
 const QRegion QWSWindowSurface::dirtyRegion() const
 {
@@ -255,7 +375,9 @@ const QRegion QWSWindowSurface::dirtyRegion() const
 }
 
 /*!
-    Mark the \a region as needing to be repainted.
+    Marks the given \a region as dirty, i.e., altered.
+
+    \sa dirtyRegion()
 */
 void QWSWindowSurface::setDirty(const QRegion &region) const
 {
@@ -280,6 +402,8 @@ void QWSWindowSurface::setDirty(const QRegion &region) const
 
 /*!
     Returns the region currently visible on the screen.
+
+    \sa setClipRegion()
 */
 const QRegion QWSWindowSurface::clipRegion() const
 {
@@ -287,7 +411,10 @@ const QRegion QWSWindowSurface::clipRegion() const
 }
 
 /*!
-    Sets the region currently visible on the screen to \a clip.
+    Sets the region currently visible on the screen to be the given \a
+    clip region.
+
+    \sa clipRegion()
 */
 void QWSWindowSurface::setClipRegion(const QRegion &clip)
 {
@@ -327,7 +454,9 @@ void QWSWindowSurface::setClipRegion(const QRegion &clip)
 }
 
 /*!
-    Returns the SurfaceFlags describing the properties of this surface.
+    Returns the surface flags describing the contents of this surface.
+
+    \sa isBuffered(), isOpaque(), isReserved()
 */
 QWSWindowSurface::SurfaceFlags QWSWindowSurface::surfaceFlags() const
 {
@@ -335,7 +464,10 @@ QWSWindowSurface::SurfaceFlags QWSWindowSurface::surfaceFlags() const
 }
 
 /*!
-    Set the properties of this surface to \a flags.
+    Sets the surface flags describing the contents of this surface, to
+    be the given \a flags.
+
+    \sa surfaceFlags()
 */
 void QWSWindowSurface::setSurfaceFlags(SurfaceFlags flags)
 {
@@ -343,11 +475,14 @@ void QWSWindowSurface::setSurfaceFlags(SurfaceFlags flags)
 }
 
 /*!
-    Set the geometry on the surface to \a rect.
+    \fn void QWSWindowSurface::setGeometry(const QRect &rectangle)
 
-    This function is called whenever the area necessary for the top-level
-    window to be drawn is changed. The default implementation will communicate
-    the geometry to the Qtopia Core GUI server and mark it as dirty.
+    Sets the currently allocated area to be the given \a rectangle.
+
+    This function is called whenever area covered by the top-level
+    window changes.
+
+    \sa geometry()
 */
 void QWSWindowSurface::setGeometry(const QRect &rect)
 {
@@ -398,12 +533,12 @@ static inline void flushUpdate(QWidget *widget, const QRegion &region,
 }
 
 /*!
-    Flushes the \a region from \a widget onto the screen.
+    Flushes the given \a region from the specified \a widget onto the
+    screen.
 
-    The default implementation will communicate the \a region to the
-    Qtopia Core GUI server.
+    Note that the \a offset parameter is currently unused.
 
-    \a offset is currently unused. Always pass QPoint(0, 0).
+    \sa painterOffset()
 */
 void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
                              const QPoint &offset)
@@ -437,10 +572,10 @@ void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
 }
 
 /*!
-    Release the surface.
+    Releases the current allocated screen region associated with this
+    window surface.
 
-    The default implementation will communicate with the Qtopia Core GUI
-    server to deallocate the current allocated screen region.
+    \sa detach()
 */
 void QWSWindowSurface::release()
 {
