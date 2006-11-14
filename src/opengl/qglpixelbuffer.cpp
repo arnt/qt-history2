@@ -118,6 +118,15 @@ QGLPixelBuffer::QGLPixelBuffer(int width, int height, const QGLFormat &format, Q
 QGLPixelBuffer::~QGLPixelBuffer()
 {
     Q_D(QGLPixelBuffer);
+
+    // defined in qpaintengine_opengl.cpp
+    extern void qgl_cleanup_glyph_cache(QGLContext *);
+
+    QGLContext *current = const_cast<QGLContext *>(QGLContext::currentContext());
+    makeCurrent();
+    qgl_cleanup_glyph_cache(d->qctx);
+    if (current)
+        current->makeCurrent();
     d->cleanup();
     delete d->qctx;
     delete d_ptr;
