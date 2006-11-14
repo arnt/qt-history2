@@ -2463,6 +2463,34 @@ void QOpenGLPaintEnginePrivate::strokePathFastPen(const QPainterPath &path)
 #endif
 }
 
+static bool pathClosed(const QPainterPath &path)
+{
+    QPointF lastMoveTo = path.elementAt(0);
+    QPointF lastPoint = lastMoveTo;
+
+    for (int i = 1; i < path.elementCount(); ++i) {
+        const QPainterPath::Element &e = path.elementAt(i);
+        switch (e.type) {
+        case QPainterPath::MoveToElement:
+            if (lastMoveTo != lastPoint)
+                return false;
+            lastMoveTo = lastPoint = e;
+            break;
+        case QPainterPath::LineToElement:
+            lastPoint = e;
+            break;
+        case QPainterPath::CurveToElement:
+            lastPoint = path.elementAt(i + 2);
+            i+=2;
+            break;
+        default:
+            break;
+        }
+    }
+
+    return lastMoveTo == lastPoint;
+}
+
 void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
 {
     Q_D(QOpenGLPaintEngine);
@@ -2471,9 +2499,38 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
         return;
 
     if (d->has_brush) {
-        d->setGradientOps(d->brush_style);
         qt_glColor4ubv(d->brush_color);
-        d->fillPath(path);
+
+        bool path_closed = pathClosed(path);
+
+        bool has_thick_pen =
+            path_closed
+            && d->has_pen
+            && d->cpen.style() == Qt::SolidLine
+            && d->cpen.isSolid()
+            && d->cpen.color().alpha() == 255
+            && d->txop <= QTransform::TxRotShear
+            && d->cpen.widthF() >= 2.0 / sqrt(qMin(d->matrix.m11() * d->matrix.m11()
+                                                   + d->matrix.m21() * d->matrix.m21(),
+                                                   d->matrix.m12() * d->matrix.m12()
+                                                   + d->matrix.m22() * d->matrix.m22()));
+
+        if (has_thick_pen) {
+            DEBUG_ONCE qDebug() << "QOpenGLPaintEngine::drawPath(): Using thick pen optimization";
+
+            bool temp = d->use_antialiasing;
+            d->use_antialiasing = false;
+
+            updateCompositionMode(d->composition_mode);
+            d->setGradientOps(d->brush_style);
+            d->fillPath(path);
+
+            d->use_antialiasing = temp;
+            updateCompositionMode(d->composition_mode);
+        } else {
+            d->setGradientOps(d->brush_style);
+            d->fillPath(path);
+        }
     }
     if (d->has_pen) {
         qt_glColor4ubv(d->pen_color);
