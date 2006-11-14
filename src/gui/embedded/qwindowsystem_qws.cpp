@@ -2801,6 +2801,9 @@ void QWSServerPrivate::raiseWindow(QWSWindow *changingw, int /*alt*/)
     if (changingw == windows.first())
         return;
 
+    // Expose regions previously overlapped by transparent windows
+    const QRegion bound = changingw->allocatedRegion();
+    QRegion expose;
     int windowPos = 0;
 
     //change position in list:
@@ -2811,6 +2814,8 @@ void QWSServerPrivate::raiseWindow(QWSWindow *changingw, int /*alt*/)
             windows.takeAt(i);
             break;
         }
+        if (!w->isOpaque())
+            expose += (w->allocatedRegion() & bound);
     }
 
     int newPos = -1;
@@ -2836,10 +2841,9 @@ void QWSServerPrivate::raiseWindow(QWSWindow *changingw, int /*alt*/)
     }
 
     if (windowPos != newPos) {
-        const QRegion oldRegion = changingw->allocatedRegion();
         update_regions();
-        const QRegion newRegion = changingw->allocatedRegion();
-        exposeRegion(newRegion - oldRegion, newPos);
+        if (!expose.isEmpty())
+            exposeRegion(expose, newPos);
     }
     emit q->windowEvent(changingw, QWSServer::Raise);
 }
@@ -2853,11 +2857,19 @@ void QWSServerPrivate::lowerWindow(QWSWindow *changingw, int /*alt*/)
     int i = windows.indexOf(changingw);
     windows.move(i,windows.size()-1);
 
-    QRegion exposed = changingw->requestedRegion(); //### exposes too much, including what was already visible
-    const QRegion oldRegion = changingw->allocatedRegion();
+    const QRegion bound = changingw->allocatedRegion();
+
     update_regions();
-    const QRegion newRegion = changingw->allocatedRegion();
-    exposeRegion(oldRegion - newRegion, i);
+
+    // Expose regions previously overlapped by transparent window
+    if (!changingw->isOpaque()) {
+        QRegion expose;
+        for (int j = i; j < windows.size() - 1; ++j)
+            expose += (windows.at(j)->allocatedRegion() & bound);
+        if (!expose.isEmpty())
+            exposeRegion(expose, i);
+    }
+
     emit q->windowEvent(changingw, QWSServer::Lower);
 }
 
