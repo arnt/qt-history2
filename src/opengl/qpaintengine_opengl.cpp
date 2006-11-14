@@ -628,6 +628,8 @@ public:
     void fillPolygon_dev(const QRectF &boundingRect, const QPointF *polygonPoints, int pointCount,
                          Qt::FillRule fill);
 
+    void drawFastRect(const QRectF &rect);
+    void strokePath(const QPainterPath &path, bool use_cache);
     void strokePathFastPen(const QPainterPath &path);
 
     QPen cpen;
@@ -1282,7 +1284,6 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
 
             setInvMatrixData(inv_matrix);
         }
-
     }
 
     if (style >= Qt::LinearGradientPattern && style <= Qt::ConicalGradientPattern) {
@@ -1398,15 +1399,26 @@ void QOpenGLImmediateModeTessellator::addTrap(const Trapezoid &trap)
     glTexCoord4f(topDist, bottomDist, invLeftA, -invRightA);
     glMultiTexCoord4f(GL_TEXTURE1, leftA, leftB, rightA, rightB);
 
-    qreal leftX = minX - xpadding;
-    qreal rightX = maxX + xpadding;
     qreal topY = top - ypadding;
     qreal bottomY = bottom + ypadding;
 
-    glVertex2d(leftX, topY);
-    glVertex2d(rightX, topY);
-    glVertex2d(rightX, bottomY);
-    glVertex2d(leftX, bottomY);
+    qreal bounds_bottomLeftX = leftA * (offscreenHeight - bottomY) + leftB;
+    qreal bounds_bottomRightX = rightA * (offscreenHeight - bottomY) + rightB;
+    qreal bounds_topLeftX = leftA * (offscreenHeight - topY) + leftB;
+    qreal bounds_topRightX = rightA * (offscreenHeight - topY) + rightB;
+
+    QPointF leftNormal(1, -leftA);
+    leftNormal /= sqrt(leftNormal.x() * leftNormal.x() + leftNormal.y() * leftNormal.y());
+    QPointF rightNormal(1, -rightA);
+    rightNormal /= sqrt(rightNormal.x() * rightNormal.x() + rightNormal.y() * rightNormal.y());
+
+    qreal left_padding = xpadding / qAbs(leftNormal.x());
+    qreal right_padding = xpadding / qAbs(rightNormal.x());
+
+    glVertex2d(bounds_topLeftX - left_padding, topY);
+    glVertex2d(bounds_topRightX + right_padding, topY);
+    glVertex2d(bounds_bottomRightX + right_padding, bottomY);
+    glVertex2d(bounds_bottomLeftX - left_padding, bottomY);
 
     glTexCoord4f(0.0f, 0.0f, 0.0f, 1.0f);
 }
@@ -1999,9 +2011,13 @@ void QOpenGLPaintEngine::updateCompositionMode(QPainter::CompositionMode composi
     if (d->has_fast_composition_mode) {
         d->fragment_composition_mode = COMPOSITION_MODE_BLEND_MODE;
         d->offscreen.setDrawableCopyNeeded(false);
+
+        DEBUG_ONCE_STR("QOpenGLPaintEngine::updateCompositionMode: using blend mode compositioning");
     } else {
         d->fragment_composition_mode = COMPOSITION_MODES_SIMPLE_PORTER_DUFF;
         d->offscreen.setDrawableCopyNeeded(true);
+
+        DEBUG_ONCE_STR("QOpenGLPaintEngine::updateCompositionMode: using fragment program compositioning");
     }
 
     switch(composition_mode) {
@@ -2117,65 +2133,118 @@ void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
 #endif
 }
 
+void QOpenGLPaintEnginePrivate::drawFastRect(const QRectF &r)
+{
+    DEBUG_ONCE_STR("QOpenGLPaintEngine::drawRects(): drawing fast rect");
+
+    float vertexArray[10];
+    qt_add_rect_to_array(r, vertexArray);
+
+    if (has_brush) {
+        setGradientOps(brush_style);
+
+        bool use_compositioning =
+            use_fragment_programs
+            && brush_style != Qt::SolidPattern
+            && brush_style != Qt::LinearGradientPattern;
+
+        if (use_compositioning) {
+            offscreen.bind();
+            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+            glBlendFunc(GL_ONE, GL_ZERO);
+        } else {
+            qt_glColor4ubv(brush_color);
+
+            if (brush_style == Qt::LinearGradientPattern) {
+                glEnable(GL_TEXTURE_GEN_S);
+                glEnable(GL_TEXTURE_1D);
+            }
+        }
+
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glVertexPointer(2, GL_FLOAT, 0, vertexArray);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        glDisableClientState(GL_VERTEX_ARRAY);
+
+        if (use_compositioning) {
+            offscreen.release();
+            qt_glColor4ubv(brush_color);
+
+            composite(GL_TRIANGLE_FAN, vertexArray, 4);
+        } else if (brush_style == Qt::LinearGradientPattern) {
+            glDisable(GL_TEXTURE_GEN_S);
+            glDisable(GL_TEXTURE_1D);
+        }
+    }
+
+    if (has_pen) {
+        setGradientOps(pen_brush_style);
+        qt_glColor4ubv(pen_color);
+
+        if (has_fast_pen && !(use_fragment_programs && use_antialiasing)) {
+            vertexArray[8] = vertexArray[0];
+            vertexArray[9] = vertexArray[1];
+
+            glVertexPointer(2, GL_FLOAT, 0, vertexArray);
+            glEnableClientState(GL_VERTEX_ARRAY);
+            glDrawArrays(GL_LINE_STRIP, 0, 5);
+            glDisableClientState(GL_VERTEX_ARRAY);
+        } else {
+            QPainterPath path;
+            path.setFillRule(Qt::WindingFill);
+
+            qreal left = r.left();
+            qreal right = r.right();
+            qreal top = r.top();
+            qreal bottom = r.bottom();
+
+            path.moveTo(left, top);
+            path.lineTo(right, top);
+            path.lineTo(right, bottom);
+            path.lineTo(left, bottom);
+            path.lineTo(left, top);
+
+            strokePath(path, false);
+        }
+    }
+}
+
 void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
-    //Q_D(QOpenGLPaintEngine);
+    Q_D(QOpenGLPaintEngine);
 
     for (int i=0; i<rectCount; ++i) {
         QRectF r = rects[i];
 
-        qreal left = r.left();
-        qreal right = r.right();
-        qreal top = r.top();
-        qreal bottom = r.bottom();
+        QRectF screen_rect = d->matrix.mapRect(r);
 
-        QPainterPath path;
-        path.setFillRule(Qt::WindingFill);
+        bool integer_rect =
+            screen_rect.topLeft().toPoint() == screen_rect.topLeft()
+            && screen_rect.bottomRight().toPoint() == screen_rect.bottomRight();
 
-        path.moveTo(left, top);
-        path.lineTo(right, top);
-        path.lineTo(right, bottom);
-        path.lineTo(left, bottom);
-        path.lineTo(left, top);
+        bool fast_rect = integer_rect;
 
-        drawPath(path);
+        // optimization for rects which can be drawn aliased
+        if (fast_rect || !d->use_antialiasing) {
+            d->drawFastRect(r);
+        } else {
+            qreal left = r.left();
+            qreal right = r.right();
+            qreal top = r.top();
+            qreal bottom = r.bottom();
 
-#if 0
-        float vertexArray[10];
-        qt_add_rect_to_array(r, vertexArray);
+            QPainterPath path;
+            path.setFillRule(Qt::WindingFill);
 
-        if (d->has_brush) {
-            d->setGradientOps(d->brush_style);
-            qt_glColor4ubv(d->brush_color);
-            glVertexPointer(2, GL_FLOAT, 0, vertexArray);
-            glEnableClientState(GL_VERTEX_ARRAY);
-            glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-            glDisableClientState(GL_VERTEX_ARRAY);
+            path.moveTo(left, top);
+            path.lineTo(right, top);
+            path.lineTo(right, bottom);
+            path.lineTo(left, bottom);
+            path.lineTo(left, top);
+
+            drawPath(path);
         }
-
-        if (d->has_pen) {
-            d->setGradientOps(d->pen_brush_style);
-            qt_glColor4ubv(d->pen_color);
-            if (d->has_fast_pen) {
-                vertexArray[8] = vertexArray[0];
-                vertexArray[9] = vertexArray[1];
-
-                glVertexPointer(2, GL_FLOAT, 0, vertexArray);
-                glEnableClientState(GL_VERTEX_ARRAY);
-                glDrawArrays(GL_LINE_STRIP, 0, 5);
-                glDisableClientState(GL_VERTEX_ARRAY);
-            } else {
-                QPainterPath path; path.setFillRule(Qt::WindingFill);
-                path.moveTo(left, top);
-                path.lineTo(right, top);
-                path.lineTo(right, bottom);
-                path.lineTo(left, bottom);
-                path.lineTo(left, top);
-                QPainterPath stroke = qt_opengl_stroke_cache()->getStrokedPath(path, d->cpen);
-                d->fillPath(stroke);
-            }
-        }
-#endif
     }
 }
 
@@ -2211,7 +2280,7 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
     Q_D(QOpenGLPaintEngine);
     if (d->has_pen) {
         d->setGradientOps(d->pen_brush_style);
-        if (d->has_fast_pen) {
+        if (d->has_fast_pen && !(d->use_fragment_programs && d->use_antialiasing)) {
             qt_glColor4ubv(d->pen_color);
             const qreal *vertexArray = reinterpret_cast<const qreal*>(&lines[0]);
 
@@ -2231,11 +2300,12 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
             qt_glColor4ubv(d->pen_color);
             for (int i=0; i<lineCount; ++i) {
                 const QLineF &l = lines[i];
-                QPainterPath path; path.setFillRule(Qt::WindingFill);
+                QPainterPath path;
+                path.setFillRule(Qt::WindingFill);
                 path.moveTo(l.x1(), l.y1());
                 path.lineTo(l.x2(), l.y2());
-                QPainterPath stroke = strokeForPath(path, d->cpen);
-                d->fillPath(stroke);
+
+                d->strokePath(path, false);
             }
         }
     }
@@ -2250,7 +2320,7 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 
     if (d->has_brush && mode != PolylineMode) {
         d->setGradientOps(d->brush_style);
-        if (mode == ConvexMode) {
+        if (mode == ConvexMode && !(d->use_antialiasing && d->use_fragment_programs)) {
 
             const qreal *vertexArray = reinterpret_cast<const qreal*>(&points[0]);
 
@@ -2280,7 +2350,7 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
     if (d->has_pen) {
         d->setGradientOps(d->pen_brush_style);
         qt_glColor4ubv(d->pen_color);
-        if (d->has_fast_pen) {
+        if (d->has_fast_pen && !(d->use_fragment_programs && d->use_antialiasing)) {
             QVarLengthArray<float> vertexArray(pointCount*2 + 2);
             glVertexPointer(2, GL_FLOAT, 0, vertexArray.data());
             int i;
@@ -2288,6 +2358,7 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
                 vertexArray[i*2] = points[i].x();
                 vertexArray[i*2+1] = points[i].y();
             }
+
             glEnableClientState(GL_VERTEX_ARRAY);
             if (mode != PolylineMode) {
                 vertexArray[i*2] = points[0].x();
@@ -2303,10 +2374,33 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
                 path.lineTo(points[i]);
             if (mode != PolylineMode)
                 path.lineTo(points[0]);
-            QPainterPath stroke = qt_opengl_stroke_cache()->getStrokedPath(path, d->cpen);
-            d->fillPath(stroke);
+
+            d->strokePath(path, true);
         }
     }
+}
+
+void QOpenGLPaintEnginePrivate::strokePath(const QPainterPath &path, bool use_cache)
+{
+    if (cpen.widthF() == 0) {
+        QTransform temp = matrix;
+        matrix = QTransform();
+        glPushMatrix();
+        glLoadIdentity();
+
+        if (use_cache)
+            fillPath(qt_opengl_stroke_cache()->getStrokedPath(temp.map(path), cpen));
+        else
+            fillPath(strokeForPath(temp.map(path), cpen));
+
+        glPopMatrix();
+        matrix = temp;
+    } else if (use_cache) {
+        fillPath(qt_opengl_stroke_cache()->getStrokedPath(path, cpen));
+    } else {
+        fillPath(strokeForPath(path, cpen));
+    }
+
 }
 
 void QOpenGLPaintEnginePrivate::strokePathFastPen(const QPainterPath &path)
@@ -2384,10 +2478,10 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
     if (d->has_pen) {
         qt_glColor4ubv(d->pen_color);
         d->setGradientOps(d->pen_brush_style);
-        if (d->has_fast_pen)
+        if (d->has_fast_pen && !(d->use_fragment_programs && d->use_antialiasing))
             d->strokePathFastPen(path);
         else
-            d->fillPath(qt_opengl_stroke_cache()->getStrokedPath(path, d->cpen));
+            d->strokePath(path, true);
     }
 }
 
@@ -2997,10 +3091,10 @@ void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
             QPainterPath path;
             path.addEllipse(rect);
 
-            if (d->has_fast_pen)
+            if (d->has_fast_pen && !(d->use_fragment_programs && d->use_antialiasing))
                 d->strokePathFastPen(path);
             else
-                d->fillPath(strokeForPath(path, d->cpen));
+                d->strokePath(path, false);
         }
     } else {
         DEBUG_ONCE_STR("QOpenGLPaintEngine::drawEllipse(): falling back to drawPath()");
