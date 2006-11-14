@@ -169,6 +169,8 @@ public:
     QVNCScreenPrivate(QVNCScreen *parent);
     ~QVNCScreenPrivate();
 
+    void configure();
+
     bool doOnScreenSurface;
     QVNCHeader hdr;
     QVNCServer *vncServer;
