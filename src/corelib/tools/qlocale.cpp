@@ -72,11 +72,11 @@
 #define CONVERSION_BUFF_SIZE 255
 
 #ifndef QT_QLOCALE_USES_FCVT
-static char *qdtoa(double d, int mode, int ndigits, int *decpt,
+Q_CORE_EXPORT char *qdtoa(double d, int mode, int ndigits, int *decpt,
                         int *sign, char **rve, char **digits_str);
 static char *_qdtoa( NEEDS_VOLATILE double d, int mode, int ndigits, int *decpt,
                         int *sign, char **rve, char **digits_str);
-static double qstrtod(const char *s00, char const **se, bool *ok);
+Q_CORE_EXPORT double qstrtod(const char *s00, char const **se, bool *ok);
 #endif
 static qlonglong qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok);
 static qulonglong qstrtoull(const char *nptr, const char **endptr, register int base, bool *ok);
@@ -4997,7 +4997,7 @@ static const double tinytens[] = { 1e-16, 1e-32 };
 */
 static double g_double_zero = 0.0;
 
-static double qstrtod(const char *s00, const char **se, bool *ok)
+Q_CORE_EXPORT double qstrtod(const char *s00, const char **se, bool *ok)
 {
     int bb2, bb5, bbe, bd2, bd5, bbbits, bs2, c, dsign,
         e, e1, esign, i, j, k, nd, nd0, nf, nz, nz0, sign;
@@ -5691,7 +5691,7 @@ static int quorem(Bigint *b, Bigint *S)
 /* This actually sometimes returns a pointer to a string literal
    cast to a char*. Do NOT try to modify the return value. */
 
-static char *qdtoa ( double d, int mode, int ndigits, int *decpt, int *sign, char **rve, char **resultp)
+Q_CORE_EXPORT char *qdtoa ( double d, int mode, int ndigits, int *decpt, int *sign, char **rve, char **resultp)
 {
     // Some values of the floating-point control word can cause _qdtoa to crash with an underflow.
     // We set a safe value here.
