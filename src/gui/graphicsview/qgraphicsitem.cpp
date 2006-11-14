@@ -465,7 +465,14 @@ QGraphicsItem::QGraphicsItem(QGraphicsItem *parent, QGraphicsScene *scene)
 {
     d_ptr->q_ptr = this;
     setParentItem(parent);
-    if (scene && d_ptr->scene != scene)
+
+    if (scene && parent && parent->scene() != scene) {
+        qWarning("QGraphicsItem::QGraphicsItem: ignoring scene (%p), which is"
+                 " different from parent's scene (%p)",
+                 scene, parent->scene());
+        return;
+    }
+    if (scene && !parent)
         scene->addItem(this);
 }
 
@@ -478,7 +485,14 @@ QGraphicsItem::QGraphicsItem(QGraphicsItemPrivate &dd, QGraphicsItem *parent,
 {
     d_ptr->q_ptr = this;
     setParentItem(parent);
-    if (scene && d_ptr->scene != scene)
+
+    if (scene && parent && parent->scene() != scene) {
+        qWarning("QGraphicsItem::QGraphicsItem: ignoring scene (%p), which is"
+                 " different from parent's scene (%p)",
+                 scene, parent->scene());
+        return;
+    }
+    if (scene && !parent)
         scene->addItem(this);
 }
 
@@ -616,10 +630,21 @@ void QGraphicsItem::setParentItem(QGraphicsItem *parent)
     }
 
     if ((d_ptr->parent = parent)) {
+        bool implicitAddToIndex = false;
+        if (parent->d_func()->scene && parent->d_func()->scene != d_ptr->scene) {
+            // Move this item to its new parent's scene
+            parent->d_func()->scene->addItem(this);
+            implicitAddToIndex = true;
+        } else if (!parent->d_func()->scene && d_ptr->scene) {
+            // Remove this item from its former scene
+            d_ptr->scene->removeItem(this);
+        }
+
         d_ptr->parent->d_func()->children << this;
         qVariantSetValue<QGraphicsItem *>(variant, this);
         d_ptr->parent->itemChange(ItemChildAddedChange, variant);
-        addToIndex();
+        if (!implicitAddToIndex)
+            addToIndex();
 
         // Optionally inherit ancestor event handling from the new parent
         if (!d_ptr->handlesChildEvents) {
