@@ -128,7 +128,24 @@ Platform-Specific changes
 
   * Fixed delivery of mouse events to overlapping popups.
   * QVFb: Fixed crash when switching between certain skins.
-
+  * QVFb: Fixed crash when recording.
+  * QVFb: Fixed saving of animations on other partitions than /tmp.
+  * VNC: Fixed use of the VNC driver with the Multi driver.
+  * Fixed cursor state when switching between different screens.
+  * Fixed performance bug when using an accelerated mouse cursor.
+  * QCustomRasterPaintDevice::metric(): Fixed default values of PdmWidth and 
+    PdmHeight.
+  * Fixed bug in QWidget::setMask().
+  * Fixed calibration of rotated screens in the mousecalibration example.
+  * Fixed setMode() in the screen drivers LinuxFb, VNC and Transformed.
+  * Fixed crash when using QWSCalibratedMouseHandler with filter size < 3.
+  * Fixed QScreen::alloc() for non-default colormaps.
+  * Fixed a bug preventing a QWSEmbedWidget to being displayed if the remote
+    widget was hidden before it got embedded.
+  * Fixed screen area reservation when using the QDirectPainter.
+  * Fixed compilation of the MySQL driver when using the minimum configuration.
+  * Fixed a bug in the LinuxFB driver which prevented it to switch back to
+    text mode if the application termintated using exit().
 
 ****************************************************************************
 *                             QTestLib                                     *
