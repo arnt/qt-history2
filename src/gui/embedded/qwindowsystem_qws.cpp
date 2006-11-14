@@ -2444,7 +2444,10 @@ void QWSServerPrivate::invokeSetOpacity(const QWSSetOpacityCommand *cmd, QWSClie
     }
 
     int altitude = windows.indexOf(changingw);
-    changingw->_opacity = opacity; // XXX: need to recalculate regions?
+    const bool wasOpaque = changingw->isOpaque();
+    changingw->_opacity = opacity;
+    if (wasOpaque != changingw->isOpaque())
+        update_regions();
     exposeRegion(changingw->allocatedRegion(), altitude);
 }
 
