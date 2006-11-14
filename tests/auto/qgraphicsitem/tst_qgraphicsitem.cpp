@@ -71,6 +71,7 @@ private slots:
     void destruction();
     void scene();
     void parentItem();
+    void setParentItem();
     void children();
     void flags();
     void toolTip();
@@ -433,6 +434,29 @@ void tst_QGraphicsItem::parentItem()
     QCOMPARE(item2->parentItem(), (QGraphicsItem *)0);
 
     delete item2;
+}
+
+void tst_QGraphicsItem::setParentItem()
+{
+    QGraphicsScene scene;
+    QGraphicsItem *item = scene.addRect(QRectF(0, 0, 10, 10));
+    QCOMPARE(item->scene(), &scene);
+
+    QGraphicsRectItem *child = new QGraphicsRectItem;
+    QCOMPARE(child->scene(), (QGraphicsScene *)0);
+
+    // This implicitly adds the item to the parent's scene
+    child->setParentItem(item);
+    QCOMPARE(child->scene(), &scene);
+
+    // This just makes it a toplevel
+    child->setParentItem(0);
+    QCOMPARE(child->scene(), &scene);
+
+    // Add the child back to the parent, then remove the parent from the scene
+    child->setParentItem(item);
+    scene.removeItem(item);
+    QCOMPARE(child->scene(), (QGraphicsScene *)0);
 }
 
 void tst_QGraphicsItem::children()
@@ -1349,6 +1373,8 @@ void tst_QGraphicsItem::collidesWith_item()
         QGraphicsLineItem line(0, 0, 200, 200, 0, &scene);
         line.setZValue(2);
 
+        QCOMPARE(scene.items().size(), 3);
+
         QList<QGraphicsItem *> col1 = rect.collidingItems();
         QCOMPARE(col1.size(), 2);
         QCOMPARE(col1.first(), &line);
@@ -2126,7 +2152,6 @@ void tst_QGraphicsItem::warpChildrenIntoGroup()
     QGraphicsItemGroup *group = new QGraphicsItemGroup;
     group->setPos(50, 50);
     group->setParentItem(parentOfGroup);
-    scene.addItem(group);
 
     QCOMPARE(group->scenePos(), QPointF(-100, -100));
 
