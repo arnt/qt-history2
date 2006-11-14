@@ -38,6 +38,17 @@
 #define TT_PRIM_CSPLINE 3
 #endif
 
+#ifdef MAKE_TAG
+#undef MAKE_TAG
+#endif
+// GetFontData expects the tags in little endian ;(
+#define MAKE_TAG(ch1, ch2, ch3, ch4) (\
+    (((quint32)(ch4)) << 24) | \
+    (((quint32)(ch3)) << 16) | \
+    (((quint32)(ch2)) << 8) | \
+    ((quint32)(ch1)) \
+   )
+
 // Copy a LOGFONTW struct into a LOGFONTA by converting the face name to an 8 bit value.
 // This is needed when calling CreateFontIndirect on non-unicode windowses.
 inline static void wa_copy_logfont(LOGFONTW *lfw, LOGFONTA *lfa)
