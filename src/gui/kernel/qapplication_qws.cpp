@@ -2823,11 +2823,10 @@ void QApplication::qwsSetCustomColors(QRgb *colorTable, int start, int numColors
 
 #ifndef QT_NO_QWS_MANAGER
 /*!
-    \warning
-
     Return the QWSDecoration used for decorating windows.
 
-    This method is non-portable. It is only available in Qtopia Core.
+    \warning This method is non-portable. It is only available in
+    Qtopia Core.
 
     \sa QDecoration
 */
