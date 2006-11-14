@@ -36,6 +36,10 @@ General improvements
 
   * Fix scrolling in lineedits with custom paddings
 
+- QWidget
+  * Make setWindowTitle() work on hidden widgets that are never shown.
+    (Fixing a bug in QtSingleApplication on Windows.)
+
 - Item views
       
       * Fixed possible assert in QTreeView when painting if there were
@@ -46,7 +50,7 @@ General improvements
       * Fixed QHeaderView and QTableView overflow issues when the length
         of all the rows or columns went over max int.
       
-      * When reset is emited by a QAbstractItemModel, QHeaderView will now
+      * When reset is emitted by a QAbstractItemModel, QHeaderView will now
         always update the header count().
 
       * Fixed regression where QAbstractItemView::setRootIndex() wasn't 
@@ -65,10 +69,15 @@ Platform-Specific changes
   * Fixed rendering of Greek and other latin scripts with
     XLFD fonts
   * Fix encoding detection of XLFD fonts
-
+  * Fixed crash in QX11EmbedContainer.
   * QPrinter: Don't generate PDF on raw CUPS printers
 
 - Qt/Win:
 
   * Fixed drawing of the 0xad character with symbol fonts
+  * Fixed stacking order of dialogs when child is created before parent.
 
+- Qtopia Core
+
+  * Fixed delivery of mouse events to overlapping popups.
+  * QVFb: Fixed crash when switching between certain skins.
