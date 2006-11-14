@@ -28,21 +28,29 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
 {
     Q_ASSERT(index.isValid()); // we will _never_ insert an invalid index in the list
     QPersistentModelIndexData *d = 0;
-    QAbstractItemModel *model = const_cast<QAbstractItemModel*>(index.model());
-    const QVector<QPersistentModelIndexData*> persistentIndexes = model->d_func()->persistent.indexes;
-    // ### FIXME: with many persistent indexes, this becomes slow
-    const int count = persistentIndexes.count();
-    for (int i = 0; i < count; ++i) {
-        if (persistentIndexes.at(i)->index == index) {
-            d = persistentIndexes.at(i);
-            break;
+    const QAbstractItemModelPrivate *priv = index.model()->d_func();
+    const QPersistentModelIndexData *previous = priv->persistent.previous;
+    if (previous && previous->index == index) {
+        d = priv->persistent.previous;
+    } else {
+        // ### FIXME: with many persistent indexes, this becomes slow
+        // ### use qLowerBound do binary find and insert in the same iteration
+        const QVector<QPersistentModelIndexData*> persistentIndexes = priv->persistent.indexes;
+        const int count = persistentIndexes.count();
+        for (int i = 0; i < count; ++i) {
+            if (persistentIndexes.at(i)->index == index) {
+                d = persistentIndexes.at(i);
+                break;
+            }
         }
     }
     if (!d) { // not found
         d = new QPersistentModelIndexData();
-        d->model = model;
+        d->model = index.model();
         d->index = index;
+        QAbstractItemModel *model = const_cast<QAbstractItemModel*>(index.model());
         model->d_func()->persistent.indexes.append(d);
+        model->d_func()->persistent.previous = d;
     }
     Q_ASSERT(d);
     return d;
@@ -466,6 +474,9 @@ void QAbstractItemModelPrivate::removePersistentIndexData(QPersistentModelIndexD
                 persistent.invalidated[i].removeAll(j);
         }
     }
+    // make sure our optimization still works
+    if (persistent.previous == data)
+        persistent.previous = 0;
 }
 
 void QAbstractItemModelPrivate::invalidate(int position)

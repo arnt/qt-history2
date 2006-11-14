@@ -90,9 +90,11 @@ public:
     QStack<Change> changes;
 
     struct Persistent {
+        Persistent() : previous(0) {}
         QVector<QPersistentModelIndexData*> indexes;
         QStack<QList<int> > moved;
         QStack<QList<int> > invalidated;
+        QPersistentModelIndexData *previous; // optimization
     } persistent;
 
     Qt::DropActions supportedDragActions;
