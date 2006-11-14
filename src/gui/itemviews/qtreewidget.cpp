@@ -1756,10 +1756,12 @@ void QTreeWidgetItem::removeChild(QTreeWidgetItem *child)
 */
 QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
 {
+    // we move this outside the check of the index to allow executing
+    // pending sorts from inline functions, using this function (hack)
+    QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
+    if (model && model->executePendingSort())
+        model = 0; // no need to emit signals
     if (index >= 0 && index < children.count()) {
-        QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
-        if (model && model->executePendingSort())
-            model = 0; // no need to emit signals
         if (model) model->beginRemoveItems(this, index, 1);
         QTreeWidgetItem *item = children.takeAt(index);
         item->par = 0;
