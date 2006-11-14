@@ -210,7 +210,7 @@ inline void QTreeWidgetItem::setFont(int column, const QFont &afont)
 { setData(column, Qt::FontRole, afont); }
 
 inline int QTreeWidgetItem::indexOfChild(QTreeWidgetItem *achild) const
-{ (void)takeChild(-1); return children.indexOf(achild); }
+{ (void)const_cast<QTreeWidgetItem*>(this)->takeChild(-1); return children.indexOf(achild); }
 
 #ifndef QT_NO_DATASTREAM
 Q_GUI_EXPORT QDataStream &operator<<(QDataStream &out, const QTreeWidgetItem &item);
