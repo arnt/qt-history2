@@ -45,7 +45,7 @@
 
 //TESTED_FILES=qhostinfo.cpp qhostinfo.h qhostinfo_p.h qhostinfo_unix.cpp qhostinfo_win.cpp
 
-const char * const lupinellaIp = "10.3.0.6";
+const char * const lupinellaIp = "10.3.4.6";
 
 class tst_QHostInfo : public QObject
 {
