@@ -3010,7 +3010,7 @@ QGLGlyphCoord *QGLGlyphCache::lookup(QFontEngine *, glyph_t g)
         return it.value();
 }
 
-Q_GLOBAL_STATIC(QGLGlyphCache, qt_glyph_cache);
+Q_GLOBAL_STATIC(QGLGlyphCache, qt_glyph_cache)
 
 //
 // assumption: the context that this is called for has to be the
