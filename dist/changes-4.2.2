@@ -59,6 +59,12 @@ General improvements
       * Fixed QTreeWidget::setSortingEnabled() which could could cause
         incorrect painting.
 
+- Painting
+
+      * Fixed memory corruption in QBitmap when source buffer was smaller than
+	the destination buffer (RasterEngine). 
+
+
 Platform-Specific changes
 -------------------------
 
@@ -76,6 +82,9 @@ Platform-Specific changes
 
   * Fixed drawing of the 0xad character with symbol fonts
   * Fixed stacking order of dialogs when child is created before parent.
+  * Fixed printing to pdf when no printers are installed.
+  * Fixed "print to file" dialog only showing once after canceling the dialog.
+  * Fixed name clashes in enum values when running dumpcpp (ActiveQt)
 
 - Qtopia Core
 
