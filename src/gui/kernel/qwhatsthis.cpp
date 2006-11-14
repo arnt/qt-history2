@@ -305,6 +305,7 @@ void QWhatsThat::paintEvent(QPaintEvent*)
         for(; i > 0 ; i -= 2)
             p.drawLine(6, h + 6 - i, i + 5, h + 5);
     }
+    r.adjust(0, 0, 1, 1);
     p.setPen(palette().foreground().color());
     r.adjust(hMargin, vMargin, -hMargin, -vMargin);
 
