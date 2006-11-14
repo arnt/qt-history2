@@ -103,6 +103,7 @@ Section "Visual Studio 2002" ADDIN7X_SEC03
   !insertmacro InstallProjectTemplate "${MODULE_ADDIN7X_ROOT}\Projects\Qt3ApplicationProject" "Qt3ApplicationProject"
 SectionEnd
 !endif
+SectionGroupEnd
 
 Section -AddinCommonFiles
   ; make sure one of the .net addins is installed
@@ -134,8 +135,6 @@ Section -AddinCommonFiles
   
   done:
 SectionEnd
-
-SectionGroupEnd
 
 Function RegisterAddin
   push $2

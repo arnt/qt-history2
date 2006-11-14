@@ -23,13 +23,13 @@
 
 !macro HELP_SECTIONS
 
-SectionGroup "Help Integration"
-
 Section -PreHelpSection
   ; use default instdir if not set
   strcmp "$HELP_INSTDIR" "" 0 +2
     StrCpy $HELP_INSTDIR "$INSTDIR\help"
 SectionEnd
+
+SectionGroup "Help Integration"
 
 Section "Visual Studio 2005" HELP_SEC01
   !insertmacro InstallHelp "$HELP_INSTDIR" ${MODULE_HELP_QT_FILE_ROOT} "8.0"
@@ -49,13 +49,13 @@ Section "Visual Studio 2002" HELP_SEC03
   WriteRegDWORD SHCTX "$PRODUCT_UNIQUE_KEY" "QtHelp70Installed" 1
 SectionEnd
 
+SectionGroupEnd
+
 Section -PostHelpSection
   IfFileExists "$HELP_INSTDIR\h2reg.exe" 0 PostHelpSectionFinished
   !insertmacro RegisterHelp "$HELP_INSTDIR" ${MODULE_HELP_QT_FILE_ROOT}
 PostHelpSectionFinished:
 SectionEnd
-
-SectionGroupEnd
 
 !macroend
 

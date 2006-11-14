@@ -15,14 +15,14 @@ var DEBUGEXT_INITIALIZED
 ;------------------------------------------------------------------------------------------------
 !macro DEBUGEXT_SECTIONS
 
-SectionGroup "Debugger Extension"
-
 Section -PreDebugExtSection
   StrCpy $DEBUGEXT_INITIALIZED "0"
-  
+
   SetOutPath $TEMP
   File "${MODULE_DEBUGEXT_ROOT}\autoexp.dat_entries.txt"
 SectionEnd
+
+SectionGroup "Debugger Extension"
 
 !ifndef MODULE_DEBUGEXT_NOVS2005
 Section "Visual Studio 2005" DEBUGEXT_SEC01
@@ -96,6 +96,8 @@ Section "Visual C++ 6.0" DEBUGEXT_SEC04
 SectionEnd
 !endif
 
+SectionGroupEnd
+
 Section -PostDebugExtSection
   Delete "$TEMP\autoexp.dat_entries.txt"
 
@@ -107,8 +109,6 @@ Section -PostDebugExtSection
 
   nodebugext:
 SectionEnd
-
-SectionGroupEnd
 
 Function DoUpdateDatFile
   exch $0 ;dir

@@ -82,6 +82,8 @@ Section "Visual Studio 2005" VSIP_SEC02
 SectionEnd
 !endif
 
+SectionGroupEnd
+
 Section -PostVSIPSection
   IfFileExists "$VSIP_INSTDIR\help\h2reg.exe" 0 PostVSIPSectionHelp_Done
   !insertmacro RegisterHelp "$VSIP_INSTDIR\help" "qt4vs"
@@ -92,9 +94,6 @@ Section -PostVSIPSection
   CreateShortCut "$SMPROGRAMS\$STARTMENU_STRING\Visual Studio Integration Readme.lnk" "$VSIP_INSTDIR\Readme.txt"
   PostVSIPSection_Done:
 SectionEnd
-
-SectionGroupEnd
-
 
 Function InstallVSIP
   Exch $0
