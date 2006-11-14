@@ -3159,17 +3159,6 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
         }
         break;
 
-    case PM_ScrollBarExtent:
-        {
-            XPThemeData theme(widget, 0, "SCROLLBAR", SBP_SIZEBOX);
-            if (theme.isValid()) {
-                SIZE size;
-                pGetThemePartSize(theme.handle(), 0, theme.partId, theme.stateId, 0, TS_TRUE, &size);
-                res = size.cy;
-            }
-        }
-        break;
-
     case PM_SliderThickness:
         {
             XPThemeData theme(widget, 0, "TRACKBAR", TKP_THUMB);
