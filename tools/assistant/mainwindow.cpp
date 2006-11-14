@@ -188,6 +188,10 @@ void MainWindow::setup()
 
     ui.actionEditCopy->setEnabled(false);
     connect(tabs->currentBrowser(), SIGNAL(copyAvailable(bool)), this, SLOT(copyAvailable(bool)));
+
+    // set the current selected item in the treeview
+    helpDialog()->locateContents(tabs->currentBrowser()->source().toString());
+    connect(tabs, SIGNAL(browserUrlChanged(QString)), helpDock, SLOT(locateContents(QString)));
 }
 
 void MainWindow::browserTabChanged()
@@ -424,9 +428,12 @@ void MainWindow::showLinkFromClient(const QString &link)
 
 void MainWindow::showLink(const QString &link)
 {
-    if(link.isEmpty()) {
+    if(link.isEmpty())
         qWarning("The link is empty!");
-    }
+    
+    // don't fill the history with the same url more then once
+    if (link == tabs->currentBrowser()->source().toString())
+        return;
 
     QUrl url(link);
     QFileInfo fi(url.toLocalFile());
@@ -663,6 +670,7 @@ void MainWindow::on_actionSyncToc_triggered()
         qApp->setOverrideCursor(QCursor(Qt::WaitCursor));
         QString  link = w->source().toString();
         helpDock->locateContents(link);
+        helpDock->tabWidget()->setCurrentIndex(0);
      	qApp->restoreOverrideCursor();
     }
 }

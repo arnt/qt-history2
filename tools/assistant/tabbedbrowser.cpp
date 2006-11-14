@@ -66,11 +66,13 @@ MainWindow *TabbedBrowser::mainWindow() const
 void TabbedBrowser::forward()
 {
     currentBrowser()->forward();
+    emit browserUrlChanged(currentBrowser()->source().toString());
 }
 
 void TabbedBrowser::backward()
 {
     currentBrowser()->backward();
+    emit browserUrlChanged(currentBrowser()->source().toString());
 }
 
 void TabbedBrowser::setSource( const QString &ref )

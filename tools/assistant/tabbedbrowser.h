@@ -41,6 +41,7 @@ public:
 
 signals:
     void tabCountChanged(int count);
+    void browserUrlChanged(const QString &link);
 
 protected:
 	void keyPressEvent(QKeyEvent *);

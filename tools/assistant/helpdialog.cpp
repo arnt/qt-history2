@@ -696,13 +696,17 @@ bool HelpDialog::eventFilter(QObject * o, QEvent * e)
             default:
                 break;
         }
-    } else if (o == ui.listContents->viewport())
+    } else if (o == ui.listContents->viewport()) {
         if (e->type() == QEvent::MouseButtonRelease) {
-        QMouseEvent *me = static_cast<QMouseEvent*>(e);
-        if (me->button() == Qt::LeftButton) {
-            QTreeWidgetItem *item = ui.listContents->itemAt(me->pos());
-            if (item)
-                showTopic(item);
+            QMouseEvent *me = static_cast<QMouseEvent*>(e);
+            if (me->button() == Qt::LeftButton) {
+                QTreeWidgetItem *item = ui.listContents->itemAt(me->pos());
+                QRect vRect = ui.listContents->visualItemRect(item);
+
+                // only show topic if we clicked an item
+                if (item && vRect.contains(me->pos()))
+                    showTopic(item);
+            }
         }
     }
 
@@ -924,27 +928,39 @@ void HelpDialog::locateContents(const QString &link)
         else
             findLink.replace(0, 8, "file:/");
     }
+
+    bool topLevel = false;
     QTreeWidgetItem *item = 0;
-    int i = 0, totalItems = ui.listContents->topLevelItemCount();
-    for (i = 0; i < totalItems; i++ ) {
+    int totalItems = ui.listContents->topLevelItemCount();
+
+    for (int i = 0; i < totalItems; i++ ) {
+        // first see if we are one of the top level items
         item = (QTreeWidgetItem*)ui.listContents->topLevelItem(i);
-        if (findLink.startsWith(item->data(0, LinkRole).toString(), checkCase))
+        if (findLink.startsWith(item->data(0, LinkRole).toString(), checkCase)) {
+            topLevel = true;
             break;
-        item = locateLink(item, findLink);
-        if (item)
-            break;
+        }
     }
-    if ( i!= totalItems){
-        //remove the old selection
-        QList<QTreeWidgetItem *> selected = ui.listContents->selectedItems();
-        QTreeWidgetItem *sel;
-        foreach(sel, selected)
-            ui.listContents->setItemSelected(sel, false);
-        //set the TOC item and show.
-        ui.listContents->setItemSelected(item, true);
-        ui.listContents->scrollToItem(item);
-        ui.tabWidget->setCurrentIndex(0);
+
+    if (!topLevel) {
+        // now try to find it in the sublevel items
+        for (int n = 0; n < totalItems; ++n) {
+            item = (QTreeWidgetItem*)ui.listContents->topLevelItem(n);
+            item = locateLink(item, findLink);
+            if (item)
+                break;
+        }
     }
+
+    //remove the old selection
+    QList<QTreeWidgetItem *> selected = ui.listContents->selectedItems();
+    foreach(QTreeWidgetItem *sel, selected)
+        ui.listContents->setItemSelected(sel, false);
+    
+    //set the TOC item and show
+    ui.listContents->setCurrentItem(item);
+    ui.listContents->setItemSelected(item, true);
+    ui.listContents->scrollToItem(item);
 }
 
 void HelpDialog::toggleContents()

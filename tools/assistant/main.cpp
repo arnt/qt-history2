@@ -334,9 +334,9 @@ int main( int argc, char ** argv )
 
     mw->show();
 
-    if ( !file.isEmpty() ) {
+    if (!file.isEmpty())
         mw->showLink( MainWindow::urlifyFileName(file) );
-    } else if ( file.isEmpty() )
+    else if (file.isEmpty())
         mw->showLinks( links );
 
     a.connect( &a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()) );
