@@ -532,7 +532,7 @@ QRegion QWindowsXPStylePrivate::region(XPThemeData &themeData)
 void QWindowsXPStylePrivate::setTransparency(QWidget *widget, XPThemeData &themeData)
 {
     HRGN hrgn = themeData.mask();
-    if (hrgn)
+    if (hrgn && widget)
         SetWindowRgn(winId(widget), hrgn, true);
 }
 
@@ -2514,8 +2514,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
         if (const QStyleOptionSlider *scrollbar = qstyleoption_cast<const QStyleOptionSlider *>(option))
         {
             XPThemeData theme(widget, p, "SCROLLBAR");
-            QScrollBar *bar = (QScrollBar*)widget;
-            bool maxedOut = (bar->maximum() == bar->minimum());
+            bool maxedOut = (scrollbar->maximum == scrollbar->minimum);
             if (maxedOut)
                 flags &= ~State_Enabled;
 
@@ -2555,7 +2554,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 theme.rect = subControlRect(CC_ScrollBar, option, SC_ScrollBarSlider, widget);
                 theme.rect = theme.rect.united(subControlRect(CC_ScrollBar, option, SC_ScrollBarSubPage, widget));
                 theme.rect = theme.rect.united(subControlRect(CC_ScrollBar, option, SC_ScrollBarAddPage, widget));
-                partId = bar->orientation() == Qt::Horizontal ? SBP_LOWERTRACKHORZ : SBP_LOWERTRACKVERT;
+                partId = scrollbar->orientation == Qt::Horizontal ? SBP_LOWERTRACKHORZ : SBP_LOWERTRACKVERT;
                 stateId = SCRBS_DISABLED;
                 theme.partId = partId;
                 theme.stateId = stateId;
@@ -2657,17 +2656,18 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
         {
             XPThemeData theme(widget, p, "TRACKBAR");
             QSlider *sl = (QSlider*)widget;
-            QRegion tickreg = sl->rect();
+            QRect slrect = sl ? sl->rect() : slider->rect;
+            QRegion tickreg = slrect;
             if (sub & SC_SliderGroove) {
                 theme.rect = subControlRect(CC_Slider, option, SC_SliderGroove, widget);
                 if (slider->orientation == Qt::Horizontal) {
                     partId = TKP_TRACK;
                     stateId = TRS_NORMAL;
-                    theme.rect = QRect(0, theme.rect.center().y() - 2, sl->width(), 4);
+                    theme.rect = QRect(0, theme.rect.center().y() - 2, slrect.width(), 4);
                 } else {
                     partId = TKP_TRACKVERT;
                     stateId = TRVS_NORMAL;
-                    theme.rect = QRect(theme.rect.center().x() - 2, 0, 4, sl->height());
+                    theme.rect = QRect(theme.rect.center().x() - 2, 0, 4, slrect.height());
                 }
                 theme.partId = partId;
                 theme.stateId = stateId;
@@ -2793,14 +2793,14 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
 
             if (sub & SC_ToolButton) {
                 theme.rect = subControlRect(CC_ToolButton, option, SC_ToolButton, widget);
-                QWidget *pW = static_cast<QWidget *>(tb->parent());
+                QWidget *pW = tb ? static_cast<QWidget *>(tb->parent()) : 0;
 
                 // ########## CE_ToolButtonLabel
                 if (toolbutton->features & QStyleOptionToolButton::Arrow) {
                     Qt::ArrowType type = toolbutton->arrowType;
 
 #define TBL_STATE(prefix) \
-                    if (!tb->isEnabled()) \
+                    if (tb && !tb->isEnabled()) \
                         stateId = prefix##_DISABLED; \
                     else if (bflags & (State_Sunken | State_On)) \
                         stateId = prefix##_PRESSED; \
