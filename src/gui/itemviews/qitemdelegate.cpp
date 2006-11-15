@@ -600,6 +600,8 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
                                                     option.textElideMode, textRect.width());
             start = end + 1;
             end = text.indexOf(QChar::LineSeparator, start);
+            if (end != -1)
+                elided += QChar::LineSeparator;
         }
         d->textLayout.setText(elided);
         textLayoutSize = d->doTextLayout(textRect.width());
