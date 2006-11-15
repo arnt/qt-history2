@@ -331,7 +331,7 @@ void QStyle::unpolish(QApplication * /* app */)
     \fn void QStyle::polish(QPalette & palette)
     \overload
 
-    Changes the \a palette acoording to style specific requirements
+    Changes the \a palette according to style specific requirements
     for color palettes (if any).
 
     \sa QPalette, QApplication::setPalette()
