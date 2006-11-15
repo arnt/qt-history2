@@ -55,6 +55,7 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
             d->model = index.model();
             d->index = index;
             model->d_func()->persistent.indexes.insert(it, d);
+            Q_ASSERT(priv->persistent.moved.isEmpty());
         }
         model->d_func()->persistent.previous = d;
     }
@@ -459,6 +460,10 @@ void QAbstractItemModelPrivate::removePersistentIndexData(QPersistentModelIndexD
 {
     int data_index = persistent.indexes.indexOf(data);
     persistent.indexes.remove(data_index);
+    // make sure our optimization still works
+    if (persistent.previous == data)
+        persistent.previous = 0;
+
     Q_ASSERT(!persistent.indexes.contains(data));
     // update the references to moved persistent indexes
     for (int i = persistent.moved.count() - 1; i >= 0; --i) {
@@ -480,9 +485,7 @@ void QAbstractItemModelPrivate::removePersistentIndexData(QPersistentModelIndexD
                 persistent.invalidated[i].removeAll(j);
         }
     }
-    // make sure our optimization still works
-    if (persistent.previous == data)
-        persistent.previous = 0;
+
 }
 
 void QAbstractItemModelPrivate::invalidate(int position)
@@ -2196,7 +2199,7 @@ void QAbstractItemModel::changePersistentIndex(const QModelIndex &from, const QM
     QVector<QPersistentModelIndexData*>::iterator end = d->persistent.indexes.end();
     QVector<QPersistentModelIndexData*>::iterator it =
         qLowerBound(begin, end, &tmp, QPersistentModelIndexDataLessThan());
-    if ((*it)->index == from) {
+    if (it != end && (*it)->index == from) {
         QPersistentModelIndexData *data = *it;
         d->persistent.indexes.erase(it);
         data->index = to;
@@ -2231,7 +2234,7 @@ void QAbstractItemModel::changePersistentIndexList(const QModelIndexList &from,
         const QPersistentModelIndexData tmp(from.at(i));
         QVector<QPersistentModelIndexData*>::iterator it =
             qLowerBound(begin, end, &tmp, QPersistentModelIndexDataLessThan());
-        if (it != begin && it != end && (*it)->index == from.at(i)) {
+        if (it != end && (*it)->index == from.at(i)) {
             (*it)->index = to.at(i);
             toBeReinserted.append(*it);
             d->persistent.indexes.erase(it);
@@ -2240,7 +2243,7 @@ void QAbstractItemModel::changePersistentIndexList(const QModelIndexList &from,
     // then reinsert sorted
     for (int j = 0; j < toBeReinserted.count(); ++j) {
         QVector<QPersistentModelIndexData*>::iterator it =
-            it = qLowerBound(begin, end, toBeReinserted.at(j), QPersistentModelIndexDataLessThan());
+            qLowerBound(begin, end, toBeReinserted.at(j), QPersistentModelIndexDataLessThan());
         d->persistent.indexes.insert(it, toBeReinserted.at(j));
     }
 }
