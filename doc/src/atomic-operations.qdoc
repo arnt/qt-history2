@@ -1,0 +1,97 @@
+/*!
+    \page atomic-operations.html
+    \ingroup architecture
+    \title Implementing Atomic Operations
+
+    Qt uses an optimization called \l {Implicitly Shared
+    Classes}{implicit sharing} for many of its value classes. Starting
+    with Qt 4, all of Qt's implicitly shared classes can safely be
+    copied across threads like any other value classes, i.e., they are
+    fully \l {Thread Support in Qt#Reentrancy and
+    Thread-Safety}{reentrant}. This is accomplished using atomic
+    reference counting operations that are implemented in assembly
+    language for the different platforms supported by Qt.
+
+    To support a new architecture, it is important to ensure that
+    these platform-specific atomic operations are implemented in a
+    corresponding header file (\c qatomic.h), and that this file is
+    located in Qt's \c src/corelib/arch directory. For example, the
+    Intel 80386 implementation is located in \c
+    src/corelib/arch/i386/arch/qatomic.h.
+
+    Currently, Qt assumes that the following operations have been
+    implemented:
+
+    \list
+    \o \l {1}{int q_atomic_test_and_set_int()}
+    \o \l {2}{int q_atomic_test_and_set_acquire_int()}
+    \o \l {3}{int q_atomic_test_and_set_release_int()}
+    \o \l {4}{int q_atomic_test_and_set_ptr()}
+    \o \l {5}{int q_atomic_increment()}
+    \o \l {6}{int q_atomic_decrement()}
+    \o \l {7}{int q_atomic_set_int()}
+    \o \l {8}{int q_atomic_set_ptr()}
+    \endlist
+
+    If you cannot implement these functions efficiently on your
+    platform without great difficulty, consider defining
+    Q_SPECIALIZED_QATOMIC by implementing the following members:
+
+    \list
+    \o \l {9}{struct QBasicAtomic}
+    \o \l {10}{template <typename T> struct QBasicAtomicPointer<T>}
+    \o \l {11}{int q_atomic_test_and_set_ptr()}
+    \o \l {12}{void *q_atomic_set_ptr()}
+    \endlist
+
+    \warning The operations and structs mentioned in this document are
+    used internally by Qt and are not part of the public API. They may
+    change in future versions of Qt.
+
+    \raw HTML
+        <hr>
+    \endraw
+
+    \section1 Member Documentation
+
+    \target 1
+    \section2
+    int q_atomic_test_and_set_int (volatile int *ptr, int expected, int newval)
+
+    \target 2
+    \section2
+    int q_atomic_test_and_set_acquire_int (volatile int *ptr, int expected, int newval)
+
+    \target 3
+    \section2
+    int q_atomic_test_and_set_release_int (volatile int *ptr, int expected, int newval)
+
+    \target 4
+    \section2
+    int q_atomic_test_and_set_ptr (volatile void *ptr, void *expected, void *newval)
+
+    \target 5
+    \section2 int q_atomic_increment (volatile int *ptr)
+
+    \target 6
+    \section2 int q_atomic_decrement (volatile int *ptr)
+
+    \target 7
+    \section2 int q_atomic_set_int (volatile int *ptr, int newval)
+
+    \target 8
+    \section2 void *q_atomic_set_ptr (volatile void *ptr, void *newval)
+
+    \target 9
+    \section2 struct QBasicAtomic
+
+    \target 10
+    \section2 template <typename T> struct QBasicAtomicPointer<T>
+
+    \target 11
+    \section2
+    int q_atomic_test_and_set_ptr (volatile void *ptr, void *expected, void *newval)
+
+    \target 12
+    \section2 void *q_atomic_set_ptr (volatile void *ptr, void *newval)
+*/
