@@ -518,7 +518,7 @@ void QFontEngineFT::doKerning(int num_glyphs, QGlyphLayout *glyphs, QTextEngine:
 {
     if (!kerning_pairs_loaded) {
         kerning_pairs_loaded = true;
-        if (face->size->metrics.x_ppem > 0) {
+        if (face->size->metrics.x_ppem != 0) {
             QFixed scalingFactor(face->units_per_EM/face->size->metrics.x_ppem);
             const_cast<QFontEngineFT *>(this)->loadKerningPairs(scalingFactor);
         }

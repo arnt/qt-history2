@@ -2050,7 +2050,7 @@ void QFontEngineFT::doKerning(int num_glyphs, QGlyphLayout *g, QTextEngine::Shap
 {
     if (!kerning_pairs_loaded) {
         kerning_pairs_loaded = true;
-        if (freetype->face->size->metrics.x_ppem > 0) {
+        if (freetype->face->size->metrics.x_ppem != 0) {
             lockFace();
             QFixed scalingFactor(freetype->face->units_per_EM/freetype->face->size->metrics.x_ppem);
             unlockFace();
