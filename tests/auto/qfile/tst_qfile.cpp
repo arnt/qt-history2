@@ -316,7 +316,10 @@ void tst_QFile::size_data()
 
     QTest::newRow( "exist01" ) << QString("testfile.txt") << 245;
     QTest::newRow( "nonexist01" ) << QString("foo.txt") << 0;
+#ifdef Q_OS_WIN
+    // Only test UNC on Windows./
     QTest::newRow("unc") << QString("//gennan/testsharewritable/test.pri") << 34;
+#endif
 }
 
 void tst_QFile::size()
