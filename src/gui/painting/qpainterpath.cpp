@@ -66,7 +66,7 @@ QPainterPath qt_stroke_dash(const QPainterPath &path, qreal *dashes, int dashCou
 void qt_find_ellipse_coords(const QRectF &r, qreal angle, qreal length,
                             QPointF* startPoint, QPointF *endPoint)
 {
-#define ANGLE(t) ((t) * 2 * M_PI / 360.0)
+#define ANGLE(t) ((t) * 2 * Q_PI / 360.0)
     qreal a = r.width() / 2.0;
     qreal b = r.height() / 2.0;
 
@@ -2712,7 +2712,7 @@ QPointF QPainterPath::pointAtPercent(qreal t) const
         qWarning("QPainterPath::pointAtPercent accepts only values between 0 and 1");
         return QPointF();
     }
-        
+
     if (isEmpty())
         return QPointF();
 
@@ -2741,9 +2741,9 @@ qreal QPainterPath::angleAtPercent(qreal t) const
         qWarning("QPainterPath::angleAtPercent accepts only values between 0 and 1");
         return 0;
     }
-    
+
     qreal slope = slopeAtPercent(t);;
-    qreal angle = (atan((-slope)/(1.0))*180./M_PI);
+    qreal angle = (atan((-slope)/(1.0))*180./Q_PI);
     return angle;
 }
 
@@ -2763,7 +2763,7 @@ qreal QPainterPath::slopeAtPercent(qreal t) const
         qWarning("QPainterPath::slopeAtPercent accepts only values between 0 and 1");
         return 0;
     }
-    
+
     qreal totalLength = length();
     qreal curLen = 0;
     QBezier bez = bezierAtT(*this, t, &curLen);
