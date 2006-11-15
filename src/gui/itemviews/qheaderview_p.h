@@ -65,7 +65,8 @@ public:
           lastSectionSize(0),
           sectionIndicatorOffset(0),
           sectionIndicator(0),
-          globalResizeMode(QHeaderView::Interactive) {}
+          globalResizeMode(QHeaderView::Interactive)
+    {}
 
     int sectionHandleAt(int position);
     void setupSectionIndicator(int section, int position);
@@ -164,8 +165,14 @@ public:
         }
     }
 
-    inline bool sectionIsCascadable(int visual) {
+    inline bool sectionIsCascadable(int visual) const {
         return visualIndexResizeMode(visual) == QHeaderView::Interactive;
+    }
+
+    inline int modelSectionCount() const {
+        return (orientation == Qt::Horizontal
+                ? model->columnCount(root)
+                : model->rowCount(root));
     }
 
 
@@ -173,7 +180,7 @@ public:
     void flipSortIndicator(int section);
     void cascadingResize(int visual, int newSize);
 
-    enum State { NoState, ResizeSection, MoveSection, SelectSections } state;
+    enum State { NoState, ResizeSection, MoveSection, SelectSections, NoClear } state;
 
     uint offset;
     Qt::Orientation orientation;

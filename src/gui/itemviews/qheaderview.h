@@ -130,6 +130,8 @@ public:
     bool restoreState(const QByteArray &state, int version = 0);
 #endif
 
+    void reset();
+
 public Q_SLOTS:
     void setOffset(int offset);
     void setOffsetToSectionPosition(int visualIndex);

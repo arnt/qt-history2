@@ -294,10 +294,8 @@ void QHeaderView::initialize()
 */
 void QHeaderView::setModel(QAbstractItemModel *model)
 {
-    // Don't optimize away:
-    // if (model == this->model())
-    //      return;
-    // This is the only way to reset moved sections
+    if (model == this->model())
+        return;
     Q_D(QHeaderView);
     if (d->model) {
         if (d->orientation == Qt::Horizontal) {
@@ -338,9 +336,11 @@ void QHeaderView::setModel(QAbstractItemModel *model)
         QObject::connect(model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
                          this, SLOT(headerDataChanged(Qt::Orientation,int,int)));
     }
-    d->clear();
 
+    d->state = QHeaderViewPrivate::NoClear;
     QAbstractItemView::setModel(model);
+    d->state = QHeaderViewPrivate::NoState;
+
     // Users want to set sizes and modes before the widget is shown.
     // Thus, we have to initialize when the model is set,
     // and not lazily like we do in the other views.
@@ -1040,7 +1040,7 @@ void QHeaderView::setResizeMode(ResizeMode mode)
     Q_D(QHeaderView);
     initializeSections();
     d->stretchSections = (mode == Stretch ? count() : 0);
-    d->contentsSections =  (mode == ResizeToContents ? count() : 0);
+    d->contentsSections = (mode == ResizeToContents ? count() : 0);
     d->setGlobalHeaderResizeMode(mode);
     if (d->hasAutoResizeSections())
         resizeSections(); // section sizes may change as a result of the new mode
@@ -1408,6 +1408,16 @@ bool QHeaderView::restoreState(const QByteArray &state, int version)
 #endif
 
 /*!
+  \reimp
+*/
+void QHeaderView::reset()
+{
+    Q_D(QHeaderView);
+    d->clear();
+    QAbstractItemView::reset();
+}
+
+/*!
   Updates the changed header sections with the given \a orientation, from
   \a logicalFirst to \a logicalLast inclusive.
 */
@@ -1479,11 +1489,7 @@ void QHeaderView::sectionsInserted(const QModelIndex &parent, int logicalFirst, 
     Q_D(QHeaderView);
     if (parent != d->root)
         return; // we only handle changes in the top level
-    int lastSection;
-    if (d->orientation == Qt::Horizontal)
-        lastSection = qMax(d->model->columnCount(d->root) - 1, 0);
-    else
-        lastSection = qMax(d->model->rowCount(d->root) -  1, 0);
+    int lastSection = qMax(d->modelSectionCount() - 1, 0);
     int oldCount = d->sectionCount;
     int oldLastSection = qMax(oldCount - 1, 0);
     initializeSections(qMin(oldLastSection + 1, logicalFirst), lastSection);
@@ -1558,24 +1564,14 @@ void QHeaderViewPrivate::_q_sectionsRemoved(const QModelIndex &parent,
 void QHeaderView::initializeSections()
 {
     Q_D(QHeaderView);
-    if (d->orientation == Qt::Horizontal) {
-        int c = d->model->columnCount(d->root);
-        if (c == 0) {
-            int oldCount = count();
-            d->clear();
-            emit sectionCountChanged(oldCount, 0);
-        } else if (c != count() && c > 0) {
-            initializeSections(0, c - 1);
-        }
-    } else {
-        int r = d->model->rowCount(d->root);
-        if (r == 0) {
-            int oldCount = count();
-            d->clear();
-            emit sectionCountChanged(oldCount, 0);
-        } else if (r != count() && r > 0) {
-            initializeSections(0, r - 1);
-        }
+    const int oldCount = count();
+    const int newCount = d->modelSectionCount();
+    if (newCount == 0) {
+        d->clear();
+        emit sectionCountChanged(oldCount, 0);
+    } else if (newCount != count()) {
+        const int min = qBound(0, oldCount, newCount - 1);
+        initializeSections(min, newCount - 1);
     }
     if (stretchLastSection())
         d->lastSectionSize = sectionSizeHint(logicalIndex(count() - 1));
@@ -1594,7 +1590,6 @@ void QHeaderView::initializeSections(int start, int end)
 
     d->invalidateCachedSizeHint();
 
-    // Edge case such as when a model emits layoutChanged when removing items
     if (end < count())
         d->removeSectionsFromSpans(end + 1, count());
 
@@ -1906,6 +1901,8 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
 #endif
             return;
         }
+        default:
+            break;
     }
 }
 
@@ -2356,8 +2353,9 @@ void QHeaderView::setSelection(const QRect&, QItemSelectionModel::SelectionFlags
 QRegion QHeaderView::visualRegionForSelection(const QItemSelection &selection) const
 {
     Q_D(const QHeaderView);
+    const int max = d->modelSectionCount();
     if (orientation() == Qt::Horizontal) {
-        int left = d->model->columnCount(d->root) - 1;
+        int left = max;
         int right = 0;
         int rangeLeft, rangeRight;
 
@@ -2391,7 +2389,7 @@ QRegion QHeaderView::visualRegionForSelection(const QItemSelection &selection) c
         return QRect(leftPos, 0, rightPos - leftPos, height());
     }
     // orientation() == Qt::Vertical
-    int top = d->model->rowCount(d->root) - 1;
+    int top = max;
     int bottom = 0;
     int rangeTop, rangeBottom;
 
@@ -2843,14 +2841,16 @@ void QHeaderViewPrivate::removeSectionsFromSpans(int start, int end)
 
 void QHeaderViewPrivate::clear()
 {
-    length = 0;
-    sectionCount = 0;
-    visualIndices.clear();
-    logicalIndices.clear();
-    sectionSelected.clear();
-    sectionHidden.clear();
-    hiddenSectionSize.clear();
-    sectionSpans.clear();
+    if (state != NoClear) {
+        length = 0;
+        sectionCount = 0;
+        visualIndices.clear();
+        logicalIndices.clear();
+        sectionSelected.clear();
+        sectionHidden.clear();
+        hiddenSectionSize.clear();
+        sectionSpans.clear();
+    }
 }
 
 void QHeaderViewPrivate::flipSortIndicator(int section)
