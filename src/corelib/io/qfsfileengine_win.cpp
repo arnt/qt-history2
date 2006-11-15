@@ -1114,7 +1114,7 @@ bool QFSFileEnginePrivate::doStat() const
                     DWORD drivesBitmask = ::GetLogicalDrives();
                     int drivebit = 1 << (fname.at(0).toUpper().unicode() - QLatin1Char('A').unicode());
                     if (drivesBitmask & drivebit) {
-                        fileAttrib = FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_HIDDEN;
+                        fileAttrib = FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_SYSTEM;
                         could_stat = true;
                     }
                 } else {
