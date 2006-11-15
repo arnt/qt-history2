@@ -144,7 +144,8 @@ int QListModel::rowCount(const QModelIndex &parent) const
 
 QModelIndex QListModel::index(QListWidgetItem *item) const
 {
-    if (!item || !item->view || item->view->model() != this || items.isEmpty())
+    if (!item || !item->view || static_cast<const QListModel *>(item->view->model()) != this
+        || items.isEmpty())
         return QModelIndex();
     int row;
     const int id = item->d->id;
