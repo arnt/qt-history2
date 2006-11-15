@@ -150,6 +150,8 @@
     are implemented in a corresponding header file, and that this file
     is located in Qt's \c src/corelib/arch directory.
 
+    \omit
     See the \l {Implementing Atomic Operations}{atomic operations}
     documentation for more details.
+    \endomit
 */
