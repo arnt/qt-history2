@@ -16,6 +16,12 @@ Configure / Compilation
 
 Demos / Examples
 
+  * Fixed crash in settingseditor example resulting from entering certain input to
+    a QTreeWidget using QLineEdit as an inline editor.
+
+  * Fixed crash in portedcanvas example resulting from creating a new canvas from
+    one that was shrunk to its minimum size.
+
 Designer
 
 ****************************************************************************
@@ -85,6 +91,22 @@ General improvements
 
       * QDataWidgetMapper::mappedWidgetAt() now always returns the right
         mapped index for a widget no matter in which order they were inserted
+
+      * QAbstractItemView::commitData() is made more robust by ignoring cases
+        in which no valid index is associated with the editor
+
+- Graphics View
+
+  * The background cache in QGraphicsView is now is now properly initialized to
+    the full viewport.
+
+  * Fixed incorrect cursor updates when moving between items.
+
+  * QGraphicsItem::setMatrix() now properly clears the original item before
+    repainting.
+
+  * QGraphicsEllipseItem is now drawn as a full ellipse at angles ..., -720, -360,
+    360, 720, ... only.
 
 - Painting
 
