@@ -32,15 +32,6 @@
 #include <private/qstroker_p.h>
 #include <private/qtextengine_p.h>
 
-#include <qbitmap.h>
-#include <qdebug.h>
-#include <qlist.h>
-#include <qmatrix.h>
-#include <qpen.h>
-#include <qpolygon.h>
-#include <qtextlayout.h>
-#include <qvarlengtharray.h>
-
 #include <limits.h>
 #include <math.h>
 
@@ -2544,7 +2535,7 @@ QPolygonF QPainterPath::toFillPolygon(const QTransform &matrix) const
 //derivative of the equation
 static inline qreal slopeAt(qreal t, qreal a, qreal b, qreal c, qreal d)
 {
-    return 3*t*t*(d-3*c+3*b-a)+6*t*(c-2*b+a)+3*(b-a);
+    return 3*t*t*(d - 3*c + 3*b - a) + 6*t*(c - 2*b + a) + 3*(b - a);
 }
 
 /*!
@@ -2727,8 +2718,9 @@ QPointF QPainterPath::pointAtPercent(qreal t) const
 /*!
     Returns the angle perpendicular to the slope of the path at the
     percentage \a t. The angle is constructed with the reference frame
-    of the horizontal (x) axis. The argument \a t has to be between
-    0 and 1.
+    of the horizontal (x) axis and the left side of the path (left as
+    defined by the direction of the path.
+    The argument \a t has to be between 0 and 1.
 
     Note that similarly to other percent methods, the percentage measurment
     is not linear with regards to the length, if curves are present
@@ -2742,8 +2734,39 @@ qreal QPainterPath::angleAtPercent(qreal t) const
         return 0;
     }
 
-    qreal slope = slopeAtPercent(t);;
+    qreal totalLength = length();
+    qreal curLen = 0;
+    QBezier bez = bezierAtT(*this, t, &curLen);
+    qreal realT = t - (curLen/totalLength);
+
+    qreal m1 = slopeAt(realT, bez.x1, bez.x2, bez.x3, bez.x4);
+    qreal m2 = slopeAt(realT, bez.y1, bez.y2, bez.y3, bez.y4);
+    //tangent line
+    qreal slope = 0;
+
+#define SIGN(x) ((x < 0)?-1:1)
+    if (m1)
+        slope = m2/m1;
+    else
+        slope = INFINITY*SIGN(m2);
+
     qreal angle = (atan((-slope)/(1.0))*180./Q_PI);
+
+    if (m1 >= 0 && m2 >= 0) {
+        //Quadrant 1
+        Q_ASSERT(1);
+        angle *= -1;
+    } else if (m1 <  0 && m2 >= 0) {
+        //Quadrant 2
+        angle = 180 - angle;
+    } else if (m1 <  0 && m2 < 0) {
+        //Quadrant 3
+        angle = -180-angle;
+    } else if (m1 >= 0 && m2 < 0) {
+        //Quadrant 4
+        angle *= -1;
+    }
+
     return angle;
 }
 
@@ -2772,7 +2795,13 @@ qreal QPainterPath::slopeAtPercent(qreal t) const
     qreal m1 = slopeAt(realT, bez.x1, bez.x2, bez.x3, bez.x4);
     qreal m2 = slopeAt(realT, bez.y1, bez.y2, bez.y3, bez.y4);
     //tangent line
-    qreal slope = m2/m1;
+    qreal slope = 0;
+
+#define SIGN(x) ((x < 0)?-1:1)
+    if (m1)
+        slope = m2/m1;
+    else
+        slope = INFINITY*SIGN(m2);
 
     return slope;
 }
