@@ -73,6 +73,7 @@ private:
     FT_ULong current_script;
     bool positioned : 1;
     bool kerning_feature_selected : 1;
+    bool glyphs_substituted : 1;
     HB_Buffer hb_buffer;
     QGlyphLayout::Attributes *tmpAttributes;
     unsigned int *tmpLogClusters;

@@ -125,6 +125,7 @@ QOpenType::QOpenType(QFontEngine *fe, FT_Face _face)
     tmpLogClusters = 0;
 
     kerning_feature_selected = false;
+    glyphs_substituted = false;
 
     FT_Error error;
     if ((error = HB_Load_GDEF_Table(face, &gdef))) {
@@ -322,10 +323,12 @@ bool QOpenType::shape(QShaperItem *item, const unsigned int *properties)
 
     loadFlags = item->flags & QTextEngine::DesignMetrics ? FT_LOAD_NO_HINTING : FT_LOAD_DEFAULT;
 
+    glyphs_substituted = false;
     if (gsub) {
         uint error = HB_GSUB_Apply_String(gsub, hb_buffer);
         if (error && error != HB_Err_Not_Covered)
             return false;
+        glyphs_substituted = (error != HB_Err_Not_Covered);
     }
 
 #ifdef OT_DEBUG
@@ -344,6 +347,7 @@ bool QOpenType::shape(QShaperItem *item, const unsigned int *properties)
 
 bool QOpenType::positionAndAdd(QShaperItem *item, int availableGlyphs, bool doLogClusters)
 {
+    bool glyphs_positioned = false;
     if (gpos) {
 #ifdef Q_WS_X11
         Q_ASSERT(fontEngine->type() == QFontEngine::Freetype);
@@ -351,11 +355,14 @@ bool QOpenType::positionAndAdd(QShaperItem *item, int availableGlyphs, bool doLo
 #endif
         memset(hb_buffer->positions, 0, hb_buffer->in_length*sizeof(HB_PositionRec));
         // #### check that passing "false,false" is correct
-        HB_GPOS_Apply_String(face, gpos, loadFlags, hb_buffer, false, false);
+        glyphs_positioned = HB_GPOS_Apply_String(face, gpos, loadFlags, hb_buffer, false, false) != HB_Err_Not_Covered;
 #ifdef Q_WS_X11
         static_cast<QFontEngineFT *>(fontEngine)->unlockFace();
 #endif
     }
+
+    if (!glyphs_substituted && !glyphs_positioned)
+        return true; // nothing to do for us
 
     // make sure we have enough space to write everything back
     if (availableGlyphs < (int)hb_buffer->in_length) {
@@ -395,10 +402,11 @@ bool QOpenType::positionAndAdd(QShaperItem *item, int availableGlyphs, bool doLo
 
     // calulate the advances for the shaped glyphs
 //     DEBUG("unpositioned: ");
-    item->font->recalcAdvances(item->num_glyphs, glyphs, QFlag(item->flags));
+    if (glyphs_substituted)
+        item->font->recalcAdvances(item->num_glyphs, glyphs, QFlag(item->flags));
 
     // positioning code:
-    if (gpos) {
+    if (gpos && glyphs_positioned) {
         HB_Position positions = hb_buffer->positions;
 
 //         DEBUG("positioned glyphs:");
