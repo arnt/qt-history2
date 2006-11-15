@@ -1491,7 +1491,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 }
             }
         }
-        if (widget && widget->isWindow() && !widget->geometry().contains(QPoint(where.h, where.v))) {
+        if(qt_mac_window_at(where.h, where.v, 0) != inContent) {
             inNonClientArea = true;
             switch (etype) {
             case QEvent::MouseButtonPress:
@@ -1510,7 +1510,6 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 break;
             }
         }
-
 
         if(qt_mac_find_window((FrontWindow()))) { //set the cursor up
             QCursor cursor(Qt::ArrowCursor);
@@ -1733,6 +1732,14 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             const char *event_desc = edesc;
             if(etype == QEvent::MouseButtonDblClick)
                 event_desc = "Double Click";
+            else if(etype == QEvent::NonClientAreaMouseButtonPress)
+                event_desc = "NonClientMousePress";
+            else if(etype == QEvent::NonClientAreaMouseButtonRelease)
+                event_desc = "NonClientMouseRelease";
+            else if(etype == QEvent::NonClientAreaMouseMove)
+                event_desc = "NonClientMouseMove";
+            else if(etype == QEvent::NonClientAreaMouseButtonDblClick)
+                event_desc = "NonClientMouseDblClick";
             qDebug("%d %d (%d %d) - Would send (%s) event to %p %s %s (%d 0x%08x 0x%08x %d)", p.x(), p.y(),
                    plocal.x(), plocal.y(), event_desc, (QWidget*)widget,
                    widget ? widget->objectName().toLocal8Bit().constData() : "*Unknown*",
