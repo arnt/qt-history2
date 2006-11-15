@@ -425,6 +425,14 @@ void tst_QHeaderView::sectionSize()
     }
     view->setStretchLastSection(false);
     QCOMPARE(view->sectionSize(3), 30);
+
+    // test persistence
+    view->resizeSection(1, 20);
+    QtTestModel model;
+    model.cols = 10;
+    model.rows = 10;
+    view->setModel(&model);
+    QCOMPARE(view->sectionSize(1), 20);
 }
 
 void tst_QHeaderView::visualIndex()
@@ -482,13 +490,14 @@ void tst_QHeaderView::length()
 
     QVERIFY(length != view->length());
 
-    // layoutChanged might means rows have been removed
+    // layoutChanged might mean rows have been removed
     QtTestModel model;
     model.cols = 10;
     model.rows = 10;
     view->setModel(&model);
     int oldLength = view->length();
     model.cleanup();
+    QCOMPARE(model.rows, view->count());
     QVERIFY(oldLength != view->length());
 }
 
