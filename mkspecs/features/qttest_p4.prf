@@ -39,7 +39,11 @@ isEmpty(QTEST_LIB) {
 contains(QT_CONFIG, embedded):CONFIG += embedded
 
 embed_testlib {
-    QTESTDIR = $$(QTDIR)/tools/qtestlib/src
+    QTESTDIR = $${QT_SOURCE_TREE}
+    isEmpty(QTESTDIR):QTESTDIR = $$(QTSRCDIR)
+    isEmpty(QTESTDIR):QTESTDIR = $$(QTDIR)
+    isEmpty(QTESTDIR):warning("Cannot find QTestLib sources, set QTDIR or QTSRCDIR")
+    QTESTDIR = $${QTESTDIR}/tools/qtestlib/src
     HEADERS += $${QTESTDIR}/qtesteventloop.h
     SOURCES += $${QTESTDIR}/qasciikey.cpp \
                $${QTESTDIR}/qabstracttestlogger.cpp \
