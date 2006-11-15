@@ -119,6 +119,7 @@ void tst_QStyle::testAllFunctions(QStyle *style)
 {
     QStyleOption opt;
     opt.init(testWidget);
+
     testWidget->setStyle(style);
     
     //Tests styleHint with default arguments for potential crashes
@@ -139,6 +140,44 @@ void tst_QStyle::testAllFunctions(QStyle *style)
         QPainter painter(&surface);
         style->drawControl(QStyle::ControlElement(control), &opt, &painter, 0);
     }
+
+    //Tests drawComplexControl with default arguments for potential crashes
+    {
+        QPixmap surface(QSize(200, 200));
+        QPainter painter(&surface);
+        QStyleOptionComboBox copt1;
+        copt1.init(testWidget);
+        
+        QStyleOptionGroupBox copt2;
+        copt2.init(testWidget);
+        QStyleOptionSizeGrip copt3;
+        copt3.init(testWidget);
+        QStyleOptionSlider copt4;
+        copt4.init(testWidget);
+        copt4.minimum = 0;
+        copt4.maximum = 100;
+        copt4.tickInterval = 25;
+        copt4.sliderValue = 50;
+        QStyleOptionSpinBox copt5;
+        copt5.init(testWidget);
+        QStyleOptionTitleBar copt6;
+        copt6.init(testWidget);
+        QStyleOptionToolButton copt7;
+        copt7.init(testWidget);
+        QStyleOptionQ3ListView copt8;
+        copt8.init(testWidget);
+        copt8.items << QStyleOptionQ3ListViewItem();
+
+        style->drawComplexControl(QStyle::CC_SpinBox, &copt5, &painter, 0);
+        style->drawComplexControl(QStyle::CC_ComboBox, &copt1, &painter, 0);
+        style->drawComplexControl(QStyle::CC_ScrollBar, &copt4, &painter, 0);
+        style->drawComplexControl(QStyle::CC_Slider, &copt4, &painter, 0);
+        style->drawComplexControl(QStyle::CC_ToolButton, &copt7, &painter, 0);
+        style->drawComplexControl(QStyle::CC_TitleBar, &copt6, &painter, 0);
+        style->drawComplexControl(QStyle::CC_GroupBox, &copt2, &painter, 0);
+        style->drawComplexControl(QStyle::CC_Dial, &copt4, &painter, 0);
+        style->drawComplexControl(QStyle::CC_Q3ListView, &copt8, &painter, 0);
+    }
     
     //Check standard pixmaps/icons
     for ( int i = 0 ; i < QStyle::SP_ToolBarVerticalExtensionButton ; ++i) {
@@ -153,7 +192,7 @@ void tst_QStyle::testAllFunctions(QStyle *style)
     }
 	
     style->itemPixmapRect(QRect(0, 0, 100, 100), Qt::AlignHCenter, QPixmap(200, 200));
-	style->itemTextRect(QFontMetrics(qApp->font()), QRect(0, 0, 100, 100), Qt::AlignHCenter, true, QString("Test"));
+    style->itemTextRect(QFontMetrics(qApp->font()), QRect(0, 0, 100, 100), Qt::AlignHCenter, true, QString("Test"));
     
     testScrollBarSubControls(style);
 }
