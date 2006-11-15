@@ -33,7 +33,6 @@
 #define SLEEPMIN 10
 #define SLEEPMAX 500
 #define NOTIFYTIMEOUT 100
-#define MAXSINGLEWRITE qint64(10000) //### may not need this now
 
 class QIncrementalSleepTimer
 {
@@ -183,10 +182,10 @@ void QWindowsPipeWriter::run()
                 }
                 return;
             }
-#if defined QPROCESS_DEBUG
-            qDebug("QWindowsPipeWriter::run() wrote %d bytes", written);
-#endif
             totalWritten += written;
+#if defined QPROCESS_DEBUG
+            qDebug("QWindowsPipeWriter::run() wrote %d %d/%d bytes", written, int(totalWritten), int(maxlen));
+#endif
         }
         emit canWrite();
     }
@@ -202,13 +201,13 @@ static void qt_create_pipe(Q_PIPE *pipe, bool in)
 
     HANDLE tmpHandle;
     if (in) {                   // stdin
-        if (!CreatePipe(&pipe[0], &tmpHandle, &secAtt, 0))
+        if (!CreatePipe(&pipe[0], &tmpHandle, &secAtt, 1024 * 1024))
             return;
         if (!DuplicateHandle(GetCurrentProcess(), tmpHandle, GetCurrentProcess(),
                              &pipe[1], 0, FALSE, DUPLICATE_SAME_ACCESS))
             return;
     } else {                    // stdout or stderr
-        if (!CreatePipe(&tmpHandle, &pipe[1], &secAtt, 0))
+        if (!CreatePipe(&tmpHandle, &pipe[1], &secAtt, 1024 * 1024))
             return;
         if (!DuplicateHandle(GetCurrentProcess(), tmpHandle, GetCurrentProcess(),
                              &pipe[0], 0, FALSE, DUPLICATE_SAME_ACCESS))
@@ -862,7 +861,7 @@ qint64 QProcessPrivate::writeToStdin(const char *data, qint64 maxlen)
         pipeWriter->start();
     }
 
-    return pipeWriter->write(data, qMin(MAXSINGLEWRITE, maxlen));
+    return pipeWriter->write(data, maxlen);
 }
 
 bool QProcessPrivate::waitForWrite(int msecs)
