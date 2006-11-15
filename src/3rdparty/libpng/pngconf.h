@@ -35,6 +35,10 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#else
+#ifndef __i386__ /* change this if MMX/SSE become supported on x86_64! */
+#define PNG_NO_ASSEMBLER_CODE
+#endif
 #endif
 
 /*
@@ -1352,6 +1356,14 @@ typedef z_stream FAR *  png_zstreamp;
 #      if 0 /* ... other platforms, with other meanings */
 #      endif
 #   endif
+
+#   if !defined(PNG_IMPEXP)
+#       include <qconfig.h>
+#       if defined(QT_VISIBILITY_AVAILABLE)
+#           define PNG_IMPEXP __attribute__((visibility("default")))
+#       endif
+#   endif
+
 #endif
 
 #ifndef PNGAPI
