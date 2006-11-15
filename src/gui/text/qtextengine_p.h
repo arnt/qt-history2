@@ -36,6 +36,7 @@
 #include "QtGui/qtextobject.h"
 #include "QtGui/qtextoption.h"
 #include "QtCore/qset.h"
+#include "QtCore/qdebug.h"
 #ifndef QT_BUILD_COMPAT_LIB
 #include "private/qtextdocument_p.h"
 #endif
@@ -154,7 +155,7 @@ inline int qRound(const QFixed &f) { return f.toInt(); }
 
 inline QFixed operator*(int i, const QFixed &d) { return d*i; }
 inline QFixed operator+(int i, const QFixed &d) { return d+i; }
-inline QFixed operator-(int i, const QFixed &d) { return -(d-i); } 
+inline QFixed operator-(int i, const QFixed &d) { return -(d-i); }
 inline QFixed operator*(uint i, const QFixed &d) { return d*i; }
 inline QFixed operator+(uint i, const QFixed &d) { return d+i; }
 inline QFixed operator-(uint i, const QFixed &d) { return -(d-i); }
@@ -173,6 +174,9 @@ inline bool operator<(int i, const QFixed &f) { return (i<<6) < f.value(); }
 inline bool operator>(const QFixed &f, int i) { return f.value() > (i<<6); }
 inline bool operator>(int i, const QFixed &f) { return (i<<6) > f.value(); }
 
+inline QDebug &operator<<(QDebug &dbg, const QFixed &f)
+{ return dbg << f.toReal(); }
+
 struct QFixedPoint {
     QFixed x;
     QFixed y;
@@ -187,7 +191,7 @@ public:
         : underlineStyle(QTextCharFormat::NoUnderline), num_chars(0), chars(0),
           logClusters(0), f(0), glyphs(0), num_glyphs(0), fontEngine(0)
     {}
-    
+
     void initFontAttributes(const QScriptItem &si, QFont *font, const QTextCharFormat &format = QTextCharFormat());
 
     QFixed descent;
@@ -553,7 +557,7 @@ public:
 
     bool atWordSeparator(int position) const;
     void indexAdditionalFormats();
-    
+
     QString elidedText(Qt::TextElideMode mode, const QFixed &width, int flags = 0) const;
 
 private:
