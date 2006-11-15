@@ -825,6 +825,7 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
 
             QString fileOut = compilerOutput.first();
             QString fileOutBase = QFileInfo(fileOut).completeBaseName();
+            fileOut.replace("${QMAKE_FILE_IN}", fileIn);
             fileOut.replace("${QMAKE_FILE_BASE}", fileBase);
             fileOut.replace("${QMAKE_FILE_OUT_BASE}", fileOutBase);
             fileOut.replace('/', '\\');
@@ -832,6 +833,7 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
             BuildStep step;
             for (int i2 = 0; i2 < compilerDepends.count(); ++i2) {
                 QString dependency = compilerDepends.at(i2);
+                dependency.replace("${QMAKE_FILE_IN}", fileIn);
                 dependency.replace("${QMAKE_FILE_BASE}", fileBase);
                 dependency.replace("${QMAKE_FILE_OUT_BASE}", fileOutBase);
                 dependency.replace('/', '\\');
@@ -869,7 +871,6 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
             step.buildStep += " \\\n\t";
             QString command(compilerCommands.join(" "));
             // Might be a macro, and not a valid filename, so the replaceExtraCompilerVariables() would eat it
-            command.replace("${QMAKE_FILE_IN}", config->escapeFilePath(fileIn));
             command.replace("${QMAKE_FILE_IN}", config->escapeFilePath(fileIn));
             command.replace("${QMAKE_FILE_BASE}", config->escapeFilePath(fileBase));
             command.replace("${QMAKE_FILE_OUT_BASE}", config->escapeFilePath(fileOutBase));
