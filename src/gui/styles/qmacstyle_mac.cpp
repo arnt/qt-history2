@@ -1366,7 +1366,8 @@ void QMacStyle::polish(QPalette &pal)
     if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
         QMacCGContext cg(&px);
         HIThemeSetFill(kThemeBrushDialogBackgroundActive, 0, cg, kHIThemeOrientationNormal);
-        CGContextFillRect(cg, CGRectMake(0, 0, 200, 200));
+        const CGRect cgRect = CGRectMake(0, 0, px.width(), px.height());
+        CGContextFillRect(cg, cgRect);
     } else
 #endif
     {
@@ -1375,11 +1376,11 @@ void QMacStyle::polish(QPalette &pal)
         SetThemeBackground(kThemeBrushDialogBackgroundActive, px.depth(), true);
         const Rect qdRect = { 0, 0, px.width(), px.height() };
         EraseRect(&qdRect);
-        RGBColor c;
-        GetThemeBrushAsColor(kThemeBrushDialogBackgroundActive, 32, true, &c);
-        pc = QColor(c.red / 256, c.green / 256, c.blue / 256);
 #endif
     }
+    RGBColor c;
+    GetThemeBrushAsColor(kThemeBrushDialogBackgroundActive, 32, true, &c);
+    pc = QColor(c.red / 256, c.green / 256, c.blue / 256);
 
     QBrush background(pc, px);
     pal.setBrush(QPalette::All, QPalette::Window, background);

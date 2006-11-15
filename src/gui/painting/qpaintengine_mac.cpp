@@ -76,6 +76,7 @@ QMacCGContext::QMacCGContext(QPainter *p)
 
 //colour conversion
 inline static float qt_mac_convert_color_to_cg(int c) { return ((float)c * 1000 / 255) / 1000; }
+inline static int qt_mac_convert_color_from_cg(float c) { return qRound(c * 255); }
 
 
 #ifdef QMAC_NATIVE_GRADIENTS
