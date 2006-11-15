@@ -1245,7 +1245,7 @@ QModelIndex QListView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
             if (rect.bottom() <= 0) {
 #ifdef QT_KEYPAD_NAVIGATION
                 if (QApplication::keypadNavigationEnabled())
-                    return d->model->index(d->batchStartRow - 1, d->column, d->root);
+                    return d->model->index(d->batchStartRow() - 1, d->column, d->root);
 #endif
                 return current;
             }
