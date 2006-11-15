@@ -2941,16 +2941,15 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 painter->drawImage(pixmapRect, subButton);
 
                 // Arrows
-                if (horizontal) {
-                    QImage arrow(reverse ? qt_scrollbar_button_arrow_right : qt_scrollbar_button_arrow_left);
-                    arrow.setColor(1, scrollBar->palette.foreground().color().rgba());
+                PrimitiveElement arrow;
+                if (option->state & State_Horizontal)
+                    arrow = option->direction == Qt::LeftToRight ? PE_IndicatorArrowLeft: PE_IndicatorArrowRight;
+                else
+                    arrow = PE_IndicatorArrowUp;
+                QStyleOption arrowOpt = *option;
+                arrowOpt.rect = scrollBarSubLine.adjusted(3, 3, -3, -3);
+                drawPrimitive(arrow, &arrowOpt, painter, widget);
 
-                    painter->drawImage(QPoint(pixmapRect.left() + 5, pixmapRect.top() + 4), arrow);
-                } else {
-                    QImage arrow(qt_scrollbar_button_arrow_up);
-                    arrow.setColor(1, scrollBar->palette.foreground().color().rgba());
-                    painter->drawImage(QPoint(pixmapRect.left() + 4, pixmapRect.top() + 6), arrow);
-                }
 
                 // The AddLine (down/right) button
                 if (scrollBar->subControls & SC_ScrollBarAddLine) {
@@ -2992,25 +2991,15 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     addButton.setColor(5, scrollBar->palette.text().color().rgba());
                     painter->drawImage(pixmapRect, addButton);
 
-                    // Arrow
-                    if (horizontal) {
-                        QImage arrow(reverse ? qt_scrollbar_button_arrow_left : qt_scrollbar_button_arrow_right);
-                        arrow.setColor(1, scrollBar->palette.foreground().color().rgba());
-
-                        if ((scrollBar->activeSubControls & SC_ScrollBarAddLine) && sunken) {
-                            painter->drawImage(QPoint(pixmapRect.left() + 7, pixmapRect.top() + 5), arrow);
-                        } else {
-                            painter->drawImage(QPoint(pixmapRect.left() + 6, pixmapRect.top() + 4), arrow);
-                        }
-                    } else {
-                        QImage arrow(qt_scrollbar_button_arrow_down);
-                        arrow.setColor(1, scrollBar->palette.foreground().color().rgba());
-                        if ((scrollBar->activeSubControls & SC_ScrollBarAddLine) && sunken) {
-                            painter->drawImage(QPoint(pixmapRect.left() + 5, pixmapRect.top() + 7), arrow);
-                        } else {
-                            painter->drawImage(QPoint(pixmapRect.left() + 4, pixmapRect.top() + 6), arrow);
-                        }
-                    }
+                    PrimitiveElement arrow;
+                    if (option->state & State_Horizontal)
+                        arrow = option->direction == Qt::LeftToRight ? PE_IndicatorArrowRight : PE_IndicatorArrowLeft;
+                    else
+                        arrow = PE_IndicatorArrowDown;
+                    
+                    QStyleOption arrowOpt = *option;
+                    arrowOpt.rect = scrollBarAddLine.adjusted(3, 3, -3, -3);
+                    drawPrimitive(arrow, &arrowOpt, painter, widget);
                 }
             }
         }
