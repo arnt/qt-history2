@@ -89,6 +89,8 @@ private slots:
 
     void isSymLink();
 
+    void isHidden();
+
     void refresh();
 
 #ifdef Q_OS_WIN
@@ -702,6 +704,16 @@ void tst_QFileInfo::isSymLink()
         QVERIFY( info3.isSymLink() );
     }
 
+}
+
+void tst_QFileInfo::isHidden()
+{
+    // Drives
+    foreach (QFileInfo info, QDir::drives()) {
+        QVERIFY(info.exists());
+        QVERIFY(info.isDir());
+        QVERIFY(!info.isHidden());
+    }
 }
 
 void tst_QFileInfo::refresh()
