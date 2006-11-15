@@ -55,20 +55,21 @@ void QMainWindowContainer::setCurrentIndex(int index)
     Q_UNUSED(index);
 }
 
-static Qt::ToolBarArea toolBarArea(QToolBar *me)
-{
-    if (QMainWindow *mw = qobject_cast<QMainWindow*>(me->parentWidget())) {
-        if (mw->layout() && mw->layout()->indexOf(me) != -1) {
-            return mw->toolBarArea(me);
-        }
+
+namespace {
+    // Pair of <area,break_before>
+    typedef QPair<Qt::ToolBarArea,bool> ToolBarData;
+    
+    ToolBarData toolBarData(QToolBar *me) {
+        const QMainWindow *mw = qobject_cast<const QMainWindow*>(me->parentWidget());
+        if (!mw || !mw->layout() ||  mw->layout()->indexOf(me) == -1)
+            return ToolBarData(Qt::TopToolBarArea,false);
+        return ToolBarData(mw->toolBarArea(me), mw->toolBarBreak(me));
     }
 
-    return Qt::TopToolBarArea;
-}
-
-static Qt::DockWidgetArea dockWidgetArea(QDockWidget *me)
+Qt::DockWidgetArea dockWidgetArea(QDockWidget *me) 
 {
-    if (QMainWindow *mw = qobject_cast<QMainWindow*>(me->parentWidget())) {
+    if (const QMainWindow *mw = qobject_cast<const QMainWindow*>(me->parentWidget())) {
         // Make sure that me is actually managed by mw, otherwise
         // QMainWindow::dockWidgetArea() will be VERY upset
         QList<QLayout*> candidates;
@@ -82,8 +83,8 @@ static Qt::DockWidgetArea dockWidgetArea(QDockWidget *me)
             }
         }
     }
-
     return Qt::LeftDockWidgetArea;
+}
 }
 
 void QMainWindowContainer::addWidget(QWidget *widget)
@@ -94,7 +95,9 @@ void QMainWindowContainer::addWidget(QWidget *widget)
     // the
     if (QToolBar *toolBar = qobject_cast<QToolBar*>(widget)) {
         m_widgets.append(widget);
-        m_mainWindow->addToolBar(toolBarArea(toolBar), toolBar);
+        const ToolBarData data = toolBarData(toolBar);
+        m_mainWindow->addToolBar(data.first, toolBar);
+        if (data.second) m_mainWindow->insertToolBarBreak(toolBar);
         toolBar->show();
     }
 

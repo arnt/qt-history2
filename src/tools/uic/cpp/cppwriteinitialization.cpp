@@ -233,7 +233,7 @@ void WriteInitialization::acceptWidget(DomWidget *node)
                 m_output << m_option.indent << parentWidget << "->setMenuBar(" << varName <<");\n";
         } else if (m_uic->customWidgetsInfo()->extends(className, QLatin1String("QToolBar"))) {
             QString area;
-            if (DomProperty *pstyle = attributes.value(QLatin1String("toolBarArea"))) {
+            if (const DomProperty *pstyle = attributes.value(QLatin1String("toolBarArea"))) {
                 area += QLatin1String("static_cast<Qt::ToolBarArea>(");
                 area += QString::number(pstyle->elementNumber());
                 area += "), ";
@@ -241,6 +241,12 @@ void WriteInitialization::acceptWidget(DomWidget *node)
 
             m_output << m_option.indent << parentWidget << "->addToolBar(" << area << varName << ");\n";
             
+            if (const DomProperty *pbreak = attributes.value(QLatin1String("toolBarBreak"))) {
+                if (pbreak->elementBool() == QLatin1String("true")) {
+                    m_output << m_option.indent << parentWidget << "->insertToolBarBreak(" <<  varName << ");\n";          
+                }
+            }
+
         } else if (m_uic->customWidgetsInfo()->extends(className, QLatin1String("QDockWidget"))) {
             QString area;
             if (DomProperty *pstyle = attributes.value(QLatin1String("dockWidgetArea"))) {

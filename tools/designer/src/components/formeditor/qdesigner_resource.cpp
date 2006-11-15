@@ -71,6 +71,7 @@ QDesignerResource::QDesignerResource(FormWindow *formWindow)
 {
     setWorkingDirectory(formWindow->absoluteDir());
 
+
     m_topLevelSpacerCount = 0;
     m_copyWidget = false;
     m_selected = 0;
@@ -866,12 +867,22 @@ DomWidget *QDesignerResource::saveWidget(QDesignerStackedWidget *widget, DomWidg
 DomWidget *QDesignerResource::saveWidget(QDesignerToolBar *toolBar, DomWidget *ui_parentWidget)
 {
     DomWidget *ui_widget = QAbstractFormBuilder::createDom(toolBar, ui_parentWidget, false);
-    if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(toolBar->parentWidget())) {
-        Qt::ToolBarArea area = mainWindow->toolBarArea(toolBar);
+    if (const QMainWindow *mainWindow = qobject_cast<QMainWindow*>(toolBar->parentWidget())) {
+        const bool toolBarBreak = mainWindow->toolBarBreak(toolBar);
+        const int area = static_cast<int>(mainWindow->toolBarArea(toolBar));
+
+        QList<DomProperty*> attributes = ui_widget->elementAttribute();
+
         DomProperty *attr = new DomProperty();
         attr->setAttributeName(QLatin1String("toolBarArea"));
-        attr->setElementNumber(int(area));
-        ui_widget->setElementAttribute(ui_widget->elementAttribute() << attr);
+        attr->setElementNumber(area);
+        attributes  << attr;
+        
+        attr = new DomProperty();
+        attr->setAttributeName(QLatin1String("toolBarBreak"));
+        attr->setElementBool(toolBarBreak ? QLatin1String("true") : QLatin1String("false"));
+        attributes  << attr;
+        ui_widget->setElementAttribute(attributes);
     }
 
     return ui_widget;

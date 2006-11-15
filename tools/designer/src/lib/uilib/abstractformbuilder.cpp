@@ -314,15 +314,15 @@ QActionGroup *QAbstractFormBuilder::create(DomActionGroup *ui_action_group, QObj
 */
 bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
-    QHash<QString, DomProperty*> attributes = propertyMap(ui_widget->elementAttribute());
+    const QHash<QString, DomProperty*> attributes = propertyMap(ui_widget->elementAttribute());
 
     QString title = QLatin1String("Page");
-    if (DomProperty *ptitle = attributes.value(QLatin1String("title"))) {
+    if (const DomProperty *ptitle = attributes.value(QLatin1String("title"))) {
         title = toString(ptitle->elementString());
     }
 
     QString label = QLatin1String(QLatin1String("Page"));
-    if (DomProperty *plabel = attributes.value(QLatin1String("label"))) {
+    if (const DomProperty *plabel = attributes.value(QLatin1String("label"))) {
         label = toString(plabel->elementString());
     }
 
@@ -336,12 +336,20 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
 
         // apply the toolbar's attributes
         else if (QToolBar *toolBar = qobject_cast<QToolBar*>(widget)) {
-            if (DomProperty *attr = attributes.value(QLatin1String("toolBarArea"))) {
-                Qt::ToolBarArea area = static_cast<Qt::ToolBarArea>(attr->elementNumber());
-                mw->addToolBar(area, toolBar);
-            } else {
-                mw->addToolBar(toolBar);
+            Qt::ToolBarArea area = Qt::TopToolBarArea;
+            bool toolBarBreak = false;
+
+            if (const DomProperty *attr = attributes.value(QLatin1String("toolBarArea"))) {
+                area = static_cast<Qt::ToolBarArea>(attr->elementNumber());
             }
+            if (const DomProperty *attr = attributes.value(QLatin1String("toolBarBreak"))) {
+                toolBarBreak = attr->elementBool() == QLatin1String("true");
+            }
+	    
+            mw->addToolBar(area,toolBar);
+            if (toolBarBreak)
+                mw->insertToolBarBreak (toolBar);
+
             return true;
         }
 
@@ -353,7 +361,7 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
 
         // apply the dockwidget's attributes
         else if (QDockWidget *dockWidget = qobject_cast<QDockWidget*>(widget)) {
-            if (DomProperty *attr = attributes.value(QLatin1String("dockWidgetArea"))) {
+            if (const DomProperty *attr = attributes.value(QLatin1String("dockWidgetArea"))) {
                 Qt::DockWidgetArea area = static_cast<Qt::DockWidgetArea>(attr->elementNumber());
                 if (!dockWidget->isAreaAllowed(area)) {
                     if (dockWidget->isAreaAllowed(Qt::LeftDockWidgetArea))
@@ -381,14 +389,14 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
     else if (QTabWidget *tabWidget = qobject_cast<QTabWidget*>(parentWidget)) {
         widget->setParent(0);
 
-        int tabIndex = tabWidget->count();
+        const int tabIndex = tabWidget->count();
         tabWidget->addTab(widget, title);
 
         if (DomProperty *picon = attributes.value(QLatin1String("icon"))) {
             tabWidget->setTabIcon(tabIndex, qvariant_cast<QIcon>(toVariant(0, picon)));
         }
 
-        if (DomProperty *ptoolTip = attributes.value(QLatin1String("toolTip"))) {
+        if (const DomProperty *ptoolTip = attributes.value(QLatin1String("toolTip"))) {
             tabWidget->setTabToolTip(tabIndex, toString(ptoolTip->elementString()));
         }
 
@@ -396,14 +404,14 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
     }
 
     else if (QToolBox *toolBox = qobject_cast<QToolBox*>(parentWidget)) {
-        int tabIndex = toolBox->count();
+        const int tabIndex = toolBox->count();
         toolBox->addItem(widget, label);
 
         if (DomProperty *picon = attributes.value(QLatin1String("icon"))) {
             toolBox->setItemIcon(tabIndex, qvariant_cast<QIcon>(toVariant(0, picon)));
         }
 
-        if (DomProperty *ptoolTip = attributes.value(QLatin1String("toolTip"))) {
+        if (const DomProperty *ptoolTip = attributes.value(QLatin1String("toolTip"))) {
             toolBox->setItemToolTip(tabIndex, toString(ptoolTip->elementString()));
         }
 
