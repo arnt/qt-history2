@@ -2217,13 +2217,17 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
     for (int i=0; i<rectCount; ++i) {
         QRectF r = rects[i];
 
-        QRectF screen_rect = d->matrix.mapRect(r);
+        bool fast_rect = false;
 
-        bool integer_rect =
-            screen_rect.topLeft().toPoint() == screen_rect.topLeft()
-            && screen_rect.bottomRight().toPoint() == screen_rect.bottomRight();
+        // don't allow rotations
+        if (d->use_antialiasing && d->matrix.type() < QTransform::TxRotShear) {
+            QRectF screen_rect = d->matrix.mapRect(r);
 
-        bool fast_rect = integer_rect;
+            // pixel aligned rect?
+            fast_rect =
+                screen_rect.topLeft().toPoint() == screen_rect.topLeft()
+                && screen_rect.bottomRight().toPoint() == screen_rect.bottomRight();
+        }
 
         // optimization for rects which can be drawn aliased
         if (fast_rect || !d->use_antialiasing) {
