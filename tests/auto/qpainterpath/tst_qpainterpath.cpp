@@ -40,6 +40,9 @@ private slots:
     void setElementPositionAt();
 #endif
 
+    void testOnPath_data();
+    void testOnPath();
+    
     void closing();
 };
 
@@ -482,6 +485,75 @@ void tst_QPainterPath::testArcMoveTo()
 
     QVERIFY(qFuzzyCompare(pos.x(), shouldBe.x()));
     QVERIFY(qFuzzyCompare(pos.y(), shouldBe.y()));
+}
+
+void tst_QPainterPath::testOnPath_data()
+{
+    QTest::addColumn<QPainterPath>("path");
+    QTest::addColumn<qreal>("start");
+    QTest::addColumn<qreal>("middle");
+    QTest::addColumn<qreal>("end");
+
+    QPainterPath path = QPainterPath(QPointF(153, 199));
+    path.cubicTo(QPointF(147, 61), QPointF(414, 18),
+                 QPointF(355, 201));
+
+    QTest::newRow("First case") << path
+                                << -93.0
+                                << -4.0
+                                << 107.87;
+
+    path = QPainterPath(QPointF(328, 197));
+    path.cubicTo(QPointF(150, 50), QPointF(401, 50),
+                 QPointF(225, 197));
+    QTest::newRow("Second case") << path
+                                << -140.0
+                                << 0.0
+                                << 140.0;
+
+    path = QPainterPath(QPointF(328, 197));
+    path.cubicTo(QPointF(101 , 153), QPointF(596, 151),
+                 QPointF(353, 197));
+    QTest::newRow("Third case") << path
+                                << -169.0
+                                << -0.22
+                                <<  169.0;
+
+    path = QPainterPath(QPointF(153, 199));
+    path.cubicTo(QPointF(59, 53), QPointF(597, 218),
+                  QPointF(355, 201));
+    QTest::newRow("Fourth case") << path
+                                 << -122.0
+                                 <<  12.0
+                                 << -175.0;
+    
+}
+
+#define SIGN(x) ((x < 0)?-1:1)
+void tst_QPainterPath::testOnPath()
+{
+    QFETCH(QPainterPath, path);
+    QFETCH(qreal, start);
+    QFETCH(qreal, middle);
+    QFETCH(qreal, end);
+
+    int signStart = SIGN(start);
+    int signMid   = SIGN(middle);
+    int signEnd   = SIGN(end);
+
+    static const qreal diff = 3;
+
+    qreal angle = path.angleAtPercent(0);
+    QVERIFY(SIGN(angle) == signStart);
+    QVERIFY(qAbs(angle-start) < diff);
+    
+    angle = path.angleAtPercent(0.5);
+    QVERIFY(SIGN(angle) == signMid);
+    QVERIFY(qAbs(angle-middle) < diff);
+    
+    angle = path.angleAtPercent(1);
+    QVERIFY(SIGN(angle) == signEnd);
+    QVERIFY(qAbs(angle-end) < diff);
 }
 
 void tst_QPainterPath::setElementPositionAt()
