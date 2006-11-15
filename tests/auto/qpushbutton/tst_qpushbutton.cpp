@@ -542,6 +542,18 @@ void tst_QPushButton::defaultAndAutoDefault()
     QKeyEvent event(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
     QApplication::sendEvent(&dialog, &event);
     QVERIFY(!dialog.isVisible());
+
+    // Reparenting
+    QVERIFY(button2.autoDefault());
+    button2.setParent(0);
+    QVERIFY(!button2.autoDefault());
+    button2.setAutoDefault(false);
+    button2.setParent(&dialog);
+    QVERIFY(!button2.autoDefault());
+
+    button1.setAutoDefault(true);
+    button1.setParent(0);
+    QVERIFY(button1.autoDefault());
     }
 }
 
