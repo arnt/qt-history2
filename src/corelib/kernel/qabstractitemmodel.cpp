@@ -2231,7 +2231,7 @@ void QAbstractItemModel::changePersistentIndexList(const QModelIndexList &from,
         const QPersistentModelIndexData tmp(from.at(i));
         QVector<QPersistentModelIndexData*>::iterator it =
             qLowerBound(begin, end, &tmp, QPersistentModelIndexDataLessThan());
-        if ((*it)->index == from.at(i)) {
+        if (it != begin && it != end && (*it)->index == from.at(i)) {
             (*it)->index = to.at(i);
             toBeReinserted.append(*it);
             d->persistent.indexes.erase(it);
