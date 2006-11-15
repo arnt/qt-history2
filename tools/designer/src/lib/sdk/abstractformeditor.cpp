@@ -236,6 +236,20 @@ void QDesignerFormEditorInterface::setBrushManager(QDesignerBrushManagerInterfac
 /*!
     \internal
 
+    Returns an interface to the integration.
+*/
+QDesignerIntegrationInterface *QDesignerFormEditorInterface::integration() const
+{ return m_integration; }
+
+/*!
+    \internal
+*/
+void QDesignerFormEditorInterface::setIntegration(QDesignerIntegrationInterface *integration)
+{ m_integration = integration; }
+
+/*!
+    \internal
+
     Returns an interface to the icon cache used by the form editor to
     manage icons.
 */

@@ -435,8 +435,11 @@ void QDesignerWorkbench::switchToDockedMode()
 
     mw->restoreState(settings.mainWindowState(), 2);
 
-    foreach (QDesignerFormWindow *fw, m_formWindows)
-        m_workspace->addWindow(fw, magicalWindowFlags(fw))->hide();
+    foreach (QDesignerFormWindow *fw, m_formWindows) {
+        QWidget *w = m_workspace->addWindow(fw, magicalWindowFlags(fw));
+        w->setMinimumSize(QSize(0, 0));
+        w->hide();
+    }
     // will be shown in adjustFormPositions
 
     changeBringToFrontVisiblity(false);
@@ -563,7 +566,8 @@ QDesignerFormWindow *QDesignerWorkbench::createFormWindow()
     QDesignerFormWindow *formWindow = new QDesignerFormWindow(/*formWindow=*/ 0, this);
 
     if (m_workspace) {
-        m_workspace->addWindow(formWindow, magicalWindowFlags(formWindow));
+        QWidget *w = m_workspace->addWindow(formWindow, magicalWindowFlags(formWindow));
+        w->setMinimumSize(QSize(0, 0));
     } else {
         formWindow->setParent(magicalParent(), magicalWindowFlags(formWindow));
     }
@@ -736,7 +740,7 @@ QDesignerToolWindow *QDesignerWorkbench::findToolWindow(QWidget *widget) const
 QDesignerFormWindow *QDesignerWorkbench::findFormWindow(QWidget *widget) const
 {
     foreach (QDesignerFormWindow *formWindow, m_formWindows) {
-        if (formWindow->centralWidget() == widget)
+        if (formWindow->editor() == widget)
             return formWindow;
     }
 

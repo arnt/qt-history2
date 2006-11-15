@@ -201,51 +201,79 @@ void SetPropertyCommand::init(QObject *object, const QString &propertyName, cons
     setText(QApplication::translate("Command", "changed '%1' of '%2'").arg(m_propertyName).arg(object->objectName()));
 }
 
-static QWidget *containerWindow(QWidget *widget)
-{
-    while (widget) {
-        if (widget->metaObject()->className() == QLatin1String("QDesignerFormWindow"))
-            return widget;
-
-        widget = widget->parentWidget();
-    }
-    return 0;
-}
-
 static QSize checkSize(const QSize &size)
 {
-    QSize s = size;
-    if (s.width() > 0xFFFFFF)
-        s.setWidth(0xFFFFFF);
-    if (s.height() > 0xFFFFFF)
-        s.setHeight(0xFFFFFF);
-    return s;
+    return size.boundedTo(QSize(0xFFFFFF, 0xFFFFFF));
 }
 
-static void setTopMinMaxSize(QDesignerFormWindowInterface *fw, QWidget *w, const QString &propertyName, const QVariant &value)
+static QSize diffSize(QDesignerFormWindowInterface *fw)
+{
+    QWidget *container = fw->core()->integration()->containerWindow(fw);
+    if (!container)
+        return QSize();
+
+    QSize diff = container->size() - fw->size(); // decoration offset of container window
+    return diff;
+}
+
+static void checkSizes(QDesignerFormWindowInterface *fw, const QSize &size, QSize *formSize, QSize *containerSize)
+{
+    QWidget *container = fw->core()->integration()->containerWindow(fw);
+    if (!container)
+        return;
+
+    QSize diff = diffSize(fw); // decoration offset of container window
+
+    QSize newFormSize = checkSize(size).expandedTo(fw->mainContainer()->minimumSizeHint()); // don't try to resize to smaller size than minimumSizeHint
+    QSize newContainerSize = newFormSize + diff;
+
+    newContainerSize = newContainerSize.expandedTo(container->minimumSizeHint());
+    newContainerSize = newContainerSize.expandedTo(container->minimumSize());
+
+    newFormSize = newContainerSize - diff;
+
+    if (formSize)
+        *formSize = newFormSize;
+    if (containerSize)
+        *containerSize = newContainerSize;
+}
+
+static QVariant setFormProperty(QDesignerFormWindowInterface *fw, QWidget *w, const QString &propertyName, const QVariant &value)
 {
     QDesignerFormWindowCursorInterface *cursor = fw->cursor();
     if (w && cursor->isWidgetSelected(w)) {
         if (cursor->isWidgetSelected(fw->mainContainer())) {
             if (propertyName == QLatin1String("minimumSize")) {
-                if (QWidget *container = containerWindow(fw)) {
-                    if (container->parentWidget() && container->parentWidget()->metaObject()->className() == QLatin1String("QWorkspaceChild")) {
-                        QSize diff = container->parentWidget()->geometry().size() - container->geometry().size();
-                        container->parentWidget()->setMinimumSize(checkSize(value.toSize() + diff));
-                    }
-                    container->setMinimumSize(value.toSize());
+                QWidget *container = fw->core()->integration()->containerWindow(fw);
+                if (container) {
+                    QSize diff = diffSize(fw);
+                    QSize size = checkSize(value.toSize());
+                    container->setMinimumSize((size + diff).expandedTo(QSize(16, 16)));
+                    return size;
                 }
             } else if (propertyName == QLatin1String("maximumSize")) {
-                if (QWidget *container = containerWindow(fw)) {
-                    if (container->parentWidget() && container->parentWidget()->metaObject()->className() == QLatin1String("QWorkspaceChild")) {
-                        QSize diff = container->parentWidget()->geometry().size() - container->geometry().size();
-                        container->parentWidget()->setMaximumSize(checkSize(value.toSize() + diff));
-                    }
-                    container->setMaximumSize(value.toSize());
+                QWidget *container = fw->core()->integration()->containerWindow(fw);
+                if (container) {
+                    QSize fs, cs;
+                    checkSizes(fw, value.toSize(), &fs, &cs);
+                    container->setMaximumSize(cs);
+                    fw->mainContainer()->setMaximumSize(fs);
+                    return fs;
+                }
+            } else if (propertyName == QLatin1String("geometry")) {
+                QWidget *container = fw->core()->integration()->containerWindow(fw);
+                if (container) {
+                    QRect r = value.toRect();
+                    QSize fs, cs;
+                    checkSizes(fw, r.size(), &fs, &cs);
+                    container->resize(cs);
+                    r.setSize(fs);
+                    return r;
                 }
             }
         }
     }
+    return value;
 }
 
 void SetPropertyCommand::redo()
@@ -253,7 +281,9 @@ void SetPropertyCommand::redo()
     Q_ASSERT(m_propertySheet);
     Q_ASSERT(m_index != -1);
 
-    m_propertySheet->setProperty(m_index, m_newValue);
+    QVariant value = setFormProperty(formWindow(), qobject_cast<QWidget *>(m_object), m_propertyName, m_newValue);
+
+    m_propertySheet->setProperty(m_index, value);
     m_changed = m_propertySheet->isChanged(m_index);
     m_propertySheet->setChanged(m_index, true);
 
@@ -262,19 +292,17 @@ void SetPropertyCommand::redo()
         checkParent(widget(), parentWidget());
     } else if (m_propertyName == QLatin1String("objectName")) {
         checkObjectName(m_object);
-        updateBuddies(m_oldValue.toString(), m_newValue.toString());
+        updateBuddies(m_oldValue.toString(), value.toString());
     }
 
     if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
         if (propertyEditor->object() == object())
-            propertyEditor->setPropertyValue(propertyName(), m_newValue, true);
+            propertyEditor->setPropertyValue(propertyName(), value, true);
         else
             propertyEditor->setObject(propertyEditor->object()); // this is needed when f.ex. undo
                                                                  // changes parent's palette, but
                                                                  // the child is the active widget.
     }
-
-    setTopMinMaxSize(formWindow(), qobject_cast<QWidget *>(m_object), m_propertyName, m_newValue);
 
     QAction *act = qobject_cast<QAction *>(m_object);
     if (m_propertyName == QLatin1String("objectName") ||
@@ -296,7 +324,9 @@ void SetPropertyCommand::undo()
     Q_ASSERT(m_propertySheet);
     Q_ASSERT(m_index != -1);
 
-    m_propertySheet->setProperty(m_index, m_oldValue);
+    QVariant value = setFormProperty(formWindow(), qobject_cast<QWidget *>(m_object), m_propertyName, m_oldValue);
+
+    m_propertySheet->setProperty(m_index, value);
     m_propertySheet->setChanged(m_index, m_changed);
 
     if (m_propertyName == QLatin1String("geometry") && widget()) {
@@ -304,19 +334,17 @@ void SetPropertyCommand::undo()
         checkParent(widget(), parentWidget());
     } else if (m_propertyName == QLatin1String("objectName")) {
         checkObjectName(m_object);
-        updateBuddies(m_newValue.toString(), m_oldValue.toString());
+        updateBuddies(m_newValue.toString(), value.toString());
     }
 
     if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
         if (propertyEditor->object() == widget())
-            propertyEditor->setPropertyValue(propertyName(), m_oldValue, m_changed);
+            propertyEditor->setPropertyValue(propertyName(), value, m_changed);
         else
             propertyEditor->setObject(propertyEditor->object()); // this is needed when f.ex. undo
                                                                  // changes parent's palette, but
                                                                  // the child is the active widget.
     }
-
-    setTopMinMaxSize(formWindow(), qobject_cast<QWidget *>(m_object), m_propertyName, m_oldValue);
 
     QAction *act = qobject_cast<QAction *>(m_object);
     if (m_propertyName == QLatin1String("objectName") ||
@@ -356,102 +384,7 @@ bool SetPropertyCommand::mergeWith(const QUndoCommand *other)
     return false;
 }
 
-// ---- SetFormPropertyCommand ----
-SetFormPropertyCommand::SetFormPropertyCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(QString(), formWindow),
-      m_index(-1),
-      m_changed(false),
-      m_propertySheet(0)
-{
-}
 
-void SetFormPropertyCommand::init(QObject *object, const QString &propertyName, const QVariant &newValue)
-{
-    Q_ASSERT(object);
-
-    m_newValue = newValue;
-    m_propertyName = propertyName;
-
-    QDesignerFormEditorInterface *core = formWindow()->core();
-    m_propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), object);
-    Q_ASSERT(m_propertySheet);
-
-    m_index = m_propertySheet->indexOf(m_propertyName);
-    Q_ASSERT(m_index != -1);
-
-    m_changed = m_propertySheet->isChanged(m_index);
-    m_oldValue = m_propertySheet->property(m_index);
-
-    setText(QApplication::translate("Command", "changed '%1' of '%2'").arg(m_propertyName).arg(object->objectName()));
-}
-
-void SetFormPropertyCommand::redo()
-{
-    m_changed = m_propertySheet->isChanged(m_index);
-    m_propertySheet->setChanged(m_index, true);
-
-    if (m_propertyName == QLatin1String("geometry"))
-        updateFormWindowGeometry(m_newValue);
-}
-
-void SetFormPropertyCommand::undo()
-{
-    m_propertySheet->setChanged(m_index, m_changed);
-
-    if (m_propertyName == QLatin1String("geometry"))
-        updateFormWindowGeometry(m_oldValue);
-}
-
-
-int SetFormPropertyCommand::id() const
-{
-    return 1977;
-}
-
-bool SetFormPropertyCommand::mergeWith(const QUndoCommand *other)
-{
-    if (id() != other->id())
-        return false;
-
-    if (const SetFormPropertyCommand *cmd = static_cast<const SetFormPropertyCommand*>(other)) {
-        if (cmd->propertyName() == propertyName() && cmd->formWindow() == formWindow()) {
-            m_newValue = cmd->newValue();
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void SetFormPropertyCommand::updateFormWindowGeometry(const QVariant &value)
-{
-    if (QWidget *container = containerWindow(formWindow())) {
-        QRect r = container->geometry();
-        if (container->parentWidget() && container->parentWidget()->metaObject()->className() == QLatin1String("QWorkspaceChild")) {
-            QRect windowRect = container->parentWidget()->rect();
-            QSize diff = windowRect.size() - r.size();
-            windowRect.setSize(value.toRect().size() + diff);
-            container->parentWidget()->setGeometry(windowRect);
-        } else {
-            r.setSize(value.toRect().size());
-            container->setGeometry(r);
-        }
-    }
-}
-
-QWidget *SetFormPropertyCommand::containerWindow(QWidget *widget)
-{
-    while (widget) {
-        if (widget->isWindow())
-            break;
-        if (widget->parentWidget() && !qstrcmp(widget->parentWidget()->metaObject()->className(), "QWorkspaceChild"))
-            break;
-
-        widget = widget->parentWidget();
-    }
-
-    return widget;
-}
 // ---- ResetPropertyCommand ----
 ResetPropertyCommand::ResetPropertyCommand(QDesignerFormWindowInterface *formWindow)
     : QDesignerFormWindowCommand(QString(), formWindow),
@@ -520,7 +453,7 @@ void ResetPropertyCommand::redo()
 
     m_propertySheet->setChanged(m_index, false);
 
-    setTopMinMaxSize(formWindow(), qobject_cast<QWidget *>(m_object), m_propertyName, new_value);
+    setFormProperty(formWindow(), qobject_cast<QWidget *>(m_object), m_propertyName, new_value);
 
     QWidget *widget = qobject_cast<QWidget *>(m_object);
     QWidget *parentWidget = qobject_cast<QWidget *>(m_parentObject);
@@ -542,10 +475,10 @@ void ResetPropertyCommand::undo()
     Q_ASSERT(m_propertySheet);
     Q_ASSERT(m_index != -1);
 
-    m_propertySheet->setProperty(m_index, m_oldValue);
-    m_propertySheet->setChanged(m_index, m_changed);
+    QVariant value = setFormProperty(formWindow(), qobject_cast<QWidget *>(m_object), m_propertyName, m_oldValue);
 
-    setTopMinMaxSize(formWindow(), qobject_cast<QWidget *>(m_object), m_propertyName, m_oldValue);
+    m_propertySheet->setProperty(m_index, value);
+    m_propertySheet->setChanged(m_index, m_changed);
 
     QWidget *widget = qobject_cast<QWidget *>(m_object);
     QWidget *parentWidget = qobject_cast<QWidget *>(m_parentObject);
@@ -558,7 +491,7 @@ void ResetPropertyCommand::undo()
 
     if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
         if (propertyEditor->object() == object())
-            propertyEditor->setPropertyValue(propertyName(), m_oldValue, m_changed);
+            propertyEditor->setPropertyValue(propertyName(), value, m_changed);
     }
 
 }

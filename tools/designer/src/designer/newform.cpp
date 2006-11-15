@@ -149,8 +149,11 @@ void NewForm::on_buttonBox_clicked(QAbstractButton *btn)
                     editor->setContents(QString());
                 }
 
-                if (QWidget *container = editor->mainContainer())
+                if (QWidget *container = editor->mainContainer()) {
                     formWindow->resize(container->size());
+                    formWindow->setMinimumSize(container->minimumSize());
+                    formWindow->setMaximumSize(container->maximumSize());
+                }
             }
             QString newTitle = QLatin1String("untitled");
             if (!m_fileName.isEmpty())

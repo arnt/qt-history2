@@ -33,9 +33,10 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
+#include <QtGui/QVBoxLayout>
 
 QDesignerFormWindow::QDesignerFormWindow(QDesignerFormWindowInterface *editor, QDesignerWorkbench *workbench, QWidget *parent, Qt::WindowFlags flags)
-    : QMainWindow(parent, flags),
+    : QWidget(parent, flags),
       m_editor(editor),
       m_workbench(workbench),
       initialized(false)
@@ -50,7 +51,9 @@ QDesignerFormWindow::QDesignerFormWindow(QDesignerFormWindowInterface *editor, Q
         m_editor = workbench->core()->formWindowManager()->createFormWindow(this);
     }
 
-    setCentralWidget(m_editor);
+    QVBoxLayout *l = new QVBoxLayout(this);
+    l->setMargin(0);
+    l->addWidget(m_editor);
 
     m_action = new QAction(this);
     m_action->setCheckable(true);
@@ -89,7 +92,7 @@ void QDesignerFormWindow::changeEvent(QEvent *e)
         default:
             break;
     }
-    QMainWindow::changeEvent(e);
+    QWidget::changeEvent(e);
 }
 
 QRect QDesignerFormWindow::geometryHint() const
@@ -177,7 +180,7 @@ void QDesignerFormWindow::resizeEvent(QResizeEvent *rev)
     }
 
     initialized = true;
-    QMainWindow::resizeEvent(rev);
+    QWidget::resizeEvent(rev);
 
     // update the maincontainer on resize
     m_editor->mainContainer()->raise();

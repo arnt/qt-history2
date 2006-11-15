@@ -43,6 +43,9 @@ public:
 
     void updatePixmap();
 
+    virtual QSize minimumSizeHint() const
+    { return QWidget::minimumSizeHint().expandedTo(QSize(16, 16)); }
+
 protected:
     virtual void paintEvent(QPaintEvent *e);
     virtual void dragEnterEvent(QDragEnterEvent *e);
@@ -57,6 +60,9 @@ class QDESIGNER_SHARED_EXPORT QDesignerDialog : public QDialog
 public:
     QDesignerDialog(QDesignerFormWindowInterface *fw, QWidget *parent)
         : QDialog(parent), m_formWindow(fw) {}
+
+    virtual QSize minimumSizeHint() const
+    { return QWidget::minimumSizeHint().expandedTo(QSize(16, 16)); }
 
 protected:
     void paintEvent(QPaintEvent *e);

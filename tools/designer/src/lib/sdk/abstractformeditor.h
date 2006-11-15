@@ -31,6 +31,7 @@ class QDesignerObjectInspectorInterface;
 class QDesignerBrushManagerInterface;
 class QDesignerIconCacheInterface;
 class QDesignerActionEditorInterface;
+class QDesignerIntegrationInterface;
 class QDesignerPluginManager;
 
 class QWidget;
@@ -57,6 +58,7 @@ public:
     QDesignerBrushManagerInterface *brushManager() const;
     QDesignerIconCacheInterface *iconCache() const;
     QDesignerActionEditorInterface *actionEditor() const;
+    QDesignerIntegrationInterface *integration() const;
     QDesignerPluginManager *pluginManager() const;
     QString resourceLocation() const;
 
@@ -66,6 +68,7 @@ public:
     void setObjectInspector(QDesignerObjectInspectorInterface *objectInspector);
     void setPluginManager(QDesignerPluginManager *pluginManager);
     void setActionEditor(QDesignerActionEditorInterface *actionEditor);
+    void setIntegration(QDesignerIntegrationInterface *integration);
 
 protected:
     void setFormManager(QDesignerFormWindowManagerInterface *formWindowManager);
@@ -87,6 +90,7 @@ private:
     QPointer<QDesignerWidgetFactoryInterface> m_widgetFactory;
     QPointer<QDesignerObjectInspectorInterface> m_objectInspector;
     QPointer<QDesignerBrushManagerInterface> m_brushManager;
+    QPointer<QDesignerIntegrationInterface> m_integration;
     QPointer<QDesignerIconCacheInterface> m_iconCache;
     QPointer<QDesignerActionEditorInterface> m_actionEditor;
     QDesignerPluginManager *m_pluginManager;

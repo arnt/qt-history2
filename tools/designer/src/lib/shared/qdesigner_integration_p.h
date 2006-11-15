@@ -26,6 +26,7 @@
 #define QDESIGNER_INTEGRATION_H
 
 #include "shared_global_p.h"
+#include "abstractintegration.h"
 
 #include <QtCore/QObject>
 
@@ -38,14 +39,14 @@ class QWidget;
 
 namespace qdesigner_internal {
 
-class QDESIGNER_SHARED_EXPORT QDesignerIntegration: public QObject
+class QDESIGNER_SHARED_EXPORT QDesignerIntegration: public QDesignerIntegrationInterface
 {
     Q_OBJECT
 public:
     QDesignerIntegration(QDesignerFormEditorInterface *core, QObject *parent = 0);
     virtual ~QDesignerIntegration();
 
-    inline QDesignerFormEditorInterface *core() const;
+    virtual QWidget *containerWindow(QWidget *widget) const;
 
 signals:
     void propertyChanged(QDesignerFormWindowInterface *formWindow, const QString &name, const QVariant &value);
@@ -58,19 +59,10 @@ public slots:
     virtual void updateGeometry();
     virtual void activateWidget(QWidget *widget);
 
-protected:
-    virtual QWidget *containerWindow(QWidget *widget);
-
 private:
     void initialize();
-
-private:
-    QDesignerFormEditorInterface *m_core;
     QDesignerFormWindowManagerInterface *m_formWindowManager;
 };
-
-inline QDesignerFormEditorInterface *QDesignerIntegration::core() const
-{ return m_core; }
 
 } // namespace qdesigner_internal
 

@@ -25,8 +25,7 @@
 namespace qdesigner_internal {
 
 QDesignerIntegration::QDesignerIntegration(QDesignerFormEditorInterface *core, QObject *parent)
-    : QObject(parent),
-      m_core(core)
+    : QDesignerIntegrationInterface(core, parent)
 {
     initialize();
 }
@@ -76,17 +75,6 @@ void QDesignerIntegration::updateProperty(const QString &name, const QVariant &v
                                             .arg(value.toString())
                                             .arg(filename));
 
-                } else if (name == QLatin1String("geometry")) {
-                    if (QWidget *container = containerWindow(formWindow)) {
-                        SetFormPropertyCommand *cmd = new SetFormPropertyCommand(formWindow);
-                        cmd->init(object, name, value);
-                        cmd->setOldValue(container->geometry());
-                        formWindow->commandHistory()->push(cmd);
-
-                        emit propertyChanged(formWindow, name, value);
-                    }
-
-                    return;
                 }
             }
 
@@ -148,7 +136,7 @@ void QDesignerIntegration::activateWidget(QWidget *widget)
     Q_UNUSED(widget);
 }
 
-QWidget *QDesignerIntegration::containerWindow(QWidget *widget)
+QWidget *QDesignerIntegration::containerWindow(QWidget *widget) const
 {
     while (widget) {
         if (widget->isWindow())

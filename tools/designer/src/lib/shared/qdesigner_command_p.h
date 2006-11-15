@@ -161,48 +161,6 @@ private:
     bool m_changed;
 };
 
-class QDESIGNER_SHARED_EXPORT SetFormPropertyCommand: public QDesignerFormWindowCommand
-{
-
-public:
-    SetFormPropertyCommand(QDesignerFormWindowInterface *formWindow);
-
-    void init(QObject *object, const QString &propertyName, const QVariant &newValue);
-
-    inline QString propertyName() const
-    { return m_propertyName; }
-
-    inline QVariant oldValue() const
-    { return m_oldValue; }
-
-    inline void setOldValue(const QVariant &oldValue)
-    { m_oldValue = oldValue; }
-
-    inline QVariant newValue() const
-    { return m_newValue; }
-
-    inline void setNewValue(const QVariant &newValue)
-    { m_newValue = newValue; }
-
-    virtual void redo();
-    virtual void undo();
-
-    virtual int id() const;
-    virtual bool mergeWith(const QUndoCommand *other);
-
-private:
-    QWidget* containerWindow(QWidget *widget);
-    void updateFormWindowGeometry(const QVariant &value);
-
-private:
-    int m_index;
-    bool m_changed;
-    QDesignerPropertySheetExtension *m_propertySheet;
-    QString m_propertyName;
-    QVariant m_oldValue;
-    QVariant m_newValue;
-};
-
 class QDESIGNER_SHARED_EXPORT ResetPropertyCommand: public QDesignerFormWindowCommand
 {
 

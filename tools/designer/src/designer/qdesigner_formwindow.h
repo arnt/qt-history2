@@ -20,7 +20,7 @@
 class QDesignerWorkbench;
 class QDesignerFormWindowInterface;
 
-class QDesignerFormWindow: public QMainWindow
+class QDesignerFormWindow: public QWidget
 {
     Q_OBJECT
 public:
