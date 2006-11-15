@@ -239,6 +239,7 @@ public:
 private:
     mutable QOpenType *_openType;
     FT_Size_Metrics metrics;
+    mutable bool kerning_pairs_loaded;
 };
 
 #endif // QT_NO_FONTCONFIG

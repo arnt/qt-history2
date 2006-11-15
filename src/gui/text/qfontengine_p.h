@@ -73,16 +73,7 @@ public:
         TestFontEngine = 0x1000
     };
 
-    inline QFontEngine() : QObject(0) {
-        ref = 0;
-        cache_count = 0;
-        fsType = 0;
-#if defined(Q_WS_WIN)
-        script_cache = 0;
-        cmap = 0;
-#endif
-        symbol = false;
-    }
+    QFontEngine();
     virtual ~QFontEngine();
 
     // all of these are in unscaled metrics if the engine supports uncsaled metrics,
@@ -122,7 +113,7 @@ public:
 
     virtual QOpenType *openType() const { return 0; }
     virtual void recalcAdvances(int , QGlyphLayout *, QTextEngine::ShaperFlags) const {}
-    virtual void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const {}
+    virtual void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
 
 #if !defined(Q_WS_X11) && !defined(Q_WS_WIN) && !defined(Q_WS_MAC)
     virtual void draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si) = 0;
@@ -184,11 +175,6 @@ public:
     void *script_cache;
     qreal lbearing;
     qreal rbearing;
-    struct KernPair {
-        uint left_right;
-        QFixed adjust;
-    };
-    QVector<KernPair> kerning_pairs;
     QFixed designToDevice;
     int unitsPerEm;
     QFixed x_height;
@@ -196,6 +182,14 @@ public:
     mutable int synthesized_flags;
     mutable QFixed lineWidth;
 #endif // Q_WS_WIN
+#if defined(Q_WS_WIN) || defined(Q_WS_X11) || defined(Q_WS_QWS)
+    struct KernPair {
+        uint left_right;
+        QFixed adjust;
+    };
+    QVector<KernPair> kerning_pairs;
+    void loadKerningPairs(QFixed scalingFactor);
+#endif
 };
 
 inline bool operator ==(const QFontEngine::FaceId &f1, const QFontEngine::FaceId &f2)
@@ -265,6 +259,7 @@ public:
     FT_Face face;
     bool smooth;
     bool outline_drawing;
+    mutable bool kerning_pairs_loaded;
     QGlyph **rendered_glyphs;
     QOpenType *_openType;
     enum { cmapCacheSize = 0x200 };

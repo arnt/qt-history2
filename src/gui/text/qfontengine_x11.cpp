@@ -1197,6 +1197,7 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
     cache_cost = 100;
     fontDef = fd;
     _pattern = pattern;
+    kerning_pairs_loaded = false;
     transform = false;
     matrix.xx = 0x10000;
     matrix.yy = 0x10000;
@@ -1299,7 +1300,7 @@ QFontEngineFT::~QFontEngineFT()
     _openType = 0;
 
     if (freetype)
-    freetype->release(face_id);
+        freetype->release(face_id);
 
     FcPatternDestroy(_pattern);
     _pattern = 0;
@@ -2047,17 +2048,16 @@ bool QFontEngineFT::canRender(const QChar *string, int len)
 
 void QFontEngineFT::doKerning(int num_glyphs, QGlyphLayout *g, QTextEngine::ShaperFlags flags) const
 {
-    if (!FT_HAS_KERNING(freetype->face))
-        return;
-    FT_Face face = lockFace();
-    uint f = (flags == QTextEngine::DesignMetrics ? FT_KERNING_UNFITTED : FT_KERNING_DEFAULT);
-    for (int i = 0; i < num_glyphs-1; ++i) {
-        FT_Vector kerning;
-        FT_Get_Kerning(face, g[i].glyph, g[i+1].glyph, f, &kerning);
-        g[i].advance.x += QFixed::fromFixed(kerning.x);
-        g[i].advance.y += QFixed::fromFixed(kerning.y);
+    if (!kerning_pairs_loaded) {
+        kerning_pairs_loaded = true;
+        if (freetype->face->size->metrics.x_ppem > 0) {
+            lockFace();
+            QFixed scalingFactor(freetype->face->units_per_EM/freetype->face->size->metrics.x_ppem);
+            unlockFace();
+            const_cast<QFontEngineFT *>(this)->loadKerningPairs(scalingFactor);
+        }
     }
-    unlockFace();
+    QFontEngine::doKerning(num_glyphs, g, flags);
 }
 
 

@@ -128,6 +128,7 @@ QFontEngineFT::QFontEngineFT(const QFontDef& d, FT_Face ft_face, bool antialias)
     _openType = 0;
     fontDef = d;
     face = ft_face;
+    kerning_pairs_loaded = false;
 
     smooth = FT_IS_SCALABLE(face) && antialias;
     if (fontDef.styleStrategy & QFont::NoAntialias)
@@ -515,15 +516,14 @@ void QFontEngineFT::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::S
 
 void QFontEngineFT::doKerning(int num_glyphs, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const
 {
-    if (FT_HAS_KERNING(face)) {
-        uint f = (flags == QTextEngine::DesignMetrics ? FT_KERNING_UNFITTED : FT_KERNING_DEFAULT);
-        for (int i = 0; i < num_glyphs-1; ++i) {
-            FT_Vector kerning;
-            FT_Get_Kerning(face, glyphs[i].glyph, glyphs[i+1].glyph, f, &kerning);
-            glyphs[i].advance.x += QFixed::fromFixed(kerning.x);
-            glyphs[i].advance.y += QFixed::fromFixed(kerning.y);
+    if (!kerning_pairs_loaded) {
+        kerning_pairs_loaded = true;
+        if (face->size->metrics.x_ppem > 0) {
+            QFixed scalingFactor(face->units_per_EM/face->size->metrics.x_ppem);
+            const_cast<QFontEngineFT *>(this)->loadKerningPairs(scalingFactor);
         }
     }
+    QFontEngine::doKerning(num_glyphs, glyphs, flags);
 }
 
 

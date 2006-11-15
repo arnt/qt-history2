@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include <qdebug.h>
 #include <private/qfontengine_p.h>
 
 #include "qbitmap.h"
@@ -18,9 +19,21 @@
 #include "qpainterpath.h"
 #include "qvarlengtharray.h"
 #include <private/qpdf_p.h>
-
+#include <qendian.h>
 #include <math.h>
 
+QFontEngine::QFontEngine()
+    : QObject()
+{
+    ref = 0;
+    cache_count = 0;
+    fsType = 0;
+#if defined(Q_WS_WIN)
+    script_cache = 0;
+    cmap = 0;
+#endif
+    symbol = false;
+}
 
 #ifndef Q_WS_WIN
 QFontEngine::~QFontEngine()
@@ -418,6 +431,115 @@ void QFontEngine::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metr
     addGlyphsToPath(&glyph, &p, 1, path, QFlag(0));
 }
 
+#if defined(Q_WS_WIN) || defined(Q_WS_X11) || defined(Q_WS_QWS)
+static inline QFixed kerning(int left, int right, const QFontEngine::KernPair *pairs, int numPairs)
+{
+    uint left_right = (left << 16) + right;
+
+    left = 0, right = numPairs - 1;
+    while (left <= right) {
+        int middle = left + ( ( right - left ) >> 1 );
+
+	if(pairs[middle].left_right == left_right)
+            return pairs[middle].adjust;
+
+        if (pairs[middle].left_right < left_right)
+            left = middle + 1;
+        else
+            right = middle - 1;
+    }
+    return 0;
+}
+
+void QFontEngine::doKerning(int num_glyphs, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const
+{
+    int numPairs = kerning_pairs.size();
+    if(!numPairs)
+        return;
+
+    const KernPair *pairs = kerning_pairs.constData();
+
+    if(flags & QTextEngine::DesignMetrics) {
+        for(int i = 0; i < num_glyphs - 1; ++i)
+            glyphs[i].advance.x += kerning(glyphs[i].glyph, glyphs[i+1].glyph , pairs, numPairs);
+    } else {
+        for(int i = 0; i < num_glyphs - 1; ++i)
+            glyphs[i].advance.x += qRound(kerning(glyphs[i].glyph, glyphs[i+1].glyph , pairs, numPairs));
+    }
+}
+
+static inline bool operator<(const QFontEngine::KernPair &p1, const QFontEngine::KernPair &p2)
+{
+    return p1.left_right < p2.left_right;
+}
+
+void QFontEngine::loadKerningPairs(QFixed scalingFactor)
+{
+    kerning_pairs.clear();
+
+    QByteArray tab = getSfntTable(MAKE_TAG('k', 'e', 'r', 'n'));
+    if (tab.isEmpty())
+        return;
+
+    const uchar *table = reinterpret_cast<const uchar *>(tab.constData());
+
+    unsigned short version = qFromBigEndian<quint16>(table);
+    if (version != 0) {
+//        qDebug("wrong version");
+       return;
+    }
+
+    unsigned short numTables = qFromBigEndian<quint16>(table + 2);
+    {
+        int offset = 4;
+        for(int i = 0; i < numTables; ++i) {
+            if (offset + 6 > tab.size()) {
+//                qDebug("offset out of bounds");
+                goto end;
+            }
+            const uchar *header = table + offset;
+
+            ushort version = qFromBigEndian<quint16>(header);
+            ushort length = qFromBigEndian<quint16>(header+2);
+            ushort coverage = qFromBigEndian<quint16>(header+4);
+//            qDebug("subtable: version=%d, coverage=%x",version, coverage);
+            if(version == 0 && coverage == 0x0001) {
+                if (offset + length > tab.size()) {
+//                    qDebug("length ouf ot bounds");
+                    goto end;
+                }
+                const uchar *data = table + offset + 6;
+
+                ushort nPairs = qFromBigEndian<quint16>(data);
+                if(nPairs * 6 + 8 > length - 6) {
+//                    qDebug("corrupt table!");
+                    // corrupt table
+                    goto end;
+                }
+
+                int off = 8;
+                for(int i = 0; i < nPairs; ++i) {
+                    QFontEngine::KernPair p;
+                    p.left_right = (((uint)qFromBigEndian<quint16>(data+off)) << 16) + qFromBigEndian<quint16>(data+off+2);
+                    p.adjust = QFixed(((int)(short)qFromBigEndian<quint16>(data+off+4))) / scalingFactor;
+                    kerning_pairs.append(p);
+                    off += 6;
+                }
+            }
+            offset += length;
+        }
+    }
+end:
+    qSort(kerning_pairs);
+//    for (int i = 0; i < kerning_pairs.count(); ++i)
+//        qDebug() << "i" << i << "left_right" << hex << kerning_pairs.at(i).left_right;
+}
+
+#else
+void QFontEngine::doKerning(int num_glyphs, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const
+{
+}
+#endif
 
 // ------------------------------------------------------------------
 // The box font engine

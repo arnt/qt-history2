@@ -178,7 +178,7 @@ void QFontEngine::getCMap()
         designToDevice = QFixed((int)otm->otmEMSquare)/int(otm->otmTextMetrics.tmHeight);
         unitsPerEm = otm->otmEMSquare;
         x_height = (int)otm->otmsXHeight;
-        kerning_pairs = getKerning(hdc, designToDevice);
+        loadKerningPairs(designToDevice);
         _faceId.filename = (char *)otm + (int)otm->otmpFullName;
         lineWidth = otm->otmsUnderscoreSize;
         fsType = otm->otmfsType;
@@ -474,43 +474,6 @@ glyph_metrics_t QFontEngineWin::boundingBox(glyph_t glyph)
 #endif
     return glyph_metrics_t();
 }
-
-static inline QFixed kerning(int left, int right, const QFontEngineWin::KernPair *pairs, int numPairs)
-{
-    uint left_right = (left << 16) + right;
-
-    left = 0, right = numPairs - 1;
-    while (left <= right) {
-        int middle = left + ( ( right - left ) >> 1 );
-
-	if(pairs[middle].left_right == left_right)
-            return pairs[middle].adjust;
-
-        if (pairs[middle].left_right < left_right)
-            left = middle + 1;
-        else
-            right = middle - 1;
-    }
-    return 0;
-}
-
-void QFontEngineWin::doKerning(int num_glyphs, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const
-{
-    int numPairs = kerning_pairs.size();
-    if(!numPairs)
-        return;
-
-    const KernPair *pairs = kerning_pairs.constData();
-
-    if(flags & QTextEngine::DesignMetrics) {
-        for(int i = 0; i < num_glyphs - 1; ++i)
-            glyphs[i].advance.x += kerning(glyphs[i].glyph, glyphs[i+1].glyph , pairs, numPairs);
-    } else {
-        for(int i = 0; i < num_glyphs - 1; ++i)
-            glyphs[i].advance.x += qRound(kerning(glyphs[i].glyph, glyphs[i+1].glyph , pairs, numPairs));
-    }
-}
-
 
 QFixed QFontEngineWin::ascent() const
 {
@@ -1223,80 +1186,5 @@ static unsigned char *getCMap(HDC hdc, bool &symbol)
         return 0;
     }
     return unicode_data;
-}
-
-bool operator<(const QFontEngineWin::KernPair &p1, const QFontEngineWin::KernPair &p2)
-{
-    return p1.left_right < p2.left_right;
-}
-
-static QVector<QFontEngineWin::KernPair> getKerning(HDC hdc, QFixed factor)
-{
-    const DWORD KERN = MAKE_TAG('k', 'e', 'r', 'n');
-
-    QVector<QFontEngineWin::KernPair> pairs;
-    unsigned short numTables;
-
-    {
-        unsigned char header[4];
-
-        // get the KERN header and the number of encoding tables
-        DWORD bytes = GetFontData(hdc, KERN, 0, &header, 4);
-        if (bytes == GDI_ERROR) {
-//            qDebug("table doesn't exist");
-            goto end;
-        }
-        unsigned short version = getUShort(header);
-        if (version != 0) {
-//            qDebug("wrong version");
-            goto end;
-        }
-
-        numTables = getUShort(header+2);
-    }
-    {
-        int offset = 4;
-        for(int i = 0; i < numTables; ++i) {
-            unsigned char header[6];
-            DWORD bytes = GetFontData(hdc, KERN, offset, &header, 6);
-            if (bytes == GDI_ERROR) {
-//                qDebug("GDI_ERROR 2");
-                goto end;
-            }
-
-            ushort version = getUShort(header);
-            ushort length = getUShort(header+2);
-            ushort coverage = getUShort(header+4);
-//            qDebug("subtable: version=%d, coverage=%x",version, coverage);
-            if(version == 0 && coverage == 0x0001) {
-                QVarLengthArray<uchar, 4096> data(length - 6);
-                bytes = GetFontData(hdc, KERN, offset+6, data.data(), length - 6);
-                if (bytes == GDI_ERROR) {
-//                    qDebug("GDI_ERROR 3");
-                    goto end;
-                }
-
-                ushort nPairs = getUShort(data.data());
-                if(nPairs * 6 + 8 > length - 6) {
-//                    qDebug("corrupt table!");
-                    // corrupt table
-                    goto end;
-                }
-
-                int off = 8;
-                for(int i = 0; i < nPairs; ++i) {
-                    QFontEngineWin::KernPair p;
-                    p.left_right = (((uint)getUShort(data.data()+off)) << 16) + getUShort(data.data()+off+2);
-                    p.adjust = QFixed((int)(short)getUShort(data.data()+off+4)) / factor;
-                    pairs.append(p);
-                    off += 6;
-                }
-            }
-            offset += length;
-        }
-    }
-end:
-    qSort(pairs);
-    return pairs;
 }
 

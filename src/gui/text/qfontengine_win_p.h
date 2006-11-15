@@ -42,7 +42,6 @@ public:
     void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags);
     void addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int nglyphs,
                          QPainterPath *path, QTextItem::RenderFlags flags);
-    virtual void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
 
     HGDIOBJ selectDesignFont(QFixed *) const;
 
