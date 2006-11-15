@@ -579,6 +579,13 @@ bool QPushButton::isFlat() const
 /*! \reimp */
 bool QPushButton::event(QEvent *e)
 {
+    Q_D(QPushButton);
+    if (e->type() == QEvent::ParentChange) {
+        if (QDialog *dialog = d->dialogParent()) {
+            if (d->defaultButton)
+                dialog->d_func()->setMainDefault(this);
+        }
+    }
     return QAbstractButton::event(e);
 }
 
