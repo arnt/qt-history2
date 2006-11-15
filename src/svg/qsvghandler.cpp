@@ -31,6 +31,7 @@
 #include "qfile.h"
 #include "qdebug.h"
 #include "private/qcssparser_p.h"
+#include "private/qmath_p.h"
 
 #include <math.h>
 
@@ -1208,8 +1209,8 @@ static void pathArcSegment(QPainterPath &path,
     qreal t;
     qreal thHalf;
 
-    sinTh = sin(xAxisRotation * (M_PI / 180.0));
-    cosTh = cos(xAxisRotation * (M_PI / 180.0));
+    sinTh = sin(xAxisRotation * (Q_PI / 180.0));
+    cosTh = cos(xAxisRotation * (Q_PI / 180.0));
 
     a00 =  cosTh * rx;
     a01 = -sinTh * ry;
@@ -1257,13 +1258,13 @@ static void pathArcSegment(QPainterPath &path,
  *
  */
 static void pathArc(QPainterPath &path,
-                    qreal		rx,
-                    qreal		ry,
-                    qreal		x_axis_rotation,
-                    int		large_arc_flag,
-                    int		sweep_flag,
-                    qreal		x,
-                    qreal		y,
+                    qreal               rx,
+                    qreal               ry,
+                    qreal               x_axis_rotation,
+                    int         large_arc_flag,
+                    int         sweep_flag,
+                    qreal               x,
+                    qreal               y,
                     qreal curx, qreal cury)
 {
     qreal sin_th, cos_th;
@@ -1277,8 +1278,8 @@ static void pathArc(QPainterPath &path,
     rx = qAbs(rx);
     ry = qAbs(ry);
 
-    sin_th = sin(x_axis_rotation * (M_PI / 180.0));
-    cos_th = cos(x_axis_rotation * (M_PI / 180.0));
+    sin_th = sin(x_axis_rotation * (Q_PI / 180.0));
+    cos_th = cos(x_axis_rotation * (Q_PI / 180.0));
 
     dx = (curx - x) / 2.0;
     dy = (cury - y) / 2.0;
@@ -1322,11 +1323,11 @@ static void pathArc(QPainterPath &path,
 
     th_arc = th1 - th0;
     if (th_arc < 0 && sweep_flag)
-        th_arc += 2 * M_PI;
+        th_arc += 2 * Q_PI;
     else if (th_arc > 0 && !sweep_flag)
-        th_arc -= 2 * M_PI;
+        th_arc -= 2 * Q_PI;
 
-    n_segs = int(ceil(qAbs(th_arc / (M_PI * 0.5 + 0.001))));
+    n_segs = int(ceil(qAbs(th_arc / (Q_PI * 0.5 + 0.001))));
 
     for (i = 0; i < n_segs; i++) {
         pathArcSegment(path, xc, yc,
