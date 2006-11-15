@@ -626,7 +626,9 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
 
     QPainterPath path;
+#ifndef Q_WS_MAC
     path.setFillRule(Qt::WindingFill);
+#endif
     if (ti.num_glyphs)
         ti.fontEngine->addOutlineToPath(p.x(), p.y(), ti.glyphs, ti.num_glyphs, &path, ti.flags);
     if (!path.isEmpty()) {
