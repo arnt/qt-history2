@@ -2022,10 +2022,12 @@ int QTextLine::xToCursor(qreal _x, CursorPosition cpos) const
             if (cpos == QTextLine::CursorOnCharacter) {
                 if (si.analysis.bidiLevel % 2) {
                     pos += item_width;
-                    int last_glyph = gs;
+                    glyph_pos = gs;
                     while (gs <= ge) {
-                        if (glyphs[gs].attributes.clusterStart && pos < x) {
-                            glyph_pos = last_glyph;
+                        if (glyphs[gs].attributes.clusterStart) {
+                            if (pos < x)
+                                break;
+                            glyph_pos = gs;
                             break;
                         }
                         pos -= (glyphs[gs].advance.x + QFixed::fromFixed(glyphs[gs].space_18d6)) * !glyphs[gs].attributes.dontPrint;
