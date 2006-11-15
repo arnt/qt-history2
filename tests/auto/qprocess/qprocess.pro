@@ -3,6 +3,7 @@ SUBDIRS = testProcessCrash \
           testProcessEcho \
           testProcessEcho2 \
           testProcessEcho3 \
+          testProcessLoopback \
 	  testProcessNormal \
           testProcessOutput \
           testProcessDeadWhileReading \

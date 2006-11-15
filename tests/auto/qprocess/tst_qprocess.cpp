@@ -52,6 +52,7 @@ private slots:
     void echoTest_data();
     void echoTest();
     void echoTest2();
+    void echoTest_performance();
 #if defined Q_OS_WIN
     void echoTestGui();
     void batFiles_data();
@@ -392,6 +393,52 @@ void tst_QProcess::echoTest2()
 
     delete process;
     process = 0;
+}
+
+//-----------------------------------------------------------------------------
+void tst_QProcess::echoTest_performance()
+{
+    QProcess process;
+#ifdef Q_OS_MAC
+    process.start("testProcessLoopback/testProcessLoopback.app");
+#else
+    process.start("testProcessLoopback/testProcessLoopback");
+#endif
+
+    QByteArray array;
+    array.resize(1024 * 1024);
+    for (int j = 0; j < array.size(); ++j)
+        array[j] = 'a' + (j % 20);
+
+    QVERIFY(process.waitForStarted());
+
+    QTime stopWatch;
+    stopWatch.start();
+    
+    qDebug() << "Writing 10MB to a loopback process...";
+
+    for (int i = 0; i < 10; ++i) {
+        process.write(array);
+        while (process.bytesToWrite() > 0) {
+            QVERIFY(process.waitForBytesWritten(5000));
+            QVERIFY(process.waitForReadyRead(5000));
+        }
+
+        while (process.bytesAvailable() < ((i + 1) * array.size())) 
+            QVERIFY2(process.waitForReadyRead(5000), qPrintable(process.errorString()));
+    }
+
+    qDebug() << "Elapsed time:" << qPrintable(QString("%1s").arg(stopWatch.elapsed() / 1000.0, 0, 'g', 2))
+             << qPrintable(QString("(%1 MB/s)").arg((10.0 * 1000.0) / double(stopWatch.elapsed()), 0, 'g', 2));
+
+    QByteArray dump = process.readAll();
+    for (int i = 0; i < 10; ++i) {
+        for (int j = 0; j < array.size(); ++j)
+            QCOMPARE(char(dump.at(i * (1024 * 1024) + j)), char('a' + (j % 20)));
+    }
+
+    process.closeWriteChannel();
+    QVERIFY(process.waitForFinished());
 }
 
 #if defined Q_OS_WIN
