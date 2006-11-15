@@ -16,6 +16,8 @@
 #include <qpushbutton.h>
 #include <qmenu.h>
 #include <qtimer.h>
+#include <QDialog>
+#include <QGridLayout>
 
 Q_DECLARE_METATYPE(QPushButton*)
 
@@ -54,6 +56,7 @@ private slots:
     void clicked();
     void toggled();
     void isEnabled();
+    void defaultAndAutoDefault();
 /*
     void state();
     void group();
@@ -458,6 +461,88 @@ void tst_QPushButton::popupCrash()
     QTimer::singleShot(1000, this, SLOT(helperSlotDelete()));
     pb->show();
     pb->click();
+}
+
+void tst_QPushButton::defaultAndAutoDefault()
+{
+    {
+    // Adding buttons directly to QDialog
+    QDialog dialog;
+
+    QPushButton button1(&dialog);
+    QVERIFY(button1.autoDefault());
+    QVERIFY(!button1.isDefault());
+
+    QPushButton button2(&dialog);
+    QVERIFY(button2.autoDefault());
+    QVERIFY(!button2.isDefault());
+
+    button1.setDefault(true);
+    QVERIFY(button1.autoDefault());
+    QVERIFY(button1.isDefault());
+    QVERIFY(button2.autoDefault());
+    QVERIFY(!button2.isDefault());
+
+    dialog.show();
+    QVERIFY(dialog.isVisible());
+
+    QObject::connect(&button1, SIGNAL(clicked()), &dialog, SLOT(hide()));
+    QKeyEvent event(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
+    QApplication::sendEvent(&dialog, &event);
+    QVERIFY(!dialog.isVisible());
+    }
+
+    {
+    // Adding buttons to QDialog through a layout
+    QDialog dialog;
+
+    QPushButton button1;
+    QVERIFY(!button1.autoDefault());
+    QVERIFY(!button1.isDefault());
+
+    QPushButton button2;
+    QVERIFY(!button2.autoDefault());
+    QVERIFY(!button2.isDefault());
+
+    button1.setDefault(true);
+    QVERIFY(!button1.autoDefault());
+    QVERIFY(button1.isDefault());
+    QVERIFY(!button2.autoDefault());
+    QVERIFY(!button2.isDefault());
+
+    QGridLayout layout;
+    layout.addWidget(&button2, 0, 2);
+    layout.addWidget(&button1, 0, 1);
+    dialog.setLayout(&layout);
+    QVERIFY(button1.autoDefault());
+    QVERIFY(button1.isDefault());
+    QVERIFY(button2.autoDefault());
+    QVERIFY(!button2.isDefault());
+
+    dialog.show();
+    QVERIFY(dialog.isVisible());
+
+    QObject::connect(&button1, SIGNAL(clicked()), &dialog, SLOT(hide()));
+    QKeyEvent event(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
+    QApplication::sendEvent(&dialog, &event);
+    QVERIFY(!dialog.isVisible());
+    }
+
+    {
+    // autoDefault behavior.
+    QDialog dialog;
+    QPushButton button2(&dialog);
+    QPushButton button1(&dialog);
+    dialog.show();
+    QVERIFY(dialog.isVisible());
+
+    // No default button is set, and button2 is the first autoDefault button
+    // that is next in the tab order
+    QObject::connect(&button2, SIGNAL(clicked()), &dialog, SLOT(hide()));
+    QKeyEvent event(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
+    QApplication::sendEvent(&dialog, &event);
+    QVERIFY(!dialog.isVisible());
+    }
 }
 
 QTEST_MAIN(tst_QPushButton)
