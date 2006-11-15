@@ -28,6 +28,7 @@
 #include "QtGui/qwidget.h"
 #include "private/qobject_p.h"
 #include "QtCore/qrect.h"
+#include "QtCore/qlocale.h"
 #include "QtGui/qregion.h"
 #include "QtGui/qsizepolicy.h"
 
@@ -194,6 +195,9 @@ public:
 
     void setLayoutDirection_helper(Qt::LayoutDirection);
     void resolveLayoutDirection();
+
+    void setLocale_helper(const QLocale &l);
+    void resolveLocale();
 
     void setStyle_helper(QStyle *, bool);
     void inheritStyle();
@@ -424,6 +428,7 @@ public:
 
     void setModal_sys();
     QSizePolicy size_policy;
+    QLocale locale;
 };
 
 inline QWExtra *QWidgetPrivate::extraData() const

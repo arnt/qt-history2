@@ -3791,6 +3791,81 @@ void QWidget::unsetCursor()
 }
 
 #endif
+
+/*!
+    \property QWidget::locale
+    \brief the widget's locale
+
+    As long as no special locale has been set, this is either
+    the parent's locale or (if this widget is a top level widget), 
+    the default locale.
+
+    If the widget displays dates or numbers, these should be formatted
+    using the widget's locale.
+
+    \sa QLocale QLocale::setDefault()
+*/
+
+void QWidgetPrivate::setLocale_helper(const QLocale &loc)
+{
+    Q_Q(QWidget);
+
+    if (locale == loc)
+        return;
+
+    locale = loc;
+
+    if (!children.isEmpty()) {
+        for (int i = 0; i < children.size(); ++i) {
+            QWidget *w = qobject_cast<QWidget*>(children.at(i));
+            if (!w)
+                continue;
+            if (w->testAttribute(Qt::WA_SetLocale))
+                continue;
+            if (w->isWindow() && !w->testAttribute(Qt::WA_WindowPropagation))
+                continue;
+            w->d_func()->setLocale_helper(loc);
+        }
+    }
+
+    QEvent e(QEvent::LocaleChange);
+    QApplication::sendEvent(q, &e);
+}
+
+void QWidget::setLocale(const QLocale &locale)
+{
+    Q_D(QWidget);
+
+    setAttribute(Qt::WA_SetLocale);
+    d->setLocale_helper(locale);
+}
+
+QLocale QWidget::locale() const
+{
+    Q_D(const QWidget);
+
+    return d->locale;
+}
+
+void QWidgetPrivate::resolveLocale()
+{
+    Q_Q(const QWidget);
+
+    if (!q->testAttribute(Qt::WA_SetLocale)) {
+        setLocale_helper(q->isWindow()
+                            ? QLocale()
+                            : q->parentWidget()->locale());
+    }
+}
+
+void QWidget::unsetLocale()
+{
+    Q_D(QWidget);
+    setAttribute(Qt::WA_SetLocale, false);
+    d->resolveLocale();
+}
+
+
 /*!
     \property QWidget::windowTitle
     \brief the window title (caption)
@@ -5885,6 +5960,7 @@ bool QWidget::event(QEvent *event)
         if (!(windowType() == Qt::Desktop))
             d->resolvePalette();
         break;
+
     case QEvent::ToolBarChange:
     case QEvent::ActivationChange:
     case QEvent::EnabledChange:
@@ -5897,6 +5973,7 @@ bool QWidget::event(QEvent *event)
     case QEvent::MouseTrackingChange:
     case QEvent::ParentChange:
     case QEvent::WindowStateChange:
+    case QEvent::LocaleChange:
         changeEvent(event);
         break;
 
@@ -5919,8 +5996,6 @@ bool QWidget::event(QEvent *event)
 #ifdef QT3_SUPPORT
         languageChange();
 #endif
-        // fall through
-    case QEvent::LocaleChange:
         changeEvent(event);
         {
             QList<QObject*> childList = d->children;
@@ -7154,6 +7229,7 @@ void QWidget::setParent(QWidget *parent, Qt::WindowFlags f)
     d->resolveFont();
     d->resolvePalette();
     d->resolveLayoutDirection();
+    d->resolveLocale();
 
     if (newParent) {
         // propagate enabled updates enabled state to non-windows
@@ -7507,6 +7583,7 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
     case Qt::WA_WindowPropagation:
         d->resolvePalette();
         d->resolveFont();
+        d->resolveLocale();
         break;
 #ifdef Q_WS_X11
     case Qt::WA_NoX11EventCompression:

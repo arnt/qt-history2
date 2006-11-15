@@ -366,6 +366,8 @@ public:
         WA_MacOpaqueSizeGrip = 85,
         WA_SetStyle = 86,
 
+        WA_SetLocale = 87,
+
         // Add new attributes before this line
         WA_AttributeCount
     };

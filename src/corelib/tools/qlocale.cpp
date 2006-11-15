@@ -1233,30 +1233,31 @@ static const QSystemLocale *systemLocale()
 
 void QLocalePrivate::updateSystemPrivate()
 {
+    const QSystemLocale *sys_locale = systemLocale();
     if (!system_lp)
         system_lp = new QLocalePrivate;
-    *system_lp = *_systemLocale->fallbackLocale().d();
+    *system_lp = *sys_locale->fallbackLocale().d();
 
-    QVariant res = _systemLocale->query(QSystemLocale::LanguageId, QVariant());
+    QVariant res = sys_locale->query(QSystemLocale::LanguageId, QVariant());
     if (!res.isNull())
         system_lp->m_language_id = res.toInt();
-    res = _systemLocale->query(QSystemLocale::CountryId, QVariant());
+    res = sys_locale->query(QSystemLocale::CountryId, QVariant());
     if (!res.isNull())
         system_lp->m_country_id = res.toInt();
 
-    res = _systemLocale->query(QSystemLocale::DecimalPoint, QVariant());
+    res = sys_locale->query(QSystemLocale::DecimalPoint, QVariant());
     if (!res.isNull())
         system_lp->m_decimal = res.toString().at(0).unicode();
 
-    res = _systemLocale->query(QSystemLocale::GroupSeparator, QVariant());
+    res = sys_locale->query(QSystemLocale::GroupSeparator, QVariant());
     if (!res.isNull())
         system_lp->m_group = res.toString().at(0).unicode();
 
-    res = _systemLocale->query(QSystemLocale::ZeroDigit, QVariant());
+    res = sys_locale->query(QSystemLocale::ZeroDigit, QVariant());
     if (!res.isNull())
         system_lp->m_zero = res.toString().at(0).unicode();
 
-    res = _systemLocale->query(QSystemLocale::NegativeSign, QVariant());
+    res = sys_locale->query(QSystemLocale::NegativeSign, QVariant());
     if (!res.isNull())
         system_lp->m_minus = res.toString().at(0).unicode();
 }
@@ -1266,10 +1267,9 @@ static const QLocalePrivate *systemPrivate()
 {
 #ifndef QT_NO_SYSTEMLOCALE
     // copy over the information from the fallback locale and modify
-    if (!system_lp || system_lp->m_language_id == 0) {
-        (void) systemLocale();
+    if (!system_lp || system_lp->m_language_id == 0)
         QLocalePrivate::updateSystemPrivate();
-    }
+
     return system_lp;
 #else
     return locale_data;

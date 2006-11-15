@@ -140,6 +140,8 @@ private slots:
     void getDC();
 #endif
 
+    void setLocale();
+
 private:
     QWidget *testWidget;
 };
@@ -701,6 +703,39 @@ void tst_QWidget::visible()
 
     grandChildWidget->show();
     QVERIFY( !grandChildWidget->isVisible() );
+}
+
+void tst_QWidget::setLocale()
+{
+    QWidget w;
+    QCOMPARE(w.locale(), QLocale());
+
+    w.setLocale(QLocale::Italian);
+    QCOMPARE(w.locale(), QLocale(QLocale::Italian));
+
+    QWidget child1(&w);
+    QCOMPARE(child1.locale(), QLocale(QLocale::Italian));
+
+    w.unsetLocale();
+    QCOMPARE(w.locale(), QLocale());
+    QCOMPARE(child1.locale(), QLocale());
+
+    w.setLocale(QLocale::French);
+    QCOMPARE(w.locale(), QLocale(QLocale::French));
+    QCOMPARE(child1.locale(), QLocale(QLocale::French));
+
+    child1.setLocale(QLocale::Italian);
+    QCOMPARE(w.locale(), QLocale(QLocale::French));
+    QCOMPARE(child1.locale(), QLocale(QLocale::Italian));
+
+    child1.unsetLocale();
+    QCOMPARE(w.locale(), QLocale(QLocale::French));
+    QCOMPARE(child1.locale(), QLocale(QLocale::French));
+
+    QWidget child2;
+    QCOMPARE(child2.locale(), QLocale());
+    child2.setParent(&w);
+    QCOMPARE(child2.locale(), QLocale(QLocale::French));
 }
 
 void tst_QWidget::visible_setWindowOpacity()

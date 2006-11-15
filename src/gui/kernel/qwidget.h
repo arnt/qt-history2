@@ -63,6 +63,7 @@ class QHideEvent;
 class QInputContext;
 class QIcon;
 class QWindowSurface;
+class QLocale;
 #if defined(Q_WS_X11)
 class QX11Info;
 #endif
@@ -174,6 +175,7 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
 #ifndef QT_NO_STYLE_STYLESHEET
     Q_PROPERTY(QString styleSheet READ styleSheet WRITE setStyleSheet)
 #endif
+    Q_PROPERTY(QLocale locale READ locale WRITE setLocale RESET unsetLocale)
 
 public:
     explicit QWidget(QWidget* parent = 0, Qt::WindowFlags f = 0);
@@ -339,6 +341,10 @@ public:
     void setLayoutDirection(Qt::LayoutDirection direction);
     Qt::LayoutDirection layoutDirection() const;
     void unsetLayoutDirection();
+
+    void setLocale(const QLocale &locale);
+    QLocale locale() const;
+    void unsetLocale();
 
     inline bool isRightToLeft() const { return layoutDirection() == Qt::RightToLeft; }
     inline bool isLeftToRight() const { return layoutDirection() == Qt::LeftToRight; }
