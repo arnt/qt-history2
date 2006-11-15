@@ -12,8 +12,10 @@
 int main()
 {
     QTextStream qin(stdin);
-    int a, b, c;
-    qin >> a >> b >> c;
-    qDebug("%d %d %d", a, b, c);
+    if (!qin.atEnd()) {
+      int a, b, c;
+      qin >> a >> b >> c;
+      qDebug("%d %d %d", a, b, c);
+    }
     return 0;
 }
