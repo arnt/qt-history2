@@ -129,6 +129,7 @@ public:
     HDC dc;
     HPBUFFERARB pbuf;
     HGLRC ctx;
+    bool has_render_texture :1;
 #elif defined(Q_WS_MACX)
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     AGLPbuffer pbuf;
