@@ -576,9 +576,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
          // ### move into prerender step
 
 #if defined(Q_WS_QWS)
-        const QRegion clip = static_cast<QWSWindowSurface*>(windowSurface)->clipRegion();
-        if (!clip.isEmpty())
-            toClean &= clip;
+        toClean &= static_cast<QWSWindowSurface*>(windowSurface)->clipRegion();
 #endif
 
         if(!toClean.isEmpty()) {

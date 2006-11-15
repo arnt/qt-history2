@@ -566,6 +566,13 @@ void QWidgetPrivate::show_sys()
     Q_Q(QWidget);
     q->setAttribute(Qt::WA_Mapped);
     if (q->isWindow()) {
+
+        if (QWindowSurface *surface = currentWindowSurface()) {
+            const QRect frameRect = q->frameGeometry();
+            if (surface->geometry() != frameRect)
+                surface->setGeometry(frameRect);
+        }
+
         QRegion r = localRequestedRegion();
 #ifndef QT_NO_QWS_MANAGER
         if (extra && extra->topextra && extra->topextra->qwsManager) {

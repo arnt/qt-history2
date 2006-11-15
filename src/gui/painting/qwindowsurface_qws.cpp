@@ -385,14 +385,12 @@ void QWSWindowSurface::setDirty(const QRegion &region) const
         return;
 
     QRegion unclipped = region;
-    if (!d_ptr->clip.isEmpty()) {
 #ifdef QT_EXPERIMENTAL_REGIONS
-        if (!qt_region_strictContains(d_ptr->clip, region.boundingRect()))
+    if (!qt_region_strictContains(d_ptr->clip, region.boundingRect()))
 #endif
-        {
-            d_ptr->clippedDirty += (region - d_ptr->clip);
-            unclipped &= d_ptr->clip;
-        }
+    {
+        d_ptr->clippedDirty += (region - d_ptr->clip);
+        unclipped &= d_ptr->clip;
     }
     d_ptr->dirty += unclipped;
 
@@ -549,9 +547,7 @@ void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
     Q_UNUSED(offset);
 
     const bool opaque = isWidgetOpaque(window());
-    QRegion toFlush = (region + dirtyRegion());
-    if (!d_ptr->clip.isEmpty())
-        toFlush &= d_ptr->clip;
+    QRegion toFlush = (region + dirtyRegion()) & d_ptr->clip;
     const QRegion stillDirty = (d_ptr->dirty - toFlush);
 
 #ifndef QT_NO_QWS_MANAGER
