@@ -1408,8 +1408,9 @@ QMakeProject::isActiveConfig(const QString &x, bool regex, QMap<QString, QString
     else if(Option::target_mode == Option::TARG_WIN_MODE && x == "win32")
         return true;
     QRegExp re(x, Qt::CaseSensitive, QRegExp::Wildcard);
-    QString spec = Option::mkfile::qmakespec.right(Option::mkfile::qmakespec.length() -
-                                                   (Option::mkfile::qmakespec.lastIndexOf(QDir::separator())+1));
+    static QString spec;
+    if(spec.isEmpty())
+        spec = QFileInfo(Option::mkfile::qmakespec).fileName();
     if((regex && re.exactMatch(spec)) || (!regex && spec == x))
         return true;
 #ifdef Q_OS_UNIX
