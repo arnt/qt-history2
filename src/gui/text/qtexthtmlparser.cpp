@@ -24,6 +24,7 @@
 #include "qtextdocument_p.h"
 #include "qtextcursor.h"
 #include "qfont_p.h"
+#include "private/qunicodetables_p.h"
 
 #define MAX_ENTITY 258
 static const struct QTextHtmlEntity { const char *name; quint16 code; } entities[MAX_ENTITY]= {
@@ -683,7 +684,7 @@ int QTextHtmlParser::bottomMargin(int i) const
 
 void QTextHtmlParser::eatSpace()
 {
-    while (pos < len && txt.at(pos).isSpace() && txt.at(pos) != QChar::ParagraphSeparator)
+    while (pos < len && QUnicodeTables::isSpace(txt.at(pos)) && txt.at(pos) != QChar::ParagraphSeparator)
         pos++;
 }
 
@@ -932,7 +933,7 @@ QString QTextHtmlParser::parseWord()
                 || (c == QLatin1Char('/') && hasPrefix(QLatin1Char('>'), 1))
                 || c == QLatin1Char('<')
                 || c == QLatin1Char('=')
-                || c.isSpace()) {
+                || QUnicodeTables::isSpace(c)) {
                 --pos;
                 break;
             }

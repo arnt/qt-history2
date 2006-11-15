@@ -15,6 +15,7 @@
 #include "qtextdocumentfragment_p.h"
 #include "qtextcursor_p.h"
 #include "qtextlist.h"
+#include "private/qunicodetables_p.h"
 
 #include <qdebug.h>
 #include <qtextcodec.h>
@@ -742,7 +743,7 @@ bool QTextHtmlImporter::appendNodeText(int node)
     for (int i = 0; i < text.length(); ++i) {
         QChar ch = text.at(i);
 
-        if (ch.isSpace()
+        if (QUnicodeTables::isSpace(ch)
             && ch != QChar::Nbsp
             && ch != QChar::ParagraphSeparator) {
 
