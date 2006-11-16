@@ -554,7 +554,7 @@ bool QLibraryPrivate::isPlugin()
         key = reg.at(2).toLatin1();
         success = qt_version != 0;
     } else {
-#if defined(Q_OS_UNIX)
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
         if (!pHnd) {
             // use unix shortcut to avoid loading the library
             success = qt_unix_query(fileName, &qt_version, &debug, &key, this);
