@@ -2703,8 +2703,10 @@ void QAbstractItemView::selectionChanged(const QItemSelection &selected,
                                          const QItemSelection &deselected)
 {
     Q_D(QAbstractItemView);
-    d->setDirtyRegion(visualRegionForSelection(deselected));
-    d->setDirtyRegion(visualRegionForSelection(selected));
+    if (isVisible() && updatesEnabled()) {
+        d->setDirtyRegion(visualRegionForSelection(deselected));
+        d->setDirtyRegion(visualRegionForSelection(selected));
+    }
 }
 
 /*!

@@ -443,6 +443,7 @@ void QListView::setViewMode(ViewMode mode)
     setDragEnabled(movable);
     setAcceptDrops(movable);
 #endif
+    d->clear();
     d->doDelayedItemsLayout();
 }
 
@@ -1437,8 +1438,6 @@ QModelIndexList QListView::selectedIndexes() const
 void QListView::doItemsLayout()
 {
     Q_D(QListView);
-    d->layoutChildren(); // make sure the viewport has the right size
-    d->prepareItemsLayout();
     if (d->model->columnCount(d->root) > 0) { // no columns means no contents
         if (layoutMode() == SinglePass)
             d->doItemsLayout(d->model->rowCount(d->root)); // layout everything
@@ -1701,8 +1700,13 @@ bool QListViewPrivate::doItemsLayout(int delta)
     int first = batchStartRow();
     int last = qMin(first + delta - 1, max);
 
-    if (max < 0)
+    if (max < 0 | last < first)
         return true; // nothing to do
+
+    if (first == 0) {
+        layoutChildren(); // make sure the viewport has the right size
+        prepareItemsLayout();
+    }
 
     QListViewLayoutInfo info;
     info.bounds = layoutBounds;
