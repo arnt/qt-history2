@@ -297,7 +297,7 @@ void QCursorData::update()
             QBitmap cm = QBitmap::fromData(QSize(16, 16), open ? openhandm_bits : closedhandm_bits);
             bbits = cb.toImage().convertToFormat(QImage::Format_Mono);
             mbits = cm.toImage().convertToFormat(QImage::Format_Mono);
-            hx = hy = 16;
+            hx = hy = 8;
             invb = invm = false;
         } else if (cshape != Qt::BitmapCursor) {
             int i = cshape - Qt::SplitVCursor;
