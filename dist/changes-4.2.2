@@ -61,9 +61,19 @@ General improvements
   * Make setWindowTitle() work on hidden widgets that are never shown.
     (Fixing a bug in QtSingleApplication on Windows.)
 
+   * Make QWidget::restoreGeometry() restore to the correct screen on 
+     multi-screen systems.
+
 - Accessibility
 
    * Fix potential assert when navigating menus while assistive tools are running
+
+   * Fix crash when getting accessibility info from an item view without
+     a model.
+ 
+   * Fix item view accessibility bug where QAccessibleInterface::text() 
+     would return an empty string for child indexes larger
+     than one.
 
 - QWorkspace
   * Memory corruption, which caused crash inside Visual Studio.
@@ -216,6 +226,19 @@ Platform-Specific changes
   * Fixed compilation of the MySQL driver when using the minimum configuration.
   * Fixed a bug in the LinuxFB driver which prevented it to switch back to
     text mode if the application termintated using exit().
+
+- Qt/Mac
+
+   * Fixed bug where the cursor would not switch to the arrow cursor 
+     over child widgets witch had that cursor set.
+   * FramelessWindow modal dialogs had a title bar and was movable,
+     now they don't.
+   * Fix crash when enabling "Accessibility for assistive devices" in
+     System Preferences while a Qt application was running.
+   * Fix painting error where a one-pixel border at the bottom, right
+     side of widgets wasn't being (re)painted correctly. 
+   * Fix item view scrolling bug, cell widgets weren't scrolled
+     properly.
 
 ****************************************************************************
 *                             QTestLib                                     *
