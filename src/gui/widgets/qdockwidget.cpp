@@ -346,9 +346,9 @@ void QDWLayout::updateMaxSize()
 {
     QDockWidget *q = qobject_cast<QDockWidget*>(parentWidget());
 
-    QSize max(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+    QSize maxsz(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
     if (QLayoutItem *item = item_list[Content])
-        max = qSmartMaxSize(item->widget());
+        maxsz = qSmartMaxSize(item->widget());
     int fw = 0;
     if (q->isFloating())
         fw = q->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, q);
@@ -356,16 +356,16 @@ void QDWLayout::updateMaxSize()
 #ifndef Q_WS_X11
     if (q->isFloating()) {
         if (QLayoutItem *item = item_list[Content])
-            q->setMaximumSize(max);
+            q->setMaximumSize(maxsz);
     } else
 #endif
     {
-        max += QSize(2*fw, _titleArea.height() + 2*fw);
-        max.rwidth() = qMin(QWIDGETSIZE_MAX, max.width());
-        max.rheight() = qMin(QWIDGETSIZE_MAX, max.height());
+        maxsz += QSize(2*fw, _titleArea.height() + 2*fw);
+        maxsz.rwidth() = qMin(QWIDGETSIZE_MAX, maxsz.width());
+        maxsz.rheight() = qMin(QWIDGETSIZE_MAX, maxsz.height());
     }
 
-    q->setMaximumSize(max);
+    q->setMaximumSize(maxsz);
 }
 
 void QDWLayout::setGeometry(const QRect &geometry)
