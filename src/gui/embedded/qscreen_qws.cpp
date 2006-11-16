@@ -325,7 +325,9 @@ public:
     client to render its widgets as well as its decorations into
     memory, while the server copies the memory content to the device's
     framebuffer using the screen driver. See the \l {Qtopia Core
-    Architecture} overview for details.
+    Architecture} overview for details (note that it is possible for
+    the clients to manipulate and control the underlying hardware
+    directly as well).
 
     Starting with \l {Qtopia Core} 4.2, it is also possible to add an
     accelerated graphics driver to take advantage of available
@@ -389,8 +391,7 @@ public:
     clients have updated their memory buffer. Then the server calls
     the exposeRegion() function that composes the window surfaces and
     copies the content of memory to screen by calling the blit() and
-    solidFill() functions. See the \l {Qtopia Core Architecture}
-    overview for details.
+    solidFill() functions.
 
     The blit() function copies a given region in a given image to a
     specified point using device coordinates, while the solidFill()
