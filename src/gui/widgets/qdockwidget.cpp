@@ -717,8 +717,6 @@ void QDockWidgetPrivate::nonClientAreaMouseEvent(QMouseEvent *event)
 
     switch (event->type()) {
         case QEvent::NonClientAreaMouseButtonPress:
-            qDebug() << "ncaevent: ncapress";
-
             if (!titleRect.contains(event->globalPos()))
                 break;
             if (state != 0)
@@ -727,7 +725,6 @@ void QDockWidgetPrivate::nonClientAreaMouseEvent(QMouseEvent *event)
             startDrag();
             break;
         case QEvent::NonClientAreaMouseMove:
-        	qDebug() << "ncaevent: ncamove";
             if (state == 0 || !state->dragging)
                 break;
 			if (state->nca) {
@@ -746,7 +743,6 @@ void QDockWidgetPrivate::nonClientAreaMouseEvent(QMouseEvent *event)
 #endif
 			break;
         case QEvent::NonClientAreaMouseButtonRelease:
-    	    qDebug() << "ncaevent: ncarelease";
 #ifdef Q_OS_MAC
 			if (state)
 				endDrag();
