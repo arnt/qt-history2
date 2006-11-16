@@ -25,6 +25,14 @@
 #include <limits.h>
 
 namespace {
+    // Fixup an enumeration name from class Qt.
+    // They are currently stored as "BottomToolBarArea" instead of "Qt::BottomToolBarArea".
+    // due to MO issues. This might be fixed in the future.
+    void fixQtEnumerationName(QString& name) {
+        static const QLatin1String prefix("Qt::");
+        if (name.indexOf(prefix) != 0) 
+            name.prepend(prefix);
+    }
     // figure out the toolbar area of a DOM attrib list.
     // By legacy, it is stored as an integer. As of 4.3.0, it is the enumeration value.
     QString toolBarAreaStringFromDOMAttributes(const QHash<QString, DomProperty*> &attributes) {
@@ -40,8 +48,8 @@ namespace {
             return area;
         }
         case DomProperty::Enum: {
-            QString area = "Qt::";
-            area += pstyle->elementEnum();
+            QString area = pstyle->elementEnum();
+            fixQtEnumerationName(area);
             area += ", ";
             return area;
         }
