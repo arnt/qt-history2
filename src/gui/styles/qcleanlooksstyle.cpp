@@ -471,6 +471,39 @@ static void qt_cleanlooks_draw_gradient(QPainter *painter, const QRect &rect, co
         delete gradient;
 }
 
+static void qt_cleanlooks_draw_buttongradient(QPainter *painter, const QRect &rect, const QColor &gradientStart,
+                                                const QColor &gradientMid, const QColor &gradientStop, Direction direction = TopDown, 
+                                                QBrush bgBrush = QBrush())
+{
+        int x = rect.center().x();
+        int y = rect.center().y();
+        QLinearGradient *gradient;
+        switch(direction) {
+            case FromLeft:
+                gradient = new QLinearGradient(rect.left(), y, rect.right(), y);
+                break;
+            case FromRight:
+                gradient = new QLinearGradient(rect.right(), y, rect.left(), y);
+                break;
+            case BottomUp:
+                gradient = new QLinearGradient(x, rect.bottom(), x, rect.top());
+            case TopDown:
+            default:
+                gradient = new QLinearGradient(x, rect.top(), x, rect.bottom());
+                break;
+        }
+        if (bgBrush.gradient())
+            gradient->setStops(bgBrush.gradient()->stops());
+        else {
+            gradient->setColorAt(0, gradientStart);
+            gradient->setColorAt(0.4, gradientMid);
+            gradient->setColorAt(0.6, gradientMid);
+            gradient->setColorAt(1, gradientStop);
+        }
+        painter->fillRect(rect, *gradient);
+        delete gradient;
+}
+
 static QString uniqueName(const QString &key, const QStyleOption *option, const QSize &size)
 {
     QString tmp;
@@ -1031,16 +1064,18 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             bool isEnabled = (option->state & State_Enabled);
 
             QColor highlightedGradientStartColor = option->palette.button().color().light(107);
+            QColor highlightedGradientMidColor = option->palette.button().color().light(105);
             QColor highlightedGradientStopColor = buttonShadow.light(107);
             QColor gradientStartColor = option->palette.button().color().light(108);
-
+            
             QColor buttonColor = option->palette.button().color();
+            QColor gradientMidColor = option->palette.button().color();
             QColor gradientStopColor;
             gradientStopColor.setHsv(buttonColor.hue(),
                                      qMin(255, (int)(buttonColor.saturation()*1.9)),
                                      qMin(255, (int)(buttonColor.value()*0.94)));
 
-            QRect gradRect = rect.adjusted(1, 1, -1, -1);
+            QRect gradRect = rect.adjusted(1, 2, -1, -2);
             if (isEnabled) {
                 // gradient fill
                 QRect innerBorder = r.adjusted(1, 1, -1, 0);
@@ -1052,18 +1087,21 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
                     painter->drawLine(innerBorder.topLeft(), innerBorder.bottomLeft());
                 } else {
                     if (option->state & State_Enabled && option->state & State_MouseOver ) {
-                        qt_cleanlooks_draw_gradient(painter, gradRect,
+                        qt_cleanlooks_draw_buttongradient(painter, gradRect,
                                                     highlightedGradientStartColor,
+                                                    highlightedGradientMidColor,
                                                     highlightedGradientStopColor, TopDown, option->palette.button());
                     } else {
-                        qt_cleanlooks_draw_gradient(painter, gradRect,
+                        qt_cleanlooks_draw_buttongradient(painter, gradRect,
                                                     gradientStartColor,
+                                                    gradientMidColor,
                                                     gradientStopColor, TopDown, option->palette.button());
                     }
                 }
             } else {
-                qt_cleanlooks_draw_gradient(painter, gradRect,
+                qt_cleanlooks_draw_buttongradient(painter, gradRect,
                                                 gradientStartColor,
+                                                gradientMidColor,
                                                 gradientStopColor, TopDown, option->palette.button());
             }
 
@@ -1094,16 +1132,17 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
                               QPoint(r.right() - 2, r.top()));
 
             QColor highlight = Qt::white;
-            highlight.setAlpha(130);
+            highlight.setAlpha(110);
             painter->setPen(highlight);
-            painter->drawLine(QPoint(r.left() + 1, r.bottom() + 1),
-                              QPoint(r.right() - 1, r.bottom() + 1));
             painter->drawLine(QPoint(r.left() + 1, r.top() + 2),
                               QPoint(r.left() + 1, r.bottom() - 2));
-            painter->drawPoint(QPoint(r.left(), r.bottom()));
-            painter->drawPoint(QPoint(r.right(), r.bottom() ));
-
-            painter->setPen(buttonShadowAlpha.dark(130));
+            painter->drawLine(QPoint(r.left() + 3, r.bottom() + 1),
+                              QPoint(r.right() - 3, r.bottom() + 1));
+            
+            QColor topShadow = darkOutline;
+            topShadow.setAlpha(60);
+            
+            painter->setPen(topShadow);
             painter->drawPoint(QPoint(r.right(), r.top() + 1));
             painter->drawPoint(QPoint(r.right() - 1, r.top() ));
             painter->drawPoint(QPoint(r.right(), r.bottom() - 1));
@@ -1112,7 +1151,10 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             painter->drawPoint(QPoint(r.left(), r.bottom() - 1));
             painter->drawPoint(QPoint(r.left() + 1, r.top()));
             painter->drawPoint(QPoint(r.left(), r.top() + 1));
-            painter->setPen(buttonShadowAlpha);
+            
+            topShadow.setAlpha(30);
+            painter->setPen(topShadow);
+
             painter->drawLine(QPoint(r.right() - 1, r.top() + 2),
                               QPoint(r.right() - 1, r.bottom() - 2));
             painter->drawLine(QPoint(r.left() + 2, r.top() - 1),
@@ -2326,8 +2368,24 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 
                 QRect r = rect.adjusted(0, 1, 0, -1);
                 if (spinBox->frame) {
+                
+                    QColor topShadow = darkOutline;
+                    topShadow.setAlpha(60);
+                    cachePainter.setPen(topShadow);
+                    
+                    // antialias corners
+                    cachePainter.drawPoint(QPoint(r.right(), r.top() + 1));
+                    cachePainter.drawPoint(QPoint(r.right() - 1, r.top() ));
+                    cachePainter.drawPoint(QPoint(r.right(), r.bottom() - 1));
+                    cachePainter.drawPoint(QPoint(r.right() - 1, r.bottom() ));
+                    cachePainter.drawPoint(QPoint(r.left() + 1, r.bottom()));
+                    cachePainter.drawPoint(QPoint(r.left(), r.bottom() - 1));
+                    cachePainter.drawPoint(QPoint(r.left() + 1, r.top()));
+                    cachePainter.drawPoint(QPoint(r.left(), r.top() + 1));
+                    
                     // draw frame
-                    cachePainter.setPen(buttonShadowAlpha);
+                    topShadow.setAlpha(30);
+                    cachePainter.setPen(topShadow);
                     cachePainter.drawLine(QPoint(r.left() + 2, r.top() - 1), QPoint(r.right() - 2, r.top() - 1));
 
                     cachePainter.setPen(QPen(option->palette.background().color(), 1));
@@ -2345,17 +2403,15 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     cachePainter.drawLine(QPoint(r.left() + 1, r.bottom() - 1),
                                   QPoint(r.right() - 1, r.bottom() - 1));
                     cachePainter.setPen(highlight);
-                    cachePainter.drawLine(QPoint(r.left() + 2, r.bottom() + 1),
-                                  QPoint(r.right() - 2, r.bottom() + 1));
-                    cachePainter.drawPoint(QPoint(r.left() + 1, r.bottom()));
-                    cachePainter.drawPoint(QPoint(r.right() - 1, r.bottom() ));
-                    cachePainter.setPen(QPen(darkOutline.light(115), 1));
+                    cachePainter.drawLine(QPoint(r.left() + 3, r.bottom() + 1),
+                                  QPoint(r.right() - 3, r.bottom() + 1));
+                    
+                    cachePainter.setPen(QPen(darkOutline, 1));
 
                     // top and bottom lines
                     cachePainter.drawLine(QPoint(r.left() + 2, r.bottom()), QPoint(r.right()- 2, r.bottom()));
                     cachePainter.drawLine(QPoint(r.left() + 2, r.top()), QPoint(r.right() - 2, r.top()));
                     cachePainter.drawLine(QPoint(r.right(), r.top() + 2), QPoint(r.right(), r.bottom() - 2));
-                    cachePainter.drawLine(QPoint(r.left(), r.top() + 2), QPoint(r.left(), r.bottom() - 2));
                     cachePainter.drawLine(QPoint(r.left(), r.top() + 2), QPoint(r.left(), r.bottom() - 2));
                 }
 
@@ -2499,10 +2555,10 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 QColor disabledColor = option->palette.background().color();
                 disabledColor.setAlpha(150);
                 if (!(spinBox->stepEnabled & QAbstractSpinBox::StepUpEnabled))
-                    cachePainter.fillRect(upRect, disabledColor);
-                if (!(spinBox->stepEnabled & QAbstractSpinBox::StepDownEnabled))
-                    cachePainter.fillRect(downRect.adjusted(0, 0, 0, 1), disabledColor);
-
+                    cachePainter.fillRect(upRect.adjusted(1, 0, 0, 0), disabledColor);
+                if (!(spinBox->stepEnabled & QAbstractSpinBox::StepDownEnabled)) {
+                    cachePainter.fillRect(downRect.adjusted(1, 0, 0, 0), disabledColor);
+                }
                 cachePainter.end();
                 if (UsePixmapCache)
                     QPixmapCache::insert(pixmapName, cache);
