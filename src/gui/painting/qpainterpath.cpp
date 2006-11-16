@@ -2745,16 +2745,22 @@ qreal QPainterPath::angleAtPercent(qreal t) const
     qreal slope = 0;
 
 #define SIGN(x) ((x < 0)?-1:1)
-    if (m1)
+    qreal angle = 0;
+    if (m1) {
         slope = m2/m1;
-    else
-        slope = INFINITY*SIGN(m2);
+        angle = (atan((-slope)/(1.0))*180./Q_PI);
+    } else {
+        if (m2 > 0) {
+            angle = -90;
+        } else {
+            angle = 90;
+        }
+    }
 
-    qreal angle = (atan((-slope)/(1.0))*180./Q_PI);
-
+    //adjust the angle so that it's in the direction
+    //in which the path is going
     if (m1 >= 0 && m2 >= 0) {
         //Quadrant 1
-        Q_ASSERT(1);
         angle *= -1;
     } else if (m1 <  0 && m2 >= 0) {
         //Quadrant 2
