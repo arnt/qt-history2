@@ -164,6 +164,7 @@ General improvements
 
       * Fixed memory corruption in QBitmap when source buffer was smaller than
 	the destination buffer (RasterEngine). 
+      * Avoid rounding errors when drawing parts of a pixmap in the Quartz 2D engine.
 
       * Added caching of QGradient's colortable for QRasterPaintEngine.
         This means that if a gradient with the same stops and colors is used
@@ -186,7 +187,30 @@ General improvements
 
       * Make sure the internal cache is correctly cleared when reverting inserted
         rows.
+
+- QDialogButtonBox
+
+    * QDialogButtonBox now sets the default button to the first button with the
+      accept role if no other button has explicitly been set as the default
+      when it is shown. This is to stop a regression where using the the
+      autodefault property with the mac and cleanlooks style would set the
+      cancel button as the default.
+
+- QLocale
+
+    * Don't crash on Mac OS X when one of the separator strings is an empty string.
+
+- QMacStyle
+
+    * Fix a crash when given an invalid rect for an inactive button.
+
+- QSystemTrayIcon:
+
+    * Properly handle the enable state of actions and emit aboutToShow() on the mac.
       
+- QProgressBar
+    
+    * Document that drawing of text in vertical progress bars is style dependent.
 
 Platform-Specific changes
 -------------------------
@@ -210,6 +234,17 @@ Platform-Specific changes
   * Fixed printing to pdf when no printers are installed.
   * Fixed "print to file" dialog only showing once after canceling the dialog.
   * Fixed name clashes in enum values when running dumpcpp (ActiveQt)
+
+- Qt/Mac:
+
+  * Fix flickering/disappearing widgets when the Qt::WA_MacMetalStyle attribute is set
+  * Updated documentation to clarify QActionWidget behavior with regard to adding a
+    QActionWidget to a menu in the menu bar and using the same menu as a pop-up.
+  * Fix regression that made it impossible to drag images
+    from non-Qt application to Qt Applications.
+  * Return the correct QList<QUrl> when dragging Finder items to Qt applications.
+  * Document how one can debug with debug frameworks.
+
 
 - Qtopia Core
 
