@@ -869,13 +869,13 @@ DomWidget *QDesignerResource::saveWidget(QDesignerToolBar *toolBar, DomWidget *u
     DomWidget *ui_widget = QAbstractFormBuilder::createDom(toolBar, ui_parentWidget, false);
     if (const QMainWindow *mainWindow = qobject_cast<QMainWindow*>(toolBar->parentWidget())) {
         const bool toolBarBreak = mainWindow->toolBarBreak(toolBar);
-        const int area = static_cast<int>(mainWindow->toolBarArea(toolBar));
+        const Qt::ToolBarArea area = mainWindow->toolBarArea(toolBar);
 
         QList<DomProperty*> attributes = ui_widget->elementAttribute();
 
         DomProperty *attr = new DomProperty();
         attr->setAttributeName(QLatin1String("toolBarArea"));
-        attr->setElementNumber(area);
+        attr->setElementEnum(toolBarAreaMetaEnum().valueToKey(area));
         attributes  << attr;
         
         attr = new DomProperty();

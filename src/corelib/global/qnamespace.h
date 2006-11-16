@@ -37,7 +37,8 @@ Qt {
     Q_ENUMS(DockWidgetArea)
     Q_ENUMS(TextElideMode)
     Q_ENUMS(TextInteractionFlags)
-    Q_ENUMS(WindowModality ToolBarAreas DayOfWeek)
+    Q_ENUMS(WindowModality ToolBarArea DayOfWeek)
+    Q_FLAGS(ToolBarAreas)
     Q_ENUMS(CursorShape)
 public:
 #endif

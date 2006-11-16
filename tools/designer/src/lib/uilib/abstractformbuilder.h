@@ -156,10 +156,13 @@ protected:
 //
 // utils
 //
+ 
     QVariant toVariant(const QMetaObject *meta, DomProperty *property);
     static bool toBool(const QString &str);
     static QString toString(const DomString *str);
-    static QHash<QString, DomProperty*> propertyMap(const QList<DomProperty*> &properties);
+    
+    typedef QHash<QString, DomProperty*> DomPropertyHash;
+    static DomPropertyHash propertyMap(const QList<DomProperty*> &properties);
 
     void setupColorGroup(QPalette &palette, QPalette::ColorGroup colorGroup, DomColorGroup *group);
     DomColorGroup *saveColorGroup(const QPalette &palette);
@@ -175,8 +178,13 @@ protected:
     int m_defaultMargin;
     int m_defaultSpacing;
     QDir m_workingDirectory;
+    // Access meta enumeration for Qt::ToolBarArea
+    static QMetaEnum toolBarAreaMetaEnum();
 
 private:
+    // figure out the toolbar area of a DOM attribute list.
+    static Qt::ToolBarArea toolbarAreaFromDOMAttributes(const DomPropertyHash &attributeMap);
+  
     QAbstractFormBuilder(const QAbstractFormBuilder &other);
     void operator = (const QAbstractFormBuilder &other);
 };

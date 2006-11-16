@@ -24,6 +24,34 @@
 
 #include <limits.h>
 
+namespace {
+    // figure out the toolbar area of a DOM attrib list.
+    // By legacy, it is stored as an integer. As of 4.3.0, it is the enumeration value.
+    QString toolBarAreaStringFromDOMAttributes(const QHash<QString, DomProperty*> &attributes) {
+        const DomProperty *pstyle = attributes.value(QLatin1String("toolBarArea"));
+        if (!pstyle)
+            return QString();
+        
+        switch (pstyle->kind()) {
+        case DomProperty::Number: {
+            QString area = QLatin1String("static_cast<Qt::ToolBarArea>(");
+            area += QString::number(pstyle->elementNumber());
+            area += "), ";
+            return area;
+        }
+        case DomProperty::Enum: {
+            QString area = "Qt::";
+            area += pstyle->elementEnum();
+            area += ", ";
+            return area;
+        }
+        default:
+            break;
+        }
+        return QString();
+    }
+}
+
 namespace CPP {
 
 WriteInitialization::WriteInitialization(Uic *uic)
@@ -232,14 +260,8 @@ void WriteInitialization::acceptWidget(DomWidget *node)
             if (!m_uic->customWidgetsInfo()->extends(parentClass, QLatin1String("Q3MainWindow")))
                 m_output << m_option.indent << parentWidget << "->setMenuBar(" << varName <<");\n";
         } else if (m_uic->customWidgetsInfo()->extends(className, QLatin1String("QToolBar"))) {
-            QString area;
-            if (const DomProperty *pstyle = attributes.value(QLatin1String("toolBarArea"))) {
-                area += QLatin1String("static_cast<Qt::ToolBarArea>(");
-                area += QString::number(pstyle->elementNumber());
-                area += "), ";
-            }
-
-            m_output << m_option.indent << parentWidget << "->addToolBar(" << area << varName << ");\n";
+            m_output << m_option.indent << parentWidget << "->addToolBar(" 
+                     << toolBarAreaStringFromDOMAttributes(attributes) << varName << ");\n";
             
             if (const DomProperty *pbreak = attributes.value(QLatin1String("toolBarBreak"))) {
                 if (pbreak->elementBool() == QLatin1String("true")) {

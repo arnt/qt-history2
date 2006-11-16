@@ -70,6 +70,16 @@ public:
 #endif
 };
 
+namespace {
+    // convert key to value for a given QMetaEnum 
+    template <class EnumType>
+        inline static EnumType enumKeyToValue(const QMetaEnum & metaEnum,const char *key) {
+            return static_cast<EnumType>(metaEnum.keyToValue(key));
+        }
+}
+
+// This class exists to provide meta information
+// for enumerations only.
 class QAbstractFormBuilderGadget: public QWidget
 {
     Q_OBJECT
@@ -80,6 +90,7 @@ class QAbstractFormBuilderGadget: public QWidget
     Q_PROPERTY(QFont::StyleStrategy styleStrategy READ fakeStyleStrategy)
     Q_PROPERTY(Qt::CursorShape cursorShape READ fakeCursorShape)
     Q_PROPERTY(Qt::BrushStyle brushStyle READ fakeBrushStyle)
+    Q_PROPERTY(Qt::ToolBarArea toolBarArea READ fakeToolBarArea)
     Q_PROPERTY(QGradient::Type gradientType READ fakeGradientType)
     Q_PROPERTY(QGradient::Spread gradientSpread READ fakeGradientSpread)
     Q_PROPERTY(QGradient::CoordinateMode gradientCoordinate READ fakeGradientCoordinate)
@@ -93,9 +104,26 @@ public:
     QFont::StyleStrategy fakeStyleStrategy() const     { Q_ASSERT(0); return QFont::PreferDefault; }
     Qt::CursorShape fakeCursorShape() const     { Q_ASSERT(0); return Qt::ArrowCursor; }
     Qt::BrushStyle fakeBrushStyle() const       { Q_ASSERT(0); return Qt::NoBrush; }
+    Qt::ToolBarArea fakeToolBarArea() const {  Q_ASSERT(0); return Qt::NoToolBarArea; }
     QGradient::Type fakeGradientType() const    { Q_ASSERT(0); return QGradient::NoGradient; }
     QGradient::Spread fakeGradientSpread() const  { Q_ASSERT(0); return QGradient::PadSpread; }
     QGradient::CoordinateMode fakeGradientCoordinate() const  { Q_ASSERT(0); return QGradient::LogicalMode; }
+    
+    // Access meta enumeration object
+    static inline QMetaEnum metaEnum(const char *name) {
+        const int e_index = staticMetaObject.indexOfProperty(name);
+        Q_ASSERT(e_index != -1);
+        return staticMetaObject.property(e_index).enumerator();
+    }
+    
+
+    // convert key to value for a enumeration by name
+    template <class EnumType>
+        static EnumType enumKeyToValue(const char *enumName,const char *key) {
+            static const QMetaEnum me = metaEnum(enumName);
+            return ::enumKeyToValue<EnumType>(me, key);
+        }
+    
 };
 
 /*!
@@ -192,7 +220,7 @@ QWidget *QAbstractFormBuilder::load(QIODevice *dev, QWidget *parentWidget)
 */
 QWidget *QAbstractFormBuilder::create(DomUI *ui, QWidget *parentWidget)
 {
-    if (DomLayoutDefault *def = ui->elementLayoutDefault()) {
+    if (const DomLayoutDefault *def = ui->elementLayoutDefault()) {
         m_defaultMargin = def->hasAttributeMargin() ? def->attributeMargin() : INT_MIN;
         m_defaultSpacing = def->hasAttributeSpacing() ? def->attributeSpacing() : INT_MIN;
     }
@@ -247,7 +275,7 @@ QWidget *QAbstractFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidge
     }
 
     foreach (DomActionRef *ui_action_ref, ui_widget->elementAddAction()) {
-        QString name = ui_action_ref->attributeName();
+        const QString name = ui_action_ref->attributeName();
         if (name == QLatin1String("separator")) {
             QAction *sep = new QAction(w);
             sep->setSeparator(true);
@@ -309,12 +337,29 @@ QActionGroup *QAbstractFormBuilder::create(DomActionGroup *ui_action_group, QObj
     return a;
 }
 
+// figure out the toolbar area of a DOM attrib list.
+// By legacy, it is stored as an integer. As of 4.3.0, it is the enumeration value.
+Qt::ToolBarArea QAbstractFormBuilder::toolbarAreaFromDOMAttributes(const DomPropertyHash &attributes) {
+    const DomProperty *attr = attributes.value(QLatin1String("toolBarArea"));
+    if (!attr)
+        return Qt::TopToolBarArea;
+    switch(attr->kind()) {
+    case DomProperty::Number:
+        return static_cast<Qt::ToolBarArea>(attr->elementNumber());
+    case DomProperty::Enum:
+        return QAbstractFormBuilderGadget::enumKeyToValue<Qt::ToolBarArea>("toolBarArea",  attr->elementEnum().toLatin1());
+    default:
+        break; 
+    }
+    return Qt::TopToolBarArea;
+}
+
 /*!
     \internal
 */
 bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
-    const QHash<QString, DomProperty*> attributes = propertyMap(ui_widget->elementAttribute());
+    const DomPropertyHash attributes = propertyMap(ui_widget->elementAttribute());
 
     QString title = QLatin1String("Page");
     if (const DomProperty *ptitle = attributes.value(QLatin1String("title"))) {
@@ -336,20 +381,12 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
 
         // apply the toolbar's attributes
         else if (QToolBar *toolBar = qobject_cast<QToolBar*>(widget)) {
-            Qt::ToolBarArea area = Qt::TopToolBarArea;
-            bool toolBarBreak = false;
-
-            if (const DomProperty *attr = attributes.value(QLatin1String("toolBarArea"))) {
-                area = static_cast<Qt::ToolBarArea>(attr->elementNumber());
-            }
-            if (const DomProperty *attr = attributes.value(QLatin1String("toolBarBreak"))) {
-                toolBarBreak = attr->elementBool() == QLatin1String("true");
-            }
-	    
-            mw->addToolBar(area,toolBar);
-            if (toolBarBreak)
-                mw->insertToolBarBreak (toolBar);
-
+            mw->addToolBar(toolbarAreaFromDOMAttributes(attributes), toolBar);
+            // check break
+            if (const DomProperty *attr = attributes.value(QLatin1String("toolBarBreak")))
+                if (attr->elementBool() == QLatin1String("true"))
+                    mw->insertToolBarBreak (toolBar);
+            
             return true;
         }
 
@@ -441,7 +478,7 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
 */
 void QAbstractFormBuilder::layoutInfo(DomLayout *ui_layout, QObject *parent, int *margin, int *spacing)
 {
-    QHash<QString, DomProperty*> properties = propertyMap(ui_layout->elementProperty());
+    const DomPropertyHash properties = propertyMap(ui_layout->elementProperty());
 
     if (margin)
         *margin = properties.contains(QLatin1String("margin"))
@@ -526,8 +563,8 @@ bool QAbstractFormBuilder::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QL
     }
 
     if (QGridLayout *grid = qobject_cast<QGridLayout*>(layout)) {
-        int rowSpan = ui_item->hasAttributeRowSpan() ? ui_item->attributeRowSpan() : 1;
-        int colSpan = ui_item->hasAttributeColSpan() ? ui_item->attributeColSpan() : 1;
+        const int rowSpan = ui_item->hasAttributeRowSpan() ? ui_item->attributeRowSpan() : 1;
+        const int colSpan = ui_item->hasAttributeColSpan() ? ui_item->attributeColSpan() : 1;
         grid->addItem(item, ui_item->attributeRow(), ui_item->attributeColumn(),
                         rowSpan, colSpan, item->alignment());
     } else {
@@ -551,29 +588,22 @@ QLayoutItem *QAbstractFormBuilder::create(DomLayoutItem *ui_layoutItem, QLayout 
         QSizePolicy::Policy sizeType = QSizePolicy::Expanding;
         bool isVspacer = false;
 
-        DomSpacer *ui_spacer = ui_layoutItem->elementSpacer();
+        const DomSpacer *ui_spacer = ui_layoutItem->elementSpacer();
 
-        int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("sizeType");
-        Q_ASSERT(e_index != -1);
-
-        QMetaEnum sizePolicy_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
-
-        e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("orientation");
-        Q_ASSERT(e_index != -1);
-
-        QMetaEnum orientation_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
+        const QMetaEnum sizePolicy_enum  = QAbstractFormBuilderGadget::metaEnum("sizeType");
+        const QMetaEnum orientation_enum =  QAbstractFormBuilderGadget::metaEnum("orientation");
 
         foreach (DomProperty *p, ui_spacer->elementProperty()) {
-            QVariant v = toVariant(&QAbstractFormBuilderGadget::staticMetaObject, p); // ### remove me
+            const QVariant v = toVariant(&QAbstractFormBuilderGadget::staticMetaObject, p); // ### remove me
             if (v.isNull())
                 continue;
 
             if (p->attributeName() == QLatin1String("sizeHint") && p->kind() == DomProperty::Size) {
                 size = v.toSize();  // ###  remove me
             } else if (p->attributeName() == QLatin1String("sizeType") && p->kind() == DomProperty::Enum) {
-                sizeType = static_cast<QSizePolicy::Policy>(sizePolicy_enum.keyToValue(p->elementEnum().toUtf8()));
+                sizeType = enumKeyToValue<QSizePolicy::Policy>(sizePolicy_enum, p->elementEnum().toUtf8());
             } else if (p->attributeName() == QLatin1String("orientation") && p->kind() == DomProperty::Enum) {
-                Qt::Orientation o = static_cast<Qt::Orientation>(orientation_enum.keyToValue(p->elementEnum().toUtf8()));
+                const Qt::Orientation o = enumKeyToValue<Qt::Orientation>(orientation_enum, p->elementEnum().toUtf8());
                 isVspacer = (o == Qt::Vertical);
             }
         }
@@ -610,97 +640,87 @@ void QAbstractFormBuilder::applyProperties(QObject *o, const QList<DomProperty*>
 /*!
     \internal
 */
+
 QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p)
 {
-    QVariant v;
-
+    // requires non-const virtual nameToIcon, etc.
     switch(p->kind()) {
-    case DomProperty::Bool: {
-        v = toBool(p->elementBool());
-    } break;
+    case DomProperty::Bool: 
+        return QVariant(toBool(p->elementBool()));
 
-    case DomProperty::Cstring: {
-        v = p->elementCstring();
-    } break;
+    case DomProperty::Cstring:
+        return QVariant(p->elementCstring());
 
     case DomProperty::Point: {
-        DomPoint *point = p->elementPoint();
-        QPoint pt(point->elementX(), point->elementY());
-        v = QVariant(pt);
-    } break;
+        const DomPoint *point = p->elementPoint();
+        return QVariant(QPoint(point->elementX(), point->elementY()));
+    }
 
     case DomProperty::PointF: {
-        DomPointF *pointf = p->elementPointF();
-        QPointF pt(pointf->elementX(), pointf->elementY());
-        v = QVariant(pt);
-    } break;
+        const DomPointF *pointf = p->elementPointF();
+        return QVariant(QPointF(pointf->elementX(), pointf->elementY()));
+    }
 
     case DomProperty::Size: {
-        DomSize *size = p->elementSize();
-        QSize sz(size->elementWidth(), size->elementHeight());
-        v = QVariant(sz);
-    } break;
+        const DomSize *size = p->elementSize();
+        return QVariant(QSize(size->elementWidth(), size->elementHeight()));
+    }
 
     case DomProperty::SizeF: {
-        DomSizeF *sizef = p->elementSizeF();
-        QSizeF sz(sizef->elementWidth(), sizef->elementHeight());
-        v = QVariant(sz);
-    } break;
+        const DomSizeF *sizef = p->elementSizeF();
+        return QVariant(QSizeF(sizef->elementWidth(), sizef->elementHeight()));
+    }
 
     case DomProperty::Rect: {
-        DomRect *rc = p->elementRect();
-        QRect g(rc->elementX(), rc->elementY(), rc->elementWidth(), rc->elementHeight());
-        v = QVariant(g);
-    } break;
+        const DomRect *rc = p->elementRect();
+        const QRect g(rc->elementX(), rc->elementY(), rc->elementWidth(), rc->elementHeight());
+        return QVariant(g);
+    }
 
     case DomProperty::RectF: {
-        DomRectF *rcf = p->elementRectF();
-        QRectF g(rcf->elementX(), rcf->elementY(), rcf->elementWidth(), rcf->elementHeight());
-        v = QVariant(g);
-    } break;
+        const DomRectF *rcf = p->elementRectF();
+        const QRectF g(rcf->elementX(), rcf->elementY(), rcf->elementWidth(), rcf->elementHeight());
+        return QVariant(g);
+    }
 
     case DomProperty::String: {
-        int index = meta->indexOfProperty(p->attributeName().toUtf8());
+        const int index = meta->indexOfProperty(p->attributeName().toUtf8());
         if (index != -1 && meta->property(index).type() == QVariant::KeySequence)
-            v = qVariantFromValue(QKeySequence(p->elementString()->text()));
+            return qVariantFromValue(QKeySequence(p->elementString()->text()));
         else
-            v = p->elementString()->text();
-    } break;
+            return QVariant(p->elementString()->text());
+    }
 
-    case DomProperty::Number: {
-        v = p->elementNumber();
-    } break;
+    case DomProperty::Number:
+        return QVariant(p->elementNumber());
 
-    case DomProperty::UInt: {
-        v = p->elementUInt();
-    } break;
+    case DomProperty::UInt: 
+        return QVariant(p->elementUInt());
 
-    case DomProperty::LongLong: {
-        v = p->elementLongLong();
-    } break;
+    case DomProperty::LongLong: 
+        return QVariant(p->elementLongLong());
 
-    case DomProperty::ULongLong: {
-        v = p->elementULongLong();
-    } break;
+    case DomProperty::ULongLong: 
+        return QVariant(p->elementULongLong());
+    
+    case DomProperty::Double:
+        return QVariant(p->elementDouble());
 
-    case DomProperty::Double: {
-        v = p->elementDouble();
-    } break;
 
     case DomProperty::Char: {
-        DomChar *character = p->elementChar();
-        QChar c(character->elementUnicode());
-        v = qVariantFromValue(c);
-    } break;
+        const DomChar *character = p->elementChar();
+        const QChar c(character->elementUnicode());
+        return qVariantFromValue(c);
+    }
 
     case DomProperty::Color: {
-        DomColor *color = p->elementColor();
-        QColor c(color->elementRed(), color->elementGreen(), color->elementBlue());
-        v = qVariantFromValue(c);
-    } break;
+        const DomColor *color = p->elementColor();
+        const QColor c(color->elementRed(), color->elementGreen(), color->elementBlue());
+        return qVariantFromValue(c);
+    }
 
     case DomProperty::Font: {
-        DomFont *font = p->elementFont();
+        const DomFont *font = p->elementFont();
 
         QFont f;
         if (font->hasElementFamily() && !font->elementFamily().isEmpty())
@@ -722,44 +742,32 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
         if (font->hasElementAntialiasing())
             f.setStyleStrategy(font->elementAntialiasing() ? QFont::PreferDefault : QFont::NoAntialias);
         if (font->hasElementStyleStrategy()) {
-            int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("styleStrategy");
-            Q_ASSERT(e_index != -1);
-            QMetaEnum styleStrategy_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
-
-            int strategy = styleStrategy_enum.keyToValue(font->elementStyleStrategy().toLatin1());
-            f.setStyleStrategy((QFont::StyleStrategy)strategy);
+            f.setStyleStrategy( QAbstractFormBuilderGadget::enumKeyToValue<QFont::StyleStrategy>("styleStrategy", font->elementStyleStrategy().toLatin1()));
         }
-        v = qVariantFromValue(f);
-    } break;
+        return qVariantFromValue(f);
+    }
 
     case DomProperty::Date: {
-        DomDate *date = p->elementDate();
-
-        QDate d(date->elementYear(), date->elementMonth(), date->elementDay());
-        v = QVariant(d);
-    } break;
+        const DomDate *date = p->elementDate();
+        return QVariant(QDate(date->elementYear(), date->elementMonth(), date->elementDay()));
+    }
 
     case DomProperty::Time: {
-        DomTime *t = p->elementTime();
-
-        QTime tm(t->elementHour(), t->elementMinute(), t->elementSecond());
-        v = QVariant(tm);
-    } break;
+        const DomTime *t = p->elementTime();
+        return QVariant(QTime(t->elementHour(), t->elementMinute(), t->elementSecond()));
+    }
 
     case DomProperty::DateTime: {
-        DomDateTime *dateTime = p->elementDateTime();
-        QDate d(dateTime->elementYear(), dateTime->elementMonth(), dateTime->elementDay());
-        QTime tm(dateTime->elementHour(), dateTime->elementMinute(), dateTime->elementSecond());
-
-        QDateTime dt(d, tm);
-        v = QVariant(dt);
-    } break;
+        const DomDateTime *dateTime = p->elementDateTime();
+        const QDate d(dateTime->elementYear(), dateTime->elementMonth(), dateTime->elementDay());
+        const QTime tm(dateTime->elementHour(), dateTime->elementMinute(), dateTime->elementSecond());
+        return QVariant(QDateTime(d, tm));
+    }
 
     case DomProperty::Url: {
-        DomUrl *url = p->elementUrl();
-        QUrl u(url->elementString()->text());
-        v = QVariant(u);
-    } break;
+        const DomUrl *url = p->elementUrl();
+        return QVariant(QUrl(url->elementString()->text()));
+    }
 
     case DomProperty::Pixmap:
     case DomProperty::IconSet: {
@@ -770,8 +778,8 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
             resource = p->elementPixmap();
 
         if (resource != 0) {
-            QString icon_path = resource->text();
-            QString qrc_path = resource->attributeResource();
+            const QString icon_path = resource->text();
+            const QString qrc_path = resource->attributeResource();
 
             if (icon_path.isEmpty()) {
                 if (p->kind() == DomProperty::IconSet)
@@ -781,18 +789,15 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
             }
 
             if (p->kind() == DomProperty::IconSet) {
-                QIcon icon = nameToIcon(icon_path, qrc_path);
-
-                v = qVariantFromValue(icon);
+                return qVariantFromValue(nameToIcon(icon_path, qrc_path));
             } else {
-                QPixmap pixmap = nameToPixmap(icon_path, qrc_path);
-                v = qVariantFromValue(pixmap);
+                return  qVariantFromValue(nameToPixmap(icon_path, qrc_path));
             }
         }
-    } break;
+    }
 
     case DomProperty::Palette: {
-        DomPalette *dom = p->elementPalette();
+        const DomPalette *dom = p->elementPalette();
         QPalette palette;
 
         if (dom->elementActive())
@@ -805,94 +810,82 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
             setupColorGroup(palette, QPalette::Disabled, dom->elementDisabled());
 
         palette.setCurrentColorGroup(QPalette::Active);
-        v = qVariantFromValue(palette);
-    } break;
+        return qVariantFromValue(palette);
+    }
 
-    case DomProperty::Cursor: {
-        v = qVariantFromValue(QCursor(static_cast<Qt::CursorShape>(p->elementCursor())));
-    } break;
+    case DomProperty::Cursor:
+        return qVariantFromValue(QCursor(static_cast<Qt::CursorShape>(p->elementCursor())));
 
-    case DomProperty::CursorShape: {
-        int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("cursorShape");
-        Q_ASSERT(e_index != -1);
-        QMetaEnum cursorShape_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
-
-        int shape = cursorShape_enum.keyToValue(p->elementCursorShape().toLatin1());
-        v = qVariantFromValue(QCursor((Qt::CursorShape)shape));
-    } break;
+    case DomProperty::CursorShape: 
+        return qVariantFromValue(QCursor(QAbstractFormBuilderGadget::enumKeyToValue<Qt::CursorShape>("cursorShape", p->elementCursorShape().toLatin1())));
 
     case DomProperty::Set: {
-        QByteArray pname = p->attributeName().toUtf8();
-        int index = meta->indexOfProperty(pname);
+        const QByteArray pname = p->attributeName().toUtf8();
+        const int index = meta->indexOfProperty(pname);
         if (index == -1) {
             qWarning() << "property" << pname << "is not supported";
-            break;
+            return QVariant();
         }
 
-        QMetaEnum e = meta->property(index).enumerator();
+        const QMetaEnum e = meta->property(index).enumerator();
         Q_ASSERT(e.isFlag() == true);
-
-        v = e.keysToValue(p->elementSet().toUtf8());
-    } break;
+        return QVariant(e.keysToValue(p->elementSet().toUtf8()));
+    }
 
     case DomProperty::Enum: {
-        QByteArray pname = p->attributeName().toUtf8();
-        int index = meta->indexOfProperty(pname);
+        const QByteArray pname = p->attributeName().toUtf8();
+        const int index = meta->indexOfProperty(pname);
         if (index == -1) {
             // ### special-casing for Line (QFrame) -- fix for 4.2
             if (!qstrcmp(meta->className(), "QFrame")
                 && (pname == QLatin1String("orientation"))) {
-                v = (p->elementEnum() == QLatin1String("Qt::Horizontal"))
-                    ? QFrame::HLine : QFrame::VLine;
+                return QVariant((p->elementEnum() == QLatin1String("Qt::Horizontal")) ? QFrame::HLine : QFrame::VLine);
             } else {
                 qWarning() << "property" << pname << "is not supported";
+                return QVariant();
             }
-            break;
         }
 
-        QMetaEnum e = meta->property(index).enumerator();
-        v = e.keyToValue(p->elementEnum().toUtf8());
-    } break;
+        const QMetaEnum e = meta->property(index).enumerator();
+        return QVariant(e.keyToValue(p->elementEnum().toUtf8()));
+    }
 
     case DomProperty::SizePolicy: {
-        DomSizePolicy *sizep = p->elementSizePolicy();
+        const DomSizePolicy *sizep = p->elementSizePolicy();
 
         QSizePolicy sizePolicy;
         sizePolicy.setHorizontalStretch(sizep->elementHorStretch());
         sizePolicy.setVerticalStretch(sizep->elementVerStretch());
 
-        int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("sizeType");
-        Q_ASSERT(e_index != -1);
-        QMetaEnum sizeType_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
+        const QMetaEnum sizeType_enum = QAbstractFormBuilderGadget::metaEnum("sizeType");
 
         if (sizep->hasElementHSizeType()) {
             sizePolicy.setHorizontalPolicy((QSizePolicy::Policy) sizep->elementHSizeType());
         } else if (sizep->hasAttributeHSizeType()) {
-            int sp = sizeType_enum.keyToValue(sizep->attributeHSizeType().toLatin1());
-            sizePolicy.setHorizontalPolicy((QSizePolicy::Policy)sp);
+            const QSizePolicy::Policy sp = enumKeyToValue<QSizePolicy::Policy>(sizeType_enum, sizep->attributeHSizeType().toLatin1());
+            sizePolicy.setHorizontalPolicy(sp);
         }
 
         if (sizep->hasElementVSizeType()) {
             sizePolicy.setVerticalPolicy((QSizePolicy::Policy) sizep->elementVSizeType());
         } else if (sizep->hasAttributeVSizeType()) {
-            int sp = sizeType_enum.keyToValue(sizep->attributeVSizeType().toLatin1());
-            sizePolicy.setVerticalPolicy((QSizePolicy::Policy)sp);
+            const  QSizePolicy::Policy sp = enumKeyToValue<QSizePolicy::Policy>(sizeType_enum, sizep->attributeVSizeType().toLatin1());
+            sizePolicy.setVerticalPolicy(sp);
         }
 
-        v = qVariantFromValue(sizePolicy);
-    } break;
+        return qVariantFromValue(sizePolicy);
+    }
 
-    case DomProperty::StringList: {
-        DomStringList *sl = p->elementStringList();
-        v = sl->elementString();
-    } break;
+    case DomProperty::StringList:
+        return QVariant(p->elementStringList()->elementString());
 
     default:
         qWarning() << "QAbstractFormBuilder::toVariant:" << p->kind() << " not implemented yet!";
         break;
+
     }
 
-    return v;
+    return QVariant();
 }
 
 /*!
@@ -902,27 +895,25 @@ void QAbstractFormBuilder::setupColorGroup(QPalette &palette, QPalette::ColorGro
             DomColorGroup *group)
 {
     // old format
-    QList<DomColor*> colors = group->elementColor();
+    const QList<DomColor*> colors = group->elementColor();
     for (int role = 0; role < colors.size(); ++role) {
-        DomColor *color = colors.at(role);
-        QColor c(color->elementRed(), color->elementGreen(), color->elementBlue());
+        const DomColor *color = colors.at(role);
+        const QColor c(color->elementRed(), color->elementGreen(), color->elementBlue());
         palette.setColor(colorGroup, QPalette::ColorRole(role), c);
     }
 
     // new format
-    int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("colorRole");
-    Q_ASSERT(e_index != -1);
-    QMetaEnum colorRole_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
+    const QMetaEnum colorRole_enum = QAbstractFormBuilderGadget::metaEnum("colorRole");
 
-    QList<DomColorRole*> colorRoles = group->elementColorRole();
+    const QList<DomColorRole*> colorRoles = group->elementColorRole();
     for (int role = 0; role < colorRoles.size(); ++role) {
-        DomColorRole *colorRole = colorRoles.at(role);
+        const DomColorRole *colorRole = colorRoles.at(role);
 
         if (colorRole->hasAttributeRole()) {
-            int r = colorRole_enum.keyToValue(colorRole->attributeRole().toLatin1());
+            const int r = colorRole_enum.keyToValue(colorRole->attributeRole().toLatin1());
             if (r != -1) {
-                QBrush br = setupBrush(colorRole->elementBrush());
-                palette.setBrush(colorGroup, QPalette::ColorRole(r), br);
+                const QBrush br = setupBrush(colorRole->elementBrush());
+                palette.setBrush(colorGroup, static_cast<QPalette::ColorRole>(r), br);
             }
         }
     }
@@ -933,14 +924,13 @@ void QAbstractFormBuilder::setupColorGroup(QPalette &palette, QPalette::ColorGro
 */
 DomColorGroup *QAbstractFormBuilder::saveColorGroup(const QPalette &palette)
 {
-    int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("colorRole");
-    Q_ASSERT(e_index != -1);
-    QMetaEnum colorRole_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
+
+    const QMetaEnum colorRole_enum = QAbstractFormBuilderGadget::metaEnum("colorRole");
 
     DomColorGroup *group = new DomColorGroup();
     QList<DomColorRole*> colorRoles;
 
-    uint mask = palette.resolve();
+    const uint mask = palette.resolve();
     for (int role = QPalette::WindowText; role < QPalette::NColorRoles; ++role) {
         if (mask & (1 << role)) {
             QBrush br = palette.brush(QPalette::ColorRole(role));
@@ -961,32 +951,22 @@ DomColorGroup *QAbstractFormBuilder::saveColorGroup(const QPalette &palette)
 */
 QBrush QAbstractFormBuilder::setupBrush(DomBrush *brush)
 {
-    int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("brushStyle");
-    Q_ASSERT(e_index != -1);
-    QMetaEnum brushStyle_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
-
     QBrush br;
     if (!brush->hasAttributeBrushStyle())
         return br;
 
-    int style = brushStyle_enum.keyToValue(brush->attributeBrushStyle().toLatin1());
+    const Qt::BrushStyle style = QAbstractFormBuilderGadget::enumKeyToValue<Qt::BrushStyle>("brushStyle", brush->attributeBrushStyle().toLatin1());
+
     if (style == Qt::LinearGradientPattern ||
             style == Qt::RadialGradientPattern ||
             style == Qt::ConicalGradientPattern) {
-        e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("gradientType");
-        Q_ASSERT(e_index != -1);
-        QMetaEnum gradientType_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
+        const QMetaEnum gradientType_enum = QAbstractFormBuilderGadget::metaEnum("gradientType");
+        const QMetaEnum gradientSpread_enum = QAbstractFormBuilderGadget::metaEnum("gradientSpread");
+        const QMetaEnum gradientCoordinate_enum = QAbstractFormBuilderGadget::metaEnum("gradientCoordinate");
+        
+        const DomGradient *gradient = brush->elementGradient();
+        const QGradient::Type type = enumKeyToValue<QGradient::Type>(gradientType_enum, gradient->attributeType().toLatin1());
 
-        e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("gradientSpread");
-        Q_ASSERT(e_index != -1);
-        QMetaEnum gradientSpread_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
-
-        e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("gradientCoordinate");
-        Q_ASSERT(e_index != -1);
-        QMetaEnum gradientCoordinate_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
-
-        DomGradient *gradient = brush->elementGradient();
-        int type = gradientType_enum.keyToValue(gradient->attributeType().toLatin1());
 
         QGradient *gr = 0;
 
@@ -1003,36 +983,36 @@ QBrush QAbstractFormBuilder::setupBrush(DomBrush *brush)
         }
         if (!gr)
             return br;
+        
+        const QGradient::Spread spread = enumKeyToValue<QGradient::Spread>(gradientSpread_enum, gradient->attributeSpread().toLatin1());
+        gr->setSpread(spread);
 
-        int spread = gradientSpread_enum.keyToValue(gradient->attributeSpread().toLatin1());
-        gr->setSpread((QGradient::Spread)spread);
+        const QGradient::CoordinateMode coord = enumKeyToValue<QGradient::CoordinateMode>(gradientCoordinate_enum, gradient->attributeCoordinateMode().toLatin1());
+        gr->setCoordinateMode(coord);
 
-        int coord = gradientCoordinate_enum.keyToValue(gradient->attributeCoordinateMode().toLatin1());
-        gr->setCoordinateMode((QGradient::CoordinateMode)coord);
-
-        QList<DomGradientStop *> stops = gradient->elementGradientStop();
+        const QList<DomGradientStop *> stops = gradient->elementGradientStop();
         QListIterator<DomGradientStop *> it(stops);
         while (it.hasNext()) {
-            DomGradientStop *stop = it.next();
-            DomColor *color = stop->elementColor();
+            const DomGradientStop *stop = it.next();
+            const DomColor *color = stop->elementColor();
             gr->setColorAt(stop->attributePosition(), QColor::fromRgb(color->elementRed(),
                             color->elementGreen(), color->elementBlue(), color->attributeAlpha()));
         }
         br = QBrush(*gr);
         delete gr;
     } else if (style == Qt::TexturePattern) {
-        DomProperty *texture = brush->elementTexture();
+        const DomProperty *texture = brush->elementTexture();
         if (texture && texture->kind() == DomProperty::Pixmap) {
-            DomResourcePixmap *pixmap = texture->elementPixmap();
+            const DomResourcePixmap *pixmap = texture->elementPixmap();
             Q_ASSERT(pixmap != 0);
-            QString iconPath = pixmap->text();
-            QString qrcPath = pixmap->attributeResource();
+            const QString iconPath = pixmap->text();
+            const QString qrcPath = pixmap->attributeResource();
 
-            QPixmap p = nameToPixmap(iconPath, qrcPath);
+            const QPixmap p = nameToPixmap(iconPath, qrcPath);
             br.setTexture(p);
         }
     } else {
-        DomColor *color = brush->elementColor();
+        const DomColor *color = brush->elementColor();
         br.setColor(QColor::fromRgb(color->elementRed(),
                             color->elementGreen(), color->elementBlue(), color->attributeAlpha()));
         br.setStyle((Qt::BrushStyle)style);
@@ -1045,31 +1025,21 @@ QBrush QAbstractFormBuilder::setupBrush(DomBrush *brush)
 */
 DomBrush *QAbstractFormBuilder::saveBrush(const QBrush &br)
 {
-    int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("brushStyle");
-    Q_ASSERT(e_index != -1);
-    QMetaEnum brushStyle_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
+    const QMetaEnum brushStyle_enum = QAbstractFormBuilderGadget::metaEnum("brushStyle");
 
     DomBrush *brush = new DomBrush();
-    Qt::BrushStyle style = br.style();
+    const Qt::BrushStyle style = br.style();
     brush->setAttributeBrushStyle(brushStyle_enum.valueToKey(style));
     if (style == Qt::LinearGradientPattern ||
                 style == Qt::RadialGradientPattern ||
                 style == Qt::ConicalGradientPattern) {
-        e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("gradientType");
-        Q_ASSERT(e_index != -1);
-        QMetaEnum gradientType_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
-
-        e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("gradientSpread");
-        Q_ASSERT(e_index != -1);
-        QMetaEnum gradientSpread_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
-
-        e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("gradientCoordinate");
-        Q_ASSERT(e_index != -1);
-        QMetaEnum gradientCoordinate_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
-
+        const QMetaEnum gradientType_enum = QAbstractFormBuilderGadget::metaEnum("gradientType");
+        const QMetaEnum gradientSpread_enum = QAbstractFormBuilderGadget::metaEnum("gradientSpread");
+        const QMetaEnum gradientCoordinate_enum = QAbstractFormBuilderGadget::metaEnum("gradientCoordinate");
+        
         DomGradient *gradient = new DomGradient();
         const QGradient *gr = br.gradient();
-        QGradient::Type type = gr->type();
+        const QGradient::Type type = gr->type();
         gradient->setAttributeType(gradientType_enum.valueToKey(type));
         gradient->setAttributeSpread(gradientSpread_enum.valueToKey(gr->spread()));
         gradient->setAttributeCoordinateMode(gradientCoordinate_enum.valueToKey(gr->coordinateMode()));
@@ -1077,7 +1047,7 @@ DomBrush *QAbstractFormBuilder::saveBrush(const QBrush &br)
         QGradientStops st = gr->stops();
         QVectorIterator<QPair<qreal, QColor> > it(st);
         while (it.hasNext()) {
-            QPair<qreal, QColor> pair = it.next();
+            const QPair<qreal, QColor> pair = it.next();
             DomGradientStop *stop = new DomGradientStop();
             stop->setAttributePosition(pair.first);
             DomColor *color = new DomColor();
@@ -1111,10 +1081,10 @@ DomBrush *QAbstractFormBuilder::saveBrush(const QBrush &br)
 
         brush->setElementGradient(gradient);
     } else if (style == Qt::TexturePattern) {
-        QPixmap pixmap = br.texture();
+        const QPixmap pixmap = br.texture();
         if (!pixmap.isNull()) {
-            QString iconPath = pixmapToFilePath(pixmap);
-            QString qrcPath = pixmapToQrcPath(pixmap);
+            const QString iconPath = pixmapToFilePath(pixmap);
+            const QString qrcPath = pixmapToQrcPath(pixmap);
 
             DomProperty *p = new DomProperty;
 
@@ -1383,7 +1353,7 @@ DomLayout *QAbstractFormBuilder::createDom(QLayout *layout, DomLayout *ui_layout
             spacerItems.append(item);
     }
 
-    QList<QObject *> childrenList = layout->parentWidget()->children();
+    const QList<QObject *> childrenList = layout->parentWidget()->children();
     QList<QLayoutItem *> newList;
     foreach (QObject *o, childrenList) {
         if (objectToItem.contains(o))
@@ -1464,7 +1434,7 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
     DomProperty *dom_prop = new DomProperty();
 
     const QMetaObject *meta = obj->metaObject();
-    int pindex = meta->indexOfProperty(pname.toLatin1());
+    const int pindex = meta->indexOfProperty(pname.toLatin1());
     if (pindex != -1) {
         QMetaProperty meta_property = meta->property(pindex);
         if (!meta_property.hasStdCppSet())
@@ -1512,14 +1482,14 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
 
         case QVariant::Char: {
             DomChar *ch = new DomChar();
-            QChar character = v.toChar();
+            const QChar character = v.toChar();
             ch->setElementUnicode(character.unicode());
             dom_prop->setElementChar(ch);
         } break;
 
         case QVariant::Point: {
             DomPoint *pt = new DomPoint();
-            QPoint point = v.toPoint();
+            const QPoint point = v.toPoint();
             pt->setElementX(point.x());
             pt->setElementY(point.y());
             dom_prop->setElementPoint(pt);
@@ -1527,7 +1497,7 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
 
         case QVariant::PointF: {
             DomPointF *ptf = new DomPointF();
-            QPointF pointf = v.toPointF();
+            const QPointF pointf = v.toPointF();
             ptf->setElementX(pointf.x());
             ptf->setElementY(pointf.y());
             dom_prop->setElementPointF(ptf);
@@ -1535,7 +1505,7 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
 
         case QVariant::Color: {
             DomColor *clr = new DomColor();
-            QColor color = qvariant_cast<QColor>(v);
+            const QColor color = qvariant_cast<QColor>(v);
             clr->setElementRed(color.red());
             clr->setElementGreen(color.green());
             clr->setElementBlue(color.blue());
@@ -1544,7 +1514,7 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
 
         case QVariant::Size: {
             DomSize *sz = new DomSize();
-            QSize size = v.toSize();
+            const QSize size = v.toSize();
             sz->setElementWidth(size.width());
             sz->setElementHeight(size.height());
             dom_prop->setElementSize(sz);
@@ -1552,7 +1522,7 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
 
         case QVariant::SizeF: {
             DomSizeF *szf = new DomSizeF();
-            QSizeF sizef = v.toSizeF();
+            const QSizeF sizef = v.toSizeF();
             szf->setElementWidth(sizef.width());
             szf->setElementHeight(sizef.height());
             dom_prop->setElementSizeF(szf);
@@ -1560,7 +1530,7 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
 
         case QVariant::Rect: {
             DomRect *rc = new DomRect();
-            QRect rect = v.toRect();
+            const QRect rect = v.toRect();
             rc->setElementX(rect.x());
             rc->setElementY(rect.y());
             rc->setElementWidth(rect.width());
@@ -1570,7 +1540,7 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
 
         case QVariant::RectF: {
             DomRectF *rcf = new DomRectF();
-            QRectF rectf = v.toRectF();
+            const QRectF rectf = v.toRectF();
             rcf->setElementX(rectf.x());
             rcf->setElementY(rectf.y());
             rcf->setElementWidth(rectf.width());
@@ -1580,8 +1550,8 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
 
         case QVariant::Font: {
             DomFont *fnt = new DomFont();
-            QFont font = qvariant_cast<QFont>(v);
-            uint mask = font.resolve();
+            const QFont font = qvariant_cast<QFont>(v);
+            const uint mask = font.resolve();
             if (mask & QFontPrivate::Weight) {
                 fnt->setElementBold(font.bold());
                 fnt->setElementWeight(font.weight());
@@ -1599,20 +1569,14 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
             if (mask & QFontPrivate::Kerning)
                 fnt->setElementKerning(font.kerning());
             if (mask & QFontPrivate::StyleStrategy) {
-                int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("styleStrategy");
-                Q_ASSERT(e_index != -1);
-                QMetaEnum styleStrategy_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
-
+                const QMetaEnum styleStrategy_enum = QAbstractFormBuilderGadget::metaEnum("styleStrategy");
                 fnt->setElementStyleStrategy(styleStrategy_enum.valueToKey(font.styleStrategy()));
             }
             dom_prop->setElementFont(fnt);
         } break;
 
         case QVariant::Cursor: {
-            int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("cursorShape");
-            Q_ASSERT(e_index != -1);
-            QMetaEnum cursorShape_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
-
+            const QMetaEnum cursorShape_enum = QAbstractFormBuilderGadget::metaEnum("cursorShape");
             dom_prop->setElementCursorShape(cursorShape_enum.valueToKey(qvariant_cast<QCursor>(v).shape()));
         } break;
 
@@ -1640,14 +1604,12 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
 
         case QVariant::SizePolicy: {
             DomSizePolicy *dom = new DomSizePolicy();
-            QSizePolicy sizePolicy = qvariant_cast<QSizePolicy>(v);
+            const QSizePolicy sizePolicy = qvariant_cast<QSizePolicy>(v);
 
             dom->setElementHorStretch(sizePolicy.horizontalStretch());
             dom->setElementVerStretch(sizePolicy.verticalStretch());
 
-            int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("sizeType");
-            Q_ASSERT(e_index != -1);
-            QMetaEnum sizeType_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
+            const QMetaEnum sizeType_enum = QAbstractFormBuilderGadget::metaEnum("sizeType");
 
             dom->setAttributeHSizeType(sizeType_enum.valueToKey(sizePolicy.horizontalPolicy()));
             dom->setAttributeVSizeType(sizeType_enum.valueToKey(sizePolicy.verticalPolicy()));
@@ -1657,7 +1619,7 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
 
         case QVariant::Date: {
             DomDate *dom = new DomDate();
-            QDate date = qvariant_cast<QDate>(v);
+            const QDate date = qvariant_cast<QDate>(v);
 
             dom->setElementYear(date.year());
             dom->setElementMonth(date.month());
@@ -1668,7 +1630,7 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
 
         case QVariant::Time: {
             DomTime *dom = new DomTime();
-            QTime time = qvariant_cast<QTime>(v);
+            const QTime time = qvariant_cast<QTime>(v);
 
             dom->setElementHour(time.hour());
             dom->setElementMinute(time.minute());
@@ -1679,7 +1641,7 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
 
         case QVariant::DateTime: {
             DomDateTime *dom = new DomDateTime();
-            QDateTime dateTime = qvariant_cast<QDateTime>(v);
+            const QDateTime dateTime = qvariant_cast<QDateTime>(v);
 
             dom->setElementHour(dateTime.time().hour());
             dom->setElementMinute(dateTime.time().minute());
@@ -1693,7 +1655,7 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
 
         case QVariant::Url: {
             DomUrl *dom = new DomUrl();
-            QUrl url = v.toUrl();
+            const QUrl url = v.toUrl();
 
             DomString *str = new DomString();
             str->setText(url.toString());
@@ -1766,16 +1728,16 @@ QList<DomProperty*> QAbstractFormBuilder::computeProperties(QObject *obj)
     for(int i=0; i<meta->propertyCount(); ++i)
         properties.insert(meta->property(i).name(), true);
 
-    QList<QByteArray> propertyNames = properties.keys();
+    const QList<QByteArray> propertyNames = properties.keys();
 
     for(int i=0; i<propertyNames.size(); ++i) {
-        QString pname = QString::fromUtf8(propertyNames.at(i));
-        QMetaProperty prop = meta->property(meta->indexOfProperty(pname.toUtf8()));
+        const QString pname = QString::fromUtf8(propertyNames.at(i));
+        const QMetaProperty prop = meta->property(meta->indexOfProperty(pname.toUtf8()));
 
         if (!prop.isWritable() || !checkProperty(obj, QLatin1String(prop.name())))
             continue;
 
-        QVariant v = prop.read(obj);
+        const QVariant v = prop.read(obj);
 
         DomProperty *dom_prop = 0;
         if (v.type() == QVariant::Int) {
@@ -1788,7 +1750,7 @@ QList<DomProperty*> QAbstractFormBuilder::computeProperties(QObject *obj)
                 QString scope = QString::fromUtf8(prop.enumerator().scope());
                 if (scope.size())
                     scope += QString::fromUtf8("::");
-                QString e = QString::fromUtf8(prop.enumerator().valueToKey(v.toInt()));
+                const QString e = QString::fromUtf8(prop.enumerator().valueToKey(v.toInt()));
                 if (e.size())
                     dom_prop->setElementEnum(scope + e);
             } else
@@ -1818,9 +1780,9 @@ bool QAbstractFormBuilder::toBool(const QString &str)
 /*!
     \internal
 */
-QHash<QString, DomProperty*> QAbstractFormBuilder::propertyMap(const QList<DomProperty*> &properties)
+QAbstractFormBuilder::DomPropertyHash QAbstractFormBuilder::propertyMap(const QList<DomProperty*> &properties)
 {
-    QHash<QString, DomProperty*> map;
+    DomPropertyHash map;
 
     foreach (DomProperty *p, properties)
         map.insert(p->attributeName(), p);
@@ -1857,7 +1819,7 @@ void QAbstractFormBuilder::applyTabStops(QWidget *widget, DomTabStops *tabStops)
 
     QWidget *lastWidget = 0;
 
-    QStringList l = tabStops->elementTabStop();
+    const QStringList l = tabStops->elementTabStop();
     for (int i=0; i<l.size(); ++i) {
         QString name = l.at(i);
 
@@ -1927,10 +1889,10 @@ void QAbstractFormBuilder::saveTreeWidgetExtraInfo(QTreeWidget *treeWidget, DomW
         ptext->setElementString(str);
         properties.append(ptext);
 
-        QIcon icon = treeWidget->headerItem()->icon(c);
+        const QIcon icon = treeWidget->headerItem()->icon(c);
         if (!icon.isNull()) {
-            QString iconPath = iconToFilePath(icon);
-            QString qrcPath = iconToQrcPath(icon);
+            const QString iconPath = iconToFilePath(icon);
+            const QString qrcPath = iconToQrcPath(icon);
 
             DomProperty *p = new DomProperty;
 
@@ -1959,7 +1921,7 @@ void QAbstractFormBuilder::saveTreeWidgetExtraInfo(QTreeWidget *treeWidget, DomW
         pendingQueue.enqueue(qMakePair(treeWidget->topLevelItem(i), (DomItem *)0));
 
     while (!pendingQueue.isEmpty()) {
-        QPair<QTreeWidgetItem *, DomItem *> pair = pendingQueue.dequeue();
+        const QPair<QTreeWidgetItem *, DomItem *> pair = pendingQueue.dequeue();
         QTreeWidgetItem *item = pair.first;
         DomItem *parentDomItem = pair.second;
 
@@ -1974,10 +1936,10 @@ void QAbstractFormBuilder::saveTreeWidgetExtraInfo(QTreeWidget *treeWidget, DomW
             ptext->setElementString(str);
             properties.append(ptext);
 
-            QIcon icon = item->icon(c);
+            const QIcon icon = item->icon(c);
             if (!icon.isNull()) {
-                QString iconPath = iconToFilePath(icon);
-                QString qrcPath = iconToQrcPath(icon);
+                const QString iconPath = iconToFilePath(icon);
+                const QString qrcPath = iconToQrcPath(icon);
 
                 DomProperty *p = new DomProperty;
 
@@ -2032,10 +1994,10 @@ void QAbstractFormBuilder::saveTableWidgetExtraInfo(QTableWidget *tableWidget, D
             ptext->setElementString(str);
             properties.append(ptext);
 
-            QIcon icon = item->icon();
+            const QIcon icon = item->icon();
             if (!icon.isNull()) {
-                QString iconPath = iconToFilePath(icon);
-                QString qrcPath = iconToQrcPath(icon);
+                const QString iconPath = iconToFilePath(icon);
+                const QString qrcPath = iconToQrcPath(icon);
 
                 DomProperty *p = new DomProperty;
 
@@ -2072,10 +2034,10 @@ void QAbstractFormBuilder::saveTableWidgetExtraInfo(QTableWidget *tableWidget, D
             ptext->setElementString(str);
             properties.append(ptext);
 
-            QIcon icon = item->icon();
+            const QIcon icon = item->icon();
             if (!icon.isNull()) {
-                QString iconPath = iconToFilePath(icon);
-                QString qrcPath = iconToQrcPath(icon);
+                const QString iconPath = iconToFilePath(icon);
+                const QString qrcPath = iconToQrcPath(icon);
 
                 DomProperty *p = new DomProperty;
 
@@ -2116,10 +2078,10 @@ void QAbstractFormBuilder::saveTableWidgetExtraInfo(QTableWidget *tableWidget, D
                 ptext->setElementString(str);
                 properties.append(ptext);
 
-                QIcon icon = item->icon();
+                const QIcon icon = item->icon();
                 if (!icon.isNull()) {
-                    QString iconPath = iconToFilePath(icon);
-                    QString qrcPath = iconToQrcPath(icon);
+                    const QString iconPath = iconToFilePath(icon);
+                    const QString qrcPath = iconToQrcPath(icon);
 
                     DomProperty *p = new DomProperty;
 
@@ -2170,8 +2132,8 @@ void QAbstractFormBuilder::saveListWidgetExtraInfo(QListWidget *listWidget, DomW
         properties.append(p);
 
         if (!item->icon().isNull()) {
-            QString iconPath = iconToFilePath(item->icon());
-            QString qrcPath = iconToQrcPath(item->icon());
+            const QString iconPath = iconToFilePath(item->icon());
+            const QString qrcPath = iconToQrcPath(item->icon());
 
             p = new DomProperty;
 
@@ -2219,10 +2181,10 @@ void QAbstractFormBuilder::saveComboBoxExtraInfo(QComboBox *comboBox, DomWidget 
         p->setElementString(str);
         properties.append(p);
 
-        QIcon icon = qVariantValue<QIcon>(comboBox->itemData(i));
+        const QIcon icon = qVariantValue<QIcon>(comboBox->itemData(i));
         if (!icon.isNull()) {
-            QString iconPath = iconToFilePath(icon);
-            QString qrcPath = iconToQrcPath(icon);
+            const QString iconPath = iconToFilePath(icon);
+            const QString qrcPath = iconToQrcPath(icon);
 
             DomProperty *p = new DomProperty;
 
@@ -2270,7 +2232,7 @@ void QAbstractFormBuilder::loadListWidgetExtraInfo(DomWidget *ui_widget, QListWi
     Q_UNUSED(parentWidget);
 
     foreach (DomItem *ui_item, ui_widget->elementItem()) {
-        QHash<QString, DomProperty*> properties = propertyMap(ui_item->elementProperty());
+        const DomPropertyHash properties = propertyMap(ui_item->elementProperty());
         QListWidgetItem *item = new QListWidgetItem(listWidget);
 
         DomProperty *p = 0;
@@ -2284,8 +2246,8 @@ void QAbstractFormBuilder::loadListWidgetExtraInfo(DomWidget *ui_widget, QListWi
         if (p && p->kind() == DomProperty::IconSet) {
             DomResourcePixmap *icon = p->elementIconSet();
             Q_ASSERT(icon != 0);
-            QString iconPath = icon->text();
-            QString qrcPath = icon->attributeResource();
+            const QString iconPath = icon->text();
+            const QString qrcPath = icon->attributeResource();
 
             item->setIcon(nameToIcon(iconPath, qrcPath));
         }
@@ -2309,7 +2271,7 @@ void QAbstractFormBuilder::loadTreeWidgetExtraInfo(DomWidget *ui_widget, QTreeWi
 
     for (int i = 0; i<columns.count(); ++i) {
         DomColumn *c = columns.at(i);
-        QHash<QString, DomProperty*> properties = propertyMap(c->elementProperty());
+        const DomPropertyHash properties = propertyMap(c->elementProperty());
 
         DomProperty *ptext = properties.value(QLatin1String("text"));
         DomProperty *picon = properties.value(QLatin1String("icon"));
@@ -2320,8 +2282,8 @@ void QAbstractFormBuilder::loadTreeWidgetExtraInfo(DomWidget *ui_widget, QTreeWi
         if (picon && picon->kind() == DomProperty::IconSet) {
             DomResourcePixmap *icon = picon->elementIconSet();
             Q_ASSERT(icon != 0);
-            QString iconPath = icon->text();
-            QString qrcPath = icon->attributeResource();
+            const QString iconPath = icon->text();
+            const QString qrcPath = icon->attributeResource();
 
             treeWidget->headerItem()->setIcon(i, nameToIcon(iconPath, qrcPath));
         }
@@ -2332,7 +2294,7 @@ void QAbstractFormBuilder::loadTreeWidgetExtraInfo(DomWidget *ui_widget, QTreeWi
         pendingQueue.enqueue(qMakePair(ui_item, (QTreeWidgetItem *)0));
 
     while (!pendingQueue.isEmpty()) {
-        QPair<DomItem *, QTreeWidgetItem *> pair = pendingQueue.dequeue();
+        const QPair<DomItem *, QTreeWidgetItem *> pair = pendingQueue.dequeue();
         DomItem *domItem = pair.first;
         QTreeWidgetItem *parentItem = pair.second;
 
@@ -2343,7 +2305,7 @@ void QAbstractFormBuilder::loadTreeWidgetExtraInfo(DomWidget *ui_widget, QTreeWi
         else
             currentItem = new QTreeWidgetItem(treeWidget);
 
-        QList<DomProperty *> properties = domItem->elementProperty();
+        const QList<DomProperty *> properties = domItem->elementProperty();
         int col = 0;
         foreach (DomProperty *property, properties) {
             if (property->attributeName() == QLatin1String("text") &&
@@ -2354,8 +2316,8 @@ void QAbstractFormBuilder::loadTreeWidgetExtraInfo(DomWidget *ui_widget, QTreeWi
                         property->kind() == DomProperty::IconSet && col > 0) {
                 DomResourcePixmap *icon = property->elementIconSet();
                 Q_ASSERT(icon != 0);
-                QString iconPath = icon->text();
-                QString qrcPath = icon->attributeResource();
+                const QString iconPath = icon->text();
+                const QString qrcPath = icon->attributeResource();
 
                 currentItem->setIcon(col - 1, nameToIcon(iconPath, qrcPath));
             }
@@ -2375,11 +2337,11 @@ void QAbstractFormBuilder::loadTableWidgetExtraInfo(DomWidget *ui_widget, QTable
 {
     Q_UNUSED(parentWidget);
 
-    QList<DomColumn*> columns = ui_widget->elementColumn();
+    const QList<DomColumn*> columns = ui_widget->elementColumn();
     tableWidget->setColumnCount(columns.count());
     for (int i = 0; i< columns.count(); i++) {
         DomColumn *c = columns.at(i);
-        QHash<QString, DomProperty*> properties = propertyMap(c->elementProperty());
+        const DomPropertyHash properties = propertyMap(c->elementProperty());
 
         DomProperty *ptext = properties.value(QLatin1String("text"));
         DomProperty *picon = properties.value(QLatin1String("icon"));
@@ -2393,8 +2355,8 @@ void QAbstractFormBuilder::loadTableWidgetExtraInfo(DomWidget *ui_widget, QTable
             if (picon && picon->kind() == DomProperty::IconSet) {
                 DomResourcePixmap *icon = picon->elementIconSet();
                 Q_ASSERT(icon != 0);
-                QString iconPath = icon->text();
-                QString qrcPath = icon->attributeResource();
+                const QString iconPath = icon->text();
+                const QString qrcPath = icon->attributeResource();
 
                 item->setIcon(nameToIcon(iconPath, qrcPath));
             }
@@ -2402,11 +2364,11 @@ void QAbstractFormBuilder::loadTableWidgetExtraInfo(DomWidget *ui_widget, QTable
         }
     }
 
-    QList<DomRow*> rows = ui_widget->elementRow();
+    const QList<DomRow*> rows = ui_widget->elementRow();
     tableWidget->setRowCount(rows.count());
     for (int i = 0; i< rows.count(); i++) {
         DomRow *r = rows.at(i);
-        QHash<QString, DomProperty*> properties = propertyMap(r->elementProperty());
+        const DomPropertyHash properties = propertyMap(r->elementProperty());
 
         DomProperty *ptext = properties.value(QLatin1String("text"));
         DomProperty *picon = properties.value(QLatin1String("icon"));
@@ -2420,8 +2382,8 @@ void QAbstractFormBuilder::loadTableWidgetExtraInfo(DomWidget *ui_widget, QTable
             if (picon && picon->kind() == DomProperty::IconSet) {
                 DomResourcePixmap *icon = picon->elementIconSet();
                 Q_ASSERT(icon != 0);
-                QString iconPath = icon->text();
-                QString qrcPath = icon->attributeResource();
+                const QString iconPath = icon->text();
+                const QString qrcPath = icon->attributeResource();
 
                 item->setIcon(nameToIcon(iconPath, qrcPath));
             }
@@ -2460,7 +2422,7 @@ void QAbstractFormBuilder::loadComboBoxExtraInfo(DomWidget *ui_widget, QComboBox
     Q_UNUSED(parentWidget);
 
     foreach (DomItem *ui_item, ui_widget->elementItem()) {
-        QHash<QString, DomProperty*> properties = propertyMap(ui_item->elementProperty());
+        const DomPropertyHash properties = propertyMap(ui_item->elementProperty());
         QString text;
         QIcon icon;
 
@@ -2475,8 +2437,8 @@ void QAbstractFormBuilder::loadComboBoxExtraInfo(DomWidget *ui_widget, QComboBox
         if (p && p->kind() == DomProperty::IconSet) {
             DomResourcePixmap *picon = p->elementIconSet();
             Q_ASSERT(picon != 0);
-            QString iconPath = picon->text();
-            QString qrcPath = picon->attributeResource();
+            const QString iconPath = picon->text();
+            const QString qrcPath = picon->attributeResource();
 
             icon = nameToIcon(iconPath, qrcPath);
         }
@@ -2525,7 +2487,7 @@ void QAbstractFormBuilder::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, 
 QIcon QAbstractFormBuilder::nameToIcon(const QString &filePath, const QString &qrcPath)
 {
     Q_UNUSED(qrcPath);
-    QFileInfo fileInfo(workingDirectory(), filePath);
+    const QFileInfo fileInfo(workingDirectory(), filePath);
     return QIcon(fileInfo.absoluteFilePath());
 }
 
@@ -2553,7 +2515,7 @@ QString QAbstractFormBuilder::iconToQrcPath(const QIcon &pm) const
 QPixmap QAbstractFormBuilder::nameToPixmap(const QString &filePath, const QString &qrcPath)
 {
     Q_UNUSED(qrcPath);
-    QFileInfo fileInfo(workingDirectory(), filePath);
+    const QFileInfo fileInfo(workingDirectory(), filePath);
     return QPixmap(fileInfo.absoluteFilePath());
 }
 
@@ -2605,7 +2567,7 @@ DomAction *QAbstractFormBuilder::createDom(QAction *action)
     DomAction *ui_action = new DomAction;
     ui_action->setAttributeName(action->objectName());
 
-    QList<DomProperty*> properties = computeProperties(action);
+    const QList<DomProperty*> properties = computeProperties(action);
     ui_action->setElementProperty(properties);
 
     return ui_action;
@@ -2653,6 +2615,14 @@ void QAbstractFormBuilder::reset()
     m_actionGroups.clear();
     m_defaultMargin = INT_MIN;
     m_defaultSpacing = INT_MIN;
+}
+/*!
+    \internal: Access meta enumeration for Qt::ToolBarArea
+*/
+
+QMetaEnum QAbstractFormBuilder::toolBarAreaMetaEnum()
+{
+    return QAbstractFormBuilderGadget::metaEnum("toolBarArea");
 }
 
 /*!
