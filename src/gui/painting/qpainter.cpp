@@ -4528,6 +4528,9 @@ void QPainter::drawText(const QRectF &r, const QString &text, const QTextOption 
     if (o.flags() & QTextOption::IncludeTrailingSpaces)
         flags |= Qt::TextIncludeTrailingSpaces;
 
+    if (o.tabStop() >= 0 || !o.tabArray().isEmpty())
+        flags |= Qt::TextExpandTabs;
+
     qt_format_text(d->state->font, r, flags, &o, text, 0, 0, 0, 0, this);
 }
 
@@ -4924,6 +4927,9 @@ QRectF QPainter::boundingRect(const QRectF &r, const QString &text, const QTextO
         flags |= Qt::TextWrapAnywhere;
     if (o.flags() & QTextOption::IncludeTrailingSpaces)
         flags |= Qt::TextIncludeTrailingSpaces;
+
+    if (o.tabStop() >= 0 || !o.tabArray().isEmpty())
+        flags |= Qt::TextExpandTabs;
 
     QRectF br;
     qt_format_text(d->state->font, r, flags, &o, text, &br, 0, 0, 0, this);
@@ -5908,6 +5914,8 @@ void qt_format_text(const QFont &fnt, const QRectF &_r,
     qreal width = 0;
 
     QStackTextEngine engine(text, fnt);
+    if (option)
+        engine.option = *option;
     engine.option.setTextDirection(layout_direction);
     if (tf & Qt::TextWrapAnywhere)
         engine.option.setWrapMode(QTextOption::WrapAnywhere);
