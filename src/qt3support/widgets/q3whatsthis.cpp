@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "q3whatsthis.h"
+#ifndef QT_NO_WHATSTHIS
 #include "qapplication.h"
 #include "qwidget.h"
 #include "qevent.h"
@@ -185,3 +186,5 @@ QToolButton *Q3WhatsThis::whatsThisButton(QWidget * parent)
 {
     return QWhatsThis::whatsThisButton(parent);
 }
+
+#endif // QT_NO_WHATSTHIS

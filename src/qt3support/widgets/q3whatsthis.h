@@ -22,6 +22,8 @@ QT_BEGIN_HEADER
 
 QT_MODULE(Qt3SupportLight)
 
+#ifndef QT_NO_WHATSTHIS
+
 class QToolButton;
 
 class Q_COMPAT_EXPORT Q3WhatsThis: public QObject
@@ -47,6 +49,8 @@ public:
     virtual bool clicked(const QString& href);
 
 };
+
+#endif // QT_NO_WHATSTHIS
 
 QT_END_HEADER
 

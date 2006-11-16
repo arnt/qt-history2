@@ -314,10 +314,12 @@ void WriteInitialization::acceptWidget(DomWidget *node)
         refreshOut << m_option.indent << parentWidget << "->setItemText("
                    << parentWidget << "->indexOf(" << varName << "), " << trCall(label) << ");\n";
 
+#ifndef QT_NO_TOOLTIP
         if (DomProperty *ptoolTip = attributes.value(QLatin1String("toolTip"))) {
             refreshOut << m_option.indent << parentWidget << "->setItemToolTip("
                        << parentWidget << "->indexOf(" << varName << "), " << trCall(ptoolTip->elementString()) << ");\n";
         }
+#endif // QT_NO_TOOLTIP
     } else if (m_uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QTabWidget"))) {
         QString icon;
         if (const DomProperty *picon = attributes.value(QLatin1String("icon"))) {
@@ -329,10 +331,12 @@ void WriteInitialization::acceptWidget(DomWidget *node)
         refreshOut << m_option.indent << parentWidget << "->setTabText("
                    << parentWidget << "->indexOf(" << varName << "), " << trCall(title) << ");\n";
 
+#ifndef QT_NO_TOOLTIP
         if (const DomProperty *ptoolTip = attributes.value(QLatin1String("toolTip"))) {
             refreshOut << m_option.indent << parentWidget << "->setTabToolTip("
                        << parentWidget << "->indexOf(" << varName << "), " << trCall(ptoolTip->elementString()) << ");\n";
         }
+#endif // QT_NO_TOOLTIP
     } else if (m_uic->customWidgetsInfo()->extends(parentClass, QLatin1String("Q3Wizard"))) {
         m_output << m_option.indent << parentWidget << "->addPage(" << varName << ", " << trCall(title) << ");\n";
 
@@ -961,6 +965,18 @@ void WriteInitialization::writeProperties(const QString &varName,
                     && (!p->elementString()->hasAttributeNotr() || !toBool(p->elementString()->attributeNotr())))
                 o = &refreshOut;
 
+#ifdef QT_NO_TOOLTIP
+            if (propertyName == QLatin1String("toolTip"))
+                continue;
+#endif // QT_NO_TOOLTIP
+#ifdef QT_NO_WHATSTHIS
+            if (propertyName == QLatin1String("whatsThis"))
+                continue;
+#endif // QT_NO_WHATSTHIS
+#ifdef QT_NO_STATUSTIP
+            if (propertyName == QLatin1String("statusTip"))
+                continue;
+#endif // QT_NO_WHATSTHIS
             (*o) << m_option.indent << varName << setFunction << propertyValue;
             if (!stdset)
                 (*o) << ")";
