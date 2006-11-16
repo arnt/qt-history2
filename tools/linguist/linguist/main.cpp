@@ -22,6 +22,7 @@
 #include <QSplashScreen>
 #include <QLibraryInfo>
 #include <QLocale>
+#include <QFile>
 
 int main(int argc, char **argv)
 {
@@ -30,12 +31,30 @@ int main(int argc, char **argv)
     QApplication app(argc, argv);
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
+    QStringList files;
+    QString resourceDir = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+    QStringList args = app.arguments();
+
+    for (int i = 1; i < args.count(); ++i)
+    {
+        QString argument = args.at(i);
+        if (argument == QLatin1String("-resourcedir")) {
+            if (i + 1 < args.count()) {
+                resourceDir = QFile::decodeName(args.at(++i).toLocal8Bit());
+            } else {
+                // issue a warning
+            }
+        } else if (!files.contains(argument)) {
+            files.append(argument);
+        }
+    }
+
     QTranslator translator(0);
-    translator.load(QLatin1String("linguist_") + QLocale::system().name(), ".");
+    translator.load(QLatin1String("linguist_") + QLocale::system().name(), resourceDir);
     app.installTranslator(&translator);
 
     QTranslator qtTranslator(0);
-    qtTranslator.load(QLatin1String("qt_") + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+    qtTranslator.load(QLatin1String("qt_") + QLocale::system().name(), resourceDir);
     app.installTranslator(&qtTranslator);
 
     app.setOrganizationName("Trolltech");
@@ -63,8 +82,8 @@ int main(int argc, char **argv)
 
     splash->finish(&tw);
 
-    if (app.argc() > 1)
-        tw.openFile(QString(app.argv()[app.argc() - 1]));
+    if (files.count())
+        tw.openFile(files.last());
 
     QApplication::restoreOverrideCursor();
 
