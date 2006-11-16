@@ -115,8 +115,6 @@ namespace qdesigner_internal {
         m_lineEdit->setAlignment(alignment);
     }
 
-    QString TextPropertyEditor::text() const;
-
     void TextPropertyEditor::resizeEvent ( QResizeEvent * event ) {
         m_lineEdit->resize( event->size());
     }
