@@ -3197,9 +3197,9 @@ setBootstrapVariable()
 }
 END {
     if (length(var) > 0) {
-        printf "%s = ", var
+        printf "%s =", var
         for (i = 1; i <= NR; ++i)
-            printf "$(%s_%s) ", var, i
+            printf " $(%s_%s)", var, i
             printf "\n"
     }
 }' >> "$mkfile"
