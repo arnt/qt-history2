@@ -278,7 +278,7 @@ QWSWindowPrivate::QWSWindowPrivate()
 /*!
     \fn bool QWSWindow::isOpaque() const
 
-    Returns true if the window is opaque, i.e. if its alpha channel
+    Returns true if the window is opaque, i.e., if its alpha channel
     equals 255; otherwise returns false.
 
     \sa opacity()
@@ -387,7 +387,7 @@ void QWSWindow::hide()
 
 /*!
     \internal
-    Make this the active window (i.e. sets the keyboard focus to this
+    Make this the active window (i.e., sets the keyboard focus to this
     window).
 */
 void QWSWindow::setActiveWindow()
@@ -798,21 +798,28 @@ void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type,
     \ingroup qws
 
     When you run a \l {Qtopia Core} application, it either runs as a
-    server or connects to an existing server. If it runs as a server,
-    the QWSServer class provides additional functionality to handle
-    the clients as well as the mouse, keyboard, display and input
-    methods.
+    server or connects to an existing server. The server and client
+    processes have different responsibilities: The client process
+    performs all application specific operations. The server process
+    takes care of the pointer handling, character input, and screen
+    output. In addition, the server provides additional functionality
+    to handle input methods.
+
+    In \l {Qtopia Core}, all system generated events are passed to the
+    server application which then propagates the event to the
+    appropiate client. See the \l {Qtopia Core Architecture}
+    documentation for details.
 
     Note that this class is instantiated by QApplication for \l
     {Qtopia Core} server processes; you should never construct this
-    class yourself. Access to the QWSServer instance can be obtained
-    using the global qwsServer pointer.
+    class yourself. Use the instance() function to retrieve a pointer
+    to the server instance.
 
     \tableofcontents
 
     \section1 Client Administration
 
-    In \l {Qtopia Core}, the top-level windows are encasulated as
+    In \l {Qtopia Core}, the top-level windows are encapsulated as
     QWSWindow objects. The collection of windows changes as
     applications add and remove widgets, and each window can tell
     which client that owns it through its QWSWindow::client()
@@ -829,91 +836,124 @@ void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type,
     selected in any of the windows, passing the selection as
     parameter.
 
-    See the QWSWindow and QWSClient class documentation for more
-    details.
-
     The QCopChannel class and the QCOP communication protocol enable
     transfer of messages between clients. QWSServer provides the
     newChannel() and removedChannel() signals that is emitted whenever
-    a new QCopChannel object is created or destroyed. See the
-    QCopChannel class documentation for details on client
-    communication.
+    a new QCopChannel object is created or destroyed, respectively.
 
-    \section1 Mouse and Keyboard Handling
+    See also: QWSWindow, QWSClient and QCopChannel.
 
-    To open the mouse devices specified by the QWS_MOUSE_PROTO
-    environment variable, use the openMouse() function. Alternatively,
-    the static setDefaultMouse() function provides means of specifying
-    the default mouse driver to use if the QWS_MOUSE_PROTO variable is
-    not defined. Note that the default is otherwise platform
-    dependent. The primary mouse handler can be retrieved using the
-    static mouseHandler() function. Use the closeMouse() function to
-    delete the mouse handlers.
 
-    Likewise, open the keyboard devices specified by the QWS_KEYBOARD
-    environment variable by using the openKeyboard()
-    function. Alternatively, the static setDefaultKeyboard() function
-    provides means of specifying the default keyboard driver to use if
-    the QWS_KEYBOARD variable is not defined. Note again tha the
-    default is otherwise platform dependent.  The primary keyboard
-    handler can be retrieved using the static keyboardHandler()
-    function. Use the closeKeyboard() function to delete the keyboard
-    handlers.
+    \section1 Mouse Handling
+
+    The mouse driver (represented by an instance of the
+    QWSMouseHandler class) is loaded by the server application when it
+    starts running, using Qt's \l {How to Create Qt Plugins}{plugin
+    system}. A mouse driver receives mouse events from the device and
+    encapsulates each event with an instance of the QWSEvent class
+    which it then passes to the server.
+
+    The openMouse() function opens the mouse devices specified by the
+    QWS_MOUSE_PROTO environment variable, and the setMouseHandler()
+    functions sets the primary mouse driver. Alternatively, the static
+    setDefaultMouse() function provides means of specifying the mouse
+    driver to use if the QWS_MOUSE_PROTO variable is not defined (note
+    that the default is otherwise platform dependent). The primary
+    mouse driver can be retrieved using the static mouseHandler()
+    function. Use the closeMouse() function to delete the mouse
+    drivers.
 
     In addition, the QWSServer class can control the flow of mouse
-    input using the suspendMouse() and resumeMouse() functions (see
-    QWSMouseHandler for more details), and handle key events from both
+    input using the suspendMouse() and resumeMouse() functions.
+
+    See also: QWSMouseHandler and \l {Qtopia Core Pointer Handling}.
+
+    \section1 Keyboard Handling
+
+    The keyboard driver (represented by an instance of the
+    QWSKeyboardHandler class) is loaded by the server application when
+    it starts running, using Qt's \l {How to Create Qt Plugins}{plugin
+    system}. A keyboard driver receives keyboard events from the
+    device and encapsulates each event with an instance of the
+    QWSEvent class which it then passes to the server.
+
+    The openKeyboard() function opens the keyboard devices specified
+    by the QWS_KEYBOARD environment variable, and the
+    setKeyboardHandler() functions sets the primary keyboard
+    driver. Alternatively, the static setDefaultKeyboard() function
+    provides means of specifying the keyboard driver to use if the
+    QWS_KEYBOARD variable is not defined (note again that the default
+    is otherwise platform dependent). The primary keyboard driver can
+    be retrieved using the static keyboardHandler() function. Use the
+    closeKeyboard() function to delete the keyboard drivers.
+
+    In addition, the QWSServer class can handle key events from both
     physical and virtual keyboards using the processKeyEvent() and
     sendKeyEvent() functions, respectively. Use the
     addKeyboardFilter() function to filter the key events from
     physical keyboard drivers, the most recently added filter can be
-    removed and deleted using the removeKeyboardFilter() function. See
-    \l {Qtopia Core Character Input} and QWSKeyboardHandler for more
-    information.
+    removed and deleted using the removeKeyboardFilter() function.
 
-    Finally, the keyMap() function returns the keyboard mapping table
-    used to convert keyboard scancodes to Qt keycodes and Unicode
-    values.
+    See also: QWSKeyboardHandler and \l {Qtopia Core Character Input}.
 
     \section1 Display Handling
 
-    To set the brush used as the background in the absence of
-    obscuring windows, QWSServer provides the static setBackground()
-    function. The backgroundBrush() function returns the currently set
-    brush.
+    When a screen update is required, the server runs through all the
+    top-level windows that intersect with the region that is about to
+    be updated, and ensures that the associated clients have updated
+    their memory buffer. Then the server uses the screen driver
+    (represented by an instance of the QScreen class) to copy the
+    content of the memory to the screen.
 
-    Use the refresh() function to refresh the entire display, or
-    alternatively a specified region of it. The enablePainting()
-    function can be used to control the privileges for painting on the
-    display. QWSServer also provide the setMaxWindowRect() function
-    restricting the area of the screen which \l {Qtopia Core}
-    applications will consider to be the maximum area to use for
-    windows.
+    In addition, the QWSServer class provides some means of managing
+    the screen output: Use the refresh() function to refresh the
+    entire display, or alternatively a specified region of it. The
+    enablePainting() function can be used to disable (and enable)
+    painting onto the screen. QWSServer also provide the
+    setMaxWindowRect() function restricting the area of the screen
+    which \l {Qtopia Core} applications will consider to be the
+    maximum area to use for windows. To set the brush used as the
+    background in the absence of obscuring windows, QWSServer provides
+    the static setBackground() function. The corresponding
+    backgroundBrush() function returns the currently set brush.
 
-    The setScreenSaver() function provides the option of installing a
-    custom screensaver derived from the QWSScreenSaver class. Once
-    installed, the screensaver can be activated using the
+    QWSServer also controls the screen saver: Use the setScreenSaver()
+    to install a custom screen saver derived from the QWSScreenSaver
+    class. Once installed, the screensaver can be activated using the
     screenSaverActivate() function, and the screenSaverActive()
-    function returns its current status. The screensaver's timeout
-    intervals can be specified using the setScreenSaverInterval() and
-    setScreenSaverIntervals() functions.
+    function returns its current status. Use the
+    setScreenSaverInterval() function to specify the timeout interval.
+    \l{Qtopia Core} also supports multilevel screen saving, use the
+    setScreenSaverIntervals() function to specify the various levels
+    and their timeout intervals.
 
-    Use the isCursorVisible() function to determine if the cursor is
-    visible on the display, use the setCursorVisible() function to
-    alter its visibility.
+    Finally, the QWSServer class controls the cursor's appearance,
+    i.e., use the setCursorVisible() function to hide or show the
+    cursor, and the isCursorVisible() function to determine whether
+    the cursor is visible on the display or not.
+
+    See also: QScreen and \l {Qtopia Core Display Management}.
 
     \section1 Input Method Handling
 
-    Custom input methods derived from the QWSInputMethod class, can be
-    installed using the setCurrentInputMethod(). Use the sendIMEvent()
-    and sendIMQuery() functions to send input method events and
-    queries. Finally, QWSServer provides the IMMouse enum describing
-    the various mouse events recognized by the
-    QWSInputMethod::mouseHandler() function. The latter function
-    allows subclasses of QWSInputMethod to handle mouse events within
-    the preedit text.
+    Whenever the server receives an event, it queries its stack of
+    top-level windows to find the window containing the event's
+    position (each window can identify the client application that
+    created it). Then the server forwards the event to the appropiate
+    client. If an input method is installed, it is used as a filter
+    between the server and the client application.
 
-    \sa QWSClient, {Running Qtopia Core Applications}
+    Derive from the QWSInputMethod class to create custom input
+    methods, and use the server's setCurrentInputMethod() function to
+    install it. Use the sendIMEvent() and sendIMQuery() functions to
+    send input method events and queries.
+
+    QWSServer provides the IMMouse enum describing the various mouse
+    events recognized by the QWSInputMethod::mouseHandler()
+    function. The latter function allows subclasses of QWSInputMethod
+    to handle mouse events within the preedit text.
+
+    See also: QWSInputMethod
 */
 
 /*!
@@ -933,17 +973,15 @@ void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type,
     \enum QWSServer::IMMouse
 
     This enum describes the various types of mouse events recognized
-    by the QWSInputMethod::mouseHandler() function which allows
-    subclasses of QWSInputMethod to handle mouse events within the
-    preedit text.
+    by the QWSInputMethod::mouseHandler() function.
 
     \value MousePress An event generated by pressing a mouse button.
     \value MouseRelease An event generated by relasing a mouse button.
     \value MouseMove An event generated by moving the mouse cursor.
-    \value MouseOutside This value is only reserved, i.e. it is not used in
+    \value MouseOutside This value is only reserved, i.e., it is not used in
                                     current implementations.
 
-    \sa QWSInputMethod::mouseHandler()
+    \sa QWSInputMethod, setCurrentInputMethod()
 */
 
 /*!
@@ -970,7 +1008,7 @@ void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type,
     \value Raise The window has been raised to the top of the desktop.
     \value Lower The window has been lowered.
     \value Geometry The window has changed size or position.
-    \value Active The window has become the active window (i.e. it has keyboard focus).
+    \value Active The window has become the active window (i.e., it has keyboard focus).
     \value Name The window has been named.
 
     \sa windowEvent()
@@ -982,6 +1020,8 @@ void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type,
     This signal is emitted whenever some text is selected in any of
     the running applications, passing the selected text in the \a
     selection parameter.
+
+    \sa windowEvent()
 */
 
 /*!
@@ -994,7 +1034,10 @@ void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type,
     future use. The windows are sorted in stacking order from top-most
     to bottom-most.
 
-    \sa windowAt(),  QWSClient
+    Use the QWSWindow::client() function to retrieve the client
+    application that owns a given window.
+
+    \sa windowAt(), instance()
 */
 
 /*!
@@ -1009,8 +1052,8 @@ void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type,
 /*!
     \fn void QWSServer::removedChannel(const QString& channel)
 
-    This signal is emitted immediately after the QCopChannel object
-    specified by \a channel, is destroyed.
+    This signal is emitted immediately after the given the QCopChannel
+    object specified by \a channel, is destroyed.
 
     Note that a channel is not destroyed until all its listeners have
     been unregistered.
@@ -1036,9 +1079,13 @@ void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type,
     \fn static QWSServer* QWSServer::instance()
     \since 4.2
 
-    Returns a pointer to the application's QWSServer instance. The pointer
-    will be 0 if the application is not the window server, e.g.
-    QApplication::type() != QApplication::GuiServer.
+    Returns a pointer to the server instance.
+
+    Note that the pointer will be 0 if the application is not the
+    server, i.e., if the QApplication::type() function doesn't return
+    QApplication::GuiServer.
+
+    \sa clientWindows(), windowAt()
 */
 
 struct QWSCommandStruct
@@ -1060,7 +1107,8 @@ QWSServer::QWSServer(int flags, QObject *parent) :
 
 #ifdef QT3_SUPPORT
 /*!
-    Use the two-argument overload and call setObjectName() instead.
+    Use the two-argument overload and call the
+    QObject::setObjectName() function instead.
 */
 QWSServer::QWSServer(int flags, QObject *parent, const char *name) :
     QObject(*new QWSServerPrivate, parent)
@@ -1592,10 +1640,11 @@ void QWSServerPrivate::hideCursor()
 /*!
     \fn void QWSServer::enablePainting(bool enable)
 
-    If \a enable is true, painting on the display is enabled;
-    otherwise painting is disabled.
+    Enables painting onto the screen if \a enable is true; otherwise
+    painting is disabled.
 
-    \sa QDirectPainter, QScreen
+    \sa {Qtopia Core Architecture#Drawing on Screen}{Qtopia Core
+    Architecture}
 */
 void QWSServer::enablePainting(bool e)
 {
@@ -1616,7 +1665,10 @@ void QWSServer::enablePainting(bool e)
 }
 
 /*!
-    Refreshes the entire display.
+    Refreshes the display by making the screen driver update the
+    entire display.
+
+    \sa QScreen::exposeRegion()
 */
 void QWSServer::refresh()
 {
@@ -1641,9 +1693,8 @@ void QWSServer::refresh(QRegion & r)
 /*!
     \fn void QWSServer::setMaxWindowRect(const QRect& rectangle)
 
-    Sets the area of the screen which \l {Qtopia Core} applications
-    will consider to be the maximum area to use for windows, to the
-    area specified by the given \a rectangle.
+    Sets the maximum area of the screen that \l {Qtopia Core}
+    applications can use, to be the given \a rectangle.
 
     \sa QWidget::showMaximized()
 */
@@ -1682,11 +1733,13 @@ void QWSServerPrivate::sendMaxWindowRectEvents(const QRect &rect)
 /*!
     \fn void QWSServer::setDefaultMouse(const char *mouseDriver)
 
-    Sets the mouse driver that is used if the QWS_MOUSE_PROTO
+    Sets the mouse driver that will be used if the QWS_MOUSE_PROTO
     environment variable is not defined, to be the given \a
-    mouseDriver. The default is platform-dependent.
+    mouseDriver.
 
-    \sa {Qtopia Core Pointer Handling}
+    Note that the default is platform-dependent.
+
+    \sa setMouseHandler(), {Qtopia Core Pointer Handling}
 */
 void QWSServer::setDefaultMouse(const char *m)
 {
@@ -1696,11 +1749,13 @@ void QWSServer::setDefaultMouse(const char *m)
 /*!
     \fn void QWSServer::setDefaultKeyboard(const char *keyboardDriver)
 
-    Sets the keyboard driver that is used if the QWS_KEYBOARD
+    Sets the keyboard driver that will be used if the QWS_KEYBOARD
     environment variable is not defined, to be the given \a
-    keyboardDriver. The default is platform-dependent.
+    keyboardDriver.
 
-    \sa {Qtopia Core Character Input}
+    Note that the default is platform-dependent.
+
+    \sa setKeyboardHandler(), {Qtopia Core Character Input}
 */
 void QWSServer::setDefaultKeyboard(const char *k)
 {
@@ -1849,9 +1904,9 @@ void QWSServerPrivate::sendMouseEventUnfiltered(const QPoint &pos, int state, in
 }
 
 /*!
-    Returns the primary mouse handler.
+    Returns the primary mouse driver.
 
-    \sa closeMouse(), openMouse()
+    \sa setMouseHandler(), openMouse(), closeMouse()
 */
 QWSMouseHandler *QWSServer::mouseHandler()
 {
@@ -1862,16 +1917,16 @@ QWSMouseHandler *QWSServer::mouseHandler()
 
 // called by QWSMouseHandler constructor, not user code.
 /*!
-    \fn void QWSServer::setMouseHandler(QWSMouseHandler* handler)
+    \fn void QWSServer::setMouseHandler(QWSMouseHandler* driver)
 
-    Sets the mouse driver to be the given \a handler.
+    Sets the primary mouse driver to be the given \a driver.
 
     \l {Qtopia Core} provides several ready-made mouse drivers, and
     custom drivers are typically added using Qt's plugin
-    mechanism. See the {Qtopia Core Pointer Handling} documentation
+    mechanism. See the \l {Qtopia Core Pointer Handling} documentation
     for details.
 
-    \sa mouseHandler()
+    \sa mouseHandler(), setDefaultMouse()
 */
 void QWSServer::setMouseHandler(QWSMouseHandler* mh)
 {
@@ -1962,10 +2017,12 @@ void QWSServerPrivate::sendRegionEvent(QWSWindow *window,
 /*!
     \fn QWSWindow *QWSServer::windowAt(const QPoint& position)
 
-    Returns the window containing the given \a position, returns 0 if
-    there is no window under the specified point.
+    Returns the window containing the given \a position.
 
-    \sa clientWindows()
+    Note that if there is no window under the specified point this
+    function returns 0.
+
+    \sa clientWindows(), instance()
 */
 QWSWindow *QWSServer::windowAt(const QPoint& pos)
 {
@@ -1993,31 +2050,21 @@ static int keyUnicode(int keycode)
 #endif
 
 /*!
-    Sends a key event. Note that this function is called by the
-    processKeyEvent() function. Use this function to send key events
-    generated by "virtual keyboards".
+    Sends the given key event. The key is identified by its \a unicode
+    value and the given \a keycode, \a modifiers, \a isPress and \a
+    autoRepeat parameters.
 
-    \table
-    \header \o Parameter \o Description
-    \row
-        \o \a unicode
-        \o The unicode value of the key to send
-    \row
-        \o \a keycode
-        \o The Qt keycode value as defined by the Qt::Key enum.
-    \row
-        \o \a modifiers
-        \o An OR combination of Qt::KeyboardModifier values, indicating whether
-            Shift/Alt/Ctrl keys are pressed.
-    \row
-        \o \a isPress
-        \o True if this is a key down event; otherwise false.
-    \row
-        \o \a autoRepeat
-        \o True if this event is caused by auto repeat (i.e. the
-            user has held the key down and this is the second or subsequent
-            key event being sent); otherwise false.
-    \endtable
+    Use this function to send key events generated by "virtual
+    keyboards" (note that the processKeyEvent() function is
+    impelemented using this function).
+
+    The \a keycode parameter is the Qt keycode value as defined by the
+    Qt::Key enum. The \a modifiers is an OR combination of
+    Qt::KeyboardModifier values, indicating whether \gui
+    Shift/Alt/Ctrl keys are pressed. The \a isPress parameter is true
+    if the event is a key press event and \a autoRepeat is true if the
+    event is caused by an auto-repeat mechanism and not an actual key
+    press.
 
     \sa processKeyEvent(), {Qtopia Core Character Input}
 */
@@ -2114,8 +2161,8 @@ void QWSServerPrivate::resetEngine()
 /*!
     \fn void QWSServer::setCursorVisible(bool visible)
 
-    Makes the cursor visible if \a visible is true: otherwise the
-    cursor is made invisible.
+    Shows the cursor if \a visible is true: otherwise the cursor is
+    hidden.
 
     \sa isCursorVisible()
 */
@@ -2148,9 +2195,12 @@ bool QWSServer::isCursorVisible()
 
     Sends the given input method \a event.
 
-    If there is a window currently in compose mode (i.e. actively
-    composing the preedit string ), the event is sent to that
-    window. Otherwise, the event is sent to the current focus window.
+    The \c QInputMethodEvent class is derived from QWSEvent, i.e., it
+    is a QWSEvent object of the QWSEvent::IMEvent type.
+
+    If there is a window actively composing the preedit string, the
+    event is sent to that window. Otherwise, the event is sent to the
+    window currently in focus.
 
     \sa sendIMQuery(), QWSInputMethod::sendEvent()
 */
@@ -2195,13 +2245,14 @@ void QWSServer::sendIMEvent(const QInputMethodEvent *ime)
 
 
 /*!
-    Sends an input method query for the specified \a property.
+    Sends an input method query for the given \a property.
 
-    To receive responses to input method queries the virtual
+    To receive responses to input method queries, the virtual
     QWSInputMethod::queryResponse() function must be reimplemented in
-    a QWSInputMethod subclass.
+    a QWSInputMethod subclass that is activated using the
+    setCurrentInputMethod() function.
 
-    \sa sendIMEvent() QWSInputMethod::sendQuery()
+    \sa sendIMEvent(), setCurrentInputMethod()
 */
 void QWSServer::sendIMQuery(int property)
 {
@@ -2225,7 +2276,7 @@ void QWSServer::sendIMQuery(int property)
 
     Sets the current input method to be the given \a method.
 
-    \sa sendIMQuery(), sendIMEvent(),  QWSInputMethod
+    \sa sendIMQuery(), sendIMEvent()
 */
 void QWSServer::setCurrentInputMethod(QWSInputMethod *im)
 {
@@ -2994,7 +3045,7 @@ void QWSServerPrivate::exposeRegion(QRegion r, int changing)
 
 /*!
     Closes all pointer devices (specified by the QWS_MOUSE_PROTO
-    environment variable) by deleting the associated mouse handlers.
+    environment variable) by deleting the associated mouse drivers.
 
     \sa openMouse(), mouseHandler()
 */
@@ -3042,9 +3093,11 @@ void QWSServer::openMouse()
 }
 
 /*!
-  Suspends mouse handling by suspending each registered mouse handler.
+    Suspends pointer handling by deactivating all the mouse drivers
+    registered by the QWS_MOUSE_PROTO environment variable.
 
-  \sa resumeMouse(), QWSMouseHandler::suspend(), QWS_MOUSE_PROTO
+
+    \sa resumeMouse(), QWSMouseHandler::suspend()
 */
 void QWSServer::suspendMouse()
 {
@@ -3054,9 +3107,10 @@ void QWSServer::suspendMouse()
 }
 
 /*!
-    Resumes mouse handling by reactivating each registered mouse handler.
+    Resumes pointer handling by reactivating all the mouse drivers
+    registered by the QWS_MOUSE_PROTO environment variable.
 
-    \sa suspendMouse(), QWSMouseHandler::resume(), QWS_MOUSE_PROTO
+    \sa suspendMouse(), QWSMouseHandler::resume()
 */
 void QWSServer::resumeMouse()
 {
@@ -3105,7 +3159,7 @@ QWSMouseHandler* QWSServerPrivate::newMouseHandler(const QString& spec)
 /*!
     Closes all the keyboard devices (specified by the QWS_KEYBOARD
     environment variable) by deleting the associated keyboard
-    handlers.
+    drivers.
 
     \sa openKeyboard(),  keyboardHandler()
 */
@@ -3117,9 +3171,9 @@ void QWSServer::closeKeyboard()
 }
 
 /*!
-    Returns the primary keyboard handler.
+    Returns the primary keyboard driver.
 
-    \sa openKeyboard()
+    \sa setKeyboardHandler(), openKeyboard(), closeKeyboard()
 */
 QWSKeyboardHandler* QWSServer::keyboardHandler()
 {
@@ -3127,16 +3181,16 @@ QWSKeyboardHandler* QWSServer::keyboardHandler()
 }
 
 /*!
-    \fn void QWSServer::setKeyboardHandler(QWSKeyboardHandler* handler)
+    \fn void QWSServer::setKeyboardHandler(QWSKeyboardHandler* driver)
 
-    Sets the primary keyboard handler to be the given \a handler.
+    Sets the primary keyboard driver to be the given \a driver.
 
     \l {Qtopia Core} provides several ready-made keyboard drivers, and
     custom drivers are typically added using Qt's plugin
-    mechanism. See the {Qtopia Core Character Input} documentation for
-    details.
+    mechanism. See the \l {Qtopia Core Character Input} documentation
+    for details.
 
-    \sa keyboardHandler()
+    \sa keyboardHandler(), setDefaultKeyboard()
 */
 void QWSServer::setKeyboardHandler(QWSKeyboardHandler* kh)
 {
@@ -3360,8 +3414,20 @@ void QWSServer::setBackground(const QBrush &brush)
 
 #ifdef QT3_SUPPORT
 /*!
-    Sets the image \a img to be used as the background in the absence
-    of obscuring windows.
+    \fn void QWSServer::setDesktopBackground(const QImage &image)
+
+    Sets the image used as background in the absence of obscuring
+    windows, to be the given \a image.
+
+    Use the setBackground() function instead.
+
+    \oldcode
+        QImage image;
+        setDesktopBackground(image);
+    \newcode
+        QImage image;
+        setBackground(QBrush(image));
+    \endcode
 */
 void QWSServer::setDesktopBackground(const QImage &img)
 {
@@ -3372,10 +3438,21 @@ void QWSServer::setDesktopBackground(const QImage &img)
 }
 
 /*!
+    \fn void QWSServer::setDesktopBackground(const QColor &color)
     \overload
 
-    Sets the color \a c to be used as the background in the absence of
-    obscuring windows.
+    Sets the color used as background in the absence of obscuring
+    windows, to be the given \a color.
+
+    Use the setBackground() function instead.
+
+    \oldcode
+        QColor color;
+        setDesktopBackground(color);
+    \newcode
+        QColor color;
+        setBackground(QBrush(color));
+    \endcode
 */
 void QWSServer::setDesktopBackground(const QColor &c)
 {
@@ -3417,33 +3494,21 @@ void QWSServerPrivate::emergency_cleanup()
 static QList<QWSServer::KeyboardFilter*> *keyFilters = 0;
 
 /*!
-    Processes the key event characterized by the given parameters:
+    Processes the given key event. The key is identified by its \a
+    unicode value and the given \a keycode, \a modifiers, \a isPress
+    and \a autoRepeat parameters.
 
-    \table
-    \header \o Parameter \o Description
-    \row
-        \o \a unicode
-        \o The unicode value of the key to send
-    \row
-        \o \a keycode
-        \o The Qt keycode value as defined by the Qt::Key enum.
-    \row
-        \o \a modifiers
-        \o An OR combination of Qt::KeyboardModifier values, indicating whether
-            Shift/Alt/Ctrl keys are pressed.
-    \row
-        \o \a isPress
-        \o True if this is a key down event; otherwise false.
-    \row
-        \o \a autoRepeat
-        \o True if this event is caused by auto repeat (i.e. the
-            user has held the key down and this is the second or subsequent
-            key event being sent); otherwise false.
-    \endtable
+    The \a keycode parameter is the Qt keycode value as defined by the
+    Qt::Key enum. The \a modifiers is an OR combination of
+    Qt::KeyboardModifier values, indicating whether \gui
+    Shift/Alt/Ctrl keys are pressed. The \a isPress parameter is true
+    if the event is a key press event and \a autoRepeat is true if the
+    event is caused by an auto-repeat mechanism and not an actual key
+    press.
 
     This function is typically called internally by keyboard drivers.
 
-    \sa sendKeyEvent(), addKeyboardFilter(), {Qtopia Core Character Input}
+    \sa sendKeyEvent(), {Qtopia Core Character Input}
 */
 void QWSServer::processKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
                                 bool isPress, bool autoRepeat)
@@ -3461,12 +3526,12 @@ void QWSServer::processKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers 
 /*!
     \fn void QWSServer::addKeyboardFilter(KeyboardFilter *filter)
 
-    Makes the given \a filter the one invoked for all key events
-    generated by physical keyboard drivers (i.e. events sent using the
+    Activates the given keyboard \a filter all key events generated by
+    physical keyboard drivers (i.e., events sent using the
     processKeyEvent() function).
 
     Note that the filter is not invoked for keys generated by \e
-    virtual keyboard drivers (i.e. events sent using the
+    virtual keyboard drivers (i.e., events sent using the
     sendKeyEvent() function).
 
     \sa removeKeyboardFilter()
@@ -3493,8 +3558,8 @@ void QWSServer::addKeyboardFilter(KeyboardFilter *f)
 /*!
     Removes and deletes the most recently added filter.
 
-    Note that the programmer is responsible for matching each addition
-    of a keyboard filter with a corresponding removal.
+    Note that the programmer is responsible for removing each added
+    keyboard filter.
 
     \sa addKeyboardFilter()
 */
@@ -3509,11 +3574,18 @@ void QWSServer::removeKeyboardFilter()
 /*!
     \fn void QWSServer::setScreenSaverIntervals(int* intervals)
 
-    Sets a list of timeout \a intervals (specified in millisecond) for
-    the screensaver. An interval of 0 milliseconds turns off the
-    screensaver.
+    Specifies the time \a intervals (in milliseconds) between the
+    different levels of screen responsiveness.
 
-    Note that the array must be 0-terminated.
+    \l {Qtopia Core} supports multilevel screen saving, i.e., it is
+    possible to specify several different levels of screen
+    responsiveness by implementing the QWSScreenSaver::save()
+    function. For example, you can choose to first turn off the light
+    before you fully activate the screensaver. See the QWSScreenSaver
+    documentation for details.
+
+    Note that an interval of 0 milliseconds will turn off the
+    screensaver, and that the \a intervals array must be 0-terminated.
 
     \sa setScreenSaverInterval()
 */
@@ -3546,9 +3618,9 @@ void QWSServer::setScreenSaverIntervals(int* ms)
 /*!
     \fn void QWSServer::setScreenSaverInterval(int milliseconds)
 
-    Sets the timeout interval for the screensaver to be the specified
-    \a milliseconds. To turn off the screensaver, set the timout
-    interval to 0.
+    Sets the timeout interval for the screensaver to the specified \a
+    milliseconds. To turn off the screensaver, set the timout interval
+    to 0.
 
     \sa setScreenSaverIntervals()
 */
@@ -3599,10 +3671,10 @@ void QWSServerPrivate::_q_screenSaverSleep()
 /*!
     \fn void QWSServer::setScreenSaver(QWSScreenSaver* screenSaver)
 
-    Deletes the current screensaver and installs the given \a
-    screenSaver instead.
+    Installs the given \a screenSaver, deleting the current screen
+    saver.
 
-    \sa screenSaverActivate()
+    \sa screenSaverActivate(), setScreenSaverInterval(), setScreenSaverIntervals()
 */
 void QWSServer::setScreenSaver(QWSScreenSaver* ss)
 {
@@ -3648,8 +3720,8 @@ void QWSServerPrivate::_q_screenSaverTimeout()
 }
 
 /*!
-    Returns true if the screensaver is active (i.e. the screen is
-    blanked); otherwise returns false.
+    Returns true if the screen saver is active; otherwise returns
+    false.
 
     \sa screenSaverActivate()
 */
@@ -3660,10 +3732,10 @@ bool QWSServer::screenSaverActive()
 }
 
 /*!
-    Activates the screensaver immediately if the \a activate is true;
-    otherwise it is deactivated.
+    Activates the screen saver if \a activate is true; otherwise it is
+    deactivated.
 
-    \sa screenSaverActive()
+    \sa screenSaverActive(), setScreenSaver()
 */
 void QWSServer::screenSaverActivate(bool activate)
 {
@@ -3725,7 +3797,7 @@ void QWSServerPrivate::updateClientCursorPos()
     The reset() function allows subclasses of QWSInputMethod to reset
     the state of the input method. The default implementation calls
     sendEvent() with empty preedit and commit strings, if the input
-    method is in compose mode, i.e. the input method is actively
+    method is in compose mode, i.e., the input method is actively
     composing a preedit string.
 
     The QWSInputMethod class also provides the sendQuery() function
@@ -3814,7 +3886,7 @@ bool QWSInputMethod::filter(const QPoint &position, int state, int wheel)
 
     The default implementation calls sendEvent() with empty preedit
     and commit strings, if the input method is in compose mode,
-    i.e. the input method is actively composing a preedit string.
+    i.e., the input method is actively composing a preedit string.
 
     \sa sendEvent()
 */
@@ -3927,7 +3999,7 @@ void QWSInputMethod::mouseHandler(int, int state)
     Sending an input method event with a non-empty preedit string will
     cause the input method to enter compose mode.  Sending an input
     method event with an empty preedit string will cause the input
-    method to leave compose mode, i.e. the input method will no longer
+    method to leave compose mode, i.e., the input method will no longer
     be actively composing the preedit string.
 
     \sa sendEvent(), sendCommitString()
@@ -3977,7 +4049,7 @@ void QWSInputMethod::sendPreeditString(const QString &preeditString, int cursorP
     replaceFromPosition relative to the start of the current preedit
     string.
 
-    This will cause the input method to leave compose mode, i.e. the
+    This will cause the input method to leave compose mode, i.e., the
     input method will no longer be actively composing the preedit
     string.
 
@@ -4099,11 +4171,11 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
     \fn QWSServer::windowEvent(QWSWindow * window, QWSServer::WindowEvent eventType)
 
     This signal is emitted whenever something happens to a top-level
-    window (e.g. it's created or destroyed).
+    window (e.g., it's created or destroyed), passing a pointer to the
+    window and the event's type in the \a window and \a eventType
+    parameters, respectively.
 
-    The window to which the event has occurred and the event's type
-    are passed in the \a window and \a eventType parameters,
-    respectively.
+    \sa markedText()
 */
 
 /*!
