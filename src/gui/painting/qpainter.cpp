@@ -4723,7 +4723,7 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
     d->updateState(d->state);
 
     if (!ti.num_glyphs) {
-        drawTextItemDecoration(this, p, ti);
+        // nothing to do
     } else if (ti.fontEngine->type() == QFontEngine::Multi) {
         QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
 
@@ -4766,7 +4766,6 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
             }
 
             d->engine->drawTextItem(QPointF(x, y), ti2);
-            drawTextItemDecoration(this, QPointF(x, y), ti2);
 
             QFixed xadd;
             // reset the high byte for all glyphs and advance to the next sub-string
@@ -4807,7 +4806,6 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
         }
 
         d->engine->drawTextItem(QPointF(x,y), ti2);
-        drawTextItemDecoration(this, QPointF(x, y), ti2);
 
         // reset the high byte for all glyphs
         const int hi = which << 24;
@@ -4816,8 +4814,8 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
 
     } else {
         d->engine->drawTextItem(p, ti);
-        drawTextItemDecoration(this, p, ti);
     }
+    drawTextItemDecoration(this, p, ti);
 
     if (d->state->renderHints != oldRenderHints) {
         d->state->renderHints = oldRenderHints;
