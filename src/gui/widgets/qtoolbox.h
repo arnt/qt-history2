@@ -51,8 +51,10 @@ public:
     void setItemIcon(int index, const QIcon &icon);
     QIcon itemIcon(int index) const;
 
+#ifndef QT_NO_TOOLTIP
     void setItemToolTip(int index, const QString &toolTip);
     QString itemToolTip(int index) const;
+#endif
 
     int currentIndex() const;
     QWidget *currentWidget() const;
@@ -87,8 +89,8 @@ public:
     { int i = indexOf(item); removeItem(i); return i; }
     inline QT3_SUPPORT QWidget *item(int index) const { return widget(index); }
     QT3_SUPPORT void setMargin(int margin) { setContentsMargins(margin, margin, margin, margin); }
-    QT3_SUPPORT int margin() const 
-    { int margin; int dummy; getContentsMargins(&margin, &dummy, &dummy, &dummy);  return margin; }    
+    QT3_SUPPORT int margin() const
+    { int margin; int dummy; getContentsMargins(&margin, &dummy, &dummy, &dummy);  return margin; }
 #endif
 
 private:

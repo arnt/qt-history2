@@ -290,7 +290,7 @@ SeeAlso: ???
 Feature: TOOLBOX
 Description:  Supports columns of tabbed widget items.
 Section: Widgets
-Requires: ICON TOOLTIP TOOLBUTTON SCROLLAREA
+Requires: ICON TOOLBUTTON SCROLLAREA
 Name: QToolBox
 SeeAlso: ???
 
