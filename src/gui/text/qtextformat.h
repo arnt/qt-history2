@@ -163,6 +163,11 @@ public:
         FramePadding = 0x4002,
         FrameWidth = 0x4003,
         FrameHeight = 0x4004,
+        FrameTopMargin    = 0x4005,
+        FrameBottomMargin = 0x4006,
+        FrameLeftMargin   = 0x4007,
+        FrameRightMargin  = 0x4008,
+
         TableColumns = 0x4100,
         TableColumnWidthConstraints = 0x4101,
         TableCellSpacing = 0x4102,
@@ -563,9 +568,21 @@ public:
     inline qreal border() const
     { return doubleProperty(FrameBorder); }
 
-    inline void setMargin(qreal margin);
+    void setMargin(qreal margin);
     inline qreal margin() const
     { return doubleProperty(FrameMargin); }
+
+    inline void setTopMargin(qreal margin);
+    qreal topMargin() const;
+
+    inline void setBottomMargin(qreal margin);
+    qreal bottomMargin() const;
+
+    inline void setLeftMargin(qreal margin);
+    qreal leftMargin() const;
+
+    inline void setRightMargin(qreal margin);
+    qreal rightMargin() const;
 
     inline void setPadding(qreal padding);
     inline qreal padding() const
@@ -591,9 +608,6 @@ public:
 inline void QTextFrameFormat::setBorder(qreal aborder)
 { setProperty(FrameBorder, aborder); }
 
-inline void QTextFrameFormat::setMargin(qreal amargin)
-{ setProperty(FrameMargin, amargin); }
-
 inline void QTextFrameFormat::setPadding(qreal apadding)
 { setProperty(FramePadding, apadding); }
 
@@ -604,6 +618,18 @@ inline void QTextFrameFormat::setHeight(qreal aheight)
 { setProperty(FrameHeight, QTextLength(QTextLength::FixedLength, aheight)); }
 inline void QTextFrameFormat::setHeight(const QTextLength &aheight)
 { setProperty(FrameHeight, aheight); }
+
+inline void QTextFrameFormat::setTopMargin(qreal margin)
+{ setProperty(FrameTopMargin, margin); }
+
+inline void QTextFrameFormat::setBottomMargin(qreal margin)
+{ setProperty(FrameBottomMargin, margin); }
+
+inline void QTextFrameFormat::setLeftMargin(qreal margin)
+{ setProperty(FrameLeftMargin, margin); }
+
+inline void QTextFrameFormat::setRightMargin(qreal margin)
+{ setProperty(FrameRightMargin, margin); }
 
 class Q_GUI_EXPORT QTextTableFormat : public QTextFrameFormat
 {

@@ -54,7 +54,10 @@ public:
     QSizeF size;
 
     // contents starts at (margin+border/margin+border)
-    qreal margin;
+    qreal topMargin;
+    qreal bottomMargin;
+    qreal leftMargin;
+    qreal rightMargin;
     qreal border;
     qreal padding;
     // contents width includes padding (as we need to treat this on a per cell basis for tables)
@@ -75,16 +78,17 @@ public:
 };
 
 QTextFrameData::QTextFrameData()
-    : margin(0), border(0), padding(0), contentsWidth(0), contentsHeight(0),
-      minimumWidth(0), maximumWidth(INT_MAX), currentLayoutStruct(0),
-      sizeDirty(true), layoutDirty(true)
+    : topMargin(0), bottomMargin(0), leftMargin(0), rightMargin(0), border(0), padding(0),
+      contentsWidth(0), contentsHeight(0), minimumWidth(0), maximumWidth(INT_MAX),
+      currentLayoutStruct(0), sizeDirty(true), layoutDirty(true)
 {
 }
 
 struct QLayoutStruct {
     QLayoutStruct() : contentsWidth(0), minimumWidth(0), maximumWidth(INT_MAX),
                       fullLayout(false), pageHeight(0.0),
-                      pageBottom(0.0), pageMargin(0.0)
+                      pageBottom(0.0), pageTopMargin(0.0),
+                      pageBottomMargin(0.0)
     {}
     QTextFrame *frame;
     qreal x_left;
@@ -97,11 +101,12 @@ struct QLayoutStruct {
     QList<QTextFrame *> pendingFloats;
     qreal pageHeight;
     qreal pageBottom;
-    qreal pageMargin;
+    qreal pageTopMargin;
+    qreal pageBottomMargin;
     QRectF updateRect;
 
     inline void newPage()
-    { if (pageHeight == INT_MAX) return; pageBottom += pageHeight; y = pageBottom - pageHeight + 2 * pageMargin; }
+    { if (pageHeight == INT_MAX) return; pageBottom += pageHeight; y = pageBottom - pageHeight + pageBottomMargin + pageTopMargin; }
 };
 
 class QTextTableData : public QTextFrameData
@@ -160,11 +165,14 @@ static inline QTextFrameData *data(QTextFrame *f)
 
 void QTextTableData::updateTableSize()
 {
-    const qreal effectiveMargin = this->margin + border + padding;
+    const qreal effectiveTopMargin = this->topMargin + border + padding;
+    const qreal effectiveBottomMargin = this->bottomMargin + border + padding;
+    const qreal effectiveLeftMargin = this->leftMargin + border + padding;
+    const qreal effectiveRightMargin = this->rightMargin + border + padding;
     qreal height = contentsHeight == -1
-                   ? rowPositions.last() + heights.last() + padding + border + cellSpacing + effectiveMargin
-                   : contentsHeight + 2*effectiveMargin;
-    size = QSizeF(contentsWidth + 2*effectiveMargin, height);
+                   ? rowPositions.last() + heights.last() + padding + border + cellSpacing + effectiveBottomMargin
+                   : effectiveTopMargin + contentsHeight + effectiveBottomMargin;
+    size = QSizeF(effectiveLeftMargin + contentsWidth + effectiveRightMargin, height);
 }
 
 QRectF QTextTableData::cellRect(const QTextTableCell &cell) const
@@ -646,19 +654,18 @@ static void drawFrameDecoration(QPainter *painter, QTextFrame *frame, QTextFrame
         painter->save();
         painter->setBrush(Qt::lightGray);
         painter->setPen(Qt::NoPen);
-        const qreal margin = fd->margin + fd->border;
-        const qreal w = rect.width() - 2*margin;
-        const qreal h = rect.height() - 2*margin;
+        const qreal w = rect.width() - 2 * fd->border - fd->leftMargin - fd->rightMargin;
+        const qreal h = rect.height() - 2 * fd->border - fd->topMargin - fd->bottomMargin;
         // left
-        painter->drawRect(QRectF(rect.left() + fd->margin, rect.top() + fd->margin, fd->border, h + 2 * fd->border));
+        painter->drawRect(QRectF(rect.left() + fd->leftMargin, rect.top() + fd->topMargin, fd->border, h + 2 * fd->border));
         // top
-        painter->drawRect(QRectF(rect.left() + fd->margin + fd->border, rect.top() + fd->margin, w + fd->border, fd->border));
+        painter->drawRect(QRectF(rect.left() + fd->leftMargin + fd->border, rect.top() + fd->topMargin, w + fd->border, fd->border));
 
         painter->setBrush(Qt::darkGray);
         // right
-        painter->drawRect(QRectF(rect.left() + fd->margin + fd->border + w, rect.top() + fd->margin + fd->border, fd->border, h));
+        painter->drawRect(QRectF(rect.left() + fd->leftMargin + fd->border + w, rect.top() + fd->topMargin + fd->border, fd->border, h));
         // bottom
-        painter->drawRect(QRectF(rect.left() + fd->margin + fd->border, rect.top() + fd->margin + fd->border + h, w + fd->border, fd->border));
+        painter->drawRect(QRectF(rect.left() + fd->leftMargin + fd->border, rect.top() + fd->topMargin + fd->border + h, w + fd->border, fd->border));
 
         painter->restore();
     }
@@ -666,8 +673,10 @@ static void drawFrameDecoration(QPainter *painter, QTextFrame *frame, QTextFrame
     const QBrush bg = frame->frameFormat().background();
     if (bg != Qt::NoBrush) {
         QRectF bgRect = rect;
-        const qreal margin = fd->margin + fd->border;
-        bgRect.adjust(margin, margin, -margin, -margin);
+        bgRect.adjust(fd->leftMargin + fd->border,
+                      fd->topMargin + fd->border,
+                      - fd->rightMargin - fd->border,
+                      - fd->bottomMargin - fd->border);
 
         QRectF gradientRect; // invalid makes it default to bgRect
         if (!frame->parentFrame()) {
@@ -734,7 +743,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
             QRectF rect = frameRect;
 
             const qreal extraTableHeight = td->padding + td->border + td->cellSpacing // inter cell spacing
-                                           + td->margin + td->border + td->padding; // effective table margin
+                                           + td->border + td->padding;
 
             qreal tableHeaderHeight = 0;
             const QTextTableFormat format = table->format();
@@ -1285,7 +1294,9 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
 
     const qreal cellSpacing = td->cellSpacing = fmt.cellSpacing();
     td->cellPadding = fmt.cellPadding();
-    const qreal margin = td->margin + td->border + td->padding;
+    const qreal leftMargin = td->leftMargin + td->border + td->padding;
+    const qreal rightMargin = td->rightMargin + td->border + td->padding;
+    const qreal topMargin = td->topMargin + td->border + td->padding;
 
     qreal totalWidth = td->contentsWidth;
     // two (vertical) borders per cell per column
@@ -1423,7 +1434,7 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
 
 
     td->columnPositions.resize(columns);
-    td->columnPositions[0] = margin /*includes table border*/ + cellSpacing + td->border;
+    td->columnPositions[0] = leftMargin /*includes table border*/ + cellSpacing + td->border;
 
     for (int i = 1; i < columns; ++i)
         td->columnPositions[i] = td->columnPositions.at(i-1) + td->widths.at(i-1) + td->border + cellSpacing + td->border;
@@ -1432,7 +1443,7 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
     td->heights.fill(0);
 
     td->rowPositions.resize(rows);
-    td->rowPositions[0] = margin /*includes table border*/ + cellSpacing + td->border;
+    td->rowPositions[0] = topMargin /*includes table border*/ + cellSpacing + td->border;
 
     bool haveRowSpannedCells = false;
 
@@ -1505,21 +1516,19 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
     }
 
     // - margin to compensate the + margin in columnPositions[0]
-//    td->contentsWidth = qMax(td->contentsWidth,
-//                             td->columnPositions.last() + td->widths.last() + td->padding + td->border + cellSpacing - margin);
-    td->contentsWidth = td->columnPositions.last() + td->widths.last() + td->padding + td->border + cellSpacing - margin;
+    td->contentsWidth = td->columnPositions.last() + td->widths.last() + td->padding + td->border + cellSpacing - rightMargin;
 
     td->minimumWidth = td->columnPositions.at(0);
     for (int i = 0; i < columns; ++i) {
         td->minimumWidth += td->minWidths.at(i) + td->border + cellSpacing + td->border;
     }
-    td->minimumWidth += margin - td->border;
+    td->minimumWidth += rightMargin - td->border;
 
     td->maximumWidth = td->columnPositions.at(0);
     for (int i = 0; i < columns; ++i)
         if (td->maxWidths.at(i) != INT_MAX)
             td->maximumWidth += td->maxWidths.at(i) + td->border + cellSpacing + td->border;
-    td->maximumWidth += margin - td->border;
+    td->maximumWidth += rightMargin - td->border;
 
     td->rowPositionsWithoutPageBreak = td->rowPositions;
 
@@ -1609,14 +1618,19 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
     {
         QTextFrameFormat fformat = f->frameFormat();
         // set sizes of this frame from the format
-        fd->margin = fformat.margin();
+        fd->topMargin = fformat.topMargin();
+        fd->bottomMargin = fformat.bottomMargin();
+        fd->leftMargin = fformat.leftMargin();
+        fd->rightMargin = fformat.rightMargin();
         fd->border = fformat.border();
         fd->padding = fformat.padding();
 
-        newContentsWidth = frameWidth - 2*(fd->margin + fd->border + fd->padding);
+        newContentsWidth = frameWidth - 2*(fd->border + fd->padding)
+                           - fd->leftMargin - fd->rightMargin;
 
         if (frameHeight != -1) {
-            fd->contentsHeight = frameHeight - 2*(fd->margin + fd->border + fd->padding);
+            fd->contentsHeight = frameHeight - 2*(fd->border + fd->padding)
+                                 - fd->topMargin - fd->bottomMargin;
         } else {
             fd->contentsHeight = frameHeight;
         }
@@ -1660,12 +1674,11 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
         maxChildFrameWidth = qMax(maxChildFrameWidth, cd->size.width());
     }
 
-    qreal margin = fd->margin + fd->border + fd->padding;
     QLayoutStruct layoutStruct;
     layoutStruct.frame = f;
-    layoutStruct.x_left = margin;
+    layoutStruct.x_left = fd->leftMargin + fd->border + fd->padding;
     layoutStruct.x_right = layoutStruct.x_left + newContentsWidth;
-    layoutStruct.y = margin;
+    layoutStruct.y = fd->topMargin + fd->border + fd->padding;
     layoutStruct.contentsWidth = 0;
     layoutStruct.minimumWidth = 0;
     layoutStruct.maximumWidth = INT_MAX;
@@ -1678,8 +1691,9 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
         layoutStruct.pageHeight = q->document()->pageSize().height();
         if (layoutStruct.pageHeight < 0)
             layoutStruct.pageHeight = INT_MAX;
-        layoutStruct.pageBottom = layoutStruct.pageHeight - fd->margin;
-        layoutStruct.pageMargin = fd->margin;
+        layoutStruct.pageBottom = layoutStruct.pageHeight - fd->bottomMargin;
+        layoutStruct.pageTopMargin = fd->topMargin;
+        layoutStruct.pageBottomMargin = fd->bottomMargin;
         idealWidth = 0; // reset
     }
 
@@ -1699,9 +1713,9 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
     fd->maximumWidth = layoutStruct.maximumWidth;
 
     qreal height = fd->contentsHeight == -1
-                 ? layoutStruct.y + margin
-                 : fd->contentsHeight + 2*margin;
-    fd->size = QSizeF(actualWidth + 2*margin, height);
+                 ? layoutStruct.y + fd->border + fd->padding + fd->bottomMargin
+                 : fd->contentsHeight + 2*(fd->border + fd->padding) + fd->topMargin + fd->bottomMargin;
+    fd->size = QSizeF(actualWidth + 2*(fd->border + fd->padding) + fd->leftMargin + fd->rightMargin, height);
     fd->sizeDirty = false;
     return layoutStruct.updateRect;
 }
@@ -1734,7 +1748,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
 
                 if (layoutStruct->pageHeight > 0.0) {
                     int page = int(layoutStruct->y / layoutStruct->pageHeight);
-                    layoutStruct->pageBottom = (page + 1) * layoutStruct->pageHeight - layoutStruct->pageMargin;
+                    layoutStruct->pageBottom = (page + 1) * layoutStruct->pageHeight - layoutStruct->pageBottomMargin;
                 }
 
                 it = frameIteratorForTextPosition(checkPoint->positionInFrame);
@@ -2149,7 +2163,7 @@ void QTextDocumentLayoutPrivate::pageBreakInsideTable(QTextTable *table, QLayout
     qreal pageBottom = layoutStruct->pageBottom - td->position.y();
     // distance from cell content boundary (top or bottom) to end of table (top or bottom)
     const qreal extraTableHeight = td->padding + td->border + td->cellSpacing // inter cell spacing
-                                   + td->margin + td->border + td->padding; // effective table margin
+                                   + td->border + td->padding;
 
     td->rowsAfterPageBreak.clear();
 
@@ -2171,7 +2185,7 @@ void QTextDocumentLayoutPrivate::pageBreakInsideTable(QTextTable *table, QLayout
     qreal offset = 0.0;
     for (int r = 2; r < rows; ++r) {
         if (td->rowPositions[r] + offset > pageBottom) {
-            offset += pageBottom - td->rowPositions[r - 1] + 2 * layoutStruct->pageMargin;
+            offset += pageBottom - td->rowPositions[r - 1] + layoutStruct->pageTopMargin + layoutStruct->pageBottomMargin;
             offset += extraTableHeight; // make sure there's enough space for the table margin/border
             offset += tableHeaderHeight;
             layoutStruct->newPage();

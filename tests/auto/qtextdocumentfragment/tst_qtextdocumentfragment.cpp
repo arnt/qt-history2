@@ -125,6 +125,7 @@ private slots:
     void html_anchorAroundImage();
     void html_floatBorder();
     void html_frameImport();
+    void html_frameImport2();
     void html_dontAddMarginsAcrossTableCells();
     void html_dontMergeCenterBlocks();
     void html_tableCellBgColor();
@@ -1724,6 +1725,37 @@ void tst_QTextDocumentFragment::html_frameImport()
     QVERIFY(childFrames.count() == 1);
     QTextFrame *frame = childFrames.first();
     QCOMPARE(frame->frameFormat().margin(), ffmt.margin());
+    QCOMPARE(frame->frameFormat().border(), ffmt.border());
+}
+
+void tst_QTextDocumentFragment::html_frameImport2()
+{
+    QTextFrameFormat ffmt;
+    ffmt.setBorder(1);
+    ffmt.setPosition(QTextFrameFormat::FloatRight);
+    ffmt.setLeftMargin(200);
+    ffmt.setTopMargin(100);
+    ffmt.setBottomMargin(50);
+    ffmt.setRightMargin(250);
+    ffmt.setWidth(100);
+    ffmt.setHeight(50);
+    ffmt.setBackground(QColor("#00ff00"));
+    cursor.insertFrame(ffmt);
+    cursor.insertText("Hello World");
+
+    QTextDocumentFragment frag(doc);
+    cleanup();
+    init();
+    frag = QTextDocumentFragment::fromHtml(frag.toHtml());
+    cursor.insertFragment(frag);
+
+    QList<QTextFrame *> childFrames = doc->rootFrame()->childFrames();
+    QVERIFY(childFrames.count() == 1);
+    QTextFrame *frame = childFrames.first();
+    QCOMPARE(frame->frameFormat().topMargin(), ffmt.topMargin());
+    QCOMPARE(frame->frameFormat().bottomMargin(), ffmt.bottomMargin());
+    QCOMPARE(frame->frameFormat().leftMargin(), ffmt.leftMargin());
+    QCOMPARE(frame->frameFormat().rightMargin(), ffmt.rightMargin());
     QCOMPARE(frame->frameFormat().border(), ffmt.border());
 }
 

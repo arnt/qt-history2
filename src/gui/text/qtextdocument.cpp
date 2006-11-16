@@ -703,8 +703,8 @@ QString QTextDocument::defaultStyleSheet() const
     This signal is emitted whenever the position of a cursor changed
     due to an editing operation. The cursor that changed is passed in
     \a cursor.  If you need a signal when the cursor is moved with the
-    arrow keys you can use the \l{QTextEdit::}{cursorPositionChanged()} signal in 
-    QTextEdit. 
+    arrow keys you can use the \l{QTextEdit::}{cursorPositionChanged()} signal in
+    QTextEdit.
 */
 
 /*!
@@ -2036,7 +2036,8 @@ void QTextHtmlExporter::emitTable(const QTextTable *table)
     if (format.hasProperty(QTextFormat::FrameBorder))
         emitAttribute("border", QString::number(format.border()));
 
-    emitFloatStyle(format.position());
+    emitFrameStyle(format, TableFrame);
+
     emitAlignment(format.alignment());
     emitTextLength("width", format.width());
 
@@ -2139,15 +2140,7 @@ void QTextHtmlExporter::emitFrame(QTextFrame::Iterator frameIt)
                 if (format.hasProperty(QTextFormat::FrameBorder))
                     emitAttribute("border", QString::number(format.border()));
 
-                html += QLatin1String(" style=\"-qt-table-type: frame;");
-                emitFloatStyle(format.position(), OmitStyleTag);
-
-                if (format.hasProperty(QTextFormat::FrameMargin)) {
-                    const QString margin = QString::number(format.margin());
-                    emitMargins(margin, margin, margin, margin);
-                }
-
-                html += QLatin1Char('\"');
+                emitFrameStyle(format, TextFrame);
 
                 emitTextLength("width", format.width());
                 emitTextLength("height", format.height());
@@ -2165,6 +2158,33 @@ void QTextHtmlExporter::emitFrame(QTextFrame::Iterator frameIt)
             emitBlock(it.currentBlock());
         }
     }
+}
+
+void QTextHtmlExporter::emitFrameStyle(const QTextFrameFormat &format, FrameType frameType)
+{
+    QLatin1String styleAttribute(" style=\"");
+    html += styleAttribute;
+    const int originalHtmlLength = html.length();
+
+    if (frameType == TextFrame)
+        html += QLatin1String("-qt-table-type: frame;");
+
+    emitFloatStyle(format.position(), OmitStyleTag);
+
+    if (format.hasProperty(QTextFormat::FrameMargin)
+        || format.hasProperty(QTextFormat::FrameLeftMargin)
+        || format.hasProperty(QTextFormat::FrameRightMargin)
+        || format.hasProperty(QTextFormat::FrameTopMargin)
+        || format.hasProperty(QTextFormat::FrameBottomMargin))
+        emitMargins(QString::number(format.topMargin()),
+                    QString::number(format.bottomMargin()),
+                    QString::number(format.leftMargin()),
+                    QString::number(format.rightMargin()));
+
+    if (html.length() == originalHtmlLength) // nothing emitted?
+        html.chop(qstrlen(styleAttribute.latin1()));
+    else
+        html += QLatin1Char('\"');
 }
 
 /*!

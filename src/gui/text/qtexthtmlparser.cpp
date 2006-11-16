@@ -657,7 +657,7 @@ int QTextHtmlParser::margin(int i, int mar) const {
         || mar == MarginRight) {
         while (i) {
             node = &at(i);
-            if (!node->isBlock())
+            if (!node->isBlock() && node->id != Html_table)
                 break;
             if (node->isTableCell())
                 break;
@@ -1454,7 +1454,7 @@ static void setWidthAttribute(QTextLength *width, QString value)
     }
 }
 
-static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value, const QTextDocument *resourceProvider)
+void QTextHtmlParserNode::parseStyleAttribute(const QString &value, const QTextDocument *resourceProvider)
 {
     QString css = value;
     css.prepend(QLatin1String("dummy {"));
@@ -1463,7 +1463,7 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value,
     QCss::StyleSheet sheet;
     parser.parse(&sheet);
     if (sheet.styleRules.count() != 1) return;
-    node->applyCssDeclarations(sheet.styleRules.at(0).declarations, resourceProvider);
+    applyCssDeclarations(sheet.styleRules.at(0).declarations, resourceProvider);
 }
 
 QStringList QTextHtmlParser::parseAttributes()
@@ -1626,7 +1626,7 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
         }
 
         if (key == QLatin1String("style")) {
-            parseStyleAttribute(node, value, resourceProvider);
+            node->parseStyleAttribute(value, resourceProvider);
         } else if (key == QLatin1String("align")) {
             value = value.toLower();
             if (value == QLatin1String("left"))

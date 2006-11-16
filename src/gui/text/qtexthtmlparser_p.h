@@ -233,6 +233,7 @@ struct QTextHtmlParserNode {
 
     bool isNestedList(const QTextHtmlParser *parser) const;
 
+    void parseStyleAttribute(const QString &value, const QTextDocument *resourceProvider);
     void applyCssDeclarations(const QVector<QCss::Declaration> &declarations, const QTextDocument *resrouceProvider);
 
     bool hasOnlyWhitespace() const;

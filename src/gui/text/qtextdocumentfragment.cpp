@@ -961,12 +961,8 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
 
     QTextFrameFormat fmt;
     const QTextHtmlParserNode &node = at(tableNodeIdx);
-    if (node.isTextFrame) {
-        // for plain text frames we set the frame margin
-        // for all of top/bottom/left/right, so in the import
-        // here it doesn't matter which one we pick
-        fmt.setMargin(node.uncollapsedMargin(QTextHtmlParser::MarginTop));
-    } else {
+
+    if (!node.isTextFrame) {
         QTextTableFormat tableFmt;
         tableFmt.setCellSpacing(node.tableCellSpacing);
         tableFmt.setCellPadding(node.tableCellPadding);
@@ -977,6 +973,19 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
         tableFmt.setHeaderRowCount(tableHeaderRowCount);
         fmt = tableFmt;
     }
+
+    fmt.setTopMargin(topMargin(tableNodeIdx));
+    fmt.setBottomMargin(bottomMargin(tableNodeIdx));
+    fmt.setLeftMargin(leftMargin(tableNodeIdx)
+                      + indent * 40 // ##### not a good emulation
+                      );
+    fmt.setRightMargin(rightMargin(tableNodeIdx));
+
+    // compatibility
+    if (qFuzzyCompare(fmt.leftMargin(), fmt.rightMargin())
+        && qFuzzyCompare(fmt.leftMargin(), fmt.topMargin())
+        && qFuzzyCompare(fmt.leftMargin(), fmt.bottomMargin()))
+        fmt.setProperty(QTextFormat::FrameMargin, fmt.leftMargin());
 
     fmt.setBorder(node.tableBorder);
     fmt.setWidth(node.width);

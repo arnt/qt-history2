@@ -770,14 +770,31 @@ void tst_QTextDocument::toHtml_data()
         cursor.insertTable(2, 2, fmt);
 
         QTest::newRow("tableattrs") << QTextDocumentFragment(&doc)
-                                  << QString("<table border=\"1\" style=\"float: right;\" align=\"center\" width=\"50%\" cellspacing=\"3\" cellpadding=\"3\" bgcolor=\"#ff00ff\">"
-#if QT_VERSION >= 0x040200
+                                  << QString("<table border=\"1\" style=\" float: right;\" align=\"center\" width=\"50%\" cellspacing=\"3\" cellpadding=\"3\" bgcolor=\"#ff00ff\">"
                                              "\n<tr>\n<td></td>\n<td></td></tr>"
                                              "\n<tr>\n<td></td>\n<td></td></tr>"
-#else
-                                             "<tr><td></td><td></td></tr>"
-                                             "<tr><td></td><td></td></tr>"
-#endif
+                                             "</table>");
+    }
+
+    {
+        CREATE_DOC_AND_CURSOR();
+
+        QTextTableFormat fmt;
+        fmt.setBorder(1);
+        fmt.setCellSpacing(3);
+        fmt.setCellPadding(3);
+        fmt.setBackground(QColor("#ff00ff"));
+        fmt.setWidth(QTextLength(QTextLength::PercentageLength, 50));
+        fmt.setAlignment(Qt::AlignHCenter);
+        fmt.setPosition(QTextFrameFormat::FloatRight);
+        fmt.setLeftMargin(25);
+        fmt.setBottomMargin(35);
+        cursor.insertTable(2, 2, fmt);
+
+        QTest::newRow("tableattrs2") << QTextDocumentFragment(&doc)
+                                  << QString("<table border=\"1\" style=\" float: right; margin-top:0px; margin-bottom:35px; margin-left:25px; margin-right:0px;\" align=\"center\" width=\"50%\" cellspacing=\"3\" cellpadding=\"3\" bgcolor=\"#ff00ff\">"
+                                             "\n<tr>\n<td></td>\n<td></td></tr>"
+                                             "\n<tr>\n<td></td>\n<td></td></tr>"
                                              "</table>");
     }
 

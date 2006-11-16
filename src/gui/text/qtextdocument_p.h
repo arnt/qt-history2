@@ -299,6 +299,7 @@ public:
 
 private:
     enum StyleMode { EmitStyleTag, OmitStyleTag };
+    enum FrameType { TextFrame, TableFrame };
 
     void emitFrame(QTextFrame::Iterator frameIt);
     void emitBlock(const QTextBlock &block);
@@ -312,6 +313,7 @@ private:
     void emitFloatStyle(QTextFrameFormat::Position pos, StyleMode mode = EmitStyleTag);
     void emitMargins(const QString &top, const QString &bottom, const QString &left, const QString &right);
     void emitAttribute(const char *attribute, const QString &value);
+    void emitFrameStyle(const QTextFrameFormat &format, FrameType frameType);
 
     QString html;
     QTextCharFormat defaultCharFormat;

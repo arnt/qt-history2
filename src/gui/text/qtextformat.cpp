@@ -1952,13 +1952,97 @@ QTextFrameFormat::QTextFrameFormat() : QTextFormat(FrameFormat) {}
     \fn QTextFrameFormat::setMargin(qreal margin)
 
     Sets the frame's \a margin in pixels.
+    This method also sets the left, right, top and bottom margins
+    of the frame to the same value. The individual margins override
+    the general margin.
 */
+void QTextFrameFormat::setMargin(qreal amargin)
+{
+    setProperty(FrameMargin, amargin);
+    setProperty(FrameTopMargin, amargin);
+    setProperty(FrameBottomMargin, amargin);
+    setProperty(FrameLeftMargin, amargin);
+    setProperty(FrameRightMargin, amargin);
+}
+
 
 /*!
     \fn qreal QTextFrameFormat::margin() const
 
     Returns the width of the frame's external margin in pixels.
 */
+
+/*!
+    \fn QTextFrameFormat::setTopMargin(qreal margin)
+
+    Sets the frame's top \a margin in pixels.
+*/
+
+/*!
+    \fn qreal QTextFrameFormat::topMargin(qreal margin)
+
+    Returns the width of the frame's top margin in pixels.
+*/
+qreal QTextFrameFormat::topMargin() const
+{
+    if (!hasProperty(FrameTopMargin))
+        return margin();
+    return doubleProperty(FrameTopMargin);
+}
+
+/*!
+    \fn QTextFrameFormat::setBottomMargin(qreal margin)
+
+    Sets the frame's bottom \a margin in pixels.
+*/
+
+/*!
+    \fn qreal QTextFrameFormat::bottomMargin(qreal margin)
+
+    Returns the width of the frame's bottom margin in pixels.
+*/
+qreal QTextFrameFormat::bottomMargin() const
+{
+    if (!hasProperty(FrameBottomMargin))
+        return margin();
+    return doubleProperty(FrameBottomMargin);
+}
+
+/*!
+    \fn QTextFrameFormat::setLeftMargin(qreal margin)
+
+    Sets the frame's left \a margin in pixels.
+*/
+
+/*!
+    \fn qreal QTextFrameFormat::leftMargin(qreal margin)
+
+    Returns the width of the frame's left margin in pixels.
+*/
+qreal QTextFrameFormat::leftMargin() const
+{
+    if (!hasProperty(FrameLeftMargin))
+        return margin();
+    return doubleProperty(FrameLeftMargin);
+}
+
+/*!
+    \fn QTextFrameFormat::setRightMargin(qreal margin)
+
+    Sets the frame's right \a margin in pixels.
+*/
+
+/*!
+    \fn qreal QTextFrameFormat::rightMargin(qreal margin)
+
+    Returns the width of the frame's right margin in pixels.
+*/
+qreal QTextFrameFormat::rightMargin() const
+{
+    if (!hasProperty(FrameRightMargin))
+        return margin();
+    return doubleProperty(FrameRightMargin);
+}
 
 /*!
     \fn QTextFrameFormat::setPadding(qreal width)
