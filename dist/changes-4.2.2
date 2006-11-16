@@ -95,9 +95,44 @@ General improvements
       * QAbstractItemView::commitData() is made more robust by ignoring cases
         in which no valid index is associated with the editor
 
+      * Fixed crash due to incorrect update of persistent model indexes in
+        QSortFilterProxyModel::layoutChanged().
+
+      * Fixed bug that could cause QSortFilterProxyModel::removeRows() and
+        QSortFilterProxyModel::removeColumns() to remove the wrong source model
+        items.
+
+      * Fixed bug in QSortFilterProxyModel that caused stale proxy mappings to
+        remain when source model items were removed and later reinserted,
+        resulting in an incorrect proxy model.
+
+      * Fixed bug in QSortFilterProxyModel that caused items to not appear
+        in a QTreeView when adding children to a formerly childless source item.
+
+      * Fixed painting bug for spanning cells in QTableView when the item
+        background is transparent.
+
+      * Fixed regression that caused incorrect propagation of Enter key press
+        from a QAbstractItemView in editing mode.
+
+      * Fixed erroneous expanding/collapsing of items in a QTreeView when
+        double-clicking in the checkbox area of an item.
+
+      * Fixed regression in QListWidget and QTreeWidget that caused persistent
+        indexes to not be updated when sorting items.
+
+      * Fixed crash in Q3IconView when selecting several items without releasing
+        the left mouse button, then clicking the right mouse button.
+
+      * Enter key can now be used to start item editing when the edit trigger
+        is AnyKeyPressed.
+
+      * Fixed crash in QTreeView::setRowHidden() when hiding and then un-hiding
+        items in a hierarchy.
+
 - Graphics View
 
-  * The background cache in QGraphicsView is now is now properly initialized to
+  * The background cache in QGraphicsView is now properly initialized to
     the full viewport.
 
   * Fixed incorrect cursor updates when moving between items.
