@@ -508,6 +508,25 @@ bool QCoreApplication::testAttribute(Qt::ApplicationAttribute attribute)
 }
 
 
+/*!
+  \internal
+
+  This function is here to make it possible for Qt extensions to
+  hook into event notification without subclassing QApplication
+*/
+bool QCoreApplication::notifyInternal(QObject *receiver, QEvent *event)
+{
+    // Make it possible for Qt JAmbi and QSA to hook into events even
+    // though QApplication is subclassed...
+    bool result = false;
+    void *cbdata[] = { receiver, event, &result };
+    if (QInternal::activateCallbacks(QInternal::EventNotifyCallback, cbdata)) {
+        return result;
+    }
+
+    return notify(receiver, event);
+}
+
 
 /*!
   Sends \a event to \a receiver: \a {receiver}->event(\a event).

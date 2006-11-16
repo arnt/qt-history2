@@ -1396,6 +1396,7 @@ public:
         ConnectCallback,
         DisconnectCallback,
         AdoptCurrentThread,
+        EventNotifyCallback,
         LastCallback
     };
 

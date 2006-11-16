@@ -152,6 +152,7 @@ protected:
 
 private:
     static bool sendSpontaneousEvent(QObject *receiver, QEvent *event);
+    bool notifyInternal(QObject *receiver, QEvent *event);
 
     void init();
 
@@ -170,10 +171,10 @@ private:
 };
 
 inline bool QCoreApplication::sendEvent(QObject *receiver, QEvent *event)
-{  if (event) event->spont = false; return self ? self->notify(receiver, event) : false; }
+{  if (event) event->spont = false; return self ? self->notifyInternal(receiver, event) : false; }
 
 inline bool QCoreApplication::sendSpontaneousEvent(QObject *receiver, QEvent *event)
-{ if (event) event->spont = true; return self ? self->notify(receiver, event) : false; }
+{ if (event) event->spont = true; return self ? self->notifyInternal(receiver, event) : false; }
 
 inline void QCoreApplication::sendPostedEvents() { sendPostedEvents(0, 0); }
 
