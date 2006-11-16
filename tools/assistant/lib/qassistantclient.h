@@ -18,11 +18,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QProcess>
 #include <QtCore/qglobal.h>
-#if defined(Q_OS_MAC) && defined(QT_MAC_FRAMEWORK_BUILD)
-#  include <QtAssistantClient/qassistantclient_global.h>
-#else
-#  include <QtAssistant/qassistantclient_global.h>
-#endif
+#include <QtAssistant/qassistantclient_global.h>
 
 QT_BEGIN_HEADER
 

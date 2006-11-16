@@ -36,6 +36,7 @@ include($$HEADERS_PRI)|clear(HEADERS_PRI)
 
 #mac frameworks
 mac:!static:contains(QT_CONFIG, qt_framework) {
+   TARGET = QtAssistant    # Change the name to match the headers
    QMAKE_FRAMEWORK_BUNDLE_NAME = $$TARGET
    CONFIG += lib_bundle qt_no_framework_direct_includes qt_framework
    CONFIG(debug, debug|release) {
