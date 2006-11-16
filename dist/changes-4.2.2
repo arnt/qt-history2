@@ -42,8 +42,17 @@ General improvements
 
   * Fix support for pixel font sizes in the HTML import
 
+- QDataStream:
+  * Fixed streaming of qreal on (embedded) platforms where sizeof(qreal) !=
+    sizeof(double).
+
 - QFSFileEngine:
   * Fixed broken UNC path support.
+
+- QIODevice:
+  * Fixed a data corruption bug when reading large blocks from devices
+    opened in Text mode.
+  * Fixed seeking to positions larger than INT_MAX.
   
 - QLineEdit:
 
@@ -82,9 +91,19 @@ General improvements
   * highlighted() signal was emitted twice if setModel() was called twice
   * Make QCompleter usable inside dialogs
 
+- QDir
+  * Fixed an assert in QDir::entryList() when reading file entries with names
+    with invalid unicode encoding.
+
+- QTextStream
+  * readLine() no longer treats "\r\n" as being two lines if called after
+    QTextStream::pos().
+
 - QVariant
   * Fixed conversion of invalid variant to integer that sets ok to true
-  
+  * Fixed a crash in the compatibility function QVariant::asByteArray()
+    when called on a null variant.
+
 - Item views
       
       * Fixed possible assert in QTreeView when painting if there were
@@ -147,6 +166,17 @@ General improvements
       * Fixed crash in QTreeView::setRowHidden() when hiding and then un-hiding
         items in a hierarchy.
 
+      * QAbstractItemView now emits itemEntered() consistently in all
+        platforms.
+
+      * Date and time editors are now initialized correctly with the current
+        date and time.
+
+      * QTableView tab focus handling has been improved. Although tab key
+        navigation is enabled by default, you can tab out of a view if the
+        model is either missing or unable to handle the key (e.g., an empty
+        model).
+
 - Graphics View
 
   * The background cache in QGraphicsView is now properly initialized to
@@ -159,6 +189,19 @@ General improvements
 
   * QGraphicsEllipseItem is now drawn as a full ellipse at angles ..., -720, -360,
     360, 720, ... only.
+
+  * Fixed a crash when selecting one selectable item, then moving another
+    movable item.
+
+  * Fixed a crash during item construction caused by a pure virtual function
+    call in QGraphicsItem.
+
+  * Fixed mouse grabber bookkeeping problems in QGraphicsScene which fell out
+    of sync when opening modal dialogs or popups from within a mouse event
+    handlers.
+
+  * QGraphicsScene now forwards unhandled events to QObject, allowing the use
+    of timers in QGraphicsScene subclasses.
 
 - Painting
 
@@ -207,7 +250,11 @@ General improvements
 - QSystemTrayIcon:
 
     * Properly handle the enable state of actions and emit aboutToShow() on the mac.
-      
+
+- QPlastiqueStyle:
+
+    * Disabled checked radiobuttons and checkboxes are now rendered correctly.
+
 - QProgressBar
     
     * Document that drawing of text in vertical progress bars is style dependent.
@@ -234,6 +281,10 @@ Platform-Specific changes
   * Fixed printing to pdf when no printers are installed.
   * Fixed "print to file" dialog only showing once after canceling the dialog.
   * Fixed name clashes in enum values when running dumpcpp (ActiveQt)
+  * Fixed a lock-up in QNetworkInterface for machines with multiple network
+    interfaces.
+  * Fixed a lock-up in QAbstractSocket::waitForReadyRead() when 0 was passed
+    as a timeout value.
 
 - Qt/Mac:
 
