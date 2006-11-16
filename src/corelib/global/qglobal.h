@@ -1709,13 +1709,28 @@ template <typename T>
 inline const QForeachContainer<T> *qForeachContainer(const QForeachContainerBase *base, const T *)
 { return static_cast<const QForeachContainer<T> *>(base); }
 
-#define Q_FOREACH(variable, container) \
+#if (defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET) && !defined(Q_CC_INTEL)) || defined(Q_CC_MIPS)
+/*
+   Proper for-scoping in VC++6 and MIPSpro CC
+*/
+#  define Q_FOREACH(variable,container)                                                             \
+    if(0){}else                                                                                     \
+    for (const QForeachContainerBase &_container_ = qForeachContainerNew(container);                \
+         qForeachContainer(&_container_, true ? 0 : qForeachPointer(container))->condition();       \
+         ++qForeachContainer(&_container_, true ? 0 : qForeachPointer(container))->i)               \
+        for (variable = *qForeachContainer(&_container_, true ? 0 : qForeachPointer(container))->i; \
+             qForeachContainer(&_container_, true ? 0 : qForeachPointer(container))->brk;           \
+             --qForeachContainer(&_container_, true ? 0 : qForeachPointer(container))->brk)
+
+#else
+#  define Q_FOREACH(variable, container) \
     for (const QForeachContainerBase &_container_ = qForeachContainerNew(container); \
          qForeachContainer(&_container_, true ? 0 : qForeachPointer(container))->condition();       \
          ++qForeachContainer(&_container_, true ? 0 : qForeachPointer(container))->i)               \
         for (variable = *qForeachContainer(&_container_, true ? 0 : qForeachPointer(container))->i; \
              qForeachContainer(&_container_, true ? 0 : qForeachPointer(container))->brk;           \
              --qForeachContainer(&_container_, true ? 0 : qForeachPointer(container))->brk)
+#endif // MSVC6 || MIPSpro
 
 #endif
 

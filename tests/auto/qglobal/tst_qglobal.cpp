@@ -15,6 +15,7 @@ class tst_QGlobal: public QObject
 private slots:
     void qIsNull();
     void qInternalCallbacks();
+    void for_each();
 };
 
 void tst_QGlobal::qIsNull()
@@ -100,6 +101,26 @@ void tst_QGlobal::qInternalCallbacks()
     ok = QObject::disconnect(&a, signal.toLatin1(), &b, slot.toLatin1());
     QVERIFY(!ok);
     QCOMPARE(connect_info.sender, (QObject *) 0);
+}
+
+void tst_QGlobal::for_each()
+{
+    QList<int> list;
+    list << 0 << 1 << 2 << 3 << 4 << 5;
+
+    int counter = 0;
+    foreach(int i, list) {
+        QCOMPARE(i, counter++);
+    }
+    QCOMPARE(counter, list.count());
+
+    // do it again, to make sure we don't have any for-scoping
+    // problems with older compilers
+    counter = 0;
+    foreach(int i, list) {
+        QCOMPARE(i, counter++);
+    }
+    QCOMPARE(counter, list.count());
 }
 
 QTEST_MAIN(tst_QGlobal)
