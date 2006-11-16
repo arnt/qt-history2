@@ -1813,10 +1813,13 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_Menu_SubMenuPopupDelay:
         ret = 100;
         break;
-    case SH_ScrollBar_LeftClickAbsolutePosition:
+    case SH_ScrollBar_LeftClickAbsolutePosition: {
         extern bool qt_scrollbar_jump_to_pos; //qapplication_mac.cpp
-        ret = qt_scrollbar_jump_to_pos;
-        break;
+        if(QApplication::keyboardModifiers() & Qt::AltButton)
+            ret = !qt_scrollbar_jump_to_pos;
+        else
+            ret = qt_scrollbar_jump_to_pos;
+        break; }
     case SH_TabBar_PreferNoArrows:
         ret = true;
         break;
