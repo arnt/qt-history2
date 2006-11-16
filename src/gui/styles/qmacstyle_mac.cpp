@@ -4464,7 +4464,7 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                 QFontMetrics fm = groupBox->fontMetrics;
                 bool checkable = groupBox->subControls & SC_GroupBoxCheckBox;
                 int yOffset = 3;
-                if (!checkable) {
+                if (!checkable && widget && !widget->testAttribute(Qt::WA_SetFont)) {
                     fm = QFontMetrics(qt_app_fonts_hash()->value("QHeaderView", QFont()));
                     yOffset = 5;
                 }
