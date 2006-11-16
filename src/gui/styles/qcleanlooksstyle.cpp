@@ -3010,7 +3010,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
     case CC_ComboBox:
         painter->save();
         if (const QStyleOptionComboBox *comboBox = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
-            bool sunken = (comboBox->state & (State_Sunken | State_On));
+            bool sunken = comboBox->state & State_On; // play dead, if combobox has no items
             bool isEnabled = (comboBox->state & State_Enabled);
             bool focus = isEnabled && (comboBox->state & State_HasFocus);
             QPixmap cache;

@@ -4040,7 +4040,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 #ifndef QT_NO_COMBOBOX
     case CC_ComboBox:
         if (const QStyleOptionComboBox *comboBox = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
-            bool sunken = (comboBox->state & (State_Sunken | State_On));
+            bool sunken = comboBox->state & State_On; // play dead if combobox has no items
             bool reverse = comboBox->direction == Qt::RightToLeft;
             int menuButtonWidth = 16;
             int xoffset = sunken ? (reverse ? -1 : 1) : 0;
@@ -4225,6 +4225,9 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 // Start with a standard panel button fill
                 QStyleOptionButton buttonOption;
                 buttonOption.QStyleOption::operator=(*comboBox);
+                if (!sunken) {
+                    buttonOption.state &= ~State_Sunken;
+                }
                 drawPrimitive(PE_PanelButtonCommand, &buttonOption, painter, widget);
 
                 // Draw the menu button separator line
