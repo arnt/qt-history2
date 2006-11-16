@@ -133,25 +133,28 @@
 
     \section2 Accessing the Bundle Path
 
-    The Mac OS X application is actually a directory (ending with \c .app). This
-    directory has various sub-directories and sources. In case you want
-    to place for example the plugin directory, inside this bundle, then you need
-    to find out where the bundle resides on the disk. The following code will
-    do this:
+    The Mac OS X application is actually a directory (ending with \c .app).
+    This directory has various sub-directories and sources. It may be useful to
+    place items (e.g. plugins, online-documentation, etc.) inside this
+    bundle. You will then you need to find out where the bundle resides on the
+    disk. The following code will return the path of the application bundle:
 
     \code
-        CFURLRef pluginRef = CFBundleCopyBundleURL(CFBundleGetMainBundle());
-        CFStringRef macPath = CFURLCopyFileSystemPath(pluginRef,
+    #ifdef Q_WS_MAC
+        CFURLRef appUrlRef = CFBundleCopyBundleURL(CFBundleGetMainBundle());
+        CFStringRef macPath = CFURLCopyFileSystemPath(appUrlRef,
                                                kCFURLPOSIXPathStyle);
         const char *pathPtr = CFStringGetCStringPtr(macPath,
                                                CFStringGetSystemEncoding());
         qDebug("Path = %s", pathPtr);
-        CFRelease(pluginRef);
+        CFRelease(appUrlRef);
         CFRelease(macPath);
+    #endif
     \endcode
 
-    Do not forget to protect this code with an #if defined(Q_WS_MAC) macro if
-    you are deploying on more than one platform.
+    More information about using the CFBundle API is available on
+    \l{http://developer.apple.com/documentation/CoreFoundation/Reference/CFBundleRef/index.html}{Apple's
+    Developer Website}.
 
     \section2 Translating the Application Menu and Native Dialogs
 
