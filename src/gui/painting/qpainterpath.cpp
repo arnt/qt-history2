@@ -2806,8 +2806,18 @@ qreal QPainterPath::slopeAtPercent(qreal t) const
 #define SIGN(x) ((x < 0)?-1:1)
     if (m1)
         slope = m2/m1;
-    else
+    else {
+        //windows doesn't define INFINITY :(
+#ifdef INFINITY
         slope = INFINITY*SIGN(m2);
+#else
+        if (sizeof(qreal) == sizeof(double)) {
+            return 1.79769313486231570e+308;
+        } else {
+            return ((qreal)3.40282346638528860e+38);
+        }
+#endif
+    }
 
     return slope;
 }
