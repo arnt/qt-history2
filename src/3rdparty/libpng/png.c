@@ -267,8 +267,8 @@ png_create_info_struct(png_structp png_ptr)
 void PNGAPI
 png_destroy_info_struct(png_structp png_ptr, png_infopp info_ptr_ptr)
 {
-   if(png_ptr == NULL) return;
    png_infop info_ptr = NULL;
+   if (png_ptr == NULL) return;
 
    png_debug(1, "in png_destroy_info_struct\n");
    if (info_ptr_ptr != NULL)
