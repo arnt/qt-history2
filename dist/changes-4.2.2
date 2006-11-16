@@ -165,6 +165,11 @@ General improvements
       * Fixed memory corruption in QBitmap when source buffer was smaller than
 	the destination buffer (RasterEngine). 
 
+      * Added caching of QGradient's colortable for QRasterPaintEngine.
+        This means that if a gradient with the same stops and colors is used
+        again, it will be quickly fetched from the cache, avoiding the
+        expensive calculations of the color lookup table.
+
 - Style Sheets
       * Fixed crash when widget with stylesheet is reparented into widget with no stylesheet
       * Style Sheet performace improvements
@@ -195,6 +200,8 @@ Platform-Specific changes
   * Fix encoding detection of XLFD fonts
   * Fixed crash in QX11EmbedContainer.
   * QPrinter: Don't generate PDF on raw CUPS printers
+  * When CUPS is not installed or reports 0 printers, QPrintDialog falls
+    back to the printers set up for lpr/lprng.
 
 - Qt/Win:
 
