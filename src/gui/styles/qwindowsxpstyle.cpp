@@ -2655,8 +2655,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
         if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(option))
         {
             XPThemeData theme(widget, p, "TRACKBAR");
-            QSlider *sl = (QSlider*)widget;
-            QRect slrect = sl ? sl->rect() : slider->rect;
+            QRect slrect = slider->rect;
             QRegion tickreg = slrect;
             if (sub & SC_SliderGroove) {
                 theme.rect = subControlRect(CC_Slider, option, SC_SliderGroove, widget);
@@ -2731,7 +2730,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     else
                         partId = TKP_THUMB;
 
-                    if (widget && !widget->isEnabled())
+                    if (!(slider->state & State_Enabled))
                         stateId = TUS_DISABLED;
                     else if (slider->activeSubControls & SC_SliderHandle && (slider->state & State_Sunken))
                         stateId = TUS_PRESSED;
@@ -2749,7 +2748,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     else
                         partId = TKP_THUMBVERT;
 
-                    if (widget && !widget->isEnabled())
+                    if (!(slider->state & State_Enabled))
                         stateId = TUVS_DISABLED;
                     else if (slider->activeSubControls & SC_SliderHandle && (slider->state & State_Sunken))
                         stateId = TUVS_PRESSED;
