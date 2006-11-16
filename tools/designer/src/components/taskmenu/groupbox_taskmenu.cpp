@@ -66,9 +66,8 @@ void GroupBoxTaskMenu::editTitle()
         const QRect r = QRect(QPoint(), QSize(m_groupbox->width(),20));
         // ### m_groupbox->style()->subRect(QStyle::SR_GroupBoxTitle, &opt, m_groupbox);
 
-        m_editor = InPlaceEditor::create(m_groupbox, fw, m_groupbox->title(),r);
+        m_editor = new InPlaceEditor(m_groupbox, TextPropertyEditor::ValidationNone, fw, m_groupbox->title(),r);
 
-        connect(m_editor, SIGNAL(editingFinished()), m_editor, SLOT(deleteLater()));
         connect(m_editor, SIGNAL(textChanged(QString)), this, SLOT(updateText(QString)));
 
     }

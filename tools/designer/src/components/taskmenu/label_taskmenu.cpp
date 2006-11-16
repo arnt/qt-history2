@@ -91,9 +91,9 @@ void LabelTaskMenu::editPlainText()
         
         QStyleOptionButton opt;
         opt.init(m_label);
-        m_editor = InPlaceEditor::create(m_label, m_formWindow,m_label->text(),opt.rect);
+        
+        m_editor = new InPlaceEditor(m_label, TextPropertyEditor::ValidationNone, m_formWindow,m_label->text(),opt.rect);
 
-        connect(m_editor, SIGNAL(editingFinished()), m_editor, SLOT(close()));
         connect(m_editor, SIGNAL(textChanged(QString)), this, SLOT(updateText(QString)));   
     }
 }

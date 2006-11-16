@@ -63,13 +63,12 @@ void LineEditTaskMenu::editText()
     if (!m_formWindow.isNull()) {
         connect(m_formWindow, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
         Q_ASSERT(m_lineEdit->parentWidget() != 0);
-	
-	QStyleOption opt;
+        
+        QStyleOption opt;
         opt.init(m_lineEdit);
 
-        m_editor = InPlaceEditor::create(m_lineEdit, m_formWindow,m_lineEdit->text(),opt.rect);
+        m_editor = new InPlaceEditor(m_lineEdit, TextPropertyEditor::ValidationNone, m_formWindow,m_lineEdit->text(),opt.rect);
 
-        connect(m_editor, SIGNAL(editingFinished()), m_editor, SLOT(deleteLater()));
         connect(m_editor, SIGNAL(textChanged(QString)), this, SLOT(updateText(QString)));
     }
 }

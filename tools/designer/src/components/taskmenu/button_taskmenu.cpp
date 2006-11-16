@@ -68,9 +68,8 @@ void ButtonTaskMenu::editText()
         opt.init(m_button);
         const QRect r = m_button->style()->subElementRect(QStyle::SE_PushButtonContents, &opt, m_button);
 
-        m_editor = InPlaceEditor::create(m_button, m_formWindow,m_button->text(),r);
-        
-        connect(m_editor, SIGNAL(editingFinished()), m_editor, SLOT(close()));
+        m_editor = new InPlaceEditor(m_button, TextPropertyEditor::ValidationNone, m_formWindow,m_button->text(),r);
+
         connect(m_editor, SIGNAL(textChanged(QString)), this, SLOT(updateText(QString)));
     }
 }

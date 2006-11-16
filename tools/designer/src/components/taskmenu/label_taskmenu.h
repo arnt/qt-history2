@@ -21,8 +21,10 @@
 #include <QtDesigner/default_extensionfactory.h>
 
 class QDesignerFormWindowInterface;
-class QLineEdit;
+
 namespace qdesigner_internal {
+
+class InPlaceEditor;
 
 class LabelTaskMenu: public QDesignerTaskMenu
 {
@@ -43,7 +45,7 @@ private slots:
 private:
     QLabel *m_label;
     QPointer<QDesignerFormWindowInterface> m_formWindow;
-    QPointer<QLineEdit> m_editor;
+    QPointer<InPlaceEditor> m_editor;
     mutable QList<QAction*> m_taskActions;
     QAction *m_editRichTextAction;
     QAction *m_editPlainTextAction;

@@ -17,9 +17,8 @@
 #include "defs.h"
 #include "qlonglongvalidator.h"
 
-#include <QtDesigner/propertysheet.h>
-
 #include <qdesigner_utils_p.h>
+#include <textpropertyeditor_p.h>
 
 #include <QtGui/QLineEdit>
 #include <QtGui/QListView>
@@ -139,8 +138,8 @@ void BoolProperty::updateEditorContents(QWidget *editor)
 
 void BoolProperty::updateValue(QWidget *editor)
 {
-    if (QComboBox *combo = qobject_cast<QComboBox*>(editor)) {
-        bool newValue = combo->currentIndex() ? true : false;
+    if (const QComboBox *combo = qobject_cast<const QComboBox*>(editor)) {
+        const bool newValue = combo->currentIndex() ? true : false;
 
         if (newValue != m_value) {
             m_value = newValue;
@@ -333,7 +332,7 @@ void StringProperty::setValue(const QVariant &value)
 
 QString StringProperty::toString() const
 {
-    return m_value;
+    return TextPropertyEditor::stringToEditorString(m_value);
 }
 
 bool StringProperty::hasEditor() const
@@ -343,30 +342,28 @@ bool StringProperty::hasEditor() const
 
 QWidget *StringProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
-    QLineEdit *lineEdit = new QLineEdit(parent);
-    lineEdit->setFrame(0);
-
+    TextPropertyEditor::ValidationMode validationMode = TextPropertyEditor::ValidationNone;
     if (checkValidObjectName()) {
-        QString rx = allowScope() ? QString("[_a-zA-Z:][_a-zA-Z0-9:]*") : QString("[_a-zA-Z][_a-zA-Z0-9]*");
-        lineEdit->setValidator(new QRegExpValidator(QRegExp(rx), lineEdit));
+        validationMode =  allowScope() ? TextPropertyEditor::ValidationObjectNameScope : TextPropertyEditor::ValidationObjectName;
     }
+    TextPropertyEditor* textEditor = new TextPropertyEditor(TextPropertyEditor::EmbeddingTreeView, validationMode, parent);
 
-    QObject::connect(lineEdit, SIGNAL(textChanged(QString)), target, receiver);
-    return lineEdit;
+    QObject::connect(textEditor, SIGNAL(textChanged(QString)), target, receiver);
+    return textEditor;
 }
 
 void StringProperty::updateEditorContents(QWidget *editor)
 {
-    if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor)) {
-        if (lineEdit->text() != m_value)
-            lineEdit->setText(m_value);
+    if (TextPropertyEditor *textEditor = qobject_cast<TextPropertyEditor*>(editor)) {
+        if (textEditor->text() != m_value)
+            textEditor->setText(m_value);
     }
 }
 
 void StringProperty::updateValue(QWidget *editor)
 {
-    if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor)) {
-        QString newValue = lineEdit->text();
+    if (const TextPropertyEditor *textEditor = qobject_cast<const TextPropertyEditor*>(editor)) {
+        const QString newValue = textEditor->text();
 
         if (newValue != m_value) {
             m_value = newValue;
@@ -424,7 +421,7 @@ void ListProperty::updateEditorContents(QWidget *editor)
 void ListProperty::updateValue(QWidget *editor)
 {
     if (QComboBox *combo = qobject_cast<QComboBox*>(editor)) {
-        int newValue = combo->currentIndex();
+        const int newValue = combo->currentIndex();
 
         if (newValue != m_value) {
             m_value = newValue;
@@ -572,7 +569,7 @@ void IntProperty::updateEditorContents(QWidget *editor)
 void IntProperty::updateValue(QWidget *editor)
 {
     if (QSpinBox *spinBox = qobject_cast<QSpinBox*>(editor)) {
-        int newValue = spinBox->value();
+        const int newValue = spinBox->value();
 
         if (newValue != m_value) {
             m_value = newValue;
@@ -1152,7 +1149,7 @@ void DateTimeProperty::updateEditorContents(QWidget *editor)
 void DateTimeProperty::updateValue(QWidget *editor)
 {
     if (QDateTimeEdit *lineEdit = qobject_cast<QDateTimeEdit*>(editor)) {
-        QDateTime newValue = lineEdit->dateTime();
+        const QDateTime newValue = lineEdit->dateTime();
 
         if (newValue != m_value) {
             m_value = newValue;
@@ -1195,7 +1192,7 @@ void DateProperty::updateEditorContents(QWidget *editor)
 void DateProperty::updateValue(QWidget *editor)
 {
     if (QDateEdit *lineEdit = qobject_cast<QDateEdit*>(editor)) {
-        QDate newValue = lineEdit->date();
+        const QDate newValue = lineEdit->date();
 
         if (newValue != m_value) {
             m_value = newValue;
@@ -1238,7 +1235,7 @@ void TimeProperty::updateEditorContents(QWidget *editor)
 void TimeProperty::updateValue(QWidget *editor)
 {
     if (QTimeEdit *lineEdit = qobject_cast<QTimeEdit*>(editor)) {
-        QTime newValue = lineEdit->time();
+        const QTime newValue = lineEdit->time();
 
         if (newValue != m_value) {
             m_value = newValue;
@@ -1305,8 +1302,8 @@ void CursorProperty::updateEditorContents(QWidget *editor)
 
 void CursorProperty::updateValue(QWidget *editor)
 {
-    if (QComboBox *combo = qobject_cast<QComboBox*>(editor)) {
-        QCursor newValue(static_cast<Qt::CursorShape>(combo->currentIndex()));
+    if (const QComboBox *combo = qobject_cast<const QComboBox*>(editor)) {
+        const QCursor newValue(static_cast<Qt::CursorShape>(combo->currentIndex()));
 
         if (newValue.shape() != m_value.shape()) {
             m_value = newValue;
@@ -1459,8 +1456,8 @@ void DoubleProperty::updateEditorContents(QWidget *editor)
 
 void DoubleProperty::updateValue(QWidget *editor)
 {
-    if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor)) {
-        double newValue = lineEdit->text().toDouble();
+    if (const QLineEdit *lineEdit = qobject_cast<const QLineEdit*>(editor)) {
+        const double newValue = lineEdit->text().toDouble();
 
         if (newValue != m_value) {
             m_value = newValue;
@@ -1540,8 +1537,8 @@ void SpinBoxDoubleProperty::updateEditorContents(QWidget *editor)
 
 void SpinBoxDoubleProperty::updateValue(QWidget *editor)
 {
-    if (QDoubleSpinBox *spinBox = qobject_cast<QDoubleSpinBox*>(editor)) {
-        double newValue = spinBox->value();
+    if (const QDoubleSpinBox *spinBox = qobject_cast<const QDoubleSpinBox*>(editor)) {
+        const double newValue = spinBox->value();
 
         if (newValue != m_value) {
             m_value = newValue;
@@ -1631,7 +1628,7 @@ QWidget *LongLongProperty::createEditor(QWidget *parent, const QObject *target, 
 void LongLongProperty::updateEditorContents(QWidget *editor)
 {
     if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor)) {
-        qlonglong v = lineEdit->text().toLongLong();
+        const qlonglong v = lineEdit->text().toLongLong();
         if (v != m_value)
             lineEdit->setText(QString::number(m_value));
     }
@@ -1639,8 +1636,8 @@ void LongLongProperty::updateEditorContents(QWidget *editor)
 
 void LongLongProperty::updateValue(QWidget *editor)
 {
-    if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor)) {
-        qlonglong newValue = lineEdit->text().toLongLong();
+    if (const QLineEdit *lineEdit = qobject_cast<const QLineEdit*>(editor)) {
+        const qlonglong newValue = lineEdit->text().toLongLong();
 
         if (newValue != m_value) {
             m_value = newValue;
@@ -1714,8 +1711,8 @@ void UrlProperty::updateEditorContents(QWidget *editor)
 
 void UrlProperty::updateValue(QWidget *editor)
 {
-    if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor)) {
-        QUrl newValue = QUrl(lineEdit->text());
+    if (const QLineEdit *lineEdit = qobject_cast<const QLineEdit*>(editor)) {
+        const QUrl newValue = QUrl(lineEdit->text());
 
         if (newValue != m_value) {
             m_value = newValue;
@@ -1757,8 +1754,8 @@ void StringListProperty::updateEditorContents(QWidget *editor)
 
 void StringListProperty::updateValue(QWidget *editor)
 {
-    if (StringListEditorButton *btn = qobject_cast<StringListEditorButton*>(editor)) {
-        QStringList newValue = btn->stringList();
+    if (const StringListEditorButton *btn = qobject_cast<const StringListEditorButton*>(editor)) {
+        const QStringList newValue = btn->stringList();
         if (newValue != m_value) {
             m_value = newValue;
             setChanged(true);
@@ -1795,7 +1792,7 @@ QWidget *UIntProperty::createEditor(QWidget *parent, const QObject *target, cons
 void UIntProperty::updateEditorContents(QWidget *editor)
 {
     if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor)) {
-        uint v = lineEdit->text().toUInt();
+        const uint v = lineEdit->text().toUInt();
         if (v != m_value)
             lineEdit->setText(QString::number(m_value));
     }
@@ -1803,8 +1800,8 @@ void UIntProperty::updateEditorContents(QWidget *editor)
 
 void UIntProperty::updateValue(QWidget *editor)
 {
-    if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor)) {
-        uint newValue = lineEdit->text().toUInt();
+    if (const QLineEdit *lineEdit = qobject_cast<const QLineEdit*>(editor)) {
+        const uint newValue = lineEdit->text().toUInt();
 
         if (newValue != m_value) {
             m_value = newValue;
@@ -1843,7 +1840,7 @@ QWidget *ULongLongProperty::createEditor(QWidget *parent, const QObject *target,
 void ULongLongProperty::updateEditorContents(QWidget *editor)
 {
     if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor)) {
-        qulonglong v = lineEdit->text().toULongLong();
+        const qulonglong v = lineEdit->text().toULongLong();
         if (v != m_value)
             lineEdit->setText(QString::number(m_value));
     }
@@ -1851,8 +1848,8 @@ void ULongLongProperty::updateEditorContents(QWidget *editor)
 
 void ULongLongProperty::updateValue(QWidget *editor)
 {
-    if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor)) {
-        qulonglong newValue = lineEdit->text().toULongLong();
+    if (const QLineEdit *lineEdit = qobject_cast<const QLineEdit*>(editor)) {
+        const qulonglong newValue = lineEdit->text().toULongLong();
 
         if (newValue != m_value) {
             m_value = newValue;

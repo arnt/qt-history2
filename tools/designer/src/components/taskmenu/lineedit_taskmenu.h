@@ -24,7 +24,7 @@ class QLineEdit;
 class QDesignerFormWindowInterface;
 
 namespace qdesigner_internal {
-
+class InPlaceEditor;
 class LineEditTaskMenu: public QDesignerTaskMenu
 {
     Q_OBJECT
@@ -44,7 +44,7 @@ private slots:
 private:
     QLineEdit *m_lineEdit;
     QPointer<QDesignerFormWindowInterface> m_formWindow;
-    QPointer<QLineEdit> m_editor;
+    QPointer<InPlaceEditor> m_editor;
     mutable QList<QAction*> m_taskActions;
     QAction *m_editTextAction;
 };
