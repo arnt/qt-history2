@@ -68,6 +68,13 @@ General improvements
 - QWorkspace
   * Memory corruption, which caused crash inside Visual Studio.
 
+- QCompleter
+  * highlighted() signal was emitted twice if setModel() was called twice
+  * Make QCompleter usable inside dialogs
+
+- QVariant
+  * Fixed conversion of invalid variant to integer that sets ok to true
+  
 - Item views
       
       * Fixed possible assert in QTreeView when painting if there were
@@ -148,6 +155,12 @@ General improvements
       * Fixed memory corruption in QBitmap when source buffer was smaller than
 	the destination buffer (RasterEngine). 
 
+- Style Sheets
+      * Fixed crash when widget with stylesheet is reparented into widget with no stylesheet
+      * Style Sheet performace improvements
+      * Do not clobber widget's custom palette when not styled using stylesheet
+      * Add support to specify alpha colors using rgba()
+      
 - SQL plugins
 
       * Fixed incorrect translation of error strings in the Oracle plugin
