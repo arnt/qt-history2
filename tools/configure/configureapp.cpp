@@ -924,8 +924,8 @@ bool Configure::displayHelp()
         desc("EXCEPTIONS", "no", "-no-exceptions",      "Disable exceptions on platforms that support it.");
         desc("EXCEPTIONS", "yes","-exceptions",         "Enable exceptions on platforms that support it.\n");
 
-        desc("ACCESSIBILITY", "no",  "-no-accessibility", "Do not compile Windows Active Accessibilit support.");
-        desc("ACCESSIBILITY", "yes", "-accessibility",    "Compile Windows Active Accessibilit support.\n");
+        desc("ACCESSIBILITY", "no",  "-no-accessibility", "Do not compile Windows Active Accessibility support.");
+        desc("ACCESSIBILITY", "yes", "-accessibility",    "Compile Windows Active Accessibility support.\n");
 
         desc("STL", "no",       "-no-stl",              "Do not compile STL support.");
         desc("STL", "yes",      "-stl",                 "Compile STL support.\n");
