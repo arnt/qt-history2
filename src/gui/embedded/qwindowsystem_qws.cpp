@@ -207,27 +207,29 @@ QWSWindowPrivate::QWSWindowPrivate()
     \brief The QWSWindow class encapsulates a top-level window in
     Qtopia Core.
 
-    When running a \l {Qtopia Core} application, it either runs as a
+    When you run a \l {Qtopia Core} application, it either runs as a
     server or connects to an existing server. As applications add and
-    remove widgets, the QWSServer class maintains information about
-    each window. Note that you should never construct the QWSWindow
-    class yourself; the current top-level windows can be retrieved
-    using the QWSServer::clientWindows() function.
+    remove windows, the server process maintains information about
+    each window. In \l {Qtopia Core}, top-level windows are
+    encapsulated as QWSWindow objects. Note that you should never
+    construct the QWSWindow class yourself; the current top-level
+    windows can be retrieved using the QWSServer::clientWindows()
+    function.
 
-    QWSWindow provides functions returning various information about
-    the window: its caption(), name(), opacity() and winId() along with
-    the client() that owns the window.
+    With a window at hand, you can retrieve its caption, name, opacity
+    and ID using the caption(), name(), opacity() and winId()
+    functions, respectively. Use the client() function to retrieve a
+    pointer to the client that owns the window.
 
-    In addition, it is possible to determine whether the window is
-    visible using the isVisible() function, if the window is
-    completely obscured by another window or by the bounds of the
-    screen using the isFullyObscured() function, and whether the
-    window has an alpha channel different from 255 using the
-    isOpaque() function. Finally, QWSWindow provides the
-    requestedRegion() function that returns the region of the display
-    the window wants to draw on.
+    Use the isVisible() function to find out if the window is
+    visible. You can find out if the window is completely obscured by
+    another window or by the bounds of the screen, using the
+    isFullyObscured() function. The isOpaque() function returns true
+    if the window has an alpha channel equal to 255. Finally, the
+    requestedRegion() function returns the region of the display the
+    window wants to draw on.
 
-    \sa QWSServer, {Running Qtopia Core Applications}
+    \sa QWSServer, QWSClient, {Qtopia Core Architecture}
 */
 
 /*!
@@ -258,6 +260,8 @@ QWSWindowPrivate::QWSWindowPrivate()
     \fn QWSClient* QWSWindow::client() const
 
     Returns a reference to the QWSClient object that owns this window.
+
+    \sa requestedRegion()
 */
 
 /*!
@@ -265,6 +269,8 @@ QWSWindowPrivate::QWSWindowPrivate()
 
     Returns the region that the window has requested to draw onto,
     including any window decorations.
+
+    \sa client()
 */
 
 /*!
@@ -550,10 +556,19 @@ void QWSClientPrivate::unlockCommunication()
     \brief The QWSClient class encapsulates a client process in Qtopia
     Core.
 
-    When running a \l {Qtopia Core} application, it either runs as a server
-    or as a client connected to an existing server. The server is
-    responsible for managing top-level window regions. A list of the
-    current windows can be retrieved using the
+    When you run a \l {Qtopia Core} application, it either runs as a
+    server or connects to an existing server. The server and client
+    processes have different responsibilities: The client process
+    performs all application specific operations. The server process
+    is responsible for managing the clients as well as taking care of
+    the pointer handling, character input, and screen output. In
+    addition, the server provides functionality to handle input
+    methods.
+
+    As applications add and remove windows, the server process
+    maintains information about each window. In \l {Qtopia Core},
+    top-level windows are encapsulated as QWSWindow objects. A list of
+    the current windows can be retrieved using the
     QWSServer::clientWindows() function, and each window can tell
     which client that owns it through its QWSWindow::client()
     function.
@@ -563,7 +578,7 @@ void QWSClientPrivate::unlockCommunication()
     function which typically returns the name of this client's running
     application.
 
-    \sa QWSServer, QCopChannel, {Running Qtopia Core Applications}
+    \sa QWSServer, QWSWindow, {Qtopia Core Architecture}
 */
 
 /*!
@@ -793,7 +808,8 @@ void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type,
 
 /*!
     \class QWSServer
-    \brief The QWSServer class provides server-specific functionality in Qtopia Core.
+    \brief The QWSServer class encapsulates a server process in Qtopia
+    Core.
 
     \ingroup qws
 
@@ -801,9 +817,10 @@ void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type,
     server or connects to an existing server. The server and client
     processes have different responsibilities: The client process
     performs all application specific operations. The server process
-    takes care of the pointer handling, character input, and screen
-    output. In addition, the server provides additional functionality
-    to handle input methods.
+    is responsible for managing the clients as well as taking care of
+    the pointer handling, character input, and screen output. In
+    addition, the server provides functionality to handle input
+    methods.
 
     In \l {Qtopia Core}, all system generated events are passed to the
     server application which then propagates the event to the
@@ -813,20 +830,20 @@ void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type,
     Note that this class is instantiated by QApplication for \l
     {Qtopia Core} server processes; you should never construct this
     class yourself. Use the instance() function to retrieve a pointer
-    to the server instance.
+    to the server object.
 
     \tableofcontents
 
     \section1 Client Administration
 
-    In \l {Qtopia Core}, the top-level windows are encapsulated as
-    QWSWindow objects. The collection of windows changes as
-    applications add and remove widgets, and each window can tell
-    which client that owns it through its QWSWindow::client()
-    function. Use the clientWindows() function to retrieve a list of
-    the current top-level windows. Given a particular position on the
-    display, the window containing it can be retrieved using the
-    windowAt() function.
+    As applications add and remove windows, the server process
+    maintains information about each window. In \l {Qtopia Core},
+    top-level windows are encapsulated as QWSWindow objects. Each
+    window can tell which client that owns it through its
+    QWSWindow::client() function. Use the clientWindows() function to
+    retrieve a list of the current top-level windows. Given a
+    particular position on the display, the window containing it can
+    be retrieved using the windowAt() function.
 
     QWSServer also provides the windowEvent() signal which is emitted
     whenever something happens to a top level window; the WindowEvent
