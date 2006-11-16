@@ -113,7 +113,9 @@ public:
     bool findNextPrevAnchor(bool next, int &start, int &end);
     void activateLinkUnderCursor();
 
+#ifndef QT_NO_TOOLTIP
     void showToolTip(const QPoint &globalPos, const QPointF &pos, QWidget *contextWidget);
+#endif
 
     QTextDocument *doc;
     bool cursorOn;

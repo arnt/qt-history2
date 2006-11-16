@@ -860,11 +860,13 @@ void QTextControl::processEvent(QEvent *e, const QMatrix &matrix, QWidget *conte
             d->isEnabled = e->isAccepted();
             break;
 
+#ifndef QT_NO_TOOLTIP
         case QEvent::ToolTip: {
             QHelpEvent *ev = static_cast<QHelpEvent *>(e);
             d->showToolTip(ev->globalPos(), matrix.map(ev->pos()), contextWidget);
             break;
         }
+#endif // QT_NO_TOOLTIP
 
 #ifndef QT_NO_DRAGANDDROP
         case QEvent::DragEnter: {
@@ -2246,6 +2248,7 @@ void QTextControlPrivate::activateLinkUnderCursor()
         emit q_func()->linkActivated(href);
 }
 
+#ifndef QT_NO_TOOLTIP
 void QTextControlPrivate::showToolTip(const QPoint &globalPos, const QPointF &pos, QWidget *contextWidget)
 {
     const QString toolTip = q_func()->cursorForPosition(pos).charFormat().toolTip();
@@ -2253,6 +2256,7 @@ void QTextControlPrivate::showToolTip(const QPoint &globalPos, const QPointF &po
         return;
     QToolTip::showText(globalPos, toolTip, contextWidget);
 }
+#endif // QT_NO_TOOLTIP
 
 bool QTextControl::setFocusToNextOrPreviousAnchor(bool next)
 {
