@@ -1577,11 +1577,11 @@ void Configure::generateCachefile()
             cacheStream << "DEFINES        *= QT_EDITION=QT_EDITION_DESKTOP" << endl;
 
 	//so that we can build without an install first (which would be impossible)
-	cacheStream << "QMAKE_MOC       = $$QT_BUILD_TREE/bin/moc.exe" << endl;
-	cacheStream << "QMAKE_UIC       = $$QT_BUILD_TREE/bin/uic.exe" << endl;
-	cacheStream << "QMAKE_UIC3      = $$QT_BUILD_TREE/bin/uic3.exe" << endl;
-	cacheStream << "QMAKE_RCC       = $$QT_BUILD_TREE/bin/rcc.exe" << endl;
-	cacheStream << "QMAKE_DUMPCPP   = $$QT_BUILD_TREE/bin/dumpcpp.exe" << endl;
+	cacheStream << "QMAKE_MOC       = $$QT_BUILD_TREE\\bin\\moc.exe" << endl;
+	cacheStream << "QMAKE_UIC       = $$QT_BUILD_TREE\\bin\\uic.exe" << endl;
+	cacheStream << "QMAKE_UIC3      = $$QT_BUILD_TREE\\bin\\uic3.exe" << endl;
+	cacheStream << "QMAKE_RCC       = $$QT_BUILD_TREE\\bin\\rcc.exe" << endl;
+	cacheStream << "QMAKE_DUMPCPP   = $$QT_BUILD_TREE\\bin\\dumpcpp.exe" << endl;
 	cacheStream << "QMAKE_INCDIR_QT = $$QT_BUILD_TREE/include" << endl;
 	cacheStream << "QMAKE_LIBDIR_QT = $$QT_BUILD_TREE/lib" << endl;
         cacheStream.flush();
