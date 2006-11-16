@@ -105,8 +105,8 @@ void QDesigner::initialize()
 
     QTranslator *translator = new QTranslator;
     QTranslator *qtTranslator = new QTranslator;
-    translator->load(QLatin1String("designer_") + QLocale::system().name().toLower(), resourceDir);
-    qtTranslator->load(QLatin1String("qt_") + QLocale::system().name().toLower(), resourceDir);
+    translator->load(QLatin1String("designer_") + QLocale::system().name(), resourceDir);
+    qtTranslator->load(QLatin1String("qt_") + QLocale::system().name(), resourceDir);
     installTranslator(translator);
     installTranslator(qtTranslator);
 
