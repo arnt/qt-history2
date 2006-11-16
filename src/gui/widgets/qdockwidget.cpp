@@ -342,6 +342,32 @@ int QDWLayout::titleHeight() const
     return qMax(buttonHeight + 2, titleFontMetrics.lineSpacing() + 2*mw);
 }
 
+void QDWLayout::updateMaxSize()
+{
+    QDockWidget *q = qobject_cast<QDockWidget*>(parentWidget());
+
+    QSize max(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+    if (QLayoutItem *item = item_list[Content])
+        max = qSmartMaxSize(item->widget());
+    int fw = 0;
+    if (q->isFloating())
+        fw = q->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, q);
+
+#ifndef Q_WS_X11
+    if (q->isFloating()) {
+        if (QLayoutItem *item = item_list[Content])
+            q->setMaximumSize(max);
+    } else
+#endif
+    {
+        max += QSize(2*fw, _titleArea.height() + 2*fw);
+        max.rwidth() = qMin(QWIDGETSIZE_MAX, max.width());
+        max.rheight() = qMin(QWIDGETSIZE_MAX, max.height());
+    }
+
+    q->setMaximumSize(max);
+}
+
 void QDWLayout::setGeometry(const QRect &geometry)
 {
     QDockWidget *q = qobject_cast<QDockWidget*>(parentWidget());
@@ -384,6 +410,8 @@ void QDWLayout::setGeometry(const QRect &geometry)
 #ifndef Q_WS_X11
     }
 #endif
+
+    updateMaxSize();
 }
 
 /******************************************************************************

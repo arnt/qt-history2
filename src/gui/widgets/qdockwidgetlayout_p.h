@@ -303,6 +303,7 @@ public:
 
     int minimumTitleWidth() const;
     int titleHeight() const;
+    void updateMaxSize();
 
 private:
     QVector<QLayoutItem*> item_list;
