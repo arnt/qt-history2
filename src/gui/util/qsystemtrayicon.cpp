@@ -68,7 +68,7 @@
     The activated() signal is emitted when the user activates the icon.
 
     Only on X11, when a tooltip is requested, the QSystemTrayIcon receives a QHelpEvent
-    of type QEvent::ToolTip. Additionally, the QSystemTrayIcon receives wheel events of 
+    of type QEvent::ToolTip. Additionally, the QSystemTrayIcon receives wheel events of
     type QEvent::Wheel. These are not supported on any other platform.
 
     \sa QDesktopServices, QDesktopWidget, {Desktop Integration}
@@ -315,13 +315,11 @@ bool QSystemTrayIcon::isSystemTrayAvailable()
 /*!
     Returns true if the system tray supports balloon messages; otherwise returns false.
 
-    Mac OS X does not support ballon messages currently.
-
     \sa showMessage()
 */
 bool QSystemTrayIcon::supportsMessages()
 {
-#if defined(Q_WS_MAC) || defined(Q_WS_QWS)
+#if defined(Q_WS_QWS)
     return false;
 #endif
     return true;
@@ -413,7 +411,7 @@ QBalloonTip::QBalloonTip(QSystemTrayIcon::MessageIcon icon, const QString& title
         }
         msgLabel->setFixedSize(limit, msgLabel->heightForWidth(limit));
     }
- 
+
     QIcon si;
     switch (icon) {
     case QSystemTrayIcon::Warning:
