@@ -36,6 +36,7 @@ namespace qdesigner_internal {
         Q_OBJECT
     public:
         PropertyLineEdit(QWidget *parent, bool wantNewLine);
+        bool event(QEvent *e);
     protected:
         void contextMenuEvent (QContextMenuEvent *event );
     private slots:
