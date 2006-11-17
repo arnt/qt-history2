@@ -1761,7 +1761,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
         ret = 64;
         break;
     case PM_SplitterWidth:
-        ret = qMax(6, QApplication::globalStrut().width());
+        ret = qMax(7, QApplication::globalStrut().width());
         break;
     default:
         ret = QWindowsStyle::pixelMetric(metric, opt, widget);
