@@ -1878,8 +1878,11 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_Enter:
     case Qt::Key_Return:
+        // ### we can't open the editor on enter, becuse
+        // some widgets will forward the enter event back
+        // to the viewport, starting an endless loop
         if (state() != EditingState || hasFocus()) {
-            if (currentIndex().isValid() && !edit(currentIndex(), AnyKeyPressed, event))
+            if (currentIndex().isValid())// && !edit(currentIndex(), AnyKeyPressed, event))
                 emit activated(currentIndex());
         }
         break;
