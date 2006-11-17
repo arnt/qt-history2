@@ -186,6 +186,8 @@ void TabbedBrowser::init()
     if (tabBar) {
         opt.init(tabBar);
         opt.shape = tabBar->shape();
+        tabBar->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(tabBar, SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(openTabMenu(const QPoint&)));
     }
 
     // workaround for sgi style
@@ -411,7 +413,7 @@ void TabbedBrowser::find(QString ttf, bool forward, bool backward)
 
 		if (newCursor.isNull()) {
 			QTextCursor ac(doc);
-			ac.movePosition(options & QTextDocument::FindBackward 
+			ac.movePosition(options & QTextDocument::FindBackward
 							? QTextCursor::End : QTextCursor::Start);
 			newCursor = doc->find(ttf, ac, options);
 			if (newCursor.isNull()) {
@@ -444,4 +446,31 @@ bool TabbedBrowser::eventFilter(QObject *o, QEvent *e)
 	}
 
 	return QWidget::eventFilter(o, e);
+}
+
+void TabbedBrowser::openTabMenu(const QPoint& pos)
+{
+    QTabBar *tabBar = qFindChild<QTabBar*>(ui.tab);
+    QMenu *m = new QMenu(tabBar);
+    QAction *new_action = m->addAction("New Tab");
+    QAction *close_action = m->addAction("Close Tab");
+    QAction *action_picked = m->exec(tabBar->mapToGlobal(pos));
+    if (action_picked) {
+        if (action_picked == new_action) {
+            newTab();
+        } else if (action_picked == close_action) {
+            for (int i=0; i< tabBar->count(); ++i) {
+                if (tabBar->tabRect(i).contains(pos)) {
+                    HelpWindow *win = static_cast<HelpWindow*>(ui.tab->widget(i));
+                    mainWindow()->removePendingBrowser(win);
+                    QTimer::singleShot(0, win, SLOT(deleteLater()));
+                    ui.tab->cornerWidget(Qt::TopRightCorner)->setEnabled(ui.tab->count() > 1);
+                    emit tabCountChanged(ui.tab->count());
+                    break;
+                }
+            }
+
+        }
+    }
+    delete m;
 }
