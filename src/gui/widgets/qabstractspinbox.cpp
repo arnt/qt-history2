@@ -1144,8 +1144,8 @@ void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *event)
     d->updateHoverControl(event->pos());
 
     // If we have a timer ID, update the state
-    const StepEnabled se = stepEnabled();
-    if (d->spinClickTimerId != -1) {
+    if (d->spinClickTimerId != -1 && d->buttonSymbols != NoButtons) {
+        const StepEnabled se = stepEnabled();
         if ((se & StepUpEnabled) && d->hoverControl == QStyle::SC_SpinBoxUp)
             d->updateState(true);
         else if ((se & StepDownEnabled) && d->hoverControl == QStyle::SC_SpinBoxDown)
@@ -1171,7 +1171,7 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *event)
     d->updateHoverControl(event->pos());
     event->accept();
 
-    const StepEnabled se = stepEnabled();
+    const StepEnabled se = d->buttonSymbols == NoButtons ? StepNone : stepEnabled();
     if ((se & StepUpEnabled) && d->hoverControl == QStyle::SC_SpinBoxUp) {
         d->updateState(true);
     } else if ((se & StepDownEnabled) && d->hoverControl == QStyle::SC_SpinBoxDown) {
