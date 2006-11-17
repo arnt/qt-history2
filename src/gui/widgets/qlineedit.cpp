@@ -555,7 +555,10 @@ void QLineEdit::setValidator(const QValidator *v)
     Sets this line edit to provide auto completions from the completer, \a c.
     The completion mode is set using QCompleter::setCompletionMode().
 
-    Using a QCompleter with a QValidator or QLineEdit::inputMask is not supported.
+    To use a QCompleter with a QValidator or QLineEdit::inputMask, you need to
+    ensure that the model provided to QCompleter contains valid entries. You can
+    use the QSortFilterProxyModel to ensure that the QCompleter's model contains
+    only valid entries.
 
     If \a c == 0, setCompleter() removes the current completer, effectively
     disabling auto completion.
