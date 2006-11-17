@@ -57,7 +57,7 @@ General improvements
   * Fixed a data corruption bug when reading large blocks from devices
     opened in Text mode.
   * Fixed seeking to positions larger than INT_MAX.
-  
+
 - QLineEdit:
 
   * Fix scrolling in lineedits with custom paddings
@@ -65,7 +65,7 @@ General improvements
 
 - QCalendarWidget:
 
-  * Fixed setting the text format(Repainting & date reset issues are corrected).  
+  * Fixed setting the text format(Repainting & date reset issues are corrected).
 
 - QComboBox:
   * Fixed wrong scroll arrows for the popup menu.
@@ -74,8 +74,11 @@ General improvements
   * Make setWindowTitle() work on hidden widgets that are never shown.
     (Fixing a bug in QtSingleApplication on Windows.)
 
-   * Make QWidget::restoreGeometry() restore to the correct screen on 
+   * Make QWidget::restoreGeometry() restore to the correct screen on
      multi-screen systems.
+
+   * Fixed a bug where the stacking order of widgets would get out of sync
+     and cause parts of or entire widgets not to be updated properly.
 
 - Accessibility
 
@@ -83,8 +86,8 @@ General improvements
 
    * Fix crash when getting accessibility info from an item view without
      a model.
- 
-   * Fix item view accessibility bug where QAccessibleInterface::text() 
+
+   * Fix item view accessibility bug where QAccessibleInterface::text()
      would return an empty string for child indexes larger
      than one.
 
@@ -108,25 +111,29 @@ General improvements
   * Fixed a crash in the compatibility function QVariant::asByteArray()
     when called on a null variant.
 
+- QToolButton
+  * Fixed an issue where toolbutton popup menus were positioned incorrectly
+    on multi-screen setups.
+
 - Item views
-      
+
       * Fixed possible assert in QTreeView when painting if there were
         layouts pending.
-      
+
       * Fixed possible segfault in QTreeView when a model emits layoutChanged().
-      
+
       * Fixed QHeaderView and QTableView overflow issues when the length
         of all the rows or columns went over max int.
-      
+
       * When reset is emitted by a QAbstractItemModel, QHeaderView will now
         always update the header count().
 
-      * Fixed regression where QAbstractItemView::setRootIndex() wasn't 
+      * Fixed regression where QAbstractItemView::setRootIndex() wasn't
         always updating the view causing possibly painting errors.
-      
+
       * Fixed QTreeWidget::setSortingEnabled() which could could cause
         incorrect painting.
-      
+
       * Fixed incorrect scrolling in QHeaderView when items are hidden.
 
       * QDataWidgetMapper::mappedWidgetAt() now always returns the right
@@ -210,14 +217,14 @@ General improvements
 - Painting
 
       * Fixed memory corruption in QBitmap when source buffer was smaller than
-	the destination buffer (RasterEngine). 
+	the destination buffer (RasterEngine).
       * Avoid rounding errors when drawing parts of a pixmap in the Quartz 2D engine.
 
       * Added caching of QGradient's colortable for QRasterPaintEngine.
         This means that if a gradient with the same stops and colors is used
         again, it will be quickly fetched from the cache, avoiding the
         expensive calculations of the color lookup table.
-      
+
       * Specifying Qt::CustomDashLine without an actual pattern would
         crash on Windows and with QImage.
 
@@ -228,18 +235,31 @@ General improvements
       * Fixed bug in QRasterPaintEngine which would occasionally cause pixel
         errors when drawing polygons.
 
-      * Fixed memory corruption in the QOpenGLPaintEngine when drawing complex 
+      * Fixed memory corruption in the QOpenGLPaintEngine when drawing complex
         polygons with a cosmetic pen.
 
       * Fixed bug in QRasterPaintEngine where extra lines would be drawn when
         drawing a path partially outside of the viewport using a dashed pen.
+
+      * Fixed an ASSERT in QImage that triggered when reading certain paletted PNG
+	files.
+
+      * Fixed an issue where stroking and drawing aliased QPainterPaths with a
+	non-cosmetic pen would produce incorrect results.
+
+      * Fixed an issue where text was cut off when drawn into a QImage.
+
+      * Fixed an issue where text drawn into a QPicture would get the position.
+
+      * Fixed an issue where turning clipping on/off when drawing into a QImage
+	did not have any effect.
 
 - Style Sheets
       * Fixed crash when widget with stylesheet is reparented into widget with no stylesheet
       * Style Sheet performace improvements
       * Do not clobber widget's custom palette when not styled using stylesheet
       * Add support to specify alpha colors using rgba()
-      
+
 - SQL plugins
 
       * Fixed incorrect translation of error strings in the Oracle plugin
@@ -279,8 +299,12 @@ General improvements
     * Disabled checked radiobuttons and checkboxes are now rendered correctly.
 
 - QProgressBar
-    
+
     * Document that drawing of text in vertical progress bars is style dependent.
+
+- Qt3 support
+
+     * Fixed QPainter::xForm() and QPainter::xFormDev().
 
 Platform-Specific changes
 -------------------------
@@ -298,6 +322,9 @@ Platform-Specific changes
     back to the printers set up for lpr/lprng.
   * Fixed papersize selection for cups
   * Do not generate floating point exceptions in the X11 paint engine
+  * Fixed an endianess issue when drawing QImages
+  * Fixed x errors when scaling/copying null pixmaps
+  * Fixed an issue where bitmap/XLFD fonts where drawn garbled
 
 - Qt/Win:
 
@@ -331,7 +358,7 @@ Platform-Specific changes
   * VNC: Fixed use of the VNC driver with the Multi driver.
   * Fixed cursor state when switching between different screens.
   * Fixed performance bug when using an accelerated mouse cursor.
-  * QCustomRasterPaintDevice::metric(): Fixed default values of PdmWidth and 
+  * QCustomRasterPaintDevice::metric(): Fixed default values of PdmWidth and
     PdmHeight.
   * Fixed bug in QWidget::setMask().
   * Fixed calibration of rotated screens in the mousecalibration example.
@@ -347,14 +374,14 @@ Platform-Specific changes
 
 - Qt/Mac
 
-   * Fixed bug where the cursor would not switch to the arrow cursor 
+   * Fixed bug where the cursor would not switch to the arrow cursor
      over child widgets witch had that cursor set.
    * FramelessWindow modal dialogs had a title bar and was movable,
      now they don't.
    * Fix crash when enabling "Accessibility for assistive devices" in
      System Preferences while a Qt application was running.
    * Fix painting error where a one-pixel border at the bottom, right
-     side of widgets wasn't being (re)painted correctly. 
+     side of widgets wasn't being (re)painted correctly.
    * Fix item view scrolling bug, cell widgets weren't scrolled
      properly.
 
