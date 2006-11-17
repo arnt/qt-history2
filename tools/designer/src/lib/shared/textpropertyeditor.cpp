@@ -71,10 +71,10 @@ namespace qdesigner_internal {
             m_lineEdit->setValidator(new  NewLineValidator(m_lineEdit));
             break;
         case ValidationObjectName:
-            setRegExpValidator("[_a-zA-Z][_a-zA-Z0-9]*");
+            setRegExpValidator("[_a-zA-Z][_a-zA-Z0-9]{,1023}");
              break;
         case ValidationObjectNameScope:
-            setRegExpValidator("[_a-zA-Z:][_a-zA-Z0-9:]*");
+            setRegExpValidator("[_a-zA-Z:][_a-zA-Z0-9:]{,1023}");
             break;
         }
 
