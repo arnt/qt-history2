@@ -210,7 +210,7 @@ static void writeMessage(QTextStream *t, const MetaTranslatorMessage &msg, int i
 bool MetaTranslator::saveXLIFF( const QString& filename) const
 {
     QFile f( filename );
-    if ( !f.open(QIODevice::WriteOnly) )
+    if ( !f.open(QIODevice::WriteOnly | QIODevice::Text) )
         return false;
 
     int indent = 2;

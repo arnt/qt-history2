@@ -399,7 +399,7 @@ bool MetaTranslator::load( const QString& filename )
 bool MetaTranslator::saveTS( const QString& filename) const
 {
     QFile f( filename );
-    if ( !f.open(QIODevice::WriteOnly) )
+    if ( !f.open(QIODevice::WriteOnly | QIODevice::Text) )
         return false;
 
     QTextStream t( &f );
