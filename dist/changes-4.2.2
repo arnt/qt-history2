@@ -218,6 +218,19 @@ General improvements
         again, it will be quickly fetched from the cache, avoiding the
         expensive calculations of the color lookup table.
 
+      * Improved numerical stability in the path stroker, fixing a crash when
+        stroking paths containing curve segments whose control points are
+        approximately on the same line.
+
+      * Fixed bug in QRasterPaintEngine which would occasionally cause pixel
+        errors when drawing polygons.
+
+      * Fixed memory corruption in the QOpenGLPaintEngine when drawing complex 
+        polygons with a cosmetic pen.
+
+      * Fixed bug in QRasterPaintEngine where extra lines would be drawn when
+        drawing a path partially outside of the viewport using a dashed pen.
+
 - Style Sheets
       * Fixed crash when widget with stylesheet is reparented into widget with no stylesheet
       * Style Sheet performace improvements
