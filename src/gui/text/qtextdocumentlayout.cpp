@@ -190,11 +190,13 @@ QRectF QTextTableData::cellRect(const QTextTableCell &cell) const
 
 static inline bool isEmptyBlockBeforeTable(const QTextBlock &block, const QTextFrame::Iterator &nextIt)
 {
+    QTextBlockFormat format = block.blockFormat();
     return !nextIt.atEnd()
            && qobject_cast<QTextTable *>(nextIt.currentFrame())
            && block.isValid()
            && block.length() == 1
-           && !block.blockFormat().hasProperty(QTextFormat::BlockTrailingHorizontalRulerWidth)
+           && !format.hasProperty(QTextFormat::BlockTrailingHorizontalRulerWidth)
+           && !format.hasProperty(QTextFormat::BackgroundBrush)
            && nextIt.currentFrame()->firstPosition() == block.position() + 1
            ;
 }
