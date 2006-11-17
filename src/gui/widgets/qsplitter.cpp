@@ -1491,16 +1491,24 @@ QSize QSplitter::minimumSizeHint() const
     ensurePolished();
     int l = 0;
     int t = 0;
-    QObjectList childList = children();
-    for (int i = 0; i < childList.size(); ++i) {
-        if (QWidget *w = qobject_cast<QWidget *>(childList.at(i))) {
-            if (w->isHidden())
-                continue;
-            QSize s = qSmartMinSize(w);
-            if (s.isValid()) {
-                l += d->pick(s);
-                t = qMax(t, d->trans(s));
-            }
+
+    for (int i = 0; i < d->list.size(); ++i) {
+        QSplitterLayoutStruct *s = d->list.at(i);
+        if (!s || !s->widget)
+            continue;
+        if (s->widget->isHidden())
+            continue;
+        QSize widgetSize = qSmartMinSize(s->widget);
+        if (widgetSize.isValid()) {
+            l += d->pick(widgetSize);
+            t = qMax(t, d->trans(widgetSize));
+        }
+        if (!s->handle || s->handle->isHidden())
+            continue;
+        QSize splitterSize = s->handle->sizeHint();
+        if (splitterSize.isValid()) {
+            l += d->pick(splitterSize);
+            t = qMax(t, d->trans(splitterSize));
         }
     }
     return orientation() == Qt::Horizontal ? QSize(l, t) : QSize(t, l);
