@@ -241,7 +241,6 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &title, const QString
     down = NO;
     if([self icon]->contextMenu())
         [self icon]->contextMenu()->hide();
-    
     [self setNeedsDisplay:YES];
 }
 
@@ -252,11 +251,10 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &title, const QString
         [self icon]->contextMenu()->hide();
     [self setNeedsDisplay:YES];
 
-    if (down && clickCount == 1)
+    if (down)
         [parent triggerSelector:self];
-    else if (clickCount >= 2)
+    else if ((clickCount%2))
         [parent doubleClickSelector:self];
-
     while (down) {
         mouseEvent = [[self window] nextEventMatchingMask: NSLeftMouseDownMask | NSLeftMouseUpMask | NSLeftMouseDraggedMask];
         switch ([mouseEvent type]) {
@@ -321,6 +319,10 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &title, const QString
 #if 0
         const QRectF geom = [self geometry];
         if(!geom.isNull()) {
+            [[NSNotificationCenter defaultCenter] addObserver:imageCell
+                                                  selector:@selector(menuTrackingDone:)
+                                                  name:nil
+                                                  object:self];
             icon->contextMenu()->exec(geom.topLeft().toPoint(), 0);
             [imageCell menuTrackingDone:nil];
         } else 
