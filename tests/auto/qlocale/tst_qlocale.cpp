@@ -700,8 +700,15 @@ void tst_QLocale::macDefaultLocale()
     QCOMPARE(locale.toString(QDate(1974, 12, 1), QLocale::ShortFormat), QString("12/1/74"));
     QCOMPARE(locale.toString(QDate(1974, 12, 1), QLocale::LongFormat), QString("December 1, 1974"));
     QCOMPARE(locale.toString(QTime(1,2,3), QLocale::ShortFormat), QString("1:02 AM"));
-    // ### Can't wait for this to break...
-    QCOMPARE(locale.toString(QTime(1,2,3), QLocale::LongFormat), QString("1:02:03 AM GMT+02:00"));
+
+    QTime currentTime = QTime::currentTime();
+    QTime utcTime = QDateTime::currentDateTime().toUTC().time();
+    QString dateString;
+    if (currentTime.hour() - utcTime.hour() == 2)
+        dateString = QLatin1String("1:02:03 AM GMT+02:00");
+    else
+        dateString = QLatin1String("1:02:03 AM GMT+01:00");
+    QCOMPARE(locale.toString(QTime(1,2,3), QLocale::LongFormat), dateString);
     QCOMPARE(locale.dayName(1), QString("Monday"));
     QCOMPARE(locale.dayName(7), QString("Sunday"));
     QCOMPARE(locale.monthName(1), QString("January"));
