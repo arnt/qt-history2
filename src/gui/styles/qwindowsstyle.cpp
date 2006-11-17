@@ -403,6 +403,12 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
 
 #if defined(Q_WS_WIN)
     case PM_TitleBarHeight:
+#ifdef QT3_SUPPORT
+        // qt3 dockwindow height should be equal to tool windows
+        if (widget && widget->inherits("Q3DockWindowTitleBar")) {
+            ret = GetSystemMetrics(SM_CYSMCAPTION) - 1;
+        } else
+#endif
         if (widget && (widget->windowType() == Qt::Tool)) {
             // MS always use one less than they say
 #if defined(Q_OS_TEMP)
