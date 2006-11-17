@@ -312,8 +312,8 @@ public:
 #endif
     void setWindowTitle_helper(const QString &cap);
 
-    void setMinimumSize_helper(int minw, int minh);
-    void setMaximumSize_helper(int maxw, int maxh);
+    bool setMinimumSize_helper(int minw, int minh);
+    bool setMaximumSize_helper(int maxw, int maxh);
     void setConstraints_sys();
 
 #if defined(Q_WS_QWS)

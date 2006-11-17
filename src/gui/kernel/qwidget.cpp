@@ -2929,7 +2929,7 @@ QSize QWidget::baseSize() const
         : QSize(0, 0);
 }
 
-void QWidgetPrivate::setMinimumSize_helper(int minw, int minh)
+bool QWidgetPrivate::setMinimumSize_helper(int minw, int minh)
 {
     Q_Q(QWidget);
 
@@ -2964,10 +2964,11 @@ void QWidgetPrivate::setMinimumSize_helper(int minw, int minh)
     }
     createExtra();
     if (extra->minw == minw && extra->minh == minh)
-        return;
+        return false;
     extra->minw = minw;
     extra->minh = minh;
     extra->explicitMinSize = (minw ? Qt::Horizontal : 0) | (minh ? Qt::Vertical : 0);
+    return true;
 }
 
 /*!
@@ -2981,7 +2982,8 @@ void QWidgetPrivate::setMinimumSize_helper(int minw, int minh)
 void QWidget::setMinimumSize(int minw, int minh)
 {
     Q_D(QWidget);
-    d->setMinimumSize_helper(minw, minh);
+    if (!d->setMinimumSize_helper(minw, minh))
+        return;
 
     if (isWindow())
         d->setConstraints_sys();
@@ -2997,7 +2999,7 @@ void QWidget::setMinimumSize(int minw, int minh)
     updateGeometry();
 }
 
-void QWidgetPrivate::setMaximumSize_helper(int maxw, int maxh)
+bool QWidgetPrivate::setMaximumSize_helper(int maxw, int maxh)
 {
     Q_Q(QWidget);
     if (maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX) {
@@ -3017,9 +3019,10 @@ void QWidgetPrivate::setMaximumSize_helper(int maxw, int maxh)
     }
     createExtra();
     if (extra->maxw == maxw && extra->maxh == maxh)
-        return;
+        return false;
     extra->maxw = maxw;
     extra->maxh = maxh;
+    return true;
 }
 
 /*!
@@ -3032,7 +3035,8 @@ void QWidgetPrivate::setMaximumSize_helper(int maxw, int maxh)
 void QWidget::setMaximumSize(int maxw, int maxh)
 {
     Q_D(QWidget);
-    d->setMaximumSize_helper(maxw, maxh);
+    if (!d->setMaximumSize_helper(maxw, maxh))
+        return;
 
     if (isWindow())
         d->setConstraints_sys();
@@ -3112,8 +3116,8 @@ void QWidget::setFixedSize(const QSize & s)
 void QWidget::setFixedSize(int w, int h)
 {
     Q_D(QWidget);
-    d->setMinimumSize_helper(w, h);
-    d->setMaximumSize_helper(w, h);
+    if (!d->setMinimumSize_helper(w, h) && !d->setMaximumSize_helper(w, h))
+        return;
 
     if (isWindow())
         d->setConstraints_sys();
