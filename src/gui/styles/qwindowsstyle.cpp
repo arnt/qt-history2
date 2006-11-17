@@ -1242,110 +1242,45 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
     case PE_IndicatorArrowDown:
     case PE_IndicatorArrowRight:
     case PE_IndicatorArrowLeft: 
+        p->save();
         {
-            p->save();
-#ifdef Q_WS_WIN
-            QFont font("Marlett");
-            int size = qMin(opt->rect.height(), opt->rect.width()) + 4;
-            font.setPixelSize(size);
-            p->setFont(font);
-            QRect textRect(opt->rect.left(), opt->rect.height(), size, size);
-            textRect.moveCenter(opt->rect.center());
-
-            if (opt->state & State_Sunken)
-                p->translate(pixelMetric(PM_ButtonShiftHorizontal),
-                             pixelMetric(PM_ButtonShiftVertical));            
-            char symbol = 0;
-            if (pe == PE_IndicatorArrowUp)
-                symbol = '5';
-            else if (pe == PE_IndicatorArrowDown)
-                symbol = '6';
-            else if (pe == PE_IndicatorArrowLeft)
-                symbol = '3';
-            else if (pe == PE_IndicatorArrowRight)
-                symbol = '4';
-
-            if (opt->state & State_Enabled) {
-                p->setPen(opt->palette.buttonText().color());
-                p->drawText(textRect, QString(symbol));            
-            }
-            else {
-                p->translate(1, 1);
-                p->setPen(opt->palette.light().color());
-                p->drawText(textRect, QString(symbol));            
-                p->translate(-1, -1);
-                p->setPen(opt->palette.mid().color());
-                p->drawText(textRect, QString(symbol));            
-            }
-#else
-            QPoint points[7];
+            QRect r = opt->rect;
+            int x = r.x();
+            int y = r.y();
+            int size = qMin(r.height(), r.width());
+            int border = size/5;
+            size = 2*(size/2);
+            QPolygon a;
             switch (pe) {
                 case PE_IndicatorArrowUp:
-                    points[0] = QPoint(-4, 1);
-                    points[1] = QPoint(2, 1);
-                    points[2] = QPoint(-3, 0);
-                    points[3] = QPoint(1, 0);
-                    points[4] = QPoint(-2, -1);
-                    points[5] = QPoint(0, -1);
-                    points[6] = QPoint(-1, -2);
+                    a.setPoints(3, border, size/2,  size/2, border,  size - border, size/2);
                     break;
                 case PE_IndicatorArrowDown:
-                    points[0] = QPoint(-4, -2);
-                    points[1] = QPoint(2, -2);
-                    points[2] = QPoint(-3, -1);
-                    points[3] = QPoint(1, -1);
-                    points[4] = QPoint(-2, 0);
-                    points[5] = QPoint(0, 0);
-                    points[6] = QPoint(-1, 1);
+                    a.setPoints(3, border, size/2,  size/2, size - border,  size - border, size/2);
                     break;
                 case PE_IndicatorArrowRight:
-                    points[0] = QPoint(-2, -3);
-                    points[1] = QPoint(-2, 3);
-                    points[2] = QPoint(-1, -2);
-                    points[3] = QPoint(-1, 2);
-                    points[4] = QPoint(0, -1);
-                    points[5] = QPoint(0, 1);
-                    points[6] = QPoint(1, 0);
+                    a.setPoints(3, size - border, size/2,  size/2, border,  size/2, size - border);
                     break;
                 case PE_IndicatorArrowLeft:
-                    points[0] = QPoint(0, -3);
-                    points[1] = QPoint(0, 3);
-                    points[2] = QPoint(-1, -2);
-                    points[3] = QPoint(-1, 2);
-                    points[4] = QPoint(-2, -1);
-                    points[5] = QPoint(-2, 1);
-                    points[6] = QPoint(-3, 0);
+                    a.setPoints(3, border, size/2,  size/2, border,  size/2, size - border);
                     break;
                 default:
                     break;
             }
-            if (opt->state & State_Sunken)
-                p->translate(pixelMetric(PM_ButtonShiftHorizontal),
-                            pixelMetric(PM_ButtonShiftVertical));
-            if (opt->state & State_Enabled) {
-                p->translate(opt->rect.x() + opt->rect.width() / 2,
-                            opt->rect.y() + opt->rect.height() / 2);
-                p->setPen(opt->palette.buttonText().color());
-                p->drawLine(points[0], points[1]);
-                p->drawLine(points[2], points[3]);
-                p->drawLine(points[4], points[5]);
-                p->drawPoint(points[6]);
-            } else {
-                p->translate(opt->rect.x() + opt->rect.width() / 2 + 1,
-                            opt->rect.y() + opt->rect.height() / 2 + 1);
-                p->setPen(opt->palette.light().color());
-                p->drawLine(points[0], points[1]);
-                p->drawLine(points[2], points[3]);
-                p->drawLine(points[4], points[5]);
-                p->drawPoint(points[6]);
-                p->translate(-1, -1);
-                p->setPen(opt->palette.mid().color());
-                p->drawLine(points[0], points[1]);
-                p->drawLine(points[2], points[3]);
-                p->drawLine(points[4], points[5]);
-                p->drawPoint(points[6]);
+            int bsx = 0;
+            int bsy = 0;
+            if (opt->state & State_Sunken) {
+                bsx = pixelMetric(PM_ButtonShiftHorizontal);
+                bsy = pixelMetric(PM_ButtonShiftVertical);
             }
-#endif
+            
+            QRect bounds = a.boundingRect();
+            int sx = r.x() + r.width() / 2 - bounds.center().x() - 1;
+            int sy = r.y() + r.height() / 2 - bounds.center().y() - 1;
+            p->translate(sx + bsx, sy + bsy);
+            p->setPen(opt->palette.buttonText().color());
+            p->setBrush(opt->palette.buttonText());
+            p->drawPolygon(a);
         }
         p->restore();
         break;
