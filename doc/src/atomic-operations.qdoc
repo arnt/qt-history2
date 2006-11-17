@@ -4,20 +4,21 @@
     \title Implementing Atomic Operations
 
     Qt uses an optimization called \l {Implicitly Shared
-    Classes}{implicit sharing} for many of its value classes. Starting
-    with Qt 4, all of Qt's implicitly shared classes can safely be
-    copied across threads like any other value classes, i.e., they are
-    fully \l {Thread Support in Qt#Reentrancy and
-    Thread-Safety}{reentrant}. This is accomplished using atomic
-    reference counting operations that are implemented in assembly
-    language for the different platforms supported by Qt.
+    Classes}{implicit sharing} for many of its value classes.
+
+    Starting with Qt 4, all of Qt's implicitly shared classes can
+    safely be copied across threads like any other value classes,
+    i.e., they are fully \l {Thread Support in Qt#Reentrancy and
+    Thread-Safety}{reentrant}. This is accomplished by implementing
+    reference counting operations using atomic hardware instructions
+    on all the different platforms supported by Qt.
 
     To support a new architecture, it is important to ensure that
     these platform-specific atomic operations are implemented in a
-    corresponding header file (\c qatomic.h), and that this file is
-    located in Qt's \c src/corelib/arch directory. For example, the
+    corresponding header file (\c qatomic_ARCH.h), and that this file
+    is located in Qt's \c src/corelib/arch directory. For example, the
     Intel 80386 implementation is located in \c
-    src/corelib/arch/i386/arch/qatomic.h.
+    src/corelib/arch/qatomic_i386.h.
 
     Currently, Qt assumes that the following operations have been
     implemented:
@@ -33,9 +34,14 @@
     \o \l {8}{int q_atomic_set_ptr()}
     \endlist
 
+    Note that these functions must be atomic with respect to both
+    interrupts and multiple processors.
+
+\omit
+
     If you cannot implement these functions efficiently on your
     platform without great difficulty, consider defining
-    Q_SPECIALIZED_QATOMIC by implementing the following members:
+    Q_SPECIALIZED_QATOMIC and implementing the following members:
 
     \list
     \o \l {9}{struct QBasicAtomic}
@@ -44,9 +50,12 @@
     \o \l {12}{void *q_atomic_set_ptr()}
     \endlist
 
+\endomit
+
     \warning The operations and structs mentioned in this document are
     used internally by Qt and are not part of the public API. They may
-    change in future versions of Qt.
+    change in future versions of Qt. The purpose of this document is
+    to aid people interested in porting Qt to a new architecture.
 
     \raw HTML
         <hr>
@@ -66,21 +75,161 @@
     \section2
     int q_atomic_test_and_set_release_int (volatile int *ptr, int expected, int newval)
 
+    Atomic test-and-set for integers.
+
+    \code
+    if (*ptr == expected) {
+        *ptr = newval;
+        return !0;
+    }
+    return 0;
+    \endcode
+
+    If the value in memory pointed to by \a ptr is the \a expected
+    value, this function assigns \a newval to \a ptr and returns
+    non-zero.  If the value in memory pointed to by \a ptr is \e not
+    the \a expected value, this function does nothing and returns
+    zero.
+
+    Note that there are 3 variants of this function. Each variant
+    implies a different memory semantic, i.e. the relation of memory
+    operations before or after the test-and-set operation. Since
+    modern hardware can reorder memory operations to improve
+    performance, these functions are used to ensure the order of
+    memory operations (often called a \e{memory barrier}).
+
+    \list
+
+    \i \c q_atomic_test_and_set_int() - Memory semantic is
+    unspecified.
+
+    \i \c q_atomic_test_and_set_acquire_int() - The atomic
+    test-and-set operation must be performed before memory operations
+    after the test-and-set.
+
+    \i \c q_atomic_test_and_set_release_int() - All memory operations
+    must be performed before the test-and-set.
+
+    \endlist
+
+    See also \l{4}{q_atomic_test_and_set_ptr()}.
+
     \target 4
     \section2
     int q_atomic_test_and_set_ptr (volatile void *ptr, void *expected, void *newval)
 
+    Atomic test-and-set for pointers.
+
+    \code
+    if (*ptr == expected) {
+        *ptr = newval;
+        return !0;
+    }
+    return 0;
+    \endcode
+
+    If the value in memory pointed to by \a ptr is the \a expected
+    value, this function assigns \a newval to \a ptr and returns
+    non-zero.  If the value in memory pointed to by \a ptr is \e not
+    the \a expected value, this function does nothing and returns
+    zero.
+
+    See also \l{1}{q_atomic_test_and_set_int()}.
+
     \target 5
     \section2 int q_atomic_increment (volatile int *ptr)
+
+    Atomic integer increment.
+
+    \code
+    ++(*ptr);
+    return *ptr ? !0 : 0;
+    \endcode
+
+    Increments the value in memory pointed to by \a ptr. This function
+    returns zero if the new value of \a *ptr is zero; otherwise it returns non-zero.
+
+    Tip: Depending on the architecture, it may be easier to return the
+    new value after incrementing \a *ptr.
+
+    \code
+    return ++(*ptr);
+    \endcode
+
+    Another option is to return the zero-flag that is set by some
+    processors in control or status registers.
+
+    \code
+    ++(*ptr);
+    return !(ControlRegister & ZeroFlag);
+    \endcode
+
+    See also \l{6}{q_atomic_decrement()}.
 
     \target 6
     \section2 int q_atomic_decrement (volatile int *ptr)
 
+    Atomic integer decrement.
+
+    \code
+    --(*ptr);
+    return *ptr ?  : 0;
+    \endcode
+
+    Decrements the value in memory pointed to by \a ptr. This function
+    returns zero if the new value of \a *ptr is zero; otherwise it
+    returns non-zero.
+
+    Tip: Depending on the architecture, it may be easier to return the
+    new value after incrementing \a *ptr.
+
+    \code
+    return --(*ptr);
+    \endcode
+
+    Another option is to return the zero-flag that is set by some
+    processors in control or status registers.
+
+    \code
+    --(*ptr);
+    return !(ControlRegister & ZeroFlag);
+    \endcode
+
+    See also \l{5}{q_atomic_increment()}.
+
     \target 7
     \section2 int q_atomic_set_int (volatile int *ptr, int newval)
 
+    Atomic fetch-and-store for integers.
+
+    \code
+    tmp = *ptr;
+    *ptr = newval;
+    return tmp;
+    \endcode
+
+    Sets the value in memory pointed to by \a ptr to \a newval and
+    returns the previous value of \a *ptr.
+
+    See also \l{8}{q_atomic_set_ptr()}.
+
     \target 8
     \section2 void *q_atomic_set_ptr (volatile void *ptr, void *newval)
+
+    Atomic fetch-and-store for pointers.
+
+    \code
+    tmp = *ptr;
+    *ptr = newval;
+    return tmp;
+    \endcode
+
+    Sets the value in memory pointed to by \a ptr to \a newval and
+    returns the previous value of \a *ptr.
+
+    See also \l{7}{q_atomic_set_int()}.
+
+\omit
 
     \target 9
     \section2 struct QBasicAtomic
@@ -94,4 +243,7 @@
 
     \target 12
     \section2 void *q_atomic_set_ptr (volatile void *ptr, void *newval)
+
+\endomit
+
 */
