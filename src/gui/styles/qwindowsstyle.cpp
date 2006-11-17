@@ -1286,6 +1286,15 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             p->translate(sx + bsx, sy + bsy);
             p->setPen(opt->palette.buttonText().color());
             p->setBrush(opt->palette.buttonText());
+            if (!(opt->state & State_Enabled)) {
+                p->translate(1, 1);
+                p->setBrush(opt->palette.light().color());
+                p->setPen(opt->palette.light().color());
+                p->drawPolygon(a);
+                p->translate(-1, -1);
+                p->setBrush(opt->palette.mid().color());
+                p->setPen(opt->palette.mid().color());
+            }   
             p->drawPolygon(a);
         }
         p->restore();
