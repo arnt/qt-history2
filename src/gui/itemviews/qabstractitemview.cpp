@@ -2003,6 +2003,9 @@ QModelIndexList QAbstractItemView::selectedIndexes() const
     The action that caused the editing process is described by
     \a trigger, and the associated event is specified by \a event.
 
+    Editing can be forced by specifying the \a trigger to be
+    QAbstractItemView::AllEditTriggers.
+
     \sa closeEditor()
 */
 bool QAbstractItemView::edit(const QModelIndex &index, EditTrigger trigger, QEvent *event)
@@ -3153,6 +3156,8 @@ bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemView::EditTrigger trigger
         return false;
     if (hasEditor(index))
         return false;
+    if (trigger == QAbstractItemView::AllEditTriggers) // force editing
+        return true;
     if ((trigger & editTriggers) == QAbstractItemView::SelectedClicked
         && !selectionModel->isSelected(index))
         return false;
