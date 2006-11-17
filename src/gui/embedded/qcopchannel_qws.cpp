@@ -82,6 +82,8 @@ public:
     \brief The QCopChannel class provides communication capabilities
     between clients in Qtopia Core.
 
+    Note that this class is only available in \l {Qtopia Core}.
+
     QCOP is a many-to-many communication protocol for transferring
     messages on various channels. A channel is identified by a name,
     and anyone who wants to can listen to it as well as send messages
