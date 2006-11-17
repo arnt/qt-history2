@@ -48,6 +48,7 @@ class Q_CORE_EXPORT QAbstractItemModelPrivate : public QObjectPrivate
 public:
     QAbstractItemModelPrivate() : QObjectPrivate(), supportedDragActions(-1) {}
     void removePersistentIndexData(QPersistentModelIndexData *data);
+    void addPersistentIndexData(QPersistentModelIndexData *data);
     void invalidate(int position);
     void rowsAboutToBeInserted(const QModelIndex &parent, int first, int last);
     void rowsInserted(const QModelIndex &parent, int first, int last);

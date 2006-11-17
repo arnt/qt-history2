@@ -36,10 +36,10 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
 {
     Q_ASSERT(index.isValid()); // we will _never_ insert an invalid index in the list
     QPersistentModelIndexData *d = 0;
-    const QAbstractItemModelPrivate *priv = index.model()->d_func();
-    const QPersistentModelIndexData *previous = priv->persistent.previous;
+    const QAbstractItemModelPrivate *p = index.model()->d_func();
+    const QPersistentModelIndexData *previous = p->persistent.previous;
     if (previous && previous->index == index) {
-        d = priv->persistent.previous;
+        d = p->persistent.previous;
     } else { // do a binary search, or sorted insert
         const QPersistentModelIndexData tmp(index);
         QAbstractItemModel *model = const_cast<QAbstractItemModel*>(index.model());
@@ -55,7 +55,7 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
             d->model = index.model();
             d->index = index;
             model->d_func()->persistent.indexes.insert(it, d);
-            Q_ASSERT(priv->persistent.moved.isEmpty());
+            model->d_func()->addPersistentIndexData(d);
         }
         model->d_func()->persistent.previous = d;
     }
@@ -463,7 +463,6 @@ void QAbstractItemModelPrivate::removePersistentIndexData(QPersistentModelIndexD
     // make sure our optimization still works
     if (persistent.previous == data)
         persistent.previous = 0;
-
     Q_ASSERT(!persistent.indexes.contains(data));
     // update the references to moved persistent indexes
     for (int i = persistent.moved.count() - 1; i >= 0; --i) {
@@ -483,6 +482,28 @@ void QAbstractItemModelPrivate::removePersistentIndexData(QPersistentModelIndexD
                 --persistent.invalidated[i][j];
             else if (invalidated.at(j) == data_index)
                 persistent.invalidated[i].removeAll(j);
+        }
+    }
+
+}
+
+void QAbstractItemModelPrivate::addPersistentIndexData(QPersistentModelIndexData *data)
+{
+    int data_index = persistent.indexes.indexOf(data);
+    // update the references to moved persistent indexes
+    for (int i = persistent.moved.count() - 1; i >= 0; --i) {
+        QList<int> moved = persistent.moved.at(i);
+        for (int j = moved.count() - 1; j >= 0; --j) {
+            if (moved.at(j) >= data_index)
+                ++persistent.moved[i][j];
+        }
+    }
+    // update the references to invalidated persistent indexes
+    for (int i = persistent.invalidated.count() - 1; i >= 0; --i) {
+        QList<int> invalidated = persistent.invalidated.at(i);
+        for (int j = invalidated.count() - 1; j >= 0; --j) {
+            if (invalidated.at(j) >= data_index)
+                ++persistent.invalidated[i][j];
         }
     }
 
