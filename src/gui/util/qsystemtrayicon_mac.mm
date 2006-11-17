@@ -1,12 +1,31 @@
-#define QSYSTEMTRAY_ICON_MAC_MM
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#define QT_MAC_SYSTEMTRAY_USE_GROWL
+
 @class QNSMenu;
 
 #include "qsystemtrayicon_p.h"
+#include <qtemporaryfile.h>
+#include <qimagewriter.h>
+#include <qapplication.h>
 #include <qdebug.h>
+#include <qstyle.h>
 
 #include <private/qt_mac_p.h>
 #import <AppKit/AppKit.h>
 
+extern bool qt_mac_execute_apple_script(const QString &script, AEDesc *ret); //qapplication_mac.cpp
 extern void qtsystray_sendActivated(QSystemTrayIcon *i, int r); //qsystemtrayicon.cpp
 extern void qt_mac_get_accel(quint32 accel_key, quint32 *modif, quint32 *key); //qmenu_mac.cpp
 extern QString qt_mac_no_ampersands(QString str); //qmenu_mac.cpp
@@ -148,13 +167,42 @@ bool QSystemTrayIconPrivate::isSystemTrayAvailable_sys()
     return true;
 }
 
-void QSystemTrayIconPrivate::showMessage_sys(const QString &, const QString &,
-                                             QSystemTrayIcon::MessageIcon, int)
+void QSystemTrayIconPrivate::showMessage_sys(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon icon, int)
 {
-#if 0
     if(sys) {
-        QMacCocoaAutoReleasePool pool;
-        //[[sys->item item:] setTitle:(NSString*)QCFString::toCFStringRef(message)];
+#ifdef QT_MAC_SYSTEMTRAY_USE_GROWL
+        QPixmap notificationIconPixmap;
+        if(icon == QSystemTrayIcon::Information)
+            notificationIconPixmap = QApplication::style()->standardPixmap(QStyle::SP_MessageBoxInformation);
+        else if(icon == QSystemTrayIcon::Warning)
+            notificationIconPixmap = QApplication::style()->standardPixmap(QStyle::SP_MessageBoxWarning);
+        else if(icon == QSystemTrayIcon::Critical)
+            notificationIconPixmap = QApplication::style()->standardPixmap(QStyle::SP_MessageBoxCritical);
+        QTemporaryFile notificationIconFile;
+        QString notificationType("Notification"), notificationIcon, notificationApp(QApplication::applicationName());
+        if(notificationApp.isEmpty())
+            notificationApp = QLatin1String("Application");
+        if(!notificationIconPixmap.isNull() && notificationIconFile.open()) {
+            QImageWriter writer(&notificationIconFile, "PNG");
+            if(writer.write(notificationIconPixmap.toImage()))
+                notificationIcon = QLatin1String("image from location \"file://") + notificationIconFile.fileName() + "\"";
+        }
+        const QString script(
+            "tell application \"GrowlHelperApp\"\n"
+            "-- Make a list of all the notification types (all)\n"
+            "set the allNotificationsList to {\"" + notificationType + "\"}\n"
+
+            "-- Make a list of the notifications (enabled)\n"
+            "set the enabledNotificationsList to {\"" + notificationType + "\"}\n"
+
+            "-- Register our script with growl.\n"
+            "register as application \"" + notificationApp + "\" all notifications allNotificationsList default notifications enabledNotificationsList\n"
+	 
+            "--	Send a Notification...\n"
+            "notify with name \"" + notificationType + "\" title \"" + title + "\" description \"" + message + "\" application name \"" + notificationApp + "\" "  + notificationIcon + "\n"
+            "end tell"
+            );
+        qt_mac_execute_apple_script(script, 0);
 #elif 0
         Q_Q(QSystemTrayIcon);
         NSView *v = [[sys->item item] view];
@@ -165,8 +213,12 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &, const QString &,
         qDebug() << p;
         QBalloonTip::showBalloon(icon, message, title, q, QPoint(0, 0), msecs);
         // else do growl? we need to weak link the framework and stuff then, less than desirable - IMO.
-    }
+#else
+        Q_UNUSED(icon);
+        Q_UNUSED(title);
+        Q_UNUSED(message);
 #endif
+    }
 }
 
 @implementation NSStatusItem (Qt)
