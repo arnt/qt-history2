@@ -31,6 +31,7 @@ class Q_GUI_EXPORT QTableView : public QAbstractItemView
     Q_PROPERTY(bool showGrid READ showGrid WRITE setShowGrid)
     Q_PROPERTY(Qt::PenStyle gridStyle READ gridStyle WRITE setGridStyle)
     Q_PROPERTY(bool sortingEnabled READ isSortingEnabled WRITE setSortingEnabled)
+    Q_PROPERTY(bool wordWrap READ wordWrap WRITE setWordWrap)
 
 public:
     explicit QTableView(QWidget *parent = 0);
@@ -70,6 +71,9 @@ public:
 
     Qt::PenStyle gridStyle() const;
     void setGridStyle(Qt::PenStyle style);
+
+    void setWordWrap(bool on);
+    bool wordWrap() const;
 
     QRect visualRect(const QModelIndex &index) const;
     void scrollTo(const QModelIndex &index, ScrollHint hint = EnsureVisible);

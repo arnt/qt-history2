@@ -811,6 +811,31 @@ bool QTreeView::allColumnsShowFocus() const
 }
 
 /*!
+    \property QTreeView::wordWrap
+    \brief the item text word-wrapping policy
+    \since 4.3
+
+    If this property is true then item text text is wrapped where
+    necessary at word-breaks; otherwise it is not wrapped at all.
+    This property is false by default.
+*/
+void QTreeView::setWordWrap(bool on)
+{
+    Q_D(QTreeView);
+    if (d->wrapItemText == on)
+        return;
+    d->wrapItemText = on;
+    d->doDelayedItemsLayout();
+}
+
+bool QTreeView::wordWrap() const
+{
+    Q_D(const QTreeView);
+    return d->wrapItemText;
+}
+
+
+/*!
   \reimp
  */
 void QTreeView::keyboardSearch(const QString &search)
@@ -2979,8 +3004,8 @@ QStyleOptionViewItemV2 QTreeViewPrivate::viewOptionsV2() const
 {
     Q_Q(const QTreeView);
     QStyleOptionViewItemV2 option = q->viewOptions();
-    // don't wrap text by default
-    // option.features = QStyleOptionViewItemV2::WrapText;
+    if (wrapItemText)
+        option.features = QStyleOptionViewItemV2::WrapText;
     return option;
 }
 

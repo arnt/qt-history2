@@ -357,8 +357,8 @@ QStyleOptionViewItemV2 QTableViewPrivate::viewOptionsV2() const
 {
     Q_Q(const QTableView);
     QStyleOptionViewItemV2 option = q->viewOptions();
-    // wrap text by default
-    option.features = QStyleOptionViewItemV2::WrapText;
+    if (wrapItemText)
+        option.features = QStyleOptionViewItemV2::WrapText;
     return option;
 }
 
@@ -1631,6 +1631,31 @@ void QTableView::setGridStyle(Qt::PenStyle style)
         d->gridStyle = style;
         d->viewport->update();
     }
+}
+
+/*!
+    \property QTableView::wordWrap
+    \brief the item text word-wrapping policy
+    \since 4.3
+
+    If this property is true then item text text is wrapped where
+    necessary at word-breaks; otherwise it is not wrapped at all.
+    This property is true by default.
+*/
+void QTableView::setWordWrap(bool on)
+{
+    Q_D(QTableView);
+    if (d->wrapItemText == on)
+        return;
+    d->wrapItemText = on;
+    QMetaObject::invokeMethod(d->verticalHeader, "resizeSections");
+    QMetaObject::invokeMethod(d->horizontalHeader, "resizeSections");
+}
+
+bool QTableView::wordWrap() const
+{
+    Q_D(const QTableView);
+    return d->wrapItemText;
 }
 
 /*!

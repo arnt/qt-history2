@@ -35,6 +35,7 @@ class Q_GUI_EXPORT QTreeView : public QAbstractItemView
     Q_PROPERTY(bool sortingEnabled READ isSortingEnabled WRITE setSortingEnabled)
     Q_PROPERTY(bool animated READ isAnimated WRITE setAnimated)
     Q_PROPERTY(bool allColumnsShowFocus READ allColumnsShowFocus WRITE setAllColumnsShowFocus)
+    Q_PROPERTY(bool wordWrap READ wordWrap WRITE setWordWrap)
 
 public:
     explicit QTreeView(QWidget *parent = 0);
@@ -84,6 +85,9 @@ public:
 
     void setAllColumnsShowFocus(bool enable);
     bool allColumnsShowFocus() const;
+
+    void setWordWrap(bool on);
+    bool wordWrap() const;
 
     void keyboardSearch(const QString &search);
 

@@ -38,7 +38,7 @@ public:
           rowSectionAnchor(-1), columnSectionAnchor(-1),
           columnResizeTimerID(0), rowResizeTimerID(0),
           horizontalHeader(0), verticalHeader(0),
-          sortingEnabled(false)
+          sortingEnabled(false), wrapItemText(true)
  {
 #ifndef QT_NO_DRAGANDDROP
     overwrite = true;
@@ -89,6 +89,7 @@ public:
     QHeaderView *verticalHeader;
     QWidget *cornerWidget;
     bool sortingEnabled;
+    bool wrapItemText;
 
     struct Span
     {
