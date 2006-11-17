@@ -619,17 +619,17 @@ inline void QTextFrameFormat::setHeight(qreal aheight)
 inline void QTextFrameFormat::setHeight(const QTextLength &aheight)
 { setProperty(FrameHeight, aheight); }
 
-inline void QTextFrameFormat::setTopMargin(qreal margin)
-{ setProperty(FrameTopMargin, margin); }
+inline void QTextFrameFormat::setTopMargin(qreal amargin)
+{ setProperty(FrameTopMargin, amargin); }
 
-inline void QTextFrameFormat::setBottomMargin(qreal margin)
-{ setProperty(FrameBottomMargin, margin); }
+inline void QTextFrameFormat::setBottomMargin(qreal amargin)
+{ setProperty(FrameBottomMargin, amargin); }
 
-inline void QTextFrameFormat::setLeftMargin(qreal margin)
-{ setProperty(FrameLeftMargin, margin); }
+inline void QTextFrameFormat::setLeftMargin(qreal amargin)
+{ setProperty(FrameLeftMargin, amargin); }
 
-inline void QTextFrameFormat::setRightMargin(qreal margin)
-{ setProperty(FrameRightMargin, margin); }
+inline void QTextFrameFormat::setRightMargin(qreal amargin)
+{ setProperty(FrameRightMargin, amargin); }
 
 class Q_GUI_EXPORT QTextTableFormat : public QTextFrameFormat
 {
