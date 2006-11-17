@@ -385,13 +385,17 @@ QDESIGNER_SHARED_EXPORT QDesignerWidgetDataBaseItemInterface *
         // Check the existing item for base class mismatch. This will likely
         // happen when loading a file written by an instance with missing plugins.
         // In that case, just warn and ignore the file properties.
-        // Note that for legacy reasons "extends" is empty for plugins, etc.
+        // 
+        // An empty base class indicates that it is not known (for example, for custom plugins).
+        // In this case, the widget DB is later updated once the widget is created
+        // by DOM (by querying the metaobject). Suppress the warning.
         const QString existingBaseClass = derivedItem->extends();
-        const bool baseMatches = baseClassName ==  existingBaseClass ||
-                                 (existingBaseClass.isEmpty() &&  baseClassName == qWidgetName);
-        if (!baseMatches) 
-            qWarning() << "** WARNING The base class of " << className << " (" << baseClassName 
-            <<") does not correspond to the one in the widget database (" <<  existingBaseClass << ").";
+        if (existingBaseClass.isEmpty() || baseClassName ==  existingBaseClass)
+            return derivedItem;
+        
+        // Warn about mismatches
+        qWarning() << "** WARNING The base class of " << className << " (" << baseClassName 
+                   << ") does not correspond to the one in the widget database (" <<  existingBaseClass << ").";
         return derivedItem;
     }
     // Create this item, inheriting its base properties
