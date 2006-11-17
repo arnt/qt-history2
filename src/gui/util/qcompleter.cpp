@@ -1134,6 +1134,9 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
         }
         return false;
 
+    case QEvent::InputMethod:
+        QApplication::sendEvent(d->widget, e);
+        break;
     default:
         return false;
     }

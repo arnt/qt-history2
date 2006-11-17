@@ -786,7 +786,7 @@ Qt::Alignment QLineEdit::alignment() const
 void QLineEdit::setAlignment(Qt::Alignment alignment)
 {
     Q_D(QLineEdit);
-    d->alignment = alignment;        
+    d->alignment = alignment;
     update();
 }
 
@@ -2087,6 +2087,10 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
     if (!e->commitString().isEmpty())
         d->emitCursorPositionChanged();
     d->finishChange(priorState);
+#ifndef QT_NO_COMPLETER
+    if (!e->commitString().isEmpty())
+        d->complete(Qt::Key_unknown);
+#endif
 }
 
 /*!\reimp
@@ -2233,7 +2237,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
 
 
     int widthUsed = qRound(line.naturalTextWidth()) + 1 + minRB;
-    if ((minLB + widthUsed) <=  lineRect.width()) {        
+    if ((minLB + widthUsed) <=  lineRect.width()) {
         switch (va & ~(Qt::AlignAbsolute|Qt::AlignVertical_Mask)) {
         case Qt::AlignRight:
             d->hscroll = widthUsed - lineRect.width() + 1;
