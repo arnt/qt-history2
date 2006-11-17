@@ -71,7 +71,7 @@ public:
 };
 
 namespace {
-    // convert key to value for a given QMetaEnum 
+    // convert key to value for a given QMetaEnum
     template <class EnumType>
         inline static EnumType enumKeyToValue(const QMetaEnum & metaEnum,const char *key) {
             return static_cast<EnumType>(metaEnum.keyToValue(key));
@@ -108,14 +108,14 @@ public:
     QGradient::Type fakeGradientType() const    { Q_ASSERT(0); return QGradient::NoGradient; }
     QGradient::Spread fakeGradientSpread() const  { Q_ASSERT(0); return QGradient::PadSpread; }
     QGradient::CoordinateMode fakeGradientCoordinate() const  { Q_ASSERT(0); return QGradient::LogicalMode; }
-    
+
     // Access meta enumeration object
     static inline QMetaEnum metaEnum(const char *name) {
         const int e_index = staticMetaObject.indexOfProperty(name);
         Q_ASSERT(e_index != -1);
         return staticMetaObject.property(e_index).enumerator();
     }
-    
+
 
     // convert key to value for a enumeration by name
     template <class EnumType>
@@ -123,7 +123,7 @@ public:
             static const QMetaEnum me = metaEnum(enumName);
             return ::enumKeyToValue<EnumType>(me, key);
         }
-    
+
 };
 
 /*!
@@ -349,7 +349,7 @@ Qt::ToolBarArea QAbstractFormBuilder::toolbarAreaFromDOMAttributes(const DomProp
     case DomProperty::Enum:
         return QAbstractFormBuilderGadget::enumKeyToValue<Qt::ToolBarArea>("toolBarArea",  attr->elementEnum().toLatin1());
     default:
-        break; 
+        break;
     }
     return Qt::TopToolBarArea;
 }
@@ -386,7 +386,7 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
             if (const DomProperty *attr = attributes.value(QLatin1String("toolBarBreak")))
                 if (attr->elementBool() == QLatin1String("true"))
                     mw->insertToolBarBreak (toolBar);
-            
+
             return true;
         }
 
@@ -645,7 +645,7 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
 {
     // requires non-const virtual nameToIcon, etc.
     switch(p->kind()) {
-    case DomProperty::Bool: 
+    case DomProperty::Bool:
         return QVariant(toBool(p->elementBool()));
 
     case DomProperty::Cstring:
@@ -694,15 +694,15 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
     case DomProperty::Number:
         return QVariant(p->elementNumber());
 
-    case DomProperty::UInt: 
+    case DomProperty::UInt:
         return QVariant(p->elementUInt());
 
-    case DomProperty::LongLong: 
+    case DomProperty::LongLong:
         return QVariant(p->elementLongLong());
 
-    case DomProperty::ULongLong: 
+    case DomProperty::ULongLong:
         return QVariant(p->elementULongLong());
-    
+
     case DomProperty::Double:
         return QVariant(p->elementDouble());
 
@@ -769,32 +769,16 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
         return QVariant(QUrl(url->elementString()->text()));
     }
 
-    case DomProperty::Pixmap:
-    case DomProperty::IconSet: {
-        DomResourcePixmap *resource = 0;
-        if (p->kind() == DomProperty::IconSet)
-            resource = p->elementIconSet();
-        else
-            resource = p->elementPixmap();
-
-        if (resource != 0) {
-            const QString icon_path = resource->text();
-            const QString qrc_path = resource->attributeResource();
-
-            if (icon_path.isEmpty()) {
-                if (p->kind() == DomProperty::IconSet)
-                    return QIcon();
-
-                return QPixmap();
-            }
-
-            if (p->kind() == DomProperty::IconSet) {
-                return qVariantFromValue(nameToIcon(icon_path, qrc_path));
-            } else {
-                return  qVariantFromValue(nameToPixmap(icon_path, qrc_path));
-            }
-        }
+    case DomProperty::Pixmap: {
+        const DomResourcePixmap * dpx = domPixmap(p);
+        return qVariantFromValue(dpx ? domPropertyToPixmap(p) : QPixmap());
     }
+
+    case DomProperty::IconSet: {
+        const DomResourcePixmap * dpx = domPixmap(p);
+        return qVariantFromValue(dpx ? domPropertyToIcon(p) : QIcon());
+    }
+
 
     case DomProperty::Palette: {
         const DomPalette *dom = p->elementPalette();
@@ -816,7 +800,7 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
     case DomProperty::Cursor:
         return qVariantFromValue(QCursor(static_cast<Qt::CursorShape>(p->elementCursor())));
 
-    case DomProperty::CursorShape: 
+    case DomProperty::CursorShape:
         return qVariantFromValue(QCursor(QAbstractFormBuilderGadget::enumKeyToValue<Qt::CursorShape>("cursorShape", p->elementCursorShape().toLatin1())));
 
     case DomProperty::Set: {
@@ -963,7 +947,7 @@ QBrush QAbstractFormBuilder::setupBrush(DomBrush *brush)
         const QMetaEnum gradientType_enum = QAbstractFormBuilderGadget::metaEnum("gradientType");
         const QMetaEnum gradientSpread_enum = QAbstractFormBuilderGadget::metaEnum("gradientSpread");
         const QMetaEnum gradientCoordinate_enum = QAbstractFormBuilderGadget::metaEnum("gradientCoordinate");
-        
+
         const DomGradient *gradient = brush->elementGradient();
         const QGradient::Type type = enumKeyToValue<QGradient::Type>(gradientType_enum, gradient->attributeType().toLatin1());
 
@@ -983,7 +967,7 @@ QBrush QAbstractFormBuilder::setupBrush(DomBrush *brush)
         }
         if (!gr)
             return br;
-        
+
         const QGradient::Spread spread = enumKeyToValue<QGradient::Spread>(gradientSpread_enum, gradient->attributeSpread().toLatin1());
         gr->setSpread(spread);
 
@@ -1003,13 +987,7 @@ QBrush QAbstractFormBuilder::setupBrush(DomBrush *brush)
     } else if (style == Qt::TexturePattern) {
         const DomProperty *texture = brush->elementTexture();
         if (texture && texture->kind() == DomProperty::Pixmap) {
-            const DomResourcePixmap *pixmap = texture->elementPixmap();
-            Q_ASSERT(pixmap != 0);
-            const QString iconPath = pixmap->text();
-            const QString qrcPath = pixmap->attributeResource();
-
-            const QPixmap p = nameToPixmap(iconPath, qrcPath);
-            br.setTexture(p);
+            br.setTexture(domPropertyToPixmap(texture));
         }
     } else {
         const DomColor *color = brush->elementColor();
@@ -1036,7 +1014,7 @@ DomBrush *QAbstractFormBuilder::saveBrush(const QBrush &br)
         const QMetaEnum gradientType_enum = QAbstractFormBuilderGadget::metaEnum("gradientType");
         const QMetaEnum gradientSpread_enum = QAbstractFormBuilderGadget::metaEnum("gradientSpread");
         const QMetaEnum gradientCoordinate_enum = QAbstractFormBuilderGadget::metaEnum("gradientCoordinate");
-        
+
         DomGradient *gradient = new DomGradient();
         const QGradient *gr = br.gradient();
         const QGradient::Type type = gr->type();
@@ -1083,20 +1061,8 @@ DomBrush *QAbstractFormBuilder::saveBrush(const QBrush &br)
     } else if (style == Qt::TexturePattern) {
         const QPixmap pixmap = br.texture();
         if (!pixmap.isNull()) {
-            const QString iconPath = pixmapToFilePath(pixmap);
-            const QString qrcPath = pixmapToQrcPath(pixmap);
-
             DomProperty *p = new DomProperty;
-
-            DomResourcePixmap *pix = new DomResourcePixmap;
-            if (!qrcPath.isEmpty())
-                pix->setAttributeResource(qrcPath);
-
-            pix->setText(iconPath);
-
-            p->setAttributeName(QLatin1String("pixmap"));
-            p->setElementPixmap(pix);
-
+            setPixmapProperty(*p,  pixmapPaths(pixmap));
             brush->setElementTexture(p);
         }
     } else {
@@ -1665,32 +1631,11 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
         } break;
 
         case QVariant::Pixmap:
-        case QVariant::Icon: {
-            DomResourcePixmap *r = new DomResourcePixmap;
-            QString icon_path;
-            QString qrc_path;
-            if (v.type() == QVariant::Icon) {
-                QIcon icon = qvariant_cast<QIcon>(v);
-                icon_path = iconToFilePath(icon);
-                qrc_path = iconToQrcPath(icon);
-            } else {
-                QPixmap pixmap = qvariant_cast<QPixmap>(v);
-                icon_path = pixmapToFilePath(pixmap);
-                qrc_path = pixmapToQrcPath(pixmap);
-            }
-
-            icon_path = icon_path.replace(QLatin1Char('\\'), QLatin1Char('/'));
-            qrc_path = qrc_path.replace(QLatin1Char('\\'), QLatin1Char('/'));
-
-            r->setText(icon_path);
-            if (!qrc_path.isEmpty())
-                r->setAttributeResource(qrc_path);
-
-            if (v.type() == QVariant::Icon)
-                dom_prop->setElementIconSet(r);
-            else
-                dom_prop->setElementPixmap(r);
-        } break;
+            setPixmapProperty(*dom_prop, pixmapPaths(qvariant_cast<QPixmap>(v)));
+            break;
+        case QVariant::Icon:
+            setIconProperty(*dom_prop, iconPaths(qvariant_cast<QIcon>(v)));
+            break;
 
         case QVariant::StringList: {
             DomStringList *sl = new DomStringList;
@@ -1889,24 +1834,8 @@ void QAbstractFormBuilder::saveTreeWidgetExtraInfo(QTreeWidget *treeWidget, DomW
         ptext->setElementString(str);
         properties.append(ptext);
 
-        const QIcon icon = treeWidget->headerItem()->icon(c);
-        if (!icon.isNull()) {
-            const QString iconPath = iconToFilePath(icon);
-            const QString qrcPath = iconToQrcPath(icon);
-
-            DomProperty *p = new DomProperty;
-
-            DomResourcePixmap *pix = new DomResourcePixmap;
-            if (!qrcPath.isEmpty())
-                pix->setAttributeResource(qrcPath);
-
-            pix->setText(iconPath);
-
-            p->setAttributeName(QLatin1String("icon"));
-            p->setElementIconSet(pix);
-
+        if ( DomProperty *p = iconToDomProperty(treeWidget->headerItem()->icon(c)))
             properties.append(p);
-        }
 
         column->setElementProperty(properties);
         columns.append(column);
@@ -1936,25 +1865,8 @@ void QAbstractFormBuilder::saveTreeWidgetExtraInfo(QTreeWidget *treeWidget, DomW
             ptext->setElementString(str);
             properties.append(ptext);
 
-            const QIcon icon = item->icon(c);
-            if (!icon.isNull()) {
-                const QString iconPath = iconToFilePath(icon);
-                const QString qrcPath = iconToQrcPath(icon);
-
-                DomProperty *p = new DomProperty;
-
-                DomResourcePixmap *pix = new DomResourcePixmap;
-                if (!qrcPath.isEmpty())
-                    pix->setAttributeResource(qrcPath);
-
-                pix->setText(iconPath);
-
-                p->setAttributeName(QLatin1String("icon"));
-                p->setElementIconSet(pix);
-
+            if (DomProperty *p = iconToDomProperty(item->icon(c)))
                 properties.append(p);
-            }
-
         }
         currentDomItem->setElementProperty(properties);
 
@@ -1994,24 +1906,8 @@ void QAbstractFormBuilder::saveTableWidgetExtraInfo(QTableWidget *tableWidget, D
             ptext->setElementString(str);
             properties.append(ptext);
 
-            const QIcon icon = item->icon();
-            if (!icon.isNull()) {
-                const QString iconPath = iconToFilePath(icon);
-                const QString qrcPath = iconToQrcPath(icon);
-
-                DomProperty *p = new DomProperty;
-
-                DomResourcePixmap *pix = new DomResourcePixmap;
-                if (!qrcPath.isEmpty())
-                    pix->setAttributeResource(qrcPath);
-
-                pix->setText(iconPath);
-
-                p->setAttributeName(QLatin1String("icon"));
-                p->setElementIconSet(pix);
-
+            if (DomProperty *p = iconToDomProperty(item->icon()))
                 properties.append(p);
-            }
         }
 
         column->setElementProperty(properties);
@@ -2034,24 +1930,8 @@ void QAbstractFormBuilder::saveTableWidgetExtraInfo(QTableWidget *tableWidget, D
             ptext->setElementString(str);
             properties.append(ptext);
 
-            const QIcon icon = item->icon();
-            if (!icon.isNull()) {
-                const QString iconPath = iconToFilePath(icon);
-                const QString qrcPath = iconToQrcPath(icon);
-
-                DomProperty *p = new DomProperty;
-
-                DomResourcePixmap *pix = new DomResourcePixmap;
-                if (!qrcPath.isEmpty())
-                    pix->setAttributeResource(qrcPath);
-
-                pix->setText(iconPath);
-
-                p->setAttributeName(QLatin1String("icon"));
-                p->setElementIconSet(pix);
-
+            if (DomProperty *p = iconToDomProperty(item->icon()))
                 properties.append(p);
-            }
         }
 
         row->setElementProperty(properties);
@@ -2078,24 +1958,8 @@ void QAbstractFormBuilder::saveTableWidgetExtraInfo(QTableWidget *tableWidget, D
                 ptext->setElementString(str);
                 properties.append(ptext);
 
-                const QIcon icon = item->icon();
-                if (!icon.isNull()) {
-                    const QString iconPath = iconToFilePath(icon);
-                    const QString qrcPath = iconToQrcPath(icon);
-
-                    DomProperty *p = new DomProperty;
-
-                    DomResourcePixmap *pix = new DomResourcePixmap;
-                    if (!qrcPath.isEmpty())
-                        pix->setAttributeResource(qrcPath);
-
-                    pix->setText(iconPath);
-
-                    p->setAttributeName(QLatin1String("icon"));
-                    p->setElementIconSet(pix);
-
+                if (DomProperty *p = iconToDomProperty(item->icon()))
                     properties.append(p);
-                }
 
                 domItem->setElementProperty(properties);
                 items.append(domItem);
@@ -2131,23 +1995,8 @@ void QAbstractFormBuilder::saveListWidgetExtraInfo(QListWidget *listWidget, DomW
         p->setElementString(str);
         properties.append(p);
 
-        if (!item->icon().isNull()) {
-            const QString iconPath = iconToFilePath(item->icon());
-            const QString qrcPath = iconToQrcPath(item->icon());
-
-            p = new DomProperty;
-
-            DomResourcePixmap *pix = new DomResourcePixmap;
-            if (!qrcPath.isEmpty())
-                pix->setAttributeResource(qrcPath);
-
-            pix->setText(iconPath);
-
-            p->setAttributeName(QLatin1String("icon"));
-            p->setElementIconSet(pix);
-
+        if (DomProperty *p = iconToDomProperty(item->icon()))
             properties.append(p);
-        }
 
         ui_item->setElementProperty(properties);
         ui_items.append(ui_item);
@@ -2181,24 +2030,8 @@ void QAbstractFormBuilder::saveComboBoxExtraInfo(QComboBox *comboBox, DomWidget 
         p->setElementString(str);
         properties.append(p);
 
-        const QIcon icon = qVariantValue<QIcon>(comboBox->itemData(i));
-        if (!icon.isNull()) {
-            const QString iconPath = iconToFilePath(icon);
-            const QString qrcPath = iconToQrcPath(icon);
-
-            DomProperty *p = new DomProperty;
-
-            DomResourcePixmap *pix = new DomResourcePixmap;
-            if (!qrcPath.isEmpty())
-                pix->setAttributeResource(qrcPath);
-
-            pix->setText(iconPath);
-
-            p->setAttributeName(QLatin1String("icon"));
-            p->setElementIconSet(pix);
-
-            properties.append(p);
-        }
+        if (DomProperty *p = iconToDomProperty(qVariantValue<QIcon>(comboBox->itemData(i))))
+                properties.append(p);
 
         ui_item->setElementProperty(properties);
         ui_items.append(ui_item);
@@ -2235,21 +2068,14 @@ void QAbstractFormBuilder::loadListWidgetExtraInfo(DomWidget *ui_widget, QListWi
         const DomPropertyHash properties = propertyMap(ui_item->elementProperty());
         QListWidgetItem *item = new QListWidgetItem(listWidget);
 
-        DomProperty *p = 0;
-
-        p = properties.value(QLatin1String("text"));
+        DomProperty *p = properties.value(QLatin1String("text"));
         if (p && p->kind() == DomProperty::String) {
             item->setText(p->elementString()->text());
         }
 
         p = properties.value(QLatin1String("icon"));
         if (p && p->kind() == DomProperty::IconSet) {
-            DomResourcePixmap *icon = p->elementIconSet();
-            Q_ASSERT(icon != 0);
-            const QString iconPath = icon->text();
-            const QString qrcPath = icon->attributeResource();
-
-            item->setIcon(nameToIcon(iconPath, qrcPath));
+            item->setIcon(domPropertyToIcon(p));
         }
     }
 
@@ -2265,12 +2091,12 @@ void QAbstractFormBuilder::loadTreeWidgetExtraInfo(DomWidget *ui_widget, QTreeWi
 {
     Q_UNUSED(parentWidget);
 
-    QList<DomColumn*> columns = ui_widget->elementColumn();
+    const QList<DomColumn*> columns = ui_widget->elementColumn();
 
     treeWidget->setColumnCount(columns.count());
 
     for (int i = 0; i<columns.count(); ++i) {
-        DomColumn *c = columns.at(i);
+        const DomColumn *c = columns.at(i);
         const DomPropertyHash properties = propertyMap(c->elementProperty());
 
         DomProperty *ptext = properties.value(QLatin1String("text"));
@@ -2280,12 +2106,7 @@ void QAbstractFormBuilder::loadTreeWidgetExtraInfo(DomWidget *ui_widget, QTreeWi
             treeWidget->headerItem()->setText(i, ptext->elementString()->text());
 
         if (picon && picon->kind() == DomProperty::IconSet) {
-            DomResourcePixmap *icon = picon->elementIconSet();
-            Q_ASSERT(icon != 0);
-            const QString iconPath = icon->text();
-            const QString qrcPath = icon->attributeResource();
-
-            treeWidget->headerItem()->setIcon(i, nameToIcon(iconPath, qrcPath));
+            treeWidget->headerItem()->setIcon(i, domPropertyToIcon(picon));
         }
     }
 
@@ -2295,7 +2116,7 @@ void QAbstractFormBuilder::loadTreeWidgetExtraInfo(DomWidget *ui_widget, QTreeWi
 
     while (!pendingQueue.isEmpty()) {
         const QPair<DomItem *, QTreeWidgetItem *> pair = pendingQueue.dequeue();
-        DomItem *domItem = pair.first;
+        const DomItem *domItem = pair.first;
         QTreeWidgetItem *parentItem = pair.second;
 
         QTreeWidgetItem *currentItem = 0;
@@ -2314,12 +2135,7 @@ void QAbstractFormBuilder::loadTreeWidgetExtraInfo(DomWidget *ui_widget, QTreeWi
                 col++;
             } else if (property->attributeName() == QLatin1String("icon") &&
                         property->kind() == DomProperty::IconSet && col > 0) {
-                DomResourcePixmap *icon = property->elementIconSet();
-                Q_ASSERT(icon != 0);
-                const QString iconPath = icon->text();
-                const QString qrcPath = icon->attributeResource();
-
-                currentItem->setIcon(col - 1, nameToIcon(iconPath, qrcPath));
+                currentItem->setIcon(col - 1, domPropertyToIcon(property));
             }
         }
 
@@ -2343,8 +2159,8 @@ void QAbstractFormBuilder::loadTableWidgetExtraInfo(DomWidget *ui_widget, QTable
         DomColumn *c = columns.at(i);
         const DomPropertyHash properties = propertyMap(c->elementProperty());
 
-        DomProperty *ptext = properties.value(QLatin1String("text"));
-        DomProperty *picon = properties.value(QLatin1String("icon"));
+        const DomProperty *ptext = properties.value(QLatin1String("text"));
+        const DomProperty *picon = properties.value(QLatin1String("icon"));
 
         if (ptext || picon) {
             QTableWidgetItem *item = new QTableWidgetItem;
@@ -2353,12 +2169,7 @@ void QAbstractFormBuilder::loadTableWidgetExtraInfo(DomWidget *ui_widget, QTable
             }
 
             if (picon && picon->kind() == DomProperty::IconSet) {
-                DomResourcePixmap *icon = picon->elementIconSet();
-                Q_ASSERT(icon != 0);
-                const QString iconPath = icon->text();
-                const QString qrcPath = icon->attributeResource();
-
-                item->setIcon(nameToIcon(iconPath, qrcPath));
+                item->setIcon(domPropertyToIcon(picon));
             }
             tableWidget->setHorizontalHeaderItem(i, item);
         }
@@ -2367,11 +2178,11 @@ void QAbstractFormBuilder::loadTableWidgetExtraInfo(DomWidget *ui_widget, QTable
     const QList<DomRow*> rows = ui_widget->elementRow();
     tableWidget->setRowCount(rows.count());
     for (int i = 0; i< rows.count(); i++) {
-        DomRow *r = rows.at(i);
+        const DomRow *r = rows.at(i);
         const DomPropertyHash properties = propertyMap(r->elementProperty());
 
-        DomProperty *ptext = properties.value(QLatin1String("text"));
-        DomProperty *picon = properties.value(QLatin1String("icon"));
+        const DomProperty *ptext = properties.value(QLatin1String("text"));
+        const DomProperty *picon = properties.value(QLatin1String("icon"));
 
         if (ptext || picon) {
             QTableWidgetItem *item = new QTableWidgetItem;
@@ -2380,12 +2191,7 @@ void QAbstractFormBuilder::loadTableWidgetExtraInfo(DomWidget *ui_widget, QTable
             }
 
             if (picon && picon->kind() == DomProperty::IconSet) {
-                DomResourcePixmap *icon = picon->elementIconSet();
-                Q_ASSERT(icon != 0);
-                const QString iconPath = icon->text();
-                const QString qrcPath = icon->attributeResource();
-
-                item->setIcon(nameToIcon(iconPath, qrcPath));
+                item->setIcon(domPropertyToIcon(picon));
             }
             tableWidget->setVerticalHeaderItem(i, item);
         }
@@ -2400,12 +2206,7 @@ void QAbstractFormBuilder::loadTableWidgetExtraInfo(DomWidget *ui_widget, QTable
                     item->setText(property->elementString()->text());
                 } else if (property->attributeName() == QLatin1String("icon") &&
                         property->kind() == DomProperty::IconSet) {
-                    DomResourcePixmap *icon = property->elementIconSet();
-                    Q_ASSERT(icon != 0);
-                    QString iconPath = icon->text();
-                    QString qrcPath = icon->attributeResource();
-
-                    item->setIcon(nameToIcon(iconPath, qrcPath));
+                    item->setIcon(domPropertyToIcon(property));
                 }
 
             }
@@ -2435,12 +2236,7 @@ void QAbstractFormBuilder::loadComboBoxExtraInfo(DomWidget *ui_widget, QComboBox
 
         p = properties.value(QLatin1String("icon"));
         if (p && p->kind() == DomProperty::IconSet) {
-            DomResourcePixmap *picon = p->elementIconSet();
-            Q_ASSERT(picon != 0);
-            const QString iconPath = picon->text();
-            const QString qrcPath = picon->attributeResource();
-
-            icon = nameToIcon(iconPath, qrcPath);
+             icon = domPropertyToIcon(p);
         }
 
         comboBox->addItem(icon, text);
@@ -2617,12 +2413,161 @@ void QAbstractFormBuilder::reset()
     m_defaultSpacing = INT_MIN;
 }
 /*!
-    \internal: Access meta enumeration for Qt::ToolBarArea
+    \internal
+    Access meta enumeration for Qt::ToolBarArea
 */
 
 QMetaEnum QAbstractFormBuilder::toolBarAreaMetaEnum()
 {
     return QAbstractFormBuilderGadget::metaEnum("toolBarArea");
+}
+
+namespace {
+    // set forward slashes in image path.
+    inline void fixImagePath(QString &p)    {
+        p.replace(QLatin1Char('\\'), QLatin1Char('/'));
+    }
+}
+
+/*!
+    \internal
+    Return paths of an icon.
+*/
+
+QAbstractFormBuilder::IconPaths QAbstractFormBuilder::iconPaths(const QIcon &icon) const
+{
+    IconPaths rc(iconToFilePath(icon), iconToQrcPath(icon));
+    fixImagePath(rc.first);
+    fixImagePath(rc.second);
+    return rc;
+}
+
+/*!
+    \internal
+    Return paths of a pixmap.
+*/
+
+QAbstractFormBuilder::IconPaths QAbstractFormBuilder::pixmapPaths(const QPixmap &pixmap) const
+{
+    IconPaths rc(pixmapToFilePath(pixmap), pixmapToQrcPath(pixmap));
+    fixImagePath(rc.first);
+    fixImagePath(rc.second);
+    return rc;
+}
+
+/*!
+    \internal
+    Set up a DOM property with icon.
+*/
+
+void QAbstractFormBuilder::setIconProperty(DomProperty &p, const IconPaths &ip) const
+{
+    DomResourcePixmap *pix = new DomResourcePixmap;
+    if (!ip.second.isEmpty())
+        pix->setAttributeResource(ip.second);
+
+    pix->setText(ip.first);
+
+    p.setAttributeName(QLatin1String("icon"));
+    p.setElementIconSet(pix);
+}
+ 
+/*!
+    \internal
+    Set up a DOM property with pixmap.
+*/
+
+void QAbstractFormBuilder::setPixmapProperty(DomProperty &p, const IconPaths &ip) const
+{
+    DomResourcePixmap *pix = new DomResourcePixmap;
+    if (!ip.second.isEmpty())
+        pix->setAttributeResource(ip.second);
+
+    pix->setText(ip.first);
+
+    p.setAttributeName(QLatin1String("pixmap"));
+    p.setElementPixmap(pix);
+}
+
+/*!
+    \internal
+    Convenience. Return DOM property for icon; 0 if icon.isNull(). 
+*/
+
+DomProperty* QAbstractFormBuilder::iconToDomProperty(const QIcon &icon) const
+{
+    if (icon.isNull())
+        return 0;
+    DomProperty *p = new DomProperty;
+    setIconProperty(*p, iconPaths(icon));
+    return p;
+}
+
+/*!
+    \internal
+    Return the appropriate DOM pixmap for an image dom property.
+*/
+
+const DomResourcePixmap *QAbstractFormBuilder::domPixmap(const DomProperty* p) {
+    switch (p->kind()) {
+    case DomProperty::IconSet:
+        return p->elementIconSet();
+    case DomProperty::Pixmap:
+        return p->elementPixmap();
+    default:
+        break;
+    }
+    return 0;
+}
+
+/*!
+    \internal
+    Create icon from DOM.
+*/
+
+QIcon QAbstractFormBuilder::domPropertyToIcon(const DomResourcePixmap *icon)
+{
+    const QString iconPath = icon->text();
+    const QString qrcPath = icon->attributeResource();
+    return nameToIcon(iconPath, qrcPath);
+}
+
+/*!
+    \internal
+    Create icon from DOM. Assert if !domPixmap
+*/
+
+QIcon QAbstractFormBuilder::domPropertyToIcon(const DomProperty* p)
+{
+    const DomResourcePixmap *px = domPixmap(p);
+    Q_ASSERT(px);
+    return domPropertyToIcon(px);
+}
+
+
+/*!
+    \internal 
+    Create pixmap from DOM.
+*/
+
+QPixmap QAbstractFormBuilder::domPropertyToPixmap(const DomResourcePixmap* pixmap)
+{
+    const QString iconPath = pixmap->text();
+    const QString qrcPath = pixmap->attributeResource();
+    return nameToPixmap(iconPath, qrcPath);
+}
+
+
+/*!
+    \internal
+    Create pixmap from DOM. Assert if !domPixmap
+*/
+
+QPixmap QAbstractFormBuilder::domPropertyToPixmap(const DomProperty* p)
+{
+    const DomResourcePixmap *px = domPixmap(p);
+    Q_ASSERT(px);
+    return domPropertyToPixmap(px);
 }
 
 /*!

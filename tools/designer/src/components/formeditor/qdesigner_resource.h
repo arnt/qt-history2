@@ -117,6 +117,7 @@ protected:
 private:
     typedef QList<DomCustomWidget*> DomCustomWidgetList;
     void addCustomWidgetsToWidgetDatabase(DomCustomWidgetList& list);
+    void fixIconPath(IconPaths &) const;
     FormWindow *m_formWindow;
     bool m_isMainWidget;
     QHash<QString, QString> m_internal_to_qt;

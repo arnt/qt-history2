@@ -137,17 +137,17 @@ void QDesignerResource::saveDom(DomUI *ui, QWidget *widget)
         tool->saveToDom(ui, widget);
     }
 
-    QString author = m_formWindow->author();
+    const QString author = m_formWindow->author();
     if (!author.isEmpty()) {
         ui->setElementAuthor(author);
     }
 
-    QString comment = m_formWindow->comment();
+    const QString comment = m_formWindow->comment();
     if (!comment.isEmpty()) {
         ui->setElementComment(comment);
     }
 
-    QString exportMacro = m_formWindow->exportMacro();
+    const QString exportMacro = m_formWindow->exportMacro();
     if (!exportMacro.isEmpty()) {
         ui->setElementExportMacro(exportMacro);
     }
@@ -210,7 +210,7 @@ void QDesignerResource::saveDom(DomUI *ui, QWidget *widget)
 
 QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
 {
-    QString version = ui->attributeVersion();
+    const QString version = ui->attributeVersion();
     if (version != QLatin1String("4.0")) {
 
         // Try to convert it ourselves.
@@ -303,7 +303,7 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
 
 QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
 {
-    QString className = ui_widget->attributeClass();
+    const QString className = ui_widget->attributeClass();
     if (!m_isMainWidget && className == QLatin1String("QWidget") && ui_widget->elementLayout().size() &&
                 !ui_widget->hasAttributeNative()) {
         // ### check if elementLayout.size() == 1
@@ -317,7 +317,7 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
     }
 
     // save the actions
-    QList<DomActionRef*> actionRefs = ui_widget->elementAddAction();
+    const QList<DomActionRef*> actionRefs = ui_widget->elementAddAction();
     ui_widget->setElementAddAction(QList<DomActionRef*>());
 
     QWidget *w = QAbstractFormBuilder::create(ui_widget, parentWidget);
@@ -343,7 +343,7 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
     }
 
     foreach (DomActionRef *ui_action_ref, actionRefs) {
-        QString name = ui_action_ref->attributeName();
+        const QString name = ui_action_ref->attributeName();
         if (name == QLatin1String("separator")) {
             QAction *sep = new QAction(w);
             sep->setSeparator(true);
@@ -438,9 +438,9 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
 
         for (int i=0; i<properties.size(); ++i) {
             DomProperty *p = properties.at(i);
-            QString propertyName = p->attributeName();
+            const QString propertyName = p->attributeName();
 
-            int index = sheet->indexOf(propertyName);
+            const int index = sheet->indexOf(propertyName);
             if (index != -1) {
                 QVariant v = toVariant(o->metaObject(), p);
 
@@ -453,7 +453,7 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
                 }
 
                 if (p->kind() == DomProperty::String && item) {
-                    DomString *str = p->elementString();
+                    const DomString *str = p->elementString();
                     if (str->hasAttributeComment()) {
                         setPropertyComment(core(), o, propertyName, str->attributeComment());
                     }
@@ -552,7 +552,7 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
     }
 
     QDesignerWidgetDataBaseItemInterface *widgetInfo =  0;
-    int widgetInfoIndex = core()->widgetDataBase()->indexOfObject(widget, false);
+    const int widgetInfoIndex = core()->widgetDataBase()->indexOfObject(widget, false);
     if (widgetInfoIndex != -1) {
         widgetInfo = core()->widgetDataBase()->item(widgetInfoIndex);
 
@@ -594,7 +594,7 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
         w->setAttributeNative(true);
     }
 
-    QString className = w->attributeClass();
+    const QString className = w->attributeClass();
     if (m_internal_to_qt.contains(className))
         w->setAttributeClass(m_internal_to_qt.value(className));
 
@@ -667,7 +667,7 @@ DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_lay
             return 0;
 
         DomSpacer *spacer = new DomSpacer();
-        QList<DomProperty*> properties = computeProperties(item->widget());
+        const QList<DomProperty*> properties = computeProperties(item->widget());
         // ### filter the properties
         spacer->setElementProperty(properties);
 
@@ -688,7 +688,7 @@ DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_lay
 
     if (m_chain.size() && item->widget()) {
         if (QGridLayout *grid = qobject_cast<QGridLayout*>(m_chain.top())) {
-            int index = Utils::indexOfWidget(grid, item->widget());
+            const int index = Utils::indexOfWidget(grid, item->widget());
 
             int row, column, rowspan, colspan;
             grid->getItemPosition(index, &row, &column, &rowspan, &colspan);
@@ -892,7 +892,7 @@ DomWidget *QDesignerResource::saveWidget(QDesignerDockWidget *dockWidget, DomWid
 {
     DomWidget *ui_widget = QAbstractFormBuilder::createDom(dockWidget, ui_parentWidget, true);
     if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(dockWidget->parentWidget())) {
-        Qt::DockWidgetArea area = mainWindow->dockWidgetArea(dockWidget);
+        const Qt::DockWidgetArea area = mainWindow->dockWidgetArea(dockWidget);
         DomProperty *attr = new DomProperty();
         attr->setAttributeName(QLatin1String("dockWidgetArea"));
         attr->setElementNumber(int(area));
@@ -902,43 +902,42 @@ DomWidget *QDesignerResource::saveWidget(QDesignerDockWidget *dockWidget, DomWid
     return ui_widget;
 }
 
+// fix the icon path: Set relative directory if it's not a language resource.
+void QDesignerResource::fixIconPath(IconPaths &ip) const
+{
+    // Real qrc, nothing to do
+    if (!ip.second.isEmpty()) 
+        return;
+    
+    QDesignerFormEditorInterface *core = m_formWindow->core();    
+    QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension*>(core->extensionManager(), core);
+
+    if (lang && lang->isLanguageResource(ip.first))
+        return; // Don't touch language specific things
+    
+    //  Set relative directory
+    ip.first = workingDirectory().relativeFilePath(ip.first);    
+}
+
 DomProperty *QDesignerResource::createIconProperty(const QVariant &v) const
 {
     DomProperty *dom_prop = new DomProperty();
-
-    DomResourcePixmap *r = new DomResourcePixmap;
-    QString icon_path;
-    QString qrc_path;
-    if (v.type() == QVariant::Icon) {
-        QIcon icon = qvariant_cast<QIcon>(v);
-        icon_path = iconToFilePath(icon);
-        qrc_path = iconToQrcPath(icon);
-    } else {
-        QPixmap pixmap = qvariant_cast<QPixmap>(v);
-        icon_path = pixmapToFilePath(pixmap);
-        qrc_path = pixmapToQrcPath(pixmap);
+    switch (v.type()) {
+    case QVariant::Icon: {
+        IconPaths paths = iconPaths(qvariant_cast<QIcon>(v));
+        fixIconPath(paths);    
+        setIconProperty(*dom_prop, paths);
+        break;
     }
-
-    if (qrc_path.isEmpty()) {
-        QDesignerFormEditorInterface *core = m_formWindow->core();
-
-        QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension*>(core->extensionManager(), core);
-
-        if (!lang || !lang->isLanguageResource(icon_path))
-            icon_path = workingDirectory().relativeFilePath(icon_path);
-    } else {
-        qrc_path = workingDirectory().relativeFilePath(qrc_path);
+    case QVariant::Pixmap: {
+        IconPaths paths = pixmapPaths(qvariant_cast<QPixmap>(v));
+        fixIconPath(paths);
+        setPixmapProperty(*dom_prop, paths);
+        break;
     }
-
-    r->setText(icon_path);
-    if (!qrc_path.isEmpty())
-        r->setAttributeResource(qrc_path);
-
-    if (v.type() == QVariant::Icon)
-        dom_prop->setElementIconSet(r);
-    else
-        dom_prop->setElementPixmap(r);
-
+    default:
+        break;
+    }
     return dom_prop;
 }
 
@@ -1050,7 +1049,7 @@ DomWidget *QDesignerResource::saveWidget(QDesignerToolBox *widget, DomWidget *ui
 bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
 {
     const QMetaObject *meta = obj->metaObject();
-    int pindex = meta->indexOfProperty(prop.toLatin1());
+    const int pindex = meta->indexOfProperty(prop.toLatin1());
     if (pindex != -1) {
         if (!meta->property(pindex).isStored(obj))
             return false;
@@ -1059,7 +1058,7 @@ bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
     if (prop == QLatin1String("objectName")) { // ### don't store the property objectName
         return false;
     } else if (prop == QLatin1String("geometry") && obj->isWidgetType()) {
-        QWidget *check_widget = qobject_cast<QWidget*>(obj);
+         QWidget *check_widget = qobject_cast<QWidget*>(obj);
          if (m_selected && m_selected == check_widget)
              return true;
 
@@ -1067,7 +1066,7 @@ bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
     }
 
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), obj)) {
-        int pindex = sheet->indexOf(prop);
+        const int pindex = sheet->indexOf(prop);
         if (sheet->isAttribute(pindex))
             return false;
 
@@ -1087,8 +1086,8 @@ bool QDesignerResource::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayo
     QBoxLayout *box = qobject_cast<QBoxLayout*>(layout);
 
     if (grid != 0) {
-        int rowSpan = ui_item->hasAttributeRowSpan() ? ui_item->attributeRowSpan() : 1;
-        int colSpan = ui_item->hasAttributeColSpan() ? ui_item->attributeColSpan() : 1;
+        const int rowSpan = ui_item->hasAttributeRowSpan() ? ui_item->attributeRowSpan() : 1;
+        const int colSpan = ui_item->hasAttributeColSpan() ? ui_item->attributeColSpan() : 1;
         add_to_grid_layout(grid, item->widget(), ui_item->attributeRow(), ui_item->attributeColumn(),
                         rowSpan, colSpan, item->alignment());
         return true;
@@ -1161,7 +1160,7 @@ DomUI *QDesignerResource::copy(const QList<QWidget*> &selection)
 
 QList<QWidget*> QDesignerResource::paste(DomUI *ui, QWidget *parentWidget)
 {
-    int saved = m_isMainWidget;
+    const int saved = m_isMainWidget;
     m_isMainWidget = false;
     QList<QWidget*> createdWidgets;
 
@@ -1266,7 +1265,7 @@ QList<DomProperty*> QDesignerResource::computeProperties(QObject *object)
     QList<DomProperty*> properties;
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), object)) {
         for (int index = 0; index < sheet->count(); ++index) {
-            QString propertyName = sheet->propertyName(index);
+            const QString propertyName = sheet->propertyName(index);
             QVariant value = sheet->property(index);
 
             if (QLayout *layout = qobject_cast<QLayout*>(object)) {
@@ -1301,8 +1300,8 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
     QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension*> (mgr, core());
 
     if (qVariantCanConvert<EnumType>(value)) {
-        EnumType e = qvariant_cast<EnumType>(value);
-        int v = e.value.toInt();
+        const EnumType e = qvariant_cast<EnumType>(value);
+        const int v = e.value.toInt();
         QMapIterator<QString, QVariant> it(e.items);
         while (it.hasNext()) {
             if (it.next().value().toInt() != v)
@@ -1311,7 +1310,7 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
             DomProperty *p = new DomProperty;
             // check if we have a standard cpp set function
             const QMetaObject *meta = object->metaObject();
-            int pindex = meta->indexOfProperty(propertyName.toLatin1());
+            const int pindex = meta->indexOfProperty(propertyName.toLatin1());
             if (pindex != -1) {
                 QMetaProperty meta_property = meta->property(pindex);
                 if (!meta_property.hasStdCppSet())
@@ -1329,13 +1328,13 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
 
         return 0;
     } else if (qVariantCanConvert<FlagType>(value)) {
-        FlagType f = qvariant_cast<FlagType>(value);
-        uint v = f.value.toUInt();
+        const FlagType f = qvariant_cast<FlagType>(value);
+        const uint v = f.value.toUInt();
         QMapIterator<QString, QVariant> it(f.items);
         QStringList keys;
 
         while (it.hasNext()) {
-            uint x = it.next().value().toUInt();
+            const uint x = it.next().value().toUInt();
 
             QString id = it.key();
             if (lang)
@@ -1378,7 +1377,7 @@ void QDesignerResource::createResources(DomResources *resources)
     if (resources == 0)
         return;
 
-    QList<DomResource*> dom_include = resources->elementInclude();
+    const QList<DomResource*> dom_include = resources->elementInclude();
     foreach (DomResource *res, dom_include) {
         QString path = m_formWindow->absoluteDir().absoluteFilePath(res->attributeLocation());
         while (!QFile::exists(path)) {
@@ -1389,7 +1388,7 @@ void QDesignerResource::createResources(DomResources *resources)
                 QApplication::translate("qdesigner_internal::QDesignerResource", "&Yes", 0, QApplication::UnicodeUTF8),
                 QApplication::translate("qdesigner_internal::QDesignerResource", "&No", 0, QApplication::UnicodeUTF8),
                 QString(), 0, 1) == 0) {
-                QFileInfo fi(path);
+                const QFileInfo fi(path);
                 path = QFileDialog::getOpenFileName(m_formWindow->core()->topLevel(),
                     QApplication::translate("qdesigner_internal::QDesignerResource",
                     "New location for %1", 0, QApplication::UnicodeUTF8).arg(fi.fileName()), fi.absolutePath(),
@@ -1407,7 +1406,7 @@ void QDesignerResource::createResources(DomResources *resources)
 
 DomResources *QDesignerResource::saveResources()
 {
-    QStringList res_list = m_formWindow->resourceFiles();
+    const QStringList res_list = m_formWindow->resourceFiles();
     QList<DomResource*> dom_include;
     foreach (QString res, res_list) {
         DomResource *dom_res = new DomResource;

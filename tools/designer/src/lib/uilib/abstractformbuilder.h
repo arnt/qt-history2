@@ -66,6 +66,7 @@ class DomString;
 class DomTabStops;
 class DomUI;
 class DomWidget;
+class DomResourcePixmap;
 
 class QDESIGNER_UILIB_EXPORT QAbstractFormBuilder
 {
@@ -156,11 +157,11 @@ protected:
 //
 // utils
 //
- 
+
     QVariant toVariant(const QMetaObject *meta, DomProperty *property);
     static bool toBool(const QString &str);
     static QString toString(const DomString *str);
-    
+
     typedef QHash<QString, DomProperty*> DomPropertyHash;
     static DomPropertyHash propertyMap(const QList<DomProperty*> &properties);
 
@@ -170,21 +171,43 @@ protected:
     DomBrush *saveBrush(const QBrush &brush);
 
     void reset();
+//
+//  utils
+//
 
-protected:
+    static QMetaEnum toolBarAreaMetaEnum();
+
+//
+//  Icon/pixmap stuff
+//
+    // A Pair of icon path/qrc path.
+    typedef QPair<QString, QString> IconPaths;
+    
+    IconPaths iconPaths(const QIcon &) const;
+    IconPaths pixmapPaths(const QPixmap &) const;
+    void setIconProperty(DomProperty &, const IconPaths &) const;
+    void setPixmapProperty(DomProperty &, const IconPaths &) const;
+    DomProperty* iconToDomProperty(const QIcon &) const;
+    
+    static const DomResourcePixmap *domPixmap(const DomProperty* p);
+    QIcon domPropertyToIcon(const DomResourcePixmap *);
+    QIcon domPropertyToIcon(const DomProperty* p);
+    QPixmap domPropertyToPixmap(const DomResourcePixmap* p);
+    QPixmap domPropertyToPixmap(const DomProperty* p);
+
     QHash<QObject*, bool> m_laidout;
     QHash<QString, QAction*> m_actions;
     QHash<QString, QActionGroup*> m_actionGroups;
     int m_defaultMargin;
     int m_defaultSpacing;
     QDir m_workingDirectory;
-    // Access meta enumeration for Qt::ToolBarArea
-    static QMetaEnum toolBarAreaMetaEnum();
 
-private:
-    // figure out the toolbar area of a DOM attribute list.
+private:    
+//
+//  utils
+//
     static Qt::ToolBarArea toolbarAreaFromDOMAttributes(const DomPropertyHash &attributeMap);
-  
+
     QAbstractFormBuilder(const QAbstractFormBuilder &other);
     void operator = (const QAbstractFormBuilder &other);
 };
