@@ -346,7 +346,7 @@ void QGraphicsScenePrivate::_q_emitUpdated()
     Q_Q(QGraphicsScene);
     calledEmitUpdated = false;
     QList<QRectF> oldUpdatedRects;
-    oldUpdatedRects = updateAll ? (QList<QRectF>() << growingItemsBoundingRect) : updatedRects;
+    oldUpdatedRects = updateAll ? (QList<QRectF>() << (sceneRect | growingItemsBoundingRect)) : updatedRects;
     updateAll = false;
     updatedRects.clear();
     emit q->changed(oldUpdatedRects);
@@ -1839,8 +1839,10 @@ void QGraphicsScene::setBackgroundBrush(const QBrush &brush)
 {
     Q_D(QGraphicsScene);
     d->backgroundBrush = brush;
-    foreach (QGraphicsView *view, d->views)
+    foreach (QGraphicsView *view, d->views) {
         view->resetCachedContent();
+        view->viewport()->update();
+    }
     update();
 }
 
@@ -1883,6 +1885,8 @@ void QGraphicsScene::setForegroundBrush(const QBrush &brush)
 {
     Q_D(QGraphicsScene);
     d->foregroundBrush = brush;
+    foreach (QGraphicsView *view, views())
+        view->viewport()->update();
     update();
 }
 
