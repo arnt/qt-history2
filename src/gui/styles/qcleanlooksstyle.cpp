@@ -3003,7 +3003,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 else
                     arrow = PE_IndicatorArrowUp;
                 QStyleOption arrowOpt = *option;
-                arrowOpt.rect = scrollBarSubLine.adjusted(3, 3, -3, -3);
+                arrowOpt.rect = scrollBarSubLine.adjusted(3, 3, -2, -2);
                 drawPrimitive(arrow, &arrowOpt, painter, widget);
 
 
@@ -3054,7 +3054,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                         arrow = PE_IndicatorArrowDown;
                     
                     QStyleOption arrowOpt = *option;
-                    arrowOpt.rect = scrollBarAddLine.adjusted(3, 3, -3, -3);
+                    arrowOpt.rect = scrollBarAddLine.adjusted(3, 3, -2, -2);
                     drawPrimitive(arrow, &arrowOpt, painter, widget);
                 }
             }
