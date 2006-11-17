@@ -1,6 +1,7 @@
 /*!
     \page atomic-operations.html
     \ingroup architecture
+    \ingroup qtopiacore
     \title Implementing Atomic Operations
 
     Qt uses an optimization called \l {Implicitly Shared
@@ -52,7 +53,7 @@
 
 \endomit
 
-    \warning The operations and structs mentioned in this document are
+    \warning The functions mentioned in this document are
     used internally by Qt and are not part of the public API. They may
     change in future versions of Qt. The purpose of this document is
     to aid people interested in porting Qt to a new architecture.
@@ -86,31 +87,26 @@
     \endcode
 
     If the value in memory pointed to by \a ptr is the \a expected
-    value, this function assigns \a newval to \a ptr and returns
-    non-zero.  If the value in memory pointed to by \a ptr is \e not
+    value, this function assigns \a newval to \a ptr and returns a
+    non-zero value.  If the value in memory pointed to by \a ptr is \e not
     the \a expected value, this function does nothing and returns
     zero.
 
-    Note that there are 3 variants of this function. Each variant
+    \bold{Note:} There are 3 variants of this function. Each variant
     implies a different memory semantic, i.e. the relation of memory
     operations before or after the test-and-set operation. Since
     modern hardware can reorder memory operations to improve
     performance, these functions are used to ensure the order of
     memory operations (often called a \e{memory barrier}).
 
-    \list
-
-    \i \c q_atomic_test_and_set_int() - Memory semantic is
-    unspecified.
-
-    \i \c q_atomic_test_and_set_acquire_int() - The atomic
-    test-and-set operation must be performed before memory operations
-    after the test-and-set.
-
-    \i \c q_atomic_test_and_set_release_int() - All memory operations
+    \table
+    \header \o Function                    \o Semantic
+    \row \o \c q_atomic_test_and_set_int() \o Memory semantic is unspecified.
+    \row \o \c q_atomic_test_and_set_acquire_int() \o The atomic test-and-set
+    operation must be performed before memory operations after the test-and-set.
+    \row \o \c q_atomic_test_and_set_release_int() \o All memory operations
     must be performed before the test-and-set.
-
-    \endlist
+    \endtable
 
     See also \l{4}{q_atomic_test_and_set_ptr()}.
 
@@ -129,8 +125,8 @@
     \endcode
 
     If the value in memory pointed to by \a ptr is the \a expected
-    value, this function assigns \a newval to \a ptr and returns
-    non-zero.  If the value in memory pointed to by \a ptr is \e not
+    value, this function assigns \a newval to \a ptr and returns a
+    non-zero value.  If the value in memory pointed to by \a ptr is \e not
     the \a expected value, this function does nothing and returns
     zero.
 
@@ -147,17 +143,18 @@
     \endcode
 
     Increments the value in memory pointed to by \a ptr. This function
-    returns zero if the new value of \a *ptr is zero; otherwise it returns non-zero.
+    returns zero if the new value of \a *ptr is zero; otherwise it returns
+    a non-zero value.
 
-    Tip: Depending on the architecture, it may be easier to return the
-    new value after incrementing \a *ptr.
+    \bold{Tip:} Depending on the architecture, it may be easier to return the
+    new value after incrementing \a *ptr:
 
     \code
     return ++(*ptr);
     \endcode
 
     Another option is to return the zero-flag that is set by some
-    processors in control or status registers.
+    processors in control or status registers:
 
     \code
     ++(*ptr);
@@ -178,17 +175,17 @@
 
     Decrements the value in memory pointed to by \a ptr. This function
     returns zero if the new value of \a *ptr is zero; otherwise it
-    returns non-zero.
+    returns a non-zero value.
 
-    Tip: Depending on the architecture, it may be easier to return the
-    new value after incrementing \a *ptr.
+    \bold{Tip:} Depending on the architecture, it may be easier to return the
+    new value after incrementing \a *ptr:
 
     \code
     return --(*ptr);
     \endcode
 
     Another option is to return the zero-flag that is set by some
-    processors in control or status registers.
+    processors in control or status registers:
 
     \code
     --(*ptr);
