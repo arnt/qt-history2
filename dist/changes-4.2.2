@@ -32,15 +32,19 @@ General improvements
 --------------------
 
 - moc:
-
   *  Split long string literals in the generated code to work around
      MSVC limitations
 
   * Fix crash on *BSD on invalid input
 
 - QTextDocument:
-
   * Fix support for pixel font sizes in the HTML import
+
+- QTextOption
+  * Respect the textDirection property
+
+- Text handling:
+  * Fix a bug in the Bidi algorithm
 
 - QDataStream:
   * Fixed streaming of qreal on (embedded) platforms where sizeof(qreal) !=
@@ -231,6 +235,9 @@ General improvements
       * Make sure the internal cache is correctly cleared when reverting inserted
         rows.
 
+- QSvg
+    * Improved parser robustness and parsing speed
+
 - QDialogButtonBox
 
     * QDialogButtonBox now sets the default button to the first button with the
@@ -273,6 +280,8 @@ Platform-Specific changes
   * QPrinter: Don't generate PDF on raw CUPS printers
   * When CUPS is not installed or reports 0 printers, QPrintDialog falls
     back to the printers set up for lpr/lprng.
+  * Fixed papersize selection for cups
+  * Do not generate floating point exceptions in the X11 paint engine
 
 - Qt/Win:
 
@@ -295,7 +304,7 @@ Platform-Specific changes
     from non-Qt application to Qt Applications.
   * Return the correct QList<QUrl> when dragging Finder items to Qt applications.
   * Document how one can debug with debug frameworks.
-
+  * Fix text selection in PDF generator
 
 - Qtopia Core
 
