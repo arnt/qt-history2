@@ -2634,17 +2634,17 @@ void QWidgetPrivate::setModal_sys()
     const bool modal = q->testAttribute(Qt::WA_ShowModal);
 
     //setup the proper window class
-    const WindowRef window = qt_mac_window_for(q);
+    const WindowRef windowRef = qt_mac_window_for(q);
     WindowClass old_wclass;
-    GetWindowClass(window, &old_wclass);
+    GetWindowClass(windowRef, &old_wclass);
 
     if (modal || primaryWindowModal) {
         if(old_wclass == kDocumentWindowClass || old_wclass == kFloatingWindowClass || old_wclass == kUtilityWindowClass) {
-            HIWindowChangeClass(window ? window : qt_mac_window_for(q), kMovableModalWindowClass);
+            HIWindowChangeClass(windowRef, kMovableModalWindowClass);
         }
-    } else if(window) {
-        WindowClass newClass = topData()->wclass;
+    } else if(windowRef) {
+        WindowClass newClass = q->window()->d_func()->topData()->wclass;
         if (old_wclass != newClass && newClass != 0)
-            HIWindowChangeClass(qt_mac_window_for(q), newClass);
+            HIWindowChangeClass(windowRef, newClass);
     }
 }
