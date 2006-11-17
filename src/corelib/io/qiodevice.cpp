@@ -781,7 +781,7 @@ qint64 QIODevice::read(char *data, qint64 maxSize)
         }
 
         // If we need more, try reading from the device.
-        if (!lastReadChunkSize && readSoFar < maxSize) {
+        if (readSoFar < maxSize) {
             // Make sure the device is positioned correctly.
             if (d->pos != d->devicePos && !sequential && !seek(d->pos))
                 return qint64(-1);
