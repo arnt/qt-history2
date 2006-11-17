@@ -561,21 +561,27 @@ static void qt_debug_path(const QPainterPath &path)
     \ingroup qws
     \since 4.2
 
-    \brief The QRasterPaintEngine class enables acceleration of
-    painting operations using the available hardware.
+    \brief The QRasterPaintEngine class enables hardware acceleration
+    of painting operations in Qtopia Core.
 
-    Note that this functionality is only available in Qtopia Core.
+    Note that this functionality is only available in \l {Qtopia
+    Core}.
 
-    In Qtopia Core, painting is a pure software implementation. But
-    starting with Qtopia Core 4.2, it is possible to add an
-    accelerated graphics driver to take advantage of available
-    hardware resources.
+    In \l {Qtopia Core}, painting is a pure software
+    implementation. But starting with \l{Qtopia Core} 4.2, it is
+    possible to add an accelerated graphics driver to take advantage
+    of available hardware resources.
 
-    The painting operations can be accelerated by deriving from the
-    QRasterPaintEngine and QCustomRasterPaintDevice classes. Note that
-    there are several other issues to be aware of; see the \l {Adding
-    an Accelerated Graphics Driver in Qtopia Core} documentation for
-    details.
+    Hardware acceleration is accomplished by creating a custom screen
+    driver, accelerating the copying from memory to the screen, and
+    implementing a custom paint engine accelerating the various
+    painting operations. Then a custom paint device (derived from the
+    QCustomRasterPaintDevice class) and a custom window surface
+    (derived from QWSWindowSurface) must be implemented to make \l
+    {Qtopia Core} aware of the accelerated driver.
+
+    See the \l {Adding an Accelerated Graphics Driver in Qtopia Core}
+    documentation for details.
 
     \sa QCustomRasterPaintDevice, QPaintEngine
 */
@@ -655,7 +661,7 @@ void QRasterPaintEngine::init()
 }
 
 /*!
-    Destroys the paint engine.
+    Destroys this paint engine.
 */
 QRasterPaintEngine::~QRasterPaintEngine()
 {
@@ -2708,12 +2714,13 @@ QPoint QRasterPaintEngine::coordinateOffset() const
 }
 
 /*!
-    Reimplement this function to draw the given color \a spans with
-    the specified \a color. The \a count parameter specified the
-    number of spans.
+    Draws the given color \a spans with the specified \a color. The \a
+    count parameter specifies the number of spans.
 
-    Note that this function must be reimplemented on devices where the
-    framebuffer is not memory-mapped.
+    The default implementation does nothing; reimplement this function
+    to draw the given color \a spans with the specified \a color. Note
+    that this function \e must be reimplemented if the framebuffer is
+    not memory-mapped.
 
     \sa drawBufferSpan()
 */
@@ -2730,17 +2737,18 @@ void QRasterPaintEngine::drawColorSpans(const QSpan *spans, int count, uint colo
 /*!
     \fn void QRasterPaintEngine::drawBufferSpan(const uint *buffer, int size, int x, int y, int length, uint alpha)
 
-    Reimplement this function to draw a buffer that contains more than
-    one color.
+    Draws the given \a buffer.
+
+    The default implementation does nothing; reimplement this function
+    to draw a buffer that contains more than one color. Note that this
+    function \e must be reimplemented if the framebuffer is not
+    memory-mapped.
 
     The \a size parameter specifies the total size of the given \a
     buffer, while the \a length parameter specifies the number of
     pixels to draw. The buffer's position is given by (\a x, \a
     y). The provided \a alpha value is added to each pixel in the
     buffer when drawing.
-
-    Note that this function must be reimplemented on devices where the
-    framebuffer is not memory-mapped.
 
     \sa drawColorSpans()
 */
@@ -3341,21 +3349,26 @@ int QCustomRasterPaintDevice::bytesPerLine() const
     \ingroup qws
     \since 4.2
 
-    \brief The QCustomRasterPaintDevice class enables acceleration of
-    painting operations using the available hardware.
+    \brief The QCustomRasterPaintDevice class is provided to activate
+    hardware accelerated paint engines in Qtopia Core.
 
-    Note that this functionality is only available in Qtopia Core.
+    Note that this class is only available in \l {Qtopia Core}.
 
-    In Qtopia Core, painting is a pure software implementation. But
-    starting with Qtopia Core 4.2, it is possible to add an
-    accelerated graphics driver to take advantage of available
-    hardware resources.
+    In \l {Qtopia Core}, painting is a pure software
+    implementation. But starting with \l {Qtopia Core} 4.2, it is
+    possible to add an accelerated graphics driver to take advantage
+    of available hardware resources.
 
-    The painting operations can be accelerated by deriving from the
-    QRasterPaintEngine and QCustomRasterPaintDevice classes. Note that
-    there are several other issues to be aware of; see the \l {Adding
-    an Accelerated Graphics Driver in Qtopia Core} documentation for
-    details.
+    Hardware acceleration is accomplished by creating a custom screen
+    driver, accelerating the copying from memory to the screen, and
+    implementing a custom paint engine accelerating the various
+    painting operations. Then a custom paint device (derived from the
+    QCustomRasterPaintDevice class) and a custom window surface
+    (derived from QWSWindowSurface) must be implemented to make \l
+    {Qtopia Core} aware of the accelerated driver.
+
+    See the \l {Adding an Accelerated Graphics Driver in Qtopia Core}
+    documentation for details.
 
     \sa QRasterPaintEngine, QPaintDevice
 */
@@ -3391,8 +3404,8 @@ int QCustomRasterPaintDevice::bytesPerLine() const
 /*!
     \fn void * QCustomRasterPaintDevice::memory () const
 
-    Returns a pointer to the paint device's memory buffer, or 0 if
-    there is no such buffer.
+    Returns a pointer to the paint device's memory buffer, or 0 if no
+    such buffer exists.
 */
 
 /*!
