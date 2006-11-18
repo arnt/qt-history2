@@ -45,12 +45,21 @@ static void initializeDb()
         QtFontFoundry *foundry = family->foundry(foundry_name, true);
 
         QtFontStyle::Key styleKey;
-        if(QCFType<CFDictionaryRef> styles = (CFDictionaryRef)CTFontDescriptorCopyAttribute(font, kCTFontStyleNameAttribute)) {
-            if(QCFType<CFNumberRef> traits = (CFNumberRef)CFDictionaryGetValue(styles, kCTFontSymbolicTrait)) {
-                int i;
-                if(CFNumberGetValue(traits, kCFNumberIntType, &i)) {
-                    styleKey.style = (bool)(i & kCTFontItalicTrait);
-                    styleKey.weight = (i & kCTFontBoldTrait) ? QFont::Bold : QFont::Normal;
+        if(QCFType<CFDictionaryRef> styles = (CFDictionaryRef)CTFontDescriptorCopyAttribute(font, kCTFontTraitsAttribute)) {
+            if(CFNumberRef weight = (CFNumberRef)CFDictionaryGetValue(styles, kCTFontWeightTrait)) {
+                Q_ASSERT(CFNumberIsFloatType(weight));
+                double d;
+                if(CFNumberGetValue(weight, kCFNumberDoubleType, &d)) {
+                    //qDebug() << "BOLD" << (QString)family_name << d;
+                    styleKey.weight = (d > 0.0) ? QFont::Bold : QFont::Normal;
+                }
+            }
+            if(CFNumberRef italic = (CFNumberRef)CFDictionaryGetValue(styles, kCTFontSlantTrait)) {
+                Q_ASSERT(CFNumberIsFloatType(italic));
+                double d;
+                if(CFNumberGetValue(italic, kCFNumberDoubleType, &d)) {
+                    //qDebug() << "ITALIC" << (QString)family_name << d;
+                    styleKey.weight = (d > 0.0);
                 }
             }
         }
@@ -58,9 +67,20 @@ static void initializeDb()
         QtFontStyle *style = foundry->style(styleKey, true);
         style->smoothScalable = true;
         if(QCFType<CFNumberRef> size = (CFNumberRef)CTFontDescriptorCopyAttribute(font, kCTFontSizeAttribute)) {
-            int i;
-            if(CFNumberGetValue(size, kCFNumberIntType, &i))
-                style->pixelSize(i, true);
+            qDebug() << "WHEE";
+            int pixel_size=0;
+            if(CFNumberIsFloatType(size)) {
+                double d;
+                CFNumberGetValue(size, kCFNumberDoubleType, &d);
+                pixel_size = d;
+            } else {
+                CFNumberGetValue(size, kCFNumberIntType, &pixel_size);
+            }
+            qDebug() << "SIZE" << (QString)family_name << pixel_size;
+            if(pixel_size)
+                style->pixelSize(pixel_size, true);
+        } else {
+            //qDebug() << "WTF?";
         }
     }
 #else
