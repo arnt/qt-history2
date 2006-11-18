@@ -1861,7 +1861,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 QApplication::sendSpontaneousEvent(QApplicationPrivate::app_style, &ev);
             }
 
-            if(app_do_modal && !qt_try_modal(widget, event))
+            if(widget && app_do_modal && !qt_try_modal(widget, event))
                 break;
 
             if(widget && widget->window()->isVisible()) {
