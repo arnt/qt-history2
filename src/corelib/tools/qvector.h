@@ -121,7 +121,7 @@ public:
         inline T &operator*() const { return *i; }
         inline T *operator->() const { return i; }
         inline T &operator[](int j) const { return *(i + j); }
-        inline bool operator==(const iterator &o) const { qDebug("1"); return i == o.i; }
+        inline bool operator==(const iterator &o) const { return i == o.i; }
         inline bool operator!=(const iterator &o) const { return i != o.i; }
         inline bool operator<(const iterator& other) const { return i < other.i; }
         inline bool operator<=(const iterator& other) const { return i <= other.i; }
@@ -155,7 +155,7 @@ public:
         inline const T &operator*() const { return *i; }
         inline const T *operator->() const { return i; }
         inline const T &operator[](int j) const { return *(i + j); }
-        inline bool operator==(const const_iterator &o) const { qDebug("3"); return i == o.i; }
+        inline bool operator==(const const_iterator &o) const { return i == o.i; }
         inline bool operator!=(const const_iterator &o) const { return i != o.i; }
         inline bool operator<(const const_iterator& other) const { return i < other.i; }
         inline bool operator<=(const const_iterator& other) const { return i <= other.i; }
