@@ -823,6 +823,10 @@ CGImageRef qt_mac_create_imagemask(const QPixmap &px, const QRectF &sr)
 
 IconRef qt_mac_create_iconref(const QPixmap &px)
 {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5) && __LP64__
+# warning "For now --Sam"
+    return 0;
+#endif
     if (px.isNull())
         return 0;
     QMacSavedPortInfo pi; //save the current state
