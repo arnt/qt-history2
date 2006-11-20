@@ -27,24 +27,18 @@
 
 #include "shared_global_p.h"
 #include "layoutinfo_p.h"
+#include "qdesigner_formwindowcommand_p.h"
+#include "qdesigner_formeditorcommand_p.h"
 
 #include <QtDesigner/layoutdecoration.h>
 
-#include <QtGui/QUndoCommand>
 #include <QtGui/QIcon>
-
 #include <QtCore/QObject>
-#include <QtCore/QPointer>
 #include <QtCore/QPair>
-#include <QtCore/QVariant>
-
-class QDesignerFormEditorInterface;
-class QDesignerFormWindowManagerInterface;
-class QDesignerFormWindowInterface;
-class QDesignerWidgetDataBaseItemInterface;
+#include <QtCore/QMap>
+#include <QtCore/QPoint>
 
 class QDesignerContainerExtension;
-class QDesignerPropertySheetExtension;
 class QDesignerMetaDataBaseItemInterface;
 
 class QDesignerMenu;
@@ -66,136 +60,6 @@ class QMainWindow;
 namespace qdesigner_internal {
 
 class Layout;
-
-class QDESIGNER_SHARED_EXPORT QDesignerFormEditorCommand: public QUndoCommand
-{
-
-public:
-    QDesignerFormEditorCommand(const QString &description, QDesignerFormEditorInterface *core);
-
-    QDesignerFormEditorInterface *core() const;
-
-private:
-    QPointer<QDesignerFormEditorInterface> m_core;
-};
-
-class QDESIGNER_SHARED_EXPORT QDesignerFormWindowManagerCommand: public QUndoCommand
-{
-
-public:
-    QDesignerFormWindowManagerCommand(const QString &description, QDesignerFormWindowManagerInterface *formWindowManager);
-
-    QDesignerFormWindowManagerInterface *formWindowManager() const;
-
-private:
-    QPointer<QDesignerFormWindowManagerInterface> m_formWindowManager;
-};
-
-class QDESIGNER_SHARED_EXPORT QDesignerFormWindowCommand: public QUndoCommand
-{
-
-public:
-    QDesignerFormWindowCommand(const QString &description, QDesignerFormWindowInterface *formWindow);
-
-    QDesignerFormWindowInterface *formWindow() const;
-    QDesignerFormEditorInterface *core() const;
-
-    virtual void undo();
-    virtual void redo();
-
-protected:
-    void checkObjectName(QObject *object);
-    void updateBuddies(const QString &old_name, const QString &new_name);
-    void checkSelection(QWidget *widget);
-    void checkParent(QWidget *widget, QWidget *parentWidget);
-    bool hasLayout(QWidget *widget) const;
-
-    void cheapUpdate();
-
-private:
-    QPointer<QDesignerFormWindowInterface> m_formWindow;
-};
-
-class QDESIGNER_SHARED_EXPORT SetPropertyCommand: public QDesignerFormWindowCommand
-{
-
-public:
-    SetPropertyCommand(QDesignerFormWindowInterface *formWindow);
-
-    void init(QObject *object, const QString &propertyName, const QVariant &newValue);
-
-    QObject *object() const;
-
-    QWidget *widget() const;
-    QWidget *parentWidget() const;
-
-    inline QString propertyName() const
-    { return m_propertyName; }
-
-    inline QVariant oldValue() const
-    { return m_oldValue; }
-
-    inline void setOldValue(const QVariant &oldValue)
-    { m_oldValue = oldValue; }
-
-    inline QVariant newValue() const
-    { return m_newValue; }
-
-    inline void setNewValue(const QVariant &newValue)
-    { m_newValue = newValue; }
-
-    virtual void redo();
-    virtual void undo();
-
-    virtual int id() const;
-    virtual bool mergeWith(const QUndoCommand *other);
-
-private:
-    QString m_propertyName;
-    int m_index;
-    QPointer<QObject> m_object;
-    QPointer<QWidget> m_parentWidget;
-    QDesignerPropertySheetExtension *m_propertySheet;
-    QVariant m_oldValue;
-    QVariant m_newValue;
-    bool m_changed;
-};
-
-class QDESIGNER_SHARED_EXPORT ResetPropertyCommand: public QDesignerFormWindowCommand
-{
-
-public:
-    ResetPropertyCommand(QDesignerFormWindowInterface *formWindow);
-
-    void init(QObject *object, const QString &propertyName);
-
-    QObject *object() const;
-    QObject *parentObject() const;
-
-    inline QString propertyName() const
-    { return m_propertyName; }
-
-    inline QVariant oldValue() const
-    { return m_oldValue; }
-
-    inline void setOldValue(const QVariant &oldValue)
-    { m_oldValue = oldValue; }
-
-    virtual void redo();
-    virtual void undo();
-
-protected:
-    virtual bool mergeWith(const QUndoCommand *other) { Q_UNUSED(other); return false; }
-
-private:
-    QString m_propertyName;
-    int m_index;
-    QPointer<QObject> m_object;
-    QPointer<QObject> m_parentObject;
-    QDesignerPropertySheetExtension *m_propertySheet;
-    QVariant m_oldValue;
-    bool m_changed;
-};
 
 class QDESIGNER_SHARED_EXPORT InsertWidgetCommand: public QDesignerFormWindowCommand
 {

@@ -40,462 +40,6 @@
 
 namespace qdesigner_internal {
 
-// ---- QDesignerFormEditorCommand ----
-QDesignerFormEditorCommand::QDesignerFormEditorCommand(const QString &description, QDesignerFormEditorInterface *core)
-    : QUndoCommand(description),
-      m_core(core)
-{
-}
-
-QDesignerFormEditorInterface *QDesignerFormEditorCommand::core() const
-{
-    return m_core;
-}
-
-// ---- QDesignerFormWindowManagerCommand ----
-QDesignerFormWindowManagerCommand::QDesignerFormWindowManagerCommand(const QString &description, QDesignerFormWindowManagerInterface *formWindowManager)
-    : QUndoCommand(description),
-      m_formWindowManager(formWindowManager)
-{
-}
-
-QDesignerFormWindowManagerInterface *QDesignerFormWindowManagerCommand::formWindowManager() const
-{
-    return m_formWindowManager;
-}
-
-// ---- QDesignerFormWindowCommand ----
-QDesignerFormWindowCommand::QDesignerFormWindowCommand(const QString &description, QDesignerFormWindowInterface *formWindow)
-    : QUndoCommand(description),
-      m_formWindow(formWindow)
-{
-}
-
-QDesignerFormWindowInterface *QDesignerFormWindowCommand::formWindow() const
-{
-    return m_formWindow;
-}
-
-QDesignerFormEditorInterface *QDesignerFormWindowCommand::core() const
-{
-    if (QDesignerFormWindowInterface *fw = formWindow())
-        return fw->core();
-
-    return 0;
-}
-
-void QDesignerFormWindowCommand::undo()
-{
-    cheapUpdate();
-}
-
-void QDesignerFormWindowCommand::redo()
-{
-    cheapUpdate();
-}
-
-void QDesignerFormWindowCommand::cheapUpdate()
-{
-    if (core()->objectInspector())
-        core()->objectInspector()->setFormWindow(formWindow());
-
-    if (core()->actionEditor())
-        core()->actionEditor()->setFormWindow(formWindow());
-}
-
-bool QDesignerFormWindowCommand::hasLayout(QWidget *widget) const
-{
-    QDesignerFormEditorInterface *core = formWindow()->core();
-    if (widget && LayoutInfo::layoutType(core, widget) != LayoutInfo::NoLayout) {
-        const QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
-        return item != 0;
-    }
-
-    return false;
-}
-
-void QDesignerFormWindowCommand::checkObjectName(QObject *)
-{
-}
-
-void QDesignerFormWindowCommand::updateBuddies(const QString &old_name,
-                                                const QString &new_name)
-{
-    QDesignerFormEditorInterface *core = formWindow()->core();
-
-    QList<QDesignerLabel*> label_list = qFindChildren<QDesignerLabel*>(formWindow());
-    foreach (QDesignerLabel *label, label_list) {
-        QDesignerPropertySheetExtension* propertySheet
-            = qt_extension<QDesignerPropertySheetExtension*>
-                (core->extensionManager(), label);
-        if (propertySheet == 0)
-            continue;
-        int idx = propertySheet->indexOf(QLatin1String("buddy"));
-        if (idx == -1)
-            continue;
-        if (propertySheet->property(idx).toString() == old_name)
-            propertySheet->setProperty(idx, new_name);
-    }
-}
-
-void QDesignerFormWindowCommand::checkSelection(QWidget *widget)
-{
-    Q_UNUSED(widget);
-}
-
-void QDesignerFormWindowCommand::checkParent(QWidget *widget, QWidget *parentWidget)
-{
-    Q_ASSERT(widget);
-
-    if (widget->parentWidget() != parentWidget)
-        widget->setParent(parentWidget);
-}
-
-// ---- SetPropertyCommand ----
-SetPropertyCommand::SetPropertyCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(QString(), formWindow),
-      m_index(-1),
-      m_propertySheet(0),
-      m_changed(false)
-{
-}
-
-QObject *SetPropertyCommand::object() const
-{
-    return m_object;
-}
-
-QWidget *SetPropertyCommand::widget() const
-{
-    return qobject_cast<QWidget*>(m_object);
-}
-
-QWidget *SetPropertyCommand::parentWidget() const
-{
-    if (QWidget *w = widget()) {
-        return w->parentWidget();
-    }
-
-    return 0;
-}
-
-void SetPropertyCommand::init(QObject *object, const QString &propertyName, const QVariant &newValue)
-{
-    Q_ASSERT(object);
-
-    m_object = object;
-    m_parentWidget = parentWidget();
-    m_propertyName = propertyName;
-    m_newValue = newValue;
-
-    QDesignerFormEditorInterface *core = formWindow()->core();
-    m_propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), object);
-    Q_ASSERT(m_propertySheet);
-
-    m_index = m_propertySheet->indexOf(m_propertyName);
-    Q_ASSERT(m_index != -1);
-
-    m_changed = m_propertySheet->isChanged(m_index);
-    m_oldValue = m_propertySheet->property(m_index);
-
-    setText(QApplication::translate("Command", "changed '%1' of '%2'").arg(m_propertyName).arg(object->objectName()));
-}
-
-static QSize checkSize(const QSize &size)
-{
-    return size.boundedTo(QSize(0xFFFFFF, 0xFFFFFF));
-}
-
-static QSize diffSize(QDesignerFormWindowInterface *fw)
-{
-    QWidget *container = fw->core()->integration()->containerWindow(fw);
-    if (!container)
-        return QSize();
-
-    QSize diff = container->size() - fw->size(); // decoration offset of container window
-    return diff;
-}
-
-static void checkSizes(QDesignerFormWindowInterface *fw, const QSize &size, QSize *formSize, QSize *containerSize)
-{
-    QWidget *container = fw->core()->integration()->containerWindow(fw);
-    if (!container)
-        return;
-
-    QSize diff = diffSize(fw); // decoration offset of container window
-
-    QSize newFormSize = checkSize(size).expandedTo(fw->mainContainer()->minimumSizeHint()); // don't try to resize to smaller size than minimumSizeHint
-    QSize newContainerSize = newFormSize + diff;
-
-    newContainerSize = newContainerSize.expandedTo(container->minimumSizeHint());
-    newContainerSize = newContainerSize.expandedTo(container->minimumSize());
-
-    newFormSize = newContainerSize - diff;
-
-    if (formSize)
-        *formSize = newFormSize;
-    if (containerSize)
-        *containerSize = newContainerSize;
-}
-
-static QVariant setFormProperty(QDesignerFormWindowInterface *fw, QWidget *w, const QString &propertyName, const QVariant &value)
-{
-    QDesignerFormWindowCursorInterface *cursor = fw->cursor();
-    if (w && cursor->isWidgetSelected(w)) {
-        if (cursor->isWidgetSelected(fw->mainContainer())) {
-            if (propertyName == QLatin1String("minimumSize")) {
-                QWidget *container = fw->core()->integration()->containerWindow(fw);
-                if (container) {
-                    QSize diff = diffSize(fw);
-                    QSize size = checkSize(value.toSize());
-                    container->setMinimumSize((size + diff).expandedTo(QSize(16, 16)));
-                    return size;
-                }
-            } else if (propertyName == QLatin1String("maximumSize")) {
-                QWidget *container = fw->core()->integration()->containerWindow(fw);
-                if (container) {
-                    QSize fs, cs;
-                    checkSizes(fw, value.toSize(), &fs, &cs);
-                    container->setMaximumSize(cs);
-                    fw->mainContainer()->setMaximumSize(fs);
-                    return fs;
-                }
-            } else if (propertyName == QLatin1String("geometry")) {
-                QWidget *container = fw->core()->integration()->containerWindow(fw);
-                if (container) {
-                    QRect r = value.toRect();
-                    QSize fs, cs;
-                    checkSizes(fw, r.size(), &fs, &cs);
-                    container->resize(cs);
-                    r.setSize(fs);
-                    return r;
-                }
-            }
-        }
-    }
-    return value;
-}
-
-void SetPropertyCommand::redo()
-{
-    Q_ASSERT(m_propertySheet);
-    Q_ASSERT(m_index != -1);
-
-    QVariant value = setFormProperty(formWindow(), qobject_cast<QWidget *>(m_object), m_propertyName, m_newValue);
-
-    m_propertySheet->setProperty(m_index, value);
-    m_changed = m_propertySheet->isChanged(m_index);
-    m_propertySheet->setChanged(m_index, true);
-
-    if (m_propertyName == QLatin1String("geometry") && widget()) {
-        checkSelection(widget());
-        checkParent(widget(), parentWidget());
-    } else if (m_propertyName == QLatin1String("objectName")) {
-        checkObjectName(m_object);
-        updateBuddies(m_oldValue.toString(), value.toString());
-    }
-
-    if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
-        if (propertyEditor->object() == object())
-            propertyEditor->setPropertyValue(propertyName(), value, true);
-        else
-            propertyEditor->setObject(propertyEditor->object()); // this is needed when f.ex. undo
-                                                                 // changes parent's palette, but
-                                                                 // the child is the active widget.
-    }
-
-    QAction *act = qobject_cast<QAction *>(m_object);
-    if (m_propertyName == QLatin1String("objectName") ||
-                m_propertyName == QLatin1String("icon") && act ||
-                m_propertyName == QLatin1String("currentTabName")) {
-        if (QDesignerObjectInspectorInterface *oi = formWindow()->core()->objectInspector())
-            oi->setFormWindow(formWindow());
-    }
-
-    if (m_propertyName == QLatin1String("objectName") && act) {
-        // emit act->changed(); cannot emit, signal is protected
-        act->setData(QVariant(true)); // it triggers signal "changed" in QAction
-        act->setData(QVariant(false));
-    }
-}
-
-void SetPropertyCommand::undo()
-{
-    Q_ASSERT(m_propertySheet);
-    Q_ASSERT(m_index != -1);
-
-    QVariant value = setFormProperty(formWindow(), qobject_cast<QWidget *>(m_object), m_propertyName, m_oldValue);
-
-    m_propertySheet->setProperty(m_index, value);
-    m_propertySheet->setChanged(m_index, m_changed);
-
-    if (m_propertyName == QLatin1String("geometry") && widget()) {
-        checkSelection(widget());
-        checkParent(widget(), parentWidget());
-    } else if (m_propertyName == QLatin1String("objectName")) {
-        checkObjectName(m_object);
-        updateBuddies(m_newValue.toString(), value.toString());
-    }
-
-    if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
-        if (propertyEditor->object() == widget())
-            propertyEditor->setPropertyValue(propertyName(), value, m_changed);
-        else
-            propertyEditor->setObject(propertyEditor->object()); // this is needed when f.ex. undo
-                                                                 // changes parent's palette, but
-                                                                 // the child is the active widget.
-    }
-
-    QAction *act = qobject_cast<QAction *>(m_object);
-    if (m_propertyName == QLatin1String("objectName") ||
-                m_propertyName == QLatin1String("icon") && act ||
-                m_propertyName == QLatin1String("currentTabName")) {
-        if (QDesignerObjectInspectorInterface *oi = formWindow()->core()->objectInspector())
-            oi->setFormWindow(formWindow());
-    }
-
-    if (m_propertyName == QLatin1String("objectName") && act) {
-        // emit act->changed(); cannot emit, signal is protected
-        act->setData(QVariant(true)); // it triggers signal "changed" in QAction
-        act->setData(QVariant(false));
-    }
-}
-
-int SetPropertyCommand::id() const
-{
-    return 1976;
-}
-
-bool SetPropertyCommand::mergeWith(const QUndoCommand *other)
-{
-    if (id() != other->id())
-        return false;
-
-    if (const SetPropertyCommand *cmd = static_cast<const SetPropertyCommand*>(other)) {
-        if (cmd->propertyName() == propertyName() && cmd->object() == object()) {
-            if (!formWindow()->isDirty())
-                return false;
-
-            m_newValue = cmd->newValue();
-            return true;
-        }
-    }
-
-    return false;
-}
-
-
-// ---- ResetPropertyCommand ----
-ResetPropertyCommand::ResetPropertyCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(QString(), formWindow),
-      m_index(-1),
-      m_propertySheet(0),
-      m_changed(false)
-{
-}
-
-QObject *ResetPropertyCommand::object() const
-{
-    return m_object;
-}
-
-QObject *ResetPropertyCommand::parentObject() const
-{
-    return m_parentObject;
-}
-
-void ResetPropertyCommand::init(QObject *object, const QString &propertyName)
-{
-    Q_ASSERT(object);
-
-    m_object = object;
-    m_parentObject = object->parent();
-    m_propertyName = propertyName;
-
-    QDesignerFormEditorInterface *core = formWindow()->core();
-    m_propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), object);
-    Q_ASSERT(m_propertySheet);
-
-    m_index = m_propertySheet->indexOf(m_propertyName);
-    Q_ASSERT(m_index != -1);
-
-    m_changed = m_propertySheet->isChanged(m_index);
-    m_oldValue = m_propertySheet->property(m_index);
-
-    setText(QApplication::translate("Command", "reset '%1' of '%2'").arg(m_propertyName).arg(m_object->objectName()));
-}
-
-void ResetPropertyCommand::redo()
-{
-    Q_ASSERT(m_propertySheet);
-    Q_ASSERT(m_index != -1);
-
-    QVariant new_value;
-
-    if (m_propertySheet->reset(m_index)) {
-        new_value = m_propertySheet->property(m_index);
-    } else {
-        int item_idx =  formWindow()->core()->widgetDataBase()->indexOfObject(m_object);
-        if (item_idx == -1) {
-            new_value = m_oldValue; // We simply don't know the value in this case
-        } else {
-            QDesignerWidgetDataBaseItemInterface *item
-                = formWindow()->core()->widgetDataBase()->item(item_idx);
-            QList<QVariant> default_prop_values = item->defaultPropertyValues();
-            if (m_index < default_prop_values.size())
-                new_value = default_prop_values.at(m_index);
-            else
-                new_value = m_oldValue; // Again, we just don't know
-        }
-
-        m_propertySheet->setProperty(m_index, new_value);
-    }
-
-    m_propertySheet->setChanged(m_index, false);
-
-    setFormProperty(formWindow(), qobject_cast<QWidget *>(m_object), m_propertyName, new_value);
-
-    QWidget *widget = qobject_cast<QWidget *>(m_object);
-    QWidget *parentWidget = qobject_cast<QWidget *>(m_parentObject);
-    if (m_propertyName == QLatin1String("geometry") && widget) {
-        checkSelection(widget);
-        checkParent(widget, parentWidget);
-    } else if (m_propertyName == QLatin1String("objectName")) {
-        checkObjectName(m_object);
-    }
-
-    if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
-        if (propertyEditor->object() == object())
-            propertyEditor->setPropertyValue(propertyName(), new_value, false);
-    }
-}
-
-void ResetPropertyCommand::undo()
-{
-    Q_ASSERT(m_propertySheet);
-    Q_ASSERT(m_index != -1);
-
-    QVariant value = setFormProperty(formWindow(), qobject_cast<QWidget *>(m_object), m_propertyName, m_oldValue);
-
-    m_propertySheet->setProperty(m_index, value);
-    m_propertySheet->setChanged(m_index, m_changed);
-
-    QWidget *widget = qobject_cast<QWidget *>(m_object);
-    QWidget *parentWidget = qobject_cast<QWidget *>(m_parentObject);
-    if (m_propertyName == QLatin1String("geometry") && widget) {
-        checkSelection(widget);
-        checkParent(widget, parentWidget);
-    } else if (m_propertyName == QLatin1String("objectName")) {
-        checkObjectName(m_object);
-    }
-
-    if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
-        if (propertyEditor->object() == object())
-            propertyEditor->setPropertyValue(propertyName(), value, m_changed);
-    }
-
-}
-
 // ---- InsertWidgetCommand ----
 InsertWidgetCommand::InsertWidgetCommand(QDesignerFormWindowInterface *formWindow)
     : QDesignerFormWindowCommand(QString(), formWindow)
@@ -522,8 +66,8 @@ static void recursiveUpdate(QWidget *w)
     w->update();
 
     const QObjectList &l = w->children();
-    QObjectList::const_iterator it = l.begin();
-    for (; it != l.end(); ++it) {
+    const QObjectList::const_iterator cend = l.end();
+    for ( QObjectList::const_iterator it = l.begin(); it != cend; ++it) {
         if (QWidget *w = qobject_cast<QWidget*>(*it))
             recursiveUpdate(w);
     }
@@ -531,8 +75,6 @@ static void recursiveUpdate(QWidget *w)
 
 void InsertWidgetCommand::redo()
 {
-    checkObjectName(m_widget);
-
     QWidget *parentWidget = m_widget->parentWidget();
     Q_ASSERT(parentWidget);
 
@@ -566,18 +108,15 @@ void InsertWidgetCommand::redo()
         parentWidget->layout()->invalidate();
     }
 
-    QList<QDesignerLabel*> label_list = qFindChildren<QDesignerLabel*>(formWindow());
+    const QList<QDesignerLabel*> label_list = qFindChildren<QDesignerLabel*>(formWindow());
     foreach (QDesignerLabel *label, label_list) {
-        QDesignerPropertySheetExtension* propertySheet
-            = qt_extension<QDesignerPropertySheetExtension*>
-                (core->extensionManager(), label);
-        if (propertySheet == 0)
-            continue;
-        int idx = propertySheet->indexOf(QLatin1String("buddy"));
-        if (idx == -1)
-            continue;
-        if (propertySheet->property(idx).toString() == m_widget->objectName())
-            propertySheet->setProperty(idx, m_widget->objectName());
+        if (QDesignerPropertySheetExtension* sheet = propertySheet(label)) {
+            const int idx = sheet->indexOf(QLatin1String("buddy"));
+            if (idx == -1)
+                continue;
+            if (sheet->property(idx).toString() == m_widget->objectName())
+                sheet->setProperty(idx, m_widget->objectName());
+        }
     }
 }
 
@@ -599,18 +138,15 @@ void InsertWidgetCommand::undo()
     }
     formWindow()->emitSelectionChanged();
 
-    QList<QDesignerLabel*> label_list = qFindChildren<QDesignerLabel*>(formWindow());
+    const QList<QDesignerLabel*> label_list = qFindChildren<QDesignerLabel*>(formWindow());
     foreach (QDesignerLabel *label, label_list) {
-        QDesignerPropertySheetExtension* propertySheet
-            = qt_extension<QDesignerPropertySheetExtension*>
-                (core->extensionManager(), label);
-        if (propertySheet == 0)
-            continue;
-        int idx = propertySheet->indexOf(QLatin1String("buddy"));
-        if (idx == -1)
-            continue;
-        if (propertySheet->property(idx).toString() == m_widget->objectName())
-            propertySheet->setProperty(idx, m_widget->objectName());
+        if (QDesignerPropertySheetExtension* sheet = propertySheet(label)) {
+            const int idx = sheet->indexOf(QLatin1String("buddy"));
+            if (idx == -1)
+                continue;
+            if (sheet->property(idx).toString() == m_widget->objectName())
+                sheet->setProperty(idx, m_widget->objectName());
+        }
     }
 }
 
@@ -700,7 +236,7 @@ void DeleteWidgetCommand::init(QWidget *widget)
     m_tabOrderIndex = m_formItem->tabOrder().indexOf(widget);
 
     // Build the list of managed children
-    m_managedChildren = QList<QPointer<QWidget> >();
+    m_managedChildren.clear();
     QList<QWidget *>children = qFindChildren<QWidget *>(m_widget);
     foreach (QPointer<QWidget> child, children) {
         if (formWindow()->isManaged(child))
@@ -902,8 +438,8 @@ void LayoutCommand::init(QWidget *parentWidget, const QList<QWidget*> &widgets, 
     m_parentWidget = parentWidget;
     m_widgets = widgets;
     formWindow()->simplifySelection(&m_widgets);
-    QPoint grid = formWindow()->grid();
-    QSize sz(qMax(5, grid.x()), qMax(5, grid.y()));
+    const QPoint grid = formWindow()->grid();
+    const QSize sz(qMax(5, grid.x()), qMax(5, grid.y()));
 
     switch (layoutType) {
         case LayoutInfo::Grid:
@@ -930,7 +466,6 @@ void LayoutCommand::init(QWidget *parentWidget, const QList<QWidget*> &widgets, 
 void LayoutCommand::redo()
 {
     m_layout->doLayout();
-    checkSelection(m_parentWidget);
 }
 
 void LayoutCommand::undo()
@@ -953,8 +488,6 @@ void LayoutCommand::undo()
         core->metaDataBase()->add(lb);
         lb->show();
     }
-
-    checkSelection(m_parentWidget);
 }
 
 // ---- BreakLayoutCommand ----
@@ -975,9 +508,9 @@ void BreakLayoutCommand::init(const QList<QWidget*> &widgets, QWidget *layoutBas
     m_layoutBase = core->widgetFactory()->containerOfWidget(layoutBase);
     m_layout = 0;
 
-    QPoint grid = formWindow()->grid();
+    const QPoint grid = formWindow()->grid();
 
-    LayoutInfo::Type lay = LayoutInfo::layoutType(core, m_layoutBase);
+    const LayoutInfo::Type lay = LayoutInfo::layoutType(core, m_layoutBase);
     if (lay == LayoutInfo::HBox)
         m_layout = new HorizontalLayout(widgets, m_layoutBase, formWindow(), m_layoutBase, qobject_cast<QSplitter*>(m_layoutBase) != 0);
     else if (lay == LayoutInfo::VBox)
@@ -1607,8 +1140,7 @@ void CreateStatusBarCommand::redo()
 void CreateStatusBarCommand::undo()
 {
     QDesignerFormEditorInterface *core = formWindow()->core();
-    QDesignerContainerExtension *c;
-    c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
+    QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
     for (int i = 0; i < c->count(); ++i) {
         if (c->widget(i) == m_statusBar) {
             c->remove(i);
@@ -1635,8 +1167,7 @@ void DeleteStatusBarCommand::init(QStatusBar *statusBar)
 void DeleteStatusBarCommand::redo()
 {
     if (m_mainWindow) {
-        QDesignerContainerExtension *c;
-        c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), m_mainWindow);
+        QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), m_mainWindow);
         Q_ASSERT(c != 0);
         for (int i=0; i<c->count(); ++i) {
             if (c->widget(i) == m_statusBar) {
@@ -1656,8 +1187,7 @@ void DeleteStatusBarCommand::undo()
 {
     if (m_mainWindow) {
         m_statusBar->setParent(m_mainWindow);
-        QDesignerContainerExtension *c;
-        c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), m_mainWindow);
+        QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), m_mainWindow);
 
         c->addWidget(m_statusBar);
 
@@ -1686,8 +1216,7 @@ void AddToolBarCommand::redo()
     QDesignerFormEditorInterface *core = formWindow()->core();
     core->metaDataBase()->add(m_toolBar);
 
-    QDesignerContainerExtension *c;
-    c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
+    QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
     c->addWidget(m_toolBar);
 
     m_toolBar->setObjectName("toolBar");
@@ -1699,8 +1228,7 @@ void AddToolBarCommand::undo()
 {
     QDesignerFormEditorInterface *core = formWindow()->core();
     core->metaDataBase()->remove(m_toolBar);
-    QDesignerContainerExtension *c;
-    c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
+    QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
     for (int i = 0; i < c->count(); ++i) {
         if (c->widget(i) == m_toolBar) {
             c->remove(i);
@@ -1772,8 +1300,7 @@ void AddDockWidgetCommand::init(QMainWindow *mainWindow)
 void AddDockWidgetCommand::redo()
 {
     QDesignerFormEditorInterface *core = formWindow()->core();
-    QDesignerContainerExtension *c;
-    c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
+    QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
     c->addWidget(m_dockWidget);
 
     m_dockWidget->setObjectName("dockWidget");
@@ -1785,8 +1312,7 @@ void AddDockWidgetCommand::redo()
 void AddDockWidgetCommand::undo()
 {
     QDesignerFormEditorInterface *core = formWindow()->core();
-    QDesignerContainerExtension *c;
-    c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
+    QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
     for (int i = 0; i < c->count(); ++i) {
         if (c->widget(i) == m_dockWidget) {
             c->remove(i);
@@ -1866,7 +1392,7 @@ void ChangeLayoutItemGeometry::init(QWidget *widget, int row, int column, int ro
     QGridLayout *grid = qobject_cast<QGridLayout*>(layout);
     Q_ASSERT(grid != 0);
 
-    int itemIndex = grid->indexOf(m_widget);
+    const int itemIndex = grid->indexOf(m_widget);
     Q_ASSERT(itemIndex != -1);
 
     int current_row, current_column, current_rowspan, current_colspan;
@@ -1884,7 +1410,7 @@ void ChangeLayoutItemGeometry::changeItemPosition(const QRect &g)
     QGridLayout *grid = qobject_cast<QGridLayout*>(layout);
     Q_ASSERT(grid != 0);
 
-    int itemIndex = grid->indexOf(m_widget);
+    const int itemIndex = grid->indexOf(m_widget);
     Q_ASSERT(itemIndex != -1);
 
     QLayoutItem *item = grid->takeAt(itemIndex);
@@ -2081,10 +1607,10 @@ void ChangeTableContentsCommand::init(QTableWidget *tableWidget, QTableWidget *f
     m_newRowCount = fromTableWidget->rowCount();
 
     for (int col = 0; col < m_oldColumnCount; col++) {
-        QTableWidgetItem *item = tableWidget->horizontalHeaderItem(col);
+        const QTableWidgetItem *item = tableWidget->horizontalHeaderItem(col);
         if (item) {
-            QString text = item->text();
-            QIcon icon = item->icon();
+            const QString text = item->text();
+            const QIcon icon = item->icon();
             if (!text.isEmpty() || !icon.isNull()) {
                 m_oldHorizontalHeaderState[col] =
                             qMakePair<QString, QIcon>(text, icon);
@@ -2093,10 +1619,10 @@ void ChangeTableContentsCommand::init(QTableWidget *tableWidget, QTableWidget *f
     }
 
     for (int row = 0; row < m_oldRowCount; row++) {
-        QTableWidgetItem *item = tableWidget->verticalHeaderItem(row);
+        const QTableWidgetItem *item = tableWidget->verticalHeaderItem(row);
         if (item) {
-            QString text = item->text();
-            QIcon icon = item->icon();
+            const QString text = item->text();
+            const QIcon icon = item->icon();
             if (!text.isEmpty() || !icon.isNull()) {
                 m_oldVerticalHeaderState[row] =
                             qMakePair<QString, QIcon>(text, icon);
@@ -2106,10 +1632,10 @@ void ChangeTableContentsCommand::init(QTableWidget *tableWidget, QTableWidget *f
 
     for (int col = 0; col < m_oldColumnCount; col++) {
         for (int row = 0; row < m_oldRowCount; row++) {
-            QTableWidgetItem *item = tableWidget->item(row, col);
+            const QTableWidgetItem *item = tableWidget->item(row, col);
             if (item) {
-                QString text = item->text();
-                QIcon icon = item->icon();
+                const QString text = item->text();
+                const QIcon icon = item->icon();
                 if (!text.isEmpty() || !icon.isNull()) {
                     m_oldItemsState[qMakePair<int, int>(row, col)] =
                                 qMakePair<QString, QIcon>(text, icon);
@@ -2120,10 +1646,10 @@ void ChangeTableContentsCommand::init(QTableWidget *tableWidget, QTableWidget *f
 
 
     for (int col = 0; col < m_newColumnCount; col++) {
-        QTableWidgetItem *item = fromTableWidget->horizontalHeaderItem(col);
+        const QTableWidgetItem *item = fromTableWidget->horizontalHeaderItem(col);
         if (item) {
-            QString text = item->text();
-            QIcon icon = item->icon();
+            const QString text = item->text();
+            const QIcon icon = item->icon();
             if (!text.isEmpty() || !icon.isNull()) {
                 m_newHorizontalHeaderState[col] =
                             qMakePair<QString, QIcon>(text, icon);
@@ -2132,10 +1658,10 @@ void ChangeTableContentsCommand::init(QTableWidget *tableWidget, QTableWidget *f
     }
 
     for (int row = 0; row < m_newRowCount; row++) {
-        QTableWidgetItem *item = fromTableWidget->verticalHeaderItem(row);
+        const QTableWidgetItem *item = fromTableWidget->verticalHeaderItem(row);
         if (item) {
-            QString text = item->text();
-            QIcon icon = item->icon();
+            const QString text = item->text();
+            const QIcon icon = item->icon();
             if (!text.isEmpty() || !icon.isNull()) {
                 m_newVerticalHeaderState[row] =
                             qMakePair<QString, QIcon>(text, icon);
@@ -2145,10 +1671,10 @@ void ChangeTableContentsCommand::init(QTableWidget *tableWidget, QTableWidget *f
 
     for (int col = 0; col < m_newColumnCount; col++) {
         for (int row = 0; row < m_newRowCount; row++) {
-            QTableWidgetItem *item = fromTableWidget->item(row, col);
+            const QTableWidgetItem *item = fromTableWidget->item(row, col);
             if (item) {
-                QString text = item->text();
-                QIcon icon = item->icon();
+                const QString text = item->text();
+                const QIcon icon = item->icon();
                 if (!text.isEmpty() || !icon.isNull()) {
                     m_newItemsState[qMakePair<int, int>(row, col)] =
                                 qMakePair<QString, QIcon>(text, icon);
@@ -2170,9 +1696,9 @@ void ChangeTableContentsCommand::changeContents(QTableWidget *tableWidget,
     QMap<int, QPair<QString, QIcon> >::ConstIterator itColumn =
                 horizontalHeaderState.constBegin();
     while (itColumn != horizontalHeaderState.constEnd()) {
-        int column = itColumn.key();
-        QString text = itColumn.value().first;
-        QIcon icon = itColumn.value().second;
+        const int column = itColumn.key();
+        const QString text = itColumn.value().first;
+        const QIcon icon = itColumn.value().second;
         QTableWidgetItem *item = new QTableWidgetItem;
         item->setText(text);
         item->setIcon(icon);
@@ -2185,9 +1711,9 @@ void ChangeTableContentsCommand::changeContents(QTableWidget *tableWidget,
     QMap<int, QPair<QString, QIcon> >::ConstIterator itRow =
                 verticalHeaderState.constBegin();
     while (itRow != verticalHeaderState.constEnd()) {
-        int row = itRow.key();
-        QString text = itRow.value().first;
-        QIcon icon = itRow.value().second;
+        const int row = itRow.key();
+        const QString text = itRow.value().first;
+        const QIcon icon = itRow.value().second;
         QTableWidgetItem *item = new QTableWidgetItem;
         item->setText(text);
         item->setIcon(icon);
@@ -2199,10 +1725,10 @@ void ChangeTableContentsCommand::changeContents(QTableWidget *tableWidget,
     QMap<QPair<int, int>, QPair<QString, QIcon> >::ConstIterator itItem =
                 itemsState.constBegin();
     while (itItem != itemsState.constEnd()) {
-        int row = itItem.key().first;
-        int column = itItem.key().second;
-        QString text = itItem.value().first;
-        QIcon icon = itItem.value().second;
+        const int row = itItem.key().first;
+        const int column = itItem.key().second;
+        const QString text = itItem.value().first;
+        const QIcon icon = itItem.value().second;
         QTableWidgetItem *item = new QTableWidgetItem;
         item->setText(text);
         item->setIcon(icon);
@@ -2316,9 +1842,9 @@ void ChangeListContentsCommand::init(QListWidget *listWidget,
     m_oldItemsState.clear();
 
     for (int i = 0; i < listWidget->count(); i++) {
-        QListWidgetItem *item = listWidget->item(i);
-        QString text = item->text();
-        QIcon icon = item->icon();
+        const QListWidgetItem *item = listWidget->item(i);
+        const QString text = item->text();
+       const  QIcon icon = item->icon();
 
         m_oldItemsState.append(qMakePair<QString, QIcon>(text, icon));
     }
@@ -2334,8 +1860,8 @@ void ChangeListContentsCommand::init(QComboBox *comboBox,
     m_oldItemsState.clear();
 
     for (int i = 0; i < comboBox->count(); i++) {
-        QString text = comboBox->itemText(i);
-        QIcon icon = comboBox->itemIcon(i);
+        const QString text = comboBox->itemText(i);
+        const QIcon icon = comboBox->itemIcon(i);
 
         m_oldItemsState.append(qMakePair<QString, QIcon>(text, icon));
     }
@@ -2363,7 +1889,7 @@ void ChangeListContentsCommand::changeContents(QListWidget *listWidget,
     listWidget->clear();
     QListIterator<QPair<QString, QIcon> > it(itemsState);
     while (it.hasNext()) {
-        QPair<QString, QIcon> pair = it.next();
+        const QPair<QString, QIcon> pair = it.next();
         QListWidgetItem *item = new QListWidgetItem(pair.second, pair.first);
         listWidget->addItem(item);
     }
@@ -2375,7 +1901,7 @@ void ChangeListContentsCommand::changeContents(QComboBox *comboBox,
     comboBox->clear();
     QListIterator<QPair<QString, QIcon> > it(itemsState);
     while (it.hasNext()) {
-        QPair<QString, QIcon> pair = it.next();
+        const QPair<QString, QIcon> pair = it.next();
         comboBox->addItem(pair.second, pair.first);
         comboBox->setItemData(comboBox->count() - 1, pair.second);
     }
@@ -2421,9 +1947,9 @@ static RemoveActionCommand::ActionData findActionIn(QDesignerFormWindowInterface
 {
     RemoveActionCommand::ActionData result;
 
-    QList<T*> widgetList = qFindChildren<T*>(formWindow->mainContainer());
+    const QList<T*> widgetList = qFindChildren<T*>(formWindow->mainContainer());
     foreach (QWidget *widget, widgetList) {
-        QList<QAction*> actionList = widget->actions();
+        const QList<QAction*> actionList = widget->actions();
         for (int i = 0; i < actionList.size(); ++i) {
             if (actionList.at(i) == action) {
                 QAction *before = 0;
@@ -2671,8 +2197,7 @@ void DeleteToolBarCommand::init(QToolBar *toolBar)
 void DeleteToolBarCommand::redo()
 {
     if (m_mainWindow) {
-        QDesignerContainerExtension *c;
-        c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), m_mainWindow);
+        QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), m_mainWindow);
         Q_ASSERT(c != 0);
         for (int i=0; i<c->count(); ++i) {
             if (c->widget(i) == m_toolBar) {
@@ -2692,8 +2217,7 @@ void DeleteToolBarCommand::undo()
 {
     if (m_mainWindow) {
         m_toolBar->setParent(m_mainWindow);
-        QDesignerContainerExtension *c;
-        c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), m_mainWindow);
+        QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), m_mainWindow);
 
         c->addWidget(m_toolBar);
 

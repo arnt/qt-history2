@@ -21,7 +21,7 @@ TRANSLATOR qdesigner_internal::FormWindowCursor
 // sdk
 #include <QtDesigner/propertysheet.h>
 #include <QtDesigner/QExtensionManager>
-#include <qdesigner_command_p.h>
+#include <qdesigner_propertycommand_p.h>
 
 #include <QtCore/qdebug.h>
 

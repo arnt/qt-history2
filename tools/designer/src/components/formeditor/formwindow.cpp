@@ -30,6 +30,7 @@ TRANSLATOR qdesigner_internal::FormWindow
 #include <qdesigner_stackedbox_p.h>
 #include <qdesigner_resource.h>
 #include <qdesigner_command_p.h>
+#include <qdesigner_propertycommand_p.h>
 #include <qdesigner_widget_p.h>
 #include <qdesigner_utils_p.h>
 #include <qlayout_widget_p.h>

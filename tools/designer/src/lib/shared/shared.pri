@@ -19,7 +19,10 @@ HEADERS += \
     $$PWD/connectionedit_p.h \
     $$PWD/pluginmanager_p.h \
     $$PWD/metadatabase_p.h \
+    $$PWD/qdesigner_formeditorcommand_p.h \
+    $$PWD/qdesigner_formwindowcommand_p.h \
     $$PWD/qdesigner_command_p.h \
+    $$PWD/qdesigner_propertycommand_p.h \
     $$PWD/qdesigner_formbuilder_p.h \
     $$PWD/qdesigner_taskmenu_p.h \
     $$PWD/qdesigner_widget_p.h \
@@ -61,7 +64,10 @@ SOURCES += \
     $$PWD/layout.cpp \
     $$PWD/connectionedit.cpp \
     $$PWD/pluginmanager.cpp \
+    $$PWD/qdesigner_formwindowcommand.cpp \
+    $$PWD/qdesigner_formeditorcommand.cpp \
     $$PWD/qdesigner_command.cpp \
+    $$PWD/qdesigner_propertycommand.cpp \
     $$PWD/qdesigner_formbuilder.cpp \
     $$PWD/qdesigner_taskmenu.cpp \
     $$PWD/qdesigner_widget.cpp \

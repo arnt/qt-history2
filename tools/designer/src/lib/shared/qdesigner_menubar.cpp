@@ -15,6 +15,7 @@
 #include "qdesigner_menu_p.h"
 #include "qdesigner_toolbar_p.h"
 #include "qdesigner_command_p.h"
+#include "qdesigner_propertycommand_p.h"
 #include "actionrepository_p.h"
 #include "actionprovider_p.h"
 #include "actioneditor_p.h"

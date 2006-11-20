@@ -14,7 +14,7 @@
 #include "qdesigner_stackedbox_p.h"
 #include "abstractformwindow.h"
 #include "qdesigner_command_p.h"
-#include <QtGui/QUndoCommand>
+#include "qdesigner_propertycommand_p.h"
 #include "orderdialog_p.h"
 
 #include <QtDesigner/QtDesigner>

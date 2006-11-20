@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qdesigner_integration_p.h"
-#include "qdesigner_command_p.h"
+#include "qdesigner_propertycommand_p.h"
 
 // sdk
 #include <QtDesigner/QtDesigner>

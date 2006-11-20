@@ -13,8 +13,7 @@
 
 #include "qdesigner_q3widgetstack_p.h"
 #include <QtDesigner/QtDesigner>
-#include "../../../lib/shared/qdesigner_command_p.h"
-
+#include "../../../lib/shared/qdesigner_propertycommand_p.h"
 #include <QtCore/QEvent>
 #include <QtGui/QToolButton>
 

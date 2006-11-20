@@ -21,6 +21,7 @@
 
 // shared
 #include <qdesigner_command_p.h>
+#include <qdesigner_propertycommand_p.h>
 #include <layout_p.h>
 #include <layoutinfo_p.h>
 
