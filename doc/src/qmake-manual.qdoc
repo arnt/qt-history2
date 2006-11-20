@@ -976,6 +976,18 @@
     \previouspage qmake Reference
     \nextpage qmake Function Reference
 
+    \c{qmake}'s fundamental behavior is influenced by variable declarations that
+    define the build process of each project. Some of these declare resources,
+    such as headers and source files, that are common to each platform; others
+    are used to customize the behavior of compilers and linkers on specific
+    platforms.
+
+    Platform-specific variables follow the naming pattern of the
+    variables which they extend or modify, but include the name of the relevant
+    platform in their name. For example, \c QMAKE_LIBS can be used to specify a list
+    of libraries that a project needs to link against, and \c QMAKE_LIBS_X11 can be
+    used to extend or override this list.
+
     \tableofcontents{3}
 
     \target CONFIG
@@ -1743,6 +1755,9 @@
     This variable contains the extention for shared libraries.  The value of this
     variable is typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf}
     and rarely needs to be modified.
+
+    Note that platform-specific variables that change the extension will override
+    the contents of this variable.
 
     \section1 QMAKE_EXT_MOC
 
