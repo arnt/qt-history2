@@ -2214,6 +2214,8 @@ void QAbstractItemModel::reset()
 void QAbstractItemModel::changePersistentIndex(const QModelIndex &from, const QModelIndex &to)
 {
     Q_D(QAbstractItemModel);
+    if (d->persistent.indexes.isEmpty())
+        return;
     // find the data and reinsert it sorted
     const QPersistentModelIndexData tmp(from);
     QVector<QPersistentModelIndexData*>::iterator begin = d->persistent.indexes.begin();
