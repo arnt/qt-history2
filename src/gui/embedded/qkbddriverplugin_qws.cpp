@@ -23,7 +23,7 @@
     \ingroup qws
 
     \brief The QKbdDriverPlugin class is an abstract base class for
-    keyboard driver plugins.
+    keyboard driver plugins in Qtopia Core.
 
     Note that this class is only available in \l {Qtopia Core}.
 

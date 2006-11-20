@@ -32,7 +32,7 @@
     \ingroup qws
 
     \brief The QDirectPainter class provides direct access to the
-    underlying hardware.
+    underlying hardware in Qtopia Core.
 
     \preliminary
 

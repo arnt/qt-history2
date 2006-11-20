@@ -23,7 +23,7 @@
     \ingroup qws
 
     \brief The QMouseDriverPlugin class is an abstract base class for
-    mouse driver plugins.
+    mouse driver plugins in Qtopia Core.
 
     Note that this class is only available in \l {Qtopia Core}.
 

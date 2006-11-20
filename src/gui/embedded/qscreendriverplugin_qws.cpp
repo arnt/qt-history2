@@ -21,7 +21,7 @@
     \ingroup qws
 
     \brief The QScreenDriverPlugin class is an abstract base class for
-    screen driver plugins.
+    screen driver plugins in Qtopia Core.
 
     Note that this class is only available in \l {Qtopia Core}.
 

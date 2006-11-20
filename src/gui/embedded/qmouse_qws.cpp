@@ -24,8 +24,10 @@
     \class QWSPointerCalibrationData
     \ingroup qws
 
-    \brief The QWSPointerCalibrationData class is a container for data
-    used in calibration of a mouse driver.
+    \brief The QWSPointerCalibrationData class is a container for
+    mouse calibration data in Qtopia Core.
+
+    Note that this class is only available in \l {Qtopia Core}.
 
     QWSPointerCalibrationData stores device and screen coordinates in
     the devPoints and screenPoints variables, respectively.
@@ -260,8 +262,10 @@ void QWSMouseHandler::mouseChanged(const QPoint &position, int state, int wheel)
     \class QWSCalibratedMouseHandler
     \ingroup qws
 
-    \brief The QWSCalibratedMouseHandler class is a base class for mouse
-    drivers providing calibration and noise reduction.
+    \brief The QWSCalibratedMouseHandler class provides mouse
+    calibration and noise reduction in Qtopia Core.
+
+    Note that this class is only available in \l {Qtopia Core}.
 
     \l {Qtopia Core} provides ready-made drivers for several mouse
     protocols, see the \l {Qtopia Core Pointer Handling}{pointer

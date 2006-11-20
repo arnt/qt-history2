@@ -4230,7 +4230,7 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
     \ingroup qws
 
     \brief The KeyboardFilter class is a base class for global
-    keyboard event filters.
+    keyboard event filters in Qtopia Core.
 
     Note that this class is only available in \l {Qtopia Core}.
 

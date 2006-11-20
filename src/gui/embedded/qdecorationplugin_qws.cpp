@@ -20,7 +20,7 @@
     \ingroup plugins
 
     \brief The QDecorationPlugin class is an abstract base class for
-    window decoration plugins.
+    window decoration plugins in Qtopia Core.
 
     Note that this class is only available in \l {Qtopia Core}.
 

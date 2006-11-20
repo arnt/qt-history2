@@ -41,7 +41,8 @@ ClearCacheFunc QScreen::clearCacheFunc = 0;
     \class QScreenCursor
     \ingroup qws
 
-    \brief The QScreenCursor class manages the screen cursor.
+    \brief The QScreenCursor class is a base class for screen cursors
+    in Qtopia Core.
 
     Note that this class is non-portable, and that it is only
     available in \l {Qtopia Core}.
