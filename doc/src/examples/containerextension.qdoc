@@ -207,10 +207,16 @@
     plugin with a gateway to all of \QD's API's.
 
     In case of a multipage widget such as ours, we must also implement
-    two private slots: currentIndexChanged() and
-    pageTitleChanged(). These are required to update \QD's property
-    editor whenever the user views another page or changes one of the
-    page titles.
+    two private slots, currentIndexChanged() and pageTitleChanged(),
+    to be able to update \QD's property editor whenever the user views
+    another page or changes one of the page titles. To be able to give
+    each page their own title, we have chosen to use the
+    QWidget::windowTitle property to store the page title (for more
+    information see the MultiPageWidget class \l
+    {designer/containerextension/multipagewidget.cpp}{implementation}). Note
+    that currently there is no way of adding a custom property (e.g.,
+    a page title) to the pages without using a predefined property as
+    placeholder.
 
     The \c MultiPageWidgetPlugin class inherits from both QObject and
     QDesignerCustomWidgetInterface. It is important to remember, when
@@ -323,10 +329,10 @@
     sheet: First we retrieve the property extension for the page which
     title we want to change, using the qt_extension() function.  Then
     we retrieve the index for the page title using the
-    QDesignerPropertySheetExtension::indexOf() function. Note that to
-    be able to give each page their own title, we have chosen to use
-    the QWidget::windowTitle property to store the page title (for
-    more information see the MultiPageWidget class \l
+    QDesignerPropertySheetExtension::indexOf() function. As previously
+    mentioned, we have chosen to use the QWidget::windowTitle property
+    to store the page title (for more information see the
+    MultiPageWidget class \l
     {designer/containerextension/multipagewidget.cpp}{implementation}).
     Finally, we implicitly force an update of the page's property
     sheet by calling the the
