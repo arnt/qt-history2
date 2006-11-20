@@ -25,8 +25,30 @@ class Q3GroupBoxPrivate;
 class Q_COMPAT_EXPORT Q3GroupBox : public QGroupBox
 {
     Q_OBJECT
+public:
+    enum DummyFrame { Box = QFrame::Box, Sunken = QFrame::Sunken, Plain = QFrame::Plain,
+        Raised = QFrame::Raised, MShadow=QFrame::MShadow, NoFrame = QFrame::NoFrame,
+        Panel = QFrame::Panel, StyledPanel = QFrame::StyledPanel, HLine = QFrame::HLine,
+        VLine = QFrame::VLine,
+        WinPanel = QFrame::WinPanel,ToolBarPanel = QFrame::ToolBarPanel,
+        MenuBarPanel = QFrame::MenuBarPanel, PopupPanel = QFrame::PopupPanel,
+        LineEditPanel = QFrame::LineEditPanel,TabWidgetPanel = QFrame::TabWidgetPanel, 
+        GroupBoxPanel = 0x0007,
+        MShape = QFrame::MShape};
+    typedef DummyFrame FrameShape;
+
+private:
     Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation DESIGNABLE false)
     Q_PROPERTY(int columns READ columns WRITE setColumns DESIGNABLE false)
+
+
+    Q_PROPERTY(QRect frameRect READ frameRect WRITE setFrameRect DESIGNABLE false)
+    Q_PROPERTY(FrameShape frameShape READ frameShape WRITE setFrameShape)
+    Q_PROPERTY(FrameShape frameShadow READ frameShadow WRITE setFrameShadow)
+    Q_PROPERTY(int lineWidth READ lineWidth WRITE setLineWidth)
+    Q_PROPERTY(int midLineWidth READ midLineWidth WRITE setMidLineWidth)
+    Q_PROPERTY(int margin READ margin WRITE setMargin)
+
 public:
     explicit Q3GroupBox(QWidget* parent=0, const char* name=0);
     explicit Q3GroupBox(const QString &title,
@@ -52,36 +74,43 @@ public:
 
     void addSpace(int);
 
-    void setFrameRect(QRect) {}
-    QRect frameRect() const { return QRect(); }
-    enum DummyFrame { Box, Sunken, Plain, Raised, MShadow, NoFrame, Panel, StyledPanel, 
-                      HLine, VLine, GroupBoxPanel, WinPanel, ToolBarPanel, MenuBarPanel, 
-                      PopupPanel, LineEditPanel, TabWidgetPanel, MShape };
-    void setFrameShadow(DummyFrame) {}
-    DummyFrame frameShadow() const { return Plain; }
-    void setFrameShape(DummyFrame) {}
-    DummyFrame frameShape() const { return NoFrame; }
-    void setFrameStyle(int) {}
-    int frameStyle() const  { return 0; }
-    int frameWidth() const { return 0; }
-    void setLineWidth(int) {}
-    int lineWidth() const { return 0; }    
+    void setFrameRect(QRect);
+    QRect frameRect() const;
+#ifdef qdoc
+    void setFrameShadow(FrameShape);
+    FrameShape frameShadow() const;
+    void setFrameShape(FrameShape);
+    FrameShape frameShape() const;
+#else
+    void setFrameShadow(DummyFrame);
+    DummyFrame frameShadow() const;
+    void setFrameShape(DummyFrame);
+    DummyFrame frameShape() const;
+#endif
+    void setFrameStyle(int);
+    int frameStyle() const;
+    int frameWidth() const;
+    void setLineWidth(int);
+    int lineWidth() const;
     void setMargin(int margin) { setContentsMargins(margin, margin, margin, margin); }
     int margin() const 
     { int margin; int dummy; getContentsMargins(&margin, &dummy, &dummy, &dummy);  return margin; }    
-    void setMidLineWidth(int) {}
-    int midLineWidth() const { return 0; }
+    void setMidLineWidth(int);
+    int midLineWidth() const;
 
 protected:
     void childEvent(QChildEvent *);
     void resizeEvent(QResizeEvent *);
     void changeEvent(QEvent *);
+    bool event(QEvent *);
 
 private:
     void skip();
     void init();
     void calculateFrame();
     void insertWid(QWidget*);
+    void drawFrame(QPainter *p);
+
     Q3GroupBoxPrivate * d;
 
     Q_DISABLE_COPY(Q3GroupBox)
