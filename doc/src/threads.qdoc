@@ -407,7 +407,8 @@
     implicit. This is implemented using atomic reference counting
     operations, which are implemented in assembly language for the
     different platforms supported by Qt. Atomic reference counting is
-    very fast, much faster than using a mutex.
+    very fast, much faster than using a mutex (see also \l
+    {Implementing Atomic Operations}).
 
     This having been said, if you access the same \e object in
     multiple threads simultaneously (as opposed to copies of the same

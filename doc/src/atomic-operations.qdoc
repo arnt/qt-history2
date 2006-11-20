@@ -68,14 +68,6 @@
     \section2
     int q_atomic_test_and_set_int (volatile int *ptr, int expected, int newval)
 
-    \target 2
-    \section2
-    int q_atomic_test_and_set_acquire_int (volatile int *ptr, int expected, int newval)
-
-    \target 3
-    \section2
-    int q_atomic_test_and_set_release_int (volatile int *ptr, int expected, int newval)
-
     Atomic test-and-set for integers.
 
     \code
@@ -92,23 +84,37 @@
     the \a expected value, this function does nothing and returns
     zero.
 
-    \bold{Note:} There are 3 variants of this function. Each variant
-    implies a different memory semantic, i.e. the relation of memory
-    operations before or after the test-and-set operation. Since
-    modern hardware can reorder memory operations to improve
-    performance, these functions are used to ensure the order of
-    memory operations (often called a \e{memory barrier}).
+    There are 3 variants of the test-and-set integer function: Each
+    variant implies a different memory semantic, i.e. the relation of
+    memory operations before or after the test-and-set
+    operation. Since modern hardware can reorder memory operations to
+    improve performance, these functions are used to ensure the order
+    of memory operations (often called a \e{memory barrier}).
 
-    \table
-    \header \o Function                    \o Semantic
-    \row \o \c q_atomic_test_and_set_int() \o Memory semantic is unspecified.
-    \row \o \c q_atomic_test_and_set_acquire_int() \o The atomic test-and-set
-    operation must be performed before memory operations after the test-and-set.
-    \row \o \c q_atomic_test_and_set_release_int() \o All memory operations
-    must be performed before the test-and-set.
-    \endtable
+    \bold{Note:} This variant of the test-and-set integer function
+    implies that memory semantic is unspecified.
 
     See also \l{4}{q_atomic_test_and_set_ptr()}.
+
+    \target 2
+    \section2
+    int q_atomic_test_and_set_acquire_int (volatile int *ptr, int expected, int newval)
+
+    This function behaves essentially like the above function.
+
+    \bold{Note:} This variant of the test-and-set integer function
+    implies that the atomic test-and-set operation must be performed
+    before memory operations after the test-and-set.
+
+    \target 3
+    \section2
+    int q_atomic_test_and_set_release_int (volatile int *ptr, int expected, int newval)
+
+    This function behaves essentially like the above function.
+
+    \bold{Note:} This variant of the test-and-set integer function
+    implies that all memory operations must be performed before the
+    test-and-set.
 
     \target 4
     \section2
