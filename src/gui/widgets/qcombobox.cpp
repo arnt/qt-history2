@@ -948,9 +948,11 @@ void QComboBoxPrivate::_q_returnPressed()
         // check for duplicates (if not enabled) and quit
         int index = -1;
         if (!duplicatesEnabled) {
-            index = q->findText(text, Qt::MatchFixedString | Qt::MatchCaseSensitive);
-            if (index == -1)
-                index = q->findText(text, Qt::MatchFixedString);
+            // Base how duplicates are determined on the autocompletion case sensitivity
+            Qt::MatchFlags flags = Qt::MatchFixedString;
+            if (!lineEdit->completer() || lineEdit->completer()->caseSensitivity() == Qt::CaseSensitive)
+                flags |= Qt::MatchCaseSensitive;
+            index = q->findText(text, flags);
             if (index != -1) {
                 q->setCurrentIndex(index);
                 emitActivated(currentIndex);
