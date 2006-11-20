@@ -14,7 +14,6 @@
 /*
 TRANSLATOR qdesigner_internal::ResourceModel
 */
-#include <windows.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
