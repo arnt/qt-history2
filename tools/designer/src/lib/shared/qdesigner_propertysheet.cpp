@@ -223,38 +223,7 @@ QVariant QDesignerPropertySheet::property(int index) const
         return m_fakeProperties.value(index);
     }
 
-    QMetaProperty p = meta->property(index);
-    QVariant v = p.read(m_object);
-
-    if (p.isFlagType()) {
-        FlagType e;
-        e.value = v;
-        QMetaEnum me = p.enumerator();
-        for (int i=0; i<me.keyCount(); ++i) {
-            QString k = QString::fromUtf8(me.scope());
-            k += QString::fromUtf8("::");
-            k += QLatin1String(me.key(i));
-            e.items.insert(k, me.keyToValue(k.toUtf8()));
-        }
-
-        qVariantSetValue(v, e);
-    } else if (p.isEnumType()) {
-        EnumType e;
-        e.value = v;
-        QMetaEnum me = p.enumerator();
-        QString scope = QString::fromUtf8(me.scope());
-        if (!scope.isEmpty())
-            scope += QString::fromUtf8("::");
-        for (int i=0; i<me.keyCount(); ++i) {
-            QString key = scope + QLatin1String(me.key(i));
-            e.items.insert(key, me.keyToValue(key.toUtf8()));
-            e.names.append(key);
-        }
-
-        qVariantSetValue(v, e);
-    }
-
-    return v;
+    return metaProperty(index);
 }
 
 QVariant QDesignerPropertySheet::metaProperty(int index) const
@@ -268,12 +237,11 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
         FlagType e;
         e.value = v;
         QMetaEnum me = p.enumerator();
+        QString scope = QString::fromUtf8(me.scope());
+        if (!scope.isEmpty())
+            scope += QString::fromUtf8("::");
         for (int i=0; i<me.keyCount(); ++i) {
-            QString key;
-            key += QLatin1String(me.scope());
-            key += QLatin1String("::");
-            key += QLatin1String(me.key(i));
-
+            QString key = scope + QLatin1String(me.key(i));
             e.items.insert(key, me.keyToValue(key.toUtf8()));
         }
 
