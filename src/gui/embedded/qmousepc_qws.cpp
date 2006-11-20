@@ -24,6 +24,7 @@
 #include "qtimer.h"
 #include "qfile.h"
 #include "qtextstream.h"
+#include "qstringlist.h"
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -436,6 +437,8 @@ private:
     QWSPcMouseHandler *handler;
     QString driver;
     QString device;
+    qreal accel;
+    int accel_limit;
 };
 
 QWSPcMouseHandler::QWSPcMouseHandler(const QString &driver, const QString &device)
@@ -461,9 +464,31 @@ void QWSPcMouseHandler::resume()
 
 
 QWSPcMouseHandlerPrivate::QWSPcMouseHandlerPrivate(QWSPcMouseHandler *h,
-    const QString &drv, const QString &dev)
-    : handler(h), driver(drv), device(dev)
+    const QString &drv, const QString &arg)
+    : handler(h), driver(drv)
 {
+    QStringList args = arg.split(QLatin1Char(':'), QString::SkipEmptyParts);
+
+    int index;
+
+    accel = qreal(2.0);
+    QRegExp accelRegex("^accel=(\\d+\\.?\\d*)$");
+    index = args.indexOf(accelRegex);
+    if (index >= 0) {
+        accel = qreal(accelRegex.cap(1).toDouble());
+        args.removeAt(index);
+    }
+
+    accel_limit = 5;
+    QRegExp accelLimitRegex("^accel_limit=(\\d+)$");
+    index = args.indexOf(accelLimitRegex);
+    if (index >= 0) {
+        accel_limit = accelLimitRegex.cap(1).toInt();
+        args.removeAt(index);
+    }
+
+    device = args.join(QString());
+
     retries = 0;
     openDevices();
 }
@@ -520,9 +545,6 @@ QWSPcMouseHandler::UsageResult QWSPcMouseHandler::useDev(Dev& d)
 
 bool QWSPcMouseHandlerPrivate::sendEvent(QWSPcMouseSubHandler& h)
 {
-    static const int accel_limit = 5;
-    static const int accel = 2;
-
     if (h.reliable()) {
         QPoint motion = h.takeMotion();
         if (qAbs(motion.x()) > accel_limit || qAbs(motion.y()) > accel_limit)
