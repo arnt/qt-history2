@@ -1403,8 +1403,12 @@ QRegion QListView::visualRegionForSelection(const QItemSelection &selection) con
             for (int r = t; r <= b; ++r)
                 selectionRegion += QRegion(visualRect(d->model->index(r, c, parent)));
         } else { // in static mode, we can optimize a bit
-            QRect rect(visualRect(d->model->index(t, c, parent)).topLeft(),
-                       visualRect(d->model->index(b, c, parent)).bottomRight());
+            while (t <= b && d->hiddenRows.contains(t)) ++t;
+            while (b >= t && d->hiddenRows.contains(b)) --b;
+            const QModelIndex top = d->model->index(t, c, d->root);
+            const QModelIndex bottom = d->model->index(b, c, d->root);
+            QRect rect(visualRect(top).topLeft(),
+                       visualRect(bottom).bottomRight());
             selectionRegion += QRegion(rect);
         }
     }
