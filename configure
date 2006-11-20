@@ -1969,7 +1969,7 @@ else
         ;;
     SunOS:5*:*)
         case "$UNAME_MACHINE" in
-	sun4u*)
+	sun4u*|sun4v*)
             if [ "$OPT_VERBOSE" = "yes" ]; then
                 echo "    Sun SPARC (sparc)"
             fi
