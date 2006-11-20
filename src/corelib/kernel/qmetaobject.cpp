@@ -1353,19 +1353,19 @@ int QMetaEnum::keyToValue(const char *key) const
 {
     if (!mobj || !key)
         return -1;
-    int scope = 0;
+    uint scope = 0;
     const char *qualified_key = key;
-    const char *s = key;
-    while (*s  && *s != ':')
-        ++s;
-    if (*s && *(s+1)==':') {
-        scope = s - key;
+    const char *s = key + qstrlen(key);
+    while (s > key && *s != ':')
+        --s;
+    if (s > key && *(s-1)==':') {
+        scope = s - key - 1;
         key += scope + 2;
     }
     int count = mobj->d.data[handle + 2];
     int data = mobj->d.data[handle + 3];
     for (int i = 0; i < count; ++i)
-        if ((!scope || strncmp(qualified_key, mobj->d.stringdata, scope) == 0)
+        if ((!scope || (qstrlen(mobj->d.stringdata) == scope && strncmp(qualified_key, mobj->d.stringdata, scope) == 0))
              && strcmp(key, mobj->d.stringdata + mobj->d.data[data + 2*i]) == 0)
             return mobj->d.data[data + 2*i + 1];
     return -1;
@@ -1411,17 +1411,17 @@ int QMetaEnum::keysToValue(const char *keys) const
         QString trimmed = l.at(li).trimmed();
         QByteArray qualified_key = trimmed.toLatin1();
         const char *key = qualified_key.constData();
-        int scope = 0;
-        const char *s = key;
-        while (*s  && *s != ':')
-            ++s;
-        if (*s && *(s+1)==':') {
-            scope = s - key;
+        uint scope = 0;
+        const char *s = key + qstrlen(key);
+        while (s > key && *s != ':')
+            --s;
+        if (s > key && *(s-1)==':') {
+            scope = s - key - 1;
             key += scope + 2;
         }
         int i;
         for (i = count-1; i >= 0; --i)
-            if ((!scope || strncmp(qualified_key.constData(), mobj->d.stringdata, scope) == 0)
+            if ((!scope || (qstrlen(mobj->d.stringdata) == scope && strncmp(qualified_key.constData(), mobj->d.stringdata, scope) == 0))
                  && strcmp(key, mobj->d.stringdata + mobj->d.data[data + 2*i]) == 0) {
                 value |= mobj->d.data[data + 2*i + 1];
                 break;
@@ -1446,7 +1446,7 @@ QByteArray QMetaEnum::valueToKeys(int value) const
     int count = mobj->d.data[handle + 2];
     int data = mobj->d.data[handle + 3];
     int v = value;
-    for(int i = count - 1; i >= 0; --i) {
+    for(int i = 0; i < count; i++) {
         int k = mobj->d.data[data + 2*i + 1];
         if ((k != 0 && (v & k) == k ) ||  (k == value))  {
             v = v & ~k;
