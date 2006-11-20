@@ -350,9 +350,9 @@ void tst_QDir::entryList_data()
     QTest::newRow("testdir1")  << QDir::currentPath() + "/testdir" << QStringList()
 			  << (int)(QDir::AllDirs) << (int)(QDir::NoSort)
 			  << QString(".,..,dir,spaces").split(',');
-    QTest::newRow("unprintablenames")  << QDir::currentPath() + "/unprintablenames" << QStringList()
-			  << (int)(QDir::NoFilter) << (int)(QDir::NoSort)
-			  << QStringList();
+    QTest::newRow("unprintablenames")  << QDir::currentPath() + "/unprintablenames" << QStringList("*")
+			  << (int)(QDir::NoFilter) << (int)(QDir::Name)
+			  << QStringList(".,..");
     QTest::newRow("resources1") << QString(":/tst_qdir/resources/entryList") << QStringList("*.data")
                              << (int)(QDir::NoFilter) << (int)(QDir::NoSort)
                              << QString("file1.data,file2.data,file3.data").split(',');
