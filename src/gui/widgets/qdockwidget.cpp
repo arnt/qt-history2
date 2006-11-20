@@ -203,74 +203,51 @@ int QDWLayout::count() const
     return result;
 }
 
-QSize QDWLayout::sizeHint() const
+QSize QDWLayout::sizeFromContent(const QSize &content, bool floating) const
 {
-    QSize result(-1, -1);
+    QSize result = content;
 
-#ifndef Q_WS_X11
-    QDockWidget *w = qobject_cast<QDockWidget*>(parentWidget());
-    if (w->isFloating()) {
-        if (item_list[Content] != 0)
-            result = item_list[Content]->sizeHint();
+    result.setHeight(qMax(result.height(), 0));
+    result.setWidth(qMax(content.width(), minimumTitleWidth()));
+
+    if (floating) {
+        // Add frame and title only on X11
+#ifdef Q_WS_X11
+        QDockWidget *w = qobject_cast<QDockWidget*>(parentWidget());
+        int fw = w->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, 0);
+        result += QSize(2*fw, titleHeight() + 2*fw);
+#endif
     } else {
-#endif
-        result = dockedSizeHint();
-#ifndef Q_WS_X11
+        // We paint title on all platforms, no frame
+        result += QSize(0, titleHeight());
     }
-#endif
+
+    result.setHeight(qMin(result.height(), QWIDGETSIZE_MAX));
+    result.setWidth(qMin(result.width(), QWIDGETSIZE_MAX));
 
     return result;
+}
+
+QSize QDWLayout::sizeHint() const
+{
+    QDockWidget *w = qobject_cast<QDockWidget*>(parentWidget());
+
+    QSize content;
+    if (item_list[Content] != 0)
+        content = item_list[Content]->sizeHint();
+
+    return sizeFromContent(content, w->isFloating());
 }
 
 QSize QDWLayout::minimumSize() const
 {
-    QSize result(0, 0);
-
-#ifndef Q_WS_X11
     QDockWidget *w = qobject_cast<QDockWidget*>(parentWidget());
-    if (w->isFloating()) {
-        if (item_list[Content] != 0)
-            result = item_list[Content]->sizeHint();
-    } else {
-#endif
-        result = dockedMinimumSize();
-#ifndef Q_WS_X11
-    }
-#endif
 
-    return result;
-}
-
-QSize QDWLayout::dockedSizeHint() const
-{
-    QDockWidget *q = qobject_cast<QDockWidget*>(parentWidget());
-
-    int fw = q->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, q);
-
-    QSize contentHint(0, 0);
+    QSize content;
     if (item_list[Content] != 0)
-        contentHint = item_list[Content]->sizeHint();
+        content = item_list[Content]->minimumSize();
 
-    int w = qMax(contentHint.width(), minimumTitleWidth()) + 2*fw;
-    int h = contentHint.height() + 2*fw + titleHeight();
-
-    return QSize(w, h);
-}
-
-QSize QDWLayout::dockedMinimumSize() const
-{
-    QDockWidget *q = qobject_cast<QDockWidget*>(parentWidget());
-
-    int fw = q->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, q);
-
-    QSize contentMin(0, 0);
-    if (item_list[Content] != 0)
-        contentMin = item_list[Content]->minimumSize();
-
-    int w = qMax(contentMin.width(), minimumTitleWidth()) + 2*fw;
-    int h = contentMin.height() + 2*fw + titleHeight();
-
-    return QSize(w, h);
+    return sizeFromContent(content, w->isFloating());
 }
 
 QDWLayout::QDWLayout(QWidget *parent)
@@ -342,32 +319,6 @@ int QDWLayout::titleHeight() const
     return qMax(buttonHeight + 2, titleFontMetrics.lineSpacing() + 2*mw);
 }
 
-void QDWLayout::updateMaxSize()
-{
-    QDockWidget *q = qobject_cast<QDockWidget*>(parentWidget());
-
-    QSize maxsz(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
-    if (QLayoutItem *item = item_list[Content])
-        maxsz = qSmartMaxSize(item->widget());
-    int fw = 0;
-    if (q->isFloating())
-        fw = q->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, q);
-
-#ifndef Q_WS_X11
-    if (q->isFloating()) {
-        if (QLayoutItem *item = item_list[Content])
-            q->setMaximumSize(maxsz);
-    } else
-#endif
-    {
-        maxsz += QSize(2*fw, _titleArea.height() + 2*fw);
-        maxsz.rwidth() = qMin(QWIDGETSIZE_MAX, maxsz.width());
-        maxsz.rheight() = qMin(QWIDGETSIZE_MAX, maxsz.height());
-    }
-
-    q->setMaximumSize(maxsz);
-}
-
 void QDWLayout::setGeometry(const QRect &geometry)
 {
     QDockWidget *q = qobject_cast<QDockWidget*>(parentWidget());
@@ -376,8 +327,9 @@ void QDWLayout::setGeometry(const QRect &geometry)
     if (q->isFloating()) {
         if (QLayoutItem *item = item_list[Content])
             item->setGeometry(geometry);
-    } else {
+    } else
 #endif
+    {
         int fw = 0;
         if (q->isFloating())
             fw = q->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, 0, q);
@@ -407,11 +359,16 @@ void QDWLayout::setGeometry(const QRect &geometry)
             r.adjust(fw, 0, -fw, -fw);
             item->setGeometry(r);
         }
-#ifndef Q_WS_X11
     }
-#endif
 
-    updateMaxSize();
+    QLayoutItem *item = item_list[Content];
+    if (item != 0 && q->isFloating()) {
+        QSize s = sizeFromContent(item->maximumSize(), true);
+        qDebug() << "QDWLayout::setGeo():" << item->maximumSize() << s;
+        q->setMaximumSize(s);
+    } else {
+        q->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+    }
 }
 
 /******************************************************************************

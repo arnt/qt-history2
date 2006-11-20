@@ -288,10 +288,10 @@ public:
     QLayoutItem *takeAt(int index);
     int count() const;
 
-    QSize dockedMinimumSize() const;
     QSize minimumSize() const;
-    QSize dockedSizeHint() const;
     QSize sizeHint() const;
+
+    QSize sizeFromContent(const QSize &content, bool floating) const;
 
     void setGeometry(const QRect &r);
 

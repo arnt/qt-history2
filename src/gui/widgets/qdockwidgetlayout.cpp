@@ -172,9 +172,23 @@ QSize QDockAreaLayoutItem::minimumSize() const
         if (QDWLayout *layout = qobject_cast<QDWLayout*>(w->layout())) {
             // the dockwidget may be floating, but we want to know what size hints
             // it will return when docked.
-            return qSmartMinSize(layout->dockedSizeHint(), layout->dockedMinimumSize(),
-                                    w->minimumSize(), w->maximumSize(),
-                                    w->sizePolicy());
+
+            QSize contentHint, contentMinHint, contentMin, contentMax;
+            QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
+            QWidget *content = layout->widget(QDWLayout::Content);
+            if (content != 0) {
+                contentHint = content->sizeHint();
+                contentMinHint = content->minimumSizeHint();
+                contentMin = content->minimumSize();
+                contentMax = content->maximumSize();
+                sp = content->sizePolicy();
+            }
+
+            return qSmartMinSize(layout->sizeFromContent(contentHint, false),
+                                    layout->sizeFromContent(contentMinHint, false),
+                                    layout->sizeFromContent(contentMin, false),
+                                    layout->sizeFromContent(contentMax, false),
+                                    sp);
         }
         return qSmartMinSize(widgetItem);
     }
@@ -190,8 +204,20 @@ QSize QDockAreaLayoutItem::maximumSize() const
         if (QDWLayout *layout = qobject_cast<QDWLayout*>(w->layout())) {
             // the dockwidget may be floating, but we want to know what size hints
             // it will return when docked.
-            return qSmartMaxSize(layout->dockedSizeHint(), w->minimumSize(),
-                                    w->maximumSize(), w->sizePolicy());
+            QSize contentHint, contentMin, contentMax;
+            QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
+            QWidget *content = layout->widget(QDWLayout::Content);
+            if (content != 0) {
+                contentHint = content->sizeHint();
+                contentMin = content->minimumSize();
+                contentMax = content->maximumSize();
+                sp = content->sizePolicy();
+            }
+
+            return qSmartMaxSize(layout->sizeFromContent(contentHint, false),
+                                    layout->sizeFromContent(contentMin, false),
+                                    layout->sizeFromContent(contentMax, false),
+                                    sp);
         }
         return qSmartMaxSize(widgetItem);
     }
@@ -496,6 +522,8 @@ void QDockAreaLayoutInfo::fitItems()
 
     int size = pick(o, rect.size());
     int min_size = pick(o, minimumSize());
+    int max_size = pick(o, maximumSize());
+    bool too_large = size > max_size;
 
     bool prev_gap = false;
     bool first = true;
@@ -530,9 +558,15 @@ void QDockAreaLayoutInfo::fitItems()
             ls.expansive = false;
             ls.stretch = 0;
         } else {
+            if (too_large) {
+                ls.maximumSize = QWIDGETSIZE_MAX;
+                ls.expansive = true;
+                too_large = false;
+            } else {
+                ls.maximumSize = pick(o, item.maximumSize());
+                ls.expansive = item.expansive(o);
+            }
             ls.minimumSize = pick(o, item.minimumSize());
-            ls.maximumSize = pick(o, item.maximumSize());
-            ls.expansive = item.expansive(o);
             if (ls.expansive) {
                 ls.sizeHint = item.size == -1 ? pick(o, item.sizeHint()) : item.size;
                 ls.stretch = item.size == -1 ? pick(o, item.sizeHint()) : item.size;
