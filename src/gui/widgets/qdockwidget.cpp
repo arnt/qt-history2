@@ -364,7 +364,6 @@ void QDWLayout::setGeometry(const QRect &geometry)
     QLayoutItem *item = item_list[Content];
     if (item != 0 && q->isFloating()) {
         QSize s = sizeFromContent(item->maximumSize(), true);
-        qDebug() << "QDWLayout::setGeo():" << item->maximumSize() << s;
         q->setMaximumSize(s);
     } else {
         q->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
