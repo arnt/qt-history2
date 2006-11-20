@@ -23,21 +23,33 @@ namespace {
     const QChar NewLineChar('\n');
     const QLatin1String EscapedNewLine("\\n");
 
-    // A validator that replaces newline characters by literal "\\n".
-    // While it is not possible to actually type a newline  characters,
-    // it can be pasted into the line edit.
-    class NewLineValidator : public QValidator {
+    // A validator that replaces offending strings
+    class ReplacementValidator : public QValidator {
     public:
-        NewLineValidator ( QObject * parent ) : QValidator(parent ) {}
+        ReplacementValidator (QObject * parent,
+                              const QString &offending,
+                              const QString &replacement);
         virtual void fixup ( QString & input ) const;
         virtual State validate ( QString & input, int &pos) const;
+    private:
+        const QString m_offending;
+        const QString m_replacement;
     };
 
-    void NewLineValidator::fixup ( QString & input ) const {
-        input.replace(NewLineChar,EscapedNewLine);
+    ReplacementValidator::ReplacementValidator (QObject * parent,
+                                        const QString &offending,
+                                        const QString &replacement) :
+      QValidator(parent ),
+      m_offending(offending),
+      m_replacement(replacement)
+    {
     }
 
-    QValidator::State NewLineValidator::validate ( QString & input, int &/* pos */) const {
+    void ReplacementValidator::fixup ( QString & input ) const {
+        input.replace(m_offending, m_replacement);
+    }
+
+    QValidator::State ReplacementValidator::validate ( QString & input, int &/* pos */) const {
         fixup (input);
         return Acceptable;
     }
@@ -50,7 +62,7 @@ namespace qdesigner_internal {
                                            QWidget *parent) :
         QWidget(parent),
         m_ValidationMode(validationMode),
-        m_lineEdit(new PropertyLineEdit(this, validationMode == ValidationNone))
+        m_lineEdit(new PropertyLineEdit(this, validationMode == ValidationMultiLine))
     {
         switch ( embeddingMode) {
         case EmbeddingNone:
@@ -66,9 +78,15 @@ namespace qdesigner_internal {
         }
 
         switch (m_ValidationMode) {
-        case ValidationNone:
-            // convert newlines pasted in to the LineEdit.
-            m_lineEdit->setValidator(new  NewLineValidator(m_lineEdit));
+        case ValidationMultiLine:
+            // Set a  validator that replaces newline characters by literal "\\n".
+            // While it is not possible to actually type a newline  characters,
+            // it can be pasted into the line edit.
+            m_lineEdit->setValidator(new  ReplacementValidator(m_lineEdit, NewLineChar, EscapedNewLine));
+            break;
+        case ValidationSingleLine:
+            // Set a  validator that replaces newline characters by a blank.
+            m_lineEdit->setValidator(new  ReplacementValidator(m_lineEdit, NewLineChar, QChar(' ')));
             break;
         case ValidationObjectName:
             setRegExpValidator("[_a-zA-Z][_a-zA-Z0-9]{,1023}");
@@ -123,9 +141,9 @@ namespace qdesigner_internal {
         return  m_lineEdit->sizeHint ();
     }
 
-    // Replace newline characters literal "\n"  for inline editing in mode ValidationNone
+    // Replace newline characters literal "\n"  for inline editing in mode ValidationMultiLine
     QString TextPropertyEditor::stringToEditorString(const QString &s, ValidationMode  validationMode) {
-        if (s.isEmpty() || validationMode != ValidationNone)
+        if (s.isEmpty() || validationMode != ValidationMultiLine)
             return s;
 
         QString rc(s);
@@ -137,12 +155,12 @@ namespace qdesigner_internal {
 
     }
 
-    // Replace literal "\n"  by actual new lines for inline editing in mode ValidationNone
+    // Replace literal "\n"  by actual new lines for inline editing in mode ValidationMultiLine
     // Note: As the properties are updated while the user types, it is important
     // that trailing slashes ('bla\') are not deleted nor ignored, else this will
     // cause jumping of the  cursor
     QString  TextPropertyEditor::editorStringToString(const QString &s, ValidationMode  validationMode) {
-        if (s.isEmpty() || validationMode != ValidationNone)
+        if (s.isEmpty() || validationMode != ValidationMultiLine)
             return s;
 
         QString rc(s);

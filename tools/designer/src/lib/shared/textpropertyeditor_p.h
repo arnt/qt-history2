@@ -53,13 +53,16 @@ namespace qdesigner_internal {
         };
 
         enum ValidationMode {
-            ValidationNone,
+            // Allow for multiline editing using literal "\n".
+            ValidationMultiLine,
+                // Single line mode, suppresses newlines
+                ValidationSingleLine,
                 // Allow only for identifier characters
                 ValidationObjectName,
                 // Allow only for identifier characters and colons
                 ValidationObjectNameScope };
 
-        TextPropertyEditor(EmbeddingMode embeddingMode = EmbeddingNone, ValidationMode validationMode = ValidationNone, QWidget *parent = 0);
+        TextPropertyEditor(EmbeddingMode embeddingMode = EmbeddingNone, ValidationMode validationMode = ValidationMultiLine, QWidget *parent = 0);
 
         QString text() const;
 
@@ -68,11 +71,11 @@ namespace qdesigner_internal {
         void setAlignment(Qt::Alignment alignment);
 
         // Replace newline characters by literal "\n" for inline editing
-        // in mode ValidationNone
-        static QString stringToEditorString(const QString &s, ValidationMode validationMode = ValidationNone);
+        // in mode ValidationMultiLine
+        static QString stringToEditorString(const QString &s, ValidationMode validationMode = ValidationMultiLine);
 
-        // Replace literal "\n"  by actual new lines in mode ValidationNone
-        static QString editorStringToString(const QString &s, ValidationMode validationMode = ValidationNone);
+        // Replace literal "\n"  by actual new lines in mode ValidationMultiLine
+        static QString editorStringToString(const QString &s, ValidationMode validationMode = ValidationMultiLine);
 
     signals:
         void textChanged(const QString &text);

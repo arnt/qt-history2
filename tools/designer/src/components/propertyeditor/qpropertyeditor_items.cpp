@@ -342,7 +342,7 @@ bool StringProperty::hasEditor() const
 
 QWidget *StringProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
-    TextPropertyEditor::ValidationMode validationMode = TextPropertyEditor::ValidationNone;
+    TextPropertyEditor::ValidationMode validationMode = TextPropertyEditor::ValidationMultiLine;
     if (checkValidObjectName()) {
         validationMode =  allowScope() ? TextPropertyEditor::ValidationObjectNameScope : TextPropertyEditor::ValidationObjectName;
     }
