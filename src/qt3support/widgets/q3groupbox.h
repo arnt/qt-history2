@@ -26,21 +26,27 @@ class Q_COMPAT_EXPORT Q3GroupBox : public QGroupBox
 {
     Q_OBJECT
 public:
-    enum DummyFrame { Box = QFrame::Box, Sunken = QFrame::Sunken, Plain = QFrame::Plain,
+    enum
+#if defined(Q_MOC_RUN)
+    FrameShape
+#else
+    DummyFrame
+#endif
+    {   Box = QFrame::Box, Sunken = QFrame::Sunken, Plain = QFrame::Plain,
         Raised = QFrame::Raised, MShadow=QFrame::MShadow, NoFrame = QFrame::NoFrame,
         Panel = QFrame::Panel, StyledPanel = QFrame::StyledPanel, HLine = QFrame::HLine,
         VLine = QFrame::VLine,
         WinPanel = QFrame::WinPanel,ToolBarPanel = QFrame::ToolBarPanel,
         MenuBarPanel = QFrame::MenuBarPanel, PopupPanel = QFrame::PopupPanel,
-        LineEditPanel = QFrame::LineEditPanel,TabWidgetPanel = QFrame::TabWidgetPanel, 
+        LineEditPanel = QFrame::LineEditPanel,TabWidgetPanel = QFrame::TabWidgetPanel,
         GroupBoxPanel = 0x0007,
         MShape = QFrame::MShape};
-    typedef DummyFrame FrameShape;
 
-private:
+    typedef DummyFrame FrameShape;
+    Q_ENUMS(FrameShape)
+
     Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation DESIGNABLE false)
     Q_PROPERTY(int columns READ columns WRITE setColumns DESIGNABLE false)
-
 
     Q_PROPERTY(QRect frameRect READ frameRect WRITE setFrameRect DESIGNABLE false)
     Q_PROPERTY(FrameShape frameShape READ frameShape WRITE setFrameShape)
@@ -93,8 +99,8 @@ public:
     void setLineWidth(int);
     int lineWidth() const;
     void setMargin(int margin) { setContentsMargins(margin, margin, margin, margin); }
-    int margin() const 
-    { int margin; int dummy; getContentsMargins(&margin, &dummy, &dummy, &dummy);  return margin; }    
+    int margin() const
+    { int margin; int dummy; getContentsMargins(&margin, &dummy, &dummy, &dummy);  return margin; }
     void setMidLineWidth(int);
     int midLineWidth() const;
 
