@@ -345,16 +345,16 @@ void QGLOffscreen::begin()
                     glDeleteTextures(1, &main_fbo_texture);
                     drawable.context()->makeCurrent();
                 }
-                
+
                 offscreen = new QGLFramebufferObject(needed_size.width(), needed_size.height());
-                
+
                 if (offscreen->isValid()) {
                     offscreen_texture = offscreen->texture();
                     offscreen->bind();
                     // add one more texture as a color attachment to FBO
                     glGenTextures(1, &main_fbo_texture);
                     glBindTexture(GL_TEXTURE_2D, main_fbo_texture);
-                    
+
 #ifndef Q_WS_QWS
                     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, needed_size.width(), needed_size.height(), 0,
                                  GL_RGBA, GL_UNSIGNED_BYTE, NULL);
@@ -422,6 +422,7 @@ void QGLOffscreen::end()
         bound = false;
 
         glDisable(GL_FRAGMENT_PROGRAM_ARB);
+        glReadBuffer(GL_BACK);
         glDrawBuffer(GL_BACK);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
@@ -440,7 +441,7 @@ void QGLOffscreen::end()
         glTexCoord2f(drawable.size().width()/qreal(sz.width()),
                      drawable.size().height()/qreal(sz.height()));
         glVertex2f(drawable.size().width(), 0.0);
-        
+
         glTexCoord2f(drawable.size().width()/qreal(sz.width()), 0.0);
         glVertex2f(drawable.size().width(),
                    drawable.size().height());
@@ -482,9 +483,12 @@ inline void QGLOffscreen::bind(const QRectF &rect)
             glBindTexture(GL_TEXTURE_2D, main_fbo_texture);
             glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, drawable.size().width(), drawable.size().height());
             offscreen->bind();
+
+            glReadBuffer(GL_COLOR_ATTACHMENT1_EXT);
+
             bound = true;
         }
-        
+
         glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
     }
 #endif
@@ -495,7 +499,7 @@ inline void QGLOffscreen::release()
 #ifndef Q_WS_QWS
     DEBUG_ONCE_STR("QGLOffscreen: releasing offscreen");
     if (use_fbo) {
-            glDrawBuffer(GL_COLOR_ATTACHMENT1_EXT);
+        glDrawBuffer(GL_COLOR_ATTACHMENT1_EXT);
     } else {
         // copy buffer to offscreen
         int left = qMax(0, static_cast<int>(screen_rect.left()));
@@ -1015,7 +1019,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     }
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-    d->offscreen.begin();    
+    d->offscreen.begin();
 
     const QColor &c = d->drawable.backgroundColor();
     glClearColor(c.redF(), c.greenF(), c.blueF(), 1.0);
