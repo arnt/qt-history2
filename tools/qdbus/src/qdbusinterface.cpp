@@ -147,7 +147,7 @@ QDBusInterfacePrivate::~QDBusInterfacePrivate()
             printf( "%d", reply.value() );          // prints 4
     \endcode
 
-    \sa {dbusxml2cpp.html}{The dbusxml2cpp compiler}
+    \sa {QtDBus XML compiler (qdbusxml2cpp)}
 */
 
 /*!
