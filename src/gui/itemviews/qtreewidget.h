@@ -286,6 +286,9 @@ public:
     bool isItemSpanning(const QTreeWidgetItem *item) const;
     void setItemSpanning(const QTreeWidgetItem *item, bool span);
 
+    QTreeWidgetItem *itemAbove(const QTreeWidgetItem *item) const;
+    QTreeWidgetItem *itemBelow(const QTreeWidgetItem *item) const;
+
 public Q_SLOTS:
     void scrollToItem(const QTreeWidgetItem *item,
                       QAbstractItemView::ScrollHint hint = EnsureVisible);

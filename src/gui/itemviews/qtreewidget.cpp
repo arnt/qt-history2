@@ -2863,13 +2863,40 @@ bool QTreeWidget::isItemSpanning(const QTreeWidgetItem *item) const
 void QTreeWidget::setItemSpanning(const QTreeWidgetItem *item, bool span)
 {
     Q_D(QTreeWidget);
-    if (item == d->model()->headerItem) {
-        // We can't set header items to spanning
-        return;
-    } else {
-        const QModelIndex index = d->index(item);
-        setRowSpanning(index.row(), index.parent(), span);
-    }
+    if (item == d->model()->headerItem)
+        return; // We can't set header items to spanning
+    const QModelIndex index = d->index(item);
+    setRowSpanning(index.row(), index.parent(), span);
+}
+
+/*!
+  \since 4.3
+
+  Returns the item above the given \a item.
+*/
+QTreeWidgetItem *QTreeWidget::itemAbove(const QTreeWidgetItem *item) const
+{
+    Q_D(const QTreeWidget);
+    if (item == d->model()->headerItem)
+        return 0;
+    const QModelIndex index = d->index(item);
+    const QModelIndex above = indexAbove(index);
+    return d->item(index);
+}
+
+/*!
+  \since 4.3
+
+  Returns the item below the given\a item.
+*/
+QTreeWidgetItem *QTreeWidget::itemBelow(const QTreeWidgetItem *item) const
+{
+    Q_D(const QTreeWidget);
+    if (item == d->model()->headerItem)
+        return 0;
+    const QModelIndex index = d->index(item);
+    const QModelIndex below = indexBelow(index);
+    return d->item(index);
 }
 
 /*!
