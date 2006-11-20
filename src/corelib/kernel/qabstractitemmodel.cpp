@@ -2246,6 +2246,8 @@ void QAbstractItemModel::changePersistentIndexList(const QModelIndexList &from,
                                                    const QModelIndexList &to)
 {
     Q_D(QAbstractItemModel);
+    if (d->persistent.indexes.isEmpty())
+        return;
     QVector<QPersistentModelIndexData*> persistentIndexes = d->persistent.indexes;
     QVector<QPersistentModelIndexData*> toBeReinserted;
     QVector<QPersistentModelIndexData*>::iterator begin = d->persistent.indexes.begin();
