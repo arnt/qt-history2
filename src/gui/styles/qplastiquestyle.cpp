@@ -3050,7 +3050,9 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             font.setPointSize(font.pointSize() - 1);
             painter->setFont(font);
             painter->setPen(dockWidget->palette.text().color());
-            painter->drawText(titleRect, title, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
+            painter->drawText(titleRect,
+                              int(Qt::AlignHCenter | Qt::AlignVCenter | Qt::TextShowMnemonic),
+                              title);
 
             painter->restore();
         }

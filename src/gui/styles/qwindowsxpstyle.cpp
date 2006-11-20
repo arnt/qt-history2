@@ -2260,7 +2260,7 @@ case CE_DockWidgetTitle:
 
                 if (!titleText.isEmpty()) {
                     drawItemText(p, titleRect,
-                                Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
+                                Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic, dwOpt->palette,
                                 dwOpt->state & State_Enabled, titleText,
                                 QPalette::WindowText);
                 }

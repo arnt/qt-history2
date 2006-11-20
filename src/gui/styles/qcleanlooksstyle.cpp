@@ -1547,7 +1547,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
                 QString titleText = painter->fontMetrics().elidedText(dwOpt->title, Qt::ElideRight, titleRect.width());
                 drawItemText(painter,
                              titleRect,
-                             Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
+                             Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic, dwOpt->palette,
                              dwOpt->state & State_Enabled, titleText,
                              QPalette::WindowText);
                 }

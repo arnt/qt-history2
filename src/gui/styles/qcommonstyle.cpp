@@ -1472,7 +1472,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             if (!dwOpt->title.isEmpty()) {
                 const int indent = p->fontMetrics().descent();
                 drawItemText(p, r.adjusted(indent + 1, 1, -indent - 1, -1),
-                              Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
+                              Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic, dwOpt->palette,
                               dwOpt->state & State_Enabled, dwOpt->title,
                               QPalette::WindowText);
             }

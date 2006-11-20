@@ -3046,7 +3046,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 p->setFont(qt_app_fonts_hash()->value("QToolButton", p->font()));
                 const int indent = p->fontMetrics().descent();
                 drawItemText(p, dwOpt->rect.adjusted(indent + 1, 1, -indent - 1, -1),
-                              Qt::AlignCenter, dwOpt->palette,
+                              Qt::AlignCenter | Qt::TextShowMnemonic, dwOpt->palette,
                               dwOpt->state & State_Enabled, dwOpt->title,
                               QPalette::WindowText);
                 p->setFont(oldFont);
