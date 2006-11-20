@@ -1090,6 +1090,11 @@ bool QItemDelegate::editorEvent(QEvent *event,
     if (!(flags & Qt::ItemIsUserCheckable) || !(option.state & QStyle::State_Enabled))
         return false;
 
+    // make sure that we have a check state
+    QVariant value = index.data(Qt::CheckStateRole);
+    if (!value.isValid())
+        return false;
+
     // make sure that we have the right event type
     if ((event->type() == QEvent::MouseButtonRelease)
         || (event->type() == QEvent::MouseButtonDblClick)) {
@@ -1100,8 +1105,11 @@ bool QItemDelegate::editorEvent(QEvent *event,
                                                     option.rect.width(), option.rect.height()));
         if (!checkRect.contains(static_cast<QMouseEvent*>(event)->pos()))
             return false;
+
+        // eat the double click events inside the check rect
         if (event->type() == QEvent::MouseButtonDblClick)
             return true;
+
     } else if (event->type() == QEvent::KeyPress) {
         if (static_cast<QKeyEvent*>(event)->key() != Qt::Key_Space
          && static_cast<QKeyEvent*>(event)->key() != Qt::Key_Select)
@@ -1109,11 +1117,6 @@ bool QItemDelegate::editorEvent(QEvent *event,
     } else {
         return false;
     }
-
-    // make sure that we have a check state
-    QVariant value = index.data(Qt::CheckStateRole);
-    if (!value.isValid())
-        return false;
 
     Qt::CheckState state = (static_cast<Qt::CheckState>(value.toInt()) == Qt::Checked
                             ? Qt::Unchecked : Qt::Checked);
