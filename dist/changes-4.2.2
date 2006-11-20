@@ -14,6 +14,13 @@ Configure / Compilation
    * Fix compilation when an unsupported version of MySQL is auto-detected
      by the configure script
 
+   * Fixed QtDBus linking errors when compiling with the Intel C++
+     Compiler for Linux.
+
+   * Fixed compilation when using Q_ARG and Q_RETURN_ARG macros with
+     template types.
+
+
 Demos / Examples
 
   * Fixed crash in settingseditor example resulting from entering certain input to
@@ -43,6 +50,10 @@ General improvements
 - QTextOption
   * Respect the textDirection property
 
+- QTextCodec
+
+  * Fixed race-condition in QTextCodec::codecForLocale().
+
 - Text handling:
   * Fix a bug in the Bidi algorithm
 
@@ -57,6 +68,10 @@ General improvements
   * Fixed a data corruption bug when reading large blocks from devices
     opened in Text mode.
   * Fixed seeking to positions larger than INT_MAX.
+
+- QFileSystemWatcher:
+
+  * Fixed compilation on Linux/HPPA.
 
 - QLineEdit:
 
@@ -79,6 +94,9 @@ General improvements
 
    * Fixed a bug where the stacking order of widgets would get out of sync
      and cause parts of or entire widgets not to be updated properly.
+
+  * Fixed QWidget::setParent() to not recreate the native window ID of
+    all children widgets when reparenting the parent to top-level.
 
 - Accessibility
 
@@ -114,6 +132,9 @@ General improvements
 - QToolButton
   * Fixed an issue where toolbutton popup menus were positioned incorrectly
     on multi-screen setups.
+
+- QObject
+  * Fixed memory leak when calling QObject::moveToThread(0).
 
 - Item views
 
@@ -326,6 +347,23 @@ Platform-Specific changes
   * Fixed x errors when scaling/copying null pixmaps
   * Fixed an issue where bitmap/XLFD fonts where drawn garbled
 
+  * Fixed X error when resizing to its minimum size.
+
+  * Fixed widgets painted all black if the system palette contains X11
+    color names.
+
+  * Fixed loading plugins build in debug mode and linked against the
+    default (release) build.
+
+  * Fixed input of non-ascii chars in Qt widgets when application was
+    run with empty LANG environment variable.
+
+  * Fixed QApplication::hasPendingEvents() returning true even if no
+    events were pending when using the Glib event dispatcher.
+
+  * Fixed rare event loop dead-lock when posting many custom events to
+    a receiver in another thread.
+
 - Qt/Win:
 
   * Fixed drawing of the 0xad character with symbol fonts
@@ -338,6 +376,11 @@ Platform-Specific changes
   * Fixed a lock-up in QAbstractSocket::waitForReadyRead() when 0 was passed
     as a timeout value.
 
+  * Fixed "Invalid HANDLE" exception when non-Qt thread that owns Qt
+    objects terminates.
+
+  * Fixed potential crash when calling QCoreApplication::applicationFilePath().
+
 - Qt/Mac:
 
   * Fix flickering/disappearing widgets when the Qt::WA_MacMetalStyle attribute is set
@@ -348,6 +391,16 @@ Platform-Specific changes
   * Return the correct QList<QUrl> when dragging Finder items to Qt applications.
   * Document how one can debug with debug frameworks.
   * Fix text selection in PDF generator
+  * Fixed bug where the cursor would not switch to the arrow cursor
+    over child widgets witch had that cursor set.
+  * FramelessWindow modal dialogs had a title bar and was movable,
+    now they don't.
+  * Fix crash when enabling "Accessibility for assistive devices" in
+    System Preferences while a Qt application was running.
+  * Fix painting error where a one-pixel border at the bottom, right
+    side of widgets wasn't being (re)painted correctly.
+  * Fix item view scrolling bug, cell widgets weren't scrolled
+    properly.
 
 - Qtopia Core
 
@@ -371,19 +424,6 @@ Platform-Specific changes
   * Fixed compilation of the MySQL driver when using the minimum configuration.
   * Fixed a bug in the LinuxFB driver which prevented it to switch back to
     text mode if the application termintated using exit().
-
-- Qt/Mac
-
-   * Fixed bug where the cursor would not switch to the arrow cursor
-     over child widgets witch had that cursor set.
-   * FramelessWindow modal dialogs had a title bar and was movable,
-     now they don't.
-   * Fix crash when enabling "Accessibility for assistive devices" in
-     System Preferences while a Qt application was running.
-   * Fix painting error where a one-pixel border at the bottom, right
-     side of widgets wasn't being (re)painted correctly.
-   * Fix item view scrolling bug, cell widgets weren't scrolled
-     properly.
 
 ****************************************************************************
 *                             QTestLib                                     *
