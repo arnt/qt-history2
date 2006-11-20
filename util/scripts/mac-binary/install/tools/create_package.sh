@@ -100,7 +100,7 @@ done
 # Do the tool frameworks (Gah, this is copy-past from the libraries create_package.sh).
 FRAMEWORK_DIR="$OUTDIR/Library/Frameworks"
 mkdir -p "$FRAMEWORK_DIR"
-for lib in QtDesigner QtDesignerComponents QtTest QtAssistantClient; do
+for lib in QtDesigner QtDesignerComponents QtTest QtAssistant; do
     if [ ! -d "$BINDIR/lib/${lib}.framework" ]; then
 	echo "No framework for $lib!"
         continue
