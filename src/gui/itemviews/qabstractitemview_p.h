@@ -280,6 +280,7 @@ public:
     QAbstractItemView::ScrollMode horizontalScrollMode;
 
     bool currentIndexSet;
+    bool scrollToDisabled;
 };
 
 #include <qvector.h>
