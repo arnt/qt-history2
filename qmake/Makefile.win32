@@ -22,7 +22,7 @@ CFLAGS	     = -c -Fo$@ \
               -W3 -nologo -O2 \
               -I. -Igenerators -Igenerators\unix -Igenerators\win32 -Igenerators\mac \
               -I..\src\corelib\arch\generic -I..\include -I..\src\tools -I..\include\QtCore \
-              -I..\mkspecs\win32-msvc \
+              -I..\mkspecs\win32-msvc -I..\src\3rdparty\md5 \
               -DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL \
               -DQT_NO_COMPRESS -DUNICODE -DHAVE_QCONFIG_CPP -DQT_BUILD_QMAKE -DQT_NO_THREAD \
               -DQT_NO_QOBJECT -DQT_NO_GEOM_VARIANT -DQT_NO_DATASTREAM \
@@ -45,7 +45,7 @@ CFLAGS	    = -c -o$@ \
 	-tWR -w -w-hid -w-use -O1 \
 	-I. -Igenerators -Igenerators\unix -Igenerators\win32 -Igenerators\mac \
 	-I..\src\corelib\arch\generic -I..\include -I..\src\tools -I..\include\QtCore \
-	-I..\mkspecs\win32-borland \
+	-I..\mkspecs\win32-borland -I..\src\3rdparty\md5 \
 	-DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL \
 	-DQT_NO_COMPRESS -DUNICODE -DHAVE_QCONFIG_CPP -DQT_BUILD_QMAKE -DQT_NO_THREAD \
 	-DQT_NO_QOBJECT -DQT_NO_GEOM_VARIANT
@@ -58,7 +58,7 @@ ADDCLEAN    = qmake.tds
 
 #qmake code
 OBJS        = project.obj main.obj makefile.obj unixmake.obj unixmake2.obj mingw_make.obj \
-              option.obj winmakefile.obj projectgenerator.obj property.obj meta.obj qtmd5.obj \
+              option.obj winmakefile.obj projectgenerator.obj property.obj meta.obj md5.obj \
               makefiledeps.obj metamakefile.obj xmloutput.obj pbuilder_pbx.obj
 
 !IFNDEF QMAKE_OPENSOURCE_EDITION
@@ -159,7 +159,7 @@ clean::
 	-del projectgenerator.obj
 	-del property.obj
 	-del meta.obj
-	-del qtmd5.obj
+	-del md5.obj
 	-del makefiledeps.obj
 	-del metamakefile.obj
 	-del xmloutput.obj
@@ -331,8 +331,8 @@ msvc_vcproj.obj: generators/win32/msvc_vcproj.cpp
 msvc_objectmodel.obj: generators/win32/msvc_objectmodel.cpp
 	$(CXX) $(CXXFLAGS) generators/win32/msvc_objectmodel.cpp
 
-qtmd5.obj: qtmd5.cpp
-	$(CXX) $(CXXFLAGS) qtmd5.cpp
+md5.obj: ..\src\3rdparty\md5\md5.cpp
+	$(CXX) $(CXXFLAGS) ..\src\3rdparty\md5\md5.cpp
 
 project.obj: project.cpp project.h option.h
 	$(CXX) $(CXXFLAGS) project.cpp

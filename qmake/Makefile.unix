@@ -8,7 +8,7 @@ LFLAGS = @QMAKE_LFLAGS@
 #qmake code
 OBJS=project.o property.o main.o makefile.o unixmake2.o unixmake.o  \
      mingw_make.o option.o winmakefile.o projectgenerator.o \
-     meta.o qtmd5.o makefiledeps.o metamakefile.o xmloutput.o pbuilder_pbx.o \
+     meta.o md5.o makefiledeps.o metamakefile.o xmloutput.o pbuilder_pbx.o \
      $(COMMERCIAL_OBJS)
 
 #qt code
@@ -20,7 +20,7 @@ QOBJS=qchar.o qstring.o qstringmatcher.o qtextstream.o qiodevice.o qglobal.o \
       qlocale.o qlinkedlist.o qurl.o $(QTOBJS)
 
 #all sources, used for the depend target
-DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makefile.cpp generators/unix/unixmake2.cpp \
+DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp generators/makefile.cpp generators/unix/unixmake2.cpp \
            generators/unix/unixmake.cpp generators/win32/winmakefile.cpp generators/projectgenerator.cpp \
 	   generators/mac/pbuilder_pbx.cpp generators/mac/xmloutput.cpp generators/metamakefile.cpp \
 	   generators/makefiledeps.cpp option.cpp generators/win32/mingw_make.cpp generators/makefile.cpp \
@@ -42,11 +42,13 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makef
 	   $(SOURCE_PATH)/src/corelib/io/qtemporaryfile.cpp $(SOURCE_PATH)/src/corelib/kernel/qmetatype.cpp \
 	   $(SOURCE_PATH)/src/corelib/tools/qvsnprintf.cpp $(SOURCE_PATH)/src/corelib/tools/qunicodetables.cpp \
 	   $(SOURCE_PATH)/src/corelib/io/qsettings.cpp $(SOURCE_PATH)/src/corelib/kernel/qvariant.cpp \
-	   $(SOURCE_PATH)/src/corelib/global/qlibraryinfo.cpp $(QTSRCS) $(COMMERCIAL_DEPEND_SRC)
+	   $(SOURCE_PATH)/src/corelib/global/qlibraryinfo.cpp $(SOURCE_PATH)/src/3rdparty/md5/md5.cpp \
+	   $(QTSRCS) $(COMMERCIAL_DEPEND_SRC)
 
 CPPFLAGS = -I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac \
 	   -I$(SOURCE_PATH)/src/corelib/arch/generic -I$(BUILD_PATH)/include -I$(BUILD_PATH)/include/QtCore \
 	   -I$(SOURCE_PATH)/include -I$(SOURCE_PATH)/include/QtCore -I$(BUILD_PATH)/src/corelib/global \
+	   -I$(SOURCE_PATH)/src/3rdparty/md5 \
 	   -DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_NO_COMPONENT -DQT_NO_STL -DQT_BUILD_QMAKE \
 	   -DQT_NO_COMPRESS -I$(QMAKESPEC) -DHAVE_QCONFIG_CPP -DQT_NO_THREAD -DQT_NO_QOBJECT \
            -DQT_NO_GEOM_VARIANT $(OPENSOURCE_CXXFLAGS)
@@ -198,8 +200,8 @@ main.o: main.cpp project.h
 option.o: option.cpp option.h $(BUILD_PATH)/src/corelib/global/qconfig.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) option.cpp
 
-qtmd5.o: qtmd5.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) qtmd5.cpp
+md5.o:  $(SOURCE_PATH)/src/3rdparty/md5/md5.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/3rdparty/md5/md5.cpp
 
 metamakefile.o: generators/metamakefile.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) generators/metamakefile.cpp

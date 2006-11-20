@@ -8,6 +8,7 @@ CFLAGS	    =	-c -o$@ -O \
 		-I..\src\corelib\arch\generic \
 		-I..\include -I ..\include\QtCore \
 		-I..\src\tools -I..\mkspecs\win32-g++ \
+		-I..\src\3rdparty\md5 \
 		-DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT \
 	       	-DQT_NODLL -DQT_NO_STL -DQT_NO_COMPRESS -DUNICODE -DHAVE_QCONFIG_CPP \
 	       	-DQT_BUILD_QMAKE -DQT_NO_THREAD -DQT_NO_QOBJECT -DQT_NO_GEOM_VARIANT -DQT_NO_DATASTREAM
@@ -20,7 +21,7 @@ ADDCLEAN    =
 
 #qmake code
 OBJS        = project.o main.o makefile.o unixmake.o unixmake2.o mingw_make.o \
-              option.o winmakefile.o projectgenerator.o property.o meta.o qtmd5.o \
+              option.o winmakefile.o projectgenerator.o property.o meta.o md5.o \
               makefiledeps.o metamakefile.o xmloutput.o pbuilder_pbx.o
 
 ifndef QMAKE_OPENSOURCE_EDITION
@@ -225,8 +226,8 @@ msvc_vcproj.o: generators/win32/msvc_vcproj.cpp
 msvc_objectmodel.o: generators/win32/msvc_objectmodel.cpp
 	$(CXX) $(CXXFLAGS) generators/win32/msvc_objectmodel.cpp
 
-qtmd5.o: qtmd5.cpp
-	$(CXX) $(CXXFLAGS) qtmd5.cpp
+md5.o: ..\src\3rdparty\md5\md5.cpp
+	$(CXX) $(CXXFLAGS) ..\src\3rdparty\md5\md5.cpp
 
 project.o: project.cpp project.h option.h
 	$(CXX) $(CXXFLAGS) project.cpp

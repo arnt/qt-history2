@@ -14,7 +14,7 @@
 #include "pbuilder_pbx.h"
 #include "option.h"
 #include "meta.h"
-#include "qtmd5.h"
+#include "md5.h"
 #include <qdir.h>
 #include <qregexp.h>
 #include <qdebug.h>

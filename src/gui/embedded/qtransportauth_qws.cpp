@@ -17,7 +17,7 @@
 #ifndef QT_NO_SXE
 
 #include "../../3rdparty/md5/md5.h"
-#include "../../3rdparty/md5/md5.c"
+#include "../../3rdparty/md5/md5.cpp"
 #include "qwsutils_qws.h"
 #include "qwscommand_qws_p.h"
 #include "qwindowsystem_qws.h"
@@ -1314,7 +1314,7 @@ static int hmac_md5(
         unsigned char * digest        /* caller digest to be filled in */
         )
 {
-        MD5_CTX context;
+        MD5Context context;
         unsigned char k_ipad[65];    /* inner padding - * key XORd with ipad */
         unsigned char k_opad[65];    /* outer padding - * key XORd with opad */
         int i;

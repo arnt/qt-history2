@@ -10,11 +10,11 @@ SOURCES += project.cpp property.cpp main.cpp generators/makefile.cpp \
            generators/unix/unixmake2.cpp generators/unix/unixmake.cpp meta.cpp \
            option.cpp generators/win32/winmakefile.cpp generators/win32/mingw_make.cpp \
            generators/makefiledeps.cpp generators/metamakefile.cpp generators/mac/pbuilder_pbx.cpp \
-           qtmd5.cpp generators/xmloutput.cpp
+           generators/xmloutput.cpp
 HEADERS += project.h property.h generators/makefile.h \
            generators/unix/unixmake.h meta.h option.h cachekeys.h \
            generators/win32/winmakefile.h generators/projectgenerator.h \
-           qtmd5.h generators/makefiledeps.h generators/metamakefile.h generators/mac/pbuilder_pbx.h \
+           generators/makefiledeps.h generators/metamakefile.h generators/mac/pbuilder_pbx.h \
            generators/xmloutput.h
 contains(QT_EDITION, OpenSource) {
    DEFINES += QMAKE_OPENSOURCE_EDITION
@@ -63,7 +63,8 @@ bootstrap { #Qt code
 	qlibraryinfo.cpp \
 	qvariant.cpp \
         qvector.cpp \
-        qvsnprintf.cpp
+        qvsnprintf.cpp \
+        md5.cpp
 
    HEADERS+= \
         qbitarray.h \
@@ -92,7 +93,8 @@ bootstrap { #Qt code
         qtextstream.h \
         qurl.h \
         quuid.h \
-        qvector.h
+        qvector.h \
+        md5.h
 
     unix {
         SOURCES += qfsfileengine_unix.cpp

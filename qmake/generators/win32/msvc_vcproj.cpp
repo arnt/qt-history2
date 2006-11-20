@@ -13,7 +13,7 @@
 
 #include "msvc_vcproj.h"
 #include "option.h"
-#include "qtmd5.h" // SG's MD5 addon
+#include "md5.h" // SG's MD5 addon
 #include "xmloutput.h"
 #include <qdir.h>
 #include <qregexp.h>
