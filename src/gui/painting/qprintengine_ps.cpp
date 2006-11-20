@@ -162,10 +162,12 @@ QPSPrintEnginePrivate::~QPSPrintEnginePrivate()
 {
 }
 
+#include <QDebug>
+
 static void ps_r7(QPdf::ByteStream& stream, const char * s, int l)
 {
     int i = 0;
-    uchar line[80];
+    uchar line[84];
     int col = 0;
 
     while(i < l) {
