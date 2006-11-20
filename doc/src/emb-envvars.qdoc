@@ -17,10 +17,20 @@
     \title Qtopia Core Environment Variables
     \ingroup qtopiacore
 
-    These environment variables are relevant to Qtopia Core users.
+    These environment variables are relevant to \l {Qtopia Core}
+    users.
 
     \table
     \header \o Variable \o Description
+
+    \row
+    \o \bold POINTERCAL_FILE \target POINTERCAL_FILE
+
+    \o Specifies the file containing the data used to calibrate the
+    pointer device.
+
+    See also QWSCalibratedMouseHandler and \l {Qtopia Core Pointer
+    Handling}.
 
     \row
     \o \bold QT_ONSCREEN_PAINT \target QT_ONSCREEN_PAINT
@@ -69,7 +79,7 @@
     \o \bold QWS_SIZE \target QWS_SIZE
     \o
 
-    Specifies the size of Qtopia Core's window which is centered
+    Specifies the size of \l {Qtopia Core}'s window which is centered
     within the screen. For example, if the current shell is bash, ksh,
     zsh or sh:
 

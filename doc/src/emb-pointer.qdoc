@@ -77,6 +77,11 @@
     detect the plugin, loading the driver into the server application
     at runtime.
 
+    If you are creating a driver for a device that needs calibration
+    or noise reduction, such as a touchscreen, derive from the
+    QWSCalibratedMouseHandler subclass instead to take advantage of
+    its calibration functionality.
+
     \if defined(QTOPIA_PHONE)
         For a tutorial on how to add a new keyboard driver plug-in
         see: \l {Tutorial: Implementing a Device Plug-in}.
