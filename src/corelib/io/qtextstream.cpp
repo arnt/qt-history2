@@ -1173,7 +1173,7 @@ qint64 QTextStream::pos() const
     Whitespace characters are all characters for which
     QChar::isSpace() returns true.
 
-    \sa operator>>(QChar &), operator>>(char &)
+    \sa operator>>()
 */
 void QTextStream::skipWhiteSpace()
 {

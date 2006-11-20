@@ -410,15 +410,15 @@ void QUiLoader::addPluginPath(const QString &path)
 }
 
 /*!
-    Creates a new widget with the given \a parent and \a name
-    using the class specified by \a className. You can use this
-    function to create any of the widgets returned by the
-    availableWidgets() function.
+  Creates a new widget with the given \a parent and \a name
+  using the class specified by \a className. You can use this
+  function to create any of the widgets returned by the
+  availableWidgets() function.
 
-    The function is also used internally by the QUiLoader class whenever
-    it has to create a widget. For that reason, you can subclass the
-    QUiLoader class and reimplement this function to intervene the
-    process of constructing an user interface or widget.
+  The function is also used internally by the QUiLoader class whenever
+  it has to create a widget. For that reason, you can subclass the
+  QUiLoader class and reimplement this function to intervene in the
+  process of constructing a user interface or widget.
 
   \sa availableWidgets(), load()
 */

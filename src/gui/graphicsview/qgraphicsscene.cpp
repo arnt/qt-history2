@@ -1075,15 +1075,15 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QPointF &pos) const
 }
 
 /*!
-    \fn QList<QGraphicsItem *> QGraphicsScene::items(const QRectF &rectangle) const
+    \fn QList<QGraphicsItem *> QGraphicsScene::items(const QRectF &rectangle, Qt::ItemSelectionMode mode) const
 
     \overload
 
     Returns all visible items that, depending on \a mode, are either inside or
-    intersect with the rectangle \a rect.
+    intersect with the specified \a rectangle.
 
     The default value for \a mode is Qt::IntersectsItemShape; all items whose
-    exact shape intersects with or is contained by \a rect are returned.
+    exact shape intersects with or is contained by \a rectangle are returned.
 
     \sa itemAt()
 */

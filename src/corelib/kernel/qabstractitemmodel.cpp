@@ -991,8 +991,9 @@ void QAbstractItemModelPrivate::reset()
     \bold{If you want selections to be handled properly, you must ensure that
     you call these functions.}
 
-    \sa {Model/View Programming}, QModelIndex, QAbstractItemView,
-        {Using Drag and Drop with Item Views}, {Simple DOM Model Example},
+    \sa {Model Classes}, {Model Subclassing Reference}, QModelIndex,
+        QAbstractItemView, {Using Drag and Drop with Item Views},
+        {Simple DOM Model Example},
         {Simple Tree Model Example}
 */
 
@@ -1426,7 +1427,9 @@ QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
 
 /*!
     Handles the \a data supplied by a drag and drop operation that ended with
-    the given \a action.
+    the given \a action. Returns true if the data and action can be handled
+    by the model; otherwise returns false.
+
     Although the specified \a row, \a column and \a parent indicate the location of
     an item in the model where the operation ended, it is the responsibility of the
     view to provide a suitable location for where the data should be inserted.
@@ -1812,8 +1815,9 @@ QVariant QAbstractItemModel::headerData(int section, Qt::Orientation orientation
 }
 
 /*!
-  Sets the \a role for the header \a section to \a value.
-  The \a orientation gives the orientation of the header.
+  Sets the data for the given \a role and \a section in the header with
+  the specified \a orientation to the \a value supplied.
+  Returns true if the header's data was updated; otherwise returns false.
 
   Note that the headerDataChanged() signal must be emitted explicitly
   when reimplementing this function.
@@ -2345,7 +2349,8 @@ QModelIndexList QAbstractItemModel::persistentIndexList() const
        call endRemoveColumns() \e{immediately afterwards}.
     \endlist
 
-    \sa {Model/View Programming}, QAbstractItemModel, QAbstractListModel,
+    \sa {Model Classes}, {Model Subclassing Reference}, QAbstractItemModel,
+        QAbstractListModel,
         {Pixelator Example}
 */
 
@@ -2473,8 +2478,8 @@ bool QAbstractTableModel::hasChildren(const QModelIndex &parent) const
        call endRemoveRows() \e{immediately afterwards}.
     \endlist
 
-    \sa {Model/View Programming}, QAbstractItemView, QAbstractTableModel,
-        {Item Views Puzzle Example}
+    \sa {Model Classes}, {Model Subclassing Reference}, QAbstractItemView,
+        QAbstractTableModel, {Item Views Puzzle Example}
 */
 
 /*!

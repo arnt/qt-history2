@@ -79,7 +79,7 @@
     \row
     \o
 
-    If you are writing a driver for a device with an graphic I/O
+    If you are writing a driver for a device with a graphic I/O
     controller but no framebuffer support, the
     QCustomRasterPaintDevice::memory() function must return 0 (meaning
     no buffer available). Then, whenever a color or buffer should be

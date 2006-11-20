@@ -1014,11 +1014,13 @@ QAction::setData(const QVariant &data)
 
 
 /*!
-  Updates the status bar for \a widget. If widget is an appropriate
-  QStatusBar found for for this action based on the parent heirarchy will be used.
+  Updates the relevant status bar for the \a widget specified by sending a
+  QStatusTipEvent to its parent widget. Returns true if an event was sent;
+  otherwise returns false.
+
+  If a null widget is specified, the event is sent to the action's parent.
 
   \sa statusTip
-
 */
 bool
 QAction::showStatusText(QWidget *widget)

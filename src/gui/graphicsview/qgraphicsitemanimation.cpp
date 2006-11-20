@@ -469,8 +469,11 @@ void QGraphicsItemAnimation::reset()
 
 /*!
   \fn void QGraphicsItemAnimation::beforeAnimationStep(qreal step)
+
   This method is meant to be overridden by subclassed that needs to
-  execute additional code before a new step takes place.
+  execute additional code before a new step takes place. The
+  animation \a step is provided for use in cases where the action
+  depends on its value.
 */
 void QGraphicsItemAnimation::beforeAnimationStep(qreal step)
 {
@@ -479,8 +482,11 @@ void QGraphicsItemAnimation::beforeAnimationStep(qreal step)
 
 /*!
   \fn void QGraphicsItemAnimation::afterAnimationStep(qreal step)
-  This method is meant to be overridden by subclassed that needs to
-  execute additional code after a new step has taken place.
+
+  This method is meant to be overridden in subclasses that need to
+  execute additional code after a new step has taken place. The
+  animation \a step is provided for use in cases where the action
+  depends on its value.
 */
 void QGraphicsItemAnimation::afterAnimationStep(qreal step)
 {

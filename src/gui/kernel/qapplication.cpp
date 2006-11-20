@@ -1044,7 +1044,7 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
     \brief the application style sheet
     \since 4.2
 
-    \sa QWidget::setStyle(), {Customizing Widgets using Style Sheets}
+    \sa QWidget::setStyle(), {Qt Style Sheets}
 */
 QString QApplication::styleSheet() const
 {
@@ -3590,11 +3590,13 @@ bool QApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)
 /*!
   \fn bool QSessionManager::allowsErrorInteraction()
 
-  This is similar to allowsInteraction(), but also tells the session
-  manager that an error occurred. Session managers may give error
-  interaction request higher priority, which means that it is more likely
-  that an error interaction is permitted. However, you are still not
-  guaranteed that the session manager will allow interaction.
+  Returns true if error interaction is permitted; otherwise returns false.
+
+  This is similar to allowsInteraction(), but also enables the application
+  to tell the user about any errors that occur. Session managers
+  may give error interaction requests higher priority, which means that it
+  is more likely that an error interaction is permitted. However, you are
+  still not guaranteed that the session manager will allow interaction.
 
   \sa allowsInteraction(), release(), cancel()
 */
