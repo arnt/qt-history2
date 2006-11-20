@@ -2231,7 +2231,10 @@ void QAbstractItemModel::changePersistentIndex(const QModelIndex &from, const QM
         d->persistent.indexes.erase(it);
         data->index = to;
         it = qLowerBound(begin, end, data, QPersistentModelIndexDataLessThan());
-        d->persistent.indexes.insert(it, data);
+        if (it != end)
+            d->persistent.indexes.insert(it, data);
+        else
+            d->persistent.indexes.append(data);
     }
 }
 
@@ -2273,7 +2276,10 @@ void QAbstractItemModel::changePersistentIndexList(const QModelIndexList &from,
     for (int j = 0; j < toBeReinserted.count(); ++j) {
         QVector<QPersistentModelIndexData*>::iterator it =
             qLowerBound(begin, end, toBeReinserted.at(j), QPersistentModelIndexDataLessThan());
-        d->persistent.indexes.insert(it, toBeReinserted.at(j));
+        if (it != end)
+            d->persistent.indexes.insert(it, toBeReinserted.at(j));
+        else 
+            d->persistent.indexes.append(toBeReinserted.at(j));
     }
 }
 
