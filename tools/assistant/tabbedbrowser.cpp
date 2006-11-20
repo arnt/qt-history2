@@ -454,6 +454,7 @@ void TabbedBrowser::openTabMenu(const QPoint& pos)
     QMenu *m = new QMenu(tabBar);
     QAction *new_action = m->addAction("New Tab");
     QAction *close_action = m->addAction("Close Tab");
+    QAction *close_others_action = m->addAction("Close Other Tabs");
     QAction *action_picked = m->exec(tabBar->mapToGlobal(pos));
     if (action_picked) {
         if (action_picked == new_action) {
@@ -469,7 +470,27 @@ void TabbedBrowser::openTabMenu(const QPoint& pos)
                     break;
                 }
             }
-
+        } else if (action_picked == close_others_action) {
+            int current_tab_index = -1;
+            for (int i=0; i< tabBar->count(); ++i) {
+                if (tabBar->tabRect(i).contains(pos)) {
+                    current_tab_index = i;
+                    break;
+                }
+            }
+            for (int i=tabBar->count()-1; i>=0; --i) {
+                if (i == current_tab_index) {
+                    continue;
+                } else {
+                    HelpWindow *win = static_cast<HelpWindow*>(ui.tab->widget(i));
+                    mainWindow()->removePendingBrowser(win);
+                    QTimer::singleShot(0, win, SLOT(deleteLater()));
+                    if (i < current_tab_index)
+                        --current_tab_index;
+                }
+            }
+            ui.tab->cornerWidget(Qt::TopRightCorner)->setEnabled(ui.tab->count() > 1);
+            emit tabCountChanged(ui.tab->count());
         }
     }
     delete m;
