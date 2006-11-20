@@ -1611,7 +1611,7 @@ if [ "$OPT_SHADOW" = "yes" ]; then
 fi
 
 # symlink files from src/gui/embedded neccessary to build qvfb
-if [ "$Edition" = "Trolltech" ]; then
+if [ "$Edition" = "Trolltech" -o "$Edition" = "Qtopia" ]; then
     for f in qvfbhdr.h qlock_p.h qlock.cpp qwssignalhandler_p.h qwssignalhandler.cpp; do
 	dest="${relpath}/tools/qvfb/${f}"
 	rm -f "$dest"
