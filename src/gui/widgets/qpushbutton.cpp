@@ -197,6 +197,10 @@ public:
     can always be clicked from the keyboard by pressing Spacebar when
     the button has focus.
 
+    If the default property is unset on the current default button
+    while the dialog is visible, a new default will be assigned the
+    next time a pushbutton in the dialog receives focus.
+
     This property's default is false.
 */
 
