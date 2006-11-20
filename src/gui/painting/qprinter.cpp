@@ -190,8 +190,9 @@ void QPrinterPrivate::createDefaultEngines()
     and HighResolution, use of this value may lead to non-portable
     printer code.
 
-    \value HighResolution Use printer resolution on Windows, and set
-    the resolution of the PostScript driver to 600 dpi.
+    \value HighResolution On Windows, sets the printer resolution to that
+    defined for the printer in use. For PostScript printing, sets the
+    resolution of the PostScript driver to 1200 dpi.
 */
 
 /*!
