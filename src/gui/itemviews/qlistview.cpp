@@ -1168,7 +1168,7 @@ int QListView::verticalOffset() const
                     qWarning("QListView: Vertical scrollbar is out of bounds");
                     return 0;
                 }
-                return d->staticListView->flowPositions.at(value);
+                return d->staticListView->flowPositions.at(value) - d->spacing();
             }
         }
     }
@@ -2134,12 +2134,11 @@ QRect QStaticListViewBase::mapToViewport(const QRect &rect) const
     Qt::ScrollBarPolicy horizontalPolicy = qq->horizontalScrollBarPolicy();
     QSize csize = (horizontalPolicy == Qt::ScrollBarAlwaysOff ? vsize : contentsSize);
     if (flow() == QListView::TopToBottom) {
-        if (isRightToLeft()) // Adjust the rect by expanding the left edge
-            result.setLeft(result.right() - qMax(csize.width(), vsize.width()));
-        else // Adjust the rect by expanding the right edge
-            result.setWidth(qMax(csize.width(), vsize.width()));
+        result.setLeft(spacing());
+        result.setWidth(qMax(csize.width(), vsize.width()) - 2 * spacing());
     } else { // LeftToRight
-        result.setHeight(qMax(csize.height(), vsize.height()));
+        result.setTop(spacing());
+        result.setHeight(qMax(csize.height(), vsize.height()) - 2 * spacing());
     }
 
     return result;
