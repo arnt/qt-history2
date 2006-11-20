@@ -131,6 +131,7 @@ private slots:
     void setFixedSize();
 
     void winId();
+    void qobject_castInDestroyedSlot();
 
     // tests QWidget::setGeometry() on windows only
     void setWindowGeometry_data();
@@ -2823,6 +2824,32 @@ void tst_QWidget::winId()
     winId3 = w3->winId();
 
     delete parent;
+}
+
+bool wasWidget;
+class DestroyedSlotChecker : public QObject
+{
+Q_OBJECT
+    public slots:
+    void destroyedSlot(QObject *object)
+    {
+        wasWidget = (qobject_cast<QWidget *>(object) != 0 || object->isWidgetType());
+    }
+};
+
+/*
+    Test that qobject_cast<QWidget*> returns 0 in a slot
+    connected to QObject::destroyed.
+*/
+void tst_QWidget::qobject_castInDestroyedSlot()
+{
+    DestroyedSlotChecker checker;
+    QWidget *widget = new QWidget();
+
+    QObject::connect(widget, SIGNAL(destroyed(QObject *)), &checker, SLOT(destroyedSlot(QObject *)));
+    delete widget;
+
+    QVERIFY(wasWidget == false);
 }
 
 void tst_QWidget::setWindowGeometry_data()
