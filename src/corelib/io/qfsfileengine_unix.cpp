@@ -258,9 +258,17 @@ QString QFSFileEngine::currentPath(const QString &)
     QString result;
     QT_STATBUF st;
     if(QT_STAT(".", &st) == 0) {
+#if defined(__GLIBC__) && !defined(PATH_MAX)
+        char *currentName = ::get_current_dir_name();
+        if (currentName) {
+            result = QFile::decodeName(QByteArray(currentName));
+            ::free(currentName);
+        }
+#else
         char currentName[PATH_MAX+1];
         if(::getcwd(currentName, PATH_MAX))
             result = QFile::decodeName(QByteArray(currentName));
+#endif
 #if defined(QT_DEBUG)
         if(result.isNull())
             qWarning("QDir::currentPath: getcwd() failed");
@@ -469,6 +477,18 @@ QString QFSFileEngine::fileName(FileName file) const
         }
         return ret;
     } else if(file == CanonicalName || file == CanonicalPathName) {
+#if defined(__GLIBC__) && !defined(PATH_MAX)
+      char *cur = ::get_current_dir_name();
+      if (cur) {
+	QString ret;
+	char *tmp = ::canonicalize_file_name(QFile::encodeName(d->file).data());
+	if (tmp) {
+	  ret = QFile::decodeName(tmp);
+	  ::free(tmp);
+	}
+	::chdir(cur); // always make sure we go back to the current dir
+	::free(cur);
+#else
         char cur[PATH_MAX+1];
         if(::getcwd(cur, PATH_MAX)) {
             QString ret;
@@ -478,6 +498,7 @@ QString QFSFileEngine::fileName(FileName file) const
             if(::realpath(QFile::encodeName(d->file).data(), real))
                 ret = QFile::decodeName(QByteArray(real));
             ::chdir(cur); // always make sure we go back to the current dir
+#endif
             //check it
             QT_STATBUF st;
             if(QT_STAT(QFile::encodeName(ret), &st) != 0)
@@ -497,8 +518,32 @@ QString QFSFileEngine::fileName(FileName file) const
         return fileName(AbsoluteName);
     } else if(file == LinkName) {
         if (d->isSymlink()) {
+#if defined(__GLIBC__) && !defined(PATH_MAX)
+#define PATH_CHUNK_SIZE 256
+            char *s = 0;
+            int len = -1;
+            int size = PATH_CHUNK_SIZE;
+
+            while (1) {
+                s = (char *) ::realloc(s, size);
+                if (s == 0) {
+                    len = -1;
+                    break;
+                }
+                len = ::readlink(QFile::encodeName(d->file), s, size);
+                if (len < 0) {
+                    ::free(s);
+                    break;
+                }
+                if (len < size) {
+                    break;
+                }
+                size *= 2;
+            }
+#else
             char s[PATH_MAX+1];
             int len = readlink(QFile::encodeName(d->file), s, PATH_MAX);
+#endif
             if(len > 0) {
                 QString ret;
                 if (S_ISDIR(d->st.st_mode) && s[0] != '/') {
@@ -510,6 +555,9 @@ QString QFSFileEngine::fileName(FileName file) const
                 }
                 s[len] = '\0';
                 ret += QFile::decodeName(QByteArray(s));
+#if defined(__GLIBC__) && !defined(PATH_MAX)
+		::free(s);
+#endif
 
                 if (!ret.startsWith(QLatin1Char('/'))) {
                     if (d->file.startsWith(QLatin1Char('/'))) {

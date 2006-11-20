@@ -111,7 +111,7 @@
 #  define Q_OS_AIX
 #elif defined(__Lynx__)
 #  define Q_OS_LYNX
-#elif defined(__GNU_HURD__)
+#elif defined(__GNU__)
 #  define Q_OS_HURD
 #elif defined(__DGUX__)
 #  define Q_OS_DGUX
