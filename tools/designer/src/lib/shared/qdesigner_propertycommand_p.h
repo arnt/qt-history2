@@ -57,6 +57,10 @@ public:
 
     inline void setNewValue(const QVariant &newValue)
     { m_newValue = newValue; }
+    
+    int id() const;
+    bool mergeWith(const QUndoCommand *other);
+
 public:
     virtual void redo();
     virtual void undo();

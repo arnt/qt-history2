@@ -194,7 +194,7 @@ void SetPropertyCommand::undo()
     Q_ASSERT(m_propertySheet);
     Q_ASSERT(m_index != -1);
 
-    QVariant value = setFormProperty(formWindow(), qobject_cast<QWidget *>(m_object), m_propertyName, m_oldValue);
+    const QVariant value = setFormProperty(formWindow(), qobject_cast<QWidget *>(m_object), m_propertyName, m_oldValue);
 
     m_propertySheet->setProperty(m_index, value);
     m_propertySheet->setChanged(m_index, m_changed);
@@ -229,6 +229,29 @@ void SetPropertyCommand::undo()
     }
 }
 
+int SetPropertyCommand::id() const
+{
+    return 1976;
+}
+
+bool SetPropertyCommand::mergeWith(const QUndoCommand *other)
+{
+    if (id() != other->id())
+        return false;
+
+    if (const SetPropertyCommand *cmd = static_cast<const SetPropertyCommand*>(other)) {
+        if (cmd->m_propertyName == m_propertyName && cmd->object() == object()) {
+            if (!formWindow()->isDirty())
+                return false;
+
+            m_newValue = cmd->newValue();
+            return true;
+        }
+    }
+
+    return false;
+
+}
 
 // ---- ResetPropertyCommand ----
 ResetPropertyCommand::ResetPropertyCommand(QDesignerFormWindowInterface *formWindow)
@@ -280,7 +303,7 @@ void ResetPropertyCommand::redo()
     if (m_propertySheet->reset(m_index)) {
         new_value = m_propertySheet->property(m_index);
     } else {
-        int item_idx =  formWindow()->core()->widgetDataBase()->indexOfObject(m_object);
+        const int item_idx =  formWindow()->core()->widgetDataBase()->indexOfObject(m_object);
         if (item_idx == -1) {
             new_value = m_oldValue; // We simply don't know the value in this case
         } else {
