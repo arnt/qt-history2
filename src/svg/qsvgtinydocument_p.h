@@ -87,11 +87,11 @@ private:
                             const QRectF &desired,
                             const QRectF &current);
 private:
-    QSize  m_size;
+    mutable QSize  m_size;
     bool   m_widthPercent;
     bool   m_heightPercent;
 
-    QRectF m_viewBox;
+    mutable QRectF m_viewBox;
 
     QHash<QString, QSvgRefCounter<QSvgFont> > m_fonts;
 
@@ -103,6 +103,16 @@ private:
 
 inline QSize QSvgTinyDocument::size() const
 {
+    //if the size is busted we need to resolve it
+    if (m_size.width() <= 0 ||
+        m_size.height() <= 0) {
+        QMatrix matx = QMatrix();
+        QRectF rect = transformedBounds(matx);
+        if (m_viewBox.isNull())
+            m_viewBox = rect;
+        m_size = rect.size().toSize();
+    }
+        
     return m_size;
 }
 

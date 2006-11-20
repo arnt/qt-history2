@@ -65,7 +65,7 @@ QSvgTinyDocument * QSvgTinyDocument::load(const QByteArray &contents)
     reader.setContentHandler(&handler);
     reader.setErrorHandler(&handler);
 
-    QSvgTinyDocument *doc = 0;    
+    QSvgTinyDocument *doc = 0;
     QXmlInputSource xmlInputSource;
     xmlInputSource.setData(contents);
     if (reader.parse(xmlInputSource)) {
@@ -125,7 +125,7 @@ void QSvgTinyDocument::draw(QPainter *p, const QString &id,
 
     adjustWindowBounds(p, boundingWindow, bounds);
     matx = p->worldMatrix();
-    
+
     //XXX set default style on the painter
     p->setPen(Qt::NoPen);
     p->setBrush(Qt::black);
@@ -140,7 +140,7 @@ void QSvgTinyDocument::draw(QPainter *p, const QString &id,
         parentRevertQueue.enqueue(parent);
         parent = parent->parent();
     }
-    
+
     foreach(QSvgNode *par, parentApplyStack) {
         par->applyStyle(p);
     }
@@ -148,11 +148,11 @@ void QSvgTinyDocument::draw(QPainter *p, const QString &id,
     //the position
     QMatrix om = p->worldMatrix();
     p->setWorldMatrix(matx);
-    
+
     node->draw(p);
 
     p->setWorldMatrix(om);
-    
+
     foreach(QSvgNode *par, parentRevertQueue) {
         par->revertStyle(p);
     }
@@ -215,7 +215,7 @@ void QSvgTinyDocument::draw(QPainter *p)
     draw(p, QRectF());
 }
 
-void QSvgTinyDocument::adjustWindowBounds(QPainter *p, 
+void QSvgTinyDocument::adjustWindowBounds(QPainter *p,
                                           const QRectF &d,
                                           const QRectF &c)
 {
@@ -240,10 +240,10 @@ void QSvgTinyDocument::adjustWindowBounds(QPainter *p,
                      desired.y()-c2.y());
         p->scale(desired.width()/current.width(),
                  desired.height()/current.height());
-       
+
         //qDebug()<<"two "<<mat<<", pt = "<<QPointF(desired.x()-c2.x(),
         //                                          desired.y()-c2.y());
-        
+
     }
 }
 
@@ -257,7 +257,7 @@ QRectF QSvgTinyDocument::boundsOnElement(const QString &id) const
     if (!node) {
         node = this;
     }
-    
+
     bounds = node->transformedBounds(matx);
     return bounds;
 }
@@ -273,7 +273,7 @@ QMatrix QSvgTinyDocument::matrixForElement(const QString &id) const
 {
     QSvgNode *node = scopeNode(id);
     QMatrix mat;
-    
+
     if (!node) {
         qDebug("Couldn't find node %s. Skipping rendering.", qPrintable(id));
         return mat;
@@ -292,7 +292,7 @@ QMatrix QSvgTinyDocument::matrixForElement(const QString &id) const
     }
     node->applyStyle(&dummy);
     mat = dummy.worldMatrix();
-    
+
     return mat;
 }
 
@@ -301,7 +301,7 @@ int QSvgTinyDocument::currentFrame() const
     double runningPercentage = qMin(m_time.elapsed()/double(m_animationDuration), 1.);
 
     int totalFrames = m_fps * m_animationDuration;
-    
+
     return int(runningPercentage * totalFrames);
 }
 

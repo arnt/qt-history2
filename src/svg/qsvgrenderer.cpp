@@ -137,7 +137,7 @@ bool QSvgRenderer::isValid() const
 QSize QSvgRenderer::defaultSize() const
 {
     Q_D(const QSvgRenderer);
-    if (d->render)
+    if (d->render) 
         return d->render->size();
     else
         return QSize();

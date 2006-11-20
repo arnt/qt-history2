@@ -1176,7 +1176,10 @@ static void parseTransform(QSvgNode *node,
     QString value = attributes.value(QLatin1String("transform"));
     QString myId = attributes.value(QLatin1String("id"));
     value = value.trimmed();
+    if (value.isEmpty())
+        return;
     QMatrix matrix = parseTransformationMatrix(value);
+
     if (!matrix.isIdentity()) {
         node->appendStyleProperty(new QSvgTransformStyle(matrix), myId);
     }
@@ -1375,6 +1378,7 @@ static bool parsePathDataFast(const QString &dataStr, QPainterPath &path)
                 }
                 x = x0 = arg[0];
                 y = y0 = arg[1];
+
                 path.moveTo(x0, y0);
                 arg.pop_front(); arg.pop_front();
             }
@@ -2530,6 +2534,7 @@ static QSvgNode *createPathNode(QSvgNode *parent,
 
     //XXX do error handling
     parsePathDataFast(data, qpath);
+
     QSvgNode *path = new QSvgPath(parent, qpath);
     return path;
 }
