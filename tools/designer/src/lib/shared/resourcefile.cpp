@@ -14,6 +14,7 @@
 /*
 TRANSLATOR qdesigner_internal::ResourceModel
 */
+#include <windows.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
@@ -620,10 +621,10 @@ QModelIndex ResourceModel::prefixIndex(const QModelIndex &sel_idx) const
 
 QModelIndex ResourceModel::addNewPrefix()
 {
-    int i = 1;
-    QString prefix;
-    do prefix = tr("/new/prefix%1").arg(i++);
-    while (m_resource_file.contains(prefix));
+    int i = 0;
+    QString prefix = tr("/new/prefix1");
+    while (m_resource_file.contains(prefix))
+        prefix = tr("/new/prefix%1").arg((++i)+1);
 
     beginInsertRows(QModelIndex(), i, i);
     m_resource_file.addPrefix(prefix);
