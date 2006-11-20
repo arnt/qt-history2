@@ -2011,7 +2011,7 @@ void QTreeView::rowsInserted(const QModelIndex &parent, int start, int end)
 
         updateGeometries();
         d->viewport->update();
-    } else if ((parentItem != -1) || d->viewItems.at(parentItem).expanded) {
+    } else if ((parentItem != -1) && d->viewItems.at(parentItem).expanded) {
         d->doDelayedItemsLayout();
     }
     QAbstractItemView::rowsInserted(parent, start, end);
