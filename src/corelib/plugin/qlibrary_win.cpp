@@ -22,24 +22,26 @@ extern QString qt_error_string(int code);
 
 bool QLibraryPrivate::load_sys()
 {
-    QString attempt = fileName;
+    // Tell windows to not try to append the .DLL extension by appending a dot.
+    // This is to ensure that we set the correct qualifiedFileName if we succeed
+    QString attempt = fileName + QLatin1Char('.');
 
     //avoid 'Bad Image' messagebox
     UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
     QT_WA({
-            pHnd = LoadLibraryW((TCHAR*)attempt.utf16());
-        } , {
-              pHnd = LoadLibraryA(QFile::encodeName(attempt).data());
-          });
+        pHnd = LoadLibraryW((TCHAR*)attempt.utf16());
+    } , {
+        pHnd = LoadLibraryA(QFile::encodeName(attempt).data());
+    });
 
     if (pluginState != IsAPlugin) {
-        if (!pHnd) {
-            attempt += ".dll";
+        if (!pHnd && ::GetLastError() == ERROR_MOD_NOT_FOUND) {
+            attempt += "dll.";
             QT_WA({
-                    pHnd = LoadLibraryW((TCHAR*)attempt.utf16());
-                } , {
-                      pHnd = LoadLibraryA(QFile::encodeName(attempt).data());
-                  });
+                pHnd = LoadLibraryW((TCHAR*)attempt.utf16());
+            } , {
+                pHnd = LoadLibraryA(QFile::encodeName(attempt).data());
+            });
         }
     }
 
@@ -48,6 +50,7 @@ bool QLibraryPrivate::load_sys()
         errorString = QLibrary::tr("QLibrary::load_sys: Cannot load %1 (%2)").arg(fileName).arg(::qt_error_string());
     }
     if (pHnd) {
+        attempt.chop(1);    // remove the dot at the end
         qualifiedFileName = attempt;
         errorString.clear();
     }

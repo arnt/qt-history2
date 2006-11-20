@@ -12,7 +12,8 @@
 #include <qlibrary.h>
 #include <QtCore/QRegExp>
 
-// Helper macros to let us know if some suffixes are valid
+
+// Helper macros to let us know if some suffixes and prefixes are valid
 #define bundle_VALID    false
 #define dylib_VALID     false
 #define sl_VALID        false
@@ -28,11 +29,13 @@
 # define dylib_VALID    true
 # define so_VALID       true
 # define SUFFIX         ".dylib"
+# define PREFIX         "lib"
 
 #elif defined(Q_OS_HPUX) && !defined(__ia64)
 # undef sl_VALID
 # define sl_VALID       true
 # define SUFFIX         ".sl"
+# define PREFIX         "lib"
 
 #elif defined(Q_OS_AIX)
 # undef a_VALID
@@ -40,18 +43,26 @@
 # define a_VALID        true
 # define so_VALID       true
 # define SUFFIX         ".a"
+# define PREFIX         "lib"
 
 #elif defined(Q_OS_WIN)
 # undef dll_VALID
 # define dll_VALID      true
 # define SUFFIX         ".dll"
+# define PREFIX         ""
 
 #else  // all other Unix
 # undef so_VALID
 # define so_VALID       true
 # define SUFFIX         ".so"
+# define PREFIX         "lib"
 #endif
 
+static QString sys_qualifiedLibraryName(const QString &fileName)
+{
+    QString currDir = QDir::currentPath();
+    return currDir + "/" + PREFIX + fileName + SUFFIX;
+}
 
 //TESTED_CLASS=
 //TESTED_FILES=corelib/plugin/qlibrary.h corelib/plugin/qlibrary.cpp
@@ -87,6 +98,8 @@ private slots:
     void errorString();
     void loadHints();
     void loadHints_data();
+    void fileName_data();
+    void fileName();
 
 };
 
@@ -155,6 +168,7 @@ void tst_QLibrary::load_data()
     QTest::newRow( "ok01 (with suffix)" ) << currDir + "/mylib.dll" << (bool)TRUE;
     QTest::newRow( "ok02 (with non-standard suffix)" ) << currDir + "/mylib.dl2" << (bool)TRUE;
     QTest::newRow( "ok03 (with many dots)" ) << currDir + "/system.trolltech.test.mylib.dll" << (bool)TRUE;
+    QTest::newRow( "ok04 (no extension)" ) << currDir + "/mylib_noextension" << (bool)TRUE;
 # elif defined Q_OS_UNIX
     QTest::newRow( "ok01 (with suffix)" ) << currDir + "/libmylib" SUFFIX << (bool)TRUE;
     QTest::newRow( "ok02 (with non-standard suffix)" ) << currDir + "/libmylib.so2" << (bool)TRUE;
@@ -394,6 +408,37 @@ void tst_QLibrary::loadHints()
     } else {
 	QVERIFY( !ok );
     }
+}
+
+void tst_QLibrary::fileName_data()
+{
+    QTest::addColumn<QString>("libName");
+    QTest::addColumn<QString>("expectedFilename");
+
+    QString currDir = QDir::currentPath();
+    QTest::newRow( "ok00" ) << currDir + "/mylib" 
+                            << sys_qualifiedLibraryName(QLatin1String("mylib"));
+    QTest::newRow( "ok01" ) << currDir + "/mylib_noextension" 
+                            << currDir + "/mylib_noextension";
+    QTest::newRow( "ok02" ) << sys_qualifiedLibraryName(QLatin1String("mylib"))
+                            << sys_qualifiedLibraryName(QLatin1String("mylib"));
+}
+
+void tst_QLibrary::fileName()
+{
+    QFETCH( QString, libName);
+    QFETCH( QString, expectedFilename);
+
+    QLibrary lib(libName);
+    bool ok = lib.load();
+    if (!ok) {
+        qDebug() << lib.errorString();
+    }
+    
+    QVERIFY(ok);
+    QString e = lib.fileName();
+    QCOMPARE(lib.fileName(), expectedFilename);
+
 }
 
 QTEST_APPLESS_MAIN(tst_QLibrary)

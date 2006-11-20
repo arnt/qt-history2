@@ -14,12 +14,13 @@ win32-borland: DEFINES += WIN32_BORLAND
 
 # For windows test if we can load a filename with multiple dots.
 win32: {
-    QMAKE_POST_LINK = copy /Y ..\mylib.dll ..\mylib.dl2 && \
-    copy /Y ..\mylib.dll ..\system.trolltech.test.mylib.dll
+    QMAKE_POST_LINK = copy /Y $(DESTDIR)$(TARGET) ..\mylib.dl2 && \
+    copy /Y $(DESTDIR)$(TARGET) ..\system.trolltech.test.mylib.dll && \
+    copy /Y $(DESTDIR)$(TARGET) ..\mylib_noextension
 }
 unix: {
     QMAKE_POST_LINK = cp -f $(DESTDIR)$(TARGET) ../libmylib.so2 && \
-    cp -f $(DESTDIR)$(TARGET) ../system.trolltech.test.mylib.so
+    cp -f $(DESTDIR)$(TARGET) ../system.trolltech.test.mylib.so && \
 }
 
 #no special install rule for the library used by test
