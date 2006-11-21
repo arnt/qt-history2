@@ -27,19 +27,20 @@ bool QLibraryPrivate::load_sys()
     //avoid 'Bad Image' messagebox
     UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
     QT_WA({
-            pHnd = LoadLibraryW((TCHAR*)attempt.utf16());
-        } , {
-              pHnd = LoadLibraryA(QFile::encodeName(attempt).data());
-          });
+        pHnd = LoadLibraryW((TCHAR*)attempt.utf16());
+    } , {
+        pHnd = LoadLibraryA(QFile::encodeName(attempt).data());
+    });
 
+    
     if (pluginState != IsAPlugin) {
-        if (!pHnd) {
+        if (!pHnd && ::GetLastError() == ERROR_MOD_NOT_FOUND) {
             attempt += ".dll";
             QT_WA({
-                    pHnd = LoadLibraryW((TCHAR*)attempt.utf16());
-                } , {
-                      pHnd = LoadLibraryA(QFile::encodeName(attempt).data());
-                  });
+                pHnd = LoadLibraryW((TCHAR*)attempt.utf16());
+            } , {
+                pHnd = LoadLibraryA(QFile::encodeName(attempt).data());
+            });
         }
     }
 

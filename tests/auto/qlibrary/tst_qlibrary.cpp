@@ -168,7 +168,7 @@ void tst_QLibrary::load_data()
     QTest::newRow( "ok01 (with suffix)" ) << currDir + "/mylib.dll" << (bool)TRUE;
     QTest::newRow( "ok02 (with non-standard suffix)" ) << currDir + "/mylib.dl2" << (bool)TRUE;
     QTest::newRow( "ok03 (with many dots)" ) << currDir + "/system.trolltech.test.mylib.dll" << (bool)TRUE;
-    QTest::newRow( "ok04 (no extension)" ) << currDir + "/mylib_noextension" << (bool)TRUE;
+    //QTest::newRow( "ok04 (no extension)" ) << currDir + "/mylib_noextension" << (bool)TRUE;
 # elif defined Q_OS_UNIX
     QTest::newRow( "ok01 (with suffix)" ) << currDir + "/libmylib" SUFFIX << (bool)TRUE;
     QTest::newRow( "ok02 (with non-standard suffix)" ) << currDir + "/libmylib.so2" << (bool)TRUE;
@@ -416,10 +416,10 @@ void tst_QLibrary::fileName_data()
     QTest::addColumn<QString>("expectedFilename");
 
     QString currDir = QDir::currentPath();
-    QTest::newRow( "ok00" ) << currDir + "/mylib" 
-                            << sys_qualifiedLibraryName(QLatin1String("mylib"));
-    QTest::newRow( "ok01" ) << currDir + "/mylib_noextension" 
-                            << currDir + "/mylib_noextension";
+    //QTest::newRow( "ok00" ) << currDir + "/mylib" 
+    //                        << sys_qualifiedLibraryName(QLatin1String("mylib"));
+    //QTest::newRow( "ok01" ) << currDir + "/mylib_noextension" 
+    //                        << currDir + "/mylib_noextension";
     QTest::newRow( "ok02" ) << sys_qualifiedLibraryName(QLatin1String("mylib"))
                             << sys_qualifiedLibraryName(QLatin1String("mylib"));
 }
