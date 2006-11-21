@@ -26,12 +26,11 @@
 // sdk
 #include <QtDesigner/QtDesigner>
 #include <qdesigner_formbuilder_p.h>
-#include <QtGui/QUndoCommand>
 #include <pluginmanager_p.h>
 #include <abstractlanguage.h>
 
 #include <QtAssistant/QAssistantClient>
-
+#include <QtGui/QAction>
 #include <QtGui/QStyleFactory>
 #include <QtGui/QAction>
 #include <QtGui/QActionGroup>
@@ -531,7 +530,7 @@ void QDesignerActions::createForm(const QString &fileName)
 
 bool QDesignerActions::openForm()
 {
-    QStringList fileNames = QFileDialog::getOpenFileNames(core()->topLevel(), tr("Open Form"),
+    const QStringList fileNames = QFileDialog::getOpenFileNames(core()->topLevel(), tr("Open Form"),
         m_openDirectory, tr("Designer UI files (*.ui);;All Files (*)"), 0, QFileDialog::DontUseSheet);
 
     if (fileNames.isEmpty())
@@ -565,11 +564,11 @@ bool QDesignerActions::saveFormAs(QDesignerFormWindowInterface *fw)
         if (saveFile.isEmpty())
             return false;
 
-        QFileInfo fInfo(saveFile);
+        const QFileInfo fInfo(saveFile);
         if (fInfo.suffix().isEmpty() && !fInfo.fileName().endsWith(QChar('.')))
             saveFile.append(QLatin1String(".ui"));
 
-        QFileInfo fi(saveFile);
+        const QFileInfo fi(saveFile);
         if (!fi.exists())
             break;
 
@@ -693,7 +692,7 @@ void QDesignerActions::previewForm(QAction *action)
         QStyle *style = 0;
 
         if (action != 0 && action->objectName().startsWith(QLatin1String("__qt_action_style_"))) {
-            QString styleName = action->objectName().mid(QString::fromUtf8("__qt_action_style_").count());
+            const QString styleName = action->objectName().mid(QString::fromUtf8("__qt_action_style_").count());
             style = QStyleFactory::create(styleName);
 
             if (style != 0) {
@@ -702,7 +701,7 @@ void QDesignerActions::previewForm(QAction *action)
                 if (style->metaObject()->className() != QApplication::style()->metaObject()->className())
                     widget->setPalette(style->standardPalette());
 
-                QList<QWidget*> lst = qFindChildren<QWidget*>(widget);
+                const QList<QWidget*> lst = qFindChildren<QWidget*>(widget);
                 foreach (QWidget *w, lst) {
                     if (w->windowType() == Qt::Popup)
                         w->setPalette(style->standardPalette());
@@ -734,23 +733,13 @@ void QDesignerActions::fixActionContext()
     }
 }
 
-static QSize checkSize(const QSize &size)
-{
-    QSize s = size;
-    if (s.width() > 0xFFFFFF)
-        s.setWidth(0xFFFFFF);
-    if (s.height() > 0xFFFFFF)
-        s.setHeight(0xFFFFFF);
-    return s;
-}
-
 bool QDesignerActions::readInForm(const QString &fileName)
 {
     QString fn = fileName;
 
     // First make sure that we don't have this one open already.
     QDesignerFormWindowManagerInterface *formWindowManager = core()->formWindowManager();
-    int totalWindows = formWindowManager->formWindowCount();
+    const int totalWindows = formWindowManager->formWindowCount();
     for (int i = 0; i < totalWindows; ++i) {
         QDesignerFormWindowInterface *w = formWindowManager->formWindow(i);
         if (w->fileName() == fn) {
@@ -826,7 +815,7 @@ bool QDesignerActions::readInForm(const QString &fileName)
 
 static QString createBackup(const QString &fileName)
 {
-    QString suffix = QLatin1String(".bak");
+    const QString suffix = QLatin1String(".bak");
     QString backupFile = fileName + suffix;
     QFileInfo fi(backupFile);
     int i = 0;
@@ -855,7 +844,7 @@ bool QDesignerActions::writeOutForm(QDesignerFormWindowInterface *fw, const QStr
     if (fi.exists())
         backupFile = createBackup(saveFile);
 
-    QByteArray utf8Array = fw->contents().toUtf8();
+    const QByteArray utf8Array = fw->contents().toUtf8();
     m_workbench->updateBackup(fw);
 
     QFile f(saveFile);
@@ -880,9 +869,9 @@ bool QDesignerActions::writeOutForm(QDesignerFormWindowInterface *fw, const QStr
             removeBackup(backupFile);
             return false;
         } else if (box.clickedButton() == switchButton) {
-            QString fileName = QFileDialog::getSaveFileName(fw, tr("Save form as"),
-                                                            QDir::current().absolutePath(),
-                                                            QLatin1String("*.ui"));
+            const QString fileName = QFileDialog::getSaveFileName(fw, tr("Save form as"),
+                                                                  QDir::current().absolutePath(),
+                                                                  QLatin1String("*.ui"));
             if (fileName.isEmpty()) {
                 removeBackup(backupFile);
                 return false;
@@ -939,7 +928,7 @@ void QDesignerActions::shutdown()
 
 void QDesignerActions::activeFormWindowChanged(QDesignerFormWindowInterface *formWindow)
 {
-    bool enable = formWindow != 0;
+    const bool enable = formWindow != 0;
 
     m_saveFormAction->setEnabled(enable);
     m_saveFormAsAction->setEnabled(enable);
@@ -958,12 +947,12 @@ void QDesignerActions::updateRecentFileActions()
 {
     QDesignerSettings settings;
     QStringList files = settings.recentFilesList();
-    int originalSize = files.size();
+    const int originalSize = files.size();
     int numRecentFiles = qMin(files.size(), int(MaxRecentFiles));
-    QList<QAction *> recentFilesActs = m_recentFilesActions->actions();
+    const QList<QAction *> recentFilesActs = m_recentFilesActions->actions();
 
     for (int i = 0; i < numRecentFiles; ++i) {
-        QFileInfo fi(files[i]);
+        const QFileInfo fi(files[i]);
         // If the file doesn't exist anymore, just remove it from the list so
         // people don't get confused.
         if (!fi.exists()) {
@@ -972,7 +961,7 @@ void QDesignerActions::updateRecentFileActions()
             numRecentFiles = qMin(files.size(), int(MaxRecentFiles));
             continue;
         }
-        QString text = fi.fileName();
+        const QString text = fi.fileName();
         recentFilesActs[i]->setText(text);
         recentFilesActs[i]->setIconText(files[i]);
         recentFilesActs[i]->setVisible(true);
@@ -988,7 +977,7 @@ void QDesignerActions::updateRecentFileActions()
 
 void QDesignerActions::openRecentForm()
 {
-    if (QAction *action = qobject_cast<QAction *>(sender())) {
+    if (const QAction *action = qobject_cast<const QAction *>(sender())) {
         if (!readInForm(action->iconText()))
             updateRecentFileActions(); // File doesn't exist, remove it from settings
     }
@@ -1072,7 +1061,7 @@ void QDesignerActions::showHelp(const QString &url)
                                 + QLatin1String("/html/") + url;
 
     QString cleanFilePath;
-    int index = filePath.lastIndexOf(QLatin1Char('#'));
+    const int index = filePath.lastIndexOf(QLatin1Char('#'));
     if (index != -1)
         cleanFilePath = filePath.left(index);
     else
@@ -1118,9 +1107,7 @@ void QDesignerActions::showWidgetSpecificHelp()
     }
 
     QString className;
-    QString currentPropertyName;
-
-    currentPropertyName = core()->propertyEditor()->currentPropertyName();
+    const QString currentPropertyName = core()->propertyEditor()->currentPropertyName();
     if (!currentPropertyName.isEmpty()) {
         QDesignerPropertySheetExtension *ps
             = qt_extension<QDesignerPropertySheetExtension *>(core()->extensionManager(),
@@ -1208,13 +1195,13 @@ bool QDesignerActions::eventFilter(QObject *watched, QEvent *event)
 
 void QDesignerActions::backupForms()
 {
-    int count = m_workbench->formWindowCount();
+    const int count = m_workbench->formWindowCount();
     if (!count)
         return;
 
-    QString backupPath = QDir::convertSeparators(QDir::homePath() + QDir::separator() 
+    const QString backupPath = QDir::convertSeparators(QDir::homePath() + QDir::separator() 
                        + QLatin1String(".designer") + QDir::separator() + QLatin1String("backup"));
-    QString backupTmpPath = QDir::convertSeparators(backupPath + QDir::separator() + QLatin1String("tmp"));
+    const QString backupTmpPath = QDir::convertSeparators(backupPath + QDir::separator() + QLatin1String("tmp"));
 
     QDir backupDir(backupPath);
     QDir backupTmpDir(backupTmpPath);
@@ -1239,7 +1226,7 @@ void QDesignerActions::backupForms()
 
         QFile file(formBackupName.replace(backupPath, backupTmpPath));
         if (file.open(QFile::WriteOnly)){
-            QByteArray utf8Array = fixResourceFileBackupPath(fwi, backupDir).toUtf8();
+            const QByteArray utf8Array = fixResourceFileBackupPath(fwi, backupDir).toUtf8();
             if (file.write(utf8Array, utf8Array.size()) != utf8Array.size()) {
                 backupMap.remove(fwn);
                 qDebug() << "Could not write backup file:" << file.fileName();
@@ -1251,17 +1238,16 @@ void QDesignerActions::backupForms()
     }
 
     if(!tmpFiles.isEmpty()) {
-        QStringList backupFiles = backupDir.entryList(QDir::Files);
+        const QStringList backupFiles = backupDir.entryList(QDir::Files);
         if(!backupFiles.isEmpty()) {
             QStringListIterator it(backupFiles);
             while (it.hasNext())
                 backupDir.remove(it.next());
         }
 
-        QString name;
         QStringListIterator it(tmpFiles);
         while (it.hasNext()) {
-            name = it.next();
+            QString name = it.next();
             QFile file(name);
             file.copy(name.replace(backupTmpPath, backupPath));
             file.remove();
@@ -1273,26 +1259,26 @@ void QDesignerActions::backupForms()
 
 QString QDesignerActions::fixResourceFileBackupPath(QDesignerFormWindowInterface *fwi, const QDir& backupDir)
 {
-    QString content = fwi->contents();
+    const QString content = fwi->contents();
     QDomDocument domDoc("backup");
     if(!domDoc.setContent(content))
         return content;
 
-    QDomNodeList list = domDoc.elementsByTagName(QLatin1String("resources"));
+    const QDomNodeList list = domDoc.elementsByTagName(QLatin1String("resources"));
     if (list.isEmpty())
         return content;
 
     for (int i = 0; i < list.count(); i++) {
-        QDomNode node = list.at(i);
+        const QDomNode node = list.at(i);
         if (!node.isNull()) {
-            QDomElement element = node.toElement();
+            const QDomElement element = node.toElement();
             if(!element.isNull() && element.tagName() == QLatin1String("resources")) {
                 QDomNode childNode = element.firstChild();
                 while (!childNode.isNull()) {
                     QDomElement childElement = childNode.toElement();
                     if(!childElement.isNull() && childElement.tagName() == QLatin1String("include")) {
-                        QString attr = childElement.attribute(QLatin1String("location"));
-                        QString path = fwi->absoluteDir().absoluteFilePath(attr);
+                        const QString attr = childElement.attribute(QLatin1String("location"));
+                        const QString path = fwi->absoluteDir().absoluteFilePath(attr);
                         childElement.setAttribute(QLatin1String("location"), backupDir.relativeFilePath(path));
                     }
                     childNode = childNode.nextSibling();
@@ -1307,7 +1293,7 @@ QString QDesignerActions::fixResourceFileBackupPath(QDesignerFormWindowInterface
 QRect QDesignerActions::fixDialogRect(const QRect &rect) const
 {
     QRect frameGeometry;
-    QRect availableGeometry = QApplication::desktop()->availableGeometry(core()->topLevel());
+    const QRect availableGeometry = QApplication::desktop()->availableGeometry(core()->topLevel());
     
     if (workbench()->mode() == QDesignerWorkbench::DockedMode) {
         frameGeometry = core()->topLevel()->frameGeometry();

@@ -16,7 +16,6 @@
 
 #include <QtCore/QPointer>
 #include <QtCore/QObject>
-#include <QtGui/QAction>
 
 class QDesignerMainWindow;
 class QDesignerWorkbench;
@@ -28,6 +27,7 @@ class QActionGroup;
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
 class QAssistantClient;
+class QRect;
 
 class QDesignerActions: public QObject
 {

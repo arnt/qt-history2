@@ -11,9 +11,18 @@
 **
 ****************************************************************************/
 
+// designer
+#include "qdesigner.h"
+#include "qdesigner_actions.h"
+#include "qdesigner_server.h"
+#include "qdesigner_settings.h"
+#include "qdesigner_workbench.h"
+#include "qdesigner_toolwindow.h"
+
 #include <QtGui/QFileOpenEvent>
 #include <QtGui/QCloseEvent>
 #include <QtGui/QMessageBox>
+#include <QtGui/QIcon>
 #include <QtCore/QMetaObject>
 #include <QtCore/QFile>
 #include <QtCore/QLibraryInfo>
@@ -23,14 +32,6 @@
 #include <QtCore/qdebug.h>
 
 #include <QtDesigner/QDesignerComponents>
-
-// designer
-#include "qdesigner.h"
-#include "qdesigner_actions.h"
-#include "qdesigner_server.h"
-#include "qdesigner_settings.h"
-#include "qdesigner_workbench.h"
-#include "qdesigner_toolwindow.h"
 
 QDesigner::QDesigner(int &argc, char **argv)
     : QApplication(argc, argv),
@@ -76,11 +77,11 @@ void QDesigner::initialize()
 
     QString resourceDir = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
 
-    QStringList args = arguments();
+    const QStringList args = arguments();
 
     for (int i = 1; i < args.count(); ++i)
     {
-        QString argument = args.at(i);
+        const QString argument = args.at(i);
         if (argument == QLatin1String("-server")) {
             m_server = new QDesignerServer();
             printf("%d\n", m_server->serverPort());
@@ -88,7 +89,7 @@ void QDesigner::initialize()
         } else if (argument == QLatin1String("-client")) {
             bool ok = true;
             if (i + 1 < args.count()) {
-                quint16 port = args.at(++i).toUShort(&ok);
+                const quint16 port = args.at(++i).toUShort(&ok);
                 if (ok)
                     m_client = new QDesignerClient(port, this);
             }
