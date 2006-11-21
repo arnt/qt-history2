@@ -67,8 +67,9 @@ public:
     inline void setDisabled(bool disabled);
     inline bool isDisabled() const;
 
-    void setExpandable(bool expandable);
-    bool isExpandable() const;
+    enum ChildIndicatorPolicy { ShowIndicator, HideIndicator, ShowForChildren };
+    void setChildIndicatorPolicy(QTreeWidgetItem::ChildIndicatorPolicy policy);
+    QTreeWidgetItem::ChildIndicatorPolicy childIndicatorPolicy() const;
 
     Qt::ItemFlags flags() const;
     void setFlags(Qt::ItemFlags flags);

@@ -277,7 +277,15 @@ bool QTreeModel::hasChildren(const QModelIndex &parent) const
     QTreeWidgetItem *itm = item(parent);
     if (!itm)
         return false;
-    return (itm->childCount() > 0) && itm->d->expandable;
+    switch (itm->d->policy) {
+    case QTreeWidgetItem::ShowIndicator:
+        return true;
+    case QTreeWidgetItem::HideIndicator:
+        return false;
+    case QTreeWidgetItem::ShowForChildren:
+        return (itm->childCount() > 0);
+    }
+    return false;
 }
 
 /*!
@@ -1409,7 +1417,7 @@ QTreeWidgetItem *QTreeWidgetItem::clone() const
             parent->children.append(copy);
         }
 
-        for (int i=0; i<item->childCount(); ++i) {
+        for (int i = 0; i < item->childCount(); ++i) {
             stack.push(item->child(i));
             parentStack.push(copy);
         }
@@ -1418,29 +1426,30 @@ QTreeWidgetItem *QTreeWidgetItem::clone() const
 }
 
 /*!
-  Sets the item to be expandable if \a expandable is true,
-  otherwise the item is not expandable.
-
-  \sa isExpandable()
+   Sets the item indicator \a policy. This policy decides when the
+   tree branch expand/collapse indicator is shown.
+   The default value is ShowForChildren.
+   
+   \sa childIndicatorPolicy()
 */
-
-void QTreeWidgetItem::setExpandable(bool expandable)
+void QTreeWidgetItem::setChildIndicatorPolicy(QTreeWidgetItem::ChildIndicatorPolicy policy)
 {
-    if (d->expandable == expandable)
+    if (d->policy == policy)
         return;
-    d->expandable = expandable;
+    d->policy = policy;
     if (QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0))
         view->updateIndex(model->index(this, 0));
 }
 
 /*!
-  Returns true if the item is expandable, otherwise returns false.
-
-  \sa setExpandable()
+   Sets the item indicator \a policy. This policy decides when the
+   tree branch expand/collapse indicator is shown.
+   
+   \sa childIndicatorPolicy()
 */
-bool QTreeWidgetItem::isExpandable() const
+QTreeWidgetItem::ChildIndicatorPolicy QTreeWidgetItem::childIndicatorPolicy() const
 {
-    return d->expandable;
+    return d->policy;
 }
 
 /*!
@@ -1686,7 +1695,7 @@ QTreeWidgetItem &QTreeWidgetItem::operator=(const QTreeWidgetItem &other)
 {
     values = other.values;
     d->display = other.d->display;
-    d->expandable = other.d->expandable;
+    d->policy = other.d->policy;
     itemFlags = other.itemFlags;
     return *this;
 }
