@@ -46,4 +46,5 @@ demos_sqlbrowser.subdir = sqlbrowser
      demos_gradients.depends = demos_shared
      demos_composition.depends = demos_shared
      demos_arthurplugin.depends = demos_shared
+     demos_pathstroke.depends = demos_shared
 }
