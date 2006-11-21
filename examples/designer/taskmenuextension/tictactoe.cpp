@@ -33,11 +33,16 @@ QSize TicTacToe::sizeHint() const
 void TicTacToe::setState(const QString &newState)
 {
     turnNumber = 0;
-    for (int position = 0; position < 9; ++position) {
-        if (newState.at(position) != Empty)
+    myState = "---------";
+    int position = 0;
+    while (position < 9 && position < newState.length()) {
+        QChar mark = newState.at(position);
+        if (mark == Cross || mark == Nought) {
             ++turnNumber;
+            myState.replace(position, 1, mark);
+        }
+        position++;
     }
-    myState = newState;
     update();
 }
 
