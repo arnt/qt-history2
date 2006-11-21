@@ -1378,7 +1378,7 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
     for (int i = 0; i < columns; ++i) {
         const QTextLength &length = columnWidthConstraints.at(i);
         if (length.type() == QTextLength::FixedLength) {
-            td->widths[i] = qMax(length.rawValue(), td->minWidths.at(i));
+            td->minWidths[i] = td->widths[i] = qMax(length.rawValue(), td->minWidths.at(i));
             totalWidth -= td->widths.at(i);
         } else if (length.type() == QTextLength::PercentageLength) {
             totalPercentage += length.rawValue();
