@@ -158,7 +158,9 @@ private slots:
     void update();
     void views();
     void event();
-    void invalidate();
+
+    // task specific tests below me
+    void task139710_bspTreeCrash();
 };
 
 void tst_QGraphicsScene::construction()
@@ -2217,68 +2219,42 @@ void tst_QGraphicsScene::event()
     QVERIFY(scene.gotTimerEvent);
 }
 
-class SceneWithBackground : public QGraphicsScene
+void tst_QGraphicsScene::task139710_bspTreeCrash()
 {
-public:
-    QRectF lastExposed;
-    
-    void updateBackground(const QRectF &rect)
-    {
-        invalidate(rect, BackgroundLayer);
+    // create a scene with 2000 items
+    QGraphicsScene scene(0, 0, 1000, 1000);
+
+    for (int i = 0; i < 2; ++i) {
+        // trigger delayed item indexing
+        qApp->processEvents();
+        scene.setSceneRect(0, 0, 10000, 10000);
+
+        // delete all items in the scene - pointers are now likely to be recycled
+        foreach (QGraphicsItem *item, scene.items()) {
+            scene.removeItem(item);
+            delete item;
+        }
+
+        // add 1000 more items - the BSP tree is now resized
+        for (int i = 0; i < 1000; ++i) {
+            QGraphicsRectItem *item = scene.addRect(QRectF(0, 0, 200, 200));
+            item->setPos(qrand() % 10000, qrand() % 10000);
+        }
+
+        // trigger delayed item indexing for the first 1000 items
+        qApp->processEvents();
+
+        // add 1000 more items - the BSP tree is now resized
+        for (int i = 0; i < 1000; ++i) {
+            QGraphicsRectItem *item = scene.addRect(QRectF(0, 0, 200, 200));
+            item->setPos(qrand() % 10000, qrand() % 10000);
+        }
+
+        // get items from the BSP tree and use them. there was junk in the tree
+        // the second time this happened.
+        foreach (QGraphicsItem *item, scene.items(QRectF(0, 0, 1000, 1000)))
+            item->moveBy(0, 0);
     }
-    
-protected:
-    void drawBackground(QPainter *painter, const QRectF &exposed)
-    {
-        lastExposed = exposed;
-        Q_UNUSED(painter);
-    }
-};
-
-void tst_QGraphicsScene::invalidate()
-{
-    SceneWithBackground scene;
-    scene.setSceneRect(0, 0, 100, 100);
-
-    QGraphicsView view(&scene);
-    view.setFixedSize(110, 110);
-    view.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    view.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    view.show();
-
-    qApp->processEvents(); // update
-    qApp->processEvents(); // draw
-
-    // Test a regular update
-    scene.lastExposed = QRectF();
-    scene.update(QRectF(0, 0, 10, 10));
-    qApp->processEvents(); // update
-    qApp->processEvents(); // draw
-    QCOMPARE(scene.lastExposed, QRectF(-3, -3, 16, 16));
-
-    // Test a background update
-    scene.lastExposed = QRectF();
-    scene.updateBackground(QRectF(0, 0, 10, 10));
-    qApp->processEvents(); // update
-    qApp->processEvents(); // draw
-    QCOMPARE(scene.lastExposed, QRectF(-3, -3, 16, 16));
-
-    // Enable cacheing, test regular update
-    view.setCacheMode(QGraphicsView::CacheBackground);
-    qApp->processEvents(); // update
-    qApp->processEvents(); // draw
-    scene.lastExposed = QRectF();
-    scene.update(QRectF(0, 0, 10, 10));
-    qApp->processEvents(); // update
-    qApp->processEvents(); // draw
-    QCOMPARE(scene.lastExposed, QRectF()); // No expose!
-
-    // Now update the background
-    scene.lastExposed = QRectF();
-    scene.updateBackground(QRectF(0, 0, 10, 10));
-    qApp->processEvents(); // update
-    qApp->processEvents(); // draw
-    QCOMPARE(scene.lastExposed, QRectF(-1, -1, 12, 12)); // Expose!
 }
 
 QTEST_MAIN(tst_QGraphicsScene)
