@@ -1512,18 +1512,23 @@ void QX11PaintEngine::drawImage(const QRectF &r, const QImage &image, const QRec
         int h = qRound(r.height());
         XImage *xi;
         QImage im(image);
-        if (QSysInfo::ByteOrder == QSysInfo::BigEndian
+        // Note: this code assumes either RGB or BGR, 8 bpc server layouts
+        const uint red_mask = (uint) ((Visual *) d->xinfo->visual())->red_mask;
+        bool bgr_layout = (red_mask == 0xff);
+        if ((QSysInfo::ByteOrder == QSysInfo::BigEndian
+             && ((ImageByteOrder(d->dpy) == LSBFirst) || bgr_layout))
             || (ImageByteOrder(d->dpy) == MSBFirst && QSysInfo::ByteOrder == QSysInfo::LittleEndian))
         {
             for (int i=0; i < im.height(); i++) {
                 uint *p = (uint*)im.scanLine(i);
                 uint *end = p + im.width();
-                if (ImageByteOrder(d->dpy) == MSBFirst && QSysInfo::ByteOrder == QSysInfo::LittleEndian) {
+                if (bgr_layout && ImageByteOrder(d->dpy) == MSBFirst && QSysInfo::ByteOrder == QSysInfo::LittleEndian) {
                     while (p < end) {
                         *p = ((*p << 8) & 0xffffff00) | ((*p >> 24) & 0x000000ff);
                         p++;
                     }
-                } else if (ImageByteOrder(d->dpy) == LSBFirst && QSysInfo::ByteOrder == QSysInfo::BigEndian) {
+                } else if ((ImageByteOrder(d->dpy) == LSBFirst && QSysInfo::ByteOrder == QSysInfo::BigEndian)
+                           || (ImageByteOrder(d->dpy) == MSBFirst && QSysInfo::ByteOrder == QSysInfo::LittleEndian)) {
                     while (p < end) {
                         *p = ((*p << 24) & 0xff000000) | ((*p << 8) & 0x00ff0000)
                              | ((*p >> 8) & 0x0000ff00) | ((*p >> 24) & 0x000000ff);
