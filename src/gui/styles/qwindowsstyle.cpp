@@ -1111,6 +1111,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         {
             QRect rect = opt->rect;
             const int margin = 2;
+            QPen oldPen = p->pen();
             if(opt->state & State_Horizontal){
                 const int offset = rect.width()/2;
                 p->setPen(QPen(opt->palette.dark().color()));
@@ -1137,6 +1138,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                             rect.topRight().x() - margin,
                             rect.topRight().y() + offset + 1);
             }
+            p->setPen(oldPen);
         }
         break;
     case PE_IndicatorToolBarHandle:
@@ -1167,6 +1169,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
 #endif // QT_NO_TOOLBAR
     case PE_FrameButtonTool:
     case PE_PanelButtonTool: {
+        QPen oldPen = p->pen();
 #ifndef QT_NO_DOCKWIDGET
         if (w && w->inherits("QDockWidgetTitleButton")) {
            if (const QDockWidget *dw = qobject_cast<const QDockWidget *>(w->parent()))
@@ -1213,6 +1216,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         } else {
             p->fillRect(opt->rect, fill);
         }
+        p->setPen(oldPen);
         break; }
     case PE_PanelButtonCommand:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
@@ -1238,10 +1242,12 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         }
         break;
     case PE_FrameDefaultButton: {
+        QPen oldPen = p->pen();
         p->setPen(opt->palette.shadow().color());
         QRect rect = opt->rect;
         rect.adjust(0, 0, -1, -1);
         p->drawRect(rect);
+        p->setPen(oldPen);
         break;
     }
     case PE_IndicatorArrowUp:
