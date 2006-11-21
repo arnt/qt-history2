@@ -292,18 +292,25 @@ void tst_QThread::setPriority()
 
     // cannot change the priority, since the thread is not running
     QCOMPARE(thread.priority(), QThread::InheritPriority);
+    QTest::ignoreMessage(QtWarningMsg, "QThread::setPriority: Cannot set priority, thread is not running");
     thread.setPriority(QThread::IdlePriority);
     QCOMPARE(thread.priority(), QThread::InheritPriority);
+    QTest::ignoreMessage(QtWarningMsg, "QThread::setPriority: Cannot set priority, thread is not running");
     thread.setPriority(QThread::LowestPriority);
     QCOMPARE(thread.priority(), QThread::InheritPriority);
+    QTest::ignoreMessage(QtWarningMsg, "QThread::setPriority: Cannot set priority, thread is not running");
     thread.setPriority(QThread::LowPriority);
     QCOMPARE(thread.priority(), QThread::InheritPriority);
+    QTest::ignoreMessage(QtWarningMsg, "QThread::setPriority: Cannot set priority, thread is not running");
     thread.setPriority(QThread::NormalPriority);
     QCOMPARE(thread.priority(), QThread::InheritPriority);
+    QTest::ignoreMessage(QtWarningMsg, "QThread::setPriority: Cannot set priority, thread is not running");
     thread.setPriority(QThread::HighPriority);
     QCOMPARE(thread.priority(), QThread::InheritPriority);
+    QTest::ignoreMessage(QtWarningMsg, "QThread::setPriority: Cannot set priority, thread is not running");
     thread.setPriority(QThread::HighestPriority);
     QCOMPARE(thread.priority(), QThread::InheritPriority);
+    QTest::ignoreMessage(QtWarningMsg, "QThread::setPriority: Cannot set priority, thread is not running");
     thread.setPriority(QThread::TimeCriticalPriority);
     QCOMPARE(thread.priority(), QThread::InheritPriority);
 
@@ -331,18 +338,25 @@ void tst_QThread::setPriority()
     QVERIFY(thread.wait(five_minutes));
 
     QCOMPARE(thread.priority(), QThread::InheritPriority);
+    QTest::ignoreMessage(QtWarningMsg, "QThread::setPriority: Cannot set priority, thread is not running");
     thread.setPriority(QThread::IdlePriority);
     QCOMPARE(thread.priority(), QThread::InheritPriority);
+    QTest::ignoreMessage(QtWarningMsg, "QThread::setPriority: Cannot set priority, thread is not running");
     thread.setPriority(QThread::LowestPriority);
     QCOMPARE(thread.priority(), QThread::InheritPriority);
+    QTest::ignoreMessage(QtWarningMsg, "QThread::setPriority: Cannot set priority, thread is not running");
     thread.setPriority(QThread::LowPriority);
     QCOMPARE(thread.priority(), QThread::InheritPriority);
+    QTest::ignoreMessage(QtWarningMsg, "QThread::setPriority: Cannot set priority, thread is not running");
     thread.setPriority(QThread::NormalPriority);
     QCOMPARE(thread.priority(), QThread::InheritPriority);
+    QTest::ignoreMessage(QtWarningMsg, "QThread::setPriority: Cannot set priority, thread is not running");
     thread.setPriority(QThread::HighPriority);
     QCOMPARE(thread.priority(), QThread::InheritPriority);
+    QTest::ignoreMessage(QtWarningMsg, "QThread::setPriority: Cannot set priority, thread is not running");
     thread.setPriority(QThread::HighestPriority);
     QCOMPARE(thread.priority(), QThread::InheritPriority);
+    QTest::ignoreMessage(QtWarningMsg, "QThread::setPriority: Cannot set priority, thread is not running");
     thread.setPriority(QThread::TimeCriticalPriority);
     QCOMPARE(thread.priority(), QThread::InheritPriority);
 #endif
@@ -651,10 +665,10 @@ void tst_QThread::nativeThreadAdoption()
     nativeThread.setWaitForStop();
     nativeThread.startAndWait(testNativeThreadAdoption);
     QVERIFY(nativeThread.qthread);
-    
+
     nativeThread.stop();
     nativeThread.join();
-    
+
     QVERIFY(threadAdoptedOk);
 }
 
@@ -730,7 +744,7 @@ void adoptedThreadExecFunction(void *)
     o.thread = adoptedThread;
     o.code = code;
     QTimer::singleShot(100, &o, SLOT(slot()));
-    
+
     const int result = eventLoop.exec();
     QCOMPARE(result, code);
 }
@@ -766,19 +780,19 @@ void tst_QThread::adoptMultipleThreads()
     QVector<NativeThreadWrapper*> nativeThreads;
 
     SignalRecorder recorder;
-    
+
     for (int i = 0; i < numThreads; ++i) {
         nativeThreads.append(new NativeThreadWrapper());
         nativeThreads.at(i)->setWaitForStop();
-        nativeThreads.at(i)->startAndWait();  
+        nativeThreads.at(i)->startAndWait();
         QObject::connect(nativeThreads.at(i)->qthread, SIGNAL(finished()), &recorder, SLOT(slot()));
     }
 
     QObject::connect(nativeThreads.at(numThreads - 1)->qthread, SIGNAL(finished()), &QTestEventLoop::instance(), SLOT(exitLoop()));
-    
+
     for (int i = 0; i < numThreads; ++i) {
         nativeThreads.at(i)->stop();
-        nativeThreads.at(i)->join();  
+        nativeThreads.at(i)->join();
     }
 
     QTestEventLoop::instance().enterLoop(5);
