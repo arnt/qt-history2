@@ -946,21 +946,21 @@ QGLFormat::OpenGLVersionFlags Q_AUTOTEST_EXPORT qOpenGLVersionFlagsFromString(co
 {
     QGLFormat::OpenGLVersionFlags versionFlags = QGLFormat::OpenGL_Version_None;
 
-    if (versionString.startsWith("OpenGL ES")) {
-        QStringList parts = versionString.split(' ');
+    if (versionString.startsWith(QLatin1String("OpenGL ES"))) {
+        QStringList parts = versionString.split(QLatin1Char(' '));
         if (parts.size() >= 3) {
-            if (parts[2].startsWith("1.")) {
-                if (parts[1].endsWith("-CM")) {
+            if (parts[2].startsWith(QLatin1String("1."))) {
+                if (parts[1].endsWith(QLatin1String("-CM"))) {
                     versionFlags |= QGLFormat::OpenGL_ES_Common_Version_1_0 |
                                     QGLFormat::OpenGL_ES_CommonLite_Version_1_0;
-                    if (parts[2].startsWith("1.1"))
+                    if (parts[2].startsWith(QLatin1String("1.1")))
                         versionFlags |= QGLFormat::OpenGL_ES_Common_Version_1_1 |
                                         QGLFormat::OpenGL_ES_CommonLite_Version_1_1;
                 }
                 else {
                     // Not -CM, must be CL, CommonLite
                     versionFlags |= QGLFormat::OpenGL_ES_CommonLite_Version_1_0;
-                    if (parts[2].startsWith("1.1"))
+                    if (parts[2].startsWith(QLatin1String("1.1")))
                         versionFlags |= QGLFormat::OpenGL_ES_CommonLite_Version_1_1;
                 }
             }
@@ -976,7 +976,7 @@ QGLFormat::OpenGLVersionFlags Q_AUTOTEST_EXPORT qOpenGLVersionFlagsFromString(co
     }
     else {
         // not ES, regular OpenGL, the version numbers are first in the string
-        if (versionString.startsWith("1.")) {
+        if (versionString.startsWith(QLatin1String("1."))) {
             switch (versionString[2].toAscii()) {
             case '5':
                 versionFlags |= QGLFormat::OpenGL_Version_1_5;
@@ -992,15 +992,15 @@ QGLFormat::OpenGLVersionFlags Q_AUTOTEST_EXPORT qOpenGLVersionFlagsFromString(co
                 break;
             }
         }
-        else if (versionString.startsWith("2.")) {
+        else if (versionString.startsWith(QLatin1String("2."))) {
             versionFlags |= QGLFormat::OpenGL_Version_1_1 |
                             QGLFormat::OpenGL_Version_1_2 |
                             QGLFormat::OpenGL_Version_1_3 |
                             QGLFormat::OpenGL_Version_1_4 |
                             QGLFormat::OpenGL_Version_1_5 |
                             QGLFormat::OpenGL_Version_2_0;
-            QString minorVersion = versionString.section(' ', 0, 0).section('.', 1, 1);
-            if (minorVersion == "1")
+            QString minorVersion = versionString.section(QLatin1Char(' '), 0, 0).section(QLatin1Char('.'), 1, 1);
+            if (minorVersion == QChar(QLatin1Char('1')))
                 versionFlags |= QGLFormat::OpenGL_Version_2_1;
         }
         else
@@ -1086,7 +1086,7 @@ QGLFormat::OpenGLVersionFlags QGLFormat::openGLVersionFlags()
     if (firstTime) {
         firstTime = false;
 
-        QString versionString(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+        QString versionString(QLatin1String(reinterpret_cast<const char*>(glGetString(GL_VERSION))));
         versionFlags = qOpenGLVersionFlagsFromString(versionString);
     }
 
@@ -3647,7 +3647,7 @@ Q_OPENGL_EXPORT const QString qt_gl_library_name()
 {
     if (qt_gl_lib_name()->isNull()) {
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
-        return QString("GL");
+        return QString(QLatin1String("GL"));
 #else // Q_WS_MAC
         return QString("/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib");
 #endif
