@@ -236,6 +236,8 @@ QTimerInfoList::QTimerInfoList()
     // using monotonic timers unconditionally
     getTime(currentTime);
 #endif
+
+    firstTimerInfo = currentTimerInfo = 0;
 }
 
 timeval QTimerInfoList::updateCurrentTime()
@@ -382,6 +384,138 @@ bool QTimerInfoList::timerWait(timeval &tm)
     return true;
 }
 
+void QTimerInfoList::registerTimer(int timerId, int interval, QObject *object)
+{
+    QTimerInfo *t = new QTimerInfo;
+    t->id = timerId;
+    t->interval.tv_sec  = interval / 1000;
+    t->interval.tv_usec = (interval % 1000) * 1000;
+    t->timeout = updateCurrentTime() + t->interval;
+    t->obj = object;
+    t->inTimerEvent = false;
+
+    timerInsert(t);
+}
+
+bool QTimerInfoList::unregisterTimer(int timerId)
+{
+    // set timer inactive
+    for (int i = 0; i < count(); ++i) {
+        register QTimerInfo *t = at(i);
+        if (t->id == timerId) {
+            removeAt(i);
+            if (t == firstTimerInfo)
+                firstTimerInfo = 0;
+            if (t == currentTimerInfo)
+                currentTimerInfo = 0;
+            delete t;
+            return true;
+        }
+    }
+    // id not found
+    return false;
+}
+
+bool QTimerInfoList::unregisterTimers(QObject *object)
+{
+    if (isEmpty())
+        return false;
+    for (int i = 0; i < count(); ++i) {
+        register QTimerInfo *t = at(i);
+        if (t->obj == object) {
+            // object found
+            removeAt(i);
+            if (t == firstTimerInfo)
+                firstTimerInfo = 0;
+            if (t == currentTimerInfo)
+                currentTimerInfo = 0;
+            delete t;
+            // move back one so that we don't skip the new current item
+            --i;
+        }
+    }
+    return true;
+}
+
+QList<QPair<int, int> > QTimerInfoList::registeredTimers(QObject *object) const
+{
+    QList<QPair<int, int> > list;
+    for (int i = 0; i < count(); ++i) {
+        register const QTimerInfo * const t = at(i);
+        if (t->obj == object)
+            list << QPair<int, int>(t->id, t->interval.tv_sec * 1000 + t->interval.tv_usec / 1000);
+    }
+    return list;
+}
+
+/*
+    Activate pending timers, returning how many where activated.
+*/
+int QTimerInfoList::activateTimers()
+{
+    if (qt_disable_lowpriority_timers || isEmpty())
+        return 0; // nothing to do
+
+    bool firstTime = true;
+    timeval currentTime;
+    int n_act = 0, maxCount = count();
+
+    firstTimerInfo = currentTimerInfo = 0;
+
+    while (maxCount--) {
+        currentTime = updateCurrentTime();
+        if (firstTime) {
+            repairTimersIfNeeded();
+            firstTime = false;
+        }
+
+        if (isEmpty())
+            break;
+
+        currentTimerInfo = first();
+        if (currentTime < currentTimerInfo->timeout)
+            break; // no timer has expired
+
+        if (!firstTimerInfo) {
+            firstTimerInfo = currentTimerInfo;
+        } else if (firstTimerInfo == currentTimerInfo) {
+            // avoid sending the same timer multiple times
+            break;
+        } else if (currentTimerInfo->interval <  firstTimerInfo->interval
+                   || currentTimerInfo->interval == firstTimerInfo->interval) {
+            firstTimerInfo = currentTimerInfo;
+        }
+
+        // remove from list
+        removeFirst();
+
+        // determine next timeout time
+        currentTimerInfo->timeout += currentTimerInfo->interval;
+        if (currentTimerInfo->timeout < currentTime)
+            currentTimerInfo->timeout = currentTime + currentTimerInfo->interval;
+
+        // reinsert timer
+        timerInsert(currentTimerInfo);
+        if (currentTimerInfo->interval.tv_usec > 0 || currentTimerInfo->interval.tv_sec > 0)
+            n_act++;
+
+        if (!currentTimerInfo->inTimerEvent) {
+            // send event, but don't allow it to recurse
+            currentTimerInfo->inTimerEvent = true;
+
+            QTimerEvent e(currentTimerInfo->id);
+            QCoreApplication::sendEvent(currentTimerInfo->obj, &e);
+
+            if (currentTimerInfo)
+                currentTimerInfo->inTimerEvent = false;
+        }
+    }
+
+    firstTimerInfo = currentTimerInfo = 0;
+
+    return n_act;
+}
+
 QEventDispatcherUNIX::QEventDispatcherUNIX(QObject *parent)
     : QAbstractEventDispatcher(*new QEventDispatcherUNIXPrivate, parent)
 { }
@@ -431,16 +565,7 @@ void QEventDispatcherUNIX::registerTimer(int timerId, int interval, QObject *obj
     }
 
     Q_D(QEventDispatcherUNIX);
-
-    QTimerInfo *t = new QTimerInfo;                // create timer
-    t->id = timerId;
-    t->interval.tv_sec  = interval / 1000;
-    t->interval.tv_usec = (interval % 1000) * 1000;
-    t->timeout = d->timerList.updateCurrentTime() + t->interval;
-    t->obj = obj;
-    t->inTimerEvent = false;
-
-    d->timerList.timerInsert(t);                                // put timer in list
+    d->timerList.registerTimer(timerId, interval, obj);
 }
 
 /*!
@@ -457,17 +582,7 @@ bool QEventDispatcherUNIX::unregisterTimer(int timerId)
     }
 
     Q_D(QEventDispatcherUNIX);
-    // set timer inactive
-    for (int i = 0; i < d->timerList.size(); ++i) {
-        register QTimerInfo *t = d->timerList.at(i);
-        if (t->id == timerId) {
-            d->timerList.removeAt(i);
-            delete t;
-            return true;
-        }
-    }
-    // id not found
-    return false;
+    return d->timerList.unregisterTimer(timerId);
 }
 
 /*!
@@ -484,19 +599,7 @@ bool QEventDispatcherUNIX::unregisterTimers(QObject *object)
     }
 
     Q_D(QEventDispatcherUNIX);
-    if (d->timerList.isEmpty())
-        return false;
-    for (int i = 0; i < d->timerList.size(); ++i) {
-        register QTimerInfo *t = d->timerList.at(i);
-        if (t->obj == object) {
-            // object found
-            d->timerList.removeAt(i);
-            delete t;
-            // move back one so that we don't skip the new current item
-            --i;
-        }
-    }
-    return true;
+    return d->timerList.unregisterTimers(object);
 }
 
 QList<QEventDispatcherUNIX::TimerInfo>
@@ -508,13 +611,7 @@ QEventDispatcherUNIX::registeredTimers(QObject *object) const
     }
 
     Q_D(const QEventDispatcherUNIX);
-    QList<TimerInfo> list;
-    for (int i = 0; i < d->timerList.size(); ++i) {
-        register const QTimerInfo * const t = d->timerList.at(i);
-        if (t->obj == object)
-            list << TimerInfo(t->id, t->interval.tv_sec * 1000 + t->interval.tv_usec / 1000);
-    }
-    return list;
+    return d->timerList.registeredTimers(object);
 }
 
 /*****************************************************************************
@@ -670,62 +767,8 @@ void QEventDispatcherUNIX::setSocketNotifierPending(QSocketNotifier *notifier)
 int QEventDispatcherUNIX::activateTimers()
 {
     Q_ASSERT(thread() == QThread::currentThread());
-
     Q_D(QEventDispatcherUNIX);
-    if (qt_disable_lowpriority_timers || d->timerList.isEmpty())
-        return 0; // nothing to do
-
-    bool first = true;
-    timeval currentTime;
-    int n_act = 0, maxCount = d->timerList.size();
-    QTimerInfo *begin = 0;
-
-    while (maxCount--) {
-        currentTime = d->timerList.updateCurrentTime();
-        if (first) {
-            d->timerList.repairTimersIfNeeded();
-            first = false;
-        }
-
-        if (d->timerList.isEmpty()) break;
-        QTimerInfo *t = d->timerList.first();
-        if (currentTime < t->timeout)
-            break; // no timer has expired
-
-        if (!begin) {
-            begin = t;
-        } else if (begin == t) {
-            // avoid sending the same timer multiple times
-            break;
-        } else if (t->interval <  begin->interval || t->interval == begin->interval) {
-            begin = t;
-        }
-
-        // remove from list
-        d->timerList.removeFirst();
-        t->timeout += t->interval;
-        if (t->timeout < currentTime)
-            t->timeout = currentTime + t->interval;
-
-        // reinsert timer
-        d->timerList.timerInsert(t);
-        if (t->interval.tv_usec > 0 || t->interval.tv_sec > 0)
-            n_act++;
-
-        if (!t->inTimerEvent) {
-            // send event, but don't allow it to recurse
-            t->inTimerEvent = true;
-
-            QTimerEvent e(t->id);
-            QCoreApplication::sendEvent(t->obj, &e);
-
-            if (d->timerList.contains(t))
-                t->inTimerEvent = false;
-        }
-
-        if (!d->timerList.contains(begin)) begin = 0;
-    }
-    return n_act;
+    return d->timerList.activateTimers();
 }
 
 int QEventDispatcherUNIX::activateSocketNotifiers()

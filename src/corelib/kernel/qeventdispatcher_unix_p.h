@@ -92,6 +92,9 @@ class QTimerInfoList : public QList<QTimerInfo*>
     bool timeChanged(timeval *delta);
 #endif
 
+    // state variables used by activateTimers()
+    QTimerInfo *firstTimerInfo, *currentTimerInfo;
+
 public:
     QTimerInfoList();
 
@@ -106,6 +109,13 @@ public:
     bool timerWait(timeval &);
     void timerInsert(QTimerInfo *);
     void timerRepair(const timeval &);
+
+    void registerTimer(int timerId, int interval, QObject *object);
+    bool unregisterTimer(int timerId);
+    bool unregisterTimers(QObject *object);
+    QList<QPair<int, int> > registeredTimers(QObject *object) const;
+
+    int activateTimers();
 };
 
 struct Q_CORE_EXPORT QSockNot

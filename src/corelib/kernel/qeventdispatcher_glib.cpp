@@ -129,61 +129,7 @@ static gboolean timerSourceCheck(GSource *source)
 
 static gboolean timerSourceDispatch(GSource *source, GSourceFunc, gpointer)
 {
-    GTimerSource *src = reinterpret_cast<GTimerSource *>(source);
-
-    bool first = true;
-    timeval currentTime;
-    int n_act = 0, maxCount = src->timerList.size();
-    QTimerInfo *begin = 0;
-
-    while (maxCount--) {
-        currentTime = src->timerList.updateCurrentTime();
-        if (first) {
-            src->timerList.repairTimersIfNeeded();
-            first = false;
-        }
-
-        if (src->timerList.isEmpty())
-            break;
-        QTimerInfo *t = src->timerList.first();
-        if (currentTime < t->timeout)
-            break; // no timer has expired
-
-        if (!begin) {
-            begin = t;
-        } else if (begin == t) {
-            // avoid sending the same timer multiple times
-            break;
-        } else if (t->interval <  begin->interval || t->interval == begin->interval) {
-            begin = t;
-        }
-
-        // remove from list
-        src->timerList.removeFirst();
-        t->timeout += t->interval;
-        if (t->timeout < currentTime)
-            t->timeout = currentTime + t->interval;
-
-        // reinsert timer
-        src->timerList.timerInsert(t);
-        if (t->interval.tv_usec > 0 || t->interval.tv_sec > 0)
-            n_act++;
-
-        if (!t->inTimerEvent) {
-            // send event, but don't allow it to recurse
-            t->inTimerEvent = true;
-
-            QTimerEvent e(t->id);
-            QCoreApplication::sendEvent(t->obj, &e);
-
-            if (src->timerList.contains(t))
-                t->inTimerEvent = false;
-        }
-
-        if (!src->timerList.contains(begin))
-            begin = 0;
-    }
-
+    (void) reinterpret_cast<GTimerSource *>(source)->timerList.activateTimers();
     return true; // ??? don't remove, right again?
 }
 
@@ -448,16 +394,7 @@ void QEventDispatcherGlib::registerTimer(int timerId, int interval, QObject *obj
     }
 
     Q_D(QEventDispatcherGlib);
-
-    QTimerInfo *t = new QTimerInfo;
-    t->id = timerId;
-    t->interval.tv_sec  = interval / 1000;
-    t->interval.tv_usec = (interval % 1000) * 1000;
-    t->timeout = d->timerSource->timerList.updateCurrentTime() + t->interval;
-    t->obj = object;
-    t->inTimerEvent = false;
-
-    d->timerSource->timerList.timerInsert(t);
+    d->timerSource->timerList.registerTimer(timerId, interval, object);
 }
 
 bool QEventDispatcherGlib::unregisterTimer(int timerId)
@@ -471,17 +408,7 @@ bool QEventDispatcherGlib::unregisterTimer(int timerId)
     }
 
     Q_D(QEventDispatcherGlib);
-    // set timer inactive
-    for (int i = 0; i < d->timerSource->timerList.size(); ++i) {
-        register QTimerInfo *t = d->timerSource->timerList.at(i);
-        if (t->id == timerId) {
-            d->timerSource->timerList.removeAt(i);
-            delete t;
-            return true;
-        }
-    }
-    // id not found
-    return false;
+    return d->timerSource->timerList.unregisterTimer(timerId);
 }
 
 bool QEventDispatcherGlib::unregisterTimers(QObject *object)
@@ -495,19 +422,7 @@ bool QEventDispatcherGlib::unregisterTimers(QObject *object)
     }
 
     Q_D(QEventDispatcherGlib);
-    if (d->timerSource->timerList.isEmpty())
-        return false;
-    for (int i = 0; i < d->timerSource->timerList.size(); ++i) {
-        register QTimerInfo *t = d->timerSource->timerList.at(i);
-        if (t->obj == object) {
-            // object found
-            d->timerSource->timerList.removeAt(i);
-            delete t;
-            // move back one so that we don't skip the new current item
-            --i;
-        }
-    }
-    return true;
+    return d->timerSource->timerList.unregisterTimers(object);
 }
 
 QList<QEventDispatcherGlib::TimerInfo> QEventDispatcherGlib::registeredTimers(QObject *object) const
@@ -518,13 +433,7 @@ QList<QEventDispatcherGlib::TimerInfo> QEventDispatcherGlib::registeredTimers(QO
     }
 
     Q_D(const QEventDispatcherGlib);
-    QList<TimerInfo> list;
-    for (int i = 0; i < d->timerSource->timerList.size(); ++i) {
-        register const QTimerInfo * const t = d->timerSource->timerList.at(i);
-        if (t->obj == object)
-            list << TimerInfo(t->id, t->interval.tv_sec * 1000 + t->interval.tv_usec / 1000);
-    }
-    return list;
+    return d->timerSource->timerList.registeredTimers(object);
 }
 
 void QEventDispatcherGlib::interrupt()
