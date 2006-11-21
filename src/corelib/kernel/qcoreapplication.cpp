@@ -1029,8 +1029,8 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
         try {
             QCoreApplication::sendEvent(r, e);
         } catch (...) {
-            locker.relock();
             delete e;
+            locker.relock();
 
             // since we were interrupted, we need another pass to make sure we clean everything up
             data->canWait = false;
@@ -1043,9 +1043,9 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
         }
 #endif
 
+        delete e;
         locker.relock();
 
-        delete e;
         // careful when adding anything below this point - the
         // sendEvent() call might invalidate any invariants this
         // function depends on.
