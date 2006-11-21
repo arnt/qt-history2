@@ -236,11 +236,13 @@ void QTextDocumentPrivate::setLayout(QAbstractTextDocumentLayout *layout)
     Q_Q(QTextDocument);
     if (lout == layout)
         return;
+    const bool firstLayout = !lout;
     delete lout;
     lout = layout;
 
-    for (BlockMap::Iterator it = blocks.begin(); !it.atEnd(); ++it)
-        it->free();
+    if (!firstLayout)
+        for (BlockMap::Iterator it = blocks.begin(); !it.atEnd(); ++it)
+            it->free();
 
     emit q->contentsChange(0, 0, length());
     if (lout)

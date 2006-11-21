@@ -95,6 +95,7 @@ private slots:
 
     void maximumBlockCount();
     void adjustSize();
+    void initialUserData();
 
 private:
     QTextDocument *doc;
@@ -1592,6 +1593,18 @@ void tst_QTextDocument::adjustSize()
     doc->rootFrame()->setFrameFormat(QTextFrameFormat());
     doc->adjustSize();
     QCOMPARE(doc->size().width(), doc->idealWidth());
+}
+
+void tst_QTextDocument::initialUserData()
+{
+    doc->setPlainText("Hello");
+    QTextBlock block = doc->begin();
+    block.setUserData(new QTextBlockUserData);
+    QVERIFY(block.userData());
+    doc->documentLayout();
+    QVERIFY(block.userData());
+    doc->setDocumentLayout(new QTestDocumentLayout(doc));
+    QVERIFY(!block.userData());
 }
 
 QTEST_MAIN(tst_QTextDocument)
