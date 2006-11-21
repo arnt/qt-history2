@@ -236,7 +236,7 @@ void tst_QVariant::constructor()
     QVERIFY(var4.isNull());
     QVERIFY(!var4.isValid());
 
-    QVariant var5("hallo");
+    QVariant var5(QLatin1String("hallo"));
     QCOMPARE(var5.type(), QVariant::String);
     QCOMPARE(var5.typeName(), "QString");
 
@@ -1119,7 +1119,7 @@ void tst_QVariant::toString_data()
     QTest::addColumn<QString>("result");
 
     QTest::newRow( "qstring" ) << QVariant( QString( "Test" ) ) << QString( "Test" );
-    QTest::newRow( "charstar" ) << QVariant("Test") << QString("Test");
+    QTest::newRow( "charstar" ) << QVariant(QLatin1String("Test")) << QString("Test");
     QTest::newRow( "qbytearray") << QVariant( QByteArray( "Test\0" ) ) << QString( "Test" );
     QTest::newRow( "int" ) << QVariant( -123 ) << QString( "-123" );
     QTest::newRow( "uint" ) << QVariant( (uint)123 ) << QString( "123" );
@@ -1493,8 +1493,8 @@ void tst_QVariant::operator_eq_eq_data()
     QTest::newRow( "mBool_mBoolQString" ) << mBool << mBoolQString << true;
     QTest::newRow( "mBoolQString_mBool" ) << mBoolQString << mBool << true;
 
-    QTest::newRow("ba2qstring") << QVariant("hallo") << QVariant(QString("hallo")) << true;
-    QTest::newRow("qstring2ba") << QVariant(QString("hallo")) << QVariant("hallo") << true;
+    QTest::newRow("ba2qstring") << QVariant(QLatin1String("hallo")) << QVariant(QString("hallo")) << true;
+    QTest::newRow("qstring2ba") << QVariant(QString("hallo")) << QVariant(QLatin1String("hallo")) << true;
     QTest::newRow("char_char") << QVariant(QChar('a')) << QVariant(QChar('a')) << true;
     QTest::newRow("char_char2") << QVariant(QChar('a')) << QVariant(QChar('b')) << false;
 
@@ -1673,10 +1673,10 @@ void tst_QVariant::nullAsType()
 	    continue;
 	QCOMPARE((int)null.type(), type);
 
-	QVERIFY2(null.isNull(), QString("'null.isNull()' failed for type: %1").arg(null.typeName()));
+	QVERIFY2(null.isNull(), qPrintable(QString("'null.isNull()' failed for type: %1").arg(null.typeName())));
     }
 
-    null = QVariant(static_cast<const char *>(0));
+    null = QVariant(QLatin1String(static_cast<const char *>(0)));
     QVERIFY(null.isNull());
 }
 
@@ -2006,7 +2006,7 @@ void tst_QVariant::variant_to()
     QCOMPARE(qvariant_cast<double>(n), 43.0);
     QCOMPARE(qvariant_cast<long>(n), 43l);
 
-    n = "44";
+    n = QLatin1String("44");
     QCOMPARE(qvariant_cast<int>(n), 44);
     QCOMPARE(qvariant_cast<ulong>(n), 44ul);
     QCOMPARE(qvariant_cast<float>(n), 44.0f);
