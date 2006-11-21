@@ -1,6 +1,7 @@
 #include <QtTest/QtTest>
 #include <QtGui/QPushButton>
 #include <QtGui/QStyle>
+#include <QtGui/QLayout>
 #include <qdialogbuttonbox.h>
 #include <limits.h>
 
@@ -19,6 +20,7 @@ class tst_QDialogButtonBox : public QObject
 public:
     tst_QDialogButtonBox();
     ~tst_QDialogButtonBox();
+    
 
 public slots:
     void buttonClicked1(QAbstractButton *);
@@ -27,6 +29,7 @@ public slots:
     void helpRequestedClicked();
 
 private slots:
+    void standardButtons();
     void testConstructor1();
     void testConstrurtor2();
     void testConstrurtor2_data();
@@ -48,7 +51,8 @@ private slots:
     void buttonRole();
     void setStandardButtons_data();
     void setStandardButtons();
-    void standardButtons();
+    void layoutReuse();
+    
 
     // Skip these tests, buttons is used in every test thus far.
 //    void buttons_data();
@@ -87,6 +91,20 @@ void tst_QDialogButtonBox::testConstructor1()
     QCOMPARE(buttonbox.orientation(), Qt::Horizontal);
 
     QCOMPARE(buttonbox.buttons().count(), 0);
+}
+
+void tst_QDialogButtonBox::layoutReuse() 
+{    
+    QDialogButtonBox *box = new QDialogButtonBox(QDialogButtonBox::Ok);
+    QPointer<QLayout> layout = box->layout();
+    box->setCenterButtons(!box->centerButtons());
+    QVERIFY(layout == box->layout());
+    QApplication::sendEvent(box, &QEvent(QEvent::StyleChange));    
+    QVERIFY(layout == box->layout());
+    box->setOrientation(box->orientation() == Qt::Horizontal ? Qt::Vertical : Qt::Horizontal);
+    QVERIFY(layout == 0);
+    QVERIFY(layout != box->layout());
+    delete box;
 }
 
 void tst_QDialogButtonBox::testConstrurtor2_data()
