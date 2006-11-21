@@ -73,7 +73,9 @@ void QGraphicsSceneBspTree::initialize(const QRectF &rect, int depth)
     this->rect = rect;
     leafCnt = 0;
     nodes.resize((1 << (depth + 1)) - 1);
+    nodes.fill(Node());
     leaves.resize(1 << depth);
+    leaves.fill(QList<QGraphicsItem *>());
 
     initialize(rect, depth, 0);
 }
