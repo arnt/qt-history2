@@ -1083,12 +1083,7 @@ void QTextDocumentPrivate::changeObjectFormat(QTextObject *obj, int format)
 
     QTextBlockGroup *b = qobject_cast<QTextBlockGroup *>(obj);
     if (b) {
-        QList<QTextBlock> blocks = b->blockList();
-        for (int i = 0; i < blocks.size(); ++i) {
-            // invalidate blocks and tell layout
-            const QTextBlock &block = blocks.at(i);
-            documentChange(block.position(), block.length());
-        }
+        b->d_func()->markBlocksDirty();
     }
     QTextFrame *f = qobject_cast<QTextFrame *>(obj);
     if (f)

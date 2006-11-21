@@ -44,6 +44,7 @@ private slots:
     void ensureItemOrder();
     void add();
     void defaultIndent();
+    void blockUpdate();
 
 private:
     QTextDocument *doc;
@@ -249,6 +250,21 @@ void tst_QTextList::defaultIndent()
 {
     QTextListFormat fmt;
     QCOMPARE(fmt.indent(), 1);
+}
+
+void tst_QTextList::blockUpdate()
+{
+    // three items
+    QTextList *list = cursor.insertList(QTextListFormat::ListDecimal);
+    cursor.insertBlock();
+    cursor.insertBlock();
+
+    // remove second, needs also update on the third
+    // since the numbering might have changed
+    const int len = cursor.position() + cursor.block().length() - 1;
+    layout->expect(1, len, len);
+    list->remove(list->item(1));
+    QVERIFY(!layout->error);
 }
 
 QTEST_MAIN(tst_QTextList)

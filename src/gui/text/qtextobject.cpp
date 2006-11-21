@@ -169,6 +169,14 @@ QTextDocumentPrivate *QTextObject::docHandle() const
     \sa QTextBlock QTextDocument
 */
 
+void QTextBlockGroupPrivate::markBlocksDirty()
+{
+    for (int i = 0; i < blocks.count(); ++i) {
+        const QTextBlock &block = blocks.at(i);
+        pieceTable->documentChange(block.position(), block.length());
+    }
+}
+
 /*!
     \fn QTextBlockGroup::QTextBlockGroup(QTextDocument *document)
 
@@ -210,6 +218,7 @@ void QTextBlockGroup::blockInserted(const QTextBlock &block)
     Q_D(QTextBlockGroup);
     QTextBlockGroupPrivate::BlockList::Iterator it = qLowerBound(d->blocks.begin(), d->blocks.end(), block);
     d->blocks.insert(it, block);
+    d->markBlocksDirty();
 }
 
 // ### DOC: Shouldn't this be removeBlock()?
@@ -221,6 +230,7 @@ void QTextBlockGroup::blockRemoved(const QTextBlock &block)
 {
     Q_D(QTextBlockGroup);
     d->blocks.removeAll(block);
+    d->markBlocksDirty();
     if (d->blocks.isEmpty()) {
         document()->docHandle()->deleteObject(this);
         return;
