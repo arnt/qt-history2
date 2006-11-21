@@ -461,6 +461,8 @@ QSize QHeaderView::sizeHint() const
     // get size hint for the first n sections
     int c = qMin(count(), 100);
     for (int i = 0; i < c; ++i) {
+        if (isSectionHidden(i))
+            continue;
         QSize hint = sectionSizeFromContents(i);
         width = qMax(hint.width(), width);
         height = qMax(hint.height(), height);
@@ -468,6 +470,8 @@ QSize QHeaderView::sizeHint() const
     // get size hint for the last n sections
     c = qMax(count() - 100, c);
     for (int j = count() - 1; j >= c; --j) {
+        if (isSectionHidden(j))
+            continue;
         QSize hint = sectionSizeFromContents(j);
         width = qMax(hint.width(), width);
         height = qMax(hint.height(), height);
@@ -485,6 +489,8 @@ QSize QHeaderView::sizeHint() const
 int QHeaderView::sectionSizeHint(int logicalIndex) const
 {
     Q_D(const QHeaderView);
+    if (isSectionHidden(logicalIndex))
+        return 0;
     if (logicalIndex < 0 || logicalIndex >= count())
         return -1;
     QSize size = sectionSizeFromContents(logicalIndex);
@@ -548,9 +554,9 @@ int QHeaderView::logicalIndexAt(int position) const
 int QHeaderView::sectionSize(int logicalIndex) const
 {
     Q_D(const QHeaderView);
-    if (logicalIndex < 0 || logicalIndex >= count())
-        return 0;
     if (isSectionHidden(logicalIndex))
+        return 0;
+    if (logicalIndex < 0 || logicalIndex >= count())
         return 0;
     int visual = visualIndex(logicalIndex);
     if (visual == -1)
@@ -1564,17 +1570,17 @@ void QHeaderViewPrivate::_q_sectionsRemoved(const QModelIndex &parent,
 void QHeaderView::initializeSections()
 {
     Q_D(QHeaderView);
-    const int oldCount = count();
+    const int oldCount = d->sectionCount;
     const int newCount = d->modelSectionCount();
     if (newCount == 0) {
         d->clear();
         emit sectionCountChanged(oldCount, 0);
-    } else if (newCount != count()) {
+    } else if (newCount != oldCount) {
         const int min = qBound(0, oldCount, newCount - 1);
         initializeSections(min, newCount - 1);
+        if (stretchLastSection()) // we've already gotten the size hint
+            d->lastSectionSize = sectionSize(logicalIndex(d->sectionCount - 1));
     }
-    if (stretchLastSection())
-        d->lastSectionSize = sectionSizeHint(logicalIndex(count() - 1));
 }
 
 /*!
@@ -1590,8 +1596,8 @@ void QHeaderView::initializeSections(int start, int end)
 
     d->invalidateCachedSizeHint();
 
-    if (end < count())
-        d->removeSectionsFromSpans(end + 1, count());
+    if (end < d->sectionCount)
+        d->removeSectionsFromSpans(end + 1, d->sectionCount);
 
     int oldCount = d->sectionCount;
     d->sectionCount = end + 1;
