@@ -2320,6 +2320,7 @@ static QThreadStorage<uint *> randTLS; // Thread Local Storage for seed value
 #endif
 
 /*!
+    \relates <QtGlobal>
     \since 4.2
 
     Thread-safe version of the standard C++ \c srand() function.
@@ -2349,6 +2350,7 @@ void qsrand(uint seed)
 }
 
 /*!
+    \relates <QtGlobal>
     \since 4.2
 
     Thread-safe version of the standard C++ \c rand() function.
