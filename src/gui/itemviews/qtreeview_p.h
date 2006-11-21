@@ -50,8 +50,8 @@ public:
           header(0), indent(20), lastViewedItem(0), defaultItemHeight(-1),
           uniformRowHeights(false), rootDecoration(true),
           itemsExpandable(true), sortingEnabled(false),
-          allColumnsShowFocus(false), animationsEnabled(false),
-          wrapItemText(false), columnResizeTimerID(0) {}
+          allColumnsShowFocus(false), wrapItemText(false),
+          animationsEnabled(false), columnResizeTimerID(0) {}
 
     ~QTreeViewPrivate() {}
     void initialize();

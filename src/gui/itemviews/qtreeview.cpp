@@ -1769,7 +1769,8 @@ void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
               qMax(rect.left(), rect.right()), qMax(rect.top(), rect.bottom()));
     QModelIndex topLeft = indexAt(tl);
     QModelIndex bottomRight = indexAt(br);
-
+    if (!topLeft.isValid() && !bottomRight.isValid())
+        return;
     if (!topLeft.isValid() && !d->viewItems.isEmpty())
         topLeft = d->viewItems.first().index;
     if (!bottomRight.isValid() && !d->viewItems.isEmpty()) {
