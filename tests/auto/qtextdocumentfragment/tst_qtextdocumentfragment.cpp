@@ -54,6 +54,7 @@ private slots:
     void html_listIndents2();
     void html_listIndents3();
     void html_listIndents4();
+    void html_listIndents5();
     void blockCharFormat();
     void blockCharFormatCopied();
     void initialBlock();
@@ -625,6 +626,20 @@ void tst_QTextDocumentFragment::html_listIndents4()
 
     cursor.movePosition(QTextCursor::NextBlock);
     QVERIFY(!cursor.currentList());
+    QCOMPARE(cursor.blockFormat().indent(), 0);
+}
+
+void tst_QTextDocumentFragment::html_listIndents5()
+{
+    const char html[] = "<ul><li>Foo<p><li>Bar</li></ul>";
+    setHtml(QString::fromLatin1(html));
+    cursor.movePosition(QTextCursor::Start);
+    QTextList *list = cursor.currentList();
+    QVERIFY(list);
+    QCOMPARE(list->format().indent(), 1);
+
+    cursor.movePosition(QTextCursor::NextBlock);
+    QVERIFY(cursor.currentList() == list);
     QCOMPARE(cursor.blockFormat().indent(), 0);
 }
 

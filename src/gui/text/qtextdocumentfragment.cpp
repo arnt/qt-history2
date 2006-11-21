@@ -686,6 +686,11 @@ void QTextHtmlImporter::import()
                 List &l = lists.last();
                 if (l.list) {
                     l.list->add(cursor.block());
+                    if (hasBlock) {
+                        QTextBlockFormat fmt;
+                        fmt.setIndent(0);
+                        cursor.mergeBlockFormat(fmt);
+                    }
                 } else {
                     l.list = cursor.createList(l.format);
                     const qreal listTopMargin = topMargin(l.listNode);
