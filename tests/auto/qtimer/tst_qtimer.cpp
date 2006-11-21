@@ -305,7 +305,8 @@ void tst_QTimer::deleteLaterOnQTimer()
 {
     QTimer *timer = new QTimer;
     connect(timer, SIGNAL(timeout()), timer, SLOT(deleteLater()));
-    timer->setInterval(1000);
+    connect(timer, SIGNAL(destroyed()), &QTestEventLoop::instance(), SLOT(exitLoop()));
+    timer->setInterval(1);
     timer->setSingleShot(true);
     timer->start();
     QPointer<QTimer> pointer = timer;
