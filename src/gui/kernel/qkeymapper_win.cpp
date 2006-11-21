@@ -395,6 +395,7 @@ static const Qt::KeyboardModifiers ModsTbl[] = {
     Qt::AltModifier | Qt::ShiftModifier,                        // 5
     Qt::AltModifier | Qt::ControlModifier,                      // 6
     Qt::AltModifier | Qt::ShiftModifier | Qt::ControlModifier,  // 7
+    Qt::NoModifier,                                             // Fall-back to raw Key_*
 };
 
 // Translate a VK into a Qt key code, or unicode character
@@ -543,7 +544,7 @@ public:
 */
 struct KeyboardLayoutItem {
     bool dirty;
-    quint32 qtKey[8]; // Can by any Qt::Key_<foo>, or unicode character
+    quint32 qtKey[9]; // Can by any Qt::Key_<foo>, or unicode character
 };
 
 QKeyMapperPrivate::QKeyMapperPrivate()
@@ -666,6 +667,14 @@ void QKeyMapperPrivate::updatePossibleKeyCodes(unsigned char *kbdBuffer, quint32
     keyLayout[vk_key]->qtKey[6] = toKeyOrUnicode(vk_key, scancode, buffer);
     setKbdState(buffer, true, true, true);
     keyLayout[vk_key]->qtKey[7] = toKeyOrUnicode(vk_key, scancode, buffer);
+    // Add a fall back key for layouts which don't do composition and show non-latin1 characters
+    int fallbackKey = KeyTbl[vk_key];
+    if (!fallbackKey || fallbackKey == Qt::Key_unknown) {
+        fallbackKey = 0;
+        if (vk_key != keyLayout[vk_key]->qtKey[0] && vk_key < 0x5B && vk_key > 0x2F)
+            fallbackKey = vk_key;
+    }
+    keyLayout[vk_key]->qtKey[8] = fallbackKey;
 
     // If this vk_key a Dead Key
     if (MapVirtualKey(vk_key, 2) & 0x80008000) { // (High-order dead key on Win 95 is 0x8000)
@@ -683,7 +692,7 @@ void QKeyMapperPrivate::updatePossibleKeyCodes(unsigned char *kbdBuffer, quint32
 
 #ifdef DEBUG_KEYMAPPER
     qDebug("updatePossibleKeyCodes for virtual key = 0x%02x!", vk_key);
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 9; ++i) {
         qDebug("    [%d] (%d,0x%02x,'%c')", i,
                keyLayout[vk_key]->qtKey[i],
                keyLayout[vk_key]->qtKey[i],
@@ -703,7 +712,7 @@ QList<int> QKeyMapperPrivate::possibleKeys(QKeyEvent *e)
     Qt::KeyboardModifiers keyMods = e->modifiers();
     result << int(baseKey + keyMods); // The base key is _always_ valid, of course
 
-    for(int i = 1; i < 8; ++i) {
+    for(int i = 1; i < 9; ++i) {
         Qt::KeyboardModifiers neededMods = ModsTbl[i];
         quint32 key = kbItem->qtKey[i];
         if (key && key != baseKey && ((keyMods & neededMods) == neededMods))
