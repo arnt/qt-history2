@@ -27,6 +27,7 @@
 
 #include <QtGui/QTextEdit>
 #include <QtGui/QDialog>
+#include <QtGui/QLabel>
 #include "shared_global_p.h"
 
 class QDesignerFormWindowInterface;
@@ -47,13 +48,17 @@ public:
     StyleSheetEditorDialog(QWidget *parent, QWidget *widget);
     StyleSheetEditor *editor() const;
 
+    static bool isStyleSheetValid(const QString &styleSheet);
+
 private slots:
     void applyStyleSheet();
+    void validateStyleSheet();
 
 private:
     StyleSheetEditor *m_editor;
     QDesignerFormWindowInterface *m_fw;
     QWidget *m_widget;
+    QLabel *validityLabel;
 };
 
 } // namespace qdesigner_internal
