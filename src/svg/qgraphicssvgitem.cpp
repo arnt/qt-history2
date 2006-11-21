@@ -180,7 +180,7 @@ void QGraphicsSvgItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         return;
     }
 
-    QString uniqueId = QString("%1_%2_%3_%4_%5").arg((long)this)
+    QString uniqueId = QString::fromLatin1("%1_%2_%3_%4_%5").arg((long)this)
                        .arg(m.m11()).arg(m.m12()).arg(m.m21()).arg(m.m22());
 
     QPixmap pix;

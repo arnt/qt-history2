@@ -32,7 +32,7 @@ static void translate_color(const QColor &color, QString *color_string,
     Q_ASSERT(opacity_string);
 
     *color_string =
-        QString("#%1%2%3")
+        QString::fromLatin1("#%1%2%3")
         .arg(color.red(), 2, 16, QLatin1Char('0'))
         .arg(color.green(), 2, 16, QLatin1Char('0'))
         .arg(color.blue(), 2, 16, QLatin1Char('0'));
@@ -48,12 +48,12 @@ public:
         outputDevice = 0;
         resolution = 72;
 
-        attributes.document_title = "Qt Svg Document";
-        attributes.document_description = "Generated with Qt";
-        attributes.font_family = "serif";
-        attributes.font_size = "10pt";
-        attributes.font_style = "normal";
-        attributes.font_weight = "normal";
+        attributes.document_title = QLatin1String("Qt Svg Document");
+        attributes.document_description = QLatin1String("Generated with Qt");
+        attributes.font_family = QLatin1String("serif");
+        attributes.font_size = QLatin1String("10pt");
+        attributes.font_style = QLatin1String("normal");
+        attributes.font_weight = QLatin1String("normal");
 
         afterFirstUpdate = false;
         numGradients = 0;
@@ -76,7 +76,7 @@ public:
 
     QString generateGradientName() {
         ++numGradients;
-        currentGradientName = QString("gradient%1").arg(numGradients);
+        currentGradientName = QString::fromLatin1("gradient%1").arg(numGradients);
         return currentGradientName;
     }
 
@@ -151,34 +151,34 @@ public:
     void saveLinearGradientBrush(const QGradient *g)
     {
         QTextStream str(&d_func()->defs, QIODevice::Append);
-        str << "<linearGradient gradientUnits=\"userSpaceOnUse\" ";
+        str << QLatin1String("<linearGradient gradientUnits=\"userSpaceOnUse\" ");
         const QLinearGradient *grad = static_cast<const QLinearGradient*>(g);
         if (grad) {
-            str << "x1 = \""<<grad->start().x()<<"\" "
-                << "y1 = \""<<grad->start().y()<<"\" "
-                << "x2 = \""<<grad->finalStop().x() <<"\" "
-                << "y2 = \""<<grad->finalStop().y() <<"\" ";
+            str << QLatin1String("x1 = \"") <<grad->start().x()<< QLatin1String("\" ")
+                << QLatin1String("y1 = \"") <<grad->start().y()<< QLatin1String("\" ")
+                << QLatin1String("x2 = \"") <<grad->finalStop().x() << QLatin1String("\" ")
+                << QLatin1String("y2 = \"") <<grad->finalStop().y() << QLatin1String("\" ");
         }
 
-        str << "id=\""<< d_func()->generateGradientName() << "\">\n";
+        str << QLatin1String("id=\"") << d_func()->generateGradientName() << QLatin1String("\">\n");
         saveGradientStops(str, g);
-        str << "</linearGradient>" <<endl;
+        str << QLatin1String("</linearGradient>") <<endl;
     }
     void saveRadialGradientBrush(const QGradient *g)
     {
         QTextStream str(&d_func()->defs, QIODevice::Append);
-        str << "<radialGradient gradientUnits=\"userSpaceOnUse\"";
+        str << QLatin1String("<radialGradient gradientUnits=\"userSpaceOnUse\"");
         const QRadialGradient *grad = static_cast<const QRadialGradient*>(g);
         if (grad) {
-            str << "cx = \""<<grad->center().x()<<"\" "
-                << "cy = \""<<grad->center().y()<<"\" "
-                << "r = \""<<grad->radius() <<"\" "
-                << "fx = \""<<grad->focalPoint().x() <<"\" "
-                << "fy = \""<<grad->focalPoint().y() <<"\" ";
+            str << QLatin1String("cx = \"") <<grad->center().x()<< QLatin1String("\" ")
+                << QLatin1String("cy = \"") <<grad->center().y()<< QLatin1String("\" ")
+                << QLatin1String("r = \"") <<grad->radius() << QLatin1String("\" ")
+                << QLatin1String("fx = \"") <<grad->focalPoint().x() << QLatin1String("\" ")
+                << QLatin1String("fy = \"") <<grad->focalPoint().y() << QLatin1String("\" ");
         }
-        str << " xml:id=\""<<d_func()->generateGradientName()<< "\">\n";
+        str << QLatin1String(" xml:id=\"") <<d_func()->generateGradientName()<< QLatin1String("\">\n");
         saveGradientStops(str, g);
-        str << "</radialGradient>" << endl;
+        str << QLatin1String("</radialGradient>") << endl;
     }
     void saveConicalGradientBrush(const QGradient *)
     {
@@ -192,25 +192,25 @@ public:
         QGradientStops stops = g->stops();
         foreach(QGradientStop stop, stops) {
             QString color =
-                QString("#%1%2%3")
+                QString::fromLatin1("#%1%2%3")
                 .arg(stop.second.red(), 2, 16, QLatin1Char('0'))
                 .arg(stop.second.green(), 2, 16, QLatin1Char('0'))
                 .arg(stop.second.blue(), 2, 16, QLatin1Char('0'));
-            str << "    <stop offset=\""<< stop.first << "\" "
-                << "stop-color=\""<< color << "\" "
-                << "stop-opacity=\"" << stop.second.alphaF() <<"\" />\n";
+            str << QLatin1String("    <stop offset=\"")<< stop.first << QLatin1String("\" ")
+                << QLatin1String("stop-color=\"") << color << QLatin1String("\" ")
+                << QLatin1String("stop-opacity=\"") << stop.second.alphaF() <<QLatin1String("\" />\n");
         }
     }
     void generateQtDefaults()
     {
-        *d_func()->stream << "fill=\"none\" ";
-        *d_func()->stream << "stroke=\"black\" ";
-        *d_func()->stream << "vector-effect=\"non-scaling-stroke\" ";
-        *d_func()->stream << "stroke-width=\"1\" ";
-        *d_func()->stream << "fill-rule=\"evenodd\" ";
-        *d_func()->stream << "stroke-linecap=\"square\" ";
-        *d_func()->stream << "stroke-linejoin=\"bevel\" ";
-        *d_func()->stream << ">\n";
+        *d_func()->stream << QLatin1String("fill=\"none\" ");
+        *d_func()->stream << QLatin1String("stroke=\"black\" ");
+        *d_func()->stream << QLatin1String("vector-effect=\"non-scaling-stroke\" ");
+        *d_func()->stream << QLatin1String("stroke-width=\"1\" ");
+        *d_func()->stream << QLatin1String("fill-rule=\"evenodd\" ");
+        *d_func()->stream << QLatin1String("stroke-linecap=\"square\" ");
+        *d_func()->stream << QLatin1String("stroke-linejoin=\"bevel\" ");
+        *d_func()->stream << QLatin1String(">\n");
     }
     inline QTextStream &stream()
     {
@@ -226,7 +226,7 @@ public:
 
         switch (spen.style()) {
         case Qt::NoPen:
-            stream() << "stroke=\"none\" ";
+            stream() << QLatin1String("stroke=\"none\" ");
 
             d_func()->attributes.stroke = QLatin1String("none");
             d_func()->attributes.strokeOpacity = QString();
@@ -240,8 +240,8 @@ public:
             d_func()->attributes.stroke = color;
             d_func()->attributes.strokeOpacity = colorOpacity;
 
-            stream() <<"stroke=\""<<color<<"\" ";
-            stream() <<"stroke-opacity=\""<<colorOpacity<<"\" ";
+            stream() << QLatin1String("stroke=\"")<<color<< QLatin1String("\" ");
+            stream() << QLatin1String("stroke-opacity=\"")<<colorOpacity<< QLatin1String("\" ");
         }
             break;
         case Qt::DashLine:
@@ -310,28 +310,28 @@ public:
             break;
         case Qt::LinearGradientPattern:
             saveLinearGradientBrush(sbrush.gradient());
-            d_func()->attributes.fill = QString("url(#%1)").arg(d_func()->currentGradientName);
+            d_func()->attributes.fill = QString::fromLatin1("url(#%1)").arg(d_func()->currentGradientName);
             d_func()->attributes.fillOpacity = QString();
-            stream() << "fill=\"url(#" << d_func()->currentGradientName << ")\" ";
+            stream() << QLatin1String("fill=\"url(#") << d_func()->currentGradientName << QLatin1String(")\" ");
             break;
         case Qt::RadialGradientPattern:
             saveRadialGradientBrush(sbrush.gradient());
-            d_func()->attributes.fill = QString("url(#%1)").arg(d_func()->currentGradientName);
+            d_func()->attributes.fill = QString::fromLatin1("url(#%1)").arg(d_func()->currentGradientName);
             d_func()->attributes.fillOpacity = QString();
-            stream() << "fill=\"url(#" << d_func()->currentGradientName << ")\" ";
+            stream() << QLatin1String("fill=\"url(#") << d_func()->currentGradientName << QLatin1String(")\" ");
             break;
         case Qt::ConicalGradientPattern:
             saveConicalGradientBrush(sbrush.gradient());
-            d_func()->attributes.fill = QString("url(#%1)").arg(d_func()->currentGradientName);
+            d_func()->attributes.fill = QString::fromLatin1("url(#%1)").arg(d_func()->currentGradientName);
             d_func()->attributes.fillOpacity = QString();
-            stream() << "fill=\"url(#" << d_func()->currentGradientName << ")\" ";
+            stream() << QLatin1String("fill=\"url(#") << d_func()->currentGradientName << QLatin1String(")\" ");
             break;
         case Qt::TexturePattern:
             saveTextureBrush(sbrush);
             break;
         case Qt::NoBrush:
-            stream() << "fill=\"none\" ";
-            d_func()->attributes.fill = QString("none");
+            stream() << QLatin1String("fill=\"none\" ");
+            d_func()->attributes.fill = QLatin1String("none");
             d_func()->attributes.fillOpacity = QString();
             return;
             break;
@@ -345,7 +345,7 @@ public:
         Q_D(QSvgPaintEngine);
         
         d->font = sfont;
-        d->attributes.font_size = QString::number(d->font.pointSize()) + "pt";
+        d->attributes.font_size = QString::number(d->font.pointSize()) + QLatin1String("pt");
         int svgWeight = d->font.weight();
         switch (svgWeight) {
         case QFont::Light:
@@ -363,7 +363,7 @@ public:
             
         d->attributes.font_weight = QString::number(svgWeight);
         d->attributes.font_family = d->font.family();
-        d->attributes.font_style = d->font.italic() ? "italic" : "normal";
+        d->attributes.font_style = d->font.italic() ? QLatin1String("italic") : QLatin1String("normal");
 
         *d->stream << "font-family=\"" << d->attributes.font_family << "\" "
                    << "font-size=\"" << d->attributes.font_size << "\" "

@@ -1354,7 +1354,7 @@ static bool parsePathDataFast(const QString &dataStr, QPainterPath &path)
         QChar pathElem = *str;
         ++str;
         QVector<qreal> arg = parseNumbersList(str);
-        if (pathElem == 'z' || pathElem == 'Z')
+        if (pathElem == QLatin1Char('z') || pathElem == QLatin1Char('Z'))
             arg.append(0);//dummy
         while (!arg.isEmpty()) {
             qreal offsetX = x;        // correction offsets
@@ -1671,13 +1671,13 @@ static void parseCSStoXMLAttrs(const QVector<QCss::Declaration> &declarations,
         } else if (val.type == QCss::Value::Function) {
             QStringList lst = val.variant.toStringList();
             valueStr.append(lst.at(0));
-            valueStr.append("(");
+            valueStr.append(QLatin1Char('('));
             for (int i = 1; i < lst.count(); ++i) {
                 valueStr.append(lst.at(i));
                 if ((i +1) < lst.count())
-                    valueStr.append(",");
+                    valueStr.append(QLatin1Char(','));
             }
-            valueStr.append(")");
+            valueStr.append(QLatin1Char(')'));
         } else if (val.type == QCss::Value::KnownIdentifier) {
             switch (val.variant.toInt()) {
             case QCss::Value_None:
@@ -3291,7 +3291,7 @@ QSvgStyleSelector * QSvgHandler::selector() const
 bool QSvgHandler::processingInstruction(const QString &target, const QString &data)
 {
     if (target == QLatin1String("xml-stylesheet")) {
-        QRegExp rx("type=\\\"(.+)\\\"");
+        QRegExp rx(QLatin1String("type=\\\"(.+)\\\""));
         rx.setMinimal(true);
         bool isCss = false;
         int pos = 0;
@@ -3304,7 +3304,7 @@ bool QSvgHandler::processingInstruction(const QString &target, const QString &da
         }
 
         if (isCss) {
-            QRegExp rx("href=\\\"(.+)\\\"");
+            QRegExp rx(QLatin1String("href=\\\"(.+)\\\""));
             rx.setMinimal(true);
             pos = 0;
             pos = rx.indexIn(data, pos);
