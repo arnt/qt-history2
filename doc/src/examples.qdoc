@@ -126,7 +126,7 @@
     \section1 Graphics View Examples
 
     \list
-    \o \l{graphicsview/collidingmice}{Colliding Mice}
+    \o \l{graphicsview/collidingmice}{Colliding Mice}\raisedaster
     \o \l{graphicsview/dragdroprobot}{Drag and Drop Robot}
     \o \l{graphicsview/elasticnodes}{Elastic Nodes}
     \o \l{graphicsview/portedasteroids}{Ported Asteroids}
@@ -221,7 +221,7 @@
     \section1 SQL Examples
 
     \list
-    \o \l{sql/cachedtable}{Cached Table}
+    \o \l{sql/cachedtable}{Cached Table}\raisedaster
     \o \l{sql/querymodel}{Query Model}
     \o \l{sql/relationaltablemodel}{Relational Table Model}
     \o \l{sql/tablemodel}{Table Model}
