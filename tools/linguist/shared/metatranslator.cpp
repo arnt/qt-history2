@@ -805,7 +805,7 @@ QStringList MetaTranslator::normalizedTranslations(const MetaTranslatorMessage& 
 {
     QStringList translations = m.translations();
     int numTranslations = 1;
-    if (m.isPlural()) {
+    if (m.isPlural() && language != QLocale::C) {
         numTranslations = grammaticalNumerus(language, country);
     }
 

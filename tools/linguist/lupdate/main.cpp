@@ -191,7 +191,8 @@ int main( int argc, char **argv )
 		codecForSource.clear();
 
         if (metTsFlag) {
-            if ( QString(argv[i]).endsWith(".ts", Qt::CaseInsensitive) ) {
+            if ( QString(argv[i]).endsWith(".ts", Qt::CaseInsensitive) 
+                || QString(argv[i]).endsWith(".xlf", Qt::CaseInsensitive)) {
                 QFileInfo fi( argv[i] );
                 if ( !fi.exists() || fi.isWritable() ) {
                     tsFileNames.append( argv[i] );
@@ -203,7 +204,7 @@ int main( int argc, char **argv )
                 }
             } else {
                 fprintf( stderr,
-                         "lupdate error: File '%s' lacks .ts extension\n",
+                         "lupdate error: File '%s' lacks .ts or .xlf extension\n",
                          argv[i] );
             }
         } else if (QString(argv[i]).endsWith(".pro", Qt::CaseInsensitive)) {

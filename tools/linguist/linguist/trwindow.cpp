@@ -331,7 +331,7 @@ void TrWindow::open()
 {
     if (maybeSave()) {
         QString newFilename = QFileDialog::getOpenFileName( this, QString(), filename,
-            tr("Qt translation source (*.ts)\nAll files (*)"));
+            tr("Qt translation source (*.ts)\nXLIFF localization file (*.xlf)\nAll files (*)"));
         openFile(newFilename);
     }
 }

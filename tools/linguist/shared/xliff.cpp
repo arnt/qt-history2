@@ -138,21 +138,24 @@ static void writeComment(QTextStream *t, const MetaTranslatorMessage &msg, int i
 }
 
 static void writeTransUnit(QTextStream *t, const MetaTranslatorMessage &msg, int msgid, 
-                           int indent, const QString &translation)
+                           int indent, const QString &translation = QString())
 {
     static int plural = 0;
     static int prevMsgId = -1;
     writeIndent(t, indent);
     (*t) << "<trans-unit id=\"msg";
     QString strid;
+    QByteArray transl;
     if (msg.isPlural()) {
         if (prevMsgId != msgid) 
             plural = 0;
         strid = QString::fromAscii("%1[%2]").arg(msgid).arg(plural);
         ++plural;
+        transl = translation.toUtf8();
     } else {
         strid = QString::fromAscii("%1").arg(msgid);
         plural = 0;
+        transl = msg.translation().toUtf8();
     }
     prevMsgId = msgid;
     (*t) << strid << "\"";
@@ -169,7 +172,6 @@ static void writeTransUnit(QTextStream *t, const MetaTranslatorMessage &msg, int
     writeIndent(t, indent);
     (*t) << "<source>" << protect(msg.sourceText()) << "</source>\n";
     
-    QByteArray transl = translation.toUtf8();
     writeIndent(t, indent);
     (*t) << "<target" << state << ">" << protect(transl) << "</target>\n";
     // ### In XLIFF 1.1, name is marked as required, and it must be unique
@@ -205,7 +207,7 @@ static void writeMessage(QTextStream *t, const MetaTranslatorMessage &msg, int i
         writeIndent(t, indent);
         (*t) << "</group>\n";
     } else {
-        writeTransUnit(t, msg, msgid, indent, 0);
+        writeTransUnit(t, msg, msgid, indent);
     }
     ++msgid;
 }
@@ -227,7 +229,7 @@ bool MetaTranslator::saveXLIFF( const QString& filename) const
     while ( m != mm.end() ) {
         MetaTranslatorMessage msg = m.key();
         QString location = msg.fileName() + msg.context() + msg.lineNumber();
-        mtSortByFileName.insert(location, msg);
+        mtSortByFileName.insertMulti(location, msg);
         ++m;
     }
 
@@ -301,8 +303,8 @@ class XLIFFHandler : public QXmlDefaultHandler
 {
 public:
     XLIFFHandler( MetaTranslator *translator )
-        : tor( translator ), type( MetaTranslatorMessage::Finished ),
-          inMessage( false ), m_inContextGroup(false), m_inPluralGroup(false),
+        : tor( translator ), m_type( MetaTranslatorMessage::Finished ),
+          inMessage( false ), m_inContextGroup(false), m_lineNumber(-1),
           ferrorCount( 1 ), contextIsUtf8( false ),
           messageIsUtf8( false ), m_isPlural(false), 
           m_URI(QLatin1String(XLIFFnamespaceURI)) { }
@@ -318,10 +320,9 @@ public:
     QString language() const { return m_language; }
 private:
     MetaTranslator *tor;
-    MetaTranslatorMessage::Type type;
+    MetaTranslatorMessage::Type m_type;
     bool inMessage;
     bool m_inContextGroup;
-    bool m_inPluralGroup;
     QString m_language;
     QString m_context;
     QString m_source;
@@ -340,33 +341,44 @@ private:
 };
 
 bool XLIFFHandler::startElement( const QString& namespaceURI,
-                           const QString& localName, const QString& qName,
+                           const QString& localName, const QString& /*qName*/,
                            const QXmlAttributes& atts )
 {
     if (namespaceURI == m_URI) {
         if (localName == QLatin1String("file")) {
-            m_fileName = atts.value(m_URI, QLatin1String("original"));
-            m_language = atts.value(m_URI, QLatin1String("target-language"));
+            m_fileName = atts.value(QLatin1String("original"));
+            m_language = atts.value(QLatin1String("target-language"));
         } else if (localName == QLatin1String("group")) {
             if (atts.value(QLatin1String("restype")) == QLatin1String(restypeContext)) {
                 m_context = atts.value(QLatin1String("resname"));
             } else {
-                m_inPluralGroup = atts.value(m_URI, QLatin1String("restype")) 
+                m_isPlural = atts.value(QLatin1String("restype")) 
                                   == QLatin1String(restypePlurals);
+                m_comment.clear();
             }
         } else if (localName == QLatin1String("trans-unit")) {
             inMessage = true;
+            if (atts.value(QLatin1String("translate")) == QLatin1String("no")) {
+                m_type = MetaTranslatorMessage::Obsolete;
+            }
+            m_comment.clear();
+        } else if (localName == QLatin1String("target")) {
+            QString state = atts.value(QLatin1String("state"));
+            if (state == QLatin1String("new")) {
+                m_type = MetaTranslatorMessage::Unfinished;
+            } else if (state == QLatin1String("final")) {
+                m_type = MetaTranslatorMessage::Finished;
+            }
         } else if (localName == QLatin1String("context-group")) {
-            QString purpose = atts.value(m_URI, QLatin1String("purpose"));
+            QString purpose = atts.value(QLatin1String("purpose"));
             if (purpose == QLatin1String("location")) {
                 m_inContextGroup = true;
             }
         } else if (m_inContextGroup && localName == QLatin1String("context")) {
-            m_inContextGroup = atts.value(m_URI, QLatin1String("content-type")) 
-                                == QLatin1String("location");
+            m_inContextGroup = atts.value(QLatin1String("context-type")) 
+                                == QLatin1String("linenumber");
         } else if (localName == QLatin1String("ph")) {
-            //<ph id=\"ph%1\" ctype=\"x-ch-%2\">\\%3</ph>
-            QString ctype = atts.value(m_URI, QLatin1String("ctype"));
+            QString ctype = atts.value(QLatin1String("ctype"));
             if (ctype.startsWith(QLatin1String("x-ch-"))) {
                 m_ctype = ctype.right(2);
             }
@@ -377,7 +389,7 @@ bool XLIFFHandler::startElement( const QString& namespaceURI,
 }
 
 bool XLIFFHandler::endElement(const QString& namespaceURI,
-                              const QString& localName, const QString& qName )
+                              const QString& localName, const QString& /*qName*/ )
 {
     if (namespaceURI == m_URI) {
         if (localName == QLatin1String("source")) {
@@ -396,19 +408,21 @@ bool XLIFFHandler::endElement(const QString& namespaceURI,
         } else if (localName == QLatin1String("ph")) {
             m_ctype.clear();
         } else if (localName == QLatin1String("trans-unit")) {
-            if (!m_inPluralGroup) {
-                tor->insert( MetaTranslatorMessage(m_context.toUtf8(), m_source.toUtf8(),
-                                                m_comment.toUtf8(), m_fileName, m_lineNumber, 
-                                                translations, true, type, m_isPlural) );
+            if (!m_isPlural) {
+                tor->insert( MetaTranslatorMessage(m_context.toAscii(), m_source.toAscii(),
+                                                m_comment.toAscii(), m_fileName, m_lineNumber, 
+                                                translations, false, m_type, m_isPlural) );
                 translations.clear();
+                m_lineNumber = -1;
             }
         } else if (localName == QLatin1String("group")) {
-            if (m_inPluralGroup) {
-                tor->insert( MetaTranslatorMessage(m_context.toUtf8(), m_source.toUtf8(),
-                                                m_comment.toUtf8(), m_fileName, m_lineNumber, 
-                                                translations, true, type, m_isPlural) );
-                m_inPluralGroup = false;
+            if (m_isPlural) {
+                tor->insert( MetaTranslatorMessage(m_context.toAscii(), m_source.toAscii(),
+                                                m_comment.toAscii(), m_fileName, m_lineNumber, 
+                                                translations, false, m_type, m_isPlural) );
+                m_isPlural = false;
                 translations.clear();
+                m_lineNumber = -1;
             }
         }
     }
@@ -424,10 +438,11 @@ bool XLIFFHandler::characters( const QString& ch )
     } else {
         // handle the content of <ph> elements
         for (int i = 0; i < ch.count(); ++i) {
+            QChar chr  = ch.at(i);
             if (accum.endsWith(QLatin1Char('\\'))) {
-                accum.append(QLatin1Char(charFromEscape(ch.at(i).toAscii())));
+                accum[accum.size() - 1] = QLatin1Char(charFromEscape(chr.toAscii()));
             } else {
-                accum.append(ch.at(i));
+                accum.append(chr);
             }
         }
     }

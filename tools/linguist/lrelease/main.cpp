@@ -163,7 +163,8 @@ int main( int argc, char **argv )
         QString fullText = t.readAll();
         f.close();
 
-        if ( fullText.contains(QString("<!DOCTYPE TS>"))) {
+        if ( fullText.contains(QString("<!DOCTYPE TS>")) 
+            || fullText.contains(QLatin1String("urn:oasis:names:tc:xliff:document:1.1"))) {
             if ( outputFile.isEmpty() ) {
                 releaseTsFile( argv[i], verbose, ignoreUnfinished,
                                trimmed );
