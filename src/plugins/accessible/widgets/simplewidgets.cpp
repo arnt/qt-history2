@@ -48,9 +48,9 @@ QAccessibleButton::QAccessibleButton(QWidget *w, Role role)
 {
     Q_ASSERT(button());
     if (button()->isCheckable())
-        addControllingSignal("toggled(bool)");
+        addControllingSignal(QLatin1String("toggled(bool)"));
     else
-        addControllingSignal("clicked()");
+        addControllingSignal(QLatin1String("clicked()"));
 }
 
 /*! Returns the button. */
@@ -340,7 +340,7 @@ QString QAccessibleToolButton::actionText(int action, Text text, int child) cons
 #endif
             //fall through
         case 2:
-            return "Set Focus";
+            return QLatin1String("Set Focus");
         }
     }
     return QString();
@@ -510,8 +510,8 @@ int QAccessibleDisplay::navigate(RelationFlag rel, int entry, QAccessibleInterfa
 QAccessibleLineEdit::QAccessibleLineEdit(QWidget *w, const QString &name)
 : QAccessibleWidgetEx(w, EditableText, name)
 {
-    addControllingSignal("textChanged(const QString&)");
-    addControllingSignal("returnPressed()");
+    addControllingSignal(QLatin1String("textChanged(const QString&)"));
+    addControllingSignal(QLatin1String("returnPressed()"));
 }
 
 /*! Returns the line edit. */

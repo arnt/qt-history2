@@ -44,7 +44,7 @@ QStringList QMultiInputContextPlugin::keys() const
 {
     // input method switcher should named with "imsw-" prefix to
     // prevent to be listed in ordinary input method list.
-    return QStringList( "imsw-multi" );
+    return QStringList( QLatin1String("imsw-multi") );
 }
 
 QInputContext *QMultiInputContextPlugin::create( const QString &key )

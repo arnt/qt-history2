@@ -583,7 +583,7 @@ QAccessibleWidgetStack::QAccessibleWidgetStack(QWidget *w)
 : QAccessibleWidget(w, LayeredPane)
 {
     Q_ASSERT(widgetStack());
-    setDescription("This is a widgetstack");
+    setDescription(QLatin1String("This is a widgetstack"));
 }
 
 /*! Returns the widget stack. */

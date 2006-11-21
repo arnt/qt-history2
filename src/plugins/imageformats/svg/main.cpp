@@ -32,7 +32,7 @@ public:
 
 QStringList QSvgPlugin::keys() const
 {
-    return QStringList() << "svg";
+    return QStringList() << QLatin1String("svg");
 }
 
 QImageIOPlugin::Capabilities QSvgPlugin::capabilities(QIODevice *device, const QByteArray &format) const

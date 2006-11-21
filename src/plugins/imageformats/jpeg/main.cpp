@@ -31,7 +31,7 @@ public:
 
 QStringList QJpegPlugin::keys() const
 {
-    return QStringList() << "jpeg" << "jpg";
+    return QStringList() << QLatin1String("jpeg") << QLatin1String("jpg");
 }
 
 QImageIOPlugin::Capabilities QJpegPlugin::capabilities(QIODevice *device, const QByteArray &format) const

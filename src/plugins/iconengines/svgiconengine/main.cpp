@@ -31,7 +31,7 @@ public:
 
 QStringList QSvgIconPlugin::keys() const
 {
-    return QStringList() << "svg";
+    return QStringList() << QLatin1String("svg");
 }
 
 QIconEngine *QSvgIconPlugin::create(const QString &file)

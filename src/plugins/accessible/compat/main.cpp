@@ -36,20 +36,20 @@ CompatAccessibleFactory::CompatAccessibleFactory()
 QStringList CompatAccessibleFactory::keys() const
 {
     QStringList list;
-    list << "Q3TextEdit";
-    list << "Q3IconView";
-    list << "Q3ListView";
-    list << "Q3WidgetStack";
-    list << "Q3GroupBox";
-    list << "Q3ToolBar";
-    list << "Q3ToolBarSeparator";
-    list << "Q3DockWindowHandle";
-    list << "Q3DockWindowResizeHandle";
-    list << "Q3MainWindow";
-    list << "Q3Header";
-    list << "Q3ListBox";
-    list << "Q3Table";
-    list << "Q3TitleBar";
+    list << QLatin1String("Q3TextEdit");
+    list << QLatin1String("Q3IconView");
+    list << QLatin1String("Q3ListView");
+    list << QLatin1String("Q3WidgetStack");
+    list << QLatin1String("Q3GroupBox");
+    list << QLatin1String("Q3ToolBar");
+    list << QLatin1String("Q3ToolBarSeparator");
+    list << QLatin1String("Q3DockWindowHandle");
+    list << QLatin1String("Q3DockWindowResizeHandle");
+    list << QLatin1String("Q3MainWindow");
+    list << QLatin1String("Q3Header");
+    list << QLatin1String("Q3ListBox");
+    list << QLatin1String("Q3Table");
+    list << QLatin1String("Q3TitleBar");
 
     return list;
 }
@@ -61,33 +61,33 @@ QAccessibleInterface *CompatAccessibleFactory::create(const QString &classname, 
         return iface;
     QWidget *widget = static_cast<QWidget*>(object);
 
-    if (classname == "Q3TextEdit") {
+    if (classname == QLatin1String("Q3TextEdit")) {
         iface = new Q3AccessibleTextEdit(widget);
-    } else if (classname == "Q3IconView") {
+    } else if (classname == QLatin1String("Q3IconView")) {
         iface = new QAccessibleIconView(widget);
-    } else if (classname == "Q3ListView") {
+    } else if (classname == QLatin1String("Q3ListView")) {
         iface = new QAccessibleListView(widget);
-    } else if (classname == "Q3WidgetStack") {
+    } else if (classname == QLatin1String("Q3WidgetStack")) {
         iface = new QAccessibleWidgetStack(widget);
-    } else if (classname == "Q3ListBox") {
+    } else if (classname == QLatin1String("Q3ListBox")) {
         iface = new QAccessibleListBox(widget);
-    } else if (classname == "Q3Table") {
+    } else if (classname == QLatin1String("Q3Table")) {
         iface = new Q3AccessibleScrollView(widget, Table);
-    } else if (classname == "Q3GroupBox") {
+    } else if (classname == QLatin1String("Q3GroupBox")) {
         iface = new Q3AccessibleDisplay(widget, Grouping);
-    } else if (classname == "Q3ToolBar") {
+    } else if (classname == QLatin1String("Q3ToolBar")) {
         iface = new QAccessibleWidget(widget, ToolBar, static_cast<Q3ToolBar *>(widget)->label());
-    } else if (classname == "Q3MainWindow") {
+    } else if (classname == QLatin1String("Q3MainWindow")) {
         iface = new QAccessibleWidget(widget, Application);
-    } else if (classname == "Q3ToolBarSeparator") {
+    } else if (classname == QLatin1String("Q3ToolBarSeparator")) {
         iface = new QAccessibleWidget(widget, Separator);
-    } else if (classname == "Q3DockWindowHandle") {
+    } else if (classname == QLatin1String("Q3DockWindowHandle")) {
         iface = new QAccessibleWidget(widget, Grip);
-    } else if (classname == "Q3DockWindowResizeHandle") {
+    } else if (classname == QLatin1String("Q3DockWindowResizeHandle")) {
         iface = new QAccessibleWidget(widget, Grip);
-    } else if (classname == "Q3Header") {
+    } else if (classname == QLatin1String("Q3Header")) {
         iface = new Q3AccessibleHeader(widget);
-    } else if (classname == "Q3TitleBar") {
+    } else if (classname == QLatin1String("Q3TitleBar")) {
         iface = new Q3AccessibleTitleBar(widget);
     }
 

@@ -22,7 +22,7 @@ Q3AccessibleHeader::Q3AccessibleHeader(QWidget *w)
     : QAccessibleWidget(w)
 {
     Q_ASSERT(header());
-    addControllingSignal("clicked(int)");
+    addControllingSignal(QLatin1String("clicked(int)"));
 }
 
 /*! Returns the Q3Header. */

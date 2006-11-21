@@ -34,7 +34,7 @@ class QMngPlugin : public QImageIOPlugin
 
 QStringList QMngPlugin::keys() const
 {
-    return QStringList() << "mng";
+    return QStringList() << QLatin1String("mng");
 }
 
 QImageIOPlugin::Capabilities QMngPlugin::capabilities(QIODevice *device, const QByteArray &format) const

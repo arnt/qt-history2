@@ -58,8 +58,8 @@ QAccessibleSpinBox::QAccessibleSpinBox(QWidget *w)
 : QAccessibleWidget(w, SpinBox)
 {
     Q_ASSERT(spinBox());
-    addControllingSignal("valueChanged(int)");
-    addControllingSignal("valueChanged(QString)");
+    addControllingSignal(QLatin1String("valueChanged(int)"));
+    addControllingSignal(QLatin1String("valueChanged(QString)"));
 }
 
 /*!
@@ -237,7 +237,7 @@ QAccessibleScrollBar::QAccessibleScrollBar(QWidget *w, const QString &name)
 : QAccessibleWidget(w, ScrollBar, name)
 {
     Q_ASSERT(scrollBar());
-    addControllingSignal("valueChanged(int)");
+    addControllingSignal(QLatin1String("valueChanged(int)"));
 }
 
 /*! Returns the scroll bar. */
@@ -411,7 +411,7 @@ QAccessibleSlider::QAccessibleSlider(QWidget *w, const QString &name)
 : QAccessibleWidget(w, Slider, name)
 {
     Q_ASSERT(slider());
-    addControllingSignal("valueChanged(int)");
+    addControllingSignal(QLatin1String("valueChanged(int)"));
 }
 
 /*! Returns the slider. */
@@ -552,7 +552,7 @@ int QAccessibleSlider::defaultAction(int /*child*/) const
 /*! \internal */
 QString QAccessibleSlider::actionText(int /*action*/, Text /*t*/, int /*child*/) const
 {
-    return QString("");
+    return QString(QLatin1String(""));
 }
 
 /*! \reimp */

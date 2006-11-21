@@ -40,13 +40,13 @@ QMultiInputContext::QMultiInputContext()
 {
     QStringList keys = QInputContextFactory::keys();
     for (int i = keys.size()-1; i >= 0; --i)
-        if (keys.at(i).contains("imsw"))
+        if (keys.at(i).contains(QLatin1String("imsw")))
             keys.removeAt(i);
 
-    QString def = getenv("QT_IM_MODULE");
+    QString def = QLatin1String(getenv("QT_IM_MODULE"));
     if (def.isEmpty()) {
 	QSettings settings;
-        def = settings.value("/qt/DefaultInputMethod", QLatin1String("xim")).toString();
+        def = settings.value(QLatin1String("/qt/DefaultInputMethod"), QLatin1String("xim")).toString();
     }
     current = keys.indexOf(def);
     if (current < 0)
@@ -77,12 +77,12 @@ QMultiInputContext::~QMultiInputContext()
 
 QString QMultiInputContext::identifierName()
 {
-    return (slave()) ? slave()->identifierName() : "";
+    return (slave()) ? slave()->identifierName() : QLatin1String("");
 }
 
 QString QMultiInputContext::language()
 {
-    return (slave()) ? slave()->language() : "";
+    return (slave()) ? slave()->language() : QLatin1String("");
 }
 
 
