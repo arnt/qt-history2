@@ -19,6 +19,9 @@
 #include "qdesktopwidget.h"
 #include "qpainter.h"
 #include "qpixmap.h"
+#include "qtextdocument.h"
+#include "qtextcursor.h"
+#include <QtCore/qdebug.h>
 #include <private/qwidget_p.h>
 
 class QSplashScreenPrivate : public QWidgetPrivate
@@ -273,10 +276,26 @@ void QSplashScreenPrivate::drawContents()
 */
 void QSplashScreen::drawContents(QPainter *painter)
 {
-    painter->setPen(d_func()->currColor);
+    Q_D(QSplashScreen);
+    painter->setPen(d->currColor);
     QRect r = rect();
     r.setRect(r.x() + 5, r.y() + 5, r.width() - 10, r.height() - 10);
-    painter->drawText(r, d_func()->currAlign, d_func()->currStatus);
+    if (Qt::mightBeRichText(d->currStatus)) {
+        QTextDocument doc;
+        doc.setHtml(d->currStatus);
+        doc.setTextWidth(r.width());
+        QTextCursor cursor(&doc);
+        cursor.select(QTextCursor::Document);
+        QTextBlockFormat fmt;
+        fmt.setAlignment(Qt::Alignment(d->currAlign));
+        cursor.mergeBlockFormat(fmt);
+        painter->save();
+        painter->translate(r.topLeft());
+        doc.drawContents(painter);
+        painter->restore();
+    } else {
+        painter->drawText(r, d->currAlign, d->currStatus);
+    }
 }
 
 /*!
