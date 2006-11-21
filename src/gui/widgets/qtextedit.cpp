@@ -1199,7 +1199,7 @@ QVariant QTextEdit::loadResource(int type, const QUrl &name)
 void QTextEdit::resizeEvent(QResizeEvent *e)
 {
     Q_D(QTextEdit);
-    if (d->lineWrap == WidgetWidth) {
+    if (d->lineWrap == WidgetWidth || d->lineWrap == NoWrap) {
         if (e->oldSize().width() == e->size().width()
             && e->oldSize().height() != e->size().height())
             d->_q_adjustScrollbars();
@@ -1220,6 +1220,11 @@ void QTextEditPrivate::relayoutDocument()
             tlayout->setFixedColumnWidth(lineWrapColumnOrWidth);
         else
             tlayout->setFixedColumnWidth(-1);
+
+        if (lineWrap == QTextEdit::NoWrap)
+            tlayout->setBlockTextFlags(Qt::TextSingleLine);
+        else
+            tlayout->setBlockTextFlags(0);
     }
 
     QTextDocumentLayout *tlayout = qobject_cast<QTextDocumentLayout *>(layout);
@@ -1238,8 +1243,7 @@ void QTextEditPrivate::relayoutDocument()
     int width = 0;
     switch (lineWrap) {
         case QTextEdit::NoWrap:
-            width = -1;
-            break;
+            // fall through
         case QTextEdit::WidgetWidth:
             width = viewport->width();
             break;
