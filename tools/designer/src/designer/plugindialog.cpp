@@ -54,43 +54,43 @@ QDesignerFormEditorInterface *PluginDialog::core() const
 
 void PluginDialog::populateTreeWidget()
 {
-    QStringList fileNames = core()->pluginManager()->registeredPlugins();
+    const QStringList fileNames = core()->pluginManager()->registeredPlugins();
 
-    foreach (QString fileName, fileNames) {
-        QPluginLoader loader(fileName);
-        QFileInfo fileInfo(fileName);
+    if (!fileNames.isEmpty()) {
+        QTreeWidgetItem *topLevelItem = setTopLevelItem("Loaded Plugins");
+        QFont boldFont = topLevelItem->font(0);
 
-        QObject *plugin = loader.instance();
+        foreach (QString fileName, fileNames) {
+            QPluginLoader loader(fileName);
+            QFileInfo fileInfo(fileName);
 
-        QTreeWidgetItem *pluginItem = new QTreeWidgetItem(ui.treeWidget);
-        pluginItem->setText(0, fileInfo.fileName());
-        pluginItem->setIcon(0, style()->standardPixmap(QStyle::SP_DirOpenIcon));
-        ui.treeWidget->setItemExpanded(pluginItem, true);
+            QTreeWidgetItem *pluginItem = setPluginItem(topLevelItem, fileInfo.fileName(), boldFont);
 
-        QFont boldFont = pluginItem->font(0);
-        boldFont.setBold(true);
-        pluginItem->setFont(0, boldFont);
+            QObject *plugin = loader.instance();
+            if (plugin != 0) {
+                QDesignerCustomWidgetCollectionInterface *c = qobject_cast<QDesignerCustomWidgetCollectionInterface*>(plugin);
+                if (c != 0) {
+                    foreach (QDesignerCustomWidgetInterface *p, c->customWidgets())
+                        setItem(pluginItem, p->name(), p->toolTip(), p->whatsThis(), p->icon()); 
+                }
 
-        if (plugin != 0) {
-            QDesignerCustomWidgetCollectionInterface *c = qobject_cast<QDesignerCustomWidgetCollectionInterface*>(plugin);
-            if (c != 0) {
-                foreach (QDesignerCustomWidgetInterface *p, c->customWidgets()) {
-                    QTreeWidgetItem *item = new QTreeWidgetItem(pluginItem);
-                    item->setText(0, p->name());
-                    item->setIcon(0, pluginIcon(p->icon()));
-                    item->setToolTip(0, p->toolTip());
-                    item->setWhatsThis(0, p->whatsThis());
+                QDesignerCustomWidgetInterface *p = qobject_cast<QDesignerCustomWidgetInterface*>(plugin);
+                if (p != 0) {
+                    setItem(pluginItem, p->name(), p->toolTip(), p->whatsThis(), p->icon());
                 }
             }
+        }
+    }
 
-            QDesignerCustomWidgetInterface *p = qobject_cast<QDesignerCustomWidgetInterface*>(plugin);
-            if (p != 0) {
-                QTreeWidgetItem *item = new QTreeWidgetItem(pluginItem);
-                item->setText(0, p->name());
-                item->setIcon(0, pluginIcon(p->icon()));
-                item->setToolTip(0, p->toolTip());
-                item->setWhatsThis(0, p->whatsThis());
-            }
+    const QStringList notLoadedPlugins = core()->pluginManager()->failedPlugins();
+    if (!notLoadedPlugins.isEmpty()) {
+
+        QTreeWidgetItem *topLevelItem = setTopLevelItem("Failed Plugins");
+        QFont boldFont = topLevelItem->font(0);
+        foreach (const QString plugin, notLoadedPlugins)
+        {
+            QTreeWidgetItem *pluginItem = setPluginItem(topLevelItem, plugin, boldFont);
+            setItem(pluginItem, core()->pluginManager()->failureReason(plugin), "", "", QIcon());
         }
     }
 
@@ -110,3 +110,38 @@ QIcon PluginDialog::pluginIcon(const QIcon &icon)
     return icon;
 }
 
+QTreeWidgetItem* PluginDialog::setTopLevelItem(const QString &itemName)
+{
+    QTreeWidgetItem *topLevelItem = new QTreeWidgetItem(ui.treeWidget);
+    topLevelItem->setText(0, itemName);
+    ui.treeWidget->setItemExpanded(topLevelItem, true);
+    topLevelItem->setIcon(0, style()->standardPixmap(QStyle::SP_DirOpenIcon));
+
+    QFont boldFont = topLevelItem->font(0);
+    boldFont.setBold(true);
+    topLevelItem->setFont(0, boldFont);
+
+    return topLevelItem;
+}
+
+QTreeWidgetItem* PluginDialog::setPluginItem(QTreeWidgetItem *topLevelItem, 
+                                             const QString &itemName, const QFont &font)
+{
+    QTreeWidgetItem *pluginItem = new QTreeWidgetItem(topLevelItem);
+    pluginItem->setFont(0, font);
+    pluginItem->setText(0, itemName);
+    ui.treeWidget->setItemExpanded(pluginItem, true);
+    pluginItem->setIcon(0, style()->standardPixmap(QStyle::SP_DirOpenIcon));
+
+    return pluginItem;
+}
+
+void PluginDialog::setItem(QTreeWidgetItem *pluginItem, const QString &name, 
+                           const QString &toolTip, const QString &whatsThis, const QIcon &icon)
+{
+    QTreeWidgetItem *item = new QTreeWidgetItem(pluginItem);
+    item->setText(0, name);
+    item->setToolTip(0, toolTip);
+    item->setWhatsThis(0, whatsThis);
+    item->setIcon(0, pluginIcon(icon));
+}

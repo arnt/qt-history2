@@ -107,6 +107,16 @@ QStringList QDesignerPluginManager::disabledPlugins() const
     return m_disabledPlugins;
 }
 
+QStringList QDesignerPluginManager::failedPlugins() const
+{
+    return m_failedPlugins.keys();
+}
+ 
+QString QDesignerPluginManager::failureReason(const QString &pluginName) const
+{
+    return m_failedPlugins.value(pluginName);
+}
+
 QStringList QDesignerPluginManager::registeredPlugins() const
 {
     return m_registeredPlugins;
@@ -151,12 +161,17 @@ void QDesignerPluginManager::registerPlugin(const QString &plugin)
     QPluginLoader loader(plugin);
     if (loader.load())
         m_registeredPlugins += plugin;
+    
     if (!loader.isLoaded()) {
+        m_failedPlugins.insert(plugin, loader.errorString());
         qWarning("QDesignerPluginManager: failed to load plugin\n"
                  " - pluginName='%s'\n"
                  " - error='%s'\n",
                  qPrintable(plugin),
                  qPrintable(loader.errorString()));
+    } else {
+        if (m_failedPlugins.contains(plugin))
+            m_failedPlugins.remove(plugin);
     }
 }
 
