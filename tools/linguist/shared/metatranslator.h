@@ -114,6 +114,8 @@ private:
 
     bool saveTS( const QString& filename ) const;
     bool saveXLIFF( const QString& filename) const;
+    bool loadTS( const QString& filename);
+    bool loadXLIFF( const QString& filename);
 
     TMM mm;
     QByteArray codecName;

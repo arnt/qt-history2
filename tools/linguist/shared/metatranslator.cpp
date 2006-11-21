@@ -372,6 +372,16 @@ void MetaTranslator::clear()
 
 bool MetaTranslator::load( const QString& filename )
 {
+    if (filename.endsWith(QLatin1String(".xlf")) ) {    
+        // XLIFF documents use the .xlf extension. 
+        // No other extension is recommended by the specification.
+        return loadXLIFF(filename);
+    }
+    return loadTS(filename);
+}
+
+bool MetaTranslator::loadTS( const QString& filename )
+{
     QFile f( filename );
     if ( !f.open(QIODevice::ReadOnly) )
         return false;

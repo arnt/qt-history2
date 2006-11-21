@@ -16,6 +16,9 @@
 #include <QtCore/QString>
 #include <QtCore/QFile>
 #include <QtCore/QTextCodec>
+#include <QtXml>
+#include <QtGui/QApplication>
+#include <QtGui/QMessageBox>
 
 /**
  * Implementation of XLIFF file format for Linguist
@@ -23,6 +26,7 @@
 static const char *restypeContext = "x-trolltech-linguist-context";
 static const char *restypePlurals = "x-trolltech-linguist-plurals";
 static const char *dataTypeUIFile = "x-trolltech-designer-ui";
+static const char *XLIFFnamespaceURI = "urn:oasis:names:tc:xliff:document:1.1";
 
 static QString dataType(const MetaTranslatorMessage &m)
 {
@@ -42,42 +46,41 @@ static void writeIndent(QTextStream *t, int indent)
     }
 }
 
+struct CharMnemonic
+{
+    char ch;
+    char escape;
+    char *mnemonic;
+};
+
+static const CharMnemonic charCodeMnemonics[] = {
+    {0x07, 'a', "bel"},
+    {0x08, 'b', "bs"},
+    {0x09, 't', "tab"},
+    {0x0a, 'n', "lf"},
+    {0x0b, 'v', "vt"},
+    {0x0c, 'f', "ff"},
+    {0x0d, 'r', "cr"}
+};
+
+static char charFromEscape(char escape)
+{
+    for (int i = 0; i < sizeof(charCodeMnemonics)/sizeof(CharMnemonic); ++i) {
+        CharMnemonic cm =  charCodeMnemonics[i];
+        if (cm.escape == escape) return cm.ch;
+    }
+    Q_ASSERT(0);
+}
+
 static QString numericEntity( int ch )
 {
     QString name;
     char escapechar;
-    switch (ch) {
-        case '\a':  //0x07
-            name = QLatin1String("bel");
-            escapechar = 'a';
-            break;
-        case '\b':  //0x08
-            name = QLatin1String("bs");
-            escapechar = 'b';
-            break;
-        case '\t':  //0x09
-            name = QLatin1String("tab");
-            escapechar = 't';
-            break;
-        case '\n':  //0x0a
-            name = QLatin1String("lf");
-            escapechar = 'n';
-            break;
-        case '\v':  //0x0b
-            name = QLatin1String("vt");
-            escapechar = 'v';
-            break;
-        case '\f':  //0x0c
-            name = QLatin1String("ff");
-            escapechar = 'f';
-            break;
-        case '\r':  //0x0d
-            name = QLatin1String("cr");
-            escapechar = 'r';
-            break;
-        default:
-            // write the numerical value if not all the others did match ???
-            break;
+    if (ch >= 7 && ch <= 0x0d)
+    {
+        CharMnemonic cm = charCodeMnemonics[int(ch) - 7];
+        name = QLatin1String(cm.mnemonic);
+        escapechar = cm.escape;
     }
     static int id = 0;
     return QString::fromAscii("<ph id=\"ph%1\" ctype=\"x-ch-%2\">\\%3</ph>")
@@ -128,7 +131,7 @@ static void writeLineNumber(QTextStream *t, const MetaTranslatorMessage &msg, in
 
 static void writeComment(QTextStream *t, const MetaTranslatorMessage &msg, int indent)
 {
-    if (msg.comment()) {
+    if (msg.comment() && qstrlen(msg.comment())) {
         writeIndent(t, indent);
         (*t) << "<note>" << msg.comment() << "</note>\n";
     }
@@ -231,17 +234,20 @@ bool MetaTranslator::saveXLIFF( const QString& filename) const
     t.setFieldAlignment(QTextStream::AlignRight);
     t << "<?xml version=\"1.0\"";
     t << " encoding=\"utf-8\"?>\n";
-    t << "<xliff version=\"1.1\" xmlns=\"urn:oasis:names:tc:xliff:document:1.1\">\n";
+    t << "<xliff version=\"1.1\" xmlns=\"" << XLIFFnamespaceURI << "\">\n";
     currentindent += indent;
     QMap<QString, MetaTranslatorMessage>::iterator mi = mtSortByFileName.begin();
     MetaTranslatorMessage msg;
     QByteArray ctx;
     QString fn;
     bool ctxdiffer = false;
+    bool filediffer = false;
     while (mi != mtSortByFileName.end()) {
         msg = mi.value();
         ctxdiffer = msg.context() != ctx;
-        if (ctxdiffer) {
+        filediffer = msg.fileName() != fn;
+
+        if (ctxdiffer || filediffer) {
             if (!ctx.isEmpty()) {
             writeIndent(&t, currentindent);
                 t << "</group>\n";
@@ -249,7 +255,7 @@ bool MetaTranslator::saveXLIFF( const QString& filename) const
             }
         }
 
-        if (msg.fileName() != fn) {
+        if (filediffer) {
             if (!fn.isEmpty()) {
                 writeIndent(&t, currentindent);
                 t << "</body></file>\n";
@@ -267,7 +273,7 @@ bool MetaTranslator::saveXLIFF( const QString& filename) const
 
         }
 
-        if (ctxdiffer) {
+        if (ctxdiffer || filediffer) {
             ctx = msg.context();
             writeIndent(&t, currentindent);
             t << "<group restype=\"" << restypeContext << "\""
@@ -291,5 +297,178 @@ bool MetaTranslator::saveXLIFF( const QString& filename) const
     return true;
 }
 
+class XLIFFHandler : public QXmlDefaultHandler
+{
+public:
+    XLIFFHandler( MetaTranslator *translator )
+        : tor( translator ), type( MetaTranslatorMessage::Finished ),
+          inMessage( false ), m_inContextGroup(false), m_inPluralGroup(false),
+          ferrorCount( 1 ), contextIsUtf8( false ),
+          messageIsUtf8( false ), m_isPlural(false), 
+          m_URI(QLatin1String(XLIFFnamespaceURI)) { }
 
+    virtual bool startElement( const QString& namespaceURI,
+                               const QString& localName, const QString& qName,
+                               const QXmlAttributes& atts );
+    virtual bool endElement( const QString& namespaceURI,
+                             const QString& localName, const QString& qName );
+    virtual bool characters( const QString& ch );
+    virtual bool fatalError( const QXmlParseException& exception );
 
+    QString language() const { return m_language; }
+private:
+    MetaTranslator *tor;
+    MetaTranslatorMessage::Type type;
+    bool inMessage;
+    bool m_inContextGroup;
+    bool m_inPluralGroup;
+    QString m_language;
+    QString m_context;
+    QString m_source;
+    QString m_comment;
+    QStringList translations;
+    QString m_fileName;
+    int     m_lineNumber;
+
+    QString accum;
+    QString m_ctype;
+    int ferrorCount;
+    bool contextIsUtf8;
+    bool messageIsUtf8;
+    bool m_isPlural;
+    const QString m_URI;  // convenience urn:oasis:names:tc:xliff:document:1.1
+};
+
+bool XLIFFHandler::startElement( const QString& namespaceURI,
+                           const QString& localName, const QString& qName,
+                           const QXmlAttributes& atts )
+{
+    if (namespaceURI == m_URI) {
+        if (localName == QLatin1String("file")) {
+            m_fileName = atts.value(m_URI, QLatin1String("original"));
+            m_language = atts.value(m_URI, QLatin1String("target-language"));
+        } else if (localName == QLatin1String("group")) {
+            if (atts.value(QLatin1String("restype")) == QLatin1String(restypeContext)) {
+                m_context = atts.value(QLatin1String("resname"));
+            } else {
+                m_inPluralGroup = atts.value(m_URI, QLatin1String("restype")) 
+                                  == QLatin1String(restypePlurals);
+            }
+        } else if (localName == QLatin1String("trans-unit")) {
+            inMessage = true;
+        } else if (localName == QLatin1String("context-group")) {
+            QString purpose = atts.value(m_URI, QLatin1String("purpose"));
+            if (purpose == QLatin1String("location")) {
+                m_inContextGroup = true;
+            }
+        } else if (m_inContextGroup && localName == QLatin1String("context")) {
+            m_inContextGroup = atts.value(m_URI, QLatin1String("content-type")) 
+                                == QLatin1String("location");
+        } else if (localName == QLatin1String("ph")) {
+            //<ph id=\"ph%1\" ctype=\"x-ch-%2\">\\%3</ph>
+            QString ctype = atts.value(m_URI, QLatin1String("ctype"));
+            if (ctype.startsWith(QLatin1String("x-ch-"))) {
+                m_ctype = ctype.right(2);
+            }
+        }
+    }
+    accum.clear();
+    return true;
+}
+
+bool XLIFFHandler::endElement(const QString& namespaceURI,
+                              const QString& localName, const QString& qName )
+{
+    if (namespaceURI == m_URI) {
+        if (localName == QLatin1String("source")) {
+            m_source = accum;
+        } else if (localName == QLatin1String("target")) {
+            translations.append(accum);
+        } else if (localName == QLatin1String("context-group")) {
+            m_inContextGroup = false;
+        } else if (m_inContextGroup && localName == QLatin1String("context")) {
+            bool ok;
+            m_lineNumber = accum.trimmed().toInt(&ok);
+            if (!ok)
+                m_lineNumber = -1;
+        } else if (localName == QLatin1String("note")) {
+            m_comment = accum;
+        } else if (localName == QLatin1String("ph")) {
+            m_ctype.clear();
+        } else if (localName == QLatin1String("trans-unit")) {
+            if (!m_inPluralGroup) {
+                tor->insert( MetaTranslatorMessage(m_context.toUtf8(), m_source.toUtf8(),
+                                                m_comment.toUtf8(), m_fileName, m_lineNumber, 
+                                                translations, true, type, m_isPlural) );
+                translations.clear();
+            }
+        } else if (localName == QLatin1String("group")) {
+            if (m_inPluralGroup) {
+                tor->insert( MetaTranslatorMessage(m_context.toUtf8(), m_source.toUtf8(),
+                                                m_comment.toUtf8(), m_fileName, m_lineNumber, 
+                                                translations, true, type, m_isPlural) );
+                m_inPluralGroup = false;
+                translations.clear();
+            }
+        }
+    }
+    return true;
+}
+
+bool XLIFFHandler::characters( const QString& ch )
+{
+    QString t = ch;
+    if (m_ctype.isEmpty()) {
+        t.replace( "\r", "" );
+        accum += t;
+    } else {
+        // handle the content of <ph> elements
+        for (int i = 0; i < ch.count(); ++i) {
+            if (accum.endsWith(QLatin1Char('\\'))) {
+                accum.append(QLatin1Char(charFromEscape(ch.at(i).toAscii())));
+            } else {
+                accum.append(ch.at(i));
+            }
+        }
+    }
+    return true;
+}
+
+bool XLIFFHandler::fatalError( const QXmlParseException& exception )
+{
+    QString msg;
+    msg.sprintf( "Parse error at line %d, column %d (%s).",
+                 exception.lineNumber(), exception.columnNumber(),
+                 exception.message().toLatin1().data() );
+    if ( qApp == 0 )
+        fprintf( stderr, "XML error: %s\n", msg.toLatin1().data() );
+    else
+        QMessageBox::information(0,
+                                  QObject::tr("Qt Linguist"), msg );
+
+    return false;
+}
+
+bool MetaTranslator::loadXLIFF( const QString& filename)
+{
+    QFile f( filename );
+    if ( !f.open(QIODevice::ReadOnly) )
+        return false;
+
+    QXmlInputSource in( &f );
+    QXmlSimpleReader reader;
+    XLIFFHandler *hand = new XLIFFHandler( this );
+    reader.setContentHandler( static_cast<QXmlDefaultHandler*>(hand) );
+    reader.setErrorHandler( static_cast<QXmlDefaultHandler*>(hand) );
+
+    bool ok = reader.parse( in );
+    reader.setContentHandler( 0 );
+    reader.setErrorHandler( 0 );
+
+    m_language = hand->language();
+    makeFileNamesAbsolute(QFileInfo(filename).absoluteDir());
+
+    delete hand;
+    f.close();
+    return ok;
+}
