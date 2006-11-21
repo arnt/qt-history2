@@ -255,7 +255,7 @@ public:
 };
 
 QDialogButtonBoxPrivate::QDialogButtonBoxPrivate(Qt::Orientation orient)
-    : orientation(orient), internalRemove(false), center(false)
+    : orientation(orient), buttonLayout(0), internalRemove(false), center(false)
 {
 }
 
@@ -263,10 +263,16 @@ void QDialogButtonBoxPrivate::initLayout()
 {
     Q_Q(QDialogButtonBox);
     layoutPolicy = QDialogButtonBox::ButtonLayout(q->style()->styleHint(QStyle::SH_DialogButtonLayout, 0, q));
-    if (orientation == Qt::Horizontal)
-        buttonLayout = new QHBoxLayout(q);
-    else
-        buttonLayout = new QVBoxLayout(q);
+    bool createNewLayout = buttonLayout == 0
+        || (orientation == Qt::Horizontal && qobject_cast<QVBoxLayout *>(buttonLayout) != 0)
+        || (orientation == Qt::Vertical && qobject_cast<QHBoxLayout *>(buttonLayout) != 0);
+    if (createNewLayout) {
+        delete buttonLayout;
+        if (orientation == Qt::Horizontal)
+            buttonLayout = new QHBoxLayout(q);
+        else
+            buttonLayout = new QVBoxLayout(q);
+    }
     if (layoutPolicy == QDialogButtonBox::MacLayout)
         buttonLayout->setSpacing(0);
     buttonLayout->setMargin(0);
@@ -283,7 +289,7 @@ void QDialogButtonBoxPrivate::initLayout()
 
 void QDialogButtonBoxPrivate::resetLayout()
 {
-    delete buttonLayout;
+    //delete buttonLayout;
     initLayout();
     layoutButtons();
 }
