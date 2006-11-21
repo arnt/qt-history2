@@ -83,7 +83,7 @@ public:
     QString currentGradientName;
     int numGradients;
 
-    struct {
+    struct _attributes {
         QString document_title;
         QString document_description;
         QString font_weight;
@@ -343,7 +343,7 @@ public:
     void qfontToSvg(const QFont &sfont)
     {
         Q_D(QSvgPaintEngine);
-        
+
         d->font = sfont;
         d->attributes.font_size = QString::number(d->font.pointSize()) + QLatin1String("pt");
         int svgWeight = d->font.weight();
@@ -360,7 +360,7 @@ public:
         default:
             svgWeight *= 10;
         }
-            
+
         d->attributes.font_weight = QString::number(svgWeight);
         d->attributes.font_family = d->font.family();
         d->attributes.font_style = d->font.italic() ? QLatin1String("italic") : QLatin1String("normal");
