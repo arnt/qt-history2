@@ -68,6 +68,8 @@ namespace qdesigner_internal {
         // Replace literal "\n"  by actual new lines in mode ValidationMultiLine
         static QString editorStringToString(const QString &s, TextPropertyValidationMode validationMode = ValidationMultiLine);
 
+        // Returns whether newline characters are valid in validationMode.
+        static bool multiLine(TextPropertyValidationMode validationMode);
     signals:
         void textChanged(const QString &text);
         void editingFinished ();
@@ -77,7 +79,7 @@ namespace qdesigner_internal {
         void selectAll();
 
     protected:
-        void resizeEvent ( QResizeEvent * event );
+        void resizeEvent (QResizeEvent * event );
 
     private slots:
         void slotTextChanged(const QString &text);

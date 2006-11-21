@@ -33,6 +33,8 @@ namespace qdesigner_internal {
     enum TextPropertyValidationMode {
         // Allow for multiline editing using literal "\n".
         ValidationMultiLine,
+        // Validate a stylesheet
+        ValidationStyleSheet,
             // Single line mode, suppresses newlines
             ValidationSingleLine,
             // Allow only for identifier characters

@@ -13,6 +13,7 @@
 
 #include "textpropertyeditor_p.h"
 #include "propertylineedit_p.h"
+#include "stylesheeteditor_p.h"
 
 #include <QtGui/QLineEdit>
 #include <QtGui/QRegExpValidator>
@@ -53,6 +54,30 @@ namespace {
         fixup (input);
         return Acceptable;
     }
+
+    // A validator for style sheets. Does newline handling and validates sheets.
+    class StyleSheetValidator : public ReplacementValidator {
+    public:
+        StyleSheetValidator (QObject * parent);
+        virtual State validate ( QString & input, int &pos) const;
+    };
+    StyleSheetValidator::StyleSheetValidator (QObject * parent) :
+       ReplacementValidator(parent, NewLineChar, EscapedNewLine)
+    {
+    }
+
+    QValidator::State StyleSheetValidator::validate ( QString & input, int &pos) const
+    {
+        // base class
+        const State state = ReplacementValidator:: validate(input, pos);
+        if (state != Acceptable)
+            return state;
+        // now check style sheet, create string with newlines
+        const QString styleSheet = qdesigner_internal::TextPropertyEditor::editorStringToString(input, qdesigner_internal::ValidationStyleSheet);
+        const bool valid = qdesigner_internal::StyleSheetEditorDialog::isStyleSheetValid(styleSheet);
+        return valid ? Acceptable : Invalid;
+    }
+
 }
 
 namespace qdesigner_internal {
@@ -78,6 +103,9 @@ namespace qdesigner_internal {
         }
 
         switch (m_ValidationMode) {
+        case ValidationStyleSheet:
+            m_lineEdit->setValidator(new  StyleSheetValidator(m_lineEdit));
+            break;
         case ValidationMultiLine:
             // Set a  validator that replaces newline characters by literal "\\n".
             // While it is not possible to actually type a newline  characters,
@@ -141,9 +169,14 @@ namespace qdesigner_internal {
         return  m_lineEdit->sizeHint ();
     }
 
+    // Returns whether newline characters are valid in validationMode.
+    bool TextPropertyEditor::multiLine(TextPropertyValidationMode validationMode) {
+        return validationMode == ValidationMultiLine || validationMode == ValidationStyleSheet;
+    }
+
     // Replace newline characters literal "\n"  for inline editing in mode ValidationMultiLine
     QString TextPropertyEditor::stringToEditorString(const QString &s, TextPropertyValidationMode  validationMode) {
-        if (s.isEmpty() || validationMode != ValidationMultiLine)
+        if (s.isEmpty() || !multiLine(validationMode))
             return s;
 
         QString rc(s);
@@ -160,7 +193,7 @@ namespace qdesigner_internal {
     // that trailing slashes ('bla\') are not deleted nor ignored, else this will
     // cause jumping of the  cursor
     QString  TextPropertyEditor::editorStringToString(const QString &s, TextPropertyValidationMode  validationMode) {
-        if (s.isEmpty() || validationMode != ValidationMultiLine)
+        if (s.isEmpty() || !multiLine(validationMode))
             return s;
 
         QString rc(s);

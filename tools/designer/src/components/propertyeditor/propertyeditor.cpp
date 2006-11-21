@@ -556,7 +556,9 @@ StringPropertyParameters textPropertyValidationMode(const QObject *object,const 
         return StringPropertyParameters(ValidationObjectName, true);
         
     // Multi line?
-        
+    if (pname == QLatin1String("styleSheet")) 
+        return StringPropertyParameters(ValidationStyleSheet, true);
+    
     if (pname == QLatin1String("styleSheet")     || pname == QLatin1String("toolTip")   || 
         pname.endsWith(QLatin1String("ToolTip")) || pname == QLatin1String("whatsThis") ||
         pname == QLatin1String("iconText")       || pname == QLatin1String("windowIconText")  ||
