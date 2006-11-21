@@ -222,8 +222,8 @@ QSize QDWLayout::sizeFromContent(const QSize &content, bool floating) const
         result += QSize(0, titleHeight());
     }
 
-    result.setHeight(qMin(result.height(), QWIDGETSIZE_MAX));
-    result.setWidth(qMin(result.width(), QWIDGETSIZE_MAX));
+    result.setHeight(qMin(result.height(), (int) QWIDGETSIZE_MAX));
+    result.setWidth(qMin(result.width(), (int) QWIDGETSIZE_MAX));
 
     return result;
 }
@@ -711,27 +711,27 @@ void QDockWidgetPrivate::nonClientAreaMouseEvent(QMouseEvent *event)
         case QEvent::NonClientAreaMouseMove:
             if (state == 0 || !state->dragging)
                 break;
-			if (state->nca) {
-            	endDrag();
-			}
+                        if (state->nca) {
+                endDrag();
+                        }
 #ifdef Q_OS_MAC
-			else { // workaround for lack of mouse-grab on Mac
-			    QMainWindowLayout *layout
-			        = qobject_cast<QMainWindowLayout *>(q->parentWidget()->layout());
-			    Q_ASSERT(layout != 0);
+                        else { // workaround for lack of mouse-grab on Mac
+                            QMainWindowLayout *layout
+                                = qobject_cast<QMainWindowLayout *>(q->parentWidget()->layout());
+                            Q_ASSERT(layout != 0);
 
-	        	q->move(event->globalPos() - state->pressPos);
-	        	if (!(event->modifiers() & Qt::ControlModifier))
-	            	state->pathToGap = layout->hover(state->widgetItem, event->globalPos());
+                        q->move(event->globalPos() - state->pressPos);
+                        if (!(event->modifiers() & Qt::ControlModifier))
+                        state->pathToGap = layout->hover(state->widgetItem, event->globalPos());
             }
 #endif
-			break;
+                        break;
         case QEvent::NonClientAreaMouseButtonRelease:
 #ifdef Q_OS_MAC
-			if (state)
-				endDrag();
+                        if (state)
+                                endDrag();
 #endif
-			break;
+                        break;
         case QEvent::NonClientAreaMouseButtonDblClick:
             _q_toggleTopLevel();
             break;
