@@ -116,10 +116,10 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
             comment = n.firstChild().toText().data();
         } else if (tagName == QLatin1String("exportMacro")) {
             exportMacro = n.firstChild().toText().data();
-        } else if ( n.tagName() == "includehints" ) {
+        } else if ( n.tagName() == QLatin1String("includehints") ) {
             QDomElement n2 = n.firstChild().toElement();
             while ( !n2.isNull() ) {
-                if ( n2.tagName() == "includehint" ) {
+                if ( n2.tagName() == QLatin1String("includehint") ) {
                     QString name = n2.firstChild().toText().data();
 
                     DomInclude *incl = new DomInclude();
@@ -466,9 +466,9 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
             delete prop;
             it.remove();
         } else if (name == QLatin1String("menuText")) {
-            prop->setAttributeName("text");
+            prop->setAttributeName(QLatin1String("text"));
         } else if (name == QLatin1String("text")) {
-            prop->setAttributeName("iconText");
+            prop->setAttributeName(QLatin1String("iconText"));
         } else if (name == QLatin1String("iconSet")) {
             prop->setAttributeName(QLatin1String("icon"));
         } else if (name == QLatin1String("accel")) {
@@ -779,7 +779,7 @@ DomLayoutItem *Ui3Reader::createLayoutItem(const QDomElement &e)
         DomSpacer *ui_spacer = new DomSpacer();
         QList<DomProperty*> properties;
 
-        QByteArray name = DomTool::readProperty(e, QLatin1String("name"), "spacer").toByteArray();
+        QByteArray name = DomTool::readProperty(e, QLatin1String("name"), QLatin1String("spacer")).toByteArray();
 
         Variant var;
         var.createSize(0, 0);
@@ -787,8 +787,8 @@ DomLayoutItem *Ui3Reader::createLayoutItem(const QDomElement &e)
         QVariant def = qVariantFromValue(var);
 
         Size size = asVariant(DomTool::readProperty(e, QLatin1String("sizeHint"), def)).size;
-        QString sizeType = DomTool::readProperty(e, QLatin1String("sizeType"), "Expanding").toString();
-        QString orientation = DomTool::readProperty(e, QLatin1String("orientation"), "Horizontal").toString();
+        QString sizeType = DomTool::readProperty(e, QLatin1String("sizeType"), QLatin1String("Expanding")).toString();
+        QString orientation = DomTool::readProperty(e, QLatin1String("orientation"), QLatin1String("Horizontal")).toString();
 
         ui_spacer->setAttributeName(QLatin1String(name));
 
@@ -888,7 +888,7 @@ void Ui3Reader::findDerivedFontProperties(const QDomElement &n, DomFont &result)
                             result.setElementStrikeOut(true);
                     } else if (name == QLatin1String("family")) {
                         if (result.elementFamily().isEmpty())
-                            result.setElementFamily(text.toAscii());
+                            result.setElementFamily(text);
                     } else if (name == QLatin1String("pointsize")) {
                         if (!result.elementPointSize())
                             result.setElementPointSize(text.toInt());
@@ -981,7 +981,7 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
                 }
             }
 
-            if (className.endsWith("ComboBox")) {
+            if (className.endsWith(QLatin1String("ComboBox"))) {
                 CONVERT_PROPERTY(QLatin1String("currentItem"), QLatin1String("currentIndex"));
                 CONVERT_PROPERTY(QLatin1String("insertionPolicy"), QLatin1String("insertPolicy"));
             }
@@ -1021,7 +1021,7 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
             if (className == QLatin1String("QLabel") && name == QLatin1String("alignment")) {
                 QString v = prop->elementSet();
 
-                if (v.contains(QRegExp("\\bWordBreak\\b")))
+                if (v.contains(QRegExp(QLatin1String("\\bWordBreak\\b"))))
                     wordWrapFound = true;
             }
 
@@ -1168,7 +1168,7 @@ QString Ui3Reader::fixType(const QString &t) const
 {
     QString newText = t;
     //split type name on <>*& and whitespace
-    QStringList typeNames = t.split(QRegExp("<|>|\\*|&| "), QString::SkipEmptyParts);
+    QStringList typeNames = t.split(QRegExp(QLatin1String("<|>|\\*|&| ")), QString::SkipEmptyParts);
     foreach(QString typeName , typeNames) {
         QString newName = fixClassName(typeName);
         if( newName != typeName ) {

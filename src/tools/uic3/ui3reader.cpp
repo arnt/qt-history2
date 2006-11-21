@@ -32,8 +32,8 @@ bool Ui3Reader::isMainWindow = false;
 static QString lineColDebug(int line, int col)
 {
     if (line >= 0) {
-        const QString ret("Line: %1%2");
-        return ret.arg(line).arg(col >= 0 ? QString(" Column: %1").arg(col) : QString());
+        const QString ret = QString::fromLatin1("Line: %1%2");
+        return ret.arg(line).arg(col >= 0 ? QString::fromLatin1(" Column: %1").arg(col) : QString());
     }
     return QString();
 }

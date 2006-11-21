@@ -109,12 +109,12 @@ int main(int argc, char *argv[])
 #ifdef QT_CONFIGURE_BINARIES_PATH
     const char *binariesPath = QT_CONFIGURE_BINARIES_PATH;
     QString reporterPath = QString::fromLocal8Bit(binariesPath) + QDir::separator()
-                           + "qtusagereporter";
+                           + QLatin1String("qtusagereporter");
 #if defined(Q_OS_WIN)
     reporterPath += ".exe";
 #endif
     if (QFile::exists(reporterPath))
-        system(qPrintable(reporterPath + " uic"));
+        system(qPrintable(reporterPath + QLatin1String(" uic")));
 #endif
 #endif
 

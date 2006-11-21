@@ -39,8 +39,8 @@ static QByteArray combinePath(const char *infile, const char *outfile)
     QFileInfo outFileInfo(QDir::current(), QFile::decodeName(outfile));
     int numCommonComponents = 0;
 
-    QStringList inSplitted = inFileInfo.dir().canonicalPath().split('/');
-    QStringList outSplitted = outFileInfo.dir().canonicalPath().split('/');
+    QStringList inSplitted = inFileInfo.dir().canonicalPath().split(QLatin1Char('/'));
+    QStringList outSplitted = outFileInfo.dir().canonicalPath().split(QLatin1Char('/'));
 
     while (!inSplitted.isEmpty() && !outSplitted.isEmpty() &&
             inSplitted.first() == outSplitted.first()) {
@@ -61,10 +61,10 @@ static QByteArray combinePath(const char *infile, const char *outfile)
      */
     while (!outSplitted.isEmpty()) {
         outSplitted.removeFirst();
-        inSplitted.prepend("..");
+        inSplitted.prepend(QLatin1String(".."));
     }
     inSplitted.append(inFileInfo.fileName());
-    return QFile::encodeName(inSplitted.join("/"));
+    return QFile::encodeName(inSplitted.join(QLatin1String("/")));
 }
 
 
@@ -173,7 +173,7 @@ int main(int _argc, char **_argv)
             optionsFile.remove(0, 1);
             if (optionsFile.isEmpty())
                 error("The @ option requires an input file");
-            QFile f(optionsFile);
+            QFile f(QString::fromLatin1(optionsFile.constData()));
             if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
                 error("Cannot open options file specified with @");
             argv.remove(n);
@@ -192,12 +192,12 @@ int main(int _argc, char **_argv)
 #ifdef QT_CONFIGURE_BINARIES_PATH
     const char *binariesPath = QT_CONFIGURE_BINARIES_PATH;
     QString reporterPath = QString::fromLocal8Bit(binariesPath) + QDir::separator()
-                           + "qtusagereporter";
+                           + QLatin1String("qtusagereporter");
 #if defined(Q_OS_WIN)
-    reporterPath += ".exe";
+    reporterPath += QLatin1String(".exe");
 #endif
     if (QFile::exists(reporterPath))
-        system(qPrintable(reporterPath + " moc"));
+        system(qPrintable(reporterPath + QLatin1String(" moc")));
 #endif
 #endif
 

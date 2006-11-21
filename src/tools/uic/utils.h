@@ -47,7 +47,7 @@ inline QString fixString(const QString &str, const QString &indent)
             case '\n':
                 cursegment += QLatin1String("\\n\"\n\""); break;
             default:
-                cursegment += QChar(cbyte);
+                cursegment += QLatin1Char(cbyte);
             }
         }
         

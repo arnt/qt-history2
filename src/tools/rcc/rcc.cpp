@@ -209,7 +209,7 @@ RCCResourceLibrary::~RCCResourceLibrary()
 bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString fname, QString currentPath, bool ignoreErrors)
 {
     if (!currentPath.isEmpty() && !currentPath.endsWith(QLatin1String("/")))
-        currentPath += '/';
+        currentPath += QLatin1Char('/');
 
     QDomDocument document;
     {
@@ -250,9 +250,9 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
                 if (child.hasAttribute(ATTRIBUTE_PREFIX))
                     prefix = child.attribute(ATTRIBUTE_PREFIX);
                 if (!prefix.startsWith(QLatin1String("/")))
-                    prefix.prepend('/');
-                if (!prefix.endsWith(QLatin1String("/")))
-                    prefix += '/';
+                    prefix.prepend(QLatin1Char('/'));
+                if (!prefix.endsWith(QLatin1Char('/')))
+                    prefix += QLatin1Char('/');
 
                 for (QDomNode res = child.firstChild(); !res.isNull(); res = res.nextSibling()) {
                     if (res.toElement().tagName() == QLatin1String(TAG_FILE)) {
@@ -279,7 +279,7 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
                             compressLevel = 0;
 
                         alias = QDir::cleanPath(alias);
-                        while (alias.startsWith("../"))
+                        while (alias.startsWith(QLatin1String("../")))
                             alias.remove(0, 3);
                         alias = QDir::cleanPath(mResourceRoot) + prefix + alias;
 
@@ -293,7 +293,7 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
                             fprintf(stderr, "RCC: Error: Cannot find file '%s'\n", fileName.toLatin1().constData());
                             return false;
                         } else if (file.isFile()) {
-                            addFile(alias, RCCFileInfo(alias.section('/', -1), file, language, country,
+                            addFile(alias, RCCFileInfo(alias.section(QLatin1Char('/'), -1), file, language, country,
                                                        RCCFileInfo::NoFlags, compressLevel, compressThreshold));
                         } else {
                             QDir dir;
@@ -306,7 +306,7 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
                                     alias = alias.left(alias.length()-file.fileName().length());
                             }
                             if (!alias.endsWith(QLatin1String("/")))
-                                alias += '/';
+                                alias += QLatin1Char('/');
                             QFileInfoList children = dir.entryInfoList();
                             for(int i = 0; i < children.size(); ++i) {
                                 if(children[i].fileName() != QLatin1String(".") &&
@@ -336,10 +336,10 @@ bool RCCResourceLibrary::addFile(const QString &alias, const RCCFileInfo &file)
         return false;
     }
     if(!root)
-        root = new RCCFileInfo("", QFileInfo(), QLocale::C, QLocale::AnyCountry, RCCFileInfo::Directory);
+        root = new RCCFileInfo(QLatin1String(""), QFileInfo(), QLocale::C, QLocale::AnyCountry, RCCFileInfo::Directory);
 
     RCCFileInfo *parent = root;
-    const QStringList nodes = alias.split('/');
+    const QStringList nodes = alias.split(QLatin1Char('/'));
     for(int i = 1; i < nodes.size()-1; ++i) {
         const QString node = nodes.at(i);
         if(!parent->children.contains(node)) {
@@ -367,8 +367,8 @@ bool RCCResourceLibrary::readFiles(bool ignoreErrors)
     for (int i=0; i<mFileNames.size(); ++i) {
         QFile fileIn;
         QString fname = mFileNames.at(i), pwd;
-        if(fname == "-") {
-            fname = "(stdin)";
+        if(fname == QLatin1String("-")) {
+            fname = QLatin1String("(stdin)");
             pwd = QDir::currentPath();
             fileIn.setFileName(fname);
             if (!fileIn.open(stdin, QIODevice::ReadOnly)) {
@@ -599,8 +599,8 @@ RCCResourceLibrary::writeInitializer(FILE *out)
     if(mFormat == C_Code) {
         QString initName = mInitName;
         if(!initName.isEmpty()) {
-            initName.prepend("_");
-            initName.replace(QRegExp("[^a-zA-Z0-9_]"), "_");
+            initName.prepend(QLatin1Char('_'));
+            initName.replace(QRegExp(QLatin1String("[^a-zA-Z0-9_]")), QLatin1String("_"));
         }
 
         //init

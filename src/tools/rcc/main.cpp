@@ -105,33 +105,33 @@ int main(int argc, char *argv[])
                     errorMsg = QLatin1String("Missing output name");
                     break;
                 }
-                outFilename = argv[++i];
+                outFilename = QString::fromLocal8Bit(argv[++i]);
             } else if(opt == "name") {
                 if (!(i < argc-1)) {
                     errorMsg = QLatin1String("Missing target name");
                     break;
                 }
-                initName = argv[++i];
+                initName = QString::fromLocal8Bit(argv[++i]);
             } else if(opt == "root") {
                 if (!(i < argc-1)) {
                     errorMsg = QLatin1String("Missing root path");
                     break;
                 }
-                resourceRoot = QDir::cleanPath(argv[++i]);
-                if(resourceRoot.isEmpty() || resourceRoot[0] != '/')
+                resourceRoot = QDir::cleanPath(QString::fromLocal8Bit(argv[++i]));
+                if(resourceRoot.isEmpty() || resourceRoot.at(0) != QLatin1Char('/'))
                     errorMsg = QLatin1String("Root must start with a /");
             } else if(opt == "compress") {
                 if (!(i < argc-1)) {
                     errorMsg = QLatin1String("Missing compression level");
                     break;
                 }
-                compressLevel = QString(argv[++i]).toInt();
+                compressLevel = QString::fromLocal8Bit(argv[++i]).toInt();
             } else if(opt == "threshold") {
                 if (!(i < argc-1)) {
                     errorMsg = QLatin1String("Missing compression threshold");
                     break;
                 }
-                compressThreshold = QString(argv[++i]).toInt();
+                compressThreshold = QString::fromLocal8Bit(argv[++i]).toInt();
             } else if(opt == "binary") {
                 writeBinary = true;
             } else if(opt == "verbose") {
@@ -146,14 +146,14 @@ int main(int argc, char *argv[])
             } else if(opt == "no-compress") {
                 compressLevel = -2;
             } else {
-                errorMsg = QString(QLatin1String("Unknown option: '%1'")).arg(argv[i]);
+                errorMsg = QString::fromLatin1("Unknown option: '%1'").arg(QString::fromLocal8Bit(argv[i]));
             }
         } else {
-            if(!QFile::exists(argv[i])) {
+            if(!QFile::exists(QString::fromLocal8Bit(argv[i]))) {
                 qWarning("%s: File does not exist '%s'", argv[0], argv[i]);
                 return 1;
             }
-            files.append(argv[i]);
+            files.append(QString::fromLocal8Bit(argv[i]));
         }
     }
 

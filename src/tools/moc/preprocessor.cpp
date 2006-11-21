@@ -673,7 +673,7 @@ int PP_Expression::primary_expression()
         test(PP_RPAREN);
     } else {
         next();
-        value = QString(lexem()).toInt(0, 0);
+        value = lexem().toInt(0, 0);
     }
     return value;
 }

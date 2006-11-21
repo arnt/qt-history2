@@ -181,7 +181,7 @@ QString Driver::headerFileName(const QString &fileName)
         if (!isAnsiCCharacter(c)) {
             // Replace character by its unicode value
             QString hex = QString::number(c.unicode(), 16);
-            baseName.replace(i, 1, "_" + hex + "_");
+            baseName.replace(i, 1, QLatin1Char('_') + hex + QLatin1Char('_'));
             i += hex.size() + 1;
         }
     }

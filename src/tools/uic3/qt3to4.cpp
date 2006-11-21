@@ -56,7 +56,7 @@ public:
     virtual bool startElement(const QString &, const QString &, const QString &qName, const QXmlAttributes &attrs)
     {
         if (qName == QLatin1String("item")) {
-            m_state.kind = attrs.value("Type");
+            m_state.kind = attrs.value(QLatin1String("Type"));
 
             m_state.current.clear();
             m_state.q3.clear();
@@ -116,19 +116,19 @@ private:
 
 void Porting::readXML(RuleList *renamedHeaders, RuleList *renamedClasses, RuleList *renamedEnums)
 {
-    QString fileName = "q3porting.xml";
+    QString fileName = QLatin1String("q3porting.xml");
     QString filePath;
     //check QLibraryInfo::DataPath/filename
-    filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::DataPath) + "/" + fileName)  ;
+    filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::DataPath) + QLatin1String("/") + fileName)  ;
 
     //check QLibraryInfo::PrefixPath/tools/porting/src/filename
     if (!QFile::exists(filePath))
-        filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::PrefixPath) + "/tools/porting/src/" + fileName);
+        filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::PrefixPath) + QLatin1String("/tools/porting/src/") + fileName);
 
     // for bootstrapping, look in the rules file in a location
     // relative to where it would be in the source tree
     if (!QFile::exists(filePath))
-        filePath = QDir::cleanPath(QApplication::instance()->applicationDirPath() + "/../tools/porting/src/" + fileName);
+        filePath = QDir::cleanPath(QApplication::instance()->applicationDirPath() + QLatin1String("/../tools/porting/src/") + fileName);
 
     if (!QFile::exists(filePath)) {
         fprintf(stderr, "Error: Could not find rules file: %s\n", fileName.toLatin1().constData());

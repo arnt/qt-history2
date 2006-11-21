@@ -44,13 +44,13 @@ namespace {
         case DomProperty::Number: {
             QString area = QLatin1String("static_cast<Qt::ToolBarArea>(");
             area += QString::number(pstyle->elementNumber());
-            area += "), ";
+            area += QLatin1String("), ");
             return area;
         }
         case DomProperty::Enum: {
             QString area = pstyle->elementEnum();
             fixQtEnumerationName(area);
-            area += ", ";
+            area += QLatin1String(", ");
             return area;
         }
         default:
@@ -282,7 +282,7 @@ void WriteInitialization::acceptWidget(DomWidget *node)
             if (DomProperty *pstyle = attributes.value(QLatin1String("dockWidgetArea"))) {
                 area += QLatin1String("static_cast<Qt::DockWidgetArea>(");
                 area += QString::number(pstyle->elementNumber());
-                area += "), ";
+                area += QLatin1String("), ");
             }
 
             m_output << m_option.indent << parentWidget << "->addDockWidget(" << area << varName << ");\n";
