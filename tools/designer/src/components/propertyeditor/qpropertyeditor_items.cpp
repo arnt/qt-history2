@@ -287,11 +287,12 @@ QWidget *PropertyCollection::createExternalEditor(QWidget *parent)
 
 // -------------------------------------------------------------------------
 
-StringProperty::StringProperty(const QString &value, const QString &name, bool hasComment, const QString &comment)
+StringProperty::StringProperty(const QString &value, const QString &name, 
+                               TextPropertyValidationMode validationMode,
+                               bool hasComment, const QString &comment)
     : AbstractPropertyGroup(name),
-      m_value(value),
-      m_checkValidObjectName(false),
-      m_allowScope(false)
+      m_validationMode(validationMode),
+      m_value(value)
 {
     if (hasComment) {
         StringProperty *pcomment = new StringProperty(comment, QLatin1String("comment"));
@@ -300,25 +301,6 @@ StringProperty::StringProperty(const QString &value, const QString &name, bool h
     }
 }
 
-bool StringProperty::checkValidObjectName() const
-{
-    return m_checkValidObjectName;
-}
-
-void StringProperty::setCheckValidObjectName(bool b)
-{
-    m_checkValidObjectName = b;
-}
-
-bool StringProperty::allowScope() const
-{
-    return m_allowScope;
-}
-
-void StringProperty::setAllowScope(bool b)
-{
-    m_allowScope = b;
-}
 
 QVariant StringProperty::value() const
 {
@@ -332,7 +314,7 @@ void StringProperty::setValue(const QVariant &value)
 
 QString StringProperty::toString() const
 {
-    return TextPropertyEditor::stringToEditorString(m_value);
+    return TextPropertyEditor::stringToEditorString(m_value, m_validationMode);
 }
 
 bool StringProperty::hasEditor() const
@@ -342,11 +324,7 @@ bool StringProperty::hasEditor() const
 
 QWidget *StringProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
-    TextPropertyEditor::ValidationMode validationMode = TextPropertyEditor::ValidationMultiLine;
-    if (checkValidObjectName()) {
-        validationMode =  allowScope() ? TextPropertyEditor::ValidationObjectNameScope : TextPropertyEditor::ValidationObjectName;
-    }
-    TextPropertyEditor* textEditor = new TextPropertyEditor(TextPropertyEditor::EmbeddingTreeView, validationMode, parent);
+    TextPropertyEditor* textEditor = new TextPropertyEditor(TextPropertyEditor::EmbeddingTreeView, m_validationMode, parent);
 
     QObject::connect(textEditor, SIGNAL(textChanged(QString)), target, receiver);
     return textEditor;

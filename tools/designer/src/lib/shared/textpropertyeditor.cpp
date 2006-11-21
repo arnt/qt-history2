@@ -58,7 +58,7 @@ namespace {
 namespace qdesigner_internal {
     // TextPropertyEditor
     TextPropertyEditor::TextPropertyEditor(EmbeddingMode embeddingMode,
-                                           ValidationMode validationMode,
+                                           TextPropertyValidationMode validationMode,
                                            QWidget *parent) :
         QWidget(parent),
         m_ValidationMode(validationMode),
@@ -142,7 +142,7 @@ namespace qdesigner_internal {
     }
 
     // Replace newline characters literal "\n"  for inline editing in mode ValidationMultiLine
-    QString TextPropertyEditor::stringToEditorString(const QString &s, ValidationMode  validationMode) {
+    QString TextPropertyEditor::stringToEditorString(const QString &s, TextPropertyValidationMode  validationMode) {
         if (s.isEmpty() || validationMode != ValidationMultiLine)
             return s;
 
@@ -159,7 +159,7 @@ namespace qdesigner_internal {
     // Note: As the properties are updated while the user types, it is important
     // that trailing slashes ('bla\') are not deleted nor ignored, else this will
     // cause jumping of the  cursor
-    QString  TextPropertyEditor::editorStringToString(const QString &s, ValidationMode  validationMode) {
+    QString  TextPropertyEditor::editorStringToString(const QString &s, TextPropertyValidationMode  validationMode) {
         if (s.isEmpty() || validationMode != ValidationMultiLine)
             return s;
 

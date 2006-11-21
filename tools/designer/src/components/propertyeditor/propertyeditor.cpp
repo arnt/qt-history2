@@ -532,6 +532,58 @@ struct Group
     { return name == other.name; }
 };
 
+
+// A pair <ValidationMode, bool hasComment>.
+typedef QPair<TextPropertyValidationMode, bool> StringPropertyParameters;
+    
+StringPropertyParameters textPropertyValidationMode(const QObject *object,const QString &pname,
+                                                    QVariant::Type type, bool isMainContainer)   
+{
+    // Legacy: buddy comes along as ByteArray for some reason. Else we do not know.
+    if (type == QVariant::ByteArray) {
+        if (pname == QLatin1String("buddy"))
+            return StringPropertyParameters(ValidationObjectName, false);
+        return StringPropertyParameters(ValidationMultiLine, false);
+    }
+    // object name - no comment
+    if (pname == QLatin1String("objectName")) {
+        const TextPropertyValidationMode vm =  isMainContainer ? ValidationObjectNameScope : ValidationObjectName;
+        return StringPropertyParameters(vm, false);
+    }
+
+    // Any names
+    if (pname == QLatin1String("buddy") || pname.endsWith(QLatin1String("Name")))
+        return StringPropertyParameters(ValidationObjectName, true);
+        
+    // Multi line?
+        
+    if (pname == QLatin1String("styleSheet")     || pname == QLatin1String("toolTip")   || 
+        pname.endsWith(QLatin1String("ToolTip")) || pname == QLatin1String("whatsThis") ||
+        pname == QLatin1String("iconText")       || pname == QLatin1String("windowIconText")  ||
+        pname == QLatin1String("html")           || pname == QLatin1String("accessibleDescription"))
+        return StringPropertyParameters(ValidationMultiLine, true);
+
+
+    // text only if not Action, LineEdit
+    if (pname == QLatin1String("text") && !(qobject_cast<const QAction *>(object) || qobject_cast<const QLineEdit *>(object)))
+        return StringPropertyParameters(ValidationMultiLine, true);
+
+    // default to single
+    return StringPropertyParameters(ValidationSingleLine, true);    
+}
+
+
+// Create a string prop with proper validation mode
+StringProperty* PropertyEditor::createStringProperty(QObject *object, const QString &pname, const QVariant &value, bool isMainContainer) const 
+{
+    const StringPropertyParameters params = textPropertyValidationMode(object, pname, value.type(), isMainContainer);
+    // Does a meta DB entry exist - add comment
+    const bool hasComment = params.second && metaDataBaseItem();
+    const QString comment = hasComment ? propertyComment(m_core, object, pname) : QString();
+    const QString stringValue = value.type() == QVariant::ByteArray ? QString::fromUtf8(value.toByteArray()) : value.toString();
+    return new StringProperty(stringValue, pname, params.first, hasComment, comment );
+}
+
 QDesignerMetaDataBaseItemInterface* PropertyEditor::metaDataBaseItem() const 
 {
     QObject *o = object();
@@ -630,23 +682,9 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                 p = new BoolProperty(value.toBool(), pname);
                 break;
             case QVariant::ByteArray:
-                p = new StringProperty(QString::fromUtf8(value.toByteArray()), pname);
+            case QVariant::String: 
+                p = createStringProperty(object, pname, value, isMainContainer);
                 break;
-            case QVariant::String: {
-                const QDesignerMetaDataBaseItemInterface *item = metaDataBaseItem();
-                if (item && pname != QLatin1String("objectName")) {
-                    const QString comment = propertyComment(m_core, object, pname);
-                    p = new StringProperty(value.toString(), pname, true, comment );
-                } else {
-                    StringProperty *sprop = new StringProperty(value.toString(), pname);
-                    p = sprop;
-
-                    if (pname == QLatin1String("objectName")) {
-                        sprop->setCheckValidObjectName(true);
-                        sprop->setAllowScope(isMainContainer);
-                    }
-                }
-            } break;
             case QVariant::Size:
                 p = new SizeProperty(value.toSize(), pname);
                 break;

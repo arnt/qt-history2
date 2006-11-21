@@ -92,7 +92,7 @@ void LabelTaskMenu::editPlainText()
         QStyleOptionButton opt;
         opt.init(m_label);
         
-        m_editor = new InPlaceEditor(m_label, TextPropertyEditor::ValidationMultiLine, m_formWindow,m_label->text(),opt.rect);
+        m_editor = new InPlaceEditor(m_label, ValidationMultiLine, m_formWindow,m_label->text(),opt.rect);
 
         connect(m_editor, SIGNAL(textChanged(QString)), this, SLOT(updateText(QString)));   
     }

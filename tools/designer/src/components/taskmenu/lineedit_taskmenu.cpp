@@ -67,7 +67,7 @@ void LineEditTaskMenu::editText()
         QStyleOption opt;
         opt.init(m_lineEdit);
 
-        m_editor = new InPlaceEditor(m_lineEdit, TextPropertyEditor::ValidationMultiLine, m_formWindow,m_lineEdit->text(),opt.rect);
+        m_editor = new InPlaceEditor(m_lineEdit, ValidationSingleLine, m_formWindow,m_lineEdit->text(),opt.rect);
 
         connect(m_editor, SIGNAL(textChanged(QString)), this, SLOT(updateText(QString)));
     }

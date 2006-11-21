@@ -26,6 +26,7 @@
 #define TEXTPROPERTYEDITOR_H
 
 #include "shared_global_p.h"
+#include "shared_enums.h"
 
 #include <QtGui/QWidget>
 
@@ -52,17 +53,7 @@ namespace qdesigner_internal {
                 EmbeddingInPlace
         };
 
-        enum ValidationMode {
-            // Allow for multiline editing using literal "\n".
-            ValidationMultiLine,
-                // Single line mode, suppresses newlines
-                ValidationSingleLine,
-                // Allow only for identifier characters
-                ValidationObjectName,
-                // Allow only for identifier characters and colons
-                ValidationObjectNameScope };
-
-        TextPropertyEditor(EmbeddingMode embeddingMode = EmbeddingNone, ValidationMode validationMode = ValidationMultiLine, QWidget *parent = 0);
+        TextPropertyEditor(EmbeddingMode embeddingMode = EmbeddingNone, TextPropertyValidationMode validationMode = ValidationMultiLine, QWidget *parent = 0);
 
         QString text() const;
 
@@ -72,10 +63,10 @@ namespace qdesigner_internal {
 
         // Replace newline characters by literal "\n" for inline editing
         // in mode ValidationMultiLine
-        static QString stringToEditorString(const QString &s, ValidationMode validationMode = ValidationMultiLine);
+        static QString stringToEditorString(const QString &s, TextPropertyValidationMode validationMode = ValidationMultiLine);
 
         // Replace literal "\n"  by actual new lines in mode ValidationMultiLine
-        static QString editorStringToString(const QString &s, ValidationMode validationMode = ValidationMultiLine);
+        static QString editorStringToString(const QString &s, TextPropertyValidationMode validationMode = ValidationMultiLine);
 
     signals:
         void textChanged(const QString &text);
@@ -93,7 +84,7 @@ namespace qdesigner_internal {
     private:
         void setRegExpValidator(const QString &pattern);
 
-        const ValidationMode m_ValidationMode;
+        const TextPropertyValidationMode m_ValidationMode;
         PropertyLineEdit* m_lineEdit;
 
         // Cached text containing real newline characters.

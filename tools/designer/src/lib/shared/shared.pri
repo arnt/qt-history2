@@ -55,6 +55,7 @@ HEADERS += \
     $$PWD/newactiondialog_p.h \
     $$PWD/resourceeditor_p.h \
     $$PWD/stylesheeteditor_p.h \
+    $$PWD/shared_enums.h \
     $$PWD/textpropertyeditor_p.h \
     $$PWD/propertylineedit_p.h
 

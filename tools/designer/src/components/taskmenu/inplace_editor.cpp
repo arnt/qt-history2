@@ -17,7 +17,7 @@
 namespace qdesigner_internal {
 
 InPlaceEditor::InPlaceEditor(QWidget *widget,
-                                     ValidationMode validationMode,
+                             TextPropertyValidationMode validationMode,
                              QDesignerFormWindowInterface *fw,
                              const QString& text,
                              const QRect& r) :
