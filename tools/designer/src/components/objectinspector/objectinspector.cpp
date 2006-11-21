@@ -163,13 +163,14 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
             className.remove(1, 8);
 
         item->setText(1, className);
+        item->setToolTip(1, className);
         item->setData(0, 1000, qVariantFromValue(object));
 
         QString objectName = object->objectName();
         if (objectName.isEmpty())
             objectName = tr("<noname>");
 
-        if (QAction *act = qobject_cast<QAction*>(object)) { // separator is reserved
+        if (const QAction *act = qobject_cast<const QAction*>(object)) { // separator is reserved
             if (act->isSeparator()) {
                 objectName = tr("separator");
             }
@@ -177,6 +178,7 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
         }
 
         item->setText(0, objectName);
+        item->setToolTip(0, objectName);
 
         if (QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(fw->core()->extensionManager(), object)) {
             for (int i=0; i<c->count(); ++i) {

@@ -91,6 +91,7 @@ public:
 protected:
     QString columnText(int column) const;
 
+private:
     inline IProperty *childAt(IProperty *parent, int pos) const
     {
         if (parent && parent->kind() == IProperty::Property_Group)
@@ -101,14 +102,6 @@ protected:
 
     inline IProperty *parentOf(IProperty *property) const
     { return property ? property->parent() : 0; }
-
-    static IPropertyGroup *toPropertyGroup(IProperty *property)
-    {
-        if (!property || property->kind() != IProperty::Property_Group)
-            return 0;
-
-        return static_cast<IPropertyGroup*>(property);
-    }
 
 private:
     IProperty *m_initialInput;

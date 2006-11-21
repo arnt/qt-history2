@@ -14,7 +14,7 @@
 #include "qpropertyeditor_model_p.h"
 #include <QtCore/qdebug.h>
 
-using namespace qdesigner_internal;
+namespace qdesigner_internal {
 
 QPropertyEditorModel::QPropertyEditorModel(QObject *parent)
     : QAbstractItemModel(parent), m_initialInput(0)
@@ -56,14 +56,14 @@ int QPropertyEditorModel::rowCount(const QModelIndex &parent) const
     if (!parent.isValid())
         return 1;
 
-    if (IProperty *p = privateData(parent)) {
+    if (const IProperty *p = privateData(parent)) {
         return (p->kind() == IProperty::Property_Group)
-            ? static_cast<IPropertyGroup*>(p)->propertyCount()
+            ? static_cast<const IPropertyGroup*>(p)->propertyCount()
             : 0;
     }
 
     return (m_initialInput->kind() == IProperty::Property_Group)
-        ? static_cast<IPropertyGroup*>(m_initialInput)->propertyCount()
+        ? static_cast<const IPropertyGroup*>(m_initialInput)->propertyCount()
         : 0;
 }
 
@@ -103,12 +103,13 @@ QVariant QPropertyEditorModel::data(const QModelIndex &index, int role) const
     if (!privateData(index))
         return QVariant();
 
-    IProperty *o = privateData(index);
+    const IProperty *o = privateData(index);
     switch (index.column()) {  // ### cleanup
         case 0:
             switch (role) {
                 case Qt::EditRole:
                 case Qt::DisplayRole:
+                case Qt::ToolTipRole:
                     return o->propertyName().isEmpty()
                         ? QLatin1String("<noname>")
                         : o->propertyName();
@@ -121,6 +122,7 @@ QVariant QPropertyEditorModel::data(const QModelIndex &index, int role) const
             switch (role) {
                 case Qt::EditRole:
                     return o->value();
+                case Qt::ToolTipRole:
                 case Qt::DisplayRole:
                     return o->toString();
                 case Qt::DecorationRole:
@@ -155,7 +157,7 @@ void QPropertyEditorModel::refresh(IProperty *property)
         prop = prop->parent();
 
     if (prop != property) {
-        QModelIndex index = indexOf(prop, 0);
+        const QModelIndex index = indexOf(prop, 0);
         emit dataChanged(index.sibling(0, 0), index.sibling(rowCount(index), 1));
         property = prop;
     }
@@ -200,3 +202,4 @@ Qt::ItemFlags QPropertyEditorModel::flags(const QModelIndex &index) const
     return foo;
 }
 
+}
