@@ -1730,7 +1730,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
             drawMenuText(p, x, itemBaseLine, si, gf, eng, start, gs);
         } else {
             QPointF pos(x.toReal(), itemBaseLine.toReal());
-            if (chf.hasProperty(QTextFormat::TextOutline)) {
+            if (chf.penProperty(QTextFormat::TextOutline).style() != Qt::NoPen) {
                 QPainterPath path;
                 path.setFillRule(Qt::WindingFill);
 
