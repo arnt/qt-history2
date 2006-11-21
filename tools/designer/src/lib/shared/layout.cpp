@@ -205,11 +205,10 @@ void Layout::setup()
 
 void Layout::widgetDestroyed()
 {
-     if (sender() && sender()->isWidgetType()) {
-         QWidget *w = static_cast<QWidget *>(sender());
-         m_widgets.removeAt(m_widgets.indexOf(w));
-         geometries.remove(w);
-     }
+    if (QWidget *w = static_cast<QWidget *>(sender())) {
+        m_widgets.removeAt(m_widgets.indexOf(w));
+        geometries.remove(w);
+    }
 }
 
 bool Layout::prepareLayout(bool &needMove, bool &needReparent)
