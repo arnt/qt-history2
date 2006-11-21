@@ -702,9 +702,6 @@ QObject::~QObject()
         QObjectPrivate::clearGuards(this);
      }
 
-    // If this is a QWidget the QWidget destructor has been completed at this point,
-    // make sure qoobject_cast to QWidget fails in any slots connected to destroyed().
-    d->isWidget = false;
     emit destroyed(this);
 
     QConnectionList *list = ::connectionList();
