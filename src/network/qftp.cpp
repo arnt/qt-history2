@@ -473,8 +473,8 @@ static void _q_parseUnixDir(const QStringList &tokens, const QString &userName, 
     info->setSize(tokens.at(5).toLongLong());
 
     QStringList formats;
-    formats << "MMM dd  yyyy" << "MMM dd hh:mm" << "MMM  d  yyyy"
-            << "MMM  d hh:mm" << "MMM  d yyyy" << "MMM dd yyyy";
+    formats << QLatin1String("MMM dd  yyyy") << QLatin1String("MMM dd hh:mm") << QLatin1String("MMM  d  yyyy")
+            << QLatin1String("MMM  d hh:mm") << QLatin1String("MMM  d yyyy") << QLatin1String("MMM dd yyyy");
 
     QString dateString = tokens.at(6);
     dateString[0] = dateString[0].toUpper();
@@ -527,7 +527,7 @@ static void _q_parseDosDir(const QStringList &tokens, const QString &userName, Q
 
     QString name = tokens.at(3);
     info->setName(name);
-    info->setSymLink(name.toLower().endsWith(".lnk"));
+    info->setSymLink(name.toLower().endsWith(QLatin1String(".lnk")));
 
     if (tokens.at(2) == QLatin1String("<DIR>")) {
         info->setFile(false);
