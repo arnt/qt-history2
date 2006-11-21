@@ -1223,6 +1223,33 @@ QRectF QTextControlPrivate::rectForPosition(int position) const
     return r;
 }
 
+static inline bool firstFramePosLessThanCursorPos(QTextFrame *frame, int position)
+{
+    return frame->firstPosition() < position;
+}
+
+static inline bool cursorPosLessThanLastFramePos(int position, QTextFrame *frame)
+{
+    return position < frame->lastPosition();
+}
+
+static QRectF boundingRectOfFloatsInSelection(const QTextCursor &cursor)
+{
+    QRectF r;
+    QTextFrame *frame = cursor.currentFrame();
+    const QList<QTextFrame *> children = frame->childFrames();
+
+    const QList<QTextFrame *>::ConstIterator firstFrame = qLowerBound(children.constBegin(), children.constEnd(),
+                                                                      cursor.selectionStart(), firstFramePosLessThanCursorPos);
+    const QList<QTextFrame *>::ConstIterator lastFrame = qUpperBound(children.constBegin(), children.constEnd(),
+                                                                     cursor.selectionEnd(), cursorPosLessThanLastFramePos);
+    for (QList<QTextFrame *>::ConstIterator it = firstFrame; it != lastFrame; ++it) {
+        if ((*it)->frameFormat().position() != QTextFrameFormat::InFlow)
+            r |= frame->document()->documentLayout()->frameBoundingRect(*it);
+    }
+    return r;
+}
+
 QRectF QTextControlPrivate::selectionRect(const QTextCursor &cursor) const
 {
     QRectF r = rectForPosition(cursor.selectionStart());
@@ -1291,6 +1318,7 @@ QRectF QTextControlPrivate::selectionRect(const QTextCursor &cursor) const
         } else {
             QRectF anchorRect = rectForPosition(cursor.selectionEnd());
             r |= anchorRect;
+            r |= boundingRectOfFloatsInSelection(cursor);
             QRectF frameRect(doc->documentLayout()->frameBoundingRect(cursor.currentFrame()));
             r.setLeft(frameRect.left());
             r.setRight(frameRect.right());
