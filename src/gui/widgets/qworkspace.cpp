@@ -1879,8 +1879,10 @@ void QWorkspacePrivate::hideMaximizeControls()
             maxmenubar->setCornerWidget(0, Qt::TopLeftCorner);
             maxmenubar->setCornerWidget(0, Qt::TopRightCorner);
         }
-        maxcontrols->deleteLater();
-        maxtools->deleteLater();
+        if (maxcontrols)
+            maxcontrols->deleteLater();
+        if (maxtools)
+            maxtools->deleteLater();
     }
 
     //unmerge the titlebar/modification state
