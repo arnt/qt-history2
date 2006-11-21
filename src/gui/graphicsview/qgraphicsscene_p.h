@@ -51,7 +51,6 @@ public:
     void resetIndex();
 
     QGraphicsSceneBspTree bspTree;
-    mutable bool generatingBspTree;
     void _q_generateBspTree();
     int lastItemCount;
 
@@ -75,6 +74,8 @@ public:
 
     QBrush backgroundBrush;
     QBrush foregroundBrush;
+
+    int indexTimerId;
 
     bool hasFocus;
     QGraphicsItem *focusItem;

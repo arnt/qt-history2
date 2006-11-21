@@ -174,9 +174,9 @@
     \internal
 */
 QGraphicsScenePrivate::QGraphicsScenePrivate()
-    : indexMethod(QGraphicsScene::BspTreeIndex), generatingBspTree(false), lastItemCount(0),
+    : indexMethod(QGraphicsScene::BspTreeIndex), lastItemCount(0),
       hasSceneRect(false), updateAll(false), calledEmitUpdated(false), purgePending(false),
-      hasFocus(false), focusItem(0), lastFocusItem(0), mouseGrabberItem(0),
+      indexTimerId(0), hasFocus(false), focusItem(0), lastFocusItem(0), mouseGrabberItem(0),
       lastMouseGrabberItem(0), dragDropItem(0), lastDropAction(Qt::IgnoreAction)
 {
 }
@@ -223,10 +223,8 @@ void QGraphicsScenePrivate::addToIndex(QGraphicsItem *item)
             // The BSP tree is regenerated if the number of items grows to a
             // certain threshold, or if the bounding rect of the graph doubles in
             // size.
-            if (!generatingBspTree) {
-                generatingBspTree = true;
-                QTimer::singleShot(0, q, SLOT(_q_generateBspTree()));
-            }
+            if (!indexTimerId)
+                indexTimerId = q->startTimer(0);
         }
     }
 }
@@ -250,10 +248,8 @@ void QGraphicsScenePrivate::removeFromIndex(QGraphicsItem *item)
                 child->removeFromIndex();
         }
 
-        if (!generatingBspTree) {
-            generatingBspTree = true;
-            QTimer::singleShot(0, q, SLOT(_q_generateBspTree()));
-        }
+        if (!indexTimerId)
+            indexTimerId = q->startTimer(0);
     }
 }
 
@@ -272,10 +268,8 @@ void QGraphicsScenePrivate::resetIndex()
         foreach (QGraphicsItem *item, newItems)
             item->d_func()->index = -1;
 
-        if (!generatingBspTree) {
-            generatingBspTree = true;
-            QTimer::singleShot(0, q, SLOT(_q_generateBspTree()));
-        }
+        if (!indexTimerId)
+            indexTimerId = q->startTimer(0);
     }
 }
 
@@ -289,11 +283,12 @@ static inline int intmaxlog(int n)
 */
 void QGraphicsScenePrivate::_q_generateBspTree()
 {
-    Q_Q(QGraphicsScene);
-
-    if (!generatingBspTree)
+    if (!indexTimerId)
         return;
-    generatingBspTree = false;
+
+    Q_Q(QGraphicsScene);
+    q->killTimer(indexTimerId);
+    indexTimerId = 0;
 
     purgeRemovedItems();
 
@@ -1410,10 +1405,8 @@ void QGraphicsScene::addItem(QGraphicsItem *item)
         // a temporary list and schedule an indexing for later.
         d->newItems << item;
         item->d_func()->index = -1;
-        if (!d->generatingBspTree) {
-            d->generatingBspTree = true;
-            QTimer::singleShot(0, this, SLOT(_q_generateBspTree()));
-        }
+        if (!d->indexTimerId)
+            d->indexTimerId = startTimer(0);
     } else {
         // No index: We can insert the item directly.
         if (!d->freeItemIndexes.isEmpty()) {
@@ -2105,6 +2098,12 @@ bool QGraphicsScene::event(QEvent *event)
     case QEvent::InputMethod:
         inputMethodEvent(static_cast<QInputMethodEvent *>(event));
         break;
+    case QEvent::Timer:
+        if (d->indexTimerId && static_cast<QTimerEvent *>(event)->timerId() == d->indexTimerId) {
+            // this call will kill the timer
+            d->_q_generateBspTree();
+        }
+        // Fallthrough intended - support timers in subclasses.
     default:
         return QObject::event(event);
     }
