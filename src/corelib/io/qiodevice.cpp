@@ -1425,7 +1425,7 @@ QString QIODevice::errorString() const
     Q_D(const QIODevice);
     if (d->errorString.isEmpty()) {
 #ifdef QT_NO_QOBJECT
-        return QT_TRANSLATE_NOOP(QIODevice, "Unknown error");
+        return QLatin1String(QT_TRANSLATE_NOOP(QIODevice, "Unknown error"));
 #else
         return tr("Unknown error");
 #endif

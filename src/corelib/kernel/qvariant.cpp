@@ -1301,12 +1301,13 @@ QVariant::QVariant(QDataStream &s)
     \sa QTextCodec::setCodecForCStrings()
 */
 
-
+#ifndef QT_NO_CAST_FROM_ASCII
 QVariant::QVariant(const char *val)
 {
     QString s = QString::fromAscii(val);
     create(String, &s);
 }
+#endif
 
 /*!
   \fn QVariant::QVariant(const QStringList &val)
