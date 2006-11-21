@@ -5536,6 +5536,9 @@ Q_D(const QPlastiqueStyle);
 
     QPixmap pixmap;
     switch (standardIcon) {
+    case SP_ComputerIcon:
+        icon.addPixmap(d->findIcon(32, QLatin1String("system.png")));
+        break;
     case SP_DirHomeIcon:
         icon.addPixmap(d->findIcon(32, QLatin1String("folder_home.png")));
         break;
