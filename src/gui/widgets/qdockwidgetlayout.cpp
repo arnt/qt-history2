@@ -1908,8 +1908,6 @@ QSet<QTabBar*> QDockAreaLayoutInfo::usedTabBars() const
 
     for (int i = 0; i < item_list.count(); ++i) {
         const QDockAreaLayoutItem &item = item_list.at(i);
-        if (item.skip())
-            continue;
         if (item.subinfo != 0)
             result += item.subinfo->usedTabBars();
     }
@@ -2805,8 +2803,6 @@ QSet<QTabBar*> QDockWidgetLayout::usedTabBars() const
     QSet<QTabBar*> result;
     for (int i = 0; i < PosCount; ++i) {
         const QDockAreaLayoutInfo &dock = docks[i];
-        if (dock.isEmpty())
-            continue;
         result += dock.usedTabBars();
     }
     return result;
