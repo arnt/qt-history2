@@ -57,8 +57,7 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         textElideMode(Qt::ElideRight),
         verticalScrollMode(QAbstractItemView::ScrollPerItem),
         horizontalScrollMode(QAbstractItemView::ScrollPerItem),
-        currentIndexSet(false),
-        scrollToDisabled(false)
+        currentIndexSet(false)
 {
 }
 
@@ -1303,10 +1302,10 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
     if (index.isValid()) {
         // we disable scrollTo for mouse press so the item doesn't change position
         // when the user is interacting with it (ie. clicking on it)
-        bool disabled = d->scrollToDisabled;
-        d->scrollToDisabled = true;
+        bool autoScroll = d->autoScroll;
+        d->autoScroll = false;
         d->selectionModel->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
-        d->scrollToDisabled = disabled;
+        d->autoScroll = autoScroll;
     }
 
     QRect rect(d->pressedPosition - offset, pos);
@@ -2748,9 +2747,7 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
         d->setDirtyRegion(visualRect(previous));
         d->updateDirtyRegion();
     }
-    if (current.isValid()
-        && !d->autoScrollTimer.isActive()
-        && !d->scrollToDisabled) {
+    if (current.isValid() && d->autoScroll && !d->autoScrollTimer.isActive()) {
         scrollTo(current);
         edit(current, CurrentChanged, 0);
         if (current.row() == (d->model->rowCount(d->root) - 1))
