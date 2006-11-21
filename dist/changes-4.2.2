@@ -274,7 +274,9 @@ General improvements
 
       * Fixed an issue where turning clipping on/off when drawing into a QImage
 	did not have any effect.
-
+      
+	  * Improved performance when rendering vertical gradients.
+	
 - Style Sheets
       * Fixed crash when widget with stylesheet is reparented into widget with no stylesheet
       * Style Sheet performace improvements
@@ -380,7 +382,8 @@ Platform-Specific changes
     objects terminates.
 
   * Fixed potential crash when calling QCoreApplication::applicationFilePath().
-
+  * Fixed left-to-right positioning for menu items in XP style.
+  
 - Qt/Mac:
 
   * Fix flickering/disappearing widgets when the Qt::WA_MacMetalStyle attribute is set
