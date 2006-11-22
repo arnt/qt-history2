@@ -952,7 +952,7 @@ void QMessageBox::setDefaultButton(QPushButton *button)
 }
 
 /*!
-    \since 4.2
+    \since 4.3
 
     Sets the message box's \l{QPushButton::setDefault()}{default button}
     to \a button.
