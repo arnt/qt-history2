@@ -116,7 +116,7 @@
             return 0;
         }
 
-        Q_EXPORT_PLUGIN2(MyStylePlugin)
+        Q_EXPORT_PLUGIN2(pnp_mystyleplugin, MyStylePlugin)
     \endcode
 
     (Note that QStylePlugin is case insensitive, and the lower-case
