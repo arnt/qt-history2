@@ -230,6 +230,7 @@ void PaintCommands::runCommands()
         static QRegExp setFont("setFont\\s+\"([\\w\\s]*)\"\\s*(\\w*)\\s*(\\w*)\\s*(\\w*)");
         static QRegExp setPen("setPen\\s+#?(\\w*)");
         static QRegExp setPen2("setPen\\s+(#?\\w*)\\s+([\\w.]+)\\s*(\\w*)\\s*(\\w*)\\s*(\\w*)");
+        static QRegExp pen_setCosmetic("pen_setCosmetic\\s+(\\w*)");
         static QRegExp pen_setDashPattern("pen_setDashPattern\\s+\\[([\\w\\s.]*)\\]");
 
         static QRegExp setRenderHint("setRenderHint\\s+([\\w_0-9]*)\\s*(\\w*)");
@@ -288,6 +289,7 @@ void PaintCommands::runCommands()
         commandTable.append(PaintCommand(setPen2,             &PaintCommands::command_setPen2));
         commandTable.append(PaintCommand(setPen,              &PaintCommands::command_setPen));
         commandTable.append(PaintCommand(pen_setDashPattern,  &PaintCommands::command_pen_setDashPattern));
+        commandTable.append(PaintCommand(pen_setCosmetic,     &PaintCommands::command_pen_setCosmetic));
         commandTable.append(PaintCommand(setRenderHint,       &PaintCommands::command_setRenderHint));
         commandTable.append(PaintCommand(setCompositionMode,
                                          &PaintCommands::command_setCompositionMode));
@@ -2153,6 +2155,22 @@ void PaintCommands::command_pen_setDashPattern(QRegExp re)
 
     QPen p = painter->pen();
     p.setDashPattern(pattern);
+    painter->setPen(p);
+}
+
+
+void PaintCommands::command_pen_setCosmetic(QRegExp re)
+{
+    QString hm = re.capturedTexts().at(1);
+    bool on = hm == "true" || hm == "yes" || hm == "on";
+
+    if (verboseMode) {
+        printf(" - pen_setCosmetic(%s)\n", on ? "true" : "false");
+    }
+
+    QPen p = painter->pen();
+    p.setCosmetic(on);
+
     painter->setPen(p);
 }
 

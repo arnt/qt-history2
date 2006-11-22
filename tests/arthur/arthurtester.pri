@@ -1,8 +1,5 @@
 DEFINES += QT_COMPAT_WARNINGS QT_NO_CAST_TO_ASCII 
 
-OBJECTS_DIR     = .tmp
-MOC_DIR         = .tmp
-
 INCLUDEPATH += $$COMMON_FOLDER
 
 include($$COMMON_FOLDER/common.pri)

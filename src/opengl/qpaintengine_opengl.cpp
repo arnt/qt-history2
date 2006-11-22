@@ -1170,7 +1170,8 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
         Q_D(QOpenGLPaintEngine);
         qreal pen_width = d->cpen.widthF();
         d->has_fast_pen =
-            (pen_width == 0 || (pen_width == 1 && d->txop <= QTransform::TxTranslate))
+            ((pen_width == 0 || (pen_width <= 1 && d->txop <= QTransform::TxTranslate))
+             || d->cpen.isCosmetic())
             && d->cpen.style() == Qt::SolidLine
             && d->cpen.isSolid();
     }
@@ -1833,6 +1834,10 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
     d->cpen = pen;
     d->has_pen = (pen_style != Qt::NoPen);
 
+    if (pen.isCosmetic()) {
+        glLineWidth(pen.widthF());
+    }
+
     if (d->pen_brush_style >= Qt::LinearGradientPattern
         && d->pen_brush_style <= Qt::ConicalGradientPattern) {
         d->updateGradient(pen.brush());
@@ -2390,7 +2395,7 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 
 void QOpenGLPaintEnginePrivate::strokePath(const QPainterPath &path, bool use_cache)
 {
-    if (cpen.widthF() == 0) {
+    if (cpen.isCosmetic()) {
         QTransform temp = matrix;
         matrix = QTransform();
         glPushMatrix();
@@ -2423,6 +2428,7 @@ void QOpenGLPaintEnginePrivate::strokePathFastPen(const QPainterPath &path)
                 glEnd(); // GL_LINE_STRIP
             glBegin(GL_LINE_STRIP);
             glVertex2d(e.x, e.y);
+
             break;
         case QPainterPath::LineToElement:
             glVertex2d(e.x, e.y);

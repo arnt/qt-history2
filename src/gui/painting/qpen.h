@@ -73,6 +73,9 @@ public:
     Qt::PenJoinStyle joinStyle() const;
     void setJoinStyle(Qt::PenJoinStyle pcs);
 
+    bool isCosmetic() const;
+    void setCosmetic(bool cosmetic);
+
     bool operator==(const QPen &p) const;
     inline bool operator!=(const QPen &p) const { return !(operator==(p)); }
     operator QVariant() const;

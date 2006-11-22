@@ -36,7 +36,7 @@ public:
     PaintCommands(const QStringList &cmds, int w, int h)
         : painter(0), surface_painter(0),
           commands(cmds), gradientSpread(QGradient::PadSpread),
-          width(w), height(h), verboseMode(false), type(WidgetType), 
+          width(w), height(h), verboseMode(false), type(WidgetType),
           checkers_background(true)
     { }
 
@@ -59,7 +59,7 @@ public:
     {
         type = t;
     }
-    
+
     void runCommand(const QString &command);
     void runCommands();
     void setFilePath(const QString &path) { filepath = path; }
@@ -138,6 +138,7 @@ private:
     void command_path_moveTo(QRegExp re);
     void command_path_setFillRule(QRegExp re);
     void command_pen_setDashPattern(QRegExp re);
+    void command_pen_setCosmetic(QRegExp re);
     void command_pixmap_load(QRegExp re);
     void command_pixmap_setMask(QRegExp re);
     void command_region_addEllipse(QRegExp re);
@@ -170,6 +171,7 @@ private:
     void command_setFont(QRegExp re);
     void command_setPen(QRegExp re);
     void command_setPen2(QRegExp re);
+
     void command_setRenderHint(QRegExp re);
     void command_textlayout_draw(QRegExp re);
     void command_translate(QRegExp re);

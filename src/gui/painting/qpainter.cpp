@@ -2810,7 +2810,8 @@ void QPainter::setPen(const QPen &pen)
              && d->state->pen.color() == pen.color()
              && d->state->pen.widthF() == pen.widthF()
              && d->state->pen.capStyle() == pen.capStyle()
-             && d->state->pen.joinStyle() == pen.joinStyle()))
+             && d->state->pen.joinStyle() == pen.joinStyle()
+             && d->state->pen.isCosmetic() == pen.isCosmetic()))
             return;
     }
 

@@ -796,7 +796,7 @@ void QWin32PrintEnginePrivate::strokePath(const QPainterPath &path, const QColor
     QPainterPath stroke;
 
     qreal width = pen.widthF();
-    if (width == 0) {
+    if (pen.isCosmetic()) {
         // We do not support custom dash patterns for stroked paths with solid colored, cosmetic pens
         strokePath_dev(path * matrix, color, pen.style());
     } else {
@@ -1337,7 +1337,7 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
             value = d->resolution;
         break;
 
-    case PPK_SupportedResolutions: 
+    case PPK_SupportedResolutions:
         value = d->queryResolutions();
         break;
 

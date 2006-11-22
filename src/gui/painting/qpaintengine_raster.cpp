@@ -1196,8 +1196,8 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
     if (update_fast_pen) {
         d->fast_pen = !d->antialiased
                       && (d->pen.widthF() == 0
-                          || d->pen.widthF() <= 1 &&
-                          d->txop <= QTransform::TxTranslate);
+                          || (d->pen.widthF() <= 1
+                              && (d->txop <= QTransform::TxTranslate || d->pen.isCosmetic())));
     }
 }
 
@@ -1451,9 +1451,13 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
 
     {
         Q_ASSERT(d->stroker);
-        qreal width = d->pen.widthF();
         d->outlineMapper->beginOutline(Qt::WindingFill);
-        if (width == 0) {
+
+        printf("drawPath: cosmetic=%d, width=%f\n",
+               d->pen.isCosmetic(),
+               d->basicStroker.strokeWidth());
+
+        if (d->pen.isCosmetic()) {
             d->outlineMapper->setMatrix(QTransform(), QTransform::TxNone);
             d->stroker->strokePath(path, d->outlineMapper, d->matrix);
         } else {
@@ -1555,16 +1559,13 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 
         } else {
             // fallback case for complex or transformed pens.
-            qreal width = d->pen.widthF();
             d->outlineMapper->beginOutline(Qt::WindingFill);
-            if (width == 0) {
-                d->basicStroker.setStrokeWidth(1);
+            if (d->pen.isCosmetic()) {
                 d->outlineMapper->setMatrix(QTransform(),
                                             QTransform::TxNone);
                 d->stroker->strokePolygon(points, pointCount, needs_closing,
                                           d->outlineMapper, d->matrix);
             } else {
-                d->basicStroker.setStrokeWidth(width);
                 d->outlineMapper->setMatrix(d->matrix, d->txop);
                 d->stroker->strokePolygon(points, pointCount, needs_closing,
                                           d->outlineMapper, QTransform());
@@ -2646,9 +2647,8 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
     }
 
     if (d->penData.blend) {
-        qreal width = d->pen.widthF();
         d->outlineMapper->beginOutline(Qt::WindingFill);
-        if (width == 0) {
+        if (d->pen.isCosmetic()) {
             d->outlineMapper->setMatrix(QTransform(), QTransform::TxNone);
             d->stroker->strokeEllipse(rect, d->outlineMapper, d->matrix);
         } else {

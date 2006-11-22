@@ -230,6 +230,7 @@ public:
     Qt::PenJoinStyle joinStyle;
     mutable QVector<qreal> dashPattern;
     qreal miterLimit;
+    uint cosmetic : 1;
 };
 
 
@@ -239,8 +240,9 @@ public:
 inline QPenPrivate::QPenPrivate(const QBrush &_brush, qreal _width, Qt::PenStyle penStyle,
                                 Qt::PenCapStyle _capStyle, Qt::PenJoinStyle _joinStyle)
     : ref(1), width(_width), brush(_brush), style(penStyle), capStyle(_capStyle),
-      joinStyle(_joinStyle), miterLimit(2)
+      joinStyle(_joinStyle), miterLimit(2), cosmetic(false)
 {
+
 }
 
 static const Qt::PenCapStyle qpen_default_cap = Qt::SquareCap;
@@ -385,6 +387,7 @@ void QPen::detach()
                                      d->joinStyle);
     x->miterLimit = d->miterLimit;
     x->dashPattern = d->dashPattern;
+    x->cosmetic = d->cosmetic;
     x = qAtomicSetPtr(&d, x);
     if (!x->ref.deref())
         delete x;
@@ -750,6 +753,37 @@ bool QPen::isSolid() const
 {
     return d->brush.style() == Qt::SolidPattern;
 }
+
+
+/*!
+    Returns true if the pen is cosmetic, otherwise false.
+
+    A Cosmetic pen defines an outline which width does not transform
+    according to the matrices in the QPainter its used with. A 0-width
+    pen is cosmetic by default, pens with an actual width are
+    non-cosmetic.
+
+    \sa setCosmetic(), widthF()
+*/
+
+bool QPen::isCosmetic() const
+{
+    return (d->cosmetic == true) || d->width == 0;
+}
+
+
+/*!
+    Sets this pen to cosmetic.
+
+    \sa isCosmetic()
+*/
+
+void QPen::setCosmetic(bool cosmetic)
+{
+    detach();
+    d->cosmetic = cosmetic;
+}
+
 
 
 /*!
