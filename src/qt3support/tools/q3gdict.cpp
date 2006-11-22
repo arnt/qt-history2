@@ -816,7 +816,7 @@ void Q3GDict::statistics() const
 {
 #if defined(QT_DEBUG)
     QString line;
-    line.fill('-', 60);
+    line.fill(QLatin1Char('-'), 60);
     double real, ideal;
     qDebug(line.ascii());
     qDebug("DICTIONARY STATISTICS:");

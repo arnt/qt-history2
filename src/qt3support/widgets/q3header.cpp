@@ -1104,11 +1104,11 @@ QSize Q3Header::sectionSizeHint(int section, const QFontMetrics& fm) const
     QRect bound;
     QString label = d->labels[section];
     if (!label.isNull() || d->nullStringLabels.testBit(section)) {
-        int lines = label.count('\n') + 1;
+        int lines = label.count(QLatin1Char('\n')) + 1;
         int w = 0;
         if (lines > 1) {
             bound.setHeight(fm.height() + fm.lineSpacing() * (lines - 1));
-            QStringList list = label.split('\n');
+            QStringList list = label.split(QLatin1Char('\n'));
             for (int i=0; i < list.count(); ++i) {
                 int tmpw = fm.width(list.at(i));
                 w = QMAX(w, tmpw);
@@ -1253,7 +1253,7 @@ QSize Q3Header::sizeHint() const
         for (int i = 0; i < count(); i++)
             width += d->sizes[i];
     } else {
-        width = fm.width(' ');
+        width = fm.width(QLatin1Char(' '));
         height = 0;
         width = qMax(width, d->height);
         for (int i = 0; i < count(); i++)
@@ -2016,7 +2016,7 @@ void Q3Header::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::FontChange) {
         QFontMetrics fm = fontMetrics();
-        d->height = (orient == Qt::Horizontal) ? fm.lineSpacing() + 6 : fm.width(' ');
+        d->height = (orient == Qt::Horizontal) ? fm.lineSpacing() + 6 : fm.width(QLatin1Char(' '));
     }
     QWidget::changeEvent(ev);
 }

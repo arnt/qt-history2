@@ -589,21 +589,21 @@ const char* Q3IconDrag::format(int i) const
 
 QByteArray Q3IconDrag::encodedData(const char* mime) const
 {
-    if (d->items.size() <= 0 || QString(mime) !=
-         "application/x-qiconlist")
+    if (d->items.size() <= 0 || QLatin1String(mime) !=
+         QLatin1String("application/x-qiconlist"))
         return QByteArray();
 
     QLinkedList<Q3IconDragDataItem>::ConstIterator it = d->items.begin();
     QString s;
     for (; it != d->items.end(); ++it) {
-        QString k("%1$@@$%2$@@$%3$@@$%4$@@$%5$@@$%6$@@$%7$@@$%8$@@$");
+        QString k(QLatin1String("%1$@@$%2$@@$%3$@@$%4$@@$%5$@@$%6$@@$%7$@@$%8$@@$"));
         k = k.arg((*it).item.pixmapRect().x()).arg(
             (*it).item.pixmapRect().y()).arg((*it).item.pixmapRect().width()).
             arg((*it).item.pixmapRect().height()).arg(
                 (*it).item.textRect().x()).arg((*it).item.textRect().y()).
             arg((*it).item.textRect().width()).arg(
                 (*it).item.textRect().height());
-        k += QString((*it).data.data()) + "$@@$";
+        k += QString(QLatin1String((*it).data.data())) + QLatin1String("$@@$");
         s += k;
     }
 
@@ -637,10 +637,10 @@ bool Q3IconDragPrivate::decode(QMimeSource* e, QLinkedList<Q3IconDragDataItem> &
     if (ba.size()) {
         lst.clear();
         // #### unicode clean????
-        QString s = ba;
+        QString s = QString::fromLatin1(ba);
         Q3IconDragDataItem item;
         QRect ir, tr;
-        QStringList l = QStringList::split("$@@$", s);
+        QStringList l = QStringList::split(QLatin1String("$@@$"), s);
 
         int i = 0;
         QStringList::Iterator it = l.begin();
@@ -1826,8 +1826,8 @@ void Q3IconViewItem::calcRect(const QString &text_)
 
     tw = r.width();
     th = r.height();
-    if (tw < view->d->fm->width("X"))
-        tw = view->d->fm->width("X");
+    if (tw < view->d->fm->width(QLatin1String("X")))
+        tw = view->d->fm->width(QLatin1String("X"));
 
     itemTextRect.setWidth(tw);
     itemTextRect.setHeight(th);
@@ -2103,12 +2103,12 @@ void Q3IconViewItem::calcTmpText()
         return;
     }
 
-    tmpText = "...";
+    tmpText = QLatin1String("...");
     int i = 0;
     while (view->d->fm->width(tmpText + itemText[i]) < w)
         tmpText += itemText[i++];
     tmpText.remove((uint)0, 3);
-    tmpText += "...";
+    tmpText += QLatin1String("...");
 }
 
 /*! \internal */

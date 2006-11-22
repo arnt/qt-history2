@@ -611,7 +611,7 @@ void Q3GCache::statistics() const
 {
 #if defined(QT_DEBUG)
     QString line;
-    line.fill('*', 80);
+    line.fill(QLatin1Char('*'), 80);
     qDebug(line.ascii());
     qDebug("CACHE STATISTICS:");
     qDebug("cache contains %d item%s, with a total cost of %d",

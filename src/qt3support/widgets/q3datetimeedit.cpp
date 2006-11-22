@@ -28,7 +28,7 @@
 #include "qt_windows.h"
 #endif
 
-#define QDATETIMEEDIT_HIDDEN_CHAR '0'
+#define QDATETIMEEDIT_HIDDEN_CHAR QLatin1Char('0')
 
 class Q_COMPAT_EXPORT QNumberSection
 {
@@ -118,13 +118,13 @@ static void readLocaleSettings()
             lPM = new QString(pm);
     });
 #else
-    *lDateSep = "-";
-    *lTimeSep = ":";
+    *lDateSep = QLatin1Char('-');
+    *lTimeSep = QLatin1Char(':');
 #endif
     QString d = QDate(1999, 11, 22).toString(Qt::LocalDate);
-    dpos = d.indexOf("22");
-    mpos = d.indexOf("11");
-    ypos = d.indexOf("99");
+    dpos = d.indexOf(QLatin1String("22"));
+    mpos = d.indexOf(QLatin1String("11"));
+    ypos = d.indexOf(QLatin1String("99"));
     if (dpos > -1 && mpos > -1 && ypos > -1) {
         // test for DMY, MDY, YMD, YDM
         if (dpos < mpos && mpos < ypos) {
@@ -152,9 +152,9 @@ static void readLocaleSettings()
 
 #ifndef Q_WS_WIN
     QString t = QTime(11, 22, 33).toString(Qt::LocalDate);
-    dpos = t.indexOf("11");
-    mpos = t.indexOf("22");
-    ypos = t.indexOf("33");
+    dpos = t.indexOf(QLatin1String("11"));
+    mpos = t.indexOf(QLatin1String("22"));
+    ypos = t.indexOf(QLatin1String("33"));
     // We only allow hhmmss
     if (dpos > -1 && dpos < mpos && mpos < ypos) {
         QString sep = t.mid(dpos + 2, mpos - dpos - 2);
@@ -523,7 +523,7 @@ void Q3DateTimeEditor::paintEvent(QPaintEvent *)
             if (d->section(i+1).separator())
                 txt += d->separator();
             else
-                txt += " ";
+                txt += QLatin1Char(' ');
         }
     }
 
@@ -1074,7 +1074,7 @@ QSize Q3DateEdit::sizeHint() const
     QFontMetrics fm(font());
     int fw = style()->pixelMetric(QStyle::PM_DefaultFrameWidth, 0, this);
     int h = qMax(fm.lineSpacing(), 14) + 2;
-    int w = 2 + fm.width('9') * 8 + fm.width(d->ed->separator()) * 2 + d->controls->upRect().width() + fw * 4;
+    int w = 2 + fm.width(QLatin1Char('9')) * 8 + fm.width(d->ed->separator()) * 2 + d->controls->upRect().width() + fw * 4;
 
     return QSize(w, qMax(h + fw * 2,20)).expandedTo(QApplication::globalStrut());
 }
@@ -1664,15 +1664,15 @@ void Q3DateEdit::removeFirstNumber(int sec)
     QString txt;
     if (sec == d->yearSection) {
         txt = QString::number(d->y);
-        txt = txt.mid(1, txt.length()) + "0";
+        txt = txt.mid(1, txt.length()) + QLatin1Char('0');
         d->y = txt.toInt();
     } else if (sec == d->monthSection) {
         txt = QString::number(d->m);
-        txt = txt.mid(1, txt.length()) + "0";
+        txt = txt.mid(1, txt.length()) + QLatin1Char('0');
         d->m = txt.toInt();
     } else if (sec == d->daySection) {
         txt = QString::number(d->d);
-        txt = txt.mid(1, txt.length()) + "0";
+        txt = txt.mid(1, txt.length()) + QLatin1Char('0');
         d->d = txt.toInt();
         d->dayCache = d->d;
     }
@@ -2264,7 +2264,7 @@ QString Q3TimeEdit::sectionText(int sec)
             if (d->h)
                 txt = QString::number(d->h - 12);
             else
-                txt = "12";
+                txt = QLatin1String("12");
         }
         break;
     case 1:
@@ -2464,7 +2464,7 @@ void Q3TimeEdit::removeFirstNumber(int sec)
         txt = QString::number(d->s);
         break;
     }
-    txt = txt.mid(1, txt.length()) + "0";
+    txt = txt.mid(1, txt.length()) + QLatin1Char('0');
     switch(sec) {
     case 0:
         d->h = txt.toInt();
@@ -2529,7 +2529,7 @@ QSize Q3TimeEdit::sizeHint() const
     QFontMetrics fm(font());
     int fw = style()->pixelMetric(QStyle::PM_DefaultFrameWidth, 0, this);
     int h = fm.lineSpacing() + 2;
-    int w = 2 + fm.width('9') * 6 + fm.width(d->ed->separator()) * 2 +
+    int w = 2 + fm.width(QLatin1Char('9')) * 6 + fm.width(d->ed->separator()) * 2 +
         d->controls->upRect().width() + fw * 4;
     if (d->display & AMPM) {
         if (lAM)

@@ -483,16 +483,16 @@ void Q3TitleBar::cutText()
     QString txt = d->window->windowTitle();
     if (style()->styleHint(QStyle::SH_TitleBar_ModifyNotification, 0, this) && d->window
         && d->window->isWindowModified())
-        txt += " *";
+        txt += QLatin1String(" *");
 
     QString cuttext = txt;
-    if (fm.width(txt + "m") > maxw) {
+    if (fm.width(txt + QLatin1Char('m')) > maxw) {
         int i = txt.length();
-        int dotlength = fm.width("...");
+        int dotlength = fm.width(QLatin1String("..."));
         while (i>0 && fm.width(txt.left(i)) + dotlength > maxw)
             i--;
         if(i != (int)txt.length())
-            cuttext = txt.left(i) + "...";
+            cuttext = txt.left(i) + QLatin1String("...");
     }
 
     setWindowTitle(cuttext);

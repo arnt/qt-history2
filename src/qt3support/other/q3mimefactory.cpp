@@ -134,13 +134,13 @@ static QImage richTextImageLoader(const QString &name, const QString &context)
 Q3MimeSourceFactory::Q3MimeSourceFactory() :
     d(new Q3MimeSourceFactoryData)
 {
-    addFilePath(":/qt/q3mimesourcefactory/"); //to get from the resources
+    addFilePath(QLatin1String(":/qt/q3mimesourcefactory/")); //to get from the resources
     // add some reasonable defaults
-    setExtensionType("htm", "text/html;charset=iso8859-1");
-    setExtensionType("html", "text/html;charset=iso8859-1");
-    setExtensionType("txt", "text/plain");
-    setExtensionType("xml", "text/xml;charset=UTF-8");
-    setExtensionType("jpg", "image/jpeg"); // support misspelled jpeg files
+    setExtensionType(QLatin1String("htm"), "text/html;charset=iso8859-1");
+    setExtensionType(QLatin1String("html"), "text/html;charset=iso8859-1");
+    setExtensionType(QLatin1String("txt"), "text/plain");
+    setExtensionType(QLatin1String("xml"), "text/xml;charset=UTF-8");
+    setExtensionType(QLatin1String("jpg"), "image/jpeg"); // support misspelled jpeg files
 }
 
 /*!
@@ -248,9 +248,9 @@ const QMimeSource *Q3MimeSourceFactory::data(const QString& abs_name) const
     if (abs_name.isEmpty())
         return r;
     QStringList::Iterator it;
-    if (abs_name[0] == '/'
+    if (abs_name[0] == QLatin1Char('/')
 #ifdef Q_WS_WIN
-            || (abs_name[0].isLetter() && abs_name[1] == ':') || abs_name.startsWith("\\\\")
+            || (abs_name[0].isLetter() && abs_name[1] == QLatin1Char(':')) || abs_name.startsWith(QLatin1String("\\\\"))
 #endif
    )
     {
@@ -260,8 +260,8 @@ const QMimeSource *Q3MimeSourceFactory::data(const QString& abs_name) const
     else { // check list of paths
         for (it = d->path.begin(); !r && it != d->path.end(); ++it) {
             QString filename = *it;
-            if (filename[(int)filename.length()-1] != '/')
-                filename += '/';
+            if (filename[(int)filename.length()-1] != QLatin1Char('/'))
+                filename += QLatin1Char('/');
             filename += abs_name;
             r = dataInternal(filename, d->extensions);
         }
@@ -336,7 +336,7 @@ void Q3MimeSourceFactory::addFilePath(const QString& p)
 */
 void Q3MimeSourceFactory::setExtensionType(const QString& ext, const char* mimetype)
 {
-    d->extensions.insert(ext, mimetype);
+    d->extensions.insert(ext, QLatin1String(mimetype));
 }
 
 /*!
@@ -348,7 +348,7 @@ void Q3MimeSourceFactory::setExtensionType(const QString& ext, const char* mimet
 QString Q3MimeSourceFactory::makeAbsolute(const QString& abs_or_rel_name, const QString& context) const
 {
     if (context.isNull() ||
-         !(context[0] == '/'
+         !(context[0] == QLatin1Char('/')
 #ifdef Q_WS_WIN
          || (context[0].isLetter() && context[1] == ':')
 #endif

@@ -328,14 +328,14 @@ QString Q3DnsAnswer::readString(bool multipleLabels)
 	    if ( b == 0 ) {
 		if ( p > pp )
 		    pp = p;
-                return r.isNull() ? QString( "." ) : r;
+                return r.isNull() ? QLatin1String( "." ) : r;
 	    }
 
             // Read a label of size 'b' characters
             if ( !r.isNull() )
-		r += '.';
+		r += QLatin1Char('.');
 	    while( b-- > 0 )
-                r += QChar( answer[p++] );
+                r += QLatin1Char( answer[p++] );
 
             // Return immediately if we were only supposed to read one
             // label.
@@ -1151,7 +1151,7 @@ void Q3DnsManager::transmitQuery( int i )
     int pp = 12;
     uint lp = 0;
     while( lp < (uint) q->l.length() ) {
-	int le = q->l.find( '.', lp );
+	int le = q->l.find( QLatin1Char('.'), lp );
 	if ( le < 0 )
 	    le = q->l.length();
 	QString component = q->l.mid( lp, le-lp );
@@ -1310,7 +1310,7 @@ Q3PtrList<Q3DnsRR> * Q3DnsDomain::cached( const Q3Dns * r )
 
     // test at first if you have to start a query at all
     if ( r->recordType() == Q3Dns::A ) {
-	if ( r->label().lower() == "localhost" ) {
+	if ( r->label().lower() == QLatin1String("localhost") ) {
 	    // undocumented hack. ipv4-specific. also, may be a memory
 	    // leak? not sure. would be better to do this in doResInit(),
 	    // anyway.
@@ -1457,7 +1457,7 @@ Q3PtrList<Q3DnsRR> * Q3DnsDomain::cached( const Q3Dns * r )
 	    // we haven't done it before, so maybe we should.  but
 	    // wait - if it's an unqualified name, only ask when all
 	    // the other alternatives are exhausted.
-	    if ( q == m->queries.size() && ( s.find( '.' ) >= 0 ||
+	    if ( q == m->queries.size() && ( s.find( QLatin1Char('.') ) >= 0 ||
 					     int(l->count()) >= n.count()-1 ) ) {
 		Q3DnsQuery * query = new Q3DnsQuery;
 		query->started = now();
@@ -1692,14 +1692,14 @@ void Q3Dns::setLabel( const QString & label )
 
     // construct a list of qualified names
     n.clear();
-    if ( l.length() > 1 && l[(int)l.length()-1] == '.' ) {
+    if ( l.length() > 1 && l[(int)l.length()-1] == QLatin1Char('.') ) {
 	n.append( l.left( l.length()-1 ).lower() );
     } else {
 	int i = l.length();
 	int dots = 0;
 	const int maxDots = 2;
 	while( i && dots < maxDots ) {
-	    if ( l[--i] == '.' )
+	    if ( l[--i] == QLatin1Char('.') )
 		dots++;
 	}
 	if ( dots < maxDots ) {
@@ -1708,7 +1708,7 @@ void Q3Dns::setLabel( const QString & label )
 	    const char * dom;
 	    while( (dom=it.current()) != 0 ) {
 		++it;
-		n.append( l.lower() + "." + dom );
+		n.append( l.lower() + QLatin1String(".") + QLatin1String(dom) );
 	    }
 	}
 	n.append( l.lower() );
@@ -1876,11 +1876,11 @@ QString Q3Dns::toInAddrArpaDomain( const QHostAddress &address )
 	// RFC 3152. (1886 is deprecated, and clients no longer need to
 	// support it, in practice).
 	Q_IPV6ADDR i = address.toIPv6Address();
-	s = "ip6.arpa";
+	s = QLatin1String("ip6.arpa");
 	uint b = 0;
 	while( b < 16 ) {
-	    s = QString::number( i.c[b]%16, 16 ) + "." +
-		QString::number( i.c[b]/16, 16 ) + "." + s;
+	    s = QString::number( i.c[b]%16, 16 ) + QLatin1String(".") +
+		QString::number( i.c[b]/16, 16 ) + QLatin1String(".") + s;
 	    b++;
 	}
     }
@@ -2492,19 +2492,19 @@ void Q3Dns::doResInit()
     domains->setAutoDelete( true );
 
     // read resolv.conf manually.
-    QFile resolvConf("/etc/resolv.conf");
+    QFile resolvConf(QLatin1String("/etc/resolv.conf"));
     if (resolvConf.open(QIODevice::ReadOnly)) {
         QTextStream stream( &resolvConf );
 	QString line;
 
 	while ( !stream.atEnd() ) {
             line = stream.readLine();
-	    QStringList list = QStringList::split( " ", line );
-	    if( line.startsWith( "#" ) || list.size() < 2 )
+	    QStringList list = QStringList::split( QLatin1String(" "), line );
+	    if( line.startsWith( QLatin1String("#") ) || list.size() < 2 )
 	       continue;
 	    const QString type = list[0].lower();
 
-	    if ( type == "nameserver" ) {
+	    if ( type == QLatin1String("nameserver") ) {
 		QHostAddress *address = new QHostAddress();
 		if ( address->setAddress( QString(list[1]) ) ) {
 		    // only add ipv6 addresses from resolv.conf if
@@ -2516,12 +2516,12 @@ void Q3Dns::doResInit()
 		} else {
 		    delete address;
 		}
-	    } else if ( type == "search" ) {
-		QStringList srch = QStringList::split( " ", list[1] );
+	    } else if ( type == QLatin1String("search") ) {
+		QStringList srch = QStringList::split( QLatin1String(" "), list[1] );
 		for ( QStringList::Iterator i = srch.begin(); i != srch.end(); ++i )
 		    domains->append( (*i).lower().local8Bit() );
 
-	    } else if ( type == "domain" ) {
+	    } else if ( type == QLatin1String("domain") ) {
 		domains->append( list[1].lower().local8Bit() );
 	    }
 	}
@@ -2583,7 +2583,7 @@ void Q3Dns::doResInit()
 	while( !i.atEnd() ) {
 	    line = i.readLine().simplifyWhiteSpace().lower();
 	    uint n = 0;
-	    while( (int) n < line.length() && line[(int)n] != '#' )
+	    while( (int) n < line.length() && line[(int)n] != QLatin1Char('#') )
 		n++;
 	    line.truncate( n );
 	    n = 0;

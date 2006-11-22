@@ -95,7 +95,7 @@ public:
     virtual void        setName(const QString& name, bool autopopulate = true);
     QString                name() const;
     QString                toString(const QString& prefix = QString(),
-                                const QString& sep = ",") const;
+                                const QString& sep = QLatin1String(",")) const;
     bool                 isNull(int i) const;
     bool                 isNull(const QString& name) const;
     virtual bool seek(int i, bool relative = false);

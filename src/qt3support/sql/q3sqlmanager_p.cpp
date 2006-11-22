@@ -47,13 +47,13 @@ static QSqlIndex indexFromStringList(const QStringList& l, const Q3SqlCursor* cu
     for (int i = 0; i < l.count(); ++i) {
         QString f = l[i];
         bool desc = false;
-        if (f.mid(f.length()-3) == "ASC")
+        if (f.mid(f.length()-3) == QLatin1String("ASC"))
             f = f.mid(0, f.length()-3);
-        if (f.mid(f.length()-4) == "DESC") {
+        if (f.mid(f.length()-4) == QLatin1String("DESC")) {
             desc = true;
             f = f.mid(0, f.length()-4);
         }
-        int dot = f.lastIndexOf(QChar('.'));
+        int dot = f.lastIndexOf(QLatin1Char('.'));
         if (dot != -1)
             f = f.mid(dot+1);
         const QSqlField field = cursor->field(f.trimmed());
@@ -677,9 +677,9 @@ void Q3DataManager::handleError(QWidget* parent, const QSqlError& e)
 {
 #ifndef QT_NO_MESSAGEBOX
     if (e.driverText().isEmpty() && e.databaseText().isEmpty()) {
-        QMessageBox::warning (parent, "Warning", "An error occurred while accessing the database");
+        QMessageBox::warning (parent, QLatin1String("Warning"), QLatin1String("An error occurred while accessing the database"));
     } else {
-        QMessageBox::warning (parent, "Warning", e.driverText() + "\n" + e.databaseText(),
+        QMessageBox::warning (parent, QLatin1String("Warning"), e.driverText() + QLatin1Char('\n') + e.databaseText(),
                            0, 0);
     }
 #endif // QT_NO_MESSAGEBOX

@@ -56,10 +56,10 @@ class Q3TextDragPrivate : public Q3DragObjectPrivate
 {
     Q_DECLARE_PUBLIC(Q3TextDrag)
 public:
-    Q3TextDragPrivate() { setSubType("plain"); }
+    Q3TextDragPrivate() { setSubType(QLatin1String("plain")); }
     void setSubType(const QString & st) {
         subtype = st;
-        fmt = "text/" + subtype.toLatin1();
+        fmt = QString(QLatin1String("text/")).toLatin1() + subtype.toLatin1();
     }
 
     QString txt;
@@ -546,9 +546,9 @@ static QTextCodec *codecForHTML(const QByteArray &ba)
             int end = ba.indexOf('>', pos+1);
             if (end == -1)
                 break;
-            QString str = ba.mid(pos, end-pos);
-            if (str.contains("meta http-equiv=", Qt::CaseInsensitive)) {
-                pos = str.indexOf("charset=", 0, Qt::CaseInsensitive) + int(strlen("charset="));
+            const QString str(QString::fromLatin1(ba.mid(pos, end-pos)));
+            if (str.contains(QLatin1String("meta http-equiv="), Qt::CaseInsensitive)) {
+                pos = str.indexOf(QLatin1String("charset="), 0, Qt::CaseInsensitive) + int(strlen("charset="));
                 if (pos != -1) {
                     int pos2 = ba.indexOf('\"', pos+1);
                     QByteArray cs = ba.mid(pos, pos2-pos);
@@ -642,7 +642,7 @@ bool Q3TextDrag::decode(const QMimeSource* e, QString& str, QString& subtype)
             int semi = m.indexOf(';');
             if (semi < 0)
                 semi = m.length();
-            QString foundst = m.mid(5,semi-5);
+            QString foundst(QString::fromLatin1(m.mid(5,semi-5)));
             if (subtype.isNull() || foundst == subtype) {
                 bool html = !qstrnicmp(mime, "text/html", 9);
                 QTextCodec* codec = 0;
@@ -1033,7 +1033,7 @@ QByteArray Q3StoredDrag::encodedData(const char* m) const
 Q3UriDrag::Q3UriDrag(const Q3StrList &uris, QWidget * dragSource, const char * name) :
     Q3StoredDrag("text/uri-list", dragSource)
 {
-    setObjectName(name);
+    setObjectName(QLatin1String(name));
     setUris(uris);
 }
 
@@ -1046,7 +1046,7 @@ Q3UriDrag::Q3UriDrag(const Q3StrList &uris, QWidget * dragSource, const char * n
 Q3UriDrag::Q3UriDrag(QWidget * dragSource, const char * name) :
     Q3StoredDrag("text/uri-list", dragSource)
 {
-    setObjectName(name);
+    setObjectName(QLatin1String(name));
 }
 #endif
 
@@ -1203,7 +1203,7 @@ QByteArray Q3UriDrag::unicodeUriToUri(const QString& uuri)
     QByteArray utf8 = uuri.toUtf8();
     QByteArray escutf8;
     int n = utf8.length();
-    bool isFile = uuri.startsWith("file://");
+    bool isFile = uuri.startsWith(QLatin1String("file://"));
     for (int i=0; i<n; i++) {
         if (utf8[i] >= 'a' && utf8[i] <= 'z'
           || utf8[i] == '/'
@@ -1279,7 +1279,7 @@ QByteArray Q3UriDrag::localFileToUri(const QString& filename)
         r.prepend(QString::fromLatin1(hostname));
     }
 #endif
-    return unicodeUriToUri(QString("file://" + r));
+    return unicodeUriToUri(QString(QLatin1String("file://") + r));
 }
 
 /*!
@@ -1334,7 +1334,7 @@ QString Q3UriDrag::uriToLocalFile(const char* uri)
         return file;
     if (0==qstrnicmp(uri,"file:/",6)) // It is a local file uri
         uri += 6;
-    else if (QString(uri).indexOf(":/") != -1) // It is a different scheme uri
+    else if (QString(QLatin1String(uri)).indexOf(QLatin1String(":/")) != -1) // It is a different scheme uri
         return file;
 
     bool local = uri[0] != '/' || (uri[0] != '\0' && uri[1] == '/');
@@ -1360,7 +1360,7 @@ QString Q3UriDrag::uriToLocalFile(const char* uri)
         if (uri[1] == '/') {
             file.remove((uint)0,1);
         } else {
-                file.insert(0,'/');
+                file.insert(0, QLatin1Char('/'));
         }
 #ifdef Q_WS_WIN
         if (file.length() > 2 && file[0] == '/' && file[2] == '|') {
@@ -1458,7 +1458,7 @@ bool Q3UriDrag::decodeToUnicodeUris(const QMimeSource* e, QStringList& l)
 Q3ColorDrag::Q3ColorDrag(const QColor &col, QWidget *dragsource, const char *name)
     : Q3StoredDrag("application/x-color", dragsource)
 {
-    setObjectName(name);
+    setObjectName(QLatin1String(name));
     setColor(col);
 }
 
@@ -1470,7 +1470,7 @@ Q3ColorDrag::Q3ColorDrag(const QColor &col, QWidget *dragsource, const char *nam
 Q3ColorDrag::Q3ColorDrag(QWidget *dragsource, const char *name)
     : Q3StoredDrag("application/x-color", dragsource)
 {
-    setObjectName(name);
+    setObjectName(QLatin1String(name));
     setColor(Qt::white);
 }
 

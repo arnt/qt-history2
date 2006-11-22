@@ -885,7 +885,7 @@ public:
     QString focusHref() const;
     QString focusName() const;
 
-    void invalidateOriginalText() { oTextValid = false; oText = ""; }
+    void invalidateOriginalText() { oTextValid = false; oText = QLatin1String(""); }
 
 Q_SIGNALS:
     void minimumWidthChanged(int);

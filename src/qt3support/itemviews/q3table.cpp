@@ -937,7 +937,7 @@ QSize Q3TableItem::sizeHint() const
     }
 
     QString t = text();
-    if (!wordwrap && t.find('\n') == -1)
+    if (!wordwrap && t.find(QLatin1Char('\n')) == -1)
         return QSize(s.width() + table()->fontMetrics().width(text()) + 10,
                       QMAX(s.height(), table()->fontMetrics().height())).expandedTo(strutSize);
 
@@ -1180,7 +1180,7 @@ int Q3ComboTableItem::fakeRef = 0;
 */
 
 Q3ComboTableItem::Q3ComboTableItem(Q3Table *table, const QStringList &list, bool editable)
-    : Q3TableItem(table, WhenCurrent, ""), entries(list), current(0), edit(editable)
+    : Q3TableItem(table, WhenCurrent, QLatin1String("")), entries(list), current(0), edit(editable)
 {
     setReplaceable(false);
     if (!Q3ComboTableItem::fakeCombo) {
@@ -4866,7 +4866,7 @@ void Q3Table::setNumRows(int r)
     bool updateBefore;
     updateHeaderAndResizeContents(leftHeader, numRows(), r, 20, updateBefore);
 
-    int w = fontMetrics().width(QString::number(r) + "W");
+    int w = fontMetrics().width(QString::number(r) + QLatin1Char('W'));
     if (VERTICALMARGIN > 0 && w > VERTICALMARGIN)
         setLeftMargin(w);
 

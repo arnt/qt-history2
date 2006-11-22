@@ -564,7 +564,7 @@ Q3DockWindowTitleBar::Q3DockWindowTitleBar(Q3DockWindow *dw)
     : Q3TitleBar(0, dw), dockWindow(dw),
       mousePressed(false), hadDblClick(false), opaque(default_opaque)
 {
-    setObjectName("qt_dockwidget_internal");
+    setObjectName(QLatin1String("qt_dockwidget_internal"));
     ctrlDown = false;
     setMouseTracking(true);
     QStyleOptionTitleBar opt = getStyleOption();

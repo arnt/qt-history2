@@ -226,7 +226,7 @@ Q3ProgressDialog::Q3ProgressDialog(QWidget *creator, const char *name,
                                   bool modal, Qt::WindowFlags f)
     : QDialog(creator, f)
 {
-    setObjectName(name);
+    setObjectName(QLatin1String(name));
     setModal(modal);
     init(creator, QString::fromLatin1(""), tr("Cancel"), 100);
 }
@@ -265,7 +265,7 @@ Q3ProgressDialog::Q3ProgressDialog(const QString &labelText,
                                   bool modal, Qt::WindowFlags f)
     : QDialog(creator, f)
 {
-    setObjectName(name);
+    setObjectName(QLatin1String(name));
     setModal(modal);
     init(creator, labelText, cancelButtonText, totalSteps);
 }

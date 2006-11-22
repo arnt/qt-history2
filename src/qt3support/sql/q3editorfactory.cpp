@@ -109,8 +109,8 @@ QWidget * Q3EditorFactory::createEditor(QWidget * parent, const QVariant & v)
             break;
         case QVariant::Bool:
             w = new QComboBox(parent, "qt_editor_bool");
-            ((QComboBox *) w)->insertItem("False");
-            ((QComboBox *) w)->insertItem("True");
+            ((QComboBox *) w)->insertItem(QLatin1String("False"));
+            ((QComboBox *) w)->insertItem(QLatin1String("True"));
             break;
         case QVariant::UInt:
             w = new QSpinBox(0, 999999, 1, parent, "qt_editor_spinbox");
@@ -125,23 +125,23 @@ QWidget * Q3EditorFactory::createEditor(QWidget * parent, const QVariant & v)
             break;
         case QVariant::Date: {
             QDateTimeEdit *edit = new QDateTimeEdit(parent);
-            edit->setDisplayFormat("yyyy/MM/dd");
-            edit->setObjectName("qt_editor_date");
+            edit->setDisplayFormat(QLatin1String("yyyy/MM/dd"));
+            edit->setObjectName(QLatin1String("qt_editor_date"));
             w = edit; }
             break;
         case QVariant::Time: {
             QDateTimeEdit *edit = new QDateTimeEdit(parent);
-            edit->setDisplayFormat("hh:mm");
-            edit->setObjectName("qt_editor_time");
+            edit->setDisplayFormat(QLatin1String("hh:mm"));
+            edit->setObjectName(QLatin1String("qt_editor_time"));
             w = edit; }
             break;
         case QVariant::DateTime:
             w = new QDateTimeEdit(parent);
-            w->setObjectName("qt_editor_datetime");
+            w->setObjectName(QLatin1String("qt_editor_datetime"));
             break;
 #ifndef QT_NO_LABEL
         case QVariant::Pixmap:
-            w = new QLabel(parent, "qt_editor_pixmap");
+            w = new QLabel(parent, QLatin1String("qt_editor_pixmap"));
             break;
 #endif
         case QVariant::Palette:

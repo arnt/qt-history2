@@ -161,7 +161,7 @@ QString Q3TextBrowser::source() const
 void Q3TextBrowser::reload()
 {
     QString s = d->curmain;
-    d->curmain = "";
+    d->curmain = QLatin1String("");
     setSource(s);
 }
 
@@ -175,13 +175,13 @@ void Q3TextBrowser::setSource(const QString& name)
     d->textOrSourceChanged = true;
     QString source = name;
     QString mark;
-    int hash = name.indexOf('#');
+    int hash = name.indexOf(QLatin1Char('#'));
     if (hash != -1) {
         source = name.left(hash);
         mark = name.mid(hash+1);
     }
 
-    if (source.left(5) == "file:")
+    if (source.left(5) == QLatin1String("file:"))
         source = source.mid(6);
 
     QString url = mimeSourceFactory()->makeAbsolute(source, context());
@@ -200,8 +200,8 @@ void Q3TextBrowser::setSource(const QString& name)
             }
         }
         if (isVisible()) {
-            QString firstTag = txt.left(txt.indexOf('>') + 1);
-            if (firstTag.left(3) == "<qt" && firstTag.contains("type") && firstTag.contains("detail")) {
+            QString firstTag = txt.left(txt.indexOf(QLatin1Char('>')) + 1);
+            if (firstTag.left(3) == QLatin1String("<qt") && firstTag.contains(QLatin1String("type")) && firstTag.contains(QLatin1String("detail"))) {
                 popupDetail(txt, QCursor::pos());
 #ifndef QT_NO_CURSOR
                 qApp->restoreOverrideCursor();
@@ -217,7 +217,7 @@ void Q3TextBrowser::setSource(const QString& name)
     d->curmark = mark;
 
     if (!mark.isEmpty()) {
-        url += "#";
+        url += QLatin1Char('#');
         url += mark;
     }
     if (d->home.count() == 0)
@@ -475,8 +475,8 @@ void Q3TextBrowser::popupDetail(const QString& contents, const QPoint& pos)
 void Q3TextBrowser::setText(const QString &txt, const QString &context)
 {
     d->textOrSourceChanged = true;
-    d->curmark = "";
-    d->curmain = "";
+    d->curmark = QLatin1String("");
+    d->curmain = QLatin1String("");
     Q3TextEdit::setText(txt, context);
 }
 

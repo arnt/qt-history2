@@ -446,7 +446,7 @@ QString Q3Process::readLineStdout()
 	return QString();
 
       if ( !buf->scanNewline( &a ) )
-	return QString( buf->readAll() );
+	return QString( QLatin1String(buf->readAll()) );
     }
 
     uint size = a.size();
@@ -459,7 +459,7 @@ QString Q3Process::readLineStdout()
       else
 	a.chop(1);
     }
-    return QString( a );
+    return QString(QString::fromLatin1(a.constData()));
 }
 
 /*!
@@ -482,7 +482,7 @@ QString Q3Process::readLineStderr()
 	return QString();
 
       if ( !buf->scanNewline( &a ) )
-	return QString( buf->readAll() );
+	return QString( QString::fromLatin1( buf->readAll().constData() ) );
     }
 
     uint size = a.size();
@@ -495,7 +495,7 @@ QString Q3Process::readLineStderr()
       else
 	a.chop(1);
     }
-    return QString( a );
+    return QString( QString::fromLatin1( a.constData() ) );
 }
 
 /*!

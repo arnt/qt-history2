@@ -968,9 +968,9 @@ public:
             if (!i1->isDir() && i2->isDir())
                 return 1;
 
-            if (i1->name() == "..")
+            if (i1->name() == QLatin1String(".."))
                 return -1;
-            if (i2->name() == "..")
+            if (i2->name() == QLatin1String(".."))
                 return 1;
 
             if (sortFilesBy == QDir::Name) {
@@ -1055,15 +1055,15 @@ public:
             uchar inCh = (uchar)cName[i];
             if (inCh >= 128 || sChars.contains(inCh))
             {
-                newStr += QChar('%');
+                newStr += QLatin1Char('%');
                 ushort c = inCh / 16;
                 c += c > 9 ? 'A' - 10 : '0';
-                newStr += (char)c;
+                newStr += QLatin1Char((char)c);
                 c = inCh % 16;
                 c += c > 9 ? 'A' - 10 : '0';
-                newStr += (char)c;
+                newStr += QLatin1Char((char)c);
             } else {
-                newStr += (char)inCh;
+                newStr += QLatin1Char((char)inCh);
             }
         }
         return newStr;
@@ -1236,7 +1236,7 @@ void QFileListBox::viewportMousePressEvent(QMouseEvent *e)
     }
 
      if (!firstMousePressEvent && !didRename && i == currentItem() && currentItem() != -1 &&
-          wasSelected && QUrlInfo(filedialog->d->url.info(".")).isWritable() && item(currentItem())->text() != "..") {
+          wasSelected && QUrlInfo(filedialog->d->url.info(QString(QLatin1Char('.')))).isWritable() && item(currentItem())->text() != QLatin1String("..")) {
         renameTimer->start(QApplication::doubleClickInterval(), true);
         renameItem = item(i);
     }
@@ -1386,7 +1386,7 @@ void QFileListBox::viewportDropEvent(QDropEvent *e)
         dest = filedialog->d->url;
     QStringList lst;
     for (uint i = 0; i < l.count(); ++i) {
-        lst << l.at(i);
+        lst << QLatin1String(l.at(i));
     }
 
     filedialog->d->url.copy(lst, dest, move);
@@ -1655,7 +1655,7 @@ void Q3FileDialogQFileListView::viewportMousePressEvent(QMouseEvent *e)
     }
 
     if (!firstMousePressEvent && !didRename && i == currentItem() && currentItem() &&
-         QUrlInfo(filedialog->d->url.info(".")).isWritable() && currentItem()->text(0) != "..") {
+         QUrlInfo(filedialog->d->url.info(QString(QLatin1Char('.')))).isWritable() && currentItem()->text(0) != QLatin1String("..")) {
         renameTimer->start(QApplication::doubleClickInterval(), true);
         renameItem = currentItem();
     }
@@ -2069,11 +2069,11 @@ static QStringList makeFiltersList(const QString &filter)
     if (filter.isEmpty())
         return QStringList();
 
-    int i = filter.indexOf(";;", 0);
-    QString sep(";;");
+    int i = filter.indexOf(QLatin1String(";;"), 0);
+    QString sep(QLatin1String(";;"));
     if (i == -1) {
-        if (filter.contains('\n')) {
-            sep = "\n";
+        if (filter.contains(QLatin1Char('\n'))) {
+            sep = QLatin1Char('\n');
             i = filter.indexOf(sep);
         }
     }
@@ -2348,7 +2348,7 @@ Q3FileDialog::Q3FileDialog(const QString& dirName, const QString & filter,
     if (!filter.isEmpty()) {
         setFilters(filter);
         if (!dirName.isEmpty()) {
-            int dotpos = dirName.indexOf(QChar('.'), 0, Qt::CaseInsensitive);
+            int dotpos = dirName.indexOf(QLatin1Char('.'), 0, Qt::CaseInsensitive);
             if (dotpos != -1) {
                 for (int b=0 ; b<d->types->count() ; b++) {
                     if (d->types->text(b).contains(dirName.right(dirName.length() - dotpos))) {
@@ -2747,7 +2747,7 @@ void Q3FileDialog::fileNameEditReturnPressed()
                 f = QUrlInfo(d->url.info(nameEdit->text().isEmpty() ? QString::fromLatin1(".") : nameEdit->text()));
             if (f.isDir()) {
                 setUrl(Q3UrlOperator(d->url,
-                                      Q3FileDialogPrivate::encodeFileName(nameEdit->text() + "/")));
+                                      Q3FileDialogPrivate::encodeFileName(nameEdit->text() + QLatin1Char('/'))));
                 d->checkForFilter = true;
                 trySetSelection(true, d->url, true);
                 d->checkForFilter = false;
@@ -2844,13 +2844,13 @@ QString Q3FileDialog::selectedFile() const
     // remove the protocol because we do not want to encode it...
     QString prot = Q3Url(s).protocol();
     if (!prot.isEmpty()) {
-        prot += ":";
+        prot += QLatin1Char(':');
         s.remove(0, prot.length());
     }
     Q3Url u(prot + Q3FileDialogPrivate::encodeFileName(s));
     if (u.isLocalFile()) {
         QString s = u.toString();
-        if (s.left(5) == "file:")
+        if (s.left(5) == QLatin1String("file:"))
             s.remove((uint)0, 5);
         return s;
     }
@@ -2947,24 +2947,24 @@ QStringList Q3FileDialog::selectedFiles() const
     if (mode() == ExistingFiles) {
         QStringList selectedLst;
         QString selectedFiles = nameEdit->text();
-        if (selectedFiles.lastIndexOf('\"') == -1) {
+        if (selectedFiles.lastIndexOf(QLatin1Char('\"')) == -1) {
             //probably because Enter was pressed on the nameEdit, so we have one file
             //not in "" but raw
             selectedLst.append(selectedFiles);
         } else {
-            selectedFiles.truncate(selectedFiles.lastIndexOf('\"'));
-            selectedLst = selectedLst.split(QString("\" "), selectedFiles);
+            selectedFiles.truncate(selectedFiles.lastIndexOf(QLatin1Char('\"')));
+            selectedLst = selectedLst.split(QLatin1String("\" "), selectedFiles);
         }
         for (QStringList::Iterator it = selectedLst.begin(); it != selectedLst.end(); ++it) {
             Q3Url u;
-            if ((*it)[0] == '\"') {
+            if ((*it)[0] == QLatin1Char('\"')) {
                 u = Q3Url(d->url, Q3FileDialogPrivate::encodeFileName((*it).mid(1)));
             } else {
                 u = Q3Url(d->url, Q3FileDialogPrivate::encodeFileName((*it)));
             }
             if (u.isLocalFile()) {
                 QString s = u.toString();
-                if (s.left(5) == "file:")
+                if (s.left(5) == QLatin1String("file:"))
                     s.remove((uint)0, 5);
                 lst << s;
             } else {
@@ -2999,7 +2999,7 @@ void Q3FileDialog::setSelection(const QString & filename)
     bool isDirOk;
     bool isDir = d->url.isDir(&isDirOk);
     if (!isDirOk)
-        isDir = d->url.path().right(1) == "/";
+        isDir = d->url.path().right(1) == QString(QLatin1Char('/'));
     if (!isDir) {
         Q3UrlOperator u(d->url);
         d->url.setPath(d->url.dirPath());
@@ -3010,9 +3010,9 @@ void Q3FileDialog::setSelection(const QString & filename)
         emit dirEntered(d->url.dirPath());
     } else {
         if (!d->url.path().isEmpty() &&
-             d->url.path().right(1) != "/") {
+             d->url.path().right(1) != QString(QLatin1Char('/'))) {
             QString p = d->url.path();
-            p += "/";
+            p += QLatin1Char('/');
             d->url.setPath(p);
         }
         trySetSelection(true, d->url, false);
@@ -3095,9 +3095,9 @@ void Q3FileDialog::setDir(const QString & pathstr)
         return;
 
 #if defined(Q_OS_UNIX)
-    if (dr.length() && dr[0] == '~') {
+    if (dr.length() && dr[0] == QLatin1Char('~')) {
         int i = 0;
-        while(i < (int)dr.length() && dr[i] != '/')
+        while(i < (int)dr.length() && dr[i] != QLatin1Char('/'))
             i++;
         Q3CString user;
         if (i == 1) {
@@ -3567,7 +3567,7 @@ void Q3FileDialog::okClicked()
     }
 #endif
 
-    if (fn.contains("*")) {
+    if (fn.contains(QLatin1Char('*'))) {
         addFilter(fn);
         nameEdit->blockSignals(true);
         nameEdit->setText(QString::fromLatin1(""));
@@ -3583,9 +3583,9 @@ void Q3FileDialog::okClicked()
         QUrlInfo f(d->url.info(nameEdit->text().isEmpty() ? QString::fromLatin1(".") : nameEdit->text()));
         if (f.isDir()) {
             d->currentFileName = d->url;
-            if (d->currentFileName.right(1) != "/")
-                d->currentFileName += '/';
-            if (f.name() != ".")
+            if (d->currentFileName.right(1) != QString(QLatin1Char('/')))
+                d->currentFileName += QLatin1Char('/');
+            if (f.name() != QString(QLatin1Char('.')))
                 d->currentFileName += f.name();
             accept();
             return;
@@ -3631,7 +3631,7 @@ void Q3FileDialog::okClicked()
 
     // If selection is valid, return it, else try
     // using selection as a directory to change to.
-    if (!d->currentFileName.isNull() && !d->currentFileName.contains("*")) {
+    if (!d->currentFileName.isNull() && !d->currentFileName.contains(QLatin1Char('*'))) {
         emit fileSelected(selectedFile());
         accept();
     } else {
@@ -3652,33 +3652,33 @@ void Q3FileDialog::okClicked()
         if (f.isDir()) {
 #if defined(Q_WS_WIN)
             if (f.isSymLink())
-                setUrl(Q3UrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(fn + "/")));
+                setUrl(Q3UrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(fn + QLatin1Char('/'))));
             else
 #else
-                setUrl(Q3UrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(f.name() + "/")));
+                setUrl(Q3UrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(f.name() + QLatin1Char('/'))));
 #endif
             d->checkForFilter = true;
             trySetSelection(true, d->url, true);
             d->checkForFilter = false;
         } else {
-            if (!nameEdit->text().contains("/") &&
-                 !nameEdit->text().contains("\\")
+            if (!nameEdit->text().contains(QLatin1Char('/')) &&
+                 !nameEdit->text().contains(QLatin1String("\\"))
 #if defined(Q_OS_WIN32)
                  && nameEdit->text()[1] != ':'
 #endif
                 )
                 addFilter(nameEdit->text());
-            else if (nameEdit->text()[0] == '/' ||
-                      nameEdit->text()[0] == '\\'
+            else if (nameEdit->text()[0] == QLatin1Char('/') ||
+                      nameEdit->text()[0] == QLatin1Char('\\')
 #if defined(Q_OS_WIN32)
-                      || nameEdit->text()[1] == ':'
+                      || nameEdit->text()[1] == QLatin1Char(':')
 #endif
                      )
                 setDir(nameEdit->text());
-            else if (nameEdit->text().left(3) == "../" || nameEdit->text().left(3) == "..\\")
+            else if (nameEdit->text().left(3) == QLatin1String("../") || nameEdit->text().left(3) == QLatin1String("..\\"))
                 setDir(Q3Url(d->url.toString(), Q3FileDialogPrivate::encodeFileName(nameEdit->text())).toString());
         }
-        nameEdit->setText("");
+        nameEdit->setText(QLatin1String(""));
     }
 }
 
@@ -3721,11 +3721,11 @@ void Q3FileDialog::resizeEvent(QResizeEvent * e)
 */
 bool Q3FileDialog::trySetSelection(bool isDir, const Q3UrlOperator &u, bool updatelined)
 {
-    if (!isDir && !u.path().isEmpty() && u.path().right(1) == "/")
+    if (!isDir && !u.path().isEmpty() && u.path().right(1) == QString(QLatin1Char('/')))
         isDir = true;
-    if (u.fileName().contains("*") && d->checkForFilter) {
+    if (u.fileName().contains(QLatin1Char('*')) && d->checkForFilter) {
         QString fn(u.fileName());
-        if (fn.contains("*")) {
+        if (fn.contains(QLatin1Char('*'))) {
             addFilter(fn);
             d->currentFileName.clear();
             d->url.setFileName(QString());
@@ -3754,11 +3754,11 @@ bool Q3FileDialog::trySetSelection(bool isDir, const Q3UrlOperator &u, bool upda
     if (updatelined && !d->currentFileName.isEmpty()) {
         // If the selection is valid, or if its a directory, allow OK.
         if (!d->currentFileName.isNull() || isDir) {
-            if (u.fileName() != "..") {
+            if (u.fileName() != QLatin1String("..")) {
                 QString fn = u.fileName();
                 nameEdit->setText(fn);
             } else {
-                nameEdit->setText("");
+                nameEdit->setText(QLatin1String(""));
             }
         } else
             nameEdit->setText(QString::fromLatin1(""));
@@ -3914,7 +3914,7 @@ void Q3FileDialog::detailViewSelectionChanged()
                 d->moreFiles->setSelected(f->i, i->isSelected());
         }
         if (i->isSelected() && !((Q3FileDialogPrivate::File *)i)->info.isDir())
-            str += QString("\"%1\" ").arg(i->text(0));
+            str += QString(QLatin1String("\"%1\" ")).arg(i->text(0));
         i = i->nextSibling();
     }
     d->moreFiles->blockSignals(false);
@@ -3966,7 +3966,7 @@ void Q3FileDialog::listBoxSelectionChanged()
         }
         if (d->moreFiles->isSelected(i)
              && !((Q3FileDialogPrivate::File*)(mcitem)->i)->info.isDir()) {
-            str += QString("\"%1\" ").arg(i->text());
+            str += QString(QLatin1String("\"%1\" ")).arg(i->text());
             if (j == 0)
                 j = i;
         }
@@ -4041,7 +4041,7 @@ void Q3FileDialog::selectDirectoryOrFile(Q3ListViewItem * newItem)
 
     QString oldName = nameEdit->text();
     if (i->info.isDir()) {
-        setUrl(Q3UrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(i->info.name()) + "/"));
+        setUrl(Q3UrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(i->info.name()) + QLatin1Char('/')));
         if (isDirectoryMode(mode())) {
             QUrlInfo f (d->url.info(QString::fromLatin1(".")));
             trySetSelection(f.isDir(), d->url, true);
@@ -4185,7 +4185,7 @@ void Q3FileDialog::popupContextMenu(const QString &filename, bool,
         int del = m.insertItem(tr("&Delete"));
 
         if (filename.isEmpty() || !QUrlInfo(d->url.info(filename)).isWritable() ||
-             filename == "..") {
+             filename == QLatin1String("..")) {
             if (filename.isEmpty() || !QUrlInfo(d->url.info(filename)).isReadable())
                 m.setItemEnabled(ok, false);
             m.setItemEnabled(rename, false);
@@ -4300,7 +4300,7 @@ void Q3FileDialog::pathSelected(int)
 void Q3FileDialog::cdUpClicked()
 {
     QString oldName = nameEdit->text();
-    setUrl(Q3UrlOperator(d->url, ".."));
+    setUrl(Q3UrlOperator(d->url, QLatin1String("..")));
     if (!oldName.isEmpty())
         nameEdit->setText(oldName);
 }
@@ -4476,8 +4476,8 @@ QString Q3FileDialog::getExistingDirectory(const QString & dir,
     }
     delete dlg;
 
-    if (!result.isEmpty() && result.right(1) != "/")
-        result += "/";
+    if (!result.isEmpty() && result.right(1) != QString(QLatin1Char('/')))
+        result += QLatin1Char('/');
 
     qt_resolve_symlinks = save_qt_resolve_symlinks;
 
@@ -4516,7 +4516,7 @@ void Q3FileDialog::setMode(Mode newMode)
         }
         nameEdit->setMaxLength(maxnamelen);
         rereadDir();
-        QUrlInfo f(d->url.info("."));
+        QUrlInfo f(d->url.info(QString(QLatin1Char('.'))));
         trySetSelection(f.isDir(), d->url, false);
     }
 
@@ -4527,7 +4527,7 @@ void Q3FileDialog::setMode(Mode newMode)
         d->fileL->setText(tr("File &name:"));
         if (d->types->count() == 1) {
             d->types->setCurrentItem(0);
-            if (d->types->currentText() == "Directories") {
+            if (d->types->currentText() == QLatin1String("Directories")) {
                 changeFilters = true;
             }
         }
@@ -4543,7 +4543,7 @@ void Q3FileDialog::setMode(Mode newMode)
         d->fileL->setText(tr("File &name:"));
         if (d->types->count() == 1) {
             d->types->setCurrentItem(0);
-            if (d->types->currentText() == "Directories") {
+            if (d->types->currentText() == QLatin1String("Directories")) {
                 changeFilters = true;
             }
         }
@@ -5249,7 +5249,7 @@ bool Q3FileDialog::eventFilter(QObject * o, QEvent * e)
     } else if (e->type() == QEvent::KeyPress && ((QKeyEvent*)e)->key() == Qt::Key_F2 &&
                 (o == files || o == files->viewport())) {
         if (files->isVisible() && files->currentItem()) {
-            if (QUrlInfo(d->url.info(".")).isWritable() && files->currentItem()->text(0) != "..") {
+            if (QUrlInfo(d->url.info(QString(QLatin1Char('.')))).isWritable() && files->currentItem()->text(0) != QLatin1String("..")) {
                 files->renameItem = files->currentItem();
                 files->startRename(true);
             }
@@ -5259,8 +5259,8 @@ bool Q3FileDialog::eventFilter(QObject * o, QEvent * e)
     } else if (e->type() == QEvent::KeyPress && ((QKeyEvent*)e)->key() == Qt::Key_F2 &&
                 (o == d->moreFiles || o == d->moreFiles->viewport())) {
         if (d->moreFiles->isVisible() && d->moreFiles->currentItem() != -1) {
-            if (QUrlInfo(d->url.info(".")).isWritable() &&
-                 d->moreFiles->item(d->moreFiles->currentItem())->text() != "..") {
+            if (QUrlInfo(d->url.info(QString(QLatin1Char('.')))).isWritable() &&
+                 d->moreFiles->item(d->moreFiles->currentItem())->text() != QLatin1String("..")) {
                 d->moreFiles->renameItem = d->moreFiles->item(d->moreFiles->currentItem());
                 d->moreFiles->startRename(true);
             }
@@ -5315,7 +5315,7 @@ bool Q3FileDialog::eventFilter(QObject * o, QEvent * e)
             QString nt(nameEdit->text());
 #endif
             nt.truncate(nameEdit->cursorPosition());
-            nt += (char)(((QKeyEvent *)e)->ascii());
+            nt += QLatin1Char((char)(((QKeyEvent *)e)->ascii()));
             Q3ListViewItem * i = files->firstChild();
 #if defined(Q_WS_WIN)
             while(i && i->text(0).left(nt.length()).toLower() != nt)
@@ -5612,7 +5612,7 @@ Q3Url Q3FileDialog::url() const
 static bool isRoot(const Q3Url &u)
 {
 #if defined(Q_OS_UNIX)
-    if (u.path() == "/")
+    if (u.path() == QString(QLatin1Char('/')))
         return true;
 #elif defined(Q_OS_WIN32)
     QString p = u.path();
@@ -5632,7 +5632,7 @@ static bool isRoot(const Q3Url &u)
 #endif
 #endif
 
-    if (!u.isLocalFile() && u.path() == "/")
+    if (!u.isLocalFile() && u.path() == QString(QLatin1Char('/')))
         return true;
 
     return false;
@@ -5744,8 +5744,8 @@ void Q3FileDialog::urlFinished(Q3NetworkOperation *op)
                 ok = false;
 #endif
             if (ok) {
-                QUrlInfo ui(d->url.info(".."));
-                ui.setName("..");
+                QUrlInfo ui(d->url.info(QLatin1String("..")));
+                ui.setName(QLatin1String(".."));
                 ui.setDir(true);
                 ui.setFile(false);
                 ui.setSymLink(false);
@@ -5782,7 +5782,7 @@ void Q3FileDialog::dataTransferProgress(int bytesDone, int bytesTotal, Q3Network
     if (u.isLocalFile()) {
         label = u.path();
     } else {
-        label = QString("%1 (on %2)");
+        label = QLatin1String("%1 (on %2)");
         label = label.arg(u.path()).arg(u.host());
     }
 
@@ -5823,21 +5823,21 @@ void Q3FileDialog::insertEntry(const Q3ValueList<QUrlInfo> &lst, Q3NetworkOperat
         const QUrlInfo &inf = *it;
         if (d->mode == DirectoryOnly && !inf.isDir())
             continue;
-        if (inf.name() == "..") {
+        if (inf.name() == QLatin1String("..")) {
             d->hadDotDot = true;
             if (isRoot(d->url))
                 continue;
 #if defined(Q_WS_WIN)
-            if (d->url.path().left(2) == "//")
+            if (d->url.path().left(2) == QLatin1String("//"))
                 continue;
 #endif
-        } else if (inf.name() == ".")
+        } else if (inf.name() == QString(QLatin1Char('.')))
             continue;
 
 #if defined(Q_WS_WIN)
         // Workaround a Windows bug, '..' is apparantly hidden in directories
         // that are one level away from root
-        if (!bShowHiddenFiles && inf.name() != "..") {
+        if (!bShowHiddenFiles && inf.name() != QLatin1String("..")) {
             if (d->url.isLocalFile()) {
                 QString file = d->url.path();
                 if (!file.endsWith("/"))
@@ -5856,8 +5856,8 @@ void Q3FileDialog::insertEntry(const Q3ValueList<QUrlInfo> &lst, Q3NetworkOperat
             }
         }
 #else
-        if (!bShowHiddenFiles && inf.name() != "..") {
-            if (inf.name()[0] == QChar('.'))
+        if (!bShowHiddenFiles && inf.name() != QLatin1String("..")) {
+            if (inf.name()[0] == QLatin1Char('.'))
                 continue;
         }
 #endif

@@ -625,13 +625,13 @@ uint Q3TextStream::ts_getbuf( QChar* buf, uint len )
 	    // (arnt doubts whether it makes a difference, but lets it stand)
 	    int c = (ungetHack == EOF) ? dev->getch() : ungetHack;
 	    if ( c != EOF ) {
-		*buf = (char)c;
+		*buf = QLatin1Char((char)c);
 		buf++;
 		rnum++;
 	    }
 	} else {
 	    if ( ungetHack != EOF ) {
-		*buf = (char)ungetHack;
+		*buf = QLatin1Char((char)ungetHack);
 		buf++;
 		rnum++;
 		ungetHack = EOF;
@@ -643,7 +643,7 @@ uint Q3TextStream::ts_getbuf( QChar* buf, uint len )
 		char *it = cbuf;
 		char *end = cbuf + rlen;
 		while ( it < end ) {
-		    *buf = *it;
+		    *buf = QLatin1Char(*it);
 		    buf++;
 		    it++;
 		}
@@ -758,8 +758,8 @@ uint Q3TextStream::ts_getline( QChar* buf )
 		readBlock = FALSE;
 	    }
 	    if ( dev->atEnd()
-		    || s.at( s.length()-1 ) == '\n'
-		    || s.at( s.length()-1 ) == '\r'
+		    || s.at( s.length()-1 ) == QLatin1Char('\n')
+		    || s.at( s.length()-1 ) == QLatin1Char('\r')
 	       ) {
 		break;
 	    } else {
@@ -923,7 +923,7 @@ Q3TextStream &Q3TextStream::writeBlock( const char* p, uint len )
     } else if ( !mapper && internalOrder ) {
 	QChar *u = new QChar[len];
 	for ( uint i = 0; i < len; i++ )
-	    u[i] = p[i];
+	    u[i] = QLatin1Char(p[i]);
 	dev->writeBlock( (char*)u, len * sizeof(QChar) );
 	delete [] u;
     }
@@ -1139,7 +1139,7 @@ ulong Q3TextStream::input_hex()
     char c = ch.toLatin1();
     while ( isxdigit((uchar) c) ) {
 	val <<= 4;
-	if ( ts_isdigit(c) )
+	if ( ts_isdigit(QLatin1Char(c)) )
 	    val += c - '0';
 	else
 	    val += 10 + tolower( (uchar) c ) - 'a';
@@ -1614,10 +1614,10 @@ QString Q3TextStream::readLine()
 	if ( c[pos] == QEOF )
 	    return QString::null;
 
-	while ( c[pos] != QEOF && c[pos] != '\n' ) {
-	    if ( c[pos] == '\r' ) { // ( handle mac and dos )
+	while ( c[pos] != QEOF && c[pos] != QLatin1Char('\n') ) {
+	    if ( c[pos] == QLatin1Char('\r') ) { // ( handle mac and dos )
 		QChar nextc = ts_getc();
-		if ( nextc != '\n' )
+		if ( nextc != QLatin1Char('\n') )
 		    ts_ungetc( nextc );
 		break;
 	    }
@@ -1663,7 +1663,7 @@ QString Q3TextStream::read()
 	// convert dos (\r\n) and mac (\r) style eol to unix style (\n)
 	start = 0;
 	for ( i=0; i<num; i++ ) {
-	    if ( buf[i] == '\r' ) {
+	    if ( buf[i] == QLatin1Char('\r') ) {
 		// Only skip single cr's preceding lf's
 		if ( skipped_cr ) {
 		    result += buf[i];
@@ -1675,9 +1675,9 @@ QString Q3TextStream::read()
 		}
 	    } else {
 		if ( skipped_cr ) {
-		    if ( buf[i] != '\n' ) {
+		    if ( buf[i] != QLatin1Char('\n') ) {
 			// Should not have skipped it
-			result += '\n';
+			result += QLatin1Char('\n');
 		    }
 		    skipped_cr = FALSE;
 		}
@@ -1800,7 +1800,7 @@ Q3TextStream &Q3TextStream::output_int( int format, ulong n, bool neg )
 		*--p = '-';
 	    else if ( flags() & showpos )
 		*--p = '+';
-	    if ( (flags() & internal) && fwidth && !ts_isdigit(*p) ) {
+	    if ( (flags() & internal) && fwidth && !ts_isdigit(QLatin1Char(*p)) ) {
 		ts_putc( *p );			// special case for internal
 		++p;				//   padding
 		fwidth--;
@@ -2046,9 +2046,9 @@ Q3TextStream &Q3TextStream::operator<<( const QString& s )
     QString s1 = s;
     if ( fwidth ) {				// field width set
 	if ( !(flags() & left) ) {
-	    s1 = s.rightJustify(fwidth, (char)fillchar);
+	    s1 = s.rightJustify(fwidth, QLatin1Char((char)fillchar));
 	} else {
-	    s1 = s.leftJustify(fwidth, (char)fillchar);
+	    s1 = s.leftJustify(fwidth, QLatin1Char((char)fillchar));
 	}
 	fwidth = 0;				// reset width
     }

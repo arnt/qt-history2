@@ -366,7 +366,7 @@ void Q3DataTable::adjustColumn( int col )
 	d->cur.refresh();
     }
     int oldRow = currentRow();
-    int w = fontMetrics().width( horizontalHeader()->label( col ) + "W" );
+    int w = fontMetrics().width( horizontalHeader()->label( col ) + QLatin1Char('W') );
     cur->seek( QSql::BeforeFirst );
     while ( cur->next() ) {
 	w = QMAX( w, fontMetrics().width( fieldToString( cur->fieldPtr( indexOf( col ) ) ) ) + 10 );
@@ -960,7 +960,7 @@ bool Q3DataTable::beginInsert()
 	lastRow = numRows() - 1;
     d->insertRowLast = lastRow;
     d->insertHeaderLabelLast = verticalHeader()->label( d->insertRowLast );
-    verticalHeader()->setLabel( row, "*" );
+    verticalHeader()->setLabel( row, QString(QLatin1Char('*')) );
     d->editRow = row;
     // in the db world it's common to allow inserting new records
     // into a table that has read-only columns - temporarily
@@ -1655,7 +1655,7 @@ void Q3DataTable::sortColumn ( int col, bool ascending,
 	if ( !sqlCursor() )
 	    return;
 	QSqlIndex lastSort = sqlCursor()->sort();
-	QSqlIndex newSort( lastSort.cursorName(), "newSort" );
+	QSqlIndex newSort( lastSort.cursorName(), QLatin1String("newSort") );
 	const QSqlField *field = sqlCursor()->fieldPtr( indexOf( col ) );
 	if ( field )
 	    newSort.append( *field );

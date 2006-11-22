@@ -456,7 +456,7 @@ bool Q3AccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
         // Only display message if we are, or were, in a partial match
         if (mainStatusBar && (QKeySequence::PartialMatch == currentState || intermediate.count())) {
             if (currentState == QKeySequence::PartialMatch) {
-                mainStatusBar->showMessage((QString)partial + ", ...");
+                mainStatusBar->showMessage((QString)partial + QLatin1String(", ..."));
             } else if (!identicalDisabled) {
                 QString message = Q3Accel::tr("%1, %2 not defined").
                     arg((QString)intermediate).
@@ -856,15 +856,15 @@ QKeySequence Q3Accel::shortcutKey(const QString &str)
 
     int p = 0;
     while (p >= 0) {
-        p = str.find('&', p) + 1;
+        p = str.find(QLatin1Char('&'), p) + 1;
         if (p <= 0 || p >= (int)str.length())
             return 0;
-        if (str[p] != '&') {
+        if (str[p] != QLatin1Char('&')) {
             QChar c = str[p];
             if (c.isPrint()) {
                 char ltr = c.upper().latin1();
                 if (ltr >= (char)Key_A && ltr <= (char)Key_Z)
-                    c = ltr;
+                    c = QLatin1Char(ltr);
                 else
                     c = c.lower();
                 return QKeySequence(c.unicode() + ALT + UNICODE_ACCEL);

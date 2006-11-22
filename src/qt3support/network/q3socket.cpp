@@ -263,7 +263,7 @@ void Q3SocketPrivate::setSocketDevice( Q3Socket *q, Q3SocketDevice *device )
 Q3Socket::Q3Socket( QObject *parent, const char *name )
     : QIODevice( parent )
 {
-    setObjectName(name);
+    setObjectName(QLatin1String(name));
     d = new Q3SocketPrivate;
     setSocketDevice( 0 );
     resetStatus();

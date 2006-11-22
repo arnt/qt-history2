@@ -265,7 +265,7 @@ void Q3MultiLineEdit::insertAndMark(const QString& str, bool mark)
 
 void Q3MultiLineEdit::newLine()
 {
-    insert("\n");
+    insert(QString(QLatin1Char('\n')));
 }
 
 

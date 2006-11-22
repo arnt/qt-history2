@@ -4647,7 +4647,7 @@ void Q3CanvasEllipse::drawShape(QPainter & p)
 */
 Q3CanvasText::Q3CanvasText(Q3Canvas* canvas) :
     Q3CanvasItem(canvas),
-    txt("<text>"), flags(0)
+    txt(QLatin1String("<text>")), flags(0)
 {
     setRect();
 }

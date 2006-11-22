@@ -29,7 +29,7 @@ Q3Frame::Q3Frame(QWidget* parent, const char* name, Qt::WindowFlags f)
     :QFrame(parent, f), marg(0)
 {
     if (name)
-        setObjectName(name);
+        setObjectName(QLatin1String(name));
     setAttribute(Qt::WA_LayoutOnEntireRect);
 }
 

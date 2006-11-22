@@ -47,9 +47,9 @@
 
 #ifndef QT_NO_ACCEL
 #include <qkeysequence.h>
-#define ACCEL_KEY(k) "\t" + QString(QKeySequence(Qt::CTRL | Qt::Key_ ## k))
+#define ACCEL_KEY(k) QLatin1Char('\t') + QString(QKeySequence(Qt::CTRL | Qt::Key_ ## k))
 #else
-#define ACCEL_KEY(k) "\t" + QString("Ctrl+" #k)
+#define ACCEL_KEY(k) QLatin1Char('\t' )+ QString(QLatin1String("Ctrl+" #k))
 #endif
 
 #ifdef QT_TEXTEDIT_OPTIMIZATION
@@ -145,7 +145,7 @@ QByteArray Q3RichTextDrag::encodedData(const char *mime) const
 bool Q3RichTextDrag::decode(QMimeSource *e, QString &str, const QString &mimetype,
                             const QString &subtype)
 {
-    if (mimetype == "application/x-qrichtext") {
+    if (mimetype == QLatin1String("application/x-qrichtext")) {
         // do richtext decode
         const char *mime;
         int i;
@@ -1352,7 +1352,7 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
 #endif
                   !(e->state() & Qt::MetaButton) ||
                  (((e->state()&Qt::ControlButton) | Qt::AltButton) == (Qt::ControlButton|Qt::AltButton))) &&
-                 (!ascii || ascii >= 32 || e->text() == "\t")) {
+                 (!ascii || ascii >= 32 || e->text() == QString(QLatin1Char('\t')))) {
                 clearUndoRedoInfo = false;
                 if (e->key() == Qt::Key_Tab) {
                     if (d->tabChangesFocus) {
@@ -1383,7 +1383,7 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
                 if ((autoFormatting() & AutoBulletList) &&
                      textFormat() == Qt::RichText && cursor->index() == 0
                      && !cursor->paragraph()->isListItem()
-                     && (e->text()[0] == '-' || e->text()[0] == '*')) {
+                     && (e->text()[0] == QLatin1Char('-') || e->text()[0] == QLatin1Char('*'))) {
                         clearUndoRedo();
                         undoRedoInfo.type = UndoRedoInfo::Style;
                         undoRedoInfo.id = cursor->paragraph()->paragId();
@@ -1705,7 +1705,7 @@ void Q3TextEdit::doKeyboardAction(Q3TextEdit::KeyboardAction action)
                 undoRedoInfo.index = cursor->index();
                 undoRedoInfo.d->text.clear();
             }
-            undoRedoInfo.d->text += "\n";
+            undoRedoInfo.d->text += QString(QLatin1Char('\n'));
         }
         cursor->splitAndInsertEmptyParagraph();
         if (cursor->paragraph()->prev()) {
@@ -1758,7 +1758,7 @@ void Q3TextEdit::readFormats(Q3TextCursor &c1, Q3TextCursor &c2, Q3TextString &t
         for (i = c1.index(); i < c1.paragraph()->length()-1; ++i)
             text.insert(lastIndex++, c1.paragraph()->at(i), true);
         int num = 2; // start and end, being different
-        text += "\n"; lastIndex++;
+        text += QString(QLatin1Char('\n')); lastIndex++;
 
         if (c1.paragraph()->next() != c2.paragraph()) {
             num += text.appendParagraphs(c1.paragraph()->next(), c2.paragraph());
@@ -2568,10 +2568,10 @@ void Q3TextEdit::contentsDropEvent(QDropEvent *e)
         cursor->setIndex(insertCursor.index());
         drawCursor(true);
         if (!cursor->nestedDepth()) {
-            QString subType = "plain";
+            QString subType = QLatin1String("plain");
             if (textFormat() != Qt::PlainText) {
                 if (e->provides("application/x-qrichtext"))
-                    subType = "x-qrichtext";
+                    subType = QLatin1String("x-qrichtext");
             }
 #ifndef QT_NO_CLIPBOARD
             pasteSubType(subType.toLatin1(), e);
@@ -2951,7 +2951,7 @@ void Q3TextEdit::insert(const QString &text, uint insertionFlags)
         doc->removeSelection(Q3TextDocument::Temp);
     }
 
-    if (indent && (txt == "{" || txt == "}" || txt == ":" || txt == "#"))
+    if (indent && (txt == QString(QLatin1Char('{')) || txt == QString(QLatin1Char('}')) || txt == QString(QLatin1Char(':')) || txt == QString(QLatin1Char('#'))))
         cursor->indent();
     formatMore();
     repaintChanged();
@@ -2962,7 +2962,7 @@ void Q3TextEdit::insert(const QString &text, uint insertionFlags)
         undoRedoInfo.d->text += txt;
         if (!doc->preProcessor()) {
             for (int i = 0; i < (int)txt.length(); ++i) {
-                if (txt[i] != '\n' && c2.paragraph()->at(c2.index())->format()) {
+                if (txt[i] != QLatin1Char('\n') && c2.paragraph()->at(c2.index())->format()) {
                     c2.paragraph()->at(c2.index())->format()->addRef();
                     undoRedoInfo.d->text.
                         setFormat(oldLen + i,
@@ -3017,7 +3017,7 @@ void Q3TextEdit::insertParagraph(const QString &text, int para)
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
-        optimInsert(text + "\n", para, 0);
+        optimInsert(text + QLatin1Char('\n'), para, 0);
         return;
     }
 #endif
@@ -3194,13 +3194,13 @@ void Q3TextEdit::paste()
 #ifndef QT_NO_MIMECLIPBOARD
     if (isReadOnly())
         return;
-    QString subType = "plain";
+    QString subType = QLatin1String("plain");
     if (textFormat() != Qt::PlainText) {
         QMimeSource *m = QApplication::clipboard()->data(d->clipboard_mode);
         if (!m)
             return;
         if (m->provides("application/x-qrichtext"))
-            subType = "x-qrichtext";
+            subType = QLatin1String("x-qrichtext");
     }
 
     pasteSubType(subType.toLatin1());
@@ -3696,7 +3696,7 @@ QString Q3TextEdit::text(int para) const
     if (d->optimMode && (d->od->numLines >= para)) {
         QString paraStr = d->od->lines[LOGOFFSET(para)];
         if (paraStr.isEmpty())
-            paraStr = "\n";
+            paraStr = QLatin1Char('\n');
         return paraStr;
     } else
 #endif
@@ -4764,7 +4764,7 @@ QString Q3TextEdit::context() const
 
 QString Q3TextEdit::documentTitle() const
 {
-    return doc->attributes()["title"];
+    return doc->attributes()[QLatin1String("title")];
 }
 
 void Q3TextEdit::makeParagVisible(Q3TextParagraph *p)
@@ -4795,7 +4795,7 @@ void Q3TextEdit::scrollToAnchor(const QString& name)
         if(c->isAnchor()) {
             QString a = c->anchorName();
             if (a == name ||
-                 (a.contains('#') && a.split('#').contains(name))) {
+                 (a.contains(QLatin1Char('#')) && a.split(QLatin1Char('#')).contains(name))) {
                 setContentsPos(contentsX(), qMin(cursor.paragraph()->rect().top() + cursor.totalOffsetY(), contentsHeight() - visibleHeight()));
                 break;
             }
@@ -4896,13 +4896,13 @@ void Q3TextEdit::pasteSubType(const QByteArray& subtype, QMimeSource *m)
     if (!Q3RichTextDrag::canDecode(m))
         return;
     QString t;
-    if (!Q3RichTextDrag::decode(m, t, st, subtype))
+    if (!Q3RichTextDrag::decode(m, t, QString::fromLatin1(st), QString::fromLatin1(subtype)))
         return;
     if (st == "application/x-qrichtext") {
         int start;
-        if ((start = t.indexOf("<!--StartFragment-->")) != -1) {
+        if ((start = t.indexOf(QLatin1String("<!--StartFragment-->"))) != -1) {
             start += 20;
-            int end = t.indexOf("<!--EndFragment-->");
+            int end = t.indexOf(QLatin1String("<!--EndFragment-->"));
             Q3TextCursor oldC = *cursor;
 
             // during the setRichTextInternal() call the cursors
@@ -4953,7 +4953,7 @@ void Q3TextEdit::pasteSubType(const QByteArray& subtype, QMimeSource *m)
                     QString txt = doc->selectedText(Q3TextDocument::Temp);
                     undoRedoInfo.d->text += txt;
                     for (int i = 0; i < (int)txt.length(); ++i) {
-                        if (txt[i] != '\n' && oldC.paragraph()->at(oldC.index())->format()) {
+                        if (txt[i] != QLatin1Char('\n') && oldC.paragraph()->at(oldC.index())->format()) {
                             oldC.paragraph()->at(oldC.index())->format()->addRef();
                             undoRedoInfo.d->text.
                                 setFormat(oldLen + i, oldC.paragraph()->at(oldC.index())->format(), true);
@@ -4982,8 +4982,8 @@ void Q3TextEdit::pasteSubType(const QByteArray& subtype, QMimeSource *m)
 #endif
         QChar *uc = (QChar *)t.unicode();
         for (int i = 0; i < t.length(); i++) {
-            if (uc[i] < ' ' && uc[i] != '\n' && uc[i] != '\t')
-                uc[i] = ' ';
+            if (uc[i] < QLatin1Char(' ') && uc[i] != QLatin1Char('\n') && uc[i] != QLatin1Char('\t'))
+                uc[i] = QLatin1Char(' ');
         }
         if (!t.isEmpty())
             insert(t, false, true);
@@ -5015,11 +5015,11 @@ QByteArray Q3TextEdit::pickSpecial(QMimeSource* ms, bool always_ask, const QPoin
         QString fmt;
         int n = 0;
         QHash<QString, bool> done;
-        for (int i = 0; !(fmt = ms->format(i)).isNull(); i++) {
-            int semi = fmt.indexOf(';');
+        for (int i = 0; !(fmt = QLatin1String(ms->format(i))).isNull(); i++) {
+            int semi = fmt.indexOf(QLatin1Char(';'));
             if (semi >= 0)
                 fmt = fmt.left(semi);
-            if (fmt.left(5) == "text/") {
+            if (fmt.left(5) == QLatin1String("text/")) {
                 fmt = fmt.mid(5);
                 if (!done.contains(fmt)) {
                     done.insert(fmt,true);
@@ -5246,7 +5246,7 @@ void Q3TextEdit::clear()
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
-        optimSetText("");
+        optimSetText(QLatin1String(""));
     } else
 #endif
     {
@@ -5990,15 +5990,15 @@ QString Q3TextEdit::optimText() const
     Q3TextEditOptimPrivate::Tag * ftag = 0;
     for (i = 0; i < d->od->numLines; i++) {
         if (d->od->lines[LOGOFFSET(i)].isEmpty()) { // CR lines are empty
-            str += "\n";
+            str += QLatin1Char('\n');
         } else {
-            tmp = d->od->lines[LOGOFFSET(i)] + "\n";
+            tmp = d->od->lines[LOGOFFSET(i)] + QLatin1Char('\n');
             // inject the tags for this line
             if ((it = d->od->tagIndex.constFind(LOGOFFSET(i))) != d->od->tagIndex.constEnd())
                 ftag = it.value();
             offset = 0;
             while (ftag && ftag->line == i) {
-                tmp.insert(ftag->index + offset, "<" + ftag->tag + ">");
+                tmp.insert(ftag->index + offset, QLatin1Char('<') + ftag->tag + QLatin1Char('>'));
                 offset += ftag->tag.length() + 2; // 2 -> the '<' and '>' chars
                 ftag = ftag->next;
             }
@@ -6022,7 +6022,7 @@ void Q3TextEdit::optimSetText(const QString &str)
     d->od->clearTags();
     QFontMetrics fm(Q3ScrollView::font());
     if (!(str.isEmpty() || str.isNull() || d->maxLogLines == 0)) {
-        QStringList strl = str.split('\n');
+        QStringList strl = str.split(QLatin1Char('\n'));
         int lWidth = 0;
         for (QStringList::Iterator it = strl.begin(); it != strl.end(); ++it) {
             optimParseTags(&*it);
@@ -6161,22 +6161,22 @@ void Q3TextEdit::optimParseTags(QString * line, int lineNo, int indexOffset)
     QStack<Q3TextEditOptimPrivate::Tag *> tagStack;
 
     for (i = 0; i < len; i++) {
-        tagOpen = (*line)[i] == '<';
-        tagClose = (*line)[i] == '>';
+        tagOpen = (*line)[i] == QLatin1Char('<');
+        tagClose = (*line)[i] == QLatin1Char('>');
 
         // handle '&lt;' and '&gt;' and '&amp;'
-        if ((*line)[i] == '&') {
+        if ((*line)[i] == QLatin1Char('&')) {
             escIndex = i;
             continue;
-        } else if (escIndex != -1 && (*line)[i] == ';') {
+        } else if (escIndex != -1 && (*line)[i] == QLatin1Char(';')) {
             QString esc = line->mid(escIndex, i - escIndex + 1);
             QString c;
-            if (esc == "&lt;")
-                c = '<';
-            else if (esc == "&gt;")
-                c = '>';
-            else if (esc == "&amp;")
-                c = '&';
+            if (esc == QLatin1String("&lt;"))
+                c = QLatin1Char('<');
+            else if (esc == QLatin1String("&gt;"))
+                c = QLatin1Char('>');
+            else if (esc == QLatin1String("&amp;"))
+                c = QLatin1Char('&');
             line->replace(escIndex, i - escIndex + 1, c);
             len = line->length();
             i -= i-escIndex;
@@ -6196,17 +6196,17 @@ void Q3TextEdit::optimParseTags(QString * line, int lineNo, int indexOffset)
                 Q3TextEditOptimPrivate::Tag * tag, * cur, * tmp;
                 bool format = true;
 
-                if (tagStr == "b")
+                if (tagStr == QLatin1String("b"))
                     bold++;
-                else if (tagStr == "/b")
+                else if (tagStr == QLatin1String("/b"))
                     bold--;
-                else if (tagStr == "i")
+                else if (tagStr == QLatin1String("i"))
                     italic++;
-                else if (tagStr == "/i")
+                else if (tagStr == QLatin1String("/i"))
                     italic--;
-                else if (tagStr == "u")
+                else if (tagStr == QLatin1String("u"))
                     underline++;
-                else if (tagStr == "/u")
+                else if (tagStr == QLatin1String("/u"))
                     underline--;
                 else
                     format = false;
@@ -6218,7 +6218,7 @@ void Q3TextEdit::optimParseTags(QString * line, int lineNo, int indexOffset)
                 // to be a color tag.
                 tag->type = format ? Q3TextEditOptimPrivate::Format
                             : Q3TextEditOptimPrivate::Color;
-                if (tagStr[0] == '/') {
+                if (tagStr[0] == QLatin1Char('/')) {
                     // this is a right-tag - search for the left-tag
                     // and possible parent tag
                     cur = tag->prev;
@@ -6233,8 +6233,8 @@ void Q3TextEdit::optimParseTags(QString * line, int lineNo, int indexOffset)
                         } else {
                             tmp = tagStack.isEmpty() ? 0 : tagStack.pop();
                             if (!tmp) {
-                                if ((("/" + cur->tag) == tag->tag) ||
-                                     (tag->tag == "/font" && cur->tag.left(4) == "font")) {
+                                if (((QLatin1Char('/') + cur->tag) == tag->tag) ||
+                                     (tag->tag == QLatin1String("/font") && cur->tag.left(4) == QLatin1String("font"))) {
                                     // set up the left and parent of this tag
                                     tag->leftTag = cur;
                                     tmp = cur->prev;
@@ -6245,7 +6245,9 @@ void Q3TextEdit::optimParseTags(QString * line, int lineNo, int indexOffset)
                                     }
                                     break;
                                 } else if (!cur->leftTag) {
-                                    qWarning("Q3TextEdit::optimParseTags: mismatching %s-tag for '<%s>' in line %d.", cur->tag[0] == '/' ? "left" : "right", cur->tag.latin1(), cur->line + 1);
+                                    qWarning("Q3TextEdit::optimParseTags: mismatching %s-tag for '<%s>' in line %d.",
+                                              qPrintable(QString(cur->tag[0] == QLatin1Char('/') ? QLatin1String("left") : QLatin1String("right"))),
+                                              cur->tag.latin1(), cur->line + 1);
                                     return; // something is amiss - give up
                                 }
                             }
@@ -6274,7 +6276,7 @@ void Q3TextEdit::optimParseTags(QString * line, int lineNo, int indexOffset)
                 len = line->length();
                 i -= l+1;
             }
-            tagStr = "";
+            tagStr = QLatin1String("");
             continue;
         }
 
@@ -6287,7 +6289,7 @@ void Q3TextEdit::optimParseTags(QString * line, int lineNo, int indexOffset)
 // calculate the width of a string in pixels inc. tabs
 static int qStrWidth(const QString& str, int tabWidth, const QFontMetrics& fm)
 {
-    int tabs = str.count('\t');
+    int tabs = str.count(QLatin1Char('\t'));
 
     if (!tabs)
         return fm.width(str);
@@ -6297,7 +6299,7 @@ static int qStrWidth(const QString& str, int tabWidth, const QFontMetrics& fm)
     int strWidth = 0;
     int tn;
     for (tn = 1; tn <= tabs; ++tn) {
-        newIdx = str.indexOf('\t', newIdx);
+        newIdx = str.indexOf(QLatin1Char('\t'), newIdx);
         strWidth += fm.width(str.mid(lastIdx, newIdx - lastIdx));
         if (strWidth >= tn * tabWidth) {
             int u = tn;
@@ -6341,7 +6343,7 @@ void Q3TextEdit::optimAppend(const QString &str)
     if (str.isEmpty() || str.isNull() || d->maxLogLines == 0)
         return;
 
-    QStringList strl = str.split('\n');
+    QStringList strl = str.split(QLatin1Char('\n'));
     QStringList::Iterator it = strl.begin();
 
     QFontMetrics fm(Q3ScrollView::font());
@@ -6379,22 +6381,22 @@ static void qStripTags(QString *line)
     bool tagOpen, tagClose;
 
     for (i = 0; i < len; i++) {
-        tagOpen = (*line)[i] == '<';
-        tagClose = (*line)[i] == '>';
+        tagOpen = (*line)[i] == QLatin1Char('<');
+        tagClose = (*line)[i] == QLatin1Char('>');
 
         // handle '&lt;' and '&gt;' and '&amp;'
-        if ((*line)[i] == '&') {
+        if ((*line)[i] == QLatin1Char('&')) {
             escIndex = i;
             continue;
-        } else if (escIndex != -1 && (*line)[i] == ';') {
+        } else if (escIndex != -1 && (*line)[i] == QLatin1Char(';')) {
             QString esc = line->mid(escIndex, i - escIndex + 1);
             QString c;
-            if (esc == "&lt;")
-                c = '<';
-            else if (esc == "&gt;")
-                c = '>';
-            else if (esc == "&amp;")
-                c = '&';
+            if (esc == QLatin1String("&lt;"))
+                c = QLatin1Char('<');
+            else if (esc == QLatin1String("&gt;"))
+                c = QLatin1Char('>');
+            else if (esc == QLatin1String("&amp;"))
+                c = QLatin1Char('&');
             line->replace(escIndex, i - escIndex + 1, c);
             len = line->length();
             i -= i-escIndex;
@@ -6440,7 +6442,7 @@ void Q3TextEdit::optimInsert(const QString& text, int line, int index)
     if (index > d->od->lines[line].length())
         index = d->od->lines[line].length();
 
-    QStringList strl = text.split('\n');
+    QStringList strl = text.split(QLatin1Char('\n'));
     int numNewLines = strl.count() - 1;
     Q3TextEditOptimPrivate::Tag *tag = 0;
     QMap<int,Q3TextEditOptimPrivate::Tag *>::ConstIterator ii;
@@ -6618,10 +6620,10 @@ void Q3TextEdit::optimSetTextFormat(Q3TextDocument * td, Q3TextCursor * cur,
         }
         if (tag) {
             QString col = tag->tag.simplified();
-            if (col.left(10) == "font color") {
-                int i = col.indexOf('=', 10);
+            if (col.left(10) == QLatin1String("font color")) {
+                int i = col.indexOf(QLatin1Char('='), 10);
                 col = col.mid(i + 1).simplified();
-                if (col[0] == '\"')
+                if (col[0] == QLatin1Char('\"'))
                     col = col.mid(1, col.length() - 2);
             }
             QColor color = QColor(col);
@@ -6664,7 +6666,7 @@ void Q3TextEdit::optimDrawContents(QPainter * p, int clipx, int clipy,
     int i = 0;
     QString str;
     for (i = startLine; i < (startLine + nLines); i++)
-        str.append(d->od->lines[LOGOFFSET(i)] + "\n");
+        str.append(d->od->lines[LOGOFFSET(i)] + QLatin1Char('\n'));
 
     Q3TextDocument * td = new Q3TextDocument(0);
     td->setDefaultFormat(Q3ScrollView::font(), QColor());
@@ -6894,9 +6896,9 @@ void Q3TextEdit::optimDoAutoScroll()
          pos.y() < 0 || pos.y() > viewport()->height()) {
         int my = yy;
         if (pos.x() < 0)
-            xx = contentsX() - fm.width('w');
+            xx = contentsX() - fm.width(QLatin1Char('w'));
         else if (pos.x() > viewport()->width())
-            xx = contentsX() + viewport()->width() + fm.width('w');
+            xx = contentsX() + viewport()->width() + fm.width(QLatin1Char('w'));
 
         if (pos.y() < 0) {
             my = contentsY() - 1;
@@ -6966,7 +6968,7 @@ int Q3TextEdit::optimCharIndex(const QString &str, int mx) const
     int strWidth;
     mx = mx - 4; // ### get the real margin from somewhere
 
-    if (!str.contains('\t') && mx > fm.width(str))
+    if (!str.contains(QLatin1Char('\t')) && mx > fm.width(str))
         return str.length();
 
     while (i < str.length()) {
@@ -7036,13 +7038,13 @@ QString Q3TextEdit::optimSelectedText() const
     } else {
         int i = d->od->selStart.line;
         str = d->od->lines[LOGOFFSET(i)].right(d->od->lines[LOGOFFSET(i)].length() -
-                                  d->od->selStart.index) + "\n";
+                                  d->od->selStart.index) + QLatin1Char('\n');
         i++;
         for (; i < d->od->selEnd.line; i++) {
             if (d->od->lines[LOGOFFSET(i)].isEmpty()) // CR lines are empty
-                str += "\n";
+                str += QLatin1Char('\n');
             else
-                str += d->od->lines[LOGOFFSET(i)] + "\n";
+                str += d->od->lines[LOGOFFSET(i)] + QLatin1Char('\n');
         }
         str += d->od->lines[LOGOFFSET(d->od->selEnd.line)].left(d->od->selEnd.index);
     }

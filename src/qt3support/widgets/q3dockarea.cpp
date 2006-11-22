@@ -1238,9 +1238,9 @@ QTextStream &operator<<(QTextStream &ts, const Q3DockArea &dockArea)
 
     for (int i = 0; i < l.size(); ++i) {
         Q3DockWindow *dw = l.at(i);
-        str += "[" + QString(dw->windowTitle()) + "," + QString::number((int)dw->offset()) +
-               "," + QString::number((int)dw->newLine()) + "," + QString::number(dw->fixedExtent().width()) +
-               "," + QString::number(dw->fixedExtent().height()) + "," + QString::number((int)!dw->isHidden()) + "]";
+        str += QLatin1Char('[') + QString(dw->windowTitle()) + QLatin1Char(',') + QString::number((int)dw->offset()) +
+               QLatin1Char(',') + QString::number((int)dw->newLine()) + QLatin1Char(',') + QString::number(dw->fixedExtent().width()) +
+               QLatin1Char(',') + QString::number(dw->fixedExtent().height()) + QLatin1Char(',') + QString::number((int)!dw->isHidden()) + QLatin1Char(']');
     }
     ts << str << endl;
 
@@ -1269,16 +1269,16 @@ QTextStream &operator>>(QTextStream &ts, Q3DockArea &dockArea)
 
     for (int i = 0; i < s.length(); ++i) {
         c = s[i];
-        if (state == Pre && c == '[') {
+        if (state == Pre && c == QLatin1Char('[')) {
             state++;
             continue;
         }
-        if (c == ',' &&
+        if (c == QLatin1Char(',') &&
              (state == Name || state == Offset || state == NewLine || state == Width || state == Height)) {
             state++;
             continue;
         }
-        if (state == Visible && c == ']') {
+        if (state == Visible && c == QLatin1Char(']')) {
             for (int j = 0; j < l.size(); ++j) {
                 Q3DockWindow *dw = l.at(j);
                 if (QString(dw->windowTitle()) == name) {
@@ -1294,7 +1294,7 @@ QTextStream &operator>>(QTextStream &ts, Q3DockArea &dockArea)
                 }
             }
 
-            name = offset = newLine = width = height = visible = "";
+            name = offset = newLine = width = height = visible = QLatin1String("");
 
             state = Pre;
             continue;

@@ -536,7 +536,7 @@ void Q3NetworkProtocol::registerNetworkProtocol( const QString &protocol,
 {
     if ( !q3networkProtocolRegister ) {
 	q3networkProtocolRegister = new Q3NetworkProtocolDict;
-	Q3NetworkProtocol::registerNetworkProtocol( "file", new Q3NetworkProtocolFactory< Q3LocalFs > );
+	Q3NetworkProtocol::registerNetworkProtocol( QLatin1String("file"), new Q3NetworkProtocolFactory< Q3LocalFs > );
     }
 
     q3networkProtocolRegister->insert( protocol, protocolFactory );
@@ -566,7 +566,7 @@ Q3NetworkProtocol *Q3NetworkProtocol::getNetworkProtocol( const QString &protoco
 {
     if ( !q3networkProtocolRegister ) {
 	q3networkProtocolRegister = new Q3NetworkProtocolDict;
-	Q3NetworkProtocol::registerNetworkProtocol( "file", new Q3NetworkProtocolFactory< Q3LocalFs > );
+	Q3NetworkProtocol::registerNetworkProtocol( QLatin1String("file"), new Q3NetworkProtocolFactory< Q3LocalFs > );
     }
 
     if ( protocol.isNull() )
@@ -592,7 +592,7 @@ bool Q3NetworkProtocol::hasOnlyLocalFileSystem()
 
     Q3DictIterator< Q3NetworkProtocolFactoryBase > it( *q3networkProtocolRegister );
     for ( ; it.current(); ++it )
-	if ( it.currentKey() != "file" )
+	if ( it.currentKey() != QLatin1String("file") )
 	    return false;
     return true;
 }

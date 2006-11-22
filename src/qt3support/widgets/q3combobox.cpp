@@ -333,7 +333,7 @@ public:
 static inline QString escapedComboString(const QString &str)
 {
     QString stringToReturn = str;
-    return stringToReturn.replace('&', "&&");
+    return stringToReturn.replace(QLatin1Char('&'), QLatin1String("&&"));
 }
 
 class Q3ComboBoxPopupItem : public QMenuItem
@@ -944,7 +944,7 @@ QString Q3ComboBox::text( int index ) const
 	return d->listBox()->text( index );
     } else {
         QString retText = d->popup()->text(index);
-        retText.replace("&&", "&");
+        retText.replace(QLatin1String("&&"), QString(QLatin1Char('&')));
 	return retText;
     }
 }
@@ -1111,7 +1111,7 @@ QSize Q3ComboBox::sizeHint() const
     int i, w;
     QFontMetrics fm = fontMetrics();
 
-    int maxW = count() ? 18 : 7 * fm.width(QChar('x')) + 18;
+    int maxW = count() ? 18 : 7 * fm.width(QLatin1Char('x')) + 18;
     int maxH = QMAX( fm.lineSpacing(), 14 ) + 2;
 
     if ( !d->usingListBox() ) {

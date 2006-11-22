@@ -32,7 +32,7 @@ Q_CORE_EXPORT unsigned int qt_int_sqrt(unsigned int n);
 
 void Q3SimpleRichTextData::adjustSize() {
     QFontMetrics fm(font);
-    int mw =  fm.width('x') * 80;
+    int mw =  fm.width(QString(QLatin1Char('x'))) * 80;
     int w = mw;
     doc->doLayout(0,w);
     if (doc->widthUsed() != 0) {
