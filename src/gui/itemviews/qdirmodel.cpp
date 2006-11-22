@@ -1242,14 +1242,14 @@ QString QDirModelPrivate::size(const QModelIndex &index) const
     const quint64 tb = 1024 * gb;
     quint64 bytes = n->info.size();
     if (bytes >= tb)
-        return QLocale().toString(bytes / tb) + QString(QLatin1String(" TB"));
+        return QLocale().toString(bytes / tb) + QString::fromLatin1(" TB");
     if (bytes >= gb)
-        return QLocale().toString(bytes / gb) + QString(QLatin1String(" GB"));
+        return QLocale().toString(bytes / gb) + QString::fromLatin1(" GB");
     if (bytes >= mb)
-        return QLocale().toString(bytes / mb) + QString(QLatin1String(" MB"));
+        return QLocale().toString(bytes / mb) + QString::fromLatin1(" MB");
     if (bytes >= kb)
-        return QLocale().toString(bytes / kb) + QString(QLatin1String(" KB"));
-    return QLocale().toString(bytes) + QString(QLatin1String(" bytes"));
+        return QLocale().toString(bytes / kb) + QString::fromLatin1(" KB");
+    return QLocale().toString(bytes) + QString::fromLatin1(" bytes");
 }
 
 QString QDirModelPrivate::type(const QModelIndex &index) const

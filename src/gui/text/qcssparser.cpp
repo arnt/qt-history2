@@ -263,7 +263,7 @@ ValueExtractor::ValueExtractor(const QVector<Declaration> &decls)
 int ValueExtractor::lengthValue(const Value& v)
 {
     QString s = v.variant.toString();
-    QRegExp re("(-?[\\d\\.]*)(px|em|ex)?", Qt::CaseInsensitive);
+    QRegExp re(QLatin1String("(-?[\\d\\.]*)(px|em|ex)?"), Qt::CaseInsensitive);
     if (re.indexIn(s) == -1)
         return 0;
     QString real = re.cap(1);
@@ -275,9 +275,9 @@ int ValueExtractor::lengthValue(const Value& v)
         return 0;
 
     QFontMetrics fm(f);
-    if (unit.compare("ex", Qt::CaseInsensitive) == 0)
+    if (unit.compare(QLatin1String("ex"), Qt::CaseInsensitive) == 0)
         return qRound(fm.xHeight() * number);
-    else if (unit.compare("em", Qt::CaseInsensitive) == 0)
+    else if (unit.compare(QLatin1String("em"), Qt::CaseInsensitive) == 0)
         return qRound(fm.height() * number);
 
     return qRound(number);
@@ -476,7 +476,7 @@ static Qt::Alignment parseAlignment(const Value *values, int count)
 static QColor parseColorValue(Value v)
 {
     if (v.type == Value::Identifier || v.type == Value::String) {
-        if (v.variant.toString().compare("transparent", Qt::CaseInsensitive) != 0) {
+        if (v.variant.toString().compare(QLatin1String("transparent"), Qt::CaseInsensitive) != 0) {
             v.variant.convert(QVariant::Color);
         } else {
             v.variant = QColor(Qt::transparent);
@@ -541,7 +541,7 @@ static QBrush parseBrushValue(Value v)
         return QBrush();
 
     QStringList gradFuncs;
-    gradFuncs << "qlineargradient" << "qradialgradient" << "qconicalgradient" << "qgradient";
+    gradFuncs << QLatin1String("qlineargradient") << QLatin1String("qradialgradient") << QLatin1String("qconicalgradient") << QLatin1String("qgradient");
     int gradType = -1;
 
     if (lst.at(0).compare(QLatin1String("gradient"), Qt::CaseInsensitive) != 0
@@ -549,14 +549,14 @@ static QBrush parseBrushValue(Value v)
         return QBrush();
 
     QStringList gradientTypes;
-    gradientTypes << "linear" << "radial" << "conical" << "gradient";
+    gradientTypes << QLatin1String("linear") << QLatin1String("radial") << QLatin1String("conical") << QLatin1String("gradient");
     QStringList params = lst.at(1).split(QLatin1String(","), QString::SkipEmptyParts);
     QHash<QString, qreal> vars;
     QVector<QGradientStop> stops;
-    QRegExp re("\\s*(\\S*):\\s*(\\S*)\\s*(\\S*)");
+    QRegExp re(QLatin1String("\\s*(\\S*):\\s*(\\S*)\\s*(\\S*)"));
     int spread = -1;
     QStringList spreads;
-    spreads << "pad" << "reflect" << "repeat";
+    spreads << QLatin1String("pad") << QLatin1String("reflect") << QLatin1String("repeat");
     for (int i = 0; i < params.count(); i++) {
         if (re.indexIn(params.at(i)) == -1)
             continue;
@@ -992,7 +992,7 @@ QRect Declaration::rectValue() const
     QStringList func = v.variant.toStringList();
     if (func.count() != 2 || func.first().compare(QLatin1String("rect")) != 0)
         return QRect();
-    QStringList args = func[1].split(" ", QString::SkipEmptyParts);
+    QStringList args = func[1].split(QLatin1String(" "), QString::SkipEmptyParts);
     if (args.count() != 4)
         return QRect();
     return QRect(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt());

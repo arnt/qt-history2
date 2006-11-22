@@ -112,7 +112,7 @@ static QImageIOHandler *createWriteHandler(QIODevice *device, const QByteArray &
         if (QFile *file = qobject_cast<QFile *>(device)) {
             if (!(suffix = QFileInfo(file->fileName()).suffix().toLower().toLatin1()).isEmpty()) {
 #ifndef QT_NO_LIBRARY
-                int index = keys.indexOf(suffix);
+                int index = keys.indexOf(QString::fromLatin1(suffix));
                 if (index != -1)
                     suffixPluginIndex = index;
 #endif
@@ -126,7 +126,7 @@ static QImageIOHandler *createWriteHandler(QIODevice *device, const QByteArray &
     if (suffixPluginIndex != -1) {
         // when format is missing, check if we can find a plugin for the
         // suffix.
-        QImageIOPlugin *plugin = qobject_cast<QImageIOPlugin *>(l->instance(suffix));
+        QImageIOPlugin *plugin = qobject_cast<QImageIOPlugin *>(l->instance(QString::fromLatin1(suffix)));
         if (plugin && (plugin->capabilities(device, suffix) & QImageIOPlugin::CanWrite))
             handler = plugin->create(device, suffix);
     }

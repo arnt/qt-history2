@@ -908,6 +908,7 @@ QImage::QImage(const QString &fileName, const char *format)
     \sa QString::fromAscii(), isNull(), {QImage#Reading and Writing
     Image Files}{Reading and Writing Image Files}
 */
+#ifndef QT_NO_CAST_FROM_ASCII
 QImage::QImage(const char *fileName, const char *format)
     : QPaintDevice()
 {
@@ -917,6 +918,7 @@ QImage::QImage(const char *fileName, const char *format)
     d = 0;
     load(QString::fromAscii(fileName), format);
 }
+#endif
 
 #ifndef QT_NO_IMAGEFORMAT_XPM
 extern bool qt_read_xpm_image_or_array(QIODevice *device, const char * const *source, QImage &image);
@@ -3020,9 +3022,9 @@ static QImage convertWithPalette(const QImage &src, QImage::Format format,
 
 #if !defined(QT_NO_IMAGE_TEXT)
     QString textsKeys = src.text();
-    QStringList textKeyList = textsKeys.split("\n", QString::SkipEmptyParts);
+    QStringList textKeyList = textsKeys.split(QLatin1Char('\n'), QString::SkipEmptyParts);
     foreach (QString textKey, textKeyList) {
-        QStringList textKeySplitted = textKey.split(": ");
+        QStringList textKeySplitted = textKey.split(QLatin1String(": "));
         dest.setText(textKeySplitted[0], textKeySplitted[1]);
     }
 #endif // !QT_NO_IMAGE_TEXT

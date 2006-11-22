@@ -1241,7 +1241,7 @@ void QDateTimeEdit::mousePressEvent(QMouseEvent *event)
         d->updateArrow(QStyle::State_Sunken);
         if (!d->monthCalendar) {
             d->monthCalendar = new QCalendarPopup(date(), this);
-            d->monthCalendar->setObjectName("qt_datetimedit_calendar");
+            d->monthCalendar->setObjectName(QLatin1String("qt_datetimedit_calendar"));
             connect(d->monthCalendar, SIGNAL(newDateSelected(QDate)), this, SLOT(setDate(QDate)));
             connect(d->monthCalendar, SIGNAL(hidingCalendar(QDate)), this, SLOT(setDate(QDate)));
             connect(d->monthCalendar, SIGNAL(activated(QDate)), this, SLOT(setDate(QDate)));

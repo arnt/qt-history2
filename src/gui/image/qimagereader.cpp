@@ -203,7 +203,7 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
             qDebug() << "QImageReader::createReadHandler: device is a file:" << file->fileName();
 #endif
             if (!(suffix = QFileInfo(file->fileName()).suffix().toLower().toLatin1()).isEmpty()) {
-                int index = keys.indexOf(suffix);
+                int index = keys.indexOf(QString::fromLatin1(suffix));
                 if (index != -1) {
 #ifdef QIMAGEREADER_DEBUG
                     qDebug() << "QImageReader::createReadHandler: suffix recognized; the"
@@ -223,7 +223,7 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
         // check if the plugin that claims support for this format can load
         // from this device with this format.
         const qint64 pos = device ? device->pos() : 0;
-        QImageIOPlugin *plugin = qobject_cast<QImageIOPlugin *>(l->instance(suffix));
+        QImageIOPlugin *plugin = qobject_cast<QImageIOPlugin *>(l->instance(QString::fromLatin1(suffix)));
         if (plugin && plugin->capabilities(device, testFormat) & QImageIOPlugin::CanRead) {
             handler = plugin->create(device, testFormat);
 #ifdef QIMAGEREADER_DEBUG

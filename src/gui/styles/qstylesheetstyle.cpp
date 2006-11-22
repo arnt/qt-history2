@@ -352,11 +352,11 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
                 bi->horizStretch = horizStretch;
                 bi->vertStretch = vertStretch;
             }
-        } else if (decl.propertyId == QtImage) {
+        
             image = QPixmap(decl.uriValue());
             if (!imageRect.isValid())
                 imageRect = QRect(0, 0, image.width(), image.height());
-        } else if (qBinaryFind(knownStyleHints, endKnownStyleHints, decl.property) != endKnownStyleHints) {
+        } else if (qBinaryFind(knownStyleHints, endKnownStyleHints, decl.property.toLatin1().constData()) != endKnownStyleHints) {
             int hint;
             decl.intValue(&hint);
             styleHints[decl.property] = hint;
@@ -1159,12 +1159,12 @@ public:
     }
     QString attribute(NodePtr node, const QString& name) const
     {
-        return (name == "class" && !WIDGET(node)->property("class").isValid())
-            ? WIDGET(node)->metaObject()->className()
+        return (name == QLatin1String("class") && !WIDGET(node)->property("class").isValid())
+            ? QString::fromLatin1(WIDGET(node)->metaObject()->className())
             : WIDGET(node)->property(name.toLatin1()).toString();
     }
     bool hasAttribute(NodePtr node, const QString& name) const
-    { return name == "class"
+    { return name == QLatin1String("class")
              || WIDGET(node)->metaObject()->indexOfProperty(name.toLatin1()) != -1
              || WIDGET(node)->dynamicPropertyNames().contains(name.toLatin1()); }
     bool hasAttributes(NodePtr) const
@@ -1346,7 +1346,7 @@ static QRenderRule renderRule(const QWidget *w, const QString &part, QStyle::Sta
 
 static QRenderRule renderRule(const QWidget *w, int pseudoElement, QStyle::State state = QStyle::State_None)
 {
-    return renderRule(w, knownPseudoElements[pseudoElement].name, state);
+    return renderRule(w, QLatin1String(knownPseudoElements[pseudoElement].name), state);
 }
 
 static QRenderRule renderRule(const QWidget *w, const QStyleOption *opt, int pseudoElement = PseudoElement_None)
@@ -1426,7 +1426,7 @@ static QRenderRule renderRule(const QWidget *w, const QStyleOption *opt, int pse
         { } // required for the above ifdef'ery
     }
 
-    return renderRule(w, knownPseudoElements[pseudoElement].name, state);
+    return renderRule(w, QLatin1String(knownPseudoElements[pseudoElement].name), state);
 }
 
 static bool hasStyleRule(const QWidget *w, int part = PseudoElement_None)
@@ -1436,7 +1436,7 @@ static bool hasStyleRule(const QWidget *w, int part = PseudoElement_None)
         return w && !styleRules.isEmpty();
 
     // ### cache the result
-    QString pseudoElement = knownPseudoElements[part].name;
+    QString pseudoElement(QLatin1String(knownPseudoElements[part].name));
     QVector<Declaration> declarations;
     for (int i = 0; i < styleRules.count(); i++) {
         const Selector& selector = styleRules.at(i).selectors.at(0);
@@ -1569,7 +1569,7 @@ static void setProperties(QWidget *w)
     for (int i = 0; i < decls.count(); i++) {
         Declaration decl = decls.at(i);
         QString property = decl.property;
-        if (!property.startsWith("qproperty-", Qt::CaseInsensitive))
+        if (!property.startsWith(QLatin1String("qproperty-"), Qt::CaseInsensitive))
             continue;
         property = property.mid(10); // strip "qproperty-"
         const QVariant value = w->property(property.toLatin1()); // takes care of dynamic properties too
@@ -1595,7 +1595,7 @@ static void setProperties(QWidget *w)
     const QList<QString> properties = propertyHash.keys();
     for (int i = 0; i < properties.count(); i++) {
         const QString property = properties.at(i);
-        w->setProperty(property.toLatin1(), propertyHash[property.toLatin1()]);
+        w->setProperty(property.toLatin1(), propertyHash[property]);
     }
 }
 
@@ -2667,34 +2667,34 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
     QRenderRule rule = renderRule(w, opt);
     QString s;
     switch (sh) {
-        case SH_LineEdit_PasswordCharacter: s = "lineedit-password-character"; break;
-        case SH_DitherDisabledText: s = "dither-disabled-text"; break;
-        case SH_EtchDisabledText: s = "etch-disabled-text"; break;
-        case SH_ItemView_ActivateItemOnSingleClick: s = "activate-on-singleclick"; break;
-        case SH_ItemView_ShowDecorationSelected: s = "show-decoration-selected"; break;
-        case SH_Table_GridLineColor: s = "gridline-color"; break;
-        case SH_DialogButtonLayout: s = "button-layout"; break;
-        case SH_ToolTipLabel_Opacity: s = "opacity"; break;
-        case SH_ComboBox_Popup: s = "combobox-popup"; break;
-        case SH_ComboBox_ListMouseTracking: s = "combobox-list-mousetracking"; break;
-        case SH_MenuBar_AltKeyNavigation: s = "menubar-altkey-navigation"; break;
-        case SH_DrawMenuBarSeparator: s = "menubar-separator"; break;
-        case SH_MenuBar_MouseTracking: s = "mouse-tracking"; break;
-        case SH_SpinBox_ClickAutoRepeatRate: s = "spinbox-click-autorepeat-rate"; break;
-        case SH_SpinControls_DisableOnBounds: s = "spincontrol-disable-on-bounds"; break;
-        case SH_MessageBox_TextInteractionFlags: s = "messagebox-text-interaction-flags"; break;
-        case SH_ToolButton_PopupDelay: s = "toolbutton-popup-delay"; break;
-        case SH_ToolBox_SelectedPageTitleBold: s= "toolbox-selected-page-title-bold"; break;
+        case SH_LineEdit_PasswordCharacter: s = QLatin1String("lineedit-password-character"); break;
+        case SH_DitherDisabledText: s = QLatin1String("dither-disabled-text"); break;
+        case SH_EtchDisabledText: s = QLatin1String("etch-disabled-text"); break;
+        case SH_ItemView_ActivateItemOnSingleClick: s = QLatin1String("activate-on-singleclick"); break;
+        case SH_ItemView_ShowDecorationSelected: s = QLatin1String("show-decoration-selected"); break;
+        case SH_Table_GridLineColor: s = QLatin1String("gridline-color"); break;
+        case SH_DialogButtonLayout: s = QLatin1String("button-layout"); break;
+        case SH_ToolTipLabel_Opacity: s = QLatin1String("opacity"); break;
+        case SH_ComboBox_Popup: s = QLatin1String("combobox-popup"); break;
+        case SH_ComboBox_ListMouseTracking: s = QLatin1String("combobox-list-mousetracking"); break;
+        case SH_MenuBar_AltKeyNavigation: s = QLatin1String("menubar-altkey-navigation"); break;
+        case SH_DrawMenuBarSeparator: s = QLatin1String("menubar-separator"); break;
+        case SH_MenuBar_MouseTracking: s = QLatin1String("mouse-tracking"); break;
+        case SH_SpinBox_ClickAutoRepeatRate: s = QLatin1String("spinbox-click-autorepeat-rate"); break;
+        case SH_SpinControls_DisableOnBounds: s = QLatin1String("spincontrol-disable-on-bounds"); break;
+        case SH_MessageBox_TextInteractionFlags: s = QLatin1String("messagebox-text-interaction-flags"); break;
+        case SH_ToolButton_PopupDelay: s = QLatin1String("toolbutton-popup-delay"); break;
+        case SH_ToolBox_SelectedPageTitleBold: s= QLatin1String("toolbox-selected-page-title-bold"); break;
         case SH_GroupBox_TextLabelColor:
             if (rule.hasPalette() && rule.palette()->foreground.isValid())
                 return rule.palette()->foreground.rgba();
             break;
-        case SH_ScrollView_FrameOnlyAroundContents: s = "scrollview-frame-around-contents"; break;
-        case SH_ScrollBar_ContextMenu: s = "scrollbar-contextmenu"; break;
-        case SH_ScrollBar_LeftClickAbsolutePosition: s = "scrollbar-leftclick-absolute-position"; break;
-        case SH_ScrollBar_MiddleClickAbsolutePosition: s = "scrollbar-middleclick-absolute-position"; break;
-        case SH_ScrollBar_RollBetweenButtons: s = "scrollbar-roll-between-buttons"; break;
-        case SH_ScrollBar_ScrollWhenPointerLeavesControl: s = "scrollbar-scroll-when-pointer-leaves-control"; break;
+        case SH_ScrollView_FrameOnlyAroundContents: s = QLatin1String("scrollview-frame-around-contents"); break;
+        case SH_ScrollBar_ContextMenu: s = QLatin1String("scrollbar-contextmenu"); break;
+        case SH_ScrollBar_LeftClickAbsolutePosition: s = QLatin1String("scrollbar-leftclick-absolute-position"); break;
+        case SH_ScrollBar_MiddleClickAbsolutePosition: s = QLatin1String("scrollbar-middleclick-absolute-position"); break;
+        case SH_ScrollBar_RollBetweenButtons: s = QLatin1String("scrollbar-roll-between-buttons"); break;
+        case SH_ScrollBar_ScrollWhenPointerLeavesControl: s = QLatin1String("scrollbar-scroll-when-pointer-leaves-control"); break;
         default: break;
     }
     if (!s.isEmpty() && rule.hasStyleHint(s)) {

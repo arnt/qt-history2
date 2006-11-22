@@ -3138,7 +3138,7 @@ IconTheme QWindowsStylePrivate::parseIndexFile(const QString &themeName) const
     QHash <int, QString> dirList;
 
     for ( int i = 0 ; i < iconDirs.size() && !themeIndex.exists() ; ++i) {
-          themeIndex.setFileName(iconDirs[i] + "/icons/" +
+          themeIndex.setFileName(iconDirs[i] + QLatin1String("/icons/") +
                                  themeName + QLatin1String("/index.theme"));
     }
 
@@ -3162,7 +3162,7 @@ IconTheme QWindowsStylePrivate::parseIndexFile(const QString &themeName) const
                 if (!in.atEnd()) {
                     line = in.readLine();
                     int size;
-                    if (line.startsWith("Size=")) {
+                    if (line.startsWith(QLatin1String("Size="))) {
                         size = line.right(line.length() - 5).toInt();
                         if (size)
                             dirList.insertMulti(size, dirName);
@@ -3173,13 +3173,13 @@ IconTheme QWindowsStylePrivate::parseIndexFile(const QString &themeName) const
     }
 
     if (q->inherits("QPlastiqueStyle")) {
-        QFileInfo fileInfo("/usr/share/icons/default.kde");
+        QFileInfo fileInfo(QLatin1String("/usr/share/icons/default.kde"));
         QDir dir(fileInfo.canonicalFilePath());
-        QString defaultKDETheme = dir.exists() ? dir.dirName() : "crystalsvg";
+        QString defaultKDETheme = dir.exists() ? dir.dirName() : QString::fromLatin1("crystalsvg");
         if (!parents.contains(defaultKDETheme) && themeName != defaultKDETheme)
             parents.append(defaultKDETheme);
-    } else if (parents.isEmpty() && themeName != "hicolor") {
-        parents.append("hicolor");
+    } else if (parents.isEmpty() && themeName != QLatin1String("hicolor")) {
+        parents.append(QLatin1String("hicolor"));
     }
     theme = IconTheme(dirList, parents);
     return theme;
@@ -3209,7 +3209,7 @@ QPixmap QWindowsStylePrivate::findIconHelper(int size,
 
         for ( int i = 0 ; i < iconDirs.size() ; ++i) {
             for ( int j = 0 ; j < subDirs.size() ; ++j) {
-                QString fileName = iconDirs[i] + "/icons/" + themeName + "/" + subDirs[j] + QLatin1Char('/') + iconName;
+                QString fileName = iconDirs[i] + QLatin1String("/icons/") + themeName + QLatin1Char('/') + subDirs[j] + QLatin1Char('/') + iconName;
                 pixmap.load(fileName);
                 if (!pixmap.isNull())
                     break;

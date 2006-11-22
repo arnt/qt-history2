@@ -902,11 +902,11 @@ void QCalendarWidgetPrivate::createNavigationBar(QWidget *widget)
     nextMonth->setFocusPolicy(Qt::StrongFocus);
 
     //set names for the header controls.
-    prevMonth->setObjectName("qt_calendar_prevmonth");
-    nextMonth->setObjectName("qt_calendar_nextmonth");
-    monthButton->setObjectName("qt_calendar_monthbutton");
-    yearButton->setObjectName("qt_calendar_yearbutton");
-    yearEdit->setObjectName("qt_calendar_yearedit");
+    prevMonth->setObjectName(QLatin1String("qt_calendar_prevmonth"));
+    nextMonth->setObjectName(QLatin1String("qt_calendar_nextmonth"));
+    monthButton->setObjectName(QLatin1String("qt_calendar_monthbutton"));
+    yearButton->setObjectName(QLatin1String("qt_calendar_yearbutton"));
+    yearEdit->setObjectName(QLatin1String("qt_calendar_yearedit"));
 
     updateMonthMenu();
     showMonth(m_model->date.year(),m_model->date.month());
@@ -1027,10 +1027,10 @@ void QCalendarWidgetPrivate::updateNavigationBar()
 
     QFontMetrics fm = monthButton->fontMetrics();
     monthButton->setMaximumWidth(fm.boundingRect(QDate::longMonthName(m_model->shownMonth)).width() +
-        fm.boundingRect(QChar('y')).width());
+        fm.boundingRect(QLatin1Char('y')).width());
 
     fm = yearButton->fontMetrics();
-    yearButton->setMaximumWidth(fm.boundingRect(QString("55555")).width());
+    yearButton->setMaximumWidth(fm.boundingRect(QLatin1String("55555")).width());
 }
 
 void QCalendarWidgetPrivate::update()
@@ -1178,7 +1178,7 @@ QCalendarWidget::QCalendarWidget(QWidget *parent)
     d->m_model->m_dayFormats.insert(Qt::Saturday, fmt);
     d->m_model->m_dayFormats.insert(Qt::Sunday, fmt);
     d->m_view = new QCalendarView(this);
-    d->m_view->setObjectName("qt_calendar_calendarview");
+    d->m_view->setObjectName(QLatin1String("qt_calendar_calendarview"));
     d->m_view->setModel(d->m_model);
     d->m_model->setView(d->m_view);
     d->m_view->setSelectionBehavior(QAbstractItemView::SelectItems);
@@ -1303,11 +1303,11 @@ QSize QCalendarWidget::minimumSizeHint() const
         int monthW = 0;
         for (int i = 1; i < 12; i++)
             monthW = qMax(monthW, fm.boundingRect(QDate::longMonthName(i)).width());
-        monthW += fm.boundingRect(QChar('y')).width();
+        monthW += fm.boundingRect(QLatin1Char('y')).width();
         headerW += monthW;
 
         fm = d->yearButton->fontMetrics();
-        headerW += fm.boundingRect(QString("55555")).width();
+        headerW += fm.boundingRect(QLatin1String("55555")).width();
 
         headerSize = QSize(headerW, headerH);
     }

@@ -827,7 +827,7 @@ int QKeySequencePrivate::decodeString(const QString &str, QKeySequence::Sequence
 #else
     int i = 0;
     int lastI = 0;
-    while ((i = sl.indexOf('+', i + 1)) != -1) {
+    while ((i = sl.indexOf(QLatin1Char('+'), i + 1)) != -1) {
         const QString sub = sl.mid(lastI, i - lastI + 1);
         // Just shortcut the check here if we only have one character.
         // Rational: A modifier will contain the name AND +, so longer than 1, a length of 1 is just
@@ -893,7 +893,7 @@ static inline void addKey(QString &str, const QString &theKey, QKeySequence::Seq
 {
     if (!str.isEmpty())
         str += (format == QKeySequence::NativeText) ? QShortcut::tr("+")
-                                                    : QString(QLatin1String("+"));
+                                                    : QString::fromLatin1("+");
     str += theKey;
 }
 
@@ -917,13 +917,13 @@ QString QKeySequencePrivate::encodeString(int key, QKeySequence::SequenceFormat 
     {
         // On other systems the order is Meta, Control, Alt, Shift
         if ((key & Qt::META) == Qt::META)
-            s = nativeText ? QShortcut::tr("Meta") : QString(QLatin1String("Meta"));
+            s = nativeText ? QShortcut::tr("Meta") : QString::fromLatin1("Meta");
         if ((key & Qt::CTRL) == Qt::CTRL)
-            addKey(s, nativeText ? QShortcut::tr("Ctrl") : QString(QLatin1String("Ctrl")), format);
+            addKey(s, nativeText ? QShortcut::tr("Ctrl") : QString::fromLatin1("Ctrl"), format);
         if ((key & Qt::ALT) == Qt::ALT)
-            addKey(s, nativeText ? QShortcut::tr("Alt") : QString(QLatin1String("Alt")), format);
+            addKey(s, nativeText ? QShortcut::tr("Alt") : QString::fromLatin1("Alt"), format);
         if ((key & Qt::SHIFT) == Qt::SHIFT)
-            addKey(s, nativeText ? QShortcut::tr("Shift") : QString(QLatin1String("Shift")), format);
+            addKey(s, nativeText ? QShortcut::tr("Shift") : QString::fromLatin1("Shift"), format);
     }
 
 
@@ -939,13 +939,13 @@ QString QKeySequencePrivate::encodeString(int key, QKeySequence::SequenceFormat 
         }
     } else if (key >= Qt::Key_F1 && key <= Qt::Key_F35) {
             p = nativeText ? QShortcut::tr("F%1").arg(key - Qt::Key_F1 + 1)
-                           : QString(QLatin1String("F%1")).arg(key - Qt::Key_F1 + 1);
+                           : QString::fromLatin1("F%1").arg(key - Qt::Key_F1 + 1);
     } else if (key) {
         int i=0;
         while (keyname[i].name) {
             if (key == keyname[i].key) {
                 p = nativeText ? QShortcut::tr(keyname[i].name)
-                               : QString(QLatin1String(keyname[i].name));
+                               : QString::fromLatin1(keyname[i].name);
                 break;
             }
             ++i;

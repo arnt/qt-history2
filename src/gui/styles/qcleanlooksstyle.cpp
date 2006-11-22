@@ -3633,9 +3633,9 @@ void QCleanlooksStyle::polish(QApplication *app)
     QString dataDirs = QLatin1String(getenv("XDG_DATA_DIRS"));
 
     if (dataDirs.isEmpty())
-        dataDirs = "/usr/local/share/:/usr/share/";
+        dataDirs = QLatin1String("/usr/local/share/:/usr/share/");
 
-    d->iconDirs = dataDirs.split(":");
+    d->iconDirs = dataDirs.split(QLatin1String(":"));
 #endif
 }
 
@@ -4136,7 +4136,7 @@ void QCleanlooksStylePrivate::lookupIconTheme() const
     if (gconftool.waitForStarted(2000) && gconftool.waitForFinished(2000))
         themeName = QLatin1String(gconftool.readLine().trimmed());
     if (themeName.isEmpty())
-        themeName = "gnome";
+        themeName = QLatin1String("gnome");
 #endif
 }
 

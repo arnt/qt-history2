@@ -818,8 +818,8 @@ static int getLprPrinters(QList<QPrinterDescription>& printers)
         if (def.open(QIODevice::ReadOnly)) {
             etcLpDefault.resize(1025);
             if (def.readLine(etcLpDefault.data(), 1024) > 0) {
-                QRegExp rx("^(\\S+)");
-                if (rx.indexIn(etcLpDefault) != -1)
+                QRegExp rx(QLatin1String("^(\\S+)"));
+                if (rx.indexIn(QString::fromLatin1(etcLpDefault)) != -1)
                     etcLpDefault = rx.cap(1).toAscii();
             }
         }

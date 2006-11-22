@@ -476,7 +476,7 @@ static void qBrushSetAlphaF(QBrush *brush, qreal alpha)
         // Modify the texture - ridiculously expensive.
         QPixmap texture = brush->texture();
         QPixmap pixmap;
-        QString name = QString("qbrushtexture-alpha-%1-%2").arg(alpha).arg(texture.serialNumber());
+        QString name = QString::fromLatin1("qbrushtexture-alpha-%1-%2").arg(alpha).arg(texture.serialNumber());
         if (UsePixmapCache && !QPixmapCache::find(name, pixmap)) {
             QImage image = texture.toImage();
             QRgb *rgb = reinterpret_cast<QRgb *>(image.bits());
@@ -537,7 +537,7 @@ static QBrush qBrushLight(QBrush brush, int light)
         // Modify the texture - ridiculously expensive.
         QPixmap texture = brush.texture();
         QPixmap pixmap;
-        QString name = QString("qbrushtexture-light-%1-%2").arg(light).arg(texture.serialNumber());
+        QString name = QString::fromLatin1("qbrushtexture-light-%1-%2").arg(light).arg(texture.serialNumber());
         if (UsePixmapCache && !QPixmapCache::find(name, pixmap)) {
             QImage image = texture.toImage();
             QRgb *rgb = reinterpret_cast<QRgb *>(image.bits());
@@ -596,7 +596,7 @@ static QBrush qBrushDark(QBrush brush, int dark)
         // Modify the texture - ridiculously expensive.
         QPixmap texture = brush.texture();
         QPixmap pixmap;
-        QString name = QString("qbrushtexture-dark-%1-%2").arg(dark).arg(brush.texture().serialNumber());
+        QString name = QString::fromLatin1("qbrushtexture-dark-%1-%2").arg(dark).arg(brush.texture().serialNumber());
         if (UsePixmapCache && !QPixmapCache::find(name, pixmap)) {
             QImage image = texture.toImage();
             QRgb *rgb = reinterpret_cast<QRgb *>(image.bits());
@@ -1439,7 +1439,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             bool defaultButton = (button->features & (QStyleOptionButton::DefaultButton
                                                       | QStyleOptionButton::AutoDefaultButton));
 
-            BEGIN_PLASTIQUE_PIXMAPCACHE(QString("pushbutton-%1").arg(defaultButton))
+            BEGIN_PLASTIQUE_PIXMAPCACHE(QString::fromLatin1("pushbutton-%1").arg(defaultButton))
 
             QPen oldPen = p->pen();
             bool hover = (button->state & State_Enabled) && (button->state & State_MouseOver);
@@ -2630,7 +2630,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         // Draws the header in tables.
         if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(option)) {
             QPixmap cache;
-            QString pixmapName = uniqueName("headersection", option, option->rect.size());
+            QString pixmapName = uniqueName(QLatin1String("headersection"), option, option->rect.size());
             pixmapName += QLatin1String("-") + QString::number(int(header->position));
             pixmapName += QLatin1String("-") + QString::number(int(header->orientation));
 
@@ -5454,7 +5454,7 @@ void QPlastiqueStyle::unpolish(QWidget *widget)
 #ifdef Q_WS_X11
 static QString kdeHome()
 {
-    QString home = qgetenv("KDEHOME");
+    QString home = QString::fromLocal8Bit(qgetenv("KDEHOME"));
     if (home.isEmpty())
         home = QDir::homePath() + QLatin1String("/.kde");
     return home;
@@ -5469,14 +5469,14 @@ void QPlastiqueStyle::polish(QApplication *app)
 #ifdef Q_WS_X11
     Q_D(QPlastiqueStyle);
 
-    QString dataDirs = QLatin1String(getenv("XDG_DATA_DIRS"));
+    QString dataDirs = QString::fromLocal8Bit(getenv("XDG_DATA_DIRS"));
 
     if (dataDirs.isEmpty())
-        dataDirs = "/usr/local/share/:/usr/share/";
+        dataDirs = QLatin1String("/usr/local/share/:/usr/share/");
 
-    dataDirs += ":" + kdeHome() + "/share";
+    dataDirs += QLatin1Char(':') + kdeHome() + QLatin1String("/share");
 
-    d->iconDirs = dataDirs.split(":");
+    d->iconDirs = dataDirs.split(QLatin1Char(':'));
 #endif
     QWindowsStyle::polish(app);
 }
@@ -5506,13 +5506,13 @@ void QPlastiqueStylePrivate::lookupIconTheme() const
 #ifdef Q_WS_X11
     if (!themeName.isEmpty())
         return;
-    QFileInfo fileInfo("/usr/share/icons/default.kde");
+    QFileInfo fileInfo(QLatin1String("/usr/share/icons/default.kde"));
     QDir dir(fileInfo.canonicalFilePath());
-    QString defaultTheme = fileInfo.exists() ? dir.dirName() : "crystalsvg";
+    QString defaultTheme = fileInfo.exists() ? dir.dirName() : QString::fromLatin1("crystalsvg");
 
     QSettings settings(kdeHome() + QLatin1String("/share/config/kdeglobals"), QSettings::IniFormat);
-    settings.beginGroup("Icons");
-    themeName = settings.value("Theme", defaultTheme).toString();
+    settings.beginGroup(QLatin1String("Icons"));
+    themeName = settings.value(QLatin1String("Theme"), defaultTheme).toString();
     /*
     // This can be enabled if there are bug reports that this doesn't cover all cases (which it doesn't)
     QProcess kreadconfig;

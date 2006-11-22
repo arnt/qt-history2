@@ -952,7 +952,7 @@ QWorkspacePrivate::init()
     foreach (QKeySequence seq, shortcuts)
         shortcutMap.insert(q->grabShortcut(seq), "closeActiveWindow");
 
-    shortcutMap.insert(q->grabShortcut(QKeySequence("ALT+-")), "_q_showOperationMenu");
+    shortcutMap.insert(q->grabShortcut(QKeySequence(QLatin1String("ALT+-"))), "_q_showOperationMenu");
 #endif // QT_NO_SHORTCUT
 
     q->setBackgroundRole(QPalette::Dark);

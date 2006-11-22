@@ -1743,7 +1743,7 @@ bool QApplicationPrivate::qws_apply_settings()
 
     // read library (ie. plugin) path list
     QString libpathkey =
-        QString(QLatin1String("%1.%2/libraryPath"))
+        QString::fromLatin1("%1.%2/libraryPath")
         .arg(QT_VERSION >> 16)
         .arg((QT_VERSION & 0xff00) >> 8);
     QStringList pathlist = settings.value(libpathkey).toString().split(QLatin1Char(':'));
