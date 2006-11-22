@@ -1174,16 +1174,15 @@ void VcprojGenerator::initResourceFiles()
     // Bad hack, please look away -------------------------------------
     QString rcc_dep_cmd = project->values("rcc.depend_command").join(" ");
     if(!rcc_dep_cmd.isEmpty()) {
-        QString argv0 = Option::fixPathToLocalOS(rcc_dep_cmd.split(' ').first());
-        if(exists(argv0)) {
-            QStringList qrc_files = project->values("RESOURCES");
-            QStringList deps;
-            if(!qrc_files.isEmpty()) {
-                for (int i = 0; i < qrc_files.count(); ++i) {
-        	    char buff[256];
-                    QString dep_cmd = replaceExtraCompilerVariables(rcc_dep_cmd, qrc_files.at(i),"");
+        QStringList qrc_files = project->values("RESOURCES");
+        QStringList deps;
+        if(!qrc_files.isEmpty()) {
+            for (int i = 0; i < qrc_files.count(); ++i) {
+                char buff[256];
+                QString dep_cmd = replaceExtraCompilerVariables(rcc_dep_cmd, qrc_files.at(i),"");
 
-                    dep_cmd = Option::fixPathToLocalOS(dep_cmd);
+                dep_cmd = Option::fixPathToLocalOS(dep_cmd);
+                if(canExecute(dep_cmd)) {
                     if(FILE *proc = QT_POPEN(dep_cmd.toLatin1().constData(), "r")) {
         	        QString indeps;
                         while(!feof(proc)) {
