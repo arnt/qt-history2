@@ -99,6 +99,13 @@ sub checkUnix {
     return $r;
 }
 
+sub checkRelative {
+    my ($dir) = @_;
+    return 0 if($dir =~ /^\//);
+    return 0 if(!checkUnix() && $dir =~ /[a-zA-Z]:[\/\\]/);
+    return 1;
+}
+
 ######################################################################
 # Syntax:  shouldMasterInclude(iheader)
 # Params:  iheader, string, filename to verify inclusion
@@ -578,7 +585,7 @@ while ( @ARGV ) {
 	push @modules_to_sync, $val;
     } elsif ("$var" eq "output") {
 	my $outdir = $val;
-	if($outdir !~ /^\//) {
+	if(checkRelative($outdir)) {
 	    $out_basedir = getcwd();
 	    chomp $out_basedir;
 	    $out_basedir .= "/" . $outdir;
