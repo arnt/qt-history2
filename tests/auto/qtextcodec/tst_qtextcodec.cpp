@@ -128,19 +128,71 @@ void tst_QTextCodec::codecForName()
 void tst_QTextCodec::fromUnicode_data()
 {
     QTest::addColumn<QString>("codecName");
+    QTest::addColumn<bool>("eightBit");
 
-    QTest::newRow("data1") << "ISO-8859-1";
-    QTest::newRow("data2") << "ISO-8859-2";
-    QTest::newRow("data3") << "SJIS";
-    QTest::newRow("data4") << "EUC-KR";
+    QTest::newRow("data1") << "ISO-8859-1" << true;
+    QTest::newRow("data2") << "ISO-8859-2" << true;
+    QTest::newRow("data3") << "ISO-8859-3" << true;
+    QTest::newRow("data4") << "ISO-8859-4" << true;
+    QTest::newRow("data5") << "ISO-8859-5" << true;
+    QTest::newRow("data6") << "ISO-8859-6" << true;
+    QTest::newRow("data7") << "ISO-8859-7" << true;
+    QTest::newRow("data8") << "ISO-8859-8" << true;
+    QTest::newRow("data9") << "ISO-8859-9" << true;
+    QTest::newRow("data10") << "ISO-8859-10" << true;
+    QTest::newRow("data13") << "ISO-8859-13" << true;
+    QTest::newRow("data14") << "ISO-8859-14" << true;
+    QTest::newRow("data15") << "ISO-8859-15" << true;
+    QTest::newRow("data16") << "ISO-8859-16" << true;
+
+    QTest::newRow("data18") << "IBM850" << true;
+    QTest::newRow("data19") << "IBM874" << true;
+    QTest::newRow("data20") << "IBM866" << true;
+
+    QTest::newRow("data21") << "windows-1250" << true;
+    QTest::newRow("data22") << "windows-1251" << true;
+    QTest::newRow("data23") << "windows-1252" << true;
+    QTest::newRow("data24") << "windows-1253" << true;
+    QTest::newRow("data25") << "windows-1254" << true;
+    QTest::newRow("data26") << "windows-1255" << true;
+    QTest::newRow("data27") << "windows-1256" << true;
+    QTest::newRow("data28") << "windows-1257" << true;
+    QTest::newRow("data28") << "windows-1258" << true;
+
+    QTest::newRow("data29") << "Apple Roman" << true;
+    QTest::newRow("data29") << "WINSAMI2" << true;
+    QTest::newRow("data30") << "TIS-620" << true;
+    QTest::newRow("data31") << "roman8" << true;
+
+    QTest::newRow("data32") << "SJIS" << false;
+    QTest::newRow("data33") << "EUC-KR" << false;
 }
 
 void tst_QTextCodec::fromUnicode()
 {
     QFETCH(QString, codecName);
+    QFETCH(bool, eightBit);
 
     QTextCodec *codec = QTextCodec::codecForName(codecName.toLatin1());
     QVERIFY(codec != 0);
+
+    // Check if the reverse lookup is what we expect
+    if (eightBit) {
+        char chars[128];
+        for (int i = 0; i < 128; ++i)
+            chars[i] = i + 128;
+        QString s = codec->toUnicode(chars, 128);
+        QByteArray c = codec->fromUnicode(s);
+        
+        int numberOfQuestionMarks = 0;
+        for (int i = 0; i < 128; ++i) {
+            if (c.at(i) == '?')
+                ++numberOfQuestionMarks;
+            else
+                QCOMPARE(c.at(i), char(i + 128));
+        }
+        QVERIFY(numberOfQuestionMarks != 128);
+    }
 
     /*
         If the encoding is a superset of ASCII, test that the byte
