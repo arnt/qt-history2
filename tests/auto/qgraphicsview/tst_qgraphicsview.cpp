@@ -412,68 +412,72 @@ void tst_QGraphicsView::viewport()
 
 void tst_QGraphicsView::dragMode_scrollHand()
 {
-    QGraphicsView view;
-    QCOMPARE(view.dragMode(), QGraphicsView::NoDrag);
+    for (int j = 0; j < 2; ++j) {
+        QGraphicsView view;
+        QCOMPARE(view.dragMode(), QGraphicsView::NoDrag);
 
-    view.setSceneRect(-1000, -1000, 2000, 2000);
-    view.setFixedSize(100, 100);
-    view.show();
+        view.setSceneRect(-1000, -1000, 2000, 2000);
+        view.setFixedSize(100, 100);
+        view.show();
 
-    QTest::qWait(25);
+        QTest::qWait(25);
 
-    QGraphicsScene scene;
-    scene.addRect(QRectF(-100, -100, 5, 5));
-    scene.addRect(QRectF(95, -100, 5, 5));
-    scene.addRect(QRectF(95, 95, 5, 5));
-    scene.addRect(QRectF(-100, 95, 5, 5));
+        QGraphicsScene scene;
+        scene.addRect(QRectF(-100, -100, 5, 5));
+        scene.addRect(QRectF(95, -100, 5, 5));
+        scene.addRect(QRectF(95, 95, 5, 5));
+        scene.addRect(QRectF(-100, 95, 5, 5));
 
-    view.setDragMode(QGraphicsView::ScrollHandDrag);
+        view.setDragMode(QGraphicsView::ScrollHandDrag);
 
-    for (int i = 0; i < 2; ++i) {
-        // ScrollHandDrag
-        Qt::CursorShape cursorShape = view.viewport()->cursor().shape();
-        int horizontalScrollBarValue = view.horizontalScrollBar()->value();
-        int verticalScrollBarValue = view.verticalScrollBar()->value();
-        {
-            // Press
-            QMouseEvent event(QEvent::MouseButtonPress,
-                              view.viewport()->rect().center(),
-                              Qt::LeftButton, Qt::LeftButton, 0);
-            QApplication::sendEvent(view.viewport(), &event);
+        for (int i = 0; i < 2; ++i) {
+            // ScrollHandDrag
+            Qt::CursorShape cursorShape = view.viewport()->cursor().shape();
+            int horizontalScrollBarValue = view.horizontalScrollBar()->value();
+            int verticalScrollBarValue = view.verticalScrollBar()->value();
+            {
+                // Press
+                QMouseEvent event(QEvent::MouseButtonPress,
+                                  view.viewport()->rect().center(),
+                                  Qt::LeftButton, Qt::LeftButton, 0);
+                QApplication::sendEvent(view.viewport(), &event);
+            }
+            QTest::qWait(250);
+            QCOMPARE(view.viewport()->cursor().shape(), Qt::ClosedHandCursor);
+            {
+                // Move
+                QMouseEvent event(QEvent::MouseMove,
+                                  view.viewport()->rect().center() + QPoint(10, 0),
+                                  Qt::LeftButton, Qt::LeftButton, 0);
+                QApplication::sendEvent(view.viewport(), &event);
+            }
+            QCOMPARE(view.horizontalScrollBar()->value(), horizontalScrollBarValue - 10);
+            QCOMPARE(view.verticalScrollBar()->value(), verticalScrollBarValue);
+            {
+                // Move
+                QMouseEvent event(QEvent::MouseMove,
+                                  view.viewport()->rect().center() + QPoint(10, 10),
+                                  Qt::LeftButton, Qt::LeftButton, 0);
+                QApplication::sendEvent(view.viewport(), &event);
+            }
+            QCOMPARE(view.horizontalScrollBar()->value(), horizontalScrollBarValue - 10);
+            QCOMPARE(view.verticalScrollBar()->value(), verticalScrollBarValue - 10);
+            {
+                // Release
+                QMouseEvent event(QEvent::MouseButtonRelease,
+                                  view.viewport()->rect().center() + QPoint(10, 10),
+                                  Qt::LeftButton, Qt::LeftButton, 0);
+                QApplication::sendEvent(view.viewport(), &event);
+            }
+            QTest::qWait(250);
+            QCOMPARE(view.horizontalScrollBar()->value(), horizontalScrollBarValue - 10);
+            QCOMPARE(view.verticalScrollBar()->value(), verticalScrollBarValue - 10);
+            QCOMPARE(view.viewport()->cursor().shape(), cursorShape);
+
+            view.setScene(&scene);
         }
-        QTest::qWait(250);
-        QCOMPARE(view.viewport()->cursor().shape(), Qt::ClosedHandCursor);
-        {
-            // Move
-            QMouseEvent event(QEvent::MouseMove,
-                              view.viewport()->rect().center() + QPoint(10, 0),
-                              Qt::LeftButton, Qt::LeftButton, 0);
-            QApplication::sendEvent(view.viewport(), &event);
-        }
-        QCOMPARE(view.horizontalScrollBar()->value(), horizontalScrollBarValue - 10);
-        QCOMPARE(view.verticalScrollBar()->value(), verticalScrollBarValue);
-        {
-            // Move
-            QMouseEvent event(QEvent::MouseMove,
-                              view.viewport()->rect().center() + QPoint(10, 10),
-                              Qt::LeftButton, Qt::LeftButton, 0);
-            QApplication::sendEvent(view.viewport(), &event);
-        }
-        QCOMPARE(view.horizontalScrollBar()->value(), horizontalScrollBarValue - 10);
-        QCOMPARE(view.verticalScrollBar()->value(), verticalScrollBarValue - 10);
-        {
-            // Release
-            QMouseEvent event(QEvent::MouseButtonRelease,
-                              view.viewport()->rect().center() + QPoint(10, 10),
-                              Qt::LeftButton, Qt::LeftButton, 0);
-            QApplication::sendEvent(view.viewport(), &event);
-        }
-        QTest::qWait(250);
-        QCOMPARE(view.horizontalScrollBar()->value(), horizontalScrollBarValue - 10);
-        QCOMPARE(view.verticalScrollBar()->value(), verticalScrollBarValue - 10);
-        QCOMPARE(view.viewport()->cursor().shape(), cursorShape);
 
-        view.setScene(&scene);
+        view.setInteractive(false);
     }
 }
 
