@@ -750,6 +750,29 @@ QStyleOptionViewItemV2 &QStyleOptionViewItemV2::operator=(const QStyleOptionView
     \value Alternate Indicates that the item's background is rendered using alternateBase.
 */
 
+QStyleOptionViewItemV3::QStyleOptionViewItemV3()
+    : QStyleOptionViewItemV2(Version)
+{
+}
+
+QStyleOptionViewItemV3::QStyleOptionViewItemV3(const QStyleOptionViewItem &other)
+    : QStyleOptionViewItemV2(Version)
+{
+    (void)QStyleOptionViewItemV3::operator=(other);
+}
+
+QStyleOptionViewItemV3 &QStyleOptionViewItemV3::operator = (const QStyleOptionViewItem &other)
+{
+    QStyleOptionViewItemV2::operator=(other);
+    const QStyleOptionViewItemV3 *v3 = qstyleoption_cast<const QStyleOptionViewItemV3*>(&other);
+    locale = v3 ? v3->locale : QLocale();
+    return *this;
+}
+
+QStyleOptionViewItemV3::QStyleOptionViewItemV3(int version)
+    : QStyleOptionViewItemV2(version)
+{
+}
 
 /*!
     \class QStyleOptionGroupBox
@@ -1954,7 +1977,7 @@ QStyleOptionProgressBarV2 &QStyleOptionProgressBarV2::operator=(const QStyleOpti
 /*!
     \variable QStyleOptionProgressBarV2::invertedAppearance
     \brief whether the progress bar's appearance is inverted
-    
+
     The default value is false.
 
     \sa QProgressBar::invertedAppearance
@@ -3042,7 +3065,7 @@ QStyleOptionDockWidget::QStyleOptionDockWidget(int version)
 /*!
     \variable QStyleOptionDockWidget::closable
     \brief whether the dock window is closable
-    
+
     The default value is true.
 */
 
@@ -3296,7 +3319,7 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
 /*!
     \variable QStyleOptionComboBox::editable
     \brief whether or not the combobox is editable or not
-    
+
     the default
     value is false
 

@@ -24,6 +24,7 @@
 #include <qrect.h>
 #include <qsize.h>
 #include <qstyle.h>
+#include <qdatetime.h>
 #include <qstyleoption.h>
 #include <qevent.h>
 #include <qpixmap.h>
@@ -67,6 +68,8 @@ public:
                     text[i] = QChar::LineSeparator;
             return text;
         }
+
+    static QString valueToText(const QVariant &value, const QStyleOptionViewItemV3 &option);
 
     void _q_commitDataAndCloseEditor(QWidget *editor);
 
@@ -293,15 +296,53 @@ void QItemDelegate::setClipping(bool clip)
     \sa QStyle::State
 */
 
+QString QItemDelegatePrivate::valueToText(const QVariant &value, const QStyleOptionViewItemV3 &option)
+{
+    QString text;
+    switch (value.type()) {
+        case QVariant::Double:
+            text = option.locale.toString(value.toDouble());
+            break;
+        case QVariant::Int:
+        case QVariant::LongLong:
+            text = option.locale.toString(value.toLongLong());
+            break;
+        case QVariant::UInt:
+        case QVariant::ULongLong:
+            text = option.locale.toString(value.toULongLong());
+            break;
+        case QVariant::Date:
+            text = option.locale.toString(value.toDate(), QLocale::ShortFormat);
+            break;
+        case QVariant::Time:
+            text = option.locale.toString(value.toTime(), QLocale::ShortFormat);
+            break;
+        case QVariant::DateTime:
+            text = option.locale.toString(value.toDateTime().date(), QLocale::ShortFormat);
+            text += QLatin1Char(' ');
+            text += option.locale.toString(value.toDateTime().time(), QLocale::ShortFormat);
+            break;
+        default:
+            text = replaceNewLine(value.toString());
+            break;
+    }
+    return text;
+}
+
 void QItemDelegate::paint(QPainter *painter,
                           const QStyleOptionViewItem &option,
                           const QModelIndex &index) const
 {
     Q_D(const QItemDelegate);
     Q_ASSERT(index.isValid());
-    QStyleOptionViewItemV2 opt = setOptions(index, option);
+
+    QStyleOptionViewItemV3 opt = setOptions(index, option);
+
     const QStyleOptionViewItemV2 *v2 = qstyleoption_cast<const QStyleOptionViewItemV2 *>(&option);
-    opt.features = v2 ? v2->features : QStyleOptionViewItemV2::ViewItemFeatures(QStyleOptionViewItemV2::None);
+    opt.features = v2 ? v2->features
+                    : QStyleOptionViewItemV2::ViewItemFeatures(QStyleOptionViewItemV2::None);
+    const QStyleOptionViewItemV3 *v3 = qstyleoption_cast<const QStyleOptionViewItemV3 *>(&option);
+    opt.locale = v3 ? v3->locale : QLocale();
 
     // prepare
     painter->save();
@@ -334,23 +375,7 @@ void QItemDelegate::paint(QPainter *painter,
     QRect displayRect;
     value = index.data(Qt::DisplayRole);
     if (value.isValid()) {
-        switch (value.type()) {
-            case QVariant::Double:
-                text = QLocale().toString(value.toDouble());
-                break;
-            case QVariant::Int:
-            case QVariant::LongLong:
-                text = QLocale().toString(value.toLongLong());
-                break;
-            case QVariant::UInt:
-            case QVariant::ULongLong:
-                text = QLocale().toString(value.toULongLong());
-                break;
-            default:
-                text = QItemDelegatePrivate::replaceNewLine(value.toString());
-                break;
-        }
-
+        text = QItemDelegatePrivate::valueToText(value, opt);
         displayRect = textRectangle(painter, d->textLayoutBounds(opt), opt.font, text);
     }
 
@@ -947,7 +972,7 @@ QRect QItemDelegate::rect(const QStyleOptionViewItem &option,
             return QRect(QPoint(0, 0), option.decorationSize);
         case QVariant::String:
         default: {
-            QString text = QItemDelegatePrivate::replaceNewLine(value.toString());
+            QString text = QItemDelegatePrivate::valueToText(value, option);
             value = index.data(Qt::FontRole);
             QFont fnt = qvariant_cast<QFont>(value).resolve(option.font);
             return textRectangle(0, d->textLayoutBounds(option), fnt, text); }

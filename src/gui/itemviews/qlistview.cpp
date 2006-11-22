@@ -983,7 +983,7 @@ void QListView::paintEvent(QPaintEvent *e)
     Q_D(QListView);
     if (!d->itemDelegate)
         return;
-    QStyleOptionViewItemV2 option = d->viewOptionsV2();
+    QStyleOptionViewItemV3 option = d->viewOptionsV3();
     QPainter painter(d->viewport);
     QRect area = e->rect();
 
@@ -1463,7 +1463,7 @@ void QListView::updateGeometries()
         verticalScrollBar()->setRange(0, 0);
     } else {
         QModelIndex index = d->model->index(0, d->column, d->root);
-        QStyleOptionViewItemV2 option = d->viewOptionsV2();
+        QStyleOptionViewItemV3 option = d->viewOptionsV3();
         QSize step = d->itemSize(option, index);
 
         QSize csize = d->contentsSize();
@@ -1829,6 +1829,14 @@ QStyleOptionViewItemV2 QListViewPrivate::viewOptionsV2() const
     return option;
 }
 
+QStyleOptionViewItemV3 QListViewPrivate::viewOptionsV3() const
+{
+    Q_Q(const QListView);
+    QStyleOptionViewItemV3 option = viewOptionsV2();
+    option.locale = q->locale();
+    return option;
+}
+
 /*
  * Static ListView Implementation
 */
@@ -1992,7 +2000,7 @@ void QStaticListViewBase::doStaticLayout(const QListViewLayoutInfo &info)
 {
     const bool useItemSize = !info.grid.isValid();
     const QPoint topLeft = initStaticLayout(info);
-    const QStyleOptionViewItemV2 option = viewOptions();
+    const QStyleOptionViewItemV3 option = viewOptions();
 
     // The static layout data structures are as follows:
     // One vector contains the coordinate in the direction of layout flow.
@@ -2245,7 +2253,7 @@ void QStaticListViewBase::clear()
 void QDynamicListViewBase::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     if (column() >= topLeft.column() && column() <= bottomRight.column())  {
-        QStyleOptionViewItemV2 option = viewOptions();
+        QStyleOptionViewItemV3 option = viewOptions();
         int bottom = qMin(items.count(), bottomRight.row() + 1);
         for (int row = topLeft.row(); row < bottom; ++row)
             items[row].resize(itemSize(option, modelIndex(row)));
@@ -2444,7 +2452,7 @@ void QDynamicListViewBase::createItems(int to)
 {
     int count = items.count();
     QSize size;
-    QStyleOptionViewItemV2 option = viewOptions();
+    QStyleOptionViewItemV3 option = viewOptions();
     for (int row = count; row < to; ++row) {
         size = itemSize(option, modelIndex(row));
         QListViewItem item(QRect(0, 0, size.width(), size.height()), row); // default pos
@@ -2454,7 +2462,7 @@ void QDynamicListViewBase::createItems(int to)
 
 void QDynamicListViewBase::drawItems(QPainter *painter, const QVector<QModelIndex> &indexes) const
 {
-    QStyleOptionViewItemV2 option = viewOptions();
+    QStyleOptionViewItemV3 option = viewOptions();
     option.state &= ~QStyle::State_MouseOver;
     QVector<QModelIndex>::const_iterator it = indexes.begin();
     QListViewItem item = indexToListViewItem(*it);

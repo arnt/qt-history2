@@ -460,6 +460,23 @@ protected:
     QStyleOptionViewItemV2(int version);
 };
 
+class Q_GUI_EXPORT QStyleOptionViewItemV3 : public QStyleOptionViewItemV2
+{
+public:
+    enum StyleOptionVersion { Version = 3 };
+
+    QLocale locale;
+
+    QStyleOptionViewItemV3();
+    QStyleOptionViewItemV3(const QStyleOptionViewItemV3 &other)
+        : QStyleOptionViewItemV2(Version) { *this = other; }
+    QStyleOptionViewItemV3(const QStyleOptionViewItem &other);
+    QStyleOptionViewItemV3 &operator = (const QStyleOptionViewItem &other);
+
+protected:
+    QStyleOptionViewItemV3(int version);
+};
+
 Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionViewItemV2::ViewItemFeatures)
 
 class Q_GUI_EXPORT QStyleOptionToolBox : public QStyleOption

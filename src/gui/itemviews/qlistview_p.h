@@ -110,7 +110,7 @@ public:
     inline QModelIndex modelIndex(int row) const;
     inline int rowCount() const;
 
-    inline QStyleOptionViewItemV2 viewOptions() const;
+    inline QStyleOptionViewItemV3 viewOptions() const;
     inline QWidget *viewport() const;
     inline QRect clipRect() const;
 
@@ -294,6 +294,7 @@ public:
     int horizontalScrollToValue(const QModelIndex &index, const QRect &rect, QListView::ScrollHint hint) const;
     int verticalScrollToValue(const QModelIndex &index, const QRect &rect, QListView::ScrollHint hint) const;
 
+    QStyleOptionViewItemV3 viewOptionsV3() const;
 
     inline void setGridSize(const QSize &size) { grid = size; }
     inline QSize gridSize() const { return grid; }
@@ -371,7 +372,7 @@ inline QModelIndex QCommonListViewBase::modelIndex(int row) const
     { return dd->model->index(row, dd->column, dd->root); }
 inline int QCommonListViewBase::rowCount() const { return dd->model->rowCount(dd->root); }
 
-inline QStyleOptionViewItemV2 QCommonListViewBase::viewOptions() const { return dd->viewOptionsV2(); }
+inline QStyleOptionViewItemV3 QCommonListViewBase::viewOptions() const { return dd->viewOptionsV3(); }
 inline QWidget *QCommonListViewBase::viewport() const { return dd->viewport; }
 inline QRect QCommonListViewBase::clipRect() const { return dd->clipRect(); }
 

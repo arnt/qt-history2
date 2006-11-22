@@ -1205,6 +1205,8 @@ bool QAbstractItemView::focusNextPrevChild(bool next)
 */
 bool QAbstractItemView::event(QEvent *event)
 {
+    if (event->type() == QEvent::LocaleChange)
+        viewport()->update();
     return QAbstractScrollArea::event(event);
 }
 
