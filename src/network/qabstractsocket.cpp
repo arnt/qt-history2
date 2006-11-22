@@ -290,7 +290,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxLength)
     QByteArray out;
     for (int i = 0; i < len; ++i) {
         char c = data[i];
-        if (isprint(c)) {
+        if (isprint(int(uchar(c)))) {
             out += c;
         } else switch (c) {
         case '\n': out += "\\n"; break;
@@ -748,12 +748,18 @@ void QAbstractSocketPrivate::_q_connectToNextAddress()
         if (host.protocol() == QAbstractSocket::IPv6Protocol) {
             // If we have no IPv6 support, then we will not be able to
             // connect. So we just pretend we didn't see this address.
+#if defined(QABSTRACTSOCKET_DEBUG)
+            qDebug("QAbstractSocketPrivate::_q_connectToNextAddress(), skipping IPv6 entry");
+#endif
             continue;
         }
 #endif
 
         if (!initSocketLayer(host, q->socketType())) {
             // hope that the next address is better
+#if defined(QABSTRACTSOCKET_DEBUG)
+            qDebug("QAbstractSocketPrivate::_q_connectToNextAddress(), failed to initialize sock layer");
+#endif
             continue;
         }
 
@@ -1341,6 +1347,9 @@ bool QAbstractSocket::waitForConnected(int msecs)
         d->hostLookupId = -1;
         d->_q_startConnecting(QHostInfo::fromName(d->hostName));
     } else {
+#if defined (QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocket::waitForConnected(%i) testing connection", msecs);
+#endif
         d->_q_testConnection();
     }
     if (state() == UnconnectedState)
@@ -1680,7 +1689,7 @@ qint64 QAbstractSocket::readData(char *data, qint64 maxSize)
         *data = d->readBuffer.getChar();
 #if defined (QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocket::readData(%p '%c (0x%.2x)', 1) == 1",
-               data, isprint(*data) ? *data : '?', *data);
+               data, isprint(int(uchar(*data))) ? *data : '?', *data);
 #endif
         return 1;
     }

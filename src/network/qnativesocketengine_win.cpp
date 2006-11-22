@@ -90,7 +90,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxLength)
     QByteArray out;
     for (int i = 0; i < len; ++i) {
         char c = data[i];
-        if (isprint(c)) {
+        if (isprint(int(uchar(c)))) {
             out += c;
         } else switch (c) {
         case '\n': out += "\\n"; break;
