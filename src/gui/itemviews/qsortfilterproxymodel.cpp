@@ -89,6 +89,7 @@ public:
     Qt::SortOrder sort_order;
     Qt::CaseSensitivity sort_casesensitivity;
     int sort_role;
+    bool sort_localaware;
 
     int filter_column;
     QRegExp filter_regexp;
@@ -1233,6 +1234,7 @@ QSortFilterProxyModel::QSortFilterProxyModel(QObject *parent)
     d->sort_order = Qt::AscendingOrder;
     d->sort_casesensitivity = Qt::CaseSensitive;
     d->sort_role = Qt::DisplayRole;
+    d->sort_localaware = false;
     d->filter_column = 0;
     d->filter_role = Qt::DisplayRole;
     d->dynamic_sortfilter = false;
@@ -1807,6 +1809,31 @@ void QSortFilterProxyModel::setSortCaseSensitivity(Qt::CaseSensitivity cs)
 }
 
 /*!
+    \since 4.3
+    \property QSortFilterProxyModel::sortLocalAware
+    \brief the local aware setting used for comparing strings when sorting
+
+    By default, sorting is not local aware.
+
+    \sa sortCaseSensitivity, lessThan()
+*/
+bool QSortFilterProxyModel::sortLocalAware() const
+{
+    Q_D(const QSortFilterProxyModel);
+    return d->sort_localaware;
+}
+
+void QSortFilterProxyModel::setSortLocalAware(bool on)
+{
+    Q_D(QSortFilterProxyModel);
+    if (d->sort_localaware == on)
+        return;
+
+    d->sort_localaware = on;
+    d->sort();
+}
+
+/*!
     \overload
 
     Sets the regular expression used to filter the contents
@@ -2034,7 +2061,10 @@ bool QSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex 
         return l.toDateTime() < r.toDateTime();
     case QVariant::String:
     default:
-        return l.toString().compare(r.toString(), d->sort_casesensitivity) < 0;
+        if (d->sort_localaware)
+            return l.toString().localeAwareCompare(r.toString()) < 0;
+        else
+            return l.toString().compare(r.toString(), d->sort_casesensitivity) < 0;
     }
     return false;
 }
