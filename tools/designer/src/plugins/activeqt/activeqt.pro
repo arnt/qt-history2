@@ -4,7 +4,9 @@ QTDIR_build:DESTDIR 	= $$QT_BUILD_TREE/plugins/designer
 
 CONFIG     += qt warn_on qaxcontainer plugin designer debug_and_release
 
-INCLUDEPATH += $$QT_SOURCE_TREE/src/activeqt/shared/ ../../lib/uilib
+INCLUDEPATH += $$QT_SOURCE_TREE/src/activeqt/shared/ \
+               $$QT_BUILD_TREE/src/activeqt/container \
+               ../../lib/uilib
 
 # Input
 SOURCES += plugin.cpp \

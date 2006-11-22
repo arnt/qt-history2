@@ -4,8 +4,9 @@ CONFIG	+= qaxserver qaxserver_no_postlink qaxcontainer
 # QT += qt3support
 
 # ui_qaxselect.h
-INCLUDEPATH += ../../container/debug \
-    ../../container/release
+INCLUDEPATH += $$QT_SOURCE_TREE/tools/activeqt/container/debug \
+    $$QT_SOURCE_TREE/tools/activeqt/container/release \
+    $$QT_BUILD_TREE/src/activeqt/container \
 
 SOURCES	 = main.cpp docuwindow.cpp mainwindow.cpp invokemethod.cpp changeproperties.cpp ambientproperties.cpp controlinfo.cpp
 HEADERS	 = docuwindow.h mainwindow.h invokemethod.h changeproperties.h ambientproperties.h controlinfo.h
@@ -13,7 +14,8 @@ FORMS	 = mainwindow.ui invokemethod.ui changeproperties.ui ambientproperties.ui 
 RC_FILE	 = testcon.rc
 
 win32-borland {
-    QMAKE_POST_LINK = -midl testcon.idl
+    QMAKE_POST_LINK = -midl $$QT_SOURCE_TREE/tools/activeqt/testcon/testcon.idl
 } else {
-    !win32-g++:QMAKE_POST_LINK = midl testcon.idl && move testcon.tlb $(TARGETDIR)
+    !win32-g++:QMAKE_POST_LINK = midl $$QT_SOURCE_TREE/tools/activeqt/testcon/testcon.idl && move testcon.tlb $(TARGETDIR)
+
 }

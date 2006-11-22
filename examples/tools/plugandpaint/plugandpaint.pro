@@ -6,7 +6,7 @@ SOURCES        = main.cpp \
                  mainwindow.cpp \
                  paintarea.cpp \
                  plugindialog.cpp
-LIBS           = -L../plugandpaintplugins/basictools -lpnp_basictools
+LIBS           = -L$${QT_BUILD_TREE}/examples/tools/plugandpaintplugins/basictools -lpnp_basictools
 
 CONFIG(debug, debug|release) {
    mac:LIBS = $$member(LIBS, 0) $$member(LIBS, 1)_debug
