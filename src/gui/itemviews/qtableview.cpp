@@ -281,7 +281,7 @@ QRect QTableViewPrivate::visualSpanRect(const Span &span) const
   preparation for the main drawing loop.
 */
 void QTableViewPrivate::drawAndClipSpans(const QRect &area, QPainter *painter,
-                                         const QStyleOptionViewItemV2 &option)
+                                         const QStyleOptionViewItemV3 &option)
 {
     bool alternateBase = false;
     QRegion region = viewport->rect();
@@ -299,7 +299,7 @@ void QTableViewPrivate::drawAndClipSpans(const QRect &area, QPainter *painter,
         rect.translate(scrollDelayOffset);
         if (!rect.intersects(area))
             continue;
-        QStyleOptionViewItemV2 opt = option;
+        QStyleOptionViewItemV3 opt = option;
         opt.rect = rect;
         alternateBase = alternatingColors && (span.top() & 1);
         if (alternateBase)
@@ -319,10 +319,10 @@ void QTableViewPrivate::drawAndClipSpans(const QRect &area, QPainter *painter,
   \internal
   Draws a table cell.
 */
-void QTableViewPrivate::drawCell(QPainter *painter, const QStyleOptionViewItemV2 &option, const QModelIndex &index)
+void QTableViewPrivate::drawCell(QPainter *painter, const QStyleOptionViewItemV3 &option, const QModelIndex &index)
 {
     Q_Q(QTableView);
-    QStyleOptionViewItemV2 opt = option;
+    QStyleOptionViewItemV3 opt = option;
 
     if (selectionModel && selectionModel->isSelected(index))
         opt.state |= QStyle::State_Selected;
@@ -359,6 +359,14 @@ QStyleOptionViewItemV2 QTableViewPrivate::viewOptionsV2() const
     QStyleOptionViewItemV2 option = q->viewOptions();
     if (wrapItemText)
         option.features = QStyleOptionViewItemV2::WrapText;
+    return option;
+}
+
+QStyleOptionViewItemV3 QTableViewPrivate::viewOptionsV3() const
+{
+    Q_Q(const QTableView);
+    QStyleOptionViewItemV3 option = viewOptionsV2();
+    option.locale = q->locale();
     return option;
 }
 
@@ -641,7 +649,7 @@ void QTableView::paintEvent(QPaintEvent *event)
 {
     Q_D(QTableView);
     // setup temp variables for the painting
-    QStyleOptionViewItemV2 option = d->viewOptionsV2();
+    QStyleOptionViewItemV3 option = d->viewOptionsV3();
     const QPoint offset = d->scrollDelayOffset;
     const bool showGrid = d->showGrid;
     const int gridSize = showGrid ? 1 : 0;
@@ -1363,7 +1371,7 @@ int QTableView::sizeHintForRow(int row) const
     if (right == -1) // the table don't have enough columns to fill the viewport
         right = d->model->columnCount(d->root) - 1;
 
-    QStyleOptionViewItemV2 option = d->viewOptionsV2();
+    QStyleOptionViewItemV3 option = d->viewOptionsV3();
 
     int hint = 0;
     QModelIndex index;
@@ -1401,7 +1409,7 @@ int QTableView::sizeHintForColumn(int column) const
     if (!isVisible() || bottom == -1) // the table don't have enough rows to fill the viewport
         bottom = d->model->rowCount(d->root) - 1;
 
-    QStyleOptionViewItemV2 option = d->viewOptionsV2();
+    QStyleOptionViewItemV3 option = d->viewOptionsV3();
 
     int hint = 0;
     QModelIndex index;

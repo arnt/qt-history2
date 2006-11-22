@@ -72,10 +72,11 @@ public:
     bool spansIntersectColumns(const QList<int> &columns) const;
     bool spansIntersectRows(const QList<int> &rows) const;
     void drawAndClipSpans(const QRect &area, QPainter *painter,
-                          const QStyleOptionViewItemV2 &option);
-    void drawCell(QPainter *painter, const QStyleOptionViewItemV2 &option, const QModelIndex &index);
+                          const QStyleOptionViewItemV3 &option);
+    void drawCell(QPainter *painter, const QStyleOptionViewItemV3 &option, const QModelIndex &index);
 
     QStyleOptionViewItemV2 viewOptionsV2() const;
+    QStyleOptionViewItemV3 viewOptionsV3() const;
 
     bool showGrid;
     Qt::PenStyle gridStyle;

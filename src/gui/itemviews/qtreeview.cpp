@@ -1107,7 +1107,7 @@ void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
         return;
     }
 
-    QStyleOptionViewItemV2 option = d->viewOptionsV2();
+    QStyleOptionViewItemV3 option = d->viewOptionsV3();
     const QStyle::State state = option.state;
     const int deviceWidth = painter->device()->width();
     const int headerLength = d->header->length();
@@ -1184,7 +1184,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
                         const QModelIndex &index) const
 {
     Q_D(const QTreeView);
-    QStyleOptionViewItemV2 opt = option;
+    QStyleOptionViewItemV3 opt = option;
     const QPoint offset = d->scrollDelayOffset;
     const int y = option.rect.y() + offset.y();
     const QModelIndex parent = index.parent();
@@ -2204,7 +2204,7 @@ int QTreeView::sizeHintForColumn(int column) const
     if (d->viewItems.isEmpty())
         return -1;
     int w = 0;
-    QStyleOptionViewItemV2 option = d->viewOptionsV2();
+    QStyleOptionViewItemV3 option = d->viewOptionsV3();
     const QVector<QTreeViewItem> viewItems = d->viewItems;
     for (int i = 0; i < viewItems.count(); ++i) {
         QModelIndex index = viewItems.at(i).index;
@@ -2252,7 +2252,7 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
     end = qMax(tmp, end);
 
     int height = -1;
-    QStyleOptionViewItemV2 option = d->viewOptionsV2();
+    QStyleOptionViewItemV3 option = d->viewOptionsV3();
     // ### If we want word wrapping in the items,
     // ### we need to go through all the columns
     // ### and set the width of the column
@@ -3007,6 +3007,14 @@ QStyleOptionViewItemV2 QTreeViewPrivate::viewOptionsV2() const
     QStyleOptionViewItemV2 option = q->viewOptions();
     if (wrapItemText)
         option.features = QStyleOptionViewItemV2::WrapText;
+    return option;
+}
+
+QStyleOptionViewItemV3 QTreeViewPrivate::viewOptionsV3() const
+{
+    Q_Q(const QTreeView);
+    QStyleOptionViewItemV3 option = viewOptionsV2();
+    option.locale = q->locale();
     return option;
 }
 

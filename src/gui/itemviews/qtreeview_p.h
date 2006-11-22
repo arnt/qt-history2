@@ -118,6 +118,7 @@ public:
     QPair<int,int> startAndEndColumns(const QRect &rect) const;
 
     QStyleOptionViewItemV2 viewOptionsV2() const;
+    QStyleOptionViewItemV3 viewOptionsV3() const;
 
     void updateChildCount(const int parentItem, const int delta);
     void rowsRemoved(const QModelIndex &parent,
