@@ -1187,7 +1187,7 @@ bool VCLinkerTool::parseOption(const char* option)
         break;
     case 0xb28103c: // /INCREMENTAL[:no]
         if(*(option+12) == ':' &&
-             *(option+13) == 'n')
+             (*(option+13) == 'n' || *(option+13) == 'N'))
             LinkIncremental = linkIncrementalNo;
         else
             LinkIncremental = linkIncrementalYes;
