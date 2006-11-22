@@ -13,14 +13,14 @@
     derived from the QGraphicsItem class, and a QGraphicsView widget
     for visualizing the items, with support for zooming and rotation.
 
-    The example consists of an item class and a main function: the \c
-    Mouse class represents the individual mice extending
-    QGraphicsItem, and the \c main function provides the main
+    The example consists of an item class and a main function:
+    the \c Mouse class represents the individual mice extending
+    QGraphicsItem, and the \c main() function provides the main
     application window.
 
     We will first review the \c Mouse class to see how to animate
     items and detect item collision, and then we will review the \c
-    main function to see how to put the items into a scene and how to
+    main() function to see how to put the items into a scene and how to
     implement the corresponding view.
 
     \section1 Mouse Class Definition
@@ -155,16 +155,16 @@
     to provide your own custom item and shape collision algorithm.
 
     This completes the \c Mouse class implementation, it is now ready
-    for use. Let's take a look at the \c main function to see how to
+    for use. Let's take a look at the \c main() function to see how to
     implement a scene for the mice and a view for displaying the
     contents of the scene.
 
-    \section1 The Main Function
+    \section1 The Main() Function
 
-    In this example we have chosen to let the \c main function provide
-    the main application window, creating the items and the scene,
-    putting the items into the scene and creating a corresponding
-    view.
+    In this example we have chosen to let the \c main() function
+    provide the main application window, creating the items and the
+    scene, putting the items into the scene and creating a
+    corresponding view.
 
     \quotefromfile graphicsview/collidingmice/main.cpp
     \skipto main
