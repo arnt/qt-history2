@@ -335,14 +335,7 @@ QString QTextDocumentFragment::toPlainText() const
     if (!d)
         return QString();
 
-    QString result = d->doc->toPlainText();
-
-    if (d->containsCompleteDocument
-        && !result.isEmpty()
-        && result.at(0) == QLatin1Char('\n'))
-        result.remove(0, 1);
-
-    return result;
+    return d->doc->toPlainText();
 }
 
 // #### Qt 5: merge with other overload

@@ -188,6 +188,7 @@ private slots:
     void html_listMargins();
     void html_titleAttribute();
     void html_compressDivs();
+    void completeToPlainText();
 
 private:
     inline void setHtml(const QString &html)
@@ -2915,6 +2916,14 @@ void tst_QTextDocumentFragment::html_compressDivs()
     doc->setHtml("<p/><div/><div/><div/><div/>Test");
     QCOMPARE(doc->blockCount(), 1);
     QCOMPARE(doc->begin().text(), QString("Test"));
+}
+
+void tst_QTextDocumentFragment::completeToPlainText()
+{
+    doc->setPlainText("Hello\nWorld");
+    QCOMPARE(doc->toPlainText(), QString("Hello\nWorld"));
+    QTextDocumentFragment fragment(doc);
+    QCOMPARE(fragment.toPlainText(), QString("Hello\nWorld"));
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)
