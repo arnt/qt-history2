@@ -16,7 +16,10 @@ HEADERS += \
 	dialogs/qmessagebox.h \
 	dialogs/qpagesetupdialog.h \
 	dialogs/qprintdialog.h \
-	dialogs/qprogressdialog.h
+	dialogs/qprogressdialog.h \
+        dialogs/qsidebar_p.h \
+        dialogs/qfilesystemmodel_p.h \
+        dialogs/qfileinfogatherer_p.h
 
 !embedded:mac:SOURCES	+= dialogs/qcolordialog_mac.cpp \
                            dialogs/qfiledialog_mac.cpp
@@ -62,4 +65,7 @@ SOURCES += \
 	dialogs/qfontdialog.cpp \
 	dialogs/qinputdialog.cpp \
 	dialogs/qmessagebox.cpp \
-	dialogs/qprogressdialog.cpp
+	dialogs/qprogressdialog.cpp \
+        dialogs/qsidebar.cpp \
+        dialogs/qfilesystemmodel.cpp \
+        dialogs/qfileinfogatherer.cpp
