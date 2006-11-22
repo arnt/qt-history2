@@ -38,11 +38,6 @@
 
 #include <stdlib.h>
 
-#ifdef OCI_UTF16
-// for Oracle >= 9
-#define QOCI_UNICODE_API
-#endif
-
 #ifdef OCI_ATTR_RESERVED_19
 // for a bug in CLOB handling in oracle 10g
 # define QOCI_ORACLE10_WORKAROUND
@@ -113,10 +108,8 @@ public:
     OCIEnv *env;
     OCIError *err;
     OCISvcCtx *svc;
-#ifdef QOCI_UNICODE_API
     OCIServer *srvhp;
     OCISession *authp;
-#endif
     OCIStmt *sql;
     bool transaction;
     int serverVersion;
@@ -138,9 +131,7 @@ public:
 };
 
 QOCIPrivate::QOCIPrivate(): q(0), env(0), err(0), svc(0),
-#ifdef QOCI_UNICODE_API
         srvhp(0), authp(0),
-#endif
         sql(0), transaction(false), serverVersion(-1), prefetchRows(-1),
         prefetchMem(QOCI_PREFETCH_MEM)
 {
@@ -399,11 +390,7 @@ QString qOraWarn(const QOCIPrivate* d)
                 errbuf,
                 (ub4)(sizeof(errbuf)),
                 OCI_HTYPE_ERROR);
-#ifdef QOCI_UNICODE_API
     return QString::fromUtf16((const unsigned short *)errbuf);
-#else
-    return QString::fromLocal8Bit((const char *)errbuf);
-#endif
 }
 
 void qOraWarning(const char* msg, const QOCIPrivate* d)
@@ -633,11 +620,7 @@ static OraFieldInfo qMakeOraField(const QOCIPrivate* p, OCIParam* param)
         colLength = 0;
 
     // colNameLen is length in bytes
-#ifdef QOCI_UNICODE_API
     ofi.name = QString((const QChar*)colName, colNameLen / 2);
-#else
-    ofi.name = QString::fromLocal8Bit(reinterpret_cast<char *>(colName), colNameLen);
-#endif
     ofi.type = type;
     ofi.oraType = colType;
     ofi.oraFieldLength = colFieldLength;
@@ -1120,9 +1103,7 @@ bool QOCIResultPrivate::execBatch(QOCIPrivate *d, QVector<QVariant> &boundValues
                     if (len > col.maxLen)
                         col.maxLen = len;
                 }
-#ifdef QOCI_UNICODE_API
                 col.maxLen *= sizeof(QChar);
-#endif
                 break; }
 
             case QVariant::ByteArray:
@@ -1579,14 +1560,8 @@ bool QOCIResult::prepare(const QString& query)
         return false;
     }
     d->setStatementAttributes();
-#ifdef QOCI_UNICODE_API
     const OraText *txt = (const OraText *)query.utf16();
     const int len = query.length() * sizeof(QChar);
-#else
-    const QByteArray tmp = query.toAscii();
-    OraText *txt = (OraText *)tmp.constData();
-    const int len = tmp.length();
-#endif
     r = OCIStmtPrepare(d->sql,
                        d->err,
                        txt,
@@ -1709,11 +1684,7 @@ QOCIDriver::QOCIDriver(QObject* parent)
 {
     d = new QOCIPrivate();
 
-#ifdef QOCI_UNICODE_API
-    static const ub4 mode = OCI_UTF16 | OCI_OBJECT;
-#else
-    static const ub4 mode = OCI_OBJECT;
-#endif
+    const ub4 mode = OCI_UTF16 | OCI_OBJECT;
     int r = OCIEnvCreate(&d->env,
                          mode,
                          NULL,
@@ -1833,7 +1804,6 @@ bool QOCIDriver::open(const QString & db,
 
     qParseOpts(opts, d);
 
-#ifdef QOCI_UNICODE_API
     r = OCIHandleAlloc(d->env, (dvoid **)&d->srvhp, OCI_HTYPE_SERVER, 0, 0);
     if (r == OCI_SUCCESS)
         r = OCIServerAttach(d->srvhp, d->err, reinterpret_cast<const OraText *>(db.utf16()),
@@ -1870,28 +1840,6 @@ bool QOCIDriver::open(const QString & db,
         d->srvhp = 0;
         return false;
     }
-#else
-    QByteArray tmpUser = user.toAscii();
-    QByteArray tmpPassword = password.toAscii();
-    QByteArray tmpDb = db.toAscii();
-    r = OCILogon(d->env,
-                 d->err,
-                 &d->svc,
-                 (OraText *)tmpUser.data(),
-                 tmpUser.length(),
-                 (OraText *)tmpPassword.data(),
-                 tmpPassword.length(),
-                 (OraText *)tmpDb.data(),
-                 tmpDb.length());
-
-    if (r != 0) {
-        setLastError(qMakeError(tr("Unable to logon"), QSqlError::ConnectionError, d));
-        setOpenError(true);
-        OCIHandleFree((dvoid *) d->svc, OCI_HTYPE_SVCCTX);
-        d->svc = 0;
-        return false;
-    }
-#endif
 
     // get server version
     char vertxt[512];
@@ -1904,11 +1852,7 @@ bool QOCIDriver::open(const QString & db,
         qWarning("QOCIDriver::open: could not get Oracle server version.");
     } else {
         QString versionStr;
-#ifdef QOCI_UNICODE_API
         versionStr = QString::fromUtf16(reinterpret_cast<unsigned short *>(vertxt));
-#else
-        versionStr = QString::fromLocal8Bit(static_cast<char *>(vertxt), sizeof(vertxt));
-#endif
         QRegExp vers(QLatin1String("([0-9]+)\\.[0-9\\.]+[0-9]"));
         if (vers.indexIn(versionStr) >= 0)
             d->serverVersion = vers.cap(1).toInt();
@@ -1928,16 +1872,12 @@ void QOCIDriver::close()
     if (!isOpen())
         return;
 
-#ifdef QOCI_UNICODE_API
     OCISessionEnd(d->svc, d->err, d->authp, OCI_DEFAULT);
     OCIHandleFree(d->authp, OCI_HTYPE_SESSION);
     d->authp = 0;
     OCIHandleFree(d->srvhp, OCI_HTYPE_SERVER);
     d->srvhp = 0;
     OCIHandleFree(d->svc, OCI_HTYPE_SVCCTX);
-#else
-    OCILogoff(d->svc, d->err); // will deallocate svc
-#endif
     d->svc = 0;
     setOpen(false);
     setOpenError(false);
