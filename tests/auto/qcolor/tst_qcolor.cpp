@@ -621,7 +621,7 @@ void tst_QColor::setRgb()
             color.setRgbF(0.0, 0.0, 0.0, a);
             QCOMPARE(color.alphaF(), a);
 
-            double r, g, b, a2;
+            qreal r, g, b, a2;
             color.getRgbF(&r, &g, &b, &a2);
             QCOMPARE(a2, a);
 
@@ -657,7 +657,7 @@ void tst_QColor::setRgb()
             color.setRgbF(r, 0.0, 0.0);
             QCOMPARE(color.redF(), r);
 
-            double r2, g, b, a;
+            qreal r2, g, b, a;
             color.getRgbF(&r2, &g, &b, &a);
             QCOMPARE(r2, r);
         }
@@ -688,7 +688,7 @@ void tst_QColor::setRgb()
             color.setRgbF(0.0, g, 0.0);
             QCOMPARE(color.greenF(), g);
 
-            double r, g2, b, a;
+            qreal r, g2, b, a;
             color.getRgbF(&r, &g2, &b, &a);
             QCOMPARE(g2, g);
         }
@@ -719,7 +719,7 @@ void tst_QColor::setRgb()
             color.setRgbF(0.0, 0.0, b);
             QCOMPARE(color.blueF(), b);
 
-            double r, g, b2, a;
+            qreal r, g, b2, a;
             color.getRgbF(&r, &g, &b2, &a);
             QCOMPARE(b2, b);
         }
@@ -778,7 +778,7 @@ void tst_QColor::setHsv()
             double a = A / double(USHRT_MAX);
             color.setHsvF(0.0, 0.0, 0.0, a); QCOMPARE(color.alphaF(), a);
 
-            double h, s, v, a2;
+            qreal h, s, v, a2;
             color.getHsvF(&h, &s, &v, &a2);
             QCOMPARE(a2, a);
         }
@@ -803,7 +803,7 @@ void tst_QColor::setHsv()
             color.setHsvF(h, 0.0, 0.0, 0.0);
             QCOMPARE(color.hueF(), h);
 
-            double h2, s, v, a;
+            qreal h2, s, v, a;
             color.getHsvF(&h2, &s, &v, &a);
             QCOMPARE(h2, h);
         }
@@ -827,7 +827,7 @@ void tst_QColor::setHsv()
             color.setHsvF(0.0, s, 0.0, 0.0);
             QCOMPARE(color.saturationF(), s);
 
-            double h, s2, v, a;
+            qreal h, s2, v, a;
             color.getHsvF(&h, &s2, &v, &a);
             QCOMPARE(s2, s);
         }
@@ -851,7 +851,7 @@ void tst_QColor::setHsv()
             color.setHsvF(0.0, 0.0, v, 0.0);
             QCOMPARE(color.valueF(), v);
 
-            double h, s, v2, a;
+            qreal h, s, v2, a;
             color.getHsvF(&h, &s, &v2, &a);
             QCOMPARE(v2, v);
         }
@@ -895,7 +895,7 @@ void tst_QColor::setCmyk()
             color.setCmykF(0.0, 0.0, 0.0, 0.0, a);
             QCOMPARE(color.alphaF(), a);
 
-            double c, m, y, k, a2;
+            qreal c, m, y, k, a2;
             color.getCmykF(&c, &m, &y, &k, &a2);
             QCOMPARE(a2, a);
         }
@@ -919,7 +919,7 @@ void tst_QColor::setCmyk()
             color.setCmykF(c, 0.0, 0.0, 0.0, 0.0);
             QCOMPARE(color.cyanF(), c);
 
-            double c2, m, y, k, a;
+            qreal c2, m, y, k, a;
             color.getCmykF(&c2, &m, &y, &k, &a);
             QCOMPARE(c2, c);
         }
@@ -943,7 +943,7 @@ void tst_QColor::setCmyk()
             color.setCmykF(0.0, m, 0.0, 0.0, 0.0);
             QCOMPARE(color.magentaF(), m);
 
-            double c, m2, y, k, a;
+            qreal c, m2, y, k, a;
             color.getCmykF(&c, &m2, &y, &k, &a);
             QCOMPARE(m2, m);
         }
@@ -967,7 +967,7 @@ void tst_QColor::setCmyk()
             color.setCmykF(0.0, 0.0, y, 0.0, 0.0);
             QCOMPARE(color.yellowF(), y);
 
-            double c, m, y2, k, a;
+            qreal c, m, y2, k, a;
             color.getCmykF(&c, &m, &y2, &k, &a);
             QCOMPARE(y2, y);
         }
@@ -991,7 +991,7 @@ void tst_QColor::setCmyk()
             color.setCmykF(0.0, 0.0, 0.0, k, 0.0);
             QCOMPARE(color.blackF(), k);
 
-            double c, m, y, k2, a;
+            qreal c, m, y, k2, a;
             color.getCmykF(&c, &m, &y, &k2, &a);
             QCOMPARE(k2, k);
         }
