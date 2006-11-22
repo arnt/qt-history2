@@ -6,7 +6,6 @@
 #include "paintcommands.h"
 
 #include <QWidget>
-#include <QGLWidget>
 #include <QSettings>
 #include <QFileInfo>
 #include <QPainter>
