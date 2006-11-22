@@ -146,11 +146,12 @@
     \value NoDrag Nothing happens; the mouse event is ignored.
 
     \value ScrollHandDrag The cursor changes into a pointing hand, and
-    dragging the mouse around will scroll the scrolbars.
+    dragging the mouse around will scroll the scrolbars. This mode works both
+    in \l{QGraphicsView::interactive}{interactive} and non-interactive mode.
 
     \value RubberBandDrag A rubber band will appear. Dragging the mouse will
     set the rubber band geometry, and all items covered by the rubber band are
-    selected.
+    selected. This mode is disabled for non-interactive views.
 
     \sa dragMode, QGraphicsScene::setSelectionArea()
 */
@@ -2138,48 +2139,50 @@ void QGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
 void QGraphicsView::mousePressEvent(QMouseEvent *event)
 {
     Q_D(QGraphicsView);
-    if (!d->sceneInteractionAllowed)
-        return;
+    if (d->sceneInteractionAllowed) {
+        d->mousePressViewPoint = event->pos();
+        d->mousePressScenePoint = mapToScene(d->mousePressViewPoint);
+        d->mousePressScreenPoint = event->globalPos();
+        d->lastMouseMoveScenePoint = d->mousePressScenePoint;
+        d->mousePressButton = event->button();
 
-    d->mousePressViewPoint = event->pos();
-    d->mousePressScenePoint = mapToScene(d->mousePressViewPoint);
-    d->mousePressScreenPoint = event->globalPos();
-    d->lastMouseMoveScenePoint = d->mousePressScenePoint;
-    d->mousePressButton = event->button();
+        d->storeMouseEvent(event);
 
-    d->storeMouseEvent(event);
-
-    if (d->scene) {
-        QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMousePress);
-        mouseEvent.setWidget(viewport());
-        mouseEvent.setButtonDownScenePos(d->mousePressButton, d->mousePressScenePoint);
-        mouseEvent.setButtonDownScreenPos(d->mousePressButton, d->mousePressScreenPoint);
-        mouseEvent.setScenePos(d->mousePressScenePoint);
-        mouseEvent.setScreenPos(d->mousePressScreenPoint);
-        mouseEvent.setLastScenePos(d->lastMouseMoveScenePoint);
-        mouseEvent.setLastScreenPos(mapFromScene(d->lastMouseMoveScenePoint));
-        mouseEvent.setButtons(event->buttons());
-        mouseEvent.setButton(event->button());
-        mouseEvent.setModifiers(event->modifiers());
-        mouseEvent.setAccepted(false);
-        QApplication::sendEvent(d->scene, &mouseEvent);
-        if (mouseEvent.isAccepted())
-            return;
+        if (d->scene) {
+            QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMousePress);
+            mouseEvent.setWidget(viewport());
+            mouseEvent.setButtonDownScenePos(d->mousePressButton, d->mousePressScenePoint);
+            mouseEvent.setButtonDownScreenPos(d->mousePressButton, d->mousePressScreenPoint);
+            mouseEvent.setScenePos(d->mousePressScenePoint);
+            mouseEvent.setScreenPos(d->mousePressScreenPoint);
+            mouseEvent.setLastScenePos(d->lastMouseMoveScenePoint);
+            mouseEvent.setLastScreenPos(mapFromScene(d->lastMouseMoveScenePoint));
+            mouseEvent.setButtons(event->buttons());
+            mouseEvent.setButton(event->button());
+            mouseEvent.setModifiers(event->modifiers());
+            mouseEvent.setAccepted(false);
+            QApplication::sendEvent(d->scene, &mouseEvent);
+            if (mouseEvent.isAccepted())
+                return;
+        }
     }
+
 #ifndef QT_NO_RUBBERBAND
     if (d->dragMode == QGraphicsView::RubberBandDrag) {
-        d->rubberBanding = true;
-        if (d->scene)
-            d->scene->clearSelection();
+        if (d->sceneInteractionAllowed) {
+            d->rubberBanding = true;
+            if (d->scene)
+                d->scene->clearSelection();
+        }
     } else
 #endif
         if (d->dragMode == QGraphicsView::ScrollHandDrag
-               && event->button() == Qt::LeftButton) {
-        d->handScrolling = true;
+            && event->button() == Qt::LeftButton) {
+            d->handScrolling = true;
 #ifndef QT_NO_CURSOR
-        viewport()->setCursor(Qt::ClosedHandCursor);
+            viewport()->setCursor(Qt::ClosedHandCursor);
 #endif
-    }
+        }
 }
 
 /*!
@@ -2188,11 +2191,9 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
 void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
 {
     Q_D(QGraphicsView);
-    if (!d->sceneInteractionAllowed)
-        return;
 
 #ifndef QT_NO_RUBBERBAND
-    if (d->dragMode == QGraphicsView::RubberBandDrag) {
+    if (d->dragMode == QGraphicsView::RubberBandDrag && d->sceneInteractionAllowed) {
         d->storeMouseEvent(event);
         if (d->rubberBanding) {
             // Invoke El Rubber
@@ -2227,6 +2228,9 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
     }
 
     d->storeMouseEvent(event);
+
+    if (!d->sceneInteractionAllowed)
+        return;
 
     if (d->handScrolling)
         return;
@@ -2285,11 +2289,9 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
 void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_D(QGraphicsView);
-    if (!d->sceneInteractionAllowed)
-        return;
 
 #ifndef QT_NO_RUBBERBAND
-    if (d->dragMode == QGraphicsView::RubberBandDrag) {
+    if (d->dragMode == QGraphicsView::RubberBandDrag && d->sceneInteractionAllowed) {
         if (d->rubberBanding) {
             // Withdraw El Rubber
             delete d->rubberBand;
@@ -2310,6 +2312,9 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
     }
 
     d->storeMouseEvent(event);
+
+    if (!d->sceneInteractionAllowed)
+        return;
 
     if (!d->scene)
         return;
