@@ -2068,7 +2068,7 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
         int space = cmd.indexOf(' ');
         QFileInfo finf(cmd.left(space));
         if (CustomBuildTool.ToolPath.isEmpty())
-            CustomBuildTool.ToolPath += finf.path();
+            CustomBuildTool.ToolPath += Option::fixPathToTargetOS(finf.path());
         CustomBuildTool.Outputs += out;
 
         // Make sure that all deps are only once
