@@ -365,7 +365,8 @@ QFile::setFileName(const QString &name)
 {
     Q_D(QFile);
     if (isOpen()) {
-        qWarning("QFile::setFileName: File is already opened");
+        qWarning("QFile::setFileName: File (%s) is already opened",
+                 qPrintable(fileName()));
         close();
     }
     if(d->fileEngine) { //get a new file engine later
@@ -831,7 +832,7 @@ bool QFile::open(OpenMode mode)
 {
     Q_D(QFile);
     if (isOpen()) {
-        qWarning("QFile::open: File already open");
+        qWarning("QFile::open: File (%s) already open", qPrintable(fileName()));
         return false;
     }
     if (mode & Append)
@@ -892,7 +893,7 @@ bool QFile::open(FILE *fh, OpenMode mode)
 {
     Q_D(QFile);
     if (isOpen()) {
-        qWarning("QFile::open: File already open");
+        qWarning("QFile::open: File (%s) already open", qPrintable(fileName()));
         return false;
     }
     if (mode & Append)
@@ -945,7 +946,7 @@ bool QFile::open(int fd, OpenMode mode)
 {
     Q_D(QFile);
     if (isOpen()) {
-        qWarning("QFile::open: File already open");
+        qWarning("QFile::open: File (%s) already open", qPrintable(fileName()));
         return false;
     }
     if (mode & Append)
