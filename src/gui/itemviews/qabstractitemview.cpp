@@ -1436,7 +1436,7 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
                           ? SelectedClicked : NoEditTriggers);
     bool edited = edit(index, trigger, event);
 
-    if (!edited && d->selectionModel)
+    if (d->selectionModel)
         d->selectionModel->select(index, selectionCommand(index, event));
 
     if (click) {
@@ -2039,8 +2039,11 @@ bool QAbstractItemView::edit(const QModelIndex &index, EditTrigger trigger, QEve
     if (!d->shouldEdit(trigger, d->model->buddy(index)))
         return false;
 
+    if (d->delayedEditing.isActive())
+        return false;
+
     if (trigger == SelectedClicked) // we may get a double click event later
-        d->delayedEditing.start(QApplication::doubleClickInterval() + 100, this);
+        d->delayedEditing.start(QApplication::doubleClickInterval(), this);
     else
         d->openEditor(index, d->shouldForwardEvent(trigger, event) ? event : 0);
 
