@@ -58,13 +58,13 @@ You can find additional information about dual licensing at the
 following URLs:
 
 Qt Open Source Edition License FAQ:
-http://www.trolltech.com/developer/faqs/license_gpl.html
+http://www.trolltech.com/developer/faqs/Licensing
 
 Qt Commercial Licensing Page:
-http://www.trolltech.com/products/qt/licensing.html
+http://www.trolltech.com/products/qt/licenses/licensing
 
 Qt Open Source Licensing Page:
-http://www.trolltech.com/products/qt/opensource.html
+http://www.trolltech.com/products/qt/licenses/licensing/opensource
 
 Please contact sales@trolltech.com with any additional questions about
 our licensing.
