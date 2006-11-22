@@ -22,6 +22,7 @@ Configuration / Compilation
   * Fixed compilation when using Q_ARG and Q_RETURN_ARG macros with template
     types.
 
+  * Make Qt compile with QT_NO_TOOLTIP and QT_NO_STATUSBAR
 
 Demos / Examples
 
@@ -99,6 +100,16 @@ General improvements
     opened in Text mode.
 
   * Fixed seeking to positions larger than INT_MAX.
+
+- QDateTimeEdit
+
+  * Fixed a bug that allowed you to type in larger numbers than 12 in 12-hour
+    fields.
+
+  * Fix a bug that aronse when QDate::shortMonthName() was longer than 3
+    characters
+
+  * Improve the handling of left-to-right languages in QDateTimeEdits
 
 - QLineEdit
 
