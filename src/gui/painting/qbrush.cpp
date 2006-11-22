@@ -910,10 +910,10 @@ QDataStream &operator<<(QDataStream &s, const QBrush &b)
         } else if (gradient->type() == QGradient::RadialGradient) {
             s << static_cast<const QRadialGradient *>(gradient)->center();
             s << static_cast<const QRadialGradient *>(gradient)->focalPoint();
-            s << double(static_cast<const QRadialGradient *>(gradient)->radius());
+            s << (double) static_cast<const QRadialGradient *>(gradient)->radius();
         } else { // type == Conical
             s << static_cast<const QConicalGradient *>(gradient)->center();
-            s << double(static_cast<const QConicalGradient *>(gradient)->angle());
+            s << (double) static_cast<const QConicalGradient *>(gradient)->angle();
         }
     }
     return s;
@@ -1225,7 +1225,7 @@ QGradientStops QGradient::stops() const
     device on which the gradient is used.
 
     \value LogicalMode
-    \value StretchToDeviceMode 
+    \value StretchToDeviceMode
 */
 
 /*!
