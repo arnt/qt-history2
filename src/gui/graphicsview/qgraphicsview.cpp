@@ -2350,7 +2350,6 @@ void QGraphicsView::wheelEvent(QWheelEvent *event)
     wheelEvent.setButtons(event->buttons());
     wheelEvent.setModifiers(event->modifiers());
     wheelEvent.setDelta(event->delta());
-    wheelEvent.setAccepted(event->isAccepted());
     wheelEvent.setAccepted(false);
     QApplication::sendEvent(d->scene, &wheelEvent);
     event->setAccepted(wheelEvent.isAccepted());
