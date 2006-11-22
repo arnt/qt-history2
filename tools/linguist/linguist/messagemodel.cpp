@@ -649,10 +649,16 @@ bool MessageModel::load(const QString &fileName)
             }
         }
 
+        // Try to detect the correct language in the following order
+        // 1. Look for the language attribute in the ts 
+        //   if that fails
+        // 2. Guestimate the language from the filename (expecting the qt_{en,de}.ts convention)
+        //   if that fails
+        // 3. Retrieve the locale from the system.
         QString lang = tor.languageCode();
         if (lang.isEmpty()) {
             int pos_sep = fileName.indexOf(QChar('_'));
-            if (pos_sep + 3 <= fileName.length()) {
+            if (pos_sep != -1 && pos_sep + 3 <= fileName.length()) {
                 lang = fileName.mid(pos_sep + 1, 2);
             }
         }
@@ -660,14 +666,12 @@ bool MessageModel::load(const QString &fileName)
         QLocale::Country c;
         MetaTranslator::languageAndCountry(lang, &l, &c);
         if (l == QLocale::C) {
-            QLocale sys = QLocale::system();
+            QLocale sys;
             l = sys.language();
             c = sys.country();
         }
         setLanguage(l);
         setCountry(c);
-        // locale will be 'C' if we could not find the language in the ts file nor 
-        // guestimate the language from the filename
 
         m_numMessages = messageCount;
         updateAll();
@@ -754,6 +758,7 @@ void MessageModel::setLanguage(QLocale::Language lang)
     if (m_language != lang) {
         m_language = lang;
         emit languageChanged(m_language);
+        setModified(true);
     }
 }
 
@@ -764,7 +769,10 @@ QLocale::Country MessageModel::country() const
 
 void MessageModel::setCountry(QLocale::Country country)
 {
-    m_country = country;
+    if (m_country != country) {
+        m_country = country;
+        setModified(true);
+    }
 }
 
 void MessageModel::updateStatistics()

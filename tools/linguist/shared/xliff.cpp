@@ -12,6 +12,8 @@
 ****************************************************************************/
 
 #include "metatranslator.h"
+#include "xliff.h"
+
 #include <QtCore/QTextStream>
 #include <QtCore/QString>
 #include <QtCore/QFile>
@@ -70,12 +72,15 @@ static char charFromEscape(char escape)
         if (cm.escape == escape) return cm.ch;
     }
     Q_ASSERT(0);
+    return escape;
 }
 
 static QString numericEntity( int ch )
 {
     QString name;
     char escapechar;
+    
+    // ### This needs to be reviewed, to reflect the updated XLIFF-PO spec.
     if (ch >= 7 && ch <= 0x0d)
     {
         CharMnemonic cm = charCodeMnemonics[int(ch) - 7];
@@ -299,46 +304,20 @@ bool MetaTranslator::saveXLIFF( const QString& filename) const
     return true;
 }
 
-class XLIFFHandler : public QXmlDefaultHandler
-{
-public:
-    XLIFFHandler( MetaTranslator *translator )
-        : tor( translator ), m_type( MetaTranslatorMessage::Finished ),
-          inMessage( false ), m_inContextGroup(false), m_lineNumber(-1),
-          ferrorCount( 1 ), contextIsUtf8( false ),
-          messageIsUtf8( false ), m_isPlural(false), 
-          m_URI(QLatin1String(XLIFFnamespaceURI)) { }
-
-    virtual bool startElement( const QString& namespaceURI,
-                               const QString& localName, const QString& qName,
-                               const QXmlAttributes& atts );
-    virtual bool endElement( const QString& namespaceURI,
-                             const QString& localName, const QString& qName );
-    virtual bool characters( const QString& ch );
-    virtual bool fatalError( const QXmlParseException& exception );
-
-    QString language() const { return m_language; }
-private:
-    MetaTranslator *tor;
-    MetaTranslatorMessage::Type m_type;
-    bool inMessage;
-    bool m_inContextGroup;
-    QString m_language;
-    QString m_context;
-    QString m_source;
-    QString m_comment;
-    QStringList translations;
-    QString m_fileName;
-    int     m_lineNumber;
-
-    QString accum;
-    QString m_ctype;
-    int ferrorCount;
-    bool contextIsUtf8;
-    bool messageIsUtf8;
-    bool m_isPlural;
-    const QString m_URI;  // convenience urn:oasis:names:tc:xliff:document:1.1
-};
+XLIFFHandler::XLIFFHandler( MetaTranslator *translator )
+    : tor( translator ), 
+      m_type( MetaTranslatorMessage::Finished ),
+      inMessage( false ), 
+      m_inContextGroup(false), 
+      m_lineNumber(-1), 
+      ferrorCount( 1 ), 
+      contextIsUtf8( false ),
+      messageIsUtf8( false ), 
+      m_isPlural(false), 
+      m_URI(QLatin1String(XLIFFnamespaceURI))
+{ 
+    
+}
 
 bool XLIFFHandler::startElement( const QString& namespaceURI,
                            const QString& localName, const QString& /*qName*/,
@@ -449,6 +428,12 @@ bool XLIFFHandler::characters( const QString& ch )
     return true;
 }
 
+bool XLIFFHandler::endDocument()
+{
+    tor->setLanguageCode(m_language);
+    return true;
+}
+
 bool XLIFFHandler::fatalError( const QXmlParseException& exception )
 {
     QString msg;
@@ -462,28 +447,4 @@ bool XLIFFHandler::fatalError( const QXmlParseException& exception )
                                   QObject::tr("Qt Linguist"), msg );
 
     return false;
-}
-
-bool MetaTranslator::loadXLIFF( const QString& filename)
-{
-    QFile f( filename );
-    if ( !f.open(QIODevice::ReadOnly) )
-        return false;
-
-    QXmlInputSource in( &f );
-    QXmlSimpleReader reader;
-    XLIFFHandler *hand = new XLIFFHandler( this );
-    reader.setContentHandler( static_cast<QXmlDefaultHandler*>(hand) );
-    reader.setErrorHandler( static_cast<QXmlDefaultHandler*>(hand) );
-
-    bool ok = reader.parse( in );
-    reader.setContentHandler( 0 );
-    reader.setErrorHandler( 0 );
-
-    m_language = hand->language();
-    makeFileNamesAbsolute(QFileInfo(filename).absoluteDir());
-
-    delete hand;
-    f.close();
-    return ok;
 }

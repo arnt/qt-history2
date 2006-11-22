@@ -13,7 +13,8 @@ HEADERS         = ../shared/metatranslator.h \
                   ../shared/proparser.h \
                   ../shared/profileevaluator.h \
                   ../shared/proparserutils.h \
-                  ../shared/simtexth.h
+                  ../shared/simtexth.h \
+                  ../shared/xliff.h
 
 SOURCES         = fetchtr.cpp \
                   main.cpp \

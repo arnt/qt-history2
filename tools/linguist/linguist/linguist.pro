@@ -41,6 +41,7 @@ HEADERS        += finddialog.h \
         printout.h \
         trwindow.h \
         messagestreeview.h \
+        ../shared/xliff.h \
         ../shared/simtexth.h \
         ../shared/metatranslator.h \
 	../shared/translator.h

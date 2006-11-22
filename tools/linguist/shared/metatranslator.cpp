@@ -13,6 +13,7 @@
 
 #include "metatranslator.h"
 #include "translator.h"
+#include "xliff.h"
 
 #include <QApplication>
 #include <QByteArray>
@@ -53,7 +54,8 @@ public:
     virtual bool characters( const QString& ch );
     virtual bool fatalError( const QXmlParseException& exception );
 
-    QString language() const { return m_language; }
+    virtual bool endDocument();
+
 private:
     MetaTranslator *tor;
     MetaTranslatorMessage::Type type;
@@ -183,6 +185,12 @@ bool TsHandler::characters( const QString& ch )
     QString t = ch;
     t.replace( "\r", "" );
     accum += t;
+    return true;
+}
+
+bool TsHandler::endDocument()
+{
+    tor->setLanguageCode(m_language);
     return true;
 }
 
@@ -372,33 +380,27 @@ void MetaTranslator::clear()
 
 bool MetaTranslator::load( const QString& filename )
 {
-    if (filename.endsWith(QLatin1String(".xlf")) ) {    
-        // XLIFF documents use the .xlf extension. 
-        // No other extension is recommended by the specification.
-        return loadXLIFF(filename);
-    }
-    return loadTS(filename);
-}
-
-bool MetaTranslator::loadTS( const QString& filename )
-{
     QFile f( filename );
     if ( !f.open(QIODevice::ReadOnly) )
         return false;
 
     QXmlInputSource in( &f );
     QXmlSimpleReader reader;
-    reader.setFeature( "http://xml.org/sax/features/namespaces", false );
-    reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", true );
-    TsHandler *hand = new TsHandler( this );
-    reader.setContentHandler( static_cast<QXmlDefaultHandler*>(hand) );
-    reader.setErrorHandler( static_cast<QXmlDefaultHandler*>(hand) );
+    QXmlDefaultHandler *hand = 0;
+    if (filename.endsWith(QLatin1String(".xlf"))) {
+        hand = static_cast<QXmlDefaultHandler *>(new XLIFFHandler( this ));
+    } else {
+        reader.setFeature( "http://xml.org/sax/features/namespaces", false );
+        reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", true );
+        hand = static_cast<QXmlDefaultHandler *>(new TsHandler( this ));
+    }
+    reader.setContentHandler( hand );
+    reader.setErrorHandler( hand );
 
     bool ok = reader.parse( in );
     reader.setContentHandler( 0 );
     reader.setErrorHandler( 0 );
 
-    m_language = hand->language();
     makeFileNamesAbsolute(QFileInfo(filename).absoluteDir());
 
     delete hand;
