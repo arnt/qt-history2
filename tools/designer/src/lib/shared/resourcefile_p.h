@@ -105,8 +105,6 @@ private:
     PrefixList m_prefix_list;
     QString m_file_name;
     QString m_error_message;
-
-    int matchPrefix(const QString &path) const;
 };
 
 class QDESIGNER_SHARED_EXPORT ResourceModel : public QAbstractItemModel

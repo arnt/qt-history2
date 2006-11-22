@@ -173,24 +173,6 @@ bool ResourceFile::save()
     return true;
 }
 
-int ResourceFile::matchPrefix(const QString &_path) const
-{
-    QString path = _path;
-
-    if (!path.startsWith(QLatin1String(":")))
-        return -1;
-
-    path = path.mid(1);
-
-    for (int i = 0; i < m_prefix_list.size(); ++i) {
-        const Prefix &prefix = m_prefix_list.at(i);
-        if (path.startsWith(prefix.name))
-            return i;
-    }
-
-    return -1;
-}
-
 bool ResourceFile::split(const QString &_path, QString *prefix, QString *file) const
 {
     prefix->clear();
@@ -212,8 +194,18 @@ bool ResourceFile::split(const QString &_path, QString *prefix, QString *file) c
         else
             *file = path.mid(pref.name.size() + 1);
 
-        if (pref.file_list.contains(absolutePath(*file)))
-            return true;
+        QString filePath = absolutePath(*file);
+
+        for (int j = 0; j < pref.file_list.count(); j++) {
+            File f = pref.file_list.at(j);
+            if (!f.alias.isEmpty()) {
+                if (absolutePath(f.alias) == filePath) {
+                    *file = f.name;
+                    return true;
+                }
+            } else if (f.name == filePath)
+                return true;
+        }
     }
 
     return false;
