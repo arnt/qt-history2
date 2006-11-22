@@ -23,10 +23,12 @@ HEADERS += \
     $$PWD/qdesigner_formwindowcommand_p.h \
     $$PWD/qdesigner_command_p.h \
     $$PWD/qdesigner_propertycommand_p.h \
+    $$PWD/qdesigner_propertycommentcommand_p.h \
     $$PWD/qdesigner_formbuilder_p.h \
     $$PWD/qdesigner_taskmenu_p.h \
     $$PWD/qdesigner_widget_p.h \
     $$PWD/qdesigner_propertysheet_p.h \
+    $$PWD/qdesigner_propertyeditor_p.h \
     $$PWD/qdesigner_integration_p.h \
     $$PWD/invisible_widget_p.h \
     $$PWD/qlayout_widget_p.h \
@@ -69,11 +71,13 @@ SOURCES += \
     $$PWD/qdesigner_formeditorcommand.cpp \
     $$PWD/qdesigner_command.cpp \
     $$PWD/qdesigner_propertycommand.cpp \
+    $$PWD/qdesigner_propertycommentcommand.cpp \
     $$PWD/qdesigner_formbuilder.cpp \
     $$PWD/qdesigner_taskmenu.cpp \
     $$PWD/qdesigner_widget.cpp \
     $$PWD/qdesigner_dockwidget.cpp \
     $$PWD/qdesigner_propertysheet.cpp \
+    $$PWD/qdesigner_propertyeditor.cpp \
     $$PWD/qdesigner_integration.cpp \
     $$PWD/qdesigner_dnditem.cpp \
     $$PWD/qsimpleresource.cpp \

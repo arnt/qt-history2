@@ -53,6 +53,10 @@ signals:
 
 public slots:
     virtual void updateProperty(const QString &name, const QVariant &value);
+    // Additional signals of designer property editor
+    virtual void updatePropertyComment(const QString &name, const QString &value);
+    virtual void resetProperty(const QString &name);
+
     virtual void updateActiveFormWindow(QDesignerFormWindowInterface *formWindow);
     virtual void setupFormWindow(QDesignerFormWindowInterface *formWindow);
     virtual void updateSelection();

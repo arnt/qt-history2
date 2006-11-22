@@ -778,7 +778,7 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
 
 PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core,
             QWidget *parent, Qt::WindowFlags flags)
-    : QDesignerPropertyEditorInterface(parent, flags),
+    : QDesignerPropertyEditor(parent, flags),
       m_core(core),
       m_editor(new QPropertyEditor(this)),
       m_properties(0),
@@ -789,9 +789,9 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core,
     lay->addWidget(m_editor);
 
     connect(m_editor, SIGNAL(propertyChanged(IProperty*)),
-        this, SLOT(firePropertyChanged(IProperty*)));
+        this, SLOT(slotFirePropertyChanged(IProperty*)));
     connect(m_editor->editorModel(), SIGNAL(resetProperty(QString)),
-                this, SLOT(resetProperty(QString)));
+                this, SLOT(slotResetProperty(QString)));
 }
 
 PropertyEditor::~PropertyEditor()
@@ -832,33 +832,55 @@ void PropertyEditor::setPropertyValue(const QString &name, const QVariant &value
 {
     if (isReadOnly())
         return;
+    
+    IProperty *p = propertyByName(m_editor->initialInput(), name);
+    if (!p)
+        return;
 
-    if (IProperty *p = propertyByName(m_editor->initialInput(), name)) {
-        if (p->value() != value)
-            p->setValue(value);
-
-        p->setChanged(changed);
-        p->setDirty(false);
-
-        m_editor->editorModel()->refresh(p);
-    }
+    if (p->value() != value) 
+        p->setValue(value);
+    
+    p->setChanged(changed);
+    p->setDirty(false);
+    
+    m_editor->editorModel()->refresh(p);
 }
 
-void PropertyEditor::firePropertyChanged(IProperty *p)
+void PropertyEditor::setPropertyComment(const QString &name, const QString &value)
 {
     if (isReadOnly())
         return;
 
-    if (object()) {     
-        if (p->parent() && p->propertyName() == QLatin1String("comment")) {
-            const QString parentProperty = p->parent()->propertyName();
-            if (setPropertyComment(m_core, object(), parentProperty, p->value().toString())) {
-                emit propertyChanged(parentProperty, p->parent()->value());
-                return;
-            }
-        }
+    IProperty *parent = propertyByName(m_editor->initialInput(), name);
+    if (!parent || parent->kind() != IProperty::Property_Group)
+        return;
+    
+    AbstractPropertyGroup *parentGroup = static_cast<AbstractPropertyGroup *>(parent);
+    
+    if (parentGroup->propertyCount() != 1)
+        return;
+    
+    IProperty *commentProperty = parentGroup->propertyAt(0);
+    if (commentProperty->value().toString() != value)
+        commentProperty->setValue(value);
+    
+    commentProperty->setDirty(false);
+
+    m_editor->editorModel()->refresh(commentProperty);    
+}
+
+void PropertyEditor::slotFirePropertyChanged(IProperty *p)
+{
+    if (isReadOnly() || !object())
+        return;
+
+    // Comment or property
+    if (p->parent() && p->propertyName() == QLatin1String("comment")) {
+        const QString parentProperty = p->parent()->propertyName();
+        emit propertyCommentChanged(parentProperty, p->value().toString());
+    } else {
+        emit propertyChanged(p->propertyName(), p->value());
     }
-    emit propertyChanged(p->propertyName(), p->value());
 }
 
 void PropertyEditor::clearDirty(IProperty *p)
@@ -899,25 +921,14 @@ void PropertyEditor::setObject(QObject *object)
     delete old_properties;
 }
 
-void PropertyEditor::resetProperty(const QString &prop_name)
+void PropertyEditor::slotResetProperty(const QString &prop_name)
 {
-    const int idx = m_prop_sheet->indexOf(prop_name);
-
-    if (idx == -1) {
-        qWarning("PropertyEditor::resetProperty(): no property \"%s\"",
-                    prop_name.toUtf8().constData());
-        return;
-    }
-
     QDesignerFormWindowInterface *form = m_core->formWindowManager()->activeFormWindow();
     if (form == 0) {
         qWarning("PropertyEditor::resetProperty(): widget does not belong to any form");
         return;
     }
-
-    ResetPropertyCommand *cmd = new ResetPropertyCommand(form);
-    cmd->init(m_object, prop_name);
-    form->commandHistory()->push(cmd);
+    emit resetProperty(prop_name);
 }
 
 QString PropertyEditor::currentPropertyName() const

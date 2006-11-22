@@ -13,6 +13,8 @@
 
 #include "qdesigner_integration_p.h"
 #include "qdesigner_propertycommand_p.h"
+#include "qdesigner_propertycommentcommand_p.h"
+#include "qdesigner_propertyeditor_p.h"
 
 // sdk
 #include <QtDesigner/QtDesigner>
@@ -42,6 +44,13 @@ void QDesignerIntegration::initialize()
     connect(core()->propertyEditor(), SIGNAL(propertyChanged(QString,QVariant)),
             this, SLOT(updateProperty(QString,QVariant)));
 
+
+    // Extensions
+    if (QDesignerPropertyEditor *designerPropertyEditor= qobject_cast<QDesignerPropertyEditor *>(core()->propertyEditor())) {
+        connect(designerPropertyEditor, SIGNAL(propertyCommentChanged(QString, QString)), this, SLOT(updatePropertyComment(QString, QString)));
+        connect(designerPropertyEditor, SIGNAL(resetProperty(QString)), this, SLOT(resetProperty(QString)));
+    }
+
     connect(core()->formWindowManager(), SIGNAL(formWindowAdded(QDesignerFormWindowInterface*)),
             this, SLOT(setupFormWindow(QDesignerFormWindowInterface*)));
 
@@ -61,7 +70,7 @@ void QDesignerIntegration::updateProperty(const QString &name, const QVariant &v
         QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), object);
         Q_ASSERT(sheet != 0);
 
-        int propertyIndex = sheet->indexOf(name);
+        const int propertyIndex = sheet->indexOf(name);
         QDesignerFormWindowCursorInterface *cursor = formWindow->cursor();
 
         if (widget && cursor->isWidgetSelected(widget)) {
@@ -93,6 +102,47 @@ void QDesignerIntegration::updateProperty(const QString &name, const QVariant &v
 
         core()->propertyEditor()->setPropertyValue(name, sheet->property(propertyIndex));
     }
+}
+
+void QDesignerIntegration::updatePropertyComment(const QString &name, const QString &value)
+{
+    QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow();
+    if (!formWindow)
+        return;
+
+    QObject *object = 0;
+    if (QDesignerPropertyEditorInterface* propertyEditor = core()->propertyEditor()) {
+        object = propertyEditor->object();
+    }
+    if (!object)
+        return;
+
+    SetPropertyCommentCommand *cmd = new SetPropertyCommentCommand(formWindow);
+    if (cmd->init(object, name, value)) {
+        formWindow->commandHistory()->push(cmd);
+    } else {
+        delete cmd;
+        qWarning() << "** WARNING Unable to update property comment of " << name << '.';
+    }
+
+}
+
+void QDesignerIntegration::resetProperty(const QString &name)
+{
+    QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow();
+    if (!formWindow)
+        return;
+
+    QObject *object = 0;
+    if (QDesignerPropertyEditorInterface* propertyEditor = core()->propertyEditor()) {
+        object = propertyEditor->object();
+    }
+    if (!object)
+        return;
+
+    ResetPropertyCommand *cmd = new ResetPropertyCommand(formWindow);
+    cmd->init(object, name);
+    formWindow->commandHistory()->push(cmd);
 }
 
 void QDesignerIntegration::updateActiveFormWindow(QDesignerFormWindowInterface *formWindow)
