@@ -29,6 +29,8 @@ private slots:
     void construction();
     void linearMove();
     void linearRotation();
+    void checkReturnedLists();
+    void overwriteValueForStep();
 };
 
 void tst_QGraphicsItemAnimation::construction()
@@ -86,6 +88,51 @@ void tst_QGraphicsItemAnimation::linearRotation()
 
     for (int i = 0; i <= 10; ++i)
         QCOMPARE(animation.rotationAt(i / 10.0), qreal(i / 10.0));
+}
+
+void tst_QGraphicsItemAnimation::checkReturnedLists()
+{
+    QGraphicsItemAnimation animation;
+
+    animation.setPosAt(1.0, QPointF(10, -10));
+    animation.setPosAt(0.5, QPointF(5, -5));
+
+    animation.setRotationAt(0.3, 2.3);
+    animation.setTranslationAt(0.3, 15, 15);
+    animation.setScaleAt(0.3, 2.5, 1.8);
+    animation.setShearAt(0.3, 5, 5);
+
+    QCOMPARE(animation.posList().at(0), (QPair<qreal, QPointF>(0.5, QPointF(5, -5))));
+    QCOMPARE(animation.posList().at(1), (QPair<qreal, QPointF>(1.0, QPointF(10, -10))));
+    QCOMPARE(animation.rotationList().at(0), (QPair<qreal, qreal>(0.3, 2.3)));
+    QCOMPARE(animation.translationList().at(0), (QPair<qreal, QPointF>(0.3, QPointF(15, 15))));
+    QCOMPARE(animation.scaleList().at(0), (QPair<qreal, QPointF>(0.3, QPointF(2.5, 1.8))));
+    QCOMPARE(animation.shearList().at(0), (QPair<qreal, QPointF>(0.3, QPointF(5, 5))));
+
+    QCOMPARE(animation.posList().size(), 2);
+    QCOMPARE(animation.rotationList().size(), 1);
+    QCOMPARE(animation.translationList().size(), 1);
+    QCOMPARE(animation.scaleList().size(), 1);
+    QCOMPARE(animation.shearList().size(), 1);
+}
+
+void tst_QGraphicsItemAnimation::overwriteValueForStep()
+{
+    QGraphicsItemAnimation animation;
+
+    for (int i=0; i<3; i++){
+        animation.setPosAt(0.3, QPointF(3, -3.1));
+        animation.setRotationAt(0.3, 2.3);
+        animation.setTranslationAt(0.3, 15, 15);
+        animation.setScaleAt(0.3, 2.5, 1.8);
+        animation.setShearAt(0.3, 5, 5);
+
+        QCOMPARE(animation.posList().size(), 1);
+        QCOMPARE(animation.rotationList().size(), 1);
+        QCOMPARE(animation.translationList().size(), 1);
+        QCOMPARE(animation.scaleList().size(), 1);
+        QCOMPARE(animation.shearList().size(), 1);
+    }
 }
 
 QTEST_MAIN(tst_QGraphicsItemAnimation)

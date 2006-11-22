@@ -61,6 +61,7 @@
 
 #include <QtCore/qtimeline.h>
 #include <QtCore/qpoint.h>
+#include <QtCore/qpair.h>
 #include <QtGui/qmatrix.h>
 
 class QGraphicsItemAnimationPrivate
@@ -84,6 +85,8 @@ public:
         Pair(qreal a, qreal b) : step(a), value(b) {}
         bool operator <(const Pair &other) const
         { return step < other.step; }
+        bool operator==(const Pair &other) const
+        { return step == other.step; }
         qreal step;
         qreal value;
     };
@@ -98,6 +101,7 @@ public:
     QList<Pair> yTranslation;
 
     qreal linearValueForStep(qreal step, QList<Pair> *source, qreal defaultValue = 0);
+    void insertUniquePair(qreal step, qreal value, QList<Pair> *binList, const char* method);
 };
 
 qreal QGraphicsItemAnimationPrivate::linearValueForStep(qreal step, QList<Pair> *source, qreal defaultValue)
@@ -125,6 +129,24 @@ qreal QGraphicsItemAnimationPrivate::linearValueForStep(qreal step, QList<Pair> 
 
     // Do a simple linear interpolation.
     return valueBefore + (valueAfter - valueBefore) * ((step - stepBefore) / (stepAfter - stepBefore));
+}
+
+void QGraphicsItemAnimationPrivate::insertUniquePair(qreal step, qreal value, QList<Pair> *binList, const char* method)
+{
+    if (step < 0.0 || step > 1.0) {
+        qWarning("QGraphicsItemAnimation::%s: invalid step = %f", method, step);
+        return;
+    }
+
+    Pair pair(step, value);
+
+    QList<Pair>::iterator result = qBinaryFind(binList->begin(), binList->end(), pair);
+    if (result != binList->end())
+        result->value = value;
+    else {
+        *binList << pair;
+        qSort(binList->begin(), binList->end());
+    }
 }
 
 /*!
@@ -211,15 +233,22 @@ QPointF QGraphicsItemAnimation::posAt(qreal step) const
 */
 void QGraphicsItemAnimation::setPosAt(qreal step, const QPointF &pos)
 {
-    if (step < 0.0 || step > 1.0) {
-        qWarning("QGraphicsItemAnimation::setPosAt: invalid step = %f", step);
-        return;
-    }
+    d->insertUniquePair(step, pos.x(), &d->xPosition, "setPosAt");
+    d->insertUniquePair(step, pos.y(), &d->yPosition, "setPosAt");
+}
 
-    d->xPosition << QGraphicsItemAnimationPrivate::Pair(step, pos.x());
-    d->yPosition << QGraphicsItemAnimationPrivate::Pair(step, pos.y());
-    qSort(d->xPosition.begin(), d->xPosition.end());
-    qSort(d->yPosition.begin(), d->yPosition.end());
+/*!
+  Returns all explicitly inserted positions.
+
+  \sa posAt(), setPosAt()
+*/
+QList<QPair<qreal, QPointF> > QGraphicsItemAnimation::posList() const
+{
+    QList<QPair<qreal, QPointF> > list;
+    for (int i = 0; i < d->xPosition.size(); ++i)
+        list << QPair<qreal, QPointF>(d->xPosition.at(i).step, QPointF(d->xPosition.at(i).value, d->yPosition.at(i).value));
+    
+    return list;
 }
 
 /*!
@@ -262,13 +291,21 @@ qreal QGraphicsItemAnimation::rotationAt(qreal step) const
 */
 void QGraphicsItemAnimation::setRotationAt(qreal step, qreal angle)
 {
-    if (step < 0.0 || step > 1.0) {
-        qWarning("QGraphicsItemAnimation::setRotationAt: invalid step = %f", step);
-        return;
-    }
+    d->insertUniquePair(step, angle, &d->rotation, "setRotationAt");
+}
 
-    d->rotation << QGraphicsItemAnimationPrivate::Pair(step, angle);
-    qSort(d->rotation.begin(), d->rotation.end());
+/*!
+  Returns all explicitly inserted rotations.
+
+  \sa rotationAt(), setRotationAt()
+*/
+QList<QPair<qreal, qreal> > QGraphicsItemAnimation::rotationList() const
+{
+    QList<QPair<qreal, qreal> > list;
+    for (int i = 0; i < d->rotation.size(); ++i)
+        list << QPair<qreal, qreal>(d->rotation.at(i).step, d->rotation.at(i).value);
+    
+    return list;
 }
 
 /*!
@@ -305,15 +342,22 @@ qreal QGraphicsItemAnimation::yTranslationAt(qreal step) const
 */
 void QGraphicsItemAnimation::setTranslationAt(qreal step, qreal dx, qreal dy)
 {
-    if (step < 0.0 || step > 1.0) {
-        qWarning("QGraphicsItemAnimation::setTranslationAt: invalid step = %f", step);
-        return;
-    }
+    d->insertUniquePair(step, dx, &d->xTranslation, "setTranslationAt");
+    d->insertUniquePair(step, dy, &d->yTranslation, "setTranslationAt");
+}
 
-    d->xTranslation << QGraphicsItemAnimationPrivate::Pair(step, dx);
-    d->yTranslation << QGraphicsItemAnimationPrivate::Pair(step, dy);
-    qSort(d->xTranslation.begin(), d->xTranslation.end());
-    qSort(d->yTranslation.begin(), d->yTranslation.end());
+/*!
+  Returns all explicitly inserted translations.
+
+  \sa xTranslationAt(), yTranslationAt(), setTranslationAt()
+*/
+QList<QPair<qreal, QPointF> > QGraphicsItemAnimation::translationList() const
+{
+    QList<QPair<qreal, QPointF> > list;
+    for (int i = 0; i < d->xTranslation.size(); ++i)
+        list << QPair<qreal, QPointF>(d->xTranslation.at(i).step, QPointF(d->xTranslation.at(i).value, d->yTranslation.at(i).value));
+    
+    return list;
 }
 
 /*!
@@ -350,15 +394,22 @@ qreal QGraphicsItemAnimation::horizontalScaleAt(qreal step) const
 */
 void QGraphicsItemAnimation::setScaleAt(qreal step, qreal sx, qreal sy)
 {
-    if (step < 0.0 || step > 1.0) {
-        qWarning("QGraphicsItemAnimation::setScaleAt: invalid step = %f", step);
-        return;
-    }
+    d->insertUniquePair(step, sx, &d->horizontalScale, "setScaleAt");
+    d->insertUniquePair(step, sy, &d->verticalScale, "setScaleAt");
+}
 
-    d->horizontalScale << QGraphicsItemAnimationPrivate::Pair(step, sx);
-    d->verticalScale<< QGraphicsItemAnimationPrivate::Pair(step, sy);
-    qSort(d->horizontalScale.begin(), d->horizontalScale.end());
-    qSort(d->verticalScale.begin(), d->verticalScale.end());
+/*!
+  Returns all explicitly inserted scales.
+
+  \sa verticalScaleAt(), horizontalScaleAt(), setScaleAt()
+*/
+QList<QPair<qreal, QPointF> > QGraphicsItemAnimation::scaleList() const
+{
+    QList<QPair<qreal, QPointF> > list;
+    for (int i = 0; i < d->horizontalScale.size(); ++i)
+        list << QPair<qreal, QPointF>(d->horizontalScale.at(i).step, QPointF(d->horizontalScale.at(i).value, d->verticalScale.at(i).value));
+    
+    return list;
 }
 
 /*!
@@ -395,15 +446,22 @@ qreal QGraphicsItemAnimation::horizontalShearAt(qreal step) const
 */
 void QGraphicsItemAnimation::setShearAt(qreal step, qreal sh, qreal sv)
 {
-    if (step < 0.0 || step > 1.0) {
-        qWarning("QGraphicsItemAnimation::setShearAt: invalid step = %f", step);
-        return;
-    }
+    d->insertUniquePair(step, sh, &d->horizontalShear, "setShearAt");
+    d->insertUniquePair(step, sv, &d->verticalShear, "setShearAt");
+}
 
-    d->horizontalShear << QGraphicsItemAnimationPrivate::Pair(step, sh);
-    d->verticalShear << QGraphicsItemAnimationPrivate::Pair(step, sv);
-    qSort(d->horizontalShear.begin(), d->horizontalShear.end());
-    qSort(d->verticalShear.begin(), d->verticalShear.end());
+/*!
+  Returns all explicitly inserted shears.
+
+  \sa verticalShearAt(), horizontalShearAt(), setShearAt()
+*/
+QList<QPair<qreal, QPointF> > QGraphicsItemAnimation::shearList() const
+{
+    QList<QPair<qreal, QPointF> > list;
+    for (int i = 0; i < d->horizontalShear.size(); ++i)
+        list << QPair<qreal, QPointF>(d->horizontalShear.at(i).step, QPointF(d->horizontalShear.at(i).value, d->verticalShear.at(i).value));
+    
+    return list;
 }
 
 /*!

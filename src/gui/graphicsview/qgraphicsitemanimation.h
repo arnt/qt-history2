@@ -26,6 +26,7 @@ class QGraphicsItem;
 class QMatrix;
 class QPointF;
 class QTimeLine;
+template <class T1, class T2> struct QPair;
 
 class QGraphicsItemAnimationPrivate;
 class Q_GUI_EXPORT QGraphicsItemAnimation : public QObject
@@ -42,23 +43,28 @@ public:
     void setTimeLine(QTimeLine *timeLine);
 
     QPointF posAt(qreal step) const;
+    QList<QPair<qreal, QPointF> > posList() const;
     void setPosAt(qreal step, const QPointF &pos);
 
     QMatrix matrixAt(qreal step) const;
 
     qreal rotationAt(qreal step) const;
+    QList<QPair<qreal, qreal> > rotationList() const;
     void setRotationAt(qreal step, qreal angle);
 
     qreal xTranslationAt(qreal step) const;
     qreal yTranslationAt(qreal step) const;
+    QList<QPair<qreal, QPointF> > translationList() const;
     void setTranslationAt(qreal step, qreal dx, qreal dy);
 
     qreal verticalScaleAt(qreal step) const;
     qreal horizontalScaleAt(qreal step) const;
+    QList<QPair<qreal, QPointF> > scaleList() const;
     void setScaleAt(qreal step, qreal sx, qreal sy);
 
     qreal verticalShearAt(qreal step) const;
     qreal horizontalShearAt(qreal step) const;
+    QList<QPair<qreal, QPointF> > shearList() const;
     void setShearAt(qreal step, qreal sh, qreal sv);
 
     void clear();
