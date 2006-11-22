@@ -1052,9 +1052,6 @@ void QAbstractButton::mouseReleaseEvent(QMouseEvent *e)
 {
     Q_D(QAbstractButton);
     if (e->button() != Qt::LeftButton) {
-        // clean up apperance if left button has been pressed
-        if (d->down)
-            setDown(false);
         e->ignore();
         return;
     }
