@@ -102,7 +102,7 @@
     \list
     \o \l{itemviews/basicsortfiltermodel}{Basic Sort/Filter Model}
     \o \l{itemviews/chart}{Chart}
-    \o \l{itemviews/customsortfiltermodel}{Custom Sort/Filter Model}
+    \o \l{itemviews/customsortfiltermodel}{Custom Sort/Filter Model}\raisedaster
     \o \l{itemviews/dirview}{Dir View}
     \o \l{itemviews/pixelator}{Pixelator}\raisedaster
     \o \l{itemviews/puzzle}{Puzzle}
