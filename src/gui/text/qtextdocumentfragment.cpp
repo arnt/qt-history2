@@ -868,16 +868,6 @@ bool QTextHtmlImporter::closeTag(int i)
             lists.resize(lists.size() - 1);
             --indent;
             blockTagClosed = true;
-        } else if (closedNode->id == Html_hr
-                   || closedNode->id == Html_center
-                   || closedNode->id == Html_h1
-                   || closedNode->id == Html_h2
-                   || closedNode->id == Html_h3
-                   || closedNode->id == Html_h4
-                   || closedNode->id == Html_h5
-                   || closedNode->id == Html_h6
-                  ) {
-            blockTagClosed = true;
         } else if (closedNode->id == Html_br) {
             compressNextWhitespace = true;
         } else if (closedNode->isBlock()) {
