@@ -7191,7 +7191,7 @@ void QWidget::setParent(QWidget *parent)
 {
     if (parent == parentWidget())
         return;
-    setParent((QWidget*)parent, 0);
+    setParent((QWidget*)parent, windowFlags() & ~Qt::WindowType_Mask);
 }
 
 /*!
