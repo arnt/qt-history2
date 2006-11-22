@@ -25,143 +25,32 @@
 // We mean it.
 //
 
+#include "qfiledialog.h"
 #include "private/qdialog_p.h"
-#include "QtGui/qitemselectionmodel.h"
-#include "QtGui/qabstractitemview.h"
-#include "QtGui/qheaderview.h"
-#include "QtGui/qlistview.h"
-#include "QtGui/qtreeview.h"
-#include "QtGui/qtoolbutton.h"
-#include "QtGui/qevent.h"
-#include "QtGui/qdialogbuttonbox.h"
 
-class QDirModel;
-class QComboBox;
-class QAction;
-class QPushButton;
-class QFileDialogLineEdit;
-class QFileDialogModeButton;
-class QGridLayout;
-class QLabel;
+#include "qfilesystemmodel_p.h"
+#include <qlistview.h>
+#include <qtreeview.h>
+#include <qcombobox.h>
+#include <qtoolbutton.h>
+#include <qlabel.h>
+#include <qevent.h>
+#include <qlineedit.h>
+#include "qsidebar_p.h"
+#include <qurl.h>
+#include <qstackedwidget.h>
+#include <qsplitter.h>
+#include <qdialogbuttonbox.h>
+#include <qcompleter.h>
+#include <qtimeline.h>
+#include <qstandarditemmodel.h>
+
 class QFileDialogListView;
 class QFileDialogTreeView;
-
-class QFileDialogPrivate : public QDialogPrivate
-{
-    Q_DECLARE_PUBLIC(QFileDialog)
-public:
-    QFileDialogPrivate();
-
-    // private slots
-    void _q_reload();
-    void _q_navigateToPrevious();
-    void _q_navigateToParent();
-    void _q_enterDirectory(const QModelIndex &index);
-    void _q_enterDirectory(const QString &path);
-    void _q_enterDirectory();
-    void _q_showList();
-    void _q_showDetails();
-    void _q_showHidden();
-    void _q_useFilter(const QString &filter);
-    void _q_updateFileName(const QItemSelection &selection);
-    void _q_autoCompleteFileName(const QString &text);
-    void _q_autoCompleteDirectory(const QString &text);
-    void _q_showContextMenu(const QPoint &pos);
-    void _q_createDirectory();
-    void _q_renameCurrent();
-    void _q_deleteCurrent();
-    void _q_sortByName();
-    void _q_sortBySize();
-    void _q_sortByDate();
-    void _q_setUnsorted();
-    void _q_sortByColumn(int column);
-    void _q_currentChanged(const QModelIndex &index);
-
-    // setup
-    void setup(const QString &directory, const QStringList &nameFilter);
-    void setupActions();
-    void setupListView(const QModelIndex &index, QGridLayout *grid);
-    void setupTreeView(const QModelIndex &index, QGridLayout *grid);
-    void setupToolButtons(const QModelIndex &index, QGridLayout *grid);
-    void setupWidgets(QGridLayout *grid);
-
-    // other
-    void updateButtons(const QModelIndex &index);
-    void setRootIndex(const QModelIndex &index);
-    QModelIndex rootIndex() const;
-    void setDirSorting(QDir::SortFlags sort);
-    void setDirFilter(QDir::Filters filter);
-    QDir::Filters filterForMode(QFileDialog::FileMode mode);
-    QAbstractItemView::SelectionMode selectionMode(QFileDialog::FileMode mode);
-    QModelIndex matchDir(const QString &text, const QModelIndex &first) const;
-    QModelIndex matchName(const QString &name, const QModelIndex &first) const;
-
-    bool itemViewKeyboardEvent(QKeyEvent *e);
-
-    static QString getEnvironmentVariable(const QString &str);
-
-    // inlined stuff
-    inline QString tr(const char *text) const { return QObject::tr(text); }
-    inline QString toNative(const QString &path) const
-        { return QDir::toNativeSeparators(path); }
-    inline QString toInternal(const QString &path) const
-        {
-#if defined(Q_FS_FAT) || defined(Q_OS_OS2EMX)
-            QString n(path);
-            for (int i = 0; i < (int)n.length(); ++i)
-                if (n[i] == '\\') n[i] = '/';
-            return n;
-#else // the compile should optimize away this
-            return path;
-#endif
-        }
-    QFileDialog::ViewMode viewMode() const;
-
-    // static stuff
-    static QString workingDirectory(const QString &path);
-    static QString initialSelection(const QString &path);
-
-    // data
-    QDirModel *model;
-    QItemSelectionModel *selections;
-    QFileDialogListView *listView;
-    QFileDialogTreeView *treeView;
-
-    QFileDialog::FileMode fileMode;
-    QFileDialog::AcceptMode acceptMode;
-    bool confirmOverwrite;
-    QString defaultSuffix;
-
-    QStringList history;
-
-    QComboBox *lookInCombo;
-    QFileDialogLineEdit *fileNameEdit;
-    QFileDialogLineEdit *lookInEdit;
-    QComboBox *fileTypeCombo;
-
-    QAction *openAction;
-    QAction *renameAction;
-    QAction *deleteAction;
-
-    QAction *reloadAction;
-    QAction *sortByNameAction;
-    QAction *sortBySizeAction;
-    QAction *sortByDateAction;
-    QAction *unsortedAction;
-    QAction *showHiddenAction;
-
-    QDialogButtonBox *buttonBox;
-
-    QToolButton *backButton;
-    QToolButton *toParentButton;
-    QToolButton *newFolderButton;
-    QFileDialogModeButton *detailModeButton;
-    QFileDialogModeButton *listModeButton;
-
-    QLabel *lookInLabel;
-    QLabel *fileNameLabel;
-    QLabel *fileTypeLabel;
-};
+class QFileDialogLineEdit;
+class QGridLayout;
+class QCompleter;
+class QHBoxLayout;
 
 struct QFileDialogArgs
 {
@@ -176,12 +65,165 @@ struct QFileDialogArgs
     QFileDialog::Options options;
 };
 
+#define UrlRole (Qt::UserRole + 1)
+
+class QFileDialogPrivate : public QDialogPrivate
+{
+    Q_DECLARE_PUBLIC(QFileDialog)
+
+public:
+    QFileDialogPrivate() :
+    model(0),
+    splitter(0),
+    stackedWidget(0),
+    listView(0),
+    treeView(0),
+    fileMode(QFileDialog::AnyFile),
+    acceptMode(QFileDialog::AcceptOpen),
+    confirmOverwrite(true),
+    sidebar(0),
+    lookInCombo(0),
+    fileNameEdit(0),
+    fileTypeCombo(0),
+    openAction(0),
+    renameAction(0),
+    deleteAction(0),
+    showHiddenAction(0),
+    buttonBox(0),
+    expandButton(0),
+    backButton(0),
+    forwardButton(0),
+    toParentButton(0),
+    newFolderButton(0),
+    detailModeButton(0),
+    listModeButton(0),
+    lookInLabel(0),
+    fileNameLabel(0),
+    fileTypeLabel(0),
+    saveState(false)
+    {};
+
+    void createToolButtons();
+    void createMenuActions();
+    void createWidgets();
+    void layout();
+
+    void init(const QString &directory = QString(), const QString &nameFilter = QString());
+    bool itemViewKeyboardEvent(QKeyEvent *event);
+    QString getEnvironmentVariable(const QString &string);
+    static QString workingDirectory(const QString &path);
+    static QString initialSelection(const QString &path);
+    void updateFileTypeVisibility();
+
+    inline QModelIndex rootIndex() const;
+
+    static inline QDir::Filters filterForMode(QFileDialog::FileMode mode)
+    {
+        if (mode == QFileDialog::DirectoryOnly)
+            return QDir::Drives | QDir::AllDirs | QDir::NoDotAndDotDot;
+        return QDir::Drives | QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot;
+    }
+
+    static inline QString toInternal(const QString &path)
+    {
+#if defined(Q_FS_FAT) || defined(Q_OS_OS2EMX)
+        QString n(path);
+        for (int i = 0; i < (int)n.length(); ++i)
+            if (n[i] == '\\') n[i] = '/';
+        return n;
+#else // the compile should optimize away this
+        return path;
+#endif
+    }
+
+    void _q_chooseLocation();
+    void _q_goHome();
+    void _q_pathChanged(const QString &);
+    void _q_navigateBackward();
+    void _q_navigateForward();
+    void _q_navigateToParent();
+    void _q_createDirectory();
+    void _q_showListView();
+    void _q_showDetailsView();
+    void _q_showContextMenu(const QPoint &position);
+    void _q_renameCurrent();
+    void _q_deleteCurrent();
+    void _q_showHidden();
+    void _q_showHeader(QAction *);
+    void _q_updateOkButton();
+    void _q_currentChanged(const QModelIndex &index);
+    void _q_enterDirectory(const QModelIndex &index);
+    void _q_goToDirectory(const QString &);
+    void _q_useNameFilter(const QString &nameFilter);
+    void _q_selectionChanged();
+    void _q_goToUrl(const QUrl &url);
+    void _q_animateDialog();
+    void _q_animateDialogV(int);
+    void _q_animateDialogH(int);
+    void _q_autoCompleteFileName(const QString &text);
+
+    void addUrls(const QList<QUrl> &list, int row);
+    void setUrl(const QModelIndex &row, const QUrl & url);
+    void _q_layoutChanged();
+    QStringList watching;
+
+    // data
+    QFileSystemModel *model;
+    QSplitter *splitter;
+    QStackedWidget *stackedWidget;
+    QFileDialogListView *listView;
+    QFileDialogTreeView *treeView;
+
+    QFileDialog::FileMode fileMode;
+    QFileDialog::AcceptMode acceptMode;
+    bool confirmOverwrite;
+    QString defaultSuffix;
+
+    QStringList history;
+    QStringList backHistory;
+    QStringList forwardHistory;
+
+    QSidebar *sidebar;
+    QComboBox *lookInCombo;
+
+    QFileDialogLineEdit *fileNameEdit;
+    QComboBox *fileTypeCombo;
+
+    QAction *openAction;
+    QAction *renameAction;
+    QAction *deleteAction;
+    QAction *showHiddenAction;
+
+    QDialogButtonBox *buttonBox;
+
+    QToolButton *expandButton;
+
+    QToolButton *backButton;
+    QToolButton *forwardButton;
+    QToolButton *toParentButton;
+    QPushButton *newFolderButton;
+    QToolButton *detailModeButton;
+    QToolButton *listModeButton;
+    QCompleter *completer;
+
+    QLabel *lookInLabel;
+    QLabel *fileNameLabel;
+    QLabel *fileTypeLabel;
+
+    QHBoxLayout *bottomLeftLayout;
+    QWidget     *bottomRightSpacer;
+    QFrame *line;
+    QTimeLine *vTimeLine;
+    QTimeLine *hTimeLine;
+    QSize oldSize;
+    QGridLayout *topGrid;
+    bool saveState;
+};
+
 class QFileDialogListView : public QListView
 {
 public:
-    QFileDialogListView(QFileDialogPrivate *d_pointer)
-        : QListView(qobject_cast<QWidget*>(d_pointer->q_ptr)), d_ptr(d_pointer)
-    {}
+    QFileDialogListView(QFileDialogPrivate *d_pointer);
 protected:
     void keyPressEvent(QKeyEvent *e)
     {
@@ -195,15 +237,12 @@ private:
     QFileDialogPrivate *d_ptr;
 };
 
+inline QModelIndex QFileDialogPrivate::rootIndex() const { return listView->rootIndex(); }
+
 class QFileDialogTreeView : public QTreeView
 {
 public:
-    QFileDialogTreeView(QFileDialogPrivate *d_pointer)
-        : QTreeView(qobject_cast<QWidget*>(d_pointer->q_ptr)), d_ptr(d_pointer)
-    {
-        // we want to handle this our selves in QFileDialog
-        disconnect(header(), SIGNAL(sectionClicked(int)), this, SLOT(sortByColumn(int)));
-    }
+    QFileDialogTreeView(QFileDialogPrivate *d_pointer);
 protected:
     void keyPressEvent(QKeyEvent *e)
     {
@@ -213,8 +252,33 @@ protected:
             QTreeView::keyPressEvent(e);
         }
     }
+    QSize sizeHint() const;
 private:
     QFileDialogPrivate *d_ptr;
 };
 
-#endif // QFILEDIALOG_P_H
+class QFileDialogLineEdit : public QLineEdit
+{
+public:
+    QFileDialogLineEdit(QWidget *parent)
+        : QLineEdit(parent), key(0) {}
+    inline int lastKeyPressed() { return key; }
+protected:
+    void keyPressEvent(QKeyEvent *e);
+private:
+    int key;
+};
+
+/*!
+    QCompleter that can deal with QFileSystemModel
+  */
+class QFSCompletor :  public QCompleter {
+public:
+    QFSCompletor(QObject *parent = 0) : QCompleter(parent){}
+    QString pathFromIndex(const QModelIndex &index) const;
+    QStringList splitPath(const QString& path) const;
+};
+
+
+#endif
+

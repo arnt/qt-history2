@@ -30,6 +30,7 @@ struct QFileDialogArgs;
 class QFileIconProvider;
 class QFileDialogPrivate;
 class QAbstractItemDelegate;
+class QUrl;
 
 class Q_GUI_EXPORT QFileDialog : public QDialog
 {
@@ -37,6 +38,7 @@ class Q_GUI_EXPORT QFileDialog : public QDialog
     Q_PROPERTY(ViewMode viewMode READ viewMode WRITE setViewMode)
     Q_PROPERTY(FileMode fileMode READ fileMode WRITE setFileMode)
     Q_PROPERTY(AcceptMode acceptMode READ acceptMode WRITE setAcceptMode)
+    Q_PROPERTY(bool detailsExpanded READ isDetailsExpanded WRITE setDetailsExpanded)
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
     Q_PROPERTY(bool resolveSymlinks READ resolveSymlinks WRITE setResolveSymlinks)
     Q_PROPERTY(bool confirmOverwrite READ confirmOverwrite WRITE setConfirmOverwrite)
@@ -54,7 +56,8 @@ public:
         DontResolveSymlinks = 0x02,
         DontConfirmOverwrite = 0x04,
         DontUseSheet = 0x08,
-        DontUseNativeDialog = 0x10
+        DontUseNativeDialog = 0x10,
+        StoreState = 0x12
     };
     Q_DECLARE_FLAGS(Options, Option)
 
@@ -88,11 +91,20 @@ public:
     void setAcceptMode(AcceptMode mode);
     AcceptMode acceptMode() const;
 
+    void setDetailsExpanded(bool enabled);
+    bool isDetailsExpanded() const;
+
     void setReadOnly(bool enabled);
     bool isReadOnly() const;
 
     void setResolveSymlinks(bool enabled);
     bool resolveSymlinks() const;
+
+    void setSidebarUrls(const QList<QUrl> &urls);
+    QList<QUrl> sidebarUrls() const;
+
+    QByteArray saveState() const;
+    bool restoreState(const QByteArray &state);
 
     void setConfirmOverwrite(bool enabled);
     bool confirmOverwrite() const;
@@ -204,29 +216,34 @@ protected:
 private:
     Q_DECLARE_PRIVATE(QFileDialog)
     Q_DISABLE_COPY(QFileDialog)
-    Q_PRIVATE_SLOT(d_func(), void _q_reload())
-    Q_PRIVATE_SLOT(d_func(), void _q_navigateToPrevious())
+
+    Q_PRIVATE_SLOT(d_func(), void _q_pathChanged(const QString &))
+
+    Q_PRIVATE_SLOT(d_func(), void _q_navigateBackward())
+    Q_PRIVATE_SLOT(d_func(), void _q_navigateForward())
     Q_PRIVATE_SLOT(d_func(), void _q_navigateToParent())
-    Q_PRIVATE_SLOT(d_func(), void _q_enterDirectory(const QModelIndex &index))
-    Q_PRIVATE_SLOT(d_func(), void _q_enterDirectory(const QString &path))
-    Q_PRIVATE_SLOT(d_func(), void _q_enterDirectory())
-    Q_PRIVATE_SLOT(d_func(), void _q_showList())
-    Q_PRIVATE_SLOT(d_func(), void _q_showDetails())
-    Q_PRIVATE_SLOT(d_func(), void _q_showHidden())
-    Q_PRIVATE_SLOT(d_func(), void _q_useFilter(const QString &filter))
-    Q_PRIVATE_SLOT(d_func(), void _q_updateFileName(const QItemSelection &selection))
-    Q_PRIVATE_SLOT(d_func(), void _q_autoCompleteFileName(const QString &text))
-    Q_PRIVATE_SLOT(d_func(), void _q_autoCompleteDirectory(const QString &text))
-    Q_PRIVATE_SLOT(d_func(), void _q_showContextMenu(const QPoint &pos))
     Q_PRIVATE_SLOT(d_func(), void _q_createDirectory())
+    Q_PRIVATE_SLOT(d_func(), void _q_showListView())
+    Q_PRIVATE_SLOT(d_func(), void _q_showDetailsView())
+    Q_PRIVATE_SLOT(d_func(), void _q_showContextMenu(const QPoint &))
     Q_PRIVATE_SLOT(d_func(), void _q_renameCurrent())
     Q_PRIVATE_SLOT(d_func(), void _q_deleteCurrent())
-    Q_PRIVATE_SLOT(d_func(), void _q_sortByName())
-    Q_PRIVATE_SLOT(d_func(), void _q_sortBySize())
-    Q_PRIVATE_SLOT(d_func(), void _q_sortByDate())
-    Q_PRIVATE_SLOT(d_func(), void _q_setUnsorted())
-    Q_PRIVATE_SLOT(d_func(), void _q_sortByColumn(int))
+    Q_PRIVATE_SLOT(d_func(), void _q_showHidden())
+    Q_PRIVATE_SLOT(d_func(), void _q_updateOkButton())
     Q_PRIVATE_SLOT(d_func(), void _q_currentChanged(const QModelIndex &index))
+    Q_PRIVATE_SLOT(d_func(), void _q_enterDirectory(const QModelIndex &index))
+    Q_PRIVATE_SLOT(d_func(), void _q_goToDirectory(const QString &path))
+    Q_PRIVATE_SLOT(d_func(), void _q_useNameFilter(const QString &nameFilter))
+    Q_PRIVATE_SLOT(d_func(), void _q_selectionChanged())
+    Q_PRIVATE_SLOT(d_func(), void _q_goToUrl(const QUrl &url))
+    Q_PRIVATE_SLOT(d_func(), void _q_chooseLocation())
+    Q_PRIVATE_SLOT(d_func(), void _q_goHome())
+    Q_PRIVATE_SLOT(d_func(), void _q_showHeader(QAction *));
+    Q_PRIVATE_SLOT(d_func(), void _q_animateDialog());
+    Q_PRIVATE_SLOT(d_func(), void _q_animateDialogV(int));
+    Q_PRIVATE_SLOT(d_func(), void _q_animateDialogH(int));
+    Q_PRIVATE_SLOT(d_func(), void _q_layoutChanged());
+    Q_PRIVATE_SLOT(d_func(), void _q_autoCompleteFileName(const QString &text));
 };
 
 inline void QFileDialog::setDirectory(const QDir &adirectory)
