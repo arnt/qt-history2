@@ -457,6 +457,15 @@ QWSWindow::~QWSWindow()
     if (current_IM_composing_win == this)
         current_IM_composing_win = 0;
 #endif
+#ifndef QT_NO_QWSEMBEDWIDGET
+    QWSWindow *embedder = d->embedder;
+    if (embedder) {
+        embedder->d->embedded.removeAll(this);
+        d->embedder = 0;
+    }
+    while (!d->embedded.isEmpty())
+        stopEmbed(d->embedded.first());
+#endif
     delete surface;
     delete d;
 }
@@ -490,6 +499,7 @@ inline void QWSWindow::startEmbed(QWSWindow *w)
 inline void QWSWindow::stopEmbed(QWSWindow *w)
 {
     w->d->embedder = 0;
+    w->client()->sendEmbedEvent(w->winId(), QWSEmbedEvent::Region, QRegion());
     d->embedded.removeAll(w);
 }
 #endif // QT_NO_QWSEMBEDWIDGET
@@ -2803,13 +2813,13 @@ void QWSServerPrivate::invokeEmbed(QWSEmbedCommand *cmd, QWSClient *client)
     QWSWindow *embedded = findWindow(cmd->simpleData.embedded);
 
     if (!embedder) {
-        qWarning("QWSServer: Embed request from window %i failed: No such id",
+        qWarning("QWSServer: Embed command from window %i failed: No such id.",
                  static_cast<int>(cmd->simpleData.embedder));
         return;
     }
 
     if (!embedded) {
-        qWarning("QWSServer: Request to embed window %i failed: No such id",
+        qWarning("QWSServer: Embed command on window %i failed: No such id.",
                  static_cast<int>(cmd->simpleData.embedded));
         return;
     }
