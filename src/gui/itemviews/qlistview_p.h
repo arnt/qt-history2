@@ -255,6 +255,9 @@ public:
     }
 
     // ### FIXME:
+    inline void resetBatchStartRow()
+        { if (viewMode == QListView::ListMode) staticListView->batchStartRow = 0;
+              else dynamicListView->batchStartRow = 0; }
     inline int batchStartRow() const
         { return (viewMode == QListView::ListMode
           ? staticListView->batchStartRow : dynamicListView->batchStartRow); }

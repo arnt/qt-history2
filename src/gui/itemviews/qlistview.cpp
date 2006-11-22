@@ -1443,6 +1443,7 @@ void QListView::doItemsLayout()
 {
     Q_D(QListView);
     if (d->model->columnCount(d->root) > 0) { // no columns means no contents
+        d->resetBatchStartRow();
         if (layoutMode() == SinglePass)
             d->doItemsLayout(d->model->rowCount(d->root)); // layout everything
         else if (!d->batchLayoutTimer.isActive())
