@@ -172,6 +172,18 @@ void tst_QMessageBox::defaultButton()
 
     exec(&msgBox, Qt::Key_Enter);
     QCOMPARE(msgBox.clickedButton(), retryButton);
+
+    QAbstractButton *okButton = msgBox.button(QMessageBox::Ok);
+    msgBox.setDefaultButton(QMessageBox::Ok);
+    QCOMPARE(msgBox.defaultButton(), okButton);
+    exec(&msgBox, Qt::Key_Enter);
+    QCOMPARE(msgBox.clickedButton(), okButton);
+    msgBox.setDefaultButton(QMessageBox::Yes); // its not in there!
+    QVERIFY(msgBox.defaultButton() == okButton);
+    msgBox.removeButton(okButton);
+    QVERIFY(msgBox.defaultButton() == 0);
+    msgBox.setDefaultButton(QMessageBox::Ok);
+    QVERIFY(msgBox.defaultButton() == 0);
 }
 
 void tst_QMessageBox::escapeButton()
@@ -201,6 +213,18 @@ void tst_QMessageBox::escapeButton()
     // with close
     exec(&msgBox);
     QCOMPARE(msgBox.clickedButton(), retryButton);
+
+    QAbstractButton *okButton = msgBox.button(QMessageBox::Ok);
+    msgBox.setEscapeButton(QMessageBox::Ok);
+    QCOMPARE(msgBox.escapeButton(), okButton);
+    exec(&msgBox, Qt::Key_Escape);
+    QCOMPARE(msgBox.clickedButton(), okButton);
+    msgBox.setEscapeButton(QMessageBox::Yes); // its not in there!
+    QVERIFY(msgBox.escapeButton() == okButton);
+    msgBox.removeButton(okButton);
+    QVERIFY(msgBox.escapeButton() == 0);
+    msgBox.setEscapeButton(QMessageBox::Ok);
+    QVERIFY(msgBox.escapeButton() == 0);
 }
 
 void tst_QMessageBox::statics()

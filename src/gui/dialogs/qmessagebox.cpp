@@ -841,6 +841,19 @@ void QMessageBox::setEscapeButton(QAbstractButton *button)
         d->escapeButton = button;
 }
 
+/*!
+    \since 4.3
+
+    Sets the buttons that gets activated when the \key Escape key is
+    pressed to \a button.
+
+    \sa addButton(), clickedButton()
+*/
+void QMessageBox::setEscapeButton(QMessageBox::StandardButton button)
+{
+    Q_D(QMessageBox);
+    setEscapeButton(d->buttonBox->button(QDialogButtonBox::StandardButton(button)));
+}
 
 void QMessageBoxPrivate::detectEscapeButton()
 {
@@ -936,6 +949,20 @@ void QMessageBox::setDefaultButton(QPushButton *button)
     d->defaultButton = button;
     button->setDefault(true);
     button->setFocus();
+}
+
+/*!
+    \since 4.2
+
+    Sets the message box's \l{QPushButton::setDefault()}{default button}
+    to \a button.
+
+    \sa addButton(), QPushButton::setDefault()
+*/
+void QMessageBox::setDefaultButton(QMessageBox::StandardButton button)
+{
+    Q_D(QMessageBox);
+    setDefaultButton(d->buttonBox->button(QDialogButtonBox::StandardButton(button)));
 }
 
 /*!
