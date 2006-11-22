@@ -137,6 +137,10 @@ private slots:
     void setWindowGeometry_data();
     void setWindowGeometry();
 
+    // tests QWidget::move() on windows only
+    void windowMove_data();
+    void windowMove();
+
 #ifdef Q_WS_WIN
     void getDC();
 #endif
@@ -2919,6 +2923,57 @@ void tst_QWidget::setWindowGeometry()
         widget.setGeometry(rect);
         QApplication::processEvents();
         QCOMPARE(widget.geometry(), rect);
+    }
+}
+
+void tst_QWidget::windowMove_data()
+{
+    setWindowGeometry_data();
+}
+
+void tst_QWidget::windowMove()
+{
+    QFETCH(QRect, rect);
+    QFETCH(int, windowFlags);
+
+    {
+        // test setGeometry() without actually showing the window
+        QWidget widget;
+        if (windowFlags != 0)
+            widget.setWindowFlags(Qt::WindowFlags(windowFlags));
+        widget.resize(rect.size());
+        widget.move(rect.topLeft());
+        QApplication::processEvents();
+        QCOMPARE(widget.pos(), rect.topLeft());
+    }
+
+    {
+        // setGeometry() first, then show()
+        QWidget widget;
+        if (windowFlags != 0)
+            widget.setWindowFlags(Qt::WindowFlags(windowFlags));
+        widget.resize(rect.size());
+        widget.move(rect.topLeft());
+        widget.show();
+#ifdef Q_WS_X11
+        qt_x11_wait_for_window_manager(&widget);
+#endif
+        QCOMPARE(widget.pos(), rect.topLeft());
+    }
+
+    {
+        // show() first, then setGeometry()
+        QWidget widget;
+        if (windowFlags != 0)
+            widget.setWindowFlags(Qt::WindowFlags(windowFlags));
+        widget.resize(rect.size());
+        widget.show();
+#ifdef Q_WS_X11
+        qt_x11_wait_for_window_manager(&widget);
+#endif
+        widget.move(rect.topLeft());
+        QApplication::processEvents();
+        QCOMPARE(widget.pos(), rect.topLeft());
     }
 }
 
