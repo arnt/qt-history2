@@ -297,6 +297,7 @@ SUBDIRS += bic \
            qwmatrix \
            qworkspace \
            qwritelocker \
+           qwsembedwidget \
            qwsinputmethod \
            qx11info \
            qxml \
