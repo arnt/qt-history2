@@ -1453,12 +1453,6 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
         Q_ASSERT(d->stroker);
         d->outlineMapper->beginOutline(Qt::WindingFill);
 
-#ifdef QT_DEBUG_DRAW
-        printf("drawPath: cosmetic=%d, width=%f\n",
-               d->pen.isCosmetic(),
-               d->basicStroker.strokeWidth());
-#endif
-
         if (d->pen.isCosmetic()) {
             d->outlineMapper->setMatrix(QTransform(), QTransform::TxNone);
             d->stroker->strokePath(path, d->outlineMapper, d->matrix);
