@@ -361,6 +361,7 @@ QCoreGraphicsPaintEngine::end()
 
 void QCoreGraphicsPaintEngine::updateState(const QPaintEngineState &state)
 {
+    Q_D(QCoreGraphicsPaintEngine);
     QPaintEngine::DirtyFlags flags = state.state();
     if(flags & DirtyTransform)
         updateMatrix(state.transform());
@@ -385,6 +386,17 @@ void QCoreGraphicsPaintEngine::updateState(const QPaintEngineState &state)
         updateClipRegion(state.clipRegion(), state.clipOperation());
     if(flags & DirtyHints)
         updateRenderHints(state.renderHints());
+
+    if (flags & (DirtyPen | DirtyTransform)) {
+        static const float sqrt2 = sqrt(2);
+        qreal width = d->current.pen.widthF();
+        if (width == 0)
+            width = 1;
+
+        d->cosmeticPenSize =
+            sqrt(pow(d->pixelSize.y(), 2) + pow(d->pixelSize.x(), 2)) / sqrt2
+            * width;
+    }
 }
 
 void
@@ -394,7 +406,7 @@ QCoreGraphicsPaintEngine::updatePen(const QPen &pen)
     Q_ASSERT(isActive());
     d->current.pen = pen;
     d->setStrokePen(pen);
-    d->cosmeticPen = pen.widthF() == 0;
+    d->cosmeticPen = pen.isCosmetic();
 }
 
 void
@@ -410,7 +422,7 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPointF &brushO
     d->setFillBrush(brush, brushOrigin);
 }
 
-void
+void 
 QCoreGraphicsPaintEngine::updateOpacity(qreal opacity)
 {
     Q_D(QCoreGraphicsPaintEngine);
@@ -436,8 +448,6 @@ QCoreGraphicsPaintEngine::updateMatrix(const QTransform &matrix)
             || matrix.m12() != 0 || matrix.m21() != 0);
 
     d->pixelSize = d->devicePixelSize(d->hd);
-    static const float sqrt2 = sqrt(2);
-    d->cosmeticPenSize = sqrt(pow(d->pixelSize.y(), 2) + pow(d->pixelSize.x(), 2)) / sqrt2;
 }
 
 void
@@ -1104,14 +1114,21 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
             CGContextSaveGState(hd);
         CGContextBeginPath(hd);
 
-        // Make sure the cosmetic pen stays one pixel wide.
+        // Handle cosmetic pens by setting the line width.
         if (cosmeticPen) {
+            // If antialiazing is enabled, use the cosmetic pen size directly.
             if (q->state->renderHints() & QPainter::Antialiasing)
                 CGContextSetLineWidth(hd,  cosmeticPenSize);
-            else
+            else if (current.pen.widthF() <= 1)
                 CGContextSetLineWidth(hd, cosmeticPenSize * 0.9f);
+            else
+                CGContextSetLineWidth(hd, cosmeticPenSize);
         }
 
+        // Translate a fraction of a pixel size in the y direction
+        // to make sure that primitves painted at pixel borders
+        // fills the right pixel. This is needed since the y xais 
+        // in the Quartz coordinate system is inverted compared to Qt.
         if (!(q->state->renderHints() & QPainter::Antialiasing))
             CGContextTranslateCTM(hd, 0, double(pixelSize.y()) / 10.0);
 
