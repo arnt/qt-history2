@@ -3399,8 +3399,7 @@ QString Q3FileDialog::getOpenFileName(const QString & startWith,
     if(qt_use_native_dialogs && qobject_cast<QMacStyle *>(qApp->style())) {
         QStringList files = macGetOpenFileNames(filter, startWith.isEmpty() ? 0 : workingDirectory,
                                                 parent, name, caption, selectedFilter, false);
-        return files.isEmpty() ? QString() : QUnicodeTables::normalize(files.first(),
-                                                                       QString::NormalizationForm_C);
+        return files.isEmpty() ? QString() : files.first().normalized(QString::NormalizationForm_C);
     }
 #endif
 
@@ -3516,12 +3515,9 @@ QString Q3FileDialog::getSaveFileName(const QString & startWith,
                                    parent, name, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
     if(qt_use_native_dialogs && qobject_cast<QMacStyle *>(qApp->style()))
-        return QUnicodeTables::normalize(macGetSaveFileName(initialSelection.isNull() ? startWith
-                                                                                     : initialSelection,
-                                                            filter, startWith.isEmpty() ? 0 : workingDirectory,
-                                                            parent, name,
-                                                            caption, selectedFilter),
-                                         QString::NormalizationForm_C);
+        return macGetSaveFileName(initialSelection.isNull() ? startWith : initialSelection,
+            filter, startWith.isEmpty() ? 0 : workingDirectory, parent, name,
+            caption, selectedFilter).normalized(QString::NormalizationForm_C);
 #endif
 
     Q3FileDialog *dlg = new Q3FileDialog(*workingDirectory, QString(), parent, name ? name : "qt_filedlg_gsfn", true);
@@ -4413,9 +4409,8 @@ QString Q3FileDialog::getExistingDirectory(const QString & dir,
 #endif
 #if defined(Q_WS_MAC)
     if(qt_use_native_dialogs && qobject_cast<QMacStyle *>(qApp->style()))
-        return QUnicodeTables::normalize(macGetOpenFileNames("", 0, parent, name, caption,
-                                                             0, false, true).first(),
-                                         QString::NormalizationForm_C);
+        return macGetOpenFileNames("", 0, parent, name, caption,
+        0, false, true).first().normalized(QString::NormalizationForm_C);
 #endif
 
     Q3FileDialog *dlg = new Q3FileDialog(parent, name ? name : "qt_filedlg_ged", true);
@@ -5557,7 +5552,7 @@ QStringList Q3FileDialog::getOpenFileNames(const QString & filter,
         QStringList sl = macGetOpenFileNames(filter, dir.isEmpty() ? 0 : workingDirectory,
                                              parent, name, caption, selectedFilter);
         for (int i = 0; i < sl.count(); ++i)
-            sl.replace(i, QUnicodeTables::normalize(sl.at(i), QString::NormalizationForm_C));
+            sl.replace(i, sl.at(i).normalized(QString::NormalizationForm_C));
         return sl;
     }
 #endif
