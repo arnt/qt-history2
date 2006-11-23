@@ -823,10 +823,6 @@ void QX11PaintEngine::updateState(const QPaintEngineState &state)
 
     if (flags & DirtyOpacity) {
         d->opacity = state.opacity();
-        if (d->opacity > 1)
-            d->opacity = 1;
-        if (d->opacity < 0)
-            d->opacity = 0;
         // Force update pen/brush as to get proper alpha colors propagated
         flags |= DirtyPen;
         flags |= DirtyBrush;
@@ -1458,7 +1454,7 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
     if (d->has_pen
         && ((X11->use_xrender && (d->has_alpha_pen || d->has_alpha_brush
                                   || (d->render_hints & QPainter::Antialiasing)))
-            || (d->cpen.widthF() > 0 && d->txop > QTransform::TxTranslate)
+            || (!d->cpen.isCosmetic() && d->txop > QTransform::TxTranslate)
             || (d->cpen.style() > Qt::SolidLine))) {
         QPainterPathStroker stroker;
         if (d->cpen.style() == Qt::CustomDashLine)
@@ -1471,8 +1467,8 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
         qreal width = d->cpen.widthF();
         QPolygonF poly;
         // necessary to get aliased alphablended primitives to be drawn correctly
-        if (width == 0) {
-            stroker.setWidth(1);
+        if (d->cpen.isCosmetic()) {
+            stroker.setWidth(width == 0 ? 1 : width);
             stroke = stroker.createStroke(path * d->matrix);
             if (stroke.isEmpty())
                 return;
