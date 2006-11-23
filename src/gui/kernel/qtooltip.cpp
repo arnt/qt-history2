@@ -140,7 +140,7 @@ QTipLabel::~QTipLabel()
 void QTipLabel::hideTip()
 {
     close(); // to trigger QEvent::Close which stops the animation
-    delete this;
+    deleteLater();
 }
 
 void QTipLabel::setTipRect(QWidget *w, const QRect &r)
