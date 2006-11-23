@@ -1343,16 +1343,17 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
     if (!d->selectionModel)
         return;
 
-    d->intersectingSet(rect.translated(horizontalOffset(), verticalOffset()));
-
     QItemSelection selection;
     QModelIndex tl;
     QModelIndex br;
 
-    if (rect.width() == 1 && rect.height() == 1 && !d->intersectVector.isEmpty()) {
-        tl = br = d->intersectVector.last(); // special case for mouse press; only select the top item
+    if (rect.width() == 1 && rect.height() == 1) {
+        d->intersectingSet(rect.translated(horizontalOffset(), verticalOffset()));
+        if ( !d->intersectVector.isEmpty())
+            tl = br = d->intersectVector.last(); // special case for mouse press; only select the top item
     } else {
         if (state() == DragSelectingState) { // visual selection mode (rubberband selection)
+            d->intersectingSet(rect.translated(horizontalOffset(), verticalOffset()));
             QVector<QModelIndex>::iterator it = d->intersectVector.begin();
             for (; it != d->intersectVector.end(); ++it) {
                 if (!tl.isValid() && !br.isValid()) {
@@ -1367,15 +1368,14 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
                 }
             }
         } else { // logical selection mode (key and mouse click selection)
-            QVector<QModelIndex>::iterator it = d->intersectVector.begin();
-            for (; it != d->intersectVector.end(); ++it) {
-                if (!tl.isValid() && !br.isValid())
-                    tl = br = *it;
-                else if ((*it).row() < tl.row())
-                    tl = (*it);
-                else if ((*it).row() > br.row())
-                    br = (*it);
-            }
+            const QRect topLeft(rect.left() + horizontalOffset(), rect.top() + verticalOffset(), 1, 1);
+            d->intersectingSet(topLeft);
+            if (!d->intersectVector.isEmpty())
+                tl = d->intersectVector.last();
+            const QRect bottomRight(rect.right() + horizontalOffset(), rect.bottom() + verticalOffset(), 1, 1);
+            d->intersectingSet(bottomRight);
+            if (!d->intersectVector.isEmpty())
+                br = d->intersectVector.last();
         }
     }
 
