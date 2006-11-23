@@ -4827,7 +4827,7 @@ fi
 
 QTCONFIG="$outpath/mkspecs/qconfig.pri"
 [ -f "$QTCONFIG.tmp" ] && rm -f "$QTCONFIG.tmp"
-QTCONFIG_CONFIG="no_mocdepend"
+#QTCONFIG_CONFIG="no_mocdepend"
 if [ "$CFG_DEBUG" = "yes" ]; then
     QTCONFIG_CONFIG="$QTCONFIG_CONFIG debug"
     if [ "$CFG_DEBUG_RELEASE" = "yes" ]; then
