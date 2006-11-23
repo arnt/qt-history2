@@ -30,6 +30,11 @@ public:
     bool isNull() const { return is_null; }
     inline const QString &real() const { return real_name; }
     const QString &local() const;
+
+    bool operator==(const QMakeLocalFileName &other) {
+        return (this->local_name == other.local_name)
+            && (this->real_name == other.real_name);
+    }
 };
 
 class QMakeSourceFileInfo
