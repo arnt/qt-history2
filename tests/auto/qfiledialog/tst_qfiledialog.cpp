@@ -14,6 +14,13 @@
 #include <qfiledialog.h>
 #include <qabstractitemdelegate.h>
 #include <qdirmodel.h>
+#include <qitemdelegate.h>
+#include <qlistview.h>
+#include <qcombobox.h>
+#include <qpushbutton.h>
+#include <qtoolbutton.h>
+#include <qtreeview.h>
+#include <qaction.h>
 
 //TESTED_CLASS=
 //TESTED_FILES=qfiledialog.h
@@ -27,7 +34,21 @@ public:
     virtual ~tst_QFiledialog();
 
 private slots:
-    void getSetCheck();
+    void directory();
+    void acceptMode();
+    void confirmOverwrite();
+    void defaultSuffix();
+    void fileMode();
+    void filters();
+    void history();
+    void iconProvider();
+    void isReadOnly();
+    void itemDelegate();
+    void labelText();
+    void resolveSymlinks();
+    void selectFile();
+    void selectFilter();
+    void viewMode();
 };
 
 tst_QFiledialog::tst_QFiledialog()
@@ -46,71 +67,262 @@ public:
     QSize sizeHint(const QStyleOptionViewItem &, const QModelIndex &) const { return QSize(); }
 };
 
-// Testing get/set functions
-void tst_QFiledialog::getSetCheck()
+void tst_QFiledialog::directory()
 {
-    QFileDialog obj1;
-    // ViewMode QFileDialog::viewMode()
-    // void QFileDialog::setViewMode(ViewMode)
-    obj1.setViewMode(QFileDialog::ViewMode(QFileDialog::Detail));
-    QCOMPARE(QFileDialog::ViewMode(QFileDialog::Detail), obj1.viewMode());
-    obj1.setViewMode(QFileDialog::ViewMode(QFileDialog::List));
-    QCOMPARE(QFileDialog::ViewMode(QFileDialog::List), obj1.viewMode());
+    QFileDialog fd;
+    QCOMPARE(QDir::current().absolutePath(), fd.directory().absolutePath());
+    QDir temp = QDir::temp();
+    fd.setDirectory(temp);
+    QCOMPARE(temp.absolutePath(), fd.directory().absolutePath());
 
-    // FileMode QFileDialog::fileMode()
-    // void QFileDialog::setFileMode(FileMode)
-    obj1.setFileMode(QFileDialog::FileMode(QFileDialog::AnyFile));
-    QCOMPARE(QFileDialog::FileMode(QFileDialog::AnyFile), obj1.fileMode());
-    obj1.setFileMode(QFileDialog::FileMode(QFileDialog::ExistingFile));
-    QCOMPARE(QFileDialog::FileMode(QFileDialog::ExistingFile), obj1.fileMode());
-    obj1.setFileMode(QFileDialog::FileMode(QFileDialog::Directory));
-    QCOMPARE(QFileDialog::FileMode(QFileDialog::Directory), obj1.fileMode());
-    obj1.setFileMode(QFileDialog::FileMode(QFileDialog::ExistingFiles));
-    QCOMPARE(QFileDialog::FileMode(QFileDialog::ExistingFiles), obj1.fileMode());
-    obj1.setFileMode(QFileDialog::FileMode(QFileDialog::DirectoryOnly));
-    QCOMPARE(QFileDialog::FileMode(QFileDialog::DirectoryOnly), obj1.fileMode());
+    QCOMPARE(fd.selectedFiles(), QStringList());
 
-    // AcceptMode QFileDialog::acceptMode()
-    // void QFileDialog::setAcceptMode(AcceptMode)
-    obj1.setAcceptMode(QFileDialog::AcceptMode(QFileDialog::AcceptOpen));
-    QCOMPARE(QFileDialog::AcceptMode(QFileDialog::AcceptOpen), obj1.acceptMode());
-    obj1.setAcceptMode(QFileDialog::AcceptMode(QFileDialog::AcceptSave));
-    QCOMPARE(QFileDialog::AcceptMode(QFileDialog::AcceptSave), obj1.acceptMode());
+    // Check my way
+    QList<QListView*> list = fd.findChildren<QListView*>("qt_list_view");
+    QVERIFY(list.count() > 0);
+    QCOMPARE(list.at(0)->rootIndex().data().toString(), temp.dirName());
+}
 
-    // bool QFileDialog::resolveSymlinks()
-    // void QFileDialog::setResolveSymlinks(bool)
-    obj1.setResolveSymlinks(false);
-    QCOMPARE(false, obj1.resolveSymlinks());
-    obj1.setResolveSymlinks(true);
-    QCOMPARE(true, obj1.resolveSymlinks());
+void tst_QFiledialog::acceptMode()
+{
+    QFileDialog fd;
+    fd.show();
 
-    // bool QFileDialog::confirmOverwrite()
-    // void QFileDialog::setConfirmOverwrite(bool)
-    obj1.setConfirmOverwrite(false);
-    QCOMPARE(false, obj1.confirmOverwrite());
-    obj1.setConfirmOverwrite(true);
-    QCOMPARE(true, obj1.confirmOverwrite());
+    QPushButton* newButton = fd.findChild<QPushButton*>("qt_new_folder_button");
 
-    // QAbstractItemDelegate * QFileDialog::itemDelegate()
-    // void QFileDialog::setItemDelegate(QAbstractItemDelegate *)
-    MyAbstractItemDelegate *var6 = new MyAbstractItemDelegate;
-    obj1.setItemDelegate(var6);
-    QCOMPARE(obj1.itemDelegate(), (QAbstractItemDelegate *)var6);
-#if QT_VERSION >= 0x040200
-    // Itemviews in Qt < 4.2 have asserts for this. Qt >= 4.2 should handle this gracefully
-    obj1.setItemDelegate((QAbstractItemDelegate *)0);
-    QCOMPARE((QAbstractItemDelegate *)0, obj1.itemDelegate());
-#endif
-    delete var6;
+    // default
+    QCOMPARE(fd.acceptMode(), QFileDialog::AcceptOpen);
+    QCOMPARE(newButton && newButton->isVisible(), false);
 
-    // QFileIconProvider * QFileDialog::iconProvider()
-    // void QFileDialog::setIconProvider(QFileIconProvider *)
-    QFileIconProvider *var7 = new QFileIconProvider;
-    obj1.setIconProvider(var7);
-    QCOMPARE(var7, obj1.iconProvider());
-    obj1.setIconProvider((QFileIconProvider *)0);
-    QCOMPARE((QFileIconProvider *)0, obj1.iconProvider());
-    delete var7;
+    fd.setAcceptMode(QFileDialog::AcceptSave);
+    QCOMPARE(fd.acceptMode(), QFileDialog::AcceptSave);
+    QCOMPARE(newButton && newButton->isVisible(), true);
+
+    fd.setAcceptMode(QFileDialog::AcceptOpen);
+    QCOMPARE(fd.acceptMode(), QFileDialog::AcceptOpen);
+    QCOMPARE(newButton && newButton->isVisible(), false);
+}
+
+void tst_QFiledialog::confirmOverwrite()
+{
+    QFileDialog fd;
+    QCOMPARE(fd.confirmOverwrite(), true);
+    fd.setConfirmOverwrite(true);
+    QCOMPARE(fd.confirmOverwrite(), true);
+    fd.setConfirmOverwrite(false);
+    QCOMPARE(fd.confirmOverwrite(), false);
+    fd.setConfirmOverwrite(true);
+    QCOMPARE(fd.confirmOverwrite(), true);
+}
+
+void tst_QFiledialog::defaultSuffix()
+{
+    QFileDialog fd;
+    QCOMPARE(fd.defaultSuffix(), QString());
+    fd.setDefaultSuffix("txt");
+    QCOMPARE(fd.defaultSuffix(), QString("txt"));
+    fd.setDefaultSuffix(QString());
+    QCOMPARE(fd.defaultSuffix(), QString());
+}
+
+void tst_QFiledialog::fileMode()
+{
+    QFileDialog fd;
+    QCOMPARE(fd.fileMode(), QFileDialog::AnyFile);
+    fd.setFileMode(QFileDialog::ExistingFile);
+    QCOMPARE(fd.fileMode(), QFileDialog::ExistingFile);
+    fd.setFileMode(QFileDialog::Directory);
+    QCOMPARE(fd.fileMode(), QFileDialog::Directory);
+    fd.setFileMode(QFileDialog::DirectoryOnly);
+    QCOMPARE(fd.fileMode(), QFileDialog::DirectoryOnly);
+    fd.setFileMode(QFileDialog::ExistingFiles);
+    QCOMPARE(fd.fileMode(), QFileDialog::ExistingFiles);
+}
+
+void tst_QFiledialog::filters()
+{
+    QFileDialog fd;
+    QCOMPARE(fd.filters(), QStringList("AllFiles (*)"));
+
+    // effects
+    QList<QComboBox*> views = fd.findChildren<QComboBox*>("qt_file_type_combo");
+    QVERIFY(views.count() == 1);
+    QCOMPARE(views.at(0)->isVisible(), false);
+
+    QStringList filters;
+    filters << "Image files (*.png *.xpm *.jpg)"
+         << "Text files (*.txt)"
+         << "Any files (*)";
+    fd.setFilters(filters);
+    QCOMPARE(views.at(0)->isVisible(), false);
+    fd.show();
+    fd.setAcceptMode(QFileDialog::AcceptSave);
+    QCOMPARE(views.at(0)->isVisible(), true);
+    QCOMPARE(fd.filters(), filters);
+    fd.setFilter("Image files (*.png *.xpm *.jpg);;Text files (*.txt);;Any files (*)");
+    QCOMPARE(fd.filters(), filters);
+}
+
+void tst_QFiledialog::selectFilter()
+{
+    QFileDialog fd;
+    QCOMPARE(fd.selectedFilter(), QString("AllFiles (*)"));
+    QStringList filters;
+    filters << "Image files (*.png *.xpm *.jpg)"
+         << "Text files (*.txt)"
+         << "Any files (*)";
+    fd.setFilters(filters);
+    QCOMPARE(fd.selectedFilter(), filters.at(0));
+    fd.selectFilter(filters.at(1));
+    QCOMPARE(fd.selectedFilter(), filters.at(1));
+    fd.selectFilter(filters.at(2));
+    QCOMPARE(fd.selectedFilter(), filters.at(2));
+
+    fd.selectFilter("bob");
+    QCOMPARE(fd.selectedFilter(), filters.at(2));
+    fd.selectFilter("");
+    QCOMPARE(fd.selectedFilter(), filters.at(2));
+}
+
+void tst_QFiledialog::history()
+{
+    QFileDialog fd;
+    QCOMPARE(fd.history(), QStringList(QDir::current().absolutePath()));
+    QStringList history;
+    history << QDir::current().absolutePath()
+            << QDir::home().absolutePath()
+            << QDir::temp().absolutePath();
+    fd.setHistory(history);
+    QCOMPARE(fd.history(), history);
+
+    QStringList badHistory;
+    badHistory << "junk";
+    fd.setHistory(badHistory);
+    badHistory << QDir::current().absolutePath();
+    QCOMPARE(fd.history(), badHistory);
+}
+
+void tst_QFiledialog::iconProvider()
+{
+    QFileDialog fd;
+    QVERIFY(fd.iconProvider() != 0);
+    QFileIconProvider *ip = new QFileIconProvider;
+    fd.setIconProvider(ip);
+    QCOMPARE(fd.iconProvider(), ip);
+}
+
+void tst_QFiledialog::isReadOnly()
+{
+    QFileDialog fd;
+
+    QPushButton* newButton = fd.findChild<QPushButton*>("qt_new_folder_button");
+    QAction* renameAction = fd.findChild<QAction*>("qt_rename_action");
+    QAction* deleteAction = fd.findChild<QAction*>("qt_delete_action");
+
+    QCOMPARE(fd.isReadOnly(), false);
+
+    QCOMPARE(newButton && newButton->isEnabled(), true);
+    QCOMPARE(renameAction && renameAction->isEnabled(), true);
+    QCOMPARE(deleteAction && deleteAction->isEnabled(), true);
+
+    fd.setReadOnly(true);
+    QCOMPARE(fd.isReadOnly(), true);
+
+    QCOMPARE(newButton && newButton->isEnabled(), false);
+    QCOMPARE(renameAction && renameAction->isEnabled(), false);
+    QCOMPARE(deleteAction && deleteAction->isEnabled(), false);
+}
+
+void tst_QFiledialog::itemDelegate()
+{
+    QFileDialog fd;
+    QVERIFY(fd.itemDelegate() != 0);
+    QItemDelegate *id = new QItemDelegate;
+    fd.setItemDelegate(id);
+    QCOMPARE(fd.itemDelegate(), id);
+}
+
+void tst_QFiledialog::labelText()
+{
+    QFileDialog fd;
+    QCOMPARE(fd.labelText(QFileDialog::LookIn), QString("Where:"));
+    QCOMPARE(fd.labelText(QFileDialog::FileName), QString("Save &as:"));
+    QCOMPARE(fd.labelText(QFileDialog::FileType), QString("Files of type:"));
+    QCOMPARE(fd.labelText(QFileDialog::Accept), QString("Open"));
+    QCOMPARE(fd.labelText(QFileDialog::Reject), QString("Cancel"));
+
+    fd.setLabelText(QFileDialog::LookIn, "1");
+    QCOMPARE(fd.labelText(QFileDialog::LookIn), QString("1"));
+    fd.setLabelText(QFileDialog::FileName, "2");
+    QCOMPARE(fd.labelText(QFileDialog::FileName), QString("2"));
+    fd.setLabelText(QFileDialog::FileType, "3");
+    QCOMPARE(fd.labelText(QFileDialog::FileType), QString("3"));
+    fd.setLabelText(QFileDialog::Accept, "4");
+    QCOMPARE(fd.labelText(QFileDialog::Accept), QString("4"));
+    fd.setLabelText(QFileDialog::Reject, "5");
+    QCOMPARE(fd.labelText(QFileDialog::Reject), QString("5"));
+}
+
+void tst_QFiledialog::resolveSymlinks()
+{
+    QFileDialog fd;
+
+    // default
+    QCOMPARE(fd.resolveSymlinks(), false);
+
+    fd.setResolveSymlinks(true);
+    QCOMPARE(fd.resolveSymlinks(), true);
+
+    fd.setResolveSymlinks(false);
+    QCOMPARE(fd.resolveSymlinks(), false);
+
+    // the file dialog doesn't do anything based upon this, just passes it to the model
+    // the model should fully test it, don't test it here
+}
+
+void tst_QFiledialog::selectFile()
+{
+    QFileDialog fd;
+
+    // default value
+    QCOMPARE(fd.selectedFiles(), QStringList());
+}
+
+void tst_QFiledialog::viewMode()
+{
+    QFileDialog fd;
+    fd.show();
+
+    // find widgets
+    QList<QTreeView*> treeView = fd.findChildren<QTreeView*>("qt_tree_view");
+    QCOMPARE(treeView.count(), 1);
+    QList<QListView*> listView = fd.findChildren<QListView*>("qt_list_view");
+    QCOMPARE(listView.count(), 1);
+    QList<QToolButton*> listButton = fd.findChildren<QToolButton*>("qt_list_mode_button");
+    QCOMPARE(listButton.count(), 1);
+    QList<QToolButton*> treeButton = fd.findChildren<QToolButton*>("qt_detail_mode_button");
+    QCOMPARE(treeButton.count(), 1);
+
+    // default value
+    QCOMPARE(fd.viewMode(), QFileDialog::Detail);
+
+    // detail
+    fd.setViewMode(QFileDialog::ViewMode(QFileDialog::Detail));
+
+    QCOMPARE(QFileDialog::ViewMode(QFileDialog::Detail), fd.viewMode());
+    QCOMPARE(listView.at(0)->isVisible(), false);
+    QCOMPARE(listButton.at(0)->isDown(), false);
+    QCOMPARE(treeView.at(0)->isVisible(), true);
+    QCOMPARE(treeButton.at(0)->isDown(), true);
+
+    // list
+    fd.setViewMode(QFileDialog::ViewMode(QFileDialog::List));
+
+    QCOMPARE(QFileDialog::ViewMode(QFileDialog::List), fd.viewMode());
+    QCOMPARE(treeView.at(0)->isVisible(), false);
+    QCOMPARE(treeButton.at(0)->isDown(), false);
+    QCOMPARE(listView.at(0)->isVisible(), true);
+    QCOMPARE(listButton.at(0)->isDown(), true);
 }
 
 QTEST_MAIN(tst_QFiledialog)
