@@ -690,8 +690,13 @@ void QLayout::deleteAllItems()
 #endif
 
 /*!
-    This function is called from \c addLayout() functions in
+    This function is called from \c addLayout() or \c insertLayout() functions in
     subclasses to add layout \a l as a sub-layout.
+
+    The only scenario in which you need to call it directly is if you
+    implement a custom layout that supports nested layouts.
+
+    \sa QBoxLayout::addLayout(), QBoxLayout::insertLayout(), QGridLayout::addLayout()
 */
 void QLayout::addChildLayout(QLayout *l)
 {
