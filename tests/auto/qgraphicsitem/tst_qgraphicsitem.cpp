@@ -95,6 +95,7 @@ private slots:
     void collidesWith_path_data();
     void collidesWith_path();
     void isObscuredBy();
+    void isObscured();
     void mapFromToParent();
     void mapFromToScene();
     void mapFromToItem();
@@ -1526,6 +1527,74 @@ void tst_QGraphicsItem::isObscuredBy()
 
     QVERIFY(!rect2.isObscuredBy(&rect1));
     QVERIFY(!rect1.isObscuredBy(&rect2));
+}
+
+class OpaqueItem : public QGraphicsRectItem
+{
+protected:
+    QPainterPath opaqueArea() const
+    {
+        return shape();
+    }
+};
+
+void tst_QGraphicsItem::isObscured()
+{
+    OpaqueItem *item1 = new OpaqueItem;
+    item1->setRect(0, 0, 100, 100);
+    item1->setZValue(0);
+
+    OpaqueItem *item2 = new OpaqueItem;
+    item2->setZValue(1);
+    item2->setRect(0, 0, 100, 100);
+
+    QGraphicsScene scene;
+    scene.addItem(item1);
+    scene.addItem(item2);
+    
+    QVERIFY(item1->isObscured());
+    QVERIFY(item1->isObscuredBy(item2));
+    QVERIFY(item1->isObscured(QRectF(0, 0, 50, 50)));
+    QVERIFY(item1->isObscured(QRectF(50, 0, 50, 50)));
+    QVERIFY(item1->isObscured(QRectF(50, 50, 50, 50)));
+    QVERIFY(item1->isObscured(QRectF(0, 50, 50, 50)));
+    QVERIFY(item1->isObscured(0, 0, 50, 50));
+    QVERIFY(item1->isObscured(50, 0, 50, 50));
+    QVERIFY(item1->isObscured(50, 50, 50, 50));
+    QVERIFY(item1->isObscured(0, 50, 50, 50));
+    QVERIFY(!item2->isObscured());
+    QVERIFY(!item2->isObscuredBy(item1));
+    QVERIFY(!item2->isObscured(QRectF(0, 0, 50, 50)));
+    QVERIFY(!item2->isObscured(QRectF(50, 0, 50, 50)));
+    QVERIFY(!item2->isObscured(QRectF(50, 50, 50, 50)));
+    QVERIFY(!item2->isObscured(QRectF(0, 50, 50, 50)));
+    QVERIFY(!item2->isObscured(0, 0, 50, 50));
+    QVERIFY(!item2->isObscured(50, 0, 50, 50));
+    QVERIFY(!item2->isObscured(50, 50, 50, 50));
+    QVERIFY(!item2->isObscured(0, 50, 50, 50));
+
+    item2->moveBy(50, 0);
+
+    QVERIFY(!item1->isObscured());
+    QVERIFY(!item1->isObscuredBy(item2));
+    QVERIFY(!item1->isObscured(QRectF(0, 0, 50, 50)));
+    QVERIFY(item1->isObscured(QRectF(50, 0, 50, 50)));
+    QVERIFY(item1->isObscured(QRectF(50, 50, 50, 50)));
+    QVERIFY(!item1->isObscured(QRectF(0, 50, 50, 50)));
+    QVERIFY(!item1->isObscured(0, 0, 50, 50));
+    QVERIFY(item1->isObscured(50, 0, 50, 50));
+    QVERIFY(item1->isObscured(50, 50, 50, 50));
+    QVERIFY(!item1->isObscured(0, 50, 50, 50));
+    QVERIFY(!item2->isObscured());
+    QVERIFY(!item2->isObscuredBy(item1));
+    QVERIFY(!item2->isObscured(QRectF(0, 0, 50, 50)));
+    QVERIFY(!item2->isObscured(QRectF(50, 0, 50, 50)));
+    QVERIFY(!item2->isObscured(QRectF(50, 50, 50, 50)));
+    QVERIFY(!item2->isObscured(QRectF(0, 50, 50, 50)));
+    QVERIFY(!item2->isObscured(0, 0, 50, 50));
+    QVERIFY(!item2->isObscured(50, 0, 50, 50));
+    QVERIFY(!item2->isObscured(50, 50, 50, 50));
+    QVERIFY(!item2->isObscured(0, 50, 50, 50));
 }
 
 void tst_QGraphicsItem::mapFromToParent()
