@@ -1999,20 +1999,18 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
 	    QString dep_cmd = Project->replaceExtraCompilerVariables(tmp_dep_cmd,
 							             inFile,
                                                                      out);
-            dep_cmd = Option::fixPathToLocalOS(dep_cmd, true, false);
-            if(Project->canExecute(dep_cmd)) {
-                if(FILE *proc = QT_POPEN(dep_cmd.toLatin1().constData(), "r")) {
-                    QString indeps;
-                    while(!feof(proc)) {
-                        int read_in = (int)fread(buff, 1, 255, proc);
-                        if(!read_in)
-                            break;
-                        indeps += QByteArray(buff, read_in);
-                    }
-                    fclose(proc);
-                    if(!indeps.isEmpty())
-                        deps += " " + Project->fileFixify(indeps.replace('\n', ' ').simplified().split(' ')).join(";");
+            dep_cmd = Option::fixPathToLocalOS(dep_cmd);
+            if(FILE *proc = QT_POPEN(dep_cmd.toLatin1().constData(), "r")) {
+	        QString indeps;
+                while(!feof(proc)) {
+                    int read_in = (int)fread(buff, 1, 255, proc);
+                    if(!read_in)
+                        break;
+                    indeps += QByteArray(buff, read_in);
                 }
+                fclose(proc);
+                if(!indeps.isEmpty())
+                    deps += " " + Project->fileFixify(indeps.replace('\n', ' ').simplified().split(' ')).join(";");
             }
         }
         for (int i = 0; i < deps.count(); ++i)

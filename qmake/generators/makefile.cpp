@@ -41,25 +41,6 @@
 #  define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 #endif
 
-bool MakefileGenerator::canExecute(const QStringList &cmdline, int *a) const
-{
-    int argv0 = -1;
-    for(int i = 0; i < cmdline.count(); ++i) {
-        if(!cmdline.at(i).contains('=')) {
-            argv0 = i;
-            break;
-        }
-    }
-    if(a)
-        *a = argv0;
-    if(argv0 != -1) {
-        const QString c = Option::fixPathToLocalOS(cmdline.at(argv0), true);
-        if(exists(c))
-            return true;
-    }
-    return false;
-}
-
 QString MakefileGenerator::mkdir_p_asstring(const QString &dir, bool escape) const
 {
     QString ret =  "@$(CHK_DIR_EXISTS) ";
@@ -1839,9 +1820,15 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                                      Option::output_dir, Option::output_dir);
         QString tmp_cmd;
         if(!project->isEmpty((*it) + ".commands")) {
-	    int argv0;
+	    int argv0 = -1;
 	    QStringList cmdline = project->values((*it) + ".commands");
-            if(canExecute(cmdline, &argv0)) {
+	    for(int i = 0; i < cmdline.count(); ++i) {
+	    	if(!cmdline.at(i).contains('=')) {
+                    argv0 = i;
+                    break;
+	        }
+	    }
+            if(argv0 != -1) {
                 cmdline[argv0] = escapeFilePath(Option::fixPathToTargetOS(cmdline.at(argv0), false));
                 tmp_cmd = cmdline.join(" ");
             }

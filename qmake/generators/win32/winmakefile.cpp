@@ -671,10 +671,9 @@ void Win32MakefileGenerator::writeBuildRulesPart(QTextStream &)
 void Win32MakefileGenerator::writeRcFilePart(QTextStream &t)
 {
     if(!project->values("RC_FILE").isEmpty()) {
-        const QString res_file = project->first("RES_FILE"),
-                       rc_file = fileFixify(project->first("RC_FILE"));
-        t << res_file << ": " << rc_file << "\n\t"
-          << var("QMAKE_RC") << " -fo " << res_file << " " << rc_file;
+        t << var("RES_FILE") << ": " << var("RC_FILE") << "\n\t"
+          << var("QMAKE_RC") << " -fo " << var("RES_FILE") << " "
+          << var("RC_FILE");
         t << endl << endl;
     }
 }

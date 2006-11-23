@@ -803,8 +803,9 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
             QStringList compilerDepends = config->project->values(compiler + ".depends");
             QString compilerDependsCommand = config->project->values(compiler + ".depend_command").join(" ");
             if (!compilerDependsCommand.isEmpty()) {
-                if(!config->canExecute(compilerDependsCommand))
-                    compilerDependsCommand = QString();
+                QString argv0 = Option::fixPathToLocalOS(compilerDependsCommand.split(' ').first());
+                if (!config->exists(argv0))
+                compilerDependsCommand = QString();
             }
             QStringList compilerConfig = config->project->values(compiler + ".CONFIG");
 
@@ -844,22 +845,21 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
                 char buff[256];
                 QString dep_cmd = config->replaceExtraCompilerVariables(compilerDependsCommand, file,
                     fileOut);
-                dep_cmd = Option::fixPathToLocalOS(dep_cmd, true, false);
-                if(config->canExecute(dep_cmd)) {
-                    if(FILE *proc = QT_POPEN(dep_cmd.toLatin1().constData(), "r")) {
-                        QString indeps;
-                        while(!feof(proc)) {
-                            int read_in = (int)fread(buff, 1, 255, proc);
-                            if(!read_in)
-                                break;
-                            indeps += QByteArray(buff, read_in);
-                        }
-                        fclose(proc);
-                        if(!indeps.isEmpty())
-                            step.deps += config->fileFixify(indeps.replace('\n', ' ').simplified().split(' '));
+                dep_cmd = Option::fixPathToLocalOS(dep_cmd);
+                if(FILE *proc = QT_POPEN(dep_cmd.toLatin1().constData(), "r")) {
+                    QString indeps;
+                    while(!feof(proc)) {
+                        int read_in = (int)fread(buff, 1, 255, proc);
+                        if(!read_in)
+                            break;
+                        indeps += QByteArray(buff, read_in);
                     }
+                    fclose(proc);
+                    if(!indeps.isEmpty())
+                        step.deps += config->fileFixify(indeps.replace('\n', ' ').simplified().split(' '));
                 }
             }
+
 
             QString mappedFile;
             if (hasBuiltin) {
