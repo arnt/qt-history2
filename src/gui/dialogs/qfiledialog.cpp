@@ -80,8 +80,8 @@ QFileDialog::QFileDialog(const QFileDialogArgs &args)
     if (args.options & QFileDialog::StoreState) {
         d->saveState = true;
         QSettings settings;
-        settings.beginGroup("General");
-        restoreState(settings.value("filedialog").toByteArray());
+        settings.beginGroup(QLatin1String("General"));
+        restoreState(settings.value(QLatin1String("filedialog")).toByteArray());
     }
 }
 
@@ -93,8 +93,8 @@ QFileDialog::~QFileDialog()
     Q_D(QFileDialog);
     if (d->saveState) {
         QSettings settings;
-        settings.beginGroup("General");
-        settings.setValue("filedialog", saveState());
+        settings.beginGroup(QLatin1String("General"));
+        settings.setValue(QLatin1String("filedialog"), saveState());
     }
 }
 
@@ -696,7 +696,7 @@ void QFileDialog::setHistory(const QStringList &paths)
         idx = idx.parent();
     }
     // add "my computer"
-    list.append(QUrl::fromLocalFile(""));
+    list.append(QUrl::fromLocalFile(QLatin1String("")));
     d->addUrls(list, 0);
     idx = d->lookInCombo->model()->index(d->lookInCombo->model()->rowCount()-1, 0);
 
@@ -710,7 +710,7 @@ void QFileDialog::setHistory(const QStringList &paths)
     d->lookInCombo->model()->insertRow(d->lookInCombo->model()->rowCount());
     idx = d->lookInCombo->model()->index(d->lookInCombo->model()->rowCount()-1, 0);
     // ### TODO disable this item and maybe add a horizontal line before it
-    d->lookInCombo->model()->setData(idx, "Recent Places");
+    d->lookInCombo->model()->setData(idx, QLatin1String("Recent Places"));
     QStandardItemModel *m = qobject_cast<QStandardItemModel*>(d->lookInCombo->model());
     if (m) {
         Qt::ItemFlags flags = m->flags(idx);
@@ -1524,7 +1524,7 @@ void QFileDialogPrivate::createWidgets()
     model->setReadOnly(false);
 
     QList<QUrl> initialBookmarks;
-    initialBookmarks << QUrl::fromLocalFile("")
+    initialBookmarks << QUrl::fromLocalFile(QLatin1String(""))
                      << QUrl::fromLocalFile(QDir::homePath());
     sidebar = new QSidebar(model, initialBookmarks, q);
     sidebar->setObjectName(QLatin1String("qt_sidebar"));
@@ -1829,25 +1829,25 @@ void QFileDialogPrivate::createMenuActions()
     // ### TODO add Desktop & Computer actions
 
     QAction *goToParent =  new QAction(QFileDialog::tr("Go To Parent Folder"), q);
-    goToParent->setObjectName("qt_goto_parent_action");
+    goToParent->setObjectName(QLatin1String("qt_goto_parent_action"));
     goToParent->setShortcut(Qt::CTRL + Qt::UpArrow);
     QObject::connect(goToParent, SIGNAL(triggered()), q, SLOT(_q_navigateToParent()));
     q->addAction(goToParent);
 
     openAction = new QAction(QFileDialog::tr("&Open"), q);
-    openAction->setObjectName("qt_open_action");
+    openAction->setObjectName(QLatin1String("qt_open_action"));
     QObject::connect(openAction, SIGNAL(triggered()), q, SLOT(accept()));
 
     renameAction = new QAction(QFileDialog::tr("&Rename"), q);
-    renameAction->setObjectName("qt_rename_action");
+    renameAction->setObjectName(QLatin1String("qt_rename_action"));
     QObject::connect(renameAction, SIGNAL(triggered()), q, SLOT(_q_renameCurrent()));
 
     deleteAction = new QAction(QFileDialog::tr("&Delete"), q);
-    deleteAction->setObjectName("qt_delete_action");
+    deleteAction->setObjectName(QLatin1String("qt_delete_action"));
     QObject::connect(deleteAction, SIGNAL(triggered()), q, SLOT(_q_deleteCurrent()));
 
     showHiddenAction = new QAction(QFileDialog::tr("Show &hidden files"), q);
-    showHiddenAction->setObjectName("qt_show_hidden_action");
+    showHiddenAction->setObjectName(QLatin1String("qt_show_hidden_action"));
     showHiddenAction->setCheckable(true);
     QObject::connect(showHiddenAction, SIGNAL(triggered()), q, SLOT(_q_showHidden()));
 }
@@ -1862,8 +1862,8 @@ void QFileDialogPrivate::_q_chooseLocation()
 {
     Q_Q(QFileDialog);
     bool ok;
-    QString text = QInputDialog::getText(q, ("Open Location"),
-                                         ("Go to the folder:"), QLineEdit::Normal,
+    QString text = QInputDialog::getText(q, QFileDialog::tr("Open Location"),
+                                         QFileDialog::tr("Go to the folder:"), QLineEdit::Normal,
                                          q->directory().path(), &ok);
     if (ok && !text.isEmpty())
         q->setDirectory(text);
@@ -2216,7 +2216,7 @@ void QFileDialogPrivate::_q_useNameFilter(const QString &nameFilter)
             fileNameEdit->setText(fileName);
         }
     } else {
-        newNameFilters = qt_clean_filter_list(q->filters().join(" "));
+        newNameFilters = qt_clean_filter_list(q->filters().join(QLatin1String(" ")));
     }
 
     model->setNameFilters(newNameFilters);

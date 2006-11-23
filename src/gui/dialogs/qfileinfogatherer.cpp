@@ -277,7 +277,7 @@ void QFileInfoGatherer::getDirList(const QString &directoryPath)
 
     // It looks like a bug that path sometimes returns /.  QDir::path() should strip the /.
     QString dirPath = dir.path();
-    if (dirPath.right(2) == "/.")
+    if (dirPath.right(2) == QLatin1String("/."))
         dirPath = dirPath.left(dirPath.length() - 2);
     emit newListOfFiles(dirPath, list);
 }

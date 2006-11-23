@@ -41,7 +41,7 @@ QSidebar::~QSidebar()
 */
 QStringList QSidebar::mimeTypes() const
 {
-    return QStringList("text/uri-list");
+    return QStringList(QLatin1String("text/uri-list"));
 }
 
 /*!
@@ -101,7 +101,7 @@ void QSidebar::addUrls(const QList<QUrl> &list, int row) {
         row = model()->rowCount();
     for (int i = list.count() - 1; i >= 0; --i) {
         QUrl url = list.at(i);
-        if (!url.isValid() || url.scheme() != "file")
+        if (!url.isValid() || url.scheme() != QLatin1String("file"))
             continue;
         for (int j = 0; j < model()->rowCount(); ++j) {
             if (model()->index(j, 0).data(UrlRole) == url) {
