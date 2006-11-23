@@ -568,6 +568,9 @@ void QFileDialog::setReadOnly(bool enabled)
 {
     Q_D(QFileDialog);
     d->model->setReadOnly(enabled);
+    d->newFolderButton->setEnabled(!enabled);
+    d->renameAction->setEnabled(!enabled);
+    d->deleteAction->setEnabled(!enabled);
 }
 
 bool QFileDialog::isReadOnly() const
@@ -1826,20 +1829,25 @@ void QFileDialogPrivate::createMenuActions()
     // ### TODO add Desktop & Computer actions
 
     QAction *goToParent =  new QAction(QFileDialog::tr("Go To Parent Folder"), q);
+    goToParent->setObjectName("qt_goto_parent_action");
     goToParent->setShortcut(Qt::CTRL + Qt::UpArrow);
     QObject::connect(goToParent, SIGNAL(triggered()), q, SLOT(_q_navigateToParent()));
     q->addAction(goToParent);
 
     openAction = new QAction(QFileDialog::tr("&Open"), q);
+    openAction->setObjectName("qt_open_action");
     QObject::connect(openAction, SIGNAL(triggered()), q, SLOT(accept()));
 
     renameAction = new QAction(QFileDialog::tr("&Rename"), q);
+    renameAction->setObjectName("qt_rename_action");
     QObject::connect(renameAction, SIGNAL(triggered()), q, SLOT(_q_renameCurrent()));
 
     deleteAction = new QAction(QFileDialog::tr("&Delete"), q);
+    deleteAction->setObjectName("qt_delete_action");
     QObject::connect(deleteAction, SIGNAL(triggered()), q, SLOT(_q_deleteCurrent()));
 
     showHiddenAction = new QAction(QFileDialog::tr("Show &hidden files"), q);
+    showHiddenAction->setObjectName("qt_show_hidden_action");
     showHiddenAction->setCheckable(true);
     QObject::connect(showHiddenAction, SIGNAL(triggered()), q, SLOT(_q_showHidden()));
 }
@@ -2004,12 +2012,9 @@ void QFileDialogPrivate::_q_showContextMenu(const QPoint &position)
         menu.addSeparator();
         menu.addAction(renameAction);
         menu.addAction(deleteAction);
-        renameAction->setEnabled(!model->isReadOnly());
-        deleteAction->setEnabled(!model->isReadOnly());
-    } else {
-        // view context menu
-        menu.addAction(showHiddenAction);
+        menu.addSeparator();
     }
+    menu.addAction(showHiddenAction);
     menu.exec(view->mapToGlobal(position));
 #endif // QT_NO_MENU
 }
@@ -2390,8 +2395,12 @@ QStringList QFSCompletor::splitPath(const QString &path) const
         parts[0] = sep[0];
 #endif
 
-    if (parts.count() == 1)
-        return splitPath(QDir::currentPath() + "/" + path);
+    if (parts.count() == 1) {
+        const QFileSystemModel *dirModel = static_cast<const QFileSystemModel *>(model());
+        QString currentLocation = dirModel->rootPath();
+        if (currentLocation.contains(sep))
+            return splitPath(dirModel->rootPath() + sep + path);
+    }
     return parts;
 }
 
