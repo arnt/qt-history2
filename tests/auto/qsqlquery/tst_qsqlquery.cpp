@@ -1411,6 +1411,8 @@ void tst_QSqlQuery::nullResult()
     QVERIFY(q.seek(0) == FALSE);
 }
 
+// this test is just an experiment to see whether we can do query-based transactions
+// the real transaction test is in tst_QSqlDatabase
 void tst_QSqlQuery::transaction()
 {
     // query based transaction is not really possible with Qt
