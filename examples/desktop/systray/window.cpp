@@ -49,8 +49,8 @@ Window::Window()
 void Window::setVisible(bool visible)
 {
     minimizeAction->setEnabled(visible);
-    maximizeAction->setEnabled(!visible);
-    restoreAction->setEnabled(!visible);
+    maximizeAction->setEnabled(!isMaximized());
+    restoreAction->setEnabled(isMaximized() || !visible);
     QWidget::setVisible(visible);
 }
 
@@ -198,7 +198,7 @@ void Window::createActions()
     connect(maximizeAction, SIGNAL(triggered()), this, SLOT(showMaximized()));
 
     restoreAction = new QAction(tr("&Restore"), this);
-    connect(restoreAction, SIGNAL(triggered()), this, SLOT(show()));
+    connect(restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
 
     quitAction = new QAction(tr("&Quit"), this);
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
