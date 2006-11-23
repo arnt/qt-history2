@@ -25,7 +25,7 @@
 #define ADVANCE(tk, descr) \
 { \
   if (tokenStream->lookAhead() != tk) { \
-    reportError(QString("'%1' expected found '%2'").arg(QString(descr)).arg(QString(tokenStream->currentTokenText()))); \
+    reportError(QString::fromLatin1("'%1' expected found '%2'").arg(QLatin1String(descr)).arg(QString::fromLatin1((tokenStream->currentTokenText().constData())))); \
       return false; \
   } \
   advance(); \
@@ -34,7 +34,7 @@
 #define ADVANCE_NR(tk, descr) \
   do { \
     if (tokenStream->lookAhead() != tk) { \
-        reportError(i18n("'%1' expected found '%2'").arg(QString(descr)).arg(QString(tokenStream->currentTokenText()))); \
+        reportError(i18n("'%1' expected found '%2'").arg(QLatin1String(descr)).arg(QString::fromLatin1(tokenStream->currentTokenText().constData()))); \
     } \
     else \
         advance(); \
@@ -75,9 +75,9 @@
 
 #define RXX_NO_ERROR
 
-QString i18n(QString arg)
+QString i18n(const char *arg)
 {
-    return arg;
+    return QLatin1String(arg);
 }
 
 
@@ -958,7 +958,7 @@ bool Parser::parseTemplateDeclaration(DeclarationAST *&node)
 
 bool Parser::parseOperator(AST *&/*node*/)
 {
-    QString text = tokenStream->currentTokenText();
+    QString text(QString::fromLatin1(tokenStream->currentTokenText().constData()));
 
     switch(tokenStream->lookAhead()) {
     case Token_new:
@@ -967,7 +967,7 @@ bool Parser::parseOperator(AST *&/*node*/)
         if (tokenStream->lookAhead() == '[' && tokenStream->lookAhead(1) == ']') {
             advance();
             advance();
-            text += "[]";
+            text += QLatin1String("[]");
         }
         return true;
 
@@ -1553,7 +1553,7 @@ bool Parser::parseTypeParameter(TypeParameterAST *&node)
     case Token_template:
         {
             advance(); // skip template
-            ADVANCE('<', '<');
+            ADVANCE('<', "<");
 
             TemplateParameterListAST *params = 0;
             if (!parseTemplateParameterList(params)) {
@@ -1858,7 +1858,7 @@ bool Parser::parseClassSpecifier(TypeSpecifierAST *&node)
         return false;
     }
 
-    ADVANCE('{', '{');
+    ADVANCE('{', "{");
 
     ClassSpecifierAST *ast = CreateNode<ClassSpecifierAST>(m_pool);
     ast->setWinDeclSpec(winDeclSpec);
@@ -2200,10 +2200,10 @@ bool Parser::parseMemInitializer(AST *&/*node*/)
         reportError(i18n("Identifier expected"));
         return false;
     }
-    ADVANCE('(', '(');
+    ADVANCE('(', "(");
     AbstractExpressionAST *expr = 0;
     skipCommaExpression(expr);
-    ADVANCE(')', ')');
+    ADVANCE(')', ")");
 
     return true;
 }

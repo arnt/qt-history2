@@ -29,10 +29,10 @@ SourcePointLogEntry::SourcePointLogEntry(QString type, QString location, QString
 
 QString SourcePointLogEntry::description() const
 {
-    return "In file "  + file +
-           " at line " + QString("%1").arg(line + 1) + //line count is zero based, adjust here.
-           " column "  + QString("%1").arg(column) +
-           ": " + text ;
+    return QLatin1String("In file ")  + file +
+           QLatin1String(" at line ") + QString(QLatin1String("%1")).arg(line + 1) + //line count is zero based, adjust here.
+           QLatin1String(" column ")  + QString(QLatin1String("%1")).arg(column) +
+           QLatin1String(": ") + text ;
 }
 
 void SourcePointLogEntry::updateLinePos(int threshold,  int delta)
@@ -96,7 +96,8 @@ QStringList Logger::fullReport()
 {
     commitSection();
     QStringList report;
-    report << "Log for qt3to4 on " + QDateTime::currentDateTime().toString() + ". Number of log entries: " + QString("%1").arg(logEntries.size());
+    report << QLatin1String("Log for qt3to4 on ") + QDateTime::currentDateTime().toString() +
+              QLatin1String(". Number of log entries: ") + QString(QLatin1String("%1")).arg(logEntries.size());
     foreach(LogEntry *logEntry, logEntries) {
         report << logEntry->description();
     }

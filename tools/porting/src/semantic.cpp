@@ -1047,7 +1047,7 @@ QByteArray Semantic::typeSpecToString(TypeSpecifierAST* typeSpec)
         tp += "const ";
     }
 
-    tp += (QString(textOf(typeSpec)).replace(QRegExp(" :: "), QString::fromUtf8("::"))).toLatin1();
+    tp += (QString::fromLatin1(textOf(typeSpec)).replace(QRegExp(QLatin1String(" :: ")), QString::fromUtf8("::"))).toLatin1();
     return tp;
 }
 
@@ -1063,13 +1063,13 @@ QByteArray Semantic::declaratorToString(DeclaratorAST* declarator, const QByteAr
         foreach (AST *current, ptrOpList) {
             text += textOf(current);
         }
-        text += " ";
+        text += QByteArray(" ");
     }
 
     text += scope;
 
     if (declarator->subDeclarator())
-        text += "(" + declaratorToString(declarator->subDeclarator()) + ")";
+        text += QByteArray("(") + declaratorToString(declarator->subDeclarator()) + QByteArray(")");
 
     if (declarator->declaratorId())
         text += textOf(declarator->declaratorId());
@@ -1078,12 +1078,12 @@ QByteArray Semantic::declaratorToString(DeclaratorAST* declarator, const QByteAr
         List<AST*> arrays = *declarator->arrayDimensionList();
         foreach (AST *current, arrays) {
             current=current;    //silence unused symbol warning
-            text += "[]";
+            text += QByteArray("[]");
         }
     }
 
     if (declarator->parameterDeclarationClause()){
-        text += "(";
+        text += QByteArray("(");
 
         ParameterDeclarationListAST* l = declarator->parameterDeclarationClause()->parameterDeclarationList();
         if (l != 0){
@@ -1092,21 +1092,21 @@ QByteArray Semantic::declaratorToString(DeclaratorAST* declarator, const QByteAr
                 QByteArray type = typeSpecToString(current->typeSpec());
                 text += type;
                 if (!type.isEmpty())
-                    text += " ";
+                    text += QByteArray(" ");
                 text += declaratorToString(current->declarator());
 
                 // ### FIXME if (it.current())
-                    text += ", ";
+                    text += QByteArray(", ");
             }
         }
 
-        text += ")";
+        text += QByteArray(")");
 
         if (declarator->constant() != 0)
-            text += " const";
+            text += QByteArray(" const");
     }
 
-    return QString(text).replace(QRegExp(" :: "), "::").simplified().toLatin1();
+    return QString::fromLatin1(text).replace(QRegExp(QLatin1String(" :: ")), QLatin1String("::")).simplified().toLatin1();
 }
 
 QByteArray Semantic::textOf(const AST *node) const
@@ -1117,7 +1117,7 @@ QByteArray Semantic::textOf(const AST *node) const
     for (int i = node->startToken(); i < node->endToken(); ++i) {
         if (!m_tokenStream->isHidden(i)) {
             if (i != node->startToken())
-                text += " ";
+                text += QByteArray(" ");
             text += m_tokenStream->tokenText(i);
         }
     }

@@ -34,12 +34,12 @@ QString findRulesFile(const QString &fileName)
 {
     // Check QLibraryInfo::DataPath/filename
     QString filePath;
-    filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::DataPath) + "/" + fileName)  ;
+    filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::DataPath) + QLatin1String("/") + fileName)  ;
     if (QFile::exists(filePath))
         return QFileInfo(filePath).canonicalFilePath();
 
     // Check QLibraryInfo::PrefixPath/tools/porting/src/filename
-    filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::PrefixPath) + "/tools/porting/src/" + fileName);
+    filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::PrefixPath) + QLatin1String("/tools/porting/src/") + fileName);
     if (QFile::exists(filePath))
         return QFileInfo(filePath).canonicalFilePath();
 
@@ -108,7 +108,7 @@ int main(int argc, char**argv)
 {
     QCoreApplication app(argc, argv);
     applicationDirPath = app.applicationDirPath();
-    QString defaultRulesFileName = "q3porting.xml";
+    QString defaultRulesFileName = QLatin1String("q3porting.xml");
     QStringList inFileNames;
     QStringList includeSearchDirectories;
     bool enableCppParsing = true;
@@ -117,14 +117,14 @@ int main(int argc, char**argv)
     bool alwaysOverwrite = false;
     int currentArg = 1;
 
-    const Option helpOption("-h", "Display this help.");
-    const Option rulesFileOption("-rulesFile", "Specify the location for the rules file.");
-    const Option includeDirectoryOption("-I", "Add directory to the list of directories to be searched for header files.");
-    const Option disableCppParsingOption("-disableCppParsing", "Disable the C++ parsing component.");
-    const Option disableBuiltinQt3HeadersOption("-disableBuiltinQt3Headers", "Do not use the built-in Qt 3 headers.");
-    const Option missingFileWarningsOption("-missingFileWarnings", "Warn about files not found while searching for header files.");
-    const Option alwaysOverwriteOption("-alwaysOverwrite", "Port all files without prompting.");
-    const Option strictOption("-strict", "Be stricter when selecting which tokens to replace.");
+    const Option helpOption(QLatin1String("-h"), QLatin1String("Display this help."));
+    const Option rulesFileOption(QLatin1String("-rulesFile"), QLatin1String("Specify the location for the rules file."));
+    const Option includeDirectoryOption(QLatin1String("-I"), QLatin1String("Add directory to the list of directories to be searched for header files."));
+    const Option disableCppParsingOption(QLatin1String("-disableCppParsing"), QLatin1String("Disable the C++ parsing component."));
+    const Option disableBuiltinQt3HeadersOption(QLatin1String("-disableBuiltinQt3Headers"), QLatin1String("Do not use the built-in Qt 3 headers."));
+    const Option missingFileWarningsOption(QLatin1String("-missingFileWarnings"), QLatin1String("Warn about files not found while searching for header files."));
+    const Option alwaysOverwriteOption(QLatin1String("-alwaysOverwrite"), QLatin1String("Port all files without prompting."));
+    const Option strictOption(QLatin1String("-strict"), QLatin1String("Be stricter when selecting which tokens to replace."));
 
     const OptionList optionList = OptionList() << helpOption << alwaysOverwriteOption << rulesFileOption
                                                << includeDirectoryOption << disableCppParsingOption
@@ -138,11 +138,11 @@ int main(int argc, char**argv)
 
     // Read arguments.
     while (currentArg < argc) {
-        QString argText = argv[currentArg];
+        QString argText = QLatin1String(argv[currentArg]);
         if(argText.isEmpty()) {
             continue;
-        } else if (argText == "--help" || argText == "/h" || argText == "-help"
-            || argText == "-h"  || argText == "-?" || argText == "/?") {
+        } else if (argText == QLatin1String("--help") || argText == QLatin1String("/h") || argText == QLatin1String("-help")
+            || argText == QLatin1String("-h")  || argText == QLatin1String("-?") || argText == QLatin1String("/?")) {
             usage(optionList);
             return 0;
         } else if (rulesFileOption.checkArgument(argText)) {
@@ -151,7 +151,7 @@ int main(int argc, char**argv)
                 printf("You must specify a file name along with %s \n", argText.toLocal8Bit().constData());
                 return 0;
             }
-            rulesFilePath = argv[currentArg];
+            rulesFilePath = QLatin1String(argv[currentArg]);
 
             if (!QFile::exists(rulesFilePath)) {
                 printf("File not found: %s\n", rulesFilePath.toLocal8Bit().constData());
@@ -164,12 +164,12 @@ int main(int argc, char**argv)
                      argText.toLocal8Bit().constData());
                 return 0;
             }
-            includeSearchDirectories += argv[currentArg];
+            includeSearchDirectories += QLatin1String(argv[currentArg]);
         } else if (disableCppParsingOption.checkArgument(argText)) {
             enableCppParsing = false;
         } else if (strictOption.checkArgument(argText)) {
             // Enable strict mode, this is used by the ScopedTokenReplacement constructor. 
-            Logger::instance()->globalState.insert("strictMode", "");
+            Logger::instance()->globalState.insert(QLatin1String("strictMode"), QLatin1String(""));
         } else if (disableBuiltinQt3HeadersOption.checkArgument(argText)) {
             useBuildtinQt3Headers = false;
         } else if (missingFileWarningsOption.checkArgument(argText)) {
@@ -177,7 +177,7 @@ int main(int argc, char**argv)
         } else if (alwaysOverwriteOption.checkArgument(argText)) {
             alwaysOverwrite = true;
             FileWriter::instance()->setOverwriteFiles(FileWriter::AlwaysOverWrite);
-        } else if (argText[0]  == '-') {
+        } else if (argText[0]  == QLatin1Char('-')) {
             printf("Unknown option %s\n", argText.toLocal8Bit().constData());
             return 0;
         } else {
@@ -212,10 +212,10 @@ int main(int argc, char**argv)
     // Construct a ProjectPorter object add pass it the options.
     QStringList builtinQtheaders;
     if (useBuildtinQt3Headers) {
-        builtinQtheaders += ":qt3headers0.resource";
-        builtinQtheaders += ":qt3headers1.resource";
-        builtinQtheaders += ":qt3headers2.resource";
-        builtinQtheaders += ":qt3headers3.resource";
+        builtinQtheaders += QLatin1String(":qt3headers0.resource");
+        builtinQtheaders += QLatin1String(":qt3headers1.resource");
+        builtinQtheaders += QLatin1String(":qt3headers2.resource");
+        builtinQtheaders += QLatin1String(":qt3headers3.resource");
     }
 
     ProjectPorter porter(QDir::currentPath(), includeSearchDirectories, builtinQtheaders);
@@ -227,7 +227,7 @@ int main(int argc, char**argv)
     foreach (QString inFileName, inFileNames) {
         const QString canonicalFileName = QFileInfo(inFileName).canonicalFilePath();
         if (QFile::exists(canonicalFileName)) {
-            if (canonicalFileName.endsWith(".pro") || canonicalFileName.endsWith(".pri"))
+            if (canonicalFileName.endsWith(QLatin1String(".pro")) || canonicalFileName.endsWith(QLatin1String(".pri")))
                 porter.portProject(canonicalFileName);
             else
                 porter.portFile(canonicalFileName);
@@ -239,7 +239,7 @@ int main(int argc, char**argv)
     // Write log
     if (Logger::instance()->numEntries() > 0) {
         QStringList report = Logger::instance()->fullReport();
-        QString logFileName =  "portinglog.txt";
+        QString logFileName =  QLatin1String("portinglog.txt");
         printf("Writing log to %s \n", logFileName.toLocal8Bit().constData());
         QByteArray logContents;
         QBuffer logBuffer(&logContents);

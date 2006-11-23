@@ -81,13 +81,13 @@ void ProjectPorter::portFile(QString fileName)
 
 void ProjectPorter::error(QString type, QString text)
 {
-   if (warnings && type == "Error")
+   if (warnings && type == QLatin1String("Error"))
         printf("Warning: %s\n", text.toLocal8Bit().constData());
 }
 
 void ProjectPorter::portProject(QString basePath, QString proFileName)
 {
-    QString fullInFileName = basePath + "/" + proFileName;
+    QString fullInFileName = basePath + QLatin1String("/") + proFileName;
     QFileInfo infileInfo(fullInFileName);
     if (!infileInfo.exists()) {
         printf("Could not open file: %s\n", QDir::toNativeSeparators(fullInFileName).toLocal8Bit().constData());
@@ -101,34 +101,34 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
     // Check if this is a TEMPLATE = subdirs .pro file, in that case we
     // process each subdir (recursively).
 
-    QString templateTag = proFileMap["TEMPLATE"];
-    if (templateTag == "subdirs") {
-        QStringList subdirs = proFileMap["SUBDIRS"].split(" ", QString::SkipEmptyParts);
+    QString templateTag = proFileMap[QLatin1String("TEMPLATE")];
+    if (templateTag == QLatin1String("subdirs")) {
+        QStringList subdirs = proFileMap[QLatin1String("SUBDIRS")].split(QLatin1String(" "), QString::SkipEmptyParts);
         foreach(QString subdir, subdirs) {
-            QString newBasePath  = basePath + "/" + subdir;
-            QStringList dirsInSubdir = subdir.split(QRegExp("/|\\\\"), QString::SkipEmptyParts);
-            QString newProFileName = dirsInSubdir.last() + ".pro";
+            QString newBasePath  = basePath + QLatin1String("/") + subdir;
+            QStringList dirsInSubdir = subdir.split(QRegExp(QLatin1String("/|\\\\")), QString::SkipEmptyParts);
+            QString newProFileName = dirsInSubdir.last() + QLatin1String(".pro");
             portProject(newBasePath, newProFileName);
         }
         return;
     }
 
     // Get headers and sources file names from .pro file.
-    QStringList sources = proFileMap["SOURCES"].split(" ", QString::SkipEmptyParts);
-    QStringList headers = proFileMap["HEADERS"].split(" ", QString::SkipEmptyParts);
-    QStringList forms = proFileMap["FORMS"].split(" ", QString::SkipEmptyParts);
+    QStringList sources = proFileMap[QLatin1String("SOURCES")].split(QLatin1String(" "), QString::SkipEmptyParts);
+    QStringList headers = proFileMap[QLatin1String("HEADERS")].split(QLatin1String(" "), QString::SkipEmptyParts);
+    QStringList forms = proFileMap[QLatin1String("FORMS")].split(QLatin1String(" "), QString::SkipEmptyParts);
     QStringList uidoth;
     for (int i = 0; i < forms.size(); ++i) {
-        QString ui_h = forms.at(i) + ".h";
-        if (QFile::exists(basePath + "/" + ui_h))
+        QString ui_h = forms.at(i) + QLatin1String(".h");
+        if (QFile::exists(basePath + QLatin1String("/") + ui_h))
             uidoth += ui_h;
     }
 
     if (analyze) {
         printf("Parsing");
         // Get include paths from the pro file.
-        QStringList includeProPaths = proFileMap["INCLUDEPATH"].split(" ", QString::SkipEmptyParts);
-        QStringList dependProPaths = proFileMap["DEPENDPATH"].split(" ", QString::SkipEmptyParts);
+        QStringList includeProPaths = proFileMap[QLatin1String("INCLUDEPATH")].split(QLatin1String(" "), QString::SkipEmptyParts);
+        QStringList dependProPaths = proFileMap[QLatin1String("DEPENDPATH")].split(QLatin1String(" "), QString::SkipEmptyParts);
         IncludeFiles includeFiles(basePath, includeDirectories + includeProPaths + dependProPaths);
 
         PreprocessorController preprocessorController(includeFiles, preprocessorCache, qt3HeadersFilenames);
@@ -170,7 +170,7 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
     if (!uidoth.isEmpty())
         portFiles(basePath, uidoth);
 
-    Logger::instance()->globalState["currentFileName"] = proFileName;
+    Logger::instance()->globalState[QLatin1String("currentFileName")] = proFileName;
     Logger::instance()->beginSection();
     portProFile(fullInFileName, proFileMap);
 }
@@ -187,7 +187,7 @@ void ProjectPorter::portFiles(QString basePath, QStringList fileNames)
         if (fileInfo.isAbsolute()) {
             fullFilePath = QDir::cleanPath(fileName);
         } else {
-            fullFilePath = QDir::cleanPath(basePath + "/" + fileName);
+            fullFilePath = QDir::cleanPath(basePath + QLatin1String("/") + fileName);
         }
 
         QFileInfo fullFilePathInfo(fullFilePath);
@@ -197,7 +197,7 @@ void ProjectPorter::portFiles(QString basePath, QStringList fileNames)
         }
 
         if (!processedFilesSet.contains(fullFilePath)){
-            Logger::instance()->globalState["currentFileName"] = fullFilePath;
+            Logger::instance()->globalState[QLatin1String("currentFileName")] = fullFilePath;
             filePorter.port(fullFilePath);
             processedFilesSet.insert(fullFilePath);
         }
@@ -226,31 +226,31 @@ void ProjectPorter::portProFile(QString fileName, QMap<QString, QString> tagMap)
      QSet<QByteArray> qtModules;
 
     // Add qt3support to the Qt tag
-    qtModules.insert("qt3support");
+    qtModules.insert(QByteArray("qt3support"));
 
     // Read CONFIG and add other modules.
-    QStringList config = tagMap["CONFIG"].split(" ", QString::SkipEmptyParts);
-    if (config.contains("opengl"))
-        qtModules.insert("opengl");
-    if (config.contains("xml"))
-        qtModules.insert("xml");
-    if (config.contains("sql"))
-        qtModules.insert("sql");
-    if (config.contains("network"))
-        qtModules.insert("network");
+    QStringList config = tagMap[QLatin1String("CONFIG")].split(QLatin1String(" "), QString::SkipEmptyParts);
+    if (config.contains(QLatin1String("opengl")))
+        qtModules.insert(QByteArray("opengl"));
+    if (config.contains(QLatin1String("xml")))
+        qtModules.insert(QByteArray("xml"));
+    if (config.contains(QLatin1String("sql")))
+        qtModules.insert(QByteArray("sql"));
+    if (config.contains(QLatin1String("network")))
+        qtModules.insert(QByteArray("network"));
 
     // Get set of used modules from the file porter.
     qtModules += filePorter.usedQtModules();
 
     // Remove gui and core.
-    qtModules.remove("gui");
-    qtModules.remove("core");
+    qtModules.remove(QByteArray("gui"));
+    qtModules.remove(QByteArray("core"));
 
     // Qt3Support is already added.
-    qtModules.remove("3support");
+    qtModules.remove(QByteArray("3support"));
 
     // Remove modules already present in the QT variable.
-    QStringList qt = tagMap["QT"].split(" ", QString::SkipEmptyParts);
+    QStringList qt = tagMap[QLatin1String("QT")].split(QLatin1String(" "), QString::SkipEmptyParts);
     foreach(QString name, qt) {
         qtModules.remove(name.toLatin1());
     }
@@ -260,71 +260,71 @@ void ProjectPorter::portProFile(QString fileName, QMap<QString, QString> tagMap)
 
     if (!qtModules.isEmpty()) {
         changesMade = true;
-        QString insertText = "QT += ";
+        QString insertText = QLatin1String("QT += ");
         foreach(QByteArray module, qtModules) {
-            insertText += module + QLatin1Char(' ');
+            insertText += QString::fromLatin1(module) + QLatin1Char(' ');
         }
-        lines += QString("#The following line was inserted by qt3to4");
+        lines += QString(QLatin1String("#The following line was inserted by qt3to4"));
         lines += insertText;
-         QString logText = "In file "
-                        + logger->globalState.value("currentFileName")
-                        + ": Added entry "
+         QString logText = QLatin1String("In file ")
+                        + logger->globalState.value(QLatin1String("currentFileName"))
+                        + QLatin1String(": Added entry ")
                         + insertText;
-        logger->addEntry(new PlainLogEntry("Info", "Porting", logText));
+        logger->addEntry(new PlainLogEntry(QLatin1String("Info"), QLatin1String("Porting"), logText));
     }
 
     // Add uic3 if we have forms, and change FORMS and INTERFACES to FORMS3
-    if (!tagMap["FORMS"].isEmpty() || !tagMap["INTERFACES"].isEmpty()) {
+    if (!tagMap[QLatin1String("FORMS")].isEmpty() || !tagMap[QLatin1String("INTERFACES")].isEmpty()) {
         changesMade = true;
-        lines += QString("#The following line was inserted by qt3to4");
-        QString insertText = "CONFIG += uic3" + lineEnding;
+        lines += QString(QLatin1String("#The following line was inserted by qt3to4"));
+        QString insertText = QLatin1String("CONFIG += uic3") + QString::fromLatin1(lineEnding.constData());
         lines += insertText;
-        QString logText = "In file "
-                        + logger->globalState.value("currentFileName")
-                        + ": Added entry "
+        QString logText = QLatin1String("In file ")
+                        + logger->globalState.value(QLatin1String("currentFileName"))
+                        + QLatin1String(": Added entry ")
                         + insertText;
-        logger->addEntry(new PlainLogEntry("Info", "Porting", logText));
+        logger->addEntry(new PlainLogEntry(QLatin1String("Info"), QLatin1String("Porting"), logText));
 
-        const QString formsToForms3("#The following line was changed from FORMS to FORMS3 by qt3to4");
-        const QString interfacesToForms3("#The following line was changed from INTERFACES to FORMS3 by qt3to4");
+        const QString formsToForms3(QLatin1String("#The following line was changed from FORMS to FORMS3 by qt3to4"));
+        const QString interfacesToForms3(QLatin1String("#The following line was changed from INTERFACES to FORMS3 by qt3to4"));
         for (int i = 0; i < lines.count(); ++i) {
             QString cLine = lines.at(i);
             cLine = cLine.trimmed();
-            if (cLine.startsWith("FORMS")) {
-                lines[i].replace("FORMS", "FORMS3");
+            if (cLine.startsWith(QLatin1String("FORMS"))) {
+                lines[i].replace(QLatin1String("FORMS"), QLatin1String("FORMS3"));
                 lines.insert(i, formsToForms3);
                 ++i;
-                QString logText = "In file "
-                    + logger->globalState.value("currentFileName")
-                    + ": Renamed FORMS to FORMS3";
-                logger->addEntry(new PlainLogEntry("Info", "Porting", logText));
-            } else if (cLine.startsWith("INTERFACES")) {
-                lines[i].replace("INTERFACES", "FORMS3");
+                QString logText = QLatin1String("In file ")
+                    + logger->globalState.value(QLatin1String("currentFileName"))
+                    + QLatin1String(": Renamed FORMS to FORMS3");
+                logger->addEntry(new PlainLogEntry(QLatin1String("Info"), QLatin1String("Porting"), logText));
+            } else if (cLine.startsWith(QLatin1String("INTERFACES"))) {
+                lines[i].replace(QLatin1String("INTERFACES"), QLatin1String("FORMS3"));
                 lines.insert(i, interfacesToForms3);
                 ++i;
-                QString logText = "In file "
-                    + logger->globalState.value("currentFileName")
-                    + ": Renamed INTERFACES to FORMS3";
-                logger->addEntry(new PlainLogEntry("Info", "Porting", logText));
+                QString logText = QLatin1String("In file ")
+                    + logger->globalState.value(QLatin1String("currentFileName"))
+                    + QLatin1String(": Renamed INTERFACES to FORMS3");
+                logger->addEntry(new PlainLogEntry(QLatin1String("Info"), QLatin1String("Porting"), logText));
             }
         }
     }
 
     // Comment out any REQUIRES tag.
-    if (!tagMap["REQUIRES"].isEmpty()) {
+    if (!tagMap[QLatin1String("REQUIRES")].isEmpty()) {
         changesMade = true;
-        QString insertText("#The following line was commented out by qt3to4");
+        QString insertText(QLatin1String("#The following line was commented out by qt3to4"));
         for (int i = 0; i < lines.count(); ++i) {
-            if (lines.at(i).startsWith("REQUIRES")) {
+            if (lines.at(i).startsWith(QLatin1String("REQUIRES"))) {
                 QString lineCopy = lines.at(i);
-                lineCopy.prepend('#');
+                lineCopy.prepend(QLatin1Char('#'));
                 lines[i] = lineCopy;
                 lines.insert(i, insertText);
                 ++i; //skip ahead, we just insertet a line at i.
-                QString logText = "In file "
-                            + logger->globalState.value("currentFileName")
-                            + ": Commented out REQUIRES section";
-                logger->addEntry(new PlainLogEntry("Info", "Porting", logText));
+                QString logText = QLatin1String("In file ")
+                            + logger->globalState.value(QLatin1String("currentFileName"))
+                            + QLatin1String(": Commented out REQUIRES section");
+                logger->addEntry(new PlainLogEntry(QLatin1String("Info"), QLatin1String("Porting"), logText));
             }
         }
     }
@@ -332,7 +332,7 @@ void ProjectPorter::portProFile(QString fileName, QMap<QString, QString> tagMap)
     // Check if any changes has been made.
     if (!changesMade) {
         Logger::instance()->addEntry(
-            new PlainLogEntry("Info", "Porting",  QLatin1String("No changes made to file ") + fileName));
+            new PlainLogEntry(QLatin1String("Info"), QLatin1String("Porting"),  QLatin1String("No changes made to file ") + fileName));
         Logger::instance()->commitSection();
         return;
     }
@@ -351,16 +351,16 @@ void ProjectPorter::portProFile(QString fileName, QMap<QString, QString> tagMap)
     } else if (result == FileWriter::WriteFailed) {
         logger->revertSection();
         logger->addEntry(
-            new PlainLogEntry("Error", "Porting",  QLatin1String("Error writing to file ") + fileName));
+            new PlainLogEntry(QLatin1String("Error"), QLatin1String("Porting"),  QLatin1String("Error writing to file ") + fileName));
     } else if (result == FileWriter::WriteSkipped) {
         logger->revertSection();
         logger->addEntry(
-            new PlainLogEntry("Error", "Porting",  QLatin1String("User skipped file ") + fileName));
+            new PlainLogEntry(QLatin1String("Error"), QLatin1String("Porting"),  QLatin1String("User skipped file ") + fileName));
     } else {
         // Internal error.
         logger->revertSection();
         const QString errorString = QLatin1String("Internal error in qt3to4 - FileWriter returned invalid result code while writing to ") + fileName;
-        logger->addEntry(new PlainLogEntry("Error", "Porting", errorString));
+        logger->addEntry(new PlainLogEntry(QLatin1String("Error"), QLatin1String("Porting"), errorString));
     }
 }
 

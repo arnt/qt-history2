@@ -28,7 +28,7 @@ IncludeFiles::IncludeFiles(const QString &basePath, const QStringList &searchPat
         if (QDir::isAbsolutePath(path))
             finalPath = QDir::cleanPath(path);
         else
-            finalPath = QDir::cleanPath(m_basePath + "/" + path);
+            finalPath = QDir::cleanPath(m_basePath + QLatin1String("/") + path);
 
         if(QFile::exists(finalPath))
             m_searchPaths.append(finalPath);
@@ -57,11 +57,11 @@ QString IncludeFiles::quoteLookup(const QString &currentFile,
     if(QDir::isAbsolutePath(currentFile))
         currentFilePath = currentFile;
     else
-        currentFilePath = QDir::cleanPath(m_basePath + "/" + currentFile);
+        currentFilePath = QDir::cleanPath(m_basePath + QLatin1String("/") + currentFile);
 
     //Check if it includeFile exists in the same dir as currentFilePath
     const QString currentPath = QFileInfo(currentFilePath).path();
-    QString localFile = QDir::cleanPath(currentPath + "/" + includeFile);
+    QString localFile = QDir::cleanPath(currentPath + QLatin1String("/") + includeFile);
     if(QFile::exists(localFile))
         return localFile;
 
@@ -90,7 +90,7 @@ QString IncludeFiles::resolve(const QString &filename) const
     if(QDir::isAbsolutePath(filename))
         return filename;
 
-    QString prepended = QDir::cleanPath(m_basePath + "/" + filename);
+    QString prepended = QDir::cleanPath(m_basePath + QLatin1String("/") + filename);
     if(QFile::exists(prepended))
         return prepended;
     else
@@ -107,7 +107,7 @@ QString IncludeFiles::searchIncludePaths(const QString &includeFile) const
 {
     QString foundFile;
     foreach(QString includePath, m_searchPaths) {
-        QString testFile = includePath + "/" + includeFile;
+        QString testFile = includePath + QLatin1String("/") + includeFile;
         if(QFile::exists(testFile)){
             foundFile = testFile;
             break;
@@ -287,7 +287,7 @@ void PreprocessorController::includeSlot(Source *&includee,
     }
 
     includee = m_preprocessorCache.sourceTree(newFilename);
-    emit error("Error", "Could not find file " + filename);
+    emit error(QLatin1String("Error"), QLatin1String("Could not find file ") + filename);
 }
 
 /*
@@ -318,7 +318,7 @@ TokenSectionSequence PreprocessorController::evaluate(const QString &filename, R
 {
     QString resolvedFilename = m_includeFiles.resolve(filename);
     if(!QFile::exists(resolvedFilename))
-        emit error("Error", "Could not find file: " + filename);
+        emit error(QLatin1String("Error"), QLatin1String("Could not find file: ") + filename);
     Source *source  = m_preprocessorCache.sourceTree(resolvedFilename);
 
     return m_rppTreeEvaluator.evaluate(source, activedefinitions);

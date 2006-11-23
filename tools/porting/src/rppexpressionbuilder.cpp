@@ -242,7 +242,7 @@ Expression *ExpressionBuilder::primary_expression()
     } else {
         next();
         bool ok;
-        int val  = QString(lexem()).toInt(&ok, 0);
+        int val  = QString::fromLatin1(lexem()).toInt(&ok, 0);
         if(ok)
             value = createIntLiteral(val);
         else

@@ -36,7 +36,7 @@ Source *Preprocessor::parse(const TokenEngine::TokenContainer &tokenContainer,
     numTokens = m_tokenContainer.count();
 
     if(m_tokenContainer.count() != tokenTypeList.count()) {
-        emit error("Error", "Internal error in preprocessor: Number of tokens is not equal to number of types in type list");
+        emit error(QLatin1String("Error"), QLatin1String("Internal error in preprocessor: Number of tokens is not equal to number of types in type list"));
         return m_source;
     }
 
@@ -528,7 +528,7 @@ TokenSection Preprocessor::readLine()
     if(gotNewline)
         ++lexerTokenIndex; //include newline
     else
-        emit error("Error", "Unexpected end of source");
+        emit error(QLatin1String("Error"), QLatin1String("Unexpected end of source"));
 
     return TokenSection(m_tokenContainer, startIndex, lexerTokenIndex - startIndex);
 }

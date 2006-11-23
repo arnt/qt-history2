@@ -150,7 +150,7 @@ void RppTreeEvaluator::evaluateIncludeDirective(const IncludeDirective *directiv
     Source *currentSource = getParentSource(directive);
     IncludeType includeType = includeTypeFromDirective(directive);
     Source *newSource = 0;
-    emit includeCallback(newSource, currentSource, directive->filename(), includeType);
+    emit includeCallback(newSource, currentSource, QString::fromLatin1(directive->filename().constData()), includeType);
     Q_ASSERT(newSource);    // If you get an assert here you probably
                             // forgot to connect to the includeCallback signal
     evaluateSource(newSource);
@@ -204,7 +204,7 @@ int RppTreeEvaluator::evaluateExpression(Expression *expression)
                if (m_activeDefinitions->contains(identifier)) {
                    int token = e->name().containerIndex(0);
                    TokenContainer value = evaluateMacro(e->name().tokenContainer(token), token);
-                   return QString(value.fullText()).toInt(0, 0);
+                   return QString(QLatin1String(value.fullText())).toInt(0, 0);
                } else {
                    return 0; // error
                }
@@ -470,7 +470,7 @@ MacroFunctionParser::MacroFunctionParser(const TokenEngine::TokenContainer &toke
             continue;
         }
 
-        if (QChar(currentText.at(0)).isSpace()) {
+        if (QChar::fromLatin1(currentText.at(0)).isSpace()) {
             continue;
         }
 

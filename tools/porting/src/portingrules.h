@@ -26,9 +26,9 @@ class RuleDescription
 {
 public:
     explicit RuleDescription(QtSimpleXml &replacementRule) {
-        qt3 = replacementRule["Qt3"].text();
-        qt4 = replacementRule["Qt4"].text();
-        ruleType = replacementRule.attribute("Type");
+        qt3 = replacementRule[QLatin1String("Qt3")].text();
+        qt4 = replacementRule[QLatin1String("Qt4")].text();
+        ruleType = replacementRule.attribute(QLatin1String("Type"));
     }
     QString qt3;
     QString qt4;

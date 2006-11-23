@@ -22,15 +22,15 @@ void addLogSourceEntry(const QString &text, const TokenContainer &tokenContainer
     int line = tokenContainer.line(index);
     int col = tokenContainer.column(index);
     SourcePointLogEntry *logEntry =
-                new SourcePointLogEntry("Info", "Porting",
-                                        logger->globalState.value("currentFileName"),
+                new SourcePointLogEntry(QLatin1String("Info"), QLatin1String("Porting"),
+                                        logger->globalState.value(QLatin1String("currentFileName")),
                                         line, col, text);
     logger->addEntry(logEntry);
 }
 
 void addLogWarning(const QString &text)
 {
-     Logger::instance()->addEntry(new PlainLogEntry("Warning", "Porting", text));
+     Logger::instance()->addEntry(new PlainLogEntry(QLatin1String("Warning"), QLatin1String("Porting"), text));
 }
 
 QualifiedNameParser::QualifiedNameParser(const TokenContainer &tokenContainer, const int tokenIndex)
@@ -100,7 +100,7 @@ int QualifiedNameParser::findScopeOperator(Direction direction)
     tokenIndex += direction;
     while(tokenText.isEmpty() && isValidIndex(tokenIndex)) {
         tokenText = tokenContainer.text(tokenIndex).trimmed();
-        if(tokenText=="::")
+        if(tokenText==QByteArray("::"))
            return tokenIndex;
         tokenIndex += direction;
     }
@@ -141,7 +141,7 @@ bool GenericTokenReplacement::doReplace(const TokenContainer &tokenContainer,
 {
     QByteArray tokenText = tokenContainer.text(index);
     if(tokenText == oldToken){
-        addLogSourceEntry(tokenText + " -> " + newToken, tokenContainer, index);
+        addLogSourceEntry(QString::fromLatin1(tokenText + QByteArray(" -> ") + newToken), tokenContainer, index);
         TokenEngine::Token token = tokenContainer.token(index);
         textReplacements.insert(newToken, token.start, token.length);
         return true;
@@ -176,8 +176,7 @@ bool ClassNameReplacement::doReplace(const TokenContainer &tokenContainer, int i
     if(nameParser.isPartOfQualifiedName() &&
        nameParser.peek(QualifiedNameParser::Right) != -1) {
         int nameTokenIndex = nameParser.peek(QualifiedNameParser::Right);
-        QByteArray name = tokenContainer.text(nameTokenIndex);
-
+        QByteArray name = tokenContainer.text(nameTokenIndex); 
         TextReplacements textReplacements;
         QList<TokenReplacement*> tokenReplacements
             = PortingRules::instance()->getTokenReplacementRules();
@@ -190,7 +189,7 @@ bool ClassNameReplacement::doReplace(const TokenContainer &tokenContainer, int i
         if(changed)
             return false;
     }
-    addLogSourceEntry(tokenText + " -> " + newToken, tokenContainer, index);
+    addLogSourceEntry(QString::fromLatin1(tokenText + QByteArray(" -> ") + newToken), tokenContainer, index);
     TokenEngine::Token token = tokenContainer.token(index);
     textReplacements.insert(newToken, token.start, token.length);
     return true;
@@ -202,7 +201,7 @@ ScopedTokenReplacement::ScopedTokenReplacement(const QByteArray &oldToken,
                                                const QByteArray &newToken)
 :newScopedName(newToken)
 {
-    Q_ASSERT(oldToken.contains("::"));
+    Q_ASSERT(oldToken.contains(QByteArray("::")));
 
     // Split oldToken into scope and name parts.
     oldName = oldToken.mid(oldToken.lastIndexOf(':')+1);
@@ -210,14 +209,14 @@ ScopedTokenReplacement::ScopedTokenReplacement(const QByteArray &oldToken,
 
     // Split newToken into scope and name parts, execept if we have a spcial
     // case like Qt::WType_Modal -> (Qt::WType_Dialog | Qt::WShowModal)
-    if (newToken.count("::") != 1 || newToken.contains("(")) {
+    if (newToken.count(QByteArray("::")) != 1 || newToken.contains(QByteArray("("))) {
         newName = newToken;
     } else {
         newName = newToken.mid(newToken.lastIndexOf(':')+1);
         newScope = newToken.mid(0, newToken.indexOf(':'));
     }
 
-    strictMode = Logger::instance()->globalState.contains("strictMode");
+    strictMode = Logger::instance()->globalState.contains(QString::fromLatin1("strictMode"));
 }
 
 bool ScopedTokenReplacement::doReplace(const TokenContainer &tokenContainer, int sourceIndex, TextReplacements &textReplacements)
@@ -269,7 +268,7 @@ bool ScopedTokenReplacement::doReplace(const TokenContainer &tokenContainer, int
             return false;
 
         const Token sourceToken = tokenContainer.token(sourceIndex);
-        addLogSourceEntry(sourceName + " -> " + newScopedName, tokenContainer, sourceIndex);
+        addLogSourceEntry(QString::fromLatin1(sourceName + QByteArray(" -> ") + newScopedName), tokenContainer, sourceIndex);
         textReplacements.insert(newScopedName, sourceToken.start, sourceName.size());
         return true;
     }
@@ -292,14 +291,15 @@ bool ScopedTokenReplacement::doReplace(const TokenContainer &tokenContainer, int
         if (oldScope != "Qt")
             return false;
         // Check if sourceScope inherits the Qt class.
-        if (!PortingRules::instance()->getInheritsQt().contains(sourceScope)) //TODO optimize: linear search
+        if (!PortingRules::instance()->getInheritsQt().contains(QString::fromLatin1(sourceScope.constData()))) //TODO optimize: linear search
             return false;
     }
 
     // Spcecial cases, such as QIODevice::Offset -> Q_LONGLONG
     // or Qt::WType_Modal -> (Qt::WType_Dialog | Qt::WShowModal).
     if (newScope.isEmpty()) {
-        addLogSourceEntry(sourceScope + "::" + sourceName + " -> " + newScopedName, tokenContainer, sourceIndex);
+        addLogSourceEntry(QString::fromLatin1((sourceScope + QByteArray("::") + sourceName +
+                          QByteArray(" -> ") + newScopedName).constData()), tokenContainer, sourceIndex);
         const int qualiferLength = sourceNameToken.start - sourceScopeToken.start;
         const int length = qualiferLength + sourceNameToken.length;
         textReplacements.insert(newName, sourceScopeToken.start, length);
@@ -311,20 +311,22 @@ bool ScopedTokenReplacement::doReplace(const TokenContainer &tokenContainer, int
         // If the names are equal, there is no need to do anything.
         if (newName == sourceName)
             return true;
-        addLogSourceEntry(sourceName + " -> " + newName, tokenContainer, sourceIndex);
+        addLogSourceEntry(QString::fromLatin1((sourceName + QByteArray(" -> ") + newName).constData()), tokenContainer, sourceIndex);
         textReplacements.insert(newName, sourceNameToken.start, sourceNameToken.length);
         return true;
     }
 
     // If the names are equal, replace scope only.
     if (newName == sourceName) {
-        addLogSourceEntry(sourceScope + " -> " + newScope, tokenContainer, sourceScopeIndex);
+        addLogSourceEntry(QString::fromLatin1((sourceScope + QByteArray(" -> ") + newScope).constData()), tokenContainer, sourceScopeIndex);
         textReplacements.insert(newScope, sourceScopeToken.start, sourceScopeToken.length);
         return true;
     }
 
     // Replace scope and name.
-    addLogSourceEntry(sourceScope + "::" + sourceName + " -> " + newScopedName, tokenContainer, sourceScopeIndex);
+    addLogSourceEntry(QString::fromLatin1((sourceScope + QByteArray("::") + sourceName +
+                      QByteArray(" -> ") + newScopedName).constData()),
+                      tokenContainer, sourceScopeIndex);
     textReplacements.insert(newScope, sourceScopeToken.start, sourceScopeToken.length);
     textReplacements.insert(newName, sourceNameToken.start, sourceNameToken.length);
     return true;

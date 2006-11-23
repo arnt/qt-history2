@@ -40,7 +40,7 @@ FileWriter::FileWriter(OverWriteFiles overWrite, QString overwriteMsg)
 ,overwriteMessage(overwriteMsg)
 {
     if(overwriteMessage.isEmpty())
-       overwriteMessage = "Convert file ";
+       overwriteMessage = QLatin1String("Convert file ");
 }
 
 FileWriter::WriteResult FileWriter::writeFileVerbously(QString filePath, QByteArray contents)

@@ -57,32 +57,32 @@ QMap<QString, QString> proFileTagMap( const QString& text, QString currentPath )
             still need to do it after we include to make sure the
             included file does not have comments
         */
-        t.replace( QRegExp(QString("#[^\n]*\n")), QString(" ") );
+        t.replace( QRegExp(QLatin1String("#[^\n]*\n")), QLatin1String(" ") );
       /*
             Strip comments, merge lines ending with backslash, add
             spaces around '=' and '+=', replace '\n' with ';', and
             simplify white spaces.
         */
-        t.replace( QRegExp(QString("#[^\n]*\n")), QString(" ") );
-        t.replace( QRegExp(QString("\\\\[^\n\\S]*\n")), QString(" ") );
-        t.replace( "=", QString(" = ") );
-        t.replace( "+ =", QString(" += ") );
-        t.replace( "\n", QString(";") );
+        t.replace( QRegExp(QLatin1String("#[^\n]*\n")), QLatin1String(" ") );
+        t.replace( QRegExp(QLatin1String("\\\\[^\n\\S]*\n")), QLatin1String(" ") );
+        t.replace( QLatin1String("="), QLatin1String(" = ") );
+        t.replace( QLatin1String("+ ="), QLatin1String(" += ") );
+        t.replace( QLatin1String("\n"), QLatin1String(";") );
         t = t.simplified();
 
         /*
             Populate tagMap with 'key = value' entries.
         */
-        QStringList lines = t.split(';');
+        QStringList lines = t.split(QLatin1Char(';'));
         QStringList::Iterator line;
         for ( line = lines.begin(); line != lines.end(); ++line ) {
-            QStringList toks = (*line).split(' ', QString::SkipEmptyParts);
+            QStringList toks = (*line).split(QLatin1Char(' '), QString::SkipEmptyParts);
 
             if ( toks.count() >= 3 &&
-                (toks[1] == QString("=") || toks[1] == QString("+=") ||
-                toks[1] == QString("*=")) ) {
+                (toks[1] == QLatin1String("=") || toks[1] == QLatin1String("+=") ||
+                toks[1] == QLatin1String("*=")) ) {
                 QString tag = toks.first();
-                int k = tag.lastIndexOf( QChar(':') ); // as in 'unix:'
+                int k = tag.lastIndexOf( QLatin1Char(':') ); // as in 'unix:'
                 if ( k != -1 )
                     tag = tag.mid( k + 1 );
                 toks.erase( toks.begin() );
@@ -91,12 +91,12 @@ QMap<QString, QString> proFileTagMap( const QString& text, QString currentPath )
                 toks.erase( toks.begin() );
 
                 if ( tagMap.contains(tag) ) {
-                    if ( action == QString("=") )
-                        tagMap.insert( tag, toks.join(" ") );
+                    if ( action == QLatin1String("=") )
+                        tagMap.insert( tag, toks.join(QLatin1String(" ")) );
                     else
-                        tagMap[tag] += QChar( ' ' ) + toks.join( " " );
+                        tagMap[tag] += QLatin1Char( ' ' ) + toks.join( QLatin1String(" ") );
                 } else {
-                    tagMap[tag] = toks.join( " " );
+                    tagMap[tag] = toks.join( QLatin1String(" ") );
                 }
             }
         }
@@ -104,7 +104,7 @@ QMap<QString, QString> proFileTagMap( const QString& text, QString currentPath )
             Expand $$variables within the 'value' part of a 'key = value'
             pair.
         */
-        QRegExp var( "\\$\\$[({]?([a-zA-Z0-9_]+)[)}]?" );
+        QRegExp var( QLatin1String("\\$\\$[({]?([a-zA-Z0-9_]+)[)}]?") );
         QMap<QString, QString>::Iterator it;
         for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
             int i = 0;
@@ -113,13 +113,13 @@ QMap<QString, QString> proFileTagMap( const QString& text, QString currentPath )
                 QString invocation = var.cap(1);
                 QString after;
 
-                if ( invocation == "system" ) {
+                if ( invocation == QLatin1String("system") ) {
                     // skip system(); it will be handled in the next pass
                     ++i;
                 } else {
                     if ( tagMap.contains(invocation) )
                         after = tagMap[invocation];
-                    else if (invocation.toLower() == "pwd")
+                    else if (invocation.toLower() == QLatin1String("pwd"))
                         after = currentPath;
                     (*it).replace( i, len, after );
                     i += after.length();
@@ -130,7 +130,7 @@ QMap<QString, QString> proFileTagMap( const QString& text, QString currentPath )
         /*
           Execute system() calls.
         */
-        QRegExp callToSystem( "\\$\\$system\\s*\\(([^()]*)\\)" );
+        QRegExp callToSystem( QLatin1String("\\$\\$system\\s*\\(([^()]*)\\)") );
         for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
             int i = 0;
             while ( (i = callToSystem.indexIn((*it), i)) != -1 ) {
@@ -151,7 +151,7 @@ QMap<QString, QString> proFileTagMap( const QString& text, QString currentPath )
                             buff[i] = ' ';
                     }
                     buff[read_in] = '\0';
-                    after += buff;
+                    after += QLatin1String(buff);
                 }
                 (*it).replace( i, callToSystem.matchedLength(), after );
                 i += after.length();

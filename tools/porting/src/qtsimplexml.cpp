@@ -34,7 +34,7 @@ QtSimpleXml &QtSimpleXml::operator [](int index)
     }
 
     if (index == children.size()) {
-        QtSimpleXml *item = new QtSimpleXml("item");
+        QtSimpleXml *item = new QtSimpleXml(QLatin1String("item"));
         item->parent = this;
         children.insert(item->name(), item);
         return *item;
@@ -73,8 +73,8 @@ QtSimpleXml &QtSimpleXml::operator =(const QString &text)
 QDomDocument QtSimpleXml::toDomDocument() const
 {
     QDomDocument doc;
-    QString data = "version=\"1.0\" encoding=\"UTF-8\"";
-    doc.appendChild(doc.createProcessingInstruction("xml", data));
+    QString data = QLatin1String("version=\"1.0\" encoding=\"UTF-8\"");
+    doc.appendChild(doc.createProcessingInstruction(QLatin1String("xml"), data));
 
     if (!valid)
 	return doc;
@@ -159,7 +159,7 @@ bool QtSimpleXml::setContent(const QString &content)
 
     if (!doc.setContent(content, false, &errorMsg, &errorLine, &errorColumn)) {
         errorStr = errorMsg;
-        errorStr += " at " + QString::number(errorLine) + ":" + QString::number(errorColumn);
+        errorStr += QLatin1String(" at ") + QString::number(errorLine) + QLatin1String(":") + QString::number(errorColumn);
         return false;
     }
 
@@ -175,7 +175,7 @@ bool QtSimpleXml::setContent(QIODevice *device)
     int errorColumn;
     if (!doc.setContent(device, false, &errorMsg, &errorLine, &errorColumn)) {
         errorStr = errorMsg;
-        errorStr += " at " + QString::number(errorLine) + ":" + QString::number(errorColumn);
+        errorStr += QLatin1String(" at ") + QString::number(errorLine) + QLatin1String(":") + QString::number(errorColumn);
         return false;
     }
 

@@ -69,7 +69,7 @@ void FilePorter::port(QString fileName)
     // Check if any changes has been made.
     if(portedContents == sourceTokens.fullText()) {
         Logger::instance()->addEntry(
-            new PlainLogEntry("Info", "Porting",  QLatin1String("No changes made to file ") + fileName));
+            new PlainLogEntry(QLatin1String("Info"), QLatin1String("Porting"),  QLatin1String("No changes made to file ") + fileName));
         Logger::instance()->commitSection();
         return;
     }
@@ -82,16 +82,16 @@ void FilePorter::port(QString fileName)
     } else if (result == FileWriter::WriteFailed) {
         logger->revertSection();
         logger->addEntry(
-            new PlainLogEntry("Error", "Porting",  QLatin1String("Error writing to file ") + fileName));
+            new PlainLogEntry(QLatin1String("Error"), QLatin1String("Porting"),  QLatin1String("Error writing to file ") + fileName));
     } else if (result == FileWriter::WriteSkipped) {
         logger->revertSection();
         logger->addEntry(
-            new PlainLogEntry("Error", "Porting",  QLatin1String("User skipped file ") + fileName));
+            new PlainLogEntry(QLatin1String("Error"), QLatin1String("Porting"),  QLatin1String("User skipped file ") + fileName));
     } else {
         // Internal error.
         logger->revertSection();
         const QString errorString = QLatin1String("Internal error in qt3to4 - FileWriter returned invalid result code while writing to ") + fileName;
-        logger->addEntry(new PlainLogEntry("Error", "Porting", errorString));
+        logger->addEntry(new PlainLogEntry(QLatin1String("Error"), QLatin1String("Porting"), errorString));
     }
 }
 
@@ -129,11 +129,11 @@ QByteArray FilePorter::includeAnalyse(QByteArray fileContents)
     const QHash<QByteArray, QByteArray> neededHeaders = PortingRules::instance()->getNeededHeaders();
     QList<QByteArray> insertHeaders;
     foreach(const QByteArray className, classes) {
-        if (!headers.contains(className.toLower() + ".h") &&
+        if (!headers.contains((className.toLower() + QByteArray(".h"))) &&
             !headers.contains(className)) {
             const QByteArray insertHeader = neededHeaders.value(className);
             if (insertHeader != QByteArray())
-                insertHeaders.append("#include <" + insertHeader + ">");
+                insertHeaders.append((QByteArray("#include <") + insertHeader + QByteArray(">")));
         }
     }
 
@@ -145,21 +145,21 @@ QByteArray FilePorter::includeAnalyse(QByteArray fileContents)
         QByteArray insertText;
         QByteArray logText;
 
-        insertText += "//Added by qt3to4:" + lineEnding;
-        logText += "In file ";
-        logText += Logger::instance()->globalState.value("currentFileName").toLocal8Bit();
-        logText += ": Added the following include directives:\n";
+        insertText += QByteArray("//Added by qt3to4:") + lineEnding;
+        logText += QByteArray("In file ");
+        logText += Logger::instance()->globalState.value(QLatin1String("currentFileName")).toLocal8Bit();
+        logText += QByteArray(": Added the following include directives:\n");
         foreach (QByteArray headerName, insertHeaders) {
             insertText = insertText + headerName + lineEnding;
-            logText += "\t";
-            logText += headerName + " ";
+            logText += QByteArray("\t");
+            logText += headerName + QByteArray(" ");
         }
 
         const int insertLine = 0;
         Logger::instance()->updateLineNumbers(insertLine, insertCount + 1);
         const int insertPos = includeDirectiveAnalyzer.insertPos();
         fileContents.insert(insertPos, insertText);
-        Logger::instance()->addEntry(new PlainLogEntry("Info", "Porting", logText));
+        Logger::instance()->addEntry(new PlainLogEntry(QLatin1String("Info"), QLatin1String("Porting"), QString::fromLatin1(logText.constData())));
     }
 
     return fileContents;
@@ -185,7 +185,7 @@ void PreprocessReplace::evaluateIncludeDirective(const Rpp::IncludeDirective *di
     const TokenEngine::TokenList headerPathTokens = directive->filenameTokens();
 
     // Get the file name part of the file path.
-    const QByteArray headerFileName = QFileInfo(headerPathName).fileName().toUtf8();
+    const QByteArray headerFileName = QFileInfo(QString::fromLatin1(headerPathName.constData())).fileName().toUtf8();
 
     // Check if we should replace the filename.
     QByteArray replacement = headerReplacements.value(headerFileName);
@@ -206,7 +206,8 @@ void PreprocessReplace::evaluateIncludeDirective(const Rpp::IncludeDirective *di
         const int length = headerFileName.count();
         const int startPos = endPos - length;
         replacements.insert(replacement, startPos, length);
-        addLogSourceEntry(headerFileName + " -> " + replacement, headerPathTokens.tokenContainer(0), headerPathTokens.containerIndex(0));
+        addLogSourceEntry(QString::fromLatin1((headerFileName + QByteArray(" -> ") + replacement).constData()),
+                          headerPathTokens.tokenContainer(0), headerPathTokens.containerIndex(0));
     }
 }
 
@@ -225,13 +226,13 @@ void PreprocessReplace::evaluateText(const Rpp::Text *textLine)
             const QByteArray text = container.text(tokenIndex);
             const TokenEngine::Token containerToken = container.token(tokenIndex);
            
-            if (text.contains("MOC_SKIP_BEGIN")) {
-                replacements.insert("#ifndef Q_MOC_RUN", containerToken.start, containerToken.length);
-                addLogSourceEntry("MOC_SKIP_BEGIN -> #ifndef Q_MOC_RUN", container, tokenIndex);
+            if (text.contains(QByteArray("MOC_SKIP_BEGIN"))) {
+                replacements.insert(QByteArray("#ifndef Q_MOC_RUN"), containerToken.start, containerToken.length);
+                addLogSourceEntry(QLatin1String("MOC_SKIP_BEGIN -> #ifndef Q_MOC_RUN"), container, tokenIndex);
             }        
-            if (text.contains("MOC_SKIP_END")) {
-                replacements.insert("#endif", containerToken.start, containerToken.length);
-                addLogSourceEntry("MOC_SKIP_END -> #endif", container, tokenIndex);
+            if (text.contains(QByteArray("MOC_SKIP_END"))) {
+                replacements.insert(QByteArray("#endif"), containerToken.start, containerToken.length);
+                addLogSourceEntry(QLatin1String("MOC_SKIP_END -> #endif"), container, tokenIndex);
             }
         }
     }

@@ -52,14 +52,14 @@ PortingRules::PortingRules(QString xmlFilePath)
 QList<TokenReplacement*> PortingRules::getTokenReplacementRules()
 {
     if(tokenRules.isEmpty())
-         addLogWarning("Warning: token rules list is empty");
+         addLogWarning(QLatin1String("Warning: token rules list is empty"));
     return tokenRules;
 }
 
 QStringList PortingRules::getHeaderList(QtVersion qtVersion)
 {
     if(qt3Headers.isEmpty() || qt4Headers.isEmpty())
-         addLogWarning("Warning: headers list is empty");
+         addLogWarning(QLatin1String("Warning: headers list is empty"));
 
     if (qtVersion==Qt3)
         return qt3Headers;
@@ -70,21 +70,21 @@ QStringList PortingRules::getHeaderList(QtVersion qtVersion)
 QHash<QByteArray, QByteArray> PortingRules::getNeededHeaders()
 {
     if(neededHeaders.isEmpty())
-         addLogWarning("Warning: needed headers list is empty");
+         addLogWarning(QLatin1String("Warning: needed headers list is empty"));
     return neededHeaders;
 }
 
 QStringList PortingRules::getInheritsQt()
 {
     if(tokenRules.isEmpty())
-        addLogWarning("Warning: inheritsQtClass list is empty");
+        addLogWarning(QLatin1String("Warning: inheritsQtClass list is empty"));
     return inheritsQtClass;
 }
 
 QHash<QByteArray, QByteArray> PortingRules::getClassLibraryList()
 {
     if(classLibraryList.isEmpty())
-        addLogWarning("Warning: classLibraryList list is empty");
+        addLogWarning(QLatin1String("Warning: classLibraryList list is empty"));
     return classLibraryList;
 }
 
@@ -107,19 +107,19 @@ void PortingRules::parseXml(QString fileName)
     QtSimpleXml *xmlPointer = loadXml(fileName);
     QtSimpleXml &xml = *xmlPointer;
 
-    int ruleCount = xml["Rules"].numChildren();
+    int ruleCount = xml[QLatin1String("Rules")].numChildren();
     ++ruleCount;
 
     for(int rule=0; rule<ruleCount; ++rule) {
-        QtSimpleXml &currentRule = xml["Rules"][rule];
-        QString ruleType = currentRule.attribute("Type");
+        QtSimpleXml &currentRule = xml[QLatin1String("Rules")][rule];
+        QString ruleType = currentRule.attribute(QLatin1String("Type"));
 
         if(isReplacementRule(ruleType)) {
-            QString qt3Symbol = currentRule["Qt3"].text();
-            QString qt4Symbol = currentRule["Qt4"].text();
+            QString qt3Symbol = currentRule[QLatin1String("Qt3")].text();
+            QString qt4Symbol = currentRule[QLatin1String("Qt4")].text();
 
-            QString disable = currentRule.attribute("Disable");
-            if(disable == "True" || disable == "true") {
+            QString disable = currentRule.attribute(QLatin1String("Disable"));
+            if(disable == QLatin1String("True") || disable == QLatin1String("true")) {
                 disableRule(currentRule);
                 continue;
             }
@@ -127,37 +127,37 @@ void PortingRules::parseXml(QString fileName)
             if (isRuleDisabled(currentRule))
                 continue;
 
-            if(ruleType == "RenamedHeader") {
+            if(ruleType == QLatin1String("RenamedHeader")) {
               headerReplacements.insert(qt3Symbol.toLatin1(), qt4Symbol.toLatin1());
-            } else if(ruleType == "RenamedClass" || ruleType == "RenamedToken" ) {
+            } else if(ruleType == QLatin1String("RenamedClass") || ruleType == QLatin1String("RenamedToken") ) {
                 tokenRules.append(new ClassNameReplacement(
                         qt3Symbol.toLatin1(), qt4Symbol.toLatin1()));
-            } else if(ruleType == "RenamedEnumvalue" || ruleType == "RenamedType" ||
-                    ruleType == "RenamedQtSymbol" ) {
+            } else if(ruleType == QLatin1String("RenamedEnumvalue") || ruleType == QLatin1String("RenamedType") ||
+                    ruleType == QLatin1String("RenamedQtSymbol") ) {
                 checkScopeAddRule(currentRule);
             }
-        } else if(ruleType == "NeedHeader") {
-            const QByteArray className = currentRule["Class"].text().toLatin1();
-            const QByteArray headerName = currentRule["Header"].text().toLatin1();
+        } else if(ruleType == QLatin1String("NeedHeader")) {
+            const QByteArray className = currentRule[QLatin1String("Class")].text().toLatin1();
+            const QByteArray headerName = currentRule[QLatin1String("Header")].text().toLatin1();
             neededHeaders.insert(className, headerName);
         }
-        else if(ruleType == "qt3Header") {
+        else if(ruleType == QLatin1String("qt3Header")) {
             qt3Headers += currentRule.text();
         }
-        else if(ruleType == "qt4Header") {
+        else if(ruleType == QLatin1String("qt4Header")) {
             qt4Headers += currentRule.text();
         }
-        else if(ruleType == "InheritsQt") {
+        else if(ruleType == QLatin1String("InheritsQt")) {
             inheritsQtClass += currentRule.text();
         }
-        else if(ruleType == "Qt4Class") {
+        else if(ruleType == QLatin1String("Qt4Class")) {
             // Get library name, make it lowercase and chop of the "Qt" prefix.
-            const QByteArray libraryName = currentRule["Library"].text().toLatin1().toLower().mid(2);
-            classLibraryList.insert(currentRule["Name"].text().toLatin1(), libraryName);
+            const QByteArray libraryName = currentRule[QLatin1String("Library")].text().toLatin1().toLower().mid(2);
+            classLibraryList.insert(currentRule[QLatin1String("Name")].text().toLatin1(), libraryName);
         }
     }
 
-    QString includeFile = xml["Rules"]["Include"].text();
+    QString includeFile = xml[QLatin1String("Rules")][QLatin1String("Include")].text();
 
     if(includeFile != QString()) {
         QString resolvedIncludeFile = resolveFileName(fileName, includeFile);
@@ -175,10 +175,10 @@ void PortingRules::parseXml(QString fileName)
 */
 void PortingRules::checkScopeAddRule(/*const */QtSimpleXml &currentRule)
 {
-    QByteArray oldToken = currentRule["Qt3"].text().toLatin1();
-    QByteArray newToken = currentRule["Qt4"].text().toLatin1();
+    QByteArray oldToken = currentRule[QLatin1String("Qt3")].text().toLatin1();
+    QByteArray newToken = currentRule[QLatin1String("Qt4")].text().toLatin1();
 
-    if (oldToken.contains("::"))
+    if (oldToken.contains(QByteArray("::")))
         tokenRules.append(new ScopedTokenReplacement(oldToken, newToken));
     else
         tokenRules.append(new GenericTokenReplacement(oldToken, newToken));
@@ -196,7 +196,7 @@ QtSimpleXml *PortingRules::loadXml(const QString fileName) const
     }
     QtSimpleXml *xml = new QtSimpleXml();
     if(!xml->setContent(&f))
-        addLogError(QByteArray("Xml parsing failed: ") + xml->errorString().toLatin1());
+        addLogError(QLatin1String("Xml parsing failed: ") + xml->errorString());
 
     return xml;
 }
@@ -213,7 +213,7 @@ QString PortingRules::resolveFileName(const QString currentFilePath,
     if(QFileInfo(includeFilePath).isAbsolute())
         return includeFilePath;
     QString relativeDirectory = QFileInfo(currentFilePath).dir().dirName();
-    QString testFileName = relativeDirectory + "/" + includeFilePath;
+    QString testFileName = relativeDirectory + QLatin1String("/") + includeFilePath;
     if (QFile::exists(testFileName))
         return testFileName;
 
@@ -224,9 +224,9 @@ QString PortingRules::resolveFileName(const QString currentFilePath,
 */
 bool PortingRules::isReplacementRule(const QString ruleType) const
 {
-    return (ruleType == "RenamedHeader" || ruleType == "RenamedClass" ||
-            ruleType == "RenamedToken" || ruleType == "RenamedEnumvalue" ||
-            ruleType == "RenamedType" || ruleType == "RenamedQtSymbol" );
+    return (ruleType == QLatin1String("RenamedHeader") || ruleType == QLatin1String("RenamedClass") ||
+            ruleType == QLatin1String("RenamedToken") || ruleType == QLatin1String("RenamedEnumvalue") ||
+            ruleType == QLatin1String("RenamedType") || ruleType == QLatin1String("RenamedQtSymbol") );
 }
 
 /*
@@ -252,7 +252,7 @@ bool PortingRules::isRuleDisabled(QtSimpleXml &replacementRule) const
 */
 void PortingRules::addLogWarning(const QString text) const
 {
-    Logger::instance()->addEntry(new PlainLogEntry("Warning", "Porting", text));
+    Logger::instance()->addEntry(new PlainLogEntry(QLatin1String("Warning"), QLatin1String("Porting"), text));
 }
 
 /*
@@ -260,5 +260,5 @@ void PortingRules::addLogWarning(const QString text) const
 */
 void PortingRules::addLogError(const QString text) const
 {
-    Logger::instance()->addEntry(new PlainLogEntry("Error", "Porting", text));
+    Logger::instance()->addEntry(new PlainLogEntry(QLatin1String("Error"), QLatin1String("Porting"), text));
 }
