@@ -653,9 +653,6 @@ void QBoxLayout::addItem(QLayoutItem *item)
     Inserts \a item into this box layout at position \a index. If \a
     index is negative, the item is added at the end.
 
-    \warning Do not call QLayout::insertChildLayout() if \a item is
-    a QLayout.
-
     \sa addItem(), insertWidget(), insertLayout(), insertStretch(),
         insertSpacing()
 */
