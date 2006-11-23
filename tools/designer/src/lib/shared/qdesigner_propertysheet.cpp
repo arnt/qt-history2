@@ -16,14 +16,10 @@
 
 #include <QtDesigner/QDesignerFormWindowInterface>
 
-#include <QtCore/QVariant>
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaProperty>
 
 #include <QtGui/QLayout>
-#include <QtGui/QImage>
-#include <QtGui/QPixmap>
-
 #include <QtGui/QDockWidget>
 #include <QtGui/QDialog>
 #include <QtGui/QStackedWidget>
@@ -33,40 +29,37 @@
 #include <QtGui/QCalendarWidget>
 #include <QtGui/QDialogButtonBox>
 
-namespace qdesigner_internal {
+namespace {
 
-static const QMetaObject *introducedBy(const QMetaObject *meta, int index)
+const QMetaObject *propertyIntroducedBy(const QMetaObject *meta, int index)
 {
     if (index >= meta->propertyOffset())
         return meta;
 
     if (meta->superClass())
-        return introducedBy(meta->superClass(), index);
+        return propertyIntroducedBy(meta->superClass(), index);
 
     return 0;
 }
 
-} // qdesigner_internal
-
-using namespace qdesigner_internal;
-
-static bool hasLayoutAttributes(QObject *object)
+bool hasLayoutAttributes(const QObject *object)
 {
-    if (qobject_cast<QStackedWidget*>(object) != 0)
+    if (qobject_cast<const QStackedWidget*>(object) != 0)
         return false;
-    if (qobject_cast<QLabel*>(object) != 0)
+    if (qobject_cast<const QLabel*>(object) != 0)
         return false;
-    if (qobject_cast<QDockWidget*>(object) != 0)
+    if (qobject_cast<const QDockWidget*>(object) != 0)
         return false;
-    if (qobject_cast<QToolBar*>(object) != 0)
+    if (qobject_cast<const QToolBar*>(object) != 0)
         return false;
-    if (qobject_cast<QStatusBar*>(object) != 0)
+    if (qobject_cast<const QStatusBar*>(object) != 0)
         return false;
-    if (qobject_cast<QCalendarWidget*>(object) != 0)
+    if (qobject_cast<const QCalendarWidget*>(object) != 0)
         return false;
-    if (qobject_cast<QDialogButtonBox*>(object) != 0)
+    if (qobject_cast<const QDialogButtonBox*>(object) != 0)
         return false;
     return true;
+}
 }
 
 QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
@@ -82,7 +75,7 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
     Q_ASSERT(baseMeta != 0);
 
     for (int index=0; index<count(); ++index) {
-        QMetaProperty p = meta->property(index);
+        const QMetaProperty p = meta->property(index);
 
         if (p.type() == QVariant::KeySequence)
             createFakeProperty(QString::fromUtf8(p.name()));
@@ -91,7 +84,7 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
 
         QString pgroup = QString::fromUtf8(baseMeta->className());
 
-        if (const QMetaObject *pmeta = qdesigner_internal::introducedBy(baseMeta, index)) {
+        if (const QMetaObject *pmeta = propertyIntroducedBy(baseMeta, index)) {
             pgroup = QString::fromUtf8(pmeta->className());
         }
 
@@ -108,9 +101,7 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
         createFakeProperty(QLatin1String("windowModality"));
 
         if (hasLayoutAttributes(object)) {
-            int pindex = -1;
-
-            pindex = count();
+            int pindex = count();
             createFakeProperty(QLatin1String("margin"), 0);
             setAttribute(pindex, true);
             setPropertyGroup(pindex, tr("Layout"));
@@ -137,13 +128,13 @@ QDesignerPropertySheet::~QDesignerPropertySheet()
 void QDesignerPropertySheet::createFakeProperty(const QString &propertyName, const QVariant &value)
 {
     // fake properties
-    int index = meta->indexOfProperty(propertyName.toUtf8());
+    const int index = meta->indexOfProperty(propertyName.toUtf8());
     if (index != -1) {
         setVisible(index, false);
-        QVariant v = value.isValid() ? value : metaProperty(index);
+        const QVariant v = value.isValid() ? value : metaProperty(index);
         m_fakeProperties.insert(index, v);
     } else if (value.isValid()) { // additional properties
-        int index = count();
+        const int index = count();
         m_addIndex.insert(propertyName, index);
         m_addProperties.insert(index, value);
     }
@@ -185,7 +176,7 @@ QString QDesignerPropertySheet::propertyName(int index) const
 
 QString QDesignerPropertySheet::propertyGroup(int index) const
 {
-    QString g = m_info.value(index).group;
+    const QString g = m_info.value(index).group;
 
     if (!g.isEmpty())
         return g;
@@ -211,8 +202,8 @@ QVariant QDesignerPropertySheet::property(int index) const
 {
     if (isAdditionalProperty(index)) {
         if (isFakeLayoutProperty(index) && m_object->isWidgetType()) {
-            QWidget *widget = qobject_cast<QWidget*>(m_object);
-            if (QLayout *l = widget->layout())
+            const QWidget *widget = qobject_cast<const QWidget*>(m_object);
+            if (const QLayout *l = widget->layout())
                 return l->property(propertyName(index).toUtf8());
         }
 
@@ -230,31 +221,31 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
 {
     Q_ASSERT(!isFakeProperty(index));
 
-    QMetaProperty p = meta->property(index);
+    const QMetaProperty p = meta->property(index);
     QVariant v = p.read(m_object);
 
     if (p.isFlagType()) {
-        FlagType e;
+        qdesigner_internal::FlagType e;
         e.value = v;
-        QMetaEnum me = p.enumerator();
+        const QMetaEnum me = p.enumerator();
         QString scope = QString::fromUtf8(me.scope());
         if (!scope.isEmpty())
             scope += QString::fromUtf8("::");
         for (int i=0; i<me.keyCount(); ++i) {
-            QString key = scope + QLatin1String(me.key(i));
+            const QString key = scope + QLatin1String(me.key(i));
             e.items.insert(key, me.keyToValue(key.toUtf8()));
         }
 
         qVariantSetValue(v, e);
     } else if (p.isEnumType()) {
-        EnumType e;
+        qdesigner_internal::EnumType e;
         e.value = v;
-        QMetaEnum me = p.enumerator();
+        const QMetaEnum me = p.enumerator();
         QString scope = QString::fromUtf8(me.scope());
         if (!scope.isEmpty())
             scope += QString::fromUtf8("::");
         for (int i=0; i<me.keyCount(); ++i) {
-            QString key = scope + QLatin1String(me.key(i));
+            const QString key = scope + QLatin1String(me.key(i));
             e.items.insert(key, me.keyToValue(key.toUtf8()));
             e.names.append(key);
         }
@@ -267,18 +258,13 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
 
 QVariant QDesignerPropertySheet::resolvePropertyValue(const QVariant &value) const
 {
-    QVariant v;
-    EnumType e;
-    FlagType f;
+    if (qVariantCanConvert<qdesigner_internal::FlagType>(value))
+       return qvariant_cast<qdesigner_internal::FlagType>(value).value;
+    
+    if (qVariantCanConvert<qdesigner_internal::EnumType>(value))
+       return qvariant_cast<qdesigner_internal::EnumType>(value).value;
 
-    if (qVariantCanConvert<FlagType>(value))
-        v = qvariant_cast<FlagType>(value).value;
-    else if (qVariantCanConvert<EnumType>(value))
-        v = qvariant_cast<EnumType>(value).value;
-    else
-        v = value;
-
-    return v;
+    return value;
 }
 
 void QDesignerPropertySheet::setFakeProperty(int index, const QVariant &value)
@@ -287,15 +273,15 @@ void QDesignerPropertySheet::setFakeProperty(int index, const QVariant &value)
 
     QVariant &v = m_fakeProperties[index];
 
-    if (qVariantCanConvert<FlagType>(value) || qVariantCanConvert<EnumType>(value)) {
+    if (qVariantCanConvert<qdesigner_internal::FlagType>(value) || qVariantCanConvert<qdesigner_internal::EnumType>(value)) {
         v = value;
-    } else if (qVariantCanConvert<FlagType>(v)) {
-        FlagType f = qvariant_cast<FlagType>(v);
+    } else if (qVariantCanConvert<qdesigner_internal::FlagType>(v)) {
+        qdesigner_internal::FlagType f = qvariant_cast<qdesigner_internal::FlagType>(v);
         f.value = value;
         qVariantSetValue(v, f);
         Q_ASSERT(f.value.type() == QVariant::Int);
-    } else if (qVariantCanConvert<EnumType>(v)) {
-        EnumType e = qvariant_cast<EnumType>(v);
+    } else if (qVariantCanConvert<qdesigner_internal::EnumType>(v)) {
+        qdesigner_internal::EnumType e = qvariant_cast<qdesigner_internal::EnumType>(v);
         e.value = value;
         qVariantSetValue(v, e);
         Q_ASSERT(e.value.type() == QVariant::Int);
@@ -337,15 +323,15 @@ bool QDesignerPropertySheet::reset(int index)
     if (isAdditionalProperty(index))
         return false;
     else if (isFakeProperty(index)) {
-        QMetaProperty p = meta->property(index);
-        bool result = p.reset(m_object);
+        const QMetaProperty p = meta->property(index);
+        const bool result = p.reset(m_object);
         m_fakeProperties[index] = p.read(m_object);
         return result;
     }
 
     // ### TODO: reset for fake properties.
 
-    QMetaProperty p = meta->property(index);
+    const QMetaProperty p = meta->property(index);
     return p.reset(m_object);
 }
 
@@ -367,7 +353,7 @@ bool QDesignerPropertySheet::isFakeLayoutProperty(int index) const
     if (!isAdditionalProperty(index))
         return false;
 
-    QString pname = propertyName(index);
+    const QString pname = propertyName(index);
 
     if (pname == QLatin1String("margin")
             || pname == QLatin1String("spacing")
@@ -381,7 +367,7 @@ bool QDesignerPropertySheet::isVisible(int index) const
 {
     if (isAdditionalProperty(index)) {
         if (isFakeLayoutProperty(index) && m_object->isWidgetType()) {
-            QWidget *widget = qobject_cast<QWidget*>(m_object);
+            const QWidget *widget = qobject_cast<const QWidget*>(m_object);
             return (widget->layout() != 0);
         }
 
@@ -391,7 +377,7 @@ bool QDesignerPropertySheet::isVisible(int index) const
     if (isFakeProperty(index))
         return true;
 
-    QMetaProperty p = meta->property(index);
+    const QMetaProperty p = meta->property(index);
     return (p.isWritable() && p.isDesignable(m_object)) || m_info.value(index).visible;
 }
 
