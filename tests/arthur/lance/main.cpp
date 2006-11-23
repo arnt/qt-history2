@@ -18,10 +18,6 @@
 #include <QGLPixelBuffer>
 #endif
 
-#ifdef QT_PDF_SUPPORT
-#include <qpdf.h>
-#endif
-
 // #define DO_QWS_DEBUGGING
 
 #ifdef DO_QWS_DEBUGGING
@@ -45,9 +41,8 @@ static void printHelp()
 #ifdef USE_CUSTOM_DEVICE
            "    -custom         Paints the files to the custom paint device\n"
 #endif
-#ifdef QT_PDF_SUPPORT
            "    -pdf            Paints to a pdf\n"
-#endif
+           "    -ps             Paints to a ps\n"
            "    -picture        Prints into a picture, then shows the result in a label\n"
            "    -printer        Prints the commands to a file called output.ps|pdf\n"
            "    -highres        Prints in highres mod\n"
@@ -152,10 +147,10 @@ int main(int argc, char **argv)
 #ifdef DO_QWS_DEBUGGING
     qt_show_painter_debug_output = false;
 #endif
-    
+
     DeviceType type = WidgetType;
     bool checkers_background = true;
-    
+
     QLocale::setDefault(QLocale::c());
 
     QStringList files;
@@ -200,10 +195,10 @@ int main(int argc, char **argv)
             else if (option == "custom")
                 type = CustomType;
 #endif
-#ifdef QT_PDF_SUPPORT
             else if (option == "pdf")
                 type = PdfType;
-#endif
+            else if (option == "ps")
+                type = PsType;
             else if (option == "picture")
                 type = PictureType;
             else if (option == "printer")
@@ -254,7 +249,7 @@ int main(int argc, char **argv)
     pcmd.setVerboseMode(verboseMode);
     pcmd.setType(type);
     pcmd.setCheckersBackground(checkers_background);
-    
+
     OnScreenWidget<QWidget> *qWidget = 0;
 #ifndef QT_NO_OPENGL
     OnScreenWidget<QGLWidget> *qGLWidget = 0;
@@ -446,13 +441,18 @@ int main(int argc, char **argv)
                     Q_ASSERT(!p.paintingActive());
                     break;
                 }
-#ifdef QT_PDF_SUPPORT
+            case PsType:
             case PdfType:
                 {
-                    QPdf p;
-                    p.setCompression(false);
-                    QString file = QString(files.at(j)).replace(".", "_") + ".pdf";
-                    p.setFileName(file);
+                    bool ps = type == PsType;
+                    QPrinter p;
+                    QFileInfo input(files.at(j));
+                    QString file = QString("%1_%2.%3")
+                                   .arg(input.baseName())
+                                   .arg(input.extension())
+                                   .arg(ps ? "ps" : "pdf");
+                    p.setOutputFormat(ps ? QPrinter::PdfFormat : QPrinter::PostScriptFormat);
+                    p.setOutputFileName(file);
                     p.setPageSize(QPrinter::A4);
                     QPainter pt(&p);
                     pcmd.setPainter(&pt);
@@ -463,7 +463,6 @@ int main(int argc, char **argv)
                     printf("write file: %s\n", qPrintable(file));
                     break;
                 }
-#endif
             case GrabType:
                 {
                     QImage image(width, height, QImage::Format_ARGB32_Premultiplied);
@@ -478,7 +477,7 @@ int main(int argc, char **argv)
                     QPainter pt1(&image1);
                     pt1.drawImage(QPointF(0, 0), image);
                     pt1.end();
-                    
+
                     QString filename = QString(files.at(j)).replace(".", "_") + ".png";
                     image1.save(filename, "PNG");
                     printf("%s grabbed to %s\n", qPrintable(files.at(j)), qPrintable(filename));

@@ -26,6 +26,7 @@ enum DeviceType {
     PictureType,
     PrinterType,
     PdfType,
+    PsType,
     GrabType,
     CustomType
 };
