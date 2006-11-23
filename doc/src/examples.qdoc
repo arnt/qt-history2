@@ -145,7 +145,7 @@
 
     \list
     \o \l{desktop/screenshot}{Screenshot}\raisedaster
-    \o \l{desktop/systray}{System Tray}
+    \o \l{desktop/systray}{System Tray}\raisedaster
     \endlist
 
     \section1 Tool Examples
