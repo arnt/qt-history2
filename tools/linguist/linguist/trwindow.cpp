@@ -110,7 +110,7 @@ static Ending ending(QString str, QLocale::Language lang)
 
     switch (ch) {
     case 0x002e: // full stop
-        if (str.endsWith(QString("...")))
+        if (str.endsWith(QString(QLatin1String("..."))))
             return End_Ellipsis;
         else
             return End_FullStop;
@@ -145,7 +145,7 @@ static Ending ending(QString str, QLocale::Language lang)
 const QPixmap TrWindow::pageCurl()
 {
     QPixmap pixmap;
-    pixmap.load(":/images/pagecurl.png" );
+    pixmap.load(QLatin1String(":/images/pagecurl.png") );
     if ( !pixmap.isNull() ) {
         QBitmap pageCurlMask = QBitmap::fromData(QSize(pagecurl_mask_width, pagecurl_mask_height),
                                                  pagecurl_mask_bits, QImage::Format_MonoLSB);
@@ -156,9 +156,9 @@ const QPixmap TrWindow::pageCurl()
 }
 
 #ifdef Q_WS_MAC
-const QString rsrcString = ":/images/mac";
+const QString rsrcString = QLatin1String(":/images/mac");
 #else
-const QString rsrcString = ":/images/win";
+const QString rsrcString = QLatin1String(":/images/win");
 #endif
 
 TrWindow::TrWindow()
@@ -167,18 +167,18 @@ TrWindow::TrWindow()
     ac = 0;
 
 #ifndef Q_WS_MAC
-    setWindowIcon(QPixmap(":/images/appicon.png" ));
+    setWindowIcon(QPixmap(QLatin1String(":/images/appicon.png") ));
 #endif
 
     m_previewTool = 0;
 
     // Create the application global listview symbols
-    pxOn  = new QPixmap(":/images/s_check_on.png");
-    pxOff = new QPixmap(":/images/s_check_off.png");
-    pxObsolete = new QPixmap(":/images/s_check_obsolete.png");
-    pxDanger = new QPixmap(":/images/s_check_danger.png");
-    pxWarning = new QPixmap(":/images/s_check_warning.png");
-    pxEmpty = new QPixmap(":/images/s_check_empty.png");
+    pxOn  = new QPixmap(QLatin1String(":/images/s_check_on.png"));
+    pxOff = new QPixmap(QLatin1String(":/images/s_check_off.png"));
+    pxObsolete = new QPixmap(QLatin1String(":/images/s_check_obsolete.png"));
+    pxDanger = new QPixmap(QLatin1String(":/images/s_check_danger.png"));
+    pxWarning = new QPixmap(QLatin1String(":/images/s_check_warning.png"));
+    pxEmpty = new QPixmap(QLatin1String(":/images/s_check_empty.png"));
 
     setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
@@ -187,7 +187,7 @@ TrWindow::TrWindow()
 
     // Set up the Scope dock window
     dwScope = new QDockWidget(this);
-    dwScope->setObjectName("ContextDockWidget");
+    dwScope->setObjectName(QLatin1String("ContextDockWidget"));
     dwScope->setAllowedAreas(Qt::AllDockWidgetAreas);
     dwScope->setFeatures(QDockWidget::AllDockWidgetFeatures);
     dwScope->setWindowTitle(tr("Context"));
@@ -227,7 +227,7 @@ TrWindow::TrWindow()
 
     progress = new QLabel(statusBar());
     statusBar()->addPermanentWidget(progress);
-    modified = new QLabel(QString(" %1 ").arg(tr("MOD")), statusBar());
+    modified = new QLabel(QString::fromLatin1(" %1 ").arg(tr("MOD")), statusBar());
     statusBar()->addPermanentWidget(modified);
 
     updateProgress();
@@ -363,8 +363,8 @@ void TrWindow::saveAs()
 void TrWindow::releaseAs()
 {
     QString newFilename = filename;
-    newFilename.replace(QRegExp(".ts$"), "");
-    newFilename += QString(".qm");
+    newFilename.replace(QRegExp(QLatin1String(".ts$")), QLatin1String(""));
+    newFilename += QString(QLatin1String(".qm"));
 
     newFilename = QFileDialog::getSaveFileName(this, tr("Release"), newFilename,
         tr("Qt message files for released applications (*.qm)\nAll files (*)"));
@@ -380,8 +380,8 @@ void TrWindow::releaseAs()
 void TrWindow::release()
 {
     QString newFilename = filename;
-    newFilename.replace(QRegExp(".ts$"), "");
-    newFilename += QString(".qm");
+    newFilename.replace(QRegExp(QLatin1String(".ts$")), QLatin1String(""));
+    newFilename += QString(QLatin1String(".qm"));
 
     if (!newFilename.isEmpty()) {
         if (cmdl->release(newFilename, false, false, Translator::Everything))
@@ -431,13 +431,13 @@ void TrWindow::print()
                     type = tr("finished");
                     break;
                 case MetaTranslatorMessage::Unfinished:
-                    type = m->danger() ? tr("unresolved") : QString("unfinished");
+                    type = m->danger() ? tr("unresolved") : QLatin1String("unfinished");
                     break;
                 case MetaTranslatorMessage::Obsolete:
                     type = tr("obsolete");
                     break;
                 default:
-                    type = QString("");
+                    type = QString(QLatin1String(""));
                 }
                 pout.addBox(40, m->sourceText());
                 pout.addBox(4);
@@ -747,7 +747,7 @@ void TrWindow::openPhraseBook()
 {
     QString phrasebooks(QLibraryInfo::location(QLibraryInfo::DataPath));
     QString name = QFileDialog::getOpenFileName(this, tr("Open Phrase Book"),
-        phrasebooks + "/phrasebooks", tr("Qt phrase books (*.qph)\nAll files (*)"));
+        phrasebooks + QLatin1String("/phrasebooks"), tr("Qt phrase books (*.qph)\nAll files (*)"));
     //### The phrasebooks are not stored here!!
     if (!name.isEmpty() && !phraseBooksContains(name)) {
         if (openPhraseBook(name)) {
@@ -854,7 +854,7 @@ void TrWindow::manual()
     if (!ac)
         ac = new QAssistantClient(QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
     ac->showPage(QLibraryInfo::location(QLibraryInfo::DocumentationPath) +
-                 "/html/linguist-manual.html");
+                 QLatin1String("/html/linguist-manual.html"));
 }
 
 void TrWindow::about()
@@ -867,7 +867,7 @@ void TrWindow::about()
     QString open = tr(" Open Source Edition");
     version.append(open);
 #endif
-    version = version.arg(QT_VERSION_STR);
+    version = version.arg(QLatin1String(QT_VERSION_STR));
 
     QString edition =
 #if QT_EDITION == QT_EDITION_OPENSOURCE
@@ -962,7 +962,7 @@ void TrWindow::updateCaption()
         cap = tr("Qt Linguist by Trolltech");
     else
         cap = tr("%1 - %2%3").arg( tr("Qt Linguist by Trolltech"))
-        .arg(filename).arg(cmdl->isModified() ? "*" : "");
+        .arg(filename).arg(cmdl->isModified() ? QLatin1String("*") : QLatin1String(""));
     setWindowTitle(cap);
     modified->setEnabled(cmdl->isModified());
 }
@@ -1313,8 +1313,8 @@ void TrWindow::revalidate()
 QString TrWindow::friendlyString(const QString& str)
 {
     QString f = str.toLower();
-    f.replace(QRegExp(QString("[.,:;!?()-]")), QString(" "));
-    f.replace("&", QString(""));
+    f.replace(QRegExp(QString(QLatin1String("[.,:;!?()-]"))), QString(QLatin1String(" ")));
+    f.replace(QLatin1String("&"), QString(QLatin1String("")));
     f = f.simplified();
     f = f.toLower();
     return f;
@@ -1324,26 +1324,26 @@ QString TrWindow::friendlyString(const QString& str)
 void TrWindow::setupMenuBar()
 {
     m_ui.setupUi(this);
-    m_ui.actionAccelerators->setIcon(QIcon(rsrcString + "/accelerator.png"));
-    m_ui.actionOpenPhraseBook->setIcon(QIcon(rsrcString + "/book.png"));
-    m_ui.actionDoneAndNext->setIcon(QIcon(rsrcString + "/doneandnext.png"));
-    m_ui.actionCopy->setIcon(QIcon(rsrcString + "/editcopy.png"));
-    m_ui.actionCut->setIcon(QIcon(rsrcString + "/editcut.png"));
-    m_ui.actionPaste->setIcon(QIcon(rsrcString + "/editpaste.png"));
-    m_ui.actionOpen->setIcon(QIcon(rsrcString + "/fileopen.png"));
-    m_ui.actionSave->setIcon(QIcon(rsrcString + "/filesave.png"));
-    m_ui.actionNext->setIcon(QIcon(rsrcString + "/next.png"));
-    m_ui.actionNextUnfinished->setIcon(QIcon(rsrcString + "/nextunfinished.png"));
-    m_ui.actionPhraseMatches->setIcon(QIcon(rsrcString + "/phrase.png"));
-    m_ui.actionEndingPunctuation->setIcon(QIcon(rsrcString + "/punctuation.png"));
-    m_ui.actionPrev->setIcon(QIcon(rsrcString + "/prev.png"));
-    m_ui.actionPrevUnfinished->setIcon(QIcon(rsrcString + "/prevunfinished.png"));
-    m_ui.actionPrint->setIcon(QIcon(rsrcString + "/print.png"));
-    m_ui.actionRedo->setIcon(QIcon(rsrcString + "/redo.png"));
-    m_ui.actionFind->setIcon(QIcon(rsrcString + "/searchfind.png"));
-    m_ui.actionUndo->setIcon(QIcon(rsrcString + "/undo.png"));
-    m_ui.actionPlaceMarkerMatches->setIcon(QIcon(rsrcString + "/validateplacemarkers.png"));
-    m_ui.actionWhatsThis->setIcon(QIcon(rsrcString + "/whatsthis.png"));
+    m_ui.actionAccelerators->setIcon(QIcon(rsrcString + QLatin1String("/accelerator.png")));
+    m_ui.actionOpenPhraseBook->setIcon(QIcon(rsrcString + QLatin1String("/book.png")));
+    m_ui.actionDoneAndNext->setIcon(QIcon(rsrcString + QLatin1String("/doneandnext.png")));
+    m_ui.actionCopy->setIcon(QIcon(rsrcString + QLatin1String("/editcopy.png")));
+    m_ui.actionCut->setIcon(QIcon(rsrcString + QLatin1String("/editcut.png")));
+    m_ui.actionPaste->setIcon(QIcon(rsrcString + QLatin1String("/editpaste.png")));
+    m_ui.actionOpen->setIcon(QIcon(rsrcString + QLatin1String("/fileopen.png")));
+    m_ui.actionSave->setIcon(QIcon(rsrcString + QLatin1String("/filesave.png")));
+    m_ui.actionNext->setIcon(QIcon(rsrcString + QLatin1String("/next.png")));
+    m_ui.actionNextUnfinished->setIcon(QIcon(rsrcString + QLatin1String("/nextunfinished.png")));
+    m_ui.actionPhraseMatches->setIcon(QIcon(rsrcString + QLatin1String("/phrase.png")));
+    m_ui.actionEndingPunctuation->setIcon(QIcon(rsrcString + QLatin1String("/punctuation.png")));
+    m_ui.actionPrev->setIcon(QIcon(rsrcString + QLatin1String("/prev.png")));
+    m_ui.actionPrevUnfinished->setIcon(QIcon(rsrcString + QLatin1String("/prevunfinished.png")));
+    m_ui.actionPrint->setIcon(QIcon(rsrcString + QLatin1String("/print.png")));
+    m_ui.actionRedo->setIcon(QIcon(rsrcString + QLatin1String("/redo.png")));
+    m_ui.actionFind->setIcon(QIcon(rsrcString + QLatin1String("/searchfind.png")));
+    m_ui.actionUndo->setIcon(QIcon(rsrcString + QLatin1String("/undo.png")));
+    m_ui.actionPlaceMarkerMatches->setIcon(QIcon(rsrcString + QLatin1String("/validateplacemarkers.png")));
+    m_ui.actionWhatsThis->setIcon(QIcon(rsrcString + QLatin1String("/whatsthis.png")));
     
 
     // File menu
@@ -1439,8 +1439,8 @@ void TrWindow::setupMenuBar()
     m_ui.actionManual->setWhatsThis(tr("Display the manual for %1.").arg(tr("Qt Linguist")));
     m_ui.actionAbout->setWhatsThis(tr("Display information about %1.").arg(tr("Qt Linguist")));
     m_ui.actionDoneAndNext->setShortcuts(QList<QKeySequence>()
-                                            << QKeySequence("Ctrl+Return")
-                                            << QKeySequence("Ctrl+Enter"));
+                                            << QKeySequence(QLatin1String("Ctrl+Return"))
+                                            << QKeySequence(QLatin1String("Ctrl+Enter")));
 
     // Disable the Close/Edit/Print phrasebook menuitems if they are not loaded
     connect(m_ui.menuPhrases, SIGNAL(aboutToShow()), this, SLOT(setupPhrase()));
@@ -1462,33 +1462,33 @@ void TrWindow::onWhatsThis()
 void TrWindow::setupToolBars()
 {
     QToolBar *filet = new QToolBar(this);
-    filet->setObjectName("FileToolbar");
+    filet->setObjectName(QLatin1String("FileToolbar"));
     filet->setWindowTitle(tr("File"));
 	this->addToolBar(filet);
     m_ui.menuToolbars->addAction(filet->toggleViewAction());
 
     QToolBar *editt = new QToolBar(this);
     editt->setVisible(false);
-    editt->setObjectName("EditToolbar");
+    editt->setObjectName(QLatin1String("EditToolbar"));
     editt->setWindowTitle(tr("Edit"));
     this->addToolBar(editt);
     m_ui.menuToolbars->addAction(editt->toggleViewAction());
 
     QToolBar *translationst = new QToolBar(this);
-    translationst->setObjectName("TranslationToolbar");
+    translationst->setObjectName(QLatin1String("TranslationToolbar"));
     translationst->setWindowTitle(tr("Translation"));
 	this->addToolBar(translationst);
     m_ui.menuToolbars->addAction(translationst->toggleViewAction());
 
     QToolBar *validationt = new QToolBar(this);
-    validationt->setObjectName("ValidationToolbar");
+    validationt->setObjectName(QLatin1String("ValidationToolbar"));
     validationt->setWindowTitle(tr("Validation"));
 	this->addToolBar(validationt);
     m_ui.menuToolbars->addAction(validationt->toggleViewAction());
 
     QToolBar *helpt = new QToolBar(this);
     helpt->setVisible(false);
-    helpt->setObjectName("HelpToolbar");
+    helpt->setObjectName(QLatin1String("HelpToolbar"));
     helpt->setWindowTitle(tr("Help"));
 	this->addToolBar(helpt);
     m_ui.menuToolbars->addAction(helpt->toggleViewAction());
@@ -1573,8 +1573,8 @@ bool TrWindow::openPhraseBook(const QString& name)
 
 bool TrWindow::savePhraseBook(QString &name, const PhraseBook &pb)
 {
-    if (!name.contains(".qph") && !name.contains("."))
-        name += ".qph";
+    if (!name.contains(QLatin1String(".qph")) && !name.contains(QLatin1String(".")))
+        name += QLatin1String(".qph");
 
     if (!pb.save(name)) {
         QMessageBox::warning(this, tr("Qt Linguist"),
@@ -1589,9 +1589,9 @@ void TrWindow::updateProgress()
     int numNonobsolete = cmdl->getNumNonobsolete();
     int numFinished = cmdl->getNumFinished();
     if (numNonobsolete == 0)
-        progress->setText(QString("    " "    "));
+        progress->setText(QString(QLatin1String("    ")));
     else
-        progress->setText(QString(" %1/%2 ").arg(numFinished)
+        progress->setText(QString(QLatin1String(" %1/%2 ")).arg(numFinished)
         .arg(numNonobsolete));
     m_ui.actionPrevUnfinished->setEnabled(numFinished != numNonobsolete);
     m_ui.actionNextUnfinished->setEnabled(numFinished != numNonobsolete);
@@ -1608,7 +1608,7 @@ void TrWindow::updatePhraseDict()
         foreach (Phrase p, pb) {
             QString f = friendlyString(p.source());
             if ( f.length() > 0 ) {
-                f = f.split(QChar(' ')).first();
+                f = f.split(QLatin1Char(' ')).first();
                 if (!phraseDict.contains(f)) {
                     PhraseBook pbe;
                     phraseDict.insert(f, pbe);
@@ -1624,7 +1624,7 @@ PhraseBook TrWindow::getPhrases(const QString &source)
 {
     PhraseBook phrases;
     QString f = friendlyString(source);
-    QStringList lookupWords = f.split(QChar(' '));
+    QStringList lookupWords = f.split(QLatin1Char(' '));
 
     foreach (QString s, lookupWords) {
         if (phraseDict.contains(s)) {
@@ -1693,7 +1693,7 @@ bool TrWindow::danger( const MessageItem *m,
     if (m_ui.actionPhraseMatches->isChecked()) {
         QString fsource = friendlyString(source);
         QString ftranslation = friendlyString(translations.first());
-        QStringList lookupWords = fsource.split(QChar(' '));
+        QStringList lookupWords = fsource.split(QLatin1Char(' '));
 
         bool phraseFound;
         foreach (QString s, lookupWords) {
@@ -1781,14 +1781,14 @@ void TrWindow::readConfig()
     QSettings config;
 
     QRect r( pos(), size() );
-    recentFiles = config.value(keybase + "RecentlyOpenedFiles").toStringList();
-    restoreGeometry(config.value(keybase + "Geometry/WindowGeometry").toByteArray());
-    restoreState(config.value(keybase + "MainWindowState").toByteArray());
+    recentFiles = config.value(keybase + QLatin1String("RecentlyOpenedFiles")).toStringList();
+    restoreGeometry(config.value(keybase + QLatin1String("Geometry/WindowGeometry")).toByteArray());
+    restoreState(config.value(keybase + QLatin1String("MainWindowState")).toByteArray());
 
-    m_ui.actionAccelerators->setChecked(config.value(keybase+ "Validators/Accelerator", true).toBool());
-    m_ui.actionEndingPunctuation->setChecked(config.value(keybase+ "Validators/EndingPunctuation", true).toBool());
-    m_ui.actionPhraseMatches->setChecked(config.value(keybase+ "Validators/PhraseMatch", true).toBool());
-    m_ui.actionPlaceMarkerMatches->setChecked(config.value(keybase+ "Validators/PlaceMarkers", true).toBool());
+    m_ui.actionAccelerators->setChecked(config.value(keybase+ QLatin1String("Validators/Accelerator"), true).toBool());
+    m_ui.actionEndingPunctuation->setChecked(config.value(keybase+ QLatin1String("Validators/EndingPunctuation"), true).toBool());
+    m_ui.actionPhraseMatches->setChecked(config.value(keybase+ QLatin1String("Validators/PhraseMatch"), true).toBool());
+    m_ui.actionPlaceMarkerMatches->setChecked(config.value(keybase+ QLatin1String("Validators/PlaceMarkers"), true).toBool());
 }
 
 void TrWindow::writeConfig()
@@ -1796,13 +1796,13 @@ void TrWindow::writeConfig()
     QString keybase(QString::number( (QT_VERSION >> 16) & 0xff )
                     + QLatin1Char('.') + QString::number((QT_VERSION >> 8) & 0xff) + QLatin1Char('/'));
     QSettings config;
-    config.setValue(keybase + "RecentlyOpenedFiles", recentFiles);
-    config.setValue(keybase + "Geometry/WindowGeometry", saveGeometry());
-    config.setValue(keybase+ "Validators/Accelerator", m_ui.actionAccelerators->isChecked());
-    config.setValue(keybase+ "Validators/EndingPunctuation", m_ui.actionEndingPunctuation->isChecked());
-    config.setValue(keybase+ "Validators/PhraseMatch", m_ui.actionPhraseMatches->isChecked());
-    config.setValue(keybase+ "Validators/PlaceMarkers", m_ui.actionPlaceMarkerMatches->isChecked());
-    config.setValue(keybase + "MainWindowState", saveState());
+    config.setValue(keybase + QLatin1String("RecentlyOpenedFiles"), recentFiles);
+    config.setValue(keybase + QLatin1String("Geometry/WindowGeometry"), saveGeometry());
+    config.setValue(keybase+ QLatin1String("Validators/Accelerator"), m_ui.actionAccelerators->isChecked());
+    config.setValue(keybase+ QLatin1String("Validators/EndingPunctuation"), m_ui.actionEndingPunctuation->isChecked());
+    config.setValue(keybase+ QLatin1String("Validators/PhraseMatch"), m_ui.actionPhraseMatches->isChecked());
+    config.setValue(keybase+ QLatin1String("Validators/PlaceMarkers"), m_ui.actionPlaceMarkerMatches->isChecked());
+    config.setValue(keybase + QLatin1String("MainWindowState"), saveState());
 }
 
 void TrWindow::setupRecentFilesMenu()

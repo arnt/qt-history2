@@ -101,8 +101,8 @@ static QString translationAttempt( const QString& oldTranslation,
         m = numberLength( oldSource + i );
         n = numberLength( newSource + j );
         if ( m > 0 ) {
-            oldNumbers.append( QByteArray(oldSource + i, m + 1) );
-            newNumbers.append( QByteArray(newSource + j, n + 1) );
+            oldNumbers.append( QString::fromLatin1(QByteArray(oldSource + i, m + 1) .constData()) );
+            newNumbers.append( QString::fromLatin1(QByteArray(newSource + j, n + 1).constData()) );
             i += m;
             j += n;
             met[k] = false;
@@ -166,7 +166,7 @@ static QString translationAttempt( const QString& oldTranslation,
     */
     for ( k = 0; k < p; k++ ) {
         if ( !met[k] )
-            attempt += QString( " {" ) + newNumbers[k] + QString( "?}" );
+            attempt += QString( QLatin1String(" {") ) + newNumbers[k] + QString( QLatin1String("?}") );
     }
 
     /*
@@ -178,8 +178,8 @@ static QString translationAttempt( const QString& oldTranslation,
         for ( ell = 0; ell < p; ell++ ) {
             if ( k != ell && oldNumbers[k] == oldNumbers[ell] &&
                     newNumbers[k] < newNumbers[ell] )
-                attempt += QString( " {" ) + newNumbers[k] + QString( " or " ) +
-                           newNumbers[ell] + QString( "?}" );
+                attempt += QString( QLatin1String(" {") ) + newNumbers[k] + QString( QLatin1String(" or ") ) +
+                           newNumbers[ell] + QString( QLatin1String("?}") );
         }
     }
     return attempt;

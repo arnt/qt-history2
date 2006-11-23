@@ -23,11 +23,11 @@
 static QString protect(const QString & str)
 {
     QString p = str;
-    p.replace(QLatin1Char('&'),  "&amp;");
-    p.replace(QLatin1Char('\"'), "&quot;");
-    p.replace(QLatin1Char('>'),  "&gt;");
-    p.replace(QLatin1Char('<'),  "&lt;");
-    p.replace(QLatin1Char('\''), "&apos;");
+    p.replace(QLatin1Char('&'),  QLatin1String("&amp;"));
+    p.replace(QLatin1Char('\"'), QLatin1String("&quot;"));
+    p.replace(QLatin1Char('>'),  QLatin1String("&gt;"));
+    p.replace(QLatin1Char('<'),  QLatin1String("&lt;"));
+    p.replace(QLatin1Char('\''), QLatin1String("&apos;"));
     return p;
 }
 
@@ -72,7 +72,7 @@ bool QphHandler::startElement(const QString & /* namespaceURI */,
                               const QString &qName,
                               const QXmlAttributes & /* atts */)
 {
-    if (qName == QString("phrase")) {
+    if (qName == QString(QLatin1String("phrase"))) {
         source.truncate(0);
         target.truncate(0);
         definition.truncate(0);
@@ -85,13 +85,13 @@ bool QphHandler::endElement(const QString & /* namespaceURI */,
                             const QString & /* localName */,
                             const QString &qName)
 {
-    if (qName == QString("source"))
+    if (qName == QString(QLatin1String("source")))
         source = accum;
-    else if (qName == QString("target"))
+    else if (qName == QString(QLatin1String("target")))
         target = accum;
-    else if (qName == QString("definition"))
+    else if (qName == QString(QLatin1String("definition")))
         definition = accum;
-    else if (qName == QString("phrase"))
+    else if (qName == QString(QLatin1String("phrase")))
         pb->append(Phrase(source, target, definition));
     return true;
 }
@@ -125,10 +125,10 @@ bool PhraseBook::load(const QString &filename)
     QXmlInputSource in(&f);
     QXmlSimpleReader reader;
     // don't click on these!
-    reader.setFeature("http://xml.org/sax/features/namespaces", false);
-    reader.setFeature("http://xml.org/sax/features/namespace-prefixes", true);
-    reader.setFeature("http://trolltech.com/xml/features/report-whitespace"
-        "-only-CharData", false);
+    reader.setFeature(QLatin1String("http://xml.org/sax/features/namespaces"), false);
+    reader.setFeature(QLatin1String("http://xml.org/sax/features/namespace-prefixes"), true);
+    reader.setFeature(QLatin1String("http://trolltech.com/xml/features/report-whitespace"
+                                    "-only-CharData"), false);
     QXmlDefaultHandler *hand = new QphHandler(this);
     reader.setContentHandler(hand);
     reader.setErrorHandler(hand);

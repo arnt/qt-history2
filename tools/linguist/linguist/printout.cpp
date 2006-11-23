@@ -20,7 +20,7 @@ PrintOut::PrintOut( QPrinter *printer )
     : pr( printer ), nextRule( NoRule ), page( 0 )
 {
     p.begin( pr );
-    QFont f( "Arial" );
+    QFont f( QLatin1String("Arial") );
     f8 = f;
     f8.setPointSize( 8 );
     f10 = f;

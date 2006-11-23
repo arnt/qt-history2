@@ -258,7 +258,7 @@ void TrPreviewTool::reloadTranslations()
     QString noGoodPaths;
     QList<QTranslator*> oldTrs;			
     foreach(path,trDict.keys()) {
-        if (!path.startsWith("#:")) {
+        if (!path.startsWith(QLatin1String("#:"))) {
 	        QTranslator* newTr = new QTranslator(this); // ### check if we can just reload on the old translator object instead 
 	        if(newTr->load(path)) {
 	            oldTrs.append(trDict.value(path));

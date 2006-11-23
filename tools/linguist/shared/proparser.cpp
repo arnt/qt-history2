@@ -65,11 +65,11 @@ bool evaluateProFile(const QString &fileName, bool verbose,QMap<QByteArray, QStr
             QString oldPath = QDir::currentPath();
             QFileInfo fi(fileName);
             QDir::setCurrent(fi.absolutePath());
-            QStringList subdirs = visitor->values("SUBDIRS");
+            QStringList subdirs = visitor->values(QLatin1String("SUBDIRS"));
             for (int is = 0; is < subdirs.count() && ok; ++is) {
                 QString subdir = subdirs[is];
                 QDir dir( subdir );
-                QStringList profiles = dir.entryList(QStringList() << "*.pro");
+                QStringList profiles = dir.entryList(QStringList() << QLatin1String("*.pro"));
                 if (profiles.count()) {
                     ProReader subreader;
                     ProFileTranslationsScanner *subvisitor = new ProFileTranslationsScanner(verbose);
@@ -96,17 +96,17 @@ bool evaluateProFile(const QString &fileName, bool verbose,QMap<QByteArray, QStr
             sourceFiles += visitor->absFileNames(QLatin1String("SOURCES"));
             sourceFiles += visitor->absFileNames(QLatin1String("HEADERS"));
 
-            tsFileNames << visitor->values("TRANSLATIONS");
+            tsFileNames << visitor->values(QLatin1String("TRANSLATIONS"));
 
             QStringList trcodec = visitor->values(QLatin1String("CODEC"))
                 + visitor->values(QLatin1String("DEFAULTCODEC"))
                 + visitor->values(QLatin1String("CODECFORTR"));
             if (!trcodec.isEmpty())
-                codecForTr = trcodec.last().toLatin1();
+                codecForTr = QString::fromLatin1(trcodec.last().toLatin1());
 
             QStringList srccodec = visitor->values(QLatin1String("CODECFORSRC"));
             if (!srccodec.isEmpty()) 
-                codecForSource = srccodec.last().toLatin1();
+                codecForSource = QString::fromLatin1(srccodec.last().toLatin1());
             
             QStringList forms = visitor->absFileNames(QLatin1String("INTERFACES"))
                 + visitor->absFileNames(QLatin1String("FORMS"))

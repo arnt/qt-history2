@@ -57,19 +57,19 @@ int main(int argc, char **argv)
     qtTranslator.load(QLatin1String("qt_") + QLocale::system().name(), resourceDir);
     app.installTranslator(&qtTranslator);
 
-    app.setOrganizationName("Trolltech");
-    app.setApplicationName("Linguist");
+    app.setOrganizationName(QLatin1String("Trolltech"));
+    app.setApplicationName(QLatin1String("Linguist"));
     QString keybase(QString::number( (QT_VERSION >> 16) & 0xff ) +
                      QLatin1Char('.') + QString::number( (QT_VERSION >> 8) & 0xff ) + QLatin1Char('/') );
     QSettings config;
 
     QWidget tmp;
-    tmp.restoreGeometry(config.value(keybase + "Geometry/WindowGeometry").toByteArray());
+    tmp.restoreGeometry(config.value(keybase + QLatin1String("Geometry/WindowGeometry")).toByteArray());
     
     QSplashScreen *splash = 0;
     int screenId = QApplication::desktop()->screenNumber(tmp.geometry().center());
     splash = new QSplashScreen(QApplication::desktop()->screen(screenId),
-        QPixmap(":/images/splash.png"));
+        QPixmap(QLatin1String(":/images/splash.png")));
     if (QApplication::desktop()->isVirtualDesktop()) {
         QRect srect(0, 0, splash->width(), splash->height());
         splash->move(QApplication::desktop()->availableGeometry(screenId).center() - srect.center() );

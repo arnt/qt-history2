@@ -111,7 +111,7 @@ void recursiveFileInfoList(const QDir &dir, const QStringList &nameFilters, QDir
 
 int main( int argc, char **argv )
 {
-    QString defaultContext = "@default";
+    QString defaultContext = QLatin1String("@default");
     MetaTranslator fetchedTor;
     QByteArray codecForTr;
 	QByteArray codecForSource;
@@ -171,7 +171,7 @@ int main( int argc, char **argv )
         QString fullText;
 
         if ( standardSyntax && !metTsFlag ) {
-            QFile f( argv[i] );
+            QFile f( QString::fromLatin1(argv[i]) );
             if ( !f.open(QIODevice::ReadOnly) ) {
 #if defined(_MSC_VER) && _MSC_VER >= 1400
 				char buf[100];
@@ -191,11 +191,11 @@ int main( int argc, char **argv )
 		codecForSource.clear();
 
         if (metTsFlag) {
-            if ( QString(argv[i]).endsWith(".ts", Qt::CaseInsensitive) 
-                || QString(argv[i]).endsWith(".xlf", Qt::CaseInsensitive)) {
-                QFileInfo fi( argv[i] );
+            if ( QString::fromLatin1(argv[i]).endsWith(QLatin1String(".ts"), Qt::CaseInsensitive) 
+                || QString::fromLatin1(argv[i]).endsWith(QLatin1String(".xlf"), Qt::CaseInsensitive)) {
+                QFileInfo fi( QString::fromLatin1(argv[i]) );
                 if ( !fi.exists() || fi.isWritable() ) {
-                    tsFileNames.append( argv[i] );
+                    tsFileNames.append( QString::fromLatin1(argv[i]) );
                 } else {
                     fprintf( stderr,
                              "lupdate warning: For some reason, I cannot"
@@ -207,11 +207,11 @@ int main( int argc, char **argv )
                          "lupdate error: File '%s' lacks .ts or .xlf extension\n",
                          argv[i] );
             }
-        } else if (QString(argv[i]).endsWith(".pro", Qt::CaseInsensitive)) {
-            QDir::setCurrent( QFileInfo(argv[i]).path() );
+        } else if (QString::fromLatin1(argv[i]).endsWith(QLatin1String(".pro"), Qt::CaseInsensitive)) {
+            QDir::setCurrent( QFileInfo(QString::fromLatin1(argv[i])).path() );
             QMap<QByteArray, QStringList> variables;
 
-            if(!evaluateProFile(QFileInfo(argv[i]).fileName(), verbose, &variables))
+            if(!evaluateProFile(QFileInfo(QString::fromLatin1(argv[i])).fileName(), verbose, &variables))
                 return 2;
 
             sourceFiles = variables.value("SOURCES");
@@ -231,20 +231,20 @@ int main( int argc, char **argv )
             tsFileNames = variables.value("TRANSLATIONS");
             metSomething |= !tsFileNames.isEmpty();
         } else {
-            QFileInfo fi(argv[i]);
+            QFileInfo fi(QString::fromLatin1(argv[i]));
             if (fi.isDir()) {
                 if ( verbose ) fprintf(stderr, "Scanning directory '%s'...\n", argv[i]);
                 QDir dir = QDir(fi.filePath());
                 if (extensionsNameFilters.isEmpty()) {
                     extensions = extensions.trimmed();
                     // Remove the potential dot in front of each extension
-                    if (extensions.startsWith('.'))
+                    if (extensions.startsWith(QLatin1Char('.')))
                         extensions.remove(0,1);
-                    extensions.replace(",.", ",");
+                    extensions.replace(QLatin1String(",."), QLatin1String(","));
 
                     extensions.insert(0, QLatin1String("*."));
-                    extensions.replace(',', QLatin1String(",*."));
-                    extensionsNameFilters = extensions.split(',');
+                    extensions.replace(QLatin1Char(','), QLatin1String(",*."));
+                    extensionsNameFilters = extensions.split(QLatin1Char(','));
                 }
                 QDir::Filters filters = QDir::Files | QDir::NoSymLinks;
                 QFileInfoList fileinfolist;
@@ -254,14 +254,14 @@ int main( int argc, char **argv )
                 QDir baseDir(oldDir);
                 for (ii = fileinfolist.begin(); ii != fileinfolist.end(); ++ii) {
                     // Make sure the path separator is stored with '/' in the ts file
-                    fn = ii->canonicalFilePath().replace('\\','/');
+                    fn = ii->canonicalFilePath().replace(QLatin1Char('\\'),QLatin1Char('/'));
 #ifdef LINGUIST_DEBUG
                     fprintf(stderr, "%s\n", fn.data());
 #endif
                     sourceFiles << fn;
                 }
             }else{
-                sourceFiles << fi.canonicalFilePath().replace('\\','/');
+                sourceFiles << fi.canonicalFilePath().replace(QLatin1Char('\\'),QLatin1Char('/'));
             }            
         }
         for (QStringList::iterator it = sourceFiles.begin(); it != sourceFiles.end(); ++it) {
@@ -273,7 +273,7 @@ int main( int argc, char **argv )
                 qDebug() << "  " << (*it) + ".h";
 #endif
                 fetchtr_ui( (*it).toAscii(), &fetchedTor, defaultContext.toAscii(), true );
-                fetchtr_cpp( QString((*it) + ".h").toAscii(), &fetchedTor,
+                fetchtr_cpp( QString((*it) + QLatin1String(".h")).toAscii(), &fetchedTor,
                              defaultContext.toAscii(), false, codecForSource );
             }else{
                 fetchtr_cpp( (*it).toAscii(), &fetchedTor, defaultContext.toAscii(), true, codecForSource );
@@ -283,7 +283,7 @@ int main( int argc, char **argv )
 
     removeDuplicates(&tsFileNames, false);
     if ( tsFileNames.count() > 0) {
-        updateTsFiles( fetchedTor, tsFileNames, codecForTr, noObsolete, verbose );
+        updateTsFiles( fetchedTor, tsFileNames, QString::fromLatin1(codecForTr.constData()), noObsolete, verbose );
     }
     QDir::setCurrent( oldDir );
 

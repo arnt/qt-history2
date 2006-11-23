@@ -691,7 +691,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
                 yyTok = getToken();
                 if ( yyTok == Tok_LeftBrace &&
                      yyBraceDepth == namespaces.count() + 1 )
-                    namespaces.append( QString(ns) );
+                    namespaces.append( QString::fromLatin1(ns.constData()) );
             }
             break;
         case Tok_tr:
@@ -720,7 +720,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
                 prefix = (const char *) 0;
                 if ( qualifiedContexts.contains(context) )
                     context = qualifiedContexts[context];
-                tor->insert( MetaTranslatorMessage(context, text, com, yyFileName, yyLineNo,
+                tor->insert( MetaTranslatorMessage(context, text, com, QLatin1String(yyFileName), yyLineNo,
                     QStringList(), utf8, MetaTranslatorMessage::Unfinished, plural) );
 
                 if ( lacks_Q_OBJECT.contains(context) ) {
@@ -772,7 +772,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
                         break;
                     }
                  }
-                tor->insert( MetaTranslatorMessage(context, text, com, yyFileName, yyLineNo,
+                tor->insert( MetaTranslatorMessage(context, text, com, QLatin1String(yyFileName), yyLineNo,
                                                    QStringList(), utf8, MetaTranslatorMessage::Unfinished, plural) );
             }
             break;
@@ -799,7 +799,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
                 } else {
                     context = com.left( k );
                     com.remove( 0, k + 1 );
-                    tor->insert( MetaTranslatorMessage(context, "", com, yyFileName, yyLineNo,
+                    tor->insert( MetaTranslatorMessage(context, "", com, QLatin1String(yyFileName), yyLineNo,
                                                        QStringList(), false) );
                 }
 
@@ -913,7 +913,7 @@ class UiHandler : public QXmlDefaultHandler
 {
 public:
     UiHandler( MetaTranslator *translator, const char *fileName )
-        : tor( translator ), fname( fileName ), comment( "" ), m_lineNumber(-1)  { }
+        : tor( translator ), fname( fileName ), comment( QLatin1String("") ), m_lineNumber(-1)  { }
 
     virtual bool startElement( const QString& namespaceURI,
                                const QString& localName, const QString& qName,
@@ -947,16 +947,16 @@ bool UiHandler::startElement( const QString& /* namespaceURI */,
                               const QString& qName,
                               const QXmlAttributes& atts )
 {
-    if ( qName == QString("item") ) {
+    if ( qName == QString(QLatin1String("item")) ) {
         flush();
-        if ( !atts.value(QString("text")).isEmpty() )
-            source = atts.value( QString("text") );
-    } else if ( qName == QString("string") ) {
+        if ( !atts.value(QString(QLatin1String("text"))).isEmpty() )
+            source = atts.value( QString(QLatin1String("text")) );
+    } else if ( qName == QString(QLatin1String("string")) ) {
         flush();
-        if (atts.value(QString("notr")).isEmpty() ||
-            atts.value(QString("notr")) != QString("true")) {
+        if (atts.value(QString(QLatin1String("notr"))).isEmpty() ||
+            atts.value(QString(QLatin1String("notr"))) != QString(QLatin1String("true"))) {
             trString = true;
-            comment = atts.value(QString("comment"));
+            comment = atts.value(QString(QLatin1String("comment")));
         } else {
             trString = false;
         }
@@ -970,17 +970,17 @@ bool UiHandler::endElement( const QString& /* namespaceURI */,
                             const QString& /* localName */,
                             const QString& qName )
 {
-    accum.replace( QRegExp(QString("\r\n")), "\n" );
+    accum.replace( QRegExp(QString(QLatin1String("\r\n"))), QLatin1String("\n") );
 
-    if ( qName == QString("class") ) {
+    if ( qName == QString(QLatin1String("class")) ) {
         if ( context.isEmpty() )
             context = accum;
-    } else if ( qName == QString("string") && trString ) {
+    } else if ( qName == QString(QLatin1String("string")) && trString ) {
         source = accum;
-    } else if ( qName == QString("comment") ) {
+    } else if ( qName == QString(QLatin1String("comment")) ) {
         comment = accum;
         flush();
-    } else if ( qName == QString("function") ) {
+    } else if ( qName == QString(QLatin1String("function")) ) {
         fetchtr_inlined_cpp( (const char *) fname, accum, tor,
                              context.toLatin1() );
     } else {
@@ -1009,7 +1009,7 @@ void UiHandler::flush()
 {
     if ( !context.isEmpty() && !source.isEmpty() )
         tor->insert( MetaTranslatorMessage(context.toUtf8(), source.toUtf8(),
-                                           comment.toUtf8(), QString(fname), m_lineNumber,
+                                           comment.toUtf8(), QLatin1String(fname), m_lineNumber,
                                            QStringList(), true) );
     source.truncate( 0 );
     comment.truncate( 0 );
@@ -1018,7 +1018,7 @@ void UiHandler::flush()
 void fetchtr_ui( const char *fileName, MetaTranslator *tor,
                  const char * /* defaultContext */, bool mustExist )
 {
-    QFile f( fileName );
+    QFile f( QString::fromLatin1(fileName) );
     if ( !f.open(QIODevice::ReadOnly) ) {
 		if ( mustExist ) {
 #if defined(_MSC_VER) && _MSC_VER >= 1400
@@ -1036,10 +1036,10 @@ void fetchtr_ui( const char *fileName, MetaTranslator *tor,
 
     QXmlInputSource in( &f );
     QXmlSimpleReader reader;
-    reader.setFeature( "http://xml.org/sax/features/namespaces", false );
-    reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", true );
-    reader.setFeature( "http://trolltech.com/xml/features/report-whitespace"
-                       "-only-CharData", false );
+    reader.setFeature( QLatin1String("http://xml.org/sax/features/namespaces"), false );
+    reader.setFeature( QLatin1String("http://xml.org/sax/features/namespace-prefixes"), true );
+    reader.setFeature( QLatin1String("http://trolltech.com/xml/features/report-whitespace"
+                                     "-only-CharData"), false );
     QXmlDefaultHandler *hand = new UiHandler( tor, fileName );
     reader.setContentHandler( hand );
     reader.setErrorHandler( hand );

@@ -62,7 +62,7 @@ QtWindowListMenu::QtWindowListMenu(QWorkspace *workspace, QWidget *parent,
 					    const char *name)
 	: QMenu(parent), groupWindows(this)
 {    
-    setObjectName(name);
+    setObjectName(QLatin1String(name));
     m_menubar = 0;
     m_my_action = 0;
     m_close_current_action = 0;

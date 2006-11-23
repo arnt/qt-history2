@@ -101,7 +101,7 @@ public:
 
     virtual TranslatorMessage findMessage(const char *context, const char *sourceText,
                                           const char *comment, 
-                                          const QString &fileName = 0, int lineNumber = -1) const;
+                                          const QString &fileName = QLatin1String(""), int lineNumber = -1) const;
 
     void clear();
 

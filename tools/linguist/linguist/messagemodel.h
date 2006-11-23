@@ -40,7 +40,7 @@ public:
     inline void setContextItem(ContextItem *ctxtI) {cntxtItem = ctxtI;}
     inline ContextItem *contextItem() const {return cntxtItem;}
 
-    inline QString context() const {return m.context();}
+    inline QString context() const {return QLatin1String(m.context());}
     inline QString sourceText() const {return tx;}
     inline QString comment() const {return com;}
     inline QString translation() const {return m.translation();}

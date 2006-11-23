@@ -160,14 +160,14 @@ bool PhraseModel::compare(const Phrase &left, const Phrase &right)
     int res;
     switch (sSortColumn) {
     case 0:
-        res = QString::localeAwareCompare(left.source().remove('&'),
-            right.source().remove('&'));
+        res = QString::localeAwareCompare(left.source().remove(QLatin1Char('&')),
+            right.source().remove(QLatin1Char('&')));
         if ((sSortOrder == Qt::AscendingOrder) ? (res < 0) : !(res < 0))
             return true;
         break;
     case 1:
-        res = QString::localeAwareCompare(left.target().remove('&'),
-            right.target().remove('&'));
+        res = QString::localeAwareCompare(left.target().remove(QLatin1Char('&')),
+            right.target().remove(QLatin1Char('&')));
         if ((sSortOrder == Qt::AscendingOrder) ? (res < 0) : !(res < 0))
             return true;
         break;
