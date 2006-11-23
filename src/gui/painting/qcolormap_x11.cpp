@@ -15,6 +15,7 @@
 
 #include "qapplication.h"
 #include "qdesktopwidget.h"
+#include "qvarlengtharray.h"
 
 #include "qx11info_x11.h"
 #include <private/qt_x11_p.h>
@@ -271,6 +272,40 @@ static void init_indexed(QColormapPrivate *d, int screen)
     query_colormap(d, screen);
 }
 
+static void init_direct(QColormapPrivate *d, bool ownColormap)
+{
+    if (d->visual->c_class != DirectColor || !ownColormap)
+        return;
+
+    // preallocate 768 on the stack, so that we don't have to malloc
+    // for the common case (<= 24 bpp)
+    QVarLengthArray<XColor, 768> colorTable(d->r_max + d->g_max + d->b_max);
+    int i = 0;
+
+    for (int r = 0; r < d->r_max; ++r) {
+        colorTable[i].red = r << 8 | r;
+        colorTable[i].pixel = r << d->r_shift;
+        colorTable[i].flags = DoRed;
+        ++i;
+    }
+
+    for (int g = 0; g < d->g_max; ++g) {
+        colorTable[i].green = g << 8 | g;
+        colorTable[i].pixel = g << d->g_shift;
+        colorTable[i].flags = DoGreen;
+        ++i;
+    }
+
+    for (int b = 0; b < d->b_max; ++b) {
+        colorTable[i].blue = (b << 8 | b);
+        colorTable[i].pixel = b << d->b_shift;
+        colorTable[i].flags = DoBlue;
+        ++i;
+    }
+
+    XStoreColors(X11->display, d->colormap, colorTable.data(), colorTable.count());
+}
+
 /*!
     \class QColormap
     \ingroup multimedia
@@ -464,17 +499,21 @@ void QColormap::initialize()
             }
         }
 
+        bool ownColormap = false;
         if (X11->colormap && i == DefaultScreen(display)) {
             // only use the outside colormap on the default screen
             d->colormap = X11->colormap;
             d->defaultColormap = (d->colormap == DefaultColormap(display, i));
-        } else if (((d->visual->c_class & 1) && X11->custom_cmap)
-                   || d->visual != DefaultVisual(display, i)) {
-            // allocate custom colormap
+        } else if (!use_stdcmap
+                   && (((d->visual->c_class & 1) && X11->custom_cmap)
+                       || d->visual != DefaultVisual(display, i))
+                       || d->visual->c_class == DirectColor) {
+            // allocate custom colormap (we always do this when using DirectColor visuals)
             d->colormap =
                 XCreateColormap(display, RootWindow(display, i), d->visual,
                                 d->visual->c_class == DirectColor ? AllocAll : AllocNone);
             d->defaultColormap = false;
+            ownColormap = true;
         }
 
         switch (d->mode) {
@@ -484,7 +523,8 @@ void QColormap::initialize()
         case Indexed:
             init_indexed(d, i);
             break;
-        default:
+        case Direct:
+            init_direct(d, ownColormap);
             break;
         }
 
