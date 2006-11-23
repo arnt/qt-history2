@@ -1820,6 +1820,13 @@ bool QOCIDriver::open(const QString & db,
     if (r == OCI_SUCCESS)
         r = OCIAttrSet(d->authp, OCI_HTYPE_SESSION, (dvoid *)password.utf16(),
                        password.length() * sizeof(QChar), OCI_ATTR_PASSWORD, d->err);
+
+    OCITrans* trans;
+    if (r == OCI_SUCCESS)
+        r = OCIHandleAlloc(d->env, (dvoid**)&trans, OCI_HTYPE_TRANS, 0, 0);
+    if (r == OCI_SUCCESS)
+        r = OCIAttrSet(d->svc, OCI_HTYPE_SVCCTX, (dvoid*)trans, 0, OCI_ATTR_TRANS, d->err);
+
     if (r == OCI_SUCCESS) {
         if (user.isEmpty() && password.isEmpty())
             r = OCISessionBegin(d->svc, d->err, d->authp, OCI_CRED_EXT, OCI_DEFAULT);

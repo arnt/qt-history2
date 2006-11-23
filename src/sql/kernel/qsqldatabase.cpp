@@ -362,7 +362,8 @@ void QSqlDatabasePrivate::disable()
     If transactions are supported, you can use transaction() to start
     a transaction, and then commit() or rollback() to complete it.
     You can find out whether transactions are supported using
-    QSqlDriver::hasFeature().
+    QSqlDriver::hasFeature(). When using transactions you must start
+    the transaction before you create your query.
 
     If an error occurred, it is given by lastError().
 
