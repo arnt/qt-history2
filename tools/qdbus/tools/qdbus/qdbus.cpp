@@ -22,20 +22,20 @@
 #include <QtDBus>
 #include <private/qdbusutil_p.h>
 
-static QDBusConnection connection("");
+static QDBusConnection connection(QLatin1String(""));
 
 static void listObjects(const QString &service, const QString &path)
 {
-    QDBusInterface iface(service, path.isEmpty() ? "/" : path,
-                         "org.freedesktop.DBus.Introspectable", connection);
+    QDBusInterface iface(service, path.isEmpty() ? QLatin1String("/") : path,
+                         QLatin1String("org.freedesktop.DBus.Introspectable"), connection);
     if (!iface.isValid()) {
         QDBusError err(iface.lastError());
         fprintf(stderr, "Cannot introspect object %s at %s:\n%s (%s)\n",
-                qPrintable(path.isEmpty() ? "/" : path), qPrintable(service),
+                qPrintable(path.isEmpty() ? QString(QLatin1String("/")) : path), qPrintable(service),
                 qPrintable(err.name()), qPrintable(err.message()));
         exit(1);
     }
-    QDBusReply<QString> xml = iface.call("Introspect");
+    QDBusReply<QString> xml = iface.call(QLatin1String("Introspect"));
 
     if (!xml.isValid())
         return;                 // silently
@@ -46,7 +46,7 @@ static void listObjects(const QString &service, const QString &path)
     QDomElement child = node.firstChildElement();
     while (!child.isNull()) {
         if (child.tagName() == QLatin1String("node")) {
-            QString sub = path + '/' + child.attribute("name");
+            QString sub = path + QLatin1Char('/') + child.attribute(QLatin1String("name"));
             printf("%s\n", qPrintable(sub));
             listObjects(service, sub);
         }
@@ -110,7 +110,7 @@ static void listInterface(const QString &service, const QString &path, const QSt
 
 static void listAllInterfaces(const QString &service, const QString &path)
 {
-    QDBusInterface iface(service, path, "org.freedesktop.DBus.Introspectable", connection);
+    QDBusInterface iface(service, path, QLatin1String("org.freedesktop.DBus.Introspectable"), connection);
     if (!iface.isValid()) {
         QDBusError err(iface.lastError());
         fprintf(stderr, "Cannot introspect object %s at %s:\n%s (%s)\n",
@@ -118,7 +118,7 @@ static void listAllInterfaces(const QString &service, const QString &path)
                 qPrintable(err.name()), qPrintable(err.message()));
         exit(1);
     }
-    QDBusReply<QString> xml = iface.call("Introspect");
+    QDBusReply<QString> xml = iface.call(QLatin1String("Introspect"));
 
     if (!xml.isValid())
         return;                 // silently
@@ -129,7 +129,7 @@ static void listAllInterfaces(const QString &service, const QString &path)
     QDomElement child = node.firstChildElement();
     while (!child.isNull()) {
         if (child.tagName() == QLatin1String("interface")) {
-            QString ifaceName = child.attribute("name");
+            QString ifaceName = child.attribute(QLatin1String("name"));
             if (QDBusUtil::isValidInterfaceName(ifaceName))
                 listInterface(service, path, ifaceName);
             else {
@@ -315,7 +315,7 @@ static void printAllServices(QDBusConnectionInterface *bus)
          it != servicesWithAliases.constEnd(); ++it) {
         QStringList names = it.value();
         names.sort();
-        printf("%s\n", qPrintable(names.join("\n ")));
+        printf("%s\n", qPrintable(names.join(QLatin1String("\n "))));
     }
 }
 

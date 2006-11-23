@@ -316,7 +316,7 @@ static QByteArray qtTypeName(const QString &signature, const QDBusIntrospection:
     if (type == QVariant::Invalid) {
         QString annotationName = QString::fromLatin1("com.trolltech.QtDBus.QtTypeName");
         if (paramId >= 0)
-            annotationName += QString::fromLatin1(".%1%2").arg(direction).arg(paramId);
+            annotationName += QString::fromLatin1(".%1%2").arg(QLatin1String(direction)).arg(paramId);
         QString qttype = annotations.value(annotationName);
         if (!qttype.isEmpty())
             return qttype.toLatin1();
