@@ -189,7 +189,7 @@ bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs
     int glyph_pos = 0;
     if (flags & QTextEngine::RightToLeft) {
         for ( int i = 0; i < len; ++i ) {
-            unsigned int uc = QUnicodeTables::mirroredChar(getChar(str, i, len));
+            unsigned int uc = QChar::mirroredChar(getChar(str, i, len));
             glyphs[glyph_pos].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
             if (!glyphs[glyph_pos].glyph) {
                 glyphs[glyph_pos].glyph = FT_Get_Char_Index(face, uc);

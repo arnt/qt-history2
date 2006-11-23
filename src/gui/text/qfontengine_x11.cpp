@@ -715,7 +715,7 @@ bool QFontEngineXLFD::stringToCMap(const QChar *s, int len, QGlyphLayout *glyphs
         if (haveNbsp || mirrored) {
             for (int i = 0; i < len; i++)
                 chars[i] = (str[i].unicode() == 0xa0 ? 0x20 :
-                            (mirrored ? QUnicodeTables::mirroredChar(str[i]).unicode() : str[i].unicode()));
+                            (mirrored ? QChar::mirroredChar(str[i].unicode()) : str[i].unicode()));
         } else {
             for (int i = 0; i < len; i++)
                 chars[i] = str[i].unicode();
@@ -740,7 +740,7 @@ bool QFontEngineXLFD::stringToCMap(const QChar *s, int len, QGlyphLayout *glyphs
         const QChar *c = str + len;
         if (mirrored) {
             while (c != str)
-                (--g)->glyph = (--c)->unicode() == 0xa0 ? 0x20 : QUnicodeTables::mirroredChar(*c).unicode();
+                (--g)->glyph = (--c)->unicode() == 0xa0 ? 0x20 : QChar::mirroredChar(c->unicode());
         } else {
             while (c != str)
                 (--g)->glyph = (--c)->unicode() == 0xa0 ? 0x20 : c->unicode();
@@ -1855,7 +1855,7 @@ bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs
         for ( int i = 0; i < len; ++i ) {
             unsigned int uc = getChar(str, i, len);
             if (mirrored)
-                uc = QUnicodeTables::mirroredChar(uc);
+                uc = QChar::mirroredChar(uc);
             glyphs[glyph_pos].glyph = uc < QFreetypeFace::cmapCacheSize ? freetype->cmapCache[uc] : 0;
             if ( !glyphs[glyph_pos].glyph ) {
                 glyph_t glyph;
@@ -1882,7 +1882,7 @@ bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs
         for (int i = 0; i < len; ++i) {
             unsigned int uc = getChar(str, i, len);
             if (mirrored)
-                uc = QUnicodeTables::mirroredChar(uc);
+                uc = QChar::mirroredChar(uc);
             glyphs[glyph_pos].glyph = uc < QFreetypeFace::cmapCacheSize ? freetype->cmapCache[uc] : 0;
             if (!glyphs[glyph_pos].glyph && FcCharSetHasChar(freetype->charset, uc)) {
             redo:

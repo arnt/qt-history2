@@ -112,7 +112,6 @@ QTOBJS= \
 	qstringmatcher.obj \
 	qtextstream.obj \
 	qdatastream.obj \
-	qunicodetables.obj \
 	quuid.obj \
 	qvector.obj \
 	qsettings.obj \
@@ -155,7 +154,6 @@ clean::
 	-del qstringmatcher.obj
 	-del qtextstream.obj
 	-del qdatastream.obj
-	-del qunicodetables.obj
 	-del quuid.obj
 	-del qvector.obj
 	-del qsettings.obj
@@ -313,9 +311,6 @@ qstringlist.obj: $(SOURCE_PATH)\src\corelib\tools\qstringlist.cpp
 
 qmap.obj: $(SOURCE_PATH)\src\corelib\tools\qmap.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\tools\qmap.cpp
-
-qunicodetables.obj: $(SOURCE_PATH)\src\corelib\tools\qunicodetables.cpp
-	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\tools\qunicodetables.cpp
 
 makefile.obj: $(SOURCE_PATH)/qmake/generators\makefile.cpp
 	$(CXX) $(CXXFLAGS) generators\makefile.cpp

@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-/*! 
+/*!
     \class QUrl
 
     \brief The QUrl class provides a convenient interface for working
@@ -2935,9 +2935,7 @@ QString Q_AUTOTEST_EXPORT qt_nameprep(const QString &source)
     mapped = mappedToLowerCase(mapped);
 
     // Normalize to Unicode 3.2 form KC
-    mapped = QUnicodeTables::normalize(mapped,
-                                       QString::NormalizationForm_KC,
-                                       QChar::Unicode_3_2);
+    mapped = mapped.normalized(QString::NormalizationForm_KC, QChar::Unicode_3_2);
 
     // Strip prohibited output
     mapped = strippedOfProhibitedOutput(mapped);
@@ -3015,7 +3013,7 @@ static QString qt_from_ACE(const QString &domain)
         return labels.join(QLatin1String("."));
     } else {
         return qt_nameprep(domain);
-    }    
+    }
 }
 
 
@@ -4978,7 +4976,7 @@ QString QUrl::fromAce(const QByteArray &domain)
 
     Returns the ASCII Compatible Encoding of the given domain name \a domain.
     The result of this function is considered equivalent to \a domain.
-    
+
     The ASCII-Compatible Encoding (ACE) is defined by RFC 3490, RFC 3491
     and RFC 3492. It is part of the Internationalizing Domain Names in
     Applications (IDNA) specification, which allows for domain names

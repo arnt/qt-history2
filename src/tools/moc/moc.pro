@@ -56,7 +56,6 @@ SOURCES	+= ../../corelib/global/qglobal.cpp \
 	   ../../corelib/tools/qvector.cpp          \
            ../../corelib/io/qabstractfileengine.cpp  \
            ../../corelib/tools/qbytearray.cpp	\
-           ../../corelib/tools/qunicodetables.cpp	\
            ../../corelib/tools/qvsnprintf.cpp 
 
 unix:SOURCES += ../../corelib/io/qfsfileengine_unix.cpp

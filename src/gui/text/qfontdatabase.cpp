@@ -48,24 +48,6 @@
 
 Q_GUI_EXPORT bool qt_enable_test_font = false;
 
-static int ucstricmp(const QString &as, const QString &bs)
-{
-    const QChar *a = as.unicode();
-    const QChar *b = bs.unicode();
-    if (a == b)
-        return 0;
-    if (a == 0)
-        return 1;
-    if (b == 0)
-        return -1;
-    int l=qMin(as.length(),bs.length());
-    while (l-- && QUnicodeTables::lower(*a) == QUnicodeTables::lower(*b))
-        a++,b++;
-    if (l==-1)
-        return (as.length()-bs.length());
-    return QUnicodeTables::lower(*a).unicode() - QUnicodeTables::lower(*b).unicode();
-}
-
 static int getFontWeight(const QString &weightString)
 {
     QString s = weightString.toLower();
@@ -392,7 +374,7 @@ QtFontFoundry *QtFontFamily::foundry(const QString &f, bool create)
         return foundries[0];
 
     for (int i = 0; i < count; i++) {
-        if (ucstricmp(foundries[i]->name, f) == 0)
+        if (foundries[i]->name.compare(f, Qt::CaseInsensitive) == 0)
             return foundries[i];
     }
     if (!create)
@@ -464,7 +446,7 @@ QtFontFamily *QFontDatabasePrivate::family(const QString &f, bool create)
     int pos = count / 2;
     int res = 1;
     if (count) {
-        while ((res = ucstricmp(families[pos]->name, f)) && pos != low) {
+        while ((res = families[pos]->name.compare(f, Qt::CaseInsensitive)) && pos != low) {
             if (res > 0)
                 high = pos;
             else
@@ -803,8 +785,7 @@ unsigned int bestFoundry(int script, unsigned int score, int styleStrategy,
 
     for (int x = 0; x < family->count; ++x) {
         QtFontFoundry *foundry = family->foundries[x];
-        if (!foundry_name.isEmpty() &&
-            ucstricmp(foundry->name, foundry_name) != 0)
+        if (!foundry_name.isEmpty() && foundry->name.compare(foundry_name, Qt::CaseInsensitive) != 0)
             continue;
 
         FM_DEBUG("          looking for matching style in foundry '%s' %d",
@@ -1014,9 +995,9 @@ static void match(int script, const QFontDef &request,
         test.family = db->families[x];
 
         if (!family_name.isEmpty()
-            && ucstricmp(test.family->name, family_name) != 0
+            && test.family->name.compare(family_name, Qt::CaseInsensitive) != 0
 #ifdef Q_WS_WIN
-            && ucstricmp(test.family->english_name, family_name) != 0
+            && test.family->english_name.compare(family_name, Qt::CaseInsensitive) != 0
 #endif
             )
             continue;
@@ -1521,7 +1502,7 @@ QStringList QFontDatabase::styles(const QString &family) const
     QtFontFoundry allStyles(foundryName);
     for (int j = 0; j < f->count; j++) {
         QtFontFoundry *foundry = f->foundries[j];
-        if (foundryName.isEmpty() || ucstricmp(foundry->name, foundryName) == 0) {
+        if (foundryName.isEmpty() || foundry->name.compare(foundryName, Qt::CaseInsensitive) == 0) {
             for (int k = 0; k < foundry->count; k++) {
                 QtFontStyle::Key ke(foundry->styles[k]->key);
                 ke.stretch = 0;
@@ -1583,7 +1564,7 @@ bool QFontDatabase::isBitmapScalable(const QString &family,
 
     for (int j = 0; j < f->count; j++) {
         QtFontFoundry *foundry = f->foundries[j];
-        if (foundryName.isEmpty() || ucstricmp(foundry->name, foundryName) == 0) {
+        if (foundryName.isEmpty() || foundry->name.compare(foundryName, Qt::CaseInsensitive) == 0) {
             for (int k = 0; k < foundry->count; k++)
                 if ((style.isEmpty() || foundry->styles[k]->key == styleKey)
                     && foundry->styles[k]->bitmapScalable && !foundry->styles[k]->smoothScalable) {
@@ -1620,7 +1601,7 @@ bool QFontDatabase::isSmoothlyScalable(const QString &family, const QString &sty
 
     for (int j = 0; j < f->count; j++) {
         QtFontFoundry *foundry = f->foundries[j];
-        if (foundryName.isEmpty() || ucstricmp(foundry->name, foundryName) == 0) {
+        if (foundryName.isEmpty() || foundry->name.compare(foundryName, Qt::CaseInsensitive) == 0) {
             for (int k = 0; k < foundry->count; k++)
                 if ((style.isEmpty() || foundry->styles[k]->key == styleKey) && foundry->styles[k]->smoothScalable) {
                     smoothScalable = true;
@@ -1685,7 +1666,7 @@ QList<int> QFontDatabase::pointSizes(const QString &family,
 
     for (int j = 0; j < fam->count; j++) {
         QtFontFoundry *foundry = fam->foundries[j];
-        if (foundryName.isEmpty() || ucstricmp(foundry->name, foundryName) == 0) {
+        if (foundryName.isEmpty() || foundry->name.compare(foundryName, Qt::CaseInsensitive) == 0) {
             QtFontStyle *style = foundry->style(styleKey);
             if (!style) continue;
 
@@ -1733,7 +1714,7 @@ QFont QFontDatabase::font(const QString &family, const QString &style,
 
     for (int j = 0; j < f->count; j++) {
         QtFontFoundry *foundry = f->foundries[j];
-        if (foundryName.isEmpty() || ucstricmp(foundry->name, foundryName) == 0) {
+        if (foundryName.isEmpty() || foundry->name.compare(foundryName, Qt::CaseInsensitive) == 0) {
             for (int k = 0; k < foundry->count; k++)
                 allStyles.style(foundry->styles[k]->key, true);
         }
@@ -1787,8 +1768,7 @@ QList<int> QFontDatabase::smoothSizes(const QString &family,
 #endif
     for (int j = 0; j < fam->count; j++) {
         QtFontFoundry *foundry = fam->foundries[j];
-        if (foundryName.isEmpty() ||
-             ucstricmp(foundry->name, foundryName) == 0) {
+        if (foundryName.isEmpty() || foundry->name.compare(foundryName, Qt::CaseInsensitive) == 0) {
             QtFontStyle *style = foundry->style(styleKey);
             if (!style) continue;
 
@@ -1852,7 +1832,7 @@ bool QFontDatabase::italic(const QString &family, const QString &style) const
 
     for (int j = 0; j < f->count; j++) {
         QtFontFoundry *foundry = f->foundries[j];
-        if (foundryName.isEmpty() || ucstricmp(foundry->name, foundryName) == 0) {
+        if (foundryName.isEmpty() || foundry->name.compare(foundryName, Qt::CaseInsensitive) == 0) {
             for (int k = 0; k < foundry->count; k++)
                 allStyles.style(foundry->styles[k]->key, true);
         }
@@ -1885,7 +1865,7 @@ bool QFontDatabase::bold(const QString &family,
     for (int j = 0; j < f->count; j++) {
         QtFontFoundry *foundry = f->foundries[j];
         if (foundryName.isEmpty() ||
-             ucstricmp(foundry->name, foundryName) == 0) {
+            foundry->name.compare(foundryName, Qt::CaseInsensitive) == 0) {
             for (int k = 0; k < foundry->count; k++)
                 allStyles.style(foundry->styles[k]->key, true);
         }
@@ -1919,7 +1899,7 @@ int QFontDatabase::weight(const QString &family,
     for (int j = 0; j < f->count; j++) {
         QtFontFoundry *foundry = f->foundries[j];
         if (foundryName.isEmpty() ||
-             ucstricmp(foundry->name, foundryName) == 0) {
+            foundry->name.compare(foundryName, Qt::CaseInsensitive) == 0) {
             for (int k = 0; k < foundry->count; k++)
                 allStyles.style(foundry->styles[k]->key, true);
         }

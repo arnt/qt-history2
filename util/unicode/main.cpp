@@ -5,23 +5,68 @@
 #include <qchar.h>
 #include <private/qunicodetables_p.h>
 #include <qvector.h>
-
-#if 0
-// accessing properties goes via:
-
-int toUpper(int ucs4)
-{
-    const int BLOCKSIZE = 128;
-    ushort offset = offsetMap[ucs4/BLOCKSIZE];
-    ushort propertyIndex = trie[offset + ucs4%(BLOCKSIZE-1)];
-    PropertyFlags *p = propertyFlags + propertyIndex;
-    if (p->category == QChar::Letter_Lowercase)
-        return ucs4 + p->caseDiff;
-    return ucs4;
-}
+#include <qdebug.h>
 
 
-#endif
+static struct AgeMap {
+    const char *age;
+    const QChar::UnicodeVersion version;
+} ageMap [] = {
+    { "1.1", QChar::Unicode_1_1 },
+    { "2.0", QChar::Unicode_2_0 },
+    { "2.1", QChar::Unicode_2_1_2 },
+    { "3.0", QChar::Unicode_3_0 },
+    { "3.1", QChar::Unicode_3_1 },
+    { "3.2", QChar::Unicode_3_2 },
+    { "4.0", QChar::Unicode_4_0 },
+    { "4.1", QChar::Unicode_4_1 },
+    { "5.0", QChar::Unicode_5_0 },
+    { 0, QChar::Unicode_Unassigned }
+};
+#define CURRENT_UNICODE_VERSION "QChar::Unicode_5_0"
+
+
+// Keep this one in sync with the code in createPropertyInfo
+const char *property_string =
+    "    struct Properties {\n"
+    "        uint category : 5;\n"
+    "        uint line_break_class : 5;\n"
+    "        uint direction : 5;\n"
+    "        uint titleCaseDiffersFromUpper : 1;\n"
+    "        uint combiningClass :8;\n"
+    "        uint unicode_version : 4;\n"
+    "        uint digit_value : 4;\n"
+    "\n"
+    "        signed short mirrorDiff : 14 /* 13 needed */;\n"
+    "        uint joining : 2;\n"
+    "        signed short caseDiff /* 14 needed */;\n"
+    "    };\n"
+    "    Q_CORE_EXPORT const Properties * QT_FASTCALL properties(uint ucs4);\n"
+    "    Q_CORE_EXPORT const Properties * QT_FASTCALL properties(ushort ucs2);\n";
+
+const char *lineBreakClass =
+    "    // see http://www.unicode.org/reports/tr14/tr14-13.html\n"
+    "    // we don't use the XX and AI properties and map them to AL instead.\n"
+    "    enum LineBreakClass {\n"
+    "        LineBreak_OP, LineBreak_CL, LineBreak_QU, LineBreak_GL, LineBreak_NS,\n"
+    "        LineBreak_EX, LineBreak_SY, LineBreak_IS, LineBreak_PR, LineBreak_PO,\n"
+    "        LineBreak_NU, LineBreak_AL, LineBreak_ID, LineBreak_IN, LineBreak_HY,\n"
+    "        LineBreak_BA, LineBreak_BB, LineBreak_B2, LineBreak_ZW, LineBreak_CM,\n"
+    "        LineBreak_SA, LineBreak_BK, LineBreak_CR, LineBreak_LF, LineBreak_SG,\n"
+    "        LineBreak_CB, LineBreak_SP\n"
+    "    };\n";
+
+const char *methods =
+    "    Q_CORE_EXPORT QUnicodeTables::LineBreakClass QT_FASTCALL lineBreakClass(uint ucs4);\n"
+    "    inline int lineBreakClass(const QChar &ch) {\n"
+    "        return QUnicodeTables::lineBreakClass(ch.unicode());\n"
+    "    }\n"
+    "\n"
+    "    Q_CORE_EXPORT int QT_FASTCALL script(uint ucs4);\n"
+    "    Q_CORE_EXPORT_INLINE int QT_FASTCALL script(const QChar &ch) {\n"
+    "        return script(ch.unicode());\n"
+    "    }\n\n";
+
 
 struct PropertyFlags {
     bool operator ==(const PropertyFlags &o) {
@@ -318,13 +363,20 @@ static void readUnicodeData()
         if (data.p.category == QChar::Letter_Lowercase) {
             data.otherCase = properties[UD_UpperCase].toInt(&ok, 16);
             int titleCase = properties[UD_TitleCase].toInt(&ok, 16);
-            if (titleCase != data.otherCase) {
+            if (ok && titleCase != 0 && titleCase != data.otherCase) {
+                // Need to fix QUnicodeTables::toUpper() and toTitleCase() if this assertion breaks
                 Q_ASSERT(titleCase-1 == data.otherCase);
                 data.p.titleCaseDiffersFromUpper = true;
             }
         } else if (data.p.category == QChar::Letter_Uppercase
                    || data.p.category == QChar::Letter_Titlecase) {
             data.otherCase = properties[UD_LowerCase].toInt(&ok, 16);
+            int titleCase = properties[UD_TitleCase].toInt(&ok, 16);
+            if (ok && titleCase != 0 && titleCase != codepoint) {
+                // Need to fix QUnicodeTables::toUpper() and toTitleCase() if this assertion breaks
+                Q_ASSERT(titleCase+1 == data.otherCase);
+                data.p.titleCaseDiffersFromUpper = true;
+            }
         }
         if (data.otherCase == 0)
             data.otherCase = codepoint;
@@ -483,24 +535,15 @@ static void readDerivedAge()
 
         QChar::UnicodeVersion age = QChar::Unicode_Unassigned;
         QByteArray ba = l[1];
-        if (ba == "1.1")
-            age = QChar::Unicode_1_1;
-        else if (ba == "2.0")
-            age = QChar::Unicode_2_0;
-        else if (ba == "2.1")
-            age = QChar::Unicode_2_1_2;
-        else if (ba == "3.0")
-            age = QChar::Unicode_3_0;
-        else if (ba == "3.1")
-            age = QChar::Unicode_3_1;
-        else if (ba == "3.2")
-            age = QChar::Unicode_3_2;
-        else if (ba == "4.0")
-            age = QChar::Unicode_4_0;
-        else if (ba == "4.1")
-            age = QChar::Unicode_4_1;
-        else if (ba == "5.0")
-            age = QChar::Unicode_5_0;
+        AgeMap *map = ageMap;
+        while (map->age) {
+            if (ba == map->age) {
+                age = map->version;
+                break;
+            }
+            ++map;
+        }
+        //qDebug() << hex << from << ".." << to << ba << age;
         Q_ASSERT(age != QChar::Unicode_Unassigned);
 
         for (int codepoint = from; codepoint <= to; ++codepoint) {
@@ -898,8 +941,8 @@ QByteArray createScriptEnumDeclaration()
     // generate script enum
     QByteArray declaration;
 
-    declaration += "// See http://www.unicode.org/reports/tr24/tr24-5.html\n\n";
-    declaration += "enum Script {\n    Common";
+    declaration += "    // See http://www.unicode.org/reports/tr24/tr24-5.html\n\n";
+    declaration += "    enum Script {\n        Common";
 
     int uniqueScripts = 1; // Common
 
@@ -920,10 +963,10 @@ QByteArray createScriptEnumDeclaration()
             scriptHash[i] = i;
         }
 
-        declaration += ",\n    ";
+        declaration += ",\n        ";
         declaration += scriptName;
     }
-    declaration += ",\n    ScriptCount = Inherited";
+    declaration += ",\n        ScriptCount = Inherited";
 
     // output the ones that are an alias for 'Common'
     for (int i = 1; i < scriptNames.size(); ++i) {
@@ -931,14 +974,14 @@ QByteArray createScriptEnumDeclaration()
             continue;
         QByteArray scriptName = scriptNames.at(i);
         scriptName += " = Common";
-        declaration += ",\n    ";
+        declaration += ",\n        ";
         declaration += scriptName;
     }
 
-    declaration += "\n};\n\n";
+    declaration += "\n    };\n";
 
     scriptSentinel = ((uniqueScripts + 16) / 32) * 32; // a multiple of 32
-    declaration += "enum { ScriptSentinel = ";
+    declaration += "    enum { ScriptSentinel = ";
     declaration += QByteArray::number(scriptSentinel);
     declaration += " };\n\n";
     return declaration;
@@ -1199,6 +1242,7 @@ static QByteArray createPropertyInfo()
 
            "static const QUnicodeTables::Properties uc_properties [] = {\n";
 
+    // keep in sync with the property declaration
     for (int i = 0; i < uniqueProperties.size(); ++i) {
         PropertyFlags p = uniqueProperties.at(i);
         out += "    { ";
@@ -1227,6 +1271,32 @@ static QByteArray createPropertyInfo()
 
            "#define GET_PROP(ucs4) (uc_properties + GET_PROP_INDEX(ucs4))\n"
            "#define GET_PROP_UCS2(ucs2) (uc_properties + GET_PROP_INDEX_ucs2(ucs2))\n\n";
+
+    out += "static inline const QUnicodeTables::Properties *qGetProp(uint ucs4)\n"
+           "{\n"
+           "    int index = GET_PROP_INDEX(ucs4);\n"
+           "    return uc_properties + index;\n"
+           "}\n"
+           "\n"
+           "static inline const QUnicodeTables::Properties *qGetProp(ushort ucs2)\n"
+           "{\n"
+           "    int index = GET_PROP_INDEX_UCS2(ucs2);\n"
+           "    return uc_properties + index;\n"
+           "}\n"
+           "\n"
+           "Q_CORE_EXPORT const QUnicodeTables::Properties *QUnicodeTables::properties(uint ucs4)\n"
+           "{\n"
+           "    int index = GET_PROP_INDEX(ucs4);\n"
+           "    return uc_properties + index;\n"
+           "}\n"
+           "\n"
+           "Q_CORE_EXPORT const QUnicodeTables::Properties *QUnicodeTables::properties(ushort ucs2)\n"
+           "{\n"
+           "    int index = GET_PROP_INDEX_UCS2(ucs2);\n"
+           "    return uc_properties + index;\n"
+           "}\n\n";
+
+    out += "#define CURRENT_VERSION "CURRENT_UNICODE_VERSION"\n\n";
 
 
     return out;
@@ -1557,7 +1627,7 @@ int main(int, char **)
     QByteArray scriptEnumDeclaration = createScriptEnumDeclaration();
     QByteArray scriptTableDeclaration = createScriptTableDeclaration();
 
-    QFile f("../../src/corelib/tools/qunicodedata.cpp");
+    QFile f("../../src/corelib/tools/qunicodetables.cpp");
     f.open(QFile::WriteOnly|QFile::Truncate);
 
     QByteArray header =
@@ -1574,7 +1644,7 @@ int main(int, char **)
         "**\n"
         "****************************************************************************/\n\n"
 
-        "/* This file is autogenerated from the Unicode 4.0.1 database. Do not edit */\n\n";
+        "/* This file is autogenerated from the Unicode 5.0 database. Do not edit */\n\n";
 
     QByteArray warning =
         "//\n"
@@ -1596,11 +1666,23 @@ int main(int, char **)
     f.write(scriptTableDeclaration);
     f.close();
 
-    f.setFileName("../../src/corelib/tools/qunicodedata_p.h");
+    f.setFileName("../../src/corelib/tools/qunicodetables_p.h");
     f.open(QFile::WriteOnly | QFile::Truncate);
     f.write(header);
     f.write(warning);
+    f.write("#ifndef QUNICODETABLES_P_H\n"
+            "#define QUNICODETABLES_P_H\n\n"
+            "#include <qchar.h>\n\n");
+    f.write("namespace QUnicodeTables {\n");
+    f.write(property_string);
+    f.write("\n");
     f.write(scriptEnumDeclaration);
+    f.write("\n");
+    f.write(lineBreakClass);
+    f.write("\n");
+    f.write(methods);
+    f.write("\n}\n"
+            "#endif\n");
     f.close();
 
     qDebug("maxMirroredDiff = %x, maxCaseDiff = %x", maxMirroredDiff, maxCaseDiff);

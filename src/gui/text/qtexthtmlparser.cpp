@@ -684,7 +684,7 @@ int QTextHtmlParser::bottomMargin(int i) const
 
 void QTextHtmlParser::eatSpace()
 {
-    while (pos < len && QUnicodeTables::isSpace(txt.at(pos)) && txt.at(pos) != QChar::ParagraphSeparator)
+    while (pos < len && txt.at(pos).isSpace() && txt.at(pos) != QChar::ParagraphSeparator)
         pos++;
 }
 
@@ -933,7 +933,7 @@ QString QTextHtmlParser::parseWord()
                 || (c == QLatin1Char('/') && hasPrefix(QLatin1Char('>'), 1))
                 || c == QLatin1Char('<')
                 || c == QLatin1Char('=')
-                || QUnicodeTables::isSpace(c)) {
+                || c.isSpace()) {
                 --pos;
                 break;
             }

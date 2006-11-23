@@ -43,7 +43,6 @@ SOURCES	+= ../../corelib/global/qglobal.cpp \
            ../../corelib/io/qabstractfileengine.cpp  \
            ../../corelib/tools/qbytearray.cpp	\
            ../../corelib/tools/qbitarray.cpp	\
-           ../../corelib/tools/qunicodetables.cpp	\
            ../../corelib/tools/qvsnprintf.cpp \
            ../../corelib/tools/qregexp.cpp \
            ../../corelib/codecs/qtextcodec.cpp \

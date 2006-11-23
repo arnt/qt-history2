@@ -204,12 +204,12 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
     if (!length)
         return hasBidi;
 
-    const QChar *unicode = engine->layoutData->string.unicode();
+    const ushort *unicode = (const ushort *)engine->layoutData->string.unicode();
     int current = 0;
 
     QChar::Direction dir = rightToLeft ? QChar::DirR : QChar::DirL;
     QBidiStatus status;
-    QChar::Direction sdir = QUnicodeTables::direction(*unicode);
+    QChar::Direction sdir = QChar::direction(*unicode);
     if (sdir != QChar::DirL && sdir != QChar::DirR && sdir != QChar::DirEN && sdir != QChar::DirAN)
 	sdir = QChar::DirON;
     else
@@ -227,7 +227,7 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
         if (current == (int)length)
             dirCurrent = control.basicDirection();
         else
-            dirCurrent = QUnicodeTables::direction(unicode[current]);
+            dirCurrent = QChar::direction(unicode[current]);
 
 #if (BIDI_DEBUG >= 2)
         cout << "pos=" << current << " dir=" << directions[dir]
@@ -299,7 +299,7 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
                 case QChar::DirAN:
                     if (eor >= 0) {
                         appendItems(engine, sor, eor, control, dir);
-                        dir = eor < length ? QUnicodeTables::direction(unicode[eor]) : control.basicDirection();
+                        dir = eor < length ? QChar::direction(unicode[eor]) : control.basicDirection();
                         status.eor = dir;
                     } else {
                         eor = current; status.eor = dir;
@@ -324,7 +324,7 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
                             }
                             eor = current - 1;
                             appendItems(engine, sor, eor, control, dir);
-                            dir = eor < length ? QUnicodeTables::direction(unicode[eor]) : control.basicDirection();
+                            dir = eor < length ? QChar::direction(unicode[eor]) : control.basicDirection();
                             status.eor = dir;
                         } else {
                             if(status.eor != QChar::DirL) {

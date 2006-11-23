@@ -674,22 +674,19 @@ public:
     inline bool isNumber() const { return QChar(*this).isNumber(); }
     inline bool isLetterOrNumber() { return QChar(*this).isLetterOrNumber(); }
     inline bool isDigit() const { return QChar(*this).isDigit(); }
+    inline bool isLower() const { return QChar(*this).isLower(); }
+    inline bool isUpper() const { return QChar(*this).isUpper(); }
+    inline bool isTitleCase() const { return QChar(*this).isTitleCase(); }
 
     inline int digitValue() const { return QChar(*this).digitValue(); }
     QChar toLower() const { return QChar(*this).toLower(); }
     QChar toUpper() const { return QChar(*this).toUpper(); }
-#ifdef QT3_SUPPORT
-    inline QT3_SUPPORT QChar lower() const { return QChar(*this).toLower(); }
-    inline QT3_SUPPORT QChar upper() const { return QChar(*this).toUpper(); }
-#endif
+    QChar toTitleCase () const { return QChar(*this).toTitleCase(); }
 
     QChar::Category category() const { return QChar(*this).category(); }
     QChar::Direction direction() const { return QChar(*this).direction(); }
     QChar::Joining joining() const { return QChar(*this).joining(); }
     bool hasMirrored() const { return QChar(*this).hasMirrored(); }
-#ifdef QT3_SUPPORT
-    inline bool QT3_SUPPORT mirrored() const { return hasMirrored(); }
-#endif
     QChar mirroredChar() const { return QChar(*this).mirroredChar(); }
     QString decomposition() const { return QChar(*this).decomposition(); }
     QChar::Decomposition decompositionTag() const { return QChar(*this).decompositionTag(); }
@@ -704,11 +701,15 @@ public:
 
     const char toAscii() const { return QChar(*this).toAscii(); }
     const char toLatin1() const { return QChar(*this).toLatin1(); }
-#ifdef QT3_SUPPORT
-    const char latin1() const { return QChar(*this).toLatin1(); }
-    const char ascii() const { return QChar(*this).toAscii(); }
-#endif
     const ushort unicode() const { return QChar(*this).unicode(); }
+
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT bool QT3_SUPPORT mirrored() const { return hasMirrored(); }
+    inline QT3_SUPPORT QChar lower() const { return QChar(*this).toLower(); }
+    inline QT3_SUPPORT QChar upper() const { return QChar(*this).toUpper(); }
+    const QT3_SUPPORT char latin1() const { return QChar(*this).toLatin1(); }
+    const QT3_SUPPORT char ascii() const { return QChar(*this).toAscii(); }
+#endif
 };
 
 inline void QCharRef::setRow(uchar arow) { QChar(*this).setRow(arow); }

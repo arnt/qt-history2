@@ -121,11 +121,11 @@ bool caseInsensitiveLessThan(const QString &as, const QString &bs)
     if (a == b)
         return false;
     int l=qMin(as.length(),bs.length());
-    while (l-- && QUnicodeTables::lower((*a).unicode()) == QUnicodeTables::lower((*b).unicode()))
+    while (l-- && QChar::toLower(a->unicode()) == QChar::toLower(b->unicode()))
         a++,b++;
     if (l==-1)
         return (as.length() < bs.length());
-    return QUnicodeTables::lower((*a).unicode()) < QUnicodeTables::lower((*b).unicode());
+    return QChar::toLower(a->unicode()) < QChar::toLower(b->unicode());
 }
 
 /**
@@ -956,7 +956,7 @@ void HelpDialog::locateContents(const QString &link)
     QList<QTreeWidgetItem *> selected = ui.listContents->selectedItems();
     foreach(QTreeWidgetItem *sel, selected)
         ui.listContents->setItemSelected(sel, false);
-    
+
     //set the TOC item and show
     ui.listContents->setCurrentItem(item);
     ui.listContents->setItemSelected(item, true);

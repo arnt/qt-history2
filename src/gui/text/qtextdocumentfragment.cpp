@@ -741,7 +741,7 @@ bool QTextHtmlImporter::appendNodeText(int node)
     for (int i = 0; i < text.length(); ++i) {
         QChar ch = text.at(i);
 
-        if (QUnicodeTables::isSpace(ch)
+        if (ch.isSpace()
             && ch != QChar::Nbsp
             && ch != QChar::ParagraphSeparator) {
 

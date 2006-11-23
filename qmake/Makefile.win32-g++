@@ -62,7 +62,6 @@ QTOBJS= \
 	qstringlist.o \
 	qstringmatcher.o \
 	qtextstream.o \
-	qunicodetables.o \
 	quuid.o \
 	qvector.o \
 	qurl.o \
@@ -194,9 +193,6 @@ qstringlist.o: $(SOURCE_PATH)\src\corelib\tools\qstringlist.cpp
 
 qmap.o: $(SOURCE_PATH)\src\corelib\tools\qmap.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\tools\qmap.cpp
-
-qunicodetables.o: $(SOURCE_PATH)\src\corelib\tools\qunicodetables.cpp
-	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\tools\qunicodetables.cpp
 
 makefile.o: $(SOURCE_PATH)/qmake/generators\makefile.cpp
 	$(CXX) $(CXXFLAGS) generators\makefile.cpp

@@ -218,7 +218,7 @@ int qstricmp(const char *str1, const char *str2)
     uchar c;
     if (!s1 || !s2)
         return s1 ? 1 : (s2 ? -1 : 0);
-    for (; !(res = (c = QUnicodeTables::lower(*s1)) - QUnicodeTables::lower(*s2)); s1++, s2++)
+    for (; !(res = (c = QChar::toLower((ushort)*s1)) - QChar::toLower((ushort)*s2)); s1++, s2++)
         if (!c)                                // strings are equal
             break;
     return res;
@@ -254,7 +254,7 @@ int qstrnicmp(const char *str1, const char *str2, uint len)
     if (!s1 || !s2)
         return s1 ? 1 : (s2 ? -1 : 0);
     for (; len--; s1++, s2++) {
-        if ((res = (c = QUnicodeTables::lower(*s1)) - QUnicodeTables::lower(*s2)))
+        if ((res = (c = QChar::toLower((ushort)*s1)) - QChar::toLower((ushort)*s2)))
             return res;
         if (!c)                                // strings are equal
             break;
@@ -2420,7 +2420,7 @@ QByteArray QByteArray::toLower() const
     register uchar *p = reinterpret_cast<uchar *>(s.data());
     if (p) {
         while (*p) {
-            *p = QUnicodeTables::lower(*p);
+            *p = QChar::toLower((ushort)*p);
             p++;
         }
     }
@@ -2447,7 +2447,7 @@ QByteArray QByteArray::toUpper() const
     register char *p = s.data();
     if (p) {
         while (*p) {
-            *p = QUnicodeTables::upper(*p);
+            *p = QChar::toUpper((ushort)*p);
             p++;
         }
     }

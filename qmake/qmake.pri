@@ -57,7 +57,6 @@ bootstrap { #Qt code
         qtemporaryfile.cpp \
         qtextstream.cpp \
         qurl.cpp \
-        qunicodetables.cpp \
         quuid.cpp \
 	qsettings.cpp \
 	qlibraryinfo.cpp \

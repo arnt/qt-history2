@@ -521,7 +521,7 @@ int QFontMetrics::width(const QString &text, int len) const
 */
 int QFontMetrics::width(QChar ch) const
 {
-    if (QUnicodeTables::category(ch) == QChar::Mark_NonSpacing)
+    if (QChar::category(ch.unicode()) == QChar::Mark_NonSpacing)
         return 0;
 
     const int script = QUnicodeTables::script(ch);
@@ -563,7 +563,7 @@ int QFontMetrics::charWidth(const QString &text, int pos) const
         layout.ignoreBidi = true;
         layout.itemize();
         width = qRound(layout.width(pos-from, 1));
-    } else if (QUnicodeTables::category(ch) == QChar::Mark_NonSpacing) {
+    } else if (QChar::category(ch.unicode()) == QChar::Mark_NonSpacing) {
         width = 0;
     } else {
         QFontEngine *engine = d->engineForScript(script);
@@ -1277,7 +1277,7 @@ qreal QFontMetricsF::width(const QString &text) const
 */
 qreal QFontMetricsF::width(QChar ch) const
 {
-    if (QUnicodeTables::category(ch) == QChar::Mark_NonSpacing)
+    if (QChar::category(ch.unicode()) == QChar::Mark_NonSpacing)
         return 0.;
 
     const int script = QUnicodeTables::script(ch);

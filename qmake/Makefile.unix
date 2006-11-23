@@ -16,7 +16,7 @@ QOBJS=qchar.o qstring.o qstringmatcher.o qtextstream.o qiodevice.o qglobal.o \
       qbytearray.o qbytearraymatcher.o qdatastream.o qbuffer.o qlistdata.o qfile.o \
       qfsfileengine_unix.o qfsfileengine.o qregexp.o qvector.o qbitarray.o qdir.o quuid.o qhash.o \
       qfileinfo.o qdatetime.o qstringlist.o qabstractfileengine.o qtemporaryfile.o \
-      qmap.o qunicodetables.o qmetatype.o qsettings.o qlibraryinfo.o qvariant.o qvsnprintf.o \
+      qmap.o qmetatype.o qsettings.o qlibraryinfo.o qvariant.o qvsnprintf.o \
       qlocale.o qlinkedlist.o qurl.o $(QTOBJS)
 
 #all sources, used for the depend target
@@ -40,7 +40,6 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp generators/makefile.cpp ge
 	   $(SOURCE_PATH)/src/corelib/tools/qlocale.cpp $(SOURCE_PATH)/src/corelib/tools/qlinkedlist.cpp \
 	   $(SOURCE_PATH)/src/corelib/tools/qhash.cpp $(SOURCE_PATH)/src/corelib/kernel/qcore_mac.cpp \
 	   $(SOURCE_PATH)/src/corelib/io/qtemporaryfile.cpp $(SOURCE_PATH)/src/corelib/kernel/qmetatype.cpp \
-	   $(SOURCE_PATH)/src/corelib/tools/qvsnprintf.cpp $(SOURCE_PATH)/src/corelib/tools/qunicodetables.cpp \
 	   $(SOURCE_PATH)/src/corelib/io/qsettings.cpp $(SOURCE_PATH)/src/corelib/kernel/qvariant.cpp \
 	   $(SOURCE_PATH)/src/corelib/global/qlibraryinfo.cpp $(SOURCE_PATH)/src/3rdparty/md5/md5.cpp \
 	   $(QTSRCS) $(COMMERCIAL_DEPEND_SRC)
@@ -124,9 +123,6 @@ qlocale.o: $(SOURCE_PATH)/src/corelib/tools/qlocale.cpp
 
 qdatastream.o: $(SOURCE_PATH)/src/corelib/io/qdatastream.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qdatastream.cpp
-
-qunicodetables.o: $(SOURCE_PATH)/src/corelib/tools/qunicodetables.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qunicodetables.cpp
 
 qbuffer.o: $(SOURCE_PATH)/src/corelib/io/qbuffer.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qbuffer.cpp

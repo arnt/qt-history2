@@ -29,7 +29,7 @@ static void bm_init_skiptable(const QChar *uc, int l, uint *skiptable, Qt::CaseS
         }
     } else {
         while (l--) {
-            skiptable[QUnicodeTables::lower(*uc).cell()] = l;
+            skiptable[QChar::toLower(uc->unicode()) & 0xff] = l;
             uc++;
         }
     }
@@ -70,11 +70,11 @@ static inline int bm_find(const QChar *uc, uint l, int index, const QChar *puc, 
         }
     } else {
         while (current < end) {
-            uint skip = skiptable[QUnicodeTables::lower(*current).cell()];
+            uint skip = skiptable[QChar::toLower(current->unicode()) & 0xff];
             if (!skip) {
                 // possible match
                 while (skip < pl) {
-                    if (QUnicodeTables::lower(*(current - skip)) != QUnicodeTables::lower(puc[pl_minus_one-skip]))
+                    if (QChar::toLower((current - skip)->unicode()) != QChar::toLower(puc[pl_minus_one-skip].unicode()))
                         break;
                     skip++;
                 }
@@ -82,7 +82,7 @@ static inline int bm_find(const QChar *uc, uint l, int index, const QChar *puc, 
                     return (current - uc) - skip + 1;
                 // in case we don't have a match we are a bit inefficient as we only skip by one
                 // when we have the non matching char in the string.
-                if (skiptable[QUnicodeTables::lower(*(current - skip)).cell()] == pl)
+                if (skiptable[QChar::toLower((current - skip)->unicode()) & 0xff] == pl)
                     skip = pl - skip;
                 else
                     skip = 1;
