@@ -50,5 +50,5 @@ void Workspace::paintEvent( QPaintEvent* )
     p.fillRect(rect(), palette().color(backgroundRole()).dark());
     p.setPen( QPen( Qt::white ) );
     p.drawText ( 0, height() / 2,  width(), height(), Qt::AlignHCenter,
-                "The moose in the noose\nate the goose who was loose." );
+                QLatin1String("The moose in the noose\nate the goose who was loose.") );
 }
