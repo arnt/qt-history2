@@ -447,7 +447,11 @@ void QWSWindowSurface::setClipRegion(const QRegion &clip)
         d_ptr->dirty += expose;
         window()->d_func()->invalidateBuffer(dirtyExpose);
     } else if (!expose.isEmpty()) {
+        // XXX: prevent flush() from resetting dirty and from flushing too much
+        const QRegion oldDirty = d_ptr->dirty;
+        d_ptr->dirty = QRegion();
         flush(window(), expose, QPoint());
+        d_ptr->dirty = oldDirty;
     }
 }
 
