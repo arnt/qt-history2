@@ -234,7 +234,7 @@
 
     The QSortFilterProxyModel::setSourceModel() function makes the
     proxy model process the data in the given model, in this case out
-    mail model. The \l {QAbstractItemModel::}{setModel()} that the
+    mail model. The \l {QAbstractItemView::}{setModel()} that the
     view widget inherits from the QAbstractItemModel class, sets the
     model for the view to present. Note that the latter function will
     also create and set a new selection model.
