@@ -70,8 +70,7 @@ private:
 class QTextDocumentFragmentPrivate
 {
 public:
-    QTextDocumentFragmentPrivate();
-    QTextDocumentFragmentPrivate(const QTextCursor &cursor);
+    QTextDocumentFragmentPrivate(const QTextCursor &cursor = QTextCursor());
     inline ~QTextDocumentFragmentPrivate() { delete doc; }
 
     void insert(QTextCursor &cursor) const;
@@ -79,7 +78,6 @@ public:
     QAtomic ref;
     QTextDocument *doc;
 
-    uint containsCompleteDocument : 1;
     uint importedFromPlainText : 1;
 private:
     Q_DISABLE_COPY(QTextDocumentFragmentPrivate)
@@ -92,8 +90,6 @@ public:
     QTextHtmlImporter(QTextDocument *_doc, const QString &html, const QTextDocument *resourceProvider = 0);
 
     void import();
-
-    bool containsCompleteDocument() const { return containsCompleteDoc; }
 
 private:
     bool closeTag(int i);
@@ -172,7 +168,6 @@ private:
     QTextDocument *doc;
     QTextCursor cursor;
     QTextHtmlParserNode::WhiteSpaceMode wsm;
-    bool containsCompleteDoc;
 };
 
 #endif // QTEXTDOCUMENTFRAGMENT_P_H

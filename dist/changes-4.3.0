@@ -7,3 +7,8 @@
  - QHeaderView
         Now uses Qt::NoFocus for its default focus policy
 
+ - QTextDocumentFragment
+        QTextDocumentFragment no more stores the root frame properties,
+        the document title or the document default font when it's created
+        from a document or from HTML. Use QTextDocument's toHtml/setHtml
+        if you want to propagate these properties to and from HTML.

@@ -1194,7 +1194,9 @@ void tst_QTextDocument::setFragmentMarkersInHtmlExport()
         cursor.setPosition(endPos, QTextCursor::KeepAnchor);
         QTextDocumentFragment fragment(cursor);
 
-        const QString expected = htmlHead + QString("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><!--StartFragment-->Test<span style=\" color:#00ff00;\">Blah</span><!--EndFragment--></p>") + htmlTail;
+        QString expected = htmlHead;
+        expected.replace(QRegExp("<body.*>"), QString("<body>"));
+        expected += QString("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><!--StartFragment-->Test<span style=\" color:#00ff00;\">Blah</span><!--EndFragment--></p>") + htmlTail;
         QCOMPARE(fragment.toHtml(), expected);
     }
     {
@@ -1212,7 +1214,9 @@ void tst_QTextDocument::setFragmentMarkersInHtmlExport()
         cursor.setPosition(endPos, QTextCursor::KeepAnchor);
         QTextDocumentFragment fragment(cursor);
 
-        const QString expected = htmlHead + QString("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><!--StartFragment-->Test<!--EndFragment--></p>") + htmlTail;
+        QString expected = htmlHead;
+        expected.replace(QRegExp("<body.*>"), QString("<body>"));
+        expected += QString("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><!--StartFragment-->Test<!--EndFragment--></p>") + htmlTail;
         QCOMPARE(fragment.toHtml(), expected);
     }
 }

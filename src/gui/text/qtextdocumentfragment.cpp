@@ -171,30 +171,15 @@ void QTextCopyHelper::copy()
     }
 }
 
-QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate()
-    : ref(1), doc(new QTextDocument), containsCompleteDocument(false), importedFromPlainText(false)
-{
-    doc->setUndoRedoEnabled(false);
-}
-
 QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &_cursor)
-    : ref(1), doc(0), containsCompleteDocument(false), importedFromPlainText(false)
+    : ref(1), doc(new QTextDocument), importedFromPlainText(false)
 {
-    doc = new QTextDocument;
     doc->setUndoRedoEnabled(false);
 
     if (!_cursor.hasSelection())
         return;
 
     doc->docHandle()->beginEditBlock();
-
-    if (_cursor.selectionStart() == 0 && _cursor.selectionEnd() == _cursor.d->priv->length() - 1) {
-        containsCompleteDocument = true;
-        doc->rootFrame()->setFrameFormat(_cursor.d->priv->rootFrame()->frameFormat());
-        doc->setMetaInformation(QTextDocument::DocumentTitle, _cursor.d->priv->document()->metaInformation(QTextDocument::DocumentTitle));
-    }
-    doc->setDefaultFont(_cursor.d->priv->defaultFont());
-
     QTextCursor destCursor(doc);
     QTextCopyHelper(_cursor, destCursor).copy();
     doc->docHandle()->endEditBlock();
@@ -211,11 +196,6 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &_cursor) const
     QTextCursor sourceCursor(doc);
     sourceCursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
     QTextCopyHelper(sourceCursor, _cursor, importedFromPlainText, _cursor.charFormat()).copy();
-
-    if (containsCompleteDocument) {
-        destPieceTable->document()->rootFrame()->setFrameFormat(doc->rootFrame()->frameFormat());
-        destPieceTable->document()->setMetaInformation(QTextDocument::DocumentTitle, doc->metaInformation(QTextDocument::DocumentTitle));
-    }
 
     destPieceTable->endEditBlock();
 }
@@ -252,6 +232,8 @@ QTextDocumentFragment::QTextDocumentFragment()
 
 /*!
     Converts the given \a document into a QTextDocumentFragment.
+    Note that the QTextDocumentFragment only stores the document contents, not meta information
+    like the document's title.
 */
 QTextDocumentFragment::QTextDocumentFragment(const QTextDocument *document)
     : d(0)
@@ -360,10 +342,7 @@ QString QTextDocumentFragment::toHtml(const QByteArray &encoding) const
     if (!d)
         return QString();
 
-    QTextHtmlExporter exporter(d->doc);
-    if (!d->containsCompleteDocument)
-        exporter.setFragmentMarkers(true);
-    return exporter.toHtml(encoding);
+    return QTextHtmlExporter(d->doc).toHtml(encoding, QTextHtmlExporter::ExportFragment);
 }
 
 /*!
@@ -384,7 +363,7 @@ QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainT
 }
 
 QTextHtmlImporter::QTextHtmlImporter(QTextDocument *_doc, const QString &_html, const QTextDocument *resourceProvider)
-    : indent(0), doc(_doc), containsCompleteDoc(false)
+    : indent(0), doc(_doc)
 {
     cursor = QTextCursor(doc);
     compressNextWhitespace = false;
@@ -463,7 +442,6 @@ void QTextHtmlImporter::import()
             // ignore explicitly 'invisible' elements
             continue;
         } else if (node->id == Html_body) {
-            containsCompleteDoc = true;
             if (node->background.style() != Qt::NoBrush) {
                 QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
                 fmt.setBackground(node->background);
@@ -658,16 +636,12 @@ void QTextHtmlImporter::import()
             }
 
             if (hasBlock && (!node->isEmptyParagraph || forceBlockMerging)) {
-                if (cursor.position() == 0) {
-                    containsCompleteDoc = true;
-                }
                 if (modifiedBlockFormat)
                     cursor.setBlockFormat(block);
                 if (modifiedCharFormat)
                     cursor.setBlockCharFormat(charFmt);
             } else {
                 if (i == 1 && cursor.position() == 0 && node->isEmptyParagraph) {
-                    containsCompleteDoc = true;
                     cursor.setBlockFormat(block);
                     cursor.setBlockCharFormat(charFmt);
                 } else {
@@ -1054,6 +1028,5 @@ QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &html, const
 
     QTextHtmlImporter importer(res.d->doc, html, resourceProvider);
     importer.import();
-    res.d->containsCompleteDocument = importer.containsCompleteDocument();
     return res;
 }

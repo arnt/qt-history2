@@ -293,9 +293,12 @@ class QTextHtmlExporter
 public:
     QTextHtmlExporter(const QTextDocument *_doc);
 
-    QString toHtml(const QByteArray &encoding);
+    enum ExportMode {
+        ExportEntireDocument,
+        ExportFragment
+    };
 
-    void setFragmentMarkers(bool enable) { fragmentMarkers = enable; }
+    QString toHtml(const QByteArray &encoding, ExportMode mode = ExportEntireDocument);
 
 private:
     enum StyleMode { EmitStyleTag, OmitStyleTag };

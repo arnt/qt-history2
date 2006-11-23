@@ -138,7 +138,6 @@ private slots:
     void html_quotedFontFamily();
     void html_spanBackgroundColor();
     void defaultFont();
-    void defaultFont2();
     void html_brokenTitle_data();
     void html_brokenTitle();
     void html_blockVsInline();
@@ -189,6 +188,7 @@ private slots:
     void html_titleAttribute();
     void html_compressDivs();
     void completeToPlainText();
+    void copyContents();
 
 private:
     inline void setHtml(const QString &html)
@@ -569,13 +569,12 @@ void tst_QTextDocumentFragment::copyWholeDocument()
 
     cursor.insertFragment(fragment);
 
-    QVERIFY(doc->rootFrame()->frameFormat().background().color() == Qt::blue);
+    QVERIFY(doc->rootFrame()->frameFormat().background().color() == Qt::red);
 }
 
 void tst_QTextDocumentFragment::title()
 {
-    QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(QString::fromLatin1("<html><head><title>Test</title></head><body>Blah</body></html>"));
-    cursor.insertFragment(fragment);
+    doc->setHtml(QString::fromLatin1("<html><head><title>Test</title></head><body>Blah</body></html>"));
     QCOMPARE(doc->metaInformation(QTextDocument::DocumentTitle), QString::fromLatin1("Test"));
 }
 
@@ -1505,7 +1504,7 @@ void tst_QTextDocumentFragment::html_cssShorthandFont()
 void tst_QTextDocumentFragment::html_bodyBgColor()
 {
     const char html[] = "<body bgcolor=\"blue\">Foo</body>";
-    setHtml(html);
+    doc->setHtml(html);
 
     QVERIFY(doc->rootFrame()->frameFormat().background().color() == Qt::blue);
 }
@@ -1513,7 +1512,7 @@ void tst_QTextDocumentFragment::html_bodyBgColor()
 void tst_QTextDocumentFragment::html_qtBgColor()
 {
     const char html[] = "<qt bgcolor=\"blue\">Foo</qt>";
-    setHtml(html);
+    doc->setHtml(html);
 
     QVERIFY(doc->rootFrame()->frameFormat().background().color() == Qt::blue);
 }
@@ -1590,7 +1589,7 @@ void tst_QTextDocumentFragment::noSpecialCharactersInPlainText()
 void tst_QTextDocumentFragment::html_doNotInheritBackground()
 {
     const char html[] = "<html><body bgcolor=\"blue\"><p>Blah</p></body></html>";
-    setHtml(html);
+    doc->setHtml(html);
 
     for (QTextBlock block = doc->begin();
          block.isValid(); block = block.next()) {
@@ -1910,32 +1909,10 @@ void tst_QTextDocumentFragment::defaultFont()
     f.setPointSize(100);
     doc->setDefaultFont(f);
     doc->setPlainText("Hello World");
-    QTextDocumentFragment fragment(doc);
-    const QString html = fragment.toHtml();
+    const QString html = doc->toHtml();
     QLatin1String str("<body style=\" font-family:'Courier New'; font-size:100pt; font-weight:600; font-style:italic; text-decoration: line-through;\">");
     QVERIFY(html.contains(str));
 }
-
-#if QT_VERSION >= 0x040200
-void tst_QTextDocumentFragment::defaultFont2()
-{
-    QFont f;
-    f.setFamily("Courier New");
-    f.setBold(true);
-    f.setItalic(true);
-    f.setStrikeOut(true);
-    f.setPointSize(100);
-    doc->setDefaultFont(f);
-    doc->setPlainText("Hello World");
-    cursor.movePosition(QTextCursor::Start);
-    cursor.movePosition(QTextCursor::NextWord);
-    cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
-    QTextDocumentFragment fragment(cursor);
-    const QString html = fragment.toHtml();
-    QLatin1String str("<body style=\" font-family:'Courier New'; font-size:100pt; font-weight:600; font-style:italic; text-decoration: line-through;\">");
-    QVERIFY(html.contains(str));
-}
-#endif
 
 void tst_QTextDocumentFragment::html_spanBackgroundColor()
 {
@@ -1967,11 +1944,7 @@ void tst_QTextDocumentFragment::html_brokenTitle()
     QFETCH(QString, html);
     QFETCH(QString, expectedBody);
     QFETCH(QString, expectedTitle);
-    setHtml(html);
-#if QT_VERSION <= 0x040100
-    QEXPECT_FAIL("brokentitle", "Fixed in >= 4.1.1", Continue);
-    QEXPECT_FAIL("brokentitle2", "Fixed in >= 4.1.1", Continue);
-#endif
+    doc->setHtml(html);
     QCOMPARE(doc->toPlainText(), expectedBody);
     QCOMPARE(doc->metaInformation(QTextDocument::DocumentTitle), expectedTitle);
 }
@@ -2924,6 +2897,25 @@ void tst_QTextDocumentFragment::completeToPlainText()
     QCOMPARE(doc->toPlainText(), QString("Hello\nWorld"));
     QTextDocumentFragment fragment(doc);
     QCOMPARE(fragment.toPlainText(), QString("Hello\nWorld"));
+}
+
+void tst_QTextDocumentFragment::copyContents()
+{
+    doc->setPlainText("Hello");
+    QFont f;
+    doc->setDefaultFont(f);
+    QTextFragment fragment = doc->begin().begin().fragment();
+    QCOMPARE(fragment.text(), QString("Hello"));
+    QCOMPARE(fragment.charFormat().font().pointSize(), f.pointSize());
+
+    QTextDocumentFragment frag(doc);
+    doc->clear();
+    f.setPointSize(48);
+    doc->setDefaultFont(f);
+    QTextCursor(doc).insertFragment(QTextDocumentFragment::fromHtml(frag.toHtml()));
+    fragment = doc->begin().begin().fragment();
+    QCOMPARE(fragment.text(), QString("Hello"));
+    QCOMPARE(fragment.charFormat().font().pointSize(), f.pointSize());
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)

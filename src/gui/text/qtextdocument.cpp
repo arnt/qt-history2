@@ -1512,10 +1512,12 @@ QTextHtmlExporter::QTextHtmlExporter(const QTextDocument *_doc)
     perfect, especially for complex documents, due to the limitations
     of HTML.
 */
-QString QTextHtmlExporter::toHtml(const QByteArray &encoding)
+QString QTextHtmlExporter::toHtml(const QByteArray &encoding, ExportMode mode)
 {
     html = QLatin1String("<html><head><meta name=\"qrichtext\" content=\"1\" />");
     html.reserve(doc->docHandle()->length());
+
+    fragmentMarkers = (mode == ExportFragment);
 
     if (!encoding.isEmpty())
         html += QString::fromLatin1("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=%1\" />").arg(QString::fromAscii(encoding));
@@ -1526,56 +1528,62 @@ QString QTextHtmlExporter::toHtml(const QByteArray &encoding)
     html += QLatin1String("<style type=\"text/css\">\n");
     html += QLatin1String("p, li { white-space: pre-wrap; }\n");
     html += QLatin1String("</style>");
-    html += QLatin1String("</head><body style=\"");
+    html += QLatin1String("</head><body");
 
-    html += QLatin1String(" font-family:'");
-    html += defaultCharFormat.fontFamily();
-    html += QLatin1String("';");
+    if (mode == ExportEntireDocument) {
+        html += QLatin1String(" style=\"");
 
-    if (defaultCharFormat.hasProperty(QTextFormat::FontPointSize)) {
-        html += QLatin1String(" font-size:");
-        html += QString::number(defaultCharFormat.fontPointSize());
-        html += QLatin1String("pt;");
-    }
+        html += QLatin1String(" font-family:'");
+        html += defaultCharFormat.fontFamily();
+        html += QLatin1String("';");
 
-    html += QLatin1String(" font-weight:");
-    html += QString::number(defaultCharFormat.fontWeight() * 8);
-    html += QLatin1Char(';');
-
-    html += QLatin1String(" font-style:");
-    html += (defaultCharFormat.fontItalic() ? QLatin1String("italic") : QLatin1String("normal"));
-    html += QLatin1Char(';');
-
-    {
-        html += QLatin1String(" text-decoration:");
-        bool atLeastOneDecorationSet = false;
-
-        if (defaultCharFormat.fontUnderline()) {
-            html += QLatin1String(" underline");
-            atLeastOneDecorationSet = true;
+        if (defaultCharFormat.hasProperty(QTextFormat::FontPointSize)) {
+            html += QLatin1String(" font-size:");
+            html += QString::number(defaultCharFormat.fontPointSize());
+            html += QLatin1String("pt;");
         }
 
-        if (defaultCharFormat.fontOverline()) {
-            html += QLatin1String(" overline");
-            atLeastOneDecorationSet = true;
-        }
-
-        if (defaultCharFormat.fontStrikeOut()) {
-            html += QLatin1String(" line-through");
-            atLeastOneDecorationSet = true;
-        }
-
-        if (!atLeastOneDecorationSet)
-            html += QLatin1String("none");
+        html += QLatin1String(" font-weight:");
+        html += QString::number(defaultCharFormat.fontWeight() * 8);
         html += QLatin1Char(';');
+
+        html += QLatin1String(" font-style:");
+        html += (defaultCharFormat.fontItalic() ? QLatin1String("italic") : QLatin1String("normal"));
+        html += QLatin1Char(';');
+
+        {
+            html += QLatin1String(" text-decoration:");
+            bool atLeastOneDecorationSet = false;
+
+            if (defaultCharFormat.fontUnderline()) {
+                html += QLatin1String(" underline");
+                atLeastOneDecorationSet = true;
+            }
+
+            if (defaultCharFormat.fontOverline()) {
+                html += QLatin1String(" overline");
+                atLeastOneDecorationSet = true;
+            }
+
+            if (defaultCharFormat.fontStrikeOut()) {
+                html += QLatin1String(" line-through");
+                atLeastOneDecorationSet = true;
+            }
+
+            if (!atLeastOneDecorationSet)
+                html += QLatin1String("none");
+            html += QLatin1Char(';');
+        }
+        html += QLatin1Char('\"');
+
+        const QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
+        QBrush bg = fmt.background();
+        if (bg != Qt::NoBrush)
+            emitAttribute("bgcolor", bg.color().name());
+
+    } else {
+        defaultCharFormat = QTextCharFormat();
     }
-    html += QLatin1Char('\"');
-
-    const QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
-    QBrush bg = fmt.background();
-    if (bg != Qt::NoBrush)
-        emitAttribute("bgcolor", bg.color().name());
-
     html += QLatin1Char('>');
 
     emitFrame(doc->rootFrame()->begin());
