@@ -2148,6 +2148,30 @@ void QTreeView::collapseAll()
 }
 
 /*!
+  \since 4.3
+  Expands all expandable items to the given \a depth.
+
+  \sa expandAll() collapseAll() expand()  collapse() setExpanded()
+*/
+void QTreeView::expandTo(int depth)
+{
+    Q_D(QTreeView);
+    d->viewItems.clear();
+    d->expandedIndexes.clear();
+    d->delayedLayout.stop();
+    d->layout(-1);
+    for (int i = 0; i < d->viewItems.count(); ++i) {
+        if (d->viewItems.at(i).level <= (uint)depth) {
+            d->viewItems[i].expanded = true;
+            d->layout(i);
+            d->expandedIndexes.append(d->viewItems.at(i).index);
+        }
+    }
+    updateGeometries();
+    d->viewport->update();
+}
+
+/*!
     This function is called whenever \a{column}'s size is changed in
     the header. \a oldSize and \a newSize give the previous size and
     the new size in pixels.
@@ -2506,12 +2530,12 @@ void QTreeViewPrivate::layout(int i)
     int last = 0;
 
     int firstColumn = 0;
-    while (q->isColumnHidden(firstColumn) && firstColumn < q->header()->count())
+    while (header->isSectionHidden(firstColumn) && firstColumn < header->count())
         ++firstColumn;
 
     for (int j = first; j < first + count; ++j) {
         current = model->index(j - first, firstColumn, parent);
-        if (q->isRowHidden(current.row(), parent)) { // slow with lots of hidden rows
+        if (q->isRowHidden(current.row(), parent)) { // ### slow with lots of hidden rows
             ++hidden;
             last = j - hidden;
         } else {

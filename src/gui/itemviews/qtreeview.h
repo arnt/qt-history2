@@ -117,6 +117,7 @@ public Q_SLOTS:
     void selectAll();
     void expandAll();
     void collapseAll();
+    void expandTo(int depth);
 
 protected Q_SLOTS:
     void columnResized(int column, int oldSize, int newSize);
