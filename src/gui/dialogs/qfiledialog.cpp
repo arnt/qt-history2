@@ -1886,7 +1886,7 @@ void QFileDialogPrivate::_q_chooseLocation()
     bool ok;
     QString text = QInputDialog::getText(q, QFileDialog::tr("Open Location"),
                                          QFileDialog::tr("Go to the folder:"), QLineEdit::Normal,
-                                         q->directory().path(), &ok);
+                                         QDir::toNativeSeparators(q->directory().path()), &ok);
     if (ok && !text.isEmpty())
         q->setDirectory(text);
 }
@@ -2414,11 +2414,11 @@ QStringList QFSCompletor::splitPath(const QString &path) const
         parts[0] = sep[0];
 #endif
 
-    if (parts.count() == 1 /* || (parts.count() > 1 && path[0] != sep[0])*/) {
+    if (parts.count() == 1 || (parts.count() > 1 && path[0] != sep[0])) {
         const QFileSystemModel *dirModel = static_cast<const QFileSystemModel *>(model());
         QString currentLocation = dirModel->rootPath();
         if (currentLocation.contains(sep))
-            return splitPath(dirModel->rootPath() + sep + path);
+            return splitPath(currentLocation + sep + path);
     }
     return parts;
 }
