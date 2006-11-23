@@ -128,8 +128,12 @@ void QSidebar::setUrl(const QModelIndex &index, const QUrl &url)
         model()->setData(index, fileSystemModel->myComputer());
         model()->setData(index, fileSystemModel->myComputer(Qt::DecorationRole), Qt::DecorationRole);
     } else {
-        model()->setData(index, fileSystemModel->data(dirIndex, Qt::DecorationRole), Qt::DecorationRole);
-        model()->setData(index, fileSystemModel->data(dirIndex).toString());
+        if (index.data() != dirIndex.data()) {
+            model()->setData(index, dirIndex.data().toString());
+        }
+        if (index.data(Qt::DecorationRole).value<QIcon>().serialNumber() != dirIndex.data(Qt::DecorationRole).value<QIcon>().serialNumber()) {
+            model()->setData(index, dirIndex.data(Qt::DecorationRole), Qt::DecorationRole);
+        }
     }
 }
 

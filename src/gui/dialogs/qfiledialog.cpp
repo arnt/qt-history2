@@ -239,6 +239,7 @@ void QFileDialog::setDirectory(const QString &directory)
     d->listView->setRootIndex(root);
     d->treeView->setRootIndex(root);
     d->listView->selectionModel()->clear();
+    d->newFolderButton->setEnabled(d->model->flags(root) & Qt::ItemIsDropEnabled );
 }
 
 /*!
@@ -274,7 +275,8 @@ void QFileDialog::selectFile(const QString &filename)
         d->listView->selectionModel()->select(index, QItemSelectionModel::Select | QItemSelectionModel::Rows);
     } else {
         d->listView->selectionModel()->clear();
-        d->fileNameEdit->setText(text);
+        if (!d->lineEdit()->hasFocus())
+            d->lineEdit()->setText(text);
     }
 }
 
@@ -294,8 +296,8 @@ QStringList QFileDialog::selectedFiles() const
         files.append(d->model->filePath(indexes.at(i)));
 
     // if we have no selected items, use the name(s) in the lineedit
-    if (files.isEmpty() && !d->fileNameEdit->text().isEmpty()) {
-        QString editText = d->fileNameEdit->text();
+    if (files.isEmpty() && !d->lineEdit()->text().isEmpty()) {
+        QString editText = d->lineEdit()->text();
         if (editText.contains(QLatin1Char('"'))) {
             // " is used to separate files like so: "file1" "file2" "file3" ...
             // ### need escape character for filenames with quotes (")
@@ -331,7 +333,7 @@ QStringList QFileDialog::selectedFiles() const
     }
 
     // accept the current directory when in DirectoryOnly mode
-    if (files.isEmpty() && d->fileNameEdit->text().isEmpty() && d->fileMode == DirectoryOnly)
+    if (files.isEmpty() && d->lineEdit()->text().isEmpty() && d->fileMode == DirectoryOnly)
         files.append(d->model->filePath(d->rootIndex()));
 
     return files;
@@ -539,6 +541,20 @@ void QFileDialog::setAcceptMode(QFileDialog::AcceptMode mode)
     d->expandButton->setVisible(mode == AcceptSave);
     d->line->setVisible(mode == AcceptSave);
     d->fileNameLabel->setVisible(mode == AcceptSave);
+
+    if (mode != AcceptSave) {
+        d->lookInCombo->setEditable(true);
+        d->lookInCombo->setLineEdit(new ComboLineEdit(d->lookInCombo));
+        d->lookInCombo->setCompleter(d->comboCompleter);
+        connect(d->lookInCombo->lineEdit(), SIGNAL(textChanged(QString)),
+                     this, SLOT(_q_updateOkButton()));
+        connect(d->lookInCombo->lineEdit(), SIGNAL(textChanged(QString)),
+                     this, SLOT(_q_autoCompleteFileName(QString)));
+        connect(d->lookInCombo->lineEdit(), SIGNAL(returnPressed()),
+                     this, SLOT(accept()));
+    } else {
+        d->lookInCombo->setEditable(false);
+    }
 }
 
 void QFileDialogPrivate::updateFileTypeVisibility()
@@ -547,8 +563,8 @@ void QFileDialogPrivate::updateFileTypeVisibility()
     if (fileTypeCombo->count() == 1
         && fileTypeCombo->itemText(0) == QFileDialog::tr("AllFiles (*)"))
             showFilterGUI = false;
-    fileTypeCombo->setVisible(showFilterGUI && acceptMode == QFileDialog::AcceptSave);
-    fileTypeLabel->setVisible(showFilterGUI && acceptMode == QFileDialog::AcceptSave);
+    fileTypeCombo->setVisible(showFilterGUI);
+    fileTypeLabel->setVisible(showFilterGUI);
 }
 
 QFileDialog::AcceptMode QFileDialog::acceptMode() const
@@ -707,18 +723,19 @@ void QFileDialog::setHistory(const QStringList &paths)
         if (!urls.contains(path))
             urls += path;
     }
-    d->lookInCombo->model()->insertRow(d->lookInCombo->model()->rowCount());
-    idx = d->lookInCombo->model()->index(d->lookInCombo->model()->rowCount()-1, 0);
-    // ### TODO disable this item and maybe add a horizontal line before it
-    d->lookInCombo->model()->setData(idx, QLatin1String("Recent Places"));
-    QStandardItemModel *m = qobject_cast<QStandardItemModel*>(d->lookInCombo->model());
-    if (m) {
-        Qt::ItemFlags flags = m->flags(idx);
-        flags &= ~Qt::ItemIsEnabled;
-        m->item(idx.row(), idx.column())->setFlags(flags);
+    if (urls.count() > 0) {
+        d->lookInCombo->model()->insertRow(d->lookInCombo->model()->rowCount());
+        idx = d->lookInCombo->model()->index(d->lookInCombo->model()->rowCount()-1, 0);
+        // ### TODO disable this item and maybe add a horizontal line before it
+        d->lookInCombo->model()->setData(idx, QLatin1String("Recent Places"));
+        QStandardItemModel *m = qobject_cast<QStandardItemModel*>(d->lookInCombo->model());
+        if (m) {
+            Qt::ItemFlags flags = m->flags(idx);
+            flags &= ~Qt::ItemIsEnabled;
+            m->item(idx.row(), idx.column())->setFlags(flags);
+        }
+        d->addUrls(urls, -1);
     }
-
-    d->addUrls(urls, -1);
     d->lookInCombo->setCurrentIndex(0);
 }
 
@@ -746,8 +763,12 @@ void QFileDialogPrivate::setUrl(const QModelIndex &index, const QUrl &url)
         lookInCombo->model()->setData(index, model->myComputer());
         lookInCombo->model()->setData(index, model->myComputer(Qt::DecorationRole), Qt::DecorationRole);
     } else {
-        lookInCombo->model()->setData(index, model->data(dirIndex).toString());
-        lookInCombo->model()->setData(index, model->data(dirIndex, Qt::DecorationRole), Qt::DecorationRole);
+        if (index.data() != dirIndex.data()) {
+            lookInCombo->model()->setData(index, model->data(dirIndex).toString());
+        }
+        if (index.data(Qt::DecorationRole).value<QIcon>().serialNumber() != dirIndex.data(Qt::DecorationRole).value<QIcon>().serialNumber()) {
+            lookInCombo->model()->setData(index, model->data(dirIndex, Qt::DecorationRole), Qt::DecorationRole);
+        }
     }
 }
 
@@ -775,7 +796,8 @@ void QFileDialogPrivate::_q_layoutChanged()
             QModelIndex idx = values.at(i);
             setUrl(idx, path);
         }
-     }
+    }
+    newFolderButton->setEnabled(model->flags(listView->rootIndex()) & Qt::ItemIsDropEnabled);
 }
 
 /*!
@@ -1312,13 +1334,14 @@ void QFileDialog::accept()
     QStringList files = selectedFiles();
     if (files.isEmpty())
         return;
-
+    QString lineEditText = d->lineEdit()->text();
     // "hidden feature" type .. and then enter, and it will move up a dir
     // special case for ".."
-    if (d->fileNameEdit->text() == QLatin1String("..")) {
+    if (lineEditText == QLatin1String("..")) {
         d->_q_navigateToParent();
         bool block = d->fileNameEdit->blockSignals(true);
-        d->fileNameEdit->selectAll();
+        d->lineEdit()->selectAll();
+        d->lineEdit()->selectAll();
         d->fileNameEdit->blockSignals(block);
         return;
     }
@@ -1353,7 +1376,7 @@ void QFileDialog::accept()
         QFileInfo info(fn);
         if (info.isDir()) {
             setDirectory(info.absoluteFilePath());
-            d->fileNameEdit->selectAll();
+            d->lineEdit()->selectAll();
             return;
         }
         // check if we have to ask for permission to overwrite the file
@@ -1393,7 +1416,7 @@ void QFileDialog::accept()
             }
             if (info.isDir()) {
                 setDirectory(info.absoluteFilePath());
-                d->fileNameEdit->selectAll();
+                d->lineEdit()->selectAll();
                 return;
             }
         }
@@ -1549,12 +1572,11 @@ void QFileDialogPrivate::createWidgets()
     lookInCombo->setMinimumWidth(lookInCombo->sizeHint().width() * 3);
     lookInCombo->setInsertPolicy(QComboBox::NoInsert);
     lookInCombo->setDuplicatesEnabled(false);
-#ifndef QT_NO_COMPLETER
-    lookInCombo->setAutoCompletion(false);
-#endif
     QObject::connect(lookInCombo, SIGNAL(activated(QString)), q, SLOT(_q_goToDirectory(QString)));
     lookInCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    lookInCombo->setEditable(false);
+    comboCompleter = new QFSCompletor(q);
+    comboCompleter->setModel(model);
+    comboCompleter->setCompletionMode(QCompleter::InlineCompletion);
 
     // filename
     fileNameEdit = new QFileDialogLineEdit(q);
@@ -2015,7 +2037,7 @@ void QFileDialogPrivate::_q_showContextMenu(const QPoint &position)
         menu.addSeparator();
     }
     menu.addAction(showHiddenAction);
-    menu.exec(view->mapToGlobal(position));
+    menu.exec(view->viewport()->mapToGlobal(position));
 #endif // QT_NO_MENU
 }
 
@@ -2111,7 +2133,7 @@ void QFileDialogPrivate::_q_updateOkButton() {
     case QFileDialog::ExistingFiles:
         button->setEnabled(!model->isDir(index));
     case QFileDialog::AnyFile:
-        button->setEnabled(!model->isDir(index) || !fileNameEdit->text().isEmpty());
+        button->setEnabled(!model->isDir(index) || !lineEdit()->text().isEmpty());
     }
 }
 
@@ -2200,23 +2222,20 @@ static QStringList qt_clean_filter_list(const QString &filter)
 */
 void QFileDialogPrivate::_q_useNameFilter(const QString &nameFilter)
 {
-    Q_Q(QFileDialog);
     QStringList newNameFilters = qt_clean_filter_list(nameFilter);
     if (acceptMode == QFileDialog::AcceptSave) {
         QString newNameFilterExtension;
         if (newNameFilters.count() > 0)
             newNameFilterExtension = QFileInfo(newNameFilters.at(0)).suffix();
 
-        QString fileName = fileNameEdit->text();
+        QString fileName = lineEdit()->text();
         const QString fileNameExtension = QFileInfo(fileName).suffix();
         if (!fileNameExtension.isEmpty() && !newNameFilterExtension.isEmpty()) {
             const int fileNameExtensionLength = fileNameExtension.count();
             fileName.replace(fileName.count() - fileNameExtensionLength,
                              fileNameExtensionLength, newNameFilterExtension);
-            fileNameEdit->setText(fileName);
+            lineEdit()->setText(fileName);
         }
-    } else {
-        newNameFilters = qt_clean_filter_list(q->filters().join(QLatin1String(" ")));
     }
 
     model->setNameFilters(newNameFilters);
@@ -2245,8 +2264,8 @@ void QFileDialogPrivate::_q_selectionChanged()
             fileName = (QLatin1Char('"')) + fileName + QLatin1String("\" ");
         allFiles.append(fileName);
     }
-    if (!allFiles.isEmpty())
-        fileNameEdit->setText(allFiles);
+    if (!allFiles.isEmpty() && !lineEdit()->hasFocus())
+        lineEdit()->setText(allFiles);
 }
 
 /*!
@@ -2395,7 +2414,7 @@ QStringList QFSCompletor::splitPath(const QString &path) const
         parts[0] = sep[0];
 #endif
 
-    if (parts.count() == 1) {
+    if (parts.count() == 1 /* || (parts.count() > 1 && path[0] != sep[0])*/) {
         const QFileSystemModel *dirModel = static_cast<const QFileSystemModel *>(model());
         QString currentLocation = dirModel->rootPath();
         if (currentLocation.contains(sep))

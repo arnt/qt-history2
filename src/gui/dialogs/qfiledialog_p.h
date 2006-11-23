@@ -117,6 +117,13 @@ public:
 
     inline QModelIndex rootIndex() const;
 
+    QLineEdit *lineEdit() const {
+        if (acceptMode == QFileDialog::AcceptSave)
+            return (QLineEdit*)fileNameEdit;
+        return lookInCombo->lineEdit();
+    }
+
+
     static inline QDir::Filters filterForMode(QFileDialog::FileMode mode)
     {
         if (mode == QFileDialog::DirectoryOnly)
@@ -205,6 +212,7 @@ public:
     QToolButton *detailModeButton;
     QToolButton *listModeButton;
     QCompleter *completer;
+    QCompleter *comboCompleter;
 
     QLabel *lookInLabel;
     QLabel *fileNameLabel;
@@ -256,6 +264,19 @@ protected:
 private:
     QFileDialogPrivate *d_ptr;
 };
+
+class ComboLineEdit : public QLineEdit
+{
+public:
+    ComboLineEdit(QWidget *parent)
+        : QLineEdit(parent){}
+protected:
+    void mousePressEvent ( QMouseEvent * event ) {
+        QLineEdit::mousePressEvent(event);
+        selectAll();
+    }
+};
+
 
 class QFileDialogLineEdit : public QLineEdit
 {
