@@ -168,6 +168,8 @@ public:
     virtual bool collidesWithPath(const QPainterPath &path, Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
     QList<QGraphicsItem *> collidingItems(Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
     bool isObscured() const;
+    bool isObscured(const QRectF &rect) const; // ### Qt 5: merge with isObscured(), add QRectF arg to isObscuredBy()
+    inline bool isObscured(qreal x, qreal y, qreal w, qreal h) const;
     virtual bool isObscuredBy(const QGraphicsItem *item) const;
     virtual QPainterPath opaqueArea() const;
 
@@ -286,6 +288,8 @@ inline void QGraphicsItem::ensureVisible(qreal ax, qreal ay, qreal w, qreal h, i
 { ensureVisible(QRectF(ax, ay, w, h), xmargin, ymargin); }
 inline void QGraphicsItem::update(qreal ax, qreal ay, qreal width, qreal height)
 { update(QRectF(ax, ay, width, height)); }
+inline bool QGraphicsItem::isObscured(qreal ax, qreal ay, qreal w, qreal h) const
+{ return isObscured(QRectF(ax, ay, w, h)); }
 inline QPointF QGraphicsItem::mapToItem(const QGraphicsItem *item, qreal ax, qreal ay) const
 { return mapToItem(item, QPointF(ax, ay)); }
 inline QPointF QGraphicsItem::mapToParent(qreal ax, qreal ay) const

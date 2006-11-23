@@ -1864,8 +1864,11 @@ QList<QGraphicsItem *> QGraphicsItem::collidingItems(Qt::ItemSelectionMode mode)
 
 /*!
     Returns true if this item's bounding rect is completely obscured by the
-    opaque shape of any of its colliding items. This function returns false if
-    all the colliding items are at the same zValue() as this item.
+    opaque shape of any of colliding items above it (i.e., with a higher Z
+    value than this item).
+
+    Its implementation is based on calling isObscuredBy(), which you can
+    reimplement to provide a custom obscurity algorithm.
 
   \sa opaqueArea()
 */
@@ -1879,14 +1882,56 @@ bool QGraphicsItem::isObscured() const
 }
 
 /*!
+    \internal
+
+    Item obscurity helper function.
+
+    Returns true if \a other is on top of \a item, and \a item's rect
+    intersects with \a other's opaque area.
+*/
+static bool qt_QGraphicsItem_isObscured(const QGraphicsItem *item,
+                                        const QGraphicsItem *other,
+                                        const QRectF &rect)
+{
+    return (other->zValue() > item->zValue() && other->mapToItem(item, other->opaqueArea()).contains(rect));
+}
+
+/*!
+    \overload
+    \since 4.3
+
+    Returns true if \a rect is completely obscured by the opaque shape of any
+    of colliding items above it (i.e., with a higher Z value than this item).
+
+    Unlike \a isObscured(), this function does not call isObscuredBy().
+
+    \sa opaqueArea()
+*/
+bool QGraphicsItem::isObscured(const QRectF &rect) const
+{
+    foreach (QGraphicsItem *item, collidingItems()) {
+        if (qt_QGraphicsItem_isObscured(this, item, rect))
+            return true;
+    }
+    return false;
+}
+
+/*!
     Returns true if this item's bounding rect is completely obscured by the
     opaque shape of \a item.
+
+    The base implementation maps \a item's opaqueArea() to this item's
+    coordinate system, and then checks if this item's boundingRect() is fully
+    contained within the mapped shape.
+
+    You can reimplement this function to provide a custom algorithm for
+    determining whether this item is obscured by \a item.
 
     \sa opaqueArea(), isObscured()
 */
 bool QGraphicsItem::isObscuredBy(const QGraphicsItem *item) const
 {
-    return item->mapToItem(this, item->opaqueArea()).contains(boundingRect());
+    return qt_QGraphicsItem_isObscured(this, item, boundingRect());
 }
 
 /*!
