@@ -1,4 +1,12 @@
 !IF "$(QMAKESPEC)" == "win32-msvc" || "$(QMAKESPEC)" == "win32-msvc.net" || "$(QMAKESPEC)" == "win32-msvc2005" || "$(QMAKESPEC)" == "win32-icc"
+
+!if "$(SOURCE_PATH)" == ""
+SOURCE_PATH = ..
+!endif
+!if "$(BUILD_PATH)" == ""
+BUILD_PATH = ..
+!endif
+
 #
 # specific stuff for NMake and ICC
 #
