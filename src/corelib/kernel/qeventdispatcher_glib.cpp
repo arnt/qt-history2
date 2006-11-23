@@ -452,6 +452,27 @@ void QEventDispatcherGlib::flush()
 {
 }
 
+bool QEventDispatcherGlib::versionSupported()
+{
+#if !defined(GLIB_MAJOR_VERSION) || !defined(GLIB_MINOR_VERSION) || !defined(GLIB_MICRO_VERSION)
+    return false;
+#else
+    const int major = 2;
+    const int minor = 3;
+    const int micro = 1;
+    const int lo = QString("%1%2%3")
+        .arg(major, 3, 10, QChar('0'))
+        .arg(minor, 3, 10, QChar('0'))
+        .arg(micro, 3, 10, QChar('0')).toInt();
+    bool ok;
+    const int actual = QString("%1%2%3")
+        .arg(GLIB_MAJOR_VERSION, 3, 10, QChar('0'))
+        .arg(GLIB_MINOR_VERSION, 3, 10, QChar('0'))
+        .arg(GLIB_MICRO_VERSION, 3, 10, QChar('0')).toInt(&ok);
+    return ok && actual >= lo;
+#endif
+}
+
 QEventDispatcherGlib::QEventDispatcherGlib(QEventDispatcherGlibPrivate &dd, QObject *parent)
     : QAbstractEventDispatcher(dd, parent)
 {

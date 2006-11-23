@@ -56,6 +56,8 @@ public:
     void interrupt();
     void flush();
 
+    static bool versionSupported();
+
 protected:
     QEventDispatcherGlib(QEventDispatcherGlibPrivate &dd, QObject *parent);
 };
