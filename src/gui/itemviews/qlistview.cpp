@@ -1344,43 +1344,61 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
         return;
 
     QItemSelection selection;
-    QModelIndex tl;
-    QModelIndex br;
 
     if (rect.width() == 1 && rect.height() == 1) {
         d->intersectingSet(rect.translated(horizontalOffset(), verticalOffset()));
-        if ( !d->intersectVector.isEmpty())
-            tl = br = d->intersectVector.last(); // special case for mouse press; only select the top item
+        QModelIndex tl;
+        if (!d->intersectVector.isEmpty())
+            tl = d->intersectVector.last(); // special case for mouse press; only select the top item
+        if (tl.isValid())
+            selection.select(tl, tl);
     } else {
         if (state() == DragSelectingState) { // visual selection mode (rubberband selection)
-            d->intersectingSet(rect.translated(horizontalOffset(), verticalOffset()));
-            QVector<QModelIndex>::iterator it = d->intersectVector.begin();
-            for (; it != d->intersectVector.end(); ++it) {
-                if (!tl.isValid() && !br.isValid()) {
-                    tl = br = *it;
-                } else if ((*it).row() == (tl.row() - 1)) {
-                    tl = *it; // expand current range
-                } else if ((*it).row() == (br.row() + 1)) {
-                    br = (*it); // expand current range
-                } else {
-                    selection.select(tl, br); // select current range
-                    tl = br = *it; // start new range
-                }
-            }
+            selection = d->selection(rect.translated(horizontalOffset(), verticalOffset()));
         } else { // logical selection mode (key and mouse click selection)
+            QModelIndex tl, br;
+            // get the first item
             const QRect topLeft(rect.left() + horizontalOffset(), rect.top() + verticalOffset(), 1, 1);
             d->intersectingSet(topLeft);
             if (!d->intersectVector.isEmpty())
                 tl = d->intersectVector.last();
+            // get the last item
             const QRect bottomRight(rect.right() + horizontalOffset(), rect.bottom() + verticalOffset(), 1, 1);
             d->intersectingSet(bottomRight);
             if (!d->intersectVector.isEmpty())
                 br = d->intersectVector.last();
+            // get the ranges
+            if (tl.isValid() && br.isValid()) {
+                // top rectangle
+                QRect top = rectForIndex(tl);
+                if (isRightToLeft())
+                    top.setLeft(0);
+                else
+                    top.setRight(contentsSize().width() - top.left());
+                // bottom rectangle
+                QRect bottom = rectForIndex(br);
+                if (isRightToLeft())
+                    bottom.setRight(contentsSize().width() - top.left());
+                else
+                    bottom.setLeft(0);
+                // middle rectangle
+                QRect middle;
+                middle.setTop(top.bottom() + 1);
+                middle.setLeft(qMin(top.left(), bottom.left()));
+                middle.setBottom(bottom.top() - 1);
+                middle.setRight(qMax(top.right(), bottom.right()));
+                // do the selections
+                QItemSelection topSelection = d->selection(top.translated(horizontalOffset(), verticalOffset()));
+                QItemSelection middleSelection = d->selection(middle.translated(horizontalOffset(), verticalOffset()));
+                QItemSelection bottomSelection = d->selection(bottom.translated(horizontalOffset(), verticalOffset()));
+                // merge
+                selection.merge(topSelection, QItemSelectionModel::Select);
+                selection.merge(middleSelection, QItemSelectionModel::Select);
+                selection.merge(bottomSelection, QItemSelectionModel::Select);
+            }
         }
     }
 
-    if (tl.isValid() && br.isValid())
-        selection.select(tl, br);
     d->selectionModel->select(selection, command);
 }
 
@@ -1835,6 +1853,29 @@ QStyleOptionViewItemV3 QListViewPrivate::viewOptionsV3() const
     QStyleOptionViewItemV3 option = viewOptionsV2();
     option.locale = q->locale();
     return option;
+}
+
+QItemSelection QListViewPrivate::selection(const QRect &rect) const
+{
+    QItemSelection selection;
+    QModelIndex tl, br;
+    intersectingSet(rect);
+    QVector<QModelIndex>::iterator it = intersectVector.begin();
+    for (; it != intersectVector.end(); ++it) {
+        if (!tl.isValid() && !br.isValid()) {
+            tl = br = *it;
+        } else if ((*it).row() == (tl.row() - 1)) {
+            tl = *it; // expand current range
+        } else if ((*it).row() == (br.row() + 1)) {
+            br = (*it); // expand current range
+        } else {
+            selection.select(tl, br); // select current range
+            tl = br = *it; // start new range
+        }
+    }
+    if (tl.isValid() && br.isValid())
+        selection.select(tl, br);
+    return selection;
 }
 
 /*

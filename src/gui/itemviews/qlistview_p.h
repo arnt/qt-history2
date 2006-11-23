@@ -296,6 +296,8 @@ public:
 
     QStyleOptionViewItemV3 viewOptionsV3() const;
 
+    QItemSelection selection(const QRect &rect) const;
+
     inline void setGridSize(const QSize &size) { grid = size; }
     inline QSize gridSize() const { return grid; }
     inline void setWrapping(bool b) { wrap = b; }
