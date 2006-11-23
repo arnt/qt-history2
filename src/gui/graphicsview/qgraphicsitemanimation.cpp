@@ -110,13 +110,16 @@ qreal QGraphicsItemAnimationPrivate::linearValueForStep(qreal step, QList<Pair> 
         return defaultValue;
     step = qMin<qreal>(qMax<qreal>(step, 0), 1);
 
+    if (step == 1)
+        return source->last().value;
+
     qreal stepBefore = 0;
     qreal stepAfter = 1;
     qreal valueBefore = source->first().step == 0 ? source->first().value : defaultValue;
     qreal valueAfter = source->last().value;
 
     // Find the closest step and value before the given step.
-    for (int i = 0; i < source->size() && step > source->at(i).step; ++i) {
+    for (int i = 0; i < source->size() && step >= source->at(i).step; ++i) {
         stepBefore = source->at(i).step;
         valueBefore = source->at(i).value;
     }
