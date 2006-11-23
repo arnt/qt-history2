@@ -222,7 +222,7 @@ void tst_QImageWriter::setDescription()
     QImageWriter writer(fileName, "png");
     foreach (QString key, description.keys())
         writer.setText(key, description.value(key));
-    QVERIFY(writer.write(QImage("images/kollada.png")));
+    QVERIFY(writer.write(QImage(QLatin1String("images/kollada.png"))));
 
     QImageReader reader(fileName);
     foreach (QString key, description.keys())
@@ -352,7 +352,7 @@ void tst_QImageWriter::saveWithNoFormat()
 
 void tst_QImageWriter::saveToTemporaryFile()
 {
-    QImage image("images/kollada.png");
+    QImage image(QLatin1String("images/kollada.png"));
     QVERIFY(!image.isNull());
 
     {

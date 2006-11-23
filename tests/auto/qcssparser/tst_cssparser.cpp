@@ -278,13 +278,13 @@ void tst_CssParser::expr_data()
     comma.type = QCss::Value::TermOperatorComma;
 
     val.type = QCss::Value::Identifier;
-    val.variant = "foo";
+    val.variant = QLatin1String("foo");
     values << val;
     values << comma;
-    val.variant = "bar";
+    val.variant = QLatin1String("bar");
     values << val;
     values << comma;
-    val.variant = "baz";
+    val.variant = QLatin1String("baz");
     values << val;
     QTest::newRow("list") << true << "foo, bar, baz" << values;
     values.clear();

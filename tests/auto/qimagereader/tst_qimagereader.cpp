@@ -222,8 +222,8 @@ void tst_QImageReader::readImage()
 
 void tst_QImageReader::jpegRgbCmyk()
 {
-    QImage image1("images/YCbCr_cmyk.jpg");
-    QImage image2("images/YCbCr_cmyk.png");
+    QImage image1(QLatin1String("images/YCbCr_cmyk.jpg"));
+    QImage image2(QLatin1String("images/YCbCr_cmyk.png"));
 
     QCOMPARE(image1, image2);
 }
@@ -413,23 +413,23 @@ void tst_QImageReader::imageFormat()
 
 void tst_QImageReader::blackXPM()
 {
-    QImage image("images/black.xpm");
-    QImage image2("images/black.png");
+    QImage image(QLatin1String("images/black.xpm"));
+    QImage image2(QLatin1String("images/black.png"));
     QCOMPARE(image.pixel(25, 25), qRgb(190, 190, 190));
     QCOMPARE(image.pixel(25, 25), image2.pixel(25, 25));
 }
 
 void tst_QImageReader::transparentXPM()
 {
-    QImage image("images/nontransparent.xpm");
-    QImage image2("images/transparent.xpm");
+    QImage image(QLatin1String("images/nontransparent.xpm"));
+    QImage image2(QLatin1String("images/transparent.xpm"));
     QCOMPARE(image.format(), QImage::Format_RGB32);
     QCOMPARE(image2.format(), QImage::Format_ARGB32);
 }
 
 void tst_QImageReader::multiWordNamedColorXPM()
 {
-    QImage image("images/namedcolors.xpm");
+    QImage image(QLatin1String("images/namedcolors.xpm"));
     QCOMPARE(image.pixel(0, 0), qRgb(102, 139, 139)); // pale turquoise 4
     QCOMPARE(image.pixel(0, 1), qRgb(250, 250, 210)); // light golden rod yellow
     QCOMPARE(image.pixel(0, 2), qRgb(255, 250, 205)); // lemon chiffon

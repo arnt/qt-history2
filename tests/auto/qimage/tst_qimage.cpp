@@ -409,7 +409,7 @@ void tst_QImage::createAlphaMask_data()
                 continue;
             for (int x=10; x<18; x+=3) {
                 for (int y=100; y<108; y+=3) {
-                    QTest::newRow(QString("x=%1, y=%2, a1=%3, a2=%4").arg(x).arg(y).arg(alphas[a1]).arg(alphas[a2]))
+                    QTest::newRow(qPrintable(QString::fromLatin1("x=%1, y=%2, a1=%3, a2=%4").arg(x).arg(y).arg(alphas[a1]).arg(alphas[a2])))
                         << x << y << alphas[a1] << alphas[a2];
                 }
             }
