@@ -2200,8 +2200,8 @@ void QTreeView::updateGeometries()
         QRect geometryRect(vg.left(), vg.top() - hint.height(), vg.width(), hint.height());
         d->header->setGeometry(geometryRect);
         d->header->setOffset(horizontalScrollBar()->value()); // ### bug ???
-        if (d->header->isHidden())
-            QMetaObject::invokeMethod(d->header, "updateGeometries");
+        // ### Qt 4.3 introduce hasAutoResizeSections()
+        QMetaObject::invokeMethod(d->header, "updateGeometries");
         d->updateScrollBars();
     }
     QAbstractItemView::updateGeometries();
