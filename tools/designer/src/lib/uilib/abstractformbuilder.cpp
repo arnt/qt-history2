@@ -1306,10 +1306,32 @@ DomLayout *QAbstractFormBuilder::createDom(QLayout *layout, DomLayout *ui_layout
 
     QList<DomLayoutItem*> ui_items;
 
+    QMap<QObject *, QLayoutItem *> objectToItem;
+    QList<QLayoutItem *> spacerItems;
+    QList<QLayoutItem *> newList;
 
     for (int idx=0; layout->itemAt(idx); ++idx) {
         QLayoutItem *item = layout->itemAt(idx);
+        if (item->widget())
+            objectToItem[item->widget()] = item;
+        else if (item->layout())
+            objectToItem[item->layout()] = item;
+        else if (item->spacerItem())
+            spacerItems.append(item);
+        newList.append(item);
+    }
 
+    if (qobject_cast<QGridLayout *>(layout)) {
+        newList.clear();
+        QList<QObject *> childrenList = layout->parentWidget()->children();
+        foreach (QObject *o, childrenList) {
+            if (objectToItem.contains(o))
+                newList.append(objectToItem[o]);
+        }
+        newList += spacerItems;
+    }
+
+    foreach (QLayoutItem *item, newList) {
         DomLayoutItem *ui_item = createDom(item, lay, ui_parentWidget);
         if (ui_item)
             ui_items.append(ui_item);
