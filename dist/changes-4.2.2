@@ -559,62 +559,6 @@ Mac OS X
     configuration.
 
   * Fixed left-to-right positioning for menu items in XP style.
-  
-Mac OS X
---------
-
-  * Fix flickering/disappearing widgets when the Qt::WA_MacMetalStyle attribute is set
-  * Updated documentation to clarify QActionWidget behavior with regard to adding a
-    QActionWidget to a menu in the menu bar and using the same menu as a pop-up.
-  * Fix regression that made it impossible to drag images
-    from non-Qt application to Qt Applications.
-  * Return the correct QList<QUrl> when dragging Finder items to Qt applications.
-  * Document how one can debug with debug frameworks.
-  * Fix text selection in PDF generator
-  * Fixed bug where the cursor would not switch to the arrow cursor
-    over child widgets witch had that cursor set.
-  * FramelessWindow modal dialogs had a title bar and was movable,
-    now they don't.
-  * Fix crash when enabling "Accessibility for assistive devices" in
-    System Preferences while a Qt application was running.
-  * Fix painting error where a one-pixel border at the bottom, right
-    side of widgets wasn't being (re)painted correctly.
-  * Fix item view scrolling bug, cell widgets weren't scrolled
-    properly.
-
-- QMacStyle
-
-  * Fixed a crash that occurred when an invalid rectangle was given for an
-    inactive button.
-
-- QSystemTrayIcon
-
-  * Properly handle the enable state of actions and emit aboutToShow() on the mac.
-
-
-
-- Qtopia Core
-
-  * Fixed delivery of mouse events to overlapping popups.
-  * QVFb: Fixed crash when switching between certain skins.
-  * QVFb: Fixed crash when recording.
-  * QVFb: Fixed saving of animations on other partitions than /tmp.
-  * VNC: Fixed use of the VNC driver with the Multi driver.
-  * Fixed cursor state when switching between different screens.
-  * Fixed performance bug when using an accelerated mouse cursor.
-  * QCustomRasterPaintDevice::metric(): Fixed default values of PdmWidth and
-    PdmHeight.
-  * Fixed bug in QWidget::setMask().
-  * Fixed calibration of rotated screens in the mousecalibration example.
-  * Fixed setMode() in the screen drivers LinuxFb, VNC and Transformed.
-  * Fixed crash when using QWSCalibratedMouseHandler with filter size < 3.
-  * Fixed QScreen::alloc() for non-default colormaps.
-  * Fixed a bug preventing a QWSEmbedWidget to being displayed if the remote
-    widget was hidden before it got embedded.
-  * Fixed screen area reservation when using the QDirectPainter.
-  * Fixed compilation of the MySQL driver when using the minimum configuration.
-  * Fixed a bug in the LinuxFB driver which prevented it to switch back to
-    text mode if the application termintated using exit().
 
 ****************************************************************************
 *                             QTestLib                                     *
