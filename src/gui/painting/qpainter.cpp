@@ -4126,6 +4126,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
         translate(x, y);
         scale(w / sw, h / sh);
         setBackgroundMode(Qt::TransparentMode);
+        setRenderHint(Antialiasing, renderHints() & SmoothPixmapTransform);
         setBrush(QBrush(d->state->pen.color(), pm));
         setPen(Qt::NoPen);
         setBrushOrigin(QPointF(-sx, -sy));
@@ -4984,6 +4985,7 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
     {
         save();
         setBackgroundMode(Qt::TransparentMode);
+        setRenderHint(Antialiasing, renderHints() & SmoothPixmapTransform);
         setBrush(QBrush(d->state->pen.color(), pixmap));
         setPen(Qt::NoPen);
         setBrushOrigin(QPointF(-sx, -sy));
