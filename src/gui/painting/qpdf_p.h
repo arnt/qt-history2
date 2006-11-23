@@ -82,7 +82,7 @@ namespace QPdf {
         ByteStream *stream;
         bool first;
         QTransform matrix;
-        bool zeroWidth;
+        bool cosmeticPen;
     private:
         QStroker basicStroker;
         QDashStroker dashStroker;

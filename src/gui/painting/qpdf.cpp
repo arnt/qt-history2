@@ -540,7 +540,7 @@ static void moveToHook(qfixed x, qfixed y, void *data)
     QPdf::Stroker *t = (QPdf::Stroker *)data;
     if (!t->first)
         *t->stream << "h\n";
-    if (!t->zeroWidth)
+    if (!t->cosmeticPen)
         t->matrix.map(x, y, &x, &y);
     *t->stream << x << y << "m\n";
     t->first = false;
@@ -549,7 +549,7 @@ static void moveToHook(qfixed x, qfixed y, void *data)
 static void lineToHook(qfixed x, qfixed y, void *data)
 {
     QPdf::Stroker *t = (QPdf::Stroker *)data;
-    if (!t->zeroWidth)
+    if (!t->cosmeticPen)
         t->matrix.map(x, y, &x, &y);
     *t->stream << x << y << "l\n";
 }
@@ -560,7 +560,7 @@ static void cubicToHook(qfixed c1x, qfixed c1y,
                         void *data)
 {
     QPdf::Stroker *t = (QPdf::Stroker *)data;
-    if (!t->zeroWidth) {
+    if (!t->cosmeticPen) {
         t->matrix.map(c1x, c1y, &c1x, &c1y);
         t->matrix.map(c2x, c2y, &c2x, &c2y);
         t->matrix.map(ex, ey, &ex, &ey);
@@ -578,7 +578,7 @@ QPdf::Stroker::Stroker()
     basicStroker.setMoveToHook(moveToHook);
     basicStroker.setLineToHook(lineToHook);
     basicStroker.setCubicToHook(cubicToHook);
-    zeroWidth = true;
+    cosmeticPen = true;
     basicStroker.setStrokeWidth(.1);
 }
 
@@ -589,7 +589,8 @@ void QPdf::Stroker::setPen(const QPen &pen)
         return;
     }
     qreal w = pen.widthF();
-    zeroWidth = (w < 0.0001);
+    bool zeroWidth = w < 0.0001;
+    cosmeticPen = pen.isCosmetic();
     if (zeroWidth)
         w = .1;
 
@@ -616,7 +617,8 @@ void QPdf::Stroker::strokePath(const QPainterPath &path)
     if (!stroker)
         return;
     first = true;
-    stroker->strokePath(path, this, zeroWidth ? matrix : QTransform());
+
+    stroker->strokePath(path, this, cosmeticPen ? matrix : QTransform());
     *stream << "h f\n";
 }
 
@@ -946,7 +948,7 @@ void QPdfBaseEngine::updateState(const QPaintEngineState &state)
         d->stroker.setPen(d->pen);
         QBrush penBrush = d->pen.brush();
         bool oldSimple = d->simplePen;
-        d->simplePen = (d->hasPen && penBrush == Qt::SolidPattern && penBrush.isOpaque());
+        d->simplePen = (d->hasPen && penBrush == Qt::SolidPattern && !penBrush.isOpaque());
         if (oldSimple != d->simplePen)
             flags |= DirtyTransform;
     }
@@ -1299,7 +1301,7 @@ QVariant QPdfBaseEngine::property(PrintEnginePropertyKey key) const
 }
 
 QPdfBaseEnginePrivate::QPdfBaseEnginePrivate(QPrinter::PrinterMode m)
-    : clipEnabled(false), allClipped(false), hasPen(true), hasBrush(false), simplePen(true),
+    : clipEnabled(false), allClipped(false), hasPen(true), hasBrush(false), simplePen(false),
       outDevice(0), fd(-1),
       duplex(false), collate(false), fullPage(false), embedFonts(true), copies(1),
       pageOrder(QPrinter::FirstPageFirst), orientation(QPrinter::Portrait),
