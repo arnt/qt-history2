@@ -238,7 +238,7 @@ void Config::saveProfile( Profile *profile )
 
     const QString profKey = key + QLatin1String("/Profile/") + profile->props[QLatin1String("name")] + QLatin1String("/");
 
-    QString path = QLibraryInfo::location(QLibraryInfo::DocumentationPath).replace("\\", "/");
+    QString path = QLibraryInfo::location(QLibraryInfo::DocumentationPath).replace(QLatin1String("\\"), QLatin1String("/"));
     QStringList indexes, icons, imgDirs, dcfs;
     QStringList titles = profile->dcfTitles.keys();
     QStringList::ConstIterator it = titles.constBegin();
@@ -339,7 +339,7 @@ QPixmap Config::docIcon( const QString &title ) const
     if (QFile::exists(resName))
         return QPixmap(resName);
 
-    if (name.startsWith("file:"))
+    if (name.startsWith(QLatin1String("file:")))
         name = name.mid(5);
     return QPixmap(name);
 }
@@ -352,7 +352,7 @@ QPixmap Config::applicationIcon() const
     if (QFile::exists(resName))
         return QPixmap(resName);
 
-    if (name.startsWith("file:"))
+    if (name.startsWith(QLatin1String("file:")))
         name = name.mid(5);
     return QPixmap(name);
 }

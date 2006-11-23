@@ -159,20 +159,20 @@ static QAssistantClientPrivate *data( const QAssistantClient *client, bool creat
     is used.
 */
 QAssistantClient::QAssistantClient( const QString &path, QObject *parent )
-    : QObject( parent ), host ( "localhost" )
+    : QObject( parent ), host ( QLatin1String("localhost") )
 {
     if ( path.isEmpty() )
-        assistantCommand = "assistant";
+        assistantCommand = QLatin1String("assistant");
     else {
         QFileInfo fi( path );
         if ( fi.isDir() )
-            assistantCommand = path + "/assistant";
+            assistantCommand = path + QLatin1String("/assistant");
         else
             assistantCommand = path;
     }
 
 #if defined(Q_OS_MAC)
-    assistantCommand += ".app/Contents/MacOS/assistant";
+    assistantCommand += QLatin1String(".app/Contents/MacOS/assistant");
 #endif
 
     socket = new QTcpSocket( this );
@@ -185,7 +185,7 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent )
     opened = false;
     proc = new QProcess( this );
     port = 0;
-    pageBuffer = "";
+    pageBuffer = QLatin1String("");
     connect( proc, SIGNAL(readyReadStandardError()),
              this, SLOT(readStdError()) );
     connect( proc, SIGNAL(error(QProcess::ProcessError)),
@@ -233,9 +233,9 @@ void QAssistantClient::openAssistant()
         return;
 
     QStringList args;
-    args.append("-server");
+    args.append(QLatin1String("-server"));
     if( !pageBuffer.isEmpty() ) {
-        args.append( "-file" );
+        args.append( QLatin1String("-file") );
         args.append( pageBuffer );
     }
 
@@ -271,7 +271,7 @@ void QAssistantClient::procError(QProcess::ProcessError err)
 
 void QAssistantClient::readPort()
 {
-    QString p = proc->readAllStandardOutput();
+    QString p(QString::fromLatin1(proc->readAllStandardOutput()));
     quint16 port = p.toUShort();
     if ( port == 0 ) {
         emit error( tr( "Cannot connect to Qt Assistant." ) );
@@ -305,7 +305,7 @@ void QAssistantClient::closeAssistant()
 /*!
     Brings Qt Assistant to the foreground showing the given \a page.
     The \a page parameter is a path to an HTML file
-    (e.g., "/home/pasquale/superproduct/docs/html/intro.html").
+    (e.g., QLatin1String("/home/pasquale/superproduct/docs/html/intro.html")).
 
     If Qt Assistant hasn't been opened yet, this function will call
     the openAssistant() slot with the specified page as the start
@@ -317,7 +317,7 @@ void QAssistantClient::showPage( const QString &page )
 {
     if (opened) {
         QTextStream os( socket );
-        os << page << "\n";
+        os << page << QLatin1String("\n");
     } else {
         pageBuffer = page;
 
@@ -366,7 +366,7 @@ void QAssistantClient::socketError()
 
 void QAssistantClient::readStdError()
 {
-    QString errmsg = proc->readAllStandardError();
+    QString errmsg = QString::fromLatin1(proc->readAllStandardError());
 
     if (!errmsg.isEmpty())
         emit error( errmsg.simplified() );

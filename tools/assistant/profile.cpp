@@ -148,18 +148,18 @@ void Profile::removeDocFileEntry(const QString &docfile)
 
 QString Profile::storableFilePath(const QString &fileName)
 {
-    QString path = QLibraryInfo::location(QLibraryInfo::DocumentationPath).replace("\\", "/");
+    QString path = QLibraryInfo::location(QLibraryInfo::DocumentationPath).replace(QLatin1String("\\"), QLatin1String("/"));
     QString fName = fileName;
     if (fName.startsWith(path))
-        fName.replace(0, path.length(), "$DOCPATH$");
+        fName.replace(0, path.length(), QLatin1String("$DOCPATH$"));
     return fName;
 }
 
 QString Profile::loadableFilePath(const QString &fileName)
 {
-    QString path = QLibraryInfo::location(QLibraryInfo::DocumentationPath).replace("\\", "/");
+    QString path = QLibraryInfo::location(QLibraryInfo::DocumentationPath).replace(QLatin1String("\\"), QLatin1String("/"));
     QString fName = fileName;
-    if (fName.startsWith("$DOCPATH$"))
+    if (fName.startsWith(QLatin1String("$DOCPATH$")))
         fName.replace(0, 9, path);
     return fName;
 }

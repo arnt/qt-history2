@@ -294,16 +294,16 @@ void MainWindow::about()
 
 #endif
 
-    box.setText(QString("<center><img src=\":/trolltech/assistant/images/assistant-128.png\">"
-                   "<h3>%1</h3>"
-                   "<p>Version %2 %3</p></center>"
-                   "<p>%4</p>"
-                   "<p>%5</p>"
-                   "<p>Copyright (C) 2000-$THISYEAR$ $TROLLTECH$. All rights reserved.</p>"
-                   "<p>The program is provided AS IS with NO WARRANTY OF ANY KIND,"
-                   " INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A"
-                   " PARTICULAR PURPOSE.<p/>")
-                   .arg(tr("Qt Assistant")).arg(QT_VERSION_STR).arg(edition).arg(info).arg(moreInfo));
+    box.setText(QString::fromLatin1("<center><img src=\":/trolltech/assistant/images/assistant-128.png\">"
+                                    "<h3>%1</h3>"
+                                    "<p>Version %2 %3</p></center>"
+                                    "<p>%4</p>"
+                                    "<p>%5</p>"
+                                    "<p>Copyright (C) 2000-$THISYEAR$ $TROLLTECH$. All rights reserved.</p>"
+                                    "<p>The program is provided AS IS with NO WARRANTY OF ANY KIND,"
+                                    " INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A"
+                                    " PARTICULAR PURPOSE.<p/>")
+                   .arg(tr("Qt Assistant")).arg(QLatin1String(QT_VERSION_STR)).arg(edition).arg(info).arg(moreInfo));
     box.setWindowTitle(tr("Qt Assistant"));
     box.setIcon(QMessageBox::NoIcon);
     box.exec();
@@ -317,7 +317,7 @@ void MainWindow::on_actionAboutApplication_triggered()
         return;
     }
     QString text;
-    if (url.startsWith("file:"))
+    if (url.startsWith(QLatin1String("file:")))
         url = url.mid(5);
     QFile file(url);
     if(file.exists() && file.open(QFile::ReadOnly))
@@ -365,7 +365,7 @@ QString MainWindow::urlifyFileName(const QString &fileName)
     }
 #else
     if (!url.isValid() || url.scheme().isEmpty())
-        name.prepend("file:");
+        name.prepend(QLatin1String("file:"));
 #endif
     return name;
 }
@@ -710,10 +710,10 @@ void MainWindow::on_actionSaveAs_triggered()
 
     QFileInfo fi(fileName);
     QString fn = fi.fileName();
-    int i = fn.lastIndexOf('.');
+    int i = fn.lastIndexOf(QLatin1Char('.'));
     if (i > -1)
         fn = fn.left(i);
-    QString relativeDestPath = fn + "_images";
+    QString relativeDestPath = fn + QLatin1String("_images");
     QDir destDir(fi.absolutePath() + QDir::separator() + relativeDestPath);
     bool imgDirAvailable = destDir.exists();
     if (!imgDirAvailable)
@@ -734,7 +734,7 @@ void MainWindow::on_actionSaveAs_triggered()
                             continue;
                         QString from = imagePath.toLocalFile();
                         QString destName = fm.name();
-                        int j = destName.lastIndexOf('/');
+                        int j = destName.lastIndexOf(QLatin1Char('/'));
                         if (j > -1)
                             destName = destName.mid(j+1);
                         QFileInfo info(from);
@@ -742,7 +742,7 @@ void MainWindow::on_actionSaveAs_triggered()
                             if (!QFile::copy(from, destDir.absolutePath()
                                 + QDir::separator() + destName))
                                 continue;
-                            fm.setName("./" + relativeDestPath + "/" + destName);
+                            fm.setName(QLatin1String("./") + relativeDestPath + QLatin1String("/") + destName);
                             QTextCursor cursor(doc);
                             cursor.setPosition(fragment.position());
                             cursor.setPosition(fragment.position() + fragment.length(),
@@ -754,7 +754,7 @@ void MainWindow::on_actionSaveAs_triggered()
             }
         }
     }
-    QString src = doc->toHtml("utf-8");
+    QString src = doc->toHtml(QByteArray("utf-8"));
     QTextStream s(&file);
     s.setCodec("utf-8");
     s << src;

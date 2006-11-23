@@ -652,9 +652,9 @@ void HelpDialog::showIndexTopic()
 
 void HelpDialog::searchInIndex(const QString &searchString)
 {
-    QRegExp atoz("[A-Z]");
+    QRegExp atoz(QLatin1String("[A-Z]"));
     int matches = searchString.count(atoz);
-    if (matches > 0 && !searchString.contains(".*"))
+    if (matches > 0 && !searchString.contains(QLatin1String(".*")))
     {
         int start = 0;
         QString newSearch;
@@ -663,7 +663,7 @@ void HelpDialog::searchInIndex(const QString &searchString)
             if (match <= start)
                 continue;
             newSearch += searchString.mid(start, match-start);
-            newSearch += ".*";
+            newSearch += QLatin1String(".*");
             start = match;
         }
         newSearch += searchString.mid(start);
@@ -922,11 +922,11 @@ void HelpDialog::locateContents(const QString &link)
     //and the contents in the TOC will be <file:C:/xxx>.
     //But on others the 'link' of format <file:///root/xxx>
     //and the contents in the TOC will be <file:/root/xxx>.
-    if (findLink.contains("file:///")) {
-        if (findLink[9] == QChar(':')) //on windows drives
-            findLink.replace(0, 8, "file:");
+    if (findLink.contains(QLatin1String("file:///"))) {
+        if (findLink[9] == QLatin1Char(':')) //on windows drives
+            findLink.replace(0, 8, QLatin1String("file:"));
         else
-            findLink.replace(0, 8, "file:/");
+            findLink.replace(0, 8, QLatin1String("file:/"));
     }
 
     bool topLevel = false;
@@ -1272,13 +1272,13 @@ void HelpDialog::on_searchButton_clicked()
 QString HelpDialog::removeAnchorFromLink(const QString &link)
 {
     int i = link.length();
-	int j = link.lastIndexOf('/');
+	int j = link.lastIndexOf(QLatin1Char('/'));
     int l = link.lastIndexOf(QDir::separator());
     if (l > j)
         j = l;
 	if (j > -1) {
 		QString fileName = link.mid(j+1);
-		int k = fileName.lastIndexOf('#');
+		int k = fileName.lastIndexOf(QLatin1Char('#'));
 		if (k > -1)
 			i = j + k + 1;
 	}

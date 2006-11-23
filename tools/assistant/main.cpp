@@ -50,8 +50,8 @@ public:
     AssistantAdaptor(MainWindow *mw) : QDBusAbstractAdaptor(mw), mw(mw)
     {
         QDBusConnection connection = QDBusConnection::sessionBus();
-        connection.registerService("com.trolltech.Assistant");
-        connection.registerObject("/Assistant", mw);
+        connection.registerService(QLatin1String("com.trolltech.Assistant"));
+        connection.registerObject(QLatin1String("/Assistant"), mw);
     }
 
 public slots:
@@ -108,7 +108,7 @@ void AssistantSocket::readClient()
 {
     QString link = QString();
     while ( canReadLine() )
-        link = readLine();
+        link = QLatin1String(readLine());
     if ( !link.isNull() ) {
         link = link.replace(QLatin1String("\n"), QLatin1String(""));
         link = link.replace(QLatin1String("\r"), QLatin1String(""));
@@ -166,8 +166,8 @@ int main( int argc, char ** argv )
     }
 #endif
     QApplication a(argc, argv, withGUI);
-    a.setOrganizationName("Trolltech");
-    a.setApplicationName("Assistant");
+    a.setOrganizationName(QLatin1String("Trolltech"));
+    a.setApplicationName(QLatin1String("Assistant"));
 
     QString resourceDir;
     AssistantServer *as = 0;
@@ -247,7 +247,7 @@ int main( int argc, char ** argv )
                     c->save();
                 }
                 return 0;
-            } else if ( QString( argv[i] ).toLower() == "-docpath" ) {
+            } else if ( QString( QLatin1String(argv[i]) ).toLower() == QLatin1String("-docpath") ) {
                 INDEX_CHECK( "Missing path!" );
                 QDir dir(QString::fromLocal8Bit(argv[i+1]));
                 if ( dir.exists() ) {

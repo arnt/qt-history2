@@ -52,7 +52,7 @@ DocuParser *DocuParser::createParser(const QString &fileName)
     int majVer = 0, minVer = 0, serVer = 0;
     static QRegExp re(QLatin1String("assistantconfig +version=\"(\\d)\\.(\\d)\\.(\\d)\""), Qt::CaseInsensitive);
     Q_ASSERT(re.isValid());
-    while(!(str = file.readLine(maxlen)).isEmpty()) {
+    while(!(str = QLatin1String(file.readLine(maxlen))).isEmpty()) {
         if(re.indexIn(str) >= 0) {
             majVer = re.cap(1).toInt();
             minVer = re.cap(2).toInt();
@@ -100,12 +100,12 @@ QString DocuParser::absolutify(const QString &name, bool makeUrl) const
 {
     if (!name.isEmpty()) {
         QString s = name;
-        s.replace("\\", "/");
+        s.replace(QLatin1String("\\"), QLatin1String("/"));
         QFileInfo orgPath(name);
         if(orgPath.isRelative())
             s = QFileInfo(fname).path() + QLatin1Char('/') + name;
         if (makeUrl)
-            s.prepend("file:");
+            s.prepend(QLatin1String("file:"));
         return s;
     }
     return name;

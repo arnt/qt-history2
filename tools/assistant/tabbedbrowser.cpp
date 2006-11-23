@@ -303,9 +303,9 @@ void TabbedBrowser::sourceChanged()
         docTitle = QLatin1String("...");
     // Make the classname in the title a bit more visible (otherwise
     // we just see the "Qt 4.0 : Q..." which isn't really helpful ;-)
-    QString qtTitle = "Qt " + QString::number( (QT_VERSION >> 16) & 0xff )
+    QString qtTitle = QLatin1String("Qt ") + QString::number( (QT_VERSION >> 16) & 0xff )
         + QLatin1String(".") + QString::number( (QT_VERSION >> 8) & 0xff )
-        + ": ";
+        + QLatin1String(": ");
     if (docTitle.startsWith(qtTitle))
         docTitle = docTitle.mid(qtTitle.length());
     setTitle(win, docTitle);
@@ -452,9 +452,9 @@ void TabbedBrowser::openTabMenu(const QPoint& pos)
 {
     QTabBar *tabBar = qFindChild<QTabBar*>(ui.tab);
     QMenu *m = new QMenu(tabBar);
-    QAction *new_action = m->addAction("New Tab");
-    QAction *close_action = m->addAction("Close Tab");
-    QAction *close_others_action = m->addAction("Close Other Tabs");
+    QAction *new_action = m->addAction(tr("New Tab"));
+    QAction *close_action = m->addAction(tr("Close Tab"));
+    QAction *close_others_action = m->addAction(tr("Close Other Tabs"));
     QAction *action_picked = m->exec(tabBar->mapToGlobal(pos));
     if (action_picked) {
         if (action_picked == new_action) {
