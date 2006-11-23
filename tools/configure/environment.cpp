@@ -15,11 +15,16 @@
 
 #include <process.h>
 #include <iostream>
+#include <qdebug.h>
+#include <QDir>
 #include <QStringList>
 #include <QMap>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+
+//#define CONFIGURE_DEBUG_EXECUTE
+//#define CONFIGURE_DEBUG_CP_DIR
 
 using namespace std;
 
@@ -287,7 +292,7 @@ Compiler Environment::detectCompiler()
                 ++installed;
                 detectedCompiler = compiler_info[i].compiler;
                 break;
-            } 
+            }
         }
     }
 
@@ -315,20 +320,20 @@ bool Environment::detectExecutable(const QString &executable)
         STARTUPINFOW startInfo;
         memset(&startInfo, 0, sizeof(startInfo));
         startInfo.cb = sizeof(startInfo);
-        
+
         couldExecute = CreateProcessW(0, (WCHAR*)executable.utf16(),
                                       0, 0, false,
                                       CREATE_NO_WINDOW | CREATE_SUSPENDED,
                                       0, 0, &startInfo, &procInfo);
-                        
+
     }, {
-        // Ansi version 
+        // Ansi version
         STARTUPINFOA startInfo;
         memset(&startInfo, 0, sizeof(startInfo));
         startInfo.cb = sizeof(startInfo);
-        
+
         couldExecute = CreateProcessA(0, executable.toLocal8Bit().data(),
-                                      0, 0, false, 
+                                      0, 0, false,
                                       CREATE_NO_WINDOW | CREATE_SUSPENDED,
                                       0, 0, &startInfo, &procInfo);
     })
@@ -422,7 +427,7 @@ static QByteArray qt_create_environment(const QStringList &environment)
                 pos += tmpSize;
             }
             // add the user environment
-            for (QStringList::ConstIterator it = environment.begin(); it != environment.end(); ++it) {
+            for (QStringList::ConstIterator it = environment.begin(); it != environment.end(); it++) {
                 QByteArray tmp = (*it).toLocal8Bit();
                 uint tmpSize = tmp.length() + 1;
                 envlist.resize(envlist.size() + tmpSize);
@@ -454,6 +459,12 @@ static QByteArray qt_create_environment(const QStringList &environment)
 */
 int Environment::execute(QStringList arguments, const QStringList &additionalEnv, const QStringList &removeEnv)
 {
+#ifdef CONFIGURE_DEBUG_EXECUTE
+    qDebug() << "About to Execute: " << arguments;
+    qDebug() << "   " << QDir::currentPath();
+    qDebug() << "   " << additionalEnv;
+    qDebug() << "   " << removeEnv;
+#endif
 // GetEnvironmentStrings is defined to GetEnvironmentStringsW when
 // UNICODE is defined. We cannot use that, since we need to
 // destinguish between unicode and ansi versions of the functions.
@@ -534,11 +545,11 @@ int Environment::execute(QStringList arguments, const QStringList &additionalEnv
                                       envlist.isEmpty() ? 0 : envlist.data(),
                                       0, &startInfo, &procInfo);
     }, {
-        // Ansi version 
+        // Ansi version
         STARTUPINFOA startInfo;
         memset(&startInfo, 0, sizeof(startInfo));
         startInfo.cb = sizeof(startInfo);
-        
+
         couldExecute = CreateProcessA(0, args.toLocal8Bit().data(),
                                       0, 0, true, 0,
                                       envlist.isEmpty() ? 0 : envlist.data(),
@@ -583,23 +594,36 @@ bool Environment::cpdir(const QString &srcDir, const QString &destDir)
 {
     QString cleanSrcName = QDir::cleanPath(srcDir);
     QString cleanDstName = QDir::cleanPath(destDir);
+#ifdef CONFIGURE_DEBUG_CP_DIR
+    qDebug() << "Attempt to cpdir " << cleanSrcName << "->" << cleanDstName;
+#endif
+    if(!QFile::exists(cleanDstName) && !QDir().mkpath(cleanDstName)) {
+	qDebug() << "cpdir: Failure to create " << cleanDstName;
+	return false;
+    }
 
     bool result = true;
-    QDir destD = QDir(cleanSrcName);
-    result &= destD.mkdir(cleanDstName);
-
     QDir dir = QDir(cleanSrcName);
     QFileInfoList allEntries = dir.entryInfoList(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
     for (int i = 0; result && (i < allEntries.count()); ++i) {
         QFileInfo entry = allEntries.at(i);
+	bool intermediate = true;
         if (entry.isDir()) {
-            result &= cpdir(QString("%1/%2").arg(cleanSrcName).arg(entry.baseName()),
-                            QString("%1/%2").arg(cleanDstName).arg(entry.baseName()));
+            intermediate = cpdir(QString("%1/%2").arg(cleanSrcName).arg(entry.fileName()),
+                            QString("%1/%2").arg(cleanDstName).arg(entry.fileName()));
         } else {
             QString destFile = QString("%1/%2").arg(cleanDstName).arg(entry.fileName());
-            result &= QFile::copy(entry.absoluteFilePath(), destFile);
+#ifdef CONFIGURE_DEBUG_CP_DIR
+	    qDebug() << "About to cp (file)" << entry.absoluteFilePath() << "->" << destFile;
+#endif
+	    QFile::remove(destFile);
+            intermediate = QFile::copy(entry.absoluteFilePath(), destFile);
             SetFileAttributesA(destFile.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL);
         }
+	if(!intermediate) {
+	    qDebug() << "cpdir: Failure for " << entry.fileName() << entry.isDir();
+	    result = false;
+	}
     }
     return result;
 }

@@ -59,6 +59,8 @@ int main( int argc, char** argv )
     if( !app.isDone() )
 	app.displayConfig();
     if( !app.isDone() )
+	app.generateHeaders();
+    if( !app.isDone() )
 	app.buildQmake();
     if( !app.isOk() )
 	return 2;

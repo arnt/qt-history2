@@ -38,6 +38,7 @@ public:
 
     void generateOutputVars();
 #if !defined(EVAL)
+    void generateHeaders();
     void generateBuildKey();
     void generateCachefile();
     void displayConfig();
@@ -103,7 +104,7 @@ private:
     QString outputLine;
 
     QTextStream outStream;
-    QString qtDir;
+    QString sourceDir, buildDir;
 
     // Variables for usage output
     int optionIndent;
