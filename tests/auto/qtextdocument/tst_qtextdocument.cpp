@@ -49,6 +49,7 @@ private slots:
     void find2();
     void findWithRegExp_data();
     void findWithRegExp();
+    void findMultiple();
     void basicIsModifiedChecks();
     void moreIsModified();
     void isModified2();
@@ -298,6 +299,48 @@ void tst_QTextDocument::find2()
     QTextCursor hit = doc->find("a", cursor);
     QCOMPARE(hit.position(), 2);
     QCOMPARE(hit.anchor(), 1);
+}
+
+void tst_QTextDocument::findMultiple()
+{
+    const QString text("foo bar baz foo bar baz");
+    doc->setPlainText(text);
+
+    cursor.movePosition(QTextCursor::Start);
+    cursor = doc->find("bar", cursor);
+    QCOMPARE(cursor.selectionStart(), text.indexOf("bar"));
+    QCOMPARE(cursor.selectionEnd(), cursor.selectionStart() + 3);
+    cursor = doc->find("bar", cursor);
+    QCOMPARE(cursor.selectionStart(), text.lastIndexOf("bar"));
+    QCOMPARE(cursor.selectionEnd(), cursor.selectionStart() + 3);
+
+    cursor.movePosition(QTextCursor::End);
+    cursor = doc->find("bar", cursor, QTextDocument::FindBackward);
+    QCOMPARE(cursor.selectionStart(), text.lastIndexOf("bar"));
+    QCOMPARE(cursor.selectionEnd(), cursor.selectionStart() + 3);
+    cursor = doc->find("bar", cursor, QTextDocument::FindBackward);
+    QCOMPARE(cursor.selectionStart(), text.indexOf("bar"));
+    QCOMPARE(cursor.selectionEnd(), cursor.selectionStart() + 3);
+
+
+    QRegExp expr("bar");
+    expr.setPatternSyntax(QRegExp::FixedString);
+
+    cursor.movePosition(QTextCursor::End);
+    cursor = doc->find(expr, cursor, QTextDocument::FindBackward);
+    QCOMPARE(cursor.selectionStart(), text.lastIndexOf("bar"));
+    QCOMPARE(cursor.selectionEnd(), cursor.selectionStart() + 3);
+    cursor = doc->find(expr, cursor, QTextDocument::FindBackward);
+    QCOMPARE(cursor.selectionStart(), text.indexOf("bar"));
+    QCOMPARE(cursor.selectionEnd(), cursor.selectionStart() + 3);
+
+    cursor.movePosition(QTextCursor::Start);
+    cursor = doc->find(expr, cursor);
+    QCOMPARE(cursor.selectionStart(), text.indexOf("bar"));
+    QCOMPARE(cursor.selectionEnd(), cursor.selectionStart() + 3);
+    cursor = doc->find(expr, cursor);
+    QCOMPARE(cursor.selectionStart(), text.lastIndexOf("bar"));
+    QCOMPARE(cursor.selectionEnd(), cursor.selectionStart() + 3);
 }
 
 void tst_QTextDocument::basicIsModifiedChecks()

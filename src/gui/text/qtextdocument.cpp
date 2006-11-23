@@ -900,7 +900,13 @@ QTextCursor QTextDocument::find(const QString &subString, int from, FindFlags op
 */
 QTextCursor QTextDocument::find(const QString &subString, const QTextCursor &from, FindFlags options) const
 {
-    const int pos = (from.isNull() ? 0 : from.selectionEnd());
+    int pos = 0;
+    if (!from.isNull()) {
+        if (options & QTextDocument::FindBackward)
+            pos = from.selectionStart();
+        else
+            pos = from.selectionEnd();
+    }
     QRegExp expr(subString);
     expr.setPatternSyntax(QRegExp::FixedString);
     expr.setCaseSensitivity((options & QTextDocument::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
@@ -1020,7 +1026,13 @@ QTextCursor QTextDocument::find(const QRegExp & expr, int from, FindFlags option
 */
 QTextCursor QTextDocument::find(const QRegExp &expr, const QTextCursor &from, FindFlags options) const
 {
-    const int pos = (from.isNull() ? 0 : from.selectionEnd());
+    int pos = 0;
+    if (!from.isNull()) {
+        if (options & QTextDocument::FindBackward)
+            pos = from.selectionStart();
+        else
+            pos = from.selectionEnd();
+    }
     return find(expr, pos, options);
 }
 
