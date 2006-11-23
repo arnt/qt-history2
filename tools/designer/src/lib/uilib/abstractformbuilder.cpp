@@ -70,14 +70,6 @@ public:
 #endif
 };
 
-namespace {
-    // convert key to value for a given QMetaEnum
-    template <class EnumType>
-        inline static EnumType enumKeyToValue(const QMetaEnum & metaEnum,const char *key) {
-            return static_cast<EnumType>(metaEnum.keyToValue(key));
-        }
-}
-
 // This class exists to provide meta information
 // for enumerations only.
 class QAbstractFormBuilderGadget: public QWidget
@@ -108,23 +100,30 @@ public:
     QGradient::Type fakeGradientType() const    { Q_ASSERT(0); return QGradient::NoGradient; }
     QGradient::Spread fakeGradientSpread() const  { Q_ASSERT(0); return QGradient::PadSpread; }
     QGradient::CoordinateMode fakeGradientCoordinate() const  { Q_ASSERT(0); return QGradient::LogicalMode; }
+};
 
-    // Access meta enumeration object
-    static inline QMetaEnum metaEnum(const char *name) {
-        const int e_index = staticMetaObject.indexOfProperty(name);
-        Q_ASSERT(e_index != -1);
-        return staticMetaObject.property(e_index).enumerator();
-    }
-
-
-    // convert key to value for a enumeration by name
+namespace {
+    // convert key to value for a given QMetaEnum
     template <class EnumType>
-        static EnumType enumKeyToValue(const char *enumName,const char *key) {
-            static const QMetaEnum me = metaEnum(enumName);
-            return ::enumKeyToValue<EnumType>(me, key);
+        inline static EnumType enumKeyToValue(const QMetaEnum &metaEnum,const char *key, const EnumType* = 0) {
+            return static_cast<EnumType>(metaEnum.keyToValue(key));
         }
 
-};
+    // Access meta enumeration object of a qobject
+    template <class QObjectType>
+        inline QMetaEnum metaEnum(const char *name, const QObjectType* = 0) {
+            const int e_index = QObjectType::staticMetaObject.indexOfProperty(name);
+            Q_ASSERT(e_index != -1);
+            return QObjectType::staticMetaObject.property(e_index).enumerator();
+        }
+
+    // convert key to value for a enumeration by name
+    template <class QObjectType, class EnumType>
+        EnumType enumKeyOfObjectToValue(const char *enumName, const char *key, const QObjectType* = 0, const EnumType* = 0) {
+            const QMetaEnum me = metaEnum<QObjectType>(enumName);
+            return enumKeyToValue<EnumType>(me, key);
+        }
+}
 
 /*!
     \class QAbstractFormBuilder
@@ -347,7 +346,7 @@ Qt::ToolBarArea QAbstractFormBuilder::toolbarAreaFromDOMAttributes(const DomProp
     case DomProperty::Number:
         return static_cast<Qt::ToolBarArea>(attr->elementNumber());
     case DomProperty::Enum:
-        return QAbstractFormBuilderGadget::enumKeyToValue<Qt::ToolBarArea>("toolBarArea",  attr->elementEnum().toLatin1());
+        return enumKeyOfObjectToValue<QAbstractFormBuilderGadget, Qt::ToolBarArea>("toolBarArea",  attr->elementEnum().toLatin1());
     default:
         break;
     }
@@ -590,8 +589,8 @@ QLayoutItem *QAbstractFormBuilder::create(DomLayoutItem *ui_layoutItem, QLayout 
 
         const DomSpacer *ui_spacer = ui_layoutItem->elementSpacer();
 
-        const QMetaEnum sizePolicy_enum  = QAbstractFormBuilderGadget::metaEnum("sizeType");
-        const QMetaEnum orientation_enum =  QAbstractFormBuilderGadget::metaEnum("orientation");
+        const QMetaEnum sizePolicy_enum  = metaEnum<QAbstractFormBuilderGadget>("sizeType");
+        const QMetaEnum orientation_enum =  metaEnum<QAbstractFormBuilderGadget>("orientation");
 
         foreach (DomProperty *p, ui_spacer->elementProperty()) {
             const QVariant v = toVariant(&QAbstractFormBuilderGadget::staticMetaObject, p); // ### remove me
@@ -742,7 +741,7 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
         if (font->hasElementAntialiasing())
             f.setStyleStrategy(font->elementAntialiasing() ? QFont::PreferDefault : QFont::NoAntialias);
         if (font->hasElementStyleStrategy()) {
-            f.setStyleStrategy( QAbstractFormBuilderGadget::enumKeyToValue<QFont::StyleStrategy>("styleStrategy", font->elementStyleStrategy().toLatin1()));
+            f.setStyleStrategy(enumKeyOfObjectToValue<QAbstractFormBuilderGadget, QFont::StyleStrategy>("styleStrategy", font->elementStyleStrategy().toLatin1()));
         }
         return qVariantFromValue(f);
     }
@@ -801,7 +800,7 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
         return qVariantFromValue(QCursor(static_cast<Qt::CursorShape>(p->elementCursor())));
 
     case DomProperty::CursorShape:
-        return qVariantFromValue(QCursor(QAbstractFormBuilderGadget::enumKeyToValue<Qt::CursorShape>("cursorShape", p->elementCursorShape().toLatin1())));
+        return qVariantFromValue(QCursor(enumKeyOfObjectToValue<QAbstractFormBuilderGadget, Qt::CursorShape>("cursorShape", p->elementCursorShape().toLatin1())));
 
     case DomProperty::Set: {
         const QByteArray pname = p->attributeName().toUtf8();
@@ -841,7 +840,7 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
         sizePolicy.setHorizontalStretch(sizep->elementHorStretch());
         sizePolicy.setVerticalStretch(sizep->elementVerStretch());
 
-        const QMetaEnum sizeType_enum = QAbstractFormBuilderGadget::metaEnum("sizeType");
+        const QMetaEnum sizeType_enum = metaEnum<QAbstractFormBuilderGadget>("sizeType");
 
         if (sizep->hasElementHSizeType()) {
             sizePolicy.setHorizontalPolicy((QSizePolicy::Policy) sizep->elementHSizeType());
@@ -887,7 +886,7 @@ void QAbstractFormBuilder::setupColorGroup(QPalette &palette, QPalette::ColorGro
     }
 
     // new format
-    const QMetaEnum colorRole_enum = QAbstractFormBuilderGadget::metaEnum("colorRole");
+    const QMetaEnum colorRole_enum = metaEnum<QAbstractFormBuilderGadget>("colorRole");
 
     const QList<DomColorRole*> colorRoles = group->elementColorRole();
     for (int role = 0; role < colorRoles.size(); ++role) {
@@ -909,7 +908,7 @@ void QAbstractFormBuilder::setupColorGroup(QPalette &palette, QPalette::ColorGro
 DomColorGroup *QAbstractFormBuilder::saveColorGroup(const QPalette &palette)
 {
 
-    const QMetaEnum colorRole_enum = QAbstractFormBuilderGadget::metaEnum("colorRole");
+    const QMetaEnum colorRole_enum = metaEnum<QAbstractFormBuilderGadget>("colorRole");
 
     DomColorGroup *group = new DomColorGroup();
     QList<DomColorRole*> colorRoles;
@@ -939,14 +938,14 @@ QBrush QAbstractFormBuilder::setupBrush(DomBrush *brush)
     if (!brush->hasAttributeBrushStyle())
         return br;
 
-    const Qt::BrushStyle style = QAbstractFormBuilderGadget::enumKeyToValue<Qt::BrushStyle>("brushStyle", brush->attributeBrushStyle().toLatin1());
+    const Qt::BrushStyle style = enumKeyOfObjectToValue<QAbstractFormBuilderGadget, Qt::BrushStyle>("brushStyle", brush->attributeBrushStyle().toLatin1());
 
     if (style == Qt::LinearGradientPattern ||
             style == Qt::RadialGradientPattern ||
             style == Qt::ConicalGradientPattern) {
-        const QMetaEnum gradientType_enum = QAbstractFormBuilderGadget::metaEnum("gradientType");
-        const QMetaEnum gradientSpread_enum = QAbstractFormBuilderGadget::metaEnum("gradientSpread");
-        const QMetaEnum gradientCoordinate_enum = QAbstractFormBuilderGadget::metaEnum("gradientCoordinate");
+        const QMetaEnum gradientType_enum = metaEnum<QAbstractFormBuilderGadget>("gradientType");
+        const QMetaEnum gradientSpread_enum = metaEnum<QAbstractFormBuilderGadget>("gradientSpread");
+        const QMetaEnum gradientCoordinate_enum = metaEnum<QAbstractFormBuilderGadget>("gradientCoordinate");
 
         const DomGradient *gradient = brush->elementGradient();
         const QGradient::Type type = enumKeyToValue<QGradient::Type>(gradientType_enum, gradient->attributeType().toLatin1());
@@ -1003,7 +1002,7 @@ QBrush QAbstractFormBuilder::setupBrush(DomBrush *brush)
 */
 DomBrush *QAbstractFormBuilder::saveBrush(const QBrush &br)
 {
-    const QMetaEnum brushStyle_enum = QAbstractFormBuilderGadget::metaEnum("brushStyle");
+    const QMetaEnum brushStyle_enum = metaEnum<QAbstractFormBuilderGadget>("brushStyle");
 
     DomBrush *brush = new DomBrush();
     const Qt::BrushStyle style = br.style();
@@ -1011,9 +1010,9 @@ DomBrush *QAbstractFormBuilder::saveBrush(const QBrush &br)
     if (style == Qt::LinearGradientPattern ||
                 style == Qt::RadialGradientPattern ||
                 style == Qt::ConicalGradientPattern) {
-        const QMetaEnum gradientType_enum = QAbstractFormBuilderGadget::metaEnum("gradientType");
-        const QMetaEnum gradientSpread_enum = QAbstractFormBuilderGadget::metaEnum("gradientSpread");
-        const QMetaEnum gradientCoordinate_enum = QAbstractFormBuilderGadget::metaEnum("gradientCoordinate");
+        const QMetaEnum gradientType_enum = metaEnum<QAbstractFormBuilderGadget>("gradientType");
+        const QMetaEnum gradientSpread_enum = metaEnum<QAbstractFormBuilderGadget>("gradientSpread");
+        const QMetaEnum gradientCoordinate_enum = metaEnum<QAbstractFormBuilderGadget>("gradientCoordinate");
 
         DomGradient *gradient = new DomGradient();
         const QGradient *gr = br.gradient();
@@ -1539,14 +1538,14 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
             if (mask & QFontPrivate::Kerning)
                 fnt->setElementKerning(font.kerning());
             if (mask & QFontPrivate::StyleStrategy) {
-                const QMetaEnum styleStrategy_enum = QAbstractFormBuilderGadget::metaEnum("styleStrategy");
+                const QMetaEnum styleStrategy_enum = metaEnum<QAbstractFormBuilderGadget>("styleStrategy");
                 fnt->setElementStyleStrategy(styleStrategy_enum.valueToKey(font.styleStrategy()));
             }
             dom_prop->setElementFont(fnt);
         } break;
 
         case QVariant::Cursor: {
-            const QMetaEnum cursorShape_enum = QAbstractFormBuilderGadget::metaEnum("cursorShape");
+            const QMetaEnum cursorShape_enum = metaEnum<QAbstractFormBuilderGadget>("cursorShape");
             dom_prop->setElementCursorShape(cursorShape_enum.valueToKey(qvariant_cast<QCursor>(v).shape()));
         } break;
 
@@ -1579,7 +1578,7 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
             dom->setElementHorStretch(sizePolicy.horizontalStretch());
             dom->setElementVerStretch(sizePolicy.verticalStretch());
 
-            const QMetaEnum sizeType_enum = QAbstractFormBuilderGadget::metaEnum("sizeType");
+            const QMetaEnum sizeType_enum = metaEnum<QAbstractFormBuilderGadget>("sizeType");
 
             dom->setAttributeHSizeType(sizeType_enum.valueToKey(sizePolicy.horizontalPolicy()));
             dom->setAttributeVSizeType(sizeType_enum.valueToKey(sizePolicy.verticalPolicy()));
@@ -2423,7 +2422,7 @@ void QAbstractFormBuilder::reset()
 
 QMetaEnum QAbstractFormBuilder::toolBarAreaMetaEnum()
 {
-    return QAbstractFormBuilderGadget::metaEnum("toolBarArea");
+    return metaEnum<QAbstractFormBuilderGadget>("toolBarArea");
 }
 
 namespace {
