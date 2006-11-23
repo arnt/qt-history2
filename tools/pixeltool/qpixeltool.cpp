@@ -33,18 +33,18 @@ QPixelTool::QPixelTool(QWidget *parent)
     : QWidget(parent),
       m_assistantClient(0)
 {
-    QSettings settings("Trolltech", "QPixelTool");
+    QSettings settings(QLatin1String("Trolltech"), QLatin1String("QPixelTool"));
 
     m_freeze = false;
 
-    m_autoUpdate = settings.value("autoUpdate", 0).toBool();
+    m_autoUpdate = settings.value(QLatin1String("autoUpdate"), 0).toBool();
 
-    m_gridSize = settings.value("gridSize", 1).toInt();
-    m_gridActive = settings.value("gridActive", 1).toInt();
+    m_gridSize = settings.value(QLatin1String("gridSize"), 1).toInt();
+    m_gridActive = settings.value(QLatin1String("gridActive"), 1).toInt();
     m_displayGridSize = false;
     m_displayGridSizeId = 0;
 
-    m_zoom = settings.value("zoom", 4).toInt();
+    m_zoom = settings.value(QLatin1String("zoom"), 4).toInt();
     m_displayZoom = false;
     m_displayZoomId = 0;
 
@@ -52,9 +52,9 @@ QPixelTool::QPixelTool(QWidget *parent)
 
     m_mouseDown = false;
 
-    m_initialSize = settings.value("initialSize", QSize(250, 200)).toSize();
+    m_initialSize = settings.value(QLatin1String("initialSize"), QSize(250, 200)).toSize();
 
-    move(settings.value("position").toPoint());
+    move(settings.value(QLatin1String("position")).toPoint());
 
     setMouseTracking(true);
     setAttribute(Qt::WA_NoBackground);
@@ -63,13 +63,13 @@ QPixelTool::QPixelTool(QWidget *parent)
 
 QPixelTool::~QPixelTool()
 {
-    QSettings settings("Trolltech", "QPixelTool");
-    settings.setValue("autoUpdate", int(m_autoUpdate));
-    settings.setValue("gridSize", m_gridSize);
-    settings.setValue("gridActive", m_gridActive);
-    settings.setValue("zoom", m_zoom);
-    settings.setValue("initialSize", size());
-    settings.setValue("position", pos());
+    QSettings settings(QLatin1String("Trolltech"), QLatin1String("QPixelTool"));
+    settings.setValue(QLatin1String("autoUpdate"), int(m_autoUpdate));
+    settings.setValue(QLatin1String("gridSize"), m_gridSize);
+    settings.setValue(QLatin1String("gridActive"), m_gridActive);
+    settings.setValue(QLatin1String("zoom"), m_zoom);
+    settings.setValue(QLatin1String("initialSize"), size());
+    settings.setValue(QLatin1String("position"), pos());
 }
 
 void QPixelTool::timerEvent(QTimerEvent *event)
@@ -136,19 +136,19 @@ void QPixelTool::paintEvent(QPaintEvent *)
             p.drawLine(0, y, w, y);
     }
 
-    QFont f("courier");
+    QFont f(QLatin1String("courier"));
     f.setBold(true);
     p.setFont(f);
 
     if (m_displayZoom) {
         render_string(&p, w, h,
-                      QString("Zoom: x%1").arg(m_zoom),
+                      QString(QLatin1String("Zoom: x%1")).arg(m_zoom),
                       Qt::AlignBottom | Qt::AlignRight);
     }
 
     if (m_displayGridSize) {
         render_string(&p, w, h,
-                      QString("Grid size: %1").arg(m_gridSize),
+                      QString(QLatin1String("Grid size: %1")).arg(m_gridSize),
                       Qt::AlignBottom | Qt::AlignLeft);
     }
 
@@ -282,56 +282,56 @@ void QPixelTool::contextMenuEvent(QContextMenuEvent *e)
 
     QMenu menu;
 
-    QAction title("Qt Pixel Zooming Tool", &menu);
+    QAction title(QLatin1String("Qt Pixel Zooming Tool"), &menu);
     title.setEnabled(false);
 
     // Grid color options...
     QActionGroup gridGroup(this);
-    QAction whiteGrid("White grid", &gridGroup);
+    QAction whiteGrid(QLatin1String("White grid"), &gridGroup);
     whiteGrid.setCheckable(true);
     whiteGrid.setChecked(m_gridActive == 2);
     whiteGrid.setShortcut(QKeySequence(Qt::Key_G));
-    QAction blackGrid("Black grid", &gridGroup);
+    QAction blackGrid(QLatin1String("Black grid"), &gridGroup);
     blackGrid.setCheckable(true);
     blackGrid.setChecked(m_gridActive == 1);
     blackGrid.setShortcut(QKeySequence(Qt::Key_G));
-    QAction noGrid("No grid", &gridGroup);
+    QAction noGrid(QLatin1String("No grid"), &gridGroup);
     noGrid.setCheckable(true);
     noGrid.setChecked(m_gridActive == 0);
     noGrid.setShortcut(QKeySequence(Qt::Key_G));
 
     // Grid size options
-    QAction incrGrid("Increase grid size", &menu);
+    QAction incrGrid(QLatin1String("Increase grid size"), &menu);
     incrGrid.setShortcut(QKeySequence(Qt::Key_PageUp));
     connect(&incrGrid, SIGNAL(triggered()), this, SLOT(increaseGridSize()));
-    QAction decrGrid("Decrease grid size", &menu);
+    QAction decrGrid(QLatin1String("Decrease grid size"), &menu);
     decrGrid.setShortcut(QKeySequence(Qt::Key_PageDown));
     connect(&decrGrid, SIGNAL(triggered()), this, SLOT(decreaseGridSize()));
 
     // Zoom options
-    QAction incrZoom("Zoom in", &menu);
+    QAction incrZoom(QLatin1String("Zoom in"), &menu);
     incrZoom.setShortcut(QKeySequence(Qt::Key_Plus));
     connect(&incrZoom, SIGNAL(triggered()), this, SLOT(increaseZoom()));
-    QAction decrZoom("Zoom out", &menu);
+    QAction decrZoom(QLatin1String("Zoom out"), &menu);
     decrZoom.setShortcut(QKeySequence(Qt::Key_Minus));
     connect(&decrZoom, SIGNAL(triggered()), this, SLOT(decreaseZoom()));
 
     // Freeze / Autoupdate
-    QAction freeze("Frozen", &menu);
+    QAction freeze(QLatin1String("Frozen"), &menu);
     freeze.setCheckable(true);
     freeze.setChecked(tmpFreeze);
     freeze.setShortcut(QKeySequence(Qt::Key_Space));
-    QAction autoUpdate("Continous update", &menu);
+    QAction autoUpdate(QLatin1String("Continous update"), &menu);
     autoUpdate.setCheckable(true);
     autoUpdate.setChecked(m_autoUpdate);
     autoUpdate.setShortcut(QKeySequence(Qt::Key_A));
 
     // Copy to clipboard / save
-    QAction save("Save as image", &menu);
-    save.setShortcut(QKeySequence("Ctrl+S"));
+    QAction save(QLatin1String("Save as image"), &menu);
+    save.setShortcut(QKeySequence(QLatin1String("Ctrl+S")));
     connect(&save, SIGNAL(triggered()), this, SLOT(saveToFile()));
-    QAction copy("Copy to clipboard", &menu);
-    copy.setShortcut(QKeySequence("Ctrl+C"));
+    QAction copy(QLatin1String("Copy to clipboard"), &menu);
+    copy.setShortcut(QKeySequence(QLatin1String("Ctrl+C")));
     connect(&copy, SIGNAL(triggered()), this, SLOT(copyToClipboard()));
 
     menu.addAction(&title);
@@ -467,9 +467,9 @@ void QPixelTool::saveToFile()
 {
     bool oldFreeze = m_freeze;
     m_freeze = true;
-    QString name = QFileDialog::getSaveFileName(this, "Save as image", QString(), "*.png");
-    if (!name.endsWith(".png"))
-        name.append(".png");
+    QString name = QFileDialog::getSaveFileName(this, QLatin1String("Save as image"), QString(), QLatin1String("*.png"));
+    if (!name.endsWith(QLatin1String(".png")))
+        name.append(QLatin1String(".png"));
     m_buffer.save(name, "PNG");
     m_freeze = oldFreeze;
 }
