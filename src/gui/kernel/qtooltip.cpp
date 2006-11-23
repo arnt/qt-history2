@@ -77,7 +77,7 @@ public:
 
     bool eventFilter(QObject *, QEvent *);
 
-    QBasicTimer hideTimer, deleteTimer;
+    QBasicTimer hideTimer;
 
     void hideTip();
     void setTipRect(QWidget *w, const QRect &r);
@@ -139,9 +139,8 @@ QTipLabel::~QTipLabel()
 
 void QTipLabel::hideTip()
 {
-    hide();
-    // timer based deletion to prevent animation
-    deleteTimer.start(250, this);
+    close(); // to trigger QEvent::Close which stops the animation
+    delete this;
 }
 
 void QTipLabel::setTipRect(QWidget *w, const QRect &r)
@@ -156,8 +155,6 @@ void QTipLabel::timerEvent(QTimerEvent *e)
 {
     if (e->timerId() == hideTimer.timerId())
         hideTip();
-    else if (e->timerId() == deleteTimer.timerId())
-        delete this;
 }
 
 bool QTipLabel::eventFilter(QObject *o, QEvent *e)

@@ -56,6 +56,7 @@ protected:
     void paintEvent(QPaintEvent* e);
     void closeEvent(QCloseEvent*);
     void alphaBlend();
+    bool eventFilter(QObject *, QEvent *);
 
 protected slots:
     void render();
@@ -142,6 +143,42 @@ void QAlphaWidget::run(int time)
     }
 }
 
+/*
+  \reimp
+*/
+bool QAlphaWidget::eventFilter(QObject *o, QEvent *e)
+{
+    switch (e->type()) {
+    case QEvent::Move:
+	    if (o != widget)
+	        break;
+	    move(widget->geometry().x(),widget->geometry().y());
+	    update();
+	    break;
+    case QEvent::Hide:
+    case QEvent::Close:
+	    if (o != widget)
+	        break;
+    case QEvent::MouseButtonPress:
+	case QEvent::MouseButtonDblClick:
+	    showWidget = false;
+	    render();
+	    break;
+    case QEvent::KeyPress: {
+	        QKeyEvent *ke = (QKeyEvent*)e;
+            if (ke->key() == Qt::Key_Escape) {
+		        showWidget = false;
+            } else {
+		        duration = 0;
+            }
+	        render();
+	        break;
+	}
+    default:
+	    break;
+    }
+    return QWidget::eventFilter(o, e);
+}
 
 /*
   \reimp
