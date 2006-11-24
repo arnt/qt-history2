@@ -326,6 +326,7 @@ void tst_QChar::digitValue()
 {
     QVERIFY(QChar('9').digitValue() == 9);
     QVERIFY(QChar('0').digitValue() == 0);
+    QVERIFY(QChar('a').digitValue() == -1);
 
     QVERIFY(QChar::digitValue((ushort)'9') == 9);
     QVERIFY(QChar::digitValue((ushort)'0') == 0);

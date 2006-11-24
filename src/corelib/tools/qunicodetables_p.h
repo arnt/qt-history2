@@ -31,17 +31,22 @@
 
 namespace QUnicodeTables {
     struct Properties {
-        uint category : 5;
-        uint line_break_class : 5;
-        uint direction : 5;
-        uint titleCaseDiffersFromUpper : 1;
-        uint combiningClass :8;
-        uint unicode_version : 4;
-        uint digit_value : 4;
-
-        signed short mirrorDiff : 14 /* 13 needed */;
-        uint joining : 2;
-        signed short caseDiff /* 14 needed */;
+        ushort category : 8;
+        ushort line_break_class : 8;
+        ushort direction : 8;
+        ushort combiningClass :8;
+        ushort joining : 2;
+        signed short digitValue : 6;
+ /* 5 needed */        ushort unicodeVersion : 4;
+        ushort lowerCaseSpecial : 1;
+        ushort upperCaseSpecial : 1;
+        ushort titleCaseSpecial : 1;
+        ushort caseFoldSpecial : 1;
+        signed short mirrorDiff : 16;
+        signed short lowerCaseDiff : 16;
+        signed short upperCaseDiff : 16;
+        signed short titleCaseDiff : 16;
+        signed short caseFoldDiff : 16;
     };
     Q_CORE_EXPORT const Properties * QT_FASTCALL properties(uint ucs4);
     Q_CORE_EXPORT const Properties * QT_FASTCALL properties(ushort ucs2);

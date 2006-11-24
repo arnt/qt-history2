@@ -33,6 +33,8 @@
 #endif
 #endif
 
+#define FLAG(x) (1 << (x))
+
 /*! \class QLatin1Char
     \brief The QLatin1Char class provides an 8-bit ASCII/Latin-1 character.
 
@@ -492,8 +494,9 @@ QChar::QChar(uchar ch)
 */
 bool QChar::isPrint() const
 {
-    Category c = (QChar::Category) qGetProp(ucs)->category;
-    return c != Other_Control && c != Other_NotAssigned;
+    const int test = FLAG(Other_Control) |
+                     FLAG(Other_NotAssigned);
+    return !(FLAG(qGetProp(ucs)->category) & test);
 }
 
 /*!
@@ -504,8 +507,10 @@ bool QChar::isSpace() const
 {
     if(ucs >= 9 && ucs <=13)
         return true;
-    Category c = (QChar::Category) qGetProp(ucs)->category;
-    return c >= QChar::Separator_Space && c <= QChar::Separator_Paragraph;
+    const int test = FLAG(Separator_Space) |
+                     FLAG(Separator_Line) |
+                     FLAG(Separator_Paragraph);
+    return FLAG(qGetProp(ucs)->category) & test;
 }
 
 /*!
@@ -514,8 +519,10 @@ bool QChar::isSpace() const
 */
 bool QChar::isMark() const
 {
-    Category c = (QChar::Category) qGetProp(ucs)->category;
-    return c >= Mark_NonSpacing && c <= Mark_Enclosing;
+    const int test = FLAG(Mark_NonSpacing) |
+                     FLAG(Mark_SpacingCombining) |
+                     FLAG(Mark_Enclosing);
+    return FLAG(qGetProp(ucs)->category) & test;
 }
 
 /*!
@@ -524,8 +531,14 @@ bool QChar::isMark() const
 */
 bool QChar::isPunct() const
 {
-    Category c = (QChar::Category) qGetProp(ucs)->category;
-    return (c >= Punctuation_Connector && c <= Punctuation_Other);
+    const int test = FLAG(Punctuation_Connector) |
+                     FLAG(Punctuation_Dash) |
+                     FLAG(Punctuation_Open) |
+                     FLAG(Punctuation_Close) |
+                     FLAG(Punctuation_InitialQuote) |
+                     FLAG(Punctuation_FinalQuote) |
+                     FLAG(Punctuation_Other);
+    return FLAG(qGetProp(ucs)->category) & test;
 }
 
 /*!
@@ -534,8 +547,12 @@ bool QChar::isPunct() const
 */
 bool QChar::isLetter() const
 {
-    Category c = (QChar::Category) qGetProp(ucs)->category;
-    return (c >= Letter_Uppercase && c <= Letter_Other);
+    const int test = FLAG(Letter_Uppercase) |
+                     FLAG(Letter_Lowercase) |
+                     FLAG(Letter_Titlecase) |
+                     FLAG(Letter_Modifier) |
+                     FLAG(Letter_Other);
+    return FLAG(qGetProp(ucs)->category) & test;
 }
 
 /*!
@@ -546,8 +563,10 @@ bool QChar::isLetter() const
 */
 bool QChar::isNumber() const
 {
-    Category c = (QChar::Category) qGetProp(ucs)->category;
-    return c >= Number_DecimalDigit && c <= Number_Other;
+    const int test = FLAG(Number_DecimalDigit) |
+                     FLAG(Number_Letter) |
+                     FLAG(Number_Other);
+    return FLAG(qGetProp(ucs)->category) & test;
 }
 
 /*!
@@ -556,9 +575,15 @@ bool QChar::isNumber() const
 */
 bool QChar::isLetterOrNumber() const
 {
-    Category c = (QChar::Category) qGetProp(ucs)->category;
-    return (c >= Letter_Uppercase && c <= Letter_Other)
-        || (c >= Number_DecimalDigit && c <= Number_Other);
+    const int test = FLAG(Letter_Uppercase) |
+                     FLAG(Letter_Lowercase) |
+                     FLAG(Letter_Titlecase) |
+                     FLAG(Letter_Modifier) |
+                     FLAG(Letter_Other) |
+                     FLAG(Number_DecimalDigit) |
+                     FLAG(Number_Letter) |
+                     FLAG(Number_Other);
+    return FLAG(qGetProp(ucs)->category) & test;
 }
 
 
@@ -578,8 +603,11 @@ bool QChar::isDigit() const
 */
 bool QChar::isSymbol() const
 {
-    Category c = (QChar::Category) qGetProp(ucs)->category;
-    return c >= Symbol_Math && c <= Symbol_Other;
+    const int test = FLAG(Symbol_Math) |
+                     FLAG(Symbol_Currency) |
+                     FLAG(Symbol_Modifier) |
+                     FLAG(Symbol_Other);
+    return FLAG(qGetProp(ucs)->category) & test;
 }
 
 /*!
@@ -629,20 +657,17 @@ bool QChar::isSymbol() const
 */
 int QChar::digitValue() const
 {
-    int val = qGetProp(ucs)->digit_value;
-    return val == 0xf ? -1 : val;
+    return qGetProp(ucs)->digitValue;
 }
 
 int QChar::digitValue(ushort ucs2)
 {
-    int val = qGetProp(ucs2)->digit_value;
-    return val == 0xf ? -1 : val;
+    return qGetProp(ucs2)->digitValue;
 }
 
 int QChar::digitValue(uint ucs4)
 {
-    int val = qGetProp(ucs4)->digit_value;
-    return val == 0xf ? -1 : val;
+    return qGetProp(ucs4)->digitValue;
 }
 
 /*!
@@ -886,21 +911,21 @@ unsigned char QChar::combiningClass(ushort ucs2)
 */
 QChar::UnicodeVersion QChar::unicodeVersion() const
 {
-    return (QChar::UnicodeVersion) qGetProp(ucs)->unicode_version;
+    return (QChar::UnicodeVersion) qGetProp(ucs)->unicodeVersion;
 }
 
 /*! \overload
  */
 QChar::UnicodeVersion QChar::unicodeVersion(uint ucs4)
 {
-    return (QChar::UnicodeVersion) qGetProp(ucs4)->unicode_version;
+    return (QChar::UnicodeVersion) qGetProp(ucs4)->unicodeVersion;
 }
 
 /*! \overload
  */
 QChar::UnicodeVersion QChar::unicodeVersion(ushort ucs2)
 {
-    return (QChar::UnicodeVersion) qGetProp(ucs2)->unicode_version;
+    return (QChar::UnicodeVersion) qGetProp(ucs2)->unicodeVersion;
 }
 
 
@@ -911,8 +936,8 @@ QChar::UnicodeVersion QChar::unicodeVersion(ushort ucs2)
 QChar QChar::toLower() const
 {
     const QUnicodeTables::Properties *p = qGetProp(ucs);
-    if (p->category == QChar::Letter_Uppercase || p->category == QChar::Letter_Titlecase)
-        return ucs + p->caseDiff;
+    if (!p->lowerCaseSpecial)
+        return ucs + p->lowerCaseDiff;
     return ucs;
 }
 
@@ -921,8 +946,8 @@ QChar QChar::toLower() const
 uint QChar::toLower(uint ucs4)
 {
     const QUnicodeTables::Properties *p = qGetProp(ucs4);
-    if (p->category == QChar::Letter_Uppercase || p->category == QChar::Letter_Titlecase)
-        return ucs4 + p->caseDiff;
+    if (!p->lowerCaseSpecial)
+        return ucs4 + p->lowerCaseDiff;
     return ucs4;
 }
 
@@ -931,8 +956,8 @@ uint QChar::toLower(uint ucs4)
 ushort QChar::toLower(ushort ucs2)
 {
     const QUnicodeTables::Properties *p = qGetProp(ucs2);
-    if (p->category == QChar::Letter_Uppercase || p->category == QChar::Letter_Titlecase)
-        return ucs2 + p->caseDiff;
+    if (!p->lowerCaseSpecial)
+        return ucs2 + p->lowerCaseDiff;
     return ucs2;
 }
 
@@ -943,10 +968,8 @@ ushort QChar::toLower(ushort ucs2)
 QChar QChar::toUpper() const
 {
     const QUnicodeTables::Properties *p = qGetProp(ucs);
-    if (p->category == QChar::Letter_Lowercase)
-        return ucs + p->caseDiff;
-    else if (p->category == QChar::Letter_Titlecase)
-        return ucs - 1;
+    if (!p->upperCaseSpecial)
+        return ucs + p->upperCaseDiff;
     return ucs;
 }
 
@@ -955,10 +978,8 @@ QChar QChar::toUpper() const
 uint QChar::toUpper(uint ucs4)
 {
     const QUnicodeTables::Properties *p = qGetProp(ucs4);
-    if (p->category == QChar::Letter_Lowercase)
-        return ucs4 + p->caseDiff;
-    else if (p->category == QChar::Letter_Titlecase)
-        return ucs4 - 1;
+    if (!p->upperCaseSpecial)
+        return ucs4 + p->upperCaseDiff;
     return ucs4;
 }
 
@@ -967,10 +988,8 @@ uint QChar::toUpper(uint ucs4)
 ushort QChar::toUpper(ushort ucs2)
 {
     const QUnicodeTables::Properties *p = qGetProp(ucs2);
-    if (p->category == QChar::Letter_Lowercase)
-        return ucs2 + p->caseDiff;
-    else if (p->category == QChar::Letter_Titlecase)
-        return ucs2 - 1;
+    if (!p->upperCaseSpecial)
+        return ucs2 + p->upperCaseDiff;
     return ucs2;
 }
 
@@ -981,34 +1000,25 @@ ushort QChar::toUpper(ushort ucs2)
 QChar QChar::toTitleCase() const
 {
     const QUnicodeTables::Properties *p = qGetProp(ucs);
-    if (!p->titleCaseDiffersFromUpper) {
-        if (p->category != QChar::Letter_Lowercase)
-            return ucs;
-        return ucs + p->caseDiff;
-    }
-    return ucs + (p->category == QChar::Letter_Lowercase ? -1 : 1);
+    if (!p->titleCaseSpecial)
+        return ucs + p->titleCaseDiff;
+    return ucs;
 }
 
 uint QChar::toTitleCase(uint ucs4)
 {
     const QUnicodeTables::Properties *p = qGetProp(ucs4);
-    if (!p->titleCaseDiffersFromUpper) {
-        if (p->category != QChar::Letter_Lowercase)
-            return ucs4;
-        return ucs4 + p->caseDiff;
-    }
-    return ucs4 + (p->category == QChar::Letter_Lowercase ? -1 : 1);
+    if (!p->titleCaseSpecial)
+        return ucs4 + p->titleCaseDiff;
+    return ucs4;
 }
 
 ushort QChar::toTitleCase(ushort ucs2)
 {
     const QUnicodeTables::Properties *p = qGetProp(ucs2);
-    if (!p->titleCaseDiffersFromUpper) {
-        if (p->category != QChar::Letter_Lowercase)
-            return ucs2;
-        return ucs2 + p->caseDiff;
-    }
-    return ucs2 + (p->category == QChar::Letter_Lowercase ? -1 : 1);
+    if (!p->titleCaseSpecial)
+        return ucs2 + p->titleCaseDiff;
+    return ucs2;
 }
 
 
