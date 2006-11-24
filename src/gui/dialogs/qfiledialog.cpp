@@ -24,6 +24,18 @@
 #include <qsettings.h>
 #include <qdebug.h>
 
+/*!
+  \fn void QFileDialog::dirEntered(const QString &)
+
+  This signal is emitted when the user enters a directory.
+*/
+
+/*!
+  \fn void QFileDialog::filterSelected(const QString &)
+
+  This signal is emitted when the user selects a filter.
+*/
+
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC)
 bool Q_GUI_EXPORT qt_use_native_dialogs = true; // for the benefit of testing tools, until we have a proper API
 #endif
@@ -1600,6 +1612,7 @@ void QFileDialogPrivate::createWidgets()
     fileTypeCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
     fileTypeCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     QObject::connect(fileTypeCombo, SIGNAL(activated(const QString &)), q, SLOT(_q_useNameFilter(const QString &)));
+    QObject::connect(fileTypeCombo, SIGNAL(activated(const QString &)), q, SIGNAL(filterSelected(const QString &)));
 
     listView = new QFileDialogListView(this);
     listView->setObjectName(QLatin1String("qt_list_view"));
@@ -2161,6 +2174,7 @@ void QFileDialogPrivate::_q_enterDirectory(const QModelIndex &index)
     QString path = model->filePath(index);
     if (path.isEmpty() || model->isDir(index)) {
         q->setDirectory(path);
+        emit q->dirEntered(path);
     } else {
         q->accept();
     }

@@ -127,6 +127,8 @@ public:
 Q_SIGNALS:
     void filesSelected(const QStringList &files);
     void currentChanged(const QString &path);
+    void dirEntered(const QString &);
+    void filterSelected(const QString &);
 
 public:
 #ifdef QT3_SUPPORT
