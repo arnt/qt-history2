@@ -441,7 +441,12 @@ void TrWindow::print()
                 }
                 pout.addBox(40, m->sourceText());
                 pout.addBox(4);
-                pout.addBox(40, m->translation());
+                if (m->message().isPlural() && cmdl->language() != QLocale::C) {
+                    QStringList transls = m->translations();
+                    pout.addBox(40, transls.join("\n"));
+                } else {
+                    pout.addBox(40, m->translation());
+                }
                 pout.addBox(4);
                 pout.addBox(12, type, PrintOut::Normal, Qt::AlignRight);
                 if (!m->comment().isEmpty()) {
