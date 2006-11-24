@@ -295,7 +295,7 @@ private:
   */
 class QFSCompletor :  public QCompleter {
 public:
-    QFSCompletor(QObject *parent = 0) : QCompleter(parent){}
+    QFSCompletor(QAbstractItemModel *model, QObject *parent = 0) : QCompleter(model, parent){}
     QString pathFromIndex(const QModelIndex &index) const;
     QStringList splitPath(const QString& path) const;
 };

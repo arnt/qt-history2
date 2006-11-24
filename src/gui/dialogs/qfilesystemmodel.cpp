@@ -307,6 +307,8 @@ bool QFileSystemModel::hasChildren(const QModelIndex &parent) const
 bool QFileSystemModel::canFetchMore(const QModelIndex &parent) const
 {
     Q_D(const QFileSystemModel);
+    if (!parent.isValid())
+        return false;
     const QFileSystemModelPrivate::QFileSystemNode *indexNode = d->node(parent);
     return (!indexNode->populatedChildren);
 }

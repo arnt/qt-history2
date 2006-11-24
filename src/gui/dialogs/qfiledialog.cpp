@@ -234,8 +234,6 @@ void QFileDialog::setDirectory(const QString &directory)
     }
 
     QModelIndex root = d->model->setRootPath(directory);
-    if (d->model->canFetchMore(root))
-        d->model->fetchMore(root);
     d->listView->setRootIndex(root);
     d->treeView->setRootIndex(root);
     d->listView->selectionModel()->clear();
@@ -1574,8 +1572,7 @@ void QFileDialogPrivate::createWidgets()
     lookInCombo->setDuplicatesEnabled(false);
     QObject::connect(lookInCombo, SIGNAL(activated(QString)), q, SLOT(_q_goToDirectory(QString)));
     lookInCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    comboCompleter = new QFSCompletor(q);
-    comboCompleter->setModel(model);
+    comboCompleter = new QFSCompletor(model, q);
     comboCompleter->setCompletionMode(QCompleter::InlineCompletion);
 
     // filename
@@ -1583,8 +1580,7 @@ void QFileDialogPrivate::createWidgets()
     fileNameEdit->setObjectName(QLatin1String("qt_file_name_edit"));
     fileNameLabel->setBuddy(fileNameEdit);
     fileNameEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    completer = new QFSCompletor(q);
-    completer->setModel(model);
+    completer = new QFSCompletor(model, q);
     fileNameEdit->setCompleter(completer);
     QObject::connect(fileNameEdit, SIGNAL(textChanged(QString)),
                      q, SLOT(_q_updateOkButton()));
