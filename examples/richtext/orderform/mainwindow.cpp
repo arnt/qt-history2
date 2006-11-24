@@ -171,13 +171,14 @@ void MainWindow::openDialog()
 void MainWindow::printFile()
 {
     QTextEdit *editor = static_cast<QTextEdit*>(letters->currentWidget());
-    QTextDocument *document = editor->document();
     QPrinter printer;
 
     QPrintDialog *dialog = new QPrintDialog(&printer, this);
     dialog->setWindowTitle(tr("Print Document"));
+    if (editor->textCursor().hasSelection())
+        dialog->addEnabledOption(QAbstractPrintDialog::PrintSelection);
     if (dialog->exec() != QDialog::Accepted)
         return;
 
-    document->print(&printer);
+    editor->print(&printer);
 }

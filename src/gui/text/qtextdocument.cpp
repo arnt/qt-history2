@@ -1252,6 +1252,13 @@ static void printPage(int index, QPainter *painter, const QTextDocument *doc, co
     font size is also set to a font with 10 points and a 2 cm margin is set around the
     document contents. In addition the current page number is printed at the bottom of
     each page.
+
+    Note that QPrinter::Selection is not supported as print range with this function since
+    the selection is a property of QTextCursor. If you have a QTextEdit associated with
+    your QTextDocument then you can use QTextEdit's print() function because QTextEdit has
+    access to the user's selection.
+
+    \sa QTextEdit::print
 */
 
 void QTextDocument::print(QPrinter *printer) const

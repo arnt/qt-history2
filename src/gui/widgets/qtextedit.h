@@ -194,6 +194,8 @@ public:
 
     bool canPaste() const;
 
+    void print(QPrinter *printer) const;
+
 public Q_SLOTS:
     void setFontPointSize(qreal s);
     void setFontFamily(const QString &fontFamily);

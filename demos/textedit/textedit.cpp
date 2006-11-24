@@ -422,9 +422,11 @@ void TextEdit::filePrint()
     QPrinter printer(QPrinter::HighResolution);
     printer.setFullPage(true);
     QPrintDialog *dlg = new QPrintDialog(&printer, this);
+    if (textEdit->textCursor().hasSelection())
+        dlg->addEnabledOption(QAbstractPrintDialog::PrintSelection);
     dlg->setWindowTitle(tr("Print Document"));
     if (dlg->exec() == QDialog::Accepted) {
-        textEdit->document()->print(&printer);
+        textEdit->print(&printer);
     }
     delete dlg;
 #endif

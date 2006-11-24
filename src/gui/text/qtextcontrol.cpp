@@ -34,6 +34,7 @@
 #include "qtextlist.h"
 #include "private/qtextcontrol_p.h"
 #include "qgraphicssceneevent.h"
+#include "qprinter.h"
 
 #include <qtextformat.h>
 #include <qdatetime.h>
@@ -2041,6 +2042,26 @@ bool QTextControl::cursorIsFocusIndicator() const
 {
     Q_D(const QTextControl);
     return d->cursorIsFocusIndicator;
+}
+
+void QTextControl::print(QPrinter *printer) const
+{
+    Q_D(const QTextControl);
+    QTextDocument *tempDoc = 0;
+    const QTextDocument *doc = d->doc;
+    if (printer->printRange() == QPrinter::Selection) {
+        if (!d->cursor.hasSelection())
+            return;
+        tempDoc = new QTextDocument(const_cast<QTextDocument *>(doc));
+        tempDoc->setMetaInformation(QTextDocument::DocumentTitle, doc->metaInformation(QTextDocument::DocumentTitle));
+        tempDoc->setPageSize(doc->pageSize());
+        tempDoc->setDefaultFont(doc->defaultFont());
+        tempDoc->setUseDesignMetrics(doc->useDesignMetrics());
+        QTextCursor(tempDoc).insertFragment(d->cursor.selection());
+        doc = tempDoc;
+    }
+    doc->print(printer);
+    delete tempDoc;
 }
 
 QMimeData *QTextControl::createMimeDataFromSelection() const

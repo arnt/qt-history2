@@ -2009,6 +2009,20 @@ bool QTextEdit::canPaste() const
     return d->control->canPaste();
 }
 
+/*!
+    \since 4.3
+    Convenience function to print the text edit's document to the given \a printer. This
+    is equivalent to calling the print method on the document directly except that this
+    function also supports QPrinter::Selection as print range.
+
+    \sa QTextDocument::print
+*/
+void QTextEdit::print(QPrinter *printer) const
+{
+    Q_D(const QTextEdit);
+    d->control->print(printer);
+}
+
 /*! \property QTextEdit::tabChangesFocus
   \brief whether \gui Tab changes focus or is accepted as input
 
