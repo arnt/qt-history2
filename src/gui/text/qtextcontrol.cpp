@@ -1928,7 +1928,8 @@ void QTextControl::setExtraSelections(const QList<QTextEdit::ExtraSelection> &se
     if (selections.count() == d->extraSelections.count()) {
         bool needUpdate = false;
         for (int i = 0; i < selections.count(); ++i)
-            if (selections.at(i).cursor != d->extraSelections.at(i).cursor
+            if (selections.at(i).cursor.position() != d->extraSelections.at(i).cursor.position()
+                || selections.at(i).cursor.anchor() != d->extraSelections.at(i).cursor.anchor()
                 || selections.at(i).format != d->extraSelections.at(i).format) {
                 needUpdate = true;
                 break;

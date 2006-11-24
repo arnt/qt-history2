@@ -108,6 +108,7 @@ private slots:
     void colorfulAppend();
     void ensureVisibleWithRtl();
     void preserveCharFormatAfterSetPlainText();
+    void extraSelections();
 
 private:
     void createSelection();
@@ -1390,6 +1391,32 @@ void tst_QTextEdit::preserveCharFormatAfterSetPlainText()
     block = block.next();
     QCOMPARE(block.text(), QString("This should still be blue"));
     QVERIFY(block.begin().fragment().charFormat().foreground().color() == QColor(Qt::blue));
+}
+
+void tst_QTextEdit::extraSelections()
+{
+    ed->setPlainText("Hello World");
+
+    QTextCursor c = ed->textCursor();
+    c.movePosition(QTextCursor::Start);
+    c.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    const int endPos = c.position();
+
+    QTextEdit::ExtraSelection sel;
+    sel.cursor = c;
+    ed->setExtraSelections(QList<QTextEdit::ExtraSelection>() << sel);
+
+    c.movePosition(QTextCursor::Start);
+    c.movePosition(QTextCursor::NextWord);
+    const int wordPos = c.position();
+    c.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    sel.cursor = c;
+    ed->setExtraSelections(QList<QTextEdit::ExtraSelection>() << sel);
+
+    QList<QTextEdit::ExtraSelection> selections = ed->extraSelections();
+    QCOMPARE(selections.count(), 1);
+    QCOMPARE(selections.at(0).cursor.position(), endPos);
+    QCOMPARE(selections.at(0).cursor.anchor(), wordPos);
 }
 
 QTEST_MAIN(tst_QTextEdit)
