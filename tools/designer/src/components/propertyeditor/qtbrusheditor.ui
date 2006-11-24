@@ -36,7 +36,7 @@
      <property name="orientation" >
       <enum>Qt::Vertical</enum>
      </property>
-     <widget class="QWidget" name="layoutWidget" >
+     <widget class="QWidget" name="topLayoutWidget" >
       <layout class="QGridLayout" >
        <property name="margin" >
         <number>0</number>
@@ -117,7 +117,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="layoutWidget" >
+     <widget class="QWidget" name="bottomLayoutWidget" >
       <layout class="QGridLayout" >
        <property name="margin" >
         <number>0</number>

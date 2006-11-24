@@ -70,7 +70,7 @@
      <property name="currentIndex" >
       <number>0</number>
      </property>
-     <widget class="QWidget" name="page" >
+     <widget class="QWidget" name="page1" >
       <layout class="QVBoxLayout" >
        <property name="margin" >
         <number>9</number>
@@ -123,7 +123,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="page" />
+     <widget class="QWidget" name="page2" />
     </widget>
    </item>
    <item>
