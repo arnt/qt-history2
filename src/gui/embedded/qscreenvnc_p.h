@@ -163,7 +163,7 @@ public:
 
 class QVNCServer;
 
-class QVNCScreenPrivate
+class QVNCScreenPrivate : public QObject
 {
 public:
     QVNCScreenPrivate(QVNCScreen *parent);

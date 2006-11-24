@@ -26,6 +26,7 @@
 #include <QtGui/qpainter.h>
 #include <qdebug.h>
 #include <private/qwindowsurface_qws_p.h>
+#include <private/qwssignalhandler_p.h>
 
 #include <stdlib.h>
 
@@ -77,12 +78,17 @@ QVNCScreenPrivate::QVNCScreenPrivate(QVNCScreen *parent)
 #ifndef QT_NO_QWS_MULTIPROCESS
     shm = 0;
 #endif
+    QWSSignalHandler::instance()->addObject(this);
 }
 
 QVNCScreenPrivate::~QVNCScreenPrivate()
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
-    delete shm;
+    if (shm) {
+        if (QApplication::type() == QApplication::GuiServer)
+            shm->destroy();
+        delete shm;
+    }
 #else
     if (!subscreen) {
         delete[] q_ptr->data;
