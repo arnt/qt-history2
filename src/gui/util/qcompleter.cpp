@@ -692,7 +692,7 @@ QMatchData QUnsortedModelEngine::filter(const QString& part, const QModelIndex& 
 ///////////////////////////////////////////////////////////////////////////////
 QCompleterPrivate::QCompleterPrivate()
 : widget(0), proxy(0), popup(0), cs(Qt::CaseSensitive), role(Qt::EditRole), column(0),
-  sorting(QCompleter::UnsortedModel), eatFocusOut(true)
+  sorting(QCompleter::UnsortedModel), wrap(true), eatFocusOut(true)
 {
 }
 
@@ -1067,7 +1067,8 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
                 d->setCurrentIndex(lastIndex);
                 return true;
             } else if (curIndex.row() == 0) {
-                d->setCurrentIndex(QModelIndex());
+                if (d->wrap)
+                    d->setCurrentIndex(QModelIndex());
                 return true;
             }
             return false;
@@ -1078,7 +1079,8 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
                 d->setCurrentIndex(firstIndex);
                 return true;
             } else if (curIndex.row() == d->proxy->rowCount() - 1) {
-                d->setCurrentIndex(QModelIndex());
+                if (d->wrap)
+                    d->setCurrentIndex(QModelIndex());
                 return true;
             }
             return false;
@@ -1137,6 +1139,7 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
     case QEvent::InputMethod:
         QApplication::sendEvent(d->widget, e);
         break;
+
     default:
         return false;
     }
@@ -1310,6 +1313,26 @@ int QCompleter::completionRole() const
 {
     Q_D(const QCompleter);
     return d->role;
+}
+
+/*!
+    \property QCompleter::wrapCompletions
+    \brief the completions wrap when navigating through items in the popup
+
+    The default is true.
+*/
+void QCompleter::setWrapCompletions(bool wrap)
+{
+    Q_D(QCompleter);
+    if (d->wrap == wrap)
+        return;
+    d->wrap = wrap;
+}
+
+bool QCompleter::wrapCompletions() const
+{
+    Q_D(const QCompleter);
+    return d->wrap;
 }
 
 /*!

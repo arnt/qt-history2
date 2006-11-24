@@ -58,6 +58,7 @@ public:
     int role;
     int column;
     QCompleter::ModelSorting sorting;
+    bool wrap;
 
     bool eatFocusOut;
 
