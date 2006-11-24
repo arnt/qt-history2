@@ -47,35 +47,40 @@ void tst_QStyleOption::qstyleoptioncast_data()
 {
     QTest::addColumn<StyleOptionPointerBase *>("testOption");
     QTest::addColumn<bool>("canCastToComplex");
+    QTest::addColumn<int>("type");    
 
-    QTest::newRow("optionDefault") << stylePtr(new QStyleOption) << false;
-    QTest::newRow("optionButton") << stylePtr(new QStyleOptionButton) << false;
-    QTest::newRow("optionComboBox") << stylePtr(new QStyleOptionComboBox) << true;
-    QTest::newRow("optionComplex") << stylePtr(new QStyleOptionComplex) << true;
-    QTest::newRow("optionDockWidget") << stylePtr(new QStyleOptionDockWidget) << false;
-    QTest::newRow("optionFocusRect") << stylePtr(new QStyleOptionFocusRect) << false;
-    QTest::newRow("optionFrame") << stylePtr(new QStyleOptionFrame) << false;
-    QTest::newRow("optionHeader") << stylePtr(new QStyleOptionHeader) << false;
-    QTest::newRow("optionMenuItem") << stylePtr(new QStyleOptionMenuItem) << false;
-    QTest::newRow("optionProgressBar") << stylePtr(new QStyleOptionProgressBar) << false;
-    QTest::newRow("optionQ3DockWindow") << stylePtr(new QStyleOptionQ3DockWindow) << false;
-    QTest::newRow("optionQ3ListView") << stylePtr(new QStyleOptionQ3ListView) << true;
-    QTest::newRow("optionQ3ListViewItem") << stylePtr(new QStyleOptionQ3ListViewItem) << false;
-    QTest::newRow("optionSlider") << stylePtr(new QStyleOptionSlider) << true;
-    QTest::newRow("optionSpinBox") << stylePtr(new QStyleOptionSpinBox) << true;
-    QTest::newRow("optionTab") << stylePtr(new QStyleOptionTab) << false;
-    QTest::newRow("optionTitleBar") << stylePtr(new QStyleOptionTitleBar) << true;
-    QTest::newRow("optionToolBox") << stylePtr(new QStyleOptionToolBox) << false;
-    QTest::newRow("optionToolButton") << stylePtr(new QStyleOptionToolButton) << true;
-    QTest::newRow("optionViewItem") << stylePtr(new QStyleOptionViewItem) << false;
+    QTest::newRow("optionDefault") << stylePtr(new QStyleOption) << false << int(QStyleOption::SO_Default);
+    QTest::newRow("optionButton") << stylePtr(new QStyleOptionButton) << false << int(QStyleOption::SO_Button);
+    QTest::newRow("optionComboBox") << stylePtr(new QStyleOptionComboBox) << true << int(QStyleOption::SO_ComboBox);
+    QTest::newRow("optionComplex") << stylePtr(new QStyleOptionComplex) << true << int(QStyleOption::SO_Complex);
+    QTest::newRow("optionDockWidget") << stylePtr(new QStyleOptionDockWidget) << false << int(QStyleOption::SO_DockWidget);
+    QTest::newRow("optionFocusRect") << stylePtr(new QStyleOptionFocusRect) << false << int(QStyleOption::SO_FocusRect);
+    QTest::newRow("optionFrame") << stylePtr(new QStyleOptionFrame) << false << int(QStyleOption::SO_Frame);
+    QTest::newRow("optionHeader") << stylePtr(new QStyleOptionHeader) << false << int(QStyleOption::SO_Header);
+    QTest::newRow("optionMenuItem") << stylePtr(new QStyleOptionMenuItem) << false << int(QStyleOption::SO_MenuItem);
+    QTest::newRow("optionProgressBar") << stylePtr(new QStyleOptionProgressBar) << false << int(QStyleOption::SO_ProgressBar);
+    QTest::newRow("optionQ3DockWindow") << stylePtr(new QStyleOptionQ3DockWindow) << false << int(QStyleOption::SO_Q3DockWindow);
+    QTest::newRow("optionQ3ListView") << stylePtr(new QStyleOptionQ3ListView) << true << int(QStyleOption::SO_Q3ListView);
+    QTest::newRow("optionQ3ListViewItem") << stylePtr(new QStyleOptionQ3ListViewItem) << false << int(QStyleOption::SO_Q3ListViewItem);
+    QTest::newRow("optionSlider") << stylePtr(new QStyleOptionSlider) << true << int(QStyleOption::SO_Slider);
+    QTest::newRow("optionSpinBox") << stylePtr(new QStyleOptionSpinBox) << true << int(QStyleOption::SO_SpinBox);
+    QTest::newRow("optionTab") << stylePtr(new QStyleOptionTab) << false << int(QStyleOption::SO_Tab);
+    QTest::newRow("optionTitleBar") << stylePtr(new QStyleOptionTitleBar) << true << int(QStyleOption::SO_TitleBar);
+    QTest::newRow("optionToolBox") << stylePtr(new QStyleOptionToolBox) << false << int(QStyleOption::SO_ToolBox);
+    QTest::newRow("optionToolButton") << stylePtr(new QStyleOptionToolButton) << true << int(QStyleOption::SO_ToolButton);
+    QTest::newRow("optionViewItem") << stylePtr(new QStyleOptionViewItem) << false << int(QStyleOption::SO_ViewItem);
+    QTest::newRow("optionGraphicsItem") << stylePtr(new QStyleOptionGraphicsItem) << false << int(QStyleOption::SO_GraphicsItem);
 }
 
 void tst_QStyleOption::qstyleoptioncast()
 {
     QFETCH(StyleOptionPointerBase *, testOption);
     QFETCH(bool, canCastToComplex);
+    QFETCH(int, type);
 
     QVERIFY(testOption->pointer != 0);
+
+    QCOMPARE(testOption->pointer->type, type);
 
     // Cast to common base class
     QStyleOption *castOption = qstyleoption_cast<QStyleOption*>(testOption->pointer);
