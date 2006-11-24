@@ -30,6 +30,9 @@
 #include "QtGui/qx11info_x11.h"
 #endif
 
+#if defined(Q_WS_WIN)
+#include "qt_windows.h"
+#endif
 
 #if defined(Q_WS_WIN) || defined(Q_WS_QWS)
 
@@ -103,6 +106,11 @@ struct QPixmapData { // internal pixmap data
 };
 
 #endif // Q_WS_WIN
+
+#ifdef Q_WS_WIN
+QPixmap convertHIconToPixmap( const HICON icon);
+QPixmap loadIconFromShell32( int resourceId, int size );
+#endif
 
 #  define QT_XFORM_TYPE_MSBFIRST 0
 #  define QT_XFORM_TYPE_LSBFIRST 1

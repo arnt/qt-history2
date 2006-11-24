@@ -202,3 +202,89 @@ QPixmap QPixmap::fromWinHBITMAP(HBITMAP bitmap, HBitmapFormat format)
     qFree(data);
     return fromImage(result);
 }
+
+#ifdef Q_WS_WIN
+QPixmap convertHIconToPixmap( const HICON icon)
+{
+    bool foundAlpha = false;
+    HDC screenDevice = qt_win_display_dc();
+    HDC hdc = CreateCompatibleDC(screenDevice);
+
+    ICONINFO iconinfo;
+    GetIconInfo(icon, &iconinfo); //x and y Hotspot describes the icon center
+
+    BITMAPINFOHEADER bitmapInfo;
+    bitmapInfo.biSize        = sizeof(BITMAPINFOHEADER);
+    bitmapInfo.biWidth       = iconinfo.xHotspot * 2;
+    bitmapInfo.biHeight      = iconinfo.yHotspot * 2;
+    bitmapInfo.biPlanes      = 1;
+    bitmapInfo.biBitCount    = 32;
+    bitmapInfo.biCompression = BI_RGB;
+    bitmapInfo.biSizeImage   = 0;
+    bitmapInfo.biXPelsPerMeter = 0;
+    bitmapInfo.biYPelsPerMeter = 0;
+    bitmapInfo.biClrUsed       = 0;
+    bitmapInfo.biClrImportant  = 0;
+    DWORD* bits;
+
+    HBITMAP winBitmap = CreateDIBSection(hdc, (BITMAPINFO*)&bitmapInfo, DIB_RGB_COLORS, (VOID**)&bits, NULL, 0);
+    HGDIOBJ oldhdc = (HBITMAP)SelectObject(hdc, winBitmap);
+    DrawIconEx( hdc, 0, 0, icon, iconinfo.xHotspot * 2, iconinfo.yHotspot * 2, 0, 0, DI_NORMAL);
+
+    QPixmap::HBitmapFormat alphaType = QPixmap::PremultipliedAlpha;
+    QPixmap iconpixmap = QPixmap::fromWinHBITMAP(winBitmap, alphaType);
+    QImage img = iconpixmap.toImage();
+
+    for (int y = 0 ; y < iconpixmap.height() && !foundAlpha ; y++) {
+        QRgb *scanLine= reinterpret_cast<QRgb *>(img.scanLine(y));
+        for (int x = 0; x < img.width() ; x++) {
+            if (qAlpha(scanLine[x]) != 0) {
+                foundAlpha = true;
+                break;
+            }
+        }
+    }
+
+    if (!foundAlpha) {
+        //If no alpha was found, we use the mask to set alpha values
+        DrawIconEx( hdc, 0, 0, icon, iconinfo.xHotspot * 2, iconinfo.yHotspot * 2, 0, 0, DI_MASK);
+        QPixmap maskPixmap = QPixmap::fromWinHBITMAP(winBitmap, alphaType);
+        QImage mask = maskPixmap.toImage();
+
+        for (int y = 0 ; y< iconpixmap.height() ; y++){
+            QRgb *scanlineImage = reinterpret_cast<QRgb *>(img.scanLine(y));
+            QRgb *scanlineMask = reinterpret_cast<QRgb *>(mask.scanLine(y));
+            for (int x = 0; x < img.width() ; x++){
+                if (qRed(scanlineMask[x]) != 0)
+                    scanlineImage[x] = 0; //mask out this pixel
+                else
+                    scanlineImage[x] |= 0xff000000; // set the alpha channel to 255
+            }
+        }
+    }
+
+    //dispose resources created by iconinfo call
+    DeleteObject(iconinfo.hbmMask);
+    DeleteObject(iconinfo.hbmColor);
+
+    SelectObject(hdc, oldhdc); //restore state
+    DeleteObject(winBitmap);
+    DeleteDC(hdc);
+    return QPixmap::fromImage(img);
+}
+
+QPixmap loadIconFromShell32( int resourceId, int size )
+{
+    HMODULE hmod = LoadLibraryA("shell32.dll");
+    if( hmod ) {
+        HICON iconHandle = (HICON)LoadImage(hmod, MAKEINTRESOURCE(resourceId), IMAGE_ICON, size, size, 0);
+        if( iconHandle ) {
+            QPixmap iconpixmap = convertHIconToPixmap( iconHandle );
+            DestroyIcon(iconHandle);
+            return iconpixmap;
+        }
+    }
+    return QPixmap();
+}
+#endif
+
