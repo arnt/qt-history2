@@ -54,15 +54,19 @@ MainWindow::MainWindow(QWidget *parent)
     contentsLabel = new QLabel;
     contentsLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
+    wrapCheckBox = new QCheckBox;
+    wrapCheckBox->setText(tr("Wrap completions"));
+
     connect(modelCombo, SIGNAL(activated(int)), this, SLOT(updateModel()));
     connect(modeCombo, SIGNAL(activated(int)), this, SLOT(changeMode(int)));
     connect(caseCombo, SIGNAL(activated(int)), this, SLOT(changeCase(int)));
-    
-    QGridLayout *layout = new QGridLayout; 
+
+    QGridLayout *layout = new QGridLayout;
     layout->addWidget(modelLabel, 0, 0); layout->addWidget(modelCombo, 0, 1);
     layout->addWidget(modeLabel, 1, 0);  layout->addWidget(modeCombo, 1, 1);
     layout->addWidget(caseLabel, 2, 0);  layout->addWidget(caseCombo, 2, 1);
     layout->addWidget(contentsLabel, 3, 0, 1, 2);
+    layout->addWidget(wrapCheckBox, 4, 0, 1, 2);
     centralWidget->setLayout(layout);
     setCentralWidget(centralWidget);
 
@@ -70,6 +74,9 @@ MainWindow::MainWindow(QWidget *parent)
     updateModel();
     changeCase(caseCombo->currentIndex());
     changeMode(modeCombo->currentIndex());
+
+    wrapCheckBox->setChecked(true);
+    connect(wrapCheckBox, SIGNAL(clicked(bool)), completer, SLOT(setWrapCompletions(bool)));
 
     setWindowTitle(tr("Completer"));
 }
@@ -107,6 +114,7 @@ void MainWindow::changeMode(int index)
     else
         mode = QCompleter::UnfilteredPopupCompletion;
 
+    wrapCheckBox->setEnabled(mode != QCompleter::InlineCompletion);
     completer->setCompletionMode(mode);
 }
 
@@ -206,14 +214,14 @@ void MainWindow::useComboBox(bool combo)
         comboBox = new QComboBox;
         comboBox->setEditable(true);
         comboBox->setCompleter(completer);
-        (static_cast<QGridLayout *>(centralWidget()->layout()))->addWidget(comboBox, 4, 0, 1, 2);
+        (static_cast<QGridLayout *>(centralWidget()->layout()))->addWidget(comboBox, 5, 0, 1, 2);
         comboBox->setFocus();
     } else {
         delete comboBox;
         comboBox = 0;
         lineEdit = new QLineEdit;
         lineEdit->setCompleter(completer);
-        (static_cast<QGridLayout *>(centralWidget()->layout()))->addWidget(lineEdit, 4, 0, 1, 2);
+        (static_cast<QGridLayout *>(centralWidget()->layout()))->addWidget(lineEdit, 5, 0, 1, 2);
         lineEdit->setFocus();
     }
 }

@@ -22,6 +22,7 @@ class QCompleter;
 class QLabel;
 class QLineEdit;
 class QProgressBar;
+class QCheckBox;
 
 class MainWindow : public QMainWindow
 {
@@ -46,6 +47,8 @@ private:
     QComboBox *modelCombo;
     QCompleter *completer;
     QLabel *contentsLabel;
+    QCheckBox *wrapCheckBox;
+
     QComboBox *comboBox;
     QLineEdit *lineEdit;
 };
