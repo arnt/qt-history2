@@ -40,7 +40,6 @@ SOURCES += \
 	tools/qbitarray.cpp \
 	tools/qbytearray.cpp \
 	tools/qbytearraymatcher.cpp \
-	tools/qchar.cpp \
 	tools/qdatetime.cpp \
 	tools/qhash.cpp \
         tools/qline.cpp \
@@ -55,7 +54,6 @@ SOURCES += \
         tools/qsize.cpp \
 	tools/qstring.cpp \
 	tools/qstringlist.cpp \
-	tools/qstringmatcher.cpp \
 	tools/qtimeline.cpp \
 	tools/qvector.cpp \
         tools/qvsnprintf.cpp

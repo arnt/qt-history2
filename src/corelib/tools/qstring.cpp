@@ -36,6 +36,9 @@
 #undef truncate
 #endif
 
+#include "qchar.cpp"
+#include "qstringmatcher.cpp"
+
 #ifndef LLONG_MAX
 #define LLONG_MAX qint64_C(9223372036854775807)
 #endif
@@ -5513,20 +5516,50 @@ QStringList QString::split(const QRegExp &rx, SplitBehavior behavior) const
         {http://www.unicode.org/reports/tr15/}{Unicode Standard Annex #15}
 */
 
-// implemented in qchar.cpp
-/*! \fn QString QString::normalized(NormalizationForm form) const
+/*!
 
     Returns the string in the given Unicode normalization \a form.
 */
+QString QString::normalized(QString::NormalizationForm mode) const
+{
+    return normalized(mode, CURRENT_VERSION);
+}
 
-// implemented in qchar.cpp
-/*! \fn QString QString::normalized(NormalizationForm form, QChar::UnicodeVersion version) const
 
+/*!
     \overload
 
     Returns the string in the given Unicode normalization \a form,
     according to the given \a version of the Unicode standard.
 */
+QString QString::normalized(QString::NormalizationForm mode, QChar::UnicodeVersion version) const
+{
+    QString s = *this;
+    if (version != CURRENT_VERSION) {
+        for (int i = 0; i < NumNormalizationCorrections; ++i) {
+            const NormalizationCorrection n = uc_normalization_corrections[i];
+            if (n.version > version) {
+                QString orig;
+                orig += QChar::highSurrogate(n.ucs4);
+                orig += QChar::lowSurrogate(n.ucs4);
+                QString replacement;
+                replacement += QChar::highSurrogate(n.old_mapping);
+                replacement += QChar::lowSurrogate(n.old_mapping);
+                s.replace(orig, replacement);
+            }
+        }
+    }
+    s = ::decompose(s, mode < QString::NormalizationForm_KD, version);
+
+    s = ::canonicalOrder(s, version);
+
+    if (mode == QString::NormalizationForm_D || mode == QString::NormalizationForm_KD)
+        return s;
+
+    return ::compose(s);
+
+}
+
 
 struct ArgEscapeData
 {

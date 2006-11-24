@@ -1397,39 +1397,6 @@ static QString canonicalOrder(const QString &str, QChar::UnicodeVersion version)
     return s;
 }
 
-QString QString::normalized(QString::NormalizationForm mode) const
-{
-    return normalized(mode, CURRENT_VERSION);
-}
-
-QString QString::normalized(QString::NormalizationForm mode, QChar::UnicodeVersion version) const
-{
-    QString s = *this;
-    if (version != CURRENT_VERSION) {
-        for (int i = 0; i < NumNormalizationCorrections; ++i) {
-            const NormalizationCorrection n = uc_normalization_corrections[i];
-            if (n.version > version) {
-                QString orig;
-                orig += QChar::highSurrogate(n.ucs4);
-                orig += QChar::lowSurrogate(n.ucs4);
-                QString replacement;
-                replacement += QChar::highSurrogate(n.old_mapping);
-                replacement += QChar::lowSurrogate(n.old_mapping);
-                s.replace(orig, replacement);
-            }
-        }
-    }
-    s = decompose(s, mode < QString::NormalizationForm_KD, version);
-
-    s = canonicalOrder(s, version);
-
-    if (mode == QString::NormalizationForm_D || mode == QString::NormalizationForm_KD)
-        return s;
-
-    return compose(s);
-
-}
-
 int QUnicodeTables::script(unsigned int uc)
 {
     if (uc > 0xffff)
