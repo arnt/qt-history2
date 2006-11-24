@@ -4305,7 +4305,7 @@ QStyleOptionSizeGrip::QStyleOptionSizeGrip(int version)
     initialized to 1.
 */
 QStyleOptionGraphicsItem::QStyleOptionGraphicsItem()
-    : levelOfDetail(1)
+    : QStyleOption(Version, Type), levelOfDetail(1)
 {
 }
 
