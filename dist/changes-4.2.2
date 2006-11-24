@@ -52,8 +52,6 @@ General Improvements
 
   * Made OK the default button in the "Promote to Custom Widget" dialog.
 
-  * Fixed tab order handling for widgets in grid layouts.
-
   * Ensured that main window forms that include size grips are repainted
     correctly when they are resized.
 
@@ -397,10 +395,10 @@ General improvements
 
   * Fixed crash on Linux when the text contains QChar::LineSeparator.
 
-- QListView
-  * Fixed bug with cursor navigation if you had a gridSize set.
-
 - QListView/QListWidget
+
+  * Fixed bug with cursor navigation in cases where a grid size has been
+    set.
 
   * Ensured that the drop indicator is not shown in icon view mode to avoid
     painting artifacts.
@@ -418,16 +416,32 @@ General improvements
   * Fixed several bugs in laying out docked QDockWidgets which have
     minimumSize() and/or maximumSize() set.
 
-  * Improved saving/and restoring the state of a QMainWindow using saveState()
-    and restoreState().
+  * Improved saving and restoring of the state of main windows and their dock
+    widgets when using saveState() and restoreState().
+
+  * Fixed handling of dock widgets that are non-closable to the user so that
+    they can be programmatically closed.
+
+- QMenuBar
+
+  * Improved event handling to avoid sending events when a menu bar has no
+    parent widget.
 
 - QObject
 
   * Fixed memory leak when calling QObject::moveToThread(0).
 
+- QPalette
+
+  * Improved handling of the palette obtained from QApplication::palette()
+    in cases where QApplication::setStyle() has been called before a
+    QApplication instance has been constructed (as recommended by the
+    documentation).
+
 - QPluginLoader
-  * Fixed a potential crash if you tried to call 
-    QPluginLoader::staticInstances() from a global destructor.
+
+  * Fixed a potential crash that could occur when calling staticInstances()
+    from a global destructor.
 
 - QProgressBar
 
@@ -502,6 +516,9 @@ General improvements
   * Fixed QWidget::setParent() to not recreate the native window ID of
     all child widgets when reparenting the parent to top-level.
 
+  * Fixed incorrect resize handling of dock widgets that are resized to the
+    extent of the screen or to their maximum defined sizes.
+
 - QWorkspace
 
   * Fixed memory corruption that caused crashes inside Visual Studio.
@@ -527,6 +544,8 @@ General improvements
     inserting more of them.
 
   * Ensured that Q3IconView is included in the Desktop Light package.
+
+  * Fixed regression from Qt 4.1.4 by reintroducing support for Q3Accel.
 
 - I/O
 
@@ -680,6 +699,9 @@ Mac OS X
 
   * Fixed crashes caused by incorrect pointer handling for contexts.
 
+  * Ensured that the resize cursor shape is shown when the mouse cursor is
+    positioned over the edges of floating dock widgets.
+
 - QCalendarWidget
 
   * 
@@ -714,6 +736,9 @@ Mac OS X
     PdmHeight.
 
   * Fixed bug in QWidget::setMask().
+
+  * Fixed incorrect line edit editing behavior where the contents would be
+    cleared even for read-only line edits in certain situations.
 
   * Fixed calibration of rotated screens in the Mouse Calibration example.
 
