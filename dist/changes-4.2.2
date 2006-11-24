@@ -154,6 +154,27 @@ General improvements
     model is either missing or unable to handle the key (e.g., an empty
     model).
 
+  * Fixed bug in QItemDelegate that would scale decoration pixmaps.
+
+  * Fixed buge that would not let the column delegate create the editor
+    for an edited item.
+
+  * Fixed bug where the QTableCornerButton would ignore the view
+    selectionMode.
+
+  * Fixed compatibility issue with QTreeWidgetItem serialization
+    between Qt 4.2.x and Qt 4.(0/1).x.
+
+  * Made sure the QTableWidget::cellEntered() signal is emitted
+    correctly.
+
+  * Made sure that commitData() uses the row/column delegate
+    when these are set.
+
+  * Fixed incorrect QTableView scrollbar ranges when rows were hidden.
+
+  * Fixed QItemDelegate to let text be bottom aligned.
+
 - Graphics View
 
   * The background cache in QGraphicsView is now properly initialized to
@@ -424,9 +445,31 @@ General improvements
 
   * Fixed memory corruption that caused crashes inside Visual Studio.
 
+- QMessageBox
+
+  * Made QMessageBox::setText() adjust the size of the text area
+    when setting a new text. 
+
 - Qt3 support
 
   * Fixed QPainter::xForm() and QPainter::xFormDev().
+
+- I/O
+
+  * Fixed divide by zero when loading malformed bmp.
+
+- QDBus
+
+  * Fixed getting and setting of invalid properties
+    so the don't cause errors in in libdbus-1.
+
+  * Fixed bug where QtDBus could generate invalid XML in some cases.
+
+  * Fixed bug where QtDBus can sometimes generate names that break
+    the standard.
+
+  * Fixed crash in QtDBus when connecting a signal to a slot with
+    less parameters.
 
 
 ****************************************************************************
@@ -513,6 +556,8 @@ Windows
 
   * Fixed compilation problem with precompiled headers in qt3support. PCH is
     now disabled for qt3support.
+ 
+  * Made it possible to load files in a Japanese environment.
 
 Mac OS X
 --------
