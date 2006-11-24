@@ -2752,8 +2752,9 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
         d->setDirtyRegion(visualRect(previous));
         d->updateDirtyRegion();
     }
-    if (current.isValid() && d->autoScroll && !d->autoScrollTimer.isActive()) {
-        scrollTo(current);
+    if (current.isValid() && !d->autoScrollTimer.isActive()) {
+        if (d->autoScroll)
+            scrollTo(current);
         edit(current, CurrentChanged, 0);
         if (current.row() == (d->model->rowCount(d->root) - 1))
             d->fetchMore();
