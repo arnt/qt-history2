@@ -22,6 +22,7 @@
 #include "qsocketnotifier.h"
 #include "qnamespace.h"
 #include "qtimer.h"
+#include <private/qwssignalhandler_p.h>
 
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -110,6 +111,7 @@ void QWSTtyKeyboardHandler::processKeyEvent(int unicode, int keycode,
 QWSTtyKbPrivate::QWSTtyKbPrivate(QWSPC101KeyboardHandler *h, const QString &device) : handler(h)
 {
     kbdFD = ::open(device.isEmpty()?"/dev/tty0":device.toLatin1().constData(), O_RDWR|O_NDELAY, 0);
+    QWSSignalHandler::instance()->addObject(this);
 
     if (kbdFD >= 0) {
         QSocketNotifier *notifier;

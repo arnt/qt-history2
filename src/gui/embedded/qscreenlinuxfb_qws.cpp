@@ -17,6 +17,7 @@
 //#include "qmemorymanager_qws.h"
 #include "qwsdisplay_qws.h"
 #include "qpixmap.h"
+#include <private/qwssignalhandler_p.h>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -47,10 +48,10 @@ extern int qws_client_id;
 
 //#define DEBUG_CACHE
 
-class QLinuxFbScreenPrivate
+class QLinuxFbScreenPrivate : public QObject
 {
 public:
-    Q_GLOBAL_STATIC(QLinuxFbScreenPrivate, instance);
+    QLinuxFbScreenPrivate();
     ~QLinuxFbScreenPrivate();
 
     void openTty();
@@ -66,18 +67,12 @@ public:
     long oldKdMode;
     QString ttyDevice;
     QString displaySpec;
-
-private:
-    QLinuxFbScreenPrivate();
-    void installSignalHandler();
-    static void signalHandler(int signum);
-    QMap<int, sighandler_t> oldHandlers;
 };
 
 QLinuxFbScreenPrivate::QLinuxFbScreenPrivate()
     : fd(-1), doGraphicsMode(true), ttyfd(-1), oldKdMode(KD_TEXT)
 {
-    installSignalHandler();
+    QWSSignalHandler::instance()->addObject(this);
 }
 
 QLinuxFbScreenPrivate::~QLinuxFbScreenPrivate()
@@ -134,27 +129,6 @@ void QLinuxFbScreenPrivate::closeTty()
     ttyfd = -1;
 }
 
-void QLinuxFbScreenPrivate::installSignalHandler()
-{
-    const int signums[] = { SIGHUP, SIGINT, SIGQUIT, SIGILL, SIGABRT, SIGFPE,
-                            SIGSEGV, SIGTERM, SIGBUS };
-    const int n = sizeof(signums)/sizeof(int);
-
-    for (int i = 0; i < n; ++i) {
-        int signum = signums[i];
-        sighandler_t old = signal(signum, signalHandler);
-        oldHandlers[signum] = (old == SIG_ERR ? SIG_DFL : old);
-    }
-}
-
-void QLinuxFbScreenPrivate::signalHandler(int signum)
-{
-    QLinuxFbScreenPrivate *d_ptr = instance();
-    signal(signum, d_ptr->oldHandlers[signum]);
-    d_ptr->closeTty();
-    raise(signum);
-}
-
 /*!
     \internal
 
@@ -208,7 +182,7 @@ void QLinuxFbScreenPrivate::signalHandler(int signum)
 */
 
 QLinuxFbScreen::QLinuxFbScreen(int display_id)
-    : QScreen(display_id), d_ptr(QLinuxFbScreenPrivate::instance())
+    : QScreen(display_id), d_ptr(new QLinuxFbScreenPrivate)
 {
     canaccel=false;
     clearCacheFunc = &clearCache;

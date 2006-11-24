@@ -27,6 +27,7 @@
 
 #include <QtCore/qmap.h>
 #include <QtCore/qvector.h>
+#include <QtCore/qobjectcleanuphandler.h>
 #include <signal.h>
 
 class QWSSignalHandler
@@ -38,12 +39,14 @@ public:
 
     inline void addSemaphore(int semno) { semaphores.append(semno); }
     void removeSemaphore(int semno);
+    inline void addObject(QObject *object) { (void)objects.add(object); }
 
 private:
     QWSSignalHandler();
     static void handleSignal(int signal);
     QMap<int, sighandler_t> oldHandlers;
     QVector<int> semaphores;
+    QObjectCleanupHandler objects;
 };
 
 #endif // QWSSIGNALHANDLER_P_H
