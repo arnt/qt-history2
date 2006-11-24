@@ -2381,8 +2381,11 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
 QString QFSCompletor::pathFromIndex(const QModelIndex &index) const
 {
     const QFileSystemModel *dirModel = static_cast<const QFileSystemModel *>(model());
-    if (dirModel->filePath(index.parent()) == dirModel->rootPath())
-        return dirModel->fileName(index);
+    QString currentLocation = dirModel->rootPath();
+    QString path = dirModel->filePath(index);
+    if (path.startsWith(currentLocation)) {
+        return path.mid(currentLocation.length() + 1);
+    }
     return dirModel->filePath(index);
 }
 
