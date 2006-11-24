@@ -400,7 +400,7 @@ void QItemDelegate::paint(QPainter *painter,
     else
         drawDecoration(painter, opt, decorationRect, pixmap);
     drawDisplay(painter, opt, displayRect, text);
-    drawFocus(painter, opt, text.isEmpty() ? QRect() : displayRect);
+    drawFocus(painter, opt, displayRect);
 
     // done
     painter->restore();
