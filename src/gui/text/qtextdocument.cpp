@@ -301,13 +301,15 @@ QTextDocument *QTextDocument::clone(QObject *parent) const
     Q_D(const QTextDocument);
     QTextDocument *doc = new QTextDocument(parent);
     QTextCursor(doc).insertFragment(QTextDocumentFragment(this));
-    doc->d_func()->title = d->title;
-    doc->d_func()->pageSize = d->pageSize;
-    doc->d_func()->useDesignMetrics = d->useDesignMetrics;
-    doc->d_func()->setDefaultFont(d->defaultFont());
-    doc->d_func()->resources = d->resources;
-    doc->d_func()->defaultStyleSheet = d->defaultStyleSheet;
-    doc->d_func()->parsedDefaultStyleSheet = d->parsedDefaultStyleSheet;
+    doc->rootFrame()->setFrameFormat(rootFrame()->frameFormat());
+    QTextDocumentPrivate *priv = doc->d_func();
+    priv->title = d->title;
+    priv->pageSize = d->pageSize;
+    priv->useDesignMetrics = d->useDesignMetrics;
+    priv->setDefaultFont(d->defaultFont());
+    priv->resources = d->resources;
+    priv->defaultStyleSheet = d->defaultStyleSheet;
+    priv->parsedDefaultStyleSheet = d->parsedDefaultStyleSheet;
     return doc;
 }
 

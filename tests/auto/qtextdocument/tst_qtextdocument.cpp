@@ -78,6 +78,7 @@ private slots:
     void clonePreservesTitle();
     void clonePreservesPageSize();
     void clonePreservesDefaultFont();
+    void clonePreservesRootFrameFormat();
 #if QT_VERSION >= 0x040200
     void clonePreservesResources();
     void blockCount();
@@ -1413,7 +1414,6 @@ void tst_QTextDocument::clonePreservesDefaultFont()
     delete clone;
 }
 
-#if QT_VERSION >= 0x040200
 void tst_QTextDocument::clonePreservesResources()
 {
     QUrl testUrl(":/foobar");
@@ -1423,6 +1423,18 @@ void tst_QTextDocument::clonePreservesResources()
     QTextDocument *clone = doc->clone();
     QVERIFY(clone->resource(QTextDocument::ImageResource, testUrl) == testResource);
     delete clone;
+}
+
+void tst_QTextDocument::clonePreservesRootFrameFormat()
+{
+    doc->setPlainText("Hello");
+    QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
+    fmt.setMargin(200);
+    doc->rootFrame()->setFrameFormat(fmt);
+    QCOMPARE(doc->rootFrame()->frameFormat().margin(), qreal(200));
+    QTextDocument *copy = doc->clone();
+    QCOMPARE(copy->rootFrame()->frameFormat().margin(), qreal(200));
+    delete copy;
 }
 
 void tst_QTextDocument::blockCount()
@@ -1440,8 +1452,6 @@ void tst_QTextDocument::blockCount()
     doc->undo();
     QCOMPARE(doc->blockCount(), 1);
 }
-
-#endif
 
 void tst_QTextDocument::resolvedFontInEmptyFormat()
 {
