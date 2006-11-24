@@ -813,10 +813,24 @@ public:
 QScreen::QScreen(int display_id)
     : d_ptr(new QScreenPrivate)
 {
-    pixeltype=NormalPixel;
+    w = 0;
+    lstep = 0;
+    h = 0;
+    d = 1;
+    pixeltype = NormalPixel;
+    grayscale = false;
+
+    dw = 0;
+    dh = 0;
+
+    size = 0;
+    mapsize = 0;
+
     data = 0;
     displayId = display_id;
-    entryp=0;
+    entries = 0;
+    entryp = 0;
+    lowest = 0;
     clearCacheFunc = 0;
     grayscale = false;
     screencols = 0;
