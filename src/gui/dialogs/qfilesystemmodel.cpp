@@ -904,6 +904,13 @@ QModelIndex QFileSystemModel::mkdir(const QModelIndex &parent, const QString &na
     return d->index(node);
 }
 
+QFile::Permissions QFileSystemModel::permissions(const QModelIndex &index) const
+{
+    Q_D(const QFileSystemModel);
+    return d->node(index)->permissions();
+}
+
+
 /*!
     Sets the directory that is being watched by the model.
     If the path is changed the model will be reset.

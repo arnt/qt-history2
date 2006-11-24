@@ -15,12 +15,21 @@
 #include <qdebug.h>
 #include <qfsfileengine.h>
 
+#ifndef Q_OS_WIN
+#include <unistd.h>
+#include <sys/types.h>
+#endif
+
 /*!
     Creates thread
 */
 QFileInfoGatherer::QFileInfoGatherer(QObject *parent) : QThread(parent)
 ,abort(false), watcher(0), m_resolveSymlinks(false), m_iconProvider(&defaultProvider)
 {
+#ifndef Q_OS_WIN
+    userId = getuid();
+    groupId = getuid();
+#endif
     watcher = new QFileSystemWatcher(this);
     connect(watcher, SIGNAL(directoryChanged(const QString &)), this, SLOT(list(const QString &)));
     connect(watcher, SIGNAL(fileChanged(const QString &)), this, SLOT(updateFile(const QString &)));
@@ -148,6 +157,38 @@ void QFileInfoGatherer::run()
 }
 
 /*
+    QFileInfo::permissions is different depending upon your platform.
+
+    "normalize this" so they can mean the same to us.
+*/
+QFile::Permissions QFileInfoGatherer::translatePermissions(const QFileInfo &fileInfo) {
+    QFile::Permissions permissions = fileInfo.permissions();
+#ifdef Q_OS_WIN
+    return permissions;
+#else
+    QFile::Permissions p = permissions;
+    p ^= QFile::ReadUser;
+    p ^= QFile::WriteUser;
+    p ^= QFile::ExeUser;
+    if (                                     permissions & QFile::ReadOther
+        || (fileInfo.ownerId() == userId  && permissions & QFile::ReadOwner)
+        || (fileInfo.groupId() == groupId && permissions & QFile::ReadGroup))
+        p |= QFile::ReadUser;
+
+    if (                                     permissions & QFile::WriteOther
+        || (fileInfo.ownerId() == userId  && permissions & QFile::WriteOwner)
+        || (fileInfo.groupId() == groupId && permissions & QFile::WriteGroup))
+        p |= QFile::WriteUser;
+
+    if (                                     permissions & QFile::ExeOther
+        || (fileInfo.ownerId() == userId  && permissions & QFile::ExeOwner)
+        || (fileInfo.groupId() == groupId && permissions & QFile::ExeGroup))
+        p |= QFile::ExeUser;
+    return p;
+#endif
+}
+
+/*
     Get specific file info's, batch the files so update when we have 100 items and every 200ms after that
  */
 void QFileInfoGatherer::getFileInfos(const QString &path, const QStringList &files)
@@ -166,7 +207,7 @@ void QFileInfoGatherer::getFileInfos(const QString &path, const QStringList &fil
             info.caseSensitive = fe.caseSensitive();
             info.size = fileInfo.size();
             info.lastModified = fileInfo.lastModified();
-            info.permissions = fileInfo.permissions();
+            info.permissions = translatePermissions(fileInfo);
             if (fileInfo.isDir()) info.fileType = QExtendedInformation::Dir;
             if (fileInfo.isFile()) info.fileType = QExtendedInformation::File;
             info.isHidden = false; // fileInfo.isHidden(); BUG windows file engine says drives are hidden
@@ -204,7 +245,7 @@ void QFileInfoGatherer::getFileInfos(const QString &path, const QStringList &fil
                 watcher->addPath(fullFilePath); // <- add path unfortunettly creates a QFileInfo also
         }
         info.lastModified = fileInfo.lastModified();
-        info.permissions = fileInfo.permissions();
+        info.permissions = translatePermissions(fileInfo);
         if (fileInfo.isDir()) info.fileType = QExtendedInformation::Dir;
         if (fileInfo.isFile()) info.fileType = QExtendedInformation::File;
 

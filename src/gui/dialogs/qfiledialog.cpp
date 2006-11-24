@@ -582,9 +582,11 @@ void QFileDialog::setReadOnly(bool enabled)
 {
     Q_D(QFileDialog);
     d->model->setReadOnly(enabled);
-    d->newFolderButton->setEnabled(!enabled);
-    d->renameAction->setEnabled(!enabled);
-    d->deleteAction->setEnabled(!enabled);
+    if (!enabled) {
+        d->newFolderButton->setEnabled(!enabled);
+        d->renameAction->setEnabled(!enabled);
+        d->deleteAction->setEnabled(!enabled);
+    }
 }
 
 bool QFileDialog::isReadOnly() const
@@ -795,7 +797,7 @@ void QFileDialogPrivate::_q_layoutChanged()
             setUrl(idx, path);
         }
     }
-    newFolderButton->setEnabled(model->flags(listView->rootIndex()) & Qt::ItemIsDropEnabled);
+    newFolderButton->setEnabled(model->permissions(listView->rootIndex()) & QFile::WriteUser);
 }
 
 /*!
@@ -1899,7 +1901,6 @@ void QFileDialogPrivate::_q_pathChanged(const QString &newPath)
     toParentButton->setEnabled(dir.exists());
     backButton->setEnabled(!backHistory.isEmpty());
     forwardButton->setEnabled(!forwardHistory.isEmpty());
-    newFolderButton->setEnabled(!model->isReadOnly());
     sidebar->selectUrl(QUrl::fromLocalFile(newPath));
     q->setHistory(history);
 
@@ -2028,7 +2029,9 @@ void QFileDialogPrivate::_q_showContextMenu(const QPoint &position)
         // file context menu
         menu.addAction(openAction);
         menu.addSeparator();
+        renameAction->setEnabled(model->permissions(index.parent()) & QFile::WriteUser);
         menu.addAction(renameAction);
+        deleteAction->setEnabled(model->permissions(index.parent()) & QFile::WriteUser);
         menu.addAction(deleteAction);
         menu.addSeparator();
     }

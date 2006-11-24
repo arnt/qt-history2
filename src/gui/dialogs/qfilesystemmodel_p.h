@@ -101,6 +101,7 @@ public:
     inline bool rmdir(const QModelIndex &index) { QDir dir; return dir.rmdir(filePath(index)); }
     inline QString fileName(const QModelIndex &index) const { return index.data(Qt::DisplayRole).toString(); }
     inline QIcon fileIcon(const QModelIndex &index) const { return qvariant_cast<QIcon>(index.data(Qt::DecorationRole)); }
+    QFile::Permissions permissions(const QModelIndex &index) const;
     inline QFileInfo fileInfo(const QModelIndex &index) const { return QFileInfo(filePath(index)); }
     inline bool remove(const QModelIndex &index) { if (isDir(index)) return rmdir(index); else return QFile::remove(filePath(index)); }
 

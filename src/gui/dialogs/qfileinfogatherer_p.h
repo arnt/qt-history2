@@ -105,6 +105,7 @@ protected:
 
 private:
     QString translateDriveName(const QFileInfo &drive);
+    QFile::Permissions translatePermissions(const QFileInfo &fileInfo);
 
     QMutex mutex;
     QWaitCondition condition;
@@ -118,6 +119,10 @@ private:
     bool m_resolveSymlinks;
     QFileIconProvider *m_iconProvider;
     QFileIconProvider defaultProvider;
+#ifndef Q_OS_WIN
+    uint userId;
+    uint groupId;
+#endif
 };
 
 #endif // QFILEINFOGATHERER_H
