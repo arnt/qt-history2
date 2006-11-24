@@ -99,9 +99,11 @@ private slots:
     void psql_escapeBytea_data() { generic_data(); }
     void psql_escapeBytea();
 
-
     void whitespaceInIdentifiers_data() { generic_data(); }
     void whitespaceInIdentifiers();
+
+    void mysqlOdbc_unsignedIntegers_data() { generic_data(); }
+    void mysqlOdbc_unsignedIntegers();
 
 private:
     void createTestTables(QSqlDatabase db);
@@ -1452,6 +1454,36 @@ void tst_QSqlDatabase::psql_escapeBytea()
     QCOMPARE(i, 4);
 
     QVERIFY2(q.exec(QString("DROP TABLE %1").arg(tableName)), q.lastError().text());
+}
+
+// This test needs a ODBC data source containing MYSQL in it's name
+void tst_QSqlDatabase::mysqlOdbc_unsignedIntegers()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (!db.driverName().startsWith("QODBC") || !dbName.toUpper().contains("MYSQL")) {
+       QSKIP("MySQL through ODBC-driver specific test", SkipSingle);
+       return;
+    }
+
+    QSqlQuery q(db);
+    QString tableName = qTableName("uint");
+    q.exec(QString("DROP TABLE %1").arg(tableName)), q.lastError().text();
+    QVERIFY2(q.exec(QString("CREATE TABLE %1 (foo integer(10) unsigned, bar integer(10))").arg(tableName)), q.lastError().text());
+    QVERIFY2(q.exec(QString("INSERT INTO %1 VALUES (-4000000000, -4000000000)").arg(tableName)), q.lastError().text());
+    QVERIFY2(q.exec(QString("INSERT INTO %1 VALUES (4000000000, 4000000000)").arg(tableName)), q.lastError().text());
+
+    QVERIFY2(q.exec(QString("SELECT foo, bar FROM %1").arg(tableName)), q.lastError().text());
+    QVERIFY(q.next());
+    QCOMPARE(q.value(0).toString(), QString("0"));
+    QCOMPARE(q.value(1).toString(), QString("-2147483648"));
+    QVERIFY(q.next());
+    QCOMPARE(q.value(0).toString(), QString("4000000000"));
+    QCOMPARE(q.value(1).toString(), QString("2147483647"));
+
+    q.exec(QString("DROP TABLE %1").arg(tableName)), q.lastError().text();
 }
 
 QTEST_MAIN(tst_QSqlDatabase)

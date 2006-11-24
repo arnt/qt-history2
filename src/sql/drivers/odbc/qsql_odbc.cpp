@@ -191,7 +191,7 @@ static QSqlError qMakeError(const QString& err, QSqlError::ErrorType type,
 }
 
 template<class T>
-static QVariant::Type qDecodeODBCType(SQLSMALLINT sqltype, const T* p)
+static QVariant::Type qDecodeODBCType(SQLSMALLINT sqltype, const T* p, bool isSigned = true)
 {
     QVariant::Type type = QVariant::Invalid;
     switch (sqltype) {
@@ -206,10 +206,10 @@ static QVariant::Type qDecodeODBCType(SQLSMALLINT sqltype, const T* p)
     case SQL_INTEGER:
     case SQL_BIT:
     case SQL_TINYINT:
-        type = QVariant::Int;
+        type = isSigned ? QVariant::Int : QVariant::UInt;
         break;
     case SQL_BIGINT:
-        type = QVariant::LongLong;
+        type = isSigned ? QVariant::LongLong : QVariant::ULongLong;
         break;
     case SQL_BINARY:
     case SQL_VARBINARY:
@@ -365,20 +365,23 @@ static QVariant qGetBinaryData(SQLHANDLE hStmt, int column)
     return fieldVal;
 }
 
-static QVariant qGetIntData(SQLHANDLE hStmt, int column)
+static QVariant qGetIntData(SQLHANDLE hStmt, int column, bool isSigned = true)
 {
     SQLINTEGER intbuf = 0;
     QSQLLEN lengthIndicator = 0;
     SQLRETURN r = SQLGetData(hStmt,
                               column+1,
-                              SQL_C_SLONG,
+                              isSigned ? SQL_C_SLONG : SQL_C_ULONG,
                               (SQLPOINTER)&intbuf,
                               0,
                               &lengthIndicator);
     if ((r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) || lengthIndicator == SQL_NULL_DATA) {
         return QVariant(QVariant::Int);
     }
-    return QVariant(int(intbuf));
+    if (isSigned)
+        return int(intbuf);
+    else
+        return uint(intbuf);
 }
 
 static QVariant qGetDoubleData(SQLHANDLE hStmt, int column)
@@ -397,20 +400,23 @@ static QVariant qGetDoubleData(SQLHANDLE hStmt, int column)
     return (double) dblbuf;
 }
 
-static QVariant qGetBigIntData(SQLHANDLE hStmt, int column)
+static QVariant qGetBigIntData(SQLHANDLE hStmt, int column, bool isSigned = true)
 {
     SQLBIGINT lngbuf = 0;
     QSQLLEN lengthIndicator = 0;
     SQLRETURN r = SQLGetData(hStmt,
                               column+1,
-                              SQL_C_SBIGINT,
+                              isSigned ? SQL_C_SBIGINT : SQL_C_UBIGINT,
                               (SQLPOINTER) &lngbuf,
                               0,
                               &lengthIndicator);
     if ((r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) || lengthIndicator == SQL_NULL_DATA)
         return QVariant(QVariant::LongLong);
 
-    return QVariant(qint64(lngbuf));
+    if (isSigned)
+        return qint64(lngbuf);
+    else
+        return quint64(lngbuf);
 }
 
 // creates a QSqlField from a valid hStmt generated
@@ -458,6 +464,19 @@ static QSqlField qMakeFieldInfo(const QODBCPrivate* p, int i )
         qSqlWarning(QString::fromLatin1("qMakeField: Unable to describe column %1").arg(i), p);
         return QSqlField();
     }
+
+    SQLINTEGER unsignedFlag = SQL_FALSE;
+    r = SQLColAttribute (p->hStmt,
+                         i + 1,
+                         SQL_DESC_UNSIGNED,
+                         0,
+                         0,
+                         0,
+                         &unsignedFlag);
+    if (r != SQL_SUCCESS) {
+        qSqlWarning(QString::fromLatin1("qMakeField: Unable to get column attributes for column %1").arg(i), p);
+    }
+
 #ifdef UNICODE
     QString qColName((const QChar*)colName, colNameLen);
 #else
@@ -470,7 +489,7 @@ static QSqlField qMakeFieldInfo(const QODBCPrivate* p, int i )
     } else if (nullable == SQL_NULLABLE) {
         required = 0;
     }
-    QVariant::Type type = qDecodeODBCType(colType, p);
+    QVariant::Type type = qDecodeODBCType(colType, p, unsignedFlag == SQL_FALSE);
     QSqlField f(qColName, type);
     f.setSqlType(colType);
     f.setLength(colSize == 0 ? -1 : int(colSize));
@@ -874,9 +893,15 @@ QVariant QODBCResult::data(int field)
         case QVariant::LongLong:
             d->fieldCache[i] = qGetBigIntData(d->hStmt, i);
         break;
+        case QVariant::ULongLong:
+            d->fieldCache[i] = qGetBigIntData(d->hStmt, i, false);
+            break;
         case QVariant::Int:
             d->fieldCache[i] = qGetIntData(d->hStmt, i);
         break;
+        case QVariant::UInt:
+            d->fieldCache[i] = qGetIntData(d->hStmt, i, false);
+            break;
         case QVariant::Date:
             DATE_STRUCT dbuf;
             r = SQLGetData(d->hStmt,
@@ -1128,6 +1153,18 @@ bool QODBCResult::exec()
                                       i + 1,
                                       qParamType[(QFlag)(bindValueType(i)) & QSql::InOut],
                                       SQL_C_SLONG,
+                                      SQL_INTEGER,
+                                      0,
+                                      0,
+                                      (void *) val.constData(),
+                                      0,
+                                      *ind == SQL_NULL_DATA ? ind : NULL);
+                break;
+            case QVariant::UInt:
+                r = SQLBindParameter(d->hStmt,
+                                      i + 1,
+                                      qParamType[(QFlag)(bindValueType(i)) & QSql::InOut],
+                                      SQL_C_ULONG,
                                       SQL_INTEGER,
                                       0,
                                       0,

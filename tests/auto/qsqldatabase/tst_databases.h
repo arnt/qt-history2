@@ -113,6 +113,9 @@ public:
 //	addDb( "QOCI8", "PONY", "scott", "tiger" ); // Oracle 9i on horsehead
 //	addDb( "QOCI8", "USTEST", "scott", "tiger", "" ); // Oracle 9i on horsehead
 //	addDb( "QOCI8", "ICE", "scott", "tiger", "" ); // Oracle 8 on iceblink
+        
+	// This requires a local ODBC data source to be configured (pointing to a MySql database) 
+//      addDb( "QODBC", "mysqlodbc" );
 
 //	addDb( "QTDS7", "testdb", "troll", "trondk", "horsehead" );
 
