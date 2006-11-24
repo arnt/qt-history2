@@ -36,8 +36,29 @@ General Improvements
     new canvas from one that was shrunk to its minimum size.
 
 - Qt Designer
+  * Fixed the signals & slots connection editor to automatically scroll to 
+    the correct items.
 
+- Linguist
+  * Fixed bug where lupdate would leave out the namespace part of the context.
+  
+  * Fixed bug in lupdate where the paths of the generated ts files was not 
+    relative to the pro file.
 
+  * Fixed bug in lupdate that caused strings that contained \r\n were not 
+    translated.
+
+  * Fixed crash in Linguist when we tried to go to the previous node when 
+    the current node was the first and topmost node.
+
+  * Fixed bug in the preview translation feature of Linguist where forms that
+    did not have any layout got a height of 0.
+
+  * Fixed bug where "Search and Translate" did not trigger a repaint on the
+    items that got translated, leading people to believe that 
+    "Search and Translate" did not work.
+
+  * In Linguist, fix a layout problem with the "Search and Translate" dialog.
 Third party components
 ----------------------
 
@@ -86,6 +107,9 @@ General improvements
     always update the header count().
 
   * Fixed incorrect scrolling in QHeaderView when items are hidden.
+
+  * Fixed bug where QHeaderView would disappear if the sections were moved
+    and the model was reset.
 
   * QDataWidgetMapper::mappedWidgetAt() now always returns the right
     mapped index for a widget no matter in which order they were inserted
@@ -206,6 +230,9 @@ General improvements
   * Fixed an issue where enabling/disabling clipping when drawing into a
     QImage did not have any effect.
 
+  * Fixed bug in QImage::createHeuristicMask where the color table was not 
+    initialized properly.
+
 - Style Sheets
 
   * Made general performance improvements.
@@ -271,6 +298,10 @@ General improvements
   * Fixed an assert in QDir::entryList() when reading file entries with
     names containing invalid Unicode encodings.
 
+- QFileDialog
+  * Fixed bug that showed a non-existing folder for every space the user typed 
+    after a dot (.) in the lineedit.
+
 - QFileSystemWatcher
 
   * Fixed compilation on Linux/HPPA.
@@ -302,14 +333,21 @@ General improvements
 
   * Fixed crash on Linux when the text contains QChar::LineSeparator.
 
+- QListView
+  * Fixed bug with cursor navigation if you had a gridSize set.
+
 - QLocale
 
-  * Fixed crash on Mac OS X caused when one of the separator strings is an
-    empty string.
+  * Fixed crash on Mac OS X and win32 caused when one of the separator strings 
+    is an empty string.
 
 - QObject
 
   * Fixed memory leak when calling QObject::moveToThread(0).
+
+- QPluginLoader
+  * Fixed a potential crash if you tried to call 
+    QPluginLoader::staticInstances() from a global destructor.
 
 - QProgressBar
 
@@ -472,6 +510,9 @@ Windows
     objects terminates.
 
   * Fixed potential crash when calling QCoreApplication::applicationFilePath().
+
+  * Fixed compilation problem with precompiled headers in qt3support. PCH is
+    now disabled for qt3support.
 
 Mac OS X
 --------
