@@ -629,11 +629,15 @@ void QFileDialog::setDetailsExpanded(bool expanded)
         d->lookInLabel->setVisible(!expanded);
 
     if (expanded) {
+        QSize size = d->expandButton->size();
         d->expandButton->setArrowType(Qt::UpArrow);
+        d->expandButton->setFixedSize(size);
     } else {
         d->fileNameEdit->setFocus();
         // ### auto select the file name
+        QSize size = d->expandButton->size();
         d->expandButton->setArrowType(Qt::DownArrow);
+        d->expandButton->setFixedSize(size);
     }
 }
 
