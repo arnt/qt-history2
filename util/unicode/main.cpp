@@ -29,17 +29,22 @@ static struct AgeMap {
 // Keep this one in sync with the code in createPropertyInfo
 const char *property_string =
     "    struct Properties {\n"
-    "        uint category : 5;\n"
-    "        uint line_break_class : 5;\n"
-    "        uint direction : 5;\n"
-    "        uint titleCaseDiffersFromUpper : 1;\n"
-    "        uint combiningClass :8;\n"
-    "        uint unicode_version : 4;\n"
-    "        uint digit_value : 4;\n"
-    "\n"
-    "        signed short mirrorDiff : 14 /* 13 needed */;\n"
-    "        uint joining : 2;\n"
-    "        signed short caseDiff /* 14 needed */;\n"
+    "        ushort category : 8;\n"
+    "        ushort line_break_class : 8;\n"
+    "        ushort direction : 8;\n"
+    "        ushort combiningClass :8;\n"
+    "        ushort joining : 2;\n"
+    "        signed short digitValue : 6;\n /* 5 needed */"
+    "        ushort unicodeVersion : 4;\n"
+    "        ushort lowerCaseSpecial : 1;\n"
+    "        ushort upperCaseSpecial : 1;\n"
+    "        ushort titleCaseSpecial : 1;\n"
+    "        ushort caseFoldSpecial : 1;\n"
+    "        signed short mirrorDiff : 16;\n"
+    "        signed short lowerCaseDiff : 16;\n"
+    "        signed short upperCaseDiff : 16;\n"
+    "        signed short titleCaseDiff : 16;\n"
+    "        signed short caseFoldDiff : 16;\n"
     "    };\n"
     "    Q_CORE_EXPORT const Properties * QT_FASTCALL properties(uint ucs4);\n"
     "    Q_CORE_EXPORT const Properties * QT_FASTCALL properties(ushort ucs2);\n";
@@ -73,33 +78,72 @@ struct PropertyFlags {
         return (combiningClass == o.combiningClass
                 && category == o.category
                 && direction == o.direction
-                && titleCaseDiffersFromUpper == o.titleCaseDiffersFromUpper
                 && joining == o.joining
                 && age == o.age
-                && mirrorDiff == o.mirrorDiff
+                && digitValue == o.digitValue
                 && line_break_class == o.line_break_class
-                && caseDiff == o.caseDiff
-                && digitValue == o.digitValue);
+                && mirrorDiff == o.mirrorDiff
+                && lowerCaseDiff == o.lowerCaseDiff
+                && upperCaseDiff == o.upperCaseDiff
+                && titleCaseDiff == o.titleCaseDiff
+                && lowerCaseSpecial == o.lowerCaseSpecial
+                && upperCaseSpecial == o.upperCaseSpecial
+                && titleCaseSpecial == o.titleCaseSpecial
+                && caseFoldSpecial == o.caseFoldSpecial);
     }
     // from UnicodeData.txt
     uchar combiningClass : 8;
     QChar::Category category : 5;
     QChar::Direction direction : 5;
-    // there are only very few codepoints (4 in Unicode 4.0) where titlecase is different from uppercase.
-    // a bool is enought to mark them.
-    bool titleCaseDiffersFromUpper : 1;
     // from ArabicShaping.txt
     QChar::Joining joining : 2;
     // from DerivedAge.txt
     QChar::UnicodeVersion age : 4;
-    uint digitValue : 4;
-    uint unused : 2;
+    int digitValue;
     uint line_break_class : 5;
 
     int mirrorDiff : 16;
-    int caseDiff : 16;
+
+    int lowerCaseDiff;
+    int upperCaseDiff;
+    int titleCaseDiff;
+    int caseFoldDiff;
+    bool lowerCaseSpecial;
+    bool upperCaseSpecial;
+    bool titleCaseSpecial;
+    bool caseFoldSpecial;
 };
 
+QList<int> specialCaseMap;
+
+static int appendToSpecialCaseMap(const QList<int> &map)
+{
+    QList<int> utf16map;
+    for (int i = 0; i < map.size(); ++i) {
+        int val = map.at(i);
+        if (val > 0xffff) {
+            utf16map << QChar::highSurrogate(val);
+            utf16map << QChar::lowSurrogate(val);
+        } else {
+            utf16map << val;
+        }
+    }
+    utf16map << 0;
+
+    for (int i = 0; i < specialCaseMap.size() - utf16map.size() - 1; ++i) {
+        int j;
+        for (j = 0; j < utf16map.size(); ++j) {
+            if (specialCaseMap.at(i+j) != utf16map.at(j))
+                break;
+        }
+        if (j == utf16map.size())
+            return i;
+    }
+
+    int pos = specialCaseMap.size();
+    specialCaseMap << utf16map;
+    return pos;
+}
 
 struct UnicodeData {
     UnicodeData(int codepoint = 0) {
@@ -123,14 +167,18 @@ struct UnicodeData {
         mirroredChar = 0;
         decompositionType = QChar::NoDecomposition;
         p.joining = QChar::OtherJoining;
-        otherCase = 0;
-        p.titleCaseDiffersFromUpper = false;
         p.age = QChar::Unicode_Unassigned;
-        p.unused = 0;
         p.mirrorDiff = 0;
-        p.caseDiff = 0;
-        p.digitValue = 0xf;
+        p.digitValue = -1;
         p.line_break_class = QUnicodeTables::LineBreak_AL;
+        p.lowerCaseDiff = 0;
+        p.upperCaseDiff = 0;
+        p.titleCaseDiff = 0;
+        p.caseFoldDiff = 0;
+        p.lowerCaseSpecial = 0;
+        p.upperCaseSpecial = 0;
+        p.titleCaseSpecial = 0;
+        p.caseFoldSpecial = 0;
         propertyIndex = -1;
         excludedComposition = false;
     }
@@ -140,9 +188,10 @@ struct UnicodeData {
     QChar::Decomposition decompositionType;
     QList<int> decomposition;
 
+    QList<int> specialFolding;
+
     // from BidiMirroring.txt
     int mirroredChar;
-    int otherCase;
 
     // CompositionExclusions.txt
     bool excludedComposition;
@@ -313,7 +362,9 @@ QHash<ushort, QList<Ligature> > ligatureHashes;
 
 QHash<int, int> combiningClassUsage;
 
-int maxCaseDiff = 0;
+int maxLowerCaseDiff = 0;
+int maxUpperCaseDiff = 0;
+int maxTitleCaseDiff = 0;
 
 static void readUnicodeData()
 {
@@ -360,31 +411,27 @@ static void readUnicodeData()
 
         data.p.direction = directionMap.value(properties[UD_BidiCategory], data.p.direction);
 
-        if (data.p.category == QChar::Letter_Lowercase) {
-            data.otherCase = properties[UD_UpperCase].toInt(&ok, 16);
-            int titleCase = properties[UD_TitleCase].toInt(&ok, 16);
-            if (ok && titleCase != 0 && titleCase != data.otherCase) {
-                // Need to fix QUnicodeTables::toUpper() and toTitleCase() if this assertion breaks
-                Q_ASSERT(titleCase-1 == data.otherCase);
-                data.p.titleCaseDiffersFromUpper = true;
-            }
-        } else if (data.p.category == QChar::Letter_Uppercase
-                   || data.p.category == QChar::Letter_Titlecase) {
-            data.otherCase = properties[UD_LowerCase].toInt(&ok, 16);
-            int titleCase = properties[UD_TitleCase].toInt(&ok, 16);
-            if (ok && titleCase != 0 && titleCase != codepoint) {
-                // Need to fix QUnicodeTables::toUpper() and toTitleCase() if this assertion breaks
-                Q_ASSERT(titleCase+1 == data.otherCase);
-                data.p.titleCaseDiffersFromUpper = true;
-            }
+        if (!properties[UD_UpperCase].isEmpty()) {
+            int upperCase = properties[UD_UpperCase].toInt(&ok, 16);
+            Q_ASSERT(ok);
+            data.p.upperCaseDiff = upperCase - codepoint;
+            maxUpperCaseDiff = qMax(maxUpperCaseDiff, qAbs(data.p.upperCaseDiff));
         }
-        if (data.otherCase == 0)
-            data.otherCase = codepoint;
-        if (qAbs(codepoint - data.otherCase) > maxCaseDiff)
-            maxCaseDiff = qAbs(codepoint - data.otherCase);
-        if (qAbs(codepoint - data.otherCase) >= 0x8000)
-            qFatal("case diff not in range at codepoint %x: othercase=%x", codepoint, data.otherCase);
-        data.p.caseDiff = data.otherCase - codepoint;
+        if (!properties[UD_LowerCase].isEmpty()) {
+            int lowerCase = properties[UD_LowerCase].toInt(&ok, 16);
+            Q_ASSERT (ok);
+            data.p.lowerCaseDiff = lowerCase - codepoint;
+            maxLowerCaseDiff = qMax(maxLowerCaseDiff, qAbs(data.p.lowerCaseDiff));
+        }
+        // we want toTitleCase to map to ToUpper in case we don't have any titlecase.
+        if (properties[UD_TitleCase].isEmpty())
+            properties[UD_TitleCase] = properties[UD_UpperCase];
+        if (!properties[UD_TitleCase].isEmpty()) {
+            int titleCase = properties[UD_TitleCase].toInt(&ok, 16);
+            Q_ASSERT (ok);
+            data.p.titleCaseDiff = titleCase - codepoint;
+            maxTitleCaseDiff = qMax(maxTitleCaseDiff, qAbs(data.p.titleCaseDiff));
+        }
 
         if (!properties[UD_DigitValue].isEmpty())
             data.p.digitValue = properties[UD_DigitValue].toInt();
@@ -447,10 +494,9 @@ static void readBidiMirroring()
 
         UnicodeData d = unicodeData.value(codepoint, UnicodeData(codepoint));
         d.mirroredChar = mirror;
-        if (qAbs(codepoint-d.mirroredChar) > maxMirroredDiff) {
+        if (qAbs(codepoint-d.mirroredChar) > maxMirroredDiff)
             maxMirroredDiff = qAbs(codepoint - d.mirroredChar);
-        }
-        Q_ASSERT(qAbs(codepoint - d.mirroredChar) < 0x8000);
+
         d.p.mirrorDiff = d.mirroredChar - codepoint;
         unicodeData.insert(codepoint, d);
     }
@@ -766,6 +812,149 @@ static void readLineBreak()
             d.p.line_break_class = lb;
             unicodeData.insert(codepoint, d);
         }
+    }
+}
+
+
+static void readSpecialCasing()
+{
+//     qDebug() << "Reading SpecialCasing.txt";
+    QFile f("data/SpecialCasing.txt");
+    if (!f.exists())
+        qFatal("Couldn't find SpecialCasing.txt");
+
+    f.open(QFile::ReadOnly);
+
+    while (!f.atEnd()) {
+        QByteArray line;
+        line.resize(1024);
+        int len = f.readLine(line.data(), 1024);
+        line.resize(len-1);
+
+        int comment = line.indexOf('#');
+        if (comment >= 0)
+            line = line.left(comment);
+
+        if (line.isEmpty())
+            continue;
+
+        QList<QByteArray> l = line.split(';');
+
+        bool ok;
+        int codepoint = l[0].trimmed().toInt(&ok, 16);
+        Q_ASSERT(ok);
+        Q_ASSERT(codepoint <= 0xffff);
+
+//         qDebug() << "codepoint" << hex << codepoint;
+//         qDebug() << line;
+
+        QList<QByteArray> lower = l[1].trimmed().split(' ');
+        QList<int> lowerMap;
+        for (int i = 0; i < lower.size(); ++i) {
+            bool ok;
+            lowerMap.append(lower.at(i).toInt(&ok, 16));
+            Q_ASSERT(ok);
+        }
+
+        QList<QByteArray> title = l[2].trimmed().split(' ');
+        QList<int> titleMap;
+        for (int i = 0; i < title.size(); ++i) {
+            bool ok;
+            titleMap.append(title.at(i).toInt(&ok, 16));
+            Q_ASSERT(ok);
+        }
+
+        QList<QByteArray> upper = l[3].trimmed().split(' ');
+        QList<int> upperMap;
+        for (int i = 0; i < upper.size(); ++i) {
+            bool ok;
+            upperMap.append(upper.at(i).toInt(&ok, 16));
+            Q_ASSERT(ok);
+        }
+
+        QByteArray condition = l.size() < 5 ? QByteArray() : l[4].trimmed();
+        if (!condition.isEmpty())
+            // #####
+            continue;
+
+        UnicodeData ud = unicodeData.value(codepoint, UnicodeData(codepoint));
+
+        Q_ASSERT(lowerMap.size() > 1 || lowerMap.at(0) == codepoint + ud.p.lowerCaseDiff);
+        Q_ASSERT(titleMap.size() > 1 || titleMap.at(0) == codepoint + ud.p.titleCaseDiff);
+        Q_ASSERT(upperMap.size() > 1 || upperMap.at(0) == codepoint + ud.p.upperCaseDiff);
+
+        if (lowerMap.size() > 1) {
+            ud.p.lowerCaseSpecial = true;
+            ud.p.lowerCaseDiff = appendToSpecialCaseMap(lowerMap);
+        }
+        if (titleMap.size() > 1) {
+            ud.p.titleCaseSpecial = true;
+            ud.p.titleCaseDiff = appendToSpecialCaseMap(titleMap);
+        }
+        if (upperMap.size() > 1) {
+            ud.p.upperCaseSpecial = true;
+            ud.p.upperCaseDiff = appendToSpecialCaseMap(upperMap);;
+        }
+
+        unicodeData.insert(codepoint, ud);
+    }
+}
+
+int maxCaseFoldDiff = 0;
+
+static void readCaseFolding()
+{
+    qDebug() << "Reading CaseFolding.txt";
+    QFile f("data/CaseFolding.txt");
+    if (!f.exists())
+        qFatal("Couldn't find CaseFolding.txt");
+
+    f.open(QFile::ReadOnly);
+
+    while (!f.atEnd()) {
+        QByteArray line;
+        line.resize(1024);
+        int len = f.readLine(line.data(), 1024);
+        line.resize(len-1);
+
+        int comment = line.indexOf('#');
+        if (comment >= 0)
+            line = line.left(comment);
+
+        if (line.isEmpty())
+            continue;
+
+        QList<QByteArray> l = line.split(';');
+
+        bool ok;
+        uint codepoint = l[0].trimmed().toInt(&ok, 16);
+        Q_ASSERT(ok);
+
+
+        l[1] = l[1].trimmed();
+        if (l[1] == "S" || l[1] == "T")
+            continue;
+
+//         qDebug() << "codepoint" << hex << codepoint;
+//         qDebug() << line;
+        QList<QByteArray> fold = l[2].trimmed().split(' ');
+        QList<int> foldMap;
+        for (int i = 0; i < fold.size(); ++i) {
+            bool ok;
+            foldMap.append(fold.at(i).toInt(&ok, 16));
+            Q_ASSERT(ok);
+        }
+
+        UnicodeData ud = unicodeData.value(codepoint, UnicodeData(codepoint));
+        if (foldMap.size() == 1) {
+            ud.p.caseFoldDiff = codepoint - foldMap.at(0);
+            maxCaseFoldDiff = qMax(maxCaseFoldDiff, ud.p.caseFoldDiff);
+        } else {
+//             qDebug() << "special" << hex << foldMap;
+            ud.p.caseFoldSpecial = true;
+            ud.p.caseFoldDiff = appendToSpecialCaseMap(foldMap);
+        }
+        unicodeData.insert(codepoint, ud);
     }
 }
 
@@ -1173,7 +1362,6 @@ static QByteArray createPropertyInfo()
     qDebug("    %d unique blocks in BMP.",blocks.size());
     qDebug("        block data uses: %d bytes", bmp_block_data);
     qDebug("        trie data uses : %d bytes", bmp_trie);
-    qDebug("        memory usage: %d bytes", bmp_mem);
 
     int smp_block_data = (blocks.size()- bmp_blocks)*SMP_BLOCKSIZE*2;
     int smp_trie = (SMP_END-BMP_END)/SMP_BLOCKSIZE*2;
@@ -1182,8 +1370,8 @@ static QByteArray createPropertyInfo()
     qDebug("        block data uses: %d bytes", smp_block_data);
     qDebug("        trie data uses : %d bytes", smp_trie);
 
-    qDebug("\n        properties use : %d bytes", uniqueProperties.size()*8);
-    qDebug("    memory usage: %d bytes", bmp_mem+smp_mem + uniqueProperties.size()*8);
+    qDebug("\n        properties use : %d bytes", uniqueProperties.size()*16);
+    qDebug("    memory usage: %d bytes", bmp_mem+smp_mem + uniqueProperties.size()*16);
 
     QByteArray out;
     out += "static const unsigned short uc_property_trie[] = {\n";
@@ -1224,7 +1412,10 @@ static QByteArray createPropertyInfo()
 
     // we reserve one bit more than in the assert below for the sign
     Q_ASSERT(maxMirroredDiff < (1<<12));
-    Q_ASSERT(maxCaseDiff < (1<<14));
+    Q_ASSERT(maxLowerCaseDiff < (1<<14));
+    Q_ASSERT(maxUpperCaseDiff < (1<<14));
+    Q_ASSERT(maxTitleCaseDiff < (1<<14));
+    Q_ASSERT(maxCaseFoldDiff < (1<<14));
 
     out += "\n};\n\n"
 
@@ -1246,31 +1437,56 @@ static QByteArray createPropertyInfo()
     for (int i = 0; i < uniqueProperties.size(); ++i) {
         PropertyFlags p = uniqueProperties.at(i);
         out += "    { ";
+//     "        ushort category : 8;\n"
         out += QByteArray::number( p.category );
         out += ", ";
+//     "        ushort line_break_class : 8;\n"
         out += QByteArray::number( p.line_break_class );
         out += ", ";
+//     "        ushort direction : 8;\n"
         out += QByteArray::number( p.direction );
         out += ", ";
-        out += p.titleCaseDiffersFromUpper ? "1" : "0";
-        out += ", ";
+//     "        ushort combiningClass :8;\n"
         out += QByteArray::number( p.combiningClass );
         out += ", ";
-        out += QByteArray::number( p.age );
-        out += ", ";
-        out += QByteArray::number( p.digitValue );
-        out += ", ";
-        out += QByteArray::number( p.mirrorDiff );
-        out += ", ";
+//     "        ushort joining : 2;\n"
         out += QByteArray::number( p.joining );
         out += ", ";
-        out += QByteArray::number( p.caseDiff );
+//     "        signed short digitValue : 6;\n /* 5 needed */"
+        out += QByteArray::number( p.digitValue );
+        out += ", ";
+//     "        ushort unicodeVersion : 4;\n"
+        out += QByteArray::number( p.age );
+        out += ", ";
+//     "        ushort lowerCaseSpecial : 1;\n"
+//     "        ushort upperCaseSpecial : 1;\n"
+//     "        ushort titleCaseSpecial : 1;\n"
+//     "        ushort caseFoldSpecial : 1;\n"
+        out += QByteArray::number( p.lowerCaseSpecial );
+        out += ", ";
+        out += QByteArray::number( p.upperCaseSpecial );
+        out += ", ";
+        out += QByteArray::number( p.titleCaseSpecial );
+        out += ", ";
+        out += QByteArray::number( p.caseFoldSpecial );
+        out += ", ";
+//     "        signed short mirrorDiff : 16;\n"
+//     "        signed short lowerCaseDiff : 16;\n"
+//     "        signed short upperCaseDiff : 16;\n"
+//     "        signed short titleCaseDiff : 16;\n"
+//     "        signed short caseFoldDiff : 16;\n"
+        out += QByteArray::number( p.mirrorDiff );
+        out += ", ";
+        out += QByteArray::number( p.lowerCaseDiff );
+        out += ", ";
+        out += QByteArray::number( p.upperCaseDiff );
+        out += ", ";
+        out += QByteArray::number( p.titleCaseDiff );
+        out += ", ";
+        out += QByteArray::number( p.caseFoldDiff );
         out += "},\n";
     }
-    out += "};\n\n"
-
-           "#define GET_PROP(ucs4) (uc_properties + GET_PROP_INDEX(ucs4))\n"
-           "#define GET_PROP_UCS2(ucs2) (uc_properties + GET_PROP_INDEX_ucs2(ucs2))\n\n";
+    out += "};\n\n";
 
     out += "static inline const QUnicodeTables::Properties *qGetProp(uint ucs4)\n"
            "{\n"
@@ -1298,6 +1514,15 @@ static QByteArray createPropertyInfo()
 
     out += "#define CURRENT_VERSION "CURRENT_UNICODE_VERSION"\n\n";
 
+    out += "static const ushort specialCaseMap [] = {   \n";
+    for (int i = 0; i < specialCaseMap.size(); ++i) {
+        out += QByteArray(" 0x") + QByteArray::number(specialCaseMap.at(i), 16) + ",";
+        if (!(i % 16))
+            out += "\n   ";
+    }
+    out += "};\n\n";
+
+    qDebug() << "Special case map uses " << specialCaseMap.size()*2 << "bytes";
 
     return out;
 }
@@ -1604,6 +1829,19 @@ static QByteArray createLigatureInfo()
     return out;
 }
 
+QByteArray createCasingInfo()
+{
+    QByteArray out;
+
+    out += "struct CasingInfo {\n"
+           "    uint codePoint : 16;\n"
+           "    uint flags : 8;\n"
+           "    uint offset : 8;\n"
+           "};\n\n";
+
+    return out;
+}
+
 int main(int, char **)
 {
     initCategoryMap();
@@ -1616,6 +1854,8 @@ int main(int, char **)
     readDerivedAge();
     readCompositionExclusion();
     readLineBreak();
+    readSpecialCasing();
+    readCaseFolding();
     // readBlocks();
     readScripts();
 
@@ -1685,7 +1925,11 @@ int main(int, char **)
             "#endif\n");
     f.close();
 
-    qDebug("maxMirroredDiff = %x, maxCaseDiff = %x", maxMirroredDiff, maxCaseDiff);
+    qDebug() << "maxMirroredDiff  = " << hex << maxMirroredDiff;
+    qDebug() << "maxLowerCaseDiff = " << hex << maxLowerCaseDiff;
+    qDebug() << "maxUpperCaseDiff = " << hex << maxUpperCaseDiff;
+    qDebug() << "maxTitleCaseDiff = " << hex << maxTitleCaseDiff;
+    qDebug() << "maxCaseFoldDiff  = " << hex << maxCaseFoldDiff;
 #if 0
 //     dump(0, 0x7f);
 //     dump(0x620, 0x640);
