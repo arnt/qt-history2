@@ -534,8 +534,8 @@ static bool qt_linef_intersect(qreal x1, qreal y1, qreal x2, qreal y2,
 QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPoint) const
 {
     if (isNull() || l.isNull()
-        || !qIsFinite(pt1.x()) || !qIsFinite(pt1.y()) || !qIsFinite(pt2.x()) || !qIsFinite(pt2.y())
-        || !qIsFinite(l.pt1.x()) || !qIsFinite(l.pt1.y()) || !qIsFinite(l.pt2.x()) || !qIsFinite(l.pt2.y()))
+        || !qt_is_finite(pt1.x()) || !qt_is_finite(pt1.y()) || !qt_is_finite(pt2.x()) || !qt_is_finite(pt2.y())
+        || !qt_is_finite(l.pt1.x()) || !qt_is_finite(l.pt1.y()) || !qt_is_finite(l.pt2.x()) || !qt_is_finite(l.pt2.y()))
         return NoIntersection;
 
     QPointF isect;

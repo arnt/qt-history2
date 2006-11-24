@@ -717,8 +717,8 @@ QPointF qt_curves_for_arc(const QRectF &rect, qreal startAngle, qreal sweepLengt
     Q_ASSERT(curves);
 
 #ifndef QT_NO_DEBUG
-    if (qIsNan(rect.x()) || qIsNan(rect.y()) || qIsNan(rect.width()) || qIsNan(rect.height())
-        || qIsNan(startAngle) || qIsNan(sweepLength))
+    if (qt_is_nan(rect.x()) || qt_is_nan(rect.y()) || qt_is_nan(rect.width()) || qt_is_nan(rect.height())
+        || qt_is_nan(startAngle) || qt_is_nan(sweepLength))
         qWarning("QPainterPath::arcTo: Adding arc where a parameter is NaN, results are undefined");
 #endif
     *point_count = 0;

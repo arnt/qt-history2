@@ -15,7 +15,7 @@
 #include <float.h>
 
 #include <qlocale.h>
-#include <private/qnumeric_p.h>
+#include <qnumeric.h>
 
 #ifdef Q_OS_LINUX
 #    include <fenv.h>

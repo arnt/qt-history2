@@ -3219,11 +3219,11 @@ QString QLocalePrivate::doubleToString(double d,
     QString num_str;
 
     // Detect special numbers (nan, +/-inf)
-    if (qIsInf(d)) {
+    if (qt_is_inf(d)) {
         num_str = QString::fromLatin1("inf");
         special_number = true;
         negative = d < 0;
-    } else if (qIsNan(d)) {
+    } else if (qt_is_nan(d)) {
         num_str = QString::fromLatin1("nan");
         special_number = true;
     }

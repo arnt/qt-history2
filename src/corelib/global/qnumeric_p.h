@@ -53,7 +53,7 @@ static inline double qtQnan()
 }
 #define Q_QNAN (::qtQnan())
 
-static inline bool qIsInf(double d)
+static inline bool qt_is_inf(double d)
 {
     uchar *ch = (uchar *)&d;
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
@@ -63,7 +63,7 @@ static inline bool qIsInf(double d)
     }
 }
 
-static inline bool qIsNan(double d)
+static inline bool qt_is_nan(double d)
 {
     uchar *ch = (uchar *)&d;
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
@@ -73,7 +73,7 @@ static inline bool qIsNan(double d)
     }
 }
 
-static inline bool qIsFinite(double d)
+static inline bool qt_is_finite(double d)
 {
     uchar *ch = (uchar *)&d;
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
@@ -83,7 +83,7 @@ static inline bool qIsFinite(double d)
     }
 }
 
-static inline bool qIsInf(float d)
+static inline bool qt_is_inf(float d)
 {
     uchar *ch = (uchar *)&d;
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
@@ -93,7 +93,7 @@ static inline bool qIsInf(float d)
     }
 }
 
-static inline bool qIsNan(float d)
+static inline bool qt_is_nan(float d)
 {
     uchar *ch = (uchar *)&d;
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
@@ -103,7 +103,7 @@ static inline bool qIsNan(float d)
     }
 }
 
-static inline bool qIsFinite(float d)
+static inline bool qt_is_finite(float d)
 {
     uchar *ch = (uchar *)&d;
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
