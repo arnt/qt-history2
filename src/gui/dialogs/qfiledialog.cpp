@@ -215,7 +215,7 @@ bool QFileDialog::restoreState(const QByteArray &state)
 void QFileDialogPrivate::_q_goToUrl(const QUrl &url)
 {
     Q_Q(QFileDialog);
-    q->setDirectory(url.path());
+    q->setDirectory(url.toLocalFile());
 }
 
 /*!
@@ -747,17 +747,17 @@ void QFileDialogPrivate::addUrls(const QList<QUrl> &list, int row) {
         QUrl url = list.at(i);
         if (!url.isValid())
             continue;
-        QModelIndex idx = model->index(url.path());
+        QModelIndex idx = model->index(url.toLocalFile());
         lookInCombo->model()->insertRows(row, 1);
         setUrl(lookInCombo->model()->index(row, 0), url);
-        watching.append(url.toString());
+        watching.append(url.toLocalFile());
     }
 }
 
 // Copied from QSidebar NMC
 void QFileDialogPrivate::setUrl(const QModelIndex &index, const QUrl &url)
 {
-    QModelIndex dirIndex = model->index(url.path());
+    QModelIndex dirIndex = model->index(url.toLocalFile());
     lookInCombo->model()->setData(index, url, UrlRole);
     if (url.path().isEmpty()) {
         lookInCombo->model()->setData(index, model->myComputer());
@@ -782,19 +782,19 @@ void QFileDialogPrivate::_q_layoutChanged()
     QMultiHash<QString, QModelIndex> lt;
     for (int i = 0; i < lookInCombo->model()->rowCount(); ++i) {
         QModelIndex idx = lookInCombo->model()->index(i, 0);
-        lt.insert(idx.data(UrlRole).toUrl().toString(), idx);
+        lt.insert(idx.data(UrlRole).toUrl().toLocalFile(), idx);
     }
 
     for (int i = 0; i < paths.count(); ++i) {
         QString path = paths.at(i);
-        QModelIndex newIndex = model->index(QUrl(path).path());
+        QModelIndex newIndex = model->index(path);
         watching.append(path);
         if (!newIndex.isValid())
             continue;
         QList<QModelIndex> values = lt.values(path);
         for (int i = 0; i < values.size(); ++i) {
             QModelIndex idx = values.at(i);
-            setUrl(idx, path);
+            setUrl(idx, QUrl::fromLocalFile(path));
         }
     }
     newFolderButton->setEnabled(model->permissions(listView->rootIndex()) & QFile::WriteUser);
@@ -1527,8 +1527,11 @@ void QFileDialogPrivate::layout()
 
     if (acceptMode == QFileDialog::AcceptSave)
         fileNameEdit->setFocus();
-    else
-        stackedWidget->currentWidget()->setFocus();
+    else {
+	// Why does window crash if !isVisible?
+        if (q->isVisible())
+		stackedWidget->currentWidget()->setFocus();
+    }
 }
 
 /*!
@@ -2181,7 +2184,7 @@ void QFileDialogPrivate::_q_goToDirectory(const QString &path)
     if (!index.isValid())
         index = model->index(getEnvironmentVariable(path));
     else {
-        path2 = index.data(UrlRole).toUrl().path();
+        path2 = index.data(UrlRole).toUrl().toLocalFile();
         index = model->index(path2);
     }
     QDir dir(path2);

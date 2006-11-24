@@ -80,7 +80,7 @@ QList<QUrl> QSidebar::urls() const
 {
     QList<QUrl> list;
     for (int i = 0; i < model()->rowCount(); ++i)
-        list.append(model()->data(model()->index(i, 0), UrlRole).toUrl().toString());
+        list.append(model()->data(model()->index(i, 0), UrlRole).toUrl().toLocalFile());
     return list;
 }
 
@@ -110,19 +110,19 @@ void QSidebar::addUrls(const QList<QUrl> &list, int row) {
                 break;
             }
         }
-        QModelIndex idx = fileSystemModel->index(url.path());
+        QModelIndex idx = fileSystemModel->index(url.toLocalFile());
         if (!fileSystemModel->isDir(idx))
             continue;
         model()->insertRows(row, 1);
         setUrl(model()->index(row, 0), url);
-        watching.append(url.toString());
+        watching.append(url.toLocalFile());
     }
 }
 
 // Copied in QFileDialog
 void QSidebar::setUrl(const QModelIndex &index, const QUrl &url)
 {
-    QModelIndex dirIndex = fileSystemModel->index(url.path());
+    QModelIndex dirIndex = fileSystemModel->index(url.toLocalFile());
     model()->setData(index, url, UrlRole);
     if (url.path().isEmpty()) {
         model()->setData(index, fileSystemModel->myComputer());
@@ -234,19 +234,19 @@ void QSidebar::layoutChanged()
     QMultiHash<QString, QModelIndex> lt;
     for (int i = 0; i < model()->rowCount(); ++i) {
         QModelIndex idx = model()->index(i, 0);
-        lt.insert(idx.data(UrlRole).toUrl().toString(), idx);
+        lt.insert(idx.data(UrlRole).toUrl().toLocalFile(), idx);
     }
 
     for (int i = 0; i < paths.count(); ++i) {
         QString path = paths.at(i);
-        QModelIndex newIndex = fileSystemModel->index(QUrl(path).path());
+        QModelIndex newIndex = fileSystemModel->index(path);
         watching.append(path);
         if (!newIndex.isValid())
             continue;
         QList<QModelIndex> values = lt.values(path);
         for (int i = 0; i < values.size(); ++i) {
             QModelIndex idx = values.at(i);
-            setUrl(idx, path);
+            setUrl(idx, QUrl::fromLocalFile(path));
         }
      }
 }
