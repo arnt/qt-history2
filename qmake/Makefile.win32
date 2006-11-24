@@ -92,7 +92,6 @@ QTOBJS= \
 	qbytearray.obj \
         qvsnprintf.obj \
 	qbytearraymatcher.obj \
-	qchar.obj \
 	qdatetime.obj \
 	qdir.obj \
 	qfile.obj \
@@ -109,7 +108,6 @@ QTOBJS= \
 	qregexp.obj \
 	qstring.obj \
 	qstringlist.obj \
-	qstringmatcher.obj \
 	qtextstream.obj \
 	qdatastream.obj \
 	quuid.obj \
@@ -134,7 +132,6 @@ clean::
 	-del qbytearray.obj
         -del qvsnprintf.obj
 	-del qbytearraymatcher.obj
-	-del qchar.obj
 	-del qdatetime.obj
 	-del qdir.obj
 	-del qfile.obj
@@ -151,7 +148,6 @@ clean::
 	-del qregexp.obj
 	-del qstring.obj
 	-del qstringlist.obj
-	-del qstringmatcher.obj
 	-del qtextstream.obj
 	-del qdatastream.obj
 	-del quuid.obj
@@ -243,14 +239,8 @@ qvsnprintf.obj: $(SOURCE_PATH)\src\corelib\tools\qvsnprintf.cpp
 qbytearraymatcher.obj: $(SOURCE_PATH)\src\corelib\tools\qbytearraymatcher.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\tools\qbytearraymatcher.cpp
 
-qchar.obj: $(SOURCE_PATH)\src\corelib\tools\qchar.cpp
-	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\tools\qchar.cpp
-
 qstring.obj: $(SOURCE_PATH)\src\corelib\tools\qstring.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\tools\qstring.cpp
-
-qstringmatcher.obj: $(SOURCE_PATH)\src\corelib\tools\qstringmatcher.cpp
-	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\tools\qstringmatcher.cpp
 
 qlocale.obj: $(SOURCE_PATH)\src\corelib\tools\qlocale.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\tools\qlocale.cpp

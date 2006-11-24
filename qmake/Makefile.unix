@@ -12,7 +12,7 @@ OBJS=project.o property.o main.o makefile.o unixmake2.o unixmake.o  \
      $(COMMERCIAL_OBJS)
 
 #qt code
-QOBJS=qchar.o qstring.o qstringmatcher.o qtextstream.o qiodevice.o qglobal.o \
+QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o \
       qbytearray.o qbytearraymatcher.o qdatastream.o qbuffer.o qlistdata.o qfile.o \
       qfsfileengine_unix.o qfsfileengine.o qregexp.o qvector.o qbitarray.o qdir.o quuid.o qhash.o \
       qfileinfo.o qdatetime.o qstringlist.o qabstractfileengine.o qtemporaryfile.o \
@@ -24,8 +24,7 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp generators/makefile.cpp ge
            generators/unix/unixmake.cpp generators/win32/winmakefile.cpp generators/projectgenerator.cpp \
 	   generators/mac/pbuilder_pbx.cpp generators/mac/xmloutput.cpp generators/metamakefile.cpp \
 	   generators/makefiledeps.cpp option.cpp generators/win32/mingw_make.cpp generators/makefile.cpp \
-	   $(SOURCE_PATH)/src/corelib/tools/qchar.cpp $(SOURCE_PATH)/src/corelib/tools/qstring.cpp \
-	   $(SOURCE_PATH)/src/corelib/io/qfile.cpp $(SOURCE_PATH)/src/corelib/tools/qstringmatcher.cpp \
+	   $(SOURCE_PATH)/src/corelib/tools/qstring.cpp $(SOURCE_PATH)/src/corelib/io/qfile.cpp \
 	   $(SOURCE_PATH)/src/corelib/io/qtextstream.cpp $(SOURCE_PATH)/src/corelib/io/qiodevice.cpp \
 	   $(SOURCE_PATH)/src/corelib/global/qglobal.cpp $(SOURCE_PATH)/src/corelib/tools/qregexp.cpp \
 	   $(SOURCE_PATH)/src/corelib/tools/qbytearray.cpp $(SOURCE_PATH)/src/corelib/tools/qbytearraymatcher.cpp \
@@ -110,14 +109,8 @@ qcore_mac.o: $(SOURCE_PATH)/src/corelib/kernel/qcore_mac.cpp
 qurl.o: $(SOURCE_PATH)/src/corelib/io/qurl.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qurl.cpp
 
-qchar.o: $(SOURCE_PATH)/src/corelib/tools/qchar.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qchar.cpp
-
 qstring.o: $(SOURCE_PATH)/src/corelib/tools/qstring.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qstring.cpp
-
-qstringmatcher.o: $(SOURCE_PATH)/src/corelib/tools/qstringmatcher.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qstringmatcher.cpp
 
 qlocale.o: $(SOURCE_PATH)/src/corelib/tools/qlocale.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qlocale.cpp

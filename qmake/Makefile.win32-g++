@@ -40,7 +40,6 @@ QTOBJS= \
 	qbytearray.o \
         qvsnprintf.o \
 	qbytearraymatcher.o \
-	qchar.o \
 	qconfig.o \
 	qdatetime.o \
 	qdir.o \
@@ -60,7 +59,6 @@ QTOBJS= \
 	qregexp.o \
 	qstring.o \
 	qstringlist.o \
-	qstringmatcher.o \
 	qtextstream.o \
 	quuid.o \
 	qvector.o \
@@ -125,14 +123,8 @@ qvsnprintf.o: $(SOURCE_PATH)\src\corelib\tools\qvsnprintf.cpp
 qbytearraymatcher.o: $(SOURCE_PATH)\src\corelib\tools\qbytearraymatcher.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\tools\qbytearraymatcher.cpp
 
-qchar.o: $(SOURCE_PATH)\src\corelib\tools\qchar.cpp
-	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\tools\qchar.cpp
-
 qstring.o: $(SOURCE_PATH)\src\corelib\tools\qstring.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\tools\qstring.cpp
-
-qstringmatcher.o: $(SOURCE_PATH)\src\corelib\tools\qstringmatcher.cpp
-	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\tools\qstringmatcher.cpp
 
 qlocale.o: $(SOURCE_PATH)\src\corelib\tools\qlocale.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\tools\qlocale.cpp

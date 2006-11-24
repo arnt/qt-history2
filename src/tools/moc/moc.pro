@@ -44,7 +44,6 @@ SOURCES	+= ../../corelib/global/qglobal.cpp \
 	   ../../corelib/io/qtextstream.cpp \
            ../../corelib/kernel/qmetatype.cpp    \
 	   ../../corelib/tools/qbytearraymatcher.cpp \
-	   ../../corelib/tools/qchar.cpp		\
 	   ../../corelib/tools/qdatetime.cpp	\
 	   ../../corelib/tools/qhash.cpp		\
 	   ../../corelib/tools/qlistdata.cpp		\
@@ -52,7 +51,6 @@ SOURCES	+= ../../corelib/global/qglobal.cpp \
 	   ../../corelib/tools/qmap.cpp		\
 	   ../../corelib/tools/qstring.cpp		\
 	   ../../corelib/tools/qstringlist.cpp	\
-	   ../../corelib/tools/qstringmatcher.cpp \
 	   ../../corelib/tools/qvector.cpp          \
            ../../corelib/io/qabstractfileengine.cpp  \
            ../../corelib/tools/qbytearray.cpp	\

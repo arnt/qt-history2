@@ -36,7 +36,6 @@ bootstrap { #Qt code
         qbuffer.cpp \
         qbytearray.cpp \
         qbytearraymatcher.cpp \
-        qchar.cpp \
         qdatetime.cpp \
         qdir.cpp \
         qfile.cpp \
@@ -53,7 +52,6 @@ bootstrap { #Qt code
         qregexp.cpp \
         qstring.cpp \
         qstringlist.cpp \
-        qstringmatcher.cpp \
         qtemporaryfile.cpp \
         qtextstream.cpp \
         qurl.cpp \
