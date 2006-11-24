@@ -82,9 +82,9 @@ public:
     void hideTip();
     void setTipRect(QWidget *w, const QRect &r);
 protected:
-    void enterEvent(QEvent*){hideTip();}
     void timerEvent(QTimerEvent *e);
     void paintEvent(QPaintEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
 
 private:
     QWidget *widget;
@@ -119,6 +119,7 @@ QTipLabel::QTipLabel(const QString& text, QWidget* parent)
     hideTimer.start(time, this);
     setWindowOpacity(style()->styleHint(QStyle::SH_ToolTipLabel_Opacity, 0, this) / 255.0);
     setPalette(QToolTip::palette());
+    setMouseTracking(true);
 }
 
 void QTipLabel::paintEvent(QPaintEvent *ev)
@@ -130,6 +131,18 @@ void QTipLabel::paintEvent(QPaintEvent *ev)
     p.end();
 
     QLabel::paintEvent(ev);
+}
+
+void QTipLabel::mouseMoveEvent(QMouseEvent *e)
+{
+    if (rect.isNull())
+        return;
+    QPoint pos = mapToGlobal(e->pos());
+    if (widget)
+        pos = widget->mapFromGlobal(pos);
+    if (!rect.contains(pos))
+        hideTip();
+    QLabel::mouseMoveEvent(e);
 }
 
 QTipLabel::~QTipLabel()
@@ -171,6 +184,13 @@ bool QTipLabel::eventFilter(QObject *o, QEvent *e)
             break;
     }
     case QEvent::Leave:
+        if ((e->type() == QEvent::Leave) && (o != this)) {
+            // Ignore Leave events for widget below the tooltip when the tool tip is shown
+            // below the mouse cursor
+            bool underMouse = geometry().contains(QCursor::pos());
+            if (underMouse)
+                return false;
+        }
     case QEvent::WindowActivate:
     case QEvent::WindowDeactivate:
     case QEvent::MouseButtonPress:
