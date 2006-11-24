@@ -542,6 +542,8 @@ bool QPSQLDriver::open(const QString & db,
 
     d->connection = PQconnectdb(connectString.toLocal8Bit().constData());
     if (PQstatus(d->connection) == CONNECTION_BAD) {
+        PQfinish(d->connection);
+        d->connection = 0;
         setLastError(qMakeError(tr("Unable to connect"), QSqlError::ConnectionError, d));
         setOpenError(true);
         return false;
