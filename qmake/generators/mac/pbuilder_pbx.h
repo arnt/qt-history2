@@ -33,7 +33,8 @@ class ProjectBuilderMakefileGenerator : public UnixMakefileGenerator
     int     reftypeForFile(const QString &where);
     QString projectSuffix() const;
     enum { SettingsAsList=0x01, SettingsNoQuote=0x02 };
-    inline QString writeSettings(QString var, QString val, int flags=0, int indent_level=0) { return writeSettings(var, QStringList(val), flags); }
+    inline QString writeSettings(QString var, QString val, int flags=0, int indent_level=0)
+    { Q_UNUSED(indent_level); return writeSettings(var, QStringList(val), flags); }
     QString writeSettings(QString var, QStringList vals, int flags=0, int indent_level=0);
 
 public:

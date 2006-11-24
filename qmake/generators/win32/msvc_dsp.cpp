@@ -123,7 +123,7 @@ bool DspMakefileGenerator::writeDspHeader(QTextStream &t)
 
 bool DspMakefileGenerator::writeDspParts(QTextStream &t)
 {
-    bool staticLibTarget = var("MSVCDSP_DSPTYPE") == "0x0104";
+    //bool staticLibTarget = var("MSVCDSP_DSPTYPE") == "0x0104";
 
     writeDspHeader(t);
     writeDspConfig(t, this);

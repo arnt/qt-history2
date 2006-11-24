@@ -238,7 +238,6 @@ UnixMakefileGenerator::init()
         int max_files = project->first("QMAKE_MAX_FILES_PER_AR").toInt(&ok);
         QStringList ar_sublibs, objs = project->values("OBJECTS");
         if(ok && max_files > 5 && max_files < (int)objs.count()) {
-            int obj_cnt = 0, lib_cnt = 0;
             QString lib;
             for(int i = 0, obj_cnt = 0, lib_cnt = 0; i != objs.size(); ++i) {
                 if((++obj_cnt) >= max_files) {

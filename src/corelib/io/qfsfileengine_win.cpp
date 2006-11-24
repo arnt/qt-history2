@@ -1231,6 +1231,7 @@ static QString readLink(const QString &link)
     });
     return ret;
 #else
+    Q_UNUSED(link);
     return QString();
 #endif // QT_NO_LIBRARY
 }

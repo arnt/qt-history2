@@ -22,7 +22,9 @@
 #include "qlocale.h"
 
 #ifdef QT_BOOTSTRAPPED
+# ifndef QT_NO_GEOM_VARIANT
 #  define QT_NO_GEOM_VARIANT
+# endif
 #else
 #  include "qbitarray.h"
 #  include "qurl.h"

@@ -111,7 +111,7 @@ static QStringList split_arg_list(QString params)
     const ushort DOUBLEQUOTE = '"';
     const ushort COMMA = ',';
     const ushort SPACE = ' ';
-    const ushort TAB = '\t';
+    //const ushort TAB = '\t';
 
     ushort unicode;
     const QChar *params_data = params.data();
@@ -173,7 +173,6 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
     const int vals_len = vals.length();
     for(int x = 0, parens = 0; x < vals_len; x++) {
         unicode = (vals_data+x)->unicode();
-        bool append_char = true;
         if(x != (int)vals_len-1 && unicode == SLASH &&
            ((vals_data+(x+1))->unicode() == '\'' || (vals_data+(x+1))->unicode() == DOUBLEQUOTE)) {
             build += *(vals_data+(x++)); //get that 'escape'
@@ -509,6 +508,8 @@ class QMakeProjectEnv
                     envs.append(env_var);
             }
         }
+#else
+        Q_UNUSED(values);
 #endif
     }
 public:
