@@ -14,7 +14,7 @@
 #ifndef QNUMERIC_H
 #define QNUMERIC_H
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 
 QT_BEGIN_HEADER
 
