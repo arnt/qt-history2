@@ -2539,7 +2539,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             }
 
             if (tb->subControls & SC_TitleBarMaxButton
-                && tb->titleBarFlags & Qt::WindowMaximizeButtonHint) {
+                    && tb->titleBarFlags & Qt::WindowMaximizeButtonHint
+                    && !(tb->titleBarState & Qt::WindowMaximized)) {
                 ir = subControlRect(CC_TitleBar, tb, SC_TitleBarMaxButton, widget);
 
                 down = tb->activeSubControls & SC_TitleBarMaxButton && (opt->state & State_Sunken);
@@ -2556,22 +2557,12 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 p->restore();
             }
 
-            if ((tb->subControls & SC_TitleBarNormalButton
-                 || tb->subControls & SC_TitleBarMinButton)
-                && tb->titleBarFlags & Qt::WindowMinimizeButtonHint) {
-                if (tb->subControls & SC_TitleBarNormalButton)
-                    ir = subControlRect(CC_TitleBar, tb, SC_TitleBarNormalButton, widget);
-                else {
-                    ir = subControlRect(CC_TitleBar, tb, SC_TitleBarMinButton, widget);
-                }
-                QStyle::SubControl ctrl = (tb->subControls & SC_TitleBarNormalButton ?
-                                           SC_TitleBarNormalButton :
-                                           SC_TitleBarMinButton);
-                QStyle::StandardPixmap spixmap = (tb->subControls & SC_TitleBarNormalButton ?
-                                                  SP_TitleBarNormalButton :
-                                                  SP_TitleBarMinButton);
-                down = tb->activeSubControls & ctrl && (opt->state & State_Sunken);
-                pm = standardPixmap(spixmap, &tool, widget);
+            if (tb->subControls & SC_TitleBarMinButton
+                    && tb->titleBarFlags & Qt::WindowMinimizeButtonHint
+                    && !(tb->titleBarState & Qt::WindowMinimized)) {
+                ir = subControlRect(CC_TitleBar, tb, SC_TitleBarMinButton, widget);
+                down = tb->activeSubControls & SC_TitleBarMinButton && (opt->state & State_Sunken);
+                pm = standardPixmap(SP_TitleBarMinButton, &tool, widget);
                 tool.rect = ir;
                 tool.state = down ? State_Sunken : State_Raised;
                 drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
@@ -2584,9 +2575,32 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 p->restore();
             }
 
-            if (tb->subControls & SC_TitleBarShadeButton) {
-                ir = subControlRect(CC_TitleBar, tb, SC_TitleBarShadeButton, widget);
+            bool drawNormalButton = (tb->subControls & SC_TitleBarNormalButton)
+                                    && (((tb->titleBarFlags & Qt::WindowMinimizeButtonHint)
+                                    && (tb->titleBarState & Qt::WindowMinimized))
+                                    || ((tb->titleBarFlags & Qt::WindowMaximizeButtonHint)
+                                    && (tb->titleBarState & Qt::WindowMaximized)));
 
+            if (drawNormalButton) {
+                ir = subControlRect(CC_TitleBar, tb, SC_TitleBarNormalButton, widget);
+                down = tb->activeSubControls & SC_TitleBarNormalButton && (opt->state & State_Sunken);
+                pm = standardPixmap(SP_TitleBarNormalButton, &tool, widget);
+                tool.rect = ir;
+                tool.state = down ? State_Sunken : State_Raised;
+                drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
+
+                p->save();
+                if (down)
+                    p->translate(pixelMetric(PM_ButtonShiftHorizontal, tb, widget),
+                                 pixelMetric(PM_ButtonShiftVertical, tb, widget));
+                drawItemPixmap(p, ir, Qt::AlignCenter, pm);
+                p->restore();
+            }
+
+            if (tb->subControls & SC_TitleBarShadeButton
+                    && tb->titleBarFlags & Qt::WindowShadeButtonHint
+                    && !(tb->titleBarState & Qt::WindowMinimized)) {
+                ir = subControlRect(CC_TitleBar, tb, SC_TitleBarShadeButton, widget);
                 down = (tb->activeSubControls & SC_TitleBarShadeButton && (opt->state & State_Sunken));
                 pm = standardPixmap(SP_TitleBarShadeButton, &tool, widget);
                 tool.rect = ir;
@@ -2600,7 +2614,9 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 p->restore();
             }
 
-            if (tb->subControls & SC_TitleBarUnshadeButton) {
+            if (tb->subControls & SC_TitleBarUnshadeButton
+                    && tb->titleBarFlags & Qt::WindowShadeButtonHint
+                    && tb->titleBarState & Qt::WindowMinimized) {
                 ir = subControlRect(CC_TitleBar, tb, SC_TitleBarUnshadeButton, widget);
 
                 down = tb->activeSubControls & SC_TitleBarUnshadeButton  && (opt->state & State_Sunken);
@@ -2616,7 +2632,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 p->restore();
             }
             if (tb->subControls & SC_TitleBarContextHelpButton
-                && tb->titleBarFlags & Qt::WindowContextHelpButtonHint) {
+                    && tb->titleBarFlags & Qt::WindowContextHelpButtonHint) {
                 ir = subControlRect(CC_TitleBar, tb, SC_TitleBarContextHelpButton, widget);
 
                 down = tb->activeSubControls & SC_TitleBarContextHelpButton  && (opt->state & State_Sunken);
