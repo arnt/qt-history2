@@ -23,8 +23,10 @@ outpath=`/bin/pwd`
 #license file location
 LICENSE_FILE="$QT_LICENSE_FILE"
 [ -z "$LICENSE_FILE" ] && LICENSE_FILE="$HOME/.qt-license"
-tr -d '\r' <$LICENSE_FILE >${LICENSE_FILE}.tmp
-mv ${LICENSE_FILE}.tmp ${LICENSE_FILE}
+if [ -f "$LICENSE_FILE" ]; then
+    tr -d '\r' <$LICENSE_FILE >${LICENSE_FILE}.tmp
+    mv ${LICENSE_FILE}.tmp ${LICENSE_FILE}
+fi
 
 # later cache the command line in config.status
 OPT_CMDLINE=`echo $@ | sed "s,-v ,,g; s,-v$,,g"`
