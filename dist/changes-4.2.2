@@ -35,6 +35,10 @@ General Improvements
   * Fixed crash in the Ported Canvas example that occurred when creating a
     new canvas from one that was shrunk to its minimum size.
 
+- I/O
+
+  * Fixed divide by zero when loading malformed BMP files.
+
 - Qt Assistant
 
   * Fixed a bug that prevented the view from scrolling to anchors within
@@ -555,10 +559,6 @@ General improvements
   * Ensured that Q3IconView is included in the Desktop Light package.
 
   * Fixed regression from Qt 4.1.4 by reintroducing support for Q3Accel.
-
-- I/O
-
-  * Fixed divide by zero when loading malformed bmp.
 
 - QDBus
 
