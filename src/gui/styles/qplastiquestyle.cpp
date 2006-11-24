@@ -4389,7 +4389,9 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             painter->drawText(textRect, titleBar->text, option);
 
             // min button
-            if ((titleBar->subControls & SC_TitleBarMinButton) && (titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint)) {
+            if ((titleBar->subControls & SC_TitleBarMinButton)
+                    && (titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint)
+                    && !(titleBar->titleBarState & Qt::WindowMinimized)) {
                 bool hover = (titleBar->activeSubControls & SC_TitleBarMinButton) && (titleBar->state & State_MouseOver);
                 bool sunken = (titleBar->activeSubControls & SC_TitleBarMinButton) && (titleBar->state & State_Sunken);
 
@@ -4415,7 +4417,9 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             }
 
             // max button
-            if ((titleBar->subControls & SC_TitleBarMaxButton) && (titleBar->titleBarFlags & Qt::WindowMaximizeButtonHint)) {
+            if ((titleBar->subControls & SC_TitleBarMaxButton)
+                    && (titleBar->titleBarFlags & Qt::WindowMaximizeButtonHint)
+                    && !(titleBar->titleBarState & Qt::WindowMaximized)) {
                 bool hover = (titleBar->activeSubControls & SC_TitleBarMaxButton) && (titleBar->state & State_MouseOver);
                 bool sunken = (titleBar->activeSubControls & SC_TitleBarMaxButton) && (titleBar->state & State_Sunken);
 
