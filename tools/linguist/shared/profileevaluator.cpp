@@ -834,7 +834,11 @@ bool ProFileEvaluator::evaluateConditionalFunction(const QByteArray &function, c
                 ok = false;
                 break;
             }
-            ok = evaluateFile(args.first(), &ok);
+            QString fileName = args.first();
+            // ### this breaks if we have include(c:/reallystupid.pri) but IMHO that's really bad style.
+            QDir currentProPath(getcwd());
+            fileName = currentProPath.absoluteFilePath(fileName);
+            ok = evaluateFile(fileName, &ok);
             break; }
         case CF_LOAD: {
             QString parseInto;
