@@ -93,8 +93,11 @@ General Improvements
   * Fixed crash that could occur when using the LIB_PATH variable if a .libs
     directory is located on one of the paths held by the variable.
 
-  * Improved generation of Xcode projects to avoid problems with certain
-    types of qmake project file.
+  * Improved generation of Xcode projects to avoid problems with qmake
+    project files that contain certain Qt-dependent declarations.
+
+  * Improved support for Objective C sources in the Xcode project generator
+    to ensure that they are added to the project's target.
 
 
 Third party components
@@ -321,6 +324,9 @@ General improvements
   
   * Made sure PQfreemem is called to free allocated buffers in PostgreSQL.
 
+  * Fixed regression from Qt 4.1.4 behavior that prevented tables in schemas
+    from working correctly in the SQL data models.
+
   * Prevented possible trailing garbage for TEXT fields in the MySQL plugin.
 
 - Text handling
@@ -435,6 +441,9 @@ General improvements
   * Fixed handling of dock widgets that are non-closable to the user so that
     they can be programmatically closed.
 
+  * Fixed regression from Qt 4.1.4 behavior to ensure that palette changes
+    to main windows are also propagated to their children.
+
 - QMenuBar
 
   * Improved event handling to avoid sending events when a menu bar has no
@@ -443,6 +452,11 @@ General improvements
 - QObject
 
   * Fixed memory leak when calling QObject::moveToThread(0).
+
+- QPainter
+
+  * Fixed reentrancy issue that would otherwise lead to crashes if more than
+    one QImage is deleted at the same time (from different threads).
 
 - QPalette
 
@@ -558,7 +572,8 @@ General improvements
 
   * Ensured that Q3IconView is included in the Desktop Light package.
 
-  * Fixed regression from Qt 4.1.4 by reintroducing support for Q3Accel.
+  * Fixed regression of a feature in Qt 4.1.4 by reintroducing support for
+    Q3Accel.
 
 - QDBus
 
@@ -658,10 +673,27 @@ Windows
 
   * Fixed compilation problem with precompiled headers in qt3support. PCH is
     now disabled for qt3support.
- 
+
+  * Fixed issues with low-level keyboard handling for certain (international)
+    keyboard layouts where input of accented characters would only work
+    inconsistently.
+
+  * Fixed bug in QWidget::setGeometry() caused by incorrectly taking the
+    geometry of the window decoration into account.
+
   * Made it possible to load files in a Japanese environment.
 
   * Improved the appearance of dock widgets on Windows XP.
+
+  * Fixed the appearance of the window menu when triggered with Alt-Space.
+
+- QAxServer
+
+  * Ensured that characters that some IStorage implementations don't support
+    are removed from stream names.
+
+  * Fixed regression that prevented ActiveQt controls from being activated
+    once they had been closed.
 
 - QSettings
 
@@ -711,9 +743,10 @@ Mac OS X
   * Ensured that the resize cursor shape is shown when the mouse cursor is
     positioned over the edges of floating dock widgets.
 
-- QCalendarWidget
-
-  * 
+  * Fixed issue that caused menus to be opened behind widgets with the
+    WindowStaysOnTopHint hint set.
+    
+  * Fixed handling of the QAssistantClient class for framework builds.
 
 - QMacStyle
 
