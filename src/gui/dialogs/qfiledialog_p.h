@@ -114,6 +114,7 @@ public:
     static QString workingDirectory(const QString &path);
     static QString initialSelection(const QString &path);
     void updateFileTypeVisibility();
+    QStringList typedFiles() const;
 
     inline QModelIndex rootIndex() const;
 
@@ -122,7 +123,6 @@ public:
             return (QLineEdit*)fileNameEdit;
         return lookInCombo->lineEdit();
     }
-
 
     static inline QDir::Filters filterForMode(QFileDialog::FileMode mode)
     {
@@ -167,7 +167,7 @@ public:
     void _q_animateDialog();
     void _q_animateDialogV(int);
     void _q_animateDialogH(int);
-    void _q_autoCompleteFileName(const QString &text);
+    void _q_autoCompleteFileName();
 
     void addUrls(const QList<QUrl> &list, int row);
     void setUrl(const QModelIndex &row, const QUrl & url);

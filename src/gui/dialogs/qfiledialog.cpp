@@ -290,6 +290,47 @@ void QFileDialog::selectFile(const QString &filename)
     }
 }
 
+/**
+    Returns the text in the line edit which can be one or more file names
+  */
+QStringList QFileDialogPrivate::typedFiles() const
+{
+    QStringList files;
+    QString editText = lineEdit()->text();
+    if (editText.contains(QLatin1Char('"'))) {
+        // " is used to separate files like so: "file1" "file2" "file3" ...
+        // ### need escape character for filenames with quotes (")
+        QStringList tokens = editText.split(QLatin1Char('\"'));
+        for (int i = 0; i < tokens.size(); ++i) {
+            if ((i % 2) == 0)
+                continue; // Every even token is a separator
+            QString name = toInternal(tokens.at(i));
+            QFileInfo info(name);
+            // if the filename has no suffix, add the default suffix
+            if (!defaultSuffix.isEmpty() && !info.isDir() && name.lastIndexOf(QLatin1Char('.')) == -1)
+                name += QLatin1Char('.') + defaultSuffix;
+            // a new filename
+            if ((fileMode == QFileDialog::ExistingFiles) || files.isEmpty()) {
+                if (info.isAbsolute())
+                    files.append(name);
+                else
+                    files.append(toInternal(model->rootPath() + QDir::separator() + name));
+            }
+        }
+    } else {
+        QString name = editText;
+        QFileInfo info(name);
+        // if the filename has no suffix, add the default suffix
+        if (!defaultSuffix.isEmpty() && !info.isDir() && name.lastIndexOf(QLatin1Char('.')) == -1)
+            name += QLatin1Char('.') + defaultSuffix;
+        if (info.isAbsolute())
+            files.append(name);
+        else
+            files.append(toInternal(model->filePath(rootIndex()) + QDir::separator() + name));
+    }
+    return files;
+}
+
 /*!
     Returns a list of strings containing the absolute paths of the
     selected files in the dialog. If no files are selected, or
@@ -307,39 +348,7 @@ QStringList QFileDialog::selectedFiles() const
 
     // if we have no selected items, use the name(s) in the lineedit
     if (files.isEmpty() && !d->lineEdit()->text().isEmpty()) {
-        QString editText = d->lineEdit()->text();
-        if (editText.contains(QLatin1Char('"'))) {
-            // " is used to separate files like so: "file1" "file2" "file3" ...
-            // ### need escape character for filenames with quotes (")
-            QStringList tokens = editText.split(QLatin1Char('\"'));
-            for (int i = 0; i < tokens.size(); ++i) {
-                if ((i % 2) == 0)
-                    continue; // Every even token is a separator
-                QString name = d->toInternal(tokens.at(i));
-                QFileInfo info(name);
-                // if the filename has no suffix, add the default suffix
-                if (!d->defaultSuffix.isEmpty() && !info.isDir() && name.lastIndexOf(QLatin1Char('.')) == -1)
-                    name += QLatin1Char('.') + d->defaultSuffix;
-                // a new filename
-                if ((d->fileMode == ExistingFiles) || files.isEmpty()) {
-                    if (info.isAbsolute())
-                        files.append(name);
-                    else
-                        files.append(d->toInternal(d->lookInCombo->currentText()
-                                                   + QDir::separator() + name));
-                }
-            }
-        } else {
-            QString name = editText;
-            QFileInfo info(name);
-            // if the filename has no suffix, add the default suffix
-            if (!d->defaultSuffix.isEmpty() && !info.isDir() && name.lastIndexOf(QLatin1Char('.')) == -1)
-                name += QLatin1Char('.') + d->defaultSuffix;
-            if (info.isAbsolute())
-                files.append(name);
-            else
-                files.append(d->toInternal(d->model->filePath(d->rootIndex()) + QDir::separator() + name));
-        }
+        files = d->typedFiles();
     }
 
     // accept the current directory when in DirectoryOnly mode
@@ -558,13 +567,17 @@ void QFileDialog::setAcceptMode(QFileDialog::AcceptMode mode)
         d->lookInCombo->setCompleter(d->comboCompleter);
         connect(d->lookInCombo->lineEdit(), SIGNAL(textChanged(QString)),
                      this, SLOT(_q_updateOkButton()));
-        connect(d->lookInCombo->lineEdit(), SIGNAL(textChanged(QString)),
-                     this, SLOT(_q_autoCompleteFileName(QString)));
         connect(d->lookInCombo->lineEdit(), SIGNAL(returnPressed()),
                      this, SLOT(accept()));
     } else {
         d->lookInCombo->setEditable(false);
     }
+    disconnect(d->lookInCombo, SIGNAL(textChanged(QString)),
+            this, SLOT(_q_autoCompleteFileName()));
+    disconnect(d->fileNameEdit, SIGNAL(textChanged(QString)),
+            this, SLOT(_q_autoCompleteFileName()));
+    connect(d->lineEdit(), SIGNAL(textChanged(QString)),
+            this, SLOT(_q_autoCompleteFileName()));
 }
 
 void QFileDialogPrivate::updateFileTypeVisibility()
@@ -1560,7 +1573,8 @@ void QFileDialogPrivate::createWidgets()
     Q_Q(QFileDialog);
     model = new QFileSystemModel(q);
     model->setObjectName(QLatin1String("qt_filesystem_model"));
-    QFileDialog::connect(model, SIGNAL(layoutChanged()), q, SLOT(_q_layoutChanged()), Qt::QueuedConnection);
+    QFileDialog::connect(model, SIGNAL(layoutChanged()),
+                         q, SLOT(_q_layoutChanged()), Qt::QueuedConnection);
     QFileDialog::connect(model, SIGNAL(rootPathChanged(const QString &)),
             q, SLOT(_q_pathChanged(const QString &)));
     model->setReadOnly(false);
@@ -1570,7 +1584,8 @@ void QFileDialogPrivate::createWidgets()
                      << QUrl::fromLocalFile(QDir::homePath());
     sidebar = new QSidebar(model, initialBookmarks, q);
     sidebar->setObjectName(QLatin1String("qt_sidebar"));
-    QFileDialog::connect(sidebar, SIGNAL(goToUrl(const QUrl &)), q, SLOT(_q_goToUrl(const QUrl &)));
+    QFileDialog::connect(sidebar, SIGNAL(goToUrl(const QUrl &)),
+                         q, SLOT(_q_goToUrl(const QUrl &)));
 
     // labels
     lookInLabel = new QLabel(QFileDialog::tr("Where:"), q);
@@ -1580,7 +1595,8 @@ void QFileDialogPrivate::createWidgets()
     fileTypeLabel = new QLabel(QFileDialog::tr("Files of type:"), q);
 
     // push buttons
-    buttonBox = new QDialogButtonBox(QDialogButtonBox::Open | QDialogButtonBox::Cancel, Qt::Horizontal, q);
+    buttonBox = new QDialogButtonBox(QDialogButtonBox::Open
+                                     | QDialogButtonBox::Cancel, Qt::Horizontal, q);
     buttonBox->setObjectName(QLatin1String("qt_button_box"));
     QObject::connect(buttonBox, SIGNAL(accepted()), q, SLOT(accept()));
     QObject::connect(buttonBox, SIGNAL(rejected()), q, SLOT(reject()));
@@ -1605,8 +1621,6 @@ void QFileDialogPrivate::createWidgets()
     fileNameEdit->setCompleter(completer);
     QObject::connect(fileNameEdit, SIGNAL(textChanged(QString)),
                      q, SLOT(_q_updateOkButton()));
-    QObject::connect(fileNameEdit, SIGNAL(textChanged(QString)),
-                     q, SLOT(_q_autoCompleteFileName(QString)));
     QObject::connect(fileNameEdit, SIGNAL(returnPressed()), q, SLOT(accept()));
 
     // filetype
@@ -1615,13 +1629,16 @@ void QFileDialogPrivate::createWidgets()
     fileTypeCombo->setDuplicatesEnabled(false);
     fileTypeCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
     fileTypeCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    QObject::connect(fileTypeCombo, SIGNAL(activated(const QString &)), q, SLOT(_q_useNameFilter(const QString &)));
-    QObject::connect(fileTypeCombo, SIGNAL(activated(const QString &)), q, SIGNAL(filterSelected(const QString &)));
+    QObject::connect(fileTypeCombo, SIGNAL(activated(const QString &)),
+                     q, SLOT(_q_useNameFilter(const QString &)));
+    QObject::connect(fileTypeCombo, SIGNAL(activated(const QString &)),
+                     q, SIGNAL(filterSelected(const QString &)));
 
     listView = new QFileDialogListView(this);
     listView->setObjectName(QLatin1String("qt_list_view"));
     listView->setModel(model);
-    QObject::connect(listView, SIGNAL(activated(QModelIndex)), q, SLOT(_q_enterDirectory(QModelIndex)));
+    QObject::connect(listView, SIGNAL(activated(QModelIndex)),
+                     q, SLOT(_q_enterDirectory(QModelIndex)));
     QObject::connect(listView, SIGNAL(customContextMenuRequested(QPoint)),
                     q, SLOT(_q_showContextMenu(QPoint)));
 #ifndef QT_NO_SHORTCUT
@@ -1644,7 +1661,8 @@ void QFileDialogPrivate::createWidgets()
 
     QActionGroup *showActionGroup = new QActionGroup(q);
     showActionGroup->setExclusive(false);
-    q->connect(showActionGroup, SIGNAL(triggered(QAction *)), q, SLOT(_q_showHeader(QAction *)));;
+    QObject::connect(showActionGroup, SIGNAL(triggered(QAction *)),
+                     q, SLOT(_q_showHeader(QAction *)));;
     for (int i = 1; i < model->columnCount(QModelIndex()); ++i) {
         QAction *showHeader = new QAction(QFileDialog::tr("Show ") + model->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString(), showActionGroup);
         showHeader->setCheckable(true);
@@ -1654,7 +1672,8 @@ void QFileDialogPrivate::createWidgets()
     }
 
     treeView->setSelectionModel(listView->selectionModel());
-    QObject::connect(treeView, SIGNAL(activated(QModelIndex)), q, SLOT(_q_enterDirectory(QModelIndex)));
+    QObject::connect(treeView, SIGNAL(activated(QModelIndex)),
+                     q, SLOT(_q_enterDirectory(QModelIndex)));
     QObject::connect(treeView, SIGNAL(customContextMenuRequested(QPoint)),
                      q, SLOT(_q_showContextMenu(QPoint)));
 #ifndef QT_NO_SHORTCUT
@@ -1675,6 +1694,7 @@ void QFileDialogPrivate::createWidgets()
     stackedWidget->addWidget(listView);
 
     splitter = new QSplitter(q);
+    splitter->setObjectName("qt_splitter");
     splitter->addWidget(sidebar);
     splitter->addWidget(stackedWidget);
 
@@ -1685,8 +1705,8 @@ void QFileDialogPrivate::createWidgets()
 
     vTimeLine = new QTimeLine(100, q);
     hTimeLine = new QTimeLine(100, q);
-    q->connect(vTimeLine, SIGNAL(frameChanged(int)), q, SLOT(_q_animateDialogV(int)));
-    q->connect(hTimeLine, SIGNAL(frameChanged(int)), q, SLOT(_q_animateDialogH(int)));
+    QObject::connect(vTimeLine, SIGNAL(frameChanged(int)), q, SLOT(_q_animateDialogV(int)));
+    QObject::connect(hTimeLine, SIGNAL(frameChanged(int)), q, SLOT(_q_animateDialogH(int)));
 }
 
 void QFileDialogPrivate::_q_showHeader(QAction *action)
@@ -2115,10 +2135,11 @@ void QFileDialogPrivate::_q_deleteCurrent()
     }
 }
 
-void QFileDialogPrivate::_q_autoCompleteFileName(const QString &text) {
-    QModelIndex idx = model->index(text);
+void QFileDialogPrivate::_q_autoCompleteFileName() {
+    QStringList list = typedFiles();
+    QModelIndex idx = model->index(list.value(0));
     if (!idx.isValid())
-        idx = model->index(model->rootPath() + QDir::separator() + text);
+        idx = model->index(model->rootPath() + QDir::separator() + list.value(0));
     if (listView->selectionModel()->isSelected(idx) || listView->currentIndex() == idx)
         return;
     if (!idx.isValid())
