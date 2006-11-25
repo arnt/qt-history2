@@ -273,7 +273,7 @@ public:
 protected:
     void mousePressEvent ( QMouseEvent * event ) {
         QLineEdit::mousePressEvent(event);
-        selectAll();
+        clear();
     }
 };
 
