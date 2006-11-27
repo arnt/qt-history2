@@ -6742,6 +6742,11 @@ bool QDomDocument::setContent(const QString& text, bool namespaceProcessing, QSt
     returns a string for all elements and attributes. It returns an
     empty string if the element or attribute has no prefix.
 
+    Text nodes consisting only of whitespace are stripped and won't
+    appear in the QDomDocument. If this behavior is not of interest,
+    one can use the setContent() overload that lets a QXmlReader to be
+    supplied.
+
     If \a namespaceProcessing is false, the functions
     QDomNode::prefix(), QDomNode::localName() and
     QDomNode::namespaceURI() return an empty string.
