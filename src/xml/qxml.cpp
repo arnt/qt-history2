@@ -758,7 +758,7 @@ void QXmlNamespaceSupport::splitName(const QString& qname, QString& prefix,
 
     Note that attribute names are processed differently than element
     names: an unprefixed element name gets the default namespace (if
-    any), while an unprefixed element name does not.
+    any), while an unprefixed attribute name does not.
 */
 void QXmlNamespaceSupport::processName(const QString& qname,
         bool isAttribute,
