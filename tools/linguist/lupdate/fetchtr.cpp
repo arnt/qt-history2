@@ -486,7 +486,7 @@ static int getToken()
                     yyInteger = ba.toLongLong(&ok);
                     if (ok) return Tok_Integer;
                     break;
-                } 
+                }
             default:
                 yyCh = getChar();
             }
@@ -679,6 +679,11 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
 
                 if ( yyTok == Tok_Colon ) {
                     missing_Q_OBJECT = true;
+                    // Skip any token until '{' since lupdate might do things wrong if it finds
+                    // a '::' token here.
+                    do {
+                        yyTok = getToken();
+                    } while (yyTok != Tok_LeftBrace && yyTok != Tok_Eof);
                 } else {
                     functionContext = defaultContext;
                 }
@@ -707,7 +712,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
                     // no comment
                 } else if (match(Tok_Comma) && matchStringOrNull(&com)) {   //comment
                     if ( match(Tok_RightParen)) {
-                        // ok, 
+                        // ok,
                     } else if (match(Tok_Comma)) {
                         plural = true;
                     }
