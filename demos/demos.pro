@@ -10,9 +10,9 @@ SUBDIRS     = \
         demos_interview \
         demos_mainwindow \
         demos_spreadsheet \
-        demos_textedit 
+        demos_textedit \
+        demos_chip
 
-contains(QT_CONFIG, opengl):DEMOS_SUBDIRS += demos_chip
 unix:!embedded:contains(QT_CONFIG, qdbus):SUBDIRS += demos_dbus_viewer
 !contains(QT_EDITION, Console):!cross_compile:!embedded:SUBDIRS += demos_arthurplugin
 
