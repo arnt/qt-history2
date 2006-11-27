@@ -27,7 +27,6 @@
 #include <QtCore/QSet>
 
 #include <QtGui/QWidget>
-#include <QtGui/QPixmap>
 
 class DomConnections;
 
@@ -49,7 +48,7 @@ class FormWindowManager;
 class FormWindowDnDItem;
 class SetPropertyCommand;
 class BreakLayoutCommand;
-class Connection;
+
 
 class QT_FORMEDITOR_EXPORT FormWindow: public QDesignerFormWindowInterface
 {
@@ -141,7 +140,7 @@ public:
     void raiseSelection(QWidget *w);
     void hideSelection(QWidget *w);
 
-    inline QList<QWidget *> widgets() const { return m_widgets; }
+    inline const QList<QWidget *>& widgets() const { return m_widgets; }
     inline int widgetCount() const { return m_widgets.count(); }
     inline QWidget *widgetAt(int index) const { return m_widgets.at(index); }
 
@@ -190,6 +189,8 @@ public:
                         const QPoint &global_mouse_pos);
 
     QWidget *findContainer(QWidget *w, bool excludeLayout) const;
+    // for WidgetSelection only.
+    QWidget *designerWidget(QWidget *w) const;
 signals:
     void contextMenuRequested(QMenu *menu, QWidget *widget);
 
@@ -254,7 +255,6 @@ private:
     bool handleKeyReleaseEvent(QWidget *widget, QWidget *managedWidget, QKeyEvent *e);
 
     bool isCentralWidget(QWidget *w) const;
-    QWidget *designerWidget(QWidget *w) const;
 
     BreakLayoutCommand *breakLayoutCommand(QWidget *w);
 
@@ -265,10 +265,10 @@ private:
 
     QWidget *findTargetContainer(QWidget *widget) const;
 
-    bool isPageOfContainerWidget(QWidget *widget) const;
+    bool isPageOfContainerWidget(const QWidget *widget) const;
 
-    static int widgetDepth(QWidget *w);
-    static bool isChildOf(QWidget *c, const QWidget *p);
+    static int widgetDepth(const QWidget *w);
+    static bool isChildOf(const QWidget *c, const QWidget *p);
 
     void editWidgets();
 
@@ -284,41 +284,27 @@ private:
     QWidget *m_currentWidget;
     QPoint m_grid;
 
-    uint m_blockSelectionChanged: 1;
-    uint drawRubber: 1;
-    uint oldRectValid: 1;
-    uint hadOwnPalette: 1;
-    uint pad[28];
+    bool m_blockSelectionChanged;
+    bool m_drawRubber;
 
-    QPoint rectAnchor;
-    QRect currRect;
+    QPoint m_rectAnchor;
+    QRect m_currRect;
 
     QList<QWidget*> m_widgets;
     QSet<QWidget*> m_insertedWidgets;
 
-    QList<WidgetSelection *> selections;
-    QHash<QWidget *, WidgetSelection *> usedSelections;
+    QList<WidgetSelection *> m_selections;
+    QHash<QWidget *, WidgetSelection *> m_usedSelections;
 
-    QPoint startPos;
-    QPoint currentPos;
-
-    QRect widgetGeom;
-    QPoint oldPressPos;
-    QPoint origPressPos;
-    QWidget *startWidget;
-    QWidget *endWidget;
-
-    QWidget *targetContainer;
-    QPalette restorePalette;
-
+    QPoint m_startPos;
+   
     QUndoStack *m_commandHistory;
 
     QString m_fileName;
 
-    QList<QWidget*> orderedWidgets;
-    QList<QWidget*> stackedWidgets;
-
-    QMap<QWidget*, QPair<QPalette ,bool> > palettesBeforeHighlight;
+    typedef QPair<QPalette ,bool> PaletteAndFill;
+    typedef QMap<QWidget*, PaletteAndFill> WidgetPaletteMap;
+    WidgetPaletteMap m_palettesBeforeHighlight;
 
     QRubberBand *m_rubberBand;
 
@@ -346,10 +332,6 @@ private:
     int m_lastUndoIndex;
 
 private:
-//    friend class FormWindowManager;
-    friend class WidgetHandle;
-    friend class WidgetSelection;
-    friend class QDesignerWidget;
     friend class WidgetEditorTool;
 };
 

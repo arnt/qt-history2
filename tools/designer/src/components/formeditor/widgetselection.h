@@ -70,20 +70,21 @@ private:
     static int adjustPoint(int x, int dx);
 
 private:
-    QWidget *widget;
-    Type type;
-    QPoint origPressPos;
-    FormWindow *formWindow;
-    WidgetSelection *sel;
-    QRect geom, origGeom;
-    bool active;
+    QWidget *m_widget;
+    const Type m_type;
+    QPoint m_origPressPos;
+    FormWindow *m_formWindow;
+    WidgetSelection *m_sel;
+    QRect m_geom, m_origGeom;
+    bool m_active;
 };
 
 class QT_FORMEDITOR_EXPORT WidgetSelection: public QObject
 {
     Q_OBJECT
 public:
-    WidgetSelection(FormWindow *parent, QHash<QWidget *, WidgetSelection *> *selDict);
+    typedef QHash<QWidget *, WidgetSelection *> SelectionDictionary;
+    WidgetSelection(FormWindow *parent, SelectionDictionary *selDict);
 
     void setWidget(QWidget *w, bool updateDict = true);
     bool isUsed() const;
@@ -96,19 +97,19 @@ public:
     QWidget *widget() const;
 
     QDesignerTaskMenuExtension *taskMenuExtension() const
-    { return taskMenu; }
+    { return m_taskMenu; }
 
     QDesignerFormEditorInterface *core() const;
 
     virtual bool eventFilter(QObject *object, QEvent *event);
 
 protected:
-    QHash<int, WidgetHandle*> handles;
+    QHash<int, WidgetHandle*> m_handles;
     InvisibleWidget *m_topWidget;
-    QPointer<QWidget> wid;
-    FormWindow *formWindow;
-    QHash<QWidget *, WidgetSelection *> *selectionDict;
-    QDesignerTaskMenuExtension *taskMenu;
+    QPointer<QWidget> m_wid;
+    FormWindow *m_formWindow;
+    SelectionDictionary *m_selectionDict;
+    QDesignerTaskMenuExtension *m_taskMenu;
 };
 
 }  // namespace qdesigner_internal
