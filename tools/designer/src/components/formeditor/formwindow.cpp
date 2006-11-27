@@ -576,17 +576,20 @@ void FormWindow::setCurrentWidget(QWidget *currentWidget)
 
 QSize FormWindow::sizeHint() const
 {
-    QMainWindow *mw = qobject_cast<QMainWindow*>(mainContainer());
-    if (!mw) {
+    QWidget *w = mainContainer();
+    if (!w)
         return QSize(400, 300);
-    }
-    QSize sh = mw->sizeHint();
-    if (sh.width() < 400)
-        sh.setWidth(400);
-    if (sh.height() < 300)
-        sh.setHeight(300);
-    return sh;
 
+    QWidget *centralWidget = w;
+
+    QMainWindow *mw = qobject_cast<QMainWindow*>(w);
+    if (mw)
+        centralWidget = mw->centralWidget();
+
+    if (centralWidget->layout())
+        return w->sizeHint();
+
+    return w->sizeHint().expandedTo(QSize(400, 300));
 }
 
 void FormWindow::selectWidget(QWidget* w, bool select)
