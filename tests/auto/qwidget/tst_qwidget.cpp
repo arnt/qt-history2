@@ -2763,6 +2763,9 @@ void tst_QWidget::setFixedSize()
     QVERIFY(!w.testAttribute(Qt::WA_Resized));
 
     w.setFixedSize(defaultSize + QSize(200, 200));
+
+    QCOMPARE(w.minimumSize(), defaultSize + QSize(200,200));
+    QCOMPARE(w.maximumSize(), defaultSize + QSize(200,200));
     QCOMPARE(w.size(), defaultSize + QSize(200, 200));
     QEXPECT_FAIL("", "Bug in <= 4.2", Continue);
     QVERIFY(!w.testAttribute(Qt::WA_Resized));
