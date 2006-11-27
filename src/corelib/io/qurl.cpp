@@ -5105,6 +5105,8 @@ bool QUrl::isDetached() const
 /*!
     Returns a QUrl representation of \a localFile, interpreted as a
     local file.
+
+    \sa toLocalFile()
 */
 QUrl QUrl::fromLocalFile(const QString &localFile)
 {
@@ -5133,6 +5135,8 @@ QUrl QUrl::fromLocalFile(const QString &localFile)
 
 /*!
     Returns the path of this URL formatted as a local file path.
+
+    \sa fromLocalFile()
 */
 QString QUrl::toLocalFile() const
 {
