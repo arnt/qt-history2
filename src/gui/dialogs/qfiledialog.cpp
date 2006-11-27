@@ -1556,11 +1556,8 @@ void QFileDialogPrivate::layout()
 
     if (acceptMode == QFileDialog::AcceptSave)
         fileNameEdit->setFocus();
-    else {
-	// Why does window crash if !isVisible?
-        if (q->isVisible())
-		stackedWidget->currentWidget()->setFocus();
-    }
+    else
+        stackedWidget->currentWidget()->setFocus();    
 }
 
 /*!
