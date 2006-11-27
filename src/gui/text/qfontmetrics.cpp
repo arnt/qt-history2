@@ -707,7 +707,11 @@ QRect QFontMetrics::boundingRect(const QRect &rect, int flags, const QString &te
     QRectF rr(rect);
     qt_format_text(QFont(d), rr, flags | Qt::TextDontPrint, text, &rb, tabStops, tabArray,
                    tabArrayLen, 0);
-    return rb.toRect();
+
+    // make sure both top left and bottom right pixels are included
+    QPointF padding(0.5, 0.5);
+    return QRect((rb.topLeft() - padding).toPoint(),
+                 (rb.bottomRight() + padding).toPoint());
 }
 
 /*!
