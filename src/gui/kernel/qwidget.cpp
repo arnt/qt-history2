@@ -4391,6 +4391,8 @@ bool QWidget::isActiveWindow() const
     }
 #if defined(Q_WS_WIN32)
     HWND active = GetActiveWindow();
+    if (!tlw->testAttribute(Qt::WA_WState_Created))
+        return false;
     return active == tlw->internalWinId() || ::IsChild(active, tlw->internalWinId());
 #else
     return false;
