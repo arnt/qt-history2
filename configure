@@ -473,7 +473,7 @@ CFG_XSHAPE=auto
 CFG_XINERAMA=auto
 CFG_ZLIB=auto
 CFG_SQLITE=qt
-CFG_GIF=no
+CFG_GIF=auto
 CFG_TIFF=no
 CFG_PNG=yes
 CFG_LIBPNG=auto
@@ -3383,6 +3383,15 @@ if [ "$CFG_LIBJPEG" = "auto" ]; then
        CFG_LIBJPEG=system
     else
        CFG_LIBJPEG=qt
+    fi
+fi
+
+# detect how gif should be built
+if [ "$CFG_GIF" = "auto" ]; then
+    if [ "$CFG_SHARED" = "yes" ]; then
+        CFG_GIF=plugin
+    else
+        CFG_GIF=yes
     fi
 fi
 
