@@ -795,7 +795,9 @@ void QFileDialogPrivate::setUrl(const QModelIndex &index, const QUrl &url)
         if (index.data() != dirIndex.data()) {
             lookInCombo->model()->setData(index, model->data(dirIndex).toString());
         }
-        if (index.data(Qt::DecorationRole).value<QIcon>().serialNumber() != dirIndex.data(Qt::DecorationRole).value<QIcon>().serialNumber()) {
+        QIcon icon1 = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
+        QIcon icon2 = qvariant_cast<QIcon>(dirIndex.data(Qt::DecorationRole));
+        if (icon1.serialNumber() != icon2.serialNumber()) {
             lookInCombo->model()->setData(index, model->data(dirIndex, Qt::DecorationRole), Qt::DecorationRole);
         }
     }
@@ -1557,7 +1559,7 @@ void QFileDialogPrivate::layout()
     if (acceptMode == QFileDialog::AcceptSave)
         fileNameEdit->setFocus();
     else
-        stackedWidget->currentWidget()->setFocus();    
+        stackedWidget->currentWidget()->setFocus();
 }
 
 /*!

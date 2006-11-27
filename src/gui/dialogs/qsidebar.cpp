@@ -131,7 +131,9 @@ void QSidebar::setUrl(const QModelIndex &index, const QUrl &url)
         if (index.data() != dirIndex.data()) {
             model()->setData(index, dirIndex.data().toString());
         }
-        if (index.data(Qt::DecorationRole).value<QIcon>().serialNumber() != dirIndex.data(Qt::DecorationRole).value<QIcon>().serialNumber()) {
+        QIcon icon1 = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
+        QIcon icon2 = qvariant_cast<QIcon>(dirIndex.data(Qt::DecorationRole));
+        if (icon1.serialNumber() != icon2.serialNumber()) {
             model()->setData(index, dirIndex.data(Qt::DecorationRole), Qt::DecorationRole);
         }
     }
