@@ -2044,7 +2044,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
 //         qDebug() << "layout line y=" << currentYPos << "left=" << left << "right=" <<right;
 
             if (fixedColumnWidth != -1)
-                line.setNumColumns(fixedColumnWidth);
+                line.setNumColumns(fixedColumnWidth, right - left);
             else
                 line.setLineWidth(right - left);
 

@@ -184,6 +184,7 @@ public:
 
     void setLineWidth(qreal width);
     void setNumColumns(int columns);
+    void setNumColumns(int columns, qreal alignmentWidth);
 
     void setPosition(const QPointF &pos);
     QPointF position() const;

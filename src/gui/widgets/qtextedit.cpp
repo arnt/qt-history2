@@ -1199,7 +1199,7 @@ QVariant QTextEdit::loadResource(int type, const QUrl &name)
 void QTextEdit::resizeEvent(QResizeEvent *e)
 {
     Q_D(QTextEdit);
-    if (d->lineWrap == WidgetWidth || d->lineWrap == NoWrap) {
+    if (d->lineWrap != FixedPixelWidth) {
         if (e->oldSize().width() == e->size().width()
             && e->oldSize().height() != e->size().height())
             d->_q_adjustScrollbars();
@@ -1240,20 +1240,9 @@ void QTextEditPrivate::relayoutDocument()
     const bool oldIgnoreScrollbarAdjustment = ignoreAutomaticScrollbarAdjustment;
     ignoreAutomaticScrollbarAdjustment = true;
 
-    int width = 0;
-    switch (lineWrap) {
-        case QTextEdit::NoWrap:
-            // fall through
-        case QTextEdit::WidgetWidth:
-            width = viewport->width();
-            break;
-        case QTextEdit::FixedPixelWidth:
-            width = lineWrapColumnOrWidth;
-            break;
-        case QTextEdit::FixedColumnWidth:
-            width = 0;
-            break;
-    }
+    int width = viewport->width();
+    if (lineWrap == QTextEdit::FixedPixelWidth)
+        width = lineWrapColumnOrWidth;
 
     doc->setPageSize(QSize(width, INT_MAX));
     if (tlayout)

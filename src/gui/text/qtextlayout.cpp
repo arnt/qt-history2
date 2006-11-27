@@ -1139,6 +1139,23 @@ void QTextLine::setNumColumns(int numColumns)
     layout_helper(numColumns);
 }
 
+/*!
+    Lays out the line. The line is filled from its starting position
+    with as many characters as are specified by \a numColumns. In case
+    the text cannot be split until \a numColumns characters, the line
+    will be filled with as many characters to the next whitespace or
+    end of the text. The provided \a alignmentWidth is used as reference
+    width for alignment.
+*/
+void QTextLine::setNumColumns(int numColumns, qreal alignmentWidth)
+{
+    QScriptLine &line = eng->lines[i];
+    line.width = QFixed::fromReal(alignmentWidth);
+    line.length = 0;
+    line.textWidth = 0;
+    layout_helper(numColumns);
+}
+
 enum State {
     Empty,
     Characters,
