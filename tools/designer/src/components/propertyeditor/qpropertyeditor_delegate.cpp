@@ -113,14 +113,6 @@ bool QPropertyEditorDelegate::eventFilter(QObject *object, QEvent *event)
                 event->ignore();
                 return true;
             }
-            if (ke->key() == Qt::Key_Enter || ke->key() == Qt::Key_Return) {
-                QWidget *widget = qobject_cast<QWidget*>(object);
-                if (QSpinBox *spinBox = qobject_cast<QSpinBox*>(widget)) { // ### hack (remove me)
-                    spinBox->interpretText();
-                }
-                emit commitData(widget);
-                return true;
-            }
         } break;
 
         case QEvent::FocusOut:
