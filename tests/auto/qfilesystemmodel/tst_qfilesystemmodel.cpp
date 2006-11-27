@@ -9,9 +9,8 @@
 ****************************************************************************/
 
 #include <QtTest/QtTest>
-#include <qfilesystemmodel_p.h>
+#include "../../../src/gui/dialogs/qfilesystemmodel_p.h"
 #include <QFileIconProvider>
-#include <modeltest.h>
 
 //TESTED_CLASS=QFileSystemModel
 //TESTED_FILES=qfilesystemmodel.h qfilesystemmodel.cpp
@@ -60,10 +59,9 @@ protected:
 
 private:
     QFileSystemModel *model;
-    Modeltest *test;
 };
 
-tst_QFileSystemModel::tst_QFileSystemModel() : model(0), test(0)
+tst_QFileSystemModel::tst_QFileSystemModel() : model(0)
 {
     qRegisterMetaType<QModelIndex>("QModelIndex");
 }
@@ -76,24 +74,23 @@ void tst_QFileSystemModel::init()
 {
     cleanup();
     QCOMPARE(model, (QFileSystemModel*)0);
-    QCOMPARE(test, (Modeltest*)0);
     model = new QFileSystemModel;
-    test = new Modeltest(model);
 }
 
 void tst_QFileSystemModel::cleanup()
 {
     delete model;
-    delete test;
     model = 0;
-    test = 0;
     QString tmp = QDir::temp().path() + QString("/flatdirtest");
     QDir dir(tmp);
     if (dir.exists(tmp)) {
         QStringList list = dir.entryList(QDir::AllEntries | QDir::System | QDir::Hidden | QDir::NoDotAndDotDot);
         for (int i = 0; i < list.count(); ++i) {
-            QFile::remove(tmp + "/" + list.at(i));
-            dir.rmdir(list.at(i));
+            QFileInfo fi(dir.path() + QDir::separator() + list.at(i));
+            if (fi.exists() && fi.isFile())
+                QVERIFY(QFile::remove(tmp + QDir::separator() + list.at(i)));
+            if (fi.exists() && fi.isDir())
+                QVERIFY(dir.rmdir(list.at(i)));
         }
         list = dir.entryList(QDir::AllEntries | QDir::System | QDir::Hidden | QDir::NoDotAndDotDot);
         QVERIFY(list.count() == 0);
@@ -209,7 +206,7 @@ bool tst_QFileSystemModel::createFiles(const QString &test_path, const QStringLi
         dir.mkdir(initial_dirs.at(i));
     }
     for (int i = 0; i < initial_files.count(); ++i) {
-        QFile file(test_path + "/" + initial_files.at(i));
+        QFile file(test_path + QDir::separator() + initial_files.at(i));
         if (!file.open(QIODevice::Append)) {
             qDebug() << "failed to open file" << initial_files.at(i);
             return false;
@@ -223,7 +220,7 @@ bool tst_QFileSystemModel::createFiles(const QString &test_path, const QStringLi
             return false;
         }
         file.close();
-        //qDebug() << test_path + "/" + initial_files.at(i) << (QFile::exists(test_path + "/" + initial_files.at(i)));
+        //qDebug() << test_path + QDir::separator() + initial_files.at(i) << (QFile::exists(test_path + QDir::separator() + initial_files.at(i)));
     }
 
     return true;
@@ -323,24 +320,29 @@ void tst_QFileSystemModel::rowsRemoved()
     int oldCount = model->rowCount(root);
     for (int i = count - 1; i >= 0; --i) {
         qDebug() << "removing" <<  model->index(i, 0, root).data().toString();
-        QFile::remove(tmp + "/" + model->index(i, 0, root).data().toString());
-    }
-    for (int i = 0 ; i < 4; ++i) {
+        QVERIFY(QFile::remove(tmp + QDir::separator() + model->index(i, 0, root).data().toString()));
+        // Workaround for QFileSystemWatcher issue #141001
         QTest::qWait(WAITTIME);
+    }
+    for (int i = 0 ; i < 10; ++i) {
+        QTest::qWait(WAITTIME);
+        qApp->processEvents();
         if (count != 0) QVERIFY(spy0.count() >= 1); else QVERIFY(spy0.count() == 0);
         if (count != 0) QVERIFY(spy1.count() >= 1); else QVERIFY(spy1.count() == 0);
         QStringList lst;
-        for (int i=0;i<model->rowCount(root);++i)
+        for (int i = 0; i < model->rowCount(root); ++i)
             lst.append(model->index(i, 0, root).data().toString());
         if (model->rowCount(root) == oldCount - count)
             break;
-        qDebug() << "rc:" << lst << QFile::exists(tmp + "/" + QString(".a"));
+        qDebug() << "still have:" << lst << QFile::exists(tmp + QDir::separator() + QString(".a"));
+        QDir tmpLister(tmp);
+        qDebug() << tmpLister.entryList();
     }
     QCOMPARE(model->rowCount(root), oldCount - count);
 
-    QVERIFY(QFile::exists(tmp + "/" + QString(".a")));
-    QVERIFY(QFile::remove(tmp + "/" + QString(".a")));
-    QVERIFY(QFile::remove(tmp + "/" + QString(".c")));
+    QVERIFY(QFile::exists(tmp + QDir::separator() + QString(".a")));
+    QVERIFY(QFile::remove(tmp + QDir::separator() + QString(".a")));
+    QVERIFY(QFile::remove(tmp + QDir::separator() + QString(".c")));
     QTest::qWait(WAITTIME);
 
     if (count != 0) QVERIFY(spy0.count() >= 1); else QVERIFY(spy0.count() == 0);
@@ -431,9 +433,9 @@ void tst_QFileSystemModel::filters()
         QVERIFY(xFactor.entryList(filters).count() == rowCount);
 
     if (files.count() > 3 && rowCount >= 3) {
-        QString fileName1 = (tmp + "/" + files.at(0));
-        QString fileName2 = (tmp + "/" + files.at(1));
-        QString fileName3 = (tmp + "/" + files.at(2));
+        QString fileName1 = (tmp + QDir::separator() + files.at(0));
+        QString fileName2 = (tmp + QDir::separator() + files.at(1));
+        QString fileName3 = (tmp + QDir::separator() + files.at(2));
         QVERIFY(QFile::setPermissions(fileName1, QFile::WriteOwner));
         QVERIFY(QFile::setPermissions(fileName2, QFile::ReadOwner));
         QVERIFY(QFile::setPermissions(fileName3, QFile::ExeOwner));
