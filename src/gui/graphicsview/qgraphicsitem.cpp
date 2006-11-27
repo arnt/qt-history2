@@ -5132,10 +5132,9 @@ bool QGraphicsTextItem::sceneEvent(QEvent *event)
 */
 void QGraphicsTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (!hasFocus()) {
-        QGraphicsItem::mousePressEvent(event);
+    QGraphicsItem::mousePressEvent(event);
+    if (!hasFocus())
         return;
-    }
 
     dd->sendControlEvent(event);
 }
