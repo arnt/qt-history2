@@ -44,6 +44,7 @@
     <example filename="simpledommodel" name="Simple DOM Model" />
     <example filename="simpletreemodel" name="Simple Tree Model" />
     <example filename="spinboxdelegate" name="Spin Box Delegate" />
+    <example filename="stardelegate" name="Star Delegate" />
   </category>
   <category dirname="layouts" name="Layouts">
     <example filename="basiclayouts" name="Basic Layouts" />
@@ -127,6 +128,7 @@
   <category dirname="widgets" name="Widgets">
     <example filename="analogclock" name="Analog Clock" />
     <example filename="calculator" name="Calculator" />
+    <example filename="calendarwidget" name="Calendar Widget" />
     <example filename="charactermap" name="Character Map" />
     <example filename="digitalclock" name="Digital Clock" />
     <example filename="groupbox" name="Group Box" />

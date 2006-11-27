@@ -7,7 +7,8 @@ SUBDIRS       = basicsortfiltermodel \
                 puzzle \
                 simpledommodel \
                 simpletreemodel \
-                spinboxdelegate
+                spinboxdelegate \
+                stardelegate
 
 # install
 sources.files = README *.pro

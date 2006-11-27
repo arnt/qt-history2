@@ -31,7 +31,7 @@ void StarEditor::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void StarEditor::mouseReleaseEvent(QMouseEvent *event)
+void StarEditor::mouseReleaseEvent(QMouseEvent * /* event */)
 { 
     emit editingFinished();
 }

@@ -20,7 +20,7 @@ Window::Window()
     previewLayout->setRowMinimumHeight(0, calendar->sizeHint().height());
     previewLayout->setColumnMinimumWidth(0, calendar->sizeHint().width());
 
-    setWindowTitle(tr("Calendar"));
+    setWindowTitle(tr("Calendar Widget"));
 }
 
 void Window::firstDayChanged(int index)
