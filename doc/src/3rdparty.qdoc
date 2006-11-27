@@ -57,6 +57,31 @@
     \i Renamed: ftgrays.c to qgrayraster.c
     \endlist
 
+    \section1 HarfBuzz (\c harfbuzz)
+
+    \e{This is HarfBuzz, an OpenType Layout engine.}
+
+    \e{It was derived originally from the OpenType code in FreeType-1.x, ported to
+    FreeType2.  (This code has been abandoned for FreeType2, but until something
+    better comes along, should serve our purposes.) In addition to porting to
+    FreeType-2, it has been modified in various other ways.} -- quoted from
+    \c src/3rdparty/harfbuzz/README.
+
+    See \c src/3rdparty/harfbuzz/COPYING.FTL and src/3rdparty/harfbuzz/COPYING.GPL
+    for license details.
+
+    \section1 MD5 (\c md5.cpp and \c md5.h)
+
+    \e{This code implements the MD5 message-digest algorithm.
+    The algorithm is due to Ron Rivest.  This code was
+    written by Colin Plumb in 1993, no copyright is claimed.
+    This code is in the public domain; do with it what you wish.} -- quoted from
+    \c src/3rdparty/md5/md5.h
+
+    See \c src/3rdparty/md5/md5.cpp and \c src/3rdparty/md5/md5.h for more
+    information about the terms and conditions under which the code is
+    supplied.
+
     \section1 The Independent JPEG Group's JPEG Software (\c libjpeg)
 
     \e{This package contains C software to implement JPEG image compression and
