@@ -1870,6 +1870,9 @@ QStyle *QWidget::style() const
     If no style is set, the widget uses the application's style,
     QApplication::style() instead.
 
+    Setting a widget's style has no effect on existing or future child
+    widgets.
+
     \warning This function is particularly useful for demonstration
     purposes, where you want to show Qt's styling capabilities. Real
     applications should avoid it and use one consistent GUI style
