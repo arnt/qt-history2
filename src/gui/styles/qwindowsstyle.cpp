@@ -851,6 +851,11 @@ QPixmap QWindowsStyle::standardPixmap(StandardPixmap standardPixmap, const QStyl
             desktopIcon = loadIconFromShell32(319, 16);
             break;
         }
+    case SP_DirHomeIcon:
+        {
+            desktopIcon = loadIconFromShell32(235, 16);
+            break;
+        }
     case SP_TrashIcon:
         {
             desktopIcon = loadIconFromShell32(191, 16);
@@ -2952,6 +2957,14 @@ QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, con
     QPixmap pixmap;
 #ifdef Q_OS_WIN
     switch (standardIcon) {
+    case SP_DirHomeIcon:
+    {
+        for (int size = 16 ; size <= 32 ; size += 16) {
+            pixmap = loadIconFromShell32(235, size);
+            icon.addPixmap(pixmap, QIcon::Normal);
+        }
+        break;
+    }
     case SP_DirIcon:
         for (int size = 16 ; size <= 32 ; size += 16) {
             pixmap = loadIconFromShell32(4, size);
