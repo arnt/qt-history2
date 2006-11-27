@@ -421,8 +421,8 @@ bool Q3ButtonGroup::event(QEvent * e)
                         return Q3GroupBox::event(e);
                     ++it;
                 }
-                insert(button);
             }
+            insert(button);
         }
     }
     return Q3GroupBox::event(e);
