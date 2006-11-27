@@ -26,7 +26,7 @@
 #define TEXTPROPERTYEDITOR_H
 
 #include "shared_global_p.h"
-#include "shared_enums.h"
+#include "shared_enums_p.h"
 
 #include <QtGui/QWidget>
 

@@ -26,7 +26,7 @@
 //
 
 #include "propertyeditor_global.h"
-#include <shared_enums.h>
+#include <shared_enums_p.h>
 
 #include <QtCore/QStringList>
 #include <QtCore/QVariant>

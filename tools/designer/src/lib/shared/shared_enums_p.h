@@ -35,14 +35,12 @@ namespace qdesigner_internal {
         ValidationMultiLine,
         // Validate a stylesheet
         ValidationStyleSheet,
-            // Single line mode, suppresses newlines
-            ValidationSingleLine,
-            // Allow only for identifier characters
-            ValidationObjectName,
-            // Allow only for identifier characters and colons
-            ValidationObjectNameScope };
-
-
+        // Single line mode, suppresses newlines
+        ValidationSingleLine,
+        // Allow only for identifier characters
+        ValidationObjectName,
+        // Allow only for identifier characters and colons
+        ValidationObjectNameScope };
 }
 
 #endif // SHAREDENUMS_H
