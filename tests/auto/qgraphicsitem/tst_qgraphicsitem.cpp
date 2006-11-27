@@ -80,6 +80,7 @@ private slots:
     void selected();
     void selected2();
     void selected_group();
+    void selected_textItem();
     void acceptedMouseButtons();
     void acceptsHoverEvents();
     void hasFocus();
@@ -879,6 +880,28 @@ void tst_QGraphicsItem::selected_group()
     scene2.addItem(item1);
     QVERIFY(!item1->isSelected());
     QVERIFY(item2->isSelected());
+}
+
+void tst_QGraphicsItem::selected_textItem()
+{
+    QGraphicsScene scene;
+    QGraphicsTextItem *text = scene.addText(QLatin1String("Text"));
+    text->setFlag(QGraphicsItem::ItemIsSelectable);
+
+    QGraphicsView view(&scene);
+    view.show();
+
+    QVERIFY(!text->isSelected());
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, 0,
+                      view.mapFromScene(text->mapToScene(0, 0)));
+    QVERIFY(text->isSelected());
+
+    text->setSelected(false);
+    text->setTextInteractionFlags(Qt::TextEditorInteraction);
+    
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, 0,
+                      view.mapFromScene(text->mapToScene(0, 0)));
+    QVERIFY(text->isSelected());
 }
 
 void tst_QGraphicsItem::acceptedMouseButtons()
