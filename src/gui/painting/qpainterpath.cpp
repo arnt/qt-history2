@@ -1779,11 +1779,8 @@ static bool qt_isect_curve_horizontal(const QBezier &bezier, qreal y, qreal x1, 
 
         QBezier first_half, second_half;
         bezier.split(&first_half, &second_half);
-        qreal midpoint = x1 + (x2 - x1) / 2;
-        if (qt_isect_curve_horizontal(first_half, y, x1, midpoint)
-            || qt_isect_curve_horizontal(first_half, y, midpoint, x2)
-            || qt_isect_curve_horizontal(second_half, y, x1, midpoint)
-            || qt_isect_curve_horizontal(second_half, y, midpoint, x2))
+        if (qt_isect_curve_horizontal(first_half, y, x1, x2)
+            || qt_isect_curve_horizontal(second_half, y, x1, x2))
             return true;
     }
     return false;
@@ -1794,21 +1791,18 @@ static bool qt_isect_curve_vertical(const QBezier &bezier, qreal x, qreal y1, qr
     QRectF bounds = bezier.bounds();
 
     if (x >= bounds.left() && x < bounds.right()
-        && bounds.top() >= y1 && bounds.bottom() < y2) {
+        && bounds.bottom() >= y1 && bounds.top() < y2) {
         const qreal lower_bound = .01;
         if (bounds.width() < lower_bound && bounds.height() < lower_bound)
             return true;
 
         QBezier first_half, second_half;
         bezier.split(&first_half, &second_half);
-        qreal midpoint = y1 + (y2 - y1) / 2;
-        if (qt_isect_curve_horizontal(first_half, x, y1, midpoint)
-            || qt_isect_curve_horizontal(first_half, x, midpoint, y2)
-            || qt_isect_curve_horizontal(second_half, x, y1, midpoint)
-            || qt_isect_curve_horizontal(second_half, x, midpoint, y2))
+        if (qt_isect_curve_vertical(first_half, x, y1, y2)
+            || qt_isect_curve_vertical(second_half, x, y1, y2))
             return true;
     }
-    return false;
+     return false;
 }
 
 /*
