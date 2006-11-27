@@ -1446,8 +1446,8 @@ COMPARE_IMPL2(qint64, %lld)
 COMPARE_IMPL2(quint64, %llu)
 COMPARE_IMPL2(bool, %d)
 COMPARE_IMPL2(char, %c)
-COMPARE_IMPL2(float, %f);
-COMPARE_IMPL2(double, %lf);
+COMPARE_IMPL2(float, %g);
+COMPARE_IMPL2(double, %lg);
 
 /*! \internal
  */
