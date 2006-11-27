@@ -14,7 +14,9 @@
 #include "view.h"
 
 #include <QtGui>
+#ifndef QT_NO_OPENGL
 #include <QtOpenGL>
+#endif
 
 #include <math.h>
 
@@ -86,7 +88,11 @@ View::View(const QString &name, QWidget *parent)
     openGlButton = new QToolButton;
     openGlButton->setText(tr("OpenGL"));
     openGlButton->setCheckable(true);
+#ifndef QT_NO_OPENGL
     openGlButton->setEnabled(QGLFormat::hasOpenGL());
+#else
+    openGlButton->setEnabled(false);
+#endif
     printButton = new QToolButton;
     printButton->setIcon(QIcon(QPixmap(":/fileprint.png")));
 
@@ -154,7 +160,9 @@ void View::setupMatrix()
 
 void View::toggleOpenGL()
 {
+#ifndef QT_NO_OPENGL
     graphicsView->setViewport(openGlButton->isChecked() ? new QGLWidget(QGLFormat(QGL::SampleBuffers)) : new QWidget);
+#endif
 }
 
 void View::toggleAntialiasing()
