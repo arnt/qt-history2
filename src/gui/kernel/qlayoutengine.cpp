@@ -325,11 +325,11 @@ Q_GUI_EXPORT QSize qSmartMaxSize(const QSize &sizeHint,
         return QSize(QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX);
     QSize s = maxSize;
     if (s.width() == QWIDGETSIZE_MAX && !(align & Qt::AlignHorizontal_Mask))
-        if (!(sizePolicy.horizontalPolicy() & QSizePolicy::GrowFlag))
+        if (!(sizePolicy.horizontalPolicy() & QSizePolicy::GrowFlag) &&sizeHint.width() != -1)
             s.setWidth(sizeHint.width());
 
     if (s.height() == QWIDGETSIZE_MAX && !(align & Qt::AlignVertical_Mask))
-        if (!(sizePolicy.verticalPolicy() & QSizePolicy::GrowFlag))
+        if (!(sizePolicy.verticalPolicy() & QSizePolicy::GrowFlag) &&sizeHint.height() != -1)
             s.setHeight(sizeHint.height());
 
     s = s.expandedTo(minSize);
@@ -345,13 +345,13 @@ Q_GUI_EXPORT QSize qSmartMaxSize(const QWidgetItem *i, Qt::Alignment align)
 {
     QWidget *w = ((QWidgetItem*)i)->widget();
 
-    return qSmartMaxSize(w->sizeHint(), w->minimumSize(), w->maximumSize(),
+    return qSmartMaxSize(w->sizeHint().expandedTo(w->minimumSizeHint()), w->minimumSize(), w->maximumSize(),
                             w->sizePolicy(), align);
 }
 
 Q_GUI_EXPORT QSize qSmartMaxSize(const QWidget *w, Qt::Alignment align)
 {
-    return qSmartMaxSize(w->sizeHint(), w->minimumSize(), w->maximumSize(),
+    return qSmartMaxSize(w->sizeHint().expandedTo(w->minimumSizeHint()), w->minimumSize(), w->maximumSize(),
                             w->sizePolicy(), align);
 }
 
