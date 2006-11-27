@@ -19,7 +19,7 @@
 
 class QFileSystemModel;
 
-class QSidebar : public QListWidget
+class Q_AUTOTEST_EXPORT QSidebar : public QListWidget
 {
     Q_OBJECT
 

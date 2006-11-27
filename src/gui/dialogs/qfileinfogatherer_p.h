@@ -74,7 +74,7 @@ public:
 
 class QFileIconProvider;
 
-class QFileInfoGatherer : public QThread
+class Q_AUTOTEST_EXPORT QFileInfoGatherer : public QThread
 {
 Q_OBJECT
 

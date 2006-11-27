@@ -22,7 +22,7 @@ class ExtendedInformation;
 class QFileSystemModelPrivate;
 class QFileIconProvider;
 
-class QFileSystemModel : public QAbstractItemModel
+class Q_AUTOTEST_EXPORT QFileSystemModel : public QAbstractItemModel
 {
     Q_OBJECT
     Q_PROPERTY(bool resolveSymlinks READ resolveSymlinks WRITE setResolveSymlinks)
