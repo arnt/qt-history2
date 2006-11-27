@@ -901,7 +901,7 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
 
 }
 
-QPixmap qt_mac_convert_iconref(IconRef icon, int width, int height)
+QPixmap qt_mac_convert_iconref(const IconRef icon, int width, int height)
 {
     QPixmap ret(width, height);
     ret.fill(QColor(0, 0, 0, 0));

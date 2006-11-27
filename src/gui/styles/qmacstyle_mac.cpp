@@ -185,7 +185,6 @@ public:
     QMacStyle *q;
 };
 
-QPixmap qt_mac_convert_iconref(IconRef icon, int width, int height);
 QPointer<QMacStylePrivateObjectWatcher> QMacStylePrivate::PolicyState::watcher;
 QMap<const QWidget*, QMacStyle::FocusRectPolicy> QMacStylePrivate::PolicyState::focusMap;
 QMap<const QWidget*, QMacStyle::WidgetSizePolicy> QMacStylePrivate::PolicyState::sizeMap;
@@ -196,7 +195,7 @@ QMap<const QWidget*, QMacStyle::WidgetSizePolicy> QMacStylePrivate::PolicyState:
   External functions
  *****************************************************************************/
 extern CGContextRef qt_mac_cg_context(const QPaintDevice *); //qpaintdevice_mac.cpp
-extern QPixmap qt_mac_convert_iconref(IconRef, int, int); //qpixmap_mac.cpp
+extern QPixmap qt_mac_convert_iconref(const IconRef, int, int); //qpixmap_mac.cpp
 extern QRegion qt_mac_convert_mac_region(HIShapeRef); //qregion_mac.cpp
 RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
@@ -4836,6 +4835,22 @@ bool QMacStyle::event(QEvent *e)
     return false;
 }
 
+void qt_mac_constructQIconFromIconRef(const IconRef icon, const IconRef overlayIcon, QIcon *retIcon)
+{
+    int size = 16;
+    while (size <= 128) {
+        QPixmap mainIcon = qt_mac_convert_iconref(icon, size, size);
+        if (overlayIcon) {
+            int littleSize = size / 2;
+            QPixmap overlayPix = qt_mac_convert_iconref(overlayIcon, littleSize, littleSize);
+            QPainter painter(&mainIcon);
+            painter.drawPixmap(size - littleSize, size - littleSize, overlayPix);
+        }
+        retIcon->addPixmap(mainIcon);
+        size += size;  // 16 -> 32 -> 64 -> 128
+    }
+}
+
 /*!
     \internal
 */
@@ -4942,20 +4957,9 @@ QIcon QMacStyle::standardIconImplementation(StandardPixmap standardIcon, const Q
             }
         }
         if (icon) {
-            int size = 16;
-            while (size <= 128) {
-                QPixmap mainIcon = qt_mac_convert_iconref(icon, size, size);
-                if (overlayIcon) {
-                    int littleSize = size / 2;
-                    QPixmap overlayPix = qt_mac_convert_iconref(overlayIcon, littleSize, littleSize);
-                    QPainter painter(&mainIcon);
-                    painter.drawPixmap(size - littleSize, size - littleSize, overlayPix);
-                }
-                retIcon.addPixmap(mainIcon);
-                size += size;  // 16 -> 32 -> 64 -> 128
-            }
+            qt_mac_constructQIconFromIconRef(icon, overlayIcon, &retIcon);
+            ReleaseIconRef(icon);
         }
-        ReleaseIconRef(icon);
         if (overlayIcon)
             ReleaseIconRef(overlayIcon);
         return retIcon;

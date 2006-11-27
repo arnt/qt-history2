@@ -21,6 +21,8 @@
 #include <private/qpixmap_p.h>
 #include <qpixmapcache.h>
 #include <qsettings.h>
+#elif defined(Q_WS_MAC)
+#include <private/qt_mac_p.h>
 #endif
 
 /*!
@@ -49,7 +51,9 @@ public:
     QIcon getIcon(QStyle::StandardPixmap name) const;
 #ifdef Q_WS_WIN
     QPixmap iconPixmap(const QFileInfo &fi) const;
-#endif    
+#elif defined(Q_WS_MAC)
+    QIcon getMacIcon(const QFileInfo &fi) const;
+#endif
     QFileIconProvider *q_ptr;
     QString homePath;
 
@@ -281,6 +285,30 @@ QPixmap QFileIconProviderPrivate::iconPixmap(const QFileInfo &fileInfo) const
     }
     return pixmap;
 }
+#elif defined(Q_WS_MAC)
+QIcon QFileIconProviderPrivate::getMacIcon(const QFileInfo &fi) const
+{
+    QIcon retIcon;
+    FSRef macRef;
+    OSStatus status = FSPathMakeRef(reinterpret_cast<const UInt8*>(fi.canonicalFilePath().toUtf8().constData()),
+                                    &macRef, 0);
+    if (status != noErr)
+        return retIcon;
+    FSCatalogInfo info;
+    HFSUniStr255 macName;
+    status = FSGetCatalogInfo(&macRef, kIconServicesCatalogInfoMask, &info, &macName, 0, 0);
+    if (status != noErr)
+        return retIcon;
+    IconRef iconRef;
+    SInt16 iconLabel;
+    status = GetIconRefFromFileInfo(&macRef, macName.length, macName.unicode, kIconServicesCatalogInfoMask, &info, kIconServicesNormalUsageFlag, &iconRef, &iconLabel);
+    if (status != noErr)
+        return retIcon;
+    extern void qt_mac_constructQIconFromIconRef(const IconRef, const IconRef, QIcon*); // qmacstyle_mac.cpp
+    qt_mac_constructQIconFromIconRef(iconRef, 0, &retIcon);
+    ReleaseIconRef(iconRef);
+    return retIcon;
+}
 #endif
 
 
@@ -291,28 +319,33 @@ QPixmap QFileIconProviderPrivate::iconPixmap(const QFileInfo &fileInfo) const
 QIcon QFileIconProvider::icon(const QFileInfo &info) const
 {
     Q_D(const QFileIconProvider);
+#ifdef Q_WS_MAC
+    QIcon retIcon = d->getMacIcon(info);
+    if (!retIcon.isNull())
+        return retIcon;
+#endif
     if (info.isRoot())
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
     {
         uint type = DRIVE_UNKNOWN;
-	QT_WA({ type = GetDriveTypeW((wchar_t *)info.absoluteFilePath().utf16()); },
+        QT_WA({ type = GetDriveTypeW((wchar_t *)info.absoluteFilePath().utf16()); },
         { type = GetDriveTypeA(info.absoluteFilePath().toLocal8Bit()); });
 
         switch (type) {
-	case DRIVE_REMOVABLE:
+        case DRIVE_REMOVABLE:
             return d->getIcon(QStyle::SP_DriveFDIcon);
-	case DRIVE_FIXED:
+        case DRIVE_FIXED:
             return d->getIcon(QStyle::SP_DriveHDIcon);
-	case DRIVE_REMOTE:
+        case DRIVE_REMOTE:
             return d->getIcon(QStyle::SP_DriveNetIcon);
-	case DRIVE_CDROM:
+        case DRIVE_CDROM:
             return d->getIcon(QStyle::SP_DriveCDIcon);
-	case DRIVE_RAMDISK:
-	case DRIVE_UNKNOWN:
-	case DRIVE_NO_ROOT_DIR:
+        case DRIVE_RAMDISK:
+        case DRIVE_UNKNOWN:
+        case DRIVE_NO_ROOT_DIR:
         default:
             return d->getIcon(QStyle::SP_DriveHDIcon);
-	}
+        }
     }
 #else
     return d->getIcon(QStyle::SP_DriveHDIcon);
@@ -376,7 +409,7 @@ QString QFileIconProvider::type(const QFileInfo &info) const
 
     if (info.isDir())
         return QApplication::translate("QFileDialog",
-#ifdef Q_OS_WIN
+#ifdef Q_WS_WIN
                                        "File Folder", "Match Windows Explorer"
 #else
                                        "Folder", "All other platforms"
@@ -390,7 +423,7 @@ QString QFileIconProvider::type(const QFileInfo &info) const
     if (info.isSymLink())
         return QApplication::translate("QFileDialog",
 #ifdef Q_OS_MAC
-                                       "Alias", "Match OS X Finder"
+                                       "Alias", "Mac OS X Finder"
 #else
                                        "Shortcut", "All other platforms"
 #endif
