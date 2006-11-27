@@ -109,6 +109,11 @@ void tst_QSidebar::addUrls()
     moreUrls << QUrl::fromLocalFile(QDir::home().absolutePath());
     qsidebar.addUrls(moreUrls, -1);
     QCOMPARE(model->rowCount(), 3);
+
+    QList<QUrl> badUrls;
+    badUrls << QUrl::fromLocalFile(QDir::home().absolutePath() + "/I used to exist");
+    qsidebar.addUrls(badUrls, 0);
+    QCOMPARE(model->rowCount(), 4);
 }
 
 void tst_QSidebar::goToUrl()
