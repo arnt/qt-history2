@@ -16,6 +16,7 @@
 #include <qstringlist.h>
 #include <qlist.h>
 #include <qtextstream.h>
+#include <qdir.h>
 
 class MakeItem;
 
@@ -104,7 +105,8 @@ private:
     QString outputLine;
 
     QTextStream outStream;
-    QString sourceDir, buildDir;
+    QString sourcePath, buildPath;
+    QDir sourceDir, buildDir;
 
     // Variables for usage output
     int optionIndent;

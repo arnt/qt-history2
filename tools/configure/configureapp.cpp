@@ -84,34 +84,35 @@ Configure::Configure( int& argc, char** argv )
 
 
     // Get the path to the executable
-    QFileInfo sourcePath;
+    QFileInfo sourcePathInfo;
     QT_WA({
         unsigned short module_name[256];
         GetModuleFileNameW(0, reinterpret_cast<wchar_t *>(module_name), sizeof(module_name));
-        sourcePath = QString::fromUtf16(module_name);
+        sourcePathInfo = QString::fromUtf16(module_name);
     }, {
         char module_name[256];
         GetModuleFileNameA(0, module_name, sizeof(module_name));
-        sourcePath = QString::fromLocal8Bit(module_name);
+        sourcePathInfo = QString::fromLocal8Bit(module_name);
     });
-    sourceDir = sourcePath.absolutePath();
-    buildDir = QDir::currentPath();
+    sourcePath = sourcePathInfo.absolutePath();
+    sourceDir = sourcePathInfo.dir();
+    buildPath = QDir::currentPath();
 #if 0
     const QString installPath = QString("C:\\Qt\\%1").arg(QT_VERSION_STR);
 #else
-    const QString installPath = buildDir;
+    const QString installPath = buildPath;
 #endif
     if(sourceDir != buildDir) { //shadow builds!
 	cout << "Preparing build tree..." << endl;
-	QDir(buildDir).mkpath("bin");
+	QDir(buildPath).mkpath("bin");
 
 	{ //duplicate qmake
 	    QStack<QString> qmake_dirs;
 	    qmake_dirs.push("qmake");
 	    while(!qmake_dirs.isEmpty()) {
 		QString dir = qmake_dirs.pop();
-		QString od(buildDir + "/" + dir);
-		QString id(sourceDir + "/" + dir);
+		QString od(buildPath + "/" + dir);
+		QString id(sourcePath + "/" + dir);
 		QFileInfoList entries = QDir(id).entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries);
 		for(int i = 0; i < entries.size(); ++i) {
 		    QFileInfo fi(entries.at(i));
@@ -138,33 +139,33 @@ Configure::Configure( int& argc, char** argv )
 	}
 
 	{ //make a syncqt script(s) that can be used in the shadow
-	    QFile syncqt(buildDir + "/bin/syncqt");
+	    QFile syncqt(buildPath + "/bin/syncqt");
 	    if(syncqt.open(QFile::WriteOnly)) {
 		QTextStream stream(&syncqt);
 		stream << "#!/usr/bin/perl -w" << endl
-		       << "require \"" << sourceDir + "/bin/syncqt\";" << endl;
+		       << "require \"" << sourcePath + "/bin/syncqt\";" << endl;
 	    }
-	    QFile syncqt_bat(buildDir + "/bin/syncqt.bat");
+	    QFile syncqt_bat(buildPath + "/bin/syncqt.bat");
 	    if(syncqt_bat.open(QFile::WriteOnly)) {
 		QTextStream stream(&syncqt_bat);
 		stream << "@echo off" << endl
-		       << "set QTDIR=" << QDir::toNativeSeparators(sourceDir) << endl
-		       << QDir::toNativeSeparators(sourceDir) << "\\bin\\syncqt.bat -outdir \"" << QDir::toNativeSeparators(buildDir) << "\"" << endl;
+		       << "set QTDIR=" << QDir::toNativeSeparators(sourcePath) << endl
+		       << QDir::toNativeSeparators(sourcePath) << "\\bin\\syncqt.bat -outdir \"" << QDir::toNativeSeparators(buildPath) << "\"" << endl;
 		syncqt_bat.close();
 	    }
 	}
 
 	//copy the mkspecs
-	QDir(buildDir).mkpath("mkspecs");
-	if(!Environment::cpdir(sourceDir + "/mkspecs", buildDir + "/mkspecs")){
-	    cout << "Couldn't copy mkspecs!" << sourceDir << " " << buildDir << endl;
+	buildDir.mkpath("mkspecs");
+	if(!Environment::cpdir(sourcePath + "/mkspecs", buildPath + "/mkspecs")){
+	    cout << "Couldn't copy mkspecs!" << sourcePath << " " << buildPath << endl;
 	    dictionary["DONE"] = "error";
 	    return;
 	}
     }
 
-    dictionary[ "QT_SOURCE_TREE" ]    = QDir::toNativeSeparators(sourceDir);
-    dictionary[ "QT_BUILD_TREE" ]     = QDir::toNativeSeparators(buildDir);
+    dictionary[ "QT_SOURCE_TREE" ]    = QDir::toNativeSeparators(sourcePath);
+    dictionary[ "QT_BUILD_TREE" ]     = QDir::toNativeSeparators(buildPath);
     dictionary[ "QT_INSTALL_PREFIX" ] = QDir::toNativeSeparators(installPath);
 
     dictionary[ "QMAKESPEC" ] = getenv("QMAKESPEC");
@@ -190,7 +191,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "RTTI" ]	    = "yes";
 
     QString version;
-    QFile profile(sourceDir + "/src/qbase.pri");
+    QFile profile(sourcePath + "/src/qbase.pri");
     if (profile.open(QFile::ReadOnly)) {
 	QTextStream read(&profile);
 	QRegExp version_regexp("^\\s*VERSION=(.*)$");
@@ -745,7 +746,7 @@ void Configure::parseCmdLine()
     }
 
     // Ensure that QMAKESPEC exists in the mkspecs folder
-    QDir mkspec_dir = sourceDir + "\\mkspecs";
+    QDir mkspec_dir = sourcePath + "\\mkspecs";
     QStringList mkspecs = mkspec_dir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
 
     if (dictionary["QMAKESPEC"].toLower() == "features"
@@ -1585,6 +1586,23 @@ void Configure::generateOutputVars()
     else if (dictionary["IPV6"] == "no")
         qtConfig += "no-ipv6";
 
+    // Add config levels --------------------------------------------
+    QStringList possible_configs = QStringList()
+        << "minimal"
+        << "small"
+        << "medium"
+        << "large"
+        << "full";
+
+    QString set_config = dictionary["QCONFIG"];
+    if (possible_configs.contains(set_config)) {
+        foreach(QString cfg, possible_configs) {
+            qtConfig += (cfg + "-config");
+            if (cfg == set_config)
+                break;
+        }
+    }
+
     // Directories and settings for .qmake.cache --------------------
 
     // if QT_INSTALL_* have not been specified on commandline, define them now from QT_INSTALL_PREFIX
@@ -1633,7 +1651,7 @@ void Configure::generateOutputVars()
 	dictionary[ "HELP" ] = "yes";
 
 	QStringList winPlatforms;
-	QDir mkspecsDir( sourceDir + "\\mkspecs" );
+	QDir mkspecsDir( sourcePath + "\\mkspecs" );
 	const QFileInfoList &specsList = mkspecsDir.entryInfoList();
 	for(int i = 0; i < specsList.size(); ++i) {
     	    const QFileInfo &fi = specsList.at(i);
@@ -1650,14 +1668,14 @@ void Configure::generateOutputVars()
 void Configure::generateCachefile()
 {
     // Generate .qmake.cache
-    QFile cacheFile( buildDir + "\\.qmake.cache" );
+    QFile cacheFile( buildPath + "\\.qmake.cache" );
     if( cacheFile.open( QFile::WriteOnly | QFile::Text ) ) { // Truncates any existing file.
 	QTextStream cacheStream( &cacheFile );
         for( QStringList::Iterator var = qmakeVars.begin(); var != qmakeVars.end(); ++var ) {
 	    cacheStream << (*var) << endl;
 	}
 	cacheStream << "CONFIG         += " << qmakeConfig.join( " " ) << " incremental create_prl link_prl depend_includepath" << endl;
-	QString mkspec_path= sourceDir + "\\mkspecs\\" + dictionary[ "QMAKESPEC" ];
+	QString mkspec_path= sourcePath + "\\mkspecs\\" + dictionary[ "QMAKESPEC" ];
 	if(QFile::exists(mkspec_path))
 	    cacheStream << "QMAKESPEC       = " << mkspec_path << endl;
 	else
@@ -1744,8 +1762,8 @@ QString Configure::addDefine(QString def)
 #if !defined(EVAL)
 void Configure::generateConfigfiles()
 {
-    QDir(buildDir).mkpath("src/corelib/global");
-    QString outName( buildDir + "/src/corelib/global/qconfig.h" );
+    QDir(buildPath).mkpath("src/corelib/global");
+    QString outName( buildPath + "/src/corelib/global/qconfig.h" );
 
     ::SetFileAttributesA( outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
     QFile::remove( outName );
@@ -1760,7 +1778,7 @@ void Configure::generateConfigfiles()
 	    QString configName( "qconfig-" + dictionary[ "QCONFIG" ] + ".h" );
 	    outStream << "/* Copied from " << configName << "*/" << endl;
             outStream << "#ifndef QT_BOOTSTRAPPED" << endl;
-	    QFile inFile( buildDir + "/src/corelib/global/" + configName );
+	    QFile inFile( buildPath + "/src/corelib/global/" + configName );
 	    if( inFile.open( QFile::ReadOnly ) ) {
 		QByteArray buffer = inFile.readAll();
 		outFile.write( buffer.constData(), buffer.size() );
@@ -1843,14 +1861,14 @@ void Configure::generateConfigfiles()
 
         outStream.flush();
 	outFile.close();
-        if (!writeToFile("#include \"../../src/corelib/global/qconfig.h\"\n",    buildDir + "/include/QtCore/qconfig.h")
-            || !writeToFile("#include \"../../src/corelib/global/qconfig.h\"\n", buildDir + "/include/Qt/qconfig.h")) {
+        if (!writeToFile("#include \"../../src/corelib/global/qconfig.h\"\n",    buildPath + "/include/QtCore/qconfig.h")
+            || !writeToFile("#include \"../../src/corelib/global/qconfig.h\"\n", buildPath + "/include/Qt/qconfig.h")) {
             dictionary["DONE"] = "error";
             return;
         }
     }
 
-    QString archFile = sourceDir + "/src/corelib/arch/qatomic_" + dictionary["ARCHITECTURE"].toLower() + ".h";
+    QString archFile = sourcePath + "/src/corelib/arch/qatomic_" + dictionary["ARCHITECTURE"].toLower() + ".h";
     QFileInfo archInfo(archFile);
     if (!archInfo.exists()) {
 	qDebug("Architecture file %s does not exist!", qPrintable(archFile) );
@@ -1858,22 +1876,22 @@ void Configure::generateConfigfiles()
         return;
     }
     QDir archhelper;
-    archhelper.mkdir(buildDir + "/include/QtCore/arch");
-    if (!CopyFileA(archFile.toLocal8Bit(), QString(buildDir + "/include/QtCore/arch/qatomic.h").toLocal8Bit(), FALSE))
+    archhelper.mkdir(buildPath + "/include/QtCore/arch");
+    if (!CopyFileA(archFile.toLocal8Bit(), QString(buildPath + "/include/QtCore/arch/qatomic.h").toLocal8Bit(), FALSE))
 	qDebug("Couldn't copy %s to include/arch", qPrintable(archFile) );
-    if (!SetFileAttributesA(QString(buildDir + "/include/QtCore/arch/qatomic.h").toLocal8Bit(), FILE_ATTRIBUTE_NORMAL))
+    if (!SetFileAttributesA(QString(buildPath + "/include/QtCore/arch/qatomic.h").toLocal8Bit(), FILE_ATTRIBUTE_NORMAL))
 	qDebug("Couldn't reset writable file attribute for qatomic.h");
 
     // Create qatomic.h "symlinks"
     QString atomicContents = QString("#include \"../../../src/corelib/arch/qatomic_" + dictionary[ "ARCHITECTURE" ].toLower() + ".h\"\n");
-    if (!writeToFile(atomicContents.toLocal8Bit(),    buildDir + "/include/QtCore/arch/qatomic.h")
-        || !writeToFile(atomicContents.toLocal8Bit(), buildDir + "/include/Qt/arch/qatomic.h")) {
+    if (!writeToFile(atomicContents.toLocal8Bit(),    buildPath + "/include/QtCore/arch/qatomic.h")
+        || !writeToFile(atomicContents.toLocal8Bit(), buildPath + "/include/Qt/arch/qatomic.h")) {
         dictionary[ "DONE" ] = "error";
         return;
     }
 
     // Copy configured mkspec to default directory, but remove the old one first, if there is any
-    QString defSpec = buildDir + "/mkspecs/default";
+    QString defSpec = buildPath + "/mkspecs/default";
     QFileInfo defSpecInfo(defSpec);
     if (defSpecInfo.exists()) {
         if (!Environment::rmdir(defSpec)) {
@@ -1883,7 +1901,7 @@ void Configure::generateConfigfiles()
         }
     }
 
-    QString pltSpec = sourceDir + "/mkspecs/" + dictionary["QMAKESPEC"];
+    QString pltSpec = sourcePath + "/mkspecs/" + dictionary["QMAKESPEC"];
     if (!Environment::cpdir(pltSpec, defSpec)) {
         cout << "Couldn't update default mkspec! Does " << qPrintable(pltSpec) << " exist?" << endl;
         dictionary["DONE"] = "error";
@@ -1903,8 +1921,8 @@ void Configure::generateConfigfiles()
     // Generate the new qconfig.cpp file
     // ### Should go through a qconfig.cpp.new, like the X11/Mac/Qtopia
     // ### one, to avoid unecessary rebuilds, if file hasn't changed
-    QDir(buildDir).mkpath("src/corelib/global");
-    outName = buildDir + "/src/corelib/global/qconfig.cpp";
+    QDir(buildPath).mkpath("src/corelib/global");
+    outName = buildPath + "/src/corelib/global/qconfig.cpp";
     ::SetFileAttributesA(outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
     outFile.setFileName(outName);
     if (outFile.open(QFile::WriteOnly | QFile::Text)) {
@@ -2072,10 +2090,10 @@ void Configure::generateHeaders()
 {
     cout << "Running syncqt..." << endl;
     QStringList args;
-    args += buildDir + "/bin/syncqt.bat";
+    args += buildPath + "/bin/syncqt.bat";
     QStringList env;
-    env += QString("QTDIR=" + sourceDir);
-    //env += QString("PATH=" + buildDir + "/bin/;%PATH%");
+    env += QString("QTDIR=" + sourcePath);
+    //env += QString("PATH=" + buildPath + "/bin/;%PATH%");
     Environment::execute(args, env, QStringList());
 }
 
@@ -2086,7 +2104,7 @@ void Configure::buildQmake()
 
 	// Build qmake
 	QString pwd = QDir::currentPath();
-	QDir::setCurrent(buildDir + "/qmake" );
+	QDir::setCurrent(buildPath + "/qmake" );
 
 	QString makefile = "Makefile";
 	{
@@ -2094,15 +2112,15 @@ void Configure::buildQmake()
 	    if(out.open(QFile::WriteOnly)) {
 		QTextStream stream(&out);
 		stream << "#AutoGenerated by configure.exe" << endl
-		       << "BUILD_PATH = " << QDir::convertSeparators(buildDir) << endl
-		       << "SOURCE_PATH = " << QDir::convertSeparators(sourceDir) << endl
+		       << "BUILD_PATH = " << QDir::convertSeparators(buildPath) << endl
+		       << "SOURCE_PATH = " << QDir::convertSeparators(sourcePath) << endl
 		       << "QMAKESPEC = " << dictionary["QMAKESPEC"] << endl;
 		if (dictionary["EDITION"] == "OpenSource" ||
 		    dictionary["QT_EDITION"].contains("OPENSOURCE"))
 		    stream << "QMAKE_OPENSOURCE_EDITION = yes" << endl;
 		stream << "\n\n";
 
-		QFile in(sourceDir + "/qmake/" + dictionary["QMAKEMAKEFILE"]);
+		QFile in(sourcePath + "/qmake/" + dictionary["QMAKEMAKEFILE"]);
 		if(in.open(QFile::ReadOnly)) {
 		    QString d = in.readAll();
 		    //### need replaces (like configure.sh)? --Sam
@@ -2171,7 +2189,7 @@ void Configure::findProjects( const QString& dirName )
 			    makeListNumber = 2;
 			    break;
 			}
-			makeList[makeListNumber].append( new MakeItem(dirName,
+			makeList[makeListNumber].append( new MakeItem(sourceDir.relativeFilePath(fi.absolutePath()),
 								      fi.fileName(),
 								      "Makefile",
 								      qmakeTemplate ) );
@@ -2189,19 +2207,19 @@ void Configure::appendMakeItem(int inList, const QString &item)
     if (item != "src")
 	dir = "/" + item;
     dir.prepend("/src");
-    makeList[inList].append(new MakeItem(sourceDir + dir,
-	item + ".pro", buildDir + dir + "/Makefile", Lib ) );
+    makeList[inList].append(new MakeItem(sourcePath + dir,
+	item + ".pro", buildPath + dir + "/Makefile", Lib ) );
     if( dictionary[ "DSPFILES" ] == "yes" ) {
-	makeList[inList].append( new MakeItem(sourceDir + dir,
-	    item + ".pro", buildDir + dir + "/" + item + ".dsp", Lib ) );
+	makeList[inList].append( new MakeItem(sourcePath + dir,
+	    item + ".pro", buildPath + dir + "/" + item + ".dsp", Lib ) );
     }
     if( dictionary[ "VCPFILES" ] == "yes" ) {
-	makeList[inList].append( new MakeItem(sourceDir + dir,
-	    item + ".pro", buildDir + dir + "/" + item + ".vcp", Lib ) );
+	makeList[inList].append( new MakeItem(sourcePath + dir,
+	    item + ".pro", buildPath + dir + "/" + item + ".vcp", Lib ) );
     }
     if( dictionary[ "VCPROJFILES" ] == "yes" ) {
-	makeList[inList].append( new MakeItem(sourceDir + dir,
-	    item + ".pro", buildDir + dir + "/" + item + ".vcproj", Lib ) );
+	makeList[inList].append( new MakeItem(sourcePath + dir,
+	    item + ".pro", buildPath + dir + "/" + item + ".vcproj", Lib ) );
     }
 }
 
@@ -2228,10 +2246,10 @@ void Configure::generateMakefiles()
                           || dictionary["VCPROJFILES"] == "yes");
             while (generate) {
                 QString pwd = QDir::currentPath();
-                QString dirPath = QDir::toNativeSeparators(buildDir + dirName);
+                QString dirPath = QDir::toNativeSeparators(buildPath + dirName);
                 QStringList args;
 
-                args << QDir::toNativeSeparators( buildDir + "/bin/qmake" );
+                args << QDir::toNativeSeparators( buildPath + "/bin/qmake" );
 
                 if (doDsp) {
                     if( dictionary[ "DEPENDENCIES" ] == "no" )
@@ -2246,9 +2264,9 @@ void Configure::generateMakefiles()
                 args << "-spec";
                 args << dictionary[ "QMAKESPEC" ];
                 args << "-r";
-		args << (sourceDir + "/projects.pro");
+		args << (sourcePath + "/projects.pro");
 		args << "-o";
-		args << buildDir;
+		args << buildPath;
 
                 QDir::setCurrent( QDir::toNativeSeparators( dirPath ) );
                 if( int exitCode = Environment::execute(args, QStringList(), QStringList()) ) {
@@ -2257,16 +2275,16 @@ void Configure::generateMakefiles()
                 }
             }
         } else {
-            findProjects(sourceDir);
+            findProjects(sourcePath);
             for ( i=0; i<3; i++ ) {
                 for ( int j=0; j<makeList[i].size(); ++j) {
                     MakeItem *it=makeList[i][j];
                     QString dirPath = QDir::toNativeSeparators( it->directory + "/" );
                     QString projectName = dirPath + it->proFile;
-                    QString makefileName = buildDir + dirPath + it->target;
+                    QString makefileName = buildPath + "/" + dirPath + it->target;
                     QStringList args;
 
-                    args << QDir::toNativeSeparators( buildDir + "/bin/qmake" );
+                    args << QDir::toNativeSeparators( buildPath + "/bin/qmake" );
                     args << projectName;
                     args << dictionary[ "QMAKE_ALL_ARGS" ];
 
@@ -2411,7 +2429,7 @@ bool Configure::showLicense(const QString &licenseFile)
 
 void Configure::readLicense()
 {
-    dictionary["LICENSE FILE"] = sourceDir + "/LICENSE.GPL";
+    dictionary["LICENSE FILE"] = sourcePath + "/LICENSE.GPL";
     if (QFile::exists(dictionary["LICENSE FILE"])) {
         cout << endl << "This is the Qt/Windows Open Source Edition." << endl;
         licenseInfo["LICENSEE"] = "Open Source";
@@ -2452,7 +2470,7 @@ void Configure::readLicense()
             return;
         }
         if (!dictionary.contains("METERED LICENSE"))
-            QFile::remove(sourceDir + "/bin/qtusagereporter.exe");
+            QFile::remove(sourcePath + "/bin/qtusagereporter.exe");
     }
 #endif // COMMERCIAL_VERSION
 }
@@ -2460,7 +2478,7 @@ void Configure::readLicense()
 void Configure::reloadCmdLine()
 {
     if( dictionary[ "REDO" ] == "yes" ) {
-	QFile inFile( buildDir + "/configure" + dictionary[ "CUSTOMCONFIG" ] + ".cache" );
+	QFile inFile( buildPath + "/configure" + dictionary[ "CUSTOMCONFIG" ] + ".cache" );
 	if( inFile.open( QFile::ReadOnly ) ) {
 	    QTextStream inStream( &inFile );
 	    QString buffer;
@@ -2477,7 +2495,7 @@ void Configure::reloadCmdLine()
 void Configure::saveCmdLine()
 {
     if( dictionary[ "REDO" ] != "yes" ) {
-	QFile outFile( buildDir + "/configure" + dictionary[ "CUSTOMCONFIG" ] + ".cache" );
+	QFile outFile( buildPath + "/configure" + dictionary[ "CUSTOMCONFIG" ] + ".cache" );
 	if( outFile.open( QFile::WriteOnly | QFile::Text ) ) {
 	    QTextStream outStream( &outFile );
 	    for( QStringList::Iterator it = configCmdLine.begin(); it != configCmdLine.end(); ++it ) {
