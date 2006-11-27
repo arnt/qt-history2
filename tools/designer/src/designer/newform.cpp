@@ -29,6 +29,7 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QPainter>
 #include <QtGui/QPushButton>
+#include <QtGui/QMenu>
 
 #include <QtCore/qdebug.h>
 
@@ -60,6 +61,16 @@ NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget, const QSt
     createButton->setEnabled(false);
     ui.buttonBox->addButton(QApplication::translate("NewForm", "&Open...", 0,
                                     QApplication::UnicodeUTF8), QDialogButtonBox::ActionRole);
+    QPushButton *recentButton = static_cast<QPushButton *>(ui.buttonBox->addButton(QApplication::translate("NewForm", "Recent", 0,
+                           QApplication::UnicodeUTF8), QDialogButtonBox::ActionRole));
+    QDesignerActions *da = workbench->actionManager();
+    QMenu *recentFilesMenu = new QMenu(tr("&Recent Forms"), recentButton);
+    // Pop the "Recent Files" stuff in here.
+    foreach(QAction *recentAction, da->recentFilesActions()->actions()) {
+        recentFilesMenu->addAction(recentAction);
+        connect(recentAction, SIGNAL(triggered()), this, SLOT(recentFileChosen()));
+    }
+    recentButton->setMenu(recentFilesMenu);
 
     loadFrom(QLatin1String(":/trolltech/designer/templates/forms"), true);
 
@@ -71,6 +82,11 @@ NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget, const QSt
 NewForm::~NewForm()
 {
     QDesignerSettings().setShowNewFormOnStartup(ui.chkShowOnStartup->isChecked());
+}
+
+void NewForm::recentFileChosen()
+{
+    close();
 }
 
 void NewForm::on_treeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *)
