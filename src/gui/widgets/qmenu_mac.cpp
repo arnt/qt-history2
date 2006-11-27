@@ -49,7 +49,6 @@ struct QMenuMergeItem
     QMacMenuAction *action;
 };
 typedef QList<QMenuMergeItem> QMenuMergeList;
-#define QT_MAC_MENU_TRANSLATE(x) QCoreApplication::instance()->translate("QMenuBar", x)
 
 const UInt32 kMenuCreatorQt = 'cute';
 enum {
@@ -303,20 +302,20 @@ static MenuCommand qt_mac_menu_merge_action(MenuRef merge, QMacMenuAction *actio
         ret = kHICommandPreferences;
         break;
     case QAction::TextHeuristicRole: {
-        QString aboutString = QT_MAC_MENU_TRANSLATE("About").toLower();
+        QString aboutString = QMenuBar::tr("About").toLower();
         if (t.startsWith(aboutString) || t.endsWith(aboutString)) {
             if (t.indexOf(QRegExp(QString::fromLatin1("qt$"), Qt::CaseInsensitive)) == -1)
                 ret = kHICommandAbout;
             else
                 ret = kHICommandAboutQt;
-        } else if (t.startsWith(QT_MAC_MENU_TRANSLATE("Config").toLower())
-                   || t.startsWith(QT_MAC_MENU_TRANSLATE("Preference").toLower())
-                   || t.startsWith(QT_MAC_MENU_TRANSLATE("Options").toLower())
-                   || t.startsWith(QT_MAC_MENU_TRANSLATE("Setting").toLower())
-                   || t.startsWith(QT_MAC_MENU_TRANSLATE("Setup").toLower())) {
+        } else if (t.startsWith(QMenuBar::tr("Config").toLower())
+                   || t.startsWith(QMenuBar::tr("Preference").toLower())
+                   || t.startsWith(QMenuBar::tr("Options").toLower())
+                   || t.startsWith(QMenuBar::tr("Setting").toLower())
+                   || t.startsWith(QMenuBar::tr("Setup").toLower())) {
             ret = kHICommandPreferences;
-        } else if (t.startsWith(QT_MAC_MENU_TRANSLATE("Quit").toLower())
-                   || t.startsWith(QT_MAC_MENU_TRANSLATE("Exit").toLower())) {
+        } else if (t.startsWith(QMenuBar::tr("Quit").toLower())
+                   || t.startsWith(QMenuBar::tr("Exit").toLower())) {
             ret = kHICommandQuit;
         }
     }
@@ -351,13 +350,13 @@ static QString qt_mac_menu_merge_text(QMacMenuAction *action)
     if (action->action->menuRole() == QAction::ApplicationSpecificRole)
         ret = action->action->text();
     else if (action->command == kHICommandAbout)
-        ret = QT_MAC_MENU_TRANSLATE("About %1").arg(qAppName());
+        ret = QMenuBar::tr("About %1").arg(qAppName());
     else if (action->command == kHICommandAboutQt)
-        ret = QT_MAC_MENU_TRANSLATE("About Qt");
+        ret = QMenuBar::tr("About Qt");
     else if (action->command == kHICommandPreferences)
-        ret = QT_MAC_MENU_TRANSLATE("Preferences");
+        ret = QMenuBar::tr("Preferences");
     else if (action->command == kHICommandQuit)
-        ret = QT_MAC_MENU_TRANSLATE("Quit %1").arg(qAppName());
+        ret = QMenuBar::tr("Quit %1").arg(qAppName());
     return ret;
 }
 
