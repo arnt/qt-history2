@@ -3508,7 +3508,7 @@ static bool removeGroupSeparators(QLocalePrivate::CharBuff *num)
         if (c == ',') {
             if (i == 0 || data[i - 1] < '0' || data[i - 1] > '9')
                 return false;
-            if (i == l || data[i + 1] < '0' || data[i + 1] > '9')
+            if (i == l - 1 || data[i + 1] < '0' || data[i + 1] > '9')
                 return false;
             ++group_cnt;
         }
