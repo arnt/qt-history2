@@ -950,7 +950,9 @@ void QComboBoxPrivate::_q_returnPressed()
         if (!duplicatesEnabled) {
             // Base how duplicates are determined on the autocompletion case sensitivity
             Qt::MatchFlags flags = Qt::MatchFixedString;
+#ifndef QT_NO_COMPLETER
             if (!lineEdit->completer() || lineEdit->completer()->caseSensitivity() == Qt::CaseSensitive)
+#endif
                 flags |= Qt::MatchCaseSensitive;
             index = q->findText(text, flags);
             if (index != -1) {
