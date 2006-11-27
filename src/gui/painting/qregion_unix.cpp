@@ -28,44 +28,35 @@ struct QRegionPrivate {
     int numRects;
     QVector<QRect> rects;
     QRect extents;
-#ifdef QT_EXPERIMENTAL_REGIONS
     QRect innerRect;
     int innerArea;
-#endif
 
     inline QRegionPrivate() : numRects(0) {}
     inline QRegionPrivate(const QRect &r) : rects(1) {
         numRects = 1;
         rects[0] = r;
         extents = r;
-#ifdef QT_EXPERIMENTAL_REGIONS
         innerRect = r;
         innerArea = r.width() * r.height();
-#endif
     }
 
     inline QRegionPrivate(const QRegionPrivate &r) {
         rects = r.rects;
         numRects = r.numRects;
         extents = r.extents;
-#ifdef QT_EXPERIMENTAL_REGIONS
         innerRect = r.innerRect;
         innerArea = r.innerArea;
-#endif
     }
 
     inline QRegionPrivate &operator=(const QRegionPrivate &r) {
         rects = r.rects;
         numRects = r.numRects;
         extents = r.extents;
-#ifdef QT_EXPERIMENTAL_REGIONS
         innerRect = r.innerRect;
         innerArea = r.innerArea;
-#endif
         return *this;
     }
 
-#ifdef QT_EXPERIMENTAL_REGIONS
     /*
      * Returns true if r is guaranteed to be fully contained in this region.
      * A false return value does not guarantee the opposite.
@@ -87,11 +78,8 @@ struct QRegionPrivate {
 
     void append(const QRegionPrivate *r);
     inline bool canAppend(const QRegionPrivate *r) const;
-
-#endif
 };
 
-#ifdef QT_EXPERIMENTAL_REGIONS
 static inline bool isEmpty(const QRegionPrivate *preg)
 {
     return !preg || preg->numRects == 0;
@@ -148,7 +136,6 @@ bool QRegionPrivate::canAppend(const QRegionPrivate *r) const
 
     return false;
 }
-#endif // QT_EXPERIMENTAL_REGIONS
 
 #if defined(Q_WS_X11)
 # include "qregion_x11.cpp"
@@ -157,13 +144,6 @@ bool QRegionPrivate::canAppend(const QRegionPrivate *r) const
 #elif defined(Q_WS_QWS)
 static QRegionPrivate qrp;
 QRegion::QRegionData QRegion::shared_empty = {Q_ATOMIC_INIT(1), &qrp};
-#endif
-
-#ifndef QT_EXPERIMENTAL_REGIONS
-static inline bool isEmpty(const QRegionPrivate *preg)
-{
-    return !preg || preg->numRects == 0;
-}
 #endif
 
 typedef void (*OverlapFunc)(register QRegionPrivate &dest, register const QRect *r1, const QRect *r1End,
@@ -378,10 +358,8 @@ static void UnionRectWithRegion(register const QRect *rect, const QRegionPrivate
     region.numRects = 1;
     region.rects[0] = *rect;
     region.extents = *rect;
-#ifdef QT_EXPERIMENTAL_REGIONS
     region.innerRect = *rect;
     region.innerArea = rect->width() * rect->height();
-#endif
 
     UnionRegion(&region, source, dest);
     return;
@@ -408,10 +386,8 @@ static void miSetExtents(QRegionPrivate &dest)
                          *pBoxEnd;
     register QRect *pExtents;
 
-#ifdef QT_EXPERIMENTAL_REGIONS
     dest.innerRect.setCoords(0, 0, -1, -1);
     dest.innerArea = -1;
-#endif
     if (dest.numRects == 0) {
         dest.extents.setCoords(0, 0, 0, 0);
         return;
@@ -439,9 +415,7 @@ static void miSetExtents(QRegionPrivate &dest)
             pExtents->setLeft(pBox->left());
         if (pBox->right() > pExtents->right())
             pExtents->setRight(pBox->right());
-#ifdef QT_EXPERIMENTAL_REGIONS
         dest.updateInnerRect(*pBox);
-#endif
         ++pBox;
     }
     Q_ASSERT(pExtents->left() <= pExtents->right());
@@ -465,9 +439,7 @@ static void OffsetRegion(register QRegionPrivate &region, register int x, regist
         ++pbox;
     }
     region.extents.translate(x, y);
-#ifdef QT_EXPERIMENTAL_REGIONS
     region.innerRect.translate(x, y);
-#endif
 }
 
 /*======================================================================
@@ -625,9 +597,7 @@ static int miCoalesce(register QRegionPrivate &dest, int prevStart, int curStart
              */
             do {
                 pPrevBox->setBottom(pCurBox->bottom());
-#ifdef QT_EXPERIMENTAL_REGIONS
                 dest.updateInnerRect(*pPrevBox);
-#endif
                 ++pPrevBox;
                 ++pCurBox;
                 curNumRects -= 1;
@@ -648,9 +618,7 @@ static int miCoalesce(register QRegionPrivate &dest, int prevStart, int curStart
             } else {
                 do {
                     *pPrevBox++ = *pCurBox++;
-#ifdef QT_EXPERIMENTAL_REGIONS
                     dest.updateInnerRect(*pPrevBox);
-#endif
                 } while (pCurBox != pRegEnd);
             }
         }
@@ -865,11 +833,7 @@ static void miRegionOp(register QRegionPrivate &dest, const QRegionPrivate *reg1
      * Only do this stuff if the number of rectangles allocated is more than
      * twice the number of rectangles in the region (a simple optimization).
      */
-#ifdef QT_EXPERIMENTAL_REGIONS
     if (qMax(4, dest.numRects) < (dest.rects.size() >> 1))
-#else
-    if (dest.numRects < (dest.rects.size() >> 1))
-#endif
         dest.rects.resize(dest.numRects);
 }
 
@@ -937,24 +901,6 @@ static void miUnionO(register QRegionPrivate &dest, register const QRect *r1, co
 
     pNextRect = dest.rects.data() + dest.numRects;
 
-#ifndef QT_EXPERIMENTAL_REGIONS
-#define MERGERECT(r)             \
-    if ((dest.numRects != 0) &&  \
-        (pNextRect[-1].top() == y1) &&  \
-        (pNextRect[-1].bottom() == y2) &&  \
-        (pNextRect[-1].right() >= r->left()-1)) { \
-        if (pNextRect[-1].right() < r->right()) { \
-            pNextRect[-1].setRight(r->right());  \
-            Q_ASSERT(pNextRect[-1].left() <= pNextRect[-1].right()); \
-        }  \
-    } else { \
-        MEMCHECK(dest, pNextRect, dest.rects)  \
-        pNextRect->setCoords(r->left(), y1, r->right(), y2); \
-        dest.numRects++;  \
-        pNextRect++;  \
-    }  \
-    r++;
-#else
 #define MERGERECT(r)             \
     if ((dest.numRects != 0) &&  \
         (pNextRect[-1].top() == y1) &&  \
@@ -973,7 +919,6 @@ static void miUnionO(register QRegionPrivate &dest, register const QRect *r1, co
         pNextRect++;  \
     }  \
     r++;
-#endif
 
     Q_ASSERT(y1 <= y2);
     while (r1 != r1End && r2 != r2End) {
@@ -997,7 +942,6 @@ static void miUnionO(register QRegionPrivate &dest, register const QRect *r1, co
 
 static void UnionRegion(const QRegionPrivate *reg1, const QRegionPrivate *reg2, QRegionPrivate &dest)
 {
-#ifdef QT_EXPERIMENTAL_REGIONS
     /*
       Empty region
     */
@@ -1047,48 +991,7 @@ static void UnionRegion(const QRegionPrivate *reg1, const QRegionPrivate *reg2, 
         dest.append(reg1);
         return;
     }
-#else
-    /*
-      Region 1 is empty or is equal to region 2.
-    */
-    if (reg1 == reg2 || isEmpty(reg1)) {
-        if (!isEmpty(reg2))
-            dest = *reg2;
-        return;
-    }
 
-    /*
-      Region 2 is empty (and region 1 isn't).
-    */
-    if (isEmpty(reg2)) {
-        dest = *reg1;
-        return;
-    }
-
-    /*
-      Region 1 completely subsumes region 2.
-     */
-    if (reg1->numRects == 1 && reg1->extents.left() <= reg2->extents.left()
-            && reg1->extents.top() <= reg2->extents.top()
-            && reg1->extents.right() >= reg2->extents.right()
-            && reg1->extents.bottom() >= reg2->extents.bottom()) {
-        dest = *reg1;
-        return;
-    }
-
-    /*
-      Region 2 completely subsumes region 1.
-     */
-    if (reg2->numRects == 1 && reg2->extents.left() <= reg1->extents.left()
-            && reg2->extents.top() <= reg1->extents.top()
-            && reg2->extents.right() >= reg1->extents.right()
-            && reg2->extents.bottom() >= reg1->extents.bottom()) {
-        dest = *reg2;
-        return;
-    }
-#endif
-
-#ifdef QT_EXPERIMENTAL_REGIONS
     if (reg1->innerArea > reg2->innerArea) {
         dest.innerArea = reg1->innerArea;
         dest.innerRect = reg1->innerRect;
@@ -1096,7 +999,6 @@ static void UnionRegion(const QRegionPrivate *reg1, const QRegionPrivate *reg2, 
         dest.innerArea = reg2->innerArea;
         dest.innerRect = reg2->innerRect;
     }
-#endif
     miRegionOp(dest, reg1, reg2, miUnionO, miUnionNonO, miUnionNonO);
 
     dest.extents.setCoords(qMin(reg1->extents.left(), reg2->extents.left()),
@@ -1271,7 +1173,6 @@ static void SubtractRegion(QRegionPrivate *regM, QRegionPrivate *regS,
         return;
     }
 
-#ifdef QT_EXPERIMENTAL_REGIONS
     if (regS->contains(*regM)) {
         dest = QRegionPrivate();
         return;
@@ -1281,7 +1182,6 @@ static void SubtractRegion(QRegionPrivate *regM, QRegionPrivate *regS,
         dest = QRegionPrivate();
         return;
     }
-#endif
 
     miRegionOp(dest, regM, regS, miSubtractO, miSubtractNonO1, 0);
 
@@ -1335,10 +1235,8 @@ static bool PointInRegion(QRegionPrivate *pRegion, int x, int y)
         return false;
     if (!pRegion->extents.contains(x, y))
         return false;
-#ifdef QT_EXPERIMENTAL_REGIONS
     if (pRegion->innerRect.contains(x, y))
         return true;
-#endif
     for (i = 0; i < pRegion->numRects; ++i) {
         if (pRegion->rects[i].contains(x, y))
             return true;
@@ -2085,9 +1983,7 @@ static void PtsToRegion(register int numFullPtBlocks, register int iCurPtBlock,
     numRects = 0;
     extents->setLeft(INT_MAX);
     extents->setRight(INT_MIN);
-#ifdef QT_EXPERIMENTAL_REGIONS
     reg->innerArea = -1;
-#endif
 
     for (; numFullPtBlocks >= 0; --numFullPtBlocks) {
         /* the loop uses 2 points per iteration */
@@ -2102,9 +1998,7 @@ static void PtsToRegion(register int numFullPtBlocks, register int iCurPtBlock,
                     && pts[1].x() == rects->right()+1 && (numRects == 1 || rects[-1].top() != rects->top())
                                                           && (i && pts[2].y() > pts[1].y())) {
                         rects->setBottom(pts[1].y());
-#ifdef QT_EXPERIMENTAL_REGIONS
                         reg->updateInnerRect(*rects);
-#endif
                         continue;
                 }
                 ++numRects;
@@ -2114,9 +2008,7 @@ static void PtsToRegion(register int numFullPtBlocks, register int iCurPtBlock,
                     extents->setLeft(rects->left());
                 if (rects->right() > extents->right())
                     extents->setRight(rects->right());
-#ifdef QT_EXPERIMENTAL_REGIONS
                 reg->updateInnerRect(*rects);
-#endif
             }
         }
         CurPtBlock = CurPtBlock->next;
@@ -2181,10 +2073,8 @@ static QRegionPrivate *PolygonRegion(const QPoint *Pts, int Count, int rule)
             region->numRects = 1;
             region->rects.resize(1);
             region->rects[0] = region->extents;
-#ifdef QT_EXPERIMENTAL_REGIONS
             region->innerRect = region->extents;
             region->innerArea = region->innerRect.width() * region->innerRect.height();
-#endif
         }
         return region;
     }
@@ -2670,7 +2560,6 @@ QRegion QRegion::unite(const QRegion &r) const
     return result;
 }
 
-#ifdef QT_EXPERIMENTAL_REGIONS
 QRegion& QRegion::operator+=(const QRegion &r)
 {
     if (isEmpty())
@@ -2686,7 +2575,6 @@ QRegion& QRegion::operator+=(const QRegion &r)
 
     return *this = unite(r);
 }
-#endif
 
 /*!
     \fn QRegion QRegion::intersect(const QRegion &r) const
@@ -2713,7 +2601,6 @@ QRegion QRegion::intersect(const QRegion &r) const
         || !EXTENTCHECK(&d->qt_rgn->extents, &r.d->qt_rgn->extents))
         return result;
 
-#ifdef QT_EXPERIMENTAL_REGIONS
     /* this is fully contained in r */
     if (r.d->qt_rgn->contains(*d->qt_rgn))
         return *this;
@@ -2721,7 +2608,6 @@ QRegion QRegion::intersect(const QRegion &r) const
     /* r is fully contained in this */
     if (d->qt_rgn->contains(*r.d->qt_rgn))
         return r;
-#endif
 
     result.detach();
     miRegionOp(*result.d->qt_rgn, d->qt_rgn, r.d->qt_rgn, miIntersectO, 0, 0);
@@ -2907,9 +2793,7 @@ void QRegion::setRects(const QRect *rects, int num)
             right = qMax(rect.right(), right);
             top = qMin(rect.top(), top);
             bottom = qMax(rect.bottom(), bottom);
-#ifdef QT_EXPERIMENTAL_REGIONS
             d->qt_rgn->updateInnerRect(rect);
-#endif
         }
         d->qt_rgn->extents = QRect(QPoint(left, top), QPoint(right, bottom));
     }
