@@ -457,19 +457,7 @@ bool QEventDispatcherGlib::versionSupported()
 #if !defined(GLIB_MAJOR_VERSION) || !defined(GLIB_MINOR_VERSION) || !defined(GLIB_MICRO_VERSION)
     return false;
 #else
-    const int major = 2;
-    const int minor = 3;
-    const int micro = 1;
-    const int lo = QString(QLatin1String("%1%2%3"))
-        .arg(major, 3, 10, QLatin1Char('0'))
-        .arg(minor, 3, 10, QLatin1Char('0'))
-        .arg(micro, 3, 10, QLatin1Char('0')).toInt();
-    bool ok;
-    const int actual = QString(QLatin1String("%1%2%3"))
-        .arg(GLIB_MAJOR_VERSION, 3, 10, QLatin1Char('0'))
-        .arg(GLIB_MINOR_VERSION, 3, 10, QLatin1Char('0'))
-        .arg(GLIB_MICRO_VERSION, 3, 10, QLatin1Char('0')).toInt(&ok);
-    return ok && actual >= lo;
+    return ((GLIB_MAJOR_VERSION << 16) + (GLIB_MINOR_VERSION << 8) + GLIB_MICRO_VERSION) >= 0x020301;
 #endif
 }
 
