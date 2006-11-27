@@ -82,7 +82,8 @@ public:
     void moveDown(bool ctrl);
 
 private slots:
-    void slotRemoveSelectedAction(QAction *action);
+    void slotAddSeparator();
+    void slotRemoveSelectedAction();
     void slotShowSubMenuNow();
     void slotDeactivateNow();
     void slotAdjustSizeNow();

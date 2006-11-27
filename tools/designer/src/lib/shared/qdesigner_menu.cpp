@@ -414,19 +414,64 @@ bool QDesignerMenu::handleContextMenuEvent(QWidget *, QContextMenuEvent *event)
         return true;
 
     QMenu menu(this);
-    QAction *a = menu.addAction(tr("Remove action '%1'").arg(action->objectName()));
     QVariant itemData;
     qVariantSetValue(itemData, action);
-    a->setData(itemData);
 
-    connect(&menu, SIGNAL(triggered(QAction*)), this, SLOT(slotRemoveSelectedAction(QAction*)));
+    QAction *addSeparatorAction = menu.addAction(tr("Insert separator"));
+    addSeparatorAction->setData(itemData);
+
+    QString removeActionString = tr("Remove action '%1'").arg(action->objectName());
+    if (action->isSeparator())
+        removeActionString = tr("Remove separator");
+    QAction *removeAction = menu.addAction(removeActionString);
+    removeAction->setData(itemData);
+
+    connect(addSeparatorAction, SIGNAL(triggered(bool)), this, SLOT(slotAddSeparator()));
+    connect(removeAction, SIGNAL(triggered(bool)), this, SLOT(slotRemoveSelectedAction()));
     menu.exec(event->globalPos());
 
     return true;
 }
 
-void QDesignerMenu::slotRemoveSelectedAction(QAction *action)
+void QDesignerMenu::slotAddSeparator()
 {
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (!action)
+        return;
+
+    QAction *a = qvariant_cast<QAction*>(action->data());
+    Q_ASSERT(a != 0);
+
+    int pos = actions().indexOf(a);
+    QAction *action_before = 0;
+    if (pos != -1)
+        action_before = safeActionAt(pos);
+
+    formWindow()->beginCommand(tr("Add separator"));
+    QAction *sep = createAction(QString(), true);
+
+    InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
+    cmd->init(this, sep, action_before);
+    formWindow()->commandHistory()->push(cmd);
+
+    if (parentMenu()) {
+        QAction *parent_action = parentMenu()->currentAction();
+        if (parent_action->menu() == 0) {
+            CreateSubmenuCommand *cmd = new CreateSubmenuCommand(formWindow());
+            cmd->init(parentMenu(), parentMenu()->currentAction());
+            formWindow()->commandHistory()->push(cmd);
+        }
+    }
+
+    formWindow()->endCommand();
+}
+
+void QDesignerMenu::slotRemoveSelectedAction()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (!action)
+        return;
+
     QAction *a = qvariant_cast<QAction*>(action->data());
     Q_ASSERT(a != 0);
 
