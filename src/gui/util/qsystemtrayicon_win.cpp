@@ -14,9 +14,8 @@
 #include "qsystemtrayicon_p.h"
 //#define _WIN32_IE 0x0500
 #define _WIN32_IE 0x0600 //required for NOTIFYICONDATAW_V2_SIZE
-#include <QDesktopWidget>
 
-//workaround for MINGW :
+//missing defines for MINGW :
 #ifndef NIN_BALLOONSHOW
 #define NIN_BALLOONTIMEOUT  (WM_USER + 4)
 #endif
@@ -31,6 +30,7 @@
 #include <QLibrary>
 #include <QApplication>
 #include <QToolTip>
+#include <QDesktopWidget>
 
 static uint MYWM_TASKBARCREATED = 0;
 #define MYWM_NOTIFYICON	(WM_APP+101)
@@ -96,12 +96,9 @@ bool QSystemTrayIconSys::supportsMessages()
             if (SUCCEEDED(hr)) {
                 if (dvi.dwMajorVersion >= 5)
                 {
-#ifndef NOTIFYICONDATAW_V2_SIZE // for mingw which has version>=3 but has this  undefined
-		    notifyIconSizeA = sizeof(NOTIFYICONDATAA);
-                    notifyIconSizeW = sizeof(NOTIFYICONDATA);
-#elif NOTIFYICON_VERSION >= 3
-                    notifyIconSizeA = NOTIFYICONDATAA_V2_SIZE;
-                    notifyIconSizeW = NOTIFYICONDATAW_V2_SIZE;
+#if NOTIFYICON_VERSION >= 3
+                    notifyIconSizeA = FIELD_OFFSET(NOTIFYICONDATAA, guidItem); // NOTIFYICONDATAA_V2_SIZE
+                    notifyIconSizeW = FIELD_OFFSET(NOTIFYICONDATAW, guidItem); // NOTIFYICONDATAW_V2_SIZE;
 #endif
                     return true;
                 }
