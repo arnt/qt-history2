@@ -4409,6 +4409,9 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
         break;
     case CC_GroupBox:
         if (const QStyleOptionGroupBox *groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
+            bool checkable = groupBox->subControls & SC_GroupBoxCheckBox;
+            bool flat = (groupBox->features & QStyleOptionFrameV2::Flat);
+            bool hasNoText = !checkable && groupBox->text.isEmpty();
             switch (sc) {
             case SC_GroupBoxLabel:
             case SC_GroupBoxCheckBox: {
@@ -4418,7 +4421,7 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                 bool fontIsSet = (widget && widget->testAttribute(Qt::WA_SetFont));
                 int tw;
                 int h;
-                int margin =  flat ? 0 : 12;
+                int margin =  flat || hasNoText ? 0 : 12;
                 ret = groupBox->rect.adjusted(margin, 0, -margin, 0);
 
                 if (!fontIsSet) {
@@ -4476,7 +4479,7 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
             }
             case SC_GroupBoxContents:
             case SC_GroupBoxFrame: {
-                if (groupBox->features & QStyleOptionFrameV2::Flat) {
+                if (flat) {
                     ret = QWindowsStyle::subControlRect(cc, groupBox, sc, widget);
                     break;
                 }
@@ -4487,6 +4490,8 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                     if (widget && !widget->testAttribute(Qt::WA_SetFont))
                         fm = QFontMetrics(qt_app_fonts_hash()->value("QHeaderView", QFont()));
                     yOffset = 5;
+                    if (hasNoText)
+                        yOffset = -fm.height();
                 }
 
                 ret = opt->rect.adjusted(0, fm.height() + yOffset, 0, 0);
