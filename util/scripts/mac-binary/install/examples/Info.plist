@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleGetInfoString</key>
-	<string>TrollTech Qt $VERSION_MAJOR$.$VERSION_MINOR$.$VERSION_PATCH$ Examples</string>
+	<string>Trolltech Qt $VERSION_MAJOR$.$VERSION_MINOR$.$VERSION_PATCH$ Examples</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.trolltech.qt$VERSION_MAJOR$.examples</string>
 	<key>CFBundleName</key>
