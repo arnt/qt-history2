@@ -80,7 +80,7 @@ QList<QUrl> QSidebar::urls() const
 {
     QList<QUrl> list;
     for (int i = 0; i < model()->rowCount(); ++i)
-        list.append(model()->data(model()->index(i, 0), UrlRole).toUrl().toLocalFile());
+        list.append(model()->data(model()->index(i, 0), UrlRole).toUrl());
     return list;
 }
 
@@ -97,8 +97,7 @@ void QSidebar::setUrls(const QList<QUrl> &list)
     \sa dropMimeData() addFullPath()
 */
 void QSidebar::addUrls(const QList<QUrl> &list, int row) {
-    if (row < 0)
-        row = model()->rowCount();
+    row = qMin(row, model()->rowCount());
     for (int i = list.count() - 1; i >= 0; --i) {
         QUrl url = list.at(i);
         if (!url.isValid() || url.scheme() != QLatin1String("file"))
@@ -110,6 +109,7 @@ void QSidebar::addUrls(const QList<QUrl> &list, int row) {
                 break;
             }
         }
+        row = qMax(row, 0);
         QModelIndex idx = fileSystemModel->index(url.toLocalFile());
         if (!fileSystemModel->isDir(idx))
             continue;
@@ -146,7 +146,7 @@ void QSidebar::selectUrl(const QUrl &url)
 
     selectionModel()->clear();
     for (int i = 0; i < model()->rowCount(); ++i) {
-        if(model()->index(i, 0).data(QSidebar::UrlRole).toUrl() == url) {
+        if (model()->index(i, 0).data(QSidebar::UrlRole).toUrl() == url) {
             selectionModel()->select(model()->index(i, 0), QItemSelectionModel::Select);
             break;
         }
@@ -158,13 +158,12 @@ void QSidebar::selectUrl(const QUrl &url)
 
 void QSidebar::init()
 {
-    // ### dragging internally should Move
     connect(selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
             this, SLOT(clicked(const QModelIndex &)));
     setDragDropMode(QAbstractItemView::DragDrop);
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
-               this, SLOT(showContextMenu(const QPoint &)));
+            this, SLOT(showContextMenu(const QPoint &)));
 }
 
 /*!
@@ -250,6 +249,6 @@ void QSidebar::layoutChanged()
             QModelIndex idx = values.at(i);
             setUrl(idx, QUrl::fromLocalFile(path));
         }
-     }
+    }
 }
 
