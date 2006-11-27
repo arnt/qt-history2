@@ -1,10 +1,10 @@
 /*!
-    \title Calendar Example
-    \example calendar
+    \title Calendar Widget Example
+    \example calendarwidget
 
-    The Calendar example shows use of \c QCalendarWidget.
+    The Calendar Widget example shows use of \c QCalendarWidget.
 
-    \image calendarexample.png
+    \image calendarwidgetexample.png
 
     QCalendarWidget displays one calendar month
     at a time and lets the user select a date.
@@ -14,7 +14,7 @@
     in the month, and two headers that display weekday names
     and week numbers.
 
-    The Calendar example displays a QCalendarWidget and lets the user
+    The Calendar Widget example displays a QCalendarWidget and lets the user
     configure its appearance and behavior using
     \l{QComboBox}es, \l{QCheckBox}es, and \l{QDateEdit}s. In
     addition, the user can influence the formatting of individual dates
@@ -57,7 +57,7 @@
 
     Here is the definition of the \c Window class:
 
-    \quotefromfile widgets/calendar/window.h
+    \quotefromfile widgets/calendarwidget/window.h
     \skipto /class Window/
     \printuntil firstDayLabel
     \dots
@@ -72,7 +72,7 @@
 
     Let's now review the class implementation, starting with the constructor:
 
-    \quotefromfile widgets/calendar/window.cpp
+    \quotefromfile widgets/calendarwidget/window.cpp
     \skipto /::Window/
     \printuntil /^\}/
 
@@ -207,7 +207,7 @@
     This function was used to set up the \gui {Weekday Color}
     and \gui {Weekend Color} comboboxes.
 
-    \quotefromfile widgets/calendar/window.cpp
+    \quotefromfile widgets/calendarwidget/window.cpp
     \skipto /::firstDayChanged/
     \printuntil /^\}/
 

@@ -48,6 +48,7 @@
     \list
     \o \l{widgets/analogclock}{Analog Clock}\raisedaster
     \o \l{widgets/calculator}{Calculator}\raisedaster
+    \o \l{widgets/calendarwidget}{Calendar Widget}\raisedaster
     \o \l{widgets/charactermap}{Character Map}\raisedaster
     \o \l{widgets/digitalclock}{Digital Clock}\raisedaster
     \o \l{widgets/groupbox}{Group Box}\raisedaster
@@ -109,6 +110,7 @@
     \o \l{itemviews/simpledommodel}{Simple DOM Model}\raisedaster
     \o \l{itemviews/simpletreemodel}{Simple Tree Model}\raisedaster
     \o \l{itemviews/spinboxdelegate}{Spin Box Delegate}\raisedaster
+    \o \l{itemviews/stardelegate}{Star Delegate}\raisedaster
     \endlist
 
     \section1 Painting Examples
