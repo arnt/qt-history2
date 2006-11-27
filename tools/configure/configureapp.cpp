@@ -120,9 +120,11 @@ Configure::Configure( int& argc, char** argv )
 			qmake_dirs.push(dir + "/" + fi.fileName());
 			QDir().mkpath(od + "/" + fi.fileName());
 		    } else {
+			QDir().mkpath(od );
 			bool justCopy = true;
 			const QString fname = fi.fileName();
-			if(fname.endsWith(".h") || fname.endsWith(".cpp")) {
+			if(fi.fileName() == "Makefile") { //ignore
+			} else if(fi.suffix() == "h" || fi.suffix() == "cpp") {
 			    QFile out(od + "/" + fname);
 			    if(out.open(QFile::WriteOnly)) {
 				QTextStream stream(&out);
