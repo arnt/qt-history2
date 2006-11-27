@@ -2466,4 +2466,6 @@
     the existing contents with the data being transferred, the underlying model
     will set the data of the target items rather than insert new rows and columns
     into the model.
+
+    \sa {http://www.phptr.com/content/images/0131872494/samplechapter/blanchette_ch10.pdf}{"Item View Classes" Chapter of C++ GUI Programming with Qt 4}
 */
