@@ -132,7 +132,7 @@ private:
 #include <qtimer.h>
 #include <qhash.h>
 
-class QFileSystemModelPrivate : public QAbstractItemModelPrivate
+class Q_AUTOTEST_EXPORT QFileSystemModelPrivate : public QAbstractItemModelPrivate
 {
     Q_DECLARE_PUBLIC(QFileSystemModel)
 
