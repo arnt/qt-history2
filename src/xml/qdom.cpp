@@ -4642,8 +4642,7 @@ QString QDomElementPrivate::text()
 void QDomElementPrivate::save(QTextStream& s, int depth, int indent) const
 {
     if (!(prev && prev->isText()))
-        for (int i = 0; i < depth*indent; ++i)
-            s << " ";
+        s << QString(depth * indent, QLatin1Char(' '));
 
     QString qName(name);
     QString nsDecl(QLatin1String(""));
