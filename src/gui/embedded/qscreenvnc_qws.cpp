@@ -703,7 +703,7 @@ bool QVNCServer::checkFill(const uchar *data, int width, int height,
     switch (qvnc_screen->depth()) {
     case 4: {
         const quint8 *data8 = reinterpret_cast<const quint8*>(data);
-        if ((data8[0] & 0xf) != (data8[1] >> 4))
+        if ((data8[0] & 0xf) != (data8[0] >> 4))
             return false;
         width /= 2;
     } // fallthrough
@@ -880,6 +880,8 @@ void QVNCServer::convertPixels(char *dst, const char *src, int count)
 static inline QImage::Format formatForDepth(int depth)
 {
     switch (depth) {
+    case 8:
+        return QImage::Format_Indexed8;
     case 16:
         return QImage::Format_RGB16;
     case 32:
