@@ -26,6 +26,8 @@
 #include "qhash.h"
 #include "qdebug.h"
 
+#include <private/qcore_mac_p.h>
+
 #include <limits.h>
 #include <string.h>
 #include <stdlib.h>
@@ -4130,6 +4132,9 @@ int QString::compare(const QLatin1String &other, Qt::CaseSensitivity cs) const
     platform-dependent manner. Use this function to present sorted
     lists of strings to the user.
 
+    On Mac OS X since Qt 4.3, this function compares according the 
+    "Order for sorted lists" setting in the International prefereces panel.
+
     \sa compare(), QTextCodec::locale()
 */
 
@@ -4175,6 +4180,22 @@ int QString::localeAwareCompare(const QString &other) const
     default:
         return 0;
     }
+#elif defined (Q_OS_MAC)
+    // Use CFStringCompare for comparing strings on Mac. This makes Qt order
+    // strings the same way as native applications do, and also respects
+    // the "Order for sorted lists" setting in the International preferences
+    // panel.
+    const CFStringRef thisString = 
+        CFStringCreateWithCharactersNoCopy(kCFAllocatorDefault,
+            reinterpret_cast<const UniChar *>(this->unicode()), this->length(), kCFAllocatorNull);
+    const CFStringRef otherString = 
+        CFStringCreateWithCharactersNoCopy(kCFAllocatorDefault,
+            reinterpret_cast<const UniChar *>(other.unicode()), other.length(), kCFAllocatorNull);
+
+    const int result = CFStringCompare(thisString, otherString, kCFCompareLocalized);
+    CFRelease(thisString);
+    CFRelease(otherString);
+    return result;
 #elif defined(Q_OS_UNIX)
     // declared in <string.h>
     int delta = strcoll(toLocal8Bit(), other.toLocal8Bit());
