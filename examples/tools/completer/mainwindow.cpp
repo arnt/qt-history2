@@ -20,8 +20,10 @@ MainWindow::MainWindow(QWidget *parent)
 {
     createMenu();
 
+    completer = new QCompleter(this);
+
     QWidget *centralWidget = new QWidget;
-    
+
     QLabel *modelLabel = new QLabel;
     modelLabel->setText(tr("Model"));
 
@@ -51,52 +53,55 @@ MainWindow::MainWindow(QWidget *parent)
     caseCombo->setCurrentIndex(1);
 #endif
 
-    contentsLabel = new QLabel;
-    contentsLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
     wrapCheckBox = new QCheckBox;
     wrapCheckBox->setText(tr("Wrap completions"));
+    wrapCheckBox->setChecked(completer->wrapCompletions());
+    connect(wrapCheckBox, SIGNAL(clicked(bool)), completer, SLOT(setWrapCompletions(bool)));
+
+    contentsLabel = new QLabel;
+    contentsLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     connect(modelCombo, SIGNAL(activated(int)), this, SLOT(updateModel()));
     connect(modeCombo, SIGNAL(activated(int)), this, SLOT(changeMode(int)));
     connect(caseCombo, SIGNAL(activated(int)), this, SLOT(changeCase(int)));
 
+    lineEdit = new QLineEdit;
+    lineEdit->setCompleter(completer);
+
+    comboBox = new QComboBox;
+    comboBox->setEditable(true);
+    comboBox->setCompleter(completer);
+
     QGridLayout *layout = new QGridLayout;
     layout->addWidget(modelLabel, 0, 0); layout->addWidget(modelCombo, 0, 1);
     layout->addWidget(modeLabel, 1, 0);  layout->addWidget(modeCombo, 1, 1);
     layout->addWidget(caseLabel, 2, 0);  layout->addWidget(caseCombo, 2, 1);
-    layout->addWidget(contentsLabel, 3, 0, 1, 2);
-    layout->addWidget(wrapCheckBox, 4, 0, 1, 2);
+    layout->addWidget(wrapCheckBox, 3, 0);
+    layout->addWidget(contentsLabel, 4, 0, 1, 2);
+    layout->addWidget(lineEdit, 5, 0, 1, 2);
+    layout->addWidget(comboBox, 6, 0, 1, 2);
     centralWidget->setLayout(layout);
     setCentralWidget(centralWidget);
 
-    useComboBox(false);
     updateModel();
     changeCase(caseCombo->currentIndex());
     changeMode(modeCombo->currentIndex());
 
-    wrapCheckBox->setChecked(true);
-    connect(wrapCheckBox, SIGNAL(clicked(bool)), completer, SLOT(setWrapCompletions(bool)));
-
     setWindowTitle(tr("Completer"));
+    lineEdit->setFocus();
 }
 
 void MainWindow::createMenu()
 {
-    QAction *comboAction = new QAction(tr("Show QComboBox"), this);
-    comboAction->setCheckable(true);
     QAction *exitAction = new QAction(tr("Exit"), this);
     QAction *aboutAct = new QAction(tr("About"), this);
     QAction *aboutQtAct = new QAction(tr("About Qt"), this);
 
-    connect(comboAction, SIGNAL(toggled(bool)), this, SLOT(useComboBox(bool)));
     connect(exitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
     QMenu* fileMenu = menuBar()->addMenu(tr("File"));
-    fileMenu->addAction(comboAction);
-    fileMenu->addSeparator();
     fileMenu->addAction(exitAction);
 
     QMenu* helpMenu = menuBar()->addMenu(tr("About"));
@@ -126,7 +131,7 @@ QAbstractItemModel *MainWindow::modelFromFile(const QString& fileName)
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     QStringList words;
-    
+
     while (!file.atEnd()) {
         QByteArray line = file.readLine();
         if (!line.isEmpty())
@@ -149,19 +154,12 @@ QAbstractItemModel *MainWindow::modelFromFile(const QString& fileName)
         m->setData(countryIdx, country);
         m->setData(symbolIdx, symbol);
     }
-    
+
     return m;
 }
 
 void MainWindow::updateModel()
 {
-    if (completer) {
-        comboBox ? comboBox->setCompleter(0) : lineEdit->setCompleter(0);
-        delete completer;
-    }
-    completer = new QCompleter(this);
-    comboBox ? comboBox->setCompleter(completer) : lineEdit->setCompleter(completer);
-
     switch (modelCombo->currentIndex()) {
     default:
     case 0:
@@ -204,28 +202,6 @@ void MainWindow::updateModel()
     changeMode(modeCombo->currentIndex());
 }
 
-void MainWindow::useComboBox(bool combo)
-{
-    if ((comboBox && combo) || (lineEdit && !combo))
-        return;
-    if (combo) {
-        delete lineEdit;
-        lineEdit = 0;
-        comboBox = new QComboBox;
-        comboBox->setEditable(true);
-        comboBox->setCompleter(completer);
-        (static_cast<QGridLayout *>(centralWidget()->layout()))->addWidget(comboBox, 5, 0, 1, 2);
-        comboBox->setFocus();
-    } else {
-        delete comboBox;
-        comboBox = 0;
-        lineEdit = new QLineEdit;
-        lineEdit->setCompleter(completer);
-        (static_cast<QGridLayout *>(centralWidget()->layout()))->addWidget(lineEdit, 5, 0, 1, 2);
-        lineEdit->setFocus();
-    }
-}
-
 void MainWindow::about()
 {
     QMessageBox::about(this, tr("About"), tr("This example demonstrates the "
@@ -236,3 +212,4 @@ void MainWindow::changeCase(int cs)
 {
     completer->setCaseSensitivity(cs ? Qt::CaseSensitive : Qt::CaseInsensitive);
 }
+

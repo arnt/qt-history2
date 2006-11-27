@@ -46,7 +46,7 @@ void TextEdit::setCompleter(QCompleter *completer)
     c->setWidget(this);
     c->setCompletionMode(QCompleter::PopupCompletion);
     c->setCaseSensitivity(Qt::CaseInsensitive);
-    QObject::connect(completer, SIGNAL(activated(const QString&)),
+    QObject::connect(c, SIGNAL(activated(const QString&)),
                      this, SLOT(insertCompletion(const QString&)));
 }
 
@@ -57,6 +57,8 @@ QCompleter *TextEdit::completer() const
 
 void TextEdit::insertCompletion(const QString& completion)
 {
+    if (c->widget() != this)
+        return;
     QTextCursor tc = textCursor();
     int extra = completion.length() - c->completionPrefix().length();
     tc.movePosition(QTextCursor::Left);
@@ -70,6 +72,13 @@ QString TextEdit::textUnderCursor() const
     QTextCursor tc = textCursor();
     tc.select(QTextCursor::WordUnderCursor);
     return tc.selectedText();
+}
+
+void TextEdit::focusInEvent(QFocusEvent *e)
+{
+    if (c)
+        c->setWidget(this);
+    QTextEdit::focusInEvent(e);
 }
 
 void TextEdit::keyPressEvent(QKeyEvent *e)

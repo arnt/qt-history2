@@ -36,7 +36,6 @@ private slots:
     void changeCase(int);
     void changeMode(int);
     void updateModel();
-    void useComboBox(bool);
 
 private:
     void createMenu();
@@ -45,10 +44,9 @@ private:
     QComboBox *caseCombo;
     QComboBox *modeCombo;
     QComboBox *modelCombo;
+    QCheckBox *wrapCheckBox;
     QCompleter *completer;
     QLabel *contentsLabel;
-    QCheckBox *wrapCheckBox;
-
     QComboBox *comboBox;
     QLineEdit *lineEdit;
 };
