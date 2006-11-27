@@ -465,7 +465,7 @@ static QSqlField qMakeFieldInfo(const QODBCPrivate* p, int i )
         return QSqlField();
     }
 
-    SQLINTEGER unsignedFlag = SQL_FALSE;
+    QSQLLEN unsignedFlag = SQL_FALSE;
     r = SQLColAttribute (p->hStmt,
                          i + 1,
                          SQL_DESC_UNSIGNED,
