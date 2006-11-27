@@ -469,11 +469,10 @@ void WidgetHandle::tryResize(QWidget *w, int width, int height)
 
 // ------------------------------------------------------------------------
 
-WidgetSelection::WidgetSelection(FormWindow *parent, SelectionDictionary *selDict)   : 
+WidgetSelection::WidgetSelection(FormWindow *parent)   :
     m_topWidget(0),
     m_wid(0),
     m_formWindow(parent),
-    m_selectionDict(selDict),
     m_taskMenu(0)
 {
     for (int i = WidgetHandle::LeftTop; i < WidgetHandle::TypeCount; ++i) {
@@ -483,7 +482,7 @@ WidgetSelection::WidgetSelection(FormWindow *parent, SelectionDictionary *selDic
     hide();
 }
 
-void WidgetSelection::setWidget(QWidget *w, bool updateDict)
+void WidgetSelection::setWidget(QWidget *w)
 {
     m_taskMenu = 0; // ### qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(), w);
 
@@ -502,8 +501,6 @@ void WidgetSelection::setWidget(QWidget *w, bool updateDict)
 
     if (w == 0) {
         hide();
-        if (updateDict)
-            m_selectionDict->remove(m_wid);
         m_wid = 0;
         return;
     }
@@ -563,9 +560,6 @@ void WidgetSelection::setWidget(QWidget *w, bool updateDict)
 
     updateGeometry();
     show();
-
-    if (updateDict)
-        m_selectionDict->insert(w, this);
 }
 
 bool WidgetSelection::isUsed() const

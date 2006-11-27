@@ -68,6 +68,115 @@ private:
     const bool m_blocked;
 };
 
+// ------------------------ FormWindow::Selection
+
+FormWindow::Selection::Selection() 
+{
+}
+
+FormWindow::Selection::~Selection()
+{
+    qDeleteAll(m_selectionPool);
+}
+    
+    
+void FormWindow::Selection::clear() 
+{   
+    const SelectionHash::iterator mend = m_usedSelections.end();
+    for (SelectionHash::iterator it = m_usedSelections.begin(); it != mend; ++it) {
+        it.value()->setWidget(0);
+    }
+    m_usedSelections.clear();
+}
+    
+WidgetSelection *FormWindow::Selection::addWidget(FormWindow* fw, QWidget *w)
+{
+    WidgetSelection *rc = m_usedSelections.value(w);
+    if (rc != 0) {
+        rc->show();
+        return rc;
+    }
+    // find a free one in the pool
+    const SelectionPool::iterator pend = m_selectionPool.end();
+    for (SelectionPool::iterator it = m_selectionPool.begin(); it != pend; ++it) {
+        if (! (*it)->isUsed()) {
+            rc = *it;
+            break;
+        }
+    }
+            
+    if (rc == 0) {
+        rc = new WidgetSelection(fw);
+        m_selectionPool.push_back(rc);
+    }
+
+    m_usedSelections.insert(w, rc);
+    rc->setWidget(w);
+    return rc;
+}
+
+QWidget* FormWindow::Selection::removeWidget(QWidget *w)
+{
+    WidgetSelection *s = m_usedSelections.value(w);
+    if (!s)
+        return w;
+    
+    s->setWidget(0);
+    m_usedSelections.remove(w);
+    
+    if (m_usedSelections.isEmpty()) 
+        return 0;
+    
+    return (*m_usedSelections.begin())->widget();
+}
+    
+void FormWindow::Selection::repaintSelection(QWidget *w)
+{
+    if (WidgetSelection *s = m_usedSelections.value(w))
+        s->update();
+}
+    
+void FormWindow::Selection::repaintSelection()
+{
+    const SelectionHash::iterator mend = m_usedSelections.end();
+    for (SelectionHash::iterator it = m_usedSelections.begin(); it != mend; ++it) {
+        it.value()->update();
+    }
+}
+
+bool FormWindow::Selection::isWidgetSelected(QWidget *w) const{
+    return  m_usedSelections.contains(w);
+}
+    
+FormWindow::Selection::WidgetList  FormWindow::Selection::selectedWidgets() const
+{
+    return m_usedSelections.keys();
+}
+    
+void FormWindow::Selection::raiseList(const WidgetList& l)
+{
+    const SelectionHash::iterator mend = m_usedSelections.end();
+    for (SelectionHash::iterator it = m_usedSelections.begin(); it != mend; ++it) {
+        WidgetSelection *w = it.value();
+        if (l.contains(w->widget()))
+            w->show();
+    }
+}
+
+void FormWindow::Selection::raiseWidget(QWidget *w)
+{
+    if (WidgetSelection *s = m_usedSelections.value(w))
+        s->show();
+}
+    
+void FormWindow::Selection::updateGeometry(QWidget *w)
+{
+    if (WidgetSelection *s = m_usedSelections.value(w)) {
+        s->updateGeometry();
+    }    
+}
+    
+// ------------------------ FormWindow
 FormWindow::FormWindow(FormEditor *core, QWidget *parent, Qt::WindowFlags flags)
     : QDesignerFormWindowInterface(parent, flags),
       m_core(core), m_widgetStack(0)
@@ -96,8 +205,6 @@ FormWindow::~FormWindow()
 
     m_widgetStack = 0;
     m_rubberBand = 0;
-
-    qDeleteAll(m_selections);
 }
 
 QDesignerFormEditorInterface *FormWindow::core() const
@@ -583,7 +690,7 @@ void FormWindow::selectWidget(QWidget* w, bool select)
     if (isMainContainer(w)) {
         QWidget *opw = m_currentWidget;
         setCurrentWidget(mainContainer());
-        repaintSelection(opw);
+        m_selection.repaintSelection(opw);
         emitSelectionChanged();
         return;
     }
@@ -591,7 +698,7 @@ void FormWindow::selectWidget(QWidget* w, bool select)
     if (isCentralWidget(w)) {
         QWidget *opw = m_currentWidget;
         setCurrentWidget(mainContainer());
-        repaintSelection(opw);
+        m_selection.repaintSelection(opw);
         emitSelectionChanged();
         return;
     }
@@ -599,38 +706,15 @@ void FormWindow::selectWidget(QWidget* w, bool select)
     if (select) {
         QWidget *opw = m_currentWidget;
         setCurrentWidget(w);
-        repaintSelection(opw);
-        WidgetSelection *s = m_usedSelections.value(w);
-        if (s != 0) {
-            s->show();
-            return;
-        }
-
-        QListIterator<WidgetSelection*> it(m_selections);
-        while (it.hasNext()) {
-            WidgetSelection *sel = it.next();
-            if (!sel->isUsed()) {
-                s = sel;
-                break;
-            }
-        }
-
-        if (s == 0) {
-            s = new WidgetSelection(this, &m_usedSelections);
-            m_selections.append(s);
-        }
-
-        s->setWidget(w);
+        m_selection.repaintSelection(opw);
+        m_selection.addWidget(this, w);
     } else {
-        if (WidgetSelection *s = m_usedSelections.value(w))
-            s->setWidget(0);
+        QWidget *newCurrent = m_selection.removeWidget(w);
+        if (!newCurrent)
+            newCurrent = mainContainer();
 
-        if (!m_usedSelections.isEmpty())
-            setCurrentWidget((*m_usedSelections.begin())->widget());
-        else
-            setCurrentWidget(mainContainer());
-
-        repaintSelection(currentWidget());
+        setCurrentWidget(newCurrent);
+        m_selection.repaintSelection(newCurrent);
     }
 
     emitSelectionChanged();
@@ -643,11 +727,7 @@ void FormWindow::hideSelection(QWidget *w)
 
 void FormWindow::clearSelection(bool changePropertyDisplay)
 {
-    for (QHash<QWidget *, WidgetSelection *>::Iterator it = m_usedSelections.begin(); it != m_usedSelections.end(); ++it) {
-        it.value()->setWidget(0, false);
-    }
-
-    m_usedSelections.clear();
+    m_selection.clear();
 
     if (changePropertyDisplay == false)
         return;
@@ -655,7 +735,7 @@ void FormWindow::clearSelection(bool changePropertyDisplay)
     setCurrentWidget(mainContainer());
 
     if (m_currentWidget)
-        repaintSelection(m_currentWidget);
+        m_selection.repaintSelection(m_currentWidget);
 
     emitSelectionChanged();
 }
@@ -675,15 +755,9 @@ void FormWindow::selectionChangedTimerDone()
     emit selectionChanged();
 }
 
-void FormWindow::repaintSelection(QWidget *w)
-{
-    if (WidgetSelection *s = m_usedSelections.value(w))
-        s->update();
-}
-
 bool FormWindow::isWidgetSelected(QWidget *w) const
 {
-    return m_usedSelections.contains(w);
+    return m_selection.isWidgetSelected(w);
 }
 
 bool FormWindow::isMainContainer(const QWidget *w) const
@@ -706,11 +780,11 @@ void FormWindow::updateChildSelections(QWidget *w)
 
 void FormWindow::updateSelection(QWidget *w)
 {
-    WidgetSelection *s = m_usedSelections.value(w);
     if (!w->isVisibleTo(this)) {
         selectWidget(w, false);
-    } else if (s)
-        s->updateGeometry();
+    } else {
+        m_selection.updateGeometry(w);
+    }
 }
 
 QWidget *FormWindow::designerWidget(QWidget *w) const
@@ -877,15 +951,7 @@ void FormWindow::raiseChildSelections(QWidget *w)
     const QList<QWidget*> l = qFindChildren<QWidget*>(w);
     if (l.isEmpty())
         return;
-
-    QHashIterator<QWidget *, WidgetSelection *> it(m_usedSelections);
-    while (it.hasNext()) {
-        it.next();
-
-        WidgetSelection *w = it.value();
-        if (l.contains(w->widget()))
-            w->show();
-    }
+    m_selection.raiseList(l);
 }
 
 QWidget *FormWindow::containerAt(const QPoint &pos, QWidget *notParentOf)
@@ -937,14 +1003,7 @@ QWidget *FormWindow::containerAt(const QPoint &pos, QWidget *notParentOf)
 
 QList<QWidget*> FormWindow::selectedWidgets() const
 {
-    return m_usedSelections.keys();
-}
-
-void FormWindow::raiseSelection(QWidget *w)
-{
-    WidgetSelection *s = m_usedSelections.value(w);
-    if (s)
-        s->show();
+    return m_selection.selectedWidgets();
 }
 
 void FormWindow::selectWidgets()
@@ -1277,8 +1336,7 @@ void FormWindow::unmanageWidget(QWidget *w)
     if (!isManaged(w))
         return;
 
-    if (m_usedSelections.contains(w))
-        m_usedSelections.value(w)->setWidget(0);
+    m_selection.removeWidget(w);
 
     emit aboutToUnmanageWidget(w);
 
@@ -1833,13 +1891,6 @@ void FormWindow::simplifySelection(QList<QWidget*> *sel) const
 FormWindow *FormWindow::findFormWindow(QWidget *w)
 {
     return qobject_cast<FormWindow*>(QDesignerFormWindowInterface::findFormWindow(w));
-}
-
-void FormWindow::repaintSelection()
-{
-    const QList<QWidget*> sel = selectedWidgets();
-    foreach (QWidget *ww, sel)
-        repaintSelection(ww);
 }
 
 bool FormWindow::isDirty() const

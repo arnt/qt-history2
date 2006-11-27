@@ -83,10 +83,9 @@ class QT_FORMEDITOR_EXPORT WidgetSelection: public QObject
 {
     Q_OBJECT
 public:
-    typedef QHash<QWidget *, WidgetSelection *> SelectionDictionary;
-    WidgetSelection(FormWindow *parent, SelectionDictionary *selDict);
+    WidgetSelection(FormWindow *parent);
 
-    void setWidget(QWidget *w, bool updateDict = true);
+    void setWidget(QWidget *w);
     bool isUsed() const;
 
     void updateGeometry();
@@ -108,7 +107,6 @@ protected:
     InvisibleWidget *m_topWidget;
     QPointer<QWidget> m_wid;
     FormWindow *m_formWindow;
-    SelectionDictionary *m_selectionDict;
     QDesignerTaskMenuExtension *m_taskMenu;
 };
 
