@@ -18,10 +18,10 @@
     // do something that triggers the signal
     box->animateClick();
 
-    COMPARE(spy.count(), 1); // make sure the signal was emitted exactly one time
+    QCOMPARE(spy.count(), 1); // make sure the signal was emitted exactly one time
     QList<QVariant> arguments = spy.takeFirst(); // take the first signal
 
-    VERIFY(arguments.at(0).toBool() == true); // verify the first argument
+    QVERIFY(arguments.at(0).toBool() == true); // verify the first argument
     \endcode
 
     \c{spy.takeFirst()} returns the arguments for the first emitted signal, as a
@@ -36,9 +36,9 @@
     myCustomObject->doSomething(); // trigger emission of the signal
 
     QList<QVariant> arguments = spy.takeFirst();
-    VERIFY(arguments.at(0).type() == QVariant::Int);
-    VERIFY(arguments.at(1).type() == QVariant::QString);
-    VERIFY(arguments.at(2).type() == QVariant::double);
+    QVERIFY(arguments.at(0).type() == QVariant::Int);
+    QVERIFY(arguments.at(1).type() == QVariant::QString);
+    QVERIFY(arguments.at(2).type() == QVariant::double);
     \endcode
 
     \bold {Note:} Non-standard data types need to be registered, using
