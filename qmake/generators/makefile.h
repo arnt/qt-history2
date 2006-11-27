@@ -131,6 +131,12 @@ protected:
     };
     QStringList findFilesInVPATH(QStringList l, uchar flags, const QString &var="");
 
+    inline int findExecutable(const QStringList &cmdline) 
+    { int ret; canExecute(cmdline, &ret); return ret; }
+    bool canExecute(const QStringList &cmdline, int *argv0) const;
+    inline bool canExecute(const QString &cmdline) const
+    { return canExecute(cmdline.split(' '), 0); }
+
     QString mkdir_p_asstring(const QString &dir, bool escape=true) const;
 
     //subclasses can use these to query information about how the generator was "run"
