@@ -61,6 +61,9 @@ namespace qdesigner_internal {
 
         void setAlignment(Qt::Alignment alignment);
 
+        // installs an event filter object on the private QLineEdit
+        void installEventFilter(QObject *filterObject);
+
         // Replace newline characters by literal "\n" for inline editing
         // in mode ValidationMultiLine
         static QString stringToEditorString(const QString &s, TextPropertyValidationMode validationMode = ValidationMultiLine);
@@ -70,6 +73,7 @@ namespace qdesigner_internal {
 
         // Returns whether newline characters are valid in validationMode.
         static bool multiLine(TextPropertyValidationMode validationMode);
+
     signals:
         void textChanged(const QString &text);
         void editingFinished ();

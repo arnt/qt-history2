@@ -161,6 +161,12 @@ namespace qdesigner_internal {
         m_lineEdit->setAlignment(alignment);
     }
 
+    void TextPropertyEditor::installEventFilter(QObject *filterObject)
+    {
+        if (m_lineEdit)
+            m_lineEdit->installEventFilter(filterObject);
+    }
+
     void TextPropertyEditor::resizeEvent ( QResizeEvent * event ) {
         m_lineEdit->resize( event->size());
     }

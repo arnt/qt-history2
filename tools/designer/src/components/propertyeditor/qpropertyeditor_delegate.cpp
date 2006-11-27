@@ -13,6 +13,7 @@
 
 #include "qpropertyeditor_delegate_p.h"
 #include "qpropertyeditor_model_p.h"
+#include "textpropertyeditor_p.h"
 #include <iconloader_p.h>
 
 #include <QtGui/QPainter>
@@ -218,7 +219,11 @@ QWidget *QPropertyEditorDelegate::createEditor(QWidget *parent,
                         this, SLOT(resetProperty(const IProperty *, QPropertyEditorModel *)));
 
             editor = editor_w_reset;
-            child_editor->installEventFilter(const_cast<QPropertyEditorDelegate *>(this));
+            if (TextPropertyEditor* edit = qobject_cast<TextPropertyEditor*>(child_editor)) {
+                // in case of TextPropertyEditor install the filter on it's private QLineEdit
+                edit->installEventFilter(const_cast<QPropertyEditorDelegate *>(this));
+            } else
+                child_editor->installEventFilter(const_cast<QPropertyEditorDelegate *>(this));
         } else {
             editor = property->createEditor(parent, this, SLOT(sync()));
             editor->installEventFilter(const_cast<QPropertyEditorDelegate *>(this));

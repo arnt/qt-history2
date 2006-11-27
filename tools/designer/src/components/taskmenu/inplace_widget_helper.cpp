@@ -61,6 +61,6 @@ namespace qdesigner_internal {
             m_editorWidget->resize(event->size().width() - 2, m_editorWidget->height());
         }
 
-        return false;
+        return QObject::eventFilter(object, e);
     }
 }
