@@ -3119,7 +3119,9 @@ void QWidget::setFixedSize(const QSize & s)
 void QWidget::setFixedSize(int w, int h)
 {
     Q_D(QWidget);
-    if (!d->setMinimumSize_helper(w, h) && !d->setMaximumSize_helper(w, h))
+    bool minSizeSet = d->setMinimumSize_helper(w, h);
+    bool maxSizeSet = d->setMaximumSize_helper(w, h);
+    if (!minSizeSet && !maxSizeSet)
         return;
 
     if (isWindow())
