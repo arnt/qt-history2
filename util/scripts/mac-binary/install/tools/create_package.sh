@@ -127,4 +127,11 @@ if [ -e "${BINDIR}/lib/libQtUiTools.a" ]; then
     copyHeaderDir "${BINDIR}/include/QtUiTools" "$OUTDIR/usr/include/QtUiTools"
 fi
 
+# finally phrase books for Linguist
+PHRASEDEST="$OUTDIR/Developer/Applications/Qt/phrasebooks"
+mkdir -p "$PHRASEDEST"
+for phrasebook in `find $BINDIR/phrasebooks/ -name '*.qph'`; do
+    cp "$phrasebook" "$PHRASEDEST"
+done
+
 exit 0
