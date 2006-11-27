@@ -2202,6 +2202,17 @@
 */
 
 /*!
+    \enum Qt::MaskMode
+
+    This enum specifies the behavior of the
+    QPixmap::createMaskFromColor() and QImage::createMaskFromColor()
+    functions.
+
+    \value MaskInColor   Creates a mask where all pixels matching the given color are opaque.
+    \value MaskOutColor  Creates a mask where all pixels matching the given color are transparent.
+*/
+
+/*!
     \enum Qt::DockWidgetAreaSizes
     \internal
 */

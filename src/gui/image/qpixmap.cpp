@@ -515,12 +515,10 @@ void QPixmap::resize_helper(const QSize &s)
         myPixmap->setMask(myPixmap->createHeuristicMask());
     \endcode
 
-    This function is slow because it involves transformation to a
-    QImage, non-trivial computations and a transformation back to a
-    QBitmap.
+    This function is slow because it involves converting to/from a
+    QImage, and non-trivial computations.
 
-    \sa QImage::createHeuristicMask(), {QPixmap#Pixmap
-    Transformations}{Pixmap Transformations}
+    \sa QImage::createHeuristicMask(), createMaskFromColor()
 */
 QBitmap QPixmap::createHeuristicMask(bool clipTight) const
 {
@@ -531,29 +529,32 @@ QBitmap QPixmap::createHeuristicMask(bool clipTight) const
 
 /*!
     Creates and returns a mask for this pixmap based on the given \a
-    maskColor.
+    maskColor. If the \a mode is Qt::MaskInColor, all pixels matching the
+    maskColor will be opaque. If \a mode is Qt::MaskOutColor, all pixels
+    matching the maskColor will be transparent.
 
-    This function is slow because it involves transformation to a
-    QImage and a transformation back to a QBitmap.
+    This function is slow because it involves converting to/from a
+    QImage.
 
-    \sa createHeuristicMask(), {QPixmap#Pixmap Transformations}{Pixmap
-    Transformations}
+    \sa createHeuristicMask(), QImage::createMaskFromColor()
+*/
+QBitmap QPixmap::createMaskFromColor(const QColor &maskColor, Qt::MaskMode mode) const
+{
+    QImage image = toImage().convertToFormat(QImage::Format_ARGB32);
+    return QBitmap::fromImage(image.createMaskFromColor(maskColor.rgba(), mode));
+}
+
+/*! \overload
+
+    Creates and returns a mask for this pixmap based on the given \a
+    maskColor. Same as calling createMaskFromColor(maskColor,
+    Qt::MaskInColor)
+
+    \sa createHeuristicMask(), QImage::createMaskFromColor()
 */
 QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
 {
-    QImage maskImage(size(), QImage::Format_MonoLSB);
-    QImage image = toImage();
-    QRgb mColor = maskColor.rgba();
-    for (int w = 0; w < width(); w++) {
-        for (int h = 0; h < height(); h++) {
-            if (image.pixel(w, h) == mColor)
-                maskImage.setPixel(w, h, Qt::color1);
-            else
-                maskImage.setPixel(w, h, Qt::color0);
-        }
-    }
-    QBitmap m = QBitmap::fromImage(maskImage);
-    return m;
+    return createMaskFromColor(maskColor, Qt::MaskInColor);
 }
 
 /*!

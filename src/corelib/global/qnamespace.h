@@ -1196,6 +1196,11 @@ public:
         WindingFill
     };
 
+    enum MaskMode {
+        MaskInColor,
+        MaskOutColor
+    };
+
     enum ClipOperation {
         NoClip,
         ReplaceClip,

@@ -47,6 +47,8 @@ private slots:
     void fill_data();
     void fill();
 
+    void createMaskFromColor();
+
     void mask();
     void bitmapMask();
 
@@ -216,13 +218,9 @@ void tst_QPixmap::mask()
     pm.setMask(bm);
     QVERIFY(pm.mask().isNull());
 
-#ifdef QT3_SUPPORT
-    bm.resize(100, 100);
+    bm = QBitmap(100, 100);
     pm.setMask(bm);
     QVERIFY(!pm.mask().isNull());
-#else
-    QSKIP("Requires Qt3Support", SkipAll);
-#endif
 }
 
 void tst_QPixmap::bitmapMask()
@@ -271,6 +269,32 @@ void tst_QPixmap::testMetrics()
     QCOMPARE(bitmap.height(), 100);
     QCOMPARE(bitmap.depth(), 1);
 }
+
+void tst_QPixmap::createMaskFromColor()
+{
+    QImage image(3, 3, QImage::Format_Indexed8);
+    image.setNumColors(10);
+    image.setColor(0, 0xffffffff);
+    image.setColor(1, 0xff000000);
+    image.setColor(2, 0xffff0000);
+    image.setColor(3, 0xff0000ff);
+    image.fill(0);
+    image.setPixel(1, 0, 1);
+    image.setPixel(0, 1, 2);
+    image.setPixel(1, 1, 3);
+
+    QImage im_mask = image.createMaskFromColor(0xffff0000);
+    QCOMPARE((uint) im_mask.pixel(0, 1), QColor(Qt::color0).rgba());
+    QImage im_inv_mask = image.createMaskFromColor(0xffff0000, Qt::MaskOutColor);
+    QCOMPARE((uint) im_mask.pixel(0, 1), QColor(Qt::color0).rgba());
+
+    QPixmap pixmap = QPixmap::fromImage(image);
+    QBitmap mask = pixmap.createMaskFromColor(Qt::red);
+    QBitmap inv_mask = pixmap.createMaskFromColor(Qt::red, Qt::MaskOutColor);
+    QCOMPARE((uint) mask.toImage().pixel(0, 1), QColor(Qt::color0).rgba());
+    QCOMPARE((uint) inv_mask.toImage().pixel(0, 1), QColor(Qt::color1).rgba());
+}
+
 
 #ifdef Q_WS_WIN
 void tst_QPixmap::toWinHBITMAP_data()

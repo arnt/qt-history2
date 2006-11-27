@@ -3744,6 +3744,33 @@ QImage QImage::createHeuristicMask(bool clipTight) const
 }
 #endif //QT_NO_IMAGE_HEURISTIC_MASK
 
+/*!
+    Creates and returns a mask for this image based on the given \a
+    color value. If the \a mode is MaskInColor (the default value),
+    all pixels matching \a color will be opaque pixels in the mask. If
+    \a mode is MaskOutColor, all pixels matching the given color will
+    be transparent.
+
+    \sa createAlphaMask(), createHeuristicMask()
+*/
+
+QImage QImage::createMaskFromColor(QRgb color, Qt::MaskMode mode) const
+{
+    QImage maskImage(size(), QImage::Format_MonoLSB);
+    for (int w = 0; w < width(); w++) {
+        for (int h = 0; h < height(); h++) {
+            if ((uint) pixel(w, h) == color)
+                maskImage.setPixel(w, h, Qt::color1);
+            else
+                maskImage.setPixel(w, h, Qt::color0);
+        }
+    }
+    if  (mode == Qt::MaskOutColor)
+        maskImage.invertPixels();
+    return maskImage;
+}
+
+
 /*
   This code is contributed by Philipp Lang,
   GeneriCom Software Germany (www.generi.com)
@@ -4958,8 +4985,8 @@ void QImage::setAlphaChannel(const QImage &alphaChannel)
     each pixel's red, green, and blue values are given the alpha value of the
     original image. The color depth of the returned image is 8-bit.
 
-    You can see an example of use of this function in QPixmap's 
-    \l{QPixmap::}{alphaChannel()}, which works in the same way as 
+    You can see an example of use of this function in QPixmap's
+    \l{QPixmap::}{alphaChannel()}, which works in the same way as
     this function on QPixmaps.
 
     \sa setAlphaChannel(), {QPixmap#Pixmap Information}{Pixmap
@@ -5578,8 +5605,8 @@ QTransform QImage::trueMatrix(const QTransform &matrix, int w, int h)
     qreal xx = qreal(w);
     qreal yy = qreal(h);
 
-    QTransform mat(matrix.m11(), matrix.m12(), matrix.m13(), 
-                   matrix.m21(), matrix.m22(), matrix.m23(), 
+    QTransform mat(matrix.m11(), matrix.m12(), matrix.m13(),
+                   matrix.m21(), matrix.m22(), matrix.m23(),
                    0., 0., 1);
 
     mat.map(dt, dt, &x1, &y1);
