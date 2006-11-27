@@ -49,6 +49,7 @@ For this release, the following platforms have been tested:
   win32-icc (commercial edition only)
   win32-msvc (commercial edition only)
   win32-msvc.net (commercial edition only)
+  win32-msvc2005 (commercial edition only)
 
   aix-g++
   aix-xlc
