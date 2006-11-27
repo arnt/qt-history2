@@ -387,6 +387,7 @@ int QThread::exec()
 {
     Q_D(QThread);
     d->mutex.lock();
+    d->data->quitNow = false;
     QEventLoop eventLoop;
     d->mutex.unlock();
     int returnCode = eventLoop.exec();

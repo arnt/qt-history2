@@ -505,6 +505,39 @@ void tst_QThread::exec()
 {
     DEPENDS_ON("exit()");
     DEPENDS_ON("quit()");
+
+    class MultipleExecThread : public QThread
+    {
+    public:
+        int res1, res2;
+
+        MultipleExecThread() : res1(-2), res2(-2) { }
+
+        void run()
+        {
+            {
+                Exit_Object o;
+                o.thread = this;
+                o.code = 1;
+                QTimer::singleShot(100, &o, SLOT(slot()));
+                res1 = exec();
+            }
+            {
+                Exit_Object o;
+                o.thread = this;
+                o.code = 2;
+                QTimer::singleShot(100, &o, SLOT(slot()));
+                res2 = exec();
+            }
+        }
+    };
+
+    MultipleExecThread thread;
+    thread.start();
+    QVERIFY(thread.wait());
+
+    QCOMPARE(thread.res1, 1);
+    QCOMPARE(thread.res2, 2);
 }
 
 void tst_QThread::setTerminationEnabled()
