@@ -94,26 +94,39 @@ void tst_QSidebar::addUrls()
     QList<QUrl> urls;
     urls << QUrl::fromLocalFile(QDir::rootPath())
          << QUrl::fromLocalFile(QDir::temp().absolutePath());
+
+    // test < 0
     qsidebar.addUrls(urls, -1);
     QCOMPARE(model->rowCount(), 2);
 
+    // test = 0
     qsidebar.setUrls(emptyUrls);
     qsidebar.addUrls(urls, 0);
     QCOMPARE(model->rowCount(), 2);
 
+    // test > 0
     qsidebar.setUrls(emptyUrls);
     qsidebar.addUrls(urls, 100);
     QCOMPARE(model->rowCount(), 2);
 
+    // test inserting with already existing rows
     QList<QUrl> moreUrls;
     moreUrls << QUrl::fromLocalFile(QDir::home().absolutePath());
     qsidebar.addUrls(moreUrls, -1);
     QCOMPARE(model->rowCount(), 3);
 
+    // make sure invalid urls are still added
     QList<QUrl> badUrls;
     badUrls << QUrl::fromLocalFile(QDir::home().absolutePath() + "/I used to exist");
     qsidebar.addUrls(badUrls, 0);
     QCOMPARE(model->rowCount(), 4);
+
+    // check that every item has text and an icon including the above invalid one
+    for (int i = 0; i < model->rowCount(); ++i) {
+        QVERIFY(!model->index(i, 0).data().toString().isEmpty());
+        QIcon icon = qvariant_cast<QIcon>(model->index(i, 0).data(Qt::DecorationRole));
+        QVERIFY(!icon.isNull());
+    }
 }
 
 void tst_QSidebar::goToUrl()
