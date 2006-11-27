@@ -6743,8 +6743,8 @@ bool QDomDocument::setContent(const QString& text, bool namespaceProcessing, QSt
     empty string if the element or attribute has no prefix.
 
     Text nodes consisting only of whitespace are stripped and won't
-    appear in the QDomDocument. If this behavior is not of interest,
-    one can use the setContent() overload that lets a QXmlReader to be
+    appear in the QDomDocument. If this behavior is not desired,
+    one can use the setContent() overload that allows a QXmlReader to be
     supplied.
 
     If \a namespaceProcessing is false, the functions
