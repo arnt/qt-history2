@@ -199,59 +199,6 @@ QEventDispatcherMac::registeredTimers(QObject *object) const
     return list;
 }
 
-
-/*****************************************************************************
-  QEventDispatcherMac Implementation
- *****************************************************************************/
-bool qt_mac_add_socket_to_runloop(const CFSocketRef socket);
-bool qt_mac_remove_socket_from_runloop(const CFSocketRef socket);
-
-QEventDispatcherMacPrivate::QEventDispatcherMacPrivate()
-{
-    macTimerList = 0;
-    zero_timer_count = 0;
-}
-
-QEventDispatcherMac::QEventDispatcherMac(QObject *parent)
-    : QEventDispatcherUNIX(*new QEventDispatcherMacPrivate, parent)
-{ }
-
-QEventDispatcherMac::~QEventDispatcherMac()
-{
-    Q_D(QEventDispatcherMac);
-    //timer cleanup
-    d->zero_timer_count = 0;
-    if(d->macTimerList) {
-        for (int i = 0; i < d->macTimerList->size(); ++i) {
-            const MacTimerInfo &t = d->macTimerList->at(i);
-            if (t.mac_timer) {
-                RemoveEventLoopTimer(t.mac_timer);
-                if (t.pending) {
-                    EventComparatorUPP fnc = NewEventComparatorUPP(find_timer_event);
-                    FlushSpecificEventsFromQueue(GetMainEventQueue(), fnc, (void *)&t);
-                    DisposeEventComparatorUPP(fnc);
-                }
-            }
-        }
-        delete d->macTimerList;
-        d->macTimerList = 0;
-    }
-    if(timerUPP) {
-        DisposeEventLoopTimerUPP(timerUPP);
-        timerUPP = 0;
-    }
-
-    // Remove CFSockets from the runloop.
-    for (MacSocketHash::ConstIterator it = d->macSockets.constBegin(); it != d->macSockets.constEnd(); ++it) {
-        const CFSocketRef socket = (*it)->socket;
-        if (CFSocketIsValid(socket) == false)
-            continue;
-        if (qt_mac_remove_socket_from_runloop(socket) == false)
-            qWarning("QEventDispatcherMac::~QEventDispatcherMac: filed to remove CFSocket from runloop");
-        CFRelease(socket);
-    }
-}
-
 /**************************************************************************
     Socket Notifiers
  *************************************************************************/
@@ -290,29 +237,26 @@ void qt_mac_socket_callback (CFSocketRef s, CFSocketCallBackType callbackType, C
 /*
     Adds a loop source for the given socket to the current run loop.
 */
-bool qt_mac_add_socket_to_runloop(const CFSocketRef socket)
+CFRunLoopSourceRef qt_mac_add_socket_to_runloop(const CFSocketRef socket)
 {
     CFRunLoopSourceRef loopSource = CFSocketCreateRunLoopSource(kCFAllocatorDefault, socket, 0);
     if (!loopSource)
-        return false;
+        return 0;
 
     CFRunLoopAddSource(CFRunLoopGetCurrent(), loopSource, kCFRunLoopCommonModes);
-    CFRelease(loopSource);
-    return true;
+    return loopSource;
 }
 
 /*
     Removes the loop source for the given socket from the current run loop.
 */
-bool qt_mac_remove_socket_from_runloop(const CFSocketRef socket)
+void qt_mac_remove_socket_from_runloop(const CFSocketRef socket, CFRunLoopSourceRef runloop)
 {
-    CFRunLoopSourceRef loopSource = CFSocketCreateRunLoopSource(kCFAllocatorDefault, socket, 0);
-    if (!loopSource)
-        return false;
-
-    CFRunLoopRemoveSource(CFRunLoopGetCurrent(), loopSource, kCFRunLoopCommonModes);
-    CFRelease(loopSource);
-    return true;
+    Q_ASSERT(runloop);
+    CFRunLoopRemoveSource(CFRunLoopGetCurrent(), runloop, kCFRunLoopCommonModes);
+    CFSocketDisableCallBacks(socket, kCFSocketReadCallBack);
+    CFSocketDisableCallBacks(socket, kCFSocketWriteCallBack);
+    CFRunLoopSourceInvalidate(runloop);
 }
 
 /*
@@ -369,7 +313,7 @@ void QEventDispatcherMac::registerSocketNotifier(QSocketNotifier *notifier)
         CFSocketSetSocketFlags(socketInfo->socket, flags);
 
         // Add CFSocket to runloop.
-        if (qt_mac_add_socket_to_runloop(socketInfo->socket) == false) {
+        if(!(socketInfo->runloop = qt_mac_add_socket_to_runloop(socketInfo->socket))) {
             qWarning("QEventDispatcherMac::registerSocketNotifier: Failed to add CFSocket to runloop");
             CFRelease(socketInfo->socket);
             return;
@@ -440,10 +384,10 @@ void QEventDispatcherMac::unregisterSocketNotifier(QSocketNotifier *notifier)
 
     // Remove CFSocket from runloop if this was the last QSocketNotifier.
     if (socketInfo->read <= 0 && socketInfo->write <= 0) {
-        if (CFSocketIsValid(socketInfo->socket)) {
-            if (qt_mac_remove_socket_from_runloop(socketInfo->socket) == false)
-                qWarning("QEventDispatcherMac::unregisterSocketNotifier: Failed to remove CFSocket from runloop");
-        }
+        if (CFSocketIsValid(socketInfo->socket))
+            qt_mac_remove_socket_from_runloop(socketInfo->socket, socketInfo->runloop);
+        CFRunLoopSourceInvalidate(socketInfo->runloop);
+        CFRelease(socketInfo->runloop);
         CFRelease(socketInfo->socket);
         delete socketInfo;
         d->macSockets.remove(nativeSocket);
@@ -619,3 +563,54 @@ void QMacBlockingFunction::subRef()
         block = 0;
     }
 }
+
+/*****************************************************************************
+  QEventDispatcherMac Implementation
+ *****************************************************************************/
+QEventDispatcherMacPrivate::QEventDispatcherMacPrivate()
+{
+    macTimerList = 0;
+    zero_timer_count = 0;
+}
+
+QEventDispatcherMac::QEventDispatcherMac(QObject *parent)
+    : QEventDispatcherUNIX(*new QEventDispatcherMacPrivate, parent)
+{ }
+
+QEventDispatcherMac::~QEventDispatcherMac()
+{
+    Q_D(QEventDispatcherMac);
+    //timer cleanup
+    d->zero_timer_count = 0;
+    if(d->macTimerList) {
+        for (int i = 0; i < d->macTimerList->size(); ++i) {
+            const MacTimerInfo &t = d->macTimerList->at(i);
+            if (t.mac_timer) {
+                RemoveEventLoopTimer(t.mac_timer);
+                if (t.pending) {
+                    EventComparatorUPP fnc = NewEventComparatorUPP(find_timer_event);
+                    FlushSpecificEventsFromQueue(GetMainEventQueue(), fnc, (void *)&t);
+                    DisposeEventComparatorUPP(fnc);
+                }
+            }
+        }
+        delete d->macTimerList;
+        d->macTimerList = 0;
+    }
+    if(timerUPP) {
+        DisposeEventLoopTimerUPP(timerUPP);
+        timerUPP = 0;
+    }
+
+    // Remove CFSockets from the runloop.
+    for (MacSocketHash::ConstIterator it = d->macSockets.constBegin(); it != d->macSockets.constEnd(); ++it) {
+        MacSocketInfo *socketInfo = (*it);
+        if (CFSocketIsValid(socketInfo->socket)) {
+            qt_mac_remove_socket_from_runloop(socketInfo->socket, socketInfo->runloop);
+            CFRunLoopSourceInvalidate(socketInfo->runloop);
+            CFRelease(socketInfo->runloop);
+            CFRelease(socketInfo->socket);
+        }
+    }
+}
+

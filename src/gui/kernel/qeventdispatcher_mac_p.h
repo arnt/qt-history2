@@ -76,9 +76,9 @@ struct MacTimerInfo {
 typedef QList<MacTimerInfo> MacTimerList;
 
 struct MacSocketInfo {
-    MacSocketInfo()
-    :socket(0), read(0), write(0) {}
+    MacSocketInfo() : socket(0), runloop(0), read(0), write(0) {}
     CFSocketRef socket;
+    CFRunLoopSourceRef runloop;
     int read;
     int write;
 };
