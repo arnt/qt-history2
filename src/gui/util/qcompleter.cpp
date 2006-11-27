@@ -860,8 +860,10 @@ void QCompleter::setWidget(QWidget *widget)
 {
     Q_D(QCompleter);
     d->widget = widget;
-    if (d->popup)
+    if (d->popup) {
+        d->popup->hide();
         d->popup->setFocusProxy(d->widget);
+    }
     setCompletionMode(d->mode); // will install event filter depending on mode
 }
 

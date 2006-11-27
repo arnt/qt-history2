@@ -571,10 +571,7 @@ void QLineEdit::setCompleter(QCompleter *c)
     if (c == d->completer)
         return;
     if (d->completer) {
-        QObject::disconnect(d->completer, SIGNAL(activated(QString)),
-                            this, SLOT(setText(QString)));
-        QObject::disconnect(d->completer, SIGNAL(highlighted(QString)),
-                         this, SLOT(_q_completionHighlighted(QString)));
+        disconnect(d->completer, 0, this, 0);
         d->completer->setWidget(0);
         if (d->completer->parent() == this)
             delete d->completer;
@@ -2143,6 +2140,15 @@ void QLineEdit::focusInEvent(QFocusEvent *e)
 #ifdef QT_KEYPAD_NAVIGATION
     d->origText = d->text;
 #endif
+#ifndef QT_NO_COMPLETER
+    if (d->completer) {
+        d->completer->setWidget(this);
+         QObject::connect(d->completer, SIGNAL(activated(QString)),
+                          this, SLOT(setText(QString)));
+         QObject::connect(d->completer, SIGNAL(highlighted(QString)),
+                          this, SLOT(_q_completionHighlighted(QString)));
+    }
+#endif
     update();
 }
 
@@ -2188,6 +2194,11 @@ void QLineEdit::focusOutEvent(QFocusEvent *e)
 #endif
 #ifdef QT_KEYPAD_NAVIGATION
     d->origText = QString();
+#endif
+#ifndef QT_NO_COMPLETER
+    if (d->completer) {
+        QObject::disconnect(d->completer, 0, this, 0);
+    }
 #endif
     update();
 }

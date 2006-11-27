@@ -2111,8 +2111,11 @@ void QComboBox::focusInEvent(QFocusEvent *e)
 {
     Q_D(QComboBox);
     update();
-    if (d->lineEdit)
+    if (d->lineEdit) {
         d->lineEdit->event(e);
+        if (d->lineEdit->completer())
+            d->lineEdit->completer()->setWidget(this);
+    }
 }
 
 /*!

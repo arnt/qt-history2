@@ -87,6 +87,9 @@ private slots:
     void modelDeletion();
     void setters();
 
+    void multipleWidgets();
+    void focusIn();
+
 private:
     void filter();
     void testRowCount();
@@ -862,6 +865,65 @@ void tst_QCompleter::modelDeletion()
     delete view;
     QVERIFY(completer->completionCount() == 0);
     QVERIFY(completer->currentRow() == -1);
+}
+
+void tst_QCompleter::multipleWidgets()
+{
+    QStringList list;
+    list << "item1" << "item2" << "item2";
+    QCompleter completer(list);
+    completer.setCompletionMode(QCompleter::InlineCompletion);
+
+    QComboBox comboBox;
+    comboBox.setEditable(true);
+    comboBox.setCompleter(&completer);
+    comboBox.show();
+    comboBox.lineEdit()->setText("it");
+    QCOMPARE(comboBox.currentText(), QString("it")); // should not complete with setText
+    QTest::keyPress(&comboBox, 'e');
+    QCOMPARE(comboBox.currentText(), QString("item1"));
+
+    QLineEdit lineEdit;
+    lineEdit.setCompleter(&completer);
+    lineEdit.show();
+    lineEdit.setText("it");
+    QCOMPARE(lineEdit.text(), QString("it")); // should not completer with setText
+    QTest::keyPress(&lineEdit, 'e');
+    QCOMPARE(comboBox.currentText(), QString("item1"));
+}
+
+void tst_QCompleter::focusIn()
+{
+    QStringList list;
+    list << "item1" << "item2" << "item2";
+    QCompleter completer(list);
+
+    QWidget window;
+
+    QComboBox *comboBox = new QComboBox(&window);
+    comboBox->setEditable(true);
+    comboBox->setCompleter(&completer);
+    comboBox->show();
+    comboBox->lineEdit()->setText("it");
+
+    QLineEdit *lineEdit = new QLineEdit(&window);
+    lineEdit->setCompleter(&completer);
+    lineEdit->setText("it");
+    lineEdit->show();
+
+    QLineEdit *lineEdit2 = new QLineEdit(&window); // has no completer!
+    lineEdit2->show();
+
+    QFocusEvent focusIn(QEvent::FocusIn);
+
+    qApp->sendEvent(comboBox, &focusIn);
+    QVERIFY(completer.widget() == comboBox);
+    qApp->sendEvent(lineEdit, &focusIn);
+    QVERIFY(completer.widget() == lineEdit);
+    qApp->sendEvent(comboBox, &focusIn);
+    QVERIFY(completer.widget() == comboBox);
+    lineEdit2->setFocus();
+    QVERIFY(completer.widget() == comboBox);
 }
 
 QTEST_MAIN(tst_QCompleter)
