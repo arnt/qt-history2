@@ -292,7 +292,7 @@ void QSystemTrayIconSys::createIcon()
     if (icon.isNull())
         return;
 
-    QSize size = icon.actualSize(QSize(32, 32));
+    QSize size = icon.actualSize(QSize(16, 16));
     QPixmap pm = icon.pixmap(size);
     if (pm.isNull())
         return;
