@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <qsettings.h>
 #include <qdebug.h>
+#include <qapplication.h>
 
 /*!
   \fn void QFileDialog::dirEntered(const QString &)
