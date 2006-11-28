@@ -2620,11 +2620,6 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         QWidget *widget = this;
         QWidget *w = QWidget::mouseGrabber();
 
-        if (((type == QEvent::MouseMove && bs)
-             || (type == QEvent::MouseButtonRelease))
-            && !qt_button_down && !w)
-            return false; // don't send event
-
         if (!w)
             w = qt_button_down;
         if (w && w != this) {
