@@ -55,7 +55,7 @@ private slots:
     void nameFilters();
 
 protected:
-    bool createFiles(const QString &test_path, const QStringList &initial_files, const QStringList &intial_dirs = QStringList());
+    bool createFiles(const QString &test_path, const QStringList &initial_files, const QStringList &intial_dirs = QStringList(), const QString &baseDir = QDir::temp().absolutePath());
 
 private:
     QFileSystemModel *model;
@@ -81,7 +81,7 @@ void tst_QFileSystemModel::cleanup()
 {
     delete model;
     model = 0;
-    QString tmp = QDir::temp().path() + QString("/flatdirtest");
+    QString tmp = QDir::temp().path() + QDir::separator() + QString("flatdirtest");
     QDir dir(tmp);
     if (dir.exists(tmp)) {
         QStringList list = dir.entryList(QDir::AllEntries | QDir::System | QDir::Hidden | QDir::NoDotAndDotDot);
@@ -195,9 +195,10 @@ void tst_QFileSystemModel::iconProvider()
     QCOMPARE(model->iconProvider(), p);
 }
 
-bool tst_QFileSystemModel::createFiles(const QString &test_path, const QStringList &initial_files, const QStringList &initial_dirs)
+bool tst_QFileSystemModel::createFiles(const QString &test_path, const QStringList &initial_files, const QStringList &initial_dirs, const QString &dir)
 {
-    if (!QDir::current().mkdir(test_path) && false) { // FIXME
+    QDir baseDir(dir);
+    if (!baseDir.mkdir(test_path) && false) {
         qDebug() << "failed to create dir" << test_path;
         return false;
     }
@@ -232,7 +233,7 @@ bool tst_QFileSystemModel::createFiles(const QString &test_path, const QStringLi
 
 void tst_QFileSystemModel::rowCount()
 {
-    QString tmp = QDir::temp().path() + QString("/flatdirtest");
+    QString tmp = QDir::temp().path() + QDir::separator() + QString("flatdirtest");
     QVERIFY(createFiles(tmp, QStringList()));
 
     QSignalSpy spy2(model, SIGNAL(rowsInserted(const QModelIndex &, int, int)));
@@ -269,7 +270,7 @@ void tst_QFileSystemModel::rowsInserted_data()
 
 void tst_QFileSystemModel::rowsInserted()
 {
-    QString tmp = QDir::temp().path() + QString("/flatdirtest");
+    QString tmp = QDir::temp().path() + QDir::separator() + QString("flatdirtest");
     rowCount();
     QModelIndex root = model->index(model->rootPath());
 
@@ -310,7 +311,7 @@ void tst_QFileSystemModel::rowsRemoved_data()
 
 void tst_QFileSystemModel::rowsRemoved()
 {
-    QString tmp = QDir::temp().path() + QString("/flatdirtest");
+    QString tmp = QDir::temp().path() + QDir::separator() + QString("flatdirtest");
     rowCount();
     QModelIndex root = model->index(model->rootPath());
 
@@ -360,7 +361,7 @@ void tst_QFileSystemModel::dataChanged_data()
 
 void tst_QFileSystemModel::dataChanged()
 {
-    QString tmp = QDir::temp().path() + QString("/flatdirtest");
+    QString tmp = QDir::temp().path() + QDir::separator() + QString("flatdirtest");
     rowCount();
     QModelIndex root = model->index(model->rootPath());
 
@@ -405,7 +406,7 @@ void tst_QFileSystemModel::filters_data()
 
 void tst_QFileSystemModel::filters()
 {
-    QString tmp = QDir::temp().path() + QString("/flatdirtest");
+    QString tmp = QDir::temp().path() + QDir::separator() + QString("flatdirtest");
     QVERIFY(createFiles(tmp, QStringList()));
     QModelIndex root = model->setRootPath(tmp);
 
@@ -466,7 +467,7 @@ void tst_QFileSystemModel::nameFilters()
     model->setNameFilterDisables(false);
     QCOMPARE(model->nameFilters(), list);
 
-    QString tmp = QDir::temp().path() + QString("/flatdirtest");
+    QString tmp = QDir::temp().path() + QDir::separator() + QString("flatdirtest");
     QVERIFY(createFiles(tmp, list));
     QModelIndex root = model->setRootPath(tmp);
     QTest::qWait(WAITTIME);
