@@ -1844,6 +1844,19 @@ QDomNodePrivate* QDomNodePrivate::insertAfter(QDomNodePrivate* newChild, QDomNod
 
     // Insert at the end
     if (!refChild) {
+        if (isDocument() && newChild->isElement()) {
+            QDomNodePrivate *n = first;
+
+            while(n) {
+                if(n->isElement()) {
+                    /* We don't want to insert an element if the document node
+                     * already has one. */
+                    return 0;
+                }
+                n = n->next;
+            }
+        }
+
         if (last)
             last->next = newChild;
         newChild->prev = last;
