@@ -69,6 +69,7 @@ Q_GUI_EXPORT QPoint qt_mac_posInWindow(const QWidget *w);
 /*****************************************************************************
   Externals
  *****************************************************************************/
+extern QWidget *qt_mac_modal_blocked(QWidget *); //qapplication_mac.cpp
 extern void qt_event_request_activate(QWidget *); //qapplication_mac.cpp
 extern bool qt_event_remove_activate(); //qapplication_mac.cpp
 extern void qt_mac_event_release(QWidget *w); //qapplication_mac.cpp
@@ -86,6 +87,75 @@ extern QRegion qt_mac_convert_mac_region(RgnHandle rgn); //qregion_mac.cpp
 /*****************************************************************************
   QWidget utility functions
  *****************************************************************************/
+static QSize qt_mac_desktopSize()
+{
+    int w = 0, h = 0;
+    CGDisplayCount cg_count;
+    CGGetActiveDisplayList(0, 0, &cg_count);
+    QVector<CGDirectDisplayID> displays(cg_count);
+    CGGetActiveDisplayList(cg_count, displays.data(), &cg_count);
+    Q_ASSERT(cg_count == (CGDisplayCount)displays.size());
+    for(int i = 0; i < (int)cg_count; ++i) {
+        CGRect r = CGDisplayBounds(displays.at(i));
+        w = qMax<int>(w, qRound(r.origin.x + r.size.width));
+        h = qMax<int>(h, qRound(r.origin.y + r.size.height));
+    }
+    return QSize(w, h);
+}
+
+bool qt_mac_can_clickThrough(const QWidget *w)
+{
+    static int qt_mac_carbon_clickthrough = -1;
+    if (qt_mac_carbon_clickthrough < 0)
+        qt_mac_carbon_clickthrough = !qgetenv("QT_MAC_NO_COCOA_CLICKTHROUGH").isEmpty();
+    bool ret = !qt_mac_carbon_clickthrough;
+    for ( ; w; w = w->parentWidget()) {
+        if (w->testAttribute(Qt::WA_MacNoClickThrough)) {
+            ret = false;
+            break;
+        }
+    }
+    return ret;
+}
+
+bool qt_mac_is_macsheet(const QWidget *w)
+{
+    return (w && w->windowType() == Qt::Sheet
+       && w->parentWidget() && w->parentWidget()->window()->windowType() != Qt::Desktop
+       && w->parentWidget()->window()->isVisible());
+}
+
+bool qt_mac_is_macdrawer(const QWidget *w)
+{
+    return (w && w->parentWidget() && w->windowType() == Qt::Drawer);
+}
+
+bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::DockWidgetArea where) //users of Qt/Mac can use this..
+{
+    if(!qt_mac_is_macdrawer(w))
+        return false;
+    OptionBits edge;
+    if(where & Qt::LeftDockWidgetArea)
+        edge = kWindowEdgeLeft;
+    else if(where & Qt::RightDockWidgetArea)
+        edge = kWindowEdgeRight;
+    else if(where & Qt::TopDockWidgetArea)
+        edge = kWindowEdgeTop;
+    else if(where & Qt::BottomDockWidgetArea)
+        edge = kWindowEdgeBottom;
+    else
+        return false;
+    WindowPtr window = qt_mac_window_for(w);
+    if(edge == GetDrawerPreferredEdge(window)) //no-op
+        return false;
+    //do it
+    SetDrawerPreferredEdge(window, edge);
+    if(w->isVisible()) {
+        CloseDrawer(window, false);
+        OpenDrawer(window, edge, true);
+    }
+    return true;
+}
 
 static QSize qt_initial_size(QWidget *w) {
     QSize s = w->sizeHint();
@@ -332,6 +402,7 @@ static EventTypeSpec window_events[] = {
     { kEventClassWindow, kEventWindowDragCompleted },
     { kEventClassWindow, kEventWindowBoundsChanging },
     { kEventClassWindow, kEventWindowGetRegion },
+    { kEventClassWindow, kEventWindowGetClickModality },
 
     { kEventClassMouse, kEventMouseDown },
     { kEventClassMouse, kEventMouseUp }
@@ -361,6 +432,17 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
         QWidget *widget = qt_mac_find_window(wid);
         if(!widget) {
             handled_event = false;
+        } else if(ekind == kEventWindowGetClickModality) {
+            handled_event = false;
+            if(QWidget *blocker = qt_mac_modal_blocked(widget)) {
+                if(!qt_mac_is_macsheet(blocker) || blocker->parentWidget() != widget) {
+                    handled_event = true;
+                    WindowPtr blockerWindowRef = qt_mac_window_for(blocker);
+                    SetEventParameter(event, kEventParamModalWindow, typeWindowRef, sizeof(blockerWindowRef), &blockerWindowRef);
+                    HIModalClickResult clickResult = kHIModalClickIsModal;
+                    SetEventParameter(event, kEventParamModalClickResult, typeModalClickResult, sizeof(clickResult), &clickResult);
+                }
+            }
         } else if(ekind == kEventWindowClose) {
             widget->d_func()->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
         } else if(ekind == kEventWindowExpanded) {
@@ -864,69 +946,6 @@ static HIViewRef qt_mac_create_widget(HIViewRef parent)
     return ret;
 }
 
-static QSize qt_mac_desktopSize()
-{
-    int w = 0, h = 0;
-    CGDisplayCount cg_count;
-    CGGetActiveDisplayList(0, 0, &cg_count);
-    QVector<CGDirectDisplayID> displays(cg_count);
-    CGGetActiveDisplayList(cg_count, displays.data(), &cg_count);
-    Q_ASSERT(cg_count == (CGDisplayCount)displays.size());
-    for(int i = 0; i < (int)cg_count; ++i) {
-        CGRect r = CGDisplayBounds(displays.at(i));
-        w = qMax<int>(w, qRound(r.origin.x + r.size.width));
-        h = qMax<int>(h, qRound(r.origin.y + r.size.height));
-    }
-    return QSize(w, h);
-}
-
-bool qt_mac_can_clickThrough(const QWidget *w)
-{
-    static int qt_mac_carbon_clickthrough = -1;
-    if (qt_mac_carbon_clickthrough < 0)
-        qt_mac_carbon_clickthrough = !qgetenv("QT_MAC_NO_COCOA_CLICKTHROUGH").isEmpty();
-    bool ret = !qt_mac_carbon_clickthrough;
-    for ( ; w; w = w->parentWidget()) {
-        if (w->testAttribute(Qt::WA_MacNoClickThrough)) {
-            ret = false;
-            break;
-        }
-    }
-    return ret;
-}
-
-bool qt_mac_is_macdrawer(const QWidget *w)
-{
-    return (w && w->parentWidget() && w->windowType() == Qt::Drawer);
-}
-
-bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::DockWidgetArea where) //users of Qt/Mac can use this..
-{
-    if(!qt_mac_is_macdrawer(w))
-        return false;
-    OptionBits edge;
-    if(where & Qt::LeftDockWidgetArea)
-        edge = kWindowEdgeLeft;
-    else if(where & Qt::RightDockWidgetArea)
-        edge = kWindowEdgeRight;
-    else if(where & Qt::TopDockWidgetArea)
-        edge = kWindowEdgeTop;
-    else if(where & Qt::BottomDockWidgetArea)
-        edge = kWindowEdgeBottom;
-    else
-        return false;
-    WindowPtr window = qt_mac_window_for(w);
-    if(edge == GetDrawerPreferredEdge(window)) //no-op
-        return false;
-    //do it
-    SetDrawerPreferredEdge(window, edge);
-    if(w->isVisible()) {
-        CloseDrawer(window, false);
-        OpenDrawer(window, edge, true);
-    }
-    return true;
-}
-
 void QWidgetPrivate::toggleDrawers(bool visible)
 {
     for (int i = 0; i < children.size(); ++i) {
@@ -945,15 +964,6 @@ void QWidgetPrivate::toggleDrawers(bool visible)
         }
     }
 }
-
-bool qt_mac_is_macsheet(const QWidget *w)
-{
-    return (w && w->windowType() == Qt::Sheet
-       && w->parentWidget() && w->parentWidget()->window()->windowType() != Qt::Desktop
-       && w->parentWidget()->window()->isVisible());
-}
-
-
 
 /*****************************************************************************
   QWidgetPrivate member functions

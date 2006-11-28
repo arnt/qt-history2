@@ -1246,6 +1246,14 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
     return !block_event;
 }
 
+QWidget *qt_mac_modal_blocked(QWidget *widget)
+{
+    QWidget *top;
+    if (QApplicationPrivate::tryModalHelper(widget, &top))
+        return 0;
+    return top == widget ? 0 : top;
+}
+
 bool qt_mac_send_event(QEventLoop::ProcessEventsFlags flags, EventRef event, WindowPtr pt)
 {
     if(flags != QEventLoop::AllEvents) {
