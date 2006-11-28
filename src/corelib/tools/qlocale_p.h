@@ -28,7 +28,7 @@
 #include "QtCore/qstring.h"
 #include "QtCore/qvarlengtharray.h"
 
-struct QLocalePrivate
+struct Q_CORE_EXPORT QLocalePrivate
 {
 public:
     QChar decimal() const { return QChar(m_decimal); }
@@ -85,15 +85,19 @@ public:
 
 
     static double bytearrayToDouble(const char *num, bool *ok);
-    static qint64 bytearrayToLongLong(const char *num, int base, bool *ok);
+    static qint64 bytearrayToLongLong(const char *num, int base, bool *ok, bool *overflow = 0);
     static quint64 bytearrayToUnsLongLong(const char *num, int base, bool *ok);
 
     typedef QVarLengthArray<char, 256> CharBuff;
     bool numberToCLocale(const QString &num,
     	    	    	  GroupSeparatorMode group_sep_mode,
                           CharBuff *result) const;
+    inline char digitToCLocale(const QChar &c) const;
 
     static void updateSystemPrivate();
+
+    enum NumberMode { IntegerMode, DoubleStandardMode, DoubleScientifcMode, DoubleAnyMode };
+    bool validateChars(const QString &str, NumberMode numMode, QByteArray *buff) const;
 
     quint32 m_language_id, m_country_id;
 
@@ -105,5 +109,38 @@ public:
     quint32 m_short_month_names_idx, m_long_month_names_idx;
     quint32 m_short_day_names_idx, m_long_day_names_idx;
 };
+
+inline char QLocalePrivate::digitToCLocale(const QChar &in) const
+{
+    const QChar _zero = zero();
+    const QChar _group = group();
+    const ushort zeroUnicode = _zero.unicode();
+    const ushort tenUnicode = zeroUnicode + 10;
+
+    if (in.unicode() >= zeroUnicode && in.unicode() < tenUnicode)
+        return '0' + in.unicode() - zeroUnicode;
+
+    if (in == plus())
+        return '+';
+
+    if (in == minus())
+        return '-';
+
+    if (in == decimal())
+        return '.';
+
+    if (in == group())
+        return ',';
+
+    if (in == exponential() || in == exponential().toUpper())
+        return 'e';
+
+    // In several languages group() is the char 0xA0, which looks like a space.
+    // People use a regular space instead of it and complain it doesn't work.
+    if (_group.unicode() == 0xA0 && in.unicode() == ' ')
+        return ',';
+
+    return 0;
+}
 
 #endif // QLOCALE_P_H

@@ -14,6 +14,7 @@
 #include "qvalidator.h"
 #ifndef QT_NO_VALIDATOR
 #include "private/qobject_p.h"
+#include "private/qlocale_p.h"
 
 #include <limits.h>
 #include <math.h>
@@ -153,7 +154,7 @@ QLocale QValidator::locale() const
     return d->locale;
 }
 /*!
-    Sets the locale that will be used for the validator. Unless setLocale has been called, 
+    Sets the locale that will be used for the validator. Unless setLocale has been called,
     the validator will use the default locale. If you want to override it with for instance
     the C locale, you should call this function.
 
@@ -253,7 +254,6 @@ void QValidator::fixup(QString &) const
     \sa QDoubleValidator, QRegExpValidator, {Line Edits Example}
 */
 
-
 /*!
     Constructs a validator with a \a parent object that
     accepts all integers.
@@ -351,24 +351,55 @@ QIntValidator::~QIntValidator()
     By default, the \a pos parameter is not used by this validator.
 */
 
-QValidator::State QIntValidator::validate(QString & input, int &) const
+static int numDigits(qlonglong n)
 {
-    if (input.contains(QLatin1Char(' ')))
-        return Invalid;
-    if (input.isEmpty() || (b < 0 && input == QLatin1String("-")))
-        return Intermediate;
-    bool ok;
-    int entered = input.toInt(&ok);
-    if (!ok || (entered < 0 && b >= 0)) {
-        return Invalid;
-    } else if (entered >= b && entered <= t) {
-        return Acceptable;
-    } else {
-        if (entered >= 0)
-            return (entered > t) ? Invalid : Intermediate;
-        else
-            return (entered < b) ? Invalid : Intermediate;
+    if (n == 0)
+        return 1;
+    return (int)log10(n) + 1;
+};
+
+static qlonglong pow10(int exp)
+{
+    qlonglong result = 1;
+    for (int i = 0; i < exp; ++i)
+        result *= 10;
+    return result;
+}
+
+QValidator::State QIntValidator::validate(QString & input, int&) const
+{
+    QByteArray buff;
+    if (!locale().d()->validateChars(input, QLocalePrivate::IntegerMode, &buff)) {
+        QLocale cl(QLocale::C);
+        if (!cl.d()->validateChars(input, QLocalePrivate::IntegerMode, &buff))
+            return Invalid;
     }
+
+    if (buff.isEmpty())
+        return Intermediate;
+
+    if (b >= 0 && buff.startsWith('-'))
+        return Invalid;
+
+    if (t < 0 && buff.startsWith('+'))
+        return Invalid;
+
+    bool ok, overflow;
+    qlonglong i = QLocalePrivate::bytearrayToLongLong(buff.constData(), 10, &ok, &overflow);
+    if (overflow)
+        return Invalid;
+    if (!ok)
+        return Intermediate;
+
+    if (i >= b && i <= t)
+        return Acceptable;
+
+    qlonglong max = qMax(qAbs(b), qAbs(t));
+    qlonglong n = pow10(numDigits(max)) - 1;
+    if (qAbs(i) > n)
+        return Invalid;
+
+    return Intermediate;
 }
 
 

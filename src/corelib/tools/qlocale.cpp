@@ -78,7 +78,7 @@ static char *_qdtoa( NEEDS_VOLATILE double d, int mode, int ndigits, int *decpt,
                         int *sign, char **rve, char **digits_str);
 Q_CORE_EXPORT double qstrtod(const char *s00, char const **se, bool *ok);
 #endif
-static qlonglong qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok);
+static qlonglong qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok, bool *overflow = 0);
 static qulonglong qstrtoull(const char *nptr, const char **endptr, register int base, bool *ok);
 
 /******************************************************************************
@@ -3580,9 +3580,6 @@ bool QLocalePrivate::numberToCLocale(const QString &num,
     const QChar *uc = num.unicode();
     int l = num.length();
     int idx = 0;
-    const QChar _zero = zero();
-    const ushort zeroUnicode = _zero.unicode();
-    const ushort tenUnicode = zeroUnicode + 10;
 
     // Skip whitespace
     while (idx < l && uc[idx].isSpace())
@@ -3593,35 +3590,22 @@ bool QLocalePrivate::numberToCLocale(const QString &num,
     const QChar _group = group();
 
     while (idx < l) {
-        char out;
         const QChar &in = uc[idx];
 
-        if (in.unicode() >= zeroUnicode && in.unicode() < tenUnicode)
-            out = '0' + in.unicode() - zeroUnicode;
-        else if (in == plus())
-            out = '+';
-        else if (in == minus())
-            out = '-';
-        else if (in == decimal())
-            out = '.';
-        else if (in == group())
-            out = ',';
-        // In several languages group() is the char 0xA0, which looks like a space.
-        // People use a regular space instead of it and complain it doesn't work.
-        else if (_group.unicode() == 0xA0 && in.unicode() == ' ')
-            out = ',';
-        else if (in == exponential() || in == exponential().toUpper())
-            out = 'e';
-        else if (in == list())
-            out = ';';
-        else if (in == percent())
-            out = '%';
-        else if (in.unicode() >= 'A' && in.unicode() <= 'Z')
-            out = in.toLower().toLatin1();
-        else if (in.unicode() >= 'a' && in.unicode() <= 'z')
-            out = in.toLatin1();
-        else
-            break;
+        char out = digitToCLocale(in);
+        if (out == 0) {
+            if (in == list())
+                out = ';';
+            else if (in == percent())
+                out = '%';
+            // for handling base-x numbers
+            else if (in.unicode() >= 'A' && in.unicode() <= 'Z')
+                out = in.toLower().toLatin1();
+            else if (in.unicode() >= 'a' && in.unicode() <= 'z')
+                out = in.toLatin1();
+            else
+                break;
+        }
 
         result->append(out);
 
@@ -3644,6 +3628,75 @@ bool QLocalePrivate::numberToCLocale(const QString &num,
 
     return true;
 }
+
+bool QLocalePrivate::validateChars(const QString &str, NumberMode numMode, QByteArray *buff) const
+{
+    buff->clear();
+    buff->reserve(str.length());
+
+    bool scientific = numMode == DoubleStandardMode || numMode == DoubleAnyMode;
+    bool lastWasE = false;
+    int eCnt = 0;
+    int decPointCnt = 0;
+
+    for (int i = 0; i < str.length(); ++i) {
+        char c = digitToCLocale(str.at(i));
+
+        if (c >= '0' && c <= '9') {
+        } else {
+            switch (c) {
+                case '.':
+                    if (numMode == IntegerMode) {
+                        // If an integer has a decimal point, it shall be Invalid.
+                        return false;
+                    } else {
+                        // If a double has more than one decimal point, it shall be Invalid.
+                        if (++decPointCnt > 1)
+                            return false;
+                    }
+                    break;
+
+                case '+':
+                case '-':
+                    if (scientific) {
+                        // If a scientific has a sign that's not at the beginning or after
+                        // an 'e', it shall be Invalid.
+                        if (i != 0 && !lastWasE)
+                            return false;
+                    } else {
+                        // If a non-scientific has a sign that's not at the beginning,
+                        // it shall be Invalid.
+                        if (i != 0)
+                            return false;
+                    }
+                    break;
+
+                case ',':
+                    return false;
+
+                case 'e':
+                    if (scientific) {
+                        // If a scientific has more than one 'e', it shall be Invalid.
+                        if (++eCnt > 1)
+                            return false;
+                    } else {
+                        // If a non-scientific has an 'e', it shall be Invalid.
+                        return false;
+                    }
+                    break;
+
+                default:
+                    // If it's not a valid digit, it shall be Invalid.
+                    return false;
+            }
+        }
+
+        lastWasE = c == 'e';
+        buff->append(c);
+    }
+
+    return true;
+};
 
 double QLocalePrivate::stringToDouble(const QString &number, bool *ok,
                                         GroupSeparatorMode group_sep_mode) const
@@ -3718,11 +3771,11 @@ double QLocalePrivate::bytearrayToDouble(const char *num, bool *ok)
         return d;
 }
 
-qlonglong QLocalePrivate::bytearrayToLongLong(const char *num, int base, bool *ok)
+qlonglong QLocalePrivate::bytearrayToLongLong(const char *num, int base, bool *ok, bool *overflow)
 {
     bool _ok;
     const char *endptr;
-    qlonglong l = qstrtoll(num, &endptr, base, &_ok);
+    qlonglong l = qstrtoll(num, &endptr, base, &_ok, overflow);
 
     if (!_ok || *endptr != '\0') {
         if (ok != 0)
@@ -3875,16 +3928,13 @@ static qulonglong qstrtoull(const char *nptr, const char **endptr, register int 
  * Ignores `locale' stuff.  Assumes that the upper and lower case
  * alphabets and digits are each contiguous.
  */
-static qlonglong qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok)
+static qlonglong qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok, bool *overflow)
 {
     register const char *s;
     register qulonglong acc;
     register unsigned char c;
     register qulonglong qbase, cutoff;
     register int neg, any, cutlim;
-
-    if (ok != 0)
-        *ok = true;
 
     /*
      * Skip white space and pick up leading +/- sign if any.
@@ -3962,6 +4012,12 @@ static qlonglong qstrtoll(const char *nptr, const char **endptr, register int ba
     }
     if (endptr != 0)
         *endptr = (any ? s - 1 : nptr);
+
+    if (ok != 0)
+        *ok = any > 0;
+    if (overflow != 0)
+        *overflow = any < 0;
+
     return acc;
 }
 
