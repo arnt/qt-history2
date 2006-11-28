@@ -509,14 +509,16 @@ QIcon QFileSystemModelPrivate::icon(const QModelIndex &index) const
 bool QFileSystemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     Q_D(QFileSystemModel);
-    if (  !index.isValid()
+    if (!index.isValid()
         || index.column() != 0
         || role != Qt::EditRole
-        || (flags(index) & Qt::ItemIsEditable) == 0)
+        || (flags(index) & Qt::ItemIsEditable) == 0) {
         return false;
+    }
 
     QString newName = value.toString();
-    if (newName.contains(QDir::separator()) || !d->rootDir.rename(index.data().toString(), newName)) {
+    if (newName.contains(QDir::separator())
+        || !d->rootDir.rename(index.data().toString(), newName)) {
 #ifndef QT_NO_MESSAGEBOX
         QMessageBox::information(0, QFileSystemModel::tr("Invalid filename"),
                                 QFileSystemModel::tr("<b>The name \"%1\" can not be used.</b><p>Try using another name, with fewer characters or no punctuations marks.")
