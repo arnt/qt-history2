@@ -231,7 +231,7 @@ bool Layout::prepareLayout(bool &needMove, bool &needReparent)
 
         layoutBase = widgetFactory->createWidget(baseWidgetClassName, widgetFactory->containerOfWidget(m_parentWidget));
         if (useSplitter) {
-            layoutBase->setObjectName("splitter");
+            layoutBase->setObjectName(QLatin1String("splitter"));
             formWindow->ensureUniqueObjectName(layoutBase);
         }
     } else {

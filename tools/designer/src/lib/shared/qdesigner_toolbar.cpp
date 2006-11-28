@@ -400,7 +400,7 @@ void QDesignerToolBar::slotInsertSeparator()
     QAction *theSender = qobject_cast<QAction*>(sender());
     QAction *previous = qvariant_cast<QAction *>(theSender->data());
     formWindow()->beginCommand(tr("Insert Separator"));
-    QAction *action = createAction("separator", true);
+    QAction *action = createAction(QLatin1String("separator"), true);
     InsertActionIntoCommand *cmd = new InsertActionIntoCommand(formWindow());
     cmd->init(this, action, previous);
     formWindow()->commandHistory()->push(cmd);
@@ -422,7 +422,7 @@ Sentinel::Sentinel(QWidget *widget)
     : QToolButton(widget)
 {
     setObjectName(QString::fromUtf8("__qt__passive_new"));
-    setText(">>");
+    setText(QLatin1String(">>"));
     setToolButtonStyle(Qt::ToolButtonTextOnly);
     setToolTip(tr("New Tool Bar"));
 }

@@ -57,7 +57,7 @@ void PluginDialog::populateTreeWidget()
     const QStringList fileNames = core()->pluginManager()->registeredPlugins();
 
     if (!fileNames.isEmpty()) {
-        QTreeWidgetItem *topLevelItem = setTopLevelItem("Loaded Plugins");
+        QTreeWidgetItem *topLevelItem = setTopLevelItem(QLatin1String("Loaded Plugins"));
         QFont boldFont = topLevelItem->font(0);
 
         foreach (QString fileName, fileNames) {
@@ -85,12 +85,12 @@ void PluginDialog::populateTreeWidget()
     const QStringList notLoadedPlugins = core()->pluginManager()->failedPlugins();
     if (!notLoadedPlugins.isEmpty()) {
 
-        QTreeWidgetItem *topLevelItem = setTopLevelItem("Failed Plugins");
+        QTreeWidgetItem *topLevelItem = setTopLevelItem(QLatin1String("Failed Plugins"));
         QFont boldFont = topLevelItem->font(0);
         foreach (const QString plugin, notLoadedPlugins)
         {
             QTreeWidgetItem *pluginItem = setPluginItem(topLevelItem, plugin, boldFont);
-            setItem(pluginItem, core()->pluginManager()->failureReason(plugin), "", "", QIcon());
+            setItem(pluginItem, core()->pluginManager()->failureReason(plugin), QLatin1String(""), QLatin1String(""), QIcon());
         }
     }
 
@@ -105,7 +105,7 @@ void PluginDialog::populateTreeWidget()
 QIcon PluginDialog::pluginIcon(const QIcon &icon)
 {
     if (icon.isNull())
-        return QIcon(":/trolltech/formeditor/images/qtlogo.png");
+        return QIcon(QLatin1String(":/trolltech/formeditor/images/qtlogo.png"));
 
     return icon;
 }

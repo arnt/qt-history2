@@ -35,9 +35,9 @@ QLongLongValidator::~QLongLongValidator()
 
 QValidator::State QLongLongValidator::validate(QString & input, int &) const
 {
-    if (input.contains(' '))
+    if (input.contains(QLatin1Char(' ')))
         return Invalid;
-    if (input.isEmpty() || (b < 0 && input == "-"))
+    if (input.isEmpty() || (b < 0 && input == QLatin1String("-")))
         return Intermediate;
     bool ok;
     qlonglong entered = input.toLongLong(&ok);
@@ -95,7 +95,7 @@ QValidator::State QULongLongValidator::validate(QString & input, int &) const
 
     bool ok;
     qulonglong entered = input.toULongLong(&ok);
-    if (input.contains(' ') || input.contains('-') || !ok)
+    if (input.contains(QLatin1Char(' ')) || input.contains(QLatin1Char('-')) || !ok)
         return Invalid;
 
     if (entered >= b && entered <= t)

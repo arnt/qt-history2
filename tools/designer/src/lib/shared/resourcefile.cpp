@@ -493,12 +493,12 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
     switch (role) {
         case Qt::DisplayRole:
             {
-                QString stringRes = "";
+                QString stringRes = QLatin1String("");
                 if (d == -1){
                     stringRes = m_resource_file.prefix(index.row());
                     QString lang = m_resource_file.lang(index.row());
                     if(!lang.isEmpty())
-                        stringRes += " (" + lang + ")";
+                        stringRes += QLatin1String(" (") + lang + QLatin1String(")");
                 }
                 else
                 {
@@ -506,7 +506,7 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
 
                     QString alias = m_resource_file.alias(d, index.row());
                     if(!alias.isEmpty())
-                        stringRes += " (" + alias + ")";
+                        stringRes += QLatin1String(" (") + alias + QLatin1String(")");
                 }
                 result = stringRes;
             }
@@ -529,7 +529,7 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
                 
                 QString alias_file = m_resource_file.alias(d, index.row());
                 if(!alias_file.isEmpty())
-                        stringRes += " (" + alias_file + ")";
+                        stringRes += QLatin1String(" (") + alias_file + QLatin1String(")");
 
                 result = stringRes;
             }

@@ -179,29 +179,29 @@ QString WidgetFactory::classNameOf(QDesignerFormEditorInterface *c, QObject* o)
     }
 
     if (qobject_cast<QDesignerTabWidget*>(o))
-        return "QTabWidget";
+        return QLatin1String("QTabWidget");
     else if (qobject_cast<QDesignerStackedWidget*>(o))
-        return "QStackedWidget";
+        return QLatin1String("QStackedWidget");
     else if (qobject_cast<QDesignerMenuBar*>(o))
-        return "QMenuBar";
+        return QLatin1String("QMenuBar");
     else if (qobject_cast<QDesignerToolBar*>(o))
-        return "QToolBar";
+        return QLatin1String("QToolBar");
     else if (qobject_cast<QDesignerDockWidget*>(o))
-        return "QDockWidget";
+        return QLatin1String("QDockWidget");
     else if (qobject_cast<QDesignerToolBox*>(o))
-        return "QToolBox";
+        return QLatin1String("QToolBox");
     else if (qobject_cast<QDesignerDialog*>(o))
-        return "QDialog";
+        return QLatin1String("QDialog");
     else if (qobject_cast<QDesignerWidget*>(o))
-        return "QWidget";
+        return QLatin1String("QWidget");
     else if (qobject_cast<QDesignerLabel*>(o))
-        return "QLabel";
+        return QLatin1String("QLabel");
     else if (qstrcmp(o->metaObject()->className(), "QAxBase") == 0)
-        return "QAxWidget";
+        return QLatin1String("QAxWidget");
     else if (qstrcmp(o->metaObject()->className(), "QDesignerQ3WidgetStack") == 0)
-        return "Q3WidgetStack";
+        return QLatin1String("Q3WidgetStack");
 
-    return o->metaObject()->className();
+    return QLatin1String(o->metaObject()->className());
 }
 
 /*!  Creates a layout on the widget \a widget of the type \a type

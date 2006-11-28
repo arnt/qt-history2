@@ -1545,7 +1545,7 @@ QWidget *CharProperty::createEditor(QWidget *parent, const QObject *target, cons
 {
     QLineEdit *lineEdit = new QLineEdit(parent);
     lineEdit->setFrame(0);
-    lineEdit->setInputMask("X; ");
+    lineEdit->setInputMask(QLatin1String("X; "));
     QObject::connect(lineEdit, SIGNAL(textChanged(QString)), target, receiver);
 
     return lineEdit;

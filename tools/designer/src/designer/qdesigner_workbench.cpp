@@ -455,13 +455,13 @@ bool QDesignerWorkbench::eventFilter(QObject *object, QEvent *event)
     if (object == m_workspace) {
         if (event->type() == QEvent::DragEnter) {
             QDragEnterEvent *e = static_cast<QDragEnterEvent*>(event);
-            if (e->mimeData()->hasFormat("text/uri-list")) {
+            if (e->mimeData()->hasFormat(QLatin1String("text/uri-list"))) {
                 e->acceptProposedAction();
                 return true;
             }
         } else if (event->type() == QEvent::Drop) {
             QDropEvent *e = static_cast<QDropEvent*>(event);
-            if (!e->mimeData()->hasFormat("text/uri-list"))
+            if (!e->mimeData()->hasFormat(QLatin1String("text/uri-list")))
                 return false;
             foreach (QUrl url, e->mimeData()->urls()) {
                 if (!url.toLocalFile().isEmpty())

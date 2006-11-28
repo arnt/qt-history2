@@ -573,8 +573,8 @@ QtGradientStopsEditor::QtGradientStopsEditor(QWidget *parent)
                 this, SLOT(slotRgbClicked()));
 
     d_ptr->enableCurrent(false);
-    d_ptr->m_ui.zoomInButton->setIcon(QIcon(":/qtgradienteditor/images/zoomin.png"));
-    d_ptr->m_ui.zoomOutButton->setIcon(QIcon(":/qtgradienteditor/images/zoomout.png"));
+    d_ptr->m_ui.zoomInButton->setIcon(QIcon(QLatin1String(":/qtgradienteditor/images/zoomin.png")));
+    d_ptr->m_ui.zoomOutButton->setIcon(QIcon(QLatin1String(":/qtgradienteditor/images/zoomout.png")));
     d_ptr->updateZoom();
 }
 

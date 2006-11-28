@@ -84,7 +84,7 @@ void QDesignerFormWindow::changeEvent(QEvent *e)
             }
         } break;
         case QEvent::WindowTitleChange:
-            m_action->setText(windowTitle().replace(QLatin1String("[*]"), ""));
+            m_action->setText(windowTitle().replace(QLatin1String("[*]"), QLatin1String("")));
             break;
         case QEvent::WindowIconChange:
             m_action->setIcon(windowIcon());
@@ -192,6 +192,6 @@ void QDesignerFormWindow::geometryChanged()
     if(QObject *object = m_editor->core()->propertyEditor()->object()) {
         QDesignerPropertySheetExtension *sheet = 
             qt_extension<QDesignerPropertySheetExtension*>(m_editor->core()->extensionManager(), object);
-        m_editor->core()->propertyEditor()->setPropertyValue("geometry", sheet->property(sheet->indexOf("geometry")));
+        m_editor->core()->propertyEditor()->setPropertyValue(QLatin1String("geometry"), sheet->property(sheet->indexOf(QLatin1String("geometry"))));
     }
 }

@@ -365,7 +365,7 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
         title = toString(ptitle->elementString());
     }
 
-    QString label = QLatin1String(QLatin1String("Page"));
+    QString label = QLatin1String("Page");
     if (const DomProperty *plabel = attributes.value(QLatin1String("label"))) {
         label = toString(plabel->elementString());
     }
@@ -821,7 +821,7 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
         if (index == -1) {
             // ### special-casing for Line (QFrame) -- fix for 4.2
             if (!qstrcmp(meta->className(), "QFrame")
-                && (pname == QLatin1String("orientation"))) {
+                && (pname == QByteArray("orientation"))) {
                 return QVariant((p->elementEnum() == QLatin1String("Qt::Horizontal")) ? QFrame::HLine : QFrame::VLine);
             } else {
                 qWarning() << "property" << pname << "is not supported";
@@ -920,7 +920,7 @@ DomColorGroup *QAbstractFormBuilder::saveColorGroup(const QPalette &palette)
 
             DomColorRole *colorRole = new DomColorRole();
             colorRole->setElementBrush(saveBrush(br));
-            colorRole->setAttributeRole(colorRole_enum.valueToKey(role));
+            colorRole->setAttributeRole(QLatin1String(colorRole_enum.valueToKey(role)));
             colorRoles.append(colorRole);
         }
     }
@@ -1006,7 +1006,7 @@ DomBrush *QAbstractFormBuilder::saveBrush(const QBrush &br)
 
     DomBrush *brush = new DomBrush();
     const Qt::BrushStyle style = br.style();
-    brush->setAttributeBrushStyle(brushStyle_enum.valueToKey(style));
+    brush->setAttributeBrushStyle(QLatin1String(brushStyle_enum.valueToKey(style)));
     if (style == Qt::LinearGradientPattern ||
                 style == Qt::RadialGradientPattern ||
                 style == Qt::ConicalGradientPattern) {
@@ -1017,9 +1017,9 @@ DomBrush *QAbstractFormBuilder::saveBrush(const QBrush &br)
         DomGradient *gradient = new DomGradient();
         const QGradient *gr = br.gradient();
         const QGradient::Type type = gr->type();
-        gradient->setAttributeType(gradientType_enum.valueToKey(type));
-        gradient->setAttributeSpread(gradientSpread_enum.valueToKey(gr->spread()));
-        gradient->setAttributeCoordinateMode(gradientCoordinate_enum.valueToKey(gr->coordinateMode()));
+        gradient->setAttributeType(QLatin1String(gradientType_enum.valueToKey(type)));
+        gradient->setAttributeSpread(QLatin1String(gradientSpread_enum.valueToKey(gr->spread())));
+        gradient->setAttributeCoordinateMode(QLatin1String(gradientCoordinate_enum.valueToKey(gr->coordinateMode())));
         QList<DomGradientStop *> stops;
         QGradientStops st = gr->stops();
         QVectorIterator<QPair<qreal, QColor> > it(st);
@@ -1539,14 +1539,14 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
                 fnt->setElementKerning(font.kerning());
             if (mask & QFontPrivate::StyleStrategy) {
                 const QMetaEnum styleStrategy_enum = metaEnum<QAbstractFormBuilderGadget>("styleStrategy");
-                fnt->setElementStyleStrategy(styleStrategy_enum.valueToKey(font.styleStrategy()));
+                fnt->setElementStyleStrategy(QLatin1String(styleStrategy_enum.valueToKey(font.styleStrategy())));
             }
             dom_prop->setElementFont(fnt);
         } break;
 
         case QVariant::Cursor: {
             const QMetaEnum cursorShape_enum = metaEnum<QAbstractFormBuilderGadget>("cursorShape");
-            dom_prop->setElementCursorShape(cursorShape_enum.valueToKey(qvariant_cast<QCursor>(v).shape()));
+            dom_prop->setElementCursorShape(QLatin1String(cursorShape_enum.valueToKey(qvariant_cast<QCursor>(v).shape())));
         } break;
 
         case QVariant::KeySequence: {
@@ -1580,8 +1580,8 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
 
             const QMetaEnum sizeType_enum = metaEnum<QAbstractFormBuilderGadget>("sizeType");
 
-            dom->setAttributeHSizeType(sizeType_enum.valueToKey(sizePolicy.horizontalPolicy()));
-            dom->setAttributeVSizeType(sizeType_enum.valueToKey(sizePolicy.verticalPolicy()));
+            dom->setAttributeHSizeType(QLatin1String(sizeType_enum.valueToKey(sizePolicy.horizontalPolicy())));
+            dom->setAttributeVSizeType(QLatin1String(sizeType_enum.valueToKey(sizePolicy.verticalPolicy())));
 
             dom_prop->setElementSizePolicy(dom);
         } break;
@@ -2082,7 +2082,7 @@ void QAbstractFormBuilder::loadListWidgetExtraInfo(DomWidget *ui_widget, QListWi
         }
     }
 
-    DomProperty *currentRow = propertyMap(ui_widget->elementProperty()).value("currentRow");
+    DomProperty *currentRow = propertyMap(ui_widget->elementProperty()).value(QLatin1String("currentRow"));
     if (currentRow)
         listWidget->setCurrentRow(currentRow->elementNumber());
 }
@@ -2246,7 +2246,7 @@ void QAbstractFormBuilder::loadComboBoxExtraInfo(DomWidget *ui_widget, QComboBox
         comboBox->setItemData((comboBox->count()-1), icon);
     }
 
-    DomProperty *currentIndex = propertyMap(ui_widget->elementProperty()).value("currentIndex");
+    DomProperty *currentIndex = propertyMap(ui_widget->elementProperty()).value(QLatin1String("currentIndex"));
     if (currentIndex)
         comboBox->setCurrentIndex(currentIndex->elementNumber());
 }
@@ -2266,15 +2266,15 @@ void QAbstractFormBuilder::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, 
         if (!qobject_cast<QFontComboBox *>(widget))
             loadComboBoxExtraInfo(ui_widget, comboBox, parentWidget);
     } else if (QTabWidget *tabWidget = qobject_cast<QTabWidget*>(widget)) {
-        DomProperty *currentIndex = propertyMap(ui_widget->elementProperty()).value("currentIndex");
+        DomProperty *currentIndex = propertyMap(ui_widget->elementProperty()).value(QLatin1String("currentIndex"));
         if (currentIndex)
             tabWidget->setCurrentIndex(currentIndex->elementNumber());
     } else if (QStackedWidget *stackedWidget = qobject_cast<QStackedWidget*>(widget)) {
-        DomProperty *currentIndex = propertyMap(ui_widget->elementProperty()).value("currentIndex");
+        DomProperty *currentIndex = propertyMap(ui_widget->elementProperty()).value(QLatin1String("currentIndex"));
         if (currentIndex)
             stackedWidget->setCurrentIndex(currentIndex->elementNumber());
     } else if (QToolBox *toolBox = qobject_cast<QToolBox*>(widget)) {
-        DomProperty *currentIndex = propertyMap(ui_widget->elementProperty()).value("currentIndex");
+        DomProperty *currentIndex = propertyMap(ui_widget->elementProperty()).value(QLatin1String("currentIndex"));
         if (currentIndex)
             toolBox->setCurrentIndex(currentIndex->elementNumber());
     }

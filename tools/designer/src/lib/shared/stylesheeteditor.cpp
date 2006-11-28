@@ -56,7 +56,7 @@ StyleSheetEditorDialog::StyleSheetEditorDialog(QWidget *fw, QWidget *widget)
 
     QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_fw->core()->extensionManager(), m_widget);
     Q_ASSERT(sheet != 0);
-    m_editor->setText(sheet->property(sheet->indexOf("styleSheet")).toString());
+    m_editor->setText(sheet->property(sheet->indexOf(QLatin1String("styleSheet"))).toString());
 
     m_editor->setFocus();
     resize(430, 330);
@@ -70,7 +70,7 @@ StyleSheetEditor *StyleSheetEditorDialog::editor() const
 void StyleSheetEditorDialog::applyStyleSheet()
 {
     QString text = m_editor->toPlainText();
-    m_fw->cursor()->setWidgetProperty(m_widget, "styleSheet", QVariant(text));
+    m_fw->cursor()->setWidgetProperty(m_widget, QLatin1String("styleSheet"), QVariant(text));
 }
 
 bool StyleSheetEditorDialog::isStyleSheetValid(const QString &styleSheet)
@@ -88,10 +88,10 @@ void StyleSheetEditorDialog::validateStyleSheet()
     QString text = m_editor->toPlainText();
     if (!isStyleSheetValid(text)) {
         validityLabel->setText(tr("Invalid Style Sheet"));
-        validityLabel->setStyleSheet("color: red");
+        validityLabel->setStyleSheet(QLatin1String("color: red"));
     } else {
         validityLabel->setText(tr("Valid Style Sheet"));
-        validityLabel->setStyleSheet("color: green");
+        validityLabel->setStyleSheet(QLatin1String("color: green"));
     }
 }
 

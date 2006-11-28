@@ -477,7 +477,7 @@ QDomDocument WidgetBoxTreeView::categoryListToDom(const CategoryList &cat_list) 
             QDomElement wgt_elt = dom_wgt->write(doc);
             wgt_elt.setAttribute(QLatin1String("name"), wgt.name());
             const QString iconName = wgt.iconName();
-            if (!iconName.startsWith("__qt_icon__"))
+            if (!iconName.startsWith(QLatin1String("__qt_icon__")))
               wgt_elt.setAttribute(QLatin1String("icon"), wgt.iconName());
             wgt_elt.setAttribute(QLatin1String("type"), QLatin1String("default"));
             cat_elt.appendChild(wgt_elt);
@@ -527,7 +527,7 @@ WidgetBoxTreeView::Category WidgetBoxTreeView::domToCategory(const QDomElement &
 
     QDomElement widget_elt = cat_elt.firstChildElement();
     for (; !widget_elt.isNull(); widget_elt = widget_elt.nextSiblingElement()) {
-        const QString type_attr = widget_elt.attribute("type");
+        const QString type_attr = widget_elt.attribute(QLatin1String("type"));
         const Widget::Type type = type_attr == QLatin1String("custom")
                                 ? Widget::Custom
                                 : Widget::Default;
@@ -617,7 +617,7 @@ QTreeWidgetItem *WidgetBoxTreeView::widgetToItem(const Widget &wgt,
         m_widgetNames.append(wgt.name());
 
     QIcon icon;
-    if (icon_name.startsWith("__qt_icon__"))
+    if (icon_name.startsWith(QLatin1String("__qt_icon__")))
       icon = m_pluginIcons.value(icon_name);
     if (icon.isNull())
       icon = createIconSet(icon_name);

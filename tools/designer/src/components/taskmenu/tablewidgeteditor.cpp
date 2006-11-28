@@ -77,7 +77,7 @@ void TableWidgetEditor::fillContentsFromTableWidget(QTableWidget *tableWidget)
             item->setText(headerItem->text());
             item->setIcon(headerItem->icon());
         } else
-            item->setText(QString("%1").arg(col));
+            item->setText(QString::fromLatin1("%1").arg(col));
     }
     if (colCount > 0)
         ui.columnsListWidget->setCurrentRow(0);
@@ -91,7 +91,7 @@ void TableWidgetEditor::fillContentsFromTableWidget(QTableWidget *tableWidget)
             item->setText(headerItem->text());
             item->setIcon(headerItem->icon());
         } else
-            item->setText(QString("%1").arg(row));
+            item->setText(QString::fromLatin1("%1").arg(row));
     }
     if (rowCount > 0)
         ui.rowsListWidget->setCurrentRow(0);

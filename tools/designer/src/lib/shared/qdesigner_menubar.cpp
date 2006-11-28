@@ -80,7 +80,7 @@ QDesignerMenuBar::QDesignerMenuBar(QWidget *parent)
     m_addMenu->setFont(italic);
 
     m_editor = new QLineEdit(this);
-    m_editor->setObjectName("__qt__passive_editor");
+    m_editor->setObjectName(QLatin1String("__qt__passive_editor"));
     m_editor->hide();
     m_editor->installEventFilter(this);
 
@@ -442,7 +442,7 @@ QAction *QDesignerMenuBar::createAction(const QString &name)
 
     QDesignerFormWindowInterface *fw = formWindow();
     QDesignerFormEditorInterface *core = fw->core();
-    QMenu *menu = qobject_cast<QMenu*>(core->widgetFactory()->createWidget("QMenu", this));
+    QMenu *menu = qobject_cast<QMenu*>(core->widgetFactory()->createWidget(QLatin1String("QMenu"), this));
     core->widgetFactory()->initialize(menu);
     menu->setObjectName(name);
     menu->setTitle(tr("Menu"));
@@ -485,7 +485,7 @@ void QDesignerMenuBar::leaveEditMode(LeaveEditMode mode)
         formWindow()->beginCommand(QLatin1String("Insert Menu"));
 
         QString niceObjectName = ActionEditor::actionTextToName(m_editor->text());
-        if (niceObjectName.startsWith("action"))
+        if (niceObjectName.startsWith(QLatin1String("action")))
             niceObjectName.replace(0, 6, QLatin1String("menu"));
 
         action = createAction(niceObjectName);
@@ -820,7 +820,7 @@ void QDesignerMenuBar::deleteMenu()
         if (pos != -1)
             action_before = safeActionAt(pos + 1);
 
-        formWindow()->beginCommand("Remove menu");
+        formWindow()->beginCommand(QLatin1String("Remove menu"));
         RemoveActionFromCommand *cmd = new RemoveActionFromCommand(formWindow());
         cmd->init(this, action, action_before);
         formWindow()->commandHistory()->push(cmd);

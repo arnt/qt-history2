@@ -69,7 +69,7 @@ QDesignerMenu::QDesignerMenu(QWidget *parent)
     connect(m_deactivateWindowTimer, SIGNAL(timeout()), this, SLOT(slotDeactivateNow()));
 
     m_editor = new QLineEdit(this);
-    m_editor->setObjectName("__qt__passive_editor");
+    m_editor->setObjectName(QLatin1String("__qt__passive_editor"));
     m_editor->hide();
 
     m_editor->installEventFilter(this);
@@ -487,7 +487,7 @@ void QDesignerMenu::slotRemoveSelectedAction()
 
 QRect QDesignerMenu::subMenuPixmapRect(QAction *action) const
 {
-    static const QPixmap pm(":/trolltech/formeditor/images/submenu.png");
+    static const QPixmap pm(QLatin1String(":/trolltech/formeditor/images/submenu.png"));
     QRect g = actionGeometry(action);
     int x = g.right() - pm.width() - 2;
     int y = g.top() + (g.height() - pm.height())/2 + 1;
@@ -522,7 +522,7 @@ void QDesignerMenu::paintEvent(QPaintEvent *event)
 
             p.fillRect(g, lg);
         } else if (hasSubMenuPixmap(a)) {
-            static const QPixmap pm(":/trolltech/formeditor/images/submenu.png");
+            static const QPixmap pm(QLatin1String(":/trolltech/formeditor/images/submenu.png"));
             p.drawPixmap(subMenuPixmapRect(a).topLeft(), pm);
         }
     }
@@ -894,7 +894,7 @@ void QDesignerMenu::createRealMenuAction(QAction *action)
     core->widgetFactory()->initialize(menu);
 
     QString niceObjectName = ActionEditor::actionTextToName(menu->title());
-    if (niceObjectName.startsWith("action"))
+    if (niceObjectName.startsWith(QLatin1String("action")))
         niceObjectName.replace(0, 6, QLatin1String("menu"));
     menu->setObjectName(niceObjectName);
 

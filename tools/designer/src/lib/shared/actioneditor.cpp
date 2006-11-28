@@ -124,12 +124,12 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     l->addWidget(toolbar);
 
     m_actionNew = toolbar->addAction(tr("New..."));
-    m_actionNew->setIcon(createIconSet("filenew.png"));
+    m_actionNew->setIcon(createIconSet(QLatin1String("filenew.png")));
     m_actionNew->setEnabled(false);
     connect(m_actionNew, SIGNAL(triggered()), this, SLOT(slotNewAction()));
 
     m_actionDelete = toolbar->addAction(tr("Delete"));
-    m_actionDelete->setIcon(createIconSet("editdelete.png"));
+    m_actionDelete->setIcon(createIconSet(QLatin1String("editdelete.png")));
     m_actionDelete->setEnabled(false);
 
     m_filterWidget = new ActionFilterWidget(this, toolbar);
@@ -240,7 +240,7 @@ QString fixActionText(QString text)
 
 QIcon fixActionIcon(QIcon icon)
 {
-    static const QIcon empty_icon(":/trolltech/formeditor/images/emptyicon.png");
+    static const QIcon empty_icon(QLatin1String(":/trolltech/formeditor/images/emptyicon.png"));
     if (icon.isNull())
         return empty_icon;
     return icon;
@@ -361,9 +361,9 @@ void ActionEditor::manageAction(QAction *action)
 
     QDesignerPropertySheetExtension *sheet = 0;
     sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), action);
-    sheet->setChanged(sheet->indexOf("objectName"), true);
-    sheet->setChanged(sheet->indexOf("text"), true);
-    sheet->setChanged(sheet->indexOf("icon"), !action->icon().isNull());
+    sheet->setChanged(sheet->indexOf(QLatin1String("objectName")), true);
+    sheet->setChanged(sheet->indexOf(QLatin1String("text")), true);
+    sheet->setChanged(sheet->indexOf(QLatin1String("icon")), !action->icon().isNull());
 
     QListWidgetItem *item = createListWidgetItem(action);
     m_actionRepository->setCurrentItem(item);
@@ -425,24 +425,24 @@ void ActionEditor::editAction(QListWidgetItem *item)
     formWindow()->beginCommand(QLatin1String("Edit action"));
     if (action->objectName() != dlg.actionName()) {
         SetPropertyCommand *cmd = new SetPropertyCommand(formWindow());
-        cmd->init(action, "objectName", dlg.actionName());
+        cmd->init(action, QLatin1String("objectName"), dlg.actionName());
         formWindow()->commandHistory()->push(cmd);
     }
     if (action->text() != dlg.actionText()) {
         SetPropertyCommand *cmd = new SetPropertyCommand(formWindow());
-        cmd->init(action, "text", dlg.actionText());
+        cmd->init(action, QLatin1String("text"), dlg.actionText());
         formWindow()->commandHistory()->push(cmd);
     }
     if (action->icon().serialNumber() != dlg.actionIcon().serialNumber()) {
         SetPropertyCommand *cmd = new SetPropertyCommand(formWindow());
-        cmd->init(action, "icon", dlg.actionIcon());
+        cmd->init(action, QLatin1String("icon"), dlg.actionIcon());
         formWindow()->commandHistory()->push(cmd);
     }
     formWindow()->endCommand();
 
     QDesignerPropertySheetExtension *sheet = 0;
     sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), action);
-    sheet->setChanged(sheet->indexOf("icon"), !action->icon().isNull());
+    sheet->setChanged(sheet->indexOf(QLatin1String("icon")), !action->icon().isNull());
 }
 
 void ActionEditor::slotDeleteAction()
@@ -473,9 +473,9 @@ QString ActionEditor::actionTextToName(const QString &text)
 
     name[0] = name.at(0).toUpper();
     name.prepend(QLatin1String("action"));
-    name.replace(QRegExp(QString("[^a-zA-Z_0-9]")), QString("_"));
-    name.replace(QRegExp("__*"), QString("_"));
-    if (name.endsWith("_"))
+    name.replace(QRegExp(QString(QLatin1String("[^a-zA-Z_0-9]"))), QString(QLatin1String("_")));
+    name.replace(QRegExp(QLatin1String("__*")), QString(QLatin1String("_")));
+    if (name.endsWith(QLatin1String("_")))
         name.truncate(name.size() - 1);
 
     return name;

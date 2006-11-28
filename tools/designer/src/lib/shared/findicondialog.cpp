@@ -310,12 +310,12 @@ void FindIconDialog::setViewDir(const QString &path)
         foreach(const QFileInfo &info, qFIL) 
             subdir_list.append(info.path());
     } else
-        subdir_list = m_view_dir.entryList(QStringList() << "*", QDir::Dirs | QDir::NoDotAndDotDot);
+        subdir_list = m_view_dir.entryList(QStringList() << QLatin1String("*"), QDir::Dirs | QDir::NoDotAndDotDot);
 
     foreach (const QString &subdir, subdir_list)
         createListWidgetItem((isRoot ? drive_icon : dir_icon), subdir, g_dir_item_id, ui->m_icon_view);
 #else
-    subdir_list = m_view_dir.entryList(QStringList() << "*", QDir::Dirs | QDir::NoDotAndDotDot);
+    subdir_list = m_view_dir.entryList(QStringList() << QLatin1String("*"), QDir::Dirs | QDir::NoDotAndDotDot);
     foreach (const QString &subdir, subdir_list)
         createListWidgetItem(dir_icon, subdir, g_dir_item_id, ui->m_icon_view);
 #endif
@@ -412,7 +412,7 @@ void FindIconDialog::setPaths(const QString &qrcPath, const QString &filePath)
         if (previousInputBox() == ResourceBox && !defaultQrcPath().isEmpty()) {
             setFile(defaultFilePath(m_form));
             setActiveBox(ResourceBox);
-            setQrc(defaultQrcPath(), "");
+            setQrc(defaultQrcPath(), QLatin1String(""));
         } else if (previousInputBox() == LanguageBox) {
             setLanguagePath(defaultLanguagePath());
             setActiveBox(LanguageBox);
@@ -486,13 +486,13 @@ QString FindIconDialog::filePath() const
 QString FindIconDialog::defaultQrcPath()
 {
     QSettings settings;
-    return settings.value("FindIconDialog/defaultQrcPath").toString();
+    return settings.value(QLatin1String("FindIconDialog/defaultQrcPath")).toString();
 }
 
 QString FindIconDialog::defaultFilePath(QDesignerFormWindowInterface *form)
 {
     QSettings settings;
-    QString path = settings.value("FindIconDialog/defaultFilePath").toString();
+    QString path = settings.value(QLatin1String("FindIconDialog/defaultFilePath")).toString();
     if (path.isEmpty())
         path = form->absoluteDir().path();
     return path;
@@ -501,31 +501,31 @@ QString FindIconDialog::defaultFilePath(QDesignerFormWindowInterface *form)
 QString FindIconDialog::defaultLanguagePath()
 {
     QSettings settings;
-    return settings.value("FindIconDialog/defaultLanguagePath").toString();
+    return settings.value(QLatin1String("FindIconDialog/defaultLanguagePath")).toString();
 }
 
 void FindIconDialog::setDefaultQrcPath(const QString &path)
 {
     QSettings settings;
-    settings.setValue("FindIconDialog/defaultQrcPath", path);
+    settings.setValue(QLatin1String("FindIconDialog/defaultQrcPath"), path);
 }
 
 void FindIconDialog::setDefaultFilePath(const QString &path)
 {
     QSettings settings;
-    settings.setValue("FindIconDialog/defaultFilePath", path);
+    settings.setValue(QLatin1String("FindIconDialog/defaultFilePath"), path);
 }
 
 void FindIconDialog::setDefaultLanguagePath(const QString &path)
 {
     QSettings settings;
-    settings.setValue("FindIconDialog/defaultLanguagePath", path);
+    settings.setValue(QLatin1String("FindIconDialog/defaultLanguagePath"), path);
 }
 
 FindIconDialog::InputBox FindIconDialog::previousInputBox()
 {
     QSettings settings;
-    QString box = settings.value("FindIconDialog/previousInputBox").toString();
+    QString box = settings.value(QLatin1String("FindIconDialog/previousInputBox")).toString();
     if (box == QLatin1String("language"))
         return LanguageBox;
     if (box == QLatin1String("resource"))
@@ -542,7 +542,7 @@ void FindIconDialog::setPreviousInputBox(InputBox box)
         case ResourceBox: val = QLatin1String("resource"); break;
         case LanguageBox: val = QLatin1String("language"); break;
     }
-    settings.setValue("FindIconDialog/previousInputBox", val);
+    settings.setValue(QLatin1String("FindIconDialog/previousInputBox"), val);
 }
 
 } // namespace qdesigner_internal

@@ -147,7 +147,7 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
             selectionList.push_back(item);
         }
 
-        QString className = object->metaObject()->className();
+        QString className = QLatin1String(object->metaObject()->className());
         if (QDesignerWidgetDataBaseItemInterface *widgetItem = db->item(db->indexOfObject(object, true))) {
             className = widgetItem->name();
 
@@ -159,7 +159,7 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
             item->setIcon(0, widgetItem->icon());
         }
 
-        if (className.startsWith("QDesigner"))
+        if (className.startsWith(QLatin1String("QDesigner")))
             className.remove(1, 8);
 
         item->setText(1, className);

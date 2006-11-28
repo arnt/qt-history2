@@ -565,7 +565,7 @@ bool QDesignerActions::saveFormAs(QDesignerFormWindowInterface *fw)
             return false;
 
         const QFileInfo fInfo(saveFile);
-        if (fInfo.suffix().isEmpty() && !fInfo.fileName().endsWith(QChar('.')))
+        if (fInfo.suffix().isEmpty() && !fInfo.fileName().endsWith(QLatin1Char('.')))
             saveFile.append(QLatin1String(".ui"));
 
         const QFileInfo fi(saveFile);
@@ -601,7 +601,7 @@ void QDesignerActions::saveAllForms()
         if (fw && fw->isDirty()) {
             formWindowManager->setActiveFormWindow(fw);
             if (saveForm(fw))
-                fileNames.append(QFileInfo(fw->fileName()).fileName() + QString(", "));
+                fileNames.append(QFileInfo(fw->fileName()).fileName() + QString(QLatin1String(", ")));
             else
                 break;
         }
@@ -794,7 +794,7 @@ bool QDesignerActions::readInForm(const QString &fileName)
 
             QMessageBox box(QMessageBox::Warning, tr("Read error"), tr("Couldn't open file"),
                             QMessageBox::Ok, core()->topLevel());
-            box.setText(tr("%1 could not be opened.\nReason: %2").arg(f.fileName()).arg("The file is not a valid Designer ui file!"));
+            box.setText(tr("%1 could not be opened.\nReason: %2").arg(f.fileName()).arg(QLatin1String("The file is not a valid Designer ui file!")));
             box.exec();
 
             return false;
@@ -1260,7 +1260,7 @@ void QDesignerActions::backupForms()
 QString QDesignerActions::fixResourceFileBackupPath(QDesignerFormWindowInterface *fwi, const QDir& backupDir)
 {
     const QString content = fwi->contents();
-    QDomDocument domDoc("backup");
+    QDomDocument domDoc(QLatin1String("backup"));
     if(!domDoc.setContent(content))
         return content;
 

@@ -46,7 +46,7 @@ private:
 VersionLabel::VersionLabel(QWidget *parent)
         : QLabel(parent), secondStage(false), m_pushed(false)
 {
-    setPixmap(QPixmap(":/trolltech/designer/images/designer.png"));
+    setPixmap(QPixmap(QLatin1String(":/trolltech/designer/images/designer.png")));
     hitPoints.append(QPoint(56, 25));
     hitPoints.append(QPoint(29, 55));
     hitPoints.append(QPoint(56, 87));
@@ -163,7 +163,7 @@ VersionDialog::VersionDialog(QWidget *parent)
                     .arg(QLatin1String(QT_VERSION_STR)));
     lbl->setWordWrap(true);
     lbl->setOpenExternalLinks(true);
-    QPushButton *cmd = new QPushButton("OK", this);
+    QPushButton *cmd = new QPushButton(QLatin1String("OK"), this);
     cmd->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     cmd->setDefault(true);
     connect(cmd, SIGNAL(clicked()), this, SLOT(reject()));

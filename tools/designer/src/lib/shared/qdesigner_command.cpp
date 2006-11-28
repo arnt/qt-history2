@@ -1029,7 +1029,7 @@ void CreateMenuBarCommand::init(QMainWindow *mainWindow)
 {
     m_mainWindow = mainWindow;
     QDesignerFormEditorInterface *core = formWindow()->core();
-    m_menuBar = qobject_cast<QMenuBar*>(core->widgetFactory()->createWidget("QMenuBar", m_mainWindow));
+    m_menuBar = qobject_cast<QMenuBar*>(core->widgetFactory()->createWidget(QLatin1String("QMenuBar"), m_mainWindow));
     core->widgetFactory()->initialize(m_menuBar);
 }
 
@@ -1040,7 +1040,7 @@ void CreateMenuBarCommand::redo()
     c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
     c->addWidget(m_menuBar);
 
-    m_menuBar->setObjectName("menuBar");
+    m_menuBar->setObjectName(QLatin1String("menuBar"));
     formWindow()->ensureUniqueObjectName(m_menuBar);
     core->metaDataBase()->add(m_menuBar);
     formWindow()->emitSelectionChanged();
@@ -1120,7 +1120,7 @@ void CreateStatusBarCommand::init(QMainWindow *mainWindow)
 {
     m_mainWindow = mainWindow;
     QDesignerFormEditorInterface *core = formWindow()->core();
-    m_statusBar = qobject_cast<QStatusBar*>(core->widgetFactory()->createWidget("QStatusBar", m_mainWindow));
+    m_statusBar = qobject_cast<QStatusBar*>(core->widgetFactory()->createWidget(QLatin1String("QStatusBar"), m_mainWindow));
     core->widgetFactory()->initialize(m_statusBar);
 }
 
@@ -1131,7 +1131,7 @@ void CreateStatusBarCommand::redo()
     c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
     c->addWidget(m_statusBar);
 
-    m_statusBar->setObjectName("statusBar");
+    m_statusBar->setObjectName(QLatin1String("statusBar"));
     formWindow()->ensureUniqueObjectName(m_statusBar);
     core->metaDataBase()->add(m_statusBar);
     formWindow()->emitSelectionChanged();
@@ -1207,7 +1207,7 @@ void AddToolBarCommand::init(QMainWindow *mainWindow)
 {
     m_mainWindow = mainWindow;
     QDesignerFormEditorInterface *core = formWindow()->core();
-    m_toolBar = qobject_cast<QToolBar*>(core->widgetFactory()->createWidget("QToolBar", m_mainWindow));
+    m_toolBar = qobject_cast<QToolBar*>(core->widgetFactory()->createWidget(QLatin1String("QToolBar"), m_mainWindow));
     m_toolBar->hide();
 }
 
@@ -1219,7 +1219,7 @@ void AddToolBarCommand::redo()
     QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
     c->addWidget(m_toolBar);
 
-    m_toolBar->setObjectName("toolBar");
+    m_toolBar->setObjectName(QLatin1String("toolBar"));
     formWindow()->ensureUniqueObjectName(m_toolBar);
     formWindow()->emitSelectionChanged();
 }
@@ -1294,7 +1294,7 @@ void AddDockWidgetCommand::init(QMainWindow *mainWindow)
 {
     m_mainWindow = mainWindow;
     QDesignerFormEditorInterface *core = formWindow()->core();
-    m_dockWidget = qobject_cast<QDockWidget*>(core->widgetFactory()->createWidget("QDockWidget", m_mainWindow));
+    m_dockWidget = qobject_cast<QDockWidget*>(core->widgetFactory()->createWidget(QLatin1String("QDockWidget"), m_mainWindow));
 }
 
 void AddDockWidgetCommand::redo()
@@ -1303,7 +1303,7 @@ void AddDockWidgetCommand::redo()
     QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_mainWindow);
     c->addWidget(m_dockWidget);
 
-    m_dockWidget->setObjectName("dockWidget");
+    m_dockWidget->setObjectName(QLatin1String("dockWidget"));
     formWindow()->ensureUniqueObjectName(m_dockWidget);
     formWindow()->manageWidget(m_dockWidget);
     formWindow()->emitSelectionChanged();

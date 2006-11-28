@@ -66,7 +66,7 @@ public:
 
     QList<QAction*> items;
 
-    virtual QStringList formats() const { return QStringList() << "action-repository/actions"; }
+    virtual QStringList formats() const { return QStringList() << QLatin1String("action-repository/actions"); }
 };
 
 } // namespace qdesigner_internal

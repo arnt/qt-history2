@@ -164,9 +164,9 @@ void QDesignerResource::saveDom(DomUI *ui, QWidget *widget)
                 location = QLatin1String("global");
 
             includeHint = includeHint
-                .replace(QLatin1Char('"'), "")
-                .replace(QLatin1Char('<'), "")
-                .replace(QLatin1Char('>'), "");
+                .replace(QLatin1Char('"'), QLatin1String(""))
+                .replace(QLatin1Char('<'), QLatin1String(""))
+                .replace(QLatin1Char('>'), QLatin1String(""));
 
             incl->setAttributeLocation(location);
             incl->setText(includeHint);
@@ -278,9 +278,9 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
                     continue;
 
                 if (incl->hasAttributeLocation() && incl->attributeLocation() == QLatin1String("global")) {
-                    text = text.prepend('<').append('>');
+                    text = text.prepend(QLatin1Char('<')).append(QLatin1Char('>'));
                 } else {
-                    text = text.prepend('"').append('"');
+                    text = text.prepend(QLatin1Char('"')).append(QLatin1Char('"'));
                 }
 
                 includeHints.append(text);
@@ -875,7 +875,7 @@ DomWidget *QDesignerResource::saveWidget(QDesignerToolBar *toolBar, DomWidget *u
 
         DomProperty *attr = new DomProperty();
         attr->setAttributeName(QLatin1String("toolBarArea"));
-        attr->setElementEnum(toolBarAreaMetaEnum().valueToKey(area));
+        attr->setElementEnum(QLatin1String(toolBarAreaMetaEnum().valueToKey(area)));
         attributes  << attr;
         
         attr = new DomProperty();

@@ -183,7 +183,7 @@ void NewForm::on_buttonBox_clicked(QAbstractButton *btn)
 
             newTitle.append(QLatin1String("[*]"));
             formWindow->setWindowTitle(newTitle);
-            formWindow->editor()->setFileName(m_fileName.isEmpty() ? "" : m_fileName);
+            formWindow->editor()->setFileName(m_fileName.isEmpty() ? QLatin1String("") : m_fileName);
             formWindow->show();
         }
         break;
@@ -302,7 +302,7 @@ void NewForm::loadFrom(const QString &path, bool resourceFile)
         return;
 
     // Iterate through the directory and add the templates
-    QFileInfoList list = dir.entryInfoList(QStringList() << "*.ui", QDir::Files);
+    QFileInfoList list = dir.entryInfoList(QStringList() << QLatin1String("*.ui"), QDir::Files);
 
     if (list.isEmpty())
         return;

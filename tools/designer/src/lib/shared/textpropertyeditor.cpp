@@ -21,7 +21,7 @@
 #include <qdebug.h>
 
 namespace {
-    const QChar NewLineChar('\n');
+    const QChar NewLineChar(QLatin1Char('\n'));
     const QLatin1String EscapedNewLine("\\n");
 
     // A validator that replaces offending strings
@@ -114,13 +114,13 @@ namespace qdesigner_internal {
             break;
         case ValidationSingleLine:
             // Set a  validator that replaces newline characters by a blank.
-            m_lineEdit->setValidator(new  ReplacementValidator(m_lineEdit, NewLineChar, QChar(' ')));
+            m_lineEdit->setValidator(new  ReplacementValidator(m_lineEdit, NewLineChar, QString(QLatin1Char(' '))));
             break;
         case ValidationObjectName:
-            setRegExpValidator("[_a-zA-Z][_a-zA-Z0-9]{,1023}");
+            setRegExpValidator(QLatin1String("[_a-zA-Z][_a-zA-Z0-9]{,1023}"));
              break;
         case ValidationObjectNameScope:
-            setRegExpValidator("[_a-zA-Z:][_a-zA-Z0-9:]{,1023}");
+            setRegExpValidator(QLatin1String("[_a-zA-Z:][_a-zA-Z0-9:]{,1023}"));
             break;
         }
 
@@ -203,13 +203,13 @@ namespace qdesigner_internal {
             return s;
 
         QString rc(s);
-        for (int pos = 0; (pos = rc.indexOf('\\',pos)) >= 0 ; ) {
+        for (int pos = 0; (pos = rc.indexOf(QLatin1Char('\\'),pos)) >= 0 ; ) {
             // found an escaped character. If not a newline or at end of string, leave as is, else insert '\n'
             const int nextpos = pos + 1;
             if (nextpos  >= rc.length())  // trailing '\\'
                  break;
             // Escaped NewLine
-            if (rc.at(nextpos) ==  QChar('n'))
+            if (rc.at(nextpos) ==  QChar(QLatin1Char('n')))
                  rc[nextpos] =  NewLineChar;
             // Remove escape, go past escaped
             rc.remove(pos,1);

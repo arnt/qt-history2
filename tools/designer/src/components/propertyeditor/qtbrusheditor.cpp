@@ -305,9 +305,9 @@ QtBrushEditor::QtBrushEditor(QWidget *parent)
     connect(d_ptr->m_ui.removeButton, SIGNAL(clicked()),
                 this, SLOT(slotRemoveClicked()));
 
-    d_ptr->m_ui.applyButton->setIcon(QIcon(":/qtgradienteditor/images/up.png"));
-    d_ptr->m_ui.addToCustomButton->setIcon(QIcon(":/qtgradienteditor/images/down.png"));
-    d_ptr->m_ui.removeButton->setIcon(QIcon(":/qtgradienteditor/images/editdelete.png"));
+    d_ptr->m_ui.applyButton->setIcon(QIcon(QLatin1String(":/qtgradienteditor/images/up.png")));
+    d_ptr->m_ui.addToCustomButton->setIcon(QIcon(QLatin1String(":/qtgradienteditor/images/down.png")));
+    d_ptr->m_ui.removeButton->setIcon(QIcon(QLatin1String(":/qtgradienteditor/images/editdelete.png")));
 }
 
 QtBrushEditor::~QtBrushEditor()

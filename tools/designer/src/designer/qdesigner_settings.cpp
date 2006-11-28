@@ -197,8 +197,8 @@ void QDesignerSettings::setMainWindowState(const QByteArray &mainWindowState)
 
 void QDesignerSettings::clearBackup()
 {
-    remove("backup/fileListOrg");
-    remove("backup/fileListBak");
+    remove(QLatin1String("backup/fileListOrg"));
+    remove(QLatin1String("backup/fileListBak"));
 }
 
 void QDesignerSettings::setBackup(const QMap<QString, QString> &map)
