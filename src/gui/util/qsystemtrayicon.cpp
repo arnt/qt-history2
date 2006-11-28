@@ -50,7 +50,8 @@
     \o All supported versions of Windows.
     \o All window managers for X11 that implement the \l{freedesktop.org} system
        tray specification, including recent versions of KDE and GNOME.
-    \o Mac OS X, with the exception of showMessage()
+    \o All supported version of Mac OS X. QSystemTrayIcon::showMessage() requires 
+       Growl to display messages.
     \endlist
 
     To check whether a system tray is present on the user's desktop,
