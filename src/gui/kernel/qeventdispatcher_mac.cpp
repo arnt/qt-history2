@@ -315,6 +315,7 @@ void QEventDispatcherMac::registerSocketNotifier(QSocketNotifier *notifier)
         // Add CFSocket to runloop.
         if(!(socketInfo->runloop = qt_mac_add_socket_to_runloop(socketInfo->socket))) {
             qWarning("QEventDispatcherMac::registerSocketNotifier: Failed to add CFSocket to runloop");
+            CFSocketInvalidate(socketInfo->socket);
             CFRelease(socketInfo->socket);
             return;
         }
@@ -388,6 +389,7 @@ void QEventDispatcherMac::unregisterSocketNotifier(QSocketNotifier *notifier)
             qt_mac_remove_socket_from_runloop(socketInfo->socket, socketInfo->runloop);
         CFRunLoopSourceInvalidate(socketInfo->runloop);
         CFRelease(socketInfo->runloop);
+        CFSocketInvalidate(socketInfo->socket);
         CFRelease(socketInfo->socket);
         delete socketInfo;
         d->macSockets.remove(nativeSocket);
@@ -609,6 +611,7 @@ QEventDispatcherMac::~QEventDispatcherMac()
             qt_mac_remove_socket_from_runloop(socketInfo->socket, socketInfo->runloop);
             CFRunLoopSourceInvalidate(socketInfo->runloop);
             CFRelease(socketInfo->runloop);
+            CFSocketInvalidate(socketInfo->socket);
             CFRelease(socketInfo->socket);
         }
     }
