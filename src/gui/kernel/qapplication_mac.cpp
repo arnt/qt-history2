@@ -1590,6 +1590,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         if(widget && app_do_modal && !qt_try_modal(widget, event)) {
             if(ekind == kEventMouseDown && qt_mac_is_macsheet(QApplication::activeModalWidget()))
                 QApplication::activeModalWidget()->parentWidget()->activateWindow(); //sheets have a parent
+            handled_event = false;
             break;
         }
 
@@ -1693,9 +1694,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         case kEventMouseDragged:
         case kEventMouseMoved: {
             // If we are in popup mode, widget will point to the current popup no matter
-            // where the mouse cursor is. In that case find out if the mouse cursor is 
+            // where the mouse cursor is. In that case find out if the mouse cursor is
             // really over the popup in order to send correct enter / leave envents.
-            QWidget * const enterLeaveWidget = app->d_func()->inPopupMode() ? 
+            QWidget * const enterLeaveWidget = app->d_func()->inPopupMode() ?
                     QApplication::widgetAt(where.h, where.v) :  static_cast<QWidget*>(widget);
 
             if((QWidget *)qt_mouseover != enterLeaveWidget || inNonClientArea) {
