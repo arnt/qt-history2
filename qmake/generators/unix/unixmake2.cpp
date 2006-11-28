@@ -1174,8 +1174,13 @@ UnixMakefileGenerator::libtoolFileName()
     if(dot != -1)
         ret = ret.left(dot);
     ret += Option::libtool_ext;
-    if(!project->isEmpty("DESTDIR")) {
-        ret.prepend(var("DESTDIR"));
+    QString destdir;
+    if(!project->isEmpty("QMAKE_LIBDIR_DESTDIR"))
+        destdir = project->first("QMAKE_LIBDIR_DESTDIR");
+    else if(!project->isEmpty("DESTDIR"))
+        destdir = project->first("DESTDIR");
+    if(!destdir.isEmpty()) {
+        ret.prepend(destdir);
         ret = Option::fixPathToLocalOS(fileFixify(ret, qmake_getpwd(), Option::output_dir));
     }
     return ret;
@@ -1265,8 +1270,13 @@ UnixMakefileGenerator::pkgConfigFileName()
     if(dot != -1)
         ret = ret.left(dot);
     ret += Option::pkgcfg_ext;
-    if(!project->isEmpty("DESTDIR")) {
-        ret.prepend(var("DESTDIR"));
+    QString destdir;
+    if(!project->isEmpty("QMAKE_PKGCONFIG_DESTDIR"))
+        destdir = project->first("QMAKE_PKGCONFIG_DESTDIR");
+    else if(!project->isEmpty("DESTDIR"))
+        destdir = project->first("DESTDIR");
+    if(!destdir.isEmpty()) {
+        ret.prepend(destdir);
         ret = Option::fixPathToLocalOS(fileFixify(ret, qmake_getpwd(), Option::output_dir));
     }
     return ret;

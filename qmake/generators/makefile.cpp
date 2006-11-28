@@ -194,8 +194,8 @@ MakefileGenerator::initOutPaths()
     QString currentDir = qmake_getpwd(); //just to go back to
 
     //some builtin directories
-    QString dirs[] = { QString("OBJECTS_DIR"), QString("DESTDIR"),
-                       QString("SUBLIBS_DIR"), QString("DLLDESTDIR"),
+    QString dirs[] = { QString("OBJECTS_DIR"), QString("DESTDIR"), QString("QMAKE_PKGCONFIG_DESTDIR"),
+                       QString("SUBLIBS_DIR"), QString("DLLDESTDIR"), QString("QMAKE_LIBTOOL_DESTDIR"),
                        QString("PRECOMPILED_DIR"), QString() };
     for(int x = 0; true; x++) {
         if(dirs[x].isNull())
