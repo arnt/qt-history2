@@ -16,6 +16,7 @@
 #include "stringlisteditorbutton.h"
 #include "defs.h"
 #include "qlonglongvalidator.h"
+#include "qtcolorbutton.h"
 
 #include <qdesigner_utils_p.h>
 #include <textpropertyeditor_p.h>
@@ -687,6 +688,29 @@ QVariant ColorProperty::decoration() const
     QPixmap pix(16, 16);
     pix.fill(qvariant_cast<QColor>(value()));
     return qVariantFromValue(pix);
+}
+
+QWidget *ColorProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
+{
+    QtColorButton *button = new QtColorButton(parent);
+    QObject::connect(button, SIGNAL(colorChanged(const QColor &)), target, receiver);
+    return button;
+}
+
+void ColorProperty::updateEditorContents(QWidget *editor)
+{
+    QtColorButton *button = qobject_cast<QtColorButton *>(editor);
+    if (!button)
+        return;
+    button->setColor(qvariant_cast<QColor>(value()));
+}
+
+void ColorProperty::updateValue(QWidget *editor)
+{
+    QtColorButton *button = qobject_cast<QtColorButton *>(editor);
+    if (!button)
+        return;
+    setValue(qVariantFromValue(button->color()));
 }
 
 // -------------------------------------------------------------------------

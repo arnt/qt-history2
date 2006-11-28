@@ -491,6 +491,10 @@ public:
     QVariant decoration() const;
 
     QString toString() const { return QLatin1String("  ") + AbstractPropertyGroup::toString(); } // ### temp hack remove me!!
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
+    void updateEditorContents(QWidget *editor);
+    void updateValue(QWidget *editor);
+
 };
 
 class QT_PROPERTYEDITOR_EXPORT FontProperty: public AbstractPropertyGroup
