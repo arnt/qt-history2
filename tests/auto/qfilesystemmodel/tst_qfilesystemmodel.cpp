@@ -198,9 +198,11 @@ void tst_QFileSystemModel::iconProvider()
 bool tst_QFileSystemModel::createFiles(const QString &test_path, const QStringList &initial_files, const QStringList &initial_dirs, const QString &dir)
 {
     QDir baseDir(dir);
-    if (!baseDir.mkdir(test_path) && false) {
-        qDebug() << "failed to create dir" << test_path;
-        return false;
+    if (!baseDir.exists(test_path)) {
+        if (!baseDir.mkdir(test_path) && false) {
+            qDebug() << "failed to create dir" << test_path;
+            return false;
+        }
     }
     for (int i = 0; i < initial_dirs.count(); ++i) {
         QDir dir(test_path);
@@ -208,7 +210,7 @@ bool tst_QFileSystemModel::createFiles(const QString &test_path, const QStringLi
     }
     for (int i = 0; i < initial_files.count(); ++i) {
         QFile file(test_path + QDir::separator() + initial_files.at(i));
-        if (!file.open(QIODevice::Append)) {
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Append)) {
             qDebug() << "failed to open file" << initial_files.at(i);
             return false;
         }
@@ -389,19 +391,21 @@ void tst_QFileSystemModel::filters_data()
     QTest::addColumn<QStringList>("nameFilters");
     QTest::addColumn<int>("rowCount");
     QTest::newRow("no dirs") << (QStringList() << "a" << "b" << "c") << QStringList() << (int)(QDir::Dirs) << QStringList() << 2;
-    QTest::newRow("one dir - dotdot") << (QStringList() << "a" << "b" << "c") << (QStringList() << "A") << (int)(QDir::Dirs | QDir::NoDotAndDotDot) << QStringList() << 1;
-    QTest::newRow("one dir") << (QStringList() << "a" << "b" << "c") << (QStringList() << "A") << (int)(QDir::Dirs) << QStringList() << 3;
+    QTest::newRow("one dir - dotdot") << (QStringList() << "a" << "b" << "c") << (QStringList() << "Z") << (int)(QDir::Dirs | QDir::NoDotAndDotDot) << QStringList() << 1;
+    QTest::newRow("one dir") << (QStringList() << "a" << "b" << "c") << (QStringList() << "Z") << (int)(QDir::Dirs) << QStringList() << 3;
     QTest::newRow("no dir + hidden") << (QStringList() << "a" << "b" << "c") << (QStringList()) << (int)(QDir::Dirs | QDir::Hidden) << QStringList() << 2;
     QTest::newRow("dir+hid+files") << (QStringList() << "a" << "b" << "c") << (QStringList()) <<
                          (int)(QDir::Dirs | QDir::Files | QDir::Hidden) << QStringList() << 5;
     QTest::newRow("dir+file+hid-dot .A") << (QStringList() << "a" << "b" << "c") << (QStringList() << ".A") <<
                          (int)(QDir::Dirs | QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot) << QStringList() << 4;
-    QTest::newRow("dir+files+hid+dot A") << (QStringList() << "a" << "b" << "c") << (QStringList() << "A") <<
-                         (int)(QDir::Dirs | QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot) << (QStringList() << "A") << 2;
-    QTest::newRow("dir+files+hid+dot+cas") << (QStringList() << "a" << "b" << "c") << (QStringList() << "A") <<
-                         (int)(QDir::Dirs | QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot | QDir::CaseSensitive) << (QStringList() << "A") << 1;
-    QTest::newRow("dir+files+hid+dot+cas+alldir") << (QStringList() << "a" << "b" << "c") << (QStringList() << "A") <<
-                         (int)(QDir::Dirs | QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot | QDir::CaseSensitive | QDir::AllDirs) << (QStringList() << "A") << 1;
+    QTest::newRow("dir+files+hid+dot A") << (QStringList() << "a" << "b" << "c") << (QStringList() << "AFolder") <<
+                         (int)(QDir::Dirs | QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot) << (QStringList() << "A*") << 2;
+    QTest::newRow("dir+files+hid+dot+cas1") << (QStringList() << "a" << "b" << "c") << (QStringList() << "Z") <<
+                         (int)(QDir::Dirs | QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot | QDir::CaseSensitive) << (QStringList() << "Z") << 1;
+    QTest::newRow("dir+files+hid+dot+cas2") << (QStringList() << "a" << "b" << "c") << (QStringList() << "Z") <<
+                         (int)(QDir::Dirs | QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot | QDir::CaseSensitive) << (QStringList() << "a") << 1;
+    QTest::newRow("dir+files+hid+dot+cas+alldir") << (QStringList() << "a" << "b" << "c") << (QStringList() << "Z") <<
+                         (int)(QDir::Dirs | QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot | QDir::CaseSensitive | QDir::AllDirs) << (QStringList() << "Z") << 1;
 }
 
 void tst_QFileSystemModel::filters()
@@ -441,6 +445,7 @@ void tst_QFileSystemModel::filters()
         QString fileName1 = (tmp + QDir::separator() + files.at(0));
         QString fileName2 = (tmp + QDir::separator() + files.at(1));
         QString fileName3 = (tmp + QDir::separator() + files.at(2));
+        QFile::Permissions originalPermissions = QFile::permissions(fileName1);
         QVERIFY(QFile::setPermissions(fileName1, QFile::WriteOwner));
         QVERIFY(QFile::setPermissions(fileName2, QFile::ReadOwner));
         QVERIFY(QFile::setPermissions(fileName3, QFile::ExeOwner));
@@ -455,6 +460,11 @@ void tst_QFileSystemModel::filters()
         model->setFilter((QDir::Executable));
         QTest::qWait(WAITTIME);
         QCOMPARE(model->rowCount(root), 1);
+
+        // reset permissions
+        QVERIFY(QFile::setPermissions(fileName1, originalPermissions));
+        QVERIFY(QFile::setPermissions(fileName2, originalPermissions));
+        QVERIFY(QFile::setPermissions(fileName3, originalPermissions));
     }
 }
 #endif
