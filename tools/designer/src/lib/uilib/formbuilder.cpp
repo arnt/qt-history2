@@ -460,8 +460,12 @@ void QFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &proper
             // save the buddy and continue
             extraInfo(this).addBuddy(qobject_cast<QLabel*>(o), v.toString());
         } else if (!qstrcmp("QFrame", o->metaObject()->className ()) && p->attributeName() == QLatin1String("orientation")) {
-            // ### special-casing for Line (QFrame) -- fix for 4.2
+            // ### special-casing for Line (QFrame) -- try to fix me
             o->setProperty("frameShape", v); // v is of QFrame::Shape enum
+        } else if (isQ3GroupBoxMarginProperty(o, p)) {
+            // set margin on internal layout, no margin on child layout
+            o->parent()->setProperty("margin", v);
+            o->setProperty("margin", 0);
         } else {
             o->setProperty(p->attributeName().toUtf8(), v);
         }

@@ -176,6 +176,7 @@ protected:
 //
 
     static QMetaEnum toolBarAreaMetaEnum();
+    static bool isQ3GroupBoxMarginProperty(QObject *o, DomProperty *p);
 
 //
 //  Icon/pixmap stuff

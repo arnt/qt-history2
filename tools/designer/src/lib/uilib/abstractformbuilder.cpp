@@ -2415,6 +2415,7 @@ void QAbstractFormBuilder::reset()
     m_defaultMargin = INT_MIN;
     m_defaultSpacing = INT_MIN;
 }
+
 /*!
     \internal
     Access meta enumeration for Qt::ToolBarArea
@@ -2423,6 +2424,21 @@ void QAbstractFormBuilder::reset()
 QMetaEnum QAbstractFormBuilder::toolBarAreaMetaEnum()
 {
     return metaEnum<QAbstractFormBuilderGadget>("toolBarArea");
+}
+
+/*!
+    \internal
+    Checks if we are dealing with the margin of (the layout inside) a Q3GroupBox.
+*/
+bool QAbstractFormBuilder::isQ3GroupBoxMarginProperty(QObject *o, DomProperty *p)
+{
+    if (p->attributeName() != QLatin1String("margin"))
+        return false;
+    QObject *par = o->parent();
+    if (! qobject_cast<QVBoxLayout*>(par))
+        return false;
+    par = par->parent();
+    return par && par->inherits("Q3GroupBox");
 }
 
 namespace {
