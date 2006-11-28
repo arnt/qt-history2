@@ -12,12 +12,14 @@
 ****************************************************************************/
 
 #include "qsidebar_p.h"
+#include "qfilesystemmodel_p.h"
 
 #include <qaction.h>
 #include <qurl.h>
 #include <qmenu.h>
 #include <qmimedata.h>
-#include "qfilesystemmodel_p.h"
+#include <qevent.h>
+#include <qfileiconprovider.h>
 #include <qdebug.h>
 
 QSidebar::QSidebar(QFileSystemModel *model, const QList<QUrl> &newUrls, QWidget *parent) : QListWidget(parent), fileSystemModel(model)
@@ -57,6 +59,24 @@ QMimeData *QSidebar::mimeData ( const QList<QListWidgetItem *> items ) const
     QMimeData *data = new QMimeData();
     data->setUrls(list);
     return data;
+}
+
+/*!
+    \ Don't allow drops from files.
+*/
+void QSidebar::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (!event->mimeData()->formats().contains(mimeTypes().first()))
+        return;
+
+    const QList<QUrl> list = event->mimeData()->urls();
+    for (int i = 0; i < list.count(); ++i) {
+        QModelIndex idx = fileSystemModel->index(list.at(0).toLocalFile());
+        if (!fileSystemModel->isDir(idx))
+            return;
+    }
+
+    QListWidget::dragEnterEvent(event);
 }
 
 /*!
@@ -128,14 +148,18 @@ void QSidebar::setUrl(const QModelIndex &index, const QUrl &url)
         model()->setData(index, fileSystemModel->myComputer());
         model()->setData(index, fileSystemModel->myComputer(Qt::DecorationRole), Qt::DecorationRole);
     } else {
-        if (index.data() != dirIndex.data()) {
-            model()->setData(index, dirIndex.data().toString());
+        QString newName = dirIndex.data().toString();
+        QIcon newIcon = qvariant_cast<QIcon>(dirIndex.data(Qt::DecorationRole));
+        if (!dirIndex.isValid()) {
+            newIcon = fileSystemModel->iconProvider()->icon(QFileIconProvider::Folder);
+            newName = QFileInfo(url.toLocalFile()).fileName();
         }
-        QIcon icon1 = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
-        QIcon icon2 = qvariant_cast<QIcon>(dirIndex.data(Qt::DecorationRole));
-        if (icon1.serialNumber() != icon2.serialNumber()) {
-            model()->setData(index, dirIndex.data(Qt::DecorationRole), Qt::DecorationRole);
-        }
+
+        if (index.data().toString() != newName)
+            model()->setData(index, newName);
+        QIcon oldIcon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
+        if (oldIcon.serialNumber() != newIcon.serialNumber())
+            model()->setData(index, newIcon, Qt::DecorationRole);
     }
 }
 

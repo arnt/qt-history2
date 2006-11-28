@@ -792,14 +792,18 @@ void QFileDialogPrivate::setUrl(const QModelIndex &index, const QUrl &url)
         lookInCombo->model()->setData(index, model->myComputer());
         lookInCombo->model()->setData(index, model->myComputer(Qt::DecorationRole), Qt::DecorationRole);
     } else {
-        if (index.data() != dirIndex.data()) {
-            lookInCombo->model()->setData(index, model->data(dirIndex).toString());
+        QString newName = dirIndex.data().toString();
+        QIcon newIcon = qvariant_cast<QIcon>(dirIndex.data(Qt::DecorationRole));
+        if (!dirIndex.isValid()) {
+            newIcon = model->iconProvider()->icon(QFileIconProvider::Folder);
+            newName = QFileInfo(url.toLocalFile()).fileName();
         }
+
+        if (index.data().toString() != newName)
+            lookInCombo->model()->setData(index, newName);
         QIcon icon1 = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
-        QIcon icon2 = qvariant_cast<QIcon>(dirIndex.data(Qt::DecorationRole));
-        if (icon1.serialNumber() != icon2.serialNumber()) {
-            lookInCombo->model()->setData(index, model->data(dirIndex, Qt::DecorationRole), Qt::DecorationRole);
-        }
+        if (icon1.serialNumber() != newIcon.serialNumber())
+            lookInCombo->model()->setData(index, newIcon, Qt::DecorationRole);
     }
 }
 

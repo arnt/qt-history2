@@ -48,6 +48,7 @@ protected:
     QMimeData *mimeData ( const QList<QListWidgetItem *> items ) const;
     bool dropMimeData(int index, const QMimeData *data, Qt::DropAction action);
     void setUrl(const QModelIndex &index, const QUrl &url);
+    void dragEnterEvent(QDragEnterEvent *event);
 
 private Q_SLOTS:
     void clicked(const QModelIndex &index);
