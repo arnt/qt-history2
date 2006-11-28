@@ -2771,6 +2771,10 @@ QDomNode QDomNode::removeChild(const QDomNode& oldChild)
     If \a newChild is a QDomDocumentFragment, then the children of the
     fragment are removed from the fragment and appended.
 
+    If \a newChild is a QDomElement and this node is a QDomElement that
+    already has an element node as a child, \a newChild is not added as
+    a child and a null node is returned.
+
     Returns a new reference to \a newChild.
 
     \sa insertBefore() insertAfter() replaceChild() removeChild()
