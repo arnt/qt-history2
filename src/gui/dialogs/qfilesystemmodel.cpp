@@ -923,11 +923,8 @@ QModelIndex QFileSystemModel::setRootPath(const QString &newPath)
 
     QDir newPathDir(newPath);
     bool showDrives = (newPath.isEmpty() || newPath == d->myComputer());
-    if (!showDrives && !newPathDir.exists()) {
-        qWarning("QFileSystemModel::setRootPath(): '%s' does not exist.",
-                newPath.toLocal8Bit().constData());
+    if (!showDrives && !newPathDir.exists())
         return d->index(rootPath());
-    }
 
     // We have a new valid root path
     d->rootDir = newPathDir;
@@ -1390,7 +1387,8 @@ void QFileSystemModelPrivate::resolvedName(const QString &fileName, const QStrin
 /*!
     \internal
 */
-void QFileSystemModelPrivate::init() {
+void QFileSystemModelPrivate::init()
+{
     Q_Q(QFileSystemModel);
     qRegisterMetaType<QList<QPair<QString,QExtendedInformation> > >("QList<QPair<QString,QExtendedInformation> >");
     q->connect(&fileInfoGatherer, SIGNAL(newListOfFiles(const QString &, const QStringList &)),
