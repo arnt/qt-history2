@@ -18,9 +18,9 @@
 #include <qapplication.h>
 #include <qdir.h>
 #if defined(Q_WS_WIN)
+#define _WIN32_IE 0x0500
 #include <private/qpixmap_p.h>
 #include <qpixmapcache.h>
-#include <qsettings.h>
 #elif defined(Q_WS_MAC)
 #include <private/qt_mac_p.h>
 #endif
@@ -50,7 +50,7 @@ public:
     QFileIconProviderPrivate();
     QIcon getIcon(QStyle::StandardPixmap name) const;
 #ifdef Q_WS_WIN
-    QPixmap iconPixmap(const QFileInfo &fi) const;
+    QIcon getWinIcon(const QFileInfo &fi) const;
 #elif defined(Q_WS_MAC)
     QIcon getMacIcon(const QFileInfo &fi) const;
 #endif
@@ -173,118 +173,42 @@ QIcon QFileIconProvider::icon(IconType type) const
 }
 
 #ifdef Q_WS_WIN
-QPixmap QFileIconProviderPrivate::iconPixmap(const QFileInfo &fileInfo) const
+QIcon QFileIconProviderPrivate::getWinIcon(const QFileInfo &fileInfo) const
 {
-    if (fileInfo.isSymLink()) {
-        QString real = fileInfo.readLink();
-        QFileInfo target(real);
-        return iconPixmap(target);
-    }
-
+    QIcon retIcon;
     QString fileExtension = fileInfo.extension(FALSE).upper();
     fileExtension.prepend( "." );
-    QString key = "qt_" + fileExtension;
+    
+    QString key;
+    if (fileInfo.isFile() && !fileInfo.isExecutable() && !fileInfo.isSymLink())
+        key = "qt_" + fileExtension;
+    
     QPixmap pixmap;
-    
-    if (fileExtension != ".EXE") {
-        QPixmapCache::find(key, pixmap);
-        if (!pixmap.isNull())
-            return pixmap;
-    
-        QSettings regSettings("HKEY_CLASSES_ROOT", QSettings::NativeFormat);
-        QString iconType = regSettings.value(fileExtension + "/.").toString();
-        QString iconRegKey;
+    QPixmapCache::find(key, pixmap);
 
-        if (iconType.isEmpty()){
-            QPixmapCache::insert(key, pixmap);
-            return pixmap;
-        } 
-        else {
-            iconRegKey = regSettings.value(iconType + "/DefaultIcon/.").toString();        
-            if (iconRegKey.isEmpty()) {
+    if (!pixmap.isNull()) {
+        retIcon.addPixmap(pixmap);
+        return retIcon;
+    }
+    
+    static HRESULT comInit = CoInitialize(NULL);
+    SHFILEINFO info;
+    unsigned long val = 0;
+    const TCHAR *a = fileInfo.filePath().ucs2();
+    val = SHGetFileInfo(QDir::toNativeSeparators(fileInfo.filePath()).ucs2(), 0, &info, 
+                        sizeof(SHFILEINFO), SHGFI_ICON|SHGFI_SMALLICON|SHGFI_SYSICONINDEX|SHGFI_ADDOVERLAYS);
+    if (val) {
+        pixmap = convertHIconToPixmap(info.hIcon);
+        if (!pixmap.isNull()) {
+            retIcon.addPixmap(pixmap);
+            if (!key.isEmpty())
                 QPixmapCache::insert(key, pixmap);
-                return pixmap;
-            }
-        }
-        
-        QStringList list = QStringList::split(",", iconRegKey);
-        HICON iconHandle;
-        UINT iconCount = 0;
-        if (list.count() >= 2) { // don't just assume that the list has two entries
-            QString filepath = list[0].stripWhiteSpace();
-            if (!filepath.isEmpty()) {
-                if (filepath.find("%1") != -1) {
-                    filepath = filepath.arg(fileInfo.filePath());
-                    if (fileExtension == ".DLL") {
-             	        QPixmapCache::insert(key, pixmap);
-                        return pixmap;
-                    }
-                }
-                if (filepath[0] == '"' && filepath[(int)filepath.length() - 1] == '"')
-                    filepath = filepath.mid( 1, filepath.length() - 2 );
-#ifndef Q_OS_TEMP
-                QT_WA( {
-                iconCount = ExtractIconEx((TCHAR*)filepath.ucs2(), list[1].stripWhiteSpace().toInt(), 
-                                     0, &iconHandle, 1 );
-                } , {
-                iconCount = ExtractIconExA(filepath.local8Bit(), list[1].stripWhiteSpace().toInt(), 
-                                     0, &iconHandle, 1 );
-                } );
-#else
-                iconCount = (UINT)ExtractIconEx((TCHAR*)filepath.ucs2(), 
-                                          list[ 1 ].stripWhiteSpace().toInt(), 0, &iconHandle, 1 );
-#endif
-            }
-        }
-        
-        if (iconCount > 0) 
-            pixmap = convertHIconToPixmap(iconHandle);
-        QPixmapCache::insert(key, pixmap);
-        return pixmap;
-    } 
-    else {
-        //handle .exe files
-        HICON iconHandle;
-        UINT iconCount = 0;
-        if (!fileInfo.absFilePath().isEmpty()) {
-#ifndef Q_OS_TEMP
-	    QT_WA( {
-	    iconCount = ExtractIconEx((TCHAR*)fileInfo.absFilePath().ucs2(), -1, 0, 0, 1);
-	    } , {
-	    iconCount = ExtractIconExA(fileInfo.absFilePath().local8Bit(), -1, 0, 0, 1);
-	    } );
-
-	    if (iconCount > 0) {
-		QT_WA( {
-                iconCount = ExtractIconEx((TCHAR*)fileInfo.absFilePath().ucs2(), 
-                                           iconCount - 1, 0, &iconHandle, 1);
-		} , {
-                iconCount = ExtractIconExA(fileInfo.absFilePath().local8Bit(), 
-                                           iconCount - 1, 0, &iconHandle, 1);
-		} );
-	    }
-#else
-	    iconCount = (UINT)ExtractIconEx((TCHAR*)fileInfo.absFilePath().ucs2(), -1, 0, 0, 1 );
-            if (iconCount > 0)
-                iconCount = (UINT)ExtractIconEx((TCHAR*)fileInfo.absFilePath().ucs2(), 
-		                                iconCount - 1, 0, &iconHandle, 1);
-#endif
-	}
-	if (iconCount > 0) {
-	    pixmap = convertHIconToPixmap(iconHandle);
-        }
-        else {
-            //Use default application icon instead
-            QPixmapCache::find("qt_defaultexe", pixmap);
-            const int DefaultAppIconIndex = 3;
-            if (pixmap.isNull()) {
-                pixmap = loadIconFromShell32(DefaultAppIconIndex , 16);
-                QPixmapCache::insert("qt_defaultexe", pixmap);
-            }
         }
     }
-    return pixmap;
+    DestroyIcon(info.hIcon);
+    return retIcon;
 }
+
 #elif defined(Q_WS_MAC)
 QIcon QFileIconProviderPrivate::getMacIcon(const QFileInfo &fi) const
 {
@@ -323,6 +247,10 @@ QIcon QFileIconProvider::icon(const QFileInfo &info) const
     QIcon retIcon = d->getMacIcon(info);
     if (!retIcon.isNull())
         return retIcon;
+#elif defined Q_WS_WIN
+    QIcon icon = d->getWinIcon(info);
+    if (!icon.isNull())
+        return icon;
 #endif
     if (info.isRoot())
 #ifdef Q_WS_WIN
@@ -350,34 +278,11 @@ QIcon QFileIconProvider::icon(const QFileInfo &info) const
 #else
     return d->getIcon(QStyle::SP_DriveHDIcon);
 #endif
-
-#ifdef Q_WS_WIN
-    if (info.isFile()) {
-        QIcon icon;
-        if (info.isSymLink()) {
-            QPixmap iconPixmap = d->iconPixmap(info);
-            if (!iconPixmap.isNull()) {
-                QPainter painter(&iconPixmap);
-                QPixmap link = loadIconFromShell32(30, 16);
-                painter.drawPixmap(0, 0, 16, 16, link);
-                icon.addPixmap(iconPixmap);
-                return icon;
-            }
-            return d->getIcon(QStyle::SP_FileLinkIcon);
-
-        } else {
-            icon.addPixmap(d->iconPixmap(info));
-            if (!icon.isNull())
-                return icon;
-            return d->getIcon(QStyle::SP_FileIcon);
-        }
-#else
     if (info.isFile())
         if (info.isSymLink())
             return d->getIcon(QStyle::SP_FileLinkIcon);
         else {
             return d->getIcon(QStyle::SP_FileIcon);
-#endif
   }
   if (info.isDir()) {
     if (info.isSymLink()) {
