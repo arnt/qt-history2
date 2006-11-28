@@ -346,6 +346,14 @@ static bool qt_x11_clipboard_event_filter(void *message, long *)
     return false;
 }
 
+static Bool checkForClipboardEvents(Display *, XEvent *e, XPointer)
+{
+    return ((e->type == SelectionRequest && (e->xselectionrequest.selection == XA_PRIMARY
+                                             || e->xselectionrequest.selection == ATOM(CLIPBOARD)))
+            || (e->type == SelectionClear && (e->xselectionclear.selection == XA_PRIMARY
+                                              || e->xselectionclear.selection == ATOM(CLIPBOARD))));
+}
+
 bool QX11Data::clipboardWaitForEvent(Window win, int type, XEvent *event, int timeout)
 {
     QTime started = QTime::currentTime();
@@ -399,6 +407,11 @@ bool QX11Data::clipboardWaitForEvent(Window win, int type, XEvent *event, int ti
         do {
             if (XCheckTypedWindowEvent(X11->display,win,type,event))
                 return true;
+
+            // process other clipboard events, since someone is probably requesting data from us
+            XEvent e;
+            if (XCheckIfEvent(X11->display, &e, checkForClipboardEvents, 0))
+                qApp->x11ProcessEvent(&e);
 
             now = QTime::currentTime();
             if ( started > now )                        // crossed midnight
