@@ -412,6 +412,17 @@ void WriteInitialization::acceptLayout(DomLayout *node)
 
     if (isGroupBox) {
         m_output << m_option.indent << varName << "->setAlignment(Qt::AlignTop);\n";
+        if (properties.contains(QLatin1String("margin"))) {
+            DomProperty *p = properties.value(QLatin1String("margin"));
+            Q_ASSERT(p != 0);
+            layoutProperties.removeAt(layoutProperties.indexOf(p));
+        }
+
+        if (properties.contains(QLatin1String("spacing"))) {
+            DomProperty *p = properties.value(QLatin1String("spacing"));
+            Q_ASSERT(p != 0);
+            layoutProperties.removeAt(layoutProperties.indexOf(p));
+        }
     } else {
         int margin = m_defaultMargin;
         int spacing = m_defaultSpacing;
