@@ -125,6 +125,8 @@ private slots:
     void lastInsertId();
     void lastQuery_data() { generic_data(); }
     void lastQuery();
+    void bindWithDoubleColonCastOperator_data() { generic_data(); }
+    void bindWithDoubleColonCastOperator();
 
 private:
     // returns all database connections
@@ -2109,6 +2111,37 @@ void tst_QSqlQuery::lastQuery()
     QVERIFY2(q.exec(sql), tst_Databases::printError(q.lastError()));
     QCOMPARE(q.lastQuery(), sql);
     QCOMPARE(q.executedQuery(), sql);
+}
+
+void tst_QSqlQuery::bindWithDoubleColonCastOperator()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    // Only PostgreSQL support the double-colon cast operator
+    if (!db.driverName().startsWith("QPSQL")) {
+        QSKIP("Test requires PostgreSQL", SkipSingle);
+        return;
+    }
+
+    QString tablename = qTableName("bindtest");
+    QSqlQuery q(db);
+
+    tst_Databases::safeDropTable(db, tablename);
+    QVERIFY_SQL(q, q.exec("create table " + tablename + " (id1 int, id2 int, id3 int, fld1 int, fld2 int)"));
+    QVERIFY_SQL(q, q.exec("insert into " + tablename + " values (1, 2, 3, 10, 5)"));
+
+    QVERIFY2(q.prepare("select sum((fld1 - fld2)::int) from " + tablename + " where id1 = :myid1 and id2 =:myid2 and id3=:myid3"), qPrintable(q.lastError().text()));
+    q.bindValue(":myid1", 1);
+    q.bindValue(":myid2", 2);
+    q.bindValue(":myid3", 3);
+    
+    QVERIFY2(q.exec(), qPrintable(q.lastError().text()));
+    QVERIFY2(q.next(), qPrintable(q.lastError().text()));
+    QCOMPARE(q.executedQuery(), QString("select sum((fld1 - fld2)::int) from " + tablename + " where id1 = 1 and id2 =2 and id3=3"));
+
+    tst_Databases::safeDropTable(db, tablename);
 }
 
 QTEST_MAIN(tst_QSqlQuery)

@@ -122,7 +122,7 @@ QString QSqlResultPrivate::positionalToNamedBinding()
 
 QString QSqlResultPrivate::namedToPositionalBinding()
 {
-    QRegExp rx(QLatin1String("'[^']*'|:([a-zA-Z0-9_]+)"));
+    QRegExp rx(QLatin1String("'[^']*'|[^:](:[a-zA-Z0-9_]+)"));
     QString q = sql;
     int i = 0, cnt = -1;
     while ((i = rx.indexIn(q, i)) != -1) {
@@ -131,8 +131,8 @@ QString QSqlResultPrivate::namedToPositionalBinding()
         } else {
             // record the index of the placeholder - needed
             // for emulating named bindings with ODBC
-            indexes[rx.cap(0)]= ++cnt;
-            q.replace(i, rx.matchedLength(), QLatin1String("?"));
+            indexes[rx.cap(1)]= ++cnt;
+            q.replace(i + 1, rx.matchedLength() - 1, QLatin1String("?"));
             ++i;
         }
     }
@@ -536,11 +536,12 @@ bool QSqlResult::savePrepare(const QString& query)
 */
 bool QSqlResult::prepare(const QString& query)
 {
-    QRegExp rx(QLatin1String("'[^']*'|:([a-zA-Z0-9_]+)"));
+    QRegExp rx(QLatin1String("'[^']*'|[^:](:[a-zA-Z0-9_]+)"));
+                              
     int i = 0;
     while ((i = rx.indexIn(query, i)) != -1) {
         if (!rx.cap(1).isEmpty())
-            d->holders.append(QHolder(rx.cap(0), i));
+            d->holders.append(QHolder(rx.cap(1), i + 1));
         i += rx.matchedLength();
     }
     d->sql = query;
