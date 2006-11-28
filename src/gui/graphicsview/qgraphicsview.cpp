@@ -174,7 +174,6 @@
 #include <QtGui/qtransform.h>
 #include <QtGui/qmatrix.h>
 #include <QtGui/qpainter.h>
-#include <QtGui/qrubberband.h>
 #include <QtGui/qscrollbar.h>
 #include <QtGui/qstyleoption.h>
 #include <private/qabstractscrollarea_p.h>
@@ -228,7 +227,8 @@ public:
 
     QGraphicsScene *scene;
 #ifndef QT_NO_RUBBERBAND
-    QRubberBand *rubberBand;
+    QRect rubberBandRect;
+    QRegion rubberBandRegion(const QWidget *widget, const QRect &rect) const;
     bool rubberBanding;
 #endif
     bool handScrolling;
@@ -265,7 +265,7 @@ QGraphicsViewPrivate::QGraphicsViewPrivate()
       transformationAnchor(QGraphicsView::AnchorViewCenter), resizeAnchor(QGraphicsView::NoAnchor),
       scene(0),
 #ifndef QT_NO_RUBBERBAND
-      rubberBand(0), rubberBanding(false),
+      rubberBanding(false),
 #endif
       handScrolling(false), cacheMode(0), mustResizeBackgroundPixmap(true),
 #ifndef QT_NO_CURSOR
@@ -469,6 +469,27 @@ void QGraphicsViewPrivate::storeMouseEvent(QMouseEvent *event)
     lastMouseEvent = QMouseEvent(QEvent::MouseMove, event->pos(), event->globalPos(),
                                  event->button(), event->buttons(), event->modifiers());
 }
+
+/*!
+    \internal
+*/
+#ifndef QT_NO_RUBBERBAND
+QRegion QGraphicsViewPrivate::rubberBandRegion(const QWidget *widget, const QRect &rect) const
+{
+    QStyleHintReturnMask mask;
+    QStyleOptionRubberBand option;
+    option.initFrom(widget);
+    option.rect = rect;
+    option.opaque = false;
+    option.shape = QRubberBand::Rectangle;
+
+    QRegion tmp;
+    tmp += rect;
+    if (widget->style()->styleHint(QStyle::SH_RubberBand_Mask, &option, widget, &mask))
+        tmp &= mask.region;
+    return tmp;
+}
+#endif
 
 /*!
     \internal
@@ -2171,6 +2192,7 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
     if (d->dragMode == QGraphicsView::RubberBandDrag) {
         if (d->sceneInteractionAllowed) {
             d->rubberBanding = true;
+            d->rubberBandRect = QRect();
             if (d->scene)
                 d->scene->clearSelection();
         }
@@ -2196,23 +2218,27 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
     if (d->dragMode == QGraphicsView::RubberBandDrag && d->sceneInteractionAllowed) {
         d->storeMouseEvent(event);
         if (d->rubberBanding) {
-            // Invoke El Rubber
-            if (!d->rubberBand) {
-                if ((d->mousePressViewPoint - event->pos()).manhattanLength()
-                    < QApplication::startDragDistance()) {
-                    return;
-                }
-
-                d->rubberBand = new QRubberBand(QRubberBand::Rectangle, viewport());
+            // Check for enough drag distance
+            if ((d->mousePressViewPoint - event->pos()).manhattanLength()
+                < QApplication::startDragDistance()) {
+                return;
             }
-            QRect selectionRect = QRect(d->mousePressViewPoint, event->pos()).normalized();
-            d->rubberBand->setGeometry(selectionRect);
+
+            // Update old rubberband
+            if (!d->rubberBandRect.isNull())
+                viewport()->update(d->rubberBandRegion(viewport(), d->rubberBandRect));
+
+            // Update rubberband position
+            d->rubberBandRect = QRect(d->mousePressViewPoint, event->pos()).normalized();
+
+            // Update new rubberband
+            viewport()->update(d->rubberBandRegion(viewport(), d->rubberBandRect));
+
+            // Set the new selection area
             QPainterPath selectionArea;
-            selectionArea.addPolygon(mapToScene(selectionRect));
+            selectionArea.addPolygon(mapToScene(d->rubberBandRect));
             if (d->scene)
                 d->scene->setSelectionArea(selectionArea);
-            if (!d->rubberBand->isVisible())
-                d->rubberBand->show();
             return;
         }
     } else
@@ -2293,9 +2319,7 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 #ifndef QT_NO_RUBBERBAND
     if (d->dragMode == QGraphicsView::RubberBandDrag && d->sceneInteractionAllowed) {
         if (d->rubberBanding) {
-            // Withdraw El Rubber
-            delete d->rubberBand;
-            d->rubberBand = 0;
+            viewport()->update(d->rubberBandRegion(viewport(), d->rubberBandRect));
             d->rubberBanding = false;
             return;
         }
@@ -2381,6 +2405,10 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
 
     // Set up the painter
     QPainter painter(viewport());
+#ifndef QT_NO_RUBBERBAND
+    if (d->rubberBanding && !d->rubberBandRect.isNull())
+        painter.save();
+#endif
     painter.setRenderHint(QPainter::Antialiasing,
                           d->renderHints & QPainter::Antialiasing);
     painter.setRenderHint(QPainter::SmoothPixmapTransform,
@@ -2526,6 +2554,26 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
     int foregroundTime = stopWatch.elapsed() - exposedTime - backgroundTime - itemsTime;
 #endif
 
+
+#ifndef QT_NO_RUBBERBAND
+    // Rubberband
+    if (d->rubberBanding && !d->rubberBandRect.isNull()) {
+        painter.restore();
+        QStyleOptionRubberBand option;
+        option.initFrom(viewport());
+        option.rect = d->rubberBandRect;
+        option.shape = QRubberBand::Rectangle;
+
+        QStyleHintReturnMask mask;
+        if (viewport()->style()->styleHint(QStyle::SH_RubberBand_Mask, &option, viewport(), &mask)) {
+            // painter clipping for masked rubberbands
+            painter.setClipRegion(mask.region, Qt::IntersectClip);
+        }
+
+        viewport()->style()->drawControl(QStyle::CE_RubberBand, &option, &painter, viewport());
+    }
+#endif
+    
     painter.end();
 
 #ifdef QGRAPHICSVIEW_DEBUG
