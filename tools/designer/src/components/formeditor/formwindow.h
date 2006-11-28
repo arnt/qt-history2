@@ -59,7 +59,7 @@ public:
         Restore,
         Highlight
     };
-
+    typedef QList<QWidget*> WidgetList;
 public:
     FormWindow(FormEditor *core, QWidget *parent = 0, Qt::WindowFlags flags = 0);
     virtual ~FormWindow();
@@ -111,7 +111,7 @@ public:
     virtual QPoint grid() const { return m_grid; }
     virtual void setGrid(const QPoint &grid) { m_grid = grid; }
 
-    virtual void simplifySelection(QList<QWidget*> *sel) const;
+    virtual void simplifySelection(WidgetList *sel) const;
 
     virtual void ensureUniqueObjectName(QObject *object);
 
@@ -120,7 +120,6 @@ public:
     bool isMainContainer(const QWidget *w) const;
 
     QWidget *currentWidget() const;
-    void setCurrentWidget(QWidget *currentWidget);
 
     virtual QSize sizeHint() const;
 
@@ -146,7 +145,7 @@ public:
     QList<QWidget *> widgets(QWidget *widget) const;
 
     QWidget *createWidget(DomUI *ui, const QRect &rect, QWidget *target);
-    void deleteWidgets(const QList<QWidget*> &widget_list);
+    void deleteWidgets(const WidgetList &widget_list);
 
     bool isManaged(QWidget *w) const;
 
@@ -254,6 +253,10 @@ private:
     bool handleKeyReleaseEvent(QWidget *widget, QWidget *managedWidget, QKeyEvent *e);
 
     bool isCentralWidget(QWidget *w) const;
+    
+    bool setCurrentWidget(QWidget *currentWidget);
+    bool trySelectWidget(QWidget *w, bool select);
+
 
     BreakLayoutCommand *breakLayoutCommand(QWidget *w);
 
@@ -278,7 +281,6 @@ private:
 private:    
     class Selection {
     public:
-        typedef QList<QWidget*> WidgetList;
         Selection();
         ~Selection();
 
@@ -319,7 +321,7 @@ private:
     QPoint m_rectAnchor;
     QRect m_currRect;
 
-    QList<QWidget*> m_widgets;
+    WidgetList m_widgets;
     QSet<QWidget*> m_insertedWidgets;
 
     Selection m_selection;
