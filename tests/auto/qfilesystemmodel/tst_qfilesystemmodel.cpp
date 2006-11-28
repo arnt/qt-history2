@@ -46,13 +46,13 @@ private slots:
     void dataChanged_data();
     void dataChanged();
 
-#ifdef Q_OS_UNIX
-    // TODO just copy the test out of QDir
     void filters_data();
     void filters();
-#endif
 
     void nameFilters();
+
+    void setData_data();
+    void setData();
 
 protected:
     bool createFiles(const QString &test_path, const QStringList &initial_files, const QStringList &intial_dirs = QStringList(), const QString &baseDir = QDir::temp().absolutePath());
@@ -382,7 +382,6 @@ void tst_QFileSystemModel::dataChanged()
     if (count != 0) QVERIFY(spy.count() >= 1); else QVERIFY(spy.count() == 0);
 }
 
-#ifdef Q_OS_UNIX
 void tst_QFileSystemModel::filters_data()
 {
     QTest::addColumn<QStringList>("files");
@@ -467,7 +466,6 @@ void tst_QFileSystemModel::filters()
         QVERIFY(QFile::setPermissions(fileName3, originalPermissions));
     }
 }
-#endif
 
 void tst_QFileSystemModel::nameFilters()
 {
@@ -490,7 +488,47 @@ void tst_QFileSystemModel::nameFilters()
 
     QCOMPARE(model->rowCount(root), 2);
 }
+void tst_QFileSystemModel::setData_data()
+{
+    QTest::addColumn<QStringList>("files");
+    QTest::addColumn<QString>("oldFileName");
+    QTest::addColumn<QString>("newFileName");
+    QTest::addColumn<bool>("success");
+    QTest::newRow("outside current dir") << (QStringList() << "a" << "b" << "c")
+              << QDir::temp().path() + QDir::separator() + QString("flatdirtest") + QDir::separator() + "a"
+              << QDir::temp().absolutePath() + QDir::separator() + "a"
+              << true;
+    QTest::newRow("in current dir") << (QStringList() << "a" << "b" << "c")
+              << QDir::temp().path() + QDir::separator() + QString("flatdirtest") + QDir::separator() + "a"
+              << QDir::temp().path() + QDir::separator() + QString("flatdirtest") + QDir::separator() + "d"
+              << true;
+}
 
+void tst_QFileSystemModel::setData()
+{
+    QString tmp = QDir::temp().path() + QDir::separator() + QString("flatdirtest");
+    QFETCH(QStringList, files);
+    QFETCH(QString, oldFileName);
+    QFETCH(QString, newFileName);
+    QFETCH(bool, success);
+
+    QVERIFY(createFiles(tmp, files));
+    QModelIndex root = model->setRootPath(tmp);
+    QTest::qWait(WAITTIME);
+    QCOMPARE(model->rowCount(root), 3);
+
+    QModelIndex idx = model->index(oldFileName);
+    QCOMPARE(idx.isValid(), true);
+
+    QCOMPARE(model->setData(idx, newFileName), false);
+
+    model->setReadOnly(false);
+    QCOMPARE(model->setData(idx, newFileName), success);
+    QCOMPARE(QFile::rename(newFileName, oldFileName), true);
+
+    QTest::qWait(WAITTIME);
+    QCOMPARE(model->rowCount(root), 3);
+}
 
 QTEST_MAIN(tst_QFileSystemModel)
 #include "tst_qfilesystemmodel.moc"
