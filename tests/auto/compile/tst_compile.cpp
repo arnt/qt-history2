@@ -12,6 +12,10 @@
 
 #include <algorithm>
 
+#define BASECLASS_NOT_ABSTRACT
+#include "baseclass.h"
+#include "derivedclass.h"
+
 class tst_Compiler : public QObject
 {
 Q_OBJECT
@@ -30,6 +34,7 @@ private slots:
     void stdSortQList();
     void stdSortQVector();
     void templateCallOrder();
+    void virtualFunctionNoLongerPureVirtual();
 };
 
 #if defined(Q_CC_MSVC) && _MSC_VER < 1300
@@ -487,6 +492,23 @@ void tst_Compiler::templateCallOrder()
     callOrderNoCFunc(c);
     QCOMPARE(whatWasCalled, 3);
     whatWasCalled = 0;
+}
+
+// test to see if removing =0 from a pure virtual function is BC
+void tst_Compiler::virtualFunctionNoLongerPureVirtual()
+{
+#ifdef BASECLASS_NOT_ABSTRACT
+    // has a single virtual function, not pure virtual, can call it
+    BaseClass baseClass;
+    baseClass.wasAPureVirtualFunction();
+    // QTest::ignoreMessage(QtWarningMsg, "BaseClass::wasAPureVirtualFunction()");
+#endif
+
+    // DerivedClass inherits from BaseClass, and function is declared
+    // pure virtual, make sure we can still call it
+    DerivedClass derivedClass;
+    derivedClass.wasAPureVirtualFunction();
+    // QTest::ignoreMessage(QtWarningMsg, "DerivedClass::wasAPureVirtualFunction()");
 }
 
 QTEST_APPLESS_MAIN(tst_Compiler)
