@@ -412,6 +412,7 @@ void tst_QRegion::operator_plus_data()
     QTest::addColumn<QRegion>("add");
     QTest::addColumn<QRegion>("expected");
 
+    QTest::newRow("empty 0") << QRegion() << QRegion() << QRegion();
     QTest::newRow("empty 1") << QRegion() << QRegion(QRect(10, 10, 10, 10))
                              << QRegion(QRect(10, 10, 10, 10));
     QTest::newRow("empty 2") << QRegion(QRect(10, 10, 10, 10)) << QRegion()
