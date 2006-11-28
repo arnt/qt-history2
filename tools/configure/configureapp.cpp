@@ -224,11 +224,11 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "ZLIB" ]	    = "auto";
 
     dictionary[ "GIF" ]		    = "auto";
-    dictionary[ "TIFF" ]          = "no";
+    dictionary[ "TIFF" ]            = "no";
     dictionary[ "JPEG" ]	    = "auto";
     dictionary[ "PNG" ]		    = "auto";
     dictionary[ "MNG" ]		    = "auto";
-    dictionary[ "LIBTIFF" ]       = "no";
+    dictionary[ "LIBTIFF" ]         = "no";
     dictionary[ "LIBJPEG" ]	    = "auto";
     dictionary[ "LIBPNG" ]	    = "auto";
     dictionary[ "LIBMNG" ]	    = "auto";
@@ -241,7 +241,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "STYLE_WINDOWS" ]   = "yes";
     dictionary[ "STYLE_WINDOWSXP" ] = "auto";
     dictionary[ "STYLE_PLASTIQUE" ] = "yes";
-    dictionary[ "STYLE_CLEANLOOKS" ] = "yes";
+    dictionary[ "STYLE_CLEANLOOKS" ]= "yes";
     dictionary[ "STYLE_POCKETPC" ]  = "no";
     dictionary[ "STYLE_MOTIF" ]     = "yes";
     dictionary[ "STYLE_CDE" ]	    = "yes";
@@ -389,7 +389,7 @@ void Configure::parseCmdLine()
 	else if( configCmdLine.at(i) == "-no-gif" )
 	    dictionary[ "GIF" ] = "no";
 	else if( configCmdLine.at(i) == "-qt-gif" )
-	    dictionary[ "GIF" ] = "plugin";
+	    dictionary[ "GIF" ] = "auto";
 
         else if( configCmdLine.at(i) == "-no-tiff" ) {
               dictionary[ "TIFF"] = "no";
@@ -1042,7 +1042,7 @@ bool Configure::displayHelp()
         desc("ZLIB", "system",  "-system-zlib",         "Use zlib from the operating system.\nSee http://www.gzip.org/zlib\n");
 
         desc("GIF", "no",       "-no-gif",              "Do not compile the plugin for GIF reading support.");
-        desc("GIF", "plugin",   "-qt-gif",              "Compile the plugin for GIF reading support.\nSee also src/plugins/imageformats/gif/qgifhandler.h\n");
+        desc("GIF", "auto",     "-qt-gif",              "Compile the plugin for GIF reading support.\nSee also src/plugins/imageformats/gif/qgifhandler.h\n");
 
         desc("LIBPNG", "no",    "-no-libpng",           "Do not compile in PNG support.");
         desc("LIBPNG", "qt",    "-qt-libpng",           "Use the libpng bundled with Qt.");
@@ -1169,11 +1169,15 @@ QString Configure::defaultTo(const QString &option)
         return "plugin";
 
     // GIF off by default
-    if (option == "GIF")
-        return "no"; // We cannot have this on by default yet
+    if (option == "GIF") {
+        if (dictionary["SHARED"] == "yes")
+            return "plugin";
+        else
+            return "yes";
+    }
 
     if (option == "TIFF")
-        return "no"; // See GIF
+        return "no";
 
     // By default we do not want to compile OCI driver when compiling with
     // MinGW, due to lack of such support from Oracle. It prob. wont work.
@@ -1447,6 +1451,8 @@ void Configure::generateOutputVars()
     // Image formates -----------------------------------------------
     if( dictionary[ "GIF" ] == "no" )
 	qtConfig += "no-gif";
+    else if( dictionary[ "GIF" ] == "yes" )
+	qtConfig += "gif";
     else if( dictionary[ "GIF" ] == "plugin" )
 	qmakeFormatPlugins += "gif";
 
@@ -1676,7 +1682,7 @@ void Configure::generateCachefile()
         for( QStringList::Iterator var = qmakeVars.begin(); var != qmakeVars.end(); ++var ) {
 	    cacheStream << (*var) << endl;
 	}
-	cacheStream << "CONFIG         += " << qmakeConfig.join( " " ) << " incremental create_prl link_prl depend_includepath" << endl;
+	cacheStream << "CONFIG         += " << qmakeConfig.join( " " ) << " incremental create_prl link_prl depend_includepath QTDIR_build" << endl;
 	QString mkspec_path= sourcePath + "\\mkspecs\\" + dictionary[ "QMAKESPEC" ];
 	if(QFile::exists(mkspec_path))
 	    cacheStream << "QMAKESPEC       = " << mkspec_path << endl;
