@@ -1012,6 +1012,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_STENCIL_TEST);
     glDisable(GL_CULL_FACE);
+    glDisable(GL_LIGHTING);
     glShadeModel(GL_FLAT);
     if (d->use_stencil_method) {
         glStencilFunc(GL_ALWAYS, 0, ~0);
