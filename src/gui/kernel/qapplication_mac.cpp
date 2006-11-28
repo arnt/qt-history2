@@ -1691,19 +1691,26 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 
         switch(ekind) {
         case kEventMouseDragged:
-        case kEventMouseMoved:
-            if((QWidget *)qt_mouseover != widget || inNonClientArea) {
+        case kEventMouseMoved: {
+            // If we are in popup mode, widget will point to the current popup no matter
+            // where the mouse cursor is. In that case find out if the mouse cursor is 
+            // really over the popup in order to send correct enter / leave envents.
+            QWidget * const enterLeaveWidget = app->d_func()->inPopupMode() ? 
+                    QApplication::widgetAt(where.h, where.v) :  static_cast<QWidget*>(widget);
+
+            if((QWidget *)qt_mouseover != enterLeaveWidget || inNonClientArea) {
 #ifdef DEBUG_MOUSE_MAPS
-                qDebug("Entering: %p - %s (%s), Leaving %s (%s)", (QWidget*)widget,
-                       widget ? widget->metaObject()->className() : "none",
-                       widget ? widget->objectName().toLocal8Bit().constData() : "",
+                qDebug("Entering: %p - %s (%s), Leaving %s (%s)", (QWidget*)enterLeaveWidget,
+                       enterLeaveWidget ? enterLeaveWidget->metaObject()->className() : "none",
+                       enterLeaveWidget ? enterLeaveWidget->objectName().toLocal8Bit().constData() : "",
                        qt_mouseover ? qt_mouseover->metaObject()->className() : "none",
                        qt_mouseover ? qt_mouseover->objectName().toLocal8Bit().constData() : "");
 #endif
-                QApplicationPrivate::dispatchEnterLeave(widget, qt_mouseover);
-                qt_mouseover = widget;
+                QApplicationPrivate::dispatchEnterLeave(enterLeaveWidget, qt_mouseover);
+                qt_mouseover = enterLeaveWidget;
             }
             break;
+        }
         case kEventMouseDown:
             if(button == Qt::LeftButton && !mac_context_timer && qt_mac_press_and_hold_context) {
                 remove_context_timer = false;
