@@ -175,6 +175,7 @@ protected:
     void showEvent(QShowEvent *e);
     void hideEvent(QHideEvent *e);
     void timerEvent(QTimerEvent *timerEvent);
+    void leaveEvent(QEvent *e);
     QStyleOptionComboBox comboStyleOption() const;
 
 Q_SIGNALS:

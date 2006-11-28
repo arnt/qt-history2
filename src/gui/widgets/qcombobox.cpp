@@ -264,6 +264,17 @@ void QComboBoxPrivateContainer::timerEvent(QTimerEvent *timerEvent)
     }
 }
 
+void QComboBoxPrivateContainer::leaveEvent(QEvent *)
+{
+// On Mac using the Mac style we want to clear the selection
+// when the mouse moves outside the popup.
+#ifdef Q_WS_MAC
+    QStyleOptionComboBox opt = comboStyleOption();
+    if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this))
+        view->clearSelection();
+#endif
+}
+
 QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView, QComboBox *parent)
     : QFrame(parent, Qt::Popup), combo(parent), view(0), top(0), bottom(0)
 {
