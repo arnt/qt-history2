@@ -16,6 +16,7 @@
 #include <qmime.h>
 #include <qurl.h>
 #include <qdebug.h>
+#include <qmessagebox.h>
 
 /*!
     \enum QFileSystemModel::Roles
@@ -508,11 +509,23 @@ QIcon QFileSystemModelPrivate::icon(const QModelIndex &index) const
 bool QFileSystemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     Q_D(QFileSystemModel);
-    if (!index.isValid() || index.column() != 0
-        || (flags(index) & Qt::ItemIsEditable) == 0 || role != Qt::EditRole)
+    if (  !index.isValid()
+        || index.column() != 0
+        || role != Qt::EditRole
+        || (flags(index) & Qt::ItemIsEditable) == 0)
         return false;
 
-    return d->rootDir.rename(index.data().toString(), value.toString());
+    QString newName = value.toString();
+    if (newName.contains(QDir::separator()) || !d->rootDir.rename(index.data().toString(), newName)) {
+#ifndef QT_NO_MESSAGEBOX
+        QMessageBox::information(0, QFileSystemModel::tr("Invalid filename"),
+                                QFileSystemModel::tr("<b>The name \"%1\" can not be used.</b><p>Try using another name, with fewer characters or no punctuations marks.")
+                                .arg(newName),
+                                 QMessageBox::Ok);
+#endif // QT_NO_MESSAGEBOX
+        return false;
+    }
+    return true;
 }
 
 /*!
