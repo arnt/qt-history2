@@ -796,7 +796,7 @@ static AXUIElementRef lookupCreateChild(const QInterfaceItem interface, const in
 
 static void createElementsForRootInterface()
 {
-    QAccessibleInterface *appInterface = QAccessible::queryAccessibleInterface(rootObject);
+    QAccessibleInterface *appInterface = QAccessible::queryAccessibleInterface(rootObject ? rootObject : qApp);
     if (!appInterface)
         return;
 
@@ -1888,6 +1888,7 @@ static void registerQtAccessibilityHIObjectSubclass()
 void QAccessible::initialize()
 {
     registerQtAccessibilityHIObjectSubclass();
+    installApplicationEventhandler();
 }
 
 // Sets thre root object for the application
@@ -1900,8 +1901,6 @@ void QAccessible::setRootObject(QObject *object)
     }
 
     rootObject = object;
-
-    installApplicationEventhandler();
 }
 
 void QAccessible::cleanup()
