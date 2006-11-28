@@ -1085,33 +1085,36 @@ void QWidgetPrivate::setWindowIcon_sys(bool forceReset)
                         PropModeReplace, (unsigned char *) icon_data.data(),
                         icon_data.size());
         /*
-          if the app is not using the default visual, convert the icon
-          to 1bpp as stated in the ICCCM section 4.1.2.4; otherwise,
-          create the icon pixmap in the default depth (even though
-          this violates the ICCCM)
+          if the app is running on an unknown desktopk, or it is not
+          using the default visual, convert the icon to 1bpp as stated
+          in the ICCCM section 4.1.2.4; otherwise, create the icon pixmap
+          in the default depth (even though this violates the ICCCM)
         */
-        if (!QX11Info::appDefaultVisual(xinfo.screen())
+        if (X11->desktopEnvironment == DE_UNKNOWN
+            || !QX11Info::appDefaultVisual(xinfo.screen())
             || !QX11Info::appDefaultColormap(xinfo.screen())) {
-            // non-default visual/colormap, use 1bpp bitmap
+            // unknown DE or non-default visual/colormap, use 1bpp bitmap
             if (!forceReset || !topData->iconPixmap)
                 topData->iconPixmap = new QBitmap(pixmap);
             h->icon_pixmap = topData->iconPixmap->handle();
         } else {
             // default depth, use a normal pixmap (even though this
-            // violates the ICCCM)
+            // violates the ICCCM), since this works on all DEs known to Qt
             if (!forceReset || !topData->iconPixmap)
                 topData->iconPixmap = new QPixmap(pixmap);
             h->icon_pixmap = topData->iconPixmap->data->x11ConvertToDefaultDepth();
         }
         h->flags |= IconPixmapHint;
 
-        QBitmap mask = topData->iconPixmap->mask();
-        if (!mask.isNull()) {
-            if (!topData->iconMask)
-                topData->iconMask = new QBitmap;
-            *topData->iconMask = mask;
-            h->icon_mask = topData->iconMask->handle();
-            h->flags |= IconMaskHint;
+        if (pixmap.hasAlpha()) {
+            QBitmap mask = pixmap.mask();
+            if (!mask.isNull()) {
+                if (!topData->iconMask)
+                    topData->iconMask = new QBitmap;
+                *topData->iconMask = mask;
+                h->icon_mask = topData->iconMask->handle();
+                h->flags |= IconMaskHint;
+            }
         }
     } else {
         h->flags &= ~(IconPixmapHint | IconMaskHint);

@@ -262,7 +262,8 @@ enum DesktopEnvironment {
     DE_UNKNOWN,
     DE_KDE,
     DE_GNOME,
-    DE_CDE
+    DE_CDE,
+    DE_4DWM
 };
 
 struct QX11Data

@@ -261,7 +261,6 @@ static Window        curWin = 0;                        // current window
 
 // detect broken window managers
 bool                qt_broken_wm                = false;
-static void qt_detect_broken_window_manager();
 
 
 // function to update the workarea of the screen - in qdesktopwidget_x11.cpp
@@ -990,27 +989,6 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
 }
 
 
-static void qt_detect_broken_window_manager()
-{
-    Atom type;
-    int format;
-    ulong nitems, after;
-    uchar *data = 0;
-
-    // look for SGI's 4Dwm
-    int e = XGetWindowProperty(X11->display, QX11Info::appRootWindow(),
-                               ATOM(_SGI_DESKS_MANAGER), 0, 1, False, XA_WINDOW,
-                               &type, &format, &nitems, &after, &data);
-    if (data)
-        XFree(data);
-
-    if (e == Success && type == XA_WINDOW && format == 32 && nitems == 1 && after == 0) {
-        // detected SGI 4Dwm
-        qt_broken_wm = true;
-    }
-}
-
-
 // update the supported array
 static void qt_get_net_supported()
 {
@@ -1487,9 +1465,6 @@ void qt_init(QApplicationPrivate *priv, int,
         // Finally create all atoms
         qt_x11_create_intern_atoms();
 
-        // look for broken window managers
-        qt_detect_broken_window_manager();
-
         // initialize NET lists
         qt_get_net_supported();
         qt_get_net_virtual_roots();
@@ -1717,6 +1692,11 @@ void qt_init(QApplicationPrivate *priv, int,
                                               0, 1, False, AnyPropertyType, &type, &format, &length,
                                               &after, &data) == Success && length)) {
                 X11->desktopEnvironment = DE_KDE;
+            } else if (XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(_SGI_DESKS_MANAGER),
+                                          0, 1, False, XA_WINDOW, &type, &format, &length, &after, &data) == Success
+                       && length) {
+                X11->desktopEnvironment = DE_4DWM;
+                qt_broken_wm = true;
             }
             if (data)
                 XFree((char *)data);
