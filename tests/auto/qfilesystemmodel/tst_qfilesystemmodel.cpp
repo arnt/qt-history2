@@ -220,6 +220,10 @@ bool tst_QFileSystemModel::createFiles(const QString &test_path, const QStringLi
             return false;
         }
         file.close();
+#ifdef Q_OS_WIN
+        if (file.fileName()[0] == '.')
+            QProcess::execute(QString("attrib +h %1").arg(file.fileName()));
+#endif
         //qDebug() << test_path + QDir::separator() + initial_files.at(i) << (QFile::exists(test_path + QDir::separator() + initial_files.at(i)));
     }
 
