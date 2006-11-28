@@ -2555,6 +2555,11 @@ void QRegion::translate(int dx, int dy)
 
 QRegion QRegion::unite(const QRegion &r) const
 {
+    if (isEmpty())
+        return r;
+    if (r.isEmpty())
+        return *this;
+
     QRegion result;
     result.detach();
     UnionRegion(d->qt_rgn, r.d->qt_rgn, *result.d->qt_rgn);
