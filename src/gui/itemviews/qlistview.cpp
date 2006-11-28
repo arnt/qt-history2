@@ -1679,6 +1679,8 @@ QListViewPrivate::QListViewPrivate()
 
 QListViewPrivate::~QListViewPrivate()
 {
+    delete staticListView;
+    delete dynamicListView;
 }
 
 void QListViewPrivate::clear()
