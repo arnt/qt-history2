@@ -240,12 +240,12 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_goToUrl(const QUrl &url))
     Q_PRIVATE_SLOT(d_func(), void _q_chooseLocation())
     Q_PRIVATE_SLOT(d_func(), void _q_goHome())
-    Q_PRIVATE_SLOT(d_func(), void _q_showHeader(QAction *));
-    Q_PRIVATE_SLOT(d_func(), void _q_animateDialog());
-    Q_PRIVATE_SLOT(d_func(), void _q_animateDialogV(int));
-    Q_PRIVATE_SLOT(d_func(), void _q_animateDialogH(int));
-    Q_PRIVATE_SLOT(d_func(), void _q_layoutChanged());
-    Q_PRIVATE_SLOT(d_func(), void _q_autoCompleteFileName());
+    Q_PRIVATE_SLOT(d_func(), void _q_showHeader(QAction *))
+    Q_PRIVATE_SLOT(d_func(), void _q_animateDialog())
+    Q_PRIVATE_SLOT(d_func(), void _q_animateDialogV(int))
+    Q_PRIVATE_SLOT(d_func(), void _q_animateDialogH(int))
+    Q_PRIVATE_SLOT(d_func(), void _q_layoutChanged())
+    Q_PRIVATE_SLOT(d_func(), void _q_autoCompleteFileName())
 };
 
 inline void QFileDialog::setDirectory(const QDir &adirectory)
