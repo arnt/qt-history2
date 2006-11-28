@@ -1697,7 +1697,7 @@ void QFileDialogPrivate::createWidgets()
     stackedWidget->addWidget(listView);
 
     splitter = new QSplitter(q);
-    splitter->setObjectName("qt_splitter");
+    splitter->setObjectName(QLatin1String("qt_splitter"));
     splitter->addWidget(sidebar);
     splitter->addWidget(stackedWidget);
 

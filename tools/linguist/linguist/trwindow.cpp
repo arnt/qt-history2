@@ -443,7 +443,7 @@ void TrWindow::print()
                 pout.addBox(4);
                 if (m->message().isPlural() && cmdl->language() != QLocale::C) {
                     QStringList transls = m->translations();
-                    pout.addBox(40, transls.join("\n"));
+                    pout.addBox(40, transls.join(QLatin1String("\n")));
                 } else {
                     pout.addBox(40, m->translation());
                 }
