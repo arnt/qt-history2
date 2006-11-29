@@ -24,6 +24,18 @@ union semun {
     struct seminfo  *__buf;
 };
 
+class QWSSignalHandlerPrivate
+{
+public:
+    Q_GLOBAL_STATIC(QWSSignalHandler, instance);
+};
+
+
+QWSSignalHandler* QWSSignalHandler::instance()
+{
+    return QWSSignalHandlerPrivate::instance();
+}
+
 QWSSignalHandler::QWSSignalHandler()
 {
     const int signums[] = { SIGHUP, SIGINT, SIGQUIT, SIGILL, SIGABRT, SIGFPE,

@@ -30,10 +30,12 @@
 #include <QtCore/qobjectcleanuphandler.h>
 #include <signal.h>
 
+class QWSSignalHandlerPrivate;
+
 class QWSSignalHandler
 {
 public:
-    Q_GLOBAL_STATIC(QWSSignalHandler, instance);
+    static QWSSignalHandler* instance();
 
     ~QWSSignalHandler();
 
@@ -47,6 +49,8 @@ private:
     QMap<int, sighandler_t> oldHandlers;
     QVector<int> semaphores;
     QObjectCleanupHandler objects;
+
+    friend class QWSSignalHandlerPrivate;
 };
 
 #endif // QWSSIGNALHANDLER_P_H
