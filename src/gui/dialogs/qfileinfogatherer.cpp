@@ -80,6 +80,10 @@ QFileIconProvider *QFileInfoGatherer::iconProvider() const
 void QFileInfoGatherer::fetchExtendedInformation(const QString &path, const QStringList &files)
 {
     mutex.lock();
+    if (this->path.count() > 0 && this->path.last() == path && this->files.last() == files) {
+        mutex.unlock();
+        return;
+    }
     this->path.push(path);
     this->files.push(files);
     mutex.unlock();
@@ -198,7 +202,13 @@ void QFileInfoGatherer::getFileInfos(const QString &path, const QStringList &fil
 
     // List extended information about drives
     if (path.isEmpty()){
-        QFileInfoList infoList = QDir::drives();
+        QFileInfoList infoList;
+        if (files.isEmpty()) {
+            infoList = QDir::drives();
+        } else {
+            for (int i = 0; i < files.count(); ++i)
+                infoList << QFileInfo(files.at(i));
+        }
         QList<QPair<QString,QExtendedInformation> > updatedFiles;
         for (int i = 0; i < infoList.count(); ++i) {
             QExtendedInformation info;
