@@ -685,6 +685,18 @@ void tst_QImageReader::readFromDevice()
         QImage imageReaderImage = reader.read();
 
         QCOMPARE(imageReaderImage, expectedImage);
+
+        buffer.seek(0);
+
+        QImage image1;
+        QVERIFY(image1.loadFromData((const uchar *)buffer.data().data(),
+                                    buffer.data().size(), format.data()));
+        QCOMPARE(image1, expectedImage);
+
+        QByteArray throughBase64 = QByteArray::fromBase64(imageData.toBase64());
+        QVERIFY(image1.loadFromData((const uchar *)throughBase64.data(),
+                                    throughBase64.size(), format.data()));
+        QCOMPARE(image1, expectedImage);
     }
 
     Server server(imageData);
