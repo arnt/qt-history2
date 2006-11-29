@@ -2288,7 +2288,7 @@ void Configure::generateMakefiles()
                 for ( int j=0; j<makeList[i].size(); ++j) {
                     MakeItem *it=makeList[i][j];
                     QString dirPath = QDir::toNativeSeparators( it->directory + "/" );
-                    QString projectName = dirPath + it->proFile;
+                    QString projectName = it->proFile;
                     QString makefileName = buildPath + "/" + dirPath + it->target;
                     QStringList args;
 
@@ -2296,9 +2296,9 @@ void Configure::generateMakefiles()
                     args << projectName;
                     args << dictionary[ "QMAKE_ALL_ARGS" ];
 
-                    cout << "For " << qPrintable(projectName) << endl;
+                    cout << "For " << qPrintable(dirPath + projectName) << endl;
                     args << "-o";
-                    args << makefileName;
+                    args << it->target;
                     args << "-spec";
                     args << dictionary[ "QMAKESPEC" ];
 
@@ -2313,7 +2313,7 @@ void Configure::generateMakefiles()
                     QTextStream txt(&file);
                     txt << "all:\n";
                     txt << "\t" << args.join(" ") << "\n";
-                    txt << "\t" << dictionary[ "MAKE" ] << " -f " << makefileName << "\n";
+                    txt << "\t" << dictionary[ "MAKE" ] << " -f " << it->target << "\n";
                     txt << "first: all\n";
                     txt << "qmake:\n";
                     txt << "\t" << args.join(" ") << "\n";
