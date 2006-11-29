@@ -32,6 +32,8 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
+#include <private/qfontengine_x11_p.h>
+
 #ifndef QT_NO_FONTCONFIG
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -712,8 +714,12 @@ QFontDef qt_FcPatternToQFontDef(FcPattern *pattern, const QFontDef &request)
     }
 
     double dpi;
-    if (FcPatternGetDouble(pattern, FC_DPI, 0, &dpi) != FcResultMatch)
-        dpi = QX11Info::appDpiY();
+    if (FcPatternGetDouble(pattern, FC_DPI, 0, &dpi) != FcResultMatch) {
+        if (X11->display)
+            dpi = QX11Info::appDpiY();
+        else
+            dpi = 96; // ####
+    }
 
     double size;
     if (FcPatternGetDouble(pattern, FC_PIXEL_SIZE, 0, &size) == FcResultMatch)
@@ -1431,7 +1437,7 @@ void qt_addPatternProps(FcPattern *pattern, int screen, int script, const QFontD
         stretch = 100;
     FcPatternAddInteger(pattern, FC_WIDTH, stretch);
 
-    if (QX11Info::appDepth(screen) <= 8) {
+    if (X11->display && QX11Info::appDepth(screen) <= 8) {
         // can't do antialiasing on 8bpp
         FcPatternAddBool(pattern, FC_ANTIALIAS, false);
     } else if (request.styleStrategy & (QFont::PreferAntialias|QFont::NoAntialias)) {
@@ -1562,7 +1568,7 @@ static QFontEngine *tryPatternLoad(FcPattern *p, int screen,
     FcDefaultSubstitute(pattern);
     FcResult res;
     FcPattern *match = FcFontMatch(0, pattern, &res);
-    QFontEngineFT *engine = 0;
+    QFontEngineX11FT *engine = 0;
 
     if (script != QUnicodeTables::Common) {
         // skip font if it doesn't support the language we want
@@ -1588,7 +1594,7 @@ static QFontEngine *tryPatternLoad(FcPattern *p, int screen,
         FcPatternAddBool(match, FC_ANTIALIAS, false);
     }
 
-    engine = new QFontEngineFT(match, qt_FcPatternToQFontDef(match, request), screen);
+    engine = new QFontEngineX11FT(match, qt_FcPatternToQFontDef(match, request), screen);
     if (engine->invalid()) {
         FM_DEBUG("   --> invalid!\n");
         delete engine;

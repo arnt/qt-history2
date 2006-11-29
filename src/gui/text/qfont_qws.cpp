@@ -50,7 +50,7 @@ Qt::HANDLE QFont::handle() const
     Q_ASSERT(engine != 0);
 
     if (engine->type() == QFontEngine::Freetype)
-        return static_cast<QFontEngineFT *>(engine)->handle();
+        return static_cast<QFontEngineFT *>(engine)->non_locked_face();
 #endif
     return 0;
 }

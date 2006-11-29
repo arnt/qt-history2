@@ -31,7 +31,7 @@
 #include <private/qfont_p.h>
 #include <private/qtextengine_p.h>
 #include <private/qpaintengine_x11_p.h>
-#include <private/qfontengine_p.h>
+#include <private/qfontengine_x11_p.h>
 
 #include "qpen.h"
 #include "qcolor.h"
@@ -1965,7 +1965,12 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
     GlyphSet transformedGlyphSet = 0;
     if (d->txop >= QTransform::TxScale
         && xrenderPath) {
-        drawTransformed = ft->loadTransformedGlyphSet(glyphs.data(), glyphs.size(), d->matrix, &transformedGlyphSet);
+        QFontEngineFT::QGlyphSet *set = ft->loadTransformedGlyphSet(glyphs.data(), glyphs.size(), d->matrix,
+                                                                    QFontEngineFT::Format_Render);
+        if (set) {
+            drawTransformed = true;
+            transformedGlyphSet = set->id;
+        }
     }
 #endif
 
@@ -1977,7 +1982,7 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
 #ifndef QT_NO_XRENDER
     if (xrenderPath) {
 
-        GlyphSet glyphSet = drawTransformed ? transformedGlyphSet : ft->fnt.glyphSet;
+        GlyphSet glyphSet = drawTransformed ? transformedGlyphSet : ft->defaultGlyphs()->id;
 
         const QColor &pen = d->cpen.color();
         ::Picture src = X11->getSolidFill(d->scrn, pen);

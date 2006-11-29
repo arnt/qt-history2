@@ -13,7 +13,7 @@
 
 #include "qdebug.h"
 #include "qopentype_p.h"
-#include "qfontengine_p.h"
+#include "qfontengine_ft_p.h"
 #include "qscriptengine_p.h"
 
 #ifndef QT_NO_OPENTYPE
@@ -349,16 +349,12 @@ bool QOpenType::positionAndAdd(QShaperItem *item, int availableGlyphs, bool doLo
 {
     bool glyphs_positioned = false;
     if (gpos) {
-#ifdef Q_WS_X11
         Q_ASSERT(fontEngine->type() == QFontEngine::Freetype);
         face = static_cast<QFontEngineFT *>(fontEngine)->lockFace();
-#endif
         memset(hb_buffer->positions, 0, hb_buffer->in_length*sizeof(HB_PositionRec));
         // #### check that passing "false,false" is correct
         glyphs_positioned = HB_GPOS_Apply_String(face, gpos, loadFlags, hb_buffer, false, false) != HB_Err_Not_Covered;
-#ifdef Q_WS_X11
         static_cast<QFontEngineFT *>(fontEngine)->unlockFace();
-#endif
     }
 
     if (!glyphs_substituted && !glyphs_positioned)

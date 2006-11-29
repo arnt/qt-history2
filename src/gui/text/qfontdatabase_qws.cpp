@@ -45,12 +45,6 @@ static void initializeDb()
     QFontDatabasePrivate *db = privateDb();
     if (!db || db->count)
         return;
-#ifndef QT_NO_FREETYPE
-    // initialize Freetype
-    FT_Error err;
-    err = FT_Init_FreeType(&QFontEngineFT::ft_library);
-    Q_ASSERT(!err);
-#endif
 
     // Load in font definition file
     QString fn;
@@ -210,46 +204,6 @@ static inline void load(const QString & = QString(), int = -1)
 #define Y_SIZE(face,i) ((face)->available_sizes[i].height << 6)
 #endif
 
-#ifndef QT_NO_FREETYPE
-static void setSize(FT_Face face, int pixelSize, int stretch)
-{
-    int ysize = pixelSize << 6;
-    int xsize = ysize * stretch / 100;
-
-    /*
-     * Bitmap only faces must match exactly, so find the closest
-     * one (height dominant search)
-     */
-    if (!(face->face_flags & FT_FACE_FLAG_SCALABLE)) {
-        int best = 0;
-        for (int i = 1; i < face->num_fixed_sizes; i++) {
-            if (qAbs(ysize -  Y_SIZE(face,i)) <
-                qAbs (ysize - Y_SIZE(face, best)) ||
-                (qAbs (ysize - Y_SIZE(face, i)) ==
-                 qAbs (ysize - Y_SIZE(face, best)) &&
-                 qAbs (xsize - X_SIZE(face, i)) <
-                 qAbs (xsize - X_SIZE(face, best)))) {
-                best = i;
-            }
-        }
-        xsize = X_SIZE(face, best);
-        ysize = Y_SIZE(face, best);
-    }
-    int err = FT_Set_Char_Size (face, xsize, ysize, 0, 0);
-
-    if (err && !(face->face_flags & FT_FACE_FLAG_SCALABLE) && ysize == 0 && face->num_fixed_sizes >= 1) {
-        // work around FT 2.1.10 problem with BDF without PIXEL_SIZE property
-        err = FT_Set_Pixel_Sizes(face, face->available_sizes[0].width, face->available_sizes[0].height);
-        if (err && face->num_fixed_sizes == 1)
-            err=0; //even more of a workaround...
-    }
-
-    if (err) {
-        qDebug("FT_Set_Char_Size failed with error %d", err);
-        Q_ASSERT(!err);
-    }
-}
-#endif
 #endif // QT_NO_FREETYPE
 
 static
@@ -285,17 +239,16 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
         file += QLatin1String("/lib/fonts/");
 #endif
         file += size->fileName;
-        FT_Error err = FT_New_Face(QFontEngineFT::ft_library, file.toLocal8Bit().constData(), 0, &face);
-        if (err) {
-            FM_DEBUG("loading font file %s failed, err=%x", file.toLocal8Bit().constData(), err);
-            Q_ASSERT(!err);
-        }
-        setSize(face, pixelSize, 100);
-        FD_DEBUG("setting pixel size to %d", pixelSize);
 
-        QFontEngineFT *fe = new QFontEngineFT(request, face, style->antialiased);
-        fe->face_id.filename = file.toLocal8Bit();
-        fe->face_id.index = 0;
+        QFontEngine::FaceId faceId;
+        faceId.filename = file.toLocal8Bit();
+        faceId.index = 0;
+
+        QFontDef def = request;
+        def.pixelSize = pixelSize;
+
+        QFontEngineFT *fe = new QFontEngineFT(def);
+        fe->init(faceId, style->antialiased);
         return fe;
     } else
 #endif // QT_NO_FREETYPE

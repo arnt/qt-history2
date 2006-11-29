@@ -36,10 +36,12 @@
 #include "qbezier_p.h"
 
 #if defined(Q_WS_X11)
+#  include <private/qfontengine_ft_p.h>
 #  include <qwidget.h>
 #  include <qx11info_x11.h>
 #  include <X11/Xlib.h>
 #  include <X11/Xutil.h>
+#  undef None
 #elif defined(Q_WS_WIN)
 #  include <qt_windows.h>
 #  include <qvarlengtharray.h>
@@ -1877,7 +1879,6 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
 }
 
 
-#ifdef Q_WS_QWS
 //QWS hack
 static inline bool monoVal(const uchar* s, int x)
 {
@@ -2002,6 +2003,7 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
 #endif
 }
 
+#ifdef Q_WS_QWS
 /*!
     \internal
 
@@ -2031,18 +2033,6 @@ void QRasterPaintEngine::qwsFillRect(int x, int y, int w, int h)
     }
 }
 #endif
-
-/*!
-    \reimp
-*/
-#ifdef Q_WS_X11
-void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
-{
-    QPaintEngine::drawTextItem(p, textItem);
-    // #####
-}
-
-#else
 
 #if defined(Q_WS_WIN)
 bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, int ymin, int xmax,
@@ -2337,19 +2327,66 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
     return;
 
-#elif defined Q_WS_QWS
-    if (d->txop < QTransform::TxScale) {
-#ifndef QT_NO_FREETYPE
-        if (!(ti.fontEngine->type() == QFontEngine::Freetype
-              && static_cast<QFontEngineFT*>(ti.fontEngine)->drawAsOutline()))
-#endif
-        {
-            ti.fontEngine->draw(this, qRound(p.x()), qRound(p.y()), ti);
-            return;
-        }
-    }
+#else
 
-#endif // Q_WS_WIN
+#if defined(Q_WS_QWS)
+    if (d->txop < QTransform::TxScale
+        && ti.fontEngine->type() == QFontEngine::QPF) {
+        ti.fontEngine->draw(this, qRound(p.x()), qRound(p.y()), ti);
+        return;
+    }
+#endif // Q_WS_QWS
+
+#if (defined(Q_WS_X11) || defined(Q_WS_QWS)) && !defined(QT_NO_FREETYPE)
+    if (ti.fontEngine->type() == QFontEngine::Freetype
+        && !static_cast<QFontEngineFT *>(ti.fontEngine)->drawAsOutline()) {
+
+        QFontEngineFT *fe = static_cast<QFontEngineFT *>(ti.fontEngine);
+
+        QTransform matrix = state->transform();
+        matrix.translate(p.x(), p.y());
+        QFixed x = QFixed::fromReal(matrix.dx());
+        QFixed y = QFixed::fromReal(matrix.dy());
+
+        QVarLengthArray<QFixedPoint> positions;
+        QVarLengthArray<glyph_t> glyphs;
+        fe->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
+        if (glyphs.size() == 0)
+            return;
+
+        QFontEngineFT::GlyphFormat neededFormat = QFontEngineFT::Format_A8;
+        if (d->mono_surface)
+            neededFormat = QFontEngineFT::Format_Mono;
+
+        QFontEngineFT::QGlyphSet *gset = fe->defaultGlyphs();
+        if (d->txop >= QTransform::TxScale) {
+            gset = fe->loadTransformedGlyphSet(glyphs.data(), glyphs.size(), d->matrix, neededFormat);
+            if (!gset) {
+                QPaintEngine::drawTextItem(p, ti);
+                return;
+            }
+        }
+
+        for(int i = 0; i < glyphs.size(); i++) {
+            QFontEngineFT::Glyph *glyph = gset->glyph_data.value(glyphs[i]);
+
+            if (!glyph || glyph->format != neededFormat)
+                glyph = fe->loadGlyph(gset, glyphs[i], neededFormat);
+
+            if (!glyph || !glyph->data)
+                continue;
+
+            const int pitch = (neededFormat == QFontEngineFT::Format_Mono ? ((glyph->width + 31) & ~31) >> 3
+                               : (glyph->width + 3) & ~3);
+
+            alphaPenBlt(glyph->data, pitch, d->mono_surface,
+                        qRound(positions[i].x) + glyph->x,
+                        qRound(positions[i].y) - glyph->y,
+                        glyph->width, glyph->height);
+        }
+        return;
+    }
+#endif
 
     // Fallthrough for embedded and default for mac.
     bool aa = d->antialiased;
@@ -2357,8 +2394,8 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     QPaintEngine::drawTextItem(p, ti);
     d->antialiased = aa;
     return;
-}
 #endif
+}
 
 /*!
     \reimp

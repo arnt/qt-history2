@@ -207,69 +207,9 @@ class QGlyph;
 
 #if defined(Q_WS_QWS)
 
-#ifndef QT_NO_FREETYPE
-#include <ft2build.h>
-#include FT_FREETYPE_H
-
-class QFontEngineFT : public QFontEngine
-{
-public:
-    QFontEngineFT(const QFontDef&, FT_Face face, bool antialiased = true);
-   ~QFontEngineFT();
-    FT_Face handle() const;
-
-    QFontEngine::FaceId faceId() const { return face_id; }
-    QFontEngine::Properties properties() const;
-    void getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics);
-    QByteArray getSfntTable(uint tag) const;
-    int synthesized() const;
-
-    QOpenType *openType() const;
-    void recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const;
-
-    /* returns 0 as glyph index for non existant glyphs */
-    bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
-
-    void draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si);
-    void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags);
-    void addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int numGlyphs,
-                         QPainterPath *path, QTextItem::RenderFlags flags);
-    void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
-
-    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
-    glyph_metrics_t boundingBox(glyph_t glyph);
-
-    QFixed ascent() const;
-    QFixed descent() const;
-    QFixed leading() const;
-    QFixed xHeight() const;
-
-    qreal maxCharWidth() const;
-    qreal minLeftBearing() const;
-    qreal minRightBearing() const;
-    QFixed underlinePosition() const;
-    QFixed lineThickness() const;
-
-    Type type() const;
-
-    bool canRender(const QChar *string, int len);
-    inline const char *name() const { return 0; }
-    inline bool drawAsOutline() const { return outline_drawing; }
-
-    FT_Face face;
-    bool smooth;
-    bool outline_drawing;
-    mutable bool kerning_pairs_loaded;
-    QGlyph **rendered_glyphs;
-    QOpenType *_openType;
-    enum { cmapCacheSize = 0x200 };
-    mutable glyph_t cmapCache[cmapCacheSize];
-
-    FaceId face_id;
-    friend class QFontDatabase;
-    static FT_Library ft_library;
-};
-#endif // QT_NO_FREETYPE
+#if !defined(QT_NO_FREETYPE)
+#include "private/qfontengine_ft_p.h"
+#endif
 
 #ifndef QT_NO_QWS_QPF
 
@@ -493,9 +433,7 @@ private:
 
 #endif
 
-#if defined(Q_WS_X11)
-#  include "private/qfontengine_x11_p.h"
-#elif defined(Q_WS_WIN)
+#if defined(Q_WS_WIN)
 #  include "private/qfontengine_win_p.h"
 #endif
 

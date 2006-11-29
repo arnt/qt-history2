@@ -112,9 +112,9 @@ public:
 
     void disableClearType();
 #endif
-#ifdef Q_WS_QWS
     //QWS hack
     void alphaPenBlt(const void* src, int bpl, bool mono, int rx,int ry,int w,int h);
+#ifdef Q_WS_QWS
     void qwsFillRect(int x, int y, int w, int h);
 #endif
 

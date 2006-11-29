@@ -28,6 +28,7 @@
 #include <private/qunicodetables_p.h>
 #include "qfont_p.h"
 #include "qfontengine_p.h"
+#include "qfontengine_x11_p.h"
 #include "qtextengine_p.h"
 
 #include <private/qt_x11_p.h>

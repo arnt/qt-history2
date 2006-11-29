@@ -16,6 +16,18 @@
 #include <qpainterpath.h>
 #include "private/qpdf_p.h"
 
+#ifdef Q_WS_X11
+#include "private/qfontengine_x11_p.h"
+#endif
+
+#ifndef QT_NO_FREETYPE
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#    include "private/qfontengine_ft_p.h"
+#endif
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#endif
+
 #ifndef QT_NO_PRINTER
 
 static const char * const agl =
@@ -259,7 +271,7 @@ static FT_Face ft_face(const QFontEngine *engine)
 #ifdef Q_WS_QWS
     if (engine->type() == QFontEngine::Freetype) {
         const QFontEngineFT *ft = static_cast<const QFontEngineFT *>(engine);
-        return ft->face;
+        return ft->non_locked_face();
     }
 #endif
     return 0;

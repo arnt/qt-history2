@@ -77,10 +77,12 @@ wince-* {
 
 unix:x11 {
 	HEADERS += \
-		text/qfontengine_x11_p.h
+		text/qfontengine_x11_p.h \
+		text/qfontengine_ft_p.h
 	SOURCES += \
 		text/qfont_x11.cpp \
-		text/qfontengine_x11.cpp
+		text/qfontengine_x11.cpp \
+		text/qfontengine_ft.cpp
 }
 
 !embedded:!x11:mac {
@@ -92,7 +94,11 @@ unix:x11 {
 embedded {
 	SOURCES += \
 		text/qfont_qws.cpp \
-		text/qfontengine_qws.cpp
+		text/qfontengine_qws.cpp \
+		text/qfontengine_ft.cpp
+	HEADERS += \
+		text/qfontengine_ft_p.h
+	DEFINES += QT_NO_FONTCONFIG
 }
 
 contains(QT_CONFIG, freetype) {

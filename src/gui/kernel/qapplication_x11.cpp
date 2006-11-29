@@ -1258,6 +1258,14 @@ void qt_init(QApplicationPrivate *priv, int,
     X11->visual = reinterpret_cast<Visual *>(visual);
     X11->colormap = colormap;
 
+    // Fontconfig
+    X11->has_fontconfig = false;
+#if !defined(QT_NO_FONTCONFIG)
+    if (qgetenv("QT_X11_NO_FONTCONFIG").isNull())
+        X11->has_fontconfig = FcInit();
+    X11->fc_antialias = true;
+#endif
+
 #ifndef QT_NO_XRENDER
     memset(X11->solid_fills, 0, sizeof(X11->solid_fills));
     for (int i = 0; i < X11->solid_fill_count; ++i)
@@ -1529,11 +1537,7 @@ void qt_init(QApplicationPrivate *priv, int,
         }
 #endif // QT_NO_XFIXES
 
-        X11->has_fontconfig = false;
 #if !defined(QT_NO_FONTCONFIG)
-        if (qgetenv("QT_X11_NO_FONTCONFIG").isNull())
-            X11->has_fontconfig = FcInit();
-
         int dpi = 0;
         getXDefault("Xft", FC_DPI, &dpi);
         if (dpi) {
@@ -1575,7 +1579,6 @@ void qt_init(QApplicationPrivate *priv, int,
             getXDefault("Xft", FC_RGBA, &subpixel);
             X11->screens[s].subpixel = subpixel;
         }
-        X11->fc_antialias = true;
         getXDefault("Xft", FC_ANTIALIAS, &X11->fc_antialias);
 #ifdef FC_HINT_STYLE
         getXDefault("Xft", FC_HINT_STYLE, &X11->fc_hint_style);
@@ -1604,9 +1607,9 @@ void qt_init(QApplicationPrivate *priv, int,
 #if 0 //disabled for now..
         QSegfaultHandler::initialize(priv->argv, priv->argc);
 #endif
-        QFont::initialize();
         QCursorData::initialize();
     }
+    QFont::initialize();
 
     if(qt_is_gui_used) {
         qApp->setObjectName(QString::fromLocal8Bit(appName));

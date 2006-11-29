@@ -139,7 +139,10 @@ QFontPrivate::QFontPrivate()
 {
     ref = 1;
 #ifdef Q_WS_X11
-    screen = QX11Info::appScreen();
+    if (QX11Info::display())
+        screen = QX11Info::appScreen();
+    else
+        screen = 0;
 #endif
 #ifdef Q_WS_WIN
     hdc = 0;
