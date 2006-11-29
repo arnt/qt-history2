@@ -1,7 +1,7 @@
 TEMPLATE      = subdirs
 SUBDIRS       = analogclock \
                 calculator \
-		calendarwidget \       
+		calendarwidget \
                 charactermap \
                 digitalclock \
                 groupbox \
@@ -18,7 +18,8 @@ SUBDIRS       = analogclock \
                 tetrix \
                 tooltips \
                 wiggly \
-                windowflags
+                windowflags \
+                validators
 
 
 # install
