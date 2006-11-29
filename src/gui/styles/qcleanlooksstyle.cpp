@@ -3582,9 +3582,9 @@ QSize QCleanlooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
     QSize newSize = QWindowsStyle::sizeFromContents(type, option, size, widget);
     switch (type) {
     case CT_PushButton:
-        if (size.width() < 80)
-            newSize.setWidth(80);
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option)) {
+            if (!btn->text.isEmpty() && size.width() < 80)
+                newSize.setWidth(80);
             if (!btn->icon.isNull() && btn->iconSize.height() > 16)
                 newSize -= QSize(0, 2);
         }
@@ -3601,10 +3601,10 @@ QSize QCleanlooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
         newSize += QSize(0, 1);
         break;
     case CT_ToolButton:
-#ifndef QT_NO_TOOLBUTTON
+#ifndef QT_NO_TOOLBAR
         if (widget && qobject_cast<QToolBar *>(widget->parentWidget()))
             newSize += QSize(4, 6);
-#endif // QT_NO_TOOLBUTTON
+#endif // QT_NO_TOOLBAR
         break;
     case CT_SpinBox:
         newSize += QSize(0, -2);
