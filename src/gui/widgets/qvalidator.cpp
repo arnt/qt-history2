@@ -355,7 +355,7 @@ static int numDigits(qlonglong n)
 {
     if (n == 0)
         return 1;
-    return (int)log10(n) + 1;
+    return (int)log10(double(n)) + 1;
 };
 
 static qlonglong pow10(int exp)
