@@ -29,29 +29,26 @@
 
 static const unsigned char qt_be_inf_bytes[] = { 0x7f, 0xf0, 0, 0, 0, 0, 0, 0 };
 static const unsigned char qt_le_inf_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf0, 0x7f };
-static inline double qtInf()
+static inline double qt_inf()
 {
     return *reinterpret_cast<const double *>(QSysInfo::ByteOrder == QSysInfo::BigEndian ? qt_be_inf_bytes : qt_le_inf_bytes);
 }
-#define Q_INFINITY (::qtInf())
 
 // Signaling NAN
 static const unsigned char qt_be_snan_bytes[] = { 0x7f, 0xf8, 0, 0, 0, 0, 0, 0 };
 static const unsigned char qt_le_snan_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf8, 0x7f };
-static inline double qtSnan()
+static inline double qt_snan()
 {
     return *reinterpret_cast<const double *>(QSysInfo::ByteOrder == QSysInfo::BigEndian ? qt_be_snan_bytes : qt_le_snan_bytes);
 }
-#define Q_SNAN (::qtSnan())
 
 // Quiet NAN
 static const unsigned char qt_be_qnan_bytes[] = { 0xff, 0xf8, 0, 0, 0, 0, 0, 0 };
 static const unsigned char qt_le_qnan_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf8, 0xff };
-static inline double qtQnan()
+static inline double qt_qnan()
 {
     return *reinterpret_cast<const double *>(QSysInfo::ByteOrder == QSysInfo::BigEndian ? qt_be_qnan_bytes : qt_le_qnan_bytes);
 }
-#define Q_QNAN (::qtQnan())
 
 static inline bool qt_is_inf(double d)
 {

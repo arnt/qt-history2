@@ -3766,13 +3766,13 @@ double QLocalePrivate::bytearrayToDouble(const char *num, bool *ok, bool *overfl
     }
 
     if (qstrcmp(num, "nan") == 0)
-        return Q_SNAN;
+        return qt_snan();
 
     if (qstrcmp(num, "+inf") == 0 || qstrcmp(num, "inf") == 0)
-        return Q_INFINITY;
+        return qt_inf();
 
     if (qstrcmp(num, "-inf") == 0)
-        return -Q_INFINITY;
+        return -qt_inf();
 
     bool _ok;
 #ifdef QT_QLOCALE_USES_FCVT
