@@ -63,6 +63,7 @@ protected:
     bool open(OpenMode flags);
 
 private:
+    friend class QFile;
     Q_DISABLE_COPY(QTemporaryFile)
 };
 

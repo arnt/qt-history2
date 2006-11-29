@@ -50,7 +50,7 @@ QFile::EncoderFn QFilePrivate::encoder = locale_encode;
 QFile::DecoderFn QFilePrivate::decoder = locale_decode;
 
 QFilePrivate::QFilePrivate()
-    : fileEngine(0), error(QFile::NoError)
+    : fileEngine(0), allowRenameToOverwriteTarget(false), error(QFile::NoError)
 {
 }
 
@@ -616,7 +616,7 @@ QFile::rename(const QString &newName)
         qWarning("QFile::rename: Empty or null file name");
         return false;
     }
-    if (QFile(newName).exists()) {
+    if (!d->allowRenameToOverwriteTarget && QFile(newName).exists()) {
         // ### Race condition. If a file is moved in after this, it /will/ be
         // overwritten. On Unix, the proper solution is to use hardlinks:
         // return ::link(old, new) && ::remove(old);
@@ -633,11 +633,11 @@ QFile::rename(const QString &newName)
         QFile in(fileName());
         QFile out(newName);
         if (in.open(QIODevice::ReadOnly)) {
-            if(out.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            if (out.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
                 bool error = false;
-                char block[1024];
+                char block[4096];
                 while (!in.atEnd()) {
-                    qint64 read = in.read(block, 1024);
+                    qint64 read = in.read(block, sizeof(block));
                     if (read == -1) {
                         d->setError(QFile::RenameError, in.errorString());
                         error = true;
@@ -752,15 +752,20 @@ QFile::copy(const QString &newName)
                 QString errorMessage = QLatin1String("Cannot open %1 for input");
                 d->setError(QFile::CopyError, errorMessage.arg(d->fileName));
             } else {
-                QTemporaryFile out;
-                if(!out.open()) {
-                    close();
-                    error = true;
-                    d->setError(QFile::CopyError, QLatin1String("Cannot open for output"));
-                } else {
-                    char block[1024];
+                QString fileTemplate = QLatin1String("%1/qt_temp.XXXXXX");
+                QTemporaryFile out(fileTemplate.arg(QFileInfo(newName).path()));
+                if (!out.open()) {
+                    out.setFileTemplate(fileTemplate.arg(QDir::tempPath()));
+                    if (!out.open()) {
+                        close();
+                        error = true;
+                        d->setError(QFile::CopyError, QLatin1String("Cannot open for output"));
+                    }
+                }
+                if (!error) {
+                    char block[4096];
                     while(!atEnd()) {
-                        qint64 in = read(block, 1024);
+                        qint64 in = read(block, sizeof(block));
                         if(in == -1)
                             break;
                         if(in != out.write(block, in)) {
@@ -769,11 +774,16 @@ QFile::copy(const QString &newName)
                             break;
                         }
                     }
-                    if(!error && !out.rename(newName)) {
+
+                    // ### Provide a public API for overwriting the target when renaming.
+                    reinterpret_cast<QFilePrivate *>(out.d_func())->allowRenameToOverwriteTarget = true;
+                    if (!error && !out.rename(newName)) {
                         error = true;
                         QString errorMessage = QLatin1String("Cannot create %1 for output");
                         d->setError(QFile::CopyError, errorMessage.arg(newName));
                     }
+                    if (!error)
+                        out.setAutoRemove(false);
                 }
             }
             if(!error) {

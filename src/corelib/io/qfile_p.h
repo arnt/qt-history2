@@ -42,6 +42,7 @@ protected:
     QString fileName;
     mutable QAbstractFileEngine *fileEngine;
     bool isOpen;
+    bool allowRenameToOverwriteTarget;
 
     QFile::FileError error;
     void setError(QFile::FileError err);
