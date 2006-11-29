@@ -1145,6 +1145,7 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
     default:
         return false;
     }
+    return false;
 }
 
 /*!
