@@ -183,11 +183,11 @@ void QDesktopWidget::resizeEvent(QResizeEvent *)
     QVector<QRect> newRects;
     int newScreenCount;
     QDesktopWidgetPrivate::readScreenInformation(newDevs, newRects, newScreenCount);
+    d->screenCount = newScreenCount;
+    d->devs = newDevs;
+    d->rects = newRects;
     for (int i = 0; i < newScreenCount; ++i) {
         if (i >= oldScreenCount || newRects.at(i) != oldRects.at(i))
             emit resized(i);
     }
-    d->screenCount = newScreenCount;
-    d->devs = newDevs;
-    d->rects = newRects;
 }
