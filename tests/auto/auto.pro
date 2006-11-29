@@ -299,6 +299,7 @@ SUBDIRS += bic \
            qwritelocker \
            qwsembedwidget \
            qwsinputmethod \
+           qwswindowsystem \
            qx11info \
            qxml \
            qxmlsimplereader \
