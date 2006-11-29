@@ -40,7 +40,7 @@ TRANSLATOR qdesigner_internal::ObjectInspector
 using namespace qdesigner_internal;
 
 ObjectInspector::ObjectInspector(QDesignerFormEditorInterface *core, QWidget *parent)
-    : QDesignerObjectInspectorInterface(parent),
+    : QDesignerObjectInspector(parent),
       m_core(core),
       m_treeWidget(new TreeWidget(this))
 {
@@ -250,36 +250,19 @@ void ObjectInspector::slotSelectionChanged()
         return;
     m_formWindow->clearSelection(false);
 
-    const QList<QTreeWidgetItem*> items = m_treeWidget->selectedItems();
-    if (!items.empty()) {
-        // sort objects
-        QVector<QWidget*> selectedWidgets;
-        QVector<QObject*> selectedObjects;
-        selectedWidgets.reserve(items.size());
-        selectedObjects.reserve(items.size());
-
-        foreach (QTreeWidgetItem *item, items) {
-            QObject *object = qvariant_cast<QObject *>(item->data(0, 1000));
-            QWidget *widget = qobject_cast<QWidget*>(object);
-            if (widget && m_formWindow->isManaged(widget)) {
-                selectedWidgets.push_back(widget);
-            } else {
-                if (core()->metaDataBase()->item(object)) {
-                    selectedObjects.push_back(object);
-                }
-            }
+    Selection selection;
+    getSelection(selection);
+    
+    if (!selection.m_cursorSelection.empty()) {
+        // This will trigger an update
+        foreach (QWidget* widget, selection.m_cursorSelection) {
+            m_formWindow->selectWidget(widget);
         }
-        if (!selectedWidgets.empty()) {
-            // This will trigger an update
-            foreach (QWidget* widget, selectedWidgets) {
-                m_formWindow->selectWidget(widget);
-            }
-        } else {
-            if (!selectedObjects.empty()) {
-                // refresh at least the property editor
-                core()->propertyEditor()->setObject(selectedObjects[0]);
-                core()->propertyEditor()->setEnabled(selectedObjects.size() == 1);
-            }
+    } else {
+        if (!selection.m_selectedObjects.empty()) {
+            // refresh at least the property editor
+            core()->propertyEditor()->setObject(selection.m_selectedObjects[0]);
+            core()->propertyEditor()->setEnabled(selection.m_selectedObjects.size());
         }
     }
     
@@ -290,4 +273,26 @@ void ObjectInspector::showEvent(QShowEvent *event)
 {
     m_treeWidget->resizeColumnToContents(0);
     QDesignerObjectInspectorInterface::showEvent(event);
+}
+
+void ObjectInspector::getSelection(Selection &s) const
+{
+    s.clear();
+        
+    const QList<QTreeWidgetItem*> items = m_treeWidget->selectedItems();
+    if (items.empty()) 
+        return;
+    
+    // sort objects
+    foreach (QTreeWidgetItem *item, items) {
+        QObject *object = qvariant_cast<QObject *>(item->data(0, 1000));
+        QWidget *widget = qobject_cast<QWidget*>(object);
+        if (widget && m_formWindow->isManaged(widget)) {
+            s.m_cursorSelection.push_back(widget);
+        } else {
+            if (core()->metaDataBase()->item(object)) {
+                s.m_selectedObjects.push_back(object);
+            }
+        }
+    }
 }

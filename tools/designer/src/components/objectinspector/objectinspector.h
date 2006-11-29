@@ -15,6 +15,8 @@
 #define OBJECTINSPECTOR_H
 
 #include "objectinspector_global.h"
+#include "qdesigner_objectinspector_p.h"
+
 #include <QtDesigner/QtDesigner>
 #include <QtCore/QPointer>
 
@@ -25,7 +27,7 @@ namespace qdesigner_internal {
 
 class TreeWidget;
 
-class QT_OBJECTINSPECTOR_EXPORT ObjectInspector: public QDesignerObjectInspectorInterface
+class QT_OBJECTINSPECTOR_EXPORT ObjectInspector: public QDesignerObjectInspector
 {
     Q_OBJECT
 public:
@@ -33,6 +35,8 @@ public:
     virtual ~ObjectInspector();
 
     virtual QDesignerFormEditorInterface *core() const;
+    
+    virtual void getSelection(Selection &s) const;
 
     void setFormWindow(QDesignerFormWindowInterface *formWindow);
 

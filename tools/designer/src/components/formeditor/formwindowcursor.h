@@ -54,7 +54,6 @@ public slots:
 
 private:
     FormWindow *m_formWindow;
-    int m_iterator;
 };
 
 }  // namespace qdesigner_internal

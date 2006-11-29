@@ -39,6 +39,8 @@ class QWidget;
 
 namespace qdesigner_internal {
 
+struct Selection;
+
 class QDESIGNER_SHARED_EXPORT QDesignerIntegration: public QDesignerIntegrationInterface
 {
     Q_OBJECT
@@ -65,6 +67,7 @@ public slots:
 
 private:
     void initialize();
+    void getSelection(Selection &s);
     QDesignerFormWindowManagerInterface *m_formWindowManager;
 };
 

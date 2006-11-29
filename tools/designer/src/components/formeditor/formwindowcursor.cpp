@@ -25,12 +25,11 @@ TRANSLATOR qdesigner_internal::FormWindowCursor
 
 #include <QtCore/qdebug.h>
 
-using namespace qdesigner_internal;
+namespace qdesigner_internal {
 
 FormWindowCursor::FormWindowCursor(FormWindow *fw, QObject *parent)
     : QObject(parent),
-      m_formWindow(fw),
-      m_iterator(0)
+      m_formWindow(fw)
 {
     update();
     connect(fw, SIGNAL(changed()), this, SLOT(update()));
@@ -50,29 +49,29 @@ bool FormWindowCursor::movePosition(MoveOperation op, MoveMode mode)
     if (widgetCount() == 0)
         return false;
 
-    m_iterator = m_formWindow->widgets().indexOf(selectedWidget(0));
+    int iterator = position();
 
     if (mode == MoveAnchor)
         m_formWindow->clearSelection(false);
 
     switch (op) {
     case Next:
-        ++m_iterator;
-        if (m_iterator >= widgetCount())
-            m_iterator = 0;
+        ++iterator;
+        if (iterator >= widgetCount())
+            iterator = 0;
 
-        m_formWindow->selectWidget(m_formWindow->widgetAt(m_iterator), true);
+        m_formWindow->selectWidget(m_formWindow->widgetAt(iterator), true);
         return true;
 
     case Prev:
-        --m_iterator;
-        if (m_iterator < 0)
-            m_iterator = widgetCount() - 1;
+        --iterator;
+        if (iterator < 0)
+            iterator = widgetCount() - 1;
 
-        if (m_iterator < 0)
+        if (iterator < 0)
             return false;
 
-        m_formWindow->selectWidget(m_formWindow->widgetAt(m_iterator), true);
+        m_formWindow->selectWidget(m_formWindow->widgetAt(iterator), true);
         return true;
 
     default:
@@ -82,7 +81,8 @@ bool FormWindowCursor::movePosition(MoveOperation op, MoveMode mode)
 
 int FormWindowCursor::position() const
 {
-    return m_iterator;
+    const int index = m_formWindow->widgets().indexOf(current());
+    return index == -1 ? 0 : index;
 }
 
 void FormWindowCursor::setPosition(int pos, MoveMode mode)
@@ -93,18 +93,15 @@ void FormWindowCursor::setPosition(int pos, MoveMode mode)
     if (mode == MoveAnchor)
         m_formWindow->clearSelection(false);
 
-    m_iterator = pos;
-    if (m_iterator >= widgetCount())
-        m_iterator = 0;
+    if (pos >= widgetCount())
+        pos = 0;
 
-    m_formWindow->selectWidget(m_formWindow->widgetAt(m_iterator), true);
+    m_formWindow->selectWidget(m_formWindow->widgetAt(pos), true);
 }
 
 QWidget *FormWindowCursor::current() const
 {
-    if (m_iterator < widgetCount())
-        return m_formWindow->widgetAt(m_iterator);
-    return 0;
+    return m_formWindow->currentWidget();
 }
 
 bool FormWindowCursor::hasSelection() const
@@ -142,39 +139,45 @@ QWidget *FormWindowCursor::widget(int index) const
 
 void FormWindowCursor::setProperty(const QString &name, const QVariant &value)
 {
-    int N = selectedWidgetCount();
+
+    // build selection
+    const int N = selectedWidgetCount();
     Q_ASSERT(N);
+    
+    SetPropertyCommand::ObjectList selection;
+    for (int i=0; i<N; ++i) 
+         selection.push_back(selectedWidget(i));
 
-    if (N > 1)
-        m_formWindow->beginCommand(tr("changed '%1'").arg(name));
-
-    for (int i=0; i<N; ++i) {
-        QWidget *widget = selectedWidget(i);
-        setWidgetProperty(widget, name, value);
+    
+    SetPropertyCommand* setPropertyCommand = new SetPropertyCommand(m_formWindow);
+    if (setPropertyCommand->init(selection, name, value, current())) {
+        m_formWindow->commandHistory()->push(setPropertyCommand);
+    } else {
+        delete setPropertyCommand;
+        qWarning() << "Unable to set property " << name << '.';
     }
-
-    if (N > 1)
-        m_formWindow->endCommand();
 }
 
 void FormWindowCursor::setWidgetProperty(QWidget *widget, const QString &name, const QVariant &value)
 {
-    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_formWindow->core()->extensionManager(), widget);
-    Q_ASSERT(sheet);
-    Q_UNUSED(sheet);
-
     SetPropertyCommand *cmd = new SetPropertyCommand(m_formWindow);
-    cmd->init(widget, name, value);
-    m_formWindow->commandHistory()->push(cmd);
+    if (cmd->init(widget, name, value)) {
+        m_formWindow->commandHistory()->push(cmd);
+    } else {
+        delete cmd;
+        qWarning() << "Unable to set property " << name << '.';
+    }
 }
 
 void FormWindowCursor::resetWidgetProperty(QWidget *widget, const QString &name)
 {
-    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_formWindow->core()->extensionManager(), widget);
-    Q_ASSERT(sheet);
-    Q_UNUSED(sheet);
-
     ResetPropertyCommand *cmd = new ResetPropertyCommand(m_formWindow);
-    cmd->init(widget, name);
-    m_formWindow->commandHistory()->push(cmd);
+    if (cmd->init(widget, name)) {
+        m_formWindow->commandHistory()->push(cmd);
+    } else {
+        delete cmd;
+        qWarning() << "Unable to reset property " << name << '.';
+    }
+}
+
 }

@@ -95,8 +95,7 @@ QObject *GroupBoxTaskMenuFactory::createExtension(QObject *object, const QString
 
 void GroupBoxTaskMenu::updateText(const QString &text)
 {
-    formWindow()->cursor()->setWidgetProperty(m_groupbox,
-                                QLatin1String("title"), QVariant(text));
+    formWindow()->cursor()->setProperty(QLatin1String("title"), QVariant(text));
 }
 
 void GroupBoxTaskMenu::updateSelection()

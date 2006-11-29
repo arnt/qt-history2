@@ -29,6 +29,7 @@ HEADERS += \
     $$PWD/qdesigner_widget_p.h \
     $$PWD/qdesigner_propertysheet_p.h \
     $$PWD/qdesigner_propertyeditor_p.h \
+    $$PWD/qdesigner_objectinspector_p.h \
     $$PWD/qdesigner_integration_p.h \
     $$PWD/invisible_widget_p.h \
     $$PWD/qlayout_widget_p.h \
@@ -78,6 +79,7 @@ SOURCES += \
     $$PWD/qdesigner_dockwidget.cpp \
     $$PWD/qdesigner_propertysheet.cpp \
     $$PWD/qdesigner_propertyeditor.cpp \
+    $$PWD/qdesigner_objectinspector.cpp \
     $$PWD/qdesigner_integration.cpp \
     $$PWD/qdesigner_dnditem.cpp \
     $$PWD/qsimpleresource.cpp \

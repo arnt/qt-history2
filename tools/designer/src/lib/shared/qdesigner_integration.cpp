@@ -15,6 +15,7 @@
 #include "qdesigner_propertycommand_p.h"
 #include "qdesigner_propertycommentcommand_p.h"
 #include "qdesigner_propertyeditor_p.h"
+#include "qdesigner_objectinspector_p.h"
 
 // sdk
 #include <QtDesigner/QtDesigner>
@@ -59,66 +60,51 @@ void QDesignerIntegration::initialize()
 }
 
 void QDesignerIntegration::updateProperty(const QString &name, const QVariant &value)
-{
-    Q_ASSERT(core()->propertyEditor() != 0);
-    Q_ASSERT(core()->propertyEditor()->object() != 0);
-
-    if (QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow()) {
-        QObject *object = core()->propertyEditor()->object();
-        QWidget *widget = qobject_cast<QWidget*>(object);
-
-        QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), object);
-        Q_ASSERT(sheet != 0);
-
-        const int propertyIndex = sheet->indexOf(name);
+{ 
+    QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow();
+    if (!formWindow)
+        return;
+    
+    Selection selection;
+    getSelection(selection);
+    if (selection.empty()) 
+        return;
+    // Legacy: set properties on widgets via cursor
+    if (!selection.m_cursorSelection.empty() && selection.m_selectedObjects.empty()) {
         QDesignerFormWindowCursorInterface *cursor = formWindow->cursor();
-
-        if (widget && cursor->isWidgetSelected(widget)) {
-            if (cursor->isWidgetSelected(formWindow->mainContainer())) {
-                if (name == QLatin1String("windowTitle")) {
-                    QString filename = formWindow->fileName().isEmpty()
-                            ? QString::fromUtf8("Untitled")
-                            : formWindow->fileName();
-
-                    formWindow->setWindowTitle(QString::fromUtf8("%1 - (%2)")
-                                            .arg(value.toString())
-                                            .arg(filename));
-
-                }
-            }
-
-            cursor->setProperty(name, value);
-        } else if (propertyIndex != -1) {
-            SetPropertyCommand *cmd = new SetPropertyCommand(formWindow);
-            cmd->init(object, name, value);
+        cursor->setProperty(name, value);
+    } else {
+        SetPropertyCommand *cmd = new SetPropertyCommand(formWindow);
+        // find a reference object to compare to
+        QObject *referenceObject = 0;
+        if (QDesignerPropertyEditorInterface *propertyEditor = core()->propertyEditor())
+            referenceObject  = propertyEditor->object();
+        if (cmd->init(selection.selection(), name, value, referenceObject)) {
             formWindow->commandHistory()->push(cmd);
+        } else {
+            delete cmd;
+            qWarning() << "Unable to set  property " << name << '.';
         }
-
-        if (name == QLatin1String("objectName") && core()->objectInspector()) {
-            core()->objectInspector()->setFormWindow(formWindow);
-        }
-
-        emit propertyChanged(formWindow, name, value);
-
-        core()->propertyEditor()->setPropertyValue(name, sheet->property(propertyIndex));
     }
+
+    emit propertyChanged(formWindow, name, value);
 }
 
 void QDesignerIntegration::updatePropertyComment(const QString &name, const QString &value)
 {
+    
+    
     QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow();
     if (!formWindow)
         return;
-
-    QObject *object = 0;
-    if (QDesignerPropertyEditorInterface* propertyEditor = core()->propertyEditor()) {
-        object = propertyEditor->object();
-    }
-    if (!object)
+    
+    Selection selection;
+    getSelection(selection);
+    if (selection.empty()) 
         return;
 
     SetPropertyCommentCommand *cmd = new SetPropertyCommentCommand(formWindow);
-    if (cmd->init(object, name, value)) {
+    if (cmd->init(selection.selection(), name, value)) {
         formWindow->commandHistory()->push(cmd);
     } else {
         delete cmd;
@@ -132,17 +118,20 @@ void QDesignerIntegration::resetProperty(const QString &name)
     QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow();
     if (!formWindow)
         return;
-
-    QObject *object = 0;
-    if (QDesignerPropertyEditorInterface* propertyEditor = core()->propertyEditor()) {
-        object = propertyEditor->object();
-    }
-    if (!object)
+    
+    Selection selection;
+    getSelection(selection);
+    if (selection.empty()) 
         return;
 
+
     ResetPropertyCommand *cmd = new ResetPropertyCommand(formWindow);
-    cmd->init(object, name);
-    formWindow->commandHistory()->push(cmd);
+    if (cmd->init(selection.selection(), name)) {
+        formWindow->commandHistory()->push(cmd);
+    } else {
+        delete cmd;
+        qWarning() << "** WARNING Unable to reset property " << name << '.';
+    } 
 }
 
 void QDesignerIntegration::updateActiveFormWindow(QDesignerFormWindowInterface *formWindow)
@@ -166,15 +155,16 @@ void QDesignerIntegration::updateSelection()
     QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow();
     QWidget *selection = 0;
 
-    if (formWindow)
-        selection = formWindow->cursor()->selectedWidget(0);
+    if (formWindow) {
+        selection = formWindow->cursor()->current();
+    }
 
     if (QDesignerActionEditorInterface *actionEditor = core()->actionEditor())
         actionEditor->setFormWindow(formWindow);
 
     if (QDesignerPropertyEditorInterface *propertyEditor = core()->propertyEditor()) {
         propertyEditor->setObject(selection);
-        propertyEditor->setEnabled(formWindow && formWindow->cursor()->selectedWidgetCount() == 1);
+        propertyEditor->setEnabled(formWindow && formWindow->cursor()->selectedWidgetCount());
     }
     if (QDesignerObjectInspectorInterface *objectInspector = core()->objectInspector())
         objectInspector->setFormWindow(formWindow);
@@ -200,5 +190,29 @@ QWidget *QDesignerIntegration::containerWindow(QWidget *widget) const
     return widget;
 }
 
+void QDesignerIntegration::getSelection(Selection &s)
+{
+    // Get multiselection from object inspector
+    if (QDesignerObjectInspector *designerObjectInspector = qobject_cast<QDesignerObjectInspector *>(core()->objectInspector())) {
+        designerObjectInspector->getSelection(s);
+    } else {
+        s.clear();
+        // get single selection
+        
+        QObject *object = core()->propertyEditor()->object();
+        QWidget *widget = qobject_cast<QWidget*>(object);
+        
+        QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow();
+        if (!formWindow)
+            return;
+        QDesignerFormWindowCursorInterface *cursor = formWindow->cursor();
+    
+        if (widget && cursor->isWidgetSelected(widget)) {
+            s.m_cursorSelection.push_back(widget);
+        } else {
+            s.m_selectedObjects.push_back(object);
+        }
+    }
+}
 
 } // namespace qdesigner_internal

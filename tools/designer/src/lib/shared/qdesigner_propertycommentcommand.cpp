@@ -28,7 +28,8 @@ SetPropertyCommentCommand::Entry::Entry(QObject* object, const QString &oldComme
 }
 
 SetPropertyCommentCommand::SetPropertyCommentCommand(QDesignerFormWindowInterface *formWindow) :
-     QDesignerFormWindowCommand(QString(), formWindow)
+     QDesignerFormWindowCommand(QString(), formWindow),
+     m_propertyType(QVariant::Invalid)
 {
 }
 
@@ -41,9 +42,36 @@ bool SetPropertyCommentCommand::init(QObject *object, const QString &propertyNam
     if (!add(object))
         return false;
 
-    setText(QApplication::translate("Command", "changed comment of '%1' of '%2'").arg(m_propertyName).arg(object->objectName()));
+    setDescription();
     return true;
 }
+
+void SetPropertyCommentCommand::setDescription()
+{
+    if (m_Entries.size() == 1) {
+        setText(QApplication::translate("Command", "changed comment of '%1' of '%2'").arg(m_propertyName).arg(m_Entries[0].m_object->objectName()));
+    } else {
+        setText(QApplication::translate("Command", "changed comment of '%1' of %2 objects").arg(m_propertyName).arg(m_Entries.size()));
+    }
+}
+
+bool SetPropertyCommentCommand::init(const ObjectList &list, const QString &propertyName, const QString &newCommentValue)
+{
+    m_propertyName = propertyName;
+    m_newCommentValue = newCommentValue;
+
+    m_Entries.clear();
+    foreach (QObject *o, list) {
+        add(o);
+    }
+
+    if (m_Entries.empty())
+        return false;
+
+    setDescription();
+    return true;
+}
+
 
 bool SetPropertyCommentCommand::add(QObject *object)
 {
@@ -53,8 +81,17 @@ bool SetPropertyCommentCommand::add(QObject *object)
         return false;
 
     const int index = sheet->indexOf(m_propertyName);
-    if (index == -1)
+    if (index == -1 || !sheet->isVisible(index))
         return false;
+
+    // Set or check type
+    const QVariant::Type propertyType = sheet->property(index).type();
+    if (m_Entries.empty()) {
+        m_propertyType = propertyType;
+    } else {
+        if ( propertyType != m_propertyType)
+            return false;
+    }
 
     const QString oldCommentValue = propertyComment(core, object, m_propertyName);
 

@@ -74,7 +74,7 @@ void TextEditTaskMenu::editText()
 
         if (dlg->exec()) {
             QString text = editor->text(Qt::RichText);
-            m_formWindow->cursor()->setWidgetProperty(m_textEdit, QLatin1String("html"), QVariant(text));
+            m_formWindow->cursor()->setProperty(QLatin1String("html"), QVariant(text));
         }
 
         delete dlg;
@@ -103,6 +103,6 @@ QObject *TextEditTaskMenuFactory::createExtension(QObject *object, const QString
 
 void TextEditTaskMenu::updateText(const QString &text)
 {
-    m_formWindow->cursor()->setWidgetProperty(m_textEdit, QLatin1String("html"), QVariant(text));
+    m_formWindow->cursor()->setProperty(QLatin1String("html"), QVariant(text));
 }
 

@@ -28,6 +28,7 @@
 #include "qdesigner_formwindowcommand_p.h"
 
 #include <QtCore/QList>
+#include <QtCore/QVariant>
 
 class QDesignerFormWindowInterface;
 
@@ -43,6 +44,9 @@ public:
 
     bool init(QObject *object, const QString &propertyName, const QString &newCommentValue);
 
+    typedef QList<QObject *> ObjectList;
+    bool init(const ObjectList &list, const QString &propertyName, const QString &newCommentValue);
+
     int id() const;
     bool mergeWith(const QUndoCommand *other);
 
@@ -51,6 +55,7 @@ public:
 
 private:
     bool add(QObject *object);
+    void setDescription();
 
     struct Entry {
         Entry(QObject* object, const QString &oldCommentValue);
@@ -61,6 +66,7 @@ private:
     typedef QList<Entry> EntryList;
     EntryList m_Entries;
 
+    QVariant::Type m_propertyType;
     QString m_propertyName;
     QString m_newCommentValue;
 };

@@ -71,18 +71,21 @@ bool QDesignerFormWindowCommand::hasLayout(QWidget *widget) const
 
     return false;
 }
-    
+
 QDesignerPropertySheetExtension* QDesignerFormWindowCommand::propertySheet(QObject *object) const
 {
     return  qt_extension<QDesignerPropertySheetExtension*>(formWindow()->core()->extensionManager(), object);
 }
 
-void QDesignerFormWindowCommand::updateBuddies(const QString &old_name,
-                                                const QString &new_name)
+void QDesignerFormWindowCommand::updateBuddies(QDesignerFormWindowInterface *form,
+                                               const QString &old_name,
+                                               const QString &new_name)
 {
-    const QList<QDesignerLabel*> label_list = qFindChildren<QDesignerLabel*>(formWindow());
+    QExtensionManager* extensionManager = form->core()->extensionManager();
+
+    const QList<QDesignerLabel*> label_list = qFindChildren<QDesignerLabel*>(form);
     foreach (QDesignerLabel *label, label_list) {
-        if (QDesignerPropertySheetExtension* sheet = propertySheet(label)) {
+        if (QDesignerPropertySheetExtension* sheet = qt_extension<QDesignerPropertySheetExtension*>(extensionManager, label)) {
             const int idx = sheet->indexOf(QLatin1String("buddy"));
             if (idx == -1)
                 continue;

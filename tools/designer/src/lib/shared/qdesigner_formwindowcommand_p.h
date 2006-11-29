@@ -44,15 +44,16 @@ public:
 
     virtual void undo();
     virtual void redo();
-    
+
+    static void updateBuddies(QDesignerFormWindowInterface *form,
+                              const QString &old_name, const QString &new_name);
+    static void checkParent(QWidget *widget, QWidget *parentWidget);
+
 protected:
     QDesignerFormWindowInterface *formWindow() const;
-    QDesignerFormEditorInterface *core() const;    
+    QDesignerFormEditorInterface *core() const;
     QDesignerPropertySheetExtension* propertySheet(QObject *object) const;
 
-    void updateBuddies(const QString &old_name, const QString &new_name);
-
-    void checkParent(QWidget *widget, QWidget *parentWidget);
     bool hasLayout(QWidget *widget) const;
 
     void cheapUpdate();

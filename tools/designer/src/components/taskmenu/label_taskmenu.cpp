@@ -77,7 +77,7 @@ void LabelTaskMenu::editRichText()
 
         if (dlg.exec()) {
             const QString text = editor->text(m_label->textFormat());
-            m_formWindow->cursor()->setWidgetProperty(m_label, QLatin1String("text"), QVariant(text));
+            m_formWindow->cursor()->setProperty(QLatin1String("text"), QVariant(text));
         }
     }
 }
@@ -120,7 +120,7 @@ QObject *LabelTaskMenuFactory::createExtension(QObject *object, const QString &i
 
 void LabelTaskMenu::updateText(const QString &text)
 {
-    m_formWindow->cursor()->setWidgetProperty(m_label, QLatin1String("text"), QVariant(text));
+    m_formWindow->cursor()->setProperty(QLatin1String("text"), QVariant(text));
 }
 
 void LabelTaskMenu::updateSelection()
