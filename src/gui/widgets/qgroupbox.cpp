@@ -475,8 +475,8 @@ QSize QGroupBox::minimumSizeHint() const
         baseHeight = qMax(baseHeight, style()->pixelMetric(QStyle::PM_IndicatorHeight));
     }
 
-    QSize size = QWidget::minimumSizeHint().expandedTo(QSize(baseWidth, baseHeight));
-    return style()->sizeFromContents(QStyle::CT_GroupBox, &option, size, this);
+    QSize size = style()->sizeFromContents(QStyle::CT_GroupBox, &option, QSize(baseWidth, baseHeight), this);
+    return size.expandedTo(QWidget::minimumSizeHint());
 }
 
 /*!
