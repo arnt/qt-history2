@@ -247,11 +247,10 @@ void tst_QWSWindowSystem::directPainter()
         QCOMPARE(win->allocatedRegion(), QRegion());
         QCOMPARE(dpWin->allocatedRegion(), QRegion(rect));
     }
-#if 0 // currently crashes
+
     QApplication::processEvents();
     QCOMPARE(win->allocatedRegion(), QRegion(rect));
     VERIFY_COLOR(rect, w.color());
-#endif
 }
 
 QTEST_MAIN(tst_QWSWindowSystem)
