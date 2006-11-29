@@ -25,28 +25,28 @@
 #include <QtCore/qdebug.h>
 #include <private/qfont_p.h>
 
-namespace {
+namespace qdesigner_internal {
 
 class EditorWithReset : public QWidget
 {
     Q_OBJECT
 public:
-    EditorWithReset(const qdesigner_internal::IProperty *property, qdesigner_internal::QPropertyEditorModel *model, QWidget *parent = 0);
+    EditorWithReset(const IProperty *property, QPropertyEditorModel *model, QWidget *parent = 0);
     void setChildEditor(QWidget *child_editor);
     QWidget *childEditor() const { return m_child_editor; }
 private slots:
     void emitResetProperty();
 signals:
     void sync();
-    void resetProperty(const qdesigner_internal::IProperty *property, qdesigner_internal::QPropertyEditorModel *model);
+    void resetProperty(const IProperty *property, QPropertyEditorModel *model);
 private:
     QWidget *m_child_editor;
     QHBoxLayout *m_layout;
-    const qdesigner_internal::IProperty *m_property;
-    qdesigner_internal::QPropertyEditorModel *m_model;
+    const IProperty *m_property;
+    QPropertyEditorModel *m_model;
 };
 
-EditorWithReset::EditorWithReset(const qdesigner_internal::IProperty *property, qdesigner_internal::QPropertyEditorModel *model, QWidget *parent)
+EditorWithReset::EditorWithReset(const IProperty *property, QPropertyEditorModel *model, QWidget *parent)
     : QWidget(parent)
 {
     setAutoFillBackground(true);
@@ -59,7 +59,7 @@ EditorWithReset::EditorWithReset(const qdesigner_internal::IProperty *property, 
 
     QToolButton *button = new QToolButton(this);
     button->setToolButtonStyle(Qt::ToolButtonIconOnly);
-    button->setIcon(qdesigner_internal::createIconSet(QLatin1String("resetproperty.png")));
+    button->setIcon(createIconSet(QLatin1String("resetproperty.png")));
     button->setIconSize(QSize(8,8));
     button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding));
     m_layout->addWidget(button);
@@ -79,9 +79,6 @@ void EditorWithReset::setChildEditor(QWidget *child_editor)
     m_layout->insertWidget(0, m_child_editor);
     setFocusProxy(m_child_editor);
 }
-}
-
-namespace qdesigner_internal {
 
 QPropertyEditorDelegate::QPropertyEditorDelegate(QObject *parent)
     : QItemDelegate(parent),
