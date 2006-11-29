@@ -204,6 +204,10 @@ void QPixmap::fill(const QColor &fillColor)
                           fillColor.green() * alpha / 255,
                           fillColor.blue() * alpha / 255,
                           alpha);
+#ifdef Q_WS_QWS
+        } else if (data->image.depth() == 16) {
+            pixel = qt_convRgbTo16(fillColor.rgba());
+#endif
         } else {
             pixel = fillColor.rgba();
         }
