@@ -17,45 +17,36 @@
 #include <iconloader_p.h>
 
 #include <QtGui/QPainter>
-#include <QtGui/QFrame>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QApplication>
-#include <QtGui/QSpinBox>
 #include <QtGui/QToolButton>
 #include <QtGui/QHBoxLayout>
-#include <QtGui/QMessageBox>
-#include <QtGui/QLabel>
-#include <QtGui/qdrawutil.h>
 
 #include <QtCore/qdebug.h>
 #include <private/qfont_p.h>
 
-#include <limits.h>
-
-#ifndef Q_MOC_RUN
-using namespace qdesigner_internal;
-#endif
+namespace {
 
 class EditorWithReset : public QWidget
 {
     Q_OBJECT
 public:
-    EditorWithReset(const IProperty *property, QPropertyEditorModel *model, QWidget *parent = 0);
+    EditorWithReset(const qdesigner_internal::IProperty *property, qdesigner_internal::QPropertyEditorModel *model, QWidget *parent = 0);
     void setChildEditor(QWidget *child_editor);
     QWidget *childEditor() const { return m_child_editor; }
 private slots:
     void emitResetProperty();
 signals:
     void sync();
-    void resetProperty(const IProperty *property, QPropertyEditorModel *model);
+    void resetProperty(const qdesigner_internal::IProperty *property, qdesigner_internal::QPropertyEditorModel *model);
 private:
     QWidget *m_child_editor;
     QHBoxLayout *m_layout;
-    const IProperty *m_property;
-    QPropertyEditorModel *m_model;
+    const qdesigner_internal::IProperty *m_property;
+    qdesigner_internal::QPropertyEditorModel *m_model;
 };
 
-EditorWithReset::EditorWithReset(const IProperty *property, QPropertyEditorModel *model, QWidget *parent)
+EditorWithReset::EditorWithReset(const qdesigner_internal::IProperty *property, qdesigner_internal::QPropertyEditorModel *model, QWidget *parent)
     : QWidget(parent)
 {
     setAutoFillBackground(true);
@@ -68,7 +59,7 @@ EditorWithReset::EditorWithReset(const IProperty *property, QPropertyEditorModel
 
     QToolButton *button = new QToolButton(this);
     button->setToolButtonStyle(Qt::ToolButtonIconOnly);
-    button->setIcon(createIconSet(QLatin1String("resetproperty.png")));
+    button->setIcon(qdesigner_internal::createIconSet(QLatin1String("resetproperty.png")));
     button->setIconSize(QSize(8,8));
     button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding));
     m_layout->addWidget(button);
@@ -88,6 +79,9 @@ void EditorWithReset::setChildEditor(QWidget *child_editor)
     m_layout->insertWidget(0, m_child_editor);
     setFocusProxy(m_child_editor);
 }
+}
+
+namespace qdesigner_internal {
 
 QPropertyEditorDelegate::QPropertyEditorDelegate(QObject *parent)
     : QItemDelegate(parent),
@@ -159,18 +153,18 @@ void QPropertyEditorDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     option.state &= ~QStyle::State_HasFocus;
 
     if (property && property->isSeparator()) {
-        QBrush bg = option.palette.dark();
+        const QBrush bg = option.palette.dark();
         painter->fillRect(option.rect, bg);
     }
 
-    QPen savedPen = painter->pen();
+    const QPen savedPen = painter->pen();
 
     QItemDelegate::paint(painter, option, index);
 
-    QColor color = static_cast<QRgb>(QApplication::style()->styleHint(QStyle::SH_Table_GridLineColor, &option));
+    const QColor color = static_cast<QRgb>(QApplication::style()->styleHint(QStyle::SH_Table_GridLineColor, &option));
     painter->setPen(QPen(color));
     if (index.column() == 1 || !(property && property->isSeparator())) {
-        int right = (option.direction == Qt::LeftToRight) ? option.rect.right() : option.rect.left();
+        const int right = (option.direction == Qt::LeftToRight) ? option.rect.right() : option.rect.left();
         painter->drawLine(right, option.rect.y(), right, option.rect.bottom());
     }
     painter->drawLine(option.rect.x(), option.rect.bottom(),
@@ -264,7 +258,7 @@ void QPropertyEditorDelegate::setModelData(QWidget *editor,
                 property->propertyName() == QLatin1String("Strikeout") ||
                 property->propertyName() == QLatin1String("Kerning") ||
                 property->propertyName() == QLatin1String("Antialiasing")) {
-            QModelIndex parentIndex = index.parent();
+            const QModelIndex parentIndex = index.parent();
             if (IProperty *fontProperty = static_cast<const QPropertyEditorModel*>(model)->privateData(parentIndex)) {
                 QFont f = qvariant_cast<QFont>(fontProperty->value());
                 if (property->propertyName() == QLatin1String("Family"))
@@ -339,7 +333,7 @@ void QPropertyEditorDelegate::resetProperty(const IProperty *property, QProperty
                 mask &= ~QFontPrivate::StyleStrategy;
             f.resolve(mask);
             if (mask) {
-                QModelIndex fontIndex = model->indexOf(fontProperty);
+                const QModelIndex fontIndex = model->indexOf(fontProperty);
                 fontProperty->setDirty(true);
                 model->setData(fontIndex, f, Qt::EditRole);
                 return;
@@ -356,5 +350,5 @@ void QPropertyEditorDelegate::updateEditorGeometry(QWidget *editor, const QStyle
     editor->setGeometry(editor->geometry().adjusted(0, 0, -1, -1));
 }
 
-
+}
 #include "qpropertyeditor_delegate.moc"
