@@ -1523,11 +1523,6 @@ Q_CORE_EXPORT QString qt_mac_from_pascal_string(const Str255 pstr) {
 
 static QSysInfo::MacVersion macVersion()
 {
-#if __LP64__
-typedef signed int SInt32;
-#else
-typedef signed long SInt32;
-#endif
     SInt32 gestalt_version;
     if (Gestalt(gestaltSystemVersion, &gestalt_version) == noErr) {
         if (gestalt_version >= 0x1050 && gestalt_version < 0x1060)
@@ -1653,7 +1648,7 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
 
 /*
 #ifdef Q_OS_WIN32
-# include "qt_windows.h" 
+# include "qt_windows.h"
 #else
 # include <unistd.h>
 # include <netinet/in.h>

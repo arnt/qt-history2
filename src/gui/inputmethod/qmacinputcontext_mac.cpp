@@ -49,13 +49,7 @@ QMacInputContext::createTextDocument()
 {
     if(!textDocument) {
         InterfaceTypeList itl = { kUnicodeDocument };
-        NewTSMDocument(1, itl, &textDocument,
-#if !__LP64__
-                (SInt32)this
-#else
-                this
-#endif
-                );
+        NewTSMDocument(1, itl, &textDocument, SRefCon(this));
     }
 }
 

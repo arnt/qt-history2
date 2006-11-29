@@ -998,7 +998,7 @@ void qt_init(QApplicationPrivate *priv, int)
         QMacInputContext::initialize();
         QApplicationPrivate::inputContext = new QMacInputContext;
 
-#ifndef __LP64__
+#ifndef QT_MAC_NO_QUICKDRAW
         RegisterAppearanceClient();
 #endif
         if(QApplication::desktopSettingsAware())
@@ -1145,7 +1145,9 @@ static QWidget *qt_mac_recursive_widgetAt(QWidget *widget, int x, int y)
 
 void QApplication::beep()
 {
-#ifndef __LP64__
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+    qWarning("QApplication::beep: Not implemented!");
+#else
     SysBeep(0);
 #endif
 }

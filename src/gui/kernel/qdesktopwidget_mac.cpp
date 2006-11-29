@@ -26,7 +26,7 @@ void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
   QDesktopWidget member functions
  *****************************************************************************/
 
-#ifdef __LP64__
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
 typedef CGDirectDisplayID QtMacDisplayType;
 #else
 typedef GDHandle QtMacDisplayType;
@@ -56,7 +56,7 @@ void QDesktopWidgetPrivate::readScreenInformation(QVector<QtMacDisplayType> &dev
                                                   QVector<QRect> &screenRects, int &screenCount)
 {
     screenCount = 0;
-#ifdef __LP64__
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
     CGDisplayCount cg_count;
     CGGetActiveDisplayList(0, 0, &cg_count);
     screenCount = cg_count;
@@ -66,7 +66,7 @@ void QDesktopWidgetPrivate::readScreenInformation(QVector<QtMacDisplayType> &dev
 #endif
     devices.resize(screenCount);
     screenRects.resize(screenCount);
-#ifdef __LP64__
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
     CGGetActiveDisplayList(screenCount, devices.data(), &cg_count);
     Q_ASSERT(cg_count == (CGDisplayCount)screenCount);
     for(int i = 0; i < screenCount; ++i) {
@@ -119,7 +119,7 @@ const QRect QDesktopWidget::availableGeometry(int screen) const
     Q_D(const QDesktopWidget);
     if(screen < 0 || screen >= d->screenCount)
         screen = d->appScreen;
-#ifdef __LP64__
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
     HIRect r;
     HIWindowGetAvailablePositioningBounds(d->devs[screen], kHICoordSpaceScreenPixel, &r);
     return QRectF(r.origin.x, r.origin.y, r.size.width, r.size.height).toRect();

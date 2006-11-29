@@ -268,7 +268,7 @@ QList<QByteArray> QMacPasteboardMimeText::convertFromMime(const QString &, QVari
     return ret;
 }
 
-#ifndef __LP64__
+#ifndef QT_MAC_NO_QUICKDRAW
 class QMacPasteboardMimePict : public QMacPasteboardMime {
 public:
     QMacPasteboardMimePict() : QMacPasteboardMime(MIME_ALL) { }
@@ -696,7 +696,7 @@ void QMacPasteboardMime::initialize()
 
         //standard types that we wrap
         new QMacPasteboardMimeTiff;
-#ifndef __LP64__
+#ifndef QT_MAC_NO_QUICKDRAW
         new QMacPasteboardMimePict;
 #endif
         new QMacPasteboardMimeText;
