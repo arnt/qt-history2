@@ -61,7 +61,7 @@ NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget, const QSt
     createButton->setEnabled(false);
     ui.buttonBox->addButton(QApplication::translate("NewForm", "&Open...", 0,
                                     QApplication::UnicodeUTF8), QDialogButtonBox::ActionRole);
-    QPushButton *recentButton = static_cast<QPushButton *>(ui.buttonBox->addButton(QApplication::translate("NewForm", "Recent", 0,
+    recentButton = static_cast<QPushButton *>(ui.buttonBox->addButton(QApplication::translate("NewForm", "Recent", 0,
                            QApplication::UnicodeUTF8), QDialogButtonBox::ActionRole));
     QDesignerActions *da = workbench->actionManager();
     QMenu *recentFilesMenu = new QMenu(tr("&Recent Forms"), recentButton);
@@ -86,6 +86,11 @@ NewForm::~NewForm()
 
 void NewForm::recentFileChosen()
 {
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (!action)
+        return;
+    if (action->objectName() == QLatin1String("__qt_action_clear_menu_"))
+        return;
     close();
 }
 
@@ -121,12 +126,14 @@ void NewForm::on_buttonBox_clicked(QAbstractButton *btn)
         close();
         break;
     case QDialogButtonBox::ActionRole:
-        hide();
-        m_fileName.clear();
-        if (m_workbench->actionManager()->openForm())
-            close();
-        else
-            show();
+        if (btn != recentButton) {
+            hide();
+            m_fileName.clear();
+            if (m_workbench->actionManager()->openForm())
+                close();
+            else
+                show();
+        }
         break;
     case QDialogButtonBox::AcceptRole:
         if (QTreeWidgetItem *item = ui.treeWidget->currentItem()) {

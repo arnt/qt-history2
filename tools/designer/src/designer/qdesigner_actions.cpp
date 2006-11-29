@@ -115,6 +115,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_recentFilesActions->addAction(act);
 
     act = new QAction(tr("Clear &Menu"), this);
+    act->setObjectName(QLatin1String("__qt_action_clear_menu_"));
     connect(act, SIGNAL(triggered()), this, SLOT(clearRecentFiles()));
     m_recentFilesActions->addAction(act);
 
