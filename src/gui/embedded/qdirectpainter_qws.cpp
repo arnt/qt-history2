@@ -159,8 +159,10 @@ class QDirectPainterPrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QDirectPainter);
 public:
     ~QDirectPainterPrivate() {
-        if (QPaintDevice::qwsDisplay()) // make sure not in QApplication destructor
+        if (QPaintDevice::qwsDisplay()) { // make sure not in QApplication destructor
+            qApp->d_func()->directPainters->remove(surface->windowId());
             surface->release();
+        }
         delete surface;
     }
 
