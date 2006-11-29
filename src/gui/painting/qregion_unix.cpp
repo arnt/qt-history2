@@ -31,7 +31,7 @@ struct QRegionPrivate {
     QRect innerRect;
     int innerArea;
 
-    inline QRegionPrivate() : numRects(0) {}
+    inline QRegionPrivate() : numRects(0), innerArea(-1) {}
     inline QRegionPrivate(const QRect &r) : rects(1) {
         numRects = 1;
         rects[0] = r;
