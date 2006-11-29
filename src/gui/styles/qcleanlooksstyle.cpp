@@ -34,6 +34,7 @@
 #include <qslider.h>
 #include <qsplitter.h>
 #include <qprogressbar.h>
+#include <qtoolbar.h>
 
 static const bool UsePixmapCache = true;
 
@@ -3600,7 +3601,10 @@ QSize QCleanlooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
         newSize += QSize(0, 1);
         break;
     case CT_ToolButton:
-        newSize += QSize(4, 6);
+#ifndef QT_NO_TOOLBUTTON
+        if (widget && qobject_cast<QToolBar *>(widget->parentWidget()))
+            newSize += QSize(4, 6);
+#endif // QT_NO_TOOLBUTTON
         break;
     case CT_SpinBox:
         newSize += QSize(0, -2);
