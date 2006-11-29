@@ -202,6 +202,7 @@ public:
     QChar toLower() const;
     QChar toUpper() const;
     QChar toTitleCase() const;
+    QChar toCaseFolded() const;
 
     UnicodeVersion unicodeVersion() const;
 
@@ -232,10 +233,10 @@ public:
     inline bool isTitleCase() const { return category() == Letter_Titlecase; }
 
     inline bool isHighSurrogate() const {
-        return (ucs >= 0xd800 && ucs < 0xdc00);
+        return ((ucs & 0xdc00) == 0xd800);
     }
     inline bool isLowSurrogate() const {
-        return (ucs >= 0xdc00 && ucs < 0xe000);
+        return ((ucs & 0xdc00) == 0xdc00);
     }
 
     inline uchar cell() const { return uchar(ucs & 0xff); }
@@ -277,6 +278,8 @@ public:
     static ushort QT_FASTCALL toUpper(ushort ucs2);
     static uint QT_FASTCALL toTitleCase(uint ucs4);
     static ushort QT_FASTCALL toTitleCase(ushort ucs2);
+    static uint QT_FASTCALL toCaseFolded(uint ucs4);
+    static ushort QT_FASTCALL toCaseFolded(ushort ucs2);
 
     static UnicodeVersion QT_FASTCALL unicodeVersion(uint ucs4);
     static UnicodeVersion QT_FASTCALL unicodeVersion(ushort ucs2);

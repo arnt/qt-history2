@@ -36,12 +36,12 @@ namespace QUnicodeTables {
         ushort direction : 8;
         ushort combiningClass :8;
         ushort joining : 2;
-        signed short digitValue : 6;
- /* 5 needed */        ushort unicodeVersion : 4;
+        signed short digitValue : 6; /* 5 needed */
+        ushort unicodeVersion : 4;
         ushort lowerCaseSpecial : 1;
         ushort upperCaseSpecial : 1;
         ushort titleCaseSpecial : 1;
-        ushort caseFoldSpecial : 1;
+        ushort caseFoldSpecial : 1; /* currently unused */
         signed short mirrorDiff : 16;
         signed short lowerCaseDiff : 16;
         signed short upperCaseDiff : 16;

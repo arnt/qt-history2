@@ -1022,6 +1022,48 @@ ushort QChar::toTitleCase(ushort ucs2)
 }
 
 
+static inline uint foldCase(const ushort *ch, const ushort *start)
+{
+    uint c = *ch;
+    if (QChar(c).isLowSurrogate() && ch > start && QChar(*(ch - 1)).isHighSurrogate())
+        c = QChar::surrogateToUcs4(*(ch - 1), c);
+    return *ch + qGetProp(c)->caseFoldDiff;
+}
+
+static inline uint foldCase(uint ch, uint &last)
+{
+    uint c = ch;
+    if (QChar(c).isLowSurrogate() && QChar(last).isHighSurrogate())
+        c = QChar::surrogateToUcs4(last, c);
+    last = ch;
+    return ch + qGetProp(c)->caseFoldDiff;
+}
+
+static inline ushort foldCase(ushort ch)
+{
+    return ch + qGetProp(ch)->caseFoldDiff;
+}
+
+/*!
+    Returns the case folded equivalent of the character. For most Unicode characters this
+    is the same as toLowerCase.
+*/
+QChar QChar::toCaseFolded() const
+{
+    return ucs + qGetProp(ucs)->caseFoldDiff;
+}
+
+uint QChar::toCaseFolded(uint ucs4)
+{
+    return ucs4 + qGetProp(ucs4)->caseFoldDiff;
+}
+
+ushort QChar::toCaseFolded(ushort ucs2)
+{
+    return ucs2 + qGetProp(ucs2)->caseFoldDiff;
+}
+
+
 /*!
     \fn char QChar::latin1() const
 
@@ -1414,3 +1456,4 @@ Q_CORE_EXPORT QUnicodeTables::LineBreakClass QUnicodeTables::lineBreakClass(uint
 {
     return (QUnicodeTables::LineBreakClass) qGetProp(ucs4)->line_break_class;
 }
+

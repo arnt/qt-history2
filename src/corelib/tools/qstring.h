@@ -183,6 +183,7 @@ public:
 
     QString toLower() const Q_REQUIRED_RESULT;
     QString toUpper() const Q_REQUIRED_RESULT;
+    QString toCaseFolded() const Q_REQUIRED_RESULT;
 
     QString trimmed() const Q_REQUIRED_RESULT;
     QString simplified() const Q_REQUIRED_RESULT;

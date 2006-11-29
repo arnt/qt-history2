@@ -34,12 +34,12 @@ const char *property_string =
     "        ushort direction : 8;\n"
     "        ushort combiningClass :8;\n"
     "        ushort joining : 2;\n"
-    "        signed short digitValue : 6;\n /* 5 needed */"
+    "        signed short digitValue : 6; /* 5 needed */\n"
     "        ushort unicodeVersion : 4;\n"
     "        ushort lowerCaseSpecial : 1;\n"
     "        ushort upperCaseSpecial : 1;\n"
     "        ushort titleCaseSpecial : 1;\n"
-    "        ushort caseFoldSpecial : 1;\n"
+    "        ushort caseFoldSpecial : 1; /* currently unused */\n"
     "        signed short mirrorDiff : 16;\n"
     "        signed short lowerCaseDiff : 16;\n"
     "        signed short upperCaseDiff : 16;\n"
@@ -115,6 +115,7 @@ struct PropertyFlags {
 };
 
 QList<int> specialCaseMap;
+int specialCaseMaxLen = 0;
 
 static int appendToSpecialCaseMap(const QList<int> &map)
 {
@@ -128,6 +129,7 @@ static int appendToSpecialCaseMap(const QList<int> &map)
             utf16map << val;
         }
     }
+    specialCaseMaxLen = qMax(specialCaseMaxLen, utf16map.size());
     utf16map << 0;
 
     for (int i = 0; i < specialCaseMap.size() - utf16map.size() - 1; ++i) {
@@ -416,12 +418,22 @@ static void readUnicodeData()
             Q_ASSERT(ok);
             data.p.upperCaseDiff = upperCase - codepoint;
             maxUpperCaseDiff = qMax(maxUpperCaseDiff, qAbs(data.p.upperCaseDiff));
+            if (codepoint > 0xffff) {
+                // if the condition below doesn't hold anymore we need to modify our case folding code
+                //qDebug() << codepoint << QChar::highSurrogate(codepoint) << QChar::highSurrogate(foldMap.at(0));
+                Q_ASSERT(QChar::highSurrogate(codepoint) == QChar::highSurrogate(upperCase));
+            }
         }
         if (!properties[UD_LowerCase].isEmpty()) {
             int lowerCase = properties[UD_LowerCase].toInt(&ok, 16);
             Q_ASSERT (ok);
             data.p.lowerCaseDiff = lowerCase - codepoint;
             maxLowerCaseDiff = qMax(maxLowerCaseDiff, qAbs(data.p.lowerCaseDiff));
+            if (codepoint > 0xffff) {
+                // if the condition below doesn't hold anymore we need to modify our case folding code
+                //qDebug() << codepoint << QChar::highSurrogate(codepoint) << QChar::highSurrogate(foldMap.at(0));
+                Q_ASSERT(QChar::highSurrogate(codepoint) == QChar::highSurrogate(lowerCase));
+            }
         }
         // we want toTitleCase to map to ToUpper in case we don't have any titlecase.
         if (properties[UD_TitleCase].isEmpty())
@@ -431,6 +443,11 @@ static void readUnicodeData()
             Q_ASSERT (ok);
             data.p.titleCaseDiff = titleCase - codepoint;
             maxTitleCaseDiff = qMax(maxTitleCaseDiff, qAbs(data.p.titleCaseDiff));
+            if (codepoint > 0xffff) {
+                // if the condition below doesn't hold anymore we need to modify our case folding code
+                //qDebug() << codepoint << QChar::highSurrogate(codepoint) << QChar::highSurrogate(foldMap.at(0));
+                Q_ASSERT(QChar::highSurrogate(codepoint) == QChar::highSurrogate(titleCase));
+            }
         }
 
         if (!properties[UD_DigitValue].isEmpty())
@@ -641,14 +658,15 @@ static void readCompositionExclusion()
             Q_ASSERT(data.decomposition.size() == 2);
 
             uint part1 = data.decomposition.at(0);
+            uint part2 = data.decomposition.at(1);
             UnicodeData first = unicodeData.value(part1, UnicodeData(part1));
             if (first.p.combiningClass != 0)
                 continue;
 
             ++numLigatures;
-            highestLigature = qMax(highestLigature, data.decomposition.at(0));
-            Ligature l = {(ushort)data.decomposition.at(0), (ushort)data.decomposition.at(1), i};
-            ligatureHashes[data.decomposition.at(1)].append(l);
+            highestLigature = qMax(highestLigature, (int)part1);
+            Ligature l = {(ushort)part1, (ushort)part2, i};
+            ligatureHashes[part2].append(l);
         }
     }
 }
@@ -932,7 +950,7 @@ static void readCaseFolding()
 
 
         l[1] = l[1].trimmed();
-        if (l[1] == "S" || l[1] == "T")
+        if (l[1] == "F" || l[1] == "T")
             continue;
 
 //         qDebug() << "codepoint" << hex << codepoint;
@@ -947,9 +965,17 @@ static void readCaseFolding()
 
         UnicodeData ud = unicodeData.value(codepoint, UnicodeData(codepoint));
         if (foldMap.size() == 1) {
-            ud.p.caseFoldDiff = codepoint - foldMap.at(0);
+            ud.p.caseFoldDiff = foldMap.at(0) - codepoint;
             maxCaseFoldDiff = qMax(maxCaseFoldDiff, ud.p.caseFoldDiff);
+            if (codepoint > 0xffff) {
+                // if the condition below doesn't hold anymore we need to modify our case folding code
+                //qDebug() << codepoint << QChar::highSurrogate(codepoint) << QChar::highSurrogate(foldMap.at(0));
+                Q_ASSERT(QChar::highSurrogate(codepoint) == QChar::highSurrogate(foldMap.at(0)));
+            }
+            if (foldMap.at(0) != codepoint + ud.p.lowerCaseDiff)
+                qDebug() << hex << codepoint;
         } else {
+            Q_ASSERT(false); // we currently don't support full case foldings
 //             qDebug() << "special" << hex << foldMap;
             ud.p.caseFoldSpecial = true;
             ud.p.caseFoldDiff = appendToSpecialCaseMap(foldMap);
@@ -957,6 +983,135 @@ static void readCaseFolding()
         unicodeData.insert(codepoint, ud);
     }
 }
+
+#if 0
+// this piece of code does full case folding and comparison. We currently
+// don't use it, since this gives lots of issues with things as case insensitive
+// search and replace.
+static inline void foldCase(uint ch, ushort *out)
+{
+    const QUnicodeTables::Properties *p = qGetProp(ch);
+    if (!p->caseFoldSpecial) {
+        *(out++) = ch + p->caseFoldDiff;
+    } else {
+        const ushort *folded = specialCaseMap + p->caseFoldDiff;
+        while (*folded)
+            *out++ = *folded++;
+    }
+    *out = 0;
+}
+
+static int ucstricmp(const ushort *a, const ushort *ae, const ushort *b, const ushort *be)
+{
+    if (a == b)
+        return 0;
+    if (a == 0)
+        return 1;
+    if (b == 0)
+        return -1;
+
+    while (a != ae && b != be) {
+        const QUnicodeTables::Properties *pa = qGetProp(*a);
+        const QUnicodeTables::Properties *pb = qGetProp(*b);
+        if (pa->caseFoldSpecial | pb->caseFoldSpecial)
+            goto special;
+            int diff = (int)(*a + pa->caseFoldDiff) - (int)(*b + pb->caseFoldDiff);
+        if ((diff))
+            return diff;
+        ++a;
+        ++b;
+        }
+    }
+    if (a == ae) {
+        if (b == be)
+            return 0;
+        return -1;
+    }
+    return 1;
+special:
+    ushort abuf[SPECIAL_CASE_MAX_LEN + 1];
+    ushort bbuf[SPECIAL_CASE_MAX_LEN + 1];
+    abuf[0] = bbuf[0] = 0;
+    ushort *ap = abuf;
+    ushort *bp = bbuf;
+    while (1) {
+        if (!*ap) {
+            if (a == ae) {
+                if (!*bp && b == be)
+                    return 0;
+                return -1;
+            }
+            foldCase(*(a++), abuf);
+            ap = abuf;
+        }
+        if (!*bp) {
+            if (b == be)
+                return 1;
+            foldCase(*(b++), bbuf);
+            bp = bbuf;
+        }
+        if (*ap != *bp)
+            return (int)*ap - (int)*bp;
+        ++ap;
+        ++bp;
+    }
+}
+
+
+static int ucstricmp(const ushort *a, const ushort *ae, const uchar *b)
+{
+    if (a == 0)
+        return 1;
+    if (b == 0)
+        return -1;
+
+    while (a != ae && *b) {
+        const QUnicodeTables::Properties *pa = qGetProp(*a);
+        const QUnicodeTables::Properties *pb = qGetProp((ushort)*b);
+        if (pa->caseFoldSpecial | pb->caseFoldSpecial)
+            goto special;
+        int diff = (int)(*a + pa->caseFoldDiff) - (int)(*b + pb->caseFoldDiff);
+        if ((diff))
+            return diff;
+        ++a;
+        ++b;
+    }
+    if (a == ae) {
+        if (!*b)
+            return 0;
+        return -1;
+    }
+    return 1;
+
+special:
+    ushort abuf[SPECIAL_CASE_MAX_LEN + 1];
+    ushort bbuf[SPECIAL_CASE_MAX_LEN + 1];
+    abuf[0] = bbuf[0] = 0;
+    ushort *ap = abuf;
+    ushort *bp = bbuf;
+    while (1) {
+        if (!*ap) {
+            if (a == ae) {
+                if (!*bp && !*b)
+                    return 0;
+                return -1;
+            }
+            foldCase(*(a++), abuf);
+            ap = abuf;
+        }
+        if (!*bp) {
+            if (!*b)
+                return 1;
+            foldCase(*(b++), bbuf);
+            bp = bbuf;
+        }
+        if (*ap != *bp)
+            return (int)*ap - (int)*bp;
+        ++ap;
+        ++bp;
+    }
+}
+#endif
 
 #if 0
 static QList<QByteArray> blockNames;
@@ -1514,13 +1669,16 @@ static QByteArray createPropertyInfo()
 
     out += "#define CURRENT_VERSION "CURRENT_UNICODE_VERSION"\n\n";
 
-    out += "static const ushort specialCaseMap [] = {   \n";
+    out += "static const ushort specialCaseMap [] = {";
     for (int i = 0; i < specialCaseMap.size(); ++i) {
-        out += QByteArray(" 0x") + QByteArray::number(specialCaseMap.at(i), 16) + ",";
         if (!(i % 16))
             out += "\n   ";
+        out += QByteArray(" 0x") + QByteArray::number(specialCaseMap.at(i), 16);
+        if (i < specialCaseMap.size() - 1)
+            out += ",";
     }
-    out += "};\n\n";
+    out += "\n};\n";
+    out += "#define SPECIAL_CASE_MAX_LEN " + QByteArray::number(specialCaseMaxLen) + "\n\n";
 
     qDebug() << "Special case map uses " << specialCaseMap.size()*2 << "bytes";
 

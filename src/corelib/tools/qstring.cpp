@@ -62,6 +62,65 @@ QTextCodec *QString::codecForCStrings;
 static QHash<void *, QByteArray> *asciiCache = 0;
 #endif
 
+static int ucstricmp(const ushort *a, const ushort *ae, const ushort *b, const ushort *be)
+{
+    if (a == b)
+        return 0;
+    if (a == 0)
+        return 1;
+    if (b == 0)
+        return -1;
+
+    const ushort *e = ae;
+    if (be - b < ae - a)
+        e = a + (be - b);
+
+    uint alast = 0;
+    uint blast = 0;
+    while (a != e) {
+//         qDebug() << hex << alast << blast;
+//         qDebug() << hex << "*a=" << *a << "alast=" << alast << "folded=" << foldCase (*a, alast);
+//         qDebug() << hex << "*b=" << *b << "blast=" << blast << "folded=" << foldCase (*b, blast);
+        int diff = foldCase(*a, alast) - foldCase(*b, blast);
+        if ((diff))
+            return diff;
+        ++a;
+        ++b;
+    }
+    if (a == ae) {
+        if (b == be)
+            return 0;
+        return -1;
+    }
+    return 1;
+}
+
+static int ucstricmp(const ushort *a, const ushort *ae, const uchar *b)
+{
+    if (a == 0) {
+        if (b == 0)
+            return 0;
+        return 1;
+    }
+    if (b == 0)
+        return -1;
+
+    while (a != ae && *b) {
+        int diff = foldCase(*a) - foldCase(*b);
+        if ((diff))
+            return diff;
+        ++a;
+        ++b;
+    }
+    if (a == ae) {
+        if (!*b)
+            return 0;
+        return -1;
+    }
+    return 1;
+}
+
+
 static int ucstrcmp(const QString &as, const QString &bs)
 {
     const QChar *a = as.unicode();
@@ -76,24 +135,6 @@ static int ucstrcmp(const QString &as, const QString &bs)
     return a->unicode() - b->unicode();
 }
 
-static int ucstricmp(const QString &as, const QString &bs)
-{
-    const QChar *a = as.unicode();
-    const QChar *b = bs.unicode();
-    if (a == b)
-        return 0;
-    if (a == 0)
-        return 1;
-    if (b == 0)
-        return -1;
-    int l = qMin(as.length(),bs.length());
-    while (l-- && QChar::toLower(a->unicode()) == QChar::toLower(b->unicode()))
-        a++,b++;
-    if (l==-1)
-        return (as.length()-bs.length());
-    return QChar::toLower(a->unicode()) - QChar::toLower(b->unicode());
-}
-
 static int ucstrncmp(const QChar *a, const QChar *b, int l)
 {
     while (l-- && *a == *b)
@@ -103,13 +144,10 @@ static int ucstrncmp(const QChar *a, const QChar *b, int l)
     return a->unicode() - b->unicode();
 }
 
-static int ucstrnicmp(const QChar *a, const QChar *b, int l)
+
+static int ucstrnicmp(const ushort *a, const ushort *b, int l)
 {
-    while (l-- && QChar::toLower(a->unicode()) == QChar::toLower(b->unicode()))
-        a++,b++;
-    if (l==-1)
-        return 0;
-    return QChar::toLower(a->unicode()) - QChar::toLower(b->unicode());
+    return ucstricmp(a, a + l, b, b + l);
 }
 
 
@@ -1393,9 +1431,9 @@ QString &QString::remove(QChar ch, Qt::CaseSensitivity cs)
             else
                 i++;
     } else {
-        c = QChar::toLower(c);
+        c = foldCase(c);
         while (i < d->size)
-            if (QChar::toLower(d->data[i]) == c)
+            if (foldCase(d->data[i]) == c)
                 remove(i, 1);
             else
                 i++;
@@ -1618,9 +1656,9 @@ QString& QString::replace(QChar before, QChar after, Qt::CaseSensitivity cs)
                 if (*i == b)
                     *i = a;
         } else {
-            b = QChar::toLower(b);
+            b = foldCase(b);
             for (; i != e; ++i)
-                if (QChar::toLower(*i) == b)
+                if (foldCase(*i) == b)
                     *i = a;
         }
     }
@@ -2012,21 +2050,19 @@ int QString::indexOf(const QString &str, int from, Qt::CaseSensitivity cs) const
             ++haystack;
         }
     } else {
+        const ushort *haystack_start = d->data;
         for (idx = 0; idx < sl; ++idx) {
-            hashNeedle = ((hashNeedle<<1) +
-                          QChar::toLower(needle[idx]));
-            hashHaystack = ((hashHaystack<<1) +
-                            QChar::toLower(haystack[idx]));
+            hashNeedle = (hashNeedle<<1) + foldCase(needle + idx, needle);
+            hashHaystack = (hashHaystack<<1) + foldCase(haystack + idx, haystack_start);
         }
+        hashHaystack -= foldCase(haystack + sl_minus_1, haystack_start);
 
-        hashHaystack -= QChar::toLower(haystack[sl_minus_1]);
         while (haystack <= end) {
-            hashHaystack += QChar::toLower(haystack[sl_minus_1]);
-            if (hashHaystack == hashNeedle
-                 && ucstrnicmp((const QChar *)needle, (const QChar *)haystack, sl) == 0)
+            hashHaystack += foldCase(haystack + sl_minus_1, haystack_start);
+            if (hashHaystack == hashNeedle && ucstrnicmp(needle, haystack, sl) == 0)
                 return haystack - d->data;
 
-            REHASH(QChar::toLower(*haystack));
+            REHASH(foldCase(haystack, haystack_start));
             ++haystack;
         }
     }
@@ -2053,9 +2089,9 @@ int QString::indexOf(QChar ch, int from, Qt::CaseSensitivity cs) const
                 if (*n == c)
                     return  n - d->data;
         } else {
-            c = QChar::toLower(c);
+            c = foldCase(c);
             while (++n != e)
-                if (QChar::toLower(*n) == c)
+                if (foldCase(*n) == c)
                     return  n - d->data;
         }
     }
@@ -2126,17 +2162,17 @@ int QString::lastIndexOf(const QString &str, int from, Qt::CaseSensitivity cs) c
         }
     } else {
         for (idx = 0; idx < sl; ++idx) {
-            hashNeedle = ((hashNeedle<<1) + QChar::toLower(*(n-idx)));
-            hashHaystack = ((hashHaystack<<1) + QChar::toLower(*(h-idx)));
+            hashNeedle = ((hashNeedle<<1) + foldCase(n-idx, str.d->data));
+            hashHaystack = ((hashHaystack<<1) + foldCase(h-idx, end));
         }
-        hashHaystack -= QChar::toLower(*haystack);
+        hashHaystack -= foldCase(haystack, end);
 
         while (haystack >= end) {
-            hashHaystack += QChar::toLower(*haystack);
-            if (hashHaystack == hashNeedle && ucstrnicmp((const QChar *)needle, (const QChar *)haystack, sl) == 0)
+            hashHaystack += foldCase(haystack, end);
+            if (hashHaystack == hashNeedle && ucstrnicmp(needle, haystack, sl) == 0)
                 return haystack - d->data;
             --haystack;
-            REHASH(QChar::toLower(haystack[sl]));
+            REHASH(foldCase(haystack + sl, end));
         }
     }
     return -1;
@@ -2162,9 +2198,9 @@ int QString::lastIndexOf(QChar ch, int from, Qt::CaseSensitivity cs) const
                 if (*n == c)
                     return n - b;
         } else {
-            c = QChar::toLower(c);
+            c = foldCase(c);
             for (; n >= b; --n)
-                if (QChar::toLower(*n) == c)
+                if (foldCase(*n) == c)
                     return n - b;
         }
     }
@@ -2367,9 +2403,9 @@ int QString::count(QChar ch, Qt::CaseSensitivity cs) const
             if (*--i == c)
                 ++num;
     } else {
-        c = QChar::toLower(c);
+        c = foldCase(c);
         while (i != b)
-            if (QChar::toLower(*(--i)) == c)
+            if (foldCase(*(--i)) == c)
                 ++num;
     }
     return num;
@@ -2800,8 +2836,10 @@ bool QString::startsWith(const QString& s, Qt::CaseSensitivity cs) const
     if (cs == Qt::CaseSensitive) {
         return memcmp((char*)d->data, (char*)s.d->data, s.d->size*sizeof(QChar)) == 0;
     } else {
+        uint last = 0;
+        uint olast = 0;
         for (int i = 0; i < s.d->size; ++i)
-            if (QChar::toLower(d->data[i]) != QChar::toLower(s.d->data[i]))
+            if (foldCase(d->data[i], last) != foldCase(s.d->data[i], olast))
                 return false;
     }
     return true;
@@ -2826,7 +2864,7 @@ bool QString::startsWith(const QLatin1String& s, Qt::CaseSensitivity cs) const
                 return false;
     } else {
         for (int i = 0; i < slen; ++i)
-            if (QChar::toLower(d->data[i]) != QChar::toLower((ushort)latin[i]))
+            if (foldCase(d->data[i]) != foldCase((ushort)latin[i]))
                 return false;
     }
     return true;
@@ -2843,7 +2881,7 @@ bool QString::startsWith(const QChar &c, Qt::CaseSensitivity cs) const
     return d->size
            && (cs == Qt::CaseSensitive
                ? d->data[0] == c
-               : QChar::toLower(d->data[0]) == QChar::toLower(c.unicode()));
+               : foldCase(d->data[0]) == foldCase(c.unicode()));
 }
 
 /*!
@@ -2872,8 +2910,10 @@ bool QString::endsWith(const QString& s, Qt::CaseSensitivity cs) const
     if (cs == Qt::CaseSensitive) {
         return memcmp((char*)&d->data[pos], (char*)s.d->data, s.d->size*sizeof(QChar)) == 0;
     } else {
+        uint last = 0;
+        uint olast = 0;
         for (int i = 0; i < s.length(); i++)
-            if (QChar::toLower(d->data[pos+i]) != QChar::toLower(s.d->data[i]))
+            if (foldCase(d->data[pos+i], last) != foldCase(s.d->data[i], olast))
                 return false;
     }
     return true;
@@ -2899,7 +2939,7 @@ bool QString::endsWith(const QLatin1String& s, Qt::CaseSensitivity cs) const
                 return false;
     } else {
         for (int i = 0; i < slen; i++)
-            if (QChar::toLower(d->data[pos+i]) != QChar::toLower((ushort)latin[i]))
+            if (foldCase(d->data[pos+i]) != foldCase((ushort)latin[i]))
                 return false;
     }
     return true;
@@ -2916,7 +2956,7 @@ bool QString::endsWith(const QChar &c, Qt::CaseSensitivity cs) const
     return d->size
            && (cs == Qt::CaseSensitive
                ? d->data[d->size - 1] == c
-               : QChar::toLower(d->data[d->size - 1]) == QChar::toLower(c.unicode()));
+               : foldCase(d->data[d->size - 1]) == foldCase(c.unicode()));
 }
 
 /*! \fn const char *QString::ascii() const
@@ -3025,12 +3065,12 @@ QByteArray QString::toUtf8() const
                 if (u < 0x0800) {
                     *cursor++ = 0xc0 | ((uchar) (u >> 6));
                 } else {
-                    if (u >= 0xd800 && u < 0xdc00 && i < l-1) {
+                    if (QChar(u).isHighSurrogate() && i < l-1) {
                         ushort low = ch[1];
-                        if (low >= 0xdc00 && low < 0xe000) {
+                        if (QChar(low).isLowSurrogate()) {
                             ++ch;
                             ++i;
-                            u = (u - 0xd800)*0x400 + (low - 0xdc00) + 0x10000;
+                            u = QChar::surrogateToUcs4(u,low);
                         }
                     }
                     if (u > 0xffff) {
@@ -3074,11 +3114,11 @@ QVector<uint> QString::toUcs4() const
     const unsigned short *uc = utf16();
     for (int i = 0; i < length(); ++i) {
         uint u = uc[i];
-        if (u >= 0xd800 && u < 0xdc00 && i < length()-1) {
+        if (QChar(u).isHighSurrogate() && i < length()-1) {
             ushort low = uc[i+1];
-            if (low >= 0xdc00 && low < 0xe000) {
+            if (QChar(low).isLowSurrogate()) {
                 ++i;
-                u = (u - 0xd800)*0x400 + (low - 0xdc00) + 0x10000;
+                u = QChar::surrogateToUcs4(u, low);
             }
         }
         *a = u;
@@ -3365,14 +3405,10 @@ QString QString::fromUtf8(const char *str, int size)
                 if (!need) {
                     if (uc > 0xffff) {
                         // surrogate pair
-                        uc -= 0x10000;
-                        ushort high = uc/0x400 + 0xd800;
-                        ushort low = uc%0x400 + 0xdc00;
-                        *qch++ = high;
-                        *qch++ = low;
-                    } else {
-                        *qch++ = uc;
+                        *qch++ = QChar::highSurrogate(uc);
+                        uc = QChar::lowSurrogate(uc);
                     }
+                    *qch++ = uc;
                 }
             } else {
                 // See QString::toUtf8() for explanation.
@@ -3468,20 +3504,17 @@ QString QString::fromUcs4(const uint *unicode, int size)
 
     QString s;
     s.resize(size*2); // worst case
-    QChar *uc = s.data();
+    ushort *uc = s.d->data;
     for (int i = 0; i < size; ++i) {
         uint u = unicode[i];
         if (u > 0xffff) {
             // decompose into a surrogate pair
-            u -= 0x10000;
-            *uc = QChar(u/0x400 + 0xd800);
-            ++uc;
-            u = u%0x400 + 0xdc00;
+            *uc++ = QChar::highSurrogate(u);
+            u = QChar::lowSurrogate(u);
         }
-        *uc = QChar(u);
-        ++uc;
+        *uc++ = u;
     }
-    s.resize(uc - s.data());
+    s.resize(uc - s.d->data);
     return s;
 }
 
@@ -4092,7 +4125,9 @@ int QString::compare(const QString &other) const
 */
 int QString::compare(const QString &other, Qt::CaseSensitivity cs) const
 {
-    return (cs == Qt::CaseSensitive) ? ucstrcmp(*this, other) : ucstricmp(*this, other);
+    if (cs == Qt::CaseSensitive)
+        return ucstrcmp(*this, other);
+    return ucstricmp(d->data, d->data + d->size, other.d->data, other.d->data + other.d->size);
 }
 
 /*!
@@ -4116,10 +4151,7 @@ int QString::compare(const QLatin1String &other, Qt::CaseSensitivity cs) const
 
         return *uc - *c;
     } else {
-        while (uc != e && *c && QChar::toLower(*uc) == QChar::toLower((ushort)*c))
-            uc++, c++;
-
-        return QChar::toLower(*uc) - QChar::toLower((ushort)*c);
+        return ucstricmp(d->data, d->data + d->size, c);
     }
 }
 
@@ -4134,7 +4166,7 @@ int QString::compare(const QLatin1String &other, Qt::CaseSensitivity cs) const
     platform-dependent manner. Use this function to present sorted
     lists of strings to the user.
 
-    On Mac OS X since Qt 4.3, this function compares according the 
+    On Mac OS X since Qt 4.3, this function compares according the
     "Order for sorted lists" setting in the International prefereces panel.
 
     \sa compare(), QTextCodec::locale()
@@ -4187,10 +4219,10 @@ int QString::localeAwareCompare(const QString &other) const
     // strings the same way as native applications do, and also respects
     // the "Order for sorted lists" setting in the International preferences
     // panel.
-    const CFStringRef thisString = 
+    const CFStringRef thisString =
         CFStringCreateWithCharactersNoCopy(kCFAllocatorDefault,
             reinterpret_cast<const UniChar *>(this->unicode()), this->length(), kCFAllocatorNull);
-    const CFStringRef otherString = 
+    const CFStringRef otherString =
         CFStringCreateWithCharactersNoCopy(kCFAllocatorDefault,
             reinterpret_cast<const UniChar *>(other.unicode()), other.length(), kCFAllocatorNull);
 
@@ -4367,6 +4399,38 @@ QString QString::toLower() const
                 p++;
             }
         }
+    }
+    return *this;
+}
+
+
+QString QString::toCaseFolded() const
+{
+    if (!d->size)
+        return *this;
+
+    const ushort *p = d->data;
+    if (!p)
+        return *this;
+
+    const ushort *e = d->data + d->size;
+
+    uint last = 0;
+    while (p < e) {
+        ushort folded = foldCase(*p, last);
+        if (folded != *p) {
+            QString s(*this);
+            s.detach();
+            ushort *pp = s.d->data + (p - d->data);
+            const ushort *ppe = s.d->data + s.d->size;
+            last = pp > s.d->data ? *(pp - 1) : 0;
+            while (pp < ppe) {
+                *pp = foldCase(*pp, last);
+                ++pp;
+            }
+            return s;
+        }
+        p++;
     }
     return *this;
 }

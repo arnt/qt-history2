@@ -932,6 +932,14 @@ void tst_QString::indexOf_data()
     QTest::newRow( "null-in-empty") << QString("") << QString() << 0 << FALSE << 0;
     QTest::newRow( "empty-in-empty") << QString("") << QString("") << 0 << FALSE << 0;
 #endif
+
+    QString s1 = "abc";
+    s1 += QChar(0xb5);
+    QString s2;
+    s2 += QChar(0x3bc);
+    QTest::newRow( "data58" ) << s1 << s2 << 0 << FALSE << 3;
+    s2.prepend("C");
+    QTest::newRow( "data59" ) << s1 << s2 << 0 << FALSE << 2;
 }
 
 void tst_QString::indexOf()
@@ -3947,7 +3955,14 @@ void tst_QString::compare_data()
     QTest::newRow("data6") << QString("abcdef") << QString("abc") << 1 << 1;
     QTest::newRow("data6") << QString("abCdef") << QString("abc") << -1 << 1;
     QTest::newRow("data7") << QString("abc") << QString("abcdef") << -1 << -1;
-    QTest::newRow("data8") << QString("abc") << QString("abCdef") << 1 << -1;
+
+    QString upper;
+    upper += QChar(QChar::highSurrogate(0x10400));
+    upper += QChar(QChar::lowSurrogate(0x10400));
+    QString lower;
+    lower += QChar(QChar::highSurrogate(0x10428));
+    lower += QChar(QChar::lowSurrogate(0x10428));
+    QTest::newRow("data8") << upper << lower << -1 << 0;
 
     // embedded nulls
     // These dont work as of now. Its OK that these dont work since \0 is not a valid unicode
@@ -3959,9 +3974,16 @@ void tst_QString::compare_data()
     QTest::newRow("data14") << QString("abc") << QString(QByteArray("ab\0c", 4)) << 1 << 1;*/
 }
 
+static bool isLatin(const QString &s)
+{
+    for (int i = 0; i < s.length(); ++i)
+        if (s.at(i).unicode() > 0xff)
+            return false;
+    return true;
+}
+
 void tst_QString::compare()
 {
-#if QT_VERSION >= 0x040200
     QFETCH(QString, s1);
     QFETCH(QString, s2);
     QFETCH(int, csr);
@@ -3976,14 +3998,19 @@ void tst_QString::compare()
     QCOMPARE(sign(QString::compare(s1, s2, Qt::CaseSensitive)), csr);
     QCOMPARE(sign(QString::compare(s1, s2, Qt::CaseInsensitive)), cir);
 
-    QCOMPARE(sign(QString::compare(s1, QLatin1String(s2.toLatin1()))), csr);
-    QCOMPARE(sign(QString::compare(s1, QLatin1String(s2.toLatin1()), Qt::CaseInsensitive)), cir);
+    if (!cir) {
+        QCOMPARE(s1.toCaseFolded(), s2.toCaseFolded());
+    }
 
-    QCOMPARE(sign(QString::compare(QLatin1String(s1.toLatin1()), s2)), csr);
-    QCOMPARE(sign(QString::compare(QLatin1String(s1.toLatin1()), s2, Qt::CaseInsensitive)), cir);
-#else
-    QSKIP("needs Qt >= 4.2", SkipAll);
-#endif
+    if (isLatin(s2)) {
+        QCOMPARE(sign(QString::compare(s1, QLatin1String(s2.toLatin1()))), csr);
+        QCOMPARE(sign(QString::compare(s1, QLatin1String(s2.toLatin1()), Qt::CaseInsensitive)), cir);
+    }
+
+    if (isLatin(s1)) {
+        QCOMPARE(sign(QString::compare(QLatin1String(s1.toLatin1()), s2)), csr);
+        QCOMPARE(sign(QString::compare(QLatin1String(s1.toLatin1()), s2, Qt::CaseInsensitive)), cir);
+    }
 }
 
 void tst_QString::resizeAfterFromRawData()

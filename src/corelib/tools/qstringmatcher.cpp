@@ -14,7 +14,7 @@
 #include "qstringmatcher.h"
 #include "qunicodetables_p.h"
 
-static void bm_init_skiptable(const QChar *uc, int l, uint *skiptable, Qt::CaseSensitivity cs)
+static void bm_init_skiptable(const ushort *uc, int l, uint *skiptable, Qt::CaseSensitivity cs)
 {
     int i = 0;
     register uint *st = skiptable;
@@ -24,29 +24,30 @@ static void bm_init_skiptable(const QChar *uc, int l, uint *skiptable, Qt::CaseS
     }
     if (cs == Qt::CaseSensitive) {
         while (l--) {
-            skiptable[uc->cell()] = l;
+            skiptable[*uc & 0xff] = l;
             uc++;
         }
     } else {
+        const ushort *start = uc;
         while (l--) {
-            skiptable[QChar::toLower(uc->unicode()) & 0xff] = l;
+            skiptable[foldCase(uc, start) & 0xff] = l;
             uc++;
         }
     }
 }
 
-static inline int bm_find(const QChar *uc, uint l, int index, const QChar *puc, uint pl,
+static inline int bm_find(const ushort *uc, uint l, int index, const ushort *puc, uint pl,
                           const uint *skiptable, Qt::CaseSensitivity cs)
 {
     if (pl == 0)
         return index > (int)l ? -1 : index;
     const uint pl_minus_one = pl - 1;
 
-    register const QChar *current = uc + index + pl_minus_one;
-    const QChar *end = uc + l;
+    register const ushort *current = uc + index + pl_minus_one;
+    const ushort *end = uc + l;
     if (cs == Qt::CaseSensitive) {
         while (current < end) {
-            uint skip = skiptable[current->cell()];
+            uint skip = skiptable[*current & 0xff];
             if (!skip) {
                 // possible match
                 while (skip < pl) {
@@ -55,11 +56,11 @@ static inline int bm_find(const QChar *uc, uint l, int index, const QChar *puc, 
                     skip++;
                 }
                 if (skip > pl_minus_one) // we have a match
-                    return (current - uc) - skip + 1;
+                    return (current - uc) - pl_minus_one;
 
                 // in case we don't have a match we are a bit inefficient as we only skip by one
                 // when we have the non matching char in the string.
-                if (skiptable[(current - skip)->cell()] == pl)
+                if (skiptable[*(current - skip) & 0xff] == pl)
                     skip = pl - skip;
                 else
                     skip = 1;
@@ -70,19 +71,19 @@ static inline int bm_find(const QChar *uc, uint l, int index, const QChar *puc, 
         }
     } else {
         while (current < end) {
-            uint skip = skiptable[QChar::toLower(current->unicode()) & 0xff];
+            uint skip = skiptable[foldCase(current, uc) & 0xff];
             if (!skip) {
                 // possible match
                 while (skip < pl) {
-                    if (QChar::toLower((current - skip)->unicode()) != QChar::toLower(puc[pl_minus_one-skip].unicode()))
+                    if (foldCase(current - skip, uc) != foldCase(puc + pl_minus_one - skip, puc))
                         break;
                     skip++;
                 }
                 if (skip > pl_minus_one) // we have a match
-                    return (current - uc) - skip + 1;
+                    return (current - uc) - pl_minus_one;
                 // in case we don't have a match we are a bit inefficient as we only skip by one
                 // when we have the non matching char in the string.
-                if (skiptable[QChar::toLower((current - skip)->unicode()) & 0xff] == pl)
+                if (skiptable[foldCase(current - skip, uc) & 0xff] == pl)
                     skip = pl - skip;
                 else
                     skip = 1;
@@ -135,7 +136,7 @@ QStringMatcher::QStringMatcher()
 QStringMatcher::QStringMatcher(const QString &pattern, Qt::CaseSensitivity cs)
     : d_ptr(0), q_pattern(pattern), q_cs(cs)
 {
-    bm_init_skiptable(pattern.unicode(), pattern.size(), q_skiptable, cs);
+    bm_init_skiptable((const ushort *)pattern.unicode(), pattern.size(), q_skiptable, cs);
 }
 
 /*!
@@ -173,7 +174,7 @@ QStringMatcher &QStringMatcher::operator=(const QStringMatcher &other)
 */
 void QStringMatcher::setPattern(const QString &pattern)
 {
-    bm_init_skiptable(pattern.unicode(), pattern.size(), q_skiptable, q_cs);
+    bm_init_skiptable((const ushort *)pattern.unicode(), pattern.size(), q_skiptable, q_cs);
     q_pattern = pattern;
 }
 
@@ -187,7 +188,7 @@ void QStringMatcher::setCaseSensitivity(Qt::CaseSensitivity cs)
 {
     if (cs == q_cs)
         return;
-    bm_init_skiptable(q_pattern.unicode(), q_pattern.size(), q_skiptable, cs);
+    bm_init_skiptable((const ushort *)q_pattern.unicode(), q_pattern.size(), q_skiptable, cs);
     q_cs = cs;
 }
 
@@ -204,7 +205,8 @@ int QStringMatcher::indexIn(const QString &str, int from) const
 {
     if (from < 0)
         from = 0;
-    return bm_find(str.unicode(), str.size(), from, q_pattern.unicode(), q_pattern.size(),
+    return bm_find((const ushort *)str.unicode(), str.size(), from,
+                   (const ushort *)q_pattern.unicode(), q_pattern.size(),
                    q_skiptable, q_cs);
 }
 

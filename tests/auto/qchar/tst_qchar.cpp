@@ -36,6 +36,7 @@ private slots:
     void toUpper();
     void toLower();
     void toTitle();
+    void toCaseFolded();
     void isUpper();
     void isLower();
     void category();
@@ -142,6 +143,32 @@ void tst_QChar::toTitle()
     QVERIFY(QChar::toTitleCase((uint)0x10400) == 0x10400);
     QVERIFY(QChar::toTitleCase((uint)0x10428) == 0x10400);
 
+}
+
+void tst_QChar::toCaseFolded()
+{
+    QVERIFY(QChar('a').toCaseFolded() == 'a');
+    QVERIFY(QChar('A').toCaseFolded() == 'a');
+    QVERIFY(QChar((ushort)0x1c7).toCaseFolded().unicode() == 0x1c9);
+    QVERIFY(QChar((ushort)0x1c8).toCaseFolded().unicode() == 0x1c9);
+    QVERIFY(QChar((ushort)0x1c9).toCaseFolded().unicode() == 0x1c9);
+
+    QVERIFY(QChar::toCaseFolded((ushort)'a') == 'a');
+    QVERIFY(QChar::toCaseFolded((ushort)'A') == 'a');
+    QVERIFY(QChar::toCaseFolded((ushort)0x1c7) == 0x1c9);
+    QVERIFY(QChar::toCaseFolded((ushort)0x1c8) == 0x1c9);
+    QVERIFY(QChar::toCaseFolded((ushort)0x1c9) == 0x1c9);
+
+    QVERIFY(QChar::toCaseFolded((uint)'a') == 'a');
+    QVERIFY(QChar::toCaseFolded((uint)'A') == 'a');
+    QVERIFY(QChar::toCaseFolded((uint)0x1c7) == 0x1c9);
+    QVERIFY(QChar::toCaseFolded((uint)0x1c8) == 0x1c9);
+    QVERIFY(QChar::toCaseFolded((uint)0x1c9) == 0x1c9);
+
+    QVERIFY(QChar::toCaseFolded((uint)0x10400) == 0x10428);
+    QVERIFY(QChar::toCaseFolded((uint)0x10428) == 0x10428);
+
+    QVERIFY(QChar::toCaseFolded((ushort)0xb5) == 0x3bc);
 }
 
 void tst_QChar::isUpper()
