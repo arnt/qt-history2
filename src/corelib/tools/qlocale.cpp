@@ -78,7 +78,7 @@ static char *_qdtoa( NEEDS_VOLATILE double d, int mode, int ndigits, int *decpt,
                         int *sign, char **rve, char **digits_str);
 Q_CORE_EXPORT double qstrtod(const char *s00, char const **se, bool *ok);
 #endif
-static qlonglong qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok, bool *overflow = 0);
+static qlonglong qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok);
 static qulonglong qstrtoull(const char *nptr, const char **endptr, register int base, bool *ok);
 
 /******************************************************************************
@@ -3629,20 +3629,28 @@ bool QLocalePrivate::numberToCLocale(const QString &num,
     return true;
 }
 
-bool QLocalePrivate::validateChars(const QString &str, NumberMode numMode, QByteArray *buff) const
+bool QLocalePrivate::validateChars(const QString &str, NumberMode numMode, QByteArray *buff,
+                                    int decDigits) const
 {
     buff->clear();
     buff->reserve(str.length());
 
-    bool scientific = numMode == DoubleStandardMode || numMode == DoubleAnyMode;
+    const bool scientific = numMode == DoubleScientificMode;
     bool lastWasE = false;
     int eCnt = 0;
     int decPointCnt = 0;
+    bool dec = false;
+    int decDigitCnt = 0;
 
     for (int i = 0; i < str.length(); ++i) {
         char c = digitToCLocale(str.at(i));
 
         if (c >= '0' && c <= '9') {
+            if (numMode != IntegerMode) {
+                // If a double has too many digits after decpt, it shall be Invalid.
+                if (dec && decDigits != -1 && decDigits < ++decDigitCnt)
+                    return false;
+            }
         } else {
             switch (c) {
                 case '.':
@@ -3653,6 +3661,11 @@ bool QLocalePrivate::validateChars(const QString &str, NumberMode numMode, QByte
                         // If a double has more than one decimal point, it shall be Invalid.
                         if (++decPointCnt > 1)
                             return false;
+                        // If a double with no decimal digits has a decimal point, it shall be
+                        // Invalid.
+                        if (decDigits == 0)
+                            return false;
+                        dec = true;
                     }
                     break;
 
@@ -3679,6 +3692,7 @@ bool QLocalePrivate::validateChars(const QString &str, NumberMode numMode, QByte
                         // If a scientific has more than one 'e', it shall be Invalid.
                         if (++eCnt > 1)
                             return false;
+                        dec = false;
                     } else {
                         // If a non-scientific has an 'e', it shall be Invalid.
                         return false;
@@ -3738,10 +3752,18 @@ qulonglong QLocalePrivate::stringToUnsLongLong(const QString &number, int base,
 }
 
 
-double QLocalePrivate::bytearrayToDouble(const char *num, bool *ok)
+double QLocalePrivate::bytearrayToDouble(const char *num, bool *ok, bool *overflow)
 {
     if (ok != 0)
         *ok = true;
+    if (overflow != 0)
+        *overflow = false;
+
+    if (*num == '\0') {
+        if (ok != 0)
+            *ok = false;
+        return 0.0;
+    }
 
     if (qstrcmp(num, "nan") == 0)
         return Q_SNAN;
@@ -3756,35 +3778,75 @@ double QLocalePrivate::bytearrayToDouble(const char *num, bool *ok)
 #ifdef QT_QLOCALE_USES_FCVT
     char *endptr;
     double d = strtod(num, &endptr);
-    _ok = true;
+    _ok = true; // the result will be that we don't report underflow in this case
 #else
     const char *endptr;
     double d = qstrtod(num, &endptr, &_ok);
 #endif
 
-    if (!_ok || *endptr != '\0') {
+    if (!_ok) {
+        // the only way strtod can fail with *endptr != '\0' on a non-empty
+        // input string is overflow
         if (ok != 0)
             *ok = false;
+        if (overflow != 0)
+            *overflow = *endptr != '\0';
+    }
+
+    if (*endptr != '\0') {
+        // we stopped at a non-digit character after converting some digits
+        if (ok != 0)
+            *ok = false;
+        if (overflow != 0)
+            *overflow = false;
         return 0.0;
     }
-    else
-        return d;
+
+    if (ok != 0)
+        *ok = true;
+    if (overflow != 0)
+        *overflow = false;
+    return d;
 }
 
 qlonglong QLocalePrivate::bytearrayToLongLong(const char *num, int base, bool *ok, bool *overflow)
 {
     bool _ok;
     const char *endptr;
-    qlonglong l = qstrtoll(num, &endptr, base, &_ok, overflow);
 
-    if (!_ok || *endptr != '\0') {
+    if (*num == '\0') {
         if (ok != 0)
             *ok = false;
+        if (overflow != 0)
+            *overflow = false;
+        return 0;
+    }
+
+    qlonglong l = qstrtoll(num, &endptr, base, &_ok);
+
+    if (!_ok) {
+        if (ok != 0)
+            *ok = false;
+        if (overflow != 0) {
+            // the only way qstrtoll can fail with *endptr != '\0' on a non-empty
+            // input string is overflow
+            *overflow = *endptr != '\0';
+        }
+    }
+
+    if (*endptr != '\0') {
+        // we stopped at a non-digit character after converting some digits
+        if (ok != 0)
+            *ok = false;
+        if (overflow != 0)
+            *overflow = false;
         return 0;
     }
 
     if (ok != 0)
         *ok = true;
+    if (overflow != 0)
+        *overflow = false;
     return l;
 }
 
@@ -3928,7 +3990,7 @@ static qulonglong qstrtoull(const char *nptr, const char **endptr, register int 
  * Ignores `locale' stuff.  Assumes that the upper and lower case
  * alphabets and digits are each contiguous.
  */
-static qlonglong qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok, bool *overflow)
+static qlonglong qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok)
 {
     register const char *s;
     register qulonglong acc;
@@ -4015,8 +4077,6 @@ static qlonglong qstrtoll(const char *nptr, const char **endptr, register int ba
 
     if (ok != 0)
         *ok = any > 0;
-    if (overflow != 0)
-        *overflow = any < 0;
 
     return acc;
 }

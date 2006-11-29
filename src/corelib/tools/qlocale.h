@@ -31,6 +31,7 @@ class Q_CORE_EXPORT QLocale
     friend class QString;
     friend class QByteArray;
     friend class QIntValidator;
+    friend class QDoubleValidator;
 
 public:
     enum Language {

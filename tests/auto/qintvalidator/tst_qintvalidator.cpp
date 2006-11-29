@@ -16,6 +16,7 @@ class tst_QIntValidator : public QObject
 private slots:
     void validate_data();
     void validate();
+    void validateArabic();
 };
 
 Q_DECLARE_METATYPE(QValidator::State);
@@ -132,6 +133,19 @@ void tst_QIntValidator::validate_data()
     QTest::newRow("8.9") << -1 << 100 << QString("5") << ACC;
     QTest::newRow("8.10") << -1 << 100 << QString("+") << ITM;
     QTest::newRow("8.11") << -1 << 100 << QString("+50") << ACC;
+}
+
+void tst_QIntValidator::validateArabic()
+{
+    QString arabicNum;
+    arabicNum += QChar(1633); // "18" in arabic
+    arabicNum += QChar(1640);
+
+    QIntValidator validator(-20, 20, 0);
+    validator.setLocale(QLocale(QLocale::Arabic, QLocale::SaudiArabia));
+    int i;
+    QCOMPARE(validator.validate(arabicNum, i), QValidator::Acceptable);
+
 }
 
 void tst_QIntValidator::validate()

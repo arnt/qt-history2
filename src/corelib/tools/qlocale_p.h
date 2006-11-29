@@ -84,7 +84,7 @@ public:
     quint64 stringToUnsLongLong(const QString &num, int base, bool *ok, GroupSeparatorMode group_sep_mode) const;
 
 
-    static double bytearrayToDouble(const char *num, bool *ok);
+    static double bytearrayToDouble(const char *num, bool *ok, bool *overflow = 0);
     static qint64 bytearrayToLongLong(const char *num, int base, bool *ok, bool *overflow = 0);
     static quint64 bytearrayToUnsLongLong(const char *num, int base, bool *ok);
 
@@ -96,8 +96,8 @@ public:
 
     static void updateSystemPrivate();
 
-    enum NumberMode { IntegerMode, DoubleStandardMode, DoubleScientifcMode, DoubleAnyMode };
-    bool validateChars(const QString &str, NumberMode numMode, QByteArray *buff) const;
+    enum NumberMode { IntegerMode, DoubleStandardMode, DoubleScientificMode };
+    bool validateChars(const QString &str, NumberMode numMode, QByteArray *buff, int decDigits = -1) const;
 
     quint32 m_language_id, m_country_id;
 
