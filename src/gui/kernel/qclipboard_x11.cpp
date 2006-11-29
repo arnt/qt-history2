@@ -907,7 +907,7 @@ bool QClipboard::event(QEvent *e)
                     ;
                 } else if (target == xa_timestamp) {
                     if (d->timestamp != CurrentTime) {
-                        XChangeProperty(dpy, req->requestor, property, xa_timestamp, 32,
+                        XChangeProperty(dpy, req->requestor, property, XA_INTEGER, 32,
                                         PropModeReplace, (uchar *) &d->timestamp, 1);
                         ret = property;
                     } else {
