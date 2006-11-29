@@ -1736,6 +1736,8 @@ void ChangeTableContentsCommand::changeContents(QTableWidget *tableWidget,
 
         itItem++;
     }
+
+    QMetaObject::invokeMethod(tableWidget, "updateGeometries");
 }
 
 void ChangeTableContentsCommand::redo()

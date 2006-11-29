@@ -339,6 +339,9 @@ void TableWidgetEditor::updateEditor()
     ui.deletePixmapColumnButton->setEnabled(!columnIcon.isNull());
     ui.previewPixmapRowButton->setIcon(rowIcon);
     ui.deletePixmapRowButton->setEnabled(!rowIcon.isNull());
+
+    QMetaObject::invokeMethod(ui.tableWidget, "updateGeometries");
+    ui.tableWidget->viewport()->update();
 }
 
 void TableWidgetEditor::on_itemTextLineEdit_textEdited(const QString &text)
@@ -516,6 +519,7 @@ void TableWidgetEditor::on_newColumnButton_clicked()
         headerItem = new QTableWidgetItem;
     headerItem->setText(newColumnString);
     ui.tableWidget->setHorizontalHeaderItem(columnCount, headerItem);
+
     moveColumnsLeft(idx, columnCount);
 
     QListWidgetItem *currentRow = ui.rowsListWidget->currentItem();
@@ -700,6 +704,7 @@ void TableWidgetEditor::on_newRowButton_clicked()
         headerItem = new QTableWidgetItem;
     headerItem->setText(newRowString);
     ui.tableWidget->setVerticalHeaderItem(rowCount, headerItem);
+
     moveRowsDown(idx, rowCount);
 
     QListWidgetItem *currentCol = ui.columnsListWidget->currentItem();
