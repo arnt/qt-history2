@@ -22,7 +22,7 @@
 #include "qhash.h"
 #include "qlibrary.h"
 #include "qdebug.h"
-#include <private/qfontengine_p.h>
+#include <private/qfontengine_ft_p.h>
 #include <private/qt_x11_p.h>
 
 #define INT8  dummy_INT8
@@ -767,8 +767,7 @@ static void qgl_use_font(QFontEngineFT *engine, int first, int count, int listBa
     glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    FcBool antialiased = True;
-    FcPatternGetBool(engine->pattern(), FC_ANTIALIAS, 0, &antialiased);
+    const bool antialiased = engine->drawAntialiased();
     FT_Face face = engine->lockFace();
 
     // start generating font glyphs
