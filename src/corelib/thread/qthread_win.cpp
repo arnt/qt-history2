@@ -135,9 +135,7 @@ void qt_adopted_thread_watcher_function(void *)
     forever {
         qt_adopted_thread_watcher_mutex.lock();
 
-        const uint handleCount = qt_adopted_thread_handles.count();
-
-        if (handleCount == 1) {
+        if (qt_adopted_thread_handles.count() == 1) {
             qt_adopted_thread_watcher_handle = 0;
             qt_adopted_thread_watcher_mutex.unlock();
             break;
@@ -146,14 +144,29 @@ void qt_adopted_thread_watcher_function(void *)
         QVector<HANDLE> handlesCopy = qt_adopted_thread_handles;
         qt_adopted_thread_watcher_mutex.unlock();
 
-        DWORD ret = WaitForMultipleObjects(handlesCopy.count(), handlesCopy.constData(), false, INFINITE);
+        DWORD ret = WAIT_TIMEOUT;
+        int loops = (handlesCopy.count() / MAXIMUM_WAIT_OBJECTS) + 1, offset, count;
+        if (loops == 1) {
+            // no need to loop, no timeout
+            offset = 0;
+            count = handlesCopy.count();
+            ret = WaitForMultipleObjects(handlesCopy.count(), handlesCopy.constData(), false, INFINITE);
+        } else {
+            int loop = 0;
+            do {
+                offset = loop * MAXIMUM_WAIT_OBJECTS;
+                count = qMin(handlesCopy.count() - offset, MAXIMUM_WAIT_OBJECTS);
+                ret = WaitForMultipleObjects(count, handlesCopy.constData() + offset, false, 100);
+                loop = (loop + 1) % loops;
+            } while (ret == WAIT_TIMEOUT);
+        }
 
-        if (ret == WAIT_FAILED || !(ret >= WAIT_OBJECT_0 && ret < WAIT_OBJECT_0 + handleCount)) {
+        if (ret == WAIT_FAILED || !(ret >= WAIT_OBJECT_0 && ret < WAIT_OBJECT_0 + count)) {
             qWarning("QThread internal error while waiting for adopted threads: %d", int(GetLastError()));
             continue;
         }
-        const int handleIndex = ret - WAIT_OBJECT_0;
 
+        const int handleIndex = offset + ret - WAIT_OBJECT_0;
         if (handleIndex == 0){
             // New handle to watch was added.
             continue;

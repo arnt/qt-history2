@@ -809,7 +809,12 @@ void tst_QThread::adoptedThreadFinished()
 
 void tst_QThread::adoptMultipleThreads()
 {
+#ifdef Q_OS_WIN
+    // need to test lots of threads, so that we exceed MAXIMUM_WAIT_OBJECTS in qt_adopted_thread_watcher()
+    const int numThreads = 200;
+#else
     const int numThreads = 5;
+#endif
     QVector<NativeThreadWrapper*> nativeThreads;
 
     SignalRecorder recorder;
