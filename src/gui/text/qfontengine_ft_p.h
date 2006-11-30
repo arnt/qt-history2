@@ -30,6 +30,7 @@
 #endif
 
 #include "qfontengine_p.h"
+#include <unistd.h>
 
 #ifndef QT_NO_FONTCONFIG
 #include <fontconfig/fontconfig.h>
