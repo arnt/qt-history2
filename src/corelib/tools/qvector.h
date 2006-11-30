@@ -36,6 +36,7 @@ struct Q_CORE_EXPORT QVectorData
     int alloc;
     int size;
     uint sharable : 1;
+    uint capacity : 1;
 
     static QVectorData shared_null;
     static QVectorData *malloc(int sizeofTypedData, int size, int sizeofT, QVectorData *init);
@@ -49,6 +50,7 @@ struct QVectorTypedData
     int alloc;
     int size;
     uint sharable : 1;
+    uint capacity : 1;
     T array[1];
 };
 
@@ -258,10 +260,10 @@ void QVector<T>::detach_helper()
 { realloc(d->size, d->alloc); }
 template <typename T>
 void QVector<T>::reserve(int asize)
-{ if (asize > d->alloc) realloc(d->size, asize); }
+{ if (asize > d->alloc) realloc(d->size, asize); d->capacity = 1; }
 template <typename T>
 void QVector<T>::resize(int asize)
-{ realloc(asize, (asize > d->alloc || (asize < d->size && asize < (d->alloc >> 1))) ?
+{ realloc(asize, (asize > d->alloc || (!d->capacity && asize < d->size && asize < (d->alloc >> 1))) ?
           QVectorData::grow(sizeof(Data), asize, sizeof(T), QTypeInfo<T>::isStatic)
           : d->alloc); }
 template <typename T>
@@ -333,6 +335,7 @@ QVector<T>::QVector(int asize)
     d->ref.init(1);
     d->alloc = d->size = asize;
     d->sharable = true;
+    d->capacity = false;
     if (QTypeInfo<T>::isComplex) {
         T* b = d->array;
         T* i = d->array + d->size;
@@ -350,6 +353,7 @@ QVector<T>::QVector(int asize, const T &t)
     d->ref.init(1);
     d->alloc = d->size = asize;
     d->sharable = true;
+    d->capacity = false;
     T* i = d->array + d->size;
     while (i != d->array)
         new (--i) T(t);
@@ -412,6 +416,8 @@ void QVector<T>::realloc(int asize, int aalloc)
         }
         x.d->ref.init(1);
         x.d->sharable = true;
+        x.d->capacity = d->capacity;
+
     }
     if (QTypeInfo<T>::isComplex) {
         if (asize < d->size) {

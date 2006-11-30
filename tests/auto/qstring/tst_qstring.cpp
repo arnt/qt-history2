@@ -94,6 +94,9 @@ private slots:
     void mid();
     void right();
     void left();
+    void sub();
+    void rsub();
+    void lsub();
     void contains();
     void lastIndexOf_data();
     void lastIndexOf();
@@ -153,6 +156,7 @@ private slots:
     void compare_data();
     void compare();
     void resizeAfterFromRawData();
+    void resizeAfterReserve();
 };
 
 typedef QList<int> IntList;
@@ -1204,6 +1208,62 @@ void tst_QString::mid()
     QString x = "Nine pineapples";
     QCOMPARE(x.mid(5, 4), QString("pine"));
     QCOMPARE(x.mid(5), QString("pineapples"));
+
+}
+
+void tst_QString::lsub()
+{
+    QString a;
+    a="ABCDEFGHIEfGEFG"; // 15 chars
+    QVERIFY(a.lsub(3) == (QString)"ABC");
+    QVERIFY(!a.lsub(0).isNull());
+    QVERIFY(a.lsub(0) == (QString)"");
+
+    QString n;
+    QVERIFY(n.lsub(3).isNull());
+    QVERIFY(n.lsub(0).isNull());
+    QVERIFY(n.lsub(0).isNull());
+
+    QString l = "Left";
+    QVERIFY(l.lsub(-1) == l);
+    QVERIFY(l.lsub(100)== l);
+}
+
+void tst_QString::rsub()
+{
+    QString a;
+    a="ABCDEFGHIEfGEFG"; // 15 chars
+    QVERIFY(a.rsub(3) == (QString)"EFG");
+    QVERIFY(a.rsub(0) == (QString)"");
+
+    QString n;
+    QVERIFY(n.rsub(3).isNull());
+    QVERIFY(n.rsub(0).isNull());
+
+    QString r = "Right";
+    QVERIFY(r.rsub(-1) == r);
+    QVERIFY(r.rsub(100) == r);
+}
+
+void tst_QString::sub()
+{
+    QString a;
+    a="ABCDEFGHIEfGEFG"; // 15 chars
+
+    QVERIFY(a.sub(3,3) == (QString)"DEF");
+    QVERIFY(a.sub(0,0) == (QString)"");
+    QVERIFY(a.sub(9999).isNull());
+    QVERIFY(a.sub(9999,1).isNull());
+
+    QString n;
+    QVERIFY(n.sub(3,3).isNull());
+    QVERIFY(n.sub(0,0).isNull());
+    QVERIFY(n.sub(9999,0).isNull());
+    QVERIFY(n.sub(9999,1).isNull());
+
+    QString x = "Nine pineapples";
+    QVERIFY(x.sub(5, 4) == QString("pine"));
+    QVERIFY(x.sub(5) == QString("pineapples"));
 
 }
 
@@ -3056,6 +3116,7 @@ void tst_QString::capacity()
     s2.squeeze();
     QVERIFY( (int)s2.capacity() == res );
     QCOMPARE( s2, s1 );
+
 }
 
 void tst_QString::section_data()
@@ -4021,6 +4082,33 @@ void tst_QString::resizeAfterFromRawData()
     QVERIFY(array.constData() == buffer.constData());
     array.resize(5);
     QVERIFY(array.constData() == buffer.constData());
+}
+
+void tst_QString::resizeAfterReserve()
+{
+
+    QString s;
+    s.reserve(100);
+
+    s += "hello world";
+
+    // resize should not affect capacity
+    s.resize(s.size());
+    QVERIFY(s.capacity() == 100);
+
+    // but squeeze does
+    s.squeeze();
+    QVERIFY(s.capacity() == s.size());
+
+    // clear does too
+    s.clear();
+    QVERIFY(s.capacity() == 0);
+
+    // test resize(0) border case
+    s.reserve(100);
+    s += "hello world";
+    s.resize(0);
+    QVERIFY(s.capacity() == 100);
 }
 
 QTEST_APPLESS_MAIN(tst_QString)
