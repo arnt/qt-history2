@@ -1201,8 +1201,10 @@ void QTextStream::setDevice(QIODevice *device)
         delete d->device;
         d->deleteDevice = false;
     }
+    
+    d->reset();
+    d->status = Ok;    
     d->device = device;
-    d->string = 0;
 #ifndef QT_NO_QOBJECT
     d->deviceClosedNotifier.setupDevice(this, d->device);
 #endif
@@ -1238,8 +1240,10 @@ void QTextStream::setString(QString *string, QIODevice::OpenMode openMode)
         delete d->device;
         d->deleteDevice = false;
     }
+    
+    d->reset();
+    d->status = Ok;
     d->string = string;
-    d->device = 0;
     d->stringOpenMode = openMode;
 }
 

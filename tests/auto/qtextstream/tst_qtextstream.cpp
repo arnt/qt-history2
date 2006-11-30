@@ -69,6 +69,7 @@ private slots:
     void readAllFromDevice();
     void readAllFromString_data();
     void readAllFromString();
+    void readLineFromStringThenChangeString();
 
     // char operators
     void QChar_operators_FromDevice_data();
@@ -638,6 +639,21 @@ void tst_QTextStream::readLineFromString()
         list << stream.readLine();
 
     QCOMPARE(list, lines);
+}
+
+// ------------------------------------------------------------------------------
+void tst_QTextStream::readLineFromStringThenChangeString()
+{
+    QString first = "First string";
+    QString second = "Second string";
+
+    QTextStream stream(&first, QIODevice::ReadOnly);
+    QString result = stream.readLine();
+    QCOMPARE(first, result);
+    
+    stream.setString(&second, QIODevice::ReadOnly);
+    result = stream.readLine();
+    QCOMPARE(second, result);
 }
 
 // ------------------------------------------------------------------------------
