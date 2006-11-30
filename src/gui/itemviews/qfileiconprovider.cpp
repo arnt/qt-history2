@@ -178,11 +178,11 @@ QIcon QFileIconProviderPrivate::getWinIcon(const QFileInfo &fileInfo) const
     QIcon retIcon;
     QString fileExtension = fileInfo.extension(FALSE).upper();
     fileExtension.prepend( "." );
-    
+
     QString key;
     if (fileInfo.isFile() && !fileInfo.isExecutable() && !fileInfo.isSymLink())
         key = "qt_" + fileExtension;
-    
+
     QPixmap pixmap;
     QPixmapCache::find(key, pixmap);
 
@@ -190,13 +190,13 @@ QIcon QFileIconProviderPrivate::getWinIcon(const QFileInfo &fileInfo) const
         retIcon.addPixmap(pixmap);
         return retIcon;
     }
-    
+
     static HRESULT comInit = CoInitialize(NULL);
     SHFILEINFO info;
     unsigned long val = 0;
     const TCHAR *a = fileInfo.filePath().ucs2();
-    val = SHGetFileInfo(QDir::toNativeSeparators(fileInfo.filePath()).ucs2(), 0, &info, 
-                        sizeof(SHFILEINFO), SHGFI_ICON|SHGFI_SMALLICON|SHGFI_SYSICONINDEX|SHGFI_ADDOVERLAYS);
+    val = SHGetFileInfo(QDir::toNativeSeparators(fileInfo.filePath()).ucs2(), 0, &info,
+                        sizeof(SHFILEINFO), SHGFI_ICON|SHGFI_SMALLICON|SHGFI_SYSICONINDEX);
     if (val) {
         pixmap = convertHIconToPixmap(info.hIcon);
         if (!pixmap.isNull()) {
