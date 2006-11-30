@@ -1265,12 +1265,12 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
             out_c.replace(stringBase, mangle);
         }
 
-        t << impl << ": " << (*it) << "\n\t"
+        t << impl << ": " << decl << "\n"
+          << decl << ": " << (*it) << "\n\t"
           << "$(YACC) " << yaccflags << " " << (*it) << "\n\t"
           << "-$(DEL_FILE) " << impl << " " << decl << "\n\t"
           << "-$(MOVE) " << out_h << " " << decl << "\n\t"
           << "-$(MOVE) " << out_c << " " << impl << endl << endl;
-        t << decl << ": " << impl << endl << endl;
     }
 }
 
