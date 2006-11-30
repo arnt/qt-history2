@@ -2956,7 +2956,8 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     }
                 }
 
-                if (sub & SC_TitleBarMinButton && tb->titleBarFlags & Qt::WindowMinimizeButtonHint) {
+                if (sub & SC_TitleBarMinButton && tb->titleBarFlags & Qt::WindowMinimizeButtonHint
+                        && !(tb->titleBarState & Qt::WindowMinimized)) {
                     theme.rect = subControlRect(CC_TitleBar, option, SC_TitleBarMinButton, widget);
                     partId = WP_MINBUTTON;
                     if (widget && !widget->isEnabled())
@@ -2973,7 +2974,8 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     theme.stateId = stateId;
                     d->drawBackground(theme);
                 }
-                if (sub & SC_TitleBarMaxButton && tb->titleBarFlags & Qt::WindowMaximizeButtonHint) {
+                if (sub & SC_TitleBarMaxButton && tb->titleBarFlags & Qt::WindowMaximizeButtonHint
+                        && !(tb->titleBarState & Qt::WindowMaximized)) {
                     theme.rect = subControlRect(CC_TitleBar, option, SC_TitleBarMaxButton, widget);
                     partId = WP_MAXBUTTON;
                     if (widget && !widget->isEnabled())
@@ -2990,7 +2992,12 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     theme.stateId = stateId;
                     d->drawBackground(theme);
                 }
-                if (sub & SC_TitleBarNormalButton && tb->titleBarFlags & Qt::WindowMinimizeButtonHint) {
+                bool drawNormalButton = (sub & SC_TitleBarNormalButton)
+                                        && (((tb->titleBarFlags & Qt::WindowMinimizeButtonHint)
+                                        && (tb->titleBarState & Qt::WindowMinimized))
+                                        || ((tb->titleBarFlags & Qt::WindowMaximizeButtonHint)
+                                        && (tb->titleBarState & Qt::WindowMaximized)));
+                if (drawNormalButton) {
                     theme.rect = subControlRect(CC_TitleBar, option, SC_TitleBarNormalButton, widget);
                     partId = WP_RESTOREBUTTON;
                     if (widget && !widget->isEnabled())
@@ -3007,7 +3014,8 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     theme.stateId = stateId;
                     d->drawBackground(theme);
                 }
-                if (sub & SC_TitleBarShadeButton && tb->titleBarFlags & Qt::WindowShadeButtonHint) {
+                if (sub & SC_TitleBarShadeButton && tb->titleBarFlags & Qt::WindowShadeButtonHint
+                        && !(tb->titleBarState & Qt::WindowMinimized)) {
                     theme.rect = subControlRect(CC_TitleBar, option, SC_TitleBarShadeButton, widget);
                     partId = WP_MINBUTTON;
                     if (widget && !widget->isEnabled())
@@ -3024,7 +3032,8 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     theme.stateId = stateId;
                     d->drawBackground(theme);
                 }
-                if (sub & SC_TitleBarUnshadeButton && tb->titleBarFlags & Qt::WindowShadeButtonHint) {
+                if (sub & SC_TitleBarUnshadeButton && tb->titleBarFlags & Qt::WindowShadeButtonHint
+                        && tb->titleBarState & Qt::WindowMinimized) {
                     theme.rect = subControlRect(CC_TitleBar, option, SC_TitleBarUnshadeButton, widget);
                     partId = WP_RESTOREBUTTON;
                     if (widget && !widget->isEnabled())
