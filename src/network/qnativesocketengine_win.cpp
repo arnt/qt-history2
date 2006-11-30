@@ -1051,34 +1051,24 @@ int QNativeSocketEnginePrivate::nativeSelect(int timeout,
 
     int ret = 0;
 
-    QTime stopWatch;
-    stopWatch.start();
+    memset(&fdread, 0, sizeof(fd_set));
+    if (checkRead) {
+        fdread.fd_count = 1;
+        fdread.fd_array[0] = socketDescriptor;
+    }
+    memset(&fdwrite, 0, sizeof(fd_set));
+    if (checkWrite) {
+        fdwrite.fd_count = 1;
+        fdwrite.fd_array[0] = socketDescriptor;
+    }
 
-    for (;;) {
+    struct timeval tv;
+    tv.tv_sec = timeout / 1000;
+    tv.tv_usec = (timeout % 1000) * 1000;
 
-        int nextTimeOut = timeout - stopWatch.elapsed();
-
-        memset(&fdread, 0, sizeof(fd_set));
-        if (checkRead) {
-            fdread.fd_count = 1;
-            fdread.fd_array[0] = socketDescriptor;
-        }
-        memset(&fdwrite, 0, sizeof(fd_set));
-        if (checkWrite) {
-            fdwrite.fd_count = 1;
-            fdwrite.fd_array[0] = socketDescriptor;
-        }
-
-        struct timeval tv;
-        tv.tv_sec = nextTimeOut / 1000;
-        tv.tv_usec = (nextTimeOut % 1000) * 1000;
-
-        ret = select(socketDescriptor + 1, &fdread, &fdwrite, 0, nextTimeOut < 0 ? 0 : &tv);
-        if (ret <= 0)
-            return ret;
-
-        break;
-    };
+    ret = select(socketDescriptor + 1, &fdread, &fdwrite, 0, timeout < 0 ? 0 : &tv);
+    if (ret <= 0)
+        return ret;
 
     *selectForRead = FD_ISSET(socketDescriptor, &fdread);
     *selectForWrite = FD_ISSET(socketDescriptor, &fdwrite);
