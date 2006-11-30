@@ -333,6 +333,7 @@ public:
     virtual bool internalEntityDecl(const QString& name, const QString& value) = 0;
     virtual bool externalEntityDecl(const QString& name, const QString& publicId, const QString& systemId) = 0;
     virtual QString errorString() const = 0;
+    // ### Qt5: Conform to SAX by adding elementDecl
 };
 
 
