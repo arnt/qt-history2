@@ -260,7 +260,7 @@ protected:
     void setWindowCreated(bool on);
     bool initialized() const;
     void setInitialized(bool on);
-    void generateFontDisplayLists(const QFont & fnt, int listBase);
+    void generateFontDisplayLists(const QFont & fnt, int listBase); /* remove in Qt 5 */
 
     uint colorIndex(const QColor& c) const;
     void setValid(bool valid);
@@ -385,7 +385,7 @@ protected:
 
     virtual void glInit();
     virtual void glDraw();
-    int fontDisplayListBase(const QFont & fnt, int listBase = 2000);
+    int fontDisplayListBase(const QFont & fnt, int listBase = 2000); /* remove in Qt 5 */
 
 private:
     Q_DISABLE_COPY(QGLWidget)
