@@ -75,7 +75,7 @@
     convenience functions to extract and set the color of the pen's
     brush, respectively. Pens may also be compared and streamed.
 
-    For more information about painting in general, see {The Paint
+    For more information about painting in general, see \l{The Paint
     System} documentation.
 
     \tableofcontents
