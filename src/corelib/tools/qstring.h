@@ -129,6 +129,19 @@ public:
     QString arg(const QString &a1, const QString &a2, const QString &a3) const Q_REQUIRED_RESULT;
     QString arg(const QString &a1, const QString &a2, const QString &a3,
                 const QString &a4) const Q_REQUIRED_RESULT;
+    QString arg(const QString &a1, const QString &a2, const QString &a3,
+                const QString &a4, const QString &a5) const Q_REQUIRED_RESULT;
+    QString arg(const QString &a1, const QString &a2, const QString &a3,
+                const QString &a4, const QString &a5, const QString &a6) const Q_REQUIRED_RESULT;
+    QString arg(const QString &a1, const QString &a2, const QString &a3,
+                const QString &a4, const QString &a5, const QString &a6,
+                const QString &a7) const Q_REQUIRED_RESULT;
+    QString arg(const QString &a1, const QString &a2, const QString &a3,
+                const QString &a4, const QString &a5, const QString &a6,
+                const QString &a7, const QString &a8) const Q_REQUIRED_RESULT;
+    QString arg(const QString &a1, const QString &a2, const QString &a3,
+                const QString &a4, const QString &a5, const QString &a6,
+                const QString &a7, const QString &a8, const QString &a9) const Q_REQUIRED_RESULT;
 
     QString    &vsprintf(const char *format, va_list ap);
     QString    &sprintf(const char *format, ...)
@@ -762,8 +775,28 @@ inline QString QString::arg(const QString &a1, const QString &a2) const
 { const QString *args[2] = { &a1, &a2 }; return multiArg(2, args); }
 inline QString QString::arg(const QString &a1, const QString &a2, const QString &a3) const
 { const QString *args[3] = { &a1, &a2, &a3 }; return multiArg(3, args); }
-inline QString QString::arg(const QString &a1, const QString &a2, const QString &a3, const QString &a4) const
+inline QString QString::arg(const QString &a1, const QString &a2, const QString &a3,
+                            const QString &a4) const
 { const QString *args[4] = { &a1, &a2, &a3, &a4 }; return multiArg(4, args); }
+inline QString QString::arg(const QString &a1, const QString &a2, const QString &a3,
+                            const QString &a4, const QString &a5) const
+{ const QString *args[5] = { &a1, &a2, &a3, &a4, &a5 }; return multiArg(5, args); }
+inline QString QString::arg(const QString &a1, const QString &a2, const QString &a3,
+                            const QString &a4, const QString &a5, const QString &a6) const
+{ const QString *args[6] = { &a1, &a2, &a3, &a4, &a5, &a6 }; return multiArg(6, args); }
+inline QString QString::arg(const QString &a1, const QString &a2, const QString &a3,
+                            const QString &a4, const QString &a5, const QString &a6,
+                            const QString &a7) const
+{ const QString *args[7] = { &a1, &a2, &a3, &a4, &a5, &a6,  &a7 }; return multiArg(7, args); }
+inline QString QString::arg(const QString &a1, const QString &a2, const QString &a3,
+                            const QString &a4, const QString &a5, const QString &a6,
+                            const QString &a7, const QString &a8) const
+{ const QString *args[8] = { &a1, &a2, &a3, &a4, &a5, &a6,  &a7, &a8 }; return multiArg(8, args); }
+inline QString QString::arg(const QString &a1, const QString &a2, const QString &a3,
+                            const QString &a4, const QString &a5, const QString &a6,
+                            const QString &a7, const QString &a8, const QString &a9) const
+{ const QString *args[9] = { &a1, &a2, &a3, &a4, &a5, &a6,  &a7, &a8, &a9 }; return multiArg(9, args); }
+
 inline QString QString::section(QChar asep, int astart, int aend, SectionFlags aflags) const
 { return section(QString(asep), astart, aend, aflags); }
 

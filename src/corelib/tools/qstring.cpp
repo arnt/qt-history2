@@ -5880,6 +5880,51 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     a1, \a a2, \a a3 and \a a4 are replaced in one pass.
 */
 
+/*!
+    \fn QString QString::arg(const QString& a1, const QString& a2, const QString& a3, const QString& a4, const QString& a5) const
+    \overload
+
+    This is the same as calling \c
+    {str.arg(a1).arg(a2).arg(a3).arg(a4).arg(a5)}, except that the strings \a
+    a1 to \a a5 are replaced in one pass.
+*/
+
+/*!
+    \fn QString QString::arg(const QString& a1, const QString& a2, const QString& a3, const QString& a4, const QString& a5, const QString& a6) const
+    \overload
+
+    This is the same as calling \c
+    {str.arg(a1).arg(a2).arg(a3).arg(a4).arg(a5).arg(a6))}, except that the strings \a
+    a1 to \a a6 are replaced in one pass.
+*/
+
+/*!
+    \fn QString QString::arg(const QString& a1, const QString& a2, const QString& a3, const QString& a4, const QString& a5, const QString& a6, const QString& a7) const
+    \overload
+
+    This is the same as calling \c
+    {str.arg(a1).arg(a2).arg(a3).arg(a4).arg(a5).arg(a6).arg(a7)}, except that the strings \a
+    a1 to \a a7 are replaced in one pass.
+*/
+
+/*!
+    \fn QString QString::arg(const QString& a1, const QString& a2, const QString& a3, const QString& a4, const QString& a5, const QString& a6, const QString& a7, const QString& a8) const
+    \overload
+
+    This is the same as calling \c
+    {str.arg(a1).arg(a2).arg(a3).arg(a4).arg(a5).arg(a6).arg(a7).arg(a8)}, except that the strings \a
+    a1 to \a a8 are replaced in one pass.
+*/
+
+/*!
+    \fn QString QString::arg(const QString& a1, const QString& a2, const QString& a3, const QString& a4, const QString& a5, const QString& a6, const QString& a7, const QString& a8, const QString& a9) const
+    \overload
+
+    This is the same as calling \c
+    {str.arg(a1).arg(a2).arg(a3).arg(a4).arg(a5).arg(a6).arg(a7).arg(a8).arg(a9)}, except that the strings \a
+    a1 to \a a9 are replaced in one pass.
+*/
+
 /*! \fn QString QString::arg(int a, int fieldWidth, int base, const QChar &fillChar) const
 
     \overload
