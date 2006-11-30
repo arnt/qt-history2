@@ -2133,11 +2133,11 @@ fi
 
 # auto-detect support for separate debug info in objcopy
 if [ "$CFG_SEPARATE_DEBUG_INFO" != "no" ] && [ "$CFG_SHARED" = "yes" ]; then
-    TEST_COMPILER_CFLAGS=`getQMakeConf "$XQMAKESPEC" | sed -n -e 's/QMAKE_CFLAGS[^_].*=//p' | tr '\n' ' '`
-    TEST_COMPILER_CXXFLAGS=`getQMakeConf "$XQMAKESPEC" | sed -n -e 's/QMAKE_CXXFLAGS[^_].*=//p' | tr '\n' ' '`
-    TEST_CXX_COMPILER=`getQMakeConf "$XQMAKESPEC" | grep "^QMAKE_CXX[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1," | tr '\n' ' '`
+    TEST_COMPILER_CFLAGS=`getQMakeConf "$XQMAKESPEC" | sed -n -e 's%QMAKE_CFLAGS[^_].*=%%p' | tr '\n' ' '`
+    TEST_COMPILER_CXXFLAGS=`getQMakeConf "$XQMAKESPEC" | sed -n -e 's%QMAKE_CXXFLAGS[^_].*=%%p' | tr '\n' ' '`
+    TEST_CXX_COMPILER=`getQMakeConf "$XQMAKESPEC" | grep "^QMAKE_CXX[^_A-Z0-9]" | sed "s%.* *= *\(.*\)$%\1%" | tr '\n' ' '`
     COMPILER_WITH_FLAGS="$TEST_CXX_COMPILER $TEST_COMPILER_CXXFLAGS"
-    COMPILER_WITH_FLAGS=`echo "$COMPILER_WITH_FLAGS" | sed -e "s,\\$\\$QMAKE_CFLAGS,$TEST_COMPILER_CFLAGS,"`
+    COMPILER_WITH_FLAGS=`echo "$COMPILER_WITH_FLAGS" | sed -e "s%\\$\\$QMAKE_CFLAGS%$TEST_COMPILER_CFLAGS%"`
     if "$unixtests/objcopy.test" "$COMPILER_WITH_FLAGS" "$OPT_VERBOSE"; then
        CFG_SEPARATE_DEBUG_INFO=no
     else
