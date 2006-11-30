@@ -42,16 +42,8 @@ public:
 
     inline QModelIndex indexOf(IProperty *property, int column = 0) const
     {
-        Q_ASSERT(property);
-        if (property == m_initialInput)
-            return createIndex(0, column, m_initialInput);
-
-        IProperty *parent = parentOf(property);
-        if (!parent || parent->kind() != IProperty::Property_Group)
-            return QModelIndex();
-
-        int row = static_cast<IPropertyGroup*>(parent)->indexOf(property);
-        return createIndex(row, column, property);
+        const int row = rowOf(property);
+        return row == -1 ?  QModelIndex() : createIndex(row, column, property);
     }
 
     inline IProperty *privateData(const QModelIndex &index) const
@@ -104,6 +96,8 @@ private:
     { return property ? property->parent() : 0; }
 
 private:
+    int rowOf(IProperty *property) const;
+    
     IProperty *m_initialInput;
 };
 

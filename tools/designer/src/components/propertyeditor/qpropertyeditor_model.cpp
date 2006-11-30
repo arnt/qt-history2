@@ -148,21 +148,31 @@ QString QPropertyEditorModel::columnText(int col) const
         default: return QString();
     }
 }
-
+    
 void QPropertyEditorModel::refresh(IProperty *property)
 {
-    IProperty *prop = property;
-
-    while (prop && prop->isFake())
-        prop = prop->parent();
-
-    if (prop != property) {
-        const QModelIndex index = indexOf(prop, 0);
-        emit dataChanged(index.sibling(0, 0), index.sibling(rowCount(index), 1));
-        property = prop;
+    // find parent if it is a fake
+    IProperty *parent = property;
+    while (parent && parent->isFake())
+        parent = parent->parent();
+    
+    const int parentRow = rowOf(parent);
+    if (parentRow == -1)
+        return;
+    
+    const QModelIndex parentIndex0 = createIndex(parentRow, 0, parent);
+    const QModelIndex parentIndex1 = createIndex(parentRow, 1, parent);
+            
+    emit dataChanged(parentIndex0, parentIndex1);
+    // refresh children
+    if (parent->kind() == IProperty::Property_Group) {
+        IPropertyGroup* group =  static_cast<IPropertyGroup*>(parent);
+        if (const int numRows = group->propertyCount()) {
+            const  QModelIndex leftTopChild = parentIndex0.child(0, 0);
+            const  QModelIndex rightBottomChild = parentIndex0.child(numRows - 1, 1);
+            emit dataChanged(leftTopChild, rightBottomChild);
+        }
     }
-
-    emit dataChanged(indexOf(property, 0), indexOf(property, 1));
 }
 
 bool QPropertyEditorModel::isEditable(const QModelIndex &index) const
@@ -202,4 +212,17 @@ Qt::ItemFlags QPropertyEditorModel::flags(const QModelIndex &index) const
     return foo;
 }
 
+int QPropertyEditorModel::rowOf(IProperty *property) const
+{
+    Q_ASSERT(property);
+    if (property == m_initialInput)
+        return 0;
+    
+    IProperty *parent = property->parent();
+    
+    if (!parent || parent->kind() != IProperty::Property_Group)
+        return -1;
+    
+    return static_cast<const IPropertyGroup*>(parent)->indexOf(property);
+}
 }
