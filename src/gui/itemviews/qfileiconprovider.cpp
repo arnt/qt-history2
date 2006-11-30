@@ -25,6 +25,10 @@
 #include <private/qt_mac_p.h>
 #endif
 
+#ifndef SHGFI_ADDOVERLAYS
+#define SHGFI_ADDOVERLAYS 0x000000020
+#endif
+
 /*!
   \class QFileIconProvider
 
@@ -196,7 +200,7 @@ QIcon QFileIconProviderPrivate::getWinIcon(const QFileInfo &fileInfo) const
     unsigned long val = 0;
     const TCHAR *a = fileInfo.filePath().ucs2();
     val = SHGetFileInfo(QDir::toNativeSeparators(fileInfo.filePath()).ucs2(), 0, &info,
-                        sizeof(SHFILEINFO), SHGFI_ICON|SHGFI_SMALLICON|SHGFI_SYSICONINDEX);
+                        sizeof(SHFILEINFO), SHGFI_ICON|SHGFI_SMALLICON|SHGFI_SYSICONINDEX|SHGFI_ADDOVERLAYS);
     if (val) {
         pixmap = convertHIconToPixmap(info.hIcon);
         if (!pixmap.isNull()) {
