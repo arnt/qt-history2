@@ -993,14 +993,14 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     if (QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_3)
         qt_resolve_version_1_3_functions(ctx);
 
+#ifndef Q_WS_QWS
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+#endif
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
 
-#ifndef Q_WS_QWS
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-#endif
     if (QGLExtensions::glExtensions & QGLExtensions::SampleBuffers)
         glDisable(GL_MULTISAMPLE);
 #ifndef Q_WS_QWS
@@ -1087,13 +1087,13 @@ bool QOpenGLPaintEngine::end()
 {
     Q_D(QOpenGLPaintEngine);
     d->offscreen.end();
-#ifndef Q_WS_QWS
-    glPopAttrib();
-#endif
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
+#ifndef Q_WS_QWS
+    glPopAttrib();
+#endif
 
     glFlush();
     d->drawable.swapBuffers();
