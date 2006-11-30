@@ -699,7 +699,7 @@ bool QDB2Result::exec()
             {
                 QString str(values.at(i).toString());
                 if (*ind != SQL_NULL_DATA)
-                    *ind = str.length();
+                    *ind = str.length() * sizeof(QChar);
                 if (bindValueType(i) & QSql::Out) {
                     QByteArray ba((char*)str.utf16(), str.capacity() * sizeof(QChar));
                     r = SQLBindParameter(d->hStmt,
