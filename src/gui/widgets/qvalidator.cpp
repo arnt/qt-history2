@@ -345,7 +345,9 @@ QIntValidator::~QIntValidator()
     the valid range and \l Invalid if the \a input is not an integer.
 
     Note: If the valid range consists of just positive integers (e.g. 32 to 100)
-    and \a input is a negative integer then Invalid is returned.
+    and \a input is a negative integer then Invalid is returned. If \a input
+    has a greater number of digits than an integer in the valid range can have,
+    Invalid is returned.
 
     \code
     int pos = 0;
@@ -511,8 +513,7 @@ public:
     \value StandardNotation      The string is written as a standard number
                                  (i.e. 0.015).
     \value ScientificNotation    The string is written in scientific
-                                 form divided into coefficient and
-                                 exponent part(i.e. 1.5E-2). This is the default.
+                                 form. It may have an exponent part(i.e. 1.5E-2).
 */
 
 /*!
@@ -603,7 +604,12 @@ QDoubleValidator::~QDoubleValidator()
     Returns \l Invalid if the \a input is not a double.
 
     Note: If the valid range consists of just positive doubles (e.g. 0.0 to 100.0)
-    and \a input is a negative double then \l Invalid is returned.
+    and \a input is a negative double then \l Invalid is returned. If notation()
+    is set to StandardNotation, and the input contains more digits before the
+    decimal point than a double in the valid range may have, \l Invalid is returned.
+    If notation() is ScientificNotation, and the input is not in the valid range
+    but does not yet have an exponent, \l Intermediate is returned, since the exponent
+    may bring the number into the valid range.
 
     By default, the \a pos parameter is not used by this validator.
 */
