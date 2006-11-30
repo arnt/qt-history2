@@ -19,8 +19,12 @@
 #include <qmenu.h>
 #include <qmimedata.h>
 #include <qevent.h>
-#include <qfileiconprovider.h>
 #include <qdebug.h>
+#if QT_VERSION >= 0x040300
+#include <qfileiconprovider.h>
+#else
+#include <qdirmodel.h>
+#endif
 
 QSidebar::QSidebar(QFileSystemModel *model, const QList<QUrl> &newUrls, QWidget *parent) : QListWidget(parent), fileSystemModel(model)
 {
@@ -116,7 +120,8 @@ void QSidebar::setUrls(const QList<QUrl> &list)
     Copied in QFileDialog
     \sa dropMimeData() addFullPath()
 */
-void QSidebar::addUrls(const QList<QUrl> &list, int row) {
+void QSidebar::addUrls(const QList<QUrl> &list, int row)
+{
     row = qMin(row, model()->rowCount());
     for (int i = list.count() - 1; i >= 0; --i) {
         QUrl url = list.at(i);
