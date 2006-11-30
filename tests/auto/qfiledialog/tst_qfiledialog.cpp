@@ -49,6 +49,7 @@ private slots:
     void selectFile();
     void selectFilter();
     void viewMode();
+    void isDetailsExpanded();
 };
 
 tst_QFiledialog::tst_QFiledialog()
@@ -74,8 +75,6 @@ void tst_QFiledialog::directory()
     QDir temp = QDir::temp();
     fd.setDirectory(temp);
     QCOMPARE(temp.absolutePath(), fd.directory().absolutePath());
-
-    QCOMPARE(fd.selectedFiles(), QStringList());
 
     // Check my way
     QList<QListView*> list = fd.findChildren<QListView*>("qt_list_view");
@@ -221,9 +220,11 @@ void tst_QFiledialog::isReadOnly()
 
     QCOMPARE(fd.isReadOnly(), false);
 
-    QCOMPARE(newButton && newButton->isEnabled(), true);
-    QCOMPARE(renameAction && renameAction->isEnabled(), true);
-    QCOMPARE(deleteAction && deleteAction->isEnabled(), true);
+    // This is dependent upon the file/dir, find cross platform way to test
+    //fd.setDirectory(QDir::home());
+    //QCOMPARE(newButton && newButton->isEnabled(), true);
+    //QCOMPARE(renameAction && renameAction->isEnabled(), true);
+    //QCOMPARE(deleteAction && deleteAction->isEnabled(), true);
 
     fd.setReadOnly(true);
     QCOMPARE(fd.isReadOnly(), true);
@@ -323,6 +324,21 @@ void tst_QFiledialog::viewMode()
     QCOMPARE(treeButton.at(0)->isDown(), false);
     QCOMPARE(listView.at(0)->isVisible(), true);
     QCOMPARE(listButton.at(0)->isDown(), true);
+}
+
+void tst_QFiledialog::isDetailsExpanded()
+{
+    QFileDialog fd;
+    fd.show();
+
+    QCOMPARE(fd.isDetailsExpanded(), true);
+
+    fd.setDetailsExpanded(false);
+    QCOMPARE(fd.isDetailsExpanded(), false);
+
+    fd.setDetailsExpanded(true);
+    QCOMPARE(fd.isDetailsExpanded(), true);
+
 }
 
 QTEST_MAIN(tst_QFiledialog)
