@@ -97,6 +97,11 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QM
     return indexNode;
 }
 
+bool nodeCaseInsensitiveLessThan(const QFileSystemModelPrivate::QFileSystemNode &s1, const QFileSystemModelPrivate::QFileSystemNode &s2)
+{
+    return s1.fileName.toLower() < s2.fileName.toLower();
+}
+
 /*!
     \internal
 
@@ -147,7 +152,7 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
     } else {
         if (!pathElements.at(0).contains(":"))
             pathElements.prepend(QDir(path).rootPath());
-	if (pathElements.at(0).endsWith(QLatin1Char('/')))
+        if (pathElements.at(0).endsWith(QLatin1Char('/')))
             pathElements[0].chop(1);
     }
 #else
@@ -166,8 +171,13 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
 #endif
         int row = -1;
         if (parent->children.count() != 0) {
-            QList<QFileSystemNode>::iterator iterator = qBinaryFind(parent->children.begin(), parent->children.end(),
-                                                     QFileSystemNode(element));
+            QList<QFileSystemNode>::iterator iterator;
+            if (parent->caseSensitive())
+                iterator = qBinaryFind(parent->children.begin(), parent->children.end(),
+                    QFileSystemNode(element));
+            else
+                iterator = qBinaryFind(parent->children.begin(), parent->children.end(),
+                    QFileSystemNode(element), nodeCaseInsensitiveLessThan);
             if (iterator != parent->children.end())
                 row = iterator - parent->children.begin();
         }
@@ -193,7 +203,7 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
         if (parent->visibleLocation(row) == -1) {
             QFileSystemModelPrivate *p = const_cast<QFileSystemModelPrivate*>(this);
             p->addVisibleFiles(parent, QStringList(element));
-	}
+        }
         parent = &parent->children[row];
     }
 
@@ -247,20 +257,21 @@ QModelIndex QFileSystemModel::parent(const QModelIndex &index) const
 {
     Q_D(const QFileSystemModel);
     if (!d->indexValid(index))
-	return QModelIndex();
+        return QModelIndex();
 
     QFileSystemModelPrivate::QFileSystemNode *indexNode = d->node(index);
     Q_ASSERT(indexNode != 0);
     QFileSystemModelPrivate::QFileSystemNode *parentNode = (indexNode ? indexNode->parent : 0);
     if (parentNode == 0 || parentNode == &d->root)
-	return QModelIndex();
+        return QModelIndex();
 
     // get the parent's row
     QFileSystemModelPrivate::QFileSystemNode *grandParentNode = parentNode->parent;
     int realRow = d->findChild(grandParentNode, *parentNode);
     Q_ASSERT(realRow >= 0);
     int visualRow = d->translateVisibleLocation(grandParentNode, grandParentNode->visibleLocation(realRow));
-    Q_ASSERT(visualRow >= 0);
+    if (visualRow == -1)
+        return QModelIndex();
     return createIndex(visualRow, 0, parentNode);
 }
 
@@ -274,7 +285,7 @@ QModelIndex QFileSystemModelPrivate::index(const QFileSystemModelPrivate::QFileS
     Q_Q(const QFileSystemModel);
     QFileSystemModelPrivate::QFileSystemNode *parentNode = (node ? node->parent : 0);
     if (node == &root)
-	return QModelIndex();
+        return QModelIndex();
 
     // get the parent's row
     int realRow = findChild(parentNode, *node);
@@ -905,9 +916,13 @@ QModelIndex QFileSystemModel::mkdir(const QModelIndex &parent, const QString &na
     QFileSystemModelPrivate::QFileSystemNode *parentNode = d->node(parent);
     d->addNode(parentNode, name);
 
-    QList<QFileSystemModelPrivate::QFileSystemNode>::iterator iterator =
-        qBinaryFind(parentNode->children.begin(), parentNode->children.end(),
+    QList<QFileSystemModelPrivate::QFileSystemNode>::iterator iterator;
+    if (parentNode->caseSensitive())
+        iterator = qBinaryFind(parentNode->children.begin(), parentNode->children.end(),
                     QFileSystemModelPrivate::QFileSystemNode(name));
+    else
+        iterator = qBinaryFind(parentNode->children.begin(), parentNode->children.end(),
+                    QFileSystemModelPrivate::QFileSystemNode(name), nodeCaseInsensitiveLessThan);
     int r = iterator - parentNode->children.begin();
     QFileSystemModelPrivate::QFileSystemNode *node = &parentNode->children[r];
     QExtendedInformation extendedInfo;
@@ -1138,7 +1153,6 @@ bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
 void QFileSystemModelPrivate::directoryChanged(const QString &directory, const QStringList &files)
 {
     QFileSystemModelPrivate::QFileSystemNode *parentNode = node(directory);
-
     QStringList newFiles = files;
     // sort new files for faster inserting
     qSort(newFiles.begin(), newFiles.end());
@@ -1167,7 +1181,7 @@ void QFileSystemModelPrivate::directoryChanged(const QString &directory, const Q
     // Add them to the children list
     // They are added to the visible list after we get a info and they pass the filter
     for (int i = 0; i < newFiles.count(); ++i)
-       addNode(parentNode, newFiles.at(i));
+        addNode(parentNode, newFiles.at(i));
 
     fileInfoGatherer.fetchExtendedInformation(directory, newFiles);
 }
@@ -1248,9 +1262,13 @@ void QFileSystemModelPrivate::addVisibleFiles(QFileSystemNode *parentNode, const
     if (!indexHidden)
         q->beginInsertRows(parent, q->rowCount(parent), q->rowCount(parent) + newFiles.count() - 1);
     for (int i = 0; i < newFiles.count(); ++i) {
-        QList<QFileSystemNode>::iterator iterator =
-        qBinaryFind(parentNode->children.begin(), parentNode->children.end(),
+        QList<QFileSystemNode>::iterator iterator;
+        if (parentNode->caseSensitive())
+            iterator = qBinaryFind(parentNode->children.begin(), parentNode->children.end(),
                     QFileSystemNode(newFiles.at(i)));
+        else
+            iterator = qBinaryFind(parentNode->children.begin(), parentNode->children.end(),
+                    QFileSystemNode(newFiles.at(i)), nodeCaseInsensitiveLessThan);
         int location = iterator - parentNode->children.begin();
 
         // put new items at the end of the list until sorted to minimize
@@ -1301,9 +1319,13 @@ void QFileSystemModelPrivate::fileSystemChanged(const QString &path, const QList
         Q_ASSERT(!fileName.isEmpty());
         QExtendedInformation info = updates.at(i).second;
 
-        QList<QFileSystemNode>::iterator iterator =
-                    qBinaryFind(parentNode->children.begin(), parentNode->children.end(),
+        QList<QFileSystemNode>::iterator iterator;
+        if (parentNode->caseSensitive())
+            iterator = qBinaryFind(parentNode->children.begin(), parentNode->children.end(),
                     QFileSystemNode(fileName));
+        else
+            iterator = qBinaryFind(parentNode->children.begin(), parentNode->children.end(),
+                    QFileSystemNode(fileName), nodeCaseInsensitiveLessThan);
         int itemLocation = iterator - parentNode->children.begin();
 
         if (iterator == parentNode->children.end()) {
@@ -1314,10 +1336,10 @@ void QFileSystemModelPrivate::fileSystemChanged(const QString &path, const QList
             continue;
         }
         if (parentNode->caseSensitive()) {
-            if (parentNode->children.at(itemLocation).fileName.toLower() != fileName.toLower())
+            if (parentNode->children.at(itemLocation).fileName != fileName)
                 continue;
         } else {
-            if (parentNode->children.at(itemLocation).fileName != fileName)
+            if (parentNode->children.at(itemLocation).fileName.toLower() != fileName.toLower())
                 continue;
         }
 
