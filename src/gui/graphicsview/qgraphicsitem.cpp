@@ -3199,6 +3199,36 @@ void QGraphicsItem::prepareGeometryChange()
 }
 
 /*!
+    \internal
+
+    Highlights \a item as selected.
+
+    NOTE: This function is a duplicate of qt_graphicsItem_highlightSelected() in
+          qgraphicssvgitem.cpp!
+*/
+static void qt_graphicsItem_highlightSelected(
+    QGraphicsItem *item, QPainter *painter, const QStyleOptionGraphicsItem *option)
+{
+    const QRectF rect1 = painter->transform().mapRect(QRectF(0, 0, 1, 1));
+    const qreal divisor = qMax(rect1.width(), rect1.height());
+    if (qFuzzyCompare(divisor, 0.0))
+        return;
+    const qreal penWidth = 1.0 / divisor;
+    const qreal padFract = 0.05;
+    const qreal pad =
+        qMin(padFract * item->boundingRect().width(), padFract * item->boundingRect().height());
+
+    const QRectF rect2 = painter->transform().mapRect(item->boundingRect());
+    const qreal minExt = qMin(rect2.width(), rect2.height());
+    if (minExt < 1.0)
+        return;
+
+    painter->setPen(QPen(option->palette.windowText(), penWidth, Qt::DashLine));
+    painter->setBrush(Qt::NoBrush);
+    painter->drawRect(item->boundingRect().adjusted(pad, pad, -pad, -pad));
+}
+
+/*!
     \class QAbstractGraphicsShapeItem
     \brief The QAbstractGraphicsShapeItem class provides a common base for
     all path items.
@@ -3454,11 +3484,8 @@ void QGraphicsPathItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     painter->setBrush(d->brush);
     painter->drawPath(d->path);
 
-    if (option->state & QStyle::State_Selected) {
-        painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
-        painter->setBrush(Qt::NoBrush);
-        painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
-    }
+    if (option->state & QStyle::State_Selected)
+        qt_graphicsItem_highlightSelected(this, painter, option);
 }
 
 /*!
@@ -3669,11 +3696,8 @@ void QGraphicsRectItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     painter->setBrush(d->brush);
     painter->drawRect(d->rect);
 
-    if (option->state & QStyle::State_Selected) {
-        painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
-        painter->setBrush(Qt::NoBrush);
-        painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
-    }
+    if (option->state & QStyle::State_Selected)
+        qt_graphicsItem_highlightSelected(this, painter, option);
 }
 
 /*!
@@ -3956,11 +3980,8 @@ void QGraphicsEllipseItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
     else
         painter->drawPie(d->rect, d->startAngle, d->spanAngle);
 
-    if (option->state & QStyle::State_Selected) {
-        painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
-        painter->setBrush(Qt::NoBrush);
-        painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
-    }
+    if (option->state & QStyle::State_Selected)
+        qt_graphicsItem_highlightSelected(this, painter, option);
 }
 
 /*!
@@ -4172,11 +4193,8 @@ void QGraphicsPolygonItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
     painter->setBrush(d->brush);
     painter->drawPolygon(d->polygon, d->fillRule);
 
-    if (option->state & QStyle::State_Selected) {
-        painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
-        painter->setBrush(Qt::NoBrush);
-        painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
-    }
+    if (option->state & QStyle::State_Selected)
+        qt_graphicsItem_highlightSelected(this, painter, option);
 }
 
 /*!
@@ -4411,33 +4429,8 @@ void QGraphicsLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     painter->setPen(d->pen);
     painter->drawLine(d->line);
 
-    if (option->state & QStyle::State_Selected) {
-        painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
-        painter->setBrush(Qt::NoBrush);
-
-        QPointF p1 = d->line.p1();
-        QPointF p2 = d->line.p2();
-        qreal leftMostX;
-        qreal topMostY;
-        qreal width;
-        qreal height;
-        if (p1.x() < p2.x())
-            leftMostX = p1.x();
-        else
-            leftMostX = p2.x();
-        if (p1.y() < p2.y())
-            topMostY = p1.y();
-        else
-            topMostY = p2.y();
-        width = p1.x() - p2.x();
-        if (width < 0)
-            width = -width;
-        height = p1.y() - p2.y();
-        if (height < 0)
-            height = -height;
-
-        painter->drawRect(QRectF(leftMostX, topMostY, width, height));
-    }
+    if (option->state & QStyle::State_Selected)
+        qt_graphicsItem_highlightSelected(this, painter, option);
 }
 
 /*!
@@ -4739,12 +4732,8 @@ void QGraphicsPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
     exposed.translate(d->offset);
     painter->drawPixmap(exposed, d->pixmap, exposed);
 
-    if (option->state & QStyle::State_Selected) {
-        painter->setPen(QPen(Qt::black, 1));
-        painter->setBrush(Qt::NoBrush);
-        painter->drawRect(QRectF(QPointF(d->offset.x(), d->offset.y()),
-                                 QSizeF(d->pixmap.width(), d->pixmap.height())));
-    }
+    if (option->state & QStyle::State_Selected)
+        qt_graphicsItem_highlightSelected(this, painter, option);
 }
 
 /*!
@@ -5035,11 +5024,8 @@ void QGraphicsTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
         painter->restore();
     }
 
-    if (option->state & (QStyle::State_Selected | QStyle::State_HasFocus)) {
-        painter->setPen(QPen(Qt::black, 1));
-        painter->setBrush(Qt::NoBrush);
-        painter->drawRect(dd->boundingRect);
-    }
+    if (option->state & (QStyle::State_Selected | QStyle::State_HasFocus))
+        qt_graphicsItem_highlightSelected(this, painter, option);
 }
 
 /*!
@@ -5691,11 +5677,8 @@ void QGraphicsSimpleTextItem::paint(QPainter *painter, const QStyleOptionGraphic
 
     layout.draw(painter, QPointF(0, 0));
 
-    if (option->state & (QStyle::State_Selected | QStyle::State_HasFocus)) {
-        painter->setPen(QPen(Qt::black, 1));
-        painter->setBrush(Qt::NoBrush);
-        painter->drawRect(d->boundingRect);
-    }
+    if (option->state & (QStyle::State_Selected | QStyle::State_HasFocus))
+        qt_graphicsItem_highlightSelected(this, painter, option);
 }
 
 /*!

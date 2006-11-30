@@ -155,12 +155,41 @@ QRectF QGraphicsSvgItem::boundingRect() const
 }
 
 /*!
+    \internal
+
+    Highlights \a item as selected.
+
+    NOTE: This function is a duplicate of qt_graphicsItem_highlightSelected() in qgraphicsitem.cpp!
+*/
+static void qt_graphicsItem_highlightSelected(
+    QGraphicsItem *item, QPainter *painter, const QStyleOptionGraphicsItem *option)
+{
+    const QRectF rect1 = painter->transform().mapRect(QRectF(0, 0, 1, 1));
+    const qreal divisor = qMax(rect1.width(), rect1.height());
+    if (qFuzzyCompare(divisor, 0.0))
+        return;
+    const qreal penWidth = 1.0 / divisor;
+    const qreal padFract = 0.05;
+    const qreal pad =
+        qMin(padFract * item->boundingRect().width(), padFract * item->boundingRect().height());
+
+    const QRectF rect2 = painter->transform().mapRect(item->boundingRect());
+    const qreal minExt = qMin(rect2.width(), rect2.height());
+    if (minExt < 1.0)
+        return;
+
+    painter->setPen(QPen(option->palette.windowText(), penWidth, Qt::DashLine));
+    painter->setBrush(Qt::NoBrush);
+    painter->drawRect(item->boundingRect().adjusted(pad, pad, -pad, -pad));
+}
+
+/*!
     \reimp
 */
 void QGraphicsSvgItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                              QWidget *widget)
 {
-    Q_UNUSED(option);
+//    Q_UNUSED(option);
     Q_UNUSED(widget);
 
     Q_D(QGraphicsSvgItem);
@@ -177,6 +206,9 @@ void QGraphicsSvgItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
             d->renderer->render(painter, d->boundingRect);
         else
             d->renderer->render(painter, d->elemId, d->boundingRect);
+
+        if (option->state & QStyle::State_Selected)
+            qt_graphicsItem_highlightSelected(this, painter, option);
         return;
     }
 
@@ -215,8 +247,15 @@ void QGraphicsSvgItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         d->dirty = false;
     }
 
+    const QTransform xformSave = painter->transform();
+
     painter->setWorldMatrix(QMatrix());
     painter->drawPixmap(viewPoint, pix);
+
+    if (option->state & QStyle::State_Selected) {
+        painter->setTransform(xformSave);
+        qt_graphicsItem_highlightSelected(this, painter, option);
+    }
 }
 
 /*!
