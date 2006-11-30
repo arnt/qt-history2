@@ -3233,7 +3233,6 @@ const char *QString::latin1_helper() const
 
 #ifdef Q_OS_WIN32
 #include "qt_windows.h"
-#include <subucstrcmp.h>
 
 QByteArray qt_winQString2MB(const QString& s, int uclen)
 {
