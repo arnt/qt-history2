@@ -72,8 +72,9 @@ public:
     }
 
     inline void append(const T &t) {
-        const int idx = s;
-        resize(idx + 1);
+        const int idx = s++;
+        if (s == a)
+            realloc(s, s<<1);
         ptr[idx] = t;
     }
     void append(const T *buf, int size);
@@ -129,7 +130,9 @@ Q_OUTOFLINE_TEMPLATE void QVarLengthArray<T, Prealloc>::append(const T *abuf, in
         return;
 
     const int idx = s;
-    resize(idx + asize);
+    s += asize;
+    if (s == a)
+        realloc(s, s<<1);
 
     if (QTypeInfo<T>::isComplex) {
         T *i = ptr + idx;
