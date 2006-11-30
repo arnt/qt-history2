@@ -1436,7 +1436,7 @@ static bool hasStyleRule(const QWidget *w, int part = PseudoElement_None)
         return w && !styleRules.isEmpty();
 
     // ### cache the result
-    QString pseudoElement(QLatin1String(knownPseudoElements[part].name));
+    QString pseudoElement = QLatin1String(knownPseudoElements[part].name);
     QVector<Declaration> declarations;
     for (int i = 0; i < styleRules.count(); i++) {
         const Selector& selector = styleRules.at(i).selectors.at(0);
