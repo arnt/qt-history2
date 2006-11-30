@@ -601,6 +601,7 @@ public:
         SH_MessageBox_CenterButtons,
         SH_Menu_SelectionWrap,
         SH_ItemView_MovementWithoutUpdatingSelection,
+        SH_ComboBox_PopupBackgroundRole,
 
         // Add new style hint values here
 

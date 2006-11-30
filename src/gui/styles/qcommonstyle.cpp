@@ -3947,6 +3947,9 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
     case SH_ItemView_MovementWithoutUpdatingSelection:
         ret = true;
         break;
+    case SH_ComboBox_PopupBackgroundRole:
+        ret = QPalette::Base;
+        break;
     default:
         ret = 0;
         break;

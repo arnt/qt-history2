@@ -305,7 +305,8 @@ QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView
 
     // add scroller arrows if style needs them
     QStyleOptionComboBox opt = comboStyleOption();
-    if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
+    const bool usePopup = style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this);
+    if (usePopup) {
         top = new QComboBoxPrivateScroller(QAbstractSlider::SliderSingleStepSub, this);
         bottom = new QComboBoxPrivateScroller(QAbstractSlider::SliderSingleStepAdd, this);
         top->hide();
@@ -323,6 +324,13 @@ QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView
     if (bottom) {
         layout->addWidget(bottom);
         connect(bottom, SIGNAL(doScroll(int)), this, SLOT(scrollItemView(int)));
+    }
+
+    // Some styles (Mac) have a margin at the top and bottom of the popup.
+    if (usePopup) {
+        const int verticalMargin = style()->pixelMetric(QStyle::PM_MenuVMargin, &opt, this);
+        layout->insertSpacing(0, verticalMargin);
+        layout->addSpacing(verticalMargin);
     }
 }
 
@@ -430,12 +438,16 @@ void QComboBoxPrivateContainer::setItemView(QAbstractItemView *itemView)
     view->viewport()->installEventFilter(this);
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     QStyleOptionComboBox opt = comboStyleOption();
+    const bool usePopup = style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo);
+    if (usePopup) {
+        view->viewport()->setBackgroundRole(QPalette::ColorRole(
+            style()->styleHint(QStyle::SH_ComboBox_PopupBackgroundRole, &opt, combo)));
 #ifndef QT_NO_SCROLLBAR
-    if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo))
         view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 #endif
+    }
     if (style()->styleHint(QStyle::SH_ComboBox_ListMouseTracking, &opt, combo) ||
-        style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo)) {
+        usePopup) {
         view->setMouseTracking(true);
     }
     view->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -1991,15 +2003,21 @@ void QComboBox::showPopup()
     QPoint above = mapToGlobal(listRect.topLeft());
     int aboveHeight = above.y() - screen.y();
 
-    if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this))
+    const bool usePopup = style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this);
+    if (usePopup)
         listRect.setHeight(itemHeight * count());
     else
         listRect.setHeight(itemHeight * qMin(d->maxVisibleItems, count()));
+
     listRect.setHeight(listRect.height() + 2*container->spacing()
                        + style()->pixelMetric(QStyle::PM_DefaultFrameWidth, &opt, this) * 2);
 
+    // Add space for margin at top and bottom if the style wants it.
+    if (usePopup)
+        listRect.setHeight(listRect.height() + style()->pixelMetric(QStyle::PM_MenuVMargin, &opt, this) * 2);
+
     // Make sure the popup is wide enough to display its contents.
-    if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
+    if (usePopup) {
         const int diff = d->computeWidthHint() - width();
         if (diff > 0)
             listRect.setWidth(listRect.width() + diff);
@@ -2017,8 +2035,7 @@ void QComboBox::showPopup()
         above.setX(screen.x());
     }
 
-    if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
-
+    if (usePopup) {
         // Position horizontally.
         listRect.moveLeft(above.x());
 

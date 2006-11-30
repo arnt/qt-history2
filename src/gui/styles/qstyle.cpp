@@ -1590,6 +1590,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_DialogButtonBox_ButtonsHaveIcons Indicates whether or not StandardButtons in QDialogButtonBox should have icons or not.
     \value SH_ItemView_MovementWithoutUpdatingSelection The item view is able to indicate a current item without changing the selection.
+    \value SH_ComboBox_PopupBackgroundRole The background role for the QComboBox popup. 
+    Used to fill any area not covered by the items.
     \omitvalue SH_UnderlineAccelerator
 
     \sa styleHint()
