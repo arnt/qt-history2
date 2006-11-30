@@ -462,7 +462,8 @@ void QTabWidget::setTabEnabled(int index, bool enable)
   \fn void QTabWidget::setCornerWidget(QWidget *widget, Qt::Corner corner)
 
   Sets the given \a widget to be shown in the specified \a corner of the
-  tab widget.
+  tab widget. The geometry of the widget is determined based on the widget's
+  sizeHint() and the style().
 
   Only the horizontal element of the \a corner will be used.
 
@@ -480,6 +481,7 @@ void QTabWidget::setCornerWidget(QWidget * w, Qt::Corner corner)
         d->rightCornerWidget = w;
     else
         d->leftCornerWidget = w;
+    setUpLayout();
 }
 
 /*!
