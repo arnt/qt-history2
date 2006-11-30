@@ -732,6 +732,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CE_ToolBar A toolbar like QToolBar.
     \value CE_ToolBoxTabShape  The toolbox's tab shape.
     \value CE_ToolBoxTabLabel  The toolbox's tab label.
+    \value CE_HeaderEmptyArea  The area of a header view where there are no header sections.
 
     \sa drawControl()
 */

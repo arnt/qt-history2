@@ -1766,21 +1766,28 @@ void QHeaderView::paintEvent(QPaintEvent *e)
         painter.restore();
     }
 
+    QStyleOption opt;
+    opt.init(this);
     // Paint the area beyond where there are indexes
     if (d->reverse()) {
-        if (currentSectionRect.left() > translatedEventRect.left())
-            painter.fillRect(translatedEventRect.left(), 0,
-                             currentSectionRect.left() - translatedEventRect.left(), height,
-                             palette().background());
+        opt.state |= QStyle::State_Horizontal;
+        if (currentSectionRect.left() > translatedEventRect.left()) {
+            opt.rect = QRect(translatedEventRect.left(), 0,
+                             currentSectionRect.left() - translatedEventRect.left(), height); 
+            style()->drawControl(QStyle::CE_HeaderEmptyArea, &opt, &painter, this);
+        }
     } else if (currentSectionRect.right() < translatedEventRect.right()) {
         // paint to the right
-        painter.fillRect(currentSectionRect.right() + 1, 0,
-                         translatedEventRect.right() - currentSectionRect.right(), height,
-                         palette().background());
+        opt.state |= QStyle::State_Horizontal;
+        opt.rect = QRect(currentSectionRect.right() + 1, 0,
+                         translatedEventRect.right() - currentSectionRect.right(), height); 
+        style()->drawControl(QStyle::CE_HeaderEmptyArea, &opt, &painter, this);
     } else if (currentSectionRect.bottom() < translatedEventRect.bottom()) {
-        painter.fillRect(0, currentSectionRect.bottom() + 1,
-                         width, height - currentSectionRect.bottom() - 1,
-                         palette().background());
+        // paint the bottom section
+        opt.state &= ~QStyle::State_Horizontal;
+        opt.rect = QRect(0, currentSectionRect.bottom() + 1,
+                         width, height - currentSectionRect.bottom() - 1); 
+        style()->drawControl(QStyle::CE_HeaderEmptyArea, &opt, &painter, this);
     }
 
 #if 0

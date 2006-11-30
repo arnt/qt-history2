@@ -1503,6 +1503,9 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                         opt->state & State_Sunken, 1,
                         &opt->palette.brush(QPalette::Button));
         break;
+    case CE_HeaderEmptyArea:
+            p->fillRect(opt->rect, opt->palette.background());
+        break;
 #ifndef QT_NO_COMBOBOX
     case CE_ComboBoxLabel:
         if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {

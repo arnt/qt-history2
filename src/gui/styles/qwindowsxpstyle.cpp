@@ -1880,7 +1880,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             }
         }
         break;
-
+        
     case CE_HeaderSection:
         name = "HEADER";
         partId = HP_HEADERITEM;
@@ -2217,7 +2217,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
         }
         return;
 #ifndef QT_NO_DOCKWIDGET
-case CE_DockWidgetTitle:
+    case CE_DockWidgetTitle:
         if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(option))
         {
             int buttonMargin = 4;
@@ -2334,7 +2334,7 @@ case CE_DockWidgetTitle:
         break;
 #endif // QT_NO_DOCKWIDGET
 #ifndef QT_NO_RUBBERBAND
-case CE_RubberBand:
+    case CE_RubberBand:
         if (const QStyleOptionRubberBand *rbOpt = qstyleoption_cast<const QStyleOptionRubberBand *>(option)) {
             QColor highlight = option->palette.color(QPalette::Active, QPalette::Highlight);
             p->save();
@@ -2350,8 +2350,18 @@ case CE_RubberBand:
             return;
         }
 #endif // QT_NO_RUBBERBAND
-
-default:
+    case CE_HeaderEmptyArea:
+        if (option->state & State_Horizontal) 
+        {
+            name = "HEADER";
+            stateId = HIS_NORMAL;
+        }
+        else {
+            QWindowsStyle::drawControl(CE_HeaderEmptyArea, option, p, widget);
+            return;
+        }
+        break;
+    default:
         break;
     }
 
