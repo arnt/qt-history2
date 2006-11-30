@@ -475,6 +475,8 @@ glyph_metrics_t QFontEngineQPF::boundingBox(const QGlyphLayout *glyphs, int numG
 glyph_metrics_t QFontEngineQPF::boundingBox(glyph_t glyph)
 {
     const QPFGlyph *g = d->tree->get(glyph);
+    if (!g)
+        return glyph_metrics_t();
     Q_ASSERT(g);
     return glyph_metrics_t(g->metrics->bearingx, -g->metrics->bearingy,
                             g->metrics->width, g->metrics->height,
