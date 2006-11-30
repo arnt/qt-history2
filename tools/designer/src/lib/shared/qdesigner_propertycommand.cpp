@@ -420,6 +420,7 @@ unsigned PropertyHelper::updateMask() const
     case  SP_Icon:
         if (m_objectType == OT_Action)
             rc |=  UpdateObjectInspector;
+        break;
     default:
         break;
 
@@ -593,32 +594,87 @@ void PropertyListCommand::setOldValue(const QVariant &oldValue, int index)
     Q_ASSERT(index < m_propertyHelperList.size());
     m_propertyHelperList[index].setOldValue(oldValue);
 }
+// ----- SetValueFunction: Set a new value when applied to a PropertyHelper.
+class SetValueFunction {
+public:
+    SetValueFunction(QDesignerFormWindowInterface *formWindow, const PropertyHelper::Value &newValue, unsigned subPropertyMask);
 
-// set a new value, return update mask
-unsigned PropertyListCommand::setValue(QVariant value, bool changed, unsigned subPropertyMask)
+    PropertyHelper::Value operator()(PropertyHelper&);
+private:
+    QDesignerFormWindowInterface *m_formWindow;
+    const PropertyHelper::Value m_newValue;
+    const unsigned m_subPropertyMask;
+};
+
+
+SetValueFunction::SetValueFunction(QDesignerFormWindowInterface *formWindow, const PropertyHelper::Value &newValue, unsigned subPropertyMask) :
+    m_formWindow(formWindow),
+    m_newValue(newValue),
+    m_subPropertyMask(subPropertyMask)
 {
-    if(debugPropertyCommands)
-        qDebug() << "PropertyListCommand::setValue(" << value <<  changed << subPropertyMask << ")";
+}
 
+PropertyHelper::Value SetValueFunction::operator()(PropertyHelper &ph) {
+        return ph.setValue(m_formWindow, m_newValue.first, m_newValue.second, m_subPropertyMask);
+}
+
+// ----- UndoSetValueFunction: Restore old value when applied to a PropertyHelper.
+class UndoSetValueFunction {
+public:
+    UndoSetValueFunction(QDesignerFormWindowInterface *formWindow) : m_formWindow(formWindow) {}
+    PropertyHelper::Value operator()(PropertyHelper& ph) { return ph.restoreOldValue(m_formWindow); }
+private:
+    QDesignerFormWindowInterface *m_formWindow;
+};
+
+// ----- RestoreDefaultFunction: Restore default value when applied to a PropertyHelper.
+class RestoreDefaultFunction {
+public:
+    RestoreDefaultFunction(QDesignerFormWindowInterface *formWindow) : m_formWindow(formWindow) {}
+    PropertyHelper::Value operator()(PropertyHelper& ph) { return ph.restoreDefaultValue(m_formWindow); }
+private:
+    QDesignerFormWindowInterface *m_formWindow;
+};
+
+// ----- changePropertyList: Iterates over a sequence of PropertyHelpers and
+// applies a function to them.
+// The function returns the  corrected value which is then set in  the property editor.
+// Returns a combination of update flags.
+template <class PropertyListIterator, class Function>
+        unsigned changePropertyList(QDesignerFormEditorInterface *core,
+                                    const QString &propertyName,
+                                    PropertyListIterator begin,
+                                    PropertyListIterator end,
+                                    Function function)
+{
     unsigned updateMask = 0;
-
-    QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor();
+    QDesignerPropertyEditorInterface *propertyEditor = core->propertyEditor();
     bool updatedPropertyEditor = false;
 
-    const PropertyHelperList::iterator end = m_propertyHelperList.end();
-    for (PropertyHelperList::iterator it = m_propertyHelperList.begin(); it != end; ++it) {
+    for (PropertyListIterator it = begin; it != end; ++it) {
         if (QObject* object = it->object()) { // Might have been deleted in the meantime
-            const PropertyHelper::Value newValue = it->setValue(formWindow(), value, changed, subPropertyMask);
+            const PropertyHelper::Value newValue = function(*it);
             updateMask |= it->updateMask();
             // Update property editor if it is the current object
             if (!updatedPropertyEditor && propertyEditor && object == propertyEditor->object()) {
-                propertyEditor->setPropertyValue( m_propertyName, newValue.first,  newValue.second);
+                propertyEditor->setPropertyValue(propertyName, newValue.first,  newValue.second);
                 updatedPropertyEditor = true;
             }
         }
     }
     if (!updatedPropertyEditor) updateMask |=  PropertyHelper::UpdatePropertyEditor;
     return updateMask;
+}
+
+
+// set a new value, return update mask
+unsigned PropertyListCommand::setValue(QVariant value, bool changed, unsigned subPropertyMask)
+{
+    if(debugPropertyCommands)
+        qDebug() << "PropertyListCommand::setValue(" << value <<  changed << subPropertyMask << ")";
+    return changePropertyList(formWindow()->core(),
+                              m_propertyName, m_propertyHelperList.begin(), m_propertyHelperList.end(),
+                              SetValueFunction(formWindow(), PropertyHelper::Value(value, changed), subPropertyMask));
 }
 
 // restore old value,  return update mask
@@ -627,25 +683,9 @@ unsigned PropertyListCommand::restoreOldValue()
     if(debugPropertyCommands)
         qDebug() << "PropertyListCommand::restoreOldValue()";
 
-    unsigned updateMask = 0;
-
-    QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor();
-    bool updatedPropertyEditor = false;
-
-    const PropertyHelperList::iterator end = m_propertyHelperList.end();
-    for (PropertyHelperList::iterator it = m_propertyHelperList.begin(); it != end; ++it) {
-        if (QObject* object = it->object()) { // Might have been deleted in the meantime
-            const PropertyHelper::Value newValue = it->restoreOldValue(formWindow());
-            updateMask |= it->updateMask();
-            // Update property editor if it is the current object
-            if (!updatedPropertyEditor && propertyEditor && object == propertyEditor->object()) {
-                propertyEditor->setPropertyValue( m_propertyName, newValue.first,  newValue.second);
-                updatedPropertyEditor = true;
-            }
-        }
-    }
-    if (!updatedPropertyEditor) updateMask |=  PropertyHelper::UpdatePropertyEditor;
-    return updateMask;
+    return changePropertyList(formWindow()->core(),
+                              m_propertyName, m_propertyHelperList.begin(), m_propertyHelperList.end(),
+                              UndoSetValueFunction(formWindow()));
 }
 // set default value,  return update mask
 unsigned PropertyListCommand::restoreDefaultValue()
@@ -653,25 +693,9 @@ unsigned PropertyListCommand::restoreDefaultValue()
     if(debugPropertyCommands)
         qDebug() << "PropertyListCommand::restoreDefaultValue()";
 
-    unsigned updateMask = 0;
-
-    QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor();
-    bool updatedPropertyEditor = false;
-
-    const PropertyHelperList::iterator end = m_propertyHelperList.end();
-    for (PropertyHelperList::iterator it = m_propertyHelperList.begin(); it != end; ++it) {
-        if (QObject* object = it->object()) { // Might have been deleted in the meantime
-            const PropertyHelper::Value newValue = it->restoreDefaultValue(formWindow());
-            updateMask |= it->updateMask();
-            // Update property editor if it is the current object
-            if (!updatedPropertyEditor && propertyEditor && object == propertyEditor->object()) {
-                propertyEditor->setPropertyValue( m_propertyName, newValue.first,  newValue.second);
-                updatedPropertyEditor = true;
-            }
-        }
-    }
-    if (!updatedPropertyEditor) updateMask |=  PropertyHelper::UpdatePropertyEditor;
-    return updateMask;
+    return changePropertyList(formWindow()->core(),
+                              m_propertyName, m_propertyHelperList.begin(), m_propertyHelperList.end(),
+                              RestoreDefaultFunction(formWindow()));
 }
 
 // update
