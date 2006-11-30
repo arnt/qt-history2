@@ -92,6 +92,7 @@ private slots:
     void valueFromTextAndValidate();
 
     void removeAll();
+    void startWithDash();
 public slots:
     void valueChangedHelper(const QString &);
     void valueChangedHelper(int);
@@ -748,6 +749,20 @@ void tst_QSpinBox::removeAll()
     QCOMPARE(spin.lineEdit()->selectedText(), QString("foo2bar"));
     QTest::keyClick(&spin, Qt::Key_1);
     QCOMPARE(spin.text(), QString("foo1bar"));
+}
+
+void tst_QSpinBox::startWithDash()
+{
+    SpinBox spin(0);
+    spin.show();
+#ifdef Q_WS_MAC
+    QTest::keyClick(&spin, Qt::Key_Left, Qt::ControlModifier);
+#else
+    QTest::keyClick(&spin, Qt::Key_Home);
+#endif
+    QCOMPARE(spin.text(), QString("0"));
+    QTest::keyClick(&spin, Qt::Key_Minus);
+    QCOMPARE(spin.text(), QString("0"));
 }
 
 QTEST_MAIN(tst_QSpinBox)
