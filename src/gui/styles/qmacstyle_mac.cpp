@@ -1814,7 +1814,7 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
         break;
     case SH_ScrollBar_LeftClickAbsolutePosition: {
         extern bool qt_scrollbar_jump_to_pos; //qapplication_mac.cpp
-        if(QApplication::keyboardModifiers() & Qt::AltButton)
+        if(QApplication::keyboardModifiers() & Qt::AltModifier)
             ret = !qt_scrollbar_jump_to_pos;
         else
             ret = qt_scrollbar_jump_to_pos;
