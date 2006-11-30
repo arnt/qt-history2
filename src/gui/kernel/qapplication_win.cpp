@@ -1601,18 +1601,6 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                     popup->close();
             }
 
-            // If we are a tool with no child or us that accepts focus then reject
-            // the activation
-            if (LOWORD(wParam) == WA_ACTIVE && widget->windowType() == Qt::Tool) {
-                QWidget *fw = widget;
-                while ((fw = fw->nextInFocusChain()) != widget && fw->focusPolicy() == Qt::NoFocus)
-                    ;
-                if (fw == widget && widget->focusPolicy() == Qt::NoFocus) {
-                    result = true;
-                    break;
-                }
-            }
-
             // WM_ACTIVATEAPP handles the "true" false case, as this is only when the application
             // loses focus. Doing it here would result in the widget getting focus to not know
             // where it got it from; it would simply get a 0 value as the old focus widget.
