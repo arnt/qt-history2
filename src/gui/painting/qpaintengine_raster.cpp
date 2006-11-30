@@ -2343,10 +2343,8 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
         QFontEngineFT *fe = static_cast<QFontEngineFT *>(ti.fontEngine);
 
-        QTransform matrix = state->transform();
+        QTransform matrix = d->matrix;
         matrix.translate(p.x(), p.y());
-        QFixed x = QFixed::fromReal(matrix.dx());
-        QFixed y = QFixed::fromReal(matrix.dy());
 
         QVarLengthArray<QFixedPoint> positions;
         QVarLengthArray<glyph_t> glyphs;

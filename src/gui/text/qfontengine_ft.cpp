@@ -1365,7 +1365,7 @@ QImage QFontEngineFT::alphaMapForGlyph(glyph_t g)
     img.setColorTable(colors);
 
     for (int y = 0; y < glyph->height; ++y)
-        memcpy(img.scanLine(y), &glyph->data[y * pitch], glyph->width);
+        memcpy(img.scanLine(y), &glyph->data[y * pitch], pitch);
     unlockFace();
 
     return img;
