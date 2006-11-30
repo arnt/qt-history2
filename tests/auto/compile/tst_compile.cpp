@@ -500,16 +500,16 @@ void tst_Compiler::virtualFunctionNoLongerPureVirtual()
 #ifdef BASECLASS_NOT_ABSTRACT
     // has a single virtual function, not pure virtual, can call it
     BaseClass baseClass;
+    QTest::ignoreMessage(QtDebugMsg, "BaseClass::wasAPureVirtualFunction()");
     baseClass.wasAPureVirtualFunction();
-    // QTest::ignoreMessage(QtWarningMsg, "BaseClass::wasAPureVirtualFunction()");
 #endif
 
     // DerivedClass inherits from BaseClass, and function is declared
     // pure virtual, make sure we can still call it
     DerivedClass derivedClass;
+    QTest::ignoreMessage(QtDebugMsg, "DerivedClass::wasAPureVirtualFunction()");
     derivedClass.wasAPureVirtualFunction();
-    // QTest::ignoreMessage(QtWarningMsg, "DerivedClass::wasAPureVirtualFunction()");
 }
 
-QTEST_APPLESS_MAIN(tst_Compiler)
+QTEST_MAIN(tst_Compiler)
 #include "tst_compile.moc"
