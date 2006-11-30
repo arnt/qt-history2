@@ -810,9 +810,23 @@ void QAbstractSocketPrivate::_q_testConnection()
             connectTimer->stop();
     }
 
-    if (socketEngine && (socketEngine->state() == QAbstractSocket::ConnectedState || socketEngine->connectToHost(host, port))) {
-        fetchConnectionParameters();
-        return;
+    if (socketEngine) {
+        if (socketEngine->state() != QAbstractSocket::ConnectedState) {
+            // Try connecting if we're not already connected.
+            if (!socketEngine->connectToHost(host, port)) {
+                if (socketEngine->error() == QAbstractSocket::SocketError(11)) {
+                    // Connection in progress; wait for the next notification.
+                    return;
+                }
+            }
+        }
+
+        if (socketEngine->state() == QAbstractSocket::ConnectedState) {
+            // Fetch the parameters if our connection is completed;
+            // otherwise, fall out and try the next address.
+            fetchConnectionParameters();
+            return;
+        }
     }
 
 #if defined(QABSTRACTSOCKET_DEBUG)

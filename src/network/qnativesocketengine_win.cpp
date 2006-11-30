@@ -541,7 +541,6 @@ bool QNativeSocketEnginePrivate::nativeConnect(const QHostAddress &address, quin
 
     qt_socket_setPortAndAddress(socketDescriptor, &sockAddrIPv4, &sockAddrIPv6, port, address, &sockAddrPtr, &sockAddrSize);
 
-    bool firstChanceWSAEINVAL = false;
     forever {
         int connectResult = ::WSAConnect(socketDescriptor, sockAddrPtr, sockAddrSize, 0,0,0,0);
         if (connectResult == SOCKET_ERROR) {
@@ -555,7 +554,6 @@ bool QNativeSocketEnginePrivate::nativeConnect(const QHostAddress &address, quin
                 socketState = QAbstractSocket::ConnectedState;
                 break;
             case WSAEINPROGRESS:
-            case WSAEALREADY:
             case WSAEWOULDBLOCK:
                 socketState = QAbstractSocket::ConnectingState;
                 break;
@@ -578,14 +576,8 @@ bool QNativeSocketEnginePrivate::nativeConnect(const QHostAddress &address, quin
                 setError(QAbstractSocket::NetworkError, NetworkUnreachableErrorString);
                 break;
             case WSAEINVAL:
-                if (!firstChanceWSAEINVAL) {
-#if defined (QNATIVESOCKETENGINE_DEBUG)
-                    qDebug("QNativeSocketEnginePrivate::nativeConnect got WSAEINVAL trying again.");
-#endif
-                    firstChanceWSAEINVAL = true;
-                    continue;
-                }
-                setError(QAbstractSocket::NetworkError, InvalidSocketErrorString);
+            case WSAEALREADY:
+                setError(QAbstractSocket::SocketError(11), InvalidSocketErrorString);
                 break;
             default:
                 break;
