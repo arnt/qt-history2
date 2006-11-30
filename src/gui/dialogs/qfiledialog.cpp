@@ -86,7 +86,6 @@ QFileDialog::QFileDialog(const QFileDialogArgs &args)
         setWindowTitle(args.caption);
     }
     d->init(args.directory, args.filter);
-    selectFile(args.selection);
     setFileMode(args.mode);
     setConfirmOverwrite(!(args.options & DontConfirmOverwrite));
     setResolveSymlinks(!(args.options & DontResolveSymlinks));
@@ -96,6 +95,7 @@ QFileDialog::QFileDialog(const QFileDialogArgs &args)
         settings.beginGroup(QLatin1String("General"));
         restoreState(settings.value(QLatin1String("filedialog")).toByteArray());
     }
+    selectFile(args.selection);
 }
 
 /*!
@@ -204,7 +204,7 @@ bool QFileDialog::restoreState(const QByteArray &state)
     if (!restoreGeometry(geometry))
         return false;
 
-    if (!expanded && !d->splitter->restoreState(splitterState))
+    if (expanded && !d->splitter->restoreState(splitterState))
         return false;
     d->sidebar->setUrls(bookmarks);
     setHistory(history);
@@ -298,6 +298,9 @@ QStringList QFileDialogPrivate::typedFiles() const
 {
     QStringList files;
     QString editText = lineEdit()->text();
+    if (lookInCombo->lineEdit() == lineEdit() && !comboLineEditChanged())
+        editText = QString();
+
     if (editText.contains(QLatin1Char('"'))) {
         // " is used to separate files like so: "file1" "file2" "file3" ...
         // ### need escape character for filenames with quotes (")
@@ -517,7 +520,7 @@ void QFileDialog::setFileMode(QFileDialog::FileMode mode)
     d->model->setFilter(filters);
     // setup file type for directory
     if (mode == DirectoryOnly || mode == Directory) {
-        d->newFolderButton->setVisible(true);
+        d->newFolderButton->setVisible(isDetailsExpanded());
         d->fileTypeCombo->clear();
         d->fileTypeCombo->addItem(tr("Directories"));
         d->fileTypeCombo->setEnabled(false);
@@ -555,22 +558,25 @@ void QFileDialog::setAcceptMode(QFileDialog::AcceptMode mode)
     QDialogButtonBox::StandardButton button = (mode == AcceptOpen ? QDialogButtonBox::Open : QDialogButtonBox::Save);
     d->buttonBox->setStandardButtons(button | QDialogButtonBox::Cancel);
     d->buttonBox->button(button)->setEnabled(false);
-    d->newFolderButton->setVisible(mode == AcceptSave || directoryMode);
+    d->newFolderButton->setVisible((mode == AcceptSave || directoryMode) && isDetailsExpanded());
     d->updateFileTypeVisibility();
     d->fileNameEdit->setVisible(mode == AcceptSave);
     d->expandButton->setVisible(mode == AcceptSave);
-    d->line->setVisible(mode == AcceptSave);
+    d->line->setVisible(mode == AcceptSave && isDetailsExpanded());
     d->fileNameLabel->setVisible(mode == AcceptSave);
 
     if (mode != AcceptSave) {
         d->lookInCombo->setEditable(true);
         d->lookInCombo->setLineEdit(new ComboLineEdit(d->lookInCombo));
+        d->lookInCombo->lineEdit()->setText(d->fileNameEdit->text());
         d->lookInCombo->setCompleter(d->comboCompleter);
         connect(d->lookInCombo->lineEdit(), SIGNAL(textChanged(QString)),
                      this, SLOT(_q_updateOkButton()));
         connect(d->lookInCombo->lineEdit(), SIGNAL(returnPressed()),
                      this, SLOT(accept()));
     } else {
+        if (d->comboLineEditChanged())
+            d->fileNameEdit->setText(d->lookInCombo->currentText());
         d->lookInCombo->setEditable(false);
     }
     disconnect(d->lookInCombo, SIGNAL(textChanged(QString)),
@@ -658,7 +664,7 @@ void QFileDialog::setDetailsExpanded(bool expanded)
 bool QFileDialog::isDetailsExpanded() const
 {
     Q_D(const QFileDialog);
-    return (d->expandButton->arrowType() == Qt::DownArrow);
+    return (d->expandButton->arrowType() == Qt::UpArrow);
 }
 
 /*!
@@ -1482,6 +1488,10 @@ void QFileDialogPrivate::init(const QString &directory, const QString &nameFilte
     q->setAcceptMode(QFileDialog::AcceptOpen);
     q->setDirectory(workingDirectory(directory));
     q->selectFile(initialSelection(directory));
+    if (acceptMode != QFileDialog::AcceptSave)
+        stackedWidget->currentWidget()->setFocus();
+    else
+        fileNameEdit->setFocus();
 }
 
 /*!
@@ -1560,11 +1570,6 @@ void QFileDialogPrivate::layout()
     QWidget::setTabOrder(buttonBox, fileNameEdit);
 
     q->resize(q->sizeHint());
-
-    if (acceptMode == QFileDialog::AcceptSave)
-        fileNameEdit->setFocus();
-    else
-        stackedWidget->currentWidget()->setFocus();
 }
 
 /*!
@@ -1903,10 +1908,12 @@ void QFileDialogPrivate::createMenuActions()
     QObject::connect(openAction, SIGNAL(triggered()), q, SLOT(accept()));
 
     renameAction = new QAction(QFileDialog::tr("&Rename"), q);
+    renameAction->setEnabled(false);
     renameAction->setObjectName(QLatin1String("qt_rename_action"));
     QObject::connect(renameAction, SIGNAL(triggered()), q, SLOT(_q_renameCurrent()));
 
     deleteAction = new QAction(QFileDialog::tr("&Delete"), q);
+    deleteAction->setEnabled(false);
     deleteAction->setObjectName(QLatin1String("qt_delete_action"));
     QObject::connect(deleteAction, SIGNAL(triggered()), q, SLOT(_q_deleteCurrent()));
 
