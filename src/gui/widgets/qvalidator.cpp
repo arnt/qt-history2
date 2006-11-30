@@ -607,9 +607,8 @@ QDoubleValidator::~QDoubleValidator()
     and \a input is a negative double then \l Invalid is returned. If notation()
     is set to StandardNotation, and the input contains more digits before the
     decimal point than a double in the valid range may have, \l Invalid is returned.
-    If notation() is ScientificNotation, and the input is not in the valid range
-    but does not yet have an exponent, \l Intermediate is returned, since the exponent
-    may bring the number into the valid range.
+    If notation() is ScientificNotation, and the input is not in the valid range,
+    \l Intermediate is returned. The value may yet become valid by changing the exponent.
 
     By default, the \a pos parameter is not used by this validator.
 */
