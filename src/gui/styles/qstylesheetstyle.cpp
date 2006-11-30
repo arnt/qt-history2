@@ -33,6 +33,7 @@
 #include <qshareddata.h>
 #include <qradiobutton.h>
 #include <qtoolbutton.h>
+#include <qstring.h>
 
 using namespace QCss;
 
@@ -1262,10 +1263,12 @@ enum PseudoElement {
     NumPseudoElements
 };
 
-static struct PseudoElementInfo {
+struct PseudoElementInfo {
     QStyle::SubControl subControl;
     const char *name;
-} knownPseudoElements[NumPseudoElements] = {
+};
+
+static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_None, "", },
     { QStyle::SC_None, "down-arrow" },
     { QStyle::SC_None, "up-arrow" },
