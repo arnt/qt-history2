@@ -89,7 +89,7 @@ QList<QMacWindowChangeEvent*> *QMacWindowChangeEvent::change_events = 0;
  *****************************************************************************/
 static struct {
     bool use_qt_time_limit;
-    QWidget *last_widget;
+    QPointer<QWidget> last_widget;
     int last_x, last_y;
     int last_modifiers, last_button;
     EventTime last_time;
