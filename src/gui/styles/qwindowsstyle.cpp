@@ -2881,7 +2881,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
             int defwidth = 0;
             if (btn->features & QStyleOptionButton::AutoDefaultButton)
                 defwidth = 2 * pixelMetric(PM_ButtonDefaultIndicator, btn, widget);
-            if (w < 75 + defwidth && btn->icon.isNull())
+            if (w < 75 + defwidth && !btn->text.isEmpty())
                 w = 75 + defwidth;
             if (h < 23 + defwidth)
                 h = 23 + defwidth;
