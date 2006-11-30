@@ -309,35 +309,32 @@ WidgetDataBaseItem *WidgetDataBase::createCustomWidgetItem(const QDesignerCustom
 
 QList<QVariant> WidgetDataBase::defaultPropertyValues(const QString &name)
 {
+    const WidgetFactory factory(m_core);
+    // Create non-widgets, widgets in order
+    QObject* object = factory.createObject(name, 0);
+    if (!object)
+        object = factory.createWidget(name, 0);
+    if (!object) {
+        qWarning() << "** WARNING Factory failed to create " << name;
+        return QList<QVariant>();
+    }
+    // Get properties from sheet.
     QList<QVariant> result;
-
-    WidgetFactory factory(m_core);
-    QWidget *w = factory.createWidget(name, 0);
-    if (w == 0) {
-        return result;
+    if (const QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), object)) {
+        for (int i = 0; i < sheet->count(); ++i) {
+            result.append(sheet->property(i));
+        }
     }
-
-    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), w);
-    if (sheet == 0) {
-        delete w;
-        return result;
-    }
-
-    for (int i = 0; i < sheet->count(); ++i) {
-        result.append(sheet->property(i));
-    }
-
-    delete w;
-
+    delete object;
     return result;
 }
 
 void WidgetDataBase::grabDefaultPropertyValues()
 {
     for (int i = 0; i < count(); ++i) {
-        QDesignerWidgetDataBaseItemInterface *item = this->item(i);
-        QList<QVariant> default_prop_values = defaultPropertyValues(item->name());
-        item->setDefaultPropertyValues(default_prop_values);
+        QDesignerWidgetDataBaseItemInterface *dbItem = item(i);
+        const QList<QVariant> default_prop_values = defaultPropertyValues(dbItem->name());
+        dbItem->setDefaultPropertyValues(default_prop_values);
 
     }
 }

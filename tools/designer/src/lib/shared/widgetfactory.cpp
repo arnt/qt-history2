@@ -76,6 +76,15 @@ void WidgetFactory::loadPlugins()
     }
 }
 
+// Convencience to create non-widget objects. Returns 0 if unknown
+QObject* WidgetFactory::createObject(const QString &className, QObject* parent) const
+{
+    if (className == QLatin1String("QAction")) 
+        return new QAction(parent);
+    return 0;
+}
+ 
+
 QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentWidget) const
 {
     QDesignerFormWindowInterface *fw = m_formWindow;

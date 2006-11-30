@@ -54,6 +54,8 @@ public:
     virtual QWidget* containerOfWidget(QWidget *widget) const;
     virtual QWidget* widgetOfContainer(QWidget *widget) const;
 
+    QObject* createObject(const QString &className, QObject* parent) const;
+    
     virtual QWidget *createWidget(const QString &className, QWidget *parentWidget) const;
     virtual QLayout *createLayout(QWidget *widget, QLayout *layout, int type) const;
 
