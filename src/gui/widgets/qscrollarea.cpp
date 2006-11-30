@@ -273,10 +273,8 @@ bool QScrollArea::eventFilter(QObject *o, QEvent *e)
             ensureWidgetVisible(static_cast<QWidget *>(o));
     }
 #endif
-    if (o == d->widget && e->type() == QEvent::Resize) {
+    if (o == d->widget && e->type() == QEvent::Resize)
         d->updateScrollBars();
-        d->widget->move(-d->hbar->value(), -d->vbar->value());
-    }
 
     return false;
 }
