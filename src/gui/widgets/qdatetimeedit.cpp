@@ -1640,7 +1640,11 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input, int &/*posit
                                                     QValidator::State &state, bool fixup) const
 {
     if (input.isEmpty()) {
-        state = QValidator::Invalid;
+        if (sectionNodes.size() == 1) {
+            state = QValidator::Intermediate;
+        } else {
+            state = QValidator::Invalid;
+        }
         return getZeroVariant();
     } else if (cachedText == input && !fixup) {
         state = cachedState;
