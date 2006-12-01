@@ -144,6 +144,7 @@ public:
     int insertBlock(const QChar &blockSeparator, int pos, int blockFormat, int charFormat,
                      QTextUndoCommand::Operation op = QTextUndoCommand::MoveCursor);
 
+    void move(int from, int to, int length, QTextUndoCommand::Operation = QTextUndoCommand::MoveCursor);
     void remove(int pos, int length, QTextUndoCommand::Operation = QTextUndoCommand::MoveCursor);
 
     QTextFrame *insertFrame(int start, int end, const QTextFrameFormat &format);

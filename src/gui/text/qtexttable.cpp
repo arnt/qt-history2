@@ -856,14 +856,27 @@ void QTextTable::mergeCells(int row, int column, int numRows, int numCols)
 
     const int cellFragment = d->grid[row * d->nCols + column];
 
+    // find the position at which to insert the contents of the merged cells
+    QFragmentFindHelper helper(origCellPosition, p->fragmentMap());
+    QList<int>::Iterator it = qBinaryFind(d->cells.begin(), d->cells.end(), helper);
+    Q_ASSERT(it != d->cells.end());
+    Q_ASSERT(*it == cellFragment);
+    const int insertCellIndex = it - d->cells.begin();
+    int insertFragment = d->cells.value(insertCellIndex + 1, d->fragment_end);
+    uint insertPos = p->fragmentMap().position(insertFragment);
+
     d->blockFragmentUpdates = true;
+
+    bool rowHasText = cell.firstCursorPosition().block().length();
+    bool needsParagraph = rowHasText && colSpan == numCols;
 
     // find all cells that will be erased by the merge
     for (int r = row; r < row + numRows; ++r) {
         int firstColumn = r < row + rowSpan ? column + colSpan : column;
 
-        int firstCellIndex = -1;
-        int cellIndex;
+        // don't recompute the cell index for the first row
+        int firstCellIndex = r == row ? insertCellIndex + 1 : -1;
+        int cellIndex = firstCellIndex;
 
         for (int c = firstColumn; c < column + numCols; ++c) {
             const int fragment = d->grid[r * d->nCols + c];
@@ -897,6 +910,33 @@ void QTextTable::mergeCells(int row, int column, int numRows, int numCols)
 
             // erase the cell marker
             p->remove(pos, 1);
+
+            const int nextFragment = d->cells.value(cellIndex, d->fragment_end);
+            const uint nextPos = p->fragmentMap().position(nextFragment);
+
+            Q_ASSERT(nextPos >= pos);
+
+            // merge the contents of the cell (if not empty)
+            if (nextPos > pos) {
+                if (needsParagraph) {
+                    needsParagraph = false;
+                    QTextCursor(p, insertPos++).insertBlock();
+                    p->move(pos + 1, insertPos, nextPos - pos);
+                } else if (rowHasText) {
+                    QTextCursor(p, insertPos++).insertText(QLatin1String(" "));
+                    p->move(pos + 1, insertPos, nextPos - pos);
+                } else {
+                    p->move(pos, insertPos, nextPos - pos);
+                }
+
+                insertPos += nextPos - pos;
+                rowHasText = true;
+            }
+        }
+
+        if (rowHasText) {
+            needsParagraph = true;
+            rowHasText = false;
         }
 
         // erase cells from last row

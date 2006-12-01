@@ -476,10 +476,16 @@ static bool isAncestorFrame(QTextFrame *possibleAncestor, QTextFrame *child)
 }
 #endif
 
-void QTextDocumentPrivate::remove(int pos, int length, QTextUndoCommand::Operation op)
+void QTextDocumentPrivate::move(int pos, int to, int length, QTextUndoCommand::Operation op)
 {
+    Q_ASSERT(to <= fragments.length() && to <= pos);
     Q_ASSERT(pos >= 0 && pos+length <= fragments.length());
     Q_ASSERT(blocks.length() == fragments.length());
+
+    if (pos == to)
+        return;
+
+    bool needsInsert = to != -1;
 
 #if !defined(QT_NO_DEBUG)
     const bool startAndEndInSameFrame = (frameAt(pos) == frameAt(pos + length - 1));
@@ -500,6 +506,9 @@ void QTextDocumentPrivate::remove(int pos, int length, QTextUndoCommand::Operati
     split(pos);
     split(pos+length);
 
+    uint dst = needsInsert ? fragments.findNode(to) : 0;
+    uint dstKey = needsInsert ? fragments.position(dst) : 0;
+
     uint x = fragments.findNode(pos);
     uint end = fragments.findNode(pos+length);
 
@@ -513,21 +522,36 @@ void QTextDocumentPrivate::remove(int pos, int length, QTextUndoCommand::Operati
         QTextFragmentData *X = fragments.fragment(x);
         QTextUndoCommand c = { QTextUndoCommand::Removed, true,
                           op, X->format, X->stringPosition, key, { X->size } };
+        QTextUndoCommand cInsert = { QTextUndoCommand::Inserted, true,
+                          op, X->format, X->stringPosition, dstKey, { X->size } };
 
         if (key+1 != blocks.position(b)) {
 //	    qDebug("remove_string from %d length %d", key, X->size);
             Q_ASSERT(noBlockInString(text.mid(X->stringPosition, X->size)));
             w = remove_string(key, X->size, op);
+
+            if (needsInsert) {
+                insert_string(dstKey, X->stringPosition, X->size, X->format, op);
+                dstKey += X->size;
+            }
         } else {
 //	    qDebug("remove_block at %d", key);
             Q_ASSERT(X->size == 1 && isValidBlockSeparator(text.at(X->stringPosition)));
             b = blocks.previous(b);
             c.command = blocks.size(b) == 1 ? QTextUndoCommand::BlockDeleted : QTextUndoCommand::BlockRemoved;
             w = remove_block(key, &c.blockFormat, QTextUndoCommand::BlockAdded, op);
+
+            if (needsInsert) {
+                insert_block(dstKey++, X->stringPosition, X->format, c.blockFormat, op, QTextUndoCommand::BlockRemoved);
+                cInsert.command = blocks.size(b) == 1 ? QTextUndoCommand::BlockAdded : QTextUndoCommand::BlockInserted;
+                cInsert.blockFormat = c.blockFormat;
+            }
         }
         appendUndoItem(c);
         x = n;
 
+        if (needsInsert)
+            appendUndoItem(cInsert);
     }
     if (w)
         unite(w);
@@ -535,6 +559,11 @@ void QTextDocumentPrivate::remove(int pos, int length, QTextUndoCommand::Operati
     Q_ASSERT(blocks.length() == fragments.length());
 
     endEditBlock();
+}
+
+void QTextDocumentPrivate::remove(int pos, int length, QTextUndoCommand::Operation op)
+{
+    move(pos, -1, length, op);
 }
 
 void QTextDocumentPrivate::setCharFormat(int pos, int length, const QTextCharFormat &newFormat, FormatChangeMode mode)
