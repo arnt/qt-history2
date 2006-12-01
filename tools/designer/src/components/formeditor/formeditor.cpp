@@ -36,6 +36,7 @@
 #include <pluginmanager_p.h>
 #include <qdesigner_taskmenu_p.h>
 #include <qdesigner_propertysheet_p.h>
+#include <qdesigner_membersheet_p.h>
 
 using namespace qdesigner_internal;
 
@@ -68,6 +69,7 @@ FormEditor::FormEditor(QObject *parent)
     mgr->registerExtensions(new QDesignerActionProviderFactory(mgr),        Q_TYPEID(QDesignerActionProviderExtension));
 
     mgr->registerExtensions(new QDesignerPropertySheetFactory(mgr),         Q_TYPEID(QDesignerPropertySheetExtension));
+    mgr->registerExtensions(new QDesignerMemberSheetFactory(mgr),           Q_TYPEID(QDesignerMemberSheetExtension));
     mgr->registerExtensions(new QLayoutWidgetPropertySheetFactory(mgr),     Q_TYPEID(QDesignerPropertySheetExtension));
     mgr->registerExtensions(new SpacerPropertySheetFactory(mgr),            Q_TYPEID(QDesignerPropertySheetExtension));
     mgr->registerExtensions(new LinePropertySheetFactory(mgr),              Q_TYPEID(QDesignerPropertySheetExtension));

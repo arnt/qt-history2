@@ -11,16 +11,30 @@
 **
 ****************************************************************************/
 
-#ifndef DEFAULT_MEMBERSHEET_H
-#define DEFAULT_MEMBERSHEET_H
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of Qt Designer.  This header
+// file may change from version to version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#ifndef QDESIGNER_MEMBERSHEET_H
+#define QDESIGNER_MEMBERSHEET_H
+
+#include "shared_global_p.h"
 
 #include <QtDesigner/membersheet.h>
 #include <QtDesigner/default_extensionfactory.h>
 
-class QDesignerMemberSheet: public QObject, public QDesignerMemberSheetExtension
+class QDESIGNER_SHARED_EXPORT QDesignerMemberSheet: public QObject, public QDesignerMemberSheetExtension
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerMemberSheetExtension)
+
 public:
     QDesignerMemberSheet(QObject *object, QObject *parent = 0);
     virtual ~QDesignerMemberSheet();
@@ -47,8 +61,7 @@ public:
     virtual QList<QByteArray> parameterNames(int index) const;
 
 protected:
-    QObject *m_object;
-    const QMetaObject *meta;
+    const QMetaObject *m_meta;
 
     class Info
     {
@@ -63,10 +76,11 @@ protected:
     QHash<int, Info> m_info;
 };
 
-class QDesignerMemberSheetFactory: public QExtensionFactory
+class QDESIGNER_SHARED_EXPORT QDesignerMemberSheetFactory: public QExtensionFactory
 {
     Q_OBJECT
     Q_INTERFACES(QAbstractExtensionFactory)
+
 public:
     QDesignerMemberSheetFactory(QExtensionManager *parent = 0);
 
@@ -74,4 +88,4 @@ protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
 };
 
-#endif // DEFAULT_MEMBERSHEET_H
+#endif // QDESIGNER_MEMBERSHEET_H

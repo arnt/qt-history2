@@ -13,7 +13,6 @@
 
 #include <QtGui/QUndoCommand>
 #include "signalsloteditor.h"
-#include "default_membersheet.h"
 #include "signalsloteditor_p.h"
 #include "ui4_p.h"
 
@@ -662,10 +661,6 @@ SignalSlotEditor::SignalSlotEditor(QDesignerFormWindowInterface *form_window, QW
 {
     m_form_window = form_window;
     m_model = new ConnectionModel(this, this);
-
-    QDesignerFormEditorInterface *core = form_window->core();
-    QDesignerMemberSheetFactory *factory = new QDesignerMemberSheetFactory(core->extensionManager());
-    core->extensionManager()->registerExtensions(factory, Q_TYPEID(QDesignerMemberSheetExtension));
     connect(this, SIGNAL(widgetActivated(QWidget*)), form_window, SIGNAL(activated(QWidget*)));
 }
 
