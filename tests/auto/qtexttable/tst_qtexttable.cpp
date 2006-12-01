@@ -52,6 +52,7 @@ private slots:
     void setCellFormat();
 
 private:
+    QTextTable *create2x2Table();
     QTextTable *create4x4Table();
 
     QTextDocument *doc;
@@ -412,6 +413,18 @@ void tst_QTextTable::deleteInTable()
         }
 }
 
+QTextTable *tst_QTextTable::create2x2Table()
+{
+    cleanup();
+    init();
+    QTextTable *table = cursor.insertTable(2, 2);
+    table->cellAt(0, 0).firstCursorPosition().insertText("Blah");
+    table->cellAt(0, 1).firstCursorPosition().insertText("Foo");
+    table->cellAt(1, 0).firstCursorPosition().insertText("Bar");
+    table->cellAt(1, 1).firstCursorPosition().insertText("Hah");
+    return table;
+}
+
 QTextTable *tst_QTextTable::create4x4Table()
 {
     cleanup();
@@ -458,6 +471,63 @@ void tst_QTextTable::mergeCells()
     QVERIFY(table->cellAt(1, 1) == table->cellAt(1, 2));
     QVERIFY(table->cellAt(1, 1) == table->cellAt(2, 1));
     QVERIFY(table->cellAt(1, 1) == table->cellAt(2, 2));
+
+    table = create2x2Table();
+
+    table->mergeCells(0, 1, 2, 1);
+    table->mergeCells(0, 0, 2, 2);
+    QVERIFY(table->cellAt(0, 0) == table->cellAt(0, 1));
+    QVERIFY(table->cellAt(0, 0) == table->cellAt(1, 0));
+    QVERIFY(table->cellAt(0, 0) == table->cellAt(1, 1));
+
+    QTextBlock block = table->cellAt(0, 0).firstCursorPosition().block();
+
+    QEXPECT_FAIL("", "Fix for 4.3", Continue);
+    QVERIFY(block.text() == "Blah Foo");
+    QEXPECT_FAIL("", "Fix for 4.3", Continue);
+    QVERIFY(block.next().text() == "Hah");
+    QEXPECT_FAIL("", "Fix for 4.3", Continue);
+    QVERIFY(block.next().next().text() == "Bar");
+
+    table = create4x4Table();
+
+    QTextCursor cursor = table->cellAt(3, 3).firstCursorPosition();
+    QTextTable *t2 = cursor.insertTable(2, 2);
+    t2->cellAt(0, 0).firstCursorPosition().insertText("Test");
+
+    table->mergeCells(2, 2, 2, 2);
+    cursor = table->cellAt(2, 2).firstCursorPosition();
+
+    QTextFrame *frame = cursor.currentFrame();
+
+    QTextFrame::iterator it = frame->begin();
+
+    // find the embedded table
+    while (it != frame->end() && !it.currentFrame())
+        ++it;
+
+    table = qobject_cast<QTextTable *>(it.currentFrame());
+
+    QVERIFY(table);
+
+    if (table) {
+        cursor = table->cellAt(0, 0).firstCursorPosition();
+
+        QVERIFY(cursor.block().text() == "Test");
+    }
+
+    table = create2x2Table();
+
+    table->mergeCells(0, 1, 2, 1);
+
+    QVERIFY(table->cellAt(0, 0) != table->cellAt(0, 1));
+    QVERIFY(table->cellAt(0, 1) == table->cellAt(1, 1));
+
+    // should do nothing
+    table->mergeCells(0, 0, 1, 2);
+
+    QVERIFY(table->cellAt(0, 0) != table->cellAt(0, 1));
+    QVERIFY(table->cellAt(0, 1) == table->cellAt(1, 1));
 }
 
 void tst_QTextTable::splitCells()
