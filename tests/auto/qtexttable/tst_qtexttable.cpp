@@ -482,11 +482,8 @@ void tst_QTextTable::mergeCells()
 
     QTextBlock block = table->cellAt(0, 0).firstCursorPosition().block();
 
-    QEXPECT_FAIL("", "Fix for 4.3", Continue);
     QVERIFY(block.text() == "Blah Foo");
-    QEXPECT_FAIL("", "Fix for 4.3", Continue);
     QVERIFY(block.next().text() == "Hah");
-    QEXPECT_FAIL("", "Fix for 4.3", Continue);
     QVERIFY(block.next().next().text() == "Bar");
 
     table = create4x4Table();
