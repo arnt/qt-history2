@@ -129,8 +129,8 @@ static void writeLineNumber(QTextStream *t, const MetaTranslatorMessage &msg, in
 {
     if (msg.lineNumber() != -1) {
         writeIndent(t, indent);
-        (*t) << QLatin1String("<context-group name=\"lineNo\" purpose=\"location\"><context context-type=\"linenumber\">") 
-            << msg.lineNumber() << QLatin1String("</context></context-group>\n");
+        (*t) << "<context-group name=\"lineNo\" purpose=\"location\"><context context-type=\"linenumber\">" 
+            << msg.lineNumber() << "</context></context-group>\n";
     }
 }
 
@@ -138,7 +138,7 @@ static void writeComment(QTextStream *t, const MetaTranslatorMessage &msg, int i
 {
     if (msg.comment() && qstrlen(msg.comment())) {
         writeIndent(t, indent);
-        (*t) << QLatin1String("<note>") << msg.comment() << QLatin1String("</note>\n");
+        (*t) << "<note>" << msg.comment() << "</note>\n";
     }
 }
 
@@ -148,7 +148,7 @@ static void writeTransUnit(QTextStream *t, const MetaTranslatorMessage &msg, int
     static int plural = 0;
     static int prevMsgId = -1;
     writeIndent(t, indent);
-    (*t) << QLatin1String("<trans-unit id=\"msg");
+    (*t) << "<trans-unit id=\"msg";
     QString strid;
     QByteArray transl;
     if (msg.isPlural()) {
@@ -163,11 +163,11 @@ static void writeTransUnit(QTextStream *t, const MetaTranslatorMessage &msg, int
         transl = msg.translation().toUtf8();
     }
     prevMsgId = msgid;
-    (*t) << strid << QLatin1String("\"");
+    (*t) << strid << "\"";
     QString state;
     indent+=2;
     if (msg.type() == MetaTranslatorMessage::Obsolete) {
-        (*t) << QLatin1String(" translate=\"no\"");
+        (*t) << " translate=\"no\"";
     } else {
         state = msg.type() == MetaTranslatorMessage::Finished 
             ? QLatin1String("final") : QLatin1String("new");
@@ -178,7 +178,7 @@ static void writeTransUnit(QTextStream *t, const MetaTranslatorMessage &msg, int
     (*t) << "<source>" << protect(msg.sourceText()) << "</source>\n";
     
     writeIndent(t, indent);
-    (*t) << QLatin1String("<target") << state << QLatin1String(">") << protect(transl) << QLatin1String("</target>\n");
+    (*t) << "<target" << state << ">" << protect(transl) << "</target>\n";
     // ### In XLIFF 1.1, name is marked as required, and it must be unique
     // This is questionable behaviour, and was brought up at the xliff-comments mailinglist.
     if (!msg.isPlural()) {
@@ -187,7 +187,7 @@ static void writeTransUnit(QTextStream *t, const MetaTranslatorMessage &msg, int
     }
     indent-=2;
     writeIndent(t, indent);
-    (*t) << QLatin1String("</trans-unit>\n");
+    (*t) << "</trans-unit>\n";
 }
 
 static void writeMessage(QTextStream *t, const MetaTranslatorMessage &msg, int indent, 
@@ -196,7 +196,7 @@ static void writeMessage(QTextStream *t, const MetaTranslatorMessage &msg, int i
     static int msgid = 1;
     if (msg.isPlural()) {
         writeIndent(t, indent);
-        (*t) << QLatin1String("<group restype=\"") << restypePlurals << QLatin1String("\">\n");
+        (*t) << "<group restype=\"" << restypePlurals << "\">\n";
         indent+=2;
         writeLineNumber(t, msg, indent);
         writeComment(t, msg, indent);
@@ -210,7 +210,7 @@ static void writeMessage(QTextStream *t, const MetaTranslatorMessage &msg, int i
         }
         indent-=2;
         writeIndent(t, indent);
-        (*t) << QLatin1String("</group>\n");
+        (*t) << "</group>\n";
     } else {
         writeTransUnit(t, msg, msgid, indent);
     }
@@ -239,9 +239,9 @@ bool MetaTranslator::saveXLIFF( const QString& filename) const
     }
 
     t.setFieldAlignment(QTextStream::AlignRight);
-    t << QLatin1String("<?xml version=\"1.0\"");
-    t << QLatin1String(" encoding=\"utf-8\"?>\n");
-    t << QLatin1String("<xliff version=\"1.1\" xmlns=\"") << XLIFFnamespaceURI << QLatin1String("\">\n");
+    t << "<?xml version=\"1.0\"";
+    t << " encoding=\"utf-8\"?>\n";
+    t << "<xliff version=\"1.1\" xmlns=\"" << XLIFFnamespaceURI << "\">\n";
     currentindent += indent;
     QMap<QString, MetaTranslatorMessage>::iterator mi = mtSortByFileName.begin();
     MetaTranslatorMessage msg;
@@ -257,7 +257,7 @@ bool MetaTranslator::saveXLIFF( const QString& filename) const
         if (ctxdiffer || filediffer) {
             if (!ctx.isEmpty()) {
             writeIndent(&t, currentindent);
-                t << QLatin1String("</group>\n");
+                t << "</group>\n";
                 currentindent -= indent;
             }
         }
@@ -265,17 +265,17 @@ bool MetaTranslator::saveXLIFF( const QString& filename) const
         if (filediffer) {
             if (!fn.isEmpty()) {
                 writeIndent(&t, currentindent);
-                t << QLatin1String("</body></file>\n");
+                t << "</body></file>\n";
                 currentindent -= indent;
             }
             fn = msg.fileName();
 
             writeIndent(&t, currentindent);
-            t << QLatin1String("<file original=\"") << fn << QLatin1String("\"") +
-                QLatin1String(" datatype=\"") << dataType(msg) << QLatin1String("\"") +
-                QLatin1String(" source-language=\"") + QLatin1String("en") + QLatin1String("\"") +
-                QLatin1String(" target-language=\"") + languageCode() + QLatin1String("\"") +
-                QLatin1String("><body>\n");
+            t << "<file original=\"" << fn << "\""
+                << " datatype=\"" << dataType(msg) << "\"" 
+                << " source-language=\"" << "en" << "\"" //###
+                << " target-language=\"" << languageCode() << "\""
+                << "><body>\n";
             currentindent += indent;
 
         }
@@ -283,9 +283,9 @@ bool MetaTranslator::saveXLIFF( const QString& filename) const
         if (ctxdiffer || filediffer) {
             ctx = msg.context();
             writeIndent(&t, currentindent);
-            t << QLatin1String("<group restype=\"") << restypeContext << QLatin1String("\"") +
-                QLatin1String(" resname=\"") << protect(ctx) << QLatin1String("\"") +
-                QLatin1String(">\n");
+            t << "<group restype=\"" << restypeContext << "\""
+                << " resname=\"" << protect(ctx) << "\""
+                << ">\n";
             currentindent += indent;
         }
 
@@ -294,11 +294,11 @@ bool MetaTranslator::saveXLIFF( const QString& filename) const
     }
     currentindent-=indent;
     writeIndent(&t, currentindent);
-    t << QLatin1String("</group>\n");
+    t << "</group>\n";
     currentindent-=indent;
     writeIndent(&t, currentindent);
-    t << QLatin1String("</body></file>\n");
-    t << QLatin1String("</xliff>\n");
+    t << "</body></file>\n";
+    t << "</xliff>\n";
 
     f.close();
     return true;
