@@ -3343,11 +3343,16 @@ int QDateTimeParser::absoluteMax(int s) const
     const SectionNode sn = sectionNode(s);
     switch (sn.type) {
     case Hour24Section:
-    case Hour12Section: return 23; // this is special-cased in parseSection. We want it to be 23 for the stepBy case.
+    case Hour12Section: return 23; // this is special-cased in
+                                   // parseSection. We want it to be
+                                   // 23 for the stepBy case.
     case MinuteSection:
     case SecondSection: return 59;
     case MSecSection: return 999;
-    case YearSection: return sn.count == 2 ? 99 : 9999;
+    case YearSection: return 9999; // sectionMaxSize will prevent
+                                   // people from typing in a larger
+                                   // number in count == 2 sections.
+                                   // stepBy() will work on real years anyway
     case MonthSection: return 12;
     case DaySection: return 31;
     case AmPmSection: return 1;
