@@ -810,7 +810,8 @@ QFontEngineX11FT::QFontEngineX11FT(FcPattern *pattern, const QFontDef &fd, int s
 
     {
         int subpixel = 0;
-        if (FcPatternGetInteger(pattern, FC_RGBA, 0, &subpixel) == FcResultNoMatch)
+        if (FcPatternGetInteger(pattern, FC_RGBA, 0, &subpixel) == FcResultNoMatch
+            && X11->display)
             subpixel = X11->screens[screen].subpixel;
         if (!antialias || subpixel == FC_RGBA_UNKNOWN)
             subpixel = FC_RGBA_NONE;
