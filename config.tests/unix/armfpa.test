@@ -1,0 +1,41 @@
+#!/bin/sh
+
+QMKSPEC=$1
+VERBOSE=$2
+SRCDIR=$3
+OUTDIR=$4
+
+# debuggery
+[ "$VERBOSE" = "yes" ] && echo "Detecting ARM-FPA floating format... ($*)"
+
+# build and run a test program
+test -d "$OUTDIR/config.tests/unix/armfpa" || mkdir -p "$OUTDIR/config.tests/unix/armfpa"
+"$OUTDIR/bin/qmake" -nocache -spec "$QMKSPEC" "$SRCDIR/config.tests/unix/armfpa/armfpatest.pro" -o "$OUTDIR/config.tests/unix/armfpa/Makefile" >/dev/null 2>&1
+cd "$OUTDIR/config.tests/unix/armfpa"
+
+FPA="UNKNOWN"
+[ "$VERBOSE" = "yes" ] && make || make >/dev/null 2>&1
+
+if [ -f ./armfpatest ]; then
+    : # nop
+else
+    [ "$VERBOSE" = "yes" ] && echo "Unknown if ARM-FPA!"
+    exit 2
+fi
+
+if strings ./armfpatest | grep  rkapegdf >/dev/null 2>&1; then
+    [ "$VERBOSE" = "yes" ] && echo "    Found ARM-FPA double in binary"
+    FPA="yes"
+else
+    [ "$VERBOSE" = "yes" ] && echo "    Did not find ARM-FPA double in binary"
+    FPA="no"
+fi
+
+# done
+if [ "$FPA" = "yes" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "Using ARM-FPA."
+    exit 0
+else
+    [ "$VERBOSE" = "no" ] && echo "Not using ARM-FPA."
+    exit 1
+fi
