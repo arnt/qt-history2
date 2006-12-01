@@ -37,7 +37,7 @@ TRANSLATOR qdesigner_internal::ObjectInspector
 #include <QtCore/QPair>
 #include <QtCore/qdebug.h>
 
-using namespace qdesigner_internal;
+namespace qdesigner_internal {
 
 ObjectInspector::ObjectInspector(QDesignerFormEditorInterface *core, QWidget *parent)
     : QDesignerObjectInspector(parent),
@@ -142,10 +142,12 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
         workingList.pop();
 
         const bool isWidget = object->isWidgetType();
-        
-        if (isWidget && cursor && cursor->isWidgetSelected(static_cast<QWidget*>(object))) {
+
+        // MainWindow can be current, but not explicitly be selected.
+        if (isWidget && (cursor && cursor->isWidgetSelected(static_cast<QWidget*>(object)) ||
+                         object == cursor->current())) {
             selectionList.push_back(item);
-        }
+        } 
 
         QString className = QLatin1String(object->metaObject()->className());
         if (QDesignerWidgetDataBaseItemInterface *widgetItem = db->item(db->indexOfObject(object, true))) {
@@ -295,4 +297,5 @@ void ObjectInspector::getSelection(Selection &s) const
             }
         }
     }
+}
 }

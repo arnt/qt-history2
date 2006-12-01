@@ -66,7 +66,7 @@ private:
     QPointer<qdesigner_internal::FormWindow> m_formWindow;
     const bool m_blocked;
 };
-
+const bool debugFormWindow = false;
 }
 namespace qdesigner_internal {
 // ------------------------ FormWindow::Selection
@@ -401,7 +401,7 @@ QWidget *FormWindow::findTargetContainer(QWidget *widget) const
     return mainContainer();
 }
 
-bool FormWindow::handleMousePressEvent(QWidget * /*widget*/, QWidget *managedWidget, QMouseEvent *e)
+bool FormWindow::handleMousePressEvent(QWidget * widget, QWidget *managedWidget, QMouseEvent *e)
 {
     m_startPos = QPoint();
     e->accept();
@@ -419,6 +419,9 @@ bool FormWindow::handleMousePressEvent(QWidget * /*widget*/, QWidget *managedWid
     const bool inLayout = LayoutInfo::isWidgetLaidout(m_core, managedWidget);
 
     const bool selected = isWidgetSelected(managedWidget);
+
+    if (debugFormWindow)
+        qDebug() << "handleMousePressEvent:" <<  widget << ',' << managedWidget << " inLayout=" << inLayout << " selected=" << selected; 
     // if the dragged widget is not in a layout, raise it
     if (inLayout == false) {
         managedWidget->raise();
@@ -572,8 +575,11 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
     return true;
 }
 
-bool FormWindow::handleMouseReleaseEvent(QWidget *, QWidget *, QMouseEvent *e)
+bool FormWindow::handleMouseReleaseEvent(QWidget *w, QWidget *mw, QMouseEvent *e)
 {
+    if (debugFormWindow)
+        qDebug() << "handleMousePressEvent:" << w << ',' << mw;
+    
     e->accept();
 
     if (m_drawRubber) { // we were drawing a rubber selection
@@ -656,6 +662,8 @@ QWidget *FormWindow::currentWidget() const
 
 bool FormWindow::setCurrentWidget(QWidget *currentWidget)
 {
+     if (debugFormWindow)
+        qDebug() << "setCurrentWidget:" <<  m_currentWidget << " --> " << currentWidget;
      if (currentWidget == m_currentWidget)
          return false;
      // repaint the old widget unless it is the main window
@@ -696,7 +704,9 @@ void FormWindow::selectWidget(QWidget* w, bool select)
 
 // Selects a widget and determines the new current one. Returns true if a change occurs.
 bool FormWindow::trySelectWidget(QWidget *w, bool select)
-{        
+{       
+    if (debugFormWindow)
+        qDebug() << "trySelectWidget:" << w << select;
     if (!isManaged(w) && !isCentralWidget(w))
         return false;
 
@@ -730,17 +740,14 @@ void FormWindow::hideSelection(QWidget *w)
 
 void FormWindow::clearSelection(bool changePropertyDisplay)
 {
+    if (debugFormWindow)
+        qDebug() << "clearSelection(" <<  changePropertyDisplay << ')';   
+    // At all events, we need a current widget.
     m_selection.clear();
-
-    if (changePropertyDisplay == false)
-        return;
-
     setCurrentWidget(mainContainer());
-
-    if (m_currentWidget)
-        m_selection.repaintSelection(m_currentWidget);
-
-    emitSelectionChanged();
+    
+    if (changePropertyDisplay)
+        emitSelectionChanged();
 }
 
 void FormWindow::emitSelectionChanged()
