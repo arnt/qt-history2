@@ -1010,14 +1010,15 @@ void QTextTable::splitCell(int row, int column, int numRows, int numCols)
 
     QVarLengthArray<int> rowPositions(rowSpan);
 
-    for (int r = row; r < row + numRows; ++r) {
-        const QTextTableCell cell = cellAt(r, column + numCols);
-        rowPositions[r - row] = cell.lastPosition();
-    }
+    rowPositions[0] = cell.lastPosition();
 
-    for (int r = row + numRows; r < row + rowSpan; ++r) {
-        const QTextTableCell cell = cellAt(r, column);
-        rowPositions[r - row] = cell.lastPosition();
+    for (int r = row + 1; r < row + rowSpan; ++r) {
+        // find the cell before which to insert the new cell markers
+        int gridIndex = r * d->nCols + column;
+        QVector<int>::iterator it = qUpperBound(d->cellIndices.begin(), d->cellIndices.end(), gridIndex);
+        int cellIndex = it - d->cellIndices.begin();
+        int fragment = d->cells.value(cellIndex, d->fragment_end);
+        rowPositions[r - row] = p->fragmentMap().position(fragment);
     }
 
     fmt.setTableCellColumnSpan(1);
