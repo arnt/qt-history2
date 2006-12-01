@@ -1330,9 +1330,14 @@ void tst_QString::toUpper()
     QCOMPARE( QString("`ABYZ{").toUpper(), QString("`ABYZ{"));
     QCOMPARE( QString("`abyz{").toUpper(), QString("`ABYZ{"));
 
+    QCOMPARE( QString(1, QChar(0xdf)).toUpper(), QString("SS"));
+
     for (int i = 0; i < 65536; ++i) {
         QString str(1, QChar(i));
-        QVERIFY(str.toUpper() == QString(1, QChar(i).toUpper()));
+        QString upper = str.toUpper();
+        QVERIFY(upper.length() >= 1);
+        if (upper.length() == 1)
+            QVERIFY(upper == QString(1, QChar(i).toUpper()));
     }
 }
 
@@ -1355,9 +1360,14 @@ void tst_QString::toLower()
     QCOMPARE( QString("`ABYZ{").toLower(), QString("`abyz{"));
     QCOMPARE( QString("`abyz{").toLower(), QString("`abyz{"));
 
+    QCOMPARE( QString(1, QChar(0x130)).toLower(), QString(1, QChar(0x69)) + QChar(0x307));
+
     for (int i = 0; i < 65536; ++i) {
         QString str(1, QChar(i));
-        QVERIFY(str.toLower() == QString(1, QChar(i).toLower()));
+        QString lower = str.toLower();
+        QVERIFY(lower.length() >= 1);
+        if (lower.length() == 1)
+            QVERIFY(str.toLower() == QString(1, QChar(i).toLower()));
     }
 }
 
