@@ -64,6 +64,9 @@ static void merge(QDesignerFormWindowInterface *form, QStringList *lst, const QL
         lst->append(name);
     }
 }
+}
+
+namespace qdesigner_internal {
 
 QStringList objectNameList(QDesignerFormWindowInterface *form)
 {
@@ -93,7 +96,7 @@ QStringList objectNameList(QDesignerFormWindowInterface *form)
     return result;
 }
 
-QStringList memberList(QDesignerFormWindowInterface *form, QObject *object, qdesigner_internal::MemberType member_type)
+QStringList memberList(QDesignerFormWindowInterface *form, QObject *object, MemberType member_type)
 {
     QStringList result;
 
@@ -109,10 +112,10 @@ QStringList memberList(QDesignerFormWindowInterface *form, QObject *object, qdes
         if (!members->isVisible(i))
             continue;
 
-        if (member_type == qdesigner_internal::SignalMember && !members->isSignal(i))
+        if (member_type == SignalMember && !members->isSignal(i))
             continue;
 
-        if (member_type == qdesigner_internal::SlotMember && !members->isSlot(i))
+        if (member_type == SlotMember && !members->isSlot(i))
             continue;
 
         result.append(members->signature(i));
@@ -158,10 +161,10 @@ bool signalMatchesSlot(const QString &signal, const QString &slot)
     return result;
 }
 
-qdesigner_internal::ClassList classList(const QString &obj_name, qdesigner_internal::MemberType member_type,
+ClassList classList(const QString &obj_name, MemberType member_type,
                             const QString &peer, QDesignerFormWindowInterface *form)
 {
-    qdesigner_internal::ClassList result;
+    ClassList result;
 
     QObject *object = qFindChild<QObject*>(form, obj_name);
 
@@ -179,32 +182,34 @@ qdesigner_internal::ClassList classList(const QString &obj_name, qdesigner_inter
         if (!members->isVisible(i))
             continue;
 
-        if (member_type == qdesigner_internal::SignalMember && !members->isSignal(i))
+        if (member_type == SignalMember && !members->isSignal(i))
             continue;
 
-        if (member_type == qdesigner_internal::SlotMember && !members->isSlot(i))
+        if (member_type == SlotMember && !members->isSlot(i))
             continue;
 
-        const QString signal = member_type == qdesigner_internal::SignalMember ? members->signature(i) : peer;
-        const QString slot = member_type == qdesigner_internal::SignalMember ? peer : members->signature(i);
+        const QString signal = member_type == SignalMember ? members->signature(i) : peer;
+        const QString slot = member_type == SignalMember ? peer : members->signature(i);
         if (!signalMatchesSlot(signal, slot))
             continue;
 
        const QString s = members->declaredInClass(i);
         if (s != class_name) {
             if (!member_list.isEmpty())
-                result.append(qdesigner_internal::ClassInfo(class_name, member_list));
+                result.append(ClassInfo(class_name, member_list));
             class_name = s;
             member_list.clear();
         }
         member_list.append(members->signature(i));
     }
     if (!member_list.isEmpty())
-        result.append(qdesigner_internal::ClassInfo(class_name, member_list));
+        result.append(ClassInfo(class_name, member_list));
 
     return result;
 }
+}
 
+namespace {
 /*******************************************************************************
 ** OldSignalSlotDialog
 */
@@ -291,7 +296,7 @@ void OldSignalSlotDialog::populateSlotList(const QString &signal)
                 continue;
 
             if (members->isSlot(i)) {
-                if (!signalMatchesSlot(signal, members->signature(i)))
+                if (!qdesigner_internal::signalMatchesSlot(signal, members->signature(i)))
                     continue;
 
                 signatures.append(members->signature(i));
