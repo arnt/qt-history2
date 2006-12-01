@@ -55,6 +55,8 @@ private:
     QTextTable *create2x2Table();
     QTextTable *create4x4Table();
 
+    QTextTable *createTable(int rows, int cols);
+
     QTextDocument *doc;
     QTextCursor cursor;
 };
@@ -437,6 +439,14 @@ QTextTable *tst_QTextTable::create4x4Table()
     return table;
 }
 
+QTextTable *tst_QTextTable::createTable(int rows, int cols)
+{
+    cleanup();
+    init();
+    QTextTable *table = cursor.insertTable(rows, cols);
+    return table;
+}
+
 void tst_QTextTable::mergeCells()
 {
     QTextTable *table = create4x4Table();
@@ -573,6 +583,22 @@ void tst_QTextTable::splitCells()
     QVERIFY(table->cellAt(1, 1) != table->cellAt(1, 2));
     QVERIFY(table->cellAt(1, 1) != table->cellAt(2, 1));
     QVERIFY(table->cellAt(1, 1) != table->cellAt(2, 2));
+
+    table = createTable(2, 5);
+    table->mergeCells(0, 0, 2, 1);
+    table->mergeCells(0, 1, 2, 1);
+    QVERIFY(table->cellAt(0, 0) == table->cellAt(1, 0));
+    QVERIFY(table->cellAt(0, 1) == table->cellAt(1, 1));
+    table->splitCell(0, 0, 1, 1);
+    QVERIFY(table->cellAt(0, 0) != table->cellAt(1, 0));
+    QVERIFY(table->cellAt(0, 1) == table->cellAt(1, 1));
+
+    table = createTable(2, 5);
+    table->mergeCells(0, 4, 2, 1);
+    QVERIFY(table->cellAt(0, 4) == table->cellAt(1, 4));
+
+    table->splitCell(0, 4, 1, 1);
+    QVERIFY(table->cellAt(0, 4) != table->cellAt(1, 4));
 }
 
 void tst_QTextTable::blocksForTableShouldHaveEmptyFormat()
