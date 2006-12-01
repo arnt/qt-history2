@@ -233,10 +233,10 @@ public:
     inline bool isTitleCase() const { return category() == Letter_Titlecase; }
 
     inline bool isHighSurrogate() const {
-        return ((ucs & 0xdc00) == 0xd800);
+        return ((ucs & 0xfc00) == 0xd800);
     }
     inline bool isLowSurrogate() const {
-        return ((ucs & 0xdc00) == 0xdc00);
+        return ((ucs & 0xfc00) == 0xdc00);
     }
 
     inline uchar cell() const { return uchar(ucs & 0xff); }
