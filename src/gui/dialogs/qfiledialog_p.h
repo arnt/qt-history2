@@ -127,7 +127,7 @@ public:
     // return true if the combo line edit text is not the currently selected item
     // (i.e. no user input is contained there)
     bool comboLineEditChanged() const {
-        return (lookInCombo->text(lookInCombo->currentIndex()) != lookInCombo->currentText());
+        return (lookInCombo->itemText(lookInCombo->currentIndex()) != lookInCombo->currentText());
     }
 
     static inline QDir::Filters filterForMode(QFileDialog::FileMode mode)
