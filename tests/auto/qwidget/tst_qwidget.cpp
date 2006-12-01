@@ -2755,6 +2755,8 @@ void tst_QWidget::setMaximumSize()
 void tst_QWidget::setFixedSize()
 {
     QWidget w;
+    w.setGeometry(10, 10, 100, 100);
+
     QSize defaultSize = w.size();
 
     w.setFixedSize(defaultSize + QSize(100, 100));
