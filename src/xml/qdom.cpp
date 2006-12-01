@@ -6117,6 +6117,16 @@ void QDomProcessingInstructionPrivate::save(QTextStream& s, int, int) const
     Processing instructions are used in XML to keep processor-specific
     information in the text of the document.
 
+    The XML declaration that appears at the top of an XML document,
+    typically \tt{<?xml version='1.0' encoding='UTF-8'?>}, is treated by QDom as a
+    processing instruction. This is unfortunate, since the XML declaration is
+    not a processing instruction; among other differences, it cannot be
+    inserted into a document anywhere but on the first line.
+
+    Do not use this function to create an xml declaration, since although it
+    has the same syntax as a processing instruction, it isn't, and might not
+    be treated by QDom as such.
+
     The content of the processing instruction is retrieved with data()
     and set with setData(). The processing instruction's target is
     retrieved with target().
