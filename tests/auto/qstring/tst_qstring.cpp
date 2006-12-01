@@ -1332,6 +1332,15 @@ void tst_QString::toUpper()
 
     QCOMPARE( QString(1, QChar(0xdf)).toUpper(), QString("SS"));
 
+    QString lower;
+    lower += QChar(QChar::highSurrogate(0x10428));
+    lower += QChar(QChar::lowSurrogate(0x10428));
+    QString upper;
+    upper += QChar(QChar::highSurrogate(0x10400));
+    upper += QChar(QChar::lowSurrogate(0x10400));
+    QCOMPARE( lower.toUpper(), upper);
+
+
     for (int i = 0; i < 65536; ++i) {
         QString str(1, QChar(i));
         QString upper = str.toUpper();
@@ -1361,6 +1370,14 @@ void tst_QString::toLower()
     QCOMPARE( QString("`abyz{").toLower(), QString("`abyz{"));
 
     QCOMPARE( QString(1, QChar(0x130)).toLower(), QString(1, QChar(0x69)) + QChar(0x307));
+
+    QString lower;
+    lower += QChar(QChar::highSurrogate(0x10428));
+    lower += QChar(QChar::lowSurrogate(0x10428));
+    QString upper;
+    upper += QChar(QChar::highSurrogate(0x10400));
+    upper += QChar(QChar::lowSurrogate(0x10400));
+    QCOMPARE( upper.toLower(), lower);
 
     for (int i = 0; i < 65536; ++i) {
         QString str(1, QChar(i));
