@@ -290,7 +290,7 @@ public:
     { return base->interface->userActionCount(child); }
 
     inline QString className() const
-    { return base->interface->object()->metaObject()->className(); }
+    { return QLatin1String(base->interface->object()->metaObject()->className()); }
 
     inline bool isHIView() const
     { return (child == 0); }
@@ -600,7 +600,7 @@ static bool isItInteresting(const QInterfaceItem interface)
     if (!object)
         return false;
 
-    const QString className = object->metaObject()->className();
+    const QString className = QLatin1String(object->metaObject()->className());
 
     // VoiceOver focusing on tool tips can be confusing. The contents of the
     // tool tip is avalible through the description attribute anyway, so

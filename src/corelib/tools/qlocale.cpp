@@ -872,7 +872,7 @@ static QByteArray getMacLocaleName()
     if (result.isEmpty()) {
         QCFType<CFLocaleRef> l = CFLocaleCopyCurrent();
         CFStringRef locale = CFLocaleGetIdentifier(l);
-        result = QCFString::toQString(locale).toLatin1();
+        result = QCFString::toQString(locale).toUtf8();
     }
     return result;
 }
@@ -980,7 +980,7 @@ static QString macToQtFormat(const QString &sys_fmt)
             if (text == QLatin1String("'"))
                 result += QLatin1String("''");
             else
-                result += QChar('\'') + text + QChar('\'');
+                result += QLatin1Char('\'') + text + QLatin1Char('\'');
             continue;
         }
 
@@ -1071,7 +1071,7 @@ static QString getCFLocaleValue(CFStringRef key)
 
 QLocale QSystemLocale::fallbackLocale() const
 {
-    return QLocale(getMacLocaleName());
+    return QLocale(QString::fromUtf8(getMacLocaleName().constData()));
 }
 
 QVariant QSystemLocale::query(QueryType type, QVariant in = QVariant()) const

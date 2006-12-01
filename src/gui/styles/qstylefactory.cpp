@@ -180,7 +180,7 @@ QStringList QStyleFactory::keys()
 #ifndef QT_NO_STYLE_MAC
     QString mstyle = QLatin1String("Macintosh");
 # ifdef Q_WS_MAC
-    mstyle += " (" + qt_mac_get_style_name() + ")";
+    mstyle += QLatin1String(" (") + qt_mac_get_style_name() + QLatin1String(")");
 # endif
     if (!list.contains(mstyle))
         list << mstyle;

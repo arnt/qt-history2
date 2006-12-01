@@ -198,7 +198,7 @@ void qt_mac_send_modifiers_changed(quint32 modifiers, QObject *object)
                object ? object->objectName().toLatin1().constData() : "",
                key, (int)modifiers);
 #endif
-        QKeyEvent ke(etype, key, qt_mac_get_modifiers(modifiers ^ (1 << i)), "");
+        QKeyEvent ke(etype, key, qt_mac_get_modifiers(modifiers ^ (1 << i)), QLatin1String(""));
         qt_sendSpontaneousEvent(object, &ke);
     }
 }
@@ -427,7 +427,7 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
         err = KLGetKeyboardLayoutProperty(keyLayoutRef, kKLKCHRData,
                                   const_cast<const void **>(reinterpret_cast<void **>(&keyboard_layout)));
 
-        char translatedChar = KeyTranslate(keyboard_layout, (GetCurrentEventKeyModifiers() &
+        int translatedChar = KeyTranslate(keyboard_layout, (GetCurrentEventKeyModifiers() &
                                                              (kEventKeyModifierNumLockMask|shiftKey|cmdKey|
                                                               rightShiftKey|alphaLock)) | keyCode,
                                            &tmp_unused_state);
@@ -471,7 +471,8 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
                 static QTextCodec *c = 0;
                 if(!c)
                     c = QTextCodec::codecForName("Apple Roman");
-                *outChar = c->toUnicode(&translatedChar, 1).at(0);
+		char tmpChar = (char)translatedChar; // **sigh**
+                *outChar = c->toUnicode(&tmpChar, 1).at(0);
             } else {
                 *qtKey = qt_mac_get_key(*outModifiers, QChar(translatedChar), keyCode);
             }

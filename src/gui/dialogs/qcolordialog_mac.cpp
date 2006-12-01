@@ -25,7 +25,7 @@ QRgb macGetRgba(QRgb initial, bool *ok, QWidget *parent)
 {
     Point p = { -1, -1 };
     Str255 title;
-    qt_mac_to_pascal_string("Choose a color", title);
+    qt_mac_to_pascal_string(QLatin1String("Choose a color"), title);
     static const int sw = 420, sh = 300;
     if(parent) {
         parent = parent->window();

@@ -274,7 +274,7 @@ QMacInputContext::globalEventProcessor(EventHandlerCallRef, EventRef event, void
             }
             unsigned char chr = 0;
             GetEventParameter(key_ev, kEventParamKeyMacCharCodes, typeChar, 0, sizeof(chr), 0, &chr);
-            if(!chr || chr >= 128 || (text.length() > 0 && (text.length() > 1 || text.at(0) != QChar(chr))))
+            if(!chr || chr >= 128 || (text.length() > 0 && (text.length() > 1 || text.at(0) != QLatin1Char(chr))))
                 handled_event = !widget->testAttribute(Qt::WA_InputMethodEnabled);
         }
         break; }

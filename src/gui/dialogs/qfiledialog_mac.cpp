@@ -69,7 +69,7 @@ static qt_mac_filter_name *qt_mac_extract_filter(const QString &rawFilter)
     }
     if (ret->description.isEmpty())
         ret->description = result;
-    ret->regxp = result.replace(QChar(' '), QChar(';'));
+    ret->regxp = result.replace(QLatin1Char(' '), QLatin1Char(';'));
     return ret;
 }
 
@@ -134,11 +134,11 @@ static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
         }
         FSRefMakePath(&ref, str_buffer, 1024);
         file = QString::fromUtf8((const char *)str_buffer);
-        int slsh = file.lastIndexOf('/');
+        int slsh = file.lastIndexOf(QLatin1Char('/'));
         if (slsh != -1)
             file = file.right(file.length() - slsh - 1);
     }
-    QStringList reg = fn->regxp.split(";");
+    QStringList reg = fn->regxp.split(QLatin1String(";"));
     for(QStringList::Iterator it = reg.begin(); it != reg.end(); ++it) {
         QRegExp rg(*it, Qt::CaseInsensitive, QRegExp::Wildcard);
 #ifdef DEBUG_FILEDIALOG_FILTERS
@@ -148,7 +148,7 @@ static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
         if (rg.exactMatch(file))
             return true;
     }
-    return (theInfo->isFolder && !file.endsWith(".app"));
+    return (theInfo->isFolder && !file.endsWith(QLatin1String(".app")));
 }
 
 //filter UPP stuff
@@ -186,7 +186,7 @@ static void qt_mac_filedialog_event_proc(const NavEventCallbackMessage msg,
             QFileInfo fi(base);
             base = fi.completeBaseName();
             qt_mac_filter_name *fn = t->filts->at(t->index);
-            QStringList reg = fn->regxp.split(";", QString::SkipEmptyParts); 
+            QStringList reg = fn->regxp.split(QLatin1String(";"), QString::SkipEmptyParts); 
             QString r = reg.first();
             r  = r.right(r.length()-1);      // Strip the *
             base += r;                        //"." + QString::number(s->menuType);
@@ -476,7 +476,7 @@ QString qt_mac_get_save_file_name(const QFileDialogArgs &args, QString *pwd,
         retstr = QString::fromUtf8((const char *)str_buffer);
         //now filename
         CFStringGetCString(ret.saveFileName, (char *)str_buffer, 1024, kCFStringEncodingUTF8);
-        retstr += "/" + QString::fromUtf8((const char *)str_buffer);
+        retstr += QLatin1String("/") + QString::fromUtf8((const char *)str_buffer);
     }
     NavDisposeReply(&ret);
     if (selectedFilter)

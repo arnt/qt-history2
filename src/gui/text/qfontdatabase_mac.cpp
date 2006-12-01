@@ -85,7 +85,7 @@ static void initializeDb()
     }
 #else
     FMFontFamilyIterator it;
-    QString foundry_name = "ATSUI";
+    QString foundry_name = QLatin1String("ATSUI");
     if(!FMCreateFontFamilyIterator(NULL, NULL, kFMUseGlobalScopeOption, &it)) {
         FMFontFamily fam;
         QString fam_name;
@@ -177,7 +177,7 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
     }
 
     //find the font
-    QStringList family_list = req.family.split(',');
+    QStringList family_list = req.family.split(QLatin1Char(','));
     // append the substitute list for each family in family_list
     {
 	    QStringList subs_list;

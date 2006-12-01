@@ -4409,7 +4409,7 @@ QString Q3FileDialog::getExistingDirectory(const QString & dir,
 #endif
 #if defined(Q_WS_MAC)
     if(qt_use_native_dialogs && qobject_cast<QMacStyle *>(qApp->style()))
-        return macGetOpenFileNames("", 0, parent, name, caption,
+        return macGetOpenFileNames(QLatin1String(""), 0, parent, name, caption,
         0, false, true).first().normalized(QString::NormalizationForm_C);
 #endif
 

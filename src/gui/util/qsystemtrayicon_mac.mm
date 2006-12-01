@@ -179,29 +179,32 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &title, const QString
         else if(icon == QSystemTrayIcon::Critical)
             notificationIconPixmap = QApplication::style()->standardPixmap(QStyle::SP_MessageBoxCritical);
         QTemporaryFile notificationIconFile;
-        QString notificationType("Notification"), notificationIcon, notificationApp(QApplication::applicationName());
+        QString notificationType(QLatin1String("Notification")), notificationIcon, notificationApp(QApplication::applicationName());
         if(notificationApp.isEmpty())
             notificationApp = QLatin1String("Application");
         if(!notificationIconPixmap.isNull() && notificationIconFile.open()) {
             QImageWriter writer(&notificationIconFile, "PNG");
             if(writer.write(notificationIconPixmap.toImage()))
-                notificationIcon = QLatin1String("image from location \"file://") + notificationIconFile.fileName() + "\"";
+                notificationIcon = QLatin1String("image from location \"file://") + notificationIconFile.fileName() + QLatin1String("\"");
         }
-        const QString script(
+        const QString script(QLatin1String(
             "tell application \"GrowlHelperApp\"\n"
             "-- Make a list of all the notification types (all)\n"
-            "set the allNotificationsList to {\"" + notificationType + "\"}\n"
+            "set the allNotificationsList to {\"") + notificationType + QLatin1String("\"}\n"
 
             "-- Make a list of the notifications (enabled)\n"
-            "set the enabledNotificationsList to {\"" + notificationType + "\"}\n"
+            "set the enabledNotificationsList to {\"") + notificationType + QLatin1String("\"}\n"
 
             "-- Register our script with growl.\n"
-            "register as application \"" + notificationApp + "\" all notifications allNotificationsList default notifications enabledNotificationsList\n"
+            "register as application \"") + notificationApp + QLatin1String("\" all notifications allNotificationsList default notifications enabledNotificationsList\n"
 	 
-            "--	Send a Notification...\n"
-            "notify with name \"" + notificationType + "\" title \"" + title + "\" description \"" + message + "\" application name \"" + notificationApp + "\" "  + notificationIcon + "\n"
-            "end tell"
-            );
+            "--	Send a Notification...\n") +
+            QLatin1String("notify with name \"") + notificationType +
+            QLatin1String("\" title \"") + title +
+            QLatin1String("\" description \"") + message +
+            QLatin1String("\" application name \"") + notificationApp +
+            QLatin1String("\" ")  + notificationIcon +
+            QLatin1String("\nend tell"));
         qt_mac_execute_apple_script(script, 0);
 #elif 0
         Q_Q(QSystemTrayIcon);
@@ -385,14 +388,14 @@ private:
             QString text = action->text();
             QKeySequence accel = action->shortcut();
             {
-                int st = text.lastIndexOf('\t');
+                int st = text.lastIndexOf(QLatin1Char('\t'));
                 if(st != -1) {
                     accel = QKeySequence(text.right(text.length()-(st+1)));
                     text.remove(st, text.length()-st);
                 }
             }
             if(accel.count() > 1)
-                text += QString(" (****)"); //just to denote a multi stroke shortcut
+                text += QLatin1String(" (****)"); //just to denote a multi stroke shortcut
 
             [item setTitle:(NSString*)QCFString::toCFStringRef(qt_mac_no_ampersands(text))];
             [item setEnabled:action->isEnabled()];

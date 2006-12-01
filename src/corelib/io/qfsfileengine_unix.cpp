@@ -103,7 +103,7 @@ bool QFSFileEngine::mkdir(const QString &name, bool createParentDirectories) con
         return true;
     }
 #if defined(Q_OS_DARWIN)  // Mac X doesn't support trailing /'s
-    if(dirName[dirName.length() - 1] == '/')
+    if(dirName[dirName.length() - 1] == QLatin1Char('/'))
         dirName = dirName.left(dirName.length() - 1);
 #endif
     return (::mkdir(QFile::encodeName(dirName), 0777) == 0);

@@ -596,7 +596,7 @@ void QProcessPrivate::execChild(const QByteArray &programName)
 
     // allow invoking of .app bundles on the Mac.
 #ifdef Q_OS_MAC
-    QFileInfo fileInfo(encodedProgramName);
+    QFileInfo fileInfo(QString::fromUtf8(encodedProgramName.constData()));
     if (encodedProgramName.endsWith(".app") && fileInfo.isDir()) {
         QCFType<CFURLRef> url = CFURLCreateWithFileSystemPath(0,
                                                           QCFString(fileInfo.absoluteFilePath()),

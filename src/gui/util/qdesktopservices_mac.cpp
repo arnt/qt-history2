@@ -80,7 +80,7 @@ static bool lsOpen(const QUrl &url)
     if (!url.isValid())
         return false;
 
-    QCFType<CFURLRef> cfUrl = CFURLCreateWithString(0, QCFString(url.toEncoded()), 0);
+    QCFType<CFURLRef> cfUrl = CFURLCreateWithString(0, QCFString(QString::fromLatin1(url.toEncoded())), 0);
     if (cfUrl == 0)
         return false;
 
@@ -99,7 +99,7 @@ static bool openDocument(const QUrl &file)
         return false;
 
    // LSOpen does not work in this case, use QProcess open instead.
-   return QProcess::startDetached("open", QStringList() << file.toLocalFile());
+   return QProcess::startDetached(QLatin1String("open"), QStringList() << file.toLocalFile());
 }
 
 #if 0

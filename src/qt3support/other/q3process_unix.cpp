@@ -741,7 +741,7 @@ bool Q3Process::start( QStringList *env )
 #ifdef Q_OS_MACX
     if(i) {
 	Q3CString arg_bundle = arglistQ[0];
-	QFileInfo fi(arg_bundle);
+	QFileInfo fi(QString::fromUtf8(arg_bundle.constData()));
 	if(fi.exists() && fi.isDir() && arg_bundle.right(4) == ".app") {
 	    Q3CString exe = arg_bundle;
 	    int lslash = exe.findRev('/');
@@ -749,7 +749,7 @@ bool Q3Process::start( QStringList *env )
 		exe = exe.mid(lslash+1);
 	    exe = Q3CString(arg_bundle + "/Contents/MacOS/" + exe);
 	    exe = exe.left(exe.length() - 4); //chop off the .app
-	    if(QFile::exists(exe)) {
+	    if(QFile::exists(QString::fromLatin1(exe.constData()))) {
 		arglistQ[0] = exe;
 		arglist[0] = arglistQ[0];
 	    }

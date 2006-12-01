@@ -2019,7 +2019,7 @@ bool QFontInfo::fixedPitch() const
     Q_ASSERT(engine != 0);
 #ifdef Q_OS_MAC
     if (!engine->fontDef.fixedPitchComputed) {
-        QChar ch[2] = { QChar('i'), QChar('m') };
+        QChar ch[2] = { QLatin1Char('i'), QLatin1Char('m') };
         QGlyphLayout g[2];
         int l = 2;
         engine->stringToCMap(ch, 2, g, &l, 0);

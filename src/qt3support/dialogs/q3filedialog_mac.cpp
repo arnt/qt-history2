@@ -65,7 +65,7 @@ static qt_mac_filter_name *extractFilter(const QString& rawFilter)
     }
     if(ret->description.isEmpty())
         ret->description = result;
-    ret->regxp = result.replace(QChar(' '), QChar(';'));
+    ret->regxp = result.replace(QLatin1Char(' '), QLatin1Char(';'));
     return ret;
 }
 
@@ -80,10 +80,10 @@ static QList<qt_mac_filter_name*> makeFiltersList(const QString &filter)
         f = Q3FileDialog::tr("All Files (*)");
     if(f.isEmpty())
         return QList<qt_mac_filter_name*>();
-    QString sep(";;");
+    QString sep(QLatin1String(";;"));
     int i = f.indexOf(sep, 0);
     if(i == -1) {
-        sep = "\n";
+        sep = QLatin1String("\n");
         if(f.indexOf(sep, 0) != -1)
             i = f.indexOf(sep, 0);
     }
@@ -127,11 +127,11 @@ static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
         }
         FSRefMakePath(&ref, str_buffer, 1024);
         file = QString::fromUtf8((const char *)str_buffer);
-        int slsh = file.lastIndexOf('/');
+        int slsh = file.lastIndexOf(QLatin1Char('/'));
         if(slsh != -1)
             file = file.right(file.length() - slsh - 1);
     }
-    QStringList reg = fn->regxp.split(";");
+    QStringList reg = fn->regxp.split(QLatin1String(";"));
     for(QStringList::Iterator it = reg.begin(); it != reg.end(); ++it) {
         QRegExp rg((*it), false, true);
 #ifdef DEBUG_FILEDIALOG_FILTERS
@@ -141,7 +141,7 @@ static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
         if(rg.exactMatch(file))
             return true;
     }
-    return (theInfo->isFolder && !file.endsWith(".app"));
+    return (theInfo->isFolder && !file.endsWith(QLatin1String(".app")));
 }
 
 //filter UPP stuff
@@ -345,15 +345,15 @@ static QString encodeFileName(const QString &fName)
         uchar inCh = (uchar)cName[i];
         if (inCh >= 128 || sChars.contains(inCh))
         {
-            newStr += QChar('%');
+            newStr += QLatin1Char('%');
             ushort c = inCh / 16;
             c += c > 9 ? 'A' - 10 : '0';
-            newStr += (char)c;
+            newStr += QLatin1Char((char)c);
             c = inCh % 16;
             c += c > 9 ? 'A' - 10 : '0';
-            newStr += (char)c;
+            newStr += QLatin1Char((char)c);
         } else {
-            newStr += (char)inCh;
+            newStr += QLatin1Char((char)inCh);
         }
     }
     return newStr;
@@ -494,7 +494,7 @@ QString Q3FileDialog::macGetSaveFileName(const QString &start, const QString &fi
         retstr = QString::fromUtf8((const char *)str_buffer);
         //now filename
         CFStringGetCString(ret.saveFileName, (char *)str_buffer, 1024, kCFStringEncodingUTF8);
-        retstr += "/" + QString::fromUtf8((const char *)str_buffer);
+        retstr += QLatin1String("/") + QString::fromUtf8((const char *)str_buffer);
     }
     NavDisposeReply(&ret);
     if(selectedFilter)

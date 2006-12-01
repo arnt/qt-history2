@@ -361,7 +361,7 @@ inline static void qt_mac_get_fixed_pitch(QtFontFamily *f)
 {
     if(f && !f->fixedPitchComputed) {
         QFontMetrics fm(f->name);
-        f->fixedPitch = fm.width('i') == fm.width('m');
+        f->fixedPitch = fm.width(QLatin1Char('i')) == fm.width(QLatin1Char('m'));
         f->fixedPitchComputed = true;
     }
 }

@@ -3162,7 +3162,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
 
             QString s = mi->text;
             if (!s.isEmpty()) {
-                int t = s.indexOf('\t');
+                int t = s.indexOf(QLatin1Char('\t'));
                 int text_flags = Qt::AlignRight | Qt::AlignVCenter | Qt::TextHideMnemonic
                                  | Qt::TextSingleLine | Qt::AlignAbsolute;
                 p->save();
@@ -4680,7 +4680,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
                 if (!mi->icon.isNull())
                     h = qMax(h, mi->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal).height() + 4);
             }
-            if (mi->text.contains('\t'))
+            if (mi->text.contains(QLatin1Char('\t')))
                 w += 12;
             if (mi->menuItemType == QStyleOptionMenuItem::SubMenu)
                 w += 20;
@@ -4954,11 +4954,11 @@ QIcon QMacStyle::standardIconImplementation(StandardPixmap standardIcon, const Q
     case SP_TitleBarCloseButton: {
         QIcon titleBarIcon;
         if (standardIcon == SP_TitleBarCloseButton) {
-            titleBarIcon.addFile(":/trolltech/styles/macstyle/images/closedock-16.png");
-            titleBarIcon.addFile(":/trolltech/styles/macstyle/images/closedock-down-16.png", QSize(16, 16), QIcon::Normal, QIcon::On);
+            titleBarIcon.addFile(QLatin1String(":/trolltech/styles/macstyle/images/closedock-16.png"));
+            titleBarIcon.addFile(QLatin1String(":/trolltech/styles/macstyle/images/closedock-down-16.png"), QSize(16, 16), QIcon::Normal, QIcon::On);
         } else {
-            titleBarIcon.addFile(":/trolltech/styles/macstyle/images/dockdock-16.png");
-            titleBarIcon.addFile(":/trolltech/styles/macstyle/images/dockdock-down-16.png", QSize(16, 16), QIcon::Normal, QIcon::On);
+            titleBarIcon.addFile(QLatin1String(":/trolltech/styles/macstyle/images/dockdock-16.png"));
+            titleBarIcon.addFile(QLatin1String(":/trolltech/styles/macstyle/images/dockdock-down-16.png"), QSize(16, 16), QIcon::Normal, QIcon::On);
         }
         return titleBarIcon;
     }

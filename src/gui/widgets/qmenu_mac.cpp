@@ -84,7 +84,7 @@ void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
   QMenu utility functions
  *****************************************************************************/
 QString qt_mac_no_ampersands(QString str) {
-    for(int w = -1; (w=str.indexOf('&', w+1)) != -1;) {
+    for(int w = -1; (w=str.indexOf(QLatin1Char('&'), w+1)) != -1;) {
         if (w < (int)str.length())
             str.remove(w, 1);
     }
@@ -265,10 +265,10 @@ static MenuCommand qt_mac_menu_merge_action(MenuRef merge, QMacMenuAction *actio
         return 0;
 
     QString t = qt_mac_no_ampersands(action->action->text().toLower());
-    int st = t.lastIndexOf('\t');
+    int st = t.lastIndexOf(QLatin1Char('\t'));
     if (st != -1)
         t.remove(st, t.length()-st);
-    t.replace(QRegExp(QString::fromLatin1("\\.*$")), ""); //no ellipses
+    t.replace(QRegExp(QString::fromLatin1("\\.*$")), QLatin1String("")); //no ellipses
     //now the fun part
     MenuCommand ret = 0;
     switch (action->action->menuRole()) {
@@ -863,7 +863,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
     QString text = action->action->text();
     QKeySequence accel = action->action->shortcut();
     {
-        int st = text.lastIndexOf('\t');
+        int st = text.lastIndexOf(QLatin1Char('\t'));
         if (st != -1) {
             action->ignore_accel = 1;
             accel = QKeySequence(text.right(text.length()-(st+1)));

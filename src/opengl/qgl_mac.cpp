@@ -488,7 +488,7 @@ static CFBundleRef qt_getOpenGLBundle()
 {
     CFBundleRef bundle = 0;
     QCFType<CFURLRef> url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault,
-                 QCFString::toCFStringRef("/System/Library/Frameworks/OpenGL.framework"), kCFURLPOSIXPathStyle, false);
+                 QCFString::toCFStringRef(QLatin1String("/System/Library/Frameworks/OpenGL.framework")), kCFURLPOSIXPathStyle, false);
     if (url)
         bundle = CFBundleCreate(kCFAllocatorDefault, url);
     return bundle;

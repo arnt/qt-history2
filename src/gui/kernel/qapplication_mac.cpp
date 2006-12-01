@@ -959,12 +959,12 @@ void qt_init(QApplicationPrivate *priv, int)
             }
             QByteArray arg(argv[i]);
 #if defined(QT_DEBUG)
-            if(arg == QLatin1String("-nograb"))
+            if(arg == "-nograb")
                 appNoGrab = !appNoGrab;
             else
 #endif // QT_DEBUG
-                if(arg.left(5) == QLatin1String("-psn_")) {
-                    passed_psn = arg.mid(6);
+                if(arg.left(5) == "-psn_") {
+                    passed_psn = QString::fromLatin1(arg.mid(6));
                 } else {
                     argv[j++] = argv[i];
                 }
@@ -979,8 +979,8 @@ void qt_init(QApplicationPrivate *priv, int)
             QCFType<CFURLRef> bundleURL(CFBundleCopyBundleURL(CFBundleGetMainBundle()));
             QString qbundlePath = QCFString(CFURLCopyFileSystemPath(bundleURL,
                                             kCFURLPOSIXPathStyle));
-            if(qbundlePath.endsWith(".app"))
-                QDir::setCurrent(qbundlePath.section('/', 0, -2));
+            if(qbundlePath.endsWith(QLatin1String(".app")))
+                QDir::setCurrent(qbundlePath.section(QLatin1Char('/'), 0, -2));
         }
     }
 
@@ -1770,7 +1770,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     if(!v.isValid()) v = widget->property("windowTitle");
                     if(v.isValid()) {
                         QString s = v.toString();
-                        s.replace(QRegExp(QString::fromLatin1("(\\&|\\<[^\\>]*\\>)")), "");
+                        s.replace(QRegExp(QString::fromLatin1("(\\&|\\<[^\\>]*\\>)")), QLatin1String(""));
                         SpeechChannel ch;
                         NewSpeechChannel(0, &ch);
                         SpeakText(ch, s.toLatin1().constData(), s.length());
@@ -2429,7 +2429,7 @@ bool QApplicationPrivate::qt_mac_apply_settings()
         if (!fontsubs.isEmpty()) {
             QStringList::Iterator it = fontsubs.begin();
             for (; it != fontsubs.end(); ++it) {
-                QString fam = (*it).toLatin1();
+                QString fam = QString::fromLatin1((*it).toLatin1().constData());
                 QStringList subs = settings.value(fam).toStringList();
                 QFont::insertSubstitutions(fam, subs);
             }
