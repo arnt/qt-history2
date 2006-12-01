@@ -10,6 +10,7 @@
 #if 0
 #include <QtTest/QtTest>
 #include <QCheckBox>
+#include <QLabel>
 #include <QLineEdit>
 #include <QList>
 #include <QPushButton>
@@ -21,6 +22,11 @@
 
 #define QWizard QtWizard
 #define QWizardPage QtWizardPage
+
+static QImage grabWidget(QWidget *window)
+{
+    return QPixmap::grabWidget(window).toImage();
+}
 
 class tst_QWizard : public QObject
 {
@@ -43,7 +49,6 @@ private slots:
     void addPage();
     void setPage();
     void setStartId();
-    void setWizardStyle();
     void setOption_IndependentPages();
     void setOption_IgnoreSubTitles();
     void setOption_ExtendedWatermarkPixmap();
@@ -58,6 +63,27 @@ private slots:
     void setOption_HaveHelpButton();
     void setOption_HelpButtonOnRight();
     void setOption_HaveCustomButtonX();
+
+    /*
+        Things that could be added:
+
+        1. Test virtual functions that are called, signals that are
+           emitted, etc.
+
+        2. Test QWizardPage more thorougly.
+
+        3. Test the look and field a bit more (especially the
+           different wizard styles, and how they interact with
+           pixmaps, titles, subtitles, etc.).
+
+        4. Test minimum sizes, sizes, maximum sizes, resizing, etc.
+
+        5. Try setting various options and wizard styles in various
+           orders and check that the results are the same every time,
+           no matter the order in which the properties were set.
+
+        6. Test done() and restart().
+    */
 };
 
 tst_QWizard::tst_QWizard()
@@ -715,11 +741,6 @@ void tst_QWizard::setStartId()
     CHECK_VISITED(wizard, QList<int>() << -2 << 0 << 1 << INT_MAX);
 }
 
-void tst_QWizard::setWizardStyle()
-{
-    // ### TODO
-}
-
 struct MyPage2 : public QWizardPage
 {
 public:
@@ -861,12 +882,170 @@ void tst_QWizard::setOption_IndependentPages()
 
 void tst_QWizard::setOption_IgnoreSubTitles()
 {
-    // ### TODO
+    QWizard wizard1;
+    wizard1.setButtonLayout(QList<QWizard::WizardButton>() << QWizard::CancelButton);
+    wizard1.resize(500, 500);
+    QVERIFY(!wizard1.testOption(QWizard::IgnoreSubTitles));
+    QWizardPage *page11 = new QWizardPage;
+    page11->setTitle("Page X");
+    page11->setSubTitle("Some subtitle");
+
+    QWizardPage *page12 = new QWizardPage;
+    page12->setTitle("Page X");
+
+    wizard1.addPage(page11);
+    wizard1.addPage(page12);
+
+    QWizard wizard2;
+    wizard2.setButtonLayout(QList<QWizard::WizardButton>() << QWizard::CancelButton);
+    wizard2.resize(500, 500);
+    wizard2.setOption(QWizard::IgnoreSubTitles, true);
+    QWizardPage *page21 = new QWizardPage;
+    page21->setTitle("Page X");
+    page21->setSubTitle("Some subtitle");
+
+    QWizardPage *page22 = new QWizardPage;
+    page22->setTitle("Page X");
+
+    wizard2.addPage(page21);
+    wizard2.addPage(page22);
+
+    wizard1.show();
+    wizard2.show();
+
+    /*
+        Check that subtitles are shown when they should (i.e.,
+        they're set and IgnoreSubTitles is off).
+    */
+
+    QImage i11 = grabWidget(&wizard1);
+    QImage i21 = grabWidget(&wizard2);
+    QVERIFY(i11 != i21);
+
+    wizard1.next();
+    wizard2.next();
+
+    QImage i12 = grabWidget(&wizard1);
+    QImage i22 = grabWidget(&wizard2);
+    QVERIFY(i12 == i22);
+    QVERIFY(i21 == i22);
+
+    wizard1.back();
+    wizard2.back();
+
+    QImage i13 = grabWidget(&wizard1);
+    QImage i23 = grabWidget(&wizard2);
+    QVERIFY(i13 == i11);
+    QVERIFY(i23 == i21);
+
+    wizard1.setOption(QWizard::IgnoreSubTitles, true);
+    wizard2.setOption(QWizard::IgnoreSubTitles, false);
+
+    QImage i14 = grabWidget(&wizard1);
+    QImage i24 = grabWidget(&wizard2);
+    QVERIFY(i14 == i21);
+    QVERIFY(i24 == i11);
+
+    /*
+        Check the impact of subtitles on the rest of the layout, by
+        using a subtitle that looks empty (but that isn't). In
+        Classic and Modern styles, this should be enough to trigger a
+        "header"; in Mac style, this only creates a QLabel, with no
+        text, i.e. it doesn't affect the layout.
+    */
+
+    page11->setSubTitle("<b>&nbsp;</b>");    // not quite empty, but looks empty
+
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 2; ++j) {
+            wizard1.setOption(QWizard::IgnoreSubTitles, j == 0);
+
+            wizard1.setWizardStyle(i == 0 ? QWizard::ClassicStyle
+                                   : i == 1 ? QWizard::ModernStyle
+                                            : QWizard::MacStyle);
+            wizard1.restart();
+            QImage i1 = grabWidget(&wizard1);
+
+            wizard1.next();
+            QImage i2 = grabWidget(&wizard1);
+
+            if (j == 0 || wizard1.wizardStyle() == QWizard::MacStyle) {
+                QVERIFY(i1 == i2);
+            } else {
+                QVERIFY(i1 != i2);
+            }
+        }
+    }
 }
 
 void tst_QWizard::setOption_ExtendedWatermarkPixmap()
 {
-    // ### TODO
+    QPixmap watermarkPixmap(200, 400);
+
+    QWizard wizard1;
+    wizard1.setButtonLayout(QList<QWizard::WizardButton>() << QWizard::CancelButton);
+    QVERIFY(!wizard1.testOption(QWizard::ExtendedWatermarkPixmap));
+    QWizardPage *page11 = new QWizardPage;
+    page11->setTitle("Page X");
+    page11->setPixmap(QWizard::WatermarkPixmap, watermarkPixmap);
+
+    QWizardPage *page12 = new QWizardPage;
+    page12->setTitle("Page X");
+
+    wizard1.addPage(page11);
+    wizard1.addPage(page12);
+
+    QWizard wizard2;
+    wizard2.setButtonLayout(QList<QWizard::WizardButton>() << QWizard::CancelButton);
+    wizard2.setOption(QWizard::ExtendedWatermarkPixmap, true);
+    QWizardPage *page21 = new QWizardPage;
+    page21->setTitle("Page X");
+    page21->setPixmap(QWizard::WatermarkPixmap, watermarkPixmap);
+
+    QWizardPage *page22 = new QWizardPage;
+    page22->setTitle("Page X");
+
+    wizard2.addPage(page21);
+    wizard2.addPage(page22);
+
+    wizard1.show();
+    wizard2.show();
+
+    /*
+        Check the impact of watermark pixmaps on the rest of the layout.
+    */
+
+    for (int i = 0; i < 3; ++i) {
+        QImage i1[2];
+        QImage i2[2];
+        for (int j = 0; j < 2; ++j) {
+            wizard1.setOption(QWizard::ExtendedWatermarkPixmap, j == 0);
+
+            wizard1.setWizardStyle(i == 0 ? QWizard::ClassicStyle
+                                   : i == 1 ? QWizard::ModernStyle
+                                            : QWizard::MacStyle);
+            wizard1.restart();
+            wizard1.setMaximumSize(1000, 1000);
+            wizard1.resize(600, 600);
+            i1[j] = grabWidget(&wizard1);
+
+            wizard1.next();
+            wizard1.setMaximumSize(1000, 1000);
+            wizard1.resize(600, 600);
+            i2[j] = grabWidget(&wizard1);
+        }
+
+        if (wizard1.wizardStyle() == QWizard::MacStyle) {
+            QVERIFY(i1[0] == i1[1]);
+            QVERIFY(i2[0] == i2[1]);
+            QVERIFY(i1[0] == i2[0]);
+        } else {
+            QVERIFY(i1[0] != i1[1]);
+            QVERIFY(i2[0] == i2[1]);
+            QVERIFY(i1[0] != i2[0]);
+            QVERIFY(i1[1] != i2[1]);
+        }
+    }
 }
 
 void tst_QWizard::setOption_NoDefaultButton()
