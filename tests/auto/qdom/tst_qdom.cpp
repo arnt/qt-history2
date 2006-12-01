@@ -70,6 +70,7 @@ private slots:
     void invalidCharData();
 
     void appendChild();
+    void appendChildOnNull();
 
 private:
     int hasAttributesHelper( const QDomNode& node );
@@ -249,6 +250,25 @@ void tst_QDom::appendChild()
 
     QVERIFY(result.isNull());
     QCOMPARE(int(doc.childNodes().length()), 1);
+}
+
+static const char *message;
+static QtMsgType messageType;
+
+void myMsgHandler(QtMsgType type, const char *msg)
+{
+    message = msg;
+    messageType = type;
+}
+
+void tst_QDom::appendChildOnNull()
+{
+    qInstallMsgHandler(myMsgHandler);
+    QDomDocument doc;
+    doc.appendChild(QDomNode());
+
+    QCOMPARE(QString::fromLatin1(message), QString::fromLatin1("Calling appendChild() on a null node does nothing."));
+    QCOMPARE(messageType, QtWarningMsg);
 }
 
 void tst_QDom::toString_01_data()

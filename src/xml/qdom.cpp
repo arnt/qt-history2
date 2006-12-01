@@ -1188,6 +1188,13 @@ bool QDomImplementation::hasFeature(const QString& feature, const QString& versi
     way, is in combination with the createDocument() function to
     create a QDomDocument with this document type.
 
+    In the DOM specification, this is the only way to create a non-null
+    document. For historical reasons, Qt also allows to create the
+    document using the default empty constructor. The resulting document
+    is null, but becomes non-null when a factory function, for example
+    QDomDocument::createElement(), is called. The document also becomes
+    non-null when setContent() is called.
+
     \sa createDocument()
 */
 QDomDocumentType QDomImplementation::createDocumentType(const QString& qName, const QString& publicId, const QString& systemId)
@@ -2775,14 +2782,17 @@ QDomNode QDomNode::removeChild(const QDomNode& oldChild)
     already has an element node as a child, \a newChild is not added as
     a child and a null node is returned.
 
-    Returns a new reference to \a newChild.
-
+    Calling this function on a null node(created, for example, with the
+    default constructor) does nothing.
+     
     \sa insertBefore() insertAfter() replaceChild() removeChild()
 */
 QDomNode QDomNode::appendChild(const QDomNode& newChild)
 {
-    if (!impl)
+    if (!impl) {
+        qWarning("Calling appendChild() on a null node does nothing.");
         return QDomNode();
+    }
     return QDomNode(IMPL->appendChild(newChild.impl));
 }
 
