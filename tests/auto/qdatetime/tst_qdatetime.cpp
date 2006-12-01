@@ -447,11 +447,11 @@ void tst_QDateTime::addMonths_data()
     QTest::addColumn<int>("months");
     QTest::addColumn<QDate>("dt");
 
-    QTest::newRow("-15") << -15 << QDate(2002, 10, 31);    
+    QTest::newRow("-15") << -15 << QDate(2002, 10, 31);
     QTest::newRow("-14") << -14 << QDate(2002, 11, 30);
     QTest::newRow("-13") << -13 << QDate(2002, 12, 31);
     QTest::newRow("-12") << -12 << QDate(2003, 1, 31);
-    
+
     QTest::newRow("-11") << -11 << QDate(2003, 2, 28);
     QTest::newRow("-10") << -10 << QDate(2003, 3, 31);
     QTest::newRow("-9") << -9 << QDate(2003, 4, 30);
@@ -517,7 +517,7 @@ void tst_QDateTime::addYears()
 
     QDateTime startdt(start, QTime(14, 25, 36));
     QCOMPARE(startdt.addYears(years1).addYears(years2).date(), dt);
-    QCOMPARE(startdt.addYears(years1).addYears(years2).time(), QTime(14, 25, 36));    
+    QCOMPARE(startdt.addYears(years1).addYears(years2).time(), QTime(14, 25, 36));
 }
 
 void tst_QDateTime::addSecs_data()
@@ -987,12 +987,12 @@ void tst_QDateTime::dateFromStringFormat_data()
     QTest::addColumn<QString>("format");
     QTest::addColumn<QDate>("expected");
 
-	//get localized names
-	QString january = QDate::longMonthName(1);
-	QString february = QDate::longMonthName(2);
-	QString august = QDate::longMonthName(8);
-	QString mon = QDate::shortDayName(1);
-	
+    //get localized names
+    QString january = QDate::longMonthName(1);
+    QString february = QDate::longMonthName(2);
+    QString august = QDate::longMonthName(8);
+    QString mon = QDate::shortDayName(1);
+
     QTest::newRow("data0") << QString("") << QString("") << defDate();
     QTest::newRow("data1") << QString(" ") << QString("") << invalidDate();
     QTest::newRow("data2") << QString(" ") << QString(" ") << defDate();
@@ -1010,11 +1010,14 @@ void tst_QDateTime::dateFromStringFormat_data()
     QTest::newRow("data14") << QString("132") << QString("Md") << invalidDate();
     QTest::newRow("data15") << february << QString("MMMM") << QDate(defDate().year(), 2, 1);
     QString date = mon + " " + august + " 8 2005";
-	QTest::newRow("data16") << 	date << QString("ddd MMMM d yyyy")		<< QDate(2005, 8, 8);
+    QTest::newRow("data16") << 	date << QString("ddd MMMM d yyyy")		<< QDate(2005, 8, 8);
     QTest::newRow("data17") << QString("2000:00") << QString("yyyy:yy") << QDate(2000, 1, 1);
     QTest::newRow("data18") << QString("1999:99") << QString("yyyy:yy") << QDate(1999, 1, 1);
     QTest::newRow("data19") << QString("2099:99") << QString("yyyy:yy") << QDate(2099, 1, 1);
     QTest::newRow("data20") << QString("2001:01") << QString("yyyy:yy") << QDate(2001, 1, 1);
+    QTest::newRow("data21") << QString("99") << QString("yy") << QDate(1999, 1, 1);
+    QTest::newRow("data22") << QString("01") << QString("yy") << QDate(1901, 1, 1);
+
 }
 
 
@@ -1070,8 +1073,8 @@ void tst_QDateTime::dateTimeFromStringFormat_data()
 	QString thu = QDate::shortDayName(4);
 	QString fri = QDate::shortDayName(5);
 	QString date = "10 " + oct + " 10";
-	
-    QTest::newRow("data0") << QString("101010") << QString("dMyy") << QDateTime(QDate(10, 10, 10), QTime());
+
+    QTest::newRow("data0") << QString("101010") << QString("dMyy") << QDateTime(QDate(1910, 10, 10), QTime());
     QTest::newRow("data1") << QString("1020") << QString("sss") << invalidDateTime();
     QTest::newRow("data2") << QString("1010") << QString("sss") << QDateTime(defDate(), QTime(0, 0, 10));
     QTest::newRow("data3") << QString("10hello20") << QString("ss'hello'ss") << invalidDateTime();
@@ -1079,9 +1082,9 @@ void tst_QDateTime::dateTimeFromStringFormat_data()
     QTest::newRow("data5") << QString("10") << QString("'") << invalidDateTime();
     QTest::newRow("data6") << QString("pm") << QString("ap") << QDateTime(defDate(), QTime(12, 0, 0));
     QTest::newRow("data7") << QString("foo") << QString("ap") << invalidDateTime();
-    QTest::newRow("data8") << QString("101010") << QString("dMyy") << QDateTime(QDate(10, 10, 10), QTime());
-    QTest::newRow("data9") << QString("101010") << QString("dMyy") << QDateTime(QDate(10, 10, 10), QTime());
-    QTest::newRow("data10") << QString("101010") << QString("dMyy") << QDateTime(QDate(10, 10, 10), QTime());
+    QTest::newRow("data8") << QString("101010") << QString("dMyy") << QDateTime(QDate(1910, 10, 10), QTime());
+    QTest::newRow("data9") << QString("101010") << QString("dMyy") << QDateTime(QDate(1910, 10, 10), QTime());
+    QTest::newRow("data10") << QString("101010") << QString("dMyy") << QDateTime(QDate(1910, 10, 10), QTime());
     QTest::newRow("data11") << date << QString("dd MMM yy") << QDateTime(QDate(1910, 10, 10), QTime());
     date = fri + " " + december + " 3 2004";
 	QTest::newRow("data12") << date << QString("ddd MMMM d yyyy") << QDateTime(QDate(2004, 12, 3), QTime());
@@ -1104,7 +1107,6 @@ void tst_QDateTime::dateTimeFromStringFormat()
     QDateTime dt = QDateTime::fromString(string, format);
 
     QCOMPARE(dt, expected);
-
 }
 
 
