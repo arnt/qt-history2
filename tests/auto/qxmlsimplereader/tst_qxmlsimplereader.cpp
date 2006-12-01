@@ -122,6 +122,8 @@ class tst_QXmlSimpleReader : public QObject
         void inputFromSocket_data();
         void inputFromSocket();
 
+        void idsInParseException1();
+        void idsInParseException2();
     private:
         XmlServer *server;
 };
@@ -139,6 +141,85 @@ tst_QXmlSimpleReader::~tst_QXmlSimpleReader()
     server->wait();
 }
 
+class MyErrorHandler : public QXmlErrorHandler
+{
+public:
+    QString publicId;
+    QString systemId;
+
+    virtual bool error(const QXmlParseException &)
+    {
+        return false;
+    }
+
+    virtual QString errorString() const
+    {
+        return QString();
+    }
+
+    virtual bool fatalError(const QXmlParseException &exception)
+    {
+        qDebug() << "fatalError() CALLED";
+        publicId = exception.publicId();
+        systemId = exception.systemId();
+        return true;
+    }
+
+    virtual bool warning(const QXmlParseException &)
+    {
+        return true;
+    }
+
+};
+
+void tst_QXmlSimpleReader::idsInParseException1()
+{
+    MyErrorHandler handler;
+    QXmlSimpleReader reader;
+
+    reader.setErrorHandler(&handler);
+
+    /* A non-wellformed XML document with PUBLIC and SYSTEM. */
+    QByteArray input("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" "
+                     "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">"
+                     "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">"
+                     "<head>"
+                         "<a/><a/><a/>"
+                     "<head/>");
+
+    QBuffer buff(&input);
+    QXmlInputSource source(&buff);
+
+    /* Yes, parsing should be reported as a failure. */
+    QVERIFY(!reader.parse(source));
+
+    QCOMPARE(handler.publicId, QString::fromLatin1("-//W3C//DTD XHTML 1.0 Strict//EN"));
+    QCOMPARE(handler.systemId, QString::fromLatin1("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"));
+}
+
+void tst_QXmlSimpleReader::idsInParseException2()
+{
+    MyErrorHandler handler;
+    QXmlSimpleReader reader;
+
+    reader.setErrorHandler(&handler);
+
+    /* A non-wellformed XML document with only SYSTEM. */
+    QByteArray input("<!DOCTYPE html SYSTEM \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">"
+                      "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">"
+                      "<head>"
+                          "<a/><a/><a/>"
+                      "<head/>");
+
+    QBuffer buff(&input);
+    QXmlInputSource source(&buff);
+
+    /* Yes, parsing should be reported as a failure. */
+    QVERIFY(!reader.parse(source));
+
+    QCOMPARE(handler.publicId, QString());
+    QCOMPARE(handler.systemId, QString::fromLatin1("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"));
+}
 
 static QStringList findXmlFiles(QString dir_name)
 {
@@ -200,7 +281,6 @@ void tst_QXmlSimpleReader::testGoodXmlFile()
 
     QCOMPARE(parser.result(), ref_file_contents);
 }
-
 
 void tst_QXmlSimpleReader::testBadXmlFile_data()
 {

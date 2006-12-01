@@ -279,6 +279,15 @@ private:
 
     QString publicId; // used by parseExternalID() to store the public ID
     QString systemId; // used by parseExternalID() to store the system ID
+
+    // Since publicId/systemId is used as temporary variables by parseExternalID(), it
+    // might overwrite the PUBLIC/SYSTEM for the document we're parsing. In effect, we would
+    // possibly send off an QXmlParseException that has the PUBLIC/SYSTEM of a entity declaration
+    // instead of those of the current document.
+    // Hence we have these two variables for storing the document's data.
+    QString thisPublicId;
+    QString thisSystemId;
+
     QString attDeclEName; // use by parseAttlistDecl()
     QString attDeclAName; // use by parseAttlistDecl()
 
@@ -490,7 +499,7 @@ private:
 */
 
 QXmlParseException::QXmlParseException(const QString& name, int c, int l,
-                                        const QString& p, const QString& s)
+                                       const QString& p, const QString& s)
 {
     d = new QXmlParseExceptionPrivate;
     d->msg = name;
@@ -4765,7 +4774,7 @@ bool QXmlSimpleReaderPrivate::parsePI()
   Precondition: the beginning '<!' of the doctype is already read the head
   stands on the 'D' of '<!DOCTYPE'.
 
-  If this funktion was successful, the head-position is on the first
+  If this function was successful, the head-position is on the first
   character after the document type definition.
 */
 bool QXmlSimpleReaderPrivate::parseDoctype()
@@ -4916,6 +4925,8 @@ bool QXmlSimpleReaderPrivate::parseDoctype()
                     parseFailed(&QXmlSimpleReaderPrivate::parseDoctype, state);
                     return false;
                 }
+                thisPublicId = publicId;
+                thisSystemId = systemId;
                 break;
             case MP:
             case MPR:
@@ -7893,7 +7904,7 @@ void QXmlSimpleReaderPrivate::init(const QXmlInputSource *i)
 {
     lineNr = 0;
     columnNr = -1;
-    inputSource = (QXmlInputSource *)i;
+    inputSource = const_cast<QXmlInputSource *>(i);
     initData();
 
     externParameterEntities.clear();
@@ -7942,10 +7953,12 @@ void QXmlSimpleReaderPrivate::reportParseError(const QString& error)
     this->error = error;
     if (errorHnd) {
         if (this->error.isNull()) {
-            QXmlParseException ex(QLatin1String(XMLERR_OK), columnNr+1, lineNr+1);
+            const QXmlParseException ex(QLatin1String(XMLERR_OK), columnNr+1, lineNr+1,
+                                        thisPublicId, thisSystemId);
             errorHnd->fatalError(ex);
         } else {
-            QXmlParseException ex(this->error, columnNr+1, lineNr+1);
+            const QXmlParseException ex(this->error, columnNr+1, lineNr+1,
+                                        thisPublicId, thisSystemId);
             errorHnd->fatalError(ex);
         }
     }
