@@ -23,6 +23,32 @@
 #include <qstyle.h>
 #include <qstyle.h>
 #include <QStyleOptionSpinBox>
+#include <QDate>
+#include <QDateTime>
+#include <QTime>
+#include <QList>
+#include <QDateTimeEdit>
+#include <QWidget>
+#include <QLineEdit>
+#include <QObject>
+#include <QLocale>
+#include <QString>
+#include <QTest>
+#include <QSignalSpy>
+#include <QVariantList>
+#include <QTestEventList>
+#include <QVariant>
+#include <QApplication>
+#include <QPoint>
+#include <QVBoxLayout>
+#include <QRect>
+#include <QCursor>
+#include <QEventLoop>
+#include <QStyle>
+#include <QStyleOptionComboBox>
+#include <QTimeEdit>
+#include <QMetaType>
+#include <QDebug>
 
 #ifdef Q_OS_WIN
 # include <windows.h>
@@ -148,6 +174,9 @@ private slots:
     void setCurrentSectionIndex_data();
     void sectionCount_data();
     void sectionCount();
+#endif
+#if QT_VERSION >= 0x040300
+    void yyTest();
 #endif
 private:
     EditorDateEdit* testWidget;
@@ -2727,9 +2756,33 @@ void tst_QDateTimeEdit::hour12Test()
     QCOMPARE(testWidget->lineEdit()->displayText(), QString("1 am"));
 }
 
-
-
 #endif
+
+#if QT_VERSION >= 0x040300
+void tst_QDateTimeEdit::yyTest()
+{
+    testWidget->setDisplayFormat("yy");
+    const int centuries[2] = {2000, 1900};
+    for (int i=0; i<2; ++i) {
+        testWidget->setDate(QDate(centuries[i], 1, 1));
+        QCOMPARE(testWidget->lineEdit()->displayText(), QString("00"));
+        QCOMPARE(testWidget->date(), QDate(centuries[i], 1, 1));
+        QTest::keyClick(testWidget, Qt::Key_Up);
+        QCOMPARE(testWidget->lineEdit()->displayText(), QString("01"));
+        QCOMPARE(testWidget->date(), QDate(centuries[i] + 1, 1, 1));
+        QTest::keyClick(testWidget, Qt::Key_Return);
+        QTest::keyClick(testWidget, Qt::Key_7);
+        QCOMPARE(testWidget->lineEdit()->displayText(), QString("7"));
+        QTest::keyClick(testWidget, Qt::Key_1);
+        QCOMPARE(testWidget->lineEdit()->displayText(), QString("71"));
+        QCOMPARE(testWidget->date(), QDate(centuries[i] + 71, 1, 1));
+        QTest::keyClick(testWidget, Qt::Key_1);
+        QCOMPARE(testWidget->lineEdit()->displayText(), QString("71"));
+        QCOMPARE(testWidget->date(), QDate(centuries[i] + 71, 1, 1));
+    }
+}
+#endif
+
 QTEST_MAIN(tst_QDateTimeEdit)
 #include "tst_qdatetimeedit.moc"
 
