@@ -537,6 +537,7 @@ CFG_USER_BUILD_KEY=
 CFG_ACCESSIBILITY=auto
 CFG_QT3SUPPORT=yes
 CFG_ENDIAN=auto
+CFG_ARMFPA=auto
 CFG_IWMMXT=no
 CFG_CLOCK_MONOTONIC=auto
 CFG_GETADDRINFO=auto
@@ -670,7 +671,7 @@ while [ "$#" -gt 0 ]; do
         VAL=no
         ;;
     #Qt style yes options
-        -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-separate-debug-info|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-fontconfig|-xkb|-nis|-qdbus|-glib|-cups|-iconv|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal|-prefix-install|-silent)
+        -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-separate-debug-info|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-fontconfig|-xkb|-nis|-qdbus|-glib|-cups|-iconv|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal|-prefix-install|-silent|-armfpa)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         VAL=yes
         ;;
@@ -879,6 +880,13 @@ while [ "$#" -gt 0 ]; do
             CFG_ENDIAN="Q_LITTLE_ENDIAN"
         elif [ "$VAL" = "big" ]; then
             CFG_ENDIAN="Q_BIG_ENDIAN"
+        else
+            UNKNOWN_OPT=yes
+        fi
+        ;;
+    armfpa)
+        if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+            CFG_ARMFPA="$VAL"
         else
             UNKNOWN_OPT=yes
         fi
@@ -2446,7 +2454,7 @@ Usage:  $relconf [-prefix <dir>] [-prefix-install] [-bindir <dir>] [-libdir <dir
         [-no-make <part>] [-R <string>]  [-l <string>] [-no-rpath]  [-rpath] [-continue] 
         [-verbose] [-v] [-silent] [-no-nis] [-nis] [-no-cups] [-cups] [-no-iconv] 
         [-iconv] [-no-pch] [-pch] [-no-qdbus] [-qdbus] [-no-separate-debug-info] 
-        [-separate-debug-info] 
+        [-separate-debug-info] [-armfpa] 
 
         [additional platform specific options (see below)]
           
@@ -2813,6 +2821,12 @@ Qtopia Core only:
     -embedded <arch>..... This will enable the embedded build, you must have a
                           proper license for this switch to work.
                           Example values for <arch>: arm mips x86 generic
+
+    -armfpa ............. Target platform is uses the ARM-FPA floating point format.
+    -no-armfpa .......... Target platform does not use the ARM-FPA floating point format.
+
+                          The floating point format is usually autodetected by configure. Use this
+                          to override the detected value.
 
     -little-endian ...... Target platform is little endian (LSB first).
     -big-endian ......... Target platform is big endian (MSB first).
@@ -3999,6 +4013,22 @@ if [ "$CFG_LIBFREETYPE" = "auto" ]; then
     fi
 fi
 
+if [ "$CFG_ARMFPA" = "auto" ]; then
+    "$unixtests/armfpa.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath"
+    F="$?"
+    if [ "$F" -eq 0 ]; then
+        CFG_ARMFPA="yes"
+    elif [ "$F" -eq 1 ]; then
+        CFG_ARMFPA="no"
+    else
+        echo
+        echo "The ARM-FPA test could not be run!"
+        echo "Turn on verbose messaging (-v) to see the final report."
+        echo "You can use the -armfpa or -no-armfpa switch to"
+        echo "$0 to continue."
+        exit 101
+    fi
+fi
 
 if [ "$CFG_ENDIAN" = "auto" ]; then
     if [ "$PLATFORM_MAC" = "yes" ]; then
@@ -4651,6 +4681,10 @@ if [ "$CFG_ENDIAN" = "auto" ]; then
 EOF
 else
     echo "#define Q_BYTE_ORDER $CFG_ENDIAN" >>"$outpath/src/corelib/global/qconfig.h.new"
+fi
+
+if [ "$CFG_ARMFPA" = "yes" ]; then
+    echo "#define QT_ARMFPA" >>"$outpath/src/corelib/global/qconfig.h.new"
 fi
 
 echo '/* Machine Architecture */' >>"$outpath/src/corelib/global/qconfig.h.new"
