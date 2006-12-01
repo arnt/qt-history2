@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-#include <QtGui/QUndoCommand>
 #include "signalsloteditor.h"
 #include "signalsloteditor_p.h"
 #include "ui4_p.h"
@@ -22,23 +21,18 @@
 #include <QtGui/QDialog>
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QListWidget>
-#include <QtGui/QTreeWidget>
-#include <QtGui/QItemDelegate>
-#include <QtGui/QItemEditorFactory>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QPushButton>
 #include <QtGui/QLabel>
 #include <QtGui/QCheckBox>
-#include <QtGui/QComboBox>
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QHeaderView>
 #include <QtGui/QApplication>
+#include <QtGui/QUndoCommand>
 #include <QtGui/QMenu>
 
 #include <QtCore/qdebug.h>
 
-namespace qdesigner_internal {
+namespace {
 
 /*******************************************************************************
 ** Tools
@@ -85,7 +79,7 @@ QStringList objectNameList(QDesignerFormWindowInterface *form)
 
     QDesignerFormWindowCursorInterface *cursor = form->cursor();
     for (int i = 0; i < cursor->widgetCount(); ++i) {
-        QString name = cursor->widget(i)->objectName().trimmed();
+        const QString name = cursor->widget(i)->objectName().trimmed();
         if (!name.isEmpty())
             result.append(name);
     }
@@ -99,7 +93,7 @@ QStringList objectNameList(QDesignerFormWindowInterface *form)
     return result;
 }
 
-QStringList memberList(QDesignerFormWindowInterface *form, QObject *object, MemberType member_type)
+QStringList memberList(QDesignerFormWindowInterface *form, QObject *object, qdesigner_internal::MemberType member_type)
 {
     QStringList result;
 
@@ -115,10 +109,10 @@ QStringList memberList(QDesignerFormWindowInterface *form, QObject *object, Memb
         if (!members->isVisible(i))
             continue;
 
-        if (member_type == SignalMember && !members->isSignal(i))
+        if (member_type == qdesigner_internal::SignalMember && !members->isSignal(i))
             continue;
 
-        if (member_type == SlotMember && !members->isSlot(i))
+        if (member_type == qdesigner_internal::SlotMember && !members->isSlot(i))
             continue;
 
         result.append(members->signature(i));
@@ -143,8 +137,8 @@ bool signalMatchesSlot(const QString &signal, const QString &slot)
             break;
 
         while (signal_idx < signal.size() && slot_idx < slot.size()) {
-            QChar signal_c = signal.at(signal_idx);
-            QChar slot_c = slot.at(slot_idx);
+            const QChar signal_c = signal.at(signal_idx);
+            const QChar slot_c = slot.at(slot_idx);
 
             if (signal_c == QLatin1Char(',') && slot_c == QLatin1Char(')'))
                 break;
@@ -164,10 +158,10 @@ bool signalMatchesSlot(const QString &signal, const QString &slot)
     return result;
 }
 
-ClassList classList(const QString &obj_name, MemberType member_type,
+qdesigner_internal::ClassList classList(const QString &obj_name, qdesigner_internal::MemberType member_type,
                             const QString &peer, QDesignerFormWindowInterface *form)
 {
-    ClassList result;
+    qdesigner_internal::ClassList result;
 
     QObject *object = qFindChild<QObject*>(form, obj_name);
 
@@ -185,28 +179,28 @@ ClassList classList(const QString &obj_name, MemberType member_type,
         if (!members->isVisible(i))
             continue;
 
-        if (member_type == SignalMember && !members->isSignal(i))
+        if (member_type == qdesigner_internal::SignalMember && !members->isSignal(i))
             continue;
 
-        if (member_type == SlotMember && !members->isSlot(i))
+        if (member_type == qdesigner_internal::SlotMember && !members->isSlot(i))
             continue;
 
-        QString signal = member_type == SignalMember ? members->signature(i) : peer;
-        QString slot = member_type == SignalMember ? peer : members->signature(i);
+        const QString signal = member_type == qdesigner_internal::SignalMember ? members->signature(i) : peer;
+        const QString slot = member_type == qdesigner_internal::SignalMember ? peer : members->signature(i);
         if (!signalMatchesSlot(signal, slot))
             continue;
 
-        QString s = members->declaredInClass(i);
+       const QString s = members->declaredInClass(i);
         if (s != class_name) {
             if (!member_list.isEmpty())
-                result.append(ClassInfo(class_name, member_list));
+                result.append(qdesigner_internal::ClassInfo(class_name, member_list));
             class_name = s;
             member_list.clear();
         }
         member_list.append(members->signature(i));
     }
     if (!member_list.isEmpty())
-        result.append(ClassInfo(class_name, member_list));
+        result.append(qdesigner_internal::ClassInfo(class_name, member_list));
 
     return result;
 }
@@ -245,30 +239,29 @@ private:
 };
 
 // ### deprecated
-static QString realObjectName(QDesignerFormEditorInterface *core, QObject *object)
+QString realObjectName(QDesignerFormEditorInterface *core, QObject *object)
 {
     if (object == 0)
         return QString();
 
-    QString object_name = object->objectName();
-    QDesignerMetaDataBaseInterface *mdb = core->metaDataBase();
-    QDesignerMetaDataBaseItemInterface *item = mdb->item(object);
-    if (item != 0)
-        object_name = item->name();
-    return object_name;
+    const QDesignerMetaDataBaseInterface *mdb = core->metaDataBase();
+    if (const QDesignerMetaDataBaseItemInterface *item = mdb->item(object))
+        return item->name();
+
+    return object->objectName();
 }
 
-static QString realClassName(QDesignerFormEditorInterface *core, QWidget *widget)
+QString realClassName(QDesignerFormEditorInterface *core, QWidget *widget)
 {
     QString class_name = QLatin1String(widget->metaObject()->className());
-    QDesignerWidgetDataBaseInterface *wdb = core->widgetDataBase();
-    int idx = wdb->indexOfObject(widget);
+    const QDesignerWidgetDataBaseInterface *wdb = core->widgetDataBase();
+    const int idx = wdb->indexOfObject(widget);
     if (idx != -1)
         class_name = wdb->item(idx)->name();
     return class_name;
 }
 
-static QString widgetLabel(QDesignerFormEditorInterface *core, QWidget *widget)
+QString widgetLabel(QDesignerFormEditorInterface *core, QWidget *widget)
 {
     return QString::fromUtf8("%1 (%2)")
             .arg(realObjectName(core, widget))
@@ -283,7 +276,7 @@ void OldSignalSlotDialog::populateSlotList(const QString &signal)
     }
     m_slot_list->clear();
 
-    bool show_all = m_show_all_checkbox->isChecked();
+    const bool show_all = m_show_all_checkbox->isChecked();
 
     QStringList signatures;
 
@@ -330,7 +323,7 @@ void OldSignalSlotDialog::populateSignalList()
     }
     m_signal_list->clear();
 
-    bool show_all = m_show_all_checkbox->isChecked();
+    const bool show_all = m_show_all_checkbox->isChecked();
 
     QStringList signatures;
 
@@ -373,34 +366,33 @@ void OldSignalSlotDialog::populateSignalList()
 
 // ### use designer
 OldSignalSlotDialog::OldSignalSlotDialog(QDesignerFormEditorInterface *core, QWidget *source, QWidget *destination,
-                                    QWidget *parent)
-    : QDialog(parent)
+                                         QWidget *parent) :
+    QDialog(parent),
+    m_signal_list(new QListWidget(this)),
+    m_slot_list(new QListWidget(this)),
+    m_buttonBox(new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,Qt::Horizontal, this)),
+    m_ok_button(m_buttonBox->button(QDialogButtonBox::Ok)),    
+    m_source(source),
+    m_destination(destination),
+    m_core(core),
+    m_show_all_checkbox(new QCheckBox(tr("Show all signals and slots")))
 {
-    m_source = source;
-    m_destination = destination;
-    m_core = core;
 
-    m_signal_list = new QListWidget(this);
     connect(m_signal_list,
                 SIGNAL(itemClicked(QListWidgetItem*)),
             this,
                 SLOT(selectSignal(QListWidgetItem*)));
-    m_slot_list = new QListWidget(this);
     connect(m_slot_list,
                 SIGNAL(itemClicked(QListWidgetItem*)),
             this,
                 SLOT(selectSlot(QListWidgetItem*)));
     m_slot_list->setEnabled(false);
 
-    m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
-                                       Qt::Horizontal, this);
-    m_ok_button = m_buttonBox->button(QDialogButtonBox::Ok);
     m_ok_button->setDefault(true);
     m_ok_button->setEnabled(false);
     connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-    m_show_all_checkbox = new QCheckBox(tr("Show all signals and slots"));
     connect(m_show_all_checkbox, SIGNAL(toggled(bool)), this, SLOT(populateSignalList()));
 
     QLabel *source_label = new QLabel(this);
@@ -433,7 +425,7 @@ OldSignalSlotDialog::OldSignalSlotDialog(QDesignerFormEditorInterface *core, QWi
     populateSignalList();
 }
 
-static QListWidgetItem *findItem(const QListWidget &list_widget, const QString &text)
+QListWidgetItem *findItem(const QListWidget &list_widget, const QString &text)
 {
     QListWidgetItem *result = 0;
     for (int i = 0; i < list_widget.count(); ++i) {
@@ -518,6 +510,9 @@ QString OldSignalSlotDialog::slot() const
     return item_list.at(0)->text();
 }
 
+}
+namespace qdesigner_internal {
+
 /*******************************************************************************
 ** SignalSlotConnection
 */
@@ -562,8 +557,6 @@ DomConnection *SignalSlotConnection::toUi() const
 
 void SignalSlotConnection::setSignal(const QString &signal)
 {
-
-
     m_signal = signal;
     setLabel(EndPoint::Source, m_signal);
 }
@@ -609,21 +602,21 @@ public:
     virtual void redo();
     virtual void undo();
 private:
+    const QString m_old_member;
+    const QString m_new_member;
+    const EndPoint::Type m_type;
     SignalSlotConnection *m_con;
-    QString m_old_member, m_new_member;
-    EndPoint::Type m_type;
     SignalSlotEditor *m_editor;
 };
 
 SetMemberCommand::SetMemberCommand(SignalSlotConnection *con, EndPoint::Type type,
-                                    const QString &member, SignalSlotEditor *editor)
+                                   const QString &member, SignalSlotEditor *editor) :
+    m_old_member(type == EndPoint::Source ? con->signal() : con->slot()),
+    m_new_member(member),
+    m_type(type),
+    m_con(con),
+    m_editor(editor)    
 {
-    m_con = con;
-    m_editor = editor;
-    m_type = type;
-    m_old_member = type == EndPoint::Source ? con->signal() : con->slot();
-    m_new_member = member;
-
     if (type == EndPoint::Source)
         setText(QApplication::translate("Command", "Change signal"));
     else
@@ -656,11 +649,12 @@ void SetMemberCommand::undo()
 ** SignalSlotEditor
 */
 
-SignalSlotEditor::SignalSlotEditor(QDesignerFormWindowInterface *form_window, QWidget *parent)
-    : ConnectionEdit(parent, form_window), m_showAllSignalsSlots(false)
+SignalSlotEditor::SignalSlotEditor(QDesignerFormWindowInterface *form_window, QWidget *parent) :
+     ConnectionEdit(parent, form_window), 
+     m_form_window(form_window),
+     m_model(new ConnectionModel(this, this)),
+     m_showAllSignalsSlots(false)
 {
-    m_form_window = form_window;
-    m_model = new ConnectionModel(this, this);
     connect(this, SIGNAL(widgetActivated(QWidget*)), form_window, SIGNAL(activated(QWidget*)));
 }
 
@@ -719,26 +713,26 @@ DomConnections *SignalSlotEditor::toUi() const
     DomConnections *result = new DomConnections;
     QList<DomConnection*> list;
     for (int i = 0; i < connectionCount(); ++i) {
-        SignalSlotConnection *con = static_cast<SignalSlotConnection*>(connection(i));
+        const SignalSlotConnection *con = static_cast<const SignalSlotConnection*>(connection(i));
         Q_ASSERT(con != 0);
 
         // If a widget's parent has been removed, and the parent was not a managed widget
         // (a page in a tab widget), we never get a widgetRemoved(). So we filter out
         // these child widgets here.
-        QObject *source = con->object(EndPoint::Source);
+        const QObject *source = con->object(EndPoint::Source);
         if (source == 0)
             continue;
 
-        QObject *target = con->object(EndPoint::Target);
+        const QObject *target = con->object(EndPoint::Target);
         if (target == 0)
             continue;
 
-        if (QWidget *sourceWidget = qobject_cast<QWidget*>(source)) {
+        if (const QWidget *sourceWidget = qobject_cast<const QWidget*>(source)) {
             if (!background()->isAncestorOf(sourceWidget))
                 continue;
         }
 
-        if (QWidget *targetWidget = qobject_cast<QWidget*>(target)) {
+        if (const QWidget *targetWidget = qobject_cast<const QWidget*>(target)) {
             if (!background()->isAncestorOf(targetWidget))
                 continue;
         }
@@ -758,15 +752,15 @@ QObject *SignalSlotEditor::objectByName(QWidget *topLevel, const QString &name)
     return qFindChild<QObject*>(topLevel, name);
 }
 
-void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
+void SignalSlotEditor::fromUi(const DomConnections *connections, QWidget *parent)
 {
     if (connections == 0)
         return;
 
     setBackground(parent);
 
-    QList<DomConnection*> list = connections->elementConnection();
-    foreach (DomConnection *dom_con, list) {
+    const QList<DomConnection*> list = connections->elementConnection();
+    foreach (const DomConnection *dom_con, list) {
         QObject *source = objectByName(parent, dom_con->elementSender());
         if (source == 0) {
             qWarning("SignalSlotEditor::fromUi(): no source widget called \"%s\"",
@@ -781,7 +775,7 @@ void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
         }
 
         QPoint sp = QPoint(20, 20), tp = QPoint(20, 20);
-        DomConnectionHints *dom_hints = dom_con->elementHints();
+        const DomConnectionHints *dom_hints = dom_con->elementHints();
         if (dom_hints != 0) {
             QList<DomConnectionHint*> list = dom_hints->elementHint();
             foreach (DomConnectionHint *hint, list) {
@@ -804,9 +798,9 @@ void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
     }
 }
 
-static bool skipWidget(QWidget *w)
+static bool skipWidget(const QWidget *w)
 {
-    QString name = QLatin1String(w->metaObject()->className());
+    const QString name = QLatin1String(w->metaObject()->className());
     if (name == QLatin1String("QDesignerWidget"))
         return true;
     if (name == QLatin1String("QLayoutWidget"))
@@ -874,7 +868,7 @@ void SignalSlotEditor::setSource(Connection *_con, const QString &obj_name)
     QObject *sourceObject = con->object(EndPoint::Source);
     Q_ASSERT(sourceObject != 0);
 
-    QStringList member_list = memberList(m_form_window, sourceObject, SignalMember);
+    const QStringList member_list = memberList(m_form_window, sourceObject, SignalMember);
 
     if (!member_list.contains(con->signal()))
         undoStack()->push(new SetMemberCommand(con, EndPoint::Source, QString(), this));
@@ -893,7 +887,7 @@ void SignalSlotEditor::setTarget(Connection *_con, const QString &obj_name)
     ConnectionEdit::setTarget(con, obj_name);
 
     QWidget *w = con->widget(EndPoint::Target);
-    QStringList member_list = memberList(m_form_window, w, SlotMember);
+    const QStringList member_list = memberList(m_form_window, w, SlotMember);
 
     if (!member_list.contains(con->slot()))
         undoStack()->push(new SetMemberCommand(con, EndPoint::Target, QString(), this));
