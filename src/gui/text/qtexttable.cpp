@@ -818,12 +818,11 @@ void QTextTable::mergeCells(int row, int column, int numRows, int numCols)
         d->update();
 
     QTextDocumentPrivate *p = d->pieceTable;
+    QTextFormatCollection *fc = p->formatCollection();
 
     const QTextTableCell cell = cellAt(row, column);
-    if (!cell.isValid())
+    if (!cell.isValid() || row != cell.row() || column != cell.column())
         return;
-    row = cell.row();
-    column = cell.column();
 
     QTextCharFormat fmt = cell.format();
     const int rowSpan = fmt.tableCellRowSpan();
@@ -836,59 +835,76 @@ void QTextTable::mergeCells(int row, int column, int numRows, int numCols)
     if (numRows < rowSpan || numCols < colSpan)
         return;
 
+    // check the edges of the merge rect to make sure no cell spans the edge
+    for (int r = row; r < row + numRows; ++r) {
+        if (cellAt(r, column) == cellAt(r, column - 1))
+            return;
+        if (cellAt(r, column + numCols) == cellAt(r, column + numCols - 1))
+            return;
+    }
+
+    for (int c = column; c < column + numCols; ++c) {
+        if (cellAt(row, c) == cellAt(row - 1, c))
+            return;
+        if (cellAt(row + numRows, c) == cellAt(row + numRows - 1, c))
+            return;
+    }
+
     p->beginEditBlock();
 
     const int origCellPosition = cell.firstPosition() - 1;
 
     const int cellFragment = d->grid[row * d->nCols + column];
 
-    QVarLengthArray<int> cellMarkersToDelete((numCols - colSpan) * rowSpan
-                                             + (numRows - rowSpan) * numCols);
-
-    int idx = 0;
-
     d->blockFragmentUpdates = true;
 
-    for (int r = row; r < row + rowSpan; ++r) {
+    // find all cells that will be erased by the merge
+    for (int r = row; r < row + numRows; ++r) {
+        int firstColumn = r < row + rowSpan ? column + colSpan : column;
 
-        const int fragment = d->grid[r * d->nCols + column + colSpan];
-        const uint pos = p->fragmentMap().position(fragment);
-        QFragmentFindHelper helper(pos, p->fragmentMap());
-        QList<int>::Iterator it = qBinaryFind(d->cells.begin(), d->cells.end(), helper);
-        Q_ASSERT(it != d->cells.end());
-        Q_ASSERT(*it == fragment);
-        d->cellIndices.remove(it - d->cells.begin(), numCols - colSpan);
-        d->cells.erase(it, it + numCols - colSpan);
+        int firstCellIndex = -1;
+        int cellIndex;
 
-        for (int c = column + colSpan; c < column + numCols; ++c) {
-            const int cell = d->grid[r * d->nCols + c];
-            QTextDocumentPrivate::FragmentIterator it(&p->fragmentMap(), cell);
-            cellMarkersToDelete[idx++] = it.position();
-            d->grid[r * d->nCols + c] = cellFragment;
+        for (int c = firstColumn; c < column + numCols; ++c) {
+            const int fragment = d->grid[r * d->nCols + c];
+
+            // already handled?
+            if (fragment == cellFragment)
+                continue;
+
+            QTextDocumentPrivate::FragmentIterator it(&p->fragmentMap(), fragment);
+            uint pos = it.position();
+
+            if (firstCellIndex == -1) {
+                QFragmentFindHelper helper(pos, p->fragmentMap());
+                QList<int>::Iterator it = qBinaryFind(d->cells.begin(), d->cells.end(), helper);
+                Q_ASSERT(it != d->cells.end());
+                Q_ASSERT(*it == fragment);
+                firstCellIndex = cellIndex = it - d->cells.begin();
+            }
+
+            ++cellIndex;
+
+            QTextCharFormat fmt = fc->charFormat(it->format);
+
+            const int cellRowSpan = fmt.tableCellRowSpan();
+            const int cellColSpan = fmt.tableCellColumnSpan();
+
+            // update the grid for this cell
+            for (int i = r; i < r + cellRowSpan; ++i)
+                for (int j = c; j < c + cellColSpan; ++j)
+                    d->grid[i * d->nCols + j] = cellFragment;
+
+            // erase the cell marker
+            p->remove(pos, 1);
+        }
+
+        // erase cells from last row
+        if (firstCellIndex >= 0) {
+            d->cellIndices.remove(firstCellIndex, cellIndex - firstCellIndex);
+            d->cells.erase(d->cells.begin() + firstCellIndex, d->cells.begin() + cellIndex);
         }
     }
-
-    for (int r = row + rowSpan; r < row + numRows; ++r) {
-
-        const int fragment = d->grid[r * d->nCols + column];
-        const uint pos = p->fragmentMap().position(fragment);
-        QFragmentFindHelper helper(pos, p->fragmentMap());
-        QList<int>::Iterator it = qBinaryFind(d->cells.begin(), d->cells.end(), helper);
-        Q_ASSERT(it != d->cells.end());
-        Q_ASSERT(*it == fragment);
-        d->cellIndices.remove(it - d->cells.begin(), numCols);
-        d->cells.erase(it, it + numCols);
-
-        for (int c = column; c < column + numCols; ++c) {
-            const int cell = d->grid[r * d->nCols + c];
-            QTextDocumentPrivate::FragmentIterator it(&p->fragmentMap(), cell);
-            cellMarkersToDelete[idx++] = it.position();
-            d->grid[r * d->nCols + c] = cellFragment;
-        }
-    }
-
-    for (int i = 0; i < cellMarkersToDelete.size(); ++i)
-        p->remove(cellMarkersToDelete[i] - i, 1);
 
     d->fragment_start = d->cells.first();
 
