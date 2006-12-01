@@ -97,11 +97,6 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QM
     return indexNode;
 }
 
-bool nodeCaseInsensitiveLessThan(const QFileSystemModelPrivate::QFileSystemNode &s1, const QFileSystemModelPrivate::QFileSystemNode &s2)
-{
-    return s1.fileName.toLower() < s2.fileName.toLower();
-}
-
 /*!
     \internal
 
@@ -922,7 +917,8 @@ QModelIndex QFileSystemModel::mkdir(const QModelIndex &parent, const QString &na
                     QFileSystemModelPrivate::QFileSystemNode(name));
     else
         iterator = qBinaryFind(parentNode->children.begin(), parentNode->children.end(),
-                    QFileSystemModelPrivate::QFileSystemNode(name), nodeCaseInsensitiveLessThan);
+                    QFileSystemModelPrivate::QFileSystemNode(name),
+		    QFileSystemModelPrivate::nodeCaseInsensitiveLessThan);
     int r = iterator - parentNode->children.begin();
     QFileSystemModelPrivate::QFileSystemNode *node = &parentNode->children[r];
     QExtendedInformation extendedInfo;
@@ -1139,11 +1135,6 @@ QStringList QFileSystemModel::nameFilters() const
     return filters;
 }
 
-bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
-{
-    return s1.toLower() < s2.toLower();
-}
-
 /*!
     \internal
 
@@ -1168,7 +1159,7 @@ void QFileSystemModelPrivate::directoryChanged(const QString &directory, const Q
             iterator = qBinaryFind(newFiles.begin(), newFiles.end(),
                                                      parentNode->children.at(i).fileName, caseInsensitiveLessThan);
         if (iterator == newFiles.end()) {
-            removeNode(parentNode, i);
+	    removeNode(parentNode, i);
         } else {
             // usually there is only 1 file so don't bother compressing this
             if (!parentNode->children.at(i).hasInformation())
@@ -1199,7 +1190,8 @@ int QFileSystemModelPrivate::addNode(QFileSystemNode *parentNode, const QString 
     QFileSystemModelPrivate::QFileSystemNode node(fileName, parentNode);
     int itemLocation = 0;
     if (parentNode->children.count() > 0) {
-        if (parentNode->children.at(parentNode->children.count() - 1) < fileName) {
+        if (parentNode->children.at(parentNode->children.count() - 1).hasInformation()
+	    && parentNode->children.at(parentNode->children.count() - 1) < fileName) {
             itemLocation = parentNode->children.count();
         } else {
             itemLocation = findWhereToInsertChild(parentNode, &node);
@@ -1350,7 +1342,7 @@ void QFileSystemModelPrivate::fileSystemChanged(const QString &path, const QList
         }
 
         if (info.size == -1) {
-            removeNode(parentNode, itemLocation);
+	    removeNode(parentNode, itemLocation);
             continue;
         }
 

@@ -168,7 +168,7 @@ public:
         inline QIcon icon() const { if (info) return info->icon; return QIcon(); }
 
         inline bool operator <(const QFileSystemNode &node) const {
-            if (caseSensitive())
+	    if (caseSensitive())
                 return fileName < node.fileName;
             return fileName.toLower() < node.fileName.toLower();
         }
@@ -266,13 +266,31 @@ public:
             delayedSortTimer.start(0);
     }
 
+    static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
+    {
+       return s1.toLower() < s2.toLower();
+    }
+
+    static bool nodeCaseInsensitiveLessThan(const QFileSystemModelPrivate::QFileSystemNode &s1, const QFileSystemModelPrivate::QFileSystemNode &s2)
+    {
+       return s1.fileName.toLower() < s2.fileName.toLower();
+    }
+
     inline int findChild(const QFileSystemNode *parent, const QFileSystemNode &node) const {
-        QList<QFileSystemNode>::const_iterator it = (qBinaryFind(parent->children.begin(), parent->children.end(), node));
+        QList<QFileSystemNode>::const_iterator it;
+        if (parent->caseSensitive())
+		it = (qBinaryFind(parent->children.begin(), parent->children.end(), node));
+	else
+		it = (qBinaryFind(parent->children.begin(), parent->children.end(), node, QFileSystemModelPrivate::nodeCaseInsensitiveLessThan));
         return (it - parent->children.begin());
     }
 
     inline int findWhereToInsertChild(const QFileSystemNode *parent, const QFileSystemNode *node) const {
-        QList<QFileSystemNode>::const_iterator it = (qUpperBound(parent->children.begin(), parent->children.end(), *node));
+        QList<QFileSystemNode>::const_iterator it;
+        if (parent->caseSensitive()) {
+		it = (qUpperBound(parent->children.begin(), parent->children.end(), *node));
+	} else	
+		it = (qUpperBound(parent->children.begin(), parent->children.end(), *node, QFileSystemModelPrivate::nodeCaseInsensitiveLessThan));
         return (it - parent->children.begin());
     }
 
