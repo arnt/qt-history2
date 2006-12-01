@@ -2771,6 +2771,8 @@ void tst_QDateTimeEdit::yyTest()
         QCOMPARE(testWidget->lineEdit()->displayText(), QString("01"));
         QCOMPARE(testWidget->date(), QDate(centuries[i] + 1, 1, 1));
         QTest::keyClick(testWidget, Qt::Key_Return);
+        QTest::keyClick(testWidget, Qt::Key_Delete);
+        QCOMPARE(testWidget->lineEdit()->displayText(), QString());
         QTest::keyClick(testWidget, Qt::Key_7);
         QCOMPARE(testWidget->lineEdit()->displayText(), QString("7"));
         QTest::keyClick(testWidget, Qt::Key_1);
