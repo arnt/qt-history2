@@ -73,7 +73,8 @@ void QVNCCursor::move(int x, int y)
 }
 
 QVNCScreenPrivate::QVNCScreenPrivate(QVNCScreen *parent)
-    : doOnScreenSurface(false), vncServer(0), subscreen(0), q_ptr(parent)
+    : doOnScreenSurface(false), refreshRate(25), vncServer(0),
+      subscreen(0), q_ptr(parent)
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
     shm = 0;
@@ -409,6 +410,7 @@ void QVNCServer::init(uint port)
     encodingsPending = 0;
     cutTextPending = 0;
     keymod = 0;
+    refreshRate = 25;
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(checkUpdate()));
     serverSocket = new QTcpServer(this);
@@ -439,7 +441,7 @@ void QVNCServer::newConnection()
     cutTextPending = 0;
     supportHextile = false;
     wantUpdate = false;
-    timer->start(UPDATE_FREQUENCY);
+    timer->start(1000 / refreshRate);
 
     // send protocol version
     char *proto = "RFB 003.003\n";
@@ -1229,6 +1231,16 @@ bool QVNCScreen::connect(const QString &displaySpec)
     if (dspec.endsWith(displayIdSpec))
         dspec = dspec.left(dspec.size() - displayIdSpec.size());
 
+    QStringList args = dspec.split(QLatin1Char(':'),
+                                   QString::SkipEmptyParts);
+    QRegExp refreshRegexp("^refreshrate=(\\d+)$");
+    int index = args.indexOf(refreshRegexp);
+    if (index >= 0) {
+        d_ptr->refreshRate = refreshRegexp.cap(1).toInt();
+        args.removeAt(index);
+        dspec = args.join(QLatin1String(":"));
+    }
+
     QString driver = dspec;
     int colon = driver.indexOf(':');
     if (colon >= 0)
@@ -1251,9 +1263,6 @@ bool QVNCScreen::connect(const QString &displaySpec)
             dw = w = 640;
             dh = h = 480;
         }
-
-        const QStringList args = displaySpec.split(QLatin1Char(':'),
-                                                   QString::SkipEmptyParts);
 
         if (args.contains(QLatin1String("paintonscreen"), Qt::CaseInsensitive))
             d_ptr->doOnScreenSurface = true;
@@ -1308,6 +1317,7 @@ bool QVNCScreen::initDevice()
         }
     }
     d_ptr->vncServer = new QVNCServer(this, displayId);
+    d_ptr->vncServer->setRefreshRate(d_ptr->refreshRate);
 
     d_ptr->hdr.dirty = false;
     memset(d_ptr->hdr.map, 0, MAP_WIDTH * MAP_HEIGHT);

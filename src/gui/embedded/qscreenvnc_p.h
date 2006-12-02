@@ -53,7 +53,6 @@ private:
 #define MAP_TILE_SIZE 16
 #define MAP_WIDTH 1280 / MAP_TILE_SIZE
 #define MAP_HEIGHT 1024 / MAP_TILE_SIZE
-#define UPDATE_FREQUENCY 40
 
 struct QVNCHeader
 {
@@ -172,6 +171,7 @@ public:
     void configure();
 
     bool doOnScreenSurface;
+    int refreshRate;
     QVNCHeader hdr;
     QVNCServer *vncServer;
     QScreen *subscreen;
@@ -190,6 +190,8 @@ public:
     QVNCServer(QVNCScreen *screen);
     QVNCServer(QVNCScreen *screen, int id);
     ~QVNCServer();
+
+    void setRefreshRate(int rate) { refreshRate = rate; }
 
     enum ClientMsg { SetPixelFormat = 0,
                      FixColourMapEntries = 1,
@@ -238,6 +240,7 @@ private:
     bool wantUpdate;
     int nibble;
     bool sameEndian;
+    int refreshRate;
     QVNCScreen *qvnc_screen;
 };
 
