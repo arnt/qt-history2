@@ -1677,6 +1677,9 @@ void QWSServer::enablePainting(bool enable)
 {
     Q_D(QWSServer);
 
+    if (d->disablePainting == !enable)
+        return;
+
     d->disablePainting = !enable;
 
     if (enable) {

@@ -445,6 +445,9 @@ void QVNCServer::newConnection()
     char *proto = "RFB 003.003\n";
     client->write(proto, 12);
     state = Protocol;
+
+    if (!qvnc_screen->d_ptr->subscreen)
+        QWSServer::instance()->enablePainting(true);
 }
 
 void QVNCServer::readClient()
@@ -1128,6 +1131,8 @@ void QVNCServer::checkUpdate()
 void QVNCServer::discardClient()
 {
     timer->stop();
+    if (!qvnc_screen->d_ptr->subscreen)
+        QWSServer::instance()->enablePainting(false);
 }
 
 
@@ -1316,6 +1321,10 @@ bool QVNCScreen::initDevice()
 #ifndef QT_NO_QWS_CURSOR
     qt_screencursor = new QVNCCursor(this);
 #endif
+
+    // No need to do painting while there's no clients attached
+    QWSServer::instance()->enablePainting(false);
+
     return true;
 }
 
