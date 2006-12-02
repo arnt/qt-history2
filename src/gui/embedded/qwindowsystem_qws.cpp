@@ -1673,21 +1673,31 @@ void QWSServerPrivate::hideCursor()
     \sa {Qtopia Core Architecture#Drawing on Screen}{Qtopia Core
     Architecture}
 */
-void QWSServer::enablePainting(bool e)
+void QWSServer::enablePainting(bool enable)
 {
     Q_D(QWSServer);
-    // ### don't like this
-    if (e)
-    {
-        d->disablePainting = false;
-        d->setWindowRegion(0, QRegion());
+
+    d->disablePainting = !enable;
+
+    if (enable) {
+        // Reset the server side allocated regions to ensure update_regions()
+        // will send out region events.
+        for (int i = 0; i < d->windows.size(); ++i) {
+            QWSWindow *w = d->windows.at(i);
+            w->setAllocatedRegion(QRegion());
+        }
+        d->update_regions();
         d->showCursor();
-    }
-    else
-    {
-        d->disablePainting = true;
+    } else {
+        // Disable painting by clients by taking away their allocated region.
+        // To ensure mouse events are still delivered to the correct windows,
+        // the allocated regions are not modified on the server.
+        for (int i = 0; i < d->windows.size(); ++i) {
+            QWSWindow *w = d->windows.at(i);
+            w->client()->sendRegionEvent(w->winId(), QRegion(),
+                                         QWSRegionEvent::Allocation);
+        }
         d->hideCursor();
-        d->setWindowRegion(0, QRegion(0,0,d->swidth,d->sheight));
     }
 }
 
@@ -1809,7 +1819,6 @@ extern int *qt_last_x,*qt_last_y;
 void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
 {
     //const int btnMask = Qt::LeftButton | Qt::RightButton | Qt::MidButton;
-    qwsServerPrivate->showCursor();
 
     if (state)
         qwsServerPrivate->_q_screenSaverWake();
@@ -2956,6 +2965,9 @@ void QWSServerPrivate::lowerWindow(QWSWindow *changingw, int /*alt*/)
 
 void QWSServerPrivate::update_regions()
 {
+    if (disablePainting)
+        return;
+
     static QRegion prevAvailable = QRect(0, 0, qt_screen->width(), qt_screen->height());
     QRegion available = QRect(0, 0, qt_screen->width(), qt_screen->height());
     QRegion reserved;
@@ -3061,6 +3073,9 @@ void QWSServerPrivate::setWindowRegion(QWSWindow* changingw, QRegion r)
 
 void QWSServerPrivate::exposeRegion(QRegion r, int changing)
 {
+    if (disablePainting)
+        return;
+
     static bool initial = true;
     if (initial) {
         r = QRect(0,0,qt_screen->width(), qt_screen->height());
