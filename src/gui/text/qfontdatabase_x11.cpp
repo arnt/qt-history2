@@ -37,6 +37,10 @@
 #ifndef QT_NO_FONTCONFIG
 #include <ft2build.h>
 #include FT_FREETYPE_H
+
+#if FC_VERSION >= 20402
+#include <fontconfig/fcfreetype.h>
+#endif
 #endif
 
 // from qfont_x11.cpp
@@ -1878,6 +1882,33 @@ QByteArray qt_fontdata_from_index(int index)
     return privateDb()->applicationFonts.value(index).data;
 }
 
+static FcPattern *queryFont(const FcChar8 *file, const QByteArray &data, int id, FcBlanks *blanks, int *count)
+{
+#if FC_VERSION < 20402
+    Q_UNUSED(data)
+    return FcFreeTypeQuery(file, id, blanks, count);
+#else
+    if (data.isEmpty())
+        return FcFreeTypeQuery(file, id, blanks, count);
+
+    extern FT_Library qt_getFreetype();
+    FT_Library lib = qt_getFreetype();
+
+    FcPattern *pattern = 0;
+
+    FT_Face face;
+    if (!FT_New_Memory_Face(lib, (const FT_Byte *)data.constData(), data.size(), id, &face)) {
+        *count = face->num_faces;
+
+        pattern = FcFreeTypeQueryFace(face, file, id, blanks);
+
+        FT_Done_Face(face);
+    }
+
+    return pattern;
+#endif
+}
+
 static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)
 {
 #if defined(QT_NO_FONTCONFIG)
@@ -1899,6 +1930,7 @@ static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)
     }
 
     QString fileNameForQuery = fnt->fileName;
+#if FC_VERSION < 20402
     QTemporaryFile tmp;
 
     if (!fnt->data.isEmpty()) {
@@ -1908,6 +1940,7 @@ static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)
         tmp.flush();
         fileNameForQuery = tmp.fileName();
     }
+#endif
 
     int id = 0;
     FcBlanks *blanks = FcConfigGetBlanks(0);
@@ -1917,8 +1950,8 @@ static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)
 
     FcPattern *pattern = 0;
     do {
-        pattern = FcFreeTypeQuery((const FcChar8 *)QFile::encodeName(fileNameForQuery).constData(),
-                                  id, blanks, &count);
+        pattern = queryFont((const FcChar8 *)QFile::encodeName(fileNameForQuery).constData(),
+                            fnt->data, id, blanks, &count);
         if (!pattern)
             return;
 
