@@ -762,7 +762,7 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 {
     if (flags & QTextEngine::GlyphIndicesOnly) {
         if (!cmap) {
-            cmap = getCMap(FMGetATSFontRefFromFont(fontID), symbolCMap);
+            cmap = ::getCMap(FMGetATSFontRefFromFont(fontID), symbolCMap);
             if (!cmap)
                 return false;
         }
