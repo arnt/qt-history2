@@ -754,6 +754,24 @@ LRESULT CALLBACK qJournalRecordProc(int nCode, WPARAM wParam, LPARAM lParam)
 #endif
 }
 
+/* Works only as long as pointer is inside the application's window,
+   which is good enough for QDockWidget.
+
+   Doesn't call SetWindowsHookExA() - this function causes a system-wide
+   freeze if any other app on the system installs a hook and fails to 
+   process events. */
+void QWidgetPrivate::grabMouseWhileInWindow()
+{
+    Q_Q(QWidget);
+    if (!qt_nograb()) {
+        if (mouseGrb)
+            mouseGrb->releaseMouse();
+        Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
+        SetCapture(q->internalWinId());
+        mouseGrb = q;
+    }
+}
+
 void QWidget::grabMouse()
 {
     if (!qt_nograb()) {

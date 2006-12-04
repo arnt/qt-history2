@@ -298,6 +298,10 @@ public:
     void setWindowIconText_helper(const QString &cap);
     void setWindowTitle_sys(const QString &cap);
 
+#ifdef Q_OS_WIN
+    void grabMouseWhileInWindow();
+#endif
+
 #ifndef QT_NO_CURSOR
     void setCursor_sys(const QCursor &cursor);
     void unsetCursor_sys();

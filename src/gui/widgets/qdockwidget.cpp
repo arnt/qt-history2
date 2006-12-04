@@ -643,18 +643,20 @@ void QDockWidgetPrivate::mouseMoveEvent(QMouseEvent *event)
     Q_ASSERT(layout != 0);
 
 #ifndef Q_WS_X11
-    if (!q->isFloating()) {
+    if (!q->isFloating())
 #endif
+    {
         if (!state->dragging
             && layout->pluggingWidget == 0
             && (event->pos() - state->pressPos).manhattanLength() > QApplication::startDragDistance()) {
             startDrag();
+#ifdef Q_OS_WIN
+            grabMouseWhileInWindow();
+#else
             q->grabMouse();
-        }
-
-#ifndef Q_WS_X11
-    }
 #endif
+        }
+    }
 
     if (state->dragging && !state->nca) {
         QPoint pos = event->globalPos() - state->pressPos;
