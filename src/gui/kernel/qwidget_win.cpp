@@ -176,7 +176,7 @@ static void qt_tablet_cleanup()
     qt_tablet_widget = 0;
 }
 
-const QString qt_reg_winclass(Qt::WindowFlags flags);                // defined in qapplication_win.cpp
+const QString qt_reg_winclass(QWidget *w);                // defined in qapplication_win.cpp
 void            qt_olednd_unregister(QWidget* widget, QOleDropTarget *dst); // dnd_win
 QOleDropTarget* qt_olednd_register(QWidget* widget);
 
@@ -218,7 +218,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     HWND parentw, destroyw = 0;
     WId id;
 
-    QString windowClassName = qt_reg_winclass(q->windowFlags());
+    QString windowClassName = qt_reg_winclass(q);
 
     if (!window)                                // always initialize
         initializeWindow = true;

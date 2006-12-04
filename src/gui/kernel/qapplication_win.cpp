@@ -684,8 +684,9 @@ bool qt_nograb()                                // application no-grab option
 typedef QHash<QString, int> WinClassNameHash;
 Q_GLOBAL_STATIC(WinClassNameHash, winclassNames)
 
-const QString qt_reg_winclass(Qt::WindowFlags flags)        // register window class
+const QString qt_reg_winclass(QWidget *w)        // register window class
 {
+    int flags = w->windowFlags();
     int type = flags & Qt::WindowType_Mask;
 
     uint style;
@@ -699,12 +700,20 @@ const QString qt_reg_winclass(Qt::WindowFlags flags)        // register window c
 #endif
         icon  = true;
     } else if (type == Qt::Tool || type == Qt::ToolTip){
-	cname = "QTool";
-	style = CS_DBLCLKS;
+        style = CS_DBLCLKS;
+        if (w->inherits("QTipLabel")) {
+            if ((QSysInfo::WindowsVersion >= QSysInfo::WV_XP
+                && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based)) {
+                style |= 0x00020000;                // CS_DROPSHADOW
+            }
+            cname = "QToolTip";
+        } else {
+            cname = "QTool";
+        }
 #ifndef Q_OS_TEMP
-	style |= CS_SAVEBITS;
+        style |= CS_SAVEBITS;
 #endif
-	icon = false;
+        icon = false;
     } else if (type == Qt::Popup) {
         cname = "QPopup";
         style = CS_DBLCLKS;
