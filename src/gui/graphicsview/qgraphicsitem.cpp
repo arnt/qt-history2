@@ -4908,9 +4908,11 @@ QString QGraphicsTextItem::toHtml() const
 }
 
 /*!
-    Sets the item's text to \a text, assuming that text is HTML formatted.
+    Sets the item's text to \a text, assuming that text is HTML formatted. If
+    the item has keyboard input focus, this function will also call
+    ensureVisible() to ensure that the text is visible in all viewports.
 
-    \sa toHtml()
+    \sa toHtml(), hasFocus()
 */
 void QGraphicsTextItem::setHtml(const QString &text)
 {
@@ -4930,9 +4932,11 @@ QString QGraphicsTextItem::toPlainText() const
 }
 
 /*!
-    Sets the item's text to \a text.
+    Sets the item's text to \a text. If the item has keyboard input focus,
+    this function will also call ensureVisible() to ensure that the text is
+    visible in all viewports.
 
-    \sa toHtml()
+    \sa toHtml(), hasFocus()
 */
 void QGraphicsTextItem::setPlainText(const QString &text)
 {
@@ -5350,8 +5354,10 @@ void QGraphicsTextItemPrivate::_q_updateBoundingRect(const QSizeF &size)
 */
 void QGraphicsTextItemPrivate::_q_ensureVisible(QRectF rect)
 {
-    rect.translate(-controlOffset());
-    qq->ensureVisible(rect, /*xmargin=*/0, /*ymargin=*/0);
+    if (qq->hasFocus()) {
+        rect.translate(-controlOffset());
+        qq->ensureVisible(rect, /*xmargin=*/0, /*ymargin=*/0);
+    }
 }
 
 QTextControl *QGraphicsTextItemPrivate::textControl() const
