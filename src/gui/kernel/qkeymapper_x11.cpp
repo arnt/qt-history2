@@ -1171,8 +1171,12 @@ static QString translateKeySym(KeySym keysym, uint xmodifiers,
         // convert chars (8bit) to text (unicode).
         if (mapper)
             text = mapper->toUnicode(chars.data(), count, 0);
-        else
+        if (text.isEmpty()) {
+            // no mapper, or codec couldn't convert to unicode (this
+            // can happen when running in the C locale or with no LANG
+            // set). try converting from latin-1
             text = QString::fromLatin1(chars);
+        }
     }
 
     modifiers = X11->translateModifiers(xmodifiers);
