@@ -63,6 +63,7 @@ private slots:
     void testWindowsXPStyle();
     void testCleanlooksStyle();
     void testMacStyle();
+    void pixelMetric();
 
 private:
     QWidget *testWidget;
@@ -272,6 +273,71 @@ void MyWidget::paintEvent( QPaintEvent* )
     QPixmap big(400,400);
     big.fill(Qt::green);
     style()->drawItemPixmap(&p, rect(), Qt::AlignCenter, big);
+}
+
+
+class Qt42Style : public QWindowsStyle
+{
+    Q_OBJECT
+public:
+    Qt42Style() : QWindowsStyle()
+    {
+        margin_toplevel = 10;
+        margin = 5;
+        spacing = 0;
+    }
+
+    virtual int pixelMetric(PixelMetric metric, const QStyleOption * option = 0,
+                            const QWidget * widget = 0 ) const;
+
+    int margin_toplevel;
+    int margin;
+    int spacing;
+
+};
+
+int Qt42Style::pixelMetric(PixelMetric metric, const QStyleOption * option /*= 0*/,
+                                   const QWidget * widget /*= 0*/ ) const
+{
+    switch (metric) {
+        case QStyle::PM_DefaultTopLevelMargin:
+            return margin_toplevel;
+        break;
+        case QStyle::PM_DefaultChildMargin:
+            return margin;
+        break;
+        case QStyle::PM_DefaultLayoutSpacing:
+            return spacing;
+        break;
+        default:
+            break;
+    }
+    return QWindowsStyle::pixelMetric(metric, option, widget);
+}
+
+
+void tst_QStyle::pixelMetric()
+{
+    Qt42Style *style = new Qt42Style();
+    QCOMPARE(style->pixelMetric(QStyle::PM_DefaultTopLevelMargin), 10);
+    QCOMPARE(style->pixelMetric(QStyle::PM_DefaultChildMargin), 5);
+    QCOMPARE(style->pixelMetric(QStyle::PM_DefaultLayoutSpacing), 0);
+
+    style->margin_toplevel = 0;
+    style->margin = 0;
+    style->spacing = 0;
+    QCOMPARE(style->pixelMetric(QStyle::PM_DefaultTopLevelMargin), 0);
+    QCOMPARE(style->pixelMetric(QStyle::PM_DefaultChildMargin), 0);
+    QCOMPARE(style->pixelMetric(QStyle::PM_DefaultLayoutSpacing), 0);
+
+    style->margin_toplevel = -1;
+    style->margin = -1;
+    style->spacing = -1;
+    QCOMPARE(style->pixelMetric(QStyle::PM_DefaultTopLevelMargin), -1);
+    QCOMPARE(style->pixelMetric(QStyle::PM_DefaultChildMargin), -1);
+    QCOMPARE(style->pixelMetric(QStyle::PM_DefaultLayoutSpacing), -1);
+
+    delete style;
 }
 
 QTEST_MAIN(tst_QStyle)
