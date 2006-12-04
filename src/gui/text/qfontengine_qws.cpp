@@ -337,7 +337,7 @@ private:
 
 };
 
-class QFontEngineQPFData
+class QFontEngineQPF1Data
 {
 public:
     QPFFontMetrics fm;
@@ -345,7 +345,7 @@ public:
 };
 
 
-QFontEngineQPF::QFontEngineQPF(const QFontDef&, const QString &fn)
+QFontEngineQPF1::QFontEngineQPF1(const QFontDef&, const QString &fn)
 {
     cache_cost = 1;
 
@@ -370,7 +370,7 @@ QFontEngineQPF::QFontEngineQPF(const QFontDef&, const QString &fn)
         qFatal("Failed to mmap %s",QFile::encodeName(fn).data());
     ::close(f);
 
-    d = new QFontEngineQPFData;
+    d = new QFontEngineQPF1Data;
     memcpy(reinterpret_cast<char*>(&d->fm),data,sizeof(d->fm));
 
     data += sizeof(d->fm);
@@ -389,14 +389,14 @@ QFontEngineQPF::QFontEngineQPF(const QFontDef&, const QString &fn)
 #endif
 }
 
-QFontEngineQPF::~QFontEngineQPF()
+QFontEngineQPF1::~QFontEngineQPF1()
 {
     delete d->tree;
     delete d;
 }
 
 
-bool QFontEngineQPF::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags) const
+bool QFontEngineQPF1::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags) const
 {
     if(*nglyphs < len) {
         *nglyphs = len;
@@ -421,7 +421,7 @@ bool QFontEngineQPF::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     return true;
 }
 
-void QFontEngineQPF::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItemInt &si)
+void QFontEngineQPF1::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItemInt &si)
 {
     QPaintEngineState *pState = p->state;
     QRasterPaintEngine *paintEngine = static_cast<QRasterPaintEngine*>(p);
@@ -455,12 +455,12 @@ void QFontEngineQPF::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItemIn
 }
 
 
-void QFontEngineQPF::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags)
+void QFontEngineQPF1::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags)
 {
     addBitmapFontToPath(x, y, glyphs, numGlyphs, path, flags);
 }
 
-glyph_metrics_t QFontEngineQPF::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
+glyph_metrics_t QFontEngineQPF1::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
 {
    if (numGlyphs == 0)
         return glyph_metrics_t();
@@ -472,7 +472,7 @@ glyph_metrics_t QFontEngineQPF::boundingBox(const QGlyphLayout *glyphs, int numG
     return glyph_metrics_t(0, -ascent(), w, ascent()+descent()+1, w, 0);
 }
 
-glyph_metrics_t QFontEngineQPF::boundingBox(glyph_t glyph)
+glyph_metrics_t QFontEngineQPF1::boundingBox(glyph_t glyph)
 {
     const QPFGlyph *g = d->tree->get(glyph);
     if (!g)
@@ -483,32 +483,32 @@ glyph_metrics_t QFontEngineQPF::boundingBox(glyph_t glyph)
                             g->metrics->advance, 0);
 }
 
-QFixed QFontEngineQPF::ascent() const
+QFixed QFontEngineQPF1::ascent() const
 {
     return d->fm.ascent;
 }
 
-QFixed QFontEngineQPF::descent() const
+QFixed QFontEngineQPF1::descent() const
 {
     return d->fm.descent;
 }
 
-QFixed QFontEngineQPF::leading() const
+QFixed QFontEngineQPF1::leading() const
 {
     return d->fm.leading;
 }
 
-qreal QFontEngineQPF::maxCharWidth() const
+qreal QFontEngineQPF1::maxCharWidth() const
 {
     return d->fm.maxwidth;
 }
 /*
-const char *QFontEngineQPF::name() const
+const char *QFontEngineQPF1::name() const
 {
     return "qt";
 }
 */
-bool QFontEngineQPF::canRender(const QChar *str, int len)
+bool QFontEngineQPF1::canRender(const QChar *str, int len)
 {
     for(int i = 0; i < len; i++)
         if (!d->tree->inFont(str[i].unicode()))
@@ -516,27 +516,27 @@ bool QFontEngineQPF::canRender(const QChar *str, int len)
     return true;
 }
 
-QFontEngine::Type QFontEngineQPF::type() const
+QFontEngine::Type QFontEngineQPF1::type() const
 {
-    return QPF;
+    return QPF1;
 }
 
-qreal QFontEngineQPF::minLeftBearing() const
+qreal QFontEngineQPF1::minLeftBearing() const
 {
     return d->fm.leftbearing;
 }
 
-qreal QFontEngineQPF::minRightBearing() const
+qreal QFontEngineQPF1::minRightBearing() const
 {
     return d->fm.rightbearing;
 }
 
-QFixed QFontEngineQPF::underlinePosition() const
+QFixed QFontEngineQPF1::underlinePosition() const
 {
     return d->fm.underlinepos;
 }
 
-QFixed QFontEngineQPF::lineThickness() const
+QFixed QFontEngineQPF1::lineThickness() const
 {
     return d->fm.underlinewidth;
 }

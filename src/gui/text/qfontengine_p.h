@@ -69,7 +69,8 @@ public:
 
         // Trolltech QWS types
         Freetype,
-        QPF,
+        QPF1,
+        QPF2,
         TestFontEngine = 0x1000
     };
 
@@ -149,12 +150,15 @@ public:
 
     virtual Type type() const = 0;
 
+    static const uchar *getCMap(const uchar *table, uint tableSize, bool *isSymbolFont, int *cmapSize);
+    static quint32 getTrueTypeGlyphIndex(const uchar *cmap, uint unicode);
+
     QAtomic     ref;
     QFontDef fontDef;
     uint cache_cost; // amount of mem used in kb by the font
     int cache_count;
     uint fsType : 16;
-    uint symbol : 1;
+    bool symbol;
 
 #ifdef Q_WS_WIN
     int getGlyphIndexes(const QChar *ch, int numChars, QGlyphLayout *glyphs, bool mirrored) const;
@@ -207,19 +211,15 @@ class QGlyph;
 
 #if defined(Q_WS_QWS)
 
-#if !defined(QT_NO_FREETYPE)
-#include "private/qfontengine_ft_p.h"
-#endif
-
 #ifndef QT_NO_QWS_QPF
 
-class QFontEngineQPFData;
+class QFontEngineQPF1Data;
 
-class QFontEngineQPF : public QFontEngine
+class QFontEngineQPF1 : public QFontEngine
 {
 public:
-    QFontEngineQPF(const QFontDef&, const QString &fn);
-   ~QFontEngineQPF();
+    QFontEngineQPF1(const QFontDef&, const QString &fn);
+   ~QFontEngineQPF1();
 
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
@@ -244,7 +244,7 @@ public:
     inline const char *name() const { return 0; }
 
 
-    QFontEngineQPFData *d;
+    QFontEngineQPF1Data *d;
 };
 #endif // QT_NO_QWS_QPF
 

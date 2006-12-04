@@ -95,9 +95,11 @@ embedded {
 	SOURCES += \
 		text/qfont_qws.cpp \
 		text/qfontengine_qws.cpp \
-		text/qfontengine_ft.cpp
+		text/qfontengine_ft.cpp \
+		text/qfontengine_qpf.cpp
 	HEADERS += \
-		text/qfontengine_ft_p.h
+		text/qfontengine_ft_p.h \
+		text/qfontengine_qpf_p.h
 	DEFINES += QT_NO_FONTCONFIG
 }
 

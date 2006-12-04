@@ -215,6 +215,7 @@ private:
     friend class QFontEngineFT;
 #endif
 #ifndef QT_NO_QWS_QPF
+    friend class QFontEngineQPF1;
     friend class QFontEngineQPF;
 #endif
     friend class QPSPrintEngine;

@@ -15,6 +15,19 @@
 #include "qscreen_qws.h" //so we can check for rotation
 #include "qlibraryinfo.h"
 #include "qabstractfileengine.h"
+#if !defined(QT_NO_FREETYPE)
+#include "qfontengine_ft_p.h"
+#endif
+#include "qfontengine_qpf_p.h"
+
+// for mmap
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <errno.h>
 
 static void addFont(QFontDatabasePrivate *db, const char *family, int weight, bool italic, int pixelSize, const char *file, bool antialiased)
 {
@@ -98,7 +111,7 @@ static void initializeDb()
     fontpath += QLatin1String("/lib/fonts");
 #endif
     QDir dir(fontpath,"*.qpf");
-    for (int i=0; i<(int)dir.count(); i++) {
+    for (int i=0; i<int(dir.count()); i++) {
         int u0 = dir[i].indexOf('_');
         int u1 = dir[i].indexOf('_',u0+1);
         int u2 = dir[i].indexOf('_',u1+1);
@@ -145,6 +158,45 @@ static void initializeDb()
         QtFontStyle *style = foundry->style(styleKey,  true);
         style->smoothScalable = false;
         style->pixelSize(pixelSize, true);
+    }
+    dir = QDir(fontpath, "*.qpf2");
+    for (int i = 0; i < int(dir.count()); ++i) {
+        const QString file = dir.absoluteFilePath(dir[i]);
+        int f = ::open(QFile::encodeName(file), O_RDONLY);
+        if (f < 0)
+            continue;
+        struct stat st;
+        if (!fstat(f, &st)) {
+            const uchar *data = (const uchar *)mmap(0, st.st_size, PROT_READ, MAP_SHARED, f, 0);
+            if (data && data != (const uchar *)MAP_FAILED) {
+                if (QFontEngineQPF::verifyHeader(data, st.st_size)) {
+                    QString fontName = QFontEngineQPF::extractHeaderField(data, QFontEngineQPF::Tag_FontName).toString();
+                    int pixelSize = QFontEngineQPF::extractHeaderField(data, QFontEngineQPF::Tag_PixelSize).toInt();
+                    QVariant weight = QFontEngineQPF::extractHeaderField(data, QFontEngineQPF::Tag_Weight);
+                    QVariant style = QFontEngineQPF::extractHeaderField(data, QFontEngineQPF::Tag_Style);
+
+                    if (!fontName.isEmpty() && pixelSize) {
+                        QtFontFamily *f = db->family(fontName, true);
+                        QtFontFoundry *foundry = f->foundry("prerendered", true);
+                        QtFontStyle::Key styleKey;
+                        styleKey.style = static_cast<QFont::Style>(style.toInt());
+                        if (weight.type() != QVariant::Int)
+                            styleKey.weight = 50;
+                        else
+                            styleKey.weight = weight.toInt();
+                        styleKey.stretch = 100; // ####
+                        QtFontStyle *style = foundry->style(styleKey, true);
+                        style->smoothScalable = false;
+                        QtFontSize *p = style->pixelSize(pixelSize, true);
+                        p->fileName = QFile::encodeName(file);
+                    }
+                } else {
+                    qDebug() << "header verification of QPF2 font" << file << "failed. maybe it is corrupt?";
+                }
+                munmap((void *)data, st.st_size);
+            }
+        }
+        ::close(f);
     }
 
 #ifdef QFONTDATABASE_DEBUG
@@ -226,11 +278,28 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
     if (!pixelSize || style->smoothScalable && pixelSize == SMOOTH_SCALABLE)
         pixelSize = request.pixelSize;
 
+#ifndef QT_NO_QPF2
+    if (foundry->name == QLatin1String("prerendered")) {
+        int f = ::open(QFile::encodeName(size->fileName), O_RDONLY);
+        if (f >= 0) {
+            struct stat st;
+            if (!fstat(f, &st)) {
+                const uchar *data = (const uchar *)mmap(0, st.st_size, PROT_READ, MAP_SHARED, f, 0);
+                if (data && data != (const uchar *)MAP_FAILED
+                    && QFontEngineQPF::verifyHeader(data, st.st_size)) {
+                    ::close(f);
+                    QFontEngineQPF *fe = new QFontEngineQPF(request, data, st.st_size);
+                    if (fe->isValid())
+                        return fe;
+                    delete fe; // will implicitly munmap
+                }
+            }
+            ::close(f);
+        }
+    } else
+#endif
 #ifndef QT_NO_FREETYPE
     if ( foundry->name != QLatin1String("qt") ) { ///#### is this the best way????
-
-        FT_Face face;
-
         QString file;
 #ifndef QT_NO_SETTINGS
         file = QLibraryInfo::location(QLibraryInfo::LibrariesPath);
@@ -240,16 +309,18 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
 #endif
         file += size->fileName;
 
-        QFontEngine::FaceId faceId;
-        faceId.filename = file.toLocal8Bit();
-        faceId.index = 0;
+        if (QFile::exists(file)) {
+            QFontEngine::FaceId faceId;
+            faceId.filename = file.toLocal8Bit();
+            faceId.index = 0;
 
-        QFontDef def = request;
-        def.pixelSize = pixelSize;
+            QFontDef def = request;
+            def.pixelSize = pixelSize;
 
-        QFontEngineFT *fe = new QFontEngineFT(def);
-        fe->init(faceId, style->antialiased);
-        return fe;
+            QFontEngineFT *fe = new QFontEngineFT(def);
+            fe->init(faceId, style->antialiased);
+            return fe;
+        }
     } else
 #endif // QT_NO_FREETYPE
     {
@@ -267,11 +338,11 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
               + (style->key.style == QFont::StyleItalic ? "i.qpf" : ".qpf");
         //###rotation ###
 
-        QFontEngine *fe = new QFontEngineQPF(request, fn);
+        QFontEngine *fe = new QFontEngineQPF1(request, fn);
         return fe;
 #endif // QT_NO_QWS_QPF
     }
-    return 0;
+    return new QFontEngineBox(pixelSize);
 }
 
 static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)

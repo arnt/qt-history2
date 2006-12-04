@@ -541,6 +541,129 @@ void QFontEngine::doKerning(int num_glyphs, QGlyphLayout *glyphs, QTextEngine::S
 }
 #endif
 
+const uchar *QFontEngine::getCMap(const uchar *table, uint tableSize, bool *isSymbolFont, int *cmapSize)
+{
+    const uchar *header = table;
+    if (tableSize < 4)
+        return 0;
+
+    const uchar *endPtr = table + tableSize;
+
+    // version check
+    if (qFromBigEndian<quint16>(header) != 0)
+        return 0;
+
+    unsigned short numTables = qFromBigEndian<quint16>(header + 2);
+    const uchar *maps = table + 4;
+    if (maps + 8 * numTables > endPtr)
+        return 0;
+
+    quint32 version = 0;
+    unsigned int unicode_table = 0;
+    for (int n = 0; n < numTables; ++n) {
+        const quint16 platformId = qFromBigEndian<quint16>(maps + 8 * n);
+        if (platformId != 0x0003)
+                continue;
+        const quint16 platformSpecificId = qFromBigEndian<quint16>(maps + 8 * n + 2);
+        // accept both symbol and Unicode encodings. prefer unicode.
+        if (platformSpecificId == 0x0001
+            || platformSpecificId == 0x0000
+            || platformSpecificId == 0x000a) {
+            if (platformSpecificId > version || !unicode_table) {
+                version = platformSpecificId;
+                unicode_table = qFromBigEndian<quint32>(maps + 8*n + 4);
+            }
+        }
+    }
+    *isSymbolFont = (version == 0x0000);
+
+    if (!unicode_table || unicode_table + 8 > tableSize)
+        return 0;
+
+    // get the header of the unicode table
+    header = table + unicode_table;
+
+    unsigned short format = qFromBigEndian<quint16>(header);
+    unsigned int length;
+    if(format < 8)
+        length = qFromBigEndian<quint16>(header + 2);
+    else
+        length = qFromBigEndian<quint32>(header + 4);
+
+    if (table + unicode_table + length > endPtr)
+        return 0;
+    *cmapSize = length;
+    return table + unicode_table;
+}
+
+quint32 QFontEngine::getTrueTypeGlyphIndex(const uchar *cmap, uint unicode)
+{
+    unsigned short format = qFromBigEndian<quint16>(cmap);
+    if (format == 0) {
+        if (unicode < 256)
+            return (int) *(cmap+6+unicode);
+    } else if (format == 4) {
+        /* some fonts come with invalid cmap tables, where the last segment
+           specified end = start = rangeoffset = 0xffff, delta = 0x0001
+           Since 0xffff is never a valid Unicode char anyway, we just get rid of the issue
+           by returning 0 for 0xffff
+        */
+        if(unicode >= 0xffff)
+            return 0;
+        quint16 segCountX2 = qFromBigEndian<quint16>(cmap + 6);
+        const unsigned char *ends = cmap + 14;
+        quint16 endIndex = 0;
+        int i = 0;
+        for (; i < segCountX2/2 && (endIndex = qFromBigEndian<quint16>(ends + 2*i)) < unicode; i++);
+
+        const unsigned char *idx = ends + segCountX2 + 2 + 2*i;
+        quint16 startIndex = qFromBigEndian<quint16>(idx);
+
+        if (startIndex > unicode)
+            return 0;
+
+        idx += segCountX2;
+        qint16 idDelta = (qint16)qFromBigEndian<quint16>(idx);
+        idx += segCountX2;
+        quint16 idRangeoffset_t = (quint16)qFromBigEndian<quint16>(idx);
+
+        quint16 glyphIndex;
+        if (idRangeoffset_t) {
+            quint16 id = qFromBigEndian<quint16>(idRangeoffset_t + 2*(unicode - startIndex) + idx);
+            if (id)
+                glyphIndex = (idDelta + id) % 0x10000;
+            else
+                glyphIndex = 0;
+        } else {
+            glyphIndex = (idDelta + unicode) % 0x10000;
+        }
+        return glyphIndex;
+    } else if (format == 12) {
+        quint32 nGroups = qFromBigEndian<quint32>(cmap + 12);
+
+        cmap += 16; // move to start of groups
+
+        int left = 0, right = nGroups - 1;
+        while (left <= right) {
+            int middle = left + ( ( right - left ) >> 1 );
+
+            quint32 startCharCode = qFromBigEndian<quint32>(cmap + 12*middle);
+            if(unicode < startCharCode)
+                right = middle - 1;
+            else {
+                quint32 endCharCode = qFromBigEndian<quint32>(cmap + 12*middle + 4);
+                if(unicode <= endCharCode)
+                    return qFromBigEndian<quint32>(cmap + 12*middle + 8) + unicode - startCharCode;
+                left = middle + 1;
+            }
+        }
+    } else {
+        qDebug("cmap table of format %d not implemented", format);
+    }
+
+    return 0;
+}
+
 // ------------------------------------------------------------------
 // The box font engine
 // ------------------------------------------------------------------

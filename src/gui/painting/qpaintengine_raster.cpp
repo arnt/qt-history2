@@ -51,6 +51,8 @@
 #  if Q_BYTE_ORDER == Q_BIG_ENDIAN
 #    define BITMAPS_ARE_MSB
 #  endif
+#elif defined(Q_WS_QWS) && !defined(QT_NO_FREETYPE)
+#  include <private/qfontengine_ft_p.h>
 #endif
 
 #if defined(Q_WS_WIN64)
@@ -2327,7 +2329,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
 #if defined(Q_WS_QWS)
     if (d->txop < QTransform::TxScale
-        && ti.fontEngine->type() == QFontEngine::QPF) {
+        && (ti.fontEngine->type() == QFontEngine::QPF1 || ti.fontEngine->type() == QFontEngine::QPF2)) {
         ti.fontEngine->draw(this, qRound(p.x()), qRound(p.y()), ti);
         return;
     }
