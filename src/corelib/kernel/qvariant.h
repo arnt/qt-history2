@@ -119,7 +119,7 @@ class Q_CORE_EXPORT QVariant
         TextLength = 78,
         TextFormat = 79,
         Matrix = 80,
-        Transform = 81, 
+        Transform = 81,
         LastGuiType = Transform,
 
         UserType = 127,
@@ -505,8 +505,8 @@ template<typename T> T qvariant_cast(const QVariant &v, T * = 0)
         return *reinterpret_cast<const T *>(v.constData());
     if (vid < int(QMetaType::User)) {
         T t;
-        qvariant_cast_helper(v, QVariant::Type(vid), &t);
-        return t;
+        if (qvariant_cast_helper(v, QVariant::Type(vid), &t))
+            return t;
     }
     return T();
 }
@@ -529,8 +529,8 @@ template<typename T> T qvariant_cast(const QVariant &v)
         return *reinterpret_cast<const T *>(v.constData());
     if (vid < int(QMetaType::User)) {
         T t;
-        qvariant_cast_helper(v, QVariant::Type(vid), &t);
-        return t;
+        if (qvariant_cast_helper(v, QVariant::Type(vid), &t))
+            return t;
     }
     return T();
 }
