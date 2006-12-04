@@ -243,8 +243,12 @@ void QHostInfoAgent::run()
             QMutexLocker locker(&mutex);
             if (!quit && queries.isEmpty())
                 cond.wait(&mutex);
-            if (quit)
+            if (quit) {
+                // Reset the quit variable in case QCoreApplication is
+                // destroyed and recreated.
+                quit = false;
                 break;
+            }
 	    if (queries.isEmpty())
 		continue;
 #else
