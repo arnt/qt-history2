@@ -2150,12 +2150,20 @@ void tst_QTreeWidget::insertExpandedItemsWithSorting()
             QTreeWidgetItem *child = new QTreeWidgetItem(parent, QStringList(childText.at(j)));
             items << child;
         }
+        QCOMPARE(parent->childCount(), childText.count());
+        QVERIFY(parent->isExpanded());
     }
+    QVERIFY(tree.model()->rowCount() == parentText.count());
 
     // verify that the items are still expanded
-    foreach (QTreeWidgetItem *item, items)
-        QVERIFY(tree.visualRect(
-                    tree.indexFromItem(const_cast<QTreeWidgetItem *>(item))).isValid());
+    foreach (QTreeWidgetItem *item, items) {
+        if (item->childCount() > 0)
+            QVERIFY(item->isExpanded());
+        QModelIndex idx = tree.indexFromItem(const_cast<QTreeWidgetItem *>(item));
+        QVERIFY(idx.isValid());
+        QRect rect = tree.visualRect(idx);
+        QVERIFY(rect.isValid());
+    }
 
     // verify that the tree is sorted
     QAbstractItemModel *model = tree.model();
