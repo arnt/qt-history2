@@ -2872,11 +2872,15 @@ void tst_QWidget::setWindowGeometry_data()
 
     QList<QRect> rects;
     rects << QRect(100, 100, 200, 200)
-          << QApplication::desktop()->availableGeometry().adjusted(50, 50, -50, -50);
+          << QApplication::desktop()->availableGeometry().adjusted(50, 50, -50, -50)
+          << QRect(100, 100, 0, 200)
+          << QRect(100, 100, 200, 0)
+          << QRect(100, 100, 0, 0);
 
     QList<int> windowFlags;
     windowFlags << 0
-                << Qt::FramelessWindowHint;
+                << Qt::FramelessWindowHint
+                << Qt::X11BypassWindowManagerHint;
 
     foreach (QRect rect, rects) {
         foreach (int windowFlag, windowFlags) {
@@ -2897,6 +2901,10 @@ void tst_QWidget::setWindowGeometry()
     QFETCH(QRect, rect);
     QFETCH(int, windowFlags);
 
+    // we expect that all toplevels will have at least 1x1 size
+    QRect expectedRect = rect;
+    expectedRect.setSize(rect.size().expandedTo(QSize(1, 1)));
+
     {
         // test setGeometry() without actually showing the window
         QWidget widget;
@@ -2904,7 +2912,7 @@ void tst_QWidget::setWindowGeometry()
             widget.setWindowFlags(Qt::WindowFlags(windowFlags));
         widget.setGeometry(rect);
         QApplication::processEvents();
-        QCOMPARE(widget.geometry(), rect);
+        QCOMPARE(widget.geometry(), expectedRect);
     }
 
     {
@@ -2917,7 +2925,8 @@ void tst_QWidget::setWindowGeometry()
 #ifdef Q_WS_X11
         qt_x11_wait_for_window_manager(&widget);
 #endif
-        QCOMPARE(widget.geometry(), rect);
+        QApplication::processEvents();
+        QCOMPARE(widget.geometry(), expectedRect);
     }
 
     {
@@ -2931,7 +2940,7 @@ void tst_QWidget::setWindowGeometry()
 #endif
         widget.setGeometry(rect);
         QApplication::processEvents();
-        QCOMPARE(widget.geometry(), rect);
+        QCOMPARE(widget.geometry(), expectedRect);
     }
 }
 
@@ -2967,6 +2976,7 @@ void tst_QWidget::windowMove()
 #ifdef Q_WS_X11
         qt_x11_wait_for_window_manager(&widget);
 #endif
+        QApplication::processEvents();
         QCOMPARE(widget.pos(), rect.topLeft());
     }
 
