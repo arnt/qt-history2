@@ -602,147 +602,6 @@ QFontEngineMac::QFontEngineMac(ATSUStyle baseStyle, ATSUFontID fontID, const QFo
 QFontEngineMac::~QFontEngineMac()
 {
     ATSUDisposeStyle(style);
-    if (cmap)
-        delete [] cmap;
-}
-
-static inline quint32 getUInt(unsigned char *p) { return qFromBigEndian<quint32>(p); }
-static inline quint16 getUShort(unsigned char *p) { return qFromBigEndian<quint16>(p); }
-
-static quint32 getGlyphIndex(unsigned char *table, unsigned int unicode)
-{
-    unsigned short format = getUShort(table);
-    if (format == 0) {
-        if (unicode < 256)
-            return (int) *(table+6+unicode);
-    } else if (format == 4) {
-        /* some fonts come with invalid cmap tables, where the last segment
-           specified end = start = rangeoffset = 0xffff, delta = 0x0001
-           Since 0xffff is never a valid Unicode char anyway, we just get rid of the issue
-           by returning 0 for 0xffff
-        */
-        if(unicode >= 0xffff)
-            return 0;
-        quint16 segCountX2 = getUShort(table + 6);
-        unsigned char *ends = table + 14;
-        quint16 endIndex = 0;
-        int i = 0;
-        for (; i < segCountX2/2 && (endIndex = getUShort(ends + 2*i)) < unicode; i++);
-
-        unsigned char *idx = ends + segCountX2 + 2 + 2*i;
-        quint16 startIndex = getUShort(idx);
-
-        if (startIndex > unicode)
-            return 0;
-
-        idx += segCountX2;
-        qint16 idDelta = (qint16)getUShort(idx);
-        idx += segCountX2;
-        quint16 idRangeoffset_t = (quint16)getUShort(idx);
-
-        quint16 glyphIndex;
-        if (idRangeoffset_t) {
-            quint16 id = getUShort(idRangeoffset_t + 2*(unicode - startIndex) + idx);
-            if (id)
-                glyphIndex = (idDelta + id) % 0x10000;
-            else
-                glyphIndex = 0;
-        } else {
-            glyphIndex = (idDelta + unicode) % 0x10000;
-        }
-        return glyphIndex;
-    } else if (format == 12) {
-        quint32 nGroups = getUInt(table + 12);
-
-        table += 16; // move to start of groups
-
-        int left = 0, right = nGroups - 1;
-        while (left <= right) {
-            int middle = left + ( ( right - left ) >> 1 );
-
-            quint32 startCharCode = getUInt(table + 12*middle);
-            if(unicode < startCharCode)
-                right = middle - 1;
-            else {
-                quint32 endCharCode = getUInt(table + 12*middle + 4);
-                if(unicode <= endCharCode)
-                    return getUInt(table + 12*middle + 8) + unicode - startCharCode;
-                left = middle + 1;
-            }
-        }
-    } else {
-        qDebug("QFontEngineMac::cmap table of format %d not implemented", format);
-    }
-
-    return 0;
-}
-
-static unsigned char *getCMap(ATSFontRef font, bool &symbol)
-{
-    const quint32 CMAP = MAKE_TAG('c', 'm', 'a', 'p');
-
-    unsigned char header[8];
-
-    // get the CMAP header and the number of encoding tables
-    if (ATSFontGetTable(font, CMAP, 0, 4, &header, 0) != noErr)
-        return 0;
-    {
-        unsigned short version = getUShort(header);
-        if (version != 0)
-            return 0;
-    }
-
-    unsigned short numTables = getUShort(header+2);
-    unsigned char *maps = new unsigned char[8*numTables];
-
-    // get the encoding table and look for Unicode
-    if (ATSFontGetTable(font, CMAP, 4, 8*numTables, maps, 0) != noErr)
-        return 0;
-
-    quint32 version = 0;
-    unsigned int unicode_table = 0;
-    for (int n = 0; n < numTables; n++) {
-        const quint16 platformId = getUInt(maps + 8*n);
-        if (platformId != 0x0003)
-                continue;
-        const quint16 platformSpecificId = getUInt(maps + 8*n + 2);
-        // accept both symbol and Unicode encodings. prefer unicode.
-        if (platformSpecificId == 0x0001
-            || platformSpecificId == 0x0000
-            || platformSpecificId == 0x000a) {
-            if (platformSpecificId > version || !unicode_table) {
-                version = platformSpecificId;
-                unicode_table = getUInt(maps + 8*n + 4);
-            }
-        }
-    }
-    symbol = (version == 0x0000);
-
-    if (!unicode_table) {
-        // qDebug("no unicode table found");
-        return 0;
-    }
-
-    delete [] maps;
-
-    // get the header of the unicode table
-    if (ATSFontGetTable(font, CMAP, unicode_table, 8, &header, 0) != noErr)
-        return 0;
-
-    unsigned short format = getUShort(header);
-    unsigned int length;
-    if(format < 8)
-        length = getUShort(header+2);
-    else
-        length = getUInt(header+4);
-    unsigned char *unicode_data = new unsigned char[length];
-
-    // get the cmap table itself
-    if (ATSFontGetTable(font, CMAP, unicode_table, length, unicode_data, 0) != noErr) {
-        delete [] unicode_data;
-        return 0;
-    }
-    return unicode_data;
 }
 
 static inline unsigned int getChar(const QChar *str, int &i, const int len)
@@ -762,22 +621,24 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 {
     if (flags & QTextEngine::GlyphIndicesOnly) {
         if (!cmap) {
-            cmap = ::getCMap(FMGetATSFontRefFromFont(fontID), symbolCMap);
+            cmapTable = getSfntTable(MAKE_TAG('c', 'm', 'a', 'p')); 
+            int size = 0;
+            cmap = getCMap(reinterpret_cast<const uchar *>(cmapTable.constData()), cmapTable.size(), &symbolCMap, &size);
             if (!cmap)
                 return false;
         }
         if (symbolCMap) {
             for (int i = 0; i < len; ++i) {
                 unsigned int uc = getChar(str, i, len);
-                glyphs->glyph = getGlyphIndex(cmap, uc);
+                glyphs->glyph = getTrueTypeGlyphIndex(cmap, uc);
                 if(!glyphs->glyph && uc < 0x100)
-                    glyphs->glyph = getGlyphIndex(cmap, uc + 0xf000);
+                    glyphs->glyph = getTrueTypeGlyphIndex(cmap, uc + 0xf000);
                 glyphs++;
             }
         } else {
             for (int i = 0; i < len; ++i) {
                 unsigned int uc = getChar(str, i, len);
-                glyphs->glyph = getGlyphIndex(cmap, uc);
+                glyphs->glyph = getTrueTypeGlyphIndex(cmap, uc);
                 glyphs++;
             }
         }

@@ -388,8 +388,9 @@ private:
     int synthesisFlags;
     mutable QGlyphLayout kashidaGlyph;
     QFontEngineMacMulti *multiEngine;
-    mutable unsigned char *cmap;
+    mutable const unsigned char *cmap;
     mutable bool symbolCMap;
+    mutable QByteArray cmapTable;
 };
 
 class QFontEngineMacMulti : public QFontEngineMulti
