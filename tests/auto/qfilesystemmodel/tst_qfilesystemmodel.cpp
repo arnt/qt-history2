@@ -497,10 +497,10 @@ void tst_QFileSystemModel::setData_data()
     QTest::newRow("outside current dir") << (QStringList() << "a" << "b" << "c")
               << QDir::temp().path() + QDir::separator() + QString("flatdirtest") + QDir::separator() + "a"
               << QDir::temp().absolutePath() + QDir::separator() + "a"
-              << true;
+              << false;
     QTest::newRow("in current dir") << (QStringList() << "a" << "b" << "c")
               << QDir::temp().path() + QDir::separator() + QString("flatdirtest") + QDir::separator() + "a"
-              << QDir::temp().path() + QDir::separator() + QString("flatdirtest") + QDir::separator() + "d"
+              <<  "d"
               << true;
 }
 
@@ -524,7 +524,8 @@ void tst_QFileSystemModel::setData()
 
     model->setReadOnly(false);
     QCOMPARE(model->setData(idx, newFileName), success);
-    QCOMPARE(QFile::rename(newFileName, oldFileName), true);
+    if (success)
+        QCOMPARE(QFile::rename(tmp + QDir::separator() + newFileName, oldFileName), true);
 
     QTest::qWait(WAITTIME);
     QCOMPARE(model->rowCount(root), 3);
