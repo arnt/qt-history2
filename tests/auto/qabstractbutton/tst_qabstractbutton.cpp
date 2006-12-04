@@ -71,6 +71,9 @@ private slots:
     void stateChanged();
 */
 
+    void shortcutEvents();
+    void stopRepeatTimer();
+
 protected slots:
     void onClicked();
     void onToggled( bool on );
@@ -91,7 +94,7 @@ private:
 class MyButton : public QAbstractButton
 {
 public:
-    MyButton(QWidget *p) : QAbstractButton(p) {}
+    MyButton(QWidget *p = 0) : QAbstractButton(p) {}
     void paintEvent(QPaintEvent *)
     {
         QPainter p(this);
@@ -115,6 +118,19 @@ public:
         if (!text().isEmpty())
             sh += fontMetrics().boundingRect(text()).size();
         return sh;
+    }
+
+    void resetTimerEvents() { timerEvents = 0; }
+    int timerEventCount() const { return timerEvents; }
+
+private:
+
+    int timerEvents;
+
+    void timerEvent(QTimerEvent *event)
+    {
+        ++timerEvents;
+        QAbstractButton::timerEvent(event);
     }
 };
 
@@ -503,6 +519,17 @@ void tst_QAbstractButton::setShortcut()
     QCOMPARE(release_count,(uint)1); // Release is part of a click
 
     QVERIFY( toggle_count == 0 );
+
+//     resetValues();
+//     QTest::keyPress( testWidget, 'A' );
+//     QTest::qWait(10000);
+//     QTest::keyRelease( testWidget, 'A' );
+//     QCOMPARE(click_count,  (uint)1);
+//     QCOMPARE(press_count,  (uint)1);
+//     QCOMPARE(release_count,(uint)1);
+
+//     qDebug() << click_count;
+
 }
 
 void tst_QAbstractButton::animateClick()
@@ -534,6 +561,55 @@ void tst_QAbstractButton::stateChanged()
 {
 }
 */
+
+void tst_QAbstractButton::shortcutEvents()
+{
+    MyButton button;
+    QSignalSpy pressedSpy(&button, SIGNAL(pressed()));
+    QSignalSpy releasedSpy(&button, SIGNAL(released()));
+    QSignalSpy clickedSpy(&button, SIGNAL(clicked(bool)));
+
+    for (int i = 0; i < 4; ++i) {
+        QShortcutEvent event(QKeySequence(), false);
+        QApplication::sendEvent(&button, &event);
+        if (i < 2)
+            QTest::qWait(500);
+    }
+
+    QTest::qWait(500); // ensure animate timer is expired
+
+    QCOMPARE(pressedSpy.count(), 3);
+    QCOMPARE(releasedSpy.count(), 3);
+    QCOMPARE(clickedSpy.count(), 3);
+}
+
+void tst_QAbstractButton::stopRepeatTimer()
+{
+    MyButton button;
+    button.setAutoRepeat(true);
+
+    // Mouse trigger case:
+    button.resetTimerEvents();
+    QTest::mousePress(&button, Qt::LeftButton);
+    QTest::qWait(1000);
+    QVERIFY(button.timerEventCount() > 0);
+
+    QTest::mouseRelease(&button, Qt::LeftButton);
+    button.resetTimerEvents();
+    QTest::qWait(1000);
+    QCOMPARE(button.timerEventCount(), 0);
+
+    // Key trigger case:
+    button.resetTimerEvents();
+    QTest::keyPress(&button, Qt::Key_Space);
+    QTest::qWait(1000);
+    QVERIFY(button.timerEventCount() > 0);
+
+    QTest::keyRelease(&button, Qt::Key_Space);
+    button.resetTimerEvents();
+    QTest::qWait(1000);
+    QCOMPARE(button.timerEventCount(), 0);
+}
 
 QTEST_MAIN(tst_QAbstractButton)
 #include "tst_qabstractbutton.moc"
