@@ -114,6 +114,8 @@ protected:
     void changeObjectName(QObject *o, QString name);
     static QString qtify(const QString &name);
 
+    DomProperty *applyProperStdSetAttribute(QObject *object, const QString &propertyName, DomProperty *property);
+
 private:
     typedef QList<DomCustomWidget*> DomCustomWidgetList;
     void addCustomWidgetsToWidgetDatabase(DomCustomWidgetList& list);
