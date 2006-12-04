@@ -2641,15 +2641,13 @@ int QTreeViewPrivate::coordinateForItem(int item) const
             Q_ASSERT(false);
             return viewItemCoordinate;
         } else {
-            // search the area above the viewport
+            // search the area above the viewport (used for editor widgets)
             int viewItemCoordinate = 0;
-            for (int viewItemIndex = topViewItemIndex; viewItemIndex >= 0; --viewItemIndex) {
+            for (int viewItemIndex = topViewItemIndex; viewItemIndex > 0; --viewItemIndex) {
                 if (viewItemIndex == item)
                     return viewItemCoordinate;
-                viewItemCoordinate -= itemHeight(viewItemIndex);
+                viewItemCoordinate -= itemHeight(viewItemIndex - 1);
             }
-            // above the first item in the view
-            Q_ASSERT(false);
             return viewItemCoordinate;
         }
     }
