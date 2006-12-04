@@ -60,6 +60,10 @@ void tst_QWSWindowSystem::initTestCase()
 
     QWSServer *server = QWSServer::instance();
     server->setBackground(bgColor);
+
+    // Painting is not necessarily enabled when running the vnc server.
+    // Since this test is testing framebuffer memory we explictly enable it.
+    server->enablePainting(true);
 }
 
 QWSWindow* tst_QWSWindowSystem::getWindow(int winId)
