@@ -1318,16 +1318,17 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     }
 
     if (currentRowHasFocus) {
-        const int x = (option.showDecorationSelected ? 0 : d->indentationForItem(d->current));
-        const int width = header->length() - x;
         QStyleOptionFocusRect o;
         o.QStyleOption::operator=(option);
-        o.rect.setRect(x - header->offset(), y, width, height);
         o.state |= QStyle::State_KeyboardFocusChange;
         QPalette::ColorGroup cg = (option.state & QStyle::State_Enabled)
                                   ? QPalette::Normal : QPalette::Disabled;
         o.backgroundColor = option.palette.color(cg, d->selectionModel->isSelected(index)
                                                  ? QPalette::Highlight : QPalette::Background);
+        int x = header->sectionPosition(0); // not always 0
+        if (!option.showDecorationSelected)
+            x += d->indentationForItem(d->current);
+        o.rect.setRect(x - header->offset(), y, header->length() - x, height);
         style()->drawPrimitive(QStyle::PE_FrameFocusRect, &o, painter);
     }
 }
