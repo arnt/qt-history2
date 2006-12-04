@@ -26,7 +26,6 @@
 #define AUTO_REPEAT_DELAY  300
 #define AUTO_REPEAT_INTERVAL 100
 
-
 /*!
     \class QAbstractButton
 
@@ -880,8 +879,11 @@ QButtonGroup *QAbstractButton::group() const
 #endif // QT_NO_BUTTONGROUP
 
 /*!
-Performs an animated click: the button is pressed and released
-\a msec milliseconds later (the default is 100 ms).
+Performs an animated click: the button is pressed immediately, and
+released \a msec milliseconds later (the default is 100 ms).
+
+Calling this function again before the button was released will reset
+the release timer.
 
 All signals associated with a click are emitted as appropriate.
 
@@ -900,7 +902,8 @@ void QAbstractButton::animateClick(int msec)
     setDown(true);
     repaint(); //flush paint event before invoking potentially expensive operation
     QApplication::flush();
-    d->emitPressed();
+    if (!d->animateTimer.isActive())
+        d->emitPressed();
     d->animateTimer.start(msec, this);
 }
 
@@ -1018,9 +1021,10 @@ bool QAbstractButton::event(QEvent *e)
             return false;
         if (focusPolicy() != Qt::NoFocus)
             setFocus();
-        if (!se->isAmbiguous())
-            animateClick();
-        else
+        if (!se->isAmbiguous()) {
+            if (!d->animateTimer.isActive())
+                animateClick();
+        } else
             window()->setAttribute(Qt::WA_KeyboardFocusChange);
         return true;
     }
@@ -1060,6 +1064,7 @@ void QAbstractButton::mouseReleaseEvent(QMouseEvent *e)
         return;
 
     if (hitButton(e->pos())) {
+        d->repeatTimer.stop();
         d->click();
         e->accept();
     } else {
@@ -1146,6 +1151,10 @@ void QAbstractButton::keyPressEvent(QKeyEvent *e)
 void QAbstractButton::keyReleaseEvent(QKeyEvent *e)
 {
     Q_D(QAbstractButton);
+
+    if (!e->isAutoRepeat())
+        d->repeatTimer.stop();
+
     switch (e->key()) {
     case Qt::Key_Select:
     case Qt::Key_Space:
