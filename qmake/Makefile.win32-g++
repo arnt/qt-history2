@@ -1,3 +1,11 @@
+ifeq "$(SOURCE_PATH)" ""
+SOURCE_PATH = ..
+endif
+
+ifeq "$(BUILD_PATH)" ""
+BUILD_PATH = ..
+endif
+
 #
 # specific stuff for mingw g++ make
 #
@@ -10,7 +18,7 @@ CFLAGS	    =	-c -o$@ -O \
 		-I$(SOURCE_PATH)\include -I$(SOURCE_PATH)\include\QtCore \
 		-I$(BUILD_PATH)\src\corelib\global \
 		-I$(SOURCE_PATH)\src\3rdparty\md5  \
-		-I$(SOURCE_PATH)\mkspecs\win32-msvc  \
+		-I$(SOURCE_PATH)\mkspecs\win32-g++  \
 		-DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT \
 	       	-DQT_NODLL -DQT_NO_STL -DQT_NO_COMPRESS -DUNICODE -DHAVE_QCONFIG_CPP \
 	       	-DQT_BUILD_QMAKE -DQT_NO_THREAD -DQT_NO_QOBJECT -DQT_NO_GEOM_VARIANT -DQT_NO_DATASTREAM
