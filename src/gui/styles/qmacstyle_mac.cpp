@@ -2784,25 +2784,21 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 QFont oldFont = p->font();
                 QFont newFont = qt_app_fonts_hash()->value("QPushButton", oldFont);
                 ThemeFontID themeId = kThemePushButtonFont;
-                if (oldFont == newFont) {
+                if (oldFont == newFont) {  // Yes, I can use HITheme to draw the text.
                     useHIThemeDrawText = true;
                     switch (qt_aqua_size_constrain(w)) {
                     default:
                         break;
                     case QAquaSizeSmall:
                         themeId = kThemeSmallSystemFont;
-                        newFont = qt_app_fonts_hash()->value("QToolButton", newFont);
                         break;
                     case QAquaSizeMini:
-                        newFont = qt_app_fonts_hash()->value("QMiniPushButton", newFont);
                         themeId = kThemeMiniSystemFont;
                         break;
                     }
                 }
                 if (!useHIThemeDrawText) {
-                    p->setFont(newFont);
                     QWindowsStyle::drawControl(ce, btn, p, w);
-                    p->setFont(oldFont);
                 } else {
                     p->save();
                     CGContextSetShouldAntialias(cg, true);
