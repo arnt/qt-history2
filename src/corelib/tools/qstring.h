@@ -348,7 +348,7 @@ public:
 
     bool operator==(const QSubString &s) const;
     bool operator<(const QSubString &s) const;
-    bool operator>(const QSubString &s) const;
+    inline bool operator>(const QSubString &s) const;
     inline bool operator!=(const QSubString &s) const { return !operator==(s); }
     inline bool operator<=(const QSubString &s) const { return !operator>(s); }
     inline bool operator>=(const QSubString &s) const { return !operator<(s); }
