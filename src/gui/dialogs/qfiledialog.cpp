@@ -299,7 +299,7 @@ QStringList QFileDialogPrivate::typedFiles() const
     QStringList files;
     QString editText = lineEdit()->text();
     if (lookInCombo->lineEdit() == lineEdit() && !comboLineEditChanged())
-        editText = QString();
+        return files;
 
     if (editText.contains(QLatin1Char('"'))) {
         // " is used to separate files like so: "file1" "file2" "file3" ...
@@ -350,13 +350,10 @@ QStringList QFileDialog::selectedFiles() const
     for (int i = 0; i < indexes.count(); ++i)
         files.append(d->model->filePath(indexes.at(i)));
 
-    // if we have no selected items, use the name(s) in the lineedit
-    if (files.isEmpty() && !d->lineEdit()->text().isEmpty()) {
+    if (files.isEmpty());
         files = d->typedFiles();
-    }
 
-    // accept the current directory when in DirectoryOnly mode
-    if (files.isEmpty() && d->lineEdit()->text().isEmpty() && d->fileMode == DirectoryOnly)
+    if (files.isEmpty() && d->fileMode == DirectoryOnly)
         files.append(d->model->filePath(d->rootIndex()));
 
     return files;
