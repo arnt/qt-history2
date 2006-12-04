@@ -13,15 +13,16 @@
 QTEST_NOOP_MAIN
 #else
 
-#include <qgraphicsitem.h>
-#include <qgraphicsscene.h>
-#include <qgraphicssceneevent.h>
-#include <qgraphicsview.h>
 #include <private/qtextcontrol_p.h>
+#include <QAbstractTextDocumentLayout>
 #include <QBitmap>
 #include <QCursor>
+#include <QGraphicsItem>
+#include <QGraphicsScene>
+#include <QGraphicsSceneEvent>
+#include <QGraphicsView>
 #include <QPainter>
-#include <QAbstractTextDocumentLayout>
+#include <QScrollBar>
 
 //TESTED_CLASS=QGraphicsItem
 //TESTED_FILES=gui/graphicsview/qgraphicsitem.cpp
@@ -122,6 +123,9 @@ private slots:
     void prepareGeometryChange();
     void paint();
     void deleteItemInEventHandlers();
+
+    // task specific tests below me
+    void task141694_textItemEnsureVisible();
 };
 
 void tst_QGraphicsItem::construction()
@@ -3193,6 +3197,45 @@ void tst_QGraphicsItem::deleteItemInEventHandlers()
         if (!item->dead)
             QTest::keyRelease(view.viewport(), Qt::Key_A);
     }
+}
+
+class ItemAddScene : public QGraphicsScene
+{
+    Q_OBJECT
+public:
+    ItemAddScene()
+    {
+        QTimer::singleShot(500, this, SLOT(newTextItem()));
+    }
+
+public slots:
+    void newTextItem()
+    {
+        // Add a text item
+        QGraphicsItem *item = new QGraphicsTextItem("This item will not ensure that it's visible", 0, this);
+        item->setPos(.0, .0);
+        item->show();
+    }
+};
+
+void tst_QGraphicsItem::task141694_textItemEnsureVisible()
+{
+    ItemAddScene scene;
+    scene.setSceneRect(-1000, -1000, 2000, 2000);
+
+    QGraphicsView view(&scene);
+    view.setFixedSize(200, 200);
+    view.show();
+
+    view.ensureVisible(-1000, -1000, 5, 5);
+    int hscroll = view.horizontalScrollBar()->value();
+    int vscroll = view.verticalScrollBar()->value();
+
+    QTestEventLoop::instance().enterLoop(1);
+
+    // This should not cause the view to scroll
+    QCOMPARE(view.horizontalScrollBar()->value(), hscroll);
+    QCOMPARE(view.verticalScrollBar()->value(), vscroll);
 }
 
 QTEST_MAIN(tst_QGraphicsItem)
