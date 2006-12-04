@@ -16,6 +16,7 @@
 
 #include "treewalker.h"
 #include <QMap>
+#include <QSet>
 #include <QString>
 
 class QTextStream;
@@ -51,13 +52,12 @@ private:
     void add(const QString &className);
 
 private:
-    Uic *uic;
-    Driver *driver;
-    QTextStream &output;
-    const Option &option;
+    const Uic *m_uic;
+    QTextStream &m_output;
 
-    QMap<QString, bool> m_includes;
-    QMap<QString, bool> m_customWidgets;
+    typedef QMap<QString, bool> IncludeGlobalMap;
+    IncludeGlobalMap m_includes;
+    QSet<QString> m_customWidgets;
     QMap<QString, QString> m_classToHeader;
     QMap<QString, QString> m_oldHeaderToNewHeader;
 };

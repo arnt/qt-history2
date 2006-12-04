@@ -35,16 +35,16 @@ static ClassInfoEntry qclass_lib_map[] = {
     { 0, 0, 0 }
 };
 
-WriteIncludes::WriteIncludes(Uic *uic)
-    : driver(uic->driver()), output(uic->output()), option(uic->option())
+WriteIncludes::WriteIncludes(Uic *uic)    :
+    m_uic(uic),
+    m_output(uic->output())
 {
-    this->uic = uic;
-
-    ClassInfoEntry *it = &qclass_lib_map[0];
-    while (it->klass != 0) {
-        m_classToHeader.insert(QLatin1String(it->klass), QLatin1String(it->module) + QLatin1String("/") + QLatin1String(it->klass));
-        m_oldHeaderToNewHeader.insert(QLatin1String(it->header), QLatin1String(it->module) + QLatin1String("/") + QLatin1String(it->klass));
-        ++it;
+    for(const ClassInfoEntry *it = &qclass_lib_map[0]; it->klass != 0;  ++it) {
+        QString newHeader = QLatin1String(it->module);
+        newHeader += QLatin1Char('/');
+        newHeader += QLatin1String(it->klass);
+        m_classToHeader.insert(QLatin1String(it->klass),         newHeader);
+        m_oldHeaderToNewHeader.insert(QLatin1String(it->header), newHeader);
     }
 }
 
@@ -65,10 +65,10 @@ void WriteIncludes::acceptUI(DomUI *node)
 
     add(QLatin1String("QButtonGroup")); // ### only if it is really necessary
 
-    if (uic->hasExternalPixmap() && uic->pixmapFunction() == QLatin1String("qPixmapFromMimeSource"))
+    if (m_uic->hasExternalPixmap() && m_uic->pixmapFunction() == QLatin1String("qPixmapFromMimeSource"))
         add(QLatin1String("Q3Mimefactory"));
 
-    if (uic->databaseInfo()->connections().size()) {
+    if (m_uic->databaseInfo()->connections().size()) {
         add(QLatin1String("QSqlDatabase"));
         add(QLatin1String("Q3SqlCursor"));
         add(QLatin1String("QSqlRecord"));
@@ -79,24 +79,25 @@ void WriteIncludes::acceptUI(DomUI *node)
 
     QString locals;
 
-    QMapIterator<QString, bool> it(m_includes);
-    while (it.hasNext()) {
-        it.next();
-
-        QString header = m_oldHeaderToNewHeader.value(it.key(), it.key());
+    const IncludeGlobalMap::const_iterator  icend = m_includes.constEnd();
+    for (IncludeGlobalMap::const_iterator it = m_includes.constBegin(); it != icend; ++it) {
+        const QString header = m_oldHeaderToNewHeader.value(it.key(), it.key());
         if (header.trimmed().isEmpty())
             continue;
 
-        if (it.value())
-            output << "#include <" << header << ">\n";
-        else
-            locals += QLatin1String("#include \"") + header + QLatin1String("\"\n");
+        if (it.value()) {
+            m_output << "#include <" << header << ">\n";
+        }  else {
+            locals += QLatin1String("#include \"");
+            locals += header;
+            locals += QLatin1String("\"\n");
+        }
     }
 
     if (!locals.isEmpty())
-        output << locals;
+        m_output << locals;
 
-    output << "\n";
+    m_output << "\n";
 }
 
 void WriteIncludes::acceptWidget(DomWidget *node)
@@ -122,16 +123,25 @@ void WriteIncludes::add(const QString &className)
     if (className.isEmpty())
         return;
 
-    QString header = m_classToHeader.value(className, className.toLower() + QLatin1String(".h"));
+    QString header;
+    const QMap<QString, QString>::const_iterator it = m_classToHeader.constFind(className);
+    if ( it !=  m_classToHeader.constEnd()) {
+        header = it.value();
+    } else {
+        header = className.toLower();
+        header += QLatin1String(".h");
+    }
 
     if (className == QLatin1String("Line")) { // ### hmm, deprecate me!
         add(QLatin1String("QFrame"));
-    } else if (!m_includes.contains(header) && !m_customWidgets.contains(className)) {
-        m_includes.insert(header, true);
+    } else {
+        if (!m_includes.contains(header) && !m_customWidgets.contains(className)) {
+            m_includes.insert(header, true);
+        }
     }
 
-    if (uic->customWidgetsInfo()->extends(className, QLatin1String("Q3ListView"))
-            || uic->customWidgetsInfo()->extends(className, QLatin1String("Q3Table"))) {
+    if (m_uic->customWidgetsInfo()->extends(className, QLatin1String("Q3ListView"))
+            || m_uic->customWidgetsInfo()->extends(className, QLatin1String("Q3Table"))) {
         add(QLatin1String("Q3Header"));
     }
 }
@@ -141,13 +151,13 @@ void WriteIncludes::acceptCustomWidget(DomCustomWidget *node)
     if (node->elementClass().isEmpty())
         return;
 
-    m_customWidgets.insert(node->elementClass(), true);
+    m_customWidgets.insert(node->elementClass());
 
     bool global = true;
     if (node->elementHeader() && node->elementHeader()->text().size()) {
         global = node->elementHeader()->attributeLocation().toLower() == QLatin1String("global");
         QString header = node->elementHeader()->text();
-        QString qtHeader = m_classToHeader.value(node->elementClass()); // check if the class is a built-in qt class
+        const QString qtHeader = m_classToHeader.value(node->elementClass()); // check if the class is a built-in qt class
         if (!qtHeader.isEmpty()) {
             global = true;
             header = qtHeader;
