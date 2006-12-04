@@ -1099,7 +1099,7 @@ QDomElement Tree::generateIndexSections(QDomDocument &document,
 {
     QDomElement element = generateIndexSection(document, node);
 
-    if (node->isInnerNode()) {
+    if (!element.isNull() && node->isInnerNode()) {
         const InnerNode *inner = static_cast<const InnerNode *>(node);
 
         foreach (Node *child, inner->childNodes()) {
