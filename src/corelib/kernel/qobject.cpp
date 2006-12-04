@@ -3021,7 +3021,7 @@ bool QObject::setProperty(const char *name, const QVariant &value)
 
         const int idx = d->extraData->propertyNames.indexOf(name);
 
-        if (value.isNull()) {
+        if (!value.isValid()) {
             if (idx == -1)
                 return false;
             d->extraData->propertyNames.removeAt(idx);
