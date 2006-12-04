@@ -168,6 +168,8 @@ static QVariant::Type qDecodeDB2Type(SQLSMALLINT sqltype)
     case SQL_BINARY:
     case SQL_VARBINARY:
     case SQL_LONGVARBINARY:
+    case SQL_CLOB:
+    case SQL_DBCLOB:
         type = QVariant::ByteArray;
         break;
     case SQL_DATE:
@@ -362,7 +364,7 @@ static QByteArray qGetBinaryData(SQLHANDLE hStmt, int column, SQLINTEGER& length
     while (true) {
         r = SQLGetData(hStmt,
                         column+1,
-                        SQL_C_BINARY,
+                        colType == SQL_DBCLOB ? SQL_C_CHAR : SQL_C_BINARY,
                         (SQLPOINTER) buf,
                         colSize,
                         &lengthIndicator);
@@ -690,7 +692,7 @@ bool QDB2Result::exec()
                                       SQL_LONGVARBINARY,
                                       len,
                                       0,
-                                      (void *)values.at(i).constData(),
+                                      (void *)values.at(i).toByteArray().constData(),
                                       len,
                                       ind);
                 break; }
