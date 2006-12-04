@@ -2570,7 +2570,7 @@ void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QR
         drawPixmap(r, tpx, sr);
         return;
     }
-    GLenum target = QGLExtensions::glExtensions & QGLExtensions::TextureRectangle
+    GLenum target = (QGLExtensions::glExtensions & QGLExtensions::TextureRectangle)
                     ? GL_TEXTURE_RECTANGLE_NV
                     : GL_TEXTURE_2D;
     if (r.size() != pm.size())
@@ -2630,7 +2630,7 @@ void QOpenGLPaintEngine::drawImage(const QRectF &r, const QImage &image, const Q
                                    Qt::ImageConversionFlags)
 {
     Q_D(QOpenGLPaintEngine);
-    GLenum target = QGLExtensions::glExtensions & QGLExtensions::TextureRectangle
+    GLenum target = (QGLExtensions::glExtensions & QGLExtensions::TextureRectangle)
                     ? GL_TEXTURE_RECTANGLE_NV
                     : GL_TEXTURE_2D;
     if (r.size() != image.size())
