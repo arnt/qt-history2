@@ -125,12 +125,12 @@ void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*>
         if (index != -1) {
             // a real property
             o->setProperty(pname, v);
-        }
-
-        else if (strcmp(meta->className(), "QAxWidget") != 0) {
+        } else if (strcmp(meta->className(), "QAxWidget") != 0) {
             // a fake property (but we have have to ignore QAxWidget)
             index = sheet->indexOf(p->attributeName());
             sheet->setProperty(index, v);
+        } else if (sheet->dynamicPropertiesAllowed()) {
+            o->setProperty(pname, v);
         }
     }
 }

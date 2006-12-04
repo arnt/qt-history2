@@ -47,6 +47,11 @@ void SpacerPropertySheet::setProperty(int index, const QVariant &value)
     QDesignerPropertySheet::setProperty(index, value);
 }
 
+bool SpacerPropertySheet::dynamicPropertiesAllowed() const
+{
+    return false;
+}
+
 
 SpacerPropertySheetFactory::SpacerPropertySheetFactory(QExtensionManager *parent)
     : QExtensionFactory(parent)

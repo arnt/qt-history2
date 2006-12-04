@@ -62,6 +62,11 @@ public:
     virtual bool isChanged(int index) const;
     virtual void setChanged(int index, bool changed);
 
+    virtual bool dynamicPropertiesAllowed() const;
+    virtual int insertDynamicProperty(const QString &propertyName, const QVariant &value, int atIndex);
+    virtual bool removeDynamicProperty(const QString &propertyName);
+    virtual bool isDynamicProperty(int index) const;
+
     void createFakeProperty(const QString &propertyName, const QVariant &value = QVariant());
 
 protected:

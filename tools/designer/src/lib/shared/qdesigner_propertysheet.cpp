@@ -125,6 +125,93 @@ QDesignerPropertySheet::~QDesignerPropertySheet()
 {
 }
 
+bool QDesignerPropertySheet::dynamicPropertiesAllowed() const
+{
+    return true;
+}
+
+int QDesignerPropertySheet::insertDynamicProperty(const QString &propName, const QVariant &value, int atIndex)
+{
+    int index = meta->indexOfProperty(propName.toUtf8());
+    if (index != -1)
+        return -1; // property already exists and is not a dynamic one
+    if (!value.isValid())
+        return -1; // property has invalid type
+    if (m_addIndex.contains(propName))
+        return -1; // dynamic property already exists
+
+    index = count();
+    if (m_addProperties.contains(atIndex))
+        index = atIndex;
+
+    const int cnt = count();
+    int i = cnt;
+    while (i > index) {
+        i--;
+        QString pname = propertyName(i);
+        m_addIndex[pname] = i + 1;
+        if (m_info.contains(i))
+            m_info[i + 1] = m_info[i];
+        else
+            m_info.remove(i);
+        if (m_addProperties.contains(i))
+            m_addProperties[i + 1] = m_addProperties[i];
+        else
+            m_addProperties.remove(i);
+    }
+
+    m_addIndex.insert(propName, index);
+    m_addProperties.insert(index, value);
+    setVisible(index, true);
+    QVariant defValue = QVariant(value.type());
+    setChanged(index, defValue != value);
+    //m_info[index].reset = true;
+
+    setPropertyGroup(index, tr("Dynamic Properties"));
+    return index;
+}
+
+bool QDesignerPropertySheet::removeDynamicProperty(const QString &propName)
+{
+    if (!m_addIndex.contains(propName))
+        return false;
+    const int cnt = count();
+    int index = m_addIndex[propName];
+
+    while (index < cnt - 1) {
+        QString pname = propertyName(index + 1);
+        m_addIndex[pname] = index;
+        if (m_info.contains(index + 1))
+            m_info[index] = m_info[index + 1];
+        else
+            m_info.remove(index);
+        if (m_addProperties.contains(index + 1))
+            m_addProperties[index] = m_addProperties[index + 1];
+        else
+            m_addProperties.remove(index);
+        index++;
+    }
+
+    m_addProperties.remove(index);
+    m_addIndex.remove(propName);
+    m_info.remove(index);
+    return true;
+}
+
+bool QDesignerPropertySheet::isDynamicProperty(int index) const
+{
+    if (!m_addProperties.contains(index))
+        return false;
+
+    QString pname = propertyName(index);
+
+    if (pname == QLatin1String("margin") || pname == QLatin1String("spacing")) {
+        if (m_object->isWidgetType() && hasLayoutAttributes(m_object))
+            return false;
+    }
+    return true;
+}
+
 void QDesignerPropertySheet::createFakeProperty(const QString &propertyName, const QVariant &value)
 {
     // fake properties
@@ -320,6 +407,16 @@ bool QDesignerPropertySheet::hasReset(int index) const
 
 bool QDesignerPropertySheet::reset(int index)
 {
+    if (isDynamicProperty(index)) {
+        QString propName = propertyName(index);
+        QVariant oldValue = m_addProperties.value(index);
+        QVariant newValue = QVariant(oldValue.type());
+        if (oldValue == newValue)
+            return true;
+        m_object->setProperty(propName.toUtf8(), newValue);
+        m_addProperties[index] = newValue;
+        return true;
+    }
     if (isAdditionalProperty(index))
         return false;
     else if (isFakeProperty(index)) {

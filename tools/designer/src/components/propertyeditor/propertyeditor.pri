@@ -7,6 +7,7 @@ INCLUDEPATH += $$PWD
 FORMS += $$PWD/paletteeditor.ui \
     $$PWD/stringlisteditor.ui \
     $$PWD/previewwidget.ui \
+    $$PWD/newdynamicpropertydialog.ui \
     $$PWD/qtgradientstopseditor.ui \
     $$PWD/qtgradienteditor.ui \
     $$PWD/qtgradientdialog.ui \
@@ -22,6 +23,7 @@ HEADERS += $$PWD/propertyeditor.h \
     $$PWD/stringlisteditorbutton.h \
     $$PWD/previewwidget.h \
     $$PWD/previewframe.h \
+    $$PWD/newdynamicpropertydialog.h \
     $$PWD/styledbutton.h \
     $$PWD/qtgradientstopsmodel.h\
     $$PWD/qtgradientstopswidget.h\
@@ -46,6 +48,7 @@ SOURCES += $$PWD/propertyeditor.cpp \
     $$PWD/stringlisteditorbutton.cpp \
     $$PWD/previewwidget.cpp \
     $$PWD/previewframe.cpp \
+    $$PWD/newdynamicpropertydialog.cpp \
     $$PWD/styledbutton.cpp \
     $$PWD/qtgradientstopsmodel.cpp\
     $$PWD/qtgradientstopswidget.cpp\

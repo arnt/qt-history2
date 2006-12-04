@@ -62,6 +62,8 @@ void QPropertyEditor::setReadOnly(bool readOnly)
 
 void QPropertyEditor::setInitialInput(IProperty *initialInput)
 {
+    QScrollBar *sb = verticalScrollBar();
+    int position = sb->value();
     bool needResize = false;
     if (!m_model->initialInput() || m_model->initialInput() == dummy_collection()) {
         if (initialInput)
@@ -84,8 +86,8 @@ void QPropertyEditor::setInitialInput(IProperty *initialInput)
         contentsResized = true;
         resizeColumnToContents(0);
     }
+    sb->setValue(position);
 }
-
 
 IProperty *QPropertyEditor::initialInput() const
 {

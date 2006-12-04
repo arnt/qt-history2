@@ -441,24 +441,24 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
             const QString propertyName = p->attributeName();
 
             const int index = sheet->indexOf(propertyName);
+            QVariant v = toVariant(o->metaObject(), p);
+
+            QDesignerMetaDataBaseItemInterface *item = 0;
+            if (core()->metaDataBase())
+                item = core()->metaDataBase()->item(o);
+
+            if (!item) {
+                qWarning() << "** WARNING no ``meta database item'' for object:" << o;
+            }
+
+            if (p->kind() == DomProperty::String && item) {
+                const DomString *str = p->elementString();
+                if (str->hasAttributeComment()) {
+                    setPropertyComment(core(), o, propertyName, str->attributeComment());
+                }
+            }
+
             if (index != -1) {
-                QVariant v = toVariant(o->metaObject(), p);
-
-                QDesignerMetaDataBaseItemInterface *item = 0;
-                if (core()->metaDataBase())
-                    item = core()->metaDataBase()->item(o);
-
-                if (!item) {
-                    qWarning() << "** WARNING no ``meta database item'' for object:" << o;
-                }
-
-                if (p->kind() == DomProperty::String && item) {
-                    const DomString *str = p->elementString();
-                    if (str->hasAttributeComment()) {
-                        setPropertyComment(core(), o, propertyName, str->attributeComment());
-                    }
-                }
-
                 if (QLayout *layout = qobject_cast<QLayout*>(o)) {
                     if (propertyName == QLatin1String("margin")) {
                         if (qobject_cast<QLayoutWidget*>(layout->parentWidget()))
@@ -479,6 +479,8 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
 
                 sheet->setProperty(index, v);
                 sheet->setChanged(index, true);
+            } else if (sheet->dynamicPropertiesAllowed()) {
+                sheet->insertDynamicProperty(p->attributeName(), v);
             }
 
             if (propertyName == QLatin1String("objectName"))
@@ -1082,7 +1084,9 @@ bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
         if (sheet->isAttribute(pindex))
             return false;
 
-        return sheet->isChanged(pindex);
+        if (!sheet->isDynamicProperty(pindex))
+            return sheet->isChanged(pindex);
+        return true;
     }
 
     return false;
@@ -1295,7 +1299,7 @@ QList<DomProperty*> QDesignerResource::computeProperties(QObject *object)
                 }
             }
 
-            if (!sheet->isChanged(index))
+            if (!sheet->isChanged(index) && !sheet->isDynamicProperty(index))
                 continue;
 
             if (DomProperty *p = createProperty(object, propertyName, value)) {
@@ -1310,6 +1314,19 @@ QList<DomProperty*> QDesignerResource::computeProperties(QObject *object)
         }
     }
     return properties;
+}
+
+DomProperty *QDesignerResource::applyProperStdSetAttribute(QObject *object, const QString &propertyName, DomProperty *property)
+{
+    if (!property)
+        return 0;
+
+    QExtensionManager *mgr = core()->extensionManager();
+    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(mgr, object)) {
+        if (sheet->isDynamicProperty(sheet->indexOf(propertyName)))
+            property->setAttributeStdset(0);
+    }
+    return property;
 }
 
 DomProperty *QDesignerResource::createProperty(QObject *object, const QString &propertyName, const QVariant &value)
@@ -1345,7 +1362,7 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
                 id = lang->neutralEnumerator(id);
 
             p->setElementEnum(id);
-            return p;
+            return applyProperStdSetAttribute(object, propertyName, p);
         }
 
         return 0;
@@ -1375,7 +1392,7 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
                 p->setAttributeName(propertyName);
 
                 p->setElementSet(id);
-                return p;
+                return applyProperStdSetAttribute(object, propertyName, p);
             }
 
             if ((v & x) == x)
@@ -1388,10 +1405,10 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
         DomProperty *p = new DomProperty;
         p->setAttributeName(propertyName);
         p->setElementSet(keys.join(QLatin1String("|")));
-        return p;
+        return applyProperStdSetAttribute(object, propertyName, p);
     }
 
-    return QAbstractFormBuilder::createProperty(object, propertyName, value);
+    return applyProperStdSetAttribute(object, propertyName, QAbstractFormBuilder::createProperty(object, propertyName, value));
 }
 
 void QDesignerResource::createResources(DomResources *resources)

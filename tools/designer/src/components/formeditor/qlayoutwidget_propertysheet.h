@@ -30,6 +30,8 @@ public:
 
     virtual void setProperty(int index, const QVariant &value);
     virtual bool isVisible(int index) const;
+
+    virtual bool dynamicPropertiesAllowed() const;
 };
 
 class QLayoutWidgetPropertySheetFactory: public QExtensionFactory

@@ -48,6 +48,8 @@ public:
     { return m_object; }
 
     virtual QString currentPropertyName() const;
+
+    virtual bool eventFilter(QObject *object, QEvent *event);
     
 private slots:
     void slotFirePropertyChanged(IProperty *property);

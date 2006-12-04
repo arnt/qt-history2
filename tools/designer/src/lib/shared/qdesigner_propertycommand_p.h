@@ -203,6 +203,43 @@ private:
     QString m_propertyName;
 };
 
+
+class QDESIGNER_SHARED_EXPORT InsertDynamicPropertyCommand: public QDesignerFormWindowCommand
+{
+
+public:
+    InsertDynamicPropertyCommand(QDesignerFormWindowInterface *formWindow);
+
+    void init(QObject *object, const QString &propertyName, const QVariant &value, int atIndex);
+
+    virtual void redo();
+    virtual void undo();
+private:
+    QString m_propertyName;
+    QPointer<QObject> m_object;
+    QDesignerPropertySheetExtension *m_propertySheet;
+    QVariant m_value;
+    int m_index;
+};
+
+class QDESIGNER_SHARED_EXPORT RemoveDynamicPropertyCommand: public QDesignerFormWindowCommand
+{
+
+public:
+    RemoveDynamicPropertyCommand(QDesignerFormWindowInterface *formWindow);
+
+    void init(QObject *object, const QString &propertyName);
+
+    virtual void redo();
+    virtual void undo();
+private:
+    QString m_propertyName;
+    QPointer<QObject> m_object;
+    QDesignerPropertySheetExtension *m_propertySheet;
+    QVariant m_value;
+    int m_index;
+};
+
 } // namespace qdesigner_internal
 
 #endif // QDESIGNER_PROPERTYCOMMAND_H

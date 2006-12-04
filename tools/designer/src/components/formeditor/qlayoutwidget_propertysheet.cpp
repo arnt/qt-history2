@@ -54,6 +54,10 @@ void QLayoutWidgetPropertySheet::setProperty(int index, const QVariant &value)
     }
 }
 
+bool QLayoutWidgetPropertySheet::dynamicPropertiesAllowed() const
+{
+    return false;
+}
 
 QLayoutWidgetPropertySheetFactory::QLayoutWidgetPropertySheetFactory(QExtensionManager *parent)
     : QExtensionFactory(parent)

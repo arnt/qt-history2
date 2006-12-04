@@ -15,6 +15,7 @@
 #include "findicondialog_p.h"
 #include "qpropertyeditor_model_p.h"
 #include "qpropertyeditor_items_p.h"
+#include "newdynamicpropertydialog.h"
 
 // sdk
 #include <QtDesigner/QtDesigner>
@@ -792,6 +793,8 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core,
         this, SLOT(slotFirePropertyChanged(IProperty*)));
     connect(m_editor->editorModel(), SIGNAL(resetProperty(QString)),
                 this, SLOT(slotResetProperty(QString)));
+
+    m_editor->viewport()->installEventFilter(this);
 }
 
 PropertyEditor::~PropertyEditor()
@@ -946,5 +949,69 @@ QString PropertyEditor::currentPropertyName() const
 
     return QString();
 }
+
+bool PropertyEditor::eventFilter(QObject *object, QEvent *event)
+{
+    bool res = QDesignerPropertyEditor::eventFilter(object, event);
+    if (object != m_editor->viewport() || event->type() != QEvent::ContextMenu)
+        return res;
+
+    QContextMenuEvent *cme = (QContextMenuEvent *)event;
+
+    QModelIndex idx = m_editor->indexAt(cme->pos());
+    QPropertyEditorModel *model = m_editor->editorModel();
+    IProperty *nonfake = model->privateData(idx);
+    while (nonfake != 0 && nonfake->isFake())
+        nonfake = nonfake->parent();
+
+    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), m_object);
+    if (!sheet)
+        return res;
+
+    int index = -1;
+    bool addEnabled = false;
+    bool insertRemoveEnabled = false;
+    if (sheet->dynamicPropertiesAllowed()) {
+        addEnabled = true;
+        if (nonfake) {
+            int idx = sheet->indexOf(nonfake->propertyName());
+            if (sheet->isDynamicProperty(idx)) {
+                insertRemoveEnabled = true;
+                index = idx;
+            }
+        }
+    }
+
+    QMenu menu(this);
+    QAction *addAction = menu.addAction(tr("Add Dynamic Property..."));
+    addAction->setEnabled(addEnabled);
+    QAction *insertAction = menu.addAction(tr("Insert Dynamic Property..."));
+    insertAction->setEnabled(insertRemoveEnabled);
+    QAction *removeAction = menu.addAction(tr("Remove Dynamic Property"));
+    removeAction->setEnabled(insertRemoveEnabled);
+    QAction *result = menu.exec(cme->globalPos());
+
+    if (result == removeAction && nonfake) {
+        RemoveDynamicPropertyCommand *cmd = new RemoveDynamicPropertyCommand(m_core->formWindowManager()->activeFormWindow());
+        cmd->init(m_object, nonfake->propertyName());
+        m_core->formWindowManager()->activeFormWindow()->commandHistory()->push(cmd);
+    } else if (result == addAction || result == insertAction) {
+        NewDynamicPropertyDialog dlg(this);
+        QStringList reservedNames;
+        for (int i = 0; i < sheet->count(); i++)
+            reservedNames.append(sheet->propertyName(i));
+        dlg.setReservedNames(reservedNames);
+        if (dlg.exec() == QDialog::Accepted) {
+            QString newName = dlg.propertyName();
+            QVariant newValue = dlg.propertyValue();
+
+            InsertDynamicPropertyCommand *cmd = new InsertDynamicPropertyCommand(m_core->formWindowManager()->activeFormWindow());
+            cmd->init(m_object, newName, newValue, result == insertAction ? index : -1);
+            m_core->formWindowManager()->activeFormWindow()->commandHistory()->push(cmd);
+        }
+    }
+    return res;
+}
+
 
 #include "propertyeditor.moc"

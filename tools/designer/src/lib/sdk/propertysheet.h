@@ -47,8 +47,14 @@ public:
 
     virtual bool isChanged(int index) const = 0;
     virtual void setChanged(int index, bool changed) = 0;
+
+    virtual bool dynamicPropertiesAllowed() const = 0;
+    virtual int insertDynamicProperty(const QString &propertyName, const QVariant &value, int atIndex = -1) = 0;
+    virtual bool removeDynamicProperty(const QString &propertyName) = 0;
+    virtual bool isDynamicProperty(int index) const = 0;
+
 };
-Q_DECLARE_EXTENSION_INTERFACE(QDesignerPropertySheetExtension, "com.trolltech.Qt.Designer.PropertySheet")
+Q_DECLARE_EXTENSION_INTERFACE(QDesignerPropertySheetExtension, "com.trolltech.Qt.Designer.PropertySheet.2")
 
 QT_END_HEADER
 
