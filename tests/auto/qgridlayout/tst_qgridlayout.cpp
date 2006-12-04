@@ -12,6 +12,8 @@
 #include <qapplication.h>
 #include <qwidget.h>
 
+#include <QWindowsStyle>
+
 //TESTED_CLASS=
 //TESTED_FILES=gui/kernel/qlayout.cpp gui/kernel/qlayout.h
 
@@ -35,6 +37,8 @@ private slots:
     void badDistributionBug();
     void setMinAndMaxSize();
     void spacingAndSpacers();
+    void spacingsAndMargins();
+    void spacingsAndMargins_data();
 
 private:
     QWidget *testWidget;
@@ -383,6 +387,203 @@ void tst_QGridLayout::spacingAndSpacers()
 
 }
 
+
+class Qt42Style : public QWindowsStyle
+{
+    Q_OBJECT
+public:
+    Qt42Style() : QWindowsStyle()
+    {
+        spacing = 6;
+        margin = 9;
+        margin_toplevel = 11;
+    }
+
+    virtual int pixelMetric(PixelMetric metric, const QStyleOption * option = 0,
+                            const QWidget * widget = 0 ) const;
+
+    int spacing;
+    int margin;
+    int margin_toplevel;
+
+};
+
+int Qt42Style::pixelMetric(PixelMetric metric, const QStyleOption * option /*= 0*/,
+                                   const QWidget * widget /*= 0*/ ) const
+{
+    switch (metric) {
+        case PM_DefaultLayoutSpacing:
+            return spacing;
+        break;
+        case PM_DefaultTopLevelMargin:
+            return margin_toplevel;
+        break;
+        case PM_DefaultChildMargin:
+            return margin;
+        break;
+        default:
+            break;
+    }
+    return QWindowsStyle::pixelMetric(metric, option, widget);
+}
+
+
+
+
+typedef QList<QPoint> PointList;
+Q_DECLARE_METATYPE(PointList)
+
+class SizeHinterFrame : public QFrame
+{
+public:
+    SizeHinterFrame(QSize s) : sh(s) {
+        setFrameStyle(QFrame::Box | QFrame::Plain);
+    }
+    SizeHinterFrame(int w, int h) : sh(QSize(w,h)) {}
+
+    void setSizeHint(QSize s) { sh = s; }
+    QSize sizeHint() const { return sh; }
+
+private:
+    QSize sh;
+};
+
+
+void tst_QGridLayout::spacingsAndMargins_data()
+{
+    // input
+    QTest::addColumn<int>("columns");
+    QTest::addColumn<int>("rows");
+    QTest::addColumn<QSize>("sizehint");
+    // expected
+    QTest::addColumn<PointList>("expectedpositions");
+
+    int child_offset_y = 11 + 9 + 100 + 6;
+    QTest::newRow("1x1 grid") << 1 << 1 << QSize(100, 100)
+                       << (PointList()  // toplevel
+                                        << QPoint( 11, 11)
+                                        // children
+                                        << QPoint( 20, child_offset_y)
+                       );
+
+    QTest::newRow("2x1 grid") << 2 << 1 << QSize(100, 100)
+                       << (PointList()  // toplevel
+                                        << QPoint( 11, 11)
+                                        << QPoint( 11 + 100 + 6, 11)
+                                        // children
+                                        << QPoint( 20, child_offset_y)
+                                        << QPoint( 20 + 100 + 6, child_offset_y)
+                                        );
+
+    QTest::newRow("3x1 grid") << 3 << 1 << QSize(100, 100)
+                       << (PointList()  // toplevel
+                                        << QPoint( 11, 11)
+                                        << QPoint( 11 + 100 + 6, 11)
+                                        << QPoint( 11 + 100 + 6 + 100 + 6, 11)
+                                        // children
+                                        << QPoint( 20, child_offset_y)
+                                        << QPoint( 20 + 100 + 6, child_offset_y)
+                                        << QPoint( 20 + 100 + 6 + 100 + 6, child_offset_y)
+                                        );
+
+    child_offset_y = 11 + 9 + 100 + 6 + 100 + 6;
+    QTest::newRow("1x2 grid") << 1 << 2 << QSize(100, 100)
+                       << (PointList()  // toplevel
+                                        << QPoint( 11, 11)
+                                        << QPoint( 11, 11 + 100 + 6)
+                                        // children
+                                        << QPoint( 20, child_offset_y)
+                                        << QPoint( 20, child_offset_y + 100 + 6)
+                                        );
+
+    child_offset_y = 11 + 9 + 100 + 6 + 100 + 6 + 100 + 6;
+    QTest::newRow("1x3 grid") << 1 << 3 << QSize(100, 100)
+                       << (PointList()  // toplevel
+                                        << QPoint( 11, 11)
+                                        << QPoint( 11, 11 + 100 + 6)
+                                        << QPoint( 11, 11 + 100 + 6 + 100 + 6)
+                                        // children
+                                        << QPoint( 20, child_offset_y)
+                                        << QPoint( 20, child_offset_y + 100 + 6)
+                                        << QPoint( 20, child_offset_y + 100 + 6 + 100 + 6)
+                                        );
+
+    child_offset_y = 11 + 9 + 100 + 6 + 100 + 6;
+    QTest::newRow("2x2 grid") << 2 << 2 << QSize(100, 100)
+                       << (PointList()  // toplevel
+                                        << QPoint( 11, 11)
+                                        << QPoint( 11 + 100 + 6, 11)
+                                        << QPoint( 11, 11 + 100 + 6)
+                                        << QPoint( 11 + 100 + 6, 11 + 100 + 6)
+                                        // children
+                                        << QPoint( 20, child_offset_y)
+                                        << QPoint( 20 + 100 + 6, child_offset_y)
+                                        << QPoint( 20, child_offset_y + 100 + 6)
+                                        << QPoint( 20 + 100 + 6, child_offset_y + 100 + 6)
+                                        );
+}
+
+void tst_QGridLayout::spacingsAndMargins()
+{
+/*
+    The test tests a gridlayout as a child of a top-level widget,
+    and then a gridlayout as a child of a non-toplevel widget.
+
+    The expectedpositions should then contain the list of widget positions in the
+    first gridlayout, then followed by a list of widget positions in the second gridlayout.
+*/
+    QFETCH(int, columns);
+    QFETCH(int, rows);
+    QFETCH(QSize, sizehint);
+    QFETCH(PointList, expectedpositions);
+
+    QApplication::setStyle(new Qt42Style);
+    QWidget toplevel;
+    QVBoxLayout vbox(&toplevel);
+    QGridLayout grid1;
+    vbox.addLayout(&grid1);
+
+    // a layout with a top-level parent widget
+    QList<QPointer<SizeHinterFrame> > sizehinters;
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < columns; ++j) {
+            SizeHinterFrame *sh = new SizeHinterFrame(sizehint);
+            //sh->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+            //sh->setParent(&toplevel);
+            sizehinters.append(sh);
+            grid1.addWidget(sh, i, j);
+        }
+    }
+
+    // Add the child widget
+    QWidget widget;
+    vbox.addWidget(&widget);
+    QGridLayout grid2;
+    widget.setLayout(&grid2);
+    // add a layout to the child widget
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < columns; ++j) {
+            SizeHinterFrame *sh = new SizeHinterFrame(sizehint);
+            sizehinters.append(sh);
+            grid2.addWidget(sh, i, j);
+        }
+    }
+
+    grid1.setColumnStretch(columns, 1);
+    grid1.setRowStretch(rows, 1);
+    grid2.setColumnStretch(columns, 1);
+    grid2.setRowStretch(rows, 1);
+    toplevel.show();
+    toplevel.adjustSize();
+    QApplication::processEvents();
+    //QTest::qWait(1000);
+    // We are relying on the order here...
+    for (int pi = 0; pi < sizehinters.count(); ++pi) {
+        QPoint pt = sizehinters.at(pi)->mapTo(&toplevel, QPoint(0, 0));
+        //qDebug() << "pi:" << pi << ", pos:" << pt;
+        QCOMPARE(pt, expectedpositions.at(pi));
+    }
+}
 
 QTEST_MAIN(tst_QGridLayout)
 #include "tst_qgridlayout.moc"
