@@ -1128,6 +1128,8 @@ QStyle *QApplication::style()
         if (!app_style)
             qFatal("No styles available!");
     }
+    // take ownership of the style
+    QApplicationPrivate::app_style->setParent(qApp);
 
     if (!QApplicationPrivate::sys_pal)
         QApplicationPrivate::setSystemPalette(QApplicationPrivate::app_style->standardPalette());

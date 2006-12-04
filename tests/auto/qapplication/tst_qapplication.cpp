@@ -1092,6 +1092,14 @@ void tst_QApplication::wheelScrollLines()
 void tst_QApplication::style()
 {
     int argc = 1;
+
+    {
+        QApplication app(argc, &argv0, QApplication::GuiServer);
+        QPointer<QStyle> style = app.style();
+        app.setStyle(new QWindowsStyle);
+        QVERIFY(style.isNull());
+    }
+
     QApplication app(argc, &argv0, QApplication::GuiServer);
 
     // qApp style can never be 0
