@@ -1133,7 +1133,7 @@ void QGraphicsItem::setAcceptsHoverEvents(bool enabled)
     children handling their events individually.
 
     The default is to return false; children handle their own events.
-    The exception for this is if the item is a QGraphicsItemGroup, then 
+    The exception for this is if the item is a QGraphicsItemGroup, then
     it defaults to return true.
 
     \sa setHandlesChildEvents()
@@ -3211,16 +3211,16 @@ static void qt_graphicsItem_highlightSelected(
 {
     const QRectF rect1 = painter->transform().mapRect(QRectF(0, 0, 1, 1));
     const qreal divisor = qMax(rect1.width(), rect1.height());
-    if (qFuzzyCompare(divisor, 0.0))
+    if (qFuzzyCompare(divisor, qreal(0.0)))
         return;
-    const qreal penWidth = 1.0 / divisor;
-    const qreal padFract = 0.05;
+    const qreal penWidth = qreal(1.0) / divisor;
+    const qreal padFract = qreal(0.05);
     const qreal pad =
         qMin(padFract * item->boundingRect().width(), padFract * item->boundingRect().height());
 
     const QRectF rect2 = painter->transform().mapRect(item->boundingRect());
     const qreal minExt = qMin(rect2.width(), rect2.height());
-    if (minExt < 1.0)
+    if (minExt < qreal(1.0))
         return;
 
     painter->setPen(QPen(option->palette.windowText(), penWidth, Qt::DashLine));
