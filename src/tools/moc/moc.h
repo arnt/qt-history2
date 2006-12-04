@@ -21,6 +21,8 @@
 #include <stdio.h>
 #include <ctype.h>
 
+class QMetaObject;
+
 struct Type
 {
     enum ReferenceType { NoReference, Reference, Pointer };
@@ -154,6 +156,7 @@ public:
 
     void parse();
     void generate(FILE *out);
+    QList<QMetaObject*> generate(bool ignoreProperties);
 
     bool parseClassHead(ClassDef *def);
     inline bool inClass(const ClassDef *def) const {

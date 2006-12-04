@@ -667,12 +667,21 @@ void Moc::generate(FILE *out)
 
 
     for (i = 0; i < classList.size(); ++i) {
-        Generator generator(out, &classList[i], metaTypes);
+        Generator generator(&classList[i], metaTypes, out);
         generator.generateCode();
     }
 }
 
 
+QList<QMetaObject*> Moc::generate(bool ignoreProperties)
+{
+    QList<QMetaObject*> result;
+    for (int i = 0; i < classList.size(); ++i) {
+        Generator generator(&classList[i], metaTypes);
+        result << generator.generateMetaObject(ignoreProperties);
+    }
+    return result;
+}
 
 void Moc::parseSlots(ClassDef *def, FunctionDef::Access access)
 {

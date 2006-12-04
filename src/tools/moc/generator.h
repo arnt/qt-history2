@@ -20,9 +20,11 @@ class Generator
 {
     FILE *out;
     ClassDef *cdef;
+    QVector<uint> meta_data;
 public:
-    Generator(FILE *outfile, ClassDef *classDef, const QList<QByteArray> &metaTypes);
+    Generator(ClassDef *classDef, const QList<QByteArray> &metaTypes, FILE *outfile = 0);
     void generateCode();
+    QMetaObject *generateMetaObject(bool ignoreProperties);
 private:
     void generateClassInfos();
     void generateFunctions(QList<FunctionDef> &list, const char *functype, int type);
@@ -30,6 +32,12 @@ private:
     void generateProperties();
     void generateMetacall();
     void generateSignal(FunctionDef *def, int index);
+
+    // used by binary QMetaObject generator
+    void _generateClassInfos();
+    void _generateFunctions(QList<FunctionDef> &list, int type);
+    void _generateEnums(int index);
+    void _generateProperties();
 
     int strreg(const char *); // registers a string and returns its id
     QList<QByteArray> strings;

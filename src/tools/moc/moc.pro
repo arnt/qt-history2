@@ -23,14 +23,10 @@ LIBS	        =
 OBJECTS_DIR	= .
 
 
-HEADERS = moc.h preprocessor.h parser.h symbols.h token.h utils.h \
-           generator.h outputrevision.h qdatetime_p.h
-SOURCES =  moc.cpp \
-           preprocessor.cpp \
-           main.cpp \
-           generator.cpp \
-           parser.cpp \
-           token.cpp
+include(moc.pri)
+
+HEADERS += qdatetime_p.h
+SOURCES += main.cpp
 
 # Qt tools needed to link moc
 SOURCES	+= ../../corelib/global/qglobal.cpp \
