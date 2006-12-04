@@ -730,10 +730,6 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
 
     d->rasterBuffer->init();
 
-#if defined(Q_WS_WIN)
-    d->fontRasterBuffer->setupHDC(d->clear_type_text);
-#endif
-
     d->deviceRect = QRect(0, 0, device->width(), device->height());
 
 
