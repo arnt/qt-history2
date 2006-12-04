@@ -996,7 +996,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 
 #ifndef Q_WS_QWS
     glPushAttrib(GL_ALL_ATTRIB_BITS);
-#endif
     glGetDoublev(GL_PROJECTION_MATRIX, &d->projection_matrix[0][0]);
 #endif
     glMatrixMode(GL_MODELVIEW);
@@ -1093,7 +1092,6 @@ bool QOpenGLPaintEngine::end()
 #ifndef Q_WS_QWS
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixd(&d->projection_matrix[0][0]);
-#ifndef Q_WS_QWS
     glPopAttrib();
 #endif
 
