@@ -13,6 +13,16 @@
 //TESTED_CLASS=
 //TESTED_FILES=gui/itemviews/qtableview.h gui/itemviews/qtableview.cpp
 
+// Will try to wait for the condition while allowing event processing
+// for a maximum of 2 seconds.
+#define WAIT_FOR_CONDITION(expr, expected) \
+    do { \
+        const int step = 100; \
+        for (int i = 0; i < 2000 && expr != expected; i+=step) { \
+            QTest::qWait(step); \
+        } \
+    } while(0)
+
 typedef QList<int> IntList;
 Q_DECLARE_METATYPE(IntList)
 
@@ -2401,6 +2411,8 @@ void tst_QTableView::tabFocus()
     window.setFocus();
 
     qApp->processEvents();
+
+    WAIT_FOR_CONDITION(view->hasFocus(), true);
 
     // window
     QVERIFY(window.hasFocus());
