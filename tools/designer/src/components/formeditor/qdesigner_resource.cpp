@@ -480,7 +480,9 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
                 sheet->setProperty(index, v);
                 sheet->setChanged(index, true);
             } else if (sheet->dynamicPropertiesAllowed()) {
-                sheet->insertDynamicProperty(p->attributeName(), v);
+                sheet->addDynamicProperty(p->attributeName(), QVariant(v.type()));
+                sheet->setProperty(sheet->indexOf(p->attributeName()), v);
+                sheet->setChanged(sheet->indexOf(p->attributeName()), v != QVariant(v.type()));
             }
 
             if (propertyName == QLatin1String("objectName"))
@@ -1086,6 +1088,8 @@ bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
 
         if (!sheet->isDynamicProperty(pindex))
             return sheet->isChanged(pindex);
+        if (!sheet->isVisible(pindex))
+            return false;
         return true;
     }
 

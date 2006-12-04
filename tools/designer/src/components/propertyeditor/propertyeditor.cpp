@@ -985,8 +985,6 @@ bool PropertyEditor::eventFilter(QObject *object, QEvent *event)
     QMenu menu(this);
     QAction *addAction = menu.addAction(tr("Add Dynamic Property..."));
     addAction->setEnabled(addEnabled);
-    QAction *insertAction = menu.addAction(tr("Insert Dynamic Property..."));
-    insertAction->setEnabled(insertRemoveEnabled);
     QAction *removeAction = menu.addAction(tr("Remove Dynamic Property"));
     removeAction->setEnabled(insertRemoveEnabled);
     QAction *result = menu.exec(cme->globalPos());
@@ -995,18 +993,20 @@ bool PropertyEditor::eventFilter(QObject *object, QEvent *event)
         RemoveDynamicPropertyCommand *cmd = new RemoveDynamicPropertyCommand(m_core->formWindowManager()->activeFormWindow());
         cmd->init(m_object, nonfake->propertyName());
         m_core->formWindowManager()->activeFormWindow()->commandHistory()->push(cmd);
-    } else if (result == addAction || result == insertAction) {
+    } else if (result == addAction) {
         NewDynamicPropertyDialog dlg(this);
         QStringList reservedNames;
-        for (int i = 0; i < sheet->count(); i++)
-            reservedNames.append(sheet->propertyName(i));
+        for (int i = 0; i < sheet->count(); i++) {
+            if (!sheet->isDynamicProperty(i) || sheet->isVisible(i))
+                reservedNames.append(sheet->propertyName(i));
+        }
         dlg.setReservedNames(reservedNames);
         if (dlg.exec() == QDialog::Accepted) {
             QString newName = dlg.propertyName();
             QVariant newValue = dlg.propertyValue();
 
-            InsertDynamicPropertyCommand *cmd = new InsertDynamicPropertyCommand(m_core->formWindowManager()->activeFormWindow());
-            cmd->init(m_object, newName, newValue, result == insertAction ? index : -1);
+            AddDynamicPropertyCommand *cmd = new AddDynamicPropertyCommand(m_core->formWindowManager()->activeFormWindow());
+            cmd->init(m_object, newName, newValue);
             m_core->formWindowManager()->activeFormWindow()->commandHistory()->push(cmd);
         }
     }

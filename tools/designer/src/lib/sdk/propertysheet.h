@@ -49,7 +49,7 @@ public:
     virtual void setChanged(int index, bool changed) = 0;
 
     virtual bool dynamicPropertiesAllowed() const = 0;
-    virtual int insertDynamicProperty(const QString &propertyName, const QVariant &value, int atIndex = -1) = 0;
+    virtual bool addDynamicProperty(const QString &propertyName, const QVariant &value) = 0;
     virtual bool removeDynamicProperty(const QString &propertyName) = 0;
     virtual bool isDynamicProperty(int index) const = 0;
 

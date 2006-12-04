@@ -898,14 +898,14 @@ void ResetPropertyCommand::redo()
     update(restoreDefaultValue());
 }
 
-InsertDynamicPropertyCommand::InsertDynamicPropertyCommand(QDesignerFormWindowInterface *formWindow)
+AddDynamicPropertyCommand::AddDynamicPropertyCommand(QDesignerFormWindowInterface *formWindow)
     : QDesignerFormWindowCommand(QString(), formWindow),
       m_propertySheet(0)
 {
 
 }
 
-void InsertDynamicPropertyCommand::init(QObject *object, const QString &propertyName, const QVariant &value, int atIndex)
+void AddDynamicPropertyCommand::init(QObject *object, const QString &propertyName, const QVariant &value)
 {
     Q_ASSERT(object);
     m_object = object;
@@ -915,23 +915,21 @@ void InsertDynamicPropertyCommand::init(QObject *object, const QString &property
     m_propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), object);
     Q_ASSERT(m_propertySheet);
 
-    m_index = atIndex;
-
     m_value = value;
 
     setText(QApplication::translate("Command", "add dynamic property '%1' to '%2'").arg(m_propertyName).arg(m_object->objectName()));
 }
 
-void InsertDynamicPropertyCommand::redo()
+void AddDynamicPropertyCommand::redo()
 {
-    m_propertySheet->insertDynamicProperty(m_propertyName, m_value, m_index);
+    m_propertySheet->addDynamicProperty(m_propertyName, m_value);
     if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
         if (propertyEditor->object() == m_object)
             propertyEditor->setObject(m_object);
     }
 }
 
-void InsertDynamicPropertyCommand::undo()
+void AddDynamicPropertyCommand::undo()
 {
     m_propertySheet->removeDynamicProperty(m_propertyName);
     if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
@@ -958,9 +956,9 @@ void RemoveDynamicPropertyCommand::init(QObject *object, const QString &property
     m_propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), object);
     Q_ASSERT(m_propertySheet);
 
-    m_index = m_propertySheet->indexOf(propertyName);
-
-    m_value = m_propertySheet->property(m_index);
+    int index = m_propertySheet->indexOf(m_propertyName);
+    m_value = m_propertySheet->property(index);
+    m_changed = m_propertySheet->isChanged(index);
 
     setText(QApplication::translate("Command", "remove dynamic property '%1' to '%2'").arg(m_propertyName).arg(m_object->objectName()));
 }
@@ -976,7 +974,8 @@ void RemoveDynamicPropertyCommand::redo()
 
 void RemoveDynamicPropertyCommand::undo()
 {
-    m_propertySheet->insertDynamicProperty(m_propertyName, m_value, m_index);
+    m_propertySheet->addDynamicProperty(m_propertyName, m_value);
+    m_propertySheet->setChanged(m_propertySheet->indexOf(m_propertyName), m_changed);
     if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
         if (propertyEditor->object() == m_object)
             propertyEditor->setObject(m_object);

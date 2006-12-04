@@ -204,13 +204,13 @@ private:
 };
 
 
-class QDESIGNER_SHARED_EXPORT InsertDynamicPropertyCommand: public QDesignerFormWindowCommand
+class QDESIGNER_SHARED_EXPORT AddDynamicPropertyCommand: public QDesignerFormWindowCommand
 {
 
 public:
-    InsertDynamicPropertyCommand(QDesignerFormWindowInterface *formWindow);
+    AddDynamicPropertyCommand(QDesignerFormWindowInterface *formWindow);
 
-    void init(QObject *object, const QString &propertyName, const QVariant &value, int atIndex);
+    void init(QObject *object, const QString &propertyName, const QVariant &value);
 
     virtual void redo();
     virtual void undo();
@@ -219,7 +219,7 @@ private:
     QPointer<QObject> m_object;
     QDesignerPropertySheetExtension *m_propertySheet;
     QVariant m_value;
-    int m_index;
+    bool m_changed;
 };
 
 class QDESIGNER_SHARED_EXPORT RemoveDynamicPropertyCommand: public QDesignerFormWindowCommand
@@ -237,7 +237,7 @@ private:
     QPointer<QObject> m_object;
     QDesignerPropertySheetExtension *m_propertySheet;
     QVariant m_value;
-    int m_index;
+    bool m_changed;
 };
 
 } // namespace qdesigner_internal

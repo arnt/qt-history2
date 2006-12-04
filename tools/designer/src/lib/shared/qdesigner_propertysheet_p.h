@@ -63,7 +63,7 @@ public:
     virtual void setChanged(int index, bool changed);
 
     virtual bool dynamicPropertiesAllowed() const;
-    virtual int insertDynamicProperty(const QString &propertyName, const QVariant &value, int atIndex);
+    virtual bool addDynamicProperty(const QString &propertyName, const QVariant &value);
     virtual bool removeDynamicProperty(const QString &propertyName);
     virtual bool isDynamicProperty(int index) const;
 
@@ -77,6 +77,7 @@ protected:
     void setFakeProperty(int index, const QVariant &value);
 
     bool isFakeLayoutProperty(int index) const;
+    bool isDynamic(int index) const;
 
 protected:
     QObject *m_object;
@@ -86,16 +87,19 @@ protected:
     {
     public:
         QString group;
+        QVariant defaultValue;
         uint changed: 1;
         uint visible: 1;
         uint attribute: 1;
         uint reset: 1;
+        uint defaultDynamic: 1;
 
         inline Info()
             : changed(0),
               visible(1),
               attribute(0),
-              reset(1)
+              reset(1),
+              defaultDynamic(0)
         {}
     };
 

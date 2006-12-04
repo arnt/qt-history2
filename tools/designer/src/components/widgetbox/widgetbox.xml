@@ -279,9 +279,6 @@
         </widget>
 
         <widget class="QWidget" name="Widget" icon="widgets/widget.png">
-            <property name="title" >
-                <string>Widget</string>
-            </property>
             <property name="geometry">
                 <rect>
                     <x>0</x>
