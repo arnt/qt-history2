@@ -7242,7 +7242,14 @@ void QWidget::setParent(QWidget *parent, Qt::WindowFlags f)
     d->resolveLayoutDirection();
     d->resolveLocale();
 
-    if (newParent) {
+    // Note: GL widgets under Windows will always need a ParentChange
+    // event to handle recreation/rebinding of the GL context, hence
+    // the (f & Qt::MSWindowsOwnDC) clause
+    if (newParent
+#ifdef Q_WS_WIN
+        || (f & Qt::MSWindowsOwnDC)
+#endif
+        ) {
         // propagate enabled updates enabled state to non-windows
         if (!isWindow()) {
             if (!testAttribute(Qt::WA_ForceDisabled))
