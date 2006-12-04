@@ -710,6 +710,7 @@ public:
     QVector<int> tess_points_stops;
 
     QImage pattern_image;
+    GLdouble projection_matrix[4][4];
 };
 
 static inline QPainterPath strokeForPath(const QPainterPath &path, const QPen &cpen) {
@@ -996,8 +997,8 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 #ifndef Q_WS_QWS
     glPushAttrib(GL_ALL_ATTRIB_BITS);
 #endif
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
+    glGetDoublev(GL_PROJECTION_MATRIX, &d->projection_matrix[0][0]);
+#endif
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
 
@@ -1087,10 +1088,11 @@ bool QOpenGLPaintEngine::end()
 {
     Q_D(QOpenGLPaintEngine);
     d->offscreen.end();
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
+#ifndef Q_WS_QWS
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixd(&d->projection_matrix[0][0]);
 #ifndef Q_WS_QWS
     glPopAttrib();
 #endif
