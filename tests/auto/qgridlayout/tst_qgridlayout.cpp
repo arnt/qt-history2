@@ -39,6 +39,8 @@ private slots:
     void spacingAndSpacers();
     void spacingsAndMargins();
     void spacingsAndMargins_data();
+    void minMaxSize_data();
+    void minMaxSize();
 
 private:
     QWidget *testWidget;
@@ -428,26 +430,56 @@ int Qt42Style::pixelMetric(PixelMetric metric, const QStyleOption * option /*= 0
 }
 
 
-
-
 typedef QList<QPoint> PointList;
 Q_DECLARE_METATYPE(PointList)
+
 
 class SizeHinterFrame : public QFrame
 {
 public:
-    SizeHinterFrame(QSize s) : sh(s) {
+    SizeHinterFrame(QWidget *parent = 0) 
+    : QFrame(parent)
+    {
         setFrameStyle(QFrame::Box | QFrame::Plain);
+        setNumberOfPixels(-1);
     }
-    SizeHinterFrame(int w, int h) : sh(QSize(w,h)) {}
 
-    void setSizeHint(QSize s) { sh = s; }
+    SizeHinterFrame(const QSize &s, int numPixels = -1) 
+    : QFrame(0), sh(s) {
+        setFrameStyle(QFrame::Box | QFrame::Plain);
+        setNumberOfPixels(numPixels);
+    }
+
+
+    SizeHinterFrame(int w, int h)
+    : QFrame(0), sh(QSize(w,h)) 
+    {
+        setNumberOfPixels(-1);
+    }
+
+    void setSizeHint(const QSize &s) { sh = s; }
     QSize sizeHint() const { return sh; }
 
+    virtual int heightForWidth(int width) const;
+
+    void setNumberOfPixels(int numPixels) {
+        m_numPixels = numPixels;
+        QSizePolicy sp = sizePolicy();
+        sp.setHeightForWidth(m_numPixels != -1);
+        setSizePolicy(sp);
+    }
 private:
     QSize sh;
+    int m_numPixels;
 };
 
+int SizeHinterFrame::heightForWidth(int width) const
+{
+    if (m_numPixels == -1 || width == 0) return -1;
+    // the geometrical area of this widget should be equal regardless of the width
+    // (the square version of a 100x100 widget)
+    return (100*100)/width;
+}
 
 void tst_QGridLayout::spacingsAndMargins_data()
 {
@@ -548,8 +580,6 @@ void tst_QGridLayout::spacingsAndMargins()
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < columns; ++j) {
             SizeHinterFrame *sh = new SizeHinterFrame(sizehint);
-            //sh->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-            //sh->setParent(&toplevel);
             sizehinters.append(sh);
             grid1.addWidget(sh, i, j);
         }
@@ -576,14 +606,143 @@ void tst_QGridLayout::spacingsAndMargins()
     toplevel.show();
     toplevel.adjustSize();
     QApplication::processEvents();
-    //QTest::qWait(1000);
     // We are relying on the order here...
     for (int pi = 0; pi < sizehinters.count(); ++pi) {
         QPoint pt = sizehinters.at(pi)->mapTo(&toplevel, QPoint(0, 0));
-        //qDebug() << "pi:" << pi << ", pos:" << pt;
         QCOMPARE(pt, expectedpositions.at(pi));
     }
 }
+
+
+
+
+struct SizeInfo {
+    SizeInfo(const QPoint &expected, const QSize &sh, const QSize &minimumSize = QSize(),
+             const QSize &maximumSize = QSize(), int numPixelsToCover = -1)
+    {
+        expectedPos = expected;
+        sizeHint = sh;
+        minSize = minimumSize;
+        maxSize = maximumSize;
+        hfwNumPixels = numPixelsToCover;
+    }
+
+    SizeInfo(const SizeInfo& other) {
+        expectedPos = other.expectedPos;
+        sizeHint = other.sizeHint;
+        minSize = other.minSize;
+        maxSize = other.maxSize;
+        hfwNumPixels = other.hfwNumPixels;
+    }
+
+    SizeInfo &operator=(const SizeInfo& other) {
+        expectedPos = other.expectedPos;
+        sizeHint = other.sizeHint;
+        minSize = other.minSize;
+        maxSize = other.maxSize;
+        hfwNumPixels = other.hfwNumPixels;
+        return (*this);
+    }
+
+    QPoint expectedPos;
+    QSize sizeHint;
+    QSize minSize;
+    QSize maxSize;
+    int hfwNumPixels;
+};
+
+
+typedef QList<SizeInfo> SizeInfoList;
+Q_DECLARE_METATYPE(SizeInfoList)
+
+
+void tst_QGridLayout::minMaxSize_data()
+{
+    // input
+    QTest::addColumn<int>("columns");
+    QTest::addColumn<int>("rows");
+    //input and expected output
+    QTest::addColumn<SizeInfoList>("sizeinfos");
+
+    QTest::newRow("1x1 grid, extend to minimumSize") << 1 << 1 << (SizeInfoList()
+                << SizeInfo(QPoint(10, 10), QSize( 90, 90), QSize(100,100))
+                );
+    QTest::newRow("2x1 grid, extend to minimumSize") << 2 << 1 << (SizeInfoList()
+                << SizeInfo(QPoint(10, 10), QSize( 90, 90), QSize(100,100))
+                << SizeInfo(QPoint(10 + 100 + 1, 10), QSize( 90, 90))
+                );
+    QTest::newRow("1x2 grid, extend to minimumSize") << 1 << 2 << (SizeInfoList()
+                << SizeInfo(QPoint(10, 10), QSize( 90, 90), QSize(100,100))
+                << SizeInfo(QPoint(10, 10 + 100 + 1), QSize( 90, 90))
+                );
+
+    QTest::newRow("2x1 grid, crop to maximumSize") << 2 << 1 << (SizeInfoList()
+            << SizeInfo(QPoint(10, 10), QSize(110,110), QSize(), QSize(100, 100))
+            << SizeInfo(QPoint(10 + 100 + 1, 10), QSize( 90, 90))
+            );
+
+    QTest::newRow("1x2 grid, crop to maximumSize") << 1 << 2 << (SizeInfoList()
+            << SizeInfo(QPoint(10, 10), QSize(110,110), QSize(), QSize(100, 100))
+            << SizeInfo(QPoint(10, 10 + 100 + 1), QSize( 90, 90))
+            );
+
+    QTest::newRow("1x3 grid, heightForWidth") << 1 << 3 << (SizeInfoList()
+            << SizeInfo(QPoint(10, 10), QSize(), QSize(200,100), QSize())
+            << SizeInfo(QPoint(10, 10 + 100 + 1), QSize(100,100), QSize(), QSize(), 100*100)
+            << SizeInfo(QPoint(10, 10 + 100 + 1 + 50 + 1), QSize(100,100), QSize(), QSize(100, 100))
+            );
+
+}
+
+
+void tst_QGridLayout::minMaxSize()
+{
+/*
+    The test tests a gridlayout as a child of a top-level widget
+*/
+    // input
+    QFETCH(int, columns);
+    QFETCH(int, rows);
+    //input and expected output
+    QFETCH(SizeInfoList, sizeinfos);
+
+    Qt42Style *style = new Qt42Style;
+    style->margin_toplevel = 10;
+    style->margin = 5;
+    style->spacing = 1;
+    QApplication::setStyle(style);
+    QWidget toplevel;
+    QGridLayout grid1(&toplevel);
+    toplevel.setLayout(&grid1);
+
+    // a layout with a top-level parent widget
+    QList<QPointer<SizeHinterFrame> > sizehinters;
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < columns; ++j) {
+            SizeInfo si = sizeinfos.at(sizehinters.count());
+            SizeHinterFrame *sh = new SizeHinterFrame(si.sizeHint, si.hfwNumPixels);
+            sh->setParent(&toplevel);
+            if (si.minSize.isValid())
+                sh->setMinimumSize(si.minSize);
+            if (si.maxSize.isValid())
+                sh->setMaximumSize(si.maxSize);
+            sizehinters.append(sh);
+            grid1.addWidget(sh, i, j);
+        }
+    }
+
+    toplevel.show();
+    //toplevel.adjustSize();
+    //QTest::qWait(1000);
+    QApplication::processEvents();
+    // We are relying on the order here...
+    for (int pi = 0; pi < sizehinters.count(); ++pi) {
+        QPoint pt = sizehinters.at(pi)->mapTo(&toplevel, QPoint(0, 0));
+        //qDebug() << pt << "==" << sizeinfos.at(pi).expectedPos;
+        QCOMPARE(pt, sizeinfos.at(pi).expectedPos);
+    }
+}
+
 
 QTEST_MAIN(tst_QGridLayout)
 #include "tst_qgridlayout.moc"
