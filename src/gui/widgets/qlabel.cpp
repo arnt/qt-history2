@@ -294,8 +294,7 @@ void QLabelPrivate::init()
     when necessary.
 
     Note: This function enables mouse tracking if \atext contains rich
-    text, and disables mouse tracking when setting plain text on a rich
-    text label.
+    text.
 
     \sa setTextFormat(), setBuddy(), alignment
 */
@@ -306,7 +305,6 @@ void QLabel::setText(const QString &text)
     if (d->text == text)
         return;
 
-    bool wasRichText = d->isRichText();
     d->clearContents();
     d->text = text;
 
@@ -322,8 +320,6 @@ void QLabel::setText(const QString &text)
         d->ensureTextControl();
     } else {
         d->doc->setPlainText(text);
-        if (wasRichText)
-            setMouseTracking(false);
 #ifndef QT_NO_SHORTCUT
         if (d->buddy)
             d->updateShortcut();

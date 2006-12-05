@@ -269,7 +269,7 @@ void tst_QLabel::hasMouseTracking()
     label.setText("<u>Rich Text</u>");
     QVERIFY(label.hasMouseTracking());
     label.setText("Plain Text");
-    QVERIFY(!label.hasMouseTracking());
+    QVERIFY(label.hasMouseTracking());
 }
 
 QTEST_MAIN(tst_QLabel)
