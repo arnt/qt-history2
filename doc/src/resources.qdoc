@@ -30,9 +30,9 @@
 
     The resource files listed in the \c .qrc file are files that are
     part of the application's source tree. The specified paths are
-    relative to the directory containing the \c qrc file. Note that
+    relative to the directory containing the \c .qrc file. Note that
     the listed resource files must be located in the same directory as
-    the \c qrc file, or one of its subdirectories.
+    the \c .qrc file, or one of its subdirectories.
 
     Resource data can either be compiled into the binary and thus accessed
     immediately in application code, or a binary resource can be created
