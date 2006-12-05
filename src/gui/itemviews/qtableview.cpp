@@ -744,7 +744,6 @@ void QTableView::paintEvent(QPaintEvent *event)
         if (showGrid) {
             // Find the bottom right (the last rows/coloumns might be hidden)
             while (verticalHeader->isSectionHidden(verticalHeader->logicalIndex(bottom))) --bottom;
-            int gridHeight = rowViewportPosition(bottom) + rowHeight(bottom) - gridSize;
             QPen old = painter.pen();
             painter.setPen(gridPen);
             // Paint each row
@@ -767,8 +766,7 @@ void QTableView::paintEvent(QPaintEvent *event)
                 colp += offset.x();
                 if (!rightToLeft)
                     colp +=  columnWidth(col) - gridSize;
-                painter.drawLine(colp, dirtyArea.top(),
-                                 colp, gridHeight);
+                painter.drawLine(colp, dirtyArea.top(), colp, dirtyArea.bottom());
             }
             painter.setPen(old);
         }
