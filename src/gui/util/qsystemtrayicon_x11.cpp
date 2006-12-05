@@ -115,7 +115,8 @@ QSystemTrayIconSys::~QSystemTrayIconSys()
         Display *display = QX11Info::display();
         if (sysTrayWindow == None)
             return;
-        XSelectInput(display, sysTrayWindow, 0); // stop tracking the tray
+        if (display)
+            XSelectInput(display, sysTrayWindow, 0); // stop tracking the tray
         sysTrayWindow = None;
     }
 }
