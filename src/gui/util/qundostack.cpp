@@ -395,6 +395,34 @@ void QUndoStackPrivate::setIndex(int idx, bool clean)
         emit q->cleanChanged(is_clean);
 }
 
+/*! \internal
+    If the number of commands on the stack exceedes the undo limit, deletes commands from
+    the bottom of the stack.
+
+    Returns true if commands were deleted.
+*/
+
+bool QUndoStackPrivate::checkUndoLimit()
+{
+    if (undo_limit <= 0 || !macro_stack.isEmpty() || undo_limit >= command_list.count())
+        return false;
+
+    int del_count = command_list.count() - undo_limit;
+
+    for (int i = 0; i < del_count; ++i)
+        delete command_list.takeFirst();
+
+    index -= del_count;
+    if (clean_index != -1) {
+        if (clean_index < del_count)
+            clean_index = -1; // we've deleted the clean command
+        else
+            clean_index -= del_count;
+    }
+
+    return true;
+}
+
 /*!
     Constructs an empty undo stack with the parent \a parent. The
     stack will initally be in the clean state. If \a parent is a
@@ -531,6 +559,7 @@ void QUndoStack::push(QUndoCommand *cmd)
             d->macro_stack.last()->d->child_list.append(cmd);
         } else {
             d->command_list.append(cmd);
+            d->checkUndoLimit();
             d->setIndex(d->index + 1, false);
         }
     }
@@ -912,8 +941,10 @@ void QUndoStack::endMacro()
 
     d->macro_stack.removeLast();
 
-    if (d->macro_stack.isEmpty())
+    if (d->macro_stack.isEmpty()) {
+        d->checkUndoLimit();
         d->setIndex(d->index + 1, false);
+    }
 }
 
 /*!
@@ -929,6 +960,42 @@ QString QUndoStack::text(int idx) const
     if (idx < 0 || idx >= d->command_list.size())
         return QString();
     return d->command_list.at(idx)->text();
+}
+
+/*!
+    \property QUndoStack::undoLimit
+    \brief the maximum number of commands on this stack.
+
+    When the number of commands on a stack exceedes the stack's undoLimit, commands are
+    deleted from the bottom of the stack. Macro commands (commands with child commands)
+    are treated as one command. The default value is 0, which means that there is no
+    limit.
+
+    This property may only be set when the undo stack is empty, since setting it on a
+    non-empty stack might delete the command at the current index. Calling setUndoLimit()
+    on a non-empty stack prints a warning and does nothing.
+*/
+
+void QUndoStack::setUndoLimit(int limit)
+{
+    Q_D(QUndoStack);
+
+    if (!d->command_list.isEmpty()) {
+        qWarning("QUndoStack::setUndoLimit(): an undo limit can only be set when the stack is empty");
+        return;
+    }
+
+    if (limit == d->undo_limit)
+        return;
+    d->undo_limit = limit;
+    d->checkUndoLimit();
+}
+
+int QUndoStack::undoLimit() const
+{
+    Q_D(const QUndoStack);
+
+    return d->undo_limit;
 }
 
 /*!

@@ -59,6 +59,7 @@ class Q_GUI_EXPORT QUndoStack : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QUndoStack)
     Q_PROPERTY(bool active READ isActive WRITE setActive)
+    Q_PROPERTY(int undoLimit READ undoLimit WRITE setUndoLimit)
 
 public:
     explicit QUndoStack(QObject *parent = 0);
@@ -89,6 +90,9 @@ public:
 
     void beginMacro(const QString &text);
     void endMacro();
+
+    void setUndoLimit(int limit);
+    int undoLimit() const;
 
 public Q_SLOTS:
     void setClean();

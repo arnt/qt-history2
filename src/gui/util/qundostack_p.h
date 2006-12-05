@@ -49,15 +49,17 @@ class QUndoStackPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QUndoStack)
 public:
-    QUndoStackPrivate() : index(0), clean_index(0), group(0) {}
+    QUndoStackPrivate() : index(0), clean_index(0), group(0), undo_limit(0) {}
 
     QList<QUndoCommand*> command_list;
     QList<QUndoCommand*> macro_stack;
     int index;
     int clean_index;
     QUndoGroup *group;
+    int undo_limit;
 
     void setIndex(int idx, bool clean);
+    bool checkUndoLimit();
 };
 
 #ifndef QT_NO_ACTION

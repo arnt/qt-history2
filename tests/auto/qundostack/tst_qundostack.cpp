@@ -38,7 +38,8 @@ private:
 class AppendCommand : public QUndoCommand
 {
 public:
-    AppendCommand(QString *str, const QString &text, QUndoCommand *parent = 0);
+    AppendCommand(QString *str, const QString &text, bool _fail_merge = false,
+                    QUndoCommand *parent = 0);
     ~AppendCommand();
 
     virtual void undo();
@@ -110,7 +111,8 @@ void RemoveCommand::undo()
 
 int AppendCommand::delete_cnt = 0;
 
-AppendCommand::AppendCommand(QString *str, const QString &text, QUndoCommand *parent)
+AppendCommand::AppendCommand(QString *str, const QString &text, bool _fail_merge,
+                                QUndoCommand *parent)
     : QUndoCommand(parent)
 {
     setText("append");
@@ -118,7 +120,7 @@ AppendCommand::AppendCommand(QString *str, const QString &text, QUndoCommand *pa
     m_str = str;
     m_text = text;
     merged = false;
-    fail_merge = false;
+    fail_merge = _fail_merge;
 }
 
 AppendCommand::~AppendCommand()
@@ -172,6 +174,7 @@ private slots:
     void childCommand();
     void macroBeginEnd();
     void compression();
+    void undoLimit();
 };
 
 tst_QUndoStack::tst_QUndoStack()
@@ -1401,9 +1404,7 @@ void tst_QUndoStack::compression()
                 true,       // undoChanged
                 true)       // redoChanged
 
-    AppendCommand *append_fail_merge = new AppendCommand(&str, "ma");
-    append_fail_merge->fail_merge = true;
-    stack.push(append_fail_merge); // #4 clean state gets deleted!
+    stack.push(new AppendCommand(&str, "ma", true)); // #4 clean state gets deleted!
     QCOMPARE(str, QString("enema"));
     QCOMPARE(AppendCommand::delete_cnt, 3); // #1 got deleted
     CHECK_STATE(false,      // clean
@@ -1570,6 +1571,340 @@ void tst_QUndoStack::compression()
 
     delete undo_action;
     delete redo_action;
+}
+
+void tst_QUndoStack::undoLimit()
+{
+    QUndoStack stack;
+    QAction *undo_action = stack.createUndoAction(0, QString("foo"));
+    QAction *redo_action = stack.createRedoAction(0, QString("bar"));
+    QSignalSpy indexChangedSpy(&stack, SIGNAL(indexChanged(int)));
+    QSignalSpy cleanChangedSpy(&stack, SIGNAL(cleanChanged(bool)));
+    QSignalSpy canUndoChangedSpy(&stack, SIGNAL(canUndoChanged(bool)));
+    QSignalSpy undoTextChangedSpy(&stack, SIGNAL(undoTextChanged(QString)));
+    QSignalSpy canRedoChangedSpy(&stack, SIGNAL(canRedoChanged(bool)));
+    QSignalSpy redoTextChangedSpy(&stack, SIGNAL(redoTextChanged(QString)));
+    AppendCommand::delete_cnt = 0;
+    QString str;
+
+    QCOMPARE(stack.undoLimit(), 0);
+    stack.setUndoLimit(2);
+    QCOMPARE(stack.undoLimit(), 2);
+
+    stack.push(new AppendCommand(&str, "1", true));
+    QCOMPARE(str, QString("1"));
+    QCOMPARE(AppendCommand::delete_cnt, 0);
+    CHECK_STATE(false,      // clean
+                1,          // count
+                1,          // index
+                true,       // canUndo
+                "append",   // undoText
+                false,      // canRedo
+                "",         // redoText
+                true,       // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
+
+    stack.push(new AppendCommand(&str, "2", true));
+    QCOMPARE(str, QString("12"));
+    QCOMPARE(AppendCommand::delete_cnt, 0);
+    CHECK_STATE(false,      // clean
+                2,          // count
+                2,          // index
+                true,       // canUndo
+                "append",   // undoText
+                false,      // canRedo
+                "",         // redoText
+                false,      // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
+
+    stack.setClean();
+    QCOMPARE(str, QString("12"));
+    QCOMPARE(AppendCommand::delete_cnt, 0);
+    CHECK_STATE(true,       // clean
+                2,          // count
+                2,          // index
+                true,       // canUndo
+                "append",   // undoText
+                false,      // canRedo
+                "",         // redoText
+                true,       // cleanChanged
+                false,      // indexChanged
+                false,      // undoChanged
+                false)      // redoChanged
+
+    stack.push(new AppendCommand(&str, "3", true));
+    QCOMPARE(str, QString("123"));
+    QCOMPARE(AppendCommand::delete_cnt, 1);
+    CHECK_STATE(false,      // clean
+                2,          // count
+                2,          // index
+                true,       // canUndo
+                "append",   // undoText
+                false,      // canRedo
+                "",         // redoText
+                true,       // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
+
+    stack.push(new AppendCommand(&str, "4", true));
+    QCOMPARE(str, QString("1234"));
+    QCOMPARE(AppendCommand::delete_cnt, 2);
+    CHECK_STATE(false,      // clean
+                2,          // count
+                2,          // index
+                true,       // canUndo
+                "append",   // undoText
+                false,      // canRedo
+                "",         // redoText
+                false,      // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
+
+    stack.undo();
+    QCOMPARE(str, QString("123"));
+    QCOMPARE(AppendCommand::delete_cnt, 2);
+    CHECK_STATE(false,      // clean
+                2,          // count
+                1,          // index
+                true,       // canUndo
+                "append",   // undoText
+                true,       // canRedo
+                "append",   // redoText
+                false,      // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
+
+    stack.undo();
+    QCOMPARE(str, QString("12"));
+    QCOMPARE(AppendCommand::delete_cnt, 2);
+    CHECK_STATE(true,       // clean
+                2,          // count
+                0,          // index
+                false,      // canUndo
+                "",         // undoText
+                true,       // canRedo
+                "append",   // redoText
+                true,       // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
+
+    stack.push(new AppendCommand(&str, "3", true));
+    QCOMPARE(str, QString("123"));
+    QCOMPARE(AppendCommand::delete_cnt, 4);
+    CHECK_STATE(false,      // clean
+                1,          // count
+                1,          // index
+                true,       // canUndo
+                "append",   // undoText
+                false,      // canRedo
+                "",         // redoText
+                true,       // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
+
+    stack.push(new AppendCommand(&str, "4", true));
+    QCOMPARE(str, QString("1234"));
+    QCOMPARE(AppendCommand::delete_cnt, 4);
+    CHECK_STATE(false,      // clean
+                2,          // count
+                2,          // index
+                true,       // canUndo
+                "append",   // undoText
+                false,      // canRedo
+                "",         // redoText
+                false,      // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
+
+    stack.push(new AppendCommand(&str, "5", true));
+    QCOMPARE(str, QString("12345"));
+    QCOMPARE(AppendCommand::delete_cnt, 5);
+    CHECK_STATE(false,      // clean
+                2,          // count
+                2,          // index
+                true,       // canUndo
+                "append",   // undoText
+                false,      // canRedo
+                "",         // redoText
+                false,      // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
+
+    stack.undo();
+    QCOMPARE(str, QString("1234"));
+    QCOMPARE(AppendCommand::delete_cnt, 5);
+    CHECK_STATE(false,      // clean
+                2,          // count
+                1,          // index
+                true,       // canUndo
+                "append",   // undoText
+                true,       // canRedo
+                "append",   // redoText
+                false,      // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
+
+    stack.undo();
+    QCOMPARE(str, QString("123"));
+    QCOMPARE(AppendCommand::delete_cnt, 5);
+    CHECK_STATE(false,      // clean
+                2,          // count
+                0,          // index
+                false,      // canUndo
+                "",         // undoText
+                true,       // canRedo
+                "append",   // redoText
+                false,      // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
+
+    stack.push(new AppendCommand(&str, "4", true));
+    QCOMPARE(str, QString("1234"));
+    QCOMPARE(AppendCommand::delete_cnt, 7);
+    CHECK_STATE(false,      // clean
+                1,          // count
+                1,          // index
+                true,       // canUndo
+                "append",   // undoText
+                false,      // canRedo
+                "",         // redoText
+                false,      // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
+
+    stack.push(new AppendCommand(&str, "5"));
+    QCOMPARE(str, QString("12345"));
+    QCOMPARE(AppendCommand::delete_cnt, 7);
+    CHECK_STATE(false,      // clean
+                2,          // count
+                2,          // index
+                true,       // canUndo
+                "append",   // undoText
+                false,      // canRedo
+                "",         // redoText
+                false,      // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
+
+    stack.push(new AppendCommand(&str, "6", true)); // should be merged
+    QCOMPARE(str, QString("123456"));
+    QCOMPARE(AppendCommand::delete_cnt, 8);
+    CHECK_STATE(false,      // clean
+                2,          // count
+                2,          // index
+                true,       // canUndo
+                "append",   // undoText
+                false,      // canRedo
+                "",         // redoText
+                false,      // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
+
+    stack.beginMacro("foo");
+    QCOMPARE(str, QString("123456"));
+    QCOMPARE(AppendCommand::delete_cnt, 8);
+    CHECK_STATE(false,      // clean
+                3,          // count
+                2,          // index
+                false,      // canUndo
+                "",         // undoText
+                false,      // canRedo
+                "",         // redoText
+                false,      // cleanChanged
+                false,      // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
+
+    stack.push(new AppendCommand(&str, "7", true));
+    QCOMPARE(str, QString("1234567"));
+    QCOMPARE(AppendCommand::delete_cnt, 8);
+    CHECK_STATE(false,      // clean
+                3,          // count
+                2,          // index
+                false,      // canUndo
+                "",         // undoText
+                false,      // canRedo
+                "",         // redoText
+                false,      // cleanChanged
+                false,      // indexChanged
+                false,      // undoChanged
+                false)      // redoChanged
+
+    stack.push(new AppendCommand(&str, "8"));
+    QCOMPARE(str, QString("12345678"));
+    QCOMPARE(AppendCommand::delete_cnt, 8);
+    CHECK_STATE(false,      // clean
+                3,          // count
+                2,          // index
+                false,      // canUndo
+                "",         // undoText
+                false,      // canRedo
+                "",         // redoText
+                false,      // cleanChanged
+                false,      // indexChanged
+                false,      // undoChanged
+                false)      // redoChanged
+
+    stack.endMacro();
+    QCOMPARE(str, QString("12345678"));
+    QCOMPARE(AppendCommand::delete_cnt, 9);
+    CHECK_STATE(false,      // clean
+                2,          // count
+                2,          // index
+                true,       // canUndo
+                "foo",      // undoText
+                false,      // canRedo
+                "",         // redoText
+                false,      // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
+
+    stack.undo();
+    QCOMPARE(str, QString("123456"));
+    QCOMPARE(AppendCommand::delete_cnt, 9);
+    CHECK_STATE(false,      // clean
+                2,          // count
+                1,          // index
+                true,       // canUndo
+                "append",   // undoText
+                true,       // canRedo
+                "foo",      // redoText
+                false,      // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
+
+    stack.undo();
+    QCOMPARE(str, QString("1234"));
+    QCOMPARE(AppendCommand::delete_cnt, 9);
+    CHECK_STATE(false,      // clean
+                2,          // count
+                0,          // index
+                false,      // canUndo
+                "",         // undoText
+                true,       // canRedo
+                "append",   // redoText
+                false,      // cleanChanged
+                true,       // indexChanged
+                true,       // undoChanged
+                true)       // redoChanged
 }
 
 QTEST_MAIN(tst_QUndoStack)
