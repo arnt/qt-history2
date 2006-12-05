@@ -111,7 +111,7 @@ void qt_mac_update_cursor()
 static int nextCursorId = Qt::BitmapCursor;
 
 QCursorData::QCursorData(Qt::CursorShape s)
-    : cshape(s), bm(0), bmm(0), hx(-1), hy(-1), id(s), type(TYPE_None)
+    : cshape(s), bm(0), bmm(0), hx(-1), hy(-1), mId(s), type(TYPE_None)
 {
     ref = 1;
     memset(&curs, '\0', sizeof(curs));
@@ -149,7 +149,7 @@ QCursorData *QCursorData::setBitmap(const QBitmap &bitmap, const QBitmap &mask, 
     // to be ready for that case.
     QCursorData *x = new QCursorData;
     x->ref = 1;
-    x->id = ++nextCursorId;
+    x->mId = ++nextCursorId;
     x->bm  = new QBitmap(bitmap);
     x->bmm = new QBitmap(mask);
     x->cshape = Qt::BitmapCursor;
@@ -164,7 +164,7 @@ Qt::HANDLE QCursor::handle() const
         QCursorData::initialize();
     if(d->type == QCursorData::TYPE_None)
         d->update();
-    return (Qt::HANDLE)d->id;
+    return (Qt::HANDLE)d->mId;
 }
 
 QPoint QCursor::pos()

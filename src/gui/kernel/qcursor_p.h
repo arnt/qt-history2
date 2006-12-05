@@ -52,7 +52,9 @@ struct QCursorData {
     QBitmap  *bm, *bmm;
     QPixmap pixmap;
     short     hx, hy;
-#if defined (Q_WS_MAC) || defined(Q_WS_QWS)
+#if defined (Q_WS_MAC)
+    int mId;
+#elif defined(Q_WS_QWS)
     int id;
 #endif
 #if defined (Q_WS_WIN)
