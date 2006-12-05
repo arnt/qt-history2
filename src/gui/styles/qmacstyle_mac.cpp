@@ -2745,15 +2745,20 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                     QMetaObject::invokeMethod(d, "startAnimationTimer", Qt::QueuedConnection);
             }
             HIRect newRect = qt_hirectForQRect(btn->rect);
-            // Like Appearance Manager, HITheme draws outside my rect, so make it a bit bigger.
-            QRect off_rct;
-            HIRect outRect;
-            HIThemeGetButtonBackgroundBounds(&newRect, &bdi, &outRect);
-            off_rct.setRect(int(newRect.origin.x - outRect.origin.x),
-                            int(newRect.origin.y - outRect.origin.y),
-                            int(outRect.size.width - newRect.size.width),
-                            int(outRect.size.height - newRect.size.height));
-            newRect = qt_hirectForQRect(btn->rect, off_rct);
+            if (bdi.kind != kThemePushButtonMini){
+                // Like Appearance Manager, HITheme draws outside my rect, so make the
+                // button a bit smaller so it fits inside the rect. 
+                // However, we can't make the mini-pushbutton any smaller than it already is.
+                // Therefore, skip the adjustment in that case 
+                QRect off_rct;
+                HIRect outRect;
+                HIThemeGetButtonBackgroundBounds(&newRect, &bdi, &outRect);
+                off_rct.setRect(int(newRect.origin.x - outRect.origin.x),
+                                int(newRect.origin.y - outRect.origin.y),
+                                int(outRect.size.width - newRect.size.width),
+                                int(outRect.size.height - newRect.size.height));
+                newRect = qt_hirectForQRect(btn->rect, off_rct);
+            }
             HIThemeDrawButton(&newRect, &bdi, cg, kHIThemeOrientationNormal, 0);
             if (btn->features & QStyleOptionButton::HasMenu) {
                 int mbi = pixelMetric(QStyle::PM_MenuButtonIndicator, btn, w);
