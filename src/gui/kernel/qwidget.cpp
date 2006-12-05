@@ -3622,9 +3622,23 @@ void QWidgetPrivate::setPalette_helper(const QPalette &palette)
     default application font.
 
     This code fragment sets a 12 point helvetica bold font:
+
     \code
-    QFont f("Helvetica", 12, QFont::Bold);
-    setFont(f);
+        QFont font("Helvetica", 12, QFont::Bold);
+        setFont(font);
+    \endcode
+
+    Note that when a child widget is given a different font to that of
+    its parent widget, it will still inherit the parent's font \e
+    properties unless these have been set explicitly on the child's
+    font. For example, if the parent's font is bold, the child
+    widget's font will be bold as well if not specified otherwise like
+    this:
+
+    \code
+        QFont font;
+        font.setBold(false);
+        setFont(font);
     \endcode
 
     In addition to setting the font, setFont() informs all children
