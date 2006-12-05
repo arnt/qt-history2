@@ -4093,7 +4093,7 @@ int QCleanlooksStyle::styleHint(StyleHint hint, const QStyleOption *option, cons
         ret = QDialogButtonBox::GnomeLayout;
         break;
     case SH_MessageBox_TextInteractionFlags:
-        ret = Qt::TextBrowserInteraction;
+        ret = Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse;
         break;
     case SH_DialogButtonBox_ButtonsHaveIcons:
         ret = true;
