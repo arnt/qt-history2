@@ -175,7 +175,8 @@ public:
         TEXTMETRICA        a;
     } tm;
     int                lw;
-    unsigned char *cmap;
+    const unsigned char *cmap;
+    QByteArray cmapTable;
     void *script_cache;
     qreal lbearing;
     qreal rbearing;
