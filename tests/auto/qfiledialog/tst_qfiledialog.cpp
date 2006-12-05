@@ -84,7 +84,6 @@ void tst_QFiledialog::directory()
 
 void tst_QFiledialog::acceptMode()
 {
-    QCOMPARE(1, 0); // test of the autotest system, will revert tomarrow
     QFileDialog fd;
     fd.show();
 
