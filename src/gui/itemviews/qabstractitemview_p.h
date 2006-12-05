@@ -91,6 +91,7 @@ public:
                                                                  const QEvent *event) const;
     QItemSelectionModel::SelectionFlags contiguousSelectionCommand(const QModelIndex &index,
                                                                    const QEvent *event) const;
+    void selectAll(QItemSelectionModel::SelectionFlags command);
 
     inline QItemSelectionModel::SelectionFlags selectionBehaviorFlags() const
     {

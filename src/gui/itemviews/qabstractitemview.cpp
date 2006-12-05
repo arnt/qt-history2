@@ -835,16 +835,7 @@ QModelIndex QAbstractItemView::rootIndex() const
 void QAbstractItemView::selectAll()
 {
     Q_D(QAbstractItemView);
-    if (!d->selectionModel)
-        return;
-
-    QItemSelection selection;
-    QModelIndex tl = d->model->index(0, 0, d->root);
-    QModelIndex br = d->model->index(d->model->rowCount(d->root) - 1,
-                                    d->model->columnCount(d->root) - 1,
-                                    d->root);
-    selection.append(QItemSelectionRange(tl, br));
-    d->selectionModel->select(selection, selectionCommand(tl));
+    d->selectAll(selectionCommand(d->model->index(0, 0, d->root)));
 }
 
 /*!
@@ -1899,7 +1890,8 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
         if (event->modifiers() & Qt::ControlModifier) {
             SelectionMode mode = d->selectionMode;
             if (mode == MultiSelection || mode == ExtendedSelection)
-                selectAll();
+                d->selectAll(QItemSelectionModel::ClearAndSelect
+                             |d->selectionBehaviorFlags());
             break;
         }
     default: {
@@ -3396,6 +3388,20 @@ QPixmap QAbstractItemViewPrivate::renderToPixmap(const QModelIndexList &indexes,
     painter.end();
     if (r) *r = rect;
     return pixmap;
+}
+
+void QAbstractItemViewPrivate::selectAll(QItemSelectionModel::SelectionFlags command)
+{
+    if (!selectionModel)
+        return;
+
+    QItemSelection selection;
+    QModelIndex tl = model->index(0, 0, root);
+    QModelIndex br = model->index(model->rowCount(root) - 1,
+                                  model->columnCount(root) - 1,
+                                  root);
+    selection.append(QItemSelectionRange(tl, br));
+    selectionModel->select(selection, command);
 }
 
 #include "moc_qabstractitemview.cpp"
