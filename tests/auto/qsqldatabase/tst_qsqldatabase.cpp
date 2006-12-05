@@ -167,7 +167,13 @@ static int createFieldTable(const FieldDef fieldDefs[], QSqlDatabase db)
 
     QSqlQuery q(QString::null, db);
     // construct a create table statement consisting of all fieldtypes
-    QString qs = "create table " + qTableName("qtestfields") + " (id integer not null primary key";
+    QString qs = "create table " + qTableName("qtestfields");
+
+    if (tst_Databases::isMSAccess(db))
+        qs.append(" (id int not null");
+    else
+        qs.append(" (id integer not null primary key");
+    
     int i = 0;
     for (i = 0; !fieldDefs[ i ].typeName.isNull(); ++i) {
 	qs += QString(",\n %1 %2").arg(fieldDefs[ i ].fieldName()).arg(fieldDefs[ i ].typeName);
@@ -175,6 +181,10 @@ static int createFieldTable(const FieldDef fieldDefs[], QSqlDatabase db)
 	    qs += " null";
 	}
     }
+
+    if (tst_Databases::isMSAccess(db))
+        qs.append(",\n primary key (id)");
+
     qs += ")";
     if (!q.exec(qs)) {
 	qDebug("Creation of Table failed: \n" + q.lastError().driverText() + "\n" +
@@ -1166,16 +1176,19 @@ void tst_QSqlDatabase::recordAccess()
 	return;
     }
 
+    QString memo;
+    for (int i = 0; i < 32; i++)
+        memo.append("ABCDEFGH12345678abcdefgh12345678");
+
     // ### TODO: Add the rest of the fields
     static const FieldDef fieldDefs[] = {
 	FieldDef("varchar(20)", QVariant::String, QString("Blah1")),
 	FieldDef("single", QVariant::Double, 1.12345),
 	FieldDef("double", QVariant::Double, 1.123456),
-	FieldDef("unsigned byte", QVariant::Int, 255),
-	FieldDef("short", QVariant::Int, 2147483647),
+        FieldDef("byte", QVariant::Int, 255),
 	FieldDef("binary", QVariant::ByteArray, Q3CString("Blah2")),
 	FieldDef("long", QVariant::Int, 2147483647),
-
+        FieldDef("memo", QVariant::String, memo),
 	FieldDef(QString::null, QVariant::Invalid)
     };
 

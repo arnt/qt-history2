@@ -1184,6 +1184,30 @@ bool QODBCResult::exec()
                                       0,
                                       *ind == SQL_NULL_DATA ? ind : NULL);
                 break;
+            case QVariant::LongLong:
+                r = SQLBindParameter(d->hStmt,
+                                      i + 1,
+                                      qParamType[(QFlag)(bindValueType(i)) & QSql::InOut],
+                                      SQL_C_SBIGINT,
+                                      SQL_BIGINT,
+                                      0,
+                                      0,
+                                      (void *) val.constData(),
+                                      0,
+                                      *ind == SQL_NULL_DATA ? ind : NULL);
+                break;
+            case QVariant::ULongLong:
+                r = SQLBindParameter(d->hStmt,
+                                      i + 1,
+                                      qParamType[(QFlag)(bindValueType(i)) & QSql::InOut],
+                                      SQL_C_UBIGINT,
+                                      SQL_BIGINT,
+                                      0,
+                                      0,
+                                      (void *) val.constData(),
+                                      0,
+                                      *ind == SQL_NULL_DATA ? ind : NULL);
+                break;
             case QVariant::ByteArray:
                 if (*ind != SQL_NULL_DATA) {
                     *ind = val.toByteArray().size();
@@ -1212,7 +1236,7 @@ bool QODBCResult::exec()
                                             i + 1,
                                             qParamType[(QFlag)(bindValueType(i)) & QSql::InOut],
                                             SQL_C_WCHAR,
-                                            str.length() > 4000 ? SQL_WLONGVARCHAR : SQL_WVARCHAR,
+                                            str.length() > 254 ? SQL_WLONGVARCHAR : SQL_WVARCHAR,
                                             0, // god knows... don't change this!
                                             0,
                                             (void *)ba.constData(),
@@ -1226,7 +1250,7 @@ bool QODBCResult::exec()
                                           i + 1,
                                           qParamType[(QFlag)(bindValueType(i)) & QSql::InOut],
                                           SQL_C_WCHAR,
-                                          str.length() > 4000 ? SQL_WLONGVARCHAR : SQL_WVARCHAR,
+                                          str.length() > 254 ? SQL_WLONGVARCHAR : SQL_WVARCHAR,
                                           str.length() * sizeof(QChar),
                                           0,
                                           (void *)str.constData(),
@@ -1237,14 +1261,14 @@ bool QODBCResult::exec()
 #endif
             // fall through
             default: {
-                QByteArray ba = val.toString().toAscii();
+                QByteArray ba = val.toByteArray();
                 if (*ind != SQL_NULL_DATA)
                     *ind = ba.size();
                 r = SQLBindParameter(d->hStmt,
                                       i + 1,
                                       qParamType[(QFlag)(bindValueType(i)) & QSql::InOut],
                                       SQL_C_CHAR,
-                                      ba.length() > 4000 ? SQL_LONGVARCHAR : SQL_VARCHAR,
+                                      SQL_LONGVARCHAR,
                                       ba.length() + 1,
                                       0,
                                       (void *) ba.constData(),
@@ -1303,8 +1327,11 @@ bool QODBCResult::exec()
                                QTime(dt.hour, dt.minute, dt.second, dt.fraction / 1000000)));
                 break; }
             case QVariant::Int:
+            case QVariant::UInt:
             case QVariant::Double:
             case QVariant::ByteArray:
+            case QVariant::LongLong:
+            case QVariant::ULongLong:
                 //nothing to do
                 break;
             case QVariant::String:
