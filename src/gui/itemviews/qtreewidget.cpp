@@ -328,6 +328,29 @@ bool QTreeModel::setData(const QModelIndex &index, const QVariant &value, int ro
     return false;
 }
 
+QMap<int, QVariant> QTreeModel::itemData(const QModelIndex &index) const
+{
+    QMap<int, QVariant> roles;
+    QTreeWidgetItem *itm = item(index);
+    if (itm) {
+        int column = index.column();
+        for (int i = 0; i < itm->values.at(column).count(); ++i) {
+            roles.insert(itm->values.at(column).at(i).role,
+                         itm->values.at(column).at(i).value);
+        }
+
+        // the two special cases
+        QVariant displayValue = itm->data(column, Qt::DisplayRole);
+        if (displayValue.isValid())
+            roles.insert(Qt::DisplayRole, displayValue);
+
+        QVariant checkValue = itm->data(column, Qt::CheckStateRole);
+        if (checkValue.isValid())
+            roles.insert(Qt::CheckStateRole, checkValue);
+    }
+    return roles;
+}
+
 /*!
   \internal
   \reimp

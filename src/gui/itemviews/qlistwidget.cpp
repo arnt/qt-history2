@@ -182,6 +182,19 @@ bool QListModel::setData(const QModelIndex &index, const QVariant &value, int ro
     return true;
 }
 
+QMap<int, QVariant> QListModel::itemData(const QModelIndex &index) const
+{
+    QMap<int, QVariant> roles;
+    if (!index.isValid() || index.row() >= items.count())
+        return roles;
+    QListWidgetItem *itm = items.at(index.row());
+    for (int i = 0; i < itm->values.count(); ++i) {
+        roles.insert(itm->values.at(i).role,
+                     itm->values.at(i).value);
+    }
+    return roles;
+}
+
 bool QListModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     if (count < 1 || row < 0 || row > rowCount() || parent.isValid())

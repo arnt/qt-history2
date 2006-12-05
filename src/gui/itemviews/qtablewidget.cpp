@@ -400,6 +400,19 @@ bool QTableModel::setData(const QModelIndex &index, const QVariant &value, int r
     return true;
 }
 
+QMap<int, QVariant> QTableModel::itemData(const QModelIndex &index) const
+{
+    QMap<int, QVariant> roles;
+    QTableWidgetItem *itm = item(index);
+    if (itm) {
+        for (int i = 0; i < itm->values.count(); ++i) {
+            roles.insert(itm->values.at(i).role,
+                         itm->values.at(i).value);
+        }
+    }
+    return roles;
+}
+
 // reimplemented to ensure that only one dataChanged() signal is emitted
 bool QTableModel::setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles)
 {

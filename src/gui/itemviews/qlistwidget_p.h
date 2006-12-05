@@ -70,6 +70,8 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
 
+    QMap<int, QVariant> itemData(const QModelIndex &index) const;
+
     bool insertRows(int row, int count = 1, const QModelIndex &parent = QModelIndex());
     bool removeRows(int row, int count = 1, const QModelIndex &parent = QModelIndex());
 
