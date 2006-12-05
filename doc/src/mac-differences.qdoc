@@ -37,12 +37,6 @@
     the executable.  Later versions allow you to pass the bundle name on the
     command line.
 
-    \section1 QCursor
-
-    Mac OS X only supports 16x16 custom cursors. For now the only
-    workaround to this problem is to use a small customs cursors (16x16)
-    with QCursor.
-
     \section1 Painting
     Mac OS X always double buffers the screen so the Qt::WA_PaintOnScreen attribute
     has no effect. Also it is impossible to paint outside of a paint event so
