@@ -1430,6 +1430,11 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
     if (d->selectionModel)
         d->selectionModel->select(index, selectionCommand(index, event));
 
+    //as we do not scroll in the mouse press event, 
+    //we make sure we do it in the mouse release
+    if (click && d->autoScroll)
+        scrollTo(index);
+
     if (click) {
         emit clicked(index);
         if (edited)
