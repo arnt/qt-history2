@@ -930,6 +930,7 @@ void QWidgetPrivate::init(QWidget *parentWidget, Qt::WindowFlags f)
     data.is_closing = 0;
     data.in_show = 0;
     data.in_set_window_state = 0;
+    data.in_destructor = false;
 
     q->setAttribute(Qt::WA_QuitOnClose); // might be cleared in create()
 
@@ -1010,6 +1011,9 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     if (testAttribute(Qt::WA_WState_Created) && window == 0)
         return;
 
+    if (d->data.in_destructor)
+        return;
+
     Qt::WindowType type = windowType();
     Qt::WindowFlags &flags = data->window_flags;
 
@@ -1085,6 +1089,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 QWidget::~QWidget()
 {
     Q_D(QWidget);
+    d->data.in_destructor = true;
+
 #if defined (QT_CHECK_STATE)
     if (paintingActive())
         qWarning("QWidget: %s (%s) deleted while being painted", className(), name());
