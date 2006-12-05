@@ -933,7 +933,7 @@ QImage QFontEngineWin::alphaMapForGlyph(glyph_t glyph)
     if (glyph_width <= 0 || glyph_height <= 0)
         return QImage();
     QImage im(glyph_width + glyph_x, glyph_height, QImage::Format_ARGB32_Premultiplied);
-    im.fill(Qt::transparent);
+    im.fill(0);
     QPainter p(&im);
 
     // try hard to disable cleartype rendering
