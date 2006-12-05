@@ -360,6 +360,7 @@ QProcessPrivate::QProcessPrivate()
     deathPipe[1] = INVALID_Q_PIPE;
     exitCode = 0;
     crashed = false;
+    dying = false;
     emittedReadyRead = false;
     emittedBytesWritten = false;
 #ifdef Q_WS_WIN
@@ -402,6 +403,7 @@ void QProcessPrivate::cleanup()
 #endif
     pid = 0;
     sequenceNumber = 0;
+    dying = false;
 
     if (stdoutChannel.notifier) {
         stdoutChannel.notifier->setEnabled(false);
@@ -611,6 +613,15 @@ bool QProcessPrivate::_q_processDied()
             return true;
     }
 
+    if (dying) {
+        // at this point we know the process is dead. prevent
+        // reentering this slot recursively by calling waitForFinished()
+        // or opening a dialog inside slots connected to the readyRead
+        // signals emitted below.
+        return true;
+    }
+    dying = true;
+    
     // in case there is data in the pipe line and this slot by chance
     // got called before the read notifications, call these two slots
     // so the data is made available before the process dies.

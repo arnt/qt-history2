@@ -137,6 +137,7 @@ public:
     Q_PID pid;
     int sequenceNumber;
 
+    bool dying;
     bool emittedReadyRead;
     bool emittedBytesWritten;
 
