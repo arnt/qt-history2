@@ -4692,7 +4692,7 @@ static void sm_performSaveYourself(QSessionManagerPrivate* smd)
     sm_setProperty(QString::fromLatin1(SmProgram), argument0);
     // tell the session manager about our user as well.
     struct passwd *entryPtr = 0;
-#if !defined(QT_NO_THREAD) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
+#if !defined(QT_NO_THREAD) && defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_OPENBSD)
     QVarLengthArray<char, 1024> buf(sysconf(_SC_GETPW_R_SIZE_MAX));
     struct passwd entry;
     getpwuid_r(geteuid(), &entry, buf.data(), buf.size(), &entryPtr);

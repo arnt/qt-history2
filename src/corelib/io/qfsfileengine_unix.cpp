@@ -618,13 +618,13 @@ uint QFSFileEngine::ownerId(FileOwner own) const
 
 QString QFSFileEngine::owner(FileOwner own) const
 {
-#if !defined(QT_NO_THREAD) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
+#if !defined(QT_NO_THREAD) && defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_OPENBSD)
     QVarLengthArray<char, 1024> buf(sysconf(_SC_GETPW_R_SIZE_MAX));
 #endif
 
     if(own == OwnerUser) {
         struct passwd *pw = 0;
-#if !defined(QT_NO_THREAD) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
+#if !defined(QT_NO_THREAD) && defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_OPENBSD)
         struct passwd entry;
         getpwuid_r(ownerId(own), &entry, buf.data(), buf.size(), &pw);
 #else
@@ -634,7 +634,7 @@ QString QFSFileEngine::owner(FileOwner own) const
             return QFile::decodeName(QByteArray(pw->pw_name));
     } else if(own == OwnerGroup) {
         struct group *gr = 0;
-#if !defined(QT_NO_THREAD) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
+#if !defined(QT_NO_THREAD) && defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_OPENBSD)
         buf.resize(sysconf(_SC_GETGR_R_SIZE_MAX));
         struct group entry;
         getgrgid_r(ownerId(own), &entry, buf.data(), buf.size(), &gr);
