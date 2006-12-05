@@ -80,12 +80,11 @@ private slots:
     void closeEditor();
     void setData_data();
     void setData();
-#if QT_VERSION >= 0x040200
     void insertItemsWithSorting_data();
     void insertItemsWithSorting();
     void changeDataWithSorting_data();
     void changeDataWithSorting();
-#endif
+    void itemData();
 
 protected slots:
     void rowsAboutToBeInserted(const QModelIndex &parent, int first, int last)
@@ -1197,6 +1196,22 @@ void tst_QListWidget::changeDataWithSorting_data()
         << (QStringList() << "c" << "f" << "g" << "i")
         << (IntList() << 0 << 1 << 2 << 3)
         << false;
+}
+
+void tst_QListWidget::itemData()
+{
+    QListWidget widget;
+    QListWidgetItem item(&widget);
+    item.setFlags(item.flags() | Qt::ItemIsEditable);
+    item.setData(Qt::DisplayRole,  QString("0"));
+    item.setData(Qt::CheckStateRole, Qt::PartiallyChecked);
+    item.setData(Qt::UserRole + 0, QString("1"));
+    item.setData(Qt::UserRole + 1, QString("2"));
+    item.setData(Qt::UserRole + 2, QString("3"));
+    item.setData(Qt::UserRole + 3, QString("4"));
+    QMap<int, QVariant> flags = widget.model()->itemData(widget.model()->index(0, 0));
+    QCOMPARE(flags.count(), 6);
+    QCOMPARE(flags[Qt::UserRole + 0].toString(), QString("1"));
 }
 
 void tst_QListWidget::changeDataWithSorting()

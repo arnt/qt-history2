@@ -94,6 +94,7 @@ private slots:
     void enableDisable();
 
     void expandAndCallapse();
+    void itemData();
 
 private:
     QTreeWidget *testWidget;
@@ -1813,6 +1814,22 @@ void tst_QTreeWidget::setData()
 
         delete item;
     }
+}
+
+void tst_QTreeWidget::itemData()
+{
+    QTreeWidget widget;
+    QTreeWidgetItem item(&widget);
+    item.setFlags(item.flags() | Qt::ItemIsEditable);
+    item.setData(0, Qt::DisplayRole,  QString("0"));
+    item.setData(0, Qt::CheckStateRole, Qt::PartiallyChecked);
+    item.setData(0, Qt::UserRole + 0, QString("1"));
+    item.setData(0, Qt::UserRole + 1, QString("2"));
+    item.setData(0, Qt::UserRole + 2, QString("3"));
+    item.setData(0, Qt::UserRole + 3, QString("4"));
+    QMap<int, QVariant> flags = widget.model()->itemData(widget.model()->index(0, 0));
+    QCOMPARE(flags.count(), 6);
+    QCOMPARE(flags[Qt::UserRole + 0].toString(), QString("1"));
 }
 
 void tst_QTreeWidget::enableDisable()

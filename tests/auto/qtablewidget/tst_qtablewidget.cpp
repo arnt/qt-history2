@@ -63,6 +63,7 @@ private slots:
     void sortItems();
     void setItemWithSorting_data();
     void setItemWithSorting();
+    void itemData();
     void setItemData();
 
 private:
@@ -1260,6 +1261,24 @@ void tst_QTableWidget::setItemWithSorting()
             QCOMPARE(dataChangedSpy.count(), 1);
         QCOMPARE(layoutChangedSpy.count(), reorderingExpected ? 1 : 0);
     }
+}
+
+void tst_QTableWidget::itemData()
+{
+    QTableWidget widget(2, 2);
+    widget.setItem(0, 0, new QTableWidgetItem());
+    QTableWidgetItem *item = widget.item(0, 0);
+    QVERIFY(item);
+    item->setFlags(item->flags() | Qt::ItemIsEditable);
+    item->setData(Qt::DisplayRole,  QString("0"));
+    item->setData(Qt::CheckStateRole, Qt::PartiallyChecked);
+    item->setData(Qt::UserRole + 0, QString("1"));
+    item->setData(Qt::UserRole + 1, QString("2"));
+    item->setData(Qt::UserRole + 2, QString("3"));
+    item->setData(Qt::UserRole + 3, QString("4"));
+    QMap<int, QVariant> flags = widget.model()->itemData(widget.model()->index(0, 0));
+    QCOMPARE(flags.count(), 6);
+    QCOMPARE(flags[(Qt::UserRole + 0)].toString(), QString("1"));
 }
 
 void tst_QTableWidget::setItemData()
