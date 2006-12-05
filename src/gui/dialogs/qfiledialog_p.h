@@ -73,34 +73,35 @@ class QFileDialogPrivate : public QDialogPrivate
 
 public:
     QFileDialogPrivate() :
-    model(0),
+    fileNameLabel(0),
+    fileNameEdit(0),
+    expandButton(0),
+    line(0),
+    backButton(0),
+    forwardButton(0),
+    toParentButton(0),
+    detailModeButton(0),
+    listModeButton(0),
+    lookInLabel(0),
+    lookInCombo(0),
+    bottomRightSpacer(0),
     splitter(0),
+    sidebar(0),
     stackedWidget(0),
     listView(0),
     treeView(0),
+    fileTypeLabel(0),
+    fileTypeCombo(0),
+    newFolderButton(0),
+    buttonBox(0),
+    model(0),
     fileMode(QFileDialog::AnyFile),
     acceptMode(QFileDialog::AcceptOpen),
     confirmOverwrite(true),
-    sidebar(0),
-    lookInCombo(0),
-    fileNameEdit(0),
-    fileTypeCombo(0),
     openAction(0),
     renameAction(0),
     deleteAction(0),
     showHiddenAction(0),
-    buttonBox(0),
-    expandButton(0),
-    backButton(0),
-    forwardButton(0),
-    toParentButton(0),
-    newFolderButton(0),
-    detailModeButton(0),
-    listModeButton(0),
-    lookInLabel(0),
-    fileNameLabel(0),
-    fileTypeLabel(0),
-    bottomRightSpacer(0),
     saveState(false)
     {};
 
@@ -179,14 +180,35 @@ public:
     void addUrls(const QList<QUrl> &list, int row);
     void setUrl(const QModelIndex &row, const QUrl & url);
     void _q_layoutChanged();
-    QStringList watching;
 
-    // data
-    QFileSystemModel *model;
+    // layout
+    QLabel *fileNameLabel;
+    QFileDialogLineEdit *fileNameEdit;
+    QToolButton *expandButton;
+    QFrame *line;
+    QToolButton *backButton;
+    QToolButton *forwardButton;
+    QToolButton *toParentButton;
+    QToolButton *detailModeButton;
+    QToolButton *listModeButton;
+    QLabel *lookInLabel;
+    QComboBox *lookInCombo;
+    QLabel *bottomRightSpacer;
     QSplitter *splitter;
+    QSidebar *sidebar;
     QStackedWidget *stackedWidget;
     QFileDialogListView *listView;
     QFileDialogTreeView *treeView;
+    QLabel *fileTypeLabel;
+    QComboBox *fileTypeCombo;
+    QPushButton *newFolderButton;
+    QDialogButtonBox *buttonBox;
+
+    // data
+    QStringList watching;
+    QFileSystemModel *model;
+    QCompleter *completer;
+    QCompleter *comboCompleter;
 
     QFileDialog::FileMode fileMode;
     QFileDialog::AcceptMode acceptMode;
@@ -197,36 +219,11 @@ public:
     QStringList backHistory;
     QStringList forwardHistory;
 
-    QSidebar *sidebar;
-    QComboBox *lookInCombo;
-
-    QFileDialogLineEdit *fileNameEdit;
-    QComboBox *fileTypeCombo;
-
     QAction *openAction;
     QAction *renameAction;
     QAction *deleteAction;
     QAction *showHiddenAction;
 
-    QDialogButtonBox *buttonBox;
-
-    QToolButton *expandButton;
-
-    QToolButton *backButton;
-    QToolButton *forwardButton;
-    QToolButton *toParentButton;
-    QPushButton *newFolderButton;
-    QToolButton *detailModeButton;
-    QToolButton *listModeButton;
-    QCompleter *completer;
-    QCompleter *comboCompleter;
-
-    QLabel *lookInLabel;
-    QLabel *fileNameLabel;
-    QLabel *fileTypeLabel;
-
-    QWidget     *bottomRightSpacer;
-    QFrame *line;
     QTimeLine *vTimeLine;
     QTimeLine *hTimeLine;
     QSize oldSize;

@@ -1596,7 +1596,7 @@ void QFileDialogPrivate::layout()
     topGrid->addLayout(bottomLeftLayout, 2, 0);
     topGrid->addWidget(lookInCombo, 2, 1);
     QHBoxLayout *bottomRightLayout = new QHBoxLayout();
-    bottomRightSpacer = new QWidget(q);
+    bottomRightSpacer = new QLabel(q);
     bottomRightSpacer->setMinimumWidth(backButton->sizeHint().width() * 5);
     bottomRightLayout->addWidget(bottomRightSpacer);
     bottomRightLayout->addStretch();
