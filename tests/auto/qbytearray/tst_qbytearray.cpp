@@ -791,6 +791,7 @@ void tst_QByteArray::toInt_data()
     QTest::newRow("base 0") << QByteArray("0x10") << 0 << int(16) << true;
     QTest::newRow("base 0") << QByteArray("10") << 0 << int(10) << true;
     QTest::newRow("base 0") << QByteArray("010") << 0 << int(8) << true;
+    QTest::newRow("empty") << QByteArray() << 0 << int(0) << false;
 }
 
 void tst_QByteArray::toInt()
