@@ -103,7 +103,7 @@ QImageSmoothScaler::QImageSmoothScaler(const int srcWidth, const int srcHeight,
 
     d = new QImageSmoothScalerPrivate;
 #if defined(Q_OS_WIN) && defined(_MSC_VER) && _MSC_VER >= 1400
-    sscanf_s(parameters, "Scale( %i, %i, %s )", &dstWidth, &dstHeight, sModeStr);
+    sscanf_s(parameters, "Scale( %i, %i, %1023s )", &dstWidth, &dstHeight, sModeStr, sizeof(sModeStr));
 #else
     sscanf(parameters, "Scale( %i, %i, %s )", &dstWidth, &dstHeight, sModeStr);
 #endif
