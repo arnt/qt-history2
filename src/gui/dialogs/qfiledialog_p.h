@@ -193,7 +193,7 @@ public:
     QToolButton *listModeButton;
     QLabel *lookInLabel;
     QComboBox *lookInCombo;
-    QLabel *bottomRightSpacer;
+    QWidget *bottomRightSpacer;
     QSplitter *splitter;
     QSidebar *sidebar;
     QStackedWidget *stackedWidget;
