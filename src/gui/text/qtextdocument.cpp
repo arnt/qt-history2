@@ -336,11 +336,15 @@ void QTextDocument::clear()
 
 /*!
     \since 4.2
-    Undoes the last editing operation on the document if
-    \link QTextDocument::isUndoAvailable() undo is available\endlink.
 
-    The provided \a cursor is positioned at the end of the location where
-    the edition operation was undone.
+    Undoes the last editing operation on the document if undo is
+    available. The provided \a cursor is positioned at the end of the
+    location where the edition operation was undone.
+
+    See the \l {Overview of Qt's Undo Framework}{Qt Undo Framework}
+    documentation for details.
+
+    \sa undoAvailable(), isUndoRedoEnabled()
 */
 void QTextDocument::undo(QTextCursor *cursor)
 {
@@ -372,8 +376,7 @@ void QTextDocument::redo(QTextCursor *cursor)
 
 /*!
     \overload
-    Undoes the last editing operation on the document if
-    \link QTextDocument::isUndoAvailable() undo is available\endlink.
+
 */
 void QTextDocument::undo()
 {
@@ -690,6 +693,11 @@ QString QTextDocument::defaultStyleSheet() const
 
     This signal is emitted whenever undo operations become available
     (\a available is true) or unavailable (\a available is false).
+
+    See the \l {Overview of Qt's Undo Framework}{Qt Undo Framework}
+    documentation for details.
+
+    \sa undo(), isUndoRedoEnabled()
 */
 
 /*!
