@@ -6,6 +6,15 @@ win32 {
     exists($$[QT_INSTALL_LIBS]/QtCored4.dll) {
         SUBDIRS += debugplugin
     }
+} mac {
+    CONFIG(debug, debug|release): {
+         SUBDIRS += debugplugin 
+         tst_qplugin_pro.depends += debugplugin
+    }
+    CONFIG(release, debug|release): {
+        SUBDIRS += releaseplugin 
+        tst_qplugin_pro.depends += releaseplugin
+    }
 }else{
     SUBDIRS = debugplugin releaseplugin
     tst_qplugin_pro.depends += debugplugin releaseplugin
