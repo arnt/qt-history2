@@ -60,7 +60,7 @@ win32 {
             HEADERS += io/qfilesystemwatcher_inotify_p.h
         }
 
-        freebsd-*|macx-*:{
+        freebsd-*|macx-*|openbsd-*:{
             SOURCES += io/qfilesystemwatcher_kqueue.cpp
             HEADERS += io/qfilesystemwatcher_kqueue_p.h
         }

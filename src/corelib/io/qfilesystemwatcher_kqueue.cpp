@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#include <qplatformdefs.h>
+
 #include "qfilesystemwatcher.h"
 #include "qfilesystemwatcher_kqueue_p.h"
 
@@ -24,8 +26,6 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <fcntl.h>
-
-#include <qplatformdefs.h>
 
 // #define KEVENT_DEBUG
 #ifdef KEVENT_DEBUG
