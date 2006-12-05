@@ -392,6 +392,7 @@ static OSStatus qt_mac_create_window(WindowClass wclass, WindowAttributes wattr,
 static EventTypeSpec window_events[] = {
     { kEventClassWindow, kEventWindowClose },
     { kEventClassWindow, kEventWindowExpanded },
+    { kEventClassWindow, kEventWindowZoomed },
     { kEventClassWindow, kEventWindowCollapsed },
     { kEventClassWindow, kEventWindowToolbarSwitchMode },
     { kEventClassWindow, kEventWindowProxyBeginDrag },
@@ -446,19 +447,40 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
         } else if(ekind == kEventWindowClose) {
             widget->d_func()->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
         } else if(ekind == kEventWindowExpanded) {
-            widget->setWindowState((widget->windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
+            Qt::WindowStates currState = Qt::WindowStates(widget->data->window_state);
+            Qt::WindowStates newState = currState;
+            if (currState & Qt::WindowMinimized)
+                newState &= ~Qt::WindowMinimized;
+            if (!(currState & Qt::WindowActive))
+                newState |= Qt::WindowActive;
+            if (newState != currState) {
+                widget->data->window_state = newState;
+                QWindowStateChangeEvent e(currState);
+                QApplication::sendSpontaneousEvent(widget, &e);
+            }
             QShowEvent qse;
             QApplication::sendSpontaneousEvent(widget, &qse);
         } else if(ekind == kEventWindowZoomed) {
-            UInt32 windowPart;
-            GetEventParameter(event, kEventParamWindowPartCode, typeWindowPartCode, 0,
-                                  sizeof(windowPart), 0, &windowPart);
-            if(windowPart == inZoomIn)
-                widget->setWindowState(widget->windowState() & ~Qt::WindowMaximized);
-            else if(windowPart == inZoomOut)
-                widget->setWindowState(widget->windowState() | Qt::WindowMaximized);
+            WindowPartCode windowPart;
+            GetEventParameter(event, kEventParamWindowPartCode,
+                              typeWindowPartCode, 0, sizeof(windowPart), 0, &windowPart);
+            if(windowPart == inZoomIn && widget->isMaximized()) {
+
+                widget->data->window_state = widget->data->window_state & ~Qt::WindowMaximized;
+                QWindowStateChangeEvent e(Qt::WindowStates(widget->data->window_state | Qt::WindowMaximized));
+                QApplication::sendSpontaneousEvent(widget, &e);
+            } else if(windowPart == inZoomOut && !widget->isMaximized()) {
+                widget->data->window_state = widget->data->window_state | Qt::WindowMaximized;
+                QWindowStateChangeEvent e(Qt::WindowStates(widget->data->window_state
+                                                           & ~Qt::WindowMaximized));
+                QApplication::sendSpontaneousEvent(widget, &e);
+            }
         } else if(ekind == kEventWindowCollapsed) {
-            widget->setWindowState(widget->windowState() | Qt::WindowMinimized);
+            if (!widget->isMinimized()) {
+                widget->data->window_state = widget->data->window_state | Qt::WindowMinimized;
+                QWindowStateChangeEvent e(Qt::WindowStates(widget->data->window_state & ~Qt::WindowMinimized));
+                QApplication::sendSpontaneousEvent(widget, &e);
+            }
             //we send a hide to be like X11/Windows
             QEvent e(QEvent::Hide);
             QApplication::sendSpontaneousEvent(widget, &e);
@@ -500,9 +522,14 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
                 widget->d_func()->setGeometry_sys_helper(newRect.left(), newRect.top(), newRect.width(), newRect.height(), tlwExtra->isMove);
             } else {
                 //implicitly removes the maximized bit
-                if((widget->windowState() & Qt::WindowMaximized) &&
-                   IsWindowInStandardState((WindowPtr)widget->handle(), 0, 0))
-                    widget->setWindowState(widget->windowState() & ~Qt::WindowMaximized);
+                if((widget->data->window_state & Qt::WindowMaximized) &&
+                   IsWindowInStandardState((WindowPtr)widget->handle(), 0, 0)) {
+                    widget->data->window_state &= ~Qt::WindowMaximized;
+                    QWindowStateChangeEvent e(Qt::WindowStates(widget->data->window_state
+                                                | Qt::WindowMaximized));
+                    QApplication::sendSpontaneousEvent(widget, &e);
+
+                }
 
                 handled_event = false;
                 const QRect oldRect = widget->data->crect;
@@ -1988,6 +2015,7 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
     if (oldstate == newstate)
         return;
 
+    bool needSendStateChange = true;
     if(isWindow()) {
         if((oldstate & Qt::WindowFullScreen) != (newstate & Qt::WindowFullScreen)) {
             if(newstate & Qt::WindowFullScreen) {
@@ -2019,8 +2047,10 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
         d->createWinId();
 
         WindowRef window = qt_mac_window_for(this);
-        if((oldstate & Qt::WindowMinimized) != (newstate & Qt::WindowMinimized))
+        if((oldstate & Qt::WindowMinimized) != (newstate & Qt::WindowMinimized)) {
             CollapseWindow(window, (newstate & Qt::WindowMinimized) ? true : false);
+            needSendStateChange = oldstate == windowState(); // Collapse didn't change our flags.
+        }
 
         if((newstate & Qt::WindowMaximized) && !((newstate & Qt::WindowFullScreen))) {
             if(QTLWExtra *tlextra = d->topData()) {
@@ -2081,6 +2111,7 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
                     SetWindowStandardState(window, &bounds);
                     ZoomWindow(window, inZoomOut, false);
                     setGeometry(nrect);
+                    needSendStateChange = oldstate == windowState(); // Zoom didn't change flags.
                 }
             } else if(oldstate & Qt::WindowMaximized) {
                 ZoomWindow(window, inZoomIn, false);
@@ -2101,8 +2132,10 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
         activateWindow();
 
     qt_event_request_window_change();
-    QWindowStateChangeEvent e(oldstate);
-    QApplication::sendEvent(this, &e);
+    if (needSendStateChange) {
+        QWindowStateChangeEvent e(oldstate);
+        QApplication::sendEvent(this, &e);
+    }
 }
 
 void QWidgetPrivate::raise_sys()
