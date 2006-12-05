@@ -632,7 +632,6 @@ void QFileDialog::setDetailsExpanded(bool expanded)
     if (expanded)
         d->lookInLabel->setVisible(!expanded);
     d->updateFileTypeVisibility();
-    d->sidebar->setVisible(expanded);
     d->backButton->setVisible(expanded);
     d->forwardButton->setVisible(expanded);
     d->toParentButton->setVisible(expanded);
@@ -641,7 +640,8 @@ void QFileDialog::setDetailsExpanded(bool expanded)
     d->detailModeButton->setVisible(expanded);
     d->newFolderButton->setVisible(expanded);
     d->line->setVisible(expanded);
-    d->bottomRightSpacer->setVisible(expanded);
+    if (d->bottomRightSpacer)
+        d->bottomRightSpacer->setVisible(expanded);
     if (!expanded)
         d->lookInLabel->setVisible(!expanded);
 
@@ -1499,11 +1499,76 @@ void QFileDialogPrivate::init(const QString &directory, const QString &nameFilte
 void QFileDialogPrivate::layout()
 {
     Q_Q(QFileDialog);
+#if defined(Q_WS_QWS)
+    QGridLayout *grid = new QGridLayout(q);
+
+    // First row
+    QHBoxLayout *layout1 = new QHBoxLayout();
+    layout1->addWidget(fileNameLabel, 0, Qt::AlignRight);
+    layout1->addWidget(fileNameEdit, 0, Qt::AlignHCenter);
+    layout1->addWidget(expandButton, 0, Qt::AlignLeft);
+    grid->addLayout(layout1, 0, 0, 1, 1);
+
+    // line
+    grid->addWidget(line, 1, 0, 1, 1);
+
+    // third
+    QHBoxLayout *layout2 = new QHBoxLayout();
+    layout2->addWidget(lookInLabel, 0, Qt::AlignRight);
+    layout2->addWidget(lookInCombo, 0, Qt::AlignHCenter);
+    grid->addLayout(layout2, 2, 0, 1, 1);
+
+    // second line
+    QHBoxLayout *layout3 = new QHBoxLayout();
+    layout3->addWidget(backButton);
+    layout3->addWidget(forwardButton);
+    layout3->addWidget(toParentButton);
+    layout3->addWidget(listModeButton);
+    layout3->addWidget(detailModeButton);
+    layout3->addStretch();
+    grid->addLayout(layout3, 3, 0, 1, 1);
+
+    // main box
+    grid->addWidget(splitter, 4, 0, 1, 1);
+    // The sidebar could be turned into a combo or appended to the existing combo
+    sidebar->hide();
+
+    // bottom
+    QHBoxLayout *layout5 = new QHBoxLayout();
+    layout5->addWidget(fileTypeLabel);
+    layout5->addWidget(fileTypeCombo);
+    grid->addLayout(layout5, 5, 0, 1, 1);
+
+    // lastLine
+    QHBoxLayout *layout6 = new QHBoxLayout();
+    layout6->addWidget(newFolderButton, 0, Qt::AlignLeft);
+    layout6->addStretch();
+    layout6->addWidget(buttonBox, 0, Qt::AlignRight);
+    grid->addLayout(layout6, 6, 0, 1, 1);
+
+    // tab order
+    QWidget::setTabOrder(fileNameEdit, lookInCombo);
+    QWidget::setTabOrder(lookInCombo, expandButton);
+    QWidget::setTabOrder(expandButton, backButton);
+    QWidget::setTabOrder(backButton, forwardButton);
+    QWidget::setTabOrder(forwardButton, toParentButton);
+    QWidget::setTabOrder(toParentButton, listModeButton);
+    QWidget::setTabOrder(listModeButton, detailModeButton);
+    QWidget::setTabOrder(detailModeButton, sidebar);
+    QWidget::setTabOrder(sidebar, listView);
+    QWidget::setTabOrder(listView, treeView);
+    QWidget::setTabOrder(treeView, fileTypeCombo);
+    QWidget::setTabOrder(fileTypeCombo, newFolderButton);
+    QWidget::setTabOrder(newFolderButton, buttonBox);
+    QWidget::setTabOrder(buttonBox, fileNameEdit);
+
+    q->resize(QSize(240,320));
+#else
     q->setSizeGripEnabled(true);
     QGridLayout *grid = new QGridLayout(q);
 
     // First row
-    topGrid = new QGridLayout();
+    QGridLayout *topGrid = new QGridLayout();
     QHBoxLayout *topLeftLayout = new QHBoxLayout();
     topLeftLayout->addStretch();
     topLeftLayout->addWidget(fileNameLabel, 0, Qt::AlignHCenter);
@@ -1519,7 +1584,7 @@ void QFileDialogPrivate::layout()
     topGrid->addWidget(line, 1, 0, 1, 3);
 
     // second line
-    bottomLeftLayout = new QHBoxLayout();
+    QHBoxLayout *bottomLeftLayout = new QHBoxLayout();
     bottomLeftLayout->addWidget(backButton);
     bottomLeftLayout->addWidget(forwardButton);
     bottomLeftLayout->addWidget(toParentButton);
@@ -1567,6 +1632,7 @@ void QFileDialogPrivate::layout()
     QWidget::setTabOrder(buttonBox, fileNameEdit);
 
     q->resize(q->sizeHint());
+#endif
 }
 
 /*!

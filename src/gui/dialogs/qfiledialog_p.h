@@ -100,6 +100,7 @@ public:
     lookInLabel(0),
     fileNameLabel(0),
     fileTypeLabel(0),
+    bottomRightSpacer(0),
     saveState(false)
     {};
 
@@ -224,13 +225,11 @@ public:
     QLabel *fileNameLabel;
     QLabel *fileTypeLabel;
 
-    QHBoxLayout *bottomLeftLayout;
     QWidget     *bottomRightSpacer;
     QFrame *line;
     QTimeLine *vTimeLine;
     QTimeLine *hTimeLine;
     QSize oldSize;
-    QGridLayout *topGrid;
     bool saveState;
 };
 
