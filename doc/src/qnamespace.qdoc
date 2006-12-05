@@ -832,9 +832,10 @@
     in front of the other widgets.
 
     \value WA_PaintOutsidePaintEvent Makes it possible to use QPainter
-    to paint on the widget outside \l{QWidget::paintEvent()}{paintEvent()}.
-    This is not supported on Windows or Mac OS X. We recommend that
-    you use this attribute only when porting Qt 3 code to Qt 4.
+    to paint on the widget outside
+    \l{QWidget::paintEvent()}{paintEvent()}. This is not supported on
+    Windows, Mac OS X or Qtopia Core. We recommend that you use this
+    attribute only when porting Qt 3 code to Qt 4.
 
     \value WA_Hover Forces Qt to generate paint events when the mouse
     enters or leaves the widget. This feature is typically used when
