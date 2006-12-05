@@ -140,6 +140,8 @@ private slots:
     void dragSelect();
     void rowDelegate();
     void columnDelegate();
+    void selectAll();
+    void ctrlA();
 };
 
 class MyAbstractItemDelegate : public QAbstractItemDelegate
@@ -597,6 +599,31 @@ void tst_QAbstractItemView::columnDelegate()
     QCOMPARE(w->metaObject()->className(), "QWidget");
 }
 
+void tst_QAbstractItemView::selectAll()
+{
+    QStandardItemModel model(4,4);
+    QTableView view;
+    view.setModel(&model);
+
+    TestView *tst_view = (TestView*)&view;
+
+    QCOMPARE(tst_view->tst_selectedIndexes().count(), 0);
+    view.selectAll();
+    QCOMPARE(tst_view->tst_selectedIndexes().count(), 4*4);
+}
+
+void tst_QAbstractItemView::ctrlA()
+{
+    QStandardItemModel model(4,4);
+    QTableView view;
+    view.setModel(&model);
+
+    TestView *tst_view = (TestView*)&view;
+
+    QCOMPARE(tst_view->tst_selectedIndexes().count(), 0);
+    QTest::keyClick(&view, Qt::Key_A, Qt::ControlModifier);
+    QCOMPARE(tst_view->tst_selectedIndexes().count(), 4*4);
+}
 
 QTEST_MAIN(tst_QAbstractItemView)
 #include "tst_qabstractitemview.moc"
