@@ -198,6 +198,13 @@ bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int i
         sqlite3_reset(stmt);
         return false;
     case SQLITE_ERROR:
+        // SQLITE_ERROR is a generic error code and we must call sqlite3_reset()
+        // to get the specific error message.
+        res = sqlite3_reset(stmt);
+        q->setLastError(qMakeError(access, QCoreApplication::translate("QSQLiteResult",
+                        "Unable to fetch row"), QSqlError::ConnectionError, res));
+        q->setAt(QSql::AfterLastRow);
+        return false;
     case SQLITE_MISUSE:
     case SQLITE_BUSY:
     default:
