@@ -339,13 +339,14 @@ void tst_QTabWidget::cornerWidget()
     // Test bad arguments
     tw->setCornerWidget(NULL, Qt::TopRightCorner);
 
-    QVERIFY(tw->cornerWidget(Qt::TopLeftCorner) == NULL);
-    QVERIFY(tw->cornerWidget(Qt::TopRightCorner) == NULL);
-    QVERIFY(tw->cornerWidget(Qt::BottomLeftCorner) == NULL);
-    QVERIFY(tw->cornerWidget(Qt::BottomRightCorner) == NULL);
+    QVERIFY(tw->cornerWidget(Qt::TopLeftCorner) == 0);
+    QVERIFY(tw->cornerWidget(Qt::TopRightCorner) == 0);
+    QVERIFY(tw->cornerWidget(Qt::BottomLeftCorner) == 0);
+    QVERIFY(tw->cornerWidget(Qt::BottomRightCorner) == 0);
 
-    QWidget *w = new QWidget(tw);
+    QWidget *w = new QWidget(0);
     tw->setCornerWidget(w, Qt::TopLeftCorner);
+    QCOMPARE(w->parent(), tw);
     QVERIFY(tw->cornerWidget(Qt::TopLeftCorner) == w);
     tw->setCornerWidget(w, Qt::TopRightCorner);
     QVERIFY(tw->cornerWidget(Qt::TopRightCorner) == w);
@@ -353,6 +354,10 @@ void tst_QTabWidget::cornerWidget()
     QVERIFY(tw->cornerWidget(Qt::BottomLeftCorner) == w);
     tw->setCornerWidget(w, Qt::BottomRightCorner);
     QVERIFY(tw->cornerWidget(Qt::BottomRightCorner) == w);
+
+    tw->setCornerWidget(0, Qt::TopRightCorner);
+    QVERIFY(tw->cornerWidget(Qt::TopRightCorner) == 0);
+    QCOMPARE(w->isHidden(), true);
 }
 
 void tst_QTabWidget::removeTab()
