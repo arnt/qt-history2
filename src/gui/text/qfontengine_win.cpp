@@ -160,7 +160,7 @@ void QFontEngine::getCMap()
     SelectObject(hdc, hfont);
     bool symb = false;
     if (ttf) {
-        cmapTable = getSfntTable(qbswap(MAKE_TAG('c', 'm', 'a', 'p')));
+        cmapTable = getSfntTable(qbswap<quint32>(MAKE_TAG('c', 'm', 'a', 'p')));
         int size = 0;
         cmap = getCMap(reinterpret_cast<const uchar *>(cmapTable.constData()),
                        cmapTable.size(), &symb, &size);
@@ -908,7 +908,7 @@ QByteArray QFontEngineWin::getSfntTable(uint tag) const
     if (!ttf)
         return QByteArray();
     SelectObject(shared_dc, hfont);
-    DWORD t = qbswap(tag);
+    DWORD t = qbswap<quint32>(tag);
     int length = GetFontData(shared_dc, t, 0, NULL, 0);
     QByteArray table;
     if(length > 0) {
