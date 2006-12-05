@@ -467,20 +467,34 @@ void QTabWidget::setTabEnabled(int index, bool enable)
 
   Only the horizontal element of the \a corner will be used.
 
+  Passing 0 shows no widget in the corner.
+
+  Any previously set corner widget is hidden.
+
+  All widgets set here will be deleted by the tab widget when it is
+  destroyed unless you separately reparent the widget after setting
+  some other corner widget (or 0).
+
   Note: Corner widgets are designed for \l North and \l South tab positions;
   other orientations are known to not work properly.
 
   \sa cornerWidget(), setTabPosition()
 */
-void QTabWidget::setCornerWidget(QWidget * w, Qt::Corner corner)
+void QTabWidget::setCornerWidget(QWidget * widget, Qt::Corner corner)
 {
     Q_D(QTabWidget);
-    if (!w)
-        return;
-    if ((uint)corner & 1)
-        d->rightCornerWidget = w;
-    else
-        d->leftCornerWidget = w;
+    if (widget && widget->parentWidget() != this)
+        widget->setParent(this);
+
+    if (corner & Qt::TopRightCorner) {
+        if (d->rightCornerWidget)
+            d->rightCornerWidget->hide();
+        d->rightCornerWidget = widget;
+    } else {
+        if (d->leftCornerWidget)
+            d->leftCornerWidget->hide();
+        d->leftCornerWidget = widget;
+    }
     setUpLayout();
 }
 
@@ -490,7 +504,7 @@ void QTabWidget::setCornerWidget(QWidget * w, Qt::Corner corner)
 QWidget * QTabWidget::cornerWidget(Qt::Corner corner) const
 {
     Q_D(const QTabWidget);
-    if ((uint)corner & 1)
+    if (corner & Qt::TopRightCorner)
         return d->rightCornerWidget;
     return d->leftCornerWidget;
 }
