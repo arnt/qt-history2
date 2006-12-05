@@ -494,10 +494,11 @@ void tst_QFileSystemModel::setData_data()
     QTest::addColumn<QString>("oldFileName");
     QTest::addColumn<QString>("newFileName");
     QTest::addColumn<bool>("success");
-    QTest::newRow("outside current dir") << (QStringList() << "a" << "b" << "c")
+    /*QTest::newRow("outside current dir") << (QStringList() << "a" << "b" << "c")
               << QDir::temp().path() + QDir::separator() + QString("flatdirtest") + QDir::separator() + "a"
               << QDir::temp().absolutePath() + QDir::separator() + "a"
               << false;
+    */
     QTest::newRow("in current dir") << (QStringList() << "a" << "b" << "c")
               << QDir::temp().path() + QDir::separator() + QString("flatdirtest") + QDir::separator() + "a"
               <<  "d"
