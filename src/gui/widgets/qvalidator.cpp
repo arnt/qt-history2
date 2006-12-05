@@ -751,12 +751,17 @@ QDoubleValidator::Notation QDoubleValidator::notation() const
     Intermediate, or \l Invalid. The regexp can either be supplied
     when the QRegExpValidator is constructed, or at a later time.
 
-    The regexp is treated as if it begins with the start of string
-    assertion, \bold{^}, and ends with the end of string assertion
-    \bold{$} so the match is against the entire input string, or from
+    When QRegExpValidator determines whether a string is \l Acceptable
+    or not, the regexp is treated as if it begins with the start of string
+    assertion (\bold{^}) and ends with the end of string assertion
+    (\bold{$}); the match is against the entire input string, or from
     the given position if a start position greater than zero is given.
 
-    For a brief introduction to Qt's regexp engine see \l QRegExp.
+    If a string is a prefix of an \l Acceptable string, it is considered
+    \l Intermediate. For example, "" and "A" are \l Intermediate for the
+    regexp \bold{[A-Z][0-9]} (whereas "_" would be \l Invalid).
+
+    For a brief introduction to Qt's regexp engine, see \l QRegExp.
 
     Example of use:
     \code
