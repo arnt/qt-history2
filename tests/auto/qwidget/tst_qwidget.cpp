@@ -130,7 +130,8 @@ private slots:
     void setMaximumSize();
     void setFixedSize();
 
-    void winId();
+    void ensureCreated();
+    void persistentWinId();
     void qobject_castInDestroyedSlot();
 
     // tests QWidget::setGeometry() on windows only
@@ -2782,7 +2783,53 @@ void tst_QWidget::setFixedSize()
     QVERIFY(!w.testAttribute(Qt::WA_Resized));
 }
 
-void tst_QWidget::winId()
+void tst_QWidget::ensureCreated()
+{
+    {
+        QWidget widget;
+        WId widgetWinId = widget.winId();
+        Q_UNUSED(widgetWinId);
+        QVERIFY(widget.testAttribute(Qt::WA_WState_Created));
+    }
+
+    {
+        QWidget window;
+
+        QDialog dialog(&window);
+        dialog.setWindowModality(Qt::NonModal);
+
+        WId dialogWinId = dialog.winId();
+        Q_UNUSED(dialogWinId);
+        QVERIFY(dialog.testAttribute(Qt::WA_WState_Created));
+        QVERIFY(window.testAttribute(Qt::WA_WState_Created));
+    }
+
+    {
+        QWidget window;
+
+        QDialog dialog(&window);
+        dialog.setWindowModality(Qt::WindowModal);
+
+        WId dialogWinId = dialog.winId();
+        Q_UNUSED(dialogWinId);
+        QVERIFY(dialog.testAttribute(Qt::WA_WState_Created));
+        QVERIFY(window.testAttribute(Qt::WA_WState_Created));
+    }
+
+    {
+        QWidget window;
+
+        QDialog dialog(&window);
+        dialog.setWindowModality(Qt::ApplicationModal);
+
+        WId dialogWinId = dialog.winId();
+        Q_UNUSED(dialogWinId);
+        QVERIFY(dialog.testAttribute(Qt::WA_WState_Created));
+        QVERIFY(window.testAttribute(Qt::WA_WState_Created));
+    }
+}
+
+void tst_QWidget::persistentWinId()
 {
     QWidget *parent = new QWidget;
     QWidget *w1 = new QWidget;

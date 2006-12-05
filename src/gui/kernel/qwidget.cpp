@@ -1022,7 +1022,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         flags |= Qt::Window;
     }
 
-    if (parentWidget() && (type & Qt::Window) && !parentWidget()->testAttribute(Qt::WA_WState_Created) && !isModal())
+    if (parentWidget() && (type & Qt::Window) && !parentWidget()->testAttribute(Qt::WA_WState_Created))
         parentWidget()->createWinId();
 
 #ifdef QT3_SUPPORT
