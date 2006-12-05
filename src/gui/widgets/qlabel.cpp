@@ -320,6 +320,10 @@ void QLabel::setText(const QString &text)
         d->ensureTextControl();
     } else {
         d->doc->setPlainText(text);
+        // Note: mouse tracking not disabled intentionally
+        if (d->textInteractionFlags & (Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard)) {
+            d->ensureTextControl();
+        }
 #ifndef QT_NO_SHORTCUT
         if (d->buddy)
             d->updateShortcut();
