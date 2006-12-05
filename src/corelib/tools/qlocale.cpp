@@ -4274,9 +4274,9 @@ static inline ULong getWord0(const NEEDS_VOLATILE double x)
 static inline void setWord0(NEEDS_VOLATILE double *x, ULong l)
 {
 #ifdef QT_ARMFPA
-    return _setWord1(x, l);
+    _setWord1(x, l);
 #else
-    return _setWord0(x, l);
+    _setWord0(x, l);
 #endif
 }
 
@@ -4292,9 +4292,9 @@ static inline ULong getWord1(const NEEDS_VOLATILE double x)
 static inline void setWord1(NEEDS_VOLATILE double *x, ULong l)
 {
 #ifdef QT_ARMFPA
-    return _setWord0(x, l);
+    _setWord0(x, l);
 #else
-    return _setWord1(x, l);
+    _setWord1(x, l);
 #endif
 }
 
