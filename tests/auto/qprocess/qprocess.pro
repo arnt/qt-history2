@@ -13,7 +13,8 @@ SUBDIRS = testProcessCrash \
           testProcessSpacesArgs/onespace.pro \
           testProcessSpacesArgs/twospaces.pro \
           testExitCodes \
-          testSpaceInName
+          testSpaceInName \
+          testGuiProcess
 
 win32 {
           SUBDIRS += testProcessEchoGui

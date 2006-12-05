@@ -71,6 +71,8 @@ private slots:
     void emitReadyReadOnlyWhenNewDataArrives();
     void hardExit();
     void softExit();
+    void softExitInSlots_data();
+    void softExitInSlots();
     void mergedChannels();
     void forwardedChannels();
     void atEnd();
@@ -840,6 +842,91 @@ void tst_QProcess::softExit()
     QVERIFY(proc.waitForFinished(10000));
     QCOMPARE(int(proc.state()), int(QProcess::NotRunning));
     QCOMPARE(int(proc.error()), int(QProcess::UnknownError));
+}
+
+class SoftExitProcess : public QProcess
+{
+    Q_OBJECT
+public:
+    bool waitedForFinished;
+    
+    SoftExitProcess(int n) : waitedForFinished(false)
+    {
+        connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
+                this, SLOT(finishedSlot(int, QProcess::ExitStatus)));
+
+        switch (n) {
+        case 0:
+            setReadChannelMode(QProcess::MergedChannels);
+            connect(this, SIGNAL(readyRead()), this, SLOT(terminateSlot()));
+            break;
+        case 1:
+            connect(this, SIGNAL(readyReadStandardOutput()),
+                    this, SLOT(terminateSlot()));
+            break;
+        case 2:
+            connect(this, SIGNAL(readyReadStandardError()),
+                    this, SLOT(terminateSlot()));
+            break;
+        case 3:
+            connect(this, SIGNAL(started()),
+                    this, SLOT(terminateSlot()));
+            break;
+        case 4:
+        default:
+            connect(this, SIGNAL(stateChanged(QProcess::ProcessState)),
+                    this, SLOT(terminateSlot()));
+            break;
+        }
+    }
+
+public slots:
+    void terminateSlot()
+    {
+        readAll();
+        terminate();
+        if ((waitedForFinished = waitForFinished(5000)) == false) {
+            kill();
+            waitedForFinished = waitForFinished(5000);
+        }
+    }
+
+    void finishedSlot(int, QProcess::ExitStatus)
+    {
+        waitedForFinished = true;
+    }
+};
+
+//-----------------------------------------------------------------------------
+void tst_QProcess::softExitInSlots_data()
+{
+    QTest::addColumn<QString>("appName");
+
+#ifdef Q_OS_MAC
+    QTest::newRow("gui app") << "testGuiProcess/testGuiProcess.app";
+#else
+    QTest::newRow("gui app") << "testGuiProcess/testGuiProcess";
+#endif
+#ifdef Q_OS_MAC
+    QTest::newRow("console app") << "testProcessEcho2/testProcessEcho2.app";
+#else
+    QTest::newRow("console app") << "testProcessEcho2/testProcessEcho2";
+#endif
+}
+
+//-----------------------------------------------------------------------------
+void tst_QProcess::softExitInSlots()
+{
+    QFETCH(QString, appName);
+
+    for (int i = 0; i < 5; ++i) {
+        SoftExitProcess proc(i);
+        proc.start(appName);
+        proc.write("OLEBOLE", 8); // include the \0
+        QTestEventLoop::instance().enterLoop(1);
+        QCOMPARE(proc.state(), QProcess::NotRunning);
+        QVERIFY(proc.waitedForFinished);
+    }
 }
 
 //-----------------------------------------------------------------------------
