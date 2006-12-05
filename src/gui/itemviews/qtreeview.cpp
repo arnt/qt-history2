@@ -2852,7 +2852,7 @@ void QTreeViewPrivate::updateScrollBars()
     if (verticalScrollMode == QAbstractItemView::ScrollPerItem) {
         int itemsInViewport = 0;
         if (uniformRowHeights) {
-            if (defaultItemHeight == 0)
+            if (defaultItemHeight <= 0)
                 itemsInViewport = viewItems.count();
             else
                 itemsInViewport = viewportSize.height() / defaultItemHeight;
