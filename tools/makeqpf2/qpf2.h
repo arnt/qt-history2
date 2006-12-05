@@ -1,3 +1,16 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef QPF2_H
 #define QPF2_H
 
@@ -10,7 +23,12 @@ class QPF
 public:
     static int debugVerbosity;
 
-    static QByteArray generate(QFontEngine *fontEngine, bool includeCMap = true);
+    enum GenerationOption {
+        IncludeCMap = 0x1,
+        RenderGlyphs = 0x2
+    };
+
+    static QByteArray generate(QFontEngine *fontEngine, int options);
     void addHeader(QFontEngine *fontEngine);
     void addCMap(QFontEngine *fontEngine);
     void addGlyphs(QFontEngine *fontEngine);
@@ -24,9 +42,11 @@ public:
     void addTaggedUInt32(QFontEngineQPF::HeaderTag tag, quint32 value);
 
     static void dump(const QByteArray &qpf);
-    static const uchar *dumpHeader(const uchar *data);
-    static const uchar *dumpHeaderTag(const uchar *data);
-    static const uchar *dumpBlock(const uchar *data);
+    const uchar *dumpHeader(const uchar *data);
+    const uchar *dumpHeaderTag(const uchar *data);
+    void dumpGMapBlock(const quint32 *gmap, int glyphCount);
+    void dumpGlyphBlock(const quint32 *gmap, int glyphCount, const uchar *data, const uchar *endPtr);
+    void dumpGlyph(const uchar *data, const QFontEngineQPF::Glyph *glyph);
 
     void addUInt16(quint16 value) { qToBigEndian(value, addBytes(sizeof(value))); }
     void addUInt32(quint32 value) { qToBigEndian(value, addBytes(sizeof(value))); }
@@ -46,6 +66,7 @@ public:
     }
 
     QByteArray qpf;
+    int options;
 };
 
 #endif // QPF2_H

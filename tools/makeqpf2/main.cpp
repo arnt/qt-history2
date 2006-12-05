@@ -1,3 +1,16 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include <QtGui>
 
 #include "qpf2.h"
@@ -8,13 +21,13 @@ static void help()
 {
     printf("usage:\n");
     printf("makeqpf fontname pixelsize [italic] [bold] [--exclude-cmap] [-v]\n");
-    printf("makeqpf -dump file.qpf2\n");
+    printf("makeqpf -dump [-v] file.qpf2\n");
     exit(0);
 }
 
 int main(int argc, char **argv)
 {
-    QApplication app(argc, argv, QApplication::Tty);
+    QApplication app(argc, argv);
     const QStringList arguments = app.arguments();
 
     if (arguments.count() <= 1)
@@ -23,11 +36,22 @@ int main(int argc, char **argv)
     if (firstArg == QLatin1String("-h") || firstArg == QLatin1String("--help"))
         help();
     if (firstArg == QLatin1String("-dump")) {
-        if (arguments.count() != 3)
+        QString file;
+        for (int i = 2; i < arguments.count(); ++i) {
+            if (arguments.at(i).startsWith(QLatin1String("-v")))
+                QPF::debugVerbosity += arguments.at(i).length() - 1;
+            else if (file.isEmpty())
+                file = arguments.at(i);
+            else
+                help();
+        }
+
+        if (file.isEmpty())
             help();
-        QFile f(arguments.at(2));
+
+        QFile f(file);
         if (!f.open(QIODevice::ReadOnly)) {
-            printf("cannot open %s\n", qPrintable(arguments.at(2)));
+            printf("cannot open %s\n", qPrintable(file));
             exit(1);
         }
 
@@ -63,7 +87,7 @@ int main(int argc, char **argv)
     if (!ok) help();
     font.setPixelSize(pixelSize);
 
-    bool includeCMap = true;
+    int generationOptions = QPF::IncludeCMap | QPF::RenderGlyphs;
 
     for (int i = 3; i < arguments.count(); ++i) {
         const QString &arg = arguments.at(i);
@@ -72,7 +96,9 @@ int main(int argc, char **argv)
         } else if (arg == QLatin1String("bold")) {
             font.setBold(true);
         } else if (arg == QLatin1String("--exclude-cmap")) {
-            includeCMap = false;
+            generationOptions &= ~QPF::IncludeCMap;
+        } else if (arg == QLatin1String("--exclude-glyphs")) {
+            generationOptions &= ~QPF::RenderGlyphs;
         } else if (arg == QLatin1String("-v")) {
             ++QPF::debugVerbosity;
         } else {
@@ -90,7 +116,7 @@ int main(int argc, char **argv)
     if (fontEngine->type() == QFontEngine::Multi)
         fontEngine = static_cast<QFontEngineMulti *>(fontEngine)->engine(0);
 
-    QByteArray qpf = QPF::generate(fontEngine, includeCMap);
+    QByteArray qpf = QPF::generate(fontEngine, generationOptions);
 
     QString fileName = fontName.toLower() + "_" + QString::number(pixelSize)
                        + "_" + QString::number(font.weight())
@@ -104,7 +130,7 @@ int main(int argc, char **argv)
     f.close();
 
     QFontEngine::FaceId face = fontEngine->faceId();
-    if (includeCMap) {
+    if (generationOptions & QPF::IncludeCMap) {
         printf("Created %s from %s\n", qPrintable(fileName), face.filename.constData());
     } else {
         printf("Created %s from %s excluding the character-map\n", qPrintable(fileName), face.filename.constData());

@@ -1,3 +1,16 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include "qpf2.h"
 
 #include <private/qfontengine_p.h>
@@ -29,12 +42,13 @@ static const char *headerTagNames[QFontEngineQPF::NumTags] = {
     "EndOfHeader"
 };
 
-QByteArray QPF::generate(QFontEngine *fontEngine, bool includeCMap)
+QByteArray QPF::generate(QFontEngine *fontEngine, int options)
 {
     QPF font;
 
+    font.options = options;
     font.addHeader(fontEngine);
-    if (includeCMap)
+    if (options & IncludeCMap)
         font.addCMap(fontEngine);
     font.addGlyphs(fontEngine);
 
@@ -49,7 +63,10 @@ void QPF::addHeader(QFontEngine *fontEngine)
     header->magic[1] = 'P';
     header->magic[2] = 'F';
     header->magic[3] = '2';
-    header->lock = qToBigEndian<quint32>(0xffffffff);
+    if (options & RenderGlyphs)
+        header->lock = 0xffffffff;
+    else
+        header->lock = 0;
     header->majorVersion = QFontEngineQPF::CurrentMajorVersion;
     header->minorVersion = QFontEngineQPF::CurrentMinorVersion;
     header->dataSize = 0;
@@ -102,61 +119,63 @@ void QPF::addGlyphs(QFontEngine *fe)
 
     QByteArray gmap;
     gmap.resize(glyphCount * sizeof(quint32));
-    gmap.fill(0xff);
+    gmap.fill(char(0xff));
     //qDebug() << "glyphCount" << glyphCount;
 
     QByteArray glyphs;
-    // this is only a rough estimation
-    glyphs.reserve(glyphCount 
-                   * (sizeof(QFontEngineQPF::Glyph) 
-                      + qRound(fe->maxCharWidth() * (fe->ascent() + fe->descent()).toReal())));
+    if (options & RenderGlyphs) {
+        // this is only a rough estimation
+        glyphs.reserve(glyphCount 
+                * (sizeof(QFontEngineQPF::Glyph) 
+                    + qRound(fe->maxCharWidth() * (fe->ascent() + fe->descent()).toReal())));
 
-    QGlyphLayout layout[10];
-    for (uint uc = 0; uc < 0x10000; ++uc) {
-        QChar ch(uc);
-        int nglyphs = 10;
-        if (!fe->stringToCMap(&ch, 1, &layout[0], &nglyphs, /*flags*/ 0))
-            continue;
+        QGlyphLayout layout[10];
+        for (uint uc = 0; uc < 0x10000; ++uc) {
+            QChar ch(uc);
+            int nglyphs = 10;
+            if (!fe->stringToCMap(&ch, 1, &layout[0], &nglyphs, /*flags*/ 0))
+                continue;
 
-        if (nglyphs != 1)
-            continue;
+            if (nglyphs != 1)
+                continue;
 
-        const quint32 glyphIndex = layout[0].glyph;
+            const quint32 glyphIndex = layout[0].glyph;
 
-        if (!glyphIndex)
-            continue;
+            if (!glyphIndex)
+                continue;
 
-        Q_ASSERT(glyphIndex < glyphCount);
+            Q_ASSERT(glyphIndex < glyphCount);
 
-        QImage img = fe->alphaMapForGlyph(glyphIndex).convertToFormat(QImage::Format_Indexed8);
-        glyph_metrics_t metrics = fe->boundingBox(glyphIndex);
+            QImage img = fe->alphaMapForGlyph(glyphIndex).convertToFormat(QImage::Format_Indexed8);
+            glyph_metrics_t metrics = fe->boundingBox(glyphIndex);
 
-        const quint32 oldSize = glyphs.size();
-        glyphs.resize(glyphs.size() + sizeof(QFontEngineQPF::Glyph) + img.numBytes());
-        uchar *data = reinterpret_cast<uchar *>(glyphs.data() + oldSize);
+            const quint32 oldSize = glyphs.size();
+            glyphs.resize(glyphs.size() + sizeof(QFontEngineQPF::Glyph) + img.numBytes());
+            uchar *data = reinterpret_cast<uchar *>(glyphs.data() + oldSize);
 
-        uchar *gmapPtr = reinterpret_cast<uchar *>(gmap.data() + glyphIndex * sizeof(quint32));
-        qToBigEndian(oldSize, gmapPtr);
+            uchar *gmapPtr = reinterpret_cast<uchar *>(gmap.data() + glyphIndex * sizeof(quint32));
+            qToBigEndian(oldSize, gmapPtr);
 
-        QFontEngineQPF::Glyph *glyph = reinterpret_cast<QFontEngineQPF::Glyph *>(data);
-        glyph->width = img.width();
-        glyph->height = img.height();
-        glyph->bytesPerLine = img.bytesPerLine();
-        glyph->x = qRound(metrics.x);
-        glyph->y = qRound(metrics.y);
-        glyph->advance = qRound(metrics.xoff);
-        data += sizeof(QFontEngineQPF::Glyph);
+            QFontEngineQPF::Glyph *glyph = reinterpret_cast<QFontEngineQPF::Glyph *>(data);
+            glyph->width = img.width();
+            glyph->height = img.height();
+            glyph->bytesPerLine = img.bytesPerLine();
+            glyph->x = qRound(metrics.x);
+            glyph->y = qRound(metrics.y);
+            glyph->advance = qRound(metrics.xoff);
+            data += sizeof(QFontEngineQPF::Glyph);
 
-        if (debugVerbosity && uc >= 'A' && uc <= 'z' || debugVerbosity > 1) {
-            qDebug() << "adding glyph with index" << glyphIndex << " uc =" << char(uc) << ":\n"
-                     << "    glyph->x =" << glyph->x << "rounded from" << metrics.x << "\n"
-                     << "    glyph->y =" << glyph->y << "rounded from" << metrics.y << "\n"
-                     << "    width =" << glyph->width << "height =" << glyph->height
-                     << "    advance =" << glyph->advance << "rounded from" << metrics.xoff
-                     ;
+            if (debugVerbosity && uc >= 'A' && uc <= 'z' || debugVerbosity > 1) {
+                qDebug() << "adding glyph with index" << glyphIndex << " uc =" << char(uc) << ":\n"
+                    << "    glyph->x =" << glyph->x << "rounded from" << metrics.x << "\n"
+                    << "    glyph->y =" << glyph->y << "rounded from" << metrics.y << "\n"
+                    << "    width =" << glyph->width << "height =" << glyph->height
+                    << "    advance =" << glyph->advance << "rounded from" << metrics.xoff
+                    ;
+            }
+
+            qMemCopy(data, img.bits(), img.numBytes());
         }
-
-        qMemCopy(data, img.bits(), img.numBytes());
     }
 
     addBlock(QFontEngineQPF::GMapBlock, gmap);
@@ -213,11 +232,35 @@ void QPF::addTaggedUInt32(QFontEngineQPF::HeaderTag tag, quint32 value)
 
 void QPF::dump(const QByteArray &qpf)
 {
+    QPF font;
+    font.qpf = qpf;
+
     const uchar *data = reinterpret_cast<const uchar *>(qpf.constData());
     const uchar *endPtr = reinterpret_cast<const uchar *>(qpf.constData() + qpf.size());
-    data = dumpHeader(data);
+    data = font.dumpHeader(data);
+
+    const quint32 *gmap = 0;
+    quint32 glyphCount = 0;
+
     while (data < endPtr) {
-        data = dumpBlock(data);
+        const QFontEngineQPF::Block *block = reinterpret_cast<const QFontEngineQPF::Block *>(data);
+        quint32 tag = qFromBigEndian(block->tag);
+        quint32 blockSize = qFromBigEndian(block->dataSize);
+        qDebug() << "Block: Tag =" << qFromBigEndian(block->tag) << "; Size =" << blockSize << "; Offset =" << hex << data - reinterpret_cast<const uchar *>(qpf.constData());
+        data += sizeof(QFontEngineQPF::Block);
+
+        if (debugVerbosity) {
+            if (tag == QFontEngineQPF::GMapBlock) {
+                gmap = reinterpret_cast<const quint32 *>(data);
+                glyphCount = blockSize / 4;
+                font.dumpGMapBlock(gmap, glyphCount);
+            } else if (tag == QFontEngineQPF::GlyphBlock
+                       && gmap && debugVerbosity > 1) {
+                font.dumpGlyphBlock(gmap, glyphCount, data, data + blockSize);
+            }
+        }
+
+        data += blockSize;
     }
 }
 
@@ -284,13 +327,64 @@ const uchar *QPF::dumpHeaderTag(const uchar *data)
     return data;
 }
 
-const uchar *QPF::dumpBlock(const uchar *data)
+void QPF::dumpGMapBlock(const quint32 *gmap, int glyphCount)
 {
-    const QFontEngineQPF::Block *block = reinterpret_cast<const QFontEngineQPF::Block *>(data);
-    int blockSize = qFromBigEndian(block->dataSize);
-    qDebug() << "Block: Tag =" << qFromBigEndian(block->tag) << "; Size =" << blockSize << "; Pointer =" << static_cast<const void *>(data);
+    qDebug() << "glyphCount =" << glyphCount;
+    int renderedGlyphs = 0;
+    for (int i = 0; i < glyphCount; ++i) {
+        if (gmap[i] != 0xffffffff) {
+            const quint32 glyphPos = qFromBigEndian(gmap[i]);
+            qDebug("gmap[%d] = 0x%x / %u", i, glyphPos, glyphPos);
+            ++renderedGlyphs;
+        }
+    }
+    qDebug() << "Glyphs rendered:" << renderedGlyphs << "; Glyphs missing from the font:" << glyphCount - renderedGlyphs;
+}
 
-    data += sizeof(QFontEngineQPF::Block) + blockSize;
-    return data;
+void QPF::dumpGlyphBlock(const quint32 *gmap, int glyphCount, const uchar *data, const uchar *endPtr)
+{
+    // glyphPos -> glyphIndex
+    QMap<quint32, quint32> reverseGlyphMap;
+    for (int i = 0; i < glyphCount; ++i) {
+        if (gmap[i] == 0xffffffff)
+            continue;
+        const quint32 glyphPos = qFromBigEndian(gmap[i]);
+        reverseGlyphMap[glyphPos] = i;
+    }
+
+    const uchar *glyphBlockBegin = data;
+    while (data < endPtr) {
+        const QFontEngineQPF::Glyph *g = reinterpret_cast<const QFontEngineQPF::Glyph *>(data);
+
+        const quint64 glyphOffset = data - glyphBlockBegin;
+        const quint32 glyphIndex = reverseGlyphMap.value(glyphOffset, 0xffffffff);
+
+        if (glyphIndex == 0xffffffff)
+            qDebug() << "############: Glyph present in glyph block is not listed in glyph map!";
+        qDebug("glyph at offset 0x%x glyphIndex = %u", quint32(glyphOffset), glyphIndex);
+        qDebug() << "    width =" << g->width << "height =" << g->height << "x =" << g->x << "y =" << g->y;
+        qDebug() << "    advance =" << g->advance << "bytesPerLine =" << g->bytesPerLine;
+
+        data += sizeof(*g);
+        if (glyphIndex == 0xffffffff || debugVerbosity > 4) {
+            dumpGlyph(data, g);
+        }
+
+        data += g->height * g->bytesPerLine;
+    }
+}
+
+void QPF::dumpGlyph(const uchar *data, const QFontEngineQPF::Glyph *glyph)
+{
+    fprintf(stderr, "---- glyph data:\n");
+    const char *alphas = " .o#";
+    for (int y = 0; y < glyph->height; ++y) {
+        for (int x = 0; x < glyph->width; ++x) {
+            const uchar value = data[y * glyph->bytesPerLine + x];
+            fprintf(stderr, "%c", alphas[value >> 6]);
+        }
+        fprintf(stderr, "\n");
+    }
+    fprintf(stderr, "----\n");
 }
 
