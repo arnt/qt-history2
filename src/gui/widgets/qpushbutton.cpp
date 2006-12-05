@@ -142,6 +142,12 @@ public:
     \table 100%
     \row \o \inlineimage macintosh-pushbutton.png Screenshot of a Macintosh style push button
          \o A push button shown in the \l{Macintosh Style Widget Gallery}{Macintosh widget style}.
+
+         Note that when a button's width becomes smaller than 50 or
+         its height becomes smaller than 30, the button's corners are
+         changed from round to square. Use the setMinimumSize()
+         function to prevent this behavior.
+
     \row \o \inlineimage windowsxp-pushbutton.png Screenshot of a Windows XP style push button
          \o A push button shown in the \l{Windows XP Style Widget Gallery}{Windows XP widget style}.
     \row \o \inlineimage plastique-pushbutton.png Screenshot of a Plastique style push button
