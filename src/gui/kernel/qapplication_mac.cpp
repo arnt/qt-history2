@@ -1554,7 +1554,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 }
             }
         }
-        if(qt_mac_window_at(where.h, where.v, 0) != inContent) {
+        if(qt_button_down == 0 && qt_mac_window_at(where.h, where.v, 0) != inContent) {
             inNonClientArea = true;
             switch (etype) {
             case QEvent::MouseButtonPress:
