@@ -440,21 +440,19 @@ public:
     SizeHinterFrame(QWidget *parent = 0) 
     : QFrame(parent)
     {
-        setFrameStyle(QFrame::Box | QFrame::Plain);
-        setNumberOfPixels(-1);
+        init(-1);
     }
 
     SizeHinterFrame(const QSize &s, int numPixels = -1) 
     : QFrame(0), sh(s) {
-        setFrameStyle(QFrame::Box | QFrame::Plain);
-        setNumberOfPixels(numPixels);
+        init(numPixels);
     }
 
 
     SizeHinterFrame(int w, int h)
     : QFrame(0), sh(QSize(w,h)) 
     {
-        setNumberOfPixels(-1);
+        init(-1);
     }
 
     void setSizeHint(const QSize &s) { sh = s; }
@@ -467,6 +465,11 @@ public:
         QSizePolicy sp = sizePolicy();
         sp.setHeightForWidth(m_numPixels != -1);
         setSizePolicy(sp);
+    }
+private:
+    void init(int numPixels = -1){
+        setFrameStyle(QFrame::Box | QFrame::Plain);
+        setNumberOfPixels(numPixels);
     }
 private:
     QSize sh;
@@ -490,7 +493,7 @@ void tst_QGridLayout::spacingsAndMargins_data()
     // expected
     QTest::addColumn<PointList>("expectedpositions");
 
-    int child_offset_y = 11 + 9 + 100 + 6;
+    int child_offset_y = 11 + 100 + 6 + 9 ;
     QTest::newRow("1x1 grid") << 1 << 1 << QSize(100, 100)
                        << (PointList()  // toplevel
                                         << QPoint( 11, 11)
@@ -569,6 +572,7 @@ void tst_QGridLayout::spacingsAndMargins()
     QFETCH(QSize, sizehint);
     QFETCH(PointList, expectedpositions);
 
+
     QApplication::setStyle(new Qt42Style);
     QWidget toplevel;
     QVBoxLayout vbox(&toplevel);
@@ -599,10 +603,11 @@ void tst_QGridLayout::spacingsAndMargins()
         }
     }
 
-    grid1.setColumnStretch(columns, 1);
-    grid1.setRowStretch(rows, 1);
-    grid2.setColumnStretch(columns, 1);
-    grid2.setRowStretch(rows, 1);
+    grid1.setColumnStretch(columns-1, 1);
+    grid1.setRowStretch(rows-1, 1);
+    grid2.setColumnStretch(columns-1, 1);
+    grid2.setRowStretch(rows-1, 1);
+
     toplevel.show();
     toplevel.adjustSize();
     QApplication::processEvents();
