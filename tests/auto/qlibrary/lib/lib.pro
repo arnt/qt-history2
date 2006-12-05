@@ -20,7 +20,7 @@ win32: {
 }
 unix: {
     QMAKE_POST_LINK = cp -f $(DESTDIR)$(TARGET) ../libmylib.so2 && \
-    cp -f $(DESTDIR)$(TARGET) ../system.trolltech.test.mylib.so && \
+    cp -f $(DESTDIR)$(TARGET) ../system.trolltech.test.mylib.so
 }
 
 #no special install rule for the library used by test
