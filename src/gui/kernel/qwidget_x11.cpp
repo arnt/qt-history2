@@ -444,8 +444,16 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             qDebug() << "create child" << ++children;
 #endif
         QRect safeRect = data.crect; //##### must handle huge sizes as well.... i.e. wrect
-        if (safeRect.width() < 1|| safeRect.height() < 1)
-            safeRect = QRect(-1000,-1000,1,1);
+        if (safeRect.width() < 1|| safeRect.height() < 1) {
+            if (topLevel) {
+                // top-levels must be at least 1x1
+                safeRect.setSize(safeRect.size().expandedTo(QSize(1, 1)));
+            } else {
+                // create it way off screen, and rely on
+                // setWSGeometry() to do the right thing with it later
+                safeRect = QRect(-1000,-1000,1,1);
+            }
+        }
         if (xinfo.defaultVisual() && xinfo.defaultColormap()) {
             id = (WId)qt_XCreateSimpleWindow(q, dpy, parentw,
                                              safeRect.left(), safeRect.top(),
