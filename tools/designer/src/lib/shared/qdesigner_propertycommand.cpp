@@ -878,6 +878,7 @@ bool SetPropertyCommand::mergeWith(const QUndoCommand *other)
 
     const SetPropertyCommand *cmd = static_cast<const SetPropertyCommand*>(other);
     if (!propertyDescription().equals(cmd->propertyDescription()) ||
+        m_subPropertyMask  != cmd->m_subPropertyMask ||
         !canMergeLists(cmd->propertyHelperList()))
         return false;
 
