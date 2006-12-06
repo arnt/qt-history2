@@ -2890,7 +2890,7 @@ void QXmlSimpleReaderPrivate::initIncrementalParsing()
 */
 
 /*!
-  \fn bool QXmlReader::parse(const QXmlInputSource& input)
+  \fn bool QXmlReader::parse(const QXmlInputSource &input)
 
   \obsolete
 
@@ -2898,7 +2898,7 @@ void QXmlSimpleReaderPrivate::initIncrementalParsing()
 */
 
 /*!
-    \fn bool QXmlReader::parse(const QXmlInputSource* input)
+    \fn bool QXmlReader::parse(const QXmlInputSource *input)
 
     Reads an XML document from \a input and parses it. Returns true if
     the parsing was successful; otherwise returns false.
