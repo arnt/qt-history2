@@ -397,6 +397,24 @@ void QMenuPrivate::popupAction(QAction *action, int delay, bool activateFirst)
     }
 }
 
+void QMenuPrivate::setSyncAction()
+{
+    Q_Q(QMenu);
+    QAction *current = currentAction;
+    if(current && (!current->isEnabled() || current->menu() || current->isSeparator()))
+        current = 0;
+    for(QWidget *caused = q; caused;) {
+        if (QMenu *m = qobject_cast<QMenu*>(caused)) {
+            caused = m->d_func()->causedPopup.widget;
+            if (m->d_func()->eventLoop)
+                m->d_func()->syncAction = current; // synchronous operation
+        } else {
+            break;
+        }
+    }
+}
+
+
 void QMenuPrivate::setFirstActionActive()
 {
     Q_Q(QMenu);
@@ -1858,19 +1876,8 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
         return;
 
     d->mouseDown = false;
+    d->setSyncAction();
     QAction *action = d->actionAt(e->pos());
-    for(QWidget *caused = this; caused;) {
-        if (QMenu *m = qobject_cast<QMenu*>(caused)) {
-            QAction *currentAction = d->currentAction;
-            if(currentAction && (!currentAction->isEnabled() || currentAction->menu() || currentAction->isSeparator()))
-                currentAction = 0;
-            caused = m->d_func()->causedPopup.widget;
-            if (m->d_func()->eventLoop)
-                m->d_func()->syncAction = currentAction; // synchronous operation
-        } else {
-            break;
-        }
-    }
     if (action && action == d->currentAction) {
         if (action->menu())
             action->menu()->d_func()->setFirstActionActive();
@@ -2228,18 +2235,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
             break;
         }
 
-        for(QWidget *caused = this; caused;) {
-            if (QMenu *m = qobject_cast<QMenu*>(caused)) {
-                QAction *currentAction = d->currentAction;
-                if(currentAction && (!currentAction->isEnabled() || currentAction->menu() || currentAction->isSeparator()))
-                    currentAction = 0;
-                caused = m->d_func()->causedPopup.widget;
-                if (m->d_func()->eventLoop)
-                    m->d_func()->syncAction = currentAction; // synchronous operation
-            } else {
-                break;
-            }
-        }
+        d->setSyncAction();
 
         if (d->currentAction->menu())
             d->popupAction(d->currentAction, 0, true);
@@ -2315,8 +2311,10 @@ void QMenu::keyPressEvent(QKeyEvent *e)
             if (nextAction) {
                 key_consumed = true;
                 d->setCurrentAction(nextAction, 20, QMenuPrivate::SelectedFromElsewhere, true);
-                if (!nextAction->menu() && activateAction)
+                if (!nextAction->menu() && activateAction) {
+                    d->setSyncAction();
                     d->activateAction(nextAction, QAction::Trigger);
+                }
             }
         }
         if (!key_consumed) {

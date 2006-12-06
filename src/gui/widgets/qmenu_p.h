@@ -94,6 +94,7 @@ public:
     void setFirstActionActive();
     void setCurrentAction(QAction *, int popup = -1, SelectionReason reason = SelectedFromElsewhere, bool activateFirst = false);
     void popupAction(QAction *, int, bool);
+    void setSyncAction();
 
     //scrolling support
     struct QMenuScroller {
