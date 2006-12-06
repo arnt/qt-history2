@@ -50,7 +50,7 @@ QFile::EncoderFn QFilePrivate::encoder = locale_encode;
 QFile::DecoderFn QFilePrivate::decoder = locale_decode;
 
 QFilePrivate::QFilePrivate()
-    : fileEngine(0), allowRenameToOverwriteTarget(false), error(QFile::NoError)
+    : fileEngine(0), error(QFile::NoError)
 {
 }
 
@@ -616,7 +616,7 @@ QFile::rename(const QString &newName)
         qWarning("QFile::rename: Empty or null file name");
         return false;
     }
-    if (!d->allowRenameToOverwriteTarget && QFile(newName).exists()) {
+    if (QFile(newName).exists()) {
         // ### Race condition. If a file is moved in after this, it /will/ be
         // overwritten. On Unix, the proper solution is to use hardlinks:
         // return ::link(old, new) && ::remove(old);
@@ -740,6 +740,13 @@ QFile::copy(const QString &newName)
         qWarning("QFile::copy: Empty or null file name");
         return false;
     }
+    if (QFile(newName).exists()) {
+        // ### Race condition. If a file is moved in after this, it /will/ be
+        // overwritten. On Unix, the proper solution is to use hardlinks:
+        // return ::link(old, new) && ::remove(old); See also rename().
+        d->setError(QFile::CopyError, QLatin1String("Destination file exists"));
+        return false;
+    }
     close();
     if(error() == QFile::NoError) {
         if(fileEngine()->copy(newName)) {
@@ -775,8 +782,6 @@ QFile::copy(const QString &newName)
                         }
                     }
 
-                    // ### Provide a public API for overwriting the target when renaming.
-                    reinterpret_cast<QFilePrivate *>(out.d_func())->allowRenameToOverwriteTarget = true;
                     if (!error && !out.rename(newName)) {
                         error = true;
                         QString errorMessage = QLatin1String("Cannot create %1 for output");
