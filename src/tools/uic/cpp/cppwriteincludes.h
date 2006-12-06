@@ -15,6 +15,7 @@
 #define CPPWRITEINCLUDES_H
 
 #include "treewalker.h"
+
 #include <QMap>
 #include <QSet>
 #include <QString>
@@ -22,8 +23,6 @@
 class QTextStream;
 class Driver;
 class Uic;
-
-struct Option;
 
 namespace CPP {
 
@@ -52,14 +51,21 @@ private:
     void add(const QString &className);
 
 private:
+    typedef QMap<QString, bool> OrderedSet;
+
+    void insertInclude(const QString &header, bool global);
+    void writeHeaders(const OrderedSet &headers, bool global);
+    QString headerForClassName(const QString &className) const;
+
     const Uic *m_uic;
     QTextStream &m_output;
 
-    typedef QMap<QString, bool> IncludeGlobalMap;
-    IncludeGlobalMap m_includes;
+    OrderedSet m_localIncludes;
+    OrderedSet m_globalIncludes;
     QSet<QString> m_customWidgets;
-    QMap<QString, QString> m_classToHeader;
-    QMap<QString, QString> m_oldHeaderToNewHeader;
+    typedef QMap<QString, QString> StringMap;
+    StringMap m_classToHeader;
+    StringMap m_oldHeaderToNewHeader;
 };
 
 } // namespace CPP
