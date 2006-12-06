@@ -288,9 +288,11 @@ void QTextFormatPrivate::recalcFont() const
             case  QTextFormat::FontPixelSize:
                 f.setPixelSize(props.at(i).value.toInt());
                 break;
-            case QTextFormat::FontWeight:
-                f.setWeight(props.at(i).value.toInt());
-                break;
+            case QTextFormat::FontWeight: {
+                int weight = props.at(i).value.toInt();
+                if (weight == 0) weight = QFont::Normal;
+                f.setWeight(weight);
+                break; }
             case QTextFormat::FontItalic:
                 f.setItalic(props.at(i).value.toBool());
                 break;
