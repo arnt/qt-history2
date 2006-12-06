@@ -94,7 +94,6 @@
     \o Write as much data as you can (before \c EWOULDBLOCK is returned).
     \o Re-enable notifier if you have more data to write.
     \endlist
-    \endomit
 
     \bold{Further information:}
     On Windows, Qt always disables the notifier after getting a notification,
