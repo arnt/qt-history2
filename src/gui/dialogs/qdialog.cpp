@@ -668,7 +668,7 @@ void QDialog::setVisible(bool visible)
     }
 #ifdef Q_WS_WIN
     if (d->mainDef && isActiveWindow()) {
-        bool snapToDefault = false;
+        BOOL snapToDefault = false;
         if ( QT_WA_INLINE( SystemParametersInfo(SPI_GETSNAPTODEFBUTTON, 0, &snapToDefault, 0) ,
                            SystemParametersInfoA(SPI_GETSNAPTODEFBUTTON, 0, &snapToDefault, 0) )) {
             if (snapToDefault)
