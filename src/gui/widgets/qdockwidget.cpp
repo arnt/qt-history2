@@ -267,9 +267,12 @@ void QDWLayout::setWidget(Role r, QWidget *w)
     if (old != 0)
         removeWidget(old);
 
-    addChildWidget(w);
-
-    item_list[r] = new QWidgetItem(w);
+    if (w != 0) {
+        addChildWidget(w);
+        item_list[r] = new QWidgetItem(w);
+    } else {
+        item_list[r] = 0;
+    }
 }
 
 int QDWLayout::minimumTitleWidth() const
