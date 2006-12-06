@@ -22,6 +22,8 @@
 #include "qlayout_widget_p.h"
 #include "spacer_widget_p.h"
 #include "layout_p.h"
+#include "textpropertyeditor_p.h"
+#include <shared_enums_p.h>
 
 #include <QtDesigner/QtDesigner>
 #include <QtDesigner/QExtensionManager>
@@ -37,6 +39,7 @@
 #include <QtGui/QStatusBar>
 #include <QtCore/QVariant>
 #include <QtGui/QDialogButtonBox>
+#include <QtGui/QPushButton>
 
 #include <QtCore/qdebug.h>
 
@@ -64,6 +67,48 @@ static QStatusBar *findStatusBar(const QWidget *widget)
     }
 
     return 0;
+}
+
+class ObjectNameDialog : public QDialog
+{
+     public:
+         ObjectNameDialog(QWidget *parent, const QString &oldName);
+         QString newObjectName() const;
+
+     private:
+         TextPropertyEditor *editor;
+};
+
+ObjectNameDialog::ObjectNameDialog(QWidget *parent, const QString &oldName)
+    : QDialog(parent)
+{
+    setWindowTitle(tr("Change Object Name"));
+
+    QVBoxLayout *vboxLayout = new QVBoxLayout(this);
+    QLabel *label = new QLabel(this);
+    label->setText(tr("Object Name"));
+    vboxLayout->addWidget(label);
+
+    editor = new TextPropertyEditor(TextPropertyEditor::EmbeddingNone, 
+                                    TextPropertyValidationMode::ValidationObjectName, this);
+    editor->setText(oldName);
+    editor->selectAll();
+    editor->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    vboxLayout->addWidget(editor);
+
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                                                       Qt::Horizontal, this);
+    QPushButton *okButton = buttonBox->button(QDialogButtonBox::Ok);
+    okButton->setDefault(true);
+    vboxLayout->addWidget(buttonBox);
+
+    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+}
+
+QString ObjectNameDialog::newObjectName() const
+{
+    return editor->text();
 }
 
 QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
@@ -250,12 +295,11 @@ void QDesignerTaskMenu::changeObjectName()
     QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), widget());
     Q_ASSERT(sheet != 0);
 
-    bool ok;
-    QString newObjectName = QInputDialog::getText(widget(), tr("Change Object Name"),
-            tr("Object Name"), QLineEdit::Normal, sheet->property(sheet->indexOf(QLatin1String("objectName"))).toString(), &ok);
-
-    if (ok && !newObjectName.isEmpty()) {
-        fw->cursor()->setProperty(QLatin1String("objectName"), newObjectName);
+    ObjectNameDialog dialog(widget(), sheet->property(sheet->indexOf(QLatin1String("objectName"))).toString());
+    if (dialog.exec() == QDialog::Accepted) {
+        QString newObjectName = dialog.newObjectName();
+        if (!newObjectName.isEmpty())
+            fw->cursor()->setProperty(QLatin1String("objectName"), newObjectName);
     }
 }
 
