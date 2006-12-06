@@ -1029,9 +1029,15 @@ bool QMainWindow::isSeparator(const QPoint &pos) const
 void QMainWindow::contextMenuEvent(QContextMenuEvent *event)
 {
     // only show the context menu for direct QDockWidget and QToolBar
-    // children
+    // children and for the menubar as well
     QWidget *child = childAt(event->pos());
     while (child && child != this) {
+        if (QMenuBar *mb = qobject_cast<QMenuBar *>(child)) {
+            if (mb->parentWidget() != this)
+                return;
+            break;
+        }
+
 #ifndef QT_NO_DOCKWIDGET
         if (QDockWidget *dw = qobject_cast<QDockWidget *>(child)) {
             if (dw->parentWidget() != this)
