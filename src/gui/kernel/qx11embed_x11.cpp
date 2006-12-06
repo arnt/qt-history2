@@ -38,6 +38,11 @@
 #define XK_ISO_Left_Tab 0xFE20
 #endif
 
+//#define QX11EMBED_DEBUG
+#ifdef QX11EMBED_DEBUG
+#include <qdebug.h>
+#endif
+
 /*!
     \class QX11EmbedWidget
 
@@ -385,6 +390,51 @@ static bool x11EventFilter(void *message, long *result)
 	return false;
 }
 
+//
+struct functorData
+{
+    Window id, rootWindow;
+    bool clearedWmState;
+    bool reparentedToRoot;
+};
+
+static Bool functor(Display *display, XEvent *event, XPointer arg)
+{
+    functorData *data = (functorData *) arg;
+
+    if (!data->reparentedToRoot && event->type == ReparentNotify
+        && event->xreparent.window == data->id
+        && event->xreparent.parent == data->rootWindow) {
+        data->reparentedToRoot = true;
+        return true;
+    }
+
+    if (!data->clearedWmState
+        && event->type == PropertyNotify
+        && event->xproperty.window == data->id
+        && event->xproperty.atom == ATOM(WM_STATE)) {
+	if (event->xproperty.state == PropertyDelete) {
+            data->clearedWmState = true;
+            return true;
+        }
+
+	Atom ret;
+	int format, status;
+	long *state;
+	unsigned long nitems, after;
+	status = XGetWindowProperty(display, data->id, ATOM(WM_STATE), 0, 2, False, ATOM(WM_STATE),
+				    &ret, &format, &nitems, &after, (unsigned char **) &state );
+	if (status == Success && ret == ATOM(WM_STATE) && format == 32 && nitems > 0) {
+	    if (state[0] == WithdrawnState) {
+                data->clearedWmState = true;
+		return true;
+            }
+	}
+    }
+
+    return false;
+}
+
 class QX11EmbedWidgetPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QX11EmbedWidget)
@@ -447,6 +497,11 @@ QX11EmbedWidget::QX11EmbedWidget(QWidget *parent)
     setFocusPolicy(Qt::StrongFocus);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QApplication::instance()->installEventFilter(this);
+
+#ifdef QX11EMBED_DEBUG
+    qDebug() << "QX11EmbedWidget::QX11EmbedWidget: constructed client"
+             << (void *)this << "with winId" << winId();
+#endif
 }
 
 /*!
@@ -458,12 +513,29 @@ QX11EmbedWidget::~QX11EmbedWidget()
 {
     Q_D(QX11EmbedWidget);
     if (d->container) {
+#ifdef QX11EMBED_DEBUG
+        qDebug() << "QX11EmbedWidget::~QX11EmbedWidget: unmapping"
+                 << (void *)this << "with winId" << winId()
+                 << "from container with winId" << d->container;
+#endif
         XUnmapWindow(x11Info().display(), internalWinId());
         XReparentWindow(x11Info().display(), internalWinId(), x11Info().appRootWindow(), 0, 0);
     }
+
+#ifdef QX11EMBED_DEBUG
+    qDebug() << "QX11EmbedWidget::~QX11EmbedWidget: destructed client"
+             << (void *)this << "with winId" << winId();
+#endif
 }
 
-QX11EmbedWidget::Error QX11EmbedWidget::error() const {
+/*!
+    Returns the type of error that occurred last. This is the same error code
+    that is emitted by the error() signal.
+
+    \sa Error
+*/
+QX11EmbedWidget::Error QX11EmbedWidget::error() const
+{
     return d_func()->lastError;
 }
 
@@ -477,6 +549,12 @@ QX11EmbedWidget::Error QX11EmbedWidget::error() const {
 void QX11EmbedWidget::embedInto(WId id)
 {
     Q_D(QX11EmbedWidget);
+#ifdef QX11EMBED_DEBUG
+    qDebug() << "QX11EmbedWidget::embedInto: embedding client"
+             << (void *)this << "with winId" << winId() << "into container"
+             << id;
+#endif
+
     d->container = id;
     switch (XReparentWindow(x11Info().display(), internalWinId(), d->container, 0, 0)) {
     case BadWindow:
@@ -704,15 +782,31 @@ bool QX11EmbedWidget::x11Event(XEvent *event)
     Q_D(QX11EmbedWidget);
     switch (event->type) {
     case DestroyNotify:
+#ifdef QX11EMBED_DEBUG
+        qDebug() << "QX11EmbedWidget::x11Event: client"
+                 << (void *)this << "with winId" << winId()
+                 << "received a DestroyNotify";
+#endif
         // If the container window is destroyed, we signal this to the user.
+        d->container = 0;
         emit containerClosed();
         break;
     case ReparentNotify:
+#ifdef QX11EMBED_DEBUG
+        qDebug() << "QX11EmbedWidget::x11Event: client"
+                 << (void *)this << "with winId" << winId()
+                 << "received a ReparentNotify to"
+                 << ((event->xreparent.parent == x11Info().appRootWindow())
+                     ? QString::fromLatin1("root") : QString::number(event->xreparent.parent));
+#endif
         // If the container shuts down, we will be reparented to the
         // root window. We must also consider the case that we may be
         // reparented from one container to another.
         if (event->xreparent.parent == x11Info().appRootWindow()) {
-            emit containerClosed();
+            if (((QHackWidget *)this)->topData()->embedded) {
+                d->container = 0;
+                emit containerClosed();
+            }
             return true;
         } else {
             d->container = event->xreparent.parent;
@@ -790,6 +884,11 @@ bool QX11EmbedWidget::x11Event(XEvent *event)
             }
                 break;
             case XEMBED_EMBEDDED_NOTIFY: {
+#ifdef QX11EMBED_DEBUG
+                qDebug() << "QX11EmbedWidget::x11Event: client"
+                         << (void *)this << "with winId" << winId()
+                         << "received an XEMBED EMBEDDED NOTIFY message";
+#endif
                 // In this message's l[2] we have the max version
                 // supported by both the client and the
                 // container. QX11EmbedWidget does not use this field.
@@ -918,6 +1017,7 @@ public:
         client = 0;
         focusProxy = 0;
         clientIsXEmbed = false;
+        xgrab = false;
     }
 
     bool isEmbedded() const;
@@ -994,6 +1094,11 @@ QX11EmbedContainer::QX11EmbedContainer(QWidget *parent)
     // still return true, but where we must not move input focus).
     if (qApp->activeWindow() == window() && !d->isEmbedded())
 	d->moveInputToProxy();
+
+#ifdef QX11EMBED_DEBUG
+    qDebug() << "QX11EmbedContainer::QX11EmbedContainer: constructed container"
+             << (void *)this << "with winId" << winId();
+#endif
 }
 
 /*!
@@ -1104,7 +1209,7 @@ void QX11EmbedContainer::embedClient(WId id)
 	d->emitError(InvalidWindowID);
 	return;
     }
-    XSelectInput(x11Info().display(), id, attrib.your_event_mask | PropertyChangeMask);
+    XSelectInput(x11Info().display(), id, attrib.your_event_mask | PropertyChangeMask | StructureNotifyMask);
     XUngrabServer(x11Info().display());
 
     // Put the window into WithdrawnState
@@ -1113,7 +1218,7 @@ void QX11EmbedContainer::embedClient(WId id)
 
     /*
       Wait for notification from the window manager that the window is
-      not in withdrawn state.  According to the ICCCM section 4.1.3.1,
+      in withdrawn state.  According to the ICCCM section 4.1.3.1,
       we should wait for the WM_STATE property to either be deleted or
       set to WithdrawnState.
 
@@ -1122,34 +1227,26 @@ void QX11EmbedContainer::embedClient(WId id)
     */
     QTime t;
     t.start();
-    for (;;) {
+
+    functorData data;
+    data.id = id;
+    data.rootWindow = attrib.root;
+    data.clearedWmState = false;
+    data.reparentedToRoot = false;
+    
+    do {
 	if (t.elapsed() > 500) // time-out after 500 ms
 	    break;
 
 	XEvent event;
-	if (!XCheckTypedWindowEvent(x11Info().display(), id, PropertyNotify, &event)) {
+	if (!XCheckIfEvent(x11Info().display(), &event, functor, (XPointer) &data)) {
 	    XSync(x11Info().display(), False);
+            usleep(50000);
 	    continue;
 	}
-	if (event.xproperty.atom != ATOM(WM_STATE)) {
-	    qApp->x11ProcessEvent(&event);
-	    continue;
-	}
-
-	if (event.xproperty.state == PropertyDelete)
-	    break;
-
-	Atom ret;
-	int format, status;
-	long *state;
-	unsigned long nitems, after;
-	status = XGetWindowProperty(x11Info().display(), id, ATOM(WM_STATE), 0, 2, False, ATOM(WM_STATE),
-				    &ret, &format, &nitems, &after, (unsigned char **) &state );
-	if (status == Success && ret == ATOM(WM_STATE) && format == 32 && nitems > 0) {
-	    if (state[0] == WithdrawnState)
-		break;
-	}
-    }
+        
+        qApp->x11ProcessEvent(&event);
+    } while (!data.clearedWmState || !data.reparentedToRoot);
 
     // restore the event mask
     XSelectInput(x11Info().display(), id, attrib.your_event_mask);
