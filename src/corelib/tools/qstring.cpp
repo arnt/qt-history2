@@ -7090,8 +7090,8 @@ static int subucstrcmp(const QChar *a, int alen, const QChar *b, int blen)
 */
 bool QSubString::operator==(const QSubString &other) const
 {
-    return (m_size == other.m_size &&
-            (memcmp((char*)(d->data + m_position),(char*)other.d->data + other.m_size, m_size*sizeof(QChar))==0));
+    return (size() == other.size() &&
+            (memcmp((char*)unicode(), (char*)other.unicode(), size()*sizeof(QChar))==0));
 }
 
 /*!
@@ -7099,8 +7099,8 @@ bool QSubString::operator==(const QSubString &other) const
 */
 bool QSubString::operator==(const QString &other) const
 {
-    return (m_size == other.size()) &&
-        (memcmp((char*)(d->data + m_position),(char*)other.unicode(), m_size*sizeof(QChar))==0);
+    return (size() == other.size()) &&
+        (memcmp((char*)unicode(),(char*)other.unicode(), size()*sizeof(QChar))==0);
 }
 
 /*!
@@ -7109,7 +7109,7 @@ bool QSubString::operator==(const QString &other) const
 */
 bool QSubString::operator<(const QSubString &other) const
 {
-    return subucstrcmp((const QChar*)(d->data + m_position), m_size, (const QChar*)other.d->data, other.m_size) < 0;
+    return subucstrcmp(unicode(), size(), other.unicode(), other.size()) < 0;
 }
 
 /*!
@@ -7117,7 +7117,7 @@ bool QSubString::operator<(const QSubString &other) const
 */
 bool QSubString::operator<(const QString &other) const
 {
-    return subucstrcmp((const QChar*)(d->data + m_position), m_size, other.unicode(), other.size()) < 0;
+    return subucstrcmp(unicode(), size(), other.unicode(), other.size()) < 0;
 }
 
 /*!
@@ -7125,8 +7125,8 @@ bool QSubString::operator<(const QString &other) const
 */
 bool QString::operator==(const QSubString &other) const
 {
-    return (size() == other.m_size) &&
-        (memcmp((char*)d->data,(char*)(other.d->data + other.m_position), other.m_size*sizeof(QChar))==0);
+    return (size() == other.size()) &&
+        (memcmp((char*)unicode(),(char*)other.unicode(), other.size()*sizeof(QChar))==0);
 }
 
 /*!
@@ -7134,7 +7134,7 @@ bool QString::operator==(const QSubString &other) const
 */
 bool QString::operator<(const QSubString &other) const
 {
-    return subucstrcmp((const QChar*)d->data, size(), (const QChar*)(other.d->data + other.m_position), other.m_size) < 0;
+    return subucstrcmp(unicode(), size(), other.unicode(), other.size()) < 0;
 }
 
 
