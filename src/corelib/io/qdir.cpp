@@ -1816,8 +1816,11 @@ QString QDir::currentPath()
     current user's profile. Typically, this is:
 
     \code
-        C:\Documents and Settings\Username
+        C:/Documents and Settings/Username
     \endcode
+
+    Use the toNativeSeparators() function to convert the separators to
+    the ones that are appropriate for the underlying operating system.
 
     If the directory of the current user's profile does not exist or
     cannot be retrieved, the following alternatives will be checked (in
@@ -1830,7 +1833,7 @@ QString QDir::currentPath()
     \o The path specified by the \c HOME environment variable.
     \o The path returned by the rootPath() function (which uses the \c SystemDrive
     environment variable)
-    \o  The \c{C:\} directory.
+    \o  The \c{C:/} directory.
     \endlist
 
     Under non-Windows operating systems the \c HOME environment
