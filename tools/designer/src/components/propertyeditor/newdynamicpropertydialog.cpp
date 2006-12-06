@@ -14,7 +14,7 @@ NewDynamicPropertyDialog::NewDynamicPropertyDialog(QWidget *parent)
     int idx = 0;
     for (NameToValueMap::const_iterator it = nameToValueMap().constBegin(); it != mcend; ++it) {
         if (it.value() == QVariant(QVariant::String))
-            idx = m_ui->m_comboBox->count() - 1;
+            idx = m_ui->m_comboBox->count();
         m_ui->m_comboBox->addItem(it.key());
     }
     m_ui->m_comboBox->setCurrentIndex(idx);
