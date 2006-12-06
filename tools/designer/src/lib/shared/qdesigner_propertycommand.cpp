@@ -540,15 +540,52 @@ PropertyHelper::Value PropertyHelper::restoreDefaultValue(QDesignerFormWindowInt
     return defaultValue;
 }
 
-// ---- PropertyListCommand
-PropertyListCommand::PropertyListCommand(QDesignerFormWindowInterface *formWindow) :
-    QDesignerFormWindowCommand(QString(), formWindow),
+// ---- PropertyListCommand::PropertyDescription(
+
+
+PropertyListCommand::PropertyDescription::PropertyDescription(const QString &propertyName,
+                                                              QDesignerPropertySheetExtension *propertySheet,
+                                                              int index) :
+    m_propertyName(propertyName),
+    m_propertyGroup(propertySheet->propertyGroup(index)),
+    m_propertyType(propertySheet->property(index).type()),
+    m_specialProperty(getSpecialProperty(propertyName))
+{
+}
+
+PropertyListCommand::PropertyDescription::PropertyDescription() :
     m_propertyType(QVariant::Invalid),
     m_specialProperty(SP_None)
 {
 }
 
+void PropertyListCommand::PropertyDescription::debug() const
+{
+    qDebug() << m_propertyName << m_propertyGroup << m_propertyType << m_specialProperty;
+}
 
+bool PropertyListCommand::PropertyDescription::equals(const PropertyDescription &p) const
+{
+    return m_propertyType == p.m_propertyType && m_specialProperty == p.m_specialProperty &&
+           m_propertyName == p.m_propertyName && m_propertyGroup   == p.m_propertyGroup;
+}
+
+
+// ---- PropertyListCommand
+PropertyListCommand::PropertyListCommand(QDesignerFormWindowInterface *formWindow) :
+    QDesignerFormWindowCommand(QString(), formWindow)
+{
+}
+
+const QString PropertyListCommand::propertyName() const
+{
+    return m_propertyDescription.m_propertyName;
+}
+
+SpecialProperty PropertyListCommand::specialProperty() const
+{
+    return m_propertyDescription.m_specialProperty;
+}
 
 // add an object
 bool PropertyListCommand::add(QObject *object, const QString &propertyName)
@@ -557,25 +594,43 @@ bool PropertyListCommand::add(QObject *object, const QString &propertyName)
     Q_ASSERT(sheet);
 
     const int index = sheet->indexOf(propertyName);
-    if (index == -1 || !sheet->isVisible(index))
+    if (index == -1)
         return false;
 
-    const QVariant::Type apropertyType = sheet->property(index).type();
+    const PropertyDescription description(propertyName, sheet, index);
 
     if (m_propertyHelperList.empty()) {
         // first entry
-        m_propertyName = propertyName;
-        m_propertyType = apropertyType;
-        m_specialProperty = getSpecialProperty(propertyName);
+        m_propertyDescription = description;
     } else {
         // checks: mismatch or only one object in case of name
-        if (propertyName != m_propertyName || m_propertyType != apropertyType || m_specialProperty == SP_ObjectName)
+        const bool match = m_propertyDescription.equals(description);
+        if (!match || m_propertyDescription.m_specialProperty == SP_ObjectName)
             return false;
     }
-
-    m_propertyHelperList.push_back(PropertyHelper(object, m_specialProperty, sheet, index));
+    m_propertyHelperList.push_back(PropertyHelper(object, m_propertyDescription.m_specialProperty, sheet, index));
     return true;
 }
+
+
+// Init from a list and make sure referenceObject is added first to obtain the right property group
+bool PropertyListCommand::initList(const ObjectList &list, const QString &apropertyName, QObject *referenceObject)
+{
+    propertyHelperList().clear();
+
+    // Ensure the referenceObject (property editor) is first, so the right property group is chosen.
+    if (referenceObject) {
+        if (!add(referenceObject, apropertyName))
+            return false;
+    }
+    foreach (QObject *o, list) {
+        if (o != referenceObject)
+            add(o, apropertyName);
+    }
+
+    return !propertyHelperList().empty();
+}
+
 
 QObject* PropertyListCommand::object(int index) const
 {
@@ -673,7 +728,7 @@ unsigned PropertyListCommand::setValue(QVariant value, bool changed, unsigned su
     if(debugPropertyCommands)
         qDebug() << "PropertyListCommand::setValue(" << value <<  changed << subPropertyMask << ")";
     return changePropertyList(formWindow()->core(),
-                              m_propertyName, m_propertyHelperList.begin(), m_propertyHelperList.end(),
+                              m_propertyDescription.m_propertyName, m_propertyHelperList.begin(), m_propertyHelperList.end(),
                               SetValueFunction(formWindow(), PropertyHelper::Value(value, changed), subPropertyMask));
 }
 
@@ -684,7 +739,7 @@ unsigned PropertyListCommand::restoreOldValue()
         qDebug() << "PropertyListCommand::restoreOldValue()";
 
     return changePropertyList(formWindow()->core(),
-                              m_propertyName, m_propertyHelperList.begin(), m_propertyHelperList.end(),
+                              m_propertyDescription.m_propertyName, m_propertyHelperList.begin(), m_propertyHelperList.end(),
                               UndoSetValueFunction(formWindow()));
 }
 // set default value,  return update mask
@@ -694,7 +749,7 @@ unsigned PropertyListCommand::restoreDefaultValue()
         qDebug() << "PropertyListCommand::restoreDefaultValue()";
 
     return changePropertyList(formWindow()->core(),
-                              m_propertyName, m_propertyHelperList.begin(), m_propertyHelperList.end(),
+                              m_propertyDescription.m_propertyName, m_propertyHelperList.begin(), m_propertyHelperList.end(),
                               RestoreDefaultFunction(formWindow()));
 }
 
@@ -736,12 +791,6 @@ bool PropertyListCommand::canMergeLists(const PropertyHelperList& other) const
     return true;
 }
 
-SpecialProperty PropertyListCommand::specialProperty() const
-{
-    return m_propertyHelperList.empty() ? SP_None : m_propertyHelperList[0].specialProperty();
-}
-
-
 // ---- SetPropertyCommand ----
 SetPropertyCommand::SetPropertyCommand(QDesignerFormWindowInterface *formWindow)
     :  PropertyListCommand(formWindow),
@@ -766,16 +815,10 @@ bool SetPropertyCommand::init(QObject *object, const QString &apropertyName, con
 bool SetPropertyCommand::init(const ObjectList &list, const QString &apropertyName, const QVariant &newValue,
                               QObject *referenceObject)
 {
-    m_newValue = newValue;
-
-    propertyHelperList().clear();
-
-    foreach (QObject *o, list) {
-        add(o, apropertyName);
-    }
-
-    if (propertyHelperList().empty())
+    if (!initList(list, apropertyName, referenceObject))
         return false;
+
+    m_newValue = newValue;
 
     if(debugPropertyCommands)
         qDebug() << "SetPropertyCommand::init()" << propertyHelperList().size() << '/' << list.size();
@@ -834,9 +877,7 @@ bool SetPropertyCommand::mergeWith(const QUndoCommand *other)
     // This is why the m_subPropertyMask is checked.
 
     const SetPropertyCommand *cmd = static_cast<const SetPropertyCommand*>(other);
-    if (propertyType()     != cmd->propertyType()    ||
-        propertyName()     != cmd->propertyName()    ||
-        m_subPropertyMask  != cmd->m_subPropertyMask ||
+    if (!propertyDescription().equals(cmd->propertyDescription()) ||
         !canMergeLists(cmd->propertyHelperList()))
         return false;
 
@@ -854,7 +895,6 @@ ResetPropertyCommand::ResetPropertyCommand(QDesignerFormWindowInterface *formWin
 {
 }
 
-
 bool ResetPropertyCommand::init(QObject *object, const QString &apropertyName)
 {
     Q_ASSERT(object);
@@ -867,14 +907,9 @@ bool ResetPropertyCommand::init(QObject *object, const QString &apropertyName)
     return true;
 }
 
-bool ResetPropertyCommand::init(const ObjectList &list, const QString &apropertyName)
+bool ResetPropertyCommand::init(const ObjectList &list, const QString &apropertyName, QObject *referenceObject)
 {
-    propertyHelperList().clear();
-
-    foreach (QObject *o, list) {
-        add(o, apropertyName);
-    }
-    if (propertyHelperList().empty())
+    if (!initList(list, apropertyName, referenceObject))
         return false;
 
     if(debugPropertyCommands)

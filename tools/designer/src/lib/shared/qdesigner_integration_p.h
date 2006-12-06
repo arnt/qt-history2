@@ -68,6 +68,8 @@ public slots:
 private:
     void initialize();
     void getSelection(Selection &s);
+    QObject *propertyEditorObject();
+
     QDesignerFormWindowManagerInterface *m_formWindowManager;
 };
 

@@ -109,6 +109,8 @@ private:
 
 class QDESIGNER_SHARED_EXPORT PropertyListCommand : public QDesignerFormWindowCommand {
 public:
+    typedef QList<QObject *> ObjectList;
+
     PropertyListCommand(QDesignerFormWindowInterface *formWindow);
 
     QObject* object(int index = 0) const;
@@ -119,11 +121,16 @@ public:
 
     // Calls restoreDefaultValue() and update()
     virtual void undo();
+
 protected:
     typedef QList<PropertyHelper> PropertyHelperList;
 
+
     // add an object
     bool add(QObject *object, const QString &propertyName);
+
+    // Init from a list and make sure referenceObject is added first to obtain the right property group
+    bool initList(const ObjectList &list, const QString &apropertyName, QObject *referenceObject = 0);
 
     // set a new value, return update mask
     unsigned setValue(QVariant value, bool changed, unsigned subPropertyMask);
@@ -142,13 +149,27 @@ protected:
     PropertyHelperList& propertyHelperList() { return m_propertyHelperList; }
     const PropertyHelperList& propertyHelperList() const { return m_propertyHelperList; }
 
-    const QString propertyName() const { return m_propertyName; }
-    QVariant::Type propertyType() const  { return m_propertyType; }
+    const QString propertyName() const;
     SpecialProperty specialProperty() const;
+
+    // Helper struct describing a property used for checking whether
+    // properties of different widgets are equivalent
+    struct PropertyDescription {
+    public:
+        PropertyDescription();
+        PropertyDescription(const QString &propertyName, QDesignerPropertySheetExtension *propertySheet, int index);
+        bool equals(const PropertyDescription &p) const;
+        void debug() const;
+
+        QString m_propertyName;
+        QString m_propertyGroup;
+        QVariant::Type m_propertyType;
+        SpecialProperty m_specialProperty;
+    };
+    const PropertyDescription &propertyDescription() const { return  m_propertyDescription; }
+
 private:
-    QString m_propertyName;
-    QVariant::Type m_propertyType;
-    SpecialProperty m_specialProperty;
+    PropertyDescription m_propertyDescription;
     PropertyHelperList m_propertyHelperList;
 };
 
@@ -191,7 +212,7 @@ public:
     ResetPropertyCommand(QDesignerFormWindowInterface *formWindow);
 
     bool init(QObject *object, const QString &propertyName);
-    bool init(const ObjectList &list, const QString &propertyName);
+    bool init(const ObjectList &list, const QString &propertyName, QObject *referenceObject = 0);
 
     virtual void redo();
 

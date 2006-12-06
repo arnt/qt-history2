@@ -75,11 +75,8 @@ void QDesignerIntegration::updateProperty(const QString &name, const QVariant &v
         cursor->setProperty(name, value);
     } else {
         SetPropertyCommand *cmd = new SetPropertyCommand(formWindow);
-        // find a reference object to compare to
-        QObject *referenceObject = 0;
-        if (QDesignerPropertyEditorInterface *propertyEditor = core()->propertyEditor())
-            referenceObject  = propertyEditor->object();
-        if (cmd->init(selection.selection(), name, value, referenceObject)) {
+        // find a reference object to compare to and to find the right group
+        if (cmd->init(selection.selection(), name, value, propertyEditorObject())) {
             formWindow->commandHistory()->push(cmd);
         } else {
             delete cmd;
@@ -126,7 +123,8 @@ void QDesignerIntegration::resetProperty(const QString &name)
 
 
     ResetPropertyCommand *cmd = new ResetPropertyCommand(formWindow);
-    if (cmd->init(selection.selection(), name)) {
+    // find a reference object to find the right group
+    if (cmd->init(selection.selection(), name, propertyEditorObject())) {
         formWindow->commandHistory()->push(cmd);
     } else {
         delete cmd;
@@ -214,5 +212,13 @@ void QDesignerIntegration::getSelection(Selection &s)
         }
     }
 }
-
+    
+QObject *QDesignerIntegration::propertyEditorObject()
+{        
+    QDesignerPropertyEditorInterface *propertyEditor = core()->propertyEditor();
+    if (!propertyEditor) 
+        return 0;
+    return propertyEditor->object();
+}
+    
 } // namespace qdesigner_internal
