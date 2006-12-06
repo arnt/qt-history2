@@ -1679,6 +1679,33 @@ static QFontEngine *loadFc(const QFontPrivate *fp, int script, const QFontDef &r
     }
     return fe;
 }
+
+static FcPattern *queryFont(const FcChar8 *file, const QByteArray &data, int id, FcBlanks *blanks, int *count)
+{
+#if FC_VERSION < 20402
+    Q_UNUSED(data)
+    return FcFreeTypeQuery(file, id, blanks, count);
+#else
+    if (data.isEmpty())
+        return FcFreeTypeQuery(file, id, blanks, count);
+
+    extern FT_Library qt_getFreetype();
+    FT_Library lib = qt_getFreetype();
+
+    FcPattern *pattern = 0;
+
+    FT_Face face;
+    if (!FT_New_Memory_Face(lib, (const FT_Byte *)data.constData(), data.size(), id, &face)) {
+        *count = face->num_faces;
+
+        pattern = FcFreeTypeQueryFace(face, file, id, blanks);
+
+        FT_Done_Face(face);
+    }
+
+    return pattern;
+#endif
+}
 #endif // QT_NO_FONTCONFIG
 
 static QFontEngine *loadRaw(const QFontPrivate *fp, const QFontDef &request)
@@ -1880,33 +1907,6 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
 QByteArray qt_fontdata_from_index(int index)
 {
     return privateDb()->applicationFonts.value(index).data;
-}
-
-static FcPattern *queryFont(const FcChar8 *file, const QByteArray &data, int id, FcBlanks *blanks, int *count)
-{
-#if FC_VERSION < 20402
-    Q_UNUSED(data)
-    return FcFreeTypeQuery(file, id, blanks, count);
-#else
-    if (data.isEmpty())
-        return FcFreeTypeQuery(file, id, blanks, count);
-
-    extern FT_Library qt_getFreetype();
-    FT_Library lib = qt_getFreetype();
-
-    FcPattern *pattern = 0;
-
-    FT_Face face;
-    if (!FT_New_Memory_Face(lib, (const FT_Byte *)data.constData(), data.size(), id, &face)) {
-        *count = face->num_faces;
-
-        pattern = FcFreeTypeQueryFace(face, file, id, blanks);
-
-        FT_Done_Face(face);
-    }
-
-    return pattern;
-#endif
 }
 
 static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)
