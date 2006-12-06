@@ -61,6 +61,13 @@
 extern QRegion qt_mac_convert_mac_region(RgnHandle); //qregion_mac.cpp
 extern QHash<QByteArray, QFont> *qt_app_fonts_hash(); // qapplication.cpp
 
+static const int PushButtonX = 6;
+static const int PushButtonY = 4;
+static const int PushButtonW = 12;
+static const int MiniButtonH = 26;
+static const int BevelButtonW = 50;
+static const int BevelButtonH = 22;
+
 static inline bool isTreeView(const QWidget *widget)
 {
     return (widget && widget->parentWidget() &&
@@ -554,17 +561,6 @@ static QAquaWidgetSize qt_aqua_guess_size(const QWidget *widg, QSize large, QSiz
     else if (small_delta < large_delta)
         return QAquaSizeSmall;
 #endif
-    if (widg && widg->testAttribute(Qt::WA_SetFont)) {
-        // If we are here the font is smaller, so we can "guess the size"
-        // based on the difference.
-        QFont font = qt_app_fonts_hash()->value(widg->metaObject()->className(), QFont());
-        int difference = font.pointSize() - widg->font().pointSize();
-        if (difference > 1 && difference < 4)
-            return QAquaSizeSmall;
-        if (difference >= 4)
-            return QAquaSizeMini;
-        // otherwise, no real difference, use the large size (fall through)
-    }
     return QAquaSizeLarge;
 }
 #endif
@@ -2718,20 +2714,23 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             switch (qt_aqua_size_constrain(w)) {
             case QAquaSizeUnknown:
             case QAquaSizeLarge:
-                bdi.kind = kThemePushButton;
-                break;
-            case QAquaSizeMini:
-                bdi.kind = kThemePushButtonMini;
+                if (btn->features & (QStyleOptionButton::Flat | QStyleOptionButton::HasMenu)
+                    || btn->rect.width() < BevelButtonW || btn->rect.height() < BevelButtonH)
+                    bdi.kind = kThemeBevelButton;
+                else if (btn->rect.height() < MiniButtonH)
+                    bdi.kind = kThemePushButtonMini;
+                else if (btn->rect.width() < BevelButtonH)
+                    bdi.kind = kThemeBevelButton;
+                else
+                    bdi.kind = kThemePushButton;
                 break;
             case QAquaSizeSmall:
                 bdi.kind = kThemePushButtonSmall;
                 break;
+            case QAquaSizeMini:
+                bdi.kind = kThemePushButtonMini;
+                break;
             }
-
-            if ((btn->features & ((QStyleOptionButton::Flat | QStyleOptionButton::HasMenu)))
-                || ((btn->rect.width() < 50 || btn->rect.height() < 30)
-                      && bdi.kind == kThemePushButton))
-                bdi.kind = kThemeBevelButton;
 
             if (btn->state & State_HasFocus
                     && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
@@ -2744,22 +2743,21 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 if (d->timerID <= -1)
                     QMetaObject::invokeMethod(d, "startAnimationTimer", Qt::QueuedConnection);
             }
+            
             HIRect newRect = qt_hirectForQRect(btn->rect);
-            if (bdi.kind != kThemePushButtonMini){
-                // Like Appearance Manager, HITheme draws outside my rect, so make the
-                // button a bit smaller so it fits inside the rect. 
-                // However, we can't make the mini-pushbutton any smaller than it already is.
-                // Therefore, skip the adjustment in that case 
-                QRect off_rct;
-                HIRect outRect;
-                HIThemeGetButtonBackgroundBounds(&newRect, &bdi, &outRect);
-                off_rct.setRect(int(newRect.origin.x - outRect.origin.x),
-                                int(newRect.origin.y - outRect.origin.y),
-                                int(outRect.size.width - newRect.size.width),
-                                int(outRect.size.height - newRect.size.height));
-                newRect = qt_hirectForQRect(btn->rect, off_rct);
+            if (bdi.kind == kThemePushButton){
+                newRect.origin.x += PushButtonX;
+                newRect.origin.y += PushButtonY;
+                newRect.size.width -= PushButtonW;             
+                newRect.size.height -= PushButtonW;             
+            }
+            else if (bdi.kind == kThemePushButtonMini){
+                newRect.origin.x += PushButtonX-2;
+                newRect.origin.y += PushButtonY;             
+                newRect.size.width -= PushButtonW-4;             
             }
             HIThemeDrawButton(&newRect, &bdi, cg, kHIThemeOrientationNormal, 0);
+            
             if (btn->features & QStyleOptionButton::HasMenu) {
                 int mbi = pixelMetric(QStyle::PM_MenuButtonIndicator, btn, w);
                 QRect ir = btn->rect;
@@ -3407,35 +3405,44 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
             bdi.version = qt_mac_hitheme_version;
             bdi.state = kThemeStateActive;
             bdi.value = kThemeButtonOff;
+            
             switch (qt_aqua_size_constrain(widget)) {
             case QAquaSizeUnknown:
             case QAquaSizeLarge:
-                bdi.kind = kThemePushButton;
-                break;
-            case QAquaSizeMini:
-                bdi.kind = kThemePushButtonMini;
+                if (btn->features & (QStyleOptionButton::Flat | QStyleOptionButton::HasMenu)
+                    || btn->rect.width() < BevelButtonW || btn->rect.height() < BevelButtonH)
+                    bdi.kind = kThemeBevelButton;
+                else if (btn->rect.height() < MiniButtonH)
+                    bdi.kind = kThemePushButtonMini;
+                else if (btn->rect.width() < BevelButtonW)
+                    bdi.kind = kThemeBevelButton;
+                else
+                    bdi.kind = kThemePushButton;
                 break;
             case QAquaSizeSmall:
                 bdi.kind = kThemePushButtonSmall;
                 break;
+            case QAquaSizeMini:
+                bdi.kind = kThemePushButtonMini;
+                break;
             }
-
-            if ((btn->features & ((QStyleOptionButton::Flat | QStyleOptionButton::HasMenu)))
-                || ((btn->rect.width() < 50 || btn->rect.height() < 30)
-                      && bdi.kind == kThemePushButton))
-                bdi.kind = kThemeBevelButton;
-
+            
             HIRect newRect = qt_hirectForQRect(btn->rect);
+            if (bdi.kind == kThemePushButton){
+                newRect.origin.x += PushButtonX;
+                newRect.origin.y += PushButtonY;
+                newRect.size.width -= PushButtonW;             
+                newRect.size.height -= PushButtonW;             
+            }
+            else if (bdi.kind == kThemePushButtonMini){
+                newRect.origin.x += PushButtonX;
+                newRect.origin.y += PushButtonY;             
+                newRect.size.width -= PushButtonW;             
+            }
+            else if (bdi.kind == kThemeBevelButton){
+                newRect.size.height -= 1;             
+            }
             HIRect outRect;
-            QRect off_rct;
-            HIThemeGetButtonBackgroundBounds(&newRect, &bdi, &outRect);
-            off_rct.setRect(int(newRect.origin.x - outRect.origin.x),
-                            int(newRect.origin.y - outRect.origin.y),
-                            int(outRect.size.width - newRect.size.width),
-                            int(outRect.size.height - newRect.size.height));
-            if (!off_rct.isValid())
-                off_rct = QRect();
-            newRect = qt_hirectForQRect(btn->rect, off_rct);
             bdi.adornment = kThemeAdornmentNone;
             HIThemeGetButtonContentBounds(&newRect, &bdi, &outRect);
             rect.setRect(int(outRect.origin.x), int(outRect.origin.y),
