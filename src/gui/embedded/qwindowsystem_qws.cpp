@@ -427,10 +427,12 @@ void QWSWindow::focus(bool get)
 {
     if (get)
         last_focus_time = global_focus_time_counter++;
-    QWSFocusEvent event;
-    event.simpleData.window = id;
-    event.simpleData.get_focus = get;
-    c->sendEvent(&event);
+    if (c) {
+        QWSFocusEvent event;
+        event.simpleData.window = id;
+        event.simpleData.get_focus = get;
+        c->sendEvent(&event);
+    }
 
 #ifndef QT_NO_QWSEMBEDWIDGET
     const int n = d->embedded.size();
@@ -441,6 +443,8 @@ void QWSWindow::focus(bool get)
 
 void QWSWindow::operation(QWSWindowOperationEvent::Operation o)
 {
+    if (!c)
+        return;
     QWSWindowOperationEvent event;
     event.simpleData.window = id;
     event.simpleData.op = o;
