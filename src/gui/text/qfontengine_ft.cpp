@@ -404,9 +404,10 @@ QFontEngineFT::QFontEngineFT(const QFontDef &fd)
 
 QFontEngineFT::~QFontEngineFT()
 {
+#ifndef QT_NO_OPENTYPE
     delete _openType;
     _openType = 0;
-
+#endif
     if (freetype)
         freetype->release(face_id);
 }
@@ -963,6 +964,7 @@ void QFontEngineFT::doKerning(int num_glyphs, QGlyphLayout *g, QTextEngine::Shap
 
 QOpenType *QFontEngineFT::openType() const
 {
+#ifndef QT_NO_OPENTYPE
     if (_openType)
          return _openType;
 
@@ -974,6 +976,7 @@ QOpenType *QFontEngineFT::openType() const
 
     _openType = new QOpenType(const_cast<QFontEngineFT *>(this), face);
     unlockFace();
+#endif
     return _openType;
 }
 
