@@ -288,7 +288,7 @@ void QCoreApplicationPrivate::appendApplicationPathToLibraryPaths()
     QString app_location( QCoreApplication::applicationFilePath() );
     app_location.truncate(app_location.lastIndexOf(QLatin1Char('/')));
     app_location = QDir(app_location).canonicalPath();
-    if (app_location !=  QLibraryInfo::location(QLibraryInfo::PluginsPath) && QFile::exists(app_location))
+    if (app_location !=  QLibraryInfo::location(QLibraryInfo::PluginsPath) && QFile::exists(app_location) && !app_libpaths->contains(app_location))
         app_libpaths->append(app_location);
 #endif
 }
@@ -1741,7 +1741,8 @@ QStringList QCoreApplication::libraryPaths()
         if (QFile::exists(installPathPlugins)) {
             // Make sure we convert from backslashes to slashes.
             installPathPlugins = QDir(installPathPlugins).canonicalPath();
-            app_libpaths->append(installPathPlugins);
+            if (!app_libpaths->contains(installPathPlugins))
+                app_libpaths->append(installPathPlugins);
         }
 
         // If QCoreApplication is not yet instantiated,
@@ -1757,7 +1758,9 @@ QStringList QCoreApplication::libraryPaths()
 #endif
             QStringList paths = QString::fromLatin1(libPathEnv).split(pathSep, QString::SkipEmptyParts);
             for (QStringList::const_iterator it = paths.constBegin(); it != paths.constEnd(); ++it) {
-                app_libpaths->append(QDir(*it).canonicalPath());
+                QString canonicalPath = QDir(*it).canonicalPath();
+                if (!app_libpaths->contains(canonicalPath))
+                    app_libpaths->append(canonicalPath);
             }
         }
     }
