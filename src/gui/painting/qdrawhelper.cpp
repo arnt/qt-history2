@@ -2171,10 +2171,9 @@ static void blend_texture_generic(int count, const QSpan *spans, void *userData)
             const int coverage = (spans->coverage * data->texture.const_alpha) >> 8;
             QWS_CALLBACK_IF_NONBUFFERED(data, {
                 uint *dest = op.dest_fetch ? op.dest_fetch(buffer, data->rasterBuffer, x, spans->y, l) : buffer;
+                op.func(dest, src, l, coverage);
                 if (op.dest_store)
                     op.dest_store(data->rasterBuffer, x, spans->y, dest, l);
-
-                op.func(dest, src, l, coverage);
             }, {
                 data->rasterEngine->drawBufferSpan(src, buffer_size,
                                                    x, spans->y, l, coverage);
