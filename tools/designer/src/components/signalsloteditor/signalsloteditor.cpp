@@ -759,7 +759,7 @@ QObject *SignalSlotEditor::objectByName(QWidget *topLevel, const QString &name) 
     else
         object = qFindChild<QObject*>(topLevel, name);
     const QDesignerMetaDataBaseInterface *mdb = formWindow()->core()->metaDataBase();
-    if (const QDesignerMetaDataBaseItemInterface *item = mdb->item(object))
+    if (mdb->item(object))
         return object;
     return 0;
 }
