@@ -166,6 +166,35 @@ void InnerNode::makeUndocumentedChildrenInternal()
 
 void InnerNode::normalizeOverloads()
 {
+    QMap<QString, Node *>::Iterator p1 = primaryFunctionMap.begin();
+    while ( p1 != primaryFunctionMap.end() ) {
+	FunctionNode *primaryFunc = (FunctionNode *) *p1;
+        if (secondaryFunctionMap.contains(primaryFunc->name()) &&
+            (primaryFunc->status() != Commendable || primaryFunc->access() == Private)) {
+
+	    NodeList& secs = secondaryFunctionMap[primaryFunc->name()];
+	    NodeList::ConstIterator s = secs.begin();
+	    while ( s != secs.end() ) {
+		FunctionNode *secondaryFunc = (FunctionNode *) *s;
+
+                // Any non-obsolete, non-compatibility, non-private functions
+                // (i.e, visible functions) are preferable to the primary
+                // function.
+
+                if (secondaryFunc->status() == Commendable &&
+                    secondaryFunc->access() != Private) {
+
+                    *p1 = secondaryFunc;
+                    int index = secondaryFunctionMap[primaryFunc->name()].indexOf(secondaryFunc);
+                    secondaryFunctionMap[primaryFunc->name()].replace(index, primaryFunc);
+                    break;
+                }
+		++s;
+	    }
+        }
+	++p1;
+    }
+
     QMap<QString, Node *>::ConstIterator p = primaryFunctionMap.begin();
     while ( p != primaryFunctionMap.end() ) {
 	FunctionNode *primaryFunc = (FunctionNode *) *p;
