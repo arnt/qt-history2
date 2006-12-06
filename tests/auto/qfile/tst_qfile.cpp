@@ -110,26 +110,20 @@ private slots:
     void fileEngineHandler();
     void useQFileInAFileHandler();
     void getCharFF();
-
     void remove_and_exists();
     void removeOpenFile();
-
     void fullDisk();
     void writeLargeDataBlock_data();
     void writeLargeDataBlock();
-
     void readFromWriteOnlyFile();
     void writeToReadOnlyFile();
-
     void virtualFile();
     void textFile();
     void readPastEnd();
-
     void rename_data();
     void rename();
-#ifdef Q_OS_WIN
+    void appendAndRead();
     void miscWithUncPathAsCurrentDir();
-#endif
 
 public:
 // disabled this test for the moment... it hangs
@@ -248,34 +242,34 @@ void tst_QFile::open_data()
     static const QString denied("Permission denied");
 #endif
     QTest::newRow( "exist_readOnly"  )
-	<< QString("testfile.txt") << int(QIODevice::ReadOnly)
-	<< (bool)TRUE << QFile::NoError;
+        << QString("testfile.txt") << int(QIODevice::ReadOnly)
+        << (bool)TRUE << QFile::NoError;
 
     QTest::newRow( "exist_writeOnly" )
-	<< QString("testfile.txt")
+        << QString("testfile.txt")
         << int(QIODevice::WriteOnly)
-	<< (bool)FALSE
+        << (bool)FALSE
         << QFile::OpenError;
 
     QTest::newRow( "exist_append"    )
-	<< QString("testfile.txt") << int(QIODevice::Append)
-	<< (bool)FALSE << QFile::OpenError;
+        << QString("testfile.txt") << int(QIODevice::Append)
+        << (bool)FALSE << QFile::OpenError;
 
     QTest::newRow( "nonexist_readOnly"  )
-	<< QString("nonExist.txt") << int(QIODevice::ReadOnly)
-	<< (bool)FALSE << QFile::OpenError;
+        << QString("nonExist.txt") << int(QIODevice::ReadOnly)
+        << (bool)FALSE << QFile::OpenError;
 
     QTest::newRow("emptyfile")
         << QString("")
         << int(QIODevice::ReadOnly)
         << (bool)FALSE
-	<< QFile::OpenError;
+        << QFile::OpenError;
 
     QTest::newRow("nullfile") << QString() << int(QIODevice::ReadOnly) << (bool)FALSE
-	<< QFile::OpenError;
+        << QFile::OpenError;
 
     QTest::newRow("two-dots") << QString("two.dots.file") << int(QIODevice::ReadOnly) << (bool)TRUE
-	<< QFile::NoError;
+        << QFile::NoError;
 
     QTest::newRow("readonlyfile") << QString("readonlyfile") << int(QIODevice::WriteOnly)
                                   << (bool)FALSE << QFile::OpenError;
@@ -293,7 +287,7 @@ void tst_QFile::open()
 {
     QFETCH( QString, filename );
     QFETCH( int, mode );
-    
+
     QFile f( filename );
 
     QFETCH( bool, ok );
@@ -349,7 +343,7 @@ void tst_QFile::setSize()
     DEPENDS_ON( "size" );
 
     if ( QFile::exists( "createme.txt" ) )
-	QFile::remove( "createme.txt" );
+        QFile::remove( "createme.txt" );
     QVERIFY( !QFile::exists( "createme.txt" ) );
 
     QFile f("createme.txt");
@@ -432,12 +426,12 @@ void tst_QFile::readLine()
     char p[128];
     int foo;
     while ( (foo=f.readLine( p, 128 )) > 0 ) {
-	++i;
-	if ( i == 5 ) {
-	    QCOMPARE( p[0], 'T' );
-	    QCOMPARE( p[3], 's' );
-	    QCOMPARE( p[11], 'i' );
-	}
+        ++i;
+        if ( i == 5 ) {
+            QCOMPARE( p[0], 'T' );
+            QCOMPARE( p[3], 's' );
+            QCOMPARE( p[11], 'i' );
+        }
     }
     f.close();
     QCOMPARE( i, 6 );
@@ -564,9 +558,9 @@ void tst_QFile::getch()
     int i = 0;
     while (f.getChar(&c)) {
         QCOMPARE(f.pos(), qint64(i + 1));
-	if ( i == 59 )
-	    QCOMPARE( c, 'D' );
-	++i;
+        if ( i == 59 )
+            QCOMPARE( c, 'D' );
+        ++i;
     }
     f.close();
     QCOMPARE( i, 245 );
@@ -640,7 +634,7 @@ void tst_QFile::invalidFile()
 void tst_QFile::createFile()
 {
     if ( QFile::exists( "createme.txt" ) )
-	QFile::remove( "createme.txt" );
+        QFile::remove( "createme.txt" );
     QVERIFY( !QFile::exists( "createme.txt" ) );
 
     QFile f( "createme.txt" );
@@ -696,7 +690,7 @@ void tst_QFile::setPermissions()
     DEPENDS_ON( "permissions" ); //if that doesn't work...
 
     if ( QFile::exists( "createme.txt" ) )
-	QFile::remove( "createme.txt" );
+        QFile::remove( "createme.txt" );
     QVERIFY( !QFile::exists( "createme.txt" ) );
 
     QFile f("createme.txt");
@@ -1173,11 +1167,11 @@ void tst_QFile::largeFileSupport()
 #ifdef Q_WS_WIN
     _ULARGE_INTEGER free;
     if (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) {
-	if (::GetDiskFreeSpaceExW((wchar_t *)QDir::currentPath().utf16(), &free, 0, 0))
-	    freespace = free.QuadPart;
+        if (::GetDiskFreeSpaceExW((wchar_t *)QDir::currentPath().utf16(), &free, 0, 0))
+            freespace = free.QuadPart;
     } else {
-	if (::GetDiskFreeSpaceExA(QDir::currentPath().local8Bit(), &free, 0, 0))
-	    freespace = free.QuadPart;
+        if (::GetDiskFreeSpaceExA(QDir::currentPath().local8Bit(), &free, 0, 0))
+            freespace = free.QuadPart;
     }
     if (freespace != 0) {
 #elif defined(Q_OS_IRIX)
@@ -1679,7 +1673,7 @@ void tst_QFile::textFile()
     QFile f;
     QByteArray part1("This\nis\na\nfile\nwith\nnewlines\n");
     QByteArray part2("Add\nsome\nmore\nnewlines\n");
-    
+
     QVERIFY(f.open(fs, QIODevice::WriteOnly));
     f.write(part1);
     f.write(part2);
@@ -1690,7 +1684,7 @@ void tst_QFile::textFile()
     QVERIFY(file.open(QIODevice::ReadOnly));
 
     QByteArray data = file.readAll();
-    
+
     QByteArray expected = part1 + part2;
 #ifdef Q_OS_WIN
     expected.replace("\n", "\015\012");
@@ -1749,6 +1743,34 @@ void tst_QFile::rename()
         QCOMPARE(file.error(), QFile::RenameError);
 
     QFile::remove("renamefile");
+}
+
+void tst_QFile::appendAndRead()
+{
+    QFile writeFile(QLatin1String("appendfile.txt"));
+    QVERIFY(writeFile.open(QIODevice::WriteOnly | QIODevice::Truncate));
+
+    QFile readFile(QLatin1String("appendfile.txt"));
+    QVERIFY(readFile.open(QIODevice::ReadOnly));
+
+    // Write to the end of the file, then read that character back, and so on.
+    for (int i = 0; i < 16384; ++i) {
+        char c = '\0';
+        writeFile.putChar(char(i % 256));
+        writeFile.flush();
+        QVERIFY(readFile.getChar(&c));
+        QCOMPARE(c, char(i % 256));
+        QCOMPARE(readFile.pos(), writeFile.pos());
+    }
+
+    // Write blocks and read them back
+    for (int j = 0; j < 18; ++j) {
+        writeFile.write(QByteArray(1 << j, '@'));
+        writeFile.flush();
+        QCOMPARE(readFile.read(1 << j).size(), 1 << j);
+    }
+
+    QFile::remove(QLatin1String("appendfile.txt"));
 }
 
 #ifdef Q_OS_WIN
