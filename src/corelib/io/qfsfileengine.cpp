@@ -439,9 +439,6 @@ qint64 QFSFileEngine::read(char *data, qint64 len)
             d->lastIOCommand = QFSFileEnginePrivate::IOReadCommand;
         }
 
-        if (feof(d->fh))
-            return 0;
-
         size_t readBytes = 0;
 #ifdef Q_OS_UNIX
         if (d->sequential) {
