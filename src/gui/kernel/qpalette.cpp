@@ -124,40 +124,43 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 #endif
 
 /*!
-   \fn const QColor &QPalette::color(ColorRole r) const
+   \fn const QColor &QPalette::color(ColorRole role) const
 
    \overload
 
-    Returns the color that has been set for color role \a r in the current ColorGroup.
+    Returns the color that has been set for the given color \a role in
+    the current ColorGroup.
 
     \sa brush() ColorRole
  */
 
 /*!
-    \fn const QBrush &QPalette::brush(ColorRole r) const
+    \fn const QBrush &QPalette::brush(ColorRole role) const
 
     \overload
 
-    Returns the brush that has been set for color role \a r in the current ColorGroup.
+    Returns the brush that has been set for the given color \a role in
+    the current ColorGroup.
 
     \sa color() setBrush() ColorRole
 */
 
 /*!
-    \fn void QPalette::setColor(ColorRole r, const QColor &c)
+    \fn void QPalette::setColor(ColorRole role, const QColor &color)
 
     \overload
 
-    Sets the color used for color role \a r in all color groups to a solid color \a c.
+    Sets the color used for the given color \a role, in all color
+    groups, to the specified solid \a color.
 
     \sa brush() setColor() ColorRole
 */
 
 /*!
-    \fn void QPalette::setBrush(ColorRole cr, const QBrush &brush)
+    \fn void QPalette::setBrush(ColorRole role, const QBrush &brush)
 
-    Sets the brush for color role \a cr to brush \a brush for all
-    groups in the palette.
+    Sets the brush for the given color \a role to the specified \a
+    brush for all groups in the palette.
 
     \sa brush() setColor() ColorRole
 */
@@ -676,14 +679,19 @@ QPalette::operator QVariant() const
 }
 
 /*!
-    \fn const QColor &QPalette::color(ColorGroup gr, ColorRole r) const
-    Returns the color in color group \a gr, used for color role \a r.
+    \fn const QColor &QPalette::color(ColorGroup group, ColorRole role) const
+
+    Returns the color in the specified color \a group, used for the
+    given color \a role.
 
     \sa brush() setColor() ColorRole
 */
 
 /*!
-    Returns the brush in color group \a gr, used for color role \a cr.
+    \fn const QBrush &QPalette::brush(ColorGroup group, ColorRole role) const
+
+    Returns the brush in the specified color \a group, used for the
+    given color \a role.
 
     \sa color() setBrush() ColorRole
 */
@@ -702,18 +710,20 @@ const QBrush &QPalette::brush(ColorGroup gr, ColorRole cr) const
 }
 
 /*!
-    \fn void QPalette::setColor(ColorGroup gr, ColorRole r, const QColor &c)
-    Sets the brush in color group \a gr, used for color role \a r, to
-    the solid color \a c.
+    \fn void QPalette::setColor(ColorGroup group, ColorRole role, const QColor &color)
+
+    Sets the brush in the specified color \a group, used for the given
+    color \a role, to the specified solid \a color.
 
     \sa setBrush() color() ColorRole
 */
 
 /*!
+    \fn void QPalette::setBrush(ColorGroup group, ColorRole role, const QBrush &brush)
     \overload
 
-    Sets the brush in color group \a cg, used for color role \a cr, to
-    \a b.
+    Sets the brush in the specified color \a group, used for the given
+    color \a role, to \a brush.
 
     \sa brush() setColor() ColorRole
 */
