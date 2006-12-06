@@ -290,6 +290,26 @@ void QTreeView::setHeader(QHeaderView *header)
 }
 
 /*!
+  \property QTreeView::autoExpandDelay
+  \brief delay time before items in a tree is opened during a DND operation.
+
+  This property holds the amount of time that the user must wait over
+  an node before that node will automatically open or close.  If the time is
+  set to less then 0 then it will not be activated.
+*/
+int QTreeView::autoExpandDelay() const
+{
+    Q_D(const QTreeView);
+    return d->autoExpandDelay;
+}
+
+void QTreeView::setAutoExpandDelay(int delay)
+{
+    Q_D(QTreeView);
+    d->autoExpandDelay = delay;
+}
+
+/*!
   \property QTreeView::indentation
   \brief indentation of the items in the tree view.
 
@@ -696,7 +716,7 @@ void QTreeView::collapse(const QModelIndex &index)
   Returns true if the model item \a index is expanded; otherwise returns
   false.
 
-  \sa expand(), expanded()
+  \sa expand(), expanded(), setExpanded()
 */
 bool QTreeView::isExpanded(const QModelIndex &index) const
 {
@@ -711,7 +731,7 @@ bool QTreeView::isExpanded(const QModelIndex &index) const
   Sets the item referred to by \a index to either collapse or expanded,
   depending on the value of \a expanded.
 
-  \sa expanded(), expand()
+  \sa expanded(), expand(), isExpanded()
 */
 void QTreeView::setExpanded(const QModelIndex &index, bool expanded)
 {
@@ -1064,8 +1084,28 @@ void QTreeView::timerEvent(QTimerEvent *event)
         }
         d->viewport->update(rect.normalized());
         d->columnsToUpdate.clear();
+    } else if (event->timerId() == d->openTimer.timerId()) {
+        QPoint pos = d->viewport->mapFromGlobal(QCursor::pos());
+        if (state() == QAbstractItemView::DraggingState
+            && d->viewport->rect().contains(pos)) {
+            QModelIndex index = indexAt(pos);
+            setExpanded(index, !isExpanded(index));
+        }
+        d->openTimer.stop();
     }
+
     QAbstractItemView::timerEvent(event);
+}
+
+/*!
+  \reimp
+*/
+void QTreeView::dragMoveEvent(QDragMoveEvent *event)
+{
+    Q_D(QTreeView);
+    if (d->autoExpandDelay >= 0)
+        d->openTimer.start(d->autoExpandDelay, this);
+    QAbstractItemView::dragMoveEvent(event);
 }
 
 /*!
@@ -2346,6 +2386,7 @@ void QTreeViewPrivate::expand(int item, bool emitSignal)
     if (emitSignal && animationsEnabled)
         prepareAnimatedOperation(item, AnimatedOperation::Expand);
 
+    QAbstractItemView::State oldState = q->state();
     q->setState(QAbstractItemView::ExpandingState);
     const QModelIndex index = viewItems.at(item).index;
     expandedIndexes.append(index);
@@ -2353,7 +2394,7 @@ void QTreeViewPrivate::expand(int item, bool emitSignal)
     layout(item);
     if (model->hasChildren(index))
         reexpandChildren(index); // will call expand with emitSignal == false
-    q->setState(QAbstractItemView::NoState);
+    q->setState(oldState);
 
     if (emitSignal) {
         if (animationsEnabled)
@@ -2381,6 +2422,7 @@ void QTreeViewPrivate::collapse(int item, bool emitSignal)
     if (emitSignal && animationsEnabled)
         prepareAnimatedOperation(item, AnimatedOperation::Collapse);
 
+    QAbstractItemView::State oldState = q->state();
     q->setState(QAbstractItemView::CollapsingState);
     expandedIndexes.remove(index);
     viewItems[item].expanded = false;
@@ -2393,7 +2435,7 @@ void QTreeViewPrivate::collapse(int item, bool emitSignal)
         index = viewIndex(parent);
     }
     viewItems.remove(item + 1, total); // collapse
-    q->setState(QAbstractItemView::NoState);
+    q->setState(oldState);
 
     if (emitSignal) {
         if (animationsEnabled)

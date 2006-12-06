@@ -28,6 +28,7 @@ class QHeaderView;
 class Q_GUI_EXPORT QTreeView : public QAbstractItemView
 {
     Q_OBJECT
+    Q_PROPERTY(int autoExpandDelay READ autoExpandDelay WRITE setAutoExpandDelay)
     Q_PROPERTY(int indentation READ indentation WRITE setIndentation)
     Q_PROPERTY(bool rootIsDecorated READ rootIsDecorated WRITE setRootIsDecorated)
     Q_PROPERTY(bool uniformRowHeights READ uniformRowHeights WRITE setUniformRowHeights)
@@ -47,6 +48,9 @@ public:
 
     QHeaderView *header() const;
     void setHeader(QHeaderView *header);
+
+    int autoExpandDelay() const;
+    void setAutoExpandDelay(int delay);
 
     int indentation() const;
     void setIndentation(int i);
@@ -156,6 +160,7 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void keyPressEvent(QKeyEvent *event);
+    void dragMoveEvent(QDragMoveEvent *event);
 
     void updateGeometries();
 

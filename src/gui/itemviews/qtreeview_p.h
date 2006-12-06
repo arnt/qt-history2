@@ -51,7 +51,7 @@ public:
           uniformRowHeights(false), rootDecoration(true),
           itemsExpandable(true), sortingEnabled(false),
           allColumnsShowFocus(false), wrapItemText(false),
-          animationsEnabled(false), columnResizeTimerID(0) {}
+          animationsEnabled(false), columnResizeTimerID(0), autoExpandDelay(-1) {}
 
     ~QTreeViewPrivate() {}
     void initialize();
@@ -157,6 +157,11 @@ public:
     // used for updating resized columns
     int columnResizeTimerID;
     QList<int> columnsToUpdate;
+
+    // used for the automatic opening of nodes during DND
+    int autoExpandDelay;
+    QBasicTimer openTimer;
+
 };
 
 #endif // QT_NO_TREEVIEW
