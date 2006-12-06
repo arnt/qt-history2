@@ -323,7 +323,7 @@ void QWidget::setAutoFillBackground(bool enabled)
     \class QWidget
     \brief The QWidget class is the base class of all user interface objects.
 
-    \ingroup abstractwidgets
+    \ingroup basicwidgets
     \mainclass
 
     The widget is the atom of the user interface: it receives mouse,
