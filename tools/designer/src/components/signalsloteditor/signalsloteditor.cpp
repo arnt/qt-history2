@@ -748,13 +748,20 @@ DomConnections *SignalSlotEditor::toUi() const
     return result;
 }
 
-QObject *SignalSlotEditor::objectByName(QWidget *topLevel, const QString &name)
+QObject *SignalSlotEditor::objectByName(QWidget *topLevel, const QString &name) const
 {
+    if (name.isEmpty())
+        return 0;
+    QObject *object = 0;
     Q_ASSERT(topLevel);
     if (topLevel->objectName() == name)
-        return topLevel;
-
-    return qFindChild<QObject*>(topLevel, name);
+        object = topLevel;
+    else
+        object = qFindChild<QObject*>(topLevel, name);
+    const QDesignerMetaDataBaseInterface *mdb = formWindow()->core()->metaDataBase();
+    if (const QDesignerMetaDataBaseItemInterface *item = mdb->item(object))
+        return object;
+    return 0;
 }
 
 void SignalSlotEditor::fromUi(const DomConnections *connections, QWidget *parent)

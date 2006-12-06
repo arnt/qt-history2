@@ -46,7 +46,7 @@ public:
 
     QDesignerFormWindowInterface *formWindow() const { return m_form_window; }
 
-    static QObject *objectByName(QWidget *topLevel, const QString &name);
+    QObject *objectByName(QWidget *topLevel, const QString &name) const;
 
     QAbstractItemModel *model() const;
 
