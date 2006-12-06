@@ -58,7 +58,9 @@ private:
 
     Ui::NewDynamicPropertyDialog *m_ui;
     QStringList m_reservedNames;
-    QMap<QString, QVariant> m_nameToValue;
+
+    typedef QMap<QString, QVariant> NameToValueMap;
+    static const NameToValueMap &nameToValueMap();
 };
 
 }  // namespace qdesigner_internal
