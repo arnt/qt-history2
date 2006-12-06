@@ -330,15 +330,18 @@ void tst_QFiledialog::isDetailsExpanded()
 {
     QFileDialog fd;
     fd.show();
+    QWidget* sidebar = fd.findChild<QWidget*>("qt_sidebar");
+    QVERIFY(sidebar);
 
     QCOMPARE(fd.isDetailsExpanded(), true);
 
     fd.setDetailsExpanded(false);
     QCOMPARE(fd.isDetailsExpanded(), false);
+    QCOMPARE(sidebar->isVisible(), false);
 
     fd.setDetailsExpanded(true);
     QCOMPARE(fd.isDetailsExpanded(), true);
-
+    QCOMPARE(sidebar->isVisible(), true);
 }
 
 QTEST_MAIN(tst_QFiledialog)
