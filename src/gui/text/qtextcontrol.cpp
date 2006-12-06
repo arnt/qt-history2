@@ -2280,8 +2280,9 @@ void QTextControlPrivate::activateLinkUnderCursor()
         int startPos = linkFinder.position();
 
         linkFinder = cursor;
-        while (linkFinder.charFormat().anchorHref() == href)
-            linkFinder.movePosition(QTextCursor::NextCharacter);
+        while (linkFinder.charFormat().anchorHref() == href
+               && linkFinder.movePosition(QTextCursor::NextCharacter))
+            ;
 
         cursor.setPosition(startPos);
         cursor.setPosition(linkFinder.position() - 1, QTextCursor::KeepAnchor);
