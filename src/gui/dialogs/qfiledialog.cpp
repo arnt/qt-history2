@@ -633,7 +633,7 @@ void QFileDialog::setDetailsExpanded(bool expanded)
     d->backButton->setVisible(expanded);
     d->forwardButton->setVisible(expanded);
     d->toParentButton->setVisible(expanded);
-    d->stackedWidget->setVisible(expanded);
+    d->splitter->setVisible(expanded);
     d->listModeButton->setVisible(expanded);
     d->detailModeButton->setVisible(expanded);
     d->newFolderButton->setVisible(expanded);
@@ -1649,10 +1649,12 @@ void QFileDialogPrivate::createWidgets()
             q, SLOT(_q_pathChanged(const QString &)));
     model->setReadOnly(false);
 
+    splitter = new QSplitter(q);
+
     QList<QUrl> initialBookmarks;
     initialBookmarks << QUrl::fromLocalFile(QLatin1String(""))
                      << QUrl::fromLocalFile(QDir::homePath());
-    sidebar = new QSidebar(model, initialBookmarks, q);
+    sidebar = new QSidebar(model, initialBookmarks, splitter);
     sidebar->setObjectName(QLatin1String("qt_sidebar"));
     QFileDialog::connect(sidebar, SIGNAL(goToUrl(const QUrl &)),
                          q, SLOT(_q_goToUrl(const QUrl &)));
@@ -1759,11 +1761,10 @@ void QFileDialogPrivate::createWidgets()
     QObject::connect(selections, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
                      q, SLOT(_q_currentChanged(QModelIndex)));
 
-    stackedWidget = new QStackedWidget;
+    stackedWidget = new QStackedWidget(splitter);
     stackedWidget->addWidget(treeView);
     stackedWidget->addWidget(listView);
 
-    splitter = new QSplitter(q);
     splitter->setObjectName(QLatin1String("qt_splitter"));
     splitter->addWidget(sidebar);
     splitter->addWidget(stackedWidget);
