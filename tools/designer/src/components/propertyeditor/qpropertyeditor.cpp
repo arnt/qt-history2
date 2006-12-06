@@ -21,16 +21,17 @@
 #include <QtGui/QScrollBar>
 #include <qdebug.h>
 
-using namespace qdesigner_internal;
+namespace qdesigner_internal {
 
 Q_GLOBAL_STATIC_WITH_ARGS(PropertyCollection, dummy_collection, (QLatin1String("<empty>")))
 
-QPropertyEditor::QPropertyEditor(QWidget *parent)
-    : QTreeView(parent), contentsResized(false)
+QPropertyEditor::QPropertyEditor(QWidget *parent)    : 
+    QTreeView(parent), 
+    m_model(new QPropertyEditorModel(this)),
+    m_itemDelegate(new QPropertyEditorDelegate(this)),
+    m_contentsResized(false)
 {
-    m_model = new QPropertyEditorModel(this);
     setModel(m_model);
-    m_itemDelegate = new QPropertyEditorDelegate(this);
     setItemDelegate(m_itemDelegate);
     connect(m_itemDelegate, SIGNAL(resetProperty(const QString &)), m_model, SIGNAL(resetProperty(const QString &)));
     setInitialInput(0);
@@ -44,6 +45,8 @@ QPropertyEditor::QPropertyEditor(QWidget *parent)
 
     connect(m_model, SIGNAL(propertyChanged(IProperty*)),
             this, SIGNAL(propertyChanged(IProperty*)));
+    
+    setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 QPropertyEditor::~QPropertyEditor()
@@ -63,7 +66,7 @@ void QPropertyEditor::setReadOnly(bool readOnly)
 void QPropertyEditor::setInitialInput(IProperty *initialInput)
 {
     QScrollBar *sb = verticalScrollBar();
-    int position = sb->value();
+    const int position = sb->value();
     bool needResize = false;
     if (!m_model->initialInput() || m_model->initialInput() == dummy_collection()) {
         if (initialInput)
@@ -82,8 +85,8 @@ void QPropertyEditor::setInitialInput(IProperty *initialInput)
     setEditTriggers(QAbstractItemView::CurrentChanged|QAbstractItemView::SelectedClicked);
     setRootIndex(m_model->indexOf(initialInput));
 
-    if (needResize && !contentsResized) {
-        contentsResized = true;
+    if (needResize && !m_contentsResized) {
+        m_contentsResized = true;
         resizeColumnToContents(0);
     }
     sb->setValue(position);
@@ -96,9 +99,8 @@ IProperty *QPropertyEditor::initialInput() const
 
 void QPropertyEditor::drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const
 {
-    // designer figts the style it uses. :(
-    static bool mac_style
-                = QApplication::style()->inherits("QMacStyle");
+    // designer fights the style it uses. :(
+    static const bool mac_style = QApplication::style()->inherits("QMacStyle");
     static const int windows_deco_size = 9;
 
     QStyleOptionViewItem opt = viewOptions();
@@ -130,8 +132,8 @@ void QPropertyEditor::drawBranches(QPainter *painter, const QRect &rect, const Q
             opt.state |= QStyle::State_Open;
         style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
     }
-    QPen savedPen = painter->pen();
-    QColor color = static_cast<QRgb>(QApplication::style()->styleHint(QStyle::SH_Table_GridLineColor, &opt));
+    const QPen savedPen = painter->pen();
+    const QColor color = static_cast<QRgb>(QApplication::style()->styleHint(QStyle::SH_Table_GridLineColor, &opt));
     painter->setPen(QPen(color));
     painter->drawLine(rect.x(), rect.bottom(), rect.right(), rect.bottom());
     painter->setPen(savedPen);
@@ -154,4 +156,5 @@ void QPropertyEditor::focusInEvent(QFocusEvent *event)
 {
     QAbstractScrollArea::focusInEvent(event);
     viewport()->update();
+}
 }

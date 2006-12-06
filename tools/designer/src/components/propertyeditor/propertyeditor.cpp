@@ -16,6 +16,7 @@
 #include "qpropertyeditor_model_p.h"
 #include "qpropertyeditor_items_p.h"
 #include "newdynamicpropertydialog.h"
+#include "paletteeditorbutton.h"
 
 // sdk
 #include <QtDesigner/QtDesigner>
@@ -26,12 +27,11 @@
 #include <qdesigner_utils_p.h>
 #include <qdesigner_propertycommand_p.h>
 #include <metadatabase_p.h>
-#include "paletteeditorbutton.h"
 #include <QtGui/QtGui>
 
-#ifndef Q_MOC_RUN
-using namespace qdesigner_internal;
-#endif
+// ---------------------------------------------------------------------------------
+
+namespace qdesigner_internal {
 
 IProperty *PropertyEditor::createSpecialProperty(const QVariant &value, const QString &name)
 {
@@ -40,10 +40,6 @@ IProperty *PropertyEditor::createSpecialProperty(const QVariant &value, const QS
 
     return 0;
 }
-
-// ---------------------------------------------------------------------------------
-
-namespace qdesigner_internal {
 
 class IconProperty : public AbstractProperty<QIcon>
 {
@@ -345,8 +341,6 @@ void GraphicsPropertyEditor::setPixmap(const QPixmap &pm)
 
     emit pixmapChanged(m_pixmap);
 }
-
-}  // namespace qdesigner_internal
 
 IconProperty::IconProperty(QDesignerFormEditorInterface *core, const QIcon &value, const QString &name)
     : AbstractProperty<QIcon>(value, name),
@@ -793,8 +787,9 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core,
         this, SLOT(slotFirePropertyChanged(IProperty*)));
     connect(m_editor->editorModel(), SIGNAL(resetProperty(QString)),
                 this, SLOT(slotResetProperty(QString)));
+    connect(m_editor, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(slotCustomContextMenuRequested(QPoint)));
 
-    m_editor->viewport()->installEventFilter(this);
 }
 
 PropertyEditor::~PropertyEditor()
@@ -937,7 +932,7 @@ void PropertyEditor::slotResetProperty(const QString &prop_name)
 QString PropertyEditor::currentPropertyName() const
 {
     const QModelIndex index = m_editor->selectionModel()->currentIndex();
-    if (index.isValid()) {
+    if (!index.isValid()) {
         IProperty *property = static_cast<IProperty*>(index.internalPointer());
 
         while (property && property->isFake())
@@ -950,31 +945,27 @@ QString PropertyEditor::currentPropertyName() const
     return QString();
 }
 
-bool PropertyEditor::eventFilter(QObject *object, QEvent *event)
-{
-    bool res = QDesignerPropertyEditor::eventFilter(object, event);
-    if (object != m_editor->viewport() || event->type() != QEvent::ContextMenu)
-        return res;
-
-    QContextMenuEvent *cme = (QContextMenuEvent *)event;
-
-    QModelIndex idx = m_editor->indexAt(cme->pos());
+void PropertyEditor::slotCustomContextMenuRequested(const QPoint &pos)
+{    
+    const QModelIndex idx = m_editor->indexAt(pos);
+    if (!idx.isValid())
+        return;
+    
     QPropertyEditorModel *model = m_editor->editorModel();
     IProperty *nonfake = model->privateData(idx);
     while (nonfake != 0 && nonfake->isFake())
         nonfake = nonfake->parent();
 
-    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), m_object);
+    const QDesignerPropertySheetExtension *sheet = m_prop_sheet;
     if (!sheet)
-        return res;
+        return;
 
     int index = -1;
-    bool addEnabled = false;
+    const bool addEnabled = sheet->dynamicPropertiesAllowed();
     bool insertRemoveEnabled = false;
-    if (sheet->dynamicPropertiesAllowed()) {
-        addEnabled = true;
+    if (addEnabled) {
         if (nonfake) {
-            int idx = sheet->indexOf(nonfake->propertyName());
+            const int idx = sheet->indexOf(nonfake->propertyName());
             if (sheet->isDynamicProperty(idx)) {
                 insertRemoveEnabled = true;
                 index = idx;
@@ -987,7 +978,7 @@ bool PropertyEditor::eventFilter(QObject *object, QEvent *event)
     addAction->setEnabled(addEnabled);
     QAction *removeAction = menu.addAction(tr("Remove Dynamic Property"));
     removeAction->setEnabled(insertRemoveEnabled);
-    QAction *result = menu.exec(cme->globalPos());
+    const QAction *result = menu.exec(mapToGlobal(pos));
 
     if (result == removeAction && nonfake) {
         RemoveDynamicPropertyCommand *cmd = new RemoveDynamicPropertyCommand(m_core->formWindowManager()->activeFormWindow());
@@ -1002,16 +993,16 @@ bool PropertyEditor::eventFilter(QObject *object, QEvent *event)
         }
         dlg.setReservedNames(reservedNames);
         if (dlg.exec() == QDialog::Accepted) {
-            QString newName = dlg.propertyName();
-            QVariant newValue = dlg.propertyValue();
+            const QString newName = dlg.propertyName();
+            const QVariant newValue = dlg.propertyValue();
 
             AddDynamicPropertyCommand *cmd = new AddDynamicPropertyCommand(m_core->formWindowManager()->activeFormWindow());
             cmd->init(m_object, newName, newValue);
             m_core->formWindowManager()->activeFormWindow()->commandHistory()->push(cmd);
         }
     }
-    return res;
 }
 
+}
 
 #include "propertyeditor.moc"

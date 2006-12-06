@@ -48,12 +48,11 @@ public:
     { return m_object; }
 
     virtual QString currentPropertyName() const;
-
-    virtual bool eventFilter(QObject *object, QEvent *event);
     
 private slots:
     void slotFirePropertyChanged(IProperty *property);
     void slotResetProperty(const QString &prop_name);
+    void slotCustomContextMenuRequested(const QPoint &pos);
 
 private:
     IProperty *propertyByName(IProperty *p, const QString &name);

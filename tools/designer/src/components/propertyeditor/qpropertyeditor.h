@@ -53,7 +53,7 @@ protected:
 private:
     QPropertyEditorModel *m_model;
     QPropertyEditorDelegate *m_itemDelegate;
-    bool contentsResized;
+    bool m_contentsResized;
 };
 
 }  // namespace qdesigner_internal
