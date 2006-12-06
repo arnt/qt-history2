@@ -1744,9 +1744,10 @@ bool QFSFileEngine::setSize(qint64 size)
 static inline QDateTime fileTimeToQDateTime(const FILETIME *time)
 {
     QDateTime ret;
-    SYSTEMTIME sTime, lTime;
-    FileTimeToSystemTime(time, &sTime);
-    SystemTimeToTzSpecificLocalTime(0 ,&sTime, &lTime);
+    FILETIME localtime;
+    SYSTEMTIME lTime;
+    FileTimeToLocalFileTime(time, &localtime);
+    FileTimeToSystemTime(&localtime, &lTime);
     ret.setDate(QDate(lTime.wYear, lTime.wMonth, lTime.wDay));
     ret.setTime(QTime(lTime.wHour, lTime.wMinute, lTime.wSecond, lTime.wMilliseconds));
     return ret;

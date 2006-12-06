@@ -645,7 +645,7 @@ void tst_QFileInfo::fileTimes()
     }
     QTest::qSleep(1000);
     QDateTime beforeWrite = QDateTime::currentDateTime();
-    QTest::qSleep(1000);
+    QTest::qSleep(2000);
     {
         QFileInfo fileInfo(fileName);
         QVERIFY(fileInfo.created() < beforeWrite);
@@ -675,9 +675,13 @@ void tst_QFileInfo::fileTimes()
 #ifndef Q_OS_UNIX
     QVERIFY(fileInfo.created() < beforeWrite);
 #endif
+    if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) {
+        QVERIFY(fileInfo.lastRead().addDays(1) > beforeRead);
+    }else{
+        QVERIFY(fileInfo.lastRead() > beforeRead);
+    }
     QVERIFY(fileInfo.lastModified() > beforeWrite);
     QVERIFY(fileInfo.lastModified() < beforeRead);
-    QVERIFY(fileInfo.lastRead() > beforeRead);
 
     QVERIFY(QFile::remove(fileName));
 }
