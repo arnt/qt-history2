@@ -760,11 +760,14 @@ bool QAbstractButton::isDown() const
 \property QAbstractButton::autoRepeat
 \brief whether autoRepeat is enabled
 
-If autoRepeat is enabled then the clicked() signal is emitted at
-regular intervals when the button is down. This property has no effect
-on toggle buttons. autoRepeat is off by default. The initial delay and
-the repetition interval are defined in milliseconds by \l
+If autoRepeat is enabled, then the pressed(), released(), and clicked() signals are emitted at
+regular intervals when the button is down. autoRepeat is off by default.
+The initial delay and the repetition interval are defined in milliseconds by \l
 autoRepeatDelay and \l autoRepeatInterval.
+
+Note: If a button is pressed down by a shortcut key, then auto-repeat is enabled and timed by the
+system and not by this class. The pressed(), released(), and clicked() signals will be emitted
+like in the normal case.
 */
 
 void QAbstractButton::setAutoRepeat(bool autoRepeat)
