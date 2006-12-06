@@ -6,7 +6,7 @@ TEMPLATE = app
 INCLUDEPATH += $$ARTHUR
 DEFINES += SRCDIR=\\\"$$PWD\\\"
 
-QT += xml svg network
+QT += qt3support xml svg network
 
 contains(QT_CONFIG, opengl):QT += opengl
 
