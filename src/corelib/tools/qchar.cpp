@@ -1171,7 +1171,7 @@ QDataStream &operator>>(QDataStream &in, QChar &chr)
 /*!
     \fn ushort & QChar::unicode()
 
-    Returns a reference to the numberic Unicode value of the QChar.
+    Returns a reference to the numeric Unicode value of the QChar.
 */
 
 /*!
