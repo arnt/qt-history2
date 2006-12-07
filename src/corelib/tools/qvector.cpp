@@ -15,7 +15,7 @@
 #include "qtools_p.h"
 #include <string.h>
 
-QVectorData QVectorData::shared_null = { Q_ATOMIC_INIT(1), 0, 0, true };
+QVectorData QVectorData::shared_null = { Q_ATOMIC_INIT(1), 0, 0, true, false };
 
 QVectorData* QVectorData::malloc(int sizeofTypedData, int size, int sizeofT, QVectorData* init)
 {
@@ -31,7 +31,7 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     return qAllocMore(size * sizeofT, sizeofTypedData - sizeofT) / sizeofT;
 }
 
-/*! 
+/*!
     \class QVector
     \brief The QVector class is a template class that provides a dynamic array.
 
