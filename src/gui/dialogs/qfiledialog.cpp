@@ -350,7 +350,7 @@ QStringList QFileDialog::selectedFiles() const
     for (int i = 0; i < indexes.count(); ++i)
         files.append(d->model->filePath(indexes.at(i)));
 
-    if (files.isEmpty());
+    if (files.isEmpty())
         files = d->typedFiles();
 
     if (files.isEmpty() && d->fileMode == DirectoryOnly)
