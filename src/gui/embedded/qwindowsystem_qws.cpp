@@ -2845,7 +2845,7 @@ void QWSServerPrivate::invokeEmbed(QWSEmbedCommand *cmd, QWSClient *client)
         embedder->startEmbed(embedded);
         break;
     case QWSEmbedEvent::StopEmbed:
-        embedded->stopEmbed(embedded);
+        embedder->stopEmbed(embedded);
         break;
     case QWSEmbedEvent::Region:
         break;
