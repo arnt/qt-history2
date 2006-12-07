@@ -54,6 +54,8 @@ private slots:
     void setData_data();
     void setData();
 
+    void sort();
+
 protected:
     bool createFiles(const QString &test_path, const QStringList &initial_files, const QStringList &intial_dirs = QStringList(), const QString &baseDir = QDir::temp().absolutePath());
 
@@ -531,6 +533,19 @@ void tst_QFileSystemModel::setData()
     QTest::qWait(WAITTIME);
     QCOMPARE(model->rowCount(root), 3);
 }
+
+void tst_QFileSystemModel::sort()
+{
+    QModelIndex root = model->setRootPath(QDir::home().absolutePath());
+    QTest::qWait(WAITTIME);
+    QVERIFY(model->rowCount(root) > 0);
+
+    QPersistentModelIndex idx = model->index(0, 1, root);
+    model->sort(0, Qt::AscendingOrder);
+    model->sort(0, Qt::DescendingOrder);
+    QVERIFY(idx.column() != 0);
+}
+
 
 QTEST_MAIN(tst_QFileSystemModel)
 #include "tst_qfilesystemmodel.moc"
