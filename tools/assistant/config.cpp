@@ -106,7 +106,7 @@ void Config::load()
 
     QSettings settings;
 
-    home = settings.value(profkey + QLatin1String("Homepage"), QString()).toString();
+    home = profil->props[QLatin1String("startpage")];;
     if (home.isEmpty() && isDefaultProfile)
         home = QLibraryInfo::location(QLibraryInfo::DocumentationPath) + QLatin1String("/html/index.html");
     src = settings.value( profkey + QLatin1String("Source") ).toStringList();
