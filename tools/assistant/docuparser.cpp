@@ -57,6 +57,7 @@ DocuParser *DocuParser::createParser(const QString &fileName)
             majVer = re.cap(1).toInt();
             minVer = re.cap(2).toInt();
             serVer = re.cap(3).toInt();
+            break;
         }
     }
 

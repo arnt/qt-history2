@@ -139,7 +139,6 @@ void Config::saveSettings()
 
     QSettings settings;
 
-    settings.setValue( profkey + QLatin1String("Homepage"), homePage() );
     settings.setValue( profkey + QLatin1String("Source"), src );
     settings.setValue( key + QLatin1String("SideBarPage"), sideBarPage() );
     if (qApp->type() != QApplication::Tty)
