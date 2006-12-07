@@ -771,9 +771,11 @@ void QFileSystemModel::sort(int column, Qt::SortOrder order)
 
     emit layoutAboutToBeChanged();
     QModelIndexList oldList = persistentIndexList();
-    QList<QFileSystemModelPrivate::QFileSystemNode*> oldNodes;
-    for (int i = 0; i < oldList.count(); ++i)
-        oldNodes.append(d->node(oldList.at(i)));
+    QList<QPair<QFileSystemModelPrivate::QFileSystemNode*, int> > oldNodes;
+    for (int i = 0; i < oldList.count(); ++i) {
+        QPair<QFileSystemModelPrivate::QFileSystemNode*, int> pair(d->node(oldList.at(i)), oldList.at(i).column());
+        oldNodes.append(pair);
+    }
 
     if (!(d->sortColumn == column && d->sortOrder != order && !d->forceSort)) {
         d->sortChildren(column, order, QModelIndex(), d->index(rootPath()) == QModelIndex());
@@ -783,8 +785,11 @@ void QFileSystemModel::sort(int column, Qt::SortOrder order)
     d->sortOrder = order;
 
     QModelIndexList newList;
-    for (int i = 0; i < oldNodes.count(); ++i)
-        newList.append(d->index(oldNodes.at(i)));
+    for (int i = 0; i < oldNodes.count(); ++i) {
+        QModelIndex idx = d->index(oldNodes.at(i).first);
+        idx = idx.sibling(idx.row(), oldNodes.at(i).second);
+        newList.append(idx);
+    }
     changePersistentIndexList(oldList, newList);
     emit layoutChanged();
 }
