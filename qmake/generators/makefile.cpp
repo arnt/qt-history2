@@ -1485,7 +1485,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool n
                 if(project->isEmpty("QMAKE_NOFORCE"))
                     t <<  " FORCE";
                 t << "\n\t"
-                  << uninst.join("") << "\n\t"
+                  << uninst.join(" ") << "\n\t"
                   << "-$(DEL_DIR) " << filePrefixRoot(root, dst) << " " << endl << endl;
             }
             t << endl;
