@@ -78,6 +78,12 @@ public:
     };
     LastIOCommand  lastIOCommand;
     bool lastFlushFailed;
+#if defined(Q_OS_WIN32)
+    static void resolveLibs();
+    static bool resolveUNCLibs_NT();
+    static bool resolveUNCLibs_9x();
+    static bool uncListSharesOnServer(const QString &server, QStringList *list);
+#endif
 
 protected:
     QFSFileEnginePrivate();
