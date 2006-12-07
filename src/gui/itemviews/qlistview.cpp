@@ -1725,7 +1725,7 @@ bool QListViewPrivate::doItemsLayout(int delta)
     int first = batchStartRow();
     int last = qMin(first + delta - 1, max);
 
-    if (max < 0 | last < first)
+    if (max < 0 || last < first)
         return true; // nothing to do
 
     if (first == 0) {

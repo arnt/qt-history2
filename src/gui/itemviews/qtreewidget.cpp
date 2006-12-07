@@ -1486,7 +1486,7 @@ QTreeWidgetItem::ChildIndicatorPolicy QTreeWidgetItem::childIndicatorPolicy() co
 void QTreeWidgetItem::setFlags(Qt::ItemFlags flags)
 {
     const bool enable = (flags & Qt::ItemIsEnabled);
-    const bool changedState = (itemFlags & Qt::ItemIsEnabled) != enable;
+    const bool changedState = bool(itemFlags & Qt::ItemIsEnabled) != enable;
     const bool changedExplicit = d->disabled != !enable;
 
     d->disabled = !enable;
