@@ -589,8 +589,8 @@ const char* Q3IconDrag::format(int i) const
 
 QByteArray Q3IconDrag::encodedData(const char* mime) const
 {
-    if (d->items.size() <= 0 || QLatin1String(mime) !=
-         QLatin1String("application/x-qiconlist"))
+    if (d->items.size() <= 0 || QString::fromLatin1(mime) !=
+         QString::fromLatin1("application/x-qiconlist"))
         return QByteArray();
 
     QLinkedList<Q3IconDragDataItem>::ConstIterator it = d->items.begin();
