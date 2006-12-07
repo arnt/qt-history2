@@ -130,7 +130,8 @@ void QSidebar::addUrls(const QList<QUrl> &list, int row)
         for (int j = 0; j < model()->rowCount(); ++j) {
             if (model()->index(j, 0).data(UrlRole) == url) {
                 model()->removeRow(j);
-                row--;
+                if (j <= row)
+                    row--;
                 break;
             }
         }
