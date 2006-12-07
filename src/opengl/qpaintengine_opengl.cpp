@@ -332,14 +332,13 @@ void QGLOffscreen::begin()
 
     bool needs_refresh = needed_size.width() > sz.width()
                          || needed_size.height() > sz.height()
-                         || (drawable.context() != context
-                         && !qgl_share_reg()->checkSharing(drawable.context(), context));
+                         || !qgl_share_reg()->checkSharing(drawable.context(), context);
     if (needs_refresh) {
         if (use_fbo) {
             if (!offscreen || needs_refresh) {
 
                 // delete old FBO and texture in its context
-                if (context) {
+                if (context && qgl_context_register()->isContext(context)) {
                     context->makeCurrent();
                     delete offscreen;
                     glDeleteTextures(1, &main_fbo_texture);
@@ -391,7 +390,7 @@ void QGLOffscreen::begin()
         int gen_count = use_fbo ? 1 : 2;
 
         for (int i = 0; i < gen_count; ++i) {
-            if (context) {
+            if (context && qgl_context_register()->isContext(context)) {
                 context->makeCurrent();
                 glDeleteTextures(1, textures[i]);
                 drawable.context()->makeCurrent();
@@ -409,6 +408,7 @@ void QGLOffscreen::begin()
         sz = needed_size;
     }
 
+    qgl_context_register()->addContext(drawable.context());
     context = drawable.context();
     bound = false;
 }
@@ -1051,14 +1051,17 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     if (d->drawable.context() != d->shader_ctx
         && !qgl_share_reg()->checkSharing(d->drawable.context(), d->shader_ctx))
     {
-        if (d->shader_ctx) {
+        if (d->shader_ctx && qgl_context_register()->isContext(d->shader_ctx)) {
+            d->shader_ctx->makeCurrent();
             glBindTexture(GL_TEXTURE_1D, 0);
             glDeleteTextures(1, &d->grad_palette);
 
             if (d->use_fragment_programs)
                 d->deleteFragmentPrograms();
+            d->drawable.context()->makeCurrent();
         }
         d->shader_ctx = d->drawable.context();
+        qgl_context_register()->addContext(d->drawable.context());
         glGenTextures(1, &d->grad_palette);
 
         if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram) {

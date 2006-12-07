@@ -422,6 +422,33 @@ private:
 
 extern QGLShareRegister* qgl_share_reg();
 
+
+class QGLContextRegister
+{
+public:
+    QGLContextRegister() {}
+    ~QGLContextRegister() {}
+
+    void addContext(const QGLContext* ctx) {
+        if (!contexts.contains(ctx))
+            contexts.append(ctx);
+    }
+
+    bool isContext(const QGLContext* ctx) {
+        return contexts.contains(ctx);
+    }
+
+    void removeContext(const QGLContext* ctx) {
+        contexts.removeAll(ctx);
+    }
+
+private:
+    QList<const QGLContext*> contexts;
+
+};
+
+extern QGLContextRegister* qgl_context_register();
+
 // OpenGL constants
 #ifndef GL_MULTISAMPLE
 #define GL_MULTISAMPLE  0x809D
