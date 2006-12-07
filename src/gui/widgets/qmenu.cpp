@@ -116,7 +116,7 @@ void QMenuPrivate::init()
         scroll = new QMenuPrivate::QMenuScroller;
         scroll->scrollFlags = QMenuPrivate::QMenuScroller::ScrollNone;
     }
-    menuAction = new QAction(q);
+    defaultMenuAction = menuAction = new QAction(q);
     menuAction->d_func()->menu = q;
 }
 
@@ -507,6 +507,22 @@ QAction *QMenuPrivate::actionAt(QPoint p) const
     return 0;
 }
 
+void QMenuPrivate::setOverrideMenuAction(QAction *a)
+{
+    Q_Q(QMenu);
+    QObject::disconnect(menuAction, SIGNAL(destroyed()), q, SLOT(_q_overrideMenuActionDestroyed()));
+    if (a) {
+        menuAction = a;
+        QObject::connect(a, SIGNAL(destroyed()), q, SLOT(_q_overrideMenuActionDestroyed()));
+    } else { //we revert back to the default action created by the QMenu itself
+        menuAction = defaultMenuAction;
+    }
+}
+
+void QMenuPrivate::_q_overrideMenuActionDestroyed()
+{
+    menuAction=defaultMenuAction;
+}
 
 /*!
     Returns the action associated with this menu.

@@ -22,6 +22,7 @@
 #include "qdebug.h"
 #include <private/qshortcutmap_p.h>
 #include <private/qapplication_p.h>
+#include <private/qmenu_p.h>
 
 /*
   internal: guesses a descriptive text from a text suited for a menu entry
@@ -624,7 +625,10 @@ QMenu *QAction::menu() const
 void QAction::setMenu(QMenu *menu)
 {
     Q_D(QAction);
+    if (d->menu)
+        d->menu->d_func()->setOverrideMenuAction(0); //we reset the default action of any previous menu
     d->menu = menu;
+    menu->d_func()->setOverrideMenuAction(this);
     d->sendDataChanged();
 }
 #endif // QT_NO_MENU

@@ -10,6 +10,8 @@
 #include <QtTest/QtTest>
 #include <qapplication.h>
 #include <QPushButton>
+#include <QMainWindow>
+#include <QMenuBar>
 
 #include <qmenu.h>
 #include <qstyle.h>
@@ -38,6 +40,7 @@ private slots:
     void keyboardNavigation_data();
     void keyboardNavigation();
     void focus();
+	void overrideMenuAction();
 
 #if defined(QT3_SUPPORT)
     void indexBasedInsertion_data();
@@ -314,6 +317,42 @@ void tst_QMenu::indexBasedInsertion_data()
     QTest::newRow("negative-index-appends") << -1 << 1;
     QTest::newRow("prepend") << 0 << 0;
     QTest::newRow("append") << 1 << 1;
+}
+
+void tst_QMenu::overrideMenuAction()
+{
+	//test the override menu action by first creating an action to which we set its menu
+	QMainWindow w;
+
+	QAction *aFileMenu = new QAction("&File", &w);
+	w.menuBar()->addAction(aFileMenu);
+
+	QMenu *m = new QMenu(&w);
+	QAction *menuaction = m->menuAction();
+	connect(m, SIGNAL(triggered(QAction*)), SLOT(onActivated(QAction*)));
+	aFileMenu->setMenu(m); //this sets the override menu action for the QMenu
+    QCOMPARE(m->menuAction(), aFileMenu);
+
+	QAction *aQuit = new QAction("Quit", &w);
+	aQuit->setShortcut(QKeySequence("Ctrl+X"));
+	m->addAction(aQuit);
+
+	w.show();
+
+	//test of the action inside the menu
+	QTest::keyClick(&w, Qt::Key_X, Qt::ControlModifier);
+    QCOMPARE(aQuit, activated);
+
+	//test if the menu still pops out
+	QTest::keyClick(&w, Qt::Key_F, Qt::AltModifier);
+    QVERIFY(m->isVisible());
+
+	delete aFileMenu;
+
+	//after the deletion of the override menu action, 
+	//the menu should have its default menu action back
+	QCOMPARE(m->menuAction(), menuaction);
+
 }
 
 void tst_QMenu::indexBasedInsertion()

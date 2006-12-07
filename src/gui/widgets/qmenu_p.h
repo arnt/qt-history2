@@ -150,6 +150,10 @@ public:
     QPointer<QAction> defaultAction;
 
     QAction *menuAction;
+    QAction *defaultMenuAction;
+
+    void setOverrideMenuAction(QAction *);
+    void _q_overrideMenuActionDestroyed();
 
     //firing of events
     void activateAction(QAction *, QAction::ActionEvent, bool self=true);
