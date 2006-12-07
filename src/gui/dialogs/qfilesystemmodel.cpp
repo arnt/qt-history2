@@ -165,17 +165,9 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
             element.chop(1);
 #endif
         int row = -1;
-        if (parent->children.count() != 0) {
-            QList<QFileSystemNode>::iterator iterator;
-            if (parent->caseSensitive())
-                iterator = qBinaryFind(parent->children.begin(), parent->children.end(),
-                    QFileSystemNode(element));
-            else
-                iterator = qBinaryFind(parent->children.begin(), parent->children.end(),
-                    QFileSystemNode(element), nodeCaseInsensitiveLessThan);
-            if (iterator != parent->children.end())
-                row = iterator - parent->children.begin();
-        }
+        if (parent->children.count() != 0)
+            row = findChild(parent, QFileSystemNode(element));
+
         // we couldn't find the path element, we create a new node since we
         // _know_ that the path is valid
         if (row != -1 && (parent->children.count() == 0 || parent->children[row].fileName != element))
@@ -284,7 +276,7 @@ QModelIndex QFileSystemModelPrivate::index(const QFileSystemModelPrivate::QFileS
 
     // get the parent's row
     int realRow = findChild(parentNode, *node);
-    Q_ASSERT(realRow != -1);
+    Q_ASSERT(realRow >= 0);
     int visualRow = translateVisibleLocation(parentNode, parentNode->visibleLocation(realRow));
     if (visualRow == -1)
         return QModelIndex();
@@ -523,6 +515,9 @@ bool QFileSystemModel::setData(const QModelIndex &index, const QVariant &value, 
     }
 
     QString newName = value.toString();
+    if (newName == index.data().toString())
+        return true;
+
     if (newName.contains(QDir::separator())
         || !d->rootDir.rename(index.data().toString(), newName)) {
 #ifndef QT_NO_MESSAGEBOX
@@ -910,16 +905,8 @@ QModelIndex QFileSystemModel::mkdir(const QModelIndex &parent, const QString &na
         return QModelIndex();
     QFileSystemModelPrivate::QFileSystemNode *parentNode = d->node(parent);
     d->addNode(parentNode, name);
-
-    QList<QFileSystemModelPrivate::QFileSystemNode>::iterator iterator;
-    if (parentNode->caseSensitive())
-        iterator = qBinaryFind(parentNode->children.begin(), parentNode->children.end(),
-                    QFileSystemModelPrivate::QFileSystemNode(name));
-    else
-        iterator = qBinaryFind(parentNode->children.begin(), parentNode->children.end(),
-                    QFileSystemModelPrivate::QFileSystemNode(name),
-		    QFileSystemModelPrivate::nodeCaseInsensitiveLessThan);
-    int r = iterator - parentNode->children.begin();
+    int r = d->findChild(parentNode, QFileSystemModelPrivate::QFileSystemNode(name));
+    Q_ASSERT(r >= 0);
     QFileSystemModelPrivate::QFileSystemNode *node = &parentNode->children[r];
     QExtendedInformation extendedInfo;
     extendedInfo.fileType = QExtendedInformation::Dir;
@@ -1254,15 +1241,7 @@ void QFileSystemModelPrivate::addVisibleFiles(QFileSystemNode *parentNode, const
     if (!indexHidden)
         q->beginInsertRows(parent, q->rowCount(parent), q->rowCount(parent) + newFiles.count() - 1);
     for (int i = 0; i < newFiles.count(); ++i) {
-        QList<QFileSystemNode>::iterator iterator;
-        if (parentNode->caseSensitive())
-            iterator = qBinaryFind(parentNode->children.begin(), parentNode->children.end(),
-                    QFileSystemNode(newFiles.at(i)));
-        else
-            iterator = qBinaryFind(parentNode->children.begin(), parentNode->children.end(),
-                    QFileSystemNode(newFiles.at(i)), nodeCaseInsensitiveLessThan);
-        int location = iterator - parentNode->children.begin();
-
+        int location = findChild(parentNode, QFileSystemNode(newFiles.at(i)));
         // put new items at the end of the list until sorted to minimize
         // flicker as it is re-shuffled to the right spot
         parentNode->visibleChildren.insert(sortOrder == Qt::AscendingOrder ? parentNode->visibleChildren.count() : 0, location);
@@ -1310,17 +1289,8 @@ void QFileSystemModelPrivate::fileSystemChanged(const QString &path, const QList
         QString fileName = updates.at(i).first;
         Q_ASSERT(!fileName.isEmpty());
         QExtendedInformation info = updates.at(i).second;
-
-        QList<QFileSystemNode>::iterator iterator;
-        if (parentNode->caseSensitive())
-            iterator = qBinaryFind(parentNode->children.begin(), parentNode->children.end(),
-                    QFileSystemNode(fileName));
-        else
-            iterator = qBinaryFind(parentNode->children.begin(), parentNode->children.end(),
-                    QFileSystemNode(fileName), nodeCaseInsensitiveLessThan);
-        int itemLocation = iterator - parentNode->children.begin();
-
-        if (iterator == parentNode->children.end()) {
+        int itemLocation = findChild(parentNode, QFileSystemNode(fileName));
+        if (itemLocation < 0) {
             // This is often times a symptom of another bug, but can happen for legit reasons
             // qDebug() << "file already removed" << fileName;
 
