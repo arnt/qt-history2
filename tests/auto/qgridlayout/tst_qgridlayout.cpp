@@ -12,7 +12,8 @@
 #include <qapplication.h>
 #include <qwidget.h>
 
-#include <QWindowsStyle>
+#include <QtGui/QWindowsStyle>
+#include <QStyleFactory>
 
 //TESTED_CLASS=
 //TESTED_FILES=gui/kernel/qlayout.cpp gui/kernel/qlayout.h
@@ -665,41 +666,45 @@ Q_DECLARE_METATYPE(SizeInfoList)
 void tst_QGridLayout::minMaxSize_data()
 {
     // input
+    QTest::addColumn<QString>("stylename");
     QTest::addColumn<int>("columns");
     QTest::addColumn<int>("rows");
     //input and expected output
     QTest::addColumn<SizeInfoList>("sizeinfos");
 
-    QTest::newRow("1x1 grid, extend to minimumSize") << 1 << 1 << (SizeInfoList()
+    QTest::newRow("1x1 grid, extend to minimumSize") << QString() << 1 << 1 << (SizeInfoList()
                 << SizeInfo(QPoint(10, 10), QSize( 90, 90), QSize(100,100))
                 );
-    QTest::newRow("2x1 grid, extend to minimumSize") << 2 << 1 << (SizeInfoList()
+    QTest::newRow("2x1 grid, extend to minimumSize") << QString() << 2 << 1 << (SizeInfoList()
                 << SizeInfo(QPoint(10, 10), QSize( 90, 90), QSize(100,100))
                 << SizeInfo(QPoint(10 + 100 + 1, 10), QSize( 90, 90))
                 );
-    QTest::newRow("1x2 grid, extend to minimumSize") << 1 << 2 << (SizeInfoList()
+    QTest::newRow("1x2 grid, extend to minimumSize") << QString() << 1 << 2 << (SizeInfoList()
                 << SizeInfo(QPoint(10, 10), QSize( 90, 90), QSize(100,100))
                 << SizeInfo(QPoint(10, 10 + 100 + 1), QSize( 90, 90))
                 );
-
-    QTest::newRow("2x1 grid, crop to maximumSize") << 2 << 1 << (SizeInfoList()
+    QTest::newRow("2x1 grid, crop to maximumSize") << QString() << 2 << 1 << (SizeInfoList()
             << SizeInfo(QPoint(10, 10), QSize(110,110), QSize(), QSize(100, 100))
             << SizeInfo(QPoint(10 + 100 + 1, 10), QSize( 90, 90))
             );
-
-    QTest::newRow("1x2 grid, crop to maximumSize") << 1 << 2 << (SizeInfoList()
+    QTest::newRow("1x2 grid, crop to maximumSize") << QString() << 1 << 2 << (SizeInfoList()
             << SizeInfo(QPoint(10, 10), QSize(110,110), QSize(), QSize(100, 100))
             << SizeInfo(QPoint(10, 10 + 100 + 1), QSize( 90, 90))
             );
-
-    QTest::newRow("1x3 grid, heightForWidth") << 1 << 3 << (SizeInfoList()
+    QTest::newRow("1x3 grid, heightForWidth") << QString() << 1 << 3 << (SizeInfoList()
             << SizeInfo(QPoint(10, 10), QSize(), QSize(200,100), QSize())
             << SizeInfo(QPoint(10, 10 + 100 + 1), QSize(100,100), QSize(), QSize(), 100*100)
             << SizeInfo(QPoint(10, 10 + 100 + 1 + 50 + 1), QSize(100,100), QSize(), QSize(100, 100))
             );
-
+    QTest::newRow("2x1 grid, extend to minimumSize") << QString::fromAscii("motif") << 2 << 1 << (SizeInfoList()
+                << SizeInfo(QPoint(11, 11), QSize( 90, 90), QSize(100,100))
+                << SizeInfo(QPoint(11 + 100 + 6, 11), QSize( 90, 90))
+                );
+    QTest::newRow("2x1 grid, extend to minimumSize") << QString::fromAscii("windows") << 2 << 1 << (SizeInfoList()
+                << SizeInfo(QPoint(11, 11), QSize( 90, 90), QSize(100,100))
+                << SizeInfo(QPoint(11 + 100 + 6, 11), QSize( 90, 90))
+                );
 }
-
 
 void tst_QGridLayout::minMaxSize()
 {
@@ -707,15 +712,22 @@ void tst_QGridLayout::minMaxSize()
     The test tests a gridlayout as a child of a top-level widget
 */
     // input
+    QFETCH(QString, stylename);
     QFETCH(int, columns);
     QFETCH(int, rows);
     //input and expected output
     QFETCH(SizeInfoList, sizeinfos);
 
-    Qt42Style *style = new Qt42Style;
-    style->margin_toplevel = 10;
-    style->margin = 5;
-    style->spacing = 1;
+    QStyle *style = 0;
+    if (stylename.isEmpty()) {
+        Qt42Style *s = new Qt42Style;
+        s->margin_toplevel = 10;
+        s->margin = 5;
+        s->spacing = 1;
+        style = static_cast<QStyle *>(s);
+    }else{
+        style = QStyleFactory::create(stylename);
+    }
     QApplication::setStyle(style);
     if (!m_grid)
         m_grid = new QGridLayout();
