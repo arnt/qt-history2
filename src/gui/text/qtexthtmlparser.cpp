@@ -1094,7 +1094,9 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     }
     // we don't paint per-row background colors, yet. so as an
     // exception inherit the background color here
-    if (parent->id == Html_tr && isTableCell()) {
+    // we also inherit the background between inline elements
+    if ((parent->id == Html_tr && isTableCell())
+        || (displayMode == QTextHtmlElement::DisplayInline && parent->displayMode == QTextHtmlElement::DisplayInline)) {
         background = parent->background;
     }
 

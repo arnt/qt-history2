@@ -117,6 +117,8 @@ private slots:
     void html_nestedLists();
     void noSpecialCharactersInPlainText();
     void html_doNotInheritBackground();
+    void html_inheritBackgroundToInlineElements();
+    void html_doNotInheritBackgroundFromBlockElements();
     void html_nobr();
     void fromPlainText();
     void fromPlainText2();
@@ -1600,6 +1602,47 @@ void tst_QTextDocumentFragment::html_doNotInheritBackground()
     QVERIFY(doc->rootFrame()->frameFormat().background().color() == Qt::blue);
 }
 
+void tst_QTextDocumentFragment::html_inheritBackgroundToInlineElements()
+{
+    const char html[] = "<span style=\"background: blue\">Foo<span>Bar</span></span>";
+    doc->setHtml(html);
+
+    int fragmentCount = 0;
+
+    QTextBlock block = doc->begin();
+    for (QTextBlock::Iterator it = block.begin();
+         !it.atEnd(); ++it, ++fragmentCount) {
+
+        const QTextFragment fragment = it.fragment();
+        if (fragmentCount == 0) {
+            QCOMPARE(fragment.text(), QString("FooBar"));
+            QVERIFY(fragment.charFormat().background().color() == Qt::blue);
+        }
+    }
+
+    QCOMPARE(fragmentCount, 1);
+}
+
+void tst_QTextDocumentFragment::html_doNotInheritBackgroundFromBlockElements()
+{
+    const char html[] = "<p style=\"background: blue\"><span>Foo</span></span>";
+    doc->setHtml(html);
+
+    int fragmentCount = 0;
+
+    QTextBlock block = doc->begin();
+    for (QTextBlock::Iterator it = block.begin();
+         !it.atEnd(); ++it, ++fragmentCount) {
+
+        const QTextFragment fragment = it.fragment();
+        if (fragmentCount == 0) {
+            QCOMPARE(fragment.text(), QString("Foo"));
+            QVERIFY(!fragment.charFormat().hasProperty(QTextFormat::BackgroundBrush));
+        }
+    }
+
+    QCOMPARE(fragmentCount, 1);
+}
 void tst_QTextDocumentFragment::html_nobr()
 {
     const QString input = "Blah Foo    Bar";
