@@ -896,7 +896,7 @@ QString QFileSystemModel::filePath(const QModelIndex &index) const
         idx = idx.parent();
     }
     QString fullPath = path.join(QDir::separator());
-    return QDir::cleanPath(fullPath);
+    return QDir::toNativeSeparators(QDir::cleanPath(fullPath));
 }
 
 /*!
