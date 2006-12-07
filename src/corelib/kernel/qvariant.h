@@ -42,7 +42,9 @@ class QSize;
 class QSizeF;
 class QRect;
 class QRectF;
+#ifndef QT_NO_REGEXP
 class QRegExp;
+#endif
 class QTextFormat;
 class QTextLength;
 class QUrl;
@@ -174,7 +176,9 @@ class Q_CORE_EXPORT QVariant
 #endif
     QVariant(const QUrl &url);
     QVariant(const QLocale &locale);
+#ifndef QT_NO_REGEXP
     QVariant(const QRegExp &regExp);
+#endif
     QVariant(Qt::GlobalColor color);
 
     QVariant& operator=(const QVariant &other);
@@ -230,8 +234,10 @@ class Q_CORE_EXPORT QVariant
 #endif
     QUrl toUrl() const;
     QLocale toLocale() const;
+#ifndef QT_NO_REGEXP
     QRegExp toRegExp() const;
-
+#endif
+    
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT int &asInt();
     inline QT3_SUPPORT uint &asUInt();
@@ -360,9 +366,7 @@ protected:
 #endif
     Private d;
 
-#ifndef QT_MOC
     static const Handler *handler;
-#endif
 
     void create(int type, const void *copy);
 #ifdef QT3_SUPPORT
@@ -381,7 +385,6 @@ private:
 #endif
 };
 
-#ifndef QT_MOC
 typedef QList<QVariant> QVariantList;
 typedef QMap<QString, QVariant> QVariantMap;
 
@@ -405,7 +408,6 @@ inline void qVariantSetValue(QVariant &v, const T &t)
 {
     v = QVariant(qMetaTypeId<T>(reinterpret_cast<T *>(0)), &t);
 }
-#endif
 
 inline QVariant::QVariant() {}
 inline bool QVariant::isValid() const { return d.type != Invalid; }

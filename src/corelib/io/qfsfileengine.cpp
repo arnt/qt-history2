@@ -12,7 +12,9 @@
 ****************************************************************************/
 
 #include "qfsfileengine_p.h"
+#include "qfsfileengine_iterator_p.h"
 #include "qdatetime.h"
+#include "qdiriterator.h"
 
 #include <errno.h>
 #include <stdio.h>
@@ -439,6 +441,9 @@ qint64 QFSFileEngine::read(char *data, qint64 len)
             d->lastIOCommand = QFSFileEnginePrivate::IOReadCommand;
         }
 
+        if (feof(d->fh))
+            return 0;
+
         size_t readBytes = 0;
 #ifdef Q_OS_UNIX
         if (d->sequential) {
@@ -657,9 +662,7 @@ int QFSFileEngine::handle() const
 */
 QAbstractFileEngine::Iterator *QFSFileEngine::beginEntryList(QDir::Filters filters, const QStringList &filterNames)
 {
-    Q_UNUSED(filters);
-    Q_UNUSED(filterNames);
-    return 0;
+    return new QFSFileEngineIterator(filters, filterNames);
 }
 
 /*!
@@ -668,6 +671,14 @@ QAbstractFileEngine::Iterator *QFSFileEngine::beginEntryList(QDir::Filters filte
 QAbstractFileEngine::Iterator *QFSFileEngine::endEntryList()
 {
     return 0;
+}
+
+/*!
+    \internal
+*/
+QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &filterNames) const
+{
+    return QAbstractFileEngine::entryList(filters, filterNames);
 }
 
 /*!

@@ -55,6 +55,7 @@ public:
 
 protected:
     friend class QResourceFileEngine;
+    friend class QResourceFileEngineIterator;
     bool isDir() const;
     inline bool isFile() const { return !isDir(); }
     QStringList children() const;

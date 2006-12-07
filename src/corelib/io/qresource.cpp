@@ -13,6 +13,7 @@
 
 #include "qresource.h"
 #include "qresource_p.h"
+#include "qresource_iterator_p.h"
 #include "qset.h"
 #include "qhash.h"
 #include "qmutex.h"
@@ -1096,42 +1097,7 @@ bool QResourceFileEngine::setSize(qint64)
 
 QStringList QResourceFileEngine::entryList(QDir::Filters filters, const QStringList &filterNames) const
 {
-    Q_D(const QResourceFileEngine);
-
-    const bool doDirs     = (filters & QDir::Dirs) != 0;
-    const bool doFiles    = (filters & QDir::Files) != 0;
-    const bool doReadable = (filters & QDir::Readable) != 0;
-
-    QStringList ret;
-    if((!doDirs && !doFiles) || ((filters & QDir::PermissionMask) && !doReadable))
-        return ret;
-    if(!d->resource.isValid() || !d->resource.isDir())
-        return ret; // cannot read the "directory"
-
-    QStringList entries = d->resource.children();
-    for(int i = 0; i < entries.size(); i++) {
-        QResource entry(d->resource.fileName() + QLatin1String("/") + entries[i]);
-#ifndef QT_NO_REGEXP
-        if(!(filters & QDir::AllDirs && entry.isDir())) {
-            bool matched = false;
-            for(QStringList::ConstIterator sit = filterNames.begin(); sit != filterNames.end(); ++sit) {
-                QRegExp rx(*sit,
-                           (filters & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive,
-                           QRegExp::Wildcard);
-                if (rx.exactMatch(entries[i])) {
-                    matched = true;
-                    break;
-                }
-            }
-            if(!matched)
-                continue;
-        }
-#endif
-        if  ((doDirs && entry.isDir()) ||
-             (doFiles && !entry.isDir()))
-            ret.append(entries[i]);
-    }
-    return ret;
+    return QAbstractFileEngine::entryList(filters, filterNames);
 }
 
 bool QResourceFileEngine::caseSensitive() const
@@ -1343,6 +1309,23 @@ QString QResourceFileEngine::owner(FileOwner) const
 QDateTime QResourceFileEngine::fileTime(FileTime) const
 {
     return QDateTime();
+}
+
+/*!
+    \internal
+*/
+QAbstractFileEngine::Iterator *QResourceFileEngine::beginEntryList(QDir::Filters filters,
+                                                                   const QStringList &filterNames)
+{
+    return new QResourceFileEngineIterator(filters, filterNames);
+}
+
+/*!
+    \internal
+*/
+QAbstractFileEngine::Iterator *QResourceFileEngine::endEntryList()
+{
+    return 0;
 }
 
 bool QResourceFileEngine::extension(Extension extension, const ExtensionOption *option, ExtensionReturn *output)

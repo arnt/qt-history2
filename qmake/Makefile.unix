@@ -14,7 +14,8 @@ OBJS=project.o property.o main.o makefile.o unixmake2.o unixmake.o  \
 #qt code
 QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o \
       qbytearray.o qbytearraymatcher.o qdatastream.o qbuffer.o qlistdata.o qfile.o \
-      qfsfileengine_unix.o qfsfileengine.o qregexp.o qvector.o qbitarray.o qdir.o quuid.o qhash.o \
+      qfsfileengine_unix.o qfsfileengine_iterator_unix.o qfsfileengine.o \
+      qfsfileengine_iterator.o qregexp.o qvector.o qbitarray.o qdir.o qdiriterator.o quuid.o qhash.o \
       qfileinfo.o qdatetime.o qstringlist.o qabstractfileengine.o qtemporaryfile.o \
       qmap.o qmetatype.o qsettings.o qlibraryinfo.o qvariant.o qvsnprintf.o \
       qlocale.o qlinkedlist.o qurl.o $(QTOBJS)
@@ -30,8 +31,10 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp generators/makefile.cpp ge
 	   $(SOURCE_PATH)/src/corelib/tools/qbytearray.cpp $(SOURCE_PATH)/src/corelib/tools/qbytearraymatcher.cpp \
 	   $(SOURCE_PATH)/src/corelib/io/qdatastream.cpp $(SOURCE_PATH)/src/corelib/io/qbuffer.cpp \
 	   $(SOURCE_PATH)/src/corelib/io/qfsfileengine_unix.cpp $(SOURCE_PATH)/src/corelib/io/qabstractfileengine.cpp \
+	   $(SOURCE_PATH)/src/corelib/io/qfsfileengine_iterator_unix.cpp $(SOURCE_PATH)/src/corelib/io/qfsfileengine_iterator.cpp \
 	   $(SOURCE_PATH)/src/corelib/io/qfsfileengine.cpp $(SOURCE_PATH)/src/corelib/tools/qlistdata.cpp \
 	   $(SOURCE_PATH)/src/corelib/tools/qvector.cpp $(SOURCE_PATH)/src/corelib/tools/qbitarray.cpp \
+	   $(SOURCE_PATH)/src/corelib/io/qdiriterator.cpp \
 	   $(SOURCE_PATH)/src/corelib/io/qdir.cpp $(SOURCE_PATH)/src/corelib/plugin/quuid.cpp \
 	   $(SOURCE_PATH)/src/corelib/io/qfileinfo.cpp $(SOURCE_PATH)/src/corelib/tools/qdatetime.cpp \
 	   $(SOURCE_PATH)/src/corelib/tools/qstringlist.cpp $(SOURCE_PATH)/src/corelib/tools/qmap.cpp \
@@ -130,8 +133,14 @@ qfile.o: $(SOURCE_PATH)/src/corelib/io/qfile.cpp
 qfsfileengine.o: $(SOURCE_PATH)/src/corelib/io/qfsfileengine.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qfsfileengine.cpp
 
+qfsfileengine_iterator.o: $(SOURCE_PATH)/src/corelib/io/qfsfileengine_iterator.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qfsfileengine_iterator.cpp
+
 qfsfileengine_unix.o: $(SOURCE_PATH)/src/corelib/io/qfsfileengine_unix.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qfsfileengine_unix.cpp
+
+qfsfileengine_iterator_unix.o: $(SOURCE_PATH)/src/corelib/io/qfsfileengine_iterator_unix.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qfsfileengine_iterator_unix.cpp
 
 qabstractfileengine.o: $(SOURCE_PATH)/src/corelib/io/qabstractfileengine.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qabstractfileengine.cpp
@@ -150,6 +159,9 @@ qbitarray.o: $(SOURCE_PATH)/src/corelib/tools/qbitarray.cpp
 
 qdir.o: $(SOURCE_PATH)/src/corelib/io/qdir.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qdir.cpp
+
+qdiriterator.o: $(SOURCE_PATH)/src/corelib/io/qdiriterator.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qdiriterator.cpp
 
 quuid.o: $(SOURCE_PATH)/src/corelib/plugin/quuid.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/plugin/quuid.cpp

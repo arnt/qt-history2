@@ -70,7 +70,7 @@ typedef BOOL (WINAPI *PtrGetUserProfileDirectoryW)( HANDLE, LPWSTR, LPDWORD);
 static PtrGetUserProfileDirectoryW ptrGetUserProfileDirectoryW = 0;
 
 
-static void resolveLibs()
+void QFSFileEnginePrivate::resolveLibs()
 {
     static bool triedResolve = false;
     if(!triedResolve) {
@@ -161,7 +161,8 @@ typedef struct _SHARE_INFO_1_NT {
     LPWSTR shi1_remark;
 } SHARE_INFO_1_NT;
 
-static bool resolveUNCLibs_NT()
+
+bool QFSFileEnginePrivate::resolveUNCLibs_NT()
 {
     static bool triedResolve = false;
     if (!triedResolve) {
@@ -198,7 +199,7 @@ typedef struct _SHARE_INFO_1_9x {
   char FAR* shi1_remark;
 } SHARE_INFO_1_9x;
 
-static bool resolveUNCLibs_9x()
+bool QFSFileEnginePrivate::resolveUNCLibs_9x()
 {
     static bool triedResolve = false;
     if (!triedResolve) {
@@ -217,7 +218,7 @@ static bool resolveUNCLibs_9x()
     return ptrNetShareEnum_9x;
 }
 
-static bool uncListSharesOnServer(const QString &server, QStringList *list)
+bool QFSFileEnginePrivate::uncListSharesOnServer(const QString &server, QStringList *list)
 {
     if (resolveUNCLibs_NT()) {
         SHARE_INFO_1_NT *BufPtr, *p;
@@ -302,46 +303,12 @@ static bool uncShareExists(const QString &server)
     QStringList parts = server.split('\\', QString::SkipEmptyParts);
     if (parts.count()) {
         QStringList shares;
-        if (uncListSharesOnServer("\\\\" + parts.at(0), &shares)) {
+        if (QFSFileEnginePrivate::uncListSharesOnServer("\\\\" + parts.at(0), &shares)) {
             if (parts.count() >= 2)
                 return shares.contains(parts.at(1), Qt::CaseInsensitive);
             else
                 return true;
         }
-    }
-    return false;
-}
-
-static bool uncEntryList(const QString &server, const QStringList &filterNames, QStringList *list)
-{
-    QStringList parts = server.split('\\', QString::SkipEmptyParts);
-    QStringList entries;
-    if (parts.count() == 1 && uncListSharesOnServer("\\\\" + parts.at(0), &entries)) {
-        if (filterNames.isEmpty() && list) {
-            *list += entries;
-        } else if (list) {
-#ifndef QT_NO_REGEXP
-            // Prepare name filters
-            QList<QRegExp> regexps;
-            for (int it = 0; it < filterNames.size(); ++it) {
-                regexps << QRegExp(filterNames.at(it), Qt::CaseInsensitive,
-                                   QRegExp::Wildcard);
-            }
-
-            for (int i = 0; i < entries.count(); ++i) {
-                for (int j = 0; j < regexps.size(); ++j) {
-                    if (regexps.at(j).exactMatch(entries.at(i))) {
-                        list->append(entries.at(i));
-                        break;
-                    }
-                }
-            }
-#else
-            Q_UNUSED(filterNames);
-            *list += entries;
-#endif
-        }
-        return true;
     }
     return false;
 }
@@ -682,189 +649,6 @@ bool QFSFileEngine::rmdir(const QString &name, bool recurseParentDirectories) co
 /*!
     \reimp
 */
-QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &filterNames) const
-{
-    Q_D(const QFSFileEngine);
-    QStringList ret;
-
-    bool doDirs     = (filters & (QDir::Dirs | QDir::AllDirs)) != 0;
-    bool doFiles    = (filters & QDir::Files) != 0;
-    bool noSymLinks = (filters & QDir::NoSymLinks) != 0;
-    bool doReadable = (filters & QDir::Readable) != 0;
-    bool doWritable = (filters & QDir::Writable) != 0;
-    bool doExecable = (filters & QDir::Executable) != 0;
-    bool doModified = (filters & QDir::Modified) != 0;
-    bool doSystem   = (filters & QDir::System) != 0;
-    bool doHidden   = (filters & QDir::Hidden) != 0;
-    // show hidden files if the user asks explicitly for e.g. .*
-    if(!doHidden && !filterNames.size()) {
-        QStringList::ConstIterator sit = filterNames.begin();
-        while (sit != filterNames.end()) {
-            if((*sit)[0] == '.') {
-                doHidden = true;
-                break;
-            }
-            ++sit;
-        }
-    }
-
-    bool first = true;
-    QString p = d->file;
-    const int plen = p.length();
-    HANDLE ff;
-    WIN32_FIND_DATA finfo;
-    QFileInfo fi;
-
-#undef IS_SUBDIR
-#undef IS_RDONLY
-#undef IS_ARCH
-#undef IS_HIDDEN
-#undef IS_SYSTEM
-#undef FF_ERROR
-
-#define IS_SUBDIR   FILE_ATTRIBUTE_DIRECTORY
-#define IS_RDONLY   FILE_ATTRIBUTE_READONLY
-#define IS_ARCH     FILE_ATTRIBUTE_ARCHIVE
-#define IS_HIDDEN   FILE_ATTRIBUTE_HIDDEN
-#define IS_SYSTEM   FILE_ATTRIBUTE_SYSTEM
-#define FF_ERROR    INVALID_HANDLE_VALUE
-
-    if(plen == 0) {
-        qWarning("QDir::readDirEntries: No directory name specified");
-        return ret;
-    }
-    if(p.at(plen-1) != '/' && p.at(plen-1) != '\\')
-        p += QLatin1Char('/');
-    p += QLatin1String("*.*");
-
-    QT_WA({
-        ff = FindFirstFileW((TCHAR*)QFSFileEnginePrivate::longFileName(p).utf16(), &finfo);
-    }, {
-        // Cast is safe, since char is at end of WIN32_FIND_DATA
-        ff = FindFirstFileA(QFSFileEnginePrivate::win95Name(p),
-			    (WIN32_FIND_DATAA*)&finfo);
-    });
-
-    if (ff == FF_ERROR) {
-        if (d->file.startsWith("//") && doDirs)
-            uncEntryList(QDir::toNativeSeparators(d->file), (filters & QDir::AllDirs) ? QStringList() : filterNames, &ret);
-        return ret; // cannot read the directory or was //unc
-    }
-    for (;;) {
-        if(first)
-            first = false;
-        else {
-            QT_WA({
-                if(!FindNextFile(ff,&finfo))
-                    break;
-            } , {
-                if(!FindNextFileA(ff,(WIN32_FIND_DATAA*)&finfo))
-                    break;
-            });
-        }
-        int  attrib = finfo.dwFileAttributes;
-
-        bool isDir      = (attrib & IS_SUBDIR) != 0;
-        bool isFile     = !isDir;
-        bool isSymLink  = false;
-        bool isReadable = true;
-        bool isWritable = (attrib & IS_RDONLY) == 0;
-        bool isExecable = false;
-        bool isModified = (attrib & IS_ARCH)   != 0;
-        bool isHidden   = (attrib & IS_HIDDEN) != 0;
-        bool isSystem   = (attrib & IS_SYSTEM) != 0;
-
-        QString fname;
-        QT_WA({
-            fname = QString::fromUtf16((unsigned short *)finfo.cFileName);
-        } , {
-            fname = QString::fromLocal8Bit((const char*)finfo.cFileName);
-        });
-
-        if (fname.endsWith(".lnk")) {
-            isSymLink = true;
-            QFileInfo linkInfo(readLink(d->file + "\\" + fname));
-            if (!linkInfo.exists()) {
-                // Broken link, treat as system file
-                isSystem = true;
-                isDir = false;
-                isFile = true;
-            } else {
-                // Resolve the link
-                isDir = linkInfo.isDir();
-                isFile = !isDir;
-                isWritable = linkInfo.isWritable();
-                isReadable = linkInfo.isReadable();
-                isExecable = linkInfo.isExecutable();
-                isHidden = linkInfo.isHidden();
-            }
-        }
-
-#ifndef QT_NO_REGEXP
-        if(!(filters & QDir::AllDirs && isDir)) {
-            // Prepare name filters
-            QList<QRegExp> regexps;
-            for (int it = 0; it < filterNames.size(); ++it) {
-                regexps << QRegExp(filterNames.at(it), Qt::CaseInsensitive,
-                                   QRegExp::Wildcard);
-            }
-
-            bool matched = false;
-            for (int i = 0; i < regexps.size(); ++i) {
-                if (regexps.at(i).exactMatch(fname)) {
-                    matched = true;
-                    break;
-                }
-            }
-            if(!matched)
-                continue;
-        }
-#else
-        Q_UNUSED(filterNames);
-#endif
-        if  ((doDirs && isDir) || (doFiles && isFile) || (doSystem && isSystem)) {
-            QString name = QFSFileEnginePrivate::fixToQtSlashes(fname);
-            if(doExecable) {
-                QString ext = name.right(4).toLower();
-                if(ext == ".exe" || ext == ".com" || ext == ".bat" ||
-                     ext == ".pif" || ext == ".cmd" || isDir)
-                    isExecable = true;
-            }
-
-            if(noSymLinks && isSymLink)
-                continue;
-            if((filters & QDir::PermissionMask) != 0)
-                if((doReadable && !isReadable) ||
-                     (doWritable && !isWritable) ||
-                     (doExecable && !isExecable))
-                    continue;
-            if(doModified && !isModified)
-                continue;
-            if(filters & QDir::NoDotAndDotDot
-               && (name == QLatin1String(".") || name == QLatin1String(".."))) {
-                continue;
-            }
-            if(!doHidden && isHidden)
-                continue;
-            if(!doSystem && isSystem)
-                continue;
-	    ret.append(name);
-        }
-    }
-    FindClose(ff);
-
-#undef        IS_SUBDIR
-#undef        IS_RDONLY
-#undef        IS_ARCH
-#undef        IS_HIDDEN
-#undef        IS_SYSTEM
-#undef        FF_ERROR
-    return ret;
-}
-
-/*!
-    \reimp
-*/
 bool QFSFileEngine::caseSensitive() const
 {
     return false;
@@ -958,7 +742,7 @@ QString QFSFileEngine::homePath()
 #if !defined(QT_NO_LIBRARY)
     QT_WA (
     {
-        resolveLibs();
+        QFSFileEnginePrivate::resolveLibs();
 		if (ptrOpenProcessToken && ptrGetUserProfileDirectoryW) {
 			HANDLE hnd = ::GetCurrentProcess();
 			HANDLE token = 0;
@@ -1560,7 +1344,10 @@ QString QFSFileEngine::fileName(FileName file) const
             QString abs;
             bool attach_basename = false;
             if (fileFlags(DirectoryType) & DirectoryType) {
-                abs = fileName(AbsoluteName);
+                if (d->file.endsWith(QLatin1String(".lnk")))
+                    abs = fileName(LinkName);
+                else
+                    abs = fileName(AbsoluteName);
             } else {
                 if(file == CanonicalName)
                     attach_basename = true;
@@ -1590,6 +1377,7 @@ QString QFSFileEngine::fileName(FileName file) const
                     ret += QLatin1Char('/');
                 ret += fileName(BaseName);
             }
+
             ret[0] = ret.at(0).toUpper(); // Force uppercase drive letters.
             return QFSFileEnginePrivate::fixToQtSlashes(ret);
         }
@@ -1632,7 +1420,7 @@ QString QFSFileEngine::owner(FileOwner own) const
 	PSID pOwner = 0;
 	PSECURITY_DESCRIPTOR pSD;
 	QString name;
-	resolveLibs();
+	QFSFileEnginePrivate::resolveLibs();
 
 	if(ptrGetNamedSecurityInfoW && ptrLookupAccountSidW) {
 	    if(ptrGetNamedSecurityInfoW((wchar_t*)d->file.utf16(), SE_FILE_OBJECT,

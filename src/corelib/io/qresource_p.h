@@ -77,6 +77,9 @@ public:
 
     virtual QDateTime fileTime(FileTime time) const;
 
+    virtual Iterator *beginEntryList(QDir::Filters filters, const QStringList &filterNames);
+    virtual Iterator *endEntryList();
+    
     bool extension(Extension extension, const ExtensionOption *option = 0, ExtensionReturn *output = 0);
     bool supportsExtension(Extension extension) const;
 };

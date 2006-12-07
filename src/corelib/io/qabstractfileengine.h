@@ -23,7 +23,7 @@
 QT_BEGIN_HEADER
 
 QT_MODULE(Core)
-
+    
 class QFileExtension;
 class QFileExtensionResult;
 class QVariant;
@@ -151,6 +151,38 @@ public:
     QAbstractFileEngineHandler();
     virtual ~QAbstractFileEngineHandler();
     virtual QAbstractFileEngine *create(const QString &fileName) const = 0;
+};
+
+class QAbstractFileEngineIteratorPrivate;
+class Q_CORE_EXPORT QAbstractFileEngineIterator
+{
+public:
+    QAbstractFileEngineIterator(QDir::Filters filters, const QStringList &nameFilters);
+    virtual ~QAbstractFileEngineIterator();
+
+    virtual QString next() = 0;
+    virtual bool hasNext() const = 0;
+
+    QString path() const;
+    QStringList nameFilters() const;
+    QDir::Filters filters() const;
+
+    virtual QString currentFileName() const = 0;
+    virtual QFileInfo currentFileInfo() const;
+    QString currentFilePath() const;
+
+protected:
+    enum EntryInfoType {
+    };
+    virtual QVariant entryInfo(EntryInfoType type) const;
+    
+    Q_DISABLE_COPY(QAbstractFileEngineIterator)
+        
+private:
+    friend class QDirIterator;
+    friend class QDirIteratorPrivate;
+    void setPath(const QString &path);
+    QAbstractFileEngineIteratorPrivate *d;
 };
 
 QT_END_HEADER

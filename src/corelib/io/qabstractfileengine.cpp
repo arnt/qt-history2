@@ -15,8 +15,10 @@
 #include "private/qabstractfileengine_p.h"
 #include "qdatetime.h"
 #include "qmutex.h"
+#include "qvariant.h"
 // built-in handlers
 #include "qfsfileengine.h"
+#include "qdiriterator.h"
 
 /*!
     \class QAbstractFileEngineHandler
@@ -554,9 +556,13 @@ bool QAbstractFileEngine::isRelativePath() const
  */
 QStringList QAbstractFileEngine::entryList(QDir::Filters filters, const QStringList &filterNames) const
 {
-    Q_UNUSED(filters);
-    Q_UNUSED(filterNames);
-    return QStringList();
+    QStringList ret;
+    QDirIterator it(fileName(), filterNames, filters);
+    while (it.hasNext()) {
+        it.next();
+        ret << it.fileName();
+    }
+    return ret;
 }
 
 /*!
@@ -688,7 +694,284 @@ int QAbstractFileEngine::handle() const
 }
 
 /*!
+    \since 4.3
+    \class QAbstractFileEngineIterator
+    \brief The QAbstractFileEngineIterator class provides an iterator
+    interface for custom file engines.
+
+    If all you want is to iterate over entries in a directory, see
+    QDirIterator instead. This class is only for custom file engine authors.
+
+    QAbstractFileEngineIterator is a unidirectional single-use virtual
+    iterator that plugs into QDirIterator, providing transparent proxy
+    iteration for custom file engines.
+
+    You can subclass QAbstractFileEngineIterator to provide an iterator when
+    writing your own file engine. To plug the iterator into your file system,
+    you simply return an instance of this subclass from a reimplementation of
+    QAbstractFileEngine::beginEntryList().
+
+    Example:
+
+    \code
+    QAbstractFileEngineIterator *
+    CustomFileEngine::beginEntryList(QDir::Filters filters, const QStringList &filterNames)
+    {
+        return new CustomFileEngineIterator(filters, filterNames);
+    }
+    \endcode
+
+    QAbstractFileEngineIterator is associated with a path, name filters, and
+    entry filters. The path is the directory that the iterator lists entries
+    in. The name filters and entry filters are provided for file engines that
+    can optimize directory listing at the iterator level (e.g., network file
+    systems that need to minimize network traffic), but they can also be
+    ignored by the iterator subclass; QAbstractFileEngineIterator already
+    provides the required filtering logics in the matchesFilters() function.
+    You can call dirName() to get the directory name, nameFilters() to get a
+    stringlist of name filters, and filters() to get the entry filters.
+
+    The pure virual function hasNext() returns true if the current directory
+    has at least one more entry (i.e., the directory name is valid and
+    accessible, and we have not reached the end of the entry list), and false
+    otherwise. Reimplement next() to seek to the next entry.
+
+    The pure virtual function currentFileName() returns the name of the
+    current entry without advancing the iterator. The currentFilePath()
+    function is provided for convenience; it returns the full path of the
+    current entry.
+
+    Here is an example of how to implement an interator that returns each of
+    three fixed entries in sequence.
+
+    \code
+    class CustomIterator : public QAbstractFileEngineIterator
+    {
+    public:
+        CustomIterator(const QStringList &nameFilters, QDir::Filters filters)
+            : QAbstractFileEngineIterator(nameFilters, filters), index(0)
+        {
+            // In a real iterator, these entries are fetched from the
+            // file system based on the value of path().
+            entries << "entry1" << "entry2" << "entry3";
+        }
+
+        bool hasNext() const
+        {
+            return index < entries.size() - 1;
+        }
+
+        QString next()
+        {
+           if (!hasNext())
+               return QString();
+           ++index;
+           return currentFilePath();
+        }
+
+        QString currentFilePath()
+        {
+            return entries.at(index);
+        }
+
+    private:
+        QStringList entries;
+        int index;
+    };
+    \endcode
+
+    Note: QAbstractFileEngineIterator does not deal with QDir::IteratorFlags;
+    it simply returns entries for a single directory.
+
+    \sa QDirIterator
+*/
+
+/*!
+    \enum QAbstractFileEngineIterator::EntryInfoType
     \internal
+
+    This enum describes the different types of information that can be
+    requested through the QAbstractFileEngineIterator::entryInfo() function.
+*/
+
+/*!
+    \typedef QAbstractFileEngine::Iterator
+    \relates QAbstractFileEngine
+
+    Synonym for QAbstractFileEngineIterator
+*/
+
+class QAbstractFileEngineIteratorPrivate
+{
+public:
+    QString path;
+    QDir::Filters filters;
+    QStringList nameFilters;
+    QFileInfo fileInfo;
+};
+
+/*!
+    Constructs a QAbstractFileEngineIterator, using the entry filters \a
+    filters, and wildcard name filters \a nameFilters.
+
+    \sa matchesFilters()
+*/
+QAbstractFileEngineIterator::QAbstractFileEngineIterator(QDir::Filters filters,
+                                                         const QStringList &nameFilters)
+    : d(new QAbstractFileEngineIteratorPrivate)
+{
+    d->nameFilters = nameFilters;
+    d->filters = filters;
+}
+
+/*!
+    Destroys the QAbstractFileEngineIterator.
+
+    \sa QDirIterator
+*/
+QAbstractFileEngineIterator::~QAbstractFileEngineIterator()
+{
+    delete d;
+}
+
+/*!
+    Returns the path for this iterator. QDirIterator is responsible for
+    assigning this path; it cannot change during the iterator's lifetime.
+
+    \sa nameFilters(), filters()
+*/
+QString QAbstractFileEngineIterator::path() const
+{
+    return d->path;
+}
+
+/*!
+    \internal
+
+    Sets the iterator path to \a path. This function is called from within
+    QDirIterator.
+*/
+void QAbstractFileEngineIterator::setPath(const QString &path)
+{
+    d->path = path;
+}
+
+/*!
+    Returns the name filters for this iterator.
+
+    \sa QDir::nameFilters(), filters(), path()
+*/
+QStringList QAbstractFileEngineIterator::nameFilters() const
+{
+    return d->nameFilters;
+}
+
+/*!
+    Returns the entry filters for this iterator.
+
+    \sa QDir::filter(), nameFilters(), path()
+*/
+QDir::Filters QAbstractFileEngineIterator::filters() const
+{
+    return d->filters;
+}
+
+/*!
+    \fn QString QAbstractFileEngineIterator::currentFileName() const = 0
+
+    This pure virtual function returns the name of the current directory
+    entry, excluding the path.
+
+    \sa currentFilePath(), entryInfo()
+*/
+
+/*!
+    Returns the path to the current directory entry. It's the same as
+    prepending path() to the return value of currentFileName().
+
+    \sa currentFileName(), entryInfo()
+*/
+QString QAbstractFileEngineIterator::currentFilePath() const
+{
+    QString name = currentFileName();
+    if (!name.isNull()) {
+        QString tmp = path();
+        if (!tmp.isEmpty()) {
+            if (!tmp.endsWith(QLatin1Char('/')))
+                tmp.append(QLatin1Char('/'));
+            name.prepend(tmp);
+        }
+    }
+    return name;
+}
+
+/*!
+    The virtual function returns a QFileInfo for the current directory
+    entry. This function is provided for convenience. It can also be slightly
+    faster that creating a QFileInfo object yourself, as the object returned
+    by this function might contain cached information that QFileInfo otherwise
+    would have to access through the file engine.
+
+    \sa currentFileName(), entryInfo()
+*/
+QFileInfo QAbstractFileEngineIterator::currentFileInfo() const
+{
+    QString path = currentFilePath();
+    if (d->fileInfo.filePath() != path)
+        d->fileInfo.setFile(path);
+
+    // return a shallow copy
+    return d->fileInfo;
+}
+
+/*!
+    \internal
+
+    Returns the entry info \a type for this iterator's current directory entry
+    as a QVariant. If \a type is undefined for this entry, a null QVariant is
+    returned.
+
+    \sa QAbstractFileEngine::beginEntryList(), QDir::beginEntryList()
+*/
+QVariant QAbstractFileEngineIterator::entryInfo(EntryInfoType type) const
+{
+    Q_UNUSED(type)
+    return QVariant();
+}
+
+/*!
+    \fn virtual QString QAbstractFileEngineIterator::next() = 0
+
+    This pure virtual function advances the iterator to the next directory
+    entry, and returns the file path to the current entry.
+
+    This function can optionally make use of nameFilters() and filters() to
+    optimize its performance.
+
+    Reimplement this function in a subclass to advance the iterator.
+
+    \sa QDirIterator::next()
+*/
+
+/*!
+    \fn virtual bool QAbstractFileEngineIterator::hasNext() const = 0
+
+    This pure virtual function returns true if there is at least one more
+    entry in the current directory (i.e., the iterator path is valid and
+    accessible, and the iterator has not reached the end of the entry list).
+
+    \sa QDirIterator::isValid()
+*/
+
+/*!
+    Returns an instance of a QAbstractFileEngineIterator using \a filters for
+    entry filtering and \a filterNames for name filtering. This function is
+    called by QDirIterator to initiate directory iteration.
+
+    QDirIterator takes ownership of the returned instance, and deletes it when
+    it's done.
+
+    \sa QDirIterator
 */
 QAbstractFileEngine::Iterator *QAbstractFileEngine::beginEntryList(QDir::Filters filters, const QStringList &filterNames)
 {

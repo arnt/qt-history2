@@ -51,12 +51,15 @@ QTOBJS= \
 	qconfig.o \
 	qdatetime.o \
 	qdir.o \
+	qdiriterator.o \
 	qfile.o \
 	qtemporaryfile.o \
 	qfileinfo.o \
 	qabstractfileengine.o \
 	qfsfileengine.o \
+	qfsfileengine_iterator.o \
 	qfsfileengine_win.o \
+	qfsfileengine_iterator_win.o \
 	qglobal.o \
 	qhash.o \
 	qiodevice.o \
@@ -161,8 +164,14 @@ qabstractfileengine.o: $(SOURCE_PATH)\src\corelib\io\qabstractfileengine.cpp
 qfsfileengine_win.o: $(SOURCE_PATH)\src\corelib\io\qfsfileengine_win.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\io\qfsfileengine_win.cpp
 
+qfsfileengine_iterator_win.o: $(SOURCE_PATH)\src\corelib\io\qfsfileengine_iterator_win.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\io\qfsfileengine_iterator_win.cpp
+
 qfsfileengine.o: $(SOURCE_PATH)\src\corelib\io\qfsfileengine.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\io\qfsfileengine.cpp
+
+qfsfileengine_iterator.o: $(SOURCE_PATH)\src\corelib\io\qfsfileengine_iterator.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\io\qfsfileengine_iterator.cpp
 
 qtextcodec.o: $(SOURCE_PATH)\src\codecs\qtextcodec.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\codecs\qtextcodec.cpp
@@ -178,6 +187,9 @@ qbitarray.o: $(SOURCE_PATH)\src\corelib\tools\qbitarray.cpp
 
 qdir.o: $(SOURCE_PATH)\src\corelib\io\qdir.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\io\qdir.cpp
+
+qdiriterator.o: $(SOURCE_PATH)\src\corelib\io\qdiriterator.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\io\qdiriterator.cpp
 
 qmetatype.o: $(SOURCE_PATH)\src\corelib\kernel\qmetatype.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\kernel\qmetatype.cpp

@@ -139,7 +139,9 @@
 #include "qatomic.h"
 #include "qbytearray.h"
 #include "qlist.h"
+#ifndef QT_NO_REGEXP
 #include "qregexp.h"
+#endif
 #include "qstring.h"
 #include "qstringlist.h"
 #include "qstack.h"
@@ -4988,8 +4990,12 @@ QByteArray QUrl::toAce(const QString &domain)
     // IDNA / rfc3490 describes these four delimiters used for
     // separating labels in unicode international domain
     // names.
+#ifndef QT_NO_REGEXP
     const unsigned short delimiters[] = {'[', 0x2e, 0x3002, 0xff0e, 0xff61, ']', 0};
     QStringList labels = domain.split(QRegExp(QString::fromUtf16(delimiters)));
+#else
+    QStringList labels = domain.split(QLatin1String("."));
+#endif
     QByteArray result;
     for (int i = 0; i < labels.count(); ++i) {
         if (i != 0) result += '.';

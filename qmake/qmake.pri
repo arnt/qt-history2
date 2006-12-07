@@ -38,10 +38,12 @@ bootstrap { #Qt code
         qbytearraymatcher.cpp \
         qdatetime.cpp \
         qdir.cpp \
+        qdiriterator.cpp \
         qfile.cpp \
         qabstractfileengine.cpp \
         qfileinfo.cpp \
         qfsfileengine.cpp \
+        qfsfileengine_iterator.cpp \
         qglobal.cpp \
         qhash.cpp \
         qiodevice.cpp \
@@ -72,9 +74,11 @@ bootstrap { #Qt code
         qdatetime.h \
         qdatetime_p.h \
         qdir.h \
+        qdiriterator.h \
         qfile.h \
         qabstractfileengine.h \
         qfileinfo.h \
+        qfileinfo_p.h \
         qglobal.h \
         qhash.h \
         qiodevice.h \
@@ -94,14 +98,14 @@ bootstrap { #Qt code
         md5.h
 
     unix {
-        SOURCES += qfsfileengine_unix.cpp
+        SOURCES += qfsfileengine_unix.cpp qfsfileengine_iterator_unix.cpp
         mac {
           SOURCES += qcore_mac.cpp qsettings_mac.cpp
           QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.2 #enables weak linking for 10.2 (exported)
           LIBS += -framework CoreServices
         }
     } else:win32 {
-	SOURCES += qfsfileengine_win.cpp qsettings_win.cpp
+	SOURCES += qfsfileengine_win.cpp qfsfileengine_iterator_win.cpp qsettings_win.cpp
         win32-msvc*:LIBS += ole32.lib advapi32.lib
     }
 

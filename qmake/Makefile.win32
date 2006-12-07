@@ -89,15 +89,18 @@ QTOBJS= \
 	qbitarray.obj \
 	qbuffer.obj \
 	qfsfileengine.obj \
+	qfsfileengine_iterator.obj \
 	qbytearray.obj \
         qvsnprintf.obj \
 	qbytearraymatcher.obj \
 	qdatetime.obj \
 	qdir.obj \
+	qdiriterator.obj \
 	qfile.obj \
 	qtemporaryfile.obj \
 	qabstractfileengine.obj \
 	qfsfileengine_win.obj \
+	qfsfileengine_iterator_win.obj \
 	qfileinfo.obj \
 	qglobal.obj \
 	qhash.obj \
@@ -129,15 +132,18 @@ clean::
 	-del qbitarray.obj
 	-del qbuffer.obj
 	-del qfsfileengine.obj
+	-del qfsfileengine_iterator.obj
 	-del qbytearray.obj
         -del qvsnprintf.obj
 	-del qbytearraymatcher.obj
 	-del qdatetime.obj
 	-del qdir.obj
+	-del qdiriterator.obj
 	-del qfile.obj
 	-del qtemporaryfile.obj
 	-del qabstractfileengine.obj
 	-del qfsfileengine_win.obj
+	-del qfsfileengine_iterator_win.obj
 	-del qfileinfo.obj
 	-del qglobal.obj
 	-del qhash.obj
@@ -266,8 +272,14 @@ qtemporaryfile.obj: $(SOURCE_PATH)\src\corelib\io\qtemporaryfile.cpp
 qfsfileengine_win.obj: $(SOURCE_PATH)\src\corelib\io\qfsfileengine_win.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\io\qfsfileengine_win.cpp
 
+qfsfileengine_iterator_win.obj: $(SOURCE_PATH)\src\corelib\io\qfsfileengine_iterator_win.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\io\qfsfileengine_iterator_win.cpp
+
 qfsfileengine.obj: $(SOURCE_PATH)\src\corelib\io\qfsfileengine.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\io\qfsfileengine.cpp
+
+qfsfileengine_iterator.obj: $(SOURCE_PATH)\src\corelib\io\qfsfileengine_iterator.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\io\qfsfileengine_iterator.cpp
 
 qabstractfileengine.obj: $(SOURCE_PATH)\src\corelib\io\qabstractfileengine.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\io\qabstractfileengine.cpp
@@ -286,6 +298,9 @@ qbitarray.obj: $(SOURCE_PATH)\src\corelib\tools\qbitarray.cpp
 
 qdir.obj: $(SOURCE_PATH)\src\corelib\io\qdir.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\io\qdir.cpp
+
+qdiriterator.obj: $(SOURCE_PATH)\src\corelib\io\qdiriterator.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\io\qdiriterator.cpp
 
 qmetatype.obj: $(SOURCE_PATH)\src\corelib\kernel\qmetatype.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)\src\corelib\kernel\qmetatype.cpp

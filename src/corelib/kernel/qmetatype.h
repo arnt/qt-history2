@@ -217,7 +217,9 @@ class QLine;
 class QLineF;
 class QPoint;
 class QPointF;
+#ifndef QT_NO_REGEXP
 class QRegExp;
+#endif
 class QWidget;
 class QObject;
 
@@ -277,8 +279,10 @@ Q_DECLARE_BUILTIN_METATYPE(QLine, QLine)
 Q_DECLARE_BUILTIN_METATYPE(QLineF, QLineF)
 Q_DECLARE_BUILTIN_METATYPE(QPoint, QPoint)
 Q_DECLARE_BUILTIN_METATYPE(QPointF, QPointF)
+#ifndef QT_NO_REGEXP
 Q_DECLARE_BUILTIN_METATYPE(QRegExp, QRegExp)
-
+#endif
+    
 #ifdef QT3_SUPPORT
 Q_DECLARE_BUILTIN_METATYPE(QColorGroup, QColorGroup)
 #endif
