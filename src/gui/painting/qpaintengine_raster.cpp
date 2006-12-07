@@ -3032,9 +3032,11 @@ void QRasterPaintEnginePrivate::rasterize(QT_FT_Outline *outline,
             (unsigned char *) malloc(rasterPoolSize);
 #endif
 
+            qt_ft_grays_raster.raster_done(*grayRaster);
             qt_ft_grays_raster.raster_new(0, grayRaster);
             qt_ft_grays_raster.raster_reset(*grayRaster, rasterPoolBase, rasterPoolSize);
 
+            qt_ft_standard_raster.raster_done(*blackRaster);
             qt_ft_standard_raster.raster_new(0, blackRaster);
             qt_ft_standard_raster.raster_reset(*blackRaster, rasterPoolBase, rasterPoolSize);
 
