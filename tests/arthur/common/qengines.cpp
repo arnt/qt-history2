@@ -1,6 +1,7 @@
 #include "qengines.h"
 #include "paintcommands.h"
 
+#include <QApplication>
 #include <QProcess>
 #include <QPainter>
 #include <QSvgRenderer>
@@ -188,7 +189,6 @@ QString GLEngine::name() const
     return QLatin1String("OpenGL");
 }
 
-
 void GLEngine::prepare(const QSize &_size)
 {
     size = _size;
@@ -200,6 +200,11 @@ void GLEngine::prepare(const QSize &_size)
 #endif
     } else {
         widget = new QGLWidget(QGLFormat(QGL::SampleBuffers));
+        widget->setAutoFillBackground(false);
+        widget->resize(size);
+        widget->show();
+        QApplication::flush();
+        QApplication::syncX();
     }
 }
 
@@ -237,8 +242,8 @@ bool GLEngine::drawOnPainter(QPainter *p)
         QImage img = pbuffer->toImage();
         p->drawImage(0, 0, img);
     } else {
-        QPixmap pix = widget->renderPixmap(size.width(), size.height());
-        p->drawPixmap(0, 0, pix);
+        QImage img = widget->grabFrameBuffer();
+        p->drawImage(0, 0, img);
     }
     return true;
 }
@@ -250,7 +255,7 @@ void GLEngine::save(const QString &file)
         QImage img = pbuffer->toImage();
         img.save(file, "PNG");
     } else {
-        QImage img = widget->renderPixmap(size.width(), size.height()).toImage();
+        QImage img = widget->grabFrameBuffer();
         img.save(file, "PNG");
     }
 }
