@@ -19,6 +19,7 @@
 #include "qfile.h"
 #include "qdebug.h"
 #include "qscreen_qws.h"
+#include <math.h>
 
 /*!
     \class QWSPointerCalibrationData
@@ -441,26 +442,47 @@ void QWSCalibratedMouseHandler::calibrate(const QWSPointerCalibrationData *data)
     const QPoint p1 = data->screenPoints[QWSPointerCalibrationData::TopRight];
     const QPoint p2 = data->screenPoints[QWSPointerCalibrationData::BottomRight];
 
-    const int xd0 = pd0.x();
-    const int xd1 = pd1.x();
-    const int xd2 = pd2.x();
-    const int yd0 = pd0.y();
-    const int yd1 = pd1.y();
-    const int yd2 = pd2.y();
-    const int x0 = p0.x();
-    const int x1 = p1.x();
-    const int x2 = p2.x();
-    const int y0 = p0.y();
-    const int y1 = p1.y();
-    const int y2 = p2.y();
+    const qint64 xd0 = pd0.x();
+    const qint64 xd1 = pd1.x();
+    const qint64 xd2 = pd2.x();
+    const qint64 yd0 = pd0.y();
+    const qint64 yd1 = pd1.y();
+    const qint64 yd2 = pd2.y();
+    const qint64 x0 = p0.x();
+    const qint64 x1 = p1.x();
+    const qint64 x2 = p2.x();
+    const qint64 y0 = p0.y();
+    const qint64 y1 = p1.y();
+    const qint64 y2 = p2.y();
 
-    s = ((xd0 - xd2)*(yd1 - yd2) - (xd1 - xd2)*(yd0 - yd2));
-    a = ((x0 - x2)*(yd1 - yd2) - (x1 - x2)*(yd0 - yd2));
-    b = ((xd0 - xd2)*(x1 - x2) - (x0 - x2)*(xd1 - xd2));
-    c = (yd0*(xd2*x1 - xd1*x2) + yd1*(xd0*x2 - xd2*x0) + yd2*(xd1*x0 - xd0*x1));
-    d = ((y0 - y2)*(yd1 - yd2) - (y1 - y2)*(yd0 - yd2));
-    e = ((xd0 - xd2)*(y1 - y2) - (y0 - y2)*(xd1 - xd2));
-    f = (yd0*(xd2*y1 - xd1*y2) + yd1*(xd0*y2 - xd2*y0) + yd2*(xd1*y0 - xd0*y1));
+    qint64 s64 = ((xd0 - xd2)*(yd1 - yd2) - (xd1 - xd2)*(yd0 - yd2));
+
+    qint64 a64 = ((x0 - x2)*(yd1 - yd2) - (x1 - x2)*(yd0 - yd2));
+    qint64 b64 = ((xd0 - xd2)*(x1 - x2) - (x0 - x2)*(xd1 - xd2));
+    qint64 c64 = (yd0*(xd2*x1 - xd1*x2) + yd1*(xd0*x2 - xd2*x0) + yd2*(xd1*x0 - xd0*x1));
+    qint64 d64 = ((y0 - y2)*(yd1 - yd2) - (y1 - y2)*(yd0 - yd2));
+    qint64 e64 = ((xd0 - xd2)*(y1 - y2) - (y0 - y2)*(xd1 - xd2));
+    qint64 f64 = (yd0*(xd2*y1 - xd1*y2) + yd1*(xd0*y2 - xd2*y0) + yd2*(xd1*y0 - xd0*y1));
+
+    quint64 max = quint64(qAbs(s64));
+    max = qMax(max, quint64(qAbs(a64)));
+    max = qMax(max, quint64(qAbs(b64)));
+    max = qMax(max, quint64(qAbs(c64)));
+    max = qMax(max, quint64(qAbs(d64)));
+    max = qMax(max, quint64(qAbs(e64)));
+    max = qMax(max, quint64(qAbs(f64)));
+
+    int k = 0;
+    if ((max >> 31) > 0)
+        k = int(log2(double(max >> 31))) + 1;
+
+    s = s64 >> k;
+    a = a64 >> k;
+    b = b64 >> k;
+    c = c64 >> k;
+    d = d64 >> k;
+    e = e64 >> k;
+    f = f64 >> k;
 
     writeCalibration();
 }
