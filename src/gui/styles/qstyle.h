@@ -603,6 +603,7 @@ public:
         SH_Menu_SelectionWrap,
         SH_ItemView_MovementWithoutUpdatingSelection,
         SH_ComboBox_PopupBackgroundRole,
+        SH_ToolTip_Mask,
 
         // Add new style hint values here
 

@@ -85,6 +85,7 @@ protected:
     void timerEvent(QTimerEvent *e);
     void paintEvent(QPaintEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
+    void resizeEvent(QResizeEvent *e);
 
 private:
     QWidget *widget;
@@ -131,6 +132,17 @@ void QTipLabel::paintEvent(QPaintEvent *ev)
     p.end();
 
     QLabel::paintEvent(ev);
+}
+
+void QTipLabel::resizeEvent(QResizeEvent *e)
+{
+    QStyleHintReturnMask frameMask;
+    QStyleOption option;
+    option.init(this);
+    if (style()->styleHint(QStyle::SH_ToolTip_Mask, &option, this, &frameMask))
+        setMask(frameMask.region);
+
+    QLabel::resizeEvent(e);
 }
 
 void QTipLabel::mouseMoveEvent(QMouseEvent *e)
