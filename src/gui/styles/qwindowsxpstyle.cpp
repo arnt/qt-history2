@@ -3340,8 +3340,6 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
             int buttonWidth = GetSystemMetrics(SM_CXSIZE) - 4;
 
             int controlTop = option->rect.bottom() - buttonHeight - 2;    			
-            if (tb->titleBarState & Qt::WindowMinimized)
-                controlTop = (height - buttonHeight)/2;
             const int frameWidth = pixelMetric(PM_MDIFrameWidth, option, widget);
             const bool sysmenuHint  = (tb->titleBarFlags & Qt::WindowSystemMenuHint) != 0;
             const bool minimizeHint = (tb->titleBarFlags & Qt::WindowMinimizeButtonHint) != 0;
