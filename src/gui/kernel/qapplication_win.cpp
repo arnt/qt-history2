@@ -1903,8 +1903,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         case WT_PACKET:
             if (ptrWTPacketsGet) {
                 if ((nPackets = ptrWTPacketsGet(qt_tablet_context, QT_TABLET_NPACKETQSIZE, &localPacketBuf))) {
-                    if (!qt_button_down) // flush the queue but don't send the events if the mouse is down
-                        result = widget->translateTabletEvent(msg, localPacketBuf, nPackets);
+                    result = widget->translateTabletEvent(msg, localPacketBuf, nPackets);
                 }
             }
             break;
@@ -2879,6 +2878,9 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
 
         // make sure the tablet event get's sent to the proper widget...
         QWidget *w = QApplication::widgetAt(globalPos);
+        if (qt_button_down)
+            w = qt_button_down; // Pass it to the thing that's grabbed it.
+
         if (!w)
             w = this;
         QPoint localPos = w->mapFromGlobal(globalPos);
