@@ -514,15 +514,18 @@ void QFileDialog::setFileMode(QFileDialog::FileMode mode)
     QDir::Filters filters = d->filterForMode(mode);
     d->model->setFilter(filters);
     // setup file type for directory
+    QString buttonText = (d->acceptMode == AcceptOpen ? tr("&Open") : tr("&Save"));
     if (mode == DirectoryOnly || mode == Directory) {
         d->newFolderButton->setVisible(isDetailsExpanded());
         d->fileTypeCombo->clear();
         d->fileTypeCombo->addItem(tr("Directories"));
         d->fileTypeCombo->setEnabled(false);
         setLabelText(FileName, tr("Directory:"));
+        buttonText = tr("&Choose");
     } else {
         setLabelText(FileName, tr("Save &as:"));
     }
+    setLabelText(Accept, buttonText);
     d->fileTypeCombo->setEnabled(mode != DirectoryOnly);
 }
 
@@ -545,14 +548,13 @@ void QFileDialog::setAcceptMode(QFileDialog::AcceptMode mode)
     Q_D(QFileDialog);
     d->acceptMode = mode;
     bool directoryMode = (d->fileMode == Directory || d->fileMode == DirectoryOnly);
-    if (mode == AcceptOpen && directoryMode)
-        d->openAction->setText(tr("Choose"));
-    else
-        d->openAction->setText(mode == AcceptOpen ? tr("&Open") : tr("&Save"));
-
     QDialogButtonBox::StandardButton button = (mode == AcceptOpen ? QDialogButtonBox::Open : QDialogButtonBox::Save);
     d->buttonBox->setStandardButtons(button | QDialogButtonBox::Cancel);
     d->buttonBox->button(button)->setEnabled(false);
+    if (mode == AcceptOpen && directoryMode)
+        setLabelText(Accept, tr("&Choose"));
+    else
+        setLabelText(Accept, (mode == AcceptOpen ? tr("&Open") : tr("&Save")));
     d->newFolderButton->setVisible((mode == AcceptSave || directoryMode) && isDetailsExpanded());
     d->updateFileTypeVisibility();
     d->fileNameEdit->setVisible(mode == AcceptSave);
@@ -914,7 +916,6 @@ void QFileDialog::setLabelText(DialogLabel label, const QString &text)
             button = d->buttonBox->button(QDialogButtonBox::Save);
         if (button)
             button->setText(text);
-        d->openAction->setText(text);
         break;
     case Reject:
         button = d->buttonBox->button(QDialogButtonBox::Cancel);
@@ -1965,10 +1966,6 @@ void QFileDialogPrivate::createMenuActions()
     QObject::connect(goToParent, SIGNAL(triggered()), q, SLOT(_q_navigateToParent()));
     q->addAction(goToParent);
 
-    openAction = new QAction(QFileDialog::tr("&Open"), q);
-    openAction->setObjectName(QLatin1String("qt_open_action"));
-    QObject::connect(openAction, SIGNAL(triggered()), q, SLOT(accept()));
-
     renameAction = new QAction(QFileDialog::tr("&Rename"), q);
     renameAction->setEnabled(false);
     renameAction->setObjectName(QLatin1String("qt_rename_action"));
@@ -2140,8 +2137,6 @@ void QFileDialogPrivate::_q_showContextMenu(const QPoint &position)
     QMenu menu(view);
     if (index.isValid()) {
         // file context menu
-        menu.addAction(openAction);
-        menu.addSeparator();
         renameAction->setEnabled(model->permissions(index.parent()) & QFile::WriteUser);
         menu.addAction(renameAction);
         deleteAction->setEnabled(model->permissions(index.parent()) & QFile::WriteUser);

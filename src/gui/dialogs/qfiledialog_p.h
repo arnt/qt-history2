@@ -98,7 +98,6 @@ public:
     fileMode(QFileDialog::AnyFile),
     acceptMode(QFileDialog::AcceptOpen),
     confirmOverwrite(true),
-    openAction(0),
     renameAction(0),
     deleteAction(0),
     showHiddenAction(0),
@@ -219,7 +218,6 @@ public:
     QStringList backHistory;
     QStringList forwardHistory;
 
-    QAction *openAction;
     QAction *renameAction;
     QAction *deleteAction;
     QAction *showHiddenAction;
