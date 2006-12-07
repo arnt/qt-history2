@@ -352,7 +352,7 @@ void tst_QDir::entryList_data()
 			  << QString(".,..,dir,spaces").split(',');
     QTest::newRow("unprintablenames")  << QDir::currentPath() + "/unprintablenames" << QStringList("*")
 			  << (int)(QDir::NoFilter) << (int)(QDir::Name)
-			  << QStringList(".,..");
+			  << QString(".,..").split(',');
     QTest::newRow("resources1") << QString(":/tst_qdir/resources/entryList") << QStringList("*.data")
                              << (int)(QDir::NoFilter) << (int)(QDir::NoSort)
                              << QString("file1.data,file2.data,file3.data").split(',');
@@ -362,13 +362,13 @@ void tst_QDir::entryList_data()
 
     QTest::newRow("nofilter") << QString("entrylist/") << QStringList("*")
                               << int(QDir::NoFilter) << int(QDir::Name)
-                              << QString(".,..,directory,file,linktodirectory.lnk,linktofile.lnk").split(',');
+                              << QString(".,..,directory,file,linktodirectory.lnk,linktofile.lnk,writable").split(',');
     QTest::newRow("QDir::AllEntries") << QString("entrylist/") << QStringList("*")
                               << int(QDir::AllEntries) << int(QDir::Name)
-                              << QString(".,..,directory,file,linktodirectory.lnk,linktofile.lnk").split(',');
+                              << QString(".,..,directory,file,linktodirectory.lnk,linktofile.lnk,writable").split(',');
     QTest::newRow("QDir::Files") << QString("entrylist/") << QStringList("*")
                                  << int(QDir::Files) << int(QDir::Name)
-                                 << QString("file,linktofile.lnk").split(',');
+                                 << QString("file,linktofile.lnk,writable").split(',');
     QTest::newRow("QDir::Dirs") << QString("entrylist/") << QStringList("*")
                                 << int(QDir::Dirs) << int(QDir::Name)
                                 << QString(".,..,directory,linktodirectory.lnk").split(',');
@@ -383,22 +383,22 @@ void tst_QDir::entryList_data()
                                                 << QString(".,..,directory,linktodirectory.lnk").split(',');
     QTest::newRow("QDir::AllDirs | QDir::Files") << QString("entrylist/") << QStringList("*")
                                                  << int(QDir::AllDirs | QDir::Files) << int(QDir::Name)
-                                                 << QString(".,..,directory,file,linktodirectory.lnk,linktofile.lnk").split(',');
+                                                 << QString(".,..,directory,file,linktodirectory.lnk,linktofile.lnk,writable").split(',');
     QTest::newRow("QDir::AllEntries | QDir::NoSymLinks") << QString("entrylist/") << QStringList("*")
                                       << int(QDir::AllEntries | QDir::NoSymLinks) << int(QDir::Name)
-                                      << QString(".,..,directory,file").split(',');
+                                      << QString(".,..,directory,file,writable").split(',');
     QTest::newRow("QDir::AllEntries | QDir::NoSymLinks | QDir::NoDotAndDotDot") << QString("entrylist/") << QStringList("*")
                                       << int(QDir::AllEntries | QDir::NoSymLinks | QDir::NoDotAndDotDot) << int(QDir::Name)
-                                      << QString("directory,file").split(',');
+                                      << QString("directory,file,writable").split(',');
     QTest::newRow("QDir::Files | QDir::NoSymLinks") << QString("entrylist/") << QStringList("*")
                                                     << int(QDir::Files | QDir::NoSymLinks) << int(QDir::Name)
-                                                    << QString("file").split(',');
+                                                    << QString("file,writable").split(',');
     QTest::newRow("QDir::Dirs | QDir::NoSymLinks") << QString("entrylist/") << QStringList("*")
                                                    << int(QDir::Dirs | QDir::NoSymLinks) << int(QDir::Name)
                                                    << QString(".,..,directory").split(',');
     QTest::newRow("QDir::Drives | QDir::Files | QDir::NoDotAndDotDot") << QString("entrylist/") << QStringList("*")
                                                    << int(QDir::Drives | QDir::Files | QDir::NoDotAndDotDot) << int(QDir::Name)
-                                                   << QString("file,linktofile.lnk").split(',');
+                                                   << QString("file,linktofile.lnk,writable").split(',');
     QTest::newRow("QDir::System") << QString("entrylist/") << QStringList("*")
                                   << int(QDir::System) << int(QDir::Name)
                                   << QStringList("brokenlink.lnk");
@@ -413,13 +413,13 @@ void tst_QDir::entryList_data()
                                                       << QString(".,..,directory").split(',');
     QTest::newRow("QDir::All | QDir::Hidden | QDir::System") << QString("entrylist/") << QStringList("*")
                                   << int(QDir::All | QDir::Hidden | QDir::System) << int(QDir::Name)
-                                  << QString(".,..,brokenlink.lnk,directory,file,linktodirectory.lnk,linktofile.lnk").split(',');
+                                  << QString(".,..,brokenlink.lnk,directory,file,linktodirectory.lnk,linktofile.lnk,writable").split(',');
     QTest::newRow("QDir::All | QDir::Readable") << QString("entrylist/") << QStringList("*")
                                   << int(QDir::All | QDir::Readable) << int(QDir::Name)
-                                                << QString(".,..,directory,file,linktodirectory.lnk,linktofile.lnk").split(',');
+                                                << QString(".,..,directory,file,linktodirectory.lnk,linktofile.lnk,writable").split(',');
     QTest::newRow("QDir::All | QDir::Writable") << QString("entrylist/") << QStringList("*")
                                   << int(QDir::All | QDir::Writable) << int(QDir::Name)
-                                  << QString(".,..,directory,linktodirectory.lnk").split(',');
+                                  << QString(".,..,directory,linktodirectory.lnk,writable").split(',');
     QTest::newRow("Namefilters b*") << QString("entrylist/") << QStringList("d*")
                                   << int(QDir::NoFilter) << int(QDir::Name)
                                   << QString("directory").split(',');
@@ -434,10 +434,10 @@ void tst_QDir::entryList_data()
                                   << QString("directory,linktodirectory.lnk,linktofile.lnk").split(',');
     QTest::newRow("Sorting QDir::Name") << QString("entrylist/") << QStringList("*")
                                   << int(QDir::NoFilter) << int(QDir::Name)
-                                  << QString(".,..,directory,file,linktodirectory.lnk,linktofile.lnk").split(',');
+                                  << QString(".,..,directory,file,linktodirectory.lnk,linktofile.lnk,writable").split(',');
     QTest::newRow("Sorting QDir::Name | QDir::Reversed") << QString("entrylist/") << QStringList("*")
                                   << int(QDir::NoFilter) << int(QDir::Name | QDir::Reversed)
-                                  << QString("linktofile.lnk,linktodirectory.lnk,file,directory,..,.").split(',');
+                                  << QString("writable,linktofile.lnk,linktodirectory.lnk,file,directory,..,.").split(',');
     QTest::newRow("Sorting QDir::Type") << QString("types/") << QStringList("*")
                                   << int(QDir::NoFilter) << int(QDir::Type)
                                   << QString(".,..,a,b,c,d,e,f,a.a,b.a,c.a,d.a,e.a,f.a,a.b,b.b,c.b,d.b,e.b,f.b,a.c,b.c,c.c,d.c,e.c,f.c").split(',');
@@ -466,6 +466,7 @@ void tst_QDir::entryList()
     QFETCH(int, sortspec);
     QFETCH(QStringList, expected);
 
+    QFile("entrylist/writable").open(QIODevice::ReadWrite);
     QFile::remove("entrylist/linktofile");
     QFile::remove("entrylist/linktodirectory");
     QFile::remove("entrylist/linktofile.lnk");
