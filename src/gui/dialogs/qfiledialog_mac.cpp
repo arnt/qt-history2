@@ -139,7 +139,7 @@ static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
             file = file.right(file.length() - slsh - 1);
     }
     QStringList reg = fn->regxp.split(QLatin1String(";"));
-    for(QStringList::Iterator it = reg.begin(); it != reg.end(); ++it) {
+    for (QStringList::Iterator it = reg.begin(); it != reg.end(); ++it) {
         QRegExp rg(*it, Qt::CaseInsensitive, QRegExp::Wildcard);
 #ifdef DEBUG_FILEDIALOG_FILTERS
         qDebug("QFileDialog:%d, asked to filter.. %s (%s)", __LINE__,
@@ -181,7 +181,7 @@ static void qt_mac_filedialog_event_proc(const NavEventCallbackMessage msg,
         qt_mac_nav_filter_type *t = (qt_mac_nav_filter_type *)myd;
         NavMenuItemSpec *s = (NavMenuItemSpec*)p->eventData.eventDataParms.param;
         t->index = s->menuType;
-        if(t->saveDialog) {
+        if (t->saveDialog) {
             QString base = QCFString::toQString(NavDialogGetSaveFileName(p->context));
             QFileInfo fi(base);
             base = fi.completeBaseName();
@@ -256,9 +256,9 @@ QStringList qt_mac_get_open_file_names(const QFileDialogArgs &args, QString *pwd
                 options.location.h -= (options.location.h + w) - r.right() + border;
             if (options.location.v + h > r.bottom())
                 options.location.v -= (options.location.v + h) - r.bottom() + border;
-            if(options.location.h < r.left())
+            if (options.location.h < r.left())
                 options.location.h = r.left() + border;
-            if(options.location.v < r.top())
+            if (options.location.v < r.top())
                 options.location.v = r.top() + border;
         }
 #if 0
@@ -337,7 +337,7 @@ QStringList qt_mac_get_open_file_names(const QFileDialogArgs &args, QString *pwd
         return retstrl;
     }
 
-    for(long index = 1; index <= count; index++) {
+    for (long index = 1; index <= count; index++) {
         FSRef ref;
         err = AEGetNthPtr(&(ret.selection), index, typeFSRef, 0, 0, &ref, sizeof(ref), 0);
         if (err != noErr)
