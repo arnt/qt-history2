@@ -225,6 +225,7 @@ void QSqlRelationalTableModelPrivate::clearEditBuffer()
     Notes:
 
     \list
+    \o The table must have a primary key declared.
     \o The table's primary key may not contain a relation to
        another table.
     \o If a relational table contains keys that refer to non-existent

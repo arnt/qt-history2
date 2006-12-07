@@ -44,7 +44,7 @@ QTableView *createView(const QString &title, QSqlTableModel *model)
 void createRelationalTables()
 {
     QSqlQuery query;
-    query.exec("create table employee(id int, name varchar(20), city int, country int)");
+    query.exec("create table employee(id int primary key, name varchar(20), city int, country int)");
     query.exec("insert into employee values(1, 'Espen', 5000, 47)");
     query.exec("insert into employee values(2, 'Harald', 80000, 49)");
     query.exec("insert into employee values(3, 'Sam', 100, 1)");
