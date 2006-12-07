@@ -69,6 +69,7 @@ void QWSEmbedWidgetPrivate::updateWindow()
     command.setData(windowId, embeddedId, QWSEmbedEvent::StartEmbed);
     QWSDisplay::instance()->d->sendCommand(command);
     window->installEventFilter(q);
+    q->installEventFilter(q);
 }
 
 void QWSEmbedWidgetPrivate::resize(const QSize &size)
@@ -137,8 +138,11 @@ QWSEmbedWidget::~QWSEmbedWidget()
 */
 bool QWSEmbedWidget::eventFilter(QObject *object, QEvent *event)
 {
-    if (event->type() == QEvent::Move)
+    Q_D(QWSEmbedWidget);
+    if (object == d->window && event->type() == QEvent::Move)
         resizeEvent(0);
+    else if (object == this && event->type() == QEvent::Hide)
+        d->resize(QSize());
     return QWidget::eventFilter(object, event);
 }
 
