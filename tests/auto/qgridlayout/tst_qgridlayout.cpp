@@ -48,11 +48,16 @@ private:
     QWidget *w1;
     QWidget *w2;
     QWidget *w3;
+
+    QGridLayout *m_grid;
+    QWidget *m_toplevel;
 };
 
 
 tst_QGridLayout::tst_QGridLayout()
 {
+    m_grid = 0;
+    m_toplevel = 0;
 }
 
 tst_QGridLayout::~tst_QGridLayout()
@@ -633,11 +638,7 @@ struct SizeInfo {
     }
 
     SizeInfo(const SizeInfo& other) {
-        expectedPos = other.expectedPos;
-        sizeHint = other.sizeHint;
-        minSize = other.minSize;
-        maxSize = other.maxSize;
-        hfwNumPixels = other.hfwNumPixels;
+        (*this)=other;
     }
 
     SizeInfo &operator=(const SizeInfo& other) {
@@ -716,9 +717,21 @@ void tst_QGridLayout::minMaxSize()
     style->margin = 5;
     style->spacing = 1;
     QApplication::setStyle(style);
-    QWidget toplevel;
-    QGridLayout grid1(&toplevel);
-    toplevel.setLayout(&grid1);
+    if (!m_grid)
+        m_grid = new QGridLayout();
+    if (!m_toplevel)
+        m_toplevel = new QWidget();
+    m_toplevel->hide();
+    QApplication::processEvents();
+
+    // Test if removeItem don't 
+    while (m_grid->count()) {
+        QLayoutItem *item = m_grid->itemAt(0);
+        m_grid->removeItem(item);
+        delete item->widget();
+        delete item;
+    }
+    m_toplevel->setLayout(m_grid);
 
     // a layout with a top-level parent widget
     QList<QPointer<SizeHinterFrame> > sizehinters;
@@ -726,24 +739,21 @@ void tst_QGridLayout::minMaxSize()
         for (int j = 0; j < columns; ++j) {
             SizeInfo si = sizeinfos.at(sizehinters.count());
             SizeHinterFrame *sh = new SizeHinterFrame(si.sizeHint, si.hfwNumPixels);
-            sh->setParent(&toplevel);
+            sh->setParent(m_toplevel);
             if (si.minSize.isValid())
                 sh->setMinimumSize(si.minSize);
             if (si.maxSize.isValid())
                 sh->setMaximumSize(si.maxSize);
             sizehinters.append(sh);
-            grid1.addWidget(sh, i, j);
+            m_grid->addWidget(sh, i, j);
         }
     }
 
-    toplevel.show();
-    //toplevel.adjustSize();
-    //QTest::qWait(1000);
+    m_toplevel->show();
     QApplication::processEvents();
     // We are relying on the order here...
     for (int pi = 0; pi < sizehinters.count(); ++pi) {
-        QPoint pt = sizehinters.at(pi)->mapTo(&toplevel, QPoint(0, 0));
-        //qDebug() << pt << "==" << sizeinfos.at(pi).expectedPos;
+        QPoint pt = sizehinters.at(pi)->mapTo(m_toplevel, QPoint(0, 0));
         QCOMPARE(pt, sizeinfos.at(pi).expectedPos);
     }
 }
