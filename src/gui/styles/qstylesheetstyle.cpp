@@ -1154,7 +1154,7 @@ public:
         if (WIDGET(node)->inherits(name.toLatin1()))
             return true;
         if (name == QLatin1String("QToolTip")
-            && QLatin1String("QTipLabel")== QLatin1String(WIDGET(node)->metaObject()->className()))
+            && QString::fromLatin1("QTipLabel")== QString::fromLatin1(WIDGET(node)->metaObject()->className()))
             return true;
         return false;
     }
