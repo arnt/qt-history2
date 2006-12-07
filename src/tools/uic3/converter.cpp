@@ -374,7 +374,6 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
     if (klass.isEmpty())
         klass = w->attributeName();
 
-    w->setAttributeName(klass);
     ui->setElementClass(klass);
     ui->setElementAuthor(author);
     ui->setElementComment(comment);
