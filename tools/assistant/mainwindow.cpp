@@ -595,7 +595,7 @@ void MainWindow::showGoActionLink()
 {
     const QObject *origin = sender();
     if(!origin ||
-        QLatin1String(origin->metaObject()->className()) != QLatin1String("QAction"))
+        QString::fromLatin1(origin->metaObject()->className()) != QString::fromLatin1("QAction"))
         return;
 
     QAction *action = (QAction*) origin;
