@@ -1551,13 +1551,22 @@ bool FormWindow::handleContextMenu(QWidget *, QWidget *managedWidget, QContextMe
 {
     e->accept();
 
+    // Make sure the managedWidget is selected and current since
+    // the SetPropertyCommands must use the right reference
+    // object obtained from the property editor for the property group
+    // of a multiselection to be correct.
     const bool selected = isWidgetSelected(managedWidget);
+    bool update = false;
     if (selected == false) {
         clearSelection(false);
-
-        selectWidget(managedWidget);
+        update = trySelectWidget(managedWidget, true);
         raiseChildSelections(managedWidget); // raise selections and select widget
+    } else {
+        update = setCurrentWidget(managedWidget);
+    }
 
+    if (update) {
+        emitSelectionChanged();
         QMetaObject::invokeMethod(core()->formWindowManager(), "slotUpdateActions");
     }
 
