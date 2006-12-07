@@ -584,6 +584,7 @@ class Q_CORE_EXPORT QSubString
 public:
 
     inline QSubString():d(&QString::shared_null), m_position(0), m_size(0) {d->ref.ref(); }
+    inline QSubString(const QLatin1String &latin1);
     inline QSubString(const QString &other)
         : d(other.d), m_position(0), m_size(other.size()) {
         d->ref.ref();
@@ -664,6 +665,12 @@ public:
     inline QT_ASCII_CAST_WARN bool operator>(const char *s2) const;
     inline QT_ASCII_CAST_WARN bool operator>=(const char *s2) const;
 
+
+    static inline void chopWithoutDetach(QString &string, int n) {
+        string.d->size = qMax(0, string.d->size - n);
+        string.d->array[string.d->size] = '\0';
+    }
+
     QString toString() const;
 };
 
@@ -712,6 +719,8 @@ inline bool QString::operator>(const QSubString &s) const
 { return s < *this; }
 inline QString::QString(const QLatin1String &latin1) : d(fromLatin1_helper(latin1.latin1()))
 { }
+inline QSubString::QSubString(const QLatin1String &latin1) : d(QString::fromLatin1_helper(latin1.latin1()))
+{ m_position = 0; m_size = d->size;}
 inline int QString::length() const
 { return d->size; }
 inline const QChar QString::at(int i) const

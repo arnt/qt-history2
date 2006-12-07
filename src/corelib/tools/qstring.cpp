@@ -7010,6 +7010,7 @@ QString QSubString::toString() const
     }
     if (x != d) {
         x = qAtomicSetPtr(const_cast<QString::Data **>(&d), x);
+        const_cast<QSubString*>(this)->m_position = 0;
         if (!x->ref.deref())
             QString::free(x);
     }
@@ -7413,4 +7414,17 @@ QSubString &QSubString::operator=(const QLatin1String &s)
     not modified.
 
     \sa data(), operator[]()
+*/
+
+
+/*! \fn static void QSubString::chopWithoutDetach(QString &string, int n)
+
+
+    Chops \a n characters from \a string, without detaching \a
+    string. This is a low level optimization function useful in
+    conjunction with a sub strings, where \a string is used as a
+    buffer that grows and shrinks.
+
+    In most cases, you want to use QString::chop() instead.
+
 */
