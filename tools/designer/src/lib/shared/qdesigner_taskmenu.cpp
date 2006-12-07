@@ -30,24 +30,20 @@
 #include <QtDesigner/QDesignerLayoutDecorationExtension>
 
 #include <QtGui/QAction>
-#include <QtGui/QToolBar>
 #include <QtGui/QWidget>
 #include <QtGui/QMenuBar>
-#include <QtGui/QInputDialog>
 #include <QtGui/QMainWindow>
-#include <QtGui/QDockWidget>
 #include <QtGui/QStatusBar>
-#include <QtCore/QVariant>
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QPushButton>
 
 #include <QtCore/qdebug.h>
 
-namespace qdesigner_internal {
+namespace  {
 
-static QMenuBar *findMenuBar(const QWidget *widget)
+QMenuBar *findMenuBar(const QWidget *widget)
 {
-    QList<QObject*> children = widget->children();
+    const QList<QObject*> children = widget->children();
     foreach (QObject *obj, widget->children()) {
         if (QMenuBar *mb = qobject_cast<QMenuBar*>(obj)) {
             return mb;
@@ -57,9 +53,9 @@ static QMenuBar *findMenuBar(const QWidget *widget)
     return 0;
 }
 
-static QStatusBar *findStatusBar(const QWidget *widget)
+QStatusBar *findStatusBar(const QWidget *widget)
 {
-    QList<QObject*> children = widget->children();
+    const QList<QObject*> children = widget->children();
     foreach (QObject *obj, widget->children()) {
         if (QStatusBar *sb = qobject_cast<QStatusBar*>(obj)) {
             return sb;
@@ -76,25 +72,23 @@ class ObjectNameDialog : public QDialog
          QString newObjectName() const;
 
      private:
-         TextPropertyEditor *editor;
+         qdesigner_internal::TextPropertyEditor *m_editor;
 };
 
 ObjectNameDialog::ObjectNameDialog(QWidget *parent, const QString &oldName)
-    : QDialog(parent)
+    : QDialog(parent),
+      m_editor( new qdesigner_internal::TextPropertyEditor(qdesigner_internal::TextPropertyEditor::EmbeddingNone, 
+                                                           qdesigner_internal::ValidationObjectName, this))
 {
     setWindowTitle(tr("Change Object Name"));
 
     QVBoxLayout *vboxLayout = new QVBoxLayout(this);
-    QLabel *label = new QLabel(this);
-    label->setText(tr("Object Name"));
-    vboxLayout->addWidget(label);
+    vboxLayout->addWidget(new QLabel(tr("Object Name")));
 
-    editor = new TextPropertyEditor(TextPropertyEditor::EmbeddingNone, 
-                                    TextPropertyValidationMode::ValidationObjectName, this);
-    editor->setText(oldName);
-    editor->selectAll();
-    editor->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    vboxLayout->addWidget(editor);
+    m_editor->setText(oldName);
+    m_editor->selectAll();
+    m_editor->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    vboxLayout->addWidget(m_editor);
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                                        Qt::Horizontal, this);
@@ -108,8 +102,12 @@ ObjectNameDialog::ObjectNameDialog(QWidget *parent, const QString &oldName)
 
 QString ObjectNameDialog::newObjectName() const
 {
-    return editor->text();
+    return m_editor->text();
 }
+
+}
+
+namespace qdesigner_internal {
 
 QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
     : QObject(parent),
@@ -250,7 +248,7 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
     QDesignerFormWindowInterface *formWindow = QDesignerFormWindowInterface::findFormWindow(widget());
     Q_ASSERT(formWindow);
 
-    bool isMainContainer = formWindow->mainContainer() == widget();
+    const bool isMainContainer = formWindow->mainContainer() == widget();
 
     QList<QAction*> actions;
 
@@ -297,7 +295,7 @@ void QDesignerTaskMenu::changeObjectName()
 
     ObjectNameDialog dialog(widget(), sheet->property(sheet->indexOf(QLatin1String("objectName"))).toString());
     if (dialog.exec() == QDialog::Accepted) {
-        QString newObjectName = dialog.newObjectName();
+        const QString newObjectName = dialog.newObjectName();
         if (!newObjectName.isEmpty())
             fw->cursor()->setProperty(QLatin1String("objectName"), newObjectName);
     }
@@ -333,7 +331,7 @@ QObject *QDesignerTaskMenuFactory::createExtension(QObject *object, const QStrin
         return 0;
 
     // check if is an internal widget (### generalize)
-    if (qobject_cast<QLayoutWidget*>(widget) || qobject_cast<Spacer*>(widget))
+    if (qobject_cast<const QLayoutWidget*>(widget) || qobject_cast<const Spacer*>(widget))
         return 0;
 
     return new QDesignerTaskMenu(widget, parent);
@@ -380,8 +378,6 @@ void QDesignerTaskMenu::demoteFromCustomWidget()
     Q_ASSERT(isPromoted(fw->core(),widget()));
 
     // ### use the undo stack
-    //fw->beginCommand(tr("Demote to ") + promoted->item()->extends());
-
     DemoteFromCustomWidgetCommand *cmd = new DemoteFromCustomWidgetCommand(fw);
     cmd->init(widget());
     fw->commandHistory()->push(cmd);
@@ -390,9 +386,10 @@ void QDesignerTaskMenu::demoteFromCustomWidget()
 void QDesignerTaskMenu::changeRichTextProperty(const QString &propertyName)
 {
     if (QDesignerFormWindowInterface *fw = formWindow()) {
-        RichTextEditorDialog *dlg = new RichTextEditorDialog(fw);
         Q_ASSERT(m_widget->parentWidget() != 0);
-        RichTextEditor *editor = dlg->editor();
+        
+        RichTextEditorDialog dlg(fw);
+        RichTextEditor *editor = dlg.editor();
 
         QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(fw->core()->extensionManager(), m_widget);
         Q_ASSERT(sheet != 0);
@@ -402,12 +399,10 @@ void QDesignerTaskMenu::changeRichTextProperty(const QString &propertyName)
         editor->selectAll();
         editor->setFocus();
 
-        if (dlg->exec()) {
-            QString text = editor->text(Qt::RichText);
+        if (dlg.exec()) {
+            const QString text = editor->text(Qt::RichText);
             fw->cursor()->setWidgetProperty(m_widget, propertyName, QVariant(text));
         }
-
-        delete dlg;
     }
 }
 
@@ -429,9 +424,8 @@ void QDesignerTaskMenu::changeWhatsThis()
 void QDesignerTaskMenu::changeStyleSheet()
 {
     if (QDesignerFormWindowInterface *fw = formWindow()) {
-        StyleSheetEditorDialog *dlg = new StyleSheetEditorDialog(fw, m_widget);
-        dlg->exec();
-        delete dlg;
+        StyleSheetEditorDialog dlg(fw, m_widget);
+        dlg.exec();       
     }
 }
 
