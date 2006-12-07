@@ -317,7 +317,6 @@ void QLabel::setText(const QString &text)
     if (d->isRichText()) {
         d->doc->setHtml(text);
         setMouseTracking(true);
-        d->ensureTextControl();
     } else {
         d->doc->setPlainText(text);
         // Note: mouse tracking not disabled intentionally
@@ -330,6 +329,7 @@ void QLabel::setText(const QString &text)
 #endif
     }
 
+    setTextInteractionFlags(d->textInteractionFlags);
     d->updateLabel();
 }
 
@@ -686,14 +686,24 @@ void QLabel::setTextInteractionFlags(Qt::TextInteractionFlags flags)
 {
     Q_D(QLabel);
     d->textInteractionFlags = flags;
+    if (!d->doc)
+        return;
     if (flags & Qt::LinksAccessibleByKeyboard)
         setFocusPolicy(Qt::StrongFocus);
     else if (flags & Qt::TextSelectableByKeyboard)
         setFocusPolicy(Qt::ClickFocus);
     else
         setFocusPolicy(Qt::NoFocus);
-    if (d->control)
-        d->control->setTextInteractionFlags(flags);
+
+    bool richText = d->isRichText();
+    if ((richText && d->textInteractionFlags != Qt::NoTextInteraction)
+        || (!richText && (d->textInteractionFlags & (Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard)))) {
+        d->ensureTextControl();
+        d->control->setTextInteractionFlags(d->textInteractionFlags);
+    } else {
+        delete d->control;
+        d->control = 0;
+    }
 }
 
 Qt::TextInteractionFlags QLabel::textInteractionFlags() const

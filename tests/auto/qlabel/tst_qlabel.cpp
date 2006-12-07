@@ -21,6 +21,21 @@
 //TESTED_CLASS=
 //TESTED_FILES=gui/widgets/qlabel.h gui/widgets/qlabel.cpp
 
+class Widget : public QWidget
+{
+public:
+    Widget() { }
+
+    QList<QEvent::Type> events;
+
+protected:
+    bool event(QEvent *ev) {
+        events.append(ev->type());
+        return QWidget::event(ev);
+    }
+
+};
+
 class tst_QLabel : public QObject
 {
 Q_OBJECT
@@ -48,12 +63,13 @@ private slots:
     void setNum();
     void clear();
     void wordWrap();
-    void hasMouseTracking();
+    void eventPropagation_data();
+    void eventPropagation();
 
 private:
     QLabel *testWidget;
-    QWidget *test_box;
-    QLabel *test_label;
+    QPointer<Widget> test_box;
+    QPointer<QLabel> test_label;
     QLineEdit *test_edit;
 };
 
@@ -140,7 +156,7 @@ void tst_QLabel::setBuddy()
 #endif
     testWidget->hide();
 
-    test_box = new QWidget;
+    test_box = new Widget;
     test_label= new QLabel( test_box );
     test_label->setText( "&Test with a buddy" );
     test_edit = new QLineEdit( test_box );
@@ -254,22 +270,43 @@ void tst_QLabel::wordWrap()
     QVERIFY(!label.wordWrap());
 }
 
-void tst_QLabel::hasMouseTracking()
+void tst_QLabel::eventPropagation_data()
 {
-    QLabel label;
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<int>("textInteractionFlags");
+    QTest::addColumn<int>("focusPolicy");
+    QTest::addColumn<bool>("propagation");
 
-    label.setMouseTracking(true);
-    QVERIFY(label.hasMouseTracking());
-    label.setText("Plain Text");
-    QVERIFY(label.hasMouseTracking());;
-    label.setText("More Plain Text");
-    QVERIFY(label.hasMouseTracking());;
+    QTest::newRow("plain text1") << QString("plain text") << int(Qt::LinksAccessibleByMouse) << int(Qt::NoFocus) << true;
+    QTest::newRow("plain text2") << QString("plain text") << (int)Qt::TextSelectableByKeyboard << (int)Qt::ClickFocus << false;
+    QTest::newRow("plain text3") << QString("plain text") << (int)Qt::TextSelectableByMouse << (int)Qt::NoFocus << false;
+    QTest::newRow("plain text4") << QString("plain text") << (int)Qt::NoTextInteraction << (int)Qt::NoFocus << true;
+    QTest::newRow("rich text1") << QString("<b>rich text</b>") << (int)Qt::LinksAccessibleByMouse << (int)Qt::NoFocus << false;
+    QTest::newRow("rich text2") << QString("<b>rich text</b>") << (int)Qt::TextSelectableByKeyboard << (int)Qt::ClickFocus << false;
+    QTest::newRow("rich text3") << QString("<b>rich text</b>") << (int)Qt::TextSelectableByMouse << (int)Qt::NoFocus << false;
+    QTest::newRow("rich text4") << QString("<b>rich text</b>") << (int)Qt::NoTextInteraction << (int)Qt::NoFocus << true;
+    QTest::newRow("rich text4") << QString("<b>rich text</b>") << (int)Qt::LinksAccessibleByKeyboard << (int)Qt::StrongFocus << false;
 
-    label.setMouseTracking(false);
-    label.setText("<u>Rich Text</u>");
-    QVERIFY(label.hasMouseTracking());
-    label.setText("Plain Text");
-    QVERIFY(label.hasMouseTracking());
+    if (!test_box)
+        test_box = new Widget;
+    if (!test_label)
+        test_label = new QLabel(test_box);
+}
+
+void tst_QLabel::eventPropagation()
+{
+    QFETCH(QString, text);
+    QFETCH(int, textInteractionFlags);
+    QFETCH(int, focusPolicy);
+    QFETCH(bool, propagation);
+
+    // plain text (accepts mouse event _only_ when label selectable by mouse)
+    test_label->setText(text);
+    test_box->events.clear();
+    test_label->setTextInteractionFlags(Qt::TextInteractionFlags(textInteractionFlags));
+    QVERIFY(int(test_label->focusPolicy()) == focusPolicy);
+    QTest::mousePress(test_label, Qt::LeftButton);
+    QVERIFY(test_box->events.contains(QEvent::MouseButtonPress) == propagation); // should have propagated!
 }
 
 QTEST_MAIN(tst_QLabel)
