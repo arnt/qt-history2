@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
-class QMetaObject;
+struct QMetaObject;
 
 struct Type
 {
