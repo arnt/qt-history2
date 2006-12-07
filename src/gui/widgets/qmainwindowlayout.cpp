@@ -267,9 +267,9 @@ QMainWindowLayout::ToolBarPosition QMainWindowLayout::findToolBar(const QWidget 
                 return ToolBarPosition(line,i);
         }
     }
-    return ToolBarPosition(-1, -1);    
+    return ToolBarPosition(-1, -1);
 }
-   
+
 
 
 void QMainWindowLayout::addToolBarBreak(Qt::ToolBarArea area)
@@ -311,7 +311,7 @@ void QMainWindowLayout::insertToolBarBreak(QToolBar *before)
         newLine.list.prepend(lineInfo.list.takeLast());
     tb_layout_info.insert(position.first + 1, newLine);
 }
-  
+
 bool QMainWindowLayout::toolBarBreak(const ToolBarPosition& position) const
 {
     // not found or  ToolBar not at beginning of line
@@ -320,7 +320,7 @@ bool QMainWindowLayout::toolBarBreak(const ToolBarPosition& position) const
     // There must be a previous item with the same position
     return position.first > 0 && tb_layout_info[position.first].pos ==  tb_layout_info[position.first -1].pos;
 }
- 
+
 
 void QMainWindowLayout::removeToolBarBreak(QToolBar *before)
 {
@@ -329,7 +329,7 @@ void QMainWindowLayout::removeToolBarBreak(QToolBar *before)
         return;
     // Append items to previous and remove line
     tb_layout_info[position.first - 1].list += tb_layout_info[position.first].list;
-    tb_layout_info.removeAt(position.first);   
+    tb_layout_info.removeAt(position.first);
 }
 
 /*!

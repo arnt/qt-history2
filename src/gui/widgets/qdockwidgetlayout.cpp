@@ -173,7 +173,8 @@ QSize QDockAreaLayoutItem::minimumSize() const
             // the dockwidget may be floating, but we want to know what size hints
             // it will return when docked.
 
-            QSize contentHint, contentMinHint, contentMin, contentMax;
+            QSize contentHint(-1, -1), contentMin(0, 0), contentMinHint(-1, -1),
+                    contentMax(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
             QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
             QWidget *content = layout->widget(QDWLayout::Content);
             if (content != 0) {
@@ -204,7 +205,7 @@ QSize QDockAreaLayoutItem::maximumSize() const
         if (QDWLayout *layout = qobject_cast<QDWLayout*>(w->layout())) {
             // the dockwidget may be floating, but we want to know what size hints
             // it will return when docked.
-            QSize contentHint, contentMin, contentMax;
+            QSize contentHint(-1, -1), contentMin(0, 0), contentMax(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
             QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
             QWidget *content = layout->widget(QDWLayout::Content);
             if (content != 0) {
@@ -237,19 +238,48 @@ bool QDockAreaLayoutItem::expansive(Qt::Orientation o) const
     return false;
 }
 
+static QSize mySmartSizeHint(const QSize &hint, const QSize &minHint, const QSize &min,
+                                const QSize &max, const QSizePolicy &sp)
+{
+    QSize s = hint.expandedTo(minHint);
+    if (sp.horizontalPolicy() == QSizePolicy::Ignored)
+        s.setWidth(0);
+    if (sp.verticalPolicy() == QSizePolicy::Ignored)
+        s.setHeight(0);
+    s = s.boundedTo(max)
+        .expandedTo(min);
+    return s;
+}
+
 QSize QDockAreaLayoutItem::sizeHint() const
 {
     if (widgetItem != 0) {
         QWidget *w = widgetItem->widget();
-        QSize s = w->sizeHint().expandedTo(w->minimumSizeHint());
-        if (w->sizePolicy().horizontalPolicy() == QSizePolicy::Ignored)
-            s.setWidth(0);
-        if (w->sizePolicy().verticalPolicy() == QSizePolicy::Ignored)
-            s.setHeight(0);
-        s = s.boundedTo(w->maximumSize())
-            .expandedTo(w->minimumSize());
+        if (QDWLayout *layout = qobject_cast<QDWLayout*>(w->layout())) {
+            // the dockwidget may be floating, but we want to know what size hints
+            // it will return when docked.
 
-        return s;
+            QSize contentHint(-1, -1), contentMin(0, 0), contentMinHint(-1, -1),
+                    contentMax(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+            QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
+            QWidget *content = layout->widget(QDWLayout::Content);
+            if (content != 0) {
+                contentHint = content->sizeHint();
+                contentMinHint = content->minimumSizeHint();
+                contentMin = content->minimumSize();
+                contentMax = content->maximumSize();
+                sp = content->sizePolicy();
+            }
+
+            return mySmartSizeHint(layout->sizeFromContent(contentHint, false),
+                                    layout->sizeFromContent(contentMinHint, false),
+                                    layout->sizeFromContent(contentMin, false),
+                                    layout->sizeFromContent(contentMax, false),
+                                    sp);
+        }
+
+        return mySmartSizeHint(w->sizeHint(), w->minimumSizeHint(), w->minimumSize(),
+                                w->maximumSize(), w->sizePolicy());
     }
     if (subinfo != 0)
         return subinfo->sizeHint();
@@ -388,14 +418,16 @@ QSize QDockAreaLayoutInfo::maximumSize() const
         a = QWIDGETSIZE_MAX;
 #endif
 
+    int min_perp = 0;
+
     bool first = true;
     for (int i = 0; i < item_list.size(); ++i) {
         const QDockAreaLayoutItem &item = item_list.at(i);
         if (item.skip())
             continue;
 
-
         QSize max_size = item.maximumSize();
+        min_perp = qMax(min_perp, perp(o, item.minimumSize()));
 
 #ifndef QT_NO_TABBAR
         if (tabbed) {
@@ -414,6 +446,8 @@ QSize QDockAreaLayoutInfo::maximumSize() const
 
         first = false;
     }
+
+    b = qMax(b, min_perp);
 
     QSize result;
     rpick(o, result) = a;
@@ -448,6 +482,8 @@ QSize QDockAreaLayoutInfo::sizeHint() const
     int a = 0, b = 0;
     bool prev_gap = false;
     bool first = true;
+    int min_perp = 0;
+    int max_perp = QWIDGETSIZE_MAX;
     for (int i = 0; i < item_list.size(); ++i) {
         const QDockAreaLayoutItem &item = item_list.at(i);
         if (item.skip())
@@ -456,6 +492,8 @@ QSize QDockAreaLayoutInfo::sizeHint() const
         bool gap = item.gap;
 
         QSize size_hint = item.sizeHint();
+        min_perp = qMax(min_perp, perp(o, item.minimumSize()));
+        max_perp = qMin(max_perp, perp(o, item.maximumSize()));
 
 #ifndef QT_NO_TABBAR
         if (tabbed) {
@@ -472,6 +510,10 @@ QSize QDockAreaLayoutInfo::sizeHint() const
         prev_gap = gap;
         first = false;
     }
+
+    max_perp = qMax(max_perp, min_perp);
+    b = qMax(b, min_perp);
+    b = qMin(b, max_perp);
 
     QSize result;
     rpick(o, result) = a;
@@ -2248,6 +2290,7 @@ void QDockWidgetLayout::getGrid(QVector<QLayoutStruct> *_ver_struct_list,
         left_hint = docks[LeftPos].sizeHint();
     QSize left_min = docks[LeftPos].minimumSize();
     QSize left_max = docks[LeftPos].maximumSize();
+    left_hint = left_hint.boundedTo(left_max).expandedTo(left_min);
     int left_sep = docks[LeftPos].isEmpty() ? 0 : sep;
 
     QSize right_hint = docks[RightPos].size();
@@ -2255,6 +2298,7 @@ void QDockWidgetLayout::getGrid(QVector<QLayoutStruct> *_ver_struct_list,
         right_hint = docks[RightPos].sizeHint();
     QSize right_min = docks[RightPos].minimumSize();
     QSize right_max = docks[RightPos].maximumSize();
+    right_hint = right_hint.boundedTo(right_max).expandedTo(right_min);
     int right_sep = docks[RightPos].isEmpty() ? 0 : sep;
 
     QSize top_hint = docks[TopPos].size();
@@ -2262,6 +2306,7 @@ void QDockWidgetLayout::getGrid(QVector<QLayoutStruct> *_ver_struct_list,
         top_hint = docks[TopPos].sizeHint();
     QSize top_min = docks[TopPos].minimumSize();
     QSize top_max = docks[TopPos].maximumSize();
+    top_hint = top_hint.boundedTo(top_max).expandedTo(top_min);
     int top_sep = docks[TopPos].isEmpty() ? 0 : sep;
 
     QSize bottom_hint = docks[BottomPos].size();
@@ -2269,6 +2314,7 @@ void QDockWidgetLayout::getGrid(QVector<QLayoutStruct> *_ver_struct_list,
         bottom_hint = docks[BottomPos].sizeHint();
     QSize bottom_min = docks[BottomPos].minimumSize();
     QSize bottom_max = docks[BottomPos].maximumSize();
+    bottom_hint = bottom_hint.boundedTo(bottom_max).expandedTo(bottom_min);
     int bottom_sep = docks[BottomPos].isEmpty() ? 0 : sep;
 
     if (_ver_struct_list != 0) {
@@ -2498,6 +2544,17 @@ void QDockWidgetLayout::fitLayout()
 
     qGeomCalc(ver_struct_list, 0, 3, rect.top(), rect.height(), sep);
     qGeomCalc(hor_struct_list, 0, 3, rect.left(), rect.width(), sep);
+
+#if 0
+    qDebug() << "fitLayout(1): max:" << ver_struct_list[1].maximumSize
+                << "min:" << ver_struct_list[1].minimumSize
+                << "hint:" << ver_struct_list[1].sizeHint
+                << "size:" << ver_struct_list[1].size;
+    qDebug() << "fitLayout(2): max:" << ver_struct_list[2].maximumSize
+                << "min:" << ver_struct_list[2].minimumSize
+                << "hint:" << ver_struct_list[2].sizeHint
+                << "size:" << ver_struct_list[2].size;
+#endif
 
     setGrid(&ver_struct_list, &hor_struct_list);
 }

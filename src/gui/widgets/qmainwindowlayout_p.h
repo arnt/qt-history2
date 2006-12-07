@@ -170,8 +170,8 @@ public:
     bool toolBarBreak(const ToolBarPosition& position) const;
     // Is there a break before this position
     inline bool toolBarBreak(const QWidget *toolbar) const { return toolBarBreak(findToolBar(toolbar)); }
-    
-    
+
+
     int locateToolBar(QToolBar *toolbar, const QPoint &mouse) const;
     bool dropToolBar(QToolBar *toolbar, const QPoint &mouse, const QPoint &offset);
 

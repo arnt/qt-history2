@@ -225,6 +225,11 @@ QSize QDWLayout::sizeFromContent(const QSize &content, bool floating) const
     result.setHeight(qMin(result.height(), (int) QWIDGETSIZE_MAX));
     result.setWidth(qMin(result.width(), (int) QWIDGETSIZE_MAX));
 
+    if (content.width() <= 0)
+        result.setWidth(-1);
+    if (content.height() <= 0)
+        result.setHeight(-1);
+
     return result;
 }
 
