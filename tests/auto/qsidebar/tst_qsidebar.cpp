@@ -127,6 +127,14 @@ void tst_QSidebar::addUrls()
         QIcon icon = qvariant_cast<QIcon>(model->index(i, 0).data(Qt::DecorationRole));
         QVERIFY(!icon.isNull());
     }
+
+    // test moving up the list
+    qsidebar.setUrls(emptyUrls);
+    qsidebar.addUrls(urls, 100);
+    qsidebar.addUrls(moreUrls, 100);
+    QCOMPARE(model->rowCount(), 3);
+    qsidebar.addUrls(moreUrls, 1);
+    QCOMPARE(qsidebar.urls()[1], moreUrls[0]);
 }
 
 void tst_QSidebar::goToUrl()
