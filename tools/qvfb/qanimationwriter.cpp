@@ -223,7 +223,7 @@ public:
 
 QAnimationWriter::QAnimationWriter(const QString& filename, const char* format)
 {
-    if (format != QLatin1String("MNG")) {
+    if (qstrncmp(format, "MNG", 4)) {
 	qWarning("Format \"%s\" not supported, only MNG", format);
 	dev = 0;
 	d = 0;
