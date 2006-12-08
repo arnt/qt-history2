@@ -1945,10 +1945,16 @@ void QApplicationPrivate::x11_initialize_style()
 
     switch(X11->desktopEnvironment) {
         case DE_KDE:
-            QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("plastique"));
+            if (X11->use_xrender)
+                QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("plastique"));
+            else
+                QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("windows"));
             break;
         case DE_GNOME:
-            QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("cleanlooks"));
+            if (X11->use_xrender)
+                QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("cleanlooks"));
+            else
+                QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("windows"));
             break;
         case DE_CDE:
             QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("cde"));
