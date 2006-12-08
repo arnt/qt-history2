@@ -3645,9 +3645,10 @@ QString QString::trimmed() const
     \sa operator[]()
 */
 
-/*! \fn QCharRef QString::operator[](int position)
+/*! 
+    \fn QCharRef QString::operator[](int position)
 
-    Returns the character at the specified \a position index as a
+    Returns the character at the specified \a position in the string as a
     modifiable reference.
 
     Example:
@@ -3665,22 +3666,23 @@ QString QString::trimmed() const
     \sa at()
 */
 
-/*! \fn const QChar QString::operator[](int position) const
+/*! 
+    \fn const QChar QString::operator[](int position) const
 
     \overload
-
-    Returns the character at the specified \a position index as a
-    modifiable reference. Equivalent to \c  at(position).
 */
 
 /*! \fn QCharRef QString::operator[](uint position)
 
-    \overload
+\overload
+
+Returns the character at the specified \a position in the string as a
+modifiable reference. Equivalent to \c at(position).
 */
 
 /*! \fn const QChar QString::operator[](uint position) const
 
-    \overload
+\overload
 */
 
 /*!
