@@ -46,6 +46,8 @@ private slots:
     void operator_plus();
     void operator_minus_data();
     void operator_minus();
+    void operator_intersect_data();
+    void operator_intersect();
 };
 
 Q_DECLARE_METATYPE(QPolygon)
@@ -478,6 +480,42 @@ void tst_QRegion::operator_minus()
     QCOMPARE(dest - subtract, expected);
 
     dest -= subtract;
+    QCOMPARE(dest, expected);
+}
+
+void tst_QRegion::operator_intersect_data()
+{
+    QTest::addColumn<QRegion>("dest");
+    QTest::addColumn<QRegion>("intersect");
+    QTest::addColumn<QRegion>("expected");
+
+    QTest::newRow("empty 0") << QRegion() << QRegion() << QRegion();
+    QTest::newRow("empty 1") << QRegion() << QRegion(QRect(10, 10, 10, 10))
+                             << QRegion();
+    QTest::newRow("empty 2") << QRegion(QRect(10, 10, 10, 10)) << QRegion()
+                             << QRegion();
+
+    QRegion dest;
+    QVector<QRect> rects;
+    rects << QRect(10, 10, 10, 10) << QRect(22, 10, 10, 10);
+    dest.setRects(rects.constData(), rects.size());
+    QTest::newRow("simple 1") << dest
+                              << QRegion(22, 10, 10, 10)
+                              << QRegion(22, 10, 10, 10);
+    QTest::newRow("simple 2") << dest
+                              << QRegion(10, 10, 10, 10)
+                              << QRegion(10, 10, 10, 10);
+}
+
+void tst_QRegion::operator_intersect()
+{
+    QFETCH(QRegion, dest);
+    QFETCH(QRegion, intersect);
+    QFETCH(QRegion, expected);
+
+    QCOMPARE(dest & intersect, expected);
+
+    dest &= intersect;
     QCOMPARE(dest, expected);
 }
 
