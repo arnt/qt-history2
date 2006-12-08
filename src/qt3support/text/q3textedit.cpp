@@ -5481,7 +5481,7 @@ Q3PopupMenu *Q3TextEdit::createPopupMenu()
 
     \overload
 
-    Zooms in on the text by by making the base font size one point
+    Zooms in on the text by making the base font size one point
     larger and recalculating all font sizes to be the new size. This
     does not change the size of any images.
 
@@ -5493,7 +5493,7 @@ Q3PopupMenu *Q3TextEdit::createPopupMenu()
 
     \overload
 
-    Zooms out on the text by by making the base font size one point
+    Zooms out on the text by making the base font size one point
     smaller and recalculating all font sizes to be the new size. This
     does not change the size of any images.
 
@@ -5502,7 +5502,7 @@ Q3PopupMenu *Q3TextEdit::createPopupMenu()
 
 
 /*!
-    Zooms in on the text by by making the base font size \a range
+    Zooms in on the text by making the base font size \a range
     points larger and recalculating all font sizes to be the new size.
     This does not change the size of any images.
 
