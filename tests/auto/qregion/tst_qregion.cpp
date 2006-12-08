@@ -44,6 +44,8 @@ private slots:
 
     void operator_plus_data();
     void operator_plus();
+    void operator_minus_data();
+    void operator_minus();
 };
 
 Q_DECLARE_METATYPE(QPolygon)
@@ -440,6 +442,42 @@ void tst_QRegion::operator_plus()
         qDebug() << "dest" << dest;
         qDebug() << "expected" << expected;
     }
+    QCOMPARE(dest, expected);
+}
+
+void tst_QRegion::operator_minus_data()
+{
+    QTest::addColumn<QRegion>("dest");
+    QTest::addColumn<QRegion>("subtract");
+    QTest::addColumn<QRegion>("expected");
+
+    QTest::newRow("empty 0") << QRegion() << QRegion() << QRegion();
+    QTest::newRow("empty 1") << QRegion() << QRegion(QRect(10, 10, 10, 10))
+                             << QRegion();
+    QTest::newRow("empty 2") << QRegion(QRect(10, 10, 10, 10)) << QRegion()
+                             << QRegion(QRect(10, 10, 10, 10));
+
+    QRegion dest;
+    QVector<QRect> rects;
+    rects << QRect(10, 10, 10, 10) << QRect(22, 10, 10, 10);
+    dest.setRects(rects.constData(), rects.size());
+    QTest::newRow("simple 1") << dest
+                              << QRegion(22, 10, 10, 10)
+                              << QRegion(10, 10, 10, 10);
+    QTest::newRow("simple 2") << dest
+                              << QRegion(10, 10, 10, 10)
+                              << QRegion(22, 10, 10, 10);
+}
+
+void tst_QRegion::operator_minus()
+{
+    QFETCH(QRegion, dest);
+    QFETCH(QRegion, subtract);
+    QFETCH(QRegion, expected);
+
+    QCOMPARE(dest - subtract, expected);
+
+    dest -= subtract;
     QCOMPARE(dest, expected);
 }
 
