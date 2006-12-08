@@ -3451,15 +3451,23 @@ HRESULT WINAPI QAxServerBase::UIDeactivate()
 	}
 	if (m_spInPlaceFrame) {
 	    removeMenu();
-	    menuBar = 0;
-	    statusBar = 0;
+            if (menuBar) {
+                menuBar->removeEventFilter(this);
+                menuBar = 0;
+            }
+            if (statusBar) {
+                statusBar->removeEventFilter(this);
+		const int index = statusBar->metaObject()->indexOfSignal("messageChanged(QString)");
+		QMetaObject::disconnect(statusBar, index, this, -1);
+	        statusBar = 0;
+            }
 	    m_spInPlaceFrame->SetActiveObject(0, 0);
 	    m_spInPlaceFrame->Release();
 	    m_spInPlaceFrame = 0;
 	}
     }
     // we don't need to explicitly release the focus here since somebody
-    // else grabbing the focus is what is likely to cause us to get lose it
+    // else grabbing the focus is usually why we are getting called at all
     m_spInPlaceSite->OnUIDeactivate(false);
 
     return S_OK;
@@ -4339,8 +4347,7 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
 	break;
     case QEvent::MouseButtonPress:
         if (m_spInPlaceSite && !isUIActive) {
-            m_spInPlaceSite->OnUIActivate();
-            isUIActive = true;
+            internalActivate();
         }
 	if (o == qt.widget && hasStockEvents) {
 	    QMouseEvent *me = (QMouseEvent*)e;
