@@ -4444,7 +4444,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             }
 
             // close button
-            if (titleBar->subControls & SC_TitleBarCloseButton) {
+            if (titleBar->subControls & SC_TitleBarCloseButton && titleBar->titleBarFlags & Qt::WindowSystemMenuHint) {
                 bool hover = (titleBar->activeSubControls & SC_TitleBarCloseButton) && (titleBar->state & State_MouseOver);
                 bool sunken = (titleBar->activeSubControls & SC_TitleBarCloseButton) && (titleBar->state & State_Sunken);
 

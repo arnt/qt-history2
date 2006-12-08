@@ -3038,7 +3038,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     theme.stateId = stateId;
                     d->drawBackground(theme);
                 }
-                if (sub & SC_TitleBarCloseButton) {
+                if (sub & SC_TitleBarCloseButton && tb->titleBarFlags & Qt::WindowSystemMenuHint) {
                     theme.rect = subControlRect(CC_TitleBar, option, SC_TitleBarCloseButton, widget);
                     //partId = titlebar->testWFlags(Qt::WA_WState_Tool) ? WP_SMALLCLOSEBUTTON : WP_CLOSEBUTTON;
                     partId = WP_CLOSEBUTTON;
