@@ -19,7 +19,6 @@
 
 #include "qapplication.h"
 #include "qbitmap.h"
-#include "qdockwidget.h"
 #include "qdrawutil.h" // for now
 #include "qevent.h"
 #include "qmenu.h"
@@ -1094,8 +1093,8 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         QPen oldPen = p->pen();
 #ifndef QT_NO_DOCKWIDGET
         if (w && w->inherits("QDockWidgetTitleButton")) {
-           if (const QDockWidget *dw = qobject_cast<const QDockWidget *>(w->parent()))
-                if (dw->isFloating()){
+           if (const QWidget *dw = w->parentWidget())
+                if (dw->isWindow()){
                     qDrawWinButton(p, opt->rect.adjusted(1, 1, 0, 0), opt->palette, opt->state & (State_Sunken | State_On),
                            &opt->palette.button());
 
@@ -2240,16 +2239,16 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             Q_D(const QWindowsStyle);
             QRect r = dwOpt->rect;
             bool floating = false;
+            bool active = dwOpt->state & State_Active;
             int menuOffset = 0; //used to center text when floated
             QColor inactiveCaptionTextColor = d->inactiveCaptionText;
             if (dwOpt->movable) {
-                const QDockWidget *dockWidget = qobject_cast<const QDockWidget *>(widget);
                 QColor left, right;
 
                 //Titlebar gradient
-                if (dockWidget && dockWidget->isFloating()) {
+                if (widget && widget->isWindow()) {
                     floating = true;
-                    if (widget && widget->isActiveWindow()) {
+                    if (active) {
                         left = d->activeCaptionColor;
                         right = d->activeGradientCaptionColor;
                     } else {
@@ -2269,7 +2268,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->fillRect(opt->rect.adjusted(0, 0, 0, -3), fillBrush);
                 }
                 p->setPen(dwOpt->palette.color(QPalette::Light));
-                if (!dockWidget || !dockWidget->isFloating()) {
+                if (!widget || !widget->isWindow()) {
                     p->drawLine(r.topLeft(), r.topRight());
                     p->setPen(dwOpt->palette.color(QPalette::Dark));
                     p->drawLine(r.bottomLeft(), r.bottomRight());            }
@@ -2283,7 +2282,6 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 }
                 QPalette palette = dwOpt->palette;
                 palette.setColor(QPalette::Window, inactiveCaptionTextColor);
-                bool active = dwOpt->state & State_Active;
                 QRect titleRect = subElementRect(SE_DockWidgetTitleBarText, opt, widget);
                 drawItemText(p, titleRect,
                             Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic, palette,
