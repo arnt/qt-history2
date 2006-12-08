@@ -160,6 +160,7 @@ static void initializeDb()
 #else
     fontpath += QLatin1String("/lib/fonts");
 #endif
+    QString fontDirFile = fontpath + QLatin1String("/fontdir");
 
     if(!QFile::exists(fontpath)) {
         qFatal("QFontDatabase: Cannot find font directory %s - is Qt installed correctly?",
@@ -170,7 +171,9 @@ static void initializeDb()
     if (binaryDb.exists()) {
         QDateTime fontPathTimeStamp = QFileInfo(fontpath).lastModified();
         QDateTime dbTimeStamp = QFileInfo(binaryDb.fileName()).lastModified();
-        if (dbTimeStamp > fontPathTimeStamp) {
+        QDateTime fontDirTimeStamp = QFileInfo(fontDirFile).lastModified();
+        if (dbTimeStamp > fontPathTimeStamp
+            && (!QFile::exists(fontDirFile) || dbTimeStamp > fontDirTimeStamp)) {
             binaryDb.open(QIODevice::ReadOnly);
             QDataStream stream(&binaryDb);
             quint8 version;
@@ -205,8 +208,7 @@ static void initializeDb()
 //    qDebug() << "creating binary database at" << binaryDb.fileName();
 
     // Load in font definition file
-    QString fn = fontpath + QLatin1String("/fontdir");
-    FILE* fontdef=fopen(fn.toLocal8Bit().constData(),"r");
+    FILE* fontdef=fopen(fontDirFile.toLocal8Bit().constData(),"r");
     if (fontdef) {
         char buf[200]="";
         char name[200]="";
