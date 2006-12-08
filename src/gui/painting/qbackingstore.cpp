@@ -549,63 +549,64 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
     if (!widget->isVisible() || !widget->updatesEnabled() || !tlw->testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
         return;
 
-    if(!QWidgetBackingStore::paintOnScreen(widget)) {
-        QRegion toClean;
+    if(QWidgetBackingStore::paintOnScreen(widget))
+        return;
+
+    QRegion toClean;
 #if defined(Q_WS_QWS)
-        QRect tlwRect = tlw->frameGeometry();
+    QRect tlwRect = tlw->frameGeometry();
 #else
-        QRect tlwRect = tlw->geometry();
+    QRect tlwRect = tlw->geometry();
 #endif
 
 #ifdef Q_WS_QWS
-        if (!static_cast<QWSWindowSurface*>(windowSurface)->isValidFor(tlw)) {
-            delete windowSurface;
-            windowSurface = qt_default_window_surface(tlw);
-        }
+    if (!static_cast<QWSWindowSurface*>(windowSurface)->isValidFor(tlw)) {
+        delete windowSurface;
+        windowSurface = qt_default_window_surface(tlw);
+    }
 #endif
-        if (windowSurface->geometry() != tlwRect) {
-            windowSurface->setGeometry(tlwRect);
-            toClean = QRect(QPoint(0, 0), tlwRect.size());
-            recursiveCopyToScreen = true;
-        } else {
-            toClean = dirty;
-        }
+    if (windowSurface->geometry() != tlwRect) {
+        windowSurface->setGeometry(tlwRect);
+        toClean = QRect(QPoint(0, 0), tlwRect.size());
+        recursiveCopyToScreen = true;
+    } else {
+        toClean = dirty;
+    }
 #ifdef Q_WS_QWS
-        tlwOffset = static_cast<QWSWindowSurface*>(windowSurface)->painterOffset();
+    tlwOffset = static_cast<QWSWindowSurface*>(windowSurface)->painterOffset();
 #endif
-         // ### move into prerender step
+    // ### move into prerender step
 
 #if defined(Q_WS_QWS)
-        toClean &= static_cast<QWSWindowSurface*>(windowSurface)->clipRegion();
+    toClean &= static_cast<QWSWindowSurface*>(windowSurface)->clipRegion();
 #endif
 
-        if(!toClean.isEmpty()) {
-            dirty -= toClean;
-            if (tlw->updatesEnabled()) {
-                // Pre render config
-                windowSurface->paintDevice()->paintEngine()->setSystemClip(toClean);
-                windowSurface->beginPaint(toClean);
-                windowSurface->paintDevice()->paintEngine()->setSystemClip(QRegion());
+    if(!toClean.isEmpty()) {
+        dirty -= toClean;
+        if (tlw->updatesEnabled()) {
+            // Pre render config
+            windowSurface->paintDevice()->paintEngine()->setSystemClip(toClean);
+            windowSurface->beginPaint(toClean);
+            windowSurface->paintDevice()->paintEngine()->setSystemClip(QRegion());
 
-                tlw->d_func()->drawWidget(windowSurface->paintDevice(), toClean, tlwOffset);
+            tlw->d_func()->drawWidget(windowSurface->paintDevice(), toClean, tlwOffset);
 
-                // Drawing the overlay...
-                windowSurface->paintDevice()->paintEngine()->setSystemClip(toClean);
-                windowSurface->endPaint(toClean);
-                windowSurface->paintDevice()->paintEngine()->setSystemClip(QRegion());
-            }
+            // Drawing the overlay...
+            windowSurface->paintDevice()->paintEngine()->setSystemClip(toClean);
+            windowSurface->endPaint(toClean);
+            windowSurface->paintDevice()->paintEngine()->setSystemClip(QRegion());
         }
+    }
 
-        QRegion toFlush = rgn;
-        if (recursiveCopyToScreen) {
-            toFlush.translate(widget->mapTo(tlw, QPoint()));
-            copyToScreen(toFlush, tlw, tlwOffset, recursiveCopyToScreen);
-        } else {
+    QRegion toFlush = rgn;
+    if (recursiveCopyToScreen) {
+        toFlush.translate(widget->mapTo(tlw, QPoint()));
+        copyToScreen(toFlush, tlw, tlwOffset, recursiveCopyToScreen);
+    } else {
 #ifdef Q_WS_X11
-            toFlush += widget->d_func()->dirtyOnScreen;
+        toFlush += widget->d_func()->dirtyOnScreen;
 #endif
-            copyToScreen(toFlush, widget, widget->mapTo(tlw, QPoint()), false);
-        }
+        copyToScreen(toFlush, widget, widget->mapTo(tlw, QPoint()), false);
     }
 }
 
