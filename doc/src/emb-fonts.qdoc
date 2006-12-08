@@ -19,18 +19,18 @@
 
     \l {Qtopia Core} uses the \l
     {http://freetype.sourceforge.net/freetype2/index.html}{FreeType 2}
-    font engine to produce font output. For this reason it supports
-    the same font formats as this font engine. In addition, \l {Qtopia
-    Core} supports the Qt Prerendered Font (\l QPF), a light-weight
-    non-scalable font format specific to \l {Qtopia Core}. Several of
-    the formats may be rendered using anti-aliasing for improved
-    readability on low-resolution devices.
+    font engine to produce font output. The formats supported depends on
+    the locally installed version of the FreeType library. In addition,
+    \l {Qtopia Core} supports the Qt Prerendered Font formats (\l QPF and \l QPF2):
+    light-weight non-scalable font formats specific to \l {Qtopia Core}. QPF2 is the
+    native format of \l {Qtopia Core}. QPF is the legacy format used by Qt/Embedded
+    2.x and 3.x. Several of the formats may be rendered using anti-aliasing
+    for improved readability.
 
-    When \l {Qtopia Core} applications run, they look for a file called \c
-    fontdir in \l {Qtopia Core}'s \c /lib/fonts/ directory. This file
-    defines the fonts that are available to the application (i.e. the
-    fonts located in the \c /lib/fonts/ directory), and can be
-    modified to specify the preferred fonts.
+    When \l {Qtopia Core} applications run, they look for fonts in \l {Qtopia Core}'s
+    \c lib/fonts/ directory. \l {Qtopia Core} will automatically detect prerendered
+    fonts and TrueType fonts. For compatibility, \l {Qtopia Core} will also read the
+    legacy \c lib/fonts/fontdir file.
 
     Support for other font formats can be added, contact
     \l{mailto:info@trolltech.com}{info@trolltech.com} for more
@@ -43,7 +43,7 @@
     \o
     \bold {Optimization}
 
-    Both the \l FreeType and \l QPF formats are features that can be
+    The \l FreeType, \l QPF2 and \l QPF formats are features that can be
     disabled using \l {Qtopia Core}'s feature definition system,
     reducing the size of Qt and saving resources.
 
@@ -61,16 +61,11 @@
     Unicode characters. A complete 16-point Unicode font uses over 1
     MB of memory.
 
-    \warning The font definition file, naming conventions for the font
-    files, and the format of QPF files may change in future versions
-    of \l {Qtopia Core}.
-
     \target FreeType
     \section1 FreeType Formats
 
-    By default, the \l
-    {http://freetype.sourceforge.net/freetype2/index.html}{FreeType 2}
-    font engine (and \l {Qtopia Core}) supports the following font formats:
+    The \l {http://freetype.sourceforge.net/freetype2/index.html}{FreeType 2}
+    library (and therefore \l {Qtopia Core}) can support the following font formats:
 
     \list
         \o TrueType (TTF)
@@ -92,20 +87,39 @@
     information, see the font engine's own website: \l
     http://freetype.sourceforge.net/freetype2/index.html.
 
+    Glyphs rendered using FreeType are shared efficiently between applications,
+    reducing memory requirements and speeding up text rendering.
+
+    \omit
+    \l {Qtopia Core} will by default use the system FreeType library if it exists.
+    Otherwise it will use a copy of the FreeType library in Qt, which by default only
+    supports TrueType fonts to reduce footprint.
+    \endomit
+
+    \target QPF2
+    \section1 Qt Prerendered Font (QPF2)
+
+    The Qt Prerendered Font (QPF2) is an architecture-independent,
+    light-weight and non-scalable font format specific to \l {Qtopia Core}.
+
+    Trolltech provides the cross-platform \c makeqpf tool, included in the
+    \c tools directory of both \l {Qt} and \l {Qtopia Core}, which allows
+    generation of QPF2 files from system fonts.
+
+    QPF2 supports anti-aliasing and complex writing systems, using information
+    from the corresponding TrueType font, if present on the system. The format
+    is designed to be mapped directly to memory. The same format is used to
+    share glyphs from non-prerendered fonts between applications.
+
     \target QPF
-    \section1 Qt Prerendered Font
+    \section1 Legacy Qt Prerendered Font (QPF)
 
-    The Qt Prerendered Font (QPF) is a platform specific, light-weight
-    and non-scalable font format.
+    Trolltech provides support for the legacy QPF format for compatibility
+    reasons. QPF is based on the internal font engine data structure of Qt/Embedded
+    (\l {Qtopia Core}'s predecessor) versions 2 and 3.
 
-    With Qt/Embedded (\l {Qtopia Core}'s predecessor) versions 2 and 3, it
-    was possible to create custom QPF font files, for example creating
-    QPF files from a TrueType (TTF) or Bitmap Distribution Format
-    (BDF) font, removing the need for TTF and BDF support. Qt/Embedded
-    also provided the \c makeqpf tool, located in Qt's \c tools
-    directory, for producing QPF font files.
-
-    Note that the \c makeqpf tool is not yet ported to \l {Qtopia Core}.
+    Note that the file name describes the font, for example \c helvetica_120_50.qpf
+    is 12 point Helvetica while \c helvetica_120_50i.qpf is 12 point Helvetica \e italic.
 
 \omit
     \section1 Memory Requirements
@@ -119,11 +133,11 @@
     font are needed.
 \endomit
 
-    \section1 Specifying Fonts
+    \section1 The Legacy \c fontdir File
 
-    To specify the application's fonts, you must modify the \c fontdir
-    in Qt's \c /lib/fonts/ directory. The file defines the fonts
-    available to the application, and has the following format:
+    For compatibility reasons \l {Qtopia Core} supports the \c fontdir
+    file, if present. The file defines additional fonts available to the
+    application, and has the following format:
 
     \code
         name file renderer italic weight size flags
@@ -151,17 +165,10 @@
     value of 120 means 12pt. A value of 0 means that the font is
     scalable.
     \row \o \bold flags
-    \o Various flags specifying the font rendering and encoding:
+    \o The following flag is supported:
     \list
         \o \c s: smooth (anti-aliased)
-        \o \c u: Unicode range when saving (the default is Latin1)
-        \o \c a: ASCII range when saving (the default is Latin1)
     \endlist
+    All other flags are ignored.
     \endtable
-
-    The font definition file does not specify \l QPF fonts; these are
-    loaded directly from the directory containing the \c fontdir
-    file. Note that the file name describes the font, for example \c
-    helvetica_120_50.qpf is 12 point Helvetica while \c
-    helvetica_120_50i.qpf is 12 point Helvetica \e italic.
 */
