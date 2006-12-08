@@ -17,6 +17,7 @@
 #include <qapplication.h>
 #include <qbuffer.h>
 #include <qdatastream.h>
+#include <qdebug.h>
 #include <qevent.h>
 #include <qeventloop.h>
 #include <qfile.h>
@@ -99,6 +100,7 @@ class QAxServerBase :
     public IPersistStreamInit,
     public IPersistStorage,
     public IPersistPropertyBag,
+    public IPersistFile,
     public IDataObject
 {
 public:
@@ -280,6 +282,12 @@ public:
     STDMETHOD(SaveCompleted)(IStorage *pStgNew);
     STDMETHOD(HandsOffStorage)();
 
+// IPersistFile
+    STDMETHOD(SaveCompleted)(LPCOLESTR fileName);
+    STDMETHOD(GetCurFile)(LPOLESTR *currentFile);
+    STDMETHOD(Load)(LPCOLESTR fileName, DWORD mode);
+    STDMETHOD(Save)(LPCOLESTR fileName, BOOL fRemember);
+
 // IDataObject
     STDMETHOD(GetData)(FORMATETC *pformatetcIn, STGMEDIUM *pmedium);
     STDMETHOD(GetDataHere)(FORMATETC* /* pformatetc */, STGMEDIUM* /* pmedium */);
@@ -348,6 +356,7 @@ private:
     unsigned long ole_ref;
 
     QString class_name;
+    QString currentFileName;
 
     QHash<long, int> indexCache;
     QHash<int,DISPID> signalCache;
@@ -1164,6 +1173,9 @@ HRESULT QAxServerBase::InternalQueryInterface(REFIID iid, void **iface)
 	    *iface = (IPersistStorage*)this;
 	else if (iid == IID_IPersistPropertyBag)
 	    *iface = (IPersistPropertyBag*)this;
+        else if (iid == IID_IPersistFile && 
+            qAxFactory()->metaObject(class_name)->indexOfClassInfo("MIME") != -1)
+            *iface = (IPersistFile*)this;
 	else if (iid == IID_IViewObject)
 	    *iface = (IViewObject*)this;
 	else if (iid == IID_IViewObject2)
@@ -1941,15 +1953,17 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 {
     Q_ASSERT(call == QMetaObject::InvokeMetaMethod);
 
-    if (index == -1 && sender() && m_spInPlaceFrame) {
-	if (qobject_cast<QStatusBar*>(sender()) != statusBar)
-	    return true;
+    if (index == -1) {
+        if (sender() && m_spInPlaceFrame) {
+	    if (qobject_cast<QStatusBar*>(sender()) != statusBar)
+	        return true;
 
-	if (statusBar->isHidden()) {
-	    QString message = *(QString*)argv[1];
-	    m_spInPlaceFrame->SetStatusText(QStringToBSTR(message));
-	}
-	return true;
+	    if (statusBar->isHidden()) {
+	        QString message = *(QString*)argv[1];
+	        m_spInPlaceFrame->SetStatusText(QStringToBSTR(message));
+	    }
+        }
+        return true;
     }
 
     if (freezeEvents || inDesignMode)
@@ -2993,6 +3007,127 @@ HRESULT WINAPI QAxServerBase::Save(IPropertyBag *bag, BOOL clearDirty, BOOL /*sa
 	SysFreeString(bstr);
     }
     return /*error ? E_FAIL :*/ S_OK;
+}
+
+//**** IPersistFile
+/*
+*/
+HRESULT WINAPI QAxServerBase::SaveCompleted(LPCOLESTR fileName)
+{
+    if (qt.object->metaObject()->indexOfClassInfo("MIME") == -1)
+        return E_NOTIMPL;
+
+    currentFileName = QString::fromUtf16(fileName);
+    return S_OK;
+}
+
+HRESULT WINAPI QAxServerBase::GetCurFile(LPOLESTR *currentFile)
+{
+    if (qt.object->metaObject()->indexOfClassInfo("MIME") == -1)
+        return E_NOTIMPL;
+
+    if (currentFileName.isEmpty()) {
+        *currentFile = 0;
+        return S_FALSE;
+    }
+    IMalloc *malloc = 0;
+    CoGetMalloc(1, &malloc);
+    if (!malloc)
+        return E_OUTOFMEMORY;
+
+    *currentFile = (ushort*)malloc->Alloc(currentFileName.length() * 2);
+    malloc->Release();
+    memcpy(*currentFile, currentFileName.unicode(), currentFileName.length() * 2);
+
+    return S_OK;
+}
+
+HRESULT WINAPI QAxServerBase::Load(LPCOLESTR fileName, DWORD mode)
+{
+    const QMetaObject *mo = qt.object->metaObject();
+    int mimeIndex = mo->indexOfClassInfo("MIME");
+    if (mimeIndex == -1)
+        return E_NOTIMPL;
+
+    QAxBindable *axb = (QAxBindable*)qt.object->qt_metacast("QAxBindable");
+    if (!axb) {
+        qWarning() << class_name << ": No QAxBindable implementation for mime-type handling";
+        return E_NOTIMPL;
+    }
+
+    QString loadFileName = QString::fromUtf16(fileName);
+    QString fileExtension = loadFileName.mid(loadFileName.lastIndexOf('.') + 1);
+    QFile file(loadFileName);
+
+    QString mimeType = QLatin1String(mo->classInfo(mimeIndex).value());
+    QStringList mimeTypes = mimeType.split(';');
+    for (int m = 0; m < mimeTypes.count(); ++m) {
+        QString mime = mimeTypes.at(m);
+        if (mime.count(':') != 2) {
+            qWarning() << class_name << ": Invalid syntax in Q_CLASSINFO for MIME";
+            continue;
+        }
+
+        mimeType = mime.left(mimeType.indexOf(':')); // first type
+        if (mimeType.isEmpty()) {
+            qWarning() << class_name << ": Invalid syntax in Q_CLASSINFO for MIME";
+            continue;
+        }
+        QString mimeExtension = mime.mid(mimeType.length() + 1);
+        mimeExtension = mimeExtension.left(mimeExtension.indexOf(':'));
+        if (mimeExtension != fileExtension)
+            continue;
+
+        if (axb->readData(&file, mimeType)) {
+            currentFileName = loadFileName;
+            return S_OK;
+        }
+    }
+   
+    return E_FAIL;
+}
+
+HRESULT WINAPI QAxServerBase::Save(LPCOLESTR fileName, BOOL fRemember)
+{
+    const QMetaObject *mo = qt.object->metaObject();
+    int mimeIndex = mo->indexOfClassInfo("MIME");
+    if (mimeIndex == -1)
+        return E_NOTIMPL;
+
+    QAxBindable *axb = (QAxBindable*)qt.object->qt_metacast("QAxBindable");
+    if (!axb) {
+        qWarning() << class_name << ": No QAxBindable implementation for mime-type handling";
+        return E_NOTIMPL;
+    }
+
+    QString saveFileName = QString::fromUtf16(fileName);
+    QString fileExtension = saveFileName.mid(saveFileName.lastIndexOf('.') + 1);
+    QFile file(saveFileName);
+
+    QString mimeType = QLatin1String(mo->classInfo(mimeIndex).value());
+    QStringList mimeTypes = mimeType.split(';');
+    for (int m = 0; m < mimeTypes.count(); ++m) {
+        QString mime = mimeTypes.at(m);
+        if (mime.count(':') != 2) {
+            qWarning() << class_name << ": Invalid syntax in Q_CLASSINFO for MIME";
+            continue;
+        }
+        mimeType = mime.left(mimeType.indexOf(':')); // first type
+        if (mimeType.isEmpty()) {
+            qWarning() << class_name << ": Invalid syntax in Q_CLASSINFO for MIME";
+            continue;
+        }
+        QString mimeExtension = mime.mid(mimeType.length() + 1);
+        mimeExtension = mimeExtension.left(mimeExtension.indexOf(':'));
+        if (mimeExtension != fileExtension)
+            continue;
+        if (axb->writeData(&file)) {
+            if (fRemember)
+                currentFileName = saveFileName;
+            return S_OK;
+        }
+    }
+    return E_FAIL;
 }
 
 //**** IViewObject
