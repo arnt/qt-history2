@@ -2198,6 +2198,18 @@
     value of this variable is typically handled by \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
+    \section1 QMAKE_RESOURCE_FLAGS
+
+    This variable is used to customize the list of options passed to the
+    \l{rcc}{Resource Compiler} in each of the build rules where it is used.
+    For example, the following line ensures that the \c{-threshold} and
+    \c{-compress} options are used with particular values each time that
+    \c rcc is invoked:
+
+    \code
+    QMAKE_RESOURCE_FLAGS += -threshold 0 -compress 9
+    \endcode
+
     \section1 QMAKE_RUN_CC
 
     This variable specifies the individual rule needed to build an object.
