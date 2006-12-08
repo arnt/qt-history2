@@ -551,10 +551,12 @@ void QToolBar::setOrientation(Qt::Orientation orientation)
 Qt::Orientation QToolBar::orientation() const
 { Q_D(const QToolBar); return d->orientation; }
 
-/*! \property QToolBar::iconSize
+/*! 
+    \property QToolBar::iconSize
     \brief size of icons in the toolbar.
 
-    The default is Qt::AutomaticIconSize.
+    The default size is determined by the application's style and is
+    derived from the QStyle::PM_ToolBarIconSize pixel metric.
 */
 
 QSize QToolBar::iconSize() const
