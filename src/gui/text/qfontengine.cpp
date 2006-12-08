@@ -541,6 +541,14 @@ void QFontEngine::doKerning(int num_glyphs, QGlyphLayout *glyphs, QTextEngine::S
 }
 #endif
 
+int QFontEngine::glyphCount() const
+{
+    QByteArray maxpTable = getSfntTable(MAKE_TAG('m', 'a', 'x', 'p'));
+    if (maxpTable.size() < 6)
+        return 0;
+    return qFromBigEndian<quint16>(reinterpret_cast<const uchar *>(maxpTable.constData() + 4));
+}
+
 const uchar *QFontEngine::getCMap(const uchar *table, uint tableSize, bool *isSymbolFont, int *cmapSize)
 {
     const uchar *header = table;

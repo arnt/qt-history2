@@ -153,6 +153,8 @@ public:
     bool canRender(const QChar *string, int len);
     inline const char *name() const { return "QPF2"; }
 
+    virtual int glyphCount() const { return glyphMapEntries; }
+
     bool isValid() const;
 
     const Glyph *findGlyph(glyph_t g) const;
@@ -190,6 +192,7 @@ private:
     quint32 glyphDataOffset;
     quint32 glyphDataSize;
     QString fileName;
+    bool readOnly;
 
     QFreetypeFace *freetype;
     FaceId face_id;

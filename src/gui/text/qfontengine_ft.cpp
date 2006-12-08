@@ -26,6 +26,7 @@
 
 #include <math.h>
 
+#include "qfontengine_ft_p.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_OUTLINE_H
@@ -1373,6 +1374,17 @@ QImage QFontEngineFT::alphaMapForGlyph(glyph_t g)
     unlockFace();
 
     return img;
+}
+
+int QFontEngineFT::glyphCount() const
+{
+    int count = 0;
+    FT_Face face = lockFace();
+    if (face) {
+        count = face->num_glyphs;
+        unlockFace();
+    }
+    return count;
 }
 
 FT_Face QFontEngineFT::lockFace() const

@@ -258,6 +258,7 @@ QFontEngineQPF::QFontEngineQPF(const QFontDef &def, int fileDescriptor, QFontEng
     glyphDataOffset = 0;
     glyphDataSize = 0;
     kerning_pairs_loaded = false;
+    readOnly = true;
 
 #if defined(DEBUG_FONTENGINE)
     qDebug() << "QFontEngineQPF::QFontEngineQPF( fd =" << fd << ", renderingFontEngine =" << renderingFontEngine << ")";
@@ -319,6 +320,9 @@ QFontEngineQPF::QFontEngineQPF(const QFontDef &def, int fileDescriptor, QFontEng
     }
 
     const Header *header = reinterpret_cast<const Header *>(fontData);
+
+    readOnly = (header->lock == 0xffffffff);
+
     const uchar *data = fontData + sizeof(Header) + qFromBigEndian<quint16>(header->dataSize);
     const uchar *endPtr = fontData + dataSize;
     while (data <= endPtr - 8) {
@@ -715,6 +719,8 @@ void QFontEngineQPF::doKerning(int num_glyphs, QGlyphLayout *g, QTextEngine::Sha
 
 void QFontEngineQPF::ensureGlyphsLoaded(QGlyphLayout *glyphs, int len)
 {
+    if (readOnly)
+        return;
     bool locked = false;
     for (int i = 0; i < len; ++i) {
         if (!glyphs[i].glyph)
@@ -902,8 +908,7 @@ void QPFGenerator::writeHeader()
 
 void QPFGenerator::writeGMap()
 {
-    QByteArray maxpTable = fe->getSfntTable(MAKE_TAG('m', 'a', 'x', 'p'));
-    const quint16 glyphCount = qFromBigEndian<quint16>(reinterpret_cast<const uchar *>(maxpTable.constData() + 4));
+    const quint16 glyphCount = fe->glyphCount();
 
     writeUInt16(QFontEngineQPF::GMapBlock);
     writeUInt16(0); // padding

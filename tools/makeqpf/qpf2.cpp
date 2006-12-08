@@ -13,6 +13,7 @@
 
 #include "qpf2.h"
 
+#include <math.h>
 #include <private/qfontengine_p.h>
 
 #include "../../src/gui/text/qpfutil.cpp"
@@ -106,16 +107,141 @@ void QPF::addHeader(QFontEngine *fontEngine)
     header->dataSize = qToBigEndian<quint16>(qpf.size() - oldSize);
 }
 
+static uchar *appendBytes(QByteArray &array, int size)
+{
+    int oldSize = array.size();
+    array.resize(array.size() + size);
+    return reinterpret_cast<uchar *>(array.data() + oldSize);
+}
+
+#define APPEND(type, value) \
+    qToBigEndian<type>(value, appendBytes(cmap, sizeof(type)))
+
+struct CMapSegment
+{
+    int start; // codepoints
+    int end;
+    int startGlyphIndex;
+};
+
+static QByteArray generateTrueTypeCMap(QFontEngine *fe)
+{
+    QByteArray cmap;
+    const int glyphCount = fe->glyphCount();
+    if (!glyphCount)
+        return cmap;
+
+    // cmap header
+    APPEND(quint16, 0); // table version number
+    APPEND(quint16, 1); // number of tables
+
+    // encoding record
+    APPEND(quint16, 3); // platform-id
+    APPEND(quint16, 10); // encoding-id (ucs-4)
+    const int cmapOffset = cmap.size() + sizeof(quint32);
+    APPEND(quint32, cmapOffset); // offset to sub-table
+
+    APPEND(quint16, 4); // subtable format
+    const int cmapTableLengthOffset = cmap.size();
+    APPEND(quint16, 0); // length in bytes, will fill in later
+    APPEND(quint16, 0); // language field
+
+    QList<CMapSegment> segments;
+    CMapSegment currentSegment;
+    currentSegment.start = 0xffff;
+    currentSegment.end = 0;
+    currentSegment.startGlyphIndex = 0;
+    quint32 previousGlyphIndex = 0xfffffffe;
+    bool inSegment = false;
+
+    QGlyphLayout layout[10];
+    for (uint uc = 0; uc < 0x10000; ++uc) {
+        QChar ch(uc);
+        int nglyphs = 10;
+
+        bool validGlyph = fe->stringToCMap(&ch, 1, &layout[0], &nglyphs, /*flags*/ 0)
+                          && nglyphs == 1 && layout[0].glyph;
+
+        // leaving a segment?
+        if (inSegment && (!validGlyph || layout[0].glyph != previousGlyphIndex + 1)) {
+            Q_ASSERT(currentSegment.start != 0xffff);
+            // store the current segment
+            currentSegment.end = uc - 1;
+            segments.append(currentSegment);
+            currentSegment.start = 0xffff;
+            inSegment = false;
+        }
+        // entering a new segment?
+        if (validGlyph && (!inSegment || layout[0].glyph != previousGlyphIndex + 1)) {
+            currentSegment.start = uc;
+            currentSegment.startGlyphIndex = layout[0].glyph;
+            inSegment = true;
+        }
+
+        if (validGlyph)
+            previousGlyphIndex = layout[0].glyph;
+        else
+            previousGlyphIndex = 0xfffffffe;
+    }
+
+    currentSegment.start = 0xffff;
+    currentSegment.end = 0xffff;
+    currentSegment.startGlyphIndex = 0;
+    segments.append(currentSegment);
+
+    if (QPF::debugVerbosity > 3)
+        qDebug() << "segments:" << segments.count();
+
+    Q_ASSERT(!inSegment);
+
+    const quint16 entrySelector = int(log2(segments.count()));
+    const quint16 searchRange = 2 * (1 << entrySelector);
+    const quint16 rangeShift = segments.count() * 2 - searchRange;
+
+    if (QPF::debugVerbosity > 3)
+        qDebug() << "entrySelector" << entrySelector << "searchRange" << searchRange
+                 << "rangeShift" << rangeShift;
+
+    APPEND(quint16, segments.count() * 2); // segCountX2
+    APPEND(quint16, searchRange);
+    APPEND(quint16, entrySelector);
+    APPEND(quint16, rangeShift);
+
+    // end character codes
+    for (int i = 0; i < segments.count(); ++i)
+        APPEND(quint16, segments.at(i).end);
+
+    APPEND(quint16, 0); // pad
+
+    // start character codes
+    for (int i = 0; i < segments.count(); ++i)
+        APPEND(quint16, segments.at(i).start);
+
+    // id deltas
+    for (int i = 0; i < segments.count(); ++i)
+        APPEND(quint16, segments.at(i).startGlyphIndex - segments.at(i).start);
+
+    // id range offsets
+    for (int i = 0; i < segments.count(); ++i)
+        APPEND(quint16, 0);
+
+    uchar *lengthPtr = reinterpret_cast<uchar *>(cmap.data()) + cmapTableLengthOffset;
+    qToBigEndian<quint16>(cmap.size() - cmapOffset, lengthPtr);
+
+    return cmap;
+}
+
 void QPF::addCMap(QFontEngine *fontEngine)
 {
     QByteArray cmapTable = fontEngine->getSfntTable(MAKE_TAG('c', 'm', 'a', 'p'));
+    if (cmapTable.isEmpty())
+        cmapTable = generateTrueTypeCMap(fontEngine);
     addBlock(QFontEngineQPF::CMapBlock, cmapTable);
 }
 
 void QPF::addGlyphs(QFontEngine *fe)
 {
-    QByteArray maxpTable = fe->getSfntTable(MAKE_TAG('m', 'a', 'x', 'p'));
-    const quint16 glyphCount = qFromBigEndian<quint16>(reinterpret_cast<const uchar *>(maxpTable.constData() + 4));
+    const quint16 glyphCount = fe->glyphCount();
 
     QByteArray gmap;
     gmap.resize(glyphCount * sizeof(quint32));

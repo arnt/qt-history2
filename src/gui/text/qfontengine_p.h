@@ -150,6 +150,8 @@ public:
 
     virtual Type type() const = 0;
 
+    virtual int glyphCount() const;
+
     static const uchar *getCMap(const uchar *table, uint tableSize, bool *isSymbolFont, int *cmapSize);
     static quint32 getTrueTypeGlyphIndex(const uchar *cmap, uint unicode);
 

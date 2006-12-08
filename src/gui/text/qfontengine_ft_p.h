@@ -183,6 +183,8 @@ public:
     void recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const;
     virtual QImage alphaMapForGlyph(glyph_t);
 
+    virtual int glyphCount() const;
+
     FT_Face lockFace() const;
     void unlockFace() const;
 
