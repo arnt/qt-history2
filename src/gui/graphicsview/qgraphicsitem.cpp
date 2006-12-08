@@ -87,6 +87,11 @@
     on calling shape(), which returns an accurate outline of the item's shape
     as a QPainterPath.
 
+    QGraphicsScene expects all items boundingRect() and shape() to remain
+    unchanged unless it is notified. If you want to change an item's geometry
+    in any way, you must first call prepareGeometryChange() to allow
+    QGraphicsScene to update its bookkeeping.
+
     Collision detection can be done in two ways:
 
     \list 1
@@ -1659,6 +1664,12 @@ QRectF QGraphicsItem::childrenBoundingRect() const
     always rectangular, and it is unaffected by the items'
     transformation (scale(), rotate(), etc.).
 
+    If you want to change the item's bounding rectangle, you must first call
+    prepareGeometryChange(). This notifies the scene of the imminent change,
+    so that its can update its item geometry index; otherwise, the scene will
+    be unaware of the item's new geometry, and the results are undefined
+    (typically, rendering artifacts are left around in the view).
+
     Reimplement this function to let QGraphicsView determine what
     parts of the widget, if any, need to be redrawn.
 
@@ -1677,7 +1688,8 @@ QRectF QGraphicsItem::childrenBoundingRect() const
     }
     \endcode
 
-    \sa shape(), contains(), {The Graphics View Coordinate System}
+    \sa shape(), contains(), {The Graphics View Coordinate System},
+    prepareGeometryChange()
 */
 
 /*!
@@ -1716,7 +1728,7 @@ QRectF QGraphicsItem::sceneBoundingRect() const
     This function is called by the default implementations of contains() and
     collidesWithPath().
 
-    \sa boundingRect(), contains()
+    \sa boundingRect(), contains(), prepareGeometryChange()
 */
 QPainterPath QGraphicsItem::shape() const
 {
