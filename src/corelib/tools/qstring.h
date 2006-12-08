@@ -709,6 +709,19 @@ public:
     { return s <= *this; }
     inline bool operator<=(const QSubString &s) const
     { return s >= *this; }
+
+    inline QT_ASCII_CAST_WARN bool operator==(const char *s) const
+        { return QString::fromAscii(s) == *this; }
+    inline QT_ASCII_CAST_WARN bool operator!=(const char *s) const
+        { return QString::fromAscii(s) != *this; }
+    inline QT_ASCII_CAST_WARN bool operator<(const char *s) const
+        { return QString::fromAscii(s) > *this; }
+    inline QT_ASCII_CAST_WARN bool operator>(const char *s) const
+        { return QString::fromAscii(s) < *this; }
+    inline QT_ASCII_CAST_WARN bool operator<=(const char *s) const
+        { return QString::fromAscii(s) >= *this; }
+    inline QT_ASCII_CAST_WARN bool operator>=(const char *s) const
+        { return QString::fromAscii(s) <= *this; }
 private:
     const char *chars;
 };
@@ -966,6 +979,19 @@ inline QT_ASCII_CAST_WARN bool operator>(const char *s1, const QString &s2)
 inline QT_ASCII_CAST_WARN bool operator<=(const char *s1, const QString &s2)
 { return (QString::fromAscii(s1) <= s2); }
 inline QT_ASCII_CAST_WARN bool operator>=(const char *s1, const QString &s2)
+{ return (QString::fromAscii(s1) >= s2); }
+
+inline QT_ASCII_CAST_WARN bool operator==(const char *s1, const QLatin1String &s2)
+{ return QString::fromAscii(s1) == s2; }
+inline QT_ASCII_CAST_WARN bool operator!=(const char *s1, const QLatin1String &s2)
+{ return QString::fromAscii(s1) != s2; }
+inline QT_ASCII_CAST_WARN bool operator<(const char *s1, const QLatin1String &s2)
+{ return (QString::fromAscii(s1) < s2); }
+inline QT_ASCII_CAST_WARN bool operator>(const char *s1, const QLatin1String &s2)
+{ return (QString::fromAscii(s1) > s2); }
+inline QT_ASCII_CAST_WARN bool operator<=(const char *s1, const QLatin1String &s2)
+{ return (QString::fromAscii(s1) <= s2); }
+inline QT_ASCII_CAST_WARN bool operator>=(const char *s1, const QLatin1String &s2)
 { return (QString::fromAscii(s1) >= s2); }
 
 inline bool QSubString::operator==(const char *s) const
