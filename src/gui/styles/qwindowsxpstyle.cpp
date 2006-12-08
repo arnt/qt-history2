@@ -34,7 +34,6 @@
 #include <qstackedwidget.h>
 #include <qpushbutton.h>
 #include <qtoolbar.h>
-#include <qdockwidget.h>
 #include <qlabel.h>
 #include <qdebug.h>
 
@@ -1361,8 +1360,8 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
 
     case PE_PanelButtonTool:
         if (widget && widget->inherits("QDockWidgetTitleButton")) {
-            if (const QDockWidget *dw = qobject_cast<const QDockWidget *>(widget->parent()))
-                if (dw->isFloating())
+            if (const QWidget *dw = widget->parentWidget())
+                if (dw->isWindow())
                     return;
         }
         name = "TOOLBAR";
@@ -2223,8 +2222,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             int buttonMargin = 4;
             int mw = pixelMetric(QStyle::PM_DockWidgetTitleMargin, dwOpt, widget);
             int fw = pixelMetric(PM_DockWidgetFrameWidth, dwOpt, widget);
-            const QDockWidget *dw = qobject_cast<const QDockWidget *>(widget);
-            bool isFloating = dw != 0 && dw->isFloating();
+            bool isFloating = widget && widget->isWindow();
             bool isActive = dwOpt->state & State_Active;
 
             QRect r = option->rect.adjusted(0, 2, -1, -3);
@@ -3595,14 +3593,12 @@ QPixmap QWindowsXPStyle::standardPixmap(StandardPixmap standardPixmap, const QSt
     case SP_TitleBarCloseButton:
         if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(option))
         {
-            if (const QDockWidget *dw = qobject_cast<const QDockWidget *>(widget)) {
-                if (dw->isFloating()) {
-                    XPThemeData theme(widget, 0, "WINDOW", WP_SMALLCLOSEBUTTON, CBS_NORMAL);
-                    if (theme.isValid()) {
-                        SIZE sz;
-                        pGetThemePartSize(theme.handle(), 0, theme.partId, theme.stateId, 0, TS_TRUE, &sz);
-                        return QStyle::standardIcon(standardPixmap, option, widget).pixmap(QSize(sz.cx, sz.cy));
-                    }
+            if (widget && widget->isWindow()) {
+                XPThemeData theme(widget, 0, "WINDOW", WP_SMALLCLOSEBUTTON, CBS_NORMAL);
+                if (theme.isValid()) {
+                    SIZE sz;
+                    pGetThemePartSize(theme.handle(), 0, theme.partId, theme.stateId, 0, TS_TRUE, &sz);
+                    return QStyle::standardIcon(standardPixmap, option, widget).pixmap(QSize(sz.cx, sz.cy));
                 }
             }
         }
@@ -3654,10 +3650,8 @@ QIcon QWindowsXPStyle::standardIconImplementation(StandardPixmap standardIcon,
                     d->dockFloat.addPixmap(pm, QIcon::Disabled, QIcon::Off);  // Disabled
                 }
             }
-            if (widget)
-                if (const QDockWidget *dw = qobject_cast<const QDockWidget *>(widget))
-                    if (dw->isFloating())
-                        return d->dockFloat;
+            if (widget && widget->isWindow())
+                return d->dockFloat;
 
         }
         break;
@@ -3691,10 +3685,8 @@ QIcon QWindowsXPStyle::standardIconImplementation(StandardPixmap standardIcon,
                     d->dockClose.addPixmap(pm, QIcon::Disabled, QIcon::Off);  // Disabled
                 }
             }
-            if (widget)
-                if (const QDockWidget *dw = qobject_cast<const QDockWidget *>(widget))
-                    if (dw->isFloating())
-                        return d->dockClose;
+            if (widget && widget->isWindow())
+                return d->dockClose;
         }
         break;
         case SP_TitleBarNormalButton:
@@ -3727,10 +3719,8 @@ QIcon QWindowsXPStyle::standardIconImplementation(StandardPixmap standardIcon,
                     d->dockFloat.addPixmap(pm, QIcon::Disabled, QIcon::Off);  // Disabled
                 }
             }
-            if (widget)
-                if (const QDockWidget *dw = qobject_cast<const QDockWidget *>(widget))
-                    if (dw->isFloating())
-                        return d->dockFloat;
+            if (widget && widget->isWindow())
+                return d->dockFloat;
 
         }
         break;
