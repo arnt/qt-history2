@@ -295,6 +295,9 @@ Q_SIGNALS:
     void markedText(const QString &);
 #endif
 
+protected:
+    void timerEvent(QTimerEvent *e);
+
 private:
 #ifdef QT3_SUPPORT
 #ifndef QT_NO_QWS_KEYBOARD

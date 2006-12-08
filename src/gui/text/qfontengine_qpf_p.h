@@ -101,7 +101,7 @@ public:
     struct Q_PACKED Header
     {
         char magic[4]; // 'QPF2'
-        quint32 lock;  // values: 0 = unlocked, 1 = locked, 0xffffffff = read-only
+        quint32 lock;  // values: 0 = unlocked, 0xffffffff = read-only, otherwise qws client id of locking process
         quint8 majorVersion;
         quint8 minorVersion;
         quint16 dataSize;
@@ -124,7 +124,7 @@ public:
         qint8 advance;
     };
 
-    QFontEngineQPF(const QFontDef &def, const uchar *fontData, int dataSize);
+    QFontEngineQPF(const QFontDef &def, int fd, QFontEngine *renderingFontEngine = 0);
     ~QFontEngineQPF();
 
     FaceId faceId() const { return face_id; }
@@ -153,13 +153,13 @@ public:
     bool canRender(const QChar *string, int len);
     inline const char *name() const { return "QPF2"; }
 
-    inline bool isValid() const
-    { return fontData && dataSize && cmap && glyphMap && glyphData && glyphMapEntries > 0; }
+    bool isValid() const;
 
     const Glyph *findGlyph(glyph_t g) const;
 
     static bool verifyHeader(const uchar *data, int size);
     static QVariant extractHeaderField(const uchar *data, HeaderTag tag);
+    static QList<QByteArray> cleanUpAfterClientCrash(const QList<int> &crashedClientIds);
 
 #if !defined(QT_NO_FREETYPE)
     FT_Face lockFace() const;
@@ -168,21 +168,61 @@ public:
     void doKerning(int num_glyphs, QGlyphLayout *g, QTextEngine::ShaperFlags flags) const;
 #endif
 
+    inline QString fontFile() const { return fileName; }
+
 private:
+#if !defined(QT_NO_FREETYPE)
+    void ensureGlyphsLoaded(QGlyphLayout *glyphs, int len);
+    void loadGlyph(glyph_t glyph);
+    bool lockFile();
+    void unlockFile();
+    void remapFontData();
+#endif
+
+    int fd;
     const uchar *fontData;
     int dataSize;
-    const uchar *cmap;
+    const uchar *externalCMap;
+    quint32 cmapOffset;
     int cmapSize;
-    const uchar *glyphMap;
+    quint32 glyphMapOffset;
     quint32 glyphMapEntries;
-    const uchar *glyphData;
+    quint32 glyphDataOffset;
     quint32 glyphDataSize;
+    QString fileName;
 
     QFreetypeFace *freetype;
     FaceId face_id;
     QByteArray freetypeCMapTable;
     mutable QOpenType *_openType;
     mutable bool kerning_pairs_loaded;
+    QFontEngine *renderingFontEngine;
+};
+
+struct QPFGenerator
+{
+    QPFGenerator(QIODevice *device, QFontEngine *engine)
+        : dev(device), fe(engine) {}
+
+    void generate();
+    void writeHeader();
+    void writeGMap();
+    void writeBlock(QFontEngineQPF::BlockTag tag, const QByteArray &data);
+
+    void writeTaggedString(QFontEngineQPF::HeaderTag tag, const QByteArray &string);
+    void writeTaggedUInt32(QFontEngineQPF::HeaderTag tag, quint32 value);
+    void writeTaggedUInt8(QFontEngineQPF::HeaderTag tag, quint8 value);
+    void writeTaggedQFixed(QFontEngineQPF::HeaderTag tag, QFixed value);
+
+    void writeUInt16(quint16 value) { value = qToBigEndian(value); dev->write((const char *)&value, sizeof(value)); }
+    void writeUInt32(quint32 value) { value = qToBigEndian(value); dev->write((const char *)&value, sizeof(value)); }
+    void writeUInt8(quint8 value) { dev->write((const char *)&value, sizeof(value)); }
+    void writeInt8(qint8 value) { dev->write((const char *)&value, sizeof(value)); }
+
+    void align4() { while (dev->pos() & 3) { dev->putChar('\0'); } }
+
+    QIODevice *dev;
+    QFontEngine *fe;
 };
 
 #endif // QFONTENGINE_QPF_P_H

@@ -52,6 +52,7 @@ struct QWSEvent : QWSProtocolItem {
         IMQuery,
         IMInit,
         Embed,
+        Font,
         NEvent
     };
 
@@ -373,6 +374,26 @@ struct QWSIMQueryEvent : QWSEvent {
 };
 
 #endif
+
+struct QWSFontEvent : QWSEvent {
+    QWSFontEvent()
+        : QWSEvent(QWSEvent::Font, sizeof(simpleData),
+                reinterpret_cast<char*>(&simpleData)) {}
+
+    enum EventType {
+        FontRemoved
+    };
+
+    void setData(const char *d, int len, bool allocateMem = true) {
+        QWSEvent::setData(d, len, allocateMem);
+        fontName = QByteArray::fromRawData(rawDataPtr, len);
+    }
+
+    struct SimpleData {
+        uchar type;
+    } simpleData;
+    QByteArray fontName;
+};
 
 QT_END_HEADER
 

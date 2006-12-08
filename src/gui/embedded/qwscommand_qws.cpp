@@ -183,7 +183,7 @@ QDebug &operator<<(QDebug &dbg, QWSCommand::Type tp)
     return dbg;
 }
 
-#define N_EVENTS 18
+#define N_EVENTS 19
 const char * eventNames[N_EVENTS] =  {
         "NoEvent",
         "Connected",
@@ -200,7 +200,8 @@ const char * eventNames[N_EVENTS] =  {
         "WindowOperation",
         "IMEvent",
         "IMQuery",
-        "IMInit"
+        "IMInit",
+        "Font"
     };
 
 class QWSServer;
@@ -214,8 +215,8 @@ const char *qws_getCommandTypeString( QWSCommand::Type tp )
         case QWSCommand::Create:
             typeStr = "Create";
             break;
-        case QWSCommand::Destroy:
-            typeStr = "Destroy";
+        case QWSCommand::Shutdown:
+            typeStr = "Shutdown";
             break;
         case QWSCommand::Region:
             typeStr = "Region";
@@ -294,6 +295,9 @@ const char *qws_getCommandTypeString( QWSCommand::Type tp )
             break;
         case QWSCommand::IMResponse:
             typeStr = "IMResponse";
+            break;
+        case QWSCommand::Font:
+            typeStr = "Font";
             break;
         case QWSCommand::Unknown:
         default:
@@ -470,6 +474,9 @@ QWSCommand *QWSCommand::factory(int type)
     case QWSCommand::Create:
         command = new QWSCreateCommand;
         break;
+    case QWSCommand::Shutdown:
+        command = new QWSCommand(type, 0, 0);
+        break;
     case QWSCommand::Region:
         command = new QWSRegionCommand;
         break;
@@ -558,6 +565,9 @@ QWSCommand *QWSCommand::factory(int type)
         command = new QWSEmbedCommand;
         break;
 #endif
+    case QWSCommand::Font:
+        command = new QWSFontCommand;
+        break;
     default:
         qWarning("QWSCommand::factory : Type error - got %08x!", type);
     }

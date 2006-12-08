@@ -112,6 +112,7 @@ public:
     void sendIMMouseEvent(int index, bool isPress);
 #endif
     QWSQCopMessageEvent* waitForQCopResponse();
+    void sendFontCommand(int type, const QByteArray &fontName);
 
     void setWindowCaption(QWidget *w, const QString &);
 

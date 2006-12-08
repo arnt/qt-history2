@@ -17,6 +17,8 @@
 #include <QtCore/qfileinfo.h>
 
 #include <QtCore/qfile.h>
+#include <QtCore/qdir.h>
+#include <QtCore/qbuffer.h>
 #if !defined(QT_NO_FREETYPE)
 #include "private/qfontengine_ft_p.h"
 #include "qopentype_p.h"
@@ -33,16 +35,22 @@
 
 #include "qpfutil.cpp"
 
-//#define DEBUG_QPF
+#if defined(Q_WS_QWS)
+#include "private/qwscommand_qws_p.h"
+#include "qwsdisplay_qws.h"
+#endif
 
-#if defined(DEBUG_QPF)
+//#define DEBUG_HEADER
+//#define DEBUG_FONTENGINE
+
+#if defined(DEBUG_HEADER)
 # define DEBUG_VERIFY qDebug
 #else
 # define DEBUG_VERIFY if (0) qDebug
 #endif
 
 #define READ_VERIFY(type, variable) \
-    if (tagPtr + sizeof(type) >= endPtr) { \
+    if (tagPtr + sizeof(type) > endPtr) { \
         DEBUG_VERIFY() << "read verify failed in line" << __LINE__; \
         return 0; \
     } \
@@ -92,7 +100,7 @@ static inline const uchar *verifyTag(const uchar *tagPtr, const uchar *endPtr)
                 VERIFY_TAG(length == sizeof(quint8));
                 break;
         }
-#if defined(DEBUG_QPF)
+#if defined(DEBUG_HEADER)
         if (length == 1)
             qDebug() << "tag data" << hex << *tagPtr;
         else if (length == 4)
@@ -104,12 +112,21 @@ static inline const uchar *verifyTag(const uchar *tagPtr, const uchar *endPtr)
 
 const QFontEngineQPF::Glyph *QFontEngineQPF::findGlyph(glyph_t g) const
 {
-    if (g >= glyphMapEntries)
+    if (!g || g >= glyphMapEntries)
         return 0;
-    quint32 glyphPos = qFromBigEndian<quint32>(glyphMap + g * sizeof(quint32));
-    if (glyphPos > glyphDataSize)
-        return 0;
-    return reinterpret_cast<const Glyph *>(glyphData + glyphPos);
+    const quint32 *gmapPtr = reinterpret_cast<const quint32 *>(fontData + glyphMapOffset);
+    quint32 glyphPos = qFromBigEndian<quint32>(gmapPtr[g]);
+    if (glyphPos > glyphDataSize) {
+        if (glyphPos == 0xffffffff)
+            return 0;
+#if defined(DEBUG_FONTENGINE)
+        qDebug() << "glyph" << g << "outside of glyphData, remapping font file";
+#endif
+        const_cast<QFontEngineQPF *>(this)->remapFontData();
+        if (glyphPos > glyphDataSize)
+            return 0;
+    }
+    return reinterpret_cast<const Glyph *>(fontData + glyphDataOffset + glyphPos);
 }
 
 bool QFontEngineQPF::verifyHeader(const uchar *data, int size)
@@ -134,18 +151,6 @@ bool QFontEngineQPF::verifyHeader(const uchar *data, int size)
     }
 
     VERIFY(tagPtr <= tagEndPtr);
-
-#if 0
-    const uchar *blockPtr = tagEndPtr;
-    const uchar *endPtr = data + size;
-    while (blockPtr < endPtr) {
-        blockPtr = verifyBlock(blockPtr);
-        if (!blockPtr)
-            return false;
-    }
-
-    return blockPtr == endPtr;
-#endif
     return true;
 }
 
@@ -178,6 +183,51 @@ QVariant QFontEngineQPF::extractHeaderField(const uchar *data, HeaderTag request
     return QVariant();
 }
 
+QString qws_fontCacheDir()
+{
+    static QString dir;
+    if (!dir.isEmpty())
+        return dir;
+#if defined(Q_WS_QWS)
+    extern QString qws_dataDir();
+    dir = qws_dataDir();
+#else
+    dir = QDir::tempPath();
+#endif
+    dir.append("/fonts/");
+    QDir qd(dir);
+    if (!qd.exists() && !qd.mkpath(dir))
+        dir = QDir::tempPath();
+    return dir;
+}
+
+QList<QByteArray> QFontEngineQPF::cleanUpAfterClientCrash(const QList<int> &crashedClientIds)
+{
+    QList<QByteArray> removedFonts;
+    QDir dir(qws_fontCacheDir(), "*.qsf");
+    for (int i = 0; i < int(dir.count()); ++i) {
+        const QByteArray fileName = QFile::encodeName(dir.absoluteFilePath(dir[i]));
+
+        int fd = ::open(fileName.constData(), O_RDONLY);
+        if (fd >= 0) {
+            void *header = ::mmap(0, sizeof(QFontEngineQPF::Header), PROT_READ, MAP_SHARED, fd, 0);
+            if (header && header != MAP_FAILED) {
+                quint32 lockValue = reinterpret_cast<QFontEngineQPF::Header *>(header)->lock;
+
+                if (lockValue && crashedClientIds.contains(lockValue)) {
+                    removedFonts.append(fileName);
+                    QFile::remove(fileName);
+                }
+
+                ::munmap(header, sizeof(QFontEngineQPF::Header));
+            }
+            ::close(fd);
+        }
+    }
+    qDebug() << "list of corrupted and removed fonts:" << removedFonts;
+    return removedFonts;
+}
+
 static inline unsigned int getChar(const QChar *str, int &i, const int len)
 {
     unsigned int uc = str[i].unicode();
@@ -191,38 +241,99 @@ static inline unsigned int getChar(const QChar *str, int &i, const int len)
     return uc;
 }
 
-QFontEngineQPF::QFontEngineQPF(const QFontDef &def, const uchar *fontData, int dataSize)
-    : fontData(fontData), dataSize(dataSize)
+QFontEngineQPF::QFontEngineQPF(const QFontDef &def, int fileDescriptor, QFontEngine *fontEngine)
+    : fd(fileDescriptor), renderingFontEngine(fontEngine)
 {
+    fontData = 0;
+    dataSize = 0;
     fontDef = def;
     cache_cost = 100;
     freetype = 0;
     _openType = 0;
-    cmap = 0;
+    externalCMap = 0;
+    cmapOffset = 0;
     cmapSize = 0;
-    glyphMap = 0;
+    glyphMapOffset = 0;
     glyphMapEntries = 0;
-    glyphData = 0;
+    glyphDataOffset = 0;
     glyphDataSize = 0;
+    kerning_pairs_loaded = false;
+
+#if defined(DEBUG_FONTENGINE)
+    qDebug() << "QFontEngineQPF::QFontEngineQPF( fd =" << fd << ", renderingFontEngine =" << renderingFontEngine << ")";
+#endif
+
+    if (fd < 0) {
+        if (!renderingFontEngine)
+            return;
+
+        fileName = fontDef.family.toLower() + "_" + QString::number(fontDef.pixelSize)
+                   + "_" + QString::number(fontDef.weight)
+                   + (fontDef.style != QFont::StyleNormal ? "_italic" : "")
+                   + ".qsf";
+        fileName.replace(' ', '_');
+        fileName.prepend(qws_fontCacheDir());
+        fd = ::open(QFile::encodeName(fileName), O_RDWR | O_EXCL | O_CREAT, 0644);
+        if (fd >= 0) {
+#if defined(DEBUG_FONTENGINE)
+            qDebug() << "creating qpf on the fly:" << fileName;
+#endif
+            QBuffer buffer;
+            buffer.open(QIODevice::ReadWrite);
+            QPFGenerator generator(&buffer, renderingFontEngine);
+            generator.generate();
+            buffer.close();
+            const QByteArray &data = buffer.data();
+            ::write(fd, data.constData(), data.size());
+        } else {
+#if defined(DEBUG_FONTENGINE)
+            qDebug() << "found existing qpf:" << fileName;
+#endif
+            fd = ::open(QFile::encodeName(fileName), O_RDWR);
+        }
+    }
+
+    struct stat st;
+    if (::fstat(fd, &st)) {
+#if defined(DEBUG_FONTENGINE)
+        qDebug() << "stat failed!";
+#endif
+        return;
+    }
+    dataSize = st.st_size;
+
+    fontData = (const uchar *)::mmap(0, st.st_size, PROT_READ | (renderingFontEngine ? PROT_WRITE : 0), MAP_SHARED, fd, 0);
+    if (!fontData || fontData == (const uchar *)MAP_FAILED) {
+#if defined(DEBUG_FONTENGINE)
+        perror("mmap failed");
+#endif
+        fontData = 0;
+        return;
+    }
+
+    if (!verifyHeader(fontData, st.st_size)) {
+#if defined(DEBUG_FONTENGINE)
+        qDebug() << "verifyHeader failed!";
+#endif
+        return;
+    }
 
     const Header *header = reinterpret_cast<const Header *>(fontData);
     const uchar *data = fontData + sizeof(Header) + qFromBigEndian<quint16>(header->dataSize);
     const uchar *endPtr = fontData + dataSize;
-    while (data < endPtr) {
-        if (data >= endPtr - 8)
-            break;
+    while (data <= endPtr - 8) {
         quint16 blockTag = readValue<quint16>(data);
         data += 2; // skip padding
         quint32 blockSize = readValue<quint32>(data);
 
         if (blockTag == CMapBlock) {
-            cmap = data;
+            cmapOffset = data - fontData;
             cmapSize = blockSize;
         } else if (blockTag == GMapBlock) {
-            glyphMap = data;
+            glyphMapOffset = data - fontData;
             glyphMapEntries = blockSize / 4;
         } else if (blockTag == GlyphBlock) {
-            glyphData = data;
+            glyphDataOffset = data - fontData;
             glyphDataSize = blockSize;
         }
 
@@ -248,41 +359,66 @@ QFontEngineQPF::QFontEngineQPF(const QFontDef &def, const uchar *fontData, int d
             freetype = 0;
         }
     }
-    if (!cmap && freetype) {
+    if (!cmapOffset && freetype) {
         freetypeCMapTable = freetype->getSfntTable(MAKE_TAG('c', 'm', 'a', 'p'));
-        cmap = reinterpret_cast<const uchar *>(freetypeCMapTable.constData());
+        externalCMap = reinterpret_cast<const uchar *>(freetypeCMapTable.constData());
         cmapSize = freetypeCMapTable.size();
     }
 #endif
 
     // get the real cmap
-    if (cmap) {
+    if (cmapOffset) {
         int tableSize = cmapSize;
-        cmap = getCMap(cmap, tableSize, &symbol, &cmapSize);
+        const uchar *cmapPtr = getCMap(fontData + cmapOffset, tableSize, &symbol, &cmapSize);
+        if (cmapPtr)
+            cmapOffset = cmapPtr - fontData;
+        else
+            cmapOffset = 0;
+    } else if (externalCMap) {
+        int tableSize = cmapSize;
+        externalCMap = getCMap(externalCMap, tableSize, &symbol, &cmapSize);
     }
 
     // verify all the positions in the glyphMap
-    if (glyphMap) {
+    if (glyphMapOffset) {
+        const quint32 *gmapPtr = reinterpret_cast<const quint32 *>(fontData + glyphMapOffset);
         for (uint i = 0; i < glyphMapEntries; ++i) {
-            quint32 glyphDataPos = qFromBigEndian<quint32>(glyphMap + i * sizeof(quint32));
+            quint32 glyphDataPos = qFromBigEndian<quint32>(gmapPtr[i]);
             if (glyphDataPos == 0xffffffff)
                 continue;
             if (glyphDataPos >= glyphDataSize) {
                 // error
-                glyphMap = 0;
+                glyphMapOffset = 0;
                 glyphMapEntries = 0;
                 break;
             }
         }
     }
 
-//    qDebug() << "fontData" <<  fontData << "dataSize" << dataSize << "cmap" << cmap << "glyphMap" << glyphMap << "glyphData" << glyphData;
-//    qDebug() << "QPF engine is valid?" << isValid();
+#if defined(DEBUG_FONTENGINE)
+    if (!isValid())
+        qDebug() << "fontData" <<  fontData << "dataSize" << dataSize
+                 << "externalCMap" << externalCMap << "cmapOffset" << cmapOffset
+                 << "glyphMapOffset" << glyphMapOffset << "glyphDataOffset" << glyphDataOffset
+                 << "fd" << fd << "glyphDataSize" << glyphDataSize;
+#endif
+#if defined(Q_WS_QWS)
+    if (isValid() && renderingFontEngine)
+        qt_fbdpy->sendFontCommand(QWSFontCommand::StartedUsingFont, QFile::encodeName(fileName));
+#endif
 }
 
 QFontEngineQPF::~QFontEngineQPF()
 {
-    munmap((void *)fontData, dataSize);
+#if defined(Q_WS_QWS)
+    if (isValid() && renderingFontEngine)
+        qt_fbdpy->sendFontCommand(QWSFontCommand::StoppedUsingFont, QFile::encodeName(fileName));
+#endif
+    delete renderingFontEngine;
+    if (fontData)
+        munmap((void *)fontData, dataSize);
+    if (fd != -1)
+        ::close(fd);
 #if !defined(QT_NO_FREETYPE)
     delete _openType;
     _openType = 0;
@@ -309,6 +445,12 @@ bool QFontEngineQPF::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
         return false;
     }
 
+#if defined(DEBUG_FONTENGINE)
+    QSet<QChar> seenGlyphs;
+#endif
+
+    const uchar *cmap = externalCMap ? externalCMap : (fontData + cmapOffset);
+
     int glyph_pos = 0;
     if (symbol) {
         for (int i = 0; i < len; ++i) {
@@ -322,6 +464,13 @@ bool QFontEngineQPF::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
         for (int i = 0; i < len; ++i) {
             unsigned int uc = getChar(str, i, len);
             glyphs[glyph_pos].glyph = getTrueTypeGlyphIndex(cmap, uc);
+#if 0 && defined(DEBUG_FONTENGINE)
+            QChar c(uc);
+            if (!findGlyph(glyphs[glyph_pos].glyph) && !seenGlyphs.contains(c))
+                qDebug() << "glyph for character" << c << "/" << hex << uc << "is" << dec << glyphs[glyph_pos].glyph;
+
+            seenGlyphs.insert(c);
+#endif
             ++glyph_pos;
         }
     }
@@ -333,6 +482,7 @@ bool QFontEngineQPF::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 
 void QFontEngineQPF::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags) const
 {
+    const_cast<QFontEngineQPF *>(this)->ensureGlyphsLoaded(glyphs, len);
     for (int i = 0; i < len; ++i) {
         const Glyph *g = findGlyph(glyphs[i].glyph);
         if (!g) {
@@ -468,6 +618,8 @@ QFontEngine::Type QFontEngineQPF::type() const
 
 bool QFontEngineQPF::canRender(const QChar *string, int len)
 {
+    const uchar *cmap = externalCMap ? externalCMap : (fontData + cmapOffset);
+
     if (symbol) {
         for (int i = 0; i < len; ++i) {
             unsigned int uc = getChar(string, i, len);
@@ -485,6 +637,12 @@ bool QFontEngineQPF::canRender(const QChar *string, int len)
         }
     }
     return true;
+}
+
+bool QFontEngineQPF::isValid() const
+{
+    return fontData && dataSize && (cmapOffset || externalCMap)
+           && glyphMapOffset && glyphDataOffset && (fd >= 0 || glyphDataSize > 0);
 }
 
 #if !defined(QT_NO_FREETYPE)
@@ -553,6 +711,246 @@ void QFontEngineQPF::doKerning(int num_glyphs, QGlyphLayout *g, QTextEngine::Sha
         }
     }
     QFontEngine::doKerning(num_glyphs, g, flags);
+}
+
+void QFontEngineQPF::ensureGlyphsLoaded(QGlyphLayout *glyphs, int len)
+{
+    bool locked = false;
+    for (int i = 0; i < len; ++i) {
+        if (!glyphs[i].glyph)
+            continue;
+        const Glyph *g = findGlyph(glyphs[i].glyph);
+        if (g)
+            continue;
+        if (!locked) {
+            if (!lockFile())
+                return;
+            locked = true;
+            g = findGlyph(glyphs[i].glyph);
+            if (g)
+                continue;
+        }
+        loadGlyph(glyphs[i].glyph);
+    }
+    if (locked) {
+        unlockFile();
+#if defined(DEBUG_FONTENGINE)
+        qDebug() << "Finished rendering glyphs\n";
+#endif
+    }
+}
+
+void QFontEngineQPF::loadGlyph(glyph_t glyph)
+{
+    quint32 glyphPos = ~0;
+
+    if (!renderingFontEngine)
+        return;
+
+    QImage img = renderingFontEngine->alphaMapForGlyph(glyph).convertToFormat(QImage::Format_Indexed8);
+    glyph_metrics_t metrics = renderingFontEngine->boundingBox(glyph);
+
+    off_t oldSize = ::lseek(fd, 0, SEEK_END);
+    if (oldSize == (off_t)-1)
+        return;
+
+    Glyph g;
+    g.width = img.width();
+    g.height = img.height();
+    g.bytesPerLine = img.bytesPerLine();
+    g.x = qRound(metrics.x);
+    g.y = qRound(metrics.y);
+    g.advance = qRound(metrics.xoff);
+
+    ::write(fd, &g, sizeof(g));
+    ::write(fd, img.bits(), img.numBytes());
+
+    glyphPos = oldSize - glyphDataOffset;
+#if 0 && defined(DEBUG_FONTENGINE)
+    qDebug() << "glyphPos for new glyph" << glyph << "is" << glyphPos << "oldSize" << oldSize << "glyphDataOffset" << glyphDataOffset;
+#endif
+
+    quint32 *gmap = (quint32 *)(fontData + glyphMapOffset);
+    gmap[glyph] = qToBigEndian(glyphPos);
+
+    glyphDataSize = glyphPos + sizeof(g) + img.numBytes();
+    quint32 *blockSizePtr = (quint32 *)(fontData + glyphDataOffset - 4);
+    *blockSizePtr = qToBigEndian(glyphDataSize);
+}
+
+bool QFontEngineQPF::lockFile()
+{
+    // #### this does not handle the case when the process holding the
+    // lock hangs for some reason
+    struct flock lock;
+    lock.l_type = F_WRLCK;
+    lock.l_whence = SEEK_SET;
+    lock.l_start = 0;
+    lock.l_len = 0; // lock the whole file
+    while (fcntl(fd, F_SETLKW, &lock) != 0) {
+        if (errno == EINTR)
+            continue;
+        perror("locking qpf");
+        return false;
+    }
+    Header *header = (Header *)fontData;
+    if (header->lock) {
+        lock.l_type = F_UNLCK;
+        if (fcntl(fd, F_SETLK, &lock) != 0)
+            perror("unlocking possibly corrupt qpf");
+        return false;
+    }
+#if defined(Q_WS_QWS)
+    extern int qws_client_id;
+    // qws_client_id == 0 means we're the server. in this case we just
+    // set the id to 1
+    header->lock = qws_client_id ? qws_client_id : 1;
+#else
+    header->lock = 1;
+#endif
+    return true;
+}
+
+void QFontEngineQPF::unlockFile()
+{
+    ((Header *)fontData)->lock = 0;
+
+    struct flock lock;
+    lock.l_type = F_UNLCK;
+    lock.l_whence = SEEK_SET;
+    lock.l_start = 0;
+    lock.l_len = 0; // lock the whole file
+    if (fcntl(fd, F_SETLK, &lock) != 0) {
+        perror("unlocking qpf");
+    }
+
+    remapFontData();
+}
+
+void QFontEngineQPF::remapFontData()
+{
+    off_t newFileSize = ::lseek(fd, 0, SEEK_END);
+    fontData = static_cast<uchar *>(::mremap(const_cast<uchar *>(fontData), dataSize, newFileSize, MREMAP_MAYMOVE));
+    dataSize = newFileSize;
+    glyphDataSize = newFileSize - glyphDataOffset;
+#if defined(DEBUG_FONTENGINE)
+    qDebug() << "remapped the font file to" << newFileSize << "bytes";
+#endif
+}
+
+void QPFGenerator::generate()
+{
+    writeHeader();
+    writeGMap();
+    writeBlock(QFontEngineQPF::GlyphBlock, QByteArray());
+
+    dev->seek(4); // position of header.lock
+    writeUInt32(0);
+}
+
+void QPFGenerator::writeHeader()
+{
+    QFontEngineQPF::Header header;
+
+    header.magic[0] = 'Q';
+    header.magic[1] = 'P';
+    header.magic[2] = 'F';
+    header.magic[3] = '2';
+    header.lock = 1;
+    header.majorVersion = QFontEngineQPF::CurrentMajorVersion;
+    header.minorVersion = QFontEngineQPF::CurrentMinorVersion;
+    header.dataSize = 0;
+    dev->write((const char *)&header, sizeof(header));
+
+    writeTaggedString(QFontEngineQPF::Tag_FontName, fe->fontDef.family.toUtf8());
+
+    QFontEngine::FaceId face = fe->faceId();
+    writeTaggedString(QFontEngineQPF::Tag_FileName, face.filename);
+    writeTaggedUInt32(QFontEngineQPF::Tag_FileIndex, face.index);
+
+    {
+        const QByteArray head = fe->getSfntTable(MAKE_TAG('h', 'e', 'a', 'd'));
+        const quint32 revision = qFromBigEndian<quint32>(reinterpret_cast<const uchar *>(head.constData()) + 4);
+        writeTaggedUInt32(QFontEngineQPF::Tag_FontRevision, revision);
+    }
+
+    writeTaggedQFixed(QFontEngineQPF::Tag_Ascent, fe->ascent());
+    writeTaggedQFixed(QFontEngineQPF::Tag_Descent, fe->descent());
+    writeTaggedQFixed(QFontEngineQPF::Tag_Leading, fe->leading());
+    writeTaggedQFixed(QFontEngineQPF::Tag_XHeight, fe->xHeight());
+    writeTaggedQFixed(QFontEngineQPF::Tag_AverageCharWidth, fe->averageCharWidth());
+    writeTaggedQFixed(QFontEngineQPF::Tag_MaxCharWidth, QFixed::fromReal(fe->maxCharWidth()));
+    writeTaggedQFixed(QFontEngineQPF::Tag_LineThickness, fe->lineThickness());
+    writeTaggedQFixed(QFontEngineQPF::Tag_MinLeftBearing, QFixed::fromReal(fe->minLeftBearing()));
+    writeTaggedQFixed(QFontEngineQPF::Tag_MinRightBearing, QFixed::fromReal(fe->minRightBearing()));
+    writeTaggedQFixed(QFontEngineQPF::Tag_UnderlinePosition, fe->underlinePosition());
+    writeTaggedUInt8(QFontEngineQPF::Tag_PixelSize, fe->fontDef.pixelSize);
+    writeTaggedUInt8(QFontEngineQPF::Tag_Weight, fe->fontDef.weight);
+    writeTaggedUInt8(QFontEngineQPF::Tag_Style, fe->fontDef.style);
+
+    writeTaggedUInt8(QFontEngineQPF::Tag_GlyphFormat, QFontEngineQPF::AlphamapGlyphs);
+
+    writeTaggedString(QFontEngineQPF::Tag_EndOfHeader, QByteArray());
+    align4();
+
+    const quint64 size = dev->pos();
+    header.dataSize = qToBigEndian<quint16>(size - sizeof(header));
+    dev->seek(0);
+    dev->write((const char *)&header, sizeof(header));
+    dev->seek(size);
+}
+
+void QPFGenerator::writeGMap()
+{
+    QByteArray maxpTable = fe->getSfntTable(MAKE_TAG('m', 'a', 'x', 'p'));
+    const quint16 glyphCount = qFromBigEndian<quint16>(reinterpret_cast<const uchar *>(maxpTable.constData() + 4));
+
+    writeUInt16(QFontEngineQPF::GMapBlock);
+    writeUInt16(0); // padding
+    writeUInt32(glyphCount * 4);
+
+    const quint32 emptyGlyph = 0xffffffff;
+    for (quint16 i = 0; i < glyphCount; ++i)
+        dev->write((const char *)&emptyGlyph, sizeof(emptyGlyph));
+}
+
+void QPFGenerator::writeBlock(QFontEngineQPF::BlockTag tag, const QByteArray &data)
+{
+    writeUInt16(tag);
+    writeUInt16(0); // padding
+    const int padSize = ((data.size() + 3) / 4) * 4 - data.size();
+    writeUInt32(data.size() + padSize);
+    dev->write(data);
+    for (int i = 0; i < padSize; ++i)
+        writeUInt8(0);
+}
+
+void QPFGenerator::writeTaggedString(QFontEngineQPF::HeaderTag tag, const QByteArray &string)
+{
+    writeUInt16(tag);
+    writeUInt16(string.length());
+    dev->write(string);
+}
+
+void QPFGenerator::writeTaggedUInt32(QFontEngineQPF::HeaderTag tag, quint32 value)
+{
+    writeUInt16(tag);
+    writeUInt16(sizeof(value));
+    writeUInt32(value);
+}
+
+void QPFGenerator::writeTaggedUInt8(QFontEngineQPF::HeaderTag tag, quint8 value)
+{
+    writeUInt16(tag);
+    writeUInt16(sizeof(value));
+    writeUInt8(value);
+}
+
+void QPFGenerator::writeTaggedQFixed(QFontEngineQPF::HeaderTag tag, QFixed value)
+{
+    writeUInt16(tag);
+    writeUInt16(sizeof(quint32));
+    writeUInt32(value.value());
 }
 
 #endif

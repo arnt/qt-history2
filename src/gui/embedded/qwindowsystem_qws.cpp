@@ -76,10 +76,14 @@
 #include "qmousedriverfactory_qws.h"
 
 #include <qbuffer.h>
+#include <qdir.h>
 
 #include <private/qwindowsurface_qws_p.h>
+#include <private/qfontengine_qpf_p.h>
 
 #include "qwindowsystem_p.h"
+
+//#define QWS_DEBUG_FONTCLEANUP
 
 QWSServer Q_GUI_EXPORT *qwsServer=0;
 static QWSServerPrivate *qwsServerPrivate=0;
@@ -97,6 +101,7 @@ extern QList<QWSCommand*> *qt_get_server_queue();
 
 Q_GLOBAL_STATIC_WITH_ARGS(QString, defaultMouse, ("Auto"));
 Q_GLOBAL_STATIC_WITH_ARGS(QString, defaultKeyboard, ("TTY"));
+static const int FontCleanupInterval = 5 * 1000;
 
 static int qws_keyModifiers = 0;
 
@@ -118,6 +123,7 @@ static int current_IM_winId = -1;
 static bool force_reject_strokeIM = false;
 #endif
 
+static void cleanupFontsDir();
 
 //#define QWS_REGION_DEBUG
 
@@ -528,7 +534,9 @@ public:
 private:
 #ifndef QT_NO_QWS_MULTIPROCESS
     QWSLock *clientLock;
+    bool shutdown;
 #endif
+    QSet<QByteArray> usedFonts;
     friend class QWSServerPrivate;
 };
 
@@ -536,6 +544,7 @@ QWSClientPrivate::QWSClientPrivate()
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
     clientLock = 0;
+    shutdown = false;
 #endif
 }
 
@@ -648,7 +657,7 @@ void QWSClient::closeHandler()
 
 void QWSClient::errorHandler()
 {
-#ifdef QWS_SOCKET_DEBUG
+#if defined(QWS_SOCKET_DEBUG)
     qDebug("Client %p error %s", this, csocket ? csocket->errorString().toLatin1().constData() : "(no socket)");
 #endif
     isClosed = true;
@@ -1208,6 +1217,8 @@ void QWSServerPrivate::initServer(int flags)
     selectionOwner.windowid = -1;
     selectionOwner.time.set(-1, -1, -1, -1);
 
+    cleanupFontsDir();
+
     openDisplay();
 
     screensavertimer = new QTimer(q);
@@ -1247,8 +1258,19 @@ QWSServer::~QWSServer()
 #ifndef QT_NO_QWS_KEYBOARD
     closeKeyboard();
 #endif
+    d_func()->cleanupFonts(/*force =*/true);
 }
 
+void QWSServer::timerEvent(QTimerEvent *e)
+{
+    Q_D(QWSServer);
+    if (e->timerId() == d->fontCleanupTimer.timerId()) {
+        d->cleanupFonts();
+        d->fontCleanupTimer.stop();
+    } else {
+        QObject::timerEvent(e);
+    }
+}
 
 const QList<QWSWindow*> &QWSServer::clientWindows()
 {
@@ -1418,6 +1440,27 @@ void QWSServerPrivate::_q_clientClosed()
     if (deletedWindows.count())
         QTimer::singleShot(0, q, SLOT(_q_deleteWindowsLater()));
 
+    QWSClientPrivate *clientPrivate = cl->d_func();
+    if (!clientPrivate->shutdown) {
+#if defined(QWS_DEBUG_FONTCLEANUP)
+        qDebug() << "client" << cl->clientId() << "crashed";
+#endif
+        // this would be the place to emit a signal to notify about the
+        // crash of a client
+        crashedClientIds.append(cl->clientId());
+        fontCleanupTimer.start(10, q_func());
+    }
+    clientPrivate->shutdown = true;
+
+    while (!clientPrivate->usedFonts.isEmpty()) {
+        const QByteArray font = *clientPrivate->usedFonts.begin();
+#if defined(QWS_DEBUG_FONTCLEANUP)
+        qDebug() << "dereferencing font" << font << "from disconnected client";
+#endif
+        dereferenceFont(clientPrivate, font);
+    }
+    clientPrivate->usedFonts.clear();
+
     //qDebug("removing client %d with socket %d", cl->clientId(), cl->socket());
     clientMap.remove(cl->socket());
     if (cl == cursorClient)
@@ -1437,6 +1480,98 @@ void QWSServerPrivate::_q_deleteWindowsLater()
 }
 
 #endif //QT_NO_QWS_MULTIPROCESS
+
+void QWSServerPrivate::referenceFont(QWSClientPrivate *client, const QByteArray &font)
+{
+    if (!client->usedFonts.contains(font)) {
+        client->usedFonts.insert(font);
+
+        ++fontReferenceCount[font];
+#if defined(QWS_DEBUG_FONTCLEANUP)
+        qDebug() << "Client" << client->q_func()->clientId() << "added font" << font;
+        qDebug() << "Refcount is" << fontReferenceCount[font];
+#endif
+    }
+}
+
+void QWSServerPrivate::dereferenceFont(QWSClientPrivate *client, const QByteArray &font)
+{
+    if (client->usedFonts.contains(font)) {
+        client->usedFonts.remove(font);
+
+        Q_ASSERT(fontReferenceCount[font]);
+        if (!--fontReferenceCount[font] && !fontCleanupTimer.isActive())
+            fontCleanupTimer.start(FontCleanupInterval, q_func());
+
+#if defined(QWS_DEBUG_FONTCLEANUP)
+        qDebug() << "Client" << client->q_func()->clientId() << "removed font" << font;
+        qDebug() << "Refcount is" << fontReferenceCount[font];
+#endif
+    }
+}
+
+static void cleanupFontsDir()
+{
+    static bool dontDelete = !qgetenv("QWS_KEEP_FONTS").isEmpty();
+    if (dontDelete)
+        return;
+
+    extern QString qws_fontCacheDir();
+    QDir dir(qws_fontCacheDir(), "*.qsf");
+    for (uint i = 0; i < dir.count(); ++i) {
+#if defined(QWS_DEBUG_FONTCLEANUP)
+        qDebug() << "removing stale font file" << dir[i];
+#endif
+        dir.remove(dir[i]);
+    }
+}
+
+void QWSServerPrivate::cleanupFonts(bool force)
+{
+    static bool dontDelete = !qgetenv("QWS_KEEP_FONTS").isEmpty();
+    if (dontDelete)
+        return;
+
+#if defined(QWS_DEBUG_FONTCLEANUP)
+    qDebug() << "cleanupFonts()";
+#endif
+    QMap<QByteArray, int>::Iterator it = fontReferenceCount.begin();
+    while (it != fontReferenceCount.end()) {
+        if (it.value() && !force) {
+            ++it;
+            continue;
+        }
+
+        const QByteArray &fontName = it.key();
+#if defined(QWS_DEBUG_FONTCLEANUP)
+        qDebug() << "removing unused font file" << fontName;
+#endif
+        QFile::remove(QFile::decodeName(fontName));
+        sendFontRemovedEvent(fontName);
+
+        it = fontReferenceCount.erase(it);
+    }
+
+    if (crashedClientIds.isEmpty())
+        return;
+
+    QList<QByteArray> removedFonts = QFontEngineQPF::cleanUpAfterClientCrash(crashedClientIds);
+    crashedClientIds.clear();
+
+    for (int i = 0; i < removedFonts.count(); ++i)
+        sendFontRemovedEvent(removedFonts.at(i));
+}
+
+void QWSServerPrivate::sendFontRemovedEvent(const QByteArray &font)
+{
+    QWSFontEvent event;
+    event.simpleData.type = QWSFontEvent::FontRemoved;
+    event.setData(font.constData(), font.length(), false);
+
+    QMap<int,QWSClient*>::const_iterator it = clientMap.constBegin();
+    for (; it != clientMap.constEnd(); ++it)
+        (*it)->sendEvent(&event);
+}
 
 /*!
    \internal
@@ -1545,6 +1680,11 @@ void QWSServerPrivate::doClient(QWSClient *client)
         case QWSCommand::Create:
             invokeCreate((QWSCreateCommand*)cs->command, cs->client);
             break;
+#ifndef QT_NO_QWS_MULTIPROCESS
+        case QWSCommand::Shutdown:
+            cs->client->d_func()->shutdown = true;
+            break;
+#endif
         case QWSCommand::RegionName:
             invokeRegionName((QWSRegionNameCommand*)cs->command, cs->client);
             break;
@@ -1637,6 +1777,9 @@ void QWSServerPrivate::doClient(QWSClient *client)
             }
             break;
 #endif
+        case QWSCommand::Font:
+            invokeFont((QWSFontCommand *)cs->command, cs->client);
+            break;
         case QWSCommand::RepaintRegion:
             invokeRepaintRegion((QWSRepaintRegionCommand*)cs->command,
                                 cs->client);
@@ -2812,6 +2955,16 @@ void QWSServerPrivate::invokeIMUpdate(const QWSIMUpdateCommand *cmd,
 }
 
 #endif
+
+void QWSServerPrivate::invokeFont(const QWSFontCommand *cmd, QWSClient *client)
+{
+    QWSClientPrivate *priv = client->d_func();
+    if (cmd->simpleData.type == QWSFontCommand::StartedUsingFont) {
+        referenceFont(priv, cmd->fontName);
+    } else if (cmd->simpleData.type == QWSFontCommand::StoppedUsingFont) {
+        dereferenceFont(priv, cmd->fontName);
+    }
+}
 
 void QWSServerPrivate::invokeRepaintRegion(QWSRepaintRegionCommand * cmd,
                                            QWSClient *)

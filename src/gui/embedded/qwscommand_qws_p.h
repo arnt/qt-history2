@@ -66,7 +66,7 @@ struct QWSCommand : QWSProtocolItem
     enum Type {
         Unknown = 0,
         Create,
-        Destroy,
+        Shutdown,
         Region,
         RegionMove,
         RegionDestroy,
@@ -93,7 +93,8 @@ struct QWSCommand : QWSProtocolItem
         IMMouse,
         IMUpdate,
         IMResponse,
-        Embed
+        Embed,
+        Font
     };
     static QWSCommand *factory(int type);
 };
@@ -702,5 +703,34 @@ struct QWSEmbedCommand : public QWSCommand
     QRegion region;
 };
 #endif // QT_NO_QWSEMBEDWIDGET
+
+struct QWSFontCommand : public QWSCommand
+{
+    enum CommandType {
+        StartedUsingFont,
+        StoppedUsingFont
+    };
+
+    QWSFontCommand() :
+        QWSCommand(QWSCommand::Font,
+                    sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
+
+    void setData(const char *d, int len, bool allocateMem) {
+        QWSCommand::setData(d, len, allocateMem);
+
+        fontName = QByteArray(d, len);
+    }
+
+    void setFontName(const QByteArray &name)
+    {
+        setData(name.constData(), name.size(), true);
+    }
+
+    struct SimpleData {
+        int type;
+    } simpleData;
+
+    QByteArray fontName;
+};
 
 #endif // QWSCOMMAND_QWS_P_H

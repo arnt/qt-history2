@@ -37,6 +37,10 @@ extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
 #endif
 #ifdef Q_WS_QWS
 #include "qscreen_qws.h"
+#if !defined(QT_NO_QWS_QPF2)
+#include <qfile.h>
+#include "qfontengine_qpf_p.h"
+#endif
 #endif
 
 // #define QFONTCACHE_DEBUG
@@ -2179,6 +2183,58 @@ void QFontCache::clear()
 
     engineCache.clear();
 }
+
+#if defined(Q_WS_QWS) && !defined(QT_NO_QWS_QPF2)
+void QFontCache::removeEngineForFont(const QByteArray &_fontName)
+{
+    QFontEngine *engineToRemove = 0;
+    QString fontName = QFile::decodeName(_fontName);
+//    qDebug() << "removeEngineForFont" << fontName;
+
+    for (EngineCache::ConstIterator it = engineCache.constBegin(), end = engineCache.constEnd();
+         it != end; ++it) {
+        if (it->data->type() == QFontEngine::QPF2
+            && static_cast<QFontEngineQPF *>(it->data)->fontFile() == fontName) {
+            engineToRemove = it->data;
+            break;
+        }
+    }
+
+    if (!engineToRemove)
+        return;
+
+//    qDebug() << "found engine:" << engineToRemove;
+
+    {
+        EngineDataCache::Iterator it = engineDataCache.begin(),
+                                 end = engineDataCache.end();
+        while (it != end) {
+            QFontEngineData *data = it.value();
+            if (data->engine && data->engine == engineToRemove) {
+                data->engine->ref.deref();
+                data->engine = 0;
+            }
+            ++it;
+        }
+    }
+
+    // ###### this needs to be fixed once we introduce the multi fontengine
+    // for embedded!!
+    for (EngineCache::Iterator it = engineCache.begin(), end = engineCache.end();
+         it != end; ++it) {
+        if (it->data == engineToRemove) {
+            Q_ASSERT(it->data->ref == 0);
+//            qDebug() << "deleting engine";
+            delete it->data;
+            it->data = 0;
+            engineCache.erase(it);
+            engineToRemove = 0;
+            break;
+        }
+    }
+    Q_ASSERT(!engineToRemove);
+}
+#endif
 
 QFontEngineData *QFontCache::findEngineData(const Key &key) const
 {

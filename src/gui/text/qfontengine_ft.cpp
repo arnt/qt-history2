@@ -1181,7 +1181,7 @@ bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs
 #if !defined(QT_NO_FONTCONFIG)
                 if (FcCharSetHasChar(freetype->charset, uc)) {
 #else
-                if (true) {
+                if (false) {
 #endif
                 redo0:
                     glyph = FT_Get_Char_Index(face, uc);

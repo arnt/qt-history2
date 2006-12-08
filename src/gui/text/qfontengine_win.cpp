@@ -930,7 +930,7 @@ QImage QFontEngineWin::alphaMapForGlyph(glyph_t glyph)
     int glyph_width = int(ceil((gm.x + gm.width).toReal())) -  glyph_x + 2;
     int glyph_height = int(ceil((gm.y + gm.height).toReal())) - glyph_y + 2;
 
-    if (glyph_width <= 0 || glyph_height <= 0)
+    if (glyph_width + glyph_x <= 0 || glyph_height <= 0)
         return QImage();
     QImage im(glyph_width + glyph_x, glyph_height, QImage::Format_ARGB32_Premultiplied);
     im.fill(0);

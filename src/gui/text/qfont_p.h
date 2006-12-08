@@ -206,6 +206,9 @@ public:
     ~QFontCache();
 
     void clear();
+#if defined(Q_WS_QWS) && !defined(QT_NO_QWS_QPF2)
+    void removeEngineForFont(const QByteArray &fontName);
+#endif
     // universal key structure.  QFontEngineDatas and QFontEngines are cached using
     // the same keys
     struct Key {

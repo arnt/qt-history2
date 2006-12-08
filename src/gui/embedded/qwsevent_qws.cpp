@@ -80,6 +80,9 @@ QWSEvent *QWSEvent::factory(int type)
         event = new QWSEmbedEvent;
         break;
 #endif
+    case QWSEvent::Font:
+        event = new QWSFontEvent;
+        break;
     default:
         qCritical("QWSEvent::factory() : Unknown event type %08x!", type);
     }

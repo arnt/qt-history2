@@ -57,6 +57,7 @@
 #include "private/qwidget_p.h"
 #include "private/qbackingstore_p.h"
 #include "private/qwindowsurface_qws_p.h"
+#include "private/qfont_p.h"
 
 #include <unistd.h>
 #include <stdio.h>
@@ -150,6 +151,9 @@ extern "C" void dumpmem(const char* m)
 // live.
 QString qws_dataDir()
 {
+    static QString result;
+    if (!result.isEmpty())
+        return result;
     QByteArray dataDir = QString("/tmp/qtembedded-%1").arg(qws_display_id).toLocal8Bit();
     if (mkdir(dataDir, 0700)) {
         if (errno != EEXIST) {
@@ -170,7 +174,8 @@ QString qws_dataDir()
         qFatal("Qtopia Core data directory has incorrect permissions: %s", dataDir.constData());
     dataDir += "/";
 
-    return QString(dataDir);
+    result = QString(dataDir);
+    return result;
 }
 
 // Get the filename of the pipe Qtopia Core uses for server/client comms
@@ -340,6 +345,8 @@ QWSDisplay::Data::~Data()
 #ifndef QT_NO_QWS_MULTIPROCESS
     shm.detach();
     if (csocket) {
+        QWSCommand shutdownCmd(QWSCommand::Shutdown, 0, 0);
+        shutdownCmd.write(csocket);
         csocket->flush(); // may be pending QCop message, eg.
         delete csocket;
     }
@@ -1465,6 +1472,13 @@ QWSQCopMessageEvent* QWSDisplay::waitForQCopResponse()
 }
 #endif
 
+void QWSDisplay::sendFontCommand(int type, const QByteArray &fontName)
+{
+    QWSFontCommand cmd;
+    cmd.simpleData.type = type;
+    cmd.setFontName(fontName);
+    d->sendCommand(cmd);
+}
 
 void QWSDisplay::setWindowCaption(QWidget *w, const QString &c)
 {
@@ -2454,10 +2468,19 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
     }
 #endif //QT_NO_QWS_PROPERTIES
 #ifndef QT_NO_COP
-    if (event->type == QWSEvent::QCopMessage) {
+    else if (event->type == QWSEvent::QCopMessage) {
         QWSQCopMessageEvent *e = static_cast<QWSQCopMessageEvent*>(event);
         QCopChannel::sendLocally(e->channel, e->message, e->data);
         return 0;
+    }
+#endif
+#if !defined(QT_NO_QWS_QPF2)
+    else if (event->type == QWSEvent::Font) {
+        QWSFontEvent *e = static_cast<QWSFontEvent *>(event);
+        if (e->simpleData.type == QWSFontEvent::FontRemoved
+            && QFontCache::instance) {
+            QFontCache::instance->removeEngineForFont(e->fontName);
+        }
     }
 #endif
 

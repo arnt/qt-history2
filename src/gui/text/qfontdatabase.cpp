@@ -103,6 +103,7 @@ struct QtFontSize
 #endif // Q_WS_X11
 #ifdef Q_WS_QWS
     QByteArray fileName;
+    int fileIndex;
 #endif
 };
 
@@ -235,6 +236,7 @@ QtFontSize *QtFontStyle::pixelSize(unsigned short size, bool add)
 #endif
 #ifdef Q_WS_QWS
     new (&pixelSizes[count].fileName) QByteArray;
+    pixelSizes[count].fileIndex = 0;
 #endif
     return pixelSizes + (count++);
 }
@@ -393,7 +395,12 @@ class QFontDatabasePrivate : public QObject
 {
     Q_OBJECT
 public:
-    QFontDatabasePrivate() : count(0), families(0), reregisterAppFonts(false) { }
+    QFontDatabasePrivate() 
+        : count(0), families(0), reregisterAppFonts(false)
+#if defined(Q_WS_QWS)
+          , stream(0)
+#endif
+    { }
     ~QFontDatabasePrivate() {
         free();
     }
@@ -426,6 +433,16 @@ public:
     bool reregisterAppFonts;
 
     void invalidate();
+
+#if defined(Q_WS_QWS)
+    void addFont(const QString &familyname, const char *foundryname, int weight,
+                 bool italic, int pixelSize, const QByteArray &file, int fileIndex,
+                 bool antialiased, QFontDatabase::WritingSystem primaryWritingSystem = QFontDatabase::Any);
+    void addQPF2File(const QByteArray &file);
+    void addTTFile(const QByteArray &file);
+
+    QDataStream *stream;
+#endif
 
 Q_SIGNALS:
     void fontDatabaseChanged();

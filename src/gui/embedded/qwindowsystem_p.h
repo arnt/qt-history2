@@ -31,6 +31,7 @@
 #include "qbrush.h"
 #include "qwsproperty_qws.h"
 #include "qwscommand_qws_p.h"
+#include "QtCore/qbasictimer.h"
 
 class QWSServerPrivate : public QObjectPrivate {
     friend class QCopChannel;
@@ -67,6 +68,7 @@ public:
     int mouseState;
 //    bool prevWin;
     QList<QWSWindow*> deletedWindows;
+    QList<int> crashedClientIds;
 
 //private functions moved from class
 
@@ -154,6 +156,7 @@ private:
      void invokeIMUpdate(const QWSIMUpdateCommand *cmd,
                           QWSClient *client);
 #endif
+    void invokeFont(const QWSFontCommand *cmd, QWSClient *client);
 
     QWSMouseHandler* newMouseHandler(const QString& spec);
     void openDisplay();
@@ -254,5 +257,12 @@ private:
     QWSServerSocket *ssocket;
 #endif
 
+    // filename -> refcount
+    QMap<QByteArray, int> fontReferenceCount;
+    QBasicTimer fontCleanupTimer;
+    void referenceFont(QWSClientPrivate *client, const QByteArray &font);
+    void dereferenceFont(QWSClientPrivate *client, const QByteArray &font);
+    void cleanupFonts(bool force = false);
+    void sendFontRemovedEvent(const QByteArray &font);
 };
 #endif
