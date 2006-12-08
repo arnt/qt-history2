@@ -105,6 +105,9 @@ private slots:
     void mysqlOdbc_unsignedIntegers_data() { generic_data(); }
     void mysqlOdbc_unsignedIntegers();
 
+    void accessOdbc_strings_data() { generic_data(); }
+    void accessOdbc_strings();
+
 private:
     void createTestTables(QSqlDatabase db);
     void dropTestTables(QSqlDatabase db);
@@ -1483,7 +1486,7 @@ void tst_QSqlDatabase::mysqlOdbc_unsignedIntegers()
 
     QSqlQuery q(db);
     QString tableName = qTableName("uint");
-    q.exec(QString("DROP TABLE %1").arg(tableName)), q.lastError().text();
+    q.exec(QString("DROP TABLE %1").arg(tableName));
     QVERIFY2(q.exec(QString("CREATE TABLE %1 (foo integer(10) unsigned, bar integer(10))").arg(tableName)), q.lastError().text());
     QVERIFY2(q.exec(QString("INSERT INTO %1 VALUES (-4000000000, -4000000000)").arg(tableName)), q.lastError().text());
     QVERIFY2(q.exec(QString("INSERT INTO %1 VALUES (4000000000, 4000000000)").arg(tableName)), q.lastError().text());
@@ -1498,6 +1501,52 @@ void tst_QSqlDatabase::mysqlOdbc_unsignedIntegers()
 
     q.exec(QString("DROP TABLE %1").arg(tableName)), q.lastError().text();
 }
+
+void tst_QSqlDatabase::accessOdbc_strings()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (!tst_Databases::isMSAccess(db)) {
+	QSKIP("MS Access specific test", SkipSingle);
+	return;
+    }
+
+    QSqlQuery q(db);
+    QString tableName = qTableName("strings");
+    q.exec(QString("DROP TABLE %1").arg(tableName));
+    QVERIFY2(q.exec(QString("CREATE TABLE %1 (aStr memo, bStr memo, cStr memo, dStr memo, eStr memo, fStr memo, gStr memo, hStr memo)").arg(tableName)), q.lastError().text());
+    
+    QVERIFY2(q.prepare(QString("INSERT INTO %1 VALUES (?, ?, ?, ?, ?, ?, ?, ?)").arg(tableName)), q.lastError().text());
+    QString aStr, bStr, cStr, dStr, eStr, fStr, gStr, hStr;
+
+    q.bindValue(0, aStr.fill('A', 32));
+    q.bindValue(1, bStr.fill('B', 127));
+    q.bindValue(2, cStr.fill('C', 128));
+    q.bindValue(3, dStr.fill('D', 129));
+    q.bindValue(4, eStr.fill('E', 254));
+    q.bindValue(5, fStr.fill('F', 255));
+    q.bindValue(6, gStr.fill('G', 256));
+    q.bindValue(7, hStr.fill('H', 512));
+    
+    QVERIFY2(q.exec(), q.lastError().text());
+
+    QVERIFY2(q.exec(QString("SELECT aStr, bStr, cStr, dStr, eStr, fStr, gStr, hStr FROM %1").arg(tableName)), q.lastError().text());
+    q.next();
+    QCOMPARE(q.value(0).toString(), aStr);
+    QCOMPARE(q.value(1).toString(), bStr);
+    QCOMPARE(q.value(2).toString(), cStr);
+    QCOMPARE(q.value(3).toString(), dStr);
+    QCOMPARE(q.value(4).toString(), eStr);
+    QCOMPARE(q.value(5).toString(), fStr);
+    QCOMPARE(q.value(6).toString(), gStr);
+    QCOMPARE(q.value(7).toString(), hStr);
+
+    q.exec(QString("DROP TABLE %1").arg(tableName));
+
+}
+
 
 QTEST_MAIN(tst_QSqlDatabase)
 #include "tst_qsqldatabase.moc"

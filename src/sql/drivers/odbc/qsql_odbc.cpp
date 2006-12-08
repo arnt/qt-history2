@@ -1230,13 +1230,15 @@ bool QODBCResult::exec()
                     str.utf16();
                     if (*ind != SQL_NULL_DATA)
                         *ind = str.length() * sizeof(QChar);
+                    int strSize = str.length() * sizeof(QChar);
+
                     if (bindValueType(i) & QSql::Out) {
                         QByteArray ba((char*)str.constData(), str.capacity() * sizeof(QChar));
                         r = SQLBindParameter(d->hStmt,
                                             i + 1,
                                             qParamType[(QFlag)(bindValueType(i)) & QSql::InOut],
                                             SQL_C_WCHAR,
-                                            str.length() > 254 ? SQL_WLONGVARCHAR : SQL_WVARCHAR,
+                                            strSize > 254 ? SQL_WLONGVARCHAR : SQL_WVARCHAR,
                                             0, // god knows... don't change this!
                                             0,
                                             (void *)ba.constData(),
@@ -1250,11 +1252,11 @@ bool QODBCResult::exec()
                                           i + 1,
                                           qParamType[(QFlag)(bindValueType(i)) & QSql::InOut],
                                           SQL_C_WCHAR,
-                                          str.length() > 254 ? SQL_WLONGVARCHAR : SQL_WVARCHAR,
-                                          str.length() * sizeof(QChar),
+                                          strSize > 254 ? SQL_WLONGVARCHAR : SQL_WVARCHAR,
+                                          strSize,
                                           0,
                                           (void *)str.constData(),
-                                          str.length() * sizeof(QChar),
+                                          strSize,
                                           ind);
                     break;
                 }
