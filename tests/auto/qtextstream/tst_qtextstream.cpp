@@ -151,6 +151,7 @@ private slots:
     void pos2();
     void readStdin();
     void readAllFromStdin();
+    void readLineFromStdin();
     void read();
     void qbool();
     void forcePoint();
@@ -668,10 +669,9 @@ void tst_QTextStream::readLineFromTextDevice()
     QFETCH(QByteArray, data);
     QFETCH(QStringList, lines);
 
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 8; ++i) {
         QBuffer buffer(&data);
-
-        if (i < 2)
+        if (i < 4)
             QVERIFY(buffer.open(QIODevice::ReadOnly | QIODevice::Text));
         else
             QVERIFY(buffer.open(QIODevice::ReadOnly));
@@ -680,13 +680,25 @@ void tst_QTextStream::readLineFromTextDevice()
         QStringList list;
         while (!stream.atEnd()) {
             stream.pos(); // <- triggers side effects
-            QString line = stream.readLine();
+            QString line;
 
-            if ((i & 1) && !QString(QTest::currentDataTag()).contains("utf16"))
+            if (i & 1) {
+                QChar c;
+                while (!stream.atEnd()) {
+                    stream >> c;
+                    if (c != QLatin1Char('\n') && c != QLatin1Char('\r'))
+                        line += c;
+                    if (c == QLatin1Char('\n'))
+                        break;
+                }
+            } else {
+                line = stream.readLine();
+            }
+                
+            if ((i & 3) == 3 && !QString(QTest::currentDataTag()).contains("utf16"))
                 stream.seek(stream.pos());
             list << line;
         }
-
         QCOMPARE(list, lines);
     }
 }
@@ -1385,6 +1397,26 @@ void tst_QTextStream::readAllFromStdin()
     QVERIFY(stdinProcess.waitForFinished(5000));
     QChar quoteChar('"');
     QCOMPARE(stream.readAll(), QString::fromLatin1("%1hello world%2 \n").arg(quoteChar).arg(quoteChar));
+}
+
+// ------------------------------------------------------------------------------
+void tst_QTextStream::readLineFromStdin()
+{
+    QProcess stdinProcess;
+    stdinProcess.start("readLineStdinProcess/readLineStdinProcess", QIODevice::ReadWrite | QIODevice::Text);
+    stdinProcess.setReadChannel(QProcess::StandardError);
+
+    stdinProcess.write("abc\n");
+    QVERIFY(stdinProcess.waitForReadyRead(5000));
+    QCOMPARE(stdinProcess.readAll().data(), QByteArray("abc").data());
+
+    stdinProcess.write("def\n");
+    QVERIFY(stdinProcess.waitForReadyRead(5000));
+    QCOMPARE(stdinProcess.readAll(), QByteArray("def"));
+
+    stdinProcess.closeWriteChannel();
+
+    QVERIFY(stdinProcess.waitForFinished(5000));
 }
 
 // ------------------------------------------------------------------------------
