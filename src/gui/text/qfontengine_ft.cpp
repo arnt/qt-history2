@@ -11,12 +11,14 @@
 **
 ****************************************************************************/
 
+#include "qfontengine_ft_p.h"
+
+#ifndef QT_NO_FREETYPE
+
 #include "qdir.h"
 #include "qmetatype.h"
 #include "qtextstream.h"
 #include "qvariant.h"
-
-#include "qfontengine_ft_p.h"
 
 #include "qfile.h"
 #include "qabstractfileengine.h"
@@ -1428,3 +1430,5 @@ void QFontEngineFT::freeServerGlyphSet(unsigned long id)
 {
     Q_UNUSED(id);
 }
+
+#endif // QT_NO_FREETYPE

@@ -22,6 +22,11 @@
 //
 // We mean it.
 //
+
+#include "qfontengine_p.h"
+
+#ifndef QT_NO_FREETYPE
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -29,7 +34,6 @@
 #include <private/qt_x11_p.h>
 #endif
 
-#include "qfontengine_p.h"
 #include <unistd.h>
 
 #ifndef QT_NO_FONTCONFIG
@@ -247,4 +251,5 @@ private:
     mutable bool kerning_pairs_loaded;
 };
 
+#endif // QT_NO_FREETYPE
 #endif // QFONTENGINE_FT_P_H
