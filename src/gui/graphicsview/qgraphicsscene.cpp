@@ -1289,7 +1289,8 @@ void QGraphicsScene::clearSelection()
     pointer to the group. The group is created with the common ancestor of \a
     items as its parent, and with position (0, 0). The items are all
     reparented to the group, and their positions and transformations are
-    mapped to the group.
+    mapped to the group. If \a items is empty, this function will return an
+    empty top-level QGraphicsItemGroup.
 
     QGraphicsScene has ownership of the group item; you do not need to delete
     it. To dismantle (ungroup) a group, call destroyItemGroup().
@@ -1301,9 +1302,11 @@ QGraphicsItemGroup *QGraphicsScene::createItemGroup(const QList<QGraphicsItem *>
     // Build a list of the first item's ancestors
     QList<QGraphicsItem *> ancestors;
     int n = 0;
-    QGraphicsItem *parent = items.at(n++);
-    while ((parent = parent->parentItem()))
-        ancestors.append(parent);
+    if (!items.isEmpty()) {
+        QGraphicsItem *parent = items.at(n++);
+        while ((parent = parent->parentItem()))
+            ancestors.append(parent);
+    }
 
     // Find the common ancestor for all items
     QGraphicsItem *commonAncestor = 0;
