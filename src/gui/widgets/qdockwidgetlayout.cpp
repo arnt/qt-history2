@@ -2545,17 +2545,6 @@ void QDockWidgetLayout::fitLayout()
     qGeomCalc(ver_struct_list, 0, 3, rect.top(), rect.height(), sep);
     qGeomCalc(hor_struct_list, 0, 3, rect.left(), rect.width(), sep);
 
-#if 0
-    qDebug() << "fitLayout(1): max:" << ver_struct_list[1].maximumSize
-                << "min:" << ver_struct_list[1].minimumSize
-                << "hint:" << ver_struct_list[1].sizeHint
-                << "size:" << ver_struct_list[1].size;
-    qDebug() << "fitLayout(2): max:" << ver_struct_list[2].maximumSize
-                << "min:" << ver_struct_list[2].minimumSize
-                << "hint:" << ver_struct_list[2].sizeHint
-                << "size:" << ver_struct_list[2].size;
-#endif
-
     setGrid(&ver_struct_list, &hor_struct_list);
 }
 
@@ -2570,10 +2559,17 @@ void QDockWidgetLayout::clear()
 
 QSize QDockWidgetLayout::sizeHint() const
 {
-    int left_sep = docks[LeftPos].isEmpty() ? 0 : sep;
-    int right_sep = docks[RightPos].isEmpty() ? 0 : sep;
-    int top_sep = docks[TopPos].isEmpty() ? 0 : sep;
-    int bottom_sep = docks[BottomPos].isEmpty() ? 0 : sep;
+    int left_sep = 0;
+    int right_sep = 0;
+    int top_sep = 0;
+    int bottom_sep = 0;
+
+    if (centralWidgetItem != 0) {
+        left_sep = docks[LeftPos].isEmpty() ? 0 : sep;
+        right_sep = docks[RightPos].isEmpty() ? 0 : sep;
+        top_sep = docks[TopPos].isEmpty() ? 0 : sep;
+        bottom_sep = docks[BottomPos].isEmpty() ? 0 : sep;
+    }
 
     QSize left = docks[LeftPos].sizeHint() + QSize(left_sep, 0);
     QSize right = docks[RightPos].sizeHint() + QSize(right_sep, 0);
@@ -2613,10 +2609,17 @@ QSize QDockWidgetLayout::sizeHint() const
 
 QSize QDockWidgetLayout::minimumSize() const
 {
-    int left_sep = docks[LeftPos].isEmpty() ? 0 : sep;
-    int right_sep = docks[RightPos].isEmpty() ? 0 : sep;
-    int top_sep = docks[TopPos].isEmpty() ? 0 : sep;
-    int bottom_sep = docks[BottomPos].isEmpty() ? 0 : sep;
+    int left_sep = 0;
+    int right_sep = 0;
+    int top_sep = 0;
+    int bottom_sep = 0;
+
+    if (centralWidgetItem != 0) {
+        left_sep = docks[LeftPos].isEmpty() ? 0 : sep;
+        right_sep = docks[RightPos].isEmpty() ? 0 : sep;
+        top_sep = docks[TopPos].isEmpty() ? 0 : sep;
+        bottom_sep = docks[BottomPos].isEmpty() ? 0 : sep;
+    }
 
     QSize left = docks[LeftPos].minimumSize() + QSize(left_sep, 0);
     QSize right = docks[RightPos].minimumSize() + QSize(right_sep, 0);
