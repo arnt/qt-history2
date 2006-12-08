@@ -375,9 +375,9 @@ uint QThread::stackSize() const
 }
 
 /*!
-    Enters the event loop and waits until exit() is called or the main
-    widget is destroyed, and returns the value that was set to exit()
-    (which is 0 if exit() is called via quit()).
+    Enters the event loop and waits until exit() is called, returning the value
+    that was passed to exit(). The value returned is 0 if exit() is called via
+    quit().
 
     It is necessary to call this function to start event handling.
 
