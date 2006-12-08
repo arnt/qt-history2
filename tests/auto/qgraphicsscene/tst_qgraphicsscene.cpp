@@ -1385,6 +1385,11 @@ void tst_QGraphicsScene::createItemGroup()
     group = scene.createItemGroup(children1);
     QCOMPARE(group->parentItem(), parent1);
     scene.destroyItemGroup(group);
+
+    QGraphicsItemGroup *emptyGroup = scene.createItemGroup(QList<QGraphicsItem *>());
+    QCOMPARE(emptyGroup->children(), QList<QGraphicsItem *>());
+    QVERIFY(!emptyGroup->parentItem());
+    QCOMPARE(emptyGroup->scene(), &scene);
 }
 
 class EventTester : public QGraphicsEllipseItem
