@@ -1227,18 +1227,17 @@ static void checkSymbolFont(QtFontFamily *family)
 //     qDebug() << "checking " << family->rawName;
     family->symbol_checked = true;
 
-    extern FT_Library qt_getFreetype();
-    FT_Library library = qt_getFreetype();
-
-    FT_Face face;
-    FT_Error err = FT_New_Face(library, family->fontFilename, family->fontFileIndex, &face);
-    if (err != FT_Err_Ok) {
+    QFontEngine::FaceId id;
+    id.filename = family->fontFilename;
+    id.index = family->fontFileIndex;
+    QFreetypeFace *f = QFreetypeFace::getFace(id);
+    if (!f) {
         qWarning("checkSymbolFonts: Couldn't open face %s (%s/%d)",
                  qPrintable(family->rawName), family->fontFilename.data(), family->fontFileIndex);
         return;
     }
-    for (int i = 0; i < face->num_charmaps; ++i) {
-        FT_CharMap cm = face->charmaps[i];
+    for (int i = 0; i < f->face->num_charmaps; ++i) {
+        FT_CharMap cm = f->face->charmaps[i];
         if (cm->encoding == ft_encoding_adobe_custom
             || cm->encoding == ft_encoding_symbol) {
             for (int x = QFontDatabase::Latin; x < QFontDatabase::Other; ++x)
@@ -1247,8 +1246,7 @@ static void checkSymbolFont(QtFontFamily *family)
             break;
         }
     }
-
-    FT_Done_Face(face);
+    f->release(id);
 }
 
 static void checkSymbolFonts(const QString &family = QString())
