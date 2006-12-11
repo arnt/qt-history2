@@ -675,11 +675,12 @@ void tst_QFileInfo::fileTimes()
 #ifndef Q_OS_UNIX
     QVERIFY(fileInfo.created() < beforeWrite);
 #endif
+#ifdef Q_OS_WIN
     if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) {
         QVERIFY(fileInfo.lastRead().addDays(1) > beforeRead);
-    }else{
-        QVERIFY(fileInfo.lastRead() > beforeRead);
-    }
+    } else
+#endif
+    QVERIFY(fileInfo.lastRead() > beforeRead);
     QVERIFY(fileInfo.lastModified() > beforeWrite);
     QVERIFY(fileInfo.lastModified() < beforeRead);
 
