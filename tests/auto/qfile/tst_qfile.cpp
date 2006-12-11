@@ -1773,9 +1773,9 @@ void tst_QFile::appendAndRead()
     QFile::remove(QLatin1String("appendfile.txt"));
 }
 
-#ifdef Q_OS_WIN
 void tst_QFile::miscWithUncPathAsCurrentDir()
 {
+#ifdef Q_OS_WIN
     QString current = QDir::currentPath();
     QVERIFY(QDir::setCurrent("//gennan/testsharewritable"));
     QFile file("test.pri");
@@ -1783,8 +1783,8 @@ void tst_QFile::miscWithUncPathAsCurrentDir()
     QCOMPARE(int(file.size()), 34);
     QVERIFY(file.open(QIODevice::ReadOnly));
     QVERIFY(QDir::setCurrent(current));
-}
 #endif
+}
 
 QTEST_MAIN(tst_QFile)
 #include "tst_qfile.moc"
