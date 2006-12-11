@@ -224,7 +224,8 @@ QList<QByteArray> QFontEngineQPF::cleanUpAfterClientCrash(const QList<int> &cras
             ::close(fd);
         }
     }
-    qDebug() << "list of corrupted and removed fonts:" << removedFonts;
+    if (!removedFonts.isEmpty())
+        qDebug() << "list of corrupted and removed fonts:" << removedFonts;
     return removedFonts;
 }
 

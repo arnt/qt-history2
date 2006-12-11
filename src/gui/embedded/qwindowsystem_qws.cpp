@@ -101,7 +101,7 @@ extern QList<QWSCommand*> *qt_get_server_queue();
 
 Q_GLOBAL_STATIC_WITH_ARGS(QString, defaultMouse, ("Auto"));
 Q_GLOBAL_STATIC_WITH_ARGS(QString, defaultKeyboard, ("TTY"));
-static const int FontCleanupInterval = 5 * 1000;
+static const int FontCleanupInterval = 60 * 1000;
 
 static int qws_keyModifiers = 0;
 
