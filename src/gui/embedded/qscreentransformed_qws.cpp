@@ -155,8 +155,6 @@ void QTransformedScreenPrivate::configure()
     q->data = subscreen->base();
     q->lstep = subscreen->linestep();
     q->size = subscreen->screenSize();
-    q->physWidth = subscreen->physicalWidth();
-    q->physHeight = subscreen->physicalHeight();
 
     q->setOffset(subscreen->offset());
     // ###: works because setTransformation recalculates unconditionally
@@ -249,6 +247,11 @@ void QTransformedScreen::setTransformation(Transformation transformation)
     QSize s = mapFromDevice(QSize(dw, dh));
     w = s.width();
     h = s.height();
+
+    const QScreen *screen = d_ptr->subscreen;
+    s = mapFromDevice(QSize(screen->physicalWidth(), screen->physicalHeight()));
+    physWidth = s.width();
+    physHeight = s.height();
 
 #ifdef QT_REGION_DEBUG
     qDebug() << "QTransformedScreen::setTransformation" << transformation
