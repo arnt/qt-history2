@@ -124,6 +124,7 @@ bool qt_scrollbar_jump_to_pos = false;
 static bool qt_mac_collapse_on_dblclick = true;
 extern int qt_antialiasing_threshold; // from qapplication.cpp
 QPointer<QWidget> qt_button_down;                // widget got last button-down
+bool qt_button_down_in_content; // whether the button_down was in the content area.
 static QPointer<QWidget> qt_mouseover;
 #if defined(QT_DEBUG)
 static bool        appNoGrab        = false;        // mouse/keyboard grabbing
@@ -1554,7 +1555,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 }
             }
         }
-        if(qt_button_down == 0 && qt_mac_window_at(where.h, where.v, 0) != inContent) {
+        if(app->d_func()->inPopupMode() == false 
+                && (qt_button_down == 0 || qt_button_down_in_content == false)
+                && qt_mac_window_at(where.h, where.v, 0) != inContent) {
             inNonClientArea = true;
             switch (etype) {
             case QEvent::MouseButtonPress:
@@ -1731,6 +1734,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                                       widget, &mac_context_timer);
             }
             qt_button_down = widget;
+            qt_button_down_in_content = (qt_mac_window_at(where.h, where.v, 0) == inContent);
             break;
         case kEventMouseUp:
             qt_button_down = 0;

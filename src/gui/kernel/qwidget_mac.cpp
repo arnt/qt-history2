@@ -405,8 +405,7 @@ static EventTypeSpec window_events[] = {
     { kEventClassWindow, kEventWindowGetRegion },
     { kEventClassWindow, kEventWindowGetClickModality },
 
-    { kEventClassMouse, kEventMouseDown },
-    { kEventClassMouse, kEventMouseUp }
+    { kEventClassMouse, kEventMouseDown }
 };
 static EventHandlerUPP mac_win_eventUPP = 0;
 static void cleanup_win_eventUPP()
