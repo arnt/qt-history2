@@ -688,7 +688,7 @@ void QDesignerActions::previewForm(QAction *action)
         widget->setWindowModality(Qt::ApplicationModal);
 #endif
         widget->setAttribute(Qt::WA_DeleteOnClose, true);
-        widget->move(fw->mapToGlobal(QPoint(0, 0)) + QPoint(10, 10));
+        widget->move(fw->window()->mapToGlobal(QPoint(0, 0)) + QPoint(10, 10));
 
         QStyle *style = 0;
 
