@@ -375,12 +375,12 @@ qint64 QUdpSocket::readDatagram(char *data, qint64 maxSize, QHostAddress *addres
 #endif
     QT_CHECK_BOUND("QUdpSocket::readDatagram()", -1);
     qint64 readBytes = d->socketEngine->readDatagram(data, maxSize, address, port);
+    d_func()->socketEngine->setReadNotificationEnabled(true);
     if (readBytes < 0) {
         d->socketError = d->socketEngine->error();
         setErrorString(d->socketEngine->errorString());
         emit error(d->socketError);
     }
-    d_func()->socketEngine->setReadNotificationEnabled(true);
     return readBytes;
 }
 #endif // QT_NO_UDPSOCKET

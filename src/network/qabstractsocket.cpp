@@ -500,11 +500,7 @@ bool QAbstractSocketPrivate::_q_canReadNotification()
     }
 
     // only emit readyRead() when not recursing, and only if there is data available
-#ifdef Q_OS_WIN
     bool hasData = newBytes > 0 || (!isBuffered && socketEngine && socketEngine->hasPendingDatagrams());
-#else
-    bool hasData = newBytes > 0 || !isBuffered;
-#endif
 
     if (!emittedReadyRead && hasData) {
         emittedReadyRead = true;
@@ -522,10 +518,8 @@ bool QAbstractSocketPrivate::_q_canReadNotification()
         return true;
     }
 
-#ifdef Q_OS_WIN
     if (!hasData && socketEngine)
         socketEngine->setReadNotificationEnabled(true);
-#endif
 
     // reset the read socket notifier state if we reentered inside the
     // readyRead() connected slot.
@@ -1683,6 +1677,8 @@ bool QAbstractSocket::flush()
 qint64 QAbstractSocket::readData(char *data, qint64 maxSize)
 {
     Q_D(QAbstractSocket);
+    if (d->socketEngine && !d->socketEngine->isReadNotificationEnabled())
+        d->socketEngine->setReadNotificationEnabled(true);
 
     if (!d->isBuffered) {
         qint64 readBytes = d->socketEngine->read(data, maxSize);
@@ -1700,9 +1696,6 @@ qint64 QAbstractSocket::readData(char *data, qint64 maxSize)
 
     if (d->readBuffer.isEmpty())
         return qint64(0);
-
-    if (d->socketEngine && !d->socketEngine->isReadNotificationEnabled())
-        d->socketEngine->setReadNotificationEnabled(true);
 
     // If readFromSocket() read data, copy it to its destination.
     if (maxSize == 1) {
