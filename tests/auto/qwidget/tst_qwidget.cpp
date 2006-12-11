@@ -134,6 +134,9 @@ private slots:
     void persistentWinId();
     void qobject_castInDestroyedSlot();
 
+    void showHideEvent_data();
+    void showHideEvent();
+
     // tests QWidget::setGeometry() on windows only
     void setWindowGeometry_data();
     void setWindowGeometry();
@@ -2884,6 +2887,91 @@ void tst_QWidget::persistentWinId()
     winId3 = w3->winId();
 
     delete parent;
+}
+
+class ShowHideEventWidget : public QWidget
+{
+public:
+    int numberOfShowEvents, numberOfHideEvents;
+    
+    ShowHideEventWidget(QWidget *parent = 0)
+        : QWidget(parent), numberOfShowEvents(0), numberOfHideEvents(0)
+    { }
+    
+    void create()
+    { QWidget::create(); }
+    
+    void showEvent(QShowEvent *)
+    { ++numberOfShowEvents; }
+    
+    void hideEvent(QHideEvent *)
+    { ++numberOfHideEvents; }
+};
+
+void tst_QWidget::showHideEvent_data()
+{
+    QTest::addColumn<bool>("show");
+    QTest::addColumn<bool>("hide");
+    QTest::addColumn<bool>("create");
+    QTest::addColumn<int>("expectedShowEvents");
+    QTest::addColumn<int>("expectedHideEvents");
+    
+    QTest::newRow("window: only show")
+            << true
+            << false
+            << false
+            << 1
+            << 0;
+    QTest::newRow("window: show/hide")
+            << true
+            << true
+            << false
+            << 1
+            << 1;
+    QTest::newRow("window: show/hide/create")
+            << true
+            << true
+            << true
+            << 1
+            << 1;
+    QTest::newRow("window: hide/create")
+            << false
+            << true
+            << true
+            << 0
+            << 0;
+    QTest::newRow("window: only hide")
+            << false
+            << true
+            << false
+            << 0
+            << 0;
+    QTest::newRow("window: nothing")
+            << false
+            << false
+            << false
+            << 0
+            << 0;
+}
+
+void tst_QWidget::showHideEvent()
+{
+    QFETCH(bool, show);
+    QFETCH(bool, hide);
+    QFETCH(bool, create);
+    QFETCH(int, expectedShowEvents);
+    QFETCH(int, expectedHideEvents);
+    
+    ShowHideEventWidget widget;
+    if (show)
+        widget.show();
+    if (hide)
+        widget.hide();
+    if (create && !widget.testAttribute(Qt::WA_WState_Created))
+        widget.create();
+    
+    QCOMPARE(widget.numberOfShowEvents, expectedShowEvents);
+    QCOMPARE(widget.numberOfHideEvents, expectedHideEvents);
 }
 
 bool wasWidget;

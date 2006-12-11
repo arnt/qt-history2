@@ -1075,8 +1075,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         if (isWindow() && !testAttribute(Qt::WA_SetWindowIcon))
             d->setWindowIcon_sys();
     }
-    if (testAttribute(Qt::WA_WState_ExplicitShowHide) && testAttribute(Qt::WA_WState_Hidden))
-        d->hide_helper();
 }
 
 /*!
