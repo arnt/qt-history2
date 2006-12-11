@@ -35,6 +35,7 @@ private slots:
     void iterateResource_data();
     void iterateResource();
     void stopLinkLoop();
+    void engineWithNoIterator();
 };
 
 tst_QDirIterator::tst_QDirIterator()
@@ -241,6 +242,34 @@ void tst_QDirIterator::stopLinkLoop()
     QFile::remove("entrylist/directory/entrylist3.lnk");
     QFile::remove("entrylist/directory/entrylist4.lnk");
 #endif
+}
+
+class EngineWithNoIterator : public QFSFileEngine
+{
+public:
+    EngineWithNoIterator(const QString &fileName)
+        : QFSFileEngine(fileName)
+    { }
+
+    QAbstractFileEngineIterator *beginEntryList(QDir::Filters, const QStringList &)
+    { return 0; }
+};
+
+class EngineWithNoIteratorHandler : public QAbstractFileEngineHandler
+{
+public:
+    QAbstractFileEngine *create(const QString &fileName) const
+    {
+        return new EngineWithNoIterator(fileName);
+    }
+};
+
+void tst_QDirIterator::engineWithNoIterator()
+{
+    EngineWithNoIteratorHandler handler;
+
+    QDir("entrylist").entryList();
+    QVERIFY(true); // test that the above line doesn't crash
 }
 
 QTEST_MAIN(tst_QDirIterator)
