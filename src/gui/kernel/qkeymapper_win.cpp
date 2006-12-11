@@ -706,7 +706,8 @@ QList<int> QKeyMapperPrivate::possibleKeys(QKeyEvent *e)
     QList<int> result;
 
     KeyboardLayoutItem *kbItem = keyLayout[e->nativeVirtualKey()];
-    Q_ASSERT(kbItem);
+    if(!kbItem)
+        return result;
 
     int baseKey = kbItem->qtKey[0];
     Qt::KeyboardModifiers keyMods = e->modifiers();
