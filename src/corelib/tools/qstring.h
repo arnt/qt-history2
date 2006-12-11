@@ -994,6 +994,20 @@ inline QT_ASCII_CAST_WARN bool operator<=(const char *s1, const QLatin1String &s
 inline QT_ASCII_CAST_WARN bool operator>=(const char *s1, const QLatin1String &s2)
 { return (QString::fromAscii(s1) >= s2); }
 
+inline bool operator==(const QLatin1String &s1, const QLatin1String &s2)
+{ return (qstrcmp(s1.latin1(), s2.latin1()) == 0); }
+inline bool operator!=(const QLatin1String &s1, const QLatin1String &s2)
+{ return (qstrcmp(s1.latin1(), s2.latin1()) != 0); }
+inline bool operator<(const QLatin1String &s1, const QLatin1String &s2)
+{ return (qstrcmp(s1.latin1(), s2.latin1()) < 0); }
+inline bool operator<=(const QLatin1String &s1, const QLatin1String &s2)
+{ return (qstrcmp(s1.latin1(), s2.latin1()) <= 0); }
+inline bool operator>(const QLatin1String &s1, const QLatin1String &s2)
+{ return (qstrcmp(s1.latin1(), s2.latin1()) > 0); }
+inline bool operator>=(const QLatin1String &s1, const QLatin1String &s2)
+{ return (qstrcmp(s1.latin1(), s2.latin1()) >= 0); }
+
+
 inline bool QSubString::operator==(const char *s) const
 { return qStringComparisonHelper(*this, s); }
 inline bool QSubString::operator!=(const char *s) const

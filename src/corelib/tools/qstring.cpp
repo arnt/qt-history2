@@ -6621,6 +6621,46 @@ QString QString::fromRawData(const QChar *unicode, int size)
     QString::localeAwareCompare().
 */
 
+
+
+/* \fn bool operator==(const QLatin1String &s1, const QLatin1String &s2)
+   \relates QLatin1String
+
+   Returns true if string \a s1 is lexically equal to string \a s2; otherwise
+   returns false.
+*/
+/* \fn bool operator!=(const QLatin1String &s1, const QLatin1String &s2)
+   \relates QLatin1String
+
+   Returns true if string \a s1 is lexically unequal to string \a s2; otherwise
+   returns false.
+*/
+/* \fn bool operator<(const QLatin1String &s1, const QLatin1String &s2)
+   \relates QLatin1String
+
+   Returns true if string \a s1 is lexically smaller than string \a s2; otherwise
+   returns false.
+*/
+/* \fn bool operator<=(const QLatin1String &s1, const QLatin1String &s2)
+   \relates QLatin1String
+
+   Returns true if string \a s1 is lexically smaller than or equal to string \a s2; otherwise
+   returns false.
+*/
+/* \fn bool operator>(const QLatin1String &s1, const QLatin1String &s2)
+   \relates QLatin1String
+
+   Returns true if string \a s1 is lexically greater than string \a s2; otherwise
+   returns false.
+*/
+/* \fn bool operator>=(const QLatin1String &s1, const QLatin1String &s2)
+   \relates QLatin1String
+
+   Returns true if string \a s1 is lexically greater than or equal to
+   string \a s2; otherwise returns false.
+*/
+
+
 #ifndef QT_NO_DATASTREAM
 /*!
     \fn QDataStream &operator<<(QDataStream &stream, const QString &string)
