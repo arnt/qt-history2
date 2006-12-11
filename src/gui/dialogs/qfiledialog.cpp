@@ -2225,23 +2225,21 @@ void QFileDialogPrivate::_q_updateOkButton() {
                     ? QDialogButtonBox::Open : QDialogButtonBox::Save);
     if (!button)
         return;
-
-    QModelIndex index = listView->selectionModel()->currentIndex();
-    if (q->selectedFiles().isEmpty() || fileMode != QFileDialog::AnyFile && !index.isValid()) {
-        button->setEnabled(false);
-        return;
-    }
-
+    QModelIndex index = treeView->currentIndex();
     switch (fileMode) {
     case QFileDialog::DirectoryOnly:
     case QFileDialog::Directory:
-        button->setEnabled(model->isDir(index));
+        button->setEnabled(model->isDir(index) || !index.isValid());
         break;
     case QFileDialog::ExistingFile:
     case QFileDialog::ExistingFiles:
-        button->setEnabled(!model->isDir(index));
+        button->setEnabled(!model->isDir(index) && index.isValid());
+        break;
     case QFileDialog::AnyFile:
-        button->setEnabled(!model->isDir(index) || !lineEdit()->text().isEmpty());
+        button->setEnabled(!q->selectedFiles().isEmpty());
+        break;
+    default:
+        button->setEnabled(false);
     }
 }
 
