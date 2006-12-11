@@ -25,7 +25,7 @@ QT_MODULE(Gui)
 
 class QTransformedScreenPrivate;
 
-class QTransformedScreen : public QScreen
+class Q_AUTOTEST_EXPORT QTransformedScreen : public QScreen
 {
 public:
     explicit QTransformedScreen(int display_id);
