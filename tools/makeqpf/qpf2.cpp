@@ -15,7 +15,7 @@
 
 #include <math.h>
 #include <private/qfontengine_p.h>
-
+#include <QFile>
 #include "../../src/gui/text/qpfutil.cpp"
 
 int QPF::debugVerbosity = 0;
@@ -43,7 +43,32 @@ static const char *headerTagNames[QFontEngineQPF::NumTags] = {
     "EndOfHeader"
 };
 
-QByteArray QPF::generate(QFontEngine *fontEngine, int options)
+QString QPF::fileNameForFont(const QFont &f)
+{
+    QString fileName = f.family().toLower() + "_" + QString::number(f.pixelSize())
+                       + "_" + QString::number(f.weight())
+                       + (f.italic() ? "_italic" : "")
+                       + ".qpf2";
+    fileName.replace(QLatin1Char(' '), QLatin1Char('_'));
+    return fileName;
+}
+
+QByteArray QPF::generate(const QFont &font, int options, const QList<CharacterRange> &ranges, QString *originalFontFile)
+{
+    QTextEngine engine("Test", font);
+    engine.itemize();
+    engine.shape(0);
+    QFontEngine *fontEngine = engine.fontEngine(engine.layoutData->items[0]);
+    if (fontEngine->type() == QFontEngine::Multi)
+        fontEngine = static_cast<QFontEngineMulti *>(fontEngine)->engine(0);
+
+    if (originalFontFile)
+        *originalFontFile = QFile::decodeName(fontEngine->faceId().filename);
+
+    return generate(fontEngine, options, ranges);
+}
+
+QByteArray QPF::generate(QFontEngine *fontEngine, int options, const QList<CharacterRange> &ranges)
 {
     QPF font;
 
@@ -51,7 +76,7 @@ QByteArray QPF::generate(QFontEngine *fontEngine, int options)
     font.addHeader(fontEngine);
     if (options & IncludeCMap)
         font.addCMap(fontEngine);
-    font.addGlyphs(fontEngine);
+    font.addGlyphs(fontEngine, ranges);
 
     return font.qpf;
 }
@@ -239,7 +264,7 @@ void QPF::addCMap(QFontEngine *fontEngine)
     addBlock(QFontEngineQPF::CMapBlock, cmapTable);
 }
 
-void QPF::addGlyphs(QFontEngine *fe)
+void QPF::addGlyphs(QFontEngine *fe, const QList<CharacterRange> &ranges)
 {
     const quint16 glyphCount = fe->glyphCount();
 
@@ -256,51 +281,56 @@ void QPF::addGlyphs(QFontEngine *fe)
                     + qRound(fe->maxCharWidth() * (fe->ascent() + fe->descent()).toReal())));
 
         QGlyphLayout layout[10];
-        for (uint uc = 0; uc < 0x10000; ++uc) {
-            QChar ch(uc);
-            int nglyphs = 10;
-            if (!fe->stringToCMap(&ch, 1, &layout[0], &nglyphs, /*flags*/ 0))
-                continue;
 
-            if (nglyphs != 1)
-                continue;
+        foreach (CharacterRange range, ranges) {
+            if (debugVerbosity > 2)
+                qDebug() << "rendering range from" << range.start << "to" << range.end;
+            for (uint uc = range.start; uc < range.end; ++uc) {
+                QChar ch(uc);
+                int nglyphs = 10;
+                if (!fe->stringToCMap(&ch, 1, &layout[0], &nglyphs, /*flags*/ 0))
+                    continue;
 
-            const quint32 glyphIndex = layout[0].glyph;
+                if (nglyphs != 1)
+                    continue;
 
-            if (!glyphIndex)
-                continue;
+                const quint32 glyphIndex = layout[0].glyph;
 
-            Q_ASSERT(glyphIndex < glyphCount);
+                if (!glyphIndex)
+                    continue;
 
-            QImage img = fe->alphaMapForGlyph(glyphIndex).convertToFormat(QImage::Format_Indexed8);
-            glyph_metrics_t metrics = fe->boundingBox(glyphIndex);
+                Q_ASSERT(glyphIndex < glyphCount);
 
-            const quint32 oldSize = glyphs.size();
-            glyphs.resize(glyphs.size() + sizeof(QFontEngineQPF::Glyph) + img.numBytes());
-            uchar *data = reinterpret_cast<uchar *>(glyphs.data() + oldSize);
+                QImage img = fe->alphaMapForGlyph(glyphIndex).convertToFormat(QImage::Format_Indexed8);
+                glyph_metrics_t metrics = fe->boundingBox(glyphIndex);
 
-            uchar *gmapPtr = reinterpret_cast<uchar *>(gmap.data() + glyphIndex * sizeof(quint32));
-            qToBigEndian(oldSize, gmapPtr);
+                const quint32 oldSize = glyphs.size();
+                glyphs.resize(glyphs.size() + sizeof(QFontEngineQPF::Glyph) + img.numBytes());
+                uchar *data = reinterpret_cast<uchar *>(glyphs.data() + oldSize);
 
-            QFontEngineQPF::Glyph *glyph = reinterpret_cast<QFontEngineQPF::Glyph *>(data);
-            glyph->width = img.width();
-            glyph->height = img.height();
-            glyph->bytesPerLine = img.bytesPerLine();
-            glyph->x = qRound(metrics.x);
-            glyph->y = qRound(metrics.y);
-            glyph->advance = qRound(metrics.xoff);
-            data += sizeof(QFontEngineQPF::Glyph);
+                uchar *gmapPtr = reinterpret_cast<uchar *>(gmap.data() + glyphIndex * sizeof(quint32));
+                qToBigEndian(oldSize, gmapPtr);
 
-            if (debugVerbosity && uc >= 'A' && uc <= 'z' || debugVerbosity > 1) {
-                qDebug() << "adding glyph with index" << glyphIndex << " uc =" << char(uc) << ":\n"
-                    << "    glyph->x =" << glyph->x << "rounded from" << metrics.x << "\n"
-                    << "    glyph->y =" << glyph->y << "rounded from" << metrics.y << "\n"
-                    << "    width =" << glyph->width << "height =" << glyph->height
-                    << "    advance =" << glyph->advance << "rounded from" << metrics.xoff
-                    ;
+                QFontEngineQPF::Glyph *glyph = reinterpret_cast<QFontEngineQPF::Glyph *>(data);
+                glyph->width = img.width();
+                glyph->height = img.height();
+                glyph->bytesPerLine = img.bytesPerLine();
+                glyph->x = qRound(metrics.x);
+                glyph->y = qRound(metrics.y);
+                glyph->advance = qRound(metrics.xoff);
+                data += sizeof(QFontEngineQPF::Glyph);
+
+                if (debugVerbosity && uc >= 'A' && uc <= 'z' || debugVerbosity > 1) {
+                    qDebug() << "adding glyph with index" << glyphIndex << " uc =" << char(uc) << ":\n"
+                        << "    glyph->x =" << glyph->x << "rounded from" << metrics.x << "\n"
+                        << "    glyph->y =" << glyph->y << "rounded from" << metrics.y << "\n"
+                        << "    width =" << glyph->width << "height =" << glyph->height
+                        << "    advance =" << glyph->advance << "rounded from" << metrics.xoff
+                        ;
+                }
+
+                qMemCopy(data, img.bits(), img.numBytes());
             }
-
-            qMemCopy(data, img.bits(), img.numBytes());
         }
     }
 

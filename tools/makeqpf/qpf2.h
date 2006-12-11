@@ -15,6 +15,7 @@
 #define QPF2_H
 
 #include <private/qfontengine_qpf_p.h>
+#include <qmetatype.h>
 
 class QFontEngine;
 
@@ -28,10 +29,22 @@ public:
         RenderGlyphs = 0x2
     };
 
-    static QByteArray generate(QFontEngine *fontEngine, int options);
+    struct CharacterRange
+    {
+        inline CharacterRange() : start(0), end(0x10000) {}
+        uint start;
+        uint end;
+    };
+
+    static QString fileNameForFont(const QFont &f);
+
+    static QByteArray generate(const QFont &font, int options,
+                               const QList<CharacterRange> &ranges,
+                               QString *originalFontFile = 0);
+    static QByteArray generate(QFontEngine *fontEngine, int options, const QList<CharacterRange> &ranges);
     void addHeader(QFontEngine *fontEngine);
     void addCMap(QFontEngine *fontEngine);
-    void addGlyphs(QFontEngine *fontEngine);
+    void addGlyphs(QFontEngine *fontEngine, const QList<CharacterRange> &ranges);
     void addBlock(QFontEngineQPF::BlockTag tag, const QByteArray &data);
 
     void addTaggedString(QFontEngineQPF::HeaderTag tag, const QByteArray &string);
@@ -68,5 +81,7 @@ public:
     QByteArray qpf;
     int options;
 };
+
+Q_DECLARE_METATYPE(QPF::CharacterRange)
 
 #endif // QPF2_H
