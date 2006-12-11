@@ -3062,6 +3062,11 @@ void tst_QWidget::setWindowGeometry()
 #endif
         QApplication::processEvents();
         QCOMPARE(widget.geometry(), expectedRect);
+        
+        // now hide
+        widget.hide();
+        QApplication::processEvents();
+        QCOMPARE(widget.geometry(), expectedRect);
     }
 
     {
@@ -3074,6 +3079,11 @@ void tst_QWidget::setWindowGeometry()
         qt_x11_wait_for_window_manager(&widget);
 #endif
         widget.setGeometry(rect);
+        QApplication::processEvents();
+        QCOMPARE(widget.geometry(), expectedRect);
+        
+        // now hide
+        widget.hide();
         QApplication::processEvents();
         QCOMPARE(widget.geometry(), expectedRect);
     }
@@ -3101,7 +3111,7 @@ void tst_QWidget::windowMove()
     }
 
     {
-        // setGeometry() first, then show()
+        // move() first, then show()
         QWidget widget;
         if (windowFlags != 0)
             widget.setWindowFlags(Qt::WindowFlags(windowFlags));
@@ -3113,10 +3123,15 @@ void tst_QWidget::windowMove()
 #endif
         QApplication::processEvents();
         QCOMPARE(widget.pos(), rect.topLeft());
+
+        // now hide
+        widget.hide();
+        QApplication::processEvents();
+        QCOMPARE(widget.pos(), rect.topLeft());
     }
 
     {
-        // show() first, then setGeometry()
+        // show() first, then move()
         QWidget widget;
         if (windowFlags != 0)
             widget.setWindowFlags(Qt::WindowFlags(windowFlags));
@@ -3126,6 +3141,11 @@ void tst_QWidget::windowMove()
         qt_x11_wait_for_window_manager(&widget);
 #endif
         widget.move(rect.topLeft());
+        QApplication::processEvents();
+        QCOMPARE(widget.pos(), rect.topLeft());
+
+        // now hide
+        widget.hide();
         QApplication::processEvents();
         QCOMPARE(widget.pos(), rect.topLeft());
     }
