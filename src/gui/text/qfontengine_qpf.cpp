@@ -535,6 +535,8 @@ void QFontEngineQPF::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
 
 glyph_metrics_t QFontEngineQPF::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
 {
+    const_cast<QFontEngineQPF *>(this)->ensureGlyphsLoaded(glyphs, numGlyphs);
+
     glyph_metrics_t overall;
     // initialize with line height, we get the same behaviour on all platforms
     overall.y = -ascent();
@@ -563,6 +565,11 @@ glyph_metrics_t QFontEngineQPF::boundingBox(const QGlyphLayout *glyphs, int numG
 
 glyph_metrics_t QFontEngineQPF::boundingBox(glyph_t glyph)
 {
+    {
+        QGlyphLayout tmp;
+        tmp.glyph = glyph;
+        const_cast<QFontEngineQPF *>(this)->ensureGlyphsLoaded(&tmp, 1);
+    }
     glyph_metrics_t overall;
     const Glyph *g = findGlyph(glyph);
     if (!g)
@@ -717,7 +724,7 @@ void QFontEngineQPF::doKerning(int num_glyphs, QGlyphLayout *g, QTextEngine::Sha
     QFontEngine::doKerning(num_glyphs, g, flags);
 }
 
-void QFontEngineQPF::ensureGlyphsLoaded(QGlyphLayout *glyphs, int len)
+void QFontEngineQPF::ensureGlyphsLoaded(const QGlyphLayout *glyphs, int len)
 {
     if (readOnly)
         return;

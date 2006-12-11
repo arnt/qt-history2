@@ -174,7 +174,7 @@ public:
 
 private:
 #if !defined(QT_NO_FREETYPE)
-    void ensureGlyphsLoaded(QGlyphLayout *glyphs, int len);
+    void ensureGlyphsLoaded(const QGlyphLayout *glyphs, int len);
     void loadGlyph(glyph_t glyph);
     bool lockFile();
     void unlockFile();
