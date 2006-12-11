@@ -85,12 +85,15 @@ class QDirIteratorPrivate
 public:
     QDirIteratorPrivate(const QString &path, const QStringList &nameFilters,
                         QDir::Filters filters, QDirIterator::IteratorFlags flags);
+    ~QDirIteratorPrivate();
+
     void pushSubDirectory(const QString &path, const QStringList &nameFilters,
                           QDir::Filters filters);
     void advance();
     bool matchesFilters(const QAbstractFileEngineIterator *it) const;
 
     QSet<QString> visitedLinks;
+    QAbstractFileEngine *engine;
     QStack<QAbstractFileEngineIterator *> fileEngineIterators;
     QString path;
     QFileInfo fileInfo;
@@ -110,7 +113,7 @@ public:
 */
 QDirIteratorPrivate::QDirIteratorPrivate(const QString &path, const QStringList &nameFilters,
                                          QDir::Filters filters, QDirIterator::IteratorFlags flags)
-    : path(path), iteratorFlags(flags), followNextDir(false), first(true), done(false)
+    : engine(0), path(path), iteratorFlags(flags), followNextDir(false), first(true), done(false)
 {
     if (filters == QDir::NoFilter)
         filters = QDir::AllEntries;
@@ -120,6 +123,14 @@ QDirIteratorPrivate::QDirIteratorPrivate(const QString &path, const QStringList 
     fileInfo.setFile(path);
     pushSubDirectory(fileInfo.isSymLink() ? fileInfo.canonicalFilePath() : path,
                      nameFilters, filters);
+}
+
+/*!
+    \internal
+*/
+QDirIteratorPrivate::~QDirIteratorPrivate()
+{
+    delete engine;
 }
 
 /*!
@@ -138,11 +149,15 @@ void QDirIteratorPrivate::pushSubDirectory(const QString &path, const QStringLis
         }
     }
     
-    if (QAbstractFileEngine *engine = QAbstractFileEngine::create(path)) {
+    if (engine || (engine = QAbstractFileEngine::create(this->path))) {
+        engine->setFileName(path);
         QAbstractFileEngineIterator *it = engine->beginEntryList(filters, nameFilters);
-        it->setPath(path);
-        fileEngineIterators << it;
-        delete engine;
+        if (it) {
+            it->setPath(path);
+            fileEngineIterators << it;
+        } else {
+            // No iterator; no entry list.
+        }
     }
 }
 
