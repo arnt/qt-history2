@@ -2464,18 +2464,16 @@ QMenu *QLineEdit::createStandardContextMenu()
     }
 #endif
 
-#if defined(Q_WS_WIN) || defined(Q_WS_X11)
 #if defined(Q_WS_WIN)
     extern bool qt_use_rtl_extensions;
     if (!d->readOnly && qt_use_rtl_extensions) {
-#elif defined(Q_WS_X11)
+#else
     if (!d->readOnly) {
 #endif
         popup->addSeparator();
         QUnicodeControlCharacterMenu *ctrlCharacterMenu = new QUnicodeControlCharacterMenu(this, popup);
         popup->addMenu(ctrlCharacterMenu);
     }
-#endif
     return popup;
 }
 #endif // QT_NO_CONTEXTMENU
