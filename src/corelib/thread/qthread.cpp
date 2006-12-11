@@ -32,9 +32,6 @@
 # include <sys/utsname.h>
 # include <sys/socket.h>
 */
-#  if defined(Q_OS_MAC)
-#   include <CoreServices/CoreServices.h>
-#  endif
 /*
 #  elif defined(Q_OS_HPUX)
 #   include <sys/pstat.h>

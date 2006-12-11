@@ -31,6 +31,10 @@
 #include <errno.h>
 #include <string.h>
 
+#  if defined(Q_OS_MAC)
+#   include <CoreServices/CoreServices.h>
+#  endif
+
 #ifndef QT_NO_THREAD
 
 static pthread_once_t current_thread_data_once = PTHREAD_ONCE_INIT;
