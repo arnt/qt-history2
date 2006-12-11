@@ -36,6 +36,6 @@ if [ "$FPA" = "yes" ]; then
     [ "$VERBOSE" = "yes" ] && echo "Using ARM-FPA."
     exit 0
 else
-    [ "$VERBOSE" = "no" ] && echo "Not using ARM-FPA."
+    [ "$VERBOSE" = "yes" ] && echo "Not using ARM-FPA."
     exit 1
 fi
