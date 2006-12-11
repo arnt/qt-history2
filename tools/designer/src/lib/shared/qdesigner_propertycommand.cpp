@@ -520,7 +520,7 @@ QVariant PropertyHelper::findDefaultValue(QDesignerFormWindowInterface *fw) cons
 PropertyHelper::Value PropertyHelper::restoreDefaultValue(QDesignerFormWindowInterface *fw)
 {
 
-    Value defaultValue(QVariant(), false);
+    Value defaultValue = qMakePair(QVariant(), false);
     const QVariant currentValue = m_propertySheet->property(m_index);
     // try to reset sheet, else try to find default
     if (m_propertySheet->reset(m_index)) {
