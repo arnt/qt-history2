@@ -24,6 +24,27 @@
 #include "qthread_p.h"
 
 /*
+#ifdef Q_OS_WIN32
+# include "qt_windows.h"
+#else
+# include <unistd.h>
+# include <netinet/in.h>
+# include <sys/utsname.h>
+# include <sys/socket.h>
+*/
+#  if defined(Q_OS_MAC)
+#   include <CoreServices/CoreServices.h>
+#  endif
+/*
+#  elif defined(Q_OS_HPUX)
+#   include <sys/pstat.h>
+#  elif defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD) || defined(Q_OS_MAC)
+#   include <sys/sysctl.h>
+#  endif
+#endif
+*/
+
+/*
   QThreadData
 */
 

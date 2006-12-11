@@ -190,6 +190,48 @@ Qt::HANDLE QThread::currentThreadId()
     return (Qt::HANDLE)pthread_self();
 }
 
+/*!
+    Returns the ideal number of threads that can be run on the system. This is done querying
+    the number of processor cores, both real and logical, in the system. This function returns -1
+    if the number of processor cores could not be detected.
+*/
+int QThread::idealThreadCount()
+{
+    int cores = -1;
+    
+#if defined(Q_OS_MAC)
+    // Mac OS X
+    cores = MPProcessorsScheduled();
+#elif defined(Q_OS_HPUX)
+    // HP-UX
+    struct pst_dynamic psd;
+    if (pstat_getdynamic(&psd, sizeof(psd), 1, 0) == -1) {
+        perror("pstat_getdynamic");
+        cores = -1;
+    } else {
+        cores = (int)psd.psd_proc_cnt;
+    }
+#elif defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD) || defined(Q_OS_NETBSD) || defined(Q_OS_BSDI) || defined(Q_OS_MAC)
+    // FreeBSD, OpenBSD, NetBSD, BSD/OS
+    size_t len = sizeof(cores);
+    int mib[2];
+    mib[0] = CTL_HW;
+    mib[1] = HW_NCPU;
+    if (sysctl(mib, 2, &cores, &len, NULL, 0) != 0) {
+        perror("sysctl");
+        cores = -1;
+    }
+#elif defined(Q_OS_IRIX)
+    // IRIX
+    cores = (int)sysconf(_SC_NPROC_ONLN);
+#else
+    // the rest: Linux, Solaris, AIX, Tru64
+    cores = (int)sysconf(_SC_NPROCESSORS_ONLN);
+#endif
+    
+    return cores;
+}
+
 /*  \internal
     helper function to do thread sleeps, since usleep()/nanosleep()
     aren't reliable enough (in terms of behavior and availability)

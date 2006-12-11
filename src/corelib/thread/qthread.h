@@ -31,6 +31,7 @@ class Q_CORE_EXPORT QThread : public QObject
 public:
     static Qt::HANDLE currentThreadId();
     static QThread *currentThread();
+    static int idealThreadCount();
 
     explicit QThread(QObject *parent = 0);
     ~QThread();

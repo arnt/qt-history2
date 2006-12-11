@@ -11,16 +11,9 @@
 
 class tst_QSysInfo: public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 private slots:
-    void coreCount();
 };
-
-void tst_QSysInfo::coreCount()
-{
-    QVERIFY(QSysInfo::coreCount() > 0);
-    qDebug() << "Available cpu cores:" << QSysInfo::coreCount();
-}
 
 QTEST_MAIN(tst_QSysInfo)
 #include "tst_qsysinfo.moc"

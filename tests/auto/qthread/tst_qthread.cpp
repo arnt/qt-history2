@@ -39,6 +39,7 @@ public:
 private slots:
     void currentThreadId();
     void currentThread();
+    void idealThreadCount();
     void isFinished();
     void isRunning();
     void setPriority();
@@ -256,6 +257,12 @@ void tst_QThread::currentThread()
     thread.start();
     QVERIFY(thread.wait(five_minutes));
     QCOMPARE(thread.thread, (QThread *)&thread);
+}
+
+void tst_QThread::idealThreadCount()
+{
+    QVERIFY(QThread::idealThreadCount() > 0);
+    qDebug() << "Available cpu cores:" << QThread::idealThreadCount();
 }
 
 void tst_QThread::isFinished()

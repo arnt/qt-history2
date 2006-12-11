@@ -1113,7 +1113,6 @@ public:
     };
     static const MacVersion MacintoshVersion;
 #endif
-    static int coreCount();
 };
 
 Q_CORE_EXPORT const char *qVersion();

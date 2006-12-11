@@ -260,6 +260,13 @@ Qt::HANDLE QThread::currentThreadId()
     return (Qt::HANDLE)GetCurrentThreadId();
 }
 
+int QThread::idealThreadCount()
+{
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+    return sysinfo.dwNumberOfProcessors;
+}
+
 void QThread::sleep(unsigned long secs)
 {
     ::Sleep(secs * 1000);
