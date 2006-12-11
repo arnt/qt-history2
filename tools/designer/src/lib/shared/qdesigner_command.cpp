@@ -248,13 +248,13 @@ void DeleteWidgetCommand::init(QWidget *widget)
 
 void DeleteWidgetCommand::redo()
 {
+    formWindow()->clearSelection();
     QDesignerFormEditorInterface *core = formWindow()->core();
 
     if (QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_parentWidget)) {
         for (int i=0; i<c->count(); ++i) {
             if (c->widget(i) == m_widget) {
                 c->remove(i);
-                formWindow()->emitSelectionChanged();
                 return;
             }
         }
@@ -277,19 +277,17 @@ void DeleteWidgetCommand::redo()
         tab_order.removeAt(m_tabOrderIndex);
         m_formItem->setTabOrder(tab_order);
     }
-
-    formWindow()->emitSelectionChanged();
 }
 
 void DeleteWidgetCommand::undo()
 {
     QDesignerFormEditorInterface *core = formWindow()->core();
-
+    formWindow()->clearSelection();
+    
     m_widget->setParent(m_parentWidget);
 
     if (QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_parentWidget)) {
         c->addWidget(m_widget);
-        formWindow()->emitSelectionChanged();
         return;
     }
 
@@ -328,8 +326,6 @@ void DeleteWidgetCommand::undo()
         tab_order.insert(m_tabOrderIndex, m_widget);
         m_formItem->setTabOrder(tab_order);
     }
-
-    formWindow()->emitSelectionChanged();
 }
 
 // ---- ReparentWidgetCommand ----
