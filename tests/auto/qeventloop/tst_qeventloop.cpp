@@ -18,6 +18,8 @@
 #include <qthread.h>
 #include <qtimer.h>
 #include <qwaitcondition.h>
+#include <QTcpServer>
+#include <QTcpSocket>
 
 //TESTED_CLASS=QEventLoop
 //TESTED_FILES=corelib/kernel/qeventloop.h corelib/kernel/qeventloop.cpp
@@ -139,6 +141,7 @@ private slots:
     void exit();
     void wakeUp();
     void quit();
+    void processEventsExcludeSocket();
 
     // keep this test last:
     void nestedLoops();
@@ -322,6 +325,84 @@ void tst_QEventLoop::customEvent(QEvent *e)
     } else {
         static_cast<StartStopEvent *>(e)->el->exit();
     }
+}
+
+class SocketEventsTester: public QObject
+{
+    Q_OBJECT
+public:
+    SocketEventsTester()
+    {
+        socket = 0;
+        server = 0;
+        dataArrived = false;
+        testResult = false;
+    }
+    ~SocketEventsTester()
+    {
+        delete socket;
+        delete server;
+    }
+    bool init()
+    {
+        bool ret = false;
+        server = new QTcpServer();
+        socket = new QTcpSocket();
+        connect(server, SIGNAL(newConnection()), this, SLOT(sendHello()));
+        connect(socket, SIGNAL(readyRead()), this, SLOT(sendAck()), Qt::DirectConnection);
+        if((ret = server->listen(QHostAddress::LocalHost, 0))) {
+            socket->connectToHost(server->serverAddress(), server->serverPort());
+            socket->waitForConnected();
+        }
+        return ret;
+    }
+
+    QTcpSocket *socket;
+    QTcpServer *server;
+    bool dataArrived;
+    bool testResult;
+public slots:
+    void sendAck()
+    {
+        dataArrived = true;
+    }
+    void sendHello()
+    {
+        char data[10] ="HELLO";
+        qint64 size = sizeof(data);
+
+        QTcpSocket *serverSocket = server->nextPendingConnection();
+        serverSocket->write(data, size);
+        serverSocket->flush();
+        QCoreApplication::processEvents(QEventLoop::ExcludeSocketNotifiers);
+        testResult = dataArrived;
+        serverSocket->close();
+        QThread::currentThread()->exit(0);
+    }
+};
+
+class SocketTestThread : public QThread
+{
+    Q_OBJECT
+public:
+    SocketTestThread():QThread(0),testResult(false){};
+    void run()
+    {
+        SocketEventsTester *tester = new SocketEventsTester();
+        if (tester->init())
+            exec();
+        testResult = tester->testResult;
+        delete tester;
+    }
+     bool testResult;
+};
+
+void tst_QEventLoop::processEventsExcludeSocket()
+{
+    SocketTestThread thread;
+    thread.start();
+    QVERIFY(thread.wait());
+    QVERIFY(!thread.testResult);
 }
 
 QTEST_MAIN(tst_QEventLoop)

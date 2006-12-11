@@ -118,6 +118,7 @@ public:
     void activateEventNotifier(QWinEventNotifier * wen);
 
     QList<MSG> queuedUserInputEvents;
+    QList<MSG> queuedSocketEvents;
 
     CRITICAL_SECTION fastTimerCriticalSection;
 
@@ -378,6 +379,10 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
                 // process queued user input events
                 haveMessage = true;
                 msg = d->queuedUserInputEvents.takeFirst();
+            } else if(!(flags & QEventLoop::ExcludeSocketNotifiers) && !d->queuedSocketEvents.isEmpty()) {
+                // process queued socket events
+                haveMessage = true;
+                msg = d->queuedSocketEvents.takeFirst(); 
             } else {
                 haveMessage = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
                 if (haveMessage && (flags & QEventLoop::ExcludeUserInputEvents)
@@ -389,6 +394,12 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
                     // queue user input events for later processing
                     haveMessage = false;
                     d->queuedUserInputEvents.append(msg);
+                }
+                if (haveMessage && (flags & QEventLoop::ExcludeSocketNotifiers)
+                    && (msg.message == WM_USER && msg.hwnd == d->internalHwnd())) {
+                    // queue socket events for later processing
+                    haveMessage = false;
+                    d->queuedSocketEvents.append(msg); 
                 }
             }
             if (!haveMessage) {
