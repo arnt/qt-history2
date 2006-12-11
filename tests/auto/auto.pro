@@ -278,6 +278,7 @@ SUBDIRS += bic \
            qtoolbox \
            qtoolbutton \
            qtranslator \
+           qtransformedscreen \
            qtreeview \
            qtreewidget \
            qtreewidgetitemiterator \
