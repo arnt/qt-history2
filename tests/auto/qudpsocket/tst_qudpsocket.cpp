@@ -16,6 +16,7 @@
 #include <qhostaddress.h>
 #include <qhostinfo.h>
 #include <qmap.h>
+#undef TEST_QNETWORK_PROXY
 #ifdef TEST_QNETWORK_PROXY
 # include <QNetworkProxy>
 #endif
@@ -58,10 +59,13 @@ private slots:
     void writeDatagramToNonExistingPeer();
     void writeToNonExistingPeer_data();
     void writeToNonExistingPeer();
+    void resumeAfterServerRestarts_waitFor();
+    void resumeAfterServerRestarts_eventLoop();
 
 protected slots:
     void empty_readyReadSlot();
     void empty_connectedSlot();
+    void exitLoopSlot();
 };
 
 tst_QUdpSocket::tst_QUdpSocket()
@@ -590,6 +594,98 @@ void tst_QUdpSocket::writeToNonExistingPeer()
     QCOMPARE(int(sConnected.state()), int(QUdpSocket::ConnectedState));
 }
 
+void tst_QUdpSocket::resumeAfterServerRestarts_waitFor()
+{
+    QUdpSocket *socket = new QUdpSocket;
+    QSignalSpy spy(socket, SIGNAL(readyRead()));
+    
+    // Bind socket on an arbitrary local port on all interfaces
+    QVERIFY(socket->bind());
+
+    QProcess process;
+    for (int i = 0; i < 3; ++i) {
+        // Start the UDP server and verify that it's running
+        process.start("udpServer/udpServer 9998");
+        int retry = 5;
+        while (!process.canReadLine() && --retry)
+            QVERIFY(process.waitForReadyRead(5000));
+        if (!retry)
+            QFAIL("Unable to start UDP server!");
+        QCOMPARE(process.read(3), QByteArray("OK\n"));
+
+        // Connect to the server the first time only
+        if (i == 0) {
+            socket->connectToHost(QHostAddress::LocalHost, 9998);
+            QVERIFY(socket->waitForConnected(5000));
+        }
+
+        // Loopback check
+        socket->write("HELLO", 5);
+        QVERIFY(socket->waitForReadyRead(5000));
+        QCOMPARE(spy.count(), i + 1);
+        QVERIFY(socket->hasPendingDatagrams());
+        QCOMPARE(socket->read(5), QByteArray("IFMMP"));
+
+        // Now kill the server
+        process.kill(); // <- ouch
+        QVERIFY(process.waitForFinished());
+        QVERIFY(!socket->waitForReadyRead(1000));
+        QCOMPARE(spy.count(), i + 1);
+        QVERIFY(!socket->hasPendingDatagrams());
+    }
+}
+
+void tst_QUdpSocket::resumeAfterServerRestarts_eventLoop()
+{
+    QUdpSocket *socket = new QUdpSocket;
+    QSignalSpy spy(socket, SIGNAL(readyRead()));
+    
+    // Bind socket on an arbitrary local port on all interfaces
+    QVERIFY(socket->bind());
+
+    QProcess process;
+    for (int i = 0; i < 3; ++i) {
+        // Start the UDP server and verify that it's running
+        process.start("udpServer/udpServer 9998");
+        int retry = 5;
+        while (!process.canReadLine() && --retry)
+            QVERIFY(process.waitForReadyRead(5000));
+        if (!retry)
+            QFAIL("Unable to start UDP server!");
+        QCOMPARE(process.read(3), QByteArray("OK\n"));
+
+        // Connect to the server the first time only
+        if (i == 0) {
+            socket->connectToHost(QHostAddress::LocalHost, 9998);
+            if (socket->state() != QAbstractSocket::ConnectedState) {
+                connect(socket, SIGNAL(connected()), this, SLOT(exitLoopSlot()));
+                QTestEventLoop::instance().enterLoop(2);
+                QCOMPARE(socket->state(), QAbstractSocket::ConnectedState);
+            }
+            connect(socket, SIGNAL(readyRead()), this, SLOT(exitLoopSlot()));
+        }
+
+        // Loopback check
+        socket->write("HELLO", 5);
+        QTestEventLoop::instance().enterLoop(2);
+        QCOMPARE(spy.count(), i + 1);
+        QVERIFY(socket->hasPendingDatagrams());
+        QCOMPARE(socket->read(5), QByteArray("IFMMP"));
+
+        // Now kill the server
+        process.kill(); // <- ouch
+        QVERIFY(process.waitForFinished());
+
+        QTestEventLoop::instance().enterLoop(2);
+        QCOMPARE(spy.count(), i + 1);
+        QVERIFY(!socket->hasPendingDatagrams());
+    }
+}
+
+void tst_QUdpSocket::exitLoopSlot()
+{
+    QTimer::singleShot(50, &QTestEventLoop::instance(), SLOT(exitLoop()));
+}
 
 QTEST_MAIN(tst_QUdpSocket)
 #include "tst_qudpsocket.moc"
