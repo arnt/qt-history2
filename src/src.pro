@@ -1,5 +1,9 @@
 TEMPLATE = subdirs
 
+!embedded {
+    DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
+}
+
 # this order is important
 unset(SRC_SUBDIRS)
 win32:SRC_SUBDIRS += src_winmain
