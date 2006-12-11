@@ -560,18 +560,13 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             painter->drawText(r, i_16, str);
             break;
         case QPicturePrivate::PdcDrawTextItem: {
-            Qt::LayoutDirection oldDir = painter->layoutDirection();
-
             s >> p >> str >> font >> ul;
 
-            if (ul & QTextItem::RightToLeft)
-                painter->setLayoutDirection(Qt::RightToLeft);
-            else
-                painter->setLayoutDirection(Qt::LeftToRight);
-
-            qt_format_text(font, QRectF(p, QSizeF(1, 1)), Qt::TextSingleLine | Qt::TextDontClip, str, /*brect=*/0, /*tabstops=*/0, /*...*/0, /*tabarraylen=*/0, painter);
-
-            painter->setLayoutDirection(oldDir);
+            // the text layout direction is not used here because it's already
+            // aligned when QPicturePaintEngine::drawTextItem() serializes the
+            // drawText() call, therefore ul is unsed in this context
+            qt_format_text(font, QRectF(p, QSizeF(1, 1)), Qt::TextSingleLine | Qt::TextDontClip,
+                           str, /*brect=*/0, /*tabstops=*/0, /*...*/0, /*tabarraylen=*/0, painter);
             break;
         }
         case QPicturePrivate::PdcDrawPixmap: {
