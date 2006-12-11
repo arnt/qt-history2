@@ -531,7 +531,10 @@ void QFontEngineQPF::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItemIn
 
 void QFontEngineQPF::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags)
 {
-    addBitmapFontToPath(x, y, glyphs, numGlyphs, path, flags);
+    if (renderingFontEngine)
+        renderingFontEngine->addOutlineToPath(x, y, glyphs, numGlyphs, path, flags);
+    else
+        addBitmapFontToPath(x, y, glyphs, numGlyphs, path, flags);
 }
 
 glyph_metrics_t QFontEngineQPF::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
