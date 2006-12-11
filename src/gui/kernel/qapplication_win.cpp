@@ -701,7 +701,7 @@ const QString qt_reg_winclass(QWidget *w)        // register window class
         icon  = true;
     } else if (type == Qt::Tool || type == Qt::ToolTip){
         style = CS_DBLCLKS;
-        if (w->inherits("QTipLabel")) {
+        if (w->inherits("QTipLabel") || w->inherits("QAlphaWidget")) {
             if ((QSysInfo::WindowsVersion >= QSysInfo::WV_XP
                 && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based)) {
                 style |= 0x00020000;                // CS_DROPSHADOW
