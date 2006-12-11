@@ -51,8 +51,13 @@
 #  if Q_BYTE_ORDER == Q_BIG_ENDIAN
 #    define BITMAPS_ARE_MSB
 #  endif
-#elif defined(Q_WS_QWS) && !defined(QT_NO_FREETYPE)
-#  include <private/qfontengine_ft_p.h>
+#elif defined(Q_WS_QWS)
+#  if !defined(QT_NO_FREETYPE)
+#    include <private/qfontengine_ft_p.h>
+#  endif
+#  if !defined(QT_NO_QWS_QPF2)
+#    include <private/qfontengine_qpf_p.h>
+#  endif
 #endif
 
 #if defined(Q_WS_WIN64)
@@ -2336,10 +2341,20 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 #endif // Q_WS_QWS
 
 #if (defined(Q_WS_X11) || defined(Q_WS_QWS)) && !defined(QT_NO_FREETYPE)
-    if (ti.fontEngine->type() == QFontEngine::Freetype
-        && !static_cast<QFontEngineFT *>(ti.fontEngine)->drawAsOutline()) {
+    QFontEngine *fontEngine = ti.fontEngine;
 
-        QFontEngineFT *fe = static_cast<QFontEngineFT *>(ti.fontEngine);
+#if defined(Q_WS_QWS) && !defined(QT_NO_QWS_QPF2)
+    if (fontEngine->type() == QFontEngine::QPF2) {
+        QFontEngine *renderingEngine = static_cast<QFontEngineQPF *>(fontEngine)->renderingEngine();
+        if (renderingEngine)
+            fontEngine = renderingEngine;
+    }
+#endif
+
+    if (fontEngine->type() == QFontEngine::Freetype
+        && !static_cast<QFontEngineFT *>(fontEngine)->drawAsOutline()) {
+
+        QFontEngineFT *fe = static_cast<QFontEngineFT *>(fontEngine);
 
         QTransform matrix = d->matrix;
         matrix.translate(p.x(), p.y());
