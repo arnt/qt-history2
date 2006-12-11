@@ -1031,7 +1031,7 @@ HRESULT WINAPI QAxClientSite::InsertMenus(HMENU /*hmenuShared*/, LPOLEMENUGROUPW
     QList<QAction*> actions = menuBar->actions();
     for (int i = 0; i < actions.count(); ++i) {
         QAction *action = actions.at(i);
-	QString text = action->text().remove('&');
+	QString text = action->text().remove(QLatin1Char('&'));
 	if (text == QLatin1String("File")) {
             fileMenu = action->menu();
 	} else if (text == QLatin1String("View")) {

@@ -62,7 +62,7 @@ STDAPI DllCanUnloadNow()
     for (int w = 0; w < widgets.count(); ++w) {
         // remove all Qt generated widgets
         QWidget *widget = widgets.at(w);
-        if (widget->windowType() == Qt::Desktop || widget->objectName() == "Qt internal tablet widget")
+        if (widget->windowType() == Qt::Desktop || widget->objectName() == QLatin1String("Qt internal tablet widget"))
             count--;
     }
     if (count)

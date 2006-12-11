@@ -808,7 +808,7 @@ bool Q3Url::parse( const QString& url )
     if ( d->protocol == QLatin1String("file") ) {
 	if ( url.left( 7 ) == QLatin1String("file://") &&
 	     d->path.length() > 1 && d->path[ 1 ] != QLatin1Char(':') )
-		 d->path.prepend( "/" );
+		 d->path.prepend( QLatin1String("/") );
     }
 #endif
 

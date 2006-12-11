@@ -42,7 +42,7 @@ static void resolveLibs()
 {
     static bool triedResolve = false;
     if (!triedResolve) {
-        QLibrary lib("shell32");
+        QLibrary lib(QLatin1String("shell32"));
 	triedResolve = true;
 	ptrShell_NotifyIcon = (PtrShell_NotifyIcon) lib.resolve("Shell_NotifyIconW");
     }
@@ -512,7 +512,7 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &title, const QString
     //message is limited to 255 chars + NULL
     QString messageString;
     if (message.isEmpty())
-        messageString = " "; //ensures that the message shows when only title is set
+        messageString = QLatin1String(" "); //ensures that the message shows when only title is set
     else
         messageString = message.left(255) + QChar();
 

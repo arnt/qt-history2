@@ -30,9 +30,9 @@ static bool openDocument(const QUrl &file)
         return false;
 
     QT_WA({
-                ShellExecute(0, 0, (TCHAR*)QString(file.toEncoded()).utf16(), 0, 0, SW_SHOWNORMAL);
+                ShellExecute(0, 0, (TCHAR*)QString::fromLatin1(file.toEncoded()).utf16(), 0, 0, SW_SHOWNORMAL);
             } , {
-                ShellExecuteA(0, 0, QString(file.toEncoded()).toLocal8Bit(), 0, 0, SW_SHOWNORMAL);
+                ShellExecuteA(0, 0, QString::fromLatin1(file.toEncoded()).toLocal8Bit(), 0, 0, SW_SHOWNORMAL);
             });
 
     return true;
@@ -41,7 +41,7 @@ static bool openDocument(const QUrl &file)
 static bool launchWebBrowser(const QUrl &url)
 {
 
-    if (url.scheme() == "mailto"){
+    if (url.scheme() == QLatin1String("mailto")){
         //Retrieve the commandline for the default mail cleint
         //the key used below is the command line for the mailto: shell command
         long  bufferSize = 2*MAX_PATH;    
@@ -65,13 +65,13 @@ static bool launchWebBrowser(const QUrl &url)
         command = command.trimmed();
         //Make sure the path for the process is in quotes
         int index = -1 ;
-        if (command[0]!= QChar('\"')) {
-            index = command.indexOf(".exe ", 0, Qt::CaseInsensitive);
-            command.insert(index+4, QChar('\"'));
-            command.insert(0, QChar('\"'));
+        if (command[0]!= QLatin1Char('\"')) {
+            index = command.indexOf(QLatin1String(".exe "), 0, Qt::CaseInsensitive);
+            command.insert(index+4, QLatin1Char('\"'));
+            command.insert(0, QLatin1Char('\"'));
         }
         //pass the url as the parameter
-        index =  command.lastIndexOf(QString("%1"));
+        index =  command.lastIndexOf(QLatin1String("%1"));
         if (index != -1){
             command.replace(index, 2, url.toString());
         }

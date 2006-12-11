@@ -97,7 +97,7 @@ static bool isAbsoluteFileName(const QString &name)
     return !name.isEmpty()
            && (name[0] == QLatin1Char('/')
 #if defined(Q_WS_WIN)
-               || (name[0].isLetter() && name[1] == QLatin1Char(':')) || name.startsWith("\\\\")
+               || (name[0].isLetter() && name[1] == QLatin1Char(':')) || name.startsWith(QLatin1String("\\\\"))
 #endif
                || (name[0]  == QLatin1Char(':') && name[1] == QLatin1Char('/'))
               );

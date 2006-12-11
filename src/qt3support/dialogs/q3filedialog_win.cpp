@@ -66,7 +66,7 @@ static void resolveLibs()
 
         triedResolve = true;
         if (qt_winUnicode()) {
-            QLibrary lib("shell32");
+            QLibrary lib(QLatin1String("shell32"));
             ptrSHBrowseForFolder = (PtrSHBrowseForFolder) lib.resolve("SHBrowseForFolderW");
             ptrSHGetPathFromIDList = (PtrSHGetPathFromIDList) lib.resolve("SHGetPathFromIDListW");
         }
@@ -92,7 +92,7 @@ static QString extractFilter(const QString& rawFilter)
     int index = r.indexIn(result);
     if (index >= 0)
         result = r.cap(2);
-    return result.replace(QChar(' '), QChar(';'));
+    return result.replace(QLatin1Char(' '), QLatin1Char(';'));
 }
 
 // Makes a list of filters from ;;-separated text.
@@ -106,11 +106,11 @@ static QStringList makeFiltersList(const QString &filter)
     if (f.isEmpty())
         return QStringList();
 
-    int i = f.find(";;", 0);
-    QString sep(";;");
+    int i = f.find(QLatin1String(";;"), 0);
+    QString sep(QLatin1String(";;"));
     if (i == -1) {
-        if (f.find("\n", 0) != -1) {
-            sep = "\n";
+        if (f.find(QLatin1String("\n"), 0) != -1) {
+            sep = QLatin1String("\n");
             i = f.find(sep, 0);
         }
     }
@@ -291,7 +291,7 @@ QString Q3FileDialog::winGetOpenFileName(const QString &initialSelection,
 
     QString isel = initialSelection;
 
-    if (initialDirectory && initialDirectory->left(5) == "file:")
+    if (initialDirectory && initialDirectory->left(5) == QLatin1String("file:"))
         initialDirectory->remove(0, 5);
     QFileInfo fi(*initialDirectory);
 
@@ -375,7 +375,7 @@ QString Q3FileDialog::winGetSaveFileName(const QString &initialSelection,
     QString result;
 
     QString isel = initialSelection;
-    if (initialDirectory && initialDirectory->left(5) == "file:")
+    if (initialDirectory && initialDirectory->left(5) == QLatin1String("file:"))
         initialDirectory->remove(0, 5);
     QFileInfo fi(*initialDirectory);
 
@@ -462,7 +462,7 @@ QStringList Q3FileDialog::winGetOpenFileNames(const QString &filter,
     QDir dir;
     QString isel;
 
-    if (initialDirectory && initialDirectory->left(5) == "file:")
+    if (initialDirectory && initialDirectory->left(5) == QLatin1String("file:"))
         initialDirectory->remove(0, 5);
     fi = QFileInfo(*initialDirectory);
 
@@ -709,7 +709,7 @@ QString Q3FileDialog::winGetExistingDirectory(const QString& initialDirectory,
         QDir::setCurrent(currentDir);
 
     if (!result.isEmpty())
-        result.replace("\\", "/");
+        result.replace(QLatin1String("\\"), QLatin1String("/"));
     return result;
 #else
     return QString();

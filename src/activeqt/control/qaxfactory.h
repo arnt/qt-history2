@@ -104,7 +104,7 @@ inline bool QAxFactory::stopServer()
     { \
     public: \
         QAxDefaultFactory(const QUuid &app, const QUuid &lib) \
-        : QAxFactory(app, lib), className(#Class) {} \
+        : QAxFactory(app, lib), className(QLatin1String(#Class)) {} \
         QStringList featureList() const \
         { \
             QStringList list; \

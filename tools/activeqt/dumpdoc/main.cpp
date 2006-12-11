@@ -70,7 +70,7 @@ int main(int argc, char **argv)
     }
     QFile outfile;
     if (!outname.isEmpty()) {
-        outfile.setFileName(outname);
+        outfile.setFileName(QString::fromLatin1(outname.constData()));
         if (!outfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
             qWarning("dumpdoc: Could not open output file '%s'", outname.data());
         }
@@ -84,7 +84,7 @@ int main(int argc, char **argv)
     if (index != -1)
         subobject = subobject.left(index);
     
-    QAxObject topobject(subobject);
+    QAxObject topobject(QString::fromLatin1(subobject.constData()));
     
     if (topobject.isNull()) {
         qWarning("dumpdoc: Could not instantiate COM object '%s'", subobject.data());

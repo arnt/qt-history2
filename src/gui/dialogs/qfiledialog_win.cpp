@@ -68,7 +68,7 @@ static void qt_win_resolve_libs()
 
         triedResolve = true;
         if (!(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)) {
-            QLibrary lib("shell32");
+            QLibrary lib(QLatin1String("shell32"));
             ptrSHBrowseForFolder = (PtrSHBrowseForFolder) lib.resolve("SHBrowseForFolderW");
             ptrSHGetPathFromIDList = (PtrSHGetPathFromIDList) lib.resolve("SHGetPathFromIDListW");
         }
@@ -95,7 +95,7 @@ static QString qt_win_extract_filter(const QString &rawFilter)
     int index = r.indexIn(result);
     if (index >= 0)
         result = r.cap(2);
-    return result.replace(QChar(' '), QChar(';'));
+    return result.replace(QLatin1Char(' '), QLatin1Char(';'));
 }
 
 static QStringList qt_win_make_filters_list(const QString &filter)
@@ -229,10 +229,10 @@ static OPENFILENAME* qt_win_make_OFN(QWidget *parent,
     tTitle = title;
     QString initSel = QDir::toNativeSeparators(initialSelection);
     if (!initSel.isEmpty()) {
-	initSel.replace("<", "");
-	initSel.replace(">", "");
-	initSel.replace("\"", "");
-	initSel.replace("|", "");
+	initSel.replace(QLatin1String("<"), QLatin1String(""));
+	initSel.replace(QLatin1String(">"), QLatin1String(""));
+	initSel.replace(QLatin1String("\""), QLatin1String(""));
+	initSel.replace(QLatin1String("|"), QLatin1String(""));
     }
 
     int maxLen = mode == QFileDialog::ExistingFiles ? maxMultiLen : maxNameLen;
@@ -296,7 +296,7 @@ QString qt_win_get_open_file_name(const QFileDialogArgs &args,
 
     QString isel = args.selection;
 
-    if (initialDirectory && initialDirectory->left(5) == "file:")
+    if (initialDirectory && initialDirectory->left(5) == QLatin1String("file:"))
         initialDirectory->remove(0, 5);
     QFileInfo fi(*initialDirectory);
 
@@ -375,7 +375,7 @@ QString qt_win_get_save_file_name(const QFileDialogArgs &args,
     QString result;
 
     QString isel = args.selection;
-    if (initialDirectory && initialDirectory->left(5) == "file:")
+    if (initialDirectory && initialDirectory->left(5) == QLatin1String("file:"))
         initialDirectory->remove(0, 5);
     QFileInfo fi(*initialDirectory);
 
@@ -480,7 +480,7 @@ QStringList qt_win_get_open_file_names(const QFileDialogArgs &args,
     QDir dir;
     QString isel;
 
-    if (initialDirectory && initialDirectory->left(5) == "file:")
+    if (initialDirectory && initialDirectory->left(5) == QLatin1String("file:"))
         initialDirectory->remove(0, 5);
     fi = QFileInfo(*initialDirectory);
 
@@ -726,7 +726,7 @@ QString qt_win_get_existing_directory(const QFileDialogArgs &args)
         QDir::setCurrent(currentDir);
 
     if (!result.isEmpty())
-        result.replace("\\", "/");
+        result.replace(QLatin1String("\\"), QLatin1String("/"));
     return result;
 #else
     return QString();

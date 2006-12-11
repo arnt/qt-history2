@@ -75,16 +75,16 @@ DocuWindow::DocuWindow(const QString& docu, QWidget *parent, QWidget *source)
     : QMainWindow(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
-    setWindowTitle(source->windowTitle() + " - Documentation");
+    setWindowTitle(tr("%1 - Documentation").arg(source->windowTitle()));
 
     browser = new QTextBrowser(this);
     browser->setHtml(docu);
 
     setCentralWidget(browser);
 
-    QToolBar *fileTools = new QToolBar("File Operations", this);
-    fileTools->addAction(QPixmap(filesave), "Save File", this, SLOT(save()));
-    fileTools->addAction(QPixmap(fileprint), "Print", this, SLOT(print()));
+    QToolBar *fileTools = new QToolBar(tr("File Operations"), this);
+    fileTools->addAction(QPixmap(filesave), tr("Save File"), this, SLOT(save()));
+    fileTools->addAction(QPixmap(fileprint), tr("Print"), this, SLOT(print()));
 
     addToolBar(fileTools);
     statusBar();
@@ -100,7 +100,7 @@ void DocuWindow::save()
     QString text = browser->document()->toHtml();
     QFile f(filename);
     if (!f.open(QIODevice::WriteOnly)) {
-	statusBar()->showMessage(QString("Could not write to %1").arg(filename), 2000);
+	statusBar()->showMessage(tr("Could not write to %1").arg(filename), 2000);
 	return;
     }
 
@@ -108,20 +108,20 @@ void DocuWindow::save()
     t << text;
     f.close();
 
-    statusBar()->showMessage(QString("File %1 saved").arg(filename), 2000);
+    statusBar()->showMessage(tr("File %1 saved").arg(filename), 2000);
 }
 
 void DocuWindow::print()
 {
     QPrinter printer;
     if (printer.printerName().isEmpty()) {
-	statusBar()->showMessage(QString("No printer installed"), 2000);
+	statusBar()->showMessage(tr("No printer installed"), 2000);
 	return;
     }
 
     QPrintDialog printDialog(&printer, this);
     if (!printDialog.exec()) {
-	statusBar()->showMessage(QString("Printing aborted"), 2000);
+	statusBar()->showMessage(tr("Printing aborted"), 2000);
 	return;
     }
 

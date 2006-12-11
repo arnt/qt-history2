@@ -349,7 +349,7 @@ private slots:
                 if (key.isEmpty())
                     formWin->cursor()->setProperty(QLatin1String("control"), clsid.toString());
                 else
-                    formWin->cursor()->setProperty(QLatin1String("control"), clsid.toString() + ":" + key);
+                    formWin->cursor()->setProperty(QLatin1String("control"), clsid.toString() + QLatin1String(":") + key);
             }
         }
         delete dialog;

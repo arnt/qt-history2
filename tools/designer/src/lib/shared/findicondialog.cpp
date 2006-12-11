@@ -158,8 +158,8 @@ FindIconDialog::FindIconDialog(QDesignerFormWindowInterface *form, QWidget *pare
 #ifdef Q_OS_WIN
     isRoot = false;
     
-    QSettings myComputer("HKEY_CLASSES_ROOT\\CLSID\\{20D04FE0-3AEA-1069-A2D8-08002B30309D}", QSettings::NativeFormat);
-    rootDir = myComputer.value(".").toString();
+    QSettings myComputer(QLatin1String("HKEY_CLASSES_ROOT\\CLSID\\{20D04FE0-3AEA-1069-A2D8-08002B30309D}"), QSettings::NativeFormat);
+    rootDir = myComputer.value(QLatin1String(".")).toString();
 #endif
 
     updateButtons();

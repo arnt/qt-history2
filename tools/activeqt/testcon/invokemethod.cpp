@@ -21,9 +21,9 @@ InvokeMethod::InvokeMethod(QWidget *parent)
     setupUi(this);
 
     listParameters->setColumnCount(3);
-    listParameters->headerItem()->setText(0, "Parameter");
-    listParameters->headerItem()->setText(1, "Type");
-    listParameters->headerItem()->setText(2, "Value");
+    listParameters->headerItem()->setText(0, tr("Parameter"));
+    listParameters->headerItem()->setText(1, tr("Type"));
+    listParameters->headerItem()->setText(2, tr("Value"));
 }
 
 void InvokeMethod::setControl(QAxBase *ax)
@@ -48,7 +48,7 @@ void InvokeMethod::setControl(QAxBase *ax)
 	for (int i = mo->methodOffset(); i < mo->methodCount(); ++i) {
 	    const QMetaMethod method = mo->method(i);
             if (method.methodType() == QMetaMethod::Slot)
-	        comboMethods->addItem(method.signature());
+	        comboMethods->addItem(QString::fromLatin1(method.signature()));
 	}
         comboMethods->model()->sort(0);
 
@@ -79,8 +79,8 @@ void InvokeMethod::on_buttonInvoke_clicked()
     }
 
     QString resString = result.toString();
-    QString resType = result.typeName();
-    editReturn->setText(resType + " " + resString);
+    QString resType = QString::fromLatin1(result.typeName());
+    editReturn->setText(resType + QLatin1String(" ") + resString);
 }
 
 void InvokeMethod::on_comboMethods_activated(const QString &method)
@@ -91,20 +91,20 @@ void InvokeMethod::on_comboMethods_activated(const QString &method)
 
     const QMetaObject *mo = activex->metaObject();
     const QMetaMethod slot = mo->method(mo->indexOfSlot(method.toLatin1()));
-    QString signature = slot.signature();
-    signature = signature.mid(signature.indexOf('(') + 1);
+    QString signature = QString::fromLatin1(slot.signature());
+    signature = signature.mid(signature.indexOf(QLatin1Char('(')) + 1);
     signature.truncate(signature.length()-1);
 
     QList<QByteArray> pnames = slot.parameterNames();
     QList<QByteArray> ptypes = slot.parameterTypes();
 
     for (int p = 0; p < ptypes.count(); ++p) {
-	QString ptype(ptypes.at(p));
+	QString ptype(QString::fromLatin1(ptypes.at(p)));
 	if (ptype.isEmpty())
 	    continue;
-	QString pname(pnames.at(p));
+	QString pname(QString::fromLatin1(pnames.at(p).constData()));
 	if (pname.isEmpty())
-	    pname = QString("<unnamed %1>").arg(p);
+	    pname = QString::fromLatin1("<unnamed %1>").arg(p);
 	QTreeWidgetItem *item = new QTreeWidgetItem(listParameters);
         item->setText(0, pname);
         item->setText(1, ptype);
@@ -112,7 +112,7 @@ void InvokeMethod::on_comboMethods_activated(const QString &method)
 
     if (listParameters->topLevelItemCount())
 	listParameters->setCurrentItem(listParameters->topLevelItem(0));
-    editReturn->setText(slot.typeName());
+    editReturn->setText(QString::fromLatin1(slot.typeName()));
 }
 
 void InvokeMethod::on_listParameters_currentItemChanged(QTreeWidgetItem *item)

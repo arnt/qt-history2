@@ -793,7 +793,7 @@ public:
 
 	const QMetaObject *mo = qAxFactory()->metaObject(className);
 	if (mo) {
-	    classKey = mo->classInfo(mo->indexOfClassInfo("LicenseKey")).value();
+	    classKey = QLatin1String(mo->classInfo(mo->indexOfClassInfo("LicenseKey")).value());
 	    licensed = !classKey.isEmpty();
 	}
     }
@@ -1004,7 +1004,7 @@ QAxServerBase::QAxServerBase(QObject *o)
     if (o) {
 	theObject = o;
 	isWidget = false;
-	class_name = o->metaObject()->className();
+	class_name = QLatin1String(o->metaObject()->className());
     }
     internalBind();
     internalConnect();
@@ -1538,7 +1538,7 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos)
     static ATOM atom = 0;
     HINSTANCE hInst = (HINSTANCE)qAxInstance;
     EnterCriticalSection(&createWindowSection);
-    QString cn("QAxControl");
+    QString cn(QLatin1String("QAxControl"));
     cn += QString::number((int)ActiveXProc);
     if (!atom) {
 	QT_WA({
@@ -1757,7 +1757,7 @@ bool QAxServerBase::isPropertyExposed(int index)
     if (index <= qtProps && ignoreProps(property.name()))
 	return result;
 
-    BSTR bstrNames = QStringToBSTR(property.name());
+    BSTR bstrNames = QStringToBSTR(QLatin1String(property.name()));
     DISPID dispId;
     GetIDsOfNames(IID_NULL, (BSTR*)&bstrNames, 1, LOCALE_USER_DEFAULT, &dispId);
     result = dispId != DISPID_UNKNOWN;
@@ -2155,7 +2155,7 @@ bool QAxServerBase::emitRequestPropertyChange(const char *property)
 	    clist->Next(cc, (CONNECTDATA*)&c, &cc);
 	    if (cc) {
 		if (dispId == -1) {
-		    BSTR bstr = QStringToBSTR(property);
+		    BSTR bstr = QStringToBSTR(QLatin1String(property));
 		    GetIDsOfNames(IID_NULL, &bstr, 1, LOCALE_USER_DEFAULT, &dispId);
 		    SysFreeString(bstr);
 		}
@@ -2203,7 +2203,7 @@ void QAxServerBase::emitPropertyChanged(const char *property)
 	    clist->Next(cc, (CONNECTDATA*)&c, &cc);
 	    if (cc) {
 		if (dispId == -1) {
-		    BSTR bstr = QStringToBSTR(property);
+		    BSTR bstr = QStringToBSTR(QLatin1String(property));
 		    GetIDsOfNames(IID_NULL, &bstr, 1, LOCALE_USER_DEFAULT, &dispId);
 		    SysFreeString(bstr);
 		}
@@ -2402,8 +2402,8 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 		    }
                     // resolve overloads
                     if (index == -1) {
-                        QRegExp regexp("_([0-9])\\(");
-                        if (regexp.lastIndexIn(name) != -1) {
+                        QRegExp regexp(QLatin1String("_([0-9])\\("));
+                        if (regexp.lastIndexIn(QString::fromLatin1(name.constData())) != -1) {
                             name = name.left(name.length() - regexp.cap(0).length()) + "(";
                             int overload = regexp.cap(1).toInt() + 1;
                             
@@ -2658,7 +2658,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 	    if (!exception->context.isNull()) {
 		QString context = exception->context;
 		int contextID = 0;
-		int br = context.indexOf('[');
+		int br = context.indexOf(QLatin1Char('['));
 		if (br != -1) {
 		    context = context.mid(br+1);
 		    context = context.left(context.length() - 1);
@@ -2962,7 +2962,7 @@ HRESULT WINAPI QAxServerBase::Load(IPropertyBag *bag, IErrorLog * /*log*/)
 	    continue;
 	QMetaProperty property = mo->property(prop);
 	const char* pname = property.name();
-	BSTR bstr = QStringToBSTR(pname);
+	BSTR bstr = QStringToBSTR(QLatin1String(pname));
 	VARIANT var;
 	var.vt = VT_EMPTY;
 	HRESULT res = bag->Read(bstr, &var, 0);
@@ -2997,7 +2997,7 @@ HRESULT WINAPI QAxServerBase::Save(IPropertyBag *bag, BOOL clearDirty, BOOL /*sa
         if (QByteArray(property.typeName()).endsWith('*'))
             continue;
 
-	BSTR bstr = QStringToBSTR(property.name());
+	BSTR bstr = QStringToBSTR(QLatin1String(property.name()));
 	QVariant qvar = qt.object->property(property.name());
 	if (!qvar.isValid())
 	    error = true;
@@ -3017,7 +3017,7 @@ HRESULT WINAPI QAxServerBase::SaveCompleted(LPCOLESTR fileName)
     if (qt.object->metaObject()->indexOfClassInfo("MIME") == -1)
         return E_NOTIMPL;
 
-    currentFileName = QString::fromUtf16(fileName);
+    currentFileName = QString::fromUtf16(reinterpret_cast<const ushort *>(fileName));
     return S_OK;
 }
 
@@ -3035,7 +3035,7 @@ HRESULT WINAPI QAxServerBase::GetCurFile(LPOLESTR *currentFile)
     if (!malloc)
         return E_OUTOFMEMORY;
 
-    *currentFile = (ushort*)malloc->Alloc(currentFileName.length() * 2);
+    *currentFile = static_cast<WCHAR *>(malloc->Alloc(currentFileName.length() * 2));
     malloc->Release();
     memcpy(*currentFile, currentFileName.unicode(), currentFileName.length() * 2);
 
@@ -3055,26 +3055,26 @@ HRESULT WINAPI QAxServerBase::Load(LPCOLESTR fileName, DWORD mode)
         return E_NOTIMPL;
     }
 
-    QString loadFileName = QString::fromUtf16(fileName);
-    QString fileExtension = loadFileName.mid(loadFileName.lastIndexOf('.') + 1);
+    QString loadFileName = QString::fromUtf16(reinterpret_cast<const ushort *>(fileName));
+    QString fileExtension = loadFileName.mid(loadFileName.lastIndexOf(QLatin1Char('.')) + 1);
     QFile file(loadFileName);
 
     QString mimeType = QLatin1String(mo->classInfo(mimeIndex).value());
-    QStringList mimeTypes = mimeType.split(';');
+    QStringList mimeTypes = mimeType.split(QLatin1Char(';'));
     for (int m = 0; m < mimeTypes.count(); ++m) {
         QString mime = mimeTypes.at(m);
-        if (mime.count(':') != 2) {
+        if (mime.count(QLatin1Char(':')) != 2) {
             qWarning() << class_name << ": Invalid syntax in Q_CLASSINFO for MIME";
             continue;
         }
 
-        mimeType = mime.left(mimeType.indexOf(':')); // first type
+        mimeType = mime.left(mimeType.indexOf(QLatin1Char(':'))); // first type
         if (mimeType.isEmpty()) {
             qWarning() << class_name << ": Invalid syntax in Q_CLASSINFO for MIME";
             continue;
         }
         QString mimeExtension = mime.mid(mimeType.length() + 1);
-        mimeExtension = mimeExtension.left(mimeExtension.indexOf(':'));
+        mimeExtension = mimeExtension.left(mimeExtension.indexOf(QLatin1Char(':')));
         if (mimeExtension != fileExtension)
             continue;
 
@@ -3100,25 +3100,25 @@ HRESULT WINAPI QAxServerBase::Save(LPCOLESTR fileName, BOOL fRemember)
         return E_NOTIMPL;
     }
 
-    QString saveFileName = QString::fromUtf16(fileName);
-    QString fileExtension = saveFileName.mid(saveFileName.lastIndexOf('.') + 1);
+    QString saveFileName = QString::fromUtf16(reinterpret_cast<const ushort *>(fileName));
+    QString fileExtension = saveFileName.mid(saveFileName.lastIndexOf(QLatin1Char('.')) + 1);
     QFile file(saveFileName);
 
     QString mimeType = QLatin1String(mo->classInfo(mimeIndex).value());
-    QStringList mimeTypes = mimeType.split(';');
+    QStringList mimeTypes = mimeType.split(QLatin1Char(';'));
     for (int m = 0; m < mimeTypes.count(); ++m) {
         QString mime = mimeTypes.at(m);
-        if (mime.count(':') != 2) {
+        if (mime.count(QLatin1Char(':')) != 2) {
             qWarning() << class_name << ": Invalid syntax in Q_CLASSINFO for MIME";
             continue;
         }
-        mimeType = mime.left(mimeType.indexOf(':')); // first type
+        mimeType = mime.left(mimeType.indexOf(QLatin1Char(':'))); // first type
         if (mimeType.isEmpty()) {
             qWarning() << class_name << ": Invalid syntax in Q_CLASSINFO for MIME";
             continue;
         }
         QString mimeExtension = mime.mid(mimeType.length() + 1);
-        mimeExtension = mimeExtension.left(mimeExtension.indexOf(':'));
+        mimeExtension = mimeExtension.left(mimeExtension.indexOf(QLatin1Char(':')));
         if (mimeExtension != fileExtension)
             continue;
         if (axb->writeData(&file)) {

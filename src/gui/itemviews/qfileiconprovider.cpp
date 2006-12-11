@@ -181,11 +181,11 @@ QIcon QFileIconProviderPrivate::getWinIcon(const QFileInfo &fileInfo) const
 {
     QIcon retIcon;
     QString fileExtension = fileInfo.extension(FALSE).upper();
-    fileExtension.prepend( "." );
+    fileExtension.prepend( QLatin1String(".") );
 
     QString key;
     if (fileInfo.isFile() && !fileInfo.isExecutable() && !fileInfo.isSymLink())
-        key = "qt_" + fileExtension;
+        key = QLatin1String("qt_") + fileExtension;
 
     QPixmap pixmap;
     QPixmapCache::find(key, pixmap);

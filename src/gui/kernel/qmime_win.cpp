@@ -381,11 +381,11 @@ bool QWindowsMimeText::convertFromMime(const FORMATETC &formatetc, const QMimeDa
             int ri = 0;
             bool cr = false;
             for (int i=0; i < s; ++i) {
-                if (*u == '\r')
+                if (*u == QLatin1Char('\r'))
                     cr = true;
                 else {
-                    if (*u == '\n' && !cr)
-                        res[ri++] = QChar('\r');
+                    if (*u == QLatin1Char('\n') && !cr)
+                        res[ri++] = QLatin1Char('\r');
                     cr = false;
                 }
                 res[ri++] = *u;
@@ -409,7 +409,7 @@ bool QWindowsMimeText::convertFromMime(const FORMATETC &formatetc, const QMimeDa
 
 bool QWindowsMimeText::canConvertToMime(const QString &mimeType, IDataObject *pDataObj) const
 {
-    return mimeType.startsWith("text/plain")
+    return mimeType.startsWith(QLatin1String("text/plain"))
            && (canGetData(CF_UNICODETEXT, pDataObj)
            || canGetData(CF_TEXT, pDataObj));
 }
@@ -418,7 +418,7 @@ QString QWindowsMimeText::mimeForFormat(const FORMATETC &formatetc) const
 {
     int cf = getCf(formatetc);
     if (cf == CF_UNICODETEXT || cf == CF_TEXT)
-        return "text/plain";
+        return QLatin1String("text/plain");
     return QString();
 }
 
@@ -426,7 +426,7 @@ QString QWindowsMimeText::mimeForFormat(const FORMATETC &formatetc) const
 QVector<FORMATETC> QWindowsMimeText::formatsForMime(const QString &mimeType, const QMimeData *mimeData) const
 {
     QVector<FORMATETC> formatics;
-    if (mimeType.startsWith("text/plain") && mimeData->hasText()) {
+    if (mimeType.startsWith(QLatin1String("text/plain")) && mimeData->hasText()) {
         formatics += setCf(CF_UNICODETEXT);
         formatics += setCf(CF_TEXT);
     }
@@ -485,8 +485,8 @@ private:
 
 QWindowsMimeURI::QWindowsMimeURI()
 {
-    CF_INETURL_W = QWindowsMime::registerMimeType("UniformResourceLocatorW");
-    CF_INETURL = QWindowsMime::registerMimeType("UniformResourceLocator");
+    CF_INETURL_W = QWindowsMime::registerMimeType(QLatin1String("UniformResourceLocatorW"));
+    CF_INETURL = QWindowsMime::registerMimeType(QLatin1String("UniformResourceLocator"));
 }
 
 bool QWindowsMimeURI::canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const
@@ -498,7 +498,7 @@ bool QWindowsMimeURI::canConvertFromMime(const FORMATETC &formatetc, const QMime
                 return true;
         }
     }
-    return (getCf(formatetc) == CF_INETURL_W || getCf(formatetc) == CF_INETURL) && mimeData->hasFormat("text/uri-list");
+    return (getCf(formatetc) == CF_INETURL_W || getCf(formatetc) == CF_INETURL) && mimeData->hasFormat(QLatin1String("text/uri-list"));
 }
 
 bool QWindowsMimeURI::convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM *pmedium) const
@@ -572,7 +572,7 @@ bool QWindowsMimeURI::convertFromMime(const FORMATETC &formatetc, const QMimeDat
 
 bool QWindowsMimeURI::canConvertToMime(const QString &mimeType, IDataObject *pDataObj) const
 {
-    return mimeType == "text/uri-list"
+    return mimeType == QLatin1String("text/uri-list")
            && (canGetData(CF_HDROP, pDataObj) || canGetData(CF_INETURL_W, pDataObj) || canGetData(CF_INETURL, pDataObj));
 }
 
@@ -580,14 +580,14 @@ QString QWindowsMimeURI::mimeForFormat(const FORMATETC &formatetc) const
 {
     QString format;
     if (getCf(formatetc) == CF_HDROP || getCf(formatetc) == CF_INETURL_W || getCf(formatetc) == CF_INETURL)
-        format = "text/uri-list";
+        format = QLatin1String("text/uri-list");
     return format;
 }
 
 QVector<FORMATETC> QWindowsMimeURI::formatsForMime(const QString &mimeType, const QMimeData *mimeData) const
 {
     QVector<FORMATETC> formatics;
-    if (mimeType == "text/uri-list") {
+    if (mimeType == QLatin1String("text/uri-list")) {
         if (canConvertFromMime(setCf(CF_HDROP), mimeData))
             formatics += setCf(CF_HDROP);
         if (canConvertFromMime(setCf(CF_INETURL_W), mimeData))
@@ -600,7 +600,7 @@ QVector<FORMATETC> QWindowsMimeURI::formatsForMime(const QString &mimeType, cons
 
 QVariant QWindowsMimeURI::convertToMime(const QString &mimeType, LPDATAOBJECT pDataObj, QVariant::Type preferredType) const
 {
-    if (mimeType == "text/uri-list") {
+    if (mimeType == QLatin1String("text/uri-list")) {
         if (canGetData(CF_HDROP, pDataObj)) {
             QByteArray texturi;
             QList<QVariant> urls;
@@ -667,13 +667,13 @@ private:
 
 QWindowsMimeHtml::QWindowsMimeHtml()
 {
-    CF_HTML = QWindowsMime::registerMimeType("HTML Format");
+    CF_HTML = QWindowsMime::registerMimeType(QLatin1String("HTML Format"));
 }
 
 QVector<FORMATETC> QWindowsMimeHtml::formatsForMime(const QString &mimeType, const QMimeData *mimeData) const
 {
     QVector<FORMATETC> formatetcs;
-    if (mimeType == "text/html" && (!mimeData->html().isEmpty()))
+    if (mimeType == QLatin1String("text/html") && (!mimeData->html().isEmpty()))
         formatetcs += setCf(CF_HTML);
     return formatetcs;
 }
@@ -681,13 +681,13 @@ QVector<FORMATETC> QWindowsMimeHtml::formatsForMime(const QString &mimeType, con
 QString QWindowsMimeHtml::mimeForFormat(const FORMATETC &formatetc) const
 {
     if (getCf(formatetc) == CF_HTML)
-        return "text/html";
+        return QLatin1String("text/html");
     return QString();
 }
 
 bool QWindowsMimeHtml::canConvertToMime(const QString &mimeType, IDataObject *pDataObj) const
 {
-    return mimeType == "text/html" && canGetData(CF_HTML, pDataObj);
+    return mimeType == QLatin1String("text/html") && canGetData(CF_HTML, pDataObj);
 }
 
 
@@ -802,7 +802,7 @@ public:
 QVector<FORMATETC> QWindowsMimeImage::formatsForMime(const QString &mimeType, const QMimeData *mimeData) const
 {
     QVector<FORMATETC> formatetcs;
-    if (mimeData->hasImage() && mimeType == "application/x-qt-image") {
+    if (mimeData->hasImage() && mimeType == QLatin1String("application/x-qt-image")) {
         formatetcs += setCf(CF_DIB);
     }
     return formatetcs;
@@ -811,13 +811,13 @@ QVector<FORMATETC> QWindowsMimeImage::formatsForMime(const QString &mimeType, co
 QString QWindowsMimeImage::mimeForFormat(const FORMATETC &formatetc) const
 {
     if (getCf(formatetc) == CF_DIB)
-       return "application/x-qt-image";
+       return QLatin1String("application/x-qt-image");
     return QString();
 }
 
 bool QWindowsMimeImage::canConvertToMime(const QString &mimeType, IDataObject *pDataObj) const
 {
-    if (mimeType == "application/x-qt-image" && canGetData(CF_DIB, pDataObj))
+    if (mimeType == QLatin1String("application/x-qt-image") && canGetData(CF_DIB, pDataObj))
         return true;
     return false;
 }
@@ -849,7 +849,7 @@ QVariant QWindowsMimeImage::convertToMime(const QString &mimeType, IDataObject *
 {
     Q_UNUSED(preferredType);
     QVariant result;
-    if (mimeType == "application/x-qt-image" && canGetData(CF_DIB, pDataObj)) {
+    if (mimeType == QLatin1String("application/x-qt-image") && canGetData(CF_DIB, pDataObj)) {
         QImage img;
         QByteArray data = getData(CF_DIB, pDataObj);
         QDataStream s(&data, QIODevice::ReadOnly);
@@ -886,8 +886,8 @@ private:
 QBuiltInMimes::QBuiltInMimes()
 : QWindowsMime()
 {
-    outFormats.insert(QWindowsMime::registerMimeType("application/x-color"), "application/x-color");
-    inFormats.insert(QWindowsMime::registerMimeType("application/x-color"), "application/x-color");
+    outFormats.insert(QWindowsMime::registerMimeType(QLatin1String("application/x-color")), QLatin1String("application/x-color"));
+    inFormats.insert(QWindowsMime::registerMimeType(QLatin1String("application/x-color")), QLatin1String("application/x-color"));
 }
 
 bool QBuiltInMimes::canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const
@@ -902,7 +902,7 @@ bool QBuiltInMimes::convertFromMime(const FORMATETC &formatetc, const QMimeData 
 {
     if (canConvertFromMime(formatetc, mimeData)) {
         QByteArray data;
-        if (outFormats.value(getCf(formatetc)) == "text/html") {
+        if (outFormats.value(getCf(formatetc)) == QLatin1String("text/html")) {
             // text/html is in wide chars on windows (compatible with mozillia)
             QString html = mimeData->html();
             // same code as in the text converter up above
@@ -914,11 +914,11 @@ bool QBuiltInMimes::convertFromMime(const FORMATETC &formatetc, const QMimeData 
             int ri = 0;
             bool cr = false;
             for (int i=0; i < s; ++i) {
-                if (*u == '\r')
+                if (*u == QLatin1Char('\r'))
                     cr = true;
                 else {
-                    if (*u == '\n' && !cr)
-                        res[ri++] = QChar('\r');
+                    if (*u == QLatin1Char('\n') && !cr)
+                        res[ri++] = QLatin1Char('\r');
                     cr = false;
                 }
                 res[ri++] = *u;
@@ -966,7 +966,7 @@ QVariant QBuiltInMimes::convertToMime(const QString &mimeType, IDataObject *pDat
 #ifdef QMIME_DEBUG
             qDebug("QBuiltInMimes::convertToMime()");
 #endif
-            if (mimeType == "text/html" && preferredType == QVariant::String) {
+            if (mimeType == QLatin1String("text/html") && preferredType == QVariant::String) {
                 // text/html is in wide chars on windows (compatible with mozillia)
                 val = QString::fromUtf16((const unsigned short *)data.data());
             } else {

@@ -31,17 +31,17 @@ static QTextEdit *debuglog = 0;
 static void redirectDebugOutput(QtMsgType type, const char*msg)
 {
     Q_UNUSED(type);
-    debuglog->append(msg);
+    debuglog->append(QLatin1String(msg));
 }
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     setupUi(this);
-    setObjectName("MainWindow");
+    setObjectName(QLatin1String("MainWindow"));
 
-    QAxScriptManager::registerEngine("PerlScript", ".pl");
-    QAxScriptManager::registerEngine("Python", ".py");
+    QAxScriptManager::registerEngine(QLatin1String("PerlScript"), QLatin1String(".pl"));
+    QAxScriptManager::registerEngine(QLatin1String("Python"), QLatin1String(".py"));
 
     dlgInvoke = 0;
     dlgProperties = 0;
@@ -81,13 +81,13 @@ void MainWindow::on_actionFileNew_triggered()
 
 void MainWindow::on_actionFileLoad_triggered()
 {
-    QString fname = QFileDialog::getOpenFileName(this, "Load", QString(), "*.qax");
+    QString fname = QFileDialog::getOpenFileName(this, tr("Load"), QString(), QLatin1String("*.qax"));
     if (fname.isEmpty())
 	return;
 
     QFile file(fname);
     if (!file.open(QIODevice::ReadOnly)) {
-	QMessageBox::information(this, "Error Loading File", QString("The file could not be opened for reading.\n%1").arg(fname));
+	QMessageBox::information(this, tr("Error Loading File"), tr("The file could not be opened for reading.\n%1").arg(fname));
 	return;
     }
 
@@ -109,13 +109,13 @@ void MainWindow::on_actionFileSave_triggered()
     if (!container)
         return;
 
-    QString fname = QFileDialog::getSaveFileName(this, "Save", QString(), "*.qax");
+    QString fname = QFileDialog::getSaveFileName(this, tr("Save"), QString(), QLatin1String("*.qax"));
     if (fname.isEmpty())
 	return;
 
     QFile file(fname);
     if (!file.open(QIODevice::WriteOnly)) {
-	QMessageBox::information(this, "Error Saving File", QString("The file could not be opened for writing.\n%1").arg(fname));
+	QMessageBox::information(this, tr("Error Saving File"), tr("The file could not be opened for writing.\n%1").arg(fname));
 	return;
     }
     QDataStream d(&file);
@@ -244,7 +244,7 @@ void MainWindow::on_actionControlPixmap_triggered()
     QLabel *label = new QLabel(workspace);
     label->setAttribute(Qt::WA_DeleteOnClose);
     label->setPixmap(pm);
-    label->setWindowTitle(container->windowTitle() + " - Pixmap");
+    label->setWindowTitle(tr("%1 - Pixmap").arg(container->windowTitle()));
 
     workspace->addWindow(label);
     label->show();
@@ -260,7 +260,7 @@ void MainWindow::on_actionScriptingRun_triggered()
     QStringList scriptList = scripts->scriptNames();
     if (scriptList.count() == 1) {
 	InvokeMethod scriptInvoke(this);
-	scriptInvoke.setWindowTitle("Execute Script Function");
+	scriptInvoke.setWindowTitle(tr("Execute Script Function"));
 	scriptInvoke.setControl(scripts->script(scriptList[0])->scriptEngine());
 	scriptInvoke.exec();
 	return;
@@ -268,21 +268,21 @@ void MainWindow::on_actionScriptingRun_triggered()
 
     bool ok = false;
     QStringList macroList = scripts->functions(QAxScript::FunctionNames);
-    QString macro = QInputDialog::getItem(this, "Select Macro", "Macro:", macroList, 0, true, &ok);
+    QString macro = QInputDialog::getItem(this, tr("Select Macro"), tr("Macro:"), macroList, 0, true, &ok);
 
     if (!ok)
 	return;
 
     QVariant result = scripts->call(macro);
     if (result.isValid())
-	logMacros->append(QString("Return value of %1: %2").arg(macro).arg(result.toString()));
+	logMacros->append(tr("Return value of %1: %2").arg(macro).arg(result.toString()));
 #endif
 }
 
 void MainWindow::on_actionScriptingLoad_triggered()
 {
 #ifndef QT_NO_QAXSCRIPT
-    QString file = QFileDialog::getOpenFileName(this, "Open Script", QString(), QAxScriptManager::scriptFileFilter());
+    QString file = QFileDialog::getOpenFileName(this, tr("Open Script"), QString(), QAxScriptManager::scriptFileFilter());
 
     if (file.isEmpty())
 	return;
@@ -309,8 +309,8 @@ void MainWindow::on_actionScriptingLoad_triggered()
 	actionScriptingRun->setEnabled(true);
     }
 #else
-    QMessageBox::information(this, "Function not available",
-	"QAxScript functionality is not available with this compiler.");
+    QMessageBox::information(this, tr("Function not available"),
+	tr("QAxScript functionality is not available with this compiler."));
 #endif
 }
 
@@ -368,7 +368,7 @@ void MainWindow::logPropertyChanged(const QString &prop)
         return;
 
     QVariant var = container->property(prop.toLatin1());
-    logProperties->append(container->windowTitle() + ": Property Change: " + prop + " - { " + var.toString() + " }");
+    logProperties->append(tr("%1: Property Change: %2 - { %3 }").arg(container->windowTitle(), prop, var.toString()));
 }
 
 void MainWindow::logSignal(const QString &signal, int argc, void *argv)
@@ -381,17 +381,17 @@ void MainWindow::logSignal(const QString &signal, int argc, void *argv)
     VARIANT *params = (VARIANT*)argv;
     for (int a = argc-1; a >= 0; --a) {
 	if (a == argc-1)
-	    paramlist = " - {";
+	    paramlist = QLatin1String(" - {");
 	QVariant qvar = VARIANTToQVariant(params[a], 0);
-	paramlist += " " + qvar.toString();
+	paramlist += QLatin1String(" ") + qvar.toString();
 	if (a > 0)
-	    paramlist += ",";
+	    paramlist += QLatin1String(",");
 	else
-	    paramlist += " ";
+	    paramlist += QLatin1String(" ");
     }
     if (argc)
-	paramlist += "}";
-    logSignals->append(container->windowTitle() + ": " + signal + paramlist);
+	paramlist += QLatin1String("}");
+    logSignals->append(container->windowTitle() + QLatin1String(": ") + signal + paramlist);
 }
 
 void MainWindow::logException(int code, const QString&source, const QString&desc, const QString&help)
@@ -401,25 +401,27 @@ void MainWindow::logException(int code, const QString&source, const QString&desc
     if (!container)
         return;
 
-    QString str = QString("%1: Exception code %2 thrown by %3").
+    QString str = tr("%1: Exception code %2 thrown by %3").
 	arg(container->windowTitle()).arg(code).arg(source);
     logDebug->append(str);
 
     if (!help.isEmpty())
-	logDebug->append("\tHelp available at " + help);
+	logDebug->append(tr("\tHelp available at %1").arg(help));
     else
-	logDebug->append("\tNo help available.");
+	logDebug->append(tr("\tNo help available."));
 }
 
 void MainWindow::logMacro(int code, const QString &description, int sourcePosition, const QString &sourceText)
 {
-    QString message = "Script: ";
+    /* FIXME This needs to be rewritten to not use string concatentation, such
+     * that it can be translated in a sane way. */
+    QString message = tr("Script: ");
     if (code)
-	message += QString::number(code) + " ";
-    message += "'" + description + "'";
+	message += QString::number(code) + QLatin1String(" ");
+    message += QLatin1String("'") + description + QLatin1String("'");
     if (sourcePosition)
-	message += " at position " + QString::number(sourcePosition);
+	message += tr(" at position ") + QString::number(sourcePosition);
     if (!sourceText.isEmpty())
-	message += " '" + sourceText + "'";
+	message += QLatin1String(" '") + sourceText + QLatin1String("'");
     logMacros->append(message);
 }

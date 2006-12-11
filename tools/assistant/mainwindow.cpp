@@ -349,16 +349,16 @@ QString MainWindow::urlifyFileName(const QString &fileName)
     QUrl url(name);
 
 #if defined(Q_OS_WIN32)
-    if (!url.isValid() || url.scheme().isEmpty() || url.scheme().toLower() != "file:") {
-        int i = name.indexOf('#');
+    if (!url.isValid() || url.scheme().isEmpty() || url.scheme().toLower() != QLatin1String("file:")) {
+        int i = name.indexOf(QLatin1Char('#'));
         QString anchor = name.mid(i);
         name = name.toLower();
         if (i > -1)
             name.replace(i, anchor.length(), anchor);
-        name.replace('\\', '/');
+        name.replace(QLatin1Char('\\'), QLatin1Char('/'));
         foreach (QFileInfo drive, QDir::drives()) {
             if (name.startsWith(drive.absolutePath().toLower())) {
-                name = "file:" + name;
+                name = QLatin1String("file:") + name;
                 break;
             }
         }

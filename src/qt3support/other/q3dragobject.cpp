@@ -1253,20 +1253,20 @@ QByteArray Q3UriDrag::localFileToUri(const QString& filename)
 
     bool hasHost = false;
     // convert form network path
-    if (r.left(2) == "\\\\" || r.left(2) == "//") {
+    if (r.left(2) == QLatin1String("\\\\") || r.left(2) == QLatin1String("//")) {
         r.remove(0, 2);
         hasHost = true;
     }
 
     // Slosh -> Slash
     int slosh;
-    while ((slosh=r.indexOf('\\')) >= 0) {
-        r[slosh] = '/';
+    while ((slosh=r.indexOf(QLatin1Char('\\'))) >= 0) {
+        r[slosh] = QLatin1Char('/');
     }
 
     // Drive
-    if (r[0] != '/' && !hasHost)
-        r.insert(0,'/');
+    if (r[0] != QLatin1Char('/') && !hasHost)
+        r.insert(0,QLatin1Char('/'));
 
 #endif
 #if defined (Q_WS_X11) && 0
@@ -1363,10 +1363,10 @@ QString Q3UriDrag::uriToLocalFile(const char* uri)
                 file.insert(0, QLatin1Char('/'));
         }
 #ifdef Q_WS_WIN
-        if (file.length() > 2 && file[0] == '/' && file[2] == '|') {
-            file[2] = ':';
+        if (file.length() > 2 && file[0] == QLatin1Char('/') && file[2] == QLatin1Char('|')) {
+            file[2] = QLatin1Char(':');
             file.remove(0,1);
-        } else if (file.length() > 2 && file[0] == '/' && file[1].isLetter() && file[2] == ':') {
+        } else if (file.length() > 2 && file[0] == QLatin1Char('/') && file[1].isLetter() && file[2] == QLatin1Char(':')) {
             file.remove(0, 1);
         }
         // Leave slash as slashes.
@@ -1376,7 +1376,7 @@ QString Q3UriDrag::uriToLocalFile(const char* uri)
     else {
         file = uriToUnicodeUri(uri);
         // convert to network path
-        file.insert(1, '/'); // leave as forward slashes
+        file.insert(1, QLatin1Char('/')); // leave as forward slashes
     }
 #endif
 

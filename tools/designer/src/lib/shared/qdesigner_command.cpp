@@ -1223,7 +1223,7 @@ void AddToolBarCommand::redo()
     formWindow()->ensureUniqueObjectName(m_toolBar);
     QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), m_toolBar);
     if (sheet) {
-        int idx = sheet->indexOf("windowTitle");
+        int idx = sheet->indexOf(QLatin1String("windowTitle"));
         if (idx != -1) {
             sheet->setProperty(idx, m_toolBar->objectName());
             sheet->setChanged(idx, true);

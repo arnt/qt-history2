@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
     QString reporterPath = QString::fromLocal8Bit(binariesPath) + QDir::separator()
                            + QLatin1String("qtusagereporter");
 #if defined(Q_OS_WIN)
-    reporterPath += ".exe";
+    reporterPath += QLatin1String(".exe");
 #endif
     if (QFile::exists(reporterPath))
         system(qPrintable(reporterPath + QLatin1String(" uic")));

@@ -507,7 +507,7 @@ static void resolveLibs()
 #endif
         triedResolve = true;
         if (qt_winUnicode()) {
-            QLibrary lib("shell32");
+            QLibrary lib(QLatin1String("shell32"));
             ptrExtractIconEx = (PtrExtractIconEx) lib.resolve("ExtractIconExW");
         }
     }
@@ -3660,7 +3660,7 @@ void Q3FileDialog::okClicked()
             if (!nameEdit->text().contains(QLatin1Char('/')) &&
                  !nameEdit->text().contains(QLatin1String("\\"))
 #if defined(Q_OS_WIN32)
-                 && nameEdit->text()[1] != ':'
+                 && nameEdit->text()[1] != QLatin1Char(':')
 #endif
                 )
                 addFilter(nameEdit->text());
@@ -4936,7 +4936,7 @@ static QString getWindowsRegString(HKEY key, const QString &subKey)
             char *ptr = new char[bsz+1];
             r = RegQueryValueEx(key, (TCHAR*)subKey.ucs2(), 0, 0, (LPBYTE)ptr, &bsz);
             if (r == ERROR_SUCCESS)
-                s = ptr;
+                s = QLatin1String(ptr);
             delete [] ptr;
         }
     } , {
@@ -4944,12 +4944,12 @@ static QString getWindowsRegString(HKEY key, const QString &subKey)
         DWORD bsz = sizeof(buf);
         int r = RegQueryValueExA(key, subKey.local8Bit(), 0, 0, (LPBYTE)buf, &bsz);
         if (r == ERROR_SUCCESS) {
-            s = buf;
+            s = QLatin1String(buf);
         } else if (r == ERROR_MORE_DATA) {
             char *ptr = new char[bsz+1];
             r = RegQueryValueExA(key, subKey.local8Bit(), 0, 0, (LPBYTE)ptr, &bsz);
             if (r == ERROR_SUCCESS)
-                s = ptr;
+                s = QLatin1String(ptr);
             delete [] ptr;
         }
     });
@@ -4998,7 +4998,7 @@ QWindowsIconProvider::QWindowsIconProvider(QObject *parent, const char *name)
         s = getWindowsRegString(k, QString());
         RegCloseKey(k);
 
-        QStringList lst = QStringList::split(",", s);
+        QStringList lst = QStringList::split(QLatin1String(","), s);
 
         if (lst.count() >= 2) { // don't just assume that lst has two entries
 #ifndef Q_OS_TEMP
@@ -5092,12 +5092,12 @@ const QPixmap * QWindowsIconProvider::pixmap(const QFileInfo &fi)
 
     QString ext = fi.extension(false).upper();
     QString key = ext;
-    ext.prepend(".");
+    ext.prepend(QLatin1String("."));
     QMap< QString, QPixmap >::Iterator it;
 
     if (fi.isDir()) {
         return &defaultFolder;
-    } else if (ext.toLower() != ".exe") {
+    } else if (ext.toLower() != QLatin1String(".exe")) {
         it = cache.find(key);
         if (it != cache.end())
             return &(*it);
@@ -5122,10 +5122,10 @@ const QPixmap * QWindowsIconProvider::pixmap(const QFileInfo &fi)
         RegCloseKey(k);
 
         QT_WA({
-            r = RegOpenKeyEx(HKEY_CLASSES_ROOT, (TCHAR*)QString(s + "\\DefaultIcon").ucs2(),
+            r = RegOpenKeyEx(HKEY_CLASSES_ROOT, (TCHAR*)QString(s + QLatin1String("\\DefaultIcon")).ucs2(),
                                0, KEY_READ, &k2);
         } , {
-            r = RegOpenKeyExA(HKEY_CLASSES_ROOT, QString(s + "\\DefaultIcon").local8Bit() ,
+            r = RegOpenKeyExA(HKEY_CLASSES_ROOT, QString(s + QLatin1String("\\DefaultIcon")).local8Bit() ,
                                0, KEY_READ, &k2);
         });
         if (r == ERROR_SUCCESS) {
@@ -5140,21 +5140,21 @@ const QPixmap * QWindowsIconProvider::pixmap(const QFileInfo &fi)
         if (s.isEmpty())
             return &defaultFile;
 
-        QStringList lst = QStringList::split(",", s);
+        QStringList lst = QStringList::split(QLatin1String(","), s);
 
         HICON si;
         UINT res = 0;
         if (lst.count() >= 2) { // don't just assume that lst has two entries
             QString filepath = lst[0].stripWhiteSpace();
             if (!filepath.isEmpty()) {
-                if (filepath.find("%1") != -1) {
+                if (filepath.find(QLatin1String("%1")) != -1) {
                     filepath = filepath.arg(fi.filePath());
-                    if (ext.toLower() == ".dll") {
+                    if (ext.toLower() == QLatin1String(".dll")) {
                         pix = defaultFile;
                         return &pix;
                     }
                 }
-                if (filepath[0] == '"' && filepath[(int)filepath.length()-1] == '"')
+                if (filepath[0] == QLatin1Char('"') && filepath[(int)filepath.length()-1] == QLatin1Char('"'))
                     filepath = filepath.mid(1, filepath.length()-2);
 
                 resolveLibs();
@@ -5612,13 +5612,13 @@ static bool isRoot(const Q3Url &u)
 #elif defined(Q_OS_WIN32)
     QString p = u.path();
     if (p.length() == 3 &&
-         p.right(2) == ":/")
+         p.right(2) == QLatin1String(":/"))
         return true;
-    if (p[0] == '/' && p[1] == '/') {
-        int slashes = p.count('/');
+    if (p[0] == QLatin1Char('/') && p[1] == QLatin1Char('/')) {
+        int slashes = p.count(QLatin1Char('/'));
         if (slashes <= 3)
             return true;
-        if (slashes == 4 && p[(int)p.length() - 1] == '/')
+        if (slashes == 4 && p[(int)p.length() - 1] == QLatin1Char('/'))
             return true;
     }
 #else
@@ -5735,7 +5735,7 @@ void Q3FileDialog::urlFinished(Q3NetworkOperation *op)
         if (!d->hadDotDot && !isRoot(d->url)) {
             bool ok = true;
 #if defined(Q_WS_WIN)
-            if (d->url.path().left(2) == "//")
+            if (d->url.path().left(2) == QLatin1String("//"))
                 ok = false;
 #endif
             if (ok) {
@@ -5835,8 +5835,8 @@ void Q3FileDialog::insertEntry(const Q3ValueList<QUrlInfo> &lst, Q3NetworkOperat
         if (!bShowHiddenFiles && inf.name() != QLatin1String("..")) {
             if (d->url.isLocalFile()) {
                 QString file = d->url.path();
-                if (!file.endsWith("/"))
-                    file.append("/");
+                if (!file.endsWith(QLatin1String("/")))
+                    file.append(QLatin1String("/"));
                 file += inf.name();
                 QT_WA({
                     if (GetFileAttributesW((TCHAR*)file.ucs2()) & FILE_ATTRIBUTE_HIDDEN)
@@ -5846,7 +5846,7 @@ void Q3FileDialog::insertEntry(const Q3ValueList<QUrlInfo> &lst, Q3NetworkOperat
                         continue;
                 });
             } else {
-                if (inf.name() != ".." && inf.name()[0] == QChar('.'))
+                if (inf.name() != QLatin1String("..") && inf.name()[0] == QLatin1Char('.'))
                     continue;
             }
         }

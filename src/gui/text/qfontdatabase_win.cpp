@@ -206,7 +206,7 @@ static QString getEnglishName(const uchar *table, quint32 bytes)
                 QChar *uc = (QChar *) i18n_name.unicode();
                 const unsigned char *string = table + string_offset + offset;
                 for(int i = 0; i < length; ++i)
-                    uc[i] = string[i];
+                    uc[i] = QLatin1Char(string[i]);
             }
         }
     }
@@ -333,7 +333,7 @@ void addFontToDatabase(QString familyName, const QString &scriptName,
         weight = tm->tmWeight;
     });
     // the "@family" fonts are just the same as "family". Ignore them.
-    if (familyName[0] != '@' && !familyName.startsWith(QLatin1String("WST_"))) {
+    if (familyName[0] != QLatin1Char('@') && !familyName.startsWith(QLatin1String("WST_"))) {
         QtFontStyle::Key styleKey;
         styleKey.style = italic ? QFont::StyleItalic : QFont::StyleNormal;
         if (weight < 400)
@@ -348,7 +348,7 @@ void addFontToDatabase(QString familyName, const QString &scriptName,
             styleKey.weight = QFont::Black;
 
         QString rawName = familyName;
-        familyName.replace('-', ' ');
+        familyName.replace(QLatin1Char('-'), QLatin1Char(' '));
         QtFontFamily *family = privateDb()->family(familyName, true);
         family->rawName = rawName;
 
@@ -771,23 +771,23 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp, const QFontDef &requ
         else
             deffnt = DEFAULT_GUI_FONT;
         QString fam = desc->family->rawName.toLower();
-        if (fam == "default")
+        if (fam == QLatin1String("default"))
             f = deffnt;
-        else if (fam == "system")
+        else if (fam == QLatin1String("system"))
             f = SYSTEM_FONT;
 #ifndef Q_OS_TEMP
-        else if (fam == "system_fixed")
+        else if (fam == QLatin1String("system_fixed"))
             f = SYSTEM_FIXED_FONT;
-        else if (fam == "ansi_fixed")
+        else if (fam == QLatin1String("ansi_fixed"))
             f = ANSI_FIXED_FONT;
-        else if (fam == "ansi_var")
+        else if (fam == QLatin1String("ansi_var"))
             f = ANSI_VAR_FONT;
-        else if (fam == "device_default")
+        else if (fam == QLatin1String("device_default"))
             f = DEVICE_DEFAULT_FONT;
-        else if (fam == "oem_fixed")
+        else if (fam == QLatin1String("oem_fixed"))
             f = OEM_FIXED_FONT;
 #endif
-        else if (fam[0] == '#')
+        else if (fam[0] == QLatin1Char('#'))
             f = fam.right(fam.length()-1).toInt();
         else
             f = deffnt;
@@ -879,14 +879,14 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp, const QFontDef &requ
         QString fam = font_name;
 
 	if(fam.isEmpty())
-	    fam = "MS Sans Serif";
+	    fam = QLatin1String("MS Sans Serif");
 
-        if ((fam == "MS Sans Serif")
+        if ((fam == QLatin1String("MS Sans Serif"))
             && (request.style == QFont::StyleItalic || (-lf.lfHeight > 18 && -lf.lfHeight != 24))) {
-            fam = "Arial"; // MS Sans Serif has bearing problems in italic, and does not scale
+            fam = QLatin1String("Arial"); // MS Sans Serif has bearing problems in italic, and does not scale
         }
-        if (fam == "Courier" && !(request.styleStrategy & QFont::PreferBitmap))
-            fam = "Courier New";
+        if (fam == QLatin1String("Courier") && !(request.styleStrategy & QFont::PreferBitmap))
+            fam = QLatin1String("Courier New");
 
         QT_WA({
             memcpy(lf.lfFaceName, fam.utf16(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded
@@ -1006,10 +1006,10 @@ static QFontEngine *loadWin(const QFontPrivate *d, int script, const QFontDef &r
     // list of families to try
     QStringList family_list = familyList(req);
 
-    if(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based && req.family.toLower() == "ms sans serif") {
+    if(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based && req.family.toLower() == QLatin1String("ms sans serif")) {
         // small hack for Dos based machines to get the right font for non
         // latin text when using the default font.
-        family_list << "Arial";
+        family_list << QLatin1String("Arial");
     }
 
     const char *stylehint = styleHint(d->request);
@@ -1166,7 +1166,8 @@ static QStringList getFamilies(const QByteArray &fontData)
 static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)
 {
     if(!fnt->data.isEmpty()) {
-        PtrAddFontMemResourceEx ptrAddFontMemResourceEx = (PtrAddFontMemResourceEx)QLibrary::resolve("gdi32", "AddFontMemResourceEx");
+        PtrAddFontMemResourceEx ptrAddFontMemResourceEx = (PtrAddFontMemResourceEx)QLibrary::resolve(QLatin1String("gdi32"),
+                                                                                                     "AddFontMemResourceEx");
         if (!ptrAddFontMemResourceEx)
             return;
         QStringList families = getFamilies(fnt->data);
@@ -1194,7 +1195,8 @@ static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)
         QStringList families = getFamilies(data);
 
         // supported from 2000 on, so no need to deal with the *A variant
-        PtrAddFontResourceExW ptrAddFontResourceExW = (PtrAddFontResourceExW)QLibrary::resolve("gdi32", "AddFontResourceExW");
+        PtrAddFontResourceExW ptrAddFontResourceExW = (PtrAddFontResourceExW)QLibrary::resolve(QLatin1String("gdi32"),
+                                                                                               "AddFontResourceExW");
         if (!ptrAddFontResourceExW)
             return;
 
@@ -1215,14 +1217,16 @@ bool QFontDatabase::removeApplicationFont(int handle)
     const QFontDatabasePrivate::ApplicationFont font = db->applicationFonts.at(handle);
     db->applicationFonts[handle] = QFontDatabasePrivate::ApplicationFont();
     if (font.memoryFont) {
-        PtrRemoveFontMemResourceEx ptrRemoveFontMemResourceEx = (PtrRemoveFontMemResourceEx)QLibrary::resolve("gdi32", "RemoveFontMemResourceEx");
+        PtrRemoveFontMemResourceEx ptrRemoveFontMemResourceEx = (PtrRemoveFontMemResourceEx)QLibrary::resolve(QLatin1String("gdi32"),
+                                                                                                              "RemoveFontMemResourceEx");
         if (!ptrRemoveFontMemResourceEx)
             return false;
 
         if (!ptrRemoveFontMemResourceEx(font.handle))
             return false;
     } else {
-        PtrRemoveFontResourceExW ptrRemoveFontResourceExW = (PtrRemoveFontResourceExW)QLibrary::resolve("gdi32", "RemoveFontResourceExW");
+        PtrRemoveFontResourceExW ptrRemoveFontResourceExW = (PtrRemoveFontResourceExW)QLibrary::resolve(QLatin1String("gdi32"),
+                                                                                                        "RemoveFontResourceExW");
         if (!ptrRemoveFontResourceExW)
             return false;
 

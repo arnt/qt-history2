@@ -116,7 +116,7 @@ private:
         if ((path.endsWith(QLatin1Char('/')) || path.endsWith(QLatin1Char('\\')))
                 && path.length() > 1) {
 #ifdef Q_OS_WIN
-            if (!(path.length() == 3 && path.at(1) == ':'))
+            if (!(path.length() == 3 && path.at(1) == QLatin1Char(':')))
 #endif
                 path.truncate(path.length() - 1);
         }
@@ -852,8 +852,8 @@ QString QDir::toNativeSeparators(const QString &pathName)
     QString n(pathName);
 #if defined(Q_FS_FAT) || defined(Q_OS_OS2EMX)
     for (int i=0; i<(int)n.length(); i++) {
-        if (n[i] == '/')
-            n[i] = '\\';
+        if (n[i] == QLatin1Char('/'))
+            n[i] = QLatin1Char('\\');
     }
 #endif
     return n;
@@ -878,8 +878,8 @@ QString QDir::fromNativeSeparators(const QString &pathName)
     QString n(pathName);
 #if defined(Q_FS_FAT) || defined(Q_OS_OS2EMX)
     for (int i=0; i<(int)n.length(); i++) {
-        if (n[i] == '\\')
-            n[i] = '/';
+        if (n[i] == QLatin1Char('\\'))
+            n[i] = QLatin1Char('/');
     }
 #endif
     return n;

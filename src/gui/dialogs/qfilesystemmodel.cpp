@@ -145,7 +145,7 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
         index = q->index(r, 0, QModelIndex());
         pathElements.pop_front();
     } else {
-        if (!pathElements.at(0).contains(":"))
+        if (!pathElements.at(0).contains(QLatin1String(":")))
             pathElements.prepend(QDir(path).rootPath());
         if (pathElements.at(0).endsWith(QLatin1Char('/')))
             pathElements[0].chop(1);

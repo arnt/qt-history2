@@ -224,7 +224,7 @@ int main( int argc, char ** argv )
                 QString contentFile = QString::fromLocal8Bit(argv[i+i]);
                 QStringList entries;
 #ifdef Q_WS_WIN
-                contentFile.replace('\\', '/');
+                contentFile.replace(QLatin1Char('\\'), QLatin1Char('/'));
                 entries = profile->docs.filter(contentFile, Qt::CaseInsensitive);
 #else
                 entries = profile->docs.filter(contentFile);

@@ -125,7 +125,7 @@ bool QFSFileEngineIterator::hasNext() const
             if (path.startsWith(QLatin1String("//"))) {
                 path = this->path();
                 // UNC
-                QStringList parts = QDir::toNativeSeparators(path).split('\\', QString::SkipEmptyParts);
+                QStringList parts = QDir::toNativeSeparators(path).split(QLatin1Char('\\'), QString::SkipEmptyParts);
 
                 if (parts.count() == 1 && QFSFileEnginePrivate::uncListSharesOnServer(QLatin1String("\\\\") + parts.at(0),
                                                                                       &platform->uncShares)) {

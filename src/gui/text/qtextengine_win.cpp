@@ -137,7 +137,7 @@ static void resolveUsp10()
 #endif
 
         resolvedUsp10 = true;
-        QLibrary lib("usp10");
+        QLibrary lib(QLatin1String("usp10"));
 
 	hasUsp10 = false;
 

@@ -21,8 +21,8 @@ ControlInfo::ControlInfo(QWidget *parent)
     setupUi(this);
 
     listInfo->setColumnCount(2);
-    listInfo->headerItem()->setText(0, "Item");
-    listInfo->headerItem()->setText(1, "Details");
+    listInfo->headerItem()->setText(0, tr("Item"));
+    listInfo->headerItem()->setText(1, tr("Details"));
 }
 
 void ControlInfo::setControl(QWidget *activex)
@@ -31,7 +31,7 @@ void ControlInfo::setControl(QWidget *activex)
 
     const QMetaObject *mo = activex->metaObject();
     QTreeWidgetItem *group = new QTreeWidgetItem(listInfo);
-    group->setText(0, "Class Info");
+    group->setText(0, tr("Class Info"));
     group->setText(1, QString::number(mo->classInfoCount()));
 
     QTreeWidgetItem *item = 0;
@@ -40,11 +40,11 @@ void ControlInfo::setControl(QWidget *activex)
     for (i = mo->classInfoOffset(); i < mo->classInfoCount(); ++i) {
 	const QMetaClassInfo info = mo->classInfo(i);
 	item = new QTreeWidgetItem(group);
-        item->setText(0, info.name());
-        item->setText(1, info.value());
+        item->setText(0, QString::fromLatin1(info.name()));
+        item->setText(1, QString::fromLatin1(info.value()));
     }
     group = new QTreeWidgetItem(listInfo);
-    group->setText(0, "Signals");
+    group->setText(0, tr("Signals"));
 
     count = 0;
     for (i = mo->methodOffset(); i < mo->methodCount(); ++i) {
@@ -52,13 +52,13 @@ void ControlInfo::setControl(QWidget *activex)
         if (method.methodType() == QMetaMethod::Signal) {
             ++count;
 	    item = new QTreeWidgetItem(group);
-            item->setText(0, method.signature());
+            item->setText(0, QString::fromLatin1(method.signature()));
         }
     }
     group->setText(1, QString::number(count));
 
     group = new QTreeWidgetItem(listInfo);
-    group->setText(0, "Slots");
+    group->setText(0, tr("Slots"));
 
     count = 0;
     for (i = mo->methodOffset(); i < mo->methodCount(); ++i) {
@@ -66,20 +66,20 @@ void ControlInfo::setControl(QWidget *activex)
         if (method.methodType() == QMetaMethod::Slot) {
             ++count;
 	    item = new QTreeWidgetItem(group);
-            item->setText(0, method.signature());
+            item->setText(0, QString::fromLatin1(method.signature()));
         }
     }
     group->setText(1, QString::number(count));
 
     group = new QTreeWidgetItem(listInfo);
-    group->setText(0, "Properties");
+    group->setText(0, tr("Properties"));
     group->setText(1, QString::number(mo->propertyCount()));
 
     for (i = mo->propertyOffset(); i < mo->propertyCount(); ++i) {
 	const QMetaProperty property = mo->property(i);
 	item = new QTreeWidgetItem(group);
-        item->setText(0, property.name());
-        item->setText(1, property.typeName());
+        item->setText(0, QString::fromLatin1(property.name()));
+        item->setText(1, QString::fromLatin1(property.typeName()));
         if (!property.isDesignable()) {
             item->setTextColor(0, Qt::gray);
             item->setTextColor(1, Qt::gray);

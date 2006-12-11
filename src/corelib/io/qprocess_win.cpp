@@ -391,32 +391,32 @@ void QProcessPrivate::destroyPipe(Q_PIPE pipe[2])
 static QString qt_create_commandline(const QString &program, const QStringList &arguments)
 {
     QString programName = program;
-    if (!programName.startsWith(QLatin1Char('\"')) && !programName.endsWith(QLatin1Char('\"')) && programName.contains(" "))
-        programName = "\"" + programName + "\"";
-    programName.replace("/", "\\");
+    if (!programName.startsWith(QLatin1Char('\"')) && !programName.endsWith(QLatin1Char('\"')) && programName.contains(QLatin1String(" ")))
+        programName = QLatin1String("\"") + programName + QLatin1String("\"");
+    programName.replace(QLatin1String("/"), QLatin1String("\\"));
 
     QString args;
     // add the prgram as the first arrg ... it works better
-    args = programName + " ";
+    args = programName + QLatin1String(" ");
     for (int i=0; i<arguments.size(); ++i) {
         QString tmp = arguments.at(i);
         // in the case of \" already being in the string the \ must also be escaped
-        tmp.replace( "\\\"", "\\\\\"" );
+        tmp.replace( QLatin1String("\\\""), QLatin1String("\\\\\"") );
         // escape a single " because the arguments will be parsed
-        tmp.replace( "\"", "\\\"" );
-        if (tmp.isEmpty() || tmp.contains(' ') || tmp.contains('\t')) {
+        tmp.replace( QLatin1String("\""), QLatin1String("\\\"") );
+        if (tmp.isEmpty() || tmp.contains(QLatin1Char(' ')) || tmp.contains(QLatin1Char('\t'))) {
             // The argument must not end with a \ since this would be interpreted
             // as escaping the quote -- rather put the \ behind the quote: e.g.
             // rather use "foo"\ than "foo\"
-            QString endQuote("\"");
+            QString endQuote(QLatin1String("\""));
             int i = tmp.length();
-            while (i>0 && tmp.at(i-1) == '\\') {
+            while (i>0 && tmp.at(i-1) == QLatin1Char('\\')) {
                 --i;
-                endQuote += "\\";
+                endQuote += QLatin1String("\\");
             }
-            args += QString(" \"") + tmp.left(i) + endQuote;
+            args += QLatin1String(" \"") + tmp.left(i) + endQuote;
         } else {
-            args += ' ' + tmp;
+            args += QLatin1Char(' ') + tmp;
         }
     }
     return args;
@@ -429,13 +429,13 @@ static QByteArray qt_create_environment(const QStringList &environment)
         QStringList envStrings = environment;
 	    int pos = 0;
 	    // add PATH if necessary (for DLL loading)
-        if (envStrings.filter(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty()) {
+        if (envStrings.filter(QRegExp(QLatin1String("^PATH="),Qt::CaseInsensitive)).isEmpty()) {
             QByteArray path = qgetenv("PATH");
             if (!path.isEmpty())
                 envStrings.prepend(QString(QLatin1String("PATH=%1")).arg(QString::fromLocal8Bit(path)));
         }
         // add systemroot if needed
-        if (envStrings.filter(QRegExp("^SystemRoot=",Qt::CaseInsensitive)).isEmpty()) {
+        if (envStrings.filter(QRegExp(QLatin1String("^SystemRoot="),Qt::CaseInsensitive)).isEmpty()) {
             QByteArray systemRoot = qgetenv("SystemRoot");
             if (!systemRoot.isEmpty())
                 envStrings.prepend(QString(QLatin1String("SystemRoot=%1")).arg(QString::fromLocal8Bit(systemRoot)));
@@ -566,7 +566,7 @@ void QProcessPrivate::startProcess()
     if (!success) {
         cleanup();
         processError = QProcess::FailedToStart;
-        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process failed to start"));
+        q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP(QProcess, "Process failed to start")));
         emit q->error(processError);
         processState = QProcess::NotRunning;
         emit q->stateChanged(processState);
@@ -706,7 +706,7 @@ bool QProcessPrivate::waitForStarted(int)
         return false;
 
     processError = QProcess::Timedout;
-    q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
+    q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out")));
     return false;
 }
 
@@ -751,7 +751,7 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
     }
 
     processError = QProcess::Timedout;
-    q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
+    q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out")));
     return false;
 }
 
@@ -789,7 +789,7 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
     }
 
     processError = QProcess::Timedout;
-    q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
+    q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out")));
     return false;
 }
 
@@ -831,7 +831,7 @@ bool QProcessPrivate::waitForFinished(int msecs)
             break;
     }
     processError = QProcess::Timedout;
-    q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
+    q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out")));
     return false;
 }
 
@@ -872,7 +872,7 @@ bool QProcessPrivate::waitForWrite(int msecs)
         return true;
 
     processError = QProcess::Timedout;
-    q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
+    q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out")));
     return false;
 }
 

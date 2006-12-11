@@ -588,12 +588,12 @@ void qt_init(QApplicationPrivate *priv, int)
     QColormap::initialize();
     QFont::initialize();
     QCursorData::initialize();
-    qApp->setObjectName(appName);
+    qApp->setObjectName(QLatin1String(appName));
 
     // default font
     if (!qt_app_has_font) {
         HFONT hfont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-        QFont f("MS Sans Serif",8);
+        QFont f(QLatin1String("MS Sans Serif"),8);
         int result = 0;
         QT_WA({
             LOGFONT lf;
@@ -608,7 +608,7 @@ void qt_init(QApplicationPrivate *priv, int)
             && QSysInfo::WindowsVersion >= QSysInfo::WV_2000
             && QSysInfo::WindowsVersion <= QSysInfo::WV_NT_based
             && f.family() == QLatin1String("MS Shell Dlg"))
-            f.setFamily("MS Shell Dlg 2");
+            f.setFamily(QLatin1String("MS Shell Dlg 2"));
         QApplication::setFont(f);
     }
 
@@ -693,7 +693,7 @@ const QString qt_reg_winclass(QWidget *w)        // register window class
     bool icon;
     QString cname;
     if (flags & Qt::MSWindowsOwnDC) {
-        cname = "QWidgetOwnDC";
+        cname = QLatin1String("QWidgetOwnDC");
         style = CS_DBLCLKS;
 #ifndef Q_OS_TEMP
         style |= CS_OWNDC;
@@ -706,16 +706,16 @@ const QString qt_reg_winclass(QWidget *w)        // register window class
                 && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based)) {
                 style |= 0x00020000;                // CS_DROPSHADOW
             }
-            cname = "QToolTip";
+            cname = QLatin1String("QToolTip");
         } else {
-            cname = "QTool";
+            cname = QLatin1String("QTool");
         }
 #ifndef Q_OS_TEMP
         style |= CS_SAVEBITS;
 #endif
         icon = false;
     } else if (type == Qt::Popup) {
-        cname = "QPopup";
+        cname = QLatin1String("QPopup");
         style = CS_DBLCLKS;
 #ifndef Q_OS_TEMP
         style |= CS_SAVEBITS;
@@ -725,7 +725,7 @@ const QString qt_reg_winclass(QWidget *w)        // register window class
             style |= 0x00020000;                // CS_DROPSHADOW
         icon = false;
     } else {
-        cname = "QWidget";
+        cname = QLatin1String("QWidget");
         style = CS_DBLCLKS;
         icon  = true;
     }
@@ -1567,7 +1567,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             if (!msg.wParam) {
                 QString area = QT_WA_INLINE(QString::fromUtf16((unsigned short *)msg.lParam),
                                              QString::fromLocal8Bit((char*)msg.lParam));
-                if (area == "intl")
+                if (area == QLatin1String("intl"))
                     QApplication::postEvent(widget, new QEvent(QEvent::LocaleChange));
             }
             break;
@@ -1854,7 +1854,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 
                 if (!oleaccChecked) {
                     oleaccChecked = true;
-                    ptrLresultFromObject = (PtrLresultFromObject)QLibrary::resolve("oleacc.dll", "LresultFromObject");
+                    ptrLresultFromObject = (PtrLresultFromObject)QLibrary::resolve(QLatin1String("oleacc.dll"), "LresultFromObject");
                 }
                 if (ptrLresultFromObject) {
                     QAccessibleInterface *acc = QAccessible::queryAccessibleInterface(widget);
@@ -1963,7 +1963,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             if (!GetLocaleInfoA(MAKELCID(lParam, SORT_DEFAULT), LOCALE_IDEFAULTANSICODEPAGE, info, 6)) {
                 inputcharset = CP_ACP;
             } else {
-                inputcharset = QString(info).toInt();
+                inputcharset = QString::fromLatin1(info).toInt();
             }
             QKeyMapper::changeKeyboard();
             break;
@@ -2483,7 +2483,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
                 static PtrTrackMouseEvent ptrTrackMouseEvent = 0;
                 if (!trackMouseEventLookup) {
                     trackMouseEventLookup = true;
-                    ptrTrackMouseEvent = (PtrTrackMouseEvent)QLibrary::resolve("comctl32", "_TrackMouseEvent");
+                    ptrTrackMouseEvent = (PtrTrackMouseEvent)QLibrary::resolve(QLatin1String("comctl32"), "_TrackMouseEvent");
                 }
                 if (ptrTrackMouseEvent && !qApp->d_func()->inPopupMode()) {
                     // We always have to set the tracking, since
@@ -2930,7 +2930,7 @@ static void initWinTabFunctions()
     if (!qt_is_gui_used)
         return;
 
-    QLibrary library("wintab32");
+    QLibrary library(QLatin1String("wintab32"));
     if (library.load()) {
         QT_WA({
             ptrWTInfo = (PtrWTInfo)library.resolve("WTInfoW");

@@ -87,8 +87,9 @@ void QAccessible::updateAccessibility(QObject *o, int who, Event reason)
     }
 
     if (soundName.size()) {
-        QSettings settings("HKEY_CURRENT_USER\\AppEvents\\Schemes\\Apps\\.Default\\" + soundName, QSettings::NativeFormat);
-        QString file = settings.value(".Current/.").toString();
+        QSettings settings(QLatin1String("HKEY_CURRENT_USER\\AppEvents\\Schemes\\Apps\\.Default\\") +
+                                         QString::fromLatin1(soundName.constData()), QSettings::NativeFormat);
+        QString file = settings.value(QLatin1String(".Current/.")).toString();
         if (!file.isEmpty())
             PlaySoundA(soundName.constData(), 0, SND_ALIAS | SND_ASYNC | SND_NODEFAULT | SND_NOWAIT );
     }
@@ -102,7 +103,7 @@ void QAccessible::updateAccessibility(QObject *o, int who, Event reason)
     static bool resolvedNWE = false;
     if (!resolvedNWE) {
         resolvedNWE = true;
-        ptrNotifyWinEvent = (PtrNotifyWinEvent)QLibrary::resolve("user32", "NotifyWinEvent");
+        ptrNotifyWinEvent = (PtrNotifyWinEvent)QLibrary::resolve(QLatin1String("user32"), "NotifyWinEvent");
     }
     if (!ptrNotifyWinEvent)
         return;

@@ -11,8 +11,6 @@
 **
 ****************************************************************************/
 
-#define QT_NO_CAST_TO_ASCII
-
 #include <ocidl.h>
 #include <olectl.h>
 
@@ -494,7 +492,8 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
             static bool resolved = false;
             if (!resolved) {
                 resolved = true;
-                pGetRecordInfoFromTypeInfo = (PGetRecordInfoFromTypeInfo)QLibrary::resolve("oleaut32", "GetRecordInfoFromTypeInfo");
+                pGetRecordInfoFromTypeInfo = (PGetRecordInfoFromTypeInfo)QLibrary::resolve(QLatin1String("oleaut32"),
+                                              "GetRecordInfoFromTypeInfo");
             }
             if (!pGetRecordInfoFromTypeInfo)
                 break;
@@ -575,7 +574,7 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
                     return false;
                 }
 #ifdef QAX_SERVER
-            } else if (qAxFactory()->metaObject(subType)) {
+            } else if (qAxFactory()->metaObject(QString::fromLatin1(subType.constData()))) {
                 arg.vt = VT_DISPATCH;
                 void *user = *(void**)qvar.constData();
 //                qVariantGet(qvar, user, qvar.typeName());

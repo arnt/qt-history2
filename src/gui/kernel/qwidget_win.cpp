@@ -89,7 +89,7 @@ static void init_wintab_functions()
 {
     if (!qt_is_gui_used)
         return;
-    QLibrary library("wintab32");
+    QLibrary library(QLatin1String("wintab32"));
     QT_WA({
         ptrWTOpen = (PtrWTOpen)library.resolve("WTOpenW");
         ptrWTInfo = (PtrWTInfo)library.resolve("WTInfoW");
@@ -1644,7 +1644,7 @@ void QWidget::setWindowOpacity(qreal level)
     static bool function_resolved = false;
     if (!function_resolved) {
         ptrSetLayeredWindowAttributes =
-            (PtrSetLayeredWindowAttributes) QLibrary::resolve("user32",
+            (PtrSetLayeredWindowAttributes) QLibrary::resolve(QLatin1String("user32"),
                                                               "SetLayeredWindowAttributes");
         function_resolved = true;
     }

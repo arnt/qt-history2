@@ -212,7 +212,7 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR,
                         version = "1.0";
                 }
                 
-                nRet = DumpIDL(outfile, version);
+                nRet = DumpIDL(QString::fromLatin1(outfile.constData()), QString::fromLatin1(version.constData()));
             } else {
                 qWarning("Wrong commandline syntax: <app> -dumpidl <idl file> [-version <x.y.z>]");
             }

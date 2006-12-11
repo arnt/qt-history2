@@ -2267,7 +2267,7 @@ static QString getWindowsRegString( HKEY key, const QString &subKey )
 	    char *ptr = new char[bsz+1];
 	    r = RegQueryValueEx( key, (TCHAR*)subKey.ucs2(), 0, 0, (LPBYTE)ptr, &bsz );
 	    if ( r == ERROR_SUCCESS )
-		s = ptr;
+		s = QLatin1String(ptr);
 	    delete [] ptr;
 	}
     } , {
@@ -2275,12 +2275,12 @@ static QString getWindowsRegString( HKEY key, const QString &subKey )
 	DWORD bsz = sizeof(buf);
 	int r = RegQueryValueExA( key, subKey.local8Bit(), 0, 0, (LPBYTE)buf, &bsz );
 	if ( r == ERROR_SUCCESS ) {
-	    s = buf;
+	    s = QLatin1String(buf);
 	} else if ( r == ERROR_MORE_DATA ) {
 	    char *ptr = new char[bsz+1];
 	    r = RegQueryValueExA( key, subKey.local8Bit(), 0, 0, (LPBYTE)ptr, &bsz );
 	    if ( r == ERROR_SUCCESS )
-		s = ptr;
+		s = QLatin1String(ptr);
 	    delete [] ptr;
 	}
     } );
@@ -2303,15 +2303,15 @@ static bool getDnsParamsFromRegistry( const QString &path,
     } );
 
     if ( r == ERROR_SUCCESS ) {
-	*domainName = getWindowsRegString( k, "DhcpDomain" );
+	*domainName = getWindowsRegString( k, QLatin1String("DhcpDomain") );
 	if ( domainName->isEmpty() )
-	    *domainName = getWindowsRegString( k, "Domain" );
+	    *domainName = getWindowsRegString( k, QLatin1String("Domain") );
 
-	*nameServer = getWindowsRegString( k, "DhcpNameServer" );
+	*nameServer = getWindowsRegString( k, QLatin1String("DhcpNameServer") );
 	if ( nameServer->isEmpty() )
-	    *nameServer = getWindowsRegString( k, "NameServer" );
+	    *nameServer = getWindowsRegString( k, QLatin1String("NameServer") );
 
-	*searchList = getWindowsRegString( k, "SearchList" );
+	*searchList = getWindowsRegString( k, QLatin1String("SearchList") );
     }
     RegCloseKey( k );
     return r == ERROR_SUCCESS;
@@ -2352,16 +2352,16 @@ void Q3Dns::doResInit()
 		FIXED_INFO *finfo = (FIXED_INFO*)new char[l];
 		res = getNetworkParams( finfo, &l );
 		if ( res == ERROR_SUCCESS ) {
-		    domainName = finfo->DomainName;
-		    nameServer = "";
+		    domainName = QLatin1String(finfo->DomainName);
+		    nameServer = QLatin1String("");
 		    IP_ADDR_STRING *dnsServer = &finfo->DnsServerList;
 		    while ( dnsServer != 0 ) {
-			nameServer += dnsServer->IpAddress.String;
+			nameServer += QLatin1String(dnsServer->IpAddress.String);
 			dnsServer = dnsServer->Next;
 			if ( dnsServer != 0 )
-			    nameServer += " ";
+			    nameServer += QLatin1String(" ");
 		    }
-		    searchList = "";
+		    searchList = QLatin1String("");
 		    separator = ' ';
 		    gotNetworkParams = true;
 		}
@@ -2372,20 +2372,20 @@ void Q3Dns::doResInit()
     }
     if ( !gotNetworkParams ) {
 	if ( getDnsParamsFromRegistry(
-	    QString( "System\\CurrentControlSet\\Services\\Tcpip\\Parameters" ),
+	    QString( QLatin1String("System\\CurrentControlSet\\Services\\Tcpip\\Parameters") ),
 		    &domainName, &nameServer, &searchList )) {
 	    // for NT
 	    separator = ' ';
 	} else if ( getDnsParamsFromRegistry(
-	    QString( "System\\CurrentControlSet\\Services\\VxD\\MSTCP" ),
+	    QString( QLatin1String("System\\CurrentControlSet\\Services\\VxD\\MSTCP") ),
 		    &domainName, &nameServer, &searchList )) {
 	    // for Windows 98
 	    separator = ',';
 	} else {
 	    // Could not access the TCP/IP parameters
-	    domainName = "";
-	    nameServer = "127.0.0.1";
-	    searchList = "";
+	    domainName = QLatin1String("");
+	    nameServer = QLatin1String("127.0.0.1");
+	    searchList = QLatin1String("");
 	    separator = ' ';
 	}
     }
@@ -2395,7 +2395,7 @@ void Q3Dns::doResInit()
     if ( !nameServer.isEmpty() ) {
 	first = 0;
 	do {
-	    last = nameServer.find( separator, first );
+	    last = nameServer.find( QLatin1Char(separator), first );
 	    if ( last < 0 )
 		last = nameServer.length();
 	    Q3Dns tmp( nameServer.mid( first, last-first ), Q3Dns::A );
@@ -2407,11 +2407,11 @@ void Q3Dns::doResInit()
 	} while( first < (int)nameServer.length() );
     }
 
-    searchList = searchList + " " + domainName;
+    searchList = searchList + QLatin1String(" ") + domainName;
     searchList = searchList.simplifyWhiteSpace().lower();
     first = 0;
     do {
-	last = searchList.find( separator, first );
+	last = searchList.find( QLatin1Char(separator), first );
 	if ( last < 0 )
 	    last = searchList.length();
 	domains->append( qstrdup( searchList.mid( first, last-first ).latin1() ) );

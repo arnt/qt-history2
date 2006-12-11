@@ -35,7 +35,7 @@ bool QLibraryPrivate::load_sys()
     
     if (pluginState != IsAPlugin) {
         if (!pHnd && ::GetLastError() == ERROR_MOD_NOT_FOUND) {
-            attempt += ".dll";
+            attempt += QLatin1String(".dll");
             QT_WA({
                 pHnd = LoadLibraryW((TCHAR*)attempt.utf16());
             } , {

@@ -350,7 +350,7 @@ QString Q3MimeSourceFactory::makeAbsolute(const QString& abs_or_rel_name, const 
     if (context.isNull() ||
          !(context[0] == QLatin1Char('/')
 #ifdef Q_WS_WIN
-         || (context[0].isLetter() && context[1] == ':')
+         || (context[0].isLetter() && context[1] == QLatin1Char(':'))
 #endif
           ))
         return abs_or_rel_name;

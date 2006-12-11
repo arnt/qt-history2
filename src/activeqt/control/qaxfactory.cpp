@@ -333,8 +333,8 @@ bool QAxFactory::validateLicenseKey(const QString &key, const QString &licenseKe
     if (licenseKey.isEmpty()) {
         extern char qAxModuleFilename[MAX_PATH];
         QString licFile(QFile::decodeName(qAxModuleFilename));
-        int lastDot = licFile.lastIndexOf('.');
-        licFile = licFile.left(lastDot) + ".lic";
+        int lastDot = licFile.lastIndexOf(QLatin1Char('.'));
+        licFile = licFile.left(lastDot) + QLatin1String(".lic");
         if (QFile::exists(licFile))
             return true;
         return false;
@@ -397,7 +397,7 @@ bool QAxFactory::hasStockEvents(const QString &key) const
     const QMetaObject *mo = metaObject(key);
     if (!mo)
         return false;
-    return QString::fromLatin1(mo->classInfo(mo->indexOfClassInfo("StockEvents")).value()) == "yes";
+    return QString::fromLatin1(mo->classInfo(mo->indexOfClassInfo("StockEvents")).value()) == QLatin1String("yes");
 }
 
 
@@ -561,7 +561,7 @@ bool QAxFactory::registerActiveObject(QObject *object)
     if (qstricmp(object->metaObject()->classInfo(object->metaObject()->indexOfClassInfo("RegisterObject")).value(), "yes"))
         return false;
 
-    if (!QString::fromLocal8Bit(qAxModuleFilename).toLower().endsWith(".exe"))
+    if (!QString::fromLocal8Bit(qAxModuleFilename).toLower().endsWith(QLatin1String(".exe")))
 	return false;
 
     ActiveObject *active = new ActiveObject(object, qAxFactory());

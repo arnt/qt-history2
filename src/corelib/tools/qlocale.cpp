@@ -408,7 +408,7 @@ QByteArray getWinLocaleName(LCID id = LOCALE_USER_DEFAULT)
 
 Q_CORE_EXPORT QLocale qt_localeFromLCID(LCID id)
 {
-    return QLocale(getWinLocaleName(id));
+    return QLocale(QString::fromLatin1(getWinLocaleName(id)));
 }
 
 static QString winToQtFormat(const QString &sys_fmt)
@@ -417,12 +417,12 @@ static QString winToQtFormat(const QString &sys_fmt)
     int i = 0;
 
     while (i < sys_fmt.size()) {
-        if (sys_fmt.at(i).unicode() == '\'') {
+        if (sys_fmt.at(i).unicode() == QLatin1Char('\'')) {
             QString text = readEscapedFormatString(sys_fmt, &i);
             if (text == QLatin1String("'"))
                 result += QLatin1String("''");
             else
-                result += QChar('\'') + text + QChar('\'');
+                result += QLatin1Char('\'') + text + QLatin1Char('\'');
             continue;
         }
 
@@ -568,7 +568,7 @@ static QString winMonthName(int month, bool short_format)
 
 QLocale QSystemLocale::fallbackLocale() const
 {
-    return QLocale(getWinLocaleName());
+    return QLocale(QString::fromLatin1(getWinLocaleName()));
 }
 
 QVariant QSystemLocale::query(QueryType type, QVariant in = QVariant()) const
@@ -620,7 +620,7 @@ QVariant QSystemLocale::query(QueryType type, QVariant in = QVariant()) const
 
     case LanguageId:
     case CountryId: {
-        QString locale = getWinLocaleName();
+        QString locale = QString::fromLatin1(getWinLocaleName());
         QLocale::Language lang;
         QLocale::Country cntry;
         getLangAndCountry(locale, lang, cntry);

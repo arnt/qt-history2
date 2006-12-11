@@ -2114,32 +2114,32 @@ void MetaObjectGenerator::readClassInfo()
         dispInfo->GetContainingTypeLib(&typelib, &index);
 
     if (!typelib) {
-        QSettings controls("HKEY_LOCAL_MACHINE\\Software");
-        QString tlid = controls.value("/Classes/CLSID/" + that->control() + "/TypeLib/.").toString();
+        QSettings controls(QLatin1String("HKEY_LOCAL_MACHINE\\Software"));
+        QString tlid = controls.value(QLatin1String("/Classes/CLSID/") + that->control() + QLatin1String("/TypeLib/.")).toString();
         QString tlfile;
         if (!tlid.isEmpty()) {
-            controls.beginGroup("/Classes/TypeLib/" + tlid);
+            controls.beginGroup(QLatin1String("/Classes/TypeLib/") + tlid);
             QStringList versions = controls.childGroups();
             QStringList::Iterator vit = versions.begin();
             while (tlfile.isEmpty() && vit != versions.end()) {
                 QString version = *vit;
                 ++vit;
-                tlfile = controls.value("/" + version + "/0/win32/.").toString();
+                tlfile = controls.value(QLatin1String("/") + version + QLatin1String("/0/win32/.")).toString();
             }
             controls.endGroup();
         } else {
-            tlfile = controls.value("/Classes/CLSID/" + that->control() + "/InprocServer32/.").toString();
+            tlfile = controls.value(QLatin1String("/Classes/CLSID/") + that->control() + QLatin1String("/InprocServer32/.")).toString();
             if (tlfile.isEmpty())
-                tlfile = controls.value("/Classes/CLSID/" + that->control() + "/LocalServer32/.").toString();
+                tlfile = controls.value(QLatin1String("/Classes/CLSID/") + that->control() + QLatin1String("/LocalServer32/.")).toString();
         }
         if (!tlfile.isEmpty()) {
             LoadTypeLib((OLECHAR*)tlfile.utf16(), &typelib);
             if (!typelib) {
-                tlfile = tlfile.left(tlfile.lastIndexOf('.')) + ".tlb";
+                tlfile = tlfile.left(tlfile.lastIndexOf(QLatin1Char('.'))) + QLatin1String(".tlb");
                 LoadTypeLib((OLECHAR*)tlfile.utf16(), &typelib);
             }
             if (!typelib) {
-                tlfile = tlfile.left(tlfile.lastIndexOf('.')) + ".olb";
+                tlfile = tlfile.left(tlfile.lastIndexOf(QLatin1Char('.'))) + QLatin1String(".olb");
                 LoadTypeLib((OLECHAR*)tlfile.utf16(), &typelib);
             }
         }
@@ -2162,7 +2162,7 @@ void MetaObjectGenerator::readClassInfo()
         dispInfo->ReleaseTypeAttr(typeattr);
         // ### event interfaces!!
         if (!interfaceID.isEmpty())
-            cacheKey = QString("%1$%2$%3$%4").arg(interfaceID)
+            cacheKey = QString::fromLatin1("%1$%2$%3$%4").arg(interfaceID)
                 .arg((int)d->useEventSink).arg((int)d->useClassInfo).arg((int)qax_dispatchEqualsIDispatch);
     }
 }
@@ -2235,10 +2235,10 @@ void MetaObjectGenerator::readEnumInfo()
                             valueName = "value" + QByteArray::number(valueindex++);
                         }
 
-                        if (clashCheck.contains(valueName))
+                        if (clashCheck.contains(QString::fromLatin1(valueName.constData())))
                             valueName += QByteArray::number(++clashIndex);
 
-                        clashCheck.insert(valueName);
+                        clashCheck.insert(QString::fromLatin1(valueName.constData()));
                         addEnumValue(enumName, valueName, value);
                     }
                     enuminfo->ReleaseVarDesc(vardesc);
@@ -2631,7 +2631,7 @@ void MetaObjectGenerator::readInterfaceInfo()
                     // UUID
                     QUuid uuid(typeattr->guid);
                     QString uuidstr = uuid.toString().toUpper();
-                    uuidstr = iidnames.value("/Interface/" + uuidstr + "/Default", uuidstr).toString();
+                    uuidstr = iidnames.value(QLatin1String("/Interface/") + uuidstr + QLatin1String("/Default"), uuidstr).toString();
                     addClassInfo("Interface " + QByteArray::number(++interface_serial), uuidstr.toLatin1());
                 }
 #endif
@@ -2782,7 +2782,7 @@ void MetaObjectGenerator::readEventInfo()
 #ifndef QAX_NO_CLASSINFO
                 if (d->useClassInfo) {
                     QString uuidstr = connuuid.toString().toUpper();
-                    uuidstr = iidnames.value("/Interface/" + uuidstr + "/Default", uuidstr).toString();
+                    uuidstr = iidnames.value(QLatin1String("/Interface/") + uuidstr + QLatin1String("/Default"), uuidstr).toString();
                     addClassInfo("Event Interface " + QByteArray::number(++event_serial), uuidstr.toLatin1());
                 }
 #endif
@@ -3253,7 +3253,7 @@ void QAxBase::connectNotify()
 
     // make sure we don't try again
     if (!d->eventSink.count())
-        d->eventSink.insert(0, 0);
+        d->eventSink.insert(QString(), 0);
 }
 
 /*!
@@ -3291,7 +3291,7 @@ static bool checkHRESULT(HRESULT hres, EXCEPINFO *exc, QAxBase *that, const QStr
                 uint helpContext = exc->dwHelpContext;
 
                 if (helpContext && !help.isEmpty())
-                    help += QString(" [%1]").arg(helpContext);
+                    help += QString::fromLatin1(" [%1]").arg(helpContext);
 
                 void *argv[] = {0, &code, &source, &desc, &help};
                 that->qt_metacall(QMetaObject::InvokeMetaMethod, exceptionSignal, argv);
@@ -3558,7 +3558,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     if (params.rgvarg != static_rgvarg)
         delete [] params.rgvarg;
 
-    checkHRESULT(hres, &excepinfo, this, slotname, params.cArgs-argerr-1);
+    checkHRESULT(hres, &excepinfo, this, QString::fromLatin1(slotname), params.cArgs-argerr-1);
     return index;
 }
 
@@ -3698,15 +3698,15 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
                 switch(cc.toLatin1()) {
                 case 'n':
                     if (inEscape)
-                        cc = '\n';
+                        cc = QLatin1Char('\n');
                     break;
                 case 'r':
                     if (inEscape)
-                        cc = '\r';
+                        cc = QLatin1Char('\r');
                     break;
                 case 't':
                     if (inEscape)
-                        cc = '\t';
+                        cc = QLatin1Char('\t');
                     break;
                 case '\\':
                     if (!inEscape && inString) {
@@ -3730,7 +3730,7 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
                     if (inString)
                         break;
                     curArg = curArg.trimmed();
-                    if (curArg.at(0) == '\"' && curArg.at(curArg.length()-1) == '\"') {
+                    if (curArg.at(0) == QLatin1Char('\"') && curArg.at(curArg.length()-1) == QLatin1Char('\"')) {
                         vars << curArg.mid(1, curArg.length() - 2);
                     } else {
                         bool isNumber = false;
@@ -3850,7 +3850,7 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
     if (arg && arg != staticarg)
         delete[] arg;
 
-    return checkHRESULT(hres, &excepinfo, this, function, varc-argerr-1);
+    return checkHRESULT(hres, &excepinfo, this, QString::fromLatin1(function.constData()), varc-argerr-1);
 }
 
 
@@ -4138,7 +4138,7 @@ public:
         if (!var)
             return E_POINTER;
 
-        QString property = QString::fromUtf16((const ushort *)name).toLocal8Bit();
+        QString property = QString::fromUtf16((const ushort *)name);
         QVariant qvar = map.value(property);
         QVariantToVARIANT(qvar, *var);
         return S_OK;
@@ -4147,7 +4147,7 @@ public:
     {
         if (!var)
             return E_POINTER;
-        QString property = QString::fromUtf16((const ushort *)name).toLocal8Bit();
+        QString property = QString::fromUtf16((const ushort *)name);
         QVariant qvar = VARIANTToQVariant(*var, 0);
         map[property] = qvar;
 
@@ -4198,7 +4198,7 @@ QAxBase::PropertyBag QAxBase::propertyBag() const
         for (int p = mo->propertyOffset(); p < mo->propertyCount(); ++p) {
             const QMetaProperty property = mo->property(p);
             QVariant var = qObject()->property(property.name());
-            result.insert(property.name(), var);
+            result.insert(QLatin1String(property.name()), var);
         }
     }
     return result;
@@ -4238,7 +4238,7 @@ void QAxBase::setPropertyBag(const PropertyBag &bag)
         const QMetaObject *mo = metaObject();
         for (int p = mo->propertyOffset(); p < mo->propertyCount(); ++p) {
             const QMetaProperty property = mo->property(p);
-            QVariant var = bag.value(property.name());
+            QVariant var = bag.value(QLatin1String(property.name()));
             qObject()->setProperty(property.name(), var);
         }
     }

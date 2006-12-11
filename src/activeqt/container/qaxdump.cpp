@@ -41,9 +41,9 @@ QString qax_docuFromName(ITypeInfo *typeInfo, const QString &name)
         SysFreeString(helpFileBstr);
         if (hres == S_OK) {
             if (!docString.isEmpty())
-                docu += docString + "\n";
+                docu += docString + QLatin1String("\n");
             if (!helpFile.isEmpty())
-                docu += QString("For more information, see help context %1 in %2.").arg((uint)helpContext).arg(helpFile);
+                docu += QString::fromLatin1("For more information, see help context %1 in %2.").arg((uint)helpContext).arg(helpFile);
         }
     }
 
@@ -52,7 +52,7 @@ QString qax_docuFromName(ITypeInfo *typeInfo, const QString &name)
 
 static inline QString docuFromName(ITypeInfo *typeInfo, const QString &name)
 {
-    return QString("<p>") + qax_docuFromName(typeInfo, name) + "\n";
+    return QLatin1String("<p>") + qax_docuFromName(typeInfo, name) + QLatin1String("\n");
 }
 
 static QByteArray namedPrototype(const QList<QByteArray> &parameterTypes, const QList<QByteArray> &parameterNames, int numDefArgs = 0)
@@ -112,7 +112,7 @@ QString qax_generateDocumentation(QAxBase *that)
     QTextStream stream(&docu, QIODevice::WriteOnly);
 
     const QMetaObject *mo = that->metaObject();
-    QString coClass  = mo->classInfo(mo->indexOfClassInfo("CoClass")).value();
+    QString coClass  = QLatin1String(mo->classInfo(mo->indexOfClassInfo("CoClass")).value());
 
     stream << "<h1 align=center>" << coClass << " Reference</h1>" << endl;
     stream << "<p>The " << coClass << " COM object is a " << that->qObject()->metaObject()->className();
@@ -164,36 +164,42 @@ QString qax_generateDocumentation(QAxBase *that)
 	    stream << "<li>" << returntype << " <a href=\"#" << name << "\"><b>" << name << "</b></a>" << prototype << ";</li>" << endl;
             
             prototype = namedPrototype(slot.parameterTypes(), slot.parameterNames());
-	    QString detail = "<h3><a name=" + name + "></a>" + returntype + " " + name + " " + prototype + "<tt> [slot]</tt></h3>\n";
+	    QString detail = QString::fromLatin1("<h3><a name=") + QString::fromLatin1(name.constData()) + QLatin1String("></a>") +
+                             QString::fromLatin1(returntype.constData()) + QLatin1String(" ") +
+                             QString::fromLatin1(name.constData()) + QLatin1String(" ") +
+                             QString::fromLatin1(prototype.constData()) + QLatin1String("<tt> [slot]</tt></h3>\n");
             prototype = namedPrototype(slot.parameterTypes(), QList<QByteArray>());
-	    detail += docuFromName(typeInfo, name);
-	    detail += "<p>Connect a signal to this slot:<pre>\n";
-	    detail += "\tQObject::connect(sender, SIGNAL(someSignal" + prototype + "), object, SLOT(" + name + prototype + "));";
-	    detail += "</pre>\n";
+	    detail += docuFromName(typeInfo, QString::fromLatin1(name.constData()));
+	    detail += QLatin1String("<p>Connect a signal to this slot:<pre>\n");
+	    detail += QString::fromLatin1("\tQObject::connect(sender, SIGNAL(someSignal") + QString::fromLatin1(prototype.constData()) +
+                      QLatin1String("), object, SLOT(") + QString::fromLatin1(name.constData()) +
+                      QString::fromLatin1(prototype.constData()) + QLatin1String("));");
+	    detail += QLatin1String("</pre>\n");
 
             if (1) {
-                detail += "<p>Or call the function directly:<pre>\n";
+                detail += QLatin1String("<p>Or call the function directly:<pre>\n");
 
                 bool hasParams = slot.parameterTypes().count() != 0;
                 if (hasParams)
-                    detail += "\tQVariantList params = ...\n";
-                detail += "\t";
+                    detail += QLatin1String("\tQVariantList params = ...\n");
+                detail += QLatin1String("\t");
                 QByteArray functionToCall = "dynamicCall";
                 if (returntype == "IDispatch*" || returntype == "IUnknown*") {
                     functionToCall = "querySubObject";
                     returntype = "QAxObject *";
                 }
                 if (returntype != "void")
-                    detail += returntype + " result = ";
-                detail += "object->" + functionToCall + "(\"" + name + prototype + "\"";
+                    detail += QString::fromLatin1(returntype.constData()) + QLatin1String(" result = ");
+                detail += QLatin1String("object->") + QString::fromLatin1(functionToCall.constData()) +
+                          QLatin1String("(\"" + name + prototype + "\"");
                 if (hasParams)
-                    detail += ", params";
-                detail += ")";
+                    detail += QLatin1String(", params");
+                detail += QLatin1String(")");
                 if (returntype != "void" && returntype != "QAxObject *" && returntype != "QVariant")
-                    detail += "." + toType(returntype);
-	        detail += ";</pre>\n";
+                    detail += QLatin1String(".") + QString::fromLatin1(toType(returntype));
+	        detail += QLatin1String(";</pre>\n");
 	    } else {
-		detail += "<p>This function has parameters of unsupported types and cannot be called directly.";
+		detail += QLatin1String("<p>This function has parameters of unsupported types and cannot be called directly.");
 	    }
 
 	    methodDetails << detail;
@@ -225,7 +231,9 @@ QString qax_generateDocumentation(QAxBase *that)
 	    QByteArray name = signature.left(signature.indexOf('('));
 	    stream << "<li>void <a href=\"#" << name << "\"><b>" << name << "</b></a>" << prototype << ";</li>" << endl;
 
-            QString detail = "<h3><a name=" + name + "></a>void " + name + " " + prototype + "<tt> [signal]</tt></h3>\n";
+            QString detail = QLatin1String("<h3><a name=") + QString::fromLatin1(name.constData()) + QLatin1String("></a>void ") +
+                             QString::fromLatin1(name.constData()) + QLatin1String(" ") +
+                             QString::fromLatin1(prototype.constData()) + QLatin1String("<tt> [signal]</tt></h3>\n");
             if (typeLib) {
                 interCount = 0;
                 do {
@@ -233,7 +241,7 @@ QString qax_generateDocumentation(QAxBase *that)
                         typeInfo->Release();
                     typeInfo = 0;
                     typeLib->GetTypeInfo(++interCount, &typeInfo);
-                    QString typeLibDocu = docuFromName(typeInfo, name);
+                    QString typeLibDocu = docuFromName(typeInfo, QString::fromLatin1(name.constData()));
                     if (!typeLibDocu.isEmpty()) {
                         detail += typeLibDocu;
                         break;
@@ -241,9 +249,11 @@ QString qax_generateDocumentation(QAxBase *that)
                 } while (typeInfo);
             }
             prototype = namedPrototype(signal.parameterTypes(), QList<QByteArray>());
-	    detail += "<p>Connect a slot to this signal:<pre>\n";
-	    detail += "\tQObject::connect(object, SIGNAL(" + name + prototype + "), receiver, SLOT(someSlot" + prototype + "));";
-	    detail += "</pre>\n";
+	    detail += QLatin1String("<p>Connect a slot to this signal:<pre>\n");
+	    detail += QLatin1String("\tQObject::connect(object, SIGNAL(") + QString::fromLatin1(name.constData()) +
+                      QString::fromLatin1(prototype.constData()) +
+                      QLatin1String("), receiver, SLOT(someSlot") + QString::fromLatin1(prototype.constData()) + QLatin1String("));");
+	    detail += QLatin1String("</pre>\n");
 
 	    methodDetails << detail;
             if (typeInfo)
@@ -269,8 +279,10 @@ QString qax_generateDocumentation(QAxBase *that)
 	    QByteArray type(prop.typeName());
 
 	    stream << "<li>" << type << " <a href=\"#" << name << "\"><b>" << name << "</b></a>;</li>" << endl;
-	    QString detail = "<h3><a name=" + name + "></a>" + type + " " + name + "</h3>\n";
-	    detail += docuFromName(typeInfo, name);
+	    QString detail = QLatin1String("<h3><a name=") + QString::fromLatin1(name.constData()) + QLatin1String("></a>") +
+                             QString::fromLatin1(type.constData()) +
+		             QLatin1String(" ") + QString::fromLatin1(name.constData()) + QLatin1String("</h3>\n");
+	    detail += docuFromName(typeInfo, QString::fromLatin1(name));
 	    QVariant::Type vartype = QVariant::nameToType(type);
 	    if (!prop.isReadable())
 		continue;
@@ -279,30 +291,32 @@ QString qax_generateDocumentation(QAxBase *that)
 		vartype = QVariant::Int;
 
             if (vartype != QVariant::Invalid) {
-		detail += "<p>Read this property's value using QObject::property:<pre>\n";
+		detail += QLatin1String("<p>Read this property's value using QObject::property:<pre>\n");
                 if (prop.isEnumType())
-		    detail += "\tint val = ";
+		    detail += QLatin1String("\tint val = ");
                 else
-                    detail += "\t" + type + " val = ";
-		detail += "object->property(\"" + name + "\")." + toType(type) + ";\n";
-		detail += "</pre>\n";
+                    detail += QLatin1String("\t") + QString::fromLatin1(type.constData()) + QLatin1String(" val = ");
+		detail += QLatin1String("object->property(\"") + QString::fromLatin1(name.constData()) +
+                          QLatin1String("\").") + QString::fromLatin1(toType(type).constData()) + QLatin1String(";\n");
+		detail += QLatin1String("</pre>\n");
 	    } else if (type == "IDispatch*" || type == "IUnknown*") {
-		detail += "<p>Get the subobject using querySubObject:<pre>\n";
-		detail += "\tQAxObject *" + name + " = object->querySubObject(\"" + name + "\");\n";
-		detail += "</pre>\n";
+		detail += QLatin1String("<p>Get the subobject using querySubObject:<pre>\n");
+		detail += QLatin1String("\tQAxObject *") + QString::fromLatin1(name.constData()) +
+                          QLatin1String(" = object->querySubObject(\"") + QString::fromLatin1(name.constData()) + QLatin1String("\");\n");
+		detail += QLatin1String("</pre>\n");
 	    } else {
-		detail += "<p>This property is of an unsupported type.\n";
+		detail += QLatin1String("<p>This property is of an unsupported type.\n");
 	    }
 	    if (prop.isWritable()) {
-		detail += "Set this property' value using QObject::setProperty:<pre>\n";
+		detail += QLatin1String("Set this property' value using QObject::setProperty:<pre>\n");
                 if (prop.isEnumType()) {
-                    detail += "\tint newValue = ... // string representation of values also supported\n";
+                    detail += QLatin1String("\tint newValue = ... // string representation of values also supported\n");
                 } else {
-		    detail += "\t" + type + " newValue = ...\n";
+		    detail += QLatin1String("\t") + QString::fromLatin1(type.constData()) + QLatin1String(" newValue = ...\n");
                 }
-		detail += "\tobject->setProperty(\"" + name + "\", newValue);\n";
-		detail += "</pre>\n";
-		detail += "Or using the ";
+		detail += QLatin1String("\tobject->setProperty(\"") + QString::fromLatin1(name) + QLatin1String("\", newValue);\n");
+		detail += QLatin1String("</pre>\n");
+		detail += QLatin1String("Or using the ");
 		QByteArray setterSlot;
                 if (isupper(name.at(0))) {
 		    setterSlot = "Set" + name;
@@ -311,10 +325,12 @@ QString qax_generateDocumentation(QAxBase *that)
 		    nameUp[0] = toupper(nameUp.at(0));
 		    setterSlot = "set" + nameUp;
 		}
-		detail += "<a href=\"#" + setterSlot + "\">" + setterSlot + "</a> slot.\n";
+		detail += QLatin1String("<a href=\"#") + QString::fromLatin1(setterSlot) + QLatin1String("\">") +
+                          QString::fromLatin1(setterSlot.constData()) + QLatin1String("</a> slot.\n");
 	    }
 	    if (prop.isEnumType()) {
-		detail += "<p>See also <a href=\"#" + type + "\">" + type + "</a>.\n";
+		detail += QLatin1String("<p>See also <a href=\"#") + QString::fromLatin1(type) +
+                QLatin1String("\">") + QString::fromLatin1(type) + QLatin1String("</a>.\n");
 	    }
 
 	    propDetails << detail;

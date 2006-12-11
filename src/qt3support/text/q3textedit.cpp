@@ -4975,7 +4975,7 @@ void Q3TextEdit::pasteSubType(const QByteArray& subtype, QMimeSource *m)
     } else {
 #if defined(Q_OS_WIN32)
         // Need to convert CRLF to LF
-        t.replace("\r\n", "\n");
+        t.replace(QLatin1String("\r\n"), QLatin1String("\n"));
 #elif defined(Q_OS_MAC)
         //need to convert CR to LF
         t.replace(QLatin1Char('\r'), QLatin1Char('\n'));

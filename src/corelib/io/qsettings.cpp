@@ -963,7 +963,7 @@ static QString windowsConfigPath(int type)
 #ifndef QT_NO_QOBJECT
     // We can't use QLibrary if there is QT_NO_QOBJECT is defined
     // This only happens when bootstrapping qmake.
-    QLibrary library("shell32");
+    QLibrary library(QLatin1String("shell32"));
     QT_WA( {
         typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, LPTSTR, int, BOOL);
         GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve("SHGetSpecialFolderPathW");

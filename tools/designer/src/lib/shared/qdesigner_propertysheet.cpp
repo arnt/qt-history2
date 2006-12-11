@@ -124,8 +124,8 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
     QListIterator<QByteArray> itName(names);
     while (itName.hasNext()) {
         QByteArray name = itName.next();
-        addDynamicProperty(name, object->property(name));
-        m_info[indexOf(name)].defaultDynamic = true;
+        addDynamicProperty(QString::fromLatin1(name), object->property(name));
+        m_info[indexOf(QString::fromLatin1(name.constData()))].defaultDynamic = true;
     }
 }
 

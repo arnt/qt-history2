@@ -168,7 +168,7 @@ bool QFSFileEngine::open(QIODevice::OpenMode flags)
         flags |= QFile::WriteOnly;
 
 #ifdef Q_OS_WIN
-    if (d->file.startsWith("//./")) {
+    if (d->file.startsWith(QLatin1String("//./"))) {
 #endif
     do {
 #if defined(Q_OS_WIN) && defined(_MSC_VER) && _MSC_VER >= 1400

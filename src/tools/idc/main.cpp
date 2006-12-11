@@ -20,8 +20,8 @@
 
 static QString quotePath(const QString &s)
 {
-    if (!s.startsWith("\"") && s.contains(' '))
-        return "\"" + s + "\"";
+    if (!s.startsWith(QLatin1String("\"")) && s.contains(QLatin1Char(' ')))
+        return QLatin1String("\"") + s + QLatin1String("\"");
     return s;
 }
 
@@ -62,13 +62,13 @@ static bool attachTypeLibrary(const QString &applicationName, int resource, cons
         hExe = BeginUpdateResourceW((TCHAR*)applicationName.utf16(), false);
         if (hExe == 0) {
             if (errorMessage)
-                *errorMessage = QString("Failed to attach type library to binary %1 - could not open file.").arg(applicationName);
+                *errorMessage = QString::fromLatin1("Failed to attach type library to binary %1 - could not open file.").arg(applicationName);
             return false;
         }
         if (!UpdateResourceW(hExe,L"TYPELIB",resourceName,0,(void*)data.data(),data.count())) {
             EndUpdateResource(hExe, true);
             if (errorMessage)
-                *errorMessage = QString("Failed to attach type library to binary %1 - could not update file.").arg(applicationName);
+                *errorMessage = QString::fromLatin1("Failed to attach type library to binary %1 - could not update file.").arg(applicationName);
             return false;
         }
     }, {
@@ -76,33 +76,33 @@ static bool attachTypeLibrary(const QString &applicationName, int resource, cons
         hExe = BeginUpdateResourceA(applicationName.toLocal8Bit(), false);
         if (hExe == 0) {
             if (errorMessage)
-                *errorMessage = QString("Failed to attach type library to binary %1 - could not open file.").arg(applicationName);
+                *errorMessage = QString::fromLatin1("Failed to attach type library to binary %1 - could not open file.").arg(applicationName);
             return false;
         }
         if (!UpdateResourceA(hExe,"TYPELIB",resourceName,0,(void*)data.data(),data.count())) {
             EndUpdateResource(hExe, true);
             if (errorMessage)
-                *errorMessage = QString("Failed to attach type library to binary %1 - could not update file.").arg(applicationName);
+                *errorMessage = QString::fromLatin1("Failed to attach type library to binary %1 - could not update file.").arg(applicationName);
             return false;
         }
     });
     
     if (!EndUpdateResource(hExe,false)) {
         if (errorMessage)
-            *errorMessage = QString("Failed to attach type library to binary %1 - could not write file.").arg(applicationName);
+            *errorMessage = QString::fromLatin1("Failed to attach type library to binary %1 - could not write file.").arg(applicationName);
         return false;
     }
     
     if (errorMessage)
-        *errorMessage = QString("Type library attached to %1.").arg(applicationName);
+        *errorMessage = QString::fromLatin1("Type library attached to %1.").arg(applicationName);
     return true;
 }
 
 static bool registerServer(const QString &input)
 {
     bool ok = false;    
-    if (input.endsWith(".exe")) {
-        ok = runWithQtInEnvironment((quotePath(input) + " -regserver").toLocal8Bit());
+    if (input.endsWith(QLatin1String(".exe"))) {
+        ok = runWithQtInEnvironment(quotePath(input) + QLatin1String(" -regserver"));
     } else {
         HMODULE hdll = 0;
         QT_WA({
@@ -128,8 +128,8 @@ static bool registerServer(const QString &input)
 static bool unregisterServer(const QString &input)
 {
     bool ok = false;
-    if (input.endsWith(".exe")) {        
-        ok = runWithQtInEnvironment((quotePath(input) + " -unregserver").toLocal8Bit());
+    if (input.endsWith(QLatin1String(".exe"))) {        
+        ok = runWithQtInEnvironment(quotePath(input) + QLatin1String(" -unregserver"));
     } else {
         HMODULE hdll = 0;
         QT_WA({
@@ -156,8 +156,8 @@ static HRESULT dumpIdl(const QString &input, const QString &idlfile, const QStri
 {
     HRESULT res = E_FAIL;
     
-    if (input.endsWith(".exe")) {
-        if (runWithQtInEnvironment((quotePath(input) + " -dumpidl " + idlfile + " -version " + version).toLocal8Bit()))
+    if (input.endsWith(QLatin1String(".exe"))) {
+        if (runWithQtInEnvironment(quotePath(input) + QLatin1String(" -dumpidl ") + idlfile + QLatin1String(" -version ") + version))
             res = S_OK;
     } else {
         HMODULE hdll = 0;
@@ -185,13 +185,13 @@ static HRESULT dumpIdl(const QString &input, const QString &idlfile, const QStri
 
 static void slashify(QString &s)
 {
-    if (!s.contains('/'))
+    if (!s.contains(QLatin1Char('/')))
         return;
     
     int i = 0;
     while (i < (int)s.length()) {
-        if (s[i] == '/')
-            s[i] = '\\';
+        if (s[i] == QLatin1Char('/'))
+            s[i] = QLatin1Char('\\');
         ++i;
     }
 }
@@ -202,59 +202,59 @@ int main(int argc, char **argv)
     QString tlbfile;
     QString idlfile;
     QString input;
-    QString version = "1.0";
+    QString version = QLatin1String("1.0");
     
     int i = 1;
     while (i < argc) {
         QString p = QString::fromLocal8Bit(argv[i]).toLower();
         
-        if (p == "/idl" || p == "-idl") {
+        if (p == QLatin1String("/idl") || p == QLatin1String("-idl")) {
             ++i;
             if (i > argc) {
-                error = "Missing name for interface definition file!";
+                error = QLatin1String("Missing name for interface definition file!");
                 break;
             }
-            idlfile = argv[i];
+            idlfile = QLatin1String(argv[i]);
             idlfile = idlfile.trimmed().toLower();            
-        } else if (p == "/version" || p == "-version") {
+        } else if (p == QLatin1String("/version") || p == QLatin1String("-version")) {
             ++i;
             if (i > argc)
-                version = "1.0";
+                version = QLatin1String("1.0");
             else
-                version = argv[i];
-        } else if (p == "/tlb" || p == "-tlb") {
+                version = QLatin1String(argv[i]);
+        } else if (p == QLatin1String("/tlb") || p == QLatin1String("-tlb")) {
             if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)
                 fprintf(stderr, "IDC requires Windows NT/2000/XP!\n");
             
             ++i;
             if (i > argc) {
-                error = "Missing name for type library file!";
+                error = QLatin1String("Missing name for type library file!");
                 break;
             }
-            tlbfile = argv[i];
+            tlbfile = QLatin1String(argv[i]);
             tlbfile = tlbfile.trimmed().toLower();            
-        } else if (p == "/v" || p == "-v") {
+        } else if (p == QLatin1String("/v") || p == QLatin1String("-v")) {
             fprintf(stdout, "Qt Interface Definition Compiler version 1.0\n");
             return 0;
-        } else if (p == "/regserver" || p == "-regserver") {
+        } else if (p == QLatin1String("/regserver") || p == QLatin1String("-regserver")) {
             if (!registerServer(input)) {
                 fprintf(stderr, "Failed to register server!\n");
                 return 1;
             }
             fprintf(stderr, "Server registered successfully!\n");
             return 0;
-        } else if (p == "/unregserver" || p == "-unregserver") {
+        } else if (p == QLatin1String("/unregserver") || p == QLatin1String("-unregserver")) {
             if (!unregisterServer(input)) {
                 fprintf(stderr, "Failed to unregister server!\n");
                 return 1;
             }
             fprintf(stderr, "Server unregistered successfully!\n");
             return 0;
-        } else if (p[0] == '/' || p[0] == '-') {
-            error = "Unknown option \"" + p + "\"";
+        } else if (p[0] == QLatin1Char('/') || p[0] == QLatin1Char('-')) {
+            error = QLatin1String("Unknown option \"") + p + QLatin1String("\"");
             break;
         } else {
-            input = argv[i];
+            input = QLatin1String(argv[i]);
             input = input.trimmed().toLower();            
         }
         i++;
@@ -268,11 +268,11 @@ int main(int argc, char **argv)
         fprintf(stderr, "No input file specified!\n");
         return 1;
     }
-    if (input.endsWith(".exe") && tlbfile.isEmpty() && idlfile.isEmpty()) {
+    if (input.endsWith(QLatin1String(".exe")) && tlbfile.isEmpty() && idlfile.isEmpty()) {
         fprintf(stderr, "No type output file specified!\n");
         return 2;
     }
-    if (input.endsWith(".dll") && idlfile.isEmpty() && tlbfile.isEmpty()) {
+    if (input.endsWith(QLatin1String(".dll")) && idlfile.isEmpty() && tlbfile.isEmpty()) {
         fprintf(stderr, "No interface definition file and no type library file specified!\n");
         return 3;
     }

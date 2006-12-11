@@ -255,7 +255,7 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
 
         if (!(category & OnlyInlines)) {
             out << indent << "/*" << endl << indent << "Property " << propertyName << endl;
-            QString documentation = qax_docuFromName(currentTypeInfo, propertyName);
+            QString documentation = qax_docuFromName(currentTypeInfo, QString::fromLatin1(propertyName.constData()));
             if (!documentation.isEmpty()) {
                 out << endl;
                 out << indent << documentation << endl;
@@ -323,7 +323,7 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
         
         if (property.isWritable()) {
             QByteArray setter(propertyName);
-            QChar firstChar = setter.at(0);
+            QChar firstChar = QLatin1Char(setter.at(0));
             if (isupper(setter.at(0))) {
                 setter = "Set" + setter;
             } else {
@@ -377,7 +377,7 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
 
         if (!(category & OnlyInlines)) {
             out << indent << "/*" << endl << indent << "Method " << slotName << endl;
-            QString documentation = qax_docuFromName(currentTypeInfo, slotName);
+            QString documentation = qax_docuFromName(currentTypeInfo, QString::fromLatin1(slotName.constData()));
             if (!documentation.isEmpty()) {
                 out << endl;
                 out << indent << documentation << endl;
@@ -762,7 +762,7 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
     const QMetaObject *mo = object->metaObject();
 
     if (!nameSpace.isEmpty() && !(category & NoDeclaration)) {
-        QFile outfile(nameSpace.toLower() + ".h");
+        QFile outfile(QString::fromLatin1(nameSpace.toLower().constData()) + QLatin1String(".h"));
 		if (!outfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
             qWarning("dumpcpp: Could not open output file '%s'", qPrintable(outfile.fileName()));
             return false;
@@ -788,7 +788,7 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
     }
 
     if (!(category & NoDeclaration)) {
-        QFile outfile(outname + ".h");
+        QFile outfile(QString::fromLatin1(outname.constData()) + QLatin1String(".h"));
         if (!outfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
             qWarning("dumpcpp: Could not open output file '%s'", qPrintable(outfile.fileName()));
             return false;
@@ -827,7 +827,7 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
     }
 
     if (!(category & (NoMetaObject|NoImplementation))) {
-        QFile outfile(outname + ".cpp");
+        QFile outfile(QString::fromLatin1(outname.constData()) + QLatin1String(".cpp"));
         if (!outfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
             qWarning("dumpcpp: Could not open output file '%s'", qPrintable(outfile.fileName()));
             return false;
@@ -851,9 +851,9 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
 
 bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, ObjectCategory category)
 {
-    QString typeLibFile(typeLib);
-    typeLibFile = typeLibFile.replace('/', '\\');
-    QString cppFile(outname);
+    QString typeLibFile(QString::fromLatin1(typeLib.constData()));
+    typeLibFile = typeLibFile.replace(QLatin1Char('/'), QLatin1Char('\\'));
+    QString cppFile(QString::fromLatin1(outname.constData()));
 
     ITypeLib *typelib;
     LoadTypeLibEx(reinterpret_cast<const wchar_t *>(typeLibFile.utf16()), REGKIND_NONE, &typelib);
@@ -868,12 +868,12 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
     libName = QString::fromUtf16((const ushort *)nameString);
     SysFreeString(nameString);
 
-    QString libVersion("1.0");
+    QString libVersion(QLatin1String("1.0"));
 
     TLIBATTR *tlibattr = 0;
     typelib->GetLibAttr(&tlibattr);
     if (tlibattr) {
-        libVersion = QString("%1.%2").arg(tlibattr->wMajorVerNum).arg(tlibattr->wMinorVerNum);
+        libVersion = QString::fromLatin1("%1.%2").arg(tlibattr->wMajorVerNum).arg(tlibattr->wMinorVerNum);
         typelib->ReleaseTLibAttr(tlibattr);
     }
 
@@ -887,7 +887,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
 
     QMetaObject *namespaceObject = qax_readEnumInfo(typelib, 0);
 
-    QFile implFile(cppFile + ".cpp");
+    QFile implFile(cppFile + QLatin1String(".cpp"));
     QTextStream implOut(&implFile);
     if (!(category & (NoMetaObject|NoImplementation))) {
         if (!implFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -911,7 +911,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
         implOut << endl;
     }
 
-    QFile declFile(cppFile + ".h");
+    QFile declFile(cppFile + QLatin1String(".h"));
     QTextStream declOut(&declFile);
     QByteArray classes;
     QTextStream classesOut(&classes, QIODevice::WriteOnly);
@@ -1024,7 +1024,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
             QList<QByteArray> keys = namespaces.keys();
             for (int n = 0; n < keys.count(); ++n) {
                 QByteArray nspace = keys.at(n);
-                if (nspace != libName) {
+                if (QString::fromLatin1(nspace.constData()) != libName) {
                     declOut << "namespace " << nspace << " {" << endl;
                     QList<QByteArray> classList = namespaces.value(nspace);
                     for (int c = 0; c < classList.count(); ++c) {
@@ -1094,7 +1094,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
 
         if (!(object_category & ActiveX)) {
             QSettings settings(QLatin1String("HKEY_LOCAL_MACHINE\\Software\\Classes\\CLSID\\") + guid.toString(), QSettings::NativeFormat);
-            if (settings.childGroups().contains("Control")) {
+            if (settings.childGroups().contains(QLatin1String("Control"))) {
                 object_category |= ActiveX;
                 object_category &= ~SubObject;
             }
@@ -1302,12 +1302,13 @@ int main(int argc, char **argv)
     }
 
     if (category == TypeLibID) {
-        QSettings settings("HKEY_LOCAL_MACHINE\\Software\\Classes\\TypeLib\\" + typeLib, QSettings::NativeFormat);
+        QSettings settings(QLatin1String("HKEY_LOCAL_MACHINE\\Software\\Classes\\TypeLib\\") +
+                           QString::fromLatin1(typeLib.constData()), QSettings::NativeFormat);
         typeLib = QByteArray();
         QStringList codes = settings.childGroups();
         for (int c = 0; c < codes.count(); ++c) {
-            typeLib = settings.value("/" + codes.at(c) + "/0/win32/.").toByteArray();
-            if (QFile::exists(typeLib)) {
+            typeLib = settings.value(QLatin1String("/") + codes.at(c) + QLatin1String("/0/win32/.")).toByteArray();
+            if (QFile::exists(QString::fromLatin1(typeLib))) {
                 break;
             }
         }
@@ -1327,9 +1328,9 @@ int main(int argc, char **argv)
     }
 
     // not a file - search registry
-    if (!QFile::exists(typeLib)) {
+    if (!QFile::exists(QString::fromLatin1(typeLib.constData()))) {
         bool isObject = false;
-        QSettings settings("HKEY_LOCAL_MACHINE\\Software\\Classes", QSettings::NativeFormat);
+        QSettings settings(QLatin1String("HKEY_LOCAL_MACHINE\\Software\\Classes"), QSettings::NativeFormat);
 
         // regular string and not a file - must be ProgID
         if (typeLib.at(0) != '{') {
@@ -1345,36 +1346,38 @@ int main(int argc, char **argv)
 
         // check if CLSID
         if (!isObject) {
-            QVariant test = settings.value("/CLSID/" + typeLib + "/.");
+            QVariant test = settings.value(QLatin1String("/CLSID/") +
+                                           QString::fromLatin1(typeLib.constData()) + QLatin1String("/."));
             isObject = test.isValid();
         }
 
         // search typelib ID for CLSID
         if (isObject)
-            typeLib = settings.value("/CLSID/" + typeLib + "/Typelib/.").toByteArray();
+            typeLib = settings.value(QLatin1String("/CLSID/") +
+                                     QString::fromLatin1(typeLib.constData()) + QLatin1String("/Typelib/.")).toByteArray();
 
         // interpret input as type library ID
-        QString key = QString("/TypeLib/") + QLatin1String(typeLib);
+        QString key = QLatin1String("/TypeLib/") + QLatin1String(typeLib);
         settings.beginGroup(key);
         QStringList versions = settings.childGroups();
         QStringList codes;
         if (versions.count()) {
-            settings.beginGroup("/" + versions.last());
+            settings.beginGroup(QLatin1String("/") + versions.last());
             codes = settings.childGroups();
-            key += "/" + versions.last();
+            key += QLatin1String("/") + versions.last();
             settings.endGroup();
         }
         settings.endGroup();
 
         for (int c = 0; c < codes.count(); ++c) {
-            typeLib = settings.value(key + "/" + codes.at(c) + "/win32/.").toByteArray();
-            if (QFile::exists(typeLib)) {
+            typeLib = settings.value(key + QLatin1String("/") + codes.at(c) + QLatin1String("/win32/.")).toByteArray();
+            if (QFile::exists(QString::fromLatin1(typeLib.constData()))) {
                 break;
             }
         }
     }
 
-    if (!QFile::exists(typeLib)) {
+    if (!QFile::exists(QString::fromLatin1(typeLib.constData()))) {
         qWarning("dumpcpp: type library '%s' not found", typeLib.constData());
         return -2;
     }

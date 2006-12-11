@@ -68,9 +68,9 @@ void resolveLibrary()
 {
     // Attempt to resolve getaddrinfo(); without it we'll have to fall
     // back to gethostbyname(), which has no IPv6 support.
-    local_getaddrinfo = (getaddrinfoProto) QLibrary::resolve("ws2_32.dll", "getaddrinfo");
-    local_freeaddrinfo = (freeaddrinfoProto) QLibrary::resolve("ws2_32.dll", "freeaddrinfo");
-    local_getnameinfo = (getnameinfoProto) QLibrary::resolve("ws2_32.dll", "getnameinfo");
+    local_getaddrinfo = (getaddrinfoProto) QLibrary::resolve(QLatin1String("ws2_32.dll"), "getaddrinfo");
+    local_freeaddrinfo = (freeaddrinfoProto) QLibrary::resolve(QLatin1String("ws2_32.dll"), "freeaddrinfo");
+    local_getnameinfo = (getnameinfoProto) QLibrary::resolve(QLatin1String("ws2_32.dll"), "getnameinfo");
 
 }
 

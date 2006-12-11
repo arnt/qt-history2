@@ -100,7 +100,7 @@ static QString errorCodeToString(DWORD errorCode)
     if (data != 0)
         LocalFree(data);
 
-    if (result.endsWith("\n"))
+    if (result.endsWith(QLatin1String("\n")))
         result.truncate(result.length() - 1);
 
     return result;
@@ -433,24 +433,24 @@ QWinSettingsPrivate::QWinSettingsPrivate(QString rPath)
 {
     deleteWriteHandleOnExit = false;
 
-    if (rPath.startsWith("\\"))
+    if (rPath.startsWith(QLatin1String("\\")))
         rPath = rPath.mid(1);
 
-    if (rPath.startsWith("HKEY_CURRENT_USER\\"))
+    if (rPath.startsWith(QLatin1String("HKEY_CURRENT_USER\\")))
         regList.append(RegistryKey(HKEY_CURRENT_USER, rPath.mid(18), false));
     else if (rPath == QLatin1String("HKEY_CURRENT_USER"))
         regList.append(RegistryKey(HKEY_CURRENT_USER, QString(), false));
-    else if (rPath.startsWith("HKEY_LOCAL_MACHINE\\"))
+    else if (rPath.startsWith(QLatin1String("HKEY_LOCAL_MACHINE\\")))
         regList.append(RegistryKey(HKEY_LOCAL_MACHINE, rPath.mid(19), false));
     else if (rPath == QLatin1String("HKEY_LOCAL_MACHINE"))
         regList.append(RegistryKey(HKEY_LOCAL_MACHINE, QString(), false));
-    else if (rPath.startsWith("HKEY_CLASSES_ROOT\\"))
+    else if (rPath.startsWith(QLatin1String("HKEY_CLASSES_ROOT\\")))
         regList.append(RegistryKey(HKEY_CLASSES_ROOT, rPath.mid(18), false));
     else if (rPath == QLatin1String("HKEY_CLASSES_ROOT"))
         regList.append(RegistryKey(HKEY_CLASSES_ROOT, QString(), false));
-    else if (rPath.startsWith("HKEY_USERS\\"))
+    else if (rPath.startsWith(QLatin1String("HKEY_USERS\\")))
         regList.append(RegistryKey(HKEY_USERS, rPath.mid(11), false));
-    else if (rPath == QLatin1String("HKEY_USERS"))
+    else if (rPath == QLatin1String(QLatin1String("HKEY_USERS")))
         regList.append(RegistryKey(HKEY_USERS, QString(), false));
     else
         regList.append(RegistryKey(HKEY_LOCAL_MACHINE, rPath, false));

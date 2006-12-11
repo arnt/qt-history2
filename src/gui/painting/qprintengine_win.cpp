@@ -187,7 +187,7 @@ QWin32PrintEngine::QWin32PrintEngine(QPrinter::PrinterMode mode)
                                        | PaintOutsidePaintEvent))
 {
     Q_D(QWin32PrintEngine);
-    d->docName = "document1";
+    d->docName = QLatin1String("document1");
     d->mode = mode;
     d->queryDefault();
     d->initialize();
@@ -859,7 +859,7 @@ void QWin32PrintEnginePrivate::queryDefault()
     /* Read the default printer name, driver and port with the intuitive function
      * Strings "windows" and "device" are specified in the MSDN under EnumPrinters()
      */
-    QString noPrinters("qt_no_printers");
+    QString noPrinters(QLatin1String("qt_no_printers"));
     QString output;
     QT_WA({
 	ushort buffer[256];
@@ -880,7 +880,7 @@ void QWin32PrintEnginePrivate::queryDefault()
 	    return;
 	}
     });
-    QStringList info = output.split(',');
+    QStringList info = output.split(QLatin1Char(','));
     if(name.isEmpty())
         name = info.at(0);
     if(program.isEmpty())

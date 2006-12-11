@@ -62,14 +62,14 @@ void set_winapp_name()
 
 Q_CORE_EXPORT QString qAppFileName()                // get application file name
 {
-    return appFileName;
+    return QString::fromLatin1(appFileName);
 }
 
 QString QCoreApplicationPrivate::appName() const
 {
     if (!::appName[0])
         set_winapp_name();
-    return ::appName;
+    return QString::fromLatin1(::appName);
 }
 
 class QWinMsgHandlerCriticalSection
@@ -101,8 +101,8 @@ Q_CORE_EXPORT void qWinMsgHandler(QtMsgType t, const char* str)
 
     staticCriticalSection.lock();
     QT_WA({
-        QString s(str);
-        s += "\n";
+        QString s(QString::fromLatin1(str));
+        s += QLatin1String("\n");
         OutputDebugStringW((TCHAR*)s.utf16());
     }, {
         QByteArray s(str);
@@ -128,7 +128,7 @@ static QVector<Char*> qWinCmdLine(Char *cmdParam, int length, int &argc)
     argc = 0;
 
     while (*p && p < p_end) {                                // parse cmd line arguments
-        while (QChar(*p).isSpace())                        // skip white space
+        while (QChar::fromLatin1(*p).isSpace())                        // skip white space
             p++;
         if (*p && p < p_end) {                                // arg starts
             int quote;
@@ -145,7 +145,7 @@ static QVector<Char*> qWinCmdLine(Char *cmdParam, int length, int &argc)
                 if (quote) {
                     if (*p == quote) {
                         p++;
-                        if (QChar(*p).isSpace())
+                        if (QChar::fromLatin1(*p).isSpace())
                             break;
                         quote = 0;
                     }
@@ -159,7 +159,7 @@ static QVector<Char*> qWinCmdLine(Char *cmdParam, int length, int &argc)
                     if (*p == Char('\"') || *p == Char('\'')) {        // " or ' quote
                         quote = *p++;
                         continue;
-                    } else if (QChar(*p).isSpace())
+                    } else if (QChar::fromLatin1(*p).isSpace())
                         break;
                 }
                 if (*p)
@@ -635,8 +635,8 @@ QString flagCheck(uint actual, ...)
     while((v=va_arg(ap,FLAG_STRING_STRUCT)).str) {
         if ((actual & v.value) == v.value) {
             if (count++)
-                result += " | ";
-            result += v.str;
+                result += QLatin1String(" | ");
+            result += QString::fromLatin1(v.str);
         }
     }
     va_end(ap);
@@ -655,7 +655,7 @@ QString valueCheck(uint actual, ...)
     FLAG_STRING_STRUCT v;
     while((v=va_arg(ap,FLAG_STRING_STRUCT)).str && (actual != v.value))
         ;
-    result = v.str;
+    result = QString::fromLatin1(v.str);
 
     va_end(ap);
     return result;
@@ -676,19 +676,19 @@ QString decodeMSG(const MSG& msg)
 {
     const WPARAM wParam = msg.wParam;
     const LPARAM lParam = msg.lParam;
-    QString wmmsg = findWMstr(msg.message);
+    QString wmmsg = QString::fromLatin1(findWMstr(msg.message));
     // Unknown WM_, so use number
     if (wmmsg.isEmpty())
-        wmmsg = QString("WM_(%1)").arg(msg.message);
+        wmmsg = QString::fromLatin1("WM_(%1)").arg(msg.message);
 
     QString rawParameters;
     rawParameters.sprintf("hwnd(0x%p) ", (void *)msg.hwnd);
 
     // Custom WM_'s
     if (msg.message > WM_APP)
-        wmmsg = QString("WM_APP + %1").arg(msg.message - WM_APP);
+        wmmsg = QString::fromLatin1("WM_APP + %1").arg(msg.message - WM_APP);
     else if (msg.message > WM_USER)
-        wmmsg = QString("WM_USER + %1").arg(msg.message - WM_USER);
+        wmmsg = QString::fromLatin1("WM_USER + %1").arg(msg.message - WM_USER);
 
     QString parameters;
     switch (msg.message) {
@@ -908,14 +908,14 @@ QString decodeMSG(const MSG& msg)
 #ifdef WM_NCACTIVATE
         case WM_NCACTIVATE:
             {
-            parameters = (msg.wParam?"Active Titlebar":"Inactive Titlebar");
+            parameters = (msg.wParam? QLatin1String("Active Titlebar") : QLatin1String("Inactive Titlebar"));
             }
             break;
 #endif
 #ifdef WM_MOUSEACTIVATE
         case WM_MOUSEACTIVATE:
             {
-                QString mouseMsg = findWMstr(HIWORD(lParam));
+                QString mouseMsg = QString::fromLatin1(findWMstr(HIWORD(lParam)));
                 parameters.sprintf("TLW(0x%p) HittestCode(0x%x) MouseMsg(%s)", (void *)wParam, LOWORD(lParam), mouseMsg.toLatin1().data());
             }
             break;
@@ -995,7 +995,7 @@ QString decodeMSG(const MSG& msg)
 #ifdef WM_SETCURSOR
         case WM_SETCURSOR:
             {
-                QString mouseMsg = findWMstr(HIWORD(lParam));
+                QString mouseMsg = QString::fromLatin1(findWMstr(HIWORD(lParam)));
                 parameters.sprintf("HitTestCode(0x%x) MouseMsg(%s)", LOWORD(lParam), mouseMsg.toLatin1().data());
             }
             break;
@@ -1069,7 +1069,7 @@ QString decodeMSG(const MSG& msg)
     // Yes, we want to give the WM_ names 20 chars of space before showing the
     // decoded message, since some of the common messages are quite long, and
     // we don't want the decoded information to vary in output position
-    QString message = QString("%1: ").arg(wmmsg, 20);
+    QString message = QString::fromLatin1("%1: ").arg(wmmsg, 20);
     message += rawParameters;
     message += parameters;
     return message;
