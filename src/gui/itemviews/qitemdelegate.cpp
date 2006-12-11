@@ -364,6 +364,8 @@ void QItemDelegate::paint(QPainter *painter,
     QRect decorationRect;
     value = index.data(Qt::DecorationRole);
     if (value.isValid()) {
+        // ### we need the pixmap to call the virtual function
+        pixmap = decoration(opt, value);
         if (value.type() == QVariant::Icon) {
             d->tmp.icon = qvariant_cast<QIcon>(value);
             d->tmp.mode = d->iconMode(option.state);
@@ -375,8 +377,6 @@ void QItemDelegate::paint(QPainter *painter,
             d->tmp.icon = QIcon();
             decorationRect = QRect(QPoint(0, 0), pixmap.size());
         }
-        // ### we need the pixmap to call the virtual function
-        pixmap = decoration(opt, value);
     }
 
     QString text;
