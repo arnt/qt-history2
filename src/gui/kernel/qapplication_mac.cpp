@@ -124,7 +124,8 @@ bool qt_scrollbar_jump_to_pos = false;
 static bool qt_mac_collapse_on_dblclick = true;
 extern int qt_antialiasing_threshold; // from qapplication.cpp
 QPointer<QWidget> qt_button_down;                // widget got last button-down
-bool qt_button_down_in_content; // whether the button_down was in the content area.
+static bool qt_button_down_in_content; // whether the button_down was in the content area.
+static bool previous_press_in_popup_mode = false;
 static QPointer<QWidget> qt_mouseover;
 #if defined(QT_DEBUG)
 static bool        appNoGrab        = false;        // mouse/keyboard grabbing
@@ -1500,8 +1501,22 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             etype = QEvent::MouseMove;
             break;
         }
+
+        const bool inPopupMode = app->d_func()->inPopupMode();
+
+        // A click outside a popup closes the popup. Make sure
+        // that no events are generated for the release part of that click.
+        // (The press goes to the popup and closes it.)
+        if (inPopupMode && etype == QEvent::MouseButtonPress) {
+            previous_press_in_popup_mode = true;
+        } else if (previous_press_in_popup_mode && !inPopupMode && etype == QEvent::MouseButtonRelease) {
+            previous_press_in_popup_mode = false;
+            handled_event = true;
+            break; // break from case kEventClassMouse
+        }
+
         //figure out which widget to send it to
-        if(app->d_func()->inPopupMode()) {
+        if(inPopupMode) {
             QWidget *popup = qApp->activePopupWidget();
             if (qt_button_down && qt_button_down->window() == popup) {
                 widget = qt_button_down;
@@ -1555,7 +1570,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 }
             }
         }
-        if(app->d_func()->inPopupMode() == false 
+        if (inPopupMode == false 
                 && (qt_button_down == 0 || qt_button_down_in_content == false)
                 && qt_mac_window_at(where.h, where.v, 0) != inContent) {
             inNonClientArea = true;
@@ -1709,7 +1724,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             // If we are in popup mode, widget will point to the current popup no matter
             // where the mouse cursor is. In that case find out if the mouse cursor is
             // really over the popup in order to send correct enter / leave envents.
-            QWidget * const enterLeaveWidget = app->d_func()->inPopupMode() ?
+            QWidget * const enterLeaveWidget = inPopupMode ?
                     QApplication::widgetAt(where.h, where.v) :  static_cast<QWidget*>(widget);
 
             if((QWidget *)qt_mouseover != enterLeaveWidget || inNonClientArea) {
