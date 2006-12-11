@@ -4520,20 +4520,23 @@ void QPainter::drawText(const QRectF &r, const QString &text, const QTextOption 
     Q_D(QPainter);
     d->updateState(d->state);
 
-    int flags = o.alignment();
+    QTextOption opt = o;
+    int flags = opt.alignment();
+    // avoid doing the alignment twice since qt_format_text does it, too
+    opt.setAlignment(Qt::AlignLeft);
 
-    if (o.wrapMode() == QTextOption::WordWrap)
+    if (opt.wrapMode() == QTextOption::WordWrap)
         flags |= Qt::TextWordWrap;
-    else if (o.wrapMode() == QTextOption::WrapAnywhere)
+    else if (opt.wrapMode() == QTextOption::WrapAnywhere)
         flags |= Qt::TextWrapAnywhere;
 
-    if (o.flags() & QTextOption::IncludeTrailingSpaces)
+    if (opt.flags() & QTextOption::IncludeTrailingSpaces)
         flags |= Qt::TextIncludeTrailingSpaces;
 
-    if (o.tabStop() >= 0 || !o.tabArray().isEmpty())
+    if (opt.tabStop() >= 0 || !opt.tabArray().isEmpty())
         flags |= Qt::TextExpandTabs;
 
-    qt_format_text(d->state->font, r, flags, &o, text, 0, 0, 0, 0, this);
+    qt_format_text(d->state->font, r, flags, &opt, text, 0, 0, 0, 0, this);
 }
 
 /*!
@@ -4920,19 +4923,23 @@ QRectF QPainter::boundingRect(const QRectF &r, const QString &text, const QTextO
     Q_D(QPainter);
     d->updateState(d->state);
 
-    int flags = o.alignment() | Qt::TextDontPrint;
-    if (o.wrapMode() == QTextOption::WordWrap)
+    QTextOption opt = o;
+    int flags = opt.alignment() | Qt::TextDontPrint;
+    // avoid doing the alignment twice since qt_format_text does it, too
+    opt.setAlignment(Qt::AlignLeft);
+
+    if (opt.wrapMode() == QTextOption::WordWrap)
         flags |= Qt::TextWordWrap;
-    else if (o.wrapMode() == QTextOption::WrapAnywhere)
+    else if (opt.wrapMode() == QTextOption::WrapAnywhere)
         flags |= Qt::TextWrapAnywhere;
-    if (o.flags() & QTextOption::IncludeTrailingSpaces)
+    if (opt.flags() & QTextOption::IncludeTrailingSpaces)
         flags |= Qt::TextIncludeTrailingSpaces;
 
-    if (o.tabStop() >= 0 || !o.tabArray().isEmpty())
+    if (opt.tabStop() >= 0 || !opt.tabArray().isEmpty())
         flags |= Qt::TextExpandTabs;
 
     QRectF br;
-    qt_format_text(d->state->font, r, flags, &o, text, &br, 0, 0, 0, this);
+    qt_format_text(d->state->font, r, flags, &opt, text, &br, 0, 0, 0, this);
     return br;
 }
 
