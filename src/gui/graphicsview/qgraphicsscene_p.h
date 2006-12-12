@@ -63,8 +63,10 @@ public:
     bool updateAll;
     bool calledEmitUpdated;
 
-    QList<QGraphicsItem *> newItems;
+    int selectionChanging;
     QSet<QGraphicsItem *> selectedItems;
+
+    QList<QGraphicsItem *> newItems;
     QList<QGraphicsItem *> allItems;
     QList<int> freeItemIndexes;
     bool purgePending;

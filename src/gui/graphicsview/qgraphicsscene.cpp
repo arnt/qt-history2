@@ -175,9 +175,9 @@
 */
 QGraphicsScenePrivate::QGraphicsScenePrivate()
     : indexMethod(QGraphicsScene::BspTreeIndex), lastItemCount(0),
-      hasSceneRect(false), updateAll(false), calledEmitUpdated(false), purgePending(false),
-      indexTimerId(0), hasFocus(false), focusItem(0), lastFocusItem(0), mouseGrabberItem(0),
-      lastMouseGrabberItem(0), dragDropItem(0), lastDropAction(Qt::IgnoreAction)
+      hasSceneRect(false), updateAll(false), calledEmitUpdated(false), selectionChanging(0),
+      purgePending(false), indexTimerId(0), hasFocus(false), focusItem(0), lastFocusItem(0),
+      mouseGrabberItem(0), lastMouseGrabberItem(0), dragDropItem(0), lastDropAction(Qt::IgnoreAction)
 {
 }
 
@@ -363,6 +363,8 @@ void QGraphicsScenePrivate::_q_emitUpdated()
 */
 void QGraphicsScenePrivate::_q_removeItemLater(QGraphicsItem *item)
 {
+    Q_Q(QGraphicsScene);
+
     if (QGraphicsItem *parent = item->d_func()->parent) {
         QVariant variant;
         qVariantSetValue<QGraphicsItem *>(variant, item);
@@ -393,6 +395,10 @@ void QGraphicsScenePrivate::_q_removeItemLater(QGraphicsItem *item)
     if (item == lastFocusItem)
         lastFocusItem = 0;
 
+    // Disable selectionChanged() for individual items
+    ++selectionChanging;
+    int oldSelectedItemsSize = selectedItems.size();
+
     // Update selected & hovered item bookkeeping
     selectedItems.remove(item);
     hoverItems.removeAll(item);
@@ -400,6 +406,11 @@ void QGraphicsScenePrivate::_q_removeItemLater(QGraphicsItem *item)
     // Remove all children recursively.
     foreach (QGraphicsItem *child, item->children())
         _q_removeItemLater(child);
+
+    // Reenable selectionChanged() for individual items
+    --selectionChanging;
+    if (!selectionChanging && selectedItems.size() != oldSelectedItemsSize)
+        emit q->selectionChanged();        
 }
 
 /*!
@@ -1254,21 +1265,34 @@ QList<QGraphicsItem *> QGraphicsScene::selectedItems() const
 */
 void QGraphicsScene::setSelectionArea(const QPainterPath &path)
 {
-    Q_D(const QGraphicsScene);
+    Q_D(QGraphicsScene);
 
     QSet<QGraphicsItem *> unselectItems = d->selectedItems;
 
+    // Disable emitting selectionChanged() for individual items.
+    ++d->selectionChanging;
+    bool changed = false;
+
     // Set all items in path to selected.
     foreach (QGraphicsItem *item, items(path)) {
-        if (item->flags() & QGraphicsItem::ItemIsSelectable) {
+        if ((item->flags() & QGraphicsItem::ItemIsSelectable) && !item->isSelected()) {
             unselectItems.remove(item);
             item->setSelected(true);
+            changed = true;
         }
     }
 
     // Unselect all items outside path.
-    foreach (QGraphicsItem *item, unselectItems)
+    foreach (QGraphicsItem *item, unselectItems) {
         item->setSelected(false);
+        changed = true;
+    }
+
+    // Reenable emitting selectionChanged() for individual items.
+    --d->selectionChanging;
+
+    if (!d->selectionChanging && changed)
+        emit selectionChanged();
 }
 
 /*!
@@ -1279,9 +1303,20 @@ void QGraphicsScene::setSelectionArea(const QPainterPath &path)
 void QGraphicsScene::clearSelection()
 {
     Q_D(QGraphicsScene);
+
+    // Disable emitting selectionChanged
+    ++d->selectionChanging;
+    bool changed = !d->selectedItems.isEmpty();
+
     foreach (QGraphicsItem *item, d->selectedItems)
         item->setSelected(false);
     d->selectedItems.clear();
+
+    // Reenable emitting selectionChanged() for individual items.
+    --d->selectionChanging;
+
+    if (!d->selectionChanging && changed)
+        emit selectionChanged();
 }
 
 /*!
@@ -1424,6 +1459,10 @@ void QGraphicsScene::addItem(QGraphicsItem *item)
         }
     }
 
+    // Disable selectionChanged() for individual items
+    ++d->selectionChanging;
+    int oldSelectedItemSize = d->selectedItems.size();
+
     // Update selection lists
     if (item->isSelected())
         d->selectedItems << item;
@@ -1431,6 +1470,11 @@ void QGraphicsScene::addItem(QGraphicsItem *item)
     // Add all children recursively
     foreach (QGraphicsItem *child, item->children())
         addItem(child);
+
+    // Reenable selectionChanged() for individual items
+    --d->selectionChanging;
+    if (!d->selectionChanging && d->selectedItems.size() != oldSelectedItemSize)
+        emit selectionChanged();        
 }
 
 /*!
@@ -1650,6 +1694,10 @@ void QGraphicsScene::removeItem(QGraphicsItem *item)
     if (item == d->lastFocusItem)
         d->lastFocusItem = 0;
 
+    // Disable selectionChanged() for individual items
+    ++d->selectionChanging;
+    int oldSelectedItemsSize = d->selectedItems.size();
+
     // Update selected & hovered item bookkeeping
     d->selectedItems.remove(item);
     d->hoverItems.removeAll(item);
@@ -1657,6 +1705,12 @@ void QGraphicsScene::removeItem(QGraphicsItem *item)
     // Remove all children recursively
     foreach (QGraphicsItem *child, item->children())
         removeItem(child);
+
+    // Reenable selectionChanged() for individual items
+    --d->selectionChanging;
+
+    if (!d->selectionChanging && d->selectedItems.size() != oldSelectedItemsSize)
+        emit selectionChanged();
 }
 
 /*!
@@ -2740,6 +2794,26 @@ void QGraphicsScene::drawItems(QPainter *painter,
     The \a rect parameter is the new scene rectangle.
 
     \sa QGraphicsView::updateSceneRect()
+*/
+
+/*!
+    \fn QGraphicsScene::selectionChanged()
+
+    This signal is emitted by QGraphicsScene whenever the selection
+    changes. You can call selectedItems() to get the new list of selected
+    items.
+
+    The selection changes whenever an item is selected or unselected, a
+    selection area is set, cleared or otherwise changed, if a preselected item
+    is added to the scene, or if a selected item is removed from the scene.
+
+    QGraphicsScene emits this signal only once for group selection operations.
+    For example, if you set a selection area, select or unselect a
+    QGraphicsItemGroup, or if you add or remove from the scene a parent item
+    that contains several selected items, selectionChanged() is emitted only
+    once after the operation has completed (instead of once for each item).
+
+    \sa selectionArea(), selectedItems(), QGraphicsItem::setSelected()
 */
 
 /*!

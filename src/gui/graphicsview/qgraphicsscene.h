@@ -182,6 +182,7 @@ protected:
 Q_SIGNALS:
     void changed(const QList<QRectF> &region);
     void sceneRectChanged(const QRectF &rect);
+    void selectionChanged();
 
 private:
     void itemUpdated(QGraphicsItem *item, const QRectF &rect);
