@@ -217,7 +217,8 @@ bool QVFbScreen::connect(const QString &displaySpec)
         const QString mouseDev = QString(QT_VFB_MOUSE_PIPE).arg(displayId);
         d_ptr->mouse = QMouseDriverFactory::create("QVFbMouse", mouseDev);
         qwsServer->setDefaultMouse("None");
-        d_ptr->mouse->setScreen(this);
+        if (d_ptr->mouse)
+            d_ptr->mouse->setScreen(this);
 
         const QString keyboardDev = QString(QT_VFB_KEYBOARD_PIPE).arg(displayId);
 #ifndef QT_NO_QWS_KEYBOARD
