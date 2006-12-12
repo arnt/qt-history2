@@ -90,6 +90,7 @@ public:
     void ensureTextLayouted() const;
     void ensureTextControl();
     void sendControlEvent(QEvent *e);
+    void textInteractionFlagsChanged();
 
     void _q_linkHovered(const QString &link);
 

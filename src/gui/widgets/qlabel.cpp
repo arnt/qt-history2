@@ -329,7 +329,7 @@ void QLabel::setText(const QString &text)
 #endif
     }
 
-    setTextInteractionFlags(d->textInteractionFlags);
+    d->textInteractionFlagsChanged(); // create text control as necessary
     d->updateLabel();
 }
 
@@ -670,6 +670,29 @@ void QLabel::setOpenExternalLinks(bool open)
         d->control->setOpenExternalLinks(open);
 }
 
+void QLabelPrivate::textInteractionFlagsChanged()
+{
+    Q_Q(QLabel);
+    if (!doc)
+        return;
+    if (textInteractionFlags & Qt::LinksAccessibleByKeyboard)
+        q->setFocusPolicy(Qt::StrongFocus);
+    else if (textInteractionFlags & Qt::TextSelectableByKeyboard)
+        q->setFocusPolicy(Qt::ClickFocus);
+    else
+        q->setFocusPolicy(Qt::NoFocus);
+
+    bool richText = isRichText();
+    if ((richText && textInteractionFlags != Qt::NoTextInteraction)
+        || (!richText && (textInteractionFlags & (Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard)))) {
+        ensureTextControl();
+        control->setTextInteractionFlags(textInteractionFlags);
+    } else {
+        delete control;
+        control = 0;
+    }
+}
+
 /*!
     \property QLabel::textInteractionFlags
     \since 4.2
@@ -685,25 +708,10 @@ void QLabel::setOpenExternalLinks(bool open)
 void QLabel::setTextInteractionFlags(Qt::TextInteractionFlags flags)
 {
     Q_D(QLabel);
-    d->textInteractionFlags = flags;
-    if (!d->doc)
+    if (d->textInteractionFlags == flags)
         return;
-    if (flags & Qt::LinksAccessibleByKeyboard)
-        setFocusPolicy(Qt::StrongFocus);
-    else if (flags & Qt::TextSelectableByKeyboard)
-        setFocusPolicy(Qt::ClickFocus);
-    else
-        setFocusPolicy(Qt::NoFocus);
-
-    bool richText = d->isRichText();
-    if ((richText && d->textInteractionFlags != Qt::NoTextInteraction)
-        || (!richText && (d->textInteractionFlags & (Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard)))) {
-        d->ensureTextControl();
-        d->control->setTextInteractionFlags(d->textInteractionFlags);
-    } else {
-        delete d->control;
-        d->control = 0;
-    }
+    d->textInteractionFlags = flags;
+    d->textInteractionFlagsChanged();
 }
 
 Qt::TextInteractionFlags QLabel::textInteractionFlags() const
