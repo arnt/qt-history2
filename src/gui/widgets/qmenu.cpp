@@ -36,6 +36,7 @@
 #include "qmenu_p.h"
 #include "qmenubar_p.h"
 #include "qwidgetaction.h"
+#include "qtoolbutton.h"
 #include <private/qaction_p.h>
 #ifdef QT3_SUPPORT
 #include <qmenudata.h>
@@ -373,7 +374,8 @@ void QMenuPrivate::hideUpToMenuBar()
                     m->hide();
                 m->d_func()->setCurrentAction(0);
             } else {
-                qWarning("QMenu: Internal error");
+                if (qobject_cast<QToolButton*>(caused) == 0)
+                    qWarning("QMenu: Internal error");
                 caused = 0;
             }
         }

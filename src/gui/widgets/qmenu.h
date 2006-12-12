@@ -363,6 +363,7 @@ private:
     friend class Q3PopupMenu;
     friend class QComboBox;
     friend class QAction;
+    friend class QToolButtonPrivate;
 
 #ifdef Q_WS_MAC
     friend void qt_mac_trayicon_activate_action(QMenu *, QAction *action);

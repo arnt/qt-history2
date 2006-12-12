@@ -31,6 +31,7 @@
 #include <qstylepainter.h>
 #include <private/qabstractbutton_p.h>
 #include <private/qaction_p.h>
+#include <private/qmenu_p.h>
 
 class QToolButtonPrivate : public QAbstractButtonPrivate
 {
@@ -845,6 +846,8 @@ void QToolButtonPrivate::popupTimerDone()
     QPointer<QToolButton> that = q;
     actualMenu->setNoReplayFor(q);
     QObject::connect(actualMenu, SIGNAL(aboutToHide()), q, SLOT(_q_updateButtonDown()));
+    actualMenu->d_func()->causedPopup.widget = q;
+    actualMenu->d_func()->causedPopup.action = defaultAction;
     actualMenu->exec(p);
     QObject::disconnect(actualMenu, SIGNAL(aboutToHide()), q, SLOT(_q_updateButtonDown()));
     if (mustDeleteActualMenu)

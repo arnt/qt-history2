@@ -12,6 +12,9 @@
 #include <QPushButton>
 #include <QMainWindow>
 #include <QMenuBar>
+#include <QToolBar>
+#include <QToolButton>
+#include <QStatusBar>
 
 #include <qmenu.h>
 #include <qstyle.h>
@@ -41,6 +44,7 @@ private slots:
     void keyboardNavigation();
     void focus();
 	void overrideMenuAction();
+    void statusTip();
 
 #if defined(QT3_SUPPORT)
     void indexBasedInsertion_data();
@@ -50,11 +54,14 @@ private slots:
 protected slots:
     void onActivated(QAction*);
     void onHighlighted(QAction*);
+    void onStatusMessageChanged(const QString &);
+    void onStatusTipTimer();
 private:
     void createActions();
     QMenu *menus[2], *lastMenu;
     enum { num_builtins = 10 };
     QAction *activated, *highlighted, *builtins[num_builtins];
+    QString statustip;
 };
 
 // Testing get/set functions
@@ -193,6 +200,12 @@ tst_QMenu::onActivated(QAction *action)
     lastMenu = qobject_cast<QMenu*>(sender());
 }
 
+void tst_QMenu::onStatusMessageChanged(const QString &s)
+{
+    statustip=s;
+}
+
+
 //actual tests
 void
 tst_QMenu::addActionsAndClear()
@@ -308,17 +321,6 @@ void tst_QMenu::focus()
     QCOMPARE(QApplication::activeWindow(), &window);
 }
 
-#if defined(QT3_SUPPORT)
-void tst_QMenu::indexBasedInsertion_data()
-{
-    QTest::addColumn<int>("indexForInsertion");
-    QTest::addColumn<int>("expectedIndex");
-
-    QTest::newRow("negative-index-appends") << -1 << 1;
-    QTest::newRow("prepend") << 0 << 0;
-    QTest::newRow("append") << 1 << 1;
-}
-
 void tst_QMenu::overrideMenuAction()
 {
 	//test the override menu action by first creating an action to which we set its menu
@@ -341,7 +343,7 @@ void tst_QMenu::overrideMenuAction()
 
 	//test of the action inside the menu
 	QTest::keyClick(&w, Qt::Key_X, Qt::ControlModifier);
-    QCOMPARE(aQuit, activated);
+    QCOMPARE(activated, aQuit);
 
 	//test if the menu still pops out
 	QTest::keyClick(&w, Qt::Key_F, Qt::AltModifier);
@@ -353,6 +355,65 @@ void tst_QMenu::overrideMenuAction()
 	//the menu should have its default menu action back
 	QCOMPARE(m->menuAction(), menuaction);
 
+}
+
+void tst_QMenu::statusTip()
+{
+    //check that the statustip of actions inserted into the menu are displayed
+    QMainWindow w;
+    connect(w.statusBar(), SIGNAL(messageChanged(const QString &)), SLOT(onStatusMessageChanged(const QString &)));; //creates the status bar
+    QToolBar tb;
+    QAction a("main action", &tb);
+    a.setStatusTip("main action");
+    QMenu m(&tb);
+    QAction subact("sub action", &m);
+    subact.setStatusTip("sub action");
+    m.addAction(&subact);
+    a.setMenu(&m);
+    tb.addAction(&a);
+
+    w.addToolBar(&tb);
+    w.show();
+
+    QRect rect1 = tb.actionGeometry(&a);
+    QToolButton *btn = qobject_cast<QToolButton*>(tb.childAt(rect1.center()));
+
+    QVERIFY(btn != NULL);
+
+    //because showMenu calls QMenu::exec, we need to use a singleshot 
+    //to continue the test
+    QTimer::singleShot(200,this, SLOT(onStatusTipTimer()));
+    btn->showMenu();
+    QVERIFY(statustip.isEmpty());
+}
+
+//2nd part of the test
+void tst_QMenu::onStatusTipTimer()
+{
+    QMenu *menu = qobject_cast<QMenu*>(QApplication::activePopupWidget());
+    QVERIFY(menu != 0);
+    QVERIFY(menu->isVisible());
+    QTest::keyClick(menu, Qt::Key_Down);
+    
+    //we store the statustip to press escape in any case
+    //otherwise, if the test fails it blocks (never gets out of QMenu::exec
+    const QString st=statustip; 
+
+    menu->close(); //goes out of the menu
+
+    QCOMPARE(st, QString("sub action"));
+    QVERIFY(menu->isVisible() == false);
+}
+
+#if defined(QT3_SUPPORT)
+void tst_QMenu::indexBasedInsertion_data()
+{
+    QTest::addColumn<int>("indexForInsertion");
+    QTest::addColumn<int>("expectedIndex");
+
+    QTest::newRow("negative-index-appends") << -1 << 1;
+    QTest::newRow("prepend") << 0 << 0;
+    QTest::newRow("append") << 1 << 1;
 }
 
 void tst_QMenu::indexBasedInsertion()
