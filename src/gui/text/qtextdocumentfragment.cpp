@@ -442,11 +442,11 @@ void QTextHtmlImporter::import()
             // ignore explicitly 'invisible' elements
             continue;
         } else if (node->id == Html_body) {
-            if (node->background.style() != Qt::NoBrush) {
+            if (node->charFmt.background().style() != Qt::NoBrush) {
                 QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
-                fmt.setBackground(node->background);
+                fmt.setBackground(node->charFmt.background());
                 doc->rootFrame()->setFrameFormat(fmt);
-                const_cast<QTextHtmlParserNode *>(node)->background = QBrush();
+                const_cast<QTextHtmlParserNode *>(node)->charFmt.clearProperty(QTextFormat::BackgroundBrush);
             }
         } else if (node->isListStart()) {
 
@@ -554,8 +554,8 @@ void QTextHtmlImporter::import()
                 hasBlock = true;
                 compressNextWhitespace = true;
 
-                if (node->background.style() != Qt::NoBrush) {
-                    charFmt.setBackground(node->background);
+                if (node->charFmt.background().style() != Qt::NoBrush) {
+                    charFmt.setBackground(node->charFmt.background());
                     cursor.mergeBlockCharFormat(charFmt);
                 }
             }
@@ -633,8 +633,8 @@ void QTextHtmlImporter::import()
                 modifiedBlockFormat = true;
             }
 
-            if (node->background.style() != Qt::NoBrush && !node->isTableCell()) {
-                block.setBackground(node->background);
+            if (node->charFmt.background().style() != Qt::NoBrush && !node->isTableCell()) {
+                block.setBackground(node->charFmt.background());
                 modifiedBlockFormat = true;
             }
 
@@ -961,10 +961,8 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
 
     if (node.direction < 2)
         fmt.setLayoutDirection(Qt::LayoutDirection(node.direction));
-    if (node.background.style() != Qt::NoBrush)
-        fmt.setBackground(node.background);
-    else
-        fmt.clearBackground();
+    if (node.charFmt.background().style() != Qt::NoBrush)
+        fmt.setBackground(node.charFmt.background());
     fmt.setPosition(QTextFrameFormat::Position(node.cssFloat));
 
     if (node.isTextFrame) {
