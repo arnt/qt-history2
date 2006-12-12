@@ -1,9 +1,5 @@
 TEMPLATE        = subdirs
 
-!embedded {
-    DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
-}
-
 no-png {
     message("Tools not available without PNG support")
 } else {
