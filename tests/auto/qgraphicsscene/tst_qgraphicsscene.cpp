@@ -132,6 +132,7 @@ private slots:
     void items_QPainterPath();
     void items_QPainterPath_2();
     void selection();
+    void selectionChanged();
     void addItem();
     void addEllipse();
     void addLine();
@@ -784,6 +785,69 @@ void tst_QGraphicsScene::selection()
         QVERIFY(scene.selectedItems().isEmpty());
     }
 #endif
+}
+
+void tst_QGraphicsScene::selectionChanged()
+{
+    QGraphicsScene scene(0, 0, 1000, 1000);
+    QSignalSpy spy(&scene, SIGNAL(selectionChanged()));
+    QCOMPARE(spy.count(), 0);
+
+    QPainterPath path;
+    path.addRect(scene.sceneRect());
+    scene.setSelectionArea(path);
+    QCOMPARE(spy.count(), 0); // selection didn't change
+    QVERIFY(scene.selectedItems().isEmpty());
+
+    QGraphicsItem *rect = scene.addRect(QRectF(0, 0, 100, 100));
+    QCOMPARE(spy.count(), 0); // selection didn't change
+
+    rect->setSelected(true);
+    QVERIFY(!rect->isSelected());
+    QCOMPARE(spy.count(), 0); // selection didn't change, item isn't selectable
+
+    rect->setFlag(QGraphicsItem::ItemIsSelectable);
+    rect->setSelected(true);
+    QVERIFY(rect->isSelected());
+    QCOMPARE(spy.count(), 1); // selection changed
+    QCOMPARE(scene.selectedItems(), QList<QGraphicsItem *>() << rect);
+
+    rect->setSelected(false);
+    QVERIFY(!rect->isSelected());
+    QCOMPARE(spy.count(), 2); // selection changed
+    QVERIFY(scene.selectedItems().isEmpty());
+
+    QGraphicsEllipseItem *parentItem = new QGraphicsEllipseItem(QRectF(0, 0, 100, 100));
+    QGraphicsEllipseItem *childItem = new QGraphicsEllipseItem(QRectF(0, 0, 100, 100), parentItem);
+    QGraphicsEllipseItem *grandChildItem = new QGraphicsEllipseItem(QRectF(0, 0, 100, 100), childItem);
+    grandChildItem->setFlag(QGraphicsItem::ItemIsSelectable);
+    grandChildItem->setSelected(true);
+    grandChildItem->setSelected(false);
+    grandChildItem->setSelected(true);
+    scene.addItem(parentItem);
+
+    QCOMPARE(spy.count(), 3); // the grandchild was added, so the selection changed once
+
+    scene.removeItem(parentItem);
+    QCOMPARE(spy.count(), 4); // the grandchild was removed, so the selection changed
+
+    rect->setSelected(true);
+    QCOMPARE(spy.count(), 5); // the rect was reselected, so the selection changed
+
+    scene.clearSelection();
+    QCOMPARE(spy.count(), 6); // the scene selection was cleared
+
+    rect->setSelected(true);
+    QCOMPARE(spy.count(), 7); // the rect was reselected, so the selection changed
+
+    rect->setFlag(QGraphicsItem::ItemIsSelectable, false);
+    QCOMPARE(spy.count(), 8); // the rect was unselected, so the selection changed
+
+    rect->setSelected(true);
+    QCOMPARE(spy.count(), 9); // the rect was reselected, so the selection changed
+
+    delete rect;
+    QCOMPARE(spy.count(), 10); // a selected item was deleted; selection changed
 }
 
 void tst_QGraphicsScene::addItem()
