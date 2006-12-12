@@ -7,7 +7,7 @@ TreeModelCompleter::TreeModelCompleter(QObject *parent)
 }
 
 TreeModelCompleter::TreeModelCompleter(QAbstractItemModel *model, QObject *parent)
-    : QCompleter(parent)
+    : QCompleter(model, parent)
 {
 }
 
