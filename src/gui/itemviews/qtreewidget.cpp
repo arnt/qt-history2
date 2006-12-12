@@ -686,6 +686,7 @@ bool QTreeModel::executePendingSort() const
         that->blockSignals(true);
         that->sort(column, order);
         that->blockSignals(blocked);
+        emit that->itemsSorted();
         return true;
     }
     return false;
@@ -1256,6 +1257,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, int type)
         QTreeModel *model = ::qobject_cast<QTreeModel*>(view->model());
         model->rootItem->addChild(this);
         values.reserve(model->headerItem->columnCount());
+        
     }
 }
 
@@ -2010,6 +2012,7 @@ QDataStream &operator>>(QDataStream &in, QTreeWidgetItem &item)
 
 class QTreeWidgetPrivate : public QTreeViewPrivate
 {
+    friend class QTreeModel;
     Q_DECLARE_PUBLIC(QTreeWidget)
 public:
     QTreeWidgetPrivate() : QTreeViewPrivate() {}
@@ -2030,6 +2033,7 @@ public:
     void _q_emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &index);
     void _q_sort();
     void _q_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void _q_itemsSorted();
 };
 
 void QTreeWidgetPrivate::_q_emitItemPressed(const QModelIndex &index)
@@ -2084,8 +2088,8 @@ void QTreeWidgetPrivate::_q_emitCurrentItemChanged(const QModelIndex &current,
                                                 const QModelIndex &previous)
 {
     Q_Q(QTreeWidget);
-    QTreeWidgetItem *currentItem = model()->item(current);
-    QTreeWidgetItem *previousItem = model()->item(previous);
+    QTreeWidgetItem *currentItem = item(current);
+    QTreeWidgetItem *previousItem = item(previous);
     emit q->currentItemChanged(currentItem, previousItem);
 }
 
@@ -2111,6 +2115,19 @@ void QTreeWidgetPrivate::_q_dataChanged(const QModelIndex &topLeft,
             model()->ensureSorted(column, order, topLeft.row(),
                                   bottomRight.row(), topLeft.parent());
         }
+    }
+}
+
+void QTreeWidgetPrivate::_q_itemsSorted()
+{
+    // update the internal view items
+    for (int i = 0; i < viewItems.count(); ++i) {
+        const QModelIndex index = viewItems.at(i).index;
+        if (!index.isValid())
+            continue;
+        const QTreeWidgetItem *par = static_cast<QTreeWidgetItem*>(index.internalPointer())->parent();
+        QTreeWidgetItem *itm = par ? par->child(index.row()) : model()->rootItem->child(index.row());
+        viewItems[i].index = model()->createIndexFromItem(index.row(), index.column(), itm);
     }
 }
 
@@ -2302,10 +2319,11 @@ QTreeWidget::QTreeWidget(QWidget *parent)
             this, SIGNAL(itemSelectionChanged()));
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             this, SLOT(_q_emitItemChanged(QModelIndex)));
-    QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                     this, SLOT(_q_dataChanged(QModelIndex,QModelIndex)));
-    QObject::connect(model(), SIGNAL(columnsRemoved(QModelIndex,int,int)),
-                     this, SLOT(_q_sort()));
+    connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+            this, SLOT(_q_dataChanged(QModelIndex,QModelIndex)));
+    connect(model(), SIGNAL(columnsRemoved(QModelIndex,int,int)),
+            this, SLOT(_q_sort()));
+    connect(model(), SIGNAL(itemsSorted()), this, SLOT(_q_itemsSorted()));
 
     header()->setClickable(false);
 }

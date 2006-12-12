@@ -98,7 +98,13 @@ public:
                       int row, int column, const QModelIndex &parent);
     Qt::DropActions supportedDropActions() const;
 
-    QMimeData *internalMimeData()  const;
+    QMimeData *internalMimeData() const;
+
+    inline QModelIndex createIndexFromItem(int row, int col, QTreeWidgetItem *item) const
+    { return createIndex(row, col, item); }
+
+Q_SIGNALS:
+    void itemsSorted();
 
 protected:
     QTreeModel(QTreeModelPrivate &, QTreeWidget *parent = 0);
