@@ -124,6 +124,7 @@
     <example filename="qtdemo" name="Qt Demo" executable="false" />
     <example filename="regexp" name="Regular Expressions" />
     <example filename="settingseditor" name="Settings Editor" />
+    <example filename="treemodelcompleter" name="Tree Model Completer" />
   </category>
   <category dirname="widgets" name="Widgets">
     <example filename="analogclock" name="Analog Clock" />

@@ -1,0 +1,9 @@
+/*!
+    \example tools/treemodelcompleter
+    \title Tree Model Completer Example
+
+    The Tree Model Completer example shows how to provide completion facilities for a
+    hierarchical model.
+
+    \image treemodelcompleter-example.png
+*/
