@@ -3821,10 +3821,20 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         else
             ret = -1;
         break;
-
-    case SH_LineEdit_PasswordCharacter:
-        ret = '*';
+    case SH_LineEdit_PasswordCharacter: {
+        const QFontMetrics &fm = opt ? opt->fontMetrics
+                                     : (widget ? widget->fontMetrics() : QFontMetrics(QFont()));
+        ret = 0;
+        if (fm.inFont(QChar(0x25CF))) {
+            ret = 0x25CF;
+        } else if (fm.inFont(QChar(0x2022))) {
+            ret = 0x2022;
+        } else {
+            ret = '*';
+        }
         break;
+    }
+
 
     case SH_ToolBox_SelectedPageTitleBold:
         ret = 1;

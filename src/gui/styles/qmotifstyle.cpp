@@ -2629,6 +2629,9 @@ QMotifStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *w
     case SH_DialogButtonLayout:
         ret = QDialogButtonBox::KdeLayout;
         break;
+    case SH_LineEdit_PasswordCharacter:
+        ret = '*';
+        break;
     default:
         ret = QCommonStyle::styleHint(hint, opt, widget, returnData);
         break;

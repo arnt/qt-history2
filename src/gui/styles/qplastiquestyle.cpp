@@ -5085,6 +5085,9 @@ int QPlastiqueStyle::styleHint(StyleHint hint, const QStyleOption *option, const
     case SH_MessageBox_TextInteractionFlags:
         ret = Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse;
         break;
+    case SH_LineEdit_PasswordCharacter:
+        ret = QCommonStyle::styleHint(hint, option, widget, returnData);
+        break;
     default:
         ret = QWindowsStyle::styleHint(hint, option, widget, returnData);
         break;
