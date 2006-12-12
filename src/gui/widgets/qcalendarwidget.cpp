@@ -30,6 +30,8 @@
 #include <qspinbox.h>
 #include <qmenu.h>
 #include <qapplication.h>
+#include <qstyle.h>
+#include <qstylepainter.h>
 
 enum {
     RowCount = 6,
@@ -758,7 +760,13 @@ protected:
             hover = oldState ? false : hover;
             oldState = newState;
         }
-        QToolButton::paintEvent(e);
+
+        // don't draw the menu arrow though we have a menu
+        QStylePainter p(this);
+        QStyleOptionToolButton opt;
+        initStyleOption(&opt);
+        opt.features &= ~QStyleOptionToolButton::Menu;
+        p.drawComplexControl(QStyle::CC_ToolButton, opt);
     }
 };
 
