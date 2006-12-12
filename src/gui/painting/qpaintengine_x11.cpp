@@ -1943,6 +1943,7 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
 
     if (!d->cpen.isSolid() || ft->drawAsOutline()) {
         QPaintEngine::drawTextItem(p, ti);
+        return;
     }
 
     QFixed xpos = QFixed::fromReal(p.x() + d->matrix.dx());
