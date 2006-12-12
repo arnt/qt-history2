@@ -249,7 +249,7 @@ void tst_QFiledialog::labelText()
     QCOMPARE(fd.labelText(QFileDialog::LookIn), QString("Where:"));
     QCOMPARE(fd.labelText(QFileDialog::FileName), QString("Save &as:"));
     QCOMPARE(fd.labelText(QFileDialog::FileType), QString("Files of type:"));
-    QCOMPARE(fd.labelText(QFileDialog::Accept), QString("Open"));
+    QCOMPARE(fd.labelText(QFileDialog::Accept), QString("&Open"));
     QCOMPARE(fd.labelText(QFileDialog::Reject), QString("Cancel"));
 
     fd.setLabelText(QFileDialog::LookIn, "1");
