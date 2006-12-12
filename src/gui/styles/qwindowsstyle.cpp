@@ -1014,6 +1014,7 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
 #endif // QT_NO_RUBBERBAND
     case SH_LineEdit_PasswordCharacter:
         {
+#ifdef Q_WS_WIN
             if (widget && (QSysInfo::WindowsVersion >= QSysInfo::WV_XP && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based)) {
                 const QFontMetrics &fm = widget->fontMetrics();
                 if (fm.inFont(QChar(0x25CF)))
@@ -1021,6 +1022,7 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
                 else if (fm.inFont(QChar(0x2022)))
                     ret = 0x2022;
             }
+#endif
             if (!ret)
                 ret = '*';
         }
