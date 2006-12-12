@@ -144,7 +144,6 @@ struct QTextHtmlParserNode {
     uint hasOwnListStyle : 1;
     uint hasFontPointSize : 1;
     uint hasFontPixelSize : 1;
-    uint hasFontSizeAdjustment : 1;
     uint hasCssBlockIndent : 1;
     uint hasCssListIndent : 1;
     uint isEmptyParagraph : 1;
@@ -152,11 +151,9 @@ struct QTextHtmlParserNode {
     uint direction : 2; // 3 means unset
     uint displayMode : 3; // QTextHtmlElement::DisplayMode
     QTextFormat::PageBreakFlags pageBreakPolicy;
-    QString fontFamily;
     int fontPointSize;
     int fontPixelSize;
     int fontSizeAdjustment;
-    int fontWeight;
     QBrush foreground;
     QBrush background;
     Qt::Alignment alignment;
@@ -164,7 +161,6 @@ struct QTextHtmlParserNode {
     QTextListFormat::Style listStyle;
     QString anchorHref;
     QString anchorName;
-    QString toolTip;
     QString imageName;
     qreal imageWidth;
     qreal imageHeight;

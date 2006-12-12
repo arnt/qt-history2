@@ -445,10 +445,10 @@ static QString quoteNewline(const QString &s)
 
 QTextHtmlParserNode::QTextHtmlParserNode()
     : parent(0), id(Html_unknown), isAnchor(false),
-      cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false), hasFontPixelSize(false), hasFontSizeAdjustment(false),
+      cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false), hasFontPixelSize(false),
       hasCssBlockIndent(false), hasCssListIndent(false), isEmptyParagraph(false), isTextFrame(false), direction(3),
-      displayMode(QTextHtmlElement::DisplayInline), fontPointSize(-1), fontPixelSize(-1), fontSizeAdjustment(0),
-      fontWeight(-1), alignment(0), verticalAlignment(QTextCharFormat::AlignNormal),
+      displayMode(QTextHtmlElement::DisplayInline), fontPointSize(-1), fontPixelSize(-1),
+      alignment(0), verticalAlignment(QTextCharFormat::AlignNormal),
       listStyle(QTextListFormat::ListStyleUndefined), imageWidth(-1), imageHeight(-1), tableBorder(0),
       tableCellRowSpan(1), tableCellColSpan(1), tableCellSpacing(2), tableCellPadding(0), cssBlockIndent(0),
       cssListIndent(0), text_indent(0), wsm(WhiteSpaceModeUndefined)
@@ -466,11 +466,6 @@ bool QTextHtmlParserNode::applyCharFormatProperties(QTextCharFormat *format) con
 
     format->merge(charFmt);
 
-    if (fontFamily.size()) {
-        format->setFontFamily(fontFamily);
-        changed = true;
-    }
-
     if (hasFontPointSize) {
         format->setFontPointSize(fontPointSize);
         changed = true;
@@ -479,14 +474,6 @@ bool QTextHtmlParserNode::applyCharFormatProperties(QTextCharFormat *format) con
         changed = true;
     }
 
-    if (hasFontSizeAdjustment) {
-        format->setProperty(QTextFormat::FontSizeAdjustment, fontSizeAdjustment);
-        changed = true;
-    }
-    if (fontWeight > 0) {
-        format->setFontWeight(fontWeight);
-        changed = true;
-    }
     if (foreground.style() != Qt::NoBrush) {
         format->setForeground(foreground);
         changed = true;
@@ -503,10 +490,6 @@ bool QTextHtmlParserNode::applyCharFormatProperties(QTextCharFormat *format) con
         format->setAnchor(true);
         format->setAnchorHref(anchorHref);
         format->setAnchorName(anchorName);
-        changed = true;
-    }
-    if (!toolTip.isEmpty()) {
-        format->setToolTip(toolTip);
         changed = true;
     }
 
@@ -1052,14 +1035,10 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     // inherit properties from parent element
     isAnchor = parent->isAnchor;
     charFmt = parent->charFmt;
-    fontFamily = parent->fontFamily;
     hasFontPointSize = parent->hasFontPointSize;
     fontPointSize = parent->fontPointSize;
     hasFontPixelSize = parent->hasFontPixelSize;
     fontPixelSize = parent->fontPixelSize;
-    fontSizeAdjustment = parent->fontSizeAdjustment;
-    hasFontSizeAdjustment = parent->hasFontSizeAdjustment;
-    fontWeight = parent->fontWeight;
     foreground = parent->foreground;
     verticalAlignment = parent->verticalAlignment;
 
@@ -1116,49 +1095,42 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
             charFmt.setFontItalic(true);
             break;
         case Html_big:
-            fontSizeAdjustment = 1;
-            hasFontSizeAdjustment = true;
+            charFmt.setProperty(QTextFormat::FontSizeAdjustment, int(1));
             break;
         case Html_small:
-            fontSizeAdjustment = -1;
-            hasFontSizeAdjustment = true;
+            charFmt.setProperty(QTextFormat::FontSizeAdjustment, int(-1));
             break;
         case Html_strong:
         case Html_b:
-            fontWeight = QFont::Bold;
+            charFmt.setFontWeight(QFont::Bold);
             break;
         case Html_h1:
-            fontWeight = QFont::Bold;
-            fontSizeAdjustment = 3;
-            hasFontSizeAdjustment = true;
+            charFmt.setFontWeight(QFont::Bold);
+            charFmt.setProperty(QTextFormat::FontSizeAdjustment, int(3));
             margin[QTextHtmlParser::MarginTop] = 18;
             margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_h2:
-            fontWeight = QFont::Bold;
-            fontSizeAdjustment = 2;
-            hasFontSizeAdjustment = true;
+            charFmt.setFontWeight(QFont::Bold);
+            charFmt.setProperty(QTextFormat::FontSizeAdjustment, int(2));
             margin[QTextHtmlParser::MarginTop] = 16;
             margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_h3:
-            fontWeight = QFont::Bold;
-            fontSizeAdjustment = 1;
-            hasFontSizeAdjustment = true;
+            charFmt.setFontWeight(QFont::Bold);
+            charFmt.setProperty(QTextFormat::FontSizeAdjustment, int(1));
             margin[QTextHtmlParser::MarginTop] = 14;
             margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_h4:
-            fontWeight = QFont::Bold;
-            fontSizeAdjustment = 0;
-            hasFontSizeAdjustment = true;
+            charFmt.setFontWeight(QFont::Bold);
+            charFmt.setProperty(QTextFormat::FontSizeAdjustment, int(0));
             margin[QTextHtmlParser::MarginTop] = 12;
             margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_h5:
-            fontWeight = QFont::Bold;
-            fontSizeAdjustment = -1;
-            hasFontSizeAdjustment = true;
+            charFmt.setFontWeight(QFont::Bold);
+            charFmt.setProperty(QTextFormat::FontSizeAdjustment, int(-1));
             margin[QTextHtmlParser::MarginTop] = 12;
             margin[QTextHtmlParser::MarginBottom] = 4;
             break;
@@ -1191,7 +1163,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
         case Html_tt:
         case Html_kbd:
         case Html_samp:
-            fontFamily = QString::fromLatin1("Courier New,courier");
+            charFmt.setFontFamily(QString::fromLatin1("Courier New,courier"));
             // <tt> uses a fixed font, so set the property
             charFmt.setFontFixedPitch(true);
             break;
@@ -1201,7 +1173,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
             break;
         // ##### sub / sup
         case Html_pre:
-            fontFamily = QString::fromLatin1("Courier New,courier");
+            charFmt.setFontFamily(QString::fromLatin1("Courier New,courier"));
             wsm = WhiteSpacePre;
             margin[QTextHtmlParser::MarginTop] = 12;
             margin[QTextHtmlParser::MarginBottom] = 12;
@@ -1231,7 +1203,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
             wsm = WhiteSpaceNoWrap;
             break;
         case Html_th:
-            fontWeight = QFont::Bold;
+            charFmt.setFontWeight(QFont::Bold);
             alignment = Qt::AlignCenter;
             break;
         case Html_td:
@@ -1343,10 +1315,10 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
         charFmt.setFontItalic(f.style() != QFont::StyleNormal);
 
     if (f.resolve() & QFontPrivate::Weight)
-        fontWeight = f.weight();
+        charFmt.setFontWeight(f.weight());
 
     if (f.resolve() & QFontPrivate::Family)
-        fontFamily = f.family();
+        charFmt.setFontFamily(f.family());
 
     if (f.resolve() & QFontPrivate::Underline)
         charFmt.setUnderlineStyle(f.underline() ? QTextCharFormat::SingleUnderline : QTextCharFormat::NoUnderline);
@@ -1357,10 +1329,8 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
     if (f.resolve() & QFontPrivate::StrikeOut)
         charFmt.setFontStrikeOut(f.strikeOut());
 
-    if (adjustment >= -1) {
-        hasFontSizeAdjustment = true;
-        fontSizeAdjustment = adjustment;
-    }
+    if (adjustment >= -1)
+        charFmt.setProperty(QTextFormat::FontSizeAdjustment, adjustment);
 
     {
         Qt::Alignment ignoredAlignment;
@@ -1493,10 +1463,9 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
                     int n = value.toInt();
                     if (value.at(0) != QLatin1Char('+') && value.at(0) != QLatin1Char('-'))
                         n -= 3;
-                    node->fontSizeAdjustment = n;
-                    node->hasFontSizeAdjustment = true;
+                    node->charFmt.setProperty(QTextFormat::FontSizeAdjustment, n);
                 } else if (key == QLatin1String("face")) {
-                    node->fontFamily = value;
+                    node->charFmt.setFontFamily(value);
                 } else if (key == QLatin1String("color")) {
                     QColor c; c.setNamedColor(value);
                     node->foreground = c;
@@ -1630,7 +1599,7 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
             else if (value == QLatin1String("rtl"))
                 node->direction = Qt::RightToLeft;
         } else if (key == QLatin1String("title")) {
-            node->toolTip = value;
+            node->charFmt.setToolTip(value);
         }
     }
 
