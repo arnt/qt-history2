@@ -211,7 +211,6 @@ void QFileInfoGatherer::getFileInfos(const QString &path, const QStringList &fil
             for (int i = 0; i < files.count(); ++i)
                 infoList << QFileInfo(files.at(i));
         }
-        QList<QPair<QString,QExtendedInformation> > updatedFiles;
         for (int i = 0; i < infoList.count(); ++i) {
             QExtendedInformation info;
             QFileInfo fileInfo = infoList.at(i);
@@ -228,9 +227,8 @@ void QFileInfoGatherer::getFileInfos(const QString &path, const QStringList &fil
             info.displayType = m_iconProvider->type(fileInfo);
 
             QString driveName = translateDriveName(infoList.at(i));
-            updatedFiles.append(QPair<QString,QExtendedInformation>(driveName, info));
+            emit updates(path, QPair<QString,QExtendedInformation>(driveName, info));
         }
-        emit updates(path, updatedFiles);
         return;
     }
 
