@@ -573,6 +573,8 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                         ++x;
                     }
                 }
+            } else {
+                --x;
             }
         }
 
