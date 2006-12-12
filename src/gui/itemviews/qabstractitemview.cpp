@@ -2024,6 +2024,8 @@ bool QAbstractItemView::edit(const QModelIndex &index, EditTrigger trigger, QEve
         return false;
 
     if (QWidget *w = (d->persistent.isEmpty() ? 0 : d->editorForIndex(index))) {
+        if (w->focusPolicy() == Qt::NoFocus)
+            return false;
         w->setFocus();
         return true;
     }
