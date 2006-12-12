@@ -214,23 +214,24 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
     QDomDocument document;
     {
         QString errorMsg;
-        int errorLine, errorColumn;
+        int errorLine = 0, errorColumn = 0;
         if(!document.setContent(inputDevice, &errorMsg, &errorLine, &errorColumn)) {
             if(ignoreErrors)
                 return true;
-            fprintf(stderr, "RCC Parse Error:%s:%d:%d [%s]\n", fname.toLatin1().constData(),
+            fprintf(stderr, "RCC Parse Error: '%s' Line:%d Column:%d [%s]\n", fname.toLatin1().constData(),
                     errorLine, errorColumn, errorMsg.toLatin1().constData());
             return false;
         }
     }
-    for(QDomElement root = document.firstChild().toElement(); !root.isNull();
-        root = root.nextSibling().toElement()) {
-        if (root.tagName() != QLatin1String(TAG_RCC))
-            continue;
 
-        for (QDomElement child = root.firstChild().toElement(); !child.isNull();
-             child = child.nextSibling().toElement()) {
-            if (child.tagName() == QLatin1String(TAG_RESOURCE)) {
+    QDomElement root = document.firstChildElement(TAG_RCC).toElement();
+    if (!root.isNull() && root.tagName() == QLatin1String(TAG_RCC)) {
+        for (QDomNode node = root.firstChild(); !node.isNull(); node = node.nextSibling()) {
+            if (!node.isElement())
+                continue;
+
+            QDomElement child = node.toElement();
+            if (!child.isNull() && child.tagName() == QLatin1String(TAG_RESOURCE)) {
                 QLocale::Language language = QLocale::c().language();
                 QLocale::Country country = QLocale::c().country();
 
@@ -255,7 +256,7 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
                     prefix += QLatin1Char('/');
 
                 for (QDomNode res = child.firstChild(); !res.isNull(); res = res.nextSibling()) {
-                    if (res.toElement().tagName() == QLatin1String(TAG_FILE)) {
+                    if (res.isElement() && res.toElement().tagName() == QLatin1String(TAG_FILE)) {
 
                         QString fileName(res.firstChild().toText().data());
                         if (ignoreErrors && fileName.isEmpty())
