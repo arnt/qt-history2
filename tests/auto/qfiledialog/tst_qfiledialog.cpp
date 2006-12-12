@@ -186,7 +186,7 @@ void tst_QFiledialog::selectFilter()
 void tst_QFiledialog::history()
 {
     QFileDialog fd;
-    QCOMPARE(fd.history(), QStringList(QDir::current().absolutePath()));
+    QCOMPARE(fd.history(), QStringList(QDir::toNativeSeparators(QDir::current().absolutePath())));
     QStringList history;
     history << QDir::current().absolutePath()
             << QDir::home().absolutePath()
