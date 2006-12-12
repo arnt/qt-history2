@@ -15,6 +15,8 @@
 #include "qdatastream.h"
 #include "qdebug.h"
 
+#include <math.h>
+
 /*!
     \class QRect
     \ingroup multimedia
@@ -2008,8 +2010,27 @@ bool QRectF::intersects(const QRectF &r) const
     Returns a QRect based on the values of this rectangle.  Note that the
     coordinates in the returned rectangle are rounded to the nearest integer.
 
-    \sa QRectF()
+    \sa QRectF(), toAlignedRect()
 */
+
+/*!
+    \fn QRect QRectF::toAlignedRect() const
+
+    Returns a QRect based on the values of this rectangle that is the
+    smallest possible integer rectangle that completly contains this
+    rectangle.
+
+    \sa toRect()
+*/
+
+QRect QRectF::toAlignedRect() const
+{
+    int xmin = floor(x());
+    int xmax = ceil(x() + width());
+    int ymin = floor(y());
+    int ymax = ceil(y() + height());
+    return QRect(xmin, ymin, xmax - xmin, ymax - ymin);
+}
 
 /*!
     \fn void QRectF::moveCenter(const QPointF &position)

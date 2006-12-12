@@ -710,11 +710,7 @@ QRect QFontMetrics::boundingRect(const QRect &rect, int flags, const QString &te
     qt_format_text(QFont(d), rr, flags | Qt::TextDontPrint, text, &rb, tabStops, tabArray,
                    tabArrayLen, 0);
 
-    int xmin = floor(rb.x());
-    int xmax = ceil(rb.x() + rb.width());
-    int ymin = floor(rb.y());
-    int ymax = ceil(rb.y() + rb.height());
-    return QRect(xmin, ymin, xmax - xmin, ymax - ymin);
+    return rb.toAlignedRect();
 }
 
 /*!

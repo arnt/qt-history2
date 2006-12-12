@@ -447,9 +447,9 @@ inline QRect QRect::intersect(const QRect &r) const
     return *this & r;
 }
 
-inline QRect QRect::intersected(const QRect &other) const 
-{ 
-    return intersect(other); 
+inline QRect QRect::intersected(const QRect &other) const
+{
+    return intersect(other);
 }
 
 inline QRect QRect::unite(const QRect &r) const
@@ -458,8 +458,8 @@ inline QRect QRect::unite(const QRect &r) const
 }
 
 inline QRect QRect::united(const QRect &r) const
-{ 
-     return unite(r); 
+{
+     return unite(r);
 }
 
 inline bool operator==(const QRect &r1, const QRect &r2)
@@ -568,6 +568,7 @@ public:
     friend Q_CORE_EXPORT_INLINE bool operator!=(const QRectF &, const QRectF &);
 
     QRect toRect() const;
+    QRect toAlignedRect() const;
 
 private:
     qreal xp;
@@ -775,8 +776,8 @@ inline QRectF QRectF::intersect(const QRectF &r) const
 }
 
 inline QRectF QRectF::intersected(const QRectF &r) const
-{ 
-    return intersect(r); 
+{
+    return intersect(r);
 }
 
 inline QRectF QRectF::unite(const QRectF &r) const
