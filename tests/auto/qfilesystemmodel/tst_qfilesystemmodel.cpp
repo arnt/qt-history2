@@ -266,7 +266,7 @@ void tst_QFileSystemModel::rowsInserted_data()
 {
     QTest::addColumn<int>("count");
     QTest::addColumn<int>("assending");
-    for (int i = 0;i < 4;++i) {
+    for (int i = 0; i < 4; ++i) {
         QTest::newRow(QString("Qt::AscendingOrder %1").arg(i).toLocal8Bit().constData())  << i << (int)Qt::AscendingOrder;
         QTest::newRow(QString("Qt::DescendingOrder %1").arg(i).toLocal8Bit().constData()) << i << (int)Qt::DescendingOrder;
     }
