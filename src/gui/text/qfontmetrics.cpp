@@ -19,6 +19,8 @@
 #include "qfontengine_p.h"
 #include <private/qunicodetables_p.h>
 
+#include <math.h>
+
 #ifdef Q_WS_X11
 #include "qx11info_x11.h"
 extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
@@ -708,10 +710,11 @@ QRect QFontMetrics::boundingRect(const QRect &rect, int flags, const QString &te
     qt_format_text(QFont(d), rr, flags | Qt::TextDontPrint, text, &rb, tabStops, tabArray,
                    tabArrayLen, 0);
 
-    // make sure both top left and bottom right pixels are included
-    QPointF padding(0.5, 0.5);
-    return QRect((rb.topLeft() - padding).toPoint(),
-                 (rb.bottomRight() + padding).toPoint());
+    int xmin = floor(rb.x());
+    int xmax = ceil(rb.x() + rb.width());
+    int ymin = floor(rb.y());
+    int ymax = ceil(rb.y() + rb.height());
+    return QRect(xmin, ymin, xmax - xmin, ymax - ymin);
 }
 
 /*!
