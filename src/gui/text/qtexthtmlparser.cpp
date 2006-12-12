@@ -1151,16 +1151,19 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
     for (int i = 0; i < declarations.count(); ++i) {
         const QCss::Declaration &decl = declarations.at(i);
         if (decl.values.isEmpty()) continue;
+
+        QCss::KnownValue identifier = QCss::UnknownValue;
+        if (decl.values.first().type == QCss::Value::KnownIdentifier)
+            identifier = static_cast<QCss::KnownValue>(decl.values.first().variant.toInt());
+
         switch (decl.propertyId) {
             case QCss::Color: charFormat.setForeground(decl.colorValue()); break;
             case QCss::Float:
                 cssFloat = QTextFrameFormat::InFlow;
-                if (decl.values.first().type == QCss::Value::KnownIdentifier) {
-                    switch (decl.values.first().variant.toInt()) {
-                        case QCss::Value_Left: cssFloat = QTextFrameFormat::FloatLeft; break;
-                        case QCss::Value_Right: cssFloat = QTextFrameFormat::FloatRight; break;
-                        default: break;
-                    }
+                switch (identifier) {
+                    case QCss::Value_Left: cssFloat = QTextFrameFormat::FloatLeft; break;
+                    case QCss::Value_Right: cssFloat = QTextFrameFormat::FloatRight; break;
+                    default: break;
                 }
                 break;
             case QCss::QtBlockIndent:
@@ -1184,38 +1187,33 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
                     isTextFrame = true;
                 break;
             case QCss::Whitespace:
-                if (decl.values.first().type == QCss::Value::KnownIdentifier) {
-                    switch (decl.values.first().variant.toInt()) {
-                        case QCss::Value_Normal: wsm = QTextHtmlParserNode::WhiteSpaceNormal; break;
-                        case QCss::Value_Pre: wsm = QTextHtmlParserNode::WhiteSpacePre; break;
-                        case QCss::Value_NoWrap: wsm = QTextHtmlParserNode::WhiteSpaceNoWrap; break;
-                        case QCss::Value_PreWrap: wsm = QTextHtmlParserNode::WhiteSpacePreWrap; break;
-                        default: break;
-                    }
+                switch (identifier) {
+                    case QCss::Value_Normal: wsm = QTextHtmlParserNode::WhiteSpaceNormal; break;
+                    case QCss::Value_Pre: wsm = QTextHtmlParserNode::WhiteSpacePre; break;
+                    case QCss::Value_NoWrap: wsm = QTextHtmlParserNode::WhiteSpaceNoWrap; break;
+                    case QCss::Value_PreWrap: wsm = QTextHtmlParserNode::WhiteSpacePreWrap; break;
+                    default: break;
                 }
+                break;
             case QCss::VerticalAlignment:
-                if (decl.values.first().type == QCss::Value::KnownIdentifier) {
-                    switch (decl.values.first().variant.toInt()) {
-                        case QCss::Value_Sub: charFormat.setVerticalAlignment(QTextCharFormat::AlignSubScript); break;
-                        case QCss::Value_Super: charFormat.setVerticalAlignment(QTextCharFormat::AlignSuperScript); break;
-                        default: charFormat.setVerticalAlignment(QTextCharFormat::AlignNormal); break;
-                    }
+                switch (identifier) {
+                    case QCss::Value_Sub: charFormat.setVerticalAlignment(QTextCharFormat::AlignSubScript); break;
+                    case QCss::Value_Super: charFormat.setVerticalAlignment(QTextCharFormat::AlignSuperScript); break;
+                    default: charFormat.setVerticalAlignment(QTextCharFormat::AlignNormal); break;
                 }
                 break;
             case QCss::PageBreakBefore:
-                if (decl.values.first().type == QCss::Value::KnownIdentifier) {
-                    switch (decl.values.first().variant.toInt()) {
-                        case QCss::Value_Always: blockFormat.setPageBreakPolicy(blockFormat.pageBreakPolicy() | QTextFormat::PageBreak_AlwaysBefore); break;
-                        case QCss::Value_Auto: blockFormat.setPageBreakPolicy(blockFormat.pageBreakPolicy() & ~QTextFormat::PageBreak_AlwaysBefore); break;
-                    }
+                switch (identifier) {
+                    case QCss::Value_Always: blockFormat.setPageBreakPolicy(blockFormat.pageBreakPolicy() | QTextFormat::PageBreak_AlwaysBefore); break;
+                    case QCss::Value_Auto: blockFormat.setPageBreakPolicy(blockFormat.pageBreakPolicy() & ~QTextFormat::PageBreak_AlwaysBefore); break;
+                    default: break;
                 }
                 break;
             case QCss::PageBreakAfter:
-                if (decl.values.first().type == QCss::Value::KnownIdentifier) {
-                    switch (decl.values.first().variant.toInt()) {
-                        case QCss::Value_Always: blockFormat.setPageBreakPolicy(blockFormat.pageBreakPolicy() | QTextFormat::PageBreak_AlwaysAfter); break;
-                        case QCss::Value_Auto: blockFormat.setPageBreakPolicy(blockFormat.pageBreakPolicy() & ~QTextFormat::PageBreak_AlwaysAfter); break;
-                    }
+                switch (identifier) {
+                    case QCss::Value_Always: blockFormat.setPageBreakPolicy(blockFormat.pageBreakPolicy() | QTextFormat::PageBreak_AlwaysAfter); break;
+                    case QCss::Value_Auto: blockFormat.setPageBreakPolicy(blockFormat.pageBreakPolicy() & ~QTextFormat::PageBreak_AlwaysAfter); break;
+                    default: break;
                 }
                 break;
             default: break;
