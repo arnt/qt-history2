@@ -580,10 +580,6 @@ void QLineEdit::setCompleter(QCompleter *c)
     if (!c)
         return;
     c->setWidget(this);
-    QObject::connect(c, SIGNAL(activated(QString)),
-                     this, SLOT(setText(QString)));
-    QObject::connect(c, SIGNAL(highlighted(QString)),
-                     this, SLOT(_q_completionHighlighted(QString)));
 }
 
 /*!
@@ -2143,10 +2139,10 @@ void QLineEdit::focusInEvent(QFocusEvent *e)
 #ifndef QT_NO_COMPLETER
     if (d->completer) {
         d->completer->setWidget(this);
-         QObject::connect(d->completer, SIGNAL(activated(QString)),
-                          this, SLOT(setText(QString)));
-         QObject::connect(d->completer, SIGNAL(highlighted(QString)),
-                          this, SLOT(_q_completionHighlighted(QString)));
+        QObject::connect(d->completer, SIGNAL(activated(QString)),
+                         this, SLOT(setText(QString)));
+        QObject::connect(d->completer, SIGNAL(highlighted(QString)),
+                         this, SLOT(_q_completionHighlighted(QString)));
     }
 #endif
     update();

@@ -874,22 +874,36 @@ void tst_QCompleter::multipleWidgets()
     QCompleter completer(list);
     completer.setCompletionMode(QCompleter::InlineCompletion);
 
-    QComboBox comboBox;
-    comboBox.setEditable(true);
-    comboBox.setCompleter(&completer);
-    comboBox.show();
-    comboBox.lineEdit()->setText("it");
-    QCOMPARE(comboBox.currentText(), QString("it")); // should not complete with setText
-    QTest::keyPress(&comboBox, 'e');
-    QCOMPARE(comboBox.currentText(), QString("item1"));
+    QWidget window;
+    window.show();
 
-    QLineEdit lineEdit;
-    lineEdit.setCompleter(&completer);
-    lineEdit.show();
-    lineEdit.setText("it");
-    QCOMPARE(lineEdit.text(), QString("it")); // should not completer with setText
-    QTest::keyPress(&lineEdit, 'e');
-    QCOMPARE(comboBox.currentText(), QString("item1"));
+    QFocusEvent focusIn(QEvent::FocusIn);
+    QFocusEvent focusOut(QEvent::FocusOut);
+
+    QComboBox *comboBox = new QComboBox(&window);
+    comboBox->setEditable(true);
+    comboBox->setCompleter(&completer);
+    comboBox->setFocus();
+    comboBox->show();
+    qApp->processEvents(); // focus in
+    comboBox->lineEdit()->setText("it");
+    QCOMPARE(comboBox->currentText(), QString("it")); // should not complete with setText
+    QTest::keyPress(comboBox, 'e');
+    QCOMPARE(comboBox->currentText(), QString("item1"));
+    comboBox->clearEditText();
+    QCOMPARE(comboBox->currentText(), QString("")); // combo box text must not change!
+
+    QLineEdit *lineEdit = new QLineEdit(&window);
+    lineEdit->setCompleter(&completer);
+    lineEdit->show();
+    lineEdit->setFocus();
+    qApp->processEvents();
+    lineEdit->setText("it");
+    QCOMPARE(lineEdit->text(), QString("it")); // should not completer with setText
+    QCOMPARE(comboBox->currentText(), QString("")); // combo box text must not change!
+    QTest::keyPress(lineEdit, 'e');
+    QCOMPARE(lineEdit->text(), QString("item1"));
+    QCOMPARE(comboBox->currentText(), QString("")); // combo box text must not change!
 }
 
 void tst_QCompleter::focusIn()
@@ -899,6 +913,7 @@ void tst_QCompleter::focusIn()
     QCompleter completer(list);
 
     QWidget window;
+    window.show();
 
     QComboBox *comboBox = new QComboBox(&window);
     comboBox->setEditable(true);
@@ -914,15 +929,17 @@ void tst_QCompleter::focusIn()
     QLineEdit *lineEdit2 = new QLineEdit(&window); // has no completer!
     lineEdit2->show();
 
-    QFocusEvent focusIn(QEvent::FocusIn);
-
-    qApp->sendEvent(comboBox, &focusIn);
+    comboBox->setFocus();
+    qApp->processEvents();
     QVERIFY(completer.widget() == comboBox);
-    qApp->sendEvent(lineEdit, &focusIn);
+    lineEdit->setFocus();
+    qApp->processEvents();
     QVERIFY(completer.widget() == lineEdit);
-    qApp->sendEvent(comboBox, &focusIn);
+    comboBox->setFocus();
+    qApp->processEvents();
     QVERIFY(completer.widget() == comboBox);
     lineEdit2->setFocus();
+    qApp->processEvents();
     QVERIFY(completer.widget() == comboBox);
 }
 
