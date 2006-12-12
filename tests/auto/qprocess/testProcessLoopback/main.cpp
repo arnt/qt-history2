@@ -17,6 +17,7 @@ int main()
         if (num <= 0)
             break;
         fwrite(buffer, num, 1, stdout);
+        fflush(stdout);
     }
 
     return 0;
