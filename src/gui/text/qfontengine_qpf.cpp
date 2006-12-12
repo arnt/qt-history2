@@ -766,6 +766,7 @@ void QFontEngineQPF::loadGlyph(glyph_t glyph)
 
     QImage img = renderingFontEngine->alphaMapForGlyph(glyph).convertToFormat(QImage::Format_Indexed8);
     glyph_metrics_t metrics = renderingFontEngine->boundingBox(glyph);
+    renderingFontEngine->removeGlyphFromCache(glyph);
 
     off_t oldSize = ::lseek(fd, 0, SEEK_END);
     if (oldSize == (off_t)-1)

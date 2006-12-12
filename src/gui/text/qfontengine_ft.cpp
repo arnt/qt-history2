@@ -1376,6 +1376,11 @@ QImage QFontEngineFT::alphaMapForGlyph(glyph_t g)
     return img;
 }
 
+void QFontEngineFT::removeGlyphFromCache(glyph_t glyph)
+{
+    delete defaultGlyphSet.glyph_data.take(glyph);
+}
+
 int QFontEngineFT::glyphCount() const
 {
     int count = 0;

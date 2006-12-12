@@ -182,6 +182,7 @@ public:
 
     void recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const;
     virtual QImage alphaMapForGlyph(glyph_t);
+    virtual void removeGlyphFromCache(glyph_t glyph);
 
     virtual int glyphCount() const;
 

@@ -397,6 +397,10 @@ QImage QFontEngine::alphaMapForGlyph(glyph_t glyph)
     return indexed;
 }
 
+void QFontEngine::removeGlyphFromCache(glyph_t)
+{
+}
+
 QFontEngine::Properties QFontEngine::properties() const
 {
     Properties p;
