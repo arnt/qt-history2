@@ -2414,6 +2414,8 @@ void tst_QTableView::tabFocus()
 
     WAIT_FOR_CONDITION(view->hasFocus(), true);
 
+    qApp->processEvents();
+
     // window
     QVERIFY(window.hasFocus());
     QVERIFY(!view->hasFocus());
@@ -2425,7 +2427,7 @@ void tst_QTableView::tabFocus()
         QVERIFY(!window.hasFocus());
         QVERIFY(view->hasFocus());
         QVERIFY(!edit->hasFocus());
-        
+
         // tab to edit
         QTest::keyPress(qApp->focusWidget(), Qt::Key_Tab);
         QVERIFY(!window.hasFocus());
