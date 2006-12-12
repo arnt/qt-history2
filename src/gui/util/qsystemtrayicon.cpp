@@ -327,10 +327,10 @@ bool QSystemTrayIcon::supportsMessages()
 }
 
 /*!
-    \fn void QSystemTrayIcon::showMessage(const QString &title, const QString &message, MessageIcon icon, int milliseconds)
+    \fn void QSystemTrayIcon::showMessage(const QString &title, const QString &message, MessageIcon icon, int millisecondsTimeoutHint)
 
     Shows a balloon message for the entry with the given \a title, \a message and
-    \a icon for the time specified in \a milliseconds.
+    \a icon for the time specified in \a millisecondsTimeoutHint.
 
     Message can be clicked by the user; the messageClicked() signal will emitted when
     this occurs.
@@ -338,6 +338,9 @@ bool QSystemTrayIcon::supportsMessages()
     Note that display of messages are dependent on the system configuration and user
     preferences, and that messages may not appear at all. Hence, it should not be
     relied upon as the sole means for providing critical information.
+
+    On Windows, the \a millisecondsTimeoutHint is usually ignored by the system
+    when the application has focus.
 
     \sa show() supportsMessages()
   */
