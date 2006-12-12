@@ -1383,14 +1383,15 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
                     bottom.setLeft(0);
                 // middle rectangle
                 QRect middle;
-                middle.setTop(top.bottom() + 1);
+                middle.setTop(top.bottom());
                 middle.setLeft(qMin(top.left(), bottom.left()));
-                middle.setBottom(bottom.top() - 1);
+                middle.setBottom(bottom.top());
                 middle.setRight(qMax(top.right(), bottom.right()));
                 // do the selections
-                QItemSelection topSelection = d->selection(top.translated(horizontalOffset(), verticalOffset()));
-                QItemSelection middleSelection = d->selection(middle.translated(horizontalOffset(), verticalOffset()));
-                QItemSelection bottomSelection = d->selection(bottom.translated(horizontalOffset(), verticalOffset()));
+                QItemSelection topSelection = d->selection(top);
+                QItemSelection middleSelection = d->selection(middle);
+                QItemSelection bottomSelection = d->selection(bottom);
+
                 // merge
                 selection.merge(topSelection, QItemSelectionModel::Select);
                 selection.merge(middleSelection, QItemSelectionModel::Select);
