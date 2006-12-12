@@ -130,9 +130,6 @@ Q_OUTOFLINE_TEMPLATE void QVarLengthArray<T, Prealloc>::append(const T *abuf, in
         return;
 
     const int idx = s;
-    s += asize;
-    if (s == a)
-        realloc(s, s<<1);
     const int news = s + asize;
     if (news >= a)
         realloc(news, news<<1);
