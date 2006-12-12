@@ -3538,20 +3538,6 @@ int QWindowsXPStyle::styleHint(StyleHint hint, const QStyleOption *option, const
         res = 0xC0C0C0;
         break;
 
-    case SH_LineEdit_PasswordCharacter:
-        {
-            if (widget) {
-                const QFontMetrics &fm = widget->fontMetrics();
-                if (fm.inFont(QChar(0x25CF)))
-                    res = 0x25CF;
-                else if (fm.inFont(QChar(0x2022)))
-                    res = 0x2022;
-            }
-            if (!res)
-                res = '*';
-        }
-        break;
-
     case SH_WindowFrame_Mask:
         {
             res = 1;
