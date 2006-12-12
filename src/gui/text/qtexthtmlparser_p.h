@@ -136,19 +136,16 @@ struct QTextHtmlParserNode {
     QVector<int> children;
     QTextHTMLElements id;
     QTextCharFormat charFormat;
+    QTextBlockFormat blockFormat;
     uint cssFloat : 2;
     uint hasOwnListStyle : 1;
-    uint hasCssBlockIndent : 1;
     uint hasCssListIndent : 1;
     uint isEmptyParagraph : 1;
     uint isTextFrame : 1;
-    uint direction : 2; // 3 means unset
     uint displayMode : 3; // QTextHtmlElement::DisplayMode
-    QTextFormat::PageBreakFlags pageBreakPolicy;
     int fontPointSize;
     int fontPixelSize;
     int fontSizeAdjustment;
-    Qt::Alignment alignment;
     QTextListFormat::Style listStyle;
     QString imageName;
     qreal imageWidth;
@@ -161,13 +158,7 @@ struct QTextHtmlParserNode {
     qreal tableCellSpacing;
     qreal tableCellPadding;
 
-    int cssBlockIndent;
     int cssListIndent;
-    qreal text_indent;
-
-    bool applyBlockFormatProperties(QTextBlockFormat *format) const;
-    inline QTextBlockFormat blockFormat() const
-    { QTextBlockFormat fmt; applyBlockFormatProperties(&fmt); return fmt; }
 
     WhiteSpaceMode wsm;
 

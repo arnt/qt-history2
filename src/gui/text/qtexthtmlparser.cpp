@@ -446,48 +446,16 @@ static QString quoteNewline(const QString &s)
 QTextHtmlParserNode::QTextHtmlParserNode()
     : parent(0), id(Html_unknown),
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false),
-      hasCssBlockIndent(false), hasCssListIndent(false), isEmptyParagraph(false), isTextFrame(false), direction(3),
+      hasCssListIndent(false), isEmptyParagraph(false), isTextFrame(false),
       displayMode(QTextHtmlElement::DisplayInline),
-      alignment(0),
       listStyle(QTextListFormat::ListStyleUndefined), imageWidth(-1), imageHeight(-1), tableBorder(0),
-      tableCellRowSpan(1), tableCellColSpan(1), tableCellSpacing(2), tableCellPadding(0), cssBlockIndent(0),
-      cssListIndent(0), text_indent(0), wsm(WhiteSpaceModeUndefined)
+      tableCellRowSpan(1), tableCellColSpan(1), tableCellSpacing(2), tableCellPadding(0),
+      cssListIndent(0), wsm(WhiteSpaceModeUndefined)
 {
     margin[QTextHtmlParser::MarginLeft] = 0;
     margin[QTextHtmlParser::MarginRight] = 0;
     margin[QTextHtmlParser::MarginTop] = 0;
     margin[QTextHtmlParser::MarginBottom] = 0;
-    pageBreakPolicy = QTextFormat::PageBreak_Auto;
-}
-
-bool QTextHtmlParserNode::applyBlockFormatProperties(QTextBlockFormat *format) const
-{
-    bool changed = false;
-
-    if (alignment && alignment != format->alignment()) {
-        format->setAlignment(alignment);
-        changed = true;
-    }
-    if (direction < 2) {
-        format->setLayoutDirection(Qt::LayoutDirection(direction));
-        changed = true;
-    }
-
-    if (hasCssBlockIndent) {
-        format->setIndent(cssBlockIndent);
-        changed = true;
-    }
-    if (text_indent != 0.) {
-        format->setTextIndent(text_indent);
-        changed = true;
-    }
-
-    if (pageBreakPolicy != QTextFormat::PageBreak_Auto) {
-        format->setPageBreakPolicy(pageBreakPolicy);
-        changed = true;
-    }
-
-    return changed;
 }
 
 void QTextHtmlParser::dumpHtml()
@@ -1003,7 +971,8 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
         displayMode = QTextHtmlElement::DisplayNone;
 
     if (parent->id != Html_table || id == Html_caption) {
-        alignment = parent->alignment;
+        if (parent->blockFormat.hasProperty(QTextFormat::BlockAlignment))
+            blockFormat.setAlignment(parent->blockFormat.alignment());
     }
     // we don't paint per-row background colors, yet. so as an
     // exception inherit the background color here
@@ -1093,7 +1062,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
             margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_center:
-            alignment = Qt::AlignCenter;
+            blockFormat.setAlignment(Qt::AlignCenter);
             break;
         case Html_ul:
             listStyle = QTextListFormat::ListDisc;
@@ -1158,10 +1127,10 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
             break;
         case Html_th:
             charFormat.setFontWeight(QFont::Bold);
-            alignment = Qt::AlignCenter;
+            blockFormat.setAlignment(Qt::AlignCenter);
             break;
         case Html_td:
-            alignment = Qt::AlignLeft;
+            blockFormat.setAlignment(Qt::AlignLeft);
             break;
         case Html_sub:
             charFormat.setVerticalAlignment(QTextCharFormat::AlignSubScript);
@@ -1195,10 +1164,13 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
                 }
                 break;
             case QCss::QtBlockIndent:
-                hasCssBlockIndent = true;
-                cssBlockIndent = decl.values.first().variant.toInt();
+                blockFormat.setIndent(decl.values.first().variant.toInt());
                 break;
-            case QCss::TextIndent: decl.realValue(&text_indent, "px"); break;
+            case QCss::TextIndent: {
+                 qreal indent = 0;
+                 if (decl.realValue(&indent, "px"))
+                     blockFormat.setTextIndent(indent);
+                 break; }
             case QCss::QtListIndent:
                 if (decl.intValue(&cssListIndent))
                     hasCssListIndent = true;
@@ -1233,16 +1205,16 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
             case QCss::PageBreakBefore:
                 if (decl.values.first().type == QCss::Value::KnownIdentifier) {
                     switch (decl.values.first().variant.toInt()) {
-                        case QCss::Value_Always: pageBreakPolicy |= QTextFormat::PageBreak_AlwaysBefore; break;
-                        case QCss::Value_Auto: pageBreakPolicy &= ~QTextFormat::PageBreak_AlwaysBefore; break;
+                        case QCss::Value_Always: blockFormat.setPageBreakPolicy(blockFormat.pageBreakPolicy() | QTextFormat::PageBreak_AlwaysBefore); break;
+                        case QCss::Value_Auto: blockFormat.setPageBreakPolicy(blockFormat.pageBreakPolicy() & ~QTextFormat::PageBreak_AlwaysBefore); break;
                     }
                 }
                 break;
             case QCss::PageBreakAfter:
                 if (decl.values.first().type == QCss::Value::KnownIdentifier) {
                     switch (decl.values.first().variant.toInt()) {
-                        case QCss::Value_Always: pageBreakPolicy |= QTextFormat::PageBreak_AlwaysAfter; break;
-                        case QCss::Value_Auto: pageBreakPolicy &= ~QTextFormat::PageBreak_AlwaysAfter; break;
+                        case QCss::Value_Always: blockFormat.setPageBreakPolicy(blockFormat.pageBreakPolicy() | QTextFormat::PageBreak_AlwaysAfter); break;
+                        case QCss::Value_Auto: blockFormat.setPageBreakPolicy(blockFormat.pageBreakPolicy() & ~QTextFormat::PageBreak_AlwaysAfter); break;
                     }
                 }
                 break;
@@ -1526,27 +1498,27 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
         } else if (key == QLatin1String("align")) {
             value = value.toLower();
             if (value == QLatin1String("left"))
-                node->alignment = Qt::AlignLeft|Qt::AlignAbsolute;
+                node->blockFormat.setAlignment(Qt::AlignLeft|Qt::AlignAbsolute);
             else if (value == QLatin1String("right"))
-                node->alignment = Qt::AlignRight|Qt::AlignAbsolute;
+                node->blockFormat.setAlignment(Qt::AlignRight|Qt::AlignAbsolute);
             else if (value == QLatin1String("center"))
-                node->alignment = Qt::AlignHCenter;
+                node->blockFormat.setAlignment(Qt::AlignHCenter);
             else if (value == QLatin1String("justify"))
-                node->alignment = Qt::AlignJustify;
+                node->blockFormat.setAlignment(Qt::AlignJustify);
 
             // HTML4 compat
-            if (node->id == Html_img) {
-                if (node->alignment & Qt::AlignLeft)
+            if (node->id == Html_img && node->blockFormat.hasProperty(QTextFormat::BlockAlignment)) {
+                if (node->blockFormat.alignment() & Qt::AlignLeft)
                     node->cssFloat = QTextFrameFormat::FloatLeft;
-                else if (node->alignment & Qt::AlignRight)
+                else if (node->blockFormat.alignment() & Qt::AlignRight)
                     node->cssFloat = QTextFrameFormat::FloatRight;
             }
         } else if (key == QLatin1String("dir")) {
             value = value.toLower();
             if (value == QLatin1String("ltr"))
-                node->direction = Qt::LeftToRight;
+                node->blockFormat.setLayoutDirection(Qt::LeftToRight);
             else if (value == QLatin1String("rtl"))
-                node->direction = Qt::RightToLeft;
+                node->blockFormat.setLayoutDirection(Qt::RightToLeft);
         } else if (key == QLatin1String("title")) {
             node->charFormat.setToolTip(value);
         }

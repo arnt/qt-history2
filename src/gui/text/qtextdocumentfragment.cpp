@@ -511,7 +511,7 @@ void QTextHtmlImporter::import()
             hasBlock = false;
             continue;
         } else if (node->id == Html_hr) {
-            QTextBlockFormat blockFormat = node->blockFormat();
+            QTextBlockFormat blockFormat = node->blockFormat;
             blockFormat.setTopMargin(topMargin(i));
             blockFormat.setBottomMargin(bottomMargin(i));
             blockFormat.setProperty(QTextFormat::BlockTrailingHorizontalRulerWidth, node->width);
@@ -530,7 +530,7 @@ void QTextHtmlImporter::import()
             && !node->text.isEmpty() && !node->hasOnlyWhitespace()
             && node->displayMode == QTextHtmlElement::DisplayInline) {
 
-            QTextBlockFormat block = node->blockFormat();
+            QTextBlockFormat block = node->blockFormat;
             block.setIndent(indent);
 
             appendBlock(block, node->charFormat);
@@ -622,7 +622,10 @@ void QTextHtmlImporter::import()
                 modifiedBlockFormat = true;
             }
 
-            modifiedBlockFormat |= node->applyBlockFormatProperties(&block);
+            if (node->blockFormat.propertyCount() > 0) {
+                modifiedBlockFormat = true;
+                block.merge(node->blockFormat);
+            }
 
             if (node->charFormat.propertyCount() > 0) {
                 modifiedCharFormat = true;
@@ -936,8 +939,8 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
         QTextTableFormat tableFmt;
         tableFmt.setCellSpacing(node.tableCellSpacing);
         tableFmt.setCellPadding(node.tableCellPadding);
-        if (node.alignment)
-            tableFmt.setAlignment(node.alignment);
+        if (node.blockFormat.hasProperty(QTextFormat::BlockAlignment))
+            tableFmt.setAlignment(node.blockFormat.alignment());
         tableFmt.setColumns(table.columns);
         tableFmt.setColumnWidthConstraints(columnWidths);
         tableFmt.setHeaderRowCount(tableHeaderRowCount);
@@ -960,11 +963,11 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
     fmt.setBorder(node.tableBorder);
     fmt.setWidth(node.width);
     fmt.setHeight(node.height);
-    if (node.pageBreakPolicy != QTextFormat::PageBreak_Auto)
-        fmt.setPageBreakPolicy(node.pageBreakPolicy);
+    if (node.blockFormat.hasProperty(QTextFormat::PageBreakPolicy))
+        fmt.setPageBreakPolicy(node.blockFormat.pageBreakPolicy());
 
-    if (node.direction < 2)
-        fmt.setLayoutDirection(Qt::LayoutDirection(node.direction));
+    if (node.blockFormat.hasProperty(QTextFormat::LayoutDirection))
+        fmt.setLayoutDirection(node.blockFormat.layoutDirection());
     if (node.charFormat.background().style() != Qt::NoBrush)
         fmt.setBackground(node.charFormat.background());
     fmt.setPosition(QTextFrameFormat::Position(node.cssFloat));
