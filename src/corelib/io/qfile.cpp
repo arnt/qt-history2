@@ -901,7 +901,15 @@ bool QFile::open(OpenMode mode)
     able to seek(). See QIODevice::isSequentialAccess() for more
     information.
 
-    \sa close()
+    \bold{Note:} On Windows, you need to enable support for console applications
+    in order to use the stdin, stdout and stderr streams at the console. To do
+    this, add the following declaration to your application's project file:
+
+    \code
+    CONFIG += console
+    \endcode
+
+    \sa close(), {qmake Variable Reference#CONFIG}{qmake Variable Reference}
 */
 bool QFile::open(FILE *fh, OpenMode mode)
 {
