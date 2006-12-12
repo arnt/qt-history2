@@ -163,6 +163,13 @@ void QSidebar::setUrl(const QModelIndex &index, const QUrl &url)
             newName = QFileInfo(url.toLocalFile()).fileName();
         }
 
+        // Make sure that we have at least 32x32 images
+        const QSize size = newIcon.actualSize(QSize(32,32));
+        if (size.width() < 32) {
+            QPixmap smallPixmap = newIcon.pixmap(QSize(32, 32));
+            newIcon.addPixmap(smallPixmap.scaledToWidth(32, Qt::SmoothTransformation));
+        }
+
         if (index.data().toString() != newName)
             model()->setData(index, newName);
         QIcon oldIcon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
