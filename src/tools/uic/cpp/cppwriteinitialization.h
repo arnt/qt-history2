@@ -142,6 +142,7 @@ private:
     QHash<QString, DomWidget*> m_registeredWidgets;
     QHash<QString, DomImage*> m_registeredImages;
     QHash<QString, DomAction*> m_registeredActions;
+    QHash<uint, QString> m_colorBrushHash;
 
     // layout defaults
     int m_defaultMargin;

@@ -1032,8 +1032,28 @@ void WriteInitialization::writeColorGroup(DomColorGroup *colorGroup, const QStri
     while (itRole.hasNext()) {
         const DomColorRole *colorRole = itRole.next();
         if (colorRole->hasAttributeRole()) {
-            const QString brushName = m_driver->unique(QLatin1String("brush"));
-            writeBrush(colorRole->elementBrush(), brushName);
+            DomBrush *brush = colorRole->elementBrush();
+            QString brushName;
+            if (!brush->hasAttributeBrushStyle() || brush->attributeBrushStyle() == QLatin1String("SolidPattern")) {
+                const DomColor *color = brush->elementColor();
+                if (color) {
+                    uint c = ((color->elementRed() & 0xFF) << 24) |
+                        ((color->elementGreen() & 0xFF) << 16) |
+                        ((color->elementBlue() & 0xFF) << 8) |
+                        ((color->attributeAlpha() & 0xFF));
+                    if (m_colorBrushHash.contains(c)) {
+                        brushName = m_colorBrushHash.value(c);
+                    } else {
+                        brushName = m_driver->unique(QLatin1String("brush"));
+                        writeBrush(colorRole->elementBrush(), brushName);
+                        m_colorBrushHash[c] = brushName;
+                    }
+                }
+            }
+            if (brushName.isEmpty()) {
+                brushName = m_driver->unique(QLatin1String("brush"));
+                writeBrush(colorRole->elementBrush(), brushName);
+            }
 
             m_output << m_option.indent << paletteName << ".setBrush(" << group
                 << ", " << "QPalette::" << colorRole->attributeRole()
