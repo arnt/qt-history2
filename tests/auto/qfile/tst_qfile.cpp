@@ -1792,7 +1792,6 @@ void tst_QFile::standarderror()
     QFile f;
     bool ok = f.open(stderr, QFile::WriteOnly);
     QVERIFY(ok);
-    f.write("testing testing");
     f.close();
 }
 
