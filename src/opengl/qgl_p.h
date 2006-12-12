@@ -96,28 +96,28 @@ typedef void (APIENTRY *_glActiveStencilFaceEXT) (GLenum );
 typedef void (APIENTRY *_glMultiTexCoord4f) (GLenum, GLfloat, GLfloat, GLfloat, GLfloat);
 typedef void (APIENTRY *_glActiveTexture) (GLenum);
 
-typedef GLboolean (APIENTRYP PFNGLISRENDERBUFFEREXTPROC) (GLuint renderbuffer);
-typedef void (APIENTRYP PFNGLBINDRENDERBUFFEREXTPROC) (GLenum target, GLuint renderbuffer);
-typedef void (APIENTRYP PFNGLDELETERENDERBUFFERSEXTPROC) (GLsizei n, const GLuint *renderbuffers);
-typedef void (APIENTRYP PFNGLGENRENDERBUFFERSEXTPROC) (GLsizei n, GLuint *renderbuffers);
-typedef void (APIENTRYP PFNGLRENDERBUFFERSTORAGEEXTPROC) (GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
-typedef void (APIENTRYP PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC) (GLenum target, GLenum pname, GLint *params);
-typedef GLboolean (APIENTRYP PFNGLISFRAMEBUFFEREXTPROC) (GLuint framebuffer);
-typedef void (APIENTRYP PFNGLBINDFRAMEBUFFEREXTPROC) (GLenum target, GLuint framebuffer);
-typedef void (APIENTRYP PFNGLDELETEFRAMEBUFFERSEXTPROC) (GLsizei n, const GLuint *framebuffers);
-typedef void (APIENTRYP PFNGLGENFRAMEBUFFERSEXTPROC) (GLsizei n, GLuint *framebuffers);
-typedef GLenum (APIENTRYP PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC) (GLenum target);
-typedef void (APIENTRYP PFNGLFRAMEBUFFERTEXTURE1DEXTPROC) (GLenum target, GLenum attachment, GLenum textarget,
-                                                           GLuint texture, GLint level);
-typedef void (APIENTRYP PFNGLFRAMEBUFFERTEXTURE2DEXTPROC) (GLenum target, GLenum attachment, GLenum textarget,
-                                                           GLuint texture, GLint level);
-typedef void (APIENTRYP PFNGLFRAMEBUFFERTEXTURE3DEXTPROC) (GLenum target, GLenum attachment, GLenum textarget,
-                                                           GLuint texture, GLint level, GLint zoffset);
-typedef void (APIENTRYP PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC) (GLenum target, GLenum attachment, GLenum renderbuffertarget,
-                                                              GLuint renderbuffer);
-typedef void (APIENTRYP PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC) (GLenum target, GLenum attachment, GLenum pname,
-                                                                          GLint *params);
-typedef void (APIENTRYP PFNGLGENERATEMIPMAPEXTPROC) (GLenum target);
+ typedef GLboolean (APIENTRY *_glIsRenderbufferEXT) (GLuint renderbuffer);
+typedef void (APIENTRY *_glBindRenderbufferEXT) (GLenum target, GLuint renderbuffer);
+typedef void (APIENTRY *_glDeleteRenderbuffersEXT) (GLsizei n, const GLuint *renderbuffers);
+typedef void (APIENTRY *_glGenRenderbuffersEXT) (GLsizei n, GLuint *renderbuffers);
+typedef void (APIENTRY *_glRenderbufferStorageEXT) (GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+typedef void (APIENTRY *_glGetRenderbufferParameterivEXT) (GLenum target, GLenum pname, GLint *params);
+typedef GLboolean (APIENTRY *_glIsFramebufferEXT) (GLuint framebuffer);
+typedef void (APIENTRY *_glBindFramebufferEXT) (GLenum target, GLuint framebuffer);
+typedef void (APIENTRY *_glDeleteFramebuffersEXT) (GLsizei n, const GLuint *framebuffers);
+typedef void (APIENTRY *_glGenFramebuffersEXT) (GLsizei n, GLuint *framebuffers);
+typedef GLenum (APIENTRY *_glCheckFramebufferStatusEXT) (GLenum target);
+typedef void (APIENTRY *_glFramebufferTexture1DEXT) (GLenum target, GLenum attachment, GLenum textarget,
+                                                     GLuint texture, GLint level);
+typedef void (APIENTRY *_glFramebufferTexture2DEXT) (GLenum target, GLenum attachment, GLenum textarget,
+                                                     GLuint texture, GLint level);
+typedef void (APIENTRY *_glFramebufferTexture3DEXT) (GLenum target, GLenum attachment, GLenum textarget,
+                                                     GLuint texture, GLint level, GLint zoffset);
+typedef void (APIENTRY *_glFramebufferRenderbufferEXT) (GLenum target, GLenum attachment, GLenum renderbuffertarget,
+                                                        GLuint renderbuffer);
+typedef void (APIENTRY *_glGetFramebufferAttachmentParameterivEXT) (GLenum target, GLenum attachment, GLenum pname,
+                                                                    GLint *params);
+typedef void (APIENTRY *_glGenerateMipmapEXT) (GLenum target);
 
 class QGLFormatPrivate
 {
@@ -316,23 +316,23 @@ public:
     _glMultiTexCoord4f qt_glMultiTexCoord4f;
     _glActiveTexture qt_glActiveTexture;
 
-    PFNGLISRENDERBUFFEREXTPROC qt_glIsRenderbufferEXT;
-    PFNGLBINDRENDERBUFFEREXTPROC qt_glBindRenderbufferEXT;
-    PFNGLDELETERENDERBUFFERSEXTPROC qt_glDeleteRenderbuffersEXT;
-    PFNGLGENRENDERBUFFERSEXTPROC qt_glGenRenderbuffersEXT;
-    PFNGLRENDERBUFFERSTORAGEEXTPROC qt_glRenderbufferStorageEXT;
-    PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC qt_glGetRenderbufferParameterivEXT;
-    PFNGLISFRAMEBUFFEREXTPROC qt_glIsFramebufferEXT;
-    PFNGLBINDFRAMEBUFFEREXTPROC qt_glBindFramebufferEXT;
-    PFNGLDELETEFRAMEBUFFERSEXTPROC qt_glDeleteFramebuffersEXT;
-    PFNGLGENFRAMEBUFFERSEXTPROC qt_glGenFramebuffersEXT;
-    PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC qt_glCheckFramebufferStatusEXT;
-    PFNGLFRAMEBUFFERTEXTURE1DEXTPROC qt_glFramebufferTexture1DEXT;
-    PFNGLFRAMEBUFFERTEXTURE2DEXTPROC qt_glFramebufferTexture2DEXT;
-    PFNGLFRAMEBUFFERTEXTURE3DEXTPROC qt_glFramebufferTexture3DEXT;
-    PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC qt_glFramebufferRenderbufferEXT;
-    PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC qt_glGetFramebufferAttachmentParameterivEXT;
-    PFNGLGENERATEMIPMAPEXTPROC qt_glGenerateMipmapEXT;
+    _glIsRenderbufferEXT qt_glIsRenderbufferEXT;
+    _glBindRenderbufferEXT qt_glBindRenderbufferEXT;
+    _glDeleteRenderbuffersEXT qt_glDeleteRenderbuffersEXT;
+    _glGenRenderbuffersEXT qt_glGenRenderbuffersEXT;
+    _glRenderbufferStorageEXT qt_glRenderbufferStorageEXT;
+    _glGetRenderbufferParameterivEXT qt_glGetRenderbufferParameterivEXT;
+    _glIsFramebufferEXT qt_glIsFramebufferEXT;
+    _glBindFramebufferEXT qt_glBindFramebufferEXT;
+    _glDeleteFramebuffersEXT qt_glDeleteFramebuffersEXT;
+    _glGenFramebuffersEXT qt_glGenFramebuffersEXT;
+    _glCheckFramebufferStatusEXT qt_glCheckFramebufferStatusEXT;
+    _glFramebufferTexture1DEXT qt_glFramebufferTexture1DEXT;
+    _glFramebufferTexture2DEXT qt_glFramebufferTexture2DEXT;
+    _glFramebufferTexture3DEXT qt_glFramebufferTexture3DEXT;
+    _glFramebufferRenderbufferEXT qt_glFramebufferRenderbufferEXT;
+    _glGetFramebufferAttachmentParameterivEXT qt_glGetFramebufferAttachmentParameterivEXT;
+    _glGenerateMipmapEXT qt_glGenerateMipmapEXT;
 #endif // Q_WS_WIN
 };
 
@@ -583,23 +583,23 @@ extern _glActiveTexture qt_glActiveTexture;
 #define glMultiTexCoord4f qt_glMultiTexCoord4f
 #define glActiveTexture qt_glActiveTexture
 
-extern PFNGLISRENDERBUFFEREXTPROC qt_glIsRenderbufferEXT;
-extern PFNGLBINDRENDERBUFFEREXTPROC qt_glBindRenderbufferEXT;
-extern PFNGLDELETERENDERBUFFERSEXTPROC qt_glDeleteRenderbuffersEXT;
-extern PFNGLGENRENDERBUFFERSEXTPROC qt_glGenRenderbuffersEXT;
-extern PFNGLRENDERBUFFERSTORAGEEXTPROC qt_glRenderbufferStorageEXT;
-extern PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC qt_glGetRenderbufferParameterivEXT;
-extern PFNGLISFRAMEBUFFEREXTPROC qt_glIsFramebufferEXT;
-extern PFNGLBINDFRAMEBUFFEREXTPROC qt_glBindFramebufferEXT;
-extern PFNGLDELETEFRAMEBUFFERSEXTPROC qt_glDeleteFramebuffersEXT;
-extern PFNGLGENFRAMEBUFFERSEXTPROC qt_glGenFramebuffersEXT;
-extern PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC qt_glCheckFramebufferStatusEXT;
-extern PFNGLFRAMEBUFFERTEXTURE1DEXTPROC qt_glFramebufferTexture1DEXT;
-extern PFNGLFRAMEBUFFERTEXTURE2DEXTPROC qt_glFramebufferTexture2DEXT;
-extern PFNGLFRAMEBUFFERTEXTURE3DEXTPROC qt_glFramebufferTexture3DEXT;
-extern PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC qt_glFramebufferRenderbufferEXT;
-extern PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC qt_glGetFramebufferAttachmentParameterivEXT;
-extern PFNGLGENERATEMIPMAPEXTPROC qt_glGenerateMipmapEXT;
+extern _glIsRenderbufferEXT qt_glIsRenderbufferEXT;
+extern _glBindRenderbufferEXT qt_glBindRenderbufferEXT;
+extern _glDeleteRenderbuffersEXT qt_glDeleteRenderbuffersEXT;
+extern _glGenRenderbuffersEXT qt_glGenRenderbuffersEXT;
+extern _glRenderbufferStorageEXT qt_glRenderbufferStorageEXT;
+extern _glGetRenderbufferParameterivEXT qt_glGetRenderbufferParameterivEXT;
+extern _glIsFramebufferEXT qt_glIsFramebufferEXT;
+extern _glBindFramebufferEXT qt_glBindFramebufferEXT;
+extern _glDeleteFramebuffersEXT qt_glDeleteFramebuffersEXT;
+extern _glGenFramebuffersEXT qt_glGenFramebuffersEXT;
+extern _glCheckFramebufferStatusEXT qt_glCheckFramebufferStatusEXT;
+extern _glFramebufferTexture1DEXT qt_glFramebufferTexture1DEXT;
+extern _glFramebufferTexture2DEXT qt_glFramebufferTexture2DEXT;
+extern _glFramebufferTexture3DEXT qt_glFramebufferTexture3DEXT;
+extern _glFramebufferRenderbufferEXT qt_glFramebufferRenderbufferEXT;
+extern _glGetFramebufferAttachmentParameterivEXT qt_glGetFramebufferAttachmentParameterivEXT;
+extern _glGenerateMipmapEXT qt_glGenerateMipmapEXT;
 
 #define glIsRenderbufferEXT qt_glIsRenderbufferEXT
 #define glBindRenderbufferEXT qt_glBindRenderbufferEXT
