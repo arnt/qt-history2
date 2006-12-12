@@ -137,8 +137,10 @@ void QFileInfoGatherer::run()
         bool listFiles = false;
         bool updateFiles = false;
         mutex.lock();
-        if (abort)
+        if (abort) {
+            mutex.unlock();
             return;
+        }
         if (this->path.isEmpty() && directoryPath.isEmpty())
             condition.wait(&mutex);
         QString path;
