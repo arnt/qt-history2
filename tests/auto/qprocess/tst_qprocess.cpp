@@ -97,6 +97,7 @@ private slots:
     void failToStart();
     void failToStartWithWait();
     void failToStartWithEventLoop();
+    void removeFileWhileProcessIsRunning();
 
 protected slots:
     void readFromProcess();
@@ -1374,6 +1375,27 @@ void tst_QProcess::failToStartWithEventLoop()
         QCOMPARE(finishedSpy.count(), 0);
         QCOMPARE(finishedSpy2.count(), 0);
     }
+}
+
+//-----------------------------------------------------------------------------
+void tst_QProcess::removeFileWhileProcessIsRunning()
+{
+    QFile file("removeFile.txt");
+    QVERIFY(file.open(QFile::WriteOnly));
+
+    QProcess process;
+#ifdef Q_OS_MAC
+    process.start("testProcessEcho/testProcessEcho.app");
+#else
+    process.start("testProcessEcho/testProcessEcho");
+#endif
+
+    QVERIFY(process.waitForStarted(5000));
+
+    QVERIFY(file.remove());
+
+    process.write("", 1);
+    QVERIFY(process.waitForFinished(5000));
 }
 
 //-----------------------------------------------------------------------------
