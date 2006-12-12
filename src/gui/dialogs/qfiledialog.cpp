@@ -579,11 +579,11 @@ void QFileDialog::setAcceptMode(QFileDialog::AcceptMode mode)
         d->lookInCombo->setEditable(false);
     }
     disconnect(d->lookInCombo, SIGNAL(textChanged(QString)),
-            this, SLOT(_q_autoCompleteFileName()));
+            this, SLOT(_q_autoCompleteFileName(QString)));
     disconnect(d->fileNameEdit, SIGNAL(textChanged(QString)),
-            this, SLOT(_q_autoCompleteFileName()));
+            this, SLOT(_q_autoCompleteFileName(QString)));
     connect(d->lineEdit(), SIGNAL(textChanged(QString)),
-            this, SLOT(_q_autoCompleteFileName()));
+            this, SLOT(_q_autoCompleteFileName(QString)));
 }
 
 void QFileDialogPrivate::updateFileTypeVisibility()
@@ -2205,13 +2205,14 @@ void QFileDialogPrivate::_q_deleteCurrent()
     }
 }
 
-void QFileDialogPrivate::_q_autoCompleteFileName() {
-    QStringList list = typedFiles();
-    QModelIndex idx = model->index(list.value(0));
+void QFileDialogPrivate::_q_autoCompleteFileName(const QString &text) {
+    QModelIndex idx;
+
+    // text might contain the full path so try both
+    idx = model->index(text);
     if (!idx.isValid())
-        idx = model->index(model->rootPath() + QDir::separator() + list.value(0));
-    if (listView->selectionModel()->isSelected(idx) || listView->currentIndex() == idx)
-        return;
+        idx = model->index(model->rootPath() + QDir::separator() + text);
+
     if (!idx.isValid())
         listView->selectionModel()->clear();
     else

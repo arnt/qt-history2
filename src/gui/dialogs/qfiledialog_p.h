@@ -176,7 +176,7 @@ public:
     void _q_animateDialog();
     void _q_animateDialogV(int);
     void _q_animateDialogH(int);
-    void _q_autoCompleteFileName();
+    void _q_autoCompleteFileName(const QString &);
 
     void addUrls(const QList<QUrl> &list, int row);
     void setUrl(const QModelIndex &row, const QUrl & url);
