@@ -1881,56 +1881,51 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItemInt &ti)
 }
 
 #ifndef QT_NO_FONTCONFIG
-void QX11PaintEngine::core_render_glyph(QFontEngineFT *fe, int xp, int yp, uint g)
+static QPainterPath path_for_glyphs(const QVarLengthArray<glyph_t> &glyphs,
+                                    const QVarLengthArray<QFixedPoint> &positions,
+                                    const QFontEngineFT *ft)
 {
-    Q_D(QX11PaintEngine);
-    if (xp < SHRT_MIN || xp > SHRT_MAX  || yp < SHRT_MIN || yp > SHRT_MAX
-        || d->cpen.style() == Qt::NoPen)
-        return;
+    QPainterPath path;
+    path.setFillRule(Qt::WindingFill);
+    ft->lockFace();
+    int i = 0;
+    while (i < glyphs.size()) {
+        QFontEngineFT::Glyph *glyph = ft->loadGlyph(glyphs[i], QFontEngineFT::Format_Mono);
+        // #### fix case where we don't get a glyph
+        if (!glyph)
+            break;
 
-    QFontEngineFT::Glyph *glyph = fe->loadGlyph(g, QFontEngineFT::Format_Mono);
-    // #### fix case where we don't get a glyph
-    if (!glyph)
-        return;
+        Q_ASSERT(glyph->format == QFontEngineFT::Format_Mono);
+        int n = 0;
+        int h = glyph->height;
+        int xp = qRound(positions[i].x);
+        int yp = qRound(positions[i].y);
 
-    Q_ASSERT(glyph->format == QFontEngineFT::Format_Mono);
+        xp += glyph->x;
+        yp += -glyph->y + glyph->height;
+        int pitch = ((glyph->width + 31) & ~31) >> 3;
 
-    const int rectcount = 256;
-    XRectangle rects[rectcount];
-    int n = 0;
-    int h = glyph->height;
-    xp += glyph->x;
-    yp += -glyph->y + glyph->height;
-    int pitch = ((glyph->width + 31) & ~31) >> 3;
+        uchar *src = glyph->data;
+        while (h--) {
+            for (int x = 0; x < glyph->width; ++x) {
+                bool set = src[x >> 3] & (0x80 >> (x & 7));
+                if (set) {
+                    QRect r(xp + x, yp - h, 1, 1);
+                    while (x < glyph->width-1 && src[(x+1) >> 3] & (0x80 >> ((x+1) & 7))) {
+                        ++x;
+                        ++r.rRight();
+                    }
 
-    uchar *src = glyph->data;
-    while (h--) {
-        for (int x = 0; x < glyph->width; ++x) {
-            bool set = src[x >> 3] & (0x80 >> (x & 7));
-            if (set) {
-                XRectangle r = { xp + x, yp - h, 1, 1 };
-                while (x < glyph->width-1 && src[(x+1) >> 3] & (0x80 >> ((x+1) & 7))) {
-                    ++x;
-                    ++r.width;
+                    path.addRect(r);
+                    ++n;
                 }
-
-                rects[n] = r;
-                ++n;
             }
-            if (n == rectcount) {
-                d->setupAdaptedOrigin(QPoint(rects[0].x, rects[0].y));
-                XFillRectangles(d->dpy, d->hd, d->gc, rects, n);
-                n = 0;
-                d->resetAdaptedOrigin();
-            }
+            src += pitch;
         }
-        src += pitch;
+        ++i;
     }
-    if (n) {
-        d->setupAdaptedOrigin(QPoint(rects[0].x, rects[0].y));
-        XFillRectangles(d->dpy, d->hd, d->gc, rects, n);
-        d->resetAdaptedOrigin();
-    }
+    ft->unlockFace();
+    return path;
 }
 
 void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
@@ -1946,12 +1941,18 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
         return;
     }
 
+    const bool xrenderPath = (X11->use_xrender
+                              && !(d->pdev->devType() == QInternal::Pixmap
+                                   && static_cast<const QPixmap *>(d->pdev)->data->type == QPixmap::BitmapType));
     QFixed xpos = QFixed::fromReal(p.x() + d->matrix.dx());
     QFixed ypos = QFixed::fromReal(p.y() + d->matrix.dy());
 
     QVarLengthArray<QFixedPoint> positions;
     QVarLengthArray<glyph_t> glyphs;
-    QTransform matrix = d->matrix;
+    QTransform matrix;
+
+    if (xrenderPath)
+        matrix = d->matrix;
     matrix.translate(p.x(), p.y());
     ft->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
     if (glyphs.count() == 0)
@@ -1959,10 +1960,6 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
 
     bool drawTransformed = false;
 #ifndef QT_NO_XRENDER
-    const bool xrenderPath = (X11->use_xrender
-                              && !(d->pdev->devType() == QInternal::Pixmap
-                              && static_cast<const QPixmap *>(d->pdev)->data->type == QPixmap::BitmapType));
-
     GlyphSet transformedGlyphSet = 0;
     if (d->txop >= QTransform::TxScale
         && xrenderPath) {
@@ -1973,16 +1970,8 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
             transformedGlyphSet = set->id;
         }
     }
-#endif
 
-    if ((d->txop >= QTransform::TxScale && !drawTransformed)) {
-        QPaintEngine::drawTextItem(p, ti);
-        return;
-    }
-
-#ifndef QT_NO_XRENDER
     if (xrenderPath) {
-
         GlyphSet glyphSet = drawTransformed ? transformedGlyphSet : ft->defaultGlyphs()->id;
 
         const QColor &pen = d->cpen.color();
@@ -1995,9 +1984,9 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
 
         int i = 0;
         for (; i < glyphs.size()
-               && (positions[i].x < t_min || positions[i].x > t_max
-                   || positions[i].y < t_min || positions[i].y > t_max);
-               ++i)
+                 && (positions[i].x < t_min || positions[i].x > t_max
+                     || positions[i].y < t_min || positions[i].y > t_max);
+             ++i)
             ;
 
         if (i >= glyphs.size())
@@ -2048,13 +2037,40 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
 
     }
 #endif
-    ft->lockFace();
-    int i = 0;
-    while (i < glyphs.size()) {
-        core_render_glyph(ft, qRound(positions[i].x), qRound(positions[i].y), glyphs[i]);
-        ++i;
+
+    QPainterPath path = path_for_glyphs(glyphs, positions, ft);
+    Q_ASSERT((path.elementCount() % 5) == 0);
+    if (d->txop >= QTransform::TxScale) {
+        painter()->save();
+        painter()->setBrush(d->cpen.brush());
+        painter()->setPen(Qt::NoPen);
+        painter()->drawPath(path);
+        painter()->restore();
+        return;
     }
-    ft->unlockFace();
+
+    const int rectcount = 256;
+    XRectangle rects[rectcount];
+    int num_rects = 0;
+
+    for (int i=0; i < path.elementCount(); i+=5) {
+        int x = qRound(path.elementAt(i).x);
+        int y = qRound(path.elementAt(i).y);
+        int w = qRound(path.elementAt(i+1).x) - x;
+        int h = qRound(path.elementAt(i+2).y) - y;
+        rects[num_rects].x = x;
+        rects[num_rects].y = y;
+        rects[num_rects].width = w;
+        rects[num_rects].height = h;
+        ++num_rects;
+        if (num_rects == rectcount) {
+            XFillRectangles(d->dpy, d->hd, d->gc, rects, num_rects);
+            num_rects = 0;
+        }
+    }
+    if (num_rects > 0)
+        XFillRectangles(d->dpy, d->hd, d->gc, rects, num_rects);
+
 }
 #endif // !QT_NO_XRENDER
 
