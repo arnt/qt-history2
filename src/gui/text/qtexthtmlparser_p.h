@@ -138,12 +138,8 @@ struct QTextHtmlParserNode {
     int parent;
     QVector<int> children;
     QTextHTMLElements id;
+    QTextCharFormat charFmt;
     uint isAnchor : 1;
-    uint fontItalic : 2; // Tristate
-    uint fontUnderline : 2; // Tristate
-    uint fontOverline : 2; // Tristate
-    uint fontStrikeOut : 2; // Tristate
-    uint fontFixedPitch : 2; // Tristate
     uint cssFloat : 2;
     uint hasOwnListStyle : 1;
     uint hasFontPointSize : 1;

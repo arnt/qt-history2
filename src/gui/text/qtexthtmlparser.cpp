@@ -444,8 +444,7 @@ static QString quoteNewline(const QString &s)
 }
 
 QTextHtmlParserNode::QTextHtmlParserNode()
-    : parent(0), id(Html_unknown), isAnchor(false), fontItalic(Unspecified), fontUnderline(Unspecified),
-      fontOverline(Unspecified), fontStrikeOut(Unspecified), fontFixedPitch(Unspecified),
+    : parent(0), id(Html_unknown), isAnchor(false),
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false), hasFontPixelSize(false), hasFontSizeAdjustment(false),
       hasCssBlockIndent(false), hasCssListIndent(false), isEmptyParagraph(false), isTextFrame(false), direction(3),
       displayMode(QTextHtmlElement::DisplayInline), fontPointSize(-1), fontPixelSize(-1), fontSizeAdjustment(0),
@@ -463,28 +462,10 @@ QTextHtmlParserNode::QTextHtmlParserNode()
 
 bool QTextHtmlParserNode::applyCharFormatProperties(QTextCharFormat *format) const
 {
-    bool changed = false;
+    bool changed = charFmt.properties().count() > 0;
 
-    if (fontItalic != Unspecified) {
-        format->setFontItalic(fontItalic == On);
-        changed = true;
-    }
-    if (fontUnderline != Unspecified) {
-        format->setFontUnderline(fontUnderline == On);
-        changed = true;
-    }
-    if (fontOverline != Unspecified) {
-        format->setFontOverline(fontOverline == On);
-        changed = true;
-    }
-    if (fontStrikeOut != Unspecified) {
-        format->setFontStrikeOut(fontStrikeOut == On);
-        changed = true;
-    }
-    if (fontFixedPitch != Unspecified) {
-        format->setFontFixedPitch(fontFixedPitch == On);
-        changed = true;
-    }
+    format->merge(charFmt);
+
     if (fontFamily.size()) {
         format->setFontFamily(fontFamily);
         changed = true;
@@ -1070,11 +1051,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
 {
     // inherit properties from parent element
     isAnchor = parent->isAnchor;
-    fontItalic = parent->fontItalic;
-    fontUnderline = parent->fontUnderline;
-    fontOverline = parent->fontOverline;
-    fontStrikeOut = parent->fontStrikeOut;
-    fontFixedPitch = parent->fontFixedPitch;
+    charFmt = parent->charFmt;
     fontFamily = parent->fontFamily;
     hasFontPointSize = parent->hasFontPointSize;
     fontPointSize = parent->fontPointSize;
@@ -1124,7 +1101,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
                 const QString key = attributes.at(i);
                 if (key.compare(QLatin1String("href"), Qt::CaseInsensitive) == 0
                     && !attributes.at(i + 1).isEmpty()) {
-                    fontUnderline = true;
+                    charFmt.setUnderlineStyle(QTextCharFormat::SingleUnderline);
                     foreground = Qt::blue;
                 }
             }
@@ -1136,7 +1113,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
         case Html_address:
         case Html_var:
         case Html_dfn:
-            fontItalic = On;
+            charFmt.setFontItalic(true);
             break;
         case Html_big:
             fontSizeAdjustment = 1;
@@ -1216,7 +1193,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
         case Html_samp:
             fontFamily = QString::fromLatin1("Courier New,courier");
             // <tt> uses a fixed font, so set the property
-            fontFixedPitch = On;
+            charFmt.setFontFixedPitch(true);
             break;
         case Html_br:
             text = QChar(QChar::LineSeparator);
@@ -1229,7 +1206,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
             margin[QTextHtmlParser::MarginTop] = 12;
             margin[QTextHtmlParser::MarginBottom] = 12;
             // <pre> uses a fixed font
-            fontFixedPitch = On;
+            charFmt.setFontFixedPitch(true);
             break;
         case Html_blockquote:
             margin[QTextHtmlParser::MarginTop] = 12;
@@ -1245,10 +1222,10 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
             margin[QTextHtmlParser::MarginLeft] = 30;
             break;
         case Html_u:
-            fontUnderline = On;
+            charFmt.setUnderlineStyle(QTextCharFormat::SingleUnderline);
             break;
         case Html_s:
-            fontStrikeOut = On;
+            charFmt.setFontStrikeOut(true);
             break;
         case Html_nobr:
             wsm = WhiteSpaceNoWrap;
@@ -1363,7 +1340,7 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
         }
     }
     if (f.resolve() & QFontPrivate::Style)
-        fontItalic = (f.style() == QFont::StyleNormal) ? Off : On;
+        charFmt.setFontItalic(f.style() != QFont::StyleNormal);
 
     if (f.resolve() & QFontPrivate::Weight)
         fontWeight = f.weight();
@@ -1372,13 +1349,13 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
         fontFamily = f.family();
 
     if (f.resolve() & QFontPrivate::Underline)
-        fontUnderline = f.underline() ? On : Off;
+        charFmt.setUnderlineStyle(f.underline() ? QTextCharFormat::SingleUnderline : QTextCharFormat::NoUnderline);
 
     if (f.resolve() & QFontPrivate::Overline)
-        fontOverline = f.overline() ? On : Off;
+        charFmt.setFontOverline(f.overline());
 
     if (f.resolve() & QFontPrivate::StrikeOut)
-        fontStrikeOut = f.strikeOut() ? On : Off;
+        charFmt.setFontStrikeOut(f.strikeOut());
 
     if (adjustment >= -1) {
         hasFontSizeAdjustment = true;
