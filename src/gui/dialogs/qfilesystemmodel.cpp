@@ -1414,6 +1414,11 @@ void QFileSystemModelPrivate::init()
 */
 bool QFileSystemModelPrivate::filtersAcceptsNode(const QFileSystemNode *node) const
 {
+    // always accept drives
+    if (node->parent == &root)
+        return true;
+
+    // If we don't know anything yet don't accept it
     if (!node->hasInformation())
         return false;
 
