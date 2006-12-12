@@ -191,6 +191,8 @@ private slots:
     void html_compressDivs();
     void completeToPlainText();
     void copyContents();
+    void html_textAfterHr();
+    void blockTagClosing();
 
 private:
     inline void setHtml(const QString &html)
@@ -2859,7 +2861,6 @@ void tst_QTextDocumentFragment::html_hrMargins()
 
     cursor.movePosition(QTextCursor::NextBlock);
     block = cursor.block();
-    QVERIFY(qMax(hr.blockFormat().bottomMargin(), block.blockFormat().topMargin()) > 0);
 
     QCOMPARE(block.text(), QString("Blah"));
 }
@@ -2959,6 +2960,31 @@ void tst_QTextDocumentFragment::copyContents()
     fragment = doc->begin().begin().fragment();
     QCOMPARE(fragment.text(), QString("Hello"));
     QCOMPARE(fragment.charFormat().font().pointSize(), f.pointSize());
+}
+
+void tst_QTextDocumentFragment::html_textAfterHr()
+{
+    doc->setHtml("<hr><nobr><b>After the centered text</b></nobr>");
+    QCOMPARE(doc->blockCount(), 2);
+    QTextBlock block = doc->begin();
+    QVERIFY(block.text().isEmpty());
+    QVERIFY(block.blockFormat().hasProperty(QTextFormat::BlockTrailingHorizontalRulerWidth));
+    block = block.next();
+
+    QString txt("After the centered text");
+    txt.replace(QLatin1Char(' '), QChar::Nbsp);
+    QCOMPARE(block.text(), txt);
+    QVERIFY(!block.blockFormat().hasProperty(QTextFormat::BlockTrailingHorizontalRulerWidth));
+}
+
+void tst_QTextDocumentFragment::blockTagClosing()
+{
+    doc->setHtml("<p>foo<p>bar<span>baz</span>");
+    QCOMPARE(doc->blockCount(), 2);
+    QTextBlock block = doc->begin();
+    QCOMPARE(block.text(), QString("foo"));
+    block = block.next();
+    QCOMPARE(block.text(), QString("barbaz"));
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)

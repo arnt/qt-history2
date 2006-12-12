@@ -400,10 +400,10 @@ void QTextHtmlImporter::import()
     bool hasBlock = true;
     bool forceBlockMerging = false;
     compressNextWhitespace = !textEditMode;
+    bool blockTagClosed = false;
     for (int i = 0; i < count(); ++i) {
         const QTextHtmlParserNode *node = &at(i);
         wsm = node->wsm;
-        bool blockTagClosed = false;
 
         /*
          * process each node in three stages:
@@ -515,7 +515,10 @@ void QTextHtmlImporter::import()
             blockFormat.setTopMargin(topMargin(i));
             blockFormat.setBottomMargin(bottomMargin(i));
             blockFormat.setProperty(QTextFormat::BlockTrailingHorizontalRulerWidth, node->width);
-            appendBlock(blockFormat);
+            if (hasBlock)
+                cursor.mergeBlockFormat(blockFormat);
+            else
+                appendBlock(blockFormat);
             hasBlock = false;
             continue;
         }
@@ -678,6 +681,7 @@ void QTextHtmlImporter::import()
             }
 
             hasBlock = true;
+            blockTagClosed = false;
         }
 
         if (node->isAnchor && !node->anchorName.isEmpty()) {
