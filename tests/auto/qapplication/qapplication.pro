@@ -1,3 +1,4 @@
 TEMPLATE = subdirs
 SUBDIRS = test \
-	  desktopsettingsaware
+	  desktopsettingsaware \
+      wincmdline

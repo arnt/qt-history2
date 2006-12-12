@@ -75,6 +75,7 @@ private slots:
     void allWidgets();
 
     void setAttribute();
+    void windowsCommandLine();
 private:
     inline QChar pathSeparator(void)
     {
@@ -1182,6 +1183,22 @@ void tst_QApplication::setAttribute()
     delete w;
 }
 
+void tst_QApplication::windowsCommandLine()
+{
+#if defined(Q_OS_WIN)
+    QProcess testProcess;
+    QStringList args("Hello \"World\"");
+#if defined(QT_DEBUG)
+    testProcess.start("wincmdline/debug/wincmdline", args);
+#else
+    testProcess.start("wincmdline/release/wincmdline", args);
+#endif
+    QVERIFY(testProcess.waitForFinished(10000));
+    QByteArray error = testProcess.readAllStandardError();
+    QString procError(error);
+    QCOMPARE(procError, QString("Hello \"World\""));
+#endif 
+}
 
 //QTEST_APPLESS_MAIN(tst_QApplication)
 int main(int argc, char *argv[])

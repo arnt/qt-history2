@@ -149,7 +149,8 @@ static QVector<Char*> qWinCmdLine(Char *cmdParam, int length, int &argc)
                             break;
                         quote = 0;
                     }
-                } else if (*p == '\\') {                // escape char?
+                }
+                if (*p == '\\') {                // escape char?
                     p++;
                     if (*p == Char('\"') || *p == Char('\''))
                         ;                        // yes
@@ -159,7 +160,7 @@ static QVector<Char*> qWinCmdLine(Char *cmdParam, int length, int &argc)
                     if (*p == Char('\"') || *p == Char('\'')) {        // " or ' quote
                         quote = *p++;
                         continue;
-                    } else if (QChar::fromLatin1(*p).isSpace())
+                    } else if (QChar::fromLatin1(*p).isSpace() && !quote)
                         break;
                 }
                 if (*p)
