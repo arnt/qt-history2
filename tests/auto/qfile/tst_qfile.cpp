@@ -124,6 +124,7 @@ private slots:
     void rename();
     void appendAndRead();
     void miscWithUncPathAsCurrentDir();
+    void standarderror();
 
 public:
 // disabled this test for the moment... it hangs
@@ -1785,6 +1786,16 @@ void tst_QFile::miscWithUncPathAsCurrentDir()
     QVERIFY(QDir::setCurrent(current));
 #endif
 }
+
+void tst_QFile::standarderror()
+{
+    QFile f;
+    bool ok = f.open(stderr, QFile::WriteOnly);
+    QVERIFY(ok);
+    f.write("testing testing");
+    f.close();
+}
+
 
 QTEST_MAIN(tst_QFile)
 #include "tst_qfile.moc"
