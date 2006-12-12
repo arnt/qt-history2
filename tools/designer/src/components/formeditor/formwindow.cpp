@@ -1383,10 +1383,8 @@ void FormWindow::breakLayout(QWidget *w)
 
             if (BreakLayoutCommand *cmd = breakLayoutCommand(w)) {
                 commandHistory()->push(cmd);
-            }
-
-            if (!qobject_cast<QLayoutWidget*>(w) && !qobject_cast<QSplitter*>(w))
                 break;
+            }
         }
 
         w = w->parentWidget();
@@ -1414,36 +1412,6 @@ BreakLayoutCommand *FormWindow::breakLayoutCommand(QWidget *w)
     BreakLayoutCommand *cmd = new BreakLayoutCommand(this);
     cmd->init(widgets, core()->widgetFactory()->widgetOfContainer(w));
     return cmd;
-}
-
-void FormWindow::breakLayout()
-{
-    QWidget *w = currentWidget() ? currentWidget() : mainContainer();
-
-    if (LayoutInfo::layoutType(m_core, w) != LayoutInfo::NoLayout ||
-         w->parentWidget() && LayoutInfo::layoutType(m_core, w->parentWidget()) != LayoutInfo::NoLayout) {
-        breakLayout(w);
-        return;
-    } else {
-        WidgetList widgets = selectedWidgets();
-        QListIterator<QWidget*> it(widgets);
-        while (it.hasNext()) {
-            QWidget *w = it.next();
-            if (LayoutInfo::layoutType(m_core, w) != LayoutInfo::NoLayout ||
-                 w->parentWidget() && LayoutInfo::layoutType(m_core, w->parentWidget()) != LayoutInfo::NoLayout)
-                break;
-        }
-        if (w) {
-            breakLayout(w);
-            return;
-        }
-    }
-
-    w = mainContainer();
-
-    if (LayoutInfo::layoutType(m_core, w) != LayoutInfo::NoLayout ||
-         w->parentWidget() && LayoutInfo::layoutType(m_core, w->parentWidget()) != LayoutInfo::NoLayout)
-        breakLayout(w);
 }
 
 void FormWindow::beginCommand(const QString &description)

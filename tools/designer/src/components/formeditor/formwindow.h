@@ -211,7 +211,6 @@ public slots:
     void layoutGridContainer(QWidget *w);
     void breakLayout(QWidget *w);
 
-    void breakLayout();
     void editContents();
 
 protected:

@@ -459,10 +459,13 @@ void FormWindowManager::slotActionBreakLayoutActivated()
         while (currentWidget && currentWidget != m_activeFormWindow) {
             if (QLayout *layout = LayoutInfo::managedLayout(core(), currentWidget)) {
                 // ### generalize (put in function)
-                QLayoutWidget* layoutWidget = qobject_cast<QLayoutWidget*>(widget);
-                if (((layoutWidget ? !layout->isEmpty() : layout != 0) || qobject_cast<QSplitter*>(currentWidget)) 
+                QLayoutWidget* layoutWidget = qobject_cast<QLayoutWidget*>(currentWidget);
+                QSplitter *splitter = qobject_cast<QSplitter*>(currentWidget);
+                if (((layoutWidget ? !layout->isEmpty() : layout != 0) || splitter)
                     && !layoutBaseList.contains(layout->parentWidget())) {
                     layoutBaseList.prepend(layout->parentWidget());
+                    if (!layoutWidget && !splitter)
+                        break;
                 }
             }
             currentWidget = currentWidget->parentWidget();
