@@ -119,6 +119,11 @@ void QAlphaWidget::run(int time)
     checkTime.start();
 
     showWidget = true;
+
+    //This is roughly equivalent to calling setVisible(true) without actually showing the widget
+    widget->setAttribute(Qt::WA_WState_ExplicitShowHide, true);
+    widget->setAttribute(Qt::WA_WState_Hidden, false);
+
     qApp->installEventFilter(this);
 
     move(widget->geometry().x(),widget->geometry().y());
@@ -225,6 +230,9 @@ void QAlphaWidget::render()
 #endif
                 widget->hide();
             } else {
+                //Since we are faking the visibility of the widget 
+                //we need to unset the hidden state on it before calling show
+                widget->setAttribute(Qt::WA_WState_Hidden, true);
                 widget->show();
                 lower();
             }
@@ -412,6 +420,10 @@ void QRollEffect::run(int time)
     move(widget->geometry().x(),widget->geometry().y());
     resize(qMin(currentWidth, totalWidth), qMin(currentHeight, totalHeight));
 
+    //This is roughly equivalent to calling setVisible(true) without actually showing the widget
+    widget->setAttribute(Qt::WA_WState_ExplicitShowHide, true);
+    widget->setAttribute(Qt::WA_WState_Hidden, false);
+
     show();
     setEnabled(false);
 
@@ -485,6 +497,9 @@ void QRollEffect::scroll()
 #endif
                 widget->hide();
             } else {
+                //Since we are faking the visibility of the widget 
+                //we need to unset the hidden state on it before calling show
+                widget->setAttribute(Qt::WA_WState_Hidden, true);
                 widget->show();
                 lower();
             }
