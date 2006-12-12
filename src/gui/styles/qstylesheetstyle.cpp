@@ -35,6 +35,8 @@
 #include <qtoolbutton.h>
 #include <qstring.h>
 
+#include <limits.h>
+
 using namespace QCss;
 
 static QHash<const QWidget *, QVector<StyleRule> > *styleRulesCache = 0;

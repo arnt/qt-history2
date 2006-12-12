@@ -4,6 +4,8 @@
 #include <QList>
 #include <QDebug>
 
+#include <limits.h>
+
 //#define DEBUG
 #ifdef DEBUG
 #define QDEBUG qDebug
