@@ -707,6 +707,7 @@ void QHeaderView::moveSection(int from, int to)
     }
     //Q_ASSERT(d->headerLength() == length());
     //Q_ASSERT(oldHeaderLength == length());
+    //Q_ASSERT(d->logicalIndices.count() == d->sectionCount);
 
     d->viewport->update();
     emit sectionMoved(logical, from, to);
@@ -1538,8 +1539,10 @@ void QHeaderViewPrivate::_q_sectionsRemoved(const QModelIndex &parent,
         for (int l = logicalLast; l >= logicalFirst; --l) {
             int visual = visualIndices.at(l);
             for (int v = 0; v < sectionCount; ++v) {
+                if (v >= logicalIndices.count())
+                    continue; // the section doesn't exist
                 if (v > visual) {
-                    int logical = logicalIndex(v);
+                    int logical = logicalIndices.at(v);
                     --(visualIndices[logical]);
                 }
                 if (logicalIndex(v) > l) // no need to move the positions before l
