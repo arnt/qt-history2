@@ -25,6 +25,8 @@
 // We mean it.
 //
 
+#ifndef QT_NO_FILEDIALOG
+
 #include "qfiledialog.h"
 #include "private/qdialog_p.h"
 
@@ -300,6 +302,7 @@ public:
     QStringList splitPath(const QString& path) const;
 };
 
+#endif
 
 #endif
 

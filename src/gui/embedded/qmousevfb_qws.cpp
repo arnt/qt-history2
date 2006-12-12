@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <stdio.h>
 
 #include <qvfbhdr.h>
 #include <qmousevfb_qws.h>

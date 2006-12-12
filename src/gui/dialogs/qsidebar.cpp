@@ -14,6 +14,8 @@
 #include "qsidebar_p.h"
 #include "qfilesystemmodel_p.h"
 
+#ifndef QT_NO_FILEDIALOG
+
 #include <qaction.h>
 #include <qurl.h>
 #include <qmenu.h>
@@ -282,3 +284,4 @@ void QSidebar::layoutChanged()
     }
 }
 
+#endif

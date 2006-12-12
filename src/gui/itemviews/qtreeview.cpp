@@ -1100,6 +1100,7 @@ void QTreeView::timerEvent(QTimerEvent *event)
 /*!
   \reimp
 */
+#ifndef QT_NO_DRAGANDDROP
 void QTreeView::dragMoveEvent(QDragMoveEvent *event)
 {
     Q_D(QTreeView);
@@ -1107,6 +1108,7 @@ void QTreeView::dragMoveEvent(QDragMoveEvent *event)
         d->openTimer.start(d->autoExpandDelay, this);
     QAbstractItemView::dragMoveEvent(event);
 }
+#endif
 
 /*!
   \reimp

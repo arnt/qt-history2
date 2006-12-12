@@ -2017,7 +2017,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
             r = visualRect(opt->direction, opt->rect, r);
         }
         break;
-
+#ifndef QT_NO_DOCKWIDGET
     case SE_DockWidgetCloseButton:
     case SE_DockWidgetFloatButton:
     case SE_DockWidgetTitleBarText:
@@ -2092,7 +2092,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
 
         break;
     }
-
+#endif
 
     default:
         break;

@@ -160,7 +160,9 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void keyPressEvent(QKeyEvent *event);
+#ifndef QT_NO_DRAGANDDROP
     void dragMoveEvent(QDragMoveEvent *event);
+#endif
 
     void updateGeometries();
 

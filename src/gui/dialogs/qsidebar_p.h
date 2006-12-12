@@ -15,6 +15,8 @@
 #ifndef QSIDEBAR_H
 #define QSIDEBAR_H
 
+#ifndef QT_NO_FILEDIALOG
+
 #include <qlistwidget.h>
 
 class QFileSystemModel;
@@ -61,6 +63,8 @@ private:
     QFileSystemModel *fileSystemModel;
     QStringList watching;
 };
+
+#endif
 
 #endif
 

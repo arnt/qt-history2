@@ -12,6 +12,8 @@
 ****************************************************************************/
 
 #include "qfiledialog.h"
+
+#ifndef QT_NO_FILEDIALOG
 #include "qfiledialog_p.h"
 #include <qaction.h>
 #include <qheaderview.h>
@@ -2535,3 +2537,4 @@ QStringList QFSCompletor::splitPath(const QString &path) const
 
 #include "moc_qfiledialog.cpp"
 
+#endif
