@@ -2425,9 +2425,6 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         break;
     case CE_ProgressBarContents:
         if (const QStyleOptionProgressBar *bar = qstyleoption_cast<const QStyleOptionProgressBar *>(option)) {
-            if (bar->progress == -1)
-                break;
-
             QRect rect = bar->rect;
             bool vertical = false;
             bool inverted = false;
@@ -2610,10 +2607,10 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             }
             painter->setClipRect(progressBar.adjusted(1, 0, -1, -1));
 
+            if (!vertical)
+                progressBar.adjust(0, 1, 0, 1);
             if (!indeterminate) {
                 int step = (AnimateProgressBar || (indeterminate && AnimateBusyProgressBar)) ? (d->animateStep % 20) : 0;
-                if (!vertical)
-                    progressBar.adjust(0, 1, 0, 1);
                 if (reverse)
                     painter->drawPixmap(progressBar.left() - 25 + step, progressBar.top(), cache);
                 else
