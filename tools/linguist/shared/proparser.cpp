@@ -47,7 +47,6 @@ bool evaluateProFile(const QString &fileName, bool verbose,QMap<QByteArray, QStr
     QString codecForSource;
     QStringList tsFileNames;
 
-    ProReader pr;
     ProFileTranslationsScanner *visitor = new ProFileTranslationsScanner(verbose);
     QFileInfo fi(fileName);
     QDir rootPath;
@@ -61,58 +60,29 @@ bool evaluateProFile(const QString &fileName, bool verbose,QMap<QByteArray, QStr
             ok = pro->Accept(visitor);
     }
     if (ok) {
-        if (visitor->templateType() == ProFileEvaluator::TT_Subdirs) {
-            QString oldPath = QDir::currentPath();
-            QFileInfo fi(fileName);
-            QDir::setCurrent(fi.absolutePath());
-            QStringList subdirs = visitor->values(QLatin1String("SUBDIRS"));
-            for (int is = 0; is < subdirs.count() && ok; ++is) {
-                QString subdir = subdirs[is];
-                QDir dir( subdir );
-                QStringList profiles = dir.entryList(QStringList() << QLatin1String("*.pro"));
-                if (profiles.count()) {
-                    ProReader subreader;
-                    ProFileTranslationsScanner *subvisitor = new ProFileTranslationsScanner(verbose);
-                    QString profile = subdir + QLatin1Char('/') + profiles[0];
-                    fi.setFile(profile);
-                    ProFile *pro = subreader.read(fi.absoluteFilePath());
-                    QString tmpPath = QDir::currentPath();
-                    ok = pro->Accept(subvisitor);
-                    if (ok) {
-                        sourceFiles += subvisitor->absFileNames(QLatin1String("SOURCES"));
-                        sourceFiles += subvisitor->absFileNames(QLatin1String("HEADERS"));
-
-                        QStringList forms = subvisitor->absFileNames(QLatin1String("INTERFACES"))
-                            + subvisitor->absFileNames(QLatin1String("FORMS"))
-                            + subvisitor->absFileNames(QLatin1String("FORMS3"));
-                        sourceFiles << forms;
-                    }
-                    delete subvisitor;
-                }
-            }
-            QDir::setCurrent(oldPath);
-        } else {
-            // app/lib template
-            sourceFiles += visitor->absFileNames(QLatin1String("SOURCES"));
-            sourceFiles += visitor->absFileNames(QLatin1String("HEADERS"));
-
-            tsFileNames << visitor->values(QLatin1String("TRANSLATIONS"));
-
-            QStringList trcodec = visitor->values(QLatin1String("CODEC"))
-                + visitor->values(QLatin1String("DEFAULTCODEC"))
-                + visitor->values(QLatin1String("CODECFORTR"));
-            if (!trcodec.isEmpty())
-                codecForTr = QString::fromLatin1(trcodec.last().toLatin1());
-
-            QStringList srccodec = visitor->values(QLatin1String("CODECFORSRC"));
-            if (!srccodec.isEmpty()) 
-                codecForSource = QString::fromLatin1(srccodec.last().toLatin1());
-            
-            QStringList forms = visitor->absFileNames(QLatin1String("INTERFACES"))
-                + visitor->absFileNames(QLatin1String("FORMS"))
-                + visitor->absFileNames(QLatin1String("FORMS3"));
-            sourceFiles << forms;
+        // app/lib template
+        sourceFiles += visitor->absFileNames(QLatin1String("SOURCES"));
+        sourceFiles += visitor->absFileNames(QLatin1String("HEADERS"));
+        QStringList tsFiles = visitor->values(QLatin1String("TRANSLATIONS"));
+        for (int i = 0; i < tsFiles.count(); ++i) {
+            tsFileNames << rootPath.absoluteFilePath(tsFiles.at(i));
         }
+
+        QStringList trcodec = visitor->values(QLatin1String("CODEC"))
+            + visitor->values(QLatin1String("DEFAULTCODEC"))
+            + visitor->values(QLatin1String("CODECFORTR"));
+        if (!trcodec.isEmpty())
+            codecForTr = trcodec.last().toLatin1();
+
+        QStringList srccodec = visitor->values(QLatin1String("CODECFORSRC"));
+        if (!srccodec.isEmpty()) 
+            codecForSource = srccodec.last().toLatin1();
+        
+        QStringList forms = visitor->absFileNames(QLatin1String("INTERFACES"))
+            + visitor->absFileNames(QLatin1String("FORMS"))
+            + visitor->absFileNames(QLatin1String("FORMS3"));
+        sourceFiles << forms;
+
     }
     if (ok) {
         removeDuplicates(&sourceFiles, false);
@@ -126,3 +96,42 @@ bool evaluateProFile(const QString &fileName, bool verbose,QMap<QByteArray, QStr
     return ok;
 
 }
+
+QStringList getListOfProfiles(const QStringList &proFiles, bool verbose)
+{
+    QStringList profileList = proFiles;
+    bool ok = true;
+
+    int i = 0;
+    while( i < profileList.count() ) {
+        QFileInfo fi(profileList.at(i));
+        ProFileTranslationsScanner *visitor = new ProFileTranslationsScanner(verbose);
+        ok = fi.exists();
+        if (ok) {
+            ProFile *pro = visitor->queryProFile(fi.absoluteFilePath());
+            if (!pro)
+                ok = false;
+            else
+                ok = pro->Accept(visitor);
+
+            if (ok && visitor->templateType() == ProFileEvaluator::TT_Subdirs) {
+                QStringList subdirs = visitor->values("SUBDIRS");
+                for (int is = 0; is < subdirs.count(); ++is) {
+                    QString subdir = subdirs[is];
+                    QDir dir( subdir );
+                    QStringList profiles = dir.entryList(QStringList() << QLatin1String("*.pro"));
+                    if (profiles.count())
+                        profileList << subdir + QLatin1Char('/') + profiles[0];
+                }
+                profileList.removeAt(i);
+            } else {
+                ++i;
+            }
+        }
+        delete visitor;
+    }
+    if (!ok)
+        profileList.clear();
+    return profileList;
+}
+

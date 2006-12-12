@@ -46,3 +46,5 @@ private:
 void removeDuplicates(QStringList *strings, bool alreadySorted = true);
 
 bool evaluateProFile(const QString &fileName, bool verbose, QMap<QByteArray, QStringList> *varMap);
+
+QStringList getListOfProfiles(const QStringList &proFiles, bool verbose);
