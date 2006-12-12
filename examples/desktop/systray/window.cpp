@@ -61,8 +61,7 @@ void Window::closeEvent(QCloseEvent *event)
                                  tr("The program will keep running in the "
                                     "system tray. To terminate the program, "
                                     "choose <b>Quit</b> in the context menu "
-                                    "that pops up when clicking this program's "
-                                    "entry in the system tray."));
+                                    "of the system tray entry."));
         hide();
         event->ignore();
     }
