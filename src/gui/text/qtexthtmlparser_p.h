@@ -143,9 +143,6 @@ struct QTextHtmlParserNode {
     uint isEmptyParagraph : 1;
     uint isTextFrame : 1;
     uint displayMode : 3; // QTextHtmlElement::DisplayMode
-    int fontPointSize;
-    int fontPixelSize;
-    int fontSizeAdjustment;
     QTextListFormat::Style listStyle;
     QString imageName;
     qreal imageWidth;
