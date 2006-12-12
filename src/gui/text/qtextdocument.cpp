@@ -1453,7 +1453,7 @@ QVariant QTextDocument::resource(int type, const QUrl &name) const
 
 /*!
     Adds the resource \a resource to the resource cache, using \a
-    type and \a name as identifiers.
+    type and \a name as identifiers. \a type should be a value from QTextDocument::ResourceType.
 */
 void QTextDocument::addResource(int type, const QUrl &name, const QVariant &resource)
 {
