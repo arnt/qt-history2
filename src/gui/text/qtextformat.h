@@ -243,8 +243,8 @@ public:
 
     void setProperty(int propertyId, const QVector<QTextLength> &lengths);
 
-
     QMap<int, QVariant> properties() const;
+    int propertyCount() const;
 
     inline void setObjectType(int type);
     inline int objectType() const

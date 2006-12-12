@@ -995,6 +995,14 @@ QMap<int, QVariant> QTextFormat::properties() const
     return map;
 }
 
+/*!
+    \since 4.3
+    Returns the number of properties stored in the format.
+*/
+int QTextFormat::propertyCount() const
+{
+    return d ? d->props.count() : 0;
+}
 
 /*!
     \fn bool QTextFormat::operator!=(const QTextFormat &other) const

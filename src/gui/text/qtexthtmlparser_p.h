@@ -119,9 +119,6 @@ struct QTextHtmlElement
 
 class QTextHtmlParser;
 
-
-enum QTriState { Off = 0, On = 1, Unspecified = 2 };
-
 struct QTextHtmlParserNode {
     enum WhiteSpaceMode {
         WhiteSpaceNormal,
@@ -138,12 +135,9 @@ struct QTextHtmlParserNode {
     int parent;
     QVector<int> children;
     QTextHTMLElements id;
-    QTextCharFormat charFmt;
-    uint isAnchor : 1;
+    QTextCharFormat charFormat;
     uint cssFloat : 2;
     uint hasOwnListStyle : 1;
-    uint hasFontPointSize : 1;
-    uint hasFontPixelSize : 1;
     uint hasCssBlockIndent : 1;
     uint hasCssListIndent : 1;
     uint isEmptyParagraph : 1;
@@ -156,8 +150,6 @@ struct QTextHtmlParserNode {
     int fontSizeAdjustment;
     Qt::Alignment alignment;
     QTextListFormat::Style listStyle;
-    QString anchorHref;
-    QString anchorName;
     QString imageName;
     qreal imageWidth;
     qreal imageHeight;
@@ -173,10 +165,7 @@ struct QTextHtmlParserNode {
     int cssListIndent;
     qreal text_indent;
 
-    bool applyCharFormatProperties(QTextCharFormat *format) const;
     bool applyBlockFormatProperties(QTextBlockFormat *format) const;
-    inline QTextCharFormat charFormat() const
-    { QTextCharFormat fmt; applyCharFormatProperties(&fmt); return fmt; }
     inline QTextBlockFormat blockFormat() const
     { QTextBlockFormat fmt; applyBlockFormatProperties(&fmt); return fmt; }
 

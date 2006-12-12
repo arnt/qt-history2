@@ -442,11 +442,11 @@ void QTextHtmlImporter::import()
             // ignore explicitly 'invisible' elements
             continue;
         } else if (node->id == Html_body) {
-            if (node->charFmt.background().style() != Qt::NoBrush) {
+            if (node->charFormat.background().style() != Qt::NoBrush) {
                 QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
-                fmt.setBackground(node->charFmt.background());
+                fmt.setBackground(node->charFormat.background());
                 doc->rootFrame()->setFrameFormat(fmt);
-                const_cast<QTextHtmlParserNode *>(node)->charFmt.clearProperty(QTextFormat::BackgroundBrush);
+                const_cast<QTextHtmlParserNode *>(node)->charFormat.clearProperty(QTextFormat::BackgroundBrush);
             }
         } else if (node->isListStart()) {
 
@@ -495,7 +495,7 @@ void QTextHtmlImporter::import()
             QTextImageFormat fmt;
             fmt.setName(node->imageName);
 
-            node->applyCharFormatProperties(&fmt);
+            fmt.merge(node->charFormat);
 
             if (node->imageWidth >= 0)
                 fmt.setWidth(node->imageWidth);
@@ -505,7 +505,7 @@ void QTextHtmlImporter::import()
             cursor.insertImage(fmt, QTextFrameFormat::Position(node->cssFloat));
 
             cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-            cursor.mergeCharFormat(node->charFormat());
+            cursor.mergeCharFormat(node->charFormat);
             cursor.movePosition(QTextCursor::Right);
 
             hasBlock = false;
@@ -533,7 +533,7 @@ void QTextHtmlImporter::import()
             QTextBlockFormat block = node->blockFormat();
             block.setIndent(indent);
 
-            appendBlock(block, node->charFormat());
+            appendBlock(block, node->charFormat);
 
             hasBlock = true;
         }
@@ -554,8 +554,8 @@ void QTextHtmlImporter::import()
                 hasBlock = true;
                 compressNextWhitespace = true;
 
-                if (node->charFmt.background().style() != Qt::NoBrush) {
-                    charFmt.setBackground(node->charFmt.background());
+                if (node->charFormat.background().style() != Qt::NoBrush) {
+                    charFmt.setBackground(node->charFormat.background());
                     cursor.mergeBlockCharFormat(charFmt);
                 }
             }
@@ -623,7 +623,11 @@ void QTextHtmlImporter::import()
             }
 
             modifiedBlockFormat |= node->applyBlockFormatProperties(&block);
-            modifiedCharFormat |= node->applyCharFormatProperties(&charFmt);
+
+            if (node->charFormat.propertyCount() > 0) {
+                modifiedCharFormat = true;
+                charFmt.merge(node->charFormat);
+            }
 
             // ####################
 //                block.setFloatPosition(node->cssFloat);
@@ -633,8 +637,8 @@ void QTextHtmlImporter::import()
                 modifiedBlockFormat = true;
             }
 
-            if (node->charFmt.background().style() != Qt::NoBrush && !node->isTableCell()) {
-                block.setBackground(node->charFmt.background());
+            if (node->charFormat.background().style() != Qt::NoBrush && !node->isTableCell()) {
+                block.setBackground(node->charFormat.background());
                 modifiedBlockFormat = true;
             }
 
@@ -684,8 +688,8 @@ void QTextHtmlImporter::import()
             blockTagClosed = false;
         }
 
-        if (node->isAnchor && !node->anchorName.isEmpty()) {
-            namedAnchors.append(node->anchorName);
+        if (node->charFormat.isAnchor() && !node->charFormat.anchorName().isEmpty()) {
+            namedAnchors.append(node->charFormat.anchorName());
         }
 
         if (appendNodeText(i))
@@ -706,7 +710,7 @@ static bool isPreservingWhitespaceMode(QTextHtmlParserNode::WhiteSpaceMode mode)
 bool QTextHtmlImporter::appendNodeText(int node)
 {
     const int initialCursorPosition = cursor.position();
-    QTextCharFormat format = at(node).charFormat();
+    QTextCharFormat format = at(node).charFormat;
 
     if (isPreservingWhitespaceMode(wsm))
         compressNextWhitespace = false;
@@ -961,8 +965,8 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
 
     if (node.direction < 2)
         fmt.setLayoutDirection(Qt::LayoutDirection(node.direction));
-    if (node.charFmt.background().style() != Qt::NoBrush)
-        fmt.setBackground(node.charFmt.background());
+    if (node.charFormat.background().style() != Qt::NoBrush)
+        fmt.setBackground(node.charFormat.background());
     fmt.setPosition(QTextFrameFormat::Position(node.cssFloat));
 
     if (node.isTextFrame) {
