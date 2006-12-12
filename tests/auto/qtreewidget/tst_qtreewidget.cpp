@@ -2178,8 +2178,9 @@ void tst_QTreeWidget::insertExpandedItemsWithSorting()
             QVERIFY(item->isExpanded());
         QModelIndex idx = tree.indexFromItem(const_cast<QTreeWidgetItem *>(item));
         QVERIFY(idx.isValid());
-        QRect rect = tree.visualRect(idx);
-        QVERIFY(rect.isValid());
+        //QRect rect = tree.visualRect(idx);
+        //QVERIFY(rect.isValid());
+        // ### it is not guarantied that the index is in the viewport
     }
 
     // verify that the tree is sorted
