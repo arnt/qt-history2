@@ -2501,7 +2501,7 @@ void QTreeViewPrivate::_q_endAnimatedOperation()
     if (animatedOperation.type == AnimatedOperation::Expand)
         emit q->expanded(viewItems.at(animatedOperation.item).index);
     else // operation == AnimatedOperation::Collapse
-        emit q->collapse(viewItems.at(animatedOperation.item).index);
+        emit q->collapsed(viewItems.at(animatedOperation.item).index);
     q->updateGeometries();
     viewport->update();
 }
