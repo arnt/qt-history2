@@ -818,9 +818,6 @@ static bool setFontFamilyFromValues(const QVector<Value> &values, QFont *font)
 
 static void setTextDecorationFromValues(const QVector<Value> &values, QFont *font)
 {
-    font->setUnderline(false);
-    font->setOverline(false);
-    font->setStrikeOut(false);
     for (int i = 0; i < values.count(); ++i) {
         if (values.at(i).type != Value::KnownIdentifier)
             continue;

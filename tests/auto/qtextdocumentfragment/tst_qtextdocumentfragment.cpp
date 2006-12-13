@@ -162,6 +162,7 @@ private slots:
     void css_selectors();
     void css_textUnderlineStyle_data();
     void css_textUnderlineStyle();
+    void css_textUnderlineStyleAndDecoration();
     void universalSelectors_data();
     void universalSelectors();
     void screenMedia();
@@ -2430,6 +2431,23 @@ void tst_QTextDocumentFragment::css_textUnderlineStyle()
     QTextFragment fragment = doc->begin().begin().fragment();
     QVERIFY(fragment.isValid());
     QCOMPARE(int(fragment.charFormat().underlineStyle()), expectedStyle);
+}
+
+void tst_QTextDocumentFragment::css_textUnderlineStyleAndDecoration()
+{
+    doc->setHtml("<span style=\"text-decoration: overline; text-underline-style: solid\">Test</span>");
+
+    QTextFragment fragment = doc->begin().begin().fragment();
+    QVERIFY(fragment.isValid());
+    QVERIFY(fragment.charFormat().underlineStyle() == QTextCharFormat::SingleUnderline);
+    QVERIFY(fragment.charFormat().fontOverline());
+
+    doc->setHtml("<span style=\"text-underline-style: solid; text-decoration: overline\">Test</span>");
+
+    fragment = doc->begin().begin().fragment();
+    QVERIFY(fragment.isValid());
+    QVERIFY(fragment.charFormat().underlineStyle() == QTextCharFormat::SingleUnderline);
+    QVERIFY(fragment.charFormat().fontOverline());
 }
 
 void tst_QTextDocumentFragment::universalSelectors_data()
