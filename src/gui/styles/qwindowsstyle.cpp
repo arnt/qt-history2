@@ -281,8 +281,11 @@ void QWindowsStyle::unpolish(QWidget *widget)
 {
     QCommonStyle::unpolish(widget);
 #ifndef QT_NO_PROGRESSBAR
-    if (qobject_cast<QProgressBar *>(widget))
+    if (QProgressBar *bar=qobject_cast<QProgressBar *>(widget)) {
+        Q_D(QWindowsStyle);
         widget->removeEventFilter(this);
+        d->bars.removeAll(bar);
+    }
 #endif
 }
 

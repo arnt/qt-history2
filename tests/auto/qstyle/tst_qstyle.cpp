@@ -17,6 +17,7 @@
 #include <qlabel.h>
 #include <qstyleoption.h>
 #include <qscrollbar.h>
+#include <qprogressbar.h>
 
 #include <qplastiquestyle.h>
 #include <qwindowsstyle.h>
@@ -64,6 +65,7 @@ private slots:
     void testCleanlooksStyle();
     void testMacStyle();
     void pixelMetric();
+    void progressBarChangeStyle();
 
 private:
     QWidget *testWidget;
@@ -339,6 +341,30 @@ void tst_QStyle::pixelMetric()
 
     delete style;
 }
+
+void tst_QStyle::progressBarChangeStyle()
+{
+    //test a crashing situation (task 143530) 
+    //where changing the styles and deleting a progressbar would crash
+    
+    QWindowsStyle style1;
+    QPlastiqueStyle style2;
+
+    QProgressBar *progress=new QProgressBar;
+    progress->setStyle(&style1);
+
+    progress->show();
+
+    progress->setStyle(&style2);
+
+    QTest::qWait(100);
+    delete progress;
+
+    QTest::qWait(100);
+
+    //before the correction, there would be a crash here
+}
+
 
 QTEST_MAIN(tst_QStyle)
 #include "tst_qstyle.moc"
