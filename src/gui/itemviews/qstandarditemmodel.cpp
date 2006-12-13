@@ -155,12 +155,25 @@ void QStandardItemPrivate::childDeleted(QStandardItem *child)
 */
 void QStandardItemPrivate::setItemData(const QMap<int, QVariant> &roles)
 {
-    values.clear();
+    Q_Q(QStandardItem);
+
+    //let's build the vector of new values
+    QVector<QWidgetItemData> newValues;
     QMap<int, QVariant>::const_iterator it;
     for (it = roles.begin(); it != roles.end(); ++it) {
-        int role = it.key();
-        role = (role == Qt::EditRole) ? Qt::DisplayRole : role;
-        values.append(QWidgetItemData(role, it.value()));
+        QVariant value = it.value();
+        if (value.isValid()) {
+            int role = it.key();
+            role = (role == Qt::EditRole) ? Qt::DisplayRole : role;
+            QWidgetItemData wid(role,it.value());
+            newValues.append(wid);
+        }
+    }
+
+    if (values!=newValues) {
+        values=newValues;
+        if (model)
+            model->d_func()->itemChanged(q);
     }
 }
 

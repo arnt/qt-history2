@@ -1074,7 +1074,13 @@ void tst_QStandardItemModel::getSetItemData()
     model.insertRows(0, 1);
     model.insertColumns(0, 1);
     QModelIndex idx = model.index(0, 0, QModelIndex());
+
+    QSignalSpy modelDataChangedSpy(
+         &model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)));
     QVERIFY(model.setItemData(idx, roles));
+    QCOMPARE(modelDataChangedSpy.count(), 1);
+    QVERIFY(model.setItemData(idx, roles));
+    QCOMPARE(modelDataChangedSpy.count(), 1); //it was already changed once
     QCOMPARE(model.itemData(idx), roles);
 }
 
