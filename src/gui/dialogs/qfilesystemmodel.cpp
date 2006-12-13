@@ -189,6 +189,7 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
         Q_ASSERT(row >= 0);
         if (parent->visibleLocation(row) == -1) {
             QFileSystemModelPrivate *p = const_cast<QFileSystemModelPrivate*>(this);
+            p->fileInfoGatherer.fetchExtendedInformation(q->filePath(this->index(parent)), QStringList(element));
             p->addVisibleFiles(parent, QStringList(element));
         }
         parent = &parent->children[row];
@@ -736,17 +737,16 @@ private:
 
     Sort all of the children of parent (including their children)
 */
-void QFileSystemModelPrivate::sortChildren(int column, Qt::SortOrder order, const QModelIndex &parent, bool filter)
+void QFileSystemModelPrivate::sortChildren(int column, Qt::SortOrder order, const QModelIndex &parent)
 {
     Q_Q(QFileSystemModel);
     QFileSystemModelPrivate::QFileSystemNode *indexNode = node(parent);
     if (indexNode->children.count() == 0)
         return;
 
-    filter = filter | (index(q->rootPath()) == parent);
     QList<QPair<const QFileSystemModelPrivate::QFileSystemNode*, int> > values;
     for (int i = 0; i < indexNode->children.count(); ++i) {
-        if (filter == false || (filtersAcceptsNode(&indexNode->children.at(i))))
+        if (filtersAcceptsNode(&indexNode->children.at(i)))
             values.append(QPair<const QFileSystemModelPrivate::QFileSystemNode*, int>(&(indexNode->children[i]), i));
     }
     QFileSystemModelSorter ms(column);
@@ -757,7 +757,7 @@ void QFileSystemModelPrivate::sortChildren(int column, Qt::SortOrder order, cons
         indexNode->visibleChildren.append(values.at(i).second);
 
     for (int i = 0; i < q->rowCount(parent); ++i)
-        sortChildren(column, order, q->index(i, 0, parent), filter);
+        sortChildren(column, order, q->index(i, 0, parent));
 }
 
 /*!
@@ -778,7 +778,7 @@ void QFileSystemModel::sort(int column, Qt::SortOrder order)
     }
 
     if (!(d->sortColumn == column && d->sortOrder != order && !d->forceSort)) {
-        d->sortChildren(column, order, QModelIndex(), d->index(rootPath()) == QModelIndex());
+        d->sortChildren(column, order, QModelIndex());
         d->sortColumn = column;
         d->forceSort = false;
     }

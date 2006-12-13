@@ -247,7 +247,7 @@ public:
     int addNode(QFileSystemNode *parentNode, const QString &fileName);
     void addVisibleFiles(QFileSystemNode *parentNode, const QStringList &newFiles);
     void removeVisibleFile(QFileSystemNode *parentNode, int visibleLocation);
-    void sortChildren(int column, Qt::SortOrder order, const QModelIndex &parent, bool filter);
+    void sortChildren(int column, Qt::SortOrder order, const QModelIndex &parent);
 
     inline int translateVisibleLocation(QFileSystemNode *parent, int row) const {
         return (sortOrder == Qt::AscendingOrder) ? row : parent->visibleChildren.count() - row - 1;
@@ -257,8 +257,12 @@ public:
         // ### TODO We should query the system to find out what the string should be
         // XP == "My Computer",
         // Vista == "Computer",
-        // OS X == (user generated) "Benjamin's PowerBook G4"
+        // OS X == "Computer" (sometime user generated) "Benjamin's PowerBook G4"
+#ifdef Q_OS_WIN
         return QFileSystemModel::tr("My Computer");
+#else
+        return QFileSystemModel::tr("Computer");
+#endif
     }
 
     inline void delayedSort() {
