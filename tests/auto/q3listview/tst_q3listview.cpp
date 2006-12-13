@@ -41,6 +41,7 @@ public slots:
     void itemRenamed(Q3ListViewItem *item, int column);
     void itemRenamed(Q3ListViewItem *item, int column, const QString &text);
     void contextMenu(Q3ListViewItem *item, const QPoint &pos, int col);
+    void doubleClicked(Q3ListViewItem *item) { doubleClickCount++; pressedItem = item; }
 
 public slots:
     void initTestCase();
@@ -65,6 +66,8 @@ private slots:
     void spacePress_data();
     void spacePress();
     void adjustColumn();
+    void mouseClickEvents();
+    void mouseClickEvents_data();
 
 private:
     QPoint itemCenter( Q3ListView* view, Q3ListViewItem* item, int column = 0);
@@ -79,6 +82,7 @@ private:
     int changed, changedItem;
 
     int pressCount;
+    int doubleClickCount;
     Q3ListViewItem *pressedItem;
 
     bool itemRenamedSignalOneReceived, itemRenamedSignalTwoReceived;
@@ -1177,6 +1181,58 @@ void tst_Q3ListView::adjustColumn()
     testWidget->adjustColumn(100);
     testWidget->adjustColumn(0);
     QVERIFY(true); // Just to check it did not crash
+}
+
+typedef QPair<QByteArray, QVariant> PropertyItem;
+typedef QList<PropertyItem> PropertyItemList;
+Q_DECLARE_METATYPE(PropertyItemList)
+
+void tst_Q3ListView::mouseClickEvents_data()
+{
+    QTest::addColumn<QStringList>("itemstrings");
+    QTest::addColumn<int>("expectedDoubleClickCount");
+    QTest::addColumn<PropertyItemList>("properties");
+
+    QTest::newRow("doubleclick") << (QStringList() << "item 1" << "item 2")
+                                 << 2 << PropertyItemList();
+    QTest::newRow("doubleclick") << (QStringList() << "item 1" << "item 2")
+                                 << 0 << (PropertyItemList() << PropertyItem("enabled", false));
+
+}
+
+void tst_Q3ListView::mouseClickEvents()
+{
+    QFETCH(QStringList, itemstrings);
+    QFETCH(int, expectedDoubleClickCount);
+    QFETCH(PropertyItemList, properties);
+    
+    int i;
+    for (i = 0; i < properties.count(); ++i) {
+        testWidget->setProperty(properties.at(i).first.constData(), properties.at(i).second);
+    }
+
+    doubleClickCount = 0;
+    pressedItem = 0;
+    connect( testWidget, SIGNAL( doubleClicked( Q3ListViewItem* ) ),
+	     this, SLOT( doubleClicked( Q3ListViewItem* ) ) );
+    testWidget->addColumn("Items");
+    QVector<Q3ListViewItem*> items;
+    for ( i=0; i<itemstrings.count(); ++i) {
+	Q3ListViewItem *item = new Q3ListViewItem( testWidget, itemstrings.at(i) );
+        items.append(item);
+    }
+    for ( i = 0; i < items.count(); ++i) {
+        int prevCount = doubleClickCount;
+        QTest::mouseDClick(testWidget->viewport(), Qt::LeftButton, 0, itemCenter(testWidget, items.at(i)));
+        if (doubleClickCount > prevCount) {
+            QCOMPARE(pressedItem, items.at(i));
+        } else {
+            QCOMPARE(pressedItem, (Q3ListViewItem*)0);
+        }
+    }
+    QCOMPARE(doubleClickCount, expectedDoubleClickCount);
+    disconnect( testWidget, SIGNAL( doubleClicked( Q3ListViewItem* ) ),
+	     this, SLOT( doubleClicked( Q3ListViewItem* ) ) );
 }
 
 QTEST_MAIN(tst_Q3ListView)

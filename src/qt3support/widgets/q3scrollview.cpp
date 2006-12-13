@@ -1445,6 +1445,7 @@ int Q3ScrollView::childY(QWidget* child)
 
 bool Q3ScrollView::eventFilter(QObject *obj, QEvent *e)
 {
+    bool disabled = !(qobject_cast<QWidget*>(obj)->isEnabled());
     if (!d)
         return false; // we are destructing
     if (obj == d->viewport || obj == d->clipped_viewport) {
@@ -1458,30 +1459,42 @@ bool Q3ScrollView::eventFilter(QObject *obj, QEvent *e)
                 viewportResizeEvent((QResizeEvent *)e);
             break;
         case QEvent::MouseButtonPress:
+            if (disabled)
+                return false;
             viewportMousePressEvent((QMouseEvent*)e);
             if (((QMouseEvent*)e)->isAccepted())
                 return true;
             break;
         case QEvent::MouseButtonRelease:
+            if (disabled)
+                return false;
             viewportMouseReleaseEvent((QMouseEvent*)e);
             if (((QMouseEvent*)e)->isAccepted())
                 return true;
             break;
         case QEvent::MouseButtonDblClick:
+            if (disabled)
+                return false;
             viewportMouseDoubleClickEvent((QMouseEvent*)e);
             if (((QMouseEvent*)e)->isAccepted())
                 return true;
             break;
         case QEvent::MouseMove:
+            if (disabled)
+                return false;
             viewportMouseMoveEvent((QMouseEvent*)e);
             if (((QMouseEvent*)e)->isAccepted())
                 return true;
             break;
 #ifndef QT_NO_DRAGANDDROP
         case QEvent::DragEnter:
+            if (disabled)
+                return false;
             viewportDragEnterEvent((QDragEnterEvent*)e);
             break;
         case QEvent::DragMove: {
+            if (disabled)
+                return false;
             if (d->drag_autoscroll) {
                 QPoint vp = ((QDragMoveEvent*) e)->pos();
                 QRect inside_margin(autoscroll_margin, autoscroll_margin,
@@ -1496,15 +1509,27 @@ bool Q3ScrollView::eventFilter(QObject *obj, QEvent *e)
             viewportDragMoveEvent((QDragMoveEvent*)e);
         } break;
         case QEvent::DragLeave:
+            if (disabled)
+                return false;
             stopDragAutoScroll();
             viewportDragLeaveEvent((QDragLeaveEvent*)e);
             break;
         case QEvent::Drop:
+            if (disabled)
+                return false;
             stopDragAutoScroll();
             viewportDropEvent((QDropEvent*)e);
             break;
 #endif // QT_NO_DRAGANDDROP
+#ifndef QT_NO_WHEELEVENT
+        case QEvent::Wheel:
+            if (disabled)
+                return false;
+            break;
+#endif
         case QEvent::ContextMenu:
+            if (disabled)
+                return false;
             viewportContextMenuEvent((QContextMenuEvent*)e);
             if (((QContextMenuEvent*)e)->isAccepted())
                 return true;
