@@ -123,6 +123,43 @@ QList<QByteArray> QDesignerMemberSheet::parameterNames(int index) const
     return m_meta->method(index).parameterNames();
 }
 
+bool QDesignerMemberSheet::signalMatchesSlot(const QString &signal, const QString &slot) const
+{
+    bool result = true;
+
+    do {
+        int signal_idx = signal.indexOf(QLatin1Char('('));
+        int slot_idx = slot.indexOf(QLatin1Char('('));
+        if (signal_idx == -1 || slot_idx == -1)
+            break;
+
+        ++signal_idx; ++slot_idx;
+
+        if (slot.at(slot_idx) == QLatin1Char(')'))
+            break;
+
+        while (signal_idx < signal.size() && slot_idx < slot.size()) {
+            const QChar signal_c = signal.at(signal_idx);
+            const QChar slot_c = slot.at(slot_idx);
+
+            if (signal_c == QLatin1Char(',') && slot_c == QLatin1Char(')'))
+                break;
+
+            if (signal_c == QLatin1Char(')') && slot_c == QLatin1Char(')'))
+                break;
+
+            if (signal_c != slot_c) {
+                result = false;
+                break;
+            }
+
+            ++signal_idx; ++slot_idx;
+        }
+    } while (false);
+
+    return result;
+}
+
 QDesignerMemberSheetFactory::QDesignerMemberSheetFactory(QExtensionManager *parent)
     : QExtensionFactory(parent)
 {
