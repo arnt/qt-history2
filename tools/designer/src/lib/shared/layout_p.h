@@ -69,7 +69,7 @@ public:
     QWidget *layoutBaseWidget() const { return m_layoutBase; }
 
 protected:
-    QLayout *Layout::createLayout(int type);
+    QLayout *createLayout(int type);
 
     QList<QWidget*> m_widgets;
     QWidget *m_parentWidget;
