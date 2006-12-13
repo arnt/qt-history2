@@ -1958,22 +1958,21 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
     if (glyphs.count() == 0)
         return;
 
-    bool drawTransformed = false;
 #ifndef QT_NO_XRENDER
-    GlyphSet transformedGlyphSet = 0;
+    GlyphSet glyphSet = ft->defaultGlyphs()->id;
     if (d->txop >= QTransform::TxScale
         && xrenderPath) {
         QFontEngineFT::QGlyphSet *set = ft->loadTransformedGlyphSet(glyphs.data(), glyphs.size(), d->matrix,
                                                                     QFontEngineFT::Format_Render);
         if (set) {
-            drawTransformed = true;
-            transformedGlyphSet = set->id;
+            glyphSet = set->id;
+        } else {
+            QPaintEngine::drawTextItem(p, ti);
+            return;
         }
     }
 
     if (xrenderPath) {
-        GlyphSet glyphSet = drawTransformed ? transformedGlyphSet : ft->defaultGlyphs()->id;
-
         const QColor &pen = d->cpen.color();
         ::Picture src = X11->getSolidFill(d->scrn, pen);
         // XRenderPictFormat *maskFormat = XRenderFindStandardFormat(X11->display, ft->xglyph_format);
