@@ -1319,12 +1319,12 @@ int QCompleter::completionRole() const
 }
 
 /*!
-    \property QCompleter::wrapCompletions
-    \brief the completions wrap when navigating through items in the popup
+    \property QCompleter::wrapAround
+    \brief the completions wrap around when navigating through items
 
     The default is true.
 */
-void QCompleter::setWrapCompletions(bool wrap)
+void QCompleter::setWrapAround(bool wrap)
 {
     Q_D(QCompleter);
     if (d->wrap == wrap)
@@ -1332,7 +1332,7 @@ void QCompleter::setWrapCompletions(bool wrap)
     d->wrap = wrap;
 }
 
-bool QCompleter::wrapCompletions() const
+bool QCompleter::wrapAround() const
 {
     Q_D(const QCompleter);
     return d->wrap;
