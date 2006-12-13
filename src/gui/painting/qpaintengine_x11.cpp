@@ -2057,8 +2057,8 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
         int y = qRound(path.elementAt(i).y);
         int w = qRound(path.elementAt(i+1).x) - x;
         int h = qRound(path.elementAt(i+2).y) - y;
-        rects[num_rects].x = x;
-        rects[num_rects].y = y;
+        rects[num_rects].x = x + qRound(d->matrix.dx());
+        rects[num_rects].y = y + qRound(d->matrix.dy());
         rects[num_rects].width = w;
         rects[num_rects].height = h;
         ++num_rects;
