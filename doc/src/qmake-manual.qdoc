@@ -2034,12 +2034,12 @@
 
     \section1 QMAKE_LIBS_CONSOLE
 
-    \e {This is used on Windows only.}
+    \e {This Windows-specific variable is no longer used.}
 
-    This variable contains all project libraries that should be linked against
-    when building a console application.  The value of this
-    variable is typically handled by \c qmake or
-     \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+    Prior to Qt 4.2, this variable was used to list the libraries
+    that should be linked against when building a console application
+    project on Windows. \l{#QMAKE_LIBS_WINDOW}{QMAKE_LIBS_WINDOW}
+    should now be used instead.
 
     \section1 QMAKE_LIBS_OPENGL
 
