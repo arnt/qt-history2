@@ -83,6 +83,14 @@ public:
         return QItemDelegate::eventFilter(object, event);
     }
 
+    inline bool editorEvent(QEvent *event,
+                            QAbstractItemModel *model,
+                            const QStyleOptionViewItem &option,
+                            const QModelIndex &index)
+    {
+        return QItemDelegate::editorEvent(event, model, option, index);
+    }
+
     // stored values for testing
     mutable QString displayText;
     mutable QFont displayFont;
@@ -171,6 +179,8 @@ private slots:
     void dateTimeEditor();
     void decoration_data();
     void decoration();
+    void editorEvent_data();
+    void editorEvent();
 };
 
 
@@ -180,6 +190,7 @@ private slots:
 void tst_QItemDelegate::getSetCheck()
 {
     QItemDelegate obj1;
+
     // QItemEditorFactory * QItemDelegate::itemEditorFactory()
     // void QItemDelegate::setItemEditorFactory(QItemEditorFactory *)
     QItemEditorFactory *var1 = new QItemEditorFactory;
@@ -188,6 +199,12 @@ void tst_QItemDelegate::getSetCheck()
     obj1.setItemEditorFactory((QItemEditorFactory *)0);
     QCOMPARE((QItemEditorFactory *)0, obj1.itemEditorFactory());
     delete var1;
+
+    QCOMPARE(obj1.hasClipping(), false);
+    obj1.setClipping(true);
+    QCOMPARE(obj1.hasClipping(), true);
+    obj1.setClipping(false);
+    QCOMPARE(obj1.hasClipping(), false);
 }
 
 tst_QItemDelegate::tst_QItemDelegate()
@@ -680,6 +697,147 @@ void tst_QItemDelegate::decoration()
 
     QCOMPARE(delegate.decorationRect.size(), size);
 }
+
+void tst_QItemDelegate::editorEvent_data()
+{
+    QTest::addColumn<QRect>("rect");
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<int>("checkState");
+    QTest::addColumn<int>("flags");
+    QTest::addColumn<QPoint>("pos");
+    QTest::addColumn<int>("type");
+    QTest::addColumn<bool>("edited");
+    QTest::addColumn<int>("expectedCheckState");
+
+    QTest::newRow("unchecked, checkable, release")
+        << QRect(0, 0, 20, 20)
+        << QString("foo")
+        << (int)(Qt::Unchecked)
+        << (int)(Qt::ItemIsEditable
+            |Qt::ItemIsSelectable
+            |Qt::ItemIsUserCheckable
+            |Qt::ItemIsEnabled
+            |Qt::ItemIsDragEnabled
+            |Qt::ItemIsDropEnabled)
+        << QPoint(3, 10)
+        << (int)(QEvent::MouseButtonRelease)
+        << true
+        << (int)(Qt::Checked);
+
+    QTest::newRow("checked, checkable, release")
+        << QRect(0, 0, 20, 20)
+        << QString("foo")
+        << (int)(Qt::Checked)
+        << (int)(Qt::ItemIsEditable
+            |Qt::ItemIsSelectable
+            |Qt::ItemIsUserCheckable
+            |Qt::ItemIsEnabled
+            |Qt::ItemIsDragEnabled
+            |Qt::ItemIsDropEnabled)
+        << QPoint(3, 10)
+        << (int)(QEvent::MouseButtonRelease)
+        << true
+        << (int)(Qt::Unchecked);
+
+    QTest::newRow("unchecked, not checkable, release")
+        << QRect(0, 0, 20, 20)
+        << QString("foo")
+        << (int)(Qt::Unchecked)
+        << (int)(Qt::ItemIsEditable
+            |Qt::ItemIsSelectable
+            |Qt::ItemIsEnabled
+            |Qt::ItemIsDragEnabled
+            |Qt::ItemIsDropEnabled)
+        << QPoint(3, 10)
+        << (int)(QEvent::MouseButtonRelease)
+        << false
+        << (int)(Qt::Unchecked);
+
+    QTest::newRow("unchecked, checkable, release outside")
+        << QRect(0, 0, 20, 20)
+        << QString("foo")
+        << (int)(Qt::Unchecked)
+        << (int)(Qt::ItemIsEditable
+            |Qt::ItemIsSelectable
+            |Qt::ItemIsUserCheckable
+            |Qt::ItemIsEnabled
+            |Qt::ItemIsDragEnabled
+            |Qt::ItemIsDropEnabled)
+        << QPoint(17, 10)
+        << (int)(QEvent::MouseButtonRelease)
+        << false
+        << (int)(Qt::Unchecked);
+
+    QTest::newRow("unchecked, checkable, dblclick")
+        << QRect(0, 0, 20, 20)
+        << QString("foo")
+        << (int)(Qt::Unchecked)
+        << (int)(Qt::ItemIsEditable
+            |Qt::ItemIsSelectable
+            |Qt::ItemIsUserCheckable
+            |Qt::ItemIsEnabled
+            |Qt::ItemIsDragEnabled
+            |Qt::ItemIsDropEnabled)
+        << QPoint(3, 10)
+        << (int)(QEvent::MouseButtonDblClick)
+        << true
+        << (int)(Qt::Unchecked);
+}
+
+void tst_QItemDelegate::editorEvent()
+{
+    QFETCH(QRect, rect);
+    QFETCH(QString, text);
+    QFETCH(int, checkState);
+    QFETCH(int, flags);
+    QFETCH(QPoint, pos);
+    QFETCH(int, type);
+    QFETCH(bool, edited);
+    QFETCH(int, expectedCheckState);
+    
+    QStandardItemModel model(1, 1);
+    QModelIndex index = model.index(0, 0);
+    QVERIFY(index.isValid());
+
+    QStandardItem *item = model.itemFromIndex(index);
+    item->setText(text);
+    item->setCheckState((Qt::CheckState)checkState);
+    item->setFlags((Qt::ItemFlags)flags);
+
+    QStyleOptionViewItem option;
+    option.rect = rect;
+
+    QEvent *event = new QMouseEvent((QEvent::Type)type,
+                                    pos,
+                                    Qt::LeftButton,
+                                    Qt::LeftButton,
+                                    Qt::NoModifier);
+    TestItemDelegate delegate;
+    bool wasEdited = delegate.editorEvent(event, &model, option, index);
+    delete event;
+
+    QCOMPARE(wasEdited, edited);
+    QCOMPARE(index.data(Qt::CheckStateRole).toInt(), expectedCheckState);
+}
+
+// ### _not_ covered:
+
+// editing with a custom editor factory
+
+// painting when editing
+// painting elided text
+// painting wrapped text
+// painting focus
+// painting icon
+// painting color
+// painting check
+// painting selected
+
+// rect for invalid
+// rect for pixmap
+// rect for image
+// rect for icon
+// rect for check
 
 QTEST_MAIN(tst_QItemDelegate)
 #include "tst_qitemdelegate.moc"
