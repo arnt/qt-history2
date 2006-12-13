@@ -51,9 +51,9 @@ MainWindow::MainWindow(QWidget *parent)
 #endif
 
     wrapCheckBox = new QCheckBox;
-    wrapCheckBox->setText(tr("Wrap completions"));
-    wrapCheckBox->setChecked(completer->wrapCompletions());
-    connect(wrapCheckBox, SIGNAL(clicked(bool)), completer, SLOT(setWrapCompletions(bool)));
+    wrapCheckBox->setText(tr("Wrap around completions"));
+    wrapCheckBox->setChecked(completer->wrapAround());
+    connect(wrapCheckBox, SIGNAL(clicked(bool)), completer, SLOT(setWrapAround(bool)));
 
     QLabel *contentsLabel = new QLabel;
     contentsLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
