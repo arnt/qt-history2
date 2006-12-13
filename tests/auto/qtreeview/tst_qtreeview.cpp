@@ -59,6 +59,11 @@ public slots:
 
 private slots:
     void getSetCheck();
+
+    // one test per QTreeView property
+    void construction();
+
+    // specialized tests below
     void setHeader();
     void setModel();
     void columnHidden();
@@ -281,6 +286,82 @@ void tst_QTreeView::getSetCheck()
     QCOMPARE(obj1.isSortingEnabled(), false);
     obj1.setSortingEnabled(true);
     QCOMPARE(obj1.isSortingEnabled(), true);
+}
+
+void tst_QTreeView::construction()
+{
+    QTreeView view;
+
+    // QAbstractItemView properties
+    QVERIFY(!view.alternatingRowColors());
+    QCOMPARE(view.currentIndex(), QModelIndex());
+    QCOMPARE(view.dragDropMode(), QAbstractItemView::NoDragDrop);
+    QVERIFY(!view.dragDropOverwriteMode());
+    QVERIFY(!view.dragEnabled());
+    QCOMPARE(view.editTriggers(), QAbstractItemView::EditKeyPressed | QAbstractItemView::DoubleClicked);
+    QVERIFY(view.hasAutoScroll());
+    QCOMPARE(view.horizontalScrollMode(), QAbstractItemView::ScrollPerPixel);
+    QCOMPARE(view.iconSize(), QSize());
+    QCOMPARE(view.indexAt(QPoint()), QModelIndex());
+    QVERIFY(!view.indexWidget(QModelIndex()));
+    QVERIFY(qobject_cast<QItemDelegate *>(view.itemDelegate()));
+    QVERIFY(!view.itemDelegateForColumn(-1));
+    QVERIFY(!view.itemDelegateForColumn(0));
+    QVERIFY(!view.itemDelegateForColumn(1));
+    QVERIFY(!view.itemDelegateForRow(-1));
+    QVERIFY(!view.itemDelegateForRow(0));
+    QVERIFY(!view.itemDelegateForRow(1));
+    QVERIFY(!view.model());
+    QCOMPARE(view.rootIndex(), QModelIndex());
+    QCOMPARE(view.selectionBehavior(), QAbstractItemView::SelectRows);
+    QCOMPARE(view.selectionMode(), QAbstractItemView::SingleSelection);
+    QVERIFY(!view.selectionModel());
+    QVERIFY(view.showDropIndicator());
+    QCOMPARE(view.QAbstractItemView::sizeHintForColumn(-1), -1); // <- protected in QTreeView
+    QCOMPARE(view.QAbstractItemView::sizeHintForColumn(0), -1); // <- protected in QTreeView
+    QCOMPARE(view.QAbstractItemView::sizeHintForColumn(1), -1); // <- protected in QTreeView
+    QCOMPARE(view.sizeHintForIndex(QModelIndex()), QSize());
+    QCOMPARE(view.sizeHintForRow(-1), -1);
+    QCOMPARE(view.sizeHintForRow(0), -1);
+    QCOMPARE(view.sizeHintForRow(1), -1);
+    QVERIFY(!view.tabKeyNavigation());
+    QCOMPARE(view.textElideMode(), Qt::ElideRight);
+    QCOMPARE(view.verticalScrollMode(), QAbstractItemView::ScrollPerItem);
+    QCOMPARE(view.visualRect(QModelIndex()), QRect());
+
+    // QTreeView properties
+    QVERIFY(!view.allColumnsShowFocus());
+    QCOMPARE(view.autoExpandDelay(), -1);
+    QCOMPARE(view.columnAt(-1), -1);
+    QCOMPARE(view.columnAt(0), -1);
+    QCOMPARE(view.columnAt(1), -1);
+    QCOMPARE(view.columnViewportPosition(-1), -1);
+    QCOMPARE(view.columnViewportPosition(0), -1);
+    QCOMPARE(view.columnViewportPosition(1), -1);
+    QCOMPARE(view.columnWidth(-1), 0);
+    QCOMPARE(view.columnWidth(0), 0);
+    QCOMPARE(view.columnWidth(1), 0);
+    QVERIFY(view.header());
+    QCOMPARE(view.indentation(), 20);
+    QCOMPARE(view.indexAbove(QModelIndex()), QModelIndex());
+    QCOMPARE(view.indexBelow(QModelIndex()), QModelIndex());
+    QVERIFY(!view.isAnimated());
+    QVERIFY(!view.isColumnHidden(-1));
+    QVERIFY(!view.isColumnHidden(0));
+    QVERIFY(!view.isColumnHidden(1));
+    QVERIFY(!view.isExpanded(QModelIndex()));
+    QVERIFY(!view.isRowHidden(-1, QModelIndex()));
+    QVERIFY(!view.isRowHidden(0, QModelIndex()));
+    QVERIFY(!view.isRowHidden(1, QModelIndex()));
+    QVERIFY(!view.isRowSpanning(-1, QModelIndex()));
+    QVERIFY(!view.isRowSpanning(0, QModelIndex()));
+    QVERIFY(!view.isRowSpanning(1, QModelIndex()));
+    QVERIFY(!view.isSortingEnabled());
+    QVERIFY(view.itemsExpandable());
+    QVERIFY(view.rootIsDecorated());
+    QVERIFY(!view.uniformRowHeights());
+    QCOMPARE(view.visualRect(QModelIndex()), QRect());
+    QVERIFY(!view.wordWrap());
 }
 
 void tst_QTreeView::setHeader()
