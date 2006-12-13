@@ -69,7 +69,7 @@ bool Uic::printDependencies()
     if (!doc.setContent(&f))
         return false;
 
-    QDomElement root = doc.firstChild().toElement();
+    QDomElement root = doc.firstChildElement();
     DomUI *ui = new DomUI();
     ui->read(root);
 
@@ -135,7 +135,7 @@ bool Uic::write(QIODevice *in)
         opt.headerProtection = false;
     }
 
-    QDomElement root = doc.firstChild().toElement();
+    QDomElement root = doc.firstChildElement();
     DomUI *ui = new DomUI();
     ui->read(root);
 

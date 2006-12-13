@@ -1204,7 +1204,7 @@ QList<QWidget*> QDesignerResource::paste(QIODevice *dev, QWidget *parentWidget)
     if (!doc.setContent(dev))
         return QList<QWidget*>();
 
-    QDomElement root = doc.firstChild().toElement();
+    QDomElement root = doc.firstChildElement();
     DomUI ui;
     ui.read(root);
     return paste(&ui, parentWidget);

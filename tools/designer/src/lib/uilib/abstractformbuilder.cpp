@@ -207,7 +207,7 @@ QWidget *QAbstractFormBuilder::load(QIODevice *dev, QWidget *parentWidget)
     if (!doc.setContent(dev))
         return 0;
 
-    QDomElement root = doc.firstChild().toElement();
+    QDomElement root = doc.firstChildElement();
     DomUI ui;
     ui.read(root); /// ### check the result
 
