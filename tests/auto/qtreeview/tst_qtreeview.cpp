@@ -17,7 +17,32 @@
 //TESTED_FILES=gui/itemviews/qtreeview.h gui/itemviews/qtreeview.cpp
 
 Q_DECLARE_METATYPE(QModelIndex)
+Q_DECLARE_METATYPE(QAbstractItemView::DragDropMode)
+Q_DECLARE_METATYPE(QAbstractItemView::EditTriggers)
+Q_DECLARE_METATYPE(QAbstractItemView::EditTrigger)
 
+static QStandardItemModel *newStandardTreeModel()
+{
+    QStandardItemModel *model = new QStandardItemModel;
+
+    QStandardItem *item;
+    item = new QStandardItem(QLatin1String("Row 1 Item"));
+    model->insertRow(0, item);
+
+    item = new QStandardItem(QLatin1String("Row 2 Item"));
+    item->setCheckable(true);
+    model->insertRow(1, item);
+
+    QStandardItem *childItem = new QStandardItem(QLatin1String("Row 2 Child Item"));
+    item->setChild(0, childItem);
+
+    item = new QStandardItem(QLatin1String("Row 3 Item"));
+    item->setIcon(QIcon());
+    model->insertRow(2, item);
+
+    return model;
+}
+    
 struct PublicView : public QTreeView
 {
     inline void executeDelayedItemsLayout()
@@ -62,6 +87,16 @@ private slots:
 
     // one test per QTreeView property
     void construction();
+    void alternatingRowColors();
+    void currentIndex_data();
+    void currentIndex();
+    void dragDropMode_data();
+    void dragDropMode();
+    void dragDropModeFromDragEnabledAndAcceptDrops_data();
+    void dragDropModeFromDragEnabledAndAcceptDrops();
+    void dragDropOverwriteMode();
+    void editTriggers_data();
+    void editTriggers();
 
     // specialized tests below
     void setHeader();
@@ -362,6 +397,293 @@ void tst_QTreeView::construction()
     QVERIFY(!view.uniformRowHeights());
     QCOMPARE(view.visualRect(QModelIndex()), QRect());
     QVERIFY(!view.wordWrap());
+}
+
+void tst_QTreeView::alternatingRowColors()
+{
+    QTreeView view;
+    QVERIFY(!view.alternatingRowColors());
+    view.setAlternatingRowColors(true);
+    QVERIFY(view.alternatingRowColors());
+    view.setAlternatingRowColors(false);
+    QVERIFY(!view.alternatingRowColors());
+
+    // ### Test visual effect.
+}
+
+void tst_QTreeView::currentIndex_data()
+{
+    QTest::addColumn<int>("row");
+    QTest::addColumn<int>("column");
+    QTest::addColumn<int>("indexRow");
+    QTest::addColumn<int>("indexColumn");
+    QTest::addColumn<int>("parentIndexRow");
+    QTest::addColumn<int>("parentIndexColumn");
+
+    QTest::newRow("-1, -1") << -1 << -1 << -1 << -1 << -1 << -1;
+    QTest::newRow("-1, 0") << -1 << 0 << -1 << -1 << -1 << -1;
+    QTest::newRow("0, -1") << 0 << -1 << -1 << -1 << -1 << -1;
+    QTest::newRow("0, 0") << 0 << 0 << 0 << 0 << -1 << -1;
+    QTest::newRow("0, 1") << 0 << 0 << 0 << 0 << -1 << -1;
+    QTest::newRow("1, 0") << 1 << 0 << 1 << 0 << -1 << -1;
+    QTest::newRow("1, 1") << 1 << 1 << -1 << -1 << -1 << -1;
+    QTest::newRow("2, 0") << 2 << 0 << 2 << 0 << -1 << -1;
+    QTest::newRow("2, 1") << 2 << 1 << -1 << -1 << -1 << -1;
+    QTest::newRow("3, -1") << 3 << -1 << -1 << -1 << -1 << -1;
+    QTest::newRow("3, 0") << 3 << 0 << -1 << -1 << -1 << -1;
+    QTest::newRow("3, 1") << 3 << 1 << -1 << -1 << -1 << -1;
+}
+
+void tst_QTreeView::currentIndex()
+{
+    QFETCH(int, row);
+    QFETCH(int, column);
+    QFETCH(int, indexRow);
+    QFETCH(int, indexColumn);
+    QFETCH(int, parentIndexRow);
+    QFETCH(int, parentIndexColumn);
+
+    QTreeView view;
+    view.setModel(newStandardTreeModel());
+
+    QCOMPARE(view.currentIndex(), QModelIndex());
+    view.setCurrentIndex(view.model()->index(row, column));
+    QCOMPARE(view.currentIndex().row(), indexRow);
+    QCOMPARE(view.currentIndex().column(), indexColumn);
+    QCOMPARE(view.currentIndex().parent().row(), parentIndexRow);
+    QCOMPARE(view.currentIndex().parent().column(), parentIndexColumn);
+
+    // ### Test child and grandChild indexes.
+}
+
+void tst_QTreeView::dragDropMode_data()
+{
+    QTest::addColumn<QAbstractItemView::DragDropMode>("dragDropMode");
+    QTest::addColumn<bool>("acceptDrops");
+    QTest::addColumn<bool>("dragEnabled");
+
+    QTest::newRow("NoDragDrop") << QAbstractItemView::NoDragDrop << false << false;
+    QTest::newRow("DragOnly") << QAbstractItemView::DragOnly << false << true;
+    QTest::newRow("DropOnly") << QAbstractItemView::DropOnly << true << false;
+    QTest::newRow("DragDrop") << QAbstractItemView::DragDrop << true << true;
+    QTest::newRow("InternalMove") << QAbstractItemView::InternalMove << true << true;
+}
+
+void tst_QTreeView::dragDropMode()
+{
+    QFETCH(QAbstractItemView::DragDropMode, dragDropMode);
+    QFETCH(bool, acceptDrops);
+    QFETCH(bool, dragEnabled);
+    
+    QTreeView view;
+    QCOMPARE(view.dragDropMode(), QAbstractItemView::NoDragDrop);
+    QVERIFY(!view.acceptDrops());
+    QVERIFY(!view.dragEnabled());
+
+    view.setDragDropMode(dragDropMode);
+    QCOMPARE(view.dragDropMode(), dragDropMode);
+    QCOMPARE(view.acceptDrops(), acceptDrops);
+    QCOMPARE(view.dragEnabled(), dragEnabled);
+
+    // ### Test effects of this mode
+}
+
+void tst_QTreeView::dragDropModeFromDragEnabledAndAcceptDrops_data()
+{
+    QTest::addColumn<bool>("dragEnabled");
+    QTest::addColumn<bool>("acceptDrops");
+    QTest::addColumn<QAbstractItemView::DragDropMode>("dragDropMode");
+    QTest::addColumn<QAbstractItemView::DragDropMode>("setBehavior");
+
+    QTest::newRow("NoDragDrop -1") << false << false << QAbstractItemView::NoDragDrop << QAbstractItemView::DragDropMode(-1);
+    QTest::newRow("NoDragDrop 0") << false << false << QAbstractItemView::NoDragDrop << QAbstractItemView::NoDragDrop;
+    QTest::newRow("NoDragDrop 1") << false << false << QAbstractItemView::NoDragDrop << QAbstractItemView::DragOnly;
+    QTest::newRow("NoDragDrop 2") << false << false << QAbstractItemView::NoDragDrop << QAbstractItemView::DropOnly;
+    QTest::newRow("NoDragDrop 3") << false << false << QAbstractItemView::NoDragDrop << QAbstractItemView::DragDrop;
+    QTest::newRow("NoDragDrop 4") << false << false << QAbstractItemView::NoDragDrop << QAbstractItemView::InternalMove;
+    QTest::newRow("DragOnly -1") << true << false << QAbstractItemView::DragOnly << QAbstractItemView::DragDropMode(-1);
+    QTest::newRow("DragOnly 0") << true << false << QAbstractItemView::DragOnly << QAbstractItemView::NoDragDrop;
+    QTest::newRow("DragOnly 1") << true << false << QAbstractItemView::DragOnly << QAbstractItemView::DragOnly;
+    QTest::newRow("DragOnly 2") << true << false << QAbstractItemView::DragOnly << QAbstractItemView::DropOnly;
+    QTest::newRow("DragOnly 3") << true << false << QAbstractItemView::DragOnly << QAbstractItemView::DragDrop;
+    QTest::newRow("DragOnly 4") << true << false << QAbstractItemView::DragOnly << QAbstractItemView::InternalMove;
+    QTest::newRow("DropOnly -1") << false << true << QAbstractItemView::DropOnly << QAbstractItemView::DragDropMode(-1);
+    QTest::newRow("DropOnly 0") << false << true << QAbstractItemView::DropOnly << QAbstractItemView::NoDragDrop;
+    QTest::newRow("DropOnly 1") << false << true << QAbstractItemView::DropOnly << QAbstractItemView::DragOnly;
+    QTest::newRow("DropOnly 2") << false << true << QAbstractItemView::DropOnly << QAbstractItemView::DropOnly;
+    QTest::newRow("DropOnly 3") << false << true << QAbstractItemView::DropOnly << QAbstractItemView::DragDrop;
+    QTest::newRow("DropOnly 4") << false << true << QAbstractItemView::DropOnly << QAbstractItemView::InternalMove;
+    QTest::newRow("DragDrop -1") << true << true << QAbstractItemView::DragDrop << QAbstractItemView::DragDropMode(-1);
+    QTest::newRow("DragDrop 0") << true << true << QAbstractItemView::DragDrop << QAbstractItemView::DragDropMode(-1);
+    QTest::newRow("DragDrop 1") << true << true << QAbstractItemView::DragDrop << QAbstractItemView::NoDragDrop;
+    QTest::newRow("DragDrop 2") << true << true << QAbstractItemView::DragDrop << QAbstractItemView::DragOnly;
+    QTest::newRow("DragDrop 3") << true << true << QAbstractItemView::DragDrop << QAbstractItemView::DropOnly;
+    QTest::newRow("DragDrop 4") << true << true << QAbstractItemView::DragDrop << QAbstractItemView::DragDrop;
+    QTest::newRow("DragDrop 5") << true << true << QAbstractItemView::InternalMove << QAbstractItemView::InternalMove;
+}
+
+void tst_QTreeView::dragDropModeFromDragEnabledAndAcceptDrops()
+{
+    QFETCH(bool, acceptDrops);
+    QFETCH(bool, dragEnabled);
+    QFETCH(QAbstractItemView::DragDropMode, dragDropMode);
+    QFETCH(QAbstractItemView::DragDropMode, setBehavior);
+
+    QTreeView view;
+    QCOMPARE(view.dragDropMode(), QAbstractItemView::NoDragDrop);
+    
+    if (setBehavior != QAbstractItemView::DragDropMode(-1))
+        view.setDragDropMode(setBehavior);
+        
+    view.setAcceptDrops(acceptDrops);
+    view.setDragEnabled(dragEnabled);
+    QCOMPARE(view.dragDropMode(), dragDropMode);
+
+    // ### Test effects of this mode
+}
+
+void tst_QTreeView::dragDropOverwriteMode()
+{
+    QTreeView view;
+    QVERIFY(!view.dragDropOverwriteMode());
+    view.setDragDropOverwriteMode(true);
+    QVERIFY(view.dragDropOverwriteMode());
+    view.setDragDropOverwriteMode(false);
+    QVERIFY(!view.dragDropOverwriteMode());
+
+    // ### This property changes the behavior of dropIndicatorPosition(),
+    // which is protected and called only from within QListWidget and
+    // QTableWidget, from their reimplementations of dropMimeData(). Hard to
+    // test.
+}
+
+void tst_QTreeView::editTriggers_data()
+{
+    QTest::addColumn<QAbstractItemView::EditTriggers>("editTriggers");
+    QTest::addColumn<QAbstractItemView::EditTrigger>("triggeredTrigger");
+    QTest::addColumn<bool>("editorOpened");
+
+    // NoEditTriggers
+    QTest::newRow("NoEditTriggers 0") << QAbstractItemView::EditTriggers(QAbstractItemView::NoEditTriggers)
+                                      << QAbstractItemView::NoEditTriggers << false;
+    QTest::newRow("NoEditTriggers 1") << QAbstractItemView::EditTriggers(QAbstractItemView::NoEditTriggers)
+                                      << QAbstractItemView::CurrentChanged << false;
+    QTest::newRow("NoEditTriggers 2") << QAbstractItemView::EditTriggers(QAbstractItemView::NoEditTriggers)
+                                      << QAbstractItemView::DoubleClicked << false;
+    QTest::newRow("NoEditTriggers 3") << QAbstractItemView::EditTriggers(QAbstractItemView::NoEditTriggers)
+                                      << QAbstractItemView::SelectedClicked << false;
+    QTest::newRow("NoEditTriggers 4") << QAbstractItemView::EditTriggers(QAbstractItemView::NoEditTriggers)
+                                      << QAbstractItemView::EditKeyPressed << false;
+
+    // CurrentChanged
+    QTest::newRow("CurrentChanged 0") << QAbstractItemView::EditTriggers(QAbstractItemView::CurrentChanged)
+                                      << QAbstractItemView::NoEditTriggers << false;
+    QTest::newRow("CurrentChanged 1") << QAbstractItemView::EditTriggers(QAbstractItemView::CurrentChanged)
+                                      << QAbstractItemView::CurrentChanged << true;
+    QTest::newRow("CurrentChanged 2") << QAbstractItemView::EditTriggers(QAbstractItemView::CurrentChanged)
+                                      << QAbstractItemView::DoubleClicked << false;
+    QTest::newRow("CurrentChanged 3") << QAbstractItemView::EditTriggers(QAbstractItemView::CurrentChanged)
+                                      << QAbstractItemView::SelectedClicked << false;
+    QTest::newRow("CurrentChanged 4") << QAbstractItemView::EditTriggers(QAbstractItemView::CurrentChanged)
+                                      << QAbstractItemView::EditKeyPressed << false;
+
+    // DoubleClicked
+    QTest::newRow("DoubleClicked 0") << QAbstractItemView::EditTriggers(QAbstractItemView::DoubleClicked)
+                                     << QAbstractItemView::NoEditTriggers << false;
+    QTest::newRow("DoubleClicked 1") << QAbstractItemView::EditTriggers(QAbstractItemView::DoubleClicked)
+                                     << QAbstractItemView::CurrentChanged << false;
+    QTest::newRow("DoubleClicked 2") << QAbstractItemView::EditTriggers(QAbstractItemView::DoubleClicked)
+                                     << QAbstractItemView::DoubleClicked << true;
+    QTest::newRow("DoubleClicked 3") << QAbstractItemView::EditTriggers(QAbstractItemView::DoubleClicked)
+                                     << QAbstractItemView::SelectedClicked << false;
+    QTest::newRow("DoubleClicked 4") << QAbstractItemView::EditTriggers(QAbstractItemView::DoubleClicked)
+                                     << QAbstractItemView::EditKeyPressed << false;
+
+    // SelectedClicked
+    QTest::newRow("SelectedClicked 0") << QAbstractItemView::EditTriggers(QAbstractItemView::SelectedClicked)
+                                       << QAbstractItemView::NoEditTriggers << false;
+    QTest::newRow("SelectedClicked 1") << QAbstractItemView::EditTriggers(QAbstractItemView::SelectedClicked)
+                                       << QAbstractItemView::CurrentChanged << false;
+    QTest::newRow("SelectedClicked 2") << QAbstractItemView::EditTriggers(QAbstractItemView::SelectedClicked)
+                                       << QAbstractItemView::DoubleClicked << false;
+    QTest::newRow("SelectedClicked 3") << QAbstractItemView::EditTriggers(QAbstractItemView::SelectedClicked)
+                                       << QAbstractItemView::SelectedClicked << true;
+    QTest::newRow("SelectedClicked 4") << QAbstractItemView::EditTriggers(QAbstractItemView::SelectedClicked)
+                                       << QAbstractItemView::EditKeyPressed << false;
+
+    // EditKeyPressed
+    QTest::newRow("EditKeyPressed 0") << QAbstractItemView::EditTriggers(QAbstractItemView::EditKeyPressed)
+                                      << QAbstractItemView::NoEditTriggers << false;
+    QTest::newRow("EditKeyPressed 1") << QAbstractItemView::EditTriggers(QAbstractItemView::EditKeyPressed)
+                                      << QAbstractItemView::CurrentChanged << false;
+    QTest::newRow("EditKeyPressed 2") << QAbstractItemView::EditTriggers(QAbstractItemView::EditKeyPressed)
+                                      << QAbstractItemView::DoubleClicked << false;
+    QTest::newRow("EditKeyPressed 3") << QAbstractItemView::EditTriggers(QAbstractItemView::EditKeyPressed)
+                                      << QAbstractItemView::SelectedClicked << false;
+    QTest::newRow("EditKeyPressed 4") << QAbstractItemView::EditTriggers(QAbstractItemView::EditKeyPressed)
+                                      << QAbstractItemView::EditKeyPressed << true;
+}
+
+void tst_QTreeView::editTriggers()
+{
+    QFETCH(QAbstractItemView::EditTriggers, editTriggers);
+    QFETCH(QAbstractItemView::EditTrigger, triggeredTrigger);
+    QFETCH(bool, editorOpened);
+
+    QTreeView view;
+    view.setModel(newStandardTreeModel());
+    view.show();
+
+    QCOMPARE(view.editTriggers(), QAbstractItemView::EditKeyPressed | QAbstractItemView::DoubleClicked);
+
+    // Initialize the first index
+    view.setCurrentIndex(view.model()->index(0, 0));
+
+    // Verify that we don't have any editor initially
+    QVERIFY(!qFindChild<QLineEdit *>(&view, QString()));
+
+    // Set the triggers
+    view.setEditTriggers(editTriggers);
+
+    // Interact with the view
+    switch (triggeredTrigger) {
+    case QAbstractItemView::NoEditTriggers:
+        // Do nothing, the editor shouldn't be there
+        break;
+    case QAbstractItemView::CurrentChanged:
+        // Change the index to open an editor
+        view.setCurrentIndex(view.model()->index(1, 0));
+        break;
+    case QAbstractItemView::DoubleClicked:
+        // Doubleclick the center of the current cell
+        QTest::mouseClick(view.viewport(), Qt::LeftButton, 0,
+                          view.visualRect(view.model()->index(0, 0)).center());
+        QTest::mouseDClick(view.viewport(), Qt::LeftButton, 0,
+                           view.visualRect(view.model()->index(0, 0)).center());
+        break;
+    case QAbstractItemView::SelectedClicked:
+        // Click the center of the current cell
+        view.selectionModel()->select(view.model()->index(0, 0), QItemSelectionModel::Select);
+        QTest::mouseClick(view.viewport(), Qt::LeftButton, 0,
+                          view.visualRect(view.model()->index(0, 0)).center());
+        QTest::qWait(QApplication::doubleClickInterval() * 1.5);
+        break;
+    case QAbstractItemView::EditKeyPressed:
+        view.setFocus();
+#ifdef Q_OS_MAC
+        // Mac OS X uses Enter for editing
+        QTest::keyPress(&view, Qt::Key_Enter);
+#else
+        // All other platforms use F2
+        QTest::keyPress(&view, Qt::Key_F2);
+#endif
+        break;
+    default:
+        break;
+    }
+
+    // Check if we got an editor
+    QCOMPARE(qFindChild<QLineEdit *>(&view, QString()) != 0, editorOpened);
 }
 
 void tst_QTreeView::setHeader()
