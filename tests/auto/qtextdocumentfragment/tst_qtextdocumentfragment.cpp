@@ -185,6 +185,7 @@ private slots:
     void html_caption();
     void html_windowsEntities();
     void html_eatenText();
+    void html_hr();
     void html_hrMargins();
     void html_blockQuoteMargins();
     void html_definitionListMargins();
@@ -2870,6 +2871,13 @@ void tst_QTextDocumentFragment::html_eatenText()
     QCOMPARE(cursor.block().text(), QString("Test2"));
     cursor.movePosition(QTextCursor::NextBlock);
     QCOMPARE(cursor.block().text(), QString("Test3"));
+}
+
+void tst_QTextDocumentFragment::html_hr()
+{
+    doc->setHtml("<hr />");
+    QCOMPARE(doc->blockCount(), 1);
+    QVERIFY(doc->begin().blockFormat().hasProperty(QTextFormat::BlockTrailingHorizontalRulerWidth));
 }
 
 void tst_QTextDocumentFragment::html_hrMargins()
