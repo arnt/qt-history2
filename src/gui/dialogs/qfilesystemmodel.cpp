@@ -1128,7 +1128,7 @@ QStringList QFileSystemModel::nameFilters() const
 }
 
 /*!
-    \internal
+     \internal
 
     Performed quick listing and see if any files have been added or removed,
     then fetch more information on visible files.
@@ -1151,7 +1151,7 @@ void QFileSystemModelPrivate::directoryChanged(const QString &directory, const Q
             iterator = qBinaryFind(newFiles.begin(), newFiles.end(),
                                                      parentNode->children.at(i).fileName, caseInsensitiveLessThan);
         if (iterator == newFiles.end()) {
-	    removeNode(parentNode, i);
+           removeNode(parentNode, i);
         } else {
             // usually there is only 1 file so don't bother compressing this
             if (!parentNode->children.at(i).hasInformation())
@@ -1165,8 +1165,6 @@ void QFileSystemModelPrivate::directoryChanged(const QString &directory, const Q
     // They are added to the visible list after we get a info and they pass the filter
     for (int i = 0; i < newFiles.count(); ++i)
         addNode(parentNode, newFiles.at(i));
-
-    fileInfoGatherer.fetchExtendedInformation(directory, newFiles);
 }
 
 /*!
@@ -1296,11 +1294,10 @@ void QFileSystemModelPrivate::fileSystemChanged(const QString &path, const QList
         QExtendedInformation info = updates.at(i).second;
         int itemLocation = findChild(parentNode, QFileSystemNode(fileName));
         if (itemLocation < 0) {
-            // This is often times a symptom of another bug, but can happen for legit reasons
-            // qDebug() << "file already removed" << fileName;
-
-            // file must have already been removed and this is a late signal
-            continue;
+            itemLocation = addNode(parentNode, fileName);
+            for (int i = 0; i < rowsToUpdate.count(); ++i)
+                if (rowsToUpdate.at(i) >= itemLocation)
+                    ++rowsToUpdate[i];
         }
         if (parentNode->caseSensitive()) {
             if (parentNode->children.at(itemLocation).fileName != fileName)
@@ -1317,7 +1314,7 @@ void QFileSystemModelPrivate::fileSystemChanged(const QString &path, const QList
         }
 
         if (info.size == -1) {
-	    removeNode(parentNode, itemLocation);
+            removeNode(parentNode, itemLocation);
             continue;
         }
 

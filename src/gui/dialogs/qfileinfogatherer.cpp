@@ -14,6 +14,7 @@
 #include "qfileinfogatherer_p.h"
 #include <qdebug.h>
 #include <qfsfileengine.h>
+#include <qdiriterator.h>
 
 #ifndef Q_OS_WIN
 #include <unistd.h>
@@ -122,10 +123,7 @@ void QFileInfoGatherer::clear()
 */
 void QFileInfoGatherer::list(const QString &directoryPath)
 {
-    mutex.lock();
-    this->directoryPath.push(directoryPath);
-    mutex.unlock();
-    condition.wakeAll();
+    fetchExtendedInformation(directoryPath, QStringList());
 }
 
 /*
@@ -134,14 +132,13 @@ void QFileInfoGatherer::list(const QString &directoryPath)
 void QFileInfoGatherer::run()
 {
     forever {
-        bool listFiles = false;
         bool updateFiles = false;
         mutex.lock();
         if (abort) {
             mutex.unlock();
             return;
         }
-        if (this->path.isEmpty() && directoryPath.isEmpty())
+        if (this->path.isEmpty())
             condition.wait(&mutex);
         QString path;
         QStringList list;
@@ -150,15 +147,8 @@ void QFileInfoGatherer::run()
             list = this->files.pop();
             updateFiles = true;
         }
-        QString directoryPath;
-        if (!this->directoryPath.isEmpty()) {
-            directoryPath = this->directoryPath.pop();
-            listFiles = true;
-        }
         mutex.unlock();
-
         if (updateFiles) getFileInfos(path, list);
-        if (listFiles) getDirList(directoryPath);
     }
 }
 
@@ -167,7 +157,7 @@ void QFileInfoGatherer::run()
 
     "normalize this" so they can mean the same to us.
 */
-QFile::Permissions QFileInfoGatherer::translatePermissions(const QFileInfo &fileInfo) {
+QFile::Permissions QFileInfoGatherer::translatePermissions(const QFileInfo &fileInfo) const {
     QFile::Permissions permissions = fileInfo.permissions();
 #ifdef Q_OS_WIN
     return permissions;
@@ -194,105 +184,49 @@ QFile::Permissions QFileInfoGatherer::translatePermissions(const QFileInfo &file
 #endif
 }
 
-/*
-    Get specific file info's, batch the files so update when we have 100 items and every 200ms after that
- */
-void QFileInfoGatherer::getFileInfos(const QString &path, const QStringList &files)
+QExtendedInformation QFileInfoGatherer::getInfo(const QFileInfo &fileInfo) const
 {
-    if (files.isEmpty())
-        return;
+    QExtendedInformation info;
+    info.size = fileInfo.size();
+    QFSFileEngine fe(fileInfo.absoluteFilePath());
+    info.caseSensitive = fe.caseSensitive();
+    info.lastModified = fileInfo.lastModified();
+    info.permissions = translatePermissions(fileInfo);
+    info.isHidden = fileInfo.isHidden();
+    info.isSymLink = fileInfo.isSymLink();
+    info.icon = m_iconProvider->icon(fileInfo);
+    info.displayType = m_iconProvider->type(fileInfo);
+    if (fileInfo.isDir()) info.fileType = QExtendedInformation::Dir;
+    if (fileInfo.isFile()) info.fileType = QExtendedInformation::File;
 
-    // List extended information about drives
-    if (path.isEmpty()){
-        QFileInfoList infoList;
-        if (files.isEmpty()) {
-            infoList = QDir::drives();
-        } else {
-            for (int i = 0; i < files.count(); ++i)
-                infoList << QFileInfo(files.at(i));
+    // Enable the next two commented out lines to get updates when the file sizes change...
+    if (!fileInfo.exists() && !fileInfo.isSymLink()) {
+        info.size = -1;
+        //watcher->removePath(fileInfo.absoluteFilePath());
+    } else {
+        if (!fileInfo.absoluteFilePath().isEmpty() && fileInfo.exists() && fileInfo.isReadable()
+            && !watcher->files().contains(fileInfo.absoluteFilePath())) {
+            //watcher->addPath(fileInfo.absoluteFilePath());
         }
-        for (int i = 0; i < infoList.count(); ++i) {
-            QExtendedInformation info;
-            QFileInfo fileInfo = infoList.at(i);
-            QFSFileEngine fe(fileInfo.absoluteFilePath());
-            info.caseSensitive = fe.caseSensitive();
-            info.size = fileInfo.size();
-            info.lastModified = fileInfo.lastModified();
-            info.permissions = translatePermissions(fileInfo);
-            if (fileInfo.isDir()) info.fileType = QExtendedInformation::Dir;
-            if (fileInfo.isFile()) info.fileType = QExtendedInformation::File;
-            info.isHidden = false; // fileInfo.isHidden(); BUG windows file engine says drives are hidden
-            info.isSymLink = fileInfo.isSymLink();
-            info.icon = m_iconProvider->icon(fileInfo);
-            info.displayType = m_iconProvider->type(fileInfo);
-
-            QString driveName = translateDriveName(infoList.at(i));
-            QList<QPair<QString,QExtendedInformation> > updatedFiles;
-            updatedFiles.append(QPair<QString,QExtendedInformation>(driveName, info));
-            emit updates(path, updatedFiles);
-        }
-        return;
     }
 
-    int base = QTime::currentTime().msec();
-    QFileInfo fileInfo;
-    QList<QPair<QString,QExtendedInformation> > updatedFiles;
-    bool firstBatch = true;
-    QStringList watchedFiles = watcher->files();
-    for (int i = 0; !abort && i < files.count(); ++i) {
-        QString fullFilePath = path + QDir::separator() + files.at(i);
-        fileInfo.setFile(fullFilePath);
-
-        QExtendedInformation info;
-        QFSFileEngine fe(fullFilePath);
-        info.caseSensitive = fe.caseSensitive();
-        info.size = fileInfo.size();
-
-        if (!fileInfo.exists() && !fileInfo.isSymLink()) {
-            info.size = -1;
-            watcher->removePath(fullFilePath);
+    if (fileInfo.isSymLink() && m_resolveSymlinks) {
+        QFileInfo resolvedInfo(fileInfo.canonicalFilePath());
+        if (resolvedInfo.exists()) {
+            emit nameResolved(fileInfo.fileName(), resolvedInfo.fileName());
         } else {
-            //qDebug() << "adding" << fileInfo.fileName();
-            if (fileInfo.exists() && fileInfo.isReadable() && !watchedFiles.contains(fullFilePath)) // <- unfortunettly addPath will always add even if it is already there
-                watcher->addPath(fullFilePath); // <- add path unfortunettly creates a QFileInfo also
-        }
-        info.lastModified = fileInfo.lastModified();
-        info.permissions = translatePermissions(fileInfo);
-        if (fileInfo.isDir()) info.fileType = QExtendedInformation::Dir;
-        if (fileInfo.isFile()) info.fileType = QExtendedInformation::File;
-
-        if (fileInfo.isSymLink() && m_resolveSymlinks) {
-            QFileInfo resolvedInfo(fileInfo.canonicalFilePath());
-            if (resolvedInfo.exists()) {
-                emit nameResolved(files.at(i), resolvedInfo.fileName());
-            } else {
-                info.fileType = QExtendedInformation::System;
-            }
-        }
-
-        if (!fileInfo.exists() && fileInfo.isSymLink()) {
             info.fileType = QExtendedInformation::System;
         }
-        info.isHidden = fileInfo.isHidden();
-        info.isSymLink = fileInfo.isSymLink();
-        info.icon = m_iconProvider->icon(fileInfo);
-        info.displayType = m_iconProvider->type(fileInfo);
-
-        updatedFiles.append(QPair<QString,QExtendedInformation>(files.at(i), info));
-
-        // batch
-        int current = QTime::currentTime().msec();
-        if (firstBatch && updatedFiles.count() > 50 || current - base > 200) {
-            emit updates(path, updatedFiles);
-            updatedFiles.clear();
-            firstBatch = false;
-            base = current;
-        }
     }
-    emit updates(path, updatedFiles);
+
+    if (!fileInfo.exists() && fileInfo.isSymLink()) {
+        info.fileType = QExtendedInformation::System;
+    }
+
+    return info;
 }
 
-QString QFileInfoGatherer::translateDriveName(const QFileInfo &drive)
+QString QFileInfoGatherer::translateDriveName(const QFileInfo &drive) const
 {
     QString driveName = drive.absoluteFilePath();
 #ifdef Q_OS_WIN
@@ -304,34 +238,75 @@ QString QFileInfoGatherer::translateDriveName(const QFileInfo &drive)
     return driveName;
 }
 
-/*!
-    get the full list of files in a directory
+/*
+    Get specific file info's, batch the files so update when we have 100
+    items and every 200ms after that
  */
-void QFileInfoGatherer::getDirList(const QString &directoryPath)
+void QFileInfoGatherer::getFileInfos(const QString &path, const QStringList &files)
 {
-    QDir dir(directoryPath);
-    if (!dir.exists())
-        return;
-    if (!watcher->directories().contains(directoryPath) && !directoryPath.isEmpty()) {
-        watcher->addPath(directoryPath);
+    if (files.isEmpty()
+        && !watcher->directories().contains(path)
+        && !path.isEmpty()) {
+        watcher->addPath(path);
     }
 
-    // list drives
-    if (directoryPath.isEmpty()) {
-        QFileInfoList infoList = QDir::drives();
-        QStringList drives;
-        for (int i = 0; i < infoList.count(); ++i)
-            drives.append(translateDriveName(infoList.at(i)));
-        emit newListOfFiles(directoryPath, drives);
+    // List drives
+    if (path.isEmpty()){
+        QFileInfoList infoList;
+        if (files.isEmpty()) {
+            infoList = QDir::drives();
+        } else {
+            for (int i = 0; i < files.count(); ++i)
+                infoList << QFileInfo(files.at(i));
+        }
+        for (int i = 0; i < infoList.count(); ++i) {
+            QExtendedInformation info = getInfo(infoList.at(i));
+            info.isHidden = false; // windows file engine says drives are hidden, open bug
+            QString driveName = translateDriveName(infoList.at(i));
+            QList<QPair<QString,QExtendedInformation> > updatedFiles;
+            updatedFiles.append(QPair<QString,QExtendedInformation>(driveName, info));
+            emit updates(path, updatedFiles);
+        }
         return;
     }
 
-    QStringList list = dir.entryList(QDir::AllEntries | QDir::System | QDir::Hidden);
+    QTime base = QTime::currentTime();
+    QFileInfo fileInfo;
+    bool firstTime = true;
+    QList<QPair<QString,QExtendedInformation> > updatedFiles;
 
-    // It looks like a bug that path sometimes returns /.  QDir::path() should strip the /.
-    QString dirPath = dir.path();
-    if (dirPath.right(2) == QLatin1String("/."))
-        dirPath = dirPath.left(dirPath.length() - 2);
-    emit newListOfFiles(dirPath, list);
+    QString itPath = files.isEmpty() ? path : QLatin1String("");
+    QDirIterator dirIt(itPath, QDir::AllEntries | QDir::System | QDir::Hidden);
+    QStringList allFiles;
+    while(!abort && dirIt.hasNext()) {
+        dirIt.next();
+        fileInfo = dirIt.fileInfo();
+        allFiles.append(fileInfo.fileName());
+        fetch(fileInfo, base, firstTime, updatedFiles, path);
+    }
+    if (!allFiles.isEmpty())
+        emit newListOfFiles(path, allFiles);
+
+
+    QStringList::const_iterator filesIt = files.constBegin();
+    while(!abort && filesIt != files.constEnd()) {
+        fileInfo.setFile(path + QDir::separator() + *filesIt);
+        ++filesIt;
+        fetch(fileInfo, base, firstTime, updatedFiles, path);
+    }
+    if (!updatedFiles.isEmpty())
+        emit updates(path, updatedFiles);
+}
+
+void QFileInfoGatherer::fetch(const QFileInfo &fileInfo, QTime &base, bool &firstTime, QList<QPair<QString,QExtendedInformation> > &updatedFiles, const QString &path) {
+    QExtendedInformation info = getInfo(fileInfo);
+    updatedFiles.append(QPair<QString,QExtendedInformation>(fileInfo.fileName(), info));
+    QTime current = QTime::currentTime();
+    if ((firstTime && updatedFiles.count() > 100) || base.msecsTo(current) > 1000) {
+        emit updates(path, updatedFiles);
+        updatedFiles.clear();
+        base = current;
+        firstTime = false;
+    }
 }
 

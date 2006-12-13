@@ -80,8 +80,8 @@ Q_OBJECT
 
 Q_SIGNALS:
     void updates(const QString &directory, const QList<QPair<QString, QExtendedInformation> > &updates);
-    void newListOfFiles(const QString &directory, const QStringList &listOfFiles);
-    void nameResolved(const QString &fileName, const QString &resolvedName);
+    void newListOfFiles(const QString &directory, const QStringList &listOfFiles) const;
+    void nameResolved(const QString &fileName, const QString &resolvedName) const;
 
 public:
     QFileInfoGatherer(QObject *parent = 0);
@@ -101,11 +101,12 @@ public Q_SLOTS:
 protected:
     void run();
     void getFileInfos(const QString &path, const QStringList &files);
-    void getDirList(const QString &directoryPath);
 
 private:
-    QString translateDriveName(const QFileInfo &drive);
-    QFile::Permissions translatePermissions(const QFileInfo &fileInfo);
+    void fetch(const QFileInfo &info, QTime &base, bool &firstTime, QList<QPair<QString,QExtendedInformation> > &updatedFiles, const QString &path);
+    QExtendedInformation getInfo(const QFileInfo &info) const;
+    QString translateDriveName(const QFileInfo &drive) const;
+    QFile::Permissions translatePermissions(const QFileInfo &fileInfo) const;
 
     QMutex mutex;
     QWaitCondition condition;
@@ -114,7 +115,6 @@ private:
     QStack<QString> path;
     QStack<QStringList> files;
 
-    QStack<QString> directoryPath;
     QFileSystemWatcher *watcher;
     bool m_resolveSymlinks;
     QFileIconProvider *m_iconProvider;
