@@ -221,7 +221,7 @@ void QSizeGrip::mousePressEvent(QMouseEvent * e)
         xev.xclient.format = 32;
         xev.xclient.data.l[0] = e->globalPos().x();
         xev.xclient.data.l[1] = e->globalPos().y();
-        xev.xclient.data.l[2] = QApplication::reverseLayout() ? 6 : 4; // bottomleft/bottomright
+        xev.xclient.data.l[2] = (QApplication::layoutDirection() == Qt::RightToLeft) ? 6 : 4; // bottomleft/bottomright
         xev.xclient.data.l[3] = Button1;
         xev.xclient.data.l[4] = 0;
         XUngrabPointer(X11->display, X11->time);
