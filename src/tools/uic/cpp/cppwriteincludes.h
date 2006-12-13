@@ -52,7 +52,7 @@ private:
 
 private:
     typedef QMap<QString, bool> OrderedSet;
-
+    void insertIncludeForClass(const QString &className);
     void insertInclude(const QString &header, bool global);
     void writeHeaders(const OrderedSet &headers, bool global);
     QString headerForClassName(const QString &className) const;
@@ -62,7 +62,10 @@ private:
 
     OrderedSet m_localIncludes;
     OrderedSet m_globalIncludes;
-    QSet<QString> m_customWidgets;
+    QSet<QString> m_includeBaseNames;
+
+    QSet<QString> m_knownClasses;
+
     typedef QMap<QString, QString> StringMap;
     StringMap m_classToHeader;
     StringMap m_oldHeaderToNewHeader;

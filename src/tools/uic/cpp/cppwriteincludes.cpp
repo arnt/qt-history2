@@ -17,8 +17,8 @@
 #include "uic.h"
 #include "databaseinfo.h"
 #include <qdebug.h>
+#include <QFileInfo>
 #include <QTextStream>
-
 
 namespace {
     const bool debugWriteIncludes=false;
@@ -57,7 +57,8 @@ void WriteIncludes::acceptUI(DomUI *node)
 {
     m_localIncludes.clear();
     m_globalIncludes.clear();
-    m_customWidgets.clear();
+    m_knownClasses.clear();
+    m_includeBaseNames.clear();
 
     if (node->elementIncludes())
         acceptIncludes(node->elementIncludes());
@@ -72,7 +73,7 @@ void WriteIncludes::acceptUI(DomUI *node)
     add(QLatin1String("QButtonGroup")); // ### only if it is really necessary
 
     if (m_uic->hasExternalPixmap() && m_uic->pixmapFunction() == QLatin1String("qPixmapFromMimeSource"))
-        add(QLatin1String("Q3Mimefactory"));
+        add(QLatin1String("Q3MimeSourceFactory"));
 
     if (m_uic->databaseInfo()->connections().size()) {
         add(QLatin1String("QSqlDatabase"));
@@ -107,59 +108,68 @@ void WriteIncludes::acceptSpacer(DomSpacer *node)
     TreeWalker::acceptSpacer(node);
 }
 
-QString  WriteIncludes::headerForClassName(const QString &className) const
+void WriteIncludes::insertIncludeForClass(const QString &className)
 {
+    // Known class
     const StringMap::const_iterator it = m_classToHeader.constFind(className);
-    if ( it !=  m_classToHeader.constEnd())
-        return it.value();
+    if ( it !=  m_classToHeader.constEnd()) {
+        insertInclude(it.value(), true);
+        return;
+    }
 
-    QString  header = className.toLower();
+    // Quick check by class name to detect includehints provided for custom widgets
+    const QString lowerClassName = className.toLower();
+    if (m_includeBaseNames.contains(lowerClassName)) {
+        if (debugWriteIncludes)
+            qDebug() << "WriteIncludes::insertIncludeForClass: class name match " << lowerClassName << '.';
+        return;
+    }
+    // Create default header
+    QString  header = lowerClassName;
     header += QLatin1String(".h");
     if (debugWriteIncludes)
-        qDebug() << "WriteIncludes::headerForClassName: creating default header " << header << " for " << className << '.';
-    return header;
+        qDebug() << "WriteIncludes::insertIncludeForClass: creating default header " << header << " for " << className << '.';
+    insertInclude(header, true);
 }
 
 void WriteIncludes::add(const QString &className)
 {
-    if (className.isEmpty())
+    if (className.isEmpty() || m_knownClasses.contains(className))
         return;
 
+    m_knownClasses.insert(className);
     if (className == QLatin1String("Line")) { // ### hmm, deprecate me!
         add(QLatin1String("QFrame"));
         return;
     }
 
-    if (!m_customWidgets.contains(className))
-        insertInclude(headerForClassName(className), true);
+    insertIncludeForClass(className);
+}
+
+void WriteIncludes::acceptCustomWidget(DomCustomWidget *node)
+{
+    const QString className = node->elementClass();
+    if (className.isEmpty())
+        return;
 
     if (m_uic->customWidgetsInfo()->extends(className, QLatin1String("Q3ListView"))  ||
         m_uic->customWidgetsInfo()->extends(className, QLatin1String("Q3Table"))) {
         add(QLatin1String("Q3Header"));
     }
-}
 
-void WriteIncludes::acceptCustomWidget(DomCustomWidget *node)
-{
-    if (node->elementClass().isEmpty())
-        return;
-
-    m_customWidgets.insert(node->elementClass());
-
-    bool global = true;
     if (node->elementHeader() && node->elementHeader()->text().size()) {
-        global = node->elementHeader()->attributeLocation().toLower() == QLatin1String("global");
+        bool global = node->elementHeader()->attributeLocation().toLower() == QLatin1String("global");
         QString header = node->elementHeader()->text();
-        const QString qtHeader = m_classToHeader.value(node->elementClass()); // check if the class is a built-in qt class
+        const QString qtHeader = m_classToHeader.value(className); // check if the class is a built-in qt class
         if (!qtHeader.isEmpty()) {
             global = true;
             header = qtHeader;
         }
         insertInclude(header, global);
     } else {
-        add(node->elementClass());
+        insertIncludeForClass(className);
     }
-
+    m_knownClasses.insert(className);
 }
 
 void WriteIncludes::acceptCustomWidgets(DomCustomWidgets *node)
@@ -181,11 +191,13 @@ void WriteIncludes::acceptInclude(DomInclude *node)
 }
 void WriteIncludes::insertInclude(const QString &header, bool global)
 {
-    if (global) {
-        m_globalIncludes.insert(header, false);
-    } else {
-        m_localIncludes.insert(header, false);
-    }
+    OrderedSet &includes(global ?  m_globalIncludes : m_localIncludes);
+    if (includes.contains(header))
+        return;
+    // Insert. Also remember base name for quick check of suspicious custom plugins
+    includes.insert(header, false);
+    const QString lowerBaseName = QFileInfo(header).completeBaseName ().toLower();
+    m_includeBaseNames.insert(lowerBaseName);
 }
 
 void WriteIncludes::writeHeaders(const OrderedSet &headers, bool global)
