@@ -160,6 +160,8 @@ private slots:
     void css_import();
     void css_selectors_data();
     void css_selectors();
+    void css_textUnderlineStyle_data();
+    void css_textUnderlineStyle();
     void universalSelectors_data();
     void universalSelectors();
     void screenMedia();
@@ -2399,6 +2401,33 @@ void tst_QTextDocumentFragment::css_selectors()
         QVERIFY(fmt.background().color() == QColor("red"));
     else
         QVERIFY(fmt.background().color() == QColor("green"));
+}
+
+void tst_QTextDocumentFragment::css_textUnderlineStyle_data()
+{
+    QTest::addColumn<QString>("styleName");
+    QTest::addColumn<int>("expectedStyle");
+
+    QTest::newRow("none") << QString("none") << int(QTextCharFormat::NoUnderline);
+    QTest::newRow("solid") << QString("solid") << int(QTextCharFormat::SingleUnderline);
+    QTest::newRow("dash") << QString("dashed") << int(QTextCharFormat::DashUnderline);
+    QTest::newRow("dot") << QString("dotted") << int(QTextCharFormat::DotLine);
+    QTest::newRow("dashdot") << QString("dot-dash") << int(QTextCharFormat::DashDotLine);
+    QTest::newRow("dashdotdot") << QString("dot-dot-dash") << int(QTextCharFormat::DashDotDotLine);
+    QTest::newRow("wave") << QString("wave") << int(QTextCharFormat::WaveUnderline);
+}
+
+void tst_QTextDocumentFragment::css_textUnderlineStyle()
+{
+    QFETCH(QString, styleName);
+    QFETCH(int, expectedStyle);
+
+    QString html = QString::fromLatin1("<span style=\"text-underline-style: %1\">Blah</span>").arg(styleName);
+    doc->setHtml(html);
+
+    QTextFragment fragment = doc->begin().begin().fragment();
+    QVERIFY(fragment.isValid());
+    QCOMPARE(int(fragment.charFormat().underlineStyle()), expectedStyle);
 }
 
 void tst_QTextDocumentFragment::universalSelectors_data()

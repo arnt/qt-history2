@@ -1216,6 +1216,18 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
                     default: break;
                 }
                 break;
+            case QCss::TextUnderlineStyle:
+                switch (identifier) {
+                    case QCss::Value_None: charFormat.setUnderlineStyle(QTextCharFormat::NoUnderline); break;
+                    case QCss::Value_Solid: charFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline); break;
+                    case QCss::Value_Dashed: charFormat.setUnderlineStyle(QTextCharFormat::DashUnderline); break;
+                    case QCss::Value_Dotted: charFormat.setUnderlineStyle(QTextCharFormat::DotLine); break;
+                    case QCss::Value_DotDash: charFormat.setUnderlineStyle(QTextCharFormat::DashDotLine); break;
+                    case QCss::Value_DotDotDash: charFormat.setUnderlineStyle(QTextCharFormat::DashDotDotLine); break;
+                    case QCss::Value_Wave: charFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline); break;
+                    default: break;
+                }
+                break;
             default: break;
         }
     }
