@@ -819,6 +819,8 @@ bool QTextHtmlImporter::closeTag(int i)
 
             blockTagClosed = true;
         } else if (closedNode->id == Html_table && !tables.isEmpty()) {
+            indent = tables.last().lastIndent;
+
             tables.resize(tables.size() - 1);
 
             if (tables.isEmpty()) {
@@ -929,6 +931,9 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
     }
     table.rows = effectiveRow;
 
+    table.lastIndent = indent;
+    indent = 0;
+
     if (table.rows == 0 || table.columns == 0)
         return table;
 
@@ -950,7 +955,7 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
     fmt.setTopMargin(topMargin(tableNodeIdx));
     fmt.setBottomMargin(bottomMargin(tableNodeIdx));
     fmt.setLeftMargin(leftMargin(tableNodeIdx)
-                      + indent * 40 // ##### not a good emulation
+                      + table.lastIndent * 40 // ##### not a good emulation
                       );
     fmt.setRightMargin(rightMargin(tableNodeIdx));
 
