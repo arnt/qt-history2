@@ -31,6 +31,8 @@
 #include <QtCore/QVariant>
 #include <QtCore/QPair>
 
+class QLayout;
+
 class QDESIGNER_SHARED_EXPORT QDesignerPropertySheet: public QObject, public QDesignerPropertySheetExtension
 {
     Q_OBJECT
@@ -81,7 +83,7 @@ protected:
 
 protected:
     QObject *m_object;
-    const QMetaObject *meta;
+    const QMetaObject *m_meta;
 
     class Info
     {
@@ -107,6 +109,11 @@ protected:
     QHash<int, QVariant> m_fakeProperties;
     QHash<int, QVariant> m_addProperties;
     QHash<QString, int> m_addIndex;
+private:
+    QLayout* layout() const;
+    const bool m_canHaveLayoutAttributes;
+    mutable QLayout *m_lastLayout;
+    mutable bool m_LastLayoutByDesigner;
 };
 
 class QDESIGNER_SHARED_EXPORT QDesignerPropertySheetFactory: public QExtensionFactory

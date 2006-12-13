@@ -129,7 +129,7 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
     } else if (widgetName == QLatin1String("QWidget")) {
         if (fw && parentWidget &&
              (qobject_cast<QDesignerFormWindowInterface*>(parentWidget) || qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget))) {
-             w = new QDesignerWidget(fw, qobject_cast<QDesignerFormWindowInterface*>(parentWidget) ? parentWidget : 0);
+             w = new QDesignerWidget(fw, parentWidget);
         } else {
             w = new QWidget(parentWidget);
         }
@@ -212,6 +212,23 @@ QString WidgetFactory::classNameOf(QDesignerFormEditorInterface *c, QObject* o)
 
     return QLatin1String(o->metaObject()->className());
 }
+    
+QLayout *WidgetFactory::createUnmanagedLayout(QWidget *parentWidget, int type)
+{
+    switch (type) {
+    case LayoutInfo::HBox:
+        return new QHBoxLayout(parentWidget);
+    case LayoutInfo::VBox:
+        return new QVBoxLayout(parentWidget);
+    case LayoutInfo::Grid:
+        return new QGridLayout(parentWidget);
+    default:
+        Q_ASSERT(0);
+        break;
+    }
+    return 0;
+}
+
 
 /*!  Creates a layout on the widget \a widget of the type \a type
   which can be \c HBox, \c VBox or \c Grid.
@@ -233,25 +250,7 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *parentLayout, int
 
     QWidget *parentWidget = parentLayout != 0 ? 0 : widget;
 
-    QLayout *layout = 0;
-    switch (type) {
-    case LayoutInfo::HBox:
-        layout = new QHBoxLayout(parentWidget);
-        break;
-    case LayoutInfo::VBox:
-        layout = new QVBoxLayout(parentWidget);
-        break;
-    case LayoutInfo::Grid:
-        layout = new QGridLayout(parentWidget);
-        break;
-    case LayoutInfo::Stacked:
-        layout = new QStackedLayout(parentWidget);
-        break;
-    default:
-        Q_ASSERT(0);
-        return 0;
-    } // end switch
-
+    QLayout *layout = createUnmanagedLayout(parentWidget, type);
     metaDataBase->add(layout); // add the layout in the MetaDataBase
 
     if (QLayoutWidget *layoutWidget = qobject_cast<QLayoutWidget*>(widget)) {

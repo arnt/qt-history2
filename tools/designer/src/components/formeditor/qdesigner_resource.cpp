@@ -488,11 +488,8 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
             if (propertyName == QLatin1String("objectName"))
                 changeObjectName(o, o->objectName());
         }
-        QSplitter *splitter = qobject_cast<QSplitter *>(o);
-        if (splitter) {
-            QDesignerWidgetFactoryInterface *widgetFactory = core()->widgetFactory();
-            widgetFactory->createLayout(splitter, 0, splitter->orientation() == Qt::Horizontal ?
-                        LayoutInfo::HBox : LayoutInfo::VBox);
+        if (QSplitter *splitter = qobject_cast<QSplitter *>(o)) {
+            WidgetFactory::createUnmanagedLayout(splitter, splitter->orientation() == Qt::Horizontal ? LayoutInfo::HBox : LayoutInfo::VBox);
         }
     }
 }

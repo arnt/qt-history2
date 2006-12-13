@@ -195,7 +195,10 @@ WidgetDataBase::WidgetDataBase(QDesignerFormEditorInterface *core, QObject *pare
     append(new WidgetDataBaseItem(QString::fromUtf8("Spacer")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QSplitter")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QLayoutWidget")));
-    append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerWidget")));
+    // QDesignerWidget is used as central widget and as container for tab widgets, etc.
+    WidgetDataBaseItem *designerWidgetItem = new WidgetDataBaseItem(QString::fromUtf8("QDesignerWidget"));
+    designerWidgetItem->setContainer(true);
+    append(designerWidgetItem);
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerDialog")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerToolBar")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerMenu")));

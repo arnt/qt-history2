@@ -528,9 +528,13 @@ void FormWindowManager::slotUpdateActions()
     bool layoutAvailable = false;
     bool breakAvailable = false;
     bool layoutContainer = false;
-
-    if (m_activeFormWindow != 0 && m_activeFormWindow->currentTool() == 0) {
+    
+    do {
+        if (m_activeFormWindow == 0 || m_activeFormWindow->currentTool() != 0)
+            break;
+        
         QList<QWidget*> simplifiedSelection = m_activeFormWindow->selectedWidgets();
+        
         selectedWidgetCount = simplifiedSelection.count();
         pasteAvailable = qApp->clipboard()->mimeData() && qApp->clipboard()->mimeData()->hasText();
 
@@ -545,38 +549,45 @@ void FormWindowManager::slotUpdateActions()
                 ++unlaidoutWidgetCount;
         }
 
-        if (simplifiedSelection.count() == 1) {
-            m_layoutChilds = false;
-
-            QWidget *widget = core()->widgetFactory()->containerOfWidget(simplifiedSelection.first());
-            QDesignerWidgetDataBaseInterface *db = m_core->widgetDataBase();
-            if (QDesignerWidgetDataBaseItemInterface *item = db->item(db->indexOfObject(widget))) {
-                QLayout *layout = LayoutInfo::managedLayout(m_core, widget);
-                layoutContainer = (item->isContainer() || m_activeFormWindow->isMainContainer(widget));
-
-                layoutAvailable = layoutContainer
-                                    && m_activeFormWindow->hasInsertedChildren(widget)
-                                    && layout == 0;
-
-                m_layoutChilds = layoutAvailable;
-
-                breakAvailable = LayoutInfo::isWidgetLaidout(m_core, widget);
-
-                if (!breakAvailable && layout != 0) {
-                    if(qobject_cast<QLayoutWidget*>(widget))
-                        breakAvailable = !layout->isEmpty();
-                    else
-                        breakAvailable = true;  // we have a *hidden* layout
-                }
-
-                if (!breakAvailable && qobject_cast<QSplitter*>(widget))
-                    breakAvailable = qobject_cast<QSplitter*>(widget)->count() != 0;
-            }
-        } else {
+        // Figure out layouts: Looking at a group of dangling widgets
+        if (simplifiedSelection.count() != 1) {
             layoutAvailable = unlaidoutWidgetCount > 1;
             breakAvailable = false;
+            break;
         }
-    }
+        // Manipulate layout of a single widget
+        m_layoutChilds = false;
+        QWidget *widget = core()->widgetFactory()->containerOfWidget(simplifiedSelection.first());
+        
+        const QDesignerWidgetDataBaseInterface *db = m_core->widgetDataBase();
+        const QDesignerWidgetDataBaseItemInterface *item = db->item(db->indexOfObject(widget));
+        if (!item)
+            break;
+        
+        QLayout *widgetLayout = widget->layout();
+        QLayout *managedLayout = LayoutInfo::managedLayout(m_core, widgetLayout);
+        // We don't touch a layout createds by a custom widget
+        if (widgetLayout && !managedLayout)
+            break;
+
+        layoutContainer = (item->isContainer() || m_activeFormWindow->isMainContainer(widget));
+
+        layoutAvailable = layoutContainer && m_activeFormWindow->hasInsertedChildren(widget) && managedLayout == 0;
+        m_layoutChilds = layoutAvailable;
+        
+        breakAvailable = LayoutInfo::isWidgetLaidout(m_core, widget);
+        if (!breakAvailable && managedLayout != 0) {
+            if(qobject_cast<const QLayoutWidget*>(widget))
+                breakAvailable = !managedLayout->isEmpty();
+            else {
+                breakAvailable = true;  // we have a *hidden* layout
+            }
+        }
+        if (!breakAvailable) {
+            if (const QSplitter *splitter = qobject_cast<const QSplitter*>(widget))
+                breakAvailable = splitter->count() != 0;
+        }
+    } while(false);
 
     m_actionCut->setEnabled(selectedWidgetCount > 0);
     m_actionCopy->setEnabled(selectedWidgetCount > 0);

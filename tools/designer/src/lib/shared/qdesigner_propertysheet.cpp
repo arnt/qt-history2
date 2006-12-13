@@ -13,8 +13,12 @@
 
 #include "qdesigner_propertysheet_p.h"
 #include "qdesigner_utils_p.h"
+#include "layoutinfo_p.h"
+#include "qdesigner_widget_p.h"
 
 #include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerWidgetDataBaseInterface>
 
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaProperty>
@@ -28,6 +32,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QCalendarWidget>
 #include <QtGui/QDialogButtonBox>
+#include <qdebug.h>
 
 namespace {
 
@@ -42,32 +47,37 @@ const QMetaObject *propertyIntroducedBy(const QMetaObject *meta, int index)
     return 0;
 }
 
-bool hasLayoutAttributes(const QObject *object)
+
+bool hasLayoutAttributes(QObject *object)
 {
-    if (qobject_cast<const QStackedWidget*>(object) != 0)
+    if (!object->isWidgetType())
         return false;
-    if (qobject_cast<const QLabel*>(object) != 0)
+    
+    QWidget *w =  qobject_cast<QWidget *>(object);
+    const QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(w);
+    if (!fw) 
         return false;
-    if (qobject_cast<const QDockWidget*>(object) != 0)
-        return false;
-    if (qobject_cast<const QToolBar*>(object) != 0)
-        return false;
-    if (qobject_cast<const QStatusBar*>(object) != 0)
-        return false;
-    if (qobject_cast<const QCalendarWidget*>(object) != 0)
-        return false;
-    if (qobject_cast<const QDialogButtonBox*>(object) != 0)
-        return false;
-    return true;
+            
+    if (const QDesignerFormEditorInterface *core = fw->core()) {
+        if (const QDesignerWidgetDataBaseInterface *db = core->widgetDataBase()) {
+            if (db->isContainer(w))
+                return true;
+        }
+    }
+    return false;
 }
+
 }
 
 QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
     : QObject(parent),
       m_object(object),
-      meta(object->metaObject())
+      m_meta(object->metaObject()),
+      m_canHaveLayoutAttributes( hasLayoutAttributes(object)),
+      m_lastLayout(0),
+      m_LastLayoutByDesigner(false)
 {
-    const QMetaObject *baseMeta = meta;
+    const QMetaObject *baseMeta = m_meta;
 
     while (baseMeta && QString::fromUtf8(baseMeta->className()).startsWith(QLatin1String("QDesigner"))) {
         baseMeta = baseMeta->superClass();
@@ -75,7 +85,7 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
     Q_ASSERT(baseMeta != 0);
 
     for (int index=0; index<count(); ++index) {
-        const QMetaProperty p = meta->property(index);
+        const QMetaProperty p = m_meta->property(index);
 
         if (p.type() == QVariant::KeySequence)
             createFakeProperty(QString::fromUtf8(p.name()));
@@ -100,7 +110,7 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
         createFakeProperty(QLatin1String("dragEnabled"));
         createFakeProperty(QLatin1String("windowModality"));
 
-        if (hasLayoutAttributes(object)) {
+        if (m_canHaveLayoutAttributes) {
             int pindex = count();
             createFakeProperty(QLatin1String("margin"), 0);
             setAttribute(pindex, true);
@@ -140,7 +150,7 @@ bool QDesignerPropertySheet::dynamicPropertiesAllowed() const
 
 bool QDesignerPropertySheet::addDynamicProperty(const QString &propName, const QVariant &value)
 {
-    int index = meta->indexOfProperty(propName.toUtf8());
+    int index = m_meta->indexOfProperty(propName.toUtf8());
     if (index != -1)
         return false; // property already exists and is not a dynamic one
     if (!value.isValid())
@@ -185,10 +195,10 @@ bool QDesignerPropertySheet::isDynamic(int index) const
     if (!m_addProperties.contains(index))
         return false;
 
-    QString pname = propertyName(index);
+    const QString pname = propertyName(index);
 
     if (pname == QLatin1String("margin") || pname == QLatin1String("spacing")) {
-        if (m_object->isWidgetType() && hasLayoutAttributes(m_object))
+        if (m_object->isWidgetType() && m_canHaveLayoutAttributes)
             return false;
     }
     return true;
@@ -205,7 +215,7 @@ bool QDesignerPropertySheet::isDynamicProperty(int index) const
 void QDesignerPropertySheet::createFakeProperty(const QString &propertyName, const QVariant &value)
 {
     // fake properties
-    const int index = meta->indexOfProperty(propertyName.toUtf8());
+    const int index = m_meta->indexOfProperty(propertyName.toUtf8());
     if (index != -1) {
         setVisible(index, false);
         const QVariant v = value.isValid() ? value : metaProperty(index);
@@ -230,12 +240,12 @@ bool QDesignerPropertySheet::isFakeProperty(int index) const
 
 int QDesignerPropertySheet::count() const
 {
-    return meta->propertyCount() + m_addProperties.count();
+    return m_meta->propertyCount() + m_addProperties.count();
 }
 
 int QDesignerPropertySheet::indexOf(const QString &name) const
 {
-    int index = meta->indexOfProperty(name.toUtf8());
+    int index = m_meta->indexOfProperty(name.toUtf8());
 
     if (index == -1)
         index = m_addIndex.value(name, -1);
@@ -248,7 +258,7 @@ QString QDesignerPropertySheet::propertyName(int index) const
     if (isAdditionalProperty(index))
         return m_addIndex.key(index);
 
-    return QString::fromUtf8(meta->property(index).name());
+    return QString::fromUtf8(m_meta->property(index).name());
 }
 
 QString QDesignerPropertySheet::propertyGroup(int index) const
@@ -262,7 +272,7 @@ QString QDesignerPropertySheet::propertyGroup(int index) const
         return QString::fromUtf8("Accessibility");
 
     if (isAdditionalProperty(index))
-        return QString::fromUtf8(meta->className());
+        return QString::fromUtf8(m_meta->className());
 
     return g;
 }
@@ -278,10 +288,10 @@ void QDesignerPropertySheet::setPropertyGroup(int index, const QString &group)
 QVariant QDesignerPropertySheet::property(int index) const
 {
     if (isAdditionalProperty(index)) {
-        if (isFakeLayoutProperty(index) && m_object->isWidgetType()) {
-            const QWidget *widget = qobject_cast<const QWidget*>(m_object);
-            if (const QLayout *l = widget->layout())
+        if (isFakeLayoutProperty(index)) {
+            if (const QLayout *l = layout()) {
                 return l->property(propertyName(index).toUtf8());
+            }
         }
 
         return m_addProperties.value(index);
@@ -298,7 +308,7 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
 {
     Q_ASSERT(!isFakeProperty(index));
 
-    const QMetaProperty p = meta->property(index);
+    const QMetaProperty p = m_meta->property(index);
     QVariant v = p.read(m_object);
 
     if (p.isFlagType()) {
@@ -370,9 +380,8 @@ void QDesignerPropertySheet::setFakeProperty(int index, const QVariant &value)
 void QDesignerPropertySheet::setProperty(int index, const QVariant &value)
 {
     if (isAdditionalProperty(index)) {
-        if (isFakeLayoutProperty(index) && m_object->isWidgetType()) {
-            QWidget *widget = qobject_cast<QWidget*>(m_object);
-            if (QLayout *l = widget->layout()) {
+        if (isFakeLayoutProperty(index)) {
+            if (QLayout *l = layout()) {
                 l->setProperty(propertyName(index).toUtf8(), value);
                 return;
             }
@@ -382,7 +391,7 @@ void QDesignerPropertySheet::setProperty(int index, const QVariant &value)
     } else if (isFakeProperty(index)) {
         setFakeProperty(index, value);
     } else {
-        QMetaProperty p = meta->property(index);
+        QMetaProperty p = m_meta->property(index);
         p.write(m_object, resolvePropertyValue(value));
     }
 }
@@ -410,7 +419,7 @@ bool QDesignerPropertySheet::reset(int index)
     if (isAdditionalProperty(index))
         return false;
     else if (isFakeProperty(index)) {
-        const QMetaProperty p = meta->property(index);
+        const QMetaProperty p = m_meta->property(index);
         const bool result = p.reset(m_object);
         m_fakeProperties[index] = p.read(m_object);
         return result;
@@ -418,7 +427,7 @@ bool QDesignerPropertySheet::reset(int index)
 
     // ### TODO: reset for fake properties.
 
-    const QMetaProperty p = meta->property(index);
+    const QMetaProperty p = m_meta->property(index);
     return p.reset(m_object);
 }
 
@@ -442,10 +451,12 @@ bool QDesignerPropertySheet::isFakeLayoutProperty(int index) const
 
     const QString pname = propertyName(index);
 
-    if (pname == QLatin1String("margin")
-            || pname == QLatin1String("spacing")
-            || pname == QLatin1String("sizeConstraint"))
+    if (pname == QLatin1String("sizeConstraint"))
         return true;
+
+    if (pname == QLatin1String("margin")
+            || pname == QLatin1String("spacing"))
+        return m_canHaveLayoutAttributes;
 
     return false;
 }
@@ -454,8 +465,7 @@ bool QDesignerPropertySheet::isVisible(int index) const
 {
     if (isAdditionalProperty(index)) {
         if (isFakeLayoutProperty(index) && m_object->isWidgetType()) {
-            const QWidget *widget = qobject_cast<const QWidget*>(m_object);
-            return (widget->layout() != 0);
+            return layout() != 0;
         }
 
         return m_info.value(index).visible;
@@ -464,7 +474,7 @@ bool QDesignerPropertySheet::isVisible(int index) const
     if (isFakeProperty(index))
         return true;
 
-    const QMetaProperty p = meta->property(index);
+    const QMetaProperty p = m_meta->property(index);
     return (p.isWritable() && p.isDesignable(m_object)) || m_info.value(index).visible;
 }
 
@@ -495,6 +505,38 @@ void QDesignerPropertySheet::setAttribute(int index, bool attribute)
     m_info[index].attribute = attribute;
 }
 
+namespace {
+    QDesignerFormEditorInterface *formEditorForWidget(QWidget *w) {
+        const QDesignerFormWindowInterface *formWindow =  QDesignerFormWindowInterface::findFormWindow(w);
+        if (!formWindow)
+            return 0;
+        return formWindow->core();
+    }
+}
+
+
+QLayout* QDesignerPropertySheet::layout() const
+{
+    // Return the layout only if it is managed by designer and not one created on a custom widget.
+    if (!m_object->isWidgetType() || !m_canHaveLayoutAttributes)
+        return 0;
+    
+    QWidget *widget = qobject_cast<QWidget*>(m_object);
+    QLayout *widgetLayout = widget->layout();
+    if (!widgetLayout) {
+        m_lastLayout = 0;
+        return 0;
+    }
+    // Smart logic to avoid retrieving the meta DB from the widget every time.
+    if (widgetLayout != m_lastLayout) {
+        m_LastLayoutByDesigner = true;
+        if (QDesignerFormEditorInterface *core = formEditorForWidget(widget))
+            if (!qdesigner_internal::LayoutInfo::managedLayout(core ,widget))
+                m_LastLayoutByDesigner = false;
+        m_lastLayout = widgetLayout;
+    }
+    return m_LastLayoutByDesigner ? m_lastLayout : static_cast<QLayout *>(0);
+}
 
 QDesignerPropertySheetFactory::QDesignerPropertySheetFactory(QExtensionManager *parent)
     : QExtensionFactory(parent)

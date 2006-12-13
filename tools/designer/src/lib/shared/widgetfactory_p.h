@@ -68,6 +68,7 @@ public:
 
     QDesignerFormWindowInterface *currentFormWindow(QDesignerFormWindowInterface *fw);
 
+    static QLayout *createUnmanagedLayout(QWidget *parentWidget, int type);
 public slots:
     void loadPlugins();
 
