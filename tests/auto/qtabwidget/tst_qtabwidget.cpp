@@ -63,6 +63,7 @@ class tst_QTabWidget:public QObject {
     void currentIndex();
     void cornerWidget();
     void removeTab();
+    void keyboardNavigation();
 
   private:
     int addPage();
@@ -377,6 +378,50 @@ void tst_QTabWidget::removeTab()
     tw->setCurrentIndex(1);
     tw->removeTab(1);
     QCOMPARE(tw->currentIndex(), 1);
+}
+
+void tst_QTabWidget::keyboardNavigation()
+{
+    int firstIndex = addPage();
+    int index = addPage();
+    addPage();
+    tw->setCurrentIndex(firstIndex);
+    QCOMPARE(tw->currentIndex(), firstIndex);
+
+    QTest::keyClick(tw, Qt::Key_Tab, Qt::ControlModifier);
+    QCOMPARE(tw->currentIndex(), 1);
+    QTest::keyClick(tw, Qt::Key_Tab, Qt::ControlModifier);
+    QCOMPARE(tw->currentIndex(), 2);
+    QTest::keyClick(tw, Qt::Key_Tab, Qt::ControlModifier);
+    QCOMPARE(tw->currentIndex(), 0);
+    tw->setTabEnabled(1, false);
+    QTest::keyClick(tw, Qt::Key_Tab, Qt::ControlModifier);
+    QCOMPARE(tw->currentIndex(), 2);
+
+    QTest::keyClick(tw, Qt::Key_Tab, Qt::ControlModifier | Qt::ShiftModifier);
+    QCOMPARE(tw->currentIndex(), 0);
+    QTest::keyClick(tw, Qt::Key_Tab, Qt::ControlModifier | Qt::ShiftModifier);
+    QCOMPARE(tw->currentIndex(), 2);
+    tw->setTabEnabled(1, true);
+    QTest::keyClick(tw, Qt::Key_Tab, Qt::ControlModifier | Qt::ShiftModifier);
+    QCOMPARE(tw->currentIndex(), 1);
+    QTest::keyClick(tw, Qt::Key_Tab, Qt::ControlModifier | Qt::ShiftModifier);
+    QCOMPARE(tw->currentIndex(), 0);
+    QTest::keyClick(tw, Qt::Key_Tab, Qt::ControlModifier | Qt::ShiftModifier);
+    QCOMPARE(tw->currentIndex(), 2);
+    QTest::keyClick(tw, Qt::Key_Tab, Qt::ControlModifier);
+    QCOMPARE(tw->currentIndex(), 0);
+    
+    // Disable all and try to go to the next. It should not move anywhere, and more importantly
+    // it should not loop forever. (a naive "search for the first enabled tabbar") implementation
+    // might do that)
+    tw->setTabEnabled(0, false);
+    tw->setTabEnabled(1, false);
+    tw->setTabEnabled(2, false);
+    QTest::keyClick(tw, Qt::Key_Tab, Qt::ControlModifier);
+    // Disabling the current tab will move current tab to the next,
+    // but what if next tab is also disabled.. Seems that we haven't thought about that...
+    QVERIFY(tw->currentIndex() < 3 && tw->currentIndex() >= 0);
 }
 
 QTEST_MAIN(tst_QTabWidget)

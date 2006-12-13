@@ -862,17 +862,21 @@ void QTabWidget::keyPressEvent(QKeyEvent *e)
     Q_D(QTabWidget);
     if ((e->key() == Qt::Key_Tab || e->key() == Qt::Key_Backtab) &&
         count() > 1 && e->modifiers() & Qt::ControlModifier) {
+        int pageCount = d->tabs->count();
         int page = currentIndex();
-        if (e->key() == Qt::Key_Backtab || e->modifiers() & Qt::ShiftModifier) {
-            page--;
-            if (page < 0)
+        int dx = (e->key() == Qt::Key_Backtab || e->modifiers() & Qt::ShiftModifier) ? -1 : 1;
+        for (int pass = 0; pass < pageCount; ++pass) {
+            page+=dx;
+            if (page < 0) {
                 page = count() - 1;
-        } else {
-            page++;
-            if (page >= count())
+            } else if (page >= pageCount) {
                 page = 0;
+            }
+            if (d->tabs->isTabEnabled(page)) {
+                setCurrentIndex(page);
+                break;
+            }
         }
-        setCurrentIndex(page);
         if (!qApp->focusWidget())
             d->tabs->setFocus();
     } else {
