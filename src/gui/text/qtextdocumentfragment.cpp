@@ -362,8 +362,8 @@ QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainT
     return res;
 }
 
-QTextHtmlImporter::QTextHtmlImporter(QTextDocument *_doc, const QString &_html, const QTextDocument *resourceProvider)
-    : indent(0), doc(_doc)
+QTextHtmlImporter::QTextHtmlImporter(QTextDocument *_doc, const QString &_html, ImportMode mode, const QTextDocument *resourceProvider)
+    : indent(0), doc(_doc), importMode(mode)
 {
     cursor = QTextCursor(doc);
     compressNextWhitespace = false;
@@ -515,7 +515,7 @@ void QTextHtmlImporter::import()
             blockFormat.setTopMargin(topMargin(i));
             blockFormat.setBottomMargin(bottomMargin(i));
             blockFormat.setProperty(QTextFormat::BlockTrailingHorizontalRulerWidth, node->width);
-            if (hasBlock)
+            if (hasBlock && importMode == ImportToDocument)
                 cursor.mergeBlockFormat(blockFormat);
             else
                 appendBlock(blockFormat);
@@ -1035,7 +1035,7 @@ QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &html, const
     QTextDocumentFragment res;
     res.d = new QTextDocumentFragmentPrivate;
 
-    QTextHtmlImporter importer(res.d->doc, html, resourceProvider);
+    QTextHtmlImporter importer(res.d->doc, html, QTextHtmlImporter::ImportToFragment, resourceProvider);
     importer.import();
     return res;
 }

@@ -87,7 +87,14 @@ class QTextHtmlImporter : public QTextHtmlParser
 {
     struct Table;
 public:
-    QTextHtmlImporter(QTextDocument *_doc, const QString &html, const QTextDocument *resourceProvider = 0);
+    enum ImportMode {
+        ImportToFragment,
+        ImportToDocument
+    };
+
+    QTextHtmlImporter(QTextDocument *_doc, const QString &html,
+                      ImportMode mode,
+                      const QTextDocument *resourceProvider = 0);
 
     void import();
 
@@ -168,6 +175,7 @@ private:
     QTextDocument *doc;
     QTextCursor cursor;
     QTextHtmlParserNode::WhiteSpaceMode wsm;
+    ImportMode importMode;
 };
 
 #endif // QTEXTDOCUMENTFRAGMENT_P_H

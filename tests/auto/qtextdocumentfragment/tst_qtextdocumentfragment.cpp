@@ -196,6 +196,7 @@ private slots:
     void copyContents();
     void html_textAfterHr();
     void blockTagClosing();
+    void isEmpty();
 
 private:
     inline void setHtml(const QString &html)
@@ -3022,6 +3023,16 @@ void tst_QTextDocumentFragment::blockTagClosing()
     QCOMPARE(block.text(), QString("foo"));
     block = block.next();
     QCOMPARE(block.text(), QString("barbaz"));
+}
+
+void tst_QTextDocumentFragment::isEmpty()
+{
+    QTextDocumentFragment frag;
+    QVERIFY(frag.isEmpty());
+    frag = QTextDocumentFragment::fromHtml("test");
+    QVERIFY(!frag.isEmpty());
+    frag = QTextDocumentFragment::fromHtml("<hr />");
+    QVERIFY(!frag.isEmpty());
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)

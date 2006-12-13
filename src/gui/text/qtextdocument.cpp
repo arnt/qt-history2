@@ -839,7 +839,7 @@ void QTextDocument::setHtml(const QString &html)
     Q_D(QTextDocument);
     setUndoRedoEnabled(false);
     d->clear();
-    QTextHtmlImporter(this, html).import();
+    QTextHtmlImporter(this, html, QTextHtmlImporter::ImportToDocument).import();
     setUndoRedoEnabled(true);
 }
 
