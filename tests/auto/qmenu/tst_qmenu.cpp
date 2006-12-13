@@ -15,6 +15,8 @@
 #include <QToolBar>
 #include <QToolButton>
 #include <QStatusBar>
+#include <QListWidget>
+#include <QWidgetAction>
 
 #include <qmenu.h>
 #include <qstyle.h>
@@ -45,6 +47,7 @@ private slots:
     void focus();
 	void overrideMenuAction();
     void statusTip();
+    void widgetActionFocus();
 
 #if defined(QT3_SUPPORT)
     void indexBasedInsertion_data();
@@ -404,6 +407,51 @@ void tst_QMenu::onStatusTipTimer()
     QCOMPARE(st, QString("sub action"));
     QVERIFY(menu->isVisible() == false);
 }
+
+void tst_QMenu::widgetActionFocus()
+{
+    //test if the focus is correctly handled with a QWidgetAction
+    QMenu m;
+    QListWidget *l = new QListWidget(&m);
+    for(int i = 1; i<3 ; i++)
+        l->addItem(QString("item%1").arg(i));
+    QWidgetAction *wa = new QWidgetAction(&m);
+    wa->setDefaultWidget(l);
+    m.addAction(wa);
+    m.setActiveAction(wa);
+    l->setFocus(); //to ensure it has primarily the focus
+    QAction *menuitem1=m.addAction("menuitem1");
+    QAction *menuitem2=m.addAction("menuitem2");
+
+    m.popup(QPoint());
+
+    QVERIFY(m.isVisible());
+    QVERIFY(l->hasFocus());
+    QVERIFY(l->currentItem());
+    QCOMPARE(l->currentItem()->text(), QString("item1"));
+
+    QTest::keyClick(QApplication::focusWidget(), Qt::Key_Down);
+    QVERIFY(l->currentItem());
+    QCOMPARE(l->currentItem()->text(), QString("item2"));
+
+    QTest::keyClick(QApplication::focusWidget(), Qt::Key_Down);
+    QVERIFY(m.hasFocus());
+    QCOMPARE(m.activeAction(), menuitem1);
+
+    QTest::keyClick(QApplication::focusWidget(), Qt::Key_Down);
+    QVERIFY(m.hasFocus());
+    QCOMPARE(m.activeAction(), menuitem2);
+
+    QTest::keyClick(QApplication::focusWidget(), Qt::Key_Up);
+    QVERIFY(m.hasFocus());
+    QCOMPARE(m.activeAction(), menuitem1);
+
+    QTest::keyClick(QApplication::focusWidget(), Qt::Key_Up);
+    QVERIFY(l->hasFocus());
+    QCOMPARE(m.activeAction(), wa);
+
+}
+
 
 #if defined(QT3_SUPPORT)
 void tst_QMenu::indexBasedInsertion_data()

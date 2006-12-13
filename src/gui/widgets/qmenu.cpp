@@ -468,10 +468,16 @@ void QMenuPrivate::setCurrentAction(QAction *action, int popup, SelectionReason 
         }
         q->update(actionRect(action));
         QWidget *widget = widgetItems.value(action);
-        if (reason == SelectedFromKeyboard
-            && widget
-            && widget->focusPolicy() != Qt::NoFocus)
-                widget->setFocus(Qt::TabFocusReason);
+        
+        if (reason == SelectedFromKeyboard) {
+            if (widget) {
+                if (widget->focusPolicy() != Qt::NoFocus)
+                    widget->setFocus(Qt::TabFocusReason);
+            } else {
+                //when the action has no QWidget, the QMenu itself should get the focus
+                q->setFocus(Qt::TabFocusReason);
+            }
+        }
 
 #ifndef QT_NO_STATUSTIP
     }  else if (previousAction) {
