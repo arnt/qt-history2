@@ -97,6 +97,7 @@ private slots:
     void dragDropOverwriteMode();
     void editTriggers_data();
     void editTriggers();
+    void hasAutoScroll();
 
     // specialized tests below
     void setHeader();
@@ -666,7 +667,7 @@ void tst_QTreeView::editTriggers()
         view.selectionModel()->select(view.model()->index(0, 0), QItemSelectionModel::Select);
         QTest::mouseClick(view.viewport(), Qt::LeftButton, 0,
                           view.visualRect(view.model()->index(0, 0)).center());
-        QTest::qWait(QApplication::doubleClickInterval() * 1.5);
+        QTest::qWait(int(QApplication::doubleClickInterval() * 1.5));
         break;
     case QAbstractItemView::EditKeyPressed:
         view.setFocus();
@@ -684,6 +685,19 @@ void tst_QTreeView::editTriggers()
 
     // Check if we got an editor
     QCOMPARE(qFindChild<QLineEdit *>(&view, QString()) != 0, editorOpened);
+}
+
+void tst_QTreeView::hasAutoScroll()
+{
+    QTreeView view;
+    QVERIFY(view.hasAutoScroll());
+    view.setAutoScroll(false);
+    QVERIFY(!view.hasAutoScroll());
+    view.setAutoScroll(true);
+    QVERIFY(!view.hasAutoScroll());
+
+    // ### The view will scroll if we drag content near the edge of the
+    // viewport.
 }
 
 void tst_QTreeView::setHeader()
