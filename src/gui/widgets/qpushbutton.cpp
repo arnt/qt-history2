@@ -404,6 +404,13 @@ QSize QPushButton::sizeHint() const
             expandedTo(QApplication::globalStrut()));
 }
 
+/*!
+    \reimp
+ */
+QSize QPushButton::minimumSizeHint() const
+{
+    return sizeHint();
+}
 
 
 /*!\reimp

@@ -39,6 +39,7 @@ public:
     ~QPushButton();
 
     QSize sizeHint() const;
+    QSize minimumSizeHint() const;
 
     bool autoDefault() const;
     void setAutoDefault(bool);
