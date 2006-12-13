@@ -1654,14 +1654,16 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
         }
     }
 
-    if (format.fontWeight() != defaultCharFormat.fontWeight()) {
+    if (format.hasProperty(QTextFormat::FontWeight)
+        && format.fontWeight() != defaultCharFormat.fontWeight()) {
         html += QLatin1String(" font-weight:");
         html += QString::number(format.fontWeight() * 8);
         html += QLatin1Char(';');
         attributesEmitted = true;
     }
 
-    if (format.fontItalic() != defaultCharFormat.fontItalic()) {
+    if (format.hasProperty(QTextFormat::FontItalic)
+        && format.fontItalic() != defaultCharFormat.fontItalic()) {
         html += QLatin1String(" font-style:");
         html += (format.fontItalic() ? QLatin1String("italic") : QLatin1String("normal"));
         html += QLatin1Char(';');
@@ -1673,7 +1675,8 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
     bool hasDecoration = false;
     bool atLeastOneDecorationSet = false;
 
-    if (format.fontUnderline() != defaultCharFormat.fontUnderline()) {
+    if ((format.hasProperty(QTextFormat::FontUnderline) || format.hasProperty(QTextFormat::TextUnderlineStyle))
+        && format.fontUnderline() != defaultCharFormat.fontUnderline()) {
         hasDecoration = true;
         if (format.fontUnderline()) {
             html += QLatin1String(" underline");
@@ -1681,7 +1684,8 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
         }
     }
 
-    if (format.fontOverline() != defaultCharFormat.fontOverline()) {
+    if (format.hasProperty(QTextFormat::FontOverline)
+        && format.fontOverline() != defaultCharFormat.fontOverline()) {
         hasDecoration = true;
         if (format.fontOverline()) {
             html += QLatin1String(" overline");
@@ -1689,7 +1693,8 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
         }
     }
 
-    if (format.fontStrikeOut() != defaultCharFormat.fontStrikeOut()) {
+    if (format.hasProperty(QTextFormat::FontStrikeOut)
+        && format.fontStrikeOut() != defaultCharFormat.fontStrikeOut()) {
         hasDecoration = true;
         if (format.fontStrikeOut()) {
             html += QLatin1String(" line-through");

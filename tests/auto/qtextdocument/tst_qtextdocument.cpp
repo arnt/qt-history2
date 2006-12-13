@@ -79,11 +79,9 @@ private slots:
     void clonePreservesPageSize();
     void clonePreservesDefaultFont();
     void clonePreservesRootFrameFormat();
-#if QT_VERSION >= 0x040200
     void clonePreservesResources();
     void blockCount();
     void defaultStyleSheet();
-#endif
 
     void resolvedFontInEmptyFormat();
 
@@ -98,6 +96,8 @@ private slots:
     void maximumBlockCount();
     void adjustSize();
     void initialUserData();
+
+    void html_defaultFont();
 
 private:
     QTextDocument *doc;
@@ -1662,6 +1662,32 @@ void tst_QTextDocument::initialUserData()
     QVERIFY(block.userData());
     doc->setDocumentLayout(new QTestDocumentLayout(doc));
     QVERIFY(!block.userData());
+}
+
+void tst_QTextDocument::html_defaultFont()
+{
+    QFont f;
+    f.setItalic(true);
+    f.setWeight(QFont::Bold);
+    f.setUnderline(true);
+    f.setOverline(true);
+    f.setStrikeOut(true);
+    doc->setDefaultFont(f);
+    doc->setPlainText("Test");
+
+    QString bodyPart = QString::fromLatin1("<body style=\" font-family:'%1'; font-size:%2pt; font-weight:%3; font-style:italic; text-decoration: underline overline line-through;\">")
+                       .arg(f.family()).arg(f.pointSizeF()).arg(f.weight() * 8);
+
+    QString html = doc->toHtml();
+    if (!html.contains(bodyPart)) {
+        qDebug() << "html:" << html;
+        qDebug() << "expected body:" << bodyPart;
+        QVERIFY(html.contains(bodyPart));
+    }
+
+    if (html.contains("span"))
+        qDebug() << "html:" << html;
+    QVERIFY(!html.contains("<span style"));
 }
 
 QTEST_MAIN(tst_QTextDocument)
