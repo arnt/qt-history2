@@ -1522,6 +1522,11 @@ QTextHtmlExporter::QTextHtmlExporter(const QTextDocument *_doc)
 {
     const QFont defaultFont = doc->defaultFont();
     defaultCharFormat.setFont(defaultFont);
+    // don't export those for the default font since we cannot turn them off with CSS
+    defaultCharFormat.clearProperty(QTextFormat::FontUnderline);
+    defaultCharFormat.clearProperty(QTextFormat::FontOverline);
+    defaultCharFormat.clearProperty(QTextFormat::FontStrikeOut);
+    defaultCharFormat.clearProperty(QTextFormat::TextUnderlineStyle);
 }
 
 /*!
@@ -1568,29 +1573,9 @@ QString QTextHtmlExporter::toHtml(const QByteArray &encoding, ExportMode mode)
         html += (defaultCharFormat.fontItalic() ? QLatin1String("italic") : QLatin1String("normal"));
         html += QLatin1Char(';');
 
-        {
-            html += QLatin1String(" text-decoration:");
-            bool atLeastOneDecorationSet = false;
+        // do not set text-decoration on the default font since those values are /always/ propagated
+        // and cannot be turned off with CSS
 
-            if (defaultCharFormat.fontUnderline()) {
-                html += QLatin1String(" underline");
-                atLeastOneDecorationSet = true;
-            }
-
-            if (defaultCharFormat.fontOverline()) {
-                html += QLatin1String(" overline");
-                atLeastOneDecorationSet = true;
-            }
-
-            if (defaultCharFormat.fontStrikeOut()) {
-                html += QLatin1String(" line-through");
-                atLeastOneDecorationSet = true;
-            }
-
-            if (!atLeastOneDecorationSet)
-                html += QLatin1String("none");
-            html += QLatin1Char(';');
-        }
         html += QLatin1Char('\"');
 
         const QTextFrameFormat fmt = doc->rootFrame()->frameFormat();

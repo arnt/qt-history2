@@ -159,15 +159,11 @@ void tst_QTextDocument::init()
     doc = new QTextDocument;
     cursor = QTextCursor(doc);
     defaultFont = QFont();
-    // enforce text-decoration:none in body style
-    defaultFont.setOverline(false);
-    defaultFont.setUnderline(false);
-    defaultFont.setStrikeOut(false);
 
     htmlHead = QString("<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                        "p, li { white-space: pre-wrap; }\n"
                        "</style></head>"
-                       "<body style=\" font-family:'%1'; font-size:%2pt; font-weight:%3; font-style:%4; text-decoration:none;\">\n");
+                       "<body style=\" font-family:'%1'; font-size:%2pt; font-weight:%3; font-style:%4;\">\n");
     htmlHead = htmlHead.arg(defaultFont.family()).arg(defaultFont.pointSizeF()).arg(defaultFont.weight() * 8).arg((defaultFont.italic() ? "italic" : "normal"));
 
     htmlTail = QString("</body></html>");
@@ -1235,7 +1231,7 @@ void tst_QTextDocument::toHtmlBodyBgColor()
     QString expectedHtml("<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                        "p, li { white-space: pre-wrap; }\n"
                        "</style></head>"
-                       "<body style=\" font-family:'%1'; font-size:%2pt; font-weight:%3; font-style:%4; text-decoration:none;\""
+                       "<body style=\" font-family:'%1'; font-size:%2pt; font-weight:%3; font-style:%4;\""
                        " bgcolor=\"#0000ff\">\n"
                        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Blah</p>"
                        "</body></html>");
@@ -1669,13 +1665,10 @@ void tst_QTextDocument::html_defaultFont()
     QFont f;
     f.setItalic(true);
     f.setWeight(QFont::Bold);
-    f.setUnderline(true);
-    f.setOverline(true);
-    f.setStrikeOut(true);
     doc->setDefaultFont(f);
     doc->setPlainText("Test");
 
-    QString bodyPart = QString::fromLatin1("<body style=\" font-family:'%1'; font-size:%2pt; font-weight:%3; font-style:italic; text-decoration: underline overline line-through;\">")
+    QString bodyPart = QString::fromLatin1("<body style=\" font-family:'%1'; font-size:%2pt; font-weight:%3; font-style:italic;\">")
                        .arg(f.family()).arg(f.pointSizeF()).arg(f.weight() * 8);
 
     QString html = doc->toHtml();
