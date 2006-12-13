@@ -436,8 +436,8 @@ void QStroker::joinPoints(qfixed focal_x, qfixed focal_y, const QLineF &nextLine
 
             // If we are on the inside, do the short cut...
             QLineF shortCut(prevLine.p2(), nextLine.p1());
-            if (type == QLineF::BoundedIntersection
-                || prevLine.angle(shortCut) > 90) {
+            qreal angle = prevLine.angle(shortCut);
+            if (type == QLineF::BoundedIntersection || (angle > 90 && !qFuzzyCompare(angle, (qreal)90))) {
                 emitLineTo(qt_real_to_fixed(nextLine.x1()), qt_real_to_fixed(nextLine.y1()));
                 return;
             }
@@ -473,7 +473,8 @@ void QStroker::joinPoints(qfixed focal_x, qfixed focal_y, const QLineF &nextLine
             qfixed offset = m_strokeWidth / 2;
 
             QLineF shortCut(prevLine.p2(), nextLine.p1());
-            if (type == QLineF::BoundedIntersection || prevLine.angle(shortCut) > 90) {
+            qreal angle = prevLine.angle(shortCut);
+            if (type == QLineF::BoundedIntersection || (angle > 90 && !qFuzzyCompare(angle, (qreal)90))) {
                 emitLineTo(qt_real_to_fixed(nextLine.x1()), qt_real_to_fixed(nextLine.y1()));
                 return;
             }
