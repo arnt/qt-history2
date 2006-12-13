@@ -675,27 +675,69 @@ void tst_QItemDelegate::dateTimeEditor()
 
 void tst_QItemDelegate::decoration_data()
 {
+    QTest::addColumn<int>("type");
     QTest::addColumn<QSize>("size");
+    QTest::addColumn<QSize>("expected");
 
-    QTest::newRow("30x30") << QSize(30, 30);
+    int pm = QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize);
+
+    QTest::newRow("pixmap 30x30")
+        << (int)QVariant::Pixmap
+        << QSize(30, 30)
+        << QSize(30, 30);
+
+    QTest::newRow("image 30x30")
+        << (int)QVariant::Image
+        << QSize(30, 30)
+        << QSize(30, 30);
+
+    QTest::newRow("icon 30x30")
+        << (int)QVariant::Icon
+        << QSize(30, 30)
+        << QSize(pm, pm);
+
+    QTest::newRow("color 30x30")
+        << (int)QVariant::Color
+        << QSize(30, 30)
+        << QSize(pm, pm);
 }
 
 void tst_QItemDelegate::decoration()
 {
+    QFETCH(int, type);
     QFETCH(QSize, size);
+    QFETCH(QSize, expected);
 
     QTableWidget table(1, 1);
     TestItemDelegate delegate;
     table.setItemDelegate(&delegate);
     table.show();
 
+    QVariant value;
+    switch ((QVariant::Type)type) {
+    case QVariant::Pixmap:
+        value = QPixmap(size);
+        break;
+    case QVariant::Image:
+        value = QImage(size, QImage::Format_Mono);
+        break;
+    case QVariant::Icon:
+        value = QIcon(QPixmap(size));
+        break;
+    case QVariant::Color:
+        value = QColor(Qt::green);
+        break;
+    default:
+        break;
+    }
+
     QTableWidgetItem *item = new QTableWidgetItem;
-    item->setData(Qt::DecorationRole, QPixmap(size));
+    item->setData(Qt::DecorationRole, value);
     table.setItem(0, 0, item);
 
     QApplication::processEvents();
 
-    QCOMPARE(delegate.decorationRect.size(), size);
+    QCOMPARE(delegate.decorationRect.size(), expected);
 }
 
 void tst_QItemDelegate::editorEvent_data()
