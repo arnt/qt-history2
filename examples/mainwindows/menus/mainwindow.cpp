@@ -17,8 +17,8 @@
 
 MainWindow::MainWindow()
 {
-    QWidget *w = new QWidget;
-    setCentralWidget(w);
+    QWidget *widget = new QWidget;
+    setCentralWidget(widget);
 
     QWidget *topFiller = new QWidget;
     topFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -31,17 +31,18 @@ MainWindow::MainWindow()
     QWidget *bottomFiller = new QWidget;
     bottomFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    QVBoxLayout *vbox = new QVBoxLayout;
-    vbox->setMargin(5);
-    vbox->addWidget(topFiller);
-    vbox->addWidget(infoLabel);
-    vbox->addWidget(bottomFiller);
-    w->setLayout(vbox);
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->setMargin(5);
+    layout->addWidget(topFiller);
+    layout->addWidget(infoLabel);
+    layout->addWidget(bottomFiller);
+    widget->setLayout(layout);
 
     createActions();
     createMenus();
 
-    statusBar()->showMessage(tr("A context menu is available by right-clicking"));
+    QString message = tr("A context menu is available by right-clicking");
+    statusBar()->showMessage(message);
 
     setWindowTitle(tr("Menus"));
     setMinimumSize(160, 160);
@@ -230,6 +231,25 @@ void MainWindow::createActions()
     italicFont.setItalic(true);
     italicAct->setFont(italicFont);
 
+    setLineSpacingAct = new QAction(tr("Set &Line Spacing..."), this);
+    setLineSpacingAct->setStatusTip(tr("Change the gap between the lines of a "
+                                       "paragraph"));
+    connect(setLineSpacingAct, SIGNAL(triggered()), this, SLOT(setLineSpacing()));
+
+    setParagraphSpacingAct = new QAction(tr("Set &Paragraph Spacing..."), this);
+    setLineSpacingAct->setStatusTip(tr("Change the gap between paragraphs"));
+    connect(setParagraphSpacingAct, SIGNAL(triggered()),
+            this, SLOT(setParagraphSpacing()));
+
+    aboutAct = new QAction(tr("&About"), this);
+    aboutAct->setStatusTip(tr("Show the application's About box"));
+    connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
+
+    aboutQtAct = new QAction(tr("About &Qt"), this);
+    aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
+    connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+    connect(aboutQtAct, SIGNAL(triggered()), this, SLOT(aboutQt()));
+
     leftAlignAct = new QAction(tr("&Left Align"), this);
     leftAlignAct->setCheckable(true);
     leftAlignAct->setShortcut(tr("Ctrl+L"));
@@ -260,25 +280,6 @@ void MainWindow::createActions()
     alignmentGroup->addAction(justifyAct);
     alignmentGroup->addAction(centerAct);
     leftAlignAct->setChecked(true);
-
-    setLineSpacingAct = new QAction(tr("Set &Line Spacing..."), this);
-    setLineSpacingAct->setStatusTip(tr("Change the gap between the lines of a "
-                                       "paragraph"));
-    connect(setLineSpacingAct, SIGNAL(triggered()), this, SLOT(setLineSpacing()));
-
-    setParagraphSpacingAct = new QAction(tr("Set &Paragraph Spacing..."), this);
-    setLineSpacingAct->setStatusTip(tr("Change the gap between paragraphs"));
-    connect(setParagraphSpacingAct, SIGNAL(triggered()),
-            this, SLOT(setParagraphSpacing()));
-
-    aboutAct = new QAction(tr("&About"), this);
-    aboutAct->setStatusTip(tr("Show the application's About box"));
-    connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
-
-    aboutQtAct = new QAction(tr("About &Qt"), this);
-    aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
-    connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
-    connect(aboutQtAct, SIGNAL(triggered()), this, SLOT(aboutQt()));
 }
 
 void MainWindow::createMenus()
@@ -300,6 +301,10 @@ void MainWindow::createMenus()
     editMenu->addAction(pasteAct);
     editMenu->addSeparator();
 
+    helpMenu = menuBar()->addMenu(tr("&Help"));
+    helpMenu->addAction(aboutAct);
+    helpMenu->addAction(aboutQtAct);
+
     formatMenu = editMenu->addMenu(tr("&Format"));
     formatMenu->addAction(boldAct);
     formatMenu->addAction(italicAct);
@@ -311,8 +316,4 @@ void MainWindow::createMenus()
     formatMenu->addSeparator();
     formatMenu->addAction(setLineSpacingAct);
     formatMenu->addAction(setParagraphSpacingAct);
-
-    helpMenu = menuBar()->addMenu(tr("&Help"));
-    helpMenu->addAction(aboutAct);
-    helpMenu->addAction(aboutQtAct);
 }
