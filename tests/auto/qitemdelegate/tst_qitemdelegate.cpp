@@ -90,34 +90,25 @@ public:
     mutable QRect decorationRect;
 };
 
-class FooValidator : public QValidator
-{
-    Q_OBJECT
-public:
-    FooValidator(QObject *parent = 0) : QValidator(parent) {}
-    ~FooValidator() {}
-
-    void fixup(QString &input) const { input = QLatin1String("foo"); }
-
-    State validate(QString &input, int &) const {
-        return (input == QLatin1String("foo")) ? Acceptable : Invalid;
-    }
-};
-
-class DummyModel : public QAbstractTableModel
+class TestItemModel : public QAbstractTableModel
 {
 public:
-    DummyModel() : pixmap(QPixmap(200, 300)),
-                   image(QImage(200, 300, QImage::Format_Mono)),
-                   icon(QIcon(QPixmap(200, 300))),
-                   color(QColor(23, 243, 23)) {}
 
-    ~DummyModel() {}
+    enum Roles {
+        PixmapTestRole,
+        ImageTestRole,
+        IconTestRole,
+        ColorTestRole
+    };
+
+    TestItemModel(const QSize &size) : size(size){}
+
+    ~TestItemModel() {}
 
     int rowCount(const QModelIndex &parent) const
     {
         Q_UNUSED(parent);
-        return 4;
+        return 1;
     }
     
     int columnCount(const QModelIndex &parent) const
@@ -128,23 +119,26 @@ public:
 
     QVariant data(const QModelIndex& index, int role) const
     {
-        Q_UNUSED(role);
-        switch (index.row()) {
-        case 1: return QVariant(pixmap);
-        case 2: return QVariant(image);
-        case 3: return QVariant(icon);
+        Q_UNUSED(index);
+        static QPixmap pixmap(size);
+        static QImage image(size, QImage::Format_Mono);
+        static QIcon icon(pixmap);
+        static QColor color(Qt::green);
+
+        switch (role) {
+        case PixmapTestRole: return pixmap;
+        case ImageTestRole:  return image;
+        case IconTestRole:   return icon;
+        case ColorTestRole:  return color;
         default: break;
         }
-        return QVariant(color);
+
+        return QVariant();
     }
 
 private:
-    QPixmap pixmap;
-    QImage image;
-    QIcon icon;
-    QColor color;
+    QSize size;
 };
-
 
 class tst_QItemDelegate : public QObject
 {
@@ -155,8 +149,11 @@ public:
     virtual ~tst_QItemDelegate();
 
 private slots:
+    void initTestCase();
+    void cleanupTestCase();
+    void init();
+    void cleanup();
     void getSetCheck();
-
     void textRectangle_data();
     void textRectangle();
     void sizeHint_data();
@@ -169,19 +166,11 @@ private slots:
     void doLayout();
     void rect_data();
     void rect();
-    void eventFilter_data();
     void eventFilter();
     void dateTimeEditor_data();
     void dateTimeEditor();
-    void index_data();
-    void index();
     void decoration_data();
     void decoration();
-
-protected:
-    void resetRect(QRect &checkRect,
-                   QRect &pixmapRect,
-                   QRect &textRect);
 };
 
 
@@ -209,40 +198,70 @@ tst_QItemDelegate::~tst_QItemDelegate()
 {
 }
 
+void tst_QItemDelegate::initTestCase()
+{
+}
+
+void tst_QItemDelegate::cleanupTestCase()
+{
+}
+
+void tst_QItemDelegate::init()
+{
+}
+
+void tst_QItemDelegate::cleanup()
+{
+}
+
 void tst_QItemDelegate::textRectangle_data()
 {
+    QFont font;
+    QFontMetrics fontMetrics(font);
+    int pm = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin);
+    int margins = 2 * (pm + 1); // margin on each side of the text
+    int height = fontMetrics.height() - 1;  // ### -1 ?
+
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<QRect>("rect");
+    QTest::addColumn<QRect>("expected");
+
+    QTest::newRow("empty") << QString()
+                           << QRect()
+                           << QRect(0, 0, margins, height);
 }
 
 void tst_QItemDelegate::textRectangle()
 {
+    QFETCH(QString, text);
+    QFETCH(QRect, rect);
+    QFETCH(QRect, expected);
+
     QFont font;
-    QRect rect;
-    QString text;
-    QRect expected;
-
-    // even an empty item has a size
-    const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
-    QFontMetrics fontMetrics(font);
-    expected = QRect(0, 0, 2 * textMargin, fontMetrics.height() - 1); // ### why -1 ?
-    
-
     TestItemDelegate delegate;
     QRect result = delegate.textRectangle(0, rect, font, text);
+
     QCOMPARE(result, expected);
 }
 
 void tst_QItemDelegate::sizeHint_data()
 {
+    QTest::addColumn<QSize>("expected");
+
+    QFont font;
+    QFontMetrics fontMetrics(font);
+    int m = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
+    QTest::newRow("empty")
+        << QSize(2 * m, fontMetrics.height() - 1); // ### why -1 ?
+
 }
 
 void tst_QItemDelegate::sizeHint()
 {
-    QSize expected;
+    QFETCH(QSize, expected);
+
     QModelIndex index;
     QStyleOptionViewItem option;
-
-    const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
-    expected = QSize(2 * textMargin, option.fontMetrics.height() - 1); // ### whu -1 ?
 
     TestItemDelegate delegate;
     QSize result = delegate.sizeHint(option, index);
@@ -251,216 +270,281 @@ void tst_QItemDelegate::sizeHint()
 
 void tst_QItemDelegate::editorKeyPress_data()
 {
+    QTest::addColumn<QString>("initial");
+    QTest::addColumn<QString>("expected");
 
+    QTest::newRow("foo bar")
+        << QString("foo")
+        << QString("bar");
 }
 
 void tst_QItemDelegate::editorKeyPress()
 {
-    QListView view;
+    QFETCH(QString, initial);
+    QFETCH(QString, expected);
+
     QStandardItemModel model;
-    model.appendRow(new QStandardItem(QLatin1String("bar")));
+    model.appendRow(new QStandardItem(initial));
+
+    QListView view;    
     view.setModel(&model);
     view.show();
 
-    view.edit(model.index(0, 0));
+    QModelIndex index = model.index(0, 0);
+    view.edit(index);
 
-    // get the editor and install custom validator on it
     QList<QLineEdit*> lineEditors = qFindChildren<QLineEdit *>(&view);
-    Q_ASSERT(lineEditors.count() == 1);
+    QCOMPARE(lineEditors.count(), 1);
+
     QLineEdit *editor = lineEditors.at(0);
-    editor->setValidator(new FooValidator(editor));
+    QTest::keyClicks(editor, expected);
+    QTest::keyClick(editor, Qt::Key_Enter);
+    QApplication::processEvents();
 
-    QTest::keyPress(editor, Qt::Key_Enter);
-    QCoreApplication::instance()->processEvents();
-
-    // the line edit should have gotten the Key_Enter and
-    // called the validator's fixup() on the input;
-    // then the delegate should have committed the result
-    QCOMPARE(model.data(model.index(0, 0)).toString(), QLatin1String("foo"));
+    QCOMPARE(index.data().toString(), expected);
 }
 
 void tst_QItemDelegate::font_data()
 {
+    QTest::addColumn<QString>("itemText");
+    QTest::addColumn<QFont>("itemFont");
+    QTest::addColumn<QFont>("viewFont");
 
+    QFont itemFont;
+    itemFont.setItalic(true);
+    QFont viewFont;
+
+    QTest::newRow("foo italic")
+        << QString("foo")
+        << itemFont
+        << viewFont;
 }
 
 void tst_QItemDelegate::font()
 {
-    QTableWidget table(1, 2);
+    QFETCH(QString, itemText);
+    QFETCH(QFont, itemFont);
+    QFETCH(QFont, viewFont);
 
-    QFont font;
-    font.setItalic(false);
-
-    QTableWidgetItem *item = new QTableWidgetItem;
-    item->setText("Foo");
-    item->setFont(font);
-    table.setItem(0, 0, item);
-    
-    item = new QTableWidgetItem;
-    item->setText("Bar");
-    item->setFont(font);
-    table.setItem(0, 1, item);
-
-    font.setItalic(true);
-    table.setFont(font);
+    QTableWidget table(1, 1);
+    table.setFont(viewFont);
 
     TestItemDelegate *delegate = new TestItemDelegate(&table);
     table.setItemDelegate(delegate);
-
-    table.resize(800, 600);
     table.show();
+
+    QTableWidgetItem *item = new QTableWidgetItem;
+    item->setText(itemText);
+    item->setFont(itemFont);
+    table.setItem(0, 0, item);
 
     QApplication::processEvents();
 
-    QCOMPARE(delegate->displayText, QString("Bar"));
-    QCOMPARE(delegate->displayFont.italic(), false);
+    QCOMPARE(delegate->displayText, item->text());
+    QCOMPARE(delegate->displayFont, item->font());
 }
 
-void tst_QItemDelegate::resetRect(QRect& checkRect, QRect& pixmapRect,
-                                  QRect& textRect)
-{
-    checkRect = QRect(0,0, 50, 50);
-    pixmapRect = QRect(0, 0, 1000, 1000);
-    textRect = QRect(0, 0, 400, 400);
-}
-
-void tst_QItemDelegate::doLayout_data()
-{
-
-}
-
-// ### convert this test to be data driven
 //Testing the different QRect created by the doLayout function.
 //Tests are made with different values for the QStyleOptionViewItem properties:
 //decorationPosition and position.
+
+void tst_QItemDelegate::doLayout_data()
+{
+    QTest::addColumn<int>("position");
+    QTest::addColumn<int>("direction");
+    QTest::addColumn<bool>("hint");
+    QTest::addColumn<QRect>("itemRect");
+    QTest::addColumn<QRect>("checkRect");
+    QTest::addColumn<QRect>("pixmapRect");
+    QTest::addColumn<QRect>("textRect");
+    QTest::addColumn<QRect>("expectedCheckRect");
+    QTest::addColumn<QRect>("expectedPixmapRect");
+    QTest::addColumn<QRect>("expectedTextRect");
+
+    int m = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
+    //int item = 400;
+    //int check = 50;
+    //int pixmap = 1000;
+    //int text = 400;
+
+    QTest::newRow("top, left to right, hint")
+        << (int)QStyleOptionViewItem::Top
+        << (int)Qt::LeftToRight
+        << true
+        << QRect(0, 0, 400, 400)
+        << QRect(0, 0, 50, 50)
+        << QRect(0, 0, 1000, 1000)
+        << QRect(0, 0, 400, 400)
+        << QRect(0, 0, 50 + 2*m, 1000)
+        << QRect(50 + 2*m, 0, 1000 + 2*m, 1000 + m)
+        << QRect(50 + 2*m, 1000 + m, 1000 + 2*m, 400);
+    /*
+    QTest::newRow("top, left to right, limited")
+        << (int)QStyleOptionViewItem::Top
+        << (int)Qt::LeftToRight
+        << false
+        << QRect(0, 0, 400, 400)
+        << QRect(0, 0, 50, 50)
+        << QRect(0, 0, 1000, 1000)
+        << QRect(0, 0, 400, 400)
+        << QRect(m, (400/2) - (50/2), 50, 50)
+        << QRect(50 + 2*m, 0, 1000, 1000)
+        << QRect(50 + 2*m, 1000 + m, 400 - (50 + 2*m), 400 - 1000 - m);
+    */
+    QTest::newRow("top, right to left, hint")
+        << (int)QStyleOptionViewItem::Top
+        << (int)Qt::RightToLeft
+        << true
+        << QRect(0, 0, 400, 400)
+        << QRect(0, 0, 50, 50)
+        << QRect(0, 0, 1000, 1000)
+        << QRect(0, 0, 400, 400)
+        << QRect(1000 + 2 * m, 0, 50 + 2 * m, 1000)
+        << QRect(0, 0, 1000 + 2 * m, 1000 + m)
+        << QRect(0, 1000 + m, 1000 + 2 * m, 400);
+
+    QTest::newRow("bottom, left to right, hint")
+        << (int)QStyleOptionViewItem::Bottom
+        << (int)Qt::LeftToRight
+        << true
+        << QRect(0, 0, 400, 400)
+        << QRect(0, 0, 50, 50)
+        << QRect(0, 0, 1000, 1000)
+        << QRect(0, 0, 400, 400)
+        << QRect(0, 0, 50 + 2 * m, 1000)
+        << QRect(50 + 2 * m, 400 + m, 1000 + 2 * m, 1000)
+        << QRect(50 + 2 * m, 0, 1000 + 2 * m, 400 + m);
+
+    QTest::newRow("bottom, right to left, hint")
+        << (int)QStyleOptionViewItem::Bottom
+        << (int)Qt::RightToLeft
+        << true
+        << QRect(0, 0, 400, 400)
+        << QRect(0, 0, 50, 50)
+        << QRect(0, 0, 1000, 1000)
+        << QRect(0, 0, 400, 400)
+        << QRect(1000 + 2 * m, 0, 50 + 2 * m, 1000)
+        << QRect(0, 400 + m, 1000 + 2 * m, 1000)
+        << QRect(0, 0, 1000 + 2 * m, 400 + m);
+
+    QTest::newRow("left, left to right, hint")
+        << (int)QStyleOptionViewItem::Left
+        << (int)Qt::LeftToRight
+        << true
+        << QRect(0, 0, 400, 400)
+        << QRect(0, 0, 50, 50)
+        << QRect(0, 0, 1000, 1000)
+        << QRect(0, 0, 400, 400)
+        << QRect(0, 0, 50 + 2 * m, 1000)
+        << QRect(50 + 2 * m, 0, 1000 + 2 * m, 1000)
+        << QRect(1050 + 4 * m, 0, 400 + 2 * m, 1000);
+
+    QTest::newRow("left, right to left, hint")
+        << (int)QStyleOptionViewItem::Left
+        << (int)Qt::RightToLeft
+        << true
+        << QRect(0, 0, 400, 400)
+        << QRect(0, 0, 50, 50)
+        << QRect(0, 0, 1000, 1000)
+        << QRect(0, 0, 400, 400)
+        << QRect(1400 + 4 * m, 0, 50 + 2 * m, 1000)
+        << QRect(400 + 2 * m, 0, 1000 + 2 * m, 1000)
+        << QRect(0, 0, 400 + 2 * m, 1000);
+
+    QTest::newRow("right, left to right, hint")
+        << (int)QStyleOptionViewItem::Right
+        << (int)Qt::LeftToRight
+        << true
+        << QRect(0, 0, 400, 400)
+        << QRect(0, 0, 50, 50)
+        << QRect(0, 0, 1000, 1000)
+        << QRect(0, 0, 400, 400)
+        << QRect(0, 0, 50 + 2 * m, 1000)
+        << QRect(450 + 4 * m, 0, 1000 + 2 * m, 1000)
+        << QRect(50 + 2 * m, 0, 400 + 2 * m, 1000);
+
+    QTest::newRow("right, right to left, hint")
+        << (int)QStyleOptionViewItem::Right
+        << (int)Qt::RightToLeft
+        << true
+        << QRect(0, 0, 400, 400)
+        << QRect(0, 0, 50, 50)
+        << QRect(0, 0, 1000, 1000)
+        << QRect(0, 0, 400, 400)
+        << QRect(1400 + 4 * m, 0, 50 + 2 * m, 1000)
+        << QRect(0, 0, 1000 + 2 * m, 1000)
+        << QRect(1000 + 2 * m, 0, 400 + 2 * m, 1000);
+}
+
 void tst_QItemDelegate::doLayout()
 {
+    QFETCH(int, position);
+    QFETCH(int, direction);
+    QFETCH(bool, hint);
+    QFETCH(QRect, itemRect);
+    QFETCH(QRect, checkRect);
+    QFETCH(QRect, pixmapRect);
+    QFETCH(QRect, textRect);
+    QFETCH(QRect, expectedCheckRect);
+    QFETCH(QRect, expectedPixmapRect);
+    QFETCH(QRect, expectedTextRect);
+
     TestItemDelegate delegate;
     QStyleOptionViewItem option;
-    QRect checkRect;
-    QRect pixmapRect;
-    QRect textRect;
 
-    option.rect = QRect(0, 0, 400, 400);
+    option.rect = itemRect;
+    option.decorationPosition = (QStyleOptionViewItem::Position)position;
+    option.direction = (Qt::LayoutDirection)direction;
 
-    int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
+    delegate.doLayout(option, &checkRect, &pixmapRect, &textRect, hint);
 
-    //Subtest with QStyleOptionViewItem::Top
-    option.decorationPosition = QStyleOptionViewItem::Top;
-
-    option.direction = Qt::LeftToRight;
-    resetRect(checkRect, pixmapRect, textRect);
-    delegate.doLayout(option, &checkRect, &pixmapRect, &textRect, true);
-
-    QCOMPARE(checkRect, QRect(0, 0, 50 + 2 * textMargin, 1000));
-    QCOMPARE(pixmapRect, QRect( 50 + 2 * textMargin, 0,
-                                1000 + 2 * textMargin, 1000 + textMargin ));
-    QCOMPARE(textRect, QRect(50 + 2 * textMargin, 1000 + textMargin,
-                             1000 + 2 * textMargin, 400 ));
-
-    option.direction = Qt::RightToLeft;
-    resetRect(checkRect, pixmapRect, textRect);
-    delegate.doLayout(option, &checkRect, &pixmapRect, &textRect, true);
-
-
-    QCOMPARE(checkRect, QRect(1000 + 2 * textMargin, 0,
-                              50 + 2 * textMargin, 1000 ));
-    QCOMPARE(pixmapRect, QRect(0, 0, 1000 + 2 * textMargin, 1000
-                               + textMargin));
-    QCOMPARE(textRect, QRect(0, 1000 + textMargin,
-                             1000 + 2 * textMargin, 400));
-
-    //Subtest with QStyleOptionViewItem::Bottom
-    option.decorationPosition = QStyleOptionViewItem::Bottom;
-
-    option.direction = Qt::LeftToRight;
-    resetRect(checkRect, pixmapRect, textRect);
-    delegate.doLayout(option, &checkRect, &pixmapRect, &textRect, true);
-    QCOMPARE(checkRect, QRect( 0, 0, 50 + 2 * textMargin, 1000 ));
-    QCOMPARE(pixmapRect, QRect( 50 + 2 * textMargin, 400 + textMargin,
-                                1000 + 2 * textMargin, 1000 ));
-    QCOMPARE(textRect, QRect( 50 + 2 * textMargin, 0,
-                              1000 + 2 * textMargin, 400 + textMargin ));
-
-    option.direction = Qt::RightToLeft;
-    resetRect(checkRect, pixmapRect, textRect);
-    delegate.doLayout(option, &checkRect, &pixmapRect, &textRect, true);
-    QCOMPARE(checkRect, QRect( 1000 + 2 * textMargin, 0,
-                               50 + 2 * textMargin, 1000 ));
-    QCOMPARE(pixmapRect, QRect( 0, 400 + textMargin,
-                                1000 + 2 * textMargin, 1000 ));
-    QCOMPARE(textRect, QRect( 0, 0, 1000 + 2 * textMargin, 400 + textMargin ));
-
-
-    //Subtest with QStyleOptionViewItem::Left
-    option.decorationPosition = QStyleOptionViewItem::Left;
-
-    option.direction = Qt::LeftToRight;
-    resetRect(checkRect, pixmapRect, textRect);
-    delegate.doLayout(option, &checkRect, &pixmapRect, &textRect, true);
-    QCOMPARE(checkRect, QRect( 0, 0, 50 + 2 * textMargin, 1000 ));
-    QCOMPARE(pixmapRect, QRect( 50 + 2 * textMargin, 0,
-                                1000 + 2 * textMargin, 1000 ));
-    QCOMPARE(textRect, QRect( 1050 + 4 * textMargin, 0,
-                              400 + 2 * textMargin, 1000 ));
-
-    option.direction = Qt::RightToLeft;
-    resetRect(checkRect, pixmapRect, textRect);
-    delegate.doLayout(option, &checkRect, &pixmapRect, &textRect, true);
-    QCOMPARE(checkRect, QRect( 1400 + 4 * textMargin, 0,
-                               50 + 2 * textMargin, 1000 ));
-    QCOMPARE(pixmapRect, QRect( 400 + 2 * textMargin, 0,
-                                1000 + 2 * textMargin, 1000 ));
-    QCOMPARE(textRect, QRect( 0, 0, 400 + 2 * textMargin, 1000 ));
-
-
-    //Subtest with QStyleOptionViewItem::Right
-    option.decorationPosition = QStyleOptionViewItem::Right;
-
-    option.direction = Qt::LeftToRight;
-    resetRect(checkRect, pixmapRect, textRect);
-    delegate.doLayout(option, &checkRect, &pixmapRect, &textRect, true);
-    QCOMPARE(checkRect, QRect( 0, 0, 50 + 2 * textMargin, 1000 ));
-    QCOMPARE(pixmapRect, QRect( 450 + 4 * textMargin, 0,
-                                1000 + 2 * textMargin, 1000 ));
-    QCOMPARE(textRect, QRect( 50 + 2 * textMargin, 0,
-                              400 + 2 * textMargin, 1000 ));
-
-    option.direction = Qt::RightToLeft;
-    resetRect(checkRect, pixmapRect, textRect);
-    delegate.doLayout(option, &checkRect, &pixmapRect, &textRect, true);
-    QCOMPARE(checkRect, QRect( 1400 + 4 * textMargin, 0,
-                               50 + 2 * textMargin, 1000 ));
-    QCOMPARE(pixmapRect, QRect( 0, 0, 1000 + 2 * textMargin, 1000 ));
-    QCOMPARE(textRect, QRect( 1000 + 2 * textMargin, 0,
-                              400 + 2 * textMargin, 1000 ));
+    QCOMPARE(checkRect, expectedCheckRect);
+    QCOMPARE(pixmapRect, expectedPixmapRect);
+    QCOMPARE(textRect, expectedTextRect);
 }
 
 void tst_QItemDelegate::rect_data()
 {
+    QTest::addColumn<int>("role");
+    QTest::addColumn<QSize>("size");
+    QTest::addColumn<QRect>("expected");
 
+    QTest::newRow("pixmap")
+        << (int)TestItemModel::PixmapTestRole
+        << QSize(200, 300)
+        << QRect(0, 0, 200, 300);
+
+    QTest::newRow("image")
+        << (int)TestItemModel::ImageTestRole
+        << QSize(200, 300)
+        << QRect(0, 0, 200, 300);
+
+    QTest::newRow("icon")
+        << (int)TestItemModel::IconTestRole
+        << QSize(200, 300)
+        << QRect(0, 0, 200, 300);
+
+    QTest::newRow("color")
+        << (int)TestItemModel::ColorTestRole
+        << QSize(200, 300)
+        << QRect(0, 0, 200, 300);
 }
 
 void tst_QItemDelegate::rect()
 {
-    QRect result;
-    DummyModel model;
-    TestItemDelegate delegate;
+    QFETCH(int, role);
+    QFETCH(QSize, size);
+    QFETCH(QRect, expected);
+
+    TestItemModel model(size);
     QStyleOptionViewItem option;
+    TestItemDelegate delegate;
+    option.decorationSize = size;
 
-    option.decorationSize = QSize(200, 300);
-
-    for (int i = 0; i < 4; ++i) {
-        result = delegate.rect(option,
-                               model.index(0,0),
-                               Qt::DisplayRole);
-        QCOMPARE(result, QRect(0, 0, 200, 300));
-    }
-}
-
-
-void tst_QItemDelegate::eventFilter_data()
-{
+    QModelIndex index = model.index(0, 0);
+    QVERIFY(index.isValid());
+    QRect result = delegate.rect(option, index, role);
+    QCOMPARE(result, expected);
 }
 
 //TODO : Add a test for the keyPress event
@@ -514,13 +598,18 @@ void tst_QItemDelegate::eventFilter()
 
 void tst_QItemDelegate::dateTimeEditor_data()
 {
+    QTest::addColumn<QTime>("time");
+    QTest::addColumn<QDate>("date");
 
+    QTest::newRow("data")
+        << QTime(7, 16, 34)
+        << QDate(2006, 10, 31);
 }
 
 void tst_QItemDelegate::dateTimeEditor()
 {
-    QTime time(7, 16, 34);
-    QDate date(2006, 10, 31);
+    QFETCH(QTime, time);
+    QFETCH(QDate, date);
     
     QTableWidgetItem *item1 = new QTableWidgetItem;
     item1->setData(Qt::DisplayRole, time);
@@ -567,103 +656,29 @@ void tst_QItemDelegate::dateTimeEditor()
     QCOMPARE(dateTimeEditor->time(), time);
 }
 
-class CustomDelegate : public QItemDelegate
-{
-    Q_OBJECT
-public:
-    CustomDelegate(QObject *parent = 0) : QItemDelegate(parent) {}
-    mutable QLineEdit *lineEdit;
-private:
-    QWidget *createEditor(QWidget *parent,
-                          const QStyleOptionViewItem&,
-                          const QModelIndex&) const
-    {
-        lineEdit = new QLineEdit(parent);
-        return lineEdit;
-    }
-
-    void setEditorData(QWidget *editor, const QModelIndex &index) const
-    {
-        QVERIFY(index.isValid());
-        QVERIFY(index.model());
-        QVariant value = index.model()->data(index, Qt::DisplayRole);
-        QCOMPARE(lineEdit, static_cast<QLineEdit*>(editor));
-        lineEdit->setText(value.toString());
-    }
-
-    void setModelData(QWidget *editor,
-                      QAbstractItemModel *model,
-                      const QModelIndex &index) const
-    {
-        QVERIFY(index.isValid());
-        QCOMPARE(index.model(), model);
-        QCOMPARE(lineEdit, static_cast<QLineEdit*>(editor));
-    }
-};
-
-class CustomTreeWidget : public QTreeWidget
-{
-public:
-    void commitData(QWidget * = 0)
-    {
-        QLineEdit dummy;
-        QAbstractItemView::commitData(&dummy);
-    }
-};
-
-void tst_QItemDelegate::index_data()
-{
-
-}
-
-void tst_QItemDelegate::index()
-{
-    CustomTreeWidget view;
-    CustomDelegate delegate;
-    view.setItemDelegate(&delegate);
-    QTreeWidgetItem *item = new QTreeWidgetItem(&view);
-    item->setText(0, QString());
-    item->setData(0, Qt::UserRole, QString());
-    item->setFlags(item->flags() | Qt::ItemIsEditable);
-
-    // direct commit
-    view.commitData();
-
-    // indirect commit
-    view.edit(view.indexAt(QPoint(0, 0)));
-    QTest::keyClick(delegate.lineEdit, Qt::Key_Return);
-    QApplication::processEvents();
-}
-
 void tst_QItemDelegate::decoration_data()
 {
-    
+    QTest::addColumn<QSize>("size");
+
+    QTest::newRow("30x30") << QSize(30, 30);
 }
 
 void tst_QItemDelegate::decoration()
 {
-    QSize size(30, 30);
-    QPixmap pixmap(size);
+    QFETCH(QSize, size);
 
-    QTableWidget table(1, 2);
+    QTableWidget table(1, 1);
+    TestItemDelegate delegate;
+    table.setItemDelegate(&delegate);
+    table.show();
 
     QTableWidgetItem *item = new QTableWidgetItem;
-    item->setData(Qt::DecorationRole, pixmap);
+    item->setData(Qt::DecorationRole, QPixmap(size));
     table.setItem(0, 0, item);
-    
-    item = new QTableWidgetItem;
-    item->setData(Qt::DecorationRole, pixmap);
-    table.setItem(0, 1, item);
-
-    TestItemDelegate *delegate = new TestItemDelegate(&table);
-    table.setItemDelegate(delegate);
-
-    table.resize(800, 600);
-    table.show();
 
     QApplication::processEvents();
 
-    QCOMPARE(delegate->decorationRect.size(), size);
+    QCOMPARE(delegate.decorationRect.size(), size);
 }
 
 QTEST_MAIN(tst_QItemDelegate)
