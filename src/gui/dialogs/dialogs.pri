@@ -21,8 +21,10 @@ HEADERS += \
         dialogs/qfilesystemmodel_p.h \
         dialogs/qfileinfogatherer_p.h
 
-!embedded:mac:SOURCES	+= dialogs/qcolordialog_mac.cpp \
-                           dialogs/qfiledialog_mac.cpp
+!embedded:mac {
+    SOURCES	+= dialogs/qfiledialog_mac.cpp
+    OBJECTIVE_SOURCES += dialogs/qcolordialog_mac.mm
+}
 win32 {
     SOURCES += dialogs/qfiledialog_win.cpp \
 	       dialogs/qpagesetupdialog_win.cpp \

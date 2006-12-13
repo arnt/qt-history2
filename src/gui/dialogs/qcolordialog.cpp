@@ -36,7 +36,7 @@
 #include "qspinbox.h"
 
 #ifdef Q_WS_MAC
-QRgb macGetRgba(QRgb initial, bool *ok, QWidget *parent);
+QRgb macGetRgba(QRgb initial, bool needAlpha, bool *ok, QWidget *parent);
 QColor macGetColor(const QColor& initial, QWidget *parent);
 #endif
 
@@ -1491,7 +1491,7 @@ QColor QColorDialog::getColor(const QColor& initial, QWidget *parent)
 QRgb QColorDialog::getRgba(QRgb initial, bool *ok, QWidget *parent)
 {
 #if defined(Q_WS_MAC)
-    return macGetRgba(initial, ok, parent);
+    return macGetRgba(initial, true, ok, parent);
 #endif
 
     QColorDialog *dlg = new QColorDialog(parent, true);  //modal
