@@ -15,7 +15,7 @@
 //TESTED_CLASS=QFileSystemModel
 //TESTED_FILES=qfilesystemmodel.h qfilesystemmodel.cpp
 
-#define WAITTIME 500
+#define WAITTIME 1000
 
 class tst_QFileSystemModel : public QObject {
   Q_OBJECT
@@ -111,7 +111,7 @@ void tst_QFileSystemModel::rootPath()
 
     QString oldRootPath = model->rootPath();
     root = model->setRootPath(QDir::homePath());
-    QTest::qWait(WAITTIME * 2);
+    QTest::qWait(WAITTIME);
     QCOMPARE(model->rootPath(), QString(QDir::homePath()));
     QCOMPARE(rootChanged.count(), oldRootPath == model->rootPath() ? 0 : 1);
     QVERIFY(model->rowCount(root) > 0);
@@ -332,10 +332,8 @@ void tst_QFileSystemModel::rowsRemoved()
         QVERIFY(QFile::remove(tmp + QDir::separator() + model->index(i, 0, root).data().toString()));
         // Workaround for QFileSystemWatcher issue #141001
         QTest::qWait(WAITTIME);
-        QTest::qWait(WAITTIME);
     }
     for (int i = 0 ; i < 10; ++i) {
-        QTest::qWait(WAITTIME);
         QTest::qWait(WAITTIME);
         qApp->processEvents();
         if (count != 0) QVERIFY(spy0.count() >= 1); else QVERIFY(spy0.count() == 0);
