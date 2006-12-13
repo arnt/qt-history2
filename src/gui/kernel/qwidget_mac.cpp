@@ -289,11 +289,8 @@ static WindowGroupRef qt_mac_get_stays_on_top_group(Qt::WindowType type)
     WindowGroupRef group = 0;
     if(!qt_mac_stays_on_top()->contains(type)) {
         CreateWindowGroup(kWindowActivationScopeNone, &group);
-        int group_level = kCGNormalWindowLevel;
-        if(type == Qt::Dialog)
-            group_level += 1;
-        else if(type == Qt::Popup)
-            group_level += 2;
+        CGWindowLevel group_level;
+        GetWindowGroupLevelOfType(GetWindowGroupOfClass(kOverlayWindowClass), kWindowGroupLevelActive, &group_level);
         SetWindowGroupLevel(group, group_level);
         SetWindowGroupParent(group, GetWindowGroupOfClass(kAllWindowClasses));
         qt_mac_stays_on_top()->insert(type, group);
