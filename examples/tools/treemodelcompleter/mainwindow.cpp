@@ -23,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
     completer = new TreeModelCompleter(this);
     completer->setModel(modelFromFile(":/resources/treemodel.txt"));
     completer->setSeparator(QLatin1String("."));
+    QObject::connect(completer, SIGNAL(highlighted(const QModelIndex&)),
+                     this, SLOT(highlight(const QModelIndex&)));
 
     QWidget *centralWidget = new QWidget;
 
@@ -57,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
     contentsLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     contentsLabel->setText(QString("Type paths from the model above with items at each level separated by a '%1'").arg(completer->separator()));
 
-    QTreeView *treeView = new QTreeView;
+    treeView = new QTreeView;
     treeView->setModel(completer->model());
     treeView->header()->hide();
     treeView->expandAll();
@@ -161,6 +163,17 @@ QAbstractItemModel *MainWindow::modelFromFile(const QString& fileName)
     QApplication::restoreOverrideCursor();
 
     return model;
+}
+
+void MainWindow::highlight(const QModelIndex &index)
+{
+    QAbstractItemModel *completionModel = completer->completionModel();
+    QAbstractProxyModel *proxy = qobject_cast<QAbstractProxyModel *>(completionModel);
+    if (!proxy)
+        return;
+    QModelIndex sourceIndex = proxy->mapToSource(index);
+    treeView->selectionModel()->select(sourceIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    treeView->scrollTo(index);
 }
 
 void MainWindow::about()

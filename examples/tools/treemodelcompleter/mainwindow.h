@@ -15,6 +15,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QModelIndex>
 
 class QAbstractItemModel;
 class QComboBox;
@@ -23,6 +24,7 @@ class QLabel;
 class QLineEdit;
 class QProgressBar;
 class QCheckBox;
+class QTreeView;
 
 class MainWindow : public QMainWindow
 {
@@ -35,6 +37,7 @@ private slots:
     void about();
     void changeCase(int);
     void changeMode(int);
+    void highlight(const QModelIndex&);
 
 private:
     void createMenu();
@@ -45,6 +48,7 @@ private:
     QCheckBox *wrapCheckBox;
     TreeModelCompleter *completer;
     QLineEdit *lineEdit;
+    QTreeView *treeView;
 };
 
 #endif // MAINWINDOW_H
