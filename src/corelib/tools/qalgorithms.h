@@ -391,38 +391,68 @@ inline void qSortHelper(RandomAccessIterator begin, RandomAccessIterator end, co
     qSortHelper(begin, end, dummy, qLess<T>());
 }
 
-template <typename RandomAccessIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qStableSortHelper(RandomAccessIterator start, RandomAccessIterator end, const T &t, LessThan lessThan)
+template <typename RandomAccessIterator>
+Q_OUTOFLINE_TEMPLATE void qReverse(RandomAccessIterator begin, RandomAccessIterator end)
 {
-    const int span = end - start;
+    --end;
+    while (begin < end)
+        qSwap(*begin++, *end--);
+}
+
+template <typename RandomAccessIterator>
+Q_OUTOFLINE_TEMPLATE void qRotate(RandomAccessIterator begin, RandomAccessIterator middle, RandomAccessIterator end)
+{
+    qReverse(begin, middle); 
+    qReverse(middle, end); 
+    qReverse(begin, end); 
+}
+
+template <typename RandomAccessIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE void qMerge(RandomAccessIterator begin, RandomAccessIterator pivot, RandomAccessIterator end, T &t, LessThan lessThan)
+{
+    const int len1 = pivot - begin;
+    const int len2 = end - pivot;
+
+    if (len1 == 0 || len2 == 0)
+        return;
+
+    if (len1 + len2 == 2) {
+        if (lessThan(*(begin + 1), *(begin)))
+            qSwap(*begin, *(begin + 1));
+        return;
+    }
+
+    RandomAccessIterator firstCut;
+    RandomAccessIterator secondCut;
+    int len2Half;
+    if (len1 > len2) {
+        const int len1Half = len1 / 2;
+        firstCut = begin + len1Half;
+        secondCut = qLowerBound(pivot, end, *firstCut, lessThan);
+        len2Half = secondCut - pivot;
+    } else {
+        len2Half = len2 / 2;
+        secondCut = pivot + len2Half;
+        firstCut = qUpperBound(begin, pivot, *secondCut, lessThan);
+    }
+
+    qRotate(firstCut, pivot, secondCut);
+    const RandomAccessIterator newPivot = firstCut + len2Half;
+    qMerge(begin, firstCut, newPivot, t, lessThan);
+    qMerge(newPivot, secondCut, end, t, lessThan);
+}
+
+template <typename RandomAccessIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE void qStableSortHelper(RandomAccessIterator begin, RandomAccessIterator end, const T &t, LessThan lessThan)
+{
+    const int span = end - begin;
     if (span < 2)
        return;
-        
-    // Split in half and sort halves.
-    RandomAccessIterator middle = start + span / 2;
-    qStableSortHelper(start, middle, t, lessThan);
+       
+    const RandomAccessIterator middle = begin + span / 2;
+    qStableSortHelper(begin, middle, t, lessThan);
     qStableSortHelper(middle, end, t, lessThan);
-    
-    // Merge
-    RandomAccessIterator lo = start;
-    RandomAccessIterator hi = middle;
-    
-    while (lo != middle && hi != end) {
-        if (!lessThan(*hi, *lo)) {
-            ++lo; // OK, *lo is in its correct position
-        } else {
-            // Move *hi to lo's position, shift values
-            // between lo and hi - 1 one place up.
-            T value = *hi;
-            for (RandomAccessIterator i = hi; i != lo; --i) {
-                *i = *(i-1); 
-            }
-            *lo = value;
-            ++hi;
-            ++lo;
-            ++middle;
-        } 
-    }
+    qMerge(begin, middle, end, t, lessThan);
 }
 
 template <typename RandomAccessIterator, typename T>

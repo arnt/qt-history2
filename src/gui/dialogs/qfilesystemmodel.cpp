@@ -706,8 +706,8 @@ class QFileSystemModelSorter
 public:
     inline QFileSystemModelSorter(int column) : sortColumn(column) {}
 
-    bool operator()(QPair<const QFileSystemModelPrivate::QFileSystemNode*, int> &l,
-                           QPair<const QFileSystemModelPrivate::QFileSystemNode*, int> &r) const
+    bool operator()(const QPair<const QFileSystemModelPrivate::QFileSystemNode*, int> &l,
+                           const QPair<const QFileSystemModelPrivate::QFileSystemNode*, int> &r) const
     {
         switch (sortColumn) {
         case 0:
