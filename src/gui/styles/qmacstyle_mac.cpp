@@ -244,11 +244,9 @@ static inline const QRect qt_qrectForHIRect(const HIRect &hirect)
 inline bool qt_mac_is_metal(const QWidget *w)
 {
     for (; w; w = w->parentWidget()) {
-        if (w->d_func()->isOpaque())
-            break;
         if (w->testAttribute(Qt::WA_MacMetalStyle))
             return true;
-        if (w->isWindow())
+        if (w->isWindow() || w->d_func()->isOpaque())
             break;
     }
     return false;
