@@ -2646,9 +2646,6 @@ Additional options:
  $DBN  -no-qdbus........... Do not compile the QtDBus module.
  $DBY  -qdbus.............. Compile the QtDBus module.
 
- $SBN  -no-separate-debug-info Do not store debug information in a separate file
- $SBY  -separate-debug-info    Strip debug information into a separate .debug file
-
 EOF
 
 if [ "$PLATFORM_X11" = "yes" ]; then
@@ -2782,6 +2779,9 @@ Qt/X11 only:
 
  $GBN  -no-glib............ Do not compile Glib support.
  $GBY  -glib............... Compile Glib support.
+
+ $SBN  -no-separate-debug-info Do not store debug information in a separate file
+ $SBY  -separate-debug-info    Strip debug information into a separate .debug file
 
 EOF
 fi
