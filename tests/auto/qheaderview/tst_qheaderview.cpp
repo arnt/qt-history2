@@ -75,10 +75,10 @@ private slots:
     void moveSection();
     void resizeMode();
     void resizeSection();
-#if QT_VERSION > 0x040100
     void resizeAndMoveSection_data();
     void resizeAndMoveSection();
-#endif
+    void resizeHiddenSection_data();
+    void resizeHiddenSection();
     void highlightSections();
     void showSortIndicator();
     void removeAndInsertRow();
@@ -628,7 +628,6 @@ void tst_QHeaderView::moveSection()
     QCOMPARE(spy1.count(), 4);
 }
 
-#if QT_VERSION > 0x040100
 void tst_QHeaderView::resizeAndMoveSection_data()
 {
     QTest::addColumn<IntList>("logicalIndexes");
@@ -711,7 +710,42 @@ void tst_QHeaderView::resizeAndMoveSection()
         QCOMPARE(view->visualIndex(logical), oldVisualIndexes.at(i));
     }
 }
-#endif // QT_VERSION
+
+void tst_QHeaderView::resizeHiddenSection_data()
+{
+    QTest::addColumn<int>("section");
+    QTest::addColumn<int>("initialSize");
+    QTest::addColumn<int>("finalSize");
+
+    QTest::newRow("section 0 resize 50 to 20")
+        << 0 << 50 << 20;
+
+    QTest::newRow("section 1 resize 50 to 20")
+        << 1 << 50 << 20;
+
+    QTest::newRow("section 2 resize 50 to 20")
+        << 2 << 50 << 20;
+
+    QTest::newRow("section 3 resize 50 to 20")
+        << 3 << 50 << 20;
+}
+
+void tst_QHeaderView::resizeHiddenSection()
+{
+    QFETCH(int, section);
+    QFETCH(int, initialSize);
+    QFETCH(int, finalSize);
+
+    view->resizeSection(section, initialSize);
+    view->setSectionHidden(section, true);
+    QCOMPARE(view->sectionSize(section), 0);
+
+    view->resizeSection(section, finalSize);
+    QCOMPARE(view->sectionSize(section), 0);
+
+    view->setSectionHidden(section, false);
+    QCOMPARE(view->sectionSize(section), finalSize);
+}
 
 void tst_QHeaderView::resizeMode()
 {
@@ -794,9 +828,7 @@ void tst_QHeaderView::resizeSection()
     view->setResizeMode(1, QHeaderView::Stretch);
     // at this point, section 1 and 3 are set to stretch
     view->resizeSection(2, sectionSize + 40);
-#if QT_VERSION < 0x040200
-    QEXPECT_FAIL("", "4.1 behavior was wrong, doesn't hurt anything, with the refactor it was fixed for 4.2", Continue);
-#endif
+
     QCOMPARE(spy1.count(), 3);
     view->resizeSection(2, sectionSize);
     spy1.clear();
@@ -804,9 +836,7 @@ void tst_QHeaderView::resizeSection()
     // Should resize the last section also. (in total, all of them)
     view->setStretchLastSection(true);
     view->resizeSection(2, sectionSize + 40);
-#if QT_VERSION < 0x040200
-    QEXPECT_FAIL("", "4.1 behavior was wrong, doesn't hurt anything, with the refactor it was fixed for 4.2", Continue);
-#endif
+
     QCOMPARE(spy1.count(), 3);
     spy1.clear();
 
