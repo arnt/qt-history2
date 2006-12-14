@@ -19,11 +19,7 @@
 #include <qimage.h>
 
 // #define DEPTH_BUFFER
-#ifdef Q_WS_WIN
 #define QGL_FUNC_CONTEXT QGLContext *ctx = d_ptr->ctx;
-#else
-#define QGL_FUNC_CONTEXT
-#endif
 
 #define QT_CHECK_GLERROR()                                \
 {                                                         \
@@ -314,7 +310,7 @@ bool QGLFramebufferObject::release()
         return false;
     Q_D(QGLFramebufferObject);
     QGL_FUNC_CONTEXT;
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);    
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
     d->valid = d->checkFramebufferStatus();
     return d->valid;
 }

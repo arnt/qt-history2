@@ -19,7 +19,7 @@
 //  -------------
 //
 // This file is not part of the Qt API.  It exists for the convenience
-// of the QLibrary class.  This header file may change from
+// of the QGLWidget class.  This header file may change from
 // version to version without notice, or even be removed.
 //
 // We mean it.
@@ -46,78 +46,7 @@ class QMacWindowChangeEvent;
 class QGLDirectPainter;
 #endif
 
-// extension prototypes
-#ifndef Q_WS_MAC
-# ifndef APIENTRYP
-#   ifdef APIENTRY
-#     define APIENTRYP APIENTRY *
-#   else
-#     define APIENTRY
-#     define APIENTRYP *
-#   endif
-# endif
-#else
-# define APIENTRY
-# define APIENTRYP *
-#endif
-
-// ARB_fragment_program
-typedef void (APIENTRY *_glProgramStringARB) (GLenum, GLenum, GLsizei, const GLvoid *);
-typedef void (APIENTRY *_glBindProgramARB) (GLenum, GLuint);
-typedef void (APIENTRY *_glDeleteProgramsARB) (GLsizei, const GLuint *);
-typedef void (APIENTRY *_glGenProgramsARB) (GLsizei, GLuint *);
-typedef void (APIENTRY *_glProgramLocalParameter4fvARB) (GLenum, GLuint, const GLfloat *);
-
-// GLSL
-typedef GLuint (APIENTRY *_glCreateShader) (GLenum);
-typedef void (APIENTRY *_glShaderSource) (GLuint, GLsizei, const char **, const GLint *);
-typedef void (APIENTRY *_glCompileShader) (GLuint);
-typedef void (APIENTRY *_glDeleteShader) (GLuint);
-
-typedef GLuint (APIENTRY *_glCreateProgram) ();
-typedef void (APIENTRY *_glAttachShader) (GLuint, GLuint);
-typedef void (APIENTRY *_glDetachShader) (GLuint, GLuint);
-typedef void (APIENTRY *_glLinkProgram) (GLuint);
-typedef void (APIENTRY *_glUseProgram) (GLuint);
-typedef void (APIENTRY *_glDeleteProgram) (GLuint);
-
-typedef void (APIENTRY *_glGetShaderInfoLog) (GLuint, GLsizei, GLsizei *, char *);
-typedef void (APIENTRY *_glGetProgramiv) (GLuint, GLenum, GLint *);
-
-typedef GLuint (APIENTRY *_glGetUniformLocation) (GLuint, const char*);
-typedef void (APIENTRY *_glUniform4fv) (GLint, GLsizei, GLfloat *);
-typedef void (APIENTRY *_glUniform3fv) (GLint, GLsizei, GLfloat *);
-typedef void (APIENTRY *_glUniform2fv) (GLint, GLsizei, GLfloat *);
-typedef void (APIENTRY *_glUniform1fv) (GLint, GLsizei, GLfloat *);
-typedef void (APIENTRY *_glUniform1i) (GLint, GLint);
-
-typedef void (APIENTRY *_glActiveStencilFaceEXT) (GLenum );
-
-typedef void (APIENTRY *_glMultiTexCoord4f) (GLenum, GLfloat, GLfloat, GLfloat, GLfloat);
-typedef void (APIENTRY *_glActiveTexture) (GLenum);
-
- typedef GLboolean (APIENTRY *_glIsRenderbufferEXT) (GLuint renderbuffer);
-typedef void (APIENTRY *_glBindRenderbufferEXT) (GLenum target, GLuint renderbuffer);
-typedef void (APIENTRY *_glDeleteRenderbuffersEXT) (GLsizei n, const GLuint *renderbuffers);
-typedef void (APIENTRY *_glGenRenderbuffersEXT) (GLsizei n, GLuint *renderbuffers);
-typedef void (APIENTRY *_glRenderbufferStorageEXT) (GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
-typedef void (APIENTRY *_glGetRenderbufferParameterivEXT) (GLenum target, GLenum pname, GLint *params);
-typedef GLboolean (APIENTRY *_glIsFramebufferEXT) (GLuint framebuffer);
-typedef void (APIENTRY *_glBindFramebufferEXT) (GLenum target, GLuint framebuffer);
-typedef void (APIENTRY *_glDeleteFramebuffersEXT) (GLsizei n, const GLuint *framebuffers);
-typedef void (APIENTRY *_glGenFramebuffersEXT) (GLsizei n, GLuint *framebuffers);
-typedef GLenum (APIENTRY *_glCheckFramebufferStatusEXT) (GLenum target);
-typedef void (APIENTRY *_glFramebufferTexture1DEXT) (GLenum target, GLenum attachment, GLenum textarget,
-                                                     GLuint texture, GLint level);
-typedef void (APIENTRY *_glFramebufferTexture2DEXT) (GLenum target, GLenum attachment, GLenum textarget,
-                                                     GLuint texture, GLint level);
-typedef void (APIENTRY *_glFramebufferTexture3DEXT) (GLenum target, GLenum attachment, GLenum textarget,
-                                                     GLuint texture, GLint level, GLint zoffset);
-typedef void (APIENTRY *_glFramebufferRenderbufferEXT) (GLenum target, GLenum attachment, GLenum renderbuffertarget,
-                                                        GLuint renderbuffer);
-typedef void (APIENTRY *_glGetFramebufferAttachmentParameterivEXT) (GLenum target, GLenum attachment, GLenum pname,
-                                                                    GLint *params);
-typedef void (APIENTRY *_glGenerateMipmapEXT) (GLenum target);
+#include <private/qglextensions_p.h>
 
 class QGLFormatPrivate
 {
@@ -182,61 +111,7 @@ class QGLContextPrivate
 {
     Q_DECLARE_PUBLIC(QGLContext)
 public:
-    explicit QGLContextPrivate(QGLContext *context) : q_ptr(context)
-    {
-#ifdef Q_WS_WIN
-        qt_glProgramStringARB = 0;
-        qt_glBindProgramARB = 0;
-        qt_glDeleteProgramsARB = 0;
-        qt_glGenProgramsARB = 0;
-        qt_glProgramLocalParameter4fvARB = 0;
-
-        qt_glCreateShader = 0;
-        qt_glShaderSource = 0;
-        qt_glCompileShader = 0;
-        qt_glDeleteShader = 0;
-
-        qt_glCreateProgram = 0;
-        qt_glAttachShader = 0;
-        qt_glDetachShader = 0;
-        qt_glLinkProgram = 0;
-        qt_glUseProgram = 0;
-        qt_glDeleteProgram = 0;
-
-        qt_glGetShaderInfoLog = 0;
-        qt_glGetProgramiv = 0;
-
-        qt_glGetUniformLocation = 0;
-        qt_glUniform4fv = 0;
-        qt_glUniform3fv = 0;
-        qt_glUniform2fv = 0;
-        qt_glUniform1fv = 0;
-        qt_glUniform1i = 0;
-
-        qt_glActiveStencilFaceEXT = 0;
-
-        qt_glMultiTexCoord4f = 0;
-        qt_glActiveTexture = 0;
-
-        qt_glIsRenderbufferEXT = 0;
-        qt_glBindRenderbufferEXT = 0;
-        qt_glDeleteRenderbuffersEXT = 0;
-        qt_glGenRenderbuffersEXT = 0;
-        qt_glRenderbufferStorageEXT = 0;
-        qt_glGetRenderbufferParameterivEXT = 0;
-        qt_glIsFramebufferEXT = 0;
-        qt_glBindFramebufferEXT = 0;
-        qt_glDeleteFramebuffersEXT = 0;
-        qt_glGenFramebuffersEXT = 0;
-        qt_glCheckFramebufferStatusEXT = 0;
-        qt_glFramebufferTexture1DEXT = 0;
-        qt_glFramebufferTexture2DEXT = 0;
-        qt_glFramebufferTexture3DEXT = 0;
-        qt_glFramebufferRenderbufferEXT = 0;
-        qt_glGetFramebufferAttachmentParameterivEXT = 0;
-        qt_glGenerateMipmapEXT = 0;
-#endif
-    }
+    explicit QGLContextPrivate(QGLContext *context) : q_ptr(context) {}
     ~QGLContextPrivate() {}
     GLuint bindTexture(const QImage &image, GLenum target, GLint format, const QString &key,
                        qint64 qt_id, bool clean = false);
@@ -281,60 +156,19 @@ public:
     QColor transpColor;
     QGLContext *q_ptr;
 
+    QGLExtensionFuncs extensionFuncs;
+
 #ifdef Q_WS_WIN
-    _glProgramStringARB qt_glProgramStringARB;
-    _glBindProgramARB qt_glBindProgramARB;
-    _glDeleteProgramsARB qt_glDeleteProgramsARB;
-    _glGenProgramsARB qt_glGenProgramsARB;
-    _glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB;
+    static inline QGLExtensionFuncs& qt_get_extension_funcs(QGLContext *ctx) { return ctx->d_ptr->extensionFuncs; }
+#endif
 
-    // GLSL definitions
-    _glCreateShader qt_glCreateShader;
-    _glShaderSource qt_glShaderSource;
-    _glCompileShader qt_glCompileShader;
-    _glDeleteShader qt_glDeleteShader;
+#if defined(Q_WS_X11) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
+    static QGLExtensionFuncs qt_extensionFuncs;
+    static inline QGLExtensionFuncs& qt_get_extension_funcs(QGLContext *) { return qt_extensionFuncs; }
+#endif
 
-    _glCreateProgram qt_glCreateProgram;
-    _glAttachShader qt_glAttachShader;
-    _glDetachShader qt_glDetachShader;
-    _glLinkProgram qt_glLinkProgram;
-    _glUseProgram qt_glUseProgram;
-    _glDeleteProgram qt_glDeleteProgram;
-
-    _glGetShaderInfoLog qt_glGetShaderInfoLog;
-    _glGetProgramiv qt_glGetProgramiv;
-
-    _glGetUniformLocation qt_glGetUniformLocation;
-    _glUniform4fv qt_glUniform4fv;
-    _glUniform3fv qt_glUniform3fv;
-    _glUniform2fv qt_glUniform2fv;
-    _glUniform1fv qt_glUniform1fv;
-    _glUniform1i qt_glUniform1i;
-
-    _glActiveStencilFaceEXT qt_glActiveStencilFaceEXT;
-
-    _glMultiTexCoord4f qt_glMultiTexCoord4f;
-    _glActiveTexture qt_glActiveTexture;
-
-    _glIsRenderbufferEXT qt_glIsRenderbufferEXT;
-    _glBindRenderbufferEXT qt_glBindRenderbufferEXT;
-    _glDeleteRenderbuffersEXT qt_glDeleteRenderbuffersEXT;
-    _glGenRenderbuffersEXT qt_glGenRenderbuffersEXT;
-    _glRenderbufferStorageEXT qt_glRenderbufferStorageEXT;
-    _glGetRenderbufferParameterivEXT qt_glGetRenderbufferParameterivEXT;
-    _glIsFramebufferEXT qt_glIsFramebufferEXT;
-    _glBindFramebufferEXT qt_glBindFramebufferEXT;
-    _glDeleteFramebuffersEXT qt_glDeleteFramebuffersEXT;
-    _glGenFramebuffersEXT qt_glGenFramebuffersEXT;
-    _glCheckFramebufferStatusEXT qt_glCheckFramebufferStatusEXT;
-    _glFramebufferTexture1DEXT qt_glFramebufferTexture1DEXT;
-    _glFramebufferTexture2DEXT qt_glFramebufferTexture2DEXT;
-    _glFramebufferTexture3DEXT qt_glFramebufferTexture3DEXT;
-    _glFramebufferRenderbufferEXT qt_glFramebufferRenderbufferEXT;
-    _glGetFramebufferAttachmentParameterivEXT qt_glGetFramebufferAttachmentParameterivEXT;
-    _glGenerateMipmapEXT qt_glGenerateMipmapEXT;
-#endif // Q_WS_WIN
 };
+
 
 // GL extension definitions
 class QGLExtensions {
@@ -360,17 +194,6 @@ public:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QGLExtensions::Extensions)
 
-/* NV_texture_rectangle */
-#ifndef GL_NV_texture_rectangle
-#define GL_TEXTURE_RECTANGLE_NV           0x84F5
-#define GL_TEXTURE_BINDING_RECTANGLE_NV   0x84F6
-#define GL_PROXY_TEXTURE_RECTANGLE_NV     0x84F7
-#define GL_MAX_RECTANGLE_TEXTURE_SIZE_NV  0x84F8
-#endif
-
-#ifndef GL_BGRA
-#define GL_BGRA 0x80E1
-#endif
 
 struct QGLThreadContext {
     QGLContext *context;
@@ -447,217 +270,5 @@ private:
 };
 
 extern QGLContextRegister* qgl_context_register();
-
-// OpenGL constants
-#ifndef GL_MULTISAMPLE
-#define GL_MULTISAMPLE  0x809D
-#endif
-
-#ifndef GL_CLAMP_TO_EDGE
-#define GL_CLAMP_TO_EDGE 0x812F
-#endif
-
-#ifndef GL_IBM_texture_mirrored_repeat
-#define GL_MIRRORED_REPEAT_IBM            0x8370
-#endif
-
-#ifndef GL_SGIS_generate_mipmap
-#define GL_GENERATE_MIPMAP_SGIS           0x8191
-#define GL_GENERATE_MIPMAP_HINT_SGIS      0x8192
-#endif
-
-// ARB_fragment_program extension protos
-#ifndef GL_FRAGMENT_PROGRAM_ARB
-#define GL_FRAGMENT_PROGRAM_ARB           0x8804
-#define GL_PROGRAM_FORMAT_ASCII_ARB       0x8875
-#endif
-
-// Stencil wrap and two-side defines
-#ifndef GL_STENCIL_TEST_TWO_SIDE_EXT
-#define GL_STENCIL_TEST_TWO_SIDE_EXT 0x8910
-#endif
-#ifndef GL_INCR_WRAP_EXT
-#define GL_INCR_WRAP_EXT 0x8507
-#endif
-#ifndef GL_DECR_WRAP_EXT
-#define GL_DECR_WRAP_EXT 0x8508
-#endif
-
-#ifndef GL_TEXTURE0
-#define GL_TEXTURE0 0x84C0
-#endif
-
-#ifndef GL_TEXTURE1
-#define GL_TEXTURE1 0x84C1
-#endif
-
-#ifndef GL_EXT_framebuffer_object
-#define GL_INVALID_FRAMEBUFFER_OPERATION_EXT                    0x0506
-#define GL_MAX_RENDERBUFFER_SIZE_EXT                            0x84E8
-#define GL_FRAMEBUFFER_BINDING_EXT                              0x8CA6
-#define GL_RENDERBUFFER_BINDING_EXT                             0x8CA7
-#define GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE_EXT               0x8CD0
-#define GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME_EXT               0x8CD1
-#define GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL_EXT             0x8CD2
-#define GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE_EXT     0x8CD3
-#define GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET_EXT        0x8CD4
-#define GL_FRAMEBUFFER_COMPLETE_EXT                             0x8CD5
-#define GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT                0x8CD6
-#define GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT        0x8CD7
-#define GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT      0x8CD8
-#define GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT                0x8CD9
-#define GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT                   0x8CDA
-#define GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT               0x8CDB
-#define GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT               0x8CDC
-#define GL_FRAMEBUFFER_UNSUPPORTED_EXT                          0x8CDD
-#define GL_MAX_COLOR_ATTACHMENTS_EXT                            0x8CDF
-#define GL_COLOR_ATTACHMENT0_EXT                                0x8CE0
-#define GL_COLOR_ATTACHMENT1_EXT                                0x8CE1
-#define GL_COLOR_ATTACHMENT2_EXT                                0x8CE2
-#define GL_COLOR_ATTACHMENT3_EXT                                0x8CE3
-#define GL_COLOR_ATTACHMENT4_EXT                                0x8CE4
-#define GL_COLOR_ATTACHMENT5_EXT                                0x8CE5
-#define GL_COLOR_ATTACHMENT6_EXT                                0x8CE6
-#define GL_COLOR_ATTACHMENT7_EXT                                0x8CE7
-#define GL_COLOR_ATTACHMENT8_EXT                                0x8CE8
-#define GL_COLOR_ATTACHMENT9_EXT                                0x8CE9
-#define GL_COLOR_ATTACHMENT10_EXT                               0x8CEA
-#define GL_COLOR_ATTACHMENT11_EXT                               0x8CEB
-#define GL_COLOR_ATTACHMENT12_EXT                               0x8CEC
-#define GL_COLOR_ATTACHMENT13_EXT                               0x8CED
-#define GL_COLOR_ATTACHMENT14_EXT                               0x8CEE
-#define GL_COLOR_ATTACHMENT15_EXT                               0x8CEF
-#define GL_DEPTH_ATTACHMENT_EXT                                 0x8D00
-#define GL_STENCIL_ATTACHMENT_EXT                               0x8D20
-#define GL_FRAMEBUFFER_EXT                                      0x8D40
-#define GL_RENDERBUFFER_EXT                                     0x8D41
-#define GL_RENDERBUFFER_WIDTH_EXT                               0x8D42
-#define GL_RENDERBUFFER_HEIGHT_EXT                              0x8D43
-#define GL_RENDERBUFFER_INTERNAL_FORMAT_EXT                     0x8D44
-#define GL_STENCIL_INDEX_EXT                                    0x8D45
-#define GL_STENCIL_INDEX1_EXT                                   0x8D46
-#define GL_STENCIL_INDEX4_EXT                                   0x8D47
-#define GL_STENCIL_INDEX8_EXT                                   0x8D48
-#define GL_STENCIL_INDEX16_EXT                                  0x8D49
-#define GL_RENDERBUFFER_RED_SIZE_EXT                            0x8D50
-#define GL_RENDERBUFFER_GREEN_SIZE_EXT                          0x8D51
-#define GL_RENDERBUFFER_BLUE_SIZE_EXT                           0x8D52
-#define GL_RENDERBUFFER_ALPHA_SIZE_EXT                          0x8D53
-#define GL_RENDERBUFFER_DEPTH_SIZE_EXT                          0x8D54
-#define GL_RENDERBUFFER_STENCIL_SIZE_EXT                        0x8D55
-#endif
-
-#ifndef GL_EXT_packed_depth_stencil
-#define GL_DEPTH_STENCIL_EXT                                    0x84F9
-#define GL_UNSIGNED_INT_24_8_EXT                                0x84FA
-#define GL_DEPTH24_STENCIL8_EXT                                 0x88F0
-#define GL_TEXTURE_STENCIL_SIZE_EXT                             0x88F1
-#endif
-
-// ### hm. should be part of the GL 1.2 spec..
-#ifndef GL_CLAMP_TO_EDGE
-#define GL_CLAMP_TO_EDGE                  0x812F
-#endif
-
-#if defined(Q_WS_X11) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
-
-extern _glProgramStringARB qt_glProgramStringARB;
-extern _glBindProgramARB qt_glBindProgramARB;
-extern _glDeleteProgramsARB qt_glDeleteProgramsARB;
-extern _glGenProgramsARB qt_glGenProgramsARB;
-extern _glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB;
-
-extern _glActiveStencilFaceEXT qt_glActiveStencilFaceEXT;
-
-extern _glMultiTexCoord4f qt_glMultiTexCoord4f;
-extern _glActiveTexture qt_glActiveTexture;
-
-#define glProgramStringARB qt_glProgramStringARB
-#define glBindProgramARB qt_glBindProgramARB
-#define glDeleteProgramsARB qt_glDeleteProgramsARB
-#define glGenProgramsARB qt_glGenProgramsARB
-#define glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB
-
-#define glActiveStencilFaceEXT qt_glActiveStencilFaceEXT
-
-#define glMultiTexCoord4f qt_glMultiTexCoord4f
-#define glActiveTexture qt_glActiveTexture
-
-extern _glIsRenderbufferEXT qt_glIsRenderbufferEXT;
-extern _glBindRenderbufferEXT qt_glBindRenderbufferEXT;
-extern _glDeleteRenderbuffersEXT qt_glDeleteRenderbuffersEXT;
-extern _glGenRenderbuffersEXT qt_glGenRenderbuffersEXT;
-extern _glRenderbufferStorageEXT qt_glRenderbufferStorageEXT;
-extern _glGetRenderbufferParameterivEXT qt_glGetRenderbufferParameterivEXT;
-extern _glIsFramebufferEXT qt_glIsFramebufferEXT;
-extern _glBindFramebufferEXT qt_glBindFramebufferEXT;
-extern _glDeleteFramebuffersEXT qt_glDeleteFramebuffersEXT;
-extern _glGenFramebuffersEXT qt_glGenFramebuffersEXT;
-extern _glCheckFramebufferStatusEXT qt_glCheckFramebufferStatusEXT;
-extern _glFramebufferTexture1DEXT qt_glFramebufferTexture1DEXT;
-extern _glFramebufferTexture2DEXT qt_glFramebufferTexture2DEXT;
-extern _glFramebufferTexture3DEXT qt_glFramebufferTexture3DEXT;
-extern _glFramebufferRenderbufferEXT qt_glFramebufferRenderbufferEXT;
-extern _glGetFramebufferAttachmentParameterivEXT qt_glGetFramebufferAttachmentParameterivEXT;
-extern _glGenerateMipmapEXT qt_glGenerateMipmapEXT;
-
-#define glIsRenderbufferEXT qt_glIsRenderbufferEXT
-#define glBindRenderbufferEXT qt_glBindRenderbufferEXT
-#define glDeleteRenderbuffersEXT qt_glDeleteRenderbuffersEXT
-#define glGenRenderbuffersEXT qt_glGenRenderbuffersEXT
-#define glRenderbufferStorageEXT qt_glRenderbufferStorageEXT
-#define glGetRenderbufferParameterivEXT qt_glGetRenderbufferParameterivEXT
-#define glIsFramebufferEXT qt_glIsFramebufferEXT
-#define glBindFramebufferEXT qt_glBindFramebufferEXT
-#define glDeleteFramebuffersEXT qt_glDeleteFramebuffersEXT
-#define glGenFramebuffersEXT qt_glGenFramebuffersEXT
-#define glCheckFramebufferStatusEXT qt_glCheckFramebufferStatusEXT
-#define glFramebufferTexture1DEXT qt_glFramebufferTexture1DEXT
-#define glFramebufferTexture2DEXT qt_glFramebufferTexture2DEXT
-#define glFramebufferTexture3DEXT qt_glFramebufferTexture3DEXT
-#define glFramebufferRenderbufferEXT qt_glFramebufferRenderbufferEXT
-#define glGetFramebufferAttachmentParameterivEXT qt_glGetFramebufferAttachmentParameterivEXT
-#define glGenerateMipmapEXT qt_glGenerateMipmapEXT
-
-extern bool qt_resolve_framebufferobject_extensions(QGLContext *ctx);
-
-#elif defined(Q_WS_WIN)
-
-#define glProgramStringARB qt_glctx_get_dptr(ctx)->qt_glProgramStringARB
-#define glBindProgramARB qt_glctx_get_dptr(ctx)->qt_glBindProgramARB
-#define glDeleteProgramsARB qt_glctx_get_dptr(ctx)->qt_glDeleteProgramsARB
-#define glGenProgramsARB qt_glctx_get_dptr(ctx)->qt_glGenProgramsARB
-#define glProgramLocalParameter4fvARB qt_glctx_get_dptr(ctx)->qt_glProgramLocalParameter4fvARB
-
-#define glActiveStencilFaceEXT qt_glctx_get_dptr(ctx)->qt_glActiveStencilFaceEXT
-
-#define glMultiTexCoord4f qt_glctx_get_dptr(ctx)->qt_glMultiTexCoord4f
-#define glActiveTexture qt_glctx_get_dptr(ctx)->qt_glActiveTexture
-
-#define glIsRenderbufferEXT qt_glctx_get_dptr(ctx)->qt_glIsRenderbufferEXT
-#define glBindRenderbufferEXT qt_glctx_get_dptr(ctx)->qt_glBindRenderbufferEXT
-#define glDeleteRenderbuffersEXT qt_glctx_get_dptr(ctx)->qt_glDeleteRenderbuffersEXT
-#define glGenRenderbuffersEXT qt_glctx_get_dptr(ctx)->qt_glGenRenderbuffersEXT
-#define glRenderbufferStorageEXT qt_glctx_get_dptr(ctx)->qt_glRenderbufferStorageEXT
-#define glGetRenderbufferParameterivEXT qt_glctx_get_dptr(ctx)->qt_glGetRenderbufferParameterivEXT
-#define glIsFramebufferEXT qt_glctx_get_dptr(ctx)->qt_glIsFramebufferEXT
-#define glBindFramebufferEXT qt_glctx_get_dptr(ctx)->qt_glBindFramebufferEXT
-#define glDeleteFramebuffersEXT qt_glctx_get_dptr(ctx)->qt_glDeleteFramebuffersEXT
-#define glGenFramebuffersEXT qt_glctx_get_dptr(ctx)->qt_glGenFramebuffersEXT
-#define glCheckFramebufferStatusEXT qt_glctx_get_dptr(ctx)->qt_glCheckFramebufferStatusEXT
-#define glFramebufferTexture1DEXT qt_glctx_get_dptr(ctx)->qt_glFramebufferTexture1DEXT
-#define glFramebufferTexture2DEXT qt_glctx_get_dptr(ctx)->qt_glFramebufferTexture2DEXT
-#define glFramebufferTexture3DEXT qt_glctx_get_dptr(ctx)->qt_glFramebufferTexture3DEXT
-#define glFramebufferRenderbufferEXT qt_glctx_get_dptr(ctx)->qt_glFramebufferRenderbufferEXT
-#define glGetFramebufferAttachmentParameterivEXT qt_glctx_get_dptr(ctx)->qt_glGetFramebufferAttachmentParameterivEXT
-#define glGenerateMipmapEXT qt_glctx_get_dptr(ctx)->qt_glGenerateMipmapEXT
-
-extern bool qt_resolve_framebufferobject_extensions(QGLContext *ctx);
-
-#endif
-
-bool qt_resolve_version_1_3_functions(QGLContext *ctx);
-bool qt_resolve_stencil_face_extension(QGLContext *ctx);
-bool qt_resolve_frag_program_extensions(QGLContext *ctx);
 
 #endif // QGL_P_H

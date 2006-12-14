@@ -38,13 +38,8 @@
 
 extern QImage qt_imageForBrush(int brushStyle, bool invert); //in qbrush.cpp
 
-#ifdef Q_WS_WIN
 #define QGL_FUNC_CONTEXT QGLContext *ctx = const_cast<QGLContext *>(drawable.context());
 #define QGL_D_FUNC_CONTEXT QGLContext *ctx = const_cast<QGLContext *>(d->drawable.context());
-#else
-#define QGL_FUNC_CONTEXT
-#define QGL_D_FUNC_CONTEXT
-#endif
 
 #include <stdlib.h>
 #include "qpaintengine_opengl_p.h"
@@ -365,9 +360,8 @@ void QGLOffscreen::begin()
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-#ifdef Q_WS_WIN
+
                     QGLContext *ctx = drawable.context(); // needed to call glFramebufferTexture2DEXT
-#endif
                     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT1_EXT,
                                               GL_TEXTURE_2D, main_fbo_texture, 0);
                     offscreen->release();
