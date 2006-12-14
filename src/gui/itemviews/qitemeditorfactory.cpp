@@ -156,8 +156,6 @@ void QItemEditorFactory::registerEditor(QVariant::Type type, QItemEditorCreatorB
 
 class QDefaultItemEditorFactory : public QItemEditorFactory
 {
-    Q_DECLARE_TR_FUNCTIONS(QDefaultItemEditorFactory)
-
 public:
     inline QDefaultItemEditorFactory() {}
     QWidget *createEditor(QVariant::Type type, QWidget *parent) const;
@@ -416,8 +414,8 @@ void QExpandingLineEdit::resizeToContents()
 QBooleanComboBox::QBooleanComboBox(QWidget *parent)
     : QComboBox(parent)
 {
-    addItem(QObject::tr("False"));
-    addItem(QObject::tr("True"));
+    addItem(tr("False"));
+    addItem(tr("True"));
 }
 
 void QBooleanComboBox::setValue(bool value)
