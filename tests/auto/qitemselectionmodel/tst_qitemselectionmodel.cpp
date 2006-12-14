@@ -31,6 +31,7 @@ private slots:
     void clear_data();
     void clear();
     void clearAndSelect();
+	void toggleSelection();
     void select_data();
     void select();
     void persistentselections_data();
@@ -266,6 +267,7 @@ void tst_QItemSelectionModel::clearAndSelect()
     // populate selectionmodel
     selection->select(model->index(1, 1, QModelIndex()), QItemSelectionModel::Select);
     QCOMPARE(selection->selectedIndexes().count(), 1);
+	QVERIFY(selection->hasSelection());
 
     // ClearAndSelect with empty selection
     QItemSelection emptySelection;
@@ -273,7 +275,29 @@ void tst_QItemSelectionModel::clearAndSelect()
 
     // verify the selectionmodel is empty
     QVERIFY(selection->selectedIndexes().isEmpty());
+	QVERIFY(selection->hasSelection()==false);
 }
+
+void tst_QItemSelectionModel::toggleSelection()
+{
+	//test the toggle selection and checks whether selectedIndex 
+	//and hasSelection returns the correct value
+	
+	selection->clearSelection();
+    QCOMPARE(selection->selectedIndexes().count(), 0);
+	QVERIFY(selection->hasSelection()==false);
+
+	QModelIndex index=model->index(1, 1, QModelIndex());
+    // populate selectionmodel
+    selection->select(index, QItemSelectionModel::Toggle);
+    QCOMPARE(selection->selectedIndexes().count(), 1);
+	QVERIFY(selection->hasSelection()==true);
+
+    selection->select(index, QItemSelectionModel::Toggle);
+    QCOMPARE(selection->selectedIndexes().count(), 0);
+	QVERIFY(selection->hasSelection()==false);
+}
+
 
 void tst_QItemSelectionModel::select_data()
 {
@@ -1119,6 +1143,9 @@ void tst_QItemSelectionModel::select()
 
 
     QModelIndexList selectedList = selection->selectedIndexes();
+
+    QVERIFY(selection->hasSelection()!=selectedList.isEmpty());
+
     // debug output
 //     for (int i=0; i<selectedList.count(); ++i)
 //         qDebug(QString("selected (%1, %2)")
@@ -1363,6 +1390,7 @@ void tst_QItemSelectionModel::persistentselections()
     }
     // test that we have selected items
     QVERIFY(!selection->selectedIndexes().isEmpty());
+    QVERIFY(selection->hasSelection());
 
     // insert/delete row and/or columns
     if (insertRows.count() > 1)
@@ -1407,6 +1435,7 @@ void tst_QItemSelectionModel::resetModel()
     model.reset();
 
     QVERIFY(view.selectionModel()->selection().isEmpty());
+    QVERIFY(view.selectionModel()->hasSelection());
 
     view.selectionModel()->select(QItemSelection(model.index(0, 0), model.index(5, 5)), QItemSelectionModel::Select);
 
@@ -1468,6 +1497,7 @@ void tst_QItemSelectionModel::removeRows()
     QCOMPARE(spy.count(), 1);
     QVERIFY(selections.isSelected(tl));
     QVERIFY(selections.isSelected(br));
+    QVERIFY(selections.hasSelection());
 
     model.removeRows(removeTop, removeBottom - removeTop + 1);
 
@@ -1529,6 +1559,7 @@ void tst_QItemSelectionModel::removeColumns()
     QCOMPARE(spy.count(), 1);
     QVERIFY(selections.isSelected(tl));
     QVERIFY(selections.isSelected(br));
+    QVERIFY(selections.hasSelection());
 
     model.removeColumns(removeLeft, removeRight - removeLeft + 1);
 
@@ -1632,6 +1663,8 @@ void tst_QItemSelectionModel::modelLayoutChanged()
     // verify that selection is as expected
     QItemSelection selection = selectionModel.selection();
     QCOMPARE(selection.count(), expectedSelectedRanges.count());
+	QVERIFY(selectionModel.hasSelection() == !expectedSelectedRanges.isEmpty());
+
     for (int i = 0; i < expectedSelectedRanges.count(); ++i) {
         IntPairPair expectedRange = expectedSelectedRanges.at(i);
         IntPair expectedTl = expectedRange.first;

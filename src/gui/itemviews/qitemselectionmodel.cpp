@@ -1270,7 +1270,14 @@ bool QItemSelectionModel::columnIntersectsSelection(int column, const QModelInde
 bool QItemSelectionModel::hasSelection() const
 {
     Q_D(const QItemSelectionModel);
-    return !(d->ranges.isEmpty() && d->currentSelection.isEmpty());
+    if (d->currentCommand == Toggle || d->currentCommand == Deselect) {
+        QItemSelection sel = d->ranges;
+        sel.merge(d->currentSelection, d->currentCommand);
+        return !sel.isEmpty();
+    }
+    else {
+        return !(d->ranges.isEmpty() && d->currentSelection.isEmpty());
+    }
 }
 
 /*!
