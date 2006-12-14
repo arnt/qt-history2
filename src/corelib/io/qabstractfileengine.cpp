@@ -88,10 +88,6 @@
     \sa QAbstractFileEngine, QAbstractFileEngine::create()
 */
 
-/*! \typedef QAbstractFileEngine::Iterator
-    \internal
-*/
-
 /*
     All application-wide handlers are stored in this list. The mutex must be
     acquired to ensure thread safety.
@@ -813,8 +809,6 @@ public:
 /*!
     Constructs a QAbstractFileEngineIterator, using the entry filters \a
     filters, and wildcard name filters \a nameFilters.
-
-    \sa matchesFilters()
 */
 QAbstractFileEngineIterator::QAbstractFileEngineIterator(QDir::Filters filters,
                                                          const QStringList &nameFilters)
@@ -882,14 +876,14 @@ QDir::Filters QAbstractFileEngineIterator::filters() const
     This pure virtual function returns the name of the current directory
     entry, excluding the path.
 
-    \sa currentFilePath(), entryInfo()
+    \sa currentFilePath()
 */
 
 /*!
     Returns the path to the current directory entry. It's the same as
     prepending path() to the return value of currentFileName().
 
-    \sa currentFileName(), entryInfo()
+    \sa currentFileName()
 */
 QString QAbstractFileEngineIterator::currentFilePath() const
 {
@@ -912,7 +906,7 @@ QString QAbstractFileEngineIterator::currentFilePath() const
     by this function might contain cached information that QFileInfo otherwise
     would have to access through the file engine.
 
-    \sa currentFileName(), entryInfo()
+    \sa currentFileName()
 */
 QFileInfo QAbstractFileEngineIterator::currentFileInfo() const
 {
@@ -960,7 +954,7 @@ QVariant QAbstractFileEngineIterator::entryInfo(EntryInfoType type) const
     entry in the current directory (i.e., the iterator path is valid and
     accessible, and the iterator has not reached the end of the entry list).
 
-    \sa QDirIterator::isValid()
+    \sa QDirIterator::hasNext()
 */
 
 /*!

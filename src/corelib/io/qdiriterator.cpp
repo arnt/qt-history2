@@ -66,7 +66,7 @@
 
     \value Subdirectories List entries inside all subdirectories as well.
 
-    \value FollowSymlinks When combined with \l Subdirectories, this flag
+    \value FollowSymlinks When combined with Subdirectories, this flag
     enables iterating through all subdirectories of the assigned path,
     following all symbolic links. Symbolic link loops (e.g., "link" => "." or
     "link" => "..") are automatically detected and ignored.
