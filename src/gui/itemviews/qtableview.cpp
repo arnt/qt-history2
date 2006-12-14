@@ -1724,16 +1724,18 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
                     : d->horizontalHeader->sectionSize(index.column());
 
     if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem) {
-        if (horizontalPosition - horizontalOffset < 0)
-            horizontalScrollBar()->setValue(horizontalIndex);
-        else if (horizontalPosition - horizontalOffset + cellWidth > viewportWidth) {
+        if (hint == PositionAtCenter // center or right
+            || (horizontalPosition - horizontalOffset + cellWidth > viewportWidth)) {
+            int w = (hint == PositionAtCenter ? viewportWidth / 2 : viewportWidth);
             int x = cellWidth;
             while (horizontalIndex > 0) {
                 x += columnWidth(d->horizontalHeader->logicalIndex(horizontalIndex-1));
-                if (x > viewportWidth)
+                if (x > w)
                     break;
                 --horizontalIndex;
             }
+            horizontalScrollBar()->setValue(horizontalIndex);
+        } else if (horizontalPosition - horizontalOffset < 0) {
             horizontalScrollBar()->setValue(horizontalIndex);
         }
     } else { // ScrollPerPixel
@@ -1766,13 +1768,14 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
     }
 
     if (verticalScrollMode() == QAbstractItemView::ScrollPerItem) {
-        if (verticalPosition - verticalOffset < 0)
+        if (hint == PositionAtTop)
             verticalScrollBar()->setValue(verticalIndex);
-        else if (verticalPosition - verticalOffset + cellHeight > viewportHeight) {
+        else if (hint == PositionAtBottom || hint == PositionAtCenter) {
+            int h = (hint == PositionAtCenter ? viewportHeight / 2 : viewportHeight);
             int y = cellHeight;
             while (verticalIndex > 0) {
                 y += rowHeight(d->verticalHeader->logicalIndex(verticalIndex-1));
-                if (y > viewportHeight)
+                if (y > h)
                     break;
                 --verticalIndex;
             }
