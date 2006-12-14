@@ -27,6 +27,11 @@
 extern Q_GUI_EXPORT qint64 qt_image_id(const QImage &image);
 extern Q_GUI_EXPORT qint64 qt_pixmap_id(const QPixmap &pixmap);
 
+
+#if defined(Q_WS_X11) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
+QGLExtensionFuncs QGLContextPrivate::qt_extensionFuncs;
+#endif
+
 QThreadStorage<QGLThreadContext *> qgl_context_storage;
 
 Q_GLOBAL_STATIC(QGLFormat, qgl_default_format)
