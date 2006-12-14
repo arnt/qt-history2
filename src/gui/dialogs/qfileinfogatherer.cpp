@@ -14,8 +14,9 @@
 #include "qfileinfogatherer_p.h"
 #include <qdebug.h>
 #include <qfsfileengine.h>
+#if QT_VERSION >= 0x040300
 #include <qdiriterator.h>
-
+#endif
 #ifndef Q_OS_WIN
 #include <unistd.h>
 #include <sys/types.h>
@@ -143,8 +144,10 @@ void QFileInfoGatherer::run()
         QString path;
         QStringList list;
         if (!this->path.isEmpty()) {
-            path = this->path.pop();
-            list = this->files.pop();
+            path = this->path.first();
+            list = this->files.first();
+	    this->path.pop_front();
+	    this->files.pop_front();
             updateFiles = true;
         }
         mutex.unlock();
@@ -259,7 +262,7 @@ void QFileInfoGatherer::getFileInfos(const QString &path, const QStringList &fil
             for (int i = 0; i < files.count(); ++i)
                 infoList << QFileInfo(files.at(i));
         }
-        for (int i = 0; i < infoList.count(); ++i) {
+        for (int i = infoList.count() - 1; i >= 0; --i) {
             QExtendedInformation info = getInfo(infoList.at(i));
             info.isHidden = false; // windows file engine says drives are hidden, open bug
             QString driveName = translateDriveName(infoList.at(i));
@@ -274,7 +277,9 @@ void QFileInfoGatherer::getFileInfos(const QString &path, const QStringList &fil
     QFileInfo fileInfo;
     bool firstTime = true;
     QList<QPair<QString,QExtendedInformation> > updatedFiles;
+    QStringList filesToCheck = files;
 
+#if QT_VERSION >= 0x040300
     QString itPath = files.isEmpty() ? path : QLatin1String("");
     QDirIterator dirIt(itPath, QDir::AllEntries | QDir::System | QDir::Hidden);
     QStringList allFiles;
@@ -286,10 +291,16 @@ void QFileInfoGatherer::getFileInfos(const QString &path, const QStringList &fil
     }
     if (!allFiles.isEmpty())
         emit newListOfFiles(path, allFiles);
+#else
+    if (files.isEmpty()) {
+	QDir dir(path);
+	filesToCheck = dir.entryList(QDir::AllEntries | QDir::System | QDir::Hidden);
+	emit newListOfFiles(path, filesToCheck);
+    }
+#endif
 
-
-    QStringList::const_iterator filesIt = files.constBegin();
-    while(!abort && filesIt != files.constEnd()) {
+    QStringList::const_iterator filesIt = filesToCheck.constBegin();
+    while(!abort && filesIt != filesToCheck.constEnd()) {
         fileInfo.setFile(path + QDir::separator() + *filesIt);
         ++filesIt;
         fetch(fileInfo, base, firstTime, updatedFiles, path);

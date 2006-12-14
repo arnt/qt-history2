@@ -189,8 +189,10 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
         Q_ASSERT(row >= 0);
         if (parent->visibleLocation(row) == -1) {
             QFileSystemModelPrivate *p = const_cast<QFileSystemModelPrivate*>(this);
-            p->fileInfoGatherer.fetchExtendedInformation(q->filePath(this->index(parent)), QStringList(element));
             p->addVisibleFiles(parent, QStringList(element));
+            if (!parent->children.at(row).hasInformation()) {
+                p->fileInfoGatherer.fetchExtendedInformation(q->filePath(this->index(parent)), QStringList(element));
+            }
         }
         parent = &parent->children[row];
     }
@@ -392,8 +394,6 @@ QVariant QFileSystemModel::data(const QModelIndex &index, int role) const
         if (index.column() == 0) {
             QIcon icon = d->icon(index);
             if (icon.isNull()) {
-                QFileSystemModelPrivate *p = const_cast<QFileSystemModelPrivate*>(d);
-                p->fileInfoGatherer.fetchExtendedInformation(filePath(index.parent()), QStringList(d->name(index)));
                 if (d->node(index)->isDir())
                     icon = d->fileInfoGatherer.iconProvider()->icon(QFileIconProvider::Folder);
                 else
@@ -1154,8 +1154,9 @@ void QFileSystemModelPrivate::directoryChanged(const QString &directory, const Q
            removeNode(parentNode, i);
         } else {
             // usually there is only 1 file so don't bother compressing this
-            if (!parentNode->children.at(i).hasInformation())
+            if (!parentNode->children.at(i).hasInformation()) {
                 fileInfoGatherer.fetchExtendedInformation(directory, QStringList(parentNode->children.at(i).fileName));
+	    }
             newFiles.erase(iterator);
             continue;
         }
