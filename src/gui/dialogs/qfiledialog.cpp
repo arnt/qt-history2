@@ -749,7 +749,7 @@ void QFileDialog::setHistory(const QStringList &paths)
     // add "my computer"
     list.append(QUrl::fromLocalFile(QLatin1String("")));
     d->addUrls(list, 0);
-    idx = d->lookInCombo->model()->index(d->lookInCombo->model()->rowCount()-1, 0);
+    idx = d->lookInCombo->model()->index(d->lookInCombo->model()->rowCount() - 1, 0);
 
     // ### append history
     QList<QUrl> urls;
@@ -782,7 +782,6 @@ void QFileDialogPrivate::addUrls(const QList<QUrl> &list, int row) {
         QUrl url = list.at(i);
         if (!url.isValid())
             continue;
-        QModelIndex idx = model->index(url.toLocalFile());
         lookInCombo->model()->insertRows(row, 1);
         setUrl(lookInCombo->model()->index(row, 0), url);
         watching.append(url.toLocalFile());
