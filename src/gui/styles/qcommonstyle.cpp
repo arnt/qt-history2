@@ -1831,7 +1831,9 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
                     r.moveTopLeft(QPoint(twf->leftCornerWidgetSize.width(), 0));
                     break;
                 case Qt::AlignCenter:
-                    r.moveTopLeft(QPoint(twf->rect.center().x() - r.width() / 2, 0));
+                    r.moveTopLeft(QPoint(twf->rect.center().x() - qRound(r.width() / 2.0f)
+                                         + (twf->leftCornerWidgetSize.width() / 2)
+                                         - (twf->rightCornerWidgetSize.width() / 2), 0));
                     break;
                 case Qt::AlignRight:
                     r.moveTopLeft(QPoint(twf->rect.width() - twf->tabBarSize.width()
@@ -1852,7 +1854,9 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
                                          twf->rect.height() - twf->tabBarSize.height()));
                     break;
                 case Qt::AlignCenter:
-                    r.moveTopLeft(QPoint(twf->rect.center().x() - r.width() / 2,
+                    r.moveTopLeft(QPoint(twf->rect.center().x() - qRound(r.width() / 2.0f)
+                                         + (twf->leftCornerWidgetSize.width() / 2)
+                                         - (twf->rightCornerWidgetSize.width() / 2),
                                          twf->rect.height() - twf->tabBarSize.height()));
                     break;
                 case Qt::AlignRight:
