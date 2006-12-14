@@ -774,8 +774,10 @@ void QHeaderView::resizeSection(int logical, int size)
     if (logical < 0 || logical >= count())
         return;
 
-    if (isSectionHidden(logical))
+    if (isSectionHidden(logical)) {
+        d->hiddenSectionSize.insert(logical, size);
         return;
+    }
 
     int oldSize = sectionSize(logical);
     if (oldSize == size)
