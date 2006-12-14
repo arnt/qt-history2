@@ -12,8 +12,8 @@ TARGET = ../tst_qtcpsocket
 
 win32 {
   CONFIG(debug, debug|release) {
-    TARGET = ../../debug/tst_qtcpsocket
+    TARGET = ../debug/tst_qtcpsocket
 } else {
-    TARGET = ../../release/tst_qtcpsocket
+    TARGET = ../release/tst_qtcpsocket
   }
 }

@@ -1491,13 +1491,13 @@ void tst_QTcpSocket::suddenRemoteDisconnect()
     connect(&clientProcess, SIGNAL(finished(int)), &loop, SLOT(quit()));
     QTime stopWatch;
     stopWatch.start();
-    QTimer::singleShot(10000, &loop, SLOT(quit()));
+    QTimer::singleShot(20000, &loop, SLOT(quit()));
 
     while ((serverProcess.state() == QProcess::Running
-           || clientProcess.state() == QProcess::Running) && stopWatch.elapsed() < 10000)
+           || clientProcess.state() == QProcess::Running) && stopWatch.elapsed() < 20000)
         loop.exec();
 
-    QVERIFY(stopWatch.elapsed() < 10000);
+    QVERIFY(stopWatch.elapsed() < 20000);
 
     // Check that both exited normally.
     QCOMPARE(clientProcess.readAll().constData(), "SUCCESS\n");

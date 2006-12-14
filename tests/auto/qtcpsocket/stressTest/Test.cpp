@@ -159,7 +159,6 @@ void My4Server::stopServer()
         qDebug("SUCCESS");
         m_socket->safeShutDown = true;
         m_socket->sendTest(42);
-        m_socket->disconnectFromHost();
     } else {
         QCoreApplication::instance()->quit();
     }
