@@ -431,6 +431,7 @@ public:
     QVector<ApplicationFont> applicationFonts;
     int addAppFont(const QByteArray &fontData, const QString &fileName);
     bool reregisterAppFonts;
+    bool isApplicationFont(const QString &fileName);
 
     void invalidate();
 
@@ -439,7 +440,7 @@ public:
                  bool italic, int pixelSize, const QByteArray &file, int fileIndex,
                  bool antialiased, QFontDatabase::WritingSystem primaryWritingSystem = QFontDatabase::Any);
     void addQPF2File(const QByteArray &file);
-    void addTTFile(const QByteArray &file);
+    QStringList addTTFile(const QByteArray &file, const QByteArray &fontData = QByteArray());
 
     QDataStream *stream;
 #endif
@@ -2254,6 +2255,12 @@ void QFontDatabase::parseFontName(const QString &name, QString &foundry, QString
 void QFontDatabase::createDatabase()
 { initializeDb(); }
 
+// used from qfontengine_ft.cpp
+QByteArray qt_fontdata_from_index(int index)
+{
+    return privateDb()->applicationFonts.value(index).data;
+}
+
 int QFontDatabasePrivate::addAppFont(const QByteArray &fontData, const QString &fileName)
 {
     QFontDatabasePrivate::ApplicationFont font;
@@ -2280,6 +2287,14 @@ int QFontDatabasePrivate::addAppFont(const QByteArray &fontData, const QString &
 
     invalidate();
     return i;
+}
+
+bool QFontDatabasePrivate::isApplicationFont(const QString &fileName)
+{
+    for (int i = 0; i < applicationFonts.count(); ++i)
+        if (applicationFonts.at(i).fileName == fileName)
+            return true;
+    return false;
 }
 
 /*!

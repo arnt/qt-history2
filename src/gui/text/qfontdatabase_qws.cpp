@@ -100,16 +100,22 @@ void QFontDatabasePrivate::addQPF2File(const QByteArray &file)
 #endif
 
 #ifndef QT_NO_FREETYPE
-void QFontDatabasePrivate::addTTFile(const QByteArray &file)
+QStringList QFontDatabasePrivate::addTTFile(const QByteArray &file, const QByteArray &fontData)
 {
+    QStringList families;
     extern FT_Library qt_getFreetype();
     FT_Library library = qt_getFreetype();
 
     int index = 0;
     int numFaces = 0;
-    FT_Face face;
     do {
-        FT_Error error = FT_New_Face(library, file, index, &face);
+        FT_Face face;
+        FT_Error error;
+        if (!fontData.isEmpty()) {
+            error = FT_New_Memory_Face(library, (const FT_Byte *)fontData.constData(), fontData.size(), index, &face);
+        } else {
+            error = FT_New_Face(library, file, index, &face);
+        }
         if (error != FT_Err_Ok) {
             qDebug() << "FT_New_Face failed with index" << index << ":" << hex << error;
             break;
@@ -133,14 +139,19 @@ void QFontDatabasePrivate::addTTFile(const QByteArray &file)
             }
         }
 
-        addFont(QString::fromAscii(face->family_name), /*foundry*/ "", weight, italic,
+        QString family = QString::fromAscii(face->family_name);
+        families.append(family);
+        addFont(family, /*foundry*/ "", weight, italic,
                 /*pixelsize*/ 0, file, index, /*antialias*/ true, primaryWritingSystem);
 
         FT_Done_Face(face);
         ++index;
     } while (index < numFaces);
+    return families;
 }
 #endif
+
+static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt);
 
 /*!
     \internal
@@ -152,6 +163,14 @@ static void initializeDb()
     QFontDatabasePrivate *db = privateDb();
     if (!db || db->count)
         return;
+
+    if (db->reregisterAppFonts) {
+        db->reregisterAppFonts = false;
+        for (int i = 0; i < db->applicationFonts.count(); ++i)
+            if (!db->applicationFonts.at(i).families.isEmpty()) {
+                registerFont(&db->applicationFonts[i]);
+            }
+    }
 
     QString fontpath;
 #ifndef QT_NO_SETTINGS
@@ -375,7 +394,7 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
 #ifndef QT_NO_FREETYPE
     if ( foundry->name != QLatin1String("qt") ) { ///#### is this the best way????
         QString file = size->fileName;
-        if (QFile::exists(file)) {
+        if (QFile::exists(file) || privateDb()->isApplicationFont(file)) {
             QFontEngine::FaceId faceId;
             faceId.filename = file.toLocal8Bit();
             faceId.index = size->fileIndex;
@@ -428,20 +447,32 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
 
 static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)
 {
-    // #######
-    fnt->families.clear();
+    QFontDatabasePrivate *db = privateDb();
+    fnt->families = db->addTTFile(QFile::encodeName(fnt->fileName), fnt->data);
+    db->reregisterAppFonts = true;
 }
 
 bool QFontDatabase::removeApplicationFont(int handle)
 {
-    Q_UNUSED(handle);
-    // #######
-    return false;
+    QFontDatabasePrivate *db = privateDb();
+    if (handle < 0 || handle >= db->applicationFonts.count())
+        return false;
+
+    db->applicationFonts[handle] = QFontDatabasePrivate::ApplicationFont();
+
+    db->reregisterAppFonts = true;
+    db->invalidate();
+    return true;
 }
 
 bool QFontDatabase::removeAllApplicationFonts()
 {
-    // #######
-    return false;
+    QFontDatabasePrivate *db = privateDb();
+    if (db->applicationFonts.isEmpty())
+        return false;
+
+    db->applicationFonts.clear();
+    db->invalidate();
+    return true;
 }
 

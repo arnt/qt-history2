@@ -1901,12 +1901,6 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
     QFontCache::instance->insertEngine(key, fe);
 }
 
-// used from qfontengine_x11.cpp
-QByteArray qt_fontdata_from_index(int index)
-{
-    return privateDb()->applicationFonts.value(index).data;
-}
-
 static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)
 {
 #if defined(QT_NO_FONTCONFIG)

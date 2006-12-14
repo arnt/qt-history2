@@ -346,15 +346,16 @@ QFontEngineQPF::QFontEngineQPF(const QFontDef &def, int fileDescriptor, QFontEng
     }
 
     face_id.filename = QFile::encodeName(extractHeaderField(fontData, Tag_FileName).toString());
-    if (!QFile::exists(face_id.filename)) {
+    face_id.index = extractHeaderField(fontData, Tag_FileIndex).toInt();
+    freetype = QFreetypeFace::getFace(face_id);
+    if (!freetype) {
         QString newPath = QLibraryInfo::location(QLibraryInfo::LibrariesPath)
                           + QLatin1String("/fonts/")
                           + QFileInfo(face_id.filename).fileName();
         face_id.filename = QFile::encodeName(newPath);
+        freetype = QFreetypeFace::getFace(face_id);
     }
-    face_id.index = extractHeaderField(fontData, Tag_FileIndex).toInt();
 #if !defined(QT_NO_FREETYPE)
-    freetype = QFreetypeFace::getFace(face_id);
     if (freetype) {
         const quint32 qpfTtfRevision = extractHeaderField(fontData, Tag_FontRevision).toUInt();
         const QByteArray head = freetype->getSfntTable(MAKE_TAG('h', 'e', 'a', 'd'));

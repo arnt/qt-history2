@@ -88,8 +88,7 @@ QFreetypeFace *QFreetypeFace::getFace(const QFontEngine::FaceId &face_id)
         FT_Face face;
         QFile file(QString::fromUtf8(face_id.filename));
         if (face_id.filename.startsWith(":qmemoryfonts/")) {
-#if defined(Q_WS_X11)
-            // from qfontdatabase_x11.cpp
+            // from qfontdatabase.cpp
             extern QByteArray qt_fontdata_from_index(int);
             QByteArray idx = face_id.filename;
             idx.remove(0, 14); // remove ':qmemoryfonts/'
@@ -97,7 +96,6 @@ QFreetypeFace *QFreetypeFace::getFace(const QFontEngine::FaceId &face_id)
             freetype->fontData = qt_fontdata_from_index(idx.toInt(&ok));
             if (!ok)
                 freetype->fontData = QByteArray();
-#endif
         } else if (!(file.fileEngine()->fileFlags(QAbstractFileEngine::FlagsMask) & QAbstractFileEngine::LocalDiskFlag)) {
             if (!file.open(QIODevice::ReadOnly)) {
                 delete freetype;
