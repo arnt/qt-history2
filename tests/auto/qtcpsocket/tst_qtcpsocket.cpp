@@ -27,6 +27,7 @@
 #include <QMap>
 #include <QMessageBox>
 #include <QPointer>
+#include <QProcess>
 #include <QPushButton>
 #include <QStringList>
 #include <QTcpServer>
@@ -108,6 +109,8 @@ private slots:
     void readWriteFailsOnUnconnectedSocket();
     void hammerTest();
     void connectionRefused();
+    void suddenRemoteDisconnect_data();
+    void suddenRemoteDisconnect();
 
 protected slots:
     void nonBlockingIMAP_hostFound();
@@ -1441,6 +1444,64 @@ void tst_QTcpSocket::connectionRefused()
     QCOMPARE(qVariantValue<QAbstractSocket::SocketState>(stateSpy.at(1).at(0)), QAbstractSocket::ConnectingState);
     QCOMPARE(qVariantValue<QAbstractSocket::SocketState>(stateSpy.at(2).at(0)), QAbstractSocket::UnconnectedState);
     QCOMPARE(errorSpy.count(), 1);
+}
+
+void tst_QTcpSocket::suddenRemoteDisconnect_data()
+{
+    QTest::addColumn<QString>("client");
+    QTest::addColumn<QString>("server");
+
+    QTest::newRow("Qt3 Client <-> Qt3 Server") << QString::fromLatin1("qt3client") << QString::fromLatin1("qt3server");
+    QTest::newRow("Qt3 Client <-> Qt4 Server") << QString::fromLatin1("qt3client") << QString::fromLatin1("qt4server");
+    QTest::newRow("Qt4 Client <-> Qt3 Server") << QString::fromLatin1("qt4client") << QString::fromLatin1("qt3server");
+    QTest::newRow("Qt4 Client <-> Qt4 Server") << QString::fromLatin1("qt4client") << QString::fromLatin1("qt4server");
+}
+
+void tst_QTcpSocket::suddenRemoteDisconnect()
+{
+    QFETCH(QString, client);
+    QFETCH(QString, server);
+    
+    QFETCH_GLOBAL(int, proxyType);
+    if (proxyType == QNetworkProxy::Socks5Proxy)
+        return;
+
+    // Start server
+    QProcess serverProcess;
+    serverProcess.setReadChannel(QProcess::StandardError);
+    serverProcess.start(QString::fromLatin1("stressTest/stressTest %1").arg(server),
+                        QIODevice::ReadWrite | QIODevice::Text);
+    while (!serverProcess.canReadLine())
+        QVERIFY(serverProcess.waitForReadyRead(1000));
+    QCOMPARE(serverProcess.readLine().data(), (server.toLatin1() + "\n").data());
+
+    // Start client
+    QProcess clientProcess;
+    clientProcess.setReadChannel(QProcess::StandardError);
+    clientProcess.start(QString::fromLatin1("stressTest/stressTest %1").arg(client),
+                        QIODevice::ReadWrite | QIODevice::Text);
+    while (!clientProcess.canReadLine())
+        QVERIFY(clientProcess.waitForReadyRead(1000));
+    QCOMPARE(clientProcess.readLine().data(), (client.toLatin1() + "\n").data());
+
+    // Let them play for a while
+    qDebug("Running stress test");
+    QEventLoop loop;
+    connect(&serverProcess, SIGNAL(finished(int)), &loop, SLOT(quit()));
+    connect(&clientProcess, SIGNAL(finished(int)), &loop, SLOT(quit()));
+    QTime stopWatch;
+    stopWatch.start();
+    QTimer::singleShot(10000, &loop, SLOT(quit()));
+
+    while ((serverProcess.state() == QProcess::Running
+           || clientProcess.state() == QProcess::Running) && stopWatch.elapsed() < 10000)
+        loop.exec();
+
+    QVERIFY(stopWatch.elapsed() < 10000);
+
+    // Check that both exited normally.
+    QCOMPARE(clientProcess.readAll().constData(), "SUCCESS\n");
+    QCOMPARE(serverProcess.readAll().constData(), "SUCCESS\n");
 }
 
 QTEST_MAIN(tst_QTcpSocket)
