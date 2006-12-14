@@ -1606,6 +1606,12 @@ static inline uint BYTE_MUL_RGB16(uint x, uint a) {
     return t;
 }
 
+static inline uint BYTE_MUL_RGB16_32(uint x, uint a) {
+    uint t = (((x & 0xf81f07e0)>>5)*a) & 0xf81f07e0;
+    t |= (((x & 0x07e0f81f)*a) >> 5) & 0x07e0f81f;
+    return t;
+}
+
 static void blend_color_rgb16(int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
@@ -1643,10 +1649,40 @@ static void blend_color_rgb16(int count, const QSpan *spans, void *userData)
         ushort c = qConvertRgb32To16(color);
         ushort *target = ((ushort *)data->rasterBuffer->scanLine(spans->y)) + spans->x;
         const ushort *end = target + spans->len;
-        while (target < end) {
+#if 1
+        int len = spans->len;
+        bool pre = (((unsigned long)target) & 0x3) != 0;
+        bool post = false;
+        if (pre) {
+            // skip to word boundary
+            *target = c + BYTE_MUL_RGB16(*target, ialpha);
+            ++target;
+            --len;
+        }
+        if (len & 0x1) {
+            post = true;
+            --len;
+        }
+        uint *target32 = (uint*)target;
+        uint c32 = c | (c<<16);
+        len >>= 1;
+        uint salpha = (ialpha+1) >> 3; // calculate here rather than in loop
+        while (len--) {
+            // blend full words
+            *target32 = c32 + BYTE_MUL_RGB16_32(*target32, salpha);
+            ++target32;
+            target += 2;
+        }
+        if (post) {
+            // one last pixel beyond a full word
+            *target = c + BYTE_MUL_RGB16(*target, ialpha);
+        }
+#else
+        while (target != end) {
             *target = c + BYTE_MUL_RGB16(*target, ialpha);
             ++target;
         }
+#endif
         ++spans;
     }
 }
