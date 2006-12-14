@@ -1200,7 +1200,7 @@ bool QObject::eventFilter(QObject * /* watched */, QEvent * /* event */)
 */
 
 /*!
-    If \a block is true, signals emitted by this object is blocked
+    If \a block is true, signals emitted by this object are blocked
     (i.e., emitted signals disappear into hyperspace). If \a block is
     false, no such blocking will occur.
 
@@ -1607,7 +1607,7 @@ QObjectList QObject::queryList(const char *inheritsClass,
 
     Returns the child of this object that can be casted into type T and
     that is called \a name, or 0 if there is no such object.
-    An empty string matches all object names.
+    Omitting the \a name argument causes all object names to be matched.
     The search is performed recursively.
 
     If there is more than one child matching the search, the most
@@ -1640,7 +1640,7 @@ QObjectList QObject::queryList(const char *inheritsClass,
 
     Returns all children of this object with the given \a name that can be
     cast to type T, or an empty list if there are no such objects.
-    An empty string matches all object names.
+    Omitting the \a name argument causes all object names to be matched.
     The search is performed recursively.
 
     The following example shows how to find a list of child \l{QWidget}s of
