@@ -225,7 +225,7 @@ void QSizeGrip::mousePressEvent(QMouseEvent * e)
         xev.xclient.data.l[3] = Button1;
         xev.xclient.data.l[4] = 0;
         XUngrabPointer(X11->display, X11->time);
-        XSendEvent(X11->display, QX11Info::appRootWindow(x11Screen()), False,
+        XSendEvent(X11->display, QX11Info::appRootWindow(x11Info().screen()), False,
                    SubstructureRedirectMask | SubstructureNotifyMask, &xev);
         return;
     }
