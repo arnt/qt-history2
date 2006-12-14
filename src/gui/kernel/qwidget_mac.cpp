@@ -2662,6 +2662,12 @@ QPaintEngine *QWidget::paintEngine() const
 
 void QWidgetPrivate::setModal_sys()
 {
+#if 0
+
+// The HIWindowChangeClass function does not work correctly. It fails to remove the jewels (e.g close button)
+// and writes the window text over it when going from document class to movable modal. So it looks crappy.
+// Bug reported to apple. When fixed, the lines below should work (task 142893).  
+
     Q_Q(QWidget);
 
     if (!q->testAttribute(Qt::WA_WState_Created))
@@ -2686,4 +2692,5 @@ void QWidgetPrivate::setModal_sys()
         if (old_wclass != newClass && newClass != 0)
             HIWindowChangeClass(windowRef, newClass);
     }
+#endif    
 }
