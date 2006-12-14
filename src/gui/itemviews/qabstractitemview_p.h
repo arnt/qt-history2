@@ -275,6 +275,7 @@ public:
     QBasicTimer updateTimer;
     QBasicTimer delayedEditing;
     mutable QBasicTimer delayedLayout;
+    QBasicTimer delayedAutoScroll; //used when an item is clicked
     QTimeLine timeline;
 
     QAbstractItemView::ScrollMode verticalScrollMode;

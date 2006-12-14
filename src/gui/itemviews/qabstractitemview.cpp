@@ -1305,8 +1305,15 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
     setSelection(rect, command);
 
     // signal handlers may change the model
-    if (index.isValid())
+    if (index.isValid()) {
         emit pressed(index);
+        if (d->autoScroll) {
+            //we delay the autoscrolling to filter out double click event
+            //100 is to be sure that there won't be a double-click misinterpreted as a 2 single clicks
+            d->delayedAutoScroll.start(QApplication::doubleClickInterval()+100, this);
+        }
+
+    }
 }
 
 /*!
@@ -1429,11 +1436,6 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
 
     if (d->selectionModel)
         d->selectionModel->select(index, selectionCommand(index, event));
-
-    //as we do not scroll in the mouse press event, 
-    //we make sure we do it in the mouse release
-    if (click && d->autoScroll)
-        scrollTo(index);
 
     if (click) {
         emit clicked(index);
@@ -1946,6 +1948,12 @@ void QAbstractItemView::timerEvent(QTimerEvent *event)
     } else if (event->timerId() == d->delayedLayout.timerId()) {
         d->delayedLayout.stop();
         doItemsLayout();
+    } else if (event->timerId() == d->delayedAutoScroll.timerId()) {
+        d->delayedAutoScroll.stop();
+        //end of the timer: if the current item is still the same as the one when the mouse press occurred 
+        //we only get here if there was no double click
+        if (d->pressedIndex.isValid() && d->pressedIndex == currentIndex())
+            scrollTo(d->pressedIndex);
     }
 }
 
@@ -2030,8 +2038,10 @@ bool QAbstractItemView::edit(const QModelIndex &index, EditTrigger trigger, QEve
         return true;
     }
 
-    if (trigger == DoubleClicked)
+    if (trigger == DoubleClicked) {
         d->delayedEditing.stop();
+        d->delayedAutoScroll.stop();
+    }
 
     if (d->sendDelegateEvent(index, event)) {
         d->viewport->update(visualRect(index));
