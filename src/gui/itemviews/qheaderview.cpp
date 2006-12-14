@@ -1827,8 +1827,7 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
                 return;
             d->state = QHeaderViewPrivate::MoveSection;
             d->setupSectionIndicator(d->section, pos);
-        }
-        if (d->clickableSections && d->pressed != -1) {
+        } else if (d->clickableSections && d->pressed != -1) {
             emit sectionPressed(d->pressed);
             updateSection(d->pressed);
             d->state = QHeaderViewPrivate::SelectSections;
