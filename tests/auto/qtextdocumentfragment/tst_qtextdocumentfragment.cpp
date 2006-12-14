@@ -198,6 +198,7 @@ private slots:
     void html_textAfterHr();
     void blockTagClosing();
     void isEmpty();
+    void html_alignmentInheritance();
 
 private:
     inline void setHtml(const QString &html)
@@ -3051,6 +3052,18 @@ void tst_QTextDocumentFragment::isEmpty()
     QVERIFY(!frag.isEmpty());
     frag = QTextDocumentFragment::fromHtml("<hr />");
     QVERIFY(!frag.isEmpty());
+}
+
+void tst_QTextDocumentFragment::html_alignmentInheritance()
+{
+    doc->setHtml("<center>Centered text<hr></center><b>After the centered text</b>");
+    QCOMPARE(doc->blockCount(), 3);
+    QTextBlock block = doc->begin();
+    QVERIFY(block.blockFormat().alignment() & Qt::AlignHCenter);
+    block = block.next();
+    QVERIFY(block.blockFormat().alignment() & Qt::AlignHCenter);
+    block = block.next();
+    QVERIFY(!(block.blockFormat().alignment() & Qt::AlignHCenter));
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)
