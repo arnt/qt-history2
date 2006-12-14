@@ -22,6 +22,7 @@
 #include <qlineedit.h>
 #include <qspinbox.h>
 #include <limits.h>
+#include <float.h>
 #include <qcoreapplication.h>
 #include <qdebug.h>
 
@@ -204,6 +205,8 @@ QWidget *QDefaultItemEditorFactory::createEditor(QVariant::Type type, QWidget *p
     case QVariant::Double: {
         QDoubleSpinBox *sb = new QDoubleSpinBox(parent);
         sb->setFrame(false);
+        sb->setMinimum(DBL_MIN);
+        sb->setMaximum(DBL_MAX);
         return sb; }
 #endif
 #ifndef QT_NO_LINEEDIT
