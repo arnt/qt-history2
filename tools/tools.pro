@@ -3,7 +3,7 @@ TEMPLATE        = subdirs
 no-png {
     message("Tools not available without PNG support")
 } else {
-     unix:contains(QT_CONFIG, qdbus):SUBDIRS += qdbus
+     contains(QT_CONFIG, qdbus):SUBDIRS += qdbus
      SUBDIRS		+= assistant/lib \
  			assistant \
 			pixeltool \

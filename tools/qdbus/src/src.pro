@@ -34,7 +34,7 @@ QMAKE_TARGET_COPYRIGHT = Copyright (C) 2006 Trolltech ASA
 
 
 unix {
-   CONFIG     += create_libtool create_pc explicitlib
+   CONFIG += create_libtool create_pc explicitlib
    QMAKE_PKGCONFIG_LIBDIR = $$[QT_INSTALL_LIBS]
    QMAKE_PKGCONFIG_INCDIR = $$[QT_INSTALL_HEADERS]
    QMAKE_PKGCONFIG_DESCRIPTION = Qt DBus module
@@ -46,6 +46,15 @@ win32 {
    LIBS += -lws2_32 -ladvapi32 -lnetapi32
    CONFIG(debug, debug|release):LIBS += -ldbus-1d
    else:LIBS += -ldbus-1
+   
+   DBUS_INSTALL_DIR=$$(DBUSDIR)   
+   isEmpty(DBUS_INSTALL_DIR) {
+      DBUS_INSTALL_DIR = "$$(PROGRAMFILES)/dbus"
+      message("DBUSDIR not specified. Using $$DBUS_INSTALL_DIR")
+   }
+
+   INCLUDEPATH += $$DBUS_INSTALL_DIR/include
+   LIBS += -L\"$$DBUS_INSTALL_DIR/lib\" -luser32
 }
 
 #load up the headers info
