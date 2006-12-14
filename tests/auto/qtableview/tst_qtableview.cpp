@@ -2101,10 +2101,94 @@ void tst_QTableView::sortingEnabled()
 
 void tst_QTableView::scrollTo_data()
 {
+    QTest::addColumn<int>("verticalScrollMode");
+    QTest::addColumn<int>("horizontalScrollMode");
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<int>("columnCount");
+    QTest::addColumn<int>("rowHeight");
+    QTest::addColumn<int>("columnWidth");
+    QTest::addColumn<int>("hiddenRow");
+    QTest::addColumn<int>("hiddenColumn");
+    QTest::addColumn<int>("row");
+    QTest::addColumn<int>("column");
+    QTest::addColumn<int>("rowSpan");
+    QTest::addColumn<int>("columnSpan");
+    QTest::addColumn<int>("horizontalScroll");
+    QTest::addColumn<int>("verticalScroll");
+    QTest::addColumn<int>("scrollHint");
+    QTest::addColumn<int>("expectedHorizontalScroll");
+    QTest::addColumn<int>("expectedVerticalScroll");
+
+    QTest::newRow("no hidden, no span, no scroll, (20,20) per item")
+        << (int)QAbstractItemView::ScrollPerItem
+        << (int)QAbstractItemView::ScrollPerItem
+        << 10 << 10  // table
+        << 40 << 40  // size
+        << -1 << -1  // hide
+        << 0 << 0    // cell
+        << 1 << 1    // span
+        << 0 << 0    // scroll
+        << (int)QAbstractItemView::PositionAtTop
+        << 0 << 0;   // expected
+
+    QTest::newRow("no hidden, no span, no scroll, (20,20) per pixel")
+        << (int)QAbstractItemView::ScrollPerPixel
+        << (int)QAbstractItemView::ScrollPerPixel
+        << 10 << 10  // table
+        << 40 << 40  // size
+        << -1 << -1  // hide
+        << 0 << 0    // cell
+        << 1 << 1    // span
+        << 0 << 0    // scroll
+        << (int)QAbstractItemView::PositionAtTop
+        << 0 << 0;   // expected
 }
 
 void tst_QTableView::scrollTo()
 {
+    QFETCH(int, horizontalScrollMode);
+    QFETCH(int, verticalScrollMode);
+    QFETCH(int, rowCount);
+    QFETCH(int, columnCount);
+    QFETCH(int, rowHeight);
+    QFETCH(int, columnWidth);
+    QFETCH(int, hiddenRow);
+    QFETCH(int, hiddenColumn);
+    QFETCH(int, row);
+    QFETCH(int, column);
+    QFETCH(int, rowSpan);
+    QFETCH(int, columnSpan);
+    QFETCH(int, horizontalScroll);
+    QFETCH(int, verticalScroll);
+    QFETCH(int, scrollHint);
+    QFETCH(int, expectedHorizontalScroll);
+    QFETCH(int, expectedVerticalScroll);
+
+    QtTestTableModel model(rowCount, columnCount);
+    QtTestTableView view;
+
+    view.show();
+    view.setModel(&model);
+    view.setSpan(row, column, rowSpan, columnSpan);
+    view.hideRow(hiddenRow);
+    view.hideColumn(hiddenColumn);
+    view.setHorizontalScrollMode((QAbstractItemView::ScrollMode)horizontalScrollMode);
+    view.setVerticalScrollMode((QAbstractItemView::ScrollMode)verticalScrollMode);
+
+    for (int r = 0; r < rowCount; ++r)
+        view.setRowHeight(r, rowHeight);
+    for (int c = 0; c < columnCount; ++c)
+        view.setColumnWidth(c, columnWidth);
+
+    QTest::qWait(0); // ### needed to pass the test
+    view.horizontalScrollBar()->setValue(horizontalScroll);
+    view.verticalScrollBar()->setValue(verticalScroll);
+
+    QModelIndex index = model.index(row, column);
+    QVERIFY(index.isValid());
+    view.scrollTo(index, (QAbstractItemView::ScrollHint)scrollHint);
+    QCOMPARE(view.horizontalScrollBar()->value(), expectedHorizontalScroll);
+    QCOMPARE(view.verticalScrollBar()->value(), expectedVerticalScroll);
 }
 
 void tst_QTableView::indexAt_data()
@@ -2375,6 +2459,8 @@ public:
     }
     QVariant data(const QModelIndex &index, int role) const
     {
+        Q_UNUSED(index);
+        Q_UNUSED(role);
         return QVariant();
     }
     void res() { reset(); }
