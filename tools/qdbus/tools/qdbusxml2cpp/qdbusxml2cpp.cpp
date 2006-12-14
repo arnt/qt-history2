@@ -201,7 +201,7 @@ static QDBusIntrospection::Interfaces readInput()
         // already XML
         return QDBusIntrospection::parseInterfaces(QString::fromUtf8(data));
 
-    fprintf(stderr, "Cannot process input. Stop.\n");
+    fprintf(stderr, "Cannot process input: '%s'. Stop.\n", qPrintable(inputFile));
     exit(1);
 }
 
