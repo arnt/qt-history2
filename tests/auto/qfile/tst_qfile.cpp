@@ -729,6 +729,75 @@ void tst_QFile::copyShouldntOverwrite()
     QFile::remove("tst_qfile.cpy");
 }
 
+#ifdef Q_OS_WIN
+#include <objbase.h>
+#include <shlobj.h>
+#endif
+
+#ifdef Q_OS_WIN
+static QString getWorkingDirectoryForLink(const QString &linkFileName)
+{
+    bool neededCoInit = false;
+    QString ret;
+    QT_WA({
+        IShellLink *psl;
+        HRESULT hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
+        if (hres == CO_E_NOTINITIALIZED) { // COM was not initialized
+            neededCoInit = true;
+            CoInitialize(NULL);
+            hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
+        }
+
+        if (SUCCEEDED(hres)) {    // Get pointer to the IPersistFile interface.
+            IPersistFile *ppf;
+            hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
+            if (SUCCEEDED(hres))  {
+                hres = ppf->Load((LPOLESTR)linkFileName.utf16(), STGM_READ);
+                //The original path of the link is retrieved. If the file/folder
+                //was moved, the return value still have the old path.
+                if(SUCCEEDED(hres)) {
+                    wchar_t szGotPath[MAX_PATH];
+                    if (psl->GetWorkingDirectory(szGotPath, MAX_PATH) == NOERROR)
+                        ret = QString::fromUtf16((ushort*)szGotPath);
+                }
+                ppf->Release();
+            }
+            psl->Release();
+        }
+    },{
+        IShellLinkA *psl;
+        HRESULT hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
+        if (hres == CO_E_NOTINITIALIZED) { // COM was not initialized
+            neededCoInit = true;
+            CoInitialize(NULL);
+            hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
+        }
+
+        if (SUCCEEDED(hres)) {    // Get pointer to the IPersistFile interface.
+            IPersistFile *ppf;
+            hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
+            if (SUCCEEDED(hres))  {
+                hres = ppf->Load((LPOLESTR)linkFileName.utf16(), STGM_READ);
+                //The original path of the link is retrieved. If the file/folder
+                //was moved, the return value still have the old path.
+                if(SUCCEEDED(hres)) {
+                    char szGotPath[MAX_PATH];
+                    if (psl->GetWorkingDirectory(szGotPath, MAX_PATH) == NOERROR)
+                        ret = QString::fromLocal8Bit(szGotPath);
+                }
+                ppf->Release();
+            }
+            psl->Release();
+        }
+    });
+    if (neededCoInit) {
+        CoUninitialize();
+    }
+
+    return ret;
+}
+#endif
+
 void tst_QFile::link()
 {
     QFile::remove("myLink.lnk");
@@ -744,6 +813,11 @@ void tst_QFile::link()
 #else
     QCOMPARE(info2.symLinkTarget(), info1.absoluteFilePath());
 #endif
+#endif
+
+#ifdef Q_OS_WIN
+    QString wd = getWorkingDirectoryForLink(info2.absoluteFilePath());
+    QCOMPARE(QDir::fromNativeSeparators(wd), info1.absolutePath());
 #endif
     QVERIFY(QFile::remove(info2.absoluteFilePath()));
 }

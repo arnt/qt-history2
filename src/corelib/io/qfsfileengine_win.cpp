@@ -1053,13 +1053,16 @@ bool QFSFileEngine::link(const QString &newName)
         if (SUCCEEDED(hres)) {
             hres = psl->SetPath((wchar_t *)fileName(AbsoluteName).replace(QLatin1Char('/'), QLatin1Char('\\')).utf16());
             if (SUCCEEDED(hres)) {
-                IPersistFile *ppf;
-                hres = psl->QueryInterface(IID_IPersistFile, (void **)&ppf);
+                hres = psl->SetWorkingDirectory((wchar_t *)fileName(AbsolutePathName).replace(QLatin1Char('/'), QLatin1Char('\\')).utf16());
                 if (SUCCEEDED(hres)) {
-                    hres = ppf->Save((TCHAR*)linkName.utf16(), TRUE);
-                    if (SUCCEEDED(hres))
-                         ret = true;
-                    ppf->Release();
+                    IPersistFile *ppf;
+                    hres = psl->QueryInterface(IID_IPersistFile, (void **)&ppf);
+                    if (SUCCEEDED(hres)) {
+                        hres = ppf->Save((TCHAR*)linkName.utf16(), TRUE);
+                        if (SUCCEEDED(hres))
+                             ret = true;
+                        ppf->Release();
+                    }
                 }
             }
             psl->Release();
@@ -1085,18 +1088,22 @@ bool QFSFileEngine::link(const QString &newName)
             hres = psl->SetPath((char *)QString::fromLocal8Bit(QFSFileEnginePrivate::win95Name(fileName(AbsoluteName))).utf16());
             currentPath();
             if (SUCCEEDED(hres)) {
-                IPersistFile *ppf;
-                hres = psl->QueryInterface(IID_IPersistFile, (void **)&ppf);
+                hres = psl->SetWorkingDirectory((char *)QString::fromLocal8Bit(QFSFileEnginePrivate::win95Name(fileName(AbsolutePathName))).utf16());
+                currentPath();
                 if (SUCCEEDED(hres)) {
-                    currentPath();
-                    hres = ppf->Save((LPCOLESTR)linkName.utf16(), TRUE);
-                    currentPath();
-                    if (SUCCEEDED(hres))
-                        ret = true;
-                    ppf->Release();
+                    IPersistFile *ppf;
+                    hres = psl->QueryInterface(IID_IPersistFile, (void **)&ppf);
+                    if (SUCCEEDED(hres)) {
+                        currentPath();
+                        hres = ppf->Save((LPCOLESTR)linkName.utf16(), TRUE);
+                        currentPath();
+                        if (SUCCEEDED(hres))
+                            ret = true;
+                        ppf->Release();
+                    }
                 }
+                psl->Release();
             }
-            psl->Release();
         }
         if(neededCoInit)
             CoUninitialize();
