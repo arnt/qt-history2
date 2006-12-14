@@ -356,6 +356,7 @@ void FormWindow::setMainContainer(QWidget *w)
     }
 
     if (m_mainContainer) {
+        core()->metaDataBase()->remove(m_mainContainer);
         unmanageWidget(m_mainContainer);
         delete m_mainContainer;
         m_mainContainer = 0;
@@ -1562,19 +1563,13 @@ void FormWindow::setContents(QIODevice *dev)
     setUpdatesEnabled(false);
     clearSelection();
 
-    if (mainContainer()) {
-        core()->metaDataBase()->remove(mainContainer());
-        delete mainContainer();
-        m_mainContainer = 0;
-    }
-
     m_insertedWidgets.clear();
     m_widgets.clear();
-    emit changed();
 
     QDesignerResource r(this);
     QWidget *w = r.load(dev, this);
     setMainContainer(w);
+    emit changed();
 
     setUpdatesEnabled(saved);
 }
