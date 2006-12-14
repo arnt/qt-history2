@@ -692,8 +692,10 @@ qint64 Q3SocketDevice::readData( char *data, qint64 maxlen )
 	r = ::recv( fd, data, maxlen, 0 );
     }
     if ( r == 0 && t == Stream && maxlen > 0 ) {
-        // connection closed
-        close();
+        if ( WSAGetLastError() != WSAEWOULDBLOCK ) {
+            // connection closed
+            close();
+        }
     } else if ( r == SOCKET_ERROR && e == NoError ) {
 	switch( WSAGetLastError() ) {
 	    case WSANOTINITIALISED:

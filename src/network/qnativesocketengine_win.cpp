@@ -998,12 +998,20 @@ qint64 QNativeSocketEnginePrivate::nativeRead(char *data, qint64 maxLength)
             break;
         }
     } else {
-	ret = qint64(bytesRead);
+        if (WSAGetLastError() == WSAEWOULDBLOCK)
+            ret = -2;
+        else
+            ret = qint64(bytesRead);
     }
 
 #if defined (QNATIVESOCKETENGINE_DEBUG)
-    qDebug("QNativeSocketEnginePrivate::nativeRead(%p \"%s\", %l) == %li",
-           data, qt_prettyDebug(data, qMin((int)bytesRead, 16), (int)bytesRead).data(), (int)maxLength, (int)ret);
+    if (ret != -2) {
+        qDebug("QNativeSocketEnginePrivate::nativeRead(%p \"%s\", %l) == %li",
+               data, qt_prettyDebug(data, qMin((int)bytesRead, 16), (int)bytesRead).data(), (int)maxLength, (int)ret);
+    } else {
+        qDebug("QNativeSocketEnginePrivate::nativeRead(%p, %l) == -2 (WOULD BLOCK)",
+               data, int(maxLength));
+    }
 #endif
 
     return ret;
