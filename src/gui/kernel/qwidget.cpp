@@ -7563,6 +7563,14 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
         qt_mac_update_opaque_sizegrip(this);
 #endif
         break;
+    case Qt::WA_MacShowFocusRect:
+#ifdef Q_WS_MAC
+        if (hasFocus()) {
+            clearFocus();
+            setFocus();
+        }
+#endif
+        break;
     case Qt::WA_ShowModal:
         if (!on) {
             if (isVisible())

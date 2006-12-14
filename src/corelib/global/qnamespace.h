@@ -369,6 +369,7 @@ public:
         WA_SetStyle = 86,
 
         WA_SetLocale = 87,
+        WA_MacShowFocusRect,
 
         // Add new attributes before this line
         WA_AttributeCount

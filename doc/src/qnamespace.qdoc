@@ -911,6 +911,11 @@
     \value WA_MacOpaqueSizeGrip Indicates that the native Carbon size grip should be opaque instead of transparent (the default). This attribute is only meaningfull on Mac OS X and is set by widget's author.
     \value WA_AlwaysShowToolTips Enables tooltips for inactive windows.
     \value WA_ShowModal \e{This attribute has been deprecated.} Use QWidget::windowModality instead.
+    \value WA_MacShowFocusRect Indicates that this widget should get a
+    QFocusFrame around it. Some widgets draw their own focus halo regardless of
+    this attribute. Not that the QWidget::focusPolicy also plays the main role
+    in whether something is given focus or not, this only controls whether or
+    not this gets the focus frame. This attribute only does something on Mac OS X.
 
     \omitvalue WA_SetLayoutDirection
     \omitvalue WA_InputMethodTransparent

@@ -1343,8 +1343,11 @@ bool QLineEdit::isReadOnly() const
 void QLineEdit::setReadOnly(bool enable)
 {
     Q_D(QLineEdit);
-    d->readOnly = enable;
-    update();
+    if (d->readOnly != enable) {
+        d->readOnly = enable;
+        setAttribute(Qt::WA_MacShowFocusRect, !d->readOnly);
+        update();
+    }
 }
 
 
@@ -2544,6 +2547,7 @@ void QLineEditPrivate::init(const QString& txt)
                                         , q);
     QObject::connect(actions[SelectAllAct], SIGNAL(triggered()), q, SLOT(selectAll()));
 #endif // QT_NO_MENU
+    q->setAttribute(Qt::WA_MacShowFocusRect);
 }
 
 void QLineEditPrivate::updateTextLayout()

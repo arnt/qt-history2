@@ -1413,6 +1413,7 @@ void QAbstractSpinBoxPrivate::init()
     edit->setObjectName(QLatin1String("qt_spinbox_lineedit"));
     validator = new QSpinBoxValidator(q, this);
     edit->setValidator(validator);
+    q->setAttribute(Qt::WA_MacShowFocusRect);
 }
 
 /*!

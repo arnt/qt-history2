@@ -140,6 +140,7 @@ QListView::QListView(QWidget *parent)
 {
     setViewMode(ListMode);
     setSelectionMode(SingleSelection);
+    setAttribute(Qt::WA_MacShowFocusRect);
 }
 
 /*!
@@ -150,6 +151,7 @@ QListView::QListView(QListViewPrivate &dd, QWidget *parent)
 {
     setViewMode(ListMode);
     setSelectionMode(SingleSelection);
+    setAttribute(Qt::WA_MacShowFocusRect);
 }
 
 /*!

@@ -151,8 +151,6 @@ public:
     void startAnimate(Animates, QWidget *);
     static ThemeDrawState getDrawState(QStyle::State flags);
 
-    bool focusable(const QWidget *) const;
-
     bool doAnimate(Animates);
     inline int animateSpeed(Animates) const { return 33; }
 
@@ -768,25 +766,6 @@ void QMacStylePrivate::startAnimationTimer()
 {
     if ((defaultButton || !progressBars.isEmpty()) && timerID <= -1)
         timerID = startTimer(animateSpeed(AquaListViewItemOpen));
-}
-
-bool QMacStylePrivate::focusable(const QWidget *w) const
-{
-    QMacStyle::FocusRectPolicy fp = q->focusRectPolicy(w);
-    if (fp == QMacStyle::FocusEnabled)
-        return true;
-    else if (fp == QMacStyle::FocusDisabled)
-        return false;
-    const QLineEdit *le = qobject_cast<const QLineEdit *>(w);
-    return (w && !w->isWindow() && w->parentWidget() &&
-            (qobject_cast<const QAbstractSpinBox *>(w))
-             || (le && qobject_cast<const QAbstractSpinBox*>(le->parentWidget()))
-             || (le && !le->isReadOnly() && !qobject_cast<const QComboBox *>(le->parentWidget()))
-             || qobject_cast<const QListView *>(w) || qobject_cast<const QTreeView *>(w)
-#ifdef QT3_SUPPORT
-             || w->inherits("Q3ListBox") || w->inherits("Q3ListView")
-#endif
-           );
 }
 
 enum { TabNormalLeft, TabNormalMid, TabNormalRight, TabSelectedActiveLeft,
@@ -2070,42 +2049,44 @@ QPixmap QMacStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOpt
 */
 
 /*!
+    \obsolete
     Sets the focus rectangle policy of \a w. The \a policy can be one of
     \l{QMacStyle::FocusRectPolicy}.
 
-    \sa focusRectPolicy()
+    This is now simply an interface to the Qt::WA_MacShowFocusRect attribute and the
+    FocusDefault value does nothing anymore. If you want to set a widget back
+    to its default value, you must save the old value of the attribute before
+    you change it.
+
+    \sa focusRectPolicy() QWidget::setAttribute()
 */
 void QMacStyle::setFocusRectPolicy(QWidget *w, FocusRectPolicy policy)
 {
-    bool alreadyIn = QMacStylePrivate::PolicyState::focusMap.contains(w);
-    if (policy == FocusDefault) {
-        if (alreadyIn) {
-            QMacStylePrivate::PolicyState::focusMap.remove(w);
-            QMacStylePrivate::PolicyState::stopWatch(w);
-        }
-    } else {
-        QMacStylePrivate::PolicyState::focusMap.insert(w, policy);
-        if (!alreadyIn)
-            QMacStylePrivate::PolicyState::watchObject(w);
-    }
-    if (w->hasFocus()) {
-        w->clearFocus();
-        w->setFocus();
+    switch (policy) {
+    case FocusDefault:
+        break;
+    case FocusEnabled:
+    case FocusDisabled:
+        w->setAttribute(Qt::WA_MacShowFocusRect, policy == FocusEnabled);
+        break;
     }
 }
 
 /*!
+    \obsolete
     Returns the focus rectangle policy for the widget \a w.
 
     The focus rectangle policy can be one of \l{QMacStyle::FocusRectPolicy}.
 
-    \sa setFocusRectPolicy()
+    In 4.3 and up this function will simply test for the
+    Qt::WA_MacShowFocusRect attribute and will never return
+    QMacStyle::FocusDefault.
+
+    \sa setFocusRectPolicy(), QWidget::testAttribute()
 */
 QMacStyle::FocusRectPolicy QMacStyle::focusRectPolicy(const QWidget *w)
 {
-    if (QMacStylePrivate::PolicyState::focusMap.contains(w))
-        return QMacStylePrivate::PolicyState::focusMap[w];
-    return FocusDefault;
+    return w->testAttribute(Qt::WA_MacShowFocusRect) ? FocusEnabled : FocusDisabled;
 }
 
 /*!
@@ -4830,8 +4811,8 @@ bool QMacStyle::event(QEvent *e)
 {
     if(e->type() == QEvent::FocusIn) {
         QWidget *f = 0;
-        if(QApplication::focusWidget() &&
-           d->focusable(QApplication::focusWidget())) {
+        if(QApplication::focusWidget()
+                && QApplication::focusWidget()->testAttribute(Qt::WA_MacShowFocusRect)) {
             f = QApplication::focusWidget();
             QWidget *top = f->parentWidget();
             while (top && !top->isWindow() && !(top->windowType() == Qt::SubWindow))

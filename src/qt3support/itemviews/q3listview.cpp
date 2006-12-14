@@ -2652,6 +2652,7 @@ void Q3ListView::init()
     viewport()->setFocusPolicy(Qt::WheelFocus);
     setFocusPolicy(Qt::WheelFocus);
     viewport()->setBackgroundRole(QPalette::Base);
+    setAttribute(Qt::WA_MacShowFocusRect);
 }
 
 /*!

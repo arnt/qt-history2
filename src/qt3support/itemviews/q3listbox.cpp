@@ -794,6 +794,7 @@ Q3ListBox::Q3ListBox(QWidget *parent, const char *name, Qt::WindowFlags f)
     viewport()->setFocusProxy(this);
     viewport()->setFocusPolicy(Qt::WheelFocus);
     setFocusPolicy(Qt::WheelFocus);
+    setAttribute(Qt::WA_MacShowFocusRect);
 }
 
 
