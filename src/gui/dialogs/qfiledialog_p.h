@@ -179,7 +179,7 @@ public:
     void _q_autoCompleteFileName(const QString &);
 
     void addUrls(const QList<QUrl> &list, int row);
-    void setUrl(const QModelIndex &row, const QUrl & url);
+    void setUrl(const QModelIndex &row, const QUrl & url, const QModelIndex &dirIndex);
     void _q_layoutChanged();
 
     // layout

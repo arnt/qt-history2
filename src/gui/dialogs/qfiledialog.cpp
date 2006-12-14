@@ -782,16 +782,16 @@ void QFileDialogPrivate::addUrls(const QList<QUrl> &list, int row) {
         QUrl url = list.at(i);
         if (!url.isValid())
             continue;
+        QModelIndex dirIndex = model->index(url.toLocalFile());
         lookInCombo->model()->insertRows(row, 1);
-        setUrl(lookInCombo->model()->index(row, 0), url);
+        setUrl(lookInCombo->model()->index(row, 0), url, dirIndex);
         watching.append(url.toLocalFile());
     }
 }
 
 // Copied from QSidebar NMC
-void QFileDialogPrivate::setUrl(const QModelIndex &index, const QUrl &url)
+void QFileDialogPrivate::setUrl(const QModelIndex &index, const QUrl &url, const QModelIndex &dirIndex)
 {
-    QModelIndex dirIndex = model->index(url.toLocalFile());
     lookInCombo->model()->setData(index, url, UrlRole);
     if (url.path().isEmpty()) {
         lookInCombo->model()->setData(index, model->myComputer());
@@ -834,7 +834,7 @@ void QFileDialogPrivate::_q_layoutChanged()
         QList<QModelIndex> values = lt.values(path);
         for (int i = 0; i < values.size(); ++i) {
             QModelIndex idx = values.at(i);
-            setUrl(idx, QUrl::fromLocalFile(path));
+            setUrl(idx, QUrl::fromLocalFile(path), newIndex);
         }
     }
     newFolderButton->setEnabled(model->permissions(listView->rootIndex()) & QFile::WriteUser);

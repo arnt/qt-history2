@@ -142,15 +142,14 @@ void QSidebar::addUrls(const QList<QUrl> &list, int row)
         if (!fileSystemModel->isDir(idx))
             continue;
         model()->insertRows(row, 1);
-        setUrl(model()->index(row, 0), url);
+        setUrl(model()->index(row, 0), url, idx);
         watching.append(url.toLocalFile());
     }
 }
 
 // Copied in QFileDialog
-void QSidebar::setUrl(const QModelIndex &index, const QUrl &url)
+void QSidebar::setUrl(const QModelIndex &index, const QUrl &url, const QModelIndex &dirIndex)
 {
-    QModelIndex dirIndex = fileSystemModel->index(url.toLocalFile());
     model()->setData(index, url, UrlRole);
     if (url.path().isEmpty()) {
         model()->setData(index, fileSystemModel->myComputer());
@@ -286,7 +285,7 @@ void QSidebar::layoutChanged()
         QList<QModelIndex> values = lt.values(path);
         for (int i = 0; i < values.size(); ++i) {
             QModelIndex idx = values.at(i);
-            setUrl(idx, QUrl::fromLocalFile(path));
+            setUrl(idx, QUrl::fromLocalFile(path), newIndex);
         }
     }
 }
