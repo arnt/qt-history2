@@ -1144,6 +1144,24 @@ void QScreen::exposeRegion(QRegion r, int changing)
     if (r.isEmpty())
         return;
 
+#ifdef QTOPIA_PERFTEST
+    static enum { PerfTestUnknown, PerfTestOn, PerfTestOff } perfTestState = PerfTestUnknown;
+    if(PerfTestUnknown == perfTestState) {
+        if(::getenv("QTOPIA_PERFTEST"))
+            perfTestState = PerfTestOn;
+        else
+            perfTestState = PerfTestOff;
+    }
+    if(PerfTestOn == perfTestState) {
+        QWSWindow *changed = qwsServer->clientWindows().at(changing);
+        if(!changed->client()->identity().isEmpty()) 
+            qDebug() << "Performance  :  expose_region  :" 
+                     << changed->client()->identity() 
+                     << r.boundingRect() << ": " 
+                     << qPrintable( QTime::currentTime().toString( "h:mm:ss.zzz" ) );
+    }
+#endif
+
     const QRect bounds = r.boundingRect();
     QRegion blendRegion;
     QImage blendBuffer;
