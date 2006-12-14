@@ -82,9 +82,14 @@ QFileIconProvider *QFileInfoGatherer::iconProvider() const
 void QFileInfoGatherer::fetchExtendedInformation(const QString &path, const QStringList &files)
 {
     mutex.lock();
-    if (this->path.count() > 0 && this->path.last() == path && this->files.last() == files) {
-        mutex.unlock();
-        return;
+    // See if we already have this dir/file in our que
+    int loc = this->path.lastIndexOf(path);
+    while (loc > 0)  {
+        if (this->files.at(loc) == files) {
+            mutex.unlock();
+            return;
+        }
+        loc = this->path.lastIndexOf(path, loc - 1);
     }
     this->path.push(path);
     this->files.push(files);
@@ -146,7 +151,7 @@ void QFileInfoGatherer::run()
         if (!this->path.isEmpty()) {
             path = this->path.first();
             list = this->files.first();
-	    this->path.pop_front();
+            this->path.pop_front();
 	    this->files.pop_front();
             updateFiles = true;
         }
