@@ -17,6 +17,7 @@
 #include <qdebug.h>
 #include <qstring.h>
 #include <ctype.h>
+#include <errno.h>
 
 /*
     Returns a human readable representation of the first \a len
@@ -38,7 +39,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
             char buf[5];
             qsnprintf(buf, sizeof(buf), "\\%3o", c);
             buf[4] = '\0';
-            out += QString::fromLatin1(buf);
+            out += QByteArray(buf);
         }
     }
 
