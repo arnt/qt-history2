@@ -737,7 +737,6 @@ void QFileDialog::setHistory(const QStringList &paths)
     d->history = paths;
 
     d->lookInCombo->clear();
-    //d->lookInComob->model()->insertCOlumns(0, 1);
     QList<QUrl> list;
     QModelIndex idx = d->model->index(d->model->rootPath());
     while (idx.isValid()) {
