@@ -805,54 +805,77 @@ bool QTextHtmlImporter::closeTag(int i)
     bool blockTagClosed = false;
 
     while (depth > endDepth) {
-        if (closedNode->id == Html_tr && !tables.isEmpty()) {
-            Table &t = tables.last();
+        Table *t = 0;
+        if (!tables.isEmpty())
+            t = &tables.last();
 
-            if (!t.isTextFrame) {
-                ++t.currentRow;
+        switch (closedNode->id) {
+            case Html_tr:
+                if (t && !t->isTextFrame) {
+                    ++t->currentRow;
 
-                // for broken html with rowspans but missing tr tags
-                while (!t.currentCell.atEnd() && t.currentCell.row < t.currentRow)
-                    ++t.currentCell;
-            }
+                    // for broken html with rowspans but missing tr tags
+                    while (!t->currentCell.atEnd() && t->currentCell.row < t->currentRow)
+                        ++t->currentCell;
+                }
 
-            blockTagClosed = true;
-        } else if (closedNode->id == Html_table && !tables.isEmpty()) {
-            indent = tables.last().lastIndent;
+                blockTagClosed = true;
+                break;
 
-            tables.resize(tables.size() - 1);
+            case Html_table:
+                if (!t)
+                    break;
+                indent = t->lastIndent;
 
-            if (tables.isEmpty()) {
-                cursor = doc->rootFrame()->lastCursorPosition();
-            } else {
-                Table &t = tables.last();
-                if (t.isTextFrame)
-                    cursor = t.frame->lastCursorPosition();
-                else if (!t.currentCell.atEnd())
-                    cursor = t.currentCell.cell().lastCursorPosition();
-            }
+                tables.resize(tables.size() - 1);
+                t = 0;
 
-            // we don't need an extra block after tables, so we don't
-            // claim to have closed one for the creation of a new one
-            // in import()
-            blockTagClosed = false;
-            compressNextWhitespace = true;
-        } else if (closedNode->isTableCell() && !tables.isEmpty()) {
-            Table &t = tables.last();
-            if (!t.isTextFrame)
-                ++tables.last().currentCell;
-            blockTagClosed = true;
-            compressNextWhitespace = true;
-        } else if (closedNode->isListStart() && !lists.isEmpty()) {
-            lists.resize(lists.size() - 1);
-            --indent;
-            blockTagClosed = true;
-        } else if (closedNode->id == Html_br) {
-            compressNextWhitespace = true;
-        } else if (closedNode->id == Html_div) {
-            blockTagClosed = !closedNode->children.isEmpty();
-        } else if (closedNode->isBlock()) {
-            blockTagClosed = true;
+                if (tables.isEmpty()) {
+                    cursor = doc->rootFrame()->lastCursorPosition();
+                } else {
+                    t = &tables.last();
+                    if (t->isTextFrame)
+                        cursor = t->frame->lastCursorPosition();
+                    else if (!t->currentCell.atEnd())
+                        cursor = t->currentCell.cell().lastCursorPosition();
+                }
+
+                // we don't need an extra block after tables, so we don't
+                // claim to have closed one for the creation of a new one
+                // in import()
+                blockTagClosed = false;
+                compressNextWhitespace = true;
+                break;
+
+            case Html_th:
+            case Html_td:
+                if (t && !t->isTextFrame)
+                    ++t->currentCell;
+                blockTagClosed = true;
+                compressNextWhitespace = true;
+                break;
+
+            case Html_ol:
+            case Html_ul:
+                if (lists.isEmpty())
+                    break;
+                lists.resize(lists.size() - 1);
+                --indent;
+                blockTagClosed = true;
+                break;
+
+            case Html_br:
+                compressNextWhitespace = true;
+                break;
+
+            case Html_div:
+                if (closedNode->children.isEmpty())
+                    break;
+                // fall through
+            default:
+                if (closedNode->isBlock())
+                    blockTagClosed = true;
+                break;
         }
 
         closedNode = &at(closedNode->parent);
