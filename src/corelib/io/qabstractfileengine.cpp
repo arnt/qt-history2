@@ -170,6 +170,26 @@ QAbstractFileEngine *QAbstractFileEngine::create(const QString &fileName)
             return ret;
     }
 
+#ifdef QT_BUILD_CORE_LIB
+    if (!fileName.startsWith(QLatin1Char('/'))) {
+        int prefixSeparator = fileName.indexOf(QLatin1Char(':'));
+        if (prefixSeparator > 1) {
+            QString prefix = fileName.left(prefixSeparator);
+            QString fileNameWithoutPrefix = fileName.mid(prefixSeparator + 1).prepend(QLatin1Char('/'));
+            const QStringList &paths = QDir::searchPaths(prefix);
+            for (int i = 0; i < paths.count(); i++) {
+                QString path = paths.at(i);
+                path.append(fileNameWithoutPrefix);
+                QAbstractFileEngine *engine = create(path);
+                if (engine && (engine->fileFlags(QAbstractFileEngine::FlagsMask) & QAbstractFileEngine::ExistsFlag)) {
+                    return engine;
+                }
+                delete engine;
+            }
+        }
+    }
+#endif
+
     // fall back to regular file engine
     return new QFSFileEngine(fileName);
 }

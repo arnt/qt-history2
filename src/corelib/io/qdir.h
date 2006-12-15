@@ -104,6 +104,10 @@ public:
 
     static void addResourceSearchPath(const QString &path);
 
+    static void setSearchPaths(const QString &prefix, const QStringList &searchPaths);
+    static void addSearchPath(const QString &prefix, const QString &path);
+    static QStringList searchPaths(const QString &prefix);
+
     QString dirName() const;
     QString filePath(const QString &fileName) const;
     QString absoluteFilePath(const QString &fileName) const;

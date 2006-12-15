@@ -26,6 +26,7 @@
 # include "qresource.h"
 #endif
 
+#include "private/qcoreglobaldata_p.h"
 #include <stdlib.h>
 
 static QString driveSpec(const QString &path)
@@ -55,7 +56,7 @@ protected:
     QDirPrivate(QDir*, const QDir *copy=0);
     ~QDirPrivate();
 
-    void initFileEngine(const QString &file);
+    QString initFileEngine(const QString &file);
 
     void updateFileLists() const;
     void sortFileList(QDir::SortFlags, QStringList &, QStringList *, QFileInfoList *) const;
@@ -121,7 +122,7 @@ private:
                 path.truncate(path.length() - 1);
         }
         if(!data->fileEngine || !QDir::isRelativePath(path))
-            initFileEngine(path);
+            path = initFileEngine(path);
         data->fileEngine->setFileName(path);
         // set the path to be the qt friendly version so then we can operate on it using just /
         data->path = data->fileEngine->fileName(QAbstractFileEngine::DefaultName);
@@ -283,13 +284,14 @@ inline void QDirPrivate::updateFileLists() const
     }
 }
 
-void QDirPrivate::initFileEngine(const QString &path)
+QString QDirPrivate::initFileEngine(const QString &path)
 {
     detach(false);
     delete data->fileEngine;
     data->fileEngine = 0;
     data->clear();
     data->fileEngine = QAbstractFileEngine::create(path);
+    return data->fileEngine->fileName(QAbstractFileEngine::DefaultName);
 }
 
 void QDirPrivate::detach(bool createFileEngine)
@@ -996,9 +998,12 @@ void QDir::setNameFilters(const QStringList &nameFilters)
 }
 
 /*!
+    \obsolete
     Adds \a path to the search paths searched in to find resources
     that are not specified with an absolute path. The default search
     path is to search only in the root (\c{:/}).
+
+    Use QDir::addSearchPath() with a prefix instead.
 
     \sa {The Qt Resource System}, QResource::addSearchPath()
 */
@@ -1012,6 +1017,86 @@ void QDir::addResourceSearchPath(const QString &path)
 #endif
 }
 
+#ifdef QT_BUILD_CORE_LIB
+/*!
+    \since 4.3
+
+    Sets or replaces Qt's search paths for file names with the prefix \a prefix
+    to \a searchPaths.
+
+    To specify a prefix for a file name, prepend the prefix followed by a single
+    colon (e.g., "images:undo.png", "xmldocs:books.xml"). \a prefix can only
+    contain letters or numbers (e.g., it cannot contain a colon, nor a slash).
+
+    Qt uses this search path to locate files with a known prefix. The search
+    path entries are tested in order, starting with the first entry.
+
+    \code
+        QDir::setSearchPaths("icons", QStringList(QDir::homePath() + "/images"));
+        QDir::setSearchPaths("docs", QStringList(":/embeddedDocuments"));
+        ...
+        QPixmap pixmap("icons:undo.png"); // will look for undo.png in QDir::homePath() + "/images"
+        QFile file("docs:design.odf"); // will look in the :/embeddedDocuments resource path
+    \endcode
+
+    File name prefix must be atleast 2 characters long to avoid conflicts with
+    Windows drive letters.
+
+    Search paths may contain paths to {The Qt Resource System}.
+*/
+void QDir::setSearchPaths(const QString &prefix, const QStringList &searchPaths)
+{
+    if (prefix.length() < 2) {
+        qWarning("QDir::setSearchPaths: Prefix must be longer than 1 character");
+        return;
+    }
+
+    for (int i = 0; i < prefix.count(); i++) {
+        if (!prefix.at(i).isLetterOrNumber()) {
+            qWarning("QDir::setSearchPaths: Prefix can only contain letters or numbers");
+            return;
+        }
+    }
+
+    QWriteLocker lock(&QCoreGlobalData::instance()->dirSearchPathsLock);
+    QMap<QString, QStringList> &paths = QCoreGlobalData::instance()->dirSearchPaths;
+    if (searchPaths.isEmpty()) {
+        paths.remove(prefix);
+    } else {
+        paths.insert(prefix, searchPaths);
+    }
+}
+
+/*!
+    \since 4.3
+
+    Adds \a path to the search path for \a prefix.
+
+    \sa setSearchPaths
+*/
+void QDir::addSearchPath(const QString &prefix, const QString &path)
+{
+    if (path.isEmpty())
+        return;
+
+    QWriteLocker lock(&QCoreGlobalData::instance()->dirSearchPathsLock);
+    QCoreGlobalData::instance()->dirSearchPaths[prefix] += path;
+}
+
+/*!
+    \since 4.3
+
+    Returns the search paths for \a prefix.
+
+    \sa setSearchPaths(), addSearchPath()
+*/
+QStringList QDir::searchPaths(const QString &prefix)
+{
+    QReadLocker lock(&QCoreGlobalData::instance()->dirSearchPathsLock);
+    return QCoreGlobalData::instance()->dirSearchPaths.value(prefix);
+}
+
+#endif // QT_BUILD_CORE_LIB
 
 /*!
     Returns the value set by setFilter()

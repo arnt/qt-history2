@@ -25,7 +25,8 @@ HEADERS += \
 	kernel/qobjectcleanuphandler.h \
         kernel/qvariant_p.h \
         kernel/qmetaobject_p.h \
-        kernel/qobject_p.h
+        kernel/qobject_p.h \
+        kernel/qcoreglobaldata_p.h
 
 SOURCES += \
 	kernel/qabstracteventdispatcher.cpp \
@@ -43,7 +44,8 @@ SOURCES += \
 	kernel/qsocketnotifier.cpp \
 	kernel/qtimer.cpp \
 	kernel/qtranslator.cpp \
-	kernel/qvariant.cpp
+	kernel/qvariant.cpp \
+        kernel/qcoreglobaldata.cpp
 
 win32 {
 	SOURCES += \
