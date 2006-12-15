@@ -3655,6 +3655,10 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
             HIThemeDrawTrack(&tdi, tracking ? 0 : &macRect, cg,
                              kHIThemeOrientationNormal);
             if (cc == CC_Slider && slider->subControls & SC_SliderTickmarks) {
+                if (qt_mac_is_metal(widget)) {
+                    if (tdi.enableState == kThemeTrackInactive)
+                        tdi.enableState = kThemeTrackActive;  // Looks more Cocoa-like
+                }
                 int interval = slider->tickInterval;
                 if (interval == 0) {
                     interval = slider->pageStep;
