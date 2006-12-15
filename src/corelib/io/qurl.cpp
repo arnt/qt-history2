@@ -171,6 +171,9 @@ static const uint initial_n = 128;
 #define QURL_HASFLAG(a, b) (((a) & (b)) == (b))
 
 struct ErrorInfo {
+    inline ErrorInfo() : _source(0)
+    { }
+
     char *_source;
     QString _message;
     QChar _expected;
