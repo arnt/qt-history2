@@ -768,6 +768,13 @@ void QTableView::paintEvent(QPaintEvent *event)
                     colp +=  columnWidth(col) - gridSize;
                 painter.drawLine(colp, dirtyArea.top(), colp, dirtyArea.bottom());
             }
+
+            //draw the top & left grid lines if the headers are not visible.
+            if (!horizontalHeader->isVisible())
+                painter.drawLine(dirtyArea.left(), 0, dirtyArea.right(), 0);
+            if (!verticalHeader->isVisible())
+                painter.drawLine(0, dirtyArea.top(), 0, dirtyArea.bottom());
+
             painter.setPen(old);
         }
 
