@@ -49,13 +49,25 @@ TRANSLATOR qdesigner_internal::FormWindowManager
 
 #include <QtCore/qdebug.h>
 
-using namespace qdesigner_internal;
-
-static QString whatsThisFrom(const QString &str)
-{
-    Q_UNUSED(str); /// ### implement me!
-    return str;
+namespace {
+    const bool debugFWM = false;
+    
+    inline QString whatsThisFrom(const QString &str) { /// ### implement me!
+        return str;
+    }
+    
+    // find the first child of w in a sequence
+    template <class Iterator>
+        inline Iterator findFirstChildOf(Iterator it,Iterator end, const QWidget *w)    {
+            for  (;it != end; ++it) {
+                if (w->isAncestorOf(*it))
+                    return  it;
+            }
+            return it;
+        }
 }
+
+namespace qdesigner_internal {
 
 FormWindowManager::FormWindowManager(QDesignerFormEditorInterface *core, QObject *parent)
     : QDesignerFormWindowManagerInterface(parent),
@@ -444,42 +456,20 @@ void FormWindowManager::slotActionSplitVerticalActivated()
 
 void FormWindowManager::slotActionBreakLayoutActivated()
 {
-    QList<QWidget*> widgets = m_activeFormWindow->selectedWidgets();
-
-    if (widgets.isEmpty())
-        widgets.append(m_activeFormWindow->mainContainer());
-
-    m_activeFormWindow->simplifySelection(&widgets);
-
-    QList<QWidget*> layoutBaseList;
-
-    foreach (QWidget *widget, widgets) {
-        QWidget *currentWidget = core()->widgetFactory()->containerOfWidget(widget);
-
-        while (currentWidget && currentWidget != m_activeFormWindow) {
-            if (QLayout *layout = LayoutInfo::managedLayout(core(), currentWidget)) {
-                // ### generalize (put in function)
-                QLayoutWidget* layoutWidget = qobject_cast<QLayoutWidget*>(currentWidget);
-                QSplitter *splitter = qobject_cast<QSplitter*>(currentWidget);
-                if (((layoutWidget ? !layout->isEmpty() : layout != 0) || splitter)
-                    && !layoutBaseList.contains(layout->parentWidget())) {
-                    layoutBaseList.prepend(layout->parentWidget());
-                    if (!layoutWidget && !splitter)
-                        break;
-                }
-            }
-            currentWidget = currentWidget->parentWidget();
+    const QList<QWidget *> layouts = layoutsToBeBroken();
+    if (layouts.isEmpty())
+        return;
+    
+    if (debugFWM) {
+        qDebug() << "slotActionBreakLayoutActivated: " << layouts.size();
+        foreach (QWidget *w, layouts) {
+            qDebug() << w;
         }
     }
 
-    if (layoutBaseList.isEmpty()) {
-        // nothing to do
-        return;
-    }
-
     m_activeFormWindow->beginCommand(tr("Break Layout"));
-    foreach (QWidget *layoutBase, layoutBaseList) {
-        m_activeFormWindow->breakLayout(layoutBase);
+    foreach (QWidget *layout, layouts) {
+        m_activeFormWindow->breakLayout(layout);
     }
     m_activeFormWindow->endCommand();
 }
@@ -517,6 +507,125 @@ void FormWindowManager::slotActionSelectAllActivated()
     m_activeFormWindow->selectAll();
 }
 
+
+QList<QWidget *> FormWindowManager::layoutsToBeBroken(QWidget *w) const
+{
+    if (!w)
+        return QList<QWidget *>();
+    
+    if (debugFWM)
+        qDebug() << "layoutsToBeBroken: " << w;
+
+    QWidget *parent = w->parentWidget();
+    if (m_activeFormWindow->isMainContainer(w))
+        parent = 0;
+
+    QWidget *widget = core()->widgetFactory()->containerOfWidget(w);
+
+    // maybe we want to remove following block
+    const QDesignerWidgetDataBaseInterface *db = m_core->widgetDataBase();
+    const QDesignerWidgetDataBaseItemInterface *item = db->item(db->indexOfObject(widget));
+    if (!item) {
+        if (debugFWM)
+            qDebug() << "layoutsToBeBroken: Don't have an item, recursing for parent";
+        return layoutsToBeBroken(parent);
+    }
+
+    const bool layoutContainer = (item->isContainer() || m_activeFormWindow->isMainContainer(widget));
+
+    if (!layoutContainer) {
+        if (debugFWM)
+            qDebug() << "layoutsToBeBroken: Not a container, recursing for parent";
+        return layoutsToBeBroken(parent);
+    }
+
+    QLayout *widgetLayout = widget->layout();
+    QLayout *managedLayout = LayoutInfo::managedLayout(m_core, widgetLayout);
+    if (widgetLayout && !managedLayout) {
+        if (qobject_cast<const QSplitter *>(widget)) {
+            if (debugFWM)
+                qDebug() << "layoutsToBeBroken: Splitter special";
+            QList<QWidget *> list = layoutsToBeBroken(parent);
+            list.append(widget);
+            return list;
+        }
+        if (debugFWM)
+            qDebug() << "layoutsToBeBroken: Is a container but doesn't have a managed layout (has an internal layout), returning 0";
+        return QList<QWidget *>();
+    }
+
+    if (managedLayout) {
+        QList<QWidget *> list;
+        if (debugFWM)
+            qDebug() << "layoutsToBeBroken: Is a container and has a layout";
+        if (qobject_cast<const QLayoutWidget *>(widget)) {
+            if (debugFWM) 
+                qDebug() << "layoutsToBeBroken: red layout special case";
+            list = layoutsToBeBroken(parent);
+        }
+        list.append(widget);
+        return list;
+    }
+    if (debugFWM)
+        qDebug() << "layoutsToBeBroken: Is a container but doesn't have a layout at all, returning 0";
+    return QList<QWidget *>();
+
+}
+    
+QMap<QWidget *, bool> FormWindowManager::getUnsortedLayoutsToBeBroken(bool firstOnly) const
+{
+    // Return a set of layouts to be broken.
+    QMap<QWidget *, bool> layouts;
+
+    QList<QWidget *> selection = m_activeFormWindow->selectedWidgets();
+    if (selection.isEmpty() && m_activeFormWindow->mainContainer())
+        selection.append(m_activeFormWindow->mainContainer());
+        
+    const QList<QWidget *>::const_iterator scend = selection.constEnd();
+    for (QList<QWidget *>::const_iterator sit = selection.constBegin(); sit != scend; ++sit) {
+        // find all layouts
+        const QList<QWidget *> list = layoutsToBeBroken(*sit);
+        if (!list.empty()) {
+            const QList<QWidget *>::const_iterator lbcend = list.constEnd();
+            for (QList<QWidget *>::const_iterator lbit = list.constBegin(); lbit != lbcend; ++lbit) {
+                layouts.insert(*lbit, true);
+            }
+            if (firstOnly)
+                return layouts;
+        }
+    }
+    return layouts;
+}
+
+bool FormWindowManager::hasLayoutsToBeBroken() const
+{
+    // Quick check for layouts to be broken
+    return !getUnsortedLayoutsToBeBroken(true).isEmpty();
+}
+
+QList<QWidget *> FormWindowManager::layoutsToBeBroken() const
+{
+    // Get all layouts
+    
+    QMap<QWidget *, bool> unsortedLayouts = getUnsortedLayoutsToBeBroken(false);
+    // Sort in order of hierarchy
+    QList<QWidget *> orderedLayoutList;
+    const QMap<QWidget *, bool>::const_iterator lscend  = unsortedLayouts.constEnd();
+    for (QMap<QWidget *, bool>::const_iterator itLay = unsortedLayouts.constBegin(); itLay != lscend; ++itLay) {
+        QWidget *wToBeInserted = itLay.key();
+        if (!orderedLayoutList.contains(wToBeInserted)) {
+            // try to find first child, use as insertion position, else append
+            const QList<QWidget *>::iterator firstChildPos = findFirstChildOf(orderedLayoutList.begin(), orderedLayoutList.end(), wToBeInserted);
+            if (firstChildPos == orderedLayoutList.end()) {
+                orderedLayoutList.push_back(wToBeInserted);
+            } else {
+                orderedLayoutList.insert(firstChildPos, wToBeInserted);
+            }
+        }
+    }
+    return orderedLayoutList;
+}
+
 void FormWindowManager::slotUpdateActions()
 {
     m_layoutChilds = false;
@@ -528,13 +637,15 @@ void FormWindowManager::slotUpdateActions()
     bool layoutAvailable = false;
     bool breakAvailable = false;
     bool layoutContainer = false;
-    
+
     do {
         if (m_activeFormWindow == 0 || m_activeFormWindow->currentTool() != 0)
             break;
-        
+
+        breakAvailable = hasLayoutsToBeBroken();
+
         QList<QWidget*> simplifiedSelection = m_activeFormWindow->selectedWidgets();
-        
+
         selectedWidgetCount = simplifiedSelection.count();
         pasteAvailable = qApp->clipboard()->mimeData() && qApp->clipboard()->mimeData()->hasText();
 
@@ -552,18 +663,18 @@ void FormWindowManager::slotUpdateActions()
         // Figure out layouts: Looking at a group of dangling widgets
         if (simplifiedSelection.count() != 1) {
             layoutAvailable = unlaidoutWidgetCount > 1;
-            breakAvailable = false;
+            //breakAvailable = false;
             break;
         }
         // Manipulate layout of a single widget
         m_layoutChilds = false;
         QWidget *widget = core()->widgetFactory()->containerOfWidget(simplifiedSelection.first());
-        
+
         const QDesignerWidgetDataBaseInterface *db = m_core->widgetDataBase();
         const QDesignerWidgetDataBaseItemInterface *item = db->item(db->indexOfObject(widget));
         if (!item)
             break;
-        
+
         QLayout *widgetLayout = widget->layout();
         QLayout *managedLayout = LayoutInfo::managedLayout(m_core, widgetLayout);
         // We don't touch a layout createds by a custom widget
@@ -574,19 +685,7 @@ void FormWindowManager::slotUpdateActions()
 
         layoutAvailable = layoutContainer && m_activeFormWindow->hasInsertedChildren(widget) && managedLayout == 0;
         m_layoutChilds = layoutAvailable;
-        
-        breakAvailable = LayoutInfo::isWidgetLaidout(m_core, widget);
-        if (!breakAvailable && managedLayout != 0) {
-            if(qobject_cast<const QLayoutWidget*>(widget))
-                breakAvailable = !managedLayout->isEmpty();
-            else {
-                breakAvailable = true;  // we have a *hidden* layout
-            }
-        }
-        if (!breakAvailable) {
-            if (const QSplitter *splitter = qobject_cast<const QSplitter*>(widget))
-                breakAvailable = splitter->count() != 0;
-        }
+
     } while(false);
 
     m_actionCut->setEnabled(selectedWidgetCount > 0);
@@ -823,4 +922,5 @@ bool FormWindowManager::isDecoration(QWidget *widget) const
 QUndoGroup *FormWindowManager::undoGroup() const
 {
     return m_undoGroup;
+}
 }

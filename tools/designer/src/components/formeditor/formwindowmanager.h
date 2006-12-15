@@ -22,6 +22,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QList>
 #include <QtCore/QPointer>
+#include <QtCore/QMap>
 
 class QAction;
 class QActionGroup;
@@ -133,6 +134,10 @@ private:
     QAction *m_actionUndo;
     QAction *m_actionRedo;
 
+    QMap<QWidget *, bool> getUnsortedLayoutsToBeBroken(bool firstOnly) const;
+    bool hasLayoutsToBeBroken() const;
+    QList<QWidget *> layoutsToBeBroken(QWidget *w) const;
+    QList<QWidget *> layoutsToBeBroken() const;
     // DnD stuff
     void beginDrag(const QList<QDesignerDnDItemInterface*> &item_list, const QPoint &globalPos);
     void endDrag(const QPoint &pos);
