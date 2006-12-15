@@ -199,6 +199,7 @@ private slots:
     void blockTagClosing();
     void isEmpty();
     void html_alignmentInheritance();
+    void html_ignoreEmptyDivs();
 
 private:
     inline void setHtml(const QString &html)
@@ -3064,6 +3065,13 @@ void tst_QTextDocumentFragment::html_alignmentInheritance()
     QVERIFY(block.blockFormat().alignment() & Qt::AlignHCenter);
     block = block.next();
     QVERIFY(!(block.blockFormat().alignment() & Qt::AlignHCenter));
+}
+
+void tst_QTextDocumentFragment::html_ignoreEmptyDivs()
+{
+    doc->setHtml("<p><div/><b>Foo</b>");
+    QCOMPARE(doc->blockCount(), 1);
+    QCOMPARE(doc->begin().text(), QString("Foo"));
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)

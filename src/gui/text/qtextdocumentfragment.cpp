@@ -431,8 +431,7 @@ void QTextHtmlImporter::import()
             // hasBlock to false.
             if (blockTagClosed
                 && !node->isBlock()
-                && node->id != Html_unknown
-               )
+                && node->id != Html_unknown)
                 hasBlock = false;
         }
 
@@ -850,6 +849,8 @@ bool QTextHtmlImporter::closeTag(int i)
             blockTagClosed = true;
         } else if (closedNode->id == Html_br) {
             compressNextWhitespace = true;
+        } else if (closedNode->id == Html_div) {
+            blockTagClosed = !closedNode->children.isEmpty();
         } else if (closedNode->isBlock()) {
             blockTagClosed = true;
         }
