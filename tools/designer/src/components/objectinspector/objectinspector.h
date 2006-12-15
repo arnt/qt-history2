@@ -49,6 +49,7 @@ protected:
 
 private:
     static bool sortEntry(const QObject *a, const QObject *b);
+    void showContainersCurrentPage(QWidget *widget);
 
 private:
     QDesignerFormEditorInterface *m_core;

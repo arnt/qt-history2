@@ -70,6 +70,8 @@ int QDesignerContainer::currentIndex() const
 
 void QDesignerContainer::setCurrentIndex(int index)
 {
+    bool blocked = m_widget->signalsBlocked();
+    m_widget->blockSignals(true);
     if (qobject_cast<QDesignerStackedWidget*>(m_widget))
         static_cast<QDesignerStackedWidget*>(m_widget)->setCurrentIndex(index);
     else if (qobject_cast<QDesignerTabWidget*>(m_widget))
@@ -78,6 +80,7 @@ void QDesignerContainer::setCurrentIndex(int index)
         static_cast<QDesignerToolBox*>(m_widget)->setCurrentIndex(index);
     else
         Q_ASSERT(0);
+    m_widget->blockSignals(blocked);
 }
 
 void QDesignerContainer::addWidget(QWidget *widget)

@@ -16,6 +16,7 @@ TRANSLATOR qdesigner_internal::ObjectInspector
 */
 
 #include "objectinspector.h"
+#include "formwindow.h"
 
 // sdk
 #include <QtDesigner/QtDesigner>
@@ -246,16 +247,50 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
     m_treeWidget->resizeColumnToContents(0);
 }
 
+void ObjectInspector::showContainersCurrentPage(QWidget *widget)
+{
+    if (!widget)
+        return;
+
+    FormWindow *fw = FormWindow::findFormWindow(widget);
+
+    QWidget *w = widget->parentWidget();
+    while (1) {
+        if (fw->isMainContainer(w))
+            return;
+
+        if (!w)
+            return;
+
+        QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), w);
+        if (c && !c->widget(c->currentIndex())->isAncestorOf(widget)) {
+            for (int i = 0; i < c->count(); i++)
+                if (c->widget(i)->isAncestorOf(widget)) {
+                    c->setCurrentIndex(i);
+                    break;
+                }
+        }
+        w = w->parentWidget();
+    }
+}
+
 void ObjectInspector::slotSelectionChanged()
 {
     if (!m_formWindow)
         return;
-    m_formWindow->clearSelection(false);
 
     Selection selection;
     getSelection(selection);
-    
+
+    if (!selection.m_cursorSelection.isEmpty())
+        showContainersCurrentPage(selection.m_cursorSelection.last());
+    if (!selection.m_selectedObjects.isEmpty())
+        showContainersCurrentPage(qobject_cast<QWidget *>(selection.m_selectedObjects[0]));
+
+    m_formWindow->clearSelection(false);
+
     if (!selection.m_cursorSelection.empty()) {
+
         // This will trigger an update
         foreach (QWidget* widget, selection.m_cursorSelection) {
             m_formWindow->selectWidget(widget);
@@ -267,7 +302,7 @@ void ObjectInspector::slotSelectionChanged()
             core()->propertyEditor()->setEnabled(selection.m_selectedObjects.size());
         }
     }
-    
+
     QMetaObject::invokeMethod(m_formWindow->core()->formWindowManager(), "slotUpdateActions");
 }
 
