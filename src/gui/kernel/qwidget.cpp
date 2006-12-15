@@ -264,7 +264,6 @@ void QWidget::setEditFocus(bool on)
 
     if ((!on && !QWidgetPrivate::editingWidget)
         || (on && QWidgetPrivate::editingWidget == f)) {
-        update();
         return;
     }
 
@@ -279,7 +278,6 @@ void QWidget::setEditFocus(bool on)
         QApplication::sendEvent(f, &event);
         QApplication::sendEvent(f->style(), &event);
     }
-    update();
 }
 #endif
 
