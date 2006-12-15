@@ -679,14 +679,15 @@ static QByteArray addDefaultArguments(const QByteArray &prototype, int numDefArg
         return prototype;
 
     QByteArray ptype(prototype);
-
     int in = -1;
     while (numDefArgs) {
         in = ptype.lastIndexOf("]", in);
         ptype.replace(in, 1, ",optional]");
         in = ptype.indexOf(' ', in) + 1;
         QByteArray type = ptype.mid(in, ptype.indexOf(' ', in) - in);
-        ptype.replace(in, type.length(), "VARIANT");
+        if (type == "enum")
+            type += " " + ptype.mid(in + 5, ptype.indexOf(' ', in + 5) - in - 5);
+        ptype.replace(in, type.length(), QByteArray("VARIANT /*was: ") + type + "*/");
         --numDefArgs;
     }
 
