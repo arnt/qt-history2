@@ -1830,7 +1830,6 @@ DelOld( PProfileList  list,
     /* the list.                                                     */
 }
 
-
 /*************************************************************************/
 /*                                                                       */
 /*  Sort                                                                 */
@@ -1843,9 +1842,11 @@ static void
 Sort( PProfileList  list )
 {
     PProfile  *old, current, next;
-
+    PProfile q, p, e, tail;
+    int insize, nmerges, psize, qsize, i;
 
     /* First, set the new X coordinate of each profile */
+    int lsize = 0;
     current = *list;
     while ( current )
     {
@@ -1853,38 +1854,90 @@ Sort( PProfileList  list )
         current->offset += current->flow;
         current->height--;
         current = current->link;
+	++lsize;
     }
 
-    /* Then sort them */
-    old     = list;
-    current = *old;
+    if ( !*list )
+	return;
 
-    if ( !current )
-        return;
+    /* If we have 20 or less elements in the list, use
+       Bubblesort, otherwise use Mergesort */
+    if (lsize < 20) {
+	old     = list;
+	current = *old;
 
-    next = current->link;
+	next = current->link;
 
-    while ( next )
-    {
-        if ( current->X <= next->X )
-        {
-            old     = &current->link;
-            current = *old;
+	while ( next )
+	{
+	    if ( current->X <= next->X )
+	    {
+		old     = &current->link;
+		current = *old;
 
-            if ( !current )
-                return;
-        }
-        else
-        {
-            *old          = next;
-            current->link = next->link;
-            next->link    = current;
+		if ( !current )
+		    return;
+	    }
+	    else
+	    {
+		*old = next;
+		current->link = next->link;
+		next->link    = current;
 
-            old     = list;
-            current = *old;
-        }
+		old     = list;
+		current = *old;
+	    }
 
-        next = current->link;
+	    next = current->link;
+	}
+    } else {
+
+	/* The below algoritm is a modified version of a Mergesort
+	   algorithm described by Simon Tatham, which can be found
+	   here: http://www.chiark.greenend.org.uk/~sgtatham/algorithms */
+
+	insize = 1;
+	while (1) {
+	    p = *list;
+	    *list = 0;
+	    tail = 0;
+	    nmerges = 0;
+
+	    while (p) {
+		++nmerges;
+		q = p;
+		psize = 0;
+		for (i = 0; i < insize; ++i) {
+		    ++psize;
+		    q = q->link;
+		    if (!q)
+			break;
+		}
+		qsize = insize;
+
+		while (psize > 0 || (qsize > 0 && q)) {
+		    if (psize == 0) {
+			e = q; q = q->link; --qsize;
+		    } else if ((qsize == 0 || !q) || (p->X <= q->X)) {
+			e = p; p = p->link; --psize;
+		    } else {
+			e = q; q = q->link; --qsize;
+		    }
+
+		    if (tail)
+			tail->link = e;
+		    else
+			*list = e;
+		    tail = e;
+		}
+		p = q;
+	    }
+	    tail->link = 0;
+
+	    if (nmerges <= 1)
+		break;
+	    insize *= 2;
+	}
     }
 }
 
