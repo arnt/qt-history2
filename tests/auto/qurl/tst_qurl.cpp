@@ -3231,6 +3231,9 @@ void tst_QUrl::errorString()
     QVERIFY(!u.isValid());
     QCOMPARE(u.errorString(), QString("Invalid URL \"http://strange<username>@ok_hostname/\": "
             "error at position 14: expected end of URL, but found '<'"));
+
+    QUrl v;
+    QCOMPARE(v.errorString(), QString::fromLatin1("Invalid URL \"\": "));
 }
 
 #ifdef QT3_SUPPORT
