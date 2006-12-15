@@ -1704,6 +1704,7 @@ void QFileDialogPrivate::createWidgets()
     splitter->setObjectName(QLatin1String("qt_splitter"));
     splitter->addWidget(sidebar);
     splitter->addWidget(stackedWidget);
+    splitter->setStretchFactor(splitter->indexOf(stackedWidget), QSizePolicy::Expanding);
 
     line = new QFrame(q);
     line->setFrameShape(QFrame::HLine);
