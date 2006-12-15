@@ -199,7 +199,7 @@ public:
     void setLocale_helper(const QLocale &l);
     void resolveLocale();
 
-    void setStyle_helper(QStyle *, bool);
+    void setStyle_helper(QStyle *newStyle, bool propagate, bool metalHack = false);
     void inheritStyle();
 
     bool isBackgroundInherited() const;

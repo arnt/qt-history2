@@ -1897,7 +1897,11 @@ void QWidget::setStyle(QStyle *style)
         d->setStyle_helper(style, false);
 }
 
-void QWidgetPrivate::setStyle_helper(QStyle *newStyle, bool propagate)
+void QWidgetPrivate::setStyle_helper(QStyle *newStyle, bool propagate, bool
+#ifdef Q_WS_MAC
+        metalHack
+#endif
+        )
 {
     Q_Q(QWidget);
     createExtra();
@@ -1918,6 +1922,12 @@ void QWidgetPrivate::setStyle_helper(QStyle *newStyle, bool propagate)
     // repolish
     if (q->windowType() != Qt::Desktop && polished) {
         oldStyle->unpolish(q);
+#ifdef Q_WS_MAC
+        if (metalHack) {
+            extern void qt_mac_update_metal_style(QWidget*); //qwidget_mac.cpp
+            qt_mac_update_metal_style(q);
+        }
+#endif
         q->style()->polish(q);
     }
     QEvent e(QEvent::StyleChange);
@@ -7549,26 +7559,21 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
     case Qt::WA_NoChildEventsFromChildren:
         d->receiveChildEvents = !on;
         break;
+#ifdef Q_WS_MAC
     case Qt::WA_MacMetalStyle:
-#ifdef Q_WS_MAC
-        extern void qt_mac_update_metal_style(QWidget*); //qwidget_mac.cpp
-        qt_mac_update_metal_style(this);
-#endif
-        break;
+        d->setStyle_helper(style(), false, true);  // Make sure things get unpolished/polished correctly.
+        // fall through since changing the metal attribute affects the opaque size grip.
     case Qt::WA_MacOpaqueSizeGrip:
-#ifdef Q_WS_MAC
         extern void qt_mac_update_opaque_sizegrip(QWidget*); //qwidget_mac.cpp
         qt_mac_update_opaque_sizegrip(this);
-#endif
         break;
     case Qt::WA_MacShowFocusRect:
-#ifdef Q_WS_MAC
         if (hasFocus()) {
             clearFocus();
             setFocus();
         }
-#endif
         break;
+#endif
     case Qt::WA_ShowModal:
         if (!on) {
             if (isVisible())

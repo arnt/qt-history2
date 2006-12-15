@@ -246,7 +246,12 @@ inline bool qt_mac_is_metal(const QWidget *w)
     for (; w; w = w->parentWidget()) {
         if (w->testAttribute(Qt::WA_MacMetalStyle))
             return true;
-        if (w->isWindow() || w->d_func()->isOpaque())
+        if (w->isWindow() && w->testAttribute(Qt::WA_WState_Created)) {  // If not created will fall through to the opaque check and be fine anyway.
+            WindowAttributes currentAttributes;
+            GetWindowAttributes(qt_mac_window_for(w), &currentAttributes);
+            return (currentAttributes & kWindowMetalAttribute);
+        }
+        if (w->d_func()->isOpaque())
             break;
     }
     return false;
@@ -1374,25 +1379,33 @@ void QMacStyle::unpolish(QApplication *)
 void QMacStyle::polish(QWidget* w)
 {
     d->addWidget(w);
-    QPixmap px;
-    if (qt_mac_is_metal(w)) {
+    if (qt_mac_is_metal(w) && !w->testAttribute(Qt::WA_SetPalette)) {
         // Set a clear brush so that the metal shines through.
         QPalette pal = w->palette();
         QBrush background(Qt::transparent);
         pal.setBrush(QPalette::All, QPalette::Window, background);
         pal.setBrush(QPalette::All, QPalette::Button, background);
         w->setPalette(pal);
+        w->setAttribute(Qt::WA_SetPalette, false);
     }
 
     if (qobject_cast<QMenu*>(w)) {
-        px = QPixmap(200, 200);
-        HIThemeMenuDrawInfo mtinfo;
-        mtinfo.version = qt_mac_hitheme_version;
-        mtinfo.menuType = kThemeMenuTypePopUp;
-        HIRect rect = CGRectMake(0, 0, px.width(), px.height());
-        HIThemeDrawMenuBackground(&rect, &mtinfo, QCFType<CGContextRef>(qt_mac_cg_context(&px)),
-                                  kHIThemeOrientationNormal);
         w->setWindowOpacity(0.95);
+        if (!w->testAttribute(Qt::WA_SetPalette)) {
+            QPixmap px(200, 200);
+            HIThemeMenuDrawInfo mtinfo;
+            mtinfo.version = qt_mac_hitheme_version;
+            mtinfo.menuType = kThemeMenuTypePopUp;
+            HIRect rect = CGRectMake(0, 0, px.width(), px.height());
+            HIThemeDrawMenuBackground(&rect, &mtinfo, QCFType<CGContextRef>(qt_mac_cg_context(&px)),
+                                      kHIThemeOrientationNormal);
+            QPalette pal = w->palette();
+            QBrush background(px);
+            pal.setBrush(QPalette::All, QPalette::Window, background);
+            pal.setBrush(QPalette::All, QPalette::Button, background);
+            w->setPalette(pal);
+            w->setAttribute(Qt::WA_SetPalette, false);
+        }
     }
 
     if (QComboBox *combo = qobject_cast<QComboBox *>(w)) {
@@ -1401,14 +1414,6 @@ void QMacStyle::polish(QWidget* w)
                 widget->setWindowOpacity(0.95);
             }
         }
-    }
-
-    if (!px.isNull()) {
-        QPalette pal = w->palette();
-        QBrush background(px);
-        pal.setBrush(QPalette::All, QPalette::Window, background);
-        pal.setBrush(QPalette::All, QPalette::Button, background);
-        w->setPalette(pal);
     }
 
     QWindowsStyle::polish(w);
@@ -1424,13 +1429,10 @@ void QMacStyle::polish(QWidget* w)
 void QMacStyle::unpolish(QWidget* w)
 {
     d->removeWidget(w);
-    if (::qobject_cast<QMenu*>(w) || qt_mac_is_metal(w)) {
-        QPalette pal = w->palette();
-        QPixmap tmp;
-        QBrush background(tmp);
-        pal.setBrush(QPalette::All, QPalette::Window, background);
-        pal.setBrush(QPalette::All, QPalette::Button, background);
+    if ((qobject_cast<QMenu*>(w) || qt_mac_is_metal(w)) && !w->testAttribute(Qt::WA_SetPalette)) {
+        QPalette pal = qApp->palette(w);
         w->setPalette(pal);
+        w->setAttribute(Qt::WA_SetPalette, false);
         w->setWindowOpacity(1.0);
     }
 
