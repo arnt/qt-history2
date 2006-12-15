@@ -785,18 +785,20 @@ void QFontEngineMultiFT::loadEngine(int at)
 // X11 FT engine
 // ------------------------------------------------------------------
 
-static QFontEngine::FaceId face_id(FcPattern *pattern)
+
+
+Q_GUI_EXPORT void qt_x11ft_convert_pattern(FcPattern *pattern, QByteArray *file_name, int *index, bool *antialias)
 {
-    char *file_name;
-    FcPatternGetString(pattern, FC_FILE, 0, (FcChar8 **)&file_name);
-    int face_index;
-    if (!FcPatternGetInteger(pattern, FC_INDEX, 0, &face_index))
-        face_index = 0;
-    QFontEngine::FaceId face_id;
-    face_id.filename = file_name;
-    face_id.index = face_index;
-    return face_id;
+    FcChar8 *fileName;
+    FcPatternGetString(pattern, FC_FILE, 0, &fileName);
+    *file_name = (const char *)fileName;
+    if (!FcPatternGetInteger(pattern, FC_INDEX, 0, index))
+        index = 0;
+    FcBool b;
+    if (FcPatternGetBool(pattern, FC_ANTIALIAS, 0, &b) == FcResultMatch)
+        *antialias = b;
 }
+
 
 QFontEngineX11FT::QFontEngineX11FT(FcPattern *pattern, const QFontDef &fd, int screen)
     : QFontEngineFT(fd)
@@ -804,11 +806,15 @@ QFontEngineX11FT::QFontEngineX11FT(FcPattern *pattern, const QFontDef &fd, int s
 //     FcPatternPrint(pattern);
 
     bool antialias = X11->fc_antialias;
-    FcBool b;
-    if (FcPatternGetBool(pattern, FC_ANTIALIAS, 0, &b) == FcResultMatch)
-        antialias = b;
+    QByteArray file_name;
+    int face_index;
+    qt_x11ft_convert_pattern(pattern, &file_name, &face_index, &antialias);
+    QFontEngine::FaceId face_id;
+    face_id.filename = file_name;
+    face_id.index = face_index;
 
-    {
+    subpixelType = Subpixel_None;
+    if (antialias) {
         int subpixel = 0;
         if (FcPatternGetInteger(pattern, FC_RGBA, 0, &subpixel) == FcResultNoMatch
             && X11->display)
@@ -842,6 +848,7 @@ QFontEngineX11FT::QFontEngineX11FT(FcPattern *pattern, const QFontDef &fd, int s
     {
         bool autohint = false;
 
+        FcBool b;
         if (FcPatternGetBool(pattern, FC_AUTOHINT, 0, &b) == FcResultMatch)
             autohint = b;
 
@@ -871,7 +878,7 @@ QFontEngineX11FT::QFontEngineX11FT(FcPattern *pattern, const QFontDef &fd, int s
     }
 #endif
 
-    if (!init(::face_id(pattern), antialias)) {
+    if (!init(face_id, antialias)) {
         FcPatternDestroy(pattern);
         return;
     }
