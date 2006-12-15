@@ -19,7 +19,6 @@
 #include "qfile.h"
 #include "qdebug.h"
 #include "qscreen_qws.h"
-#include <math.h>
 
 /*!
     \class QWSPointerCalibrationData
@@ -418,6 +417,31 @@ void QWSCalibratedMouseHandler::readCalibration()
     }
 }
 
+static int ilog2(quint32 n)
+{
+    int result = 0;
+
+    if (n & 0xffff0000) {
+        n >>= 16;
+        result += 16;
+    }
+    if (n & 0xff00) {
+        n >>= 8;
+        result += 8;}
+    if (n & 0xf0) {
+        n >>= 4;
+        result += 4;
+    }
+    if (n & 0xc) {
+        n >>= 2;
+        result += 2;
+    }
+    if (n & 0x2)
+        result += 1;
+
+    return result;
+}
+
 /*!
     Updates the calibration parameters based on coordinate mapping of
     the given \a data.
@@ -460,7 +484,7 @@ void QWSCalibratedMouseHandler::calibrate(const QWSPointerCalibrationData *data)
 
     // use maximum 16 bit precision to reduce risk of integer overflow
     if (scale > (1 << 16)) {
-        shift = int(log2(double(qAbs(scale) >> 16))) + 1;
+        shift = ilog2(scale >> 16) + 1;
         scale >>= shift;
     }
 
