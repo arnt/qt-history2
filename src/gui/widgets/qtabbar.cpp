@@ -373,7 +373,7 @@ void QTabBarPrivate::layoutTabs()
             tabList[i].rect.setRect(0, lstruct.pos, maxExtent, lstruct.size);
     }
 
-    if (tabList.count() && last > available) {
+    if (useScrollButtons && tabList.count() && last > available) {
         int extra = extraWidth();
         if (!vertTabs) {
             Qt::LayoutDirection ld = q->layoutDirection();
