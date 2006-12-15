@@ -39,6 +39,7 @@ private slots:
     void setIconText();
     void actionEvent();
     void setStandardKeys();
+    void alternateShortcuts();
 
 private:
     int m_lastEventType;
@@ -208,6 +209,37 @@ void tst_QAction::setStandardKeys()
     QVERIFY(act.shortcuts() == expected);
 }
 
+
+void tst_QAction::alternateShortcuts()
+{
+    //test the alternate shortcuts (by adding more than 1 shortcut)
+
+    QWidget *wid=m_tstWidget;
+
+    {
+        QAction act(wid);
+        wid->addAction(&act);
+        QList<QKeySequence> shlist= QList<QKeySequence>() << QKeySequence("CTRL+P") <<QKeySequence("CTRL+A");
+        act.setShortcuts(shlist);
+
+        QSignalSpy spy(&act, SIGNAL(triggered()));
+
+        act.setAutoRepeat(true);
+        QTest::keyClick(wid, Qt::Key_A, Qt::ControlModifier);
+        QCOMPARE(spy.count(), 1); //act should have been triggered
+
+        act.setAutoRepeat(false);
+        QTest::keyClick(wid, Qt::Key_A, Qt::ControlModifier);
+        QCOMPARE(spy.count(), 2); //act should have been triggered a 2nd time
+
+        //end of the scope of the action, it will be destroyed and removed from wid
+        //This action should also unregister its shortcuts
+    }
+
+
+    //this tests a crash (if the action did not unregister its alternate shortcuts)
+    QTest::keyClick(wid, Qt::Key_A, Qt::ControlModifier);
+}
 
 QTEST_MAIN(tst_QAction)
 #include "tst_qaction.moc"

@@ -112,7 +112,7 @@ void QActionPrivate::redoGrabAlternate(QShortcutMap &map)
     }
     if (!autorepeat) {
         foreach (int id, alternateShortcutIds)
-            map.setShortcutEnabled(false, id, q);
+            map.setShortcutAutoRepeat(false, id, q);
     }
 }
 
@@ -542,8 +542,11 @@ QAction::~QAction()
     if (d->group)
         d->group->removeAction(this);
 #ifndef QT_NO_SHORTCUT
-    if (d->shortcutId && qApp)
+    if (d->shortcutId && qApp) {
         qApp->d_func()->shortcutMap.removeShortcut(d->shortcutId, this);
+        foreach (int id, d->alternateShortcutIds)
+            qApp->d_func()->shortcutMap.removeShortcut(id, this);
+    }
 #endif
 }
 
