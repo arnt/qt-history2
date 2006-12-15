@@ -1221,6 +1221,18 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                     widget->markFrameStrutDirty();
             }
         }
+        else if (qt_desktopWidget && wParam == SPI_SETWORKAREA) {
+            qt_desktopWidget->move(GetSystemMetrics(76), GetSystemMetrics(77));
+            QSize sz(GetSystemMetrics(78), GetSystemMetrics(79));
+            if (sz == qt_desktopWidget->size()) {
+                 // a screen resized without changing size of the virtual desktop
+                QResizeEvent rs(sz, qt_desktopWidget->size());
+                QApplication::sendEvent(qt_desktopWidget, &rs);
+            } else {
+                qt_desktopWidget->resize(sz);
+            }
+        }
+
         break;
     case WM_FONTCHANGE:
     case WM_SYSCOLORCHANGE:

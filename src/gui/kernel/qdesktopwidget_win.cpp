@@ -496,14 +496,12 @@ void QDesktopWidget::resizeEvent(QResizeEvent *)
             emit resized(i);
     }
 
-#ifdef Q_OS_TEMP
     for (int j = 0; j < qMin(oldscreencount, d->screenCount); ++j) {
         QRect oldrect = oldworkrects[j];
         QRect newrect = d->workrects->at(j);
         if (oldrect != newrect)
             emit workAreaResized(j);
     }
-#endif
 }
 
 #ifdef Q_CC_MSVC
