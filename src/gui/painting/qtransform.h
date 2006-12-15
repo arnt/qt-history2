@@ -54,7 +54,7 @@ public:
 
     int type() const;
 
-    qreal determinant() const;
+    inline qreal determinant() const;
     qreal det() const;
 
     qreal m11() const;
