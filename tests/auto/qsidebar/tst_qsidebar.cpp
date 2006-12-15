@@ -147,7 +147,7 @@ void tst_QSidebar::goToUrl()
     qsidebar.show();
 
     QSignalSpy spy(&qsidebar, SIGNAL(goToUrl(const QUrl &)));
-    QTest::mousePress(qsidebar.viewport(), Qt::LeftButton, 0, qsidebar.visualItemRect(qsidebar.item(0)).center());
+    QTest::mousePress(qsidebar.viewport(), Qt::LeftButton, 0, qsidebar.visualRect(qsidebar.model()->index(0, 0)).center());
     QCOMPARE(spy.count(), 1);
     QCOMPARE((spy.value(0)).at(0).toUrl(), urls.first());
 }
