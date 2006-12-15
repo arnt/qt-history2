@@ -3645,7 +3645,7 @@ QString QString::trimmed() const
     \sa operator[]()
 */
 
-/*! 
+/*!
     \fn QCharRef QString::operator[](int position)
 
     Returns the character at the specified \a position in the string as a
@@ -3666,7 +3666,7 @@ QString QString::trimmed() const
     \sa at()
 */
 
-/*! 
+/*!
     \fn const QChar QString::operator[](int position) const
 
     \overload
@@ -7041,7 +7041,7 @@ QString QSubString::toString() const
     } else if (m_size <= 0) {
         x = &QString::shared_empty;
         x->ref.ref();
-    } else {
+    } else if (m_position > 0 || m_size != d->size) {
         x = (QString::Data*) qMalloc(sizeof(QString::Data)+m_size*sizeof(QChar));
         x->ref.init(1);
         x->alloc = x->size = m_size;
@@ -7050,7 +7050,7 @@ QString QSubString::toString() const
         memcpy(x->array, d->data + m_position, m_size * sizeof(QChar));
         x->array[m_size] = '\0';
     }
-    if (x != d) {
+    if (x) {
         x = qAtomicSetPtr(const_cast<QString::Data **>(&d), x);
         const_cast<QSubString*>(this)->m_position = 0;
         if (!x->ref.deref())
@@ -7343,7 +7343,13 @@ QSubString &QSubString::operator=(const QSubString &other)
 */
 QSubString &QSubString::operator=(const QString &s)
 {
-    *this = QSubString(s, 0, s.length());
+    QString::Data *x = s.d;
+    x->ref.ref();
+    x = qAtomicSetPtr(&d, x);
+    if (!x->ref.deref())
+        QString::free(x);
+    m_position = 0;
+    m_size = s.size();
     return *this;
 }
 

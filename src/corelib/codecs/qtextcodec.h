@@ -140,6 +140,7 @@ public:
     ~QTextDecoder();
     QString toUnicode(const char* chars, int len);
     QString toUnicode(const QByteArray &ba);
+    void toUnicode(QString *target, const char *chars, int len);
 private:
     const QTextCodec *c;
     QTextCodec::ConverterState state;

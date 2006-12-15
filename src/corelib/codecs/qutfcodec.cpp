@@ -112,7 +112,7 @@ QByteArray QUtf8Codec::convertFromUnicode(const QChar *uc, int len, ConverterSta
     return rstr;
 }
 
-QString QUtf8Codec::convertToUnicode(const char *chars, int len, ConverterState *state) const
+void QUtf8Codec::convertToUnicode(QString *target, const char *chars, int len, ConverterState *state) const
 {
     bool headerdone = false;
     QChar replacement = QChar::ReplacementCharacter;
@@ -135,7 +135,7 @@ QString QUtf8Codec::convertToUnicode(const char *chars, int len, ConverterState 
         headerdone = true;
     }
 
-    QString result;
+    QString &result = *target;
     result.resize(len); // worst case
     QChar *qch = result.data();
     uchar ch;
@@ -188,6 +188,12 @@ QString QUtf8Codec::convertToUnicode(const char *chars, int len, ConverterState 
             state->flags |= IgnoreHeader;
         state->state_data[0] = need ? uc : 0;
     }
+}
+
+QString QUtf8Codec::convertToUnicode(const char *chars, int len, ConverterState *state) const
+{
+    QString result;
+    convertToUnicode(&result, chars, len, state);
     return result;
 }
 

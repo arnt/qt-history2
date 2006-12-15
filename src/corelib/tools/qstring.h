@@ -666,6 +666,9 @@ public:
     inline QT_ASCII_CAST_WARN bool operator>=(const char *s2) const;
 
 
+    inline void clear()
+        { if (!isNull()) *this = QString(); }
+
     static inline void chopWithoutDetach(QString &string, int n) {
         string.d->size = qMax(0, string.d->size - n);
         string.d->array[string.d->size] = '\0';

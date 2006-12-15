@@ -38,6 +38,7 @@ public:
 
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
+    void convertToUnicode(QString *target, const char *, int, ConverterState *) const;
 };
 
 class QUtf16Codec : public QTextCodec {

@@ -927,7 +927,7 @@ QList<QByteArray> QTextCodec::aliases() const
 }
 
 /*!
-    \fn QString QTextCodec::convertToUnicode(const char *chars, int len,
+    \fn QString QTextCodec::convertToUnicode char *chars, int len,
                                              ConverterState *state) const
 
     QTextCodec subclasses must reimplement this function.
@@ -1020,7 +1020,6 @@ QString QTextCodec::toUnicode(const QByteArray& a) const
 {
     return convertToUnicode(a.constData(), a.length(), 0);
 }
-
 
 /*!
     Returns true if the Unicode character \a ch can be fully encoded
@@ -1208,6 +1207,27 @@ QString QTextDecoder::toUnicode(const char *chars, int len)
 {
     return c->toUnicode(chars, len, &state);
 }
+
+
+/*! \overload
+ */
+void QTextDecoder::toUnicode(QString *target, const char *chars, int len)
+{
+    Q_ASSERT(target);
+    switch (c->mibEnum()) {
+    case 106: // utf8
+        return static_cast<const QUtf8Codec*>(c)->convertToUnicode(target, chars, len, &state);
+    case 4: { // latin1
+        target->resize(len);
+        ushort *data = (ushort*)target->data();
+        for (int i = len; i >=0; --i)
+            data[i] = chars[i];
+    } break;
+    default:
+        *target = c->toUnicode(chars, len, &state);
+    }
+}
+
 
 /*!
     \overload
