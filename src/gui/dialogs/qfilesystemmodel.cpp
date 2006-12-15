@@ -104,7 +104,7 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QM
 
     If shouldExist is false then double check path exists before blindly creating files.
 */
-QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QString &path, bool shouldExist) const
+QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QString &path, bool shouldExist, bool fetch) const
 {
     Q_Q(const QFileSystemModel);
     Q_UNUSED(q);
@@ -190,14 +190,40 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
         if (parent->visibleLocation(row) == -1) {
             QFileSystemModelPrivate *p = const_cast<QFileSystemModelPrivate*>(this);
             p->addVisibleFiles(parent, QStringList(element));
-            if (!parent->children.at(row).hasInformation()) {
-                p->fileInfoGatherer.fetchExtendedInformation(q->filePath(this->index(parent)), QStringList(element));
+            if (!p->bypassFilters.contains(&parent->children.at(row)))
+                p->bypassFilters.append(&parent->children.at(row));
+            QString dir = q->filePath(this->index(parent));
+            if (!parent->children.at(row).hasInformation() && fetch) {
+                Fetching f;
+                f.dir = dir;
+                f.file = element;
+                f.node = &parent->children.at(row);
+                p->toFetch.append(f);
+                p->fetchingTimer.start(0, const_cast<QFileSystemModel*>(q));
             }
         }
         parent = &parent->children[row];
     }
 
     return parent;
+}
+
+void QFileSystemModel::timerEvent(QTimerEvent *event)
+{
+    Q_D(QFileSystemModel);
+    if (event->timerId() == d->fetchingTimer.timerId()) {
+        d->fetchingTimer.stop();
+        for (int i = 0; i < d->toFetch.count(); ++i) {
+            const QFileSystemModelPrivate::QFileSystemNode *node = d->toFetch.at(i).node;
+            if (!node->hasInformation()) {
+                d->fileInfoGatherer.fetchExtendedInformation(d->toFetch.at(i).dir,
+                                                 QStringList(d->toFetch.at(i).file));
+            } else {
+                // qDebug() << "yah!, you saved a little gerbil soul";
+            }
+        }
+        d->toFetch.clear();
+    }
 }
 
 /*!
@@ -1135,7 +1161,7 @@ QStringList QFileSystemModel::nameFilters() const
  */
 void QFileSystemModelPrivate::directoryChanged(const QString &directory, const QStringList &files)
 {
-    QFileSystemModelPrivate::QFileSystemNode *parentNode = node(directory);
+    QFileSystemModelPrivate::QFileSystemNode *parentNode = node(directory, true, false);
     QStringList newFiles = files;
     // sort new files for faster inserting
     qSort(newFiles.begin(), newFiles.end());
@@ -1143,29 +1169,17 @@ void QFileSystemModelPrivate::directoryChanged(const QString &directory, const Q
     // Ignore files we already have and cleanup filtered files that were removed.
     // non-filtered files will be removed in a fileSystemChanged()
     for (int i = parentNode->children.count() - 1;  i >= 0; --i) {
-        QStringList::iterator iterator;
+        QStringList::const_iterator iterator;
         if (parentNode->caseSensitive())
             iterator = qBinaryFind(newFiles.begin(), newFiles.end(),
-                                                     parentNode->children.at(i).fileName);
+                       parentNode->children.at(i).fileName);
         else
             iterator = qBinaryFind(newFiles.begin(), newFiles.end(),
-                                                     parentNode->children.at(i).fileName, caseInsensitiveLessThan);
-        if (iterator == newFiles.end()) {
+                       parentNode->children.at(i).fileName, caseInsensitiveLessThan);
+        if (iterator == newFiles.constEnd()) {
            removeNode(parentNode, i);
-        } else {
-            // usually there is only 1 file so don't bother compressing this
-            if (!parentNode->children.at(i).hasInformation()) {
-                fileInfoGatherer.fetchExtendedInformation(directory, QStringList(parentNode->children.at(i).fileName));
-	    }
-            newFiles.erase(iterator);
-            continue;
         }
     }
-
-    // Add them to the children list
-    // They are added to the visible list after we get a info and they pass the filter
-    for (int i = 0; i < newFiles.count(); ++i)
-        addNode(parentNode, newFiles.at(i));
 }
 
 /*!
@@ -1287,7 +1301,7 @@ void QFileSystemModelPrivate::fileSystemChanged(const QString &path, const QList
     Q_Q(QFileSystemModel);
     QVector<int> rowsToUpdate;
     QStringList newFiles;
-    QFileSystemModelPrivate::QFileSystemNode *parentNode = node(path);
+    QFileSystemModelPrivate::QFileSystemNode *parentNode = node(path, true, false);
     QModelIndex parentIndex = index(parentNode);
     for (int i = 0; i < updates.count(); ++i) {
         QString fileName = updates.at(i).first;
@@ -1322,6 +1336,7 @@ void QFileSystemModelPrivate::fileSystemChanged(const QString &path, const QList
         if (parentNode->children.at(itemLocation) != info ) {
             parentNode->children[itemLocation].populate(info);
             int visibleLocation = parentNode->visibleLocation(itemLocation);
+            bypassFilters.remove(&(parentNode->children.at(itemLocation)));
             // brand new information.
             if (filtersAcceptsNode(&(parentNode->children[itemLocation]))) {
                 if (visibleLocation == -1) {
@@ -1413,7 +1428,7 @@ void QFileSystemModelPrivate::init()
 bool QFileSystemModelPrivate::filtersAcceptsNode(const QFileSystemNode *node) const
 {
     // always accept drives
-    if (node->parent == &root)
+    if (node->parent == &root || bypassFilters.contains(node))
         return true;
 
     // If we don't know anything yet don't accept it

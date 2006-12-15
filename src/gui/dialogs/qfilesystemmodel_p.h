@@ -107,6 +107,7 @@ public:
 
 protected:
     QFileSystemModel(QFileSystemModelPrivate &, QObject *parent = 0);
+    void timerEvent(QTimerEvent *event);
 
 private:
     Q_DECLARE_PRIVATE(QFileSystemModel)
@@ -238,7 +239,7 @@ public:
        return (indexNode != &root && !index.isValid());
     }
     QFileSystemNode *node(const QModelIndex &index) const;
-    QFileSystemNode *node(const QString &path, bool shouldExist = true) const;
+    QFileSystemNode *node(const QString &path, bool shouldExist = true, bool fetch = true) const;
     inline QModelIndex index(const QString &path) { return index(node(path)); }
     QModelIndex index(const QFileSystemNode *node) const;
     bool filtersAcceptsNode(const QFileSystemNode *node) const;
@@ -323,6 +324,7 @@ public:
     Qt::SortOrder sortOrder;
     bool readOnly;
     QDir::Filters filters;
+    QList<const QFileSystemNode*> bypassFilters;
     bool nameFilterDisables;
 #ifndef QT_NO_REGEXP
     QList<QRegExp> nameFilters;
@@ -331,6 +333,15 @@ public:
     QHash<QString, QString> resolvedSymLinks;
 
     QFileSystemNode root;
+
+    QBasicTimer fetchingTimer;
+    struct Fetching {
+        QString dir;
+        QString file;
+        const QFileSystemNode *node;
+    };
+    QList<Fetching> toFetch;
+
 };
 
 #endif
