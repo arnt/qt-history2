@@ -61,6 +61,8 @@
 
 #ifndef Q_WS_MAC
 #include <private/qbackingstore_p.h>
+#else
+extern void qt_mac_update_metal_style(QWidget*); //qwidget_mac.cpp
 #endif
 
 #include "qwidget_p.h"
@@ -1920,15 +1922,20 @@ void QWidgetPrivate::setStyle_helper(QStyle *newStyle, bool propagate, bool
     }
 
     // repolish
-    if (q->windowType() != Qt::Desktop && polished) {
-        oldStyle->unpolish(q);
+    if (q->windowType() != Qt::Desktop) {
+        if (polished) {
+            oldStyle->unpolish(q);
 #ifdef Q_WS_MAC
-        if (metalHack) {
-            extern void qt_mac_update_metal_style(QWidget*); //qwidget_mac.cpp
-            qt_mac_update_metal_style(q);
-        }
+            if (metalHack) {
+                qt_mac_update_metal_style(q);
+            }
 #endif
-        q->style()->polish(q);
+            q->style()->polish(q);
+#ifdef Q_WS_MAC
+        } else if (metalHack) {
+            qt_mac_update_metal_style(q);
+#endif
+        }
     }
     QEvent e(QEvent::StyleChange);
     QApplication::sendEvent(q, &e);
