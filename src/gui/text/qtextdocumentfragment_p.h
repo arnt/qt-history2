@@ -99,13 +99,17 @@ public:
     void import();
 
 private:
-    bool closeTag(int i);
+    bool closeTag();
 
     Table scanTable(int tableNodeIdx);
 
+    enum ProcessNodeResult { ContinueWithNextNode, ContinueWithCurrentNode };
+
     void appendBlock(const QTextBlockFormat &format, QTextCharFormat charFmt = QTextCharFormat());
-    bool appendNodeText(int i);
-    bool compressNextWhitespace;
+    bool appendNodeText();
+
+    ProcessNodeResult processBlockNode();
+    ProcessNodeResult processSpecialNodes();
 
     struct List
     {
@@ -177,6 +181,12 @@ private:
     QTextCursor cursor;
     QTextHtmlParserNode::WhiteSpaceMode wsm;
     ImportMode importMode;
+    bool compressNextWhitespace;
+    bool hasBlock;
+    bool forceBlockMerging;
+    bool blockTagClosed;
+    int currentNodeIdx;
+    const QTextHtmlParserNode *currentNode;
 };
 
 #endif // QTEXTDOCUMENTFRAGMENT_P_H

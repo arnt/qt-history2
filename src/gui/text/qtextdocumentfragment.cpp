@@ -397,13 +397,13 @@ static QTextListFormat::Style nextListStyle(QTextListFormat::Style style)
 void QTextHtmlImporter::import()
 {
     cursor.beginEditBlock();
-    bool hasBlock = true;
-    bool forceBlockMerging = false;
+    hasBlock = true;
+    forceBlockMerging = false;
     compressNextWhitespace = !textEditMode;
-    bool blockTagClosed = false;
-    for (int i = 0; i < count(); ++i) {
-        const QTextHtmlParserNode *node = &at(i);
-        wsm = node->wsm;
+    blockTagClosed = false;
+    for (currentNodeIdx = 0; currentNodeIdx < count(); ++currentNodeIdx) {
+        currentNode = &at(currentNodeIdx);
+        wsm = currentNode->wsm;
 
         /*
          * process each node in three stages:
@@ -424,277 +424,52 @@ void QTextHtmlImporter::import()
          *  2) the current node not being a child of the previous node
          *      means there was a tag closing in the input html
          */
-        if (i > 0 && (node->parent != i - 1)) {
-            blockTagClosed = closeTag(i);
+        if (currentNodeIdx > 0 && (currentNode->parent != currentNodeIdx - 1)) {
+            blockTagClosed = closeTag();
             // visually collapse subsequent block tags, but if the element after the closed block tag
             // is for example an inline element (!isBlock) we have to make sure we start a new paragraph by setting
             // hasBlock to false.
             if (blockTagClosed
-                && !node->isBlock()
-                && node->id != Html_unknown)
+                && !currentNode->isBlock()
+                && currentNode->id != Html_unknown)
                 hasBlock = false;
         }
 
-        if (node->displayMode == QTextHtmlElement::DisplayNone) {
-            if (node->id == Html_title)
-                doc->setMetaInformation(QTextDocument::DocumentTitle, node->text);
+        if (currentNode->displayMode == QTextHtmlElement::DisplayNone) {
+            if (currentNode->id == Html_title)
+                doc->setMetaInformation(QTextDocument::DocumentTitle, currentNode->text);
             // ignore explicitly 'invisible' elements
             continue;
-        } else if (node->id == Html_body) {
-            if (node->charFormat.background().style() != Qt::NoBrush) {
-                QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
-                fmt.setBackground(node->charFormat.background());
-                doc->rootFrame()->setFrameFormat(fmt);
-                const_cast<QTextHtmlParserNode *>(node)->charFormat.clearProperty(QTextFormat::BackgroundBrush);
-            }
-        } else if (node->isListStart()) {
-
-            QTextListFormat::Style style = node->listStyle;
-
-            if (node->id == Html_ul && !node->hasOwnListStyle && node->parent) {
-                const QTextHtmlParserNode *n = &at(node->parent);
-                while (n) {
-                    if (n->id == Html_ul) {
-                        style = nextListStyle(node->listStyle);
-                    }
-                    if (n->parent)
-                        n = &at(n->parent);
-                    else
-                        n = 0;
-                }
-            }
-
-            QTextListFormat listFmt;
-            listFmt.setStyle(style);
-
-            ++indent;
-            if (node->hasCssListIndent)
-                listFmt.setIndent(node->cssListIndent);
-            else
-                listFmt.setIndent(indent);
-
-            List l;
-            l.format = listFmt;
-            l.listNode = i;
-            lists.append(l);
-            compressNextWhitespace = true;
-
-            // broken html: <ul>Text here<li>Foo
-            const QString simpl = node->text.simplified();
-            if (simpl.isEmpty() || simpl.at(0).isSpace())
-                continue;
-        } else if (node->id == Html_table) {
-            Table t = scanTable(i);
-            tables.append(t);
-            hasBlock = false;
-            continue;
-        } else if (node->id == Html_tr && !tables.isEmpty()) {
-            continue;
-        } else if (node->id == Html_img) {
-            QTextImageFormat fmt;
-            fmt.setName(node->imageName);
-
-            fmt.merge(node->charFormat);
-
-            if (node->imageWidth >= 0)
-                fmt.setWidth(node->imageWidth);
-            if (node->imageHeight >= 0)
-                fmt.setHeight(node->imageHeight);
-
-            cursor.insertImage(fmt, QTextFrameFormat::Position(node->cssFloat));
-
-            cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-            cursor.mergeCharFormat(node->charFormat);
-            cursor.movePosition(QTextCursor::Right);
-
-            hasBlock = false;
-            continue;
-        } else if (node->id == Html_hr) {
-            QTextBlockFormat blockFormat = node->blockFormat;
-            blockFormat.setTopMargin(topMargin(i));
-            blockFormat.setBottomMargin(bottomMargin(i));
-            blockFormat.setProperty(QTextFormat::BlockTrailingHorizontalRulerWidth, node->width);
-            if (hasBlock && importMode == ImportToDocument)
-                cursor.mergeBlockFormat(blockFormat);
-            else
-                appendBlock(blockFormat);
-            hasBlock = false;
-            continue;
         }
+
+        if (processSpecialNodes() == ContinueWithNextNode)
+            continue;
 
         // make sure there's a block for 'Blah' after <ul><li>foo</ul>Blah
         if (blockTagClosed
             && !hasBlock
-            && !node->isBlock()
-            && !node->text.isEmpty() && !node->hasOnlyWhitespace()
-            && node->displayMode == QTextHtmlElement::DisplayInline) {
+            && !currentNode->isBlock()
+            && !currentNode->text.isEmpty() && !currentNode->hasOnlyWhitespace()
+            && currentNode->displayMode == QTextHtmlElement::DisplayInline) {
 
-            QTextBlockFormat block = node->blockFormat;
+            QTextBlockFormat block = currentNode->blockFormat;
             block.setIndent(indent);
 
-            appendBlock(block, node->charFormat);
+            appendBlock(block, currentNode->charFormat);
 
             hasBlock = true;
         }
 
-        if (node->isBlock()) {
-            QTextBlockFormat block;
-            QTextCharFormat charFmt;
-            bool modifiedBlockFormat = true;
-            bool modifiedCharFormat = true;
-
-            if (node->isTableCell() && !tables.isEmpty()) {
-                Table &t = tables.last();
-                if (!t.isTextFrame && !t.currentCell.atEnd()) {
-                    const QTextTableCell cell = t.currentCell.cell();
-                    if (cell.isValid())
-                        cursor.setPosition(cell.firstPosition());
-                }
-                hasBlock = true;
-                compressNextWhitespace = true;
-
-                if (node->charFormat.background().style() != Qt::NoBrush) {
-                    charFmt.setBackground(node->charFormat.background());
-                    cursor.mergeBlockCharFormat(charFmt);
-                }
-            }
-
-            if (hasBlock) {
-                block = cursor.blockFormat();
-                charFmt = cursor.blockCharFormat();
-                modifiedBlockFormat = false;
-                modifiedCharFormat = false;
-            }
-
-            // collapse
-            {
-                qreal tm = qreal(topMargin(i));
-                if (tm > block.topMargin()) {
-                    block.setTopMargin(tm);
-                    modifiedBlockFormat = true;
-                }
-            }
-
-            int bottomMargin = this->bottomMargin(i);
-
-            // for list items we may want to collapse with the bottom margin of the
-            // list.
-            const QTextHtmlParserNode *parentNode = node->parent ? &at(node->parent) : 0;
-            if ((node->id == Html_li
-                 || node->id == Html_dt
-                 || node->id == Html_dd)
-                && parentNode
-                && (parentNode->isListStart() || parentNode->id == Html_dl)
-                && (parentNode->children.last() == i)
-               ) {
-                bottomMargin = qMax(bottomMargin, this->bottomMargin(node->parent));
-            }
-
-            if (block.bottomMargin() != bottomMargin) {
-                block.setBottomMargin(bottomMargin);
-                modifiedBlockFormat = true;
-            }
-
-            {
-                const qreal lm = leftMargin(i);
-                const qreal rm = rightMargin(i);
-
-                if (block.leftMargin() != lm) {
-                    block.setLeftMargin(lm);
-                    modifiedBlockFormat = true;
-                }
-                if (block.rightMargin() != rm) {
-                    block.setRightMargin(rm);
-                    modifiedBlockFormat = true;
-                }
-            }
-
-            if (node->id != Html_li
-                && indent != 0
-                && (lists.isEmpty()
-                    || !hasBlock
-                    || !lists.last().list
-                    || lists.last().list->itemNumber(cursor.block()) == -1
-                   )
-               ) {
-                block.setIndent(indent);
-                modifiedBlockFormat = true;
-            }
-
-            if (node->blockFormat.propertyCount() > 0) {
-                modifiedBlockFormat = true;
-                block.merge(node->blockFormat);
-            }
-
-            if (node->charFormat.propertyCount() > 0) {
-                modifiedCharFormat = true;
-                charFmt.merge(node->charFormat);
-            }
-
-            // ####################
-//                block.setFloatPosition(node->cssFloat);
-
-            if (wsm == QTextHtmlParserNode::WhiteSpacePre) {
-                block.setNonBreakableLines(true);
-                modifiedBlockFormat = true;
-            }
-
-            if (node->charFormat.background().style() != Qt::NoBrush && !node->isTableCell()) {
-                block.setBackground(node->charFormat.background());
-                modifiedBlockFormat = true;
-            }
-
-            if (hasBlock && (!node->isEmptyParagraph || forceBlockMerging)) {
-                if (modifiedBlockFormat)
-                    cursor.setBlockFormat(block);
-                if (modifiedCharFormat)
-                    cursor.setBlockCharFormat(charFmt);
-            } else {
-                if (i == 1 && cursor.position() == 0 && node->isEmptyParagraph) {
-                    cursor.setBlockFormat(block);
-                    cursor.setBlockCharFormat(charFmt);
-                } else {
-                    appendBlock(block, charFmt);
-                }
-            }
-
-            if (node->id == Html_li && !lists.isEmpty()) {
-                List &l = lists.last();
-                if (l.list) {
-                    l.list->add(cursor.block());
-                    if (hasBlock) {
-                        QTextBlockFormat fmt;
-                        fmt.setIndent(0);
-                        cursor.mergeBlockFormat(fmt);
-                    }
-                } else {
-                    l.list = cursor.createList(l.format);
-                    const qreal listTopMargin = topMargin(l.listNode);
-                    if (listTopMargin > block.topMargin()) {
-                        block.setTopMargin(listTopMargin);
-                        cursor.mergeBlockFormat(block);
-                    }
-                }
-            }
-
-            forceBlockMerging = false;
-            if (node->id == Html_body || node->id == Html_html)
-                forceBlockMerging = true;
-
-            if (node->isEmptyParagraph) {
-                hasBlock = false;
+        if (currentNode->isBlock()) {
+            if (processBlockNode() == ContinueWithNextNode)
                 continue;
-            }
-
-            hasBlock = true;
-            blockTagClosed = false;
         }
 
-        if (node->charFormat.isAnchor() && !node->charFormat.anchorName().isEmpty()) {
-            namedAnchors.append(node->charFormat.anchorName());
+        if (currentNode->charFormat.isAnchor() && !currentNode->charFormat.anchorName().isEmpty()) {
+            namedAnchors.append(currentNode->charFormat.anchorName());
         }
 
-        if (appendNodeText(i))
+        if (appendNodeText())
             hasBlock = false; // if we actually appended text then we don't
                               // have an empty block anymore
     }
@@ -709,15 +484,15 @@ static bool isPreservingWhitespaceMode(QTextHtmlParserNode::WhiteSpaceMode mode)
            ;
 }
 
-bool QTextHtmlImporter::appendNodeText(int node)
+bool QTextHtmlImporter::appendNodeText()
 {
     const int initialCursorPosition = cursor.position();
-    QTextCharFormat format = at(node).charFormat;
+    QTextCharFormat format = currentNode->charFormat;
 
     if (isPreservingWhitespaceMode(wsm))
         compressNextWhitespace = false;
 
-    QString text = at(node).text;
+    QString text = currentNode->text;
 
     QString textToInsert;
     textToInsert.reserve(text.size());
@@ -796,12 +571,112 @@ bool QTextHtmlImporter::appendNodeText(int node)
     return cursor.position() != initialCursorPosition;
 }
 
-// returns true if a block tag was closed
-bool QTextHtmlImporter::closeTag(int i)
+QTextHtmlImporter::ProcessNodeResult QTextHtmlImporter::processSpecialNodes()
 {
-    const QTextHtmlParserNode *closedNode = &at(i - 1);
-    const int endDepth = depth(i) - 1;
-    int depth = this->depth(i - 1);
+    switch (currentNode->id) {
+        case Html_body:
+            if (currentNode->charFormat.background().style() != Qt::NoBrush) {
+                QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
+                fmt.setBackground(currentNode->charFormat.background());
+                doc->rootFrame()->setFrameFormat(fmt);
+                const_cast<QTextHtmlParserNode *>(currentNode)->charFormat.clearProperty(QTextFormat::BackgroundBrush);
+            }
+            break;
+
+        case Html_ol:
+        case Html_ul: {
+            QTextListFormat::Style style = currentNode->listStyle;
+
+            if (currentNode->id == Html_ul && !currentNode->hasOwnListStyle && currentNode->parent) {
+                const QTextHtmlParserNode *n = &at(currentNode->parent);
+                while (n) {
+                    if (n->id == Html_ul) {
+                        style = nextListStyle(currentNode->listStyle);
+                    }
+                    if (n->parent)
+                        n = &at(n->parent);
+                    else
+                        n = 0;
+                }
+            }
+
+            QTextListFormat listFmt;
+            listFmt.setStyle(style);
+
+            ++indent;
+            if (currentNode->hasCssListIndent)
+                listFmt.setIndent(currentNode->cssListIndent);
+            else
+                listFmt.setIndent(indent);
+
+            List l;
+            l.format = listFmt;
+            l.listNode = currentNodeIdx;
+            lists.append(l);
+            compressNextWhitespace = true;
+
+            // broken html: <ul>Text here<li>Foo
+            const QString simpl = currentNode->text.simplified();
+            if (simpl.isEmpty() || simpl.at(0).isSpace())
+                return ContinueWithNextNode;
+            break;
+        }
+
+        case Html_table: {
+            Table t = scanTable(currentNodeIdx);
+            tables.append(t);
+            hasBlock = false;
+            return ContinueWithNextNode;
+        }
+
+        case Html_tr:
+            return ContinueWithNextNode;
+
+        case Html_img: {
+            QTextImageFormat fmt;
+            fmt.setName(currentNode->imageName);
+
+            fmt.merge(currentNode->charFormat);
+
+            if (currentNode->imageWidth >= 0)
+                fmt.setWidth(currentNode->imageWidth);
+            if (currentNode->imageHeight >= 0)
+                fmt.setHeight(currentNode->imageHeight);
+
+            cursor.insertImage(fmt, QTextFrameFormat::Position(currentNode->cssFloat));
+
+            cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+            cursor.mergeCharFormat(currentNode->charFormat);
+            cursor.movePosition(QTextCursor::Right);
+
+            hasBlock = false;
+            return ContinueWithNextNode;
+        }
+
+        case Html_hr: {
+            QTextBlockFormat blockFormat = currentNode->blockFormat;
+            blockFormat.setTopMargin(topMargin(currentNodeIdx));
+            blockFormat.setBottomMargin(bottomMargin(currentNodeIdx));
+            blockFormat.setProperty(QTextFormat::BlockTrailingHorizontalRulerWidth, currentNode->width);
+            if (hasBlock && importMode == ImportToDocument)
+                cursor.mergeBlockFormat(blockFormat);
+            else
+                appendBlock(blockFormat);
+            hasBlock = false;
+            return ContinueWithNextNode;
+        }
+
+        default: break;
+    }
+    return ContinueWithCurrentNode;
+}
+
+// returns true if a block tag was closed
+bool QTextHtmlImporter::closeTag()
+{
+    const QTextHtmlParserNode *closedNode = &at(currentNodeIdx - 1);
+    const int endDepth = depth(currentNodeIdx) - 1;
+    int depth = this->depth(currentNodeIdx - 1);
     bool blockTagClosed = false;
 
     while (depth > endDepth) {
@@ -1018,6 +893,158 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
         cursor.setPosition(oldPos); // restore for caption support which needs to be inserted right before the table
     }
     return table;
+}
+
+QTextHtmlImporter::ProcessNodeResult QTextHtmlImporter::processBlockNode()
+{
+    QTextBlockFormat block;
+    QTextCharFormat charFmt;
+    bool modifiedBlockFormat = true;
+    bool modifiedCharFormat = true;
+
+    if (currentNode->isTableCell() && !tables.isEmpty()) {
+        Table &t = tables.last();
+        if (!t.isTextFrame && !t.currentCell.atEnd()) {
+            const QTextTableCell cell = t.currentCell.cell();
+            if (cell.isValid())
+                cursor.setPosition(cell.firstPosition());
+        }
+        hasBlock = true;
+        compressNextWhitespace = true;
+
+        if (currentNode->charFormat.background().style() != Qt::NoBrush) {
+            charFmt.setBackground(currentNode->charFormat.background());
+            cursor.mergeBlockCharFormat(charFmt);
+        }
+    }
+
+    if (hasBlock) {
+        block = cursor.blockFormat();
+        charFmt = cursor.blockCharFormat();
+        modifiedBlockFormat = false;
+        modifiedCharFormat = false;
+    }
+
+    // collapse
+    {
+        qreal tm = qreal(topMargin(currentNodeIdx));
+        if (tm > block.topMargin()) {
+            block.setTopMargin(tm);
+            modifiedBlockFormat = true;
+        }
+    }
+
+    int bottomMargin = this->bottomMargin(currentNodeIdx);
+
+    // for list items we may want to collapse with the bottom margin of the
+    // list.
+    const QTextHtmlParserNode *parentNode = currentNode->parent ? &at(currentNode->parent) : 0;
+    if ((currentNode->id == Html_li || currentNode->id == Html_dt || currentNode->id == Html_dd)
+        && parentNode
+        && (parentNode->isListStart() || parentNode->id == Html_dl)
+        && (parentNode->children.last() == currentNodeIdx)) {
+        bottomMargin = qMax(bottomMargin, this->bottomMargin(currentNode->parent));
+    }
+
+    if (block.bottomMargin() != bottomMargin) {
+        block.setBottomMargin(bottomMargin);
+        modifiedBlockFormat = true;
+    }
+
+    {
+        const qreal lm = leftMargin(currentNodeIdx);
+        const qreal rm = rightMargin(currentNodeIdx);
+
+        if (block.leftMargin() != lm) {
+            block.setLeftMargin(lm);
+            modifiedBlockFormat = true;
+        }
+        if (block.rightMargin() != rm) {
+            block.setRightMargin(rm);
+            modifiedBlockFormat = true;
+        }
+    }
+
+    if (currentNode->id != Html_li
+        && indent != 0
+        && (lists.isEmpty()
+            || !hasBlock
+            || !lists.last().list
+            || lists.last().list->itemNumber(cursor.block()) == -1
+           )
+       ) {
+        block.setIndent(indent);
+        modifiedBlockFormat = true;
+    }
+
+    if (currentNode->blockFormat.propertyCount() > 0) {
+        modifiedBlockFormat = true;
+        block.merge(currentNode->blockFormat);
+    }
+
+    if (currentNode->charFormat.propertyCount() > 0) {
+        modifiedCharFormat = true;
+        charFmt.merge(currentNode->charFormat);
+    }
+
+    // ####################
+    //                block.setFloatPosition(node->cssFloat);
+
+    if (wsm == QTextHtmlParserNode::WhiteSpacePre) {
+        block.setNonBreakableLines(true);
+        modifiedBlockFormat = true;
+    }
+
+    if (currentNode->charFormat.background().style() != Qt::NoBrush && !currentNode->isTableCell()) {
+        block.setBackground(currentNode->charFormat.background());
+        modifiedBlockFormat = true;
+    }
+
+    if (hasBlock && (!currentNode->isEmptyParagraph || forceBlockMerging)) {
+        if (modifiedBlockFormat)
+            cursor.setBlockFormat(block);
+        if (modifiedCharFormat)
+            cursor.setBlockCharFormat(charFmt);
+    } else {
+        if (currentNodeIdx == 1 && cursor.position() == 0 && currentNode->isEmptyParagraph) {
+            cursor.setBlockFormat(block);
+            cursor.setBlockCharFormat(charFmt);
+        } else {
+            appendBlock(block, charFmt);
+        }
+    }
+
+    if (currentNode->id == Html_li && !lists.isEmpty()) {
+        List &l = lists.last();
+        if (l.list) {
+            l.list->add(cursor.block());
+            if (hasBlock) {
+                QTextBlockFormat fmt;
+                fmt.setIndent(0);
+                cursor.mergeBlockFormat(fmt);
+            }
+        } else {
+            l.list = cursor.createList(l.format);
+            const qreal listTopMargin = topMargin(l.listNode);
+            if (listTopMargin > block.topMargin()) {
+                block.setTopMargin(listTopMargin);
+                cursor.mergeBlockFormat(block);
+            }
+        }
+    }
+
+    forceBlockMerging = false;
+    if (currentNode->id == Html_body || currentNode->id == Html_html)
+        forceBlockMerging = true;
+
+    if (currentNode->isEmptyParagraph) {
+        hasBlock = false;
+        return ContinueWithNextNode;
+    }
+
+    hasBlock = true;
+    blockTagClosed = false;
+    return ContinueWithCurrentNode;
 }
 
 void QTextHtmlImporter::appendBlock(const QTextBlockFormat &format, QTextCharFormat charFmt)
