@@ -165,7 +165,7 @@ public:
         inline bool isSystem() const { if (info) return info->isSystem(); return true; }
         inline bool isHidden() const { if (info) return info->isHidden; return false; }
         inline bool isSymLink() const { if (info) return info->isSymLink; return false; }
-        inline bool caseSensitive() const { if (info) return info->caseSensitive; return true; }
+        inline bool caseSensitive() const { if (info) return info->caseSensitive; return false; }
         inline QIcon icon() const { if (info) return info->icon; return QIcon(); }
 
         inline bool operator <(const QFileSystemNode &node) const {
@@ -239,7 +239,7 @@ public:
        return (indexNode != &root && !index.isValid());
     }
     QFileSystemNode *node(const QModelIndex &index) const;
-    QFileSystemNode *node(const QString &path, bool shouldExist = true, bool fetch = true) const;
+    QFileSystemNode *node(const QString &path, bool fetch = true) const;
     inline QModelIndex index(const QString &path) { return index(node(path)); }
     QModelIndex index(const QFileSystemNode *node) const;
     bool filtersAcceptsNode(const QFileSystemNode *node) const;

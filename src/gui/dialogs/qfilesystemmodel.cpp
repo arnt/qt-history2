@@ -101,10 +101,8 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QM
     \internal
 
     Given a path return the matching QFileSystemNode or &root if invalid
-
-    If shouldExist is false then double check path exists before blindly creating files.
 */
-QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QString &path, bool shouldExist, bool fetch) const
+QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QString &path, bool fetch) const
 {
     Q_Q(const QFileSystemModel);
     Q_UNUSED(q);
@@ -155,7 +153,6 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
     pathElements.prepend(QLatin1String("/"));
 #endif
 
-    bool validFile = shouldExist;
     QFileSystemModelPrivate::QFileSystemNode *parent = node(index);
     for (int i = 0; i < pathElements.count(); ++i) {
         QString element = pathElements.at(i);
@@ -176,15 +173,12 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
         if (row == -1) {
             // Someone might call ::index("file://cookie/monster/doesn't/like/veggies"),
             // a path that doesn't exists, I.E. don't blindly create directories.
-            if (!validFile) {
-                QFileInfo info(path);
-                if (!info.exists())
-                    return const_cast<QFileSystemModelPrivate::QFileSystemNode*>(&root);
-                validFile = true;
-            }
-
+            QFileInfo info(path);
+            if (!info.exists())
+                return const_cast<QFileSystemModelPrivate::QFileSystemNode*>(&root);
             QFileSystemModelPrivate *p = const_cast<QFileSystemModelPrivate*>(this);
             row = p->addNode(parent, element);
+            parent->children[row].populate(fileInfoGatherer.getInfo(info));
         }
         Q_ASSERT(row >= 0);
         if (parent->visibleLocation(row) == -1) {
@@ -1161,7 +1155,7 @@ QStringList QFileSystemModel::nameFilters() const
  */
 void QFileSystemModelPrivate::directoryChanged(const QString &directory, const QStringList &files)
 {
-    QFileSystemModelPrivate::QFileSystemNode *parentNode = node(directory, true, false);
+    QFileSystemModelPrivate::QFileSystemNode *parentNode = node(directory, false);
     QStringList newFiles = files;
     // sort new files for faster inserting
     qSort(newFiles.begin(), newFiles.end());
@@ -1196,7 +1190,7 @@ int QFileSystemModelPrivate::addNode(QFileSystemNode *parentNode, const QString 
     int itemLocation = 0;
     if (parentNode->children.count() > 0) {
         if (parentNode->children.at(parentNode->children.count() - 1).hasInformation()
-	    && parentNode->children.at(parentNode->children.count() - 1) < fileName) {
+            && parentNode->children.at(parentNode->children.count() - 1) < fileName) {
             itemLocation = parentNode->children.count();
         } else {
             itemLocation = findWhereToInsertChild(parentNode, &node);
@@ -1260,6 +1254,7 @@ void QFileSystemModelPrivate::addVisibleFiles(QFileSystemNode *parentNode, const
         q->beginInsertRows(parent, q->rowCount(parent), q->rowCount(parent) + newFiles.count() - 1);
     for (int i = 0; i < newFiles.count(); ++i) {
         int location = findChild(parentNode, QFileSystemNode(newFiles.at(i)));
+        Q_ASSERT(location >= 0);
         // put new items at the end of the list until sorted to minimize
         // flicker as it is re-shuffled to the right spot
         parentNode->visibleChildren.insert(sortOrder == Qt::AscendingOrder ? parentNode->visibleChildren.count() : 0, location);
@@ -1301,7 +1296,7 @@ void QFileSystemModelPrivate::fileSystemChanged(const QString &path, const QList
     Q_Q(QFileSystemModel);
     QVector<int> rowsToUpdate;
     QStringList newFiles;
-    QFileSystemModelPrivate::QFileSystemNode *parentNode = node(path, true, false);
+    QFileSystemModelPrivate::QFileSystemNode *parentNode = node(path, false);
     QModelIndex parentIndex = index(parentNode);
     for (int i = 0; i < updates.count(); ++i) {
         QString fileName = updates.at(i).first;
