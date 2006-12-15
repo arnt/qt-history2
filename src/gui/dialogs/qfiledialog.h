@@ -244,7 +244,6 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_animateDialog())
     Q_PRIVATE_SLOT(d_func(), void _q_animateDialogV(int))
     Q_PRIVATE_SLOT(d_func(), void _q_animateDialogH(int))
-    Q_PRIVATE_SLOT(d_func(), void _q_layoutChanged())
     Q_PRIVATE_SLOT(d_func(), void _q_autoCompleteFileName(const QString &text))
 };
 

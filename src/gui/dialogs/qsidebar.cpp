@@ -28,26 +28,20 @@
 #include <qdirmodel.h>
 #endif
 
-QSidebar::QSidebar(QFileSystemModel *model, const QList<QUrl> &newUrls, QWidget *parent) : QListWidget(parent), fileSystemModel(model)
-{
-    // ### TODO make icon size dynamic
-    setIconSize(QSize(24,24));
-    setUniformItemSizes(true);
-    connect(fileSystemModel, SIGNAL(layoutChanged()),
-        this, SLOT(layoutChanged()), Qt::QueuedConnection);
-    init();
-    setUrls(newUrls);
-    setCurrentIndex(this->model()->index(0,0));
-}
+/*!
+    QUrlModel lets you have indexes from a QFileSystemModel to a list.  When QFileSystemModel
+    changes them QUrlModel will automatically update.
 
-QSidebar::~QSidebar()
+    Example usage: File dialog sidebar and combo box
+ */
+QUrlModel::QUrlModel(QObject *parent) : QStandardItemModel(parent), fileSystemModel(0)
 {
 }
 
 /*!
     \reimp
 */
-QStringList QSidebar::mimeTypes() const
+QStringList QUrlModel::mimeTypes() const
 {
     return QStringList(QLatin1String("text/uri-list"));
 }
@@ -55,12 +49,30 @@ QStringList QSidebar::mimeTypes() const
 /*!
     \reimp
 */
-QMimeData *QSidebar::mimeData ( const QList<QListWidgetItem *> items ) const
+Qt::ItemFlags QUrlModel::flags(const QModelIndex &index) const
+{
+    Qt::ItemFlags flags = QStandardItemModel::flags(index);
+    if (index.isValid()) {
+        flags &= ~Qt::ItemIsEditable;
+        // ### some future version could support "moving" urls onto a folder
+        flags &= ~Qt::ItemIsDropEnabled;
+    }
+
+    if (index.data(Qt::DecorationRole).isNull())
+        flags &= ~Qt::ItemIsEnabled;
+
+    return flags;
+}
+
+/*!
+    \reimp
+*/
+QMimeData *QUrlModel::mimeData(const QModelIndexList &indexes) const
 {
     QList<QUrl> list;
-    for (int i = 0; i < items.count(); ++i) {
-        if (indexFromItem(items.at(i)).column() == 0)
-           list.append(indexFromItem(items.at(i)).data(UrlRole).toUrl());
+    for (int i = 0; i < indexes.count(); ++i) {
+        if (indexes.at(i).column() == 0)
+           list.append(indexes.at(i).data(UrlRole).toUrl());
     }
     QMimeData *data = new QMimeData();
     data->setUrls(list);
@@ -68,92 +80,64 @@ QMimeData *QSidebar::mimeData ( const QList<QListWidgetItem *> items ) const
 }
 
 /*!
-    \ Don't allow drops from files.
+    Decide based upon the data if it should be accepted or not
+
+    We only accept dirs and not files
 */
-void QSidebar::dragEnterEvent(QDragEnterEvent *event)
+bool QUrlModel::canDrop(QDragEnterEvent *event)
 {
     if (!event->mimeData()->formats().contains(mimeTypes().first()))
-        return;
+        return false;
 
     const QList<QUrl> list = event->mimeData()->urls();
     for (int i = 0; i < list.count(); ++i) {
         QModelIndex idx = fileSystemModel->index(list.at(0).toLocalFile());
         if (!fileSystemModel->isDir(idx))
-            return;
+            return false;
     }
-
-    QListWidget::dragEnterEvent(event);
+    return true;
 }
 
 /*!
     \reimp
 */
-bool QSidebar::dropMimeData(int row, const QMimeData *data, Qt::DropAction action)
+bool QUrlModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
+                                 int row, int column, const QModelIndex &parent)
 {
-    Q_UNUSED(action);
     if (!data->formats().contains(mimeTypes().first()))
         return false;
+    Q_UNUSED(action);
+    Q_UNUSED(column);
+    Q_UNUSED(parent);
     addUrls(data->urls(), row);
     return true;
 }
 
-QSize QSidebar::sizeHint() const
-{
-    return QListView::sizeHintForIndex(model()->index(0, 0));
-}
-
-QList<QUrl> QSidebar::urls() const
-{
-    QList<QUrl> list;
-    for (int i = 0; i < model()->rowCount(); ++i)
-        list.append(model()->data(model()->index(i, 0), UrlRole).toUrl());
-    return list;
-}
-
-void QSidebar::setUrls(const QList<QUrl> &list)
-{
-    model()->removeRows(0, model()->rowCount());
-    addUrls(list, 0);
-}
-
 /*!
-    Add urls \a list into the list at \a row
+    \reimp
 
-    Copied in QFileDialog
-    \sa dropMimeData() addFullPath()
+    If the role is the UrlRole then handle otherwise just pass to QStandardItemModel
 */
-void QSidebar::addUrls(const QList<QUrl> &list, int row)
+bool QUrlModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    row = qMin(row, model()->rowCount());
-    for (int i = list.count() - 1; i >= 0; --i) {
-        QUrl url = list.at(i);
-        if (!url.isValid() || url.scheme() != QLatin1String("file"))
-            continue;
-        for (int j = 0; j < model()->rowCount(); ++j) {
-            if (model()->index(j, 0).data(UrlRole) == url) {
-                model()->removeRow(j);
-                if (j <= row)
-                    row--;
-                break;
-            }
-        }
-        row = qMax(row, 0);
-        QModelIndex idx = fileSystemModel->index(url.toLocalFile());
-        if (!fileSystemModel->isDir(idx))
-            continue;
-        model()->insertRows(row, 1);
-        setUrl(model()->index(row, 0), url, idx);
-        watching.append(url.toLocalFile());
+    if (value.type() == QVariant::Url) {
+        QUrl url = value.toUrl();
+        QModelIndex dirIndex = fileSystemModel->index(url.path());
+        QStandardItemModel::setData(index, fileSystemModel->data(dirIndex).toString());
+        QStandardItemModel::setData(index, fileSystemModel->data(dirIndex, Qt::DecorationRole),
+                                           Qt::DecorationRole);
+        QStandardItemModel::setData(index, url, UrlRole);
+        return true;
     }
+    return QStandardItemModel::setData(index, value, role);
 }
 
-// Copied in QFileDialog
-void QSidebar::setUrl(const QModelIndex &index, const QUrl &url, const QModelIndex &dirIndex)
+void QUrlModel::setUrl(const QModelIndex &index, const QUrl &url, const QModelIndex &dirIndex)
 {
-    model()->setData(index, url, UrlRole);
+    setData(index, url, UrlRole);
     if (url.path().isEmpty()) {
-        model()->setData(index, fileSystemModel->myComputer());
-        model()->setData(index, fileSystemModel->myComputer(Qt::DecorationRole), Qt::DecorationRole);
+        setData(index, fileSystemModel->myComputer());
+        setData(index, fileSystemModel->myComputer(Qt::DecorationRole), Qt::DecorationRole);
     } else {
         QString newName = dirIndex.data().toString();
         QIcon newIcon = qvariant_cast<QIcon>(dirIndex.data(Qt::DecorationRole));
@@ -170,11 +154,173 @@ void QSidebar::setUrl(const QModelIndex &index, const QUrl &url, const QModelInd
         }
 
         if (index.data().toString() != newName)
-            model()->setData(index, newName);
+            setData(index, newName);
         QIcon oldIcon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
         if (oldIcon.serialNumber() != newIcon.serialNumber())
-            model()->setData(index, newIcon, Qt::DecorationRole);
+            setData(index, newIcon, Qt::DecorationRole);
     }
+}
+
+void QUrlModel::setUrls(const QList<QUrl> &list)
+{
+    removeRows(0, rowCount());
+    addUrls(list, 0);
+}
+
+/*!
+    Add urls \a list into the list at \a row.  If move then movie
+    existing ones to row.
+
+    \sa dropMimeData()
+*/
+void QUrlModel::addUrls(const QList<QUrl> &list, int row, bool move)
+{
+    if (row == -1)
+        row = rowCount();
+    row = qMin(row, rowCount());
+    for (int i = list.count() - 1; i >= 0; --i) {
+        QUrl url = list.at(i);
+        if (!url.isValid() || url.scheme() != QLatin1String("file"))
+            continue;
+        for (int j = 0; move && j < rowCount(); ++j) {
+            if (index(j, 0).data(UrlRole) == url) {
+                removeRow(j);
+                if (j <= row)
+                    row--;
+                break;
+            }
+        }
+        row = qMax(row, 0);
+        QModelIndex idx = fileSystemModel->index(url.toLocalFile());
+        if (!fileSystemModel->isDir(idx))
+            continue;
+        insertRows(row, 1);
+        setUrl(index(row, 0), url, idx);
+        watching.append(QPair<QModelIndex, QString>(idx, url.toLocalFile()));
+    }
+}
+
+/*!
+    Return the complete list of urls in a QList.
+*/
+QList<QUrl> QUrlModel::urls() const
+{
+    QList<QUrl> list;
+    for (int i = 0; i < rowCount(); ++i)
+        list.append(data(index(i, 0), UrlRole).toUrl());
+    return list;
+}
+
+/*!
+    QFileSystemModel to get index's from, clears existing rows
+*/
+void QUrlModel::setFileSystemModel(QFileSystemModel *model)
+{
+    if (model == fileSystemModel)
+        return;
+    if (fileSystemModel != 0) {
+        disconnect(model, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
+            this, SLOT(dataChanged(const QModelIndex &, const QModelIndex &)));
+        disconnect(model, SIGNAL(layoutChanged()),
+            this, SLOT(layoutChanged()));
+    }
+    fileSystemModel = model;
+    if (fileSystemModel != 0) {
+        connect(model, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
+            this, SLOT(dataChanged(const QModelIndex &, const QModelIndex &)));
+        connect(model, SIGNAL(layoutChanged()),
+            this, SLOT(layoutChanged()));
+    }
+    clear();
+    insertColumns(0, 1);
+}
+
+/*
+    If one of the index's we are watching has changed update our internal data
+*/
+void QUrlModel::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+{
+    QModelIndex parent = topLeft.parent();
+    for (int i = 0; i < watching.count(); ++i) {
+        QModelIndex index = watching.at(i).first;
+        if (index.model() && topLeft.model()) {
+            Q_ASSERT(index.model() == topLeft.model());
+        }
+        if (   index.row() >= topLeft.row()
+            && index.row() <= bottomRight.row()
+            && index.column() >= topLeft.column()
+            && index.column() <= bottomRight.column()
+            && index.parent() == parent) {
+                changed(watching.at(i).second);
+        }
+    }
+}
+
+/*!
+    Re-get all of our data, anything could have changed!
+ */
+void QUrlModel::layoutChanged()
+{
+    QStringList paths;
+    for (int i = 0; i < watching.count(); ++i)
+        paths.append(watching.at(i).second);
+    watching.clear();
+    for (int i = 0; i < paths.count(); ++i) {
+        QString path = paths.at(i);
+        QModelIndex newIndex = fileSystemModel->index(path);
+        watching.append(QPair<QModelIndex, QString>(newIndex, path));
+        if (newIndex.isValid())
+            changed(path);
+     }
+}
+
+/*!
+    The following path changed data update our copy of that data
+
+    \sa layoutChanged() dataChanged()
+*/
+void QUrlModel::changed(const QString &path)
+{
+    for (int i = 0; i < rowCount(); ++i) {
+        QModelIndex idx = index(i, 0);
+        if(idx.data(UrlRole).toUrl().toLocalFile() == path) {
+            setData(idx, idx.data(UrlRole).toUrl());
+        }
+    }
+}
+
+QSidebar::QSidebar(QFileSystemModel *model, const QList<QUrl> &newUrls, QWidget *parent) : QListView(parent)
+{
+    // ### TODO make icon size dynamic
+    setIconSize(QSize(24,24));
+    setUniformItemSizes(true);
+    urlModel = new QUrlModel(this);
+    urlModel->setFileSystemModel(model);
+    setModel(urlModel);
+
+    connect(selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+            this, SLOT(clicked(const QModelIndex &)));
+    setDragDropMode(QAbstractItemView::DragDrop);
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
+            this, SLOT(showContextMenu(const QPoint &)));
+    urlModel->setUrls(newUrls);
+    setCurrentIndex(this->model()->index(0,0));
+}
+
+QSidebar::~QSidebar()
+{
+}
+
+void QSidebar::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (urlModel->canDrop(event))
+        QListView::dragEnterEvent(event);
+}
+
+QSize QSidebar::sizeHint() const
+{
+    return QListView::sizeHintForIndex(model()->index(0, 0));
 }
 
 void QSidebar::selectUrl(const QUrl &url)
@@ -184,7 +330,7 @@ void QSidebar::selectUrl(const QUrl &url)
 
     selectionModel()->clear();
     for (int i = 0; i < model()->rowCount(); ++i) {
-        if (model()->index(i, 0).data(QSidebar::UrlRole).toUrl() == url) {
+        if (model()->index(i, 0).data(QUrlModel::UrlRole).toUrl() == url) {
             selectionModel()->select(model()->index(i, 0), QItemSelectionModel::Select);
             break;
         }
@@ -192,16 +338,6 @@ void QSidebar::selectUrl(const QUrl &url)
 
     connect(selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
             this, SLOT(clicked(const QModelIndex &)));
-}
-
-void QSidebar::init()
-{
-    connect(selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-            this, SLOT(clicked(const QModelIndex &)));
-    setDragDropMode(QAbstractItemView::DragDrop);
-    setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(showContextMenu(const QPoint &)));
 }
 
 /*!
@@ -244,7 +380,7 @@ void QSidebar::removeEntry()
 */
 void QSidebar::clicked(const QModelIndex &index)
 {
-    QUrl url = model()->index(index.row(), 0).data(QSidebar::UrlRole).toUrl();
+    QUrl url = model()->index(index.row(), 0).data(QUrlModel::UrlRole).toUrl();
     emit goToUrl(url);
     selectUrl(url);
 }
@@ -257,37 +393,6 @@ void QSidebar::focusInEvent(QFocusEvent *event)
 {
     QAbstractScrollArea::focusInEvent(event);
     viewport()->update();
-}
-
-/*!
-    Re-get all of our data, anything could have changed!
-
-    Copied in QFileDialog
- */
-void QSidebar::layoutChanged()
-{
-    QStringList paths;
-    for (int i = 0; i < watching.count(); ++i)
-        paths.append(watching.at(i));
-    watching.clear();
-    QMultiHash<QString, QModelIndex> lt;
-    for (int i = 0; i < model()->rowCount(); ++i) {
-        QModelIndex idx = model()->index(i, 0);
-        lt.insert(idx.data(UrlRole).toUrl().toLocalFile(), idx);
-    }
-
-    for (int i = 0; i < paths.count(); ++i) {
-        QString path = paths.at(i);
-        QModelIndex newIndex = fileSystemModel->index(path);
-        watching.append(path);
-        if (!newIndex.isValid())
-            continue;
-        QList<QModelIndex> values = lt.values(path);
-        for (int i = 0; i < values.size(); ++i) {
-            QModelIndex idx = values.at(i);
-            setUrl(idx, QUrl::fromLocalFile(path), newIndex);
-        }
-    }
 }
 
 #endif

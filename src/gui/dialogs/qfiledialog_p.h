@@ -86,6 +86,7 @@ public:
     listModeButton(0),
     lookInLabel(0),
     lookInCombo(0),
+    urlModel(0),
     bottomRightSpacer(0),
     splitter(0),
     sidebar(0),
@@ -178,10 +179,6 @@ public:
     void _q_animateDialogH(int);
     void _q_autoCompleteFileName(const QString &);
 
-    void addUrls(const QList<QUrl> &list, int row);
-    void setUrl(const QModelIndex &row, const QUrl & url, const QModelIndex &dirIndex);
-    void _q_layoutChanged();
-
     // layout
     QLabel *fileNameLabel;
     QFileDialogLineEdit *fileNameEdit;
@@ -194,6 +191,7 @@ public:
     QToolButton *listModeButton;
     QLabel *lookInLabel;
     QComboBox *lookInCombo;
+    QUrlModel *urlModel;
     QWidget *bottomRightSpacer;
     QSplitter *splitter;
     QSidebar *sidebar;

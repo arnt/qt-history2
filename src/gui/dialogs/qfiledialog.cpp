@@ -736,7 +736,7 @@ void QFileDialog::setHistory(const QStringList &paths)
     Q_D(QFileDialog);
     d->history = paths;
 
-    d->lookInCombo->clear();
+    d->urlModel->setUrls(QList<QUrl>());
     QList<QUrl> list;
     QModelIndex idx = d->model->index(d->model->rootPath());
     while (idx.isValid()) {
@@ -747,7 +747,7 @@ void QFileDialog::setHistory(const QStringList &paths)
     }
     // add "my computer"
     list.append(QUrl::fromLocalFile(QLatin1String("")));
-    d->addUrls(list, 0);
+    d->urlModel->addUrls(list, 0);
     idx = d->lookInCombo->model()->index(d->lookInCombo->model()->rowCount() - 1, 0);
 
     // ### append history
@@ -768,75 +768,9 @@ void QFileDialog::setHistory(const QStringList &paths)
             flags &= ~Qt::ItemIsEnabled;
             m->item(idx.row(), idx.column())->setFlags(flags);
         }
-        d->addUrls(urls, -1);
+        d->urlModel->addUrls(urls, -1, false);
     }
     d->lookInCombo->setCurrentIndex(0);
-}
-
-// Copied from QSidebar NMC
-void QFileDialogPrivate::addUrls(const QList<QUrl> &list, int row) {
-    if (row < 0)
-        row = lookInCombo->model()->rowCount();
-    for (int i = list.count() - 1; i >= 0; --i) {
-        QUrl url = list.at(i);
-        if (!url.isValid())
-            continue;
-        QModelIndex dirIndex = model->index(url.toLocalFile());
-        lookInCombo->model()->insertRows(row, 1);
-        setUrl(lookInCombo->model()->index(row, 0), url, dirIndex);
-        watching.append(url.toLocalFile());
-    }
-}
-
-// Copied from QSidebar NMC
-void QFileDialogPrivate::setUrl(const QModelIndex &index, const QUrl &url, const QModelIndex &dirIndex)
-{
-    lookInCombo->model()->setData(index, url, UrlRole);
-    if (url.path().isEmpty()) {
-        lookInCombo->model()->setData(index, model->myComputer());
-        lookInCombo->model()->setData(index, model->myComputer(Qt::DecorationRole), Qt::DecorationRole);
-    } else {
-        QString newName = dirIndex.data().toString();
-        QIcon newIcon = qvariant_cast<QIcon>(dirIndex.data(Qt::DecorationRole));
-        if (!dirIndex.isValid()) {
-            newIcon = model->iconProvider()->icon(QFileIconProvider::Folder);
-            newName = QFileInfo(url.toLocalFile()).fileName();
-        }
-
-        if (index.data().toString() != newName)
-            lookInCombo->model()->setData(index, newName);
-        QIcon icon1 = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
-        if (icon1.serialNumber() != newIcon.serialNumber())
-            lookInCombo->model()->setData(index, newIcon, Qt::DecorationRole);
-    }
-}
-
-// Copied from QSidebar NMC
-void QFileDialogPrivate::_q_layoutChanged()
-{
-    QStringList paths;
-    for (int i = 0; i < watching.count(); ++i)
-        paths.append(watching.at(i));
-    watching.clear();
-    QMultiHash<QString, QModelIndex> lt;
-    for (int i = 0; i < lookInCombo->model()->rowCount(); ++i) {
-        QModelIndex idx = lookInCombo->model()->index(i, 0);
-        lt.insert(idx.data(UrlRole).toUrl().toLocalFile(), idx);
-    }
-
-    for (int i = 0; i < paths.count(); ++i) {
-        QString path = paths.at(i);
-        QModelIndex newIndex = model->index(path);
-        watching.append(path);
-        if (!newIndex.isValid())
-            continue;
-        QList<QModelIndex> values = lt.values(path);
-        for (int i = 0; i < values.size(); ++i) {
-            QModelIndex idx = values.at(i);
-            setUrl(idx, QUrl::fromLocalFile(path), newIndex);
-        }
-    }
-    newFolderButton->setEnabled(model->permissions(listView->rootIndex()) & QFile::WriteUser);
 }
 
 /*!
@@ -1644,8 +1578,6 @@ void QFileDialogPrivate::createWidgets()
     Q_Q(QFileDialog);
     model = new QFileSystemModel(q);
     model->setObjectName(QLatin1String("qt_filesystem_model"));
-    QFileDialog::connect(model, SIGNAL(layoutChanged()),
-                         q, SLOT(_q_layoutChanged()), Qt::QueuedConnection);
     QFileDialog::connect(model, SIGNAL(rootPathChanged(const QString &)),
             q, SLOT(_q_pathChanged(const QString &)));
     model->setReadOnly(false);
@@ -1680,6 +1612,9 @@ void QFileDialogPrivate::createWidgets()
     lookInCombo->setMinimumWidth(lookInCombo->sizeHint().width() * 3);
     lookInCombo->setInsertPolicy(QComboBox::NoInsert);
     lookInCombo->setDuplicatesEnabled(false);
+    urlModel = new QUrlModel(q);
+    urlModel->setFileSystemModel(model);
+    lookInCombo->setModel(urlModel);
     QObject::connect(lookInCombo, SIGNAL(activated(QString)), q, SLOT(_q_goToDirectory(QString)));
     lookInCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     comboCompleter = new QFSCompletor(model, q);
