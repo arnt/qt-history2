@@ -11,19 +11,6 @@
 **
 ****************************************************************************/
 
-/*
-    Changes since 4.1:
-
-    Platform specific (read emacs) shortcuts have been removed from the documentation.
-
-    Ctrl+A on X11 now means "Select all" like on other platforms, not home.
-
-    Ctrl+D wil no longer work on Windows (but on X11/mac)
-
-    Ctrl+B, Ctr+E, Ctrl+H, Ctrl+F are completely removed from line edit. If they are popular, we can add them
-    as standardshortcuts on X11 so that they work in other widgets as well.
-*/
-
 #include "qlineedit.h"
 #include "qlineedit_p.h"
 
