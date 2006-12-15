@@ -935,7 +935,7 @@ void qt_getArabicProperties(const unsigned short *chars, int len, QArabicPropert
             break;
         case ArabicSpace:
             properties[i].justification = QGlyphLayout::Arabic_Space;
-
+            break;
         case Kashida:
             properties[i].justification = QGlyphLayout::Arabic_Kashida;
             break;
