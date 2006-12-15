@@ -135,6 +135,12 @@ void tst_QSidebar::addUrls()
     QCOMPARE(model->rowCount(), 3);
     qsidebar.addUrls(moreUrls, 1);
     QCOMPARE(qsidebar.urls()[1], moreUrls[0]);
+
+    // test appending with -1
+    qsidebar.setUrls(emptyUrls);
+    qsidebar.addUrls(urls, -1);
+    qsidebar.addUrls(moreUrls, -1);
+    QCOMPARE(qsidebar.urls()[0], urls[0]);
 }
 
 void tst_QSidebar::goToUrl()
