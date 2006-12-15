@@ -191,7 +191,7 @@ void WriteIncludes::acceptInclude(DomInclude *node)
 }
 void WriteIncludes::insertInclude(const QString &header, bool global)
 {
-    OrderedSet &includes(global ?  m_globalIncludes : m_localIncludes);
+    OrderedSet &includes = global ?  m_globalIncludes : m_localIncludes;
     if (includes.contains(header))
         return;
     // Insert. Also remember base name for quick check of suspicious custom plugins
