@@ -1927,6 +1927,52 @@ void tst_QWidget::saveRestoreGeometry()
         QCOMPARE(widget.pos().x(), position.x());
         QCOMPARE(widget.size(), size);
     }
+
+    {
+        QWidget widget;
+        widget.move(position);
+        widget.resize(size);
+        widget.show();
+        QRect geom;
+
+
+        //Restore from Full screen
+        savedGeometry = widget.saveGeometry();
+        geom = widget.geometry();
+        widget.setWindowState(widget.windowState() | Qt::WindowFullScreen);
+        QVERIFY(widget.restoreGeometry(savedGeometry));
+        QCOMPARE(widget.geometry(), geom);
+        QVERIFY(!(widget.windowState() & Qt::WindowFullScreen));
+
+        //Restore to full screen
+        widget.setWindowState(widget.windowState() | Qt::WindowFullScreen);
+        savedGeometry = widget.saveGeometry();
+        geom = widget.geometry();
+        widget.setWindowState(widget.windowState() ^ Qt::WindowFullScreen);
+        QVERIFY(widget.restoreGeometry(savedGeometry));
+        QCOMPARE(widget.geometry(), geom);
+        QVERIFY((widget.windowState() & Qt::WindowFullScreen));
+        widget.setWindowState(widget.windowState() ^ Qt::WindowFullScreen);
+
+        //Restore from Maximised
+        widget.move(position);
+        widget.resize(size);
+        savedGeometry = widget.saveGeometry();
+        geom = widget.geometry();
+        widget.setWindowState(widget.windowState() | Qt::WindowMaximized);
+        QVERIFY(widget.restoreGeometry(savedGeometry));
+        QCOMPARE(widget.geometry(), geom);
+        QVERIFY(!(widget.windowState() & Qt::WindowMaximized));
+
+        //Restore to maximised
+        widget.setWindowState(widget.windowState() | Qt::WindowMaximized);
+        geom = widget.geometry();
+        savedGeometry = widget.saveGeometry();
+        widget.setWindowState(widget.windowState() ^ Qt::WindowMaximized);
+        QVERIFY(widget.restoreGeometry(savedGeometry));
+        QCOMPARE(widget.geometry(), geom);
+        QVERIFY((widget.windowState() & Qt::WindowMaximized));
+    }
 }
 
 /*
