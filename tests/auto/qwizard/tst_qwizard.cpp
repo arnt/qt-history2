@@ -7,7 +7,8 @@
 **
 ****************************************************************************/
 
-#if 0
+#if 1
+#include <QFont>
 #include <QtTest/QtTest>
 #include <QCheckBox>
 #include <QLabel>
@@ -15,13 +16,11 @@
 #include <QList>
 #include <QPushButton>
 #include <QToolButton>
-#include "/home/jasmin/dev/solutions/widgets/qtwizard/src/qtwizard.h"
+#include <QVBoxLayout>
+#include "/home/jasplin/dev/research/qwizard/src/qwizard.h"
 
 //TESTED_CLASS=QWizard
 //TESTED_FILES=gui/dialogs/qwizard.h corelib/tools/qwizard.cpp
-
-#define QWizard QtWizard
-#define QWizardPage QtWizardPage
 
 static QImage grabWidget(QWidget *window)
 {
@@ -63,6 +62,8 @@ private slots:
     void setOption_HaveHelpButton();
     void setOption_HelpButtonOnRight();
     void setOption_HaveCustomButtonX();
+    void combinations_data();
+    void combinations();
 
     /*
         Things that could be added:
@@ -82,7 +83,12 @@ private slots:
            orders and check that the results are the same every time,
            no matter the order in which the properties were set.
 
+           <IN PROGRESS: combinations() ...>
+
+
         6. Test done() and restart().
+
+        7. Test default properties of built-in widgets.
     */
 };
 
@@ -1454,6 +1460,478 @@ void tst_QWizard::setOption_HaveCustomButtonX()
                 }
             }
         }
+    }
+}
+
+class Operation
+{
+public:
+    virtual void apply(QWizard *) const = 0;
+    virtual QString describe() const = 0;
+protected:
+    virtual ~Operation() {}
+};
+
+class SetPage : public Operation
+{
+    void apply(QWizard *wizard) const
+    {
+        wizard->restart();
+        for (int j = 0; j < page; ++j)
+            wizard->next();
+    }
+    QString describe() const { return QString("goto page %1").arg(page); }
+    const int page;
+public:
+    SetPage(int page) : page(page) {}
+};
+
+class SetStyle : public Operation
+{
+    void apply(QWizard *wizard) const { wizard->setWizardStyle(style); }
+    QString describe() const { return QString("set style %1").arg(style); }
+    const QWizard::WizardStyle style;
+public:
+    SetStyle(QWizard::WizardStyle style) : style(style) {}
+};
+
+class SetOption : public Operation
+{
+    void apply(QWizard *wizard) const { wizard->setOption(option, on); }
+    QString describe() const;
+    const QWizard::WizardOption option;
+    const bool on;
+public:
+    SetOption(QWizard::WizardOption option, bool on) : option(option), on(on) {}
+};
+
+class OptionInfo
+{
+    OptionInfo()
+    {
+        tags[QWizard::IndependentPages]             = "0/IPP";
+        tags[QWizard::IgnoreSubTitles]              = "1/IST";
+        tags[QWizard::ExtendedWatermarkPixmap]      = "2/EWP";
+        tags[QWizard::NoDefaultButton]              = "3/NDB";
+        tags[QWizard::NoBackButtonOnStartPage]      = "4/BSP";
+        tags[QWizard::NoBackButtonOnLastPage]       = "5/BLP";
+        tags[QWizard::DisabledBackButtonOnLastPage] = "6/DLP";
+        tags[QWizard::HaveNextButtonOnLastPage]     = "7/NLP";
+        tags[QWizard::HaveFinishButtonOnEarlyPages] = "8/FEP";
+        tags[QWizard::NoCancelButton]               = "9/NCB";
+        tags[QWizard::CancelButtonOnLeft]           = "10/CBL";
+        tags[QWizard::HaveHelpButton]               = "11/HHB";
+        tags[QWizard::HelpButtonOnRight]            = "12/HBR";
+        tags[QWizard::HaveCustomButton1]            = "13/CB1";
+        tags[QWizard::HaveCustomButton2]            = "14/CB2";
+        tags[QWizard::HaveCustomButton3]            = "15/CB3";
+
+        for (int i = 0; i < 2; ++i) {
+            QMap<QWizard::WizardOption, Operation *> operations_;
+            foreach (QWizard::WizardOption option, tags.keys())
+                operations_[option] = new SetOption(option, i == 1);
+            operations << operations_;
+        }
+    }
+    OptionInfo(OptionInfo const&);
+    OptionInfo& operator=(OptionInfo const&);
+    QMap<QWizard::WizardOption, QString> tags;
+    QList<QMap<QWizard::WizardOption, Operation *> > operations;
+public:
+    static OptionInfo &instance()
+    {
+        static OptionInfo optionInfo;
+        return optionInfo;
+    }
+
+    QString tag(QWizard::WizardOption option) const { return tags.value(option); }
+    Operation * operation(QWizard::WizardOption option, bool on) const
+    { return operations.at(on).value(option); }
+    QList<QWizard::WizardOption> options() const { return tags.keys(); }
+};
+
+QString SetOption::describe() const
+{ 
+    return QString("set opt %1 %2").arg(OptionInfo::instance().tag(option)).arg(on);
+}
+
+Q_DECLARE_METATYPE(Operation *)
+Q_DECLARE_METATYPE(SetPage *)
+Q_DECLARE_METATYPE(SetStyle *)
+Q_DECLARE_METATYPE(SetOption *)
+Q_DECLARE_METATYPE(QList<Operation *>)
+
+class TestGroup
+{
+public:
+    enum Type {Equality, NonEquality};
+    TestGroup(const QString &name = QString("no name"), Type type = Equality)
+        : name(name), type(type) {}
+    void reset(const QString &name, Type type = Equality)
+    {
+        this->name = name;
+        this->type = type;
+        combinations.clear();
+    }
+    QList<Operation *> &add()
+    { combinations << new QList<Operation *>; return *(combinations.last()); }
+    void createTestRows()
+    {
+        for (int i = 0; i < combinations.count(); ++i)
+            QTest::newRow((name + QString(", row %1").arg(i)).toLatin1().data())
+                << (i == 0) << (type == Equality) << *(combinations.at(i));
+    }
+private:
+    QString name;
+    Type type;
+    QList<QList<Operation *> *> combinations;
+};
+
+class IntroPage : public QWizardPage
+{
+    Q_OBJECT
+public:
+    IntroPage()
+    {
+        setTitle(tr("Intro"));
+        setSubTitle(tr("Intro Subtitle"));
+        QVBoxLayout *layout = new QVBoxLayout;
+        layout->addWidget(new QLabel(tr("Intro Label")));
+        setLayout(layout);
+    }
+};
+
+class MiddlePage : public QWizardPage
+{
+    Q_OBJECT
+public:
+    MiddlePage()
+    {
+        setTitle(tr("Middle"));
+        setSubTitle(tr("Middle Subtitle"));
+        QVBoxLayout *layout = new QVBoxLayout;
+        layout->addWidget(new QLabel(tr("Middle Label")));
+        setLayout(layout);
+    }
+};
+
+class ConclusionPage : public QWizardPage
+{
+    Q_OBJECT
+public:
+    ConclusionPage()
+    {
+        setTitle(tr("Conclusion"));
+        setSubTitle(tr("Conclusion Subtitle"));
+        QVBoxLayout *layout = new QVBoxLayout;
+        layout->addWidget(new QLabel(tr("Conclusion Label")));
+        setLayout(layout);
+    }
+};
+
+class TestWizard : public QWizard
+{
+    Q_OBJECT
+    QList<int> pageIds;
+    QString opsDescr;
+public:
+    TestWizard()
+    {
+        setPixmap(QWizard::BannerPixmap, QPixmap(":/images/banner.png"));
+        setPixmap(QWizard::BackgroundPixmap, QPixmap(":/images/background.png"));
+        setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/watermark.png"));
+        setPixmap(QWizard::LogoPixmap, QPixmap(":/images/logo.png"));
+        setButtonText(QWizard::CustomButton1, "custom 1");
+        setButtonText(QWizard::CustomButton2, "custom 2");
+        setButtonText(QWizard::CustomButton3, "custom 3");
+        pageIds << addPage(new IntroPage);
+        pageIds << addPage(new MiddlePage);
+        pageIds << addPage(new ConclusionPage);
+
+        // Disable antialiased font rendering since this may sometimes result in tiny
+        // and (apparent) non-deterministic pixel variations between images expected to be
+        // identical. This may only be a problem on X11.
+        QFont f = font();
+        f.setStyleStrategy(QFont::NoAntialias);
+        setFont(f);
+
+        // ### Required to prevent a bug(?) in QWizard:
+//        setFixedSize(800, 600);
+    }
+
+    ~TestWizard()
+    {
+        foreach (int id, pageIds)
+            delete page(id);
+    }
+
+    void applyOperations(const QList<Operation *> &operations)
+    {
+        foreach (Operation * op, operations) {
+            if (op) {
+                op->apply(this);
+                opsDescr += QString("(%1) ").arg(op->describe());
+            }
+        }
+    }
+
+    QImage createImage() const
+    {
+        return QPixmap::grabWidget(const_cast<TestWizard *>(this))
+            .toImage().convertToFormat(QImage::Format_ARGB32);
+    }
+
+    QString operationsDescription() const { return opsDescr; }
+};
+
+void tst_QWizard::combinations_data()
+{
+    QTest::addColumn<bool>("ref");
+    QTest::addColumn<bool>("testEquality");
+    QTest::addColumn<QList<Operation *> >("operations");
+
+    QList<Operation *> pageOps;
+    pageOps << new SetPage(0) << new SetPage(1) << new SetPage(2);
+
+    QList<Operation *> styleOps;
+    styleOps << new SetStyle(QWizard::ClassicStyle) << new SetStyle(QWizard::ModernStyle)
+             << new SetStyle(QWizard::MacStyle);
+
+    #define SETPAGE(page) pageOps.at(page)
+    #define SETSTYLE(style) styleOps.at(style)
+    #define OPT(option, on) OptionInfo::instance().operation(option, on)
+    #define CLROPT(option) OPT(option, false)
+    #define SETOPT(option) OPT(option, true)
+
+    QMap<bool, QList<Operation *> *> setAllOptions;
+    setAllOptions[false] = new QList<Operation *>;
+    setAllOptions[true]  = new QList<Operation *>;
+    foreach (QWizard::WizardOption option, OptionInfo::instance().options()) {
+        *setAllOptions.value(false) << CLROPT(option);
+        *setAllOptions.value(true) << SETOPT(option);
+    }
+
+    #define CLRALLOPTS *setAllOptions.value(false)
+    #define SETALLOPTS *setAllOptions.value(true)
+
+    TestGroup testGroup;
+
+    testGroup.reset("test 1.1");
+    testGroup.add(); // i.e. no operations applied!
+    testGroup.add() << SETPAGE(0);
+    testGroup.add() << SETSTYLE(0);
+    testGroup.add() << SETPAGE(0) << SETSTYLE(0);
+    testGroup.add() << SETSTYLE(0) << SETPAGE(0);
+    testGroup.createTestRows();
+
+    testGroup.reset("test 2.1");
+    testGroup.add();
+    testGroup.add() << CLRALLOPTS;
+    testGroup.createTestRows();
+
+    testGroup.reset("test 2.2");
+    testGroup.add() << SETALLOPTS;
+    testGroup.add() << SETALLOPTS << SETALLOPTS;
+    testGroup.createTestRows();
+
+    testGroup.reset("test 2.3");
+    testGroup.add() << CLRALLOPTS;
+    testGroup.add() << CLRALLOPTS << CLRALLOPTS;
+    testGroup.createTestRows();
+
+    testGroup.reset("test 2.4");
+    testGroup.add() << CLRALLOPTS;
+    testGroup.add() << SETALLOPTS << CLRALLOPTS;
+    testGroup.createTestRows();
+
+    testGroup.reset("test 2.5");
+    testGroup.add() << SETALLOPTS;
+    testGroup.add() << CLRALLOPTS << SETALLOPTS;
+    testGroup.createTestRows();
+
+    testGroup.reset("test 2.6");
+    testGroup.add() << SETALLOPTS;
+    testGroup.add() << SETALLOPTS << CLRALLOPTS << SETALLOPTS;
+    testGroup.createTestRows();
+
+    testGroup.reset("test 2.7");
+    testGroup.add() << CLRALLOPTS;
+    testGroup.add() << CLRALLOPTS << SETALLOPTS << CLRALLOPTS;
+    testGroup.createTestRows();
+
+    for (int i = 0; i < 2; ++i) {
+        QList<Operation *> setOptions = *setAllOptions.value(i == 1);
+
+        testGroup.reset("test 3.1");
+        testGroup.add() << setOptions;
+        testGroup.add() << SETPAGE(0) << setOptions;
+        testGroup.add() << setOptions << SETPAGE(0);
+        testGroup.add() << SETSTYLE(0) << setOptions;
+        testGroup.add() << setOptions << SETSTYLE(0);
+        testGroup.add() << setOptions << SETPAGE(0) << SETSTYLE(0);
+        testGroup.add() << SETPAGE(0) << setOptions << SETSTYLE(0);
+        testGroup.add() << SETPAGE(0) << SETSTYLE(0) << setOptions;
+        testGroup.add() << setOptions << SETSTYLE(0) << SETPAGE(0);
+        testGroup.add() << SETSTYLE(0) << setOptions << SETPAGE(0);
+        testGroup.add() << SETSTYLE(0) << SETPAGE(0) << setOptions;
+        testGroup.createTestRows();
+    }
+
+    foreach (Operation *pageOp, pageOps) {
+        testGroup.reset("test 4.1");
+        testGroup.add() << pageOp;
+        testGroup.add() << pageOp << pageOp;
+        testGroup.createTestRows();
+
+        for (int i = 0; i < 2; ++i) {
+            QList<Operation *> optionOps = *setAllOptions.value(i == 1);
+            testGroup.reset("test 4.2");
+            testGroup.add() << optionOps << pageOp;
+            testGroup.add() << pageOp << optionOps;
+            testGroup.createTestRows();
+
+            foreach (QWizard::WizardOption option, OptionInfo::instance().options()) {
+                Operation *optionOp = OPT(option, i == 1);
+                testGroup.reset("test 4.3");
+                testGroup.add() << optionOp << pageOp;
+                testGroup.add() << pageOp << optionOp;
+                testGroup.createTestRows();
+            }
+        }
+    }
+
+    foreach (Operation *styleOp, styleOps) {
+        testGroup.reset("test 5.1");
+        testGroup.add() << styleOp;
+        testGroup.add() << styleOp << styleOp;
+        testGroup.createTestRows();
+
+        for (int i = 0; i < 2; ++i) {
+            QList<Operation *> optionOps = *setAllOptions.value(i == 1);
+            testGroup.reset("test 5.2");
+            testGroup.add() << optionOps << styleOp;
+            testGroup.add() << styleOp << optionOps;
+            testGroup.createTestRows();
+
+            foreach (QWizard::WizardOption option, OptionInfo::instance().options()) {
+                Operation *optionOp = OPT(option, i == 1);
+                testGroup.reset("test 5.3");
+                testGroup.add() << optionOp << styleOp;
+                testGroup.add() << styleOp << optionOp;
+                testGroup.createTestRows();
+            }
+        }
+    }
+
+    foreach (Operation *pageOp, pageOps) {
+        foreach (Operation *styleOp, styleOps) {
+
+            testGroup.reset("test 6.1");
+            testGroup.add() << pageOp;
+            testGroup.add() << pageOp << pageOp;
+            testGroup.createTestRows();
+
+            testGroup.reset("test 6.2");
+            testGroup.add() << styleOp;
+            testGroup.add() << styleOp << styleOp;
+            testGroup.createTestRows();
+
+            testGroup.reset("test 6.3");
+            testGroup.add() << pageOp << styleOp;
+            testGroup.add() << styleOp << pageOp;
+            testGroup.createTestRows();
+
+            for (int i = 0; i < 2; ++i) {
+                QList<Operation *> optionOps = *setAllOptions.value(i == 1);
+                testGroup.reset("test 6.4");
+                testGroup.add() << optionOps << pageOp << styleOp;
+                testGroup.add() << pageOp << optionOps << styleOp;
+                testGroup.add() << pageOp << styleOp << optionOps;
+                testGroup.add() << optionOps << styleOp << pageOp;
+                testGroup.add() << styleOp << optionOps << pageOp;
+                testGroup.add() << styleOp << pageOp << optionOps;
+                testGroup.createTestRows();
+
+                foreach (QWizard::WizardOption option, OptionInfo::instance().options()) {
+                    Operation *optionOp = OPT(option, i == 1);
+                    testGroup.reset("test 6.5");
+                    testGroup.add() << optionOp << pageOp << styleOp;
+                    testGroup.add() << pageOp << optionOp << styleOp;
+                    testGroup.add() << pageOp << styleOp << optionOp;
+                    testGroup.add() << optionOp << styleOp << pageOp;
+                    testGroup.add() << styleOp << optionOp << pageOp;
+                    testGroup.add() << styleOp << pageOp << optionOp;
+                    testGroup.createTestRows();
+                }
+            }
+        }
+    }
+
+    testGroup.reset("test 7.1", TestGroup::NonEquality);
+    testGroup.add() << SETPAGE(0);
+    testGroup.add() << SETPAGE(1);
+    testGroup.add() << SETPAGE(2);
+    testGroup.createTestRows();
+
+    testGroup.reset("test 7.2", TestGroup::NonEquality);
+    testGroup.add() << SETSTYLE(0);
+    testGroup.add() << SETSTYLE(1);
+    testGroup.add() << SETSTYLE(2);
+    testGroup.createTestRows();
+
+    // more tests to follow ...
+}
+
+void tst_QWizard::combinations()
+{
+    QFETCH(bool, ref);
+    QFETCH(bool, testEquality);
+    QFETCH(QList<Operation *>, operations);
+
+    TestWizard wizard;
+    wizard.applyOperations(operations);
+    wizard.show(); // ### required, but why? should wizard.createImage() care?
+
+    static QImage refImage;
+    static QSize refMinSize;
+    static QString refDescr;
+
+    if (ref) {
+        refImage = wizard.createImage();
+        refMinSize = wizard.minimumSize();
+        refDescr = wizard.operationsDescription();
+        return;
+    }
+
+    QImage image = wizard.createImage();
+
+    bool minSizeTest = wizard.minimumSize() != refMinSize;
+    bool imageTest = image != refImage;
+    QLatin1String otor("!=");
+    QLatin1String reason("differ");
+
+    if (!testEquality) {
+        minSizeTest = false; // the image test is sufficient!
+        imageTest = !imageTest;
+        otor = QLatin1String("==");
+        reason = QLatin1String("are equal");
+    }
+
+    if (minSizeTest)
+        qDebug() << "minimum sizes" << reason.latin1() << ";" << wizard.minimumSize()
+                 << otor.latin1() << refMinSize;
+
+    if (imageTest) {
+        qDebug() << "images" << reason.latin1();
+        refImage.save("ref.png");
+        image.save("curr.png");
+    }
+
+    if (minSizeTest || imageTest) {
+        qDebug() << "\t      row 0 operations:" << refDescr.toLatin1();
+        qDebug() << "\tcurrent row operations:" << wizard.operationsDescription().toLatin1();
+        exit(1);
+        QVERIFY(false);
     }
 }
 
