@@ -88,6 +88,7 @@ public:
     ~QFileInfoGatherer();
 
     void clear();
+    QExtendedInformation getInfo(const QFileInfo &info) const;
 
 public Q_SLOTS:
     void list(const QString &directoryPath);
@@ -104,7 +105,6 @@ protected:
 
 private:
     void fetch(const QFileInfo &info, QTime &base, bool &firstTime, QList<QPair<QString,QExtendedInformation> > &updatedFiles, const QString &path);
-    QExtendedInformation getInfo(const QFileInfo &info) const;
     QString translateDriveName(const QFileInfo &drive) const;
     QFile::Permissions translatePermissions(const QFileInfo &fileInfo) const;
 
