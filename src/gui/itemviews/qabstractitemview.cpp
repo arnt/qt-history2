@@ -2365,7 +2365,7 @@ QSize QAbstractItemView::sizeHintForIndex(const QModelIndex &index) const
     Q_D(const QAbstractItemView);
     if (!d->isIndexValid(index) || !d->itemDelegate)
         return QSize();
-    return d->itemDelegate->sizeHint(viewOptions(), index);
+    return d->delegateForIndex(index)->sizeHint(viewOptions(), index);
 }
 
 /*!
