@@ -542,72 +542,70 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
 
             if (Animation *anim = d->widgetAnimation(widget)) {
                 anim->paint(painter, option);
-                return;
-            }
+            } else {
+                name = QLatin1String("BUTTON");
+                partId = BP_PUSHBUTTON;
+                bool justFlat = (btn->features & QStyleOptionButton::Flat) && !(flags & (State_On|State_Sunken));
+                if (!(flags & State_Enabled) && !(btn->features & QStyleOptionButton::Flat))
+                    stateId = PBS_DISABLED;
+                else if (justFlat)
+                    ;
+                else if (flags & (State_Sunken | State_On))
+                    stateId = PBS_PRESSED;
+                else if (flags & State_MouseOver)
+                    stateId = PBS_HOT;
+                else if (btn->features & QStyleOptionButton::DefaultButton)
+                    stateId = PBS_DEFAULTED;
+                else
+                    stateId = PBS_NORMAL;
 
-            name = QLatin1String("BUTTON");
-            partId = BP_PUSHBUTTON;
-            bool justFlat = (btn->features & QStyleOptionButton::Flat) && !(flags & (State_On|State_Sunken));
-            if (!(flags & State_Enabled) && !(btn->features & QStyleOptionButton::Flat))
-                stateId = PBS_DISABLED;
-            else if (justFlat)
-                ;
-            else if (flags & (State_Sunken | State_On))
-                stateId = PBS_PRESSED;
-            else if (flags & State_MouseOver)
-                stateId = PBS_HOT;
-            else if (btn->features & QStyleOptionButton::DefaultButton)
-                stateId = PBS_DEFAULTED;
-            else
-                stateId = PBS_NORMAL;
+                if (!justFlat) {
 
-            if (!justFlat) {
+                    if (widget && (btn->features & QStyleOptionButton::DefaultButton)      &&
+                        !(state & (State_Sunken | State_On)) && !(state & State_MouseOver) &&
+                         (state & State_Enabled))
+                        {
+                        Animation *anim = d->widgetAnimation(widget);
+                        if (!anim && widget) {
+                            QImage startImage(option->rect.size(), QImage::Format_ARGB32_Premultiplied);
+                            startImage.fill(0);
+                            QImage alternateImage(option->rect.size(), QImage::Format_ARGB32_Premultiplied);
+                            alternateImage.fill(0);
 
-                if (widget && (btn->features & QStyleOptionButton::DefaultButton)      &&
-                    !(state & (State_Sunken | State_On)) && !(state & State_MouseOver) &&
-                     (state & State_Enabled))
-                    {
-                    Animation *anim = d->widgetAnimation(widget);
-                    if (!anim && widget) {
-                        QImage startImage(option->rect.size(), QImage::Format_ARGB32_Premultiplied);
-                        startImage.fill(0);
-                        QImage alternateImage(option->rect.size(), QImage::Format_ARGB32_Premultiplied);
-                        alternateImage.fill(0);
+                            Pulse *pulse = new Pulse;
+                            pulse->setWidget(const_cast<QWidget*>(widget));
 
-                        Pulse *pulse = new Pulse;
-                        pulse->setWidget(const_cast<QWidget*>(widget));
+                            QPainter startPainter(&startImage);
+                            stateId = PBS_DEFAULTED;
+                            XPThemeData theme(widget, &startPainter, name, partId, stateId, rect);
+                            d->drawBackground(theme);
 
-                        QPainter startPainter(&startImage);
-                        stateId = PBS_DEFAULTED;
-                        XPThemeData theme(widget, &startPainter, name, partId, stateId, rect);
-                        d->drawBackground(theme);
+                            QPainter alternatePainter(&alternateImage);
+                            theme.stateId = PBS_DEFAULTED_ANIMATING;
+                            theme.painter = &alternatePainter;
+                            d->drawBackground(theme);
+                            pulse->setPrimaryImage(startImage);
+                            pulse->setAlternateImage(alternateImage);
+                            pulse->setStartTime(QTime::currentTime());
+                            pulse->setDuration(1600);
+                            d->startAnimation(pulse);
+                            anim = pulse;
+                        }
 
-                        QPainter alternatePainter(&alternateImage);
-                        theme.stateId = PBS_DEFAULTED_ANIMATING;
-                        theme.painter = &alternatePainter;
-                        d->drawBackground(theme);
-                        pulse->setPrimaryImage(startImage);
-                        pulse->setAlternateImage(alternateImage);
-                        pulse->setStartTime(QTime::currentTime());
-                        pulse->setDuration(1600);
-                        d->startAnimation(pulse);
-                        anim = pulse;
+                        if (anim)
+                            anim->paint(painter, option);
+                        else {
+                            XPThemeData theme(widget, painter, name, partId, stateId, rect);
+                            d->drawBackground(theme);
+                        }
                     }
-
-                    if (anim)
-                        anim->paint(painter, option);
                     else {
+                        d->stopAnimation(widget);
                         XPThemeData theme(widget, painter, name, partId, stateId, rect);
                         d->drawBackground(theme);
                     }
                 }
-                else {
-                    d->stopAnimation(widget);
-                    XPThemeData theme(widget, painter, name, partId, stateId, rect);
-                    d->drawBackground(theme);
-                }
             }
-
             if (btn->features & QStyleOptionButton::HasMenu) {
                 int mbiw = 0, mbih = 0;
                 XPThemeData theme(widget, 0, QLatin1String("TOOLBAR"), TP_DROPDOWNBUTTON);
