@@ -125,6 +125,7 @@ public:
     QPixmap copy(const QRect &rect = QRect()) const;
 
     int serialNumber() const;
+    qint64 cacheKey() const;
 
     bool isDetached() const;
     void detach();

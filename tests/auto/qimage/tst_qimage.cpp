@@ -64,6 +64,7 @@ private slots:
 
     void pointOverloads();
     void destructor();
+    void cacheKey();
 };
 
 tst_QImage::tst_QImage()
@@ -775,6 +776,17 @@ void tst_QImage::createHeuristicMask()
     QVERIFY(newMask.pixel(2,2) != newMask.pixel(3,2));
 }
 
+void tst_QImage::cacheKey()
+{
+    QImage image1(2, 2, QImage::Format_RGB32);
+    qint64 image1_key = image1.cacheKey();
+    QImage image2 = image1;
+
+    QVERIFY(image2.cacheKey() == image1.cacheKey());
+    image2.detach();
+    QVERIFY(image2.cacheKey() != image1.cacheKey());
+    QVERIFY(image1.cacheKey() == image1_key);
+}
 
 
 QTEST_MAIN(tst_QImage)

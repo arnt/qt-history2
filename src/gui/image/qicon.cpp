@@ -64,11 +64,12 @@ static int serialNumCounter = 0;
 class QIconPrivate
 {
 public:
-    QIconPrivate():ref(1),engine(0),serialNum(++serialNumCounter){}
+    QIconPrivate():ref(1),engine(0),serialNum(++serialNumCounter), detach_no(0) {}
     ~QIconPrivate() { delete engine; }
     QAtomic ref;
     QIconEngine *engine;
     int serialNum;
+    int detach_no;
 };
 
 
@@ -474,12 +475,15 @@ QIcon::operator QVariant() const
     return QVariant(QVariant::Icon, this);
 }
 
-/*!
+/*! \obsolete
+
     Returns a number that identifies the contents of this
     QIcon object. Distinct QIcon objects can have
     the same serial number if they refer to the same contents
     (but they don't have to). Also, the serial number of
     a QIcon object may change during its lifetime.
+
+    Use cacheKey() instead.
 
     A null icon always has a serial number of 0.
 
@@ -493,7 +497,22 @@ int QIcon::serialNumber() const
     return d ? d->serialNum : 0;
 }
 
-/*!  
+/*!
+    Returns a number that identifies the contents of this QIcon
+    object. Distinct QIcon objects can have the same key if
+    they refer to the same contents.
+
+    The cacheKey() will change when the icon is altered via
+    addPixmap() or addFile().
+*/
+qint64 QIcon::cacheKey() const
+{
+    if (!d)
+        return 0;
+    return (((qint64) d->serialNum) << 32) | ((qint64) (d->detach_no));
+}
+
+/*!
   Returns a pixmap with the requested \a size, \a mode, and \a
   state, generating one if necessary. The pixmap might be smaller than
   requested, but never larger.
@@ -601,6 +620,7 @@ void QIcon::addPixmap(const QPixmap &pixmap, Mode mode, State state)
         d->engine = new QPixmapIconEngine;
     }
     d->engine->addPixmap(pixmap, mode, state);
+    ++d->detach_no;
 }
 
 
@@ -634,6 +654,7 @@ void QIcon::addFile(const QString &fileName, const QSize &size, Mode mode, State
         d->engine = new QPixmapIconEngine;
     }
     d->engine->addFile(fileName, size, mode, state);
+    ++d->detach_no;
 }
 
 /*****************************************************************************

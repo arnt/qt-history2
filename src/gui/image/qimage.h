@@ -198,6 +198,7 @@ public:
         { return fromData(reinterpret_cast<const uchar *>(data.constData()), data.size(), format); }
 
     int serialNumber() const;
+    qint64 cacheKey() const;
 
     QPaintEngine *paintEngine() const;
 

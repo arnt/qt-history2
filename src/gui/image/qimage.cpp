@@ -131,9 +131,10 @@ struct QImageData {        // internal image data
     QPaintEngine *paintEngine;
 };
 
+// remove for Qt 5.0
 Q_GUI_EXPORT qint64 qt_image_id(const QImage &image)
 {
-    return (((qint64) image.d->ser_no) << 32) | ((qint64) image.d->detach_no);
+    return image.cacheKey();
 }
 
 const QVector<QRgb> *qt_image_colortable(const QImage &image)
@@ -1222,9 +1223,9 @@ QImage::operator QVariant() const
 void QImage::detach()
 {
     if (d) {
-        ++d->detach_no;
         if (d->ref != 1 || d->ro_data)
             *this = copy();
+        ++d->detach_no;
     }
 }
 
@@ -4867,11 +4868,13 @@ bool qt_xForm_helper(const QTransform &trueMat, int xoffset, int type, int depth
     \endcode
 */
 
-/*!
+/*! \obsolete
     Returns a number that identifies the contents of this
     QImage object. Distinct QImage objects can only have the same
     serial number if they refer to the same contents (but they don't
     have to).
+
+    Use cacheKey() instead.
 
     \warning The serial number doesn't necessarily change when the
     image is altered. This means that it may be dangerous to use
@@ -4886,6 +4889,18 @@ int QImage::serialNumber() const
         return 0;
     else
         return d->ser_no;
+}
+
+/*!
+    Returns a number that identifies the contents of this QImage
+    object. Distinct QImage objects can only have the same key if they
+    refer to the same contents.
+
+    The key will change when the image is altered.
+*/
+qint64 QImage::cacheKey() const
+{
+    return (((qint64) d->ser_no) << 32) | ((qint64) d->detach_no);
 }
 
 /*!

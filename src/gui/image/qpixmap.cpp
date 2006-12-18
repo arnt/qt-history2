@@ -46,9 +46,10 @@
 typedef void (*_qt_pixmap_cleanup_hook)(int);
 Q_GUI_EXPORT _qt_pixmap_cleanup_hook qt_pixmap_cleanup_hook = 0;
 
+// remove for Qt 5.0
 Q_GUI_EXPORT qint64 qt_pixmap_id(const QPixmap &pixmap)
 {
-    return -(((qint64) pixmap.data->ser_no) << 32) | ((qint64) (pixmap.data->detach_no));
+    return pixmap.cacheKey();
 }
 
 /*!
@@ -727,11 +728,13 @@ bool QPixmap::doImageIO(QImageWriter *writer, int quality) const
     to.
 */
 
-/*!
+/*! \obsolete
     Returns a number that identifies the contents of this QPixmap
     object. Distinct QPixmap objects can only have the same serial
     number if they refer to the same contents (but they don't have
     to).
+
+    Use cacheKey() instead.
 
     \warning The serial number doesn't necessarily change when
     the pixmap is altered. This means that it may be dangerous to use
@@ -744,6 +747,18 @@ int QPixmap::serialNumber() const
         return 0;
     else
         return data->ser_no;
+}
+
+/*!
+    Returns a number that identifies this QPixmap. Distinct QPixmap
+    objects can only have the same cache key if they refer to the same
+    contents.
+
+    The cacheKey() will change when the pixmap is altered.
+*/
+qint64 QPixmap::cacheKey() const
+{
+    return -(((qint64) data->ser_no) << 32) | ((qint64) (data->detach_no));
 }
 
 static void sendResizeEvents(QWidget *target)

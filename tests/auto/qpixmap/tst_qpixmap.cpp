@@ -52,6 +52,8 @@ private slots:
     void mask();
     void bitmapMask();
 
+    void cacheKey();
+
 #ifdef Q_WS_WIN
     void toWinHBITMAP_data();
     void toWinHBITMAP();
@@ -295,6 +297,18 @@ void tst_QPixmap::createMaskFromColor()
     QCOMPARE((uint) inv_mask.toImage().pixel(0, 1), QColor(Qt::color1).rgba());
 }
 
+
+void tst_QPixmap::cacheKey()
+{
+    QPixmap pixmap1(2, 2);
+    qint64 pixmap1_key = pixmap1.cacheKey();
+    QPixmap pixmap2 = pixmap1;
+
+    QVERIFY(pixmap2.cacheKey() == pixmap1.cacheKey());
+    pixmap2.detach();
+    QVERIFY(pixmap2.cacheKey() != pixmap1.cacheKey());
+    QVERIFY(pixmap1.cacheKey() == pixmap1_key);
+}
 
 #ifdef Q_WS_WIN
 void tst_QPixmap::toWinHBITMAP_data()

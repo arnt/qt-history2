@@ -376,10 +376,9 @@ QPixmapData::~QPixmapData()
 
 void QPixmap::detach()
 {
-    ++data->detach_no;
     if (data->count != 1)
         *this = copy();
-
+    ++data->detach_no;
     data->uninit = false;
 
     // reset the cache data
@@ -443,15 +442,15 @@ void QPixmap::fill(const QColor &fillColor)
 }
 
 /*!
-    Returns the alpha channel of the pixmap as a new grayscale QPixmap in which 
-    each pixel's red, green, and blue values are given the alpha value of the 
-    original pixmap. The color depth of the returned pixmap is the system depth 
+    Returns the alpha channel of the pixmap as a new grayscale QPixmap in which
+    each pixel's red, green, and blue values are given the alpha value of the
+    original pixmap. The color depth of the returned pixmap is the system depth
     on X11 and 8-bit on Windows and Mac OS X.
 
-    You can use this function while debugging 
-    to get a visible image of the alpha channel. If the pixmap doesn't have an 
+    You can use this function while debugging
+    to get a visible image of the alpha channel. If the pixmap doesn't have an
     alpha channel, i.e., the alpha channel's value for all pixels equals
-    0xff), a null pixmap is returned. You can check this with the \c isNull() 
+    0xff), a null pixmap is returned. You can check this with the \c isNull()
     function.
 
     We show an example:
@@ -1830,8 +1829,8 @@ QPixmap QPixmap::transformed(const QTransform &matrix, Qt::TransformationMode mo
     ws = width();
     hs = height();
 
-    QTransform mat(matrix.m11(), matrix.m12(), matrix.m13(), 
-                   matrix.m21(), matrix.m22(), matrix.m23(), 
+    QTransform mat(matrix.m11(), matrix.m12(), matrix.m13(),
+                   matrix.m21(), matrix.m22(), matrix.m23(),
                    0., 0., 1);
     bool complex_xform = false;
     qreal scaledWidth;

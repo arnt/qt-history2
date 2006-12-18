@@ -117,6 +117,7 @@ public:
     bool isCopyOf(const QPalette &p) const;
 
     int serialNumber() const;
+    qint64 cacheKey() const;
 
     QPalette resolve(const QPalette &) const;
     inline uint resolve() const { return resolve_mask; }

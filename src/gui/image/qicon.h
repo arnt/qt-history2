@@ -56,6 +56,7 @@ public:
     bool isDetached() const;
 
     int serialNumber() const;
+    qint64 cacheKey() const;
 
     void addPixmap(const QPixmap &pixmap, Mode mode = Normal, State state = Off);
     void addFile(const QString &fileName, const QSize &size = QSize(), Mode mode = Normal, State state = Off);
