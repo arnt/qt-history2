@@ -193,17 +193,6 @@ QPoint qt_mac_posInWindow(const QWidget *w)
     return ret;
 }
 
-static void qt_mac_release_stays_on_top_group(Qt::WindowType type) //cleanup function
-{
-    Q_ASSERT(qt_mac_stays_on_top()->contains(type));
-    WindowGroupRef group = qt_mac_stays_on_top()->value(type);
-    ReleaseWindowGroup(group);
-    if(GetWindowGroupRetainCount(group) == 1) { //only the global pointer exists
-        qt_mac_stays_on_top()->remove(type);
-        ReleaseWindowGroup(group);
-    }
-}
-
 //find a QWidget from a WindowPtr
 QWidget *qt_mac_find_window(WindowPtr window)
 {
@@ -265,41 +254,48 @@ Q_GUI_EXPORT WindowPtr qt_mac_window_for(const QWidget *w)
     return window;
 }
 
+/*  Checks if the current group is a 'stay on top' group. If so, the
+    group gets removed from the hash table */
+static void qt_mac_release_stays_on_top_group(WindowGroupRef group)
+{
+    for (StaysOnTopHash::iterator it = qt_mac_stays_on_top()->begin(); it != qt_mac_stays_on_top()->end(); ++it) {
+        if (it.value() == group) {
+            qt_mac_stays_on_top()->remove(it.key());
+            return;
+        }
+    }
+}
+
 /* Use this function instead of ReleaseWindowGroup, this will be sure to release the
    stays on top window group (created with qt_mac_get_stays_on_top_group below) */
 static void qt_mac_release_window_group(WindowGroupRef group)
 {
-    bool just_release = true;
-    for(StaysOnTopHash::iterator it = qt_mac_stays_on_top()->begin(); it != qt_mac_stays_on_top()->end(); ++it) {
-        if(it.value() == group) {
-            qt_mac_release_stays_on_top_group(it.key());
-            just_release = false;
-            break;
-        }
-    }
-    if(just_release)
-        ReleaseWindowGroup(group);
+    ReleaseWindowGroup(group);
+
+    if (GetWindowGroupRetainCount(group) == 0)
+        qt_mac_release_stays_on_top_group(group);
 }
+
 #define ReleaseWindowGroup(x) Are you sure you wanted to do that? (you wanted qt_mac_release_window_group)
 
 /* We create one static stays on top window group so that all stays on top (aka popups) will
    fall into the same group and be able to be raise()'d with releation to one another (from
    within the same window group). */
-static WindowGroupRef qt_mac_get_stays_on_top_group(Qt::WindowType type)
+static void qt_mac_set_window_group_to_stays_on_top(WindowRef windowRef, Qt::WindowType type)
 {
     WindowGroupRef group = 0;
-    if(!qt_mac_stays_on_top()->contains(type)) {
+    if (qt_mac_stays_on_top()->contains(type)) {
+        group = qt_mac_stays_on_top()->value(type);
+        RetainWindowGroup(group);
+    } else {
         CreateWindowGroup(kWindowActivationScopeNone, &group);
         CGWindowLevel group_level;
         GetWindowGroupLevelOfType(GetWindowGroupOfClass(kOverlayWindowClass), kWindowGroupLevelActive, &group_level);
         SetWindowGroupLevel(group, group_level);
         SetWindowGroupParent(group, GetWindowGroupOfClass(kAllWindowClasses));
         qt_mac_stays_on_top()->insert(type, group);
-    } else {
-        group = qt_mac_stays_on_top()->value(type);
     }
-    RetainWindowGroup(group);
-    return group;
+    SetWindowGroup(windowRef, group);
 }
 
 static void qt_mac_set_window_group_to_tooltip(WindowRef windowRef)
@@ -1346,12 +1342,11 @@ void QWidgetPrivate::createWindow_sys()
     }
     if (type == Qt::ToolTip)
         qt_mac_set_window_group_to_tooltip(windowRef);
-    else if (flags & Qt::WindowStaysOnTopHint) {
-        topExtra->group = qt_mac_get_stays_on_top_group(type);
-        SetWindowGroup(windowRef, topExtra->group);
-    } else if (grp) {
+    else if (flags & Qt::WindowStaysOnTopHint)
+        qt_mac_set_window_group_to_stays_on_top(windowRef, type);
+    else if (grp)
         SetWindowGroup(windowRef, grp);
-    }
+
 #ifdef DEBUG_WINDOW_CREATE
     if (WindowGroupRef grpf = GetWindowGroup(windowRef)) {
         QCFString cfname;
