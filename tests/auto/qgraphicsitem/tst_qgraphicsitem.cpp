@@ -622,7 +622,7 @@ void tst_QGraphicsItem::toolTip()
         foreach (QWidget *widget, QApplication::topLevelWidgets()) {
             if (widget == &view)
                 foundView = true;
-            if (widget->inherits("QTipLabel"))
+            if (widget->inherits("QTipLabel") && widget->isVisible())
                 foundTipLabel = true;
         }
         QVERIFY(foundView);
@@ -894,6 +894,7 @@ void tst_QGraphicsItem::selected_textItem()
 
     QGraphicsView view(&scene);
     view.show();
+    QTest::qWait(1000);
 
     QVERIFY(!text->isSelected());
     QTest::mouseClick(view.viewport(), Qt::LeftButton, 0,
@@ -1181,12 +1182,11 @@ void tst_QGraphicsItem::setMatrix()
 
     QList<QRectF> rlist = qVariantValue<QList<QRectF> >(spy.last().at(0));
 
-    QCOMPARE(rlist.size(), 5);
+    QCOMPARE(rlist.size(), 4);
     QCOMPARE(rlist.at(0), rotatedRect);   // From item.setMatrix() (clearing rotated rect)
     QCOMPARE(rlist.at(1), rotatedRect);   // ---''---              ---''---
     QCOMPARE(rlist.at(2), unrotatedRect); // ---''---              (painting unrotated rect)
-    QCOMPARE(rlist.at(3), unrotatedRect); // ---''---              ---''---
-    QCOMPARE(rlist.at(4), rotatedRect);   // From scene.update() (largest rect so far)
+    QCOMPARE(rlist.at(3), rotatedRect);   // From scene.update() (largest rect so far)
 }
 
 static QList<QGraphicsItem *> paintedItems;

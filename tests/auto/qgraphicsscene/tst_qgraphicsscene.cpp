@@ -844,7 +844,12 @@ void tst_QGraphicsScene::selectionChanged()
     QCOMPARE(spy.count(), 8); // the rect was unselected, so the selection changed
 
     rect->setSelected(true);
-    QCOMPARE(spy.count(), 9); // the rect was reselected, so the selection changed
+    QCOMPARE(spy.count(), 8); // the rect is not longer selectable, so the selection does not change
+
+
+    rect->setFlag(QGraphicsItem::ItemIsSelectable, true);
+    rect->setSelected(true);
+    QCOMPARE(spy.count(), 9); // the rect is again selectable, so the selection changed
 
     delete rect;
     QCOMPARE(spy.count(), 10); // a selected item was deleted; selection changed
