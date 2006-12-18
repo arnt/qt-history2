@@ -183,6 +183,20 @@ elif [ -f "$relpath"/LICENSE.PREVIEW.COMMERCIAL ]; then
     Licensee="Preview"
     Edition="Preview"
     QT_EDITION="QT_EDITION_DESKTOP"
+elif [ -f "$relpath"/LICENSE.SNAPSHOT.COMMERCIAL ]; then
+    # snapshot - commercial
+    [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
+    [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
+    Licensee="Snapshot"
+    Edition="Snapshot"
+    QT_EDITION="QT_EDITION_DESKTOP"
+elif [ -f "$relpath"/LICENSE.SNAPSHOT.OPENSOURCE ]; then
+    # snapshot - opensource
+    [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
+    [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
+    Licensee="Snapshot"
+    Edition="Snapshot"
+    QT_EDITION="QT_EDITION_OPENSOURCE"
 elif [ -f "$relpath"/LICENSE.TROLL ]; then
     # internal Trolltech edition
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
@@ -3004,6 +3018,41 @@ elif [ "$Edition" = "Preview" ]; then
                 more "$relpath/LICENSE.PREVIEW.OPENSOURCE"
             else
                 more "$relpath/LICENSE.PREVIEW.COMMERCIAL"
+            fi
+        fi
+    done
+elif [ "$Edition" = "Snapshot" ]; then
+    while true; do
+        if [ "$OPT_CONFIRM_LICENSE" = "yes" ]; then
+            echo "You have already accepted the terms of the $LicenseType license."
+            acceptance=yes
+        else
+            echo "You are licensed to use this software under the terms of"
+            echo "the Qt SNAPSHOT VERSION LICENSE AGREEMENT"
+            echo
+            echo "Type '?' to read the Snapshot License."
+            echo "Type 'yes' to accept this license offer."
+            echo "Type 'no' to decline this license offer."
+            echo
+            if echo '\c' | grep '\c' >/dev/null; then
+                echo -n "Do you accept the terms of the license? "
+            else
+                echo "Do you accept the terms of the license? \c"
+            fi
+            read acceptance
+        fi
+        echo
+        if [ "$acceptance" = "yes" ]; then
+            break
+        elif [ "$acceptance" = "no" ] ;then
+            echo "You are not licensed to use this software."
+            echo
+            exit 0
+        elif [ "$acceptance" = "?" ]; then
+            if [ "$QT_EDITION" = "QT_EDITION_OPENSOURCE" ]; then
+                more "$relpath/LICENSE.SNAPSHOT.OPENSOURCE"
+            else
+                more "$relpath/LICENSE.SNAPSHOT.COMMERCIAL"
             fi
         fi
     done
