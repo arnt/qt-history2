@@ -10,8 +10,8 @@ const qdocCommand = qdocDir + "/qdoc3";
 const outputDir = System.getenv("PWD");
 
 const validPlatforms = ["win", "x11", "mac", "core", "all"];
-const validLicenses = ["opensource", "commercial", "preview-opensource", "preview-commercial", "eval"];
-const validSwitches = ["gzip", "bzip", "zip", "snapshots"]; // these are either true or false, set by -do-foo/-no-foo
+const validLicenses = ["opensource", "commercial", "eval"];
+const validSwitches = ["gzip", "bzip", "zip", "snapshots", "preview"]; // these are either true or false, set by -do-foo/-no-foo
 const validVars = ["branch", "version", "label"]; // variables with arbitrary values, set by -foo value
 
 const binaryExtensions = ["msi", "dll", "gif", "png", "mng",
@@ -208,6 +208,9 @@ licenseRemove["opensource"] = [ new RegExp("^README-QT.TXT"),
 
 licenseRemove["preview-opensource"] = licenseRemove["opensource"];
 licenseRemove["preview-commercial"] = licenseRemove["commercial"];
+
+licenseRemove["snapshot-opensource"] = licenseRemove["opensource"];
+licenseRemove["snapshot-commercial"] = licenseRemove["commercial"];
 
 var binaryFileList = [ new RegExp("examples/tools/codecs/encodedfiles/utf-16.txt"),
                        new RegExp("examples/tools/codecs/encodedfiles/utf-16be.txt"),
@@ -732,6 +735,11 @@ function copyDist(packageDir, platform, license)
     if (platform == "core")
         platform = "embedded";
 
+    if (options["snapshots"]) 
+        license = "snapshot-" + license;
+    else if (options["preview"]) 
+        license = "preview-" + license;
+
     var platformFiles = getFileList(packageDir + "/dist/" + platform);
     var licenseFiles = getFileList(packageDir + "/dist/" + license);
 
@@ -786,6 +794,7 @@ function copyDist(packageDir, platform, license)
     var keyFiles = ["README", "INSTALL"];
     if (!options["snapshots"])
         keyFiles.push("changes-" + options["version"]);
+
     if (license == "opensource") {
         keyFiles.push("LICENSE.GPL");
         keyFiles.push("LICENSE.QPL");
@@ -796,6 +805,10 @@ function copyDist(packageDir, platform, license)
         keyFiles.push("LICENSE.PREVIEW.OPENSOURCE");
     } else if (license == "preview-commercial") {
         keyFiles.push("LICENSE.PREVIEW.COMMERCIAL");
+    } else if (license == "snapshot-commercial") {
+        keyFiles.push("LICENSE.SNAPSHOT.COMMERCIAL");
+    } else if (license == "snapshot-opensource") {
+        keyFiles.push("LICENSE.SNAPSHOT.OPENSOURCE");
     }
     for (var i in keyFiles) {
         if (!File.exists(packageDir + "/" + keyFiles[i]))
