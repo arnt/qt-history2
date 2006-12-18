@@ -216,6 +216,26 @@ static void qDBusNewConnection(DBusServer *server, DBusConnection *c, void *data
     qDebug("SERVER: GOT A NEW CONNECTION"); // TODO
 }
 
+static QByteArray buildMatchRule(const QString &service, const QString & /*owner*/,
+                                 const QString &objectPath, const QString &interface,
+                                 const QString &member, const QString & /*signature*/)
+{
+    QString result = QLatin1String("type='signal',");
+    QString keyValue = QLatin1String("%1='%2',");
+
+    if (!service.isEmpty())
+        result += keyValue.arg(QLatin1String("sender"), service);
+    if (!objectPath.isEmpty())
+        result += keyValue.arg(QLatin1String("path"), objectPath);
+    if (!interface.isEmpty())
+        result += keyValue.arg(QLatin1String("interface"), interface);
+    if (!member.isEmpty())
+        result += keyValue.arg(QLatin1String("member"), member);
+
+    result.chop(1);             // remove ending comma
+    return result.toLatin1();
+}
+
 extern QDBUS_EXPORT void qDBusAddSpyHook(QDBusSpyHook);
 void qDBusAddSpyHook(QDBusSpyHook hook)
 {
@@ -939,6 +959,7 @@ bool QDBusConnectionPrivate::prepareHook(QDBusConnectionPrivate::SignalHook &hoo
                 hook.signature += QLatin1String( QDBusMetaType::typeToSignature( hook.params.at(i) ) );
     }
 
+    hook.matchRule = buildMatchRule(service, owner, path, interface, mname, hook.signature);
     return true;                // connect to this signal
 }
 
@@ -1256,15 +1277,10 @@ void QDBusConnectionPrivate::setConnection(DBusConnection *dbc)
                                         qDBusToggleWatch, this, 0);
     dbus_connection_set_timeout_functions(connection, qDBusAddTimeout, qDBusRemoveTimeout,
                                           qDBusToggleTimeout, this, 0);
-//    dbus_bus_add_match(connection, "type='signal',interface='com.trolltech.dbus.Signal'", &error);
-//    dbus_bus_add_match(connection, "type='signal'", &error);
 
-    dbus_bus_add_match(connection, "type='signal'", &error);
-    if (handleError()) {
-        closeConnection();
-        return;
-    }
-
+    // Initialize the match rules
+    // We want all messages that have us as destination
+    // signals don't have destinations, but connectSignal() takes care of them
     const char *service = dbus_bus_get_unique_name(connection);
     if (service) {
         QVarLengthArray<char, 56> filter;
@@ -1495,12 +1511,31 @@ void QDBusConnectionPrivate::connectSignal(const QString &key, const SignalHook 
 {
     signalHooks.insertMulti(key, hook);
     connect(hook.obj, SIGNAL(destroyed(QObject*)), SLOT(objectDestroyed(QObject*)));
+
+    if (connection) {
+        qDBusDebug("Adding rule: %s", hook.matchRule.constData());
+        dbus_bus_add_match(connection, hook.matchRule, &error);
+        if (handleError())
+            qWarning("QDBusConnectionPrivate::connectSignal: received error from D-Bus server "
+                     "while connecting signal to %s::%s: %s (%s)",
+                     hook.obj->metaObject()->className(),
+                     hook.obj->metaObject()->method(hook.midx).signature(),
+                     qPrintable(lastError.name()), qPrintable(lastError.message()));
+    }
 }
 
-void QDBusConnectionPrivate::disconnectSignal(const QString &key, const SignalHook &hook)
+void QDBusConnectionPrivate::disconnectSignal(SignalHookHash::Iterator &it)
 {
+    const SignalHook &hook = it.value();
     hook.obj->disconnect(SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)));
-    signalHooks.remove(key);
+
+    // we don't care about errors here
+    if (connection) {
+        qDBusDebug("Removing rule: %s", hook.matchRule.constData());
+        dbus_bus_remove_match(connection, hook.matchRule, NULL);
+    }
+
+    signalHooks.erase(it);
 }
 
 void QDBusConnectionPrivate::registerObject(const ObjectTreeNode *node)
@@ -1588,7 +1623,7 @@ void QDBusConnectionPrivate::disconnectRelay(const QString &service, const QStri
             entry.obj == hook.obj &&
             entry.midx == hook.midx) {
             // found it
-            signalHooks.erase(it);
+            disconnectSignal(it);
             return;
         }
     }

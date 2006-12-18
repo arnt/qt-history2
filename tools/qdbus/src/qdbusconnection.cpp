@@ -594,8 +594,8 @@ bool QDBusConnection::disconnect(const QString &service, const QString &path, co
 
     // avoid duplicating:
     QWriteLocker locker(&d->lock);
-    QDBusConnectionPrivate::SignalHookHash::ConstIterator it = d->signalHooks.find(key);
-    QDBusConnectionPrivate::SignalHookHash::ConstIterator end = d->signalHooks.constEnd();
+    QDBusConnectionPrivate::SignalHookHash::Iterator it = d->signalHooks.find(key);
+    QDBusConnectionPrivate::SignalHookHash::Iterator end = d->signalHooks.end();
     for ( ; it != end && it.key() == key; ++it) {
         const QDBusConnectionPrivate::SignalHook &entry = it.value();
         if (entry.service == hook.service &&
@@ -605,7 +605,7 @@ bool QDBusConnection::disconnect(const QString &service, const QString &path, co
             entry.obj == hook.obj &&
             entry.midx == hook.midx) {
             // no need to compare the parameters if it's the same slot
-            d->disconnectSignal(key, hook);
+            d->disconnectSignal(it);
             return true;        // it was there
         }
     }

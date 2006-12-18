@@ -79,6 +79,7 @@ public:
         QObject* obj;
         int midx;
         QList<int> params;
+        QByteArray matchRule;
     };
 
     struct ObjectTreeNode
@@ -137,7 +138,7 @@ public:
     int sendWithReplyAsync(const QDBusMessage &message, QObject *receiver,
                            const char *method, int timeout = -1);
     void connectSignal(const QString &key, const SignalHook &hook);
-    void disconnectSignal(const QString &key, const SignalHook &hook);
+    void disconnectSignal(SignalHookHash::Iterator &it);
     void registerObject(const ObjectTreeNode *node);
     void connectRelay(const QString &service, const QString &path, const QString &interface,
                       QDBusAbstractInterface *receiver, const char *signal);
