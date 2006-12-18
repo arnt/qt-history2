@@ -1253,6 +1253,11 @@ QThread *QObject::thread() const
     moving an object between threads can postpone timer events
     indefinitely.
 
+    A QEvent::ThreadChange event is sent to this object just before
+    the thread affinity is changed. You can handle this event to
+    perform any special processing. Note that any new events that are
+    posted to this object will be handled in the \a targetThread.
+
     \warning This function is \e not thread-safe; the current thread
     must be same as the current thread affinity. In other words, this
     function can only "push" an object from the current thread to
