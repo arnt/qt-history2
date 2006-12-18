@@ -493,7 +493,12 @@ int QHeaderView::sectionSizeHint(int logicalIndex) const
         return 0;
     if (logicalIndex < 0 || logicalIndex >= count())
         return -1;
-    QSize size = sectionSizeFromContents(logicalIndex);
+    QSize size;
+    QVariant value = d->model->headerData(logicalIndex, d->orientation, Qt::SizeHintRole);
+    if (value.isValid())
+        size = qvariant_cast<QSize>(value);
+    else
+        size = sectionSizeFromContents(logicalIndex);
     int hint = d->orientation == Qt::Horizontal ? size.width() : size.height();
     return qMax(minimumSectionSize(), hint);
 }
