@@ -1163,18 +1163,25 @@ void tst_QGraphicsItem::setMatrix()
     scene.update(scene.sceneRect());
     QApplication::instance()->processEvents();
 
+    QCOMPARE(spy.count(), 1);
+    
     item.setMatrix(QMatrix().rotate(12.34));
     QRectF rotatedRect = scene.sceneRect();
     QVERIFY(unrotatedRect != rotatedRect);
     scene.update(scene.sceneRect());
     QApplication::instance()->processEvents();
 
+    QCOMPARE(spy.count(), 2);
+
     item.setMatrix(QMatrix());
     scene.update(scene.sceneRect());
     QApplication::instance()->processEvents();
 
+    QCOMPARE(spy.count(), 3);
+
     QList<QRectF> rlist = qVariantValue<QList<QRectF> >(spy.last().at(0));
-    QVERIFY(rlist.size() == 5);
+
+    QCOMPARE(rlist.size(), 5);
     QCOMPARE(rlist.at(0), rotatedRect);   // From item.setMatrix() (clearing rotated rect)
     QCOMPARE(rlist.at(1), rotatedRect);   // ---''---              ---''---
     QCOMPARE(rlist.at(2), unrotatedRect); // ---''---              (painting unrotated rect)
