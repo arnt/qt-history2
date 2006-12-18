@@ -2304,8 +2304,10 @@ void tst_QGraphicsScene::update()
 
     // Check that the update region is correct
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(qVariantValue<QList<QRectF> >(spy.at(0).at(0)).at(0),
-             QRectF(-100, -100, 200, 200));
+    QRectF region;
+    foreach (QRectF rectF, qVariantValue<QList<QRectF> >(spy.at(0).at(0)))
+        region |= rectF;
+    QCOMPARE(region, QRectF(-100, -100, 200, 200));
 }
 
 void tst_QGraphicsScene::views()
