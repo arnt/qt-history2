@@ -113,6 +113,7 @@ public:
 //	addDb( "QOCI8", "PONY", "scott", "tiger" ); // Oracle 9i on horsehead
 //	addDb( "QOCI8", "USTEST", "scott", "tiger", "" ); // Oracle 9i on horsehead
 //	addDb( "QOCI8", "ICE", "scott", "tiger", "" ); // Oracle 8 on iceblink
+//	addDB( "QOCI", "SILENCE", "scott", "tiger" ); // Oracle 10g on silence
         
 	// This requires a local ODBC data source to be configured (pointing to a MySql database) 
 //      addDb( "QODBC", "mysqlodbc" );
@@ -133,10 +134,13 @@ public:
 
 //	addDb( "QDB2", "testdb", "troll", "trond", "horsehead" );
 //	addDb( "QDB2", "unitest", "troll", "trond", "horsehead" );
+//	addDb( "QDB2", "testdb", "troll", "trond", "silence"); // DB2 v9.1 on silence
 
 	// yes - interbase really wants the physical path on the host machine.
 //	addDb("QIBASE", "/opt/interbase/qttest.gdb", "SYSDBA", "masterkey", "horsehead.troll.no");
 //	addDb("QIBASE", "c:\\qttest.gdb", "SYSDBA", "masterkey", "iceblink.troll.no");
+//	addDb("QIBASE", "c:\\ibase\\testdb", "SYSDBA", "trond", "silence.troll.no"); // InterBase 7.5 on silence
+//	addDb("QIBASE", "c:\\ibase\\testdb_ascii", "SYSDBA", "trond", "silence.troll.no"); // InterBase 7.5 on silence
 
 	// use in-memory database to prevent local files
 	addDb("QSQLITE", ":memory:");
