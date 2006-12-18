@@ -1453,7 +1453,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
 case PE_Frame:
     {
         if (flags & State_Raised)
-            return;        
+            return;
         name = QLatin1String("LISTVIEW");
         partId = LVP_LISTGROUP;
         XPThemeData theme(0, 0, name, partId, 0);
@@ -1461,7 +1461,7 @@ case PE_Frame:
         if (!(flags & State_Enabled))
             stateId = ETS_DISABLED;
         else
-            stateId = ETS_NORMAL;        
+            stateId = ETS_NORMAL;
         int fillType;
         if (pGetThemeEnumValue(theme.handle(), partId, stateId, TMT_BGTYPE, &fillType) == S_OK) {
             if (fillType == BT_BORDERFILL) {
@@ -1889,7 +1889,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             }
         }
         break;
-        
+
     case CE_HeaderSection:
         name = QLatin1String("HEADER");
         partId = HP_HEADERITEM;
@@ -2119,7 +2119,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                 int pixh = pixmap.height();
                 QRect iconRect(0, 0, pixw, pixh);
                 iconRect.moveCenter(QRect(xpos, y, checkcol, h).center());
-                QRect vIconRect = visualRect(option->direction, option->rect, iconRect); 
+                QRect vIconRect = visualRect(option->direction, option->rect, iconRect);
                 p->setPen(menuitem->palette.text().color());
                 p->setBrush(Qt::NoBrush);
                 if (checked)
@@ -2135,9 +2135,9 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                 if (act)
                     newMi.state |= State_On;
 
-                QRect checkMarkRect = QRect(menuitem->rect.x() + windowsItemFrame, 
+                QRect checkMarkRect = QRect(menuitem->rect.x() + windowsItemFrame,
                                             menuitem->rect.y() + windowsItemFrame,
-                                            checkcol - 2 * windowsItemFrame, 
+                                            checkcol - 2 * windowsItemFrame,
                                             menuitem->rect.height() - 2*windowsItemFrame);
                 newMi.rect = visualRect(option->direction, option->rect, checkMarkRect);
                 drawPrimitive(PE_IndicatorMenuCheckMark, &newMi, p, widget);
@@ -2236,7 +2236,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             bool isActive = dwOpt->state & State_Active;
 
             QRect r = option->rect.adjusted(0, 2, -1, -3);
-            QRect titleRect = r;            
+            QRect titleRect = r;
 
             if (dwOpt->closable) {
                 QPixmap pm = standardPixmap(QStyle::SP_TitleBarCloseButton, dwOpt, widget);
@@ -2250,7 +2250,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
 
             if (isFloating) {
                 titleRect.adjust(0, -fw, 0, 0);
-                if (widget != 0 && widget->windowIcon().serialNumber() != qApp->windowIcon().serialNumber())
+                if (widget != 0 && widget->windowIcon().cacheKey() != qApp->windowIcon().cacheKey())
                     titleRect.adjust(titleRect.height() + mw, 0, 0, 0);
             } else {
                 titleRect.adjust(mw, 0, 0, 0);
@@ -2296,7 +2296,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                 // Figure out maximal button space on title bar
 
                 QIcon ico = widget->windowIcon();
-                bool hasIcon = (ico.serialNumber() != qApp->windowIcon().serialNumber());
+                bool hasIcon = (ico.cacheKey() != qApp->windowIcon().cacheKey());
                 if (hasIcon) {
                     QPixmap pxIco = ico.pixmap(titleHeight);
                     if (QApplication::layoutDirection() == Qt::RightToLeft)
@@ -2310,7 +2310,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                     QFont titleFont = oldFont;
                     titleFont.setBold(true);
                     p->setFont(titleFont);
-                    QString titleText 
+                    QString titleText
                         = p->fontMetrics().elidedText(dwOpt->title, Qt::ElideRight, titleRect.width());
 
                     int result = TST_NONE;
@@ -2359,7 +2359,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
         }
 #endif // QT_NO_RUBBERBAND
     case CE_HeaderEmptyArea:
-        if (option->state & State_Horizontal) 
+        if (option->state & State_Horizontal)
         {
             name = QLatin1String("HEADER");
             stateId = HIS_NORMAL;
@@ -2502,7 +2502,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     stateId = CBXS_NORMAL;
                 theme.partId = partId;
                 theme.stateId = stateId;
-                d->drawBackground(theme);        
+                d->drawBackground(theme);
             }
         }
         break;
@@ -2892,7 +2892,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                         partId = WP_SMALLCAPTION;
                     } else
 #endif
-                        partId = (tb->titleBarState & Qt::WindowMinimized) ? WP_MINCAPTION : WP_CAPTION;                        
+                        partId = (tb->titleBarState & Qt::WindowMinimized) ? WP_MINCAPTION : WP_CAPTION;
                     theme.rect = option->rect;
                     if (widget && !widget->isEnabled())
                         stateId = CS_DISABLED;
@@ -3085,7 +3085,7 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
     case PM_MenuBarPanelWidth:
         res = 0;
         break;
-        
+
     case PM_MenuPanelWidth:
     case PM_DefaultFrameWidth:
     case PM_SpinBoxFrameWidth:
@@ -3194,7 +3194,7 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
 #endif
             if (widget && (widget->windowType() == Qt::Tool))
                 res = GetSystemMetrics(SM_CYSMCAPTION) + GetSystemMetrics(SM_CXSIZEFRAME);
-            else 
+            else
                 res = GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXSIZEFRAME);
         }
         break;
@@ -3325,14 +3325,14 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
             int buttonHeight = GetSystemMetrics(SM_CYSIZE) - 4;
             int buttonWidth = GetSystemMetrics(SM_CXSIZE) - 4;
 
-            int controlTop = option->rect.bottom() - buttonHeight - 2;    			
+            int controlTop = option->rect.bottom() - buttonHeight - 2;
             const int frameWidth = pixelMetric(PM_MDIFrameWidth, option, widget);
             const bool sysmenuHint  = (tb->titleBarFlags & Qt::WindowSystemMenuHint) != 0;
             const bool minimizeHint = (tb->titleBarFlags & Qt::WindowMinimizeButtonHint) != 0;
             const bool maximizeHint = (tb->titleBarFlags & Qt::WindowMaximizeButtonHint) != 0;
             const bool contextHint = (tb->titleBarFlags & Qt::WindowContextHelpButtonHint) != 0;
             const bool shadeHint = (tb->titleBarFlags & Qt::WindowShadeButtonHint) != 0;
-                
+
             switch (sc) {
             case SC_TitleBarLabel:
                 rect = QRect(frameWidth, 0, width - (buttonWidth + frameWidth + 10), height);
@@ -3446,7 +3446,7 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
     switch (ct) {
     case CT_LineEdit:
     case CT_ComboBox:
-        {   
+        {
             HTHEME theme = pOpenThemeData(QWindowsXPStylePrivate::winId(widget), L"Button");
             MARGINS borderSize;
             if (theme) {
@@ -3458,14 +3458,14 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
                                               NULL,
                                               &borderSize);
                 if (result == S_OK) {
-                    sz += QSize(borderSize.cxLeftWidth + borderSize.cxRightWidth - 2, 
+                    sz += QSize(borderSize.cxLeftWidth + borderSize.cxRightWidth - 2,
                                 borderSize.cyBottomHeight + borderSize.cyTopHeight - 2);
                 }
-                sz += QSize(23, 0); //arrow button 
+                sz += QSize(23, 0); //arrow button
             }
         }
         break;
-    case CT_SpinBox: 
+    case CT_SpinBox:
         {
             //Spinbox adds frame twice
             sz = QWindowsStyle::sizeFromContents(ct, option, contentsSize, widget);

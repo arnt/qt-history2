@@ -473,7 +473,7 @@ static void qt_cleanlooks_draw_gradient(QPainter *painter, const QRect &rect, co
 }
 
 static void qt_cleanlooks_draw_buttongradient(QPainter *painter, const QRect &rect, const QColor &gradientStart,
-                                                const QColor &gradientMid, const QColor &gradientStop, Direction direction = TopDown, 
+                                                const QColor &gradientMid, const QColor &gradientStop, Direction direction = TopDown,
                                                 QBrush bgBrush = QBrush())
 {
         int x = rect.center().x();
@@ -509,9 +509,9 @@ static QString uniqueName(const QString &key, const QStyleOption *option, const 
 {
     QString tmp;
     const QStyleOptionComplex *complexOption = qstyleoption_cast<const QStyleOptionComplex *>(option);
-    tmp.sprintf("%s-%d-%d-%d-%dx%d", key.toLatin1().constData(), uint(option->state),
+    tmp.sprintf("%s-%d-%d-%lld-%dx%d", key.toLatin1().constData(), uint(option->state),
                 complexOption ? uint(complexOption->activeSubControls) : uint(0),
-                option->palette.serialNumber(), size.width(), size.height());
+                option->palette.cacheKey(), size.width(), size.height());
 #ifndef QT_NO_SPINBOX
     if (const QStyleOptionSpinBox *spinBox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
         tmp.append(QLatin1Char('-'));
@@ -1068,7 +1068,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             QColor highlightedGradientMidColor = option->palette.button().color().light(105);
             QColor highlightedGradientStopColor = buttonShadow.light(107);
             QColor gradientStartColor = option->palette.button().color().light(108);
-            
+
             QColor buttonColor = option->palette.button().color();
             QColor gradientMidColor = option->palette.button().color();
             QColor gradientStopColor;
@@ -1139,10 +1139,10 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
                               QPoint(r.left() + 1, r.bottom() - 2));
             painter->drawLine(QPoint(r.left() + 3, r.bottom() + 1),
                               QPoint(r.right() - 3, r.bottom() + 1));
-            
+
             QColor topShadow = darkOutline;
             topShadow.setAlpha(60);
-            
+
             painter->setPen(topShadow);
             painter->drawPoint(QPoint(r.right(), r.top() + 1));
             painter->drawPoint(QPoint(r.right() - 1, r.top() ));
@@ -1152,7 +1152,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             painter->drawPoint(QPoint(r.left(), r.bottom() - 1));
             painter->drawPoint(QPoint(r.left() + 1, r.top()));
             painter->drawPoint(QPoint(r.left(), r.top() + 1));
-            
+
             topShadow.setAlpha(30);
             painter->setPen(topShadow);
 
@@ -1901,7 +1901,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
                 if (checkable && checked) {
                     QStyleOption opt = *option;
                     if (act) {
-                        QColor activeColor = mergedColors(option->palette.background().color(), 
+                        QColor activeColor = mergedColors(option->palette.background().color(),
                                                         option->palette.highlight().color());
                         opt.palette.setBrush(QPalette::Button, activeColor);
                     }
@@ -1909,7 +1909,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
                     opt.rect = vCheckRect;
                     drawPrimitive(PE_PanelButtonCommand, &opt, painter, widget);
                 }
-                painter->drawPixmap(pmr.topLeft(), pixmap);                
+                painter->drawPixmap(pmr.topLeft(), pixmap);
             }
             if (selected) {
                 painter->setPen(menuItem->palette.highlightedText().color());
@@ -2369,11 +2369,11 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 
                 QRect r = rect.adjusted(0, 1, 0, -1);
                 if (spinBox->frame) {
-                
+
                     QColor topShadow = darkOutline;
                     topShadow.setAlpha(60);
                     cachePainter.setPen(topShadow);
-                    
+
                     // antialias corners
                     cachePainter.drawPoint(QPoint(r.right(), r.top() + 1));
                     cachePainter.drawPoint(QPoint(r.right() - 1, r.top() ));
@@ -2383,7 +2383,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     cachePainter.drawPoint(QPoint(r.left(), r.bottom() - 1));
                     cachePainter.drawPoint(QPoint(r.left() + 1, r.top()));
                     cachePainter.drawPoint(QPoint(r.left(), r.top() + 1));
-                    
+
                     // draw frame
                     topShadow.setAlpha(30);
                     cachePainter.setPen(topShadow);
@@ -2406,7 +2406,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     cachePainter.setPen(highlight);
                     cachePainter.drawLine(QPoint(r.left() + 3, r.bottom() + 1),
                                   QPoint(r.right() - 3, r.bottom() + 1));
-                    
+
                     cachePainter.setPen(QPen(darkOutline, 1));
 
                     // top and bottom lines
@@ -2628,7 +2628,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 painter->drawText(textRect, titleBar->text, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
 
             // min button
-            if ((titleBar->subControls & SC_TitleBarMinButton) && (titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint) && 
+            if ((titleBar->subControls & SC_TitleBarMinButton) && (titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint) &&
                 !(titleBar->titleBarState& Qt::WindowMinimized)) {
                 QRect minButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarMinButton, widget);
                 if (minButtonRect.isValid()) {
@@ -2649,7 +2649,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 }
             }
             // max button
-            if ((titleBar->subControls & SC_TitleBarMaxButton) && (titleBar->titleBarFlags & Qt::WindowMaximizeButtonHint) && 
+            if ((titleBar->subControls & SC_TitleBarMaxButton) && (titleBar->titleBarFlags & Qt::WindowMaximizeButtonHint) &&
                 !(titleBar->titleBarState & Qt::WindowMaximized)) {
                 QRect maxButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarMaxButton, widget);
                 if (maxButtonRect.isValid()) {
@@ -2658,7 +2658,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     qt_cleanlooks_draw_mdibutton(painter, titleBar, maxButtonRect, hover, sunken);
 
                     QRect maxButtonIconRect = maxButtonRect.adjusted(buttonMargin, buttonMargin, -buttonMargin, -buttonMargin);
-                    
+
                     painter->setPen(textColor);
                     painter->drawRect(maxButtonIconRect.adjusted(0, 0, -1, -1));
                     painter->drawLine(maxButtonIconRect.left() + 1, maxButtonIconRect.top() + 1,
@@ -2709,12 +2709,12 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                (titleBar->titleBarState & Qt::WindowMaximized)))) {
                 QRect normalButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarNormalButton, widget);
                 if (normalButtonRect.isValid()) {
-                    
+
                     bool hover = (titleBar->activeSubControls & SC_TitleBarNormalButton) && (titleBar->state & State_MouseOver);
                     bool sunken = (titleBar->activeSubControls & SC_TitleBarNormalButton) && (titleBar->state & State_Sunken);
                     QRect normalButtonIconRect = normalButtonRect.adjusted(buttonMargin, buttonMargin, -buttonMargin, -buttonMargin);
                     qt_cleanlooks_draw_mdibutton(painter, titleBar, normalButtonRect, hover, sunken);
-                    
+
                     QRect frontWindowRect = normalButtonIconRect.adjusted(0, 3, -3, 0);
                     painter->setPen(textColor);
                     painter->drawRect(frontWindowRect.adjusted(0, 0, -1, -1));
@@ -3053,7 +3053,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                         arrow = option->direction == Qt::LeftToRight ? PE_IndicatorArrowRight : PE_IndicatorArrowLeft;
                     else
                         arrow = PE_IndicatorArrowDown;
-                    
+
                     QStyleOption arrowOpt = *option;
                     arrowOpt.rect = scrollBarAddLine.adjusted(3, 3, -2, -2);
                     drawPrimitive(arrow, &arrowOpt, painter, widget);
@@ -3366,12 +3366,12 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     painter->setPen(Qt::white);
                     int yOff = horizontal ? 1 : 0;
                     int xOff = horizontal ? 0 : 1;
-                    painter->drawLine(innerBorder.topLeft() + QPoint(xOff, yOff) , 
+                    painter->drawLine(innerBorder.topLeft() + QPoint(xOff, yOff) ,
                                       innerBorder.topRight() + QPoint(-xOff, yOff));
-                    painter->drawLine(innerBorder.topLeft() + QPoint(xOff, yOff) , 
+                    painter->drawLine(innerBorder.topLeft() + QPoint(xOff, yOff) ,
                                       innerBorder.bottomLeft() + QPoint(xOff, -1));
                     painter->setPen(QPen(gradientStopColor, 0));
-                    painter->drawLine(innerBorder.topRight() - QPoint(xOff, 0), 
+                    painter->drawLine(innerBorder.topRight() - QPoint(xOff, 0),
                                       innerBorder.bottomRight() - QPoint(xOff, 0));
 
                     painter->setPen(QPen(outline.dark(110), 1));

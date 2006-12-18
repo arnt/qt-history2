@@ -476,7 +476,7 @@ static void qBrushSetAlphaF(QBrush *brush, qreal alpha)
         // Modify the texture - ridiculously expensive.
         QPixmap texture = brush->texture();
         QPixmap pixmap;
-        QString name = QString::fromLatin1("qbrushtexture-alpha-%1-%2").arg(alpha).arg(texture.serialNumber());
+        QString name = QString::fromLatin1("qbrushtexture-alpha-%1-%2").arg(alpha).arg(texture.cacheKey());
         if (UsePixmapCache && !QPixmapCache::find(name, pixmap)) {
             QImage image = texture.toImage();
             QRgb *rgb = reinterpret_cast<QRgb *>(image.bits());
@@ -537,7 +537,7 @@ static QBrush qBrushLight(QBrush brush, int light)
         // Modify the texture - ridiculously expensive.
         QPixmap texture = brush.texture();
         QPixmap pixmap;
-        QString name = QString::fromLatin1("qbrushtexture-light-%1-%2").arg(light).arg(texture.serialNumber());
+        QString name = QString::fromLatin1("qbrushtexture-light-%1-%2").arg(light).arg(texture.cacheKey());
         if (UsePixmapCache && !QPixmapCache::find(name, pixmap)) {
             QImage image = texture.toImage();
             QRgb *rgb = reinterpret_cast<QRgb *>(image.bits());
@@ -596,7 +596,7 @@ static QBrush qBrushDark(QBrush brush, int dark)
         // Modify the texture - ridiculously expensive.
         QPixmap texture = brush.texture();
         QPixmap pixmap;
-        QString name = QString::fromLatin1("qbrushtexture-dark-%1-%2").arg(dark).arg(brush.texture().serialNumber());
+        QString name = QString::fromLatin1("qbrushtexture-dark-%1-%2").arg(dark).arg(brush.texture().cacheKey());
         if (UsePixmapCache && !QPixmapCache::find(name, pixmap)) {
             QImage image = texture.toImage();
             QRgb *rgb = reinterpret_cast<QRgb *>(image.bits());
@@ -713,9 +713,9 @@ static QString uniqueName(const QString &key, const QStyleOption *option, const 
 {
     QString tmp;
     const QStyleOptionComplex *complexOption = qstyleoption_cast<const QStyleOptionComplex *>(option);
-    tmp.sprintf("%s-%d-%d-%d-%d-%dx%d", key.toLatin1().constData(), uint(option->state),
+    tmp.sprintf("%s-%d-%d-%d-%lld-%dx%d", key.toLatin1().constData(), uint(option->state),
                 option->direction, complexOption ? uint(complexOption->activeSubControls) : uint(0),
-                option->palette.serialNumber(), size.width(), size.height());
+                option->palette.cacheKey(), size.width(), size.height());
     return tmp;
 }
 

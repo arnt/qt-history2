@@ -1331,7 +1331,7 @@ QPixmap QPixmap::scaledToHeight(int h, Qt::TransformationMode mode) const
     defaultDepth() function returns the default depth, i.e. the depth
     used by the application on the given screen.
 
-    The serialNumber() function returns a number that uniquely
+    The cacheKey() function returns a number that uniquely
     identifies the contents of the QPixmap object.
 
     The x11Info() function returns information about the configuration

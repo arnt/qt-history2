@@ -445,7 +445,7 @@ QImageData::~QImageData()
     The format(), bytesPerLine(), and numBytes() functions provide
     low-level information about the data stored in the image.
 
-    The serialNumber() function returns a number that uniquely
+    The cacheKey() function returns a number that uniquely
     identifies the contents of this QImage object.
     \endtable
 

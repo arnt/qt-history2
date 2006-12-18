@@ -156,7 +156,7 @@ void QUrlModel::setUrl(const QModelIndex &index, const QUrl &url, const QModelIn
         if (index.data().toString() != newName)
             setData(index, newName);
         QIcon oldIcon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
-        if (oldIcon.serialNumber() != newIcon.serialNumber())
+        if (oldIcon.cacheKey() != newIcon.cacheKey())
             setData(index, newIcon, Qt::DecorationRole);
     }
 }

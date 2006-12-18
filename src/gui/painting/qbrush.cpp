@@ -826,7 +826,7 @@ bool QBrush::operator==(const QBrush &b) const
         case Qt::TexturePattern: {
             QPixmap &us = ((QTexturedBrushData *) d)->pixmap();
             QPixmap &them = ((QTexturedBrushData *) b.d)->pixmap();
-            return ((us.isNull() && them.isNull()) || us.serialNumber() == them.serialNumber());
+            return ((us.isNull() && them.isNull()) || us.cacheKey() == them.cacheKey());
         }
         case Qt::LinearGradientPattern:
         case Qt::RadialGradientPattern:

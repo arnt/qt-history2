@@ -2075,7 +2075,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
             if (dw->isFloating())
                 icon = dw->windowIcon();
             if (!icon.isNull()
-                    && icon.serialNumber() != qApp->windowIcon().serialNumber()) {
+                    && icon.cacheKey() != qApp->windowIcon().cacheKey()) {
                 QSize sz = icon.pixmap(r.height()).size();
                 iconRect = QRect(left, rect.center().y() - sz.height()/2,
                                     sz.width(), sz.height());
