@@ -16,6 +16,7 @@
 #include "qbitmap.h"
 #include "qstylepainter.h"
 #include "qstyleoption.h"
+#include "qdebug.h"
 #include <private/qwidget_p.h>
 
 class QFocusFramePrivate : public QWidgetPrivate
@@ -37,7 +38,7 @@ void QFocusFramePrivate::update()
     Q_Q(QFocusFrame);
     q->setParent(widget->parentWidget());
     updateSize();
-    if (q->parentWidget()->rect().contains(q->geometry())) {
+    if (q->parentWidget()->rect().intersects(q->geometry())) {
         if (q->style()->styleHint(QStyle::SH_FocusFrame_AboveWidget, 0, q))
             q->raise();
         else
@@ -57,6 +58,7 @@ void QFocusFramePrivate::updateSize()
                widget->width()+(hmargin*2), widget->height()+(vmargin*2));
     if(q->geometry() == geom)
         return;
+
     q->setGeometry(geom);
     QStyleHintReturnMask mask;
     QStyleOption opt;
@@ -210,7 +212,10 @@ QFocusFrame::eventFilter(QObject *o, QEvent *e)
             setPalette(d->widget->palette());
             break;
         case QEvent::ZOrderChange:
-            stackUnder(d->widget);
+            if (style()->styleHint(QStyle::SH_FocusFrame_AboveWidget, 0, this))
+                raise();
+            else
+                stackUnder(d->widget);
             break;
         case QEvent::Destroy:
             setWidget(0);
