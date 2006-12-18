@@ -1845,7 +1845,14 @@ static void do_size_hints(QWidget* widget, QWExtra *x)
         s.flags |= PSize;
     }
     s.flags |= PWinGravity;
-    s.win_gravity = QApplication::isRightToLeft() ? NorthEastGravity : NorthWestGravity;
+    if (widget->testAttribute(Qt::WA_Moved) && x->topextra && !x->topextra->posFromMove) {
+        // position came from setGeometry(), tell the WM that we don't
+        // want our window gravity-shifted
+        s.win_gravity = StaticGravity;
+    } else {
+        // position came from move()
+        s.win_gravity = QApplication::isRightToLeft() ? NorthEastGravity : NorthWestGravity;
+    }
     XSetWMNormalHints(X11->display, widget->internalWinId(), &s);
 }
 
