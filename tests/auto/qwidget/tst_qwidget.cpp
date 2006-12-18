@@ -2939,17 +2939,17 @@ class ShowHideEventWidget : public QWidget
 {
 public:
     int numberOfShowEvents, numberOfHideEvents;
-    
+
     ShowHideEventWidget(QWidget *parent = 0)
         : QWidget(parent), numberOfShowEvents(0), numberOfHideEvents(0)
     { }
-    
+
     void create()
     { QWidget::create(); }
-    
+
     void showEvent(QShowEvent *)
     { ++numberOfShowEvents; }
-    
+
     void hideEvent(QHideEvent *)
     { ++numberOfHideEvents; }
 };
@@ -2961,7 +2961,7 @@ void tst_QWidget::showHideEvent_data()
     QTest::addColumn<bool>("create");
     QTest::addColumn<int>("expectedShowEvents");
     QTest::addColumn<int>("expectedHideEvents");
-    
+
     QTest::newRow("window: only show")
             << true
             << false
@@ -3007,7 +3007,7 @@ void tst_QWidget::showHideEvent()
     QFETCH(bool, create);
     QFETCH(int, expectedShowEvents);
     QFETCH(int, expectedHideEvents);
-    
+
     ShowHideEventWidget widget;
     if (show)
         widget.show();
@@ -3015,7 +3015,7 @@ void tst_QWidget::showHideEvent()
         widget.hide();
     if (create && !widget.testAttribute(Qt::WA_WState_Created))
         widget.create();
-    
+
     QCOMPARE(widget.numberOfShowEvents, expectedShowEvents);
     QCOMPARE(widget.numberOfHideEvents, expectedHideEvents);
 }
@@ -3053,7 +3053,8 @@ void tst_QWidget::setWindowGeometry_data()
 
     QList<QRect> rects;
     rects << QRect(100, 100, 200, 200)
-          << QApplication::desktop()->availableGeometry().adjusted(50, 50, -50, -50)
+          << QApplication::desktop()->availableGeometry().adjusted(50, 100, -50, -100)
+          << QApplication::desktop()->availableGeometry().adjusted(100, 100, -100, -100)
           << QRect(100, 100, 0, 200)
           << QRect(100, 100, 200, 0)
           << QRect(100, 100, 0, 0);
@@ -3082,18 +3083,14 @@ void tst_QWidget::setWindowGeometry()
     QFETCH(QRect, rect);
     QFETCH(int, windowFlags);
 
-    // we expect that all toplevels will have at least 1x1 size
-    QRect expectedRect = rect;
-    expectedRect.setSize(rect.size().expandedTo(QSize(1, 1)));
-
     {
         // test setGeometry() without actually showing the window
         QWidget widget;
         if (windowFlags != 0)
             widget.setWindowFlags(Qt::WindowFlags(windowFlags));
         widget.setGeometry(rect);
-        QApplication::processEvents();
-        QCOMPARE(widget.geometry(), expectedRect);
+        QTest::qWait(100);
+        QCOMPARE(widget.geometry(), rect);
     }
 
     {
@@ -3106,13 +3103,13 @@ void tst_QWidget::setWindowGeometry()
 #ifdef Q_WS_X11
         qt_x11_wait_for_window_manager(&widget);
 #endif
-        QApplication::processEvents();
-        QCOMPARE(widget.geometry(), expectedRect);
-        
+        QTest::qWait(100);
+        QCOMPARE(widget.geometry(), rect);
+
         // now hide
         widget.hide();
-        QApplication::processEvents();
-        QCOMPARE(widget.geometry(), expectedRect);
+        QTest::qWait(100);
+        QCOMPARE(widget.geometry(), rect);
     }
 
     {
@@ -3125,13 +3122,13 @@ void tst_QWidget::setWindowGeometry()
         qt_x11_wait_for_window_manager(&widget);
 #endif
         widget.setGeometry(rect);
-        QApplication::processEvents();
-        QCOMPARE(widget.geometry(), expectedRect);
-        
+        QTest::qWait(100);
+        QCOMPARE(widget.geometry(), rect);
+
         // now hide
         widget.hide();
-        QApplication::processEvents();
-        QCOMPARE(widget.geometry(), expectedRect);
+        QTest::qWait(100);
+        QCOMPARE(widget.geometry(), rect);
     }
 }
 
@@ -3148,51 +3145,51 @@ void tst_QWidget::windowMove()
     {
         // test setGeometry() without actually showing the window
         QWidget widget;
+        widget.resize(rect.size());
         if (windowFlags != 0)
             widget.setWindowFlags(Qt::WindowFlags(windowFlags));
-        widget.resize(rect.size());
         widget.move(rect.topLeft());
-        QApplication::processEvents();
+        QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
     }
 
     {
         // move() first, then show()
         QWidget widget;
+        widget.resize(rect.size());
         if (windowFlags != 0)
             widget.setWindowFlags(Qt::WindowFlags(windowFlags));
-        widget.resize(rect.size());
         widget.move(rect.topLeft());
         widget.show();
 #ifdef Q_WS_X11
         qt_x11_wait_for_window_manager(&widget);
 #endif
-        QApplication::processEvents();
+        QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
 
         // now hide
         widget.hide();
-        QApplication::processEvents();
+        QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
     }
 
     {
         // show() first, then move()
         QWidget widget;
+        widget.resize(rect.size());
         if (windowFlags != 0)
             widget.setWindowFlags(Qt::WindowFlags(windowFlags));
-        widget.resize(rect.size());
         widget.show();
 #ifdef Q_WS_X11
         qt_x11_wait_for_window_manager(&widget);
 #endif
         widget.move(rect.topLeft());
-        QApplication::processEvents();
+        QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
 
         // now hide
         widget.hide();
-        QApplication::processEvents();
+        QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
     }
 }
