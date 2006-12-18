@@ -177,6 +177,7 @@ typedef HRESULT (WINAPI *PtrGetThemeRect)(HTHEME hTheme, int iPartId, int iState
 typedef HRESULT (WINAPI *PtrGetThemeString)(HTHEME hTheme, int iPartId, int iStateId, int iPropId, OUT LPWSTR pszBuff, int cchMaxBuffChars);
 typedef HRESULT (WINAPI *PtrGetThemeBackgroundRegion)(HTHEME hTheme, OPTIONAL HDC hdc, int iPartId, int iStateId, const RECT *pRect, OUT HRGN *pRegion);
 typedef BOOL (WINAPI *PtrIsThemeBackgroundPartiallyTransparent)(HTHEME hTheme, int iPartId, int iStateId);
+
 static PtrIsAppThemed pIsAppThemed = 0;
 static PtrIsThemeActive pIsThemeActive = 0;
 static PtrOpenThemeData pOpenThemeData = 0;
@@ -3722,6 +3723,15 @@ QIcon QWindowsXPStyle::standardIconImplementation(StandardPixmap standardIcon,
     }
 
     return QWindowsStyle::standardIconImplementation(standardIcon, option, widget);
+}
+
+/*!
+    \internal
+
+    Constructs a QWindowsXPStyle object.
+*/
+QWindowsXPStyle::QWindowsXPStyle(QWindowsXPStylePrivate &dd) : QWindowsStyle(dd)
+{
 }
 
 

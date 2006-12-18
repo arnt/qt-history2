@@ -240,6 +240,7 @@ Configure::Configure( int& argc, char** argv )
 
     dictionary[ "STYLE_WINDOWS" ]   = "yes";
     dictionary[ "STYLE_WINDOWSXP" ] = "auto";
+    dictionary[ "STYLE_WINDOWSVISTA" ] = "auto";
     dictionary[ "STYLE_PLASTIQUE" ] = "yes";
     dictionary[ "STYLE_CLEANLOOKS" ]= "yes";
     dictionary[ "STYLE_POCKETPC" ]  = "no";
@@ -447,6 +448,11 @@ void Configure::parseCmdLine()
 	    dictionary[ "STYLE_WINDOWSXP" ] = "yes";
 	else if( configCmdLine.at(i) == "-no-style-windowsxp" )
 	    dictionary[ "STYLE_WINDOWSXP" ] = "no";
+
+	else if( configCmdLine.at(i) == "-qt-style-windowsvista" )
+	    dictionary[ "STYLE_WINDOWSVISTA" ] = "yes";
+	else if( configCmdLine.at(i) == "-no-style-windowsvista" )
+	    dictionary[ "STYLE_WINDOWSVISTA" ] = "no";
 
 	else if( configCmdLine.at(i) == "-qt-style-plastique" )
 	    dictionary[ "STYLE_PLASTIQUE" ] = "yes";
@@ -1089,6 +1095,7 @@ bool Configure::displayHelp()
 
         desc("STYLE_WINDOWS", "yes", "",                "  windows", ' ');
         desc("STYLE_WINDOWSXP", "auto", "",             "  windowsxp", ' ');
+        desc("STYLE_WINDOWSVISTA", "auto", "",          "  windowsvista", ' ');
         desc("STYLE_PLASTIQUE", "yes", "",              "  plastique", ' ');
         desc("STYLE_CLEANLOOKS", "yes", "",             "  cleanlooks", ' ');
         desc("STYLE_MOTIF", "yes", "",                  "  motif", ' ');
@@ -1495,6 +1502,9 @@ void Configure::generateOutputVars()
     if ( dictionary[ "STYLE_WINDOWSXP" ] == "yes" )
 	qmakeStyles += "windowsxp";
 
+    if ( dictionary[ "STYLE_WINDOWSVISTA" ] == "yes" )
+	qmakeStyles += "windowsvista";
+
     if ( dictionary[ "STYLE_MOTIF" ] == "yes" )
 	qmakeStyles += "motif";
 
@@ -1834,6 +1844,7 @@ void Configure::generateConfigfiles()
         if(dictionary["STYLE_PLASTIQUE"] != "yes")   qconfigList += "QT_NO_STYLE_PLASTIQUE";
         if(dictionary["STYLE_CLEANLOOKS"] != "yes")   qconfigList += "QT_NO_STYLE_CLEANLOOKS";
 	if(dictionary["STYLE_WINDOWSXP"] != "yes")   qconfigList += "QT_NO_STYLE_WINDOWSXP";
+	if(dictionary["STYLE_WINDOWSVISTA"] != "yes")   qconfigList += "QT_NO_STYLE_WINDOWSVISTA";
 	if(dictionary["STYLE_MOTIF"] != "yes")       qconfigList += "QT_NO_STYLE_MOTIF";
 	if(dictionary["STYLE_CDE"] != "yes")         qconfigList += "QT_NO_STYLE_CDE";
 
@@ -2034,6 +2045,7 @@ void Configure::displayConfig()
     cout << "Styles:" << endl;
     cout << "    Windows................." << dictionary[ "STYLE_WINDOWS" ] << endl;
     cout << "    Windows XP.............." << dictionary[ "STYLE_WINDOWSXP" ] << endl;
+    cout << "    Windows Vista..........." << dictionary[ "STYLE_WINDOWSVISTA" ] << endl;
     cout << "    Plastique..............." << dictionary[ "STYLE_PLASTIQUE" ] << endl;
     cout << "    Cleanlooks.............." << dictionary[ "STYLE_CLEANLOOKS" ] << endl;
     cout << "    Motif..................." << dictionary[ "STYLE_MOTIF" ] << endl;

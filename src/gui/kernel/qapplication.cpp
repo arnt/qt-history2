@@ -1098,7 +1098,10 @@ QStyle *QApplication::style()
 #  if defined(Q_WS_WIN) && defined(Q_OS_TEMP)
             style = QLatin1String("PocketPC");
 #elif defined(Q_WS_WIN)
-            if ((QSysInfo::WindowsVersion >= QSysInfo::WV_XP
+            if ((QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA
+                && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based))
+                style = QLatin1String("WindowsVista");
+	        else if ((QSysInfo::WindowsVersion >= QSysInfo::WV_XP
                 && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based))
                 style = QLatin1String("WindowsXP");
             else

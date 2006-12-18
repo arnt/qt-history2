@@ -29,6 +29,9 @@
 #ifndef QT_NO_STYLE_WINDOWSXP
 #include "qwindowsxpstyle.h"
 #endif
+#ifndef QT_NO_STYLE_WINDOWSVISTA
+#include "qwindowsvistastyle.h"
+#endif
 
 #if !defined(QT_NO_STYLE_MAC) && defined(Q_WS_MAC)
 #  include <private/qt_mac_p.h>
@@ -99,6 +102,11 @@ QStyle *QStyleFactory::create(const QString& key)
         ret = new QWindowsXPStyle;
     else
 #endif
+#ifndef QT_NO_STYLE_WINDOWSVISTA
+    if (style == QLatin1String("windowsvista"))
+        ret = new QWindowsVistaStyle;
+    else
+#endif
 #ifndef QT_NO_STYLE_MOTIF
     if (style == QLatin1String("motif"))
         ret = new QMotifStyle;
@@ -160,6 +168,10 @@ QStringList QStyleFactory::keys()
 #ifndef QT_NO_STYLE_WINDOWSXP
     if (!list.contains(QLatin1String("WindowsXP")))
         list << QLatin1String("WindowsXP");
+#endif
+#ifndef QT_NO_STYLE_WINDOWSVISTA
+    if (!list.contains(QLatin1String("WindowsVista")))
+        list << QLatin1String("WindowsVista");
 #endif
 #ifndef QT_NO_STYLE_MOTIF
     if (!list.contains(QLatin1String("Motif")))

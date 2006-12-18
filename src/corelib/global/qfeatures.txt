@@ -656,6 +656,13 @@ Requires: STYLE_WINDOWS
 Name: QWindowsXPStyle
 SeeAlso: ???
 
+Feature: STYLE_WINDOWSVISTA
+Description: Supports a Microsoft WindowsVista-like look and feel.
+Section: Styles
+Requires: STYLE_WINDOWS STYLE_WINDOWSXP
+Name: QWindowsVistaStyle
+SeeAlso: ???
+
 Feature: STYLE_CLEANLOOKS
 Description: Supports a Gnome CleanLooks-like look and feel.
 Section: Styles

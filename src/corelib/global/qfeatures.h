@@ -331,6 +331,11 @@
 #define QT_NO_STYLE_WINDOWSXP
 #endif
 
+// QWindowsVistaStyle
+#if !defined(QT_NO_STYLE_WINDOWSVISTA) && (defined(QT_NO_STYLE_WINDOWS) || defined(QT_NO_STYLE_WINDOWSXP))
+#define QT_NO_STYLE_WINDOWSVISTA
+#endif
+
 // SXE
 #if !defined(QT_NO_SXE) && (defined(QT_NO_QWS_MULTIPROCESS))
 #define QT_NO_SXE
