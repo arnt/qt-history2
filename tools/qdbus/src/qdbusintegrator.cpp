@@ -51,6 +51,7 @@ struct QDBusPendingCall
     int methodIdx;
     DBusPendingCall *pending;
     const QDBusConnectionPrivate *connection;
+    QDBusMessage message;
 };
 
 class CallDeliveryEvent: public QEvent
@@ -1324,9 +1325,8 @@ void QDBusConnectionPrivate::messageResultReceived(DBusPendingCall *pending, voi
         else
             qDBusDebug() << "Deliver failed!";
 
-        // ### emit a signal or call a slot if the method retuned an error
-        //if (msg.type() == QDBusMessage::ErrorMessage)
-        //    emit call->errorHandler->callWithCallbackFailed(QDBusError(msg), call->message);
+        if (msg.type() == QDBusMessage::ErrorMessage)
+            emit connection->callWithCallbackFailed(QDBusError(msg), call->message);
     }
     dbus_pending_call_unref(pending);
     delete call;
@@ -1381,17 +1381,17 @@ QDBusMessage QDBusConnectionPrivate::sendWithReply(const QDBusMessage &message,
         }
 
         if (localBlockingCall) {
-	  QDBusMessage messageWithSignature = QDBusMessagePrivate::updateSignature(message, msg);
-	  QDBusMessagePrivate::setLocal(&messageWithSignature, true);
+            QDBusMessage messageWithSignature = QDBusMessagePrivate::updateSignature(message, msg);
+            QDBusMessagePrivate::setLocal(&messageWithSignature, true);
 
-	  bool handled = false;
+            bool handled = false;
             int type = dbus_message_get_type(msg);
-	  if (type == DBUS_MESSAGE_TYPE_SIGNAL)
-	      handled = handleSignal(messageWithSignature);
-	  else if (type == DBUS_MESSAGE_TYPE_METHOD_CALL)
-	      handled = handleObjectCall(messageWithSignature);
+            if (type == DBUS_MESSAGE_TYPE_SIGNAL)
+                handled = handleSignal(messageWithSignature);
+            else if (type == DBUS_MESSAGE_TYPE_METHOD_CALL)
+                handled = handleObjectCall(messageWithSignature);
 
-	  if (!handled)
+            if (!handled)
                 handled = activateInternalFilters(&rootNode, message);
             if (handled) {
                 return messageWithSignature;
@@ -1401,8 +1401,8 @@ QDBusMessage QDBusConnectionPrivate::sendWithReply(const QDBusMessage &message,
                         QString::fromLocal8Bit("the sender and receiver are in the same thread"));
             }
         } else {
-	  QDBusMessage amsg;
-	  qDBusDebug() << "sending message:" << message;
+            QDBusMessage amsg;
+            qDBusDebug() << "sending message:" << message;
             DBusMessage *reply = dbus_connection_send_with_reply_and_block(connection, msg, timeout, &error);
 
             handleError();
@@ -1481,6 +1481,7 @@ int QDBusConnectionPrivate::sendWithReplyAsync(const QDBusMessage &message, QObj
         pcall->methodIdx = slotIdx;
         pcall->connection = this;
         pcall->pending = pending;
+        pcall->message = message;
         dbus_pending_call_set_notify(pending, qDBusResultReceived, pcall, 0);
 
         return serial;

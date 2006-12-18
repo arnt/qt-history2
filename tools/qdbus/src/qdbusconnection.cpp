@@ -331,6 +331,8 @@ QDBusConnection QDBusConnection::connectToBus(BusType type, const QString &name)
 
     QObject::connect(d->busService, SIGNAL(serviceOwnerChanged(QString,QString,QString)),
                      d, SIGNAL(serviceOwnerChanged(QString,QString,QString)));
+    QObject::connect(d, SIGNAL(callWithCallbackFailed(QDBusError,QDBusMessage)),
+                     d->busService, SIGNAL(callWithCallbackFailed(QDBusError,QDBusMessage)));
 
     return retval;
 }
@@ -364,6 +366,8 @@ QDBusConnection QDBusConnection::connectToBus(const QString &address,
                                  // avoid cyclic refcounting
     QObject::connect(d->busService, SIGNAL(serviceOwnerChanged(QString,QString,QString)),
                      d, SIGNAL(serviceOwnerChanged(QString,QString,QString)));
+    QObject::connect(d, SIGNAL(callWithCallbackFailed(QDBusError,QDBusMessage)),
+                     d->busService, SIGNAL(callWithCallbackFailed(QDBusError,QDBusMessage)));
 
     return retval;
 }

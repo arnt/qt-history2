@@ -181,6 +181,7 @@ public slots:
 
 signals:
     void serviceOwnerChanged(const QString &name, const QString &oldOwner, const QString &newOwner);
+    void callWithCallbackFailed(const QDBusError &error, const QDBusMessage &message);
 
 public:
     // public member variables
