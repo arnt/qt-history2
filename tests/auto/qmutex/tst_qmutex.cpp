@@ -32,8 +32,8 @@ public:
 private slots:
     void tryLock();
     void lock_unlock_locked_tryLock();
-
     void stressTest();
+    void tryLockRace();
 };
 
 static const int iterations = 100;
@@ -394,6 +394,41 @@ void tst_QMutex::stressTest()
     for (int i = 1; i < threadCount; ++i)
         QVERIFY(threads[i].wait(10000));
     qDebug("locked %d times", int(StressTestThread::lockCount));
+}
+
+class TryLockRaceThread : public QThread
+{
+public:
+    static QMutex mutex;
+    
+    void run()
+    {
+        QTime t;
+        t.start();
+        do {
+            if (mutex.tryLock()) 
+                mutex.unlock();
+        } while (t.elapsed() < 20000);
+    }
+};
+QMutex TryLockRaceThread::mutex;
+
+void tst_QMutex::tryLockRace()
+{
+    // mutex not in use, should be able to lock it
+    QVERIFY(TryLockRaceThread::mutex.tryLock());
+    TryLockRaceThread::mutex.unlock();
+
+    // try to break tryLock
+    TryLockRaceThread thread[threadCount];
+    for (int i = 0; i < threadCount; ++i)
+        thread[i].start();
+    for (int i = 0; i < threadCount; ++i)
+        QVERIFY(thread[i].wait());
+    
+    // mutex not in use, should be able to lock it
+    QVERIFY(TryLockRaceThread::mutex.tryLock());
+    TryLockRaceThread::mutex.unlock();
 }
 
 QTEST_MAIN(tst_QMutex)

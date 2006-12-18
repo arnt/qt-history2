@@ -208,20 +208,9 @@ bool QMutex::tryLock()
 {
     ulong self = d->self();
 
-    int contender;
-    forever {
-        contender = d->contenders;
-        if (d->contenders.testAndSetAcquire(contender, contender + 1))
-            break;
-    }
-
-    bool isLocked = contender == 0;
+    bool isLocked = d->contenders.testAndSetAcquire(0, 1);
     if (!isLocked) {
-        isLocked = d->recursive && d->owner == self;
-
-        // we're not going to wait for lock
-        d->contenders.deref();
-
+        bool isLocked = d->recursive && d->owner == self;
         if (!isLocked) {
             // some other thread has the mutex locked, or we tried to
             // recursively lock an non-recursive mutex
