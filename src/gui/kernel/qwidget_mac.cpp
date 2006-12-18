@@ -57,6 +57,7 @@
  *****************************************************************************/
 typedef QHash<Qt::WindowType, WindowGroupRef> StaysOnTopHash;
 Q_GLOBAL_STATIC(StaysOnTopHash, qt_mac_stays_on_top)
+static WindowGroupRef qt_mac_tooltip_group = 0;
 QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
 const UInt32 kWidgetCreatorQt = 'cute';
@@ -299,6 +300,23 @@ static WindowGroupRef qt_mac_get_stays_on_top_group(Qt::WindowType type)
     }
     RetainWindowGroup(group);
     return group;
+}
+
+static void qt_mac_set_window_group_to_tooltip(WindowRef windowRef)
+{
+    // Since new groups are created for 'stays on top' windows, the
+    // same must be done for tooltips. Otherwise, tooltips would be drawn
+    // below 'stays on top' widgets  
+    if (qt_mac_tooltip_group){
+        RetainWindowGroup(qt_mac_tooltip_group);
+    } else {
+        CreateWindowGroup(kWindowActivationScopeNone, &qt_mac_tooltip_group);
+        CGWindowLevel group_level;        
+        GetWindowGroupLevelOfType(GetWindowGroupOfClass(kHelpWindowClass), kWindowGroupLevelActive, &group_level);
+        SetWindowGroupLevel(qt_mac_tooltip_group, group_level);
+        SetWindowGroupParent(qt_mac_tooltip_group, GetWindowGroupOfClass(kAllWindowClasses));
+    }
+    SetWindowGroup(windowRef, qt_mac_tooltip_group);
 }
 
 void qt_mac_set_widget_is_opaque(QWidget *w, bool o)
@@ -1326,7 +1344,9 @@ void QWidgetPrivate::createWindow_sys()
         qt_mac_release_window_group(topExtra->group);
         topExtra->group = 0;
     }
-    if (flags & Qt::WindowStaysOnTopHint) {
+    if (type == Qt::ToolTip)
+        qt_mac_set_window_group_to_tooltip(windowRef);
+    else if (flags & Qt::WindowStaysOnTopHint) {
         topExtra->group = qt_mac_get_stays_on_top_group(type);
         SetWindowGroup(windowRef, topExtra->group);
     } else if (grp) {
