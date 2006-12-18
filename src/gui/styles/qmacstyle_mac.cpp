@@ -3039,11 +3039,10 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
         }
         break;
     case CE_FocusFrame: {
-        SInt32 fo;
-        GetThemeMetric(kThemeMetricFocusRectOutset, &fo); // This value is deprecated...
-        ++fo; // ...therefore make it a bit nicer.
-        HIRect hirect = CGRectMake(fo, fo, opt->rect.width() - 2 * fo,
-                                   opt->rect.height() - 2 * fo);
+        int xOff = pixelMetric(PM_FocusFrameHMargin, opt, w) + 1;
+        int yOff = pixelMetric(PM_FocusFrameVMargin, opt, w) + 1;
+        HIRect hirect = CGRectMake(xOff, yOff, opt->rect.width() - 2 * xOff,
+                                   opt->rect.height() - 2 * yOff);
         HIThemeDrawFocusRect(&hirect, true, QMacCGContext(p), kHIThemeOrientationNormal);
         break; }
     case CE_MenuItem:
@@ -4838,8 +4837,6 @@ bool QMacStyle::event(QEvent *e)
                 }
             }
 #endif
-            if (!(top && (f->width() < top->width() - 5 || f->height() < top->height() - 5)))
-                f = 0;
         }
         if (f) {
 #if 1
