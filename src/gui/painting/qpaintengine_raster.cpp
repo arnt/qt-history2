@@ -1027,7 +1027,7 @@ void QRasterPaintEngine::updateMatrix(const QTransform &matrix)
 
     // 1/10000 == 0.0001, so we have good enough res to cover curves
     // that span the entire widget...
-    d->inverseScale = d->txop <= QPainterPrivate::TxTranslate ? 1
+    d->inverseScale = d->txop <= QTransform::TxTranslate ? 1
                       : qMax(1 / qMax( qMax(qAbs(matrix.m11()), qAbs(matrix.m22())),
                                        qMax(qAbs(matrix.m12()), qAbs(matrix.m21())) ),
                              qreal(0.0001));
@@ -1208,7 +1208,7 @@ void QRasterPaintEnginePrivate::updateMatrixData(QSpanData *spanData, const QBru
     if (b.d->hasTransform) {
         spanData->setupMatrix(b.transform() * m, txop, bilinear);
     } else {
-        if (txop <= QPainterPrivate::TxTranslate) {
+        if (txop <= QTransform::TxTranslate) {
             // specialize setupMatrix for translation matrices
             // to avoid needless matrix inversion
             spanData->m11 = 1;
