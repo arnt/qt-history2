@@ -10,7 +10,7 @@ exists(/usr/include/boost/spirit.hpp) {
 DEFINES += SRCDIR=\\\"$$PWD\\\"
 
 HEADERS += using-namespaces.h no-keywords.h task87883.h c-comments.h backslash-newlines.h oldstyle-casts.h \
-           slots-with-void-template.h qinvokable.h namespaced-flags.h
+           slots-with-void-template.h qinvokable.h namespaced-flags.h trigraphs.h
 SOURCES += tst_moc.cpp
 
 QT += sql network svg
