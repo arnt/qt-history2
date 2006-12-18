@@ -324,6 +324,9 @@ void QMessageBoxPrivate::updateSize()
 {
     Q_Q(QMessageBox);
 
+    if (!q->isVisible())
+        return;
+
     QSize screenSize = QApplication::desktop()->availableGeometry(QCursor::pos()).size();
 #ifdef Q_WS_QWS
     // the width of the screen, less the window border.
@@ -715,8 +718,10 @@ void QMessageBox::addButton(QAbstractButton *button, ButtonRole role)
 */
 QPushButton *QMessageBox::addButton(const QString& text, ButtonRole role)
 {
+    Q_D(QMessageBox);
     QPushButton *pushButton = new QPushButton(text);
     addButton(pushButton, role);
+    d->updateSize();
     return pushButton;
 }
 
@@ -754,6 +759,7 @@ void QMessageBox::removeButton(QAbstractButton *button)
     if (d->defaultButton == button)
         d->defaultButton = 0;
     d->buttonBox->removeButton(button);
+    d->updateSize();
 }
 
 /*!
@@ -776,6 +782,7 @@ void QMessageBox::setStandardButtons(StandardButtons buttons)
     if (!buttonList.contains(d->defaultButton))
         d->defaultButton = 0;
     d->autoAddOkButton = false;
+    d->updateSize();
 }
 
 QMessageBox::StandardButtons QMessageBox::standardButtons() const
@@ -1069,6 +1076,7 @@ void QMessageBox::setIconPixmap(const QPixmap &pixmap)
     Q_D(QMessageBox);
     d->iconLabel->setPixmap(pixmap);
     d->iconLabel->setFixedSize(d->iconLabel->sizeHint());
+    d->updateSize();
     d->icon = NoIcon;
 }
 
@@ -1095,6 +1103,7 @@ void QMessageBox::setTextFormat(Qt::TextFormat format)
     d->label->setTextFormat(format);
     d->label->setWordWrap(format == Qt::RichText
                     || (format == Qt::AutoText && Qt::mightBeRichText(d->label->text())));
+    d->updateSize();
 }
 
 /*!

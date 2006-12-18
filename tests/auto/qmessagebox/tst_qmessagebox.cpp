@@ -80,6 +80,9 @@ private slots:
     void instanceBinaryCompat();
 
     void testSymbols();
+
+    void updateSize();
+
 private:
     int keyToSend;
 };
@@ -562,6 +565,24 @@ void tst_QMessageBox::detailsText()
     QString text("This is the details text.");
     box.setDetailedText(text);
     QCOMPARE(box.detailedText(), text);
+}
+
+void tst_QMessageBox::updateSize()
+{
+    QMessageBox box;
+    box.setText("This is awesome");
+    box.show();
+    QSize oldSize = box.size();
+    QString longText;
+    for (int i = 0; i < 20; i++)
+        longText += box.text();
+    box.setText(longText);
+    QVERIFY(box.size() != oldSize); // should have grown
+    QVERIFY(box.width() > oldSize.width() || box.height() > oldSize.height());
+    oldSize = box.size();
+    box.setStandardButtons(QMessageBox::StandardButtons(0xFFFF));
+    QVERIFY(box.size() != oldSize); // should have grown
+    QVERIFY(box.width() > oldSize.width() || box.height() > oldSize.height());
 }
 
 QTEST_MAIN(tst_QMessageBox)
