@@ -210,7 +210,7 @@ bool QMutex::tryLock()
 
     bool isLocked = d->contenders.testAndSetAcquire(0, 1);
     if (!isLocked) {
-        bool isLocked = d->recursive && d->owner == self;
+        isLocked = d->recursive && d->owner == self;
         if (!isLocked) {
             // some other thread has the mutex locked, or we tried to
             // recursively lock an non-recursive mutex
