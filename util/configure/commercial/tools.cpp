@@ -78,6 +78,20 @@ void Tools::checkLicense(QMap<QString,QString> &dictionary, QMap<QString,QString
         dictionary["QT_EDITION"] = "QT_EDITION_DESKTOP";
         return; // No license key checking in Tech Preview
     }
+    tpLicense = dictionary["QT_SOURCE_TREE"] + "/LICENSE.SNAPSHOT.OPENSOURCE";
+    if (QFile::exists(tpLicense)) {
+        dictionary["EDITION"] = "Snapshot";
+        dictionary["LICENSE FILE"] = tpLicense;
+        dictionary["QT_EDITION"] = "QT_EDITION_OPENSOURCE";
+        return; // No license key checking in snapshot
+    }
+    tpLicense = dictionary["QT_SOURCE_TREE"] + "/LICENSE.SNAPSHOT.COMMERCIAL";
+    if (QFile::exists(tpLicense)) {
+        dictionary["EDITION"] = "Snapshot";
+        dictionary["LICENSE FILE"] = tpLicense;
+        dictionary["QT_EDITION"] = "QT_EDITION_DESKTOP";
+        return; // No license key checking in snapshot
+    }
 
     // Read in the license file
     QFile licenseFile(path);
