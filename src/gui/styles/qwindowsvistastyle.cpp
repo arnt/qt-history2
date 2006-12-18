@@ -673,10 +673,10 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
                     if (vertical) {
                         theme.rect = QRect(theme.rect.left(),
                                            theme.rect.top() - theme.rect.height() + 2*ps*theme.rect.height(),
-                                           theme.rect.width(), theme.rect.height()/2);
+                                           theme.rect.width(), (int)theme.rect.height()/2);
                     } else {
                         theme.rect = QRect(theme.rect.left() - theme.rect.width() + 2*ps*theme.rect.width(),
-                                           theme.rect.top(), theme.rect.width()/2, theme.rect.height());
+                                           theme.rect.top(), (int)theme.rect.width()/2, theme.rect.height());
                     }
                     theme.partId = vertical ? PP_FILLVERT : PP_FILL;
                     d->drawBackground(theme);

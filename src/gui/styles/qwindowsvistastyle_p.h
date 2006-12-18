@@ -87,12 +87,13 @@ class Animation
 {
 public :
     Animation() : _running(true) { }
+    virtual ~Animation() { }
     QWidget * widget() const { return _widget; }
     bool running() const { return _running; }
     const QTime &startTime() const { return _startTime; }
     void setRunning(bool val) { _running = val; }
     void setWidget(QWidget *widget) { _widget = widget; }
-    void setStartTime(QTime &startTime) { _startTime = startTime; }
+    void setStartTime(const QTime &startTime) { _startTime = startTime; }
     virtual void paint(QPainter *painter, const QStyleOption *option);
 
 protected:
@@ -111,9 +112,10 @@ class Transition : public Animation
 {
 public :
     Transition() : Animation() {}
+    virtual ~Transition() { }
     void setDuration(int duration) { _duration = duration; }
     void setStartImage(const QImage &image) { _primaryImage = image; }
-    void setEndImage(QImage &image) { _secondaryImage = image; }
+    void setEndImage(const QImage &image) { _secondaryImage = image; }
     virtual void paint(QPainter *painter, const QStyleOption *option);
     int duration() const { return _duration; }
     int _duration; //set time in ms to complete a state transition
@@ -125,9 +127,10 @@ class Pulse: public Animation
 {
 public :
     Pulse() : Animation() {}
+    virtual ~Pulse() { }
     void setDuration(int duration) { _duration = duration; }
     void setPrimaryImage(const QImage &image) { _primaryImage = image; }
-    void setAlternateImage(QImage &image) { _secondaryImage = image; }
+    void setAlternateImage(const QImage &image) { _secondaryImage = image; }
     virtual void paint(QPainter *painter, const QStyleOption *option);
     int duration() const { return _duration; }
     int _duration; //time in ms to complete a pulse cycle
