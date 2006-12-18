@@ -249,6 +249,7 @@ static QBrushData *nullBrushInstance()
         x->ref = 1; x->style = Qt::BrushStyle(0); x->color = Qt::black;
         if (!q_atomic_test_and_set_ptr(&defaultBrush.pointer, 0, x))
             delete x;
+        x->hasTransform = false;
     }
     return defaultBrush.pointer;
 }
@@ -297,6 +298,7 @@ void QBrush::init(const QColor &color, Qt::BrushStyle style)
     d->ref = 1;
     d->style = style;
     d->color = color;
+    d->hasTransform = false;
 }
 
 /*!
@@ -510,6 +512,7 @@ void QBrush::detach(Qt::BrushStyle newStyle)
     x->style = newStyle;
     x->color = d->color;
     x->transform = d->transform;
+    x->hasTransform = d->hasTransform;
     x = qAtomicSetPtr(&d, x);
     if (!x->ref.deref())
         cleanUp(x);
@@ -777,6 +780,7 @@ void QBrush::setTransform(const QTransform &matrix)
 {
     detach(d->style);
     d->transform = matrix;
+    d->hasTransform = !matrix.isIdentity();
 }
 
 

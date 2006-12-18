@@ -157,6 +157,7 @@ public:
 #ifdef QT_EXPERIMENTAL_REGIONS
     void setSimpleClip(const QRect &rect);
 #endif
+    void updateMatrixData(QSpanData *spanData, const QBrush &brush, const QTransform &brushMatrix);
 
     QTransform brushMatrix() const {
         QTransform m(matrix);

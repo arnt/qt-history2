@@ -1027,16 +1027,14 @@ void QRasterPaintEngine::updateMatrix(const QTransform &matrix)
 
     // 1/10000 == 0.0001, so we have good enough res to cover curves
     // that span the entire widget...
-    d->inverseScale = qMax(1 / qMax( qMax(qAbs(matrix.m11()), qAbs(matrix.m22())),
-                                     qMax(qAbs(matrix.m12()), qAbs(matrix.m21())) ),
-                           qreal(0.0001));
+    d->inverseScale = d->txop <= QPainterPrivate::TxTranslate ? 1
+                      : qMax(1 / qMax( qMax(qAbs(matrix.m11()), qAbs(matrix.m22())),
+                                       qMax(qAbs(matrix.m12()), qAbs(matrix.m21())) ),
+                             qreal(0.0001));
 
     d->outlineMapper->setMatrix(d->matrix, d->txop);
-    QTransform penMatrix = (d->matrix.inverted()*d->pen.brush().transform().inverted()).inverted();
-    d->penData.setupMatrix(penMatrix,
-                           d->txop, d->bilinear);
-    QTransform brushMatrix = (d->brushMatrix().inverted() * d->brush.transform().inverted()).inverted();
-    d->brushData.setupMatrix(brushMatrix, d->txop, d->bilinear);
+    d->updateMatrixData(&d->penData, d->pen.brush(), matrix);
+    d->updateMatrixData(&d->brushData, d->brush, d->brushMatrix());
 }
 
 /*!
@@ -1110,8 +1108,7 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         d->brush = brush;
         d->brushOffset = state.brushOrigin();
         d->brushData.setup(d->brush, d->opacity);
-        d->brushData.setupMatrix((d->brushMatrix().inverted() * d->brush.transform().inverted()).inverted(),
-                                 d->txop, d->bilinear);
+        d->updateMatrixData(&d->brushData, d->brush, d->brushMatrix());
     }
 
     if (flags & (DirtyClipPath | DirtyClipRegion)) {
@@ -1203,6 +1200,31 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
                       && (d->pen.widthF() == 0
                           || (d->pen.widthF() <= 1
                               && (d->txop <= QTransform::TxTranslate || d->pen.isCosmetic())));
+    }
+}
+
+void QRasterPaintEnginePrivate::updateMatrixData(QSpanData *spanData, const QBrush &b, const QTransform &m)
+{
+    if (b.d->hasTransform) {
+        spanData->setupMatrix(b.transform() * m, txop, bilinear);
+    } else {
+        if (txop <= QPainterPrivate::TxTranslate) {
+            // specialize setupMatrix for translation matrices
+            // to avoid needless matrix inversion
+            spanData->m11 = 1;
+            spanData->m12 = 0;
+            spanData->m13 = 0;
+            spanData->m21 = 0;
+            spanData->m22 = 1;
+            spanData->m23 = 0;
+            spanData->dx = -m.dx();
+            spanData->dy = -m.dy();
+            spanData->txop = txop;
+            spanData->bilinear = bilinear;
+            spanData->adjustSpanMethods();
+        } else {
+            spanData->setupMatrix(m, txop, bilinear);
+        }
     }
 }
 

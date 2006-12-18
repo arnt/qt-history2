@@ -89,6 +89,8 @@ private:
 #if defined(Q_WS_X11)
     friend class QX11PaintEngine;
 #endif
+    friend class QRasterPaintEngine;
+    friend class QRasterPaintEnginePrivate;
     friend class QPainter;
     void detach(Qt::BrushStyle newStyle);
     void init(const QColor &color, Qt::BrushStyle bs);
@@ -121,6 +123,7 @@ struct QBrushData
     QColor color;
     QMatrix    oldMatrix;
     QTransform transform;
+    bool hasTransform;
 };
 
 inline Qt::BrushStyle QBrush::style() const { return d->style; }
