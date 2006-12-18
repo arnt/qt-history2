@@ -480,6 +480,7 @@ QVariant QMacPasteboardMimeFileUri::convertToMime(const QString &mime, QList<QBy
         QUrl url = QUrl::fromEncoded(data.at(i));
         if (url.host().toLower() == QLatin1String("localhost"))
             url.setHost(QString());
+        url.setPath(url.path().normalized(QString::NormalizationForm_C));
         ret.append(url);
     }
     return QVariant(ret);
@@ -495,8 +496,11 @@ QList<QByteArray> QMacPasteboardMimeFileUri::convertFromMime(const QString &mime
         QUrl url = urls.at(i).toUrl();
         if (url.scheme().isEmpty())
             url.setScheme(QLatin1String("file"));
-        if (url.host().isEmpty() && url.scheme().toLower() == QLatin1String("file"))
-            url.setHost(QLatin1String("localhost"));
+        if (url.scheme().toLower() == QLatin1String("file")) {
+            if (url.host().isEmpty())
+                url.setHost(QLatin1String("localhost"));
+            url.setPath(url.path().normalized(QString::NormalizationForm_D));
+        }
         ret.append(url.toEncoded());
     }
     return ret;
