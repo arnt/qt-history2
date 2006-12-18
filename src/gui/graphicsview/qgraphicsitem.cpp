@@ -626,20 +626,22 @@ void QGraphicsItem::setParentItem(QGraphicsItem *parent)
     if (parent == d_ptr->parent)
         return;
 
+    // We anticipate geometry changes
+    prepareGeometryChange();
+
     if (d_ptr->parent) {
         // Remove from current parent
-        removeFromIndex();
         d_ptr->parent->d_func()->children.removeAll(this);
         qVariantSetValue<QGraphicsItem *>(variant, this);
         d_ptr->parent->itemChange(ItemChildRemovedChange, variant);
     }
 
     if ((d_ptr->parent = parent)) {
-        bool implicitAddToIndex = false;
+        bool implicitUpdate = false;
         if (parent->d_func()->scene && parent->d_func()->scene != d_ptr->scene) {
             // Move this item to its new parent's scene
             parent->d_func()->scene->addItem(this);
-            implicitAddToIndex = true;
+            implicitUpdate = true;
         } else if (!parent->d_func()->scene && d_ptr->scene) {
             // Remove this item from its former scene
             d_ptr->scene->removeItem(this);
@@ -648,8 +650,8 @@ void QGraphicsItem::setParentItem(QGraphicsItem *parent)
         d_ptr->parent->d_func()->children << this;
         qVariantSetValue<QGraphicsItem *>(variant, this);
         d_ptr->parent->itemChange(ItemChildAddedChange, variant);
-        if (!implicitAddToIndex)
-            addToIndex();
+        if (!implicitUpdate)
+            update();
 
         // Optionally inherit ancestor event handling from the new parent
         if (!d_ptr->handlesChildEvents) {
@@ -659,7 +661,7 @@ void QGraphicsItem::setParentItem(QGraphicsItem *parent)
     } else {
         // Item is a top-level; clear the ancestor event handling flag
         d_ptr->setAncestorHandlesChildEvents(false);
-        addToIndex();
+        update();
     }
 }
 
@@ -1296,13 +1298,11 @@ void QGraphicsItem::setPos(const QPointF &pos)
         return;
     if (d_ptr->scene) {
         qt_graphicsItem_fullUpdate(this);
-        removeFromIndex();
+        prepareGeometryChange();
     }
     d_ptr->pos = itemChange(ItemPositionChange, pos).toPointF();
-    if (d_ptr->scene) {
+    if (d_ptr->scene)
         qt_graphicsItem_fullUpdate(this);
-        addToIndex();
-    }
 }
 
 /*!
@@ -1485,14 +1485,13 @@ void QGraphicsItem::setTransform(const QTransform &matrix, bool combine )
         return;
 
     qt_graphicsItem_fullUpdate(this);
-    removeFromIndex();
+    prepareGeometryChange();
     d_ptr->hasMatrix = !newMatrix.isIdentity();
 
     QVariant variant;
     qVariantSetValue<QTransform>(variant, newMatrix);
     d_ptr->setExtra(QGraphicsItemPrivate::ExtraMatrix,
                     itemChange(ItemMatrixChange, variant));
-    addToIndex();
     qt_graphicsItem_fullUpdate(this);
 }
 
@@ -3323,12 +3322,9 @@ void QAbstractGraphicsShapeItem::setPen(const QPen &pen)
     Q_D(QAbstractGraphicsShapeItem);
     bool updateGeometry = (pen.widthF() != d->pen.widthF());
     if (updateGeometry)
-        removeFromIndex();
+        prepareGeometryChange();
     d->pen = pen;
-    if (updateGeometry)
-        addToIndex();
-    else
-        update();
+    update();
 }
 
 /*!
@@ -3456,10 +3452,12 @@ QPainterPath QGraphicsPathItem::path() const
 void QGraphicsPathItem::setPath(const QPainterPath &path)
 {
     Q_D(QGraphicsPathItem);
-    removeFromIndex();
+    if (d->path == path)
+        return;
+    prepareGeometryChange();
     d->path = path;
     d->boundingRect = path.controlPointRect();
-    addToIndex();
+    update();
 }
 
 /*!
@@ -3654,9 +3652,11 @@ QRectF QGraphicsRectItem::rect() const
 void QGraphicsRectItem::setRect(const QRectF &rect)
 {
     Q_D(QGraphicsRectItem);
-    removeFromIndex();
+    if (d->rect == rect)
+        return;
+    prepareGeometryChange();
     d->rect = rect;
-    addToIndex();
+    update();
 }
 
 /*!
@@ -3880,9 +3880,11 @@ QRectF QGraphicsEllipseItem::rect() const
 void QGraphicsEllipseItem::setRect(const QRectF &rect)
 {
     Q_D(QGraphicsEllipseItem);
-    removeFromIndex();
+    if (d->rect == rect)
+        return;
+    prepareGeometryChange();
     d->rect = rect;
-    addToIndex();
+    update();
 }
 
 /*!
@@ -4138,9 +4140,11 @@ QPolygonF QGraphicsPolygonItem::polygon() const
 void QGraphicsPolygonItem::setPolygon(const QPolygonF &polygon)
 {
     Q_D(QGraphicsPolygonItem);
-    removeFromIndex();
+    if (d->polygon == polygon)
+        return;
+    prepareGeometryChange();
     d->polygon = polygon;
-    addToIndex();
+    update();
 }
 
 /*!
@@ -4360,9 +4364,9 @@ QPen QGraphicsLineItem::pen() const
 void QGraphicsLineItem::setPen(const QPen &pen)
 {
     Q_D(QGraphicsLineItem);
-    removeFromIndex();
+    prepareGeometryChange();
     d->pen = pen;
-    addToIndex();
+    update();
 }
 
 /*!
@@ -4384,9 +4388,11 @@ QLineF QGraphicsLineItem::line() const
 void QGraphicsLineItem::setLine(const QLineF &line)
 {
     Q_D(QGraphicsLineItem);
-    removeFromIndex();
+    if (d->line == line)
+        return;
+    prepareGeometryChange();
     d->line = line;
-    addToIndex();
+    update();
 }
 
 /*!
@@ -4630,10 +4636,10 @@ QGraphicsPixmapItem::~QGraphicsPixmapItem()
 void QGraphicsPixmapItem::setPixmap(const QPixmap &pixmap)
 {
     Q_D(QGraphicsPixmapItem);
-    removeFromIndex();
+    prepareGeometryChange();
     d->pixmap = pixmap;
     d->updateShape();
-    addToIndex();
+    update();
 }
 
 /*!
@@ -4699,11 +4705,11 @@ QPointF QGraphicsPixmapItem::offset() const
 void QGraphicsPixmapItem::setOffset(const QPointF &offset)
 {
     Q_D(QGraphicsPixmapItem);
-    if (offset != d->offset) {
-        removeFromIndex();
-        d->offset = offset;
-        addToIndex();
-    }
+    if (d->offset == offset)
+        return;
+    prepareGeometryChange();
+    d->offset = offset;
+    update();
 }
 
 /*!
@@ -5362,9 +5368,9 @@ void QGraphicsTextItemPrivate::_q_updateBoundingRect(const QSizeF &size)
     // paged items have a constant (page) size
     if (size == boundingRect.size() || pageSize.height() != -1)
         return;
-    qq->removeFromIndex();
+    qq->prepareGeometryChange();
     boundingRect.setSize(size);
-    qq->addToIndex();
+    qq->update();
 }
 
 /*!
@@ -5398,9 +5404,9 @@ QTextControl *QGraphicsTextItemPrivate::textControl() const
 
         const QSizeF pgSize = control->document()->pageSize();
         if (pgSize.height() != -1) {
-            qq->removeFromIndex();
+            qq->prepareGeometryChange();
             that->dd->boundingRect.setSize(pgSize);
-            qq->addToIndex();
+            qq->update();
         } else {
             that->dd->_q_updateBoundingRect(control->size());
         }
@@ -5535,7 +5541,7 @@ static QRectF setupTextLayout(QTextLayout *layout)
 void QGraphicsSimpleTextItemPrivate::updateBoundingRect()
 {
     Q_Q(QGraphicsSimpleTextItem);
-    q->removeFromIndex();
+    q->prepareGeometryChange();
     if (text.isEmpty()) {
         boundingRect = QRectF();
     } else {
@@ -5545,7 +5551,7 @@ void QGraphicsSimpleTextItemPrivate::updateBoundingRect()
         QTextLayout layout(&engine);
         boundingRect = setupTextLayout(&layout);
     }
-    q->addToIndex();
+    q->update();
 }
 
 /*!
@@ -5869,10 +5875,10 @@ void QGraphicsItemGroup::addToGroup(QGraphicsItem *item)
                        * sceneTransform().inverted()
                        * QTransform().translate(-item->x(), -item->y()));
     item->d_func()->setIsMemberOfGroup(true);
-    removeFromIndex();
+    prepareGeometryChange();
     d->itemsBoundingRect |= (item->transform() * QTransform().translate(item->x(), item->y()))
                             .mapRect(item->boundingRect() | item->childrenBoundingRect());
-    addToIndex();
+    update();
 }
 
 /*!

@@ -66,8 +66,8 @@ public:
     int selectionChanging;
     QSet<QGraphicsItem *> selectedItems;
 
-    QList<QGraphicsItem *> newItems;
-    QList<QGraphicsItem *> allItems;
+    QList<QGraphicsItem *> unindexedItems;
+    QList<QGraphicsItem *> indexedItems;
     QList<int> freeItemIndexes;
     bool purgePending;
     void _q_removeItemLater(QGraphicsItem *item);
@@ -78,6 +78,8 @@ public:
     QBrush foregroundBrush;
 
     int indexTimerId;
+    bool restartIndexTimer;
+    void startIndexTimer();
 
     bool hasFocus;
     QGraphicsItem *focusItem;
