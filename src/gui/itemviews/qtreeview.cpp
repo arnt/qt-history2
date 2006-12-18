@@ -1004,37 +1004,46 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
     int item = d->viewIndex(index);
     if (item < 0)
         return;
-    QRect rect(columnViewportPosition(index.column()),
-               d->coordinateForItem(item),
-               columnWidth(index.column()),
-               d->itemHeight(item));
 
-    if (rect.isEmpty())
-        return;
-
-    // check if we really need to do anything
     QRect area = d->viewport->rect();
-    if (hint == EnsureVisible && area.contains(rect)) {
-        d->setDirtyRegion(rect);
-        return;
-    }
 
     // vertical
-    bool above = (hint == EnsureVisible && (rect.top() < area.top() || area.height() < rect.height()));
-    bool below = (hint == EnsureVisible && rect.bottom() > area.bottom() && rect.height() < area.height());
     if (verticalScrollMode() == QAbstractItemView::ScrollPerItem) {
-        if (hint == PositionAtTop || above) {
+        int top = verticalScrollBar()->value();
+        int bottom = top + verticalScrollBar()->pageStep();
+        if (hint == EnsureVisible && item >= top && item < bottom) {
+            return; // nothing to do
+        } else if (hint == PositionAtTop || item < top) {
             verticalScrollBar()->setValue(item);
-        } else if (hint == PositionAtCenter || hint == PositionAtBottom || below) {
-            int y = area.height();
-            if (hint == PositionAtCenter)
-                y = y / 2;
+        } else { // PositionAtBottom or PositionAtCenter
+            int y = (hint == PositionAtCenter
+                     ? area.height() / 2
+                     : area.height());
             while (y > 0 && item > 0)
                 y -= d->itemHeight(item--);
             item += 1 + ((y < 0) ? 1 : 0);
             verticalScrollBar()->setValue(item);
         }
     } else { // ScrollPerPixel
+        QRect rect(columnViewportPosition(index.column()),
+                   d->coordinateForItem(item), // ### slow for items outside the view
+                   columnWidth(index.column()),
+                   d->itemHeight(item));
+
+        if (rect.isEmpty())
+            return;
+        if (hint == EnsureVisible && area.contains(rect)) {
+            d->setDirtyRegion(rect);
+            return; // nothing to do
+        }
+
+        bool above = (hint == EnsureVisible
+                      && (rect.top() < area.top()
+                          || area.height() < rect.height()));
+        bool below = (hint == EnsureVisible
+                      && rect.bottom() > area.bottom()
+                      && rect.height() < area.height());
+
         int verticalValue = verticalScrollBar()->value();
         if (hint == PositionAtTop || above)
             verticalValue += rect.top();
@@ -2665,15 +2674,11 @@ int QTreeViewPrivate::coordinateForItem(int item) const
         }
     } else { // ScrollPerItem
         int topViewItemIndex = q->verticalScrollBar()->value();
-//         if (topViewItemIndex == -1) {
-//             const_cast<QTreeViewPrivate*>(this)->updateScrollBars();
-//             topViewItemIndex = q->verticalScrollBar()->value();
-//             Q_ASSERT(topViewItemIndex != -1); // the scrollbars were not updated correctly
-//         }
         if (uniformRowHeights)
             return defaultItemHeight * (item - topViewItemIndex);
         if (item >= topViewItemIndex) {
             // search in the visible area first and continue down
+            // ### slow if the item is not visible
             int viewItemCoordinate = 0;
             int viewItemIndex = topViewItemIndex;
             while (viewItemIndex < viewItems.count()) {
