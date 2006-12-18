@@ -41,9 +41,11 @@ HEADERS	 = configureapp.h environment.h \
            $$QT_SOURCE_TREE/src/corelib/io/qbuffer.h \
            $$QT_SOURCE_TREE/src/corelib/io/qdatastream.h \
            $$QT_SOURCE_TREE/src/corelib/io/qdir.h \
+           $$QT_SOURCE_TREE/src/corelib/io/qdiriterator.h \
            $$QT_SOURCE_TREE/src/corelib/io/qfile.h \
            $$QT_SOURCE_TREE/src/corelib/io/qfileinfo.h \
            $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine.h \
+           $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine_iterator_p.h \
            $$QT_SOURCE_TREE/src/corelib/io/qiodevice.h \
            $$QT_SOURCE_TREE/src/corelib/io/qtextstream.h \
            $$QT_SOURCE_TREE/src/corelib/io/qtemporaryfile.h \
@@ -54,8 +56,8 @@ HEADERS	 = configureapp.h environment.h \
            $$QT_SOURCE_TREE/src/corelib/tools/qstring.h \
            $$QT_SOURCE_TREE/src/corelib/tools/qstringlist.h \
            $$QT_SOURCE_TREE/src/corelib/tools/qstringmatcher.h \
-           $$QT_SOURCE_TREE/src/corelib/tools/qunicodetables_p.h 
- 	   
+           $$QT_SOURCE_TREE/src/corelib/tools/qunicodetables_p.h
+
 
 SOURCES	 = main.cpp configureapp.cpp environment.cpp \
 	   $$QT_SOURCE_TREE/src/corelib/tools/qbytearray.cpp \
@@ -70,10 +72,13 @@ SOURCES	 = main.cpp configureapp.cpp environment.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qbuffer.cpp \
 	   $$QT_SOURCE_TREE/src/corelib/io/qdatastream.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qdir.cpp \
+           $$QT_SOURCE_TREE/src/corelib/io/qdiriterator.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qfile.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qfileinfo.cpp \
 	   $$QT_SOURCE_TREE/src/corelib/io/qabstractfileengine.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine.cpp \
+           $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine_iterator.cpp \
+           $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine_iterator_win.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qiodevice.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qtextstream.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qtemporaryfile.cpp \
