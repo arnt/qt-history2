@@ -38,17 +38,18 @@ private slots:
     void changeCase(int);
     void changeMode(int);
     void highlight(const QModelIndex&);
+    void updateContentsLabel(const QString&);
 
 private:
     void createMenu();
     QAbstractItemModel *modelFromFile(const QString& fileName);
 
+    QTreeView *treeView;
     QComboBox *caseCombo;
     QComboBox *modeCombo;
-    QCheckBox *wrapCheckBox;
+    QLabel *contentsLabel;
     TreeModelCompleter *completer;
     QLineEdit *lineEdit;
-    QTreeView *treeView;
 };
 
 #endif // MAINWINDOW_H

@@ -50,14 +50,23 @@ MainWindow::MainWindow(QWidget *parent)
     caseCombo->setCurrentIndex(1);
 #endif
 
-    wrapCheckBox = new QCheckBox;
+    QLabel *separatorLabel = new QLabel;
+    separatorLabel->setText(tr("Tree Separator"));
+
+    QLineEdit *separatorLineEdit = new QLineEdit;
+    separatorLineEdit->setText(completer->separator());
+    connect(separatorLineEdit, SIGNAL(textChanged(const QString&)),
+            completer, SLOT(setSeparator(const QString&)));
+
+    QCheckBox *wrapCheckBox = new QCheckBox;
     wrapCheckBox->setText(tr("Wrap around completions"));
     wrapCheckBox->setChecked(completer->wrapAround());
     connect(wrapCheckBox, SIGNAL(clicked(bool)), completer, SLOT(setWrapAround(bool)));
 
-    QLabel *contentsLabel = new QLabel;
+    contentsLabel = new QLabel;
     contentsLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    contentsLabel->setText(QString("Type paths from the model above with items at each level separated by a '%1'").arg(completer->separator()));
+    connect(separatorLineEdit, SIGNAL(textChanged(const QString&)),
+            this, SLOT(updateContentsLabel(const QString&)));
 
     treeView = new QTreeView;
     treeView->setModel(completer->model());
@@ -74,9 +83,10 @@ MainWindow::MainWindow(QWidget *parent)
     layout->addWidget(modelLabel, 0, 0); layout->addWidget(treeView, 0, 1);
     layout->addWidget(modeLabel, 1, 0);  layout->addWidget(modeCombo, 1, 1);
     layout->addWidget(caseLabel, 2, 0);  layout->addWidget(caseCombo, 2, 1);
-    layout->addWidget(wrapCheckBox, 3, 0);
-    layout->addWidget(contentsLabel, 4, 0, 1, 2);
-    layout->addWidget(lineEdit, 5, 0, 1, 2);
+    layout->addWidget(separatorLabel, 3, 0); layout->addWidget(separatorLineEdit, 3, 1);
+    layout->addWidget(wrapCheckBox, 4, 0);
+    layout->addWidget(contentsLabel, 5, 0, 1, 2);
+    layout->addWidget(lineEdit, 6, 0, 1, 2);
     centralWidget->setLayout(layout);
     setCentralWidget(centralWidget);
 
@@ -115,7 +125,6 @@ void MainWindow::changeMode(int index)
     else
         mode = QCompleter::UnfilteredPopupCompletion;
 
-    wrapCheckBox->setEnabled(mode != QCompleter::InlineCompletion);
     completer->setCompletionMode(mode);
 }
 
@@ -185,5 +194,10 @@ void MainWindow::about()
 void MainWindow::changeCase(int cs)
 {
     completer->setCaseSensitivity(cs ? Qt::CaseSensitive : Qt::CaseInsensitive);
+}
+
+void MainWindow::updateContentsLabel(const QString& sep)
+{
+    contentsLabel->setText(QString(tr("Type path from model above with items at each level separated by a '%1'")).arg(sep));
 }
 

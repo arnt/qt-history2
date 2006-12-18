@@ -12,8 +12,9 @@ public:
     TreeModelCompleter(QObject *parent = 0);
     TreeModelCompleter(QAbstractItemModel *model, QObject *parent = 0);
 
-    void setSeparator(const QString &separator);
     QString separator() const;
+public slots:
+    void setSeparator(const QString &separator);
 
 protected:
     QStringList splitPath(const QString &path) const;
