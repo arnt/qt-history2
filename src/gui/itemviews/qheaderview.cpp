@@ -714,7 +714,10 @@ void QHeaderView::moveSection(int from, int to)
     //Q_ASSERT(oldHeaderLength == length());
     //Q_ASSERT(d->logicalIndices.count() == d->sectionCount);
 
+    if (d->hasAutoResizeSections())
+        resizeSections();
     d->viewport->update();
+
     emit sectionMoved(logical, from, to);
 }
 
