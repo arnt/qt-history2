@@ -524,7 +524,7 @@ int QPixmap::serialNumber() const
 qint64 QPixmap::cacheKey() const
 {
     // avoid exposing the internal QImageData structure..
-    return (data->image.cacheKey() & 0xffffffff00000000) | ((qint64) data->detach_no);
+    return (data->image.cacheKey() & 0xffffffff00000000LL) | ((qint64) data->detach_no);
 }
 
 bool QPixmap::isDetached() const
