@@ -83,8 +83,7 @@ private slots:
            orders and check that the results are the same every time,
            no matter the order in which the properties were set.
 
-           <IN PROGRESS: combinations() ...>
-
+           -> Initial version done (tst_QWizard::combinations())
 
         6. Test done() and restart().
 
@@ -1480,7 +1479,7 @@ class SetPage : public Operation
         for (int j = 0; j < page; ++j)
             wizard->next();
     }
-    QString describe() const { return QString("goto page %1").arg(page); }
+    QString describe() const { return QString("set page %1").arg(page); }
     const int page;
 public:
     SetPage(int page) : page(page) {}
@@ -1565,25 +1564,35 @@ class TestGroup
 {
 public:
     enum Type {Equality, NonEquality};
+
     TestGroup(const QString &name = QString("no name"), Type type = Equality)
-        : name(name), type(type) {}
+        : name(name), type(type), nRows_(0) {}
+
     void reset(const QString &name, Type type = Equality)
     {
         this->name = name;
         this->type = type;
         combinations.clear();
     }
+
     QList<Operation *> &add()
     { combinations << new QList<Operation *>; return *(combinations.last()); }
+
     void createTestRows()
     {
-        for (int i = 0; i < combinations.count(); ++i)
+        for (int i = 0; i < combinations.count(); ++i) {
             QTest::newRow((name + QString(", row %1").arg(i)).toLatin1().data())
                 << (i == 0) << (type == Equality) << *(combinations.at(i));
+            ++nRows_;
+        }
     }
+
+    int nRows() const { return nRows_; }
+
 private:
     QString name;
     Type type;
+    int nRows_;
     QList<QList<Operation *> *> combinations;
 };
 
@@ -1684,202 +1693,234 @@ public:
     QString operationsDescription() const { return opsDescr; }
 };
 
-void tst_QWizard::combinations_data()
+class CombinationsTestData
 {
-    QTest::addColumn<bool>("ref");
-    QTest::addColumn<bool>("testEquality");
-    QTest::addColumn<QList<Operation *> >("operations");
-
-    QList<Operation *> pageOps;
-    pageOps << new SetPage(0) << new SetPage(1) << new SetPage(2);
-
-    QList<Operation *> styleOps;
-    styleOps << new SetStyle(QWizard::ClassicStyle) << new SetStyle(QWizard::ModernStyle)
-             << new SetStyle(QWizard::MacStyle);
-
-    #define SETPAGE(page) pageOps.at(page)
-    #define SETSTYLE(style) styleOps.at(style)
-    #define OPT(option, on) OptionInfo::instance().operation(option, on)
-    #define CLROPT(option) OPT(option, false)
-    #define SETOPT(option) OPT(option, true)
-
-    QMap<bool, QList<Operation *> *> setAllOptions;
-    setAllOptions[false] = new QList<Operation *>;
-    setAllOptions[true]  = new QList<Operation *>;
-    foreach (QWizard::WizardOption option, OptionInfo::instance().options()) {
-        *setAllOptions.value(false) << CLROPT(option);
-        *setAllOptions.value(true) << SETOPT(option);
-    }
-
-    #define CLRALLOPTS *setAllOptions.value(false)
-    #define SETALLOPTS *setAllOptions.value(true)
-
     TestGroup testGroup;
-
-    testGroup.reset("test 1.1");
-    testGroup.add(); // i.e. no operations applied!
-    testGroup.add() << SETPAGE(0);
-    testGroup.add() << SETSTYLE(0);
-    testGroup.add() << SETPAGE(0) << SETSTYLE(0);
-    testGroup.add() << SETSTYLE(0) << SETPAGE(0);
-    testGroup.createTestRows();
-
-    testGroup.reset("test 2.1");
-    testGroup.add();
-    testGroup.add() << CLRALLOPTS;
-    testGroup.createTestRows();
-
-    testGroup.reset("test 2.2");
-    testGroup.add() << SETALLOPTS;
-    testGroup.add() << SETALLOPTS << SETALLOPTS;
-    testGroup.createTestRows();
-
-    testGroup.reset("test 2.3");
-    testGroup.add() << CLRALLOPTS;
-    testGroup.add() << CLRALLOPTS << CLRALLOPTS;
-    testGroup.createTestRows();
-
-    testGroup.reset("test 2.4");
-    testGroup.add() << CLRALLOPTS;
-    testGroup.add() << SETALLOPTS << CLRALLOPTS;
-    testGroup.createTestRows();
-
-    testGroup.reset("test 2.5");
-    testGroup.add() << SETALLOPTS;
-    testGroup.add() << CLRALLOPTS << SETALLOPTS;
-    testGroup.createTestRows();
-
-    testGroup.reset("test 2.6");
-    testGroup.add() << SETALLOPTS;
-    testGroup.add() << SETALLOPTS << CLRALLOPTS << SETALLOPTS;
-    testGroup.createTestRows();
-
-    testGroup.reset("test 2.7");
-    testGroup.add() << CLRALLOPTS;
-    testGroup.add() << CLRALLOPTS << SETALLOPTS << CLRALLOPTS;
-    testGroup.createTestRows();
-
-    for (int i = 0; i < 2; ++i) {
-        QList<Operation *> setOptions = *setAllOptions.value(i == 1);
-
-        testGroup.reset("test 3.1");
-        testGroup.add() << setOptions;
-        testGroup.add() << SETPAGE(0) << setOptions;
-        testGroup.add() << setOptions << SETPAGE(0);
-        testGroup.add() << SETSTYLE(0) << setOptions;
-        testGroup.add() << setOptions << SETSTYLE(0);
-        testGroup.add() << setOptions << SETPAGE(0) << SETSTYLE(0);
-        testGroup.add() << SETPAGE(0) << setOptions << SETSTYLE(0);
-        testGroup.add() << SETPAGE(0) << SETSTYLE(0) << setOptions;
-        testGroup.add() << setOptions << SETSTYLE(0) << SETPAGE(0);
-        testGroup.add() << SETSTYLE(0) << setOptions << SETPAGE(0);
-        testGroup.add() << SETSTYLE(0) << SETPAGE(0) << setOptions;
-        testGroup.createTestRows();
+    QList<Operation *> pageOps;
+    QList<Operation *> styleOps;
+    QMap<bool, QList<Operation *> *> setAllOptions;
+public:
+    CombinationsTestData()
+    {
+        QTest::addColumn<bool>("ref");
+        QTest::addColumn<bool>("testEquality");
+        QTest::addColumn<QList<Operation *> >("operations");
+        pageOps << new SetPage(0) << new SetPage(1) << new SetPage(2);
+        styleOps << new SetStyle(QWizard::ClassicStyle) << new SetStyle(QWizard::ModernStyle)
+                 << new SetStyle(QWizard::MacStyle);
+#define SETPAGE(page) pageOps.at(page)
+#define SETSTYLE(style) styleOps.at(style)
+#define OPT(option, on) OptionInfo::instance().operation(option, on)
+#define CLROPT(option) OPT(option, false)
+#define SETOPT(option) OPT(option, true)
+        setAllOptions[false] = new QList<Operation *>;
+        setAllOptions[true]  = new QList<Operation *>;
+        foreach (QWizard::WizardOption option, OptionInfo::instance().options()) {
+            *setAllOptions.value(false) << CLROPT(option);
+            *setAllOptions.value(true) << SETOPT(option);
+        }
+#define CLRALLOPTS *setAllOptions.value(false)
+#define SETALLOPTS *setAllOptions.value(true)
     }
 
-    foreach (Operation *pageOp, pageOps) {
-        testGroup.reset("test 4.1");
-        testGroup.add() << pageOp;
-        testGroup.add() << pageOp << pageOp;
+    int nRows() const { return testGroup.nRows(); }
+
+    // Creates "all" possible test rows. (WARNING: This typically makes the test take too long!)
+    void createAllTestRows()
+    {
+        testGroup.reset("testAll 1.1");
+        testGroup.add(); // i.e. no operations applied!
+        testGroup.add() << SETPAGE(0);
+        testGroup.add() << SETSTYLE(0);
+        testGroup.add() << SETPAGE(0) << SETSTYLE(0);
+        testGroup.add() << SETSTYLE(0) << SETPAGE(0);
+        testGroup.createTestRows();
+
+        testGroup.reset("testAll 2.1");
+        testGroup.add();
+        testGroup.add() << CLRALLOPTS;
+        testGroup.createTestRows();
+
+        testGroup.reset("testAll 2.2");
+        testGroup.add() << SETALLOPTS;
+        testGroup.add() << SETALLOPTS << SETALLOPTS;
+        testGroup.createTestRows();
+
+        testGroup.reset("testAll 2.3");
+        testGroup.add() << CLRALLOPTS;
+        testGroup.add() << CLRALLOPTS << CLRALLOPTS;
+        testGroup.createTestRows();
+
+        testGroup.reset("testAll 2.4");
+        testGroup.add() << CLRALLOPTS;
+        testGroup.add() << SETALLOPTS << CLRALLOPTS;
+        testGroup.createTestRows();
+
+        testGroup.reset("testAll 2.5");
+        testGroup.add() << SETALLOPTS;
+        testGroup.add() << CLRALLOPTS << SETALLOPTS;
+        testGroup.createTestRows();
+
+        testGroup.reset("testAll 2.6");
+        testGroup.add() << SETALLOPTS;
+        testGroup.add() << SETALLOPTS << CLRALLOPTS << SETALLOPTS;
+        testGroup.createTestRows();
+
+        testGroup.reset("testAll 2.7");
+        testGroup.add() << CLRALLOPTS;
+        testGroup.add() << CLRALLOPTS << SETALLOPTS << CLRALLOPTS;
         testGroup.createTestRows();
 
         for (int i = 0; i < 2; ++i) {
-            QList<Operation *> optionOps = *setAllOptions.value(i == 1);
-            testGroup.reset("test 4.2");
-            testGroup.add() << optionOps << pageOp;
-            testGroup.add() << pageOp << optionOps;
+            QList<Operation *> setOptions = *setAllOptions.value(i == 1);
+
+            testGroup.reset("testAll 3.1");
+            testGroup.add() << setOptions;
+            testGroup.add() << SETPAGE(0) << setOptions;
+            testGroup.add() << setOptions << SETPAGE(0);
+            testGroup.add() << SETSTYLE(0) << setOptions;
+            testGroup.add() << setOptions << SETSTYLE(0);
+            testGroup.add() << setOptions << SETPAGE(0) << SETSTYLE(0);
+            testGroup.add() << SETPAGE(0) << setOptions << SETSTYLE(0);
+            testGroup.add() << SETPAGE(0) << SETSTYLE(0) << setOptions;
+            testGroup.add() << setOptions << SETSTYLE(0) << SETPAGE(0);
+            testGroup.add() << SETSTYLE(0) << setOptions << SETPAGE(0);
+            testGroup.add() << SETSTYLE(0) << SETPAGE(0) << setOptions;
             testGroup.createTestRows();
-
-            foreach (QWizard::WizardOption option, OptionInfo::instance().options()) {
-                Operation *optionOp = OPT(option, i == 1);
-                testGroup.reset("test 4.3");
-                testGroup.add() << optionOp << pageOp;
-                testGroup.add() << pageOp << optionOp;
-                testGroup.createTestRows();
-            }
         }
-    }
 
-    foreach (Operation *styleOp, styleOps) {
-        testGroup.reset("test 5.1");
-        testGroup.add() << styleOp;
-        testGroup.add() << styleOp << styleOp;
-        testGroup.createTestRows();
-
-        for (int i = 0; i < 2; ++i) {
-            QList<Operation *> optionOps = *setAllOptions.value(i == 1);
-            testGroup.reset("test 5.2");
-            testGroup.add() << optionOps << styleOp;
-            testGroup.add() << styleOp << optionOps;
-            testGroup.createTestRows();
-
-            foreach (QWizard::WizardOption option, OptionInfo::instance().options()) {
-                Operation *optionOp = OPT(option, i == 1);
-                testGroup.reset("test 5.3");
-                testGroup.add() << optionOp << styleOp;
-                testGroup.add() << styleOp << optionOp;
-                testGroup.createTestRows();
-            }
-        }
-    }
-
-    foreach (Operation *pageOp, pageOps) {
-        foreach (Operation *styleOp, styleOps) {
-
-            testGroup.reset("test 6.1");
+        foreach (Operation *pageOp, pageOps) {
+            testGroup.reset("testAll 4.1");
             testGroup.add() << pageOp;
             testGroup.add() << pageOp << pageOp;
             testGroup.createTestRows();
 
-            testGroup.reset("test 6.2");
-            testGroup.add() << styleOp;
-            testGroup.add() << styleOp << styleOp;
-            testGroup.createTestRows();
-
-            testGroup.reset("test 6.3");
-            testGroup.add() << pageOp << styleOp;
-            testGroup.add() << styleOp << pageOp;
-            testGroup.createTestRows();
-
             for (int i = 0; i < 2; ++i) {
                 QList<Operation *> optionOps = *setAllOptions.value(i == 1);
-                testGroup.reset("test 6.4");
-                testGroup.add() << optionOps << pageOp << styleOp;
-                testGroup.add() << pageOp << optionOps << styleOp;
-                testGroup.add() << pageOp << styleOp << optionOps;
-                testGroup.add() << optionOps << styleOp << pageOp;
-                testGroup.add() << styleOp << optionOps << pageOp;
-                testGroup.add() << styleOp << pageOp << optionOps;
+                testGroup.reset("testAll 4.2");
+                testGroup.add() << optionOps << pageOp;
+                testGroup.add() << pageOp << optionOps;
                 testGroup.createTestRows();
 
                 foreach (QWizard::WizardOption option, OptionInfo::instance().options()) {
                     Operation *optionOp = OPT(option, i == 1);
-                    testGroup.reset("test 6.5");
-                    testGroup.add() << optionOp << pageOp << styleOp;
-                    testGroup.add() << pageOp << optionOp << styleOp;
-                    testGroup.add() << pageOp << styleOp << optionOp;
-                    testGroup.add() << optionOp << styleOp << pageOp;
-                    testGroup.add() << styleOp << optionOp << pageOp;
-                    testGroup.add() << styleOp << pageOp << optionOp;
+                    testGroup.reset("testAll 4.3");
+                    testGroup.add() << optionOp << pageOp;
+                    testGroup.add() << pageOp << optionOp;
                     testGroup.createTestRows();
                 }
             }
         }
+
+        foreach (Operation *styleOp, styleOps) {
+            testGroup.reset("testAll 5.1");
+            testGroup.add() << styleOp;
+            testGroup.add() << styleOp << styleOp;
+            testGroup.createTestRows();
+
+            for (int i = 0; i < 2; ++i) {
+                QList<Operation *> optionOps = *setAllOptions.value(i == 1);
+                testGroup.reset("testAll 5.2");
+                testGroup.add() << optionOps << styleOp;
+                testGroup.add() << styleOp << optionOps;
+                testGroup.createTestRows();
+
+                foreach (QWizard::WizardOption option, OptionInfo::instance().options()) {
+                    Operation *optionOp = OPT(option, i == 1);
+                    testGroup.reset("testAll 5.3");
+                    testGroup.add() << optionOp << styleOp;
+                    testGroup.add() << styleOp << optionOp;
+                    testGroup.createTestRows();
+                }
+            }
+        }
+
+        foreach (Operation *pageOp, pageOps) {
+            foreach (Operation *styleOp, styleOps) {
+
+                testGroup.reset("testAll 6.1");
+                testGroup.add() << pageOp;
+                testGroup.add() << pageOp << pageOp;
+                testGroup.createTestRows();
+
+                testGroup.reset("testAll 6.2");
+                testGroup.add() << styleOp;
+                testGroup.add() << styleOp << styleOp;
+                testGroup.createTestRows();
+
+                testGroup.reset("testAll 6.3");
+                testGroup.add() << pageOp << styleOp;
+                testGroup.add() << styleOp << pageOp;
+                testGroup.createTestRows();
+
+                for (int i = 0; i < 2; ++i) {
+                    QList<Operation *> optionOps = *setAllOptions.value(i == 1);
+                    testGroup.reset("testAll 6.4");
+                    testGroup.add() << optionOps << pageOp << styleOp;
+                    testGroup.add() << pageOp << optionOps << styleOp;
+                    testGroup.add() << pageOp << styleOp << optionOps;
+                    testGroup.add() << optionOps << styleOp << pageOp;
+                    testGroup.add() << styleOp << optionOps << pageOp;
+                    testGroup.add() << styleOp << pageOp << optionOps;
+                    testGroup.createTestRows();
+
+                    foreach (QWizard::WizardOption option, OptionInfo::instance().options()) {
+                        Operation *optionOp = OPT(option, i == 1);
+                        testGroup.reset("testAll 6.5");
+                        testGroup.add() << optionOp << pageOp << styleOp;
+                        testGroup.add() << pageOp << optionOp << styleOp;
+                        testGroup.add() << pageOp << styleOp << optionOp;
+                        testGroup.add() << optionOp << styleOp << pageOp;
+                        testGroup.add() << styleOp << optionOp << pageOp;
+                        testGroup.add() << styleOp << pageOp << optionOp;
+                        testGroup.createTestRows();
+                    }
+                }
+            }
+        }
+
+        testGroup.reset("testAll 7.1", TestGroup::NonEquality);
+        testGroup.add() << SETPAGE(0);
+        testGroup.add() << SETPAGE(1);
+        testGroup.add() << SETPAGE(2);
+        testGroup.createTestRows();
+
+        testGroup.reset("testAll 7.2", TestGroup::NonEquality);
+        testGroup.add() << SETSTYLE(0);
+        testGroup.add() << SETSTYLE(1);
+        testGroup.add() << SETSTYLE(2);
+        testGroup.createTestRows();
+
+        // more to follow ...
     }
 
-    testGroup.reset("test 7.1", TestGroup::NonEquality);
-    testGroup.add() << SETPAGE(0);
-    testGroup.add() << SETPAGE(1);
-    testGroup.add() << SETPAGE(2);
-    testGroup.createTestRows();
+    // Creates a "small" number of interesting test rows.
+    void createTestRows1()
+    {
+        testGroup.reset("test1 1");
+        testGroup.add() << SETPAGE(0) << SETOPT(QWizard::HaveCustomButton3);
+        testGroup.add() << SETOPT(QWizard::HaveCustomButton3);
+        testGroup.createTestRows();
 
-    testGroup.reset("test 7.2", TestGroup::NonEquality);
-    testGroup.add() << SETSTYLE(0);
-    testGroup.add() << SETSTYLE(1);
-    testGroup.add() << SETSTYLE(2);
-    testGroup.createTestRows();
+        testGroup.reset("test1 2");
+        testGroup.add() << SETOPT(QWizard::HaveFinishButtonOnEarlyPages) << SETPAGE(0);
+        testGroup.add() << SETPAGE(0) << SETOPT(QWizard::HaveFinishButtonOnEarlyPages);
+        testGroup.createTestRows();
 
-    // more tests to follow ...
+        testGroup.reset("test1 3");
+        testGroup.add() << SETPAGE(2) << SETOPT(QWizard::HaveNextButtonOnLastPage);
+        testGroup.add() << SETOPT(QWizard::HaveNextButtonOnLastPage) << SETPAGE(2);
+        testGroup.createTestRows();
+    }
+};
+
+void tst_QWizard::combinations_data()
+{
+    CombinationsTestData combTestData;
+//    combTestData.createAllTestRows();
+    combTestData.createTestRows1();
+
+    qDebug() << "test rows:" << combTestData.nRows();
 }
 
 void tst_QWizard::combinations()
@@ -1890,7 +1931,7 @@ void tst_QWizard::combinations()
 
     TestWizard wizard;
     wizard.applyOperations(operations);
-    wizard.show(); // ### required, but why? should wizard.createImage() care?
+    wizard.show(); // ### Required, but why? Should wizard.createImage() care?
 
     static QImage refImage;
     static QSize refMinSize;
@@ -1921,16 +1962,12 @@ void tst_QWizard::combinations()
         qDebug() << "minimum sizes" << reason.latin1() << ";" << wizard.minimumSize()
                  << otor.latin1() << refMinSize;
 
-    if (imageTest) {
+    if (imageTest)
         qDebug() << "images" << reason.latin1();
-        refImage.save("ref.png");
-        image.save("curr.png");
-    }
 
     if (minSizeTest || imageTest) {
         qDebug() << "\t      row 0 operations:" << refDescr.toLatin1();
         qDebug() << "\tcurrent row operations:" << wizard.operationsDescription().toLatin1();
-        exit(1);
         QVERIFY(false);
     }
 }
