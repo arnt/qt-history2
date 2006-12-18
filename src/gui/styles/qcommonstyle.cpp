@@ -3967,6 +3967,8 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
     case SH_ComboBox_PopupBackgroundRole:
         ret = QPalette::Base;
         break;
+    case SH_FocusFrame_AboveWidget:
+        ret = false;
     default:
         ret = 0;
         break;

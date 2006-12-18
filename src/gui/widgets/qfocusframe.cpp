@@ -38,7 +38,10 @@ void QFocusFramePrivate::update()
     q->setParent(widget->parentWidget());
     updateSize();
     if (q->parentWidget()->rect().contains(q->geometry())) {
-        q->stackUnder(widget);
+        if (q->style()->styleHint(QStyle::SH_FocusFrame_AboveWidget, 0, q))
+            q->raise();
+        else
+            q->stackUnder(widget);
         q->show();
     } else {
         q->hide();

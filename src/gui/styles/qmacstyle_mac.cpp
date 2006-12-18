@@ -1971,6 +1971,9 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_ComboBox_PopupBackgroundRole:
         ret = QPalette::Window;
         break;
+    case SH_FocusFrame_AboveWidget:
+        ret = true;
+        break;
     default:
         ret = QWindowsStyle::styleHint(sh, opt, w, hret);
         break;
@@ -3037,7 +3040,8 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
         break;
     case CE_FocusFrame: {
         SInt32 fo;
-        GetThemeMetric(kThemeMetricFocusRectOutset, &fo);
+        GetThemeMetric(kThemeMetricFocusRectOutset, &fo); // This value is deprecated...
+        ++fo; // ...therefore make it a bit nicer.
         HIRect hirect = CGRectMake(fo, fo, opt->rect.width() - 2 * fo,
                                    opt->rect.height() - 2 * fo);
         HIThemeDrawFocusRect(&hirect, true, QMacCGContext(p), kHIThemeOrientationNormal);

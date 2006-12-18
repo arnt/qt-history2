@@ -604,6 +604,7 @@ public:
         SH_ItemView_MovementWithoutUpdatingSelection,
         SH_ComboBox_PopupBackgroundRole,
         SH_ToolTip_Mask,
+        SH_FocusFrame_AboveWidget,
 
         // Add new style hint values here
 

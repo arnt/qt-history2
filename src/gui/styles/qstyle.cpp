@@ -1594,6 +1594,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SH_ComboBox_PopupBackgroundRole The background role for the QComboBox popup. 
     \value SH_ToolTip_Mask The mask of a tool tip.
 
+    \value SH_FocusFrame_AboveWidget The FocusFrame is stacked above the widget that it is "focusing on".
+
     Used to fill any area not covered by the items.
     \omitvalue SH_UnderlineAccelerator
 
