@@ -566,7 +566,14 @@ void QLineEdit::setCompleter(QCompleter *c)
     d->completer = c;
     if (!c)
         return;
-    c->setWidget(this);
+    if (c->widget() == 0)
+        c->setWidget(this);
+    if (hasFocus()) {
+        QObject::connect(d->completer, SIGNAL(activated(QString)),
+                         this, SLOT(setText(QString)));
+        QObject::connect(d->completer, SIGNAL(highlighted(QString)),
+                         this, SLOT(_q_completionHighlighted(QString)));
+    }
 }
 
 /*!
@@ -580,18 +587,29 @@ QCompleter *QLineEdit::completer() const
     return d->completer;
 }
 
-bool QLineEditPrivate::advanceToNextEnabledItem(int n /* n = 1 ? forward : backward */)
+// looks for an enabled item iterating forward(dir=1)/backward(dir=-1) from the
+// current row based. dir=0 indicates a new completion prefix was set.
+bool QLineEditPrivate::advanceToEnabledItem(int dir)
 {
-    while (true) {
-        QModelIndex currentIndex = completer->currentIndex();
-        if (!currentIndex.isValid())
-            return false;
-        if (completer->completionModel()->flags(currentIndex) & Qt::ItemIsEnabled)
-            return true;
-        if (!completer->setCurrentRow(completer->currentRow() + n))
-            break;
-    }
+    int start = completer->currentRow();
+    if (start == -1)
+        return false;
+    int i = start + dir;
+    if (dir == 0) dir = 1;
+    do {
+        if (!completer->setCurrentRow(i)) {
+            if (!completer->wrapAround())
+                break;
+            i = i > 0 ? 0 : completer->completionCount() - 1;
+        } else {
+            QModelIndex currentIndex = completer->currentIndex();
+            if (completer->completionModel()->flags(currentIndex) & Qt::ItemIsEnabled)
+                return true;
+            i += dir;
+        }
+    } while (i != start);
 
+    completer->setCurrentRow(start); // restore
     return false;
 }
 
@@ -603,20 +621,15 @@ void QLineEditPrivate::complete(int key)
     if (completer->completionMode() == QCompleter::InlineCompletion) {
         if (key == Qt::Key_Backspace)
             return;
-        int n = 1;
+        int n = 0;
         if (key == Qt::Key_Up || key == Qt::Key_Down) {
             if (selend != 0 && selend != text.length())
                 return;
-            QString prefix = text.left(cursor);
-            if (prefix != completer->completionPrefix()) {
-                completer->setCompletionPrefix(prefix);
-            } else {
-                n = (key == Qt::Key_Up) ? -1 : +1;
-                completer->setCurrentRow(completer->currentRow() + n);
-            }
-        } else
+            n = (key == Qt::Key_Up) ? -1 : +1;
+        } else {
             completer->setCompletionPrefix(text);
-        if (!advanceToNextEnabledItem(n))
+        }
+        if (!advanceToEnabledItem(n))
             return;
     } else {
         if (text.isEmpty()) {

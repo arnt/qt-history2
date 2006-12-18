@@ -15,7 +15,8 @@
 #include "qstringlist.h"
 #include "qstyle.h"
 #include "qvalidator.h"
-
+#include "qcompleter.h"
+#include "qstandarditemmodel.h"
 
 #ifdef Q_WS_MAC
 #include <Carbon/Carbon.h> // For the random function.
@@ -196,6 +197,7 @@ private slots:
 
     void charWithAltOrCtrlModifier();
 
+    void inlineCompletion();
 protected slots:
 #ifdef QT3_SUPPORT
     void lostFocus();
@@ -3000,6 +3002,63 @@ void tst_QLineEdit::leftKeyOnSelectedText()
     // resulted in an inadvertant change in behavior
     QCOMPARE(testWidget->cursorPosition(), 2);
 #endif
+}
+
+void tst_QLineEdit::inlineCompletion()
+{
+    testWidget->clear();
+    QStandardItemModel *model = new QStandardItemModel;
+    QStandardItem *root = model->invisibleRootItem();
+    QStandardItem *items[5];
+    for (int i = 0; i < 5; i++) {
+        items[i] = new QStandardItem(QString("item%1").arg(i));
+        if ((i+2)%2 == 0) { // disable 0,2,4
+            items[i]->setFlags(items[i]->flags() & ~Qt::ItemIsEnabled);
+        }
+        root->appendRow(items[i]);
+    }
+    QCompleter *completer = new QCompleter(model);
+    completer->setCompletionMode(QCompleter::InlineCompletion);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    testWidget->setFocus();
+    qApp->processEvents();
+    testWidget->setCompleter(completer);
+
+    // sanity
+    QTest::keyClick(testWidget, Qt::Key_X);
+    QCOMPARE(testWidget->selectedText(), QString());
+    QCOMPARE(testWidget->text(), QString("x"));
+    QTest::keyClick(testWidget, Qt::Key_Down, Qt::ControlModifier);
+    QCOMPARE(testWidget->selectedText(), QString());
+    QCOMPARE(testWidget->text(), QString("x"));
+    QTest::keyClick(testWidget, Qt::Key_Up, Qt::ControlModifier);
+    QCOMPARE(testWidget->selectedText(), QString());
+    QCOMPARE(testWidget->text(), QString("x"));
+
+    testWidget->clear();
+    QTest::keyClick(testWidget, Qt::Key_I);
+    QCOMPARE(testWidget->selectedText(), QString("tem1"));
+
+    QTest::keyClick(testWidget, Qt::Key_Down, Qt::ControlModifier);
+    QCOMPARE(testWidget->selectedText(), QString("tem3"));
+
+    // wraps around (Default)
+    QTest::keyClick(testWidget, Qt::Key_Down, Qt::ControlModifier);
+    QCOMPARE(testWidget->selectedText(), QString("tem1"));
+
+    QTest::keyClick(testWidget, Qt::Key_Up, Qt::ControlModifier);
+    QCOMPARE(testWidget->selectedText(), QString("tem3"));
+
+    // should not wrap
+    completer->setWrapAround(false);
+    QTest::keyClick(testWidget, Qt::Key_Down, Qt::ControlModifier);
+    QCOMPARE(testWidget->selectedText(), QString("tem3"));
+    QTest::keyClick(testWidget, Qt::Key_Up, Qt::ControlModifier); // item1
+    QTest::keyClick(testWidget, Qt::Key_Up, Qt::ControlModifier); // item1
+    QCOMPARE(testWidget->selectedText(), QString("tem1"));
+
+    delete model;
+    delete completer;
 }
 
 QTEST_MAIN(tst_QLineEdit)
