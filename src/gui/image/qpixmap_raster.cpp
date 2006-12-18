@@ -34,9 +34,11 @@
 
 typedef void (*_qt_pixmap_cleanup_hook)(int);
 Q_GUI_EXPORT _qt_pixmap_cleanup_hook qt_pixmap_cleanup_hook = 0;
+
+// remove in Qt 5.0
 Q_GUI_EXPORT qint64 qt_pixmap_id(const QPixmap &pixmap)
 {
-    return (((qint64) pixmap.data->image.serialNumber()) << 32) | ((qint64) pixmap.data->detach_no);
+    return pixmap.cacheKey();
 }
 
 QPixmap::QPixmap()
@@ -333,21 +335,15 @@ QBitmap QPixmap::createHeuristicMask(bool clipTight ) const
 }
 #endif
 
+QBitmap QPixmap::createMaskFromColor(const QColor &maskColor, Qt::MaskMode mode) const
+{
+    QImage image = toImage().convertToFormat(QImage::Format_ARGB32);
+    return QBitmap::fromImage(image.createMaskFromColor(maskColor.rgba(), mode));
+}
+
 QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
 {
-    QImage maskImage(size(), QImage::Format_MonoLSB);
-    QImage image = toImage();
-    QRgb mColor = maskColor.rgba();
-    for (int w = 0; w < width(); w++) {
-        for (int h = 0; h < height(); h++) {
-            if (image.pixel(w, h) == mColor)
-                maskImage.setPixel(w, h, Qt::color1);
-            else
-                maskImage.setPixel(w, h, Qt::color0);
-        }
-    }
-    QBitmap m = fromImage(maskImage);
-    return m;
+    return createMaskFromColor(maskColor, Qt::MaskInColor);
 }
 
 
@@ -525,6 +521,12 @@ int QPixmap::serialNumber() const
     return data->image.serialNumber();
 }
 
+qint64 QPixmap::cacheKey() const
+{
+    // avoid exposing the internal QImageData structure..
+    return (data->image.cacheKey() & 0xffffffff00000000) | ((qint64) data->detach_no);
+}
+
 bool QPixmap::isDetached() const
 {
     return data->count == 1;
@@ -532,9 +534,9 @@ bool QPixmap::isDetached() const
 
 void QPixmap::detach()
 {
-    ++data->detach_no;
     if (data->count != 1)
         *this = copy();
+    ++data->detach_no;
 }
 
 #ifdef QT3_SUPPORT
