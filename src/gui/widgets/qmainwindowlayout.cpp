@@ -1850,7 +1850,14 @@ bool QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
         addToolBar(static_cast<Qt::ToolBarArea>(areaForPosition(where)), toolbar, false);
         return toolBarPositionSwapped;
     }
-    relayout();
+
+    if (parentWidget()->isWindow()) {
+        relayout();
+    } else {
+        invalidate();
+        parentWidget()->updateGeometry();
+    }
+
     return toolBarPositionSwapped;
 }
 
