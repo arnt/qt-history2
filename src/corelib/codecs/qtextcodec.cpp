@@ -1216,7 +1216,7 @@ void QTextDecoder::toUnicode(QString *target, const char *chars, int len)
     Q_ASSERT(target);
     switch (c->mibEnum()) {
     case 106: // utf8
-        return static_cast<const QUtf8Codec*>(c)->convertToUnicode(target, chars, len, &state);
+        static_cast<const QUtf8Codec*>(c)->convertToUnicode(target, chars, len, &state);
     case 4: { // latin1
         target->resize(len);
         ushort *data = (ushort*)target->data();
