@@ -57,8 +57,9 @@ struct QAxMetaObject : public QMetaObject
 
     int numParameter(const QByteArray &prototype);
     QByteArray paramType(const QByteArray &signature, int index, bool *out = 0);
+    QByteArray propertyType(const QByteArray &propertyName);
     void parsePrototype(const QByteArray &prototype);
-    DISPID dispIDofName(const QString &name, IDispatch *disp);
+    DISPID dispIDofName(const QByteArray &name, IDispatch *disp);
 
 private:
     friend class MetaObjectGenerator;
@@ -76,7 +77,7 @@ private:
     QMap<QByteArray, QByteArray> realPrototype;
 
     // DISPID cache
-    QHash<QString, DISPID> dispIDs;
+    QHash<QByteArray, DISPID> dispIDs;
 };
 
 void QAxMetaObject::parsePrototype(const QByteArray &prototype)
@@ -91,6 +92,11 @@ void QAxMetaObject::parsePrototype(const QByteArray &prototype)
         QList<QByteArray> plist = parameters.split(',');
         memberInfo.insert(prototype, plist);
     }
+}
+
+inline QByteArray QAxMetaObject::propertyType(const QByteArray &propertyName)
+{
+    return realPrototype.value(propertyName);
 }
 
 int QAxMetaObject::numParameter(const QByteArray &prototype)
@@ -127,12 +133,13 @@ QByteArray QAxMetaObject::paramType(const QByteArray &prototype, int index, bool
     return param;
 }
 
-inline DISPID QAxMetaObject::dispIDofName(const QString &name, IDispatch *disp)
+inline DISPID QAxMetaObject::dispIDofName(const QByteArray &name, IDispatch *disp)
 {
     DISPID dispid = dispIDs.value(name, DISPID_UNKNOWN);
     if (dispid == DISPID_UNKNOWN) {
         // get the Dispatch ID from the object
-        OLECHAR *names = (TCHAR*)name.utf16();
+        QString unicodeName = QLatin1String(name);
+        OLECHAR *names = (TCHAR*)unicodeName.utf16();
         disp->GetIDsOfNames(IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid);
         if (dispid != DISPID_UNKNOWN)
             dispIDs.insert(name, dispid);
@@ -152,6 +159,12 @@ static const char *const type_conversion[][2] =
     { "float", "double"},
     { "short", "int"},
     { "char", "int"},
+    { "QList<int>", "QVariantList" },
+    { "QList<uint>", "QVariantList" },
+    { "QList<double>", "QVariantList" },
+    { "QList<bool>", "QVariantList" },
+    { "QList<QDateTime>", "QVariantList" },
+    { "QList<qlonglong>", "QVariantList" },
     { 0, 0 }
 };
 
@@ -538,7 +551,7 @@ public:
 
     QString ctrl;
 
-    QHash<QString, QAxEventSink*> eventSink;
+    QHash<QUuid, QAxEventSink*> eventSink;
     uint useEventSink	    :1;
     uint useMetaObject	    :1;
     uint useClassInfo	    :1;
@@ -701,6 +714,11 @@ QByteArray QAxEventSink::findProperty(DISPID dispID)
     \i QColor&
     \row
     \i SAFEARRAY(VARIANT)
+    \i QList\<QVariant\>
+    \i const QList\<QVariant\>&
+    \i QList\<QVariant\>&
+    \row
+    \i SAFEARRAY(int), SAFEARRAY(double), SAFEARRAY(Date)
     \i QList\<QVariant\>
     \i const QList\<QVariant\>&
     \i QList\<QVariant\>&
@@ -1071,7 +1089,7 @@ void QAxBase::disableClassInfo()
 */
 void QAxBase::clear()
 {
-    QHash<QString, QAxEventSink*>::Iterator it =  d->eventSink.begin();
+    QHash<QUuid, QAxEventSink*>::Iterator it =  d->eventSink.begin();
     while (it != d->eventSink.end()) {
         QAxEventSink *eventSink = it.value();
         ++it;
@@ -1625,27 +1643,35 @@ private:
         return slot_list.contains(prototype);
     }
 
-    QMap<QByteArray, QPair<QByteArray, int> > property_list;
+    struct Property {
+        QByteArray type;
+        int typeId;
+        QByteArray realType;
+    };
+    QMap<QByteArray, Property> property_list;
     void addProperty(const QByteArray &type, const QByteArray &name, int flags)
     {
-        QPair<QByteArray, int> &prop = property_list[name];
-        if (!type.isEmpty() && type != "HRESULT")
-            prop.first = replaceType(type);
-        prop.second |= flags;
-        QVariant::Type vartype = QVariant::nameToType(prop.first);
+        Property &prop = property_list[name];
+        if (!type.isEmpty() && type != "HRESULT") {
+            prop.type = replaceType(type);
+            if (prop.type != type)
+                prop.realType = type;
+        }
+        prop.typeId |= flags;
+        QVariant::Type vartype = QVariant::nameToType(prop.type);
         switch(vartype) {
         case QVariant::Invalid:
-            if (prop.first == "QVariant") {
-                prop.second |= 0xff << 24;
+            if (prop.type == "QVariant") {
+                prop.typeId |= 0xff << 24;
                 break;
             }
             // fall through
         case QVariant::UserType:
-            if (QMetaType::type(prop.first) == -1)
-                qWarning("QAxBase: Unsupported property type: %s", prop.first.data());
+            if (QMetaType::type(prop.type) == -1)
+                qWarning("QAxBase: Unsupported property type: %s", prop.type.data());
             break;
         default:
-            prop.second |= vartype << 24;
+            prop.typeId |= vartype << 24;
             break;
         }
     }
@@ -1657,7 +1683,7 @@ private:
 
     inline QByteArray propertyType(const QByteArray &name)
     {
-        return property_list.value(name).first;
+        return property_list.value(name).type;
     }
 
     QMap<QByteArray, QList<QPair<QByteArray, int> > > enum_list;
@@ -2029,19 +2055,23 @@ QByteArray MetaObjectGenerator::guessTypes(const TYPEDESC &tdesc, ITypeInfo *inf
         }
         break;
     case VT_SAFEARRAY:
-        if (tdesc.lpadesc->tdescElem.vt == VT_UI1) {
+        switch(tdesc.lpadesc->tdescElem.vt) {
+        // some shortcuts, and generic support for lists of QVariant-supported types
+        case VT_UI1:
             str = "QByteArray";
             break;
-        } else if (tdesc.lpadesc->tdescElem.vt == VT_BSTR) {
+        case VT_BSTR:
             str = "QStringList";
             break;
-        } else if (tdesc.lpadesc->tdescElem.vt == VT_VARIANT) {
+        case VT_VARIANT:
             str = "QVariantList";
             break;
+        default:
+            str = guessTypes(tdesc.lpadesc->tdescElem, info, function);
+            if (!str.isEmpty())
+                str = "QList<" + str + ">";
+            break;
         }
-        str = guessTypes(tdesc.lpadesc->tdescElem, info, function);
-        if (!str.isEmpty())
-            str = "QList<" + str + ">";
         break;
     case VT_CARRAY:
         str = guessTypes(tdesc.lpadesc->tdescElem, info, function);
@@ -2235,10 +2265,10 @@ void MetaObjectGenerator::readEnumInfo()
                             valueName = "value" + QByteArray::number(valueindex++);
                         }
 
-                        if (clashCheck.contains(QString::fromLatin1(valueName.constData())))
+                        if (clashCheck.contains(QString::fromLatin1(valueName)))
                             valueName += QByteArray::number(++clashIndex);
 
-                        clashCheck.insert(QString::fromLatin1(valueName.constData()));
+                        clashCheck.insert(QString::fromLatin1(valueName));
                         addEnumValue(enumName, valueName, value);
                     }
                     enuminfo->ReleaseVarDesc(vardesc);
@@ -3015,10 +3045,13 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
     Q_ASSERT(offset == int_data[7]);
 
     // each property in form name\0type\0
-    for (QMap<QByteArray, QPair<QByteArray, int> >::ConstIterator it = property_list.begin(); it != property_list.end(); ++it) {
+    for (QMap<QByteArray, Property>::ConstIterator it = property_list.begin(); it != property_list.end(); ++it) {
         QByteArray name(it.key());
-        QByteArray type(it.value().first);
-        int flags = it.value().second;
+        QByteArray type(it.value().type);
+        QByteArray realType(it.value().realType);
+        if (!realType.isEmpty() && realType != type)
+            metaobj->realPrototype.insert(name, realType);
+        int flags = it.value().typeId;
 
         int_data[offset++] = stringdata.length();
         stringdata += name;
@@ -3076,7 +3109,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
     if (!cacheKey.isEmpty()) {
         mo_cache.insert(cacheKey, d->metaobj);
         d->cachedMetaObject = true;
-        for (QHash<QString, QAxEventSink*>::Iterator it = d->eventSink.begin(); it != d->eventSink.end(); ++it) {
+        for (QHash<QUuid, QAxEventSink*>::Iterator it = d->eventSink.begin(); it != d->eventSink.end(); ++it) {
             QAxEventSink *sink = it.value();
             if (sink) {
                 QUuid ciid = sink->connectionInterface();
@@ -3335,10 +3368,10 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
 {
     const QMetaObject *mo = metaObject();
     const QMetaProperty prop = mo->property(index + mo->propertyOffset());
-    QString propname = QLatin1String(prop.name());
+    QByteArray propname = prop.name();
 
     // hardcoded control property
-    if (propname == QLatin1String("control")) {
+    if (propname == "control") {
         switch(call) {
         case QMetaObject::ReadProperty:
             *(QString*)*v = control();
@@ -3425,7 +3458,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
                     qvar = QVariant(qRegisterMetaType<void*>(prop.typeName()), (void**)v[0]);
 //                    qVariantSetValue(qvar, *(void**)v[0], prop.typeName());
                 } else {
-                    proptype = 0;
+                    proptype = d->metaObject()->propertyType(propname);
                     qvar = QVariant(t, v[0]);
                 }
             }
@@ -3444,7 +3477,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
         break;
     }
 
-    checkHRESULT(hres, &excepinfo, this, propname, argerr);
+    checkHRESULT(hres, &excepinfo, this, QLatin1String(propname), argerr);
     return index;
 }
 
@@ -3468,15 +3501,14 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
 
     // Get the Dispatch ID of the method to be called
     bool isProperty = false;
-    QString uni_slotname = QLatin1String(slotname);
-    DISPID dispid = d->metaObject()->dispIDofName(uni_slotname, disp);
+    DISPID dispid = d->metaObject()->dispIDofName(slotname, disp);
 
     Q_ASSERT(d->metaobj);
 
     if (dispid == DISPID_UNKNOWN && slotname.toLower().startsWith("set")) {
         // see if we are calling a property set function as a slot
-        uni_slotname = uni_slotname.right(uni_slotname.length() - 3);
-        dispid = d->metaobj->dispIDofName(uni_slotname, disp);
+        slotname = slotname.right(slotname.length() - 3);
+        dispid = d->metaobj->dispIDofName(slotname, disp);
         isProperty = true;
     }
     if (dispid == DISPID_UNKNOWN)
@@ -3810,11 +3842,10 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
         }
     }
 
-    QString uni_function = QLatin1String(function);
-    DISPID dispid = d->metaobj->dispIDofName(uni_function, disp);
+    DISPID dispid = d->metaobj->dispIDofName(function, disp);
     if (dispid == DISPID_UNKNOWN && function.toLower().startsWith("set")) {
-        uni_function = uni_function.mid(3);
-        dispid = d->metaobj->dispIDofName(uni_function, disp);
+        function = function.mid(3);
+        dispid = d->metaobj->dispIDofName(function, disp);
         disptype = DISPATCH_PROPERTYPUT;
     }
 
@@ -3850,7 +3881,7 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
     if (arg && arg != staticarg)
         delete[] arg;
 
-    return checkHRESULT(hres, &excepinfo, this, QString::fromLatin1(function.constData()), varc-argerr-1);
+    return checkHRESULT(hres, &excepinfo, this, QLatin1String(function), varc-argerr-1);
 }
 
 

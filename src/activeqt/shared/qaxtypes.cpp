@@ -408,20 +408,55 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
         {
             const QList<QVariant> list = qvar.toList();
             const int count = list.count();
-            SAFEARRAY *array = SafeArrayCreateVector(VT_VARIANT, 0, count);
+            VARTYPE vt = VT_VARIANT;
+            QVariant::Type listType = QVariant::LastType; // == QVariant
+            if (!typeName.isEmpty() && typeName.startsWith("QList<")) {
+                const QByteArray listTypeName = typeName.mid(6, typeName.length() - 7); // QList<int> -> int
+                listType = QVariant::nameToType(listTypeName);
+            }
+
+            VARIANT variant;
+            void *pElement = &variant;
+            switch(listType) {
+            case QVariant::Int:
+                vt = VT_I4;
+                pElement = &variant.lVal;
+                break;
+            case QVariant::Double:
+                vt = VT_R8;
+                pElement = &variant.dblVal;
+                break;
+            case QVariant::DateTime:
+                vt = VT_DATE;
+                pElement = &variant.date;
+                break;
+            case QVariant::Bool:
+                vt = VT_BOOL;
+                pElement = &variant.boolVal;
+                break;
+            case QVariant::LongLong:
+                vt = VT_CY;
+                pElement = &variant.cyVal;
+                break;
+            default:
+                break;
+            }
+
+            SAFEARRAY *array = SafeArrayCreateVector(vt, 0, count);
             for (LONG index = 0; index < count; ++index) {
                 QVariant elem = list.at(index);
-                VARIANT var;
-                VariantInit(&var);
-                QVariantToVARIANT(elem, var, elem.typeName());
-                SafeArrayPutElement(array, &index, &var);
-                clearVARIANT(&var);
+                if (listType != QVariant::LastType)
+                    elem.convert(listType);
+                VariantInit(&variant);
+                QVariantToVARIANT(elem, variant, elem.typeName());
+                SafeArrayPutElement(array, &index, pElement);
+                clearVARIANT(&variant);
             }
             
-            if (out && arg.vt == (VT_ARRAY|VT_VARIANT|VT_BYREF)) {
+            if (out && arg.vt == (VT_ARRAY|vt|VT_BYREF)) {
                 *arg.pparray = array;
             } else {
-                arg.vt = VT_ARRAY|VT_VARIANT;
+                arg.vt = VT_ARRAY|vt;
                 arg.parray = array;
                 if (out) {
                     arg.pparray = new SAFEARRAY*(arg.parray);
@@ -1108,6 +1143,65 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
         break;
 #endif // QAX_SERVER
     default:
+        // support for any SAFEARRAY(Type) where Type can be converted to a QVariant 
+        // -> QVariantList
+        if (arg.vt & VT_ARRAY) {
+            SAFEARRAY *array = 0;
+            if (arg.vt & VT_BYREF)
+                array = *arg.pparray;
+            else
+                array = arg.parray;
+
+            QVariantList list;
+            if (!array || array->cDims != 1) {
+                var = list;
+                break;
+            }
+
+            // find out where to store the element
+            VARTYPE vt;
+            VARIANT variant;
+            SafeArrayGetVartype(array, &vt);
+
+            void *pElement = 0;
+            switch(vt) {
+            case VT_BSTR: Q_ASSERT(false); break; // already covered
+            case VT_BOOL: pElement = &variant.boolVal; break;
+            case VT_I1: pElement = &variant.cVal; break;
+            case VT_I2: pElement = &variant.iVal; break;
+            case VT_I4: pElement = &variant.lVal; break;
+            case VT_INT: pElement = &variant.intVal; break;
+            case VT_UI1: Q_ASSERT(false); break; // already covered
+            case VT_UI2: pElement = &variant.uiVal; break;
+            case VT_UI4: pElement = &variant.ulVal; break;
+            case VT_UINT: pElement = &variant.uintVal; break;
+            case VT_CY: pElement = &variant.cyVal; break;
+            case VT_R4: pElement = &variant.fltVal; break;
+            case VT_R8: pElement = &variant.dblVal; break;
+            case VT_DATE: pElement = &variant.date; break;
+            case VT_VARIANT: Q_ASSERT(false); break; // already covered
+            default:
+                break;
+            }
+            if (!pElement) {
+                var = list;
+                break;
+            }
+
+            long lBound, uBound;
+            SafeArrayGetLBound( array, 1, &lBound );
+            SafeArrayGetUBound( array, 1, &uBound );
+
+	    for ( long i = lBound; i <= uBound; ++i ) {
+                variant.vt = vt;
+		SafeArrayGetElement(array, &i, pElement);
+		QVariant qvar = VARIANTToQVariant(variant, 0);
+		clearVARIANT(&variant);
+		list << qvar;
+	    }
+
+            var = list;
+        }
         break;
     }
     
