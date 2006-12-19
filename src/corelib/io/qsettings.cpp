@@ -89,7 +89,7 @@ inline bool qt_isEvilFsTypeName(const char *name)
             || qstrncmp(name, "cachefs", 7) == 0);
 }
 
-#if defined(Q_OS_BSD4)
+#if defined(Q_OS_BSD4) && !defined(Q_OS_NETBSD)
 # include <sys/param.h>
 # include <sys/mount.h>
 
@@ -125,7 +125,7 @@ static bool isLikelyToBeNfs(int handle)
 
 #elif defined(Q_OS_SOLARIS) || defined(Q_OS_IRIX) || defined(Q_OS_AIX) || defined(Q_OS_HPUX) \
       || defined(Q_OS_OSF) || defined(Q_OS_QNX) || defined(Q_OS_QNX6) || defined(Q_OS_SCO) \
-      || defined(Q_OS_UNIXWARE) || defined(Q_OS_RELIANT)
+      || defined(Q_OS_UNIXWARE) || defined(Q_OS_RELIANT) || defined(Q_OS_NETBSD)
 # include <sys/statvfs.h>
 
 static bool isLikelyToBeNfs(int handle)
