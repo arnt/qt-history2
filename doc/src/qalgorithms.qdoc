@@ -183,8 +183,7 @@
     \row \i \c{i < j} \i returns true if iterator \c j comes after iterator \c i
     \endtable
 
-    QList, QLinkedList, and QVector's non-const iterator types are
-    random access iterators.
+    QList and QVector's non-const iterator types are random access iterators.
 
     \sa {container classes}, <QtGlobal>
 */
