@@ -299,7 +299,8 @@ QModelIndex QFileSystemModelPrivate::index(const QFileSystemModelPrivate::QFileS
 
     // get the parent's row
     int realRow = findChild(parentNode, *node);
-    Q_ASSERT(realRow >= 0);
+    if (realRow == -1) // ### see 144246
+        return QModelIndex();
     int visualRow = translateVisibleLocation(parentNode, parentNode->visibleLocation(realRow));
     if (visualRow == -1)
         return QModelIndex();
