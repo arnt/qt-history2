@@ -7231,6 +7231,7 @@ QDomNodeList QDomDocument::elementsByTagNameNS(const QString& nsURI, const QStri
 */
 QDomElement QDomDocument::elementById(const QString& /*elementId*/)
 {
+    qWarning("elementById() is not implemented and will always return a null node.");
     return QDomElement();
 }
 
