@@ -2291,6 +2291,26 @@ QDomNode::~QDomNode()
         delete impl;
 }
 
+/*! \internal
+ Helper function to make users grasp the null-node concept.
+ Whenever the implementation should be valid, call this function instead of
+ doing a nullpointer check.
+ */
+static inline bool isImplValid(const QDomNodePrivate *const impl,
+                               const char *const callee)
+{
+    Q_ASSERT(callee);
+
+    if(impl) {
+        return true;
+    } else {
+        qDebug(qPrintable(QString::fromLatin1("Function %1() does nothing on a null node(see "
+                                              "QDomNode::isNull()). Create non-null nodes with the factory functions "
+                                              "such as QDomDocument::createElement().").arg(QString::fromLatin1(callee))));
+        return false;
+    }
+}
+
 /*!
     Returns the name of the node.
 
@@ -2315,7 +2335,7 @@ QDomNode::~QDomNode()
 */
 QString QDomNode::nodeName() const
 {
-    if (!impl)
+    if (!isImplValid(impl, "nodeName"))
         return QString();
 
     if (!IMPL->prefix.isEmpty())
@@ -2343,7 +2363,7 @@ QString QDomNode::nodeName() const
 */
 QString QDomNode::nodeValue() const
 {
-    if (!impl)
+    if (!isImplValid(impl, "nodeValue"))
         return QString();
     return IMPL->value;
 }
@@ -2355,7 +2375,7 @@ QString QDomNode::nodeValue() const
 */
 void QDomNode::setNodeValue(const QString& v)
 {
-    if (!impl)
+    if (!isImplValid(impl, "setNodeValue"))
         return;
     IMPL->setNodeValue(v);
 }
@@ -2401,7 +2421,7 @@ QDomNode::NodeType QDomNode::nodeType() const
 */
 QDomNode QDomNode::parentNode() const
 {
-    if (!impl)
+    if (!isImplValid(impl, "parentNode"))
         return QDomNode();
     return QDomNode(IMPL->parent());
 }
@@ -2429,7 +2449,7 @@ QDomNode QDomNode::parentNode() const
 */
 QDomNodeList QDomNode::childNodes() const
 {
-    if (!impl)
+    if (!isImplValid(impl, "childNodes"))
         return QDomNodeList();
     return QDomNodeList(new QDomNodeListPrivate(impl));
 }
@@ -2443,7 +2463,7 @@ QDomNodeList QDomNode::childNodes() const
 */
 QDomNode QDomNode::firstChild() const
 {
-    if (!impl)
+    if (!isImplValid(impl, "firstChild"))
         return QDomNode();
     return QDomNode(IMPL->first);
 }
@@ -2457,7 +2477,7 @@ QDomNode QDomNode::firstChild() const
 */
 QDomNode QDomNode::lastChild() const
 {
-    if (!impl)
+    if (!isImplValid(impl, "lastChild"))
         return QDomNode();
     return QDomNode(IMPL->last);
 }
@@ -2479,7 +2499,7 @@ QDomNode QDomNode::lastChild() const
 */
 QDomNode QDomNode::previousSibling() const
 {
-    if (!impl)
+    if (!isImplValid(impl, "previousSibling"))
         return QDomNode();
     return QDomNode(IMPL->prev);
 }
@@ -2501,7 +2521,7 @@ QDomNode QDomNode::previousSibling() const
 */
 QDomNode QDomNode::nextSibling() const
 {
-    if (!impl)
+    if (!isImplValid(impl, "nextSibling"))
         return QDomNode();
     return QDomNode(IMPL->next);
 }
@@ -2517,7 +2537,7 @@ QDomNode QDomNode::nextSibling() const
 */
 QDomNamedNodeMap QDomNode::attributes() const
 {
-    if (!impl || !impl->isElement())
+    if (!isImplValid(impl, "attributes") || !impl->isElement())
         return QDomNamedNodeMap();
 
     return QDomNamedNodeMap(static_cast<QDomElementPrivate *>(impl)->attributes());
@@ -2528,7 +2548,7 @@ QDomNamedNodeMap QDomNode::attributes() const
 */
 QDomDocument QDomNode::ownerDocument() const
 {
-    if (!impl)
+    if (!isImplValid(impl, "ownerDocument"))
         return QDomDocument();
     return QDomDocument(IMPL->ownerDocument());
 }
@@ -2543,7 +2563,7 @@ QDomDocument QDomNode::ownerDocument() const
 */
 QDomNode QDomNode::cloneNode(bool deep) const
 {
-    if (!impl)
+    if (!isImplValid(impl, "cloneNode"))
         return QDomNode();
     return QDomNode(IMPL->cloneNode(deep));
 }
@@ -2556,7 +2576,7 @@ QDomNode QDomNode::cloneNode(bool deep) const
 */
 void QDomNode::normalize()
 {
-    if (!impl)
+    if (!isImplValid(impl, "normalize"))
         return;
     IMPL->normalize();
 }
@@ -2588,7 +2608,7 @@ bool QDomNode::isSupported(const QString& feature, const QString& version) const
 */
 QString QDomNode::namespaceURI() const
 {
-    if (!impl)
+    if (!isImplValid(impl, "namespaceURI"))
         return QString();
     return IMPL->namespaceURI;
 }
@@ -2616,7 +2636,7 @@ QString QDomNode::namespaceURI() const
 */
 QString QDomNode::prefix() const
 {
-    if (!impl)
+    if (!isImplValid(impl, "prefix"))
         return QString();
     return IMPL->prefix;
 }
@@ -2636,7 +2656,7 @@ QString QDomNode::prefix() const
 */
 void QDomNode::setPrefix(const QString& pre)
 {
-    if (!impl || IMPL->prefix.isNull())
+    if (!isImplValid(impl, "setPrefix") || IMPL->prefix.isNull())
         return;
     if (isAttr() || isElement())
         IMPL->prefix = pre;
@@ -2656,7 +2676,7 @@ void QDomNode::setPrefix(const QString& pre)
 */
 QString QDomNode::localName() const
 {
-    if (!impl || IMPL->createdWithDom1Interface)
+    if (!isImplValid(impl, "localName") || IMPL->createdWithDom1Interface)
         return QString();
     return IMPL->name;
 }
@@ -2668,7 +2688,7 @@ QString QDomNode::localName() const
 */
 bool QDomNode::hasAttributes() const
 {
-    if (!impl || !impl->isElement())
+    if (!isImplValid(impl, "hasAttributes") || !impl->isElement())
         return false;
     return static_cast<QDomElementPrivate *>(impl)->hasAttributes();
 }
@@ -2694,7 +2714,7 @@ bool QDomNode::hasAttributes() const
 */
 QDomNode QDomNode::insertBefore(const QDomNode& newChild, const QDomNode& refChild)
 {
-    if (!impl)
+    if (!isImplValid(impl, "insertBefore"))
         return QDomNode();
     return QDomNode(IMPL->insertBefore(newChild.impl, refChild.impl));
 }
@@ -2720,7 +2740,7 @@ QDomNode QDomNode::insertBefore(const QDomNode& newChild, const QDomNode& refChi
 */
 QDomNode QDomNode::insertAfter(const QDomNode& newChild, const QDomNode& refChild)
 {
-    if (!impl)
+    if (!isImplValid(impl, "insertAfter"))
         return QDomNode();
     return QDomNode(IMPL->insertAfter(newChild.impl, refChild.impl));
 }
@@ -2743,7 +2763,7 @@ QDomNode QDomNode::insertAfter(const QDomNode& newChild, const QDomNode& refChil
 */
 QDomNode QDomNode::replaceChild(const QDomNode& newChild, const QDomNode& oldChild)
 {
-    if (!impl || !newChild.impl || !oldChild.impl)
+    if (!isImplValid(impl, "replaceChild") || !newChild.impl || !oldChild.impl)
         return QDomNode();
     return QDomNode(IMPL->replaceChild(newChild.impl, oldChild.impl));
 }
@@ -2759,7 +2779,7 @@ QDomNode QDomNode::replaceChild(const QDomNode& newChild, const QDomNode& oldChi
 */
 QDomNode QDomNode::removeChild(const QDomNode& oldChild)
 {
-    if (!impl)
+    if (!isImplValid(impl, "removeChild"))
         return QDomNode();
 
     if (oldChild.isNull())
@@ -2789,10 +2809,9 @@ QDomNode QDomNode::removeChild(const QDomNode& oldChild)
 */
 QDomNode QDomNode::appendChild(const QDomNode& newChild)
 {
-    if (!impl) {
-        qWarning("Calling appendChild() on a null node does nothing.");
+    if (!isImplValid(impl, "appendChild"))
         return QDomNode();
-    }
+
     return QDomNode(IMPL->appendChild(newChild.impl));
 }
 
@@ -2802,7 +2821,7 @@ QDomNode QDomNode::appendChild(const QDomNode& newChild)
 */
 bool QDomNode::hasChildNodes() const
 {
-    if (!impl)
+    if (!isImplValid(impl, "hasChildNodes"))
         return false;
     return IMPL->first != 0;
 }
@@ -2824,7 +2843,7 @@ bool QDomNode::isNull() const
 */
 void QDomNode::clear()
 {
-    if (impl && !impl->ref.deref())
+    if (isImplValid(impl, "clear") && !impl->ref.deref())
         delete impl;
     impl = 0;
 }
@@ -2840,7 +2859,7 @@ void QDomNode::clear()
 */
 QDomNode QDomNode::namedItem(const QString& name) const
 {
-    if (!impl)
+    if (!isImplValid(impl, "namedItem"))
         return QDomNode();
     return QDomNode(impl->namedItem(name));
 }
@@ -2852,7 +2871,7 @@ QDomNode QDomNode::namedItem(const QString& name) const
 */
 void QDomNode::save(QTextStream& str, int indent) const
 {
-    if (impl)
+    if (isImplValid(impl, "save"))
         IMPL->save(str, 1, indent);
 }
 
