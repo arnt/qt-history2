@@ -35,6 +35,7 @@
 
 #ifdef Q_WS_WIN
 #include <QWindowsXPStyle>
+#include <QWindowsVistaStyle>
 #endif
 
 #include <qwidget.h>
@@ -62,6 +63,7 @@ private slots:
     void testWindowsStyle();
     void testCDEStyle();
     void testWindowsXPStyle();
+    void testWindowsVistaStyle();
     void testCleanlooksStyle();
     void testMacStyle();
     void pixelMetric();
@@ -238,6 +240,14 @@ void tst_QStyle::testWindowsXPStyle()
 #ifdef Q_WS_WIN
     QWindowsXPStyle xpstyle;
     testAllFunctions(&xpstyle);
+#endif
+}
+
+void tst_QStyle::testWindowsVistaStyle()
+{
+#ifdef Q_WS_WIN
+    QWindowsVistaStyle vistastyle;
+    testAllFunctions(&vistastyle);
 #endif
 }
 
