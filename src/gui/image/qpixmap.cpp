@@ -43,8 +43,13 @@
 # include <private/qt_x11_p.h>
 #endif
 
+// remove in Qt 5.0
 typedef void (*_qt_pixmap_cleanup_hook)(int);
 Q_GUI_EXPORT _qt_pixmap_cleanup_hook qt_pixmap_cleanup_hook = 0;
+
+// rename in Qt 5.0
+typedef void (*_qt_pixmap_cleanup_hook_64)(qint64);
+Q_GUI_EXPORT _qt_pixmap_cleanup_hook_64 qt_pixmap_cleanup_hook_64 = 0;
 
 // remove for Qt 5.0
 Q_GUI_EXPORT qint64 qt_pixmap_id(const QPixmap &pixmap)
@@ -1047,8 +1052,8 @@ bool QPixmap::isDetached() const
 void QPixmap::deref()
 {
     if(data && data->deref()) { // Destroy image if last ref
-        if (qt_pixmap_cleanup_hook)
-            qt_pixmap_cleanup_hook(data->ser_no);
+        if (qt_pixmap_cleanup_hook_64)
+            qt_pixmap_cleanup_hook_64(cacheKey());
         delete data;
         data = 0;
     }
