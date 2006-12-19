@@ -1053,7 +1053,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
             glBindTexture(GL_TEXTURE_1D, 0);
             glDeleteTextures(1, &d->grad_palette);
 
-            if (d->use_fragment_programs)
+            if (has_frag_program && d->use_fragment_programs)
                 d->deleteFragmentPrograms();
             d->drawable.context()->makeCurrent();
         }
