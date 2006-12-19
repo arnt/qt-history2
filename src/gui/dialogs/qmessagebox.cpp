@@ -822,8 +822,20 @@ QAbstractButton *QMessageBox::button(StandardButton which) const
 /*!
     \since 4.2
 
-    Returns the button that is activated when escape is presed.  Returns 0
-    if no escape button was set.
+    Returns the button that is activated when escape is pressed.
+
+    By default, QMessageBox attempts to automatically detect an
+    escape button as follows:
+
+    \list 1
+    \o If there is only one button, it is made the escape button.
+    \o If there is a \l Cancel button, it is made the escape button.
+    \o On Mac OS X only, if there is exactly one button with the role
+       QMessageBox::RejectRole, it is made the escape button.
+    \endlist
+
+    When an escape button could not be automatically detected, pressing
+    \key Esc has no effect.
 
     \sa addButton()
 */
@@ -864,7 +876,7 @@ void QMessageBox::setEscapeButton(QMessageBox::StandardButton button)
 
 void QMessageBoxPrivate::detectEscapeButton()
 {
-    if (escapeButton) { // Escape button explicitly set
+    if (escapeButton) { // escape button explicitly set
         detectedEscapeButton = escapeButton;
         return;
     }
@@ -899,7 +911,7 @@ void QMessageBoxPrivate::detectEscapeButton()
     \since 4.2
 
     Returns the button that was clicked by the user,
-    or 0 if the user hit the \key Escape key and
+    or 0 if the user hit the \key Esc key and
     no \l{setEscapeButton()}{escape button} was set.
 
     If exec() hasn't been called yet, returns 0.
@@ -1300,7 +1312,7 @@ static QMessageBox::StandardButton showNewMessageBox(QWidget *parent,
     QMessageBox picks a suitable default automatically.
 
     Returns the identity of the standard button that was activated. If \key Esc
-    was pressed, returns the \l{Default and Escape Keys}{escape button}.
+    was pressed, returns the \l{Default and Escape Keys}{escape button} (if any).
 
     If \a parent is 0, the message box becomes an application-global
     modal dialog box. If \a parent is a widget, the message box
@@ -1327,7 +1339,7 @@ QMessageBox::StandardButton QMessageBox::information(QWidget *parent, const QStr
     QMessageBox picks a suitable default automatically.
 
     Returns the identity of the standard button that was activated. If \key Esc
-    was pressed, returns the \l{Default and Escape Keys}{escape button}.
+    was pressed, returns the \l{Default and Escape Keys}{escape button} (if any).
 
     If \a parent is 0, the message box becomes an application-global
     modal dialog box. If \a parent is a widget, the message box
@@ -1352,7 +1364,7 @@ QMessageBox::StandardButton QMessageBox::question(QWidget *parent, const QString
     QMessageBox picks a suitable default automatically.
 
     Returns the identity of the standard button that was activated. If \key Esc
-    was pressed, returns the \l{Default and Escape Keys}{escape button}.
+    was pressed, returns the \l{Default and Escape Keys}{escape button} (if any).
 
     If \a parent is 0, the message box becomes an application-global
     modal dialog box. If \a parent is a widget, the message box
@@ -1377,7 +1389,7 @@ QMessageBox::StandardButton QMessageBox::warning(QWidget *parent, const QString 
     QMessageBox picks a suitable default automatically.
 
     Returns the identity of the standard button that was activated. If \key Esc
-    was pressed, returns the \l{Default and Escape Keys}{escape button}.
+    was pressed, returns the \l{Default and Escape Keys}{escape button} (if any).
 
     If \a parent is 0, the message box becomes an application-global
     modal dialog box. If \a parent is a widget, the message box
@@ -1635,8 +1647,8 @@ int QMessageBoxPrivate::showOldMessageBox(QWidget *parent, QMessageBox::Icon ico
     flag to make it the default button (clicked when Enter is
     pressed).
 
-    One of the buttons can be OR-ed with the QMessageBox::Escape
-    flag to make it the cancel or close button (clicked when Escape is
+    One of the buttons can be OR-ed with the QMessageBox::Escape flag
+    to make it the cancel or close button (clicked when \key Esc is
     pressed).
 
     \quotefromfile snippets/dialogs/dialogs.cpp
@@ -1717,25 +1729,20 @@ int QMessageBox::information(QWidget *parent, const QString &title, const QStrin
     of the button that was clicked (0, 1 or 2).
 
     \a button0Text is the text of the first button, and is optional.
-    If \a button0Text is not supplied, "OK" (translated) will be used.
-    \a button1Text is the text of the second button, and is optional.
-    \a button2Text is the text of the third button, and is optional.
-    \a defaultButtonNumber (0, 1 or 2) is the index of the default
-    button; pressing Return or Enter is the same as clicking the
-    default button. It defaults to 0 (the first button). \a
-    escapeButtonNumber is the index of the Escape button; pressing
-    Escape is the same as clicking this button. It defaults to -1;
-    supply 0, 1 or 2 to make pressing Escape equivalent to clicking
+    If \a button0Text is not supplied, "OK" (translated) will be
+    used. \a button1Text is the text of the second button, and is
+    optional. \a button2Text is the text of the third button, and is
+    optional. \a defaultButtonNumber (0, 1 or 2) is the index of the
+    default button; pressing Return or Enter is the same as clicking
+    the default button. It defaults to 0 (the first button). \a
+    escapeButtonNumber is the index of the escape button; pressing
+    \key Esc is the same as clicking this button. It defaults to -1;
+    supply 0, 1 or 2 to make pressing \key Esc equivalent to clicking
     the relevant button.
 
     If \a parent is 0, the message box becomes an application-global
     modal dialog box. If \a parent is a widget, the message box
     becomes modal relative to \a parent.
-
-    Note: If you do not specify an Escape button and no Escape button
-    could be automatically detected, the dialog will not close with the
-    Esc key. It is suggested that you specify an Escape button to prevent 
-    this from happening.
 
     \sa question(), warning(), critical()
 */
@@ -1817,11 +1824,6 @@ int QMessageBox::question(QWidget *parent, const QString &title, const QString& 
     modal dialog box. If \a parent is a widget, the message box
     becomes modal relative to \a parent.
 
-    Note: If you do not specify an Escape button and no Escape button
-    could be automatically detected, the dialog will not close with the
-    Esc key. It is suggested that you specify an Escape button to prevent 
-    this from happening.
-
     \sa information(), warning(), critical()
 */
 int QMessageBox::question(QWidget *parent, const QString &title, const QString& text,
@@ -1901,11 +1903,6 @@ int QMessageBox::warning(QWidget *parent, const QString &title, const QString& t
     If \a parent is 0, the message box becomes an application-global
     modal dialog box. If \a parent is a widget, the message box
     becomes modal relative to \a parent.
-
-    Note: If you do not specify an Escape button and no Escape button
-    could be automatically detected, the dialog will not close with the
-    Esc key. It is suggested that you specify an Escape button to prevent 
-    this from happening.
 
     \sa information(), question(), critical()
 */
