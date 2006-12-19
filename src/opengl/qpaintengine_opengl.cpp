@@ -976,9 +976,12 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     d->drawable.makeCurrent();
     d->matrix = QTransform();
 
+    bool has_frag_program = (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram)
+                            && (pdev->devType() != QInternal::Pixmap);
+
     QGLContext *ctx = const_cast<QGLContext *>(d->drawable.context());
-    if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram)
-        qt_resolve_frag_program_extensions(ctx);
+    if (has_frag_program)
+        has_frag_program = qt_resolve_frag_program_extensions(ctx);
 
     d->use_stencil_method = d->drawable.format().stencil() &&
                             QGLExtensions::glExtensions & QGLExtensions::StencilWrap;
@@ -1058,7 +1061,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
         qgl_context_register()->addContext(d->drawable.context());
         glGenTextures(1, &d->grad_palette);
 
-        if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram) {
+        if (has_frag_program) {
             d->use_fragment_programs = d->createFragmentPrograms();
 
             if (!d->use_fragment_programs)
