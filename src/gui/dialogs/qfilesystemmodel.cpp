@@ -1255,7 +1255,7 @@ void QFileSystemModelPrivate::addVisibleFiles(QFileSystemNode *parentNode, const
         q->beginInsertRows(parent, q->rowCount(parent), q->rowCount(parent) + newFiles.count() - 1);
     for (int i = 0; i < newFiles.count(); ++i) {
         int location = findChild(parentNode, QFileSystemNode(newFiles.at(i)));
-        Q_ASSERT(location >= 0);
+        //Q_ASSERT(location >= 0);
         // put new items at the end of the list until sorted to minimize
         // flicker as it is re-shuffled to the right spot
         parentNode->visibleChildren.insert(sortOrder == Qt::AscendingOrder ? parentNode->visibleChildren.count() : 0, location);
