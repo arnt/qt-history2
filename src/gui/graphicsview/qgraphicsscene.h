@@ -68,6 +68,7 @@ class Q_GUI_EXPORT QGraphicsScene : public QObject
     Q_PROPERTY(QBrush foregroundBrush READ foregroundBrush WRITE setForegroundBrush)
     Q_PROPERTY(ItemIndexMethod itemIndexMethod READ itemIndexMethod WRITE setItemIndexMethod)
     Q_PROPERTY(QRectF sceneRect READ sceneRect WRITE setSceneRect)
+    Q_PROPERTY(int bspTreeDepth READ bspTreeDepth WRITE setBspTreeDepth)
 public:
     enum ItemIndexMethod {
         BspTreeIndex,
@@ -100,6 +101,9 @@ public:
 
     ItemIndexMethod itemIndexMethod() const;
     void setItemIndexMethod(ItemIndexMethod method);
+
+    int bspTreeDepth() const;
+    void setBspTreeDepth(int depth);
 
     QRectF itemsBoundingRect() const;
 

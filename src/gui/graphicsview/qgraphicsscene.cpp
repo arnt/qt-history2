@@ -60,7 +60,7 @@ static const int QGRAPHICSSCENE_INDEXTIMER_TIMEOUT = 2000;
     algorithm suitable for large scenes where most items remain static (i.e.,
     do not move around). You can choose to disable this index by calling
     setItemIndexMethod(). For more information about the available indexing
-    algorithms, see the itemIndexMethod propery.
+    algorithms, see the itemIndexMethod property.
 
     The scene's bounding rect is set by calling setSceneRect(). Items can be
     placed at any position on the scene, and the size of the scene is by
@@ -129,6 +129,34 @@ static const int QGRAPHICSSCENE_INDEXTIMER_TIMEOUT = 2000;
 */
 
 /*!
+    \enum QGraphicsScene::SceneLayer
+
+    This enum describes the rendering layers in a QGraphicsScene. When
+    QGraphicsScene draws the scene contents, it renders each of these layers
+    separately, in order.
+
+    Each layer represents a flag that can be OR'ed together when calling
+    functions such as invalidate() or QGraphicsView::invalidateScene().
+
+    \value ItemLayer The item layer. QGraphicsScene renders all items are in
+    this layer by calling the virtual function drawItems(). The item layer is
+    drawn after the background layer, but before the foreground layer.
+
+    \value BackgroundLayer The background layer. QGraphicsScene renders the
+    scene's background in this layer by calling the virtual function
+    drawBackground(). The background layer is drawn first of all layers.
+
+    \value ForegroundLayer The foreground layer. QGraphicsScene renders the
+    scene's foreground in this layer by calling the virtual function
+    drawForeground().  The foreground layer is drawn last of all layers.
+
+    \value AllLayers All layers; this value represents a combination of all
+    three layers.
+
+    \sa invalidate(), QGraphicsView::invalidateScene()
+*/
+
+/*!
     \enum QGraphicsScene::ItemIndexMethod
 
     This enum describes the indexing algorithms QGraphicsScene provides for
@@ -144,6 +172,8 @@ static const int QGRAPHICSSCENE_INDEXTIMER_TIMEOUT = 2000;
     as all items on the scene are searched. Adding, moving and removing items,
     however, is done in constant time. This approach is ideal for dynamic
     scenes, where many items are added, moved or removed continuously.
+
+    \sa setItemIndexMethod(), bspTreeDepth
 */
 
 #include "qgraphicsscene.h"
@@ -177,11 +207,13 @@ static const int QGRAPHICSSCENE_INDEXTIMER_TIMEOUT = 2000;
 */
 QGraphicsScenePrivate::QGraphicsScenePrivate()
     : indexMethod(QGraphicsScene::BspTreeIndex),
+      bspTreeDepth(0),
       lastItemCount(0),
       hasSceneRect(false),
       updateAll(false),
       calledEmitUpdated(false),
       selectionChanging(0),
+      regenerateIndex(true),
       purgePending(false),
       indexTimerId(0),
       restartIndexTimer(false),
@@ -283,16 +315,17 @@ void QGraphicsScenePrivate::removeFromIndex(QGraphicsItem *item)
 */
 void QGraphicsScenePrivate::resetIndex()
 {
-    Q_Q(QGraphicsScene);
     purgeRemovedItems();
     if (indexMethod == QGraphicsScene::BspTreeIndex) {
-        bspTree.clear();
-        unindexedItems = q->items();
+        for (int i = 0; i < indexedItems.size(); ++i) {
+            if (QGraphicsItem *item = indexedItems.at(i)) {
+                item->d_ptr->index = -1;
+                unindexedItems << item;
+            }
+        }
         indexedItems.clear();
         freeItemIndexes.clear();
-        foreach (QGraphicsItem *item, unindexedItems)
-            item->d_func()->index = -1;
-
+        regenerateIndex = true;
         startIndexTimer();
     }
 }
@@ -335,24 +368,35 @@ void QGraphicsScenePrivate::_q_generateBspTree()
     QRectF oldGrowingItemsBoundingRect = growingItemsBoundingRect;
     growingItemsBoundingRect |= unindexedItemsBoundingRect;
 
-    int oldDepth = intmaxlog(lastItemCount);
-    int newDepth = intmaxlog(indexedItems.size());
-    static const int slack = 100;
+    // Determine whether we should regenerate the BSP tree.
+    int depth = bspTreeDepth;
+    if (depth == 0) {
+        int oldDepth = intmaxlog(lastItemCount);
+        depth = intmaxlog(indexedItems.size());
+        static const int slack = 100;
+        if (bspTree.leafCount() == 0 || oldDepth != depth && qAbs(lastItemCount - indexedItems.size()) > slack) {
+            // ### Crude algorithm.
+            regenerateIndex = true;
+        }
+    }
 
-    if (bspTree.leafCount() == 0 || (oldDepth != newDepth && qAbs(lastItemCount - indexedItems.size()) > slack)) {
-        // Recreate the bsptree if the depth has changed.
-        bspTree.initialize(q->sceneRect(), newDepth);
+    // Regenerate the tree.
+    if (regenerateIndex) {
+        regenerateIndex = false;
+        bspTree.initialize(q->sceneRect(), depth);
         unindexedItems = indexedItems;
         lastItemCount = indexedItems.size();
         q->update();
     }
 
+    // Insert all unindexed items into the tree.
     for (int i = 0; i < unindexedItems.size(); ++i) {
         if (QGraphicsItem *item = unindexedItems.at(i))
             bspTree.insertItem(item, item->sceneBoundingRect());
     }
     unindexedItems.clear();
 
+    // Notify scene rect changes.
     if (!hasSceneRect && growingItemsBoundingRect != oldGrowingItemsBoundingRect)
         emit q->sceneRectChanged(growingItemsBoundingRect);
 }
@@ -891,6 +935,7 @@ void QGraphicsScene::setSceneRect(const QRectF &rect)
     if (rect != d->sceneRect) {
         d->hasSceneRect = !rect.isNull();
         d->sceneRect = rect;
+        d->resetIndex();
         emit sceneRectChanged(rect);
     }
 }
@@ -1041,6 +1086,8 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
     For the common case, the default index method BspTreeIndex works fine.  If
     your scene uses many animations and you are experiencing slowness, you can
     disable indexing by calling \c setItemIndexMethod(NoIndex).
+
+    \sa bspTreeDepth
 */
 QGraphicsScene::ItemIndexMethod QGraphicsScene::itemIndexMethod() const
 {
@@ -1052,6 +1099,59 @@ void QGraphicsScene::setItemIndexMethod(ItemIndexMethod method)
     Q_D(QGraphicsScene);
     d->resetIndex();
     d->indexMethod = method;
+}
+
+/*!
+    \property QGraphicsScene::bspTreeDepth
+    \brief the depth of QGraphicsScene's BSP index tree
+
+    This property has no effect when NoIndex is used.
+
+    This value determines the depth of QGraphicsScene's BSP tree. The depth
+    directly affects QGraphicsScene's performance and memory usage; the latter
+    growing exponentially with the depth of the tree. With an optimal tree
+    depth, QGraphicsScene can instantly determine the locality of items, even
+    for scenes with thousands or millions of items. This also greatly improves
+    rendering performance.
+
+    By default, the value is 0, in which case Qt will guess a reasonable
+    default depth based on the size, location and number of items in the
+    scene. If these parameters change frequently, however, you may experience
+    slowdowns as QGraphicsScene retunes the depth internally. You can avoid
+    potential slowdowns by fixating the tree depth through setting this
+    property.
+
+    The depth of the tree and the size of the scene rectangle decide the
+    granularity of the scene's partitioning. The size of each scene segment is
+    determined by the following algorithm:
+
+    \code
+        QSizeF segmentSize = sceneRect().size() / pow(2, depth - 1);
+    \endcode
+
+    The BSP tree has an optimal size when each segment contains between 0 and
+    10 items.
+
+    \sa itemIndexMethod
+*/
+int QGraphicsScene::bspTreeDepth() const
+{
+    Q_D(const QGraphicsScene);
+    return d->bspTreeDepth;
+}
+void QGraphicsScene::setBspTreeDepth(int depth)
+{
+    Q_D(QGraphicsScene);
+    if (d->bspTreeDepth == depth)
+        return;
+
+    if (depth < 0) {
+        qWarning("QGraphicsScene::setBspTreeDepth: invalid depth %d ignored; must be >= 0", depth);
+        return;
+    }
+
+    d->bspTreeDepth = depth;
+    d->resetIndex();
 }
 
 /*!
@@ -2855,7 +2955,7 @@ void QGraphicsScene::drawItems(QPainter *painter,
     that contains several selected items, selectionChanged() is emitted only
     once after the operation has completed (instead of once for each item).
 
-    \sa selectionArea(), selectedItems(), QGraphicsItem::setSelected()
+    \sa setSelectionArea(), selectedItems(), QGraphicsItem::setSelected()
 */
 
 /*!

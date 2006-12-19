@@ -45,6 +45,8 @@ public:
     QGraphicsScenePrivate();
 
     QGraphicsScene::ItemIndexMethod indexMethod;
+    int bspTreeDepth;
+
     QList<QGraphicsItem *> estimateItemsInRect(const QRectF &rect) const;
     void addToIndex(QGraphicsItem *item);
     void removeFromIndex(QGraphicsItem *item);
@@ -69,6 +71,8 @@ public:
     QList<QGraphicsItem *> unindexedItems;
     QList<QGraphicsItem *> indexedItems;
     QList<int> freeItemIndexes;
+    bool regenerateIndex;
+
     bool purgePending;
     void _q_removeItemLater(QGraphicsItem *item);
     QSet<QGraphicsItem *> removedItems;

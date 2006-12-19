@@ -1920,7 +1920,8 @@ static bool qt_QGraphicsItem_isObscured(const QGraphicsItem *item,
     Returns true if \a rect is completely obscured by the opaque shape of any
     of colliding items above it (i.e., with a higher Z value than this item).
 
-    Unlike \a isObscured(), this function does not call isObscuredBy().
+    Unlike the default isObscured() function, this function does not call
+    isObscuredBy().
 
     \sa opaqueArea()
 */
@@ -1932,6 +1933,12 @@ bool QGraphicsItem::isObscured(const QRectF &rect) const
     }
     return false;
 }
+
+/*!
+    \fn bool QGraphicsItem::isObscured(qreal x, qreal y, qreal w, qreal h) const
+
+    This convenience function is equivalent to calling isObscured(QRectF(\a x, \a y, \a w, \a h)).
+*/
 
 /*!
     Returns true if this item's bounding rect is completely obscured by the

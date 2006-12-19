@@ -841,7 +841,7 @@ void QGraphicsView::resetCachedContent()
     with tile-based backgrounds to notify changes when QGraphicsView has
     enabled background cacheing.
 
-    \sa QGrahicsScene::invalidate(), update()
+    \sa QGraphicsScene::invalidate(), update()
 */
 void QGraphicsView::invalidateScene(const QRectF &rect, QGraphicsScene::SceneLayers layers)
 {
@@ -2825,6 +2825,12 @@ void QGraphicsView::setTransform(const QTransform &matrix, bool combine )
     // Any matrix operation requires a full update.
     viewport()->update();
 }
+
+/*!
+    Resets the view transformation to the identity matrix.
+
+    \sa transform(), setTransform()
+*/
 void QGraphicsView::resetTransform()
 {
     setTransform(QTransform());
