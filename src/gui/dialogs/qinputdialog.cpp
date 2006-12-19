@@ -229,6 +229,7 @@ void QInputDialogPrivate::init(const QString &title, const QString &lbl, QWidget
     QObject::connect(buttonBox, SIGNAL(accepted()), q, SLOT(accept()));
     QObject::connect(buttonBox, SIGNAL(rejected()), q, SLOT(reject()));
 
+    q->setSizeGripEnabled(true);
     q->resize(q->sizeHint());
 }
 
