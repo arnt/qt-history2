@@ -1422,10 +1422,11 @@ void QGraphicsScene::setSelectionArea(const QPainterPath &path)
 
     // Set all items in path to selected.
     foreach (QGraphicsItem *item, items(path)) {
-        if ((item->flags() & QGraphicsItem::ItemIsSelectable) && !item->isSelected()) {
+        if (item->flags() & QGraphicsItem::ItemIsSelectable) {
+            if (!item->isSelected())
+                changed = true;
             unselectItems.remove(item);
             item->setSelected(true);
-            changed = true;
         }
     }
 
