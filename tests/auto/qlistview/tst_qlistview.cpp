@@ -694,6 +694,5 @@ void tst_QListView::batchedMode()
     
 }
 
-
 QTEST_MAIN(tst_QListView)
 #include "tst_qlistview.moc"
