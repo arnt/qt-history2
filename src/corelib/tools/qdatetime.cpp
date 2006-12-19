@@ -244,9 +244,8 @@ bool QDate::isValid() const
 
 
 /*!
-    Returns the year of this date. Zero and negative numbers indicate years
-    before 1 A.D. = 1 C.E., such that year 0 is 1 B.C.E., -1 is 2
-    B.C.E. and so forth.
+    Returns the year of this date. Negative numbers indicate years
+    before 1 A.D. = 1 C.E., such that year -44 is 44 B.C.
 
     \sa month(), day()
 */
