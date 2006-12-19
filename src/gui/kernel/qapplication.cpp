@@ -477,6 +477,9 @@ void QApplicationPrivate::process_cmdline()
 /*!
   Initializes the window system and constructs an application object
   with \a argc command line arguments in \a argv.
+  
+  \warning The data pointed to by \a argc and \a argv must stay valid
+  for the entire lifetime of the QApplication object.
 
   The global \c qApp pointer refers to this application object. Only
   one application object should be created.
