@@ -61,8 +61,13 @@ static inline QRgb qt_conv16ToRgb(ushort c)
 #pragma message disable narrowptr
 #endif
 
+// remove in Qt 5.0
 typedef void (*_qt_image_cleanup_hook)(int);
 Q_GUI_EXPORT _qt_image_cleanup_hook qt_image_cleanup_hook = 0;
+
+// rename in Qt 5.0
+typedef void (*_qt_image_cleanup_hook_64)(qint64);
+Q_GUI_EXPORT _qt_image_cleanup_hook_64 qt_image_cleanup_hook_64 = 0;
 
 static void pnmscale(const QImage& src, QImage& dst);
 static QImage smoothScaled(const QImage &src, int w, int h);
@@ -284,8 +289,8 @@ QImageData * QImageData::create(const QSize &size, QImage::Format format, int nu
 
 QImageData::~QImageData()
 {
-    if (qt_image_cleanup_hook)
-        qt_image_cleanup_hook(ser_no);
+    if (qt_image_cleanup_hook_64)
+        qt_image_cleanup_hook_64((((qint64) ser_no) << 32) | ((qint64) detach_no));
     delete paintEngine;
     if (data && own_data)
         free(data);
@@ -4900,7 +4905,10 @@ int QImage::serialNumber() const
 */
 qint64 QImage::cacheKey() const
 {
-    return (((qint64) d->ser_no) << 32) | ((qint64) d->detach_no);
+    if (!d)
+        return 0;
+    else
+        return (((qint64) d->ser_no) << 32) | ((qint64) d->detach_no);
 }
 
 /*!
