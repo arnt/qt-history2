@@ -109,6 +109,7 @@ private slots:
     void ensureVisibleWithRtl();
     void preserveCharFormatAfterSetPlainText();
     void extraSelections();
+    void adjustScrollbars();
 
 private:
     void createSelection();
@@ -1417,6 +1418,28 @@ void tst_QTextEdit::extraSelections()
     QCOMPARE(selections.count(), 1);
     QCOMPARE(selections.at(0).cursor.position(), endPos);
     QCOMPARE(selections.at(0).cursor.anchor(), wordPos);
+}
+
+void tst_QTextEdit::adjustScrollbars()
+{
+    QFont ff(ed->font());
+    ff.setFamily("Tahoma");
+    ff.setPointSize(11);
+    ed->setFont(ff);
+    ed->setMinimumSize(140, 100);
+    ed->setMaximumSize(140, 100);
+    ed->show();
+    QLatin1String txt("\nabc def ghi jkl mno pqr stu vwx");
+    ed->setText(txt + txt + txt);
+
+    QVERIFY(ed->verticalScrollBar()->maximum() > 0);
+
+    ed->moveCursor(QTextCursor::End);
+    int oldMaximum = ed->verticalScrollBar()->maximum();
+    QTextCursor cursor = ed->textCursor();
+    cursor.insertText(QLatin1String("\n"));
+    cursor.deletePreviousChar();
+    QCOMPARE(ed->verticalScrollBar()->maximum(), oldMaximum);
 }
 
 QTEST_MAIN(tst_QTextEdit)

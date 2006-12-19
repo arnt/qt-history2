@@ -212,16 +212,11 @@ void QTextEditPrivate::pageUpDown(QTextCursor::MoveOperation op, QTextCursor::Mo
 }
 
 #ifndef QT_NO_SCROLLBAR
-void QTextEditPrivate::_q_adjustScrollbars()
+static QSize documentSize(QTextControl *control)
 {
-    if (ignoreAutomaticScrollbarAdjustment)
-        return;
-    ignoreAutomaticScrollbarAdjustment = true; // avoid recursion, #106108
-
     QTextDocument *doc = control->document();
     QAbstractTextDocumentLayout *layout = doc->documentLayout();
 
-    const QSize viewportSize = viewport->size();
     QSize docSize;
 
     if (QTextDocumentLayout *tlayout = qobject_cast<QTextDocumentLayout *>(layout)) {
@@ -233,6 +228,18 @@ void QTextEditPrivate::_q_adjustScrollbars()
     } else {
         docSize = layout->documentSize().toSize();
     }
+
+    return docSize;
+}
+
+void QTextEditPrivate::_q_adjustScrollbars()
+{
+    if (ignoreAutomaticScrollbarAdjustment)
+        return;
+    ignoreAutomaticScrollbarAdjustment = true; // avoid recursion, #106108
+
+    const QSize viewportSize = viewport->size();
+    QSize docSize = documentSize(control);
 
     hbar->setRange(0, docSize.width() - viewportSize.width());
     hbar->setPageStep(viewportSize.width());
@@ -251,6 +258,12 @@ void QTextEditPrivate::_q_adjustScrollbars()
 
     _q_showOrHideScrollBars();
     ignoreAutomaticScrollbarAdjustment = false;
+
+    // has the document size been changed due to adding/removing scroll bars?
+    // in that case, call relayoutDocument instead of calling _q_adjustScrollbars()
+    // directly, to avoid possible infinite loops
+    if (documentSize(control) != docSize)
+        relayoutDocument();
 }
 #endif
 
