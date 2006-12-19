@@ -32,8 +32,13 @@
 #include "qdebug.h"
 #include "qpaintengine.h"
 
+// remove in Qt 5.0
 typedef void (*_qt_pixmap_cleanup_hook)(int);
 Q_GUI_EXPORT _qt_pixmap_cleanup_hook qt_pixmap_cleanup_hook = 0;
+
+// rename in Qt 5.0
+typedef void (*_qt_pixmap_cleanup_hook_64)(qint64);
+Q_GUI_EXPORT _qt_pixmap_cleanup_hook_64 qt_pixmap_cleanup_hook_64 = 0;
 
 // remove in Qt 5.0
 Q_GUI_EXPORT qint64 qt_pixmap_id(const QPixmap &pixmap)
@@ -606,6 +611,8 @@ void QPixmap::init(int w, int h, Type type)
 void QPixmap::deref()
 {
     if(data && data->deref()) { // Destroy image if last ref
+        if (qt_pixmap_cleanup_hook_64)
+            qt_pixmap_cleanup_hook_64(cacheKey());
         delete data;
         data = 0;
     }
