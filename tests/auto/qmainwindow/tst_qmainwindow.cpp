@@ -18,10 +18,10 @@
 #include <qstyle.h>
 #include <qtoolbar.h>
 #include <qpushbutton.h>
+#include <qlabel.h>
 #include <qtextedit.h>
 #include <private/qmainwindowlayout_p.h>
 #include <private/qdockwidgetlayout_p.h>
-
 
 //TESTED_FILES=
 
@@ -62,7 +62,7 @@ private slots:
     void createPopupMenu();
     void iconSizeChanged();
     void toolButtonStyleChanged();
-
+    void hideBeforeLayout();
     void saveRestore();
     void saveRestore_data();
 };
@@ -1217,6 +1217,27 @@ void tst_QMainWindow::createPopupMenu()
 
         delete menu;
     }
+}
+
+class MyDockWidget : public QDockWidget
+{
+public:
+    MyDockWidget(QWidget *parent = 0) {
+        create(); // otherwise hide() doesn't result in a hide event
+    }
+};
+
+void tst_QMainWindow::hideBeforeLayout()
+{
+    QMainWindow win;
+    QDockWidget *dock = new MyDockWidget(&win);
+    dock->setWidget(new QLabel("hello"));
+    win.addDockWidget(Qt::LeftDockWidgetArea, dock);
+    dock->hide();
+    win.resize(300, 300);
+    win.show();
+    dock->show();
+    QVERIFY(dock->geometry().bottomRight().x() >= 0);
 }
 
 struct AddDockWidget

@@ -2923,7 +2923,8 @@ void QDockWidgetLayout::keepSize(QDockWidget *w)
     if (path.isEmpty())
         return;
     QDockAreaLayoutItem &item = this->item(path);
-    item.keep_size = true;
+    if (item.size != -1)
+        item.keep_size = true;
 }
 
 #endif // QT_NO_DOCKWIDGET
