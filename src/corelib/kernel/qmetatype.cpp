@@ -437,17 +437,20 @@ int QMetaType::registerType(const char *typeName, Destructor destructor,
 }
 
 /*!
-    Returns true if the custom datatype with ID \a type is registered;
+    Returns true if the datatype with ID \a type is registered;
     otherwise returns false.
 
     \sa type(), typeName(), Type
 */
 bool QMetaType::isRegistered(int type)
 {
+    if (type >= 0 && type < User) {
+        // predefined type
+        return true;
+    }
     QReadLocker locker(customTypesLock());
-
     const QVector<QCustomTypeInfo> * const ct = customTypes();
-    return (type < User) || ((type >= User) && (ct && ct->count() > type - User));
+    return ((type >= User) && (ct && ct->count() > type - User));
 }
 
 /*!

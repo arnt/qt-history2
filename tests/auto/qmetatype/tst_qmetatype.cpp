@@ -41,6 +41,8 @@ private slots:
     void typeName();
     void construct();
     void typedefs();
+    void isRegistered_data();
+    void isRegistered();
 };
 
 struct Foo { int i; };
@@ -219,6 +221,34 @@ void tst_QMetaType::typedefs()
 
     // make sure the qreal typeId is the type id of the type it's defined to
     QCOMPARE(QMetaType::type("qreal"), ::qMetaTypeId<qreal>());
+}
+
+class IsRegisteredDummyType { };
+
+void tst_QMetaType::isRegistered_data()
+{
+    QTest::addColumn<int>("typeId");
+    QTest::addColumn<bool>("registered");
+    
+    // predefined/custom types
+    QTest::newRow("QMetaType::Void") << int(QMetaType::Void) << true;
+    QTest::newRow("QMetaType::Int") << int(QMetaType::Int) << true;
+    
+    int dummyTypeId = qRegisterMetaType<IsRegisteredDummyType>("IsRegisteredDummyType");
+    
+    QTest::newRow("IsRegisteredDummyType") << dummyTypeId << true;
+    
+    // unknown types
+    QTest::newRow("-1") << -1 << false;
+    QTest::newRow("-42") << -42 << false;
+    QTest::newRow("IsRegisteredDummyType + 1") << (dummyTypeId + 1) << false;
+}
+
+void tst_QMetaType::isRegistered()
+{
+    QFETCH(int, typeId);
+    QFETCH(bool, registered);    
+    QCOMPARE(QMetaType::isRegistered(typeId), registered);
 }
 
 QTEST_MAIN(tst_QMetaType)
