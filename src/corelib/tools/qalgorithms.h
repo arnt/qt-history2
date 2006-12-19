@@ -92,9 +92,9 @@ inline InputIterator qFind(InputIterator first, InputIterator last, const T &val
 }
 
 template <typename Container, typename T>
-inline void qFind(const Container &container, const T &val)
+inline typename Container::const_iterator qFind(const Container &container, const T &val)
 {
-    qFind(container.constBegin(), container.constEnd(), val);
+    return qFind(container.constBegin(), container.constEnd(), val);
 }
 
 template <typename InputIterator, typename T, typename Size>
