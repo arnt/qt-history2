@@ -1560,8 +1560,12 @@ void QListView::updateGeometries()
             }
         }
     }
+
+    QAbstractItemView::updateGeometries();
+
     // if the scrollbars are turned off, we resize the contents to the viewport
     if (d->movement == Static && !d->isWrapping()) {
+        d->layoutChildren(); // we need the viewport size to be updated
         if (d->flow == TopToBottom) {
             if (horizontalScrollBarPolicy() == Qt::ScrollBarAlwaysOff)
                 d->setContentsSize(viewport()->width(), contentsSize().height());
@@ -1570,8 +1574,6 @@ void QListView::updateGeometries()
                 d->setContentsSize(contentsSize().width(), viewport()->height());
         }
     }
-
-    QAbstractItemView::updateGeometries();
 }
 
 /*!
@@ -1703,8 +1705,10 @@ void QListViewPrivate::prepareItemsLayout()
     clear();
     layoutBounds = QRect(QPoint(0,0), q->maximumViewportSize());
 
-    int verticalMargin = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, q->verticalScrollBar());
-    int horizontalMargin = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, q->horizontalScrollBar());
+    int verticalMargin = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent,
+                                                 0, q->verticalScrollBar());
+    int horizontalMargin = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent,
+                                                   0, q->horizontalScrollBar());
     layoutBounds.adjust(0, 0, -verticalMargin, -horizontalMargin);
 
     int rowCount = model->rowCount(root);
@@ -2186,8 +2190,7 @@ QRect QStaticListViewBase::mapToViewport(const QRect &rect) const
     // If the listview is in "listbox-mode", the items are as wide as the view.
     QRect result = rect;
     QSize vsize = viewport()->size();
-    Qt::ScrollBarPolicy horizontalPolicy = qq->horizontalScrollBarPolicy();
-    QSize csize = (horizontalPolicy == Qt::ScrollBarAlwaysOff ? vsize : contentsSize);
+    QSize csize = contentsSize;
     if (flow() == QListView::TopToBottom) {
         result.setLeft(spacing());
         result.setWidth(qMax(csize.width(), vsize.width()) - 2 * spacing());
@@ -2195,7 +2198,6 @@ QRect QStaticListViewBase::mapToViewport(const QRect &rect) const
         result.setTop(spacing());
         result.setHeight(qMax(csize.height(), vsize.height()) - 2 * spacing());
     }
-
     return result;
 }
 
