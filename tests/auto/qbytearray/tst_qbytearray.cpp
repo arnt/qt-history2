@@ -11,6 +11,8 @@
 
 #include <qbytearray.h>
 #include <qfile.h>
+#include <limits.h>
+#include <private/qtools_p.h>
 
 //TESTED_CLASS=
 //TESTED_FILES=corelib/tools/qbytearray.h corelib/tools/qbytearray.cpp
@@ -23,7 +25,6 @@ public:
     tst_QByteArray();
     virtual ~tst_QByteArray();
 
-
 public slots:
     void initTestCase();
     void cleanupTestCase();
@@ -32,6 +33,7 @@ public slots:
 private slots:
     void qCompress_data();
     void qCompress();
+    void qUncompress_data();
     void qUncompress();
     void constByteArray();
     void leftJustified();
@@ -76,6 +78,7 @@ private slots:
     void number();
     void toInt_data();
     void toInt();
+    void qAllocMore();
 
     void resizeAfterFromRawData();
 };
@@ -139,9 +142,33 @@ void tst_QByteArray::qCompress()
     QTEST( ::qUncompress( compressed ), "ba" );
 }
 
+/*
+    Just making sure it doesn't crash on invalid data.
+*/
+void tst_QByteArray::qUncompress_data()
+{
+    QTest::addColumn<QByteArray>("in");
+    QTest::addColumn<QByteArray>("out");
+
+    QTest::newRow("0x00000000") << QByteArray("\x00\x00\x00\x00") << QByteArray();
+    QTest::newRow("0x000000ff") << QByteArray("\x00\x00\x00\xff") << QByteArray();
+    QTest::newRow("0x3f000000") << QByteArray("\x3f\x00\x00\x00") << QByteArray();
+    QTest::newRow("0x3fffffff") << QByteArray("\x3f\xff\xff\xff") << QByteArray();
+    QTest::newRow("0x7fffff00") << QByteArray("\x7f\xff\xff\x00") << QByteArray();
+    QTest::newRow("0x7fffffff") << QByteArray("\x7f\xff\xff\xff") << QByteArray();
+    QTest::newRow("0x80000000") << QByteArray("\x80\x00\x00\x00") << QByteArray();
+    QTest::newRow("0x800000ff") << QByteArray("\x80\x00\x00\xff") << QByteArray();
+    QTest::newRow("0xcf000000") << QByteArray("\xcf\x00\x00\x00") << QByteArray();
+    QTest::newRow("0xcfffffff") << QByteArray("\xcf\xff\xff\xff") << QByteArray();
+    QTest::newRow("0xffffff00") << QByteArray("\xff\xff\xff\x00") << QByteArray();
+    QTest::newRow("0xffffffff") << QByteArray("\xff\xff\xff\xff") << QByteArray();
+}
+
 void tst_QByteArray::qUncompress()
 {
-    DEPENDS_ON( "qCompress" );
+    QFETCH(QByteArray, in);
+    QTEST(::qUncompress(in), "out");
+    QTEST(::qUncompress(in + "blah"), "out");
 }
 
 void tst_QByteArray::constByteArray()
@@ -860,6 +887,23 @@ void tst_QByteArray::toULongLong()
     QCOMPARE(str.toULongLong(0, base), result);
     QCOMPARE(str.toULongLong(&b, base), result);
     QCOMPARE(b, ok);
+}
+
+// global function defined in qbytearray.cpp
+void tst_QByteArray::qAllocMore()
+{
+    const int N = 15;
+    const int t[N] = {
+        INT_MIN, INT_MIN + 1, -1234567, -66000, -1025,
+        -3, -1, 0, +1, +3, +1025, +66000, +1234567, INT_MAX - 1, INT_MAX
+    };
+
+    // make sure qAllocMore() doesn't loop infinitely on any input
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            ::qAllocMore(t[i], t[j]);
+        }
+    }
 }
 
 void tst_QByteArray::resizeAfterFromRawData()

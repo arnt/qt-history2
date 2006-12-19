@@ -32,15 +32,18 @@
 
 int qAllocMore(int alloc, int extra)
 {
-    const int page = 1<<12;
+    const int page = 1 << 12;
     int nalloc;
     alloc += extra;
     if (alloc < 1<<6) {
         nalloc = (1<<3) + ((alloc >>3) << 3);
     } else  {
-        nalloc = (alloc < page) ? 1<<3 : page;
-        while (nalloc < alloc)
+        nalloc = (alloc < page) ? 1 << 3 : page;
+        while (nalloc < alloc) {
+            if (nalloc <= 0)
+                return INT_MAX;
             nalloc *= 2;
+        }
     }
     return nalloc - extra;
 }
@@ -1298,6 +1301,8 @@ void QByteArray::resize(int size)
         //    QByteArray a(sz);
         //
         Data *x = static_cast<Data *>(qMalloc(sizeof(Data)+size));
+        if (!x)
+            return;
         x->ref.init(1);
         x->alloc = x->size = size;
         x->data = x->array;
