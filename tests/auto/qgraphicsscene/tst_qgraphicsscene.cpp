@@ -119,6 +119,7 @@ private slots:
     void construction();
     void sceneRect();
     void itemIndexMethod();
+    void bspTreeDepth();
     void itemsBoundingRect_data();
     void itemsBoundingRect();
     void items();
@@ -246,6 +247,18 @@ void tst_QGraphicsScene::itemIndexMethod()
         for (int x = -1000; x < 2000; x += 100)
             QCOMPARE(scene.itemAt(x, y), items.at(n++));
     }
+}
+
+void tst_QGraphicsScene::bspTreeDepth()
+{
+    QGraphicsScene scene;
+    QCOMPARE(scene.itemIndexMethod(), QGraphicsScene::BspTreeIndex);
+    QCOMPARE(scene.bspTreeDepth(), 0);
+    scene.setBspTreeDepth(1);
+    QCOMPARE(scene.bspTreeDepth(), 1);
+    QTest::ignoreMessage(QtWarningMsg, "QGraphicsScene::setBspTreeDepth: invalid depth -1 ignored; must be >= 0");
+    scene.setBspTreeDepth(-1);
+    QCOMPARE(scene.bspTreeDepth(), 1);
 }
 
 void tst_QGraphicsScene::items()
