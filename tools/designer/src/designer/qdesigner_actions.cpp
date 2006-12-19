@@ -682,8 +682,10 @@ void QDesignerActions::previewForm(QAction *action)
 
         QWidget *widget = builder.load(&buffer, 0);
         Q_ASSERT(widget);
-
-        widget->setParent(fw->window(), Qt::Dialog);
+        
+        widget->setParent(fw->window(), (widget->windowType() == Qt::Window) ?  
+                                         Qt::Window | Qt::WindowMaximizeButtonHint : 
+                                         Qt::Dialog);
 #ifndef Q_WS_MAC
         widget->setWindowModality(Qt::ApplicationModal);
 #endif
