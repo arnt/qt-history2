@@ -1266,6 +1266,8 @@ void Configure::autoDetection()
     // Style detection
     if (dictionary["STYLE_WINDOWSXP"] == "auto")
         dictionary["STYLE_WINDOWSXP"] = checkAvailability("STYLE_WINDOWSXP") ? defaultTo("STYLE_WINDOWSXP") : "no";
+    if (dictionary["STYLE_WINDOWSVISTA"] == "auto") // Vista style has the same requirements as XP style
+        dictionary["STYLE_WINDOWSVISTA"] = checkAvailability("STYLE_WINDOWSXP") ? defaultTo("STYLE_WINDOWSVISTA") : "no";
 
     // Compression detection
     if (dictionary["ZLIB"] == "auto")
