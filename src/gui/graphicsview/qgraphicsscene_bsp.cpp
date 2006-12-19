@@ -218,14 +218,14 @@ void QGraphicsSceneBspTree::climbTree(QGraphicsSceneBspTreeVisitor *visitor, con
         visitor->visit(&leaves[node->leafIndex]);
         break;
     }
-    case Node::Horizontal:
+    case Node::Vertical:
         if (pos.x() < node->offset) {
             climbTree(visitor, pos, childIndex);
         } else {
             climbTree(visitor, pos, childIndex + 1);
         }
         break;
-    case Node::Vertical:
+    case Node::Horizontal:
         if (pos.y() < node->offset) {
             climbTree(visitor, pos, childIndex);
         } else {
@@ -248,7 +248,7 @@ void QGraphicsSceneBspTree::climbTree(QGraphicsSceneBspTreeVisitor *visitor, con
         visitor->visit(&leaves[node->leafIndex]);
         break;
     }
-    case Node::Horizontal:
+    case Node::Vertical:
         if (rect.left() < node->offset) {
             climbTree(visitor, rect, childIndex);
             if (rect.right() >= node->offset)
@@ -257,7 +257,7 @@ void QGraphicsSceneBspTree::climbTree(QGraphicsSceneBspTreeVisitor *visitor, con
             climbTree(visitor, rect, childIndex + 1);
         }
         break;
-    case Node::Vertical:
+    case Node::Horizontal:
         int childIndex = firstChildIndex(index);
         if (rect.top() < node->offset) {
             climbTree(visitor, rect, childIndex);
