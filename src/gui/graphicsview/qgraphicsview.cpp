@@ -2279,8 +2279,14 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
     mouseEvent.setAccepted(false);
     QApplication::sendEvent(d->scene, &mouseEvent);
 
-    // Store the last item under the mouse for use when replaying.
-    QList<QGraphicsItem *> itemsUnderCursor = items(event->pos());
+    // Store the last item under the mouse for use when replaying. When
+    // possible, reuse QGraphicsScene's existing calculations of what items
+    // are under the mouse to avoid multiple index lookups.
+    QList<QGraphicsItem *> itemsUnderCursor;
+    if (mouseEvent.isAccepted())
+        itemsUnderCursor = d->scene->d_func()->cachedItemsUnderMouse;
+    else
+        itemsUnderCursor = items(event->pos());
     if (!itemsUnderCursor.isEmpty()) {
         d->lastItemUnderCursor = itemsUnderCursor.first();
         d->lastItemUnderCursorPos = d->lastItemUnderCursor->mapFromScene(mouseEvent.scenePos());

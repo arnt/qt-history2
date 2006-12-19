@@ -92,11 +92,13 @@ public:
     QGraphicsItem *lastMouseGrabberItem;
     QGraphicsItem *dragDropItem;
     Qt::DropAction lastDropAction;
+    QList<QGraphicsItem *> cachedItemsUnderMouse;
     QList<QGraphicsItem *> hoverItems;
     QMap<Qt::MouseButton, QPointF> mouseGrabberButtonDownPos;
     QMap<Qt::MouseButton, QPointF> mouseGrabberButtonDownScenePos;
     QMap<Qt::MouseButton, QPoint> mouseGrabberButtonDownScreenPos;
-    QList<QGraphicsItem *> possibleMouseGrabbersForEvent(QGraphicsSceneMouseEvent *event);
+    QList<QGraphicsItem *> possibleMouseGrabbersForEvent(const QList<QGraphicsItem *> &items,
+                                                         QGraphicsSceneMouseEvent *event);
     QList<QGraphicsItem *> itemsAtPosition(const QPoint &screenPos,
                                            const QPointF &scenePos,
                                            QWidget *widget) const;

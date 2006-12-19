@@ -470,6 +470,7 @@ void QGraphicsScenePrivate::_q_removeItemLater(QGraphicsItem *item)
     // Update selected & hovered item bookkeeping
     selectedItems.remove(item);
     hoverItems.removeAll(item);
+    cachedItemsUnderMouse.removeAll(item);
 
     // Remove all children recursively.
     foreach (QGraphicsItem *child, item->children())
@@ -532,10 +533,11 @@ void QGraphicsScenePrivate::startIndexTimer()
     the list is the topmost candidate, and the last item is the bottommost
     candidate.
 */
-QList<QGraphicsItem *> QGraphicsScenePrivate::possibleMouseGrabbersForEvent(QGraphicsSceneMouseEvent *event)
+QList<QGraphicsItem *> QGraphicsScenePrivate::possibleMouseGrabbersForEvent(const QList<QGraphicsItem *> &items,
+                                                                            QGraphicsSceneMouseEvent *event)
 {
     QList<QGraphicsItem *> possibleMouseGrabbers;
-    foreach (QGraphicsItem *item, itemsAtPosition(event->screenPos(), event->scenePos(), event->widget())) {
+    foreach (QGraphicsItem *item, items) {
         if (item->acceptedMouseButtons() & event->button()) {
             if (!item->isEnabled()) {
                 // Disabled mouse-accepting items discard mouse events.
@@ -718,11 +720,17 @@ void QGraphicsScenePrivate::mousePressEventHandler(QGraphicsSceneMouseEvent *mou
     // Ignore by default, unless we find a mouse grabber that accepts it.
     mouseEvent->ignore();
 
+    // Start by determining the number of items at the current position.
+    // Reuse value from earlier calculations if possible.
+    if (cachedItemsUnderMouse.isEmpty()) {
+        cachedItemsUnderMouse = itemsAtPosition(mouseEvent->screenPos(),
+                                                mouseEvent->scenePos(),
+                                                mouseEvent->widget());
+    }
+
     // Set focus on the topmost enabled item that can take focus.
     bool setFocus = false;
-    foreach (QGraphicsItem *item, itemsAtPosition(mouseEvent->screenPos(),
-                                                  mouseEvent->scenePos(),
-                                                  mouseEvent->widget())) {
+    foreach (QGraphicsItem *item, cachedItemsUnderMouse) {
         if (item->isEnabled() && (item->flags() & QGraphicsItem::ItemIsFocusable)) {
             setFocus = true;
             if (item != q->focusItem())
@@ -739,7 +747,7 @@ void QGraphicsScenePrivate::mousePressEventHandler(QGraphicsSceneMouseEvent *mou
     // candidates one at a time, until the event is accepted. It's accepted by
     // default, so the receiver has to explicitly ignore it for it to pass
     // through.
-    foreach (QGraphicsItem *item, possibleMouseGrabbersForEvent(mouseEvent)) {
+    foreach (QGraphicsItem *item, possibleMouseGrabbersForEvent(cachedItemsUnderMouse, mouseEvent)) {
         mouseGrabberItem = item;
         mouseEvent->accept();
 
@@ -1839,6 +1847,7 @@ void QGraphicsScene::removeItem(QGraphicsItem *item)
     // Update selected & hovered item bookkeeping
     d->selectedItems.remove(item);
     d->hoverItems.removeAll(item);
+    d->cachedItemsUnderMouse.removeAll(item);
 
     // Remove all children recursively
     foreach (QGraphicsItem *child, item->children())
@@ -2225,6 +2234,22 @@ void QGraphicsScene::advance()
 bool QGraphicsScene::event(QEvent *event)
 {
     Q_D(QGraphicsScene);
+    
+    switch (event->type()) {
+    case QEvent::GraphicsSceneMousePress:
+    case QEvent::GraphicsSceneMouseMove:
+    case QEvent::GraphicsSceneMouseRelease:
+    case QEvent::GraphicsSceneMouseDoubleClick:
+        // Reset the under-mouse list to ensure that this event gets fresh
+        // item-under-mouse data. Be careful about this list; if people delete
+        // items from inside event handlers, this list can quickly end up
+        // having stale pointers in it. We need to clear it before dispatching
+        // events that use it.
+        d->cachedItemsUnderMouse.clear();
+    default:
+        break;
+    }
+
     switch (event->type()) {
     case QEvent::GraphicsSceneDragEnter:
         dragEnterEvent(static_cast<QGraphicsSceneDragDropEvent *>(event));
@@ -2545,13 +2570,17 @@ void QGraphicsScene::helpEvent(QGraphicsSceneHelpEvent *helpEvent)
 */
 bool QGraphicsScenePrivate::dispatchHoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
 {
-    // Find the first item that accepts hover events
-    QList<QGraphicsItem *> itemsAtPos = itemsAtPosition(hoverEvent->screenPos(),
-                                                        hoverEvent->scenePos(),
-                                                        hoverEvent->widget());
+    // Find the first item that accepts hover events, reusing earlier
+    // calculated data is possible.
+    if (cachedItemsUnderMouse.isEmpty()) {
+        cachedItemsUnderMouse = itemsAtPosition(hoverEvent->screenPos(),
+                                                hoverEvent->scenePos(),
+                                                hoverEvent->widget());
+    }
+
     QGraphicsItem *item = 0;
-    for (int i = 0; i < itemsAtPos.size(); ++i) {
-        QGraphicsItem *tmp = itemsAtPos.at(i);
+    for (int i = 0; i < cachedItemsUnderMouse.size(); ++i) {
+        QGraphicsItem *tmp = cachedItemsUnderMouse.at(i);
         if (tmp->acceptsHoverEvents()) {
             item = tmp;
             break;
