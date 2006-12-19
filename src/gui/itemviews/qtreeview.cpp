@@ -2569,6 +2569,13 @@ void QTreeViewPrivate::layout(int i)
     // so we must make sure that parent points to the actual parent that has children.
     if (parent != root)
         parent = model->index(parent.row(), 0, parent.parent());
+    
+    if (i>=0 && !parent.isValid()) {
+        //modelIndex() should never return something invalid for the real items. 
+        //This can happen if columncount has been set to 0.
+        //To avoid infinite loop we stop here.
+        return;
+    }
 
     int count = 0;
     if (model->hasChildren(parent))
