@@ -251,6 +251,7 @@ public:
 private:
     void detach_helper();
     QVectorData *malloc(int alloc);
+    bool alloc(QVectorData *&ptr, int alloc);
     void realloc(int size, int alloc);
     void free(Data *d);
 };
@@ -329,9 +330,22 @@ inline QVectorData *QVector<T>::malloc(int aalloc)
 }
 
 template <typename T>
+inline bool QVector<T>::alloc(QVectorData *&ptr, int alloc)
+{
+    ptr = malloc(alloc);
+    if (!ptr) {
+        ptr = &QVectorData::shared_null;
+        ptr->ref.ref();
+        return false;
+    }
+    return true;
+}
+
+template <typename T>
 QVector<T>::QVector(int asize)
 {
-    p = malloc(asize);
+    if (!alloc(p, asize))
+        return;
     d->ref.init(1);
     d->alloc = d->size = asize;
     d->sharable = true;
@@ -349,7 +363,8 @@ QVector<T>::QVector(int asize)
 template <typename T>
 QVector<T>::QVector(int asize, const T &t)
 {
-    p = malloc(asize);
+    if (!alloc(p, asize))
+        return;
     d->ref.init(1);
     d->alloc = d->size = asize;
     d->sharable = true;
@@ -378,27 +393,35 @@ void QVector<T>::realloc(int asize, int aalloc)
     union { QVectorData *p; Data *d; } x;
     x.d = d;
 
-    if (QTypeInfo<T>::isComplex && aalloc == d->alloc && d->ref == 1) {
-        // pure resize
-        i = d->array + d->size;
-        j = d->array + asize;
-        if (i > j) {
-            while (i-- != j)
-                i->~T();
-        } else {
-            while (j-- != i)
-                new (j) T;
+    if (aalloc == d->alloc && d->ref == 1) {
+        if (QTypeInfo<T>::isComplex) {
+            // pure resize
+            i = d->array + d->size;
+            j = d->array + asize;
+            if (i > j) {
+                while (i-- != j)
+                    i->~T();
+            } else {
+                while (j-- != i)
+                    new (j) T;
+            }
+            d->size = asize;
+            return;
         }
-        d->size = asize;
-        return;
-    }
-
-    if (aalloc != d->alloc || d->ref != 1) {
+    } else {
         // (re)allocate memory
         if (QTypeInfo<T>::isStatic) {
             x.p = malloc(aalloc);
+            if (!x.p) {
+                clear();
+                return;
+            }
         } else if (d->ref != 1) {
             x.p = QVectorData::malloc(sizeof(Data), aalloc, sizeof(T), p);
+            if (!x.p) {
+                clear();
+                return;
+            }
         } else {
             if (QTypeInfo<T>::isComplex) {
                 // call the destructor on all objects that need to be
@@ -411,8 +434,12 @@ void QVector<T>::realloc(int asize, int aalloc)
                     i = d->array + asize;
                 }
             }
-            x.p = p =
-                  static_cast<QVectorData *>(qRealloc(p, sizeof(Data) + (aalloc - 1) * sizeof(T)));
+            x.p = static_cast<QVectorData *>(qRealloc(p, sizeof(Data) + (aalloc - 1) * sizeof(T)));
+            if (!x.p) {
+                clear();
+                return;
+            }
+            p = x.p;
         }
         x.d->ref.init(1);
         x.d->sharable = true;
