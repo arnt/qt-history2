@@ -44,6 +44,7 @@ class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
     Q_PROPERTY(bool accelerated READ isAccelerated WRITE setAccelerated)
     Q_PROPERTY(CorrectionMode correctionMode READ correctionMode WRITE setCorrectionMode)
     Q_PROPERTY(bool acceptableInput READ hasAcceptableInput)
+    Q_PROPERTY(bool undoRedoEnabled READ isUndoRedoEnabled WRITE setUndoRedoEnabled)
 
 public:
     explicit QAbstractSpinBox(QWidget *parent = 0);
@@ -83,6 +84,9 @@ public:
 
     void setAccelerated(bool on);
     bool isAccelerated() const;
+
+    bool isUndoRedoEnabled() const;
+    void setUndoRedoEnabled(bool enable);
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
