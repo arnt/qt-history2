@@ -5069,6 +5069,9 @@ int QPlastiqueStyle::styleHint(StyleHint hint, const QStyleOption *option, const
     case SH_TitleBar_NoBorder:
         ret = 1;
         break;
+    case SH_TitleBar_AutoRaise:
+        ret = 1;
+        break;
     case SH_ItemView_ShowDecorationSelected:
         ret = true;
         break;
