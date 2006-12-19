@@ -1307,7 +1307,9 @@ int QTime::msec() const
 
     If \a f is Qt::ISODate, the string format corresponds to the
     ISO 8601 extended specification for representations of dates,
-    which is also HH:MM:SS.
+    which is also HH:MM:SS. (However, unlike that ISO 8601 specifies,
+    dates before 1582 are handled as Julian dates, not Gregorian
+    dates. This might change in a future version of Qt.)
 
     If \a f is Qt::LocalDate or Qt::SystemLocaleDate, the string
     format depends on the locale settings of the system. Identical to
