@@ -74,6 +74,7 @@ void QDBusConnectionManager::removeConnection(const QString &name)
     d = connectionHash.take(name);
     if (d && !d->ref.deref())
         delete d;
+
     // Static objects may be keeping the connection open.
     // However, it is harmless to have outstanding references to a connection that is
     // closing as long as those references will be soon dropped without being used.
@@ -111,6 +112,7 @@ void qDBusBindToApplication()
 
 void QDBusConnectionManager::setConnection(const QString &name, QDBusConnectionPrivate *c)
 {
+    QMutexLocker locker(&mutex);
     connectionHash[name] = c;
     c->name = name;
 }
@@ -325,6 +327,7 @@ QDBusConnection QDBusConnection::connectToBus(BusType type, const QString &name)
     QDBusConnection retval(name);
 
     // create the bus service
+    // will lock in QDBusConnectionPrivate::connectRelay()
     d->busService = new QDBusConnectionInterface(retval, d);
     d->ref.deref();              // busService has a increased the refcounting to us
                                  // avoid cyclic refcounting
@@ -360,7 +363,7 @@ QDBusConnection QDBusConnection::connectToBus(const QString &address,
     QDBusConnection retval(name);
 
     // create the bus service
-    // create the bus service
+    // will lock in QDBusConnectionPrivate::connectRelay()
     d->busService = new QDBusConnectionInterface(retval, d);
     d->ref.deref();              // busService has a increased the refcounting to us
                                  // avoid cyclic refcounting
@@ -400,7 +403,6 @@ bool QDBusConnection::send(const QDBusMessage &message) const
                                     QLatin1String("Not connected to D-BUS server"));
         if (d)
             d->lastError = err;
-
         return false;
     }
     return d->send(message) != 0;
@@ -430,10 +432,8 @@ bool QDBusConnection::callWithCallback(const QDBusMessage &message, QObject *rec
                                     QLatin1String("Not connected to D-BUS server"));
         if (d)
             d->lastError = err;
-
         return 0;
     }
-
     return d->sendWithReplyAsync(message, receiver, method, timeout) != 0;
 }
 
