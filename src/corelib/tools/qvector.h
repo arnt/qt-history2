@@ -330,9 +330,9 @@ inline QVectorData *QVector<T>::malloc(int aalloc)
 }
 
 template <typename T>
-inline bool QVector<T>::alloc(QVectorData *&ptr, int alloc)
+inline bool QVector<T>::alloc(QVectorData *&ptr, int allocationSize)
 {
-    ptr = malloc(alloc);
+    ptr = malloc(allocationSize);
     if (!ptr) {
         ptr = &QVectorData::shared_null;
         ptr->ref.ref();
