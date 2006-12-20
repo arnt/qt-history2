@@ -1628,15 +1628,14 @@ public:
     inline QFlags(QFlag f) : i(f) {}
 
     inline QFlags &operator=(const QFlags &f) { i = f.i; return *this; }
-    inline QFlags &operator&=(int mask) {  i &= mask; return *this; }
-    inline QFlags &operator&=(uint mask) {  i &= mask; return *this; }
-    inline QFlags &operator|=(QFlags f) {  i |= f.i; return *this; }
-    inline QFlags &operator|=(Enum f) {  i |= f; return *this; }
-    inline QFlags &operator^=(QFlags f) {  i ^= f.i; return *this; }
-    inline QFlags &operator^=(Enum f) {  i ^= f; return *this; }
+    inline QFlags &operator&=(int mask) { i &= mask; return *this; }
+    inline QFlags &operator&=(uint mask) { i &= mask; return *this; }
+    inline QFlags &operator|=(QFlags f) { i |= f.i; return *this; }
+    inline QFlags &operator|=(Enum f) { i |= f; return *this; }
+    inline QFlags &operator^=(QFlags f) { i ^= f.i; return *this; }
+    inline QFlags &operator^=(Enum f) { i ^= f; return *this; }
 
-
-    inline operator int() const { return i;}
+    inline operator int() const { return i; }
 
     inline QFlags operator|(QFlags f) const { QFlags g; g.i = i | f.i; return g; }
     inline QFlags operator|(Enum f) const { QFlags g; g.i = i | f; return g; }
@@ -1650,6 +1649,11 @@ public:
     inline bool operator!() const { return !i; }
 
     inline bool testFlag(Enum f) const { return i & f; }
+
+private:
+#if QT_VERSION >= 0x050000 && !defined(Q_NO_DECLARED_NOT_DEFINED)
+    explicit QFlags(bool);
+#endif
 };
 
 #define Q_DECLARE_FLAGS(Flags, Enum)\
