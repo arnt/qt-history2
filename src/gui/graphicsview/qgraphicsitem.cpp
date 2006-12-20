@@ -3001,9 +3001,17 @@ void QGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             // The item didn't move
             if (multiSelect) {
                 setSelected(!isSelected());
-            } else if (!d_ptr->selected) {
-                if (d_ptr->scene)
+            } else {
+                if (d_ptr->scene) {
+                    // Clear everything but this item. Bypass
+                    // QGraphicsScene::clearSelection()'s default behavior by
+                    // temporarily removing this item from the selection list.
+                    if (d_ptr->selected)
+                        d_ptr->scene->d_func()->selectedItems.remove(this);
                     d_ptr->scene->clearSelection();
+                    if (d_ptr->selected)
+                        d_ptr->scene->d_func()->selectedItems.insert(this);
+                }
                 setSelected(true);
             }
         }
