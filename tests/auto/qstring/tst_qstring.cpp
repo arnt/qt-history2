@@ -416,6 +416,27 @@ void tst_QString::replace_regexp_data()
     QTest::newRow( "rep01" ) << QString("banana") << QString("^.a()") << QString("\\1") << QString("nana");
     QTest::newRow( "rep02" ) << QString("banana") << QString("(ba)") << QString("\\1X\\1") << QString("baXbanana");
     QTest::newRow( "rep03" ) << QString("banana") << QString("(ba)(na)na") << QString("\\2X\\1") << QString("naXba");
+
+    QTest::newRow("backref00") << QString("\\1\\2\\3\\4\\5\\6\\7\\8\\9\\A\\10\\11") << QString("\\\\[34]")
+                               << QString("X") << QString("\\1\\2XX\\5\\6\\7\\8\\9\\A\\10\\11");
+    QTest::newRow("backref01") << QString("foo") << QString("[fo]") << QString("\\1") << QString("\\1\\1\\1");
+    QTest::newRow("backref02") << QString("foo") << QString("([fo])") << QString("(\\1)") << QString("(f)(o)(o)");
+    QTest::newRow("backref03") << QString("foo") << QString("([fo])") << QString("\\2") << QString("\\2\\2\\2");
+    QTest::newRow("backref04") << QString("foo") << QString("([fo])") << QString("\\10") << QString("f0o0o0");
+    QTest::newRow("backref05") << QString("foo") << QString("([fo])") << QString("\\11") << QString("f1o1o1");
+    QTest::newRow("backref06") << QString("foo") << QString("([fo])") << QString("\\19") << QString("f9o9o9");
+    QTest::newRow("backref07") << QString("foo") << QString("(f)(o+)")
+                               << QString("\\2\\1\\10\\20\\11\\22\\19\\29\\3")
+                               << QString("ooff0oo0f1oo2f9oo9\\3");
+    QTest::newRow("backref08") << QString("abc") << QString("(((((((((((((([abc]))))))))))))))")
+                               << QString("{\\14}") << QString("{a}{b}{c}");
+    QTest::newRow("backref09") << QString("abcdefghijklmn")
+                               << QString("(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)(k)(l)(m)(n)")
+                               << QString("\\19\\18\\17\\16\\15\\14\\13\\12\\11\\10"
+                                          "\\9\\90\\8\\80\\7\\70\\6\\60\\5\\50\\4\\40\\3\\30\\2\\20\\1")
+                               << QString("a9a8a7a6a5nmlkjii0hh0gg0ff0ee0dd0cc0bb0a");
+    QTest::newRow("backref10") << QString("abc") << QString("((((((((((((((abc))))))))))))))")
+                               << QString("\\0\\01\\011") << QString("\\0\\01\\011");
 }
 
 void tst_QString::utf8_data()
@@ -4148,4 +4169,5 @@ void tst_QString::resizeAfterReserve()
 }
 
 QTEST_APPLESS_MAIN(tst_QString)
+
 #include "tst_qstring.moc"

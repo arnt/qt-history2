@@ -2219,6 +2219,13 @@ int QString::lastIndexOf(QChar ch, int from, Qt::CaseSensitivity cs) const
 }
 
 #ifndef QT_NO_REGEXP
+struct QStringCapture
+{
+    int pos;
+    int len;
+    int no;
+};
+
 /*! \overload
 
     Replaces every occurrence of the regular expression \a rx in the
@@ -2256,9 +2263,6 @@ QString& QString::replace(const QRegExp &rx, const QString &after)
     QRegExp::CaretMode caretMode = QRegExp::CaretAtZero;
 
     if (numCaptures > 0) {
-        if (numCaptures > 9)
-            numCaptures = 9;
-
         const QChar *uc = after.unicode();
         int numBackRefs = 0;
 
@@ -2271,21 +2275,30 @@ QString& QString::replace(const QRegExp &rx, const QString &after)
         }
 
         /*
-          This is the harder case where we have back-references.
-          We don't try to optimize it.
+            This is the harder case where we have back-references.
         */
         if (numBackRefs > 0) {
-            int *capturePositions = new int[numBackRefs];
-            int *captureNumbers = new int[numBackRefs];
+            QVarLengthArray<QStringCapture, 16> captures(numBackRefs);
             int j = 0;
 
             for (int i = 0; i < al - 1; i++) {
                 if (uc[i] == QLatin1Char('\\')) {
                     int no = uc[i + 1].digitValue();
                     if (no > 0 && no <= numCaptures) {
-                        capturePositions[j] = i;
-                        captureNumbers[j] = no;
-                        j++;
+                        QStringCapture capture;
+                        capture.pos = i;
+                        capture.len = 2;
+
+                        if (i < al - 2) {
+                            int secondDigit = uc[i + 2].digitValue();
+                            if (secondDigit != -1 && ((no * 10) + secondDigit) <= numCaptures) {
+                                no = (no * 10) + secondDigit;
+                                ++capture.len;
+                            }
+                        }
+
+                        capture.no = no;
+                        captures[j++] = capture;
                     }
                 }
             }
@@ -2295,30 +2308,29 @@ QString& QString::replace(const QRegExp &rx, const QString &after)
                 if (index == -1)
                     break;
 
-                QString after2 = after;
-                for (j = numBackRefs - 1; j >= 0; j--)
-                    after2.replace(capturePositions[j], 2,
-                                    rx2.cap(captureNumbers[j]));
+                QString after2(after);
+                for (j = numBackRefs - 1; j >= 0; j--) {
+                    const QStringCapture &capture = captures[j];
+                    after2.replace(capture.pos, capture.len, rx2.cap(capture.no));
+                }
 
                 replace(index, rx2.matchedLength(), after2);
                 index += after2.length();
 
-                if (rx2.matchedLength() == 0) {
-                    // avoid infinite loop on 0-length matches (e.g., [a-z]*)
-                    index++;
-                }
+                // avoid infinite loop on 0-length matches (e.g., QRegExp("[a-z]*"))
+                if (rx2.matchedLength() == 0)
+                    ++index;
+
                 caretMode = QRegExp::CaretWontMatch;
             }
-            delete[] capturePositions;
-            delete[] captureNumbers;
             return *this;
         }
     }
 
     /*
-      This is the simple and optimized case where we don't have
-      back-references.
-   */
+        This is the simple and optimized case where we don't have
+        back-references.
+    */
     while (index != -1) {
         struct {
             int pos;
@@ -5664,11 +5676,11 @@ QString QString::normalized(QString::NormalizationForm mode, QChar::UnicodeVersi
             const NormalizationCorrection n = uc_normalization_corrections[i];
             if (n.version > version) {
                 QString orig;
-                orig += QChar::highSurrogate(n.ucs4);
-                orig += QChar::lowSurrogate(n.ucs4);
+                orig.append(QChar::highSurrogate(n.ucs4));
+                orig.append(QChar::lowSurrogate(n.ucs4));
                 QString replacement;
-                replacement += QChar::highSurrogate(n.old_mapping);
-                replacement += QChar::lowSurrogate(n.old_mapping);
+                replacement.append(QChar::highSurrogate(n.old_mapping));
+                replacement.append(QChar::lowSurrogate(n.old_mapping));
                 s.replace(orig, replacement);
             }
         }
