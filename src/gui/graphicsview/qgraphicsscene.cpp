@@ -782,7 +782,15 @@ void QGraphicsScenePrivate::mousePressEventHandler(QGraphicsSceneMouseEvent *mou
     // view.
     if (!mouseEvent->isAccepted()) {
         lastMouseGrabberItem = mouseGrabberItem;
-        q->clearSelection();
+
+        QGraphicsView *view = mouseEvent->widget() ? qobject_cast<QGraphicsView *>(mouseEvent->widget()->parentWidget()) : 0;
+        bool dontClearSelection = view && view->dragMode() == QGraphicsView::ScrollHandDrag;
+        if (!dontClearSelection) {
+            // Clear the selection if the originating view isn't in scroll
+            // hand drag mode. The view will clear the selection if no drag
+            // happened.
+            q->clearSelection();
+        }
     }
 }
 
@@ -2747,6 +2755,7 @@ void QGraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
 
     // Forward the event to the mouse grabber
     d->sendMouseEvent(mouseEvent);
+    mouseEvent->accept();
 }
 
 /*!
@@ -2772,6 +2781,7 @@ void QGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 
     // Forward the event to the mouse grabber
     d->sendMouseEvent(mouseEvent);
+    mouseEvent->accept();
 
     // Reset the mouse grabber when the last mouse button has been released.
     if (!mouseEvent->buttons()) {

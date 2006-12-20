@@ -232,6 +232,7 @@ public:
     bool rubberBanding;
 #endif
     bool handScrolling;
+    int handScrollMotions;
 
     QGraphicsView::CacheMode cacheMode;
 
@@ -267,7 +268,7 @@ QGraphicsViewPrivate::QGraphicsViewPrivate()
 #ifndef QT_NO_RUBBERBAND
       rubberBanding(false),
 #endif
-      handScrolling(false), cacheMode(0), mustResizeBackgroundPixmap(true),
+      handScrolling(false), handScrollMotions(0), cacheMode(0), mustResizeBackgroundPixmap(true),
 #ifndef QT_NO_CURSOR
       hasStoredOriginalCursor(false),
 #endif
@@ -2160,16 +2161,23 @@ void QGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
 void QGraphicsView::mousePressEvent(QMouseEvent *event)
 {
     Q_D(QGraphicsView);
+
+    // Store this event for replaying, finding deltas, and for
+    // scroll-dragging; even in non-interactive mode, scroll hand dragging is
+    // allowed, so we store the event at the very top of this function.
+    d->storeMouseEvent(event);
+    d->lastMouseEvent.setAccepted(false);
+    
     if (d->sceneInteractionAllowed) {
+        // Store some of the event's button-down data.
         d->mousePressViewPoint = event->pos();
         d->mousePressScenePoint = mapToScene(d->mousePressViewPoint);
         d->mousePressScreenPoint = event->globalPos();
         d->lastMouseMoveScenePoint = d->mousePressScenePoint;
         d->mousePressButton = event->button();
 
-        d->storeMouseEvent(event);
-
         if (d->scene) {
+            // Convert and deliver the mouse event to the scene.
             QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMousePress);
             mouseEvent.setWidget(viewport());
             mouseEvent.setButtonDownScenePos(d->mousePressButton, d->mousePressScenePoint);
@@ -2183,6 +2191,10 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
             mouseEvent.setModifiers(event->modifiers());
             mouseEvent.setAccepted(false);
             QApplication::sendEvent(d->scene, &mouseEvent);
+
+            // Update the last mouse event selected state.
+            d->lastMouseEvent.setAccepted(mouseEvent.isAccepted());
+
             if (mouseEvent.isAccepted())
                 return;
         }
@@ -2191,16 +2203,20 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
 #ifndef QT_NO_RUBBERBAND
     if (d->dragMode == QGraphicsView::RubberBandDrag) {
         if (d->sceneInteractionAllowed) {
+            // Rubberbanding is only allowed in interactive mode.
             d->rubberBanding = true;
             d->rubberBandRect = QRect();
-            if (d->scene)
+            if (d->scene) {
+                // Initiating a rubber band always clears the selection.
                 d->scene->clearSelection();
+            }
         }
     } else
 #endif
-        if (d->dragMode == QGraphicsView::ScrollHandDrag
-            && event->button() == Qt::LeftButton) {
+        if (d->dragMode == QGraphicsView::ScrollHandDrag && event->button() == Qt::LeftButton) {
+            // Left-button press in scroll hand mode initiates hand scrolling.
             d->handScrolling = true;
+            d->handScrollMotions = 0;
 #ifndef QT_NO_CURSOR
             viewport()->setCursor(Qt::ClosedHandCursor);
 #endif
@@ -2250,10 +2266,15 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
             QPoint delta = event->pos() - d->lastMouseEvent.pos();
             hBar->setValue(hBar->value() + (isRightToLeft() ? delta.x() : -delta.x()));
             vBar->setValue(vBar->value() - delta.y());
+
+            // Detect how much we've scrolled to disambiguate scrolling from
+            // clicking.
+            ++d->handScrollMotions;
         }
     }
 
     d->storeMouseEvent(event);
+    d->lastMouseEvent.setAccepted(false);
 
     if (!d->sceneInteractionAllowed)
         return;
@@ -2278,6 +2299,9 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
     d->lastMouseMoveScenePoint = mouseEvent.scenePos();
     mouseEvent.setAccepted(false);
     QApplication::sendEvent(d->scene, &mouseEvent);
+
+    // Remember whether the last event was accepted or not.
+    d->lastMouseEvent.setAccepted(mouseEvent.isAccepted());
 
     // Store the last item under the mouse for use when replaying. When
     // possible, reuse QGraphicsScene's existing calculations of what items
@@ -2339,6 +2363,13 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
         viewport()->setCursor(Qt::OpenHandCursor);
 #endif
         d->handScrolling = false;
+
+        if (d->scene && d->sceneInteractionAllowed && !d->lastMouseEvent.isAccepted() && d->handScrollMotions <= 6) {
+            // If we've detected very little motion during the hand drag, and
+            // no item accepted the last event, we'll interpret that as a
+            // click to the scene, and reset the selection.
+            d->scene->clearSelection();
+        }
     }
 
     d->storeMouseEvent(event);
@@ -2362,6 +2393,9 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
     mouseEvent.setModifiers(event->modifiers());
     mouseEvent.setAccepted(false);
     QApplication::sendEvent(d->scene, &mouseEvent);
+
+    // Update the last mouse event selected state.
+    d->lastMouseEvent.setAccepted(mouseEvent.isAccepted());
 }
 
 #ifndef QT_NO_WHEELEVENT
