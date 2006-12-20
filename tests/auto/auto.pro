@@ -291,6 +291,7 @@ SUBDIRS += bic \
            quuid \
            qvariant \
 	   qvarlengtharray \
+	   qvector \
            qwaitcondition \
            qwidget \
            qwidgetaction \
