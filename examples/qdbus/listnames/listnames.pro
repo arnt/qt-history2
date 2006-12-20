@@ -4,6 +4,7 @@ DEPENDPATH += .
 INCLUDEPATH += .
 QT -= gui
 CONFIG += qdbus
+win32:CONFIG += console
 
 # Input
 SOURCES += listnames.cpp

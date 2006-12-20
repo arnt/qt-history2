@@ -29,6 +29,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef Q_WS_WIN
+#include <process.h>
+#endif
+
 #define PROGRAMNAME     "dbusxml2cpp"
 #define PROGRAMVERSION  "0.6"
 #define PROGRAMCOPYRIGHT "Copyright (C) 2006 Trolltech ASA. All rights reserved."
