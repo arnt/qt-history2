@@ -494,17 +494,22 @@ Q_OUTOFLINE_TEMPLATE T QVector<T>::value(int i, const T &defaultValue) const
 template <typename T>
 void QVector<T>::append(const T &t)
 {
-    const T copy(t);
-    if (d->ref != 1 || d->size + 1 > d->alloc)
+    if (d->ref != 1 || d->size + 1 > d->alloc) {
+        const T copy(t);
         realloc(d->size, QVectorData::grow(sizeof(Data), d->size + 1, sizeof(T),
                                            QTypeInfo<T>::isStatic));
-    if (QTypeInfo<T>::isComplex)
-        new (d->array + d->size) T(copy);
-    else
-        d->array[d->size] = copy;
+        if (QTypeInfo<T>::isComplex)
+            new (d->array + d->size) T(copy);
+        else
+            d->array[d->size] = copy;
+    } else {
+        if (QTypeInfo<T>::isComplex)
+            new (d->array + d->size) T(t);
+        else
+            d->array[d->size] = t;
+    }
     ++d->size;
 }
-
 
 template <typename T>
 Q_TYPENAME QVector<T>::iterator QVector<T>::insert(iterator before, size_type n, const T &t)
