@@ -95,6 +95,37 @@ public:
     void plug(const QRect &rect);
 };
 
+class QDWLayout : public QLayout
+{
+public:
+    QDWLayout(QWidget *parent = 0);
+    void addItem(QLayoutItem *item);
+    QLayoutItem *itemAt(int index) const;
+    QLayoutItem *takeAt(int index);
+    int count() const;
+
+    QSize minimumSize() const;
+    QSize sizeHint() const;
+
+    QSize sizeFromContent(const QSize &content, bool floating) const;
+
+    void setGeometry(const QRect &r);
+
+    enum Role { Content, CloseButton, FloatButton, RoleCount };
+    QWidget *widget(Role r);
+    void setWidget(Role r, QWidget *w);
+
+    QRect titleArea() const { return _titleArea; }
+
+    int minimumTitleWidth() const;
+    int titleHeight() const;
+    void updateMaxSize();
+
+private:
+    QVector<QLayoutItem*> item_list;
+    QRect _titleArea;
+};
+
 #endif // QT_NO_DOCKWIDGET
 
 #endif // QDYNAMICDOCKWIDGET_P_H

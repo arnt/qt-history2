@@ -20,6 +20,7 @@
 #include "qmainwindow.h"
 #include "qwidgetanimator_p.h"
 #include "qmainwindowlayout_p.h"
+#include "qdockwidget_p.h"
 #include "private/qlayoutengine_p.h"
 #include <qdebug.h>
 
@@ -29,91 +30,6 @@
 #ifndef QT_NO_DOCKWIDGET
 
 enum { StateFlagVisible = 1, StateFlagFloating = 2 };
-
-static void checkLayoutInfo(const QDockAreaLayoutInfo &info)
-{
-    return;
-    int pos = pick(info.o, info.rect.topLeft());
-    bool prev_gap = false;
-    bool first = true;
-    for (int i = 0; i < info.item_list.size(); ++i) {
-        const QDockAreaLayoutItem &item = info.item_list.at(i);
-        if (item.skip())
-            continue;
-
-        bool gap = item.gap;
-        if (!first && !gap && !prev_gap)
-            pos += info.sep;
-
-        if (item.pos != pos) {
-            qDebug() << "##### checkLayoutInfo(): incorrect pos:"
-                        << i << item.pos << pos;
-        }
-
-        pos += item.size;
-
-        prev_gap = gap;
-        first = false;
-    }
-
-    int bottom = pick(info.o, info.rect.bottomRight());
-    --pos;
-    if (pos != bottom) {
-        qDebug() << "##### checkLayoutInfo(): incorrect bottom pos:"
-                    << bottom << pos;
-    }
-}
-
-/*
-#ifndef QT_NO_TEXTSTREAM
-
-static void dump(QDebug debug, const QDockAreaLayoutInfo &info, QString indent);
-static void dump(QDebug debug, const QDockWidgetLayout &layout);
-
-static void dump(QDebug debug, const QDockAreaLayoutItem &item, QString indent)
-{
-    debug << (const char*) indent.toLocal8Bit();
-    if (item.skip())
-        debug << "skip";
-    if (item.gap)
-        debug << "gap";
-    debug << item.pos << item.size;
-    if (item.widgetItem != 0)
-        debug << item.widgetItem->widget();
-    else if (item.subinfo != 0)
-        dump(debug, *item.subinfo, indent);
-    debug << '\n';
-}
-
-static void dump(QDebug debug, const QDockAreaLayoutInfo &info, QString indent)
-{
-    debug << "Info(";
-    if (info.tabbed) {
-        debug << "tabbed " << info.currentTabId();
-        if (info.tabBar != 0)
-            debug << "tabBar " << info.tabBar->count();
-        if (info.tabBar != 0 && info.tabBar->isVisible())
-            debug << "tabBarVisble";
-    }
-    debug << "\n";
-    for (int i = 0; i < info.item_list.count(); ++i)
-        dump(debug, info.item_list.at(i), indent + QLatin1String("  "));
-    debug << (const char*) indent.toLocal8Bit() << ")\n";
-}
-
-static void dump(QDebug debug, const QDockWidgetLayout &layout)
-{
-    debug << "Top " << layout.docks[QDockWidgetLayout::TopPos].rect << "\n";
-    dump(debug, layout.docks[QDockWidgetLayout::TopPos], QString());
-    debug << "Left " << layout.docks[QDockWidgetLayout::LeftPos].rect << "\n";
-    dump(debug, layout.docks[QDockWidgetLayout::LeftPos], QString());
-    debug << "Bottom " << layout.docks[QDockWidgetLayout::BottomPos].rect << "\n";
-    dump(debug, layout.docks[QDockWidgetLayout::BottomPos], QString());
-    debug << "Right " << layout.docks[QDockWidgetLayout::RightPos].rect << "\n";
-    dump(debug, layout.docks[QDockWidgetLayout::RightPos], QString());
-}
-#endif // QT_NO_TEXTSTREAM
-*/
 
 /******************************************************************************
 ** QDockAreaLayoutItem
@@ -649,8 +565,6 @@ void QDockAreaLayoutInfo::fitItems()
         prev_gap = gap;
         first = false;
     }
-
-    checkLayoutInfo(*this);
 }
 
 static QDockWidgetLayout::DockPos dockPos(const QRect &rect, const QPoint &_pos,
