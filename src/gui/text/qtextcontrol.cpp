@@ -80,6 +80,9 @@ QTextControlPrivate::QTextControlPrivate()
       acceptRichText(true),
       preeditCursor(0), hideCursor(false),
       hasFocus(false),
+#ifdef QT_KEYPAD_NAVIGATION
+      hasEditFocus(false),
+#endif
       layoutDirection(QApplication::layoutDirection()),
       isEnabled(true),
       hadSelectionOnMousePress(false),
@@ -940,7 +943,13 @@ void QTextControl::processEvent(QEvent *e, const QMatrix &matrix, QWidget *conte
                 ev->acceptProposedAction();
             break; }
 #endif // QT_NO_GRAPHICSVIEW
-
+#ifdef QT_KEYPAD_NAVIGATION
+        case QEvent::EnterEditFocus:
+        case QEvent::LeaveEditFocus:
+            if (QApplication::keypadNavigationEnabled())
+                d->editFocusEvent(e);
+            break;
+#endif
         case QEvent::ShortcutOverride:
             if (d->interactionFlags & Qt::TextEditable) {
                 QKeyEvent* ke = static_cast<QKeyEvent *>(e);
@@ -1740,10 +1749,16 @@ void QTextControlPrivate::focusEvent(QFocusEvent *e)
 {
     emit q_func()->updateRequest(selectionRect());
     if (e->gotFocus()) {
+#ifdef QT_KEYPAD_NAVIGATION
+        if (!QApplication::keypadNavigationEnabled()) {
+#endif
         cursorOn = (interactionFlags & Qt::TextSelectableByKeyboard);
         if (interactionFlags & Qt::TextEditable) {
             setBlinkingCursorEnabled(true);
         }
+#ifdef QT_KEYPAD_NAVIGATION
+        }
+#endif
     } else {
         setBlinkingCursorEnabled(false);
 
@@ -1756,6 +1771,35 @@ void QTextControlPrivate::focusEvent(QFocusEvent *e)
     }
     hasFocus = e->gotFocus();
 }
+
+#ifdef QT_KEYPAD_NAVIGATION
+void QTextControlPrivate::editFocusEvent(QEvent *e)
+{
+    Q_Q(QTextControl);
+    
+    if (QApplication::keypadNavigationEnabled()) {
+        if (e->type() == QEvent::EnterEditFocus) {
+            const QTextCursor oldSelection = cursor;
+            const int oldCursorPos = cursor.position();
+            const bool moved = cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+            q->ensureCursorVisible();
+            if (moved) {
+                if (cursor.position() != oldCursorPos)
+                    emit q->cursorPositionChanged();
+                emit q->microFocusChanged();
+            }
+            selectionChanged();
+            repaintOldAndNewSelection(oldSelection);
+            
+            if (interactionFlags & Qt::TextEditable)
+                setBlinkingCursorEnabled(true);
+        } else
+            setBlinkingCursorEnabled(false);
+    }
+    
+    hasEditFocus = e->type() == QEvent::EnterEditFocus ? true : false;
+}
+#endif
 
 #ifndef QT_NO_CONTEXTMENU
 QMenu *QTextControl::createStandardContextMenu(const QPointF &pos, QWidget *parent)
@@ -2521,6 +2565,9 @@ void QTextControl::drawContents(QPainter *p, const QRectF &rect)
 
     if (!d->dndFeedbackCursor.isNull())
         ctx.cursorPosition = d->dndFeedbackCursor.position();
+#ifdef QT_KEYPAD_NAVIGATION
+    if (!QApplication::keypadNavigationEnabled() || d->hasEditFocus)
+#endif
     if (d->cursor.hasSelection()) {
         QAbstractTextDocumentLayout::Selection selection;
         selection.cursor = d->cursor;

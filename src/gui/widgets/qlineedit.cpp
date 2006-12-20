@@ -1495,8 +1495,8 @@ bool QLineEdit::event(QEvent * e)
         d->separate();
     }
 #ifdef QT_KEYPAD_NAVIGATION
-    else if (e->type() == QEvent::KeyRelease) {
-        if (QApplication::keypadNavigationEnabled()) {
+    if (QApplication::keypadNavigationEnabled()) {
+        if (e->type() == QEvent::KeyRelease) {
             QKeyEvent *ke = (QKeyEvent *)e;
             if ( !ke->isAutoRepeat() && !isReadOnly()
                     && ke->key() == Qt::Key_Back
@@ -1506,6 +1506,17 @@ bool QLineEdit::event(QEvent * e)
                 ke->accept();
                 return true;
             }
+        } else if (e->type() == QEvent::EnterEditFocus) {
+            deselect();
+            if (!d->cursorTimer) {
+                int cft = QApplication::cursorFlashTime();
+                d->cursorTimer = cft ? startTimer(cft/2) : -1;
+            }
+        } else if (e->type() == QEvent::LeaveEditFocus) {
+            d->setCursorVisible(false);
+            if (d->cursorTimer > 0)
+                killTimer(d->cursorTimer);
+            d->cursorTimer = 0;
         }
     }
 #endif
@@ -2123,6 +2134,9 @@ void QLineEdit::focusInEvent(QFocusEvent *e)
             d->moveCursor(d->nextMaskBlank(0));
         else if (!d->hasSelectedText())
             selectAll();
+#ifdef QT_KEYPAD_NAVIGATION
+    if (!QApplication::keypadNavigationEnabled())
+#endif
     if (!d->cursorTimer) {
         int cft = QApplication::cursorFlashTime();
         d->cursorTimer = cft ? startTimer(cft/2) : -1;
@@ -2275,6 +2289,9 @@ void QLineEdit::paintEvent(QPaintEvent *)
     p.setPen(pal.text().color());
 
     QVector<QTextLayout::FormatRange> selections;
+#ifdef QT_KEYPAD_NAVIGATION
+    if (!QApplication::keypadNavigationEnabled() || hasEditFocus())
+#endif
     if (d->selstart < d->selend || (d->cursorVisible && d->maskData)) {
         QTextLayout::FormatRange o;
         const QPalette &pal = palette();
