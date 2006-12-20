@@ -2025,10 +2025,10 @@ bool QRectF::intersects(const QRectF &r) const
 
 QRect QRectF::toAlignedRect() const
 {
-    int xmin = floor(x());
-    int xmax = ceil(x() + width());
-    int ymin = floor(y());
-    int ymax = ceil(y() + height());
+    int xmin = int(floor(x()));
+    int xmax = int(ceil(x() + width()));
+    int ymin = int(floor(y()));
+    int ymax = int(ceil(y() + height()));
     return QRect(xmin, ymin, xmax - xmin, ymax - ymin);
 }
 
