@@ -104,7 +104,6 @@ private slots:
     void bitArray();
     void cache();
     void regexp();
-    void varLengthArray();
     void pair();
     void cleanupHandler();
     void sharableQList();
@@ -2356,79 +2355,6 @@ void tst_Collections::regexp()
     QVERIFY(rx.indexIn("123") == -1);
     QVERIFY(rx.indexIn("-6") == -1);
     QVERIFY(rx.indexIn("6") == 0) ;
-}
-
-
-void tst_Collections::varLengthArray()
-{
-    {
-	QVarLengthArray<int, 256> sa(128);
-	QVERIFY(sa.data() == &sa[0]);
-	sa[0] = 0xfee;
-	sa[10] = 0xff;
-	QVERIFY(sa[0] == 0xfee);
-	QVERIFY(sa[10] == 0xff);
-	sa.resize(512);
-	QVERIFY(sa.data() == &sa[0]);
-	QVERIFY(sa[0] == 0xfee);
-	QVERIFY(sa[10] == 0xff);
-	QVERIFY(sa.size() == 512);
-	sa.reserve(1024);
-	QVERIFY(sa.capacity() == 1024);
-	QVERIFY(sa.size() == 512);
-    }
-    {
-	QVarLengthArray<QString> sa(10);
-	sa[0] = "Hello";
-	sa[9] = "World";
-	QVERIFY(*sa.data() == "Hello");
-	QVERIFY(sa[9] == "World");
-	sa.reserve(512);
-	QVERIFY(*sa.data() == "Hello");
-	QVERIFY(sa[9] == "World");
-	sa.resize(512);
-	QVERIFY(*sa.data() == "Hello");
-	QVERIFY(sa[9] == "World");
-    }
-    {
-        int arr[2] = {1, 2};
-        QVarLengthArray<int> sa(10);
-        QCOMPARE(sa.size(), 10);
-        sa.append(arr, 2);
-        QCOMPARE(sa.size(), 12);
-        QCOMPARE(sa[10], 1);
-        QCOMPARE(sa[11], 2);
-    }
-    {
-        QString arr[2] = { QString("hello"), QString("world") };
-        QVarLengthArray<QString> sa(10);
-        QCOMPARE(sa.size(), 10);
-        sa.append(arr, 2);
-        QCOMPARE(sa.size(), 12);
-        QCOMPARE(sa[10], QString("hello"));
-        QCOMPARE(sa[11], QString("world"));
-
-        sa.append(arr, 1);
-        QCOMPARE(sa.size(), 13);
-        QCOMPARE(sa[12], QString("hello"));
-
-        sa.append(arr, 0);
-        QCOMPARE(sa.size(), 13);
-    }
-    {
-        // assignment operator and copy constructor
-
-        QVarLengthArray<int> sa(10);
-        sa[5] = 5;
-
-        QVarLengthArray<int> sa2(10);
-        sa2[5] = 6;
-        sa2 = sa;
-        QCOMPARE(sa2[5], 5);
-
-        QVarLengthArray<int> sa3(sa);
-        QCOMPARE(sa3[5], 5);
-    }
 }
 
 void tst_Collections::pair()
