@@ -957,7 +957,8 @@ bool QTextEdit::event(QEvent *e)
         d->sendControlEvent(e);
     } else if (e->type() == QEvent::ToolTip) {
         if ((window()->testAttribute(Qt::WA_AlwaysShowToolTips) || isActiveWindow()))
-    }
+            d->sendControlEvent(e);
+    } 
 #ifdef QT_KEYPAD_NAVIGATION
     else if (e->type() == QEvent::EnterEditFocus || e->type() == QEvent::LeaveEditFocus) {
         if (QApplication::keypadNavigationEnabled())
