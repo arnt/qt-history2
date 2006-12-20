@@ -26,7 +26,7 @@
 #define PROMOTETOCUSTOMWIDGETDIALOG_H
 
 #include <QtGui/QDialog>
-#include <QtCore/QPair>
+#include <QtCore/QHash>
 
 class QDesignerWidgetDataBaseInterface;
 
@@ -54,13 +54,18 @@ private slots:
     void setIncludeForClass(const QString &name);
 
 private:
-    Ui::PromoteToCustomWidgetDialog *ui;
+    void warn(const QString &caption, const QString &what);
+    const QString m_base_class_name;
+    
+    Ui::PromoteToCustomWidgetDialog *m_ui;
+    
     bool m_automatic_include;
-    QDesignerWidgetDataBaseInterface *m_db;
-    typedef QPair<QString, QString> PromotedWidgetInfo;
-    typedef QList<PromotedWidgetInfo> PromotedWidgetInfoList;
-    PromotedWidgetInfoList m_promoted_list;
-    QString m_base_class_name;
+    const QDesignerWidgetDataBaseInterface *m_db;
+    // Include file and global flag
+    typedef QPair<QString, bool> PromotedWidgetInfo;
+    // Class name to header
+    typedef QHash<QString, PromotedWidgetInfo> PromotedWidgetInfoHash;
+    PromotedWidgetInfoHash m_promotedHash;
 };
 
 } // namespace qdesigner_internal
