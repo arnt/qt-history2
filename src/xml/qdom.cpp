@@ -3762,7 +3762,7 @@ void QDomDocumentTypePrivate::save(QTextStream& s, int, int indent) const
     if (!publicId.isNull()) {
         s << " PUBLIC " << quotedValue(publicId);
         if (!systemId.isNull()) {
-            s << " " << quotedValue(systemId);
+            s << ' ' << quotedValue(systemId);
         }
     } else if (!systemId.isNull()) {
         s << " SYSTEM " << quotedValue(systemId);
@@ -3779,10 +3779,10 @@ void QDomDocumentTypePrivate::save(QTextStream& s, int, int indent) const
         for (; it != entities->map.constEnd(); ++it)
             (*it)->save(s, 0, indent);
 
-        s << "]";
+        s << ']';
     }
 
-    s << ">" << endl;
+    s << '>' << endl;
 }
 
 /**************************************************************
@@ -4348,11 +4348,11 @@ static QString encodeAttr(const QString& str, bool encodeQuotes = true)
 void QDomAttrPrivate::save(QTextStream& s, int, int) const
 {
     if (namespaceURI.isNull()) {
-        s << name << "=\"" << encodeAttr(value) << "\"";
+        s << name << "=\"" << encodeAttr(value) << '\"';
     } else {
         // ### optimize this (see comment of QDomElementPrivate::save()
-        s << prefix << ":" << name << "=\"" << encodeAttr(value) << "\""
-            << " xmlns:" << prefix << "=\"" << encodeAttr(namespaceURI) << "\"";
+        s << prefix << ':' << name << "=\"" << encodeAttr(value) << '\"'
+            << " xmlns:" << prefix << "=\"" << encodeAttr(namespaceURI) << '\"';
     }
 }
 
@@ -4706,29 +4706,29 @@ void QDomElementPrivate::save(QTextStream& s, int depth, int indent) const
         }
         nsDecl += QLatin1String("=\"") + encodeAttr(namespaceURI) + QLatin1String("\"");
     }
-    s << "<" << qName << nsDecl;
+    s << '<' << qName << nsDecl;
 
     if (!m_attr->map.isEmpty()) {
-        s << " ";
+        s << ' ';
         QHash<QString, QDomNodePrivate *>::const_iterator it = m_attr->map.constBegin();
         for (; it != m_attr->map.constEnd(); ++it) {
             (*it)->save(s, 0, indent);
-            s << " ";
+            s << ' ';
         }
     }
 
     if (last) {
         // has child nodes
         if (first->isText())
-            s << ">";
+            s << '>';
         else
-            s << ">" << endl;
+            s << '>' << endl;
         QDomNodePrivate::save(s, depth + 1, indent);
         if (!last->isText())
             for(int i = 0; i < depth*indent; ++i)
-                s << " ";
+                s << ' ';
 
-        s << "</" << qName << ">";
+        s << "</" << qName << '>';
     } else {
         s << "/>";
     }
@@ -5415,7 +5415,7 @@ void QDomCommentPrivate::save(QTextStream& s, int /*depth*/, int /*indent*/) con
 {
     s << "<!--" << value;
     if (value.endsWith(QLatin1Char('-')))
-        s << " "; // Ensures that XML comment doesn't end with --->
+        s << ' '; // Ensures that XML comment doesn't end with --->
     s << "-->";
 }
 
@@ -5639,15 +5639,15 @@ QDomNodePrivate* QDomNotationPrivate::cloneNode(bool deep)
 
 void QDomNotationPrivate::save(QTextStream& s, int, int) const
 {
-    s << "<!NOTATION " << name << " ";
+    s << "<!NOTATION " << name << ' ';
     if (!m_pub.isNull())  {
         s << "PUBLIC " << quotedValue(m_pub);
         if (!m_sys.isNull())
-            s << " " << quotedValue(m_sys);
+            s << ' ' << quotedValue(m_sys);
     }  else {
         s << "SYSTEM " << quotedValue(m_sys);
     }
-    s << ">" << endl;
+    s << '>' << endl;
 }
 
 /**************************************************************
@@ -5830,16 +5830,16 @@ void QDomEntityPrivate::save(QTextStream& s, int, int) const
     if (m_sys.isNull() && m_pub.isNull()) {
         s << "<!ENTITY " << _name << " \"" << encodeEntity(value.toUtf8()) << "\">" << endl;
     } else {
-        s << "<!ENTITY " << _name << " ";
+        s << "<!ENTITY " << _name << ' ';
         if (m_pub.isNull()) {
             s << "SYSTEM " << quotedValue(m_sys);
         } else {
-            s << "PUBLIC " << quotedValue(m_pub) << " " << quotedValue(m_sys);
+            s << "PUBLIC " << quotedValue(m_pub) << ' ' << quotedValue(m_sys);
         }
         if (! m_notationName.isNull()) {
             s << " NDATA " << m_notationName;
         }
-        s << ">" << endl;
+        s << '>' << endl;
     }
 }
 
@@ -5990,7 +5990,7 @@ QDomNodePrivate* QDomEntityReferencePrivate::cloneNode(bool deep)
 
 void QDomEntityReferencePrivate::save(QTextStream& s, int, int) const
 {
-    s << "&" << name << ";";
+    s << '&' << name << ';';
 }
 
 /**************************************************************
@@ -6113,7 +6113,7 @@ QDomNodePrivate* QDomProcessingInstructionPrivate::cloneNode(bool deep)
 
 void QDomProcessingInstructionPrivate::save(QTextStream& s, int, int) const
 {
-    s << "<?" << name << " " << value << "?>" << endl;
+    s << "<?" << name << ' ' << value << "?>" << endl;
 }
 
 /**************************************************************
