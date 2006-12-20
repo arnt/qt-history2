@@ -332,7 +332,7 @@ void QGraphicsScenePrivate::resetIndex()
 
 static inline int intmaxlog(int n)
 {
-    return  (n > 0 ? qMax(int(::log(float(n))), 5) : 0);
+    return  (n > 0 ? qMax(int(::ceilf(::logf(float(n)) / ::logf(float(2)))), 5) : 0);
 }
 
 /*!
