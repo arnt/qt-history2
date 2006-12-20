@@ -89,18 +89,18 @@ void tst_QPixmap::convertFromImage_data()
     QTest::addColumn<QImage>("img2");
 
     {
-	QImage img1;
-	QImage img2;
-	QVERIFY(img1.load("convertFromImage/task31722_0/img1.png"));
-	QVERIFY(img2.load("convertFromImage/task31722_0/img2.png"));
-	QTest::newRow("Task 31722 0") << img1 << img2;
+        QImage img1;
+        QImage img2;
+        QVERIFY(img1.load("convertFromImage/task31722_0/img1.png"));
+        QVERIFY(img2.load("convertFromImage/task31722_0/img2.png"));
+        QTest::newRow("Task 31722 0") << img1 << img2;
     }
     {
-	QImage img1;
-	QImage img2;
-	QVERIFY(img1.load("convertFromImage/task31722_1/img1.png"));
-	QVERIFY(img2.load("convertFromImage/task31722_1/img2.png"));
-	QTest::newRow("Task 31722 1") << img1 << img2;
+        QImage img1;
+        QImage img2;
+        QVERIFY(img1.load("convertFromImage/task31722_1/img1.png"));
+        QVERIFY(img2.load("convertFromImage/task31722_1/img2.png"));
+        QTest::newRow("Task 31722 1") << img1 << img2;
     }
 }
 
@@ -300,11 +300,15 @@ void tst_QPixmap::createMaskFromColor()
 
 void tst_QPixmap::cacheKey()
 {
-    QPixmap pixmap1(2, 2);
+    QPixmap pixmap1(1, 1);
+    QPixmap pixmap2(1, 1);
     qint64 pixmap1_key = pixmap1.cacheKey();
-    QPixmap pixmap2 = pixmap1;
 
+    QVERIFY(pixmap1.cacheKey() != pixmap2.cacheKey());
+
+    pixmap2 = pixmap1;
     QVERIFY(pixmap2.cacheKey() == pixmap1.cacheKey());
+
     pixmap2.detach();
     QVERIFY(pixmap2.cacheKey() != pixmap1.cacheKey());
     QVERIFY(pixmap1.cacheKey() == pixmap1_key);
