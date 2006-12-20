@@ -82,6 +82,7 @@ private slots:
     void selected2();
     void selected_group();
     void selected_textItem();
+    void selected_multi();
     void acceptedMouseButtons();
     void acceptsHoverEvents();
     void hasFocus();
@@ -907,6 +908,163 @@ void tst_QGraphicsItem::selected_textItem()
     QTest::mouseClick(view.viewport(), Qt::LeftButton, 0,
                       view.mapFromScene(text->mapToScene(0, 0)));
     QVERIFY(text->isSelected());
+}
+
+void tst_QGraphicsItem::selected_multi()
+{
+    // Test multiselection behavior
+    QGraphicsScene scene;
+
+    // Create two disjoint items
+    QGraphicsItem *item1 = scene.addRect(QRectF(-10, -10, 20, 20));
+    QGraphicsItem *item2 = scene.addRect(QRectF(-10, -10, 20, 20));
+    item1->setPos(-15, 0);    
+    item2->setPos(15, 20);    
+
+    // Make both items selectable
+    item1->setFlag(QGraphicsItem::ItemIsSelectable);
+    item2->setFlag(QGraphicsItem::ItemIsSelectable);
+
+    // Create and show a view
+    QGraphicsView view(&scene);
+    view.show();
+    view.fitInView(scene.sceneRect());
+    qApp->processEvents();
+
+    QVERIFY(!item1->isSelected());
+    QVERIFY(!item2->isSelected());
+
+    // Start clicking
+    QTest::qWait(200);
+
+    // Click on item1
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, 0, view.mapFromScene(item1->scenePos()));
+    QTest::qWait(200);
+    QVERIFY(item1->isSelected());
+    QVERIFY(!item2->isSelected());
+
+    // Click on item2
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, 0, view.mapFromScene(item2->scenePos()));
+    QTest::qWait(200);
+    QVERIFY(item2->isSelected());
+    QVERIFY(!item1->isSelected());
+
+    // Ctrl-click on item1
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::ControlModifier, view.mapFromScene(item1->scenePos()));
+    QTest::qWait(200);
+    QVERIFY(item2->isSelected());
+    QVERIFY(item1->isSelected());
+
+    // Ctrl-click on item1 again
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::ControlModifier, view.mapFromScene(item1->scenePos()));
+    QTest::qWait(200);
+    QVERIFY(item2->isSelected());
+    QVERIFY(!item1->isSelected());
+
+    // Ctrl-click on item2
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::ControlModifier, view.mapFromScene(item2->scenePos()));
+    QTest::qWait(200);
+    QVERIFY(!item2->isSelected());
+    QVERIFY(!item1->isSelected());
+
+    // Click on item1
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, 0, view.mapFromScene(item1->scenePos()));
+    QTest::qWait(200);
+    QVERIFY(item1->isSelected());
+    QVERIFY(!item2->isSelected());
+
+    // Click on scene
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, 0, view.mapFromScene(0, 0));
+    QTest::qWait(200);
+    QVERIFY(!item1->isSelected());
+    QVERIFY(!item2->isSelected());
+
+    // Click on item1
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, 0, view.mapFromScene(item1->scenePos()));
+    QTest::qWait(200);
+    QVERIFY(item1->isSelected());
+    QVERIFY(!item2->isSelected());
+
+    // Ctrl-click on scene
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::ControlModifier, view.mapFromScene(0, 0));
+    QTest::qWait(200);
+    QVERIFY(!item1->isSelected());
+    QVERIFY(!item2->isSelected());
+
+    // Click on item1
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, 0, view.mapFromScene(item1->scenePos()));
+    QTest::qWait(200);
+    QVERIFY(item1->isSelected());
+    QVERIFY(!item2->isSelected());
+
+    // Press on item2
+    QTest::mousePress(view.viewport(), Qt::LeftButton, 0, view.mapFromScene(item2->scenePos()));
+    QTest::qWait(200);
+    QVERIFY(!item1->isSelected());
+    QVERIFY(item2->isSelected());
+    
+    // Release on item2
+    QTest::mouseRelease(view.viewport(), Qt::LeftButton, 0, view.mapFromScene(item2->scenePos()));
+    QTest::qWait(200);
+    QVERIFY(!item1->isSelected());
+    QVERIFY(item2->isSelected());
+
+    // Click on item1
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, 0, view.mapFromScene(item1->scenePos()));
+    QTest::qWait(200);
+    QVERIFY(item1->isSelected());
+    QVERIFY(!item2->isSelected());
+
+    // Ctrl-click on item1
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::ControlModifier, view.mapFromScene(item1->scenePos()));
+    QTest::qWait(200);
+    QVERIFY(!item1->isSelected());
+    QVERIFY(!item2->isSelected());
+
+    // Ctrl-press on item1
+    QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::ControlModifier, view.mapFromScene(item1->scenePos()));
+    QTest::qWait(200);
+    QVERIFY(!item1->isSelected());
+    QVERIFY(!item2->isSelected());
+
+    {
+        // Ctrl-move on item1
+        QMouseEvent event(QEvent::MouseMove, view.mapFromScene(item1->scenePos()) + QPoint(1, 0), Qt::LeftButton, Qt::LeftButton, Qt::ControlModifier);
+        QApplication::sendEvent(view.viewport(), &event);
+        QTest::qWait(200);
+        QVERIFY(!item1->isSelected());
+        QVERIFY(!item2->isSelected());
+    }
+
+    // Release on item1
+    QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::ControlModifier, view.mapFromScene(item1->scenePos()));
+    QTest::qWait(200);
+    QVERIFY(item1->isSelected());
+    QVERIFY(!item2->isSelected());
+
+    item1->setFlag(QGraphicsItem::ItemIsMovable);
+    item1->setSelected(false);
+
+    // Ctrl-press on item1
+    QTest::mousePress(view.viewport(), Qt::LeftButton, Qt::ControlModifier, view.mapFromScene(item1->scenePos()));
+    QTest::qWait(200);
+    QVERIFY(!item1->isSelected());
+    QVERIFY(!item2->isSelected());
+
+    {
+        // Ctrl-move on item1
+        QMouseEvent event(QEvent::MouseMove, view.mapFromScene(item1->scenePos()) + QPoint(1, 0), Qt::LeftButton, Qt::LeftButton, Qt::ControlModifier);
+        QApplication::sendEvent(view.viewport(), &event);
+        QTest::qWait(200);
+        QVERIFY(item1->isSelected());
+        QVERIFY(!item2->isSelected());
+    }
+
+    // Release on item1
+    QTest::mouseRelease(view.viewport(), Qt::LeftButton, Qt::ControlModifier, view.mapFromScene(item1->scenePos()));
+    QTest::qWait(200);
+    QVERIFY(item1->isSelected());
+    QVERIFY(!item2->isSelected());
 }
 
 void tst_QGraphicsItem::acceptedMouseButtons()
