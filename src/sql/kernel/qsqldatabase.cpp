@@ -372,7 +372,7 @@ void QSqlDatabasePrivate::disable()
     isDriverAvailable(). If you have created your own custom driver,
     you can register it with registerSqlDriver().
 
-    \sa QSqlDriver, QSqlQuery, {QtSql Module}
+    \sa QSqlDriver, QSqlQuery, {QtSql Module}, {Threads and the SQL Module}
 */
 
 /*!
@@ -404,7 +404,7 @@ void QSqlDatabasePrivate::disable()
     setConnectOptions(), and then you'll need to open() the
     connection.
 
-    \sa database() removeDatabase()
+    \sa database() removeDatabase() {Threads and the SQL Module}
 */
 QSqlDatabase QSqlDatabase::addDatabase(const QString &type, const QString &connectionName)
 {
@@ -424,7 +424,7 @@ QSqlDatabase QSqlDatabase::addDatabase(const QString &type, const QString &conne
     connectionName does not exist in the list of databases, an invalid
     connection is returned.
 
-    \sa isOpen()
+    \sa isOpen() {Threads and the SQL Module}
 */
 
 QSqlDatabase QSqlDatabase::database(const QString& connectionName, bool open)
@@ -465,7 +465,7 @@ QSqlDatabase QSqlDatabase::database(const QString& connectionName, bool open)
     QSqlDatabase::removeDatabase("sales"); // correct
     \endcode
 
-    \sa database()
+    \sa database() {Threads and the SQL Module}
 */
 
 void QSqlDatabase::removeDatabase(const QString& connectionName)
@@ -565,7 +565,7 @@ void QSqlDatabase::registerSqlDriver(const QString& name, QSqlDriverCreatorBase 
     Returns true if the list of database connections contains \a
     connectionName; otherwise returns false.
 
-    \sa connectionNames(), database()
+    \sa connectionNames(), database(), {Threads and the SQL Module}
 */
 
 bool QSqlDatabase::contains(const QString& connectionName)
@@ -578,7 +578,7 @@ bool QSqlDatabase::contains(const QString& connectionName)
 
     Returns a list containing the names of all connections.
 
-    \sa contains(), database()
+    \sa contains(), database(), {Threads and the SQL Module}
 */
 QStringList QSqlDatabase::connectionNames()
 {
