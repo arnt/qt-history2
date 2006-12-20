@@ -422,11 +422,17 @@ void tst_QGraphicsView::dragMode_scrollHand()
 
         QTest::qWait(25);
 
+        view.setInteractive(j ? false : true);
+
         QGraphicsScene scene;
         scene.addRect(QRectF(-100, -100, 5, 5));
         scene.addRect(QRectF(95, -100, 5, 5));
         scene.addRect(QRectF(95, 95, 5, 5));
-        scene.addRect(QRectF(-100, 95, 5, 5));
+        QGraphicsItem *item = scene.addRect(QRectF(-100, 95, 5, 5));
+        item->setFlag(QGraphicsItem::ItemIsSelectable);
+        item->setSelected(true);
+        QVERIFY(item->isSelected());
+        QVERIFY(!view.scene());
 
         view.setDragMode(QGraphicsView::ScrollHandDrag);
 
@@ -443,25 +449,33 @@ void tst_QGraphicsView::dragMode_scrollHand()
                 QApplication::sendEvent(view.viewport(), &event);
             }
             QTest::qWait(250);
-            QCOMPARE(view.viewport()->cursor().shape(), Qt::ClosedHandCursor);
-            {
-                // Move
-                QMouseEvent event(QEvent::MouseMove,
-                                  view.viewport()->rect().center() + QPoint(10, 0),
-                                  Qt::LeftButton, Qt::LeftButton, 0);
-                QApplication::sendEvent(view.viewport(), &event);
+
+            QVERIFY(item->isSelected());
+
+            for (int k = 0; k < 4; ++k) {
+                QCOMPARE(view.viewport()->cursor().shape(), Qt::ClosedHandCursor);
+                {
+                    // Move
+                    QMouseEvent event(QEvent::MouseMove,
+                                      view.viewport()->rect().center() + QPoint(10, 0),
+                                      Qt::LeftButton, Qt::LeftButton, 0);
+                    QApplication::sendEvent(view.viewport(), &event);
+                }
+                QVERIFY(item->isSelected());
+                QCOMPARE(view.horizontalScrollBar()->value(), horizontalScrollBarValue - 10);
+                QCOMPARE(view.verticalScrollBar()->value(), verticalScrollBarValue);
+                {
+                    // Move
+                    QMouseEvent event(QEvent::MouseMove,
+                                      view.viewport()->rect().center() + QPoint(10, 10),
+                                      Qt::LeftButton, Qt::LeftButton, 0);
+                    QApplication::sendEvent(view.viewport(), &event);
+                }
+                QVERIFY(item->isSelected());
+                QCOMPARE(view.horizontalScrollBar()->value(), horizontalScrollBarValue - 10);
+                QCOMPARE(view.verticalScrollBar()->value(), verticalScrollBarValue - 10);
             }
-            QCOMPARE(view.horizontalScrollBar()->value(), horizontalScrollBarValue - 10);
-            QCOMPARE(view.verticalScrollBar()->value(), verticalScrollBarValue);
-            {
-                // Move
-                QMouseEvent event(QEvent::MouseMove,
-                                  view.viewport()->rect().center() + QPoint(10, 10),
-                                  Qt::LeftButton, Qt::LeftButton, 0);
-                QApplication::sendEvent(view.viewport(), &event);
-            }
-            QCOMPARE(view.horizontalScrollBar()->value(), horizontalScrollBarValue - 10);
-            QCOMPARE(view.verticalScrollBar()->value(), verticalScrollBarValue - 10);
+
             {
                 // Release
                 QMouseEvent event(QEvent::MouseButtonRelease,
@@ -470,14 +484,44 @@ void tst_QGraphicsView::dragMode_scrollHand()
                 QApplication::sendEvent(view.viewport(), &event);
             }
             QTest::qWait(250);
+
+            QVERIFY(item->isSelected());
             QCOMPARE(view.horizontalScrollBar()->value(), horizontalScrollBarValue - 10);
             QCOMPARE(view.verticalScrollBar()->value(), verticalScrollBarValue - 10);
             QCOMPARE(view.viewport()->cursor().shape(), cursorShape);
 
+            // Check that items are not unselected because of a scroll hand drag.
+            QVERIFY(item->isSelected());
+
+            // Check that a click will still unselect the item.
+            {
+                // Press
+                QMouseEvent event(QEvent::MouseButtonPress,
+                                  view.viewport()->rect().center() + QPoint(10, 10),
+                                  Qt::LeftButton, Qt::LeftButton, 0);
+                QApplication::sendEvent(view.viewport(), &event);
+            }
+            {
+                // Release
+                QMouseEvent event(QEvent::MouseButtonRelease,
+                                  view.viewport()->rect().center() + QPoint(10, 10),
+                                  Qt::LeftButton, Qt::LeftButton, 0);
+                QApplication::sendEvent(view.viewport(), &event);
+            }
+            
+            if (view.isInteractive()) {
+                if (view.scene()) {
+                    QVERIFY(!item->isSelected());
+                    item->setSelected(true);
+                } else {
+                    QVERIFY(item->isSelected());
+                }
+            } else {
+                QVERIFY(item->isSelected());
+            }
+
             view.setScene(&scene);
         }
-
-        view.setInteractive(false);
     }
 }
 
