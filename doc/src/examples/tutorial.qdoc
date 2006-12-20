@@ -88,7 +88,7 @@
 
     \quotefromfile tutorial/t1/main.cpp
 
-    \skipto include
+    \skipto QApp
     \printline QApp
 
     This line includes the QApplication class definition. There has
