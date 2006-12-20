@@ -6,11 +6,16 @@
     .NET environment, and how .NET objects can be used in a Qt
     environment.
 
+    If you need to combine Qt and Win Forms widgets in the same
+    application, you might want to use the higher-level \sa
+    {http://www.trolltech.com/products/qt/addon/solutions/catalog/4/Windows/qtwinforms/}{QtWinForms
+    Solution} instead.
+
     Contents:
 
     \tableofcontents
 
-    \section1 Qt vs .NET
+    \section1 Qt vs. .NET
 
     Qt is a C++ library and is compiled into traditional, native
     binaries that make full use of the performance provided by the
@@ -64,19 +69,21 @@
     C# and VB.NET, created with Visual Studio .NET (not 2003).
     Load \c {examples/dotnet/walkthrough/csharp.csproj},
     \c {examples/dotnet/walkthrough/vb.vbproj}
-    \footnote
-    You will notice that in the generated code the following line is
-    commented out: \code
+    or \c {examples/dotnet/wrapper/wrapper.sln} into the IDE and run
+    the solution.
+
+    \bold{Remark:} You will notice that in the generated code the following line is
+    commented out:
+
+    \code
     ' VB is case insensitive, but our C++ controls are not.
     ' Me.resetButton.enabled = True
     \endcode
+
     This line is regenerated without comment whenever you change the
     dialog, in which case you have to comment it out again to be able
     to run the project. This is a bug in the original version of
     Visual Studio.NET, and is fixed in the 2003 edition.
-    \endfootnote
-    or \c {examples/dotnet/wrapper/wrapper.sln} into the IDE and run
-    the solution.
 
     \section1 Walkthrough: .NET interop with MC++ and IJW
 
@@ -319,4 +326,5 @@
     kicks in, ActiveQt becomes a valid choice for making even non-visual
     parts of your application accessible to .NET.
 
+    \sa {http://www.trolltech.com/products/qt/addon/solutions/catalog/4/Windows/qtwinforms/}{QtWinForms Solution}
 */
