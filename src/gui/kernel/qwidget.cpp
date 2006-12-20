@@ -6676,6 +6676,9 @@ QVariant QWidget::inputMethodQuery(Qt::InputMethodQuery query) const
     This event handler is called when a drag is in progress and the
     mouse enters this widget. The event is passed in the \a event parameter.
 
+    If the event is ignored, the widget won't receive any \l{dragMoveEvent()}{drag
+    move events}.
+
     See the \link dnd.html Drag-and-drop documentation\endlink for an
     overview of how to provide drag-and-drop in your application.
 
