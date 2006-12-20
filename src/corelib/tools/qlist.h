@@ -475,6 +475,7 @@ Q_OUTOFLINE_TEMPLATE T QList<T>::value(int i) const
     }
     return reinterpret_cast<Node *>(p.at(i))->t();
 }
+
 template<typename T>
 Q_OUTOFLINE_TEMPLATE T QList<T>::value(int i, const T& defaultValue) const
 {

@@ -39,6 +39,9 @@ QListData::Data *QListData::detach()
 {
     Q_ASSERT(d->ref != 1);
     Data *x = static_cast<Data *>(qMalloc(DataHeaderSize + d->alloc * sizeof(void *)));
+    if (!x)
+        qFatal("QList: Out of memory");
+
     ::memcpy(x, d, DataHeaderSize + d->alloc * sizeof(void *));
     x->alloc = d->alloc;
     x->ref.init(1);
@@ -55,12 +58,15 @@ QListData::Data *QListData::detach()
 void QListData::realloc(int alloc)
 {
     Q_ASSERT(d->ref == 1);
-    d = static_cast<Data *>(qRealloc(d, DataHeaderSize + alloc * sizeof(void *)));
+    Data *x = static_cast<Data *>(qRealloc(d, DataHeaderSize + alloc * sizeof(void *)));
+    if (!x)
+        qFatal("QList: Out of memory");
+
+    d = x;
     d->alloc = alloc;
     if (!alloc)
         d->begin = d->end = 0;
 }
-
 
 void **QListData::append()
 {
