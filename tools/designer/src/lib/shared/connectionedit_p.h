@@ -139,7 +139,7 @@ class QDESIGNER_SHARED_EXPORT ConnectionEdit : public QWidget, public CETypes
 public:
     ConnectionEdit(QWidget *parent, QDesignerFormWindowInterface *form);
 
-    inline QWidget *background() const { return m_bg_widget; }
+    inline const QPointer<QWidget> &background() const { return m_bg_widget; }
 
     void setSelected(Connection *con, bool sel);
     bool selected(const Connection *con) const;
@@ -217,7 +217,7 @@ private:
     void paintLabel(QPainter *p, EndPoint::Type type, Connection *con);
 
     
-    QWidget *m_bg_widget;
+    QPointer<QWidget> m_bg_widget;
     QUndoStack *m_undo_stack;
     bool m_enable_update_background;
 

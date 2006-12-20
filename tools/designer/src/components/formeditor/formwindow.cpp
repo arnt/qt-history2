@@ -348,19 +348,26 @@ QWidget *FormWindow::mainContainer() const
     return m_mainContainer;
 }
 
+    
+void FormWindow::clearMainContainer()
+{
+    if (m_mainContainer) {
+        setCurrentTool(0);
+        core()->metaDataBase()->remove(m_mainContainer);
+        unmanageWidget(m_mainContainer);
+        delete m_mainContainer;
+        m_mainContainer = 0;
+    }
+}
+
 void FormWindow::setMainContainer(QWidget *w)
 {
     if (w == m_mainContainer) {
         // nothing to do
         return;
     }
-
-    if (m_mainContainer) {
-        core()->metaDataBase()->remove(m_mainContainer);
-        unmanageWidget(m_mainContainer);
-        delete m_mainContainer;
-        m_mainContainer = 0;
-    }
+    
+    clearMainContainer();
 
     m_mainContainer = w;
     w->setAutoFillBackground(true);
@@ -373,7 +380,6 @@ void FormWindow::setMainContainer(QWidget *w)
     m_widgetStack->setCurrentTool(m_widgetEditor);
 
     setCurrentWidget(m_mainContainer);
-
     manageWidget(m_mainContainer);
 
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), m_mainContainer)) {
@@ -1562,10 +1568,13 @@ void FormWindow::setContents(QIODevice *dev)
 
     setUpdatesEnabled(false);
     clearSelection();
-
     m_insertedWidgets.clear();
     m_widgets.clear();
-
+    // The main container is cleared as otherwise 
+    // the names of the newly loaded objects will be unified.
+    clearMainContainer();
+    emit changed();
+    
     QDesignerResource r(this);
     QWidget *w = r.load(dev, this);
     setMainContainer(w);

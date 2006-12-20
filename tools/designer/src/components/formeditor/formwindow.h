@@ -267,6 +267,7 @@ private:
     QWidget *findTargetContainer(QWidget *widget) const;
 
     bool isPageOfContainerWidget(const QWidget *widget) const;
+    void clearMainContainer();
 
     static int widgetDepth(const QWidget *w);
     static bool isChildOf(const QWidget *c, const QWidget *p);

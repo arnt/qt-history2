@@ -734,7 +734,7 @@ void SignalSlotEditor::fromUi(const DomConnections *connections, QWidget *parent
         return;
 
     setBackground(parent);
-
+    clear();
     const QList<DomConnection*> list = connections->elementConnection();
     foreach (const DomConnection *dom_con, list) {
         QObject *source = objectByName(parent, dom_con->elementSender());

@@ -25,7 +25,6 @@
 #include <QtGui/qevent.h>
 
 #include <QtCore/QMultiMap>
-#include <QtCore/qdebug.h>
 
 namespace  {
     const int BG_ALPHA =              32;
@@ -961,6 +960,7 @@ void ConnectionEdit::enableUpdateBackground(bool enable)
 
 void ConnectionEdit::updateBackground()
 {
+    // Might happen while reloading a form.
     if (m_bg_widget == 0)
         return;
 

@@ -112,7 +112,7 @@ QDesignerFormWindowInterface *BuddyEditor::formWindow() const
 
 void BuddyEditor::updateBackground()
 {
-    if (m_updating)
+    if (m_updating || background() == 0)
         return;
     ConnectionEdit::updateBackground();
 
