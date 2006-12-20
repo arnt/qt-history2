@@ -970,7 +970,7 @@ void QTextDocumentLayoutPrivate::drawFlow(const QPointF &offset, QPainter *paint
             else
                 currentPosInDoc = it.currentBlock().position();
 
-            // if we're past what is already layouted then we're better off
+            // if we're past what is already laid out then we're better off
             // not trying to draw things that may not be positioned correctly yet
             if (currentPosInDoc >= checkPoints.last().positionInFrame)
                 break;
@@ -1216,7 +1216,7 @@ QLayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextT
     // also when for example in a table layoutFrom/layoutTo affect only one cell,
     // making that one cell grow the available width of the other cells may change
     // (shrink) and therefore when layoutCell gets called for them they have to
-    // be relayouted, even if layoutFrom/layoutTo is not in their range. Hence
+    // be re-laid out, even if layoutFrom/layoutTo is not in their range. Hence
     // this line:
     layoutStruct.fullLayout = true;
 

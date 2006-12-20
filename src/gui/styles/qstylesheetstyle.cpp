@@ -575,7 +575,7 @@ static void qDrawRoundedCorners(QPainter *p, qreal x1, qreal y1, qreal x2, qreal
         }
     } else if ((s == BorderStyle_Outset && (edge == TopEdge || edge == LeftEdge))
             || (s == BorderStyle_Inset && (edge == BottomEdge || edge == RightEdge)))
-            c = c.light();
+            c = c.lighter();
 
     p->save();
     p->setRenderHint(QPainter::Antialiasing);
@@ -639,7 +639,7 @@ void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2, qreal dw1, q
     case BorderStyle_Outset:
         if (style == BorderStyle_Outset && (edge == TopEdge || edge == LeftEdge)
             || (style == BorderStyle_Inset && (edge == BottomEdge || edge == RightEdge)))
-            c = c.light();
+            c = c.lighter();
         // fall through!
     case BorderStyle_Solid: {
         p->setPen(Qt::NoPen);

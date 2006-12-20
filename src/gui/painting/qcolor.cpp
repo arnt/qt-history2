@@ -74,8 +74,8 @@ static bool allowX11ColorNames = false;
     The color names are taken from the SVG 1.0 color names. The name()
     function returns the name of the color in the format
     #AARRGGBB. Colors can also be set using setRgb(), setHsv() and
-    setCmyk(). To get a lighter or darker color use the light() and
-    dark() functions respectively.
+    setCmyk(). To get a lighter or darker color use the lighter() and
+    darker() functions respectively.
 
     The isValid() function indicates whether a QColor is legal at
     all. For example, a RGB color with RGB values out of range is
@@ -1783,13 +1783,15 @@ QColor QColor::fromCmykF(qreal c, qreal m, qreal y, qreal k, qreal a)
 }
 
 /*!
+    \fn QColor QColor::lighter(int factor) const
+
     Returns a lighter (or darker) color, but does not change this
     object.
 
     If the \a factor is greater than 100, this functions returns a
     lighter color. Setting \a factor to 150 returns a color that is
     50% brighter. If the \a factor is less than 100, the return color
-    is darker, but we recommend using the dark() function for this
+    is darker, but we recommend using the darker() function for this
     purpose. If the \a factor is 0 or negative, the return value is
     unspecified.
 
@@ -1797,14 +1799,20 @@ QColor QColor::fromCmykF(qreal c, qreal m, qreal y, qreal k, qreal a)
     value (V) component by \a factor and converts the color back to
     RGB.
 
-    \sa dark(), isValid()
+    \sa darker(), isValid()
+*/
+
+/*!
+    \obsolete
+
+    Use lighter(\a factor) instead.
 */
 QColor QColor::light(int factor) const
 {
     if (factor <= 0)                                // invalid lightness factor
         return *this;
     else if (factor < 100)                        // makes color darker
-        return dark(10000/factor);
+        return darker(10000 / factor);
 
     QColor hsv = toHsv();
     int s = hsv.ct.ahsv.saturation;
@@ -1827,13 +1835,15 @@ QColor QColor::light(int factor) const
 }
 
 /*!
+    \fn QColor QColor::darker(int factor) const
+
     Returns a darker (or lighter) color, but does not change this
     object.
 
     If the \a factor is greater than 100, this functions returns a
     darker color. Setting \a factor to 300 returns a color that has
     one-third the brightness. If the \a factor is less than 100, the
-    return color is lighter, but we recommend using the light()
+    return color is lighter, but we recommend using the lighter()
     function for this purpose. If the \a factor is 0 or negative, the
     return value is unspecified.
 
@@ -1841,14 +1851,20 @@ QColor QColor::light(int factor) const
     value (V) component by \a factor and converts the color back to
     RGB.
 
-    \sa light(), isValid()
+    \sa lighter(), isValid()
+*/
+
+/*!
+    \obsolete
+
+    Use darker(\a factor) instead.
 */
 QColor QColor::dark(int factor) const
 {
     if (factor <= 0)                                // invalid darkness factor
         return *this;
     else if (factor < 100)                        // makes color lighter
-        return light(10000/factor);
+        return lighter(10000 / factor);
 
     QColor hsv = toHsv();
     hsv.ct.ahsv.value = (hsv.ct.ahsv.value * 100) / factor;

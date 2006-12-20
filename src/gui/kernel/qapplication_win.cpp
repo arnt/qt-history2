@@ -378,7 +378,7 @@ static void qt_set_windows_resources()
                  QColor(qt_colorref2qrgb(GetSysColor(COLOR_BTNHIGHLIGHT))));
     pal.setColor(QPalette::Dark,
                  QColor(qt_colorref2qrgb(GetSysColor(COLOR_BTNSHADOW))));
-    pal.setColor(QPalette::Mid, pal.button().color().dark(150));
+    pal.setColor(QPalette::Mid, pal.button().color().darker(150));
     pal.setColor(QPalette::Text,
                  QColor(qt_colorref2qrgb(GetSysColor(COLOR_WINDOWTEXT))));
     pal.setColor(QPalette::BrightText,
@@ -408,7 +408,7 @@ static void qt_set_windows_resources()
 
     if (QSysInfo::WindowsVersion != QSysInfo::WV_NT && QSysInfo::WindowsVersion != QSysInfo::WV_95) {
         if (pal.midlight() == pal.button())
-            pal.setColor(QPalette::Midlight, pal.button().color().light(110));
+            pal.setColor(QPalette::Midlight, pal.button().color().lighter(110));
         if (pal.background() != pal.base()) {
             pal.setColor(QPalette::Inactive, QPalette::Highlight, pal.color(QPalette::Inactive, QPalette::Window));
             pal.setColor(QPalette::Inactive, QPalette::HighlightedText, pal.color(QPalette::Inactive, QPalette::Text));

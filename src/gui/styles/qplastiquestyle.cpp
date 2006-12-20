@@ -502,12 +502,12 @@ static void qBrushSetAlphaF(QBrush *brush, qreal alpha)
 static QBrush qBrushLight(QBrush brush, int light)
 {
     if (const QGradient *gradient = brush.gradient()) {
-        // Use the gradient. Call QColor::light() on all color stops.
+        // Use the gradient. Call QColor::lighter() on all color stops.
         QGradientStops stops = gradient->stops();
         QMutableVectorIterator<QGradientStop> it(stops);
         while (it.hasNext()) {
             it.next();
-            it.setValue(QPair<qreal, QColor>(it.value().first, it.value().second.light(light)));
+            it.setValue(QPair<qreal, QColor>(it.value().first, it.value().second.lighter(light)));
         }
 
         switch (gradient->type()) {
@@ -545,7 +545,7 @@ static QBrush qBrushLight(QBrush brush, int light)
             QColor tmpColor;
             while (pixels--) {
                 tmpColor.setRgb(*rgb);
-                *rgb++ = tmpColor.light(light).rgba();
+                *rgb++ = tmpColor.lighter(light).rgba();
             }
             pixmap = QPixmap::fromImage(image);
             QPixmapCache::insert(name, pixmap);
@@ -553,7 +553,7 @@ static QBrush qBrushLight(QBrush brush, int light)
         brush.setTexture(pixmap);
     } else {
         // Use the color
-        brush.setColor(brush.color().light(light));
+        brush.setColor(brush.color().lighter(light));
     }
     return brush;
 }
@@ -561,12 +561,12 @@ static QBrush qBrushLight(QBrush brush, int light)
 static QBrush qBrushDark(QBrush brush, int dark)
 {
     if (const QGradient *gradient = brush.gradient()) {
-        // Use the gradient. Call QColor::dark() on all color stops.
+        // Use the gradient. Call QColor::darker() on all color stops.
         QGradientStops stops = gradient->stops();
         QMutableVectorIterator<QGradientStop> it(stops);
         while (it.hasNext()) {
             it.next();
-            it.setValue(QPair<qreal, QColor>(it.value().first, it.value().second.dark(dark)));
+            it.setValue(QPair<qreal, QColor>(it.value().first, it.value().second.darker(dark)));
         }
 
         switch (gradient->type()) {
@@ -604,7 +604,7 @@ static QBrush qBrushDark(QBrush brush, int dark)
             QColor tmpColor;
             while (pixels--) {
                 tmpColor.setRgb(*rgb);
-                *rgb++ = tmpColor.dark(dark).rgba();
+                *rgb++ = tmpColor.darker(dark).rgba();
             }
             pixmap = QPixmap::fromImage(image);
             QPixmapCache::insert(name, pixmap);
@@ -612,7 +612,7 @@ static QBrush qBrushDark(QBrush brush, int dark)
         brush.setTexture(pixmap);
     } else {
         // Use the color
-        brush.setColor(brush.color().dark(dark));
+        brush.setColor(brush.color().darker(dark));
     }
     return brush;
 }
@@ -747,9 +747,9 @@ static void qt_plastique_drawFrame(QPainter *painter, const QStyleOption *option
     QRect rect = option->rect;
     QPen oldPen = painter->pen();
 
-    QColor borderColor = option->palette.background().color().dark(178);
-    QColor gradientStartColor = option->palette.button().color().light(104);
-    QColor gradientStopColor = option->palette.button().color().dark(105);
+    QColor borderColor = option->palette.background().color().darker(178);
+    QColor gradientStartColor = option->palette.button().color().lighter(104);
+    QColor gradientStopColor = option->palette.button().color().darker(105);
     QColor alphaCornerColor;
     if (widget) {
         // ### backgroundrole/foregroundrole should be part of the style option
@@ -781,16 +781,16 @@ static void qt_plastique_drawFrame(QPainter *painter, const QStyleOption *option
 
     // inner border
     if ((option->state & QStyle::State_Sunken) || (option->state & QStyle::State_On))
-        painter->setPen(option->palette.button().color().dark(118));
+        painter->setPen(option->palette.button().color().darker(118));
     else
         painter->setPen(gradientStartColor);
     painter->drawLine(rect.left() + 2, rect.top() + 1, rect.right() - 2, option->rect.top() + 1);
     painter->drawLine(rect.left() + 1, rect.top() + 2, rect.left() + 1, option->rect.bottom() - 2);
 
     if ((option->state & QStyle::State_Sunken) || (option->state & QStyle::State_On))
-        painter->setPen(option->palette.button().color().dark(110));
+        painter->setPen(option->palette.button().color().darker(110));
     else
-        painter->setPen(gradientStopColor.dark(102));
+        painter->setPen(gradientStopColor.darker(102));
     painter->drawLine(rect.left() + 2, rect.bottom() - 1, rect.right() - 2, rect.bottom() - 1);
     painter->drawLine(rect.right() - 1, rect.top() + 2, rect.right() - 1, rect.bottom() - 2);
 
@@ -803,19 +803,19 @@ static void qt_plastique_drawShadedPanel(QPainter *painter, const QStyleOption *
     QRect rect = option->rect;
     QPen oldPen = painter->pen();
 
-    QColor gradientStartColor = option->palette.button().color().light(104);
-    QColor gradientStopColor = option->palette.button().color().dark(105);
+    QColor gradientStartColor = option->palette.button().color().lighter(104);
+    QColor gradientStopColor = option->palette.button().color().darker(105);
 
     // gradient fill
     if ((option->state & QStyle::State_Enabled) || !(option->state & QStyle::State_AutoRaise)) {
         if ((option->state & QStyle::State_Sunken) || (option->state & QStyle::State_On)) {
             qt_plastique_draw_gradient(painter, rect.adjusted(1, 1, -1, -1),
-                                       option->palette.button().color().dark(114),
-                                       option->palette.button().color().dark(106));
+                                       option->palette.button().color().darker(114),
+                                       option->palette.button().color().darker(106));
         } else {
             qt_plastique_draw_gradient(painter, rect.adjusted(1, 1, -1, -1),
-                                       base ? option->palette.background().color().light(105) : gradientStartColor,
-                                       base ? option->palette.background().color().dark(102) : gradientStopColor);
+                                       base ? option->palette.background().color().lighter(105) : gradientStartColor,
+                                       base ? option->palette.background().color().darker(102) : gradientStopColor);
         }
     }
 
@@ -899,7 +899,7 @@ static void qt_plastique_draw_handle(QPainter *painter, const QStyleOption *opti
                                      const QRect &rect, Qt::Orientation orientation,
                                      const QWidget *widget)
 {
-    QColor borderColor = option->palette.background().color().dark(178);
+    QColor borderColor = option->palette.background().color().darker(178);
     QColor alphaCornerColor;
     if (widget) {
         // ### backgroundrole/foregroundrole should be part of the style option
@@ -999,15 +999,15 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
 {
     Q_ASSERT(option);
 
-    QColor borderColor = option->palette.background().color().dark(178);
-    QColor gradientStartColor = option->palette.button().color().light(104);
-    QColor gradientStopColor = option->palette.button().color().dark(105);
-    QColor baseGradientStartColor = option->palette.base().color().dark(101);
-    QColor baseGradientStopColor = option->palette.base().color().dark(106);
-    QColor highlightedGradientStartColor = option->palette.button().color().light(101);
+    QColor borderColor = option->palette.background().color().darker(178);
+    QColor gradientStartColor = option->palette.button().color().lighter(104);
+    QColor gradientStopColor = option->palette.button().color().darker(105);
+    QColor baseGradientStartColor = option->palette.base().color().darker(101);
+    QColor baseGradientStopColor = option->palette.base().color().darker(106);
+    QColor highlightedGradientStartColor = option->palette.button().color().lighter(101);
     QColor highlightedGradientStopColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 85);
     QColor highlightedBaseGradientStartColor = option->palette.base().color();
-    QColor highlightedBaseGradientStopColor = mergedColors(option->palette.base().color().dark(105), option->palette.highlight().color(), 70);
+    QColor highlightedBaseGradientStopColor = mergedColors(option->palette.base().color().darker(105), option->palette.highlight().color(), 70);
     QColor highlightedDarkInnerBorderColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 35);
     QColor highlightedLightInnerBorderColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 58);
     QColor alphaCornerColor;
@@ -1020,9 +1020,9 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
     QColor alphaInnerColor = mergedColors(highlightedLightInnerBorderColor, gradientStartColor);
     QColor alphaInnerColorNoHover = mergedColors(borderColor, gradientStartColor);
     QColor alphaTextColor = mergedColors(option->palette.background().color(), option->palette.text().color());
-    QColor alphaLightTextColor = mergedColors(option->palette.background().color().light(250), option->palette.text().color().light(250));
-    QColor lightShadow = option->palette.button().color().light(105);
-    QColor shadowGradientStartColor = option->palette.button().color().dark(115);
+    QColor alphaLightTextColor = mergedColors(option->palette.background().color().lighter(250), option->palette.text().color().lighter(250));
+    QColor lightShadow = option->palette.button().color().lighter(105);
+    QColor shadowGradientStartColor = option->palette.button().color().darker(115);
     QColor shadow = shadowGradientStartColor;
 
     switch (element) {
@@ -1316,7 +1316,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
         else
             painter->drawLine(option->rect.topRight(), option->rect.bottomRight());
-        painter->setPen(option->palette.background().color().light(104));
+        painter->setPen(option->palette.background().color().lighter(104));
         if ((option->state & State_Horizontal) == 0)
             painter->drawLine(option->rect.topLeft(), option->rect.topRight());
         else
@@ -1339,11 +1339,11 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                 painter->setPen(alphaCornerColor);
                 painter->drawLine(option->rect.left(), option->rect.bottom(),
                                   option->rect.right(), option->rect.bottom());
-                painter->setPen(option->palette.background().color().light(104));
+                painter->setPen(option->palette.background().color().lighter(104));
                 painter->drawLine(option->rect.left(), option->rect.top(),
                                   option->rect.right(), option->rect.top());
             } else {
-                painter->setPen(option->palette.background().color().light(104));
+                painter->setPen(option->palette.background().color().lighter(104));
                 painter->drawLine(option->rect.left(), option->rect.top(),
                                   option->rect.left(), option->rect.bottom());
                 painter->setPen(alphaCornerColor);
@@ -1477,33 +1477,33 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             } else {
                 // Generate gradients
                 QLinearGradient buttonGradient(rect.topLeft(), rect.bottomLeft());
-                buttonGradient.setColorAt(0.0, buttonBrush.color().light(104));
-                buttonGradient.setColorAt(1.0, buttonBrush.color().dark(110));
+                buttonGradient.setColorAt(0.0, buttonBrush.color().lighter(104));
+                buttonGradient.setColorAt(1.0, buttonBrush.color().darker(110));
                 buttonGradientBrush = QBrush(buttonGradient);
 
                 QLinearGradient buttonGradient2(rect.topLeft(), rect.bottomLeft());
-                buttonGradient2.setColorAt(0.0, buttonBrush.color().dark(113));
-                buttonGradient2.setColorAt(1.0, buttonBrush.color().dark(103));
+                buttonGradient2.setColorAt(0.0, buttonBrush.color().darker(113));
+                buttonGradient2.setColorAt(1.0, buttonBrush.color().darker(103));
                 sunkenButtonGradientBrush = QBrush(buttonGradient2);
 
                 QLinearGradient buttonGradient3(rect.topLeft(), rect.bottomLeft());
-                buttonGradient3.setColorAt(0.0, buttonBrush.color().light(105));
+                buttonGradient3.setColorAt(0.0, buttonBrush.color().lighter(105));
                 buttonGradient3.setColorAt(1.0, buttonBrush.color());
                 leftLineGradientBrush = QBrush(buttonGradient3);
 
                 QLinearGradient buttonGradient4(rect.topLeft(), rect.bottomLeft());
                 buttonGradient4.setColorAt(0.0, buttonBrush.color());
-                buttonGradient4.setColorAt(1.0, buttonBrush.color().dark(110));
+                buttonGradient4.setColorAt(1.0, buttonBrush.color().darker(110));
                 rightLineGradientBrush = QBrush(buttonGradient4);
 
                 QLinearGradient buttonGradient5(rect.topLeft(), rect.bottomLeft());
-                buttonGradient5.setColorAt(0.0, buttonBrush.color().dark(113));
-                buttonGradient5.setColorAt(1.0, buttonBrush.color().dark(107));
+                buttonGradient5.setColorAt(0.0, buttonBrush.color().darker(113));
+                buttonGradient5.setColorAt(1.0, buttonBrush.color().darker(107));
                 sunkenLeftLineGradientBrush = QBrush(buttonGradient5);
 
                 QLinearGradient buttonGradient6(rect.topLeft(), rect.bottomLeft());
-                buttonGradient6.setColorAt(0.0, buttonBrush.color().dark(108));
-                buttonGradient6.setColorAt(1.0, buttonBrush.color().dark(103));
+                buttonGradient6.setColorAt(0.0, buttonBrush.color().darker(108));
+                buttonGradient6.setColorAt(1.0, buttonBrush.color().darker(103));
                 sunkenRightLineGradientBrush = QBrush(buttonGradient6);
             }
 
@@ -1596,7 +1596,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             if (!baseBrush.gradient() && baseBrush.texture().isNull()) {
                 QLinearGradient gradient(rect.center().x(), rect.top(), rect.center().x(), rect.bottom());
                 gradient.setColorAt(0, baseBrush.color());
-                gradient.setColorAt(1, baseBrush.color().dark(105));
+                gradient.setColorAt(1, baseBrush.color().darker(105));
                 baseBrush = gradient;
             }
             p->fillRect(rect.adjusted(1, 1, -1, -1), baseBrush);
@@ -1653,7 +1653,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             if (!baseBrush.gradient() && baseBrush.texture().isNull()) {
                 QLinearGradient gradient(rect.center().x(), rect.top(), rect.center().x(), rect.bottom());
                 gradient.setColorAt(0, baseBrush.color());
-                gradient.setColorAt(1, baseBrush.color().dark(105));
+                gradient.setColorAt(1, baseBrush.color().darker(105));
                 baseBrush = gradient;
             }
             p->setBrush(baseBrush);
@@ -1759,7 +1759,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
 #endif
 
         // upper and lower left inner
-        painter->setPen(active ? mergedColors(palette.highlight().color(), palette.background().color()) : palette.background().color().dark(120));
+        painter->setPen(active ? mergedColors(palette.highlight().color(), palette.background().color()) : palette.background().color().darker(120));
         painter->drawLine(option->rect.left() + 1, titleBarStop, option->rect.left() + 1, option->rect.bottom() - 2);
 
 #ifdef QT3_SUPPORT
@@ -1774,7 +1774,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         }
 #endif
 
-        painter->setPen(active ? mergedColors(palette.highlight().color(), palette.background().color(), 57) : palette.background().color().dark(130));
+        painter->setPen(active ? mergedColors(palette.highlight().color(), palette.background().color(), 57) : palette.background().color().darker(130));
         painter->drawLine(option->rect.right() - 1, titleBarStop, option->rect.right() - 1, option->rect.bottom() - 2);
         painter->drawLine(option->rect.left() + 1, option->rect.bottom() - 1, option->rect.right() - 1, option->rect.bottom() - 1);
 
@@ -1848,7 +1848,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                                   QPainter *painter, const QWidget *widget) const
 {
     Q_D(const QPlastiqueStyle);
-    QColor borderColor = option->palette.background().color().dark(178);
+    QColor borderColor = option->palette.background().color().darker(178);
     QColor alphaCornerColor;
     if (widget) {
         // ### backgroundrole/foregroundrole should be part of the style option
@@ -1858,17 +1858,17 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
     }
     QColor alphaTextColor = mergedColors(option->palette.background().color(), option->palette.text().color());
 
-    QColor gradientStartColor = option->palette.button().color().light(104);
-    QColor gradientStopColor = option->palette.button().color().dark(105);
+    QColor gradientStartColor = option->palette.button().color().lighter(104);
+    QColor gradientStopColor = option->palette.button().color().darker(105);
 
-    QColor shadowGradientStartColor = option->palette.button().color().dark(115);
-    QColor shadowGradientStopColor = option->palette.button().color().dark(120);
+    QColor shadowGradientStartColor = option->palette.button().color().darker(115);
+    QColor shadowGradientStopColor = option->palette.button().color().darker(120);
 
-    QColor highlightedGradientStartColor = option->palette.button().color().light(101);
+    QColor highlightedGradientStartColor = option->palette.button().color().lighter(101);
     QColor highlightedGradientStopColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 85);
 
-    QColor lightShadowGradientStartColor = highlightedGradientStartColor.light(105);
-    QColor lightShadowGradientStopColor = highlightedGradientStopColor.light(105);
+    QColor lightShadowGradientStartColor = highlightedGradientStartColor.lighter(105);
+    QColor lightShadowGradientStopColor = highlightedGradientStopColor.lighter(105);
 
     QColor highlightedDarkInnerBorderColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 35);
     QColor highlightedLightInnerBorderColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 58);
@@ -2105,8 +2105,8 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                                 } else {
                                     // Generate gradients
                                     QLinearGradient buttonGradient(fillRect.topLeft(), fillRect.bottomLeft());
-                                    buttonGradient.setColorAt(0.0, buttonBrush.color().light(104));
-                                    buttonGradient.setColorAt(1.0, buttonBrush.color().dark(110));
+                                    buttonGradient.setColorAt(0.0, buttonBrush.color().lighter(104));
+                                    buttonGradient.setColorAt(1.0, buttonBrush.color().darker(110));
                                     buttonGradientBrush = QBrush(buttonGradient);
                                 }
 
@@ -2199,7 +2199,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                             leftLineGradientBrush = qBrushLight(buttonBrush, 105);
                         } else {
                             QLinearGradient buttonGradient3(rect.topLeft(), rect.bottomLeft());
-                            buttonGradient3.setColorAt(0.0, buttonBrush.color().light(105));
+                            buttonGradient3.setColorAt(0.0, buttonBrush.color().lighter(105));
                             buttonGradient3.setColorAt(1.0, buttonBrush.color());
                             leftLineGradientBrush = QBrush(buttonGradient3);
                         }
@@ -2226,7 +2226,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                             } else {
                                 QLinearGradient buttonGradient4(rect.topLeft(), rect.bottomLeft());
                                 buttonGradient4.setColorAt(0.0, buttonBrush.color());
-                                buttonGradient4.setColorAt(1.0, buttonBrush.color().dark(110));
+                                buttonGradient4.setColorAt(1.0, buttonBrush.color().darker(110));
                                 rightLineGradientBrush = QBrush(buttonGradient4);
                             }
 
@@ -2337,7 +2337,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             painter->drawPoint(rect.right() - 1, rect.bottom());
 
             // inner outline, north-west
-            painter->setPen(gradientStartColor.dark(105));
+            painter->setPen(gradientStartColor.darker(105));
             painter->drawLine(rect.left() + 2, rect.top() + 1, rect.right() - 2, rect.top() + 1);
             painter->drawLine(rect.left() + 1, rect.top() + 2, rect.left() + 1, rect.bottom() - 2);
 
@@ -2585,8 +2585,8 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     QColor lineColor = option->palette.highlight().color();
                     if (flip) {
                         flip = false;
-                        rectColor = rectColor.light(105);
-                        lineColor = lineColor.light(105);
+                        rectColor = rectColor.lighter(105);
+                        lineColor = lineColor.lighter(105);
                     } else {
                         flip = true;
                     }
@@ -2639,11 +2639,11 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 
                 bool sunken = (header->state & State_Enabled) && (header->state & State_Sunken);
 
-                QColor headerGradientStart = sunken ? option->palette.background().color().dark(114) : gradientStartColor;
-                QColor headerGradientStop = sunken ? option->palette.background().color().dark(106) : gradientStopColor;
+                QColor headerGradientStart = sunken ? option->palette.background().color().darker(114) : gradientStartColor;
+                QColor headerGradientStop = sunken ? option->palette.background().color().darker(106) : gradientStopColor;
 
-                QColor lightLine = sunken ? option->palette.background().color().dark(118) : gradientStartColor;
-                QColor darkLine = sunken ? option->palette.background().color().dark(110) : gradientStopColor.dark(105);
+                QColor lightLine = sunken ? option->palette.background().color().darker(118) : gradientStartColor;
+                QColor darkLine = sunken ? option->palette.background().color().darker(110) : gradientStopColor.darker(105);
 
                 qt_plastique_draw_gradient(&cachePainter, pixmapRect,
                                            headerGradientStart, headerGradientStop);
@@ -2682,7 +2682,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             painter->save();
 
             if (menuItem->menuItemType == QStyleOptionMenuItem::Separator) {
-                painter->fillRect(menuItem->rect, option->palette.background().color().light(103));
+                painter->fillRect(menuItem->rect, option->palette.background().color().lighter(103));
 
                 int w = 0;
                 if (!menuItem->text.isEmpty()) {
@@ -2709,15 +2709,15 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 
             if (selected && enabled) {
                 qt_plastique_draw_gradient(painter, menuItem->rect,
-                                           option->palette.highlight().color().light(105),
-                                           option->palette.highlight().color().dark(110));
+                                           option->palette.highlight().color().lighter(105),
+                                           option->palette.highlight().color().darker(110));
 
-                painter->setPen(option->palette.highlight().color().light(110));
+                painter->setPen(option->palette.highlight().color().lighter(110));
                 painter->drawLine(option->rect.topLeft(), option->rect.topRight());
-                painter->setPen(option->palette.highlight().color().dark(115));
+                painter->setPen(option->palette.highlight().color().darker(115));
                 painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
             } else {
-                painter->fillRect(option->rect, option->palette.background().color().light(103));
+                painter->fillRect(option->rect, option->palette.background().color().lighter(103));
             }
 
             // Check
@@ -2875,12 +2875,12 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                 if (option->state & QStyle::State_Enabled) {
                     if ((option->state & QStyle::State_Sunken) || (option->state & QStyle::State_On)) {
                         qt_plastique_draw_gradient(&cachePainter, rect.adjusted(1, 1, -1, -1),
-                                                   option->palette.button().color().dark(114),
-                                                   option->palette.button().color().dark(106));
+                                                   option->palette.button().color().darker(114),
+                                                   option->palette.button().color().darker(106));
                     } else {
                         qt_plastique_draw_gradient(&cachePainter, rect.adjusted(1, 1, -1, -1),
-                                                   option->palette.background().color().light(105),
-                                                   option->palette.background().color().dark(102));
+                                                   option->palette.background().color().lighter(105),
+                                                   option->palette.background().color().darker(102));
                     }
                 }
 
@@ -2895,16 +2895,16 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 
                 // inner border
                 if ((option->state & QStyle::State_Sunken) || (option->state & QStyle::State_On))
-                    cachePainter.setPen(option->palette.button().color().dark(118));
+                    cachePainter.setPen(option->palette.button().color().darker(118));
                 else
                     cachePainter.setPen(gradientStartColor);
                 cachePainter.drawLine(rect.left() + 1, rect.top() + 1, rect.right() - 1, rect.top() + 1);
                 cachePainter.drawLine(rect.left() + 1, rect.top() + 2, rect.left() + 1, rect.bottom() - 2);
 
                 if ((option->state & QStyle::State_Sunken) || (option->state & QStyle::State_On))
-                    cachePainter.setPen(option->palette.button().color().dark(114));
+                    cachePainter.setPen(option->palette.button().color().darker(114));
                 else
-                    cachePainter.setPen(gradientStopColor.dark(102));
+                    cachePainter.setPen(gradientStopColor.darker(102));
                 cachePainter.drawLine(rect.left() + 1, rect.bottom() - 1, rect.right() - 1, rect.bottom() - 1);
                 cachePainter.drawLine(rect.right() - 1, rect.top() + 1, rect.right() - 1, rect.bottom() - 2);
                 cachePainter.end();
@@ -3068,7 +3068,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     // The end and onlyone top toolbar lines draw a double
                     // line at the bottom to blend with the central
                     // widget.
-                    painter->setPen(option->palette.background().color().light(104));
+                    painter->setPen(option->palette.background().color().lighter(104));
                     painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
                     painter->setPen(alphaCornerColor);
                     painter->drawLine(option->rect.left(), option->rect.bottom() - 1,
@@ -3079,7 +3079,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
                 }
                 // All top toolbar lines draw a light line at the top.
-                painter->setPen(option->palette.background().color().light(104));
+                painter->setPen(option->palette.background().color().lighter(104));
                 painter->drawLine(option->rect.topLeft(), option->rect.topRight());
             } else if (toolBar->toolBarArea == Qt::BottomToolBarArea) {
                 if (toolBar->positionOfLine == QStyleOptionToolBar::End
@@ -3100,19 +3100,19 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     painter->setPen(alphaCornerColor);
                     painter->drawLine(option->rect.left(), option->rect.bottom() - 1,
                                       option->rect.right(), option->rect.bottom() - 1);
-                    painter->setPen(option->palette.background().color().light(104));
+                    painter->setPen(option->palette.background().color().lighter(104));
                     painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
                 }
                 if (toolBar->positionOfLine == QStyleOptionToolBar::End) {
                     painter->setPen(alphaCornerColor);
                     painter->drawLine(option->rect.topLeft(), option->rect.topRight());
-                    painter->setPen(option->palette.background().color().light(104));
+                    painter->setPen(option->palette.background().color().lighter(104));
                     painter->drawLine(option->rect.left(), option->rect.top() + 1,
                                       option->rect.right(), option->rect.top() + 1);
 
                 } else {
                     // All other bottom toolbars draw a light line at the top.
-                    painter->setPen(option->palette.background().color().light(104));
+                    painter->setPen(option->palette.background().color().lighter(104));
                     painter->drawLine(option->rect.topLeft(), option->rect.topRight());
                 }
             }
@@ -3121,7 +3121,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     || toolBar->positionOfLine == QStyleOptionToolBar::End) {
                     // The middle and left end toolbar lines draw a light
                     // line to the left.
-                    painter->setPen(option->palette.background().color().light(104));
+                    painter->setPen(option->palette.background().color().lighter(104));
                     painter->drawLine(option->rect.topLeft(), option->rect.bottomLeft());
                 }
                 if (toolBar->positionOfLine == QStyleOptionToolBar::End) {
@@ -3129,7 +3129,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     painter->setPen(alphaCornerColor);
                     painter->drawLine(option->rect.right() - 1, option->rect.top(),
                                       option->rect.right() - 1, option->rect.bottom());
-                    painter->setPen(option->palette.background().color().light(104));
+                    painter->setPen(option->palette.background().color().lighter(104));
                     painter->drawLine(option->rect.topRight(), option->rect.bottomRight());
                 } else {
                     // All other left toolbar lines draw a dark line to the right
@@ -3150,12 +3150,12 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     painter->setPen(alphaCornerColor);
                     painter->drawLine(option->rect.topLeft(), option->rect.bottomLeft());
                     // And a light line next to it
-                    painter->setPen(option->palette.background().color().light(104));
+                    painter->setPen(option->palette.background().color().lighter(104));
                     painter->drawLine(option->rect.left() + 1, option->rect.top(),
                                       option->rect.left() + 1, option->rect.bottom());
                 } else {
                     // Other right toolbars draw a light line on its left edge
-                    painter->setPen(option->palette.background().color().light(104));
+                    painter->setPen(option->palette.background().color().lighter(104));
                     painter->drawLine(option->rect.topLeft(), option->rect.bottomLeft());
                 }
             }
@@ -3188,7 +3188,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                         gradient.setColorAt(0, gradientStopColor);
                         gradient.setColorAt(1, gradientStopColor);
                     } else {
-                        gradient.setColorAt(0, gradientStartColor.light(105));
+                        gradient.setColorAt(0, gradientStartColor.lighter(105));
                         gradient.setColorAt(1, gradientStopColor);
                     }
                     addLinePainter.fillRect(pixmapRect.left() + 2, pixmapRect.top() + 2,
@@ -3209,7 +3209,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     addButton.setColor(3, gradientStopColor.rgba());
                     addButton.setColor(4, gradientStopColor.rgba());
                 } else {
-                    addButton.setColor(3, gradientStartColor.light(105).rgba());
+                    addButton.setColor(3, gradientStartColor.lighter(105).rgba());
                     addButton.setColor(4, gradientStopColor.rgba());
                 }
                 addButton.setColor(5, scrollBar->palette.text().color().rgba());
@@ -3254,10 +3254,10 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                 cache.fill(option->palette.background().color());
                 QPainter groovePainter(&cache);
                 QRect pixmapRect = QRect(0, 0, option->rect.width(), option->rect.height());
-                QColor color = scrollBar->palette.base().color().dark(sunken ? 125 : 100);
+                QColor color = scrollBar->palette.base().color().darker(sunken ? 125 : 100);
                 groovePainter.fillRect(pixmapRect, QBrush(color, Qt::Dense4Pattern));
 
-                QColor edgeColor = scrollBar->palette.base().color().dark(125);
+                QColor edgeColor = scrollBar->palette.base().color().darker(125);
                 if (horizontal) {
                     groovePainter.setBrushOrigin(1, 0);
                     groovePainter.fillRect(QRect(pixmapRect.topLeft(), QSize(pixmapRect.width(), 1)),
@@ -3321,7 +3321,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                         qt_plastique_draw_gradient(&subLinePainter,
                                                    QRect(pixmapRect.left() + 2, pixmapRect.top() + 2,
                                                          pixmapRect.right() - 3, pixmapRect.bottom() - 3),
-                                                   gradientStartColor.light(105),
+                                                   gradientStartColor.lighter(105),
                                                    gradientStopColor);
                     }
                 }
@@ -3339,7 +3339,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     subButton.setColor(3, gradientStopColor.rgba());
                     subButton.setColor(4, gradientStopColor.rgba());
                 } else {
-                    subButton.setColor(3, gradientStartColor.light(105).rgba());
+                    subButton.setColor(3, gradientStartColor.lighter(105).rgba());
                     subButton.setColor(4, gradientStopColor.rgba());
                 }
                 subButton.setColor(5, scrollBar->palette.text().color().rgba());
@@ -3392,10 +3392,10 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                         QLinearGradient gradient(pixmapRect.center().x(), pixmapRect.top(),
                                                  pixmapRect.center().x(), pixmapRect.bottom());
                         if (sunken) {
-                            gradient.setColorAt(0, gradientStartColor.light(110));
-                            gradient.setColorAt(1, gradientStopColor.light(105));
+                            gradient.setColorAt(0, gradientStartColor.lighter(110));
+                            gradient.setColorAt(1, gradientStopColor.lighter(105));
                         } else {
-                            gradient.setColorAt(0, gradientStartColor.light(105));
+                            gradient.setColorAt(0, gradientStartColor.lighter(105));
                             gradient.setColorAt(1, gradientStopColor);
                         }
                         sliderPainter.fillRect(pixmapRect.adjusted(2, 2, -2, -2), gradient);
@@ -3411,13 +3411,13 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     sliderPainter.drawPoint(pixmapRect.right(), pixmapRect.top());
                     sliderPainter.drawPoint(pixmapRect.right(), pixmapRect.bottom());
 
-                    sliderPainter.setPen(sunken ? gradientStartColor.light(110) : gradientStartColor.light(105));
+                    sliderPainter.setPen(sunken ? gradientStartColor.lighter(110) : gradientStartColor.lighter(105));
                     sliderPainter.drawLine(pixmapRect.left() + 1, pixmapRect.top() + 1,
                                            pixmapRect.right() - 1, pixmapRect.top() + 1);
                     sliderPainter.drawLine(pixmapRect.left() + 1, pixmapRect.top() + 2,
                                            pixmapRect.left() + 1, pixmapRect.bottom() - 2);
 
-                    sliderPainter.setPen(sunken ? gradientStopColor.light(105) : gradientStopColor);
+                    sliderPainter.setPen(sunken ? gradientStopColor.lighter(105) : gradientStopColor);
                     sliderPainter.drawLine(pixmapRect.left() + 1, pixmapRect.bottom() - 1,
                                            pixmapRect.right() - 1, pixmapRect.bottom() - 1);
                     sliderPainter.drawLine(pixmapRect.right() - 1, pixmapRect.top() + 2,
@@ -3429,7 +3429,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                         QImage pattern(horizontal ? qt_scrollbar_slider_pattern_horizontal
                                        : qt_scrollbar_slider_pattern_vertical);
                         pattern.setColor(1, alphaCornerColor.rgba());
-                        pattern.setColor(2, (sunken ? gradientStartColor.light(110) : gradientStartColor.light(105)).rgba());
+                        pattern.setColor(2, (sunken ? gradientStartColor.lighter(110) : gradientStartColor.lighter(105)).rgba());
 
                         if (horizontal) {
                             sliderPainter.drawImage(pixmapRect.center().x() - pattern.width() / 2 + 1,
@@ -3504,7 +3504,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOptionComplex *option,
                                          QPainter *painter, const QWidget *widget) const
 {
-    QColor borderColor = option->palette.background().color().dark(178);
+    QColor borderColor = option->palette.background().color().darker(178);
     QColor alphaCornerColor;
    if (widget) {
         // ### backgroundrole/foregroundrole should be part of the style option
@@ -3512,9 +3512,9 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
     } else {
         alphaCornerColor = mergedColors(option->palette.background().color(), borderColor);
     }
-    QColor gradientStartColor = option->palette.button().color().light(104);
-    QColor gradientStopColor = option->palette.button().color().dark(105);
-    QColor highlightedGradientStartColor = option->palette.button().color().light(101);
+    QColor gradientStartColor = option->palette.button().color().lighter(104);
+    QColor gradientStopColor = option->palette.button().color().darker(105);
+    QColor highlightedGradientStartColor = option->palette.button().color().lighter(101);
     QColor highlightedGradientStopColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 85);
     QColor highlightedDarkInnerBorderColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 35);
     QColor highlightedLightInnerBorderColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 58);
@@ -3622,8 +3622,8 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                             QLinearGradient gradient(pixmapRect.center().x(), pixmapRect.top(),
                                                      pixmapRect.center().x(), pixmapRect.bottom());
                             if ((option->activeSubControls & SC_SliderHandle) && (option->state & State_Sunken)) {
-                                gradient.setColorAt(0, gradientStartColor.light(110));
-                                gradient.setColorAt(1, gradientStopColor.light(110));
+                                gradient.setColorAt(0, gradientStartColor.lighter(110));
+                                gradient.setColorAt(1, gradientStopColor.lighter(110));
                             } else {
                                 gradient.setColorAt(0, gradientStartColor);
                                 gradient.setColorAt(1, gradientStopColor);
@@ -3832,33 +3832,33 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             } else {
                 // Generate gradients
                 QLinearGradient buttonGradient(buttonRect.topLeft(), buttonRect.bottomLeft());
-                buttonGradient.setColorAt(0.0, buttonBrush.color().light(104));
-                buttonGradient.setColorAt(1.0, buttonBrush.color().dark(110));
+                buttonGradient.setColorAt(0.0, buttonBrush.color().lighter(104));
+                buttonGradient.setColorAt(1.0, buttonBrush.color().darker(110));
                 buttonGradientBrush = QBrush(buttonGradient);
 
                 QLinearGradient buttonGradient2(buttonRect.topLeft(), buttonRect.bottomLeft());
-                buttonGradient2.setColorAt(0.0, buttonBrush.color().dark(113));
-               buttonGradient2.setColorAt(1.0, buttonBrush.color().dark(103));
+                buttonGradient2.setColorAt(0.0, buttonBrush.color().darker(113));
+               buttonGradient2.setColorAt(1.0, buttonBrush.color().darker(103));
                 sunkenButtonGradientBrush = QBrush(buttonGradient2);
 
                 QLinearGradient buttonGradient3(buttonRect.topLeft(), buttonRect.bottomLeft());
-                buttonGradient3.setColorAt(0.0, buttonBrush.color().light(105));
+                buttonGradient3.setColorAt(0.0, buttonBrush.color().lighter(105));
                 buttonGradient3.setColorAt(1.0, buttonBrush.color());
                 leftLineGradientBrush = QBrush(buttonGradient3);
 
                 QLinearGradient buttonGradient4(buttonRect.topLeft(), buttonRect.bottomLeft());
                 buttonGradient4.setColorAt(0.0, buttonBrush.color());
-                buttonGradient4.setColorAt(1.0, buttonBrush.color().dark(110));
+                buttonGradient4.setColorAt(1.0, buttonBrush.color().darker(110));
                 rightLineGradientBrush = QBrush(buttonGradient4);
 
                 QLinearGradient buttonGradient5(buttonRect.topLeft(), buttonRect.bottomLeft());
-                buttonGradient5.setColorAt(0.0, buttonBrush.color().dark(113));
-                buttonGradient5.setColorAt(1.0, buttonBrush.color().dark(107));
+                buttonGradient5.setColorAt(0.0, buttonBrush.color().darker(113));
+                buttonGradient5.setColorAt(1.0, buttonBrush.color().darker(107));
                 sunkenLeftLineGradientBrush = QBrush(buttonGradient5);
 
                 QLinearGradient buttonGradient6(buttonRect.topLeft(), buttonRect.bottomLeft());
-                buttonGradient6.setColorAt(0.0, buttonBrush.color().dark(108));
-                buttonGradient6.setColorAt(1.0, buttonBrush.color().dark(103));
+                buttonGradient6.setColorAt(0.0, buttonBrush.color().darker(108));
+                buttonGradient6.setColorAt(1.0, buttonBrush.color().darker(103));
                 sunkenRightLineGradientBrush = QBrush(buttonGradient6);
             }
 
@@ -4069,33 +4069,33 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 } else {
                     // Generate gradients
                     QLinearGradient buttonGradient(option->rect.topLeft(), option->rect.bottomLeft());
-                    buttonGradient.setColorAt(0.0, button.color().light(104));
-                    buttonGradient.setColorAt(1.0, button.color().dark(110));
+                    buttonGradient.setColorAt(0.0, button.color().lighter(104));
+                    buttonGradient.setColorAt(1.0, button.color().darker(110));
                     buttonGradientBrush = QBrush(buttonGradient);
 
                     QLinearGradient buttonGradient2(option->rect.topLeft(), option->rect.bottomLeft());
-                    buttonGradient2.setColorAt(0.0, button.color().dark(113));
-                    buttonGradient2.setColorAt(1.0, button.color().dark(103));
+                    buttonGradient2.setColorAt(0.0, button.color().darker(113));
+                    buttonGradient2.setColorAt(1.0, button.color().darker(103));
                     sunkenButtonGradientBrush = QBrush(buttonGradient2);
 
                     QLinearGradient buttonGradient3(option->rect.topLeft(), option->rect.bottomLeft());
-                    buttonGradient3.setColorAt(0.0, button.color().light(105));
+                    buttonGradient3.setColorAt(0.0, button.color().lighter(105));
                     buttonGradient3.setColorAt(1.0, button.color());
                     leftLineGradientBrush = QBrush(buttonGradient3);
 
                     QLinearGradient buttonGradient4(option->rect.topLeft(), option->rect.bottomLeft());
                     buttonGradient4.setColorAt(0.0, button.color());
-                    buttonGradient4.setColorAt(1.0, button.color().dark(110));
+                    buttonGradient4.setColorAt(1.0, button.color().darker(110));
                     rightLineGradientBrush = QBrush(buttonGradient4);
 
                     QLinearGradient buttonGradient5(option->rect.topLeft(), option->rect.bottomLeft());
-                    buttonGradient5.setColorAt(0.0, button.color().dark(113));
-                    buttonGradient5.setColorAt(1.0, button.color().dark(107));
+                    buttonGradient5.setColorAt(0.0, button.color().darker(113));
+                    buttonGradient5.setColorAt(1.0, button.color().darker(107));
                     sunkenLeftLineGradientBrush = QBrush(buttonGradient5);
 
                     QLinearGradient buttonGradient6(option->rect.topLeft(), option->rect.bottomLeft());
-                    buttonGradient6.setColorAt(0.0, button.color().dark(108));
-                    buttonGradient6.setColorAt(1.0, button.color().dark(103));
+                    buttonGradient6.setColorAt(0.0, button.color().darker(108));
+                    buttonGradient6.setColorAt(1.0, button.color().darker(103));
                     sunkenRightLineGradientBrush = QBrush(buttonGradient6);
                 }
 
@@ -5292,7 +5292,7 @@ QPalette QPlastiqueStyle::standardPalette() const
     palette.setBrush(QPalette::Disabled, QPalette::BrightText, QColor(QRgb(0xffffffff)));
     palette.setBrush(QPalette::Disabled, QPalette::ButtonText, QColor(QRgb(0xff808080)));
     palette.setBrush(QPalette::Disabled, QPalette::Base, QColor(QRgb(0xffefefef)));
-    palette.setBrush(QPalette::Disabled, QPalette::AlternateBase, palette.color(QPalette::Disabled, QPalette::Base).dark(110));
+    palette.setBrush(QPalette::Disabled, QPalette::AlternateBase, palette.color(QPalette::Disabled, QPalette::Base).darker(110));
     palette.setBrush(QPalette::Disabled, QPalette::Window, QColor(QRgb(0xffefefef)));
     palette.setBrush(QPalette::Disabled, QPalette::Shadow, QColor(QRgb(0xff000000)));
     palette.setBrush(QPalette::Disabled, QPalette::Highlight, QColor(QRgb(0xff567594)));
@@ -5309,7 +5309,7 @@ QPalette QPlastiqueStyle::standardPalette() const
     palette.setBrush(QPalette::Active, QPalette::BrightText, QColor(QRgb(0xffffffff)));
     palette.setBrush(QPalette::Active, QPalette::ButtonText, QColor(QRgb(0xff000000)));
     palette.setBrush(QPalette::Active, QPalette::Base, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Active, QPalette::AlternateBase, palette.color(QPalette::Active, QPalette::Base).dark(110));
+    palette.setBrush(QPalette::Active, QPalette::AlternateBase, palette.color(QPalette::Active, QPalette::Base).darker(110));
     palette.setBrush(QPalette::Active, QPalette::Window, QColor(QRgb(0xffefefef)));
     palette.setBrush(QPalette::Active, QPalette::Shadow, QColor(QRgb(0xff000000)));
     palette.setBrush(QPalette::Active, QPalette::Highlight, QColor(QRgb(0xff678db2)));
@@ -5326,7 +5326,7 @@ QPalette QPlastiqueStyle::standardPalette() const
     palette.setBrush(QPalette::Inactive, QPalette::BrightText, QColor(QRgb(0xffffffff)));
     palette.setBrush(QPalette::Inactive, QPalette::ButtonText, QColor(QRgb(0xff000000)));
     palette.setBrush(QPalette::Inactive, QPalette::Base, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Inactive, QPalette::AlternateBase, palette.color(QPalette::Inactive, QPalette::Base).dark(110));
+    palette.setBrush(QPalette::Inactive, QPalette::AlternateBase, palette.color(QPalette::Inactive, QPalette::Base).darker(110));
     palette.setBrush(QPalette::Inactive, QPalette::Window, QColor(QRgb(0xffefefef)));
     palette.setBrush(QPalette::Inactive, QPalette::Shadow, QColor(QRgb(0xff000000)));
     palette.setBrush(QPalette::Inactive, QPalette::Highlight, QColor(QRgb(0xff678db2)));
@@ -5494,7 +5494,7 @@ void QPlastiqueStyle::polish(QApplication *app)
 void QPlastiqueStyle::polish(QPalette &pal)
 {
     QWindowsStyle::polish(pal);
-    pal.setBrush(QPalette::AlternateBase, pal.base().color().dark(110));
+    pal.setBrush(QPalette::AlternateBase, pal.base().color().darker(110));
 #ifdef Q_WS_MAC
     pal.setBrush(QPalette::Shadow, Qt::black);
 #endif

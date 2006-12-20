@@ -82,6 +82,7 @@ public:
     inline QT3_SUPPORT int findWidget(QWidget* w) {return indexOf(w);}
 #endif
 protected:
+    // ### Qt 5: make public
     void insertItem(int index, QLayoutItem *);
 
 private:

@@ -418,7 +418,7 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
             QPen pen = painter->pen();
             int x1 = option->rect.center().x();
             int margin = 3;
-            painter->setPen(option->palette.background().color().dark(114));
+            painter->setPen(option->palette.background().color().darker(114));
             painter->drawLine(QPoint(x1, option->rect.top() + margin), QPoint(x1, option->rect.bottom() - margin));
             painter->setPen(pen);
         }
@@ -774,8 +774,8 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
         if (const QStyleOptionMenuItem *menuitem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
             // windows always has a check column, regardless whether we have an icon or not
             int checkcol = qMax(menuitem->maxIconWidth, 28);
-            QColor darkLine = option->palette.background().color().dark(108);
-            QColor lightLine = option->palette.background().color().light(107);
+            QColor darkLine = option->palette.background().color().darker(108);
+            QColor lightLine = option->palette.background().color().lighter(107);
             QRect rect = option->rect;
             QStyleOptionMenuItem mbiCopy = *menuitem;
 
@@ -905,7 +905,7 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
     case CE_ToolBar:
         if (const QStyleOptionToolBar *toolbar = qstyleoption_cast<const QStyleOptionToolBar *>(option)) {
             QPalette pal = option->palette;
-            pal.setColor(QPalette::Dark, option->palette.background().color().dark(130));
+            pal.setColor(QPalette::Dark, option->palette.background().color().darker(130));
             QStyleOptionToolBar copyOpt = *toolbar;
             copyOpt.palette = pal;
             QWindowsStyle::drawControl(element, &copyOpt, painter, widget);
@@ -918,8 +918,8 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
                 QWindowsXPStyle::drawControl(element, option, painter, widget);
                 break; //otherwise fall through
             }
-            painter->setBrush(option->palette.background().color().dark(110));
-            painter->setPen(option->palette.background().color().dark(130));
+            painter->setBrush(option->palette.background().color().darker(110));
+            painter->setPen(option->palette.background().color().darker(130));
             painter->drawRect(rect.adjusted(0, 1, -1, -3));
 
             if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(option)) {

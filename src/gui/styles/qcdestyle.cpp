@@ -235,10 +235,10 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
 /*!\reimp*/
 QPalette QCDEStyle::standardPalette() const
 {
-    QColor background = QColor(0xb6, 0xb6, 0xcf);
-    QColor light = background.light();
-    QColor mid = background.dark(150);
-    QColor dark = background.dark();
+    QColor background(0xb6, 0xb6, 0xcf);
+    QColor light = background.lighter();
+    QColor mid = background.darker(150);
+    QColor dark = background.darker();
     QPalette palette(Qt::black, background, light, dark, mid, Qt::black, Qt::white);
     palette.setBrush(QPalette::Disabled, QPalette::WindowText, dark);
     palette.setBrush(QPalette::Disabled, QPalette::Text, dark);

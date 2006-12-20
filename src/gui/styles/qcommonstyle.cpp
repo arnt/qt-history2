@@ -1106,7 +1106,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 a.setPoint(6, tb->rect.width(), tb->rect.height() + 1);
             }
 
-            p->setPen(tb->palette.mid().color().dark(150));
+            p->setPen(tb->palette.mid().color().darker(150));
             p->drawPolygon(a);
             p->setPen(tb->palette.light().color());
             if (tb->direction != Qt::RightToLeft) {

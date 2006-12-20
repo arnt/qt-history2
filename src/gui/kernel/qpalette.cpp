@@ -523,14 +523,14 @@ static void qt_palette_from_color(QPalette &pal, const QColor & button)
         base = Qt::black;
     }
     //inactive and active are the same..
-    pal.setColorGroup(QPalette::Active, QBrush(fg), QBrush(btn), QBrush(btn.light(150)),
-                      QBrush(btn.dark()), QBrush(btn.dark(150)), QBrush(fg), QBrush(Qt::white),
+    pal.setColorGroup(QPalette::Active, QBrush(fg), QBrush(btn), QBrush(btn.lighter(150)),
+                      QBrush(btn.darker()), QBrush(btn.darker(150)), QBrush(fg), QBrush(Qt::white),
                       QBrush(base), QBrush(bg));
-    pal.setColorGroup(QPalette::Inactive, QBrush(fg), QBrush(btn), QBrush(btn.light(150)),
-                      QBrush(btn.dark()), QBrush(btn.dark(150)), QBrush(fg), QBrush(Qt::white),
+    pal.setColorGroup(QPalette::Inactive, QBrush(fg), QBrush(btn), QBrush(btn.lighter(150)),
+                      QBrush(btn.darker()), QBrush(btn.darker(150)), QBrush(fg), QBrush(Qt::white),
                       QBrush(base), QBrush(bg));
-    pal.setColorGroup(QPalette::Disabled, QBrush(btn.dark()), QBrush(btn), QBrush(btn.light(150)),
-                      QBrush(btn.dark()), QBrush(btn.dark(150)), QBrush(btn.dark()),
+    pal.setColorGroup(QPalette::Disabled, QBrush(btn.darker()), QBrush(btn), QBrush(btn.lighter(150)),
+                      QBrush(btn.darker()), QBrush(btn.darker(150)), QBrush(btn.darker()),
                       QBrush(Qt::white), QBrush(bg), QBrush(bg));
 }
 
@@ -613,14 +613,14 @@ QPalette::QPalette(const QColor &button, const QColor &window)
         disfg = Qt::darkGray;
     }
     //inactive and active are identical
-    setColorGroup(Inactive, QBrush(fg), QBrush(btn), QBrush(btn.light(150)), QBrush(btn.dark()),
-                  QBrush(btn.dark(150)), QBrush(fg), QBrush(Qt::white), QBrush(base),
+    setColorGroup(Inactive, QBrush(fg), QBrush(btn), QBrush(btn.lighter(150)), QBrush(btn.darker()),
+                  QBrush(btn.darker(150)), QBrush(fg), QBrush(Qt::white), QBrush(base),
                   QBrush(bg));
-    setColorGroup(Active, QBrush(fg), QBrush(btn), QBrush(btn.light(150)), QBrush(btn.dark()),
-                  QBrush(btn.dark(150)), QBrush(fg), QBrush(Qt::white), QBrush(base),
+    setColorGroup(Active, QBrush(fg), QBrush(btn), QBrush(btn.lighter(150)), QBrush(btn.darker()),
+                  QBrush(btn.darker(150)), QBrush(fg), QBrush(Qt::white), QBrush(base),
                   QBrush(bg));
-    setColorGroup(Disabled, QBrush(disfg), QBrush(btn), QBrush(btn.light(150)),
-                  QBrush(btn.dark()), QBrush(btn.dark(150)), QBrush(disfg),
+    setColorGroup(Disabled, QBrush(disfg), QBrush(btn), QBrush(btn.lighter(150)),
+                  QBrush(btn.darker()), QBrush(btn.darker(150)), QBrush(disfg),
                   QBrush(Qt::white), QBrush(base), QBrush(bg));
 }
 

@@ -528,7 +528,7 @@ void QTextLayout::clearAdditionalFormats()
     true; otherwise disables layout caching. Usually
     QTextLayout throws most of the layouting information away after a
     call to endLayout() to reduce memory consumption. If you however
-    want to draw the layouted text directly afterwards enabling caching
+    want to draw the laid out text directly afterwards enabling caching
     might speed up drawing significantly.
 
     \sa cacheEnabled()
@@ -1435,10 +1435,10 @@ QPointF QTextLine::position() const
 }
 
 // ### DOC: I have no idea what this means/does.
-// You create a text layout with a string of text. Once you layouted
-// it, it contains a number of QTextLines. from() returns the position
+// You create a text layout with a string of text. Once you laid
+// it out, it contains a number of QTextLines. from() returns the position
 // inside the text string where this line starts. If you e.g. has a
-// text of "This is a string", layouted into two lines (the second
+// text of "This is a string", laid out into two lines (the second
 // starting at the word 'a'), layout.lineAt(0).from() == 0 and
 // layout.lineAt(1).from() == 8.
 /*!

@@ -940,11 +940,11 @@ void QPrintDialogPrivate::init()
     }
 #endif
 
-    ui.cbPaperLayout->addItem(QApplication::translate("QPrintDialog","Portrait"), QPrinter::Portrait);
-    ui.cbPaperLayout->addItem(QApplication::translate("QPrintDialog","Landscape"), QPrinter::Landscape);
+    ui.cbPaperLayout->addItem(QPrintDialog::tr("Portrait"), QPrinter::Portrait);
+    ui.cbPaperLayout->addItem(QPrintDialog::tr("Landscape"), QPrinter::Landscape);
 
     QPushButton *printButton = ui.buttonBox->button(QDialogButtonBox::Ok);
-    printButton->setText(QApplication::translate("QPrintDialog","Print"));
+    printButton->setText(QPrintDialog::tr("Print"));
     printButton->setDefault(true);
 
     applyPrinterProperties(p);
@@ -1016,7 +1016,7 @@ void QPrintDialogPrivate::_q_printToFileChanged(int state)
     Q_Q(QPrintDialog);
     if (state == Qt::Checked) {
         ui.stackedWidget->setCurrentIndex(1);
-        ui.gbDestination->setTitle(QApplication::translate("QPrintDialog","File"));
+        ui.gbDestination->setTitle(QPrintDialog::tr("File"));
         QString fileName = q->printer()->outputFileName();
         if (fileName.isEmpty()) {
             QString home = QString::fromLocal8Bit(::qgetenv("HOME").constData());
@@ -1039,7 +1039,7 @@ void QPrintDialogPrivate::_q_printToFileChanged(int state)
         ui.leFile->selectAll();
     } else {
         ui.stackedWidget->setCurrentIndex(0);
-        ui.gbDestination->setTitle(QApplication::translate("QPrintDialog","Printer"));
+        ui.gbDestination->setTitle(QPrintDialog::tr("Printer"));
     }
     refreshPageSizes();
 }
@@ -1114,7 +1114,7 @@ void QPrintDialogPrivate::refreshPageSizes()
 void QPrintDialogPrivate::_q_btnBrowseClicked()
 {
     Q_Q(QPrintDialog);
-    QString fileName = QFileDialog::getSaveFileName(q, QApplication::translate("QPrintDialog","Print To File ..."),
+    QString fileName = QFileDialog::getSaveFileName(q, QPrintDialog::tr("Print To File ..."),
                                                     ui.leFile->text());
     if (!fileName.isNull())
         ui.leFile->setText(fileName);
@@ -1168,7 +1168,7 @@ bool QPrintDialogPrivate::setupPrinter()
         p->setOutputFileName(file);
     } else {
         p->setPrinterName(ui.cbPrinters->currentText());
-        p->setOutputFileName(QString::null);
+        p->setOutputFileName(QString());
     }
 
     // print range
@@ -1580,7 +1580,7 @@ void PPDOptionsEditor::setEditorData(QWidget* editor, const QModelIndex& index) 
     OptionTreeItem* itm = reinterpret_cast<OptionTreeItem*>(index.internalPointer());
 
     if (itm->selected == -1)
-        cb->addItem(QString::null);
+        cb->addItem(QString());
 
     for (int i = 0; i < itm->childItems.count(); ++i)
         cb->addItem(QString::fromLocal8Bit(itm->childItems.at(i)->description));

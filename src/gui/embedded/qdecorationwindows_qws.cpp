@@ -310,7 +310,7 @@ bool QDecorationWindows::paint(QPainter *painter, const QWidget *widget, int dec
             fromBrush = pal.color(QPalette::Window);
             titlePen  = pal.color(QPalette::Text);
         }
-        toBrush = fromBrush.light(300);
+        toBrush = fromBrush.lighter(300);
 
         painter->setPen(Qt::NoPen);
         QPoint p1(titleRect.x(), titleRect.y() + titleRect.height()/2);
@@ -341,7 +341,7 @@ void QDecorationWindows::paintButton(QPainter *painter, const QWidget *widget, i
         fromBrush = pal.brush(QPalette::Window);
         titlePen  = pal.color(QPalette::Text);
     }
-    toBrush = fromBrush.color().light(300);
+    toBrush = fromBrush.color().lighter(300);
 
     QRect brect(QDecoration::region(widget, buttonRegion).boundingRect());
     if (buttonRegion != Close && buttonRegion != Menu)

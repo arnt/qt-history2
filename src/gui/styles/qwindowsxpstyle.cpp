@@ -1162,7 +1162,7 @@ void QWindowsXPStyle::polish(QWidget *widget)
 void QWindowsXPStyle::polish(QPalette &pal)
 {
     QWindowsStyle::polish(pal);
-    pal.setBrush(QPalette::AlternateBase, pal.base().color().dark(110));
+    pal.setBrush(QPalette::AlternateBase, pal.base().color().darker(110));
 }
 
 /*! \reimp */
@@ -2347,7 +2347,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             QColor highlight = option->palette.color(QPalette::Active, QPalette::Highlight);
             p->save();
             QRect r = option->rect;
-            p->setPen(highlight.dark(120));
+            p->setPen(highlight.darker(120));
             QColor dimHighlight(qMin(highlight.red()/2 + 110, 255),
                                 qMin(highlight.green()/2 + 110, 255),
                                 qMin(highlight.blue()/2 + 110, 255),

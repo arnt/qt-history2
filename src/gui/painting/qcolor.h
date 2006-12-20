@@ -139,7 +139,9 @@ public:
     static QColor fromCmykF(qreal c, qreal m, qreal y, qreal k, qreal a = 1.0);
 
     QColor light(int f = 150) const;
+    inline QColor lighter(int f = 150) const { return light(f); }
     QColor dark(int f = 200) const;
+    inline QColor darker(int f = 200) const { return dark(f); }
 
     QColor &operator=(const QColor &);
     QColor &operator=(Qt::GlobalColor color);

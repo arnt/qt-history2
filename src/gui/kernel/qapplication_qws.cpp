@@ -1672,12 +1672,12 @@ static void qt_set_qws_resources()
         fg.getHsv(&h,&s,&v);
         QColor base = Qt::white;
         bool bright_mode = false;
-        if (v >= 255-50) {
-            base = btn.dark(150);
+        if (v >= 255 - 50) {
+            base = btn.darker(150);
             bright_mode = true;
         }
 
-        QPalette pal(fg, btn, btn.light(), btn.dark(), btn.dark(150), fg, Qt::white, base, bg);
+        QPalette pal(fg, btn, btn.lighter(), btn.darker(), btn.darker(150), fg, Qt::white, base, bg);
         if (bright_mode) {
             pal.setColor(QPalette::HighlightedText, base);
             pal.setColor(QPalette::Highlight, Qt::white);
@@ -1688,8 +1688,8 @@ static void qt_set_qws_resources()
         QColor disabled((fg.red()   + btn.red())  / 2,
                         (fg.green() + btn.green())/ 2,
                         (fg.blue()  + btn.blue()) / 2);
-        pal.setColorGroup(QPalette::Disabled, disabled, btn, btn.light(125),
-                          btn.dark(), btn.dark(150), disabled, Qt::white, Qt::white, bg);
+        pal.setColorGroup(QPalette::Disabled, disabled, btn, btn.lighter(125),
+                          btn.darker(), btn.darker(150), disabled, Qt::white, Qt::white, bg);
         if (bright_mode) {
             pal.setColor(QPalette::Disabled, QPalette::HighlightedText, base);
             pal.setColor(QPalette::Disabled, QPalette::Highlight, Qt::white);

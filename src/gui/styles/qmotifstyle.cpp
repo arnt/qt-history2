@@ -218,7 +218,7 @@ bool QMotifStyle::useHighlightColors() const
 void QMotifStyle::polish(QPalette& pal)
 {
     if (pal.brush(QPalette::Active, QPalette::Light) == pal.brush(QPalette::Active, QPalette::Base)) {
-        QColor nlight = pal.color(QPalette::Active, QPalette::Light).dark(108);
+        QColor nlight = pal.color(QPalette::Active, QPalette::Light).darker(108);
         pal.setColor(QPalette::Active, QPalette::Light, nlight) ;
         pal.setColor(QPalette::Disabled, QPalette::Light, nlight) ;
         pal.setColor(QPalette::Inactive, QPalette::Light, nlight) ;
@@ -2651,7 +2651,7 @@ QPalette QMotifStyle::standardPalette() const
     QColor background = QColor(0xcf, 0xcf, 0xcf);
 #endif
 
-    QColor light = background.light();
+    QColor light = background.lighter();
     QColor mid = QColor(0xa6, 0xa6, 0xa6);
     QColor dark = QColor(0x79, 0x7d, 0x79);
     QPalette palette(Qt::black, background, light, dark, mid, Qt::black, Qt::white);
