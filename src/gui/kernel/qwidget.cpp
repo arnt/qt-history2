@@ -4470,6 +4470,11 @@ void QWidget::setTabOrder(QWidget* first, QWidget *second)
     if (!first || !second || first->focusPolicy() == Qt::NoFocus || second->focusPolicy() == Qt::NoFocus)
         return;
 
+    if (first->window() != second->window()) {
+        qWarning("QWidget::setTabOrder: 'first' and 'second' must be in the same window");
+        return;
+    }
+
     QWidget *fp = first->focusProxy();
     if (fp) {
         // If first is redirected, set first to the last child of first
