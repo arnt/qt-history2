@@ -529,7 +529,14 @@ int QPixmap::serialNumber() const
 qint64 QPixmap::cacheKey() const
 {
     // avoid exposing the internal QImageData structure..
+#if defined (Q_CC_MINGW) || (defined (_MSC_VER) && _MSC_VER > 1200)
     return (data->image.cacheKey() & 0xffffffff00000000LL) | ((qint64) data->detach_no);
+#else
+    // MSVC 6.0 can't handle 64 bit constants properly..
+    qint64 mask = 0xffffffff;
+    mask <<= 32;
+    return (data->image.cacheKey() & mask) | ((qint64) data->detach_no);
+#endif
 }
 
 bool QPixmap::isDetached() const
