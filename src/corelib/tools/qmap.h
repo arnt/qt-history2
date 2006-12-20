@@ -88,13 +88,6 @@ template <class Ptr> inline bool qMapLessThanKey(const Ptr *key1, const Ptr *key
 }
 #endif // QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 
-#if !defined(QT_NO_DATASTREAM)
-class QDataStream;
-template <class Key, class T> class QMap;
-template <class aKey, class aT>
-QDataStream &operator>>(QDataStream &in, QMap<aKey, aT> &map);
-#endif
-
 template <class Key, class T>
 class QMap
 {
@@ -143,6 +136,7 @@ public:
     inline void detach() { if (d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }
     inline void setSharable(bool sharable) { if (!sharable) detach(); d->sharable = sharable; }
+    inline void setInsertInOrder(bool ordered) { d->insertInOrder = ordered; }
 
     void clear();
 
@@ -357,17 +351,6 @@ private:
     QMapData::Node *mutableFindNode(QMapData::Node *update[], const Key &key) const;
     QMapData::Node *node_create(QMapData *d, QMapData::Node *update[], const Key &key,
                                 const T &value);
-
-#if !defined(QT_NO_DATASTREAM)
-#if !defined(Q_CC_BOR)
-#if defined Q_CC_MSVC && _MSC_VER < 1300
-    friend QDataStream &operator>> (QDataStream &in, QMap &map);
-#else
-    template <class aKey, class aT>
-    friend QDataStream &operator>> (QDataStream &in, QMap<aKey, aT> &map);
-#endif
-#endif
-#endif
 };
 
 template <class Key, class T>

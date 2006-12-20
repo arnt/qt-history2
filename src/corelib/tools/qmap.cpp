@@ -481,6 +481,11 @@ void QMapData::dump()
     \internal
 */
 
+/*! \fn void QMap::setInsertInOrder(bool sharable)
+
+    \internal
+*/
+
 /*! \fn void QMap::clear()
 
     Removes all items from the map.
