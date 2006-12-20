@@ -389,12 +389,13 @@ void QCompletionModel::filter(const QStringList& parts)
 
 void QCompletionModel::resetModel()
 {
-    layoutChanged();
+    emit layoutAboutToBeChanged();
     QModelIndexList piList = persistentIndexList();
     QModelIndexList empty;
     for (int i = 0; i < piList.size(); i++)
         empty.append(QModelIndex());
     changePersistentIndexList(piList, empty);
+    emit layoutChanged();
 }
 
 //////////////////////////////////////////////////////////////////////////////
