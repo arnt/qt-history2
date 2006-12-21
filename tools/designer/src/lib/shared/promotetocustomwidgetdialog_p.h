@@ -55,6 +55,7 @@ private slots:
 
 private:
     void warn(const QString &caption, const QString &what);
+    bool ask(const QString &caption, const QString &what);
     const QString m_base_class_name;
     
     Ui::PromoteToCustomWidgetDialog *m_ui;

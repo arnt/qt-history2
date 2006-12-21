@@ -112,6 +112,12 @@ void PromoteToCustomWidgetDialog::warn(const QString &caption, const QString &wh
 {
     QMessageBox::warning(this, caption, what, QMessageBox::Ok, QMessageBox::NoButton);
 }
+    
+    
+bool PromoteToCustomWidgetDialog::ask(const QString &caption, const QString &what)
+{
+    return QMessageBox::warning(this, caption, what,  QMessageBox::Yes, QMessageBox::No) !=  QMessageBox::No;
+}
 
 void PromoteToCustomWidgetDialog::accept()
 {
@@ -139,10 +145,14 @@ void PromoteToCustomWidgetDialog::accept()
     // existing class with different include?
     const PromotedWidgetInfoHash::const_iterator pit = m_promotedHash.constFind( custom_class_name);
     if (pit != m_promotedHash.constEnd() && pit.value().first != include_file) {
-        warn(tr("Conflicting include file"),
-             tr("<b>%1</b> has been previously specified as the"
-                " include file for <b>%2</b>.").arg(pit.value().first).arg(custom_class_name));
-        return;
+        const bool overWriteInclude = 
+            ask(tr("Conflicting include file"),
+                tr("<b>%1</b> has been previously specified as the"
+                   " include file for <b>%2</b>. Do you want to"
+                   " change all instances to use <b>%3</b> instead?")
+                .arg(pit.value().first).arg(custom_class_name).arg(include_file));
+        if (!overWriteInclude)
+            return;
     }
 
     QDialog::accept();
