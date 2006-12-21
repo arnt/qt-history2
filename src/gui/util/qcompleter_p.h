@@ -81,6 +81,7 @@ public:
     inline bool isValid() const { return !isEmpty(); }
     inline bool isEmpty() const { return v ? vector.isEmpty() : (t < f); }
     inline void append(int x) { Q_ASSERT(v); vector.append(x); }
+    inline int first() const { return v ? vector.first() : f; }
     inline int last() const { return v ? vector.last() : t; }
     inline int from() const { Q_ASSERT(!v); return f; }
     inline int to() const { Q_ASSERT(!v); return t; }
@@ -139,7 +140,8 @@ class QSortedModelEngine : public QCompletionEngine
 public:
     QSortedModelEngine(QCompleterPrivate *c) : QCompletionEngine(c) { }
     QMatchData filter(const QString&, const QModelIndex&, int);
-    QIndexMapper indexHint(QString part, const QModelIndex& parent);
+    QIndexMapper indexHint(QString, const QModelIndex&, Qt::SortOrder);
+    Qt::SortOrder sortOrder(const QModelIndex&) const;
 };
 
 class QUnsortedModelEngine : public QCompletionEngine

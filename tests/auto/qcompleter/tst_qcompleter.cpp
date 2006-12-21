@@ -90,6 +90,8 @@ private slots:
     void multipleWidgets();
     void focusIn();
 
+    void dynamicSortOrder();
+
 private:
     void filter();
     void testRowCount();
@@ -941,6 +943,29 @@ void tst_QCompleter::focusIn()
     lineEdit2->setFocus();
     qApp->processEvents();
     QVERIFY(completer.widget() == comboBox);
+}
+
+void tst_QCompleter::dynamicSortOrder()
+{
+    QStandardItemModel model;
+    QCompleter completer(&model);
+    completer.setModelSorting(QCompleter::CaseSensitivelySortedModel);
+    QStandardItem *root = model.invisibleRootItem();
+    for (int i = 0; i < 20; i++) {
+        root->appendRow(new QStandardItem(QString("%1").arg(i)));
+    }
+    root->appendRow(new QStandardItem("13"));
+    root->sortChildren(0, Qt::AscendingOrder);
+    completer.setCompletionPrefix("1");
+    QCOMPARE(completer.completionCount(), 12);
+    completer.setCompletionPrefix("13");
+    QCOMPARE(completer.completionCount(), 2);
+    
+    root->sortChildren(0, Qt::DescendingOrder);
+    completer.setCompletionPrefix("13");
+    QCOMPARE(completer.completionCount(), 2);
+    completer.setCompletionPrefix("1");
+    QCOMPARE(completer.completionCount(), 12);
 }
 
 QTEST_MAIN(tst_QCompleter)

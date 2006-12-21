@@ -516,7 +516,7 @@ void QCompletionEngine::saveInCache(QString part, const QModelIndex& parent, con
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
-QIndexMapper QSortedModelEngine::indexHint(QString part, const QModelIndex& parent)
+QIndexMapper QSortedModelEngine::indexHint(QString part, const QModelIndex& parent, Qt::SortOrder order)
 {
     const QAbstractItemModel *model = c->proxy->sourceModel();
 
@@ -534,7 +534,11 @@ QIndexMapper QSortedModelEngine::indexHint(QString part, const QModelIndex& pare
     for(CacheItem::const_iterator it1 = it; it1-- != map.constBegin();) {
         const QMatchData& value = it1.value();
         if (value.isValid()) {
-            from = value.indices.last() + 1;
+            if (order == Qt::AscendingOrder) {
+                from = value.indices.last() + 1;
+            } else {
+                to = value.indices.first() - 1;
+            }
             break;
         }
     }
@@ -543,12 +547,28 @@ QIndexMapper QSortedModelEngine::indexHint(QString part, const QModelIndex& pare
     for(CacheItem::const_iterator it2 = it; it2 != map.constEnd(); ++it2) {
         const QMatchData& value = it2.value();
         if (value.isValid() && !it2.key().startsWith(part)) {
-            to = value.indices[0] - 1;
+            if (order == Qt::AscendingOrder) {
+                to = value.indices.first() - 1;
+            } else {
+                from = value.indices.first() + 1;
+            }
             break;
         }
     }
 
     return QIndexMapper(from, to);
+}
+
+Qt::SortOrder QSortedModelEngine::sortOrder(const QModelIndex &parent) const
+{
+    const QAbstractItemModel *model = c->proxy->sourceModel();
+
+    int rowCount = model->rowCount(parent);
+    if (rowCount < 2)
+        return Qt::AscendingOrder;
+    QString first = model->data(model->index(0, c->column, parent), c->role).toString();
+    QString last = model->data(model->index(rowCount - 1, c->column, parent), c->role).toString();
+    return QString::compare(first, last, c->cs) <= 0 ? Qt::AscendingOrder : Qt::DescendingOrder;
 }
 
 QMatchData QSortedModelEngine::filter(const QString& part, const QModelIndex& parent, int)
@@ -560,13 +580,14 @@ QMatchData QSortedModelEngine::filter(const QString& part, const QModelIndex& pa
         return hint;
 
     QIndexMapper indices;
+    Qt::SortOrder order = sortOrder(parent);
 
     if (matchHint(part, parent, &hint)) {
         if (!hint.isValid())
             return QMatchData();
         indices = hint.indices;
     } else {
-        indices = indexHint(part, parent);
+        indices = indexHint(part, parent, order);
     }
 
     // binary search the model within 'indices' for 'part' under 'parent'
@@ -581,42 +602,57 @@ QMatchData QSortedModelEngine::filter(const QString& part, const QModelIndex& pa
         probe = (high + low) / 2;
         probeIndex = model->index(probe, c->column, parent);
         probeData = model->data(probeIndex, c->role).toString();
-        if (QString::compare(probeData, part, c->cs) >= 0)
+        const int cmp = QString::compare(probeData, part, c->cs);
+        if ((order == Qt::AscendingOrder && cmp >= 0)
+            || (order == Qt::DescendingOrder && cmp < 0)) {
             high = probe;
-        else
+        } else {
             low = probe;
+        }
     }
 
-    if (low == indices.to()) { // not found
+    if ((order == Qt::AscendingOrder && low == indices.to()) 
+        || (order == Qt::DescendingOrder && high == indices.from())) { // not found
         saveInCache(part, parent, QMatchData());
         return QMatchData();
     }
 
-    probeIndex = model->index(low + 1, c->column, parent);
+    probeIndex = model->index(order == Qt::AscendingOrder ? low+1 : high-1, c->column, parent);
     probeData = model->data(probeIndex, c->role).toString();
     if (!probeData.startsWith(part, c->cs)) {
         saveInCache(part, parent, QMatchData());
         return QMatchData();
     }
 
-    int emi = QString::compare(probeData, part, c->cs) == 0 ? low+1 : -1;
+    const bool exactMatch = QString::compare(probeData, part, c->cs) == 0;
+    int emi =  exactMatch ? (order == Qt::AscendingOrder ? low+1 : high-1) : -1;
 
-    int from = low + 1;
-    high = indices.to() + 1;
-    low = from;
+    int from, to;
+    if (order == Qt::AscendingOrder) {
+        from = low + 1;
+        high = indices.to() + 1;
+        low = from;
+    } else {
+        to = high - 1;
+        low = indices.from() - 1;
+        high = to;
+    }
 
     while (high - low > 1)
     {
         probe = (high + low) / 2;
         probeIndex = model->index(probe, c->column, parent);
         probeData = model->data(probeIndex, c->role).toString();
-        if (probeData.startsWith(part, c->cs))
+        const bool startsWith = probeData.startsWith(part, c->cs);
+        if ((order == Qt::AscendingOrder && startsWith)
+            || (order == Qt::DescendingOrder && !startsWith)) {
             low = probe;
-        else
+        } else {
             high = probe;
+        }
     }
 
-    QMatchData m(QIndexMapper(from, high - 1), emi, false);
+    QMatchData m(order == Qt::AscendingOrder ? QIndexMapper(from, high - 1) : QIndexMapper(low+1, to), emi, false);
     saveInCache(part, parent, m);
     return m;
 }
@@ -1253,6 +1289,9 @@ int QCompleter::completionCount() const
     or \l CaseInsensitivelySortedModel. On large models, this can lead to
     significant performance improvements because the completer object can
     then use a binary search algorithm instead of linear search algorithm.
+
+    The sort order (i.e ascending or descending order) of the model is determined
+    dynamically by inspecting the contents of the model.
 
     \bold{Note:} The performance improvements described above cannot take place
     when the completer's \l caseSensitivity is different to the case sensitivity
