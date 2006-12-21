@@ -108,6 +108,9 @@ private slots:
     void accessOdbc_strings_data() { generic_data(); }
     void accessOdbc_strings();
 
+    void ibase_numericFields_data() { generic_data(); }
+    void ibase_numericFields(); // For task 125053
+
 private:
     void createTestTables(QSqlDatabase db);
     void dropTestTables(QSqlDatabase db);
@@ -665,7 +668,7 @@ void tst_QSqlDatabase::checkValues(const FieldDef fieldDefs[], QSqlDatabase db)
     int i = 0;
     for (i = 0; !fieldDefs[ i ].typeName.isNull(); ++i) {
 	rec->setValue(fieldDefs[ i ].fieldName(), fieldDefs[ i ].val);
-//	qDebug(QString("inserting %1 into %2").arg(fieldDefs[ i ].val.toString()).arg(fieldDefs[ i ].fieldName()));
+//     qDebug(QString("inserting %1 into %2").arg(fieldDefs[ i ].val.toString()).arg(fieldDefs[ i ].fieldName()));
     }
     if (!cur.insert()) {
 	QFAIL(QString("Couldn't insert record: %1 %2").arg(cur.lastError().databaseText()).arg(cur.lastError().driverText()));
@@ -987,6 +990,7 @@ void tst_QSqlDatabase::recordMySQL()
 	FieldDef("float", QVariant::Double,	    1.12345),
 	FieldDef("double", QVariant::Double,	    1.123456789),
 	FieldDef("decimal(10, 9)", QVariant::String,1.123456789),
+        FieldDef("numeric(5, 2)", QVariant::String, 123.67),
 	FieldDef("date", QVariant::Date,	    QDate::currentDate()),
 	FieldDef("datetime", QVariant::DateTime,   dt),
 	FieldDef("timestamp", QVariant::DateTime,  dt, FALSE),
@@ -1091,6 +1095,7 @@ void tst_QSqlDatabase::recordIBase()
 	FieldDef("timestamp", QVariant::DateTime, QDateTime::currentDateTime()),
 	FieldDef("time", QVariant::Time, QTime::currentTime()),
 	FieldDef("decimal(18)", QVariant::LongLong, Q_INT64_C(9223372036854775807)),
+        FieldDef("numeric(5,2)", QVariant::Double, 123.45),
 
 	FieldDef(QString::null, QVariant::Invalid)
     };
@@ -1154,6 +1159,7 @@ void tst_QSqlDatabase::recordSQLServer()
 	FieldDef("tinyint", QVariant::Int, 255),
 	FieldDef("image", QVariant::ByteArray, Q3CString("Blah1")),
 	FieldDef("float", QVariant::Double, 1.12345),
+        FieldDef("numeric(5,2)", QVariant::Double, 123.45),
 
 	FieldDef(QString::null, QVariant::Invalid)
     };
@@ -1547,6 +1553,95 @@ void tst_QSqlDatabase::accessOdbc_strings()
 
 }
 
+// For task 125053
+void tst_QSqlDatabase::ibase_numericFields()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (!db.driverName().startsWith("QIBASE")) {
+       QSKIP("InterBase specific test", SkipSingle);
+       return;
+    }
+
+    QSqlQuery q(db);
+    QString tableName = qTableName("numericfields");
+    q.exec(QString("DROP TABLE %1").arg(tableName));
+    QVERIFY2(q.exec(QString("CREATE TABLE %1 (id int not null, num1 NUMERIC(2,1), "
+        "num2 NUMERIC(5,2), num3 NUMERIC(10,3), "
+        "num4 NUMERIC(18,4))").arg(tableName)), q.lastError().text());
+
+    QVERIFY2(q.exec(QString("INSERT INTO %1 VALUES (1, 1.1, 123.45, 1234567.123, 10203040506070.8090)").arg(tableName)), 
+        q.lastError().text());
+
+    QVERIFY2(q.prepare(QString("INSERT INTO %1 VALUES (?, ?, ?, ?, ?)").arg(tableName)),
+        q.lastError().text());
+
+    double num1 = 1.1;
+    double num2 = 123.45;
+    double num3 = 1234567.123;
+    double num4 = 10203040506070.8090;
+
+    q.bindValue(0, 2);
+    q.bindValue(1, QVariant(num1));
+    q.bindValue(2, QVariant(num2));
+    q.bindValue(3, QVariant(num3));
+    q.bindValue(4, QVariant(num4)); 
+    QVERIFY2(q.exec(), q.lastError().text());
+
+    QVERIFY2(q.exec(QString("SELECT id, num1, num2, num3, num4 FROM %1").arg(tableName)),
+        q.lastError().text());
+
+    int id = 0;
+    while (q.next()) {
+        QCOMPARE(q.value(0).toInt(), ++id);
+        QCOMPARE(q.value(1).toString(), QString("%1").arg(num1));
+        QCOMPARE(q.value(2).toString(), QString("%1").arg(num2));
+        QCOMPARE(QString("%1").arg(q.value(3).toDouble()), QString("%1").arg(num3));
+        QCOMPARE(QString("%1").arg(q.value(4).toDouble()), QString("%1").arg(num4));
+        QVERIFY(q.value(0).type() == QVariant::Int);
+        QVERIFY(q.value(1).type() == QVariant::Double);
+        QVERIFY(q.value(2).type() == QVariant::Double);
+        QVERIFY(q.value(3).type() == QVariant::Double);
+        QVERIFY(q.value(4).type() == QVariant::Double);
+        
+        /*  There are some meta-data we can't get using query.record().field()
+            These are available using database.record("tablename").field(), 
+            see test after while-loop
+             
+            Fixable with InterBase 7.5 API 
+        */
+        QEXPECT_FAIL("", "We dont' know the precision! Fixable with IBase 7.5 API.", Continue);
+        QCOMPARE(q.record().field(1).precision(), 2);
+        QEXPECT_FAIL("", "We dont' know the precision! Fixable with IBase 7.5 API.", Continue);
+        QCOMPARE(q.record().field(2).precision(), 5);
+        QEXPECT_FAIL("", "We dont' know the precision! Fixable with IBase 7.5 API.", Continue);
+        QCOMPARE(q.record().field(3).precision(), 10);
+        QEXPECT_FAIL("", "We dont' know the precision! Fixable with IBase 7.5 API.", Continue);
+        QCOMPARE(q.record().field(4).precision(), 18);
+        QEXPECT_FAIL("", "Don't know the requiredStatus! Maybe fixable with IBase 7.5 API.", Continue);
+        QVERIFY(q.record().field(0).requiredStatus() == QSqlField::Required);
+        QEXPECT_FAIL("", "Don't know the requiredStatus! Maybe fixable with IBase 7.5 API.", Continue);
+        QVERIFY(q.record().field(1).requiredStatus() == QSqlField::Optional);
+    }
+
+    QSqlRecord r = db.record(tableName);
+    QVERIFY(r.field(0).type() == QVariant::Int);
+    QVERIFY(r.field(1).type() == QVariant::Double);
+    QVERIFY(r.field(2).type() == QVariant::Double);
+    QVERIFY(r.field(3).type() == QVariant::Double);
+    QVERIFY(r.field(4).type() == QVariant::Double);
+    QCOMPARE(r.field(1).precision(), 2);
+    QCOMPARE(r.field(2).precision(), 5);
+    QCOMPARE(r.field(3).precision(), 10);
+    QCOMPARE(r.field(4).precision(), 18);
+    QVERIFY(r.field(0).requiredStatus() == QSqlField::Required);
+    QVERIFY(r.field(1).requiredStatus() == QSqlField::Optional);
+
+    q.exec(QString("DROP TABLE %1").arg(tableName));
+
+}
 
 QTEST_MAIN(tst_QSqlDatabase)
 #include "tst_qsqldatabase.moc"

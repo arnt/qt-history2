@@ -115,7 +115,7 @@ static void delDA(XSQLDA *&sqlda)
     sqlda = 0;
 }
 
-static QVariant::Type qIBaseTypeName(int iType)
+static QVariant::Type qIBaseTypeName(int iType, bool hasScale)
 {
     switch (iType) {
     case blr_varying:
@@ -135,9 +135,9 @@ static QVariant::Type qIBaseTypeName(int iType)
     case blr_quad:
     case blr_short:
     case blr_long:
-        return QVariant::Int;
+        return (hasScale ? QVariant::Double : QVariant::Int);
     case blr_int64:
-        return QVariant::LongLong;
+        return (hasScale ? QVariant::Double : QVariant::LongLong);
     case blr_float:
     case blr_d_float:
     case blr_double:
@@ -147,7 +147,7 @@ static QVariant::Type qIBaseTypeName(int iType)
     return QVariant::Invalid;
 }
 
-static QVariant::Type qIBaseTypeName2(int iType)
+static QVariant::Type qIBaseTypeName2(int iType, bool hasScale)
 {
     switch(iType & ~1) {
     case SQL_VARYING:
@@ -155,9 +155,9 @@ static QVariant::Type qIBaseTypeName2(int iType)
         return QVariant::String;
     case SQL_LONG:
     case SQL_SHORT:
-        return QVariant::Int;
+        return (hasScale ? QVariant::Double : QVariant::Int);
     case SQL_INT64:
-        return QVariant::LongLong;
+        return (hasScale ? QVariant::Double : QVariant::LongLong);
     case SQL_FLOAT:
     case SQL_DOUBLE:
         return QVariant::Double;
@@ -673,7 +673,6 @@ bool QIBaseResultPrivate::writeArray(int column, const QList<QVariant> &list)
     QByteArray relname(inda->sqlvar[column].relname, inda->sqlvar[column].relname_length);
     QByteArray sqlname(inda->sqlvar[column].aliasname, inda->sqlvar[column].aliasname_length);
 
-
     isc_array_lookup_bounds(status, &ibase, &trans, relname.data(), sqlname.data(), &desc);
     if (isError(QT_TRANSLATE_NOOP("QIBaseResult", "Could not find array"),
                 QSqlError::StatementError))
@@ -707,7 +706,8 @@ bool QIBaseResultPrivate::writeArray(int column, const QList<QVariant> &list)
         return false;
     }
 
-    if (!createArrayBuffer(ba.data(), list, qIBaseTypeName(desc.array_desc_dtype),
+    if (!createArrayBuffer(ba.data(), list,
+                           qIBaseTypeName(desc.array_desc_dtype, inda->sqlvar[column].sqlscale < 0),
                            0, &desc, error)) {
         q->setLastError(QSqlError(error.arg(QLatin1String(sqlname)), QLatin1String(""),
                         QSqlError::StatementError));
@@ -892,10 +892,18 @@ bool QIBaseResult::exec()
                     *((qint64*)d->inda->sqlvar[para].sqldata) = val.toLongLong();
                 break;
             case SQL_LONG:
-                *((long*)d->inda->sqlvar[para].sqldata) = (long)val.toLongLong();
+                if (d->inda->sqlvar[para].sqlscale < 0)
+                    *((long*)d->inda->sqlvar[para].sqldata) = 
+                        (long)(val.toDouble() * pow(10.0, d->inda->sqlvar[para].sqlscale * -1));
+                else
+                    *((long*)d->inda->sqlvar[para].sqldata) = (long)val.toLongLong();
                 break;
             case SQL_SHORT:
-                *((short*)d->inda->sqlvar[para].sqldata) = (short)val.toInt();
+                if (d->inda->sqlvar[para].sqlscale < 0)
+                    *((short*)d->inda->sqlvar[para].sqldata) = 
+                        (short)(val.toDouble() * pow(10.0, d->inda->sqlvar[para].sqlscale * -1));
+                else
+                    *((short*)d->inda->sqlvar[para].sqldata) = (short)val.toInt();
                 break;
             case SQL_FLOAT:
                 *((float*)d->inda->sqlvar[para].sqldata) = (float)val.toDouble();
@@ -1000,7 +1008,7 @@ bool QIBaseResult::gotoNext(QSqlCachedResult::ValueCache& row, int rowIdx)
         if ((d->sqlda->sqlvar[i].sqltype & 1) && *d->sqlda->sqlvar[i].sqlind) {
             // null value
             QVariant v;
-            v.convert(qIBaseTypeName2(d->sqlda->sqlvar[i].sqltype));
+            v.convert(qIBaseTypeName2(d->sqlda->sqlvar[i].sqltype, d->sqlda->sqlvar[i].sqlscale < 0));
             row[idx] = v;
             continue;
         }
@@ -1018,12 +1026,18 @@ bool QIBaseResult::gotoNext(QSqlCachedResult::ValueCache& row, int rowIdx)
             break;
         case SQL_LONG:
             if (d->sqlda->sqlvar[i].sqllen == 4)
-                row[idx] = QVariant(int((*(long*)buf)));
+                if (d->sqlda->sqlvar[i].sqlscale < 0)
+                    row[idx] = QVariant(long((*(long*)buf)) * pow(10.0, d->sqlda->sqlvar[i].sqlscale));
+                else
+                    row[idx] = QVariant(int((*(long*)buf)));
             else
                 row[idx] = QVariant(qint64((*(long*)buf)));
             break;
         case SQL_SHORT:
-            row[idx] = QVariant(int((*(short*)buf)));
+            if (d->sqlda->sqlvar[i].sqlscale < 0)
+                row[idx] = QVariant(long((*(short*)buf)) * pow(10.0, d->sqlda->sqlvar[i].sqlscale));
+            else
+                row[idx] = QVariant(int((*(short*)buf)));
             break;
         case SQL_FLOAT:
             row[idx] = QVariant(double((*(float*)buf)));
@@ -1161,10 +1175,11 @@ QSqlRecord QIBaseResult::record() const
     for (int i = 0; i < d->sqlda->sqld; ++i) {
         v = d->sqlda->sqlvar[i];
         QSqlField f(QString::fromLatin1(v.aliasname, v.aliasname_length).simplified(),
-                    qIBaseTypeName2(d->sqlda->sqlvar[i].sqltype));
+                    qIBaseTypeName2(d->sqlda->sqlvar[i].sqltype, v.sqlscale < 0));
         f.setLength(v.sqllen);
         f.setPrecision(v.sqlscale);
         f.setSqlType(v.sqltype);
+        f.setRequiredStatus(QSqlField::Unknown);
         rec.append(f);
     }
     return rec;
@@ -1371,10 +1386,11 @@ QSqlRecord QIBaseDriver::record(const QString& tablename) const
 
     while (q.next()) {
         int type = q.value(1).toInt();
-        QSqlField f(q.value(0).toString().simplified(), qIBaseTypeName(type));
-        f.setLength(q.value(5).toInt());
-        f.setPrecision(q.value(2).toInt());
-        f.setRequired(q.value(4).toInt() > 0 ? true : false);
+        bool hasScale = q.value(3).toInt() < 0;
+        QSqlField f(q.value(0).toString().simplified(), qIBaseTypeName(type, hasScale));
+        f.setLength(q.value(2).toInt());
+        f.setPrecision(q.value(4).toInt());
+        f.setRequired(q.value(5).toInt() > 0 ? true : false);
         f.setSqlType(type);
 
         rec.append(f);
@@ -1390,7 +1406,7 @@ QSqlIndex QIBaseDriver::primaryIndex(const QString &table) const
 
     QSqlQuery q(createResult());
     q.setForwardOnly(true);
-    q.exec(QLatin1String("SELECT a.RDB$INDEX_NAME, b.RDB$FIELD_NAME, d.RDB$FIELD_TYPE "
+    q.exec(QLatin1String("SELECT a.RDB$INDEX_NAME, b.RDB$FIELD_NAME, d.RDB$FIELD_TYPE, d.RDB$FIELD_SCALE "
            "FROM RDB$RELATION_CONSTRAINTS a, RDB$INDEX_SEGMENTS b, RDB$RELATION_FIELDS c, RDB$FIELDS d "
            "WHERE a.RDB$CONSTRAINT_TYPE = 'PRIMARY KEY' "
            "AND a.RDB$RELATION_NAME = '") + table.toUpper() +
@@ -1401,7 +1417,7 @@ QSqlIndex QIBaseDriver::primaryIndex(const QString &table) const
            "ORDER BY b.RDB$FIELD_POSITION"));
 
     while (q.next()) {
-        QSqlField field(q.value(1).toString().simplified(), qIBaseTypeName(q.value(2).toInt()));
+        QSqlField field(q.value(1).toString().simplified(), qIBaseTypeName(q.value(2).toInt(), q.value(3).toInt() < 0));
         index.append(field); //TODO: asc? desc?
         index.setName(q.value(0).toString());
     }
