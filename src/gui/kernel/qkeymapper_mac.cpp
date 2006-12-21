@@ -715,7 +715,9 @@ QKeyMapperPrivate::translateKeyEvent(QWidget *widget, EventHandlerCallRef er, Ev
                 }
             }
 
-            UInt32 macScanCode = 0;
+            // There is no way to get the scan code from carbon. But we cannot use the value 0, since
+            // it indicates that the event originates from somewhere else than the keyboard
+            UInt32 macScanCode = 1;
             UInt32 macVirtualKey = 0;
             GetEventParameter(event, kEventParamKeyCode, typeUInt32, 0, sizeof(macVirtualKey), 0, &macVirtualKey);
             UInt32 macModifiers = 0;
