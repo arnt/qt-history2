@@ -443,12 +443,14 @@ void QStroker::joinPoints(qfixed focal_x, qfixed focal_y, const QLineF &nextLine
             }
             QLineF miterLine(QPointF(qt_fixed_to_real(m_back1X),
                                      qt_fixed_to_real(m_back1Y)), isect);
-            if (miterLine.length() > appliedMiterLimit) {
-                miterLine.setLength(appliedMiterLimit);
+            if (type == QLineF::NoIntersection || miterLine.length() > appliedMiterLimit) {
+                QLineF l1(prevLine);
+                l1.setLength(appliedMiterLimit);
+                l1.translate(prevLine.dx(), prevLine.dy());
                 QLineF l2(nextLine);
                 l2.setLength(appliedMiterLimit);
                 l2.translate(-l2.dx(), -l2.dy());
-                emitLineTo(qt_real_to_fixed(miterLine.x2()), qt_real_to_fixed(miterLine.y2()));
+                emitLineTo(qt_real_to_fixed(l1.x2()), qt_real_to_fixed(l1.y2()));
                 emitLineTo(qt_real_to_fixed(l2.x1()), qt_real_to_fixed(l2.y1()));
                 emitLineTo(qt_real_to_fixed(nextLine.x1()), qt_real_to_fixed(nextLine.y1()));
             } else {
