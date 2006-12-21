@@ -1598,13 +1598,10 @@ void QAbstractItemView::dropEvent(QDropEvent *event)
     int row = -1;
     if (d->dropOn(event, &row, &col, &index)) {
         if (d->model->dropMimeData(event->mimeData(),
-                    dragDropMode() == InternalMove ? Qt::MoveAction : event->proposedAction(), row, col, index)) {
-            if (dragDropMode() == InternalMove) {
+                    dragDropMode() == InternalMove ? Qt::MoveAction : event->dropAction(), row, col, index)) {
+            if (dragDropMode() == InternalMove)
                 event->setDropAction(Qt::MoveAction);
-                event->accept();
-            } else {
-                event->acceptProposedAction();
-            }
+            event->accept();
         }
     }
     stopAutoScroll();
