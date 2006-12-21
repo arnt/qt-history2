@@ -27,14 +27,6 @@ class tst_QDom : public QObject
 {
     Q_OBJECT
 
-public:
-    tst_QDom();
-    virtual ~tst_QDom();
-
-
-public slots:
-    void init();
-    void cleanup();
 private slots:
     void setContent_data();
     void setContent();
@@ -81,22 +73,6 @@ private:
 };
 
 Q_DECLARE_METATYPE(QList<QVariant>)
-
-tst_QDom::tst_QDom()
-{
-}
-
-tst_QDom::~tst_QDom()
-{
-}
-
-void tst_QDom::init()
-{
-}
-
-void tst_QDom::cleanup()
-{
-}
 
 void tst_QDom::setContent_data()
 {
@@ -215,12 +191,12 @@ void tst_QDom::setContent()
     QXmlSimpleReader reader;
     QStringList::Iterator it;
     for ( it = featuresTrue.begin(); it != featuresTrue.end(); ++it ) {
-	QVERIFY( reader.hasFeature( *it ) );
-	reader.setFeature( *it, TRUE );
+        QVERIFY( reader.hasFeature( *it ) );
+        reader.setFeature( *it, TRUE );
     }
     for ( it = featuresFalse.begin(); it != featuresFalse.end(); ++it ) {
-	QVERIFY( reader.hasFeature( *it ) );
-	reader.setFeature( *it, FALSE );
+        QVERIFY( reader.hasFeature( *it ) );
+        reader.setFeature( *it, FALSE );
     }
 
     QDomDocument domDoc;
@@ -293,16 +269,16 @@ void tst_QDom::toString_01()
     int errorCol;
 
     QVERIFY(doc.setContent( &f, &errorMsg, &errorLine, &errorCol )); /*,
-	QString("QDomDocument::setContent() failed: %1 in line %2, column %3")
+        QString("QDomDocument::setContent() failed: %1 in line %2, column %3")
                         .arg( errorMsg ).arg( errorLine ).arg( errorCol )); */
     // test toString()'s invariant with different indenting depths
     for ( int i=0; i<5; i++ ) {
-	QString toStr = doc.toString( i );
+        QString toStr = doc.toString( i );
 
-	QDomDocument res;
-	QVERIFY( res.setContent( toStr ) );
+        QDomDocument res;
+        QVERIFY( res.setContent( toStr ) );
 
-	QVERIFY( compareDocuments( doc, res ) );
+        QVERIFY( compareDocuments( doc, res ) );
     }
 }
 
@@ -372,21 +348,21 @@ int tst_QDom::hasAttributesHelper( const QDomNode& node )
 {
     int visitedNodes = 1;
     if ( node.hasAttributes() ) {
-    	if (node.attributes().count() == 0)
-	    return -1;
-//	QVERIFY( node.attributes().count() > 0 );
+            if (node.attributes().count() == 0)
+            return -1;
+//        QVERIFY( node.attributes().count() > 0 );
     } else {
-    	if (node.attributes().count() != 0)
-	    return -1;
-//	QVERIFY( node.attributes().count() == 0 );
+            if (node.attributes().count() != 0)
+            return -1;
+//        QVERIFY( node.attributes().count() == 0 );
     }
 
     QDomNodeList children = node.childNodes();
     for ( int i=0; i<children.count(); i++ ) {
-    	int j = hasAttributesHelper( children.item(i) );
-	if (j < 0)
-	    return -1;
-	visitedNodes += j;
+            int j = hasAttributesHelper( children.item(i) );
+        if (j < 0)
+            return -1;
+        visitedNodes += j;
     }
     return visitedNodes;
 }
@@ -395,19 +371,19 @@ int tst_QDom::hasAttributesHelper( const QDomNode& node )
 void tst_QDom::save_data()
 {
     const QString doc01(
-	    "<a1>\n"
-	    " <b1>\n"
-	    "  <c1>\n"
-	    "   <d1/>\n"
-	    "  </c1>\n"
-	    "  <c2/>\n"
-	    " </b1>\n"
-	    " <b2/>\n"
-	    " <b3>\n"
-	    "  <c1/>\n"
-	    " </b3>\n"
-	    "</a1>\n"
-	    );
+            "<a1>\n"
+            " <b1>\n"
+            "  <c1>\n"
+            "   <d1/>\n"
+            "  </c1>\n"
+            "  <c2/>\n"
+            " </b1>\n"
+            " <b2/>\n"
+            " <b3>\n"
+            "  <c1/>\n"
+            " </b3>\n"
+            "</a1>\n"
+            );
 
     QTest::addColumn<QString>("doc");
     QTest::addColumn<int>("indent");
@@ -437,19 +413,19 @@ void tst_QDom::save()
 void tst_QDom::cloneNode_data()
 {
     const QString doc01(
-	    "<a1>\n"
-	    " <b1>\n"
-	    "  <c1>\n"
-	    "   <d1/>\n"
-	    "  </c1>\n"
-	    "  <c2/>\n"
-	    " </b1>\n"
-	    " <b2/>\n"
-	    " <b3>\n"
-	    "  <c1/>\n"
-	    " </b3>\n"
-	    "</a1>\n"
-	    );
+            "<a1>\n"
+            " <b1>\n"
+            "  <c1>\n"
+            "   <d1/>\n"
+            "  </c1>\n"
+            "  <c2/>\n"
+            " </b1>\n"
+            " <b2/>\n"
+            " <b3>\n"
+            "  <c1/>\n"
+            " </b3>\n"
+            "</a1>\n"
+            );
     QList<QVariant> nodeB1;
     nodeB1 << 0;
 
@@ -487,9 +463,9 @@ void tst_QDom::cloneNode()
 
     QDomNode parent = node.parentNode();
     if ( !parent.isNull() ) {
-	node = parent.replaceChild( clonedNode, node ); // swap the nodes
-	QVERIFY( !node.isNull() );
-	QVERIFY( compareNodes( node, clonedNode, deep ) );
+        node = parent.replaceChild( clonedNode, node ); // swap the nodes
+        QVERIFY( !node.isNull() );
+        QVERIFY( compareNodes( node, clonedNode, deep ) );
     }
 }
 
@@ -554,50 +530,50 @@ void tst_QDom::ownerDocument()
 
     // Does cloneNode() keep the ownerDocument()?
     {
-	QDomNode clonedNode = node.cloneNode( deep );
-	QVERIFY( node.ownerDocument() == domDoc );
-	QVERIFY( clonedNode.ownerDocument() == domDoc );
+        QDomNode clonedNode = node.cloneNode( deep );
+        QVERIFY( node.ownerDocument() == domDoc );
+        QVERIFY( clonedNode.ownerDocument() == domDoc );
     }
 
     // If the original DOM node is replaced with the cloned node, does this
     // keep the ownerDocument()?
     {
-	QDomNode clonedNode = node.cloneNode( deep );
-	QDomNode parent = node.parentNode();
-	if ( !parent.isNull() ) {
-	    node = parent.replaceChild( clonedNode, node ); // swap the nodes
-	    QVERIFY( node.ownerDocument() == domDoc );
-	    QVERIFY( clonedNode.ownerDocument() == domDoc );
-	}
+        QDomNode clonedNode = node.cloneNode( deep );
+        QDomNode parent = node.parentNode();
+        if ( !parent.isNull() ) {
+            node = parent.replaceChild( clonedNode, node ); // swap the nodes
+            QVERIFY( node.ownerDocument() == domDoc );
+            QVERIFY( clonedNode.ownerDocument() == domDoc );
+        }
     }
 
     // test QDomDocument::create...()
     {
-	OWNERDOCUMENT_CREATE_TEST( QDomAttr,		domDoc.createAttribute( "foo" ) );
-	OWNERDOCUMENT_CREATE_TEST( QDomAttr,		domDoc.createAttributeNS( "foo", "bar" ) );
-	OWNERDOCUMENT_CREATE_TEST( QDomCDATASection,	domDoc.createCDATASection( "foo" ) );
-	OWNERDOCUMENT_CREATE_TEST( QDomComment,		domDoc.createComment( "foo" ) );
-	OWNERDOCUMENT_CREATE_TEST( QDomDocumentFragment,domDoc.createDocumentFragment() );
-	OWNERDOCUMENT_CREATE_TEST( QDomElement,		domDoc.createElement( "foo" ) );
-	OWNERDOCUMENT_CREATE_TEST( QDomElement,		domDoc.createElementNS( "foo", "bar" ) );
-	OWNERDOCUMENT_CREATE_TEST( QDomEntityReference,	domDoc.createEntityReference( "foo" ) );
-	OWNERDOCUMENT_CREATE_TEST( QDomProcessingInstruction, domDoc.createProcessingInstruction( "foo", "bar" ) );
-	OWNERDOCUMENT_CREATE_TEST( QDomText,		domDoc.createTextNode( "foo" ) );
+        OWNERDOCUMENT_CREATE_TEST( QDomAttr,                    domDoc.createAttribute( "foo" ) );
+        OWNERDOCUMENT_CREATE_TEST( QDomAttr,                    domDoc.createAttributeNS( "foo", "bar" ) );
+        OWNERDOCUMENT_CREATE_TEST( QDomCDATASection,            domDoc.createCDATASection( "foo" ) );
+        OWNERDOCUMENT_CREATE_TEST( QDomComment,                 domDoc.createComment( "foo" ) );
+        OWNERDOCUMENT_CREATE_TEST( QDomDocumentFragment,        domDoc.createDocumentFragment() );
+        OWNERDOCUMENT_CREATE_TEST( QDomElement,                 domDoc.createElement( "foo" ) );
+        OWNERDOCUMENT_CREATE_TEST( QDomElement,                 domDoc.createElementNS( "foo", "bar" ) );
+        OWNERDOCUMENT_CREATE_TEST( QDomEntityReference,         domDoc.createEntityReference( "foo" ) );
+        OWNERDOCUMENT_CREATE_TEST( QDomProcessingInstruction,   domDoc.createProcessingInstruction( "foo", "bar" ) );
+        OWNERDOCUMENT_CREATE_TEST( QDomText,                    domDoc.createTextNode( "foo" ) );
     }
 
     // test importNode()
     {
-	QDomDocument doc2;
-	OWNERDOCUMENT_IMPORTNODE_TEST( QDomAttr,		doc2.createAttribute( "foo" ) );
-	OWNERDOCUMENT_IMPORTNODE_TEST( QDomAttr,		doc2.createAttributeNS( "foo", "bar" ) );
-	OWNERDOCUMENT_IMPORTNODE_TEST( QDomCDATASection,	doc2.createCDATASection( "foo" ) );
-	OWNERDOCUMENT_IMPORTNODE_TEST( QDomComment,		doc2.createComment( "foo" ) );
-	OWNERDOCUMENT_IMPORTNODE_TEST( QDomDocumentFragment,	doc2.createDocumentFragment() );
-	OWNERDOCUMENT_IMPORTNODE_TEST( QDomElement,		doc2.createElement( "foo" ) );
-	OWNERDOCUMENT_IMPORTNODE_TEST( QDomElement,		doc2.createElementNS( "foo", "bar" ) );
-	OWNERDOCUMENT_IMPORTNODE_TEST( QDomEntityReference,	doc2.createEntityReference( "foo" ) );
-	OWNERDOCUMENT_IMPORTNODE_TEST( QDomProcessingInstruction, doc2.createProcessingInstruction( "foo", "bar" ) );
-	OWNERDOCUMENT_IMPORTNODE_TEST( QDomText,		doc2.createTextNode( "foo" ) );
+        QDomDocument doc2;
+        OWNERDOCUMENT_IMPORTNODE_TEST( QDomAttr,                    doc2.createAttribute( "foo" ) );
+        OWNERDOCUMENT_IMPORTNODE_TEST( QDomAttr,                    doc2.createAttributeNS( "foo", "bar" ) );
+        OWNERDOCUMENT_IMPORTNODE_TEST( QDomCDATASection,            doc2.createCDATASection( "foo" ) );
+        OWNERDOCUMENT_IMPORTNODE_TEST( QDomComment,                 doc2.createComment( "foo" ) );
+        OWNERDOCUMENT_IMPORTNODE_TEST( QDomDocumentFragment,        doc2.createDocumentFragment() );
+        OWNERDOCUMENT_IMPORTNODE_TEST( QDomElement,                 doc2.createElement( "foo" ) );
+        OWNERDOCUMENT_IMPORTNODE_TEST( QDomElement,                 doc2.createElementNS( "foo", "bar" ) );
+        OWNERDOCUMENT_IMPORTNODE_TEST( QDomEntityReference,         doc2.createEntityReference( "foo" ) );
+        OWNERDOCUMENT_IMPORTNODE_TEST( QDomProcessingInstruction,   doc2.createProcessingInstruction( "foo", "bar" ) );
+        OWNERDOCUMENT_IMPORTNODE_TEST( QDomText,                    doc2.createTextNode( "foo" ) );
     }
 }
 
@@ -629,8 +605,8 @@ void tst_QDom::ownerDocumentTask27424()
     QVERIFY( level1.ownerDocument() == doc );
 
     if ( insertLevel1AfterCstr ) {
-	doc.appendChild(level1);
-	QVERIFY( level1.ownerDocument() == doc );
+        doc.appendChild(level1);
+        QVERIFY( level1.ownerDocument() == doc );
     }
 
     QDomElement level2 = level1.ownerDocument().createElement("Level_2");
@@ -638,9 +614,9 @@ void tst_QDom::ownerDocumentTask27424()
     QVERIFY( level2.ownerDocument() == doc );
 
     if ( insertLevel2AfterCstr ) {
-	level1.appendChild(level2);
-	QVERIFY( level1.ownerDocument() == doc );
-	QVERIFY( level2.ownerDocument() == doc );
+        level1.appendChild(level2);
+        QVERIFY( level1.ownerDocument() == doc );
+        QVERIFY( level2.ownerDocument() == doc );
     }
 
     QDomElement level3 = level2.ownerDocument().createElement("Level_3");
@@ -649,10 +625,10 @@ void tst_QDom::ownerDocumentTask27424()
     QVERIFY( level3.ownerDocument() == doc );
 
     if ( insertLevel3AfterCstr ) {
-	level2.appendChild(level3);
-	QVERIFY( level1.ownerDocument() == doc );
-	QVERIFY( level2.ownerDocument() == doc );
-	QVERIFY( level3.ownerDocument() == doc );
+        level2.appendChild(level3);
+        QVERIFY( level1.ownerDocument() == doc );
+        QVERIFY( level2.ownerDocument() == doc );
+        QVERIFY( level3.ownerDocument() == doc );
     }
 
     QDomNode level4 = level3.ownerDocument().createTextNode("This_is_a_value!");
@@ -665,27 +641,27 @@ void tst_QDom::ownerDocumentTask27424()
     QVERIFY( level4.ownerDocument() == doc );
 
     if ( !insertLevel3AfterCstr ) {
-	level2.appendChild(level3);
-	QVERIFY( level1.ownerDocument() == doc );
-	QVERIFY( level2.ownerDocument() == doc );
-	QVERIFY( level3.ownerDocument() == doc );
-	QVERIFY( level4.ownerDocument() == doc );
+        level2.appendChild(level3);
+        QVERIFY( level1.ownerDocument() == doc );
+        QVERIFY( level2.ownerDocument() == doc );
+        QVERIFY( level3.ownerDocument() == doc );
+        QVERIFY( level4.ownerDocument() == doc );
     }
 
     if ( !insertLevel2AfterCstr ) {
-	level1.appendChild(level2);
-	QVERIFY( level1.ownerDocument() == doc );
-	QVERIFY( level2.ownerDocument() == doc );
-	QVERIFY( level3.ownerDocument() == doc );
-	QVERIFY( level4.ownerDocument() == doc );
+        level1.appendChild(level2);
+        QVERIFY( level1.ownerDocument() == doc );
+        QVERIFY( level2.ownerDocument() == doc );
+        QVERIFY( level3.ownerDocument() == doc );
+        QVERIFY( level4.ownerDocument() == doc );
     }
 
     if ( !insertLevel1AfterCstr ) {
-	doc.appendChild(level1);
-	QVERIFY( level1.ownerDocument() == doc );
-	QVERIFY( level2.ownerDocument() == doc );
-	QVERIFY( level3.ownerDocument() == doc );
-	QVERIFY( level4.ownerDocument() == doc );
+        doc.appendChild(level1);
+        QVERIFY( level1.ownerDocument() == doc );
+        QVERIFY( level2.ownerDocument() == doc );
+        QVERIFY( level3.ownerDocument() == doc );
+        QVERIFY( level4.ownerDocument() == doc );
     }
 }
 
@@ -713,16 +689,16 @@ void tst_QDom::parentNode()
 
     // test QDomDocument::create...()
     {
-	PARENTNODE_CREATE_TEST( QDomAttr,		domDoc.createAttribute( "foo" ) );
-	PARENTNODE_CREATE_TEST( QDomAttr,		domDoc.createAttributeNS( "foo", "bar" ) );
-	PARENTNODE_CREATE_TEST( QDomCDATASection,	domDoc.createCDATASection( "foo" ) );
-	PARENTNODE_CREATE_TEST( QDomComment,		domDoc.createComment( "foo" ) );
-	PARENTNODE_CREATE_TEST( QDomDocumentFragment,	domDoc.createDocumentFragment() );
-	PARENTNODE_CREATE_TEST( QDomElement,		domDoc.createElement( "foo" ) );
-	PARENTNODE_CREATE_TEST( QDomElement,		domDoc.createElementNS( "foo", "bar" ) );
-	PARENTNODE_CREATE_TEST( QDomEntityReference,	domDoc.createEntityReference( "foo" ) );
-	PARENTNODE_CREATE_TEST( QDomProcessingInstruction, domDoc.createProcessingInstruction( "foo", "bar" ) );
-	PARENTNODE_CREATE_TEST( QDomText,		domDoc.createTextNode( "foo" ) );
+        PARENTNODE_CREATE_TEST( QDomAttr,                   domDoc.createAttribute( "foo" ) );
+        PARENTNODE_CREATE_TEST( QDomAttr,                   domDoc.createAttributeNS( "foo", "bar" ) );
+        PARENTNODE_CREATE_TEST( QDomCDATASection,           domDoc.createCDATASection( "foo" ) );
+        PARENTNODE_CREATE_TEST( QDomComment,                domDoc.createComment( "foo" ) );
+        PARENTNODE_CREATE_TEST( QDomDocumentFragment,       domDoc.createDocumentFragment() );
+        PARENTNODE_CREATE_TEST( QDomElement,                domDoc.createElement( "foo" ) );
+        PARENTNODE_CREATE_TEST( QDomElement,                domDoc.createElementNS( "foo", "bar" ) );
+        PARENTNODE_CREATE_TEST( QDomEntityReference,        domDoc.createEntityReference( "foo" ) );
+        PARENTNODE_CREATE_TEST( QDomProcessingInstruction,  domDoc.createProcessingInstruction( "foo", "bar" ) );
+        PARENTNODE_CREATE_TEST( QDomText,                   domDoc.createTextNode( "foo" ) );
     }
 }
 
@@ -751,37 +727,37 @@ void tst_QDom::documentCreationTask27424()
 
     QDomDocument docRes;
     QVERIFY( docRes.setContent( QString(
-		"<!DOCTYPE TestXML>\n"
-		"<Level_1>\n"
-		" <Level_2>\n"
-		"  <Level_3>This_is_a_value!</Level_3>\n"
-		" </Level_2>\n"
-		"</Level_1>"
-		) ) );
+                "<!DOCTYPE TestXML>\n"
+                "<Level_1>\n"
+                " <Level_2>\n"
+                "  <Level_3>This_is_a_value!</Level_3>\n"
+                " </Level_2>\n"
+                "</Level_1>"
+                ) ) );
 
     QDomDocument doc("TestXML");
 
     QDomElement level1 = doc.createElement("Level_1");
     if ( insertLevel1AfterCstr )
-	doc.appendChild(level1);
+        doc.appendChild(level1);
 
     QDomElement level2 = level1.ownerDocument().createElement("Level_2");
     if ( insertLevel2AfterCstr )
-	level1.appendChild(level2);
+        level1.appendChild(level2);
 
     QDomElement level3 = level2.ownerDocument().createElement("Level_3");
     if ( insertLevel3AfterCstr )
-	level2.appendChild(level3);
+        level2.appendChild(level3);
 
     QDomNode level4 = level3.ownerDocument().createTextNode("This_is_a_value!");
     level3.appendChild(level4);
 
     if ( !insertLevel3AfterCstr )
-	level2.appendChild(level3);
+        level2.appendChild(level3);
     if ( !insertLevel2AfterCstr )
-	level1.appendChild(level2);
+        level1.appendChild(level2);
     if ( !insertLevel1AfterCstr )
-	doc.appendChild(level1);
+        doc.appendChild(level1);
 
     QVERIFY( compareDocuments( doc, docRes ) );
 }
@@ -810,21 +786,21 @@ bool tst_QDom::compareDocuments( const QDomDocument &doc1, const QDomDocument &d
 bool tst_QDom::compareNodes( const QDomNode &node1, const QDomNode &node2, bool deep )
 {
     if ( deep ) {
-	QString str1;
-	{
-	    QTextOStream stream( &str1 );
-	    stream << node1;
-	}
-	QString str2;
-	{
-	    QTextOStream stream( &str2 );
-	    stream << node2;
-	}
-	return str1 == str2;
+        QString str1;
+        {
+            QTextOStream stream( &str1 );
+            stream << node1;
+        }
+        QString str2;
+        {
+            QTextOStream stream( &str2 );
+            stream << node2;
+        }
+        return str1 == str2;
     }
 
     if ( node1.isNull() && node2.isNull() )
-	return TRUE;
+        return TRUE;
     // ### I am not sure if this test is complete
     bool equal =     node1.nodeName() == node2.nodeName();
     equal = equal && node1.nodeType() == node2.nodeType();
@@ -844,9 +820,9 @@ QDomNode tst_QDom::findDomNode( const QDomDocument &doc, const QList<QVariant> &
     QDomNode node = doc;
     QList<QVariant>::const_iterator it;
     for ( it = pathToNode.begin(); it != pathToNode.end(); ++it ) {
-	QDomNodeList children = node.childNodes();
-	node = children.item( (*it).toInt() );
-//	QVERIFY( !node.isNull() );
+        QDomNodeList children = node.childNodes();
+        node = children.item( (*it).toInt() );
+//        QVERIFY( !node.isNull() );
     }
     return node;
 }
@@ -1211,7 +1187,7 @@ void tst_QDom::checkWarningOnNull() const
     qInstallMsgHandler(myOnNullMsgHandler);
 
     QDomNode n;
-    
+
     n.nodeName();
     QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("nodeName")));
 
