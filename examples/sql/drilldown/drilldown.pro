@@ -2,6 +2,7 @@ HEADERS = database.h \
           imageitem.h \
           informationwindow.h \
           view.h 
+RESOURCES = drilldown.qrc
 SOURCES = imageitem.cpp \
           informationwindow.cpp \
           main.cpp \

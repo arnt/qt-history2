@@ -30,7 +30,7 @@ View::View(const QString &offices, const QString &images, QWidget *parent)
 
     addItems();
 
-    QGraphicsPixmapItem *logo = scene->addPixmap(QPixmap("logo.png"));
+    QGraphicsPixmapItem *logo = scene->addPixmap(QPixmap(":/logo.png"));
     logo->setPos(30, 515);
 
     setMinimumSize(470, 620);
@@ -59,7 +59,7 @@ void View::addItems()
         int x = ((i / 3) * imageOffset) + leftMargin + columnOffset;
         int y = ((i % 3) * imageOffset) + topMargin;
 
-        image = new ImageItem(id, QPixmap(file));
+        image = new ImageItem(id, QPixmap(":/" + file));
         image->setData(0, i);
         image->setPos(x, y);
         scene->addItem(image);
@@ -112,7 +112,7 @@ void View::updateImage(int id, const QString &fileName)
         if (ImageItem *image = qgraphicsitem_cast<ImageItem *>(item)) {
             if (image->id() == id){
 
-                image->setPixmap(QPixmap(fileName));
+                image->setPixmap(QPixmap(":/" +fileName));
                 image->adjust();
                 break;
             }
