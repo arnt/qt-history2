@@ -32,6 +32,8 @@ private slots:
 
     void addPath();
     void removePath();
+    void addPaths();
+    void removePaths();
 
 private:
     bool do_force_native;
@@ -246,6 +248,10 @@ void tst_QFileSystemWatcher::addPath()
     QCOMPARE(watcher.directories().first(), home);
     watcher.addPath(home);
     QCOMPARE(watcher.directories().count(), 1);
+
+    // With empty string
+    QTest::ignoreMessage(QtWarningMsg, "QFileSystemWatcher::addPath: path is empty");
+    watcher.addPath(QString());
 }
 
 void tst_QFileSystemWatcher::removePath()
@@ -257,6 +263,40 @@ void tst_QFileSystemWatcher::removePath()
     QCOMPARE(watcher.directories().count(), 0);
     watcher.removePath(home);
     QCOMPARE(watcher.directories().count(), 0);
+
+    // With empty string
+    QTest::ignoreMessage(QtWarningMsg, "QFileSystemWatcher::removePath: path is empty");
+    watcher.removePath(QString());
+}
+
+void tst_QFileSystemWatcher::addPaths()
+{
+    QFileSystemWatcher watcher;
+    QStringList paths;
+    paths << QDir::homePath() << QDir::currentPath();
+    watcher.addPaths(paths);
+    QCOMPARE(watcher.directories().count(), 2);
+
+    // With empty list
+    paths.clear();
+    QTest::ignoreMessage(QtWarningMsg, "QFileSystemWatcher::addPaths: list is empty");
+    watcher.addPaths(paths);
+}
+
+void tst_QFileSystemWatcher::removePaths()
+{
+    QFileSystemWatcher watcher;
+    QStringList paths;
+    paths << QDir::homePath() << QDir::currentPath();
+    watcher.addPaths(paths);
+    QCOMPARE(watcher.directories().count(), 2);
+    watcher.removePaths(paths);
+    QCOMPARE(watcher.directories().count(), 0);
+
+    //With empty list
+    paths.clear();
+    QTest::ignoreMessage(QtWarningMsg, "QFileSystemWatcher::removePaths: list is empty");
+    watcher.removePaths(paths);
 }
 
 QTEST_MAIN(tst_QFileSystemWatcher)
