@@ -299,9 +299,22 @@ void QScreenCursor::initSoftwareCursor()
 class QScreenPrivate
 {
 public:
+    QScreenPrivate(QScreen *parent) : q_ptr(parent) {}
+    QImage::Format preferredImageFormat() const;
+
     QPoint offset;
     QList<QScreen*> subScreens;
+    QScreen *q_ptr;
 };
+
+QImage::Format
+QScreenPrivate::preferredImageFormat() const
+{
+    if (q_ptr->depth() <= 16)
+        return QImage::Format_RGB16;
+    else
+        return QImage::Format_ARGB32_Premultiplied;
+}
 
 /*!
     \class QScreen
@@ -811,7 +824,7 @@ public:
 */
 
 QScreen::QScreen(int display_id)
-    : d_ptr(new QScreenPrivate)
+    : d_ptr(new QScreenPrivate(this))
 {
     w = 0;
     lstep = 0;
@@ -1154,10 +1167,10 @@ void QScreen::exposeRegion(QRegion r, int changing)
     }
     if(PerfTestOn == perfTestState) {
         QWSWindow *changed = qwsServer->clientWindows().at(changing);
-        if(!changed->client()->identity().isEmpty()) 
-            qDebug() << "Performance  :  expose_region  :" 
-                     << changed->client()->identity() 
-                     << r.boundingRect() << ": " 
+        if(!changed->client()->identity().isEmpty())
+            qDebug() << "Performance  :  expose_region  :"
+                     << changed->client()->identity()
+                     << r.boundingRect() << ": "
                      << qPrintable( QTime::currentTime().toString( "h:mm:ss.zzz" ) );
     }
 #endif
@@ -1927,14 +1940,14 @@ void QScreen::paintBackground(const QRegion &r)
     if (bs == Qt::SolidPattern) {
         solidFill(bg.color(), r);
     } else {
-        QRect br = r.boundingRect();
-        QImage img(br.size(), QImage::Format_ARGB32_Premultiplied);
+        const QRect br = r.boundingRect();
+        QImage img(br.size(), d_ptr->preferredImageFormat());
         QPoint off = br.topLeft();
         QRasterBuffer rb;
         rb.prepare(&img);
         QSpanData spanData;
         spanData.init(&rb);
-        spanData.setup(bg, 255);
+        spanData.setup(bg, 256);
         spanData.dx = off.x();
         spanData.dy = off.y();
         Q_ASSERT(spanData.blend);
