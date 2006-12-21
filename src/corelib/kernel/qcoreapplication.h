@@ -73,6 +73,7 @@ public:
 
     static bool sendEvent(QObject *receiver, QEvent *event);
     static void postEvent(QObject *receiver, QEvent *event);
+    static void postEvent(QObject *receiver, QEvent *event, int priority);
     static void sendPostedEvents(QObject *receiver, int event_type);
     static void sendPostedEvents();
     static void removePostedEvents(QObject *receiver);

@@ -797,7 +797,7 @@ void QCoreApplication::exit(int returnCode)
 */
 
 /*!
-    Adds the event \a event with the object \a receiver as the receiver of the
+    Adds the event \a event, with the object \a receiver as the receiver of the
     event, to an event queue and returns immediately.
 
     The event must be allocated on the heap since the post event queue
@@ -807,12 +807,47 @@ void QCoreApplication::exit(int returnCode)
     When control returns to the main event loop, all events that are
     stored in the queue will be sent using the notify() function.
 
+    Events are processed in the order posted. For more control over the processing order,
+    use the postEvent() overload below, which takes a priority argument. This function
+    posts all event with a Qt::NormalEventPriority.
+
     \threadsafe
 
     \sa sendEvent(), notify(), sendPostedEvents()
 */
 
 void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
+{
+    postEvent(receiver, event, Qt::NormalEventPriority);
+}
+
+
+/*!
+    \overload
+    \since 4.3
+
+    Adds the event \a event, with the object \a receiver as the receiver of the
+    event, to an event queue and returns immediately.
+
+    The event must be allocated on the heap since the post event queue
+    will take ownership of the event and delete it once it has been posted.
+    It is \e {not safe} to modify or delete the event after it has been posted.
+
+    When control returns to the main event loop, all events that are
+    stored in the queue will be sent using the notify() function.
+
+    Events are sorted in descending \a priority order, i.e. events
+    with a high \a priority are queued before events with a lower \a
+    priority. The \a priority can be any integer value, i.e. between
+    INT_MAX and INT_MIN, inclusive; see Qt::EventPriority for more
+    details. Events with equal \a priority will be processed in the
+    order posted.
+
+    \threadsafe
+
+    \sa sendEvent(), notify(), sendPostedEvents(), Qt::EventPriority
+*/
+void QCoreApplication::postEvent(QObject *receiver, QEvent *event, int priority)
 {
     if (receiver == 0) {
         qWarning("QCoreApplication::postEvent: Unexpected null receiver");
@@ -862,7 +897,20 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
                 }
             }
         }
-        data->postEventList.append(QPostEvent(receiver, event));
+
+        if (data->postEventList.isEmpty() || data->postEventList.last().priority >= priority) {
+            // optimization: we can simply append if the last event in
+            // the queue has higher or equal priority
+            data->postEventList.append(QPostEvent(receiver, event, priority));
+        } else {
+            // insert event in descending priority order, using upper
+            // bound for a given priority (to ensure proper ordering
+            // of events with the same priority)
+            QPostEventList::iterator begin = data->postEventList.begin() + data->postEventList.offset,
+                                       end = data->postEventList.end();
+            QPostEventList::iterator at = qUpperBound(begin, end, priority);
+            data->postEventList.insert(at, QPostEvent(receiver, event, priority));
+        }
         data->canWait = false;
     }
 
@@ -971,6 +1019,8 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
     // this, it looks the way it does for good reasons.
     int i = 0;
     const int s = data->postEventList.size();
+    const int savedOffset = data->postEventList.offset;
+    data->postEventList.offset = s;
     while (i < data->postEventList.size()) {
         // avoid live-lock
         if (i >= s)
@@ -1039,6 +1089,7 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
             data->canWait = false;
 
             // uglehack: copied from below
+            data->postEventList.offset = savedOffset;
             --data->postEventList.recursion;
             if (!data->postEventList.recursion && !data->canWait && data->eventDispatcher)
                 data->eventDispatcher->wakeUp();
@@ -1054,6 +1105,7 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
         // function depends on.
     }
 
+    data->postEventList.offset = savedOffset;
     --data->postEventList.recursion;
     if (!data->postEventList.recursion && !data->canWait && data->eventDispatcher)
         data->eventDispatcher->wakeUp();

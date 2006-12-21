@@ -1357,6 +1357,12 @@ public:
         TextBrowserInteraction    = TextSelectableByMouse | LinksAccessibleByMouse | LinksAccessibleByKeyboard
     };
     Q_DECLARE_FLAGS(TextInteractionFlags, TextInteractionFlag)
+
+    enum EventPriority {
+        HighEventPriority = 1,
+        NormalEventPriority = 0,
+        LowEventPriority = -1
+    };
 }
 #ifdef Q_MOC_RUN
  ;

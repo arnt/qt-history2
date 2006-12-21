@@ -2227,3 +2227,46 @@
     \enum Qt::ToolBarAreaSizes
     \internal
 */
+
+/*!
+    \enum Qt::EventPriority
+
+    This enum can be used to specify event priorities.
+
+    \value HighEventPriority Events with this priority are sent before
+    events with NormalEventPriority or LowEventPriority.
+
+    \value NormalEventPriority Events with this priority are sent
+    after events with HighEventPriority, but before events with
+    LowEventPriority.
+
+    \value LowEventPriority Events with this priority are sent after
+    events with HighEventPriority or NormalEventPriority.
+
+    Note that these values are provided purely for convenience, since
+    event priorities can be any value between \c INT_MAX and \c
+    INT_MIN, inclusive. For example, you can define custom priorities
+    as being relative to each other:
+
+    \code
+    enum CustomEventPriority
+    {
+        // An important event
+        ImportantEventPriority = Qt::HighEventPriority,
+
+        // A more important event
+        MoreImportantEventPriority = ImportantEventPriority + 1,
+
+        // A critical event
+        CriticalEventPriority = 100 * MoreImportantEventPriority,
+
+        // Not that important
+        StatusEventPriority = Qt::LowEventPriority,
+
+        // These are less important than Status events
+        IdleProcessingDoneEventPriority = StatusEventPriority - 1
+    };
+    \endcode
+
+    \sa QCoreApplication::postEvent()
+*/

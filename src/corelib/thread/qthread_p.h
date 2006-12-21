@@ -41,22 +41,34 @@ class QPostEvent
 public:
     QObject *receiver;
     QEvent *event;
+    int priority;
     inline QPostEvent()
-        : receiver(0), event(0)
+        : receiver(0), event(0), priority(0)
     { }
-    inline QPostEvent(QObject *r, QEvent *e)
-        : receiver(r), event(e)
+    inline QPostEvent(QObject *r, QEvent *e, int p)
+        : receiver(r), event(e), priority(p)
     { }
 };
+inline bool operator<(int priority, const QPostEvent &pe)
+{
+    return pe.priority < priority;
+}
+inline bool operator<(const QPostEvent &pe, int priority)
+{
+    return priority < pe.priority;
+}
 
 class QPostEventList : public QList<QPostEvent>
 {
 public:
+    // recursion == recursion count for sendPostedEvents()
     int recursion;
+    // offset == set by sendPostedEvents to tell postEvent() where to start insertions
+    int offset;
     QMutex mutex;
 
     inline QPostEventList()
-        : QList<QPostEvent>(), recursion(0)
+        : QList<QPostEvent>(), recursion(0), offset(0)
     { }
 };
 
