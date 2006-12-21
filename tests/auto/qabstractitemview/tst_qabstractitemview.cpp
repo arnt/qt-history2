@@ -142,6 +142,7 @@ private slots:
     void columnDelegate();
     void selectAll();
     void ctrlA();
+    void dragAndDrop();
 };
 
 class MyAbstractItemDelegate : public QAbstractItemDelegate
@@ -625,6 +626,155 @@ void tst_QAbstractItemView::ctrlA()
     QCOMPARE(tst_view->tst_selectedIndexes().count(), 4*4);
 }
 
+#if defined(Q_WS_X11)
+extern void qt_x11_wait_for_window_manager(QWidget *w);
+#endif
+
+static void sendMouseMove(QWidget *widget, QPoint pos = QPoint())
+{
+    if (pos.isNull())
+        pos = widget->rect().center();
+    QMouseEvent event(QEvent::MouseMove, pos, widget->mapToGlobal(pos), Qt::NoButton, 0, 0);
+    QCursor::setPos(widget->mapToGlobal(pos));
+    qApp->processEvents();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(widget);
+#endif
+    QApplication::sendEvent(widget, &event);
+}
+
+static void sendMousePress(
+    QWidget *widget, QPoint pos = QPoint(), Qt::MouseButton button = Qt::LeftButton)
+{
+    if (pos.isNull())
+         pos = widget->rect().center();
+    QMouseEvent event(QEvent::MouseButtonPress, pos, widget->mapToGlobal(pos), button, 0, 0);
+    QApplication::sendEvent(widget, &event);
+}
+
+static void sendMouseRelease(
+    QWidget *widget, QPoint pos = QPoint(), Qt::MouseButton button = Qt::LeftButton)
+{
+    if (pos.isNull())
+         pos = widget->rect().center();
+    QMouseEvent event(QEvent::MouseButtonRelease, pos, widget->mapToGlobal(pos), button, 0, 0);
+    QApplication::sendEvent(widget, &event);
+}
+
+class DnDTestModel : public QStandardItemModel
+{
+    Q_OBJECT
+    bool dropMimeData(const QMimeData *, Qt::DropAction action, int, int, const QModelIndex &)
+    {
+        dropAction_result = action;
+        return true;
+    }
+    Qt::DropActions supportedDropActions() const { return Qt::CopyAction | Qt::MoveAction; }
+
+    Qt::DropAction dropAction_result;
+public:
+    DnDTestModel() : QStandardItemModel(20, 20) {}
+    Qt::DropAction dropAction() const { return dropAction_result; }
+};
+
+class DnDTestView : public QListView
+{
+    Q_OBJECT
+
+    Qt::DropAction dropAction;
+
+    void timerEvent(QTimerEvent *event)
+    {
+        killTimer(event->timerId());
+        sendMouseMove(this);
+        sendMouseRelease(this);
+    }
+
+    void dragEnterEvent(QDragEnterEvent *event)
+    {
+        QAbstractItemView::dragEnterEvent(event);
+        startTimer(0);
+    }
+
+    void dropEvent(QDropEvent *event)
+    {
+        event->setDropAction(dropAction);
+        QListView::dropEvent(event);
+    }
+
+public:
+    DnDTestView(Qt::DropAction dropAction, QAbstractItemModel *model)
+        : dropAction(dropAction)
+    {
+        setModel(model);
+        setDragDropMode(QAbstractItemView::DragDrop);
+        setAcceptDrops(true);
+        setDragEnabled(true);
+    }
+};
+
+class DnDTestWidget : public QWidget
+{
+    Q_OBJECT
+
+    Qt::DropAction dropAction_request;
+    Qt::DropAction dropAction_result;
+    QWidget *dropTarget;
+
+    void mousePressEvent(QMouseEvent *)
+    {
+        QDrag *drag = new QDrag(this);
+        QMimeData *mimeData = new QMimeData;
+        mimeData->setData("application/x-qabstractitemmodeldatalist", QByteArray("foobar"));
+        drag->setMimeData(mimeData);
+        dropAction_result = drag->start(dropAction_request);
+    }
+
+public:
+    Qt::DropAction dropAction() const { return dropAction_result; }
+
+    void dragAndDrop(QWidget *dropTarget, Qt::DropAction dropAction)
+    {
+        this->dropTarget = dropTarget;
+        dropAction_request = dropAction;
+        sendMousePress(this);
+    }
+};
+
+void tst_QAbstractItemView::dragAndDrop()
+{
+    // From Task 137729
+
+    int successes = 0;
+    for (int i = 0; i < 10; ++i) {
+        Qt::DropAction dropAction = Qt::MoveAction;
+
+        DnDTestModel model;
+        DnDTestView view(dropAction, &model);
+        DnDTestWidget widget;
+
+        const int size = 200;
+        widget.setFixedSize(size, size);
+        view.setFixedSize(size, size);
+
+        widget.move(0, 0);
+        view.move(int(size * 1.5), int(size * 1.5));
+
+        widget.show();
+        view.show();
+#if defined(Q_WS_X11)
+        qt_x11_wait_for_window_manager(&widget);
+        qt_x11_wait_for_window_manager(&view);
+#endif
+
+        widget.dragAndDrop(&view, dropAction);
+        if (model.dropAction() == dropAction
+            && widget.dropAction() == dropAction)
+            ++successes;
+    }
+
+    QVERIFY(successes > 0); // allow for window manager "effects"
+}
+
 QTEST_MAIN(tst_QAbstractItemView)
 #include "tst_qabstractitemview.moc"
-
