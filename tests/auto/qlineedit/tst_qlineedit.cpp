@@ -193,7 +193,7 @@ private slots:
 
     void validateOnFocusOut();
 
-    void editUnvalidText();
+    void editInvalidText();
 
     void charWithAltOrCtrlModifier();
 
@@ -2943,7 +2943,7 @@ void tst_QLineEdit::validateOnFocusOut()
     QCOMPARE(editingFinishedSpy.count(), 1);
 }
 
-void tst_QLineEdit::editUnvalidText()
+void tst_QLineEdit::editInvalidText()
 {
     testWidget->clear();
     testWidget->setValidator(new QIntValidator(0, 120, 0));
