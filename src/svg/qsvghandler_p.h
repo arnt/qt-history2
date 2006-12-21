@@ -120,7 +120,6 @@ private:
 
     QSvgStyleSelector *m_selector;
 
-    int m_animStart;
     int m_animEnd;
 private:
     static QHash<QString, FactoryMethod> s_groupFactory;

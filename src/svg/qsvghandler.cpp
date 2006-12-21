@@ -2994,7 +2994,7 @@ QHash<QString, StyleParseMethod>   QSvgHandler::s_styleUtilFactory;
 //static const char *SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
 QSvgHandler::QSvgHandler()
-    : m_doc(0), m_style(0), m_defaultCoords(PX)
+    : m_doc(0), m_style(0), m_defaultCoords(PX), m_animEnd(0)
 {
     if (s_groupFactory.isEmpty()) {
         defaultPen.setMiterLimit(4);
@@ -3332,7 +3332,6 @@ bool QSvgHandler::processingInstruction(const QString &target, const QString &da
 
 void QSvgHandler::setAnimPeriod(int start, int end)
 {
-    m_animStart = qMax(qMin(start, m_animStart), 0);
     m_animEnd   = qMax(end, m_animEnd);
 }
 
