@@ -3057,6 +3057,25 @@ void tst_QLineEdit::inlineCompletion()
     QTest::keyClick(testWidget, Qt::Key_Up, Qt::ControlModifier); // item1
     QCOMPARE(testWidget->selectedText(), QString("tem1"));
 
+    // trivia :)
+    root->appendRow(new QStandardItem("item11"));
+    root->appendRow(new QStandardItem("item12"));
+    testWidget->clear();
+    QTest::keyClick(testWidget, Qt::Key_I);
+    QCOMPARE(testWidget->selectedText(), QString("tem1"));
+    QTest::keyClick(testWidget, Qt::Key_Delete);
+    QCOMPARE(testWidget->selectedText(), QString());
+    QTest::keyClick(testWidget, Qt::Key_Down, Qt::ControlModifier);
+    QCOMPARE(testWidget->selectedText(), QString("tem1")); // neato
+    testWidget->setText("item1");
+    testWidget->setSelection(1, 2);
+    QTest::keyClick(testWidget, Qt::Key_Down, Qt::ControlModifier);
+    testWidget->end(false);
+    QCOMPARE(testWidget->text(), QString("item1")); // no effect for selection in "middle"
+    QTest::keyClick(testWidget, Qt::Key_Down, Qt::ControlModifier); // item1
+    QTest::keyClick(testWidget, Qt::Key_Down, Qt::ControlModifier); // item11
+    QCOMPARE(testWidget->text(), QString("item11"));
+
     delete model;
     delete completer;
 }

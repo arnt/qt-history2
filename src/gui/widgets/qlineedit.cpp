@@ -625,7 +625,13 @@ void QLineEditPrivate::complete(int key)
         if (key == Qt::Key_Up || key == Qt::Key_Down) {
             if (selend != 0 && selend != text.length())
                 return;
-            n = (key == Qt::Key_Up) ? -1 : +1;
+            QString prefix = hasSelectedText() ? text.left(selstart) : text;
+            if (text.compare(completer->currentCompletion(), completer->caseSensitivity()) != 0
+                || prefix.compare(completer->completionPrefix(), completer->caseSensitivity()) != 0) {
+                completer->setCompletionPrefix(prefix);
+            } else {
+                n = (key == Qt::Key_Up) ? -1 : +1;
+            }
         } else {
             completer->setCompletionPrefix(text);
         }
