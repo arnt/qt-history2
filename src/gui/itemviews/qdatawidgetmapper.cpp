@@ -397,7 +397,7 @@ void QDataWidgetMapper::setRootIndex(const QModelIndex &index)
 QModelIndex QDataWidgetMapper::rootIndex() const
 {
     Q_D(const QDataWidgetMapper);
-    return d->rootIndex;
+    return QModelIndex(d->rootIndex);
 }
 
 /*!
