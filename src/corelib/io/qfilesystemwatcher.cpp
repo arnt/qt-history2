@@ -300,6 +300,10 @@ QFileSystemWatcher::~QFileSystemWatcher()
 */
 void QFileSystemWatcher::addPath(const QString &path)
 {
+    if (path.isEmpty()) {
+        qWarning("QFileSystemWatcher::addPath: path is empty");
+        return;
+    }
     addPaths(QStringList(path));
 }
 
@@ -318,8 +322,10 @@ void QFileSystemWatcher::addPath(const QString &path)
 void QFileSystemWatcher::addPaths(const QStringList &paths)
 {
     Q_D(QFileSystemWatcher);
-    if (paths.isEmpty())
+    if (paths.isEmpty()) {
+        qWarning("QFileSystemWatcher::addPaths: list is empty");
         return;
+    }
     QStringList p = paths;
     if (objectName() != QLatin1String("_qt_autotest_force_engine_poller")) {
         if (d->native)
@@ -358,6 +364,10 @@ void QFileSystemWatcher::addPaths(const QStringList &paths)
 */
 void QFileSystemWatcher::removePath(const QString &path)
 {
+    if (path.isEmpty()) {
+        qWarning("QFileSystemWatcher::removePath: path is empty");
+        return;
+    }
     removePaths(QStringList(path));
 }
 
@@ -368,6 +378,10 @@ void QFileSystemWatcher::removePath(const QString &path)
 */
 void QFileSystemWatcher::removePaths(const QStringList &paths)
 {
+    if (paths.isEmpty()) {
+        qWarning("QFileSystemWatcher::removePaths: list is empty");
+        return;
+    }
     Q_D(QFileSystemWatcher);
     QStringList p = paths;
     if (d->native)
