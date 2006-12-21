@@ -35,7 +35,7 @@ private slots:
     void about();
     void changeCase(int);
     void changeMode(int);
-    void updateModel();
+    void changeModel();
 
 private:
     void createMenu();
