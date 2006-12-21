@@ -37,6 +37,7 @@ public slots:
     void loadLayout();
     void setCorner(int id);
     void switchLayoutDirection();
+    void _setVerticalTabsEnabled(bool enabled);
 
 private:
     void setupToolBar();

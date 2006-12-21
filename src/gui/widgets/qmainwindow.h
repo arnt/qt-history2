@@ -38,6 +38,7 @@ class Q_GUI_EXPORT QMainWindow : public QWidget
 #ifndef QT_NO_DOCKWIDGET
     Q_PROPERTY(bool animated READ isAnimated WRITE setAnimated)
     Q_PROPERTY(bool dockNestingEnabled READ isDockNestingEnabled WRITE setDockNestingEnabled)
+    Q_PROPERTY(bool verticalTabsEnabled READ verticalTabsEnabled WRITE setVerticalTabsEnabled)
 #endif
 
 public:
@@ -52,6 +53,8 @@ public:
 
     bool isAnimated() const;
     bool isDockNestingEnabled() const;
+    bool verticalTabsEnabled() const;
+    void setVerticalTabsEnabled(bool enabled);
 
     bool isSeparator(const QPoint &pos) const;
 

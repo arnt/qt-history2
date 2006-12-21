@@ -141,6 +141,9 @@ public:
 
     void keepSize(QDockWidget *w);
 
+    void setVerticalTabsEnabled(bool enabled);
+    bool verticalTabsEnabled() const;
+
 #ifndef QT_NO_TABBAR
     QTabBar *getTabBar();
     QSet<QTabBar*> usedTabBars;

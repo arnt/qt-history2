@@ -435,6 +435,26 @@ void QMainWindowLayout::tabifyDockWidget(QDockWidget *first, QDockWidget *second
     dockWidgetLayout.tabifyDockWidget(first, second);
 }
 
+void QMainWindowLayout::setVerticalTabsEnabled(bool enabled)
+{
+    if (enabled) {
+        dockWidgetLayout.docks[QDockWidgetLayout::LeftPos].tabBarShape = QTabBar::RoundedWest;
+        dockWidgetLayout.docks[QDockWidgetLayout::RightPos].tabBarShape = QTabBar::RoundedEast;
+        dockWidgetLayout.docks[QDockWidgetLayout::TopPos].tabBarShape = QTabBar::RoundedNorth;
+        dockWidgetLayout.docks[QDockWidgetLayout::BottomPos].tabBarShape = QTabBar::RoundedSouth;
+    } else {
+        dockWidgetLayout.docks[QDockWidgetLayout::LeftPos].tabBarShape = QTabBar::RoundedSouth;
+        dockWidgetLayout.docks[QDockWidgetLayout::RightPos].tabBarShape = QTabBar::RoundedSouth;
+        dockWidgetLayout.docks[QDockWidgetLayout::TopPos].tabBarShape = QTabBar::RoundedSouth;
+        dockWidgetLayout.docks[QDockWidgetLayout::BottomPos].tabBarShape = QTabBar::RoundedSouth;
+    }
+}
+
+bool QMainWindowLayout::verticalTabsEnabled() const
+{
+    return dockWidgetLayout.docks[QDockWidgetLayout::LeftPos].tabBarShape == QTabBar::RoundedWest;
+}
+
 void QMainWindowLayout::splitDockWidget(QDockWidget *after,
                                                QDockWidget *dockwidget,
                                                Qt::Orientation orientation)

@@ -609,7 +609,7 @@ Qt::ToolBarArea QMainWindow::toolBarArea(QToolBar *toolbar) const
 
 /*!
 
-    Returns whether there is a toolbar 
+    Returns whether there is a toolbar
     break before the \a toolbar.
 
     \sa  addToolBarBreak(), insertToolBarBreak()
@@ -657,6 +657,8 @@ void QMainWindow::setAnimated(bool enabled)
     However, dock nesting leads to more complex (and less intuitive) behavior when
     a dock widget is dragged over the main window, since there are more ways in which
     a dropped dock widget may be placed in the dock area.
+
+    This property should be set before any dock widgets are added to the main window.
 */
 
 bool QMainWindow::isDockNestingEnabled() const
@@ -667,6 +669,29 @@ bool QMainWindow::isDockNestingEnabled() const
 void QMainWindow::setDockNestingEnabled(bool enabled)
 {
     d_func()->layout->dockNestingEnabled = enabled;
+}
+
+/*! \property QMainWindow::verticalTabsEnabled
+    \brief whether left and right dock areas use vertical tabs
+    \since 4.2
+
+    If this property is set to false, dock areas containing tabbed dock widgets
+    display horizontal tabs, simmilar to Visual Studio.
+
+    If this property is set to true, then the right and left dock areas display vertical
+    tabs, simmilar to KDevelop.
+
+    This property should be set before any dock widgets are added to the main window.
+*/
+
+bool QMainWindow::verticalTabsEnabled() const
+{
+    return d_func()->layout->verticalTabsEnabled();
+}
+
+void QMainWindow::setVerticalTabsEnabled(bool enabled)
+{
+    d_func()->layout->setVerticalTabsEnabled(enabled);
 }
 
 static bool checkDockWidgetArea(Qt::DockWidgetArea area, const char *where)

@@ -197,6 +197,11 @@ QAction *addAction(QMenu *menu, const QString &text, QActionGroup *group, QSigna
     return result;
 }
 
+void MainWindow::_setVerticalTabsEnabled(bool enabled)
+{
+    setVerticalTabsEnabled(enabled);
+}
+
 void MainWindow::setupDockWidgets()
 {
     QAction *action = dockWidgetMenu->addAction(tr("Animation"));
@@ -208,6 +213,11 @@ void MainWindow::setupDockWidgets()
     action->setCheckable(true);
     action->setChecked(isDockNestingEnabled());
     connect(action, SIGNAL(toggled(bool)), this, SLOT(setDockNestingEnabled(bool)));
+
+    action = dockWidgetMenu->addAction(tr("Vertical tabs"));
+    action->setCheckable(true);
+    action->setChecked(verticalTabsEnabled());
+    connect(action, SIGNAL(toggled(bool)), this, SLOT(_setVerticalTabsEnabled(bool)));
 
     dockWidgetMenu->addSeparator();
 

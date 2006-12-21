@@ -1766,6 +1766,7 @@ void QDockAreaLayoutInfo::updateTabBar() const
     if (tabBar == 0) {
         that->tabBar = mainWindowLayout()->getTabBar();
         that->tabBar->setShape(static_cast<QTabBar::Shape>(tabBarShape));
+        that->tabBar->setDrawBase(true);
     }
 
     bool blocked = tabBar->blockSignals(true);
