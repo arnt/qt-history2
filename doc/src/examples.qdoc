@@ -225,6 +225,7 @@
 
     \list
     \o \l{sql/cachedtable}{Cached Table}\raisedaster
+    \o \l{sql/drilldown}{Drill Down}
     \o \l{sql/querymodel}{Query Model}
     \o \l{sql/relationaltablemodel}{Relational Table Model}
     \o \l{sql/tablemodel}{Table Model}
