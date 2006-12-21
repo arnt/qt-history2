@@ -53,14 +53,15 @@ public:
 protected:
     QDesignerFormWindowInterface *formWindow() const;
     void changeRichTextProperty(const QString &propertyName);
+    
+    QAction *createAction(const QString &text, QObject *receiver, const char *receiverSlot);
+    QAction *createSeparator();
 
 private slots:
     void changeObjectName();
-    void createDockWidget();
     void promoteToCustomWidget();
     void demoteFromCustomWidget();
     void changeToolTip();
-    void changeStatusTip();
     void changeWhatsThis();
     void changeStyleSheet();
     void createMenuBar();
@@ -68,16 +69,17 @@ private slots:
     void createStatusBar();
     void removeStatusBar();
 
-private:
+private:    
+    QString demoteText() const;
+    
     QPointer<QWidget> m_widget;
     QAction *m_separator;
     QAction *m_separator2;
+    QAction *m_separator3;
     QAction *m_changeObjectNameAction;
     QAction *m_changeToolTip;
-    QAction *m_changeStatusTip;
     QAction *m_changeWhatsThis;
     QAction *m_changeStyleSheet;
-    QAction *m_createDockWidgetAction;
     QAction *m_promoteToCustomWidgetAction;
     QAction *m_demoteFromCustomWidgetAction;
 

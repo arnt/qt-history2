@@ -20,14 +20,14 @@
 #include "widgetdatabase_p.h"
 #include "metadatabase_p.h"
 #include "qlayout_widget_p.h"
-#include "spacer_widget_p.h"
 #include "layout_p.h"
+#include "spacer_widget_p.h"
 #include "textpropertyeditor_p.h"
+
 #include <shared_enums_p.h>
 
 #include <QtDesigner/QtDesigner>
 #include <QtDesigner/QExtensionManager>
-#include <QtDesigner/QDesignerLayoutDecorationExtension>
 
 #include <QtGui/QAction>
 #include <QtGui/QWidget>
@@ -35,6 +35,7 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QStatusBar>
 #include <QtGui/QDialogButtonBox>
+#include <QtGui/QVBoxLayout>
 #include <QtGui/QPushButton>
 
 #include <QtCore/qdebug.h>
@@ -109,66 +110,50 @@ QString ObjectNameDialog::newObjectName() const
 
 namespace qdesigner_internal {
 
-QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
-    : QObject(parent),
-      m_widget(widget)
+QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent) : 
+    QObject(parent),
+    m_widget(widget),
+    m_separator(createSeparator()),
+    m_separator2(createSeparator()),
+    m_separator3(createSeparator()),
+    m_changeObjectNameAction(createAction(tr("Change objectName..."), this, SLOT(changeObjectName()))),
+    m_changeToolTip(createAction(tr("Change toolTip..."), this, SLOT(changeToolTip()))),
+    m_changeWhatsThis(createAction(tr("Change whatsThis..."), this, SLOT(changeWhatsThis()))),
+    m_changeStyleSheet(createAction(tr("Change styleSheet..."), this,  SLOT(changeStyleSheet()))),
+    m_promoteToCustomWidgetAction(createAction(tr("Promote to Custom Widget"), this, SLOT(promoteToCustomWidget()))),
+    m_demoteFromCustomWidgetAction(createAction(demoteText(), this, SLOT(demoteFromCustomWidget()))),
+    m_addMenuBar(createAction(tr("Create Menu Bar"), this, SLOT(createMenuBar()))),
+    m_addToolBar(createAction(tr("Add Tool Bar"), this, SLOT(addToolBar()))),
+    m_addStatusBar(createAction(tr("Create Status Bar"), this, SLOT(createStatusBar()))),
+    m_removeStatusBar(createAction(tr("Remove Status Bar"), this, SLOT(removeStatusBar())))
 {
     Q_ASSERT(qobject_cast<QDesignerFormWindowInterface*>(widget) == 0);
 
-    m_separator = new QAction(this);
-    m_separator->setSeparator(true);
-
-    m_separator2 = new QAction(this);
-    m_separator2->setSeparator(true);
-
-
-    m_changeObjectNameAction = new QAction(tr("Change objectName..."), this);
-    connect(m_changeObjectNameAction, SIGNAL(triggered()), this, SLOT(changeObjectName()));
-
-    m_changeStatusTip = new QAction(tr("Change statusTip..."), this);
-    connect(m_changeStatusTip, SIGNAL(triggered()), this, SLOT(changeStatusTip()));
-
-    m_changeToolTip = new QAction(tr("Change toolTip..."), this);
-    connect(m_changeToolTip, SIGNAL(triggered()), this, SLOT(changeToolTip()));
-
-    m_changeWhatsThis = new QAction(tr("Change whatsThis..."), this);
-    connect(m_changeWhatsThis, SIGNAL(triggered()), this, SLOT(changeWhatsThis()));
-
-    m_changeStyleSheet = new QAction(tr("Change styleSheet..."), this);
-    connect(m_changeStyleSheet, SIGNAL(triggered()), this, SLOT(changeStyleSheet()));
-
-    m_addMenuBar = new QAction(tr("Create Menu Bar"), this);
-    connect(m_addMenuBar, SIGNAL(triggered()), this, SLOT(createMenuBar()));
-
-    m_addToolBar = new QAction(tr("Add Tool Bar"), this);
-    connect(m_addToolBar, SIGNAL(triggered()), this, SLOT(addToolBar()));
-
-    m_addStatusBar = new QAction(tr("Create Status Bar"), this);
-    connect(m_addStatusBar, SIGNAL(triggered()), this, SLOT(createStatusBar()));
-
-    m_removeStatusBar = new QAction(tr("Remove Status Bar"), this);
-    connect(m_removeStatusBar, SIGNAL(triggered()), this, SLOT(removeStatusBar()));
-
-    m_createDockWidgetAction = new QAction(tr("Create Dock Window"), this);
-    connect(m_createDockWidgetAction, SIGNAL(triggered()), this, SLOT(createDockWidget()));
-
-    m_promoteToCustomWidgetAction = new QAction(tr("Promote to Custom Widget"), this);
     m_promoteToCustomWidgetAction->setObjectName(QLatin1String("__qt__promoteToCustomWidgetAction"));
-    connect(m_promoteToCustomWidgetAction, SIGNAL(triggered()), this, SLOT(promoteToCustomWidget()));
-
-    QString demote_string = tr("Demote from Custom Widget");
+}
     
-    const QString extends = promotedExtends(formWindow()->core(),widget);
-    if (!extends.isEmpty()) {
-        demote_string = tr("Demote to ");
-        demote_string += extends;
-    }
-    m_demoteFromCustomWidgetAction = new QAction(demote_string, this);
-    connect(m_demoteFromCustomWidgetAction, SIGNAL(triggered()), this, SLOT(demoteFromCustomWidget()));
+QString QDesignerTaskMenu::demoteText() const
+{
+    QString rc = tr("Demote to ");
+    rc +=  promotedExtends(formWindow()->core(), m_widget);
+    return rc;
 }
 
 QDesignerTaskMenu::~QDesignerTaskMenu()
 {
+}
+    
+QAction *QDesignerTaskMenu::createSeparator() {
+    QAction *rc = new QAction(this);
+    rc->setSeparator(true);
+    return rc;
+}
+    
+QAction *QDesignerTaskMenu::createAction(const QString &text, QObject *receiver, const char *receiverSlot)
+{
+    QAction *rc = new QAction(text, this);
+    connect(rc, SIGNAL(triggered()), receiver, receiverSlot);
+    return rc;        
 }
 
 QWidget *QDesignerTaskMenu::widget() const
@@ -264,17 +249,17 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
                 actions.append(m_addStatusBar);
             else
                 actions.append(m_removeStatusBar);
-            actions.append(m_separator2);
+            actions.append(m_separator);
         }
     }
     actions.append(m_changeObjectNameAction);
-    actions.append(m_separator);
+    actions.append(m_separator2);
     actions.append(m_changeToolTip);
     actions.append(m_changeWhatsThis);
     actions.append(m_changeStyleSheet);
 
     if (!isMainContainer) {
-        actions.append(m_separator);
+        actions.append(m_separator3);
         if (isPromoted(formWindow->core(),m_widget))
             actions.append(m_demoteFromCustomWidgetAction);
         else
@@ -301,20 +286,6 @@ void QDesignerTaskMenu::changeObjectName()
     }
 }
 
-void QDesignerTaskMenu::createDockWidget()
-{
-    if (QDesignerFormWindowInterface *fw = formWindow()) {
-        QMainWindow *mw = qobject_cast<QMainWindow*>(fw->mainContainer());
-        if (!mw) {
-            // ### warning message
-            return;
-        }
-
-        AddDockWidgetCommand *cmd = new AddDockWidgetCommand(fw);
-        cmd->init(mw);
-        fw->commandHistory()->push(cmd);
-    }
-}
 
 QDesignerTaskMenuFactory::QDesignerTaskMenuFactory(QExtensionManager *extensionManager)
     : QExtensionFactory(extensionManager)
@@ -409,11 +380,6 @@ void QDesignerTaskMenu::changeRichTextProperty(const QString &propertyName)
 void QDesignerTaskMenu::changeToolTip()
 {
     changeRichTextProperty(QLatin1String("toolTip"));
-}
-
-void QDesignerTaskMenu::changeStatusTip()
-{
-    changeRichTextProperty(QLatin1String("statusTip"));
 }
 
 void QDesignerTaskMenu::changeWhatsThis()
