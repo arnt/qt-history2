@@ -431,7 +431,7 @@ QString Q3SqlCursor::toString(const QString& prefix, const QString& sep) const
         if (isGenerated(i)) {
             if(comma)
                 pflist += sep + QLatin1Char(' ');
-            pflist += pfix + fname;
+            pflist += pfix + driver()->escapeIdentifier(fname, QSqlDriver::FieldName);
             comma = true;
         }
     }
@@ -1025,7 +1025,7 @@ int Q3SqlCursor::insert(bool invalidate)
                     fList += QLatin1Char(',');
                     vList += QLatin1Char(',');
                 }
-                fList += f.name();
+                fList += driver()->escapeIdentifier(f.name(), QSqlDriver::FieldName);
                 vList += (oraStyle == true) ? QLatin1String(":f") + QString::number(cnt) : QString(QLatin1Char('?'));
                 cnt++;
                 comma = true;
@@ -1048,7 +1048,7 @@ int Q3SqlCursor::insert(bool invalidate)
                     fList += QLatin1Char(',');
                     vList += QLatin1Char(',');
                 }
-                fList += f.name();
+                fList += driver()->escapeIdentifier(f.name(), QSqlDriver::FieldName);
                 vList += driver()->formatValue(&f);
                 comma = true;
             }

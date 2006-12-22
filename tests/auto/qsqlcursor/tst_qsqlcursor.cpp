@@ -64,6 +64,8 @@ private slots:
     void insertSpecial();
     void updateNoPK_data() { generic_data(); }
     void updateNoPK();
+    void insertFieldNameContainsWS_data() { generic_data(); }
+    void insertFieldNameContainsWS(); // For task 117996
 
 private:
     void generic_data();
@@ -677,7 +679,7 @@ void tst_Q3SqlCursor::updateNoPK()
     CHECK_DATABASE( db );
     
     QSqlQuery q(QString::null, db);
-    q.exec("create table " + qTableName( "qtestPK" ) + " (id int null, name varchar(20) null, num numeric null)");
+    QVERIFY2(q.exec("create table " + qTableName( "qtestPK" ) + " (id int, name varchar(20), num numeric)"), q.lastError().text());
     
     Q3SqlCursor cur(qTableName("qtestPK"), TRUE, db);
     QSqlRecord* rec = cur.primeInsert();
@@ -688,9 +690,20 @@ void tst_Q3SqlCursor::updateNoPK()
     QVERIFY2(cur.insert() == 1,
 	    tst_Databases::printError(cur.lastError()));
     if (!db.driver()->hasFeature(QSqlDriver::PreparedQueries)) {
-	QCOMPARE(cur.lastQuery(), QString::fromLatin1("insert into " + qTableName("qtestPK") +
-						     " (id,name,num) values (NULL,NULL,NULL)"));
+
+        // Only QPSQL, QODBC and QOCI drivers currently use escape identifiers for column names 
+        if (db.driverName().startsWith("QPSQL") || 
+                db.driverName().startsWith("QODBC") ||  
+                db.driverName().startsWith("QOCI")) {
+            QCOMPARE(cur.lastQuery(), QString::fromLatin1("insert into " + qTableName("qtestPK") +
+						         " (\"id\",\"name\",\"num\")"
+                                                         " values (NULL,NULL,NULL)"));
+        } else {
+	    QCOMPARE(cur.lastQuery(), QString::fromLatin1("insert into " + qTableName("qtestPK") +
+						         " (id,name,num) values (NULL,NULL,NULL)"));
+        }
     }
+
     rec = cur.primeUpdate();
     Q_ASSERT(rec);
     rec->setValue(0, 1);
@@ -714,6 +727,51 @@ void tst_Q3SqlCursor::updateNoPK()
     QVERIFY(cur.isNull("num")); 
 }
 
+// For task 117996: Q3SqlCursor::insert() should not fail even if field names 
+// contain white spaces.
+void tst_Q3SqlCursor::insertFieldNameContainsWS() {
+
+    QFETCH( QString, dbName );
+    QSqlDatabase db = QSqlDatabase::database( dbName );
+    CHECK_DATABASE( db );
+
+    // The bugfix (and this test) depends on QSqlDriver::escapeIdentifier(...) 
+    // to be implemented, which is currently only the case for the 
+    // QPSQL, QODBC and QOCI drivers.
+    if (!db.driverName().startsWith("QPSQL") && 
+            !db.driverName().startsWith("QODBC") &&  
+            !db.driverName().startsWith("QOCI")) {
+       QSKIP("PSQL, QODBC or QOCI specific test", SkipSingle);
+       return;
+    }
+
+    QString tableName = qTableName("qtestws");
+
+    QSqlQuery q(QString::null, db);
+    q.exec(QString("DROP TABLE %1").arg(tableName));
+    QVERIFY2(q.exec(QString("CREATE TABLE %1 (id int, \"first Name\" varchar(20), "
+        "lastName varchar(20))").arg(tableName)), q.lastError().text());
+
+    Q3SqlCursor cur(QString("%1").arg(tableName), true, db);
+    cur.select();
+
+    QSqlRecord *r = cur.primeInsert();
+    r->setValue("id", 1);
+    r->setValue("firsT NaMe", "Kong");
+    r->setValue("lastNaMe", "Harald");
+
+    QVERIFY(cur.insert() == 1);
+
+    cur.select();
+    cur.next();
+
+    QVERIFY(cur.value(0) == 1);
+    QCOMPARE(cur.value(1).toString(), QString("Kong"));
+    QCOMPARE(cur.value(2).toString(), QString("Harald"));
+    
+    q.exec(QString("DROP TABLE %1").arg(tableName));
+
+}
 
 QTEST_MAIN(tst_Q3SqlCursor)
 #include "tst_qsqlcursor.moc"
