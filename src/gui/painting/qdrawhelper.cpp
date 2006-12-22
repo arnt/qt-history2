@@ -460,9 +460,9 @@ static const uint * QT_FASTCALL fetchTransformedBilinear_generic(uint *buffer, c
     bool affine = !data->m13 && !data->m23;
 
     int fx = int((data->m21 * (y + 0.5)
-                  + data->m11 * (x + 0.5) + data->dx) * fixed_scale);
+                  + data->m11 * (x + 0.5) + data->dx) * fixed_scale) - half_point;
     int fy = int((data->m22 * (y + 0.5)
-                  + data->m12 * (x + 0.5) + data->dy) * fixed_scale);
+                  + data->m12 * (x + 0.5) + data->dy) * fixed_scale) - half_point;
 
     const uint *end = buffer + length;
     uint *b = buffer;
@@ -561,9 +561,9 @@ static const uint * QT_FASTCALL fetchTransformedBilinearTiled_generic(uint *buff
     int fdy = (int)(data->m12 * fixed_scale);
 
     int fx = int((data->m21 * (y + 0.5)
-                  + data->m11 * (x + 0.5) + data->dx) * fixed_scale);
+                  + data->m11 * (x + 0.5) + data->dx) * fixed_scale) - half_point;
     int fy = int((data->m22 * (y + 0.5)
-                  + data->m12 * (x + 0.5) + data->dy) * fixed_scale);
+                  + data->m12 * (x + 0.5) + data->dy) * fixed_scale) - half_point;
 
     const uint *end = buffer + length;
     uint *b = buffer;
