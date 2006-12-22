@@ -22,6 +22,8 @@ InformationWindow::InformationWindow(int id, QSqlRelationalTableModel *offices,
     QLabel *descriptionLabel = new QLabel(tr("Description: "));
     QLabel *imageFileLabel = new QLabel(tr("Image file: "));
 
+    createButtons();
+
     locationText = new QLabel;
     countryText = new QLabel;
     descriptionEditor = new QTextEdit;
@@ -29,13 +31,6 @@ InformationWindow::InformationWindow(int id, QSqlRelationalTableModel *offices,
     imageFileEditor = new QComboBox;
     imageFileEditor->setModel(offices->relationModel(1));
     imageFileEditor->setModelColumn(offices->relationModel(1)->fieldIndex("file"));
-
-    connect(descriptionEditor, SIGNAL(textChanged()),
-            this, SLOT(enableButtons()));
-    connect(imageFileEditor, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(enableButtons()));
-
-    createButtons();
 
     mapper = new QDataWidgetMapper(this);
     mapper->setModel(offices);
@@ -47,8 +42,10 @@ InformationWindow::InformationWindow(int id, QSqlRelationalTableModel *offices,
     mapper->addMapping(descriptionEditor, 4);
     mapper->setCurrentIndex(id);
 
-    locationId = id;
-    storedImage = imageFileEditor->currentText();
+    connect(descriptionEditor, SIGNAL(textChanged()),
+            this, SLOT(enableButtons()));
+    connect(imageFileEditor, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(enableButtons()));
 
     QGridLayout *layout = new QGridLayout;
     layout->addWidget(locationLabel, 0, 0, Qt::AlignLeft | Qt::AlignTop);
@@ -62,12 +59,39 @@ InformationWindow::InformationWindow(int id, QSqlRelationalTableModel *offices,
     layout->addWidget(buttonBox, 4, 0, 1, 2);
     setLayout(layout);
 
+    locationId = id;
+    displayedImage = imageFileEditor->currentText();
+
     setWindowFlags(Qt::Window);
-
     enableButtons(false);
-
     setWindowTitle(tr("Trolltech Office: %1").arg(locationText->text()));
     resize(320, sizeHint().height());
+}
+
+int InformationWindow::id()
+{
+    return locationId;
+}
+
+void InformationWindow::revert()
+{
+    mapper->revert();
+    enableButtons(false);
+}
+
+void InformationWindow::submit()
+{
+    QString newImage(imageFileEditor->currentText());
+
+    if (displayedImage != newImage) {
+        displayedImage = newImage;
+        emit imageChanged(locationId, newImage);
+    }
+
+    mapper->submit();
+    mapper->setCurrentIndex(locationId);
+
+    enableButtons(false);
 }
 
 void InformationWindow::createButtons()
@@ -86,32 +110,6 @@ void InformationWindow::createButtons()
     buttonBox->addButton(submitButton, QDialogButtonBox::ResetRole);
     buttonBox->addButton(revertButton, QDialogButtonBox::ResetRole);
     buttonBox->addButton(closeButton, QDialogButtonBox::RejectRole);
-}
-
-int InformationWindow::id()
-{
-    return locationId;
-}
-
-void InformationWindow::revert()
-{
-    mapper->revert();
-    enableButtons(false);
-}
-
-void InformationWindow::submit()
-{
-    QString newImage(imageFileEditor->currentText());
-
-    if (storedImage != newImage) {
-        storedImage = newImage;
-        emit imageChanged(locationId, newImage);
-    }
-
-    mapper->submit();
-    mapper->setCurrentIndex(locationId);
-
-    enableButtons(false);
 }
 
 void InformationWindow::enableButtons(bool enable)

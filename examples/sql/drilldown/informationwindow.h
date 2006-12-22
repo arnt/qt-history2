@@ -39,7 +39,7 @@ private:
     void createButtons();
 
     int locationId;
-    QString storedImage;
+    QString displayedImage;
 
     QComboBox *imageFileEditor;
     QLabel *locationText;

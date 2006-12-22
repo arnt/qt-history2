@@ -52,6 +52,20 @@ void ImageItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
     QGraphicsPixmapItem::hoverLeaveEvent(event);
 }
 
+void ImageItem::adjust()
+{
+    adjustedMatrix.reset();
+    adjustedMatrix.scale(150/ boundingRect().width(),
+                         120/ boundingRect().height());
+
+    setMatrix(adjustedMatrix);
+}
+
+int ImageItem::id()
+{
+    return recordId;
+}
+
 void ImageItem::setFrame(int frame)
 {
     setMatrix(adjustedMatrix);
@@ -67,17 +81,4 @@ void ImageItem::updateZValue()
     setZValue(z);
 }
 
-void ImageItem::adjust()
-{
-    adjustedMatrix.reset();
-    adjustedMatrix.scale(150/ boundingRect().width(),
-                         120/ boundingRect().height());
-
-    setMatrix(adjustedMatrix);
-}
-
-int ImageItem::id()
-{
-    return recordId;
-}
 
