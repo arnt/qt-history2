@@ -18,7 +18,7 @@ HEADERS += \
         widgets/qdialogbuttonbox.h \
         widgets/qdockwidget.h \
         widgets/qdockwidget_p.h \
-        widgets/qdockwidgetlayout_p.h \
+        widgets/qdockarealayout_p.h \
         widgets/qfontcombobox.h \
         widgets/qframe.h \
         widgets/qframe_p.h \
@@ -80,7 +80,7 @@ SOURCES += \
         widgets/qdial.cpp \
         widgets/qdialogbuttonbox.cpp \
         widgets/qdockwidget.cpp \
-        widgets/qdockwidgetlayout.cpp \
+        widgets/qdockarealayout.cpp \
         widgets/qeffects.cpp \
         widgets/qfontcombobox.cpp \
         widgets/qframe.cpp \

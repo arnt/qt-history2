@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QDYNAMICDOCKWIDGETLAYOUT_P_H
-#define QDYNAMICDOCKWIDGETLAYOUT_P_H
+#ifndef QDOCKAREALAYOUT_P_H
+#define QDOCKAREALAYOUT_P_H
 
 //
 //  W A R N I N G
@@ -198,7 +198,7 @@ static inline int pick_perp(Qt::Orientation o, const QSize &s)
 { return o == Qt::Vertical ? s.width() : s.height(); }
 
 class QWidgetItem;
-class Q_AUTOTEST_EXPORT QDockWidgetLayout
+class Q_AUTOTEST_EXPORT QDockAreaLayout
 {
 public:
     enum DockPos {
@@ -216,7 +216,7 @@ public:
     QWidgetItem *centralWidgetItem;
     QMainWindow *mainWindow;
     QRect centralWidgetRect;
-    QDockWidgetLayout(QMainWindow *win);
+    QDockAreaLayout(QMainWindow *win);
     QDockAreaLayoutInfo docks[4];
     int sep; // separator extent
 
@@ -280,4 +280,4 @@ public:
 
 #endif // QT_NO_MAINWINDOW
 
-#endif // QDYNAMICDOCKWIDGETLAYOUT_P_H
+#endif // QDOCKAREALAYOUT_P_H

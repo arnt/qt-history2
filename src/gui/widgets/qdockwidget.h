@@ -22,7 +22,7 @@ QT_MODULE(Gui)
 
 #ifndef QT_NO_DOCKWIDGET
 
-class QDockWidgetLayout;
+class QDockAreaLayout;
 class QDockWidgetPrivate;
 class QMainWindow;
 class QStyleOptionDockWidget;
@@ -92,10 +92,10 @@ private:
     Q_DISABLE_COPY(QDockWidget)
     Q_PRIVATE_SLOT(d_func(), void _q_toggleView(bool))
     Q_PRIVATE_SLOT(d_func(), void _q_toggleTopLevel())
-    friend class QDockWidgetLayout;
+    friend class QDockAreaLayout;
     friend class QDockWidgetItem;
     friend class QMainWindowLayout;
-    friend class QDWLayout;
+    friend class QDockWidgetLayout;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QDockWidget::DockWidgetFeatures)

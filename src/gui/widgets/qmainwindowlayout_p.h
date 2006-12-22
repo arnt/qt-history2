@@ -34,7 +34,7 @@
 #include "QtCore/qset.h"
 #include "private/qlayoutengine_p.h"
 
-#include "qdockwidgetlayout_p.h"
+#include "qdockarealayout_p.h"
 
 class QToolBar;
 class QWidgetAnimator;
@@ -115,9 +115,9 @@ public:
     QWidgetAnimator *widgetAnimator;
     bool dockNestingEnabled;
     bool animationEnabled;
-    QDockWidgetLayout dockWidgetLayout, savedDockWidgetLayout;
+    QDockAreaLayout dockAreaLayout, savedDockAreaLayout;
 
-    void applyDockWidgetLayout(QDockWidgetLayout &newLayout, bool animate = true);
+    void applyDockAreaLayout(QDockAreaLayout &newLayout, bool animate = true);
 
     QWidgetItem *unplug(QDockWidget *dockWidget);
     QList<int> hover(QWidgetItem *dockWidgetItem, const QPoint &mousePos);

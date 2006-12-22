@@ -888,7 +888,7 @@ bool QMainWindow::restoreState(const QByteArray &state, int version)
 #if !defined(QT_NO_DOCKWIDGET) && !defined(QT_NO_CURSOR)
 QCursor QMainWindowPrivate::separatorCursor(const QList<int> &path) const
 {
-    QDockAreaLayoutInfo *info = layout->dockWidgetLayout.info(path);
+    QDockAreaLayoutInfo *info = layout->dockAreaLayout.info(path);
     Q_ASSERT(info != 0);
     if (path.size() == 1) {
         return info->o == Qt::Horizontal
@@ -907,23 +907,23 @@ void QMainWindowPrivate::adjustCursor(const QPoint &pos)
 
     if (pos == QPoint(0, 0)) {
         if (!hoverSeparator.isEmpty())
-            q->update(layout->dockWidgetLayout.separatorRect(hoverSeparator));
+            q->update(layout->dockAreaLayout.separatorRect(hoverSeparator));
         hoverSeparator.clear();
         q->unsetCursor();
     } else {
         QList<int> pathToSeparator
-            = layout->dockWidgetLayout.findSeparator(pos);
+            = layout->dockAreaLayout.findSeparator(pos);
 
         if (pathToSeparator != hoverSeparator) {
             if (!hoverSeparator.isEmpty())
-                q->update(layout->dockWidgetLayout.separatorRect(hoverSeparator));
+                q->update(layout->dockAreaLayout.separatorRect(hoverSeparator));
 
             hoverSeparator = pathToSeparator;
 
             if (hoverSeparator.isEmpty()) {
                 q->unsetCursor();
             } else {
-                q->update(layout->dockWidgetLayout.separatorRect(hoverSeparator));
+                q->update(layout->dockAreaLayout.separatorRect(hoverSeparator));
                 QCursor cursor = separatorCursor(hoverSeparator);
                 q->setCursor(cursor);
             }
@@ -942,7 +942,7 @@ bool QMainWindow::event(QEvent *event)
         case QEvent::Paint: {
             QPainter p(this);
             QRegion r = static_cast<QPaintEvent*>(event)->region();
-            d->layout->dockWidgetLayout.paintSeparators(&p, this, r, d->hoverPos);
+            d->layout->dockAreaLayout.paintSeparators(&p, this, r, d->hoverPos);
             break;
         }
 
@@ -1042,7 +1042,7 @@ bool QMainWindow::isSeparator(const QPoint &pos) const
 {
     Q_D(const QMainWindow);
 #ifndef QT_NO_DOCKWIDGET
-    return !d->layout->dockWidgetLayout.findSeparator(pos).isEmpty();
+    return !d->layout->dockAreaLayout.findSeparator(pos).isEmpty();
 #else
     return false;
 #endif

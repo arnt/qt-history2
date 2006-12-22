@@ -95,10 +95,10 @@ public:
     void plug(const QRect &rect);
 };
 
-class QDWLayout : public QLayout
+class QDockWidgetLayout : public QLayout
 {
 public:
-    QDWLayout(QWidget *parent = 0);
+    QDockWidgetLayout(QWidget *parent = 0);
     void addItem(QLayoutItem *item);
     QLayoutItem *itemAt(int index) const;
     QLayoutItem *takeAt(int index);

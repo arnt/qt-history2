@@ -29,7 +29,6 @@
 #include <private/qwidgetresizehandler_p.h>
 
 #include "qdockwidget_p.h"
-#include "qdockwidgetlayout_p.h"
 #include "qmainwindowlayout_p.h"
 #ifdef Q_WS_MAC
 #include <qmacstyle_mac.h>
@@ -158,16 +157,16 @@ void QDockWidgetTitleButton::paintEvent(QPaintEvent *)
 }
 
 /******************************************************************************
-** QDWLayout
+** QDockWidgetLayout
 */
 
-void QDWLayout::addItem(QLayoutItem*)
+void QDockWidgetLayout::addItem(QLayoutItem*)
 {
-    qWarning() << "QDWLayout::addItem(): please use QDWLayout::setWidget()";
+    qWarning() << "QDockWidgetLayout::addItem(): please use QDockWidgetLayout::setWidget()";
     return;
 }
 
-QLayoutItem *QDWLayout::itemAt(int index) const
+QLayoutItem *QDockWidgetLayout::itemAt(int index) const
 {
     int cnt = 0;
     foreach (QLayoutItem *item, item_list) {
@@ -179,7 +178,7 @@ QLayoutItem *QDWLayout::itemAt(int index) const
     return 0;
 }
 
-QLayoutItem *QDWLayout::takeAt(int index)
+QLayoutItem *QDockWidgetLayout::takeAt(int index)
 {
     for (int i = 0; i < item_list.count(); ++i) {
         QLayoutItem *item = item_list.at(i);
@@ -193,7 +192,7 @@ QLayoutItem *QDWLayout::takeAt(int index)
     return 0;
 }
 
-int QDWLayout::count() const
+int QDockWidgetLayout::count() const
 {
     int result = 0;
     foreach (QLayoutItem *item, item_list) {
@@ -203,7 +202,7 @@ int QDWLayout::count() const
     return result;
 }
 
-QSize QDWLayout::sizeFromContent(const QSize &content, bool floating) const
+QSize QDockWidgetLayout::sizeFromContent(const QSize &content, bool floating) const
 {
     QSize result = content;
 
@@ -233,7 +232,7 @@ QSize QDWLayout::sizeFromContent(const QSize &content, bool floating) const
     return result;
 }
 
-QSize QDWLayout::sizeHint() const
+QSize QDockWidgetLayout::sizeHint() const
 {
     QDockWidget *w = qobject_cast<QDockWidget*>(parentWidget());
 
@@ -244,7 +243,7 @@ QSize QDWLayout::sizeHint() const
     return sizeFromContent(content, w->isFloating());
 }
 
-QSize QDWLayout::minimumSize() const
+QSize QDockWidgetLayout::minimumSize() const
 {
     QDockWidget *w = qobject_cast<QDockWidget*>(parentWidget());
 
@@ -255,18 +254,18 @@ QSize QDWLayout::minimumSize() const
     return sizeFromContent(content, w->isFloating());
 }
 
-QDWLayout::QDWLayout(QWidget *parent)
+QDockWidgetLayout::QDockWidgetLayout(QWidget *parent)
     : QLayout(parent), item_list(RoleCount, 0)
 {
 }
 
-QWidget *QDWLayout::widget(Role r)
+QWidget *QDockWidgetLayout::widget(Role r)
 {
     QLayoutItem *item = item_list.at(r);
     return item == 0 ? 0 : item->widget();
 }
 
-void QDWLayout::setWidget(Role r, QWidget *w)
+void QDockWidgetLayout::setWidget(Role r, QWidget *w)
 {
     QWidget *old = widget(r);
     if (old != 0)
@@ -280,7 +279,7 @@ void QDWLayout::setWidget(Role r, QWidget *w)
     }
 }
 
-int QDWLayout::minimumTitleWidth() const
+int QDockWidgetLayout::minimumTitleWidth() const
 {
     QDockWidget *q = qobject_cast<QDockWidget*>(parentWidget());
 
@@ -300,7 +299,7 @@ int QDWLayout::minimumTitleWidth() const
             + 2*fw + 3*mw;
 }
 
-int QDWLayout::titleHeight() const
+int QDockWidgetLayout::titleHeight() const
 {
     QDockWidget *q = qobject_cast<QDockWidget*>(parentWidget());
 
@@ -327,7 +326,7 @@ int QDWLayout::titleHeight() const
     return qMax(buttonHeight + 2, titleFontMetrics.lineSpacing() + 2*mw);
 }
 
-void QDWLayout::setGeometry(const QRect &geometry)
+void QDockWidgetLayout::setGeometry(const QRect &geometry)
 {
     QDockWidget *q = qobject_cast<QDockWidget*>(parentWidget());
 
@@ -386,15 +385,15 @@ void QDockWidgetPrivate::init()
 {
     Q_Q(QDockWidget);
 
-    QDWLayout *layout = new QDWLayout(q);
+    QDockWidgetLayout *layout = new QDockWidgetLayout(q);
 
     QAbstractButton *button = new QDockWidgetTitleButton(q);
     QObject::connect(button, SIGNAL(clicked()), q, SLOT(_q_toggleTopLevel()));
-    layout->setWidget(QDWLayout::FloatButton, button);
+    layout->setWidget(QDockWidgetLayout::FloatButton, button);
 
     button = new QDockWidgetTitleButton(q);
     QObject::connect(button, SIGNAL(clicked()), q, SLOT(close()));
-    layout->setWidget(QDWLayout::CloseButton, button);
+    layout->setWidget(QDockWidgetLayout::CloseButton, button);
 
 #ifdef Q_WS_X11
     resizer = new QWidgetResizeHandler(q);
@@ -424,7 +423,7 @@ void QDockWidget::initStyleOption(QStyleOptionDockWidget *option) const
 {
     if (!option)
         return;
-    QDWLayout *dwlayout = qobject_cast<QDWLayout*>(layout());
+    QDockWidgetLayout *dwlayout = qobject_cast<QDockWidgetLayout*>(layout());
 
     option->initFrom(this);
     option->rect = dwlayout->titleArea();
@@ -448,7 +447,7 @@ void QDockWidgetPrivate::_q_toggleView(bool b)
 void QDockWidgetPrivate::updateButtons()
 {
     Q_Q(QDockWidget);
-    QDWLayout *layout = qobject_cast<QDWLayout*>(q->layout());
+    QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(q->layout());
 
     QStyleOptionDockWidget opt;
     q->initStyleOption(&opt);
@@ -461,12 +460,12 @@ void QDockWidgetPrivate::updateButtons()
 #endif
 
     QAbstractButton *button
-        = qobject_cast<QAbstractButton*>(layout->widget(QDWLayout::FloatButton));
+        = qobject_cast<QAbstractButton*>(layout->widget(QDockWidgetLayout::FloatButton));
     button->setIcon(q->style()->standardIcon(QStyle::SP_TitleBarNormalButton));
     button->setVisible(canFloat && !nonX11Floating);
 
     button
-        = qobject_cast <QAbstractButton*>(layout->widget(QDWLayout::CloseButton));
+        = qobject_cast <QAbstractButton*>(layout->widget(QDockWidgetLayout::CloseButton));
     button->setIcon(q->style()->standardIcon(QStyle::SP_TitleBarCloseButton));
     button->setVisible(canClose && !nonX11Floating);
 
@@ -478,7 +477,7 @@ void QDockWidgetPrivate::updateButtons()
 void QDockWidgetPrivate::_q_toggleTopLevel()
 {
     Q_Q(QDockWidget);
-    QDWLayout *layout = qobject_cast<QDWLayout*>(q->layout());
+    QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(q->layout());
     QRect titleArea = layout->titleArea();
 
     QPoint p = q->mapToGlobal(QPoint(titleArea.height(), titleArea.height()));
@@ -584,7 +583,7 @@ void QDockWidgetPrivate::mousePressEvent(QMouseEvent *event)
     if (!q->isFloating()) {
 #endif
 
-        QDWLayout *layout = qobject_cast<QDWLayout*>(q->layout());
+        QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(q->layout());
         QRect titleArea = layout->titleArea();
 
         if (event->button() != Qt::LeftButton)
@@ -621,7 +620,7 @@ void QDockWidgetPrivate::mouseDoubleClickEvent(QMouseEvent *event)
     if (!q->isFloating()) {
 #endif
 
-        QDWLayout *layout = qobject_cast<QDWLayout*>(q->layout());
+        QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(q->layout());
         QRect titleArea = layout->titleArea();
 
         if (event->button() != Qt::LeftButton)
@@ -776,7 +775,7 @@ void QDockWidgetPrivate::unplug(const QRect &rect)
     QRect r = rect;
     r.moveTopLeft(q->mapToGlobal(QPoint(0, 0)));
 #ifndef Q_WS_X11
-    QDWLayout *layout = qobject_cast<QDWLayout*>(q->layout());
+    QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(q->layout());
     r.adjust(0, layout->titleHeight(), 0, 0);
 #endif
     setWindowState(true, true, r);
@@ -929,8 +928,8 @@ QDockWidget::~QDockWidget()
 */
 QWidget *QDockWidget::widget() const
 {
-    QDWLayout *layout = qobject_cast<QDWLayout*>(this->layout());
-    return layout->widget(QDWLayout::Content);
+    QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(this->layout());
+    return layout->widget(QDockWidgetLayout::Content);
 }
 
 /*!
@@ -940,8 +939,8 @@ QWidget *QDockWidget::widget() const
 */
 void QDockWidget::setWidget(QWidget *widget)
 {
-    QDWLayout *layout = qobject_cast<QDWLayout*>(this->layout());
-    layout->setWidget(QDWLayout::Content, widget);
+    QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(this->layout());
+    layout->setWidget(QDockWidgetLayout::Content, widget);
 }
 
 /*!
@@ -1022,7 +1021,7 @@ Qt::DockWidgetAreas QDockWidget::allowedAreas() const
 void QDockWidget::changeEvent(QEvent *event)
 {
     Q_D(QDockWidget);
-    QDWLayout *layout = qobject_cast<QDWLayout*>(this->layout());
+    QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(this->layout());
 
     switch (event->type()) {
     case QEvent::WindowTitleChange:
