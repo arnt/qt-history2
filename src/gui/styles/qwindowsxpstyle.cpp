@@ -3068,6 +3068,63 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
         }
         break;
 
+#ifndef QT_NO_WORKSPACE
+    case CC_MDIControls:
+        {
+            QRect buttonRect;
+            XPThemeData theme(widget, p, QLatin1String("WINDOW"), WP_MDICLOSEBUTTON, CBS_NORMAL);
+                    
+            if (option->subControls & SC_MDICloseButton) {
+                buttonRect = subControlRect(CC_MDIControls, option, SC_MDICloseButton, widget);
+                if (theme.isValid()) {
+                    theme.partId = WP_MDICLOSEBUTTON;
+                    theme.rect = buttonRect;
+                    if (!(flags & State_Enabled))
+                        theme.stateId = CBS_INACTIVE;
+                    else if (flags & State_Sunken && (option->activeSubControls & SC_MDICloseButton))
+                        theme.stateId = CBS_PUSHED;
+                    else if (flags & State_MouseOver && (option->activeSubControls & SC_MDICloseButton))
+                        theme.stateId = CBS_HOT;
+                    else
+                        theme.stateId = CBS_NORMAL;
+                    d->drawBackground(theme);
+                }
+            } 
+            if (option->subControls & SC_MDINormalButton) {
+                buttonRect = subControlRect(CC_MDIControls, option, SC_MDINormalButton, widget);
+                if (theme.isValid()) {
+                    theme.partId = WP_MDIRESTOREBUTTON;
+                    theme.rect = buttonRect;
+                    if (!(flags & State_Enabled))
+                        theme.stateId = CBS_INACTIVE;
+                    else if (flags & State_Sunken && (option->activeSubControls & SC_MDINormalButton))
+                        theme.stateId = CBS_PUSHED;
+                    else if (flags & State_MouseOver && (option->activeSubControls & SC_MDINormalButton))
+                        theme.stateId = CBS_HOT;
+                    else
+                        theme.stateId = CBS_NORMAL;
+                    d->drawBackground(theme);
+                }
+            }
+            if (option->subControls & QStyle::SC_MDIMinButton) {
+                buttonRect = subControlRect(CC_MDIControls, option, SC_MDIMinButton, widget);
+                if (theme.isValid()) {
+                    theme.partId = WP_MDIMINBUTTON;
+                    theme.rect = buttonRect;
+                    if (!(flags & State_Enabled))
+                        theme.stateId = CBS_INACTIVE;
+                    else if (flags & State_Sunken && (option->activeSubControls & SC_MDIMinButton))
+                        theme.stateId = CBS_PUSHED;
+                    else if (flags & State_MouseOver && (option->activeSubControls & SC_MDIMinButton))
+                        theme.stateId = CBS_HOT;
+                    else
+                        theme.stateId = CBS_NORMAL;
+                    d->drawBackground(theme);
+                }
+            }
+        }
+        break;
+#endif //QT_NO_WORKSPACE
     default:
         QWindowsStyle::drawComplexControl(cc, option, p, widget);
         break;
@@ -3424,6 +3481,27 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
             }
         }
         break;
+#ifndef QT_NO_WORKSPACE
+    case CC_MDIControls:
+    {
+        int buttonWidth = option->rect.width()/3;
+        int offset = 0;
+        switch (sc) {
+        case SC_MDICloseButton:
+            offset += buttonWidth;   
+            //FALL THROUGH
+        case SC_MDINormalButton:
+            offset += buttonWidth;
+            //FALL THROUGH
+        case SC_MDIMinButton:
+            rect = QRect(offset, 0, buttonWidth, option->rect.height());
+            break;
+        default:
+            break;
+        }
+        break;
+    }
+#endif // QT_NO_WORKSPACE
 
     default:
         rect = visualRect(option->direction, option->rect,
@@ -3494,6 +3572,10 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
                 return sz;
             }
         }
+    case CT_MDIControls:
+        sz = QSize(54, 19);
+        break;
+
         // Otherwise, fall through
     default:
         sz = QWindowsStyle::sizeFromContents(ct, option, sz, widget);
@@ -3685,7 +3767,7 @@ QIcon QWindowsXPStyle::standardIconImplementation(StandardPixmap standardIcon,
                 return d->dockClose;
         }
         break;
-        case SP_TitleBarNormalButton:
+    case SP_TitleBarNormalButton:
         if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(option))
         {
             if (d->dockFloat.isNull()) {

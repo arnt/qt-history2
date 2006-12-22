@@ -2819,6 +2819,69 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
         }
         break;
 #endif // QT_NO_GROUPBOX
+#ifndef QT_NO_WORKSPACE
+    case CC_MDIControls:
+        {
+            QStyleOptionButton btnOpt;
+            btnOpt.QStyleOption::operator=(*opt);
+            btnOpt.state &= ~State_MouseOver;
+            int bsx = 0;
+            int bsy = 0;
+            if (opt->subControls & QStyle::SC_MDICloseButton) {
+                if (opt->activeSubControls & QStyle::SC_MDICloseButton && (opt->state & State_Sunken)) {
+                    btnOpt.state |= State_Sunken;
+                    btnOpt.state &= ~State_Raised;
+                    bsx = pixelMetric(PM_ButtonShiftHorizontal);
+                    bsy = pixelMetric(PM_ButtonShiftVertical);
+                } else {     
+                    btnOpt.state |= State_Raised;
+                    btnOpt.state &= ~State_Sunken;
+                    bsx = 0;
+                    bsy = 0;
+                }
+                btnOpt.rect = subControlRect(CC_MDIControls, opt, SC_MDICloseButton, widget);
+                drawPrimitive(PE_PanelButtonCommand, &btnOpt, p, widget);
+                QPixmap pm = standardPixmap(SP_TitleBarCloseButton);
+                drawItemPixmap(p, btnOpt.rect.translated(bsx, bsy), Qt::AlignCenter, pm);
+            } 
+            if (opt->subControls & QStyle::SC_MDINormalButton) {
+                if (opt->activeSubControls & QStyle::SC_MDINormalButton && (opt->state & State_Sunken)) {
+                    btnOpt.state |= State_Sunken;
+                    btnOpt.state &= ~State_Raised;
+                    bsx = pixelMetric(PM_ButtonShiftHorizontal);
+                    bsy = pixelMetric(PM_ButtonShiftVertical);
+                } else {     
+                    btnOpt.state |= State_Raised;
+                    btnOpt.state &= ~State_Sunken;
+                    bsx = 0;
+                    bsy = 0;
+                }
+                btnOpt.rect = subControlRect(CC_MDIControls, opt, SC_MDINormalButton, widget);
+                drawPrimitive(PE_PanelButtonCommand, &btnOpt, p, widget);
+                QPixmap pm = standardPixmap(SP_TitleBarNormalButton);
+                drawItemPixmap(p, btnOpt.rect.translated(bsx, bsy), Qt::AlignCenter, pm);
+            } 
+            if (opt->subControls & QStyle::SC_MDIMinButton) {
+                if (opt->activeSubControls & QStyle::SC_MDIMinButton && (opt->state & State_Sunken)) {
+                    btnOpt.state |= State_Sunken;
+                    btnOpt.state &= ~State_Raised;
+                    bsx = pixelMetric(PM_ButtonShiftHorizontal);
+                    bsy = pixelMetric(PM_ButtonShiftVertical);
+                } else {     
+                    btnOpt.state |= State_Raised;
+                    btnOpt.state &= ~State_Sunken;
+                    bsx = 0;
+                    bsy = 0;
+                }
+                btnOpt.rect = subControlRect(CC_MDIControls, opt, SC_MDIMinButton, widget);
+                drawPrimitive(PE_PanelButtonCommand, &btnOpt, p, widget);
+                QPixmap pm = standardPixmap(SP_TitleBarMinButton);
+                drawItemPixmap(p, btnOpt.rect.translated(bsx, bsy), Qt::AlignCenter, pm);
+            }
+        }
+        break;
+#endif // QT_NO_WORKSPACE
+
     default:
         qWarning("QCommonStyle::drawComplexControl: Control %d not handled", cc);
     }
@@ -2933,6 +2996,20 @@ QStyle::SubControl QCommonStyle::hitTestComplexControl(ComplexControl cc, const 
         }
         break;
 #endif // QT_NO_GROUPBOX
+    case CC_MDIControls:
+        {
+            QRect r;
+            uint ctrl = SC_MDIMinButton;
+            while (ctrl <= SC_MDICloseButton) {
+                r = subControlRect(CC_MDIControls, opt, QStyle::SubControl(ctrl), widget);
+                if (r.isValid() && r.contains(pt) && (opt->subControls & ctrl)) {
+                    sc = QStyle::SubControl(ctrl);
+                    return sc;
+                }
+                ctrl <<= 1;
+            }
+        }
+        break;
     default:
         qWarning("QCommonStyle::hitTestComplexControl: Case %d not handled", cc);
     }
@@ -3320,7 +3397,28 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
         break;
     }
 #endif // QT_NO_GROUPBOX
-    default:
+#ifndef QT_NO_WORKSPACE
+    case CC_MDIControls:
+    {
+        int buttonWidth = opt->rect.width()/3 - 1;
+        int offset = 0;
+        switch (sc) {
+        case SC_MDICloseButton: 
+            offset += buttonWidth + 2;
+            //FALL THROUGH   
+        case SC_MDINormalButton:
+            offset += buttonWidth;    
+            //FALL THROUGH   
+        case SC_MDIMinButton:
+            ret = QRect(offset, 2, buttonWidth, opt->rect.height() - 2);
+            break;
+        default:
+            break;
+        }
+        break;
+    }
+#endif // QT_NO_WORKSPACE
+     default:
         qWarning("QCommonStyle::subControlRect: Case %d not handled", cc);
     }
     return ret;
@@ -3738,6 +3836,9 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
             sz += QSize(!grb->isFlat() ? 16 : 0, 0);
         break;
 #endif // QT_NO_GROUPBOX
+    case CT_MDIControls:
+        sz = QSize(52, 16);
+        break;
     case CT_ScrollBar:
     case CT_MenuBar:
     case CT_Menu:

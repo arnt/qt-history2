@@ -31,7 +31,6 @@
 #include "qscrollbar.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
-#include "qtoolbutton.h"
 #include "qtooltip.h"
 #include "qdebug.h"
 #include <private/qwidget_p.h>
@@ -39,6 +38,161 @@
 #include <private/qlayoutengine_p.h>
 
 class QWorkspaceTitleBarPrivate;
+
+
+/**************************************************************
+* QMDIControl
+*
+* Used for displaying MDI controls in a maximized MDI window
+*
+*/
+class QMDIControl : public QWidget
+{
+    Q_OBJECT
+signals:
+    void _q_minimize();
+    void _q_restore();
+    void _q_close();
+
+public:
+    QMDIControl(QWidget *widget);
+    
+private:
+    QSize sizeHint() const;
+    void paintEvent(QPaintEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void leaveEvent(QEvent *event);
+    bool event(QEvent *event);
+    void initStyleOption(QStyleOptionComplex *option) const;
+    QStyle::SubControl activeControl; //control locked by pressing and holding the mouse
+    QStyle::SubControl hoverControl; //previously active hover control, used for tracking repaints
+};
+
+bool QMDIControl::event(QEvent *event)
+{
+    if (event->type() == QEvent::ToolTip) {
+        QStyleOptionComplex opt;
+        initStyleOption(&opt);
+        QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+        QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_MDIControls, &opt, 
+                                                                 helpEvent->pos(), this);
+        if (ctrl == QStyle::SC_MDICloseButton)
+            QToolTip::showText(helpEvent->globalPos(), tr("Close"));
+        else if (ctrl == QStyle::SC_MDIMinButton)
+            QToolTip::showText(helpEvent->globalPos(), tr("Minimize"));
+        else if (ctrl == QStyle::SC_MDINormalButton)
+            QToolTip::showText(helpEvent->globalPos(), tr("Restore Down"));
+        else
+            QToolTip::showText(helpEvent->globalPos(), QLatin1String(""));
+    }
+    return QWidget::event(event);
+}
+
+void QMDIControl::initStyleOption(QStyleOptionComplex *option) const
+{
+    option->initFrom(this);
+    option->subControls = QStyle::SC_All;
+    option->activeSubControls = QStyle::SC_None;
+}
+
+QMDIControl::QMDIControl(QWidget *widget)
+    : QWidget(widget), activeControl(QStyle::SC_None),
+      hoverControl(QStyle::SC_None)
+{
+    setObjectName(QLatin1String("qt_maxcontrols"));
+    setFocusPolicy(Qt::NoFocus);
+    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    setMouseTracking(true);
+}
+
+QSize QMDIControl::sizeHint() const
+{
+    ensurePolished();
+    QStyleOptionComplex opt;
+    initStyleOption(&opt);
+    QSize size(48, 16);
+    return style()->sizeFromContents(QStyle::CT_MDIControls, &opt, size, this);
+}
+
+void QMDIControl::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() != Qt::LeftButton) {
+        event->ignore();
+        return;
+    }
+    QStyleOptionComplex opt;
+    initStyleOption(&opt);
+    QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_MDIControls, &opt, 
+                                                             event->pos(), this);
+    activeControl = ctrl;
+    update();
+}
+
+void QMDIControl::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() != Qt::LeftButton) {
+        event->ignore();
+        return;
+    }
+    QStyleOptionTitleBar opt;
+    initStyleOption(&opt);
+    QStyle::SubControl under_mouse = style()->hitTestComplexControl(QStyle::CC_MDIControls, &opt,
+                                                                    event->pos(), this);
+    if (under_mouse == activeControl) {
+        switch (activeControl) {
+        case QStyle::SC_MDICloseButton:
+            emit _q_close();
+            break;
+        case QStyle::SC_MDINormalButton:
+            emit _q_restore();
+            break;
+        case QStyle::SC_MDIMinButton:
+            emit _q_minimize();
+            break;
+        default:
+            break;
+        }
+    }
+    activeControl = QStyle::SC_None;
+    update();
+}
+
+void QMDIControl::leaveEvent(QEvent *event)
+{
+    hoverControl = QStyle::SC_None;
+    update();
+}
+
+void QMDIControl::mouseMoveEvent(QMouseEvent *event)
+{
+    QStyleOptionTitleBar opt;
+    initStyleOption(&opt);
+    QStyle::SubControl under_mouse = style()->hitTestComplexControl(QStyle::CC_MDIControls, &opt,
+                                                                    event->pos(), this);
+    //test if hover state changes
+    if (hoverControl != under_mouse) {
+        hoverControl = under_mouse;
+        update();
+    }
+}
+
+void QMDIControl::paintEvent(QPaintEvent *)
+{
+    QPainter p(this);
+    QStyleOptionComplex opt;
+    initStyleOption(&opt);
+    if (activeControl == hoverControl) {
+        opt.activeSubControls = activeControl;
+        opt.state |= QStyle::State_Sunken;
+    } else if (hoverControl != QStyle::SC_None && (activeControl == QStyle::SC_None)) {
+        opt.activeSubControls = hoverControl;
+        opt.state |= QStyle::State_MouseOver;
+    }
+    style()->drawComplexControl(QStyle::CC_MDIControls, &opt, &p, this);
+}
+
 class QWorkspaceTitleBar : public QWidget
 {
     Q_OBJECT
@@ -798,7 +952,7 @@ public:
     QList<QWidget *> icons;
     QWorkspaceChild* maxWindow;
     QRect maxRestore;
-    QPointer<QFrame> maxcontrols;
+    QPointer<QMDIControl> maxcontrols;
     QPointer<QMenuBar> maxmenubar;
     QHash<int, const char*> shortcutMap;
 
@@ -1785,55 +1939,13 @@ void QWorkspacePrivate::showMaximizeControls()
 
         if (!maxcontrols) {
             maxmenubar = b;
-            maxcontrols = new QFrame(q->window());
-            maxcontrols->setObjectName(QLatin1String("qt_maxcontrols"));
-            QHBoxLayout* l = new QHBoxLayout(maxcontrols);
-            l->setMargin(maxcontrols->frameWidth());
-            l->setSpacing(0);
-            if (maxWindow->windowWidget() &&
-                (maxWindow->windowWidget()->windowFlags() & Qt::WindowMinimizeButtonHint)) {
-                QToolButton* iconB = new QToolButton(maxcontrols);
-                iconB->setObjectName(QLatin1String("iconify"));
-#ifndef QT_NO_TOOLTIP
-                iconB->setToolTip(QWorkspace::tr("Minimize"));
-#endif
-                l->addWidget(iconB);
-                iconB->setFocusPolicy(Qt::NoFocus);
-                QPixmap pm = q->style()->standardPixmap(QStyle::SP_TitleBarMinButton);
-                iconB->setIcon(pm);
-                iconB->setIconSize(pm.size());
-                QObject::connect(iconB, SIGNAL(clicked()),
-                                 q, SLOT(_q_minimizeActiveWindow()));
-            }
-
-            QToolButton* restoreB = new QToolButton(maxcontrols);
-            restoreB->setObjectName(QLatin1String("restore"));
-#ifndef QT_NO_TOOLTIP
-            restoreB->setToolTip(QWorkspace::tr("Restore Down"));
-#endif
-            l->addWidget(restoreB);
-            restoreB->setFocusPolicy(Qt::NoFocus);
-            QPixmap pm = q->style()->standardPixmap(QStyle::SP_TitleBarNormalButton);
-            restoreB->setIcon(pm);
-            restoreB->setIconSize(pm.size());
-            QObject::connect(restoreB, SIGNAL(clicked()),
+            maxcontrols = new QMDIControl(b);
+            QObject::connect(maxcontrols, SIGNAL(_q_minimize()),
+                             q, SLOT(_q_minimizeActiveWindow()));
+            QObject::connect(maxcontrols, SIGNAL(_q_restore()),
                              q, SLOT(_q_normalizeActiveWindow()));
-
-            l->addSpacing(2);
-            QToolButton* closeB = new QToolButton(maxcontrols);
-            closeB->setObjectName(QLatin1String("close"));
-#ifndef QT_NO_TOOLTIP
-            closeB->setToolTip(QWorkspace::tr("Close"));
-#endif
-            l->addWidget(closeB);
-            closeB->setFocusPolicy(Qt::NoFocus);
-            pm = q->style()->standardPixmap(QStyle::SP_TitleBarCloseButton);
-            closeB->setIcon(pm);
-            closeB->setIconSize(pm.size());
-            QObject::connect(closeB, SIGNAL(clicked()),
+            QObject::connect(maxcontrols, SIGNAL(_q_close()),
                              q, SLOT(closeActiveWindow()));
-
-            maxcontrols->setFixedSize(maxcontrols->minimumSizeHint());
         }
 
         b->setCornerWidget(maxcontrols);

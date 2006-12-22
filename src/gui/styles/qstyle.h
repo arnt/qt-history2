@@ -312,6 +312,7 @@ public:
         CC_Q3ListView,
         CC_Dial,
         CC_GroupBox,
+        CC_MDIControls,
 
         // do not add any values below/greater than this
         CC_CustomBase = 0xf0000000
@@ -368,6 +369,10 @@ public:
         SC_GroupBoxLabel =         0x00000002,
         SC_GroupBoxContents =      0x00000004,
         SC_GroupBoxFrame =         0x00000008,
+        
+        SC_MDIMinButton     =      0x00000001,
+        SC_MDINormalButton  =      0x00000002,
+        SC_MDICloseButton   =      0x00000004,
 
         SC_All =                   0xffffffff
     };
@@ -516,6 +521,7 @@ public:
         CT_DialogButtons,
         CT_HeaderSection,
         CT_GroupBox,
+        CT_MDIControls,
         // do not add any values below/greater than this
         CT_CustomBase = 0xf0000000
     };
