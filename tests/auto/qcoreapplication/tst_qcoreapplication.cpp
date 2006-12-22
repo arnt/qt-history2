@@ -17,6 +17,7 @@ private slots:
     void qAppName();
     void argc();
     void postEvent();
+    void removePostedEvents();
 };
 
 void tst_QCoreApplication::qAppName()
@@ -172,6 +173,82 @@ void tst_QCoreApplication::postEvent()
     spy.recordedEvents.clear();
     QCoreApplication::sendPostedEvents();
     QCOMPARE(spy.recordedEvents, expected);
+}
+
+void tst_QCoreApplication::removePostedEvents()
+{
+    int argc = 1;
+    char *argv[] = { "tst_qcoreapplication" };
+    QCoreApplication app(argc, argv);
+
+    EventSpy spy;
+    QObject one, two;
+    one.installEventFilter(&spy);
+    two.installEventFilter(&spy);
+
+    QList<int> expected;
+
+    // remove all events for one object
+    QCoreApplication::postEvent(&one, new QEvent(QEvent::Type(QEvent::User + 1)));
+    QCoreApplication::postEvent(&one, new QEvent(QEvent::Type(QEvent::User + 2)));
+    QCoreApplication::postEvent(&one, new QEvent(QEvent::Type(QEvent::User + 3)));
+    QCoreApplication::postEvent(&two, new QEvent(QEvent::Type(QEvent::User + 4)));
+    QCoreApplication::postEvent(&two, new QEvent(QEvent::Type(QEvent::User + 5)));
+    QCoreApplication::postEvent(&two, new QEvent(QEvent::Type(QEvent::User + 6)));
+    QCoreApplication::removePostedEvents(&one);
+    expected << QEvent::User + 4
+             << QEvent::User + 5
+             << QEvent::User + 6;
+    QCoreApplication::sendPostedEvents();
+    QCOMPARE(spy.recordedEvents, expected);
+    spy.recordedEvents.clear();
+    expected.clear();
+
+    // remove all events for all objects
+    QCoreApplication::postEvent(&one, new QEvent(QEvent::Type(QEvent::User + 7)));
+    QCoreApplication::postEvent(&two, new QEvent(QEvent::Type(QEvent::User + 8)));
+    QCoreApplication::postEvent(&one, new QEvent(QEvent::Type(QEvent::User + 9)));
+    QCoreApplication::postEvent(&two, new QEvent(QEvent::Type(QEvent::User + 10)));
+    QCoreApplication::postEvent(&one, new QEvent(QEvent::Type(QEvent::User + 11)));
+    QCoreApplication::postEvent(&two, new QEvent(QEvent::Type(QEvent::User + 12)));
+    QCoreApplication::removePostedEvents(0);
+    QCoreApplication::sendPostedEvents();
+    QVERIFY(spy.recordedEvents.isEmpty());
+
+    // remove a specific type of event for one object
+    QCoreApplication::postEvent(&one, new QEvent(QEvent::Type(QEvent::User + 13)));
+    QCoreApplication::postEvent(&two, new QEvent(QEvent::Type(QEvent::User + 14)));
+    QCoreApplication::postEvent(&one, new QEvent(QEvent::Type(QEvent::User + 15)));
+    QCoreApplication::postEvent(&two, new QEvent(QEvent::Type(QEvent::User + 16)));
+    QCoreApplication::postEvent(&one, new QEvent(QEvent::Type(QEvent::User + 17)));
+    QCoreApplication::postEvent(&two, new QEvent(QEvent::Type(QEvent::User + 18)));
+    QCoreApplication::removePostedEvents(&one, QEvent::User + 13);
+    QCoreApplication::removePostedEvents(&two, QEvent::User + 18);
+    QCoreApplication::sendPostedEvents();
+    expected << QEvent::User + 14
+             << QEvent::User + 15
+             << QEvent::User + 16
+             << QEvent::User + 17;
+    QCOMPARE(spy.recordedEvents, expected);
+    spy.recordedEvents.clear();
+    expected.clear();
+
+    // remove a specific type of event for all objects
+    QCoreApplication::postEvent(&one, new QEvent(QEvent::Type(QEvent::User + 19)));
+    QCoreApplication::postEvent(&two, new QEvent(QEvent::Type(QEvent::User + 19)));
+    QCoreApplication::postEvent(&one, new QEvent(QEvent::Type(QEvent::User + 20)));
+    QCoreApplication::postEvent(&two, new QEvent(QEvent::Type(QEvent::User + 20)));
+    QCoreApplication::postEvent(&one, new QEvent(QEvent::Type(QEvent::User + 21)));
+    QCoreApplication::postEvent(&two, new QEvent(QEvent::Type(QEvent::User + 21)));
+    QCoreApplication::removePostedEvents(0, QEvent::User + 20);
+    QCoreApplication::sendPostedEvents();
+    expected << QEvent::User + 19
+             << QEvent::User + 19
+             << QEvent::User + 21
+             << QEvent::User + 21;
+    QCOMPARE(spy.recordedEvents, expected);
+    spy.recordedEvents.clear();
+    expected.clear();
 }
 
 QTEST_APPLESS_MAIN(tst_QCoreApplication)

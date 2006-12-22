@@ -1129,67 +1129,57 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
   \threadsafe
 */
 
-//#define PAUL_TESTING
-
 void QCoreApplication::removePostedEvents(QObject *receiver)
 {
-#ifdef PAUL_TESTING
-    QThreadData *data = receiver ? receiver->d_func()->threadData : self->d_func()->threadData;
-#else
-    if (!receiver)
-        return;
+    removePostedEvents(receiver, 0);
+}
 
-    QThreadData *data = receiver->d_func()->threadData;
-#endif
+/*!
+    \overload
+    \since 4.3
 
+    Removes all events of the given \a eventType that were posted
+    using postEvent() for \a receiver.
+
+    The events are \e not dispatched, instead they are removed from
+    the queue. You should never need to call this function. If you do
+    call it, be aware that killing events may cause \a receiver to
+    break one or more invariants.
+
+    If \a receiver is null, the events of \a eventType are removed for
+    all objects. If \a eventType is 0, all the events are removed for
+    \a receiver.
+
+    \threadsafe
+*/
+
+void QCoreApplication::removePostedEvents(QObject *receiver, int eventType)
+{
+    QThreadData *data = receiver ? receiver->d_func()->threadData : QThreadData::current();
     QMutexLocker locker(&data->postEventList.mutex);
 
     // the QObject destructor calls this function directly.  this can
     // happen while the event loop is in the middle of posting events,
     // and when we get here, we may not have any more posted events
     // for this object.
-#ifdef PAUL_TESTING
-    if (receiver && !receiver->d_func()->postedEvents) return;
-#else
-    if (!receiver->d_func()->postedEvents) return;
-#endif
+    if (receiver && !receiver->d_func()->postedEvents)
+        return;
     int n = data->postEventList.size();
     int j = 0;
 
-#ifdef PAUL_TESTING
-    if (!receiver) {
-        for (int i = 0; i < n; ++i) {
-            const QPostEvent &pe = data->postEventList.at(i);
-            if (pe.event) {
-                --pe.receiver->d_func()->postedEvents;
-#ifdef QT3_SUPPORT
-                if (pe.event->type() == QEvent::ChildInserted)
-                    --pe.receiver->d_func()->postedChildInsertedEvents;
-#endif
-                pe.event->posted = false;
-                delete pe.event;
-                const_cast<QPostEvent &>(pe).event = 0;
-
-            }
-        }
-        data->postEventList.clear();
-        return;
-    }
-#endif
-
     for (int i = 0; i < n; ++i) {
         const QPostEvent &pe = data->postEventList.at(i);
-        if (pe.receiver == receiver) {
-            if (pe.event) {
-                --receiver->d_func()->postedEvents;
+
+        if ((!receiver || pe.receiver == receiver)
+            && (pe.event && (eventType == 0 || pe.event->type() == eventType))) {
+            --pe.receiver->d_func()->postedEvents;
 #ifdef QT3_SUPPORT
-                if (pe.event->type() == QEvent::ChildInserted)
-                    --receiver->d_func()->postedChildInsertedEvents;
+            if (pe.event->type() == QEvent::ChildInserted)
+                --pe.receiver->d_func()->postedChildInsertedEvents;
 #endif
-                pe.event->posted = false;
-                delete pe.event;
-                const_cast<QPostEvent &>(pe).event = 0;
-            }
+            pe.event->posted = false;
+            delete pe.event;
+            const_cast<QPostEvent &>(pe).event = 0;
         } else if (!data->postEventList.recursion) {
             if (i != j)
                 data->postEventList.swap(i, j);
@@ -1197,13 +1187,18 @@ void QCoreApplication::removePostedEvents(QObject *receiver)
         }
     }
 
-    Q_ASSERT(!receiver->d_func()->postedEvents);
+#ifdef QT_DEBUG
+    if (receiver && eventType == 0) {
+        Q_ASSERT(!receiver->d_func()->postedEvents);
 #ifdef QT3_SUPPORT
-    Q_ASSERT(!receiver->d_func()->postedChildInsertedEvents);
+        Q_ASSERT(!receiver->d_func()->postedChildInsertedEvents);
 #endif
+    }
+#endif
+
     if (!data->postEventList.recursion) {
-        while (j++ < n)
-            data->postEventList.removeLast();
+        // truncate list
+        data->postEventList.erase(data->postEventList.begin() + j, data->postEventList.end());
     }
 }
 

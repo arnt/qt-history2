@@ -77,6 +77,7 @@ public:
     static void sendPostedEvents(QObject *receiver, int event_type);
     static void sendPostedEvents();
     static void removePostedEvents(QObject *receiver);
+    static void removePostedEvents(QObject *receiver, int eventType);
     static bool hasPendingEvents();
 
     virtual bool notify(QObject *, QEvent *);
