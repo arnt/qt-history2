@@ -280,7 +280,7 @@ static const char *knownStyleHints[] = {
     "toolbutton-popup-delay"
 };
 
-static const char **endKnownStyleHints = knownStyleHints + sizeof(knownStyleHints)/sizeof(char *);
+static const int numKnownStyleHints = sizeof(knownStyleHints)/sizeof(knownStyleHints[0]);
 
 QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
 : pal(0), b(0), bg(0), bd(0), geo(0), p(0)
@@ -355,18 +355,25 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
                 bi->horizStretch = horizStretch;
                 bi->vertStretch = vertStretch;
             }
-        
+        } else if (decl.propertyId == QtImage) {
             image = QPixmap(decl.uriValue());
             if (!imageRect.isValid())
                 imageRect = QRect(0, 0, image.width(), image.height());
-        } else if (qBinaryFind(knownStyleHints, endKnownStyleHints, decl.property.toLatin1().constData()) != endKnownStyleHints) {
-            int hint;
-            decl.intValue(&hint);
-            styleHints[decl.property] = hint;
         } else if (decl.property.compare(QLatin1String("image-region"), Qt::CaseInsensitive) == 0) {
             imageRect = decl.rectValue();
-        } else if (decl.propertyId == UnknownProperty && !decl.property.startsWith(QLatin1String("qproperty-"))) {
-            qWarning("Unknown property %s", qPrintable(decl.property));
+        } else {
+            if (!decl.property.startsWith(QLatin1String("qproperty-"), Qt::CaseInsensitive)) {
+                for (int i = 0; i < numKnownStyleHints; i++) {
+                    const char *styleHint = knownStyleHints[i];
+                    if (decl.property.compare(QLatin1String(styleHint)) == 0) {
+                        int hint;
+                        decl.intValue(&hint);
+                        styleHints[decl.property] = hint;
+                    }
+                }
+            } else if (decl.propertyId == UnknownProperty) {
+                qWarning("Unknown property %s", qPrintable(decl.property));
+            }
         }
     }
 
