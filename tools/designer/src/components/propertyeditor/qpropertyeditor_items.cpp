@@ -43,6 +43,15 @@ using namespace qdesigner_internal;
 
 Q_GLOBAL_STATIC(QFontDatabase, fontDatabase)
 
+static QString matchStringInKeys(const QString &str, const QMap<QString, QVariant> &items) {
+    for (QMap<QString, QVariant>::const_iterator it = items.begin(); it != items.end(); ++it) {
+        if (it.key().contains(str))
+            return it.key();
+    }
+    return str;
+}
+
+
 void IProperty::setDirty(bool b)
 {
     if (isFake()) {
@@ -95,14 +104,14 @@ QString AbstractPropertyGroup::toString() const
 {
     QString text = QLatin1String("[");
     for (int i=0; i<propertyCount(); ++i) {
-        if (i) 
+        if (i)
             text += QLatin1String(", ");
         text += propertyAt(i)->toString();
     }
     text += QLatin1String("]");
     return text;
 }
-    
+
 // -------------------------------------------------------------------------
 BoolProperty::BoolProperty(bool value, const QString &name)
     : AbstractProperty<bool>(value, name)
@@ -288,7 +297,7 @@ QWidget *PropertyCollection::createExternalEditor(QWidget *parent)
 
 // -------------------------------------------------------------------------
 
-StringProperty::StringProperty(const QString &value, const QString &name, 
+StringProperty::StringProperty(const QString &value, const QString &name,
                                TextPropertyValidationMode validationMode,
                                bool hasComment, const QString &comment)
     : AbstractPropertyGroup(name),
@@ -1377,8 +1386,11 @@ AlignmentProperty::AlignmentProperty(const QMap<QString, QVariant> &items, Qt::A
     : AbstractPropertyGroup(name)
 {
     QStringList horz_keys = QStringList()
-        << QString::fromUtf8("Qt::AlignLeft") << QString::fromUtf8("Qt::AlignRight")
-        << QString::fromUtf8("Qt::AlignHCenter") << QString::fromUtf8("Qt::AlignJustify"); // << "Qt::AlignAbsolute"
+                            << matchStringInKeys(QLatin1String("AlignLeft"), items)
+                            << matchStringInKeys(QLatin1String("AlignRight"), items)
+                            << matchStringInKeys(QLatin1String("AlignHCenter"), items)
+                            << matchStringInKeys(QLatin1String("AlignJustify"), items);
+                                                 // << "Qt::AlignAbsolute"
 
     QMap<QString, QVariant> horz_map;
     foreach (QString h, horz_keys) {
@@ -1392,7 +1404,9 @@ AlignmentProperty::AlignmentProperty(const QMap<QString, QVariant> &items, Qt::A
 
 
     QStringList vert_keys = QStringList()
-        << QString::fromUtf8("Qt::AlignTop") << QString::fromUtf8("Qt::AlignBottom") << QString::fromUtf8("Qt::AlignVCenter");
+                            << matchStringInKeys(QLatin1String("AlignTop"), items)
+                            << matchStringInKeys(QLatin1String("AlignBottom"), items)
+                            << matchStringInKeys(QLatin1String("AlignVCenter"), items);
 
     QMap<QString, QVariant> vert_map;
     foreach (QString h, vert_keys) {
