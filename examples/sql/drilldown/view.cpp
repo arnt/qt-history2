@@ -82,8 +82,10 @@ void View::mouseReleaseEvent(QMouseEvent *event)
 void View::showInformation(ImageItem *image)
 {
     int id = image->id();
-    InformationWindow *window = findWindow(id);
+    if (id < 0 || id >= officeTable->rowCount())
+        return;
 
+    InformationWindow *window = findWindow(id);
     if (window && window->isVisible()) {
         window->raise();
         window->activateWindow();
