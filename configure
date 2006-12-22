@@ -4013,8 +4013,8 @@ if [ "$PLATFORM_X11" = "yes" -o "$PLATFORM_QWS" = "yes" ]; then
     # auto-detect Glib support
     if [ "$CFG_GLIB" != "no" ]; then
         if "$WHICH" pkg-config >/dev/null 2>&1; then
-            QT_CFLAGS_GLIB=`pkg-config --cflags glib-2.0`
-            QT_LIBS_GLIB=`pkg-config --libs glib-2.0`
+            QT_CFLAGS_GLIB=`pkg-config --cflags glib-2.0 gthread-2.0`
+            QT_LIBS_GLIB=`pkg-config --libs glib-2.0 gthread-2.0`
         fi
         if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/x11/glib "Glib" $L_FLAGS $I_FLAGS $l_FLAGS $QT_CFLAGS_GLIB $QT_LIBS_GLIB $X11TESTS_FLAGS; then
             CFG_GLIB=yes
