@@ -294,15 +294,14 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
                 (state & State_Active)  != (oldState & State_Active))
                     d->stopAnimation(widget);
 
-            if (const QLineEdit *edit = qobject_cast<const QLineEdit *>(widget))// Do not animate read only line edits
-                if (edit->isReadOnly() && element == PE_FrameLineEdit)
+            if (const QLineEdit *edit = qobject_cast<const QLineEdit *>(widget))
+                if (edit->isReadOnly() && element == PE_FrameLineEdit) // Do not animate read only line edits
                     doTransition = false;
 
             if (doTransition) {
 
                 // We create separate images for the initial and final transition states and store them in the
                 // Transition object.
-
                 QImage startImage(option->rect.size(), QImage::Format_ARGB32_Premultiplied);
                 QImage endImage(option->rect.size(), QImage::Format_ARGB32_Premultiplied);
                 QStyleOption opt = *option;
@@ -339,23 +338,47 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
                                                               // this ensures that we do not recurse in the animation logic above
                 t->setEndImage(endImage);
 
-                int partId, duration;
+                HTHEME theme;
+                int partId;
+                int duration;
+                int fromState = 0;
+                int toState = 0;
 
-                if (element == PE_IndicatorRadioButton)
-                    partId = BP_RADIOBUTTON;
-                else if (element == PE_IndicatorCheckBox)
-                    partId = BP_CHECKBOX;
-                else
-                    partId = BP_PUSHBUTTON;
+                //translate state flags to UXTHEME states :
+                if (element == PE_FrameLineEdit) {
+                    theme = pOpenThemeData(0, L"Edit");
+                    partId = EP_EDITBORDER_NOSCROLL;
 
-                int fromState = buttonStateId(oldState, partId);
-                int toState = buttonStateId(option->state, partId);
+                    if (oldState & State_MouseOver)
+                        fromState = ETS_HOT;
+                    else if (oldState & State_HasFocus)
+                        fromState = ETS_FOCUSED;
+                    else
+                        fromState = ETS_NORMAL;
 
-                HTHEME theme = pOpenThemeData(0, L"Button");
+                    if (state & State_MouseOver)
+                        toState = ETS_HOT;
+                    else if (state & State_HasFocus)
+                        toState = ETS_FOCUSED;
+                    else
+                        toState = ETS_NORMAL;
+
+                } else {
+                    theme = pOpenThemeData(0, L"Button");
+                    if (element == PE_IndicatorRadioButton)
+                        partId = BP_RADIOBUTTON;
+                    else if (element == PE_IndicatorCheckBox)
+                        partId = BP_CHECKBOX;
+                    else
+                        partId = BP_PUSHBUTTON;
+
+                    fromState = buttonStateId(oldState, partId);
+                    toState = buttonStateId(option->state, partId);
+                }
 
                 // Retrieve the transition time between the states from the system.
-                if (element != PE_FrameLineEdit &&
-                    pGetThemeTransitionDuration(theme, partId, fromState, toState, TMT_TRANSITIONDURATIONS, &duration) == S_OK)
+                if (theme && pGetThemeTransitionDuration(theme, partId, fromState, toState, 
+                    TMT_TRANSITIONDURATIONS, &duration) == S_OK)
                 {
                     t->setDuration(duration);
                 }
@@ -1005,22 +1028,17 @@ void QWindowsVistaStyle::drawComplexControl(ComplexControl control, const QStyle
             QWidget *w = const_cast<QWidget *> (widget);
 
             int oldState = w->property("qt_stylestate").toInt();
-            int oldSubControls = w->property("qt_stylecontrols").toInt();
+            int oldActiveControls = w->property("qt_stylecontrols").toInt();
             QRect oldRect = w->property("qt_stylerect").toRect();
             w->setProperty("qt_stylestate", (int)option->state);
             w->setProperty("qt_stylecontrols", (int)option->activeSubControls);
             w->setProperty("qt_stylerect", w->rect());
 
-            bool doTransition = ((state & State_Sunken)     != (oldState & State_Sunken) ||
-                                 (state & State_On)         != (oldState & State_On)     ||
+            bool doTransition = ((state & State_Sunken)     != (oldState & State_Sunken)    ||
+                                 (state & State_On)         != (oldState & State_On)        ||
                                  (state & State_MouseOver)  != (oldState & State_MouseOver) ||
-                                  oldSubControls            != option->activeSubControls);
+                                  oldActiveControls            != option->activeSubControls);
 
-
-            if (oldRect != option->rect) {
-                doTransition = false;
-                d->stopAnimation(widget);
-            }
 
             if (const QStyleOptionSlider *slider= qstyleoption_cast<const QStyleOptionSlider *>(option)) {
                 QRect oldSliderPos = w->property("qt_stylesliderpos").toRect();
@@ -1030,15 +1048,15 @@ void QWindowsVistaStyle::drawComplexControl(ComplexControl control, const QStyle
                     doTransition = false;
                     d->stopAnimation(widget);
                 }
+            } else if (control == CC_SpinBox) {
+                //spinboxes have a transition when focus changes
+                if (!doTransition)
+                    doTransition = (state & State_HasFocus) != (oldState & State_HasFocus);
             }
-            else if (const QStyleOptionComboBox *combo = qstyleoption_cast<const QStyleOptionComboBox*>(option)) {
-                QString oldText = w->property("qt_styletext").toString();
-                w->setProperty("qt_styletext", combo->currentText);
+
+            if (oldRect != option->rect) {
                 doTransition = false;
-                if ((state & State_Sunken) != (oldState & State_Sunken) ||
-                    (state & State_On) != (oldState & State_On) ||
-                    (state & State_MouseOver) != (oldState & State_MouseOver))
-                    doTransition = true;
+                d->stopAnimation(widget);
             }
 
             if (doTransition) {
@@ -1054,7 +1072,7 @@ void QWindowsVistaStyle::drawComplexControl(ComplexControl control, const QStyle
                         QPainter startPainter(&startImage);
                         QStyleOptionComboBox startCombo = *combo;
                         startCombo.state = (QStyle::State)oldState;
-                        startCombo.activeSubControls = (QStyle::SubControl)oldSubControls;
+                        startCombo.activeSubControls = (QStyle::SubControl)oldActiveControls;
                         drawComplexControl(control, &startCombo, &startPainter, 0 /* Intentional */);
                         t->setStartImage(startImage);
                     } else {
