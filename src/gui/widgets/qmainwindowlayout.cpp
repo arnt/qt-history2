@@ -534,10 +534,13 @@ static QList<T> findChildren(const QObject *o)
 {
     const QObjectList &list = o->children();
     QList<T> result;
-    foreach (QObject *child, list) {
-        if (T t = qobject_cast<T>(child))
+    
+    for (int i=0; i < list.size(); ++i) {
+        if (T t = qobject_cast<T>(list[i])) {
             result.append(t);
+        }
     }
+
     return result;
 }
 
