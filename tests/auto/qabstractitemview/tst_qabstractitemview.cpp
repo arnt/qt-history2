@@ -142,7 +142,9 @@ private slots:
     void columnDelegate();
     void selectAll();
     void ctrlA();
+#if !defined(Q_OS_MAC) // due to use of GetCurrentEventButtonState() in QDragManager::drag()
     void dragAndDrop();
+#endif
 };
 
 class MyAbstractItemDelegate : public QAbstractItemDelegate
@@ -626,6 +628,8 @@ void tst_QAbstractItemView::ctrlA()
     QCOMPARE(tst_view->tst_selectedIndexes().count(), 4*4);
 }
 
+#if !defined(Q_OS_MAC)
+
 #if defined(Q_WS_X11)
 extern void qt_x11_wait_for_window_manager(QWidget *w);
 #endif
@@ -683,17 +687,9 @@ class DnDTestView : public QListView
 
     Qt::DropAction dropAction;
 
-    void timerEvent(QTimerEvent *event)
-    {
-        killTimer(event->timerId());
-        sendMouseMove(this);
-        sendMouseRelease(this);
-    }
-
     void dragEnterEvent(QDragEnterEvent *event)
     {
         QAbstractItemView::dragEnterEvent(event);
-        startTimer(0);
     }
 
     void dropEvent(QDropEvent *event)
@@ -721,12 +717,20 @@ class DnDTestWidget : public QWidget
     Qt::DropAction dropAction_result;
     QWidget *dropTarget;
 
+    void timerEvent(QTimerEvent *event)
+    {
+        killTimer(event->timerId());
+        sendMouseMove(dropTarget);
+        sendMouseRelease(dropTarget);
+    }
+
     void mousePressEvent(QMouseEvent *)
     {
         QDrag *drag = new QDrag(this);
         QMimeData *mimeData = new QMimeData;
         mimeData->setData("application/x-qabstractitemmodeldatalist", QByteArray("foobar"));
         drag->setMimeData(mimeData);
+        startTimer(0);
         dropAction_result = drag->start(dropAction_request);
     }
 
@@ -745,8 +749,9 @@ void tst_QAbstractItemView::dragAndDrop()
 {
     // From Task 137729
 
+    const int attempts = 10;
     int successes = 0;
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < attempts; ++i) {
         Qt::DropAction dropAction = Qt::MoveAction;
 
         DnDTestModel model;
@@ -773,8 +778,15 @@ void tst_QAbstractItemView::dragAndDrop()
             ++successes;
     }
 
-    QVERIFY(successes > 0); // allow for window manager "effects"
+    if (successes < attempts) {
+        QString msg = QString("# successes (%1) < # attempts (%2)").arg(successes).arg(attempts);
+        QWARN(msg.toLatin1());
+    }
+    QVERIFY(successes > 0); // allow for some "event unstability" (i.e. unless
+                            // successes == 0, QAbstractItemView is probably ok!)
 }
+
+#endif // !Q_OS_MAC
 
 QTEST_MAIN(tst_QAbstractItemView)
 #include "tst_qabstractitemview.moc"
