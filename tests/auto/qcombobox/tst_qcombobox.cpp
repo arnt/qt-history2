@@ -83,6 +83,7 @@ private slots:
     void pixmapIcon();
     void mouseWheel_data();
     void mouseWheel();
+    void layoutDirection();
 
 protected slots:
     void onEditTextChanged( const QString &newString );
@@ -1747,5 +1748,42 @@ void tst_QComboBox::mouseWheel()
         QCOMPARE(box.currentIndex(), expectedIndex);
     }
 }
+
+void tst_QComboBox::layoutDirection()
+{
+    QComboBox box;
+    Qt::LayoutDirection dir;
+    QLineEdit *lineEdit;
+
+    // RTL
+    box.setLayoutDirection(Qt::RightToLeft);
+    QStyleOptionComboBox opt;
+    opt.direction = Qt::RightToLeft;
+    dir = (Qt::LayoutDirection)box.style()->styleHint(QStyle::SH_ComboBox_LayoutDirection, &opt, &box);
+
+    QCOMPARE(box.view()->layoutDirection(), dir);
+    box.setEditable(true);
+    QCOMPARE(box.lineEdit()->layoutDirection(), dir);
+    lineEdit = new QLineEdit;
+    QCOMPARE(lineEdit->layoutDirection(), qApp->layoutDirection());
+    box.setLineEdit(lineEdit);
+    QCOMPARE(lineEdit->layoutDirection(), dir);
+
+    // LTR
+    box.setLayoutDirection(Qt::LeftToRight);
+    qApp->setLayoutDirection(Qt::RightToLeft);
+
+    opt.direction = Qt::LeftToRight;
+    dir = (Qt::LayoutDirection)box.style()->styleHint(QStyle::SH_ComboBox_LayoutDirection, &opt, &box);
+
+    QCOMPARE(box.view()->layoutDirection(), dir);
+    box.setEditable(true);
+    QCOMPARE(box.lineEdit()->layoutDirection(), dir);
+    lineEdit = new QLineEdit;
+    QCOMPARE(lineEdit->layoutDirection(), qApp->layoutDirection());
+    box.setLineEdit(lineEdit);
+    QCOMPARE(lineEdit->layoutDirection(), dir);
+}
+
 QTEST_MAIN(tst_QComboBox)
 #include "tst_qcombobox.moc"

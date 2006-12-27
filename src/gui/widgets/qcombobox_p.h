@@ -251,6 +251,7 @@ public:
     void adjustComboBoxSize();
     QString itemText(const QModelIndex &index) const;
     int itemRole() const;
+    void updateLayoutDirection();
 
     QAbstractItemModel *model;
     QLineEdit *lineEdit;

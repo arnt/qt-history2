@@ -261,6 +261,20 @@ void QComboBoxPrivate::adjustComboBoxSize()
     viewContainer()->adjustSizeTimer.start(20, container);
 }
 
+void QComboBoxPrivate::updateLayoutDirection()
+{
+    Q_Q(const QComboBox);
+    QStyleOptionComboBox opt;
+    q->initStyleOption(&opt);
+    Qt::LayoutDirection dir = Qt::LayoutDirection(
+        q->style()->styleHint(QStyle::SH_ComboBox_LayoutDirection, &opt, q));
+    if (lineEdit)
+        lineEdit->setLayoutDirection(dir);
+    if (container)
+        container->setLayoutDirection(dir);
+}
+
+
 void QComboBoxPrivateContainer::timerEvent(QTimerEvent *timerEvent)
 {
     if (timerEvent->timerId() == adjustSizeTimer.timerId()) {
@@ -802,9 +816,7 @@ QComboBoxPrivateContainer* QComboBoxPrivate::viewContainer()
     q->initStyleOption(&opt);
     if (q->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, q))
         q->setItemDelegate(new QComboMenuDelegate(container->itemView(), q));
-    container->setLayoutDirection(Qt::LayoutDirection(
-                                    q->style()->styleHint(QStyle::SH_ComboBox_LayoutDirection,
-                                                          &opt, q)));
+    updateLayoutDirection();
     QObject::connect(container, SIGNAL(itemSelected(QModelIndex)),
                      q, SLOT(_q_itemSelected(QModelIndex)));
     QObject::connect(container->itemView()->selectionModel(),
@@ -1430,9 +1442,6 @@ void QComboBox::setEditable(bool editable)
             view()->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         }
         QLineEdit *le = new QLineEdit(this);
-        le->setLayoutDirection(Qt::LayoutDirection(
-                               style()->styleHint(QStyle::SH_ComboBox_LayoutDirection,
-                                                  &opt, this)));
         setLineEdit(le);
     } else {
         if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
@@ -1480,8 +1489,8 @@ void QComboBox::setLineEdit(QLineEdit *edit)
     setAutoCompletion(d->autoCompletion);
 #endif
     setAttribute(Qt::WA_InputMethodEnabled);
+    d->updateLayoutDirection();
     d->updateLineEditGeometry();
-
     if (isVisible())
         d->lineEdit->show();
 
@@ -2175,6 +2184,7 @@ void QComboBox::changeEvent(QEvent *e)
     switch (e->type()) {
     case QEvent::StyleChange:
         d->sizeHint = QSize(); // invalidate size hint
+        d->updateLayoutDirection();
         if (d->lineEdit)
             d->updateLineEditGeometry();
         //### need to update scrollers etc. as well here
@@ -2255,6 +2265,7 @@ bool QComboBox::event(QEvent *event)
     switch(event->type()) {
     case QEvent::LayoutDirectionChange:
     case QEvent::ApplicationLayoutDirectionChange:
+        d->updateLayoutDirection();
         d->updateLineEditGeometry();
         break;
     case QEvent::HoverEnter:
