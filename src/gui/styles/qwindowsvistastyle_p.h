@@ -137,7 +137,7 @@ public :
 };
 
 
-class QWindowsVistaStylePrivate : public QWindowsXPStylePrivate, public QObject
+class QWindowsVistaStylePrivate :  public QObject, public QWindowsXPStylePrivate
 {
     Q_DECLARE_PUBLIC(QWindowsVistaStyle)
 

@@ -151,7 +151,7 @@ public:
     { return bufferDC;}
 
     static bool resolveSymbols();
-    static inline bool useXP(bool update = false);
+    static bool useXP(bool update = false);
 
     bool isTransparent(XPThemeData &themeData);
     QRegion region(XPThemeData &themeData);
