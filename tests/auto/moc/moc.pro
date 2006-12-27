@@ -15,3 +15,7 @@ SOURCES += tst_moc.cpp
 
 QT += sql network svg
 contains(QT_CONFIG, qt3support): QT += qt3support
+contains(QT_CONFIG, qdbus){
+    DEFINES += WITH_DBUS
+    CONFIG += qdbus
+}

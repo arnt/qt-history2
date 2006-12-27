@@ -15,6 +15,9 @@
 #if defined(QT3_SUPPORT)
 #include <Qt3Support>
 #endif
+#if defined(WITH_DBUS)
+#include <QtDBus>
+#endif
 
 #undef signals
 #undef slots
