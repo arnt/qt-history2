@@ -477,18 +477,7 @@ void QDockWidgetPrivate::updateButtons()
 void QDockWidgetPrivate::_q_toggleTopLevel()
 {
     Q_Q(QDockWidget);
-    QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(q->layout());
-    QRect titleArea = layout->titleArea();
-
-    QPoint p = q->mapToGlobal(QPoint(titleArea.height(), titleArea.height()));
-    bool visible = q->isVisible();
-    if (visible)
-        q->hide();
     q->setFloating(!q->isFloating());
-    if (q->isWindow())
-        q->move(p);
-    if (visible)
-        q->show();
 }
 
 QMainWindow *QDockWidgetPrivate::findMainWindow(QWidget *widget) const
@@ -568,6 +557,7 @@ void QDockWidgetPrivate::endDrag()
 #ifdef Q_WS_X11
             setWindowState(true); // gets rid of the X11BypassWindowManager window flag
 #endif
+            undockedGeometry = q->geometry();
         }
     }
     delete state;
@@ -720,21 +710,21 @@ void QDockWidgetPrivate::nonClientAreaMouseEvent(QMouseEvent *event)
         case QEvent::NonClientAreaMouseMove:
             if (state == 0 || !state->dragging)
                 break;
-                        if (state->nca) {
+            if (state->nca) {
                 endDrag();
-                        }
+            }
 #ifdef Q_OS_MAC
-                        else { // workaround for lack of mouse-grab on Mac
-                            QMainWindowLayout *layout
-                                = qobject_cast<QMainWindowLayout *>(q->parentWidget()->layout());
-                            Q_ASSERT(layout != 0);
+            else { // workaround for lack of mouse-grab on Mac
+                QMainWindowLayout *layout
+                    = qobject_cast<QMainWindowLayout *>(q->parentWidget()->layout());
+                Q_ASSERT(layout != 0);
 
-                        q->move(event->globalPos() - state->pressPos);
-                        if (!(event->modifiers() & Qt::ControlModifier))
-                        state->pathToGap = layout->hover(state->widgetItem, event->globalPos());
+                q->move(event->globalPos() - state->pressPos);
+                if (!(event->modifiers() & Qt::ControlModifier))
+                state->pathToGap = layout->hover(state->widgetItem, event->globalPos());
             }
 #endif
-                        break;
+            break;
         case QEvent::NonClientAreaMouseButtonRelease:
 #ifdef Q_OS_MAC
                         if (state)
@@ -982,7 +972,16 @@ QDockWidget::DockWidgetFeatures QDockWidget::features() const
 void QDockWidget::setFloating(bool floating)
 {
     Q_D(QDockWidget);
-    d->setWindowState(floating);
+
+    if (floating && d->undockedGeometry.isNull()) {
+        QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(this->layout());
+        QRect titleArea = layout->titleArea();
+
+        QPoint p = mapToGlobal(QPoint(titleArea.height(), titleArea.height()));
+        d->undockedGeometry = QRect(p, size());
+    }
+
+    d->setWindowState(floating, false, floating ? d->undockedGeometry : QRect());
 }
 
 /*!

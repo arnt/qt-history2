@@ -79,6 +79,7 @@ public:
 #endif
 
     QMainWindow *findMainWindow(QWidget *widget) const;
+    QRect undockedGeometry;
 
     void mousePressEvent(QMouseEvent *event);
     void mouseDoubleClickEvent(QMouseEvent *event);
