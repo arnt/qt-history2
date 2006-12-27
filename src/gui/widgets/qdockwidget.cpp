@@ -973,6 +973,12 @@ void QDockWidget::setFloating(bool floating)
 {
     Q_D(QDockWidget);
 
+    if (d->state != 0) {
+        // the initial click of a double-click may have started a drag...
+        d->state->pathToGap.clear();
+        d->endDrag();
+    }
+
     if (floating && d->undockedGeometry.isNull()) {
         QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(this->layout());
         QRect titleArea = layout->titleArea();
