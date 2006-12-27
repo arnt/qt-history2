@@ -24,15 +24,17 @@
 
 #ifndef QT_NO_DESKTOPSERVICES
 
+//#undef UNICODE
+
 static bool openDocument(const QUrl &file)
 {
     if (!file.isValid())
         return false;
 
     QT_WA({
-                ShellExecute(0, 0, (TCHAR*)QString::fromLatin1(file.toEncoded()).utf16(), 0, 0, SW_SHOWNORMAL);
+                ShellExecute(0, 0, (TCHAR *)file.toString().utf16(), 0, 0, SW_SHOWNORMAL);
             } , {
-                ShellExecuteA(0, 0, QString::fromLatin1(file.toEncoded()).toLocal8Bit(), 0, 0, SW_SHOWNORMAL);
+                ShellExecuteA(0, 0, file.toString().toLocal8Bit().constData(), 0, 0, SW_SHOWNORMAL);
             });
 
     return true;
@@ -40,8 +42,7 @@ static bool openDocument(const QUrl &file)
 
 static bool launchWebBrowser(const QUrl &url)
 {
-
-    if (url.scheme() == QLatin1String("mailto")){
+    if (url.scheme() == QLatin1String("mailto")) {
         //Retrieve the commandline for the default mail cleint
         //the key used below is the command line for the mailto: shell command
         long  bufferSize = 2*MAX_PATH;    
@@ -76,23 +77,30 @@ static bool launchWebBrowser(const QUrl &url)
             command.replace(index, 2, url.toString());
         }
         //start the process
-        STARTUPINFO si;
         PROCESS_INFORMATION pi;
-        ZeroMemory( &si, sizeof(si) );
-        si.cb = sizeof(si);
-        ZeroMemory( &pi, sizeof(pi) );
-
+        ZeroMemory(&pi, sizeof(pi));
         QT_WA ({
-          returnValue = CreateProcess( NULL, (TCHAR*)command.unicode(), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+            STARTUPINFO si;
+            ZeroMemory(&si, sizeof(si));
+            si.cb = sizeof(si);
+
+            returnValue = CreateProcess(NULL, (TCHAR*)command.utf16(), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
         }, {
-            returnValue = CreateProcess( NULL, (TCHAR*)command.toLocal8Bit().constData(), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+            STARTUPINFOA si;
+            ZeroMemory(&si, sizeof(si));
+            si.cb = sizeof(si);
+
+            returnValue = CreateProcessA(NULL, command.toLocal8Bit().data(), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
         });
+
         if (!returnValue)
             return false;
-        CloseHandle( pi.hProcess );
-        CloseHandle( pi.hThread );
+
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
         return true;
-    } 
+    }
+
     return openDocument(url);
 }
 
