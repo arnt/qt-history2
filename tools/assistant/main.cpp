@@ -40,6 +40,35 @@
 #if !defined(QT_NO_DBUS) && defined(Q_OS_UNIX)
 #include <QtDBus/QDBusConnection>
 #include <QtDBus/QDBusAbstractAdaptor>
+#include <QtDBus/QDBusObjectPath>
+#include "tabbedbrowser.h"
+
+class HelpWindowAdaptor : public QDBusAbstractAdaptor
+{
+    Q_OBJECT
+    Q_CLASSINFO("D-Bus Interface", "com.trolltech.Assistant.HelpWindow")
+
+    Q_PROPERTY(QString source READ source WRITE setSource)
+
+public:
+    HelpWindowAdaptor(HelpWindow *w) : QDBusAbstractAdaptor(w), helpWindow(w)
+    {
+        setAutoRelaySignals(true);
+    }
+
+public Q_SLOTS:
+    inline QString source() const { return helpWindow->source().toString(); }
+    inline void setSource(const QString &src) { helpWindow->setSource(src); }
+
+    inline void clearHistory() { helpWindow->clearHistory(); }
+    inline void backward() { helpWindow->backward(); }
+    inline void forward() { helpWindow->forward(); }
+    inline void reload() { helpWindow->reload(); }
+    inline void home() { helpWindow->home(); }
+
+private:
+    HelpWindow *helpWindow;
+};
 
 class AssistantAdaptor : public QDBusAbstractAdaptor
 {
@@ -56,10 +85,44 @@ public:
 
 public slots:
     void showLink(const QString &link) { mw->showLink(link); }
+    QDBusObjectPath createNewTab();
+    QDBusObjectPath currentTab();
 
 private:
+    QDBusObjectPath pathForBrowser(HelpWindow *window);
     MainWindow *mw;
 };
+
+QDBusObjectPath AssistantAdaptor::createNewTab()
+{
+    HelpWindow *window = mw->browsers()->newBackgroundTab();
+    return pathForBrowser(window);
+}
+
+QDBusObjectPath AssistantAdaptor::currentTab()
+{
+    HelpWindow *window = mw->browsers()->currentBrowser();
+    return pathForBrowser(window);
+}
+
+QDBusObjectPath AssistantAdaptor::pathForBrowser(HelpWindow *window)
+{
+    int index = mw->browsers()->browsers().indexOf(window);
+    if (index == -1)
+        return QDBusObjectPath();
+
+    QString name(QLatin1String("/Assistant/Tabs/"));
+    name += QString::number(index);
+    QDBusObjectPath path(name);
+
+    if (!window->findChild<HelpWindowAdaptor *>()) {
+        (void)new HelpWindowAdaptor(window);
+        QDBusConnection::sessionBus().registerObject(name, window);
+    }
+
+    return path;
+}
+
 #endif // QT_NO_DBUS
 
 class AssistantSocket : public QTcpSocket
