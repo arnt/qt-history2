@@ -2538,11 +2538,17 @@ void QGraphicsScene::focusOutEvent(QFocusEvent *focusEvent)
 }
 
 /*!
-   This event handler, for event \a helpEvent, can be reimplemented in a
-   subclass to receive help events. The default implementation uses the event
-   to show tooltips for items.
+    This event handler, for event \a helpEvent, can be
+    reimplemented in a subclass to receive help events. The events
+    are of type QEvent::ToolTip, which are created when a tooltip is
+    requested.
+    
+    The default implementation shows the tooltip of the topmost
+    item, i.e., the item with the highest z-value, at the mouse
+    cursor position. If no item has a tooltip set, this function
+    does nothing.
 
-   \sa QGraphicsItem::toolTip()
+   \sa QGraphicsItem::toolTip(), QGraphicsSceneHelpEvent
 */
 void QGraphicsScene::helpEvent(QGraphicsSceneHelpEvent *helpEvent)
 {
