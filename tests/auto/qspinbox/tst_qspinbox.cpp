@@ -783,25 +783,6 @@ void tst_QSpinBox::undoRedo()
 
     //testing CTRL+Z (undo)
     QTest::keyClick(&spin, Qt::Key_Z, Qt::ControlModifier);
-    QCOMPARE(spin.value(), 1);
-
-    //testing CTRL+Y (redo)
-    QTest::keyClick(&spin, Qt::Key_Y, Qt::ControlModifier);
-    QCOMPARE(spin.value(), 1);
-
-    spin.setValue(0); //sets the value to 0 and clears the history
-
-    //we enable undo/redo
-
-    //doing the same test should show that CTRL+Z and CTRL+Y work
-    spin.setUndoRedoEnabled(true);
-
-    spin.lineEdit()->selectAll(); //ensures everything is selected and will be cleared by typing a key
-    QTest::keyClick(&spin, Qt::Key_1); //we put 1 into the spinbox
-    QCOMPARE(spin.value(), 1);
-
-    //testing CTRL+Z (undo)
-    QTest::keyClick(&spin, Qt::Key_Z, Qt::ControlModifier);
     QCOMPARE(spin.value(), 0);
 
     //testing CTRL+Y (redo)
