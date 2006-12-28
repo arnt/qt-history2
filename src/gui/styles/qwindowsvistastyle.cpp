@@ -1693,6 +1693,29 @@ QRect QWindowsVistaStyle::subControlRect(ComplexControl control, const QStyleOpt
 /*!
  \reimp
  */
+bool QWindowsVistaStyle::event(QEvent *e)
+{
+    Q_D(QWindowsVistaStyle);
+    switch (e->type()) {
+    case QEvent::Timer:
+        {
+            QTimerEvent *timerEvent = (QTimerEvent *)e;
+            if (d->animationTimer.timerId() == timerEvent->timerId()) {
+                d->timerEvent();
+                e->accept();
+                return true;
+            }
+        }
+        break;
+    default:
+        break;
+    }
+    return QWindowsXPStyle::event(e);
+}
+
+/*!
+ \reimp
+ */
 QStyle::SubControl QWindowsVistaStyle::hitTestComplexControl(ComplexControl control, const QStyleOptionComplex *option,
                                                           const QPoint &pos, const QWidget *widget) const
 {
@@ -1795,30 +1818,27 @@ QPixmap QWindowsVistaStyle::standardPixmap(StandardPixmap standardPixmap, const 
     return QWindowsXPStyle::standardPixmap(standardPixmap, option, widget);
 }
 
-void QWindowsVistaStylePrivate::timerEvent(QTimerEvent *timer)
+void QWindowsVistaStylePrivate::timerEvent()
 {
-    if (timer->timerId() == timerId) {
-        for (int i = animations.size() - 1 ; i >= 0 ; --i) {
+    for (int i = animations.size() - 1 ; i >= 0 ; --i) {
 
-            if (animations[i]->widget())
-                animations[i]->widget()->update();
+        if (animations[i]->widget())
+            animations[i]->widget()->update();
 
-            if (!animations[i]->widget() ||
-                !animations[i]->widget()->isEnabled() ||
-                !animations[i]->widget()->isVisible() ||
-                animations[i]->widget()->window()->isMinimized() ||
-                !animations[i]->running() ||
-                !transitionsEnabled() ||
-                !QWindowsVistaStylePrivate::useVista())
-            {
-                Animation *a = animations.takeAt(i);
-                delete a;
-            }
+        if (!animations[i]->widget() ||
+            !animations[i]->widget()->isEnabled() ||
+            !animations[i]->widget()->isVisible() ||
+            animations[i]->widget()->window()->isMinimized() ||
+            !animations[i]->running() ||
+            !transitionsEnabled() ||
+            !QWindowsVistaStylePrivate::useVista())
+        {
+            Animation *a = animations.takeAt(i);
+            delete a;
         }
-        if (animations.size() == 0 && timerId >= 0) {
-            killTimer(timerId);
-            timerId = -1;
-        }
+    }
+    if (animations.size() == 0 && animationTimer.isActive()) {
+        animationTimer.stop();
     }
 }
 
@@ -1835,6 +1855,7 @@ void QWindowsVistaStylePrivate::stopAnimation(const QWidget *w)
 
 void QWindowsVistaStylePrivate::startAnimation(Animation *t)
 {
+    Q_Q(QWindowsVistaStyle);
     for (int i = animations.size() - 1 ; i >= 0 ; --i) {
         if (animations[i]->widget() == t->widget()) {
             Animation *a = animations.takeAt(i);
@@ -1843,8 +1864,8 @@ void QWindowsVistaStylePrivate::startAnimation(Animation *t)
         }
     }
     animations.append(t);
-    if (animations.size() > 0 && timerId == -1) {
-        timerId = startTimer(60);
+    if (animations.size() > 0 && !animationTimer.isActive()) {
+        animationTimer.start(60, q);
     }
 }
 

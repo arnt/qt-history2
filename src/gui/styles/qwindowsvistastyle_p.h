@@ -137,13 +137,13 @@ public :
 };
 
 
-class QWindowsVistaStylePrivate :  public QObject, public QWindowsXPStylePrivate
+class QWindowsVistaStylePrivate :  public QWindowsXPStylePrivate
 {
     Q_DECLARE_PUBLIC(QWindowsVistaStyle)
 
 public:
     QWindowsVistaStylePrivate() : 
-        QWindowsXPStylePrivate(), timerId(-1)
+        QWindowsXPStylePrivate()
     {   
         resolveSymbols();
     }
@@ -153,12 +153,12 @@ public:
     void startAnimation(Animation *);
     void stopAnimation(const QWidget *);
     Animation* widgetAnimation(const QWidget *) const;
-    void timerEvent(QTimerEvent *);
+    void timerEvent();
     bool transitionsEnabled() const;
 
 private:
-    int timerId;
     QList <Animation*> animations;
+    QBasicTimer animationTimer;
 };
 
 #endif // QT_NO_STYLE_WINDOWSVISTA
