@@ -922,14 +922,6 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *event)
             return;
         }
         break;
-#else // Mac and Windows
-    case Qt::Key_A:
-        if (event->modifiers() & Qt::ControlModifier) {
-            selectAll();
-            event->accept();
-            return;
-        }
-        break;
 #endif
 
     case Qt::Key_End:
@@ -956,6 +948,11 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *event)
         break;
 
     default:
+        if (event == QKeySequence::SelectAll) {
+            selectAll();
+            event->accept();
+            return;
+        }
         break;
     }
 
