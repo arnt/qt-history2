@@ -955,13 +955,6 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *event)
         }
         break;
 
-    case Qt::Key_Z:
-    case Qt::Key_Y:
-        if (event->modifiers() & Qt::ControlModifier) {
-            event->ignore();
-            return;
-        }
-        break;
     default:
         break;
     }
