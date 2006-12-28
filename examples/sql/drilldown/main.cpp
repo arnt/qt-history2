@@ -13,7 +13,7 @@
 
 #include <QtGui>
 
-#include "database.h"
+#include "../connection.h"
 #include "view.h"
 
 int main(int argc, char *argv[])

@@ -1,4 +1,4 @@
-HEADERS = database.h \
+HEADERS = ../connection.h \
           imageitem.h \
           informationwindow.h \
           view.h 
