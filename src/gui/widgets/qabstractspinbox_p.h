@@ -112,7 +112,6 @@ public:
     uint ignoreCursorPositionChanged : 1;
     uint frame : 1;
     uint accelerate : 1;
-    uint undoRedoEnabled : 1;
     QAbstractSpinBox::CorrectionMode correctionMode;
     int acceleration;
     QStyle::SubControl hoverControl;

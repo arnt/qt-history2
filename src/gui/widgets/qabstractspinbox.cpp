@@ -336,27 +336,6 @@ bool QAbstractSpinBox::isAccelerated() const
 }
 
 /*!
-    \property QTextEdit::undoRedoEnabled
-    \brief whether undo and redo are enabled
-    \since 4.3
-
-    Users are only able to undo or redo actions if this property is
-    true, and if there is an action that can be undone (or redone).
-*/
-
-bool QAbstractSpinBox::isUndoRedoEnabled() const
-{
-    Q_D(const QAbstractSpinBox);
-    return d->undoRedoEnabled;
-}
-
-void QAbstractSpinBox::setUndoRedoEnabled(bool enable)
-{
-    Q_D(QAbstractSpinBox);
-    d->undoRedoEnabled = enable;
-}
-
-/*!
     \enum QAbstractSpinBox::CorrectionMode
 
     This enum type describes the mode the spinbox will use to correct
@@ -978,7 +957,7 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *event)
 
     case Qt::Key_Z:
     case Qt::Key_Y:
-        if (!d->undoRedoEnabled && event->modifiers() & Qt::ControlModifier) {
+        if (event->modifiers() & Qt::ControlModifier) {
             event->ignore();
             return;
         }
@@ -1233,7 +1212,7 @@ QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
       spinClickTimerInterval(100), spinClickThresholdTimerId(-1), spinClickThresholdTimerInterval(thresholdTime),
       buttonState(None), cachedText(QLatin1String("\x01")), cachedState(QValidator::Invalid),
       pendingEmit(false), readOnly(false), wrapping(false),
-      ignoreCursorPositionChanged(false), frame(true), accelerate(false), undoRedoEnabled(false),
+      ignoreCursorPositionChanged(false), frame(true), accelerate(false),
       correctionMode(QAbstractSpinBox::CorrectToPreviousValue), acceleration(0),
       hoverControl(QStyle::SC_None), buttonSymbols(QAbstractSpinBox::UpDownArrows), validator(0)
 {
