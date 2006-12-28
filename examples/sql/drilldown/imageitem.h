@@ -34,12 +34,10 @@ protected:
 
 private slots:
     void setFrame(int frame);
-    void updateZValue();
+    void updateItemPosition();
 
 private:
     QTimeLine timeLine;
-    QMatrix adjustedMatrix;
-
     int recordId;
     double z;
 };

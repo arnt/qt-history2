@@ -24,7 +24,7 @@ ImageItem::ImageItem(int id, const QPixmap &pixmap, QGraphicsItem *parent,
     timeLine.setFrameRange(0, 150);
 
     connect(&timeLine, SIGNAL(frameChanged(int)), this, SLOT(setFrame(int)));
-    connect(&timeLine, SIGNAL(finished()), this, SLOT(updateZValue()));
+    connect(&timeLine, SIGNAL(finished()), this, SLOT(updateItemPosition()));
 
     adjust();
 }
@@ -32,43 +32,29 @@ ImageItem::ImageItem(int id, const QPixmap &pixmap, QGraphicsItem *parent,
 void ImageItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
     timeLine.setDirection(QTimeLine::Forward);
+
+    if (z != 1.0) {
+        z = 1.0;
+        updateItemPosition();
+    }
+
     if (timeLine.state() == QTimeLine::NotRunning)
         timeLine.start();
-
-    z = 1.0;
-    updateZValue();
-
-    QGraphicsPixmapItem::hoverEnterEvent(event);
 }
 
 void ImageItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     timeLine.setDirection(QTimeLine::Backward);
+    if (z != 0.0)
+        z = 0.0;
+
     if (timeLine.state() == QTimeLine::NotRunning)
         timeLine.start();
-
-    z = 0.0;
-
-    QGraphicsPixmapItem::hoverLeaveEvent(event);
-}
-
-void ImageItem::adjust()
-{
-    adjustedMatrix.reset();
-    adjustedMatrix.scale(150/ boundingRect().width(),
-                         120/ boundingRect().height());
-
-    setMatrix(adjustedMatrix);
-}
-
-int ImageItem::id()
-{
-    return recordId;
 }
 
 void ImageItem::setFrame(int frame)
 {
-    setMatrix(adjustedMatrix);
+    adjust();
     QPointF center = boundingRect().center();
 
     translate(center.x(), center.y());
@@ -76,7 +62,19 @@ void ImageItem::setFrame(int frame)
     translate(-center.x(), -center.y());
 }
 
-void ImageItem::updateZValue()
+void ImageItem::adjust()
+{
+    QMatrix matrix;
+    matrix.scale(150/ boundingRect().width(), 120/ boundingRect().height());
+    setMatrix(matrix);
+}
+
+int ImageItem::id()
+{
+    return recordId;
+}
+
+void ImageItem::updateItemPosition()
 {
     setZValue(z);
 }

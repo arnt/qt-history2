@@ -20,7 +20,6 @@ View::View(const QString &offices, const QString &images, QWidget *parent)
 {
     officeTable = new QSqlRelationalTableModel(this);
     officeTable->setTable(offices);
-    officeTable->setEditStrategy(QSqlTableModel::OnManualSubmit);
     officeTable->setRelation(1, QSqlRelation(images, "locationid", "file"));
     officeTable->select();
 
@@ -113,7 +112,6 @@ void View::updateImage(int id, const QString &fileName)
 
         if (ImageItem *image = qgraphicsitem_cast<ImageItem *>(item)) {
             if (image->id() == id){
-
                 image->setPixmap(QPixmap(":/" +fileName));
                 image->adjust();
                 break;
