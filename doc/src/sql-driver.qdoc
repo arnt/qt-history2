@@ -295,6 +295,24 @@
 
     If you experience very slow access of the ODBC datasource, make sure
     that ODBC call tracing is turned off in the ODBC datasource manager.
+  
+    \section3 Stored Procedure Support
+
+    With Microsoft SQL Server the result set returned by a stored 
+    procedure that uses the return statement, or returns multiple result
+    sets, will be accessible only if you set the query's forward only 
+    mode to \e forward using \l QSqlQuery::setForwardOnly(). 
+
+    \code
+    \\ STORED_PROC uses the return statement or returns multiple result sets
+    QSqlQuery query;
+    query.setForwardOnly(true);
+    query.exec("{call STORED_PROC}");
+    \endcode
+
+    \bold{Note:} The value returned by the stored procedure's return statement
+    is discarded. If the stored procedure returns multiple result sets only
+    the first will be accessible.
 
     \section3 Unicode Support
 

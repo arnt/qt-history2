@@ -192,10 +192,9 @@ QSqlQueryPrivate::~QSqlQueryPrivate()
 
     Note that unbound parameters will retain their values.
 
-    Stored procedures that has a return value (using the return statement)
-    or return multiple result sets are not supported. Returning values
-    from the stored procedure should be done trough OUT parameters or
-    the result set itself.
+    Stored procedures that uses the return statement to return values,
+    or return multiple result sets, are not fully supported. For specific 
+    details see \l{SQL Database Drivers}.
 
     \sa QSqlDatabase, QSqlQueryModel, QSqlTableModel, QVariant
 */
