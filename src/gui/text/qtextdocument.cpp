@@ -2112,7 +2112,7 @@ void QTextHtmlExporter::emitTable(const QTextTable *table)
 
             html += QLatin1String("\n<td");
 
-            if (!widthEmittedForColumn[col]) {
+            if (!widthEmittedForColumn[col] && cell.columnSpan() == 1) {
                 emitTextLength("width", columnWidths.at(col));
                 widthEmittedForColumn[col] = true;
             }
