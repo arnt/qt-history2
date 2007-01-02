@@ -1,5 +1,5 @@
 /*!
-    \example stardelegate
+    \example itemviews/stardelegate
     \title Star Delegate Example
 
     The Start Delegate example shows how to create a delegate that
@@ -50,7 +50,7 @@
 
     Here's the definition of the \c StarDelegate class:
 
-    \quotefromfile stardelegate/stardelegate.h
+    \quotefromfile itemviews/stardelegate/stardelegate.h
     \skipto /class\s.*StarDelegate/
     \printuntil /^\}/
 
@@ -63,7 +63,7 @@
     reimplemented from QItemDelegate and is called whenever the view
     needs to repaint an item:
 
-    \quotefromfile stardelegate/stardelegate.cpp
+    \quotefromfile itemviews/stardelegate/stardelegate.cpp
     \skipto ::paint
     \printto /^\}/
 
@@ -107,7 +107,7 @@
     called when an editor is created to initialize it with data
     from the model:
 
-    \quotefromfile stardelegate/stardelegate.cpp
+    \quotefromfile itemviews/stardelegate/stardelegate.cpp
     \skipto ::setEditorData
     \printuntil /^\}/
 
@@ -122,7 +122,7 @@
 
     The \c sizeHint() function returns an item's preferred size:
 
-    \quotefromfile stardelegate/stardelegate.cpp
+    \quotefromfile itemviews/stardelegate/stardelegate.cpp
     \skipto ::sizeHint
     \printuntil /^\}/
 
@@ -133,7 +133,7 @@
     The \c StarEditor class was used when implementing \c
     StarDelegate. Here's the class definition:
 
-    \quotefromfile stardelegate/stareditor.h
+    \quotefromfile itemviews/stardelegate/stareditor.h
     \skipto class StarEditor
     \printuntil /^\}/
 
@@ -150,7 +150,7 @@
 
     Let's start with the constructor:
 
-    \quotefromfile stardelegate/stareditor.cpp
+    \quotefromfile itemviews/stardelegate/stareditor.cpp
     \skipto ::StarEditor
     \printuntil /^\}/
 
@@ -191,7 +191,7 @@
 
     \section1 StarRating Class Definition
 
-    \quotefromfile stardelegate/starrating.h
+    \quotefromfile itemviews/stardelegate/starrating.h
     \skipto class StarRating
     \printuntil /^\}/
     \printline Q_DECLARE_METATYPE(
@@ -212,7 +212,7 @@
     The constructor initializes \c myStarCount and \c myMaxStarCount,
     and sets up the polygons used to draw stars and diamonds:
 
-    \quotefromfile stardelegate/starrating.cpp
+    \quotefromfile itemviews/stardelegate/starrating.cpp
     \skipto ::StarRating
     \printuntil /^\}/
 
@@ -235,7 +235,7 @@
     The \c sizeHint() function returns the preferred size for an area
     to paint the stars on:
 
-    \quotefromfile stardelegate/starrating.cpp
+    \quotefromfile itemviews/stardelegate/starrating.cpp
     \skipto ::sizeHint
     \printuntil /^\}/
 
@@ -247,7 +247,7 @@
 
     Here's the program's \c main() function:
 
-    \quotefromfile stardelegate/main.cpp
+    \quotefromfile itemviews/stardelegate/main.cpp
     \skipto main(
     \printuntil /^\}/
 
@@ -260,7 +260,7 @@
     The \c populateTableWidget() function fills the QTableWidget with
     data:
 
-    \quotefromfile stardelegate/main.cpp
+    \quotefromfile itemviews/stardelegate/main.cpp
     \skipto populateTableWidget(
     \printuntil staticData[
     \printline },
