@@ -764,7 +764,15 @@ bool QNativeSocketEnginePrivate::nativeHasPendingDatagrams() const
     int ret = ::WSARecvFrom(socketDescriptor, &buf, 1, &available, &flags, storagePtr, &storageSize,0,0);
     int err = WSAGetLastError();
     if (ret == SOCKET_ERROR && err !=  WSAEMSGSIZE) {
-	    WS_ERROR_DEBUG(err);
+        WS_ERROR_DEBUG(err);
+        if (err == WSAECONNRESET) {
+            // Discard error message to prevent QAbstractSocket from
+            // getting this message repeatedly after reenabling the
+            // notifiers.
+            flags = 0;
+            ::WSARecvFrom(socketDescriptor, &buf, 1, &available, &flags,
+                          storagePtr, &storageSize, 0, 0);
+        }
     } else {
     // If the port was set in the sockaddr structure, then a new message is available.
 #if !defined(QT_NO_IPV6)
