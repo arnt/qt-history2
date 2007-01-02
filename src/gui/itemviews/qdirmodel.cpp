@@ -159,7 +159,8 @@ void QDirModelPrivate::invalidate()
   directories. In the simplest case, it can be used with a suitable display
   widget as part of a browser or filer.
 
-  QDirModel does not store file information internally or cache file data.
+  QDirModel keeps a cache with file information. The cache needs to be
+  updated with refresh().
 
   A directory model that displays the contents of a default directory
   is usually constructed with a parent object:
@@ -778,7 +779,10 @@ bool QDirModel::lazyChildCount() const
 }
 
 /*!
-  Refreshes (rereads) the children of \a parent.
+  QDirModel caches file information. This function updates the
+  cache. The \a parent parameter is the directory from which the
+  model is updated; the default value will update the model from
+  root directory of the file system (the entire model).
 */
 
 void QDirModel::refresh(const QModelIndex &parent)
