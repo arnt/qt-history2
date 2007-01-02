@@ -631,7 +631,8 @@ void QAction::setMenu(QMenu *menu)
     if (d->menu)
         d->menu->d_func()->setOverrideMenuAction(0); //we reset the default action of any previous menu
     d->menu = menu;
-    menu->d_func()->setOverrideMenuAction(this);
+    if (menu)
+        menu->d_func()->setOverrideMenuAction(this);
     d->sendDataChanged();
 }
 #endif // QT_NO_MENU
