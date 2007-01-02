@@ -570,6 +570,14 @@ void QMenuBar::initStyleOption(QStyleOptionMenuItem *option, const QAction *acti
 
     You can override this behavior by using the QAction::menuRole() property.
 
+    If you wish to make all windows in a Mac application share the
+    same menubar, you need to create a menu bar that does not have a
+    parent. The menubar is created like this:
+
+    \code
+	QMenuBar *menuBar = new QMenuBar(0);
+    \endcode
+
     \bold{Note:} The text used for the application name in the menu bar is
     obtained from the value set in the \c{Info.plist} file in the application's
     bundle. See \l{Deploying an Application on Qt/Mac} for more information.
