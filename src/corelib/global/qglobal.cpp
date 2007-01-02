@@ -2076,6 +2076,17 @@ void qDebug(const char *msg, ...)
         }
     \endcode
 
+    If you include <QtDebug>, a more convenient syntax is
+    also available:
+
+    \code
+       qWarning() << "Brush:" << myQBrush << "Other value:"
+       << i;
+    \endcode
+
+    This syntax inserts a space between each item, and
+    appends a newline at the end.
+
     \warning The internal buffer is limited to 8192 bytes, including
     the '\0'-terminator.
 
@@ -2116,6 +2127,17 @@ void qWarning(const char *msg, ...)
                 qCritical("File '%s' does not exist!", qPrintable(fileName));
         }
     \endcode
+
+    If you include <QtDebug>, a more convenitent syntax is
+    also available:
+
+    \code
+       qCritical() << "Brush:" << myQBrush << "Other
+       value:" << i;
+    \endcode
+
+    A space is inserted between the items, and a newline is
+    appended at the end.
 
     \warning The internal buffer is limited to 8192 bytes, including
     the '\0'-terminator.
