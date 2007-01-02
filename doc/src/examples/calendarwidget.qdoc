@@ -1,6 +1,6 @@
 /*!
     \title Calendar Widget Example
-    \example calendarwidget
+    \example widgets/calendarwidget
 
     The Calendar Widget example shows use of \c QCalendarWidget.
 
