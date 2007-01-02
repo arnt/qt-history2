@@ -85,7 +85,7 @@ bool QMDIControl::event(QEvent *event)
         else if (ctrl == QStyle::SC_MDINormalButton)
             QToolTip::showText(helpEvent->globalPos(), tr("Restore Down"));
         else
-            QToolTip::showText(helpEvent->globalPos(), QLatin1String(""));
+            QToolTip::hideText();
     }
     return QWidget::event(event);
 }
