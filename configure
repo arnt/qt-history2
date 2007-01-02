@@ -2184,28 +2184,28 @@ if [ "$CFG_REDUCE_EXPORTS" = "auto" ]; then
     fi
 fi
 
-# detect sse support
+# detect SSE support
 if "$unixtests/sse.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
     CFG_HAVE_SSE=no
 else
     CFG_HAVE_SSE=yes
 fi
 
-# check iwmmxt support
+# check iWMMXt support
 if [ "$CFG_IWMMXT" = "yes" ]; then
     if ! "$unixtests/iwmmxt.test" "$XQMAKESPEC" "$OPT_VERBOSE"; then
-        echo "The iwmmxt functionality test failed!"
-	echo " Please make sure your compiler supports iwmmxt intrinsics!"
+        echo "The iWMMXt functionality test failed!"
+	echo " Please make sure your compiler supports iWMMXt intrinsics!"
 	exit 1
     fi
 fi
 
-#auto-detect GNU make support
+# auto-detect GNU make support
 if [ "$CFG_USE_GNUMAKE" = "auto" ] && "$MAKE" -v | grep "GNU Make" >/dev/null 2>&1; then
    CFG_USE_GNUMAKE=yes
 fi
 
-#mac
+# mac
 if [ "$PLATFORM_MAC" = "yes" ]; then
     if [ "$CFG_OPENGL" = "auto" ]; then
         CFG_OPENGL=yes
@@ -2235,7 +2235,7 @@ else
     CFG_UNIVERSAL_BINARY="no"
 fi
 
-#x11 tests are done after qmake is built
+# x11 tests are done after qmake is built
 
 # embedded
 if [ "$PLATFORM_QWS" = "yes" ]; then
@@ -5131,24 +5131,24 @@ fi
 echo "Build ............... $CFG_BUILD_PARTS"
 echo "Configuration ....... $QMAKE_CONFIG $QT_CONFIG"
 if [ "$CFG_DEBUG_RELEASE" = "yes" ]; then
-   echo "Debug................ yes (combined)"
+   echo "Debug ............... yes (combined)"
    if [ "$CFG_DEBUG" = "yes" ]; then
-       echo "Default Link......... debug"
+       echo "Default Link ........ debug"
    else
-       echo "Default Link......... release"
+       echo "Default Link ........ release"
    fi
 else
    echo "Debug................ $CFG_DEBUG"
 fi
-echo "Qt 3 compatibility... $CFG_QT3SUPPORT"
-echo "QtDBus module........ $CFG_QDBUS"
+echo "Qt 3 compatibility .. $CFG_QT3SUPPORT"
+echo "QtDBus module ....... $CFG_QDBUS"
 echo "STL support ......... $CFG_STL"
 echo "PCH support ......... $CFG_PRECOMPILE"
 echo "MMX/SSE support ..... $CFG_HAVE_SSE"
 echo "IPv6 support ........ $CFG_IPV6"
 echo "IPv6 ifname support . $CFG_IPV6IFNAME"
 echo "getaddrinfo support . $CFG_GETADDRINFO"
-echo "getifaddrs support... $CFG_GETIFADDRS"
+echo "getifaddrs support .. $CFG_GETIFADDRS"
 echo "Accessibility ....... $CFG_ACCESSIBILITY"
 echo "NIS support ......... $CFG_NIS"
 echo "CUPS support ........ $CFG_CUPS"

@@ -16,9 +16,9 @@ rm -f fvisibility.c fvisibility.o
 
 # done
 if [ "$FVISIBILITY_SUPPORT" != "yes" ]; then
-    [ "$VERBOSE" = "yes" ] && echo "-fvisibility support disabled."
+    [ "$VERBOSE" = "yes" ] && echo "Symbol visibility control disabled."
     exit 0
 else
-    [ "$VERBOSE" = "yes" ] && echo "-fvisibility support enabled."
+    [ "$VERBOSE" = "yes" ] && echo "Symbol visibility control enabled."
     exit 1
 fi

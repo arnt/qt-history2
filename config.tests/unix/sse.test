@@ -17,9 +17,9 @@ rm -f sse.c sse.o
 
 # done
 if [ "$SSE_SUPPORT" != "yes" ]; then
-    [ "$VERBOSE" = "yes" ] && echo "sse support disabled."
+    [ "$VERBOSE" = "yes" ] && echo "SSE support disabled."
     exit 0
 else
-    [ "$VERBOSE" = "yes" ] && echo "sse support enabled."
+    [ "$VERBOSE" = "yes" ] && echo "SSE support enabled."
     exit 1
 fi

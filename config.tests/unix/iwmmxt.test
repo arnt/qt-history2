@@ -15,9 +15,9 @@ rm -f iwmmxt.c iwmmxt.o
 
 # done
 if [ "$IWMMXT_SUPPORT" != "yes" ]; then
-    [ "$VERBOSE" = "yes" ] && echo "iwmmxt support disabled."
+    [ "$VERBOSE" = "yes" ] && echo "iWMMXt support disabled."
     exit 1
 else
-    [ "$VERBOSE" = "yes" ] && echo "iwmmxt support enabled."
+    [ "$VERBOSE" = "yes" ] && echo "iWMMXt support enabled."
     exit 0
 fi
