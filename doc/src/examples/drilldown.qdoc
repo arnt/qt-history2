@@ -271,27 +271,24 @@
 
     The QGraphicsView class is part of the \l {The Graphics View
     Framework} which we will use to display the images of Trolltech's
-    offices. Note that the constructor expects the names of two
-    database tables: One containing the detailed information about the
-    offices, and another containing the names of the available image
-    files.
-
-    To be able to respond to user interaction, i.e., showing the
+    offices. To be able to respond to user interaction, i.e., showing the
     appropriate information window whenever the user clicks one of the
     office images, we reimplement QGraphicsView's \l
-    {QGraphicsView::}{mouseReleaseEvent()} function. We also provide
-    the private \c updateImage() slot to catch \c
+    {QGraphicsView::}{mouseReleaseEvent()} function.
+
+    Note that the constructor expects the names of two database
+    tables: One containing the detailed information about the offices,
+    and another containing the names of the available image files.  We
+    also provide a private \c updateImage() slot to catch \c
     {InformationWindow}'s \c imageChanged() signal that is emitted
-    whenever the user changes a location's image. The slot takes the
-    location ID and the name of the new image file as arguments, and
-    updates the corresponding image item.
+    whenever the user changes a location's image.
 
     \skipto private
     \printuntil informationWindows
 
-    The \c addItems() function is a convenience function only provided
-    to simplify the constructor. It creates the various items and add
-    them to the view.
+    The \c addItems() function is a convenience function provided to
+    simplify the constructor. It is called only once, creating the
+    various items and adding them to the view.
 
     The \c findWindow() function, on the other hand, is frequently
     used. It is called from the \c showInformation() function to
@@ -331,7 +328,7 @@
     we can create a relation to the available image files using
     QSqlRelationalTableModel's \l
     {QSqlRelationalTableModel::}{setRelation()} function. This
-    function create a foreign key for the given model column. The key
+    function creates a foreign key for the given model column. The key
     is specified by the provided QSqlRelation object constructed by
     the name of the table the key refers to, the field the key is
     mapping to and the field that should be presented to the user.
@@ -390,11 +387,10 @@
     function calls the private \c showInformation() function to pop up
     the associated information window.
 
-    The \l {The Graphics View Framework} provides the
-    qgraphicsitem_cast() function to determine whether the given
-    QGraphicsItem instance is of a given type. Note that if the event
-    is not related to any of our image items, we pass it on to the
-    base class implementation.
+    \l {The Graphics View Framework} provides the qgraphicsitem_cast()
+    function to determine whether the given QGraphicsItem instance is
+    of a given type. Note that if the event is not related to any of
+    our image items, we pass it on to the base class implementation.
 
     \skipto View::showInformation
     \printuntil /^\}/
@@ -407,18 +403,18 @@
     and activated. If the window exists but is hidden, calling its \l
     {QWidget::}{show()} slot gives the same result.
 
-    If there exists no window for the given location, we create one by
+    If no window for the given location exists, we create one by
     passing the location ID, a pointer to the model, and our view as a
     parent, to the \c InformationWindow constructor. Note that we
     connect the information window's \c imageChanged() signal to \e
-    this widget's \c updateImage() slot before we give it a suitable
+    this widget's \c updateImage() slot, before we give it a suitable
     position and add it to the list of existing windows.
 
     \skipto View::updateImage
     \printuntil /^\}/
 
     The \c updateImage() slot takes a location ID and the name of an
-    image files as arguments. It filters out the image items and
+    image files as arguments. It filters out the image items, and
     updates the one that correspond to the given location ID, with the
     provided image file.
 
@@ -446,7 +442,7 @@
     In addition, we implement a public \c id() function to be able to
     identify the associated location and a public \c adjust() function
     that can be called to ensure that the image item is given the
-    correct size regardless of the original image file.
+    preferred size regardless of the original image file.
 
     The animation is implemented using the QTimeLine class together
     with the event handlers and the private \c setFrame() slot: The
@@ -483,19 +479,19 @@
 
     The QTimeLine class provides a timeline for controlling
     animations. Its \l {QTimeLine::}{duration} property holds the
-    total duration of the timeline in milliseconds. By default the
-    time line runs once, from the beginning and towards the end. The
+    total duration of the timeline in milliseconds. By default, the
+    time line runs once from the beginning and towards the end. The
     QTimeLine::setFrameRange() function sets the timeline's frame
     counter; when the timeline is running, the \l
     {QTimeLine::}{frameChanged()} signal is emitted each time the
-    frame changes. We set the duration and frame range of our
-    animation and connect the time line's \l
+    frame changes. We set the duration and frame range for our
+    animation, and connect the time line's \l
     {QTimeLine::}{frameChanged()} and \l {QTimeLine::}{finished()}
     signals to our private \c setFrame() and \c updateItemPosition()
     slots.
 
     Finally, we call \c adjust() to ensure that the item is given the
-    correct size.
+    preferred size.
 
     \skipto ImageItem::hoverEnterEvent
     \printuntil /^\}/
@@ -506,18 +502,19 @@
     Whenever the mouse cursor enters or leave the image item, the
     corresponding event handlers are triggered: We first set the time
     line's direction, making the item expand or shrink,
-    respectively. Note that we also alter the items z-value.
+    respectively. Then we alter the item's z-value if it is not already
+    set to the expected value.
 
-    In the case of a hover \e enter event, we immediately update the
+    In the case of hover \e enter events, we immediately update the
     item's position since we want the item to appear on top of all
-    other items when it starts expanding. In the case of a hover \e
-    leave event, on the other hand, we postpone the actual update. But
-    remember that when we constructed our item, we connected the time
-    line's \l {QTimeLine::}{ finished()} signal to the \c
-    updateItemPosition() slot,. In this way the item is given the
-    correct position in the item stack once the animation is
-    completed. Finally, if the time line is not already running, we
-    start it.
+    other items as soon as it starts expanding. In the case of hover
+    \e leave events, on the other hand, we postpone the actual update
+    to achieve the same result. But remember that when we constructed
+    our item, we connected the time line's \l
+    {QTimeLine::}{finished()} signal to the \c updateItemPosition()
+    slot. In this way the item is given the correct position in the
+    item stack once the animation is completed. Finally, if the time
+    line is not already running, we start it.
 
     \skipto ImageItem::setFrame
     \printuntil /^\}/
@@ -529,11 +526,11 @@
 
     We first call the \c adjust() function to ensure that we start off
     with the item's original size. Then we scale the item with a
-    factor relative to the animation's progress using the \c frame
-    parameter. Note that by default, the transformation will be
+    factor depending on the animation's progress (using the \c frame
+    parameter). Note that by default, the transformation will be
     relative to the item's top-left corner. Since we want the item to
-    expand in all directions, we must translate the coordinate system
-    before we scale the item.
+    be transformed relative to its center, we must translate the
+    coordinate system before we scale the item.
 
     In the end, only the following convenience functions remain:
 
