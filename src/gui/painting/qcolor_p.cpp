@@ -33,13 +33,13 @@ static inline int h2i(char hex)
 
 static inline int hex2int(const char *s)
 {
-    return (h2i(s[0]) << 4) + h2i(s[1]);
+    return (h2i(s[0]) << 4) | h2i(s[1]);
 }
 
 static inline int hex2int(char s)
 {
     int h = h2i(s);
-    return (h << 4) + h;
+    return (h << 4) | h;
 }
 
 bool qt_get_hex_rgb(const char *name, QRgb *rgb)
