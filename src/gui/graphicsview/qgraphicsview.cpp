@@ -245,6 +245,8 @@ public:
 #ifndef QT_NO_CURSOR
     QCursor originalCursor;
     bool hasStoredOriginalCursor;
+    void setViewportCursor(const QCursor &cursor);
+    void unsetViewportCursor();
 #endif
 
     QGraphicsSceneDragDropEvent *lastDragDropEvent;
@@ -489,6 +491,42 @@ QRegion QGraphicsViewPrivate::rubberBandRegion(const QWidget *widget, const QRec
     if (widget->style()->styleHint(QStyle::SH_RubberBand_Mask, &option, widget, &mask))
         tmp &= mask.region;
     return tmp;
+}
+#endif
+
+/*!
+    \internal
+*/
+#ifndef QT_NO_CURSOR
+void QGraphicsViewPrivate::setViewportCursor(const QCursor &cursor)
+{
+    Q_Q(QGraphicsView);
+    QWidget *viewport = q->viewport();
+    if (!hasStoredOriginalCursor) {
+        hasStoredOriginalCursor = true;
+        originalCursor = viewport->cursor();
+    }
+    viewport->setCursor(cursor);
+}
+#endif
+
+/*!
+    \internal
+*/
+#ifndef QT_NO_CURSOR
+void QGraphicsViewPrivate::unsetViewportCursor()
+{
+    Q_Q(QGraphicsView);
+    foreach (QGraphicsItem *item, q->items(lastMouseEvent.pos())) {
+        if (item->hasCursor()) {
+            setViewportCursor(item->cursor());
+            return;
+        }
+    }
+
+    // Restore the original viewport cursor.
+    hasStoredOriginalCursor = false;
+    q->viewport()->setCursor(originalCursor);
 }
 #endif
 
@@ -2303,6 +2341,12 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
     // Remember whether the last event was accepted or not.
     d->lastMouseEvent.setAccepted(mouseEvent.isAccepted());
 
+    if (mouseEvent.isAccepted() && mouseEvent.buttons() != 0) {
+        // The event was delivered to a mouse grabber; the press is likely to
+        // have set a cursor, and we must not change it.
+        return;
+    }
+    
     // Store the last item under the mouse for use when replaying. When
     // possible, reuse QGraphicsScene's existing calculations of what items
     // are under the mouse to avoid multiple index lookups.
@@ -2320,12 +2364,7 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
     // Find the topmost item under the mouse with a cursor.
     foreach (QGraphicsItem *item, itemsUnderCursor) {
         if (item->hasCursor()) {
-            if (!d->hasStoredOriginalCursor) {
-                // Store the original viewport cursor.
-                d->hasStoredOriginalCursor = true;
-                d->originalCursor = viewport()->cursor();
-            }
-            viewport()->setCursor(item->cursor());
+            d->setViewportCursor(item->cursor());
             return;
         }
     }
@@ -2396,6 +2435,13 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 
     // Update the last mouse event selected state.
     d->lastMouseEvent.setAccepted(mouseEvent.isAccepted());
+
+#ifndef QT_NO_CURSOR
+    if (mouseEvent.isAccepted() && mouseEvent.buttons() == 0) {
+        // The last mouse release on the viewport will trigger clearing the cursor.
+        d->unsetViewportCursor();
+    }
+#endif
 }
 
 #ifndef QT_NO_WHEELEVENT
@@ -2875,5 +2921,8 @@ void QGraphicsView::resetTransform()
 {
     setTransform(QTransform());
 }
+
+#define d d_func()
+#include "moc_qgraphicsview.cpp"
 
 #endif // QT_NO_GRAPHICSVIEW

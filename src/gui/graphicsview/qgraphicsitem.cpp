@@ -802,7 +802,7 @@ void QGraphicsItem::setCursor(const QCursor &cursor)
     if (d_ptr->scene) {
         foreach (QGraphicsView *view, d_ptr->scene->views()) {
             if (view->underMouse() && view->itemAt(view->mapFromGlobal(QCursor::pos())) == this) {
-                view->viewport()->setCursor(cursor);
+                QMetaObject::invokeMethod(view, "setViewportCursor", Q_ARG(QCursor, cursor));
                 break;
             }
         }
@@ -831,6 +831,14 @@ void QGraphicsItem::unsetCursor()
 {
     d_ptr->unsetExtra(QGraphicsItemPrivate::ExtraCursor);
     d_ptr->hasCursor = 0;
+    if (d_ptr->scene) {
+        foreach (QGraphicsView *view, d_ptr->scene->views()) {
+            if (view->underMouse() && view->itemAt(view->mapFromGlobal(QCursor::pos())) == this) {
+                QMetaObject::invokeMethod(view, "unsetViewportCursor");
+                break;
+            }
+        }
+    }
 }
 
 #endif // QT_NO_CURSOR

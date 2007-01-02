@@ -200,6 +200,10 @@ protected:
 
 private:
     Q_DECLARE_PRIVATE(QGraphicsView)
+#ifndef QT_NO_CURSOR
+    Q_PRIVATE_SLOT(d, void setViewportCursor(const QCursor &))
+    Q_PRIVATE_SLOT(d, void unsetViewportCursor())
+#endif
     friend class QGraphicsSceneWidget;
 };
 
