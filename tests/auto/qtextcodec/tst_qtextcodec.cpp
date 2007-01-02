@@ -86,11 +86,11 @@ void tst_QTextCodec::toUnicode()
     QFile file( fileName );
 
     if ( file.open( QIODevice::ReadOnly ) ) {
-	QByteArray ba = file.readAll();
-	QTextCodec *c = QTextCodec::codecForName( codecName.toLatin1() );
+    QByteArray ba = file.readAll();
+    QTextCodec *c = QTextCodec::codecForName( codecName.toLatin1() );
         QVERIFY(c != 0);
-	QString uniString = c->toUnicode( ba );
-	QCOMPARE( ba, c->fromUnicode( uniString ) );
+    QString uniString = c->toUnicode( ba );
+    QCOMPARE( ba, c->fromUnicode( uniString ) );
         char ch = '\0';
         QVERIFY(c->toUnicode(&ch, 1).isEmpty());
         QVERIFY(c->toUnicode(&ch, 1).isNull());

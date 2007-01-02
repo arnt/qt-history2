@@ -25,8 +25,8 @@
 
 
 struct Codecs {
-    const char *name;
-    ushort base;
+    const char *const name;
+    const ushort base;
 };
 
 static const Codecs codecs [] = {
@@ -56,8 +56,7 @@ int QIsciiCodec::mibEnum() const
     return -3000-idx;
 }
 
-
-#define INV 0xff
+static const uchar inv = 0xFF;
 
 /* iscii range from 0xa0 - 0xff */
 static const uchar iscii_to_uni_table[0x60] = {
@@ -78,7 +77,7 @@ static const uchar iscii_to_uni_table[0x60] = {
 
     0x31, 0x32, 0x33, 0x34,
     0x35, 0x36, 0x37, 0x38,
-    0x39,  INV, 0x3e, 0x3f,
+    0x39,  inv, 0x3e, 0x3f,
     0x40, 0x41, 0x42, 0x43,
 
     0x46, 0x47, 0x48, 0x45,
@@ -163,7 +162,7 @@ QByteArray QIsciiCodec::convertFromUnicode(const QChar *uc, int len, ConverterSt
 
     uchar *ch = (uchar *)result.data();
 
-    int base = codecs[idx].base;
+    const int base = codecs[idx].base;
 
     for (int i =0; i < len; ++i) {
         int pos = uc[i].unicode() - base;
@@ -213,9 +212,9 @@ QString QIsciiCodec::convertToUnicode(const char* chars, int len, ConverterState
 
     QString result;
     result.resize(len);
-    QChar *uc = (QChar *)result.unicode();
+    QChar *uc = result.data();
 
-    int base = codecs[idx].base;
+    const int base = codecs[idx].base;
 
     for (int i = 0; i < len; ++i) {
         ushort ch = (uchar) chars[i];
@@ -223,8 +222,8 @@ QString QIsciiCodec::convertToUnicode(const char* chars, int len, ConverterState
             *uc++ = ch;
         else {
             ushort c = iscii_to_uni_table[ch - 0xa0];
-            if (halant && (c == INV || c == 0xe9)) {
-                // Consonant Halant INV -> Consonant Halant ZWJ
+            if (halant && (c == inv || c == 0xe9)) {
+                // Consonant Halant inv -> Consonant Halant ZWJ
                 // Consonant Halant Nukta -> Consonant Halant ZWJ
                 *uc++ = QChar(0x200d);
             } else if (halant && c == 0xe8) {
@@ -243,4 +242,5 @@ QString QIsciiCodec::convertToUnicode(const char* chars, int len, ConverterState
     }
     return result;
 }
+
 #endif // QT_NO_CODECS
