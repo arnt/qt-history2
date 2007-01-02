@@ -259,10 +259,15 @@ QDockWidgetLayout::QDockWidgetLayout(QWidget *parent)
 {
 }
 
-QWidget *QDockWidgetLayout::widget(Role r)
+QWidget *QDockWidgetLayout::widget(Role r) const
 {
     QLayoutItem *item = item_list.at(r);
     return item == 0 ? 0 : item->widget();
+}
+
+QLayoutItem *QDockWidgetLayout::item(Role r) const
+{
+    return item_list.at(r);
 }
 
 void QDockWidgetLayout::setWidget(Role r, QWidget *w)
@@ -375,6 +380,36 @@ void QDockWidgetLayout::setGeometry(const QRect &geometry)
     } else {
         q->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
     }
+}
+
+/******************************************************************************
+** QDockWidgetItem
+*/
+
+QDockWidgetItem::QDockWidgetItem(QDockWidget *dockWidget)
+    : QWidgetItem(dockWidget)
+{
+}
+
+QSize QDockWidgetItem::minimumSize() const
+{
+    if (QLayoutItem *item = dockWidgetChildItem())
+        return dockWidgetLayout()->sizeFromContent(item->minimumSize(), false);
+    return QWidgetItem::minimumSize();
+}
+
+QSize QDockWidgetItem::maximumSize() const
+{
+    if (QLayoutItem *item = dockWidgetChildItem())
+        return dockWidgetLayout()->sizeFromContent(item->maximumSize(), false);
+    return QWidgetItem::maximumSize();
+}
+
+QSize QDockWidgetItem::sizeHint() const
+{
+    if (QLayoutItem *item = dockWidgetChildItem())
+        return dockWidgetLayout()->sizeFromContent(item->sizeHint(), false);
+    return QWidgetItem::sizeHint();
 }
 
 /******************************************************************************
@@ -530,7 +565,7 @@ void QDockWidgetPrivate::startDrag()
             QMainWindow::addDockWidget, so the QMainWindowLayout has no
             widget item for me. :( I have to create it myself, and then
             delete it if I don't get dropped into a dock area. */
-        state->widgetItem = new QWidgetItem(q);
+        state->widgetItem = new QDockWidgetItem(q);
         state->ownWidgetItem = true;
     }
 

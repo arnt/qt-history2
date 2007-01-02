@@ -113,8 +113,9 @@ public:
     void setGeometry(const QRect &r);
 
     enum Role { Content, CloseButton, FloatButton, RoleCount };
-    QWidget *widget(Role r);
+    QWidget *widget(Role r) const;
     void setWidget(Role r, QWidget *w);
+    QLayoutItem *item(Role r) const;
 
     QRect titleArea() const { return _titleArea; }
 
@@ -126,6 +127,37 @@ private:
     QVector<QLayoutItem*> item_list;
     QRect _titleArea;
 };
+
+/* The size hints of a QDockWidget will depend on wether it is docked or not.
+   This layout item always returns the size hints as if the dock widget was docked. */
+
+class QDockWidgetItem : public QWidgetItem
+{
+public:
+    QDockWidgetItem(QDockWidget *dockWidget);
+    QSize minimumSize() const;
+    QSize maximumSize() const;
+    QSize sizeHint() const;
+
+private:
+    inline QLayoutItem *dockWidgetChildItem() const;
+    inline QDockWidgetLayout *dockWidgetLayout() const;
+};
+
+inline QLayoutItem *QDockWidgetItem::dockWidgetChildItem() const
+{
+    if (QDockWidgetLayout *layout = dockWidgetLayout())
+        return layout->item(QDockWidgetLayout::Content);
+    return 0;
+}
+
+inline QDockWidgetLayout *QDockWidgetItem::dockWidgetLayout() const
+{
+    QWidget *w = const_cast<QDockWidgetItem*>(this)->widget();
+    if (w != 0)
+        return qobject_cast<QDockWidgetLayout*>(w->layout());
+    return 0;
+}
 
 #endif // QT_NO_DOCKWIDGET
 

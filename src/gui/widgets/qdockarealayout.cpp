@@ -66,10 +66,8 @@ bool QDockAreaLayoutItem::skip() const
     if (gap)
         return false;
 
-    if (widgetItem != 0) {
-        QWidget *widget = widgetItem->widget();
-        return widget->isWindow() || widget->isHidden();
-    }
+    if (widgetItem != 0)
+        return widgetItem->isEmpty();
 
     if (subinfo != 0) {
         for (int i = 0; i < subinfo->item_list.count(); ++i) {
@@ -83,32 +81,8 @@ bool QDockAreaLayoutItem::skip() const
 
 QSize QDockAreaLayoutItem::minimumSize() const
 {
-    if (widgetItem != 0) {
-        QWidget *w = widgetItem->widget();
-        if (QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(w->layout())) {
-            // the dockwidget may be floating, but we want to know what size hints
-            // it will return when docked.
-
-            QSize contentHint(-1, -1), contentMin(0, 0), contentMinHint(-1, -1),
-                    contentMax(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
-            QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
-            QWidget *content = layout->widget(QDockWidgetLayout::Content);
-            if (content != 0) {
-                contentHint = content->sizeHint();
-                contentMinHint = content->minimumSizeHint();
-                contentMin = content->minimumSize();
-                contentMax = content->maximumSize();
-                sp = content->sizePolicy();
-            }
-
-            return qSmartMinSize(layout->sizeFromContent(contentHint, false),
-                                    layout->sizeFromContent(contentMinHint, false),
-                                    layout->sizeFromContent(contentMin, false),
-                                    layout->sizeFromContent(contentMax, false),
-                                    sp);
-        }
-        return qSmartMinSize(widgetItem);
-    }
+    if (widgetItem != 0)
+        return widgetItem->minimumSize();
     if (subinfo != 0)
         return subinfo->minimumSize();
     return QSize(0, 0);
@@ -116,28 +90,8 @@ QSize QDockAreaLayoutItem::minimumSize() const
 
 QSize QDockAreaLayoutItem::maximumSize() const
 {
-    if (widgetItem != 0) {
-        QWidget *w = widgetItem->widget();
-        if (QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(w->layout())) {
-            // the dockwidget may be floating, but we want to know what size hints
-            // it will return when docked.
-            QSize contentHint(-1, -1), contentMin(0, 0), contentMax(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
-            QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
-            QWidget *content = layout->widget(QDockWidgetLayout::Content);
-            if (content != 0) {
-                contentHint = content->sizeHint();
-                contentMin = content->minimumSize();
-                contentMax = content->maximumSize();
-                sp = content->sizePolicy();
-            }
-
-            return qSmartMaxSize(layout->sizeFromContent(contentHint, false),
-                                    layout->sizeFromContent(contentMin, false),
-                                    layout->sizeFromContent(contentMax, false),
-                                    sp);
-        }
-        return qSmartMaxSize(widgetItem);
-    }
+    if (widgetItem != 0)
+        return widgetItem->maximumSize();
     if (subinfo != 0)
         return subinfo->maximumSize();
     return QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
@@ -154,49 +108,10 @@ bool QDockAreaLayoutItem::expansive(Qt::Orientation o) const
     return false;
 }
 
-static QSize mySmartSizeHint(const QSize &hint, const QSize &minHint, const QSize &min,
-                                const QSize &max, const QSizePolicy &sp)
-{
-    QSize s = hint.expandedTo(minHint);
-    if (sp.horizontalPolicy() == QSizePolicy::Ignored)
-        s.setWidth(0);
-    if (sp.verticalPolicy() == QSizePolicy::Ignored)
-        s.setHeight(0);
-    s = s.boundedTo(max)
-        .expandedTo(min);
-    return s;
-}
-
 QSize QDockAreaLayoutItem::sizeHint() const
 {
-    if (widgetItem != 0) {
-        QWidget *w = widgetItem->widget();
-        if (QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(w->layout())) {
-            // the dockwidget may be floating, but we want to know what size hints
-            // it will return when docked.
-
-            QSize contentHint(-1, -1), contentMin(0, 0), contentMinHint(-1, -1),
-                    contentMax(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
-            QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
-            QWidget *content = layout->widget(QDockWidgetLayout::Content);
-            if (content != 0) {
-                contentHint = content->sizeHint();
-                contentMinHint = content->minimumSizeHint();
-                contentMin = content->minimumSize();
-                contentMax = content->maximumSize();
-                sp = content->sizePolicy();
-            }
-
-            return mySmartSizeHint(layout->sizeFromContent(contentHint, false),
-                                    layout->sizeFromContent(contentMinHint, false),
-                                    layout->sizeFromContent(contentMin, false),
-                                    layout->sizeFromContent(contentMax, false),
-                                    sp);
-        }
-
-        return mySmartSizeHint(w->sizeHint(), w->minimumSizeHint(), w->minimumSize(),
-                                w->maximumSize(), w->sizePolicy());
-    }
+    if (widgetItem != 0)
+        return widgetItem->sizeHint();
     if (subinfo != 0)
         return subinfo->sizeHint();
     return QSize(-1, -1);
@@ -1709,7 +1624,7 @@ bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, const QList<QDockWid
                 continue;
             }
 
-            QDockAreaLayoutItem item(new QWidgetItem(widget));
+            QDockAreaLayoutItem item(new QDockWidgetItem(widget));
             if (flags & StateFlagFloating) {
                 widget->hide();
                 widget->setFloating(true);
@@ -2575,7 +2490,7 @@ QSize QDockAreaLayout::minimumSize() const
 void QDockAreaLayout::addDockWidget(DockPos pos, QDockWidget *dockWidget,
                                              Qt::Orientation orientation)
 {
-    QWidgetItem *dockWidgetItem = new QWidgetItem(dockWidget);
+    QWidgetItem *dockWidgetItem = new QDockWidgetItem(dockWidget);
     QDockAreaLayoutInfo &info = docks[pos];
     if (orientation == info.o || info.isEmpty()) {
         QDockAreaLayoutItem new_item(dockWidgetItem);
@@ -2623,7 +2538,7 @@ void QDockAreaLayout::tabifyDockWidget(QDockWidget *first, QDockWidget *second)
 
     QDockAreaLayoutInfo *info = this->info(path);
     Q_ASSERT(info != 0);
-    info->tab(path.last(), new QWidgetItem(second));
+    info->tab(path.last(), new QDockWidgetItem(second));
 }
 
 void QDockAreaLayout::splitDockWidget(QDockWidget *after,
@@ -2636,7 +2551,7 @@ void QDockAreaLayout::splitDockWidget(QDockWidget *after,
 
     QDockAreaLayoutInfo *info = this->info(path);
     Q_ASSERT(info != 0);
-    info->split(path.last(), orientation, new QWidgetItem(dockWidget));
+    info->split(path.last(), orientation, new QDockWidgetItem(dockWidget));
 }
 
 void QDockAreaLayout::apply(bool animate)
