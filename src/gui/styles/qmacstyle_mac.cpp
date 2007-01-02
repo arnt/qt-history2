@@ -3317,11 +3317,18 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             p->save();
             p->setRenderHint(QPainter::Antialiasing);
             p->setPen(lineColor);
+            const Qt::LayoutDirection layoutDirection = w ? w->layoutDirection() : qApp->layoutDirection();
             const int NumLines = metal ? 4 : 3;
             for (int l = 0; l < NumLines; ++l) {
                 const int offset = (l * 4 + (metal ? 2 : 3));
-                const QPoint start(opt->rect.width() - offset, opt->rect.height() - 1);
-                const QPoint end(opt->rect.width() - 1, opt->rect.height() - offset);
+                QPoint start, end;
+                if (layoutDirection == Qt::LeftToRight) {
+                    start = QPoint(opt->rect.width() - offset, opt->rect.height() - 1);
+                    end = QPoint(opt->rect.width() - 1, opt->rect.height() - offset);
+                } else {
+                    start = QPoint(offset, opt->rect.height() - 1);
+                    end = QPoint(1, opt->rect.height() - offset);
+                }
                 p->drawLine(start, end);
                 if (metal) {
                     p->setPen(metalHighlight);
