@@ -1314,7 +1314,8 @@ Q_DECLARE_METATYPE(MoveList)
 
 void MoveSeparator::apply(QMainWindow *mw) const
 {
-    QMainWindowLayout *l = qobject_cast<QMainWindowLayout*>(mw->layout());
+
+    QMainWindowLayout *l = dynamic_cast<QMainWindowLayout*>(mw->layout());
     QVERIFY(l);
 
     QList<int> path;
@@ -1330,6 +1331,7 @@ void MoveSeparator::apply(QMainWindow *mw) const
     QVector<QLayoutStruct> cache;
 
     l->dockAreaLayout.separatorMove(path, QPoint(0, 0), QPoint(delta, delta), &cache);
+
 }
 
 QMap<QString, QRect> dockWidgetGeometries(QMainWindow *mw)
