@@ -24,7 +24,7 @@ done
 FRAMEWORK_DIR="$OUTDIR/Library/Frameworks"
 mkdir -p "$FRAMEWORK_DIR"
 
-for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Support QtSvg QtAssistantClient QtDesigner QtDesignerComponents QtTest; do
+for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Support QtSvg QtAssistant QtDesigner QtDesignerComponents QtTest; do
     if [ ! -d "$BINDIR/lib/${lib}.framework" ]; then
 	echo "No framework for $lib!"
         continue
