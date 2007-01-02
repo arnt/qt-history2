@@ -2128,7 +2128,7 @@ void qWarning(const char *msg, ...)
         }
     \endcode
 
-    If you include <QtDebug>, a more convenitent syntax is
+    If you include <QtDebug>, a more convenient syntax is
     also available:
 
     \code
