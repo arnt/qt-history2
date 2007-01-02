@@ -1562,21 +1562,38 @@ case PE_Frame:
         {
             name = QLatin1String("TAB");
             partId = TABP_PANE;
-            // This should work, but currently there's an error in the ::drawBackgroundDirectly()
-            // code, when using the HDC directly..
+               
             if (widget) {
-                QStyleOptionTabWidgetFrame frameOpt = *tab;
-                frameOpt.rect = widget->rect();
-                QRect contentsRect = subElementRect(SE_TabWidgetTabContents, &frameOpt, widget);
-                QRegion reg = option->rect;
-                reg -= contentsRect;
-                p->setClipRegion(reg);
-                XPThemeData theme(widget, p, name, partId, stateId, rect);
-                theme.mirrorHorizontally = hMirrored;
-                theme.mirrorVertically = vMirrored;
-                d->drawBackground(theme);
-                p->setClipRect(contentsRect);
-                partId = TABP_BODY;
+                bool useGradient = true;
+                const int maxlength = 256;
+                WCHAR themeFileName[maxlength];
+                WCHAR themeColor[maxlength];
+                // Due to a a scaling issue with the XP Silver theme, tab gradients are not used with it
+                if (pGetCurrentThemeName(themeFileName, maxlength, themeColor, maxlength, NULL, 0) == S_OK) {
+                    WCHAR* offset;
+                    if ((offset = wcsrchr(themeFileName, QChar(QLatin1Char('\\')).unicode())) != NULL) {
+                        offset++;
+                        if (QString::fromStdWString(offset) == QString(QLatin1String("Luna.msstyles")) && 
+                            QString::fromStdWString(themeColor) == QString(QLatin1String("Metallic")) )
+                            useGradient = false;
+                    }
+                }
+                // This should work, but currently there's an error in the ::drawBackgroundDirectly()
+                // code, when using the HDC directly..
+                if (useGradient) {
+                    QStyleOptionTabWidgetFrame frameOpt = *tab;
+                    frameOpt.rect = widget->rect();
+                    QRect contentsRect = subElementRect(SE_TabWidgetTabContents, &frameOpt, widget);
+                    QRegion reg = option->rect;
+                    reg -= contentsRect;
+                    p->setClipRegion(reg);
+                    XPThemeData theme(widget, p, name, partId, stateId, rect);
+                    theme.mirrorHorizontally = hMirrored;
+                    theme.mirrorVertically = vMirrored;
+                    d->drawBackground(theme);
+                    p->setClipRect(contentsRect);
+                    partId = TABP_BODY;
+                }
             }
             switch (tab->shape) {
             case QTabBar::RoundedNorth:
