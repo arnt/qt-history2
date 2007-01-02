@@ -1148,6 +1148,25 @@ void tst_QTextDocument::toHtml_data()
 //        QTest::newRow("nostylebrush") << QTextDocumentFragment(&doc) << QString("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#00ff00; -qt-blockcharfmt-background-color:#0000ff;\">Test</p>");
         QTest::newRow("nostylebrush") << QTextDocumentFragment(&doc) << QString("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; color:#00ff00;\">Test</p>");
     }
+
+    {
+        CREATE_DOC_AND_CURSOR();
+
+        QTextTable *table = cursor.insertTable(2, 2);
+        table->mergeCells(0, 0, 1, 2);
+        QTextTableFormat fmt = table->format();
+        QVector<QTextLength> widths;
+        widths.append(QTextLength(QTextLength::FixedLength, 20));
+        widths.append(QTextLength(QTextLength::FixedLength, 40));
+        fmt.setColumnWidthConstraints(widths);
+        table->setFormat(fmt);
+
+        QTest::newRow("mergedtablecolwidths") << QTextDocumentFragment(&doc)
+                                  << QString("<table border=\"1\" cellspacing=\"2\">"
+                                             "\n<tr>\n<td colspan=\"2\"></td></tr>"
+                                             "\n<tr>\n<td width=\"20\"></td>\n<td width=\"40\"></td></tr>"
+                                             "</table>");
+    }
 }
 
 void tst_QTextDocument::toHtml()
