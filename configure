@@ -5138,7 +5138,7 @@ if [ "$CFG_DEBUG_RELEASE" = "yes" ]; then
        echo "Default Link ........ release"
    fi
 else
-   echo "Debug................ $CFG_DEBUG"
+   echo "Debug ............... $CFG_DEBUG"
 fi
 echo "Qt 3 compatibility .. $CFG_QT3SUPPORT"
 echo "QtDBus module ....... $CFG_QDBUS"
