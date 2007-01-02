@@ -1106,6 +1106,27 @@ void Moc::checkSuperClasses(ClassDef *def)
             msg += ". This is not supported!";
             warning(msg.constData());
         }
+
+        if (interface2IdMap.contains(superClass)) {
+            bool registeredInterface = false;
+            for (int i = 0; i < def->interfaceList.count(); ++i)
+                if (def->interfaceList.at(i).first().className == superClass) {
+                    registeredInterface = true;
+                    break;
+                }
+
+            if (!registeredInterface) {
+                QByteArray msg;
+                msg += "Class ";
+                msg += def->classname;
+                msg += " implements the interface ";
+                msg += superClass;
+                msg += " but does not list it in Q_INTERFACES. qobject_cast to ";
+                msg += superClass;
+                msg += " will not work!";
+                warning(msg.constData());
+            }
+        }
     }
 }
 

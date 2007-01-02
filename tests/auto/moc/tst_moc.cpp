@@ -414,6 +414,7 @@ private slots:
     void structQObject();
     void namespacedFlags();
     void warnOnMultipleInheritance();
+    void forgottenQInterface();
 
 signals:
     void sigWithUnsignedArg(unsigned foo);
@@ -757,6 +758,25 @@ void tst_Moc::warnOnMultipleInheritance()
     QString mocWarning = QString::fromLocal8Bit(proc.readAllStandardError());
     QCOMPARE(mocWarning, QString(SRCDIR) +
                 QString("/warn-on-multiple-qobject-subclasses.h:13: Warning: Class Bar inherits from two QObject subclasses QWidget and Foo. This is not supported!\n"));
+#else
+    QSKIP("Only tested on linux/gcc", SkipAll);
+#endif
+}
+
+void tst_Moc::forgottenQInterface()
+{
+#if defined(Q_OS_LINUX) && defined(Q_CC_GNU)
+    QVERIFY(!qgetenv("QTDIR").isNull());
+
+    QProcess proc;
+    proc.start("moc", QStringList(srcify("forgotten-qinterface.h")));
+    QVERIFY(proc.waitForFinished());
+    QCOMPARE(proc.exitCode(), 0);
+    QByteArray mocOut = proc.readAllStandardOutput();
+    QVERIFY(!mocOut.isEmpty());
+    QString mocWarning = QString::fromLocal8Bit(proc.readAllStandardError());
+    QCOMPARE(mocWarning, QString(SRCDIR) +
+                QString("/forgotten-qinterface.h:13: Warning: Class Test implements the interface MyInterface but does not list it in Q_INTERFACES. qobject_cast to MyInterface will not work!\n"));
 #else
     QSKIP("Only tested on linux/gcc", SkipAll);
 #endif
