@@ -413,6 +413,7 @@ private slots:
     void slotsWithVoidTemplate();
     void structQObject();
     void namespacedFlags();
+    void warnOnMultipleInheritance();
 
 signals:
     void sigWithUnsignedArg(unsigned foo);
@@ -740,6 +741,25 @@ void tst_Moc::namespacedFlags()
     QVERIFY(v.isValid());
     QVERIFY(baz.setProperty("flags", v));
     QVERIFY(baz.flags() == bar.flags());
+}
+
+void tst_Moc::warnOnMultipleInheritance()
+{
+#if defined(Q_OS_LINUX) && defined(Q_CC_GNU)
+    QVERIFY(!qgetenv("QTDIR").isNull());
+
+    QProcess proc;
+    proc.start("moc", QStringList(srcify("warn-on-multiple-qobject-subclasses.h")));
+    QVERIFY(proc.waitForFinished());
+    QCOMPARE(proc.exitCode(), 0);
+    QByteArray mocOut = proc.readAllStandardOutput();
+    QVERIFY(!mocOut.isEmpty());
+    QString mocWarning = QString::fromLocal8Bit(proc.readAllStandardError());
+    QCOMPARE(mocWarning, QString(SRCDIR) +
+                QString("/warn-on-multiple-qobject-subclasses.h:13: Warning: Class Bar inherits from two QObject subclasses QWidget and Foo. This is not supported!\n"));
+#else
+    QSKIP("Only tested on linux/gcc", SkipAll);
+#endif
 }
 
 QTEST_MAIN(tst_Moc)

@@ -481,13 +481,40 @@ void Moc::parse()
                     next(SEMIC);
                 }
                 break;
+            case CLASS:
+            case STRUCT: {
+                if (currentFilenames.size() <= 1)
+                    break;
+
+                ClassDef def;
+                if (!parseClassHead(&def))
+                    continue;
+
+                while (inClass(&def) && hasNext()) {
+                    if (next() == Q_OBJECT_TOKEN) {
+                        def.hasQObject = true;
+                        break;
+                    }
+                }
+
+                if (!def.hasQObject)
+                    continue;
+
+                for (int i = namespaceList.size() - 1; i >= 0; --i)
+                    if (inNamespace(&namespaceList.at(i)))
+                        def.qualified.prepend(namespaceList.at(i).name + "::");
+
+                knownQObjectClasses.insert(def.classname);
+                knownQObjectClasses.insert(def.qualified);
+
+                continue; }
             default: break;
         }
         if ((t != CLASS && t != STRUCT)|| currentFilenames.size() > 1)
             continue;
         ClassDef def;
-        FunctionDef::Access access = FunctionDef::Private;
         if (parseClassHead(&def)) {
+            FunctionDef::Access access = FunctionDef::Private;
             for (int i = namespaceList.size() - 1; i >= 0; --i)
                 if (inNamespace(&namespaceList.at(i)))
                     def.qualified.prepend(namespaceList.at(i).name + "::");
@@ -615,10 +642,13 @@ void Moc::parse()
             if (!def.hasQObject && !def.hasQGadget)
                 error("Class declarations lacks Q_OBJECT macro.");
 
+            checkSuperClasses(&def);
+
             classList += def;
+            knownQObjectClasses.insert(def.classname);
+            knownQObjectClasses.insert(def.qualified);
         }
     }
-
 }
 
 void Moc::generate(FILE *out)
@@ -1046,4 +1076,36 @@ bool Moc::until(Token target) {
     return false;
 }
 
+void Moc::checkSuperClasses(ClassDef *def)
+{
+    const QByteArray firstSuperclass = def->superclassList.value(0).first;
+
+    if (!knownQObjectClasses.contains(firstSuperclass)) {
+        // enable once we /require/ include paths
+#if 0
+        QByteArray msg;
+        msg += "Class ";
+        msg += def->className;
+        msg += " contains the Q_OBJECT macro and inherits from ";
+        msg += def->superclassList.value(0);
+        msg += " but that is not a known QObject subclass. You may get compilation errors.";
+        warning(msg.constData());
+        return;
+#endif
+    }
+    for (int i = 1; i < def->superclassList.count(); ++i) {
+        const QByteArray superClass = def->superclassList.at(i).first;
+        if (knownQObjectClasses.contains(superClass)) {
+            QByteArray msg;
+            msg += "Class ";
+            msg += def->classname;
+            msg += " inherits from two QObject subclasses ";
+            msg += firstSuperclass;
+            msg += " and ";
+            msg += superClass;
+            msg += ". This is not supported!";
+            warning(msg.constData());
+        }
+    }
+}
 

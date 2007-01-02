@@ -152,7 +152,7 @@ public:
     QList<ClassDef> classList;
     QMap<QByteArray, QByteArray> interface2IdMap;
     QList<QByteArray> metaTypes;
-
+    QSet<QByteArray> knownQObjectClasses;
 
     void parse();
     void generate(FILE *out);
@@ -194,6 +194,8 @@ public:
     // in FunctionDef accordingly
     bool testFunctionAttribute(FunctionDef *def);
     bool testFunctionAttribute(Token tok, FunctionDef *def);
+
+    void checkSuperClasses(ClassDef *def);
 };
 
 inline QByteArray noRef(const QByteArray &type)
