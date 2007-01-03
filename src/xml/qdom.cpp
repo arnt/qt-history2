@@ -2716,6 +2716,9 @@ bool QDomNode::hasAttributes() const
     Returns a new reference to \a newChild on success or a \link
     isNull() null node\endlink on failure.
 
+    The DOM specification disallow inserting attribute nodes, but due
+    to historical reasons QDom accept them nevertheless.
+
     \sa insertAfter() replaceChild() removeChild() appendChild()
 */
 QDomNode QDomNode::insertBefore(const QDomNode& newChild, const QDomNode& refChild)
@@ -2741,6 +2744,9 @@ QDomNode QDomNode::insertBefore(const QDomNode& newChild, const QDomNode& refChi
 
     Returns a new reference to \a newChild on success or a \link
     isNull() null node\endlink on failure.
+
+    The DOM specification disallow inserting attribute nodes, but due
+    to historical reasons QDom accept them nevertheless.
 
     \sa insertBefore() replaceChild() removeChild() appendChild()
 */
@@ -2811,6 +2817,9 @@ QDomNode QDomNode::removeChild(const QDomNode& oldChild)
     Calling this function on a null node(created, for example, with the
     default constructor) does nothing.
      
+    The DOM specification disallow inserting attribute nodes, but due
+    to historical reasons QDom accept them nevertheless.
+
     \sa insertBefore() insertAfter() replaceChild() removeChild()
 */
 QDomNode QDomNode::appendChild(const QDomNode& newChild)
