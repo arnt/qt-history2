@@ -3294,6 +3294,9 @@ public:
 
     QBrush brush;
     QPen pen;
+
+    // Cached bounding rectangle
+    mutable QRectF boundingRect;
 };
 
 /*!
@@ -3343,10 +3346,9 @@ QPen QAbstractGraphicsShapeItem::pen() const
 void QAbstractGraphicsShapeItem::setPen(const QPen &pen)
 {
     Q_D(QAbstractGraphicsShapeItem);
-    bool updateGeometry = (pen.widthF() != d->pen.widthF());
-    if (updateGeometry)
-        prepareGeometryChange();
+    prepareGeometryChange();
     d->pen = pen;
+    d->boundingRect = QRectF();
     update();
 }
 
@@ -3423,7 +3425,6 @@ class QGraphicsPathItemPrivate : public QAbstractGraphicsShapeItemPrivate
     Q_DECLARE_PUBLIC(QGraphicsPathItem)
 public:
     QPainterPath path;
-    QRectF boundingRect;
 };
 
 /*!
@@ -3479,7 +3480,7 @@ void QGraphicsPathItem::setPath(const QPainterPath &path)
         return;
     prepareGeometryChange();
     d->path = path;
-    d->boundingRect = path.controlPointRect();
+    d->boundingRect = QRectF();
     update();
 }
 
@@ -3489,9 +3490,11 @@ void QGraphicsPathItem::setPath(const QPainterPath &path)
 QRectF QGraphicsPathItem::boundingRect() const
 {
     Q_D(const QGraphicsPathItem);
-    qreal penWidth = d->pen.widthF() / 2.0;
-    return d->boundingRect.adjusted(-penWidth, -penWidth,
-                                    penWidth, penWidth);
+    if (d->boundingRect.isNull()) {
+        qreal pw = pen().widthF();
+        d->boundingRect = shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
+    }
+    return d->boundingRect;
 }
 
 /*!
@@ -3679,6 +3682,7 @@ void QGraphicsRectItem::setRect(const QRectF &rect)
         return;
     prepareGeometryChange();
     d->rect = rect;
+    d->boundingRect = QRectF();
     update();
 }
 
@@ -3701,9 +3705,11 @@ void QGraphicsRectItem::setRect(const QRectF &rect)
 QRectF QGraphicsRectItem::boundingRect() const
 {
     Q_D(const QGraphicsRectItem);
-    qreal penWidth = d->pen.widthF() / 2.0;
-    return d->rect.adjusted(-penWidth, -penWidth,
-                            penWidth, penWidth);
+    if (d->boundingRect.isNull()) {
+        qreal pw = pen().widthF();
+        d->boundingRect = shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
+    }
+    return d->boundingRect;
 }
 
 /*!
@@ -3907,6 +3913,7 @@ void QGraphicsEllipseItem::setRect(const QRectF &rect)
         return;
     prepareGeometryChange();
     d->rect = rect;
+    d->boundingRect = QRectF();
     update();
 }
 
@@ -3976,9 +3983,11 @@ void QGraphicsEllipseItem::setSpanAngle(int angle)
 QRectF QGraphicsEllipseItem::boundingRect() const
 {
     Q_D(const QGraphicsEllipseItem);
-    qreal penWidth = d->pen.widthF() / 2.0;
-    return d->rect.adjusted(-penWidth, -penWidth,
-                            penWidth, penWidth);
+    if (d->boundingRect.isNull()) {
+        qreal pw = pen().widthF();
+        d->boundingRect = shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
+    }
+    return d->boundingRect;
 }
 
 /*!
@@ -4167,6 +4176,7 @@ void QGraphicsPolygonItem::setPolygon(const QPolygonF &polygon)
         return;
     prepareGeometryChange();
     d->polygon = polygon;
+    d->boundingRect = QRectF();
     update();
 }
 
@@ -4203,9 +4213,11 @@ void QGraphicsPolygonItem::setFillRule(Qt::FillRule rule)
 QRectF QGraphicsPolygonItem::boundingRect() const
 {
     Q_D(const QGraphicsPolygonItem);
-    qreal penWidth = d->pen.widthF() / 2.0;
-    return d->polygon.boundingRect().adjusted(-penWidth, -penWidth,
-                                penWidth, penWidth);
+    if (d->boundingRect.isNull()) {
+        qreal pw = pen().widthF();
+        d->boundingRect = shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
+    }
+    return d->boundingRect;
 }
 
 /*!
@@ -4433,14 +4445,7 @@ void QGraphicsLineItem::setLine(const QLineF &line)
 */
 QRectF QGraphicsLineItem::boundingRect() const
 {
-    Q_D(const QGraphicsLineItem);
-    qreal penWidth = d->pen.widthF() / 2.0;
-
-    QPointF p1 = d->line.p1();
-    QPointF p2 = d->line.p2();
-
-    return QRectF(p1, QSizeF(p2.x() - p1.x(), p2.y() - p1.y())).normalized()
-        .adjusted(-penWidth, -penWidth, penWidth, penWidth);
+    return shape().controlPointRect();
 }
 
 /*!
@@ -4743,7 +4748,7 @@ QRectF QGraphicsPixmapItem::boundingRect() const
     Q_D(const QGraphicsPixmapItem);
     qreal halfPw = 0.5;
     return d->pixmap.isNull() ? QRectF() : QRectF(d->offset, d->pixmap.size())
-        .adjusted(-halfPw, -halfPw, halfPw, halfPw);
+        .adjusted(-halfPw, -halfPw, halfPw * 2, halfPw * 2);
 }
 
 /*!
