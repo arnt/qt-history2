@@ -1167,6 +1167,46 @@ void tst_QTextDocument::toHtml_data()
                                              "\n<tr>\n<td width=\"20\"></td>\n<td width=\"40\"></td></tr>"
                                              "</table>");
     }
+
+    {
+        CREATE_DOC_AND_CURSOR();
+
+        QTextCharFormat fmt;
+
+        cursor.insertText("Blah\nGreen yellow green");
+        cursor.setPosition(0);
+        cursor.setPosition(23, QTextCursor::KeepAnchor);
+        fmt.setBackground(Qt::green);
+        cursor.mergeCharFormat(fmt);
+        cursor.clearSelection();
+        cursor.setPosition(11);
+        cursor.setPosition(17, QTextCursor::KeepAnchor);
+        fmt.setBackground(Qt::yellow);
+        cursor.mergeCharFormat(fmt);
+        cursor.clearSelection();
+
+        QTest::newRow("multiparagraph-bgcolor") << QTextDocumentFragment(&doc)
+                                 << QString("<p DEFAULTBLOCKSTYLE><span style=\" background-color:#00ff00;\">Blah</span></p>\n"
+                                            "<p DEFAULTBLOCKSTYLE><span style=\" background-color:#00ff00;\">Green </span>"
+                                            "<span style=\" background-color:#ffff00;\">yellow</span>"
+                                            "<span style=\" background-color:#00ff00;\"> green</span></p>");
+    }
+
+    {
+        CREATE_DOC_AND_CURSOR();
+
+        QTextBlockFormat fmt;
+        fmt.setBackground(QColor("#0000ff"));
+        cursor.insertBlock(fmt);
+
+        QTextCharFormat charfmt;
+        charfmt.setBackground(QColor("#0000ff"));
+        cursor.insertText("Blah", charfmt);
+
+        QTest::newRow("nospan-bgcolor") << QTextDocumentFragment(&doc)
+                                 << QString("EMPTYBLOCK") +
+                                    QString("<p OPENDEFAULTBLOCKSTYLE background-color:#0000ff;\">Blah</p>");
+    }
 }
 
 void tst_QTextDocument::toHtml()
