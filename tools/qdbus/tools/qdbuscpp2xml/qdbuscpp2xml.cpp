@@ -37,7 +37,7 @@ static const char docTypeHeader[] =
 extern QDBUS_EXPORT QString qDBusGenerateMetaObjectXml(QString interface, const QMetaObject *mo,
                                                        const QMetaObject *base, int flags);
 
-#define PROGRAMNAME     "dbuscpp2xml"
+#define PROGRAMNAME     "qdbuscpp2xml"
 #define PROGRAMVERSION  "0.1"
 #define PROGRAMCOPYRIGHT "Copyright (C) 2006 Trolltech ASA. All rights reserved."
 
