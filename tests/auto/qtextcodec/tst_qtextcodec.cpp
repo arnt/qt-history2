@@ -43,6 +43,7 @@ private slots:
     void fromUnicode();
     void toUnicode_codecForHtml();
     void codecForLocale();
+    void asciiToIscii() const;
 };
 
 
@@ -242,6 +243,48 @@ void tst_QTextCodec::codecForLocale()
 #else
     QSKIP("This test is not implemented on Windows", SkipAll);
 #endif
+}
+
+void tst_QTextCodec::asciiToIscii() const
+{
+    /* Add all low, 7-bit ASCII characters. */
+    QString ascii;
+    const int len = 0xA0 - 1;
+    ascii.resize(len);
+
+    for(int i = 0; i < len; ++i)
+        ascii[i] = QChar(i + 1);
+
+    static const char *const isciiCodecs[] =
+    {
+        "Iscii-Mlm",
+        "Iscii-Knd",
+        "Iscii-Tlg",
+        "Iscii-Tml",
+        "Iscii-Ori",
+        "Iscii-Gjr",
+        "Iscii-Pnj",
+        "Iscii-Bng",
+        "Iscii-Dev"
+    };
+    const int isciiCodecsLen = sizeof(isciiCodecs) / sizeof(const char *);
+
+    for(int i = 0; i < isciiCodecsLen; ++i) {
+        /* For each codec. */
+
+        const QTextCodec *const textCodec = QTextCodec::codecForName(isciiCodecs[i]);
+        Q_ASSERT(textCodec);
+
+        for(int i2 = 0; i2 < len; ++i2) {
+            /* For each character in ascii. */
+            const QChar c(ascii[i2]);
+            QVERIFY2(textCodec->canEncode(c), qPrintable(QString::fromLatin1("Failed to encode %1 with encoding %2")
+                                                         .arg(QString::number(c.unicode()), QString::fromLatin1(textCodec->name().constData()))));
+        }
+
+        QVERIFY2(textCodec->canEncode(ascii), qPrintable(QString::fromLatin1("Failed for full string with encoding %1")
+                                                         .arg(QString::fromLatin1(textCodec->name().constData()))));
+    }
 }
 
 QTEST_MAIN(tst_QTextCodec)

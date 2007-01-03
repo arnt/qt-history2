@@ -160,12 +160,22 @@ QByteArray QIsciiCodec::convertFromUnicode(const QChar *uc, int len, ConverterSt
     QByteArray result;
     result.resize(2*len); //worst case
 
-    uchar *ch = (uchar *)result.data();
+    uchar *ch = reinterpret_cast<uchar *>(result.data());
 
     const int base = codecs[idx].base;
 
     for (int i =0; i < len; ++i) {
-        int pos = uc[i].unicode() - base;
+        const ushort codePoint = uc[i].unicode();
+
+        /* The low 7 bits of ISCII is plain ASCII. However, we go all the
+         * way up to 0xA0 such that we can roundtrip with convertToUnicode()'s
+         * behavior. */
+        if(codePoint < 0xA0) {
+            *ch++ = static_cast<uchar>(codePoint);
+            continue;
+        }
+
+        const int pos = codePoint - base;
         if (pos > 0 && pos < 0x80) {
             uchar iscii = uni_to_iscii_table[pos];
             if (iscii > 0x80) {
