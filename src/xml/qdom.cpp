@@ -131,8 +131,9 @@ public:
     virtual void normalize();
     virtual void clear();
 
-    QDomNodePrivate* parent() { return hasParent ? ownerNode : 0; }
-    void setParent(QDomNodePrivate *p) { ownerNode = p; hasParent = true; }
+    inline QDomNodePrivate* parent() const { return hasParent ? ownerNode : 0; }
+    inline void setParent(QDomNodePrivate *p) { ownerNode = p; hasParent = true; }
+
     void setNoParent() {
         ownerNode = hasParent ? (QDomNodePrivate*)ownerDocument() : 0;
         hasParent = false;
@@ -4560,6 +4561,7 @@ bool QDomAttr::specified() const
 */
 QDomElement QDomAttr::ownerElement() const
 {
+    Q_ASSERT(impl->parent());
     if (!impl || !impl->parent()->isElement())
         return QDomElement();
     return QDomElement((QDomElementPrivate*)(impl->parent()));
@@ -4721,6 +4723,8 @@ QDomAttrPrivate* QDomElementPrivate::setAttributeNode(QDomAttrPrivate* newAttr)
 
     // Referencing is done by the maps
     m_attr->setNamedItem(newAttr);
+
+    newAttr->setParent(this);
 
     return (QDomAttrPrivate*)n;
 }

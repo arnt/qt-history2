@@ -70,6 +70,7 @@ private slots:
     void normalizeEndOfLine() const;
     void normalizeAttributes() const;
     void serializeWeirdEOL() const;
+    void reparentAttribute() const;
 
     void initTestCase();
 private:
@@ -1409,6 +1410,8 @@ void tst_QDom::checkWarningOnNull() const
     QTextStream stream;
     n.save(stream, 3);
     QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("save")));
+    
+    qInstallMsgHandler(0);
 }
 
 void tst_QDom::roundTripAttributes() const
@@ -1493,6 +1496,19 @@ void tst_QDom::serializeWeirdEOL() const
     const QByteArray expected("<name xmlns=\"\">&#xd;\nasd\nasd&#xd;asd\n</name>\n");
     doc.save(stream, 0);
     QCOMPARE(QString::fromLatin1(output.constData()), QString::fromLatin1(expected.constData()));
+}
+
+void tst_QDom::reparentAttribute() const
+{
+    QDomImplementation impl;
+    QDomDocument doc(impl.createDocument("", "localName", QDomDocumentType()));
+
+    QDomElement ele(doc.documentElement());
+    QDomAttr attr(doc.createAttribute("localName"));
+    ele.setAttributeNode(attr);
+
+    QVERIFY(attr.ownerElement() == ele);
+    QVERIFY(attr.parentNode() == ele);
 }
 
 QTEST_MAIN(tst_QDom)
