@@ -42,7 +42,7 @@ void Chip::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 {
     Q_UNUSED(widget);
 
-    QColor fillColor = (option->state & QStyle::State_Selected) ? Qt::black : color;
+    QColor fillColor = (option->state & QStyle::State_Selected) ? color.dark(150) : color;
     if (option->state & QStyle::State_MouseOver)
         fillColor = fillColor.light(125);
     
@@ -65,7 +65,6 @@ void Chip::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
         width += 2;
 
     pen.setWidth(width);
-    painter->setPen(pen);
     painter->setBrush(QBrush(fillColor.dark(option->state & QStyle::State_Sunken ? 120 : 100)));
 
     painter->drawRect(QRect(14, 14, 79, 39));
@@ -73,11 +72,11 @@ void Chip::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
         painter->setPen(QPen(Qt::gray, 1));
         painter->drawLine(15, 54, 94, 54);
         painter->drawLine(94, 53, 94, 15);
+        painter->setPen(QPen(Qt::black, 0));
     }
-    painter->setPen(oldPen);
     
+    // Draw text
     if (option->levelOfDetail >= 2) {
-        // Draw text
         QFont font("Times", 10);
         font.setStyleStrategy(QFont::ForceOutline);
         painter->setFont(font);
@@ -89,31 +88,37 @@ void Chip::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
         painter->drawText(170, 220, QString("Manufacturer: Chip Manufacturer"));
         painter->restore();
     }
+
+    // Draw lines
+    QVarLengthArray<QLineF, 36> lines;
     if (option->levelOfDetail >= 0.5) {
-        // Draw lines
         for (int i = 0; i <= 10; i += (option->levelOfDetail > 0.5 ? 1 : 2)) {
-            painter->drawLine(18 + 7 * i, 13, 18 + 7 * i, 5);
-            painter->drawLine(18 + 7 * i, 54, 18 + 7 * i, 62);
+            lines.append(QLineF(18 + 7 * i, 13, 18 + 7 * i, 5));
+            lines.append(QLineF(18 + 7 * i, 54, 18 + 7 * i, 62));
         }
         for (int i = 0; i <= 6; i += (option->levelOfDetail > 0.5 ? 1 : 2)) {
-            painter->drawLine(5, 18 + i * 5, 13, 18 + i * 5);
-            painter->drawLine(94, 18 + i * 5, 102, 18 + i * 5);
+            lines.append(QLineF(5, 18 + i * 5, 13, 18 + i * 5));
+            lines.append(QLineF(94, 18 + i * 5, 102, 18 + i * 5));
         }
     }
     if (option->levelOfDetail >= 0.4) {
-        painter->setPen(oldPen);
-        painter->drawLine(25, 35, 35, 35);
-        painter->drawLine(35, 30, 35, 40);
-        painter->drawLine(35, 30, 45, 35);
-        painter->drawLine(35, 40, 45, 35);
-        painter->drawLine(45, 30, 45, 40);
-        painter->drawLine(45, 35, 55, 35);
+        const QLineF lineData[] = {
+            QLineF(25, 35, 35, 35),
+            QLineF(35, 30, 35, 40),
+            QLineF(35, 30, 45, 35),
+            QLineF(35, 40, 45, 35),
+            QLineF(45, 30, 45, 40),
+            QLineF(45, 35, 55, 35)
+        };
+        lines.append(lineData, 6);
     }
+    painter->drawLines(lines.data(), lines.size());
 
-    painter->setPen(QPen(Qt::red, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    painter->setBrush(Qt::NoBrush);
-    QPainterPath path;
+    // Draw red ink
     if (stuff.size() > 1) {
+        painter->setPen(QPen(Qt::red, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        painter->setBrush(Qt::NoBrush);
+        QPainterPath path;
         path.moveTo(stuff.first());
         for (int i = 1; i < stuff.size(); ++i)
             path.lineTo(stuff.at(i));
