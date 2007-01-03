@@ -38,6 +38,8 @@ private slots:
     void hasAttributes();
     void save_data();
     void save();
+    void saveWithSerialization() const;
+    void saveWithSerialization_data() const;
     void cloneNode_data();
     void cloneNode();
     void ownerDocument_data();
@@ -64,12 +66,22 @@ private slots:
     void appendChild();
 
     void checkWarningOnNull() const;
+    void roundTripAttributes() const;
+    void normalizeEndOfLine() const;
+    void normalizeAttributes() const;
+    void serializeWeirdEOL() const;
+
+    void initTestCase();
 private:
-    int hasAttributesHelper( const QDomNode& node );
-    bool compareDocuments( const QDomDocument &doc1, const QDomDocument &doc2 );
-    bool compareNodes( const QDomNode &node1, const QDomNode &node2, bool deep );
-    QDomNode findDomNode( const QDomDocument &doc, const QList<QVariant> &pathToNode );
+    static int hasAttributesHelper( const QDomNode& node );
+    static bool compareDocuments( const QDomDocument &doc1, const QDomDocument &doc2 );
+    static bool compareNodes( const QDomNode &node1, const QDomNode &node2, bool deep );
+    static QDomNode findDomNode( const QDomDocument &doc, const QList<QVariant> &pathToNode );
     static QString onNullWarning(const char *const functionName);
+    static bool isDeepEqual(const QDomNode &n1, const QDomNode &n2);
+    static bool isFakeXMLDeclaration(const QDomNode &node);
+
+    QList<QByteArray> m_excludedCodecs;
 };
 
 Q_DECLARE_METATYPE(QList<QVariant>)
@@ -247,7 +259,8 @@ void tst_QDom::toString_01_data()
 
 }
 
-/*
+/*! \internal
+
   This function tests that the QDomDocument::toString() function results in the
   same XML document. The meaning of "same" in this context means that the
   "information" in the resulting XML file is the same as in the original, i.e.
@@ -408,6 +421,87 @@ void tst_QDom::save()
     domDoc.save( ts, indent );
 
     QTEST( eRes, "res" );
+}
+
+void tst_QDom::initTestCase()
+{
+    QFile file("testdata/excludedCodecs.txt");
+    QVERIFY(file.open(QIODevice::ReadOnly));
+
+    QByteArray codecName;
+
+    m_excludedCodecs = file.readAll().split('\n');
+}
+
+void tst_QDom::saveWithSerialization() const
+{
+    QFETCH(QString, fileName);
+
+    QFile f(fileName);
+    QVERIFY(f.open(QIODevice::ReadOnly));
+
+    QDomDocument doc;
+
+    // Read the document
+    QVERIFY(doc.setContent(&f));
+
+    const QList<QByteArray> codecs(QTextCodec::availableCodecs());
+    QByteArray codec;
+
+    foreach(codec, codecs) {
+
+        /* Avoid codecs that can't handle the files we have. */
+        if(m_excludedCodecs.contains(codec))
+            continue;
+
+        /* Write out doc in the specified codec. */
+        QByteArray storage;
+        QBuffer writeDevice(&storage);
+        QVERIFY(writeDevice.open(QIODevice::WriteOnly));
+
+        QTextStream s(&writeDevice);
+        s.setCodec(QTextCodec::codecForName(codec));
+
+        doc.save(s, 0, QDomNode::EncodingFromTextStream);
+        s.flush();
+        writeDevice.close();
+
+        QBuffer readDevice(&storage);
+        QVERIFY(readDevice.open(QIODevice::ReadOnly));
+
+        QDomDocument result;
+
+        QString msg;
+        int line;
+        int column;
+
+        QVERIFY2(result.setContent(&readDevice, &msg, &line, &column),
+                 qPrintable(QString::fromLatin1("Failed for codec %1: line %2, column %3: %4")
+                                                .arg(codec.constData())
+                                                .arg(line)
+                                                .arg(column)
+                                                .arg(msg)));
+        QVERIFY2(compareDocuments(doc, result),
+                 qPrintable(QString::fromLatin1("Failed for codec %1").arg(codec.constData())));
+    }
+}
+
+void tst_QDom::saveWithSerialization_data() const
+{
+    QTest::addColumn<QString>("fileName");
+
+    QTest::newRow("doc01.xml") << QString("testdata/toString_01/doc01.xml");
+    QTest::newRow("doc01.xml") << QString("testdata/toString_01/doc01.xml");
+    QTest::newRow("doc02.xml") << QString("testdata/toString_01/doc02.xml");
+    QTest::newRow("doc03.xml") << QString("testdata/toString_01/doc03.xml");
+    QTest::newRow("doc04.xml") << QString("testdata/toString_01/doc04.xml");
+    QTest::newRow("doc05.xml") << QString("testdata/toString_01/doc05.xml");
+
+    QTest::newRow("doc_euc-jp.xml") << QString("testdata/toString_01/doc_euc-jp.xml");
+    QTest::newRow("doc_iso-2022-jp.xml") << QString("testdata/toString_01/doc_iso-2022-jp.xml");
+    QTest::newRow("doc_little-endian.xml") << QString("testdata/toString_01/doc_little-endian.xml");
+    QTest::newRow("doc_utf-16.xml") << QString("testdata/toString_01/doc_utf-16.xml");
+    QTest::newRow("doc_utf-8.xml") << QString("testdata/toString_01/doc_utf-8.xml");
 }
 
 void tst_QDom::cloneNode_data()
@@ -763,6 +857,54 @@ void tst_QDom::documentCreationTask27424()
 }
 
 
+bool tst_QDom::isFakeXMLDeclaration(const QDomNode &node)
+{
+    return node.isProcessingInstruction() &&
+           node.nodeName() == QLatin1String("xml");
+}
+
+bool tst_QDom::isDeepEqual(const QDomNode &n1, const QDomNode &n2)
+{
+    const QDomNode::NodeType nt = n1.nodeType();
+
+    if(nt != n2.nodeType())
+        return false;
+
+    if(n1.nodeName() != n2.nodeName()
+       || n1.namespaceURI() != n2.namespaceURI()
+       || n1.nodeValue() != n2.nodeValue())
+        return false;
+
+    /* Check the children. */
+    const QDomNodeList children1(n1.childNodes());
+    const QDomNodeList children2(n2.childNodes());
+    uint len1 = children1.length();
+    uint len2 = children2.length();
+    uint i1 = 0;
+    uint i2 = 0;
+
+    if(len1 != 0 && isFakeXMLDeclaration(children1.at(0)))
+            ++i1;
+
+    if(len2 != 0 && isFakeXMLDeclaration(children2.at(0)))
+            ++i2;
+
+    if(len1 - i1 != len2 - i2)
+        return false;
+
+    // We jump over the first to skip the processing instructions that
+    // are (incorrectly) used as a XML declarations.
+    for(; i1 < len1; ++i1)
+    {
+        if(!isDeepEqual(children1.at(i1), children2.at(i2)))
+            return false;
+
+        ++i2;
+    }
+
+    return true;
+}
+
 /*
     Returns TRUE if \a doc1 and \a doc2 represent the same XML document, i.e.
     they have the same informational content. Otherwise, this function returns
@@ -770,9 +912,7 @@ void tst_QDom::documentCreationTask27424()
 */
 bool tst_QDom::compareDocuments( const QDomDocument &doc1, const QDomDocument &doc2 )
 {
-    // ### this test should be improved, since the ordering of attributes does
-    // not matter in XML, e.g.
-    return doc1.toString() == doc2.toString();
+    return isDeepEqual(doc1, doc2);
 }
 
 /*
@@ -1269,6 +1409,90 @@ void tst_QDom::checkWarningOnNull() const
     QTextStream stream;
     n.save(stream, 3);
     QCOMPARE(s_onNullMessage, qPrintable(onNullWarning("save")));
+}
+
+void tst_QDom::roundTripAttributes() const
+{
+    /* Create an attribute via the QDom API with weird whitespace content. */
+    QDomImplementation impl;
+
+    QDomDocument doc(impl.createDocument("", "localName", QDomDocumentType()));
+
+    QDomElement e(doc.documentElement());
+
+    QString ws;
+    ws.reserve(8);
+    ws.append(QChar(0x20));
+    ws.append(QChar(0x20));
+    ws.append(QChar(0x20));
+    ws.append(QChar(0xD));
+    ws.append(QChar(0xA));
+    ws.append(QChar(0x9));
+    ws.append(QChar(0x20));
+    ws.append(QChar(0x20));
+
+    e.setAttribute("attr", ws);
+
+    QByteArray serialized;
+    QBuffer buffer(&serialized);
+    buffer.open(QIODevice::WriteOnly);
+    QTextStream stream(&buffer);
+
+    doc.save(stream, 0);
+    stream.flush();
+
+    const QByteArray expected("<localName xmlns=\"\" attr=\"   &#xd;&#xa;&#x9;  \" />\n");
+    QCOMPARE(QString::fromLatin1(serialized.constData()), QString::fromLatin1(expected.constData()));
+}
+
+void tst_QDom::normalizeEndOfLine() const
+{
+    QByteArray input("<a>\r\nc\rc\ra\na</a>");
+
+    QBuffer buffer(&input);
+    QVERIFY(buffer.open(QIODevice::ReadOnly));
+
+    QDomDocument doc;
+    QVERIFY(doc.setContent(&buffer, true));
+
+    const QString expected(QLatin1String("<a>\nc\nc\na\na</a>"));
+
+    // Qt 5 ### Fix this, if we keep QDom at all.
+    QEXPECT_FAIL("", "The parser doesn't perform newline normalization. Fixing that would change behavior.", Continue);
+    QCOMPARE(doc.documentElement().text(), expected);
+}
+
+void tst_QDom::normalizeAttributes() const
+{
+    QByteArray data("<element attribute=\"a\na\"/>");
+    QBuffer buffer(&data);
+
+    QVERIFY(buffer.open(QIODevice::ReadOnly));
+
+    QDomDocument doc;
+    QVERIFY(doc.setContent(&buffer, true));
+
+    // Qt 5 ### Fix this, if we keep QDom at all.
+    QEXPECT_FAIL("", "The parser doesn't perform Attribute Value Normalization. Fixing that would change behavior.", Continue);
+    QCOMPARE(doc.documentElement().attribute(QLatin1String("attribute")), QString::fromLatin1("a a"));
+}
+
+void tst_QDom::serializeWeirdEOL() const
+{
+    QDomImplementation impl;
+
+    QDomDocument doc(impl.createDocument("", "name", QDomDocumentType()));
+    QDomElement ele(doc.documentElement());
+    ele.appendChild(doc.createTextNode(QLatin1String("\r\nasd\nasd\rasd\n")));
+
+    QByteArray output;
+    QBuffer writeBuffer(&output);
+    QVERIFY(writeBuffer.open(QIODevice::WriteOnly));
+    QTextStream stream(&writeBuffer);
+
+    const QByteArray expected("<name xmlns=\"\">&#xd;\nasd\nasd&#xd;asd\n</name>\n");
+    doc.save(stream, 0);
+    QCOMPARE(QString::fromLatin1(output.constData()), QString::fromLatin1(expected.constData()));
 }
 
 QTEST_MAIN(tst_QDom)

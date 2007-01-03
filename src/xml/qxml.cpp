@@ -2918,7 +2918,9 @@ void QXmlSimpleReaderPrivate::initIncrementalParsing()
     This XML reader is suitable for a wide range of applications. It
     is able to parse well-formed XML and can report the namespaces of
     elements to a content handler; however, it does not parse any
-    external entities.
+    external entities. For historical reasons, Attribute Value
+    Normalization and End-of-Line Handling as described in the XML 1.0
+    specification is not performed.
 
     The easiest pattern of use for this class is to create a reader
     instance, define an input source, specify the handlers to be used

@@ -139,19 +139,20 @@ public:
     }
 
     // Dynamic cast
-    virtual bool isAttr() { return false; }
-    virtual bool isCDATASection() { return false; }
-    virtual bool isDocumentFragment() { return false; }
-    virtual bool isDocument() { return false; }
-    virtual bool isDocumentType() { return false; }
-    virtual bool isElement() { return false; }
-    virtual bool isEntityReference() { return false; }
-    virtual bool isText() { return false; }
-    virtual bool isEntity() { return false; }
-    virtual bool isNotation() { return false; }
-    virtual bool isProcessingInstruction() { return false; }
-    virtual bool isCharacterData() { return false; }
-    virtual bool isComment() { return false; }
+    virtual bool isAttr() const                     { return false; }
+    virtual bool isCDATASection() const             { return false; }
+    virtual bool isDocumentFragment() const         { return false; }
+    virtual bool isDocument() const                 { return false; }
+    virtual bool isDocumentType() const             { return false; }
+    virtual bool isElement() const                  { return false; }
+    virtual bool isEntityReference() const          { return false; }
+    virtual bool isText() const                     { return false; }
+    virtual bool isEntity() const                   { return false; }
+    virtual bool isNotation() const                 { return false; }
+    virtual bool isProcessingInstruction() const    { return false; }
+    virtual bool isCharacterData() const            { return false; }
+    virtual bool isComment() const                  { return false; }
+
     virtual QDomNode::NodeType nodeType() const { return QDomNode::BaseNode; }
 
     virtual void save(QTextStream&, int, int) const;
@@ -264,7 +265,7 @@ public:
     QDomNodePrivate* removeChild(QDomNodePrivate* oldChild);
     QDomNodePrivate* appendChild(QDomNodePrivate* newChild);
 
-    bool isDocumentType() { return true; }
+    virtual bool isDocumentType() const { return true; }
     QDomNode::NodeType nodeType() const { return QDomNode::DocumentTypeNode; }
 
     void save(QTextStream& s, int, int) const;
@@ -284,8 +285,8 @@ public:
     QDomDocumentFragmentPrivate(QDomNodePrivate* n, bool deep);
 
     // Reimplemented from QDomNodePrivate
-    QDomNodePrivate* cloneNode(bool deep = true);
-    bool isDocumentFragment() { return true; }
+    virtual QDomNodePrivate* cloneNode(bool deep = true);
+    virtual bool isDocumentFragment() const { return true; }
     QDomNode::NodeType nodeType() const { return QDomNode::DocumentFragmentNode; }
 };
 
@@ -303,7 +304,7 @@ public:
     void replaceData(unsigned long offset, unsigned long count, const QString& arg);
 
     // Reimplemented from QDomNodePrivate
-    bool isCharacterData() { return true; }
+    virtual bool isCharacterData() const { return true; }
     QDomNode::NodeType nodeType() const { return QDomNode::CharacterDataNode; }
     QDomNodePrivate* cloneNode(bool deep = true);
 };
@@ -318,9 +319,9 @@ public:
 
     // Reimplemented from QDomNodePrivate
     QDomNodePrivate* cloneNode(bool deep = true);
-    bool isText() { return true; }
+    virtual bool isText() const { return true; }
     QDomNode::NodeType nodeType() const { return QDomNode::TextNode; }
-    void save(QTextStream& s, int, int) const;
+    virtual void save(QTextStream& s, int, int) const;
 };
 
 class QDomAttrPrivate : public QDomNodePrivate
@@ -335,9 +336,9 @@ public:
     // Reimplemented from QDomNodePrivate
     void setNodeValue(const QString& v);
     QDomNodePrivate* cloneNode(bool deep = true);
-    bool isAttr() { return true; }
+    virtual bool isAttr() const { return true; }
     QDomNode::NodeType nodeType() const { return QDomNode::AttributeNode; }
-    void save(QTextStream& s, int, int) const;
+    virtual void save(QTextStream& s, int, int) const;
 
     // Variables
     bool m_specified;
@@ -369,10 +370,10 @@ public:
     // Reimplemented from QDomNodePrivate
     QDomNamedNodeMapPrivate* attributes() { return m_attr; }
     bool hasAttributes() { return (m_attr->length() > 0); }
-    bool isElement() { return true; }
+    virtual bool isElement() const { return true; }
     QDomNode::NodeType nodeType() const { return QDomNode::ElementNode; }
     QDomNodePrivate* cloneNode(bool deep = true);
-    void save(QTextStream& s, int, int) const;
+    virtual void save(QTextStream& s, int, int) const;
 
     // Variables
     QDomNamedNodeMapPrivate* m_attr;
@@ -387,9 +388,9 @@ public:
 
     // Reimplemented from QDomNodePrivate
     QDomNodePrivate* cloneNode(bool deep = true);
-    bool isComment() { return true; }
+    virtual bool isComment() const { return true; }
     QDomNode::NodeType nodeType() const { return QDomNode::CommentNode; }
-    void save(QTextStream& s, int, int) const;
+    virtual void save(QTextStream& s, int, int) const;
 };
 
 class QDomCDATASectionPrivate : public QDomTextPrivate
@@ -400,9 +401,9 @@ public:
 
     // Reimplemented from QDomNodePrivate
     QDomNodePrivate* cloneNode(bool deep = true);
-    bool isCDATASection() { return true; }
+    virtual bool isCDATASection() const { return true; }
     QDomNode::NodeType nodeType() const { return QDomNode::CDATASectionNode; }
-    void save(QTextStream& s, int, int) const;
+    virtual void save(QTextStream& s, int, int) const;
 };
 
 class QDomNotationPrivate : public QDomNodePrivate
@@ -414,9 +415,9 @@ public:
 
     // Reimplemented from QDomNodePrivate
     QDomNodePrivate* cloneNode(bool deep = true);
-    bool isNotation() { return true; }
+    virtual bool isNotation() const { return true; }
     QDomNode::NodeType nodeType() const { return QDomNode::NotationNode; }
-    void save(QTextStream& s, int, int) const;
+    virtual void save(QTextStream& s, int, int) const;
 
     // Variables
     QString m_sys;
@@ -432,9 +433,9 @@ public:
 
     // Reimplemented from QDomNodePrivate
     QDomNodePrivate* cloneNode(bool deep = true);
-    bool isEntity() { return true; }
+    virtual bool isEntity() const { return true; }
     QDomNode::NodeType nodeType() const { return QDomNode::EntityNode; }
-    void save(QTextStream& s, int, int) const;
+    virtual void save(QTextStream& s, int, int) const;
 
     // Variables
     QString m_sys;
@@ -452,7 +453,7 @@ public:
     QDomNodePrivate* cloneNode(bool deep = true);
     bool isEntityReference() { return true; }
     QDomNode::NodeType nodeType() const { return QDomNode::EntityReferenceNode; }
-    void save(QTextStream& s, int, int) const;
+    virtual void save(QTextStream& s, int, int) const;
 };
 
 class QDomProcessingInstructionPrivate : public QDomNodePrivate
@@ -464,9 +465,9 @@ public:
 
     // Reimplemented from QDomNodePrivate
     QDomNodePrivate* cloneNode(bool deep = true);
-    bool isProcessingInstruction() { return true; }
+    virtual bool isProcessingInstruction() const { return true; }
     QDomNode::NodeType nodeType() const { return QDomNode::ProcessingInstructionNode; }
-    void save(QTextStream& s, int, int) const;
+    virtual void save(QTextStream& s, int, int) const;
 };
 
 class QDomDocumentPrivate : public QDomNodePrivate
@@ -502,14 +503,16 @@ public:
 
     // Reimplemented from QDomNodePrivate
     QDomNodePrivate* cloneNode(bool deep = true);
-    bool isDocument() { return true; }
+    bool isDocument() const { return true; }
     QDomNode::NodeType nodeType() const { return QDomNode::DocumentNode; }
     void clear();
-    void save(QTextStream&, int, int) const;
+    virtual void save(QTextStream&, int, int) const;
 
     // Variables
     QDomImplementationPrivate* impl;
     QDomDocumentTypePrivate* type;
+
+    void saveDocument(QTextStream& stream, const int indent, QDomNode::EncodingPolicy encUsed) const;
 };
 
 /**************************************************************
@@ -2073,6 +2076,9 @@ void QDomNodePrivate::normalize()
     qNormalizeNode(this);
 }
 
+/*! \internal
+  \a depth is used for indentation, it seems.
+ */
 void QDomNodePrivate::save(QTextStream& s, int depth, int indent) const
 {
     const QDomNodePrivate* n = first;
@@ -2868,10 +2874,40 @@ QDomNode QDomNode::namedItem(const QString& name) const
     Writes the XML representation of the node and all its children to
     the stream \a str. This function uses \a indent as the amount of
     space to indent the node.
+
+    If this node is a document node, the encoding of text stream \a str's encoding is
+    set by treating a processing instruction by name "xml" as an XML declaration, if such a one exists,
+    and otherwise defaults to UTF-8. XML declarations are not processing instructions, but this
+    behavior exists for historical reasons. If this node is not a document node,
+    the text stream's encoding is used.
+
+    If the document contains invalid XML characters, the result and behavior is undefined.
+
 */
 void QDomNode::save(QTextStream& str, int indent) const
 {
-    if (isImplValid(impl, "save"))
+    save(str, indent, QDomNode::EncodingFromDocument);
+}
+
+/*!
+    If \a encodingPolicy is QDomNode::EncodingFromDocument, this function behaves as save(QTextStream &str, int indent).
+
+    If \a encodingPolicy is EncodingFromTextStream and this node is a document node, this
+    function behaves as save(QTextStream &str, int indent) with the exception that the encoding
+    specified in the text stream \a str is used.
+
+    If the document contains invalid XML characters, the result and behavior is undefined.
+
+ \since 4.2
+ */
+void QDomNode::save(QTextStream& str, int indent, EncodingPolicy encodingPolicy) const
+{
+    if (!isImplValid(impl, "save"))
+        return;
+
+    if(isDocument())
+        static_cast<const QDomDocumentPrivate *>(impl)->saveDocument(str, indent, encodingPolicy);
+    else
         IMPL->save(str, 1, indent);
 }
 
@@ -3337,6 +3373,7 @@ QDomNodePrivate* QDomNamedNodeMapPrivate::item(int index) const
     return *(map.constBegin() + index);
 }
 
+// ### Qt 5: convert all length/size() functions in QDom to use int instead of uint.
 uint QDomNamedNodeMapPrivate::length() const
 {
     return map.count();
@@ -4312,47 +4349,84 @@ bool QDomAttrPrivate::specified() const
     return m_specified;
 }
 
-/*
-  Encode an attribute value upon saving.
+/* \internal
+  Encode & escape \a str. Yes, it makes no sense to return a QString,
+  but is so for legacy reasons.
+
+  Remember that content produced should be able to roundtrip with 2.11 End-of-Line Handling
+  and 3.3.3 Attribute-Value Normalization.
+
+  If \a performAVN is true, characters will be escaped to survive Attribute Value Normalization.
+  If \a encodeEOLs is true, characters will be escaped to survive End-of-Line Handling.
 */
-static QString encodeAttr(const QString& str, bool encodeQuotes = true)
+static QString encodeText(const QString &str,
+                          QTextStream &s,
+                          const bool encodeQuotes = true,
+                          const bool performAVN = false,
+                          const bool encodeEOLs = false)
 {
-    QString tmp(str);
-    uint len = tmp.length();
-    uint i = 0;
+    const QTextCodec *const codec = s.codec();
+    Q_ASSERT(codec);
+    QString retval(str);
+    int len = retval.length();
+    int i = 0;
+
     while (i < len) {
-        if (tmp[(int)i] == QLatin1Char('<')) {
-            tmp.replace(i, 1, QLatin1String("&lt;"));
+        const QChar ati(retval.at(i));
+
+        if (ati == QLatin1Char('<')) {
+            retval.replace(i, 1, QLatin1String("&lt;"));
             len += 3;
             i += 4;
-        } else if (encodeQuotes && (tmp[(int)i] == QLatin1Char('"'))) {
-            tmp.replace(i, 1, QLatin1String("&quot;"));
+        } else if (encodeQuotes && (ati == QLatin1Char('"'))) {
+            retval.replace(i, 1, QLatin1String("&quot;"));
             len += 5;
             i += 6;
-        } else if (tmp[(int)i] == QLatin1Char('&')) {
-            tmp.replace(i, 1, QLatin1String("&amp;"));
+        } else if (ati == QLatin1Char('&')) {
+            retval.replace(i, 1, QLatin1String("&amp;"));
             len += 4;
             i += 5;
-        } else if (tmp[(int)i] == QLatin1Char('>') && i>=2 && tmp[(int)i-1] == QLatin1Char(']') && tmp[(int)i-2] == QLatin1Char(']')) {
-            tmp.replace(i, 1, QLatin1String("&gt;"));
+        } else if (ati == QLatin1Char('>') && i >= 2 && retval[i - 1] == QLatin1Char(']') && retval[i - 2] == QLatin1Char(']')) {
+            retval.replace(i, 1, QLatin1String("&gt;"));
             len += 3;
             i += 4;
+        } else if (performAVN &&
+                   (ati == QChar(0xA) ||
+                    ati == QChar(0xD) ||
+                    ati == QChar(0x9))) {
+            const QString replacement(QLatin1String("&#x") + QString::number(ati.unicode(), 16) + QLatin1Char(';'));
+            retval.replace(i, 1, replacement);
+            i += replacement.length();
+            len += replacement.length() - 1;
+        } else if (encodeEOLs && ati == QChar(0xD)) {
+            retval.replace(i, 1, QLatin1String("&#xd;")); // Replace a single 0xD with a ref for 0xD
+            len += 4;
+            i += 5;
         } else {
-            ++i;
+            if(codec->canEncode(ati))
+                ++i;
+            else {
+                // We have to use a character reference to get it through.
+                const ushort codepoint(ati.unicode());
+                const QString replacement(QLatin1String("&#x") + QString::number(codepoint, 16) + QLatin1Char(';'));
+                retval.replace(i, 1, replacement);
+                i += replacement.length();
+                len += replacement.length() - 1;
+            }
         }
     }
 
-    return tmp;
+    return retval;
 }
 
 void QDomAttrPrivate::save(QTextStream& s, int, int) const
 {
     if (namespaceURI.isNull()) {
-        s << name << "=\"" << encodeAttr(value) << '\"';
+        s << name << "=\"" << encodeText(value, s, true, true) << '\"';
     } else {
         // ### optimize this (see comment of QDomElementPrivate::save()
-        s << prefix << ':' << name << "=\"" << encodeAttr(value) << '\"'
-            << " xmlns:" << prefix << "=\"" << encodeAttr(namespaceURI) << '\"';
+        s << prefix << ':' << name << "=\"" << encodeText(value, s, true, true) << '\"'
+            << " xmlns:" << prefix << "=\"" << encodeText(namespaceURI, s, true, true) << '\"';
     }
 }
 
@@ -4704,7 +4778,7 @@ void QDomElementPrivate::save(QTextStream& s, int depth, int indent) const
             qName = prefix + QLatin1Char(':') + name;
             nsDecl = QLatin1String(" xmlns:") + prefix;
         }
-        nsDecl += QLatin1String("=\"") + encodeAttr(namespaceURI) + QLatin1String("\"");
+        nsDecl += QLatin1String("=\"") + encodeText(namespaceURI, s) + QLatin1String("\"");
     }
     s << '<' << qName << nsDecl;
 
@@ -4725,8 +4799,7 @@ void QDomElementPrivate::save(QTextStream& s, int depth, int indent) const
             s << '>' << endl;
         QDomNodePrivate::save(s, depth + 1, indent);
         if (!last->isText())
-            for(int i = 0; i < depth*indent; ++i)
-                s << ' ';
+            s << QString(depth * indent, QLatin1Char(' '));
 
         s << "</" << qName << '>';
     } else {
@@ -5292,7 +5365,7 @@ QDomTextPrivate* QDomTextPrivate::splitText(int offset)
 void QDomTextPrivate::save(QTextStream& s, int, int) const
 {
     QDomTextPrivate *that = const_cast<QDomTextPrivate*>(this);
-    s << encodeAttr(value, !(that->parent() && that->parent()->isElement()));
+    s << encodeText(value, s, !(that->parent() && that->parent()->isElement()), false, true);
 }
 
 /**************************************************************
@@ -6534,39 +6607,80 @@ QDomNodePrivate* QDomDocumentPrivate::importNode(const QDomNodePrivate *imported
     return node;
 }
 
-void QDomDocumentPrivate::save(QTextStream& s, int, int indent) const
+void QDomDocumentPrivate::saveDocument(QTextStream& s, const int indent, QDomNode::EncodingPolicy encUsed) const
 {
-    bool doc = false;
+    const QDomNodePrivate* n = first;
 
-    QDomNodePrivate* n = first;
+    if(encUsed == QDomNode::EncodingFromDocument) {
 #ifndef QT_NO_TEXTCODEC
-    if (n && n->isProcessingInstruction() && n->nodeName() == QLatin1String("xml")) {
-        // we have an XML declaration
-        QString data = n->nodeValue();
-        QRegExp encoding(QString::fromLatin1("encoding\\s*=\\s*((\"([^\"]*)\")|('([^']*)'))"));
-        encoding.indexIn(data);
-        QString enc = encoding.cap(3);
-        if (enc.isEmpty()) {
-            enc = encoding.cap(5);
-        }
-        if (enc.isEmpty())
+        const QDomNodePrivate* n = first;
+
+        if (n && n->isProcessingInstruction() && n->nodeName() == QLatin1String("xml")) {
+            // we have an XML declaration
+            QString data = n->nodeValue();
+            QRegExp encoding(QString::fromLatin1("encoding\\s*=\\s*((\"([^\"]*)\")|('([^']*)'))"));
+            encoding.indexIn(data);
+            QString enc = encoding.cap(3);
+            if (enc.isEmpty()) {
+                enc = encoding.cap(5);
+            }
+            if (enc.isEmpty())
+                s.setCodec(QTextCodec::codecForName("UTF-8"));
+            else
+                s.setCodec(QTextCodec::codecForName(enc.toLatin1().data()));
+        } else {
             s.setCodec(QTextCodec::codecForName("UTF-8"));
-        else
-            s.setCodec(QTextCodec::codecForName(enc.toLatin1().data()));
-    } else {
-        s.setCodec(QTextCodec::codecForName("UTF-8"));
-    }
-    s.setAutoDetectUnicode(true);
-#endif
-    while (n) {
-        if (!doc && !(n->isProcessingInstruction()&&n->nodeName() == QLatin1String("xml"))) {
-            // save doctype after XML declaration
-            type->save(s, 0, indent);
-            doc = true;
         }
-        n->save(s, 0, indent);
-        n = n->next;
+#endif
+        bool doc = false;
+
+        while (n) {
+            if (!doc && !(n->isProcessingInstruction() && n->nodeName() == QLatin1String("xml"))) {
+                // save doctype after XML declaration
+                type->save(s, 0, indent);
+                doc = true;
+            }
+            n->save(s, 0, indent);
+            n = n->next;
+        }
     }
+    else {
+
+        // Write out the XML declaration.
+        const QTextCodec *const codec = s.codec();
+        Q_ASSERT_X(codec, "QDomNode::save()", "A codec must be specified in the text stream.");
+
+        s << "<?xml version=\"1.0\" encoding=\""
+          << codec->name()
+          << "\"?>\n";
+
+        //  Skip the first processing instruction by name "xml", if any such exists.
+        const QDomNodePrivate* startNode = n;
+
+        // First, we try to find the PI and sets the startNode to the one appearing after it.
+        while (n) {
+            if(n->isProcessingInstruction() && n->nodeName() == QLatin1String("xml")) {
+                startNode = n->next;
+                break;
+            }
+            else
+                n = n->next;
+        }
+
+        // Now we serialize all the nodes after the faked XML declaration(the PI).
+        while(startNode) {
+            startNode->save(s, 0, indent);
+            startNode = startNode->next;
+        }
+    }
+}
+
+/*! \internal
+   \since 4.2
+ */
+void QDomDocumentPrivate::save(QTextStream&, int, int) const
+{
+    qDebug() << "This function is never expected to be called.";
 }
 
 /**************************************************************
@@ -7063,7 +7177,7 @@ QDomCDATASection QDomDocument::createCDATASection(const QString& value)
     \sa QDomNode::appendChild() QDomNode::insertBefore() QDomNode::insertAfter()
 */
 QDomProcessingInstruction QDomDocument::createProcessingInstruction(const QString& target,
-                                                                     const QString& data)
+                                                                    const QString& data)
 {
     if (!impl)
         impl = new QDomDocumentPrivate();
