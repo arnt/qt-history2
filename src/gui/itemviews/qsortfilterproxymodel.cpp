@@ -81,6 +81,7 @@ public:
         QVector<int> proxy_rows;
         QVector<int> proxy_columns;
         QVector<QModelIndex> mapped_children;
+        QMap<QModelIndex, Mapping *>::const_iterator map_iter;
     };
 
     mutable QMap<QModelIndex, Mapping*> source_index_mapping;
@@ -112,8 +113,8 @@ public:
         Q_ASSERT(proxy_index.isValid());
         const void *p = proxy_index.internalPointer();
         Q_ASSERT(p);
-        QMap<QModelIndex, Mapping *>::const_iterator it =
-            reinterpret_cast<QMap<QModelIndex, Mapping *>::const_iterator & >(p);
+        QMap<QModelIndex, Mapping *>::const_iterator it = 
+            static_cast<const Mapping*>(p)->map_iter;
         Q_ASSERT(it != source_index_mapping.constEnd());
         Q_ASSERT(it.value());
         return it;
@@ -122,8 +123,7 @@ public:
     inline QModelIndex create_index(int row, int column,
                                     QMap<QModelIndex, Mapping*>::const_iterator it) const
     {
-        const void *p = static_cast<const void *>(it);
-        return q_func()->createIndex(row, column, const_cast<void *>(p));
+        return q_func()->createIndex(row, column, *it);
     }
 
     void _q_sourceDataChanged(const QModelIndex &source_top_left,
@@ -247,6 +247,7 @@ IndexMap::const_iterator QSortFilterProxyModelPrivate::create_mapping(
     build_source_to_proxy_mapping(m->source_columns, m->proxy_columns);
 
     it = IndexMap::const_iterator(source_index_mapping.insert(source_parent, m));
+    m->map_iter = it;
 
     if (source_parent.isValid()) {
         QModelIndex source_grand_parent = source_parent.parent();
@@ -735,7 +736,7 @@ void QSortFilterProxyModelPrivate::source_items_removed(
             // update mapping
             Mapping *cm = source_index_mapping.take(source_child_index);
             Q_ASSERT(cm);
-            source_index_mapping.insert(new_index, cm);
+            cm->map_iter = source_index_mapping.insert(new_index, cm);
         }
     }
 }
