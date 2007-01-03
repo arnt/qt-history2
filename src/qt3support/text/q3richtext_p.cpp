@@ -117,7 +117,7 @@ Q3TextDocument *Q3TextCursor::document() const
 void Q3TextCursor::gotoPosition(Q3TextParagraph* p, int index)
 {
     if (para && p != para) {
-        while (para->document() != p->document() && !indices.isEmpty())
+        while (!indices.isEmpty() && para->document() != p->document())
             pop();
         Q_ASSERT(indices.isEmpty() || para->document() == p->document());
     }
