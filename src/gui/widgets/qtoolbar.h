@@ -27,6 +27,7 @@ class QToolBarPrivate;
 class QAction;
 class QIcon;
 class QMainWindow;
+class QStyleOptionToolBar;
 
 class Q_GUI_EXPORT QToolBar : public QWidget
 {
@@ -113,6 +114,7 @@ protected:
     void paintEvent(QPaintEvent *event);
     void resizeEvent(QResizeEvent *event);
     bool event(QEvent *event);
+    void initStyleOption(QStyleOptionToolBar *option) const;
 
 #ifdef QT3_SUPPORT
 public:
