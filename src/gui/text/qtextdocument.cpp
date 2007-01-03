@@ -2020,8 +2020,15 @@ void QTextHtmlExporter::emitBlock(const QTextBlock &block)
 
     html += QLatin1Char('>');
 
-    const QTextCharFormat blockCharFmt = block.charFormat();
-    const QTextCharFormat diff = formatDifference(defaultCharFormat, blockCharFmt).toCharFormat();
+    QTextCharFormat blockCharFmt = block.charFormat();
+    const QTextBlockFormat blockFmt = block.blockFormat();
+
+    blockCharFmt.clearProperty(QTextFormat::BackgroundBrush);
+    if (blockFmt.hasProperty(QTextFormat::BackgroundBrush)) {
+        QBrush bg = blockFmt.background();
+        if (bg.style() != Qt::NoBrush)
+            blockCharFmt.setProperty(QTextFormat::BackgroundBrush, blockFmt.property(QTextFormat::BackgroundBrush));
+    }
 
     defaultCharFormat.merge(blockCharFmt);
 
