@@ -600,9 +600,12 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
 QPoint QWidget::mapToGlobal(const QPoint &pos) const
 {
     Q_D(const QWidget);
-    if (!isVisible() || isMinimized() || !testAttribute(Qt::WA_WState_Created))
-        return mapTo(window(), pos) + window()->pos() +
-        (window()->geometry().topLeft() - window()->frameGeometry().topLeft());
+    if (!isVisible() || window()->isMinimized() || !testAttribute(Qt::WA_WState_Created)) {
+        QPoint toGlobal = mapTo(window(), pos) + window()->pos();
+        // Adjust for window decorations
+        toGlobal += window()->geometry().topLeft() - window()->frameGeometry().topLeft();
+        return toGlobal;
+    }
     POINT p;
     QPoint tmp = d->mapToWS(pos);
     p.x = tmp.x();
@@ -614,8 +617,12 @@ QPoint QWidget::mapToGlobal(const QPoint &pos) const
 QPoint QWidget::mapFromGlobal(const QPoint &pos) const
 {
     Q_D(const QWidget);
-    if (!isVisible() || isMinimized() || !testAttribute(Qt::WA_WState_Created))
-        return mapFrom(window(), pos - window()->pos());
+    if (!isVisible() || window()->isMinimized() || !testAttribute(Qt::WA_WState_Created)) {
+        QPoint fromGlobal = mapFrom(window(), pos - window()->pos());
+        // Adjust for window decorations
+        fromGlobal -= window()->geometry().topLeft() - window()->frameGeometry().topLeft();
+        return fromGlobal;
+    }
     POINT p;
     p.x = pos.x();
     p.y = pos.y();
