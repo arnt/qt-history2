@@ -1913,7 +1913,7 @@ static QPainterPath path_for_glyphs(const QVarLengthArray<glyph_t> &glyphs,
                     QRect r(xp + x, yp - h, 1, 1);
                     while (x < glyph->width-1 && src[(x+1) >> 3] & (0x80 >> ((x+1) & 7))) {
                         ++x;
-                        ++r.right();
+                        r.setRight(r.right()+1);
                     }
 
                     path.addRect(r);
