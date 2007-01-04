@@ -513,12 +513,20 @@ int QScript::Lexer::lex()
     } else if (state == Hex) { // scan hex numbers
         // TODO: support long uint
         uint i;
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+        sscanf_s(buffer8, "%x", &i);
+#else
         sscanf(buffer8, "%x", &i);
+#endif
         dval = i;
         state = Number;
     } else if (state == Octal) {   // scan octal number
         uint ui;
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+        sscanf_s(buffer8, "%o", &ui);
+#else
         sscanf(buffer8, "%o", &ui);
+#endif
         dval = ui;
         state = Number;
     }
