@@ -229,16 +229,23 @@ public:
         : offscreen(0),
           bound(false),
           context(0),
+          main_fbo_texture(0),
+          offscreen_texture(0),
+          drawable_texture(0),
           copy_needed(false),
           use_fbo(QGLExtensions::glExtensions & QGLExtensions::FramebufferObject)
     {}
 
     ~QGLOffscreen() {
-        glDeleteTextures(1, &drawable_texture);
-        if (use_fbo)
-            glDeleteTextures(1, &main_fbo_texture);
-        else
-            glDeleteTextures(1, &offscreen_texture);
+        if (drawable_texture)
+            glDeleteTextures(1, &drawable_texture);
+        if (use_fbo) {
+            if (main_fbo_texture)
+                glDeleteTextures(1, &main_fbo_texture);
+        } else {
+            if (offscreen_texture)
+                glDeleteTextures(1, &offscreen_texture);
+        }
     }
 
     inline void setDevice(QPaintDevice *pdev);
