@@ -1513,7 +1513,7 @@ bool QLineEdit::event(QEvent * e)
                 return true;
             }
         } else if (e->type() == QEvent::EnterEditFocus) {
-            deselect();
+            end(false);
             if (!d->cursorTimer) {
                 int cft = QApplication::cursorFlashTime();
                 d->cursorTimer = cft ? startTimer(cft/2) : -1;
@@ -2050,8 +2050,10 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
 
 
 #ifdef QT_KEYPAD_NAVIGATION
-    if (QApplication::keypadNavigationEnabled() && !hasEditFocus())
+    if (QApplication::keypadNavigationEnabled() && !hasEditFocus()) {
         setEditFocus(true);
+        selectAll();        // so text is replaced rather than appended to
+    }
 #endif
 
     int priorState = d->undoState;
@@ -2141,7 +2143,7 @@ void QLineEdit::focusInEvent(QFocusEvent *e)
         else if (!d->hasSelectedText())
             selectAll();
 #ifdef QT_KEYPAD_NAVIGATION
-    if (!QApplication::keypadNavigationEnabled())
+    if (!QApplication::keypadNavigationEnabled() || (hasEditFocus() && e->reason() == Qt::PopupFocusReason))
 #endif
     if (!d->cursorTimer) {
         int cft = QApplication::cursorFlashTime();

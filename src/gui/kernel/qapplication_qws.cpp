@@ -2990,19 +2990,6 @@ void QApplicationPrivate::openPopup(QWidget *popup)
         popup->focusWidget()->setFocus(Qt::PopupFocusReason);
     } else if (popupWidgets->count() == 1) { // this was the first popup
         if (QWidget *fw = QApplication::focusWidget()) {
-#ifdef QT_KEYPAD_NAVIGATION
-            if (QApplication::keypadNavigationEnabled()) {
-//                qDebug() << "openPopup() - check focus";
-                if (fw->hasEditFocus()) {
-//                    qDebug() << "openPopup() - save old" << fw;
-                    oldEditFocus = fw;
-                    fw->setEditFocus(false);
-                } else {
-//                    qDebug() << "openPopup() - reset old";
-                    oldEditFocus = 0;
-                }
-            }
-#endif
             QFocusEvent e(QEvent::FocusOut, Qt::PopupFocusReason);
             QApplication::sendEvent(fw, &e);
         }
@@ -3036,10 +3023,6 @@ void QApplicationPrivate::closePopup(QWidget *popup)
                 } else {
                     QFocusEvent e(QEvent::FocusIn, Qt::PopupFocusReason);
                     QApplication::sendEvent(fw, &e);
-#ifdef QT_KEYPAD_NAVIGATION
-                    if (QApplication::keypadNavigationEnabled() && fw == oldEditFocus)
-                        fw->setEditFocus(true);
-#endif
                 }
             }
         }

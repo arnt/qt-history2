@@ -1153,6 +1153,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
                     if (QApplication::keypadNavigationEnabled()) {
                         if (document()->isEmpty()) {
                             setEditFocus(false);
+                            e->accept();
                         } else if (!d->deleteAllTimer.isActive()) {
                             e->accept();
                             d->deleteAllTimer.start(750, this);
@@ -1456,8 +1457,10 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
 #ifdef QT_KEYPAD_NAVIGATION
     if (d->control->textInteractionFlags() & Qt::TextEditable
         && QApplication::keypadNavigationEnabled()
-        && !hasEditFocus())
+        && !hasEditFocus()) {
         setEditFocus(true);
+        selectAll();    // so text is replaced rather than appended to
+    }
 #endif
     d->sendControlEvent(e);
 }
