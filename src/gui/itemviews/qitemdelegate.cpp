@@ -625,12 +625,17 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
         int end = text.indexOf(QChar::LineSeparator, start);
         if (end == -1) {
             elided += option.fontMetrics.elidedText(text, option.textElideMode, textRect.width());
-        } else while (end != -1) {
-            elided += option.fontMetrics.elidedText(text.mid(start, end - start),
+        } else {
+            while (end != -1) {
+                elided += option.fontMetrics.elidedText(text.mid(start, end - start),
+                                                        option.textElideMode, textRect.width());
+                elided += QChar::LineSeparator;
+                start = end + 1;
+                end = text.indexOf(QChar::LineSeparator, start);
+            }
+            //let's add the last line (after the last QChar::LineSeparator)
+            elided += option.fontMetrics.elidedText(text.mid(start),
                                                     option.textElideMode, textRect.width());
-            elided += QChar::LineSeparator;
-            start = end + 1;
-            end = text.indexOf(QChar::LineSeparator, start);
             if (end != -1)
                 elided += QChar::LineSeparator;
         }
