@@ -354,9 +354,9 @@ int main(int _argc, char **_argv)
         in = stdin;
     } else {
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-		if (fopen_s(&in, filename.data(), "r")) {
+		if (fopen_s(&in, filename.data(), "rb")) {
 #else
-        in = fopen(filename.data(), "r");
+        in = fopen(filename.data(), "rb");
 		if (!in) {
 #endif
             fprintf(stderr, "moc: %s: No such file\n", (const char*)filename);

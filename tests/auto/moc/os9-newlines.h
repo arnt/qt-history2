@@ -1,0 +1,1 @@
+#include <QObject>class Os9Newlines : public QObject{    Q_OBJECTpublic Q_SLOTS:    inline void testSlot() {}};

@@ -18,6 +18,8 @@
 #include "backslash-newlines.h"
 #include "slots-with-void-template.h"
 #include "qinvokable.h"
+#include "os9-newlines.h"
+#include "win-newlines.h"
 
 #if defined(PARSE_BOOST)
 #include "parse-boost.h"
@@ -415,6 +417,8 @@ private slots:
     void namespacedFlags();
     void warnOnMultipleInheritance();
     void forgottenQInterface();
+    void os9Newline();
+    void winNewline();
 
 signals:
     void sigWithUnsignedArg(unsigned foo);
@@ -780,6 +784,37 @@ void tst_Moc::forgottenQInterface()
 #else
     QSKIP("Only tested on linux/gcc", SkipAll);
 #endif
+}
+
+void tst_Moc::os9Newline()
+{
+    const QMetaObject &mo = Os9Newlines::staticMetaObject;
+    QVERIFY(mo.indexOfSlot("testSlot()") != -1);
+    QFile f(srcify("os9-newlines.h"));
+    QVERIFY(f.open(QIODevice::ReadOnly)); // no QIODevice::Text!
+    QByteArray data = f.readAll();
+    f.close();
+    QVERIFY(!data.contains('\n'));
+    QVERIFY(data.contains('\r'));
+}
+
+void tst_Moc::winNewline()
+{
+    const QMetaObject &mo = WinNewlines::staticMetaObject;
+    QVERIFY(mo.indexOfSlot("testSlot()") != -1);
+    QFile f(srcify("win-newlines.h"));
+    QVERIFY(f.open(QIODevice::ReadOnly)); // no QIODevice::Text!
+    QByteArray data = f.readAll();
+    f.close();
+    for (int i = 0; i < data.count(); ++i) {
+        if (data.at(i) == QLatin1Char('\r')) {
+            QVERIFY(i < data.count() - 1);
+            ++i;
+            QVERIFY(data.at(i) == '\n');
+        } else {
+            QVERIFY(data.at(i) != '\n');
+        }
+    }
 }
 
 QTEST_MAIN(tst_Moc)

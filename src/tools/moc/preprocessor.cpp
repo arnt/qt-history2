@@ -20,6 +20,9 @@
 #include <QDir>
 #include <QFileInfo>
 
+// transform \r\n into \n
+// \r into \n (os9 style)
+// backslash-newlines into newlines
 static QByteArray cleaned(const QByteArray &input)
 {
     QByteArray result;
@@ -42,14 +45,31 @@ static QByteArray cleaned(const QByteArray &input)
             do ++data; while (*data && is_space(*data));
         }
         while (*data) {
-            if (*data == '\\' && *(data+1) == '\n') {
-                ++newlines;
-                data += 2;
-                continue;
+            // handle \\\n, \\\r\n and \\\r
+            if (*data == '\\') {
+                if (*(data + 1) == '\r') {
+                    ++data;
+                }
+                if (*data && (*(data + 1) == '\n' || (*data) == '\r')) {
+                    ++newlines;
+                    data += 1;
+                    if (*data != '\r')
+                        data += 1;
+                    continue;
+                }
+            } else if (*data == '\r' && *(data + 1) == '\n') { // reduce \r\n to \n
+                ++data;
             }
-            *output = *data;
+
+            char ch = *data;
+            if (ch == '\r') // os9: replace \r with \n
+                ch = '\n';
+            *output = ch;
             ++output;
+
             if (*data == '\n') {
+                // output additional newlines to keep the correct line-numbering
+                // for the lines following the backslash-newline sequence(s)
                 while (newlines) {
                     *output = '\n';
                     ++output;
@@ -734,7 +754,7 @@ void Preprocessor::preprocess(const QByteArray &filename, Symbols &preprocessed)
             Preprocessor::preprocessedIncludes.insert(include);
 
             QFile file(QString::fromLocal8Bit(include));
-            if (!file.open(QFile::ReadOnly|QFile::Text))
+            if (!file.open(QFile::ReadOnly))
                 continue;
 
             QByteArray input = file.readAll();
@@ -841,7 +861,7 @@ void Preprocessor::preprocess(const QByteArray &filename, Symbols &preprocessed)
 Symbols Preprocessor::preprocessed(const QByteArray &filename, FILE *file)
 {
     QFile qfile;
-    qfile.open(file, QFile::ReadOnly|QFile::Text);
+    qfile.open(file, QFile::ReadOnly);
     QByteArray input = qfile.readAll();
     if (input.isEmpty())
         return symbols;
