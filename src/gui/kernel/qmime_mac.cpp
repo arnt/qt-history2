@@ -435,7 +435,7 @@ QList<QByteArray> QMacPasteboardMimeTiff::convertFromMime(const QString &mime, Q
 
 class QMacPasteboardMimeFileUri : public QMacPasteboardMime {
 public:
-    QMacPasteboardMimeFileUri() : QMacPasteboardMime(MIME_DND) { }
+    QMacPasteboardMimeFileUri() : QMacPasteboardMime(MIME_ALL) { }
     QString convertorName();
 
     QString flavorFor(const QString &mime);
