@@ -628,6 +628,7 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
         } else while (end != -1) {
             elided += option.fontMetrics.elidedText(text.mid(start, end - start),
                                                     option.textElideMode, textRect.width());
+            elided += QChar::LineSeparator;
             start = end + 1;
             end = text.indexOf(QChar::LineSeparator, start);
             if (end != -1)
