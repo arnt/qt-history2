@@ -1279,6 +1279,20 @@ Q_CORE_EXPORT void qt_check_pointer(const char *, int);
 #  define Q_CHECK_PTR(p)
 #endif
 
+#ifdef Q_CC_GNU
+#  define Q_FUNC_INFO __PRETTY_FUNCTION__
+#elif defined(_MSC_VER) && _MSC_VER > 1300
+#  define Q_FUNC_INFO __FUNCSIG__
+#else
+    /* These two macros makes it possible to turn the builtin line expander into a
+     * string literal. */
+#   define QT_STRINGIFY2(x) #x
+#   define QT_STRINGIFY(x) QT_STRINGIFY2(x)
+#   define Q_FUNC_INFO __FILE__ ":" QT_STRINGIFY(__LINE__)
+#   undef QT_STRINGIFY2
+#   undef QT_STRINGIFY
+#endif
+
 enum QtMsgType { QtDebugMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg, QtSystemMsg = QtCriticalMsg };
 
 Q_CORE_EXPORT void qt_message_output(QtMsgType, const char *buf);

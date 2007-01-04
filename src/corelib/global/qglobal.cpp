@@ -1740,6 +1740,35 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
     \sa qWarning(), {Debugging Techniques}
 */
 
+/*!
+    \macro const char* Q_FUNC_INFO
+    \relates <QtGlobal>
+
+    Expands to a string that describe the function the macro resides in. How this string looks
+    more specifically is compiler dependent. With GNU GCC it is typically the function signature,
+    while with other compilers it might be the line and column number.
+
+    Q_FUNC_INFO can be conveniently used with qDebug(). For example, this function:
+
+    \code
+        template<typename TInputType>
+        const TInputType &myMin(const TInputType &value1, const TInputType &value2)
+        {
+            qDebug() << Q_FUNC_INFO << "was called with value1:" << value1 << "value2:" << value2;
+
+            if(value1 < value2)
+                return value1;
+            else
+                return value2;
+        }
+    \endcode
+
+    when instantiated with the integer type, will with the GCC compiler produce:
+
+    \tt{const TInputType& myMin(const TInputType&, const TInputType&) [with TInputType = int] was called with value1: 3 value2: 4}
+
+    If this macro is used outside a function, the behavior is undefined.
+ */
 
 /*
   The Q_CHECK_PTR macro calls this function if an allocation check
