@@ -3124,7 +3124,8 @@ bool QXmlSimpleReader::feature(const QString& name, bool *ok) const
          \i true
          \i If enabled, CharData that consist of
             only whitespace characters are reported
-            using QXmlContentHandler::characters().
+            using QXmlContentHandler::characters(). If disabled, whitespace is silently
+            discarded.
     \row \i \e http://trolltech.com/xml/features/report-start-end-entity
          \i false
          \i If enabled, the parser reports
