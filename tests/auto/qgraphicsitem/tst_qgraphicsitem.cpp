@@ -2860,6 +2860,8 @@ protected:
         case QGraphicsItem::ItemPositionChange:
             oldValues << pos();
             break;
+        case QGraphicsItem::ItemPositionHasChanged:
+            break;
         case QGraphicsItem::ItemMatrixChange: {
             QVariant variant;
             qVariantSetValue<QMatrix>(variant, matrix());
@@ -2871,6 +2873,8 @@ protected:
             qVariantSetValue<QTransform>(variant, transform());
             oldValues << variant;
         }
+            break;
+        case QGraphicsItem::ItemTransformHasChanged:
             break;
         case QGraphicsItem::ItemVisibleChange:
             oldValues << isVisible();
@@ -2914,13 +2918,16 @@ void tst_QGraphicsItem::itemChange()
         QCOMPARE(tester.isEnabled(), true);
     }
     {
-        // ItemMatrixChange
+        // ItemMatrixChange / ItemTransformHasChanged
         qVariantSetValue<QMatrix>(tester.itemChangeReturnValue, QMatrix().rotate(90));
         tester.setMatrix(QMatrix().translate(50, 0), true);
+        ++changeCount; // notification sent too
         QCOMPARE(tester.changes.size(), ++changeCount);
-        QCOMPARE(int(tester.changes.last()), int(QGraphicsItem::ItemMatrixChange));
-        QCOMPARE(qVariantValue<QMatrix>(tester.values.last()),
+        QCOMPARE(int(tester.changes.at(tester.changes.size() - 2)), int(QGraphicsItem::ItemMatrixChange));
+        QCOMPARE(int(tester.changes.last()), int(QGraphicsItem::ItemTransformHasChanged));
+        QCOMPARE(qVariantValue<QMatrix>(tester.values.at(tester.values.size() - 2)),
                  QMatrix().translate(50, 0));
+        QCOMPARE(tester.values.last(), QVariant(QTransform(QMatrix().rotate(90))));
         QVariant variant;
         qVariantSetValue<QMatrix>(variant, QMatrix());
         QCOMPARE(tester.oldValues.last(), variant);
@@ -2929,26 +2936,33 @@ void tst_QGraphicsItem::itemChange()
     {
         tester.resetTransform();
         ++changeCount;
+        ++changeCount; // notification sent too
 
-        // ItemTransformChange
+        // ItemTransformChange / ItemTransformHasChanged
         qVariantSetValue<QTransform>(tester.itemChangeReturnValue, QTransform().rotate(90));
         tester.translate(50, 0);
+        ++changeCount; // notification sent too
         QCOMPARE(tester.changes.size(), ++changeCount);
-        QCOMPARE(tester.changes.last(), QGraphicsItem::ItemTransformChange);
-        QCOMPARE(qVariantValue<QTransform>(tester.values.last()),
+        QCOMPARE(tester.changes.at(tester.changes.size() - 2), QGraphicsItem::ItemTransformChange);
+        QCOMPARE(tester.changes.last(), QGraphicsItem::ItemTransformHasChanged);
+        QCOMPARE(qVariantValue<QTransform>(tester.values.at(tester.values.size() - 2)),
                  QTransform().translate(50, 0));
+        QCOMPARE(tester.values.last(), QVariant(QTransform().rotate(90)));
         QVariant variant;
         qVariantSetValue<QTransform>(variant, QTransform());
         QCOMPARE(tester.oldValues.last(), variant);
         QCOMPARE(tester.transform(), QTransform().rotate(90));
     }
     {
-        // ItemPositionChange
+        // ItemPositionChange / ItemPositionHasChanged
         tester.itemChangeReturnValue = QPointF(42, 0);
         tester.setPos(0, 42);
+        ++changeCount; // notification sent too
         QCOMPARE(tester.changes.size(), ++changeCount);
-        QCOMPARE(tester.changes.last(), QGraphicsItem::ItemPositionChange);
-        QCOMPARE(tester.values.last(), QVariant(QPointF(0, 42)));
+        QCOMPARE(tester.changes.at(tester.changes.size() - 2), QGraphicsItem::ItemPositionChange);
+        QCOMPARE(tester.changes.last(), QGraphicsItem::ItemPositionHasChanged);
+        QCOMPARE(tester.values.at(tester.changes.size() - 2), QVariant(QPointF(0, 42)));
+        QCOMPARE(tester.values.last(), QVariant(QPointF(42, 0)));
         QCOMPARE(tester.oldValues.last(), QVariant(QPointF()));
         QCOMPARE(tester.pos(), QPointF(42, 0));
     }
