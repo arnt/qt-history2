@@ -434,6 +434,7 @@ private:
 
     mutable ATSUTextLayout textLayout;
     mutable ATSUStyle style;
+    CGAffineTransform transform;
 };
 
 #endif

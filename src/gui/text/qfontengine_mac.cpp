@@ -118,6 +118,15 @@ QFontEngineMacMulti::QFontEngineMacMulti(const ATSUFontID &fontID, const QFontDe
     values[attributeCount] = &this->fontID;
     ++attributeCount;
 
+    transform = CGAffineTransformIdentity;
+    if (fontDef.stretch != 100) {
+        transform = CGAffineTransformMakeScale(float(fontDef.stretch) / float(100), 1);
+        tags[attributeCount] = kATSUFontMatrixTag;
+        sizes[attributeCount] = sizeof(transform);
+        values[attributeCount] = &transform;
+        ++attributeCount;
+    }
+
     status = ATSUCreateStyle(&style);
     Q_ASSERT(status == noErr);
 
@@ -797,6 +806,8 @@ QImage QFontEngineMac::alphaMapForGlyph(glyph_t glyph)
     if (synthesisFlags & QFontEngine::SynthesizedItalic)
         cgMatrix = CGAffineTransformConcat(cgMatrix, CGAffineTransformMake(1, 0, tanf(14 * acosf(0) / 90), 1, 0, 0));
 
+    cgMatrix = CGAffineTransformConcat(cgMatrix, multiEngine->transform);
+
     CGContextSetTextMatrix(ctx, cgMatrix);
     CGContextSetRGBFillColor(ctx, 1, 1, 1, 1);
     CGContextSetTextDrawingMode(ctx, kCGTextFill);
@@ -860,6 +871,8 @@ void QFontEngineMac::draw(CGContextRef ctx, qreal x, qreal y, const QTextItemInt
 
     if (synthesisFlags & QFontEngine::SynthesizedItalic)
         cgMatrix = CGAffineTransformConcat(cgMatrix, CGAffineTransformMake(1, 0, -tanf(14 * acosf(0) / 90), 1, 0, 0));
+
+    cgMatrix = CGAffineTransformConcat(cgMatrix, multiEngine->transform);
 
     CGContextSetTextMatrix(ctx, cgMatrix);
 
