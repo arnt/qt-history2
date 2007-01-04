@@ -123,6 +123,10 @@ public:
         { emit mySignal(); }
     void emitMySignalWithIntArg(int arg)
         { emit mySignalWithIntArg(arg); }
+    void emitMySignal2(bool arg)
+        { emit mySignal2(arg); }
+    void emitMySignal2()
+        { emit mySignal2(); }
 
 public Q_SLOTS:
     void mySlot()
@@ -131,6 +135,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void mySignal();
     void mySignalWithIntArg(int arg);
+    void mySignal2(bool arg = false);
 
 private:
     int m_intValue;
@@ -420,6 +425,8 @@ void tst_QScriptExtQObject::callQtInvokable()
 
 void tst_QScriptExtQObject::connectAndDisconnect()
 {
+    QCOMPARE(m_engine->evaluate("myObject.mySignal.connect(123)").isError(), true);
+
     m_engine->evaluate("myHandler = function() { gotSignal = true; global.signalArgs = arguments; }");
     QCOMPARE(m_engine->evaluate("myObject.mySignal.connect(myHandler)").toBoolean(), true);
 
@@ -442,6 +449,32 @@ void tst_QScriptExtQObject::connectAndDisconnect()
     QCOMPARE(m_engine->evaluate("signalArgs[0]").toNumber(), 123.0);
 
     QCOMPARE(m_engine->evaluate("myObject.mySignal.disconnect(myHandler)").toBoolean(), true);
+    QCOMPARE(m_engine->evaluate("myObject.mySignal.disconnect(myHandler)").toBoolean(), false);
+
+    QCOMPARE(m_engine->evaluate("myObject.mySignal2.connect(myHandler)").toBoolean(), true);
+
+    m_engine->evaluate("gotSignal = false");
+    m_myObject->emitMySignal2(false);
+    QCOMPARE(m_engine->evaluate("gotSignal").toBoolean(), true);
+    QCOMPARE(m_engine->evaluate("signalArgs.length").toNumber(), 1.0);
+    QCOMPARE(m_engine->evaluate("signalArgs[0]").toBoolean(), false);
+
+    m_engine->evaluate("gotSignal = false");
+    QCOMPARE(m_engine->evaluate("myObject.mySignal2.connect(myHandler)").toBoolean(), true);
+    m_myObject->emitMySignal2(true);
+    QCOMPARE(m_engine->evaluate("gotSignal").toBoolean(), true);
+    QCOMPARE(m_engine->evaluate("signalArgs.length").toNumber(), 1.0);
+    QCOMPARE(m_engine->evaluate("signalArgs[0]").toBoolean(), true);
+
+    QCOMPARE(m_engine->evaluate("myObject.mySignal2.disconnect(myHandler)").toBoolean(), true);
+
+    QCOMPARE(m_engine->evaluate("myObject.['mySignal2()'].connect(myHandler)").toBoolean(), true);
+
+    m_engine->evaluate("gotSignal = false");
+    m_myObject->emitMySignal2();
+    QCOMPARE(m_engine->evaluate("gotSignal").toBoolean(), true);
+
+    QCOMPARE(m_engine->evaluate("myObject.['mySignal2()'].disconnect(myHandler)").toBoolean(), true);
 }
 
 void tst_QScriptExtQObject::classEnums()

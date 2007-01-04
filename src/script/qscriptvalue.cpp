@@ -425,7 +425,8 @@ qnumber QScriptValue::toInteger() const
 */
 QScriptFunction *QScriptValueImpl::toFunction() const
 {
-    Q_ASSERT(isFunction());
+    if (!isFunction())
+        return 0;
     return QScriptEnginePrivate::get(engine())->convertToNativeFunction(*this);
 }
 

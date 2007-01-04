@@ -759,18 +759,33 @@ void QScript::QtFunction::execute(QScriptContext *context)
 
 bool QScript::QtFunction::createConnection(const QScriptValue &sender, const QScriptValue &receiver)
 {
+    Q_ASSERT(sender.isFunction());
+    Q_ASSERT(receiver.isFunction());
     QObject *qobject = static_cast<QtFunction*>(sender.impl()->toFunction())->object();
     Q_ASSERT(qobject);
-    QMetaMethod method = qobject->metaObject()->method(m_initialIndex);
+
+    const QMetaObject *meta = qobject->metaObject();
+    int index = m_initialIndex;
+    QMetaMethod method = meta->method(index);
+    if (maybeOverloaded() && (method.attributes() & QMetaMethod::Cloned)) {
+        // find the most general method
+        do {
+            method = meta->method(--index);
+        } while (method.attributes() & QMetaMethod::Cloned);
+    }
+
     QObject *slot = new ConnectionQObject(method, sender, receiver);
     m_slotObjects.append(slot);
-    return QMetaObject::connect(qobject, m_initialIndex, slot, slot->metaObject()->methodOffset());
+    return QMetaObject::connect(qobject, index, slot, slot->metaObject()->methodOffset());
 }
 
 bool QScript::QtFunction::destroyConnection(const QScriptValue &sender, const QScriptValue &receiver)
 {
+    Q_ASSERT(sender.isFunction());
+    Q_ASSERT(receiver.isFunction());
     QObject *qobject = static_cast<QtFunction*>(sender.impl()->toFunction())->object();
     Q_ASSERT(qobject);
+
     // find the slot with the given receiver
     QObject *slot = 0;
     for (int i = 0; i < m_slotObjects.count(); ++i) {
@@ -784,8 +799,19 @@ bool QScript::QtFunction::destroyConnection(const QScriptValue &sender, const QS
     if (! slot)
         return false;
 
-    QMetaMethod method = qobject->metaObject()->method(m_initialIndex);
-    return QMetaObject::disconnect(qobject, m_initialIndex, slot, slot->metaObject()->methodOffset());
+    const QMetaObject *meta = qobject->metaObject();
+    int index = m_initialIndex;
+    QMetaMethod method = meta->method(index);
+    if (maybeOverloaded() && (method.attributes() & QMetaMethod::Cloned)) {
+        // find the most general method
+        do {
+            method = meta->method(--index);
+        } while (method.attributes() & QMetaMethod::Cloned);
+    }
+
+    bool ok = QMetaObject::disconnect(qobject, index, slot, slot->metaObject()->methodOffset());
+    delete slot;
+    return ok;
 }
 
 QScript::QtFunction::~QtFunction()
