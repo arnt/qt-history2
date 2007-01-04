@@ -32,11 +32,14 @@ class QByteArray;
 class QDBUS_EXPORT QDBusConnectionInterface: public QDBusAbstractInterface
 {
     Q_OBJECT
+    Q_ENUMS(ServiceQueueOptions ServiceReplacementOptions RegisterServiceReply)
     friend class QDBusConnection;
     static inline const char *staticInterfaceName();
 
     explicit QDBusConnectionInterface(const QDBusConnection &connection, QObject *parent);
     ~QDBusConnectionInterface();
+
+    Q_PROPERTY(QDBusReply<QStringList> registeredServiceNames READ registeredServiceNames)
 
 public:
     enum ServiceQueueOptions {
@@ -59,7 +62,7 @@ public Q_SLOTS:
     QDBusReply<bool> isServiceRegistered(const QString &serviceName) const;
     QDBusReply<QString> serviceOwner(const QString &name) const;
     QDBusReply<bool> unregisterService(const QString &serviceName);
-    QDBusReply<RegisterServiceReply> registerService(const QString &serviceName,
+    QDBusReply<QDBusConnectionInterface::RegisterServiceReply> registerService(const QString &serviceName,
                                                      ServiceQueueOptions qoption = DontQueueService,
                                                      ServiceReplacementOptions roption = DontAllowReplacement);
 

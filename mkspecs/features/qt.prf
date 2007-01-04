@@ -22,7 +22,7 @@ INCLUDEPATH = $$QMAKE_INCDIR_QT $$INCLUDEPATH #prepending prevents us from picki
 win32:INCLUDEPATH += $$QMAKE_INCDIR_QT/ActiveQt
 
 # As order does matter for static libs, we reorder the QT variable here
-TMPLIBS = svg qt3support sql xml opengl gui network core
+TMPLIBS = script svg qt3support sql xml opengl gui network core
 for(QTLIB, $$list($$TMPLIBS)) {
    contains(QT, $$QTLIB): QT_ORDERED += $$QTLIB
 }
@@ -53,6 +53,7 @@ for(QTLIB, $$list($$lower($$unique(QT)))) {
    else:isEqual(QTLIB, canvas):qlib = QtCanvas
    else:isEqual(QTLIB, qt3support):qlib = Qt3Support
    else:isEqual(QTLIB, svg):qlib = QtSvg
+   else:isEqual(QTLIB, script):qlib = QtScript
    else:message("Unknown QT: $$QTLIB"):qlib =
    !isEmpty(qlib) {
       target_qt:isEqual(TARGET, qlib) {
@@ -71,7 +72,7 @@ for(QTLIB, $$list($$lower($$unique(QT)))) {
    }
 }
 for(QTPLUG, $$list($$lower($$unique(QTPLUGIN)))) {
-   qplugin_style = 
+   qplugin_style =
    !qt_debug:!qt_release {
       CONFIG(debug, debug|release):qplugin_style = debug
       else:qplugin_style = release
@@ -94,7 +95,7 @@ for(QTPLUG, $$list($$lower($$unique(QTPLUGIN)))) {
 
    ALLQTPLUGINS = $$ACCESSIBLEPLUGINS $$CODECPLUGINS $$DECORATIONPLUGINS $$GFXDRIVERPLUGINS $$IMAGEPLUGINS $$INPUTPLUGINS $$MOUSEDRIVERPLUGINS $$SQLPLUGINS
 
-   QT_PLUGINPATH = 
+   QT_PLUGINPATH =
    contains(ALLQTPLUGINS, $$QTPLUG) {
        # Determine the plugin path
        contains(ACCESSIBLEPLUGINS, $$QTPLUG): QT_PLUGINPATH = $$[QT_INSTALL_PLUGINS]/accessible/
@@ -114,11 +115,11 @@ for(QTPLUG, $$list($$lower($$unique(QTPLUGIN)))) {
           QT_LINKAGE = -l$${QTPLUG}
           win32 {
              CONFIG(debug, debug|release):QT_LINKAGE = -l$${QTPLUG}d
-          } else:mac { 
+          } else:mac {
              isEqual(qplugin_style, debug):QT_LINKAGE = -l$${QTPLUG}_debug
           }
        }
-       
+
     !isEmpty(QT_PLUGINPATH): LIBS += -L$$QT_PLUGINPATH
     LIBS += $$QT_LINKAGE
 }

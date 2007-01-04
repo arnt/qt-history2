@@ -1,0 +1,129 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#include "domimage.h"
+
+#include <QVariant>
+
+#include <qscriptcontext.h>
+
+QScriptValue DomImage::s_self;
+
+DomImage::DomImage()
+{
+}
+
+
+int DomImage::width() const
+{
+    return m_image.width();
+}
+
+
+int DomImage::height() const
+{
+    return m_image.height();
+}
+
+
+QString DomImage::src() const
+{
+    return m_src;
+}
+
+void DomImage::setSrc(const QString &src)
+{
+    m_src = src;
+    m_image = QPixmap(m_src);
+}
+
+
+QString DomImage::name() const
+{
+    return m_src;
+}
+
+static QScriptValue Image(QScriptContext *context, QScriptEngine *env)
+{
+    QScriptValue val = context->thisObject();
+    DomImage *image = new DomImage();
+    QScriptValue klass = env->scriptValueFromVariant(qVariantFromValue(image));
+    klass.setPrototype(DomImage::s_self);
+    return klass;
+}
+
+
+static QScriptValue width(QScriptContext *context, QScriptEngine *env)
+{
+    QScriptValue val = context->thisObject();
+
+    DomImage *image = qvariant_cast<DomImage*> (val.toVariant());
+    if (image)
+        env->scriptValue(image->width());
+
+    return env->scriptValue(0);
+}
+
+
+static QScriptValue height(QScriptContext *context, QScriptEngine *env)
+{
+    QScriptValue val = context->thisObject();
+
+    DomImage *image = qvariant_cast<DomImage*> (val.toVariant());
+    if (image)
+        env->scriptValue(image->height());
+
+    return env->scriptValue(0);
+}
+
+
+static QScriptValue setSrc(QScriptContext *context, QScriptEngine *env)
+{
+    QScriptValue val = context->thisObject();
+    QString src  = context->argument(0).toString();
+
+    DomImage *image = qvariant_cast<DomImage*> (val.toVariant());
+    if (image)
+        image->setSrc(src);
+
+    return env->undefinedScriptValue();
+}
+
+
+static QScriptValue name(QScriptContext *context, QScriptEngine *env)
+{
+    QScriptValue val = context->thisObject();
+
+    DomImage *image = qvariant_cast<DomImage*> (val.toVariant());
+    if (image)
+        env->scriptValue(image->name());
+
+    return env->scriptValue(QString());
+}
+
+
+void DomImage::setup(QScriptEngine *e)
+{
+    qRegisterMetaType<DomImage>();
+
+    e->globalObject().setProperty("Image",
+                                  e->scriptValue(::Image, 0));
+
+    s_self = e->newObject();
+    s_self.setProperty("setSrc", e->scriptValue(&::setSrc, 1));
+    s_self.setProperty("width", e->scriptValue(&::width));
+    s_self.setProperty("height", e->scriptValue(&::height));
+    s_self.setProperty("name", e->scriptValue(&::name));
+
+    e->setDefaultPrototype(qMetaTypeId<DomImage>(), s_self);
+}

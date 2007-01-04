@@ -1,0 +1,409 @@
+/*!
+  \module QtScript
+  \since 4.3
+  \title QtScript Module
+  \contentspage Qt's Modules
+  \previouspage QtSvg
+  \nextpage QtXml
+
+  \brief The QtScript module provides classes for making Qt applications scriptable.
+
+  \tableofcontents
+
+  \section1 Configuring the Build Process
+
+  Applications that use Qt's Script classes need to
+  be configured to be built against the QtScript module.
+  To include the definitions of the module's classes, use the
+  following directive:
+
+  \code
+      #include <QtScript>
+  \endcode
+
+  To link against the module, add this line to your \l qmake \c
+  .pro file:
+
+  \code
+      QT += script
+  \endcode
+
+  The QtScript module is part of the \l{Qt Desktop Edition} and the
+  \l{Qt Open Source Edition}.
+
+  \section1 Language Overview
+
+  Qt Script is based on the ECMAScript scripting language, as defined
+  in standard \l{ECMA-262}. Microsoft's JScript, and Netscape's
+  JavaScript are also based on the ECMAScript standard. For an
+  overview of ECMAScript, see the \l{ECMAScript Reference}{ECMAScript reference}.
+
+  ECMA-262 gives the following overview of ECMAScript:
+
+  \quote
+  ECMAScript is object-based: basic language and host facilities are
+  provided by objects, and an ECMAScript program is a cluster of
+  communicating objects. An ECMAScript object is [a collection
+  of properties] [...] Properties are containers that hold
+  other objects, primitive values, or methods. A primitive value is a
+  member of one of the following built-in types: Undefined, Null,
+  Boolean, Number, and String; an object is a member of the remaining
+  built-in type Object; and a method is a function associated with an
+  object via a property.
+
+  ECMAScript defines a collection of built-in objects that round out
+  the definition of ECMAScript entities.  These built-in objects
+  include the Global object, the Object object, the Function object,
+  the Array object, the String object, the Boolean object, the Number
+  object, the Math object, the Date object, the RegExp object and the
+  Error objects Error, EvalError, RangeError, ReferenceError,
+  SyntaxError, TypeError and URIError.
+
+  ECMAScript syntax intentionally resembles Java syntax. ECMAScript
+  syntax is relaxed to enable it to serve as an easy-to-use scripting
+  language. For example, a variable is not required to have its type
+  declared nor are types associated with properties, and defined
+  functions are not required to have their declarations appear
+  textually before calls to them.
+  \endquote
+
+  \section2 Objects
+
+  ECMA-262 gives the following description of ECMAScript objects:
+
+  \quote
+  ECMAScript does not contain proper classes such as those in C++,
+  Smalltalk, or Java, but rather, supports constructors which create
+  objects by executing code that allocates storage for the objects and
+  initialises all or part of them by assigning initial values to their
+  properties. [...] Each constructor has a Prototype property that is
+  used to implement prototype-based inheritance and shared
+  properties. Objects are created by using constructors in new
+  expressions; for example, new String("A String") creates a new
+  String object. Invoking a constructor without using new has
+  consequences that depend on the constructor. For example, String("A
+  String") produces a primitive string, not an object.
+
+  ECMAScript supports prototype-based inheritance. Every constructor
+  has an associated prototype, and every object created by that
+  constructor has an implicit reference to the prototype (called the
+  object's prototype) associated with its constructor. Furthermore, a
+  prototype may have a non-null implicit reference to its prototype,
+  and so on; this is called the prototype chain. When a reference is
+  made to a property in an object, that reference is to the property
+  of that name in the first object in the prototype chain that
+  contains a property of that name. In other words, first the object
+  mentioned directly is examined for such a property; if that object
+  contains the named property, that is the property to which the
+  reference refers; if that object does not contain the named
+  property, the prototype for that object is examined next; and so on.
+
+  Unlike class-based object languages, properties can be added to
+  objects dynamically by assigning values to them. That is,
+  constructors are not required to name or assign values to all or any
+  of the constructed object's properties.
+  \endquote
+
+  \section1 Making a QObject Available to the Script Engine
+
+  By passing a QObject to the scripting engine (using
+  QScriptEngine::scriptValueFromQObject()), this object and all its
+  signals, slots, properties, and child objects are made available to
+  scripts. Because Qt Script uses Qt's meta object system, there is no
+  need to implement any additional wrappers or bindings.
+
+  Here's an example of making a QObject available to script code
+  under the name \c{"myQObject"}:
+
+  \code
+  QScriptEngine engine;
+  QObject *someQObject = ...;
+  QScriptValue qobjectValue = engine.scriptValueFromQObject(someQObject);
+  engine.globalObject().setProperty("myQObject", qobjectValue);
+  \endcode
+
+  \section2 Establishing Connections to Signals
+
+  To connect to a signal, you invoke the \c{connect()} function of
+  the signal from script code, passing the function to invoke in
+  response to the signal as argument:
+
+  \code
+  function myInterestingScriptFunction() { ... }
+
+  ...
+
+  myQObject.somethingChanged.connect(myInterestingScriptFunction);
+  \endcode
+
+  The argument can be a Qt Script function, as in the previous
+  example, or it can be a QObject slot, as in
+  the following example:
+
+  \code
+  myQObject.somethingChanged.connect(myOtherQObject.doSomething);
+  \endcode
+
+  To disconnect from a signal, you invoke the signal's
+  \c{disconnect()} function, passing the function to disconnect
+  as argument:
+
+  \code
+  myQObject.somethingChanged.disconnect(myInterestingFunction);
+  myQObject.somethingChanged.disconnect(myOtherQObject.doSomething);
+  \endcode
+
+  To emit a signal from script code, you simply invoke the signal
+  function, passing the relevant arguments:
+
+  \code
+  myQObject.somethingChanged("hello");
+  \endcode
+
+  \section2 Accessing Properties
+
+  The properties of the QObject are available as properties
+  of the corresponding Qt Script object. When you manipulate
+  a property in script code, the C++ get/set method for that
+  property will automatically be invoked. For example, if your
+  C++ class has a property declared as follows:
+
+  \code
+  Q_PROPERTY(bool enabled READ enabled WRITE setEnabled)
+  \endcode
+
+  then script code can do things like the following:
+
+  \code
+  myQObject.enabled = true;
+
+  ...
+
+  myQObject.enabled = !myQObject.enabled;
+  \endcode
+
+  \section2 Accessing Child QObjects
+
+  Every named child of the QObject is available as a property of
+  the corresponding Qt Script object. For example, if you have a
+  QDialog whose \c{objectName()} is \c{"okButton"}, you can access
+  this object in script code through the expression
+
+  \code
+  myDialog.okButton
+  \endcode
+
+  Since \c{objectName} is itself a Q_PROPERTY, you can manipulate
+  the name in script code:
+
+  \code
+  myDialog.okButton.objectName = "cancelButton";
+  // from now on, myDialog.cancelButton references the button
+  \endcode
+
+  \section1 How to Design and Implement Application Objects
+
+  This section explains how to implement application objects and
+  provides the necessary technical background material.
+ 
+  \section2 Making a C++ object available to Scripts Written in Qt Script
+
+  Making C++ classes and objects available to a scripting language is
+  not trivial since scripting languages are more dynamic than C++ and
+  it must be possible to introspect objects (query information such as
+  functions names, function signatures, properties, etc., at
+  runtime). Standard C++ doesn't provide for this.
+
+  We can achieve the functionality we want by extending C++, using
+  C++'s own facilities so our code is still standard C++. The Qt meta
+  object system provides the necessary additional functionality. It
+  allows us to write using an extended C++ syntax, but converts this
+  into standard C++ using a small utility program called \l{moc} (Meta
+  Object Compiler). Classes that wish to take advantage of the meta
+  object facilities are either subclasses of QObject, or use the
+  \c{Q_OBJECT} macro. Qt has used this approach for many years and it has
+  proven to be solid and reliable. Qt Script uses this meta object
+  technology to provide scripters with dynamic access to C++ classes
+  and objects.
+
+  To completely understand how to make C++ objects available to Qt
+  Script, some basic knowledge of the Qt meta object system is very
+  helpful. We recommend that you read the \l{Qt Object Model}. The
+  information in this document and the documents it links to are very
+  useful for understanding how to implement application objects,
+  however this knowledge is not essential. To make an object available
+  in Qt Script, it must derive from QObject. All classes which derive
+  from QObject are introspective and can provide the information
+  needed by the scripting engine, e.g. classname, functions,
+  signatures, etc., at runtime. Because we obtain the information we
+  need about classes dynamically at run time, there is no need to
+  write wrappers for QObject derived classes.
+ 
+  \section2 Making C++ Class Member Functions Available in Qt Script
+
+  The meta object system makes information about slots dynamically
+  available at runtime. This means that for QObject derived classes,
+  only the slots are automatically made available to scripts. This is
+  very convenient, because in practice we normally only want to make
+  specially chosen functions available to scripters.  When you create
+  a QObject subclass, make sure that the functions you want to be
+  available to scripters are public slots:
+
+    \code
+    class MyObject : public QObject
+    {
+        Q_OBJECT
+
+    public:
+        MyObject( ... );
+
+        void aNonScriptableFunction();
+
+    public slots: // these functions (slots) will be available in Qt Script
+        void calculate( ... );
+        void setEnabled( bool enabled );
+        bool isEnabled() const;
+
+    private:
+       ....
+
+    };
+    \endcode
+
+  In the example above, aNonScriptableFunction() is not declared as a
+  slot, so it will not be available in Qt Script. The other three
+  functions will automatically be made available in Qt Script.
+ 
+  \section2 Making C++ Class Properties Available in Qt Script
+
+  In the previous example, if we wanted to get or set a property using
+  Qt Script we would have to write code like the following:
+
+    \code
+    var obj = new MyObject;
+    obj.setEnabled( true );
+    print( "obj is enabled: " + obj.isEnabled() );
+    \endcode
+
+  Scripting languages often provide a property syntax to modify and
+  retrieve properties (in our case the enabled state) of an
+  object. Many script programmers would want to write the above code
+  like this:
+
+    \code
+    var obj = new MyObject;
+    obj.enabled = true;
+    print( "obj is enabled: " + obj.enabled );
+    \endcode
+
+  To make this possible, you must define properties in the C++ QObject
+  subclass. The class declaration of MyObject must look like the
+  following to declare a property enabled of the type bool, which
+  should use the function \c{setEnabled(bool)} as its setter function and
+  the function \c{isEnabled()} as its getter function:
+
+    \code
+    class MyObject : public QObject
+    {
+        Q_OBJECT
+        // define the enabled property
+        Q_PROPERTY( bool enabled WRITE setEnabled READ isEnabled )
+
+    public:
+        MyObject( ... );
+
+        void aNonScriptableFunction();
+
+    public slots: // these functions (slots) will be available in Qt Script
+        void calculate( ... );
+        void setEnabled( bool enabled );
+        bool isEnabled() const;
+
+    private:
+       ....
+
+    };
+    \endcode
+
+  The only difference from the original code is the use of the macro
+  \c{Q_PROPERTY}, which takes the type and name of the property, and
+  the names of the setter and getter functions as arguments.
+ 
+  \section2 Reacting to C++ Objects Signals in Scripts
+
+  In the Qt object model, signals are used as a notification mechanism
+  between QObjects. This means one object can connect a signal to
+  another object's slot and every time the signal is fired (emitted)
+  the slot is called. This connection is established using the
+  QObject::connect() function. This mechanism is also available to Qt
+  Script programmers. The C++ code for declaring a signal is no
+  different for a C++ class that is to be used by Qt Script than a C++
+  class used with Qt.
+
+    \code
+    class MyObject : public QObject
+    {
+        Q_OBJECT
+        // define the enabled property
+        Q_PROPERTY( bool enabled WRITE setEnabled READ isEnabled )
+
+    public:
+        MyObject( ... );
+
+        void aNonScriptableFunction();
+
+    public slots: // these functions (slots) will be available in Qt Script
+        void calculate( ... );
+        void setEnabled( bool enabled );
+        bool isEnabled() const;
+
+    signals: // the signals
+        void enabledChanged( bool newState );
+
+    private:
+       ....
+
+    };
+    \endcode
+
+  The only change this time is to declare a signals section, and
+  declare the relevant signal in it.  Now the script writer can write
+  a function and connect to the object like this:
+
+    \code
+    function enabledChangedHandler( b )
+    {
+        print( "state changed to: " + b );
+    }
+
+    function init()
+    {
+        var obj = new MyObject();
+        // connect a script function to the signal
+        obj["enabledChanged(bool)"].connect(enabledChangedHandler);
+        obj.enabled = true;
+        print( "obj is enabled: " + obj.enabled );
+    }
+    \endcode
+ 
+  \section2 Design of Application Objects
+
+  The previous section described how to implement C++ objects which
+  can be used in Qt Script. Application objects are the same kind of
+  objects, and they make your application's functionality available to
+  Qt Script scripters.  Since the C++ application is already written
+  in Qt, many objects are already QObjects. The easiest approach would
+  be to simply add all these QObjects as application objects to the
+  scripting engine. For small applications this might be sufficient,
+  but for larger applications this is probably not the right
+  approach. The problem is that this method reveals too much of the
+  internal API and gives script programmers access to application
+  internals which should not be exposed.  Generally, the best way of
+  making application functionality available to scripters is to code
+  some QObjects which define the applications public API using
+  signals, slots, and properties. This gives you complete control of
+  the functionality you make available. The implementation of these
+  objects simply calls the functions in the application which do the
+  real work. So instead of making all your QObjects available to the
+  scripting engine, just add the wrapper QObjects.
+ */

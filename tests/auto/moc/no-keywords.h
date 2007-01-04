@@ -18,6 +18,7 @@
 #if defined(WITH_DBUS)
 #include <QtDBus>
 #endif
+#include <QtScript>
 
 #undef signals
 #undef slots

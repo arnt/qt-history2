@@ -13,7 +13,7 @@ HEADERS += using-namespaces.h no-keywords.h task87883.h c-comments.h backslash-n
            slots-with-void-template.h qinvokable.h namespaced-flags.h trigraphs.h
 SOURCES += tst_moc.cpp
 
-QT += sql network svg
+QT += sql network svg script
 contains(QT_CONFIG, qt3support): QT += qt3support
 contains(QT_CONFIG, qdbus){
     DEFINES += WITH_DBUS

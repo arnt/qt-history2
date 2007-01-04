@@ -16,7 +16,9 @@ SUBDIRS       = \
                 tools \
                 tutorial \
                 widgets \
-                xml
+                xml \
+                script
+
 embedded:SUBDIRS += qtopiacore
 !contains(QT_EDITION, Console):contains(QT_BUILD_PARTS, tools):SUBDIRS += designer
 contains(QT_BUILD_PARTS, tools):SUBDIRS += assistant qtestlib

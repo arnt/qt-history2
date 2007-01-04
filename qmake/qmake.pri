@@ -45,9 +45,11 @@ bootstrap { #Qt code
         qfsfileengine.cpp \
         qfsfileengine_iterator.cpp \
         qglobal.cpp \
+        qnumeric.cpp \
         qhash.cpp \
         qiodevice.cpp \
         qlistdata.cpp \
+        qlinkedlist.cpp \
         qlocale.cpp \
         qmap.cpp \
         qmetatype.cpp \
@@ -80,9 +82,11 @@ bootstrap { #Qt code
         qfileinfo.h \
         qfileinfo_p.h \
         qglobal.h \
+        qnumeric.h \
         qhash.h \
         qiodevice.h \
         qlist.h \
+        qlinkedlist.h \
         qlocale.h \
         qmap.h \
         qmetatype.h \

@@ -4,7 +4,7 @@
   \title QtSvg Module
   \contentspage Qt's Modules
   \previouspage QtSql
-  \nextpage QtXml
+  \nextpage QtScript
 
   \brief The QtSvg module provides classes for displaying the contents of SVG
   files.

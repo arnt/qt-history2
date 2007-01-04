@@ -5,8 +5,8 @@ project                 = Qt
 description             = Qt Reference Documentation
 url                     = http://doc.trolltech.com/4.2
 
-edition.Console         = QtCore QtNetwork QtSql QtXml QtTest
-edition.Desktop         = QtCore QtGui QtNetwork QtOpenGL QtSql QtSvg QtXml \
+edition.Console         = QtCore QtNetwork QtSql QtXml QtScript QtTest
+edition.Desktop         = QtCore QtGui QtNetwork QtOpenGL QtSql QtSvg QtXml QtScript \
                           QtDesigner QtAssistant Qt3Support QAxContainer \
                           QAxServer QtUiTools QtTest QtDBus
 edition.DesktopLight    = QtCore QtGui Qt3SupportLight QtTest
@@ -117,6 +117,7 @@ Cpp.ignoretokens        = QAXFACTORY_EXPORT \
                           Q_OUTOFLINE_TEMPLATE \
                           Q_SQL_EXPORT \
                           Q_SVG_EXPORT \
+                          Q_SCRIPT_EXPORT \
                           Q_TESTLIB_EXPORT \
                           Q_TYPENAME \
                           Q_XML_EXPORT \

@@ -152,6 +152,10 @@
     \o Classes that support XML, via, for example DOM and SAX.
 
     \row
+    \o \l{Script Classes}
+    \o Qt Script-related classes.
+
+    \row
     \o \l{Qtopia Core Classes}
     \o Classes that are specific to Qtopia Core (Qt for embedded Linux).
 
@@ -577,4 +581,12 @@
     \title XML Classes
 
     These classes are relevant to XML users.
+*/
+
+/*!
+    \group script
+
+    \title Script Classes
+
+    These classes are relevant to Qt Script users.
 */

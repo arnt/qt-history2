@@ -948,6 +948,11 @@ class QDataStream;
 #    else
 #      define Q_XML_EXPORT Q_DECL_IMPORT
 #    endif
+#    if defined(QT_BUILD_SCRIPT_LIB)
+#      define Q_SCRIPT_EXPORT Q_DECL_EXPORT
+#    else
+#      define Q_SCRIPT_EXPORT Q_DECL_IMPORT
+#    endif
 #    if defined(QT_BUILD_CANVAS_LIB)
 #      define Q_CANVAS_EXPORT Q_DECL_EXPORT
 #    else
@@ -968,6 +973,7 @@ class QDataStream;
 #    define Q_CANVAS_EXPORT Q_DECL_IMPORT
 #    define Q_OPENGL_EXPORT Q_DECL_IMPORT
 #    define Q_XML_EXPORT Q_DECL_IMPORT
+#    define Q_SCRIPT_EXPORT Q_DECL_IMPORT
 #    define Q_COMPAT_EXPORT Q_DECL_IMPORT
 #    define Q_TEMPLATEDLL
 #  endif
@@ -990,6 +996,7 @@ class QDataStream;
 #    define Q_SVG_EXPORT Q_DECL_EXPORT
 #    define Q_OPENGL_EXPORT Q_DECL_EXPORT
 #    define Q_XML_EXPORT Q_DECL_EXPORT
+#    define Q_SCRIPT_EXPORT Q_DECL_EXPORT
 #    define Q_COMPAT_EXPORT Q_DECL_EXPORT
 #  else
 #    define Q_CORE_EXPORT
@@ -999,6 +1006,7 @@ class QDataStream;
 #    define Q_SVG_EXPORT
 #    define Q_OPENGL_EXPORT
 #    define Q_XML_EXPORT
+#    define Q_SCRIPT_EXPORT
 #    define Q_COMPAT_EXPORT
 #  endif
 #endif
@@ -1836,11 +1844,13 @@ QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathSysconf();
 #define QT_MODULE_SVG                   0x100
 #define QT_MODULE_ACTIVEQT              0x200
 #define QT_MODULE_GRAPHICSVIEW          0x400
+#define QT_MODULE_SCRIPT                0x800
 
 /* Qt editions */
 #define QT_EDITION_CONSOLE      (QT_MODULE_CORE \
                                  | QT_MODULE_NETWORK \
                                  | QT_MODULE_SQL \
+                                 | QT_MODULE_SCRIPT \
                                  | QT_MODULE_XML)
 #define QT_EDITION_DESKTOPLIGHT (QT_MODULE_CORE \
                                  | QT_MODULE_GUI \
@@ -1851,6 +1861,7 @@ QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathSysconf();
                                  | QT_MODULE_OPENGL \
                                  | QT_MODULE_SQL \
                                  | QT_MODULE_XML \
+                                 | QT_MODULE_SCRIPT \
                                  | QT_MODULE_QT3SUPPORTLIGHT \
                                  | QT_MODULE_QT3SUPPORT \
                                  | QT_MODULE_SVG \
@@ -1891,6 +1902,9 @@ QT_LICENSED_MODULE(Sql)
 #endif
 #if (QT_EDITION & QT_MODULE_XML)
 QT_LICENSED_MODULE(Xml)
+#endif
+#if (QT_EDITION & QT_MODULE_SCRIPT)
+QT_LICENSED_MODULE(Script)
 #endif
 #if (QT_EDITION & QT_MODULE_QT3SUPPORTLIGHT)
 QT_LICENSED_MODULE(Qt3SupportLight)

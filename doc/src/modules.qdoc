@@ -13,6 +13,7 @@
     \row \o \l{QtNetwork} \o Classes for network programming
     \row \o \l{QtOpenGL} \o OpenGL support classes
     \row \o \l{QtSql} \o Classes for database integration using SQL
+    \row \o \l{QtScript} \o Classes for evaluating Qt Scripts
     \row \o \l{QtSvg} \o Classes for displaying the contents of SVG files
     \row \o \l{QtXml} \o Classes for handling XML
     \row \o \l{QtDesigner} \o Classes for extending \QD

@@ -39,6 +39,9 @@ class QObject;
 class QDBusConnectionPrivate;
 class QDBUS_EXPORT QDBusConnection
 {
+    Q_GADGET
+    Q_ENUMS(BusType UnregisterMode)
+    Q_FLAGS(RegisterOptions)
 public:
     enum BusType { SessionBus, SystemBus, ActivationBus };
     enum RegisterOption {

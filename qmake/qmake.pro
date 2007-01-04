@@ -24,4 +24,5 @@ INCPATH += $$QT_SOURCE_TREE/src/corelib/arch/generic \
            $$QT_SOURCE_TREE/src/3rdparty/md5 \
            $$QT_SOURCE_TREE/qmake
 include(qmake.pri)
+include($$QT_SOURCE_TREE/src/script/script.pri)
 
