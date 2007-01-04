@@ -498,7 +498,10 @@ void QTextDocumentPrivate::move(int pos, int to, int length, QTextUndoCommand::O
                   && text.at(find(pos + length - 1)->stringPosition) == QTextEndOfFrame
                   && frameAt(pos)->parentFrame() == frameAt(pos + length - 1)->parentFrame());
 
-    Q_ASSERT(startAndEndInSameFrame || endIsEndOfChildFrame || startIsStartOfFrameAndEndIsEndOfFrameWithCommonParent);
+    const bool isFirstTableCell = (qobject_cast<QTextTable *>(frameAt(pos + length - 1))
+                                  && frameAt(pos + length - 1)->parentFrame() == frameAt(pos));
+
+    Q_ASSERT(startAndEndInSameFrame || endIsEndOfChildFrame || startIsStartOfFrameAndEndIsEndOfFrameWithCommonParent || isFirstTableCell);
 #endif
 
     beginEditBlock();

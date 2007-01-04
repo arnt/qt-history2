@@ -50,6 +50,14 @@ private slots:
     void removeTableByRemoveRows();
     void removeTableByRemoveColumns();
     void setCellFormat();
+    void removeRows1();
+    void removeRows2();
+    void removeRows3();
+    void removeRows4();
+    void removeColumns1();
+    void removeColumns2();
+    void removeColumns3();
+    void removeColumns4();
 
 private:
     QTextTable *create2x2Table();
@@ -679,6 +687,138 @@ void tst_QTextTable::setCellFormat()
     fmt.setBackground(Qt::blue);
     cell.setFormat(fmt);
     QVERIFY(cell.format().background().color() == QColor(Qt::blue));
+}
+
+void tst_QTextTable::removeRows1()
+{
+    QTextTable *table = cursor.insertTable(2, 2);
+    table->cellAt(0, 0).firstCursorPosition().insertText("First");
+    table->cellAt(0, 1).firstCursorPosition().insertText("Second");
+    table->cellAt(1, 0).firstCursorPosition().insertText("Third");
+    table->cellAt(1, 1).firstCursorPosition().insertText("Fourth");
+    table->removeRows(0, 1);
+    QCOMPARE(table->rows(), 1);
+    QCOMPARE(table->columns(), 2);
+    QCOMPARE(table->cellAt(0, 0).firstCursorPosition().block().text(), QString("Third"));
+    QCOMPARE(table->cellAt(0, 1).firstCursorPosition().block().text(), QString("Fourth"));
+}
+
+void tst_QTextTable::removeRows2()
+{
+    QTextTable *table = cursor.insertTable(2, 2);
+    table->cellAt(0, 0).firstCursorPosition().insertText("First");
+    table->cellAt(0, 1).firstCursorPosition().insertText("Second");
+    table->cellAt(1, 0).firstCursorPosition().insertText("Third");
+    table->cellAt(1, 1).firstCursorPosition().insertText("Fourth");
+    table->removeRows(1, 1);
+    QCOMPARE(table->rows(), 1);
+    QCOMPARE(table->columns(), 2);
+    QCOMPARE(table->cellAt(0, 0).firstCursorPosition().block().text(), QString("First"));
+    QCOMPARE(table->cellAt(0, 1).firstCursorPosition().block().text(), QString("Second"));
+}
+
+void tst_QTextTable::removeRows3()
+{
+    QTextTable *table = cursor.insertTable(3, 2);
+    table->cellAt(0, 0).firstCursorPosition().insertText("First");
+    table->cellAt(0, 1).firstCursorPosition().insertText("Second");
+    table->cellAt(1, 0).firstCursorPosition().insertText("Third");
+    table->cellAt(1, 1).firstCursorPosition().insertText("Fourth");
+    table->cellAt(2, 0).firstCursorPosition().insertText("Fifth");
+    table->cellAt(2, 1).firstCursorPosition().insertText("Sixth");
+    table->removeRows(1, 1);
+    QCOMPARE(table->rows(), 2);
+    QCOMPARE(table->columns(), 2);
+    QCOMPARE(table->cellAt(0, 0).firstCursorPosition().block().text(), QString("First"));
+    QCOMPARE(table->cellAt(0, 1).firstCursorPosition().block().text(), QString("Second"));
+    QCOMPARE(table->cellAt(1, 0).firstCursorPosition().block().text(), QString("Fifth"));
+    QCOMPARE(table->cellAt(1, 1).firstCursorPosition().block().text(), QString("Sixth"));
+}
+
+void tst_QTextTable::removeRows4()
+{
+    QTextTable *table = cursor.insertTable(4, 2);
+    table->cellAt(0, 0).firstCursorPosition().insertText("First");
+    table->cellAt(0, 1).firstCursorPosition().insertText("Second");
+    table->cellAt(1, 0).firstCursorPosition().insertText("Third");
+    table->cellAt(1, 1).firstCursorPosition().insertText("Fourth");
+    table->cellAt(2, 0).firstCursorPosition().insertText("Fifth");
+    table->cellAt(2, 1).firstCursorPosition().insertText("Sixth");
+    table->cellAt(3, 0).firstCursorPosition().insertText("Seventh");
+    table->cellAt(3, 1).firstCursorPosition().insertText("Eighth");
+    table->removeRows(1, 2);
+    QCOMPARE(table->rows(), 2);
+    QCOMPARE(table->columns(), 2);
+    QCOMPARE(table->cellAt(0, 0).firstCursorPosition().block().text(), QString("First"));
+    QCOMPARE(table->cellAt(0, 1).firstCursorPosition().block().text(), QString("Second"));
+    QCOMPARE(table->cellAt(1, 0).firstCursorPosition().block().text(), QString("Seventh"));
+    QCOMPARE(table->cellAt(1, 1).firstCursorPosition().block().text(), QString("Eighth"));
+}
+
+void tst_QTextTable::removeColumns1()
+{
+    QTextTable *table = cursor.insertTable(2, 2);
+    table->cellAt(0, 0).firstCursorPosition().insertText("First");
+    table->cellAt(0, 1).firstCursorPosition().insertText("Second");
+    table->cellAt(1, 0).firstCursorPosition().insertText("Third");
+    table->cellAt(1, 1).firstCursorPosition().insertText("Fourth");
+    table->removeColumns(0, 1);
+    QCOMPARE(table->rows(), 2);
+    QCOMPARE(table->columns(), 1);
+    QCOMPARE(table->cellAt(0, 0).firstCursorPosition().block().text(), QString("Second"));
+    QCOMPARE(table->cellAt(1, 0).firstCursorPosition().block().text(), QString("Fourth"));
+}
+
+void tst_QTextTable::removeColumns2()
+{
+    QTextTable *table = cursor.insertTable(2, 2);
+    table->cellAt(0, 0).firstCursorPosition().insertText("First");
+    table->cellAt(0, 1).firstCursorPosition().insertText("Second");
+    table->cellAt(1, 0).firstCursorPosition().insertText("Third");
+    table->cellAt(1, 1).firstCursorPosition().insertText("Fourth");
+    table->removeColumns(1, 1);
+    QCOMPARE(table->rows(), 2);
+    QCOMPARE(table->columns(), 1);
+    QCOMPARE(table->cellAt(0, 0).firstCursorPosition().block().text(), QString("First"));
+    QCOMPARE(table->cellAt(1, 0).firstCursorPosition().block().text(), QString("Third"));
+}
+
+void tst_QTextTable::removeColumns3()
+{
+    QTextTable *table = cursor.insertTable(2, 3);
+    table->cellAt(0, 0).firstCursorPosition().insertText("First");
+    table->cellAt(0, 1).firstCursorPosition().insertText("Second");
+    table->cellAt(0, 2).firstCursorPosition().insertText("Third");
+    table->cellAt(1, 0).firstCursorPosition().insertText("Fourth");
+    table->cellAt(1, 1).firstCursorPosition().insertText("Fifth");
+    table->cellAt(1, 2).firstCursorPosition().insertText("Sixth");
+    table->removeColumns(1, 1);
+    QCOMPARE(table->rows(), 2);
+    QCOMPARE(table->columns(), 2);
+    QCOMPARE(table->cellAt(0, 0).firstCursorPosition().block().text(), QString("First"));
+    QCOMPARE(table->cellAt(0, 1).firstCursorPosition().block().text(), QString("Third"));
+    QCOMPARE(table->cellAt(1, 0).firstCursorPosition().block().text(), QString("Fourth"));
+    QCOMPARE(table->cellAt(1, 1).firstCursorPosition().block().text(), QString("Sixth"));
+}
+
+void tst_QTextTable::removeColumns4()
+{
+    QTextTable *table = cursor.insertTable(2, 4);
+    table->cellAt(0, 0).firstCursorPosition().insertText("First");
+    table->cellAt(0, 1).firstCursorPosition().insertText("Second");
+    table->cellAt(0, 2).firstCursorPosition().insertText("Third");
+    table->cellAt(0, 3).firstCursorPosition().insertText("Fourth");
+    table->cellAt(1, 0).firstCursorPosition().insertText("Fifth");
+    table->cellAt(1, 1).firstCursorPosition().insertText("Sixth");
+    table->cellAt(1, 2).firstCursorPosition().insertText("Seventh");
+    table->cellAt(1, 3).firstCursorPosition().insertText("Eighth");
+    table->removeColumns(1, 2);
+    QCOMPARE(table->rows(), 2);
+    QCOMPARE(table->columns(), 2);
+    QCOMPARE(table->cellAt(0, 0).firstCursorPosition().block().text(), QString("First"));
+    QCOMPARE(table->cellAt(0, 1).firstCursorPosition().block().text(), QString("Fourth"));
+    QCOMPARE(table->cellAt(1, 0).firstCursorPosition().block().text(), QString("Fifth"));
+    QCOMPARE(table->cellAt(1, 1).firstCursorPosition().block().text(), QString("Eighth"));
 }
 
 QTEST_MAIN(tst_QTextTable)
