@@ -981,6 +981,7 @@ QStringList QScriptEnginePrivate::stringListFromArray(const QScriptValue &arr)
 QScriptValue QScriptEnginePrivate::create(int type, const void *ptr)
 {
     Q_Q(QScriptEngine);
+    Q_ASSERT(ptr);
     QScriptValue result;
     QScriptCustomTypeInfo info = m_customTypes.value(type);
     if (info.marshall) {

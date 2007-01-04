@@ -596,8 +596,8 @@ void QScript::ConnectionQObject::execute(void **argv)
                                              QScriptValue::Undeletable
                                              | QScriptValue::SkipInEnumeration);
         if (i < argc) {
-            int hint = QMetaType::type(parameterTypes.at(i));
-            activation_data->m_objects[i] = eng->scriptValueFromVariant(QVariant(hint, argv[i + 1]));
+            int argType = QMetaType::type(parameterTypes.at(i));
+            activation_data->m_objects[i] = eng_p->create(argType, argv[i + 1]);
         } else {
             activation_data->m_objects[i] = eng->undefinedScriptValue();
         }
