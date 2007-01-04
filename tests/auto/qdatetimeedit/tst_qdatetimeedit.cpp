@@ -177,6 +177,7 @@ private slots:
 #endif
 #if QT_VERSION >= 0x040300
     void yyTest();
+    void separatorKeys();
 #endif
 private:
     EditorDateEdit* testWidget;
@@ -2783,6 +2784,44 @@ void tst_QDateTimeEdit::yyTest()
         QCOMPARE(testWidget->date(), QDate(centuries[i] + 71, 1, 1));
     }
 }
+
+void tst_QDateTimeEdit::separatorKeys()
+{
+    testWidget->setDisplayFormat("dd/MMM yyyy hh:mm.ss 7 zzz");
+    testWidget->setDateTime(QDateTime(QDate(1980, 1, 5), QTime(12, 13, 14, 156)));
+#ifdef Q_WS_MAC
+    QTest::keyClick(testWidget, Qt::Key_Left, Qt::ControlModifier);
+#else
+    QTest::keyClick(testWidget, Qt::Key_Home);
+#endif
+    QTest::keyClick(testWidget, Qt::Key_Enter);
+    QTest::keyClick(testWidget, Qt::Key_3);
+    QTest::keyClick(testWidget, Qt::Key_Slash);
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("03/Jan 1980 12:13.14 7 156"));
+    QCOMPARE(testWidget->lineEdit()->cursorPosition(), 6);
+    QCOMPARE(testWidget->currentSectionIndex(), 1);
+
+    QTest::keyClick(testWidget, Qt::Key_Space);
+    QCOMPARE(testWidget->lineEdit()->cursorPosition(), 11);
+    QCOMPARE(testWidget->currentSectionIndex(), 2);
+
+    QTest::keyClick(testWidget, Qt::Key_Space);
+    QCOMPARE(testWidget->lineEdit()->cursorPosition(), 14);
+    QCOMPARE(testWidget->currentSectionIndex(), 3);
+
+    QTest::keyClick(testWidget, Qt::Key_Colon);
+    QCOMPARE(testWidget->lineEdit()->cursorPosition(), 17);
+    QCOMPARE(testWidget->currentSectionIndex(), 4);
+
+    QTest::keyClick(testWidget, Qt::Key_Period);
+    QCOMPARE(testWidget->lineEdit()->cursorPosition(), 20);
+    QCOMPARE(testWidget->currentSectionIndex(), 5);
+
+    QTest::keyClick(testWidget, Qt::Key_7);
+    QCOMPARE(testWidget->lineEdit()->cursorPosition(), 26);
+    QCOMPARE(testWidget->currentSectionIndex(), 6);
+}
+
 #endif
 
 QTEST_MAIN(tst_QDateTimeEdit)
