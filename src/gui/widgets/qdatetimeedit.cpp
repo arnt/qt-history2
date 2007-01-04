@@ -54,7 +54,6 @@ public:
     virtual void interpret(EmitPolicy ep);
 
     QVariant validateAndInterpret(QString &input, int &, QValidator::State &state, bool fixup = false) const;
-
     void clearSection(int index);
     QString displayText() const { return edit->displayText(); }
 
@@ -80,6 +79,8 @@ public:
     void _q_resetButton();
     void updateArrow(QStyle::StateFlag state);
     bool showCalendarPopup() const;
+
+    bool isSeparatorKey(const QKeyEvent *k) const;
 
     static QDateTimeEdit::Sections convertSections(QDateTimeParser::Sections s);
     static QDateTimeEdit::Section convertToPublic(QDateTimeParser::Section s);
@@ -891,7 +892,11 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *event)
         }
 #endif
 
-        // fallthroughs intended
+    default:
+        if (!d->isSeparatorKey(event)) {
+            inserted = select = !event->text().isEmpty() && event->text().at(0).isPrint() && !(event->modifiers() & ~Qt::ShiftModifier);
+            break;
+        }
     case Qt::Key_Backtab:
     case Qt::Key_Tab: {
         event->accept();
@@ -916,9 +921,6 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *event)
         if (select)
             d->setSelected(newSection, true);
         return; }
-    default:
-        inserted = select = !event->text().isEmpty() && event->text().at(0).isPrint() && !(event->modifiers() & ~Qt::ShiftModifier);
-        break;
     }
     QAbstractSpinBox::keyPressEvent(event);
     if (select && !(event->modifiers() & Qt::ShiftModifier) && !d->edit->hasSelectedText()) {
@@ -1020,6 +1022,7 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *event)
     }
     if (isRightToLeft())
         first = !first;
+    d->updateEdit(); // needed to make it update specialValueText
 
     d->setSelected(first ? 0 : d->sectionNodes.size() - 1);
 }
@@ -1437,7 +1440,7 @@ QDateTimeEditPrivate::QDateTimeEditPrivate()
 
 void QDateTimeEditPrivate::updateEdit()
 {
-    const QString newText = specialValue() ? specialValueText : textFromValue(value);
+    const QString newText = (specialValue() && !edit->hasFocus() ? specialValueText : textFromValue(value));
     if (newText == displayText())
         return;
     int selsize = edit->selectedText().size();
@@ -2136,6 +2139,14 @@ void QDateTimeEditPrivate::updateEditFieldGeometry()
     optCombo.subControls = QStyle::SC_ComboBoxEditField;
     edit->setGeometry(q->style()->subControlRect(QStyle::CC_ComboBox, &optCombo,
                                                  QStyle::SC_ComboBoxEditField, q));
+}
+
+bool QDateTimeEditPrivate::isSeparatorKey(const QKeyEvent *ke) const
+{
+    if (!ke->text().isEmpty() && currentSectionIndex + 1 < sectionNodes.size() && currentSectionIndex >= 0) {
+        return separators.at(currentSectionIndex + 1).contains(ke->text());
+    }
+    return false;
 }
 
 bool QDateTimeEditPrivate::showCalendarPopup() const
