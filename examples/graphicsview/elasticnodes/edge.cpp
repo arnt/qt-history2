@@ -62,12 +62,8 @@ void Edge::adjust()
 {
     if (!source || !dest)
         return;
-    adjust(mapFromItem(source, 0, 0), mapFromItem(dest, 0, 0));
-}
 
-void Edge::adjust(const QPointF &source, const QPointF &dest)
-{
-    QLineF line(source, dest);
+    QLineF line(mapFromItem(source, 0, 0), mapFromItem(dest, 0, 0));
     qreal length = line.length();
     QPointF edgeOffset((line.dx() * 10) / length, (line.dy() * 10) / length);
 

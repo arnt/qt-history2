@@ -131,16 +131,9 @@ void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 QVariant Node::itemChange(GraphicsItemChange change, const QVariant &value)
 {
     switch (change) {
-    case ItemPositionChange:
-        foreach (Edge *edge, edgeList) {
-            if (edge->sourceNode() == this) {
-                edge->adjust(edge->mapFromItem(this, mapFromParent(value.toPointF())),
-                             edge->mapFromItem(edge->destNode(), 0, 0));
-            } else {
-                edge->adjust(edge->mapFromItem(edge->sourceNode(), 0, 0),
-                             edge->mapFromItem(this, mapFromParent(value.toPointF())));
-            }
-        }
+    case ItemPositionHasChanged:
+        foreach (Edge *edge, edgeList)
+            edge->adjust();
         graph->itemMoved();
         break;
     default:

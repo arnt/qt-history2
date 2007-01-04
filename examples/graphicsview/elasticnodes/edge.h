@@ -31,7 +31,6 @@ public:
     void setDestNode(Node *node);
 
     void adjust();
-    void adjust(const QPointF &source, const QPointF &dest);
 
     enum { Type = UserType + 2 };
     int type() const { return Type; }
