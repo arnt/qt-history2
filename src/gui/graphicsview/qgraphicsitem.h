@@ -67,7 +67,8 @@ public:
         ItemSelectedChange,
         ItemParentChange,
         ItemChildAddedChange,
-        ItemChildRemovedChange
+        ItemChildRemovedChange,
+        ItemTransformChange
     };
 
     QGraphicsItem(QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);

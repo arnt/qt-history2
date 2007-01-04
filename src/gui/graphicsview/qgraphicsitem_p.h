@@ -14,8 +14,6 @@
 #ifndef QGRAPHICSITEM_P_H
 #define QGRAPHICSITEM_P_H
 
-#include <QtGui/qmatrix.h>
-
 //
 //  W A R N I N G
 //  -------------
@@ -36,7 +34,7 @@ class QGraphicsItemPrivate
     Q_DECLARE_PUBLIC(QGraphicsItem)
 public:
     enum Extra {
-        ExtraMatrix,
+        ExtraTransform,
         ExtraToolTip,
         ExtraCursor
     };
@@ -54,7 +52,7 @@ public:
         handlesChildEvents = 0;
         ancestorHandlesChildEvents = 0;
         itemDiscovered = 0;
-        hasMatrix = 0;
+        hasTransform = 0;
         hasCursor = 0;
         flags = 0;
         pad = 0;
@@ -133,7 +131,7 @@ public:
     quint32 handlesChildEvents : 1;
     quint32 ancestorHandlesChildEvents : 1;
     quint32 itemDiscovered : 1;
-    quint32 hasMatrix : 1;
+    quint32 hasTransform : 1;
     quint32 hasCursor : 1;
     quint32 flags : 11;
     quint32 pad : 5;

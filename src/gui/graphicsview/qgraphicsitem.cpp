@@ -119,7 +119,7 @@
 
     QGraphicsItem supports affine transformations in addition to its base
     position, pos(). To change the item's transformation, you can either pass
-    a transformation matrix to setMatrix(), or call one of the convenience
+    a transformation matrix to setTransform(), or call one of the convenience
     functions rotate(), scale(), translate(), or shear(). Item transformations
     accumulate from parent to child, so if both a parent and child item are
     rotated 90 degrees, the child's total transformation will be 180 degrees.
@@ -128,10 +128,10 @@
     affect its own local geometry; all geometry functions (e.g., contains(),
     update(), and all the mapping functions) still operate in local
     coordinates. For convenience, QGraphicsItem provides the functions
-    sceneMatrix(), which returns the item's total transformation matrix
+    sceneTransform(), which returns the item's total transformation matrix
     (including its position and all parents' positions and transformations),
     and scenePos(), which returns its position in scene coordinates. To reset
-    an item's matrix, call resetMatrix().
+    an item's matrix, call resetTransform().
 
     The paint() function is called by QGraphicsView to paint the item's
     contents. The item has no background or default fill of its own; whatever
@@ -256,14 +256,8 @@
     setEnabled() in itemChange() as this notification is delivered. Instead,
     you can return the new state from itemChange().
 
-    \value ItemMatrixChange The item's matrix changes. This notification is
-    only sent when the item's local matrix changes (i.e., as a result of
-    calling setMatrix(), or one of the convenience transformation functions,
-    such as rotate()). The value argument is the new matrix (i.e., a QMatrix);
-    to get the old matrix, call matrix(). Do not call setMatrix() or any of
-    the transformation convenience functions in itemChange() as this
-    notification is delivered; instead, you can return the new matrix from
-    itemChange().
+    \value ItemMatrixChange The item's affine transformation matrix is
+    changing. This value is obsolete; you can use ItemTransformChange instead.
 
     \value ItemPositionChange The item's position changes. This notification
     is only sent when the item's local position changes, relative to its
@@ -302,6 +296,15 @@
     argument is the child item that is about to be removed (i.e., a
     QGraphicsItem pointer). The return value is unused; you cannot adjust
     anything in this notification.
+
+    \value ItemTransformChange The item's transformation matrix changes. This
+    notification is only sent when the item's local transformation matrix
+    changes (i.e., as a result of calling setTransform(), or one of the
+    convenience transformation functions, such as rotate()). The value
+    argument is the new matrix (i.e., a QTransform); to get the old matrix,
+    call transform(). Do not call setTransform() or any of the transformation
+    convenience functions in itemChange() as this notification is delivered;
+    instead, you can return the new matrix from itemChange().
 */
 
 /*!
@@ -1283,7 +1286,7 @@ QPointF QGraphicsItem::pos() const
     Returns the item's position in scene coordinates. This is
     equivalent to calling \c mapToScene(0, 0).
 
-    \sa pos(), sceneMatrix(), {The Graphics View Coordinate System}
+    \sa pos(), sceneTransform(), {The Graphics View Coordinate System}
 */
 QPointF QGraphicsItem::scenePos() const
 {
@@ -1346,7 +1349,7 @@ void QGraphicsItem::setPos(const QPointF &pos)
 void QGraphicsItem::ensureVisible(const QRectF &rect, int xmargin, int ymargin)
 {
     if (d_ptr->scene) {
-        QRectF sceneRect = !rect.isNull() ? sceneMatrix().mapRect(rect)
+        QRectF sceneRect = !rect.isNull() ? sceneTransform().mapRect(rect)
                            : sceneBoundingRect();
         foreach (QGraphicsView *view, d_ptr->scene->d_func()->views)
             view->ensureVisible(sceneRect, xmargin, ymargin);
@@ -1362,10 +1365,15 @@ void QGraphicsItem::ensureVisible(const QRectF &rect, int xmargin, int ymargin)
 */
 
 /*!
-    Returns this item's transformation matrix. If no matrix has been set, the
-    identity matrix is returned.
+    \obsolete
 
-    \sa setMatrix(), sceneMatrix()
+    Returns the item's affine transformation matrix. This is a subset or the
+    item's full transformation matrix, and might not represent the item's full
+    transformation.
+
+    Use transform() instead.
+
+    \sa setTransform(), sceneTransform()
 */
 QMatrix QGraphicsItem::matrix() const
 {
@@ -1373,6 +1381,8 @@ QMatrix QGraphicsItem::matrix() const
 }
 
 /*!
+    \since 4.3
+
     Returns this item's transformation matrix. If no matrix has been set, the
     identity matrix is returned.
 
@@ -1380,34 +1390,17 @@ QMatrix QGraphicsItem::matrix() const
 */
 QTransform QGraphicsItem::transform() const
 {
-    if (!d_ptr->hasMatrix)
+    if (!d_ptr->hasTransform)
         return QTransform();
-    return qVariantValue<QTransform>(d_ptr->extra(QGraphicsItemPrivate::ExtraMatrix));
+    return qVariantValue<QTransform>(d_ptr->extra(QGraphicsItemPrivate::ExtraTransform));
 }
 
 /*!
-    Returns this item's scene transformation matrix. This matrix can be used
-    to map coordinates and geometrical shapes from this item's local
-    coordinate system to the scene's coordinate system. To map coordinates
-    from the scene, you must first invert the returned matrix.
+    \obsolete
 
-    Example:
+    Use sceneTransform() instead.
 
-    \code
-        QGraphicsRectItem rect;
-        rect.setPos(100, 100);
-
-        rect.sceneMatrix().map(QPointF(0, 0));
-        // returns QPointF(100, 100);
-
-        rect.sceneMatrix().inverted().map(QPointF(100, 100));
-        // returns QPointF(0, 0);
-    \endcode
-
-    Unlike matrix(), which returns only an item's local transformation, this
-    function includes the item's (and any parents') position.
-
-    \sa matrix(), setMatrix(), scenePos(), {The Graphics View Coordinate System}
+    \sa transform(), setTransform(), scenePos(), {The Graphics View Coordinate System}
 */
 QMatrix QGraphicsItem::sceneMatrix() const
 {
@@ -1416,6 +1409,8 @@ QMatrix QGraphicsItem::sceneMatrix() const
 
 
 /*!
+    \since 4.3
+
     Returns this item's scene transformation matrix. This matrix can be used
     to map coordinates and geometrical shapes from this item's local
     coordinate system to the scene's coordinate system. To map coordinates
@@ -1446,27 +1441,41 @@ QTransform QGraphicsItem::sceneTransform() const
 }
 
 /*!
-    Sets the item's current transformation matrix to \a matrix.
+    \obsolete
 
-    If \a combine is true, then \a matrix is combined with the current matrix;
-    otherwise, \a matrix \e replaces the current matrix. \a combine is false
-    by default.
+    Sets the item's affine transformation matrix. This is a subset or the
+    item's full transformation matrix, and might not represent the item's full
+    transformation.
 
-    To simplify interaction with items using a transformed view, QGraphicsItem
-    provides mapTo... and mapFrom... functions that can translate between
-    items' and the scene's coordinates. For example, you can call mapToScene()
-    to map an item coordiate to a scene coordinate, or mapFromScene() to map
-    from scene coordinates to item coordinates.
+    Use setTransform() instead.
 
-    \sa matrix(), rotate(), scale(), shear(), translate(), {The Graphics View Coordinate System}
+    \sa transform(), rotate(), scale(), shear(), translate(), {The Graphics View Coordinate System}
 */
 void QGraphicsItem::setMatrix(const QMatrix &matrix, bool combine)
 {
-    setTransform(QTransform(matrix), combine);
+    QTransform oldTransform = this->transform();
+    QTransform newTransform;
+    if (!combine)
+        newTransform = QTransform(matrix);
+    else
+        newTransform = QTransform(matrix) * oldTransform;
+    if (oldTransform == newTransform)
+        return;
+
+    qt_graphicsItem_fullUpdate(this);
+    prepareGeometryChange();
+    d_ptr->hasTransform = !newTransform.isIdentity();
+
+    QVariant variant;
+    qVariantSetValue<QMatrix>(variant, newTransform.toAffine());
+    d_ptr->setExtra(QGraphicsItemPrivate::ExtraTransform,
+                    QTransform(qVariantValue<QMatrix>(itemChange(ItemMatrixChange, variant))));
+    qt_graphicsItem_fullUpdate(this);
 }
 
-
 /*!
+    \since 4.3
+
     Sets the item's current transformation matrix to \a matrix.
 
     If \a combine is true, then \a matrix is combined with the current matrix;
@@ -1481,33 +1490,32 @@ void QGraphicsItem::setMatrix(const QMatrix &matrix, bool combine)
 
     \sa transform(), rotate(), scale(), shear(), translate(), {The Graphics View Coordinate System}
 */
-void QGraphicsItem::setTransform(const QTransform &matrix, bool combine )
+void QGraphicsItem::setTransform(const QTransform &matrix, bool combine)
 {
-    QTransform oldMatrix = this->transform();
-    QTransform newMatrix;
+    QTransform oldTransform = this->transform();
+    QTransform newTransform;
     if (!combine)
-        newMatrix = matrix;
+        newTransform = matrix;
     else
-        newMatrix = matrix * oldMatrix;
-    if (oldMatrix == newMatrix)
+        newTransform = matrix * oldTransform;
+    if (oldTransform == newTransform)
         return;
 
     qt_graphicsItem_fullUpdate(this);
     prepareGeometryChange();
-    d_ptr->hasMatrix = !newMatrix.isIdentity();
+    d_ptr->hasTransform = !newTransform.isIdentity();
 
     QVariant variant;
-    qVariantSetValue<QTransform>(variant, newMatrix);
-    d_ptr->setExtra(QGraphicsItemPrivate::ExtraMatrix,
-                    itemChange(ItemMatrixChange, variant));
+    qVariantSetValue<QTransform>(variant, newTransform);
+    d_ptr->setExtra(QGraphicsItemPrivate::ExtraTransform,
+                    itemChange(ItemTransformChange, variant));
     qt_graphicsItem_fullUpdate(this);
 }
 
 /*!
-    Resets this item's tranformation matrix to the identity matrix. This is
-    equivalent to calling \c setMatrix(QMatrix()).
+    \obsolete
 
-    \sa setMatrix(), matrix()
+    Use resetTransform() instead.
 */
 void QGraphicsItem::resetMatrix()
 {
@@ -1515,10 +1523,12 @@ void QGraphicsItem::resetMatrix()
 }
 
 /*!
+    \since 4.3
+
     Resets this item's tranformation matrix to the identity matrix. This is
     equivalent to calling \c setTransform(QTransform()).
 
-    \sa setMatrix(), matrix()
+    \sa setTransform(), transform()
 */
 void QGraphicsItem::resetTransform()
 {
@@ -1528,7 +1538,7 @@ void QGraphicsItem::resetTransform()
 /*!
     Rotates the current item transformation \a angle degrees clockwise.
 
-    \sa setMatrix(), matrix(), scale(), shear(), translate()
+    \sa setTransform(), transform(), scale(), shear(), translate()
 */
 void QGraphicsItem::rotate(qreal angle)
 {
@@ -1538,7 +1548,7 @@ void QGraphicsItem::rotate(qreal angle)
 /*!
     Scales the current item transformation by (\a sx, \a sy).
 
-    \sa setMatrix(), matrix(), rotate(), shear(), translate()
+    \sa setTransform(), transform(), rotate(), shear(), translate()
 */
 void QGraphicsItem::scale(qreal sx, qreal sy)
 {
@@ -1548,7 +1558,7 @@ void QGraphicsItem::scale(qreal sx, qreal sy)
 /*!
     Shears the current item transformation by (\a sh, \a sv).
 
-    \sa setMatrix(), matrix(), rotate(), scale(), translate()
+    \sa setTransform(), transform(), rotate(), scale(), translate()
 */
 void QGraphicsItem::shear(qreal sh, qreal sv)
 {
@@ -1562,7 +1572,7 @@ void QGraphicsItem::shear(qreal sh, qreal sv)
     setPos() instead; this function changes the item's translation,
     which is conceptually separate from its position.
 
-    \sa setMatrix(), matrix(), rotate(), scale(), shear()
+    \sa setTransform(), transform(), rotate(), scale(), shear()
 */
 void QGraphicsItem::translate(qreal dx, qreal dy)
 {
@@ -1707,14 +1717,14 @@ QRectF QGraphicsItem::childrenBoundingRect() const
 
 /*!
     Returns the bounding rect of this item in scene coordinates, by combining
-    sceneMatrix() with boundingRect().
+    sceneTransform() with boundingRect().
 
     \sa boundingRect(), {The Graphics View Coordinate System}
 */
 QRectF QGraphicsItem::sceneBoundingRect() const
 {
-    if (d_ptr->parent || d_ptr->hasMatrix)
-        return sceneMatrix().mapRect(boundingRect());
+    if (d_ptr->parent || d_ptr->hasTransform)
+        return sceneTransform().mapRect(boundingRect());
     return boundingRect().translated(d_ptr->pos);
 }
 
@@ -2052,7 +2062,7 @@ void QGraphicsItem::update(const QRectF &rect)
 
     If \a item is 0, this function returns the same as mapToScene().
 
-    \sa mapToParent(), mapToScene(), matrix(), mapFromItem(), {The Graphics
+    \sa mapToParent(), mapToScene(), transform(), mapFromItem(), {The Graphics
     View Coordinate System}
 */
 QPointF QGraphicsItem::mapToItem(const QGraphicsItem *item, const QPointF &point) const
@@ -2073,12 +2083,12 @@ QPointF QGraphicsItem::mapToItem(const QGraphicsItem *item, const QPointF &point
     parent's coordinate system, and returns the mapped coordinate. If the item
     has no parent, \a point will be mapped to the scene's coordinate system.
 
-    \sa mapToItem(), mapToScene(), matrix(), mapFromParent(), {The Graphics
+    \sa mapToItem(), mapToScene(), transform(), mapFromParent(), {The Graphics
     View Coordinate System}
 */
 QPointF QGraphicsItem::mapToParent(const QPointF &point) const
 {
-    return matrix().map(point) + d_ptr->pos;
+    return transform().map(point) + d_ptr->pos;
 }
 
 /*!
@@ -2093,7 +2103,7 @@ QPointF QGraphicsItem::mapToParent(const QPointF &point) const
     Maps the point \a point, which is in this item's coordinate system, to the
     scene's coordinate system, and returns the mapped coordinate.
 
-    \sa mapToItem(), mapToParent(), matrix(), mapFromScene(), {The Graphics
+    \sa mapToItem(), mapToParent(), transform(), mapFromScene(), {The Graphics
     View Coordinate System}
 */
 QPointF QGraphicsItem::mapToScene(const QPointF &point) const
@@ -2146,7 +2156,7 @@ QPolygonF QGraphicsItem::mapToParent(const QRectF &rect) const
 */
 QPolygonF QGraphicsItem::mapToScene(const QRectF &rect) const
 {
-    return sceneMatrix().map(rect);
+    return sceneTransform().map(rect);
 }
 
 /*!
@@ -2186,7 +2196,7 @@ QPolygonF QGraphicsItem::mapToParent(const QPolygonF &polygon) const
 */
 QPolygonF QGraphicsItem::mapToScene(const QPolygonF &polygon) const
 {
-    return sceneMatrix().map(polygon);
+    return sceneTransform().map(polygon);
 }
 
 /*!
@@ -2226,7 +2236,7 @@ QPainterPath QGraphicsItem::mapToParent(const QPainterPath &path) const
 */
 QPainterPath QGraphicsItem::mapToScene(const QPainterPath &path) const
 {
-    return sceneMatrix().map(path);
+    return sceneTransform().map(path);
 }
 
 /*!
@@ -2235,7 +2245,7 @@ QPainterPath QGraphicsItem::mapToScene(const QPainterPath &path) const
 
     If \a item is 0, this function returns the same as mapFromScene().
 
-    \sa mapFromParent(), mapFromScene(), matrix(), mapToItem(), {The Graphics
+    \sa mapFromParent(), mapFromScene(), transform(), mapToItem(), {The Graphics
     View Coordinate System}
 */
 QPointF QGraphicsItem::mapFromItem(const QGraphicsItem *item, const QPointF &point) const
@@ -2256,12 +2266,12 @@ QPointF QGraphicsItem::mapFromItem(const QGraphicsItem *item, const QPointF &poi
     system, to this item's coordinate system, and returns the mapped
     coordinate.
 
-    \sa mapFromItem(), mapFromScene(), matrix(), mapToParent(), {The Graphics
+    \sa mapFromItem(), mapFromScene(), transform(), mapToParent(), {The Graphics
     View Coordinate System}
 */
 QPointF QGraphicsItem::mapFromParent(const QPointF &point) const
 {
-    return matrix().inverted().map(point - d_ptr->pos);
+    return transform().inverted().map(point - d_ptr->pos);
 }
 
 /*!
@@ -2277,7 +2287,7 @@ QPointF QGraphicsItem::mapFromParent(const QPointF &point) const
     system, to this item's coordinate system, and returns the mapped
     coordinate.
 
-    \sa mapFromItem(), mapFromParent(), matrix(), mapToScene(), {The Graphics
+    \sa mapFromItem(), mapFromParent(), transform(), mapToScene(), {The Graphics
     View Coordinate System}
 */
 QPointF QGraphicsItem::mapFromScene(const QPointF &point) const
@@ -2300,7 +2310,7 @@ QPointF QGraphicsItem::mapFromScene(const QPointF &point) const
 
     If \a item is 0, this function returns the same as mapFromScene()
 
-    \sa mapToItem(), mapFromParent(), matrix(), {The Graphics View Coordinate
+    \sa mapToItem(), mapFromParent(), transform(), {The Graphics View Coordinate
     System}
 */
 QPolygonF QGraphicsItem::mapFromItem(const QGraphicsItem *item, const QRectF &rect) const
@@ -2313,7 +2323,7 @@ QPolygonF QGraphicsItem::mapFromItem(const QGraphicsItem *item, const QRectF &re
     system, to this item's coordinate system, and returns the mapped rectangle
     as a polygon.
 
-    \sa mapToParent(), mapFromItem(), matrix(), {The Graphics View Coordinate
+    \sa mapToParent(), mapFromItem(), transform(), {The Graphics View Coordinate
     System}
 */
 QPolygonF QGraphicsItem::mapFromParent(const QRectF &rect) const
@@ -2326,12 +2336,12 @@ QPolygonF QGraphicsItem::mapFromParent(const QRectF &rect) const
     system, to this item's coordinate system, and returns the mapped rectangle
     as a polygon.
 
-    \sa mapToScene(), mapFromItem(), matrix(), {The Graphics View Coordinate
+    \sa mapToScene(), mapFromItem(), transform(), {The Graphics View Coordinate
     System}
 */
 QPolygonF QGraphicsItem::mapFromScene(const QRectF &rect) const
 {
-    return sceneMatrix().inverted().map(rect);
+    return sceneTransform().inverted().map(rect);
 }
 
 /*!
@@ -2340,7 +2350,7 @@ QPolygonF QGraphicsItem::mapFromScene(const QRectF &rect) const
 
     If \a item is 0, this function returns the same as mapFromScene().
 
-    \sa mapToItem(), mapFromParent(), matrix(), {The Graphics View Coordinate
+    \sa mapToItem(), mapFromParent(), transform(), {The Graphics View Coordinate
     System}
 */
 QPolygonF QGraphicsItem::mapFromItem(const QGraphicsItem *item, const QPolygonF &polygon) const
@@ -2352,7 +2362,7 @@ QPolygonF QGraphicsItem::mapFromItem(const QGraphicsItem *item, const QPolygonF 
     Maps the polygon \a polygon, which is in this item's parent's coordinate
     system, to this item's coordinate system, and returns the mapped polygon.
 
-    \sa mapToParent(), mapToItem(), matrix(), {The Graphics View Coordinate
+    \sa mapToParent(), mapToItem(), transform(), {The Graphics View Coordinate
     System}
 */
 QPolygonF QGraphicsItem::mapFromParent(const QPolygonF &polygon) const
@@ -2364,12 +2374,12 @@ QPolygonF QGraphicsItem::mapFromParent(const QPolygonF &polygon) const
     Maps the polygon \a polygon, which is in this item's scene's coordinate
     system, to this item's coordinate system, and returns the mapped polygon.
 
-    \sa mapToScene(), mapFromParent(), matrix(), {The Graphics View Coordinate
+    \sa mapToScene(), mapFromParent(), transform(), {The Graphics View Coordinate
     System}
 */
 QPolygonF QGraphicsItem::mapFromScene(const QPolygonF &polygon) const
 {
-    return sceneMatrix().inverted().map(polygon);
+    return sceneTransform().inverted().map(polygon);
 }
 
 /*!
@@ -2407,7 +2417,7 @@ QPainterPath QGraphicsItem::mapFromParent(const QPainterPath &path) const
 */
 QPainterPath QGraphicsItem::mapFromScene(const QPainterPath &path) const
 {
-    return sceneMatrix().inverted().map(path);
+    return sceneTransform().inverted().map(path);
 }
 
 /*!
@@ -2963,7 +2973,7 @@ void QGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     if ((event->buttons() & Qt::LeftButton) && (flags() & ItemIsMovable)) {
         // Handle ItemIsMovable.
-        QPointF newPos(mapToParent(event->pos()) - matrix().map(event->buttonDownPos(Qt::LeftButton)));
+        QPointF newPos(mapToParent(event->pos()) - transform().map(event->buttonDownPos(Qt::LeftButton)));
         QPointF diff = newPos - pos();
 
         // Determine the list of selected items
@@ -3492,7 +3502,7 @@ QRectF QGraphicsPathItem::boundingRect() const
     Q_D(const QGraphicsPathItem);
     if (d->boundingRect.isNull()) {
         qreal pw = pen().widthF();
-        d->boundingRect = shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
+        d->boundingRect = (pw == 0.0) ? d->path.controlPointRect() : shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
     }
     return d->boundingRect;
 }
@@ -3707,7 +3717,7 @@ QRectF QGraphicsRectItem::boundingRect() const
     Q_D(const QGraphicsRectItem);
     if (d->boundingRect.isNull()) {
         qreal pw = pen().widthF();
-        d->boundingRect = shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
+        d->boundingRect = (pw == 0.0) ? d->rect : shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
     }
     return d->boundingRect;
 }
@@ -3985,7 +3995,7 @@ QRectF QGraphicsEllipseItem::boundingRect() const
     Q_D(const QGraphicsEllipseItem);
     if (d->boundingRect.isNull()) {
         qreal pw = pen().widthF();
-        d->boundingRect = shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
+        d->boundingRect = (pw == 0.0) ? d->rect : shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
     }
     return d->boundingRect;
 }
@@ -4215,7 +4225,8 @@ QRectF QGraphicsPolygonItem::boundingRect() const
     Q_D(const QGraphicsPolygonItem);
     if (d->boundingRect.isNull()) {
         qreal pw = pen().widthF();
-        d->boundingRect = shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
+        d->boundingRect = (pw == 0.0) ? d->polygon.boundingRect()
+                          : shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
     }
     return d->boundingRect;
 }
@@ -4445,6 +4456,18 @@ void QGraphicsLineItem::setLine(const QLineF &line)
 */
 QRectF QGraphicsLineItem::boundingRect() const
 {
+    Q_D(const QGraphicsLineItem);
+    if (d->pen.widthF() == 0.0) {
+        const qreal x1 = d->line.p1().x();
+        const qreal x2 = d->line.p2().x();
+        const qreal y1 = d->line.p1().y();
+        const qreal y2 = d->line.p2().y();
+        qreal lx = qMin(x1, x2);
+        qreal rx = qMax(x1, x2);
+        qreal ty = qMin(y1, y2);
+        qreal by = qMax(y1, y2);
+        return QRectF(lx, ty, rx - lx, by - ty);
+    }
     return shape().controlPointRect();
 }
 

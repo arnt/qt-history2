@@ -1296,7 +1296,7 @@ void QGraphicsView::fitInView(const QRectF &rect, Qt::AspectRatioMode aspectRati
 */
 void QGraphicsView::fitInView(const QGraphicsItem *item, Qt::AspectRatioMode aspectRatioMode)
 {
-    fitInView(item->sceneMatrix().map(item->shape()).boundingRect(), aspectRatioMode);
+    fitInView(item->sceneTransform().map(item->shape()).boundingRect(), aspectRatioMode);
 }
 
 /*!
