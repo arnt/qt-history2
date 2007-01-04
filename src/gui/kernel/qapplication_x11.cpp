@@ -2153,7 +2153,8 @@ void QApplication::setMainWidget(QWidget *mainWidget)
                   "has a parent",
                   mainWidget->metaObject()->className(), mainWidget->objectName().toLocal8Bit().constData());
 #endif
-    mainWidget->d_func()->createWinId();
+    if (mainWidget)
+        mainWidget->d_func()->createWinId();
     QApplicationPrivate::main_widget = mainWidget;
     if (QApplicationPrivate::main_widget) // give WM command line
         QApplicationPrivate::applyX11SpecificCommandLineArguments(QApplicationPrivate::main_widget);
