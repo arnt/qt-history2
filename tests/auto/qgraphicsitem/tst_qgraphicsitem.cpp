@@ -2841,7 +2841,7 @@ void tst_QGraphicsItem::defaultItemTest_QGraphicsPixmapItem()
     item.setOffset(QPointF(-10, -10));
     QCOMPARE(item.offset(), QPointF(-10, -10));
 
-    QCOMPARE(item.boundingRect(), QRectF(-10.5, -10.5, 301, 201));
+    QCOMPARE(item.boundingRect(), QRectF(-10.5, -10.5, 301.5, 201.5));
 }
 
 class ItemChangeTester : public QGraphicsRectItem
@@ -2863,6 +2863,12 @@ protected:
         case QGraphicsItem::ItemMatrixChange: {
             QVariant variant;
             qVariantSetValue<QMatrix>(variant, matrix());
+            oldValues << variant;
+        }
+            break;
+        case QGraphicsItem::ItemTransformChange: {
+            QVariant variant;
+            qVariantSetValue<QTransform>(variant, transform());
             oldValues << variant;
         }
             break;
@@ -2910,15 +2916,31 @@ void tst_QGraphicsItem::itemChange()
     {
         // ItemMatrixChange
         qVariantSetValue<QMatrix>(tester.itemChangeReturnValue, QMatrix().rotate(90));
-        tester.translate(50, 0);
+        tester.setMatrix(QMatrix().translate(50, 0), true);
         QCOMPARE(tester.changes.size(), ++changeCount);
-        QCOMPARE(tester.changes.last(), QGraphicsItem::ItemMatrixChange);
+        QCOMPARE(int(tester.changes.last()), int(QGraphicsItem::ItemMatrixChange));
         QCOMPARE(qVariantValue<QMatrix>(tester.values.last()),
                  QMatrix().translate(50, 0));
         QVariant variant;
         qVariantSetValue<QMatrix>(variant, QMatrix());
         QCOMPARE(tester.oldValues.last(), variant);
         QCOMPARE(tester.matrix(), QMatrix().rotate(90));
+    }
+    {
+        tester.resetTransform();
+        ++changeCount;
+
+        // ItemTransformChange
+        qVariantSetValue<QTransform>(tester.itemChangeReturnValue, QTransform().rotate(90));
+        tester.translate(50, 0);
+        QCOMPARE(tester.changes.size(), ++changeCount);
+        QCOMPARE(tester.changes.last(), QGraphicsItem::ItemTransformChange);
+        QCOMPARE(qVariantValue<QTransform>(tester.values.last()),
+                 QTransform().translate(50, 0));
+        QVariant variant;
+        qVariantSetValue<QTransform>(variant, QTransform());
+        QCOMPARE(tester.oldValues.last(), variant);
+        QCOMPARE(tester.transform(), QTransform().rotate(90));
     }
     {
         // ItemPositionChange
