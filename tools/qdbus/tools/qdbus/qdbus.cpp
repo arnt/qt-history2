@@ -149,6 +149,9 @@ static QStringList readList(QStringList &args)
     while (!args.isEmpty() && args.at(0) != QLatin1String(")"))
         retval += args.takeFirst();
 
+    if (args.value(0) == QLatin1String(")"))
+        args.takeFirst();
+
     return retval;
 }
 
