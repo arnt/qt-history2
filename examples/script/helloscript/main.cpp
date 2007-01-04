@@ -27,8 +27,6 @@ int main(int argc, char *argv[])
 
     engine.evaluate("button.text = 'Hello World!'");
     engine.evaluate("button.styleSheet = 'font-style: italic'");
-    engine.evaluate("s = button.show");
-    engine.evaluate("button.show = function foo() { print(this); with (this) s(); }");
     engine.evaluate("button.show()");
 
     return app.exec();
