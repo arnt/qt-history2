@@ -1778,7 +1778,7 @@ void QTextControlPrivate::editFocusEvent(QEvent *e)
     Q_Q(QTextControl);
     
     if (QApplication::keypadNavigationEnabled()) {
-        if (e->type() == QEvent::EnterEditFocus) {
+        if (e->type() == QEvent::EnterEditFocus && interactionFlags & Qt::TextEditable) {
             const QTextCursor oldSelection = cursor;
             const int oldCursorPos = cursor.position();
             const bool moved = cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
@@ -1791,8 +1791,7 @@ void QTextControlPrivate::editFocusEvent(QEvent *e)
             selectionChanged();
             repaintOldAndNewSelection(oldSelection);
             
-            if (interactionFlags & Qt::TextEditable)
-                setBlinkingCursorEnabled(true);
+            setBlinkingCursorEnabled(true);
         } else
             setBlinkingCursorEnabled(false);
     }
