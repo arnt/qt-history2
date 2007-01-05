@@ -24,7 +24,7 @@
 #include <qtooltip.h>
 #include <private/qeffects_p.h>
 #include <qtextdocument.h>
-
+#include <qdebug.h>
 #ifndef QT_NO_TOOLTIP
 
 /*!
@@ -71,7 +71,7 @@ class QTipLabel : public QLabel
 {
     Q_OBJECT
 public:
-    QTipLabel(const QString& text, QWidget* parent);
+    QTipLabel(const QPoint &pos, const QString &text, QWidget *w);
     ~QTipLabel();
     static QTipLabel *instance;
 
@@ -79,8 +79,12 @@ public:
 
     QBasicTimer hideTimer;
 
+    void reuseTip(const QPoint &pos, const QString &text, QWidget *w);
     void hideTip();
+    void hideTipImmidiatly();
     void setTipRect(QWidget *w, const QRect &r);
+    void restartHideTimer();
+    
 protected:
     void timerEvent(QTimerEvent *e);
     void paintEvent(QPaintEvent *e);
@@ -90,12 +94,15 @@ protected:
 private:
     QWidget *widget;
     QRect rect;
+
+    int getTipScreen(const QPoint &pos, QWidget *w);
+    void placeTip(const QPoint &pos, QWidget *w);
 };
 
 QTipLabel *QTipLabel::instance = 0;
 
-QTipLabel::QTipLabel(const QString& text, QWidget* parent)
-    : QLabel(parent, Qt::ToolTip), widget(0)
+QTipLabel::QTipLabel(const QPoint &pos, const QString &text, QWidget *w)
+    : QLabel(QApplication::desktop()->screen(getTipScreen(pos, w)), Qt::ToolTip), widget(0)
 {
     delete instance;
     instance = this;
@@ -105,22 +112,31 @@ QTipLabel::QTipLabel(const QString& text, QWidget* parent)
     setAlignment(Qt::AlignLeft);
     setIndent(1);
     setWordWrap(Qt::mightBeRichText(text));
-    setText(text);
+    qApp->installEventFilter(this);
+    setWindowOpacity(style()->styleHint(QStyle::SH_ToolTipLabel_Opacity, 0, this) / 255.0);
+    setPalette(QToolTip::palette());
+    setMouseTracking(true);
 
+    reuseTip(pos, text, w);
+}
+
+void QTipLabel::restartHideTimer()
+{
+    int time = 10000 + 40 * qMax(0, text().length()-100);
+    hideTimer.start(time, this);
+}
+
+void QTipLabel::reuseTip(const QPoint &pos, const QString &text, QWidget *w)
+{
+    setText(text);
     QFontMetrics fm(font());
     QSize extra(1, 0);
     // Make it look good with the default ToolTip font on Mac, which has a small descent.
     if (fm.descent() == 2 && fm.ascent() >= 11)
         ++extra.rheight();
-
     resize(sizeHint() + extra);
-    qApp->installEventFilter(this);
-
-    int time = 10000 + 40 * qMax(0, text.length()-100);
-    hideTimer.start(time, this);
-    setWindowOpacity(style()->styleHint(QStyle::SH_ToolTipLabel_Opacity, 0, this) / 255.0);
-    setPalette(QToolTip::palette());
-    setMouseTracking(true);
+    placeTip(pos, w);
+    restartHideTimer();
 }
 
 void QTipLabel::paintEvent(QPaintEvent *ev)
@@ -162,15 +178,22 @@ QTipLabel::~QTipLabel()
     instance = 0;
 }
 
-void QTipLabel::hideTip()
+void QTipLabel::hideTipImmidiatly()
 {
     close(); // to trigger QEvent::Close which stops the animation
     deleteLater();
 }
 
+void QTipLabel::hideTip()
+{
+    hideTimer.start(400, this);
+}
+
 void QTipLabel::setTipRect(QWidget *w, const QRect &r)
 {
-    if (w) {
+    if (!rect.isNull() && !w)
+        qWarning("QToolTip::setTipRect: Cannot pass null widget if rect is set");
+    else{
         widget = w;
         rect = r;
     }
@@ -178,8 +201,9 @@ void QTipLabel::setTipRect(QWidget *w, const QRect &r)
 
 void QTipLabel::timerEvent(QTimerEvent *e)
 {
-    if (e->timerId() == hideTimer.timerId())
-        hideTip();
+    if (e->timerId() == hideTimer.timerId()){
+        hideTipImmidiatly();
+    }
 }
 
 bool QTipLabel::eventFilter(QObject *o, QEvent *e)
@@ -196,13 +220,8 @@ bool QTipLabel::eventFilter(QObject *o, QEvent *e)
             break;
     }
     case QEvent::Leave:
-        if ((e->type() == QEvent::Leave) && (o != this)) {
-            // Ignore Leave events for widget below the tooltip when the tool tip is shown
-            // below the mouse cursor
-            bool underMouse = geometry().contains(QCursor::pos());
-            if (underMouse)
-                return false;
-        }
+        hideTip();
+        break;
     case QEvent::WindowActivate:
     case QEvent::WindowDeactivate:
     case QEvent::MouseButtonPress:
@@ -211,7 +230,7 @@ bool QTipLabel::eventFilter(QObject *o, QEvent *e)
     case QEvent::FocusIn:
     case QEvent::FocusOut:
     case QEvent::Wheel:
-        hideTip();
+        hideTipImmidiatly();
         break;
 
     case QEvent::MouseMove:
@@ -221,6 +240,45 @@ bool QTipLabel::eventFilter(QObject *o, QEvent *e)
         break;
     }
     return false;
+}
+
+int QTipLabel::getTipScreen(const QPoint &pos, QWidget *w)
+{
+    if (QApplication::desktop()->isVirtualDesktop())
+        return QApplication::desktop()->screenNumber(pos);
+    else
+        return QApplication::desktop()->screenNumber(w);
+}
+
+void QTipLabel::placeTip(const QPoint &pos, QWidget *w)
+{
+#ifdef Q_WS_MAC
+    QRect screen = QApplication::desktop()->availableGeometry(getTipScreen(pos, w));
+#else
+    QRect screen = QApplication::desktop()->screenGeometry(getTipScreen(pos, w));
+#endif
+    
+    QPoint p = pos;
+    p += QPoint(2,
+#ifdef Q_WS_WIN
+                24
+#else
+                16
+#endif
+        );
+    if (p.x() + this->width() > screen.x() + screen.width())
+        p.rx() -= 4 + this->width();
+    if (p.y() + this->height() > screen.y() + screen.height())
+        p.ry() -= 24 + this->height();
+    if (p.y() < screen.y())
+        p.setY(screen.y());
+    if (p.x() + this->width() > screen.x() + screen.width())
+        p.setX(screen.x() + screen.width() - this->width());
+    if (p.x() < screen.x())
+        p.setX(screen.x());
+    if (p.y() + this->height() > screen.y() + screen.height())
+        p.setY(screen.y() + screen.height() - this->height());
+    this->move(p);
 }
 
 /*!
@@ -241,78 +299,32 @@ bool QTipLabel::eventFilter(QObject *o, QEvent *e)
 
 void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w, const QRect &rect)
 {
-    if (QTipLabel::instance && QTipLabel::instance->text() == text)
-        return; /* this is NOT a bug, if the text doesn't change, you
-                 don't want the tool tips to move. If you divide your
-                 widget in different parts that show the same tool
-                 tip, you must handle that yourself. Simple hide the
-                 tip (by showing an empty string) and show the new
-                 one. */
-
-    if (text.isEmpty()) {
-        if (QTipLabel::instance)
-            QTipLabel::instance->hideTip();
-        return;
+    if (QTipLabel::instance){ // a tip is already showing
+        if (QTipLabel::instance->text() == text)
+            QTipLabel::instance->restartHideTimer();
+        else if (text.isEmpty())
+            QTipLabel::instance->hideTipImmidiatly();
+        else{
+            QTipLabel::instance->reuseTip(pos, text, w);
+            QTipLabel::instance->setTipRect(w, rect);
+        }
     }
+    else { // no tip is showing, create new tip:
+        new QTipLabel(pos, text, w);
+        QTipLabel::instance->setTipRect(w, rect);
+        QTipLabel::instance->setObjectName(QLatin1String("qtooltip_label"));
 
 #ifndef QT_NO_EFFECTS
-    bool preventAnimation = (QTipLabel::instance != 0);
-#endif
-    int scr;
-    if (QApplication::desktop()->isVirtualDesktop())
-        scr = QApplication::desktop()->screenNumber(pos);
-    else
-        scr = QApplication::desktop()->screenNumber(w);
-
-#ifdef Q_WS_MAC
-    QRect screen = QApplication::desktop()->availableGeometry(scr);
+        if (QApplication::isEffectEnabled(Qt::UI_AnimateTooltip))
+            qScrollEffect(QTipLabel::instance);
+        else if (QApplication::isEffectEnabled(Qt::UI_FadeTooltip))
+            qFadeEffect(QTipLabel::instance);
+        else
+            QTipLabel::instance->show();
 #else
-    QRect screen = QApplication::desktop()->screenGeometry(scr);
+        QTipLabel::instance->show();
 #endif
-
-    QTipLabel *label = new QTipLabel(text, QApplication::desktop()->screen(scr));
-    if (!rect.isNull() && !w) {
-        qWarning("QToolTip::showText: Cannot pass null widget if rect is set");
-    } else {
-        label->setTipRect(w, rect);
     }
-
-    label->setObjectName(QLatin1String("qtooltip_label"));
-
-    QPoint p = pos;
-    p += QPoint(2,
-#ifdef Q_WS_WIN
-                24
-#else
-                16
-#endif
-        );
-    if (p.x() + label->width() > screen.x() + screen.width())
-        p.rx() -= 4 + label->width();
-    if (p.y() + label->height() > screen.y() + screen.height())
-        p.ry() -= 24 + label->height();
-    if (p.y() < screen.y())
-        p.setY(screen.y());
-    if (p.x() + label->width() > screen.x() + screen.width())
-        p.setX(screen.x() + screen.width() - label->width());
-    if (p.x() < screen.x())
-        p.setX(screen.x());
-    if (p.y() + label->height() > screen.y() + screen.height())
-        p.setY(screen.y() + screen.height() - label->height());
-    label->move(p);
-
-#ifndef QT_NO_EFFECTS
-    if ( QApplication::isEffectEnabled(Qt::UI_AnimateTooltip) == false || preventAnimation)
-        label->show();
-    else if (QApplication::isEffectEnabled(Qt::UI_FadeTooltip)) {
-        qFadeEffect(label);
-    }
-    else
-        qScrollEffect(label);
-#else
-    label->show();
-#endif
-
 }
 
 /*!

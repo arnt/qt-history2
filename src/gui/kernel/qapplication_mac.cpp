@@ -2248,15 +2248,13 @@ void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
     switch (effect) {
     case Qt::UI_FadeMenu:
         QApplicationPrivate::fade_menu = enable;
-        if(!enable)
-            break;
+        break;
     case Qt::UI_AnimateMenu:
         QApplicationPrivate::animate_menu = enable;
         break;
     case Qt::UI_FadeTooltip:
         QApplicationPrivate::fade_tooltip = enable;
-        if(!enable)
-            break;
+        break;
     case Qt::UI_AnimateTooltip:
         QApplicationPrivate::animate_tooltip = enable;
         break;
@@ -2266,10 +2264,15 @@ void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
     case Qt::UI_AnimateToolBox:
         QApplicationPrivate::animate_toolbox = enable;
         break;
+    case Qt::UI_General:
+        break;
     default:
         QApplicationPrivate::animate_ui = enable;
         break;
     }
+
+    if (enable)
+        QApplicationPrivate::animate_ui = true;    
 }
 
 bool QApplication::isEffectEnabled(Qt::UIEffect effect)
@@ -2440,7 +2443,7 @@ bool QApplicationPrivate::qt_mac_apply_settings()
             if(effects.contains(QLatin1String("animatetoolbox")))
                 QApplication::setEffectEnabled(Qt::UI_AnimateToolBox, true);
         } else {
-            QApplication::setEffectEnabled(Qt::UI_General, false);
+            QApplication::setEffectEnabled(Qt::UI_General, true);
         }
 
         settings.beginGroup(QLatin1String("Font Substitutions"));
