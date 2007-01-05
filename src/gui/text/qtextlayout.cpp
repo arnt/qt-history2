@@ -1323,7 +1323,7 @@ void QTextLine::layout_helper(int maxGlyphs)
                 Q_ASSERT((pos == end && gp == current.num_glyphs) || logClusters[pos] == gp);
 
                 ++glyphCount;
-                if (attributes[pos].whiteSpace || attributes[pos].softBreak) {
+                if (attributes[pos].whiteSpace || attributes[pos-1].lineBreakType >= QCharAttributes::Break) {
                     sb_or_ws = true;
                     break;
                 } else if (breakany && attributes[pos].charStop) {

@@ -3472,12 +3472,13 @@ static void thaiWordBreaks(const QChar *string, const int len, QCharAttributes *
         numbreaks = th_brk(cstr.data(),break_positions, numbreaks);
     }
 
-    attributes[0].softBreak = true;
-    for (int i = 1; i < len; ++i)
-        attributes[i].softBreak = false;
+    for (int i = 0; i < len - 1; ++i)
+        attributes[i].lineBreakType = QCharAttributes::NoBreak;
 
-    for (int i = 0; i < numbreaks; ++i)
-        attributes[break_positions[i]].softBreak = true;
+    for (int i = 0; i < numbreaks; ++i) {
+        if (break_positions[i] > 0)
+            attributes[break_positions[i]-1].lineBreakType = QCharAttributes::Break;
+    }
 
     if (break_positions != brp)
         delete [] break_positions;
@@ -4873,7 +4874,7 @@ static void myanmar_attributes(int script, const QString &text, int from, int le
 	int boundary = myanmar_nextSyllableBoundary(text, from+i, end, &invalid) - from;
 
 	attributes[i].charStop = true;
-        attributes[i].softBreak = true;
+        attributes[i-1].lineBreakType = QCharAttributes::Break;
 
 	if (boundary > len-1)
             boundary = len;
@@ -5127,30 +5128,6 @@ static bool hangul_shape(QShaperItem *item)
 }
 #endif
 
-static void hangul_attributes(int script, const QString &text, int from, int len, QCharAttributes *attributes)
-{
-    Q_UNUSED(script);
-
-    int end = from + len;
-    const QChar *uc = text.unicode() + from;
-    attributes += from;
-    int i = 0;
-    while (i < len) {
-        int boundary = hangul_nextSyllableBoundary(text, from+i, end) - from;
-
-        attributes[i].charStop = true;
-
-        if (boundary > len-1) boundary = len;
-        i++;
-        while (i < boundary) {
-            attributes[i].charStop = false;
-            ++uc;
-            ++i;
-        }
-        assert(i == boundary);
-    }
-}
-
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
 
 const q_scriptEngine qt_scriptEngines[] = {
@@ -5201,7 +5178,7 @@ const q_scriptEngine qt_scriptEngines[] = {
     // Georgian
     { basic_shape, 0 },
     // Hangul
-    { hangul_shape, hangul_attributes },
+    { hangul_shape, 0 },
     // Ogham
     { basic_shape, 0 },
     // Runic
@@ -5359,7 +5336,7 @@ const q_scriptEngine qt_scriptEngines[] = {
     // Georgian
     { mac_shape, 0 },
     // Hangul
-    { mac_shape, hangul_attributes },
+    { mac_shape, 0 },
     // Ogham
     { mac_shape, 0 },
     // Runic

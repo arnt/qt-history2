@@ -50,16 +50,18 @@ const char *property_string =
     "    Q_CORE_EXPORT const Properties * QT_FASTCALL properties(ushort ucs2);\n";
 
 const char *lineBreakClass =
-    "    // see http://www.unicode.org/reports/tr14/tr14-13.html\n"
-    "    // we don't use the XX and AI properties and map them to AL instead.\n"
+    "    // see http://www.unicode.org/reports/tr14/tr14-19.html\n"
+    "    // we don't use the XX, AI and CB properties and map them to AL instead.\n"
+    "    // as we don't support any EBDIC based OS'es, NL is ignored and mapped to AL as well.\n"
     "    enum LineBreakClass {\n"
     "        LineBreak_OP, LineBreak_CL, LineBreak_QU, LineBreak_GL, LineBreak_NS,\n"
     "        LineBreak_EX, LineBreak_SY, LineBreak_IS, LineBreak_PR, LineBreak_PO,\n"
     "        LineBreak_NU, LineBreak_AL, LineBreak_ID, LineBreak_IN, LineBreak_HY,\n"
     "        LineBreak_BA, LineBreak_BB, LineBreak_B2, LineBreak_ZW, LineBreak_CM,\n"
-    "        LineBreak_SA, LineBreak_BK, LineBreak_CR, LineBreak_LF, LineBreak_SG,\n"
-    "        LineBreak_CB, LineBreak_SP\n"
-    "    };\n";
+    "        LineBreak_WJ, LineBreak_H2, LineBreak_H3, LineBreak_JL, LineBreak_JV,\n"
+    "        LineBreak_JT, LineBreak_SA, LineBreak_SG,\n"
+    "        LineBreak_SP, LineBreak_CR, LineBreak_LF, LineBreak_BK\n"
+    "    };\n\n";
 
 const char *methods =
     "    Q_CORE_EXPORT QUnicodeTables::LineBreakClass QT_FASTCALL lineBreakClass(uint ucs4);\n"
@@ -797,7 +799,10 @@ static void readLineBreak()
         QUnicodeTables::LineBreakClass lb = QUnicodeTables::LineBreak_AL;
         QByteArray ba = l[1];
 
-        if (ba == "OP") lb = QUnicodeTables::LineBreak_OP;
+        if (ba == "AI") lb = QUnicodeTables::LineBreak_AL;
+        else if (ba == "XX") lb = QUnicodeTables::LineBreak_AL;
+        else if (ba == "NL") lb = QUnicodeTables::LineBreak_AL;
+        else if (ba == "OP") lb = QUnicodeTables::LineBreak_OP;
         else if (ba == "CL") lb = QUnicodeTables::LineBreak_CL;
         else if (ba == "QU") lb = QUnicodeTables::LineBreak_QU;
         else if (ba == "GL") lb = QUnicodeTables::LineBreak_GL;
@@ -822,8 +827,17 @@ static void readLineBreak()
         else if (ba == "CR") lb = QUnicodeTables::LineBreak_CR;
         else if (ba == "LF") lb = QUnicodeTables::LineBreak_LF;
         else if (ba == "SG") lb = QUnicodeTables::LineBreak_SG;
-        else if (ba == "CB") lb = QUnicodeTables::LineBreak_CB;
+        else if (ba == "CB") lb = QUnicodeTables::LineBreak_AL;
         else if (ba == "SP") lb = QUnicodeTables::LineBreak_SP;
+        else if (ba == "WJ") lb = QUnicodeTables::LineBreak_WJ;
+        else if (ba == "H2") lb = QUnicodeTables::LineBreak_H2;
+        else if (ba == "H3") lb = QUnicodeTables::LineBreak_H3;
+        else if (ba == "JL") lb = QUnicodeTables::LineBreak_JL;
+        else if (ba == "JV") lb = QUnicodeTables::LineBreak_JV;
+        else if (ba == "JT") lb = QUnicodeTables::LineBreak_JT;
+        else {
+            qDebug() << "unhandled line break class:" << ba;
+        }
 
         for (int codepoint = from; codepoint <= to; ++codepoint) {
             UnicodeData d = unicodeData.value(codepoint, UnicodeData(codepoint));
@@ -858,6 +872,11 @@ static void readSpecialCasing()
 
         QList<QByteArray> l = line.split(';');
 
+        QByteArray condition = l.size() < 5 ? QByteArray() : l[4].trimmed();
+        if (!condition.isEmpty())
+            // #####
+            continue;
+
         bool ok;
         int codepoint = l[0].trimmed().toInt(&ok, 16);
         Q_ASSERT(ok);
@@ -879,6 +898,8 @@ static void readSpecialCasing()
         for (int i = 0; i < title.size(); ++i) {
             bool ok;
             titleMap.append(title.at(i).toInt(&ok, 16));
+            if (!ok)
+                qDebug() << line << title.at(i);
             Q_ASSERT(ok);
         }
 
@@ -890,10 +911,6 @@ static void readSpecialCasing()
             Q_ASSERT(ok);
         }
 
-        QByteArray condition = l.size() < 5 ? QByteArray() : l[4].trimmed();
-        if (!condition.isEmpty())
-            // #####
-            continue;
 
         UnicodeData ud = unicodeData.value(codepoint, UnicodeData(codepoint));
 

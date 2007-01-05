@@ -352,10 +352,15 @@ inline bool qIsControlChar(ushort uc)
 
 
 struct QCharAttributes {
-    uchar softBreak      :1;     // Potential linebreak point _before_ this character
+    enum LineBreakType {
+        NoBreak,
+        SoftHyphen,
+        Break,
+        ForcedBreak
+    };
+    uchar lineBreakType  :2;
     uchar whiteSpace     :1;     // A unicode whitespace character, except NBSP, ZWNBSP
     uchar charStop       :1;     // Valid cursor position (for left/right arrow)
-    uchar category       :5;
 };
 Q_DECLARE_TYPEINFO(QCharAttributes, Q_PRIMITIVE_TYPE);
 

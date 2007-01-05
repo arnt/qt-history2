@@ -345,14 +345,14 @@ bool QFontEngineMacMulti::stringToCMap(const QChar *str, int len, QGlyphLayout *
             if (tmpItem.charAttributes[i].whiteSpace) {
                 lastWhitespace = i;
                 break;
-            } if (tmpItem.charAttributes[i].softBreak) {
+            } if (tmpItem.charAttributes[i].lineBreakType != QCharAttributes::NoBreak) {
                 lastSoftBreak = i;
             } if (tmpItem.charAttributes[i].charStop) {
                 lastCharStop = i;
             }
         }
         charCount = qMin(lastWhitespace, qMin(lastSoftBreak, lastCharStop)) - tmpItem.from + 1;
-        
+
         int glyphCount = shaperItem->num_glyphs - glyphIdx;
         if (glyphCount <= 0)
             return false;
@@ -377,7 +377,7 @@ bool QFontEngineMacMulti::stringToCMap(const QChar *str, int len, QGlyphLayout *
     return true;
 }
 
-bool QFontEngineMacMulti::stringToCMapInternal(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, 
+bool QFontEngineMacMulti::stringToCMapInternal(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs,
                                                QTextEngine::ShaperFlags flags, QShaperItem *shaperItem) const
 {
     //qDebug() << "stringToCMap" << QString(str, len);
@@ -630,7 +630,7 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 {
     if (flags & QTextEngine::GlyphIndicesOnly) {
         if (!cmap) {
-            cmapTable = getSfntTable(MAKE_TAG('c', 'm', 'a', 'p')); 
+            cmapTable = getSfntTable(MAKE_TAG('c', 'm', 'a', 'p'));
             int size = 0;
             cmap = getCMap(reinterpret_cast<const uchar *>(cmapTable.constData()), cmapTable.size(), &symbolCMap, &size);
             if (!cmap)

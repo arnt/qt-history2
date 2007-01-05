@@ -679,146 +679,184 @@ void QTextEngine::bidiReorder(int numItems, const quint8 *levels, int *visualOrd
    places they shouldn't be allowed. The following changes were thus
    made in comparison to the Unicode reference:
 
-   CL->AL from Dbk to Ibk
-   CL->PR from Dbk to Ibk
-   EX->AL from Dbk to Ibk
-   IS->AL from Dbk to Ibk
-   PO->AL from Dbk to Ibk
-   SY->AL from Dbk to Ibk
-   SY->PO from Dbk to Ibk
-   SY->PR from Dbk to Ibk
-   SY->OP from Dbk to Ibk
-   Al->OP from Dbk to Ibk
-   AL->HY from Dbk to Ibk
-   AL->PR from Dbk to Ibk
-   AL->PO from Dbk to Ibk
-   PR->PR from Dbk to Ibk
-   PO->PO from Dbk to Ibk
-   PR->PO from Dbk to Ibk
-   PO->PR from Dbk to Ibk
-   HY->PO from Dbk to Ibk
-   HY->PR from Dbk to Ibk
-   HY->OP from Dbk to Ibk
-   PO->OP from Dbk to Ibk
-   NU->EX from Dbk to Ibk
-   NU->PR from Dbk to Ibk
-   PO->NU from Dbk to Ibk
-   EX->PO from Dbk to Ibk
+   EX->AL from DB to IB
+   SY->AL from DB to IB
+   SY->PO from DB to IB
+   SY->PR from DB to IB
+   SY->OP from DB to IB
+   AL->PR from DB to IB
+   AL->PO from DB to IB
+   PR->PR from DB to IB
+   PO->PO from DB to IB
+   PR->PO from DB to IB
+   PO->PR from DB to IB
+   HY->PO from DB to IB
+   HY->PR from DB to IB
+   HY->OP from DB to IB
+   NU->EX from PB to IB
+   EX->PO from DB to IB
 */
 
-enum break_action {
-    Dbk, // Direct break
-    Ibk, // Indirect break; only allowed if space between the two chars
-    Pbk // Prohibited break; no break allowed even if space between chars
-};
-
 // The following line break classes are not treated by the table:
-// SA, BK, CR, LF, SG, CB, SP
-static const quint8 breakTable[QUnicodeTables::LineBreak_CM+1][QUnicodeTables::LineBreak_CM+1] =
-{
-    // OP,  CL,  QU,  GL, NS,  EX,  SY,  IS,  PR,  PO,  NU,  AL,  ID,  IN,  HY,  BA,  BB,  B2,  ZW,  CM
-    { Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk }, // OP
-    { Dbk, Pbk, Ibk, Pbk, Pbk, Pbk, Pbk, Pbk, Ibk, Ibk, Dbk, Ibk, Dbk, Dbk, Ibk, Ibk, Pbk, Pbk, Pbk, Pbk }, // CL
-    { Pbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Pbk, Pbk }, // QU
-    { Ibk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Pbk, Pbk }, // GL
-    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Ibk, Ibk, Dbk, Dbk, Pbk, Ibk }, // NS
-    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Ibk, Ibk, Ibk, Dbk, Dbk, Ibk, Ibk, Dbk, Dbk, Pbk, Ibk }, // EX
-    { Ibk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Ibk, Ibk, Ibk, Ibk, Dbk, Dbk, Ibk, Ibk, Dbk, Dbk, Pbk, Ibk }, // SY
-    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Dbk, Ibk, Ibk, Dbk, Dbk, Ibk, Ibk, Dbk, Dbk, Pbk, Ibk }, // IS
-    { Ibk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Ibk, Ibk, Ibk, Ibk, Ibk, Dbk, Ibk, Ibk, Dbk, Dbk, Pbk, Pbk }, // PR
-    { Ibk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Ibk, Ibk, Ibk, Ibk, Dbk, Dbk, Ibk, Ibk, Dbk, Dbk, Pbk, Ibk }, // PO
-    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Ibk, Ibk, Ibk, Ibk, Dbk, Ibk, Ibk, Ibk, Dbk, Dbk, Pbk, Pbk }, // NU
-    { Ibk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Ibk, Ibk, Ibk, Ibk, Dbk, Ibk, Ibk, Ibk, Dbk, Dbk, Pbk, Pbk }, // AL
-    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Ibk, Dbk, Dbk, Dbk, Ibk, Ibk, Ibk, Dbk, Dbk, Pbk, Ibk }, // ID
-    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Dbk, Dbk, Dbk, Dbk, Ibk, Ibk, Ibk, Dbk, Dbk, Pbk, Ibk }, // IN
-    { Ibk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Ibk, Ibk, Ibk, Ibk, Dbk, Dbk, Ibk, Ibk, Dbk, Dbk, Pbk, Ibk }, // HY
-    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Ibk, Ibk, Dbk, Dbk, Pbk, Ibk }, // BA
-    { Ibk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Pbk, Ibk }, // BB
-    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Ibk, Ibk, Dbk, Pbk, Pbk, Ibk }, // B2
-    { Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Pbk, Ibk }, // ZW
-    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Ibk, Dbk, Dbk, Dbk, Ibk, Ibk, Ibk, Dbk, Dbk, Pbk, Pbk }  // CM
-};
+//  AI, BK, CB, CR, LF, NL, SA, SG, SP, XX
 
-// set the soft break flag at every possible line breaking point. This needs correct clustering information.
-static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
+enum break_class {
+    // the first 4 values have to agree with the enum in QCharAttributes
+    ProhibitedBreak,            // PB in table
+    DirectBreak,                // DB in table
+    IndirectBreak,              // IB in table
+    CombiningIndirectBreak,     // CI in table
+    CombiningProhibitedBreak,   // CP in table
+};
+#define DB DirectBreak
+#define IB IndirectBreak
+#define CI CombiningIndirectBreak
+#define CP CombiningProhibitedBreak
+#define PB ProhibitedBreak
+
+static const quint8 breakTable[QUnicodeTables::LineBreak_JT+1][QUnicodeTables::LineBreak_JT+1] =
 {
-    int len = str.length();
+/*          OP  CL  QU  GL  NS  EX  SY  IS  PR  PO  NU  AL  ID  IN  HY  BA  BB  B2  ZW  CM  WJ  H2  H3  JL  JV  JT */
+/* OP */ { PB, PB, PB, PB, PB, PB, PB, PB, PB, PB, PB, PB, PB, PB, PB, PB, PB, PB, PB, CP, PB, PB, PB, PB, PB, PB },
+/* CL */ { DB, PB, IB, IB, PB, PB, PB, PB, IB, IB, IB, IB, DB, DB, IB, IB, DB, DB, PB, CI, PB, DB, DB, DB, DB, DB },
+/* QU */ { PB, PB, IB, IB, IB, PB, PB, PB, IB, IB, IB, IB, IB, IB, IB, IB, IB, IB, PB, CI, PB, IB, IB, IB, IB, IB },
+/* GL */ { IB, PB, IB, IB, IB, PB, PB, PB, IB, IB, IB, IB, IB, IB, IB, IB, IB, IB, PB, CI, PB, IB, IB, IB, IB, IB },
+/* NS */ { DB, PB, IB, IB, IB, PB, PB, PB, DB, DB, DB, DB, DB, DB, IB, IB, DB, DB, PB, CI, PB, DB, DB, DB, DB, DB },
+/* EX */ { DB, PB, IB, IB, IB, PB, PB, PB, DB, IB, DB, IB, DB, DB, IB, IB, DB, DB, PB, CI, PB, DB, DB, DB, DB, DB },
+/* SY */ { IB, PB, IB, IB, IB, PB, PB, PB, IB, IB, IB, IB, DB, DB, IB, IB, DB, DB, PB, CI, PB, DB, DB, DB, DB, DB },
+/* IS */ { DB, PB, IB, IB, IB, PB, PB, PB, DB, DB, IB, IB, DB, DB, IB, IB, DB, DB, PB, CI, PB, DB, DB, DB, DB, DB },
+/* PR */ { IB, PB, IB, IB, IB, PB, PB, PB, IB, IB, IB, IB, IB, DB, IB, IB, DB, DB, PB, CI, PB, IB, IB, IB, IB, IB },
+/* PO */ { IB, PB, IB, IB, IB, PB, PB, PB, IB, IB, IB, IB, DB, DB, IB, IB, DB, DB, PB, CI, PB, DB, DB, DB, DB, DB },
+/* NU */ { IB, PB, IB, IB, IB, IB, PB, PB, IB, IB, IB, IB, DB, IB, IB, IB, DB, DB, PB, CI, PB, DB, DB, DB, DB, DB },
+/* AL */ { IB, PB, IB, IB, IB, PB, PB, PB, IB, IB, IB, IB, DB, IB, IB, IB, DB, DB, PB, CI, PB, DB, DB, DB, DB, DB },
+/* ID */ { DB, PB, IB, IB, IB, PB, PB, PB, DB, IB, DB, DB, DB, IB, IB, IB, DB, DB, PB, CI, PB, DB, DB, DB, DB, DB },
+/* IN */ { DB, PB, IB, IB, IB, PB, PB, PB, DB, DB, DB, DB, DB, IB, IB, IB, DB, DB, PB, CI, PB, DB, DB, DB, DB, DB },
+/* HY */ { IB, PB, IB, IB, IB, PB, PB, PB, IB, IB, IB, DB, DB, DB, IB, IB, DB, DB, PB, CI, PB, DB, DB, DB, DB, DB },
+/* BA */ { DB, PB, IB, IB, IB, PB, PB, PB, DB, DB, DB, DB, DB, DB, IB, IB, DB, DB, PB, CI, PB, DB, DB, DB, DB, DB },
+/* BB */ { IB, PB, IB, IB, IB, PB, PB, PB, IB, IB, IB, IB, IB, IB, IB, IB, IB, IB, PB, CI, PB, IB, IB, IB, IB, IB },
+/* B2 */ { DB, PB, IB, IB, IB, PB, PB, PB, DB, DB, DB, DB, DB, DB, IB, IB, DB, PB, PB, CI, PB, DB, DB, DB, DB, DB },
+/* ZW */ { DB, DB, DB, DB, DB, DB, DB, DB, DB, DB, DB, DB, DB, DB, DB, DB, DB, DB, PB, DB, DB, DB, DB, DB, DB, DB },
+/* CM */ { DB, PB, IB, IB, IB, PB, PB, PB, DB, DB, IB, IB, DB, IB, IB, IB, DB, DB, PB, CI, PB, DB, DB, DB, DB, DB },
+/* WJ */ { IB, PB, IB, IB, IB, PB, PB, PB, IB, IB, IB, IB, IB, IB, IB, IB, IB, IB, PB, CI, PB, IB, IB, IB, IB, IB },
+/* H2 */ { DB, PB, IB, IB, IB, PB, PB, PB, DB, IB, DB, DB, DB, IB, IB, IB, DB, DB, PB, CI, PB, DB, DB, DB, IB, IB },
+/* H3 */ { DB, PB, IB, IB, IB, PB, PB, PB, DB, IB, DB, DB, DB, IB, IB, IB, DB, DB, PB, CI, PB, DB, DB, DB, DB, IB },
+/* JL */ { DB, PB, IB, IB, IB, PB, PB, PB, DB, IB, DB, DB, DB, IB, IB, IB, DB, DB, PB, CI, PB, IB, IB, IB, IB, DB },
+/* JV */ { DB, PB, IB, IB, IB, PB, PB, PB, DB, IB, DB, DB, DB, IB, IB, IB, DB, DB, PB, CI, PB, DB, DB, DB, IB, IB },
+/* JT */ { DB, PB, IB, IB, IB, PB, PB, PB, DB, IB, DB, DB, DB, IB, IB, IB, DB, DB, PB, CI, PB, DB, DB, DB, DB, IB }
+};
+#undef DB
+#undef IB
+#undef CI
+#undef CP
+#undef PB
+
+
+static void calcLineBreaks(const QString &string, QCharAttributes *charAttributes)
+{
+    int len = string.length();
     if (!len)
         return;
 
-    const QChar *uc = str.unicode();
+    const QChar *uc = string.unicode();
+    // ##### can this fail if the first char is a surrogate?
     const QUnicodeTables::Properties *prop = QUnicodeTables::properties(uc->unicode());
-    int cls = prop->line_break_class;
-    if (cls >= QUnicodeTables::LineBreak_CM)
-        cls = QUnicodeTables::LineBreak_ID;
 
-    charAttributes[0].softBreak = false;
+    int cls = prop->line_break_class;
+    // handle case where input starts with an LF
+    if (cls == QUnicodeTables::LineBreak_LF)
+        cls = QUnicodeTables::LineBreak_BK;
+
     charAttributes[0].whiteSpace = (cls == QUnicodeTables::LineBreak_SP || cls == QUnicodeTables::LineBreak_BK);
     charAttributes[0].charStop = true;
-    charAttributes[0].category = prop->category;
 
+    int lcls = cls;
     for (int i = 1; i < len; ++i) {
-        prop = QUnicodeTables::properties(uc[i].unicode());
-        int ncls = prop->line_break_class;
-        int category = prop->category;
-        if (category == QChar::Mark_NonSpacing)
-            goto nsm;
-
-        if (category == QChar::Other_Surrogate) {
-            // char stop only on first pair
-            if (uc[i].unicode() >= 0xd800 && uc[i].unicode() < 0xdc00 && i < len-1
-                && uc[i+1].unicode() >= 0xdc00 && uc[i+1].unicode() < 0xe000)
-                goto nsm;
-            // ### correctly handle second surrogate
-        }
-
-        if (ncls == QUnicodeTables::LineBreak_SP || ncls == QUnicodeTables::LineBreak_BK) {
-            charAttributes[i].softBreak = false;
-            charAttributes[i].whiteSpace = true;
-            charAttributes[i].charStop = true;
-            charAttributes[i].category = QChar::Separator_Space;
-            cls = ncls;
-            continue;
-        }
-
-
-	if (cls == QUnicodeTables::LineBreak_SA && ncls == QUnicodeTables::LineBreak_SA) {
-            // two complex chars (thai or lao), thai_attributes might override, but here
-            // we do a best guess
-            charAttributes[i].softBreak = true;
-            charAttributes[i].whiteSpace = false;
-            charAttributes[i].charStop = true;
-            charAttributes[i].category = QChar::Separator_Space;
-            cls = ncls;
-            continue;
-        }
-        {
-	    int tcls = ncls;
-	    if (tcls >= QUnicodeTables::LineBreak_SA)
-		tcls = QUnicodeTables::LineBreak_ID;
-	    if (cls >= QUnicodeTables::LineBreak_SA)
-		cls = QUnicodeTables::LineBreak_ID;
-
-	    bool softBreak;
-	    int brk = breakTable[cls][tcls];
-	    if (brk == Ibk)
-		softBreak = (cls == QUnicodeTables::LineBreak_SP);
-	    else
-		softBreak = (brk == Dbk);
-//        qDebug("char = %c %04x, cls=%d, ncls=%d, brk=%d soft=%d", uc[i].cell(), uc[i].unicode(), cls, ncls, brk, charAttributes[i].softBreak);
-	    charAttributes[i].softBreak = softBreak;
-	    charAttributes[i].whiteSpace = false;
-	    charAttributes[i].charStop = true;
-	    charAttributes[i].category = category;
-	    cls = ncls;
-	}
-        continue;
-    nsm:
-        charAttributes[i].softBreak = false;
         charAttributes[i].whiteSpace = false;
-        charAttributes[i].charStop = false;
-        charAttributes[i].category = QChar::Mark_NonSpacing;
+        charAttributes[i].charStop = true;
+
+        prop = QUnicodeTables::properties(uc[i].unicode());
+
+        int ncls = prop->line_break_class;
+        // handle surrogates
+        if (ncls == QUnicodeTables::LineBreak_SG) {
+            if (uc[i].isHighSurrogate() && i < len - 1 && uc[i+1].isLowSurrogate()) {
+                charAttributes[i].charStop = false;
+                continue;
+            } else if (uc[i].isLowSurrogate() && uc[i-1].isHighSurrogate()) {
+                uint code = QChar::surrogateToUcs4(uc[i-1].unicode(), uc[i].unicode());
+                prop = QUnicodeTables::properties(code);
+                ncls = prop->line_break_class;
+            } else {
+                ncls = QUnicodeTables::LineBreak_AL;
+            }
+        }
+
+        // set white space and char stop flag
+        if (ncls >= QUnicodeTables::LineBreak_SP)
+            charAttributes[i].whiteSpace = true;
+        if (ncls == QUnicodeTables::LineBreak_CM)
+            charAttributes[i].charStop = false;
+
+        QCharAttributes::LineBreakType lineBreakType = QCharAttributes::NoBreak;
+        if (cls >= QUnicodeTables::LineBreak_LF) {
+            lineBreakType = QCharAttributes::ForcedBreak;
+        } else if(cls == QUnicodeTables::LineBreak_CR) {
+            lineBreakType = (ncls == QUnicodeTables::LineBreak_LF) ? QCharAttributes::NoBreak : QCharAttributes::ForcedBreak;
+        }
+
+        if (ncls == QUnicodeTables::LineBreak_SP)
+            goto next_no_cls_update;
+        if (ncls >= QUnicodeTables::LineBreak_CR)
+            goto next;
+
+        // two complex chars (thai or lao), thai_attributes might override, but here we do a best guess
+	if (cls == QUnicodeTables::LineBreak_SA && ncls == QUnicodeTables::LineBreak_SA) {
+            lineBreakType = QCharAttributes::Break;
+            goto next;
+        }
+
+        {
+            int tcls = ncls;
+            if (tcls >= QUnicodeTables::LineBreak_SA)
+                tcls = QUnicodeTables::LineBreak_ID;
+            if (cls >= QUnicodeTables::LineBreak_SA)
+                cls = QUnicodeTables::LineBreak_ID;
+
+            int brk = breakTable[cls][tcls];
+            switch (brk) {
+            case DirectBreak:
+                lineBreakType = QCharAttributes::Break;
+                if (uc[i-1].unicode() == 0xad) // soft hyphen
+                    lineBreakType = QCharAttributes::SoftHyphen;
+                break;
+            case IndirectBreak:
+                lineBreakType = (lcls == QUnicodeTables::LineBreak_SP) ? QCharAttributes::Break : QCharAttributes::NoBreak;
+                break;
+            case CombiningIndirectBreak:
+                lineBreakType = QCharAttributes::NoBreak;
+                if (lcls == QUnicodeTables::LineBreak_SP){
+                    if (i > 1)
+                        charAttributes[i-2].lineBreakType = QCharAttributes::Break;
+                } else {
+                    goto next_no_cls_update;
+                }
+                break;
+            case CombiningProhibitedBreak:
+                lineBreakType = QCharAttributes::NoBreak;
+                if (lcls != QUnicodeTables::LineBreak_SP)
+                    goto next_no_cls_update;
+            case ProhibitedBreak:
+            default:
+                break;
+            }
+        }
+    next:
+        cls = ncls;
+    next_no_cls_update:
+        lcls = ncls;
+        charAttributes[i-1].lineBreakType = lineBreakType;
     }
+    charAttributes[len-1].lineBreakType = QCharAttributes::ForcedBreak;
 }
 
 #if defined(Q_WS_X11) || defined (Q_WS_QWS)
@@ -1628,7 +1666,7 @@ QString QTextEngine::elidedText(Qt::TextElideMode mode, const QFixed &width, int
                     QCharAttributes *attributes = const_cast<QCharAttributes *>(this->attributes());
                     attributes[i + 1].charStop = false;
                     attributes[i + 1].whiteSpace = false;
-                    attributes[i + 1].softBreak = false;
+                    attributes[i + 1].lineBreakType = QCharAttributes::NoBreak;
                     if (i < end - 1
                             && layoutData->string.at(i + 1) == QLatin1Char('&'))
                         ++i;
@@ -1686,11 +1724,7 @@ QString QTextEngine::elidedText(Qt::TextElideMode mode, const QFixed &width, int
             pos = nextBreak;
 
             ++nextBreak;
-            while (nextBreak < layoutData->string.length()
-                   && !attributes[nextBreak].charStop
-                   && !attributes[nextBreak].softBreak
-                   && !attributes[nextBreak].whiteSpace
-                  )
+            while (nextBreak < layoutData->string.length() && !attributes[nextBreak].charStop)
                 ++nextBreak;
 
             currentWidth += this->width(pos, nextBreak - pos);
@@ -1707,11 +1741,7 @@ QString QTextEngine::elidedText(Qt::TextElideMode mode, const QFixed &width, int
             pos = nextBreak;
 
             --nextBreak;
-            while (nextBreak > 0
-                   && !attributes[nextBreak].charStop
-                   && !attributes[nextBreak].softBreak
-                   && !attributes[nextBreak].whiteSpace
-                  )
+            while (nextBreak > 0 && !attributes[nextBreak].charStop)
                 --nextBreak;
 
             currentWidth += this->width(nextBreak, pos - nextBreak);
@@ -1734,19 +1764,11 @@ QString QTextEngine::elidedText(Qt::TextElideMode mode, const QFixed &width, int
             rightPos = nextRightBreak;
 
             ++nextLeftBreak;
-            while (nextLeftBreak < layoutData->string.length()
-                   && !attributes[nextLeftBreak].charStop
-                   && !attributes[nextLeftBreak].softBreak
-                   && !attributes[nextLeftBreak].whiteSpace
-                  )
+            while (nextLeftBreak < layoutData->string.length() && !attributes[nextLeftBreak].charStop)
                 ++nextLeftBreak;
 
             --nextRightBreak;
-            while (nextRightBreak > 0
-                   && !attributes[nextRightBreak].charStop
-                   && !attributes[nextRightBreak].softBreak
-                   && !attributes[nextRightBreak].whiteSpace
-                  )
+            while (nextRightBreak > 0 && !attributes[nextRightBreak].charStop)
                 --nextRightBreak;
 
             leftWidth += this->width(leftPos, nextLeftBreak - leftPos);
