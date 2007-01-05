@@ -522,14 +522,12 @@ QScriptValue String::method_search(QScriptEngine *eng, QScriptClassInfo *)
 QScriptValue String::method_slice(QScriptEngine *eng, QScriptClassInfo *)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->argumentCount() != 2)
-        return context->throwError(QLatin1String("invalid argument"));
-
     QString text = context->thisObject().toString();
     int length = text.length();
 
     int start = int (context->argument(0).toInteger());
-    int end = int (context->argument(1).toInteger());
+    int end = context->argument(1).isUndefined()
+              ? length : int (context->argument(1).toInteger());
 
     if (start < 0)
         start = qMax(length + start, 0);
