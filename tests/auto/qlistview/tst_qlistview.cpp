@@ -17,6 +17,7 @@
 #include <qstringlistmodel.h>
 #include <cmath>
 #include <math.h>
+#include <QtGui/QScrollBar>
 
 
 //TESTED_CLASS=
@@ -53,6 +54,7 @@ private slots:
     void modelColumn();
     void hideFirstRow();
     void batchedMode();
+    void setCurrentIndex();
 };
 
 // Testing get/set functions
@@ -693,6 +695,58 @@ void tst_QListView::batchedMode()
     QCOMPARE(ba.size(), 3);
     
 }
+
+void tst_QListView::setCurrentIndex()
+{
+    QStringList items;
+    int i;
+    for (i=0; i <20; ++i)
+        items << QString("item %1").arg(i);
+    QStringListModel model(items);
+
+    QListView view;
+    view.setModel(&model);
+
+    view.resize(220,182);
+    view.show();
+
+    QList<QSize> gridsizes;
+    gridsizes << QSize() << QSize(200,38);
+    for (int ig = 0; ig < gridsizes.count(); ++ig) {
+        view.setGridSize(gridsizes.at(ig));
+    
+        qApp->processEvents();
+        QScrollBar *sb = view.verticalScrollBar();
+        int offset = sb->value();
+
+        // first "scroll" down, verify that we scroll one step at a time
+        i = 0;
+        for (i = 0; i < 20; ++i) {
+            QModelIndex idx = model.index(i,0);
+            view.setCurrentIndex(idx);
+            if (offset != sb->value()) {
+                // If it has scrolled, it should have scrolled only by one.
+                QCOMPARE(sb->value(), offset + 1);
+                ++offset;
+            }
+            //QTest::qWait(50);
+        }
+
+        --i;    // item 20 does not exist
+        // and then "scroll" up, verify that we scroll one step at a time
+        for (; i >= 0; --i) {
+            QModelIndex idx = model.index(i,0);
+            view.setCurrentIndex(idx);
+            if (offset != sb->value()) {
+                // If it has scrolled, it should have scrolled only by one.
+                QCOMPARE(sb->value(), offset - 1);
+                --offset;
+            }
+            //QTest::qWait(50);
+        }
+    }
+}
+
 
 QTEST_MAIN(tst_QListView)
 #include "tst_qlistview.moc"

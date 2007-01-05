@@ -162,7 +162,7 @@ public:
 
     int perItemScrollToValue(int index, int value, int height,
                              QAbstractItemView::ScrollHint hint,
-                             Qt::Orientation orientation, bool wrap) const;
+                             Qt::Orientation orientation, bool wrap, int extent) const;
 
     QRect mapToViewport(const QRect &rect) const;
 
@@ -171,9 +171,9 @@ public:
     void scrollContentsBy(int &dx, int &dy);
 
     int verticalPerItemValue(int itemIndex, int verticalValue, int areaHeight,
-                       bool above, bool below, bool wrap, QListView::ScrollHint hint) const;
+                       bool above, bool below, bool wrap, QListView::ScrollHint hint, int itemHeight) const;
     int horizontalPerItemValue(int itemIndex, int horizontalValue, int areaWidth,
-                       bool leftOf, bool rightOf, bool wrap, QListView::ScrollHint hint) const;
+                       bool leftOf, bool rightOf, bool wrap, QListView::ScrollHint hint, int itemWidth) const;
 
     void clear();
 };

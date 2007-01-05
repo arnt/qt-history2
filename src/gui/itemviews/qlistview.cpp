@@ -551,9 +551,10 @@ int QListViewPrivate::horizontalScrollToValue(const QModelIndex &index, const QR
     // ScrollPerItem
     if (q->horizontalScrollMode() == QAbstractItemView::ScrollPerItem && viewMode == QListView::ListMode) {
         const QListViewItem item = indexToListViewItem(index);
+        const QRect rect = q->visualRect(index);
         horizontalValue = staticListView->horizontalPerItemValue(itemIndex(item),
                                                                 horizontalValue, area.width(),
-                                                                leftOf, rightOf, isWrapping(), hint);
+                                                                leftOf, rightOf, isWrapping(), hint, rect.width());
     } else { // ScrollPerPixel
         if (q->isRightToLeft()) {
             if (hint == QListView::PositionAtCenter) {
@@ -592,9 +593,10 @@ int QListViewPrivate::verticalScrollToValue(const QModelIndex &index, const QRec
     // ScrollPerItem
     if (q->verticalScrollMode() == QAbstractItemView::ScrollPerItem && viewMode == QListView::ListMode) {
         const QListViewItem item = indexToListViewItem(index);
+        const QRect rect = q->visualRect(index);
         verticalValue = staticListView->verticalPerItemValue(itemIndex(item),
-                                                            verticalValue, area.height(),
-                                                            above, below, isWrapping(), hint);
+                                                             verticalValue, area.height(),
+                                                             above, below, isWrapping(), hint, rect.height());
 
     } else { // ScrollPerPixel
         if (hint == QListView::PositionAtTop || above)
@@ -1893,33 +1895,33 @@ QItemSelection QListViewPrivate::selection(const QRect &rect) const
 
 int QStaticListViewBase::verticalPerItemValue(int itemIndex, int verticalValue, int areaHeight,
                                                  bool above, bool below, bool wrap,
-                                                 QListView::ScrollHint hint) const
+                                                 QListView::ScrollHint hint, int itemHeight) const
 {
     int value = qBound(0, verticalValue, flowPositions.count() - 1);
     if (above)
         return perItemScrollToValue(itemIndex, value, areaHeight, QListView::PositionAtTop,
-                                    Qt::Vertical,wrap);
+                                    Qt::Vertical,wrap, itemHeight);
     else if (below)
         return perItemScrollToValue(itemIndex, value, areaHeight, QListView::PositionAtBottom,
-                                    Qt::Vertical, wrap);
+                                    Qt::Vertical, wrap, itemHeight);
     else if (hint != QListView::EnsureVisible)
-        return perItemScrollToValue(itemIndex, value, areaHeight, hint, Qt::Vertical, wrap);
+        return perItemScrollToValue(itemIndex, value, areaHeight, hint, Qt::Vertical, wrap, itemHeight);
     return value;
 }
 
 int QStaticListViewBase::horizontalPerItemValue(int itemIndex, int horizontalValue, int areaWidth,
                                                    bool leftOf, bool rightOf, bool wrap,
-                                                   QListView::ScrollHint hint) const
+                                                   QListView::ScrollHint hint, int itemWidth) const
 {
     int value = qBound(0, horizontalValue, flowPositions.count() - 1);
     if (leftOf)
         return perItemScrollToValue(itemIndex, value, areaWidth, QListView::PositionAtTop,
-                                    Qt::Horizontal, wrap);
+                                    Qt::Horizontal, wrap, itemWidth);
     else if (rightOf)
         return perItemScrollToValue(itemIndex, value, areaWidth, QListView::PositionAtBottom,
-                                    Qt::Horizontal, wrap);
+                                    Qt::Horizontal, wrap, itemWidth);
     else if (hint != QListView::EnsureVisible)
-        return perItemScrollToValue(itemIndex, value, areaWidth, hint, Qt::Horizontal, wrap);
+        return perItemScrollToValue(itemIndex, value, areaWidth, hint, Qt::Horizontal, wrap, itemWidth);
     return value;
 }
 
@@ -2228,19 +2230,21 @@ int QStaticListViewBase::perItemScrollingPageSteps(int length, int bounds, bool 
 
 int QStaticListViewBase::perItemScrollToValue(int index, int scrollValue, int viewportSize,
                                                  QAbstractItemView::ScrollHint hint,
-                                                 Qt::Orientation orientation, bool wrap) const
+                                                 Qt::Orientation orientation, bool wrap, int itemExtent) const
 {
     if (index < 0)
         return scrollValue;
     if (!wrap) {
-        const int flowCount = flowPositions.count() - 2;
+        const int flowCount = flowPositions.count() - 1;
         const int topIndex = scrollValue;
         const int topCoordinate = flowPositions.at(topIndex);
         int bottomIndex = topIndex;
         int bottomCoordinate = topCoordinate;
+
         while ((bottomCoordinate - topCoordinate) <= (viewportSize)
                && bottomIndex <= flowCount)
-            bottomCoordinate = flowPositions.at(++bottomIndex);
+            bottomCoordinate = flowPositions.at(bottomIndex++) + itemExtent;
+
         const int itemCount = bottomIndex - topIndex - 1;
         switch (hint) {
         case QAbstractItemView::PositionAtTop:
