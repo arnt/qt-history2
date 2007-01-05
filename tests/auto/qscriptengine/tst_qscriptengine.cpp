@@ -192,14 +192,25 @@ void tst_QScriptEngine::createDate()
 void tst_QScriptEngine::createQObject()
 {
     QScriptEngine eng;
-    QScriptValue qobject = eng.scriptValueFromQObject(this);
-    QCOMPARE(qobject.isValid(), true);
-    QCOMPARE(qobject.isQObject(), true);
-    QCOMPARE(qobject.isObject(), true);
-    QCOMPARE(qobject.toQObject(), this);
-    // prototype should be QObject.prototype
-    QCOMPARE(qobject.prototype().isValid(), true);
-    QCOMPARE(qobject.prototype().isQObject(), true);
+
+    {
+        QScriptValue qobject = eng.scriptValueFromQObject(0);
+        QCOMPARE(qobject.isValid(), true);
+        QCOMPARE(qobject.isQObject(), true);
+        QCOMPARE(qobject.isObject(), true);
+        QCOMPARE(qobject.toQObject(), (QObject *)0);
+    }
+
+    {
+        QScriptValue qobject = eng.scriptValueFromQObject(this);
+        QCOMPARE(qobject.isValid(), true);
+        QCOMPARE(qobject.isQObject(), true);
+        QCOMPARE(qobject.isObject(), true);
+        QCOMPARE(qobject.toQObject(), this);
+        // prototype should be QObject.prototype
+        QCOMPARE(qobject.prototype().isValid(), true);
+        QCOMPARE(qobject.prototype().isQObject(), true);
+    }
 }
 
 Q_SCRIPT_DECLARE_QCLASS(QObject, QObject*)
