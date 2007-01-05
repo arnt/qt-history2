@@ -13,6 +13,7 @@
 
 #include "metatranslator.h"
 #include <QtCore/QString>
+#include <QtCore/QStack>
 #include <QtXml>
 
 class XLIFFHandler : public QXmlDefaultHandler
@@ -31,10 +32,23 @@ public:
     virtual bool endDocument();
 
 private:
+    enum XliffContext {
+        XC_xliff,
+        XC_group,
+        XC_context_group,
+        XC_context,
+        XC_context_linenumber,
+        XC_ph,
+        XC_restype_plurals
+    };
+    void pushContext(XliffContext ctx);
+    bool popContext(XliffContext ctx);
+    XliffContext currentContext() const;
+    bool hasContext(XliffContext ctx) const;
+
+private:
     MetaTranslator *tor;
     MetaTranslatorMessage::Type m_type;
-    bool inMessage;
-    bool m_inContextGroup;
     QString m_language;
     QString m_context;
     QString m_source;
@@ -48,8 +62,8 @@ private:
     int ferrorCount;
     bool contextIsUtf8;
     bool messageIsUtf8;
-    bool m_isPlural;
     const QString m_URI;  // convenience and efficiency; urn:oasis:names:tc:xliff:document:1.1
+    QStack<int> m_contextStack;
 };
 
 
