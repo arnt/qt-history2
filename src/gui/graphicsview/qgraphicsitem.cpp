@@ -23,7 +23,7 @@
     painting implementation and item interaction through its event handlers.
     QGraphicsItem is part of \l{The Graphics View Framework}
 
-    \img graphicsview-items.png
+    \img graphicsview-items2.png
 
     For convenience, Qt provides a set of standard graphics items for the most
     common shapes. These are:
@@ -35,7 +35,8 @@
     \o QGraphicsPixmapItem provides a pixmap item
     \o QGraphicsPolygonItem provides a polygon item
     \o QGraphicsRectItem provides a rectangular item
-    \o QGraphicsTextItem provides a text item
+    \o QGraphicsSimpleTextItem provides a simple text label item
+    \o QGraphicsTextItem provides an advanced text browser item
     \endlist
 
     All of an item's geometric information is based on its local coordinate
@@ -4943,6 +4944,8 @@ QVariant QGraphicsPixmapItem::extension(const QVariant &variant) const
     It is possible to make the item editable by setting the Qt::TextEditable flag
     using setTextInteractionFlags().
 
+    \img graphicsview-textitem.png
+
     \sa QGraphicsSimpleTextItem, QGraphicsPathItem, QGraphicsRectItem,
         QGraphicsEllipseItem, QGraphicsPixmapItem, QGraphicsPolygonItem,
         QGraphicsLineItem, {The Graphics View Framework}
@@ -5659,6 +5662,8 @@ void QGraphicsSimpleTextItemPrivate::updateBoundingRect()
 
     QGraphicsSimpleText does not display rich text. It is optimized for drawing
     plain text fast and with low memory overhead.
+
+    \img graphicsview-simpletextitem.png
 
     \sa QGraphicsTextItem, QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
     QGraphicsPixmapItem, QGraphicsPolygonItem, QGraphicsLineItem, {The
