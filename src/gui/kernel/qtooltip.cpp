@@ -309,7 +309,7 @@ void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w, cons
             QTipLabel::instance->setTipRect(w, rect);
         }
     }
-    else { // no tip is showing, create new tip:
+    else if (!text.isEmpty()){ // no tip is showing, create new tip:
         new QTipLabel(pos, text, w);
         QTipLabel::instance->setTipRect(w, rect);
         QTipLabel::instance->setObjectName(QLatin1String("qtooltip_label"));
