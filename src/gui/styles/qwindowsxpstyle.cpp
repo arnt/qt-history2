@@ -102,37 +102,6 @@
 #  define GT_IMAGEGLYPH 1
 #endif
 
-// Older Platform SDKs do not have the extended DrawThemeBackgroundEx
-// function. We add the needed parts here, and use the extended
-// function dynamically, if available in uxtheme.dll. Else, we revert
-// back to using the DrawThemeBackground function.
-#ifndef DTBG_OMITBORDER
-#  ifndef DTBG_CLIPRECT
-#   define DTBG_CLIPRECT        0x00000001
-#  endif
-#  ifndef DTBG_DRAWSOLID
-#   define DTBG_DRAWSOLID       0x00000002
-#  endif
-#  ifndef DTBG_OMITBORDER
-#   define DTBG_OMITBORDER      0x00000004
-#  endif
-#  ifndef DTBG_OMITCONTENT
-#   define DTBG_OMITCONTENT     0x00000008
-#  endif
-#  ifndef DTBG_COMPUTINGREGION
-#   define DTBG_COMPUTINGREGION 0x00000010
-#  endif
-#  ifndef DTBG_MIRRORDC
-#   define DTBG_MIRRORDC        0x00000020
-#  endif
-    typedef struct _DTBGOPTS
-    {
-	DWORD dwSize;
-	DWORD dwFlags;
-	RECT rcClip;
-    } DTBGOPTS, *PDTBGOPTS;
-#endif // _DTBGOPTS
-
 // These defines are missing from the tmschema, but still exist as
 // states for their parts
 #ifndef MINBS_INACTIVE
