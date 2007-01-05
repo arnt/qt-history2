@@ -18,7 +18,10 @@
 #include "backslash-newlines.h"
 #include "slots-with-void-template.h"
 #include "qinvokable.h"
+// msvc and friends crap out on it
+#if !defined(Q_CC_MSVC)
 #include "os9-newlines.h"
+#endif
 #include "win-newlines.h"
 
 #if defined(PARSE_BOOST)
@@ -417,7 +420,9 @@ private slots:
     void namespacedFlags();
     void warnOnMultipleInheritance();
     void forgottenQInterface();
+#if !defined(Q_CC_MSVC)
     void os9Newline();
+#endif
     void winNewline();
 
 signals:
@@ -786,6 +791,7 @@ void tst_Moc::forgottenQInterface()
 #endif
 }
 
+#if !defined(Q_CC_MSVC)
 void tst_Moc::os9Newline()
 {
     const QMetaObject &mo = Os9Newlines::staticMetaObject;
@@ -797,6 +803,7 @@ void tst_Moc::os9Newline()
     QVERIFY(!data.contains('\n'));
     QVERIFY(data.contains('\r'));
 }
+#endif
 
 void tst_Moc::winNewline()
 {
