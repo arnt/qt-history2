@@ -59,6 +59,10 @@ private slots:
     void primaryKeyOrder();
 
     void sqlite_bigTable();
+
+    // bug specific tests
+    void insertRecordBeforeSelect();
+    void submitAllOnInvalidTable();
 };
 
 tst_QSqlTableModel::tst_QSqlTableModel()
@@ -673,6 +677,75 @@ void tst_QSqlTableModel::sqlite_bigTable()
     model.clear();
 
     QVERIFY_SQL(q, q.exec("drop table foo"));
+}
+
+// For task 118547: couldn't insert records unless select() 
+// had first been called. 
+void tst_QSqlTableModel::insertRecordBeforeSelect()
+{
+    QFETCH_GLOBAL(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    QSqlTableModel model(0, db);
+    model.setTable(qTableName("test"));
+    QCOMPARE(model.lastError().type(), QSqlError::NoError);
+
+    QSqlRecord buffer = model.record();
+    buffer.setValue("id", 13);
+    buffer.setValue("name", QString("The Lion King"));
+    buffer.setValue("title", 0);
+    QVERIFY2(model.insertRecord(-1, buffer),
+        model.lastError().text().toLatin1());
+
+    buffer.setValue("id", 26);
+    buffer.setValue("name", QString("T. Leary"));
+    buffer.setValue("title", 0);
+    QVERIFY2(model.insertRecord(1, buffer),
+        model.lastError().text().toLatin1());
+
+    int rowCount = model.rowCount();
+    model.clear();
+    QCOMPARE(model.rowCount(), 0);
+    
+    QSqlTableModel model2(0, db);
+    model2.setTable(qTableName("test"));
+    QVERIFY2(model2.select(), model2.lastError().text().toLatin1());
+    QCOMPARE(model2.rowCount(), rowCount);
+}
+
+// For task 118547: set errors if table doesn't exist and if records
+// are inserted and submitted on a non-existing table.
+void tst_QSqlTableModel::submitAllOnInvalidTable()
+{
+    QFETCH_GLOBAL(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    QSqlTableModel model(0, db);
+    model.setEditStrategy(QSqlTableModel::OnManualSubmit);
+    
+    // setTable returns a void, so the error can only be caught by
+    // manually checking lastError(). This should be changed for Qt5.
+    model.setTable(qTableName("invalidTable"));
+    QCOMPARE(model.lastError().type(), QSqlError::StatementError);
+
+    // This will give us an empty record which is expected behavior
+    QSqlRecord buffer = model.record();
+    buffer.setValue("bogus", 1000);
+    buffer.setValue("bogus2", QString("I will go nowhere!"));
+
+    // Inserting the record into the *model* will work (OnManualSubmit)
+    QVERIFY2(model.insertRecord(-1, buffer), 
+        model.lastError().text().toLatin1());
+
+    // The submit and select shall fail because the table doesn't exist
+    QEXPECT_FAIL("", "The table doesn't exist: submitAll() shall fail",
+        Continue);
+    QVERIFY2(model.submitAll(), model.lastError().text().toLatin1());
+    QEXPECT_FAIL("", "The table doesn't exist: select() shall fail",
+        Continue);
+    QVERIFY2(model.select(), model.lastError().text().toLatin1());
 }
 
 QTEST_MAIN(tst_QSqlTableModel)

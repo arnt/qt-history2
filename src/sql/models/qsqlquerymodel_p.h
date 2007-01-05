@@ -39,8 +39,9 @@ class QSqlQueryModelPrivate: public QAbstractItemModelPrivate
 public:
     QSqlQueryModelPrivate() : atEnd(false) {}
     ~QSqlQueryModelPrivate();
-
+    
     void prefetch(int);
+    void initColOffsets(int size);
 
     mutable QSqlQuery query;
     mutable QSqlError error;

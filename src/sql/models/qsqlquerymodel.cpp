@@ -60,6 +60,12 @@ QSqlQueryModelPrivate::~QSqlQueryModelPrivate()
 {
 }
 
+void QSqlQueryModelPrivate::initColOffsets(int size)
+{
+    colOffsets.resize(size);
+    memset(colOffsets.data(), 0, colOffsets.size() * sizeof(int));
+}
+
 /*!
     \class QSqlQueryModel
     \brief The QSqlQueryModel class provides a read-only data model for SQL
@@ -287,10 +293,8 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
     bool columnsChanged = (newRec != d->rec);
     bool hasQuerySize = d->query.driver()->hasFeature(QSqlDriver::QuerySize);
 
-    if (d->colOffsets.size() != newRec.count() || columnsChanged) {
-        d->colOffsets.resize(newRec.count());
-        memset(d->colOffsets.data(), 0, d->colOffsets.size() * sizeof(int));
-    }
+    if (d->colOffsets.size() != newRec.count() || columnsChanged)
+        d->initColOffsets(newRec.count());
 
     beginRemoveRows(QModelIndex(), 0, qMax(d->bottom.row(), 0));
 

@@ -324,7 +324,9 @@ QSqlTableModel::~QSqlTableModel()
 
     To populate the model with the table's data, call select().
 
-    \sa select(), setFilter()
+    Error information can be retrieved with \l lastError().
+
+    \sa select(), setFilter(), lastError()
 */
 void QSqlTableModel::setTable(const QString &tableName)
 {
@@ -332,6 +334,11 @@ void QSqlTableModel::setTable(const QString &tableName)
     clear();
     d->tableName = tableName;
     d->initRecordAndPrimaryIndex();
+    d->initColOffsets(d->rec.count());
+
+    if (d->rec.count() == 0)
+        d->error = QSqlError(QLatin1String("Unable to find table ") + d->tableName, QString(),
+                             QSqlError::StatementError);
 }
 
 /*!
@@ -595,6 +602,12 @@ bool QSqlTableModel::insertRowIntoTable(const QSqlRecord &values)
     bool prepStatement = d->db.driver()->hasFeature(QSqlDriver::PreparedQueries);
     QString stmt = d->db.driver()->sqlStatement(QSqlDriver::InsertStatement, d->tableName,
                                                 rec, prepStatement);
+
+    if (stmt.isEmpty()) {
+        d->error = QSqlError(QLatin1String("No Fields to update"), QString(),
+                                 QSqlError::StatementError);
+        return false;
+    }
 
     return d->exec(stmt, prepStatement, rec);
 }
