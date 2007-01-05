@@ -24,6 +24,9 @@ static const int windowsRightBorder      = 15; // right border on windows
 
 // Runtime resolved theme engine function calls
 
+
+struct DTBGOPTS; // The platform sdk for msvc.net2002 doesn't define this symbol
+
 typedef bool (WINAPI *PtrIsAppThemed)();
 typedef bool (WINAPI *PtrIsThemeActive)();
 typedef HRESULT (WINAPI *PtrGetThemePartSize)(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, OPTIONAL RECT *prc, enum THEMESIZE eSize, OUT SIZE *psz);
@@ -377,7 +380,7 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
                 }
 
                 // Retrieve the transition time between the states from the system.
-                if (theme && pGetThemeTransitionDuration(theme, partId, fromState, toState, 
+                if (theme && pGetThemeTransitionDuration(theme, partId, fromState, toState,
                     TMT_TRANSITIONDURATIONS, &duration) == S_OK)
                 {
                     t->setDuration(duration);

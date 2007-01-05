@@ -94,7 +94,7 @@ void QToolBar::initStyleOption(QStyleOptionToolBar *option) const
             if (layoutInfo.item->widget()->isVisible())
                 lineVisible = true;
 
-            if (layoutInfo.item->widget() == this) {
+            if (((const QWidget *) layoutInfo.item->widget()) == this) {
                 // This	is our toolbar,	so we now have the line	and	position.
                 toolBarLineCount = toolBarTotalLineCount;
 
@@ -102,7 +102,7 @@ void QToolBar::initStyleOption(QStyleOptionToolBar *option) const
                 int visibleLines = 0;
                 for (int j = 0; j < lineInfo.list.size(); ++j) {
                     QMainWindowLayout::ToolBarLayoutInfo info = lineInfo.list.at(j);
-                    if (info.item->widget() == this)
+                    if (((const QWidget *) info.item->widget()) == this)
                         toolBarIndex = visibleLines;
                     if (info.item->widget()->isVisible())
                         visibleLines++;
@@ -535,7 +535,7 @@ void QToolBar::setOrientation(Qt::Orientation orientation)
 Qt::Orientation QToolBar::orientation() const
 { Q_D(const QToolBar); return d->orientation; }
 
-/*! 
+/*!
     \property QToolBar::iconSize
     \brief size of icons in the toolbar.
 
