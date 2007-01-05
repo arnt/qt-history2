@@ -497,6 +497,12 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
         } else if(ekind == kEventWindowToolbarSwitchMode) {
             QToolBarChangeEvent ev(!(GetCurrentKeyModifiers() & cmdKey));
             QApplication::sendSpontaneousEvent(widget, &ev);
+            HIToolbarRef toolbar;
+            if (GetWindowToolbar(wid, &toolbar) == noErr) {
+                if (toolbar)
+                    CallNextEventHandler(er, event); // Let HIToolbar do its thang.
+            }
+
         } else if(ekind == kEventWindowGetRegion) {
             WindowRef window;
             GetEventParameter(event, kEventParamDirectObject, typeWindowRef, 0,
@@ -1176,12 +1182,16 @@ void QWidgetPrivate::determineWindowClass()
                 && wclass != kSheetWindowClass && wclass != kPlainWindowClass
                 && !(flags & Qt::FramelessWindowHint) && wclass != kDrawerWindowClass
                 && wclass != kHelpWindowClass) {
-            if(flags & Qt::WindowMaximizeButtonHint)
+            if (flags & Qt::WindowMaximizeButtonHint)
                 wattr |= kWindowFullZoomAttribute;
-            if(flags & Qt::WindowMinimizeButtonHint)
+            if (flags & Qt::WindowMinimizeButtonHint)
                 wattr |= kWindowCollapseBoxAttribute;
-            if(flags & Qt::WindowSystemMenuHint)
+            if (flags & Qt::WindowSystemMenuHint)
                 wattr |= kWindowCloseBoxAttribute;
+        } else {
+            // Clear these hints so that we aren't call them on invalid windows
+            flags &= ~(Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint
+                       | Qt::WindowSystemMenuHint);
         }
     }
     if((popup || (tool && type != Qt::SplashScreen)) && !q->isModal())
@@ -1644,15 +1654,20 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 void QWidgetPrivate::transferChildren()
 {
     Q_Q(QWidget);
+    if (!q->testAttribute(Qt::WA_WState_Created))
+        return;  // Can't add any views anyway
+
     QObjectList chlist = q->children();
     for (int i = 0; i < chlist.size(); ++i) {
         QObject *obj = chlist.at(i);
-        if(obj->isWidgetType()) {
+        if (obj->isWidgetType()) {
             QWidget *w = (QWidget *)obj;
-            if(!w->isWindow()) {
+            if (!w->isWindow()) {
+                // This seems weird, no need to call it in a loop right?
                 if (!topData()->caption.isEmpty())
                     setWindowTitle_helper(extra->topextra->caption);
-                HIViewAddSubview(qt_mac_hiview_for(q), qt_mac_hiview_for(w));
+                if (w->testAttribute(Qt::WA_WState_Created))
+                    HIViewAddSubview(qt_mac_hiview_for(q), qt_mac_hiview_for(w));
             }
         }
     }
@@ -1905,7 +1920,7 @@ void QWidget::update(const QRect &r)
 
 void QWidget::update(const QRegion &rgn)
 {
-    if(updatesEnabled() && isVisible()) {
+    if (updatesEnabled() && isVisible() && !rgn.isEmpty()) {
         if (testAttribute(Qt::WA_WState_InPaintEvent))
             QApplication::postEvent(this, new QUpdateLaterEvent(rgn));
         else
@@ -1942,7 +1957,7 @@ void QWidgetPrivate::show_sys()
             p->createWinId();
             RepositionWindow(qt_mac_window_for(q), qt_mac_window_for(p), kWindowCenterOnParentWindow);
         } else {
-            RepositionWindow(qt_mac_window_for(q), 0, kWindowCenterMainScreen);
+            RepositionWindow(qt_mac_window_for(q), 0, kWindowCenterOnMainScreen);
         }
     }
     data.fstrut_dirty = true;
@@ -2362,10 +2377,11 @@ void QWidgetPrivate::setGeometry_sys_helper(int x, int y, int w, int h, bool isM
             qt_mac_update_sizer(q);
             if(q->windowFlags() & Qt::WindowMaximizeButtonHint) {
                 if(extra->maxw && extra->maxh && extra->maxw == extra->minw
-                        && extra->maxh == extra->minh)
+                        && extra->maxh == extra->minh) {
                     ChangeWindowAttributes(window, kWindowNoAttributes, kWindowFullZoomAttribute);
-                else
+                } else {
                     ChangeWindowAttributes(window, kWindowFullZoomAttribute, kWindowNoAttributes);
+                }
             }
         }
 
@@ -2464,9 +2480,11 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
                 QWidget *w = (QWidget*)obj;
                 if(!w->isWindow()) {
                     w->data->crect = QRect(w->pos() + pd, w->size());
-                    HIRect bounds = CGRectMake(w->data->crect.x(), w->data->crect.y(),
-                                               w->data->crect.width(), w->data->crect.height());
-                    HIViewSetFrame(qt_mac_hiview_for(w), &bounds);
+                    if (!w->testAttribute(Qt::WA_WState_Created)) {
+                        HIRect bounds = CGRectMake(w->data->crect.x(), w->data->crect.y(),
+                                                   w->data->crect.width(), w->data->crect.height());
+                        HIViewSetFrame(qt_mac_hiview_for(w), &bounds);
+                    }
                     moved.append(w);
                 }
             }
@@ -2478,6 +2496,9 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
             QApplication::sendEvent(w, &e);
         }
     }
+
+    if (!testAttribute(Qt::WA_WState_Created))
+        return;
 
     if (HIViewGetNeedsDisplay(qt_mac_hiview_for(this))) {
         update(valid_rect ? r : rect());
