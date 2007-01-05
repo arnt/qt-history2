@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS = helloscript qscript context2d marshal
+SUBDIRS = helloscript qscript context2d marshal calculator
