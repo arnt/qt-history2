@@ -1181,9 +1181,9 @@ const Action state_table[3][3] = {
 #define LB_DEBUG if (0) qDebug
 #endif
 
-static inline bool check_full_otherwise_extend(QScriptLine &line, QScriptLine &tmpData, QScriptLine &spaceData,
-                                               int glyphCount, int maxGlyphs, QFixed &minw, bool manualWrap,
-                                               QFixed softHyphenWidth = QFixed())
+static inline bool checkFullOtherwiseExtend(QScriptLine &line, QScriptLine &tmpData, QScriptLine &spaceData,
+                                            int glyphCount, int maxGlyphs, QFixed &minw, bool manualWrap,
+                                            QFixed softHyphenWidth = QFixed())
 {
     LB_DEBUG("possible break width %f, spacew=%f", tmpData.textWidth.toReal(), spaceData.textWidth.toReal());
     if (line.length && !manualWrap &&
@@ -1199,6 +1199,25 @@ static inline bool check_full_otherwise_extend(QScriptLine &line, QScriptLine &t
     spaceData.length = 0;
     return false;
 }
+
+static inline void addNextCluster(int &pos, int end, QScriptLine &line, int &glyphCount,
+                                  const QScriptItem &current, const unsigned short *logClusters, const QGlyphLayout *glyphs)
+{
+    int gp = logClusters[pos];
+    do {
+        ++pos;
+        ++line.length;
+    } while (pos < end && logClusters[pos] == gp);
+    do {
+        line.textWidth += glyphs[gp].advance.x * !glyphs[gp].attributes.dontPrint;
+        ++gp;
+    } while (gp < current.num_glyphs && !glyphs[gp].attributes.clusterStart);
+
+    Q_ASSERT((pos == end && gp == current.num_glyphs) || logClusters[pos] == gp);
+
+    ++glyphCount;
+}
+
 
 void QTextLine::layout_helper(int maxGlyphs)
 {
@@ -1237,8 +1256,8 @@ void QTextLine::layout_helper(int maxGlyphs)
     const QCharAttributes *attributes = eng->attributes();
     int pos = line.from;
     int end = 0;
-    QGlyphLayout *glyphs = 0;
-    unsigned short *logClusters = eng->layoutData->logClustersPtr;
+    const QGlyphLayout *glyphs = 0;
+    const unsigned short *logClusters = eng->layoutData->logClustersPtr;
     while (newItem < eng->layoutData->items.size()) {
         if (newItem != item) {
             item = newItem;
@@ -1266,7 +1285,7 @@ void QTextLine::layout_helper(int maxGlyphs)
             Q_ASSERT(false);
             break;
         case AddTemp:
-            if (check_full_otherwise_extend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap))
+            if (checkFullOtherwiseExtend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap))
                 goto found;
         }
         state = newState;
@@ -1283,7 +1302,7 @@ void QTextLine::layout_helper(int maxGlyphs)
             spaceData.length++;
             newItem = item + 1;
             ++glyphCount;
-            if (check_full_otherwise_extend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap))
+            if (checkFullOtherwiseExtend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap))
                 goto found;
         } else if (current.isObject) {
             QTextFormat format = eng->formats()->format(eng->formatIndex(&eng->layoutData->items[item]));
@@ -1305,25 +1324,17 @@ void QTextLine::layout_helper(int maxGlyphs)
 
             newItem = item + 1;
             ++glyphCount;
-            if (check_full_otherwise_extend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap))
+            if (checkFullOtherwiseExtend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap))
                 goto found;
-        } else if (!attributes[pos].whiteSpace) {
+        } else if (attributes[pos].whiteSpace) {
+            while (pos < end && attributes[pos].whiteSpace)
+                addNextCluster(pos, end, spaceData, glyphCount, current, logClusters, glyphs);
+        } else {
             bool sb_or_ws = false;
             do {
-                int gp = logClusters[pos];
-                do {
-                    ++pos;
-                    ++tmpData.length;
-                } while (pos < end && logClusters[pos] == gp);
-                do {
-                    tmpData.textWidth += glyphs[gp].advance.x * !glyphs[gp].attributes.dontPrint;
-                    ++gp;
-                } while (gp < current.num_glyphs && !glyphs[gp].attributes.clusterStart);
+                addNextCluster(pos, end, tmpData, glyphCount, current, logClusters, glyphs);
 
-                Q_ASSERT((pos == end && gp == current.num_glyphs) || logClusters[pos] == gp);
-
-                ++glyphCount;
-                if (attributes[pos].whiteSpace || attributes[pos-1].lineBreakType >= QCharAttributes::Break) {
+                if (attributes[pos].whiteSpace || attributes[pos-1].lineBreakType != QCharAttributes::NoBreak) {
                     sb_or_ws = true;
                     break;
                 } else if (breakany && attributes[pos].charStop) {
@@ -1333,7 +1344,7 @@ void QTextLine::layout_helper(int maxGlyphs)
             minw = qMax(tmpData.textWidth, minw);
 
             QFixed softHyphenWidth;
-            if (pos && eng->layoutData->string.at(pos - 1) == 0x00ad) {
+            if (pos && attributes[pos - 1].lineBreakType == QCharAttributes::SoftHyphen) {
                 // if we are splitting up a word because of
                 // a soft hyphen then we ...
                 //
@@ -1357,37 +1368,18 @@ void QTextLine::layout_helper(int maxGlyphs)
             }
 
             if ((sb_or_ws|breakany)
-                && check_full_otherwise_extend(line, tmpData, spaceData,
-                                               glyphCount, maxGlyphs, minw,
-                                               manualWrap, softHyphenWidth)) {
+                && checkFullOtherwiseExtend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap, softHyphenWidth)) {
                 if (!breakany) {
                     line.textWidth += softHyphenWidth;
                 }
                 goto found;
-            }
-            if (sb_or_ws && eng->option.wrapMode() != QTextOption::WrapAnywhere)
-                breakany = false;
-        } else {
-            while (pos < end && attributes[pos].whiteSpace) {
-                int gp = logClusters[pos];
-                do {
-                    ++pos;
-                    ++spaceData.length;
-                } while (pos < end && logClusters[pos] == gp);
-                do {
-                    spaceData.textWidth += glyphs[gp].advance.x * !glyphs[gp].attributes.dontPrint;
-                    ++gp;
-                } while (gp < current.num_glyphs && !glyphs[gp].attributes.clusterStart);
-
-                ++glyphCount;
-                Q_ASSERT((pos == end && gp == current.num_glyphs) || logClusters[pos] == gp);
             }
         }
         if (pos == end)
             newItem = item + 1;
     }
     LB_DEBUG("reached end of line");
-    check_full_otherwise_extend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap);
+    checkFullOtherwiseExtend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap);
 found:
     if (line.length == 0) {
         LB_DEBUG("no break available in line, adding temp: length %d, width %f, space: length %d, width %f",
