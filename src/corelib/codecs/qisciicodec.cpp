@@ -25,8 +25,8 @@
 
 
 struct Codecs {
-    const char *const name;
-    const ushort base;
+    const char *name;
+    ushort base;
 };
 
 static const Codecs codecs [] = {
