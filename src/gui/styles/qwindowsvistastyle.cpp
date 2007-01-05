@@ -577,7 +577,7 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
                     stateId = PBS_PRESSED;
                 else if (flags & State_MouseOver)
                     stateId = PBS_HOT;
-                else if (btn->features & QStyleOptionButton::DefaultButton)
+                else if (btn->features & QStyleOptionButton::DefaultButton && (state & State_Active))
                     stateId = PBS_DEFAULTED;
                 else
                     stateId = PBS_NORMAL;
@@ -586,7 +586,7 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
 
                     if (widget && (btn->features & QStyleOptionButton::DefaultButton)      &&
                         !(state & (State_Sunken | State_On)) && !(state & State_MouseOver) &&
-                         (state & State_Enabled))
+                         (state & State_Enabled) && (state & State_Active))
                         {
                         Animation *anim = d->widgetAnimation(widget);
                         if (!anim && widget) {
