@@ -21,25 +21,26 @@
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
+    QScriptEngine engine;
+
+    QFile scriptFile(":/calculator.js");
+    scriptFile.open(QIODevice::ReadOnly);
+    qDebug() << engine.evaluate(scriptFile.readAll()).toString();
+    scriptFile.close();
 
     QUiLoader loader;
     QFile uiFile(":/calculator.ui");
     uiFile.open(QIODevice::ReadOnly);
-    QWidget *calc = loader.load(&uiFile);
+    QWidget *ui = loader.load(&uiFile);
+    uiFile.close();
 
-    QScriptEngine engine;
-    QScriptValue scriptCalc = engine.scriptValueFromQObject(calc);
-    engine.globalObject().setProperty("calc", scriptCalc);
+    QScriptValue calc = engine.newObject();
+    engine.addRootObject(calc);
 
-    QFile scriptFile(":/calculator.js");
-    scriptFile.open(QIODevice::ReadOnly);
-    QScriptValue result = engine.evaluate(scriptFile.readAll());
-    scriptFile.close();
-    if (result.isError()) {
-        QMessageBox::warning(0, QLatin1String("Script Error"), result.toString());
-        return (-1);
-    }
+    QScriptValue ctor = engine.evaluate("Calculator");
+    QScriptValue scriptUi = engine.scriptValueFromQObject(ui);
+    qDebug() << ctor.call(calc, QScriptValueList() << scriptUi).toString();
 
-    calc->show();
+    ui->show();
     return app.exec();
 }
