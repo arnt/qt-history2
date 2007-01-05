@@ -3898,7 +3898,7 @@ void Q3TextString::checkBidi() const
             if (bidiLevel)
                 that->bidi = true;
         }
-        ch->softBreak = ca->softBreak;
+        ch->softBreak = ca->lineBreakType >= QCharAttributes::Break;
         ch->whiteSpace = ca->whiteSpace;
         ch->charStop = ca->charStop;
         ch->bidiLevel = bidiLevel;
