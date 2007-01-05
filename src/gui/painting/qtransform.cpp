@@ -366,6 +366,7 @@ QTransform & QTransform::shear(qreal sh, qreal sv)
 }
 
 const qreal deg2rad = qreal(0.017453292519943295769);        // pi/180
+const qreal inv_dist_to_plane = 1. / 1024.;
 
 /*!
     Rotates the coordinate system the given \a degrees
@@ -381,7 +382,7 @@ const qreal deg2rad = qreal(0.017453292519943295769);        // pi/180
 
     \sa setMatrix()
 */
-QTransform & QTransform::rotate(qreal a)
+QTransform & QTransform::rotate(qreal a, Qt::Axis axis)
 {
     qreal sina = 0;
     qreal cosa = 0;
@@ -396,12 +397,26 @@ QTransform & QTransform::rotate(qreal a)
         sina = sin(b);                // fast and convenient
         cosa = cos(b);
     }
-    qreal tm11 = cosa*m_11 + sina*m_21;
-    qreal tm12 = cosa*m_12 + sina*m_22;
-    qreal tm21 = -sina*m_11 + cosa*m_21;
-    qreal tm22 = -sina*m_12 + cosa*m_22;
-    m_11 = tm11; m_12 = tm12;
-    m_21 = tm21; m_22 = tm22;
+
+    if (axis == Qt::ZAxis) {
+        qreal tm11 = cosa*m_11 + sina*m_21;
+        qreal tm12 = cosa*m_12 + sina*m_22;
+        qreal tm21 = -sina*m_11 + cosa*m_21;
+        qreal tm22 = -sina*m_12 + cosa*m_22;
+        m_11 = tm11; m_12 = tm12;
+        m_21 = tm21; m_22 = tm22;
+    } else {
+        QTransform result;
+        if (axis == Qt::YAxis) {
+            result.m_11 = cosa;
+            result.m_13 = -sina * inv_dist_to_plane;
+        } else {
+            result.m_22 = cosa;
+            result.m_23 = -sina * inv_dist_to_plane;
+        }
+        operator*=(result);
+    }
+
     return *this;
 }
 
@@ -419,17 +434,29 @@ QTransform & QTransform::rotate(qreal a)
 
     \sa setMatrix()
 */
-QTransform & QTransform::rotateRadians(qreal a)
+QTransform & QTransform::rotateRadians(qreal a, Qt::Axis axis)
 {
     qreal sina = sin(a);
     qreal cosa = cos(a);
 
-    qreal tm11 = cosa*m_11 + sina*m_21;
-    qreal tm12 = cosa*m_12 + sina*m_22;
-    qreal tm21 = -sina*m_11 + cosa*m_21;
-    qreal tm22 = -sina*m_12 + cosa*m_22;
-    m_11 = tm11; m_12 = tm12;
-    m_21 = tm21; m_22 = tm22;
+    if (axis == Qt::ZAxis) {
+        qreal tm11 = cosa*m_11 + sina*m_21;
+        qreal tm12 = cosa*m_12 + sina*m_22;
+        qreal tm21 = -sina*m_11 + cosa*m_21;
+        qreal tm22 = -sina*m_12 + cosa*m_22;
+        m_11 = tm11; m_12 = tm12;
+        m_21 = tm21; m_22 = tm22;
+    } else {
+        QTransform result;
+        if (axis == Qt::YAxis) {
+            result.m_11 = cosa;
+            result.m_13 = -sina * inv_dist_to_plane;
+        } else {
+            result.m_22 = cosa;
+            result.m_23 = -sina * inv_dist_to_plane;
+        }
+        operator*=(result);
+    }
     return *this;
 }
 

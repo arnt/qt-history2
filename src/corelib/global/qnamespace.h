@@ -1224,6 +1224,12 @@ public:
         SmoothTransformation
     };
 
+    enum Axis {
+        XAxis,
+        YAxis,
+        ZAxis
+    };
+
     enum FocusReason {
         MouseFocusReason,
         TabFocusReason,

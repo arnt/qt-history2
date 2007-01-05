@@ -80,8 +80,8 @@ public:
     QTransform &translate(qreal dx, qreal dy);
     QTransform &scale(qreal sx, qreal sy);
     QTransform &shear(qreal sh, qreal sv);
-    QTransform &rotate(qreal a);
-    QTransform &rotateRadians(qreal a);
+    QTransform &rotate(qreal a, Qt::Axis axis = Qt::ZAxis);
+    QTransform &rotateRadians(qreal a, Qt::Axis axis = Qt::ZAxis);
 
     static bool squareToQuad(const QPolygonF &square, QTransform &result);
     static bool quadToSquare(const QPolygonF &quad, QTransform &result);
