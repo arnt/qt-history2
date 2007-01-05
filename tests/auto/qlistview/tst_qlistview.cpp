@@ -710,39 +710,44 @@ void tst_QListView::setCurrentIndex()
     view.resize(220,182);
     view.show();
 
-    QList<QSize> gridsizes;
-    gridsizes << QSize() << QSize(200,38);
-    for (int ig = 0; ig < gridsizes.count(); ++ig) {
-        view.setGridSize(gridsizes.at(ig));
-    
-        qApp->processEvents();
-        QScrollBar *sb = view.verticalScrollBar();
-        int offset = sb->value();
+    for (int pass = 0; pass < 2; ++pass) {
+        view.setFlow(pass == 0 ? QListView::TopToBottom : QListView::LeftToRight);
+        QScrollBar *sb = pass == 0 ? view.verticalScrollBar() : view.horizontalScrollBar();
+        QList<QSize> gridsizes;
+        gridsizes << QSize() << QSize(200,38);
+        for (int ig = 0; ig < gridsizes.count(); ++ig) {
+            if (pass == 1 && !gridsizes.at(ig).isValid()) // the width of an item varies, so it might jump two times
+                continue;
+            view.setGridSize(gridsizes.at(ig));
+        
+            qApp->processEvents();
+            int offset = sb->value();
 
-        // first "scroll" down, verify that we scroll one step at a time
-        i = 0;
-        for (i = 0; i < 20; ++i) {
-            QModelIndex idx = model.index(i,0);
-            view.setCurrentIndex(idx);
-            if (offset != sb->value()) {
-                // If it has scrolled, it should have scrolled only by one.
-                QCOMPARE(sb->value(), offset + 1);
-                ++offset;
+            // first "scroll" down, verify that we scroll one step at a time
+            i = 0;
+            for (i = 0; i < 20; ++i) {
+                QModelIndex idx = model.index(i,0);
+                view.setCurrentIndex(idx);
+                if (offset != sb->value()) {
+                    // If it has scrolled, it should have scrolled only by one.
+                    QCOMPARE(sb->value(), offset + 1);
+                    ++offset;
+                }
+                //QTest::qWait(50);
             }
-            //QTest::qWait(50);
-        }
 
-        --i;    // item 20 does not exist
-        // and then "scroll" up, verify that we scroll one step at a time
-        for (; i >= 0; --i) {
-            QModelIndex idx = model.index(i,0);
-            view.setCurrentIndex(idx);
-            if (offset != sb->value()) {
-                // If it has scrolled, it should have scrolled only by one.
-                QCOMPARE(sb->value(), offset - 1);
-                --offset;
+            --i;    // item 20 does not exist
+            // and then "scroll" up, verify that we scroll one step at a time
+            for (; i >= 0; --i) {
+                QModelIndex idx = model.index(i,0);
+                view.setCurrentIndex(idx);
+                if (offset != sb->value()) {
+                    // If it has scrolled, it should have scrolled only by one.
+                    QCOMPARE(sb->value(), offset - 1);
+                    --offset;
+                }
+                //QTest::qWait(50);
             }
-            //QTest::qWait(50);
         }
     }
 }
