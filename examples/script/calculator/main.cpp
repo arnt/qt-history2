@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 
     QFile scriptFile(":/calculator.js");
     scriptFile.open(QIODevice::ReadOnly);
-    qDebug() << engine.evaluate(scriptFile.readAll()).toString();
+    engine.evaluate(scriptFile.readAll());
     scriptFile.close();
 
     QUiLoader loader;
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 
     QScriptValue ctor = engine.evaluate("Calculator");
     QScriptValue scriptUi = engine.scriptValueFromQObject(ui);
-    qDebug() << ctor.call(calc, QScriptValueList() << scriptUi).toString();
+    ctor.call(calc, QScriptValueList() << scriptUi);
 
     ui->show();
     return app.exec();

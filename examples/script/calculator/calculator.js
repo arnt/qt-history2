@@ -1,17 +1,3 @@
-function bindSlot(fun, obj, sender)
-{
-    return function() {
-        obj.sender = sender;
-        fun.apply(obj, arguments);
-        obj.sender = undefined;
-    }
-}
-
-function connect(sender, signal, target, slot)
-{
-    return sender[signal].connect(bindSlot(target[slot], target, sender));
-}
-
 function Calculator(ui)
 {
     this.ui = ui;
@@ -48,7 +34,7 @@ function Calculator(ui)
     this.digitClicked = function()
     {
         var digitValue = this.sender.text - 0;
-        if ((digitValue == 0) && (this.sender.text == "0"))
+        if ((digitValue == 0) && (this.ui.display.text == "0"))
             return;
         if (this.waitingForOperand) {
             this.ui.display.clear();
@@ -236,37 +222,37 @@ function Calculator(ui)
     with (ui) {
         display.text = "0";
 
-        connect(zeroButton, "clicked", this, "digitClicked");
-        connect(oneButton, "clicked", this, "digitClicked");
-        connect(twoButton, "clicked", this, "digitClicked");
-        connect(threeButton, "clicked", this, "digitClicked");
-        connect(fourButton, "clicked", this, "digitClicked");
-        connect(fiveButton, "clicked", this, "digitClicked");
-        connect(sixButton, "clicked", this, "digitClicked");
-        connect(sevenButton, "clicked", this, "digitClicked");
-        connect(eightButton, "clicked", this, "digitClicked");
-        connect(nineButton, "clicked", this, "digitClicked");
+        zeroButton.clicked.connect(this, this.digitClicked);
+        oneButton.clicked.connect(this, "digitClicked");
+        twoButton.clicked.connect(this, "digitClicked");
+        threeButton.clicked.connect(this, "digitClicked");
+        fourButton.clicked.connect(this, "digitClicked");
+        fiveButton.clicked.connect(this, "digitClicked");
+        sixButton.clicked.connect(this, "digitClicked");
+        sevenButton.clicked.connect(this, "digitClicked");
+        eightButton.clicked.connect(this, "digitClicked");
+        nineButton.clicked.connect(this, "digitClicked");
 
-        connect(pointButton, "clicked", this, "pointClicked");
-        connect(changeSignButton, "clicked", this, "changeSignClicked");
+        pointButton.clicked.connect(this, "pointClicked");
+        changeSignButton.clicked.connect(this, "changeSignClicked");
 
-        connect(backspaceButton, "clicked", this, "backspaceClicked");
-        connect(clearButton, "clicked", this, "clear");
-        connect(clearAllButton, "clicked", this, "clearAll");
+        backspaceButton.clicked.connect(this, "backspaceClicked");
+        clearButton.clicked.connect(this, "clear");
+        clearAllButton.clicked.connect(this, "clearAll");
 
-        connect(clearMemoryButton, "clicked", this, "clearMemory");
-        connect(readMemoryButton, "clicked", this, "readMemory");
-        connect(setMemoryButton, "clicked", this, "setMemory");
-        connect(addToMemoryButton, "clicked", this, "addToMemory");
+        clearMemoryButton.clicked.connect(this, "clearMemory");
+        readMemoryButton.clicked.connect(this, "readMemory");
+        setMemoryButton.clicked.connect(this, "setMemory");
+        addToMemoryButton.clicked.connect(this, "addToMemory");
   
-        connect(divisionButton, "clicked", this, "multiplicativeOperatorClicked");
-        connect(timesButton, "clicked", this, "multiplicativeOperatorClicked");
-        connect(minusButton, "clicked", this, "additiveOperatorClicked");
-        connect(plusButton, "clicked", this, "additiveOperatorClicked");
+        divisionButton.clicked.connect(this, "multiplicativeOperatorClicked");
+        timesButton.clicked.connect(this, "multiplicativeOperatorClicked");
+        minusButton.clicked.connect(this, "additiveOperatorClicked");
+        plusButton.clicked.connect(this, "additiveOperatorClicked");
 
-        connect(squareRootButton, "clicked", this, "unaryOperatorClicked");
-        connect(powerButton, "clicked", this, "unaryOperatorClicked");
-        connect(reciprocalButton, "clicked", this, "unaryOperatorClicked");
-        connect(equalButton, "clicked", this, "equalClicked");
+        squareRootButton.clicked.connect(this, "unaryOperatorClicked");
+        powerButton.clicked.connect(this, "unaryOperatorClicked");
+        reciprocalButton.clicked.connect(this, "unaryOperatorClicked");
+        equalButton.clicked.connect(this, "equalClicked");
     }
 }
