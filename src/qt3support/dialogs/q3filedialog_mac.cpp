@@ -284,6 +284,21 @@ QStringList Q3FileDialog::macGetOpenFileNames(const QString &filter, QString *pw
     }
 
     NavDialogRun(dlg);
+    if (selectedFilter) {
+        NavMenuItemSpec navSpec;
+        bzero(&navSpec, sizeof(NavMenuItemSpec));
+        qt_mac_filter_name *sel_filt_name = makeFiltersList(*selectedFilter).at(0);
+        for (int i = 0; i < filts.count(); ++i) {
+            const qt_mac_filter_name *filter = filts.at(i);
+            if (sel_filt_name->description == filter->description
+                    && sel_filt_name->regxp == filter->regxp
+                    && sel_filt_name->filter == filter->filter) {
+                navSpec.menuType = i;
+                break;
+            }
+        }
+        NavCustomControl(dlg, kNavCtlSelectCustomType, &navSpec);
+    }
     if(options.modality == kWindowModalityWindowModal) { //simulate modality
         QWidget modal_widg(parent, __FILE__ "__modal_dlg",
                            Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_DialogBorder);
@@ -454,6 +469,21 @@ QString Q3FileDialog::macGetSaveFileName(const QString &start, const QString &fi
         }
     }
     NavDialogRun(dlg);
+    if (selectedFilter) {
+        NavMenuItemSpec navSpec;
+        bzero(&navSpec, sizeof(NavMenuItemSpec));
+        qt_mac_filter_name *sel_filt_name = makeFiltersList(*selectedFilter).at(0);
+        for (int i = 0; i < filts.count(); ++i) {
+            const qt_mac_filter_name *filter = filts.at(i);
+            if (sel_filt_name->description == filter->description
+                    && sel_filt_name->regxp == filter->regxp
+                    && sel_filt_name->filter == filter->filter) {
+                navSpec.menuType = i;
+                break;
+            }
+        }
+        NavCustomControl(dlg, kNavCtlSelectCustomType, &navSpec);
+    }
     if(options.modality == kWindowModalityWindowModal) { //simulate modality
         QWidget modal_widg(parent, __FILE__ "__modal_dlg",
                            Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_DialogBorder);

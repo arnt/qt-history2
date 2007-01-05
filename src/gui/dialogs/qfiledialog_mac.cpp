@@ -312,6 +312,23 @@ QStringList qt_mac_get_open_file_names(const QFileDialogArgs &args, QString *pwd
     }
 
     NavDialogRun(dlg);
+
+    if (selectedFilter) {
+        NavMenuItemSpec navSpec;
+        bzero(&navSpec, sizeof(NavMenuItemSpec));
+        qt_mac_filter_name *sel_filt_name = qt_mac_make_filters_list(*selectedFilter).at(0);
+        for (int i = 0; i < filts.count(); ++i) {
+            const qt_mac_filter_name *filter = filts.at(i);
+            if (sel_filt_name->description == filter->description
+                    && sel_filt_name->regxp == filter->regxp
+                    && sel_filt_name->filter == filter->filter) {
+                navSpec.menuType = i;
+                break;
+            }
+        }
+        NavCustomControl(dlg, kNavCtlSelectCustomType, &navSpec);
+    }
+
     if (options.modality == kWindowModalityWindowModal) { //simulate modality
         QWidget modal_widg(parent, Qt::Sheet);
         modal_widg.createWinId();
@@ -437,6 +454,21 @@ QString qt_mac_get_save_file_name(const QFileDialogArgs &args, QString *pwd,
         }
     }
     NavDialogRun(dlg);
+    if (selectedFilter) {
+        NavMenuItemSpec navSpec;
+        bzero(&navSpec, sizeof(NavMenuItemSpec));
+        qt_mac_filter_name *sel_filt_name = qt_mac_make_filters_list(*selectedFilter).at(0);
+        for (int i = 0; i < filts.count(); ++i) {
+            const qt_mac_filter_name *filter = filts.at(i);
+            if (sel_filt_name->description == filter->description
+                    && sel_filt_name->regxp == filter->regxp
+                    && sel_filt_name->filter == filter->filter) {
+                navSpec.menuType = i;
+                break;
+            }
+        }
+        NavCustomControl(dlg, kNavCtlSelectCustomType, &navSpec);
+    }
     if (options.modality == kWindowModalityWindowModal) { //simulate modality
         QWidget modal_widg(parent, Qt::Sheet);
         modal_widg.createWinId();
