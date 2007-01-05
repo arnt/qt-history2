@@ -3557,12 +3557,14 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
                 sz.setHeight(sz.height() - 2);
                 return sz;
             }
-        }
+        } 
+        sz = QWindowsStyle::sizeFromContents(ct, option, sz, widget);
+        break;
+
     case CT_MDIControls:
         sz = QSize(54, 19);
         break;
 
-        // Otherwise, fall through
     default:
         sz = QWindowsStyle::sizeFromContents(ct, option, sz, widget);
         break;
