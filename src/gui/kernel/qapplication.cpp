@@ -2987,6 +2987,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 
     // User input and window activation makes tooltips sleep
     switch (e->type()) {
+    case QEvent::Wheel:
     case QEvent::ActivationChange:
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
@@ -2995,9 +2996,9 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease:
     case QEvent::MouseButtonDblClick:
-        d->toolTipWakeUp.stop();
         d->toolTipFallAsleep.stop();
-        break;
+    case QEvent::Leave:
+        d->toolTipWakeUp.stop();
     default:
         break;
     }
