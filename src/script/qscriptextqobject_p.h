@@ -76,7 +76,8 @@ protected:
 class ConnectionQObject: public QObject
 {
 public:
-    ConnectionQObject(const QMetaMethod &m, const QScriptValue &, const QScriptValue &);
+    ConnectionQObject(const QMetaMethod &m, const QScriptValue &sender,
+                      const QScriptValue &receiver, const QScriptValue &slot);
     ~ConnectionQObject();
 
     static const QMetaObject staticMetaObject;
@@ -86,12 +87,16 @@ public:
 
     void execute(void **argv);
 
-public: // attributes
-    QScriptEngine *eng;
-    QMetaMethod method;
-    QScriptValue senderObject;
-    QScriptValue receiverObject;
-    QScriptValue self;
+    void mark(int generation);
+    bool hasTarget(const QScriptValue &, const QScriptValue &) const;
+
+private:
+    QMetaMethod m_method;
+    QScriptValue m_self;
+    QScriptValue m_sender;
+    QScriptValue m_receiver;
+    QScriptValue m_slot;
+    bool m_hasReceiver;
 };
 
 class QtFunction: public QScriptFunction
@@ -112,12 +117,16 @@ public:
     inline const QMetaObject *metaObject() const { return m_object->metaObject(); }
     inline int initialIndex() const { return m_initialIndex; }
     inline bool maybeOverloaded() const { return m_maybeOverloaded; }
-    bool createConnection(const QScriptValue &sender, const QScriptValue &receiver);
-    bool destroyConnection(const QScriptValue &sender, const QScriptValue &receiver);
+    bool createConnection(const QScriptValue &self,
+                          const QScriptValue &receiver,
+                          const QScriptValue &slot);
+    bool destroyConnection(const QScriptValue &self,
+                           const QScriptValue &receiver,
+                           const QScriptValue &slot);
 
 private:
     QPointer<QObject> m_object;
-    QList<QPointer<QObject> > m_slotObjects;
+    QList<QPointer<QObject> > m_connections;
     int m_initialIndex;
     bool m_maybeOverloaded;
 };

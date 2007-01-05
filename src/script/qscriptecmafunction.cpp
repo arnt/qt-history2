@@ -185,21 +185,37 @@ QScriptValue Function::method_disconnect(QScriptEngine *eng, QScriptClassInfo *)
     if (context->argumentCount() == 0)
         return context->engine()->scriptValue(false);
 
-    QScriptFunction *fun = context->thisObject().impl()->toFunction();
+    QScriptValue self = context->thisObject();
+    QScriptFunction *fun = self.impl()->toFunction();
     if ((fun == 0) || (fun->type() != QScriptFunction::Qt))
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Function.prototype.disconnect"));
 
-    QScriptFunction *otherFun = context->argument(0).impl()->toFunction();
+    QScriptValue receiver;
+    QScriptValue slot;
+    QScriptValue arg0 = context->argument(0);
+    if (arg0.isFunction()) {
+        receiver = self;
+        slot = arg0;
+    } else {
+        receiver = arg0;
+        QScriptValue arg1 = context->argument(1);
+        if (arg1.isFunction())
+            slot = arg1;
+        else
+            slot = receiver.property(arg1.toString());
+        if (slot.isFunction() && slot.impl()->toFunction()->type() == QScriptFunction::Qt) {
+            receiver = self;
+            slot = arg1;
+        }
+    }
+    
+    QScriptFunction *otherFun = slot.impl()->toFunction();
     if (otherFun == 0)
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Function.prototype.disconnect"));
 
     QtFunction *qtSignal = static_cast<QtFunction*>(fun);
-
-    QObject *thisQObject = context->thisObject().toQObject();
-    if (!thisQObject)
-        thisQObject = qtSignal->object(); /// ### TypeError
 
     QMetaMethod sig = qtSignal->metaObject()->method(qtSignal->initialIndex());
     if (sig.methodType() != QMetaMethod::Signal) {
@@ -212,10 +228,10 @@ QScriptValue Function::method_disconnect(QScriptEngine *eng, QScriptClassInfo *)
     bool ok = false;
     if (otherFun->type() == QScriptFunction::Qt) {
         QtFunction *qtSlot = static_cast<QtFunction*>(otherFun);
-        ok = QMetaObject::disconnect(thisQObject, qtSignal->initialIndex(),
+        ok = QMetaObject::disconnect(qtSignal->object(), qtSignal->initialIndex(),
                                      qtSlot->object(), qtSlot->initialIndex());
     } else {
-        ok = qtSignal->destroyConnection(context->thisObject(), context->argument(0));
+        ok = qtSignal->destroyConnection(self, receiver, slot);
     }
     return context->engine()->scriptValue(ok);
 #else
@@ -233,21 +249,37 @@ QScriptValue Function::method_connect(QScriptEngine *eng, QScriptClassInfo *clas
     if (context->argumentCount() == 0)
         return context->engine()->scriptValue(false);
 
-    QScriptFunction *fun = context->thisObject().impl()->toFunction();
+    QScriptValue self = context->thisObject();
+    QScriptFunction *fun = self.impl()->toFunction();
     if ((fun == 0) || (fun->type() != QScriptFunction::Qt))
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Function.prototype.connect"));
 
-    QScriptFunction *otherFun = context->argument(0).impl()->toFunction();
+    QScriptValue receiver;
+    QScriptValue slot;
+    QScriptValue arg0 = context->argument(0);
+    if (arg0.isFunction()) {
+        receiver = self;
+        slot = arg0;
+    } else {
+        receiver = arg0;
+        QScriptValue arg1 = context->argument(1);
+        if (arg1.isFunction())
+            slot = arg1;
+        else
+            slot = receiver.property(arg1.toString());
+        if (slot.isFunction() && slot.impl()->toFunction()->type() == QScriptFunction::Qt) {
+            receiver = self;
+            slot = arg1;
+        }
+    }
+
+    QScriptFunction *otherFun = slot.impl()->toFunction();
     if (otherFun == 0)
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Function.prototype.connect"));
 
     QtFunction *qtSignal = static_cast<QtFunction*>(fun);
-
-    QObject *thisQObject = context->thisObject().toQObject();
-    if (!thisQObject)
-        thisQObject = qtSignal->object(); /// ### TypeError
 
     QMetaMethod sig = qtSignal->metaObject()->method(qtSignal->initialIndex());
     if (sig.methodType() != QMetaMethod::Signal) {
@@ -262,10 +294,10 @@ QScriptValue Function::method_connect(QScriptEngine *eng, QScriptClassInfo *clas
         QtFunction *qtSlot = static_cast<QtFunction*>(otherFun);
         // ### find the best match using QMetaObject::checkConnectArgs
         // ### check if signal or slot overloaded
-        ok = QMetaObject::connect(thisQObject, qtSignal->initialIndex(),
+        ok = QMetaObject::connect(qtSignal->object(), qtSignal->initialIndex(),
                                   qtSlot->object(), qtSlot->initialIndex());
     } else {
-        ok = qtSignal->createConnection(context->thisObject(), context->argument(0));
+        ok = qtSignal->createConnection(self, receiver, slot);
     }
     return context->engine()->scriptValue(ok);
 #else
