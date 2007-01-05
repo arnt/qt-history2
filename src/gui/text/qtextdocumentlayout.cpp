@@ -1894,6 +1894,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
                 layoutStruct->newPage();
 
             const qreal origY = layoutStruct->y;
+            const qreal origPageBottom = layoutStruct->pageBottom;
 
             // layout and position child block
             layoutBlock(block, layoutStruct, layoutFrom, layoutTo, lastIt.currentBlock());
@@ -1902,6 +1903,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
             // positioning it into the table border
             if (isEmptyBlockBeforeTable(block, it)) {
                 layoutStruct->y = origY;
+                layoutStruct->pageBottom = origPageBottom;
                 continue;
             }
 
@@ -1915,6 +1917,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
 
                 layout->setPosition(pos);
                 layoutStruct->y = origY;
+                layoutStruct->pageBottom = origPageBottom;
             }
 
             if (block.blockFormat().pageBreakPolicy() & QTextFormat::PageBreak_AlwaysAfter)
