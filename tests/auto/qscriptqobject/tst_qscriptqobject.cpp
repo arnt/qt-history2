@@ -309,7 +309,7 @@ QScriptValue fromContainer(QScriptEngine *eng, const Container &cont)
     typename Container::const_iterator end = cont.end();
     typename Container::const_iterator it;
     for (it = begin; it != end; ++it)
-        a.setProperty(eng->scriptValue(it - begin).toString(), qScriptValueFromValue(eng, *it));
+        a.setProperty(eng->scriptValue(quint32(it - begin)).toString(), qScriptValueFromValue(eng, *it));
     return a;
 }
 
