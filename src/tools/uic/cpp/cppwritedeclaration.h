@@ -36,10 +36,10 @@ struct WriteDeclaration : public TreeWalker
     void acceptAction(DomAction *node);
 
 private:
-    Uic *uic;
-    Driver *driver;
-    QTextStream &output;
-    const Option &option;
+    Uic *m_uic;
+    Driver *m_driver;
+    QTextStream &m_output;
+    const Option &m_option;
 };
 
 } // namespace CPP
