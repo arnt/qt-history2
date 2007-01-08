@@ -35,6 +35,8 @@
 
 #define Q_SCRIPT_NO_PRINT_GENERATED_CODE
 
+#define Q_SCRIPT_NO_JOINED_FUNCTION
+
 #define CHECK_TEMPSTACK(needed) do { \
     if (stackPtr + needed >= eng->tempStackEnd) { \
         q->throwError(QLatin1String("out of memory")); \
@@ -1033,7 +1035,7 @@ Ltop:
                 QScriptObject *instance = value.m_object_value;
                 Q_ASSERT(instance != 0);
 
-                // if (instance->m_scope.m_object_value == scopeChain.m_object_value)
+                if (instance->m_scope.m_object_value == scopeChain.m_object_value)
                 {
                     *++stackPtr = value;
                     ++iPtr;
