@@ -334,6 +334,7 @@ public:
     void setRenderHint(RenderHint hint, bool on = true);
     void setRenderHints(RenderHints hints, bool on = true);
     RenderHints renderHints() const;
+    inline bool testRenderHint(RenderHint hint) const { return renderHints() & hint; }
 
     QPaintEngine *paintEngine() const;
 

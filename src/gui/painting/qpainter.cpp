@@ -5238,7 +5238,7 @@ void QPainter::setRenderHints(RenderHints hints, bool on)
     Returns a flag that specifies the rendering hints that are set for
     this painter.
 
-    \sa RenderHint, {QPainter#Rendering Quality}{Rendering Quality}
+    \sa testRenderHint(), {QPainter#Rendering Quality}{Rendering Quality}
 */
 QPainter::RenderHints QPainter::renderHints() const
 {
@@ -5249,6 +5249,15 @@ QPainter::RenderHints QPainter::renderHints() const
     Q_D(const QPainter);
     return d->state->renderHints;
 }
+
+/*!
+    \fn bool QPainter::testRenderHint(RenderHint hint) const
+    \since 4.3
+
+    Returns true if \a hint is set; otherwise returns false.
+
+    \sa renderHints(), setRenderHint()
+*/
 
 /*!
     Returns true if view transformation is enabled; otherwise returns
