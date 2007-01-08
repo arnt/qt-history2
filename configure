@@ -1519,6 +1519,7 @@ fi
 
 # where to find which..
 unixtests="$relpath/config.tests/unix"
+mactests="$relpath/config.tests/mac"
 WHICH="$unixtests/which.test"
 
 # find out which awk we want to use, prefer gawk, then nawk, then regular awk
@@ -2151,6 +2152,15 @@ elif [ "$CFG_PRECOMPILE" = "yes" ] && [ "$CFG_UNIVERSAL_BINARY" = "yes" ]; then
     echo "WARNING: Using universal binaries disables precompiled headers."
     echo
     CFG_PRECOMPILE=no
+fi
+
+#auto-detect DWARF2 on the mac
+if [ "$PLATFORM_MAC" = "yes" ]; then
+    if "$mactests/dwarf2.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then 
+        true
+    else
+        QT_CONFIG="$QT_CONFIG dwarf2"
+    fi
 fi
 
 # auto-detect support for separate debug info in objcopy
