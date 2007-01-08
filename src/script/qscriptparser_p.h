@@ -1,3 +1,4 @@
+
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
@@ -11,9 +12,6 @@
 **
 ****************************************************************************/
 
-#ifndef QSCRIPTPARSER_P_H
-#define QSCRIPTPARSER_P_H
-
 //
 //  W A R N I N G
 //  -------------
@@ -24,8 +22,6 @@
 //
 // We mean it.
 //
-
-#line 108 "qscript.g"
 
 
 #include "qscriptgrammar_p.h"
@@ -102,4 +98,3 @@ inline void QScriptParser::reallocateStack()
     location_stack = reinterpret_cast<int*> (qRealloc(location_stack, stack_size * sizeof(int)));
 }
 
-#endif

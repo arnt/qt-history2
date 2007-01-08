@@ -11,9 +11,6 @@
 **
 ****************************************************************************/
 
-#ifndef QSCRIPTGRAMMAR_P_H
-#define QSCRIPTGRAMMAR_P_H
-
 //
 //  W A R N I N G
 //  -------------
@@ -24,6 +21,9 @@
 //
 // We mean it.
 //
+
+#ifndef QSCRIPTGRAMMAR_P_H
+#define QSCRIPTGRAMMAR_P_H
 
 class QScriptGrammar
 {
@@ -91,6 +91,7 @@ public:
     T_RBRACKET = 56,
     T_REMAINDER = 57,
     T_REMAINDER_EQ = 58,
+    T_RESERVED = 81,
     T_RETURN = 59,
     T_RPAREN = 60,
     T_SEMICOLON = 61,
@@ -114,12 +115,12 @@ public:
     ACCEPT_STATE = 198,
     RULE_COUNT = 229,
     STATE_COUNT = 404,
-    TERMINAL_COUNT = 81,
+    TERMINAL_COUNT = 82,
     NON_TERMINAL_COUNT = 85,
 
     GOTO_INDEX_OFFSET = 404,
-    GOTO_INFO_OFFSET = 1077,
-    GOTO_CHECK_OFFSET = 1077,
+    GOTO_INFO_OFFSET = 1032,
+    GOTO_CHECK_OFFSET = 1032,
   };
 
   static const short lhs [];
@@ -159,3 +160,4 @@ public:
 
 
 #endif // QSCRIPTGRAMMAR_P_H
+

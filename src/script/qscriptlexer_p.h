@@ -157,6 +157,7 @@ private:
 
     QString errmsg;
     bool wantRx;
+    bool check_reserved;
 };
 
 } // namespace QScript
