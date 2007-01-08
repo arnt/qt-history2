@@ -45,7 +45,7 @@
     \endcode
 
     However, if it does fail under those conditions, the value returned by QDBusReply::value() is
-    a default-constructed value. It may be undistinguishable from a valid return value.
+    a default-constructed value. It may be indistinguishable from a valid return value.
 
     QDBusReply objects are used for remote calls that have no output
     arguments or return values (i.e., they have a "void" return
