@@ -2321,6 +2321,10 @@ static inline bool isImplValid(const QDomNodePrivate *const impl,
 /*!
     Returns the name of the node.
 
+    Remember that use of this function is not namespace aware, which applies to element
+    and attribute nodes. The returned name can contain any prefix. For namespace aware
+    code, use localName() and namespaceURI().
+
     The meaning of the name depends on the subclass:
     \table
     \header \i Name \i Meaning
@@ -3661,6 +3665,9 @@ uint QDomNamedNodeMap::length() const
 /*!
     Returns true if the map contains a node called \a name; otherwise
     returns false.
+
+    Remember that use of this function is not namespace aware. For namespace aware
+    code, use namedItemNS().
 */
 bool QDomNamedNodeMap::contains(const QString& name) const
 {
@@ -5146,6 +5153,11 @@ QDomNodeList QDomElement::elementsByTagName(const QString& tagname) const
 /*!
     Returns true if this element has an attribute called \a name;
     otherwise returns false.
+
+    Remember that use of this function is not namespace aware. The
+    returned name can contain any prefix. For namespace aware
+    code, use hasAttributeNS().
+
 */
 bool QDomElement::hasAttribute(const QString& name) const
 {
