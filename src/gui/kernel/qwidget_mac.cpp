@@ -302,13 +302,20 @@ static void qt_mac_set_window_group_to_tooltip(WindowRef windowRef)
 {
     // Since new groups are created for 'stays on top' windows, the
     // same must be done for tooltips. Otherwise, tooltips would be drawn
-    // below 'stays on top' widgets  
+    // below 'stays on top' widgets
     if (qt_mac_tooltip_group){
         RetainWindowGroup(qt_mac_tooltip_group);
     } else {
         CreateWindowGroup(kWindowActivationScopeNone, &qt_mac_tooltip_group);
-        CGWindowLevel group_level;        
-        GetWindowGroupLevelOfType(GetWindowGroupOfClass(kHelpWindowClass), kWindowGroupLevelActive, &group_level);
+        UInt32 group_level;
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4
+        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+            GetWindowGroupLevelOfType(GetWindowGroupOfClass(kHelpWindowClass), kWindowGroupLevelActive, &group_level);
+        } else
+#endif
+        {
+            GetWindowGroupLevel(GetWindowGroupOfClass(kHelpWindowClass), &group_level);
+        }
         SetWindowGroupLevel(qt_mac_tooltip_group, group_level);
         SetWindowGroupParent(qt_mac_tooltip_group, GetWindowGroupOfClass(kAllWindowClasses));
     }
