@@ -200,7 +200,6 @@ void tst_QScriptEngine::createQObject()
         QCOMPARE(qobject.isObject(), true);
         QCOMPARE(qobject.toQObject(), (QObject *)0);
     }
-
     {
         QScriptValue qobject = eng.scriptValueFromQObject(this);
         QCOMPARE(qobject.isValid(), true);

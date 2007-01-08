@@ -3032,18 +3032,20 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
 
 #ifdef INDIC_DEBUG
         for (i = fixed; i < len; ++i)
-            IDEBUG("position[%d] = %d, form=%d", i, position[i], form(uc[i]));
+            IDEBUG("position[%d] = %d, form=%d uc=%x", i, position[i], form(uc[i]), uc[i]);
 #endif
         // we continuosly position the matras and vowel marks and increase the fixed
         // until we reached the end.
         const IndicOrdering *finalOrder = indic_order[script-QUnicodeTables::Devanagari];
 
         IDEBUG("    reordering pass:");
-        //IDEBUG("        base=%d fixed=%d", base, fixed);
+        IDEBUG("        base=%d fixed=%d", base, fixed);
         int toMove = 0;
         while (finalOrder[toMove].form && fixed < len-1) {
-            //IDEBUG("        fixed = %d, moving form %d with pos %d", fixed, finalOrder[toMove].form, finalOrder[toMove].position);
+            IDEBUG("        fixed = %d, toMove=%d, moving form %d with pos %d", fixed, toMove, finalOrder[toMove].form, finalOrder[toMove].position);
             for (i = fixed; i < len; i++) {
+                IDEBUG() << "           i=" << i << "uc=" << hex << uc[i] << "form=" << form(uc[i])
+                         << "position=" << position[i];
                 if (form(uc[i]) == finalOrder[toMove].form &&
                      position[i] == finalOrder[toMove].position) {
                     // need to move this glyph
@@ -3055,7 +3057,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
                         unsigned char pos = position[i];
                         for (int j = i+1; j > to+1; j--) {
                             uc[j] = uc[j-2];
-                            position[j] = uc[j-2];
+                            position[j] = position[j-2];
                         }
                         uc[to] = ch;
                         uc[to+1] = ch2;
