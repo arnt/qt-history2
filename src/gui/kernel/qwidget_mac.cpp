@@ -307,10 +307,12 @@ static void qt_mac_set_window_group_to_tooltip(WindowRef windowRef)
         RetainWindowGroup(qt_mac_tooltip_group);
     } else {
         CreateWindowGroup(kWindowActivationScopeNone, &qt_mac_tooltip_group);
-        UInt32 group_level;
+        SInt32 group_level;
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4
         if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
-            GetWindowGroupLevelOfType(GetWindowGroupOfClass(kHelpWindowClass), kWindowGroupLevelActive, &group_level);
+            CGWindowLevel tmpLevel;
+            GetWindowGroupLevelOfType(GetWindowGroupOfClass(kHelpWindowClass), kWindowGroupLevelActive, &tmpLevel);
+            group_level = tmpLevel;
         } else
 #endif
         {
