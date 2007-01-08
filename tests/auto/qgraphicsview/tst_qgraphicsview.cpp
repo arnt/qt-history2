@@ -98,6 +98,7 @@ private slots:
     void cursor2();
     void transformationAnchor();
     void resizeAnchor();
+    void viewportUpdateMode();
     void acceptDrops();
 };
 
@@ -1694,6 +1695,80 @@ void tst_QGraphicsView::resizeAnchor()
             QTest::qWait(100);
         }
     }
+}
+
+class CustomView : public QGraphicsView
+{
+    Q_OBJECT
+public:
+    QList<QRegion> lastUpdateRegions;
+
+protected:
+    void paintEvent(QPaintEvent *event)
+    {
+        lastUpdateRegions << event->region();
+        QGraphicsView::paintEvent(event);
+    }
+};
+
+void tst_QGraphicsView::viewportUpdateMode()
+{
+    QGraphicsScene scene(0, 0, 100, 100);
+    scene.setBackgroundBrush(Qt::red);
+
+    CustomView view;
+    view.setFixedSize(500, 500);
+    view.setScene(&scene);
+    QCOMPARE(view.viewportUpdateMode(), QGraphicsView::MinimalViewportUpdate);
+
+    // Show the view, and initialize our test.
+    view.show();
+    qApp->processEvents();
+    qApp->processEvents();
+    view.lastUpdateRegions.clear();
+
+    // Issue two scene updates.
+    scene.update(QRectF(0, 0, 10, 10));
+    scene.update(QRectF(20, 0, 10, 10));
+    qApp->processEvents();
+    qApp->processEvents();
+
+    // The view gets two updates for the update scene updates.
+    QCOMPARE(view.lastUpdateRegions.last().rects().size(), 2);
+    QCOMPARE(view.lastUpdateRegions.last().rects().at(0).size(), QSize(15, 15));
+    QCOMPARE(view.lastUpdateRegions.last().rects().at(1).size(), QSize(15, 15));
+
+    // Set full update mode.
+    view.setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+    QCOMPARE(view.viewportUpdateMode(), QGraphicsView::FullViewportUpdate);
+    view.lastUpdateRegions.clear();
+
+    // Issue two scene updates.
+    scene.update(QRectF(0, 0, 10, 10));
+    scene.update(QRectF(20, 0, 10, 10));
+    qApp->processEvents();
+    qApp->processEvents();
+
+    // The view gets one full viewport update for the update scene updates.
+    QCOMPARE(view.lastUpdateRegions.last().rects().size(), 1);
+    QCOMPARE(view.lastUpdateRegions.last().rects().at(0).size(), view.viewport()->size());
+
+    // Set smart update mode
+    view.setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
+    QCOMPARE(view.viewportUpdateMode(), QGraphicsView::SmartViewportUpdate);
+
+    // Issue 100 mini-updates
+    for (int i = 0; i < 10; ++i) {
+        for (int j = 0; j < 10; ++j) {
+            scene.update(QRectF(i * 3, j * 3, 1, 1));
+        }
+    }
+    qApp->processEvents();
+    qApp->processEvents();
+
+    // The view gets one bounding rect update.
+    QCOMPARE(view.lastUpdateRegions.last().rects().size(), 1);
+    QCOMPARE(view.lastUpdateRegions.last().rects().at(0).size(), QSize(33, 33));
 }
 
 void tst_QGraphicsView::acceptDrops()
