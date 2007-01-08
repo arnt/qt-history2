@@ -2200,9 +2200,16 @@ void tst_QGraphicsScene::render()
     QFETCH(Qt::AspectRatioMode, aspectRatioMode);
     QFETCH(QMatrix, matrix);
 
+    QPixmap pix(30, 30);
+    pix.fill(Qt::blue);
+    
     QGraphicsScene scene;
     scene.addEllipse(QRectF(-10, -10, 20, 20), QPen(Qt::black), QBrush(Qt::white));
     scene.addEllipse(QRectF(-2, -7, 4, 4), QPen(Qt::black), QBrush(Qt::yellow))->setZValue(1);
+    QGraphicsPixmapItem *item = scene.addPixmap(pix);
+    item->setZValue(2);
+    item->setOffset(QPointF(3, 3));
+
     scene.setSceneRect(scene.itemsBoundingRect());
 
     QImage bigImage(300, 300, QImage::Format_RGB32);
