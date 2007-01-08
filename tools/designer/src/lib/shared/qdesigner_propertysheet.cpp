@@ -148,28 +148,39 @@ bool QDesignerPropertySheet::dynamicPropertiesAllowed() const
     return true;
 }
 
-bool QDesignerPropertySheet::addDynamicProperty(const QString &propName, const QVariant &value)
+bool QDesignerPropertySheet::canAddDynamicProperty(const QString &propName, const QVariant &value) const
 {
-    int index = m_meta->indexOfProperty(propName.toUtf8());
+    const int index = m_meta->indexOfProperty(propName.toUtf8());
     if (index != -1)
         return false; // property already exists and is not a dynamic one
     if (!value.isValid())
         return false; // property has invalid type
     if (m_addIndex.contains(propName)) {
-        int idx = -1;
-        idx = m_addIndex.value(propName);
+        const int idx = m_addIndex.value(propName);
         if (isVisible(idx))
             return false; // dynamic property already exists
-        else {
-            setVisible(idx, true);
-            m_addProperties.insert(idx, value);
-            setChanged(idx, false);
-            m_info[index].defaultValue = value;
+        else
             return true;
-        }
+    }
+    return true;
+}
+
+bool QDesignerPropertySheet::addDynamicProperty(const QString &propName, const QVariant &value)
+{
+    if (!canAddDynamicProperty(propName, value))
+        return false;
+    if (m_addIndex.contains(propName)) {
+        const int idx = m_addIndex.value(propName);
+        // have to be invisible, this was checked in canAddDynamicProperty() method
+        setVisible(idx, true);
+        m_addProperties.insert(idx, value);
+        setChanged(idx, false);
+        const int index = m_meta->indexOfProperty(propName.toUtf8());
+        m_info[index].defaultValue = value;
+        return true;
     }
 
-    index = count();
+    const int index = count();
     m_addIndex.insert(propName, index);
     m_addProperties.insert(index, value);
     setVisible(index, true);

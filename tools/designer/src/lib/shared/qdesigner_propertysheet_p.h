@@ -68,6 +68,7 @@ public:
     virtual bool addDynamicProperty(const QString &propertyName, const QVariant &value);
     virtual bool removeDynamicProperty(const QString &propertyName);
     virtual bool isDynamicProperty(int index) const;
+    virtual bool canAddDynamicProperty(const QString &propertyName, const QVariant &value) const;
 
     void createFakeProperty(const QString &propertyName, const QVariant &value = QVariant());
 

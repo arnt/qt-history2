@@ -231,16 +231,15 @@ class QDESIGNER_SHARED_EXPORT AddDynamicPropertyCommand: public QDesignerFormWin
 public:
     AddDynamicPropertyCommand(QDesignerFormWindowInterface *formWindow);
 
-    void init(QObject *object, const QString &propertyName, const QVariant &value);
+    bool init(const QList<QObject *> &selection, QObject *current, const QString &propertyName, const QVariant &value);
 
     virtual void redo();
     virtual void undo();
 private:
+    void setDescription();
     QString m_propertyName;
-    QPointer<QObject> m_object;
-    QDesignerPropertySheetExtension *m_propertySheet;
+    QList<QObject *> m_selection;
     QVariant m_value;
-    bool m_changed;
 };
 
 class QDESIGNER_SHARED_EXPORT RemoveDynamicPropertyCommand: public QDesignerFormWindowCommand
@@ -249,16 +248,14 @@ class QDESIGNER_SHARED_EXPORT RemoveDynamicPropertyCommand: public QDesignerForm
 public:
     RemoveDynamicPropertyCommand(QDesignerFormWindowInterface *formWindow);
 
-    void init(QObject *object, const QString &propertyName);
+    bool init(const QList<QObject *> &selection, QObject *current, const QString &propertyName);
 
     virtual void redo();
     virtual void undo();
 private:
+    void setDescription();
     QString m_propertyName;
-    QPointer<QObject> m_object;
-    QDesignerPropertySheetExtension *m_propertySheet;
-    QVariant m_value;
-    bool m_changed;
+    QMap<QObject *, QPair<QVariant, bool> > m_objectToValueAndChanged;
 };
 
 } // namespace qdesigner_internal

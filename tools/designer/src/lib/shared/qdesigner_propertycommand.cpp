@@ -935,86 +935,164 @@ void ResetPropertyCommand::redo()
 }
 
 AddDynamicPropertyCommand::AddDynamicPropertyCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(QString(), formWindow),
-      m_propertySheet(0)
+    : QDesignerFormWindowCommand(QString(), formWindow)
 {
 
 }
 
-void AddDynamicPropertyCommand::init(QObject *object, const QString &propertyName, const QVariant &value)
+bool AddDynamicPropertyCommand::init(const QList<QObject *> &selection, QObject *current,
+            const QString &propertyName, const QVariant &value)
 {
-    Q_ASSERT(object);
-    m_object = object;
+    Q_ASSERT(current);
     m_propertyName = propertyName;
 
     QDesignerFormEditorInterface *core = formWindow()->core();
-    m_propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), object);
-    Q_ASSERT(m_propertySheet);
+    QDesignerPropertySheetExtension *propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), current);
+    Q_ASSERT(propertySheet);
+
+    m_selection.clear();
+
+    if (!propertySheet->canAddDynamicProperty(m_propertyName, value))
+        return false;
+
+    m_selection.append(current);
 
     m_value = value;
 
-    setText(QApplication::translate("Command", "add dynamic property '%1' to '%2'").arg(m_propertyName).arg(m_object->objectName()));
+    QListIterator<QObject *> it(selection);
+    while (it.hasNext()) {
+        QObject *obj = it.next();
+        if (m_selection.contains(obj))
+            continue;
+        propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), obj);
+        Q_ASSERT(propertySheet);
+        if (propertySheet->canAddDynamicProperty(m_propertyName, m_value))
+            m_selection.append(obj);
+    }
+
+    setDescription();
+    return true;
 }
 
 void AddDynamicPropertyCommand::redo()
 {
-    m_propertySheet->addDynamicProperty(m_propertyName, m_value);
-    if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
-        if (propertyEditor->object() == m_object)
-            propertyEditor->setObject(m_object);
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    QListIterator<QObject *> it(m_selection);
+    while (it.hasNext()) {
+        QObject *obj = it.next();
+        QDesignerPropertySheetExtension *propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), obj);
+        propertySheet->addDynamicProperty(m_propertyName, m_value);
+        if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
+            if (propertyEditor->object() == obj)
+                propertyEditor->setObject(obj);
+        }
     }
 }
 
 void AddDynamicPropertyCommand::undo()
 {
-    m_propertySheet->removeDynamicProperty(m_propertyName);
-    if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
-        if (propertyEditor->object() == m_object)
-            propertyEditor->setObject(m_object);
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    QListIterator<QObject *> it(m_selection);
+    while (it.hasNext()) {
+        QObject *obj = it.next();
+        QDesignerPropertySheetExtension *propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), obj);
+        propertySheet->removeDynamicProperty(m_propertyName);
+        if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
+            if (propertyEditor->object() == obj)
+                propertyEditor->setObject(obj);
+        }
+    }
+}
+
+void AddDynamicPropertyCommand::setDescription()
+{
+    if (m_selection.size() == 1) {
+        setText(QApplication::translate("Command", "add dynamic property '%1' to '%2'").arg(m_propertyName).arg(m_selection.first()->objectName()));
+    } else {
+        setText(QApplication::translate("Command", "add dynamic property '%1' to %2 objects").arg(m_propertyName).arg(m_selection.size()));
     }
 }
 
 
 RemoveDynamicPropertyCommand::RemoveDynamicPropertyCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(QString(), formWindow),
-      m_propertySheet(0)
+    : QDesignerFormWindowCommand(QString(), formWindow)
 {
 
 }
 
-void RemoveDynamicPropertyCommand::init(QObject *object, const QString &propertyName)
+bool RemoveDynamicPropertyCommand::init(const QList<QObject *> &selection, QObject *current,
+            const QString &propertyName)
 {
-    Q_ASSERT(object);
-    m_object = object;
+    Q_ASSERT(current);
     m_propertyName = propertyName;
 
     QDesignerFormEditorInterface *core = formWindow()->core();
-    m_propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), object);
-    Q_ASSERT(m_propertySheet);
+    QDesignerPropertySheetExtension *propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), current);
+    Q_ASSERT(propertySheet);
 
-    int index = m_propertySheet->indexOf(m_propertyName);
-    m_value = m_propertySheet->property(index);
-    m_changed = m_propertySheet->isChanged(index);
+    m_objectToValueAndChanged.clear();
 
-    setText(QApplication::translate("Command", "remove dynamic property '%1' to '%2'").arg(m_propertyName).arg(m_object->objectName()));
+    const int index = propertySheet->indexOf(m_propertyName);
+    if (!propertySheet->isDynamicProperty(index))
+        return false;
+
+    m_objectToValueAndChanged[current] = qMakePair(propertySheet->property(index), propertySheet->isChanged(index));
+
+    QListIterator<QObject *> it(selection);
+    while (it.hasNext()) {
+        QObject *obj = it.next();
+        if (m_objectToValueAndChanged.contains(obj))
+            continue;
+
+        propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), obj);
+        const int idx = propertySheet->indexOf(m_propertyName);
+        if (propertySheet->isDynamicProperty(idx))
+            m_objectToValueAndChanged[obj] = qMakePair(propertySheet->property(idx), propertySheet->isChanged(idx));
+    }
+
+    setDescription();
+    return true;
 }
 
 void RemoveDynamicPropertyCommand::redo()
 {
-    m_propertySheet->removeDynamicProperty(m_propertyName);
-    if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
-        if (propertyEditor->object() == m_object)
-            propertyEditor->setObject(m_object);
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    QMap<QObject *, QPair<QVariant, bool> >::ConstIterator it = m_objectToValueAndChanged.constBegin();
+    while (it != m_objectToValueAndChanged.constEnd()) {
+        QObject *obj = it.key();
+        QDesignerPropertySheetExtension *propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), obj);
+        propertySheet->removeDynamicProperty(m_propertyName);
+        if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
+            if (propertyEditor->object() == obj)
+                propertyEditor->setObject(obj);
+        }
+        ++it;
     }
 }
 
 void RemoveDynamicPropertyCommand::undo()
 {
-    m_propertySheet->addDynamicProperty(m_propertyName, m_value);
-    m_propertySheet->setChanged(m_propertySheet->indexOf(m_propertyName), m_changed);
-    if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
-        if (propertyEditor->object() == m_object)
-            propertyEditor->setObject(m_object);
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    QMap<QObject *, QPair<QVariant, bool> >::ConstIterator it = m_objectToValueAndChanged.constBegin();
+    while (it != m_objectToValueAndChanged.constEnd()) {
+        QObject *obj = it.key();
+        QDesignerPropertySheetExtension *propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), obj);
+        propertySheet->addDynamicProperty(m_propertyName, it.value().first);
+        propertySheet->setChanged(propertySheet->indexOf(m_propertyName), it.value().second);
+        if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
+            if (propertyEditor->object() == obj)
+                propertyEditor->setObject(obj);
+        }
+        ++it;
+    }
+}
+
+void RemoveDynamicPropertyCommand::setDescription()
+{
+    if (m_objectToValueAndChanged.size() == 1) {
+        setText(QApplication::translate("Command", "remove dynamic property '%1' from '%2'").arg(m_propertyName).arg(m_objectToValueAndChanged.constBegin().key()->objectName()));
+    } else {
+        setText(QApplication::translate("Command", "remove dynamic property '%1' from %2 objects").arg(m_propertyName).arg(m_objectToValueAndChanged.size()));
     }
 }
 

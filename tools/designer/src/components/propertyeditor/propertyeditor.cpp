@@ -981,9 +981,7 @@ void PropertyEditor::slotCustomContextMenuRequested(const QPoint &pos)
     const QAction *result = menu.exec(mapToGlobal(pos));
 
     if (result == removeAction && nonfake) {
-        RemoveDynamicPropertyCommand *cmd = new RemoveDynamicPropertyCommand(m_core->formWindowManager()->activeFormWindow());
-        cmd->init(m_object, nonfake->propertyName());
-        m_core->formWindowManager()->activeFormWindow()->commandHistory()->push(cmd);
+        emit removeDynamicProperty(nonfake->propertyName());
     } else if (result == addAction) {
         NewDynamicPropertyDialog dlg(this);
         QStringList reservedNames;
@@ -996,9 +994,7 @@ void PropertyEditor::slotCustomContextMenuRequested(const QPoint &pos)
             const QString newName = dlg.propertyName();
             const QVariant newValue = dlg.propertyValue();
 
-            AddDynamicPropertyCommand *cmd = new AddDynamicPropertyCommand(m_core->formWindowManager()->activeFormWindow());
-            cmd->init(m_object, newName, newValue);
-            m_core->formWindowManager()->activeFormWindow()->commandHistory()->push(cmd);
+            emit addDynamicProperty(newName, newValue);
         }
     }
 }

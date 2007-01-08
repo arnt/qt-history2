@@ -43,6 +43,8 @@ public:
 Q_SIGNALS:
     void propertyCommentChanged(const QString &name, const QString &value);
     void resetProperty(const QString &name);
+    void addDynamicProperty(const QString &name, const QVariant &value);
+    void removeDynamicProperty(const QString &name);
 
 public Q_SLOTS:
     virtual void setPropertyComment(const QString &name, const QString &value) = 0;

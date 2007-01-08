@@ -253,6 +253,8 @@ void ObjectInspector::showContainersCurrentPage(QWidget *widget)
         return;
 
     FormWindow *fw = FormWindow::findFormWindow(widget);
+    if (!fw)
+        return;
 
     QWidget *w = widget->parentWidget();
     while (1) {

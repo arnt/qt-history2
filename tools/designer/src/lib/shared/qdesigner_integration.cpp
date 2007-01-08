@@ -50,6 +50,10 @@ void QDesignerIntegration::initialize()
     if (QDesignerPropertyEditor *designerPropertyEditor= qobject_cast<QDesignerPropertyEditor *>(core()->propertyEditor())) {
         connect(designerPropertyEditor, SIGNAL(propertyCommentChanged(QString, QString)), this, SLOT(updatePropertyComment(QString, QString)));
         connect(designerPropertyEditor, SIGNAL(resetProperty(QString)), this, SLOT(resetProperty(QString)));
+        connect(designerPropertyEditor, SIGNAL(addDynamicProperty(QString,QVariant)),
+                this, SLOT(addDynamicProperty(QString,QVariant)));
+        connect(designerPropertyEditor, SIGNAL(removeDynamicProperty(QString)),
+                this, SLOT(removeDynamicProperty(QString)));
     }
 
     connect(core()->formWindowManager(), SIGNAL(formWindowAdded(QDesignerFormWindowInterface*)),
@@ -131,6 +135,48 @@ void QDesignerIntegration::resetProperty(const QString &name)
         qWarning() << "** WARNING Unable to reset property " << name << '.';
     } 
 }
+
+void QDesignerIntegration::addDynamicProperty(const QString &name, const QVariant &value)
+{
+    QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow();
+    if (!formWindow)
+        return;
+
+    Selection selection;
+    getSelection(selection);
+    if (selection.empty())
+        return;
+
+    AddDynamicPropertyCommand *cmd = new AddDynamicPropertyCommand(formWindow);
+    if (cmd->init(selection.selection(), propertyEditorObject(), name, value)) {
+        formWindow->commandHistory()->push(cmd);
+    } else {
+        delete cmd;
+        qWarning() << "** WARNING Unable to add dynamic property " << name << '.';
+    }
+}
+
+void QDesignerIntegration::removeDynamicProperty(const QString &name)
+{
+    QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow();
+    if (!formWindow)
+        return;
+
+    Selection selection;
+    getSelection(selection);
+    if (selection.empty())
+        return;
+
+    RemoveDynamicPropertyCommand *cmd = new RemoveDynamicPropertyCommand(formWindow);
+    if (cmd->init(selection.selection(), propertyEditorObject(), name)) {
+        formWindow->commandHistory()->push(cmd);
+    } else {
+        delete cmd;
+        qWarning() << "** WARNING Unable to remove dynamic property " << name << '.';
+    }
+
+}
+
 
 void QDesignerIntegration::updateActiveFormWindow(QDesignerFormWindowInterface *formWindow)
 {
