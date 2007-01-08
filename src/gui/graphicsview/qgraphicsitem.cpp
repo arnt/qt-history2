@@ -4799,6 +4799,7 @@ void QGraphicsPixmapItem::setOffset(const QPointF &offset)
         return;
     prepareGeometryChange();
     d->offset = offset;
+    d->updateShape();
     update();
 }
 
@@ -4808,9 +4809,9 @@ void QGraphicsPixmapItem::setOffset(const QPointF &offset)
 QRectF QGraphicsPixmapItem::boundingRect() const
 {
     Q_D(const QGraphicsPixmapItem);
-    qreal halfPw = 0.5;
+    qreal pw = 1.0;
     return d->pixmap.isNull() ? QRectF() : QRectF(d->offset, d->pixmap.size())
-        .adjusted(-halfPw, -halfPw, halfPw * 2, halfPw * 2);
+        .adjusted(-pw/2, -pw/2, pw, pw);
 }
 
 /*!
@@ -4843,8 +4844,7 @@ void QGraphicsPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
 
     QRectF exposed = option->exposedRect.adjusted(-1, -1, 1, 1);
     exposed &= QRectF(d->offset.x(), d->offset.y(), d->pixmap.width(), d->pixmap.height());
-    exposed.translate(d->offset);
-    painter->drawPixmap(exposed, d->pixmap, exposed);
+    painter->drawPixmap(exposed, d->pixmap, exposed.translated(-d->offset));
 
     if (option->state & QStyle::State_Selected)
         qt_graphicsItem_highlightSelected(this, painter, option);
