@@ -25,6 +25,7 @@
 // We mean it.
 //
 
+#include "QtGui/qpainter.h"
 #include "QtGui/qpen.h"
 #include "QtGui/qbrush.h"
 #include "QtGui/qmatrix.h"
@@ -119,7 +120,8 @@ public:
         TRANSFORM,
         ANIMATE_TRANSFORM,
         ANIMATE_COLOR,
-        OPACITY
+        OPACITY,
+        COMP_OP
     };
 public:
     virtual ~QSvgStyleProperty();
@@ -428,6 +430,27 @@ private:
     qreal m_repeatCount;
 };
 
+
+class QSvgCompOpStyle : public QSvgStyleProperty
+{
+public:
+    QSvgCompOpStyle(QPainter::CompositionMode mode);
+    virtual void apply(QPainter *p, const QRectF &, QSvgNode *node);
+    virtual void revert(QPainter *p);
+    virtual Type type() const;
+
+    const QPainter::CompositionMode & compOp() const
+    {
+        return m_mode;
+    }
+private:
+    //comp-op attribute
+    QPainter::CompositionMode m_mode;
+
+    QPainter::CompositionMode m_oldMode;
+};
+
+
 class QSvgStyle
 {
 public:
@@ -440,7 +463,9 @@ public:
           solidColor(0),
           gradient(0),
           transform(0),
-          animateColor(0)
+          animateColor(0),
+          opacity(0),
+          compop(0)
     {}
     ~QSvgStyle();
 
@@ -457,6 +482,7 @@ public:
     QSvgRefCounter<QSvgAnimateColor>      animateColor;
     QList<QSvgRefCounter<QSvgAnimateTransform> >   animateTransforms;
     QSvgRefCounter<QSvgOpacityStyle>      opacity;
+    QSvgRefCounter<QSvgCompOpStyle>       compop;
 };
 
 /********************************************************/

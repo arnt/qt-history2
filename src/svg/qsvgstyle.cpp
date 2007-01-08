@@ -291,10 +291,32 @@ QSvgStyleProperty::Type QSvgTransformStyle::type() const
     return TRANSFORM;
 }
 
+
+QSvgCompOpStyle::QSvgCompOpStyle(QPainter::CompositionMode mode)
+    : m_mode(mode)
+{
+    
+}
+
+void QSvgCompOpStyle::apply(QPainter *p, const QRectF &, QSvgNode *node)
+{
+    m_oldMode = p->compositionMode();
+    p->setCompositionMode(m_mode);
+}
+
+void QSvgCompOpStyle::revert(QPainter *p)
+{
+    p->setCompositionMode(m_oldMode);
+}
+
+QSvgStyleProperty::Type QSvgCompOpStyle::type() const
+{
+    return COMP_OP;
+}
+
 QSvgStyle::~QSvgStyle()
 {
 }
-
 
 void QSvgStyle::apply(QPainter *p, const QRectF &rect, QSvgNode *node)
 {
@@ -346,6 +368,10 @@ void QSvgStyle::apply(QPainter *p, const QRectF &rect, QSvgNode *node)
 
     if (opacity) {
         opacity->apply(p, rect, node);
+    }
+
+    if (compop) {
+        compop->apply(p, rect, node);
     }
 }
 
@@ -401,6 +427,10 @@ void QSvgStyle::revert(QPainter *p)
 
     if (opacity) {
         opacity->revert(p);
+    }
+
+    if (compop) {
+        compop->revert(p);
     }
 }
 

@@ -1906,6 +1906,75 @@ static void parseOpacity(QSvgNode *node,
     }
 }
 
+static QPainter::CompositionMode svgToQtCompositionMode(const QString &op)
+{
+#define NOOP qDebug()<<"Operation: "<<op<<" is not implemented"
+    if (op == QLatin1String("clear")) {
+        return QPainter::CompositionMode_Clear;
+    } else if (op == QLatin1String("src")) {
+        return QPainter::CompositionMode_Source;
+    } else if (op == QLatin1String("dst")) {
+        return QPainter::CompositionMode_Destination;
+    } else if (op == QLatin1String("src-over")) {
+        return QPainter::CompositionMode_SourceOver;
+    } else if (op == QLatin1String("dst-over")) {
+        return QPainter::CompositionMode_DestinationOver;
+    } else if (op == QLatin1String("src-in")) {
+        return QPainter::CompositionMode_SourceIn;
+    } else if (op == QLatin1String("dst-in")) {
+        return QPainter::CompositionMode_DestinationIn;
+    } else if (op == QLatin1String("src-out")) {
+        return QPainter::CompositionMode_SourceOut;
+    } else if (op == QLatin1String("dst-out")) {
+        return QPainter::CompositionMode_DestinationOut;
+    } else if (op == QLatin1String("src-atop")) {
+        return QPainter::CompositionMode_SourceAtop;
+    } else if (op == QLatin1String("dst-atop")) {
+        return QPainter::CompositionMode_DestinationAtop;
+    } else if (op == QLatin1String("xor")) {
+        return QPainter::CompositionMode_Xor;
+    } else if (op == QLatin1String("plus")) {
+        NOOP;
+    } else if (op == QLatin1String("multiply")) {
+        NOOP;
+    } else if (op == QLatin1String("screen")) {
+        NOOP;
+    } else if (op == QLatin1String("overlay")) {
+        NOOP;
+    } else if (op == QLatin1String("darken")) {
+        NOOP;
+    } else if (op == QLatin1String("lighten")) {
+        NOOP;
+    } else if (op == QLatin1String("color-dodge")) {
+        NOOP;
+    } else if (op == QLatin1String("color-burn")) {
+        NOOP;
+    } else if (op == QLatin1String("hard-light")) {
+        NOOP;
+    } else if (op == QLatin1String("soft-light")) {
+        NOOP;
+    } else if (op == QLatin1String("difference")) {
+        NOOP;
+    } else if (op == QLatin1String("exclusion")) {
+        NOOP;
+    }
+    return QPainter::CompositionMode_SourceOver;
+}
+
+static void parseCompOp(QSvgNode *node,
+                        const QXmlAttributes &attributes,
+                        QSvgHandler *)
+{
+    QString value = attributes.value(QLatin1String("comp-op"));
+    value = value.trimmed();
+
+    if (!value.isEmpty()) {
+        QSvgCompOpStyle *compop = new QSvgCompOpStyle(svgToQtCompositionMode(value));
+        node->appendStyleProperty(compop,
+                                  attributes.value(QLatin1String("id")));
+    }
+}
+
 static bool parseStyle(QSvgNode *node,
                        const QXmlAttributes &attrs,
                        QSvgHandler *handler)
@@ -1923,6 +1992,7 @@ static bool parseStyle(QSvgNode *node,
     parseTransform(node, attributes, handler);
     parseVisibility(node, attributes, handler);
     parseOpacity(node, attributes, handler);
+    parseCompOp(node, attributes, handler);
 #if 0
     value = attributes.value("audio-level");
 
