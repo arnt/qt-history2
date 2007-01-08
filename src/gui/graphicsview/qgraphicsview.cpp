@@ -13,6 +13,8 @@
 
 //#define QGRAPHICSVIEW_DEBUG
 
+static const int QGRAPHICSVIEW_REGION_RECT_THRESHOLD = 50;
+
 /*!
     \class QGraphicsView
     \brief The QGraphicsView class provides a widget for displaying the
@@ -122,6 +124,33 @@
 */
 
 /*!
+    \enum QGraphicsView::ViewportUpdateMode
+
+    This enum describes how QGraphicsView updates its viewport when the scene
+    contents change or are exposed.
+
+    \value FullViewportUpdate When any visible part of the scene changes or is
+    reexposed, QGraphicsView will update the entire viewport. This approach is
+    fastest when QGraphicsView spends more time figuring out what to draw than
+    it would spend drawing (e.g., when very many small items are repeatedly
+    updated). This is the preferred update mode for viewports that do not
+    support partial updates, such as QGLWidget.
+
+    \value MinimalViewportUpdate QGraphicsView will determine the minimal
+    viewport region that requires a redraw, minimizing the time spent drawing
+    by avoiding a redraw of areas that have not changed. This is
+    QGraphicsView's default mode. Although this approach provides the best
+    performance in general, if there are many small visible changes on the
+    scene, QGraphicsView might end up spending more time finding the minimal
+    approach than it will spend drawing.
+
+    \value SmartViewportUpdate QGraphicsView will attempt to find an optimal
+    update mode by analyzing the areas that require a redraw.
+
+    \sa viewportUpdateMode
+*/
+
+/*!
     \enum QGraphicsView::CacheModeFlag
 
     This enum describes the flags that you can set for a QGraphicsView's cache
@@ -224,6 +253,7 @@ public:
 
     QGraphicsView::ViewportAnchor transformationAnchor;
     QGraphicsView::ViewportAnchor resizeAnchor;
+    QGraphicsView::ViewportUpdateMode viewportUpdateMode;
 
     QGraphicsScene *scene;
 #ifndef QT_NO_RUBBERBAND
@@ -266,6 +296,7 @@ QGraphicsViewPrivate::QGraphicsViewPrivate()
       lastMouseEvent(QEvent::None, QPoint(), Qt::NoButton, 0, 0),
       useLastMouseEvent(false), alignment(Qt::AlignCenter),
       transformationAnchor(QGraphicsView::AnchorViewCenter), resizeAnchor(QGraphicsView::NoAnchor),
+      viewportUpdateMode(QGraphicsView::MinimalViewportUpdate),
       scene(0),
 #ifndef QT_NO_RUBBERBAND
       rubberBanding(false),
@@ -757,6 +788,33 @@ void QGraphicsView::setResizeAnchor(ViewportAnchor anchor)
 {
     Q_D(QGraphicsView);
     d->resizeAnchor = anchor;
+}
+
+/*!
+    \property QGraphicsView::viewportUpdateMode
+    \brief how the viewport should update its contents.
+
+    QGraphicsView uses this property to decide how to update areas of the
+    scene that have been reexposed or changed. Usually you do not need to
+    modify this property, but there are some cases where doing so can improve
+    rendering performance. See the ViewportUpdateMode documentation for
+    specific details.
+
+    The default value is MinimalViewportUpdate, where QGraphicsView will
+    update as small an area of the viewport as possible when the contents
+    change.
+
+    \sa ViewportUpdateMode, cacheMode
+*/
+QGraphicsView::ViewportUpdateMode QGraphicsView::viewportUpdateMode() const
+{
+    Q_D(const QGraphicsView);
+    return d->viewportUpdateMode;
+}
+void QGraphicsView::setViewportUpdateMode(ViewportUpdateMode mode)
+{
+    Q_D(QGraphicsView);
+    d->viewportUpdateMode = mode;
 }
 
 /*!
@@ -1822,24 +1880,39 @@ void QGraphicsView::updateScene(const QList<QRectF> &rects)
     Q_D(QGraphicsView);
     QRect viewportRect = viewport()->rect();
 
+    bool fullUpdate = !d->accelerateScrolling || d->viewportUpdateMode == QGraphicsView::FullViewportUpdate;
+    bool smartUpdate = d->viewportUpdateMode == QGraphicsView::SmartViewportUpdate && rects.size() >= QGRAPHICSVIEW_REGION_RECT_THRESHOLD;
+
     QRegion updateRegion;
     QRect sumRect;
+    bool redraw = false;
     foreach (QRectF rect, rects) {
         // Find the item's bounding rect and map it to view coordiates.
         // Adjust with 2 pixels for antialiasing.
         QRect mappedRect = mapFromScene(rect).boundingRect().adjusted(-2, -2, 2, 2);
         if (viewportRect.contains(mappedRect) || viewportRect.intersects(mappedRect)) {
-            updateRegion += mappedRect;
-            sumRect |= mappedRect;
-            if (!d->accelerateScrolling)
+            if (!smartUpdate) {
+                // Add the exposed rect to the update region. In smart update
+                // mode, we only count the bounding rect of items.
+                updateRegion += mappedRect;
+            } else {
+                sumRect |= mappedRect;
+            }
+            redraw = true;
+            if (fullUpdate)
                 break;
         }
     }
 
-    if (!updateRegion.isEmpty())
-        viewport()->update(!d->accelerateScrolling ? QRegion(viewportRect) : updateRegion);
-    else if (!sumRect.isNull())
-        viewport()->update(!d->accelerateScrolling ? viewportRect : sumRect);
+    if (!redraw)
+        return;
+
+    if (fullUpdate)
+        viewport()->update();
+    else if (smartUpdate)
+        viewport()->update(sumRect);
+    else
+        viewport()->update(updateRegion);
 }
 
 /*!
@@ -2279,14 +2352,21 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
             }
 
             // Update old rubberband
-            if (!d->rubberBandRect.isNull())
-                viewport()->update(d->rubberBandRegion(viewport(), d->rubberBandRect));
+            if (!d->rubberBandRect.isNull()) {
+                if (d->viewportUpdateMode != FullViewportUpdate)
+                    viewport()->update(d->rubberBandRegion(viewport(), d->rubberBandRect));
+                else
+                    viewport()->update();
+            }
 
             // Update rubberband position
             d->rubberBandRect = QRect(d->mousePressViewPoint, event->pos()).normalized();
 
             // Update new rubberband
-            viewport()->update(d->rubberBandRegion(viewport(), d->rubberBandRect));
+            if (d->viewportUpdateMode != FullViewportUpdate)
+                viewport()->update(d->rubberBandRegion(viewport(), d->rubberBandRect));
+            else
+                viewport()->update();
 
             // Set the new selection area
             QPainterPath selectionArea;
@@ -2388,7 +2468,10 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 #ifndef QT_NO_RUBBERBAND
     if (d->dragMode == QGraphicsView::RubberBandDrag && d->sceneInteractionAllowed) {
         if (d->rubberBanding) {
-            viewport()->update(d->rubberBandRegion(viewport(), d->rubberBandRect));
+            if (d->viewportUpdateMode != FullViewportUpdate)
+                viewport()->update(d->rubberBandRegion(viewport(), d->rubberBandRect));
+            else
+                viewport()->update();
             d->rubberBanding = false;
             return;
         }
@@ -2706,7 +2789,7 @@ void QGraphicsView::scrollContentsBy(int dx, int dy)
     if (isRightToLeft())
         dx = -dx;
 
-    if (d->accelerateScrolling)
+    if (d->accelerateScrolling || d->viewportUpdateMode != FullViewportUpdate)
         viewport()->scroll(dx, dy);
     else
         viewport()->update();

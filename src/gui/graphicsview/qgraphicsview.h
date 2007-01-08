@@ -46,6 +46,7 @@ class Q_GUI_EXPORT QGraphicsView : public QAbstractScrollArea
     Q_PROPERTY(CacheMode cacheMode READ cacheMode WRITE setCacheMode)
     Q_PROPERTY(ViewportAnchor transformationAnchor READ transformationAnchor WRITE setTransformationAnchor)
     Q_PROPERTY(ViewportAnchor resizeAnchor READ resizeAnchor WRITE setResizeAnchor)
+    Q_PROPERTY(ViewportUpdateMode viewportUpdateMode READ viewportUpdateMode WRITE setViewportUpdateMode)
 
 public:
     enum ViewportAnchor {
@@ -66,6 +67,12 @@ public:
         RubberBandDrag
     };
 
+    enum ViewportUpdateMode {
+        FullViewportUpdate,
+        MinimalViewportUpdate,
+        SmartViewportUpdate
+    };
+
     QGraphicsView(QWidget *parent = 0);
     QGraphicsView(QGraphicsScene *scene, QWidget *parent = 0);
     ~QGraphicsView();
@@ -84,6 +91,9 @@ public:
 
     ViewportAnchor resizeAnchor() const;
     void setResizeAnchor(ViewportAnchor anchor);
+
+    ViewportUpdateMode viewportUpdateMode() const;
+    void setViewportUpdateMode(ViewportUpdateMode mode);
 
     DragMode dragMode() const;
     void setDragMode(DragMode mode);
