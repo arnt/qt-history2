@@ -53,60 +53,39 @@ HelpWindow::HelpWindow(MainWindow *w, QWidget *parent)
 
 void HelpWindow::setSource(const QUrl &name)
 {
-    if (!name.isValid())
-        return;
-
-    shiftPressed = shiftPressed & hasFocus();
-
-    if (newWindow || shiftPressed) {
-        shiftPressed = false;
-        QTextCursor c = textCursor();
-        c.clearSelection();
-        setTextCursor(c);
-        mw->saveSettings();
-        MainWindow *nmw = new MainWindow;
-
-        nmw->setup();
-        nmw->showLink(name.toString());
-        nmw->move(mw->geometry().topLeft());
-        if (mw->isMaximized())
-            nmw->showMaximized();
-        else
-            nmw->show();
-        return;
-    }
-
-    if (name.scheme() == QLatin1String("http") || name.scheme() == QLatin1String("ftp") || name.scheme() == QLatin1String("mailto")
-        || name.path().endsWith(QLatin1String("pdf"))) {
-        bool launched = QDesktopServices::openUrl(name);
-        if (!launched) {
-            QMessageBox::information(mw, tr("Help"),
-                         tr("Unable to launch web browser.\n"),
-                         tr("Ok"));
-        }
-        return;
-    }
-
-    if (name.scheme() == QLatin1String("file")) {
-        QFileInfo fi(name.toLocalFile());
-        if (!fi.exists()) {
-            mw->statusBar()->showMessage(tr("Failed to open link: '%1'").arg(fi.absoluteFilePath()), 5000);
-            setHtml(tr("<div align=\"center\"><h1>The page could not be found</h1><br>"
-                "<h3>'%1'</h3></div>").arg(fi.absoluteFilePath()));
-            mw->browsers()->updateTitle(tr("Error..."));
+    if (name.isValid()) {
+        if (name.scheme() == QLatin1String("http") || name.scheme() == QLatin1String("ftp") 
+            || name.scheme() == QLatin1String("mailto") || name.path().endsWith(QLatin1String("pdf"))) {
+            bool launched = QDesktopServices::openUrl(name);
+            if (!launched) {
+                QMessageBox::information(mw, tr("Help"),
+                             tr("Unable to launch web browser.\n"),
+                             tr("OK"));
+            }
             return;
         }
 
-        /*
-        setHtml(QLatin1String("<body bgcolor=\"")
-            + palette().color(backgroundRole()).name()
-            + QLatin1String("\">"));
-            */
-
-        QTextBrowser::setSource(name);
-
-        return;
+        QFileInfo fi(name.toLocalFile());
+        if (name.scheme() == QLatin1String("file") && fi.exists()) {
+            if (newWindow || (shiftPressed && hasFocus())) {
+                shiftPressed = false;
+                mw->saveSettings();
+                MainWindow *nmw = new MainWindow;
+                nmw->move(mw->geometry().topLeft());
+                nmw->show();
+                
+                if (mw->isMaximized())
+                    nmw->showMaximized();
+                
+                nmw->setup();
+                nmw->showLink(name.toString());
+            } else {
+                QTextBrowser::setSource(name);
+            }
+            return;
+        }
     }
+
     mw->statusBar()->showMessage(tr("Failed to open link: '%1'").arg(name.toString()), 5000);
     setHtml(tr("<div align=\"center\"><h1>The page could not be found</h1><br>"
         "<h3>'%1'</h3></div>").arg(name.toString()));
@@ -193,7 +172,8 @@ void HelpWindow::ensureCursorVisible()
 void HelpWindow::mousePressEvent(QMouseEvent *e)
 {
     shiftPressed = e->modifiers() & Qt::ShiftModifier;
-    QTextBrowser::mousePressEvent(e);
+    if (!(shiftPressed && hasAnchorAt(e->pos())))
+        QTextBrowser::mousePressEvent(e);
 }
 
 void HelpWindow::keyPressEvent(QKeyEvent *e)
