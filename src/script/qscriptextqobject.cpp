@@ -61,6 +61,12 @@ static inline QVariant variantFromValue(int targetType, const QScriptValue &valu
         return v;
     if (uint(targetType) == QVariant::LastType)
         return value.toVariant();
+    if (value.isVariant()) {
+        v = value.toVariant();
+        if (v.userType() == targetType)
+            return v;
+    }
+
     return QVariant();
 }
 

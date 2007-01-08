@@ -32,6 +32,7 @@ class MyQObject : public QObject
     Q_PROPERTY(int intProperty READ intProperty WRITE setIntProperty)
     Q_PROPERTY(QVariant variantProperty READ variantProperty WRITE setVariantProperty)
     Q_PROPERTY(double hiddenProperty READ hiddenProperty WRITE setHiddenProperty SCRIPTABLE false)
+    Q_PROPERTY(QKeySequence shortcut READ shortcut WRITE setShortcut)
     Q_ENUMS(Policy Strategy)
     Q_FLAGS(Ability)
 
@@ -80,6 +81,11 @@ public:
         { return m_hiddenValue; }
     void setHiddenProperty(double value)
         { m_hiddenValue = value; }
+
+    QKeySequence shortcut() const
+        { return m_shortcut; }
+    void setShortcut(const QKeySequence &seq)
+        { m_shortcut = seq; }
 
     int qtFunctionInvoked() const
         { return m_qtFunctionInvoked; }
@@ -141,6 +147,7 @@ private:
     int m_intValue;
     QVariant m_variantValue;
     double m_hiddenValue;
+    QKeySequence m_shortcut;
     int m_qtFunctionInvoked;
     QVariantList m_actuals;
 };
@@ -241,6 +248,17 @@ void tst_QScriptExtQObject::getSetStaticProperty()
     QCOMPARE(m_engine->evaluate("myObject.variantProperty = 42;"
                           "myObject.variantProperty").toNumber(), 42.0);
     QCOMPARE(m_myObject->variantProperty().toDouble(), 42.0);
+
+    // test setting properties where we can't convert the type natively but where the
+    // types happen to be compatible variant types already
+    {
+        QKeySequence sequence(Qt::ControlModifier + Qt::AltModifier + Qt::Key_Delete);
+        QScriptValue mobj = m_engine->globalObject().property("myObject");
+
+        QVERIFY(m_myObject->shortcut().isEmpty());
+        mobj.setProperty("shortcut", m_engine->scriptValueFromVariant(sequence));
+        QVERIFY(m_myObject->shortcut() == sequence);
+    }
 
     // try to delete
     QCOMPARE(m_engine->evaluate("delete myObject.intProperty").toBoolean(), false);
