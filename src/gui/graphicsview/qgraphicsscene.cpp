@@ -933,9 +933,10 @@ QGraphicsScene::~QGraphicsScene()
     primarily used by QGraphicsView to determine the view's default
     scrollable area, and by QGraphicsScene to manage item indexing.
 
-    If unset, sceneRect() will return the largest bounding rect of all items
-    on the scene since the scene was created (i.e., a rectangle that grows
-    when items are added to or moved in the scene, but never shrinks).
+    If unset, or if set to a null QRectF, sceneRect() will return the largest
+    bounding rect of all items on the scene since the scene was created (i.e.,
+    a rectangle that grows when items are added to or moved in the scene, but
+    never shrinks).
 
     \sa width(), height(), QGraphicsView::sceneRect
 */

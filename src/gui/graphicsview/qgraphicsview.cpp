@@ -1027,9 +1027,10 @@ void QGraphicsView::setScene(QGraphicsScene *scene)
     this means the area of the scene that you can navigate using the scroll
     bars.
 
-    If unset, this property has the same value as QGraphicsScene::sceneRect,
-    and it changes with QGraphicsScene::sceneRect. Otherwise, the view's scene
-    rect is unaffected by the scene.
+    If unset, or if a null QRectF is set, this property has the same value as
+    QGraphicsScene::sceneRect, and it changes with
+    QGraphicsScene::sceneRect. Otherwise, the view's scene rect is unaffected
+    by the scene.
 
     Note that although the scene supports a virtually unlimited size, the
     range of the scrollbars will never exceed the range of an integer
