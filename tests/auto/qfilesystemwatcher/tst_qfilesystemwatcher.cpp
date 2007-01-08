@@ -77,6 +77,9 @@ void tst_QFileSystemWatcher::basicTest()
     QVERIFY(testFile.open(QIODevice::WriteOnly | QIODevice::Truncate));
     testFile.write(QByteArray("hello"));
     testFile.close();
+    
+    // set some file permissions
+    testFile.setPermissions(QFile::ReadOwner | QFile::WriteOwner | QFile::ReadOther);
 
     // create watcher, forcing it to use a specific backend
     QFileSystemWatcher watcher;
@@ -130,6 +133,34 @@ void tst_QFileSystemWatcher::basicTest()
     // readd the file watch
     watcher.addPath(testFile.fileName());
 
+    // change the permissions, should get a signal from the watcher
+    testFile.setPermissions(QFile::ReadOwner | QFile::WriteOwner);
+
+    // qDebug() << "waiting max 5 seconds for notification for file permission modification to trigger(1)";
+    timer.start(5000);
+    eventLoop.exec();
+
+    QCOMPARE(changedSpy.count(), 1);
+    QCOMPARE(changedSpy.at(0).count(), 1);
+
+    fileName = changedSpy.at(0).at(0).toString();
+    QCOMPARE(fileName, testFile.fileName());
+
+    changedSpy.clear();
+
+    // remove the watch and modify file permissions, should not get a signal from the watcher
+    watcher.removePath(testFile.fileName());
+    testFile.setPermissions(QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOther);
+
+    // qDebug() << "waiting max 5 seconds for notification for file modification to trigger (2)";
+    timer.start(5000);
+    eventLoop.exec();
+
+    QCOMPARE(changedSpy.count(), 0);
+
+    // readd the file watch
+    watcher.addPath(testFile.fileName());
+    
     // remove the file, should get a signal from the watcher
     QVERIFY(testFile.remove());
 
