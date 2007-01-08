@@ -46,7 +46,7 @@
 static QTextStream qout(stderr, QIODevice::WriteOnly);
 #endif
 
-static inline void qsa_uint_to_string_helper(uint i, QString &s)
+static inline void qscript_uint_to_string_helper(uint i, QString &s)
 {
     switch (i) {
     case 0: case 1: case 2: case 3: case 4:
@@ -55,12 +55,12 @@ static inline void qsa_uint_to_string_helper(uint i, QString &s)
         break;
 
     default:
-        qsa_uint_to_string_helper(i / 10, s);
+        qscript_uint_to_string_helper(i / 10, s);
         s += QLatin1Char('0' + (i % 10));
     }
 }
 
-static inline void qsa_uint_to_string(qnumber i, QString &s)
+static inline void qscript_uint_to_string(qnumber i, QString &s)
 {
     if (i < 0)
         return; // nothing to do
@@ -74,7 +74,7 @@ static inline void qsa_uint_to_string(qnumber i, QString &s)
             && x != 8.0 && x != 9.0)
         return; // nothing to do
 
-    qsa_uint_to_string_helper(uint(i), s);
+    qscript_uint_to_string_helper(uint(i), s);
 }
 
 namespace QScript {
@@ -243,7 +243,7 @@ Lfetch:
 
 #else
 
-#  define I(opc) qsa_execute_##opc
+#  define I(opc) qscript_execute_##opc
 #  define Next() goto *iPtr->code
 #  define Done() goto Ldone
 #  define HandleException() goto Lhandle_exception
@@ -664,7 +664,7 @@ Ltop:
             QString str;
 
             if (isNumber(m))
-                qsa_uint_to_string(m.m_number_value, str);
+                qscript_uint_to_string(m.m_number_value, str);
 
             if (str.isEmpty())
                 str = eng->convertToNativeString(m);

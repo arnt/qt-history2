@@ -1164,7 +1164,7 @@ void QScriptEnginePrivate::init()
     QExplicitlySharedDataPointer<QScriptClassData> data2(new QScript::ArgumentsClassData());
     m_class_arguments->setData(data2);
 
-    m_class_with = registerClass(QLatin1String("__qsa_internal_with"), QScript::ObjectType);
+    m_class_with = registerClass(QLatin1String("__qscript_internal_with"), QScript::ObjectType);
     QExplicitlySharedDataPointer<QScriptClassData> data3(new QScript::WithClassData());
     m_class_with->setData(data3);
 
