@@ -175,6 +175,8 @@ private slots:
     void classConstructor();
     void overrideInvokable();
     void transferInvokable();
+    void findChild();
+    void findChildren();
 
 private:
     QScriptEngine *m_engine;
@@ -620,6 +622,83 @@ void tst_QScriptExtQObject::transferInvokable()
     other.resetQtFunctionInvoked();
     m_engine->evaluate("myOtherObject.foo(456)");
     QCOMPARE(other.qtFunctionInvoked(), 1);
+}
+
+void tst_QScriptExtQObject::findChild()
+{
+    QObject *child = new QObject(m_myObject);
+    child->setObjectName(QLatin1String("myChildObject"));
+
+    {
+        QScriptValue result = m_engine->evaluate("myObject.findChild('noSuchChild')");
+        QCOMPARE(result.isNull(), true);
+    }
+
+    {    
+        QScriptValue result = m_engine->evaluate("myObject.findChild('myChildObject')");
+        QCOMPARE(result.isQObject(), true);
+        QCOMPARE(result.toQObject(), child);
+    }
+
+    delete child;
+}
+
+void tst_QScriptExtQObject::findChildren()
+{
+    QObject *child = new QObject(m_myObject);
+    child->setObjectName(QLatin1String("myChildObject"));
+
+    {
+        QScriptValue result = m_engine->evaluate("myObject.findChildren('noSuchChild')");
+        QCOMPARE(result.isArray(), true);
+        QCOMPARE(result.property(QLatin1String("length")).toNumber(), 0.0);
+    }
+
+    {
+        QScriptValue result = m_engine->evaluate("myObject.findChildren('myChildObject')");
+        QCOMPARE(result.isArray(), true);
+        QCOMPARE(result.property(QLatin1String("length")).toNumber(), 1.0);
+        QCOMPARE(result.property(QLatin1String("0")).toQObject(), child);
+    }
+
+    QObject *namelessChild = new QObject(m_myObject);
+
+    {
+        QScriptValue result = m_engine->evaluate("myObject.findChildren('myChildObject')");
+        QCOMPARE(result.isArray(), true);
+        QCOMPARE(result.property(QLatin1String("length")).toNumber(), 1.0);
+        QCOMPARE(result.property(QLatin1String("0")).toQObject(), child);
+    }
+
+    QObject *anotherChild = new QObject(m_myObject);
+    anotherChild->setObjectName(QLatin1String("anotherChildObject"));
+
+    {
+        QScriptValue result = m_engine->evaluate("myObject.findChildren('anotherChildObject')");
+        QCOMPARE(result.isArray(), true);
+        QCOMPARE(result.property(QLatin1String("length")).toNumber(), 1.0);
+        QCOMPARE(result.property(QLatin1String("0")).toQObject(), anotherChild);
+    }
+
+    anotherChild->setObjectName(QLatin1String("myChildObject"));
+    {
+        QScriptValue result = m_engine->evaluate("myObject.findChildren('myChildObject')");
+        QCOMPARE(result.isArray(), true);
+        QCOMPARE(result.property(QLatin1String("length")).toNumber(), 2.0);
+        QObject *o1 = result.property(QLatin1String("0")).toQObject();
+        QObject *o2 = result.property(QLatin1String("1")).toQObject();
+        if (o1 != child) {
+            QCOMPARE(o1, anotherChild);
+            QCOMPARE(o2, child);
+        } else {
+            QCOMPARE(o1, child);
+            QCOMPARE(o2, anotherChild);
+        }
+    }
+
+    delete anotherChild;
+    delete namelessChild;
+    delete child;
 }
 
 QTEST_MAIN(tst_QScriptExtQObject)

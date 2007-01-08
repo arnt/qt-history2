@@ -450,6 +450,10 @@ QScript::ExtQObject::ExtQObject(QScriptEngine *eng, QScriptClassInfo *classInfo)
     const QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
     publicPrototype.setProperty(QLatin1String("toString"),
                                 eng_p->createFunction(method_toString, 0, m_classInfo), flags);
+    publicPrototype.setProperty(QLatin1String("findChild"),
+                                eng_p->createFunction(method_findChild, 1, m_classInfo), flags);
+    publicPrototype.setProperty(QLatin1String("findChildren"),
+                                eng_p->createFunction(method_findChildren, 1, m_classInfo), flags);
 
     QExplicitlySharedDataPointer<QScriptClassData> data(new QScript::ExtQObjectData(eng, classInfo));
     m_classInfo->setData(data);
@@ -474,6 +478,48 @@ void QScript::ExtQObject::newQObject(QScriptValue *result, QObject *value, bool 
 
     QScriptEnginePrivate::get(engine())->newObject(result, publicPrototype, classInfo());
     result->impl()->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
+}
+
+QScriptValue QScript::ExtQObject::method_findChild(QScriptEngine *eng, QScriptClassInfo *classInfo)
+{
+    QScriptContext *context = eng->currentContext();
+    if (Instance *instance = Instance::get(context->thisObject(), classInfo)) {
+        QObject *obj = instance->value;
+        QString name = context->argument(0).toString();
+        QObject *child = qFindChild<QObject*>(obj, name);
+        if (! child)
+            return eng->nullScriptValue();
+        return eng->scriptValueFromQObject(child);
+    }
+    return eng->undefinedScriptValue();
+}
+
+QScriptValue QScript::ExtQObject::method_findChildren(QScriptEngine *eng, QScriptClassInfo *classInfo)
+{
+    QScriptContext *context = eng->currentContext();
+    if (Instance *instance = Instance::get(context->thisObject(), classInfo)) {
+        QObject *obj = instance->value;
+        QList<QObject*> found;
+        QScriptValue arg = context->argument(0);
+#if 0
+        if (arg.isRegExp()) {
+            QRegExp re = arg.toRegExp(); // ### need toRegExp()
+            found = qFindChildren<QObject*>(obj, re);
+        } else
+#endif
+        {
+            QString name = arg.toString();
+            found = qFindChildren<QObject*>(obj, name);
+        }
+        QScriptValue result = eng->newArray(found.size());
+        for (int i = 0; i < found.size(); ++i) {
+            QScriptValue item = eng->scriptValue(i);
+            QScriptValue value = eng->scriptValueFromQObject(found.at(i));
+            result.setProperty(item.toString(), value);
+        }
+        return result;
+    }
+    return eng->undefinedScriptValue();
 }
 
 QScriptValue QScript::ExtQObject::method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo)

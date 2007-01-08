@@ -68,6 +68,8 @@ public:
     void newQObject(QScriptValue *result, QObject *value, bool isConnection = false);
 
 protected:
+    static QScriptValue method_findChild(QScriptEngine *eng, QScriptClassInfo *classInfo);
+    static QScriptValue method_findChildren(QScriptEngine *eng, QScriptClassInfo *classInfo);
     static QScriptValue method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo);
 
     QScriptClassInfo *m_classInfo;
