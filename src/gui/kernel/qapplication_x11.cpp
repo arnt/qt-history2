@@ -2417,18 +2417,19 @@ void qPRCleanup(QWidget *widget)
     QETWidget *etw = static_cast<QETWidget *>(const_cast<QWidget *>(widget));
     if (!(wPRmapper && widget->testAttribute(Qt::WA_WState_Reparented)))
         return;                                        // not a reparented widget
-    for (QWidgetMapper::ConstIterator it = wPRmapper->constBegin(); it != wPRmapper->constEnd(); ++it) {
+    QWidgetMapper::Iterator it = wPRmapper->begin();
+    while (it != wPRmapper->constEnd()) {
         QWidget *w = *it;
-        int key = it.key();
         if (w == etw) {                       // found widget
             etw->setAttribute(Qt::WA_WState_Reparented, false); // clear flag
-            wPRmapper->remove(key);// old window no longer needed
-            if (wPRmapper->size() == 0) {        // became empty
-                delete wPRmapper;                // then reset alt mapper
-                wPRmapper = 0;
-            }
-            return;
+            it = wPRmapper->erase(it);// old window no longer needed
+        } else {
+            ++it;
         }
+    }
+    if (wPRmapper->size() == 0) {        // became empty
+        delete wPRmapper;                // then reset alt mapper
+        wPRmapper = 0;
     }
 }
 
