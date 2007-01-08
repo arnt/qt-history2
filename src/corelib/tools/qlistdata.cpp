@@ -37,7 +37,6 @@ static int grow(int size)
 
 QListData::Data *QListData::detach()
 {
-    Q_ASSERT(d->ref != 1);
     Data *x = static_cast<Data *>(qMalloc(DataHeaderSize + d->alloc * sizeof(void *)));
     if (!x)
         qFatal("QList: Out of memory");
@@ -450,7 +449,7 @@ void **QListData::erase(void **xi)
     \sa operator==()
 */
 
-/*! 
+/*!
     \fn int QList::size() const
 
     Returns the number of items in the list.
@@ -599,7 +598,7 @@ void **QListData::erase(void **xi)
     \sa operator[](), removeAt()
 */
 
-/*!     
+/*!
     \fn int QList::removeAll(const T &value)
 
     Removes all occurrences of \a value in the list and returns the number of entries
