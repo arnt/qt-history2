@@ -21,6 +21,8 @@
 #include "qdbusbinding.h"
 #endif
 
+#include <stdlib.h>
+
 static void interactive(QScriptEngine &eng)
 {
     QTextStream qin(stdin, QFile::ReadOnly);
