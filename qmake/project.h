@@ -21,7 +21,7 @@
 #include <qmap.h>
 #include <qmetatype.h>
 
-#define QTSCRIPT_SUPPORT
+//#define QTSCRIPT_SUPPORT
 
 #ifdef QTSCRIPT_SUPPORT
 # include <qscriptengine.h>
