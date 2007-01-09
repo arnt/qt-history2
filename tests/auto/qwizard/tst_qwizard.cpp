@@ -64,6 +64,7 @@ private slots:
     void setOption_HaveCustomButtonX();
     void combinations_data();
     void combinations();
+    void showCurrentPageOnly();
 
     /*
         Things that could be added:
@@ -1970,6 +1971,60 @@ void tst_QWizard::combinations()
         qDebug() << "\tcurrent row operations:" << wizard.operationsDescription().toLatin1();
         QVERIFY(false);
     }
+}
+
+class WizardPage : public QWizardPage
+{
+    Q_OBJECT
+    bool shown_;
+    void showEvent(QShowEvent *) { shown_ = true; }
+    void hideEvent(QHideEvent *) { shown_ = false; }
+public:
+    WizardPage() : shown_(false) {}
+    bool shown() const { return shown_; }
+};
+
+class WizardPages
+{
+    QList<WizardPage *> pages;
+public:
+    void add(WizardPage *page) { pages << page; }
+    QList<WizardPage *> all() const { return pages; }
+    QList<WizardPage *> shown() const
+    {
+        QList<WizardPage *> result;
+        foreach (WizardPage *page, pages)
+            if (page->shown())
+                result << page;
+        return result;
+    }
+};
+
+void tst_QWizard::showCurrentPageOnly()
+{
+    QWizard wizard;
+    WizardPages pages;
+    for (int i = 0; i < 5; ++i) {
+        pages.add(new WizardPage);
+        wizard.addPage(pages.all().last());
+    }
+
+    wizard.show();
+
+    QCOMPARE(pages.shown().count(), 1);
+    QCOMPARE(pages.shown().first(), pages.all().first());
+
+    const int steps = 2;
+    for (int i = 0; i < steps; ++i)
+        wizard.next();
+
+    QCOMPARE(pages.shown().count(), 1);
+    QCOMPARE(pages.shown().first(), pages.all().at(steps));
+
+    wizard.restart();
+
+    QCOMPARE(pages.shown().count(), 1);
+    QCOMPARE(pages.shown().first(), pages.all().first());
 }
 
 QTEST_MAIN(tst_QWizard)
