@@ -208,13 +208,16 @@ public:
             Q_ASSERT(prop.isScriptable());
 
             QScriptable *scriptable = scriptableFromQObject(qobject);
-            if (scriptable)
+            QScriptEngine *oldEngine;
+            if (scriptable) {
+                oldEngine = QScriptablePrivate::get(scriptable)->engine;
                 QScriptablePrivate::get(scriptable)->engine = eng;
+            }
 
             QVariant v = prop.read(qobject);
 
             if (scriptable)
-                QScriptablePrivate::get(scriptable)->engine = 0;
+                QScriptablePrivate::get(scriptable)->engine = oldEngine;
 
             *result = valueFromVariant(eng, v);
         }   break;
@@ -282,13 +285,16 @@ public:
             QVariant v = variantFromValue(prop.type(), value);
 
             QScriptable *scriptable = scriptableFromQObject(qobject);
-            if (scriptable)
+            QScriptEngine *oldEngine;
+            if (scriptable) {
+                oldEngine = QScriptablePrivate::get(scriptable)->engine;
                 QScriptablePrivate::get(scriptable)->engine = eng;
+            }
 
             bool ok = prop.write(qobject, v);
 
             if (scriptable)
-                QScriptablePrivate::get(scriptable)->engine = 0;
+                QScriptablePrivate::get(scriptable)->engine = oldEngine;
 
             return ok;
         }
@@ -818,13 +824,16 @@ void QScript::QtFunction::execute(QScriptContext *context)
                 params[i] = const_cast<void*>(vlist.at(i).constData());
 
             QScriptable *scriptable = scriptableFromQObject(thisQObject);
-            if (scriptable)
+            QScriptEngine *oldEngine;
+            if (scriptable) {
+                oldEngine = QScriptablePrivate::get(scriptable)->engine;
                 QScriptablePrivate::get(scriptable)->engine = eng;
+            }
 
             thisQObject->qt_metacall(QMetaObject::InvokeMetaMethod, index, params);
 
             if (scriptable)
-                QScriptablePrivate::get(scriptable)->engine = 0;
+                QScriptablePrivate::get(scriptable)->engine = oldEngine;
 
             if (context->state() == QScriptContext::Exception) {
                 result = context->returnValue(); // propagate
