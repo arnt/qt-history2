@@ -1940,33 +1940,33 @@ static QPainter::CompositionMode svgToQtCompositionMode(const QString &op)
     } else if (op == QLatin1String("xor")) {
         return QPainter::CompositionMode_Xor;
     } else if (op == QLatin1String("plus")) {
-        NOOP;
+        return QPainter::CompositionMode_Plus;
     } else if (op == QLatin1String("multiply")) {
-        NOOP;
+        return QPainter::CompositionMode_Multiply;
     } else if (op == QLatin1String("screen")) {
-        NOOP;
+        return QPainter::CompositionMode_Screen;
     } else if (op == QLatin1String("overlay")) {
-        NOOP;
+        return QPainter::CompositionMode_Overlay;
     } else if (op == QLatin1String("darken")) {
-        NOOP;
+        return QPainter::CompositionMode_Darken;
     } else if (op == QLatin1String("lighten")) {
-        NOOP;
+        return QPainter::CompositionMode_Lighten;
     } else if (op == QLatin1String("color-dodge")) {
-        NOOP;
+        return QPainter::CompositionMode_ColorDodge;
     } else if (op == QLatin1String("color-burn")) {
-        NOOP;
+        return QPainter::CompositionMode_ColorBurn;
     } else if (op == QLatin1String("hard-light")) {
-        NOOP;
+        return QPainter::CompositionMode_HardLight;
     } else if (op == QLatin1String("soft-light")) {
-        NOOP;
+        return QPainter::CompositionMode_SoftLight;
     } else if (op == QLatin1String("difference")) {
-        NOOP;
+        return QPainter::CompositionMode_Difference;
     } else if (op == QLatin1String("exclusion")) {
-        NOOP;
+        return QPainter::CompositionMode_Exclusion;
     } else {
         NOOP;
     }
-    
+
     return QPainter::CompositionMode_SourceOver;
 }
 
@@ -3415,6 +3415,7 @@ bool QSvgHandler::processingInstruction(const QString &target, const QString &da
 
 void QSvgHandler::setAnimPeriod(int start, int end)
 {
+    Q_UNUSED(start);
     m_animEnd   = qMax(end, m_animEnd);
 }
 
