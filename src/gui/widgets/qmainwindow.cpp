@@ -147,8 +147,8 @@ void QMainWindowPrivate::init()
 
     An example of how to create menus follows:
     
-    \quotefromfile application/mainwindow.cpp
-    \skipuntil /::createMenus/
+    \quotefromfile mainwindows/application/mainwindow.cpp
+    \skipto /::createMenus/
     \printuntil /saveAct/
     
     The \c createPopupMenu() function creates popup menus when the
@@ -176,7 +176,7 @@ void QMainWindowPrivate::init()
     
     An example of toolbar creation follows:
     
-    \quotefromfile mainwindow/application/mainwindow.cpp
+    \quotefromfile mainwindows/application/mainwindow.cpp
     \skipto /::createToolBars/
     \printuntil /fileToolBar->addAction/
     
