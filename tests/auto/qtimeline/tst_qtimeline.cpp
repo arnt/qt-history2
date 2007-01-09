@@ -51,8 +51,13 @@ private slots:
     void multipleTimeLines();
     void sineCurve();
     void outOfRange();
+    void stateInFinishedSignal();
+
+protected slots:
+    void finishedSlot();
 
 protected:
+    QTimeLine::State state;
     QTimeLine * view;
     QStandardItemModel *model;
 };
@@ -533,6 +538,26 @@ void tst_QTimeLine::outOfRange()
 
     timeLine.setCurveShape(QTimeLine::SineCurve);
     QCOMPARE(timeLine.valueForTime(2000), qreal(0));
+}
+
+void tst_QTimeLine::stateInFinishedSignal()
+{
+    QTimeLine timeLine(50);
+    
+    connect(&timeLine, SIGNAL(finished()), this, SLOT(finishedSlot()));
+    state = QTimeLine::State(-1);
+
+    timeLine.start();
+    QTest::qWait(250);
+
+    QCOMPARE(state, QTimeLine::NotRunning);
+}
+
+void tst_QTimeLine::finishedSlot()
+{
+    QTimeLine *timeLine = qobject_cast<QTimeLine *>(sender());
+    if (timeLine)
+        state = timeLine->state();
 }
 
 QTEST_MAIN(tst_QTimeLine)
