@@ -107,8 +107,8 @@ void QMainWindowPrivate::init()
     application's user interface. Qt has QMainWindow and its \l{Main
     Window and Related Classes}{related classes} for main window
     management. QMainWindow has its own layout to which you can add
-    toolbars, dock windows, a menu bar, and a status bar.  The layout
-    has a center area that can be occupied by any kind of widget.  You
+    toolbars, dock windows, a menu bar, and a status bar. The layout
+    has a center area that can be occupied by any kind of widget. You
     can see an image of the layout below.
     
     (bilde av komponenter main-window related classes/framework. layout)
@@ -118,7 +118,7 @@ void QMainWindowPrivate::init()
     \section1 Creating MainWindow Components
     
     A central widget will typically be a standard Qt widget such
-    as a QTextEdit or a QGraphicsView.  Custom widgets can also be
+    as a QTextEdit or a QGraphicsView. Custom widgets can also be
     used for advanced applications. You set the central widget with \c
     setCentralWidget(). 
     
@@ -127,7 +127,7 @@ void QMainWindowPrivate::init()
     QWorkspace as the central widget.
     
     We will now examine each of the other widgets that can be
-    added to a main window and give examples on how to create and add
+    added to a main window. We give examples on how to create and add
     them.
     
     \section2 Creating Menus
@@ -141,7 +141,7 @@ void QMainWindowPrivate::init()
     add a menu with QMenuBar::addMenu().
     
     QMainWindow comes with a default menu bar, but you can also
-    set one your self with \c setMenuBar(). If you wish to implement a
+    set one yourself with \c setMenuBar(). If you wish to implement a
     custom menu bar, i.e., not use the QMenuBar widget, you can set it
     with \c setMenuWidget().
 
