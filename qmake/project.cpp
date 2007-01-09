@@ -40,6 +40,170 @@
 #define QT_POPEN popen
 #endif
 
+//expand fucntions
+enum ExpandFunc { E_MEMBER=1, E_FIRST, E_LAST, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
+                  E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
+                  E_FIND, E_SYSTEM, E_UNIQUE, E_QUOTE, E_ESCAPE_EXPAND,
+                  E_UPPER, E_LOWER, E_FILES, E_PROMPT, E_RE_ESCAPE, E_REPLACE };
+QMap<QString, ExpandFunc> qmake_expandFunctions()
+{
+    static QMap<QString, ExpandFunc> *qmake_expand_functions = 0;
+    if(!qmake_expand_functions) {
+        qmake_expand_functions = new QMap<QString, ExpandFunc>;
+        qmakeAddCacheClear(qmakeDeleteCacheClear_QMapStringInt, (void**)&qmake_expand_functions);
+        qmake_expand_functions->insert("member", E_MEMBER);
+        qmake_expand_functions->insert("first", E_FIRST);
+        qmake_expand_functions->insert("last", E_LAST);
+        qmake_expand_functions->insert("cat", E_CAT);
+        qmake_expand_functions->insert("fromfile", E_FROMFILE);
+        qmake_expand_functions->insert("eval", E_EVAL);
+        qmake_expand_functions->insert("list", E_LIST);
+        qmake_expand_functions->insert("sprintf", E_SPRINTF);
+        qmake_expand_functions->insert("join", E_JOIN);
+        qmake_expand_functions->insert("split", E_SPLIT);
+        qmake_expand_functions->insert("basename", E_BASENAME);
+        qmake_expand_functions->insert("dirname", E_DIRNAME);
+        qmake_expand_functions->insert("section", E_SECTION);
+        qmake_expand_functions->insert("find", E_FIND);
+        qmake_expand_functions->insert("system", E_SYSTEM);
+        qmake_expand_functions->insert("unique", E_UNIQUE);
+        qmake_expand_functions->insert("quote", E_QUOTE);
+        qmake_expand_functions->insert("escape_expand", E_ESCAPE_EXPAND);
+        qmake_expand_functions->insert("upper", E_UPPER);
+        qmake_expand_functions->insert("lower", E_LOWER);
+        qmake_expand_functions->insert("re_escape", E_RE_ESCAPE);
+        qmake_expand_functions->insert("files", E_FILES);
+        qmake_expand_functions->insert("prompt", E_PROMPT);
+        qmake_expand_functions->insert("replace", E_REPLACE);
+    }
+    return *qmake_expand_functions;
+}
+//replace functions
+enum TestFunc { T_REQUIRES=1, T_GREATERTHAN, T_LESSTHAN, T_EQUALS, T_ISEQUAL,
+                T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
+                T_RETURN, T_BREAK, T_NEXT, T_DEFINED, T_CONTAINS, T_INFILE,
+                T_COUNT, T_ISEMPTY, T_SCRIPT, T_INCLUDE, T_LOAD, T_DEBUG, T_ERROR,
+                T_MESSAGE, T_WARNING };
+QMap<QString, TestFunc> qmake_testFunctions()
+{
+    static QMap<QString, TestFunc> *qmake_test_functions = 0;
+    if(!qmake_test_functions) {
+        qmake_test_functions = new QMap<QString, TestFunc>;
+        qmake_test_functions->insert("requires", T_REQUIRES);
+        qmake_test_functions->insert("greaterthan", T_GREATERTHAN);
+        qmake_test_functions->insert("lessthan", T_LESSTHAN);
+        qmake_test_functions->insert("equals", T_EQUALS);
+        qmake_test_functions->insert("isequal", T_ISEQUAL);
+        qmake_test_functions->insert("exists", T_EXISTS);
+        qmake_test_functions->insert("export", T_EXPORT);
+        qmake_test_functions->insert("clear", T_CLEAR);
+        qmake_test_functions->insert("unset", T_UNSET);
+        qmake_test_functions->insert("eval", T_EVAL);
+        qmake_test_functions->insert("config", T_CONFIG);
+        qmake_test_functions->insert("system", T_SYSTEM);
+        qmake_test_functions->insert("return", T_RETURN);
+        qmake_test_functions->insert("break", T_BREAK);
+        qmake_test_functions->insert("next", T_NEXT);
+        qmake_test_functions->insert("defined", T_DEFINED);
+        qmake_test_functions->insert("contains", T_CONTAINS);
+        qmake_test_functions->insert("infile", T_INFILE);
+        qmake_test_functions->insert("count", T_COUNT);
+        qmake_test_functions->insert("isempty", T_ISEMPTY);
+        qmake_test_functions->insert("script", T_SCRIPT);
+        qmake_test_functions->insert("include", T_INCLUDE);
+        qmake_test_functions->insert("load", T_LOAD);
+        qmake_test_functions->insert("debug", T_DEBUG);
+        qmake_test_functions->insert("error", T_ERROR);
+        qmake_test_functions->insert("message", T_MESSAGE);
+        qmake_test_functions->insert("warning", T_WARNING);
+    }
+    return *qmake_test_functions;
+}
+
+#ifdef QTSCRIPT_SUPPORT
+#include "qscriptvalue.h"
+#include <private/qscriptvalue_p.h>
+#include "qscriptengine.h"
+
+static QScriptValue qscript_projectWrapper(QScriptEngine *eng, QMakeProject *project,
+                                    const QMap<QString, QStringList> &place);
+
+static bool qscript_createQMakeProjectMap(QMap<QString, QStringList> &vars, QScriptValue js)
+{
+    foreach (QScriptNameIdImpl *nameId, js.impl()->propertyIds()) {
+        QScriptValue v = js.property(nameId->s);
+        vars[nameId->s] = qscript_cast<QStringList>(v);
+    }
+}
+
+static QScriptValue qscript_call_testfunction(QScriptContext *context, QScriptEngine *engine)
+{
+    QMakeProject *self = qscript_cast<QMakeProject*>(context->callee().property("qmakeProject"));
+    QString func = context->callee().property("functionName").toString();
+    QStringList args;
+    for(int i = 0; i < context->argumentCount(); ++i)
+        args += context->argument(i).toString();
+    QMap<QString, QStringList> place = self->variables();
+    qscript_createQMakeProjectMap(place, engine->globalObject().property("qmake"));
+    QScriptValue ret = engine->scriptValue(self->doProjectTest(func, args, place));
+    engine->globalObject().setProperty("qmake", qscript_projectWrapper(engine, self, place));
+    return ret;
+}
+
+static QScriptValue qscript_call_expandfunction(QScriptContext *context, QScriptEngine *engine)
+{
+    QMakeProject *self = qscript_cast<QMakeProject*>(context->callee().property("qmakeProject"));
+    QString func = context->callee().property("functionName").toString();
+    QStringList args;
+    for(int i = 0; i < context->argumentCount(); ++i)
+        args += context->argument(i).toString();
+    QMap<QString, QStringList> place = self->variables();
+    qscript_createQMakeProjectMap(place, engine->globalObject().property("qmake"));
+    QScriptValue ret = qScriptValueFromValue(engine, self->doProjectExpand(func, args, place));
+    engine->globalObject().setProperty("qmake", qscript_projectWrapper(engine, self, place));
+    return ret;
+}
+
+static QScriptValue qscript_projectWrapper(QScriptEngine *eng, QMakeProject *project,
+                                           const QMap<QString, QStringList> &place)
+{
+    QScriptValue ret = eng->newObject();
+    {
+        QStringList testFuncs = qmake_testFunctions().keys() + project->userTestFunctions();
+        for(int i = 0; i < testFuncs.size(); ++i) {
+            QString funcName = testFuncs.at(i);
+            QScriptValue fun = eng->scriptValue(qscript_call_testfunction);
+            fun.setProperty("qmakeProject", eng->scriptValueFromVariant(qVariantFromValue(project)));
+            fun.setProperty("functionName", eng->scriptValue(funcName));
+            eng->globalObject().setProperty(funcName, fun);
+        }
+    }
+    {
+        QStringList testFuncs = qmake_expandFunctions().keys() + project->userExpandFunctions();
+        for(int i = 0; i < testFuncs.size(); ++i) {
+            QString funcName = testFuncs.at(i);
+            QScriptValue fun = eng->scriptValue(qscript_call_expandfunction);
+            fun.setProperty("qmakeProject", eng->scriptValueFromVariant(project));
+            fun.setProperty("functionName", eng->scriptValue(funcName));
+            eng->globalObject().setProperty(funcName, fun);
+        }
+    }
+    for(QMap<QString, QStringList>::ConstIterator it = place.begin(); it != place.end(); ++it)
+        ret.setProperty(it.key(), qScriptValueFromValue(eng, it.value()));
+    return ret;
+}
+
+static QScriptValue qscript_toArray(QScriptEngine *eng, const QStringList &elts)
+{
+    QScriptValue a = eng->newArray();
+    for (int i = 0; i < elts.count(); ++i) {
+        QScriptValue s = eng->scriptValue(elts.at(i));
+        a.impl()->setPropertyByIndex(i, s);
+    }
+    return a;
+}
+#endif
+
 struct parser_info {
     QString file;
     int line_no;
@@ -1563,6 +1727,7 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
                 parser.file.toLatin1().constData(), parser.line_no);
     debug_msg(1, "Project Parser: %s'ing file %s.", (flags & IncludeFlagFeature) ? "load" : "include",
               file.toLatin1().constData());
+
     QString orig_file = file;
     int di = file.lastIndexOf(QDir::separator());
     QString oldpwd = qmake_getpwd();
@@ -1651,41 +1816,7 @@ QMakeProject::doProjectExpand(QString func, QList<QStringList> args_list,
     for(int i = 0; i < args_list.size(); ++i)
         args += args_list[i].join(QString(Option::field_sep));
 
-    enum ExpandFunc { E_MEMBER=1, E_FIRST, E_LAST, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
-                      E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
-                      E_FIND, E_SYSTEM, E_UNIQUE, E_QUOTE, E_ESCAPE_EXPAND,
-                      E_UPPER, E_LOWER, E_FILES, E_PROMPT, E_RE_ESCAPE,
-                      E_REPLACE };
-    static QMap<QString, int> *expands = 0;
-    if(!expands) {
-        expands = new QMap<QString, int>;
-        qmakeAddCacheClear(qmakeDeleteCacheClear_QMapStringInt, (void**)&expands);
-        expands->insert("member", E_MEMBER);
-        expands->insert("first", E_FIRST);
-        expands->insert("last", E_LAST);
-        expands->insert("cat", E_CAT);
-        expands->insert("fromfile", E_FROMFILE);
-        expands->insert("eval", E_EVAL);
-        expands->insert("list", E_LIST);
-        expands->insert("sprintf", E_SPRINTF);
-        expands->insert("join", E_JOIN);
-        expands->insert("split", E_SPLIT);
-        expands->insert("basename", E_BASENAME);
-        expands->insert("dirname", E_DIRNAME);
-        expands->insert("section", E_SECTION);
-        expands->insert("find", E_FIND);
-        expands->insert("system", E_SYSTEM);
-        expands->insert("unique", E_UNIQUE);
-        expands->insert("quote", E_QUOTE);
-        expands->insert("escape_expand", E_ESCAPE_EXPAND);
-        expands->insert("upper", E_UPPER);
-        expands->insert("lower", E_LOWER);
-        expands->insert("re_escape", E_RE_ESCAPE);
-        expands->insert("files", E_FILES);
-        expands->insert("prompt", E_PROMPT);
-        expands->insert("replace", E_REPLACE);
-    }
-    ExpandFunc func_t = (ExpandFunc)expands->value(func.toLower());
+    ExpandFunc func_t = qmake_expandFunctions().value(func.toLower());
     debug_msg(1, "Running project expand: %s(%s) [%d]",
               func.toLatin1().constData(), args.join("::").toLatin1().constData(), func_t);
 
@@ -2094,9 +2225,22 @@ QMakeProject::doProjectExpand(QString func, QList<QStringList> args_list,
         }
         break; }
     default: {
-            fprintf(stderr, "%s:%d: Unknown replace function: %s\n",
-                    parser.file.toLatin1().constData(), parser.line_no,
-                    func.toLatin1().constData());
+#ifdef QTSCRIPT_SUPPORT
+        {
+            QScriptValue jsFunc = eng.globalObject().property(func);
+            if(jsFunc.isFunction()) {
+                QScriptValueList jsArgs;
+                for(int i = 0; i < args.size(); ++i)
+                    jsArgs += eng.scriptValue(args.at(i));
+                QScriptValue jsRet = jsFunc.call(eng.globalObject(), jsArgs);
+                ret = qscript_cast<QStringList>(jsRet);
+                break;
+            }
+        }
+#endif
+        fprintf(stderr, "%s:%d: Unknown replace function: %s\n",
+                parser.file.toLatin1().constData(), parser.line_no,
+                func.toLatin1().constData());
         break; }
     }
     return ret;
@@ -2152,11 +2296,16 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
     QStringList args; //why don't the builtin functions just use args_list? --Sam
     for(int i = 0; i < args_list.size(); ++i)
         args += args_list[i].join(QString(Option::field_sep));
-    debug_msg(1, "Running project test: %s(%s)", func.toLatin1().constData(), args.join("::").toLatin1().constData());
 
-    if(func == "requires") {
+    TestFunc func_t = qmake_testFunctions().value(func.toLower());
+    debug_msg(1, "Running project test: %s(%s) [%d]",
+              func.toLatin1().constData(), args.join("::").toLatin1().constData(), func_t);
+
+    switch(func_t) {
+    case T_REQUIRES:
         return doProjectCheckReqs(args, place);
-    } else if(func == "greaterThan" || func == "lessThan") {
+    case T_LESSTHAN:
+    case T_GREATERTHAN: {
         if(args.count() != 2) {
             fprintf(stderr, "%s:%d: %s(variable, value) requires two arguments.\n", parser.file.toLatin1().constData(),
                     parser.line_no, func.toLatin1().constData());
@@ -2173,17 +2322,18 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
                 return lhs_int < rhs_int;
             }
         }
-        if(func == "greaterThan")
+        if(func_t == T_GREATERTHAN)
             return lhs > rhs;
-        return lhs < rhs;
-    } else if(func == "equals" || func == "isEqual") {
+        return lhs < rhs; }
+    case T_EQUALS:
+    case T_ISEQUAL:
         if(args.count() != 2) {
             fprintf(stderr, "%s:%d: %s(variable, value) requires two arguments.\n", parser.file.toLatin1().constData(),
                     parser.line_no, func.toLatin1().constData());
             return false;
         }
         return values(args[0], place).join(QString(Option::field_sep)) == args[1];
-    } else if(func == "exists") {
+    case T_EXISTS: {
         if(args.count() != 1) {
             fprintf(stderr, "%s:%d: exists(file) requires one argument.\n", parser.file.toLatin1().constData(),
                     parser.line_no);
@@ -2201,8 +2351,8 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
             dirstr = file.left(slsh+1);
             file = file.right(file.length() - slsh - 1);
         }
-        return QDir(dirstr).entryList(QStringList(file)).count();
-    } else if(func == "export") {
+        return QDir(dirstr).entryList(QStringList(file)).count(); }
+    case T_EXPORT:
         if(args.count() != 1) {
             fprintf(stderr, "%s:%d: export(variable) requires one argument.\n", parser.file.toLatin1().constData(),
                     parser.line_no);
@@ -2215,7 +2365,7 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
                 (*f->calling_place)[args[0]] = values(args[0], place);
         }
         return true;
-    } else if(func == "clear") {
+    case T_CLEAR:
         if(args.count() != 1) {
             fprintf(stderr, "%s:%d: clear(variable) requires one argument.\n", parser.file.toLatin1().constData(),
                     parser.line_no);
@@ -2225,7 +2375,7 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
             return false;
         place[args[0]].clear();
         return true;
-    } else if(func == "unset") {
+    case T_UNSET:
         if(args.count() != 1) {
             fprintf(stderr, "%s:%d: unset(variable) requires one argument.\n", parser.file.toLatin1().constData(),
                     parser.line_no);
@@ -2235,7 +2385,7 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
             return false;
         place.remove(args[0]);
         return true;
-    } else if(func == "eval") {
+    case T_EVAL: {
         if(args.count() < 1 && 0) {
             fprintf(stderr, "%s:%d: eval(project) requires one argument.\n", parser.file.toLatin1().constData(),
                     parser.line_no);
@@ -2249,8 +2399,8 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
         QTextStream t(&project, QIODevice::ReadOnly);
         bool ret = read(t, place);
         parser = pi;
-        return ret;
-    } else if(func == "CONFIG") {
+        return ret; }
+    case T_CONFIG: {
         if(args.count() < 1 || args.count() > 2) {
             fprintf(stderr, "%s:%d: CONFIG(config) requires one argument.\n", parser.file.toLatin1().constData(),
                     parser.line_no);
@@ -2266,8 +2416,8 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
                     return (configs[i] == args[0]);
             }
         }
-        return false;
-    } else if(func == "system") {
+        return false; }
+    case T_SYSTEM: {
         if(args.count() != 1) {
             fprintf(stderr, "%s:%d: system(exec) requires one argument.\n", parser.file.toLatin1().constData(),
                     parser.line_no);
@@ -2275,8 +2425,8 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
         }
         QMakeProjectEnv env(place);
         bool ret = system(args.first().toLatin1().constData()) == 0;
-        return ret;
-    } else if(func == "return") {
+        return ret; }
+    case T_RETURN:
         if(function_blocks.isEmpty()) {
             fprintf(stderr, "%s:%d unexpected return()\n",
                     parser.file.toLatin1().constData(), parser.line_no);
@@ -2287,7 +2437,7 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
                 f->return_value += args_list[0];
         }
         return true;
-    } else if(func == "break") {
+    case T_BREAK:
         if(iterator)
             iterator->cause_break = true;
         else if(!scope_blocks.isEmpty())
@@ -2296,14 +2446,14 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
             fprintf(stderr, "%s:%d unexpected break()\n",
                     parser.file.toLatin1().constData(), parser.line_no);
         return true;
-    } else if(func == "next") {
+    case T_NEXT:
         if(iterator)
             iterator->cause_next = true;
         else
             fprintf(stderr, "%s:%d unexpected next()\n",
                     parser.file.toLatin1().constData(), parser.line_no);
         return true;
-    } else if(func == "defined") {
+    case T_DEFINED:
         if(args.count() < 1 || args.count() > 2) {
             fprintf(stderr, "%s:%d: defined(function) requires one argument.\n",
                     parser.file.toLatin1().constData(), parser.line_no);
@@ -2322,7 +2472,7 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
             }
         }
         return false;
-    } else if(func == "contains") {
+    case T_CONTAINS: {
         if(args.count() < 2 || args.count() > 3) {
             fprintf(stderr, "%s:%d: contains(var, val) requires at lesat 2 arguments.\n",
                     parser.file.toLatin1().constData(), parser.line_no);
@@ -2346,8 +2496,8 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
                 }
             }
         }
-        return false;
-    } else if(func == "infile") {
+        return false; }
+    case T_INFILE: {
         if(args.count() < 2 || args.count() > 3) {
             fprintf(stderr, "%s:%d: infile(file, var, val) requires at least 2 arguments.\n",
                     parser.file.toLatin1().constData(), parser.line_no);
@@ -2378,8 +2528,8 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
                 }
             }
         }
-        return ret;
-    } else if(func == "count") {
+        return ret; }
+    case T_COUNT:
         if(args.count() != 2 && args.count() != 3) {
             fprintf(stderr, "%s:%d: count(var, count) requires two arguments.\n", parser.file.toLatin1().constData(),
                     parser.line_no);
@@ -2402,19 +2552,20 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
             return false;
         }
         return values(args[0], place).count() == args[1].toInt();
-    } else if(func == "isEmpty") {
+    case T_ISEMPTY:
         if(args.count() != 1) {
             fprintf(stderr, "%s:%d: isEmpty(var) requires one argument.\n", parser.file.toLatin1().constData(),
                     parser.line_no);
             return false;
         }
         return values(args[0], place).isEmpty();
-    } else if(func == "include" || func == "load") {
+    case T_INCLUDE:
+    case T_LOAD: {
         QString parseInto;
-        const bool include_statement = (func == "include");
+        const bool include_statement = (func_t == T_INCLUDE);
         bool ignore_error = include_statement;
         if(args.count() == 2) {
-            if(func == "include") {
+            if(func_t == T_INCLUDE) {
                 parseInto = args[1];
             } else {
                 QString sarg = args[1];
@@ -2473,8 +2624,30 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
             }
             return false;
         }
+        return true; }
+    case T_SCRIPT: {
+        if(args.count() != 1) {
+            fprintf(stderr, "%s:%d: script(code) requires one argument.\n", parser.file.toLatin1().constData(),
+                    parser.line_no);
+            return false;
+        }
+#ifdef QTSCRIPT_SUPPORT
+        QString filename = fixEnvVariables(args.first());
+        eng.globalObject().setProperty("qmake", qscript_projectWrapper(&eng, this, place));
+        QFile f(filename);
+        if (f.open(QFile::ReadOnly)) {
+            QString code = f.readAll();
+            QScriptValue r = eng.evaluate(code);
+            QScriptValue variables = eng.globalObject().property("qmake");
+            if (variables.isValid() && variables.isObject())
+                qscript_createQMakeProjectMap(place, variables);
+        }
         return true;
-    } else if(func == "debug") {
+#else
+        return false;
+#endif
+    }
+    case T_DEBUG: {
         if(args.count() != 2) {
             fprintf(stderr, "%s:%d: debug(level, message) requires one argument.\n", parser.file.toLatin1().constData(),
                     parser.line_no);
@@ -2482,8 +2655,10 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
         }
         QString msg = fixEnvVariables(args[1]);
         debug_msg(args[0].toInt(), "Project DEBUG: %s", msg.toLatin1().constData());
-        return true;
-    } else if(func == "error" || func == "message" || func == "warning") {
+        return true; }
+    case T_ERROR:
+    case T_MESSAGE:
+    case T_WARNING: {
         if(args.count() != 1) {
             fprintf(stderr, "%s:%d: %s(message) requires one argument.\n", parser.file.toLatin1().constData(),
                     parser.line_no, func.toLatin1().constData());
@@ -2497,8 +2672,22 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
 #else
             exit(2);
 #endif
-        return true;
-    } else {
+        return true; }
+    default:
+#ifdef QTSCRIPT_SUPPORT
+        {
+            QScriptValue jsFunc = eng.globalObject().property(func);
+            if(jsFunc.isFunction()) {
+                QScriptValueList jsArgs;
+                for(int i = 0; i < args.size(); ++i)
+                    jsArgs += eng.scriptValue(args.at(i));
+                QScriptValue jsRet = jsFunc.call(eng.globalObject(), jsArgs);
+                if(eng.uncaughtException())
+                    return false;
+                return qscript_cast<bool>(jsRet);
+            }
+        }
+#endif
         fprintf(stderr, "%s:%d: Unknown test function: %s\n", parser.file.toLatin1().constData(), parser.line_no,
                 func.toLatin1().constData());
     }

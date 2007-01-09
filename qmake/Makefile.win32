@@ -33,7 +33,7 @@ CFLAGS	     = -c -Fo$@ \
 	      -I$(BUILD_PATH)\include -I$(BUILD_PATH)\include\QtCore \
 	      -I$(SOURCE_PATH)\include -I$(SOURCE_PATH)\include\QtCore \
 	      -I$(BUILD_PATH)\src\corelib\global \
-	      -I$(SOURCE_PATH)\src\3rdparty\md5  \
+	      -I$(SOURCE_PATH)\src\3rdparty\md5 -I$(SOURCE_PATH)\include\QtScript \
               -I$(SOURCE_PATH)\mkspecs\win32-msvc  \
               -DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL \
               -DQT_NO_COMPRESS -DUNICODE -DHAVE_QCONFIG_CPP -DQT_BUILD_QMAKE -DQT_NO_THREAD \

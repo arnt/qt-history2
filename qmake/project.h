@@ -19,6 +19,13 @@
 #include <qstring.h>
 #include <qstack.h>
 #include <qmap.h>
+#include <qmetatype.h>
+
+//#define QTSCRIPT_SUPPORT
+
+#ifdef QTSCRIPT_SUPPORT
+# include <qscriptengine.h>
+#endif
 
 class QMakeProperty;
 
@@ -41,6 +48,9 @@ class QMakeProject
     friend struct IteratorBlock;
     friend struct FunctionBlock;
 
+#ifdef QTSCRIPT_SUPPORT
+    QScriptEngine eng;
+#endif
     QStack<ScopeBlock> scope_blocks;
     QStack<FunctionBlock *> function_blocks;
     IteratorBlock *iterator;
@@ -68,19 +78,6 @@ class QMakeProject
         IncludeFlagNewProject = 0x04
     };
     IncludeStatus doProjectInclude(QString file, uchar flags, QMap<QString, QStringList> &place);
-    bool doProjectTest(QString str, QMap<QString, QStringList> &place);
-    bool doProjectTest(QString func, const QString &params,
-                       QMap<QString, QStringList> &place);
-    bool doProjectTest(QString func, QStringList args,
-                       QMap<QString, QStringList> &place);
-    bool doProjectTest(QString func, QList<QStringList> args,
-                       QMap<QString, QStringList> &place);
-    QStringList doProjectExpand(QString func, const QString &params,
-                                QMap<QString, QStringList> &place);
-    QStringList doProjectExpand(QString func, QStringList args,
-                                QMap<QString, QStringList> &place);
-    QStringList doProjectExpand(QString func, QList<QStringList> args,
-                                QMap<QString, QStringList> &place);
 
     bool doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringList> &place);
     bool doVariableReplace(QString &str, QMap<QString, QStringList> &place);
@@ -102,9 +99,26 @@ public:
     bool read(const QString &project, uchar cmd=ReadAll);
     bool read(uchar cmd=ReadAll);
 
+    QStringList userExpandFunctions() { return replaceFunctions.keys(); }
+    QStringList userTestFunctions() { return testFunctions.keys(); }
+
     QString projectFile();
     QString configFile();
     inline QMakeProperty *properties() { return prop; }
+
+    bool doProjectTest(QString str, QMap<QString, QStringList> &place);
+    bool doProjectTest(QString func, const QString &params,
+                       QMap<QString, QStringList> &place);
+    bool doProjectTest(QString func, QStringList args,
+                       QMap<QString, QStringList> &place);
+    bool doProjectTest(QString func, QList<QStringList> args,
+                       QMap<QString, QStringList> &place);
+    QStringList doProjectExpand(QString func, const QString &params,
+                                QMap<QString, QStringList> &place);
+    QStringList doProjectExpand(QString func, QStringList args,
+                                QMap<QString, QStringList> &place);
+    QStringList doProjectExpand(QString func, QList<QStringList> args,
+                                QMap<QString, QStringList> &place);
 
     QStringList expand(const QString &v);
     QStringList expand(const QString &func, const QList<QStringList> &args);
@@ -125,6 +139,7 @@ protected:
     bool read(QTextStream &file, QMap<QString, QStringList> &place);
 
 };
+Q_DECLARE_METATYPE(QMakeProject*)
 
 inline QString QMakeProject::projectFile()
 {
