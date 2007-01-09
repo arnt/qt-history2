@@ -35,6 +35,7 @@
 
 class QWidget;
 class QDesignerFormWindowInterface;
+class QSignalMapper;
 
 namespace qdesigner_internal {
 
@@ -59,7 +60,9 @@ protected:
 
 private slots:
     void changeObjectName();
-    void promoteToCustomWidget();
+    void promoteToNewCustomWidget();
+    void promoteToCustomWidget(const QString &customClassName);
+    
     void demoteFromCustomWidget();
     void changeToolTip();
     void changeWhatsThis();
@@ -69,8 +72,9 @@ private slots:
     void createStatusBar();
     void removeStatusBar();
 
-private:    
-    QString demoteText() const;
+private:
+    void promoteTo(QDesignerFormWindowInterface *fw, const QString &customClassName);
+    void createPromotionActions(QDesignerFormWindowInterface *formWindow) const;
     
     QPointer<QWidget> m_widget;
     QAction *m_separator;
@@ -80,13 +84,15 @@ private:
     QAction *m_changeToolTip;
     QAction *m_changeWhatsThis;
     QAction *m_changeStyleSheet;
-    QAction *m_promoteToCustomWidgetAction;
-    QAction *m_demoteFromCustomWidgetAction;
 
     QAction *m_addMenuBar;
     QAction *m_addToolBar;
     QAction *m_addStatusBar;
     QAction *m_removeStatusBar;
+
+    mutable QSignalMapper *m_promotionMapper;
+    mutable QList<QAction*> m_promotionActions;
+    
 };
 
 class QDESIGNER_SHARED_EXPORT QDesignerTaskMenuFactory: public QExtensionFactory

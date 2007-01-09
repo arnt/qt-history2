@@ -733,8 +733,12 @@ void QDesignerResource::addCustomWidgetsToWidgetDatabase(DomCustomWidgetList& cu
         const QString customClassName = custom_widget->elementClass();
         const QString base_class = custom_widget->elementExtends();
         QString includeFile;
-        if (DomHeader *header = custom_widget->elementHeader())
+        QDesignerWidgetDataBaseItemInterface::IncludeType includeType = QDesignerWidgetDataBaseItemInterface::IncludeLocal;
+        if (const DomHeader *header = custom_widget->elementHeader()) {
             includeFile = header->text();
+            if (header->hasAttributeLocation() && header->attributeLocation() == QLatin1String("global"))
+                includeType = QDesignerWidgetDataBaseItemInterface::IncludeGlobal;
+        }
         const bool domIsContainer = custom_widget->elementContainer();
         // Append a new item
         if (base_class.isEmpty()) {
@@ -742,6 +746,7 @@ void QDesignerResource::addCustomWidgetsToWidgetDatabase(DomCustomWidgetList& cu
             item->setPromoted(false);
             item->setGroup(QApplication::translate("Designer", "Custom Widgets"));
             item->setIncludeFile(includeFile);
+            item->setIncludeType(includeType);
             item->setContainer(domIsContainer);
             item->setCustom(true);
             db->append(item);
@@ -752,7 +757,9 @@ void QDesignerResource::addCustomWidgetsToWidgetDatabase(DomCustomWidgetList& cu
             // classes, eg, plugin custom widgets.
             QDesignerWidgetDataBaseItemInterface *item = 
                 appendDerived(db, customClassName, QApplication::translate("Designer", "Promoted Widgets"),
-                                  base_class,includeFile,true,true);
+                              base_class,
+                              includeFile, includeType,
+                              true,true);
             // Ok, base class found.
             if (item) {
                 // Hack to accommodate for old UI-files in which "contains" is not set properly:
@@ -1265,6 +1272,9 @@ DomCustomWidgets *QDesignerResource::saveCustomWidgets()
         if (!item->includeFile().isEmpty()) {
             DomHeader *header = new DomHeader;
             header->setText(item->includeFile());
+            if (item->includeType() == QDesignerWidgetDataBaseItemInterface::IncludeGlobal) {
+                header->setAttributeLocation(QLatin1String("global"));
+            }
             custom_widget->setElementHeader(header);
             custom_widget->setElementExtends(item->extends());
         }

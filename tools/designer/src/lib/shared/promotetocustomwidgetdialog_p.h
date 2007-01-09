@@ -27,8 +27,10 @@
 
 #include <QtGui/QDialog>
 #include <QtCore/QHash>
+#include <QtCore/QList>
 
 class QDesignerWidgetDataBaseInterface;
+class QDesignerWidgetDataBaseItemInterface;
 
 namespace qdesigner_internal {
 
@@ -40,7 +42,10 @@ class PromoteToCustomWidgetDialog : public QDialog
 {
     Q_OBJECT
 public:
+    typedef  QList<QDesignerWidgetDataBaseItemInterface*> WidgetDataBaseItemList;
+    
     PromoteToCustomWidgetDialog(QDesignerWidgetDataBaseInterface *db,
+                                const WidgetDataBaseItemList &candidates,
                                 const QString &base_class_name,
                                 QWidget *parent = 0);
     virtual ~PromoteToCustomWidgetDialog();
@@ -48,19 +53,20 @@ public:
     virtual void accept();
     QString includeFile() const;
     QString customClassName() const;
+    bool isGlobalInclude() const;
 
 private slots:
     void checkInputs();
-    void setIncludeForClass(const QString &name);
 
 private:
+    void setIncludeForClass(const QString &name);
+
     void warn(const QString &caption, const QString &what);
     bool ask(const QString &caption, const QString &what);
     const QString m_base_class_name;
     
     Ui::PromoteToCustomWidgetDialog *m_ui;
-    
-    bool m_automatic_include;
+
     const QDesignerWidgetDataBaseInterface *m_db;
     // Include file and global flag
     typedef QPair<QString, bool> PromotedWidgetInfo;

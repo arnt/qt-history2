@@ -18,7 +18,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>156</height>
+    <height>185</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -68,9 +68,7 @@
      <item row="1" column="1" >
       <widget class="QComboBox" name="m_class_name_input" >
        <property name="sizePolicy" >
-        <sizepolicy>
-         <hsizetype>1</hsizetype>
-         <vsizetype>0</vsizetype>
+        <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -142,6 +140,13 @@
        </property>
       </widget>
      </item>
+     <item row="3" column="1" >
+      <widget class="QCheckBox" name="m_globalCheckBox" >
+       <property name="text" >
+        <string>Global include</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -152,7 +157,7 @@
      <property name="sizeHint" >
       <size>
        <width>382</width>
-       <height>16</height>
+       <height>5</height>
       </size>
      </property>
     </spacer>

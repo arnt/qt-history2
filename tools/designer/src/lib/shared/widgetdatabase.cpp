@@ -36,6 +36,7 @@ namespace qdesigner_internal {
 WidgetDataBaseItem::WidgetDataBaseItem(const QString &name, const QString &group)
     : m_name(name),
       m_group(group),
+      m_includeType(IncludeGlobal),
       m_compat(0),
       m_container(0),
       m_form(0),
@@ -43,7 +44,10 @@ WidgetDataBaseItem::WidgetDataBaseItem(const QString &name, const QString &group
       m_promoted(0)
 {
 }
-    
+
+QDesignerWidgetDataBaseItemInterface *WidgetDataBaseItem::clone() const {
+    return new WidgetDataBaseItem(*this);
+}
 
 QString WidgetDataBaseItem::name() const
 {
@@ -94,6 +98,18 @@ void WidgetDataBaseItem::setIncludeFile(const QString &includeFile)
 {
     m_includeFile = includeFile;
 }
+    
+QDesignerWidgetDataBaseItemInterface::IncludeType WidgetDataBaseItem::includeType() const 
+{
+    return m_includeType;
+}
+
+void WidgetDataBaseItem::setIncludeType(IncludeType includeType)
+{
+    m_includeType = includeType;
+}
+
+   
 
 QIcon WidgetDataBaseItem::icon() const
 {
@@ -341,27 +357,7 @@ void WidgetDataBase::grabDefaultPropertyValues()
 
     }
 }
-    
-namespace {
-    // Clone an item.
-    WidgetDataBaseItem *cloneItem(const QDesignerWidgetDataBaseItemInterface *item)    {
-        WidgetDataBaseItem *rc = new WidgetDataBaseItem(item->name(), item->group());        
-        rc->setToolTip(item->toolTip());
-        rc->setWhatsThis(item->whatsThis());
-        rc->setIncludeFile(item->includeFile());       
-        rc->setIcon(item->icon());
-        rc->setCompat(item->isCompat());
-        rc->setContainer(item->isContainer());
-        rc->setCustom(item->isCustom());
-        rc->setPluginPath(item->pluginPath());
-        rc->setPromoted(item->isPromoted());
-        rc->setExtends(item->extends());
-        rc->setDefaultPropertyValues(item->defaultPropertyValues());
-        return rc;
-    }
 
-}
-    
 /* Appends a derived class to the database inheriting the data of the base class. Used
    for custom and promoted widgets.
 
@@ -371,7 +367,9 @@ namespace {
 QDESIGNER_SHARED_EXPORT QDesignerWidgetDataBaseItemInterface *
         appendDerived(QDesignerWidgetDataBaseInterface *db,
                       const QString &className, const QString &group,
-                      const QString &baseClassName, const QString &includeFile,
+                      const QString &baseClassName, 
+                      const QString &includeFile,
+                      QDesignerWidgetDataBaseItemInterface::IncludeType includeType,
                       bool promoted, bool custom)
         {
     if (debugWidgetDataBase) 
@@ -406,7 +404,7 @@ QDESIGNER_SHARED_EXPORT QDesignerWidgetDataBaseItemInterface *
         return 0;
     }
     const QDesignerWidgetDataBaseItemInterface *baseItem = db->item(baseIndex);
-    derivedItem = cloneItem(baseItem);
+    derivedItem =baseItem->clone();
     // Sort of hack: If base class is QWidget, we most likely
     // do not want to inherit the container attribute.
     if (baseItem->name() == qWidgetName) 
@@ -418,9 +416,26 @@ QDESIGNER_SHARED_EXPORT QDesignerWidgetDataBaseItemInterface *
     derivedItem->setPromoted(promoted);
     derivedItem->setExtends(baseClassName);
     derivedItem->setIncludeFile(includeFile);
+    derivedItem->setIncludeType(includeType);
     db->append(derivedItem);
     return derivedItem;
 }
  
-
+/* Return a list of database items to which a class can be promoted to. */
+    
+QDESIGNER_SHARED_EXPORT WidgetDataBaseItemList 
+        promotionCandidates(const QDesignerWidgetDataBaseInterface *db, 
+                            const QString &baseClassName)
+{
+    WidgetDataBaseItemList rc;
+    // find existing promoted widgets deriving from base.
+    for (int i = 0; i < db->count(); ++i) {
+        QDesignerWidgetDataBaseItemInterface *item = db->item(i);
+        if (item->isPromoted() && item->extends() == baseClassName) {
+            rc.push_back(item);
+        }
+    }
+    return rc;
+}
+    
 } // namespace qdesigner_internal

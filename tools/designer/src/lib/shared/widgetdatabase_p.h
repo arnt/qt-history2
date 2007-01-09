@@ -44,6 +44,8 @@ class QDESIGNER_SHARED_EXPORT WidgetDataBaseItem: public QDesignerWidgetDataBase
 public:
     WidgetDataBaseItem(const QString &name = QString(),
                        const QString &group = QString());
+    
+    virtual QDesignerWidgetDataBaseItemInterface *clone() const;
 
     QString name() const;
     void setName(const QString &name);
@@ -59,6 +61,9 @@ public:
 
     QString includeFile() const;
     void setIncludeFile(const QString &includeFile);
+    
+    IncludeType includeType() const;
+    void setIncludeType(IncludeType includeType);
 
     QIcon icon() const;
     void setIcon(const QIcon &icon);
@@ -90,6 +95,7 @@ private:
     QString m_toolTip;
     QString m_whatsThis;
     QString m_includeFile;
+    IncludeType m_includeType;
     QString m_pluginPath;
     QString m_extends;
     QIcon m_icon;
@@ -126,13 +132,21 @@ private:
 };
 
     
-QDESIGNER_SHARED_EXPORT QDesignerWidgetDataBaseItemInterface *appendDerived(QDesignerWidgetDataBaseInterface *db,
-                                                                            const QString &className,
-                                                                            const QString &group,
-                                                                            const QString &baseClassName,
-                                                                            const QString &includeFile,
-                                                                            bool promoted,
-                                                                            bool custom);
+QDESIGNER_SHARED_EXPORT QDesignerWidgetDataBaseItemInterface 
+        *appendDerived(QDesignerWidgetDataBaseInterface *db,
+                       const QString &className,
+                       const QString &group,
+                       const QString &baseClassName,
+                       const QString &includeFile,
+                       QDesignerWidgetDataBaseItemInterface::IncludeType includeType,
+                       bool promoted,
+                       bool custom);
+    
+typedef  QList<QDesignerWidgetDataBaseItemInterface*> WidgetDataBaseItemList;
+
+QDESIGNER_SHARED_EXPORT WidgetDataBaseItemList 
+        promotionCandidates(const QDesignerWidgetDataBaseInterface *db, 
+                            const QString &baseClassName);
 } // namespace qdesigner_internal
 
 #endif // WIDGETDATABASE_H

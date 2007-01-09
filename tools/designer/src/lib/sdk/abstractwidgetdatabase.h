@@ -29,6 +29,10 @@ class QDebug;
 class QDesignerWidgetDataBaseItemInterface
 {
 public:
+    enum IncludeType { IncludeLocal, IncludeGlobal  };
+    
+    virtual QDesignerWidgetDataBaseItemInterface *clone() const = 0;
+
     virtual ~QDesignerWidgetDataBaseItemInterface() {}
 
     virtual QString name() const = 0;
@@ -45,6 +49,9 @@ public:
 
     virtual QString includeFile() const = 0;
     virtual void setIncludeFile(const QString &includeFile) = 0;
+    
+    virtual IncludeType includeType() const = 0;
+    virtual void setIncludeType(IncludeType includeType) = 0;
 
     virtual QIcon icon() const = 0;
     virtual void setIcon(const QIcon &icon) = 0;

@@ -37,7 +37,7 @@
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QPushButton>
-
+#include <QtCore/QSignalMapper>
 #include <QtCore/qdebug.h>
 
 namespace  {
@@ -120,23 +120,13 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent) :
     m_changeToolTip(createAction(tr("Change toolTip..."), this, SLOT(changeToolTip()))),
     m_changeWhatsThis(createAction(tr("Change whatsThis..."), this, SLOT(changeWhatsThis()))),
     m_changeStyleSheet(createAction(tr("Change styleSheet..."), this,  SLOT(changeStyleSheet()))),
-    m_promoteToCustomWidgetAction(createAction(tr("Promote to Custom Widget"), this, SLOT(promoteToCustomWidget()))),
-    m_demoteFromCustomWidgetAction(createAction(demoteText(), this, SLOT(demoteFromCustomWidget()))),
     m_addMenuBar(createAction(tr("Create Menu Bar"), this, SLOT(createMenuBar()))),
     m_addToolBar(createAction(tr("Add Tool Bar"), this, SLOT(addToolBar()))),
     m_addStatusBar(createAction(tr("Create Status Bar"), this, SLOT(createStatusBar()))),
-    m_removeStatusBar(createAction(tr("Remove Status Bar"), this, SLOT(removeStatusBar())))
+    m_removeStatusBar(createAction(tr("Remove Status Bar"), this, SLOT(removeStatusBar()))),
+    m_promotionMapper(0)
 {
     Q_ASSERT(qobject_cast<QDesignerFormWindowInterface*>(widget) == 0);
-
-    m_promoteToCustomWidgetAction->setObjectName(QLatin1String("__qt__promoteToCustomWidgetAction"));
-}
-    
-QString QDesignerTaskMenu::demoteText() const
-{
-    QString rc = tr("Demote to ");
-    rc +=  promotedExtends(formWindow()->core(), m_widget);
-    return rc;
 }
 
 QDesignerTaskMenu::~QDesignerTaskMenu()
@@ -222,9 +212,57 @@ void QDesignerTaskMenu::removeStatusBar()
             return;
         }
 
-        DeleteStatusBarCommand *cmd = new DeleteStatusBarCommand(fw);
+         DeleteStatusBarCommand *cmd = new DeleteStatusBarCommand(fw);
         cmd->init(findStatusBar(mw));
         fw->commandHistory()->push(cmd);
+    }
+}
+    
+void QDesignerTaskMenu::createPromotionActions(QDesignerFormWindowInterface *formWindow) const
+{
+    // clear out old
+    if (!m_promotionActions.empty()) {
+        foreach (QAction *a, m_promotionActions) 
+            a->deleteLater();
+        m_promotionActions.clear();        
+    }
+    // No promotion of main container
+    if (formWindow->mainContainer() == m_widget)
+        return;
+    
+    // Ugly, but we need to create actions
+    QDesignerTaskMenu *taskMenu = const_cast<QDesignerTaskMenu *>(this);
+    QDesignerFormEditorInterface *core = formWindow->core();
+    // demote
+    if (isPromoted(formWindow->core(), widget())) {
+        QString demoteText = tr("Demote to ");
+        demoteText  +=  promotedExtends(core , m_widget);
+        m_promotionActions.push_back(taskMenu->createAction(demoteText, taskMenu, SLOT(demoteFromCustomWidget())));
+    } else {
+        // figure out candidates
+        const QString baseClassName = WidgetFactory::classNameOf(core,  m_widget);
+        const WidgetDataBaseItemList candidates = promotionCandidates(core->widgetDataBase(), baseClassName );
+        if (!candidates.empty()) {
+            // Set up a signal mapper to associate class names
+            if (!m_promotionMapper) {
+                m_promotionMapper = new QSignalMapper(taskMenu);
+                connect(m_promotionMapper, SIGNAL(mapped(QString)), taskMenu, SLOT(promoteToCustomWidget(QString)));
+            }
+            const WidgetDataBaseItemList::const_iterator cend = candidates.constEnd();
+            // Set up actions and map class names
+            for (WidgetDataBaseItemList::const_iterator it = candidates.constBegin(); it != cend; ++it) {
+                const QString customClassName = (*it)->name();
+                QString text = tr("Promote to ");
+                text +=  customClassName;
+                QAction *action = taskMenu->createAction(text, taskMenu->m_promotionMapper, SLOT(map()));
+                m_promotionMapper->setMapping(action, customClassName);
+                m_promotionActions.push_back(action);
+            }
+        }
+        // promote to new
+        QAction *promoteAction = taskMenu->createAction(tr("Promote to Custom Widget"), taskMenu, SLOT(promoteToNewCustomWidget()));
+        promoteAction->setObjectName(QLatin1String("__qt__promoteToCustomWidgetAction")); // Legacy hack}
+        m_promotionActions.push_back(promoteAction);
     }
 }
 
@@ -258,14 +296,11 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
     actions.append(m_changeWhatsThis);
     actions.append(m_changeStyleSheet);
 
-    if (!isMainContainer) {
+    createPromotionActions(formWindow );
+    if (!m_promotionActions.empty()) {
         actions.append(m_separator3);
-        if (isPromoted(formWindow->core(),m_widget))
-            actions.append(m_demoteFromCustomWidgetAction);
-        else
-            actions.append(m_promoteToCustomWidgetAction);
+        actions += m_promotionActions;
     }
-
     return actions;
 }
 
@@ -307,8 +342,21 @@ QObject *QDesignerTaskMenuFactory::createExtension(QObject *object, const QStrin
 
     return new QDesignerTaskMenu(widget, parent);
 }
+    
+void QDesignerTaskMenu::promoteTo(QDesignerFormWindowInterface *fw, const QString &customClassName)
+{
+    PromoteToCustomWidgetCommand *cmd = new PromoteToCustomWidgetCommand(fw);
+    cmd->init(m_widget, customClassName);
+    fw->commandHistory()->push(cmd);
+}
+ 
+    
+void  QDesignerTaskMenu::promoteToCustomWidget(const QString &customClassName)
+{
+    promoteTo(formWindow(), customClassName);
+}
 
-void QDesignerTaskMenu::promoteToCustomWidget()
+void QDesignerTaskMenu::promoteToNewCustomWidget()
 {
     QDesignerFormWindowInterface *fw = formWindow();
     QDesignerFormEditorInterface *core = fw->core();
@@ -317,30 +365,30 @@ void QDesignerTaskMenu::promoteToCustomWidget()
 
     Q_ASSERT(!isPromoted(core,wgt));
 
-    const QString base_class_name = WidgetFactory::classNameOf(core,wgt);
+    const QString base_class_name = WidgetFactory::classNameOf(core, wgt);
 
-    PromoteToCustomWidgetDialog dialog(db, base_class_name);
+    PromoteToCustomWidgetDialog dialog(db, promotionCandidates(db, base_class_name), base_class_name);
     if (!dialog.exec())
         return;
 
     const QString custom_class_name = dialog.customClassName();
     const QString include_file = dialog.includeFile();
-    
-    QDesignerWidgetDataBaseItemInterface *item = appendDerived(db,custom_class_name,
-                                                               tr("Promoted Widgets"),
-                                                               base_class_name,
-                                                               include_file,
-                                                               true,true);
+    const QDesignerWidgetDataBaseItemInterface::IncludeType 
+        includeType = dialog.isGlobalInclude() ?
+                      QDesignerWidgetDataBaseItemInterface::IncludeGlobal : 
+                      QDesignerWidgetDataBaseItemInterface::IncludeLocal;
+        
+    QDesignerWidgetDataBaseItemInterface *item = 
+        appendDerived(db,custom_class_name, tr("Promoted Widgets"),
+                      base_class_name, include_file, includeType,
+                      true,true);
     Q_ASSERT(item);
     // To be a 100% sure, if item already exists.
     item->setIncludeFile(include_file);
+    item->setIncludeType(includeType);
 
     // ### use the undo stack
-    // fw->beginCommand(tr("Promote to custom widget"));
-
-    PromoteToCustomWidgetCommand *cmd = new PromoteToCustomWidgetCommand(fw);
-    cmd->init(wgt, custom_class_name );
-    fw->commandHistory()->push(cmd);
+    promoteTo(fw, custom_class_name);
 }
 
 void QDesignerTaskMenu::demoteFromCustomWidget()

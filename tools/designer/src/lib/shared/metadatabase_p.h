@@ -50,11 +50,11 @@ public:
     virtual bool enabled() const;
     virtual void setEnabled(bool b);
     
-    QString customClassName() const;
-    void setCustomClassName(const QString &customClassName);
+    virtual QString customClassName() const;
+    virtual void setCustomClassName(const QString &customClassName);
 
-    QString propertyComment(const QString &name) const;
-    void setPropertyComment(const QString &name, const QString &comment);
+    virtual QString propertyComment(const QString &name) const;
+    virtual void setPropertyComment(const QString &name, const QString &comment);
 
     typedef QHash<QString, QString> PropertyComments;
     
