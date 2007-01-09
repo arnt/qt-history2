@@ -53,7 +53,8 @@ public:
 
     virtual ~EvalFunction() {}
 
-    void evaluate(QScriptContext *context, QString contents)
+    void evaluate(QScriptContext *context, QString contents,
+                  bool calledFromScript)
     {
         if (! contents.endsWith(QLatin1Char('\n')))
             contents += QLatin1Char('\n'); // ### kill me
@@ -81,12 +82,11 @@ public:
 
         QScript::Code *code = m_driver->createCompiledCode(program, compilation);
 
-        if (QScriptContext *parentContext = context->parentContext()) {
-            context->setActivationObject(parentContext->activationObject());
-            context->setThisObject(parentContext->thisObject());
-        } else {
-            context->setActivationObject(context->engine()->globalObject());
-            context->setThisObject(context->engine()->globalObject());
+        if (calledFromScript) {
+            if (QScriptContext *parentContext = context->parentContext()) {
+                context->setActivationObject(parentContext->activationObject());
+                context->setThisObject(parentContext->thisObject());
+            }
         }
 
         const QScriptInstruction *iPtr = context->instructionPointer();
@@ -104,7 +104,7 @@ public:
             QScriptValue arg = context->argument(0);
             if (arg.isString()) {
                 QString contents = arg.toString();
-                evaluate(context, contents);
+                evaluate(context, contents, /*calledFromScript=*/true);
             } else {
                 context->setReturnValue(arg);
             }
@@ -529,7 +529,8 @@ void QScriptEnginePrivate::maybeGC_helper(bool do_string_gc)
 void QScriptEnginePrivate::evaluate(QScriptContext *context, const QString &contents)
 {
     // ### try to remove cast
-    static_cast<QScript::EvalFunction*>(m_evalFunction)->evaluate(context, contents);
+    static_cast<QScript::EvalFunction*>(m_evalFunction)->evaluate(context, contents,
+                                                                  /*calledFromScript=*/false);
 }
 
 QScriptFunction *QScriptEnginePrivate::convertToNativeFunction(const QScriptValue &object)
@@ -1272,9 +1273,6 @@ void QScriptEnginePrivate::init()
     objectAllocator.blockGC(false);
 
     QScriptContext *context = pushContext();
-    QScriptValue activation;
-    newActivation(&activation);
-    activation.impl()->setScope(globalObject);
-    context->setActivationObject(activation);
+    context->setActivationObject(globalObject);
     context->setThisObject(globalObject);
 }

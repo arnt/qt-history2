@@ -41,6 +41,7 @@ private slots:
     void canEvaluate();
     void evaluate_data();
     void evaluate();
+    void nestedEvaluate();
     void addRemoveRootObject();
     void nameId();
 };
@@ -282,6 +283,26 @@ void tst_QScriptEngine::evaluate()
     if (expectHadError)
         QEXPECT_FAIL("", "linenumber is off by one", Continue);
     QCOMPARE(eng.uncaughtExceptionLineNumber(), expectErrorLineNumber);
+}
+
+static QScriptValue eval_nested(QScriptContext *ctx, QScriptEngine *eng)
+{
+    QScriptValue result = eng->newObject();
+    result.setProperty("thisObjectIdBefore", ctx->thisObject().property("id"));
+    QScriptValue evaluatedThisObject = eng->evaluate("this");
+    result.setProperty("thisObjectIdAfter", ctx->thisObject().property("id"));
+    result.setProperty("evaluatedThisObjectId", evaluatedThisObject.property("id"));
+    return result;
+}
+
+void tst_QScriptEngine::nestedEvaluate()
+{
+    QScriptEngine eng;
+    eng.globalObject().setProperty("fun", eng.scriptValue(eval_nested));
+    QScriptValue result = eng.evaluate("o = { id:'foo'}; o.fun = fun; o.fun()");
+    QCOMPARE(result.property("thisObjectIdBefore").toString(), QString("foo"));
+    QCOMPARE(result.property("thisObjectIdAfter").toString(), QString("foo"));
+    QCOMPARE(result.property("evaluatedThisObjectId").toString(), QString("foo"));
 }
 
 void tst_QScriptEngine::addRemoveRootObject()
