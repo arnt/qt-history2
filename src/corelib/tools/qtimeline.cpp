@@ -100,8 +100,8 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
     if (lastFrame != q->currentFrame())
         emit q->frameChanged(q->currentFrame());
     if (finished) {
-        emit q->finished();
         q->stop();
+        emit q->finished();
     }
 }
 
