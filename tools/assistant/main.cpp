@@ -238,6 +238,7 @@ int main( int argc, char ** argv )
     QString file, profileName, aDocPath;
     bool server = false;
     bool hideSidebar = false;
+    bool configLoaded = false;
     if ( argc == 2 ) {
         file = QString::fromLocal8Bit(argv[1]);
         if (file.startsWith(QLatin1String("-")) || file == QLatin1String("/?")) {
@@ -319,6 +320,8 @@ int main( int argc, char ** argv )
                     c->loadDefaultProfile();
                     c->setDocRebuild(true);
                     c->save();
+                    configLoaded = true;
+                    ++i;
                 } else {
                     fprintf(stderr, "The specified path does not exist!\n");
                     return 1;
@@ -355,6 +358,7 @@ int main( int argc, char ** argv )
                 resourceDir = QFile::decodeName( argv[++i] );
             } else {
                 fprintf(stderr, "Unrecognized option %s. Try -help to get help.\n", qPrintable(opt));
+                return 1;
             }
         }
     }
@@ -370,8 +374,12 @@ int main( int argc, char ** argv )
     qtTranslator.load( QLatin1String("qt_") + QLocale::system().name(), resourceDir );
     a.installTranslator( &qtTranslator );
 
-    Config *conf = Config::loadConfig( profileName );
-    if ( !conf ) {
+    Config *conf = 0;
+    if (configLoaded)
+        conf = Config::configuration();
+    else
+        conf = Config::loadConfig( profileName );
+    if (!conf) {
         fprintf( stderr, "Profile '%s' does not exist!\n", profileName.toLatin1().constData() );
         fflush( stderr );
         return -1;
