@@ -36,7 +36,7 @@
 
 /*!
     \class QGraphicsSceneMouseEvent
-    \brief QGraphicsSceneMouseEvent provides mouse events in the
+    \brief The QGraphicsSceneMouseEvent class provides mouse events in the
     graphics view framework.
     \since 4.2
     \ingroup multimedia
@@ -57,16 +57,14 @@
 
 /*!
     \class QGraphicsSceneWheelEvent
-    \brief QGraphicsSceneWheelEvent provides wheel events in the
+    \brief The QGraphicsSceneWheelEvent class provides wheel events in the
     graphics view framework.
     \since 4.2
     \ingroup multimedia
 
-    \l{QWheelEvent}{QWheelEvents} received by a QGraphicsView are
-    translated into
-    \l{QGraphicsViewWheelEvent}{QGraphicsSceneWheelEvents}; it
-    translates the QWheelEvent::globalPos() into screen and scene
-    coordinates.
+    \l{QWheelEvent}{QWheelEvents} received by a QGraphicsView are translated
+    into QGraphicsSceneWheelEvents; it translates the QWheelEvent::globalPos()
+    into screen and scene coordinates.
 
     \sa QGraphicsSceneMouseEvent,
     QGraphicsSceneContextMenuEvent, QGraphicsSceneHoverEvent,
@@ -75,7 +73,7 @@
 
 /*!
     \class QGraphicsSceneContextMenuEvent
-    \brief QGraphicsSceneContextMenuEvent provides context menu
+    \brief The QGraphicsSceneContextMenuEvent class provides context menu
     events in the graphics view framework.
     \since 4.2
     \ingroup multimedia
@@ -86,7 +84,7 @@
     event is then forwarded to the scene visualized by the view.
 
     \sa QGraphicsSceneMouseEvent, QGraphicsSceneWheelEvent,
-    QGraphicsSceneContextMenuEvent, QContextMenuEvent
+    QContextMenuEvent
 */
 
 /*!
@@ -107,7 +105,7 @@
 
 /*!
     \class QGraphicsSceneHoverEvent
-    \brief QGraphicsSceneHoverEvent provides hover events in the
+    \brief The QGraphicsSceneHoverEvent class provides hover events in the
     graphics view framework.
     \since 4.2
     \ingroup multimedia
@@ -117,13 +115,13 @@
     QGraphicsSceneEvent). It then forwards the event to the scene
     it displays; the scene then propagates it to its items.
 
-    \sa QGraphicsSceneMouseEvent, QGraphicsViewContextMenuEvent,
-    QGraphicsViewWheelEvent, QHoverEvent.
+    \sa QGraphicsSceneMouseEvent, QGraphicsSceneContextMenuEvent,
+        QGraphicsSceneWheelEvent, QHoverEvent
 */
 
 /*!
     \class QGraphicsSceneHelpEvent
-    \brief QGraphicsSceneHelpEvent provides events when a tooltip is requested.
+    \brief The QGraphicsSceneHelpEvent class provides events when a tooltip is requested.
     \since 4.2
     \ingroup multimedia
 
@@ -146,7 +144,7 @@
 
 /*!
     \class QGraphicsSceneDragDropEvent
-    \brief QGraphicsSceneDragDropEvent provides events for 
+    \brief The QGraphicsSceneDragDropEvent class provides events for 
     drag and drop in the graphics view framework. 
     \since 4.2
     \ingroup multimedia
@@ -223,8 +221,6 @@ QGraphicsSceneEvent::~QGraphicsSceneEvent()
 /*!
     Returns the widget where the event originated. If the event did not
     originate from a widget, 0 is returned.
-
-    \sa setWidget()
 */
 QWidget *QGraphicsSceneEvent::widget() const
 {
@@ -567,7 +563,7 @@ QGraphicsSceneWheelEvent::~QGraphicsSceneWheelEvent()
     Returns the position of the cursor in item coordinates when the
     wheel event occurred.
 
-    \sa setPos(), scenePos(), screenPos()
+    \sa scenePos(), screenPos()
 */
 QPointF QGraphicsSceneWheelEvent::pos() const
 {
@@ -588,7 +584,7 @@ void QGraphicsSceneWheelEvent::setPos(const QPointF &pos)
     Returns the position of the cursor in item coordinates when the wheel
     event occurred.
 
-    \sa setScenePos(), pos(), screenPos()
+    \sa pos(), screenPos()
 */
 QPointF QGraphicsSceneWheelEvent::scenePos() const
 {
@@ -609,7 +605,7 @@ void QGraphicsSceneWheelEvent::setScenePos(const QPointF &pos)
     Returns the position of the cursor in screen coordinates when the wheel
     event occurred.
 
-    \sa setScreenPos(), pos(), scenePos()
+    \sa pos(), scenePos()
 */
 QPoint QGraphicsSceneWheelEvent::screenPos() const
 {
@@ -629,7 +625,7 @@ void QGraphicsSceneWheelEvent::setScreenPos(const QPoint &pos)
 /*!
     Returns the mouse buttons that were pressed when the wheel event occurred.
 
-    \sa setButtons(), modifiers()
+    \sa modifiers()
 */
 Qt::MouseButtons QGraphicsSceneWheelEvent::buttons() const
 {
@@ -650,7 +646,7 @@ void QGraphicsSceneWheelEvent::setButtons(Qt::MouseButtons buttons)
     Returns the keyboard modifiers that were active when the wheel event
     occurred.
 
-    \sa setModifiers(), buttons()
+    \sa buttons()
 */
 Qt::KeyboardModifiers QGraphicsSceneWheelEvent::modifiers() const
 {
@@ -675,8 +671,6 @@ void QGraphicsSceneWheelEvent::setModifiers(Qt::KeyboardModifiers modifiers)
 
     Most mouse types work in steps of 15 degrees, in which case the delta
     value is a multiple of 120 (== 15 * 8).
-
-    \sa setDelta()
 */
 int QGraphicsSceneWheelEvent::delta() const
 {
@@ -823,7 +817,7 @@ void QGraphicsSceneContextMenuEvent::setModifiers(Qt::KeyboardModifiers modifier
 /*!
     Returns the reason for the context menu event.
 
-    \sa setReason(), QGraphicsContextMenu::Reason
+    \sa QGraphicsSceneContextMenuEvent::Reason
 */
 QGraphicsSceneContextMenuEvent::Reason QGraphicsSceneContextMenuEvent::reason() const
 {
@@ -1134,7 +1128,7 @@ void QGraphicsSceneDragDropEvent::setScreenPos(const QPoint &pos)
     were pressed on the mouse when this mouse event was
     generated.
 
-    \sa Qt::MouseButtons, button()
+    \sa Qt::MouseButtons
 */
 Qt::MouseButtons QGraphicsSceneDragDropEvent::buttons() const
 {
@@ -1300,7 +1294,7 @@ QWidget *QGraphicsSceneDragDropEvent::source() const
 /*!
     \internal
     This function set the source widget, i.e., the widget that
-    created the drop event, to \source.
+    created the drop event, to \a source.
 */
 void QGraphicsSceneDragDropEvent::setSource(QWidget *source)
 {
