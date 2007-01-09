@@ -1332,7 +1332,7 @@ void QFileSystemModelPrivate::fileSystemChanged(const QString &path, const QList
         if (parentNode->children.at(itemLocation) != info ) {
             parentNode->children[itemLocation].populate(info);
             int visibleLocation = parentNode->visibleLocation(itemLocation);
-            bypassFilters.remove(&(parentNode->children.at(itemLocation)));
+            bypassFilters.removeAll(&(parentNode->children.at(itemLocation)));
             // brand new information.
             if (filtersAcceptsNode(&(parentNode->children[itemLocation]))) {
                 if (visibleLocation == -1) {
