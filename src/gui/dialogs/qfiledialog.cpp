@@ -28,6 +28,103 @@
 #include <qapplication.h>
 
 /*!
+  \class QFileDialog
+  \brief The QFileDialog class provides a dialog that allow users to select files or directories.
+  \ingroup dialogs
+  \mainclass
+
+  The QFileDialog class enables a user to traverse the file system in
+  order to select one or many files or a directory.
+
+  The easiest way to create a QFileDialog is to use the static
+  functions. On Windows, these static functions will call the native
+  Windows file dialog, and on Mac OS X these static function will call
+  the native Mac OS X file dialog.
+
+  \code
+  fileName = QFileDialog::getOpenFileName(this,
+      tr("Open Image"), "/home/jana", tr("Image Files (*.png *.jpg *.bmp)"));
+  \endcode
+
+  In the above example, a modal QFileDialog is created using a static
+  function. The dialog initially displays the contents of the "/home/jana"
+  directory, and displays files matching the patterns given in the
+  string "Image Files (*.png *.jpg *.bmp)". The parent of the file dialog
+  is set to \e this, and the window title is set to "Open Image".
+
+  If you want to use multiple filters, separate each one with
+  \e two semicolons. For example:
+
+  \code
+  "Images (*.png *.xpm *.jpg);;Text files (*.txt);;XML files (*.xml)"
+  \endcode
+
+  You can create your own QFileDialog without using the static
+  functions. By calling setFileMode(), you can specify what the user must
+  select in the dialog:
+
+  \code
+  QFileDialog dialog(this);
+  dialog.setFileMode(QFileDialog::AnyFile);
+  \endcode
+
+  In the above example, the mode of the file dialog is set to
+  AnyFile, meaning that the user can select any file, or even specify a
+  file that doesn't exist. This mode is useful for creating a
+  "Save As" file dialog. Use ExistingFile if the user must select an
+  existing file, or \l Directory if only a directory may be selected.
+  See the \l QFileDialog::FileMode enum for the complete list of modes.
+
+  The fileMode property contains the mode of operation for the dialog;
+  this indicates what types of objects the user is expected to select.
+  Use setFilter() to set the dialog's file filter. For example:
+
+  \code
+  dialog.setFilter(tr("Images (*.png *.xpm *.jpg)"));
+  \endcode
+
+  In the above example, the filter is set to \c{"Images (*.png *.xpm *.jpg)"},
+  this means that only files with the extension \c png, \c xpm,
+  or \c jpg will be shown in the QFileDialog. You can apply
+  several filters by using setFilters(). Use selectFilter() to select
+  one of the filters you've given as the file dialog's default filter.
+
+  The file dialog has two view modes: \l{QFileDialog::}{List} and
+  \l{QFileDialog::}{Detail}.
+  \l{QFileDialog::}{List} presents the contents of the current directory
+  as a list of file and directory names. \l{QFileDialog::}{Detail} also
+  displays a list of file and directory names, but provides additional
+  information alongside each name, such as the file size and modification
+  date. Set the mode with setViewMode():
+
+  \code
+  dialog.setViewMode(QFileDialog::Detail);
+  \endcode
+
+  The last important function you will need to use when creating your
+  own file dialog is selectedFiles().
+
+  \code
+  QStringList fileNames;
+  if (dialog.exec())
+      fileNames = dialog.selectedFiles();
+  \endcode
+
+  In the above example, a modal file dialog is created and shown. If
+  the user clicked OK, the file they selected is put in \c fileName.
+
+  The dialog's working directory can be set with setDirectory().
+  Each file in the current directory can be selected using
+  the selectFile() function.
+
+  The \l{dialogs/standarddialogs}{Standard Dialogs} example shows
+  how to use QFileDialog as well as other built-in Qt dialogs.
+
+  \sa QDir, QFileInfo, QFile, QPrintDialog, QColorDialog, QFontDialog, {Standard Dialogs Example},
+      {Application Example}
+*/
+
+/*!
   \fn void QFileDialog::dirEntered(const QString &)
 
   This signal is emitted when the user enters a directory.
