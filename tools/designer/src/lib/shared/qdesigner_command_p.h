@@ -231,25 +231,32 @@ private:
 class QDESIGNER_SHARED_EXPORT PromoteToCustomWidgetCommand : public QDesignerFormWindowCommand
 {
 public:
+    typedef QList<QPointer<QWidget> > WidgetList;
+    
     PromoteToCustomWidgetCommand(QDesignerFormWindowInterface *formWindow);
-    void init(QWidget *widget,const QString &customClassName);
+
+    void init(const WidgetList &widgets, const QString &customClassName);
     virtual void redo();
     virtual void undo();
 
 private:
-    QWidget *m_widget;
+    void updateSelection();
+    WidgetList m_widgets;
     QString m_customClassName;
 };
 
 class QDESIGNER_SHARED_EXPORT DemoteFromCustomWidgetCommand : public QDesignerFormWindowCommand
 {
 public:
+    typedef PromoteToCustomWidgetCommand::WidgetList WidgetList;
+    
     DemoteFromCustomWidgetCommand(QDesignerFormWindowInterface *formWindow);
-    void init(QWidget *promoted);
+
+    void init(const WidgetList &promoted);
     virtual void redo();
     virtual void undo();
 private:
-    PromoteToCustomWidgetCommand *m_promote_cmd;
+    PromoteToCustomWidgetCommand m_promote_cmd;
 };
 
 class QDESIGNER_SHARED_EXPORT LayoutCommand: public QDesignerFormWindowCommand

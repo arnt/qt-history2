@@ -229,12 +229,17 @@ void QDesignerTaskMenu::createPromotionActions(QDesignerFormWindowInterface *for
     // No promotion of main container
     if (formWindow->mainContainer() == m_widget)
         return;
+
+    // Check for a homogenous selection
+    const PromotionSelectionList promotionSelection = promotionSelectionList(formWindow);
+    if (promotionSelection.empty())
+        return;   
     
     // Ugly, but we need to create actions
     QDesignerTaskMenu *taskMenu = const_cast<QDesignerTaskMenu *>(this);
     QDesignerFormEditorInterface *core = formWindow->core();
     // demote
-    if (isPromoted(formWindow->core(), widget())) {
+    if (isPromoted(formWindow->core(), m_widget)) {
         QString demoteText = tr("Demote to ");
         demoteText  +=  promotedExtends(core , m_widget);
         m_promotionActions.push_back(taskMenu->createAction(demoteText, taskMenu, SLOT(demoteFromCustomWidget())));
@@ -261,7 +266,6 @@ void QDesignerTaskMenu::createPromotionActions(QDesignerFormWindowInterface *for
         }
         // promote to new
         QAction *promoteAction = taskMenu->createAction(tr("Promote to Custom Widget"), taskMenu, SLOT(promoteToNewCustomWidget()));
-        promoteAction->setObjectName(QLatin1String("__qt__promoteToCustomWidgetAction")); // Legacy hack}
         m_promotionActions.push_back(promoteAction);
     }
 }
@@ -346,7 +350,7 @@ QObject *QDesignerTaskMenuFactory::createExtension(QObject *object, const QStrin
 void QDesignerTaskMenu::promoteTo(QDesignerFormWindowInterface *fw, const QString &customClassName)
 {
     PromoteToCustomWidgetCommand *cmd = new PromoteToCustomWidgetCommand(fw);
-    cmd->init(m_widget, customClassName);
+    cmd->init(promotionSelectionList(fw), customClassName);
     fw->commandHistory()->push(cmd);
 }
  
@@ -394,11 +398,12 @@ void QDesignerTaskMenu::promoteToNewCustomWidget()
 void QDesignerTaskMenu::demoteFromCustomWidget()
 {
     QDesignerFormWindowInterface *fw = formWindow();
-    Q_ASSERT(isPromoted(fw->core(),widget()));
+    const PromotionSelectionList promotedWidgets = promotionSelectionList(fw);
+    Q_ASSERT(!promotedWidgets.empty() && isPromoted(fw->core(), promotedWidgets.front()));
 
     // ### use the undo stack
     DemoteFromCustomWidgetCommand *cmd = new DemoteFromCustomWidgetCommand(fw);
-    cmd->init(widget());
+    cmd->init(promotedWidgets);
     fw->commandHistory()->push(cmd);
 }
 
@@ -424,6 +429,35 @@ void QDesignerTaskMenu::changeRichTextProperty(const QString &propertyName)
         }
     }
 }
+
+QDesignerTaskMenu::PromotionSelectionList QDesignerTaskMenu::promotionSelectionList(QDesignerFormWindowInterface *formWindow) const
+{
+    // Check for a homogenous selection (same class, same promotion state)
+    // and return the list if this is the case. Also make sure m_widget
+    // is the last widget in the list so that it is re-selected as the last
+    // widget by the promotion commands.
+    const QString className = m_widget->metaObject()->className();
+    const bool promoted = isPromoted(formWindow->core(), m_widget);
+    
+    PromotionSelectionList rc;
+    
+    if (QDesignerFormWindowCursorInterface *cursor = formWindow->cursor()) {
+        const int selectedWidgetCount = cursor->selectedWidgetCount();
+        for (int i=0; i < selectedWidgetCount; i++) {
+            QWidget *w = cursor->selectedWidget(i);
+            // Check, put  m_widget last
+            if (w != m_widget) {
+                if (w->metaObject()->className() != className || isPromoted(formWindow->core(), w) !=  promoted) {
+                    return PromotionSelectionList();
+                }
+                rc.push_back(w);
+            }
+        }
+    }
+    rc.push_back(m_widget);
+    return rc;
+}
+
 
 void QDesignerTaskMenu::changeToolTip()
 {

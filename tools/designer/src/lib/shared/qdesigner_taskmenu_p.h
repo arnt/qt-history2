@@ -32,6 +32,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
+#include <QtCore/QList>
 
 class QWidget;
 class QDesignerFormWindowInterface;
@@ -75,6 +76,9 @@ private slots:
 private:
     void promoteTo(QDesignerFormWindowInterface *fw, const QString &customClassName);
     void createPromotionActions(QDesignerFormWindowInterface *formWindow) const;
+    
+    typedef QList<QPointer<QWidget> > PromotionSelectionList;
+    PromotionSelectionList promotionSelectionList(QDesignerFormWindowInterface *formWindow) const;
     
     QPointer<QWidget> m_widget;
     QAction *m_separator;

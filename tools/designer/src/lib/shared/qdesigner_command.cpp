@@ -366,55 +366,66 @@ void ReparentWidgetCommand::undo()
 
 PromoteToCustomWidgetCommand::PromoteToCustomWidgetCommand
                                 (QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(QApplication::translate("Command", "Promote to custom widget"), formWindow),
-      m_widget(0)
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Promote to custom widget"), formWindow)
 {
 }
 
     
-void PromoteToCustomWidgetCommand::init(QWidget *widget,const QString &customClassName)
+void PromoteToCustomWidgetCommand::init(const WidgetList &widgets,const QString &customClassName)
 {
-    m_widget = widget;
+    m_widgets = widgets;
     m_customClassName = customClassName;
 }
 
 void PromoteToCustomWidgetCommand::redo()
 {
-    promoteWidget(core(),m_widget, m_customClassName );
-    formWindow()->emitSelectionChanged();
-    formWindow()->clearSelection(); // force update of properties, class name, etc.
-    formWindow()->selectWidget(m_widget);
+    foreach (QWidget *w, m_widgets) {
+        if (w)
+            promoteWidget(core(), w, m_customClassName);
+    }
+    updateSelection();
+}
+
+void PromoteToCustomWidgetCommand::updateSelection() {
+    // force update of properties, class name, etc.
+    formWindow()->clearSelection();
+    foreach (QWidget *w, m_widgets) {
+        if (w)
+            formWindow()->selectWidget(w);
+    }
 }
 
 void PromoteToCustomWidgetCommand::undo()
 {
-    demoteWidget(core(),m_widget);
-    formWindow()->clearSelection(); // force update of properties, class name, etc.
-    formWindow()->selectWidget(m_widget);
+    foreach (QWidget *w, m_widgets) {
+        if (w)
+            demoteWidget(core(), w);
+    }
+    updateSelection();
 }
 
 // ---- DemoteFromCustomWidgetCommand ----
 
 DemoteFromCustomWidgetCommand::DemoteFromCustomWidgetCommand
-                                    (QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(QApplication::translate("Command", "Demote from custom widget"), formWindow),
-      m_promote_cmd(new PromoteToCustomWidgetCommand(formWindow))
+                                    (QDesignerFormWindowInterface *formWindow) :
+    QDesignerFormWindowCommand(QApplication::translate("Command", "Demote from custom widget"), formWindow),
+    m_promote_cmd(formWindow)
 {
 }
 
-void DemoteFromCustomWidgetCommand::init(QWidget *promoted)
+void DemoteFromCustomWidgetCommand::init(const WidgetList &promoted)
 {
-    m_promote_cmd->init(promoted,promotedCustomClassName(core(), promoted));
+    m_promote_cmd.init(promoted, promotedCustomClassName(core(), promoted.front()));
 }
 
 void DemoteFromCustomWidgetCommand::redo()
 {
-    m_promote_cmd->undo();
+    m_promote_cmd.undo();
 }
 
 void DemoteFromCustomWidgetCommand::undo()
 {
-    m_promote_cmd->redo();
+    m_promote_cmd.redo();
 }
 
 // ---- LayoutCommand ----
