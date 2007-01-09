@@ -242,13 +242,13 @@ static unsigned char script_for_win_language[0x80] = {
     QUnicodeTables::Common,
 
     //0x20 LANG_URDU Urdu
-    QUnicodeTables::Common,
+    QUnicodeTables::Arabic,
     //0x21 LANG_INDONESIAN Indonesian
     QUnicodeTables::Common,
     //0x22 LANG_UKRAINIAN Ukrainian
     QUnicodeTables::Common,
     //0x23 LANG_BELARUSIAN Belarusian
-    QUnicodeTables::Common,
+    QUnicodeTables::Cyrillic,
     //0x24 LANG_SLOVENIAN Slovenian
     QUnicodeTables::Common,
     //0x25 LANG_ESTONIAN Estonian
@@ -259,7 +259,7 @@ static unsigned char script_for_win_language[0x80] = {
     QUnicodeTables::Common,
     QUnicodeTables::Common,
     //0x29 LANG_FARSI Farsi
-    QUnicodeTables::Common,
+    QUnicodeTables::Arabic,
     //0x2a LANG_VIETNAMESE Vietnamese
     QUnicodeTables::Latin, // ##### maybe use QUnicodeTables::CombiningMarks instead?
     //0x2b LANG_ARMENIAN Armenian
@@ -331,8 +331,10 @@ static unsigned char script_for_win_language[0x80] = {
     QUnicodeTables::Mongolian,
     QUnicodeTables::Common,
     QUnicodeTables::Common,
-    QUnicodeTables::Common,
-    QUnicodeTables::Common,
+    //0x53 LANG_KHMER Khmer
+    QUnicodeTables::Khmer,
+    //0x54 LANG_LAO Lao
+    QUnicodeTables::Lao,
     QUnicodeTables::Common,
     //0x56 LANG_GALICIAN Galician
     QUnicodeTables::Common,
