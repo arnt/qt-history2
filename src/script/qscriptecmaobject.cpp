@@ -105,9 +105,7 @@ QScriptValue Object::method_hasOwnProperty(QScriptEngine *eng, QScriptClassInfo 
 
     bool result = false;
 
-    Q_ASSERT(context->thisObject().isObject());
-
-    if (context->argumentCount() > 0) {
+    if (context->thisObject().isObject() && (context->argumentCount() > 0)) {
         QScriptValue arg = context->argument(0);
 
         QScriptNameIdImpl *id = 0;
@@ -133,9 +131,7 @@ QScriptValue Object::method_isPrototypeOf(QScriptEngine *eng, QScriptClassInfo *
     QScriptContext *context = eng->currentContext();
     bool result = false;
 
-    Q_ASSERT(context->thisObject().isObject());
-
-    if (context->argumentCount() > 0) {
+    if (context->thisObject().isObject() && (context->argumentCount() > 0)) {
         QScriptValue arg = context->argument(0);
 
         if (arg.isObject()) {
@@ -154,9 +150,7 @@ QScriptValue Object::method_propertyIsEnumerable(QScriptEngine *eng, QScriptClas
     QScriptContext *context = eng->currentContext();
     bool result = false;
 
-    Q_ASSERT(context->thisObject().isObject());
-
-    if (context->argumentCount() > 0) {
+    if (context->thisObject().isObject() && (context->argumentCount() > 0)) {
         QScriptValue arg = context->argument(0);
 
         QScriptNameIdImpl *id = 0;
