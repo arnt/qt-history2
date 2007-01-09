@@ -214,7 +214,7 @@ void QLayoutItem::setAlignment(Qt::Alignment alignment)
     to a layout, it is necessary to invalidate the layout in order for the
     spacer item's new size to take effect.
 
-    \sa QLayout::invalidate()
+    \sa QSpacerItem::invalidate()
 */
 void QSpacerItem::changeSize(int w, int h, QSizePolicy::Policy hPolicy,
                              QSizePolicy::Policy vPolicy)

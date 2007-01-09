@@ -668,13 +668,13 @@ void QBoxLayout::insertItem(int index, QLayoutItem *item)
 }
 
 /*!
-    Inserts a non-stretchable space at position \a index, with size \a
-    size. If \a index is negative the space is added at the end.
+    Inserts a non-stretchable space (a QSpacerItem) at position \a index, with
+    size \a size. If \a index is negative the space is added at the end.
 
     The box layout has default margin and spacing. This function adds
     additional space.
 
-    \sa addSpacing(), insertItem()
+    \sa addSpacing(), insertItem(), QSpacerItem
 */
 void QBoxLayout::insertSpacing(int index, int size)
 {
@@ -697,11 +697,11 @@ void QBoxLayout::insertSpacing(int index, int size)
 }
 
 /*!
-    Inserts a stretchable space at position \a index, with zero
-    minimum size and stretch factor \a stretch. If \a index is
-    negative the space is added at the end.
+    Inserts a stretchable space (a QSpacerItem) at position \a
+    index, with zero minimum size and stretch factor \a stretch. If \a
+    index is negative the space is added at the end.
 
-    \sa addStretch(), insertItem()
+    \sa addStretch(), insertItem(), QSpacerItem
 */
 void QBoxLayout::insertStretch(int index, int stretch)
 {
@@ -779,11 +779,11 @@ void QBoxLayout::insertWidget(int index, QWidget *widget, int stretch,
 }
 
 /*!
-    Adds a non-stretchable space with size \a size to the end of this
-    box layout. QBoxLayout provides default margin and spacing. This
-    function adds additional space.
+    Adds a non-stretchable space (a QSpacerItem) with size \a size
+    to the end of this box layout. QBoxLayout provides default margin
+    and spacing. This function adds additional space.
 
-    \sa insertSpacing(), addItem()
+    \sa insertSpacing(), addItem(), QSpacerItem
 */
 void QBoxLayout::addSpacing(int size)
 {
@@ -791,10 +791,10 @@ void QBoxLayout::addSpacing(int size)
 }
 
 /*!
-    Adds a stretchable space with zero minimum size and stretch factor
-    \a stretch to the end of this box layout.
+    Adds a stretchable space (a QSpacerItem) with zero minimum
+    size and stretch factor \a stretch to the end of this box layout.
 
-    \sa insertStretch(), addItem()
+    \sa insertStretch(), addItem(), QSpacerItem
 */
 void QBoxLayout::addStretch(int stretch)
 {
