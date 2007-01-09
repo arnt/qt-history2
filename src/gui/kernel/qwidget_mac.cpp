@@ -278,6 +278,22 @@ static void qt_mac_release_window_group(WindowGroupRef group)
 
 #define ReleaseWindowGroup(x) Are you sure you wanted to do that? (you wanted qt_mac_release_window_group)
 
+SInt32 qt_mac_get_group_level(WindowClass wclass)
+{
+    SInt32 group_level;
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4
+    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+        CGWindowLevel tmpLevel;
+        GetWindowGroupLevelOfType(GetWindowGroupOfClass(wclass), kWindowGroupLevelActive, &tmpLevel);
+        group_level = tmpLevel;
+    } else
+#endif
+    {
+        GetWindowGroupLevel(GetWindowGroupOfClass(wclass), &group_level);
+    }
+    return group_level;
+}
+
 /* We create one static stays on top window group so that all stays on top (aka popups) will
    fall into the same group and be able to be raise()'d with releation to one another (from
    within the same window group). */
@@ -289,9 +305,7 @@ static void qt_mac_set_window_group_to_stays_on_top(WindowRef windowRef, Qt::Win
         RetainWindowGroup(group);
     } else {
         CreateWindowGroup(kWindowActivationScopeNone, &group);
-        CGWindowLevel group_level;
-        GetWindowGroupLevelOfType(GetWindowGroupOfClass(kOverlayWindowClass), kWindowGroupLevelActive, &group_level);
-        SetWindowGroupLevel(group, group_level);
+        SetWindowGroupLevel(group, qt_mac_get_group_level(kOverlayWindowClass));
         SetWindowGroupParent(group, GetWindowGroupOfClass(kAllWindowClasses));
         qt_mac_stays_on_top()->insert(type, group);
     }
@@ -307,18 +321,7 @@ static void qt_mac_set_window_group_to_tooltip(WindowRef windowRef)
         RetainWindowGroup(qt_mac_tooltip_group);
     } else {
         CreateWindowGroup(kWindowActivationScopeNone, &qt_mac_tooltip_group);
-        SInt32 group_level;
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4
-        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
-            CGWindowLevel tmpLevel;
-            GetWindowGroupLevelOfType(GetWindowGroupOfClass(kHelpWindowClass), kWindowGroupLevelActive, &tmpLevel);
-            group_level = tmpLevel;
-        } else
-#endif
-        {
-            GetWindowGroupLevel(GetWindowGroupOfClass(kHelpWindowClass), &group_level);
-        }
-        SetWindowGroupLevel(qt_mac_tooltip_group, group_level);
+        SetWindowGroupLevel(qt_mac_tooltip_group, qt_mac_get_group_level(kHelpWindowClass));
         SetWindowGroupParent(qt_mac_tooltip_group, GetWindowGroupOfClass(kAllWindowClasses));
     }
     SetWindowGroup(windowRef, qt_mac_tooltip_group);
