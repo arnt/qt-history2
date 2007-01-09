@@ -659,7 +659,7 @@ bool PrettyPretty::visit(AST::VariableDeclaration *node)
 {
     out << eng->toString(node->name);
     if (node->expression) {
-        out << " = QLatin1String(";
+        out << " = ";
         accept(node->expression);
     }
     return false;
