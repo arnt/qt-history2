@@ -122,8 +122,8 @@ void QMainWindowPrivate::init()
     used for advanced applications. You set the central widget with \c
     setCentralWidget(). 
     
-    Main windows have either a single (SDI) or multiple document
-    (MDI) interface. You create MDI applications in Qt by using a
+    Main windows have either a single (SDI) or multiple (MDI)
+    document interface. You create MDI applications in Qt by using a
     QWorkspace as the central widget.
     
     We will now examine each of the other widgets that can be
@@ -196,8 +196,8 @@ void QMainWindowPrivate::init()
     direction.
     
     Two dock widgets may also be stacked on top of each other. A
-    \l{QTabBar}{tab bar} is then used to select which widget should be
-    displayed.
+    \l{QTabBar}{tab bar} is then used to select which widget that
+    should be displayed.
     
     We give an example of how to create and add dock widgets to a
     main window:
@@ -215,7 +215,7 @@ void QMainWindowPrivate::init()
     
     \section1 Storing State
     
-    QMainWindow can store the state of its layout with
+    QMainWindow can store the state of its layout with \c
     saveState(); it can later be retrieved with \c restoreState(). It
     is the position and size (relative to the size of the main window)
     of the toolbars and dock widgets that are stored.
