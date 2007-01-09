@@ -220,6 +220,9 @@ public:
     void setDashPattern(const QVector<qfixed> &dashPattern) { m_dashPattern = dashPattern; }
     QVector<qfixed> dashPattern() const { return m_dashPattern; }
 
+    void setDashOffset(qreal offset) { m_dashOffset = offset; }
+    qreal dashOffset() const { return m_dashOffset; }
+
     virtual void begin(void *data);
     virtual void end();
 
@@ -228,6 +231,7 @@ protected:
 
     QStroker *m_stroker;
     QVector<qfixed> m_dashPattern;
+    qreal m_dashOffset;
 };
 
 

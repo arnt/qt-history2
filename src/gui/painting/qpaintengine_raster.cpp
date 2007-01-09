@@ -1096,6 +1096,7 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
                 d->dashStroker->setClipRect(clipRect);
             }
             d->dashStroker->setDashPattern(d->pen.dashPattern());
+            d->dashStroker->setDashOffset(d->pen.dashOffset());
             d->stroker = d->dashStroker;
         } else {
             d->stroker = 0;
@@ -1538,7 +1539,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             LineDrawMode mode_for_last = (d->pen.capStyle() != Qt::FlatCap
                                           ? LineDrawIncludeLastPixel
                                           : LineDrawNormal);
-            int dashOffset = 0;
+            int dashOffset = int(d->pen.dashOffset());
 
             // Draw all the line segments.
             for (int i=1; i<pointCount; ++i) {
@@ -1658,7 +1659,7 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
         int m23 = int(d->matrix.m23());
         bool affine = !m13 && !m23;
 
-        int dashOffset = 0;
+        int dashOffset = int(d->pen.dashOffset());
 
         if (affine) {
             // Draw all the line segments.
@@ -2513,8 +2514,8 @@ void QRasterPaintEngine::drawLines(const QLine *lines, int lineCount)
         int m22 = int(d->matrix.m22());
         int dx = int(d->matrix.dx());
         int dy = int(d->matrix.dy());
+        int dashOffset = int(d->pen.dashOffset());
         for (int i=0; i<lineCount; ++i) {
-            int dashOffset = 0;
             if (d->int_xform) {
                 const QLine &l = lines[i];
                 int x1 = l.x1() * m11 + dx;
@@ -2606,9 +2607,10 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
         LineDrawMode mode = d->pen.capStyle() == Qt::FlatCap
                             ? LineDrawNormal
                             : LineDrawIncludeLastPixel;
+
+        int dashOffset = int(d->pen.dashOffset());
         for (int i=0; i<lineCount; ++i) {
             QLineF line = lines[i] * d->matrix;
-            int dashOffset = 0;
 #ifdef QT_EXPERIMENTAL_REGIONS
             const QRect brect(QPoint(int(line.x1()), int(line.y1())),
                               QPoint(int(line.x2()), int(line.y2())));

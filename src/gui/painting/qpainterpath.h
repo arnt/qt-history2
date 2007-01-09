@@ -203,6 +203,9 @@ public:
     void setDashPattern(const QVector<qreal> &dashPattern);
     QVector<qreal> dashPattern() const;
 
+    void setDashOffset(qreal offset);
+    qreal dashOffset() const;
+
     QPainterPath createStroke(const QPainterPath &path) const;
 
 private:

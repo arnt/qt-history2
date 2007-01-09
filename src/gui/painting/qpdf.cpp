@@ -606,6 +606,7 @@ void QPdf::Stroker::setPen(const QPen &pen)
     }
     if (!dashpattern.isEmpty()) {
         dashStroker.setDashPattern(dashpattern);
+        dashStroker.setDashOffset(pen.dashOffset());
         stroker = &dashStroker;
     } else {
         stroker = &basicStroker;

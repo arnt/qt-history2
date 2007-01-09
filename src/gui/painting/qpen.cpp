@@ -229,6 +229,7 @@ public:
     Qt::PenCapStyle capStyle;
     Qt::PenJoinStyle joinStyle;
     mutable QVector<qreal> dashPattern;
+    qreal dashOffset;
     qreal miterLimit;
     uint cosmetic : 1;
 };
@@ -240,7 +241,8 @@ public:
 inline QPenPrivate::QPenPrivate(const QBrush &_brush, qreal _width, Qt::PenStyle penStyle,
                                 Qt::PenCapStyle _capStyle, Qt::PenJoinStyle _joinStyle)
     : ref(1), width(_width), brush(_brush), style(penStyle), capStyle(_capStyle),
-      joinStyle(_joinStyle), miterLimit(2), cosmetic(false)
+      joinStyle(_joinStyle), dashOffset(0), miterLimit(2),
+      cosmetic(false)
 {
 
 }
@@ -387,6 +389,7 @@ void QPen::detach()
                                      d->joinStyle);
     x->miterLimit = d->miterLimit;
     x->dashPattern = d->dashPattern;
+    x->dashOffset = d->dashOffset;
     x->cosmetic = d->cosmetic;
     x = qAtomicSetPtr(&d, x);
     if (!x->ref.deref())
@@ -530,6 +533,29 @@ void QPen::setDashPattern(const QVector<qreal> &pattern)
         qWarning("QPen::setDashPattern: Pattern not of even length");
         d->dashPattern << 1;
     }
+}
+
+
+/*!
+    Returns the dash offset for the pen.
+
+    \sa setDashOffset
+*/
+qreal QPen::dashOffset() const
+{
+    return d->dashOffset;
+}
+/*!
+    Sets the dash offset for this pen to the given \a offset. This
+    implicitly converts the style of the pen to Qt::CustomDashLine.
+*/
+void QPen::setDashOffset(qreal offset)
+{
+    if (qFuzzyCompare(offset, d->dashOffset))
+        return;
+    detach();
+    d->dashOffset = offset;
+    d->style = Qt::CustomDashLine;
 }
 
 /*!
@@ -814,7 +840,8 @@ bool QPen::operator==(const QPen &p) const
                           && p.d->width == d->width
                           && p.d->miterLimit == d->miterLimit
                           && (d->style != Qt::CustomDashLine
-                              || p.dashPattern() == dashPattern())
+                              || (qFuzzyCompare(p.dashOffset(), dashOffset()) &&
+                                  p.dashPattern() == dashPattern()))
                           && p.d->brush == d->brush);
 }
 
@@ -860,6 +887,7 @@ QDataStream &operator<<(QDataStream &s, const QPen &p)
         s << p.brush();
         s << double(p.miterLimit());
         s << p.dashPattern();
+        s << double(p.dashOffset());
     }
     return s;
 }
@@ -883,6 +911,7 @@ QDataStream &operator>>(QDataStream &s, QPen &p)
     QBrush brush;
     double miterLimit = 2;
     QVector<qreal> dashPattern;
+    qreal dashOffset = 0;
     s >> style;
     if (s.version() < 7) {
         s >> width8;
@@ -894,6 +923,7 @@ QDataStream &operator>>(QDataStream &s, QPen &p)
         s >> brush;
         s >> miterLimit;
         s >> dashPattern;
+        s >> dashOffset;
     }
 
     p.detach();
@@ -904,6 +934,7 @@ QDataStream &operator>>(QDataStream &s, QPen &p)
     p.d->joinStyle = Qt::PenJoinStyle(style & Qt::MPenJoinStyle);
     p.d->dashPattern = dashPattern;
     p.d->miterLimit = miterLimit;
+    p.d->dashOffset = dashOffset;
 
     return s;
 }
@@ -916,6 +947,7 @@ QDebug operator<<(QDebug dbg, const QPen &p)
     dbg.nospace() << "QPen(" << p.width() << ',' << p.brush()
                   << ',' << int(p.style()) << ',' << int(p.capStyle())
                   << ',' << int(p.joinStyle()) << ',' << p.dashPattern()
+                  << "," << p.dashOffset()
                   << ',' << p.miterLimit() << ')';
     return dbg.space();
 #else

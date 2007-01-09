@@ -833,7 +833,7 @@ QPointF qt_curves_for_arc(const QRectF &rect, qreal startAngle, qreal sweepLengt
  * QDashStroker members
  */
 QDashStroker::QDashStroker(QStroker *stroker)
-    : m_stroker(stroker)
+    : m_stroker(stroker), m_dashOffset(0)
 {
 
 }
@@ -882,7 +882,7 @@ void QDashStroker::processCurrentSubpath()
     int idash = 0; // Index to current dash
     qreal pos = 0; // The position on the curve, 0 <= pos <= path.length
     qreal elen = 0; // element length
-    qreal doffset = 0;
+    qreal doffset = m_dashOffset;
 
     qreal estart = 0; // The elements starting position
     qreal estop = 0; // The element stop position

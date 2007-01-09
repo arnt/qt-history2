@@ -2172,6 +2172,7 @@ class QPainterPathStrokerPrivate
 {
 public:
     QPainterPathStrokerPrivate()
+        : dashOffset(0)
     {
         stroker.setMoveToHook(qt_path_stroke_move_to);
         stroker.setLineToHook(qt_path_stroke_line_to);
@@ -2180,6 +2181,7 @@ public:
 
     QStroker stroker;
     QVector<qfixed> dashPattern;
+    qreal dashOffset;
 };
 
 /*!
@@ -2221,6 +2223,7 @@ QPainterPath QPainterPathStroker::createStroke(const QPainterPath &path) const
     } else {
         QDashStroker dashStroker(&d->stroker);
         dashStroker.setDashPattern(d->dashPattern);
+        dashStroker.setDashOffset(d->dashOffset);
         dashStroker.strokePath(path, &stroke, QTransform());
     }
     stroke.setFillRule(Qt::WindingFill);
@@ -2368,6 +2371,22 @@ void QPainterPathStroker::setDashPattern(const QVector<qreal> &dashPattern)
 QVector<qreal> QPainterPathStroker::dashPattern() const
 {
     return d_func()->dashPattern;
+}
+
+/*!
+    Returns the dash offset for the generated outlines.
+ */
+qreal QPainterPathStroker::dashOffset() const
+{
+    return d_func()->dashOffset;
+}
+
+/*!
+  Sets the dash offset for the generated outlines to \a offset.
+ */
+void QPainterPathStroker::setDashOffset(qreal offset)
+{
+    d_func()->dashOffset = offset;
 }
 
 QList<QPolygonF> QPainterPath::toSubpathPolygons(const QTransform &matrix) const

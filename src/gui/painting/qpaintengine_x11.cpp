@@ -1457,8 +1457,10 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
             || (!d->cpen.isCosmetic() && d->txop > QTransform::TxTranslate)
             || (d->cpen.style() > Qt::SolidLine))) {
         QPainterPathStroker stroker;
-        if (d->cpen.style() == Qt::CustomDashLine)
+        if (d->cpen.style() == Qt::CustomDashLine) {
             stroker.setDashPattern(d->cpen.dashPattern());
+            stroker.setDashOffset(d->cpen.dashOffset());
+        }
         else
             stroker.setDashPattern(d->cpen.style());
         stroker.setCapStyle(d->cpen.capStyle());

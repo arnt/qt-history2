@@ -789,6 +789,7 @@ void QWin32PrintEnginePrivate::strokePath(const QPainterPath &path, const QColor
 {
     QPainterPathStroker stroker;
     stroker.setDashPattern(pen.dashPattern());
+    stroker.setDashOffset(pen.dashOffset());
     stroker.setCapStyle(pen.capStyle());
     stroker.setJoinStyle(pen.joinStyle());
     stroker.setMiterLimit(pen.miterLimit());

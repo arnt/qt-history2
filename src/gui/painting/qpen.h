@@ -50,6 +50,9 @@ public:
     QVector<qreal> dashPattern() const;
     void setDashPattern(const QVector<qreal> &pattern);
 
+    qreal dashOffset() const;
+    void setDashOffset(qreal doffset);
+
     qreal miterLimit() const;
     void setMiterLimit(qreal limit);
 
