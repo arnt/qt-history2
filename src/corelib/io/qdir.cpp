@@ -1791,7 +1791,7 @@ bool QDir::rename(const QString &oldName, const QString &newName)
 }
 
 /*!
-    Returns true if the file called \a name exists; otherwise returns
+    Returns true if the directory called \a name exists; otherwise returns
     false.
 
     \sa QFileInfo::exists(), QFile::exists()
