@@ -79,10 +79,10 @@ QMap<QString, ExpandFunc> qmake_expandFunctions()
     return *qmake_expand_functions;
 }
 //replace functions
-enum TestFunc { T_REQUIRES=1, T_GREATERTHAN, T_LESSTHAN, T_EQUALS, T_ISEQUAL,
+enum TestFunc { T_REQUIRES=1, T_GREATERTHAN, T_LESSTHAN, T_EQUALS,
                 T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
                 T_RETURN, T_BREAK, T_NEXT, T_DEFINED, T_CONTAINS, T_INFILE,
-                T_COUNT, T_ISEMPTY, T_SCRIPT, T_INCLUDE, T_LOAD, T_DEBUG, T_ERROR,
+                T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_ERROR,
                 T_MESSAGE, T_WARNING };
 QMap<QString, TestFunc> qmake_testFunctions()
 {
@@ -90,16 +90,17 @@ QMap<QString, TestFunc> qmake_testFunctions()
     if(!qmake_test_functions) {
         qmake_test_functions = new QMap<QString, TestFunc>;
         qmake_test_functions->insert("requires", T_REQUIRES);
-        qmake_test_functions->insert("greaterthan", T_GREATERTHAN);
-        qmake_test_functions->insert("lessthan", T_LESSTHAN);
+        qmake_test_functions->insert("greaterThan", T_GREATERTHAN);
+        qmake_test_functions->insert("lessThan", T_LESSTHAN);
         qmake_test_functions->insert("equals", T_EQUALS);
-        qmake_test_functions->insert("isequal", T_ISEQUAL);
+        qmake_test_functions->insert("isEqual", T_EQUALS);
         qmake_test_functions->insert("exists", T_EXISTS);
         qmake_test_functions->insert("export", T_EXPORT);
         qmake_test_functions->insert("clear", T_CLEAR);
         qmake_test_functions->insert("unset", T_UNSET);
         qmake_test_functions->insert("eval", T_EVAL);
-        qmake_test_functions->insert("config", T_CONFIG);
+        qmake_test_functions->insert("CONFIG", T_CONFIG);
+        qmake_test_functions->insert("isActiveConfig", T_CONFIG);
         qmake_test_functions->insert("system", T_SYSTEM);
         qmake_test_functions->insert("return", T_RETURN);
         qmake_test_functions->insert("break", T_BREAK);
@@ -108,8 +109,7 @@ QMap<QString, TestFunc> qmake_testFunctions()
         qmake_test_functions->insert("contains", T_CONTAINS);
         qmake_test_functions->insert("infile", T_INFILE);
         qmake_test_functions->insert("count", T_COUNT);
-        qmake_test_functions->insert("isempty", T_ISEMPTY);
-        qmake_test_functions->insert("script", T_SCRIPT);
+        qmake_test_functions->insert("isEmpty", T_ISEMPTY);
         qmake_test_functions->insert("include", T_INCLUDE);
         qmake_test_functions->insert("load", T_LOAD);
         qmake_test_functions->insert("debug", T_DEBUG);
@@ -1659,11 +1659,11 @@ QMakeProject::doProjectTest(QString func, const QString &params,
 QMakeProject::IncludeStatus
 QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringList> &place)
 {
+    enum { UnknownFormat, ProFormat, JSFormat } format = UnknownFormat;
     if(flags & IncludeFlagFeature) {
         if(!file.endsWith(Option::prf_ext))
             file += Option::prf_ext;
         if(file.indexOf(Option::dir_sep) == -1 || !QFile::exists(file)) {
-            bool found = false;
             static QStringList *feature_roots = 0;
             if(!feature_roots) {
                 feature_roots = new QStringList(qmake_feature_paths(prop));
@@ -1688,13 +1688,17 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
             }
             for(int root = start_root; root < feature_roots->size(); ++root) {
                 QString prf(feature_roots->at(root) + QDir::separator() + file);
-                if(QFile::exists(prf)) {
-                    found = true;
+                if(QFile::exists(prf + Option::js_ext)) {
+                    format = JSFormat;
+                    file = prf + Option::js_ext;
+                    break;
+                } else if(QFile::exists(prf)) {
+                    format = ProFormat;
                     file = prf;
                     break;
                 }
             }
-            if(!found)
+            if(format == UnknownFormat)
                 return IncludeNoExist;
             if(place["QMAKE_INTERNAL_INCLUDED_FEATURES"].indexOf(file) != -1)
                 return IncludeFeatureAlreadyLoaded;
@@ -1718,9 +1722,16 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
             }
         }
     }
-    if(!QFile::exists(file))
-        return IncludeNoExist;
-
+    if(format == UnknownFormat) {
+        if(QFile::exists(file)) {
+            if(file.endsWith(Option::js_ext))
+                format = JSFormat;
+            else
+                format = ProFormat;
+        } else {
+            return IncludeNoExist;
+        }
+    }
     if(Option::mkfile::do_preprocess) //nice to see this first..
         fprintf(stderr, "#switching file %s(%s) - %s:%d\n", (flags & IncludeFlagFeature) ? "load" : "include",
                 file.toLatin1().constData(),
@@ -1738,27 +1749,54 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
         }
         file = file.right(file.length() - di - 1);
     }
-    parser_info pi = parser;
-    QStack<ScopeBlock> sc = scope_blocks;
-    IteratorBlock *it = iterator;
-    FunctionBlock *fu = function;
     bool parsed = false;
-    if(flags & (IncludeFlagNewProject|IncludeFlagNewParser)) {
-        // The "project's variables" are used in other places (eg. export()) so it's not
-        // possible to use "place" everywhere. Instead just set variables and grab them later
-        QMakeProject proj(this, &place);
-        if(flags & IncludeFlagNewParser) {
-#if 1
-            if(proj.doProjectInclude("default_pre", IncludeFlagFeature, proj.variables()) == IncludeNoExist)
-                proj.doProjectInclude("default", IncludeFlagFeature, proj.variables());
-#endif
-            parsed = proj.read(file, proj.variables());
-        } else {
-            parsed = proj.read(file);
+    parser_info pi = parser;
+    if(format == JSFormat) {
+#ifdef QTSCRIPT_SUPPORT
+        eng.globalObject().setProperty("qmake", qscript_projectWrapper(&eng, this, place));
+        QFile f(file);
+        if (f.open(QFile::ReadOnly)) {
+            QString code = f.readAll();
+            QScriptValue r = eng.evaluate(code);
+            if(eng.uncaughtException()) {
+                const int lineNo = eng.uncaughtExceptionLineNumber();
+                fprintf(stderr, "%s:%d: %s\n", file.toLatin1().constData(), lineNo,
+                        r.toString().toLatin1().constData());
+            } else {
+                parsed = true;
+                QScriptValue variables = eng.globalObject().property("qmake");
+                if (variables.isValid() && variables.isObject())
+                    qscript_createQMakeProjectMap(place, variables);
+            }
         }
-        place = proj.variables();
+#else
+        warn_msg(WarnParser, "%s:%d: QtScript support disabled for %s.",
+                 pi.file.toLatin1().constData(), pi.line_no, orig_file.toLatin1().constData());
+#endif
     } else {
-        parsed = read(file, place);
+        QStack<ScopeBlock> sc = scope_blocks;
+        IteratorBlock *it = iterator;
+        FunctionBlock *fu = function;
+        if(flags & (IncludeFlagNewProject|IncludeFlagNewParser)) {
+            // The "project's variables" are used in other places (eg. export()) so it's not
+            // possible to use "place" everywhere. Instead just set variables and grab them later
+            QMakeProject proj(this, &place);
+            if(flags & IncludeFlagNewParser) {
+#if 1
+                if(proj.doProjectInclude("default_pre", IncludeFlagFeature, proj.variables()) == IncludeNoExist)
+                    proj.doProjectInclude("default", IncludeFlagFeature, proj.variables());
+#endif
+                parsed = proj.read(file, proj.variables());
+            } else {
+                parsed = proj.read(file);
+            }
+            place = proj.variables();
+        } else {
+            parsed = read(file, place);
+        }
+        iterator = it;
+        function = fu;
+        scope_blocks = sc;
     }
     if(parsed) {
         if(place["QMAKE_INTERNAL_INCLUDED_FILES"].indexOf(orig_file) == -1)
@@ -1767,10 +1805,7 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
         warn_msg(WarnParser, "%s:%d: Failure to include file %s.",
                  pi.file.toLatin1().constData(), pi.line_no, orig_file.toLatin1().constData());
     }
-    iterator = it;
-    function = fu;
     parser = pi;
-    scope_blocks = sc;
     qmake_setpwd(oldpwd);
     if(!parsed)
         return IncludeParseFailure;
@@ -2297,7 +2332,7 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
     for(int i = 0; i < args_list.size(); ++i)
         args += args_list[i].join(QString(Option::field_sep));
 
-    TestFunc func_t = qmake_testFunctions().value(func.toLower());
+    TestFunc func_t = qmake_testFunctions().value(func);
     debug_msg(1, "Running project test: %s(%s) [%d]",
               func.toLatin1().constData(), args.join("::").toLatin1().constData(), func_t);
 
@@ -2326,7 +2361,6 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
             return lhs > rhs;
         return lhs < rhs; }
     case T_EQUALS:
-    case T_ISEQUAL:
         if(args.count() != 2) {
             fprintf(stderr, "%s:%d: %s(variable, value) requires two arguments.\n", parser.file.toLatin1().constData(),
                     parser.line_no, func.toLatin1().constData());
@@ -2625,28 +2659,6 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
             return false;
         }
         return true; }
-    case T_SCRIPT: {
-        if(args.count() != 1) {
-            fprintf(stderr, "%s:%d: script(code) requires one argument.\n", parser.file.toLatin1().constData(),
-                    parser.line_no);
-            return false;
-        }
-#ifdef QTSCRIPT_SUPPORT
-        QString filename = fixEnvVariables(args.first());
-        eng.globalObject().setProperty("qmake", qscript_projectWrapper(&eng, this, place));
-        QFile f(filename);
-        if (f.open(QFile::ReadOnly)) {
-            QString code = f.readAll();
-            QScriptValue r = eng.evaluate(code);
-            QScriptValue variables = eng.globalObject().property("qmake");
-            if (variables.isValid() && variables.isObject())
-                qscript_createQMakeProjectMap(place, variables);
-        }
-        return true;
-#else
-        return false;
-#endif
-    }
     case T_DEBUG: {
         if(args.count() != 2) {
             fprintf(stderr, "%s:%d: debug(level, message) requires one argument.\n", parser.file.toLatin1().constData(),
