@@ -733,6 +733,9 @@ static void parseQPen(QPen &pen, QSvgNode *node,
                 }
                 pen.setDashPattern(dashes);
             }
+            if (!dashOffset.isEmpty()) {
+                pen.setDashOffset(::toDouble(dashOffset));
+            }
 
         } else {
             pen.setStyle(Qt::NoPen);
@@ -972,6 +975,9 @@ static void parsePen(QSvgNode *node,
                         ++d;
                     }
                 pen.setDashPattern(dashes);
+            }
+            if (!dashOffset.isEmpty()) {
+                pen.setDashOffset(::toDouble(dashOffset));
             }
             if (!miterlimit.isEmpty())
                 pen.setMiterLimit(::toDouble(miterlimit));
