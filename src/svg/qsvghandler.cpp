@@ -171,7 +171,7 @@ public:
         if (!n)
             return false;
         QString name = nodeToName(n);
-        return (name == nodeName);
+        return QString::compare(name, nodeName, Qt::CaseInsensitive) == 0;
     }
     virtual QString attribute(NodePtr node, const QString &name) const
     {

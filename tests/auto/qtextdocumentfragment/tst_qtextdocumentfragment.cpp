@@ -160,6 +160,7 @@ private slots:
     void css_import();
     void css_selectors_data();
     void css_selectors();
+    void css_nodeNameCaseInsensitivity();
     void css_textUnderlineStyle_data();
     void css_textUnderlineStyle();
     void css_textUnderlineStyleAndDecoration();
@@ -2406,6 +2407,16 @@ void tst_QTextDocumentFragment::css_selectors()
         QVERIFY(fmt.background().color() == QColor("red"));
     else
         QVERIFY(fmt.background().color() == QColor("green"));
+}
+
+void tst_QTextDocumentFragment::css_nodeNameCaseInsensitivity()
+{
+    setHtml("<style>"
+            "P { background-color: green }"
+            "</style>"
+            "<p>test</p>");
+    QTextBlockFormat fmt = doc->begin().blockFormat();
+    QVERIFY(fmt.background().color() == QColor("green"));
 }
 
 void tst_QTextDocumentFragment::css_textUnderlineStyle_data()

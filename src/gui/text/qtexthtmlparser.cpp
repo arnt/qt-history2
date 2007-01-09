@@ -1559,7 +1559,7 @@ private:
 
 bool QTextHtmlStyleSelector::nodeNameEquals(NodePtr node, const QString& name) const
 {
-    return parser->at(node.id).tag == name;
+    return QString::compare(parser->at(node.id).tag, name, Qt::CaseInsensitive) == 0;
 }
 
 static inline int findAttribute(const QStringList &attributes, const QString &name)
