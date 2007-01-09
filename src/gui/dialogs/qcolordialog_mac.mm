@@ -20,6 +20,10 @@
 #include <qdebug.h>
 #import <AppKit/AppKit.h>
 
+#if !CGFLOAT_DEFINED
+typedef float CGFloat;  // Should only not be defined on 32-bit platforms
+#endif
+
 @class QNSColorPickerResponder;
 
 @interface QNSColorPickerResponder : NSObject {
@@ -66,7 +70,7 @@
     NSString *colorSpace = [mColor colorSpaceName];
     QColor tmpQColor;
     if (colorSpace == NSDeviceCMYKColorSpace) {
-        float cyan, magenta, yellow, black, alpha;
+        CGFloat cyan, magenta, yellow, black, alpha;
         [mColor getCyan:&cyan magenta:&magenta yellow:&yellow black:&black alpha:&alpha];
         tmpQColor.setCmykF(cyan, magenta, yellow, black, alpha);
     } else {
@@ -79,7 +83,7 @@
             tmpColor = [mColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
             needRelease = true;
         }
-        float red, green, blue, alpha;
+        CGFloat red, green, blue, alpha;
         [tmpColor getRed:&red green:&green blue:&blue alpha:&alpha];
         tmpQColor.setRgbF(red, green, blue, alpha);
         if (needRelease)
