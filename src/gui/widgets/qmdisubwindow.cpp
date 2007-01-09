@@ -900,8 +900,7 @@ void QMdiSubWindowPrivate::setMinimizeMode()
 */
 void QMdiSubWindowPrivate::setNormalMode()
 {
-    Q_Q(QMdiSubWindow);
-    Q_ASSERT(q->parent());
+    Q_ASSERT(q_func()->parent());
 
     isShadeMode = false;
     ensureWindowState(Qt::WindowNoState);
@@ -921,7 +920,7 @@ void QMdiSubWindowPrivate::setNormalMode()
     else
         actions[ResizeAction]->setEnabled(false);
 
-    Q_ASSERT(!(q->windowState() & (Qt::WindowMinimized | Qt::WindowMaximized)));
+    Q_ASSERT(!(q_func()->windowState() & (Qt::WindowMinimized | Qt::WindowMaximized)));
     Q_ASSERT(!isShadeMode);
 
     setActive(true); // ### This behavior seems strange to me
@@ -1515,13 +1514,12 @@ void QMdiSubWindowPrivate::setWindowFlags(Qt::WindowFlags windowFlags)
     else
         actions[QMdiSubWindowPrivate::StayOnTopAction]->setChecked(false);
 
-    Qt::WindowFlags oldWindowFlags = q->windowFlags();
     q->setWindowFlags(windowFlags);
     updateGeometryConstraints();
     updateActions();
     QSize currentSize = q->size();
-    if (currentSize.width() < internalMinimumSize.width()
-            || currentSize.height() < internalMinimumSize.height()) {
+    if (q->isVisible() && (currentSize.width() < internalMinimumSize.width()
+            || currentSize.height() < internalMinimumSize.height())) {
         q->resize(currentSize.expandedTo(internalMinimumSize));
     }
 }
@@ -1538,7 +1536,7 @@ QMdiSubWindow::QMdiSubWindow(QWidget *parent, Qt::WindowFlags flags)
     Q_D(QMdiSubWindow);
     d->createSystemMenu();
     addActions(d->systemMenu->actions());
-    setWindowFlags(flags);
+    d->setWindowFlags(flags);
     setBackgroundRole(QPalette::Window);
     setAutoFillBackground(true);
     setMouseTracking(true);
@@ -1910,6 +1908,8 @@ bool QMdiSubWindow::event(QEvent *event)
             setOption(TransparentResize, false);
             setOption(TransparentMove, false);
         }
+        if (parent())
+            d->setWindowFlags(windowFlags());
         setContentsMargins(0, 0, 0, 0);
         d->updateGeometryConstraints();
         resize(minimumSizeHint());
