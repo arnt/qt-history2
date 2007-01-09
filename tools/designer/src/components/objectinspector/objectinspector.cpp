@@ -330,7 +330,11 @@ void ObjectInspector::getSelection(Selection &s) const
             s.m_cursorSelection.push_back(widget);
         } else {
             if (core()->metaDataBase()->item(object)) {
-                s.m_selectedObjects.push_back(object);
+                // It is actually possible to select an action
+                // twice if it is in a menu bar and in a tool bar.
+                if (!s.m_selectedObjects.contains(object)) {
+                    s.m_selectedObjects.push_back(object);
+                }
             }
         }
     }
