@@ -637,6 +637,28 @@ static Qt::WindowStates effectiveState(Qt::WindowStates state)
      return Qt::WindowNoState;
  }
 
+void QWidgetPrivate::setMaxWindowState_helper()
+{
+    // in_set_window_state is usually set in setWindowState(), but this
+    // function is used in other functions as well
+    // (e.g QApplicationPrivate::setMaxWindowRect())
+    const uint old_state = data.in_set_window_state;
+    data.in_set_window_state = 1;
+
+#ifndef QT_NO_QWS_MANAGER
+    if (extra && extra->topextra && extra->topextra->qwsManager)
+        extra->topextra->qwsManager->maximize();
+    else
+#endif
+    {
+        Q_Q(QWidget);
+        const QApplicationPrivate *ap = QApplicationPrivate::instance();
+        const QRect maxWindowRect = ap->maxWindowRect(getScreen());
+        q->setGeometry(maxWindowRect);
+    }
+    data.in_set_window_state = old_state;
+}
+
 void QWidget::setWindowState(Qt::WindowStates newstate)
 {
     Q_D(QWidget);
@@ -676,16 +698,7 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
             needShow = true;
         } else if (newEffectiveState == Qt::WindowMaximized) {
             createWinId();
-#ifndef QT_NO_QWS_MANAGER
-            if (d->extra && d->extra->topextra && d->extra->topextra->qwsManager)
-                d->extra->topextra->qwsManager->maximize();
-            else
-#endif
-            {
-                QApplicationPrivate *ap = QApplicationPrivate::instance();
-                const QRect maxWindowRect = ap->maxWindowRect(d->getScreen());
-                setGeometry(maxWindowRect);
-            }
+            d->setMaxWindowState_helper();
         } else { //normal
             QRect r = d->topData()->normalGeometry;
             if (r.width() >= 0) {

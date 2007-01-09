@@ -215,10 +215,8 @@ void QApplicationPrivate::setMaxWindowRect(const QScreen *screen,
     for (int i = 0; i < l.size(); ++i) {
         QWidget *w = l.at(i);
         QScreen *s = w->d_func()->getScreen();
-        if (w->isVisible() && w->isMaximized() && s == screen) {
-            w->showNormal(); //#### flicker
-            w->showMaximized();
-        }
+        if (w->isMaximized() && s == screen)
+            w->d_func()->setMaxWindowState_helper();
     }
 }
 

@@ -163,6 +163,7 @@ public:
 #endif
 #ifdef Q_WS_QWS
     QWindowSurface *currentWindowSurface();
+    void setMaxWindowState_helper();
 #endif
     void init(QWidget *desktopWidget, Qt::WindowFlags f);
     void create_sys(WId window, bool initializeWindow, bool destroyOldWindow);

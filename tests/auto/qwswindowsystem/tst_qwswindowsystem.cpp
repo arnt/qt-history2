@@ -30,6 +30,7 @@ private slots:
     void raiseLowerWindow();
     void windowOpacity();
     void directPainter();
+    void setMaxWindowRect();
 
 private:
     QWSWindow* getWindow(int windId);
@@ -255,6 +256,35 @@ void tst_QWSWindowSystem::directPainter()
     QApplication::processEvents();
     QCOMPARE(win->allocatedRegion(), QRegion(rect));
     VERIFY_COLOR(rect, w.color());
+}
+
+void tst_QWSWindowSystem::setMaxWindowRect()
+{
+    QDesktopWidget desktop;
+    const QRect screenRect = desktop.screenGeometry();
+
+    QWidget w;
+    w.showMaximized();
+    QApplication::processEvents();
+
+    QCOMPARE(w.frameGeometry(), screenRect);
+
+    QRect available = QRect(screenRect.left(), screenRect.top(),
+                            screenRect.right() + 1, screenRect.bottom() - 20 + 1);
+    QWSServer::setMaxWindowRect(available);
+    QApplication::processEvents();
+
+    QCOMPARE(desktop.availableGeometry(), available);
+    QCOMPARE(w.frameGeometry(), desktop.availableGeometry());
+
+    w.hide();
+    QApplication::processEvents();
+
+    QWSServer::setMaxWindowRect(screenRect);
+    w.show();
+    QVERIFY(w.isMaximized());
+    QCOMPARE(desktop.availableGeometry(), screenRect);
+    QCOMPARE(w.frameGeometry(), desktop.availableGeometry());
 }
 
 QTEST_MAIN(tst_QWSWindowSystem)
