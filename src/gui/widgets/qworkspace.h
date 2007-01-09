@@ -14,7 +14,7 @@
 #ifndef QWORKSPACE_H
 #define QWORKSPACE_H
 
-#include <QAbstractScrollArea>
+#include <QtGui/qabstractscrollarea.h>
 
 QT_BEGIN_HEADER
 

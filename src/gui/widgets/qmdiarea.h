@@ -14,7 +14,7 @@
 #ifndef QMDIAREA_H
 #define QMDIAREA_H
 
-#include "qworkspace.h"
+#include <QtGui/qworkspace.h>
 
 QT_BEGIN_HEADER
 

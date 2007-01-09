@@ -14,7 +14,7 @@
 #ifndef QMDISUBWINDOW_H
 #define QMDISUBWINDOW_H
 
-#include <QWidget>
+#include <QtGui/qwidget.h>
 
 QT_BEGIN_HEADER
 
