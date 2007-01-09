@@ -17,15 +17,41 @@
 #include "treewalker.h"
 #include <QPair>
 #include <QHash>
+#include <QMap>
 #include <QStack>
 #include <QTextStream>
 
 class Driver;
 class Uic;
 class DomBrush;
+class DomFont;
+class DomSizePolicy;
 struct Option;
 
 namespace CPP {
+    // Handle for a flat DOM font to get comparison functionality required for maps
+    class FontHandle {
+    public:
+        FontHandle(const DomFont *domFont);
+        int compare(const FontHandle &) const;
+    private:
+        const DomFont *m_domFont;
+    };
+    inline bool operator ==(const FontHandle &f1, const FontHandle &f2) { return f1.compare(f2) == 0; }
+    inline bool operator  <(const FontHandle &f1, const FontHandle &f2) { return f1.compare(f2) < 0; }
+
+    // Handle for a flat DOM size policy to get comparison functionality required for maps
+    class SizePolicyHandle {
+    public:
+        SizePolicyHandle(const DomSizePolicy *domSizePolicy);
+        int compare(const SizePolicyHandle &) const;
+    private:
+        const DomSizePolicy *m_domSizePolicy;
+    };
+    inline bool operator ==(const SizePolicyHandle &f1, const SizePolicyHandle &f2) { return f1.compare(f2) == 0; }
+    inline bool operator  <(const SizePolicyHandle &f1, const SizePolicyHandle &f2) { return f1.compare(f2) < 0; }
+
+
 
 struct WriteInitialization : public TreeWalker
 {
@@ -37,7 +63,6 @@ struct WriteInitialization : public TreeWalker
     void acceptUI(DomUI *node);
     void acceptWidget(DomWidget *node);
     void acceptLayout(DomLayout *node);
-    void acceptSpacer(DomSpacer *node);
     void acceptLayoutItem(DomLayoutItem *node);
 
 //
@@ -119,6 +144,9 @@ private:
     bool isValidObject(const QString &name) const;
 
 private:
+    QString writeFontProperties(const DomFont *f);
+    QString writeSizePolicy(const DomSizePolicy *sp);
+
     const Uic *m_uic;
     Driver *m_driver;
     QTextStream &m_output;
@@ -143,7 +171,12 @@ private:
     QHash<QString, DomImage*> m_registeredImages;
     QHash<QString, DomAction*> m_registeredActions;
     QHash<uint, QString> m_colorBrushHash;
-
+    // Map from font properties to  font variable name for reuse
+    typedef QMap<FontHandle, QString> FontPropertiesNameMap;
+    FontPropertiesNameMap m_FontPropertiesNameMap;
+    // Map from size policy to  variable for reuse
+    typedef QMap<SizePolicyHandle, QString> SizePolicyNameMap;
+    SizePolicyNameMap m_SizePolicyNameMap;
     // layout defaults
     int m_defaultMargin;
     int m_defaultSpacing;

@@ -31,7 +31,6 @@ struct WriteDeclaration : public TreeWalker
     void acceptUI(DomUI *node);
     void acceptWidget(DomWidget *node);
     void acceptLayout(DomLayout *node);
-    void acceptSpacer(DomSpacer *node);
     void acceptActionGroup(DomActionGroup *node);
     void acceptAction(DomAction *node);
 

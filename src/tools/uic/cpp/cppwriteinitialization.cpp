@@ -30,7 +30,7 @@ namespace {
     // due to MO issues. This might be fixed in the future.
     void fixQtEnumerationName(QString& name) {
         static const QLatin1String prefix("Qt::");
-        if (name.indexOf(prefix) != 0) 
+        if (name.indexOf(prefix) != 0)
             name.prepend(prefix);
     }
     // figure out the toolbar area of a DOM attrib list.
@@ -39,7 +39,7 @@ namespace {
         const DomProperty *pstyle = attributes.value(QLatin1String("toolBarArea"));
         if (!pstyle)
             return QString();
-        
+
         switch (pstyle->kind()) {
         case DomProperty::Number: {
             QString area = QLatin1String("static_cast<Qt::ToolBarArea>(");
@@ -58,12 +58,156 @@ namespace {
         }
         return QString();
     }
+
+    // Write a statement to create a spacer item.
+    void writeSpacerItem(const DomSpacer *node, QTextStream &output) {
+        const QHash<QString, DomProperty *> properties = propertyMap(node->elementProperty());
+                output << "new QSpacerItem(";
+
+        if (properties.contains(QLatin1String("sizeHint"))) {
+            const DomSize *sizeHint = properties.value(QLatin1String("sizeHint"))->elementSize();
+            output << sizeHint->elementWidth() << ", " << sizeHint->elementHeight() << ", ";
+        }
+
+        // size type
+        QString sizeType = properties.contains(QLatin1String("sizeType"))  ?
+                           properties.value(QLatin1String("sizeType"))->elementEnum() :
+                           QString::fromLatin1("Expanding");
+
+        if (!sizeType.startsWith(QLatin1String("QSizePolicy::")))
+            sizeType.prepend(QLatin1String("QSizePolicy::"));
+        // orientation
+        bool isVspacer = false;
+        if (properties.contains(QLatin1String("orientation"))) {
+            const QString orientation = properties.value(QLatin1String("orientation"))->elementEnum();
+            if (orientation == QLatin1String("Qt::Vertical") || orientation == QLatin1String("Vertical"))  isVspacer = true;
+        }
+
+        if (isVspacer)
+            output << "QSizePolicy::Minimum, " << sizeType << ')';
+        else
+            output << sizeType << ", QSizePolicy::Minimum)";
+    }
+
+
+    // Helper for implementing comparison functions for integers.
+    int compareInt(int i1, int i2) {
+        if (i1 < i2) return -1;
+        if (i1 > i2) return  1;
+        return  0;
+    }
 }
 
 namespace CPP {
 
-WriteInitialization::WriteInitialization(Uic *uic)
-    : m_uic(uic),
+FontHandle::FontHandle(const DomFont *domFont) :
+      m_domFont(domFont)
+{
+}
+
+int FontHandle::compare(const FontHandle &rhs) const
+{
+    const QString family    = m_domFont->hasElementFamily()     ?     m_domFont->elementFamily() : QString();
+    const QString rhsFamily = rhs.m_domFont->hasElementFamily() ? rhs.m_domFont->elementFamily() : QString();
+
+    if (const int frc = family.compare(rhsFamily))
+        return frc;
+
+    const int pointSize    = m_domFont->hasElementPointSize()     ?     m_domFont->elementPointSize() : -1;
+    const int rhsPointSize = rhs.m_domFont->hasElementPointSize() ? rhs.m_domFont->elementPointSize() : -1;
+
+    if (const int crc = compareInt(pointSize, rhsPointSize))
+        return crc;
+
+    const int bold    = m_domFont->hasElementBold()     ? (m_domFont->elementBold()     ? 1 : 0) : -1;
+    const int rhsBold = rhs.m_domFont->hasElementBold() ? (rhs.m_domFont->elementBold() ? 1 : 0) : -1;
+    if (const int crc = compareInt(bold, rhsBold))
+        return crc;
+
+    const int italic    = m_domFont->hasElementItalic()     ? (m_domFont->elementItalic()     ? 1 : 0) : -1;
+    const int rhsItalic = rhs.m_domFont->hasElementItalic() ? (rhs.m_domFont->elementItalic() ? 1 : 0) : -1;
+    if (const int crc = compareInt(italic, rhsItalic))
+        return crc;
+
+    const int underline    = m_domFont->hasElementUnderline()     ? (m_domFont->elementUnderline()     ? 1 : 0) : -1;
+    const int rhsUnderline = rhs.m_domFont->hasElementUnderline() ? (rhs.m_domFont->elementUnderline() ? 1 : 0) : -1;
+    if (const int crc = compareInt(underline, rhsUnderline))
+        return crc;
+
+    const int weight    = m_domFont->hasElementWeight()     ?     m_domFont->elementWeight() : -1;
+    const int rhsWeight = rhs.m_domFont->hasElementWeight() ? rhs.m_domFont->elementWeight() : -1;
+    if (const int crc = compareInt(weight, rhsWeight))
+        return crc;
+
+    const int strikeOut    = m_domFont->hasElementStrikeOut()     ? (m_domFont->elementStrikeOut()     ? 1 : 0) : -1;
+    const int rhsStrikeOut = rhs.m_domFont->hasElementStrikeOut() ? (rhs.m_domFont->elementStrikeOut() ? 1 : 0) : -1;
+    if (const int crc = compareInt(strikeOut, rhsStrikeOut))
+        return crc;
+
+    const int kerning    = m_domFont->hasElementKerning()     ? (m_domFont->elementKerning()     ? 1 : 0) : -1;
+    const int rhsKerning = rhs.m_domFont->hasElementKerning() ? (rhs.m_domFont->elementKerning() ? 1 : 0) : -1;
+    if (const int crc = compareInt(kerning, rhsKerning))
+        return crc;
+
+    const int antialiasing    = m_domFont->hasElementAntialiasing()     ? (m_domFont->elementAntialiasing()     ? 1 : 0) : -1;
+    const int rhsAntialiasing = rhs.m_domFont->hasElementAntialiasing() ? (rhs.m_domFont->elementAntialiasing() ? 1 : 0) : -1;
+    if (const int crc = compareInt(antialiasing, rhsAntialiasing))
+        return crc;
+
+    const QString styleStrategy    = m_domFont->hasElementStyleStrategy()     ?     m_domFont->elementStyleStrategy() : QString();
+    const QString rhsStyleStrategy = rhs.m_domFont->hasElementStyleStrategy() ? rhs.m_domFont->elementStyleStrategy() : QString();
+
+    if (const int src = styleStrategy.compare(rhsStyleStrategy))
+        return src;
+
+    return 0;
+}
+
+
+SizePolicyHandle::SizePolicyHandle(const DomSizePolicy *domSizePolicy) :
+    m_domSizePolicy(domSizePolicy)
+{
+}
+
+int SizePolicyHandle::compare(const SizePolicyHandle &rhs) const
+{
+
+    const int hSizeType    = m_domSizePolicy->hasElementHSizeType()     ? m_domSizePolicy->elementHSizeType()     : -1;
+    const int rhsHSizeType = rhs.m_domSizePolicy->hasElementHSizeType() ? rhs.m_domSizePolicy->elementHSizeType() : -1;
+    if (const int crc = compareInt(hSizeType, rhsHSizeType))
+        return crc;
+
+    const int vSizeType    = m_domSizePolicy->hasElementVSizeType()     ? m_domSizePolicy->elementVSizeType()     : -1;
+    const int rhsVSizeType = rhs.m_domSizePolicy->hasElementVSizeType() ? rhs.m_domSizePolicy->elementVSizeType() : -1;
+    if (const int crc = compareInt(vSizeType, rhsVSizeType))
+        return crc;
+
+    const int hStretch    =  m_domSizePolicy->hasElementHorStretch()     ? m_domSizePolicy->elementHorStretch()     : -1;
+    const int rhsHStretch =  rhs.m_domSizePolicy->hasElementHorStretch() ? rhs.m_domSizePolicy->elementHorStretch() : -1;
+    if (const int crc = compareInt(hStretch, rhsHStretch))
+        return crc;
+
+    const int vStretch    =  m_domSizePolicy->hasElementVerStretch()     ? m_domSizePolicy->elementVerStretch()     : -1;
+    const int rhsVStretch =  rhs.m_domSizePolicy->hasElementVerStretch() ? rhs.m_domSizePolicy->elementVerStretch() : -1;
+    if (const int crc = compareInt(vStretch, rhsVStretch))
+        return crc;
+
+    const QString attributeHSizeType    = m_domSizePolicy->hasAttributeHSizeType()     ? m_domSizePolicy->attributeHSizeType()     : QString();
+    const QString rhsAttributeHSizeType = rhs.m_domSizePolicy->hasAttributeHSizeType() ? rhs.m_domSizePolicy->attributeHSizeType() : QString();
+
+    if (const int hrc = attributeHSizeType.compare(rhsAttributeHSizeType))
+        return hrc;
+
+    const QString attributeVSizeType    = m_domSizePolicy->hasAttributeVSizeType()     ? m_domSizePolicy->attributeVSizeType()     : QString();
+    const QString rhsAttributeVSizeType = rhs.m_domSizePolicy->hasAttributeVSizeType() ? rhs.m_domSizePolicy->attributeVSizeType() : QString();
+
+    return attributeVSizeType.compare(rhsAttributeVSizeType);
+}
+
+
+// ---  WriteInitialization
+WriteInitialization::WriteInitialization(Uic *uic) :
+      m_uic(uic),
       m_driver(uic->driver()), m_output(uic->output()), m_option(uic->option()),
       m_defaultMargin(INT_MIN), m_defaultSpacing(INT_MIN),
       delayedOut(&m_delayedInitialization, QIODevice::WriteOnly),
@@ -157,7 +301,10 @@ void WriteInitialization::acceptUI(DomUI *node)
     m_output << m_option.indent << "} // setupUi\n\n";
 
     if (m_delayedActionInitialization.isEmpty()) {
-        m_refreshInitialization += m_option.indent + QLatin1String("Q_UNUSED(") + varName + QLatin1String(");\n");
+        m_refreshInitialization += m_option.indent;
+        m_refreshInitialization += QLatin1String("Q_UNUSED(");
+        m_refreshInitialization += varName ;
+        m_refreshInitialization +=QLatin1String(");\n");
     }
 
     m_output << m_option.indent << "void " << "retranslateUi(" << widgetClassName << " *" << varName << ")\n"
@@ -188,7 +335,7 @@ void WriteInitialization::acceptWidget(DomWidget *node)
         parentWidget.clear();
 
     if (m_widgetChain.size() != 1)
-        m_output << m_option.indent << varName << " = new " << m_uic->customWidgetsInfo()->realClassName(className) << "(" << parentWidget << ");\n";
+        m_output << m_option.indent << varName << " = new " << m_uic->customWidgetsInfo()->realClassName(className) << '(' << parentWidget << ");\n";
 
     parentWidget = savedParentWidget;
 
@@ -268,12 +415,12 @@ void WriteInitialization::acceptWidget(DomWidget *node)
             if (!m_uic->customWidgetsInfo()->extends(parentClass, QLatin1String("Q3MainWindow")))
                 m_output << m_option.indent << parentWidget << "->setMenuBar(" << varName <<");\n";
         } else if (m_uic->customWidgetsInfo()->extends(className, QLatin1String("QToolBar"))) {
-            m_output << m_option.indent << parentWidget << "->addToolBar(" 
+            m_output << m_option.indent << parentWidget << "->addToolBar("
                      << toolBarAreaStringFromDOMAttributes(attributes) << varName << ");\n";
-            
+
             if (const DomProperty *pbreak = attributes.value(QLatin1String("toolBarBreak"))) {
                 if (pbreak->elementBool() == QLatin1String("true")) {
-                    m_output << m_option.indent << parentWidget << "->insertToolBarBreak(" <<  varName << ");\n";          
+                    m_output << m_option.indent << parentWidget << "->insertToolBarBreak(" <<  varName << ");\n";
                 }
             }
 
@@ -306,7 +453,8 @@ void WriteInitialization::acceptWidget(DomWidget *node)
     } else if (m_uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QToolBox"))) {
         QString icon;
         if (const DomProperty *picon = attributes.value(QLatin1String("icon"))) {
-            icon += QLatin1String(", ") + pixCall(picon);
+            icon += QLatin1String(", ") ;
+            icon += pixCall(picon);
         }
 
         m_output << m_option.indent << parentWidget << "->addItem(" << varName << icon << ", " << trCall(label) << ");\n";
@@ -323,7 +471,8 @@ void WriteInitialization::acceptWidget(DomWidget *node)
     } else if (m_uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QTabWidget"))) {
         QString icon;
         if (const DomProperty *picon = attributes.value(QLatin1String("icon"))) {
-            icon += QLatin1String(", ") + pixCall(picon);
+            icon += QLatin1String(", ");
+            icon += pixCall(picon);
         }
 
         m_output << m_option.indent << parentWidget << "->addTab(" << varName << icon << ", " << trCall(title) << ");\n";
@@ -382,23 +531,25 @@ void WriteInitialization::acceptLayout(DomLayout *node)
 
             if (spacing != INT_MIN) {
                 QString value = QString::number(spacing);
-                if (!m_spacingFunction.isEmpty() && spacing == m_defaultSpacing)
-                    value = m_spacingFunction + QLatin1String("()");
-
+                if (!m_spacingFunction.isEmpty() && spacing == m_defaultSpacing) {
+                    value = m_spacingFunction;
+                    value += QLatin1String("()");
+                }
                 m_output << m_option.indent << parent << "->layout()->setSpacing(" << value << ");\n";
             }
 
             if (margin != INT_MIN) {
                 QString value = QString::number(margin);
-                if (!m_marginFunction.isEmpty() && margin == m_defaultMargin)
-                    value = m_marginFunction + QLatin1String("()");
-
+                if (!m_marginFunction.isEmpty() && margin == m_defaultMargin) {
+                    value = m_marginFunction;
+                    value += QLatin1String("()");
+                }
                 m_output << m_option.indent << parent << "->layout()->setMargin(" << value << ");\n";
             }
         }
     }
 
-    m_output << m_option.indent << varName << " = new " << className << "(";
+    m_output << m_option.indent << varName << " = new " << className << '(';
 
     if (isGroupBox) {
         m_output << m_driver->findOrInsertWidget(m_widgetChain.top()) << "->layout()";
@@ -445,16 +596,20 @@ void WriteInitialization::acceptLayout(DomLayout *node)
 
         if (spacing != INT_MIN) {
             QString value = QString::number(spacing);
-            if (!m_spacingFunction.isEmpty() && spacing == m_defaultSpacing)
-                value = m_spacingFunction + QLatin1String("()");
+            if (!m_spacingFunction.isEmpty() && spacing == m_defaultSpacing) {
+                value = m_spacingFunction;
+                value += QLatin1String("()");
+            }
 
             m_output << m_option.indent << varName << "->setSpacing(" << value << ");\n";
         }
 
         if (margin != INT_MIN) {
             QString value = QString::number(margin);
-            if (!m_marginFunction.isEmpty() && margin == m_defaultMargin)
-                value = m_marginFunction + QLatin1String("()");
+            if (!m_marginFunction.isEmpty() && margin == m_defaultMargin) {
+                value = m_marginFunction;
+                value += QLatin1String("()");
+            }
 
             m_output << m_option.indent << varName << "->setMargin(" << value << ");\n";
         }
@@ -465,40 +620,6 @@ void WriteInitialization::acceptLayout(DomLayout *node)
     m_layoutChain.push(node);
     TreeWalker::acceptLayout(node);
     m_layoutChain.pop();
-}
-
-void WriteInitialization::acceptSpacer(DomSpacer *node)
-{
-    const QHash<QString, DomProperty *> properties = propertyMap(node->elementProperty());
-    const QString varName = m_driver->findOrInsertSpacer(node);
-
-    const DomSize *sizeHint = properties.contains(QLatin1String("sizeHint"))
-        ? properties.value(QLatin1String("sizeHint"))->elementSize() : 0;
-
-    QString sizeType = properties.contains(QLatin1String("sizeType"))
-        ? properties.value(QLatin1String("sizeType"))->elementEnum()
-        : QString::fromLatin1("Expanding");
-
-    const QString orientation = properties.contains(QLatin1String("orientation"))
-        ? properties.value(QLatin1String("orientation"))->elementEnum() : QString();
-
-    const bool isVspacer = orientation == QLatin1String("Qt::Vertical")
-        || orientation == QLatin1String("Vertical");
-
-    m_output << m_option.indent << varName << " = new QSpacerItem(";
-
-    if (sizeHint)
-        m_output << sizeHint->elementWidth() << ", " << sizeHint->elementHeight() << ", ";
-
-    if (sizeType.startsWith(QLatin1String("QSizePolicy::")) == false)
-        sizeType.prepend(QLatin1String("QSizePolicy::"));
-
-    if (isVspacer)
-        m_output << "QSizePolicy::Minimum, " << sizeType << ");\n";
-    else
-        m_output << sizeType << ", QSizePolicy::Minimum);\n";
-
-    TreeWalker::acceptSpacer(node);
 }
 
 void WriteInitialization::acceptLayoutItem(DomLayoutItem *node)
@@ -528,24 +649,24 @@ void WriteInitialization::acceptLayoutItem(DomLayoutItem *node)
 
         opt = QString::fromLatin1(", %1, %2, %3, %4").arg(row).arg(col).arg(rowSpan).arg(colSpan);
     }
-
-    QString method = QLatin1String("addItem");
+    // figure out "add" method
+    m_output << "\n" << m_option.indent << layoutName << "->";
     switch (node->kind()) {
-        case DomLayoutItem::Widget:
-            method = QLatin1String("addWidget");
-            break;
-        case DomLayoutItem::Layout:
-            method = QLatin1String("addLayout");
-            break;
-        case DomLayoutItem::Spacer:
-            method = QLatin1String("addItem");
-            break;
-        case DomLayoutItem::Unknown:
-            Q_ASSERT( 0 );
-            break;
+    case DomLayoutItem::Widget:
+        m_output << "addWidget" <<  '(' << m_driver->findOrInsertLayoutItem(node);
+        break;
+    case DomLayoutItem::Layout:
+        m_output << "addLayout" <<  '(' << m_driver->findOrInsertLayoutItem(node);
+        break;
+    case DomLayoutItem::Spacer:
+        m_output << "addItem" << '(';
+        writeSpacerItem(node->elementSpacer(), m_output);
+        break;
+    case DomLayoutItem::Unknown:
+        Q_ASSERT( 0 );
+        break;
     }
-
-    m_output << "\n" << m_option.indent << layoutName << "->" << method << "(" << varName << opt << ");\n\n";
+    m_output << opt << ");\n\n";
 }
 
 void WriteInitialization::acceptActionGroup(DomActionGroup *node)
@@ -645,11 +766,11 @@ void WriteInitialization::writeProperties(const QString &varName,
             const DomRect *r = p->elementRect();
             const int w = r->elementWidth();
             const int h = r->elementHeight();
-			QString tempName = m_driver->unique(QLatin1String("size"));
-			resizeOut << m_option.indent << "QSize " << tempName << "(" << w << ", " << h << ");\n"
+                        QString tempName = m_driver->unique(QLatin1String("size"));
+                        resizeOut << m_option.indent << "QSize " << tempName << '(' << w << ", " << h << ");\n"
                       << m_option.indent << tempName << " = " << tempName << ".expandedTo("
                       << varName << "->minimumSizeHint());\n"
-                      << m_option.indent << varName << "->resize(" << tempName << ");\n";                
+                      << m_option.indent << varName << "->resize(" << tempName << ");\n";
             continue;
         } else if (propertyName == QLatin1String("buttonGroupId") && buttonGroupWidget) { // Q3ButtonGroup support
             m_output << m_option.indent << m_driver->findOrInsertWidget(buttonGroupWidget) << "->insert("
@@ -699,14 +820,14 @@ void WriteInitialization::writeProperties(const QString &varName,
         QString setFunction;
 
         if (stdset) {
-            setFunction = QLatin1String("->set")
-                + propertyName.left(1).toUpper()
-                + propertyName.mid(1)
-                + QLatin1String("(");
+            setFunction = QLatin1String("->set");
+            setFunction += propertyName.left(1).toUpper();
+            setFunction += propertyName.mid(1);
+            setFunction += QLatin1Char('(');
         } else {
-            setFunction = QLatin1String("->setProperty(\"")
-                + propertyName
-                + QLatin1String("\", QVariant(");
+            setFunction = QLatin1String("->setProperty(\"");
+            setFunction += propertyName;
+            setFunction += QLatin1String("\", QVariant(");
         }
 
         switch (p->kind()) {
@@ -727,8 +848,11 @@ void WriteInitialization::writeProperties(const QString &varName,
             } else {
                 if (stdset)
                     propertyValue = fixString(p->elementCstring(), m_option.indent);
-                else
-                    propertyValue = QLatin1String("QByteArray(") + fixString(p->elementCstring(), m_option.indent) + QLatin1String(")");
+                else {
+                    propertyValue = QLatin1String("QByteArray(");
+                    propertyValue += fixString(p->elementCstring(), m_option.indent);
+                    propertyValue += QLatin1Char(')');
+                }
             }
             break;
         case DomProperty::Cursor:
@@ -741,59 +865,18 @@ void WriteInitialization::writeProperties(const QString &varName,
             break;
         case DomProperty::Enum:
             propertyValue = p->elementEnum();
-            if (!propertyValue.contains(QLatin1String("::")))
-                propertyValue.prepend(className + QLatin1String(QLatin1String("::")));
+            if (!propertyValue.contains(QLatin1String("::"))) {
+                QString scope  = className;
+                scope += QLatin1String("::");
+                propertyValue.prepend(scope);
+            }
             break;
         case DomProperty::Set:
             propertyValue = p->elementSet();
             break;
-        case DomProperty::Font: {
-            const DomFont *f = p->elementFont();
-            const QString fontName = m_driver->unique(QLatin1String("font"));
-            m_output << m_option.indent << "QFont " << fontName << ";\n";
-            if (f->hasElementFamily() && !f->elementFamily().isEmpty()) {
-                m_output << m_option.indent << fontName << ".setFamily(QString::fromUtf8(" << fixString(f->elementFamily(), m_option.indent)
-                    << "));\n";
-            }
-            if (f->hasElementPointSize() && f->elementPointSize() > 0) {
-                m_output << m_option.indent << fontName << ".setPointSize(" << f->elementPointSize()
-                    << ");\n";
-            }
-            if (f->hasElementBold()) {
-                m_output << m_option.indent << fontName << ".setBold("
-                    << (f->elementBold() ? "true" : "false") << ");\n";
-            }
-            if (f->hasElementItalic()) {
-                m_output << m_option.indent << fontName << ".setItalic("
-                    <<  (f->elementItalic() ? "true" : "false") << ");\n";
-            }
-            if (f->hasElementUnderline()) {
-                m_output << m_option.indent << fontName << ".setUnderline("
-                    << (f->elementUnderline() ? "true" : "false") << ");\n";
-            }
-            if (f->hasElementWeight() && f->elementWeight() > 0) {
-                m_output << m_option.indent << fontName << ".setWeight("
-                    << f->elementWeight() << ");" << endl;
-            }
-            if (f->hasElementStrikeOut()) {
-                m_output << m_option.indent << fontName << ".setStrikeOut("
-                    << (f->elementStrikeOut() ? "true" : "false") << ");\n";
-            }
-            if (f->hasElementKerning()) {
-                m_output << m_option.indent << fontName << ".setKerning("
-                    << (f->elementKerning() ? "true" : "false") << ");\n";
-            }
-            if (f->hasElementAntialiasing()) {
-                m_output << m_option.indent << fontName << ".setStyleStrategy("
-                    << (f->elementAntialiasing() ? "QFont::PreferDefault" : "QFont::NoAntialias") << ");\n";
-            }
-            if (f->hasElementStyleStrategy()) {
-                m_output << m_option.indent << fontName << ".setStyleStrategy(QFont::"
-                    << f->elementStyleStrategy() << ");\n";
-            }
-            propertyValue = fontName;
+        case DomProperty::Font:
+            propertyValue = writeFontProperties(p->elementFont());
             break;
-        }
         case DomProperty::IconSet:
             propertyValue = pixCall(p);
             break;
@@ -841,23 +924,7 @@ void WriteInitialization::writeProperties(const QString &varName,
             break;
         }
         case DomProperty::SizePolicy: {
-            const DomSizePolicy *sp = p->elementSizePolicy();
-            const QString spName = m_driver->unique(QLatin1String("sizePolicy"));
-            if (sp->hasElementHSizeType() && sp->hasElementVSizeType()) {
-                m_output << m_option.indent << "QSizePolicy " << spName << QString::fromLatin1(
-                    "(static_cast<QSizePolicy::Policy>(%1), static_cast<QSizePolicy::Policy>(%2));\n")
-                            .arg(sp->elementHSizeType())
-                            .arg(sp->elementVSizeType());
-            } else if (sp->hasAttributeHSizeType() && sp->hasAttributeVSizeType()) {
-                m_output << m_option.indent << "QSizePolicy " << spName << QString::fromLatin1(
-                    "(QSizePolicy::%1, QSizePolicy::%2);\n")
-                            .arg(sp->attributeHSizeType())
-                            .arg(sp->attributeVSizeType());
-            }
-            m_output << m_option.indent << spName << ".setHorizontalStretch("
-                << sp->elementHorStretch() << ");\n";
-            m_output << m_option.indent << spName << ".setVerticalStretch("
-                << sp->elementVerStretch() << ");\n";
+            const QString spName = writeSizePolicy( p->elementSizePolicy());
             m_output << m_option.indent << spName << QString::fromLatin1(
                 ".setHeightForWidth(%1->sizePolicy().hasHeightForWidth());\n")
                 .arg(varName);
@@ -888,9 +955,9 @@ void WriteInitialization::writeProperties(const QString &varName,
 
             if (p->elementString()->hasAttributeNotr()
                     && toBool(p->elementString()->attributeNotr())) {
-                propertyValue = QLatin1String("QString::fromUtf8(")
-                        + fixString(p->elementString()->text(), m_option.indent)
-                        + QLatin1String(")");
+                propertyValue = QLatin1String("QString::fromUtf8(");
+                propertyValue += fixString(p->elementString()->text(), m_option.indent);
+                propertyValue += QLatin1Char(')');
             } else {
                 propertyValue = trCall(p->elementString());
             }
@@ -900,15 +967,18 @@ void WriteInitialization::writeProperties(const QString &varName,
             propertyValue = QString::number(p->elementNumber());
             break;
         case DomProperty::UInt:
-            propertyValue = QString::number(p->elementUInt()) + QLatin1String("u");
+            propertyValue = QString::number(p->elementUInt());
+            propertyValue += QLatin1Char('u');
             break;
         case DomProperty::LongLong:
-            propertyValue = QLatin1String("Q_INT64_C(") + QString::number(p->elementLongLong())
-                        + QLatin1String(")");;
+            propertyValue = QLatin1String("Q_INT64_C(");
+            propertyValue += QString::number(p->elementLongLong());
+            propertyValue += QLatin1Char(')');;
             break;
         case DomProperty::ULongLong:
-            propertyValue = QLatin1String("Q_UINT64_C(") + QString::number(p->elementULongLong())
-                        + QLatin1String(")");;
+            propertyValue = QLatin1String("Q_UINT64_C(");
+            propertyValue += QString::number(p->elementULongLong());
+            propertyValue += QLatin1Char(')');
             break;
         case DomProperty::Float:
             propertyValue = QString::number(p->elementFloat());
@@ -954,7 +1024,8 @@ void WriteInitialization::writeProperties(const QString &varName,
             if (p->elementStringList()->elementString().size()) {
                 const QStringList lst = p->elementStringList()->elementString();
                 for (int i=0; i<lst.size(); ++i) {
-                    propertyValue += QLatin1String(" << ") + fixString(lst.at(i), m_option.indent);
+                    propertyValue += QLatin1String(" << ");
+                    propertyValue +=fixString(lst.at(i), m_option.indent);
                 }
             }
             break;
@@ -990,10 +1061,107 @@ void WriteInitialization::writeProperties(const QString &varName,
 #endif // QT_NO_WHATSTHIS
             (*o) << m_option.indent << varName << setFunction << propertyValue;
             if (!stdset)
-                (*o) << ")";
+                (*o) << ')';
             (*o) << ");\n";
         }
     }
+}
+
+QString  WriteInitialization::writeSizePolicy(const DomSizePolicy *sp)
+{
+
+    // check cache
+    const SizePolicyHandle sizePolicyHandle(sp);
+    const SizePolicyNameMap::const_iterator it = m_SizePolicyNameMap.constFind(sizePolicyHandle);
+    if ( it != m_SizePolicyNameMap.constEnd()) {
+        return it.value();
+    }
+
+
+    // insert with new name
+    const QString spName = m_driver->unique(QLatin1String("sizePolicy"));
+    m_SizePolicyNameMap.insert(sizePolicyHandle, spName);
+
+    m_output << m_option.indent << "QSizePolicy " << spName;
+    do {
+        if (sp->hasElementHSizeType() && sp->hasElementVSizeType()) {
+            m_output << "(static_cast<QSizePolicy::Policy>(" << sp->elementHSizeType()
+                << "), static_cast<QSizePolicy::Policy>(" << sp->elementVSizeType() << "));\n";
+            break;
+        }
+        if (sp->hasAttributeHSizeType() && sp->hasAttributeVSizeType()) {
+                m_output << "(QSizePolicy::" << sp->attributeHSizeType() << ", QSizePolicy::"
+                << sp->attributeVSizeType() << ");\n";
+            break;
+        }
+        m_output << ";\n";
+    } while (false);
+
+    m_output << m_option.indent << spName << ".setHorizontalStretch("
+        << sp->elementHorStretch() << ");\n";
+    m_output << m_option.indent << spName << ".setVerticalStretch("
+        << sp->elementVerStretch() << ");\n";
+    return spName;
+}
+// Check for a font with the given properties in the FontPropertiesNameMap
+// or create a new one. Returns the name.
+
+QString WriteInitialization::writeFontProperties(const DomFont *f)
+{
+    // check cache
+    const FontHandle fontHandle(f);
+    const FontPropertiesNameMap::const_iterator it = m_FontPropertiesNameMap.constFind(fontHandle);
+    if ( it != m_FontPropertiesNameMap.constEnd()) {
+        return it.value();
+    }
+
+    // insert with new name
+    const QString fontName = m_driver->unique(QLatin1String("font"));
+    m_FontPropertiesNameMap.insert(FontHandle(f), fontName);
+
+    m_output << m_option.indent << "QFont " << fontName << ";\n";
+    if (f->hasElementFamily() && !f->elementFamily().isEmpty()) {
+        m_output << m_option.indent << fontName << ".setFamily(QString::fromUtf8(" << fixString(f->elementFamily(), m_option.indent)
+            << "));\n";
+    }
+    if (f->hasElementPointSize() && f->elementPointSize() > 0) {
+         m_output << m_option.indent << fontName << ".setPointSize(" << f->elementPointSize()
+             << ");\n";
+    }
+
+    if (f->hasElementBold()) {
+        m_output << m_option.indent << fontName << ".setBold("
+            << (f->elementBold() ? "true" : "false") << ");\n";
+    }
+    if (f->hasElementItalic()) {
+        m_output << m_option.indent << fontName << ".setItalic("
+            <<  (f->elementItalic() ? "true" : "false") << ");\n";
+    }
+    if (f->hasElementUnderline()) {
+        m_output << m_option.indent << fontName << ".setUnderline("
+            << (f->elementUnderline() ? "true" : "false") << ");\n";
+    }
+    if (f->hasElementWeight() && f->elementWeight() > 0) {
+        m_output << m_option.indent << fontName << ".setWeight("
+            << f->elementWeight() << ");" << endl;
+    }
+    if (f->hasElementStrikeOut()) {
+         m_output << m_option.indent << fontName << ".setStrikeOut("
+            << (f->elementStrikeOut() ? "true" : "false") << ");\n";
+    }
+    if (f->hasElementKerning()) {
+        m_output << m_option.indent << fontName << ".setKerning("
+            << (f->elementKerning() ? "true" : "false") << ");\n";
+    }
+    if (f->hasElementAntialiasing()) {
+        m_output << m_option.indent << fontName << ".setStyleStrategy("
+            << (f->elementAntialiasing() ? "QFont::PreferDefault" : "QFont::NoAntialias") << ");\n";
+    }
+    if (f->hasElementStyleStrategy()) {
+         m_output << m_option.indent << fontName << ".setStyleStrategy(QFont::"
+            << f->elementStyleStrategy() << ");\n";
+    }
+    return  fontName;
 }
 
 QString WriteInitialization::domColor2QString(const DomColor *c)
@@ -1021,7 +1189,7 @@ void WriteInitialization::writeColorGroup(DomColorGroup *colorGroup, const QStri
         const DomColor *color = colors.at(i);
 
         m_output << m_option.indent << paletteName << ".setColor(" << group
-            << ", " << "static_cast<QPalette::ColorRole>(" << QString::number(i) << ")"
+            << ", " << "static_cast<QPalette::ColorRole>(" << QString::number(i) << ')'
             << ", " << domColor2QString(color)
             << ");\n";
     }
@@ -1076,20 +1244,20 @@ void WriteInitialization::writeBrush(DomBrush *brush, const QString &brushName)
         const QString gradientName = m_driver->unique(QLatin1String("gradient"));
         if (gradientType == QLatin1String("LinearGradient")) {
             m_output << m_option.indent << "QLinearGradient " << gradientName
-                << "(" << gradient->attributeStartX()
+                << '(' << gradient->attributeStartX()
                 << ", " << gradient->attributeStartY()
                 << ", " << gradient->attributeEndX()
                 << ", " << gradient->attributeEndY() << ");\n";
         } else if (gradientType == QLatin1String("RadialGradient")) {
             m_output << m_option.indent << "QRadialGradient " << gradientName
-                << "(" << gradient->attributeCentralX()
+                << '(' << gradient->attributeCentralX()
                 << ", " << gradient->attributeCentralY()
                 << ", " << gradient->attributeRadius()
                 << ", " << gradient->attributeFocalX()
                 << ", " << gradient->attributeFocalY() << ");\n";
         } else if (gradientType == QLatin1String("ConicalGradient")) {
             m_output << m_option.indent << "QConicalGradient " << gradientName
-                << "(" << gradient->attributeCentralX()
+                << '(' << gradient->attributeCentralX()
                 << ", " << gradient->attributeCentralY()
                 << ", " << gradient->attributeAngle() << ");\n";
         }
@@ -1111,7 +1279,7 @@ void WriteInitialization::writeBrush(DomBrush *brush, const QString &brushName)
                 << stop->attributePosition() << ", "
                 << domColor2QString(color) << ");\n";
         }
-        m_output << m_option.indent << "QBrush " << brushName << "("
+        m_output << m_option.indent << "QBrush " << brushName << '('
             << gradientName << ");\n";
     } else if (style == QLatin1String("TexturePattern")) {
         const DomProperty *property = brush->elementTexture();
@@ -1120,7 +1288,7 @@ void WriteInitialization::writeBrush(DomBrush *brush, const QString &brushName)
             << pixCall(property) << ");\n";
     } else {
         const DomColor *color = brush->elementColor();
-        m_output << m_option.indent << "QBrush " << brushName << "("
+        m_output << m_option.indent << "QBrush " << brushName << '('
             << domColor2QString(color) << ");\n";
 
         m_output << m_option.indent << brushName << ".setStyle("
@@ -1431,16 +1599,27 @@ QString WriteInitialization::pixCall(const DomProperty *p) const
         s = p->elementPixmap()->text();
     }
 
-    if (s.isEmpty())
-        return type + QLatin1String("()");
-    else if (findImage(s) != 0)
-        return QLatin1String("icon(") + s + QLatin1String("_ID)");
+    if (s.isEmpty()) {
+        type += QLatin1String("()");
+        return type;
+    }
+    if (findImage(s) != 0) {
+        QString rc = QLatin1String("icon(");
+        rc += s;
+        rc += QLatin1String("_ID)");
+        return rc;
+    }
 
     QString pixFunc = m_uic->pixmapFunction();
     if (pixFunc.isEmpty())
         pixFunc = QLatin1String("QString::fromUtf8");
 
-    return type + QLatin1String("(") + pixFunc + QLatin1String("(") + fixString(s, m_option.indent) + QLatin1String(")") + QLatin1String(")");
+    type += QLatin1Char('(');
+    type += pixFunc;
+    type += QLatin1Char('(');
+    type += fixString(s, m_option.indent);
+    type += QLatin1String("))");
+    return type;
 }
 
 void WriteInitialization::initializeComboBox(DomWidget *w)
@@ -1665,10 +1844,11 @@ QString WriteInitialization::trCall(const QString &str, const QString &commentHi
     if (m_option.translateFunction.isEmpty()) {
         result = QLatin1String("QApplication::translate(\"");
         result += m_generatedClass;
-        result += QLatin1String("\"");
+        result += QLatin1Char('"');
         result += QLatin1String(", ");
     } else {
-        result = m_option.translateFunction + QLatin1String("(");
+        result = m_option.translateFunction;
+        result += QLatin1Char('(');
     }
 
     result += fixString(str, m_option.indent);
@@ -1680,7 +1860,7 @@ QString WriteInitialization::trCall(const QString &str, const QString &commentHi
         result += QLatin1String("QApplication::UnicodeUTF8");
     }
 
-    result += QLatin1String(")");
+    result += QLatin1Char(')');
     return result;
 }
 
@@ -1809,11 +1989,11 @@ void WriteInitialization::acceptConnection(DomConnection *connection)
     m_output << m_option.indent << "QObject::connect("
         << sender
         << ", "
-        << "SIGNAL(" << connection->elementSignal() << ")"
+        << "SIGNAL(" << connection->elementSignal() << ')'
         << ", "
         << receiver
         << ", "
-        << "SLOT(" << connection->elementSlot() << ")"
+        << "SLOT(" << connection->elementSlot() << ')'
         << ");\n";
 }
 

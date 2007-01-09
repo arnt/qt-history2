@@ -159,13 +159,6 @@ void WriteDeclaration::acceptLayout(DomLayout *node)
     TreeWalker::acceptLayout(node);
 }
 
-void WriteDeclaration::acceptSpacer(DomSpacer *node)
-{
-    m_output << m_option.indent << "QSpacerItem *" << m_driver->findOrInsertSpacer(node) << ";\n";
-
-    TreeWalker::acceptSpacer(node);
-}
-
 void WriteDeclaration::acceptActionGroup(DomActionGroup *node)
 {
     m_output << m_option.indent << "QActionGroup *" << m_driver->findOrInsertActionGroup(node) << ";\n";
