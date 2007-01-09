@@ -7181,7 +7181,7 @@ void QWidget::setWindowFlags(Qt::WindowFlags flags)
 
         // if both types are windows or neither of them are, we restore
         // the old position
-        if (!((data->window_flags ^ flags) & Qt::Window))
+        if (!((data->window_flags ^ flags) & Qt::Window) && testAttribute(Qt::WA_Moved))
             move(oldPos);
     } else {
         data->window_flags = flags;

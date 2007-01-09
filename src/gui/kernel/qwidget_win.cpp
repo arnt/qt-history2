@@ -383,6 +383,18 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             }
         }
 
+        //update position & initial size of POPUP window
+        if (topLevel && initializeWindow && (style & WS_POPUP)) {
+            if (!q->testAttribute(Qt::WA_Resized)) {
+                w = sw/2;
+                h = 4*sh/10;
+            }
+            if (!wasMoved) {
+                x = sw/2 - w/2;
+                y = sh/2 - h/2;
+            }
+        }
+
         QT_WA({
             const TCHAR *cname = (TCHAR*)windowClassName.utf16();
             id = CreateWindowEx(exsty, cname, ttitle, style,
