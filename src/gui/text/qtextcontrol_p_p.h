@@ -92,6 +92,8 @@ public:
     inline QRectF selectionRect() const
     { return selectionRect(this->cursor); }
 
+    QString anchorForCursor(const QTextCursor &anchor) const;
+
     void keyPressEvent(QKeyEvent *e);
     void mousePressEvent(Qt::MouseButton button, const QPointF &pos,
                          Qt::KeyboardModifiers modifiers,
@@ -112,7 +114,6 @@ public:
 
     void inputMethodEvent(QInputMethodEvent *);
 
-    bool findNextPrevAnchor(bool next, int &start, int &end);
     void activateLinkUnderCursor();
 
 #ifndef QT_NO_TOOLTIP
