@@ -680,8 +680,8 @@ void tst_QMdiArea::setActiveWindow()
 
     // Activate widget which is not child of any window inside workspace
     QWidget fakeWidget;
-    QTest::ignoreMessage(QtWarningMsg, "QMdiArea::setActiveWindow: widget is not child "
-                                       "of any window inside QMdiArea");
+    QTest::ignoreMessage(QtWarningMsg, "QWorkspace::setActiveWindow: widget is not child "
+                                       "of any window inside QWorkspace");
     workspace.setActiveWindow(&fakeWidget);
 
 }
@@ -708,7 +708,7 @@ void tst_QMdiArea::addAndRemoveWindows()
     }
 
     { // addSubWindow with 0 pointer
-    QTest::ignoreMessage(QtWarningMsg, "QMdiArea::addSubWindow: null pointer to widget");
+    QTest::ignoreMessage(QtWarningMsg, "QWorkspace::addSubWindow: null pointer to widget");
     QWidget *window = workspace.addSubWindow(0);
     QVERIFY(!window);
     QCOMPARE(workspace.windowList().count(), 2);
@@ -724,12 +724,12 @@ void tst_QMdiArea::addAndRemoveWindows()
     QVERIFY(window->windowFlags() == DefaultWindowFlags);
     window->setWidget(new QWidget);
     QCOMPARE(workspace.windowList().count(), 3);
-    QTest::ignoreMessage(QtWarningMsg, "QMdiArea::addChildWindow: window is already added");
+    QTest::ignoreMessage(QtWarningMsg, "QWorkspace::addChildWindow: window is already added");
     workspace.addChildWindow(window);
     }
 
     { // addChildWindow with 0 pointer
-    QTest::ignoreMessage(QtWarningMsg, "QMdiArea::addChildWindow: null pointer to window");
+    QTest::ignoreMessage(QtWarningMsg, "QWorkspace::addChildWindow: null pointer to window");
     workspace.addChildWindow(0);
     QCOMPARE(workspace.windowList().count(), 3);
     }
@@ -740,11 +740,11 @@ void tst_QMdiArea::addAndRemoveWindows()
     QCOMPARE(workspace.windowList().count(), 0);
 
     // removeSubWindow with 0 pointer
-    QTest::ignoreMessage(QtWarningMsg, "QMdiArea::removeSubWindow: null pointer to widget");
+    QTest::ignoreMessage(QtWarningMsg, "QWorkspace::removeSubWindow: null pointer to widget");
     workspace.removeSubWindow(0);
 
     // removeSubWindow with widget not inside workspace
-    QTest::ignoreMessage(QtWarningMsg,"QMdiArea::removeSubWindow: widget is not child of any window inside QMdiArea");
+    QTest::ignoreMessage(QtWarningMsg,"QWorkspace::removeSubWindow: widget is not child of any window inside QWorkspace");
     QWidget fakeWidget;
     workspace.removeSubWindow(&fakeWidget);
 }
@@ -768,7 +768,7 @@ void tst_QMdiArea::addAndRemoveWindowsWithReparenting()
     QCOMPARE(workspace.windowList().count(), 1);
     QVERIFY(window.windowFlags() == DefaultWindowFlags);
 
-    QTest::ignoreMessage(QtWarningMsg, "QMdiArea::addChildWindow: window is already added");
+    QTest::ignoreMessage(QtWarningMsg, "QWorkspace::addChildWindow: window is already added");
     workspace.addChildWindow(&window);
     QCOMPARE(workspace.windowList().count(), 1);
 }
@@ -1025,7 +1025,7 @@ void tst_QMdiArea::setViewport()
             QVERIFY(window->isMaximized());
     }
 
-    QTest::ignoreMessage(QtWarningMsg, "QMdiArea: Deleting the view port is undefined, "
+    QTest::ignoreMessage(QtWarningMsg, "QWorkspace: Deleting the view port is undefined, "
                                        "use setViewport instead.");
     delete workspace.viewport();
     qApp->processEvents();
