@@ -87,7 +87,21 @@ public:
         CompositionMode_DestinationOut,
         CompositionMode_SourceAtop,
         CompositionMode_DestinationAtop,
-        CompositionMode_Xor
+        CompositionMode_Xor,
+
+        //svg 1.2 blend modes
+        CompositionMode_Plus,
+        CompositionMode_Multiply,
+        CompositionMode_Screen,
+        CompositionMode_Overlay,
+        CompositionMode_Darken,
+        CompositionMode_Lighten,
+        CompositionMode_ColorDodge,
+        CompositionMode_ColorBurn,
+        CompositionMode_HardLight,
+        CompositionMode_SoftLight,
+        CompositionMode_Difference,
+        CompositionMode_Exclusion
     };
     void setCompositionMode(CompositionMode mode);
     CompositionMode compositionMode() const;

@@ -76,6 +76,7 @@ public:
         ConstantOpacity           = 0x00001000, // Can render at constant opacity
         MaskedBrush               = 0x00002000, // Can fill with textures that has an alpha channel or mask
         PerspectiveTransform      = 0x00004000, // Can do perspective transformations
+        BlendModes                = 0x00008000, // Can do extended Porter&Duff composition
         PaintOutsidePaintEvent    = 0x20000000, // Engine is capable of painting outside paint events
         /*                          0x10000000, // Used for emulating
                                     QGradient::StretchToDevice,

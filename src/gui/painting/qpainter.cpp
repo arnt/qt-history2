@@ -523,6 +523,19 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
         s->emulationSpecifier |= QPaintEngine_OpaqueBackground;
     else
         s->emulationSpecifier &= ~QPaintEngine_OpaqueBackground;
+
+#if 0
+    //won't be correct either way because the device can already have
+    // something rendered to it in which case subsequent emulation
+    // on a fully transparent qimage and then blitting the results
+    // won't produce correct results
+    // Blend modes
+    if (state->composition_mode > QPainter::CompositionMode_Xor &&
+        !engine->hasFeature(QPaintEngine::BlendModes))
+        s->emulationSpecifier |= QPaintEngine::BlendModes;
+    else
+        s->emulationSpecifier &= ~QPaintEngine::BlendModes;
+#endif
 }
 
 
@@ -1628,6 +1641,12 @@ void QPainter::setCompositionMode(CompositionMode mode)
         return;
     } else if (!d->engine->hasFeature(QPaintEngine::PorterDuff)) {
         qWarning("QPainter::setCompositionMode: Composition modes not supported on device");
+        return;
+    }
+
+    if (mode > QPainter::CompositionMode_Xor &&
+        !d->engine->hasFeature(QPaintEngine::BlendModes)) {
+        qWarning("QPainter::setCompositionMode: Blend modes not supported on device");
         return;
     }
 
