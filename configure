@@ -506,6 +506,7 @@ CFG_SQL_AVAILABLE=
 QT_DEFAULT_BUILD_PARTS="libs tools examples"
 CFG_BUILD_PARTS=""
 CFG_NOBUILD_PARTS=""
+CFG_RELEASE_QMAKE=no
 
 CFG_GFX_AVAILABLE="linuxfb transformed qvfb vnc"
 CFG_GFX_ON="linuxfb"
@@ -542,7 +543,7 @@ CFG_GLIB=auto
 CFG_LARGEFILE=auto
 CFG_STL=auto
 CFG_PRECOMPILE=auto
-CFG_SEPARATE_DEBUG_INFO=auto
+CFG_SEPARATE_nEBUG_INFO=auto
 CFG_REDUCE_EXPORTS=auto
 CFG_IPV6=auto
 CFG_NAS=no
@@ -685,7 +686,7 @@ while [ "$#" -gt 0 ]; do
         VAL=no
         ;;
     #Qt style yes options
-        -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-separate-debug-info|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-fontconfig|-xkb|-nis|-qdbus|-glib|-cups|-iconv|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal|-prefix-install|-silent|-armfpa)
+        -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-separate-debug-info|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-fontconfig|-xkb|-nis|-qdbus|-glib|-cups|-iconv|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal|-prefix-install|-silent|-armfpa|-optimized-qmake)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         VAL=yes
         ;;
@@ -1042,6 +1043,13 @@ while [ "$#" -gt 0 ]; do
     debug-and-release)
         if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
             CFG_DEBUG_RELEASE="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+        ;;
+    optimized-qmake)
+        if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+            CFG_RELEASE_QMAKE="$VAL"
         else
             UNKNOWN_OPT=yes
         fi
@@ -2478,7 +2486,7 @@ Usage:  $relconf [-prefix <dir>] [-prefix-install] [-bindir <dir>] [-libdir <dir
         [-no-make <part>] [-R <string>]  [-l <string>] [-no-rpath]  [-rpath] [-continue] 
         [-verbose] [-v] [-silent] [-no-nis] [-nis] [-no-cups] [-cups] [-no-iconv] 
         [-iconv] [-no-pch] [-pch] [-no-qdbus] [-qdbus] [-no-separate-debug-info] 
-        [-separate-debug-info] [-armfpa] 
+        [-separate-debug-info] [-armfpa] [-no-optimized-qmake] [-optimized-qmake]
 
         [additional platform specific options (see below)]
           
@@ -2655,6 +2663,9 @@ Additional options:
     -silent ............ Reduce the build output so that warnings and errors
                          can be seen more easily.
 
+ *  -no-optimized-qmake ... Do not build qmake optimized.
+    -optimized-qmake ...... Build qmake optimized.
+
  $NSN  -no-nis ............ Do not compile NIS support.
  $NSY  -nis ............... Compile NIS support.
 
@@ -2669,6 +2680,7 @@ Additional options:
 
  $DBN  -no-qdbus........... Do not compile the QtDBus module.
  $DBY  -qdbus.............. Compile the QtDBus module.
+
 
 EOF
 
@@ -3357,12 +3369,18 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
         else
             echo "include Makefile.commercial" >>"$mkfile"
         fi
-        if [ "$CFG_DEBUG" = "yes" ]; then
+        if [ "$CFG_RELEASE_QMAKE" = "yes" ]; then
+            setBootstrapVariable QMAKE_CFLAGS_RELEASE
+            setBootstrapVariable QMAKE_CXXFLAGS_RELEASE 's,\$\$QMAKE_CFLAGS_RELEASE,\$(QMAKE_CFLAGS_RELEASE),'
+            EXTRA_CFLAGS="$EXTRA_CFLAGS \$(QMAKE_CFLAGS_RELEASE)"
+            EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS \$(QMAKE_CXXFLAGS_RELEASE)"
+        elif [ "$CFG_DEBUG" = "yes" ]; then
             setBootstrapVariable QMAKE_CFLAGS_DEBUG
             setBootstrapVariable QMAKE_CXXFLAGS_DEBUG 's,\$\$QMAKE_CFLAGS_DEBUG,\$(QMAKE_CFLAGS_DEBUG),'
             EXTRA_CFLAGS="$EXTRA_CFLAGS \$(QMAKE_CFLAGS_DEBUG)"
             EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS \$(QMAKE_CXXFLAGS_DEBUG)"
         fi
+
 	if [ '!' -z "$RPATH_FLAGS" ] && [ '!' -z "`getQMakeConf \"$QMAKESPEC\" | grep QMAKE_RPATH | awk '{print $3;}'`" ]; then
   	    setBootstrapVariable QMAKE_RPATH 's,\$\$LITERAL_WHITESPACE, ,'
 	    for rpath in $RPATH_FLAGS; do
