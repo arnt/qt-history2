@@ -1957,7 +1957,10 @@ static QPainter::CompositionMode svgToQtCompositionMode(const QString &op)
         NOOP;
     } else if (op == QLatin1String("exclusion")) {
         NOOP;
+    } else {
+        NOOP;
     }
+    
     return QPainter::CompositionMode_SourceOver;
 }
 
@@ -2844,6 +2847,10 @@ static bool parseStopNode(QSvgStyleProperty *parent,
     if (type == QSvgHandler::PERCENT) {
         offset = offset/100.0;
     }
+    if (colorStr.isEmpty()) {
+        colorStr = QLatin1String("#000000");
+    }
+        
     bool colorOK = constructColor(colorStr, opacityStr, color, handler);
     QGradient *grad = style->qgradient();
     //qDebug()<<"set color at"<<offset<<color;
