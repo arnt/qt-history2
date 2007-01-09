@@ -320,7 +320,18 @@ WidgetDataBaseItem *WidgetDataBase::createCustomWidgetItem(const QDesignerCustom
     item->setContainer(c->isContainer());
     item->setCustom(true);
     item->setIcon(c->icon());
-    item->setIncludeFile(c->includeFile());
+    
+    // Try to figure out the include file type. If the file 
+    // is enclosed in <,>, store it as global.
+    QString includeFile = c->includeFile();
+    WidgetDataBaseItem::IncludeType includeType = WidgetDataBaseItem::IncludeLocal;
+    if (includeFile.startsWith(QLatin1Char('<')) && includeFile.endsWith(QLatin1Char('>'))) {
+        includeFile.remove(includeFile.size() - 1, 1);
+        includeFile.remove(0, 1);
+        includeType = WidgetDataBaseItem::IncludeGlobal;
+    }    
+    item->setIncludeFile(includeFile);
+    item->setIncludeType(includeType);
     item->setToolTip(c->toolTip());
     item->setWhatsThis(c->whatsThis());
     return item;
