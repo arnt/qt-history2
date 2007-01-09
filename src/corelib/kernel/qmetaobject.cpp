@@ -24,6 +24,7 @@
 #include <qvariant.h>
 #include <qhash.h>
 #include <qdebug.h>
+#include <qsemaphore.h>
 
 #include "private/qobject_p.h"
 #include "private/qmetaobject_p.h"
@@ -960,7 +961,7 @@ bool QMetaObject::invokeMethod(QObject *obj, const char *member, Qt::ConnectionT
                : Qt::QueuedConnection;
     }
 
-    if (type != Qt::QueuedConnection) {
+    if (type == Qt::DirectConnection) {
         return obj->qt_metacall(QMetaObject::InvokeMetaMethod, idx, param) < 0;
     } else {
         if (ret.data()) {
@@ -985,7 +986,21 @@ bool QMetaObject::invokeMethod(QObject *obj, const char *member, Qt::ConnectionT
             }
         }
 
-        QCoreApplication::postEvent(obj, new QMetaCallEvent(idx, 0, -1, -1, nargs, types, args));
+        if (type == Qt::QueuedConnection) {
+            QCoreApplication::postEvent(obj, new QMetaCallEvent(idx, 0, -1, -1, nargs, types, args));
+        } else {
+            if (QThread::currentThread() == obj->thread()) {
+                qWarning("QMetaObject::invokeMethod: Dead lock detected in BlockingQueuedConnection: "
+                         "Receiver is %s(%p)",
+                         obj->metaObject()->className(), obj);
+            }
+
+            // blocking queued connection
+            QSemaphore semaphore;
+            QCoreApplication::postEvent(obj, new QMetaCallEvent(idx, 0, -1, -1, nargs, types, args,
+                                                                &semaphore));
+            semaphore.acquire();
+        }
     }
     return true;
 }

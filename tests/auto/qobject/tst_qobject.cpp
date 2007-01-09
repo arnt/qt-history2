@@ -71,6 +71,7 @@ private slots:
     void floatProperty();
     void property();
     void recursiveSignalEmission();
+    void blockingQueuedConnection();
 
 protected:
 };
@@ -1870,6 +1871,27 @@ void tst_QObject::recursiveSignalEmission()
     QVERIFY(proc.waitForFinished());
     QVERIFY(proc.exitStatus() == QProcess::NormalExit);
     QCOMPARE(proc.exitCode(), 0);
+}
+
+void tst_QObject::blockingQueuedConnection()
+{
+    SenderObject sender;
+
+    MoveToThreadThread thread;
+    ReceiverObject receiver;
+    receiver.moveToThread(&thread);
+    thread.start();
+
+    receiver.connect(&sender, SIGNAL(signal1()), SLOT(slot1()), Qt::BlockingQueuedConnection);
+    sender.emitSignal1();
+    QVERIFY(receiver.called(1));
+
+    receiver.reset();
+    QVERIFY(QMetaObject::invokeMethod(&receiver, "slot1", Qt::BlockingQueuedConnection));
+    QVERIFY(receiver.called(1));
+
+    thread.quit();
+    QVERIFY(thread.wait());
 }
 
 QTEST_MAIN(tst_QObject)

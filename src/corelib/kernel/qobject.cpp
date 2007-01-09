@@ -27,6 +27,7 @@
 #include <qpair.h>
 #include <qvarlengtharray.h>
 #include <qset.h>
+#include <qsemaphore.h>
 
 #include <new>
 
@@ -66,8 +67,8 @@ struct QConnection {
     int signal;
     QObject *receiver;
     int method;
-    uint refCount:30;
-    uint type:2; // 0 == auto, 1 == direct, 2 == queued
+    uint refCount:29;
+    uint type:3; // 0 == auto, 1 == direct, 2 == queued, 4 == blocking
     int *types;
 };
 Q_DECLARE_TYPEINFO(QConnection, Q_MOVABLE_TYPE);
@@ -441,17 +442,18 @@ void QObjectPrivate::clearGuards(QObject *object)
 /*! \internal
  */
 QMetaCallEvent::QMetaCallEvent(int id, const QObject *sender,
-                               int nargs, int *types, void **args)
+                               int nargs, int *types, void **args,
+                               QSemaphore *semaphore)
     :QEvent(MetaCall), id_(id), sender_(sender), idFrom_(-1), idTo_(-1),
-     nargs_(nargs), types_(types), args_(args)
+     nargs_(nargs), types_(types), args_(args), semaphore_(semaphore)
 { }
 
 /*! \internal
  */
 QMetaCallEvent::QMetaCallEvent(int id, const QObject *sender, int idFrom, int idTo,
-                               int nargs, int *types, void **args)
+                               int nargs, int *types, void **args, QSemaphore *semaphore)
     : QEvent(MetaCall), id_(id), sender_(sender), idFrom_(idFrom), idTo_(idTo),
-      nargs_(nargs), types_(types), args_(args)
+      nargs_(nargs), types_(types), args_(args), semaphore_(semaphore)
 { }
 
 /*! \internal
@@ -464,6 +466,8 @@ QMetaCallEvent::~QMetaCallEvent()
     }
     if (types_) qFree(types_);
     if (args_) qFree(args_);
+    if (semaphore_)
+        semaphore_->release();
 }
 
 /*!
@@ -2452,7 +2456,7 @@ bool QObject::connect(const QObject *sender, const char *signal,
     }
 
     int *types = 0;
-    if (type == Qt::QueuedConnection
+    if ((type == Qt::QueuedConnection || type == Qt::BlockingQueuedConnection)
             && !(types = ::queuedConnectionTypes(smeta->method(signal_index).parameterTypes())))
         return false;
 
@@ -2821,7 +2825,8 @@ void QMetaObject::connectSlotsByName(QObject *o)
     }
 }
 
-static void queued_activate(QObject *sender, const QConnection &c, void **argv, int idFrom, int idTo)
+static void queued_activate(QObject *sender, const QConnection &c, void **argv, int idFrom, int idTo,
+                            QSemaphore *semaphore = 0)
 {
     if (!c.types || c.types != &DIRECT_CONNECTION_ONLY) {
         QMetaMethod m = sender->metaObject()->method(c.signal);
@@ -2850,7 +2855,22 @@ static void queued_activate(QObject *sender, const QConnection &c, void **argv, 
                                                                idTo,
                                                                nargs,
                                                                types,
-                                                               args));
+                                                               args,
+                                                               semaphore));
+}
+
+static void blocking_activate(QObject *sender, const QConnection &c, void **argv, int idFrom, int idTo)
+{
+    if (sender->thread() == c.receiver->thread()) {
+        qWarning("Qt: Dead lock detected while activating a BlockingQueuedConnection: "
+                 "Sender is %s(%p), receiver is %s(%p)",
+                 sender->metaObject()->className(), sender,
+                 c.receiver->metaObject()->className(), c.receiver);
+    }
+
+    QSemaphore semaphore;
+    ::queued_activate(sender, c, argv, idFrom, idTo, &semaphore);
+    semaphore.acquire();
 }
 
 /*!\internal
@@ -2913,6 +2933,9 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
                  || c->receiver->d_func()->threadData != sender->d_func()->threadData))
             || (c->type == Qt::QueuedConnection)) {
             ::queued_activate(sender, *c, argv, from_signal_index, to_signal_index);
+            continue;
+        } else if (c->type == Qt::BlockingQueuedConnection) {
+            ::blocking_activate(sender, *c, argv, from_signal_index, to_signal_index);
             continue;
         }
 

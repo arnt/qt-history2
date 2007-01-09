@@ -1185,7 +1185,8 @@ public:
         AutoConnection,
         DirectConnection,
         QueuedConnection,
-        AutoCompatConnection
+        AutoCompatConnection,
+        BlockingQueuedConnection
     };
 
     enum ShortcutContext {

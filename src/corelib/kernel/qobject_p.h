@@ -106,13 +106,14 @@ public:
     QString objectName;
 };
 
+class QSemaphore;
 class Q_CORE_EXPORT QMetaCallEvent : public QEvent
 {
 public:
     QMetaCallEvent(int id, const QObject *sender = 0,
-                   int nargs = 0, int *types = 0, void **args = 0);
+                   int nargs = 0, int *types = 0, void **args = 0, QSemaphore *semaphore = 0);
     QMetaCallEvent(int id, const QObject *sender, int idFrom, int idTo,
-                   int nargs = 0, int *types = 0, void **args = 0);
+                   int nargs = 0, int *types = 0, void **args = 0, QSemaphore *semaphore = 0);
     ~QMetaCallEvent();
 
     inline int id() const { return id_; }
@@ -129,6 +130,7 @@ private:
     int nargs_;
     int *types_;
     void **args_;
+    QSemaphore *semaphore_;
 };
 
 class Q_CORE_EXPORT QBoolBlocker
