@@ -813,11 +813,21 @@ void QTextBrowser::home()
 void QTextBrowser::keyPressEvent(QKeyEvent *ev)
 {
 #ifdef QT_KEYPAD_NAVIGATION
+    Q_D(QTextBrowser);
     switch (ev->key()) {
     case Qt::Key_Select:
-        if (QApplication::keypadNavigationEnabled() && !hasEditFocus()) {
-            setEditFocus(true);
-            return;
+        if (QApplication::keypadNavigationEnabled()) {
+            if (!hasEditFocus()) {
+                setEditFocus(true);
+                return;
+            } else {
+                QTextCursor cursor = d->control->textCursor();
+                QTextCharFormat charFmt = cursor.charFormat();
+                if (!cursor.hasSelection() || charFmt.anchorHref().isEmpty()) {
+                    ev->accept();
+                    return;
+                }
+            }
         }
         break;
     case Qt::Key_Back:
@@ -856,7 +866,6 @@ void QTextBrowser::keyPressEvent(QKeyEvent *ev)
     }
 #ifdef QT_KEYPAD_NAVIGATION
     else {
-        Q_D(QTextBrowser);
         if (ev->key() == Qt::Key_Up) {
             d->keypadMove(false);
             return;
