@@ -1465,60 +1465,24 @@ bool FormWindow::handleMouseButtonDblClickEvent(QWidget *, QWidget *managedWidge
 void FormWindow::finishContextMenu(QWidget *w, QWidget *, QContextMenuEvent *e)
 {
     e->accept();
-
-    QDesignerTaskMenuExtension *taskMenu = qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(), w);
+    
     QMenu *menu = createPopupMenu(w);
-    if (menu && taskMenu) {
+    if (!menu)
+        return;
+    
+    if (const QDesignerTaskMenuExtension *taskMenu = qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(), w)) {
         QList<QAction *> acts = taskMenu->taskActions();
-        if (isPromoted(core(),w)) {
-            QDesignerTaskMenuExtension *baseTaskMenu =
-                qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(),w);
-            if (baseTaskMenu) {
-                // "inherit" proper actions from base class's task menu
-                QList<QAction *> baseActs = baseTaskMenu->taskActions();
-                QList<QAction *>::iterator it;
-                for (it = baseActs.begin(); it != baseActs.end(); ) {
-                    // special case: don't want the "Promote to custom widget" action
-                    if ((*it)->objectName() == QLatin1String("__qt__promoteToCustomWidgetAction")) {
-                        it = baseActs.erase(it);
-                        continue;
-                    }
-                    // inherit the action only if it is not "reimplemented"
-                    // by the promoted widget's task menu
-                    QList<QAction *>::iterator it2;
-                    bool inherit = true;
-                    for (it2 = acts.begin(); it2 != acts.end(); ++it2) {
-                        if ((*it)->text() == (*it2)->text()) {
-                            inherit = false;
-                            break;
-                        }
-                    }
-                    if (inherit)
-                        ++it;
-                    else
-                        it = baseActs.erase(it);
-                }
-                if (!baseActs.isEmpty()) {
-                    // prepend the inherited actions to the action list
-                    QAction *sep = new QAction(menu);
-                    sep->setSeparator(true);
-                    baseActs.append(sep);
-                    for (int i = 0; i < baseActs.size(); ++i)
-                        acts.insert(i, baseActs.at(i));
-                }
-            }
+        if (!acts.empty()) {
+            QAction *sep = new QAction(menu);
+            sep->setSeparator(true);
+            acts.append(sep);
+            menu->insertActions(menu->actions().at(0), acts);
         }
-        QAction *sep = new QAction(menu);
-        sep->setSeparator(true);
-        acts.append(sep);
-        menu->insertActions(menu->actions().at(0), acts);
     }
 
-    if (menu) {
-        emit contextMenuRequested(menu, w);
-        menu->exec(e->globalPos());
-        delete menu;
-    }
+    emit contextMenuRequested(menu, w);
+    menu->exec(e->globalPos());
+    delete menu;
 }
 
 
