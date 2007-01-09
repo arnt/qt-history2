@@ -210,9 +210,15 @@ public:
     inline QPointF mapToItem(const QGraphicsItem *item, qreal x, qreal y) const;
     inline QPointF mapToParent(qreal x, qreal y) const;
     inline QPointF mapToScene(qreal x, qreal y) const;
+    inline QPolygonF mapToItem(const QGraphicsItem *item, qreal x, qreal y, qreal w, qreal h) const;
+    inline QPolygonF mapToParent(qreal x, qreal y, qreal w, qreal h) const;
+    inline QPolygonF mapToScene(qreal x, qreal y, qreal w, qreal h) const;
     inline QPointF mapFromItem(const QGraphicsItem *item, qreal x, qreal y) const;
     inline QPointF mapFromParent(qreal x, qreal y) const;
     inline QPointF mapFromScene(qreal x, qreal y) const;
+    inline QPolygonF mapFromItem(const QGraphicsItem *item, qreal x, qreal y, qreal w, qreal h) const;
+    inline QPolygonF mapFromParent(qreal x, qreal y, qreal w, qreal h) const;
+    inline QPolygonF mapFromScene(qreal x, qreal y, qreal w, qreal h) const;
 
     bool isAncestorOf(const QGraphicsItem *child) const;
 
@@ -305,6 +311,18 @@ inline QPointF QGraphicsItem::mapFromParent(qreal ax, qreal ay) const
 { return mapFromParent(QPointF(ax, ay));  }
 inline QPointF QGraphicsItem::mapFromScene(qreal ax, qreal ay) const
 { return mapFromScene(QPointF(ax, ay));  }
+inline QPolygonF QGraphicsItem::mapToItem(const QGraphicsItem *item, qreal ax, qreal ay, qreal w, qreal h) const
+{ return mapToItem(item, QRectF(ax, ay, w, h)); }
+inline QPolygonF QGraphicsItem::mapToParent(qreal ax, qreal ay, qreal w, qreal h) const
+{ return mapToParent(QRectF(ax, ay, w, h)); }
+inline QPolygonF QGraphicsItem::mapToScene(qreal ax, qreal ay, qreal w, qreal h) const
+{ return mapToScene(QRectF(ax, ay, w, h)); }
+inline QPolygonF QGraphicsItem::mapFromItem(const QGraphicsItem *item, qreal ax, qreal ay, qreal w, qreal h) const
+{ return mapFromItem(item, QRectF(ax, ay, w, h)); }
+inline QPolygonF QGraphicsItem::mapFromParent(qreal ax, qreal ay, qreal w, qreal h) const
+{ return mapFromParent(QRectF(ax, ay, w, h)); }
+inline QPolygonF QGraphicsItem::mapFromScene(qreal ax, qreal ay, qreal w, qreal h) const
+{ return mapFromScene(QRectF(ax, ay, w, h)); }
 
 class QAbstractGraphicsShapeItemPrivate;
 class Q_GUI_EXPORT QAbstractGraphicsShapeItem : public QGraphicsItem
@@ -544,6 +562,7 @@ public:
 
     QPointF offset() const;
     void setOffset(const QPointF &offset);
+    inline void setOffset(qreal x, qreal y);
 
     QRectF boundingRect() const;
     QPainterPath shape() const;
@@ -569,6 +588,9 @@ private:
     Q_DISABLE_COPY(QGraphicsPixmapItem)
     Q_DECLARE_PRIVATE(QGraphicsPixmapItem)
 };
+
+inline void QGraphicsPixmapItem::setOffset(qreal ax, qreal ay)
+{ setOffset(QPointF(ax, ay)); }
 
 class QGraphicsTextItemPrivate;
 class QTextDocument;

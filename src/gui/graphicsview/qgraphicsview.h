@@ -142,6 +142,7 @@ public:
     QList<QGraphicsItem *> items(const QPoint &pos) const;
     inline QList<QGraphicsItem *> items(int x, int y) const;
     QList<QGraphicsItem *> items(const QRect &rect, Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
+    inline QList<QGraphicsItem *> items(int x, int y, int w, int h, Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
     QList<QGraphicsItem *> items(const QPolygon &polygon, Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
     QList<QGraphicsItem *> items(const QPainterPath &path, Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
     QGraphicsItem *itemAt(const QPoint &pos) const;
@@ -229,6 +230,8 @@ inline void QGraphicsView::fitInView(qreal ax, qreal ay, qreal w, qreal h, Qt::A
 { fitInView(QRectF(ax, ay, w, h), mode); }
 inline QList<QGraphicsItem *> QGraphicsView::items(int ax, int ay) const
 { return items(QPoint(ax, ay)); }
+inline QList<QGraphicsItem *> QGraphicsView::items(int ax, int ay, int w, int h, Qt::ItemSelectionMode mode) const
+{ return items(QRect(ax, ay, w, h), mode); }
 inline QGraphicsItem *QGraphicsView::itemAt(int ax, int ay) const
 { return itemAt(QPoint(ax, ay)); }
 inline QPointF QGraphicsView::mapToScene(int ax, int ay) const

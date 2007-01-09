@@ -2173,6 +2173,12 @@ QPolygonF QGraphicsItem::mapToItem(const QGraphicsItem *item, const QRectF &rect
 }
 
 /*!
+    \fn QPolygonF QGraphicsItem::mapToItem(const QGraphicsItem *item, qreal x, qreal y, qreal w, qreal h) const
+
+    This convenience function is equivalent to calling mapToItem(item, QRectF(\a x, \a y, \a w, \a h)).
+*/
+
+/*!
     Maps the rectangle \a rect, which is in this item's coordinate system, to
     its parent's coordinate system, and returns the mapped rectangle as a
     polygon. If the item has no parent, \a rect will be mapped to the scene's
@@ -2187,6 +2193,12 @@ QPolygonF QGraphicsItem::mapToParent(const QRectF &rect) const
 }
 
 /*!
+    \fn QPolygonF QGraphicsItem::mapToParent(qreal x, qreal y, qreal w, qreal h) const
+
+    This convenience function is equivalent to calling mapToParent(QRectF(\a x, \a y, \a w, \a h)).
+*/
+
+/*!
     Maps the rectangle \a rect, which is in this item's coordinate system, to
     the scene's coordinate system, and returns the mapped rectangle as a polygon.
 
@@ -2197,6 +2209,12 @@ QPolygonF QGraphicsItem::mapToScene(const QRectF &rect) const
 {
     return sceneTransform().map(rect);
 }
+
+/*!
+    \fn QPolygonF QGraphicsItem::mapToScene(qreal x, qreal y, qreal w, qreal h) const
+
+    This convenience function is equivalent to calling mapToScene(QRectF(\a x, \a y, \a w, \a h)).
+*/
 
 /*!
     Maps the polygon \a polygon, which is in this item's coordinate system, to
@@ -2358,6 +2376,12 @@ QPolygonF QGraphicsItem::mapFromItem(const QGraphicsItem *item, const QRectF &re
 }
 
 /*!
+    \fn QPolygonF QGraphicsItem::mapFromItem(const QGraphicsItem *item, qreal x, qreal y, qreal w, qreal h) const
+
+    This convenience function is equivalent to calling mapFromItem(item, QRectF(\a x, \a y, \a w, \a h)).
+*/
+
+/*!
     Maps the rectangle \a rect, which is in this item's parent's coordinate
     system, to this item's coordinate system, and returns the mapped rectangle
     as a polygon.
@@ -2371,6 +2395,12 @@ QPolygonF QGraphicsItem::mapFromParent(const QRectF &rect) const
 }
 
 /*!
+    \fn QPolygonF QGraphicsItem::mapFromParent(qreal x, qreal y, qreal w, qreal h) const
+
+    This convenience function is equivalent to calling mapFromItem(QRectF(\a x, \a y, \a w, \a h)).
+*/
+
+/*!
     Maps the rectangle \a rect, which is in this item's scene's coordinate
     system, to this item's coordinate system, and returns the mapped rectangle
     as a polygon.
@@ -2382,6 +2412,12 @@ QPolygonF QGraphicsItem::mapFromScene(const QRectF &rect) const
 {
     return sceneTransform().inverted().map(rect);
 }
+
+/*!
+    \fn QPolygonF QGraphicsItem::mapFromScene(qreal x, qreal y, qreal w, qreal h) const
+
+    This convenience function is equivalent to calling mapFromScene(QRectF(\a x, \a y, \a w, \a h)).
+*/
 
 /*!
     Maps the polygon \a polygon, which is in \a item's coordinate system, to
@@ -4802,6 +4838,12 @@ void QGraphicsPixmapItem::setOffset(const QPointF &offset)
     d->updateShape();
     update();
 }
+
+/*!
+    \fn void QGraphicsPixmapItem::setOffset(qreal x, qreal y)
+
+    This convenience function is equivalent to calling setOffset(QPointF(\a x, \a y)).
+*/
 
 /*!
     \reimp

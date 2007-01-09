@@ -1279,6 +1279,12 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QRectF &rect, Qt::ItemSelecti
 }
 
 /*!
+    \fn QList<QGraphicsItem *> QGraphicsScene::items(qreal x, qreal y, qreal w, qreal h, Qt::ItemSelectionMode mode) const
+
+    This convenience function is equivalent to calling items(QRectF(\a x, \a y, \a w, \a h), \a mode).
+*/
+
+/*!
     \overload
 
     Returns all visible items that, depending on \a mode, are either inside or
@@ -1657,6 +1663,13 @@ QGraphicsEllipseItem *QGraphicsScene::addEllipse(const QRectF &rect, const QPen 
 }
 
 /*!
+    \fn QGraphicsEllipseItem *QGraphicsScene::addEllipse(qreal x, qreal y, qreal w, qreal h, const QPen &pen, const QBrush &brush)
+
+    This convenience function is equivalent to calling addEllipse(QRectF(\a x,
+    \a y, \a w, \a h), \a pen, \a brush).
+*/
+
+/*!
     Creates and adds a line item to the scene, and returns the item
     pointer. The geometry of the line is defined by \a line, and it's pen
     is initialized to \a pen.
@@ -1677,6 +1690,13 @@ QGraphicsLineItem *QGraphicsScene::addLine(const QLineF &line, const QPen &pen)
     addItem(item);
     return item;
 }
+
+/*!
+    \fn QGraphicsLineItem *QGraphicsScene::addLine(qreal x1, qreal y1, qreal x2, qreal y2, const QPen &pen)
+
+    This convenience function is equivalent to calling addLine(QLineF(\a x1,
+    \a y1, \a x2, \a y2), \a pen).
+*/
 
 /*!
     Creates and adds a path item to the scene, and returns the item
@@ -1769,6 +1789,13 @@ QGraphicsRectItem *QGraphicsScene::addRect(const QRectF &rect, const QPen &pen, 
 }
 
 /*!
+    \fn QGraphicsRectItem *QGraphicsScene::addRect(qreal x, qreal y, qreal w, qreal h, const QPen &pen, const QBrush &brush)
+
+    This convenience function is equivalent to calling addRect(QRectF(\a x,
+    \a y, \a w, \a h), \a pen, \a brush).
+*/
+
+/*!
     Creates and adds a text item to the scene, and returns the item
     pointer. The text string is initialized to \a text, and it's font
     is initialized to \a font.
@@ -1784,6 +1811,27 @@ QGraphicsRectItem *QGraphicsScene::addRect(const QRectF &rect, const QPen &pen, 
 QGraphicsTextItem *QGraphicsScene::addText(const QString &text, const QFont &font)
 {
     QGraphicsTextItem *item = new QGraphicsTextItem(text);
+    item->setFont(font);
+    addItem(item);
+    return item;
+}
+
+/*!
+    Creates and adds a QGraphicsSimpleTextItem to the scene, and returns the
+    item pointer. The text string is initialized to \a text, and it's font is
+    initialized to \a font.
+
+    The item's position is initialized to (0, 0).
+
+    If the item is visible (i.e., QGraphicsItem::isVisible() returns true),
+    QGraphicsScene will emit changed() once control goes back to the event
+    loop.
+
+    \sa addEllipse(), addLine(), addPixmap(), addPixmap(), addRect(), addItem()
+*/
+QGraphicsSimpleTextItem *QGraphicsScene::addSimpleText(const QString &text, const QFont &font)
+{
+    QGraphicsSimpleTextItem *item = new QGraphicsSimpleTextItem(text);
     item->setFont(font);
     addItem(item);
     return item;
@@ -2148,6 +2196,13 @@ void QGraphicsScene::update(const QRectF &rect)
 }
 
 /*!
+    \fn void QGraphicsScene::update(qreal x, qreal y, qreal w, qreal h)
+
+    This convenience function is equivalent to calling update(QRectF(\a x, \a
+    y, \a w, \a h));
+*/
+
+/*!
     Invalidates and schedules a redraw of the \a layers in \a rect on the
     scene. Any cached content in \a layers is unconditionally invalidated and
     redrawn.
@@ -2197,6 +2252,13 @@ void QGraphicsScene::invalidate(const QRectF &rect, SceneLayers layers)
         view->invalidateScene(rect, layers);
     update(rect);
 }
+
+/*!
+    \fn void QGraphicsScene::invalidate(qreal x, qreal y, qreal w, qreal h, SceneLayers layers)
+
+    This convenience function is equivalent to calling invalidate(QRectF(\a x, \a
+    y, \a w, \a h), \a layers);
+*/
 
 /*!
     Returns a list of all the views that display this scene.

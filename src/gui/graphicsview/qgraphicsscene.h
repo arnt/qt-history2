@@ -47,6 +47,7 @@ class QGraphicsSceneHelpEvent;
 class QGraphicsSceneHoverEvent;
 class QGraphicsSceneMouseEvent;
 class QGraphicsSceneWheelEvent;
+class QGraphicsSimpleTextItem;
 class QGraphicsTextItem;
 class QHelpEvent;
 class QLineF;
@@ -114,6 +115,9 @@ public:
     QList<QGraphicsItem *> items(const QPainterPath &path, Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
     QList<QGraphicsItem *> collidingItems(const QGraphicsItem *item, Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
     QGraphicsItem *itemAt(const QPointF &pos) const;
+
+    inline QList<QGraphicsItem *> items(qreal x, qreal y, qreal w, qreal h, Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const
+    { return items(QRectF(x, y, w, h), mode); }
     inline QGraphicsItem *itemAt(qreal x, qreal y) const
     { return itemAt(QPointF(x, y)); }
 
@@ -132,8 +136,15 @@ public:
     QGraphicsPolygonItem *addPolygon(const QPolygonF &polygon, const QPen &pen = QPen(), const QBrush &brush = QBrush());
     QGraphicsRectItem *addRect(const QRectF &rect, const QPen &pen = QPen(), const QBrush &brush = QBrush());
     QGraphicsTextItem *addText(const QString &text, const QFont &font = QFont());
+    QGraphicsSimpleTextItem *addSimpleText(const QString &text, const QFont &font = QFont());
+    inline QGraphicsEllipseItem *addEllipse(qreal x, qreal y, qreal w, qreal h, const QPen &pen = QPen(), const QBrush &brush = QBrush())
+    { return addEllipse(QRectF(x, y, w, h), pen, brush); }
+    inline QGraphicsLineItem *addLine(qreal x1, qreal y1, qreal x2, qreal y2, const QPen &pen = QPen())
+    { return addLine(QLineF(x1, y1, x2, y2), pen); }
+    inline QGraphicsRectItem *addRect(qreal x, qreal y, qreal w, qreal h, const QPen &pen = QPen(), const QBrush &brush = QBrush())
+    { return addRect(QRectF(x, y, w, h), pen, brush); }
     void removeItem(QGraphicsItem *item);
-
+    
     QGraphicsItem *focusItem() const;
     void setFocusItem(QGraphicsItem *item, Qt::FocusReason focusReason = Qt::OtherFocusReason);
     bool hasFocus() const;
@@ -151,6 +162,11 @@ public:
     virtual QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
 
     QList <QGraphicsView *> views() const;
+
+    inline void update(qreal x, qreal y, qreal w, qreal h)
+    { update(QRectF(x, y, w, h)); }
+    inline void invalidate(qreal x, qreal y, qreal w, qreal h, SceneLayers layers = AllLayers)
+    { invalidate(QRectF(x, y, w, h), layers); }
 
 public Q_SLOTS:
     void update(const QRectF &rect = QRectF());

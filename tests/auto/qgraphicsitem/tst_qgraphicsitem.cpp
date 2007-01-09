@@ -2838,6 +2838,8 @@ void tst_QGraphicsItem::defaultItemTest_QGraphicsPixmapItem()
     item.setTransformationMode(Qt::SmoothTransformation);
     QCOMPARE(item.transformationMode(), Qt::SmoothTransformation);
 
+    item.setOffset(-15, -15);
+    QCOMPARE(item.offset(), QPointF(-15, -15));
     item.setOffset(QPointF(-10, -10));
     QCOMPARE(item.offset(), QPointF(-10, -10));
 
