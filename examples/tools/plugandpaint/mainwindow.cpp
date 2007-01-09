@@ -11,18 +11,30 @@
 **
 ****************************************************************************/
 
-#include <QtGui>
 
 #include "interfaces.h"
 #include "mainwindow.h"
 #include "paintarea.h"
 #include "plugindialog.h"
 
-MainWindow::MainWindow()
-{
-    paintArea = new PaintArea;
+#include <QPluginLoader>
+#include <QTimer>
 
-    scrollArea = new QScrollArea;
+#include <QScrollArea>
+#include <QMessageBox>
+#include <QActionGroup>
+#include <QAction>
+#include <QMenu>
+#include <QMenuBar>
+#include <QFileDialog>
+#include <QColorDialog>
+#include <QInputDialog>
+#include <QApplication>
+
+MainWindow::MainWindow() :
+    paintArea(new PaintArea),
+    scrollArea(new QScrollArea)
+{
     scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidget(paintArea);
     setCentralWidget(scrollArea);
@@ -41,8 +53,9 @@ MainWindow::MainWindow()
 
 void MainWindow::open()
 {
-    QString fileName = QFileDialog::getOpenFileName(this,
-                                    tr("Open File"), QDir::currentPath());
+    const QString fileName = QFileDialog::getOpenFileName(this,
+                                                          tr("Open File"), 
+                                                          QDir::currentPath());
     if (!fileName.isEmpty()) {
         if (!paintArea->openImage(fileName)) {
             QMessageBox::information(this, tr("Plug & Paint"),
@@ -55,10 +68,10 @@ void MainWindow::open()
 
 bool MainWindow::saveAs()
 {
-    QString initialPath = QDir::currentPath() + "/untitled.png";
+    const QString initialPath = QDir::currentPath() + "/untitled.png";
 
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"),
-                                                    initialPath);
+    const QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"),
+                                                          initialPath);
     if (fileName.isEmpty()) {
         return false;
     } else {
@@ -68,7 +81,7 @@ bool MainWindow::saveAs()
 
 void MainWindow::brushColor()
 {
-    QColor newColor = QColorDialog::getColor(paintArea->brushColor());
+    const QColor newColor = QColorDialog::getColor(paintArea->brushColor());
     if (newColor.isValid())
         paintArea->setBrushColor(newColor);
 }
@@ -76,10 +89,10 @@ void MainWindow::brushColor()
 void MainWindow::brushWidth()
 {
     bool ok;
-    int newWidth = QInputDialog::getInteger(this, tr("Plug & Paint"),
-                                            tr("Select brush width:"),
-                                            paintArea->brushWidth(),
-                                            1, 50, 1, &ok);
+    const int newWidth = QInputDialog::getInteger(this, tr("Plug & Paint"),
+                                                  tr("Select brush width:"),
+                                                  paintArea->brushWidth(),
+                                                  1, 50, 1, &ok);
     if (ok)
         paintArea->setBrushWidth(newWidth);
 }
@@ -88,7 +101,7 @@ void MainWindow::changeBrush()
 {
     QAction *action = qobject_cast<QAction *>(sender());
     BrushInterface *iBrush = qobject_cast<BrushInterface *>(action->parent());
-    QString brush = action->text();
+    const QString brush = action->text();
 
     paintArea->setBrush(iBrush, brush);
 }
@@ -98,7 +111,7 @@ void MainWindow::insertShape()
     QAction *action = qobject_cast<QAction *>(sender());
     ShapeInterface *iShape = qobject_cast<ShapeInterface *>(action->parent());
 
-    QPainterPath path = iShape->generateShape(action->text(), this);
+    const QPainterPath path = iShape->generateShape(action->text(), this);
     if (!path.isEmpty())
         paintArea->insertShape(path);
 }
@@ -109,8 +122,8 @@ void MainWindow::applyFilter()
     FilterInterface *iFilter =
             qobject_cast<FilterInterface *>(action->parent());
 
-    QImage image = iFilter->filterImage(action->text(), paintArea->image(),
-                                        this);
+    const QImage image = iFilter->filterImage(action->text(), paintArea->image(),
+                                              this);
     paintArea->setImage(image);
 }
 

@@ -11,23 +11,25 @@
 **
 ****************************************************************************/
 
-#include <QtGui>
 
 #include "interfaces.h"
 #include "paintarea.h"
 
-PaintArea::PaintArea(QWidget *parent)
-    : QWidget(parent)
+#include <QPainter>
+#include <QMouseEvent>
+
+PaintArea::PaintArea(QWidget *parent) :
+    QWidget(parent),
+    theImage(500, 400, QImage::Format_RGB32),
+    color(Qt::blue),
+    thickness(3),
+    brushInterface(0),
+    lastPos(-1, -1)
 {
     setAttribute(Qt::WA_StaticContents);
     setAttribute(Qt::WA_NoBackground);
 
-    theImage = QImage(500, 400, QImage::Format_RGB32);
     theImage.fill(qRgb(255, 255, 255));
-    color = Qt::blue;
-    thickness = 3;
-    brushInterface = 0;
-    lastPos = QPoint(-1, -1);
 }
 
 bool PaintArea::openImage(const QString &fileName)
@@ -92,7 +94,7 @@ void PaintArea::mousePressEvent(QMouseEvent *event)
             QPainter painter(&theImage);
             setupPainter(painter);
 
-            QRectF boundingRect = pendingPath.boundingRect();
+            const QRectF boundingRect = pendingPath.boundingRect();
             QLinearGradient gradient(boundingRect.topRight(),
                                      boundingRect.bottomLeft());
             gradient.setColorAt(0.0, QColor(color.red(), color.green(),
@@ -110,8 +112,8 @@ void PaintArea::mousePressEvent(QMouseEvent *event)
             if (brushInterface) {
                 QPainter painter(&theImage);
                 setupPainter(painter);
-                QRect rect = brushInterface->mousePress(brush, painter,
-                                                        event->pos());
+                const QRect rect = brushInterface->mousePress(brush, painter,
+                                                              event->pos());
                 update(rect);
             }
 
@@ -126,8 +128,8 @@ void PaintArea::mouseMoveEvent(QMouseEvent *event)
         if (brushInterface) {
             QPainter painter(&theImage);
             setupPainter(painter);
-            QRect rect = brushInterface->mouseMove(brush, painter, lastPos,
-                                                   event->pos());
+            const QRect rect = brushInterface->mouseMove(brush, painter, lastPos,
+                                                         event->pos());
             update(rect);
         }
 

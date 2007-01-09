@@ -11,24 +11,33 @@
 **
 ****************************************************************************/
 
-#include <QtGui>
 
 #include "interfaces.h"
 #include "plugindialog.h"
 
-PluginDialog::PluginDialog(const QString &path, const QStringList &fileNames,
-                           QWidget *parent)
-    : QDialog(parent)
-{
-    label = new QLabel;
+#include <QPluginLoader>
+#include <QStringList>
+#include <QDir>
 
-    treeWidget = new QTreeWidget;
+#include <QLabel>
+#include <QGridLayout>
+#include <QPushButton>
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
+#include <QHeaderView>
+
+PluginDialog::PluginDialog(const QString &path, const QStringList &fileNames,
+                           QWidget *parent) :
+    QDialog(parent),
+    label(new QLabel),
+    treeWidget(new QTreeWidget),
+    okButton(new QPushButton(tr("OK")))    
+{
     treeWidget->setAlternatingRowColors(false);
     treeWidget->setSelectionMode(QAbstractItemView::NoSelection);
     treeWidget->setColumnCount(1);
     treeWidget->header()->hide();
 
-    okButton = new QPushButton(tr("OK"));
     okButton->setDefault(true);
 
     connect(okButton, SIGNAL(clicked()), this, SLOT(close()));
@@ -58,7 +67,7 @@ void PluginDialog::findPlugins(const QString &path,
                       "(looked in %1):")
                    .arg(QDir::toNativeSeparators(path)));
 
-    QDir dir(path);
+    const QDir dir(path);
 
     foreach (QObject *plugin, QPluginLoader::staticInstances())
         populateTreeWidget(plugin, tr("%1 (Static Plugin)")

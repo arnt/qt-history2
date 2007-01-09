@@ -14,8 +14,11 @@
 #ifndef INTERFACES_H
 #define INTERFACES_H
 
+#include <QtPlugin>
+
 class QImage;
 class QPainter;
+class QWidget;
 class QPainterPath;
 class QPoint;
 class QRect;
