@@ -1031,7 +1031,7 @@ void ConnectionEdit::paintConnection(QPainter *p, Connection *con,
     p->setPen(heavy ? m_active_color : m_inactive_color);
     con->paint(p);
 
-    if (source != 0)
+    if (source != 0 && source != m_bg_widget)
         set->insert(source, source);
 
     if (target != 0 && target != m_bg_widget)
@@ -1193,9 +1193,6 @@ void ConnectionEdit::findObjectsUnderMouse(const QPoint &pos)
 {
     Connection *con_under_mouse = connectionAt(pos);
     QWidget *w = con_under_mouse != 0 ? 0 : widgetAt(pos);
-
-    if (state() != Connecting && w == m_bg_widget)
-        w = 0;
 
     if (w != m_widget_under_mouse) {
         if (!m_widget_under_mouse.isNull())
