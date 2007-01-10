@@ -34,6 +34,11 @@ public:
     CanvasGradientData(const QGradient &g)
         : gradient(g) {}
 
+    const QGradient &qgradient() const
+    {
+        return gradient;
+    }
+
     static void setup(QScriptEngine *e);
 
 private: // API
@@ -58,8 +63,8 @@ class Context2D : public QObject
     // compositing
     Q_PROPERTY(qreal globalAlpha READ globalAlpha WRITE setGlobalAlpha)
     Q_PROPERTY(QString globalCompositeOperation READ globalCompositeOperation WRITE setGlobalCompositeOperation)
-    Q_PROPERTY(QString strokeStyle READ strokeStyle WRITE setStrokeStyle)
-    Q_PROPERTY(QString fillStyle READ fillStyle WRITE setFillStyle)
+    Q_PROPERTY(QVariant strokeStyle READ strokeStyle WRITE setStrokeStyle)
+    Q_PROPERTY(QVariant fillStyle READ fillStyle WRITE setFillStyle)
     // line caps/joins
     Q_PROPERTY(qreal lineWidth READ lineWidth WRITE setLineWidth)
     Q_PROPERTY(QString lineCap READ lineCap WRITE setLineCap)
@@ -83,13 +88,13 @@ public:
     // compositing
     qreal globalAlpha() const; // (default 1.0)
     QString globalCompositeOperation() const; // (default over)
-    QString strokeStyle() const; // (default black)
-    QString fillStyle() const; // (default black)
+    QVariant strokeStyle() const; // (default black)
+    QVariant fillStyle() const; // (default black)
 
     void setGlobalAlpha(qreal alpha);
     void setGlobalCompositeOperation(const QString &op);
-    void setStrokeStyle(const QString &style);
-    void setFillStyle(const QString &style);
+    void setStrokeStyle(const QVariant &style);
+    void setFillStyle(const QVariant &style);
 
     // line caps/joins
     qreal lineWidth() const; // (default 1)

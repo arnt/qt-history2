@@ -16,6 +16,7 @@
 #include "qcontext2dcanvas.h"
 
 #include <QVariant>
+#include <QDebug>
 
 #include <math.h>
 static const double Q_PI   = 3.14159265358979323846;   // pi
@@ -214,20 +215,31 @@ void Context2D::setGlobalCompositeOperation(const QString &op)
     m_painter.setCompositionMode(mode);
 }
 
-void Context2D::setStrokeStyle(const QString &style)
+void Context2D::setStrokeStyle(const QVariant &style)
 {
-    QColor clr = colorFromString(style);
     QPen pen = m_painter.pen();
-    pen.setColor(clr);
+    if (qVariantCanConvert<CanvasGradient>(style)) {
+        CanvasGradient cg = qvariant_cast<CanvasGradient>(style);
+        pen.setBrush(cg->qgradient());
+    } else {
+        QColor clr = colorFromString(style.toString());
+        pen.setColor(clr);
+    }
     if (pen.style() == Qt::NoPen)
         pen.setStyle(Qt::SolidLine);
     m_painter.setPen(pen);
 }
 
-void Context2D::setFillStyle(const QString &style)
+void Context2D::setFillStyle(const QVariant &style)
 {
-    QColor clr = colorFromString(style);
-    m_painter.setBrush(clr);
+    //qDebug()<<"variant is "<<style<<qVariantCanConvert<CanvasGradient>(style);
+    if (qVariantCanConvert<CanvasGradient>(style)) {
+        CanvasGradient cg = qvariant_cast<CanvasGradient>(style);
+        m_painter.setBrush(cg->qgradient());
+    } else {
+        QColor clr = colorFromString(style.toString());
+        m_painter.setBrush(clr);
+    }
 }
 
 qreal Context2D::globalAlpha() const
@@ -242,13 +254,13 @@ QString Context2D::globalCompositeOperation() const
 }
 
 
-QString Context2D::strokeStyle() const
+QVariant Context2D::strokeStyle() const
 {
     return m_painter.pen().color().name();
 }
 
 
-QString Context2D::fillStyle() const
+QVariant Context2D::fillStyle() const
 {
     return m_painter.brush().color().name();
 }
@@ -266,7 +278,8 @@ CanvasGradient Context2D::createRadialGradient(qreal x0, qreal y0,
                                                qreal r0, qreal x1,
                                                qreal y1, qreal r1)
 {
-    return CanvasGradient();
+    QRadialGradient g(QPointF(x1, y1), r0+r1, QPointF(x0, y0));
+    return CanvasGradient(new CanvasGradientData(g));
 }
 
 void Context2D::setLineWidth(qreal w)
