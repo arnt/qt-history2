@@ -22,11 +22,11 @@
 #include <qbytearray.h>
 #include <qdebug.h>
 
-class QSvgIconPlugin : public QIconEnginePlugin
+class QSvgIconPlugin : public QIconEnginePluginV2
 {
 public:
     QStringList keys() const;
-    QIconEngine *create(const QString &filename);
+    QIconEngineV2 *create(const QString &filename = QString());
 };
 
 QStringList QSvgIconPlugin::keys() const
@@ -34,10 +34,11 @@ QStringList QSvgIconPlugin::keys() const
     return QStringList() << QLatin1String("svg");
 }
 
-QIconEngine *QSvgIconPlugin::create(const QString &file)
+QIconEngineV2 *QSvgIconPlugin::create(const QString &file)
 {
-    QSvgIconEngine *engine = new QSvgIconEngine();
-    engine->addFile(file, QSize(), QIcon::Normal, QIcon::On);
+    QSvgIconEngine *engine = new QSvgIconEngine;
+    if (!file.isNull())
+        engine->addFile(file, QSize(), QIcon::Normal, QIcon::On);
     return engine;
 }
 

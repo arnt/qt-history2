@@ -23,6 +23,17 @@
 #include "qdebug.h"
 
 
+struct QSvgCacheEntry
+{
+    QSvgCacheEntry()
+        : mode(QIcon::Normal), state(QIcon::Off){}
+    QSvgCacheEntry(const QPixmap &pm, QIcon::Mode m = QIcon::Normal, QIcon::State s = QIcon::Off)
+        : pixmap(pm), mode(m), state(s){}
+    QPixmap pixmap;
+    QIcon::Mode mode;
+    QIcon::State state;
+};
+
 class QSvgIconEnginePrivate : public QSharedData
 {
 public:
@@ -37,7 +48,8 @@ public:
     }
 
     QSvgRenderer *render;
-    QMap<int, QPixmap> svgCache;
+    QHash<int, QSvgCacheEntry> svgCache;
+    QString svgFile;
 };
 static inline int area(const QSize &s) { return s.width() * s.height(); }
 
@@ -50,6 +62,13 @@ QSvgIconEngine::QSvgIconEngine()
     : d(new QSvgIconEnginePrivate)
 {
 
+}
+
+QSvgIconEngine::QSvgIconEngine(const QSvgIconEngine &other)
+    : QIconEngineV2(other), d(new QSvgIconEnginePrivate)
+{
+    d->render->load(other.d->svgFile);
+    d->svgCache = other.d->svgCache;
 }
 
 
@@ -70,7 +89,7 @@ QPixmap QSvgIconEngine::pixmap(const QSize &size, QIcon::Mode mode,
 {
     int index = createKey(size, mode, state);
     if (d->svgCache.contains(index))
-        return d->svgCache[index];
+        return d->svgCache.value(index).pixmap;
     QImage img(size, QImage::Format_ARGB32_Premultiplied);
     img.fill(0x00000000);
     QPainter p(&img);
@@ -83,7 +102,7 @@ QPixmap QSvgIconEngine::pixmap(const QSize &size, QIcon::Mode mode,
     if (!generated.isNull())
         pm = generated;
 
-    d->svgCache.insert(index, pm);
+    d->svgCache.insert(index, QSvgCacheEntry(pm, mode, state));
 
     return pm;
 }
@@ -104,6 +123,7 @@ void QSvgIconEngine::addFile(const QString &fileName, const QSize &,
         QString abs = fileName;
         if (fileName.at(0) != QLatin1Char(':'))
             abs = QFileInfo(fileName).absoluteFilePath();
+        d->svgFile = abs;
         d->render->load(abs);
         //qDebug()<<"loaded "<<abs<<", isOK = "<<d->render->isValid();
     }
@@ -113,4 +133,63 @@ void QSvgIconEngine::paint(QPainter *painter, const QRect &rect,
                            QIcon::Mode mode, QIcon::State state)
 {
     painter->drawPixmap(rect, pixmap(rect.size(), mode, state));
+}
+
+QString QSvgIconEngine::key() const
+{
+    return QLatin1String("svg");
+}
+
+QIconEngineV2 *QSvgIconEngine::clone() const
+{
+    return new QSvgIconEngine(*this);
+}
+
+bool QSvgIconEngine::read(QDataStream &in)
+{
+    QPixmap pixmap;
+    QByteArray data;
+    uint mode;
+    uint state;
+    int num_entries;
+
+    in >> data;
+    if (!data.isEmpty()) {
+        data = qUncompress(data);
+        if (!data.isEmpty())
+            d->render->load(data);
+    }
+    in >> num_entries;
+    for (int i=0; i<num_entries; ++i) {
+        if (in.atEnd()) {
+            d->svgCache.clear();
+            return false;
+        }
+        in >> pixmap;
+        in >> mode;
+        in >> state;
+        addPixmap(pixmap, QIcon::Mode(mode), QIcon::State(state));
+    }
+    return true;
+}
+
+bool QSvgIconEngine::write(QDataStream &out) const
+{
+    if (!d->svgFile.isEmpty()) {
+        QFile file(d->svgFile);
+        if (file.open(QIODevice::ReadOnly))
+            out << qCompress(file.readAll());
+        else
+            out << QByteArray();
+    } else {
+        out << QByteArray();
+    }
+    QList<int> keys = d->svgCache.keys();
+    out << keys.size();
+    for (int i=0; i<keys.size(); ++i) {
+        out << d->svgCache.value(keys.at(i)).pixmap;
+        out << (uint) d->svgCache.value(keys.at(i)).mode;
+        out << (uint) d->svgCache.value(keys.at(i)).state;
+    }
+    return true;
 }

@@ -21,6 +21,8 @@
 
   \ingroup multimedia
 
+  \bold {Use QIconEngineV2 instead.}
+
   An icon engine provides the rendering functions for a QIcon. Each icon has a
   corresponding icon engine that is responsible for drawing the icon with a
   requested size, mode and state.
@@ -34,7 +36,7 @@
   The paint(), pixmap(), and addPixmap() functions are all virtual, and can
   therefore be reimplemented in subclasses of QIconEngine.
 
-  \sa QIconEnginePlugin
+  \sa QIconEngineV2, QIconEnginePlugin
 
 */
 
@@ -99,5 +101,68 @@ void QIconEngine::addPixmap(const QPixmap &/*pixmap*/, QIcon::Mode /*mode*/, QIc
   any extra files.
  */
 void QIconEngine::addFile(const QString &/*fileName*/, const QSize &/*size*/, QIcon::Mode /*mode*/, QIcon::State /*state*/)
+{
+}
+
+
+
+// version 2 functions
+
+
+/*!
+  \class QIconEngineV2
+
+  \brief The QIconEngineV2 class provides an abstract base class for QIcon renderers.
+
+  \ingroup multimedia
+  \since 4.3
+
+  QIconEngineV2 extends the API of QIconEngine to allow streaming of
+  the icon engine contents, and should be used instead of QIconEngine
+  for implementing new icon engines.
+
+  An icon engine provides the rendering functions for a QIcon. Each
+  icon has a corresponding icon engine that is responsible for drawing
+  the icon with a requested size, mode and state.
+
+  \sa QIconEnginePluginV2
+
+*/
+
+/*!
+    Returns a key that identifies this icon engine.
+ */
+QString QIconEngineV2::key() const
+{
+    return QString();
+}
+
+/*!
+    Returns a clone of this icon engine.
+ */
+QIconEngineV2 *QIconEngineV2::clone() const
+{
+    return 0;
+}
+
+/*!
+    Reads icon engine contents from the QDataStream \a in.
+ */
+bool QIconEngineV2::read(QDataStream &)
+{
+    return false;
+}
+
+/*!
+    Writes the contents of this engine to the QDataStream \a out.
+ */
+bool QIconEngineV2::write(QDataStream &) const
+{
+    return false;
+}
+
+/*! \internal
+*/
+void QIconEngineV2::virtual_hook(int, void *)
 {
 }

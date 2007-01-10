@@ -221,7 +221,7 @@
 #endif
 
 enum {
-    DefaultStreamVersion = QDataStream::Qt_4_2
+    DefaultStreamVersion = QDataStream::Qt_4_3
 };
 
 // ### 4.0: when streaming invalid QVariants, just the type should
@@ -502,6 +502,7 @@ void QDataStream::setByteOrder(ByteOrder bo)
     \value Qt_4_0 Version 7 (Qt 4.0, Qt 4.1)
     \value Qt_4_1 Version 7 (Qt 4.0, Qt 4.1)
     \value Qt_4_2 Version 8 (Qt 4.2)
+    \value Qt_4_3 Version 9 (Qt 4.3)
 
     \sa setVersion(), version()
 */
@@ -1134,7 +1135,7 @@ int QDataStream::writeRawData(const char *s, int len)
 
     Skips \a len bytes from the device. Returns the number of bytes
     actually skipped, or -1 on error.
-    
+
     This is equivalent to calling readRawData() on a buffer of length
     \a len and ignoring the buffer.
 

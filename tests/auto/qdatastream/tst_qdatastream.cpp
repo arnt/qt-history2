@@ -1663,6 +1663,9 @@ void tst_QDataStream::writeQIcon(QDataStream *s)
     QPixmap pm(open_xpm);
     QIcon d16(pm);
     *s << d16;
+
+    QIcon svg("gearflowers.svg");
+    *s << svg;
 }
 
 void tst_QDataStream::readQIcon(QDataStream *s)
@@ -1673,6 +1676,24 @@ void tst_QDataStream::readQIcon(QDataStream *s)
     *s >> d16;
     QVERIFY(!d16.isNull() && !icon.isNull());
     QCOMPARE(d16.pixmap(100), pm);
+
+    QIcon svg;
+    *s >> svg;
+    QVERIFY(!svg.isNull());
+
+    QImage image(200, 200, QImage::Format_ARGB32_Premultiplied);
+    image.fill(0);
+    QPainter p(&image);
+    p.drawPixmap(0, 0, svg.pixmap(200, 200));
+    p.end();
+
+    QIcon svg2("gearflowers.svg");
+    QImage image2(200, 200, QImage::Format_ARGB32_Premultiplied);
+    image2.fill(0);
+    p.begin(&image2);
+    p.drawPixmap(0, 0, svg2.pixmap(200, 200));
+    p.end();
+    QCOMPARE(image, image2);
 }
 
 // ************************************
@@ -2904,7 +2925,7 @@ void tst_QDataStream::streamRealDataTypes()
     QPainter painter(&picture);
     renderer.render(&painter);
     painter.end();
-    
+
     // Generate path
     QPainterPath path;
     path.lineTo(10, 0);
@@ -2939,7 +2960,7 @@ void tst_QDataStream::streamRealDataTypes()
             stream << color;
             stream << radialBrush << conicalBrush;
             stream << QPen(QBrush(Qt::red), 1.5);
-            
+
             file.close();
         }
 
@@ -2986,31 +3007,31 @@ void tst_QDataStream::streamRealDataTypes()
             QBuffer bufA, bufB;
             QVERIFY(bufA.open(QIODevice::ReadWrite));
             QVERIFY(bufB.open(QIODevice::ReadWrite));
-    
+
             picture.save(&bufA);
             pict.save(&bufB);
-    
+
             QCOMPARE(pictA, pictB);
         }
         QCOMPARE(textLength, QTextLength(QTextLength::VariableLength, 1.5));
-        QCOMPARE(col, color);    
-        QCOMPARE(rGrad.style(), radialBrush.style());    
-        QCOMPARE(rGrad.matrix(), radialBrush.matrix());    
-        QCOMPARE(rGrad.gradient()->type(), radialBrush.gradient()->type());    
-        QCOMPARE(rGrad.gradient()->stops(), radialBrush.gradient()->stops());    
-        QCOMPARE(rGrad.gradient()->spread(), radialBrush.gradient()->spread());    
+        QCOMPARE(col, color);
+        QCOMPARE(rGrad.style(), radialBrush.style());
+        QCOMPARE(rGrad.matrix(), radialBrush.matrix());
+        QCOMPARE(rGrad.gradient()->type(), radialBrush.gradient()->type());
+        QCOMPARE(rGrad.gradient()->stops(), radialBrush.gradient()->stops());
+        QCOMPARE(rGrad.gradient()->spread(), radialBrush.gradient()->spread());
         QCOMPARE(((QRadialGradient *)rGrad.gradient())->center(), ((QRadialGradient *)radialBrush.gradient())->center());
         QCOMPARE(((QRadialGradient *)rGrad.gradient())->focalPoint(), ((QRadialGradient *)radialBrush.gradient())->focalPoint());
         QCOMPARE(((QRadialGradient *)rGrad.gradient())->radius(), ((QRadialGradient *)radialBrush.gradient())->radius());
-        QCOMPARE(cGrad.style(), conicalBrush.style());    
-        QCOMPARE(cGrad.matrix(), conicalBrush.matrix());    
-        QCOMPARE(cGrad.gradient()->type(), conicalBrush.gradient()->type());    
-        QCOMPARE(cGrad.gradient()->stops(), conicalBrush.gradient()->stops());    
-        QCOMPARE(cGrad.gradient()->spread(), conicalBrush.gradient()->spread());    
+        QCOMPARE(cGrad.style(), conicalBrush.style());
+        QCOMPARE(cGrad.matrix(), conicalBrush.matrix());
+        QCOMPARE(cGrad.gradient()->type(), conicalBrush.gradient()->type());
+        QCOMPARE(cGrad.gradient()->stops(), conicalBrush.gradient()->stops());
+        QCOMPARE(cGrad.gradient()->spread(), conicalBrush.gradient()->spread());
         QCOMPARE(((QConicalGradient *)cGrad.gradient())->center(), ((QConicalGradient *)conicalBrush.gradient())->center());
         QCOMPARE(((QConicalGradient *)cGrad.gradient())->angle(), ((QConicalGradient *)conicalBrush.gradient())->angle());
 
-        QCOMPARE(cGrad, conicalBrush);    
+        QCOMPARE(cGrad, conicalBrush);
         QCOMPARE(pen.widthF(), qreal(1.5));
     }
 }

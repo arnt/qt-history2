@@ -19,22 +19,29 @@
 
 class QSvgIconEnginePrivate;
 
-class QSvgIconEngine : public QIconEngine
+class QSvgIconEngine : public QIconEngineV2
 {
 public:
     QSvgIconEngine();
-    virtual ~QSvgIconEngine();
-    virtual void paint(QPainter *painter, const QRect &rect,
-                       QIcon::Mode mode, QIcon::State state);
-    virtual QSize actualSize(const QSize &size, QIcon::Mode mode,
-                             QIcon::State state);
-    virtual QPixmap pixmap(const QSize &size, QIcon::Mode mode,
-                           QIcon::State state);
+    QSvgIconEngine(const QSvgIconEngine &other);
+    ~QSvgIconEngine();
+    void paint(QPainter *painter, const QRect &rect,
+               QIcon::Mode mode, QIcon::State state);
+    QSize actualSize(const QSize &size, QIcon::Mode mode,
+                     QIcon::State state);
+    QPixmap pixmap(const QSize &size, QIcon::Mode mode,
+                   QIcon::State state);
 
-    virtual void addPixmap(const QPixmap &pixmap, QIcon::Mode mode,
-                           QIcon::State state);
-    virtual void addFile(const QString &fileName, const QSize &size,
-                         QIcon::Mode mode, QIcon::State state);
+    void addPixmap(const QPixmap &pixmap, QIcon::Mode mode,
+                   QIcon::State state);
+    void addFile(const QString &fileName, const QSize &size,
+                 QIcon::Mode mode, QIcon::State state);
+
+    QString key() const;
+    QIconEngineV2 *clone() const;
+    bool read(QDataStream &in);
+    bool write(QDataStream &out) const;
+
 private:
     QSharedDataPointer<QSvgIconEnginePrivate> d;
 };

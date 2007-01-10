@@ -28,6 +28,8 @@ private slots:
     void actualSize2();
     void isNull();
     void bestMatch();
+    void cacheKey();
+    void detach();
 };
 
 tst_QIcon::tst_QIcon()
@@ -258,6 +260,35 @@ void tst_QIcon::bestMatch()
             }
         }
     }
+}
+
+void tst_QIcon::cacheKey()
+{
+    QIcon icon1("image.png");
+    qint64 icon1_key = icon1.cacheKey();
+    QIcon icon2 = icon1;
+
+    QVERIFY(icon2.cacheKey() == icon1.cacheKey());
+    icon2.detach();
+    QVERIFY(icon2.cacheKey() != icon1.cacheKey());
+    QVERIFY(icon1.cacheKey() == icon1_key);
+}
+
+void tst_QIcon::detach()
+{
+    QImage img(32, 32, QImage::Format_ARGB32_Premultiplied);
+    img.fill(0xffff0000);
+    QIcon icon1(QPixmap::fromImage(img));
+    QIcon icon2 = icon1;
+    icon2.addFile("image.png", QSize(64, 64));
+
+    QImage img1 = icon1.pixmap(64, 64).toImage();
+    QImage img2 = icon2.pixmap(64, 64).toImage();
+    QVERIFY(img1 != img2);
+
+    img1 = icon1.pixmap(32, 32).toImage();
+    img2 = icon2.pixmap(32, 32).toImage();
+    QVERIFY(img1 == img2);
 }
 
 QTEST_MAIN(tst_QIcon)

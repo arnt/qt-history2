@@ -64,12 +64,13 @@ static int serialNumCounter = 0;
 class QIconPrivate
 {
 public:
-    QIconPrivate():ref(1),engine(0),serialNum(++serialNumCounter), detach_no(0) {}
+    QIconPrivate():ref(1),engine(0),serialNum(++serialNumCounter), detach_no(0), engine_version(2) {}
     ~QIconPrivate() { delete engine; }
     QAtomic ref;
     QIconEngine *engine;
     int serialNum;
     int detach_no;
+    int engine_version;
 };
 
 
@@ -88,9 +89,10 @@ struct QPixmapIconEngineEntry
     bool isNull() const {return (fileName.isEmpty() && pixmap.isNull()); }
 };
 
-class QPixmapIconEngine : public QIconEngine {
+class QPixmapIconEngine : public QIconEngineV2 {
 public:
     QPixmapIconEngine();
+    QPixmapIconEngine(const QPixmapIconEngine &);
     ~QPixmapIconEngine();
     void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state);
     QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state);
@@ -98,6 +100,13 @@ public:
     QSize actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state);
     void addPixmap(const QPixmap &pixmap, QIcon::Mode mode, QIcon::State state);
     void addFile(const QString &fileName, const QSize &size, QIcon::Mode mode, QIcon::State state);
+
+    // v2 functions
+    QString key() const;
+    QIconEngineV2 *clone() const;
+    bool read(QDataStream &in);
+    bool write(QDataStream &out) const;
+
 private:
     QPixmapIconEngineEntry *tryMatch(const QSize &size, QIcon::Mode mode, QIcon::State state);
     QVector<QPixmapIconEngineEntry> pixmaps;
@@ -106,6 +115,11 @@ private:
 };
 
 QPixmapIconEngine::QPixmapIconEngine()
+{
+}
+
+QPixmapIconEngine::QPixmapIconEngine(const QPixmapIconEngine &other)
+    : QIconEngineV2(other), pixmaps(other.pixmaps)
 {
 }
 
@@ -289,11 +303,66 @@ void QPixmapIconEngine::addFile(const QString &fileName, const QSize &size, QIco
     }
 }
 
+QString QPixmapIconEngine::key() const
+{
+    return QLatin1String("QPixmapIconEngine");
+}
 
+QIconEngineV2 *QPixmapIconEngine::clone() const
+{
+    return new QPixmapIconEngine(*this);
+}
+
+bool QPixmapIconEngine::read(QDataStream &in)
+{
+    int num_entries;
+    QPixmap pm;
+    QString fileName;
+    QSize sz;
+    uint mode;
+    uint state;
+
+    in >> num_entries;
+    for (int i=0; i < num_entries; ++i) {
+        if (in.atEnd()) {
+            pixmaps.clear();
+            return false;
+        }
+        in >> pm;
+        in >> fileName;
+        in >> sz;
+        in >> mode;
+        in >> state;
+        if (pm.isNull())
+            addFile(fileName, sz, QIcon::Mode(mode), QIcon::State(state));
+        else
+            addPixmap(pm, QIcon::Mode(mode), QIcon::State(state));
+    }
+    return true;
+}
+
+bool QPixmapIconEngine::write(QDataStream &out) const
+{
+    int num_entries = pixmaps.size();
+    out << num_entries;
+    for (int i=0; i < num_entries; ++i) {
+        if (pixmaps.at(i).pixmap.isNull())
+            out << QPixmap(pixmaps.at(i).fileName);
+        else
+            out << pixmaps.at(i).pixmap;
+        out << pixmaps.at(i).fileName;
+        out << pixmaps.at(i).size;
+        out << (uint) pixmaps.at(i).mode;
+        out << (uint) pixmaps.at(i).state;
+    }
+    return true;
+}
 
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QIconEngineFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/iconengines"), Qt::CaseInsensitive))
+Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loaderV2,
+    (QIconEngineFactoryInterfaceV2_iid, QCoreApplication::libraryPaths(), QLatin1String("/iconengines"), Qt::CaseInsensitive))
 #endif
 
 
@@ -421,13 +490,25 @@ QIcon::QIcon(const QString &fileName)
     QFileInfo info(fileName);
     QString suffix = info.suffix();
 #ifndef QT_NO_LIBRARY
-    if (!suffix.isEmpty())
-        if (QIconEngineFactoryInterface *factory = qobject_cast<QIconEngineFactoryInterface*>(loader()->instance(suffix)))
+    if (!suffix.isEmpty()) {
+        // first try version 2 engines..
+        if (QIconEngineFactoryInterfaceV2 *factory = qobject_cast<QIconEngineFactoryInterfaceV2*>(loaderV2()->instance(suffix))) {
             if (QIconEngine *engine = factory->create(fileName)) {
                 d = new QIconPrivate;
                 d->engine = engine;
                 return;
             }
+        }
+        // ..then fall back and try to load version 1 engines
+        if (QIconEngineFactoryInterface *factory = qobject_cast<QIconEngineFactoryInterface*>(loader()->instance(suffix))) {
+            if (QIconEngine *engine = factory->create(fileName)) {
+                d = new QIconPrivate;
+                d->engine = engine;
+                d->engine_version = 1;
+                return;
+            }
+        }
+    }
 #endif
     addFile(fileName);
 }
@@ -440,8 +521,21 @@ QIcon::QIcon(const QString &fileName)
 QIcon::QIcon(QIconEngine *engine)
     :d(new QIconPrivate)
 {
+    d->engine_version = 1;
     d->engine = engine;
 }
+
+/*!
+    Creates an icon with a specific icon \a engine. The icon takes
+    ownership of the engine.
+*/
+QIcon::QIcon(QIconEngineV2 *engine)
+    :d(new QIconPrivate)
+{
+    d->engine_version = 2;
+    d->engine = engine;
+}
+
 
 /*!
     Destroys the icon.
@@ -601,6 +695,27 @@ bool QIcon::isDetached() const
     return !d || d->ref == 1;
 }
 
+/*! \internal
+ */
+void QIcon::detach()
+{
+    if (d) {
+        if (d->ref != 1) {
+            QIconPrivate *x = new QIconPrivate;
+            if (d->engine_version > 1) {
+                QIconEngineV2 *engine = static_cast<QIconEngineV2 *>(d->engine);
+                x->engine = engine->clone();
+            } else {
+                x->engine = d->engine;
+            }
+            x->engine_version = d->engine_version;
+            x = qAtomicSetPtr(&d, x);
+            if (!x->ref.deref())
+                delete x;
+        }
+        ++d->detach_no;
+    }
+}
 
 /*!
     Adds \a pixmap to the icon, as a specialization for \a mode and
@@ -618,9 +733,10 @@ void QIcon::addPixmap(const QPixmap &pixmap, Mode mode, State state)
     if (!d) {
         d = new QIconPrivate;
         d->engine = new QPixmapIconEngine;
+    } else {
+        detach();
     }
     d->engine->addPixmap(pixmap, mode, state);
-    ++d->detach_no;
 }
 
 
@@ -652,9 +768,10 @@ void QIcon::addFile(const QString &fileName, const QSize &size, Mode mode, State
     if (!d) {
         d = new QIconPrivate;
         d->engine = new QPixmapIconEngine;
+    } else {
+        detach();
     }
     d->engine->addFile(fileName, size, mode, state);
-    ++d->detach_no;
 }
 
 /*****************************************************************************
@@ -674,7 +791,20 @@ void QIcon::addFile(const QString &fileName, const QSize &size, Mode mode, State
 
 QDataStream &operator<<(QDataStream &s, const QIcon &icon)
 {
-    if (s.version() >= QDataStream::Qt_4_2) {
+    if (s.version() >= QDataStream::Qt_4_3) {
+        if (icon.isNull()) {
+            s << QString();
+        } else {
+            if (icon.d->engine_version > 1) {
+                QIconEngineV2 *engine = static_cast<QIconEngineV2 *>(icon.d->engine);
+                s << engine->key();
+                engine->write(s);
+            } else {
+                // not really supported
+                qWarning("QIcon: Cannot stream QIconEngine. Use QIconEngineV2 instead.");
+            }
+        }
+    } else if (s.version() == QDataStream::Qt_4_2) {
         if (icon.isNull()) {
             s << 0;
         } else {
@@ -706,7 +836,23 @@ QDataStream &operator<<(QDataStream &s, const QIcon &icon)
 
 QDataStream &operator>>(QDataStream &s, QIcon &icon)
 {
-    if (s.version() >= QDataStream::Qt_4_2) {
+    if (s.version() >= QDataStream::Qt_4_3) {
+        icon = QIcon();
+        QString key;
+        s >> key;
+        if (key == QLatin1String("QPixmapIconEngine")) {
+            icon.d = new QIconPrivate;
+            QIconEngineV2 *engine = new QPixmapIconEngine;
+            icon.d->engine = engine;
+            engine->read(s);
+        } else if (QIconEngineFactoryInterfaceV2 *factory = qobject_cast<QIconEngineFactoryInterfaceV2*>(loaderV2()->instance(key))) {
+            if (QIconEngineV2 *engine= factory->create()) {
+                icon.d = new QIconPrivate;
+                icon.d->engine = engine;
+                engine->read(s);
+            }
+        }
+    } else if (s.version() == QDataStream::Qt_4_2) {
         icon = QIcon();
         int num_entries;
         QPixmap pm;

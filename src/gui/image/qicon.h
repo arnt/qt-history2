@@ -24,6 +24,7 @@ QT_MODULE(Gui)
 
 class QIconPrivate;
 class QIconEngine;
+class QIconEngineV2;
 
 class Q_GUI_EXPORT QIcon
 {
@@ -36,6 +37,7 @@ public:
     QIcon(const QIcon &other);
     explicit QIcon(const QString &fileName); // file or resource name
     explicit QIcon(QIconEngine *engine);
+    explicit QIcon(QIconEngineV2 *engine);
     ~QIcon();
     QIcon &operator=(const QIcon &other);
     operator QVariant() const;
@@ -54,6 +56,7 @@ public:
 
     bool isNull() const;
     bool isDetached() const;
+    void detach();
 
     int serialNumber() const;
     qint64 cacheKey() const;
@@ -81,6 +84,7 @@ private:
     QIconPrivate *d;
 #if !defined(QT_NO_DATASTREAM)
     friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QIcon &);
+    friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QIcon &);
 #endif
 };
 
