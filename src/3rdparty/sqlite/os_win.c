@@ -16,6 +16,8 @@
 #include "os.h"
 #if OS_WIN               /* This file is used for windows only */
 
+#include <QtCore/qconfig.h>
+
 #include <winbase.h>
 
 #ifdef __CYGWIN__
@@ -25,7 +27,7 @@
 /*
 ** Macros used to determine whether or not to use threads.
 */
-#if defined(THREADSAFE) && THREADSAFE
+#ifndef QT_NO_THREAD
 # define SQLITE_W32_THREADS 1
 #endif
 
