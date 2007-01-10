@@ -20,6 +20,7 @@ class MyScriptable : public QObject, protected QScriptable
 {
     Q_OBJECT
     Q_PROPERTY(int baz READ baz WRITE setBaz)
+    Q_PROPERTY(QObject* zab READ zab WRITE setZab)
 public:
     MyScriptable(QObject *parent = 0)
         : QObject(parent), m_lastEngine(0)
@@ -38,6 +39,8 @@ public slots:
     void evalIsBar();
     bool useInAnotherEngine();
     void setOtherEngine();
+    QObject *zab();
+    QObject *setZab(QObject *);
 
 private:
     QScriptEngine *m_lastEngine;
@@ -58,6 +61,16 @@ int MyScriptable::baz()
 void MyScriptable::setBaz(int)
 {
     m_lastEngine = engine();
+}
+
+QObject *MyScriptable::zab()
+{
+    return thisObject().toQObject();
+}
+
+QObject *MyScriptable::setZab(QObject *)
+{
+    return thisObject().toQObject();
 }
 
 void MyScriptable::foo()
@@ -198,6 +211,20 @@ void tst_QScriptable::thisObject()
         QScriptValue ret = m_engine.evaluate("o.toString = function() { return 'foo@bar'; }; o.isBar()");
         QCOMPARE(ret.toBoolean(), true);
     }
+
+    // property getter
+    {
+        QScriptValue ret = m_engine.evaluate("scriptable.zab");
+        QCOMPARE(ret.isQObject(), true);
+        QCOMPARE(ret.toQObject(), &m_scriptable);
+    }
+    // property setter
+    {
+        QScriptValue ret = m_engine.evaluate("scriptable.setZab(0)");
+        QCOMPARE(ret.isQObject(), true);
+        QCOMPARE(ret.toQObject(), &m_scriptable);
+    }
+
     m_engine.evaluate("delete o");
 }
 

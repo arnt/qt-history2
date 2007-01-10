@@ -211,13 +211,21 @@ public:
             QScriptEngine *oldEngine;
             if (scriptable) {
                 oldEngine = QScriptablePrivate::get(scriptable)->engine;
+                QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
+                QScriptContext *ctx = eng_p->pushContext();
+                ctx->setThisObject(obj);
+                // ### activation
+                ctx->setActivationObject(ctx->parentContext()->activationObject());
                 QScriptablePrivate::get(scriptable)->engine = eng;
             }
 
             QVariant v = prop.read(qobject);
 
-            if (scriptable)
+            if (scriptable) {
+                QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
+                eng_p->popContext();
                 QScriptablePrivate::get(scriptable)->engine = oldEngine;
+            }
 
             *result = valueFromVariant(eng, v);
         }   break;
@@ -288,13 +296,21 @@ public:
             QScriptEngine *oldEngine;
             if (scriptable) {
                 oldEngine = QScriptablePrivate::get(scriptable)->engine;
+                QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
+                QScriptContext *ctx = eng_p->pushContext();
+                ctx->setThisObject(*object);
+                // ### activation
+                ctx->setActivationObject(ctx->parentContext()->activationObject());
                 QScriptablePrivate::get(scriptable)->engine = eng;
             }
 
             bool ok = prop.write(qobject, v);
 
-            if (scriptable)
+            if (scriptable) {
+                QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
+                eng_p->popContext();
                 QScriptablePrivate::get(scriptable)->engine = oldEngine;
+            }
 
             return ok;
         }
