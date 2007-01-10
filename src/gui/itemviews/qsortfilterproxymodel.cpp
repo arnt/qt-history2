@@ -582,6 +582,11 @@ void QSortFilterProxyModelPrivate::source_items_inserted(
                 // Don't care, since we don't have mapping for the grand parent
                 return;
             }
+            Mapping *gm = it.value();
+            if (gm->proxy_rows.at(source_parent.row()) == -1) {
+                // Don't care, since parent is filtered
+                return;
+            }
         }
         it = create_mapping(source_parent);
         Mapping *m = it.value();

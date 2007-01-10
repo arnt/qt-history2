@@ -88,6 +88,7 @@ private slots:
     void match();
     void insertIntoChildrenlessItem();
     void invalidateMappedChildren();
+    void insertRowIntoFilteredParent();
 #endif // QT_VERSION
 
 protected:
@@ -2144,6 +2145,37 @@ void tst_QSortFilterProxyModel::invalidateMappedChildren()
     QCOMPARE(proxy.rowCount(proxy.mapFromSource(itemA->index())), 1);
     QCOMPARE(proxy.rowCount(proxy.mapFromSource(itemB->index())), 1);
     QCOMPARE(proxy.rowCount(proxy.mapFromSource(itemC->index())), 1);
+}
+
+class EvenOddFilterModel : public QSortFilterProxyModel
+{
+public:
+    virtual bool filterAcceptsRow(int srcRow, const QModelIndex& srcParent) const
+    {
+        if (srcParent.isValid())
+            return (srcParent.row() % 2) ^ !(srcRow % 2);
+        return (srcRow % 2);
+    }
+};
+
+void tst_QSortFilterProxyModel::insertRowIntoFilteredParent()
+{
+    QStandardItemModel model;
+    EvenOddFilterModel proxy;
+    proxy.setSourceModel(&model);
+
+    QSignalSpy spy(&proxy, SIGNAL(rowsInserted(const QModelIndex&, int, int)));
+
+    QStandardItem *itemA = new QStandardItem();
+    model.appendRow(itemA); // A will be filtered
+    QStandardItem *itemB = new QStandardItem();
+    itemA->appendRow(itemB);
+
+    QCOMPARE(spy.count(), 0);
+
+    itemA->removeRow(0);
+
+    QCOMPARE(spy.count(), 0);
 }
 
 #endif // QT_VERSION
