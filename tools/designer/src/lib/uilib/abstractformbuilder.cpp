@@ -1726,6 +1726,13 @@ bool QAbstractFormBuilder::toBool(const QString &str)
 }
 
 /*!
+   \internal 
+   \typedef QAbstractFormBuilder::DomPropertyHash
+   \typedef QAbstractFormBuilder::IconPaths
+*/
+
+
+/*!
     \internal
 */
 QAbstractFormBuilder::DomPropertyHash QAbstractFormBuilder::propertyMap(const QList<DomProperty*> &properties)
