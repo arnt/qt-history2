@@ -35,7 +35,7 @@ class Q_GUI_EXPORT QGraphicsView : public QAbstractScrollArea
 {
     Q_OBJECT
     Q_FLAGS(QPainter::RenderHints CacheMode)
-    Q_ENUMS(ViewportAnchor DragMode)
+    Q_ENUMS(ViewportAnchor DragMode ViewportUpdateMode)
     Q_PROPERTY(QBrush backgroundBrush READ backgroundBrush WRITE setBackgroundBrush)
     Q_PROPERTY(QBrush foregroundBrush READ foregroundBrush WRITE setForegroundBrush)
     Q_PROPERTY(bool interactive READ isInteractive WRITE setInteractive)
