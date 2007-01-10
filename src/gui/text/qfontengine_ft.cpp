@@ -430,6 +430,11 @@ bool QFontEngineFT::init(FaceId faceId, bool antialias)
         return false;
     }
     symbol = freetype->symbol_map != 0;
+    PS_FontInfoRec psrec;
+    // don't assume that type1 fonts are symbol fonts by default
+    if (FT_Get_PS_Font_Info(freetype->face, &psrec) == FT_Err_Ok) {
+        symbol = bool(fontDef.family.contains("symbol", Qt::CaseInsensitive));
+    }
 
     lbearing = rbearing = SHRT_MIN;
     freetype->computeSize(fontDef, &xsize, &ysize, &outline_drawing);
