@@ -186,16 +186,15 @@ private:
     QString m_generatedClass;
 
     QString m_delayedInitialization;
-    QTextStream delayedOut;
+    QTextStream m_delayedOut;
 
     QString m_refreshInitialization;
-    QTextStream refreshOut;
+    QTextStream m_refreshOut;
 
     QString m_delayedActionInitialization;
-    QTextStream actionOut;
+    QTextStream m_actionOut;
 
-    QString m_delayedResize;
-    QTextStream resizeOut;
+    QString m_delayedTopLevelResize;
 };
 
 } // namespace CPP
