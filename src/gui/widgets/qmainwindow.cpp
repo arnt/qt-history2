@@ -97,11 +97,14 @@ void QMainWindowPrivate::init()
 
 /*!
     \class QMainWindow
-    \brief The QMainWindow class implements a main application
-    window.
-
+    \brief The QMainWindow class provides a main application
+	   window.
     \ingroup application
     \mainclass
+
+    \tableofcontents
+    
+    \section1 Qt Main Window Framework
 
     A main window provides a framework for building an
     application's user interface. Qt has QMainWindow and its \l{Main
@@ -111,11 +114,9 @@ void QMainWindowPrivate::init()
     has a center area that can be occupied by any kind of widget. You
     can see an image of the layout below.
     
-    (bilde av komponenter main-window related classes/framework. layout)
-    
-    \tableofcontents
-    
-    \section1 Creating MainWindow Components
+    \image mainwindowlayout.png 
+ 
+    \section1 Creating Main Window Components
     
     A central widget will typically be a standard Qt widget such
     as a QTextEdit or a QGraphicsView. Custom widgets can also be
@@ -167,7 +168,7 @@ void QMainWindowPrivate::init()
     a toolbar break--think of this as a line break in text
     editing--with \c addToolBarBreak() or \c insertToolBarBreak(). You
     can also restrict placement by the user with
-    QToolBar::setAllowedAreas() and QToolbar::setMovable(). 
+    QToolBar::setAllowedAreas() and QToolBar::setMovable(). 
     
     The size of toolbar icons can be retrieved with \c iconSize().
     The sizes are platform dependent; you can set a fixed size with \c
@@ -196,8 +197,8 @@ void QMainWindowPrivate::init()
     direction.
     
     Two dock widgets may also be stacked on top of each other. A
-    \l{QTabBar}{tab bar} is then used to select which widget that
-    should be displayed.
+    QTabBar is then used to select which widget that should be
+    displayed.
     
     We give an example of how to create and add dock widgets to a
     main window:
