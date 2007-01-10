@@ -526,6 +526,8 @@ QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
     QVarLengthArray<int> iAttributes(40);
     QVarLengthArray<int> iValues(40);
     int i = 0;
+    bool has_sample_buffers = QGLExtensions::glExtensions & QGLExtensions::SampleBuffers;
+
     iAttributes[i++] = WGL_DOUBLE_BUFFER_ARB; // 0
     iAttributes[i++] = WGL_DEPTH_BITS_ARB; // 1
     iAttributes[i++] = WGL_PIXEL_TYPE_ARB; // 2
@@ -537,9 +539,11 @@ QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
     iAttributes[i++] = WGL_STENCIL_BITS_ARB; // 8
     iAttributes[i++] = WGL_STEREO_ARB; // 9
     iAttributes[i++] = WGL_ACCELERATION_ARB; // 10
-    iAttributes[i++] = WGL_SAMPLE_BUFFERS_ARB; // 11
-    iAttributes[i++] = WGL_SAMPLES_ARB; // 12
-    iAttributes[i++] = WGL_NUMBER_OVERLAYS_ARB; // 13
+    iAttributes[i++] = WGL_NUMBER_OVERLAYS_ARB; // 11
+    if (has_sample_buffers) {
+        iAttributes[i++] = WGL_SAMPLE_BUFFERS_ARB; // 12
+        iAttributes[i++] = WGL_SAMPLES_ARB; // 13
+    }
     PFNWGLGETPIXELFORMATATTRIBIVARB wglGetPixelFormatAttribivARB =
         (PFNWGLGETPIXELFORMATATTRIBIVARB) wglGetProcAddress("wglGetPixelFormatAttribivARB");
 
@@ -570,10 +574,12 @@ QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
             fmt.setDirectRendering(true);
         else
             fmt.setDirectRendering(false);
-        fmt.setSampleBuffers(iValues[11]);
-        if (fmt.sampleBuffers())
-            fmt.setSamples(iValues[12]);
-        fmt.setOverlay(iValues[13]);
+        fmt.setOverlay(iValues[11]);
+        if (has_sample_buffers) {
+            fmt.setSampleBuffers(iValues[12]);
+            if (fmt.sampleBuffers())
+                fmt.setSamples(iValues[13]);
+        }
     }
 #if 0
     qDebug() << "values for pfi:" << pfi;
@@ -588,9 +594,9 @@ QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
     qDebug() << "stencil size  8:" << fmt.stencilBufferSize();
     qDebug() << "stereo        9:" << fmt.stereo();
     qDebug() << "direct       10:" << fmt.directRendering();
-    qDebug() << "sample buff  11:" << fmt.sampleBuffers();
-    qDebug() << "num samples  12:" << fmt.samples();
-    qDebug() << "has overlays 13:" << fmt.hasOverlay();
+    qDebug() << "has overlays 11:" << fmt.hasOverlay();
+    qDebug() << "sample buff  12:" << fmt.sampleBuffers();
+    qDebug() << "num samples  13:" << fmt.samples();
 #endif
     return fmt;
 }
@@ -1235,7 +1241,7 @@ void QGLWidgetPrivate::init(QGLContext *ctx, const QGLWidget* shareWidget)
     Q_Q(QGLWidget);
     olcx = 0;
     initContext(ctx, shareWidget);
-    
+
     if (q->isValid() && q->context()->format().hasOverlay()) {
         olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), q);
         if (!olcx->create(shareWidget ? shareWidget->overlayContext() : 0)) {
