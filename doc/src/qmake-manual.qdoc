@@ -4037,7 +4037,7 @@
     \target Application
     \section1 Building an Application
 
-    \section2 The \c app Template
+    \section2 The app Template
 
     The \c app template tells \c qmake to generate a Makefile that will build
     an application. With this template, the type of application can be specified
@@ -4098,7 +4098,7 @@
     \target Library
     \section1 Building a Library
 
-    \section2 The \c lib Template
+    \section2 The lib Template
 
     The \c lib template tells \c qmake to generate a Makefile that will
     build a library.  When using this template, in addition to the system variables
@@ -4123,7 +4123,7 @@
     \target Plugin
     \section1 Building a Plugin
 
-    \section2 The \c plugin Template
+    \section2 The plugin Template
 
     The \c plugin template tells \c qmake to generate a Makefile that will
     build a plugin, usually in the form of a library. As with the \c lib template,
