@@ -129,6 +129,7 @@ private slots:
     void span();
 
     void checkHeaderReset();
+    void checkHeaderMinSize();
 
     void tabFocus();
 };
@@ -2481,6 +2482,27 @@ void tst_QTableView::checkHeaderReset()
     m.columns = 4;
     m.res();
     QCOMPARE(view.horizontalHeader()->count(), 4);
+}
+
+void tst_QTableView::checkHeaderMinSize()
+{
+    //tests if the minimumsize is of a header is taken into account
+    //while computing QTableView geometry. For that we test the position of the
+    //viewport.
+    QTableView view;
+    QStringListModel m;
+    m.setStringList( QStringList() << QLatin1String("one cell is enough"));
+    view.setModel(&m);
+
+    //setting the minimum height on the horizontal header
+    //and the minimum width on the vertical header
+    view.horizontalHeader()->setMinimumHeight(50);
+    view.verticalHeader()->setMinimumWidth(100);
+
+    view.show();
+
+    QVERIFY( view.verticalHeader()->y() >= view.horizontalHeader()->minimumHeight());
+    QVERIFY( view.horizontalHeader()->x() >= view.verticalHeader()->minimumWidth());
 }
 
 void tst_QTableView::tabFocus()

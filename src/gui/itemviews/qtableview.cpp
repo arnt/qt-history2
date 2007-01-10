@@ -1264,8 +1264,16 @@ void QTableView::updateGeometries()
 {
     Q_D(QTableView);
 
-    int width = !d->verticalHeader->isHidden() ? d->verticalHeader->sizeHint().width() : 0;
-    int height = !d->horizontalHeader->isHidden() ? d->horizontalHeader->sizeHint().height() : 0;
+    int width = 0;
+    if (!d->verticalHeader->isHidden()) {
+        width = qMax(d->verticalHeader->minimumWidth(), d->verticalHeader->sizeHint().width());
+        width = qMin(width, d->verticalHeader->maximumWidth());
+    }
+    int height = 0;
+    if (!d->horizontalHeader->isHidden()) {
+        height = qMax(d->horizontalHeader->minimumHeight(), d->horizontalHeader->sizeHint().height());
+        height = qMin(height, d->horizontalHeader->maximumHeight());
+    }
     bool reverse = isRightToLeft();
     setViewportMargins(reverse ? 0 : width, height, reverse ? width : 0, 0);
 
