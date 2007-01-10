@@ -190,8 +190,8 @@ void QLineEdit::initStyleOption(QStyleOptionFrame *option) const
     This signal is emitted whenever the text changes. The \a text
     argument is the new text.
 
-    Unlike textEdited(), this signal is also emitted when
-    programmatically setting the text via setText().
+    Unlike textEdited(), this signal is also emitted when the text is
+    changed programmatically, for example, by calling setText().
 */
 
 /*!
@@ -200,8 +200,8 @@ void QLineEdit::initStyleOption(QStyleOptionFrame *option) const
     This signal is emitted whenever the text is edited. The \a text
     argument is the next text.
 
-    Unlike textChanged(), this signal is \e not emitted when
-    programmatically setting the text via setText().
+    Unlike textChanged(), this signal is not emitted when the text is
+    changed programmatically, for example, by calling setText().
 */
 
 /*!
