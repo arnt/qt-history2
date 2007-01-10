@@ -540,7 +540,7 @@ end:
 }
 
 #else
-void QFontEngine::doKerning(int num_glyphs, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const
+void QFontEngine::doKerning(int, QGlyphLayout *, QTextEngine::ShaperFlags) const
 {
 }
 #endif
