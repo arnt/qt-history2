@@ -118,7 +118,7 @@ int tst_Suite::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
             QTest::addColumn<QString>("actual");
             if (count > 0) {
                 for (int i = 0; i < count; ++i) {
-                    QScriptValue kase = testcases.property(eng.scriptValue(i).toString());
+                    QScriptValue kase = testcases.property(i);
                     Q_ASSERT(kase.isValid());
                     QString description = kase.property("description").toString();
                     QString expect = kase.property("expect").toString();

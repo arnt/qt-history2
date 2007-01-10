@@ -55,8 +55,6 @@ public:
     }
 
     quint32 length() const;
-    QScriptValue propertyByIndex(quint32 index) const;
-    void setPropertyByIndex(quint32 index, const QScriptValue &value);
 
     QVariant variantValue() const;
 

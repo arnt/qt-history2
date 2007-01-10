@@ -541,9 +541,8 @@ QScriptValue QScript::ExtQObject::method_findChildren(QScriptEngine *eng, QScrip
         }
         QScriptValue result = eng->newArray(found.size());
         for (int i = 0; i < found.size(); ++i) {
-            QScriptValue item = eng->scriptValue(i);
             QScriptValue value = eng->scriptValueFromQObject(found.at(i));
-            result.setProperty(item.toString(), value);
+            result.setProperty(i, value);
         }
         return result;
     }

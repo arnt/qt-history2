@@ -601,6 +601,17 @@ void tst_QScriptValue::getSetProperty()
     QScriptValue inv;
     inv.setProperty(fooId, num);
     QCOMPARE(inv.property(fooId).isValid(), false);
+
+    QScriptValue array = eng.newArray();
+    array.setProperty(0, num);
+    QCOMPARE(array.property(0).toNumber(), num.toNumber());
+    QCOMPARE(array.property("length").toUInt32(), quint32(1));
+    array.setProperty(1, str);
+    QCOMPARE(array.property(1).toString(), str.toString());
+    QCOMPARE(array.property("length").toUInt32(), quint32(2));
+    array.setProperty("length", eng.scriptValue(1));
+    QCOMPARE(array.property("length").toUInt32(), quint32(1));
+    QCOMPARE(array.property(1).isValid(), false);
 }
 
 void tst_QScriptValue::getSetPrototype()

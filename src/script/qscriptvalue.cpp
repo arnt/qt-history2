@@ -636,6 +636,52 @@ QScriptValue QScriptValue::property(const QString &name,
 }
 
 /*!
+  Returns the property at the given \a arrayIndex.
+
+  This function is provided for convenience and performance when
+  working with array objects.
+*/
+QScriptValue QScriptValue::property(quint32 arrayIndex,
+                                    const ResolveFlags &mode) const
+{
+    if (!isObject())
+        return QScriptValue();
+
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+    QScript::Ecma::Array::Instance *instance = eng_p->arrayConstructor->get(*this);
+    if (instance)
+        return instance->value.at(arrayIndex);
+
+    QScriptValue id;
+    eng_p->newNumber(&id, arrayIndex);
+    return property(id.toString(), mode);
+}
+
+/*!
+  Sets the property at the given \a arrayIndex to the given \a value.
+
+  This function is provided for convenience and performance when
+  working with array objects.
+*/
+void QScriptValue::setProperty(quint32 arrayIndex, const QScriptValue &value,
+                               const PropertyFlags &flags)
+{
+    if (!isObject())
+        return;
+
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+    QScript::Ecma::Array::Instance *instance = eng_p->arrayConstructor->get(*this);
+    if (instance) {
+        instance->value.assign(arrayIndex, value);
+        return;
+    }
+
+    QScriptValue id;
+    eng_p->newNumber(&id, arrayIndex);
+    setProperty(id.toString(), value, flags);
+}
+
+/*!
   \internal
 */
 void QScriptValueImpl::setQObjectValue(QObject *object)
@@ -807,50 +853,6 @@ quint32 QScriptValueImpl::length() const
         return 0;
 
     return eng_p->toUint32(len.toNumber());
-}
-
-/*!
-  \internal
-  Returns the property at the given \a index.
-
-  This function is provided for convenience and performance when
-  working with array objects.
-*/
-QScriptValue QScriptValueImpl::propertyByIndex(quint32 index) const
-{
-    Q_ASSERT(isObject());
-
-    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
-    QScript::Ecma::Array::Instance *instance = eng_p->arrayConstructor->get(*this);
-    if (instance)
-        return instance->value.at(index);
-
-    QScriptValue id;
-    eng_p->newNumber(&id, index);
-    return property(id.toString());
-}
-
-/*!
-  \internal
-  Sets the property at the given \a index to the given \a value.
-
-  This function is provided for convenience and performance when
-  working with array objects.
-*/
-void QScriptValueImpl::setPropertyByIndex(quint32 index, const QScriptValue &value)
-{
-    Q_ASSERT(isObject());
-
-    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
-    QScript::Ecma::Array::Instance *instance = eng_p->arrayConstructor->get(*this);
-    if (instance) {
-        instance->value.assign(index, value);
-        return;
-    }
-
-    QScriptValue id;
-    eng_p->newNumber(&id, index);
-    setProperty(id.toString(), value);
 }
 
 /*!

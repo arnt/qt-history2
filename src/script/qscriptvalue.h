@@ -118,6 +118,11 @@ public:
     void setProperty(const QString &name, const QScriptValue &value,
                      const PropertyFlags &flags = 0);
 
+    QScriptValue property(quint32 arrayIndex,
+                          const ResolveFlags &mode = ResolveLocal) const;
+    void setProperty(quint32 arrayIndex, const QScriptValue &value,
+                     const PropertyFlags &flags = 0);
+
     QScriptValue call(const QScriptValue &thisObject = QScriptValue(),
                       const QScriptValueList &args = QScriptValueList());
 

@@ -960,22 +960,17 @@ QScriptValue QScriptEnginePrivate::arrayFromStringList(const QStringList &lst)
 {
     Q_Q(QScriptEngine);
     QScriptValue arr = q->newArray(lst.size());
-    for (int i = 0; i < lst.size(); ++i) {
-        QString itemName = q->scriptValue(i).toString();
-        arr.setProperty(itemName, q->scriptValue(lst.at(i)));
-    }
+    for (int i = 0; i < lst.size(); ++i)
+        arr.setProperty(i, q->scriptValue(lst.at(i)));
     return arr;
 }
 
 QStringList QScriptEnginePrivate::stringListFromArray(const QScriptValue &arr)
 {
-    Q_Q(QScriptEngine);
     QStringList lst;
     uint len = arr.property(QLatin1String("length")).toUInt32();
-    for (uint i = 0; i < len; ++i) {
-        QString itemName = q->scriptValue(i).toString();
-        lst.append(arr.property(itemName).toString());
-    }
+    for (uint i = 0; i < len; ++i)
+        lst.append(arr.property(i).toString());
     return lst;
 }
 
