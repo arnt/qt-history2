@@ -285,9 +285,6 @@ void WriteInitialization::acceptUI(DomUI *node)
 
     m_output << "\n" << m_option.indent << "retranslateUi(" << varName << ");\n";
 
-    if (!m_delayedTopLevelResize.isEmpty())
-        m_output << "\n" << m_delayedTopLevelResize << "\n";
-
     if (node->elementConnections())
         acceptConnections(node->elementConnections());
 
@@ -766,7 +763,7 @@ void WriteInitialization::writeProperties(const QString &varName,
             const int w = r->elementWidth();
             const int h = r->elementHeight();
             const QString tempName = m_driver->unique(QLatin1String("size"));
-            QTextStream(&m_delayedTopLevelResize) << m_option.indent << "QSize " << tempName << '(' << w << ", " << h << ");\n"
+            m_output << m_option.indent << "QSize " << tempName << '(' << w << ", " << h << ");\n"
                       << m_option.indent << tempName << " = " << tempName << ".expandedTo("
                       << varName << "->minimumSizeHint());\n"
                       << m_option.indent << varName << "->resize(" << tempName << ");\n";
