@@ -396,9 +396,9 @@
                 QMimeData *data = new QMimeData;
                 data->setColor(Qt::green);
 
-                QDrag drag(event->widget());
-                drag.setMimeData(data);
-                drag.start();
+                QDrag *drag = new QDrag(event->widget());
+                drag->setMimeData(data);
+                drag->start();
             }
         \endcode
 
