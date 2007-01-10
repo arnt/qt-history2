@@ -49,7 +49,6 @@ class MakefileGenerator : protected QMakeSourceFileInfo
     QString spec;
     bool init_opath_already, init_already, no_io;
     QHash<QString, bool> init_compiler_already;
-    QStringList createObjectList(const QStringList &sources);
     QString build_args(const QString &outdir=QString());
     void checkMultipleDefinition(const QString &, const QString &);
 
@@ -59,6 +58,8 @@ class MakefileGenerator : protected QMakeSourceFileInfo
     mutable QHash<ReplaceExtraCompilerCacheKey, QString> extraCompilerVariablesCache;
 
 protected:
+    QStringList createObjectList(const QStringList &sources);
+
     //makefile style generator functions
     void writeObj(QTextStream &, const QString &src);
     void writeLexSrc(QTextStream &, const QString &lex);
@@ -131,7 +132,7 @@ protected:
     };
     QStringList findFilesInVPATH(QStringList l, uchar flags, const QString &var="");
 
-    inline int findExecutable(const QStringList &cmdline) 
+    inline int findExecutable(const QStringList &cmdline)
     { int ret; canExecute(cmdline, &ret); return ret; }
     bool canExecute(const QStringList &cmdline, int *argv0) const;
     inline bool canExecute(const QString &cmdline) const
