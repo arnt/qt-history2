@@ -24,7 +24,7 @@ const char *const QScriptGrammar::spell[] = {
   "try", "typeof", "var", "void", "while", "with", "^", "^=", "null", "true",
   "false", "reserved word"};
 
-const short QScriptGrammar::lhs[] = {
+const int QScriptGrammar::lhs[] = {
   83, 83, 83, 83, 83, 83, 83, 83, 83, 83,
   83, 83, 83, 85, 85, 89, 89, 84, 84, 90,
   90, 91, 91, 91, 92, 92, 92, 92, 94, 92,
@@ -49,7 +49,7 @@ const short QScriptGrammar::lhs[] = {
   158, 93, 162, 162, 159, 159, 160, 160, 163, 82,
   164, 164, 165, 165, 161, 161, 86, 86, 166};
 
-const short QScriptGrammar::rhs[] = {
+const int QScriptGrammar::rhs[] = {
   1, 1, 1, 1, 1, 1, 1, 1, 3, 3,
   5, 3, 3, 2, 4, 1, 2, 0, 1, 3,
   5, 1, 1, 1, 1, 1, 4, 4, 0, 3,
@@ -74,7 +74,7 @@ const short QScriptGrammar::rhs[] = {
   8, 8, 1, 3, 0, 1, 0, 1, 1, 1,
   1, 2, 1, 1, 0, 1, 0, 1, 2};
 
-const short QScriptGrammar::action_default [] = {
+const int QScriptGrammar::action_default [] = {
   0, 63, 130, 94, 102, 98, 138, 145, 42, 114,
   144, 140, 90, 0, 141, 224, 26, 142, 143, 148,
   43, 106, 110, 31, 60, 41, 46, 25, 0, 80,
@@ -117,7 +117,7 @@ const short QScriptGrammar::action_default [] = {
   165, 157, 0, 158, 160, 48, 0, 0, 0, 178,
   0, 0, 0, 193};
 
-const short QScriptGrammar::goto_default [] = {
+const int QScriptGrammar::goto_default [] = {
   28, 27, 324, 322, 108, 13, 2, 323, 107, 106,
   23, 16, 194, 152, 25, 8, 161, 20, 26, 73,
   24, 1, 31, 29, 229, 12, 223, 3, 219, 5,
@@ -128,7 +128,7 @@ const short QScriptGrammar::goto_default [] = {
   354, 357, 353, 352, 373, 374, 15, 95, 102, 91,
   94, 101, 103, 32, 0};
 
-const short QScriptGrammar::action_index [] = {
+const int QScriptGrammar::action_index [] = {
   872, 74, -82, 30, -16, -40, -82, -82, 141, -82,
   -82, -82, 171, 121, -82, -82, -82, -82, -82, -82,
   361, 27, 54, 135, 116, -82, -82, -82, 50, 282,
@@ -213,7 +213,7 @@ const short QScriptGrammar::action_index [] = {
   -85, -85, -35, -85, -85, -85, 24, -85, -7, -85,
   34, -85, -8, -85};
 
-const short QScriptGrammar::action_info [] = {
+const int QScriptGrammar::action_info [] = {
   295, 280, 254, 272, 212, 280, 291, 347, 256, 232,
   158, 254, 252, 112, 261, 264, 278, 272, 293, 266,
   299, 252, 378, 376, 325, 361, 362, 355, 355, 183,
@@ -350,7 +350,7 @@ const short QScriptGrammar::action_info [] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0};
 
-const short QScriptGrammar::action_check [] = {
+const int QScriptGrammar::action_check [] = {
   31, 29, 76, 2, 36, 29, 61, 36, 8, 1,
   8, 76, 48, 7, 61, 61, 7, 2, 60, 60,
   29, 48, 36, 20, 8, 55, 7, 5, 5, 2,

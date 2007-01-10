@@ -11,6 +11,9 @@
 **
 ****************************************************************************/
 
+#ifndef QSCRIPTGRAMMAR_P_H
+#define QSCRIPTGRAMMAR_P_H
+
 //
 //  W A R N I N G
 //  -------------
@@ -21,9 +24,6 @@
 //
 // We mean it.
 //
-
-#ifndef QSCRIPTGRAMMAR_P_H
-#define QSCRIPTGRAMMAR_P_H
 
 class QScriptGrammar
 {
@@ -123,33 +123,33 @@ public:
     GOTO_CHECK_OFFSET = 1032,
   };
 
-  static const short lhs [];
-  static const short rhs [];
+  static const int lhs [];
+  static const int rhs [];
   static const char *const spell [];
 
-  static const short goto_default [];
-  static const short action_default [];
-  static const short action_index [];
-  static const short action_info [];
-  static const short action_check [];
+  static const int goto_default [];
+  static const int action_default [];
+  static const int action_index [];
+  static const int action_info [];
+  static const int action_check [];
 
-  inline int nt_action (short state, short nt) const
+  inline int nt_action (int state, int nt) const
   {
-    const short *const goto_index = &action_index [GOTO_INDEX_OFFSET];
-    const short *const goto_check = &action_check [GOTO_CHECK_OFFSET];
+    const int *const goto_index = &action_index [GOTO_INDEX_OFFSET];
+    const int *const goto_check = &action_check [GOTO_CHECK_OFFSET];
 
-    const short yyn = goto_index [state] + nt;
+    const int yyn = goto_index [state] + nt;
 
     if (yyn < 0 || goto_check [yyn] != nt)
       return goto_default [nt];
 
-    const short *const goto_info = &action_info [GOTO_INFO_OFFSET];
+    const int *const goto_info = &action_info [GOTO_INFO_OFFSET];
     return goto_info [yyn];
   }
 
-  inline short t_action (short state, short token) const
+  inline int t_action (int state, int token) const
   {
-    const short yyn = action_index [state] + token;
+    const int yyn = action_index [state] + token;
 
     if (yyn < 0 || action_check [yyn] != token)
       return - action_default [state];
