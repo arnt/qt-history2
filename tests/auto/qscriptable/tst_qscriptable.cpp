@@ -218,6 +218,11 @@ void tst_QScriptable::thisObject()
         QCOMPARE(ret.isQObject(), true);
         QCOMPARE(ret.toQObject(), &m_scriptable);
     }
+    {
+        QScriptValue ret = m_engine.evaluate("o.zab");
+        QEXPECT_FAIL("", "thisObject is not set correctly when the property is in the prototype", Continue);
+        QCOMPARE(ret.toQObject(), (QObject *)0);
+    }
     // property setter
     {
         QScriptValue ret = m_engine.evaluate("scriptable.setZab(0)");
