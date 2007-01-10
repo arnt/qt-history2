@@ -46,6 +46,8 @@ public:
     virtual QString classNameOf(QObject *object) const = 0;
     virtual QString enumerator(const QString &neutralName) const = 0;
     virtual QString neutralEnumerator(const QString &enumName) const = 0;
+
+    virtual QString uiExtension() const = 0;
 };
 
 Q_DECLARE_EXTENSION_INTERFACE(QDesignerLanguageExtension, "com.trolltech.Qt.Designer.Language.2")
