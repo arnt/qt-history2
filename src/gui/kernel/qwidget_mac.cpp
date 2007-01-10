@@ -291,22 +291,6 @@ SInt32 qt_mac_get_group_level(WindowClass wclass)
     {
         GetWindowGroupLevel(GetWindowGroupOfClass(wclass), &group_level);
     }
-}
-#define ReleaseWindowGroup(x) Are you sure you wanted to do that? (you wanted qt_mac_release_window_group)
-
-SInt32 qt_mac_get_group_level(WindowClass wclass)
-{
-    SInt32 group_level;
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4
-    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
-        CGWindowLevel tmpLevel;
-        GetWindowGroupLevelOfType(GetWindowGroupOfClass(wclass), kWindowGroupLevelActive, &tmpLevel);
-        group_level = tmpLevel;
-    } else
-#endif
-    {
-        GetWindowGroupLevel(GetWindowGroupOfClass(wclass), &group_level);
-    }
     return group_level;
 }
 
