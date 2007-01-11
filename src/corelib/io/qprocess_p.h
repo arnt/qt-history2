@@ -178,6 +178,7 @@ public:
 #endif
 #ifdef Q_OS_WIN
     void flushPipeWriter();
+    qint64 pipeWriterBytesToWrite() const;
 #endif
 
     static bool startDetached(const QString &program, const QStringList &arguments);

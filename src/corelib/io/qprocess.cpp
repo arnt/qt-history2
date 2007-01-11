@@ -1093,7 +1093,11 @@ qint64 QProcess::bytesAvailable() const
 qint64 QProcess::bytesToWrite() const
 {
     Q_D(const QProcess);
-    return d->writeBuffer.size();
+    qint64 size = d->writeBuffer.size();
+#ifdef Q_OS_WIN
+    size += d->pipeWriterBytesToWrite();
+#endif
+    return size;
 }
 
 /*!

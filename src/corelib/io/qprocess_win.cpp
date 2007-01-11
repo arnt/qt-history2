@@ -86,6 +86,11 @@ public:
 
     bool waitForWrite(int msecs);
     qint64 write(const char *data, qint64 maxlen);
+    qint64 bytesToWrite() const
+    {
+        QMutexLocker locker(&lock);
+        return data.size();
+    }
 
 signals:
     void canWrite();
@@ -94,7 +99,7 @@ protected:
    void run();
 
 private:
-    QMutex lock;
+    mutable QMutex lock;
     QWaitCondition waitCondition;
     bool quitNow;
     HANDLE writePipe;
@@ -162,7 +167,6 @@ void QWindowsPipeWriter::run()
         }
 
         QByteArray copy = data;
-        data.clear();
 
         lock.unlock();
 
@@ -186,6 +190,9 @@ void QWindowsPipeWriter::run()
 #if defined QPROCESS_DEBUG
             qDebug("QWindowsPipeWriter::run() wrote %d %d/%d bytes", written, int(totalWritten), int(maxlen));
 #endif
+            lock.lock();
+            data.remove(0, written);
+            lock.unlock();
         }
         emit canWrite();
     }
@@ -850,6 +857,11 @@ void QProcessPrivate::flushPipeWriter()
 {
     if (pipeWriter)
         pipeWriter->waitForWrite(ULONG_MAX);
+}
+
+qint64 QProcessPrivate::pipeWriterBytesToWrite() const
+{
+    return pipeWriter ? pipeWriter->bytesToWrite() : qint64(0);
 }
 
 qint64 QProcessPrivate::writeToStdin(const char *data, qint64 maxlen)
