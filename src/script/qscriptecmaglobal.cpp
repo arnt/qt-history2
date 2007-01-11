@@ -357,18 +357,17 @@ QScriptValue Global::method_parseInt(QScriptContext *context,
         }
     }
     QString str = context->argument(0).toString().trimmed();
-// ### FIXME
-#if 0
-    bool ok = false;
-    qnumber result = str.toLongLong(&ok, radix);
-    if (!ok) {
-#else
-    const char *endPtr = 0;
+
+    char *endPtr = 0;
     const char *startPtr = str.toUtf8().constData();
+    qnumber result;
+#if defined(Q_WS_WIN) && !defined(Q_CC_MINGW)
     bool ok;
-    qnumber result = qstrtoll(startPtr, &endPtr, int (radix), &ok);
-    if (startPtr == endPtr) {
+    result = qstrtoll(startPtr, &endPtr, int (radix), &ok);
+#else
+    result = strtoll(startPtr, &endPtr, int (radix));
 #endif
+    if (startPtr == endPtr) {
         if (str.isEmpty())
             result = 0;
         else if (str == QLatin1String("Infinity"))
