@@ -1361,7 +1361,17 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                 fs.setRight((x + w - 1) + fs.right());
                 fs.setBottom((y + h - 1) + fs.bottom());
             }
-            MoveWindow(q->internalWinId(), fs.x(), fs.y(), fs.width(), fs.height(), true);
+            //If the window is hidden and in maximized state, instead of moving the 
+            // window, set the normal position of the window. 
+            WINDOWPLACEMENT wndpl;
+            GetWindowPlacement(q->internalWinId(), &wndpl);
+            if (wndpl.showCmd == SW_MAXIMIZE && !IsWindowVisible(q->internalWinId())) {
+                RECT normal = {fs.x(), fs.y(), fs.x()+fs.width(), fs.y()+fs.height()};
+                wndpl.rcNormalPosition = normal;
+                wndpl.showCmd = SW_HIDE;
+                SetWindowPlacement(q->internalWinId(), &wndpl);
+            }else 
+                MoveWindow(q->internalWinId(), fs.x(), fs.y(), fs.width(), fs.height(), true);
             if (!q->isVisible())
                 InvalidateRect(q->internalWinId(), 0, FALSE);
             RECT rect;
