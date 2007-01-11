@@ -299,8 +299,7 @@ QModelIndex QFileSystemModelPrivate::index(const QFileSystemModelPrivate::QFileS
 
     // get the parent's row
     int realRow = findChild(parentNode, *node);
-    if (realRow == -1) // ### see 144246
-        return QModelIndex();
+    Q_ASSERT(realRow >= 0);
     int visualRow = translateVisibleLocation(parentNode, parentNode->visibleLocation(realRow));
     if (visualRow == -1)
         return QModelIndex();
@@ -1255,7 +1254,7 @@ void QFileSystemModelPrivate::addVisibleFiles(QFileSystemNode *parentNode, const
         q->beginInsertRows(parent, q->rowCount(parent), q->rowCount(parent) + newFiles.count() - 1);
     for (int i = 0; i < newFiles.count(); ++i) {
         int location = findChild(parentNode, QFileSystemNode(newFiles.at(i)));
-        //Q_ASSERT(location >= 0);
+        Q_ASSERT(location >= 0);
         // put new items at the end of the list until sorted to minimize
         // flicker as it is re-shuffled to the right spot
         parentNode->visibleChildren.insert(sortOrder == Qt::AscendingOrder ? parentNode->visibleChildren.count() : 0, location);
