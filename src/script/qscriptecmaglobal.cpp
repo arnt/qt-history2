@@ -302,7 +302,7 @@ void Global::construct(QScriptValue *object, QScriptEngine *eng)
 void Global::initialize(QScriptValue *object, QScriptEngine *eng)
 {
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
-    
+
     // set the real prototype
     object->setPrototype(eng_p->objectConstructor->publicPrototype);
 
@@ -341,6 +341,8 @@ void Global::initialize(QScriptValue *object, QScriptEngine *eng)
                         eng->scriptValue(method_gc, 0), flags);
 }
 
+qlonglong qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok);
+
 QScriptValue Global::method_parseInt(QScriptContext *context,
                                      QScriptEngine *eng)
 {
@@ -361,14 +363,10 @@ QScriptValue Global::method_parseInt(QScriptContext *context,
     qnumber result = str.toLongLong(&ok, radix);
     if (!ok) {
 #else
-    char *endPtr = 0;
+    const char *endPtr = 0;
     const char *startPtr = str.toUtf8().constData();
-    qnumber result =
-#if defined(Q_WS_WIN) && !defined(Q_CC_MINGW)
-        _strtoi64(startPtr, &endPtr, int (radix));
-#else
-        strtoll(startPtr, &endPtr, int (radix));
-#endif
+    bool ok;
+    qnumber result = qstrtoll(startPtr, &endPtr, int (radix), &ok);
     if (startPtr == endPtr) {
 #endif
         if (str.isEmpty())

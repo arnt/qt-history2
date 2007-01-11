@@ -195,8 +195,8 @@ public:
         if (objectAllocator.blocked())
             return;
 
-        bool do_string_gc = (m_stringRepository.size() - m_oldStringRepositorySize) > 256;
-        do_string_gc |= (m_tempStringRepository.size() - m_oldTempStringRepositorySize) > 1024;
+        bool do_string_gc = ((m_stringRepository.size() - m_oldStringRepositorySize) > 256);
+        do_string_gc |= ((m_tempStringRepository.size() - m_oldTempStringRepositorySize) > 1024);
 
         if (! do_string_gc && ! objectAllocator.poll())
             return;
