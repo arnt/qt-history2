@@ -266,7 +266,7 @@ public:
 
     typedef QMultiHash<quint64, CacheInfo> QGLTextureCacheHash;
 
-    static const int block_size = 64;
+    enum {block_size = 64};
 
     // throw out keys that are too old
     void maintainCache();
@@ -606,6 +606,16 @@ bool QGLOffscreen::isSupported()
 
 struct QDrawQueueItem
 {
+    QDrawQueueItem(qreal _opacity, QBrush _brush,
+                   const QPointF &_brush_origion,
+                   QPainter::CompositionMode _composition_mode,
+                   const QTransform &_matrix,
+                   QGLMaskTextureCache::CacheLocation _location)
+        : opacity(_opacity),
+          brush_origin(_brush_origion),
+          composition_mode(_composition_mode),
+          matrix(_matrix),
+          location(_location) {}
     qreal opacity;
     QBrush brush;
     QPointF brush_origin;
@@ -4007,8 +4017,7 @@ void QOpenGLPaintEnginePrivate::cacheItemErased(int channel, const QRect &rect)
 
 void QOpenGLPaintEnginePrivate::addItem(const QGLMaskTextureCache::CacheLocation &location)
 {
-    QDrawQueueItem item = { opacity, cbrush, brush_origin, composition_mode, matrix, location };
-    drawQueue << item;
+    drawQueue << QDrawQueueItem(opacity, cbrush, brush_origin, composition_mode, matrix, location);
 }
 
 void QOpenGLPaintEnginePrivate::drawItem(const QDrawQueueItem &item)
