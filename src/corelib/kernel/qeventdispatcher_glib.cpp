@@ -195,8 +195,8 @@ static GSourceFuncs postEventSourceFuncs = {
 };
 
 
-QEventDispatcherGlibPrivate::QEventDispatcherGlibPrivate(GMainContext *mainContext)
-    : mainContext(mainContext)
+QEventDispatcherGlibPrivate::QEventDispatcherGlibPrivate(GMainContext *context)
+    : mainContext(context)
 {
     if (!g_thread_supported())
         g_thread_init(NULL);
@@ -293,6 +293,7 @@ QEventDispatcherGlib::~QEventDispatcherGlib()
     g_source_unref(&d->postEventSource->source);
     d->postEventSource = 0;
 
+    Q_ASSERT(d->mainContext != 0);
     g_main_context_unref(d->mainContext);
     d->mainContext = 0;
 }
