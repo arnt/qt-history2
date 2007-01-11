@@ -1442,6 +1442,8 @@ QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
     where to place the data.  This can occur in a tree when data is dropped
     on a parent.  Models will usually append the data to the parent in this case.
 
+    Returns true if the dropping was successful otherwise false.
+
     \sa supportedDropActions(), {Using Drag and Drop with Item Views}
 */
 bool QAbstractItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
