@@ -94,6 +94,8 @@ private slots:
 
     void doubleDot();
 
+    void undoRedo();
+
     void valueFromTextAndValidate_data();
     void valueFromTextAndValidate();
 
@@ -856,6 +858,93 @@ void tst_QDoubleSpinBox::doubleDot()
     QCOMPARE(spin.lineEdit()->cursorPosition(), 2);
 }
 
+void tst_QDoubleSpinBox::undoRedo()
+{
+    //test undo/redo feature (in conjunction with the "undoRedoEnabled" property)
+    DoubleSpinBox spin(0);
+    spin.show();
+
+    //the undo/redo is disabled by default
+
+    QCOMPARE(spin.value(), 0.0); //this is the default value
+    QVERIFY(!spin.isUndoAvailable());
+    QVERIFY(!spin.isRedoAvailable());
+
+    spin.lineEdit()->selectAll(); //ensures everything is selected and will be cleared by typing a key
+    QTest::keyClick(&spin, Qt::Key_1); //we put 1 into the spinbox
+    QCOMPARE(spin.value(), 1.0);
+    QVERIFY(spin.isUndoAvailable());
+
+    //testing CTRL+Z (undo)
+    int val = QKeySequence(QKeySequence::Undo)[0];
+    Qt::KeyboardModifiers mods = (Qt::KeyboardModifiers)(val & Qt::KeyboardModifierMask);
+    QTest::keyClick(&spin, val & ~mods, mods);
+    QCOMPARE(spin.value(), 0.0);
+    QVERIFY(!spin.isUndoAvailable());
+    QVERIFY(spin.isRedoAvailable());
+
+    //testing CTRL+Y (redo)
+    val = QKeySequence(QKeySequence::Redo)[0];
+    mods = (Qt::KeyboardModifiers)(val & Qt::KeyboardModifierMask);
+    QTest::keyClick(&spin, val & ~mods, mods);
+    QCOMPARE(spin.value(), 1.0);
+    QVERIFY(!spin.isRedoAvailable());
+    QVERIFY(spin.isUndoAvailable());
+
+    spin.stepBy(1);
+    spin.undo();
+    QCOMPARE(spin.value(), 1.0);
+    spin.redo();
+    QCOMPARE(spin.value(), 2.0);
+    spin.setValue(55.0);
+    QVERIFY(!spin.isUndoAvailable());
+    QVERIFY(!spin.isRedoAvailable());
+
+    spin.stepBy(1);
+    spin.stepBy(1);
+    spin.undo();
+    QVERIFY(spin.isUndoAvailable());
+    QVERIFY(spin.isRedoAvailable());
+    spin.setSpecialValueText(QString());
+    QVERIFY(!spin.isUndoAvailable());
+    QVERIFY(!spin.isRedoAvailable());
+
+    spin.stepBy(1);
+    spin.stepBy(1);
+    spin.undo();
+    QVERIFY(spin.isUndoAvailable());
+    QVERIFY(spin.isRedoAvailable());
+    spin.setMinimum(spin.minimum());
+    QVERIFY(!spin.isUndoAvailable());
+    QVERIFY(!spin.isRedoAvailable());
+
+    spin.stepBy(1);
+    spin.stepBy(1);
+    spin.undo();
+    QVERIFY(spin.isUndoAvailable());
+    QVERIFY(spin.isRedoAvailable());
+    spin.setMaximum(spin.maximum());
+    QVERIFY(!spin.isUndoAvailable());
+    QVERIFY(!spin.isRedoAvailable());
+
+    spin.stepBy(1);
+    spin.stepBy(1);
+    spin.undo();
+    QVERIFY(spin.isUndoAvailable());
+    QVERIFY(spin.isRedoAvailable());
+    spin.setPrefix(QString());
+    QVERIFY(!spin.isUndoAvailable());
+    QVERIFY(!spin.isRedoAvailable());
+
+    spin.stepBy(1);
+    spin.stepBy(1);
+    spin.undo();
+    QVERIFY(spin.isUndoAvailable());
+    QVERIFY(spin.isRedoAvailable());
+    spin.setSuffix(QString());
+    QVERIFY(!spin.isUndoAvailable());
+    QVERIFY(!spin.isRedoAvailable());
+}
 
 QTEST_MAIN(tst_QDoubleSpinBox)
 #include "tst_qdoublespinbox.moc"

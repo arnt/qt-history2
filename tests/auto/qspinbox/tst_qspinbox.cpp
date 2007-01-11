@@ -20,6 +20,22 @@
 #include <qlocale.h>
 #include <qlineedit.h>
 #include <qlayout.h>
+#include <QSpinBox>
+#include <QWidget>
+#include <QString>
+#include <QValidator>
+#include <QLineEdit>
+#include <QObject>
+#include <QStringList>
+#include <QList>
+#include <QLocale>
+#include <QDoubleSpinBox>
+#include <QTest>
+#include <QTestEventList>
+#include <QVBoxLayout>
+#include <QSignalSpy>
+#include <QKeySequence>
+#include <QDebug>
 
 
 
@@ -775,19 +791,86 @@ void tst_QSpinBox::undoRedo()
 
     //the undo/redo is disabled by default
 
-    QVERIFY(spin.value()==0); //this is the default value
+    QCOMPARE(spin.value(), 0); //this is the default value
+    QVERIFY(!spin.isUndoAvailable());
+    QVERIFY(!spin.isRedoAvailable());
 
     spin.lineEdit()->selectAll(); //ensures everything is selected and will be cleared by typing a key
     QTest::keyClick(&spin, Qt::Key_1); //we put 1 into the spinbox
     QCOMPARE(spin.value(), 1);
+    QVERIFY(spin.isUndoAvailable());
 
     //testing CTRL+Z (undo)
-    QTest::keyClick(&spin, Qt::Key_Z, Qt::ControlModifier);
+    int val = QKeySequence(QKeySequence::Undo)[0];
+    Qt::KeyboardModifiers mods = (Qt::KeyboardModifiers)(val & Qt::KeyboardModifierMask);
+    QTest::keyClick(&spin, val & ~mods, mods);
+
     QCOMPARE(spin.value(), 0);
+    QVERIFY(!spin.isUndoAvailable());
+    QVERIFY(spin.isRedoAvailable());
 
     //testing CTRL+Y (redo)
-    QTest::keyClick(&spin, Qt::Key_Y, Qt::ControlModifier);
+    val = QKeySequence(QKeySequence::Redo)[0];
+    mods = (Qt::KeyboardModifiers)(val & Qt::KeyboardModifierMask);
+    QTest::keyClick(&spin, val & ~mods, mods);
     QCOMPARE(spin.value(), 1);
+    QVERIFY(!spin.isRedoAvailable());
+    QVERIFY(spin.isUndoAvailable());
+
+    spin.stepBy(1);
+    spin.undo();
+    QCOMPARE(spin.value(), 1);
+    spin.redo();
+    QCOMPARE(spin.value(), 2);
+    spin.setValue(55);
+    QVERIFY(!spin.isUndoAvailable());
+    QVERIFY(!spin.isRedoAvailable());
+
+    spin.stepBy(1);
+    spin.stepBy(1);
+    spin.undo();
+    QVERIFY(spin.isUndoAvailable());
+    QVERIFY(spin.isRedoAvailable());
+    spin.setSpecialValueText(QString());
+    QVERIFY(!spin.isUndoAvailable());
+    QVERIFY(!spin.isRedoAvailable());
+
+    spin.stepBy(1);
+    spin.stepBy(1);
+    spin.undo();
+    QVERIFY(spin.isUndoAvailable());
+    QVERIFY(spin.isRedoAvailable());
+    spin.setMinimum(spin.minimum());
+    QVERIFY(!spin.isUndoAvailable());
+    QVERIFY(!spin.isRedoAvailable());
+
+    spin.stepBy(1);
+    spin.stepBy(1);
+    spin.undo();
+    QVERIFY(spin.isUndoAvailable());
+    QVERIFY(spin.isRedoAvailable());
+    spin.setMaximum(spin.maximum());
+    QVERIFY(!spin.isUndoAvailable());
+    QVERIFY(!spin.isRedoAvailable());
+
+    spin.stepBy(1);
+    spin.stepBy(1);
+    spin.undo();
+    QVERIFY(spin.isUndoAvailable());
+    QVERIFY(spin.isRedoAvailable());
+    spin.setPrefix(QString());
+    QVERIFY(!spin.isUndoAvailable());
+    QVERIFY(!spin.isRedoAvailable());
+
+    spin.stepBy(1);
+    spin.stepBy(1);
+    spin.undo();
+    QVERIFY(spin.isUndoAvailable());
+    QVERIFY(spin.isRedoAvailable());
+    spin.setSuffix(QString());
+    QVERIFY(!spin.isUndoAvailable());
+    QVERIFY(!spin.isRedoAvailable());
+
 
 }
 

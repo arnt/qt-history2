@@ -167,18 +167,15 @@ private slots:
 
     void hour12Test();
 
-#if QT_VERSION >= 0x040200
     void setSelectedSection();
     void reverseTest();
     void setCurrentSectionIndex();
     void setCurrentSectionIndex_data();
     void sectionCount_data();
     void sectionCount();
-#endif
-#if QT_VERSION >= 0x040300
     void yyTest();
     void separatorKeys();
-#endif
+    void undoRedo();
 private:
     EditorDateEdit* testWidget;
     QWidget *testFocusWidget;
@@ -2556,8 +2553,6 @@ void tst_QDateTimeEdit::setCurrentSection()
 }
 
 
-#if QT_VERSION >= 0x040200
-
 void tst_QDateTimeEdit::setSelectedSection()
 {
     testWidget->setDisplayFormat("mm.ss.zzz('ms') m");
@@ -2757,9 +2752,6 @@ void tst_QDateTimeEdit::hour12Test()
     QCOMPARE(testWidget->lineEdit()->displayText(), QString("1 am"));
 }
 
-#endif
-
-#if QT_VERSION >= 0x040300
 void tst_QDateTimeEdit::yyTest()
 {
     testWidget->setDisplayFormat("yy");
@@ -2822,7 +2814,108 @@ void tst_QDateTimeEdit::separatorKeys()
     QCOMPARE(testWidget->currentSectionIndex(), 6);
 }
 
-#endif
+void tst_QDateTimeEdit::undoRedo()
+{
+    //test undo/redo feature (in conjunction with the "undoRedoEnabled" property)
+    EditorDateEdit dte(0);
+    dte.setDisplayFormat("yyyy/MM");
+    dte.show();
+
+    //the undo/redo is disabled by default
+
+    QCOMPARE(dte.date(), QDate(2000, 1, 1)); //this is the default value
+    QVERIFY(!dte.isUndoAvailable());
+    QVERIFY(!dte.isRedoAvailable());
+
+    dte.setSelectedSection(QDateTimeEdit::MonthSection);
+    QTest::keyClick(&dte, Qt::Key_0);
+    QTest::keyClick(&dte, Qt::Key_2);
+    QCOMPARE(dte.date(), QDate(2000, 2, 1));
+    QVERIFY(dte.isUndoAvailable());
+
+    //testing CTRL+Z (undo)
+    int val = QKeySequence(QKeySequence::Undo)[0];
+    Qt::KeyboardModifiers mods = (Qt::KeyboardModifiers)(val & Qt::KeyboardModifierMask);
+    QTest::keyClick(&dte, val & ~mods, mods);
+    QTest::keyClick(&dte, val & ~mods, mods);
+
+    QCOMPARE(dte.date(), QDate(2000, 1, 1));
+    QVERIFY(!dte.isUndoAvailable());
+    QVERIFY(dte.isRedoAvailable());
+
+    //testing CTRL+Y (redo)
+    val = QKeySequence(QKeySequence::Redo)[0];
+    mods = (Qt::KeyboardModifiers)(val & Qt::KeyboardModifierMask);
+    QTest::keyClick(&dte, val & ~mods, mods);
+    QTest::keyClick(&dte, val & ~mods, mods);
+    QCOMPARE(dte.date(), QDate(2000, 2, 1));
+    QVERIFY(!dte.isRedoAvailable());
+    QVERIFY(dte.isUndoAvailable());
+
+    dte.stepBy(1);
+    dte.undo();
+    QCOMPARE(dte.date(), QDate(2000, 2, 1));
+    dte.redo();
+    QCOMPARE(dte.date(), QDate(2000, 3, 1));
+    dte.setDate(QDate(2001, 2, 2));
+    QVERIFY(!dte.isUndoAvailable());
+    QVERIFY(!dte.isRedoAvailable());
+
+    dte.stepBy(1);
+    dte.stepBy(1);
+    dte.undo();
+    QVERIFY(dte.isUndoAvailable());
+    QVERIFY(dte.isRedoAvailable());
+    dte.setSpecialValueText(QString());
+    QVERIFY(!dte.isUndoAvailable());
+    QVERIFY(!dte.isRedoAvailable());
+
+    dte.stepBy(1);
+    dte.stepBy(1);
+    dte.undo();
+    QVERIFY(dte.isUndoAvailable());
+    QVERIFY(dte.isRedoAvailable());
+    dte.setDisplayFormat(dte.displayFormat());
+    QVERIFY(!dte.isUndoAvailable());
+    QVERIFY(!dte.isRedoAvailable());
+
+    dte.stepBy(1);
+    dte.stepBy(1);
+    dte.undo();
+    QVERIFY(dte.isUndoAvailable());
+    QVERIFY(dte.isRedoAvailable());
+    dte.setMinimumDate(dte.minimumDate());
+    QVERIFY(!dte.isUndoAvailable());
+    QVERIFY(!dte.isRedoAvailable());
+
+    dte.stepBy(1);
+    dte.stepBy(1);
+    dte.undo();
+    QVERIFY(dte.isUndoAvailable());
+    QVERIFY(dte.isRedoAvailable());
+    dte.setMaximumDate(dte.maximumDate());
+    QVERIFY(!dte.isUndoAvailable());
+    QVERIFY(!dte.isRedoAvailable());
+
+    dte.stepBy(1);
+    dte.stepBy(1);
+    dte.undo();
+    QVERIFY(dte.isUndoAvailable());
+    QVERIFY(dte.isRedoAvailable());
+    dte.setMinimumTime(dte.minimumTime());
+    QVERIFY(!dte.isUndoAvailable());
+    QVERIFY(!dte.isRedoAvailable());
+
+    dte.stepBy(1);
+    dte.stepBy(1);
+    dte.undo();
+    QVERIFY(dte.isUndoAvailable());
+    QVERIFY(dte.isRedoAvailable());
+    dte.setMaximumTime(dte.maximumTime());
+    QVERIFY(!dte.isUndoAvailable());
+    QVERIFY(!dte.isRedoAvailable());
+}
+
 
 QTEST_MAIN(tst_QDateTimeEdit)
 #include "tst_qdatetimeedit.moc"
