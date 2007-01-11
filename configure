@@ -35,6 +35,7 @@ OPT_CMDLINE=`echo $@ | sed "s,-v ,,g; s,-v$,,g"`
 QMAKE_SWITCHES=
 QMAKE_VARS=
 QMAKE_CONFIG=
+QTCONFIG_CONFIG=
 QT_CONFIG=
 SUPPORTED=
 QMAKE_VARS_FILE=.qmake.vars
@@ -1044,11 +1045,16 @@ while [ "$#" -gt 0 ]; do
             ;;
         macx-g++-64)
             PLATFORM=macx-g++
+	    NATIVE_64_ARCH=
             case `uname -p` in
-            i386) CFG_MAC_ARCHS="$CFG_MAC_ARCHS x86_64" ;;
-            ppc) CFG_MAC_ARCHS="$CFG_MAC_ARCHS ppc64" ;;
+            i386) NATIVE_64_ARCH="x86_64" ;;
+            ppc) NATIVE_64_ARCH="ppc64" ;;
             *)   echo "WARNING: Can't detect CPU architecture for macx-g++-64" ;;
             esac
+	    if [ ! -z "$NATIVE_64_ARCH" ]; then
+		QTCONFIG_CONFIG="$QTCONFIG_CONFIG $NATIVE_64_ARCH"
+		CFG_MAC_ARCHS="$CFG_MAC_ARCHS $NATIVE_64_ARCH"
+            fi
             ;;
         esac
         ;;
@@ -4947,8 +4953,8 @@ fi
 #-------------------------------------------------------------------------------
 
 QTCONFIG="$outpath/mkspecs/qconfig.pri"
+QTCONFIG_CONFIG="$QTCONFIG_CONFIG no_mocdepend"
 [ -f "$QTCONFIG.tmp" ] && rm -f "$QTCONFIG.tmp"
-QTCONFIG_CONFIG="no_mocdepend"
 if [ "$CFG_DEBUG" = "yes" ]; then
     QTCONFIG_CONFIG="$QTCONFIG_CONFIG debug"
     if [ "$CFG_DEBUG_RELEASE" = "yes" ]; then
