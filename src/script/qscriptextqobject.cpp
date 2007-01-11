@@ -290,7 +290,7 @@ public:
             const QMetaObject *meta = qobject->metaObject();
             QMetaProperty prop = meta->property(member.id());
             Q_ASSERT(prop.isScriptable());
-            QVariant v = variantFromValue(prop.type(), value);
+            QVariant v = variantFromValue(prop.userType(), value);
 
             QScriptable *scriptable = scriptableFromQObject(qobject);
             QScriptEngine *oldEngine = 0;

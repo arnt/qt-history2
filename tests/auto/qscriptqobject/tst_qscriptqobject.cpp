@@ -25,6 +25,12 @@ void toLongLong(const QScriptValue &value, qlonglong &ll)
     ll = qlonglong(value.toNumber());
 }
 
+struct CustomType
+{
+    QString string;
+};
+Q_DECLARE_METATYPE(CustomType)
+
 class MyQObject : public QObject
 {
     Q_OBJECT
@@ -33,6 +39,7 @@ class MyQObject : public QObject
     Q_PROPERTY(QVariant variantProperty READ variantProperty WRITE setVariantProperty)
     Q_PROPERTY(double hiddenProperty READ hiddenProperty WRITE setHiddenProperty SCRIPTABLE false)
     Q_PROPERTY(QKeySequence shortcut READ shortcut WRITE setShortcut)
+    Q_PROPERTY(CustomType propWithCustomType READ propWithCustomType WRITE setPropWithCustomType)
     Q_ENUMS(Policy Strategy)
     Q_FLAGS(Ability)
 
@@ -86,6 +93,11 @@ public:
         { return m_shortcut; }
     void setShortcut(const QKeySequence &seq)
         { m_shortcut = seq; }
+
+    CustomType propWithCustomType() const
+        { return m_customType; }
+    void setPropWithCustomType(const CustomType &c)
+        { m_customType = c; }
 
     int qtFunctionInvoked() const
         { return m_qtFunctionInvoked; }
@@ -148,6 +160,7 @@ private:
     QVariant m_variantValue;
     double m_hiddenValue;
     QKeySequence m_shortcut;
+    CustomType m_customType;
     int m_qtFunctionInvoked;
     QVariantList m_actuals;
 };
@@ -258,6 +271,14 @@ void tst_QScriptExtQObject::getSetStaticProperty()
         QVERIFY(m_myObject->shortcut().isEmpty());
         mobj.setProperty("shortcut", m_engine->scriptValueFromVariant(sequence));
         QVERIFY(m_myObject->shortcut() == sequence);
+    }
+    {
+        CustomType t; t.string = "hello";
+        QScriptValue mobj = m_engine->globalObject().property("myObject");
+
+        QVERIFY(m_myObject->propWithCustomType().string.isEmpty());
+        mobj.setProperty("propWithCustomType", m_engine->scriptValueFromVariant(qVariantFromValue(t)));
+        QVERIFY(m_myObject->propWithCustomType().string == t.string);
     }
 
     // try to delete
