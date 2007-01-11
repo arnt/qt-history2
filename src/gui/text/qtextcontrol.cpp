@@ -2329,7 +2329,11 @@ bool QTextControl::findNextPrevAnchor(const QTextCursor &startCursor, bool next,
 
 void QTextControlPrivate::activateLinkUnderCursor()
 {
-    const QString href = anchorForCursor(cursor);
+    QTextCursor tmp = cursor;
+    if (tmp.selectionStart() != tmp.position())
+        tmp.setPosition(tmp.selectionStart());
+    tmp.movePosition(QTextCursor::NextCharacter);
+    const QString href = tmp.charFormat().anchorHref();
     if (href.isEmpty())
         return;
 
