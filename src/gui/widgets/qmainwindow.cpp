@@ -110,9 +110,10 @@ void QMainWindowPrivate::init()
     application's user interface. Qt has QMainWindow and its \l{Main
     Window and Related Classes}{related classes} for main window
     management. QMainWindow has its own layout to which you can add
-    toolbars, dock windows, a menu bar, and a status bar. The layout
-    has a center area that can be occupied by any kind of widget. You
-    can see an image of the layout below.
+    \l{QToolBar}{QToolBar}s, \l{QDockWindow}{QDockWindow}s, a
+    QMenuBar, and a QStatusBar. The layout has a center area that can
+    be occupied by any kind of widget. You can see an image of the
+    layout below.
     
     \image mainwindowlayout.png 
  
@@ -134,7 +135,7 @@ void QMainWindowPrivate::init()
     \section2 Creating Menus
     
     Qt implements menus in QMenu and QMainWindow keeps them in a
-    QMenuBar. \l{QAction}{QActions} are added to the menus, which
+    QMenuBar. \l{QAction}{QAction}s are added to the menus, which
     display them as menu items.
     
     You can add new menus to the main window's menu bar by calling
@@ -143,7 +144,7 @@ void QMainWindowPrivate::init()
     
     QMainWindow comes with a default menu bar, but you can also
     set one yourself with \c setMenuBar(). If you wish to implement a
-    custom menu bar, i.e., not use the QMenuBar widget, you can set it
+    custom menu bar (i.e., not use the QMenuBar widget), you can set it
     with \c setMenuWidget().
 
     An example of how to create menus follows:
@@ -165,10 +166,10 @@ void QMainWindowPrivate::init()
     
     You control the initial position of toolbars by assigning them
     to a specific Qt::ToolBarArea. You can split an area by inserting
-    a toolbar break--think of this as a line break in text
-    editing--with \c addToolBarBreak() or \c insertToolBarBreak(). You
-    can also restrict placement by the user with
-    QToolBar::setAllowedAreas() and QToolBar::setMovable(). 
+    a toolbar break - think of this as a line break in text editing -
+    with \c addToolBarBreak() or \c insertToolBarBreak(). You can also
+    restrict placement by the user with QToolBar::setAllowedAreas()
+    and QToolBar::setMovable(). 
     
     The size of toolbar icons can be retrieved with \c iconSize().
     The sizes are platform dependent; you can set a fixed size with \c
@@ -197,7 +198,7 @@ void QMainWindowPrivate::init()
     direction.
     
     Two dock widgets may also be stacked on top of each other. A
-    QTabBar is then used to select which widget that should be
+    QTabBar is then used to select which of the widgets that should be
     displayed.
     
     We give an example of how to create and add dock widgets to a
@@ -210,8 +211,8 @@ void QMainWindowPrivate::init()
     \section2 The Status Bar    
 
     You can set a status bar with \c setStatusBar(), but one is
-    created the first time \c statusBar(), which returns the main
-    window's status bar, is called. See QStatusBar for information on
+    created the first time \c statusBar() (which returns the main
+    window's status bar) is called. See QStatusBar for information on
     how to use it.
     
     \section1 Storing State
