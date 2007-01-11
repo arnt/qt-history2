@@ -208,7 +208,15 @@ bool tst_QFileSystemModel::createFiles(const QString &test_path, const QStringLi
     }
     for (int i = 0; i < initial_dirs.count(); ++i) {
         QDir dir(test_path);
-        dir.mkdir(initial_dirs.at(i));
+        if (!dir.exists()) {
+            qWarning() << "error" << test_path << "doesn't exists";
+            return false;
+        }
+        if(!dir.mkdir(initial_dirs.at(i))) {
+            qWarning() << "error" << "failed to make" << initial_dirs.at(i);
+            return false;
+        }
+        //qDebug() << test_path + QDir::separator() + initial_dirs.at(i) << (QFile::exists(test_path + QDir::separator() + initial_dirs.at(i)));
     }
     for (int i = 0; i < initial_files.count(); ++i) {
         QFile file(test_path + QDir::separator() + initial_files.at(i));
