@@ -1042,6 +1042,14 @@ while [ "$#" -gt 0 ]; do
         unixware7-g++)
             PLATFORM=unixware-g++
             ;;
+        macx-g++-64)
+            PLATFORM=macx-g++
+            case `uname -p` in
+            i386) CFG_MAC_ARCHS="$CFG_MAC_ARCHS x86_64" ;;
+            ppc) CFG_MAC_ARCHS="$CFG_MAC_ARCHS ppc64" ;;
+            *)   echo "WARNING: Can't detect CPU architecture for macx-g++-64" ;;
+            esac
+            ;;
         esac
         ;;
     xplatform)
@@ -1762,7 +1770,6 @@ if [ -z "$PLATFORM" ]; then
         if [ "$PLATFORM_MAC" = "yes" ]; then
           PLATFORM=macx-g++
         # PLATFORM=macx-xcode
-        # PLATFORM=macx-g++-64
         else
           PLATFORM=darwin-g++
         fi
