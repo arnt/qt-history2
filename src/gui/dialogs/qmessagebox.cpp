@@ -1121,6 +1121,17 @@ void QMessageBox::setTextFormat(Qt::TextFormat format)
 /*!
     \reimp
 */
+bool QMessageBox::event(QEvent *e)
+{
+    bool result =QDialog::event(e);
+    if (e->type() == QEvent::LayoutRequest)
+        d_func()->updateSize();
+    return result;
+}
+
+/*!
+    \reimp
+*/
 void QMessageBox::resizeEvent(QResizeEvent *event)
 {
     QDialog::resizeEvent(event);

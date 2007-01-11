@@ -284,6 +284,7 @@ public Q_SLOTS:
 #endif
 
 protected:
+    bool event(QEvent *e);
     void resizeEvent(QResizeEvent *event);
     void showEvent(QShowEvent *event);
     void closeEvent(QCloseEvent *event);
