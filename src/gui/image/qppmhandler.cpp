@@ -125,7 +125,7 @@ static bool read_pbm_body(QIODevice *device, char type, int w, int h, int mcc, Q
 
     if (raw) {                                // read raw data
         if (nbits == 32) {                        // type 6
-            pbm_bpl = 3*w;
+            pbm_bpl = mcc < 256 ? 3*w : 6*w;
             uchar *buf24 = new uchar[pbm_bpl], *b;
             QRgb  *p;
             QRgb  *end;
@@ -138,8 +138,15 @@ static bool read_pbm_body(QIODevice *device, char type, int w, int h, int mcc, Q
                 end = p + w;
                 b = buf24;
                 while (p < end) {
-                    *p++ = qRgb(b[0],b[1],b[2]);
-                    b += 3;
+                    if (mcc < 256) {
+                        *p++ = qRgb(b[0],b[1],b[2]);
+                        b += 3;
+                    } else {
+                        *p++ = qRgb(((int(b[0]) * 256 + int(b[1]) + 1) * 256) / (mcc + 1) - 1,
+                                    ((int(b[2]) * 256 + int(b[3]) + 1) * 256) / (mcc + 1) - 1,
+                                    ((int(b[4]) * 256 + int(b[5]) + 1) * 256) / (mcc + 1) - 1);
+                        b += 6;
+                    }
                 }
             }
             delete[] buf24;
