@@ -1074,7 +1074,9 @@ bool QAbstractItemView::dragEnabled() const
     \value DragDrop The view supports both dragging and dropping
     \value InternalMove only accepts move operations only from itself.
 
-    \sa setDragDropMode()
+    Note that the model used needs to provide support for drag and drop operations.
+
+    \sa setDragDropMode() {Using Drag and Drop with Item Views}
 */
 
 /*!
