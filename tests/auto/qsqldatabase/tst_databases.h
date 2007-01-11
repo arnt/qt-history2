@@ -132,8 +132,6 @@ public:
 //	addDb( "QPSQL7", "testdb", "troll", "trond", "horsehead.troll.no", 5436 ); // V7.4
 //	addDb( "QPSQL7", "testdb", "troll", "trond", "horsehead.troll.no", 5437 ); // V8.0.3
 
-//	addDb( "QDB2", "testdb", "troll", "trond", "horsehead" );
-//	addDb( "QDB2", "unitest", "troll", "trond", "horsehead" );
 //	addDb( "QDB2", "testdb", "troll", "trond", "silence"); // DB2 v9.1 on silence
 
 	// yes - interbase really wants the physical path on the host machine.
