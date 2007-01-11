@@ -74,7 +74,7 @@ ExtQObject::Instance *ExtQObject::Instance::get(const QScriptValue &object, QScr
 {
     if (! klass || klass == object.impl()->classInfo())
         return static_cast<Instance*> (object.impl()->objectData().data());
-    
+
     return 0;
 }
 
@@ -104,7 +104,7 @@ static inline QScriptable *scriptableFromQObject(QObject *qobj)
     void *ptr = qobj->qt_metacast("QScriptable");
     return reinterpret_cast<QScriptable*>(ptr);
 }
-                                
+
 class ExtQObjectData: public QScriptClassData
 {
 public:
@@ -293,7 +293,7 @@ public:
             QVariant v = variantFromValue(prop.type(), value);
 
             QScriptable *scriptable = scriptableFromQObject(qobject);
-            QScriptEngine *oldEngine;
+            QScriptEngine *oldEngine = 0;
             if (scriptable) {
                 oldEngine = QScriptablePrivate::get(scriptable)->engine;
                 QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
@@ -839,7 +839,7 @@ void QScript::QtFunction::execute(QScriptContext *context)
                 params[i] = const_cast<void*>(vlist.at(i).constData());
 
             QScriptable *scriptable = scriptableFromQObject(thisQObject);
-            QScriptEngine *oldEngine;
+            QScriptEngine *oldEngine = 0;
             if (scriptable) {
                 oldEngine = QScriptablePrivate::get(scriptable)->engine;
                 QScriptablePrivate::get(scriptable)->engine = eng;
