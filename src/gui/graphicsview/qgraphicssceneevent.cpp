@@ -17,19 +17,37 @@
     graphics view related events.
     \since 4.2
     \ingroup multimedia
-   
-    When a QGraphicsView receives mouse, keyboard, and drag and
-    drop events, it translates them into a graphics scene event
-    (events that inherit QGraphicsSceneEvent). It then forwards them
-    to the scene it displays. The scene then propagates the events to
-    the items it manages. A mouse click event will, for instance, be
-    propagated to the item under the mouse cursor.
-    
-    The graphics scene events main purpose is to provide the
-    coordinates from the original event in screen, scene and item coordinates;
-    the item coordinates is set by the QGraphicsScene before beeing
-    propagated to items.  The mouse events also add the possibility to
-    retrieve the coordinates from the last event received by the view.
+
+    When a QGraphicsView receives Qt mouse, keyboard, and drag and
+    drop events (QMouseEvent, QKeyEvent, QDragEvent, etc.), it
+    translates them into instances of QGraphicsSceneEvent subclasses
+    and forwards them to the QGraphicsScene it displays. The scene
+    then forwards the events to the relevent items.
+
+    For example, when a QGraphicsView receives a QMouseEvent of type
+    MousePress as a response to a user click, the view sends a
+    QGraphicsSceneMouseEvent of type GraphicsSceneMousePress to the
+    underlying QGraphicsScene through its
+    \l{QGraphicsScene::}{mousePressEvent()} function. The default
+    QGraphicsScene::mousePressEvent() implementation determines which
+    item was clicked and forwards the event to
+    QGraphicsItem::mousePressEvent().
+
+    \omit ### Beskrive widget() \endomit
+
+    Subclasses such as QGraphicsSceneMouseEvent and
+    QGraphicsSceneContextMenuEvent provide the coordinates from the
+    original QEvent in screen, scene, and item coordinates (see
+    \l{QGraphicsSceneMouseEvent::}{screenPos()},
+    \l{QGraphicsSceneMouseEvent::}{scenePos()}, and
+    \l{QGraphicsSceneMouseEvent::}{pos()}). The item coordinates are
+    set by the QGraphicsScene before it forwards the event to the
+    event to a QGraphicsItem. The mouse events also add the
+    possibility to retrieve the coordinates from the last event
+    received by the view (see
+    \l{QGraphicsSceneMouseEvent::}{lastScreenPos()},
+    \l{QGraphicsSceneMouseEvent::}{lastScenePos()}, and
+    \l{QGraphicsSceneMouseEvent::}{lastPos()}). 
 
     \sa QEvent
 */
@@ -41,14 +59,15 @@
     \since 4.2
     \ingroup multimedia
 
-    When a QGraphicsView receives a mouse event it translates it
-    to a QGraphicsSceneMouseEvent. The event is then forwarded to
-    the scene it visualizes.
-    
-    In addition to containing the scene, item, and screen
-    coordinates of the event, mouse events will also contain the
-    coordinates of the last event recieved by the view. These can be
-    retrieved with \c lastPos(), lastScreenPos(), and lastScenePos().
+    When a QGraphicsView receives a QMouseEvent, it translates it to
+    a QGraphicsSceneMouseEvent. The event is then forwarded to the
+    QGraphicsScene associated with the view.
+
+    In addition to containing the item, scene, and screen coordinates
+    of the event (as pos(), scenePos(), and screenPos()), mouse
+    events also contain the coordinates of the previous mouse
+    event received by the view. These can be retrieved with
+    lastPos(), lastScreenPos(), and lastScenePos().
 
     \sa QGraphicsSceneContextMenuEvent,
 	QGraphicsSceneHoverEvent, QGraphicsSceneWheelEvent,
@@ -66,11 +85,11 @@
 
     \l{QWheelEvent}{QWheelEvent}s received by a QGraphicsView are translated
     into QGraphicsSceneWheelEvents; it translates the QWheelEvent::globalPos()
-    into screen and scene coordinates.
+    into item, scene, and screen coordinates (pos(), scenePos(), and
+    screenPos()).
 
-    \sa QGraphicsSceneMouseEvent,
-    QGraphicsSceneContextMenuEvent, QGraphicsSceneHoverEvent,
-    QWheelEvent
+    \sa QGraphicsSceneMouseEvent, QGraphicsSceneContextMenuEvent,
+    QGraphicsSceneHoverEvent, QWheelEvent
 */
 
 /*!
@@ -81,9 +100,9 @@
     \ingroup multimedia
 
     A QContextMenuEvent received by a QGraphicsView is translated
-    into a QGraphicsSceneContextMenuEvent; it translates the
-    QContextmenuEvent::pos() into screen and scene coordinates. The
-    event is then forwarded to the scene visualized by the view.
+    into a QGraphicsSceneContextMenuEvent. The
+    QWheelEvent::globalPos() is translated into item, scene, and
+    screen coordinates (pos(), scenePos(), and screenPos()).
 
     \sa QGraphicsSceneMouseEvent, QGraphicsSceneWheelEvent,
     QContextMenuEvent
@@ -94,12 +113,11 @@
 
     This enum describes the reason why the context event was sent.
 
-    \value Mouse The mouse caused the event to be sent. Normally
-    this means the right mouse button was clicked, but this is
-    platform dependent.
+    \value Mouse The mouse caused the event to be sent. On most
+    platforms, this means the right mouse button was clicked.
 
     \value Keyboard The keyboard caused this event to be sent. On
-    Windows, this means the menu button was pressed.
+    Windows and Mac OS X, this means the menu button was pressed.
 
     \value Other The event was sent by some other means (i.e. not
     by the mouse or keyboard).
@@ -112,10 +130,9 @@
     \since 4.2
     \ingroup multimedia
 
-    When a QGraphicsView receives mouse events it translates them
-    into graphics scene events (events that inherit
-    QGraphicsSceneEvent). It then forwards the event to the scene
-    it displays; the scene then propagates it to its items.
+    When a QGraphicsView receives a QHoverEvent event, it translates
+    it into QGraphicsSceneHoverEvent. The event is then forwarded to
+    the QGraphicsScene associated with the view.
 
     \sa QGraphicsSceneMouseEvent, QGraphicsSceneContextMenuEvent,
         QGraphicsSceneWheelEvent, QHoverEvent
@@ -133,12 +150,12 @@
     forwarded to the scene. You can set a tooltip on a QGraphicsItem
     with \l{QGraphicsItem::}{setToolTip()}; by default QGraphicsScene
     displays the tooltip of the QGraphicsItem with the highest
-    z-value, i.e, the top most item,  under the mouse position.
+    z-value (i.e, the top-most item) under the mouse position.
     
-    QGraphicsView does not propagate events when
+    QGraphicsView does not forward events when
     \l{QWhatsThis}{"What's This"} and \l{QStatusTipEvent}{status tip}
     help is requested. If you need this, you can reimplement
-    QGraphicsView::viewportEvent() and propagate QStatusTipEvent
+    QGraphicsView::viewportEvent() and forward QStatusTipEvent
     events and \l{QEvent}{QEvents} of type QEvent::WhatsThis to the
     scene.
 
@@ -152,17 +169,18 @@
     \since 4.2
     \ingroup multimedia
 
-    QGraphicsView indirectly inherits QWidget and the drag and
-    drop functionality QWidget provides. When it receives a drag and
-    drop event, it does not forward the event to the scene it displays
-    directly, but translates it to a QGraphicsSceneDragDropEvent,
-    which--unlike QDropEvent--contain the screen and scene coordinates
-    of the event.
-    
+    QGraphicsView inherits the drag and drop functionality provided
+    by QWidget. When it receives a drag and drop event, it translates
+    it to a QGraphicsSceneDragDropEvent.
+
+    QGraphicsSceneDragDropEvent stores events of type
+    GraphicsSceneDragEnter, GraphicsSceneDragLeave,
+    GraphicsSceneDragMove, or GraphicsSceneDrop.
+
     QGraphicsSceneDragDropEvent contains the position of the mouse
-    cursor in both screen, item, and scene coordinates; this can be
-    retrieved with scenePos(), pos(), and screenPos().
-    
+    cursor in both item, scene, and screen coordinates; this can be
+    retrieved with pos(), scenePos(), and screenPos().
+
     The scene sends the event to the first QGraphicsItem under the
     mouse cursor that accepts drops; a graphics item is set to accept
     drops with \l{QGraphicsItem::}{setAcceptDrops()}.
@@ -194,8 +212,9 @@ public:
 };
 
 /*!
-    Constructs a generic graphics scene event of the specified \a type.
     \internal
+
+    Constructs a generic graphics scene event of the specified \a type.
 */
 QGraphicsSceneEvent::QGraphicsSceneEvent(Type type)
     : QEvent(type), d_ptr(new QGraphicsSceneEventPrivate)
@@ -205,6 +224,7 @@ QGraphicsSceneEvent::QGraphicsSceneEvent(Type type)
 
 /*!
     \internal
+
     Constructs a generic graphics scene event.
 */
 QGraphicsSceneEvent::QGraphicsSceneEvent(QGraphicsSceneEventPrivate &dd, Type type)
@@ -222,8 +242,8 @@ QGraphicsSceneEvent::~QGraphicsSceneEvent()
 }
 
 /*!
-    Returns the widget where the event originated. If the event did not
-    originate from a widget, 0 is returned.
+    Returns the widget where the event originated, or 0 if the event
+    originates from another application.
 */
 QWidget *QGraphicsSceneEvent::widget() const
 {
@@ -232,6 +252,7 @@ QWidget *QGraphicsSceneEvent::widget() const
 
 /*!
     \internal
+
     Sets the \a widget related to this event.
 
     \sa widget()
@@ -266,6 +287,7 @@ public:
 
 /*!
     \internal
+
     Constructs a generic graphics scene mouse event of the specified \a type.
 */
 QGraphicsSceneMouseEvent::QGraphicsSceneMouseEvent(Type type)
@@ -344,7 +366,7 @@ void QGraphicsSceneMouseEvent::setScreenPos(const QPoint &pos)
     Returns the mouse cursor position in item coordinates where the specified
     \a button was clicked.
 
-  \sa buttonDownScenePos(), buttonDownScreenPos(), pos()
+    \sa buttonDownScenePos(), buttonDownScreenPos(), pos()
 */
 QPointF QGraphicsSceneMouseEvent::buttonDownPos(Qt::MouseButton button) const
 {
@@ -362,8 +384,8 @@ void QGraphicsSceneMouseEvent::setButtonDownPos(Qt::MouseButton button, const QP
 }
 
 /*!
-    Returns the mouse cursor position in scene coordinates where the specified
-    \a button was clicked.
+    Returns the mouse cursor position in scene coordinates where the
+    specified \a button was clicked.
 
     \sa buttonDownPos(), buttonDownScreenPos(), scenePos()
 */
@@ -404,7 +426,8 @@ void QGraphicsSceneMouseEvent::setButtonDownScreenPos(Qt::MouseButton button, co
 }
 
 /*!
-    Returns the last recorded mouse cursor position in item coordinates.
+    Returns the last recorded mouse cursor position in item
+    coordinates.
 
     \sa lastScenePos(), lastScreenPos(), pos()
 */
@@ -469,8 +492,8 @@ void QGraphicsSceneMouseEvent::setLastScreenPos(const QPoint &pos)
 }
 
 /*!
-    Returns the combination of mouse buttons that were pressed at the time the
-    event was sent.
+    Returns the combination of mouse buttons that were pressed at the
+    time the event was sent.
 
     \sa button(), modifiers()
 */
@@ -490,7 +513,7 @@ void QGraphicsSceneMouseEvent::setButtons(Qt::MouseButtons buttons)
 }
 
 /*!
-    Returns the mouse button--if any--that caused the event.
+    Returns the mouse button (if any) that caused the event.
 
     \sa buttons(), modifiers()
 */
@@ -513,7 +536,7 @@ void QGraphicsSceneMouseEvent::setButton(Qt::MouseButton button)
     Returns the keyboard modifiers in use at the time the event was
     sent.
 
-    \sa button(), buttons()
+    \sa buttons(), button()
 */
 Qt::KeyboardModifiers QGraphicsSceneMouseEvent::modifiers() const
 {
@@ -547,6 +570,8 @@ public:
 };
 
 /*!
+    \internal
+
     Constructs a QGraphicsSceneWheelEvent of type \a type, which
     is always QEvent::GraphicsSceneWheel.
 */
@@ -667,10 +692,10 @@ void QGraphicsSceneWheelEvent::setModifiers(Qt::KeyboardModifiers modifiers)
 }
 
 /*!
-    Returns the distance that the wheel is rotated, in eights of a degree. A
-    positive value indicates that the wheel was rotated forwards away from the
-    user; a negative value indicates that the wheel was rotated backwards
-    toward the user.
+    Returns the distance that the wheel is rotated, in eighths (1/8s)
+    of a degree. A positive value indicates that the wheel was
+    rotated forwards away from the user; a negative value indicates
+    that the wheel was rotated backwards toward the user.
 
     Most mouse types work in steps of 15 degrees, in which case the delta
     value is a multiple of 120 (== 15 * 8).
@@ -706,8 +731,9 @@ class QGraphicsSceneContextMenuEventPrivate : public QGraphicsSceneEventPrivate
 };
 
 /*!
-    Constructs a graphics scene context menu event of the specified \a type.
     \internal
+
+    Constructs a graphics scene context menu event of the specified \a type.
 */
 QGraphicsSceneContextMenuEvent::QGraphicsSceneContextMenuEvent(Type type)
     : QGraphicsSceneEvent(*new QGraphicsSceneContextMenuEventPrivate, type)
@@ -850,6 +876,7 @@ public:
 
 /*!
     \internal
+
     Constructs a graphics scene hover event of the specified \a type.
 */
 QGraphicsSceneHoverEvent::QGraphicsSceneHoverEvent(Type type)
@@ -948,6 +975,7 @@ public:
 
 /*!
     \internal
+
     Constructs a graphics scene help event of the specified \a type.
 */
 QGraphicsSceneHelpEvent::QGraphicsSceneHelpEvent(Type type)
@@ -1033,12 +1061,12 @@ public:
 };
 
 /*!
-    Constructs a new QGraphicsSceneDragDropEvent of the
-    specified \a type. The type can be either,
-    QEvent::GraphicsSceneDragEnter, QEvent::GraphicsSceneDragLeave
-    , QEvent::GraphicsSceneDragMove or, QEvent::GraphicsSceneDrop.
-
     \internal
+
+    Constructs a new QGraphicsSceneDragDropEvent of the
+    specified \a type. The type can be either
+    QEvent::GraphicsSceneDragEnter, QEvent::GraphicsSceneDragLeave,
+    QEvent::GraphicsSceneDragMove, or QEvent::GraphicsSceneDrop.
 */
 QGraphicsSceneDragDropEvent::QGraphicsSceneDragDropEvent(Type type)
     : QGraphicsSceneEvent(*new QGraphicsSceneDragDropEventPrivate, type)
@@ -1056,8 +1084,7 @@ QGraphicsSceneDragDropEvent::~QGraphicsSceneDragDropEvent()
     Returns the mouse position of the event relative to the
     view that sent the event.
     
-    \sa QGraphicsView, screenPos(),
-	scenePos()
+    \sa QGraphicsView, screenPos(), scenePos()
 */
 QPointF QGraphicsSceneDragDropEvent::pos() const
 {
