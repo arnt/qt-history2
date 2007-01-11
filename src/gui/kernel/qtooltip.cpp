@@ -27,6 +27,10 @@
 #include <qdebug.h>
 #ifndef QT_NO_TOOLTIP
 
+#ifdef Q_WS_MAC
+#include <Carbon/Carbon.h>
+#endif
+
 /*!
     \class QToolTip
 
@@ -78,6 +82,7 @@ public:
     bool eventFilter(QObject *, QEvent *);
 
     QBasicTimer hideTimer;
+    bool fadingOut;
 
     void reuseTip(const QPoint &pos, const QString &text, QWidget *w);
     void hideTip();
@@ -117,6 +122,7 @@ QTipLabel::QTipLabel(const QPoint &pos, const QString &text, QWidget *w)
     setWindowOpacity(style()->styleHint(QStyle::SH_ToolTipLabel_Opacity, 0, this) / 255.0);
     setPalette(QToolTip::palette());
     setMouseTracking(true);
+    fadingOut = false;
 
     reuseTip(pos, text, w);
 }
@@ -179,15 +185,16 @@ QTipLabel::~QTipLabel()
     instance = 0;
 }
 
-void QTipLabel::hideTipImmidiatly()
-{
-    close(); // to trigger QEvent::Close which stops the animation
-    deleteLater();
-}
-
 void QTipLabel::hideTip()
 {
     hideTimer.start(300, this);
+}
+
+void QTipLabel::hideTipImmidiatly()
+{
+    qDebug() << "hide";
+    close(); // to trigger QEvent::Close which stops the animation
+    deleteLater();
 }
 
 void QTipLabel::setTipRect(QWidget *w, const QRect &r)
@@ -203,7 +210,16 @@ void QTipLabel::setTipRect(QWidget *w, const QRect &r)
 void QTipLabel::timerEvent(QTimerEvent *e)
 {
     if (e->timerId() == hideTimer.timerId()){
+        hideTimer.stop();
+#ifdef Q_WS_MAC
+        // Fade out tip on mac (makes it invisible).
+        // The tip will not be deleted until a new tip is shown.
+        TransitionWindowOptions options = {0, 1, 0, 0};
+        TransitionWindowWithOptions(qt_mac_window_for(this), kWindowFadeTransitionEffect, kWindowHideTransitionAction, 0, 1, &options);
+        QTipLabel::instance->fadingOut = true; // will never be false again.
+#else
         hideTipImmidiatly();
+#endif
     }
 }
 
@@ -314,15 +330,23 @@ bool QTipLabel::tipChanged(const QPoint &pos, const QString &text, QObject *o)
 
 void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w, const QRect &rect)
 {
-    if (QTipLabel::instance){ // a tip is already showing
-        if (text.isEmpty())
-            QTipLabel::instance->hideTipImmidiatly();
-        else if (QTipLabel::instance->tipChanged(pos, text, w)){
-            QTipLabel::instance->reuseTip(pos, text, w);
-            QTipLabel::instance->setTipRect(w, rect);
+    if (QTipLabel::instance){ // a tip does already exist
+        if (text.isEmpty()){ // empty text means hide current tip
+            QTipLabel::instance->hideTip();
+            return;
         }
+        else if (!QTipLabel::instance->fadingOut){
+            // If the tip has changed, reuse the one
+            // that is showing (removes flickering)
+            if (QTipLabel::instance->tipChanged(pos, text, w)){
+                QTipLabel::instance->reuseTip(pos, text, w);
+                QTipLabel::instance->setTipRect(w, rect);
+            }
+            return;
+        }    
     }
-    else if (!text.isEmpty()){ // no tip is showing, create new tip:
+
+    if (!text.isEmpty()){ // no tip can be reused, create new tip:
         new QTipLabel(pos, text, w); // sets QTipLabel::instance to itself
         QTipLabel::instance->setTipRect(w, rect);
         QTipLabel::instance->setObjectName(QLatin1String("qtooltip_label"));
