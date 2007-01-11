@@ -1460,7 +1460,7 @@ bool qSharedBuild()
     Optimizing C++ Compilers.
 */
 
-#if !defined(Q_BYTE_ORDER) && defined(QT_BUILD_QMAKE)
+#if defined(QT_BUILD_QMAKE)
 // needed to bootstrap qmake
 static const unsigned int qt_one = 1;
 const int QSysInfo::ByteOrder = ((*((unsigned char *) &qt_one) == 0) ? BigEndian : LittleEndian);
