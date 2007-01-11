@@ -2823,7 +2823,7 @@ Qt/Mac only:
                          link tools against those frameworks.
     -no-framework ...... Do not build Qt as a series of frameworks.
 
-    -universal ......... Equivalent to -arch ppc -arch x86
+    -universal ......... Equivalent to -arch "ppc x86"
 
     -arch <arch> ....... Build Qt for <arch>
                          Example values for <arch>: x86 ppc x86_64 ppc64
