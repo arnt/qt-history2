@@ -30,6 +30,7 @@
 
 #include <QtCore/qhash.h>
 
+typedef struct _GMainContext GMainContext;
 class QEventDispatcherGlibPrivate;
 
 class Q_CORE_EXPORT QEventDispatcherGlib : public QAbstractEventDispatcher
@@ -39,6 +40,8 @@ class Q_CORE_EXPORT QEventDispatcherGlib : public QAbstractEventDispatcher
 
 public:
     explicit QEventDispatcherGlib(QObject *parent = 0);
+    explicit QEventDispatcherGlib(GMainContext *mainContext,
+				  QObject *parent = 0);
     ~QEventDispatcherGlib();
 
     bool processEvents(QEventLoop::ProcessEventsFlags flags);
@@ -71,7 +74,7 @@ class Q_CORE_EXPORT QEventDispatcherGlibPrivate : public QAbstractEventDispatche
 {
 
 public:
-    QEventDispatcherGlibPrivate();
+    QEventDispatcherGlibPrivate(GMainContext *mainContext = 0);
     GMainContext *mainContext;
     GPostEventSource *postEventSource;
     GSocketNotifierSource *socketNotifierSource;

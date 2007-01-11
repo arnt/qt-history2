@@ -195,17 +195,22 @@ static GSourceFuncs postEventSourceFuncs = {
 };
 
 
-QEventDispatcherGlibPrivate::QEventDispatcherGlibPrivate()
+QEventDispatcherGlibPrivate::QEventDispatcherGlibPrivate(GMainContext *mainContext)
+    : mainContext(mainContext)
 {
     if (!g_thread_supported())
         g_thread_init(NULL);
 
-    QCoreApplication *app = QCoreApplication::instance();
-    if (app && QThread::currentThread() == app->thread()) {
-        mainContext = g_main_context_default();
+    if (mainContext) {
         g_main_context_ref(mainContext);
     } else {
-        mainContext = g_main_context_new();
+        QCoreApplication *app = QCoreApplication::instance();
+	if (app && QThread::currentThread() == app->thread()) {
+	    mainContext = g_main_context_default();
+	    g_main_context_ref(mainContext);
+	} else {
+	    mainContext = g_main_context_new();
+	}
     }
 
     postEventSource = reinterpret_cast<GPostEventSource *>(g_source_new(&postEventSourceFuncs,
@@ -245,6 +250,13 @@ QEventDispatcherGlibPrivate::QEventDispatcherGlibPrivate()
 
 QEventDispatcherGlib::QEventDispatcherGlib(QObject *parent)
     : QAbstractEventDispatcher(*(new QEventDispatcherGlibPrivate), parent)
+{
+}
+
+QEventDispatcherGlib::QEventDispatcherGlib(GMainContext *mainContext,
+					   QObject *parent)
+    : QAbstractEventDispatcher(*(new QEventDispatcherGlibPrivate(mainContext)),
+			       parent)
 {
 }
 
