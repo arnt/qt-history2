@@ -2033,6 +2033,10 @@ void QComboBox::showPopup()
             listRect.setWidth(listRect.width() + diff);
     }
 
+    //takes account of the minimum/maximum size of the container
+    listRect.setSize( listRect.size().expandedTo(container->minimumSize())
+        .boundedTo(container->maximumSize()));
+
     // make sure the widget fits on screen
     if (listRect.width() > screen.width() )
         listRect.setWidth(screen.width());

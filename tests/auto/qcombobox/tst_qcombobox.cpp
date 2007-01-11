@@ -10,6 +10,8 @@
 #include <QtTest/QtTest>
 
 #include "qcombobox.h"
+#include <qfontcombobox.h>
+#include <qdesktopwidget.h>
 #include <qapplication.h>
 #include <qpushbutton.h>
 #include <qdialog.h>
@@ -84,6 +86,7 @@ private slots:
     void mouseWheel_data();
     void mouseWheel();
     void layoutDirection();
+    void itemListPosition();
 
 protected slots:
     void onEditTextChanged( const QString &newString );
@@ -1783,7 +1786,43 @@ void tst_QComboBox::layoutDirection()
     QCOMPARE(lineEdit->layoutDirection(), qApp->layoutDirection());
     box.setLineEdit(lineEdit);
     QCOMPARE(lineEdit->layoutDirection(), dir);
+
 }
+
+void tst_QComboBox::itemListPosition()
+{
+    //tests that the list is not out of the screen boundaries
+
+    //put the QApplication layout back
+    qApp->setLayoutDirection(Qt::LeftToRight);
+
+    //we test QFontComboBox because it has the specific behaviour to set a fixed size
+    //the the list view
+    QFontComboBox combo;
+
+    //the code to get the avaialbe screen space is copied from QComboBox code
+    const int scrNumber = QApplication::desktop()->screenNumber(&combo);
+    QRect screen;
+#ifdef Q_WS_WIN
+    screen = QApplication::desktop()->screenGeometry(scrNumber);
+#elif defined Q_WS_X11
+    if (X11->desktopEnvironment == DE_KDE)
+        screen = QApplication::desktop()->screenGeometry(scrNumber);
+    else
+        screen = QApplication::desktop()->availableGeometry(scrNumber);
+#else
+    screen = QApplication::desktop()->availableGeometry(screen);
+#endif
+
+    combo.move(screen.width()-combo.sizeHint().width(), 0); //puts the combo the the top-right corner
+    
+    combo.show();
+    combo.showPopup();
+
+    QCOMPARE( combo.view()->window()->x() + combo.view()->window()->width(), screen.x() + screen.width() );
+
+}
+
 
 QTEST_MAIN(tst_QComboBox)
 #include "tst_qcombobox.moc"
