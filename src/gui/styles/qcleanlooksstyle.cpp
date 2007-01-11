@@ -966,6 +966,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
     case PE_IndicatorRadioButton:
         painter->save();
         {
+            painter->setRenderHint(QPainter::SmoothPixmapTransform);
             QRect checkRect = rect.adjusted(0, 0, 0, 0);
             if (state & (State_On )) {
                 painter->drawImage(rect, QImage(qt_cleanlooks_radiobutton));
