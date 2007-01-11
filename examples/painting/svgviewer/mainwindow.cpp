@@ -31,13 +31,22 @@ MainWindow::MainWindow()
     QMenu *rendererMenu = new QMenu(tr("&Renderer"), this);
     nativeAction = rendererMenu->addAction(tr("&Native"));
     nativeAction->setCheckable(true);
-    nativeAction->setChecked(true);
     #ifndef QT_NO_OPENGL
     glAction = rendererMenu->addAction(tr("&OpenGL"));
     glAction->setCheckable(true);
+    glAction->setChecked(true);
+    #else
+    nativeAction->setChecked(true);
     #endif
     imageAction = rendererMenu->addAction(tr("&Image"));
     imageAction->setCheckable(true);
+
+    rendererMenu->addSeparator();
+
+    QAction *fastAntialiasingAction = rendererMenu->addAction(tr("&Fast Antialiasing"));
+
+    fastAntialiasingAction->setCheckable(true);
+    fastAntialiasingAction->setChecked(false);
 
     QActionGroup *rendererGroup = new QActionGroup(this);
     rendererGroup->addAction(nativeAction);
@@ -52,9 +61,15 @@ MainWindow::MainWindow()
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
     connect(rendererGroup, SIGNAL(triggered(QAction *)),
             this, SLOT(setRenderer(QAction *)));
+    connect(fastAntialiasingAction, SIGNAL(toggled(bool)), this, SLOT(setFastAntialiasing(bool)));
 
     setCentralWidget(area);
     setWindowTitle(tr("SVG Viewer"));
+}
+
+void MainWindow::setFastAntialiasing(bool fastAntialiasing)
+{
+    area->setFastAntialiasing(fastAntialiasing);
 }
 
 void MainWindow::openFile(const QString &path)

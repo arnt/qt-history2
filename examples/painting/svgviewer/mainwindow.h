@@ -31,6 +31,7 @@ public:
 public slots:
     void openFile(const QString &path = QString());
     void setRenderer(QAction *action);
+    void setFastAntialiasing(bool fa);
 
 private:
     QAction *nativeAction;

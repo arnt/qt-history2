@@ -17,10 +17,15 @@
 #include "svgwindow.h"
 
 SvgWindow::SvgWindow()
-    : QScrollArea()
+    : QScrollArea(),
+      fastAntialiasing(false)
 {
     QWidget *view = new QWidget(this);
+#ifdef QT_NO_OPENGL
     renderer = SvgWindow::Native;
+#else
+    renderer = SvgWindow::OpenGL;
+#endif
     setWidget(view);
 }
 
@@ -38,14 +43,27 @@ void SvgWindow::setRenderer(RendererType type)
     if (renderer == OpenGL) {
         #ifndef QT_NO_OPENGL
         view = new SvgGLView(currentPath, this);
+        dynamic_cast<SvgGLView *>(view)->setFastAntialiasing(fastAntialiasing);
         #endif
-    } else if (renderer == Image)
+    } else if (renderer == Image) {
         view = new SvgRasterView(currentPath, this);
-    else
+    } else {
         view = new SvgNativeView(currentPath, this);
+    }
 
     setWidget(view);
     view->show();
+}
+
+void SvgWindow::setFastAntialiasing(bool fa)
+{
+    fastAntialiasing = fa;
+
+    #ifndef QT_NO_OPENGL
+    QWidget *view = widget();
+    if (renderer == OpenGL)
+        dynamic_cast<SvgGLView *>(view)->setFastAntialiasing(fastAntialiasing);
+    #endif
 }
 
 void SvgWindow::mousePressEvent(QMouseEvent *event)

@@ -20,6 +20,31 @@
 #include <QWheelEvent>
 #include <QtDebug>
 
+#include <QTime>
+
+static void frameRendered()
+{
+    static int frameCount = 0;
+    static QTime lastTime = QTime::currentTime();
+
+    ++frameCount;
+
+    const QTime currentTime = QTime::currentTime();
+
+    const int interval = 5000;
+
+    const int delta = lastTime.msecsTo(currentTime);
+
+    if (delta > interval) {
+        qreal fps = 1000.0 * frameCount / delta;
+        qDebug() << "FPS:" << fps;
+
+        frameCount = 0;
+        lastTime = currentTime;
+    }
+}
+
+
 SvgRasterView::SvgRasterView(const QString &file, QWidget *parent)
     : QWidget(parent)
 {
@@ -40,6 +65,9 @@ void SvgRasterView::paintEvent(QPaintEvent *)
     }
     QPainter pt(this);
     pt.drawImage(0, 0, buffer);
+
+    frameRendered();
+    update();
 }
 
 QSize SvgRasterView::sizeHint() const
@@ -86,6 +114,9 @@ void SvgNativeView::paintEvent(QPaintEvent *)
     QPainter p(this);
     p.setViewport(0, 0, width(), height());
     doc->render(&p);
+
+    frameRendered();
+    update();
 }
 
 QSize SvgNativeView::sizeHint() const
@@ -113,17 +144,27 @@ void SvgNativeView::wheelEvent(QWheelEvent *e)
 
 #ifndef QT_NO_OPENGL
 SvgGLView::SvgGLView(const QString &file, QWidget *parent)
-    : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
+    : QGLWidget(QGLFormat(QGL::SampleBuffers), parent),
+      fastAntialiasing(false)
 {
     doc = new QSvgRenderer(file, this);
     connect(doc, SIGNAL(repaintNeeded()),
             this, SLOT(update()));
 }
 
+void SvgGLView::setFastAntialiasing(bool fa)
+{
+    fastAntialiasing = fa;
+}
+
 void SvgGLView::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
+    p.setRenderHint(QPainter::FastAntialiasing, fastAntialiasing);
     doc->render(&p);
+
+    frameRendered();
+    update();
 }
 
 QSize SvgGLView::sizeHint() const

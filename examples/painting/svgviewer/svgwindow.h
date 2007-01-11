@@ -32,12 +32,15 @@ public:
     void mouseReleaseEvent(QMouseEvent *event);
     void openFile(const QString &file);
     void setRenderer(RendererType type = Native);
+    void setFastAntialiasing(bool fastAntialiasing);
 
 private:
     QPoint mousePressPos;
     QPoint scrollBarValuesOnMousePress;
     QString currentPath;
     RendererType renderer;
+
+    bool fastAntialiasing;
 };
 
 #endif
