@@ -606,12 +606,14 @@ bool QGLOffscreen::isSupported()
 
 struct QDrawQueueItem
 {
-    QDrawQueueItem(qreal _opacity, QBrush _brush,
+    QDrawQueueItem(qreal _opacity,
+                   QBrush _brush,
                    const QPointF &_brush_origion,
                    QPainter::CompositionMode _composition_mode,
                    const QTransform &_matrix,
                    QGLMaskTextureCache::CacheLocation _location)
         : opacity(_opacity),
+          brush(_brush),
           brush_origin(_brush_origion),
           composition_mode(_composition_mode),
           matrix(_matrix),
