@@ -21,6 +21,10 @@
    QT_VERSION is (major << 16) + (minor << 8) + patch.
 */
 #define QT_VERSION 0x040300
+/*
+   can be used like #if (QT_VERSION >= QT_VERSION_CHECK(4, 3, 0))
+*/
+#define QT_VERSION_CHECK(major, minor, patch) ((major<<16)|(minor<<8)|(patch))
 
 #define QT_PACKAGEDATE_STR "YYYY-MM-DD"
 
