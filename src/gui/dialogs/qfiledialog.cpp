@@ -349,7 +349,7 @@ void QFileDialog::setDirectory(const QString &directory)
     d->listView->setRootIndex(root);
     d->treeView->setRootIndex(root);
     d->listView->selectionModel()->clear();
-    d->newFolderButton->setEnabled(d->model->flags(root) & Qt::ItemIsDropEnabled );
+    d->newFolderButton->setEnabled(d->model->flags(root) & Qt::ItemIsDropEnabled);
 }
 
 /*!
@@ -701,19 +701,19 @@ QFileDialog::AcceptMode QFileDialog::acceptMode() const
 
 /*!
     \property QFileDialog::readOnly
-    \brief Wether the filedialog is readonly.
+    \brief Whether the filedialog is readonly.
 
     If this property is set to false, the filedialog will allow creating, renaming, copying
     and deleting files and directories.
 */
-void QFileDialog::setReadOnly(bool enabled)
+void QFileDialog::setReadOnly(bool disabled)
 {
     Q_D(QFileDialog);
-    d->model->setReadOnly(enabled);
-    if (!enabled) {
-        d->newFolderButton->setEnabled(!enabled);
-        d->renameAction->setEnabled(!enabled);
-        d->deleteAction->setEnabled(!enabled);
+    d->model->setReadOnly(disabled);
+    if (disabled) {
+        d->newFolderButton->setEnabled(false);
+        d->renameAction->setEnabled(false);
+        d->deleteAction->setEnabled(false);
     }
 }
 
