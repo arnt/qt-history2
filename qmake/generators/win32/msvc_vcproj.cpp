@@ -267,6 +267,10 @@ const char _slnSolutionConf[]   = "\n\tGlobalSection(SolutionConfiguration) = pr
                                   "\n\t\tConfigName.0 = Debug"
                                   "\n\t\tConfigName.1 = Release"
                                   "\n\tEndGlobalSection";
+const char _slnSolutionConf80[] = "\n\tGlobalSection(SolutionConfigurationPlatforms) = preSolution"
+                                  "\n\t\tDebug|Win32 = Debug|Win32"
+                                  "\n\t\tRelease|Win32 = Release|Win32"
+                                  "\n\tEndGlobalSection";
 const char _slnProjDepBeg[]     = "\n\tGlobalSection(ProjectDependencies) = postSolution";
 const char _slnProjDepEnd[]     = "\n\tEndGlobalSection";
 const char _slnProjConfBeg[]    = "\n\tGlobalSection(ProjectConfiguration) = postSolution";
@@ -614,7 +618,10 @@ nextfile:
         }
     }
     t << _slnGlobalBeg;
-    t << _slnSolutionConf;
+    if (which_dotnet_version() == NET2005)
+        t << _slnSolutionConf80;
+    else
+        t << _slnSolutionConf;
     t << _slnProjDepBeg;
 
     // Restore previous after_user_var options
