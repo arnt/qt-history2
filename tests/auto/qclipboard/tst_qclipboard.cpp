@@ -28,6 +28,7 @@ private slots:
     void modes();
     void testSignals();
     void copy_exit_paste();
+    void setMimeData();
 
 private:
     bool nativeClipboardWorking();
@@ -149,6 +150,21 @@ void tst_QClipboard::copy_exit_paste()
     const QStringList stringArgument = QStringList() << "Test string.";
     QCOMPARE(QProcess::execute("copier/copier", stringArgument), 0);
     QCOMPARE(QProcess::execute("paster/paster", stringArgument), 0);
+}
+
+void tst_QClipboard::setMimeData()
+{
+    QMimeData *mimeData = new QMimeData;
+
+    QApplication::clipboard()->setMimeData(mimeData);
+    QCOMPARE(QApplication::clipboard()->mimeData(), mimeData);
+
+    // set it to the same data again, it shouldn't delete mimeData (and crash as a result)
+    QApplication::clipboard()->setMimeData(mimeData);
+    QCOMPARE(QApplication::clipboard()->mimeData(), mimeData);
+    QApplication::clipboard()->clear();
+
+    QVERIFY(QApplication::clipboard()->mimeData() != mimeData);
 }
 
 QTEST_MAIN(tst_QClipboard)

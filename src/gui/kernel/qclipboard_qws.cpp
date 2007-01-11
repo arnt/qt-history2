@@ -77,7 +77,12 @@ public:
    ~QClipboardData();
 
     void setSource(QMimeData* s)
-        { delete src; src = s; }
+    {
+        if (s == src)
+            return;
+        delete src;
+        src = s;
+    }
     QMimeData* source()
         { return src; }
 #if 0

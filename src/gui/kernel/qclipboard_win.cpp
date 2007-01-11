@@ -152,9 +152,10 @@ void QClipboard::setMimeData(QMimeData *src, Mode mode)
 
     QClipboardData *d = clipboardData();
 
-    d->releaseIData();
-
-    d->iData = new QOleDataObject(src);
+    if (d->iData->mimeData() != src) {
+        d->releaseIData();
+        d->iData = new QOleDataObject(src);
+    }
 
     if (OleSetClipboard(d->iData) != S_OK) {
         d->releaseIData();

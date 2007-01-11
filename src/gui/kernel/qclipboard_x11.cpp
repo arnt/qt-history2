@@ -126,6 +126,8 @@ public:
 
     void setSource(QMimeData* s)
     {
+        if (s == src)
+            return;
         delete src;
         src = s;
     }
