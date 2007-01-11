@@ -84,7 +84,8 @@ public:
     void hideTipImmidiatly();
     void setTipRect(QWidget *w, const QRect &r);
     void restartHideTimer();
-    
+    bool tipChanged(const QPoint &pos, const QString &text, QObject *o);
+
 protected:
     void timerEvent(QTimerEvent *e);
     void paintEvent(QPaintEvent *e);
@@ -186,7 +187,7 @@ void QTipLabel::hideTipImmidiatly()
 
 void QTipLabel::hideTip()
 {
-    hideTimer.start(400, this);
+    hideTimer.start(300, this);
 }
 
 void QTipLabel::setTipRect(QWidget *w, const QRect &r)
@@ -281,6 +282,20 @@ void QTipLabel::placeTip(const QPoint &pos, QWidget *w)
     this->move(p);
 }
 
+bool QTipLabel::tipChanged(const QPoint &pos, const QString &text, QObject *o)
+{
+    if (QTipLabel::instance->text() != text)
+        return true;
+        
+    if (o != widget)
+        return true;
+        
+    if (!rect.isNull())
+        return !rect.contains(pos);
+    else
+       return false; 
+}
+
 /*!
     Shows \a text as a tool tip, at global position \a pos. If you
     specify a non-empty rect the tip will be hidden as soon as you
@@ -300,17 +315,15 @@ void QTipLabel::placeTip(const QPoint &pos, QWidget *w)
 void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w, const QRect &rect)
 {
     if (QTipLabel::instance){ // a tip is already showing
-        if (QTipLabel::instance->text() == text)
-            QTipLabel::instance->restartHideTimer();
-        else if (text.isEmpty())
+        if (text.isEmpty())
             QTipLabel::instance->hideTipImmidiatly();
-        else{
+        else if (QTipLabel::instance->tipChanged(pos, text, w)){
             QTipLabel::instance->reuseTip(pos, text, w);
             QTipLabel::instance->setTipRect(w, rect);
         }
     }
     else if (!text.isEmpty()){ // no tip is showing, create new tip:
-        new QTipLabel(pos, text, w);
+        new QTipLabel(pos, text, w); // sets QTipLabel::instance to itself
         QTipLabel::instance->setTipRect(w, rect);
         QTipLabel::instance->setObjectName(QLatin1String("qtooltip_label"));
 
