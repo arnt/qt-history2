@@ -1331,6 +1331,14 @@ bool
 QMakeProject::read(uchar cmd)
 {
     if(cfile.isEmpty()) {
+        //find out where qmake (myself) lives
+        if (!base_vars.contains("QMAKE_QMAKE")) {
+            if (!Option::qmake_abslocation.isNull())
+                base_vars["QMAKE_QMAKE"] = QStringList(Option::qmake_abslocation);
+            else
+                base_vars["QMAKE_QMAKE"] = QStringList("qmake");
+        }
+
         // hack to get the Option stuff in there
         base_vars["QMAKE_EXT_OBJ"] = QStringList(Option::obj_ext);
         base_vars["QMAKE_EXT_CPP"] = Option::cpp_ext;

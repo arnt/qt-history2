@@ -846,12 +846,9 @@ MakefileGenerator::init()
         }
     }
 
-    //find out where qmake (myself) lives
-    if (project->isEmpty("QMAKE_QMAKE")) {
-        if (!Option::qmake_abslocation.isNull())
-            project->values("QMAKE_QMAKE").append(escapeFilePath(Option::qmake_abslocation));
-        else
-            project->values("QMAKE_QMAKE").append("qmake");
+    // escape qmake command
+    if (!project->isEmpty("QMAKE_QMAKE")) {
+        project->values("QMAKE_QMAKE") = escapeFilePaths(project->values("QMAKE_QMAKE"));
     }
 }
 
