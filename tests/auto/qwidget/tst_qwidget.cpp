@@ -149,6 +149,7 @@ private slots:
 
 #ifdef Q_WS_WIN
     void getDC();
+    void setGeometry_win();
 #endif
 
     void setLocale();
@@ -3337,6 +3338,25 @@ void tst_QWidget::setWindowGeometry()
         QCOMPARE(widget.geometry(), rect);
     }
 }
+
+#ifdef Q_WS_WIN
+void tst_QWidget::setGeometry_win()
+{
+    QWidget widget;
+    widget.setGeometry(0, 600, 100,100);
+    widget.show();
+    widget.setWindowState(widget.windowState() | Qt::WindowMaximized);
+    QRect geom = widget.normalGeometry();
+    widget.close();
+    widget.setGeometry(geom);
+    widget.setWindowState(widget.windowState() | Qt::WindowMaximized);
+    widget.show();
+    RECT rt;
+    ::GetWindowRect(widget.internalWinId(), &rt);
+    QVERIFY(rt.left <= 0);
+    QVERIFY(rt.top <= 0);
+}
+#endif
 
 void tst_QWidget::windowMove_data()
 {
