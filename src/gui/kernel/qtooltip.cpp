@@ -84,12 +84,13 @@ public:
     QBasicTimer hideTimer;
     bool fadingOut;
 
-    void reuseTip(const QPoint &pos, const QString &text, QWidget *w);
+    void reuseTip(const QString &text);
     void hideTip();
     void hideTipImmidiatly();
     void setTipRect(QWidget *w, const QRect &r);
     void restartHideTimer();
     bool tipChanged(const QPoint &pos, const QString &text, QObject *o);
+    void placeTip(const QPoint &pos, QWidget *w);
 
 protected:
     void timerEvent(QTimerEvent *e);
@@ -102,7 +103,6 @@ private:
     QRect rect;
 
     int getTipScreen(const QPoint &pos, QWidget *w);
-    void placeTip(const QPoint &pos, QWidget *w);
 };
 
 QTipLabel *QTipLabel::instance = 0;
@@ -123,8 +123,7 @@ QTipLabel::QTipLabel(const QPoint &pos, const QString &text, QWidget *w)
     setPalette(QToolTip::palette());
     setMouseTracking(true);
     fadingOut = false;
-
-    reuseTip(pos, text, w);
+    reuseTip(text);
 }
 
 void QTipLabel::restartHideTimer()
@@ -133,7 +132,7 @@ void QTipLabel::restartHideTimer()
     hideTimer.start(time, this);
 }
 
-void QTipLabel::reuseTip(const QPoint &pos, const QString &text, QWidget *w)
+void QTipLabel::reuseTip(const QString &text)
 {
     setText(text);
     QFontMetrics fm(font());
@@ -142,7 +141,6 @@ void QTipLabel::reuseTip(const QPoint &pos, const QString &text, QWidget *w)
     if (fm.descent() == 2 && fm.ascent() >= 11)
         ++extra.rheight();
     resize(sizeHint() + extra);
-    placeTip(pos, w);
     restartHideTimer();
 }
 
@@ -338,8 +336,9 @@ void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w, cons
             // If the tip has changed, reuse the one
             // that is showing (removes flickering)
             if (QTipLabel::instance->tipChanged(pos, text, w)){
-                QTipLabel::instance->reuseTip(pos, text, w);
+                QTipLabel::instance->reuseTip(text);
                 QTipLabel::instance->setTipRect(w, rect);
+                QTipLabel::instance->placeTip(pos, w);
             }
             return;
         }    
@@ -347,7 +346,10 @@ void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w, cons
 
     if (!text.isEmpty()){ // no tip can be reused, create new tip:
         new QTipLabel(pos, text, w); // sets QTipLabel::instance to itself
+        QTipLabel::instance->show();
+        QTipLabel::instance->hide();
         QTipLabel::instance->setTipRect(w, rect);
+        QTipLabel::instance->placeTip(pos, w);
         QTipLabel::instance->setObjectName(QLatin1String("qtooltip_label"));
 
 #ifndef QT_NO_EFFECTS
