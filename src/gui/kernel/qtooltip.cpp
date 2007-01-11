@@ -213,7 +213,7 @@ void QTipLabel::timerEvent(QTimerEvent *e)
 #ifdef Q_WS_MAC
         // Fade out tip on mac (makes it invisible).
         // The tip will not be deleted until a new tip is shown.
-        TransitionWindowOptions options = {0, 1, 0, 0};
+        TransitionWindowOptions options = {0, 0, 0, 0};
         TransitionWindowWithOptions(qt_mac_window_for(this), kWindowFadeTransitionEffect, kWindowHideTransitionAction, 0, 1, &options);
         QTipLabel::instance->fadingOut = true; // will never be false again.
 #else
