@@ -74,7 +74,7 @@
   that can be invoked from script code. Such functions must have the
   signature QScriptFunctionSignature. You may then pass the function
   as argument to scriptValue(). Here is an example:
-  
+
   \code
     QScriptValue myAdd(QScriptContext *context, QScriptEngine *engine)
     {
@@ -302,7 +302,12 @@ QScriptValue QScriptEngine::scriptValue(qlonglong value)
 QScriptValue QScriptEngine::scriptValue(qulonglong value)
 {
     QScriptValue v;
+#if defined(Q_OS_WIN) && _MSC_FULL_VER <= 12008804
+#pragma message("** NOTE: You need the Visual Studio Processor Pack to compile support for 64bit unsigned integers.")
+    d_func()->newNumber(&v, (qlonglong)value);
+#else
     d_func()->newNumber(&v, value);
+#endif
     return v;
 }
 

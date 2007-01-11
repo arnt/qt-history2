@@ -59,7 +59,7 @@ Variant::Instance *Variant::Instance::get(const QScriptValue &object, QScriptCla
 {
     if (! klass || klass == object.impl()->classInfo())
         return static_cast<Instance*> (object.impl()->objectData().data());
-    
+
     return 0;
 }
 
@@ -123,7 +123,7 @@ QScriptValue Variant::method_valueOf(QScriptEngine *eng, QScriptClassInfo *class
 
 
         case QVariant::ULongLong:
-#if defined(Q_OS_WIN) && _MSC_FULL_VER < 12008804
+#if defined(Q_OS_WIN) && _MSC_FULL_VER <= 12008804
 #pragma message("** NOTE: You need the Visual Studio Processor Pack to compile support for 64bit unsigned integers.")
             return eng->scriptValue(qnumber(v.toLongLong()));
 #else
