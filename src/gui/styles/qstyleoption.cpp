@@ -868,6 +868,15 @@ QStyleOptionViewItemV3::QStyleOptionViewItemV3(int version)
 */
 
 /*!
+    \variable QStyleOptionGroupBox::features
+    \brief the features of the group box frame
+
+    The frame is flat by default.
+    
+    \sa QStyleOptionFrameV2::FrameFeature
+*/
+
+/*!
     \variable QStyleOptionGroupBox::textColor
     \brief the color of the group box title
 
