@@ -246,10 +246,12 @@ QList<int> QKeyMapperPrivate::possibleKeysXKB(QKeyEvent *event)
     const int xkeycode = event->nativeScanCode();
     const uint xmodifiers = event->nativeModifiers();
 
-    // translate key without any modifiers first
+    // first, translate key only using lock modifiers (there are no Qt equivalents for these, so we must
+    // always use them when determining the baseKeySym)
     KeySym baseKeySym;
     uint consumedModifiers;
-    if (!XkbLookupKeySym(X11->display, xkeycode, 0, &consumedModifiers, &baseKeySym))
+    if (!XkbLookupKeySym(X11->display, xkeycode, (xmodifiers & (LockMask | qt_num_lock_mask)),
+                         &consumedModifiers, &baseKeySym))
         return QList<int>();
 
     QList<int> result;
@@ -332,10 +334,12 @@ QList<int> QKeyMapperPrivate::possibleKeysCore(QKeyEvent *event)
     const int xkeycode = event->nativeScanCode();
     const uint xmodifiers = event->nativeModifiers();
 
-    // translate key without any modifiers first
+    // first, translate key only using lock modifiers (there are no Qt equivalents for these, so we must
+    // always use them when determining the baseKeySym)
     KeySym baseKeySym;
     uint consumedModifiers;
-    if (!qt_XTranslateKey(&coreDesc, xkeycode, 0, &consumedModifiers, &baseKeySym))
+    if (!qt_XTranslateKey(&coreDesc, xkeycode, (xmodifiers & (LockMask | qt_num_lock_mask)),
+                          &consumedModifiers, &baseKeySym))
         return QList<int>();
 
     QList<int> result;
