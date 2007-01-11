@@ -165,7 +165,7 @@ public:
         inline bool isSystem() const { if (info) return info->isSystem(); return true; }
         inline bool isHidden() const { if (info) return info->isHidden; return false; }
         inline bool isSymLink() const { if (info) return info->isSymLink; return false; }
-        inline bool caseSensitive() const { if (info) return info->caseSensitive; return false; }
+        inline bool caseSensitive() const { if (info) return info->caseSensitive; return true; }
         inline QIcon icon() const { if (info) return info->icon; return QIcon(); }
 
         inline bool operator <(const QFileSystemNode &node) const {
