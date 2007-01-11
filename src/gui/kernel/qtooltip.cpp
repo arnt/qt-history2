@@ -192,7 +192,6 @@ void QTipLabel::hideTip()
 
 void QTipLabel::hideTipImmidiatly()
 {
-    qDebug() << "hide";
     close(); // to trigger QEvent::Close which stops the animation
     deleteLater();
 }
