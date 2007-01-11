@@ -329,9 +329,9 @@ void QMutex::unlock()
 
     QMutexLocker should be created within a function where a
     QMutex needs to be locked. The mutex is locked when QMutexLocker
-    is created, and unlocked when QMutexLocker is destroyed.  The
-    QMutexLocker should be locked when it is deleted. If you call \c
-    unlock(), \c relock() must be called before the function exits.
+    is created. You can unlock and relock the mutex with \c unlock()
+    and \c relock(). If locked, the mutex will be unlocked when the
+    QMutexLocker is destroyed.
 
     For example, this complex function locks a QMutex upon entering
     the function and unlocks the mutex at all the exit points:
@@ -474,12 +474,8 @@ void QMutex::unlock()
 /*!
     \fn void QMutexLocker::unlock()
 
-    Unlocks this mutex locker. Note that the mutex locker must be 
-    locked again (with \c relock()) before it is destroyed.
-
-    \warning If the QMutex of this locker is already opened 
-	     (e.g., by calling QMutex::unlock()), the behavior of 
-	     this function is undefined.
+    Unlocks this mutex locker. You can use \c relock() to lock 
+    it again. It does not need to be locked when destroyed.
 
     \sa relock()
 */
