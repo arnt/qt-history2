@@ -908,7 +908,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 QString sourceFile = pchOutput + Option::cpp_ext.first();
                 QString objectFile = createObjectList(QStringList(sourceFile)).first();
                 t << pchOutput << ": " << pchInput << " " << findDependencies(pchInput).join(" \\\n\t\t")
-                  << "\n\techo \"// Automatically generated, do not modify\" > " << sourceFile;
+                  << "\n\techo \"// Automatically generated, do not modify\" > " << sourceFile
+                  << "\n\trm -f " << pchOutput;
 
                 pchFlags = pchFlags.replace("${QMAKE_PCH_TEMP_SOURCE}", sourceFile)
                            .replace("${QMAKE_PCH_TEMP_OBJECT}", objectFile);
