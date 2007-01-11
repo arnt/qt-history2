@@ -2238,6 +2238,7 @@ void QWidgetPrivate::stackUnder_sys(QWidget *w)
 void QWidgetPrivate::setWSGeometry(bool dontShow)
 {
     Q_Q(QWidget);
+    Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
 
     /*
       There are up to four different coordinate systems here:

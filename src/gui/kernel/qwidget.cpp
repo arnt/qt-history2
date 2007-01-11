@@ -153,7 +153,8 @@ void QWidgetPrivate::scrollChildren(int dx, int dy)
                 QRect  r(w->pos() + pd, w->size());
                 w->data->crect = r;
 #ifndef Q_WS_QWS
-                w->d_func()->setWSGeometry();
+                if (w->testAttribute(Qt::WA_WState_Created))
+                    w->d_func()->setWSGeometry();
 #endif
                 QMoveEvent e(r.topLeft(), oldp);
                 QApplication::sendEvent(w, &e);

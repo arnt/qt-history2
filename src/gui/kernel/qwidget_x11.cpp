@@ -1875,6 +1875,7 @@ static void do_size_hints(QWidget* widget, QWExtra *x)
 void QWidgetPrivate::setWSGeometry(bool dontShow)
 {
     Q_Q(QWidget);
+    Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
 
     /*
       There are up to four different coordinate systems here:
