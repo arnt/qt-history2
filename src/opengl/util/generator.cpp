@@ -337,6 +337,7 @@ int main()
 
     QString painterSource = readSourceFile("painter.glsl");
     QString fastPainterSource = readSourceFile("fast_painter.glsl");
+    QString brushPainterSource = readSourceFile("brush_painter.glsl");
 
     QSet<QString> variables;
 
@@ -359,11 +360,14 @@ int main()
         }
 
         QString fastSource = brush.second + fastPainterSource;
+        QString brushSource = brush.second + brushPainterSource;
 
-        compiled[brush.first]["COMPOSITION_MODE_BLEND_MODE"] = compileSource(fastSource);
+        compiled[brush.first]["COMPOSITION_MODE_BLEND_MODE_MASK"] = compileSource(fastSource);
+        compiled[brush.first]["COMPOSITION_MODE_BLEND_MODE_NOMASK"] = compileSource(brushSource);
     }
 
-    compositionModes << QStringPair("COMPOSITION_MODE_BLEND_MODE", "");
+    compositionModes << QStringPair("COMPOSITION_MODE_BLEND_MODE_MASK", "")
+                     << QStringPair("COMPOSITION_MODE_BLEND_MODE_NOMASK", "");
 
     foreach (QStringPair mask, masks)
         compiled[mask.first]["MASK__"] = compileSource(mask.second);

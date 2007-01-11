@@ -2,6 +2,8 @@ uniform vec3 inv_matrix_m0;
 uniform vec3 inv_matrix_m1;
 uniform vec3 inv_matrix_m2;
 
+uniform vec2 ellipse_offset;
+
 float ellipse()
 {
     vec2 st = gl_TexCoord[0].st;
@@ -34,7 +36,7 @@ float ellipse_aa()
     mat[1] = inv_matrix_m1;
     mat[2] = inv_matrix_m2;
 
-    vec3 hcoords = mat * vec3(gl_FragCoord.xy, 1);
+    vec3 hcoords = mat * vec3(gl_FragCoord.xy + ellipse_offset, 1);
     float inv_w = 1.0 / hcoords.z;
     vec2 st = hcoords.xy * inv_w;
 

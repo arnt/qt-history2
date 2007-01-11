@@ -58,7 +58,8 @@ public:
     enum RenderHint {
         Antialiasing = 0x01,
         TextAntialiasing = 0x02,
-        SmoothPixmapTransform = 0x04
+        SmoothPixmapTransform = 0x04,
+        FastAntialiasing = 0x08
     };
 
     Q_DECLARE_FLAGS(RenderHints, RenderHint)
