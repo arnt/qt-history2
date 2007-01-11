@@ -36,8 +36,8 @@
 
 /*!
     \class QGraphicsSceneMouseEvent
-    \brief The QGraphicsSceneMouseEvent class provides mouse events in the
-    graphics view framework.
+    \brief The QGraphicsSceneMouseEvent class provides mouse events 
+	   in the graphics view framework.
     \since 4.2
     \ingroup multimedia
 
@@ -57,12 +57,14 @@
 
 /*!
     \class QGraphicsSceneWheelEvent
+    \brief The QGraphicsSceneWheelEvent class provides wheel events 
+	   in the graphics view framework.
     \brief The QGraphicsSceneWheelEvent class provides wheel events in the
     graphics view framework.
     \since 4.2
     \ingroup multimedia
 
-    \l{QWheelEvent}{QWheelEvents} received by a QGraphicsView are translated
+    \l{QWheelEvent}{QWheelEvent}s received by a QGraphicsView are translated
     into QGraphicsSceneWheelEvents; it translates the QWheelEvent::globalPos()
     into screen and scene coordinates.
 
@@ -73,8 +75,8 @@
 
 /*!
     \class QGraphicsSceneContextMenuEvent
-    \brief The QGraphicsSceneContextMenuEvent class provides context menu
-    events in the graphics view framework.
+    \brief The QGraphicsSceneContextMenuEvent class provides context
+	   menu events in the graphics view framework.
     \since 4.2
     \ingroup multimedia
 
@@ -105,8 +107,8 @@
 
 /*!
     \class QGraphicsSceneHoverEvent
-    \brief The QGraphicsSceneHoverEvent class provides hover events in the
-    graphics view framework.
+    \brief The QGraphicsSceneHoverEvent class provides hover events 
+	   in the graphics view framework.
     \since 4.2
     \ingroup multimedia
 
@@ -121,7 +123,8 @@
 
 /*!
     \class QGraphicsSceneHelpEvent
-    \brief The QGraphicsSceneHelpEvent class provides events when a tooltip is requested.
+    \brief The QGraphicsSceneHelpEvent class provides events when a 
+	   tooltip is requested.
     \since 4.2
     \ingroup multimedia
 
@@ -144,8 +147,8 @@
 
 /*!
     \class QGraphicsSceneDragDropEvent
-    \brief The QGraphicsSceneDragDropEvent class provides events for 
-    drag and drop in the graphics view framework. 
+    \brief The QGraphicsSceneDragDropEvent class provides events for
+	   drag and drop in the graphics view framework. 
     \since 4.2
     \ingroup multimedia
 
