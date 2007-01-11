@@ -22,6 +22,8 @@
 #include <QtCore/QVarLengthArray>
 #include <QtCore/qnumeric.h>
 
+extern Q_CORE_EXPORT qlonglong qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok);
+
 static inline char toHex(char c)
 {
     static const char hexnumbers[] = "0123456789ABCDEF";
@@ -341,8 +343,6 @@ void Global::initialize(QScriptValue *object, QScriptEngine *eng)
                         eng->scriptValue(method_gc, 0), flags);
 }
 
-qlonglong qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok);
-
 QScriptValue Global::method_parseInt(QScriptContext *context,
                                      QScriptEngine *eng)
 {
@@ -358,13 +358,14 @@ QScriptValue Global::method_parseInt(QScriptContext *context,
     }
     QString str = context->argument(0).toString().trimmed();
 
-    char *endPtr = 0;
     const char *startPtr = str.toUtf8().constData();
     qnumber result;
 #if defined(Q_WS_WIN) && !defined(Q_CC_MINGW)
+    const char *endPtr = 0;
     bool ok;
     result = qstrtoll(startPtr, &endPtr, int (radix), &ok);
 #else
+    char *endPtr = 0;
     result = strtoll(startPtr, &endPtr, int (radix));
 #endif
     if (startPtr == endPtr) {
