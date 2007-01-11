@@ -19,6 +19,7 @@
 #if !defined(QT_NO_ACCESSIBILITY) && !defined(QT_NO_TEXTEDIT)
 
 class QTextEdit;
+class QStackedWidget;
 
 class QAccessibleTextEdit : public QAccessibleWidgetEx
 {
@@ -41,6 +42,21 @@ protected:
 
 private:
     int childOffset;
+};
+
+class QAccessibleStackedWidget : public QAccessibleWidgetEx
+{
+public:
+    explicit QAccessibleStackedWidget(QWidget *widget);
+
+    QVariant invokeMethodEx(QAccessible::Method method, int child, const QVariantList &params);
+    int childAt(int x, int y) const;
+    int childCount() const;
+    int indexOfChild(const QAccessibleInterface *child) const;
+    int navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const;
+
+protected:
+    QStackedWidget *stackedWidget() const;
 };
 
 #endif // QT_NO_ACCESSIBILITY

@@ -90,7 +90,7 @@ QStringList AccessibleFactory::keys() const
 #endif
     list << QLatin1String("QTipLabel");
     list << QLatin1String("QFrame");
-    list << QLatin1String("QWidgetStack");
+    list << QLatin1String("QStackedWidget");
 
     return list;
 }
@@ -210,6 +210,8 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleWidget(widget, ToolTip);
     } else if (classname == QLatin1String("QFrame")) {
         iface = new QAccessibleWidget(widget, Border);
+    } else if (classname == QLatin1String("QStackedWidget")) {
+        iface = new QAccessibleStackedWidget(widget);
     }
 
     return iface;

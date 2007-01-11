@@ -18,6 +18,7 @@
 #include "qtextobject.h"
 #include "qscrollbar.h"
 #include "qdebug.h"
+#include <QStackedWidget>
 
 #if !defined(QT_NO_ACCESSIBILITY) && !defined(QT_NO_TEXTEDIT)
 
@@ -172,6 +173,64 @@ QVariant QAccessibleTextEdit::invokeMethodEx(QAccessible::Method method, int chi
 int QAccessibleTextEdit::childCount() const
 {
     return childOffset + textEdit()->document()->blockCount();
+}
+
+// ======================= QAccessibleStackedWidget ======================
+QAccessibleStackedWidget::QAccessibleStackedWidget(QWidget *widget)
+    : QAccessibleWidgetEx(widget, LayeredPane)
+{
+    Q_ASSERT(qobject_cast<QStackedWidget *>(widget));
+}
+
+QVariant QAccessibleStackedWidget::invokeMethodEx(QAccessible::Method, int, const QVariantList &)
+{
+    return QVariant();
+}
+
+
+int QAccessibleStackedWidget::childAt(int x, int y) const
+{
+    QWidget *currentWidget = stackedWidget()->currentWidget();
+    if (!currentWidget)
+        return -1;
+    QPoint position = currentWidget->mapFromGlobal(QPoint(x, y));
+    if (currentWidget->rect().contains(position))
+        return 1;
+    return -1;
+}
+
+int QAccessibleStackedWidget::childCount() const
+{
+    return stackedWidget()->count();
+}
+
+int QAccessibleStackedWidget::indexOfChild(const QAccessibleInterface *child) const
+{
+    if (!child || (stackedWidget()->currentWidget() != child->object()))
+        return -1;
+    return 1;
+}
+
+int QAccessibleStackedWidget::navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const
+{
+    *target = 0;
+    QObject *targetObject = 0;
+    switch (relation) {
+    case Child:
+        if (entry != 1)
+            return -1;
+        targetObject = stackedWidget()->currentWidget();
+        break;
+    default:
+        return QAccessibleWidgetEx::navigate(relation, entry, target);
+    }
+    *target = QAccessible::queryAccessibleInterface(targetObject);
+    return *target ? 0 : -1;
+}
+
+QStackedWidget *QAccessibleStackedWidget::stackedWidget() const
+{
+    return static_cast<QStackedWidget *>(object());
 }
 
 #endif // QT_NO_ACCESSIBILITY
