@@ -756,7 +756,7 @@ Ltop:
 
             if (! object.impl()->resolve(memberName, &member, &base, mode)) {
                 if (object.m_object_value == scopeChain.m_object_value)
-                    base = activation;
+                    base = eng->globalObject;
                 else
                     base = object;
 
