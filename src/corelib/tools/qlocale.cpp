@@ -3994,7 +3994,7 @@ static qulonglong qstrtoull(const char *nptr, const char **endptr, register int 
  * Ignores `locale' stuff.  Assumes that the upper and lower case
  * alphabets and digits are each contiguous.
  */
-qlonglong qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok)
+Q_CORE_EXPORT qlonglong qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok)
 {
     register const char *s;
     register qulonglong acc;
