@@ -129,8 +129,9 @@ public:
 
     QModelIndex buddy(const QModelIndex &index) const;
     QModelIndexList match(const QModelIndex &start, int role,
-                          const QVariant &value, int hits,
-                          Qt::MatchFlags flags) const;
+                          const QVariant &value, int hits = 1,
+                          Qt::MatchFlags flags =
+                          Qt::MatchFlags(Qt::MatchStartsWith|Qt::MatchWrap)) const;
     QSize span(const QModelIndex &index) const;
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
 
