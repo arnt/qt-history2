@@ -561,7 +561,7 @@ CFG_GETIFADDRS=auto
 CFG_INOTIFY=auto
 CFG_RPATH=yes
 CFG_FRAMEWORK=auto
-CFG_UNIVERSAL_BINARY=auto
+CFG_MAC_ARCHS=
 CFG_SXE=no
 CFG_PREFIX_INSTALL=yes
 CFG_SDK=
@@ -701,7 +701,7 @@ while [ "$#" -gt 0 ]; do
             UNKNOWN_ARG=yes
         fi
         ;;
-    -prefix|-docdir|-headerdir|-plugindir|-datadir|-libdir|-bindir|-translationdir|-sysconfdir|-examplesdir|-demosdir|-depths|-make|-nomake|-platform|-xplatform|-buildkey|-sdk)
+    -prefix|-docdir|-headerdir|-plugindir|-datadir|-libdir|-bindir|-translationdir|-sysconfdir|-examplesdir|-demosdir|-depths|-make|-nomake|-platform|-xplatform|-buildkey|-sdk|-arch)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         shift
         VAL="$1"
@@ -955,9 +955,16 @@ while [ "$#" -gt 0 ]; do
             UNKNOWN_OPT=yes
         fi
 	;;
-    universal)
+    arch)
         if [ "$PLATFORM_MAC" = "yes" ]; then
-            CFG_UNIVERSAL_BINARY="$VAL"
+            CFG_MAC_ARCHS="$CFG_MAC_ARCHS $VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+        ;;
+    universal)
+        if [ "$PLATFORM_MAC" = "yes" && "$VAL" = "yes" ]; then
+            CFG_MAC_ARCHS="$CFG_MAC_ARCHS x86 ppc"
         else
             UNKNOWN_OPT=yes
         fi
@@ -2135,27 +2142,18 @@ else
     CFG_FRAMEWORK=no
 fi
 
-# find the default universal value
-if [ "$PLATFORM_MAC" = "yes" ]; then
-    if [ "$CFG_UNIVERSAL_BINARY" = "auto" ]; then
-         CFG_UNIVERSAL_BINARY="no" #any other default? ###
-    fi
-else
-    CFG_UNIVERSAL_BINARY="no"
-fi
-
 TEST_COMPILER=`getQMakeConf "$XQMAKESPEC" | grep "^QMAKE_CC[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
 
 # auto-detect precompiled header support
 if [ "$CFG_PRECOMPILE" = "auto" ]; then
-    if [ "$CFG_UNIVERSAL_BINARY" = "yes" ]; then
+    if [ ! -z "$CFG_MAC_ARCHS" ]; then
        CFG_PRECOMPILE=no
     elif "$unixtests/precomp.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
        CFG_PRECOMPILE=no
     else
        CFG_PRECOMPILE=yes
     fi
-elif [ "$CFG_PRECOMPILE" = "yes" ] && [ "$CFG_UNIVERSAL_BINARY" = "yes" ]; then
+elif [ "$CFG_PRECOMPILE" = "yes" ] && [ ! -z "$CFG_MAC_ARCHS" ]; then
     echo
     echo "WARNING: Using universal binaries disables precompiled headers."
     echo
@@ -2242,15 +2240,6 @@ if [ "$PLATFORM_MAC" = "yes" ] && [ "$PLATFORM" != "macx-xlc" ]; then
     fi
 else
     CFG_FRAMEWORK=no
-fi
-
-# find the default universal value
-if [ "$PLATFORM_MAC" = "yes" ]; then
-    if [ "$CFG_UNIVERSAL_BINARY" = "auto" ]; then
-         CFG_UNIVERSAL_BINARY="no" #any other default? ###
-    fi
-else
-    CFG_UNIVERSAL_BINARY="no"
 fi
 
 # x11 tests are done after qmake is built
@@ -2834,9 +2823,10 @@ Qt/Mac only:
                          link tools against those frameworks.
     -no-framework ...... Do not build Qt as a series of frameworks.
 
-    -universal ......... Build Qt as a universal binary to work on intel
-                         as well as PPC platforms.
- *  -no-universal ...... Build Qt and its tools to work only on this host platform.
+    -universal ......... Equivalent to -arch ppc -arch x86
+
+    -arch <arch> ....... Build Qt for <arch>
+                         Example values for <arch>: x86 ppc x86_64 ppc64
 
     -sdk <sdk>.......... Build Qt using Apple provided SDK <sdk>.
 
@@ -3395,14 +3385,19 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
             EXTRA_CXXFLAGS="$EXTRA_CFLAGS \$(CARBON_CXXFLAGS)"
             EXTRA_OBJS="qsettings_mac.o qcore_mac.o"
             EXTRA_SRCS="\"$relpath/src/corelib/io/qsettings_mac.cpp\" \"$relpath/src/corelib/kernel/qcore_mac.cpp\""
-	    if [ "$CFG_UNIVERSAL_BINARY" = "yes" ]; then
+	    if echo "$CFG_MAC_ARCHS" | grep x86 > /dev/null 2>&1; then
 		X86_CFLAGS=`getQMakeConf "$XQMAKESPEC" | grep "^QMAKE_CFLAGS_X86[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
 		X86_LFLAGS=`getQMakeConf "$XQMAKESPEC" | grep "^QMAKE_LFLAGS_X86[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
+		EXTRA_CFLAGS="$X86_CFLAGS $EXTRA_CFLAGS"
+		EXTRA_CXXFLAGS="$X86_CFLAGS $EXTRA_CXXFLAGS"
+                EXTRA_LFLAGS="$EXTRA_LFLAGS $X86_LFLAGS"
+            fi
+	    if echo "$CFG_MAC_ARCHS" | grep ppc > /dev/null 2>&1; then
 		PPC_CFLAGS=`getQMakeConf "$XQMAKESPEC" | grep "^QMAKE_CFLAGS_PPC[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
 		PPC_LFLAGS=`getQMakeConf "$XQMAKESPEC" | grep "^QMAKE_LFLAGS_PPC[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
-		EXTRA_CFLAGS="$X86_CFLAGS $PPC_CFLAGS $EXTRA_CFLAGS"
-		EXTRA_CXXFLAGS="$X86_CFLAGS $PPC_CFLAGS $EXTRA_CXXFLAGS"
-                EXTRA_LFLAGS="$EXTRA_LFLAGS $X86_LFLAGS $PPC_LFLAGS"
+		EXTRA_CFLAGS="$PPC_CFLAGS $EXTRA_CFLAGS"
+		EXTRA_CXXFLAGS="$PPC_CFLAGS $EXTRA_CXXFLAGS"
+                EXTRA_LFLAGS="$EXTRA_LFLAGS $PPC_LFLAGS"
             fi
 	    if [ '!' -z "$CFG_SDK" ]; then
 		echo "SDK_LFLAGS =-Wl,-syslibroot,$CFG_SDK" >>"$mkfile"
@@ -4367,7 +4362,7 @@ if [ "$CFG_SEPARATE_DEBUG_INFO" = "yes" ]; then
 fi
 [ "$CFG_HAVE_SSE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG sse"
 [ "$CFG_IWMMXT" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG iwmmxt"
-[ "$CFG_UNIVERSAL_BINARY" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG x86 ppc"
+[ "$PLATFORM_MAC" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG $CFG_MAC_ARCHS"
 if [ "$CFG_IPV6" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG ipv6"
 fi
@@ -4969,8 +4964,8 @@ else
     QT_CONFIG="$QT_CONFIG qt_framework"
     QTCONFIG_CONFIG="$QTCONFIG_CONFIG qt_framework"
 fi
-if [ "$CFG_UNIVERSAL_BINARY" = "yes" ]; then
-    QT_CONFIG="$QT_CONFIG x86 ppc"
+if [ "$PLATFORM_MAC" = "yes" ]; then
+    QT_CONFIG="$QT_CONFIG $CFG_MAC_ARCHS"
 fi
 cat >>"$QTCONFIG.tmp" <<EOF
 #configuration

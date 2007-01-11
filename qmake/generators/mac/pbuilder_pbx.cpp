@@ -1265,6 +1265,16 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                 archs += " ";
             archs += "ppc";
         }
+        if(project->isActiveConfig("ppc64")) {
+            if(!archs.isEmpty())
+                archs += " ";
+            archs += "ppc64";
+        }
+        if(project->isActiveConfig("x86_64")) {
+            if(!archs.isEmpty())
+                archs += " ";
+            archs += "x86_64";
+        }
         if(!archs.isEmpty())
             t << "\t\t\t\t" << writeSettings("ARCHS", archs) << ";" << "\n";
 
