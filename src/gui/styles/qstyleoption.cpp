@@ -834,7 +834,7 @@ QStyleOptionViewItemV3::QStyleOptionViewItemV3(int version)
     \variable QStyleOptionGroupBox::lineWidth
     \brief the line width for drawing the panel
 
-    The default value is 0.
+    The value of this variable is, currently, always 1.
 
     \sa QFrame::lineWidth
 */
@@ -844,7 +844,7 @@ QStyleOptionViewItemV3::QStyleOptionViewItemV3(int version)
     \brief the mid-line width for drawing the panel
 
     The mid-line width is usually used when drawing sunken or raised
-    group box frames. The default value is 0.
+    group box frames. The value of this variable is, currently, always 0.
 
     \sa QFrame::midLineWidth
 */
