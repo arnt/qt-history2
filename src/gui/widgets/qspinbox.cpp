@@ -214,6 +214,7 @@ void QSpinBox::setValue(int value)
 {
     Q_D(QSpinBox);
     d->setValue(QVariant(value), EmitIfChanged);
+    d->resetUndoHistory();
 }
 
 /*!
@@ -249,6 +250,7 @@ void QSpinBox::setPrefix(const QString &prefix)
 
     d->prefix = prefix;
     d->updateEdit();
+    d->resetUndoHistory();
 }
 
 /*!
@@ -285,6 +287,7 @@ void QSpinBox::setSuffix(const QString &suffix)
 
     d->suffix = suffix;
     d->updateEdit();
+    d->resetUndoHistory();
 }
 
 /*!
@@ -594,6 +597,7 @@ void QDoubleSpinBox::setValue(double value)
     Q_D(QDoubleSpinBox);
     QVariant v(d->round(value));
     d->setValue(v, EmitIfChanged);
+    d->resetUndoHistory();
 }
 /*!
     \property QDoubleSpinBox::prefix
@@ -629,6 +633,7 @@ void QDoubleSpinBox::setPrefix(const QString &prefix)
 
     d->prefix = prefix;
     d->updateEdit();
+    d->resetUndoHistory();
 }
 
 /*!
@@ -665,6 +670,7 @@ void QDoubleSpinBox::setSuffix(const QString &suffix)
 
     d->suffix = suffix;
     d->updateEdit();
+    d->resetUndoHistory();
 }
 
 /*!

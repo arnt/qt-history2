@@ -14,6 +14,7 @@
 #include <qplatformdefs.h>
 #include <private/qabstractspinbox_p.h>
 #include <private/qdatetime_p.h>
+#include <private/qlineedit_p.h>
 #include <qabstractspinbox.h>
 
 #ifndef QT_NO_SPINBOX
@@ -226,6 +227,7 @@ void QAbstractSpinBox::setSpecialValueText(const QString &specialValueText)
     d->specialValueText = specialValueText;
     d->clearCache();
     d->updateEdit();
+    d->resetUndoHistory();
 }
 
 /*!
@@ -336,6 +338,28 @@ bool QAbstractSpinBox::isAccelerated() const
 }
 
 /*!
+    \property QAbstractSpinBox::undoAvailable
+    \brief whether undo is available
+*/
+
+bool QAbstractSpinBox::isUndoAvailable() const
+{
+    Q_D(const QAbstractSpinBox);
+    return d->currentCommand > 0;
+}
+
+/*!
+    \property QAbstractSpinBox::redoAvailable
+    \brief whether redo is available
+*/
+
+bool QAbstractSpinBox::isRedoAvailable() const
+{
+    Q_D(const QAbstractSpinBox);
+    return d->currentCommand + 1< d->commands.size();
+}
+
+/*!
     \enum QAbstractSpinBox::CorrectionMode
 
     This enum type describes the mode the spinbox will use to correct
@@ -440,10 +464,47 @@ void QAbstractSpinBox::clear()
 {
     Q_D(QAbstractSpinBox);
 
-
     d->edit->setText(d->prefix + d->suffix);
     d->edit->setCursorPosition(d->prefix.size());
 }
+
+/*!
+    Undoes the last operation if undo is \link
+    QAbstractSpinBox::undoAvailable available\endlink.
+*/
+
+void QAbstractSpinBox::undo()
+{
+    Q_D(QAbstractSpinBox);
+    if (isUndoAvailable()) {
+        d->inUndoRedo = true;
+        Q_ASSERT(d->currentCommand > 0);
+        Q_ASSERT(d->currentCommand - 1 < d->commands.size());
+        const QAbstractSpinBoxPrivate::Command &cmd = d->commands[--d->currentCommand];
+        d->edit->setText(cmd.text);
+        d->edit->setCursorPosition(cmd.position);
+        d->inUndoRedo = false;
+    }
+}
+
+/*!
+    Redoes the last operation if redo is \link
+    QAbstractSpinBox::redoAvailable available\endlink.
+*/
+
+void QAbstractSpinBox::redo()
+{
+    Q_D(QAbstractSpinBox);
+    if (isRedoAvailable()) {
+        d->inUndoRedo = true;
+        Q_ASSERT(d->currentCommand + 1 < d->commands.size());
+        const QAbstractSpinBoxPrivate::Command &cmd = d->commands[++d->currentCommand];
+        d->edit->setText(cmd.text);
+        d->edit->setCursorPosition(cmd.position);
+        d->inUndoRedo = false;
+    }
+}
+
 
 /*!
     Virtual function that determines whether stepping up and down is
@@ -681,6 +742,8 @@ void QAbstractSpinBox::showEvent(QShowEvent *)
 
     d->reset();
     d->updateEdit();
+    if (d->commands.isEmpty())
+        d->resetUndoHistory();
 }
 
 /*!
@@ -845,6 +908,16 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *event)
 
     if (!event->text().isEmpty() && d->edit->cursorPosition() < d->prefix.size())
         d->edit->setCursorPosition(d->prefix.size());
+
+    if (event == QKeySequence::Undo) {
+        event->accept();
+        undo();
+        return;
+    } else if (event == QKeySequence::Redo) {
+        event->accept();
+        redo();
+        return;
+    }
 
     int steps = 1;
     switch (event->key()) {
@@ -1108,23 +1181,46 @@ void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *event)
 
     d->reset();
     QPointer<QMenu> menu = d->edit->createStandardContextMenu();
+
+    QAction *un = new QAction(tr("&Undo"), menu);
+    un->setEnabled(isUndoAvailable());
+    menu->insertAction(d->edit->d_func()->actions[QLineEditPrivate::UndoAct], un);
+    menu->removeAction(d->edit->d_func()->actions[QLineEditPrivate::UndoAct]);
+
+    QAction *re = new QAction(tr("&Redo"), menu);
+    re->setEnabled(isRedoAvailable());
+    menu->insertAction(d->edit->d_func()->actions[QLineEditPrivate::RedoAct], re);
+    menu->removeAction(d->edit->d_func()->actions[QLineEditPrivate::RedoAct]);
+
+
+    QAction *selAll = new QAction(tr("&Select All"), menu);
+    menu->insertAction(d->edit->d_func()->actions[QLineEditPrivate::SelectAllAct],
+                      selAll);
+    menu->removeAction(d->edit->d_func()->actions[QLineEditPrivate::SelectAllAct]);
     menu->addSeparator();
     const uint se = stepEnabled();
     QAction *up = menu->addAction(tr("&Step up"));
     up->setEnabled(se & StepUpEnabled);
     QAction *down = menu->addAction(tr("Step &down"));
     down->setEnabled(se & StepDownEnabled);
+    menu->addSeparator();
 
     const QPointer<QAbstractSpinBox> that = this;
     const QPoint pos = (event->reason() == QContextMenuEvent::Mouse)
         ? event->globalPos() : mapToGlobal(QPoint(event->pos().x(), 0)) + QPoint(width() / 2, height() / 2);
     const QAction *action = menu->exec(pos);
     delete static_cast<QMenu *>(menu);
-    if (that) {
+    if (that && action) {
         if (action == up) {
             stepBy(1);
         } else if (action == down) {
             stepBy(-1);
+        } else if (action == un) {
+            undo();
+        } else if (action == re) {
+            redo();
+        } else if (action == selAll) {
+            selectAll();
         }
     }
     event->accept();
@@ -1205,7 +1301,8 @@ QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
       pendingEmit(false), readOnly(false), wrapping(false),
       ignoreCursorPositionChanged(false), frame(true), accelerate(false),
       correctionMode(QAbstractSpinBox::CorrectToPreviousValue), acceleration(0),
-      hoverControl(QStyle::SC_None), buttonSymbols(QAbstractSpinBox::UpDownArrows), validator(0)
+      hoverControl(QStyle::SC_None), buttonSymbols(QAbstractSpinBox::UpDownArrows), validator(0), currentCommand(0),
+      inUndoRedo(false)
 {
 }
 
@@ -1557,6 +1654,16 @@ void QAbstractSpinBoxPrivate::setValue(const QVariant &val, EmitPolicy ep,
     if (ep == AlwaysEmit || (ep == EmitIfChanged && old != value)) {
         emitSignals(ep, old);
     }
+
+    if (!inUndoRedo && (commands.isEmpty()
+                        || currentCommand == 0
+                        || commands.at(currentCommand - 1).text != edit->displayText())) {
+        if (currentCommand + 1 < commands.size()) {
+            commands.resize(currentCommand + 1);
+        }
+        commands.append(Command(edit->displayText(), edit->cursorPosition()));
+        currentCommand = commands.size() - 1;
+    }
 }
 
 /*!
@@ -1608,6 +1715,7 @@ void QAbstractSpinBoxPrivate::setRange(const QVariant &min, const QVariant &max)
     reset();
     if (!(bound(value) == value))
         setValue(bound(value), EmitIfChanged);
+    resetUndoHistory();
 }
 
 /*!
@@ -1943,7 +2051,13 @@ QVariant QAbstractSpinBoxPrivate::variantBound(const QVariant &min, const QVaria
     }
 }
 
+void QAbstractSpinBoxPrivate::resetUndoHistory()
+{
+    commands.resize(1);
+    commands.first() = Command(edit->displayText(), edit->cursorPosition());
+    currentCommand = 0;
+}
+
 
 #include "moc_qabstractspinbox.cpp"
 #endif // QT_NO_SPINBOX
-

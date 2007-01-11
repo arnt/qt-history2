@@ -95,6 +95,17 @@ public:
     static int variantCompare(const QVariant &arg1, const QVariant &arg2);
     static QVariant variantBound(const QVariant &min, const QVariant &value, const QVariant &max);
 
+    struct Command {
+        Command(const QString &str = QString(), int pos = -1)
+            : text(str), position(pos)
+        {}
+
+        QString text;
+        int position;
+    };
+
+    void resetUndoHistory();
+
     QLineEdit *edit;
     QString prefix, suffix, specialValueText;
     QVariant value, minimum, maximum, singleStep;
@@ -118,6 +129,9 @@ public:
     QRect hoverRect;
     QAbstractSpinBox::ButtonSymbols buttonSymbols;
     QSpinBoxValidator *validator;
+    QVector<Command> commands;
+    int currentCommand;
+    bool inUndoRedo;
 };
 
 class QSpinBoxValidator : public QValidator

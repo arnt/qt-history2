@@ -43,8 +43,9 @@ class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
     Q_PROPERTY(QString text READ text)
     Q_PROPERTY(bool accelerated READ isAccelerated WRITE setAccelerated)
     Q_PROPERTY(CorrectionMode correctionMode READ correctionMode WRITE setCorrectionMode)
+    Q_PROPERTY(bool undoAvailable READ isUndoAvailable)
+    Q_PROPERTY(bool redoAvailable READ isRedoAvailable)
     Q_PROPERTY(bool acceptableInput READ hasAcceptableInput)
-
 public:
     explicit QAbstractSpinBox(QWidget *parent = 0);
     ~QAbstractSpinBox();
@@ -84,9 +85,11 @@ public:
     void setAccelerated(bool on);
     bool isAccelerated() const;
 
+    bool isUndoAvailable() const;
+    bool isRedoAvailable() const;
+
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
-
     void interpretText();
     bool event(QEvent *event);
 
@@ -99,7 +102,8 @@ public Q_SLOTS:
     void stepDown();
     void selectAll();
     virtual void clear();
-
+    void undo();
+    void redo();
 protected:
     void resizeEvent(QResizeEvent *event);
     void keyPressEvent(QKeyEvent *event);

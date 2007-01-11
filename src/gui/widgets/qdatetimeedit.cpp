@@ -253,6 +253,7 @@ void QDateTimeEdit::setDateTime(const QDateTime &datetime)
         d->cachedDay = -1;
         d->clearCache();
         d->setValue(QVariant(datetime), EmitIfChanged);
+        d->resetUndoHistory();
     }
 }
 
@@ -276,6 +277,7 @@ void QDateTimeEdit::setDate(const QDate &date)
         d->cachedDay = -1;
         d->clearCache();
         d->setValue(QVariant(QDateTime(date, d->value.toTime())), EmitIfChanged);
+        d->resetUndoHistory();
     }
 }
 
@@ -299,6 +301,7 @@ void QDateTimeEdit::setTime(const QTime &time)
         d->clearCache();
         d->cachedDay = -1;
         d->setValue(QVariant(QDateTime(d->value.toDate(), time)), EmitIfChanged);
+        d->resetUndoHistory();
     }
 }
 
@@ -735,6 +738,7 @@ void QDateTimeEdit::setDisplayFormat(const QString &format)
         d->edit->setCursorPosition(0);
         QDTEDEBUG << 0;
         d->_q_editorCursorPositionChanged(-1, 0);
+        d->resetUndoHistory();
     }
 }
 
