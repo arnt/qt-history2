@@ -50,7 +50,7 @@ void tst_QWidget_window::tst_move_show()
     w.move(100, 100);
     w.show();
     QCOMPARE(w.pos(), QPoint(100, 100));
-//    QCoreApplication::processEvents(QEventLoop::AllEvents, 1000);
+//    QCoreApplication::processEvents(QEventLoop::AllEvents, 3000);
 }
 
 void tst_QWidget_window::tst_show_move()
