@@ -4600,7 +4600,7 @@ static QPainterPath generateWavyPath(qreal minWidth, QPaintDevice *device)
     QPainterPath path;
 
     bool up = true;
-    const int radius = 2 * device->logicalDpiY() / qt_defaultDpi();
+    const qreal radius = 1.3 * device->logicalDpiY() / qt_defaultDpi();
     qreal xs, ys;
     int i = 0;
     do {
