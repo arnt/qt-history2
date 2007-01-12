@@ -5,6 +5,24 @@
 #include "lalr.h"
 #include "recognizer.h"
 
+QString CppGenerator::trollCopyrightHeader() const
+{
+  return QLatin1String(
+    "/****************************************************************************\n"
+    "**\n"
+    "** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.\n"
+    "**\n"
+    "** This file is part of the $MODULE$ of the Qt Toolkit.\n"
+    "**\n"
+    "** $TROLLTECH_DUAL_LICENSE$\n"
+    "**\n"
+    "** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE\n"
+    "** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.\n"
+    "**\n"
+    "****************************************************************************/\n"
+    "\n");
+}
+
 void CppGenerator::operator () ()
 {
   // action table...
@@ -242,6 +260,9 @@ void CppGenerator::operator () ()
 
     QString prot = declFileName.toUpper ().replace (QLatin1Char ('.'), QLatin1Char ('_'));
 
+    if (troll_copyright)
+      out << trollCopyrightHeader();
+
     out << "#ifndef " << prot << endl
         << "#define " << prot << endl
         << endl;
@@ -255,6 +276,9 @@ void CppGenerator::operator () ()
     QFile f (bitsFileName);
     f.open (QFile::WriteOnly);
     QTextStream out (&f);
+
+    if (troll_copyright)
+      out << trollCopyrightHeader();
 
     out << "#include \"" << declFileName << "\"" << endl << endl;
     generateImpl(out);

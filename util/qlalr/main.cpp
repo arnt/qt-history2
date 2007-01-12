@@ -24,6 +24,7 @@ static void help_me ()
        << "  --no-debug\t\tno debug information" << endl
        << "  --no-lines\t\tno #line directives" << endl
        << "  --dot\t\t\tno generate the graph" << endl
+       << "  --troll\t\t\tadd the Trolltech copyright header" << endl
        << endl;
   exit (0);
 }
@@ -34,6 +35,7 @@ int main (int, char *argv[])
   bool generate_report = false;
   bool no_lines = false;
   bool debug_info = true;
+  bool troll_copyright = false;
   const char *file_name = 0;
   FILE *input_file = 0;
 
@@ -53,6 +55,9 @@ int main (int, char *argv[])
 
       else if (! qstrcmp (arg, "--no-debug"))
         debug_info = false;
+
+      else if (! qstrcmp (arg, "--troll"))
+        troll_copyright = true;
 
       else if (! input_file)
         {
@@ -107,6 +112,7 @@ int main (int, char *argv[])
 
   CppGenerator gen (p, grammar, aut, generate_report);
   gen.setDebugInfo (debug_info);
+  gen.setTrollCopyright (troll_copyright);
   gen ();
 
   if (generate_dot)
