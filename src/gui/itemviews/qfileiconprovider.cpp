@@ -180,7 +180,7 @@ QIcon QFileIconProvider::icon(IconType type) const
 QIcon QFileIconProviderPrivate::getWinIcon(const QFileInfo &fileInfo) const
 {
     QIcon retIcon;
-    QString fileExtension = fileInfo.suffix().upper();
+    QString fileExtension = fileInfo.suffix().toUpper();
     fileExtension.prepend( QLatin1String(".") );
 
     QString key;
