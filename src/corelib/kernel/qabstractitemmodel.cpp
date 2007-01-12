@@ -1811,8 +1811,6 @@ QVariant QAbstractItemModel::headerData(int section, Qt::Orientation orientation
     Q_UNUSED(orientation);
     if (role == Qt::DisplayRole)
         return section + 1;
-    if (role == Qt::TextAlignmentRole)
-        return Qt::AlignCenter;
     return QVariant();
 }
 

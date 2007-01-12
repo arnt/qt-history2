@@ -94,6 +94,7 @@ private slots:
     void moveSectionAndReset();
     void moveSectionAndRemove();
     void saveRestore();
+    void defaultAlignment();
 
 protected:
     QHeaderView *view;
@@ -1207,6 +1208,34 @@ void tst_QHeaderView::saveRestore()
 
     QVERIFY(s1 == s2);
 }
+
+void tst_QHeaderView::defaultAlignment()
+{
+    SimpleModel m;
+
+    QHeaderView h1(Qt::Horizontal);
+    h1.setModel(&m);
+
+    QCOMPARE(h1.defaultAlignment(), Qt::AlignCenter);
+
+    h1.setDefaultAlignment(Qt::AlignRight);
+    QCOMPARE(h1.defaultAlignment(), Qt::AlignRight);
+
+    h1.setDefaultAlignment(Qt::AlignLeft);
+    QCOMPARE(h1.defaultAlignment(), Qt::AlignLeft);
+
+    QHeaderView h2(Qt::Vertical);
+    h2.setModel(&m);
+
+    QCOMPARE(h2.defaultAlignment(), Qt::AlignVCenter);
+
+    h2.setDefaultAlignment(Qt::AlignRight);
+    QCOMPARE(h1.defaultAlignment(), Qt::AlignRight);
+
+    h2.setDefaultAlignment(Qt::AlignLeft);
+    QCOMPARE(h1.defaultAlignment(), Qt::AlignLeft);
+}
+
 
 QTEST_MAIN(tst_QHeaderView)
 #include "tst_qheaderview.moc"

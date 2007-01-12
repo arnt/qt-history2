@@ -256,6 +256,9 @@ void tst_QAbstractItemModel::headerData()
     QtTestModel model(1, 1);
     QCOMPARE(model.headerData(0, Qt::Horizontal, Qt::DisplayRole).toString(),
             QString("1"));
+
+    // Default text alignment for header must be invalid
+    QVERIFY( !model.headerData(0, Qt::Horizontal, Qt::TextAlignmentRole).isValid() );
 }
 
 void tst_QAbstractItemModel::itemData()

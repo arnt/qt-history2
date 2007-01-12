@@ -1334,7 +1334,11 @@ Qt::Alignment QHeaderView::defaultAlignment() const
 void QHeaderView::setDefaultAlignment(Qt::Alignment alignment)
 {
     Q_D(QHeaderView);
+    if (d->defaultAlignment == alignment)
+        return;
+
     d->defaultAlignment = alignment;
+    d->viewport->update();
 }
 
 /*!
@@ -2121,6 +2125,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
     opt.textAlignment = Qt::Alignment(textAlignment.isValid()
                                       ? Qt::Alignment(textAlignment.toInt())
                                       : d->defaultAlignment);
+
     opt.iconAlignment = Qt::AlignVCenter;
     opt.text = d->model->headerData(logicalIndex, orientation(),
                                     Qt::DisplayRole).toString();
