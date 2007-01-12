@@ -97,7 +97,6 @@ struct QTLWExtra {
     quint32 wattr;
     quint32 wclass;
     WindowGroupRef group;
-    uint is_moved: 1;
     uint resizer : 4;
     uint isSetGeometry : 1;
     uint isMove : 1;

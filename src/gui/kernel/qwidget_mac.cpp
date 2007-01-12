@@ -1963,7 +1963,7 @@ void QWidgetPrivate::show_sys()
         return;
     q->setAttribute(Qt::WA_Mapped);
 
-    if(q->isWindow() && !topData()->is_moved) {
+    if(q->isWindow() && !q->testAttribute(Qt::WA_Moved)) {
         q->createWinId();
         if (QWidget *p = q->parentWidget()) {
             p->createWinId();
@@ -2382,8 +2382,6 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 void QWidgetPrivate::setGeometry_sys_helper(int x, int y, int w, int h, bool isMove)
 {
     Q_Q(QWidget);
-    if(q->isWindow() && isMove)
-        topData()->is_moved = 1;
     if(QWExtra *extra = extraData()) {        // any size restrictions?
         if(q->isWindow()) {
             WindowPtr window = qt_mac_window_for(q);
@@ -2569,7 +2567,6 @@ void QWidgetPrivate::createTLSysExtra()
 {
     extra->topextra->wclass = 0;
     extra->topextra->group = 0;
-    extra->topextra->is_moved = 0;
     extra->topextra->resizer = 0;
     extra->topextra->isSetGeometry = 0;
 }
