@@ -566,7 +566,6 @@ void QPrinter::setPrinterName(const QString &name)
   Returns the name of the output file. By default, this is an empty string
   (indicating that the printer shouldn't print to file).
 
-  \sa setOutputFileName()
 */
 
 QString QPrinter::outputFileName() const
@@ -581,10 +580,14 @@ QString QPrinter::outputFileName() const
   Setting a null or empty name (0 or "") disables printing to a file. Setting a
   non-empty name enables printing to a file.
 
-  If the file name has the suffix ".ps" then PostScript is automatically selected
-  as output format. If the file name has the ".pdf" suffix PDF is generated.
+  This can change the value of outputFormat().  If the file name has the suffix
+  ".ps" then PostScript is automatically selected as output format. If the file
+  name has the ".pdf" suffix PDF is generated.  QPrinter will use Qt's
+  cross-platform PostScript or PDF print engines respectively. If you can
+  produce this format natively, for example Mac OS X can generate PDF's from
+  its print engine, set the output format back to NativeFormat.
 
-  \sa outputFileName(), setOutputToFile()
+  \sa outputFileName() setOutputToFile() setOutputFormat()
 */
 
 void QPrinter::setOutputFileName(const QString &fileName)
