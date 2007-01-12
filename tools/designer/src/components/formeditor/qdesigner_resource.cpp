@@ -206,6 +206,9 @@ void QDesignerResource::saveDom(DomUI *ui, QWidget *widget)
     if (!pixFunction.isEmpty()) {
         ui->setElementPixmapFunction(pixFunction);
     }
+
+    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), core()))
+        extra->saveUiExtraInfo(ui);
 }
 
 QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
@@ -297,6 +300,9 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
     }
 
     factory->currentFormWindow(previousFormWindow);
+
+    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), core()))
+        extra->loadUiExtraInfo(ui);
 
     return mainWidget;
 }
@@ -1179,6 +1185,9 @@ DomUI *QDesignerResource::copy(const QList<QWidget*> &selection)
 
     m_copyWidget = false;
 
+    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), core()))
+        extra->saveUiExtraInfo(ui);
+
     return ui;
 }
 
@@ -1201,6 +1210,9 @@ QList<QWidget*> QDesignerResource::paste(DomUI *ui, QWidget *parentWidget)
     }
 
     m_isMainWidget = saved;
+
+    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), core()))
+        extra->loadUiExtraInfo(ui);
 
     return createdWidgets;
 }

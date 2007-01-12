@@ -41,10 +41,10 @@ QWidget *Q3TextEditExtraInfo::widget() const
 QDesignerFormEditorInterface *Q3TextEditExtraInfo::core() const
 { return m_core; }
 
-bool Q3TextEditExtraInfo::saveUiExtraInfo(DomUi *ui)
+bool Q3TextEditExtraInfo::saveUiExtraInfo(DomUI *ui)
 { Q_UNUSED(ui); return false; }
 
-bool Q3TextEditExtraInfo::loadUiExtraInfo(DomUi *ui)
+bool Q3TextEditExtraInfo::loadUiExtraInfo(DomUI *ui)
 { Q_UNUSED(ui); return false; }
 
 

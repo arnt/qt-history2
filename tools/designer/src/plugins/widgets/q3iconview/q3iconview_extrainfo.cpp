@@ -41,10 +41,10 @@ QWidget *Q3IconViewExtraInfo::widget() const
 QDesignerFormEditorInterface *Q3IconViewExtraInfo::core() const
 { return m_core; }
 
-bool Q3IconViewExtraInfo::saveUiExtraInfo(DomUi *ui)
+bool Q3IconViewExtraInfo::saveUiExtraInfo(DomUI *ui)
 { Q_UNUSED(ui); return false; }
 
-bool Q3IconViewExtraInfo::loadUiExtraInfo(DomUi *ui)
+bool Q3IconViewExtraInfo::loadUiExtraInfo(DomUI *ui)
 { Q_UNUSED(ui); return false; }
 
 

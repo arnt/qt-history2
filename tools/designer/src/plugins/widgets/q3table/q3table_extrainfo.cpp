@@ -41,10 +41,10 @@ QWidget *Q3TableExtraInfo::widget() const
 QDesignerFormEditorInterface *Q3TableExtraInfo::core() const
 { return m_core; }
 
-bool Q3TableExtraInfo::saveUiExtraInfo(DomUi *ui)
+bool Q3TableExtraInfo::saveUiExtraInfo(DomUI *ui)
 { Q_UNUSED(ui); return false; }
 
-bool Q3TableExtraInfo::loadUiExtraInfo(DomUi *ui)
+bool Q3TableExtraInfo::loadUiExtraInfo(DomUI *ui)
 { Q_UNUSED(ui); return false; }
 
 

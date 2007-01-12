@@ -34,8 +34,8 @@ public:
     virtual QWidget *widget() const;
     virtual QDesignerFormEditorInterface *core() const;
 
-    virtual bool saveUiExtraInfo(DomUi *ui);
-    virtual bool loadUiExtraInfo(DomUi *ui);
+    virtual bool saveUiExtraInfo(DomUI *ui);
+    virtual bool loadUiExtraInfo(DomUI *ui);
 
     virtual bool saveWidgetExtraInfo(DomWidget *ui_widget);
     virtual bool loadWidgetExtraInfo(DomWidget *ui_widget);

@@ -27,10 +27,10 @@ QWidget *QAxWidgetExtraInfo::widget() const
 QDesignerFormEditorInterface *QAxWidgetExtraInfo::core() const
 { return m_core; }
 
-bool QAxWidgetExtraInfo::saveUiExtraInfo(DomUi *ui)
+bool QAxWidgetExtraInfo::saveUiExtraInfo(DomUI *ui)
 { Q_UNUSED(ui); return false; }
 
-bool QAxWidgetExtraInfo::loadUiExtraInfo(DomUi *ui)
+bool QAxWidgetExtraInfo::loadUiExtraInfo(DomUI *ui)
 { Q_UNUSED(ui); return false; }
 
 bool QAxWidgetExtraInfo::saveWidgetExtraInfo(DomWidget *ui_widget)

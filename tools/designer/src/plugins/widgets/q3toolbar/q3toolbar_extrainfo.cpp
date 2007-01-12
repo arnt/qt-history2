@@ -41,10 +41,10 @@ QWidget *Q3ToolBarExtraInfo::widget() const
 QDesignerFormEditorInterface *Q3ToolBarExtraInfo::core() const
 { return m_core; }
 
-bool Q3ToolBarExtraInfo::saveUiExtraInfo(DomUi *ui)
+bool Q3ToolBarExtraInfo::saveUiExtraInfo(DomUI *ui)
 { Q_UNUSED(ui); return false; }
 
-bool Q3ToolBarExtraInfo::loadUiExtraInfo(DomUi *ui)
+bool Q3ToolBarExtraInfo::loadUiExtraInfo(DomUI *ui)
 { Q_UNUSED(ui); return false; }
 
 

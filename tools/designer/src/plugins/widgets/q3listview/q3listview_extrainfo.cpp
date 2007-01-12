@@ -42,10 +42,10 @@ QWidget *Q3ListViewExtraInfo::widget() const
 QDesignerFormEditorInterface *Q3ListViewExtraInfo::core() const
 { return m_core; }
 
-bool Q3ListViewExtraInfo::saveUiExtraInfo(DomUi *ui)
+bool Q3ListViewExtraInfo::saveUiExtraInfo(DomUI *ui)
 { Q_UNUSED(ui); return false; }
 
-bool Q3ListViewExtraInfo::loadUiExtraInfo(DomUi *ui)
+bool Q3ListViewExtraInfo::loadUiExtraInfo(DomUI *ui)
 { Q_UNUSED(ui); return false; }
 
 
