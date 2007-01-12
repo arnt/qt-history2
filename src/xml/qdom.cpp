@@ -4441,9 +4441,22 @@ void QDomAttrPrivate::save(QTextStream& s, int, int) const
     if (namespaceURI.isNull()) {
         s << name << "=\"" << encodeText(value, s, true, true) << '\"';
     } else {
-        // ### optimize this (see comment of QDomElementPrivate::save()
-        s << prefix << ':' << name << "=\"" << encodeText(value, s, true, true) << '\"'
-            << " xmlns:" << prefix << "=\"" << encodeText(namespaceURI, s, true, true) << '\"';
+        s << prefix << ':' << name << "=\"" << encodeText(value, s, true, true) << '\"';
+        /* This is a fix for 138243, as good as it gets.
+         *
+         * QDomElementPrivate::save() output a namespace declaration if
+         * the element is in a namespace, no matter what. This function do as well, meaning
+         * that we get two identical namespace declaration if we don't have the if-
+         * statement below.
+         *
+         * This doesn't work when the parent element has the same prefix as us but
+         * a different namespace. However, this can only occur by the user modifying the element,
+         * and we don't do fixups by that anyway, and hence it's the user responsibility to not
+         * arrive in those situations. */
+        if(!ownerNode ||
+           ownerNode->prefix != prefix) {
+            s << " xmlns:" << prefix << "=\"" << encodeText(namespaceURI, s, true, true) << '\"';
+        }
     }
 }
 
@@ -4787,11 +4800,16 @@ void QDomElementPrivate::save(QTextStream& s, int depth, int indent) const
     QString qName(name);
     QString nsDecl(QLatin1String(""));
     if (!namespaceURI.isNull()) {
-        // ### optimize this, so that you only declare namespaces that are not
-        // yet declared -- we lose default namespace mappings, so maybe we
-        // should rather store the information that we get from
-        // startPrefixMapping()/endPrefixMapping() and use them (you have to
-        // take care if the DOM tree is modified, though)
+        /** Qt 5 ###:
+         *
+         * If we still have QDom, optimize this so that we only declare namespaces that are not
+         * yet declared. We loose default namespace mappings, so maybe we should rather store
+         * the information that we get from startPrefixMapping()/endPrefixMapping() and use them.
+         * Modifications becomes more complex then, however.
+         *
+         * We cannot do this during the Qt 4 series because it would require too invasive changes, and
+         * hence possibly behavioral changes.
+         */
         if (prefix.isEmpty()) {
             nsDecl = QLatin1String(" xmlns");
         } else {

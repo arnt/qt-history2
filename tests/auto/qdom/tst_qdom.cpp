@@ -71,6 +71,9 @@ private slots:
     void normalizeAttributes() const;
     void serializeWeirdEOL() const;
     void reparentAttribute() const;
+    void serializeNamespaces() const;
+    void flagInvalidNamespaces() const;
+    void flagUndeclaredNamespace() const;
 
     void initTestCase();
 private:
@@ -894,7 +897,7 @@ bool tst_QDom::isDeepEqual(const QDomNode &n1, const QDomNode &n2)
         return false;
 
     // We jump over the first to skip the processing instructions that
-    // are (incorrectly) used as a XML declarations.
+    // are (incorrectly) used as XML declarations.
     for(; i1 < len1; ++i1)
     {
         if(!isDeepEqual(children1.at(i1), children2.at(i2)))
@@ -1509,6 +1512,73 @@ void tst_QDom::reparentAttribute() const
 
     QVERIFY(attr.ownerElement() == ele);
     QVERIFY(attr.parentNode() == ele);
+}
+
+void tst_QDom::serializeNamespaces() const
+{
+    const char *const input = "<doc xmlns:b='http://example.com/'>"
+                              "<b:element b:name=''/>"
+                              "</doc>";
+
+    QByteArray ba(input);
+    QBuffer buffer(&ba);
+
+    QVERIFY(buffer.open(QIODevice::ReadOnly));
+
+    QXmlInputSource source(&buffer);
+    QXmlSimpleReader reader;
+    reader.setFeature("http://xml.org/sax/features/namespaces", true);
+    reader.setFeature("http://xml.org/sax/features/namespace-prefixes", false);
+
+    QDomDocument doc;
+    QVERIFY(doc.setContent(&source, &reader));
+
+    const QByteArray serialized(doc.toByteArray());
+
+    QDomDocument doc2;
+    QVERIFY(doc2.setContent(doc.toString(), true));
+
+    /* Here we test that it roundtrips. */
+    QVERIFY(isDeepEqual(doc2, doc));
+
+    QDomDocument doc3;
+    QVERIFY(doc3.setContent(QString::fromLatin1(serialized.constData()), true));
+
+    QVERIFY(isDeepEqual(doc3, doc));
+}
+
+void tst_QDom::flagInvalidNamespaces() const
+{
+    const char *const input = "<doc>"
+                              "<b:element xmlns:b='http://example.com/' b:name='' xmlns:b='http://example.com/'/>"
+                              "</doc>";
+
+    QDomDocument doc;
+    QVERIFY(!doc.setContent(QString::fromLatin1(input, true)));
+    QEXPECT_FAIL("", "The parser doesn't flag identical qualified attribute names. Fixing this would change behavior.", Continue);
+    QVERIFY(!doc.setContent(QString::fromLatin1(input)));
+}
+
+void tst_QDom::flagUndeclaredNamespace() const
+{
+    /* Note, prefix 'a' is not declared. */
+    const char *const input = "<a:doc xmlns:b='http://example.com/'>"
+                              "<b:element b:name=''/>"
+                              "</a:doc>";
+
+    QByteArray ba(input);
+    QBuffer buffer(&ba);
+
+    QVERIFY(buffer.open(QIODevice::ReadOnly));
+
+    QXmlInputSource source(&buffer);
+    QXmlSimpleReader reader;
+    reader.setFeature("http://xml.org/sax/features/namespaces", true);
+    reader.setFeature("http://xml.org/sax/features/namespace-prefixes", false);
+
+    QDomDocument doc;
+    QEXPECT_FAIL("", "The parser doesn't flag not declared prefixes. Fixing this would change behavior.", Continue);
+    QVERIFY(!doc.setContent(&source, &reader));
 }
 
 QTEST_MAIN(tst_QDom)
