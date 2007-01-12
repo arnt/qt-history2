@@ -1906,7 +1906,7 @@ void QFileDialogPrivate::createToolButtons()
 
     backButton = new QToolButton(q);
     backButton->setObjectName(QLatin1String("qt_back_button"));
-    backButton->setIcon(q->style()->standardPixmap(QStyle::SP_ArrowBack));
+    backButton->setIcon(q->style()->standardIcon(QStyle::SP_ArrowBack));
 #ifndef QT_NO_TOOLTIP
     backButton->setToolTip(QFileDialog::tr("Back"));
 #endif
@@ -1916,7 +1916,7 @@ void QFileDialogPrivate::createToolButtons()
 
     forwardButton = new QToolButton(q);
     forwardButton->setObjectName(QLatin1String("qt_forward_button"));
-    forwardButton->setIcon(q->style()->standardPixmap(QStyle::SP_ArrowForward));
+    forwardButton->setIcon(q->style()->standardIcon(QStyle::SP_ArrowForward));
 #ifndef QT_NO_TOOLTIP
     forwardButton->setToolTip(QFileDialog::tr("Forward"));
 #endif
@@ -1926,7 +1926,7 @@ void QFileDialogPrivate::createToolButtons()
 
     toParentButton = new QToolButton(q);
     toParentButton->setObjectName(QLatin1String("qt_toParent_button"));
-    toParentButton->setIcon(q->style()->standardPixmap(QStyle::SP_FileDialogToParent));
+    toParentButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogToParent));
 #ifndef QT_NO_TOOLTIP
     toParentButton->setToolTip(QFileDialog::tr("Parent Directory"));
 #endif
@@ -1942,7 +1942,7 @@ void QFileDialogPrivate::createToolButtons()
 
     listModeButton = new QToolButton(q);
     listModeButton->setObjectName(QLatin1String("qt_list_mode_button"));
-    listModeButton->setIcon(q->style()->standardPixmap(QStyle::SP_FileDialogListView));
+    listModeButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogListView));
 #ifndef QT_NO_TOOLTIP
     listModeButton->setToolTip(QFileDialog::tr("List View"));
 #endif
@@ -1952,7 +1952,7 @@ void QFileDialogPrivate::createToolButtons()
     detailModeButton = new QToolButton(q);
     detailModeButton->setObjectName(QLatin1String("qt_detail_mode_button"));
     detailModeButton->setDown(true);
-    detailModeButton->setIcon(q->style()->standardPixmap(QStyle::SP_FileDialogDetailedView));
+    detailModeButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogDetailedView));
 #ifndef QT_NO_TOOLTIP
     detailModeButton->setToolTip(QFileDialog::tr("Detail View"));
 #endif

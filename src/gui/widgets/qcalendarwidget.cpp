@@ -859,8 +859,8 @@ void QCalendarWidgetPrivate::createNavigationBar(QWidget *widget)
     prevMonth->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     nextMonth->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     nextMonth->setAutoRaise(true);
-    prevMonth->setIcon(q->style()->standardPixmap(QStyle::SP_ArrowLeft));
-    nextMonth->setIcon(q->style()->standardPixmap(QStyle::SP_ArrowRight));
+    prevMonth->setIcon(q->style()->standardIcon(QStyle::SP_ArrowLeft));
+    nextMonth->setIcon(q->style()->standardIcon(QStyle::SP_ArrowRight));
     prevMonth->setAutoRepeat(true);
     nextMonth->setAutoRepeat(true);
     prevMonth->setFocusProxy(m_view);

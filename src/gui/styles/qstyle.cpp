@@ -1682,7 +1682,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SP_CustomBase  Base value for custom standard pixmaps;
     custom values must be greater than this value.
 
-    \sa standardPixmap()
+    \sa standardPixmap() standardIcon
 */
 
 /*###
@@ -1721,6 +1721,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \fn QPixmap QStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *option, \
                                        const QWidget *widget) const
 
+    \obsolete
     Returns a pixmap for the given \a standardPixmap.
 
     A standard pixmap is a pixmap that can follow some existing GUI
@@ -1728,6 +1729,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     extra information required when defining the appropriate
     pixmap. The \a widget argument is optional and can also be used to
     aid the determination of the pixmap.
+
+    Developers calling standardPixmap() should instead call standardIcon()
+    Developers who re-implemented standardPixmap() should instead re-implement
+    the slot standardIconImplementation().
 
     \sa standardIcon()
 */

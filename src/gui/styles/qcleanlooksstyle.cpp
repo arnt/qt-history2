@@ -2799,7 +2799,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     } else {
                         QStyleOption tool(0);
                         tool.palette = titleBar->palette;
-                        QPixmap pm = standardPixmap(SP_TitleBarMenuButton, &tool, widget);
+                        QPixmap pm = standardIcon(SP_TitleBarMenuButton, &tool, widget).pixmap(16, 16);
                         tool.rect = iconRect;
                         painter->save();
                         drawItemPixmap(painter, iconRect, Qt::AlignCenter, pm);

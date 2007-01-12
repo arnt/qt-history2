@@ -2225,12 +2225,12 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             QRect titleRect = r;
 
             if (dwOpt->closable) {
-                QPixmap pm = standardPixmap(QStyle::SP_TitleBarCloseButton, dwOpt, widget);
+                QPixmap pm = standardIcon(QStyle::SP_TitleBarCloseButton, dwOpt, widget).pixmap(10, 10);
                 titleRect.adjust(0, 0, -pm.size().width() - mw - buttonMargin, 0);
             }
 
             if (dwOpt->floatable) {
-                QPixmap pm = standardPixmap(QStyle::SP_TitleBarMaxButton, dwOpt, widget);
+                QPixmap pm = standardIcon(QStyle::SP_TitleBarMaxButton, dwOpt, widget).pixmap(10, 10);
                 titleRect.adjust(0, 0, -pm.size().width() - mw - buttonMargin, 0);
             }
 
@@ -2928,7 +2928,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                         SIZE sz;
                         pGetThemePartSize(theme.handle(), qt_win_display_dc(), theme.partId, theme.stateId, 0, TS_TRUE, &sz);
                         if (sz.cx == 0 || sz.cy == 0) {
-                            QPixmap pm = standardPixmap(SP_TitleBarMenuButton, tb, widget);
+                            QPixmap pm = standardIcon(SP_TitleBarMenuButton, tb, widget).pixmap(10, 10);
                             p->save();
                             drawItemPixmap(p, theme.rect, Qt::AlignCenter, pm);
                             p->restore();

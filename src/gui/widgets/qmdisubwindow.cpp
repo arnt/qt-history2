@@ -218,7 +218,7 @@ public:
         : QWidget(parent), isPressed(false)
     {
         setFocusPolicy(Qt::NoFocus);
-        label = style()->standardPixmap(QStyle::SP_TitleBarMenuButton);
+        label = style()->standardIcon(QStyle::SP_TitleBarMenuButton).pixmap(16, 16);
         setFixedSize(label.size());
     }
 
@@ -717,16 +717,16 @@ void QMdiSubWindowPrivate::createSystemMenu()
     systemMenu = new QMenu(q);
     const QStyle *style = q->style();
     actions[RestoreAction] = systemMenu
-        ->addAction(QIcon(style->standardPixmap(QStyle::SP_TitleBarNormalButton)), QObject::tr("&Restore"),
+        ->addAction(QIcon(style->standardIcon(QStyle::SP_TitleBarNormalButton)), QObject::tr("&Restore"),
                     q, SLOT(showNormal()));
     actions[RestoreAction]->setEnabled(false);
     actions[MoveAction] = systemMenu->addAction(QObject::tr("&Move"), q, SLOT(_q_enterInteractiveMode()));
     actions[ResizeAction] = systemMenu->addAction(QObject::tr("&Size"), q, SLOT(_q_enterInteractiveMode()));
     actions[MinimizeAction] = systemMenu
-        ->addAction(QIcon(style->standardPixmap(QStyle::SP_TitleBarMinButton)), QObject::tr("Mi&nimize"),
+        ->addAction(QIcon(style->standardIcon(QStyle::SP_TitleBarMinButton)), QObject::tr("Mi&nimize"),
                     q, SLOT(showMinimized()));
     actions[MaximizeAction] = systemMenu
-        ->addAction(QIcon(style->standardPixmap(QStyle::SP_TitleBarMaxButton)), QObject::tr("Ma&ximize"),
+        ->addAction(QIcon(style->standardIcon(QStyle::SP_TitleBarMaxButton)), QObject::tr("Ma&ximize"),
                     q, SLOT(showMaximized()));
     actions[StayOnTopAction] = systemMenu
         ->addAction(QObject::tr("Stay on &Top"), q, SLOT(_q_updateStaysOnTopHint()));
@@ -734,11 +734,11 @@ void QMdiSubWindowPrivate::createSystemMenu()
     systemMenu->addSeparator();
 #ifndef QT_NO_SHORTCUT
     actions[CloseAction] = systemMenu
-        ->addAction(QIcon(style->standardPixmap(QStyle::SP_TitleBarCloseButton)), QObject::tr("&Close"),
+        ->addAction(QIcon(style->standardIcon(QStyle::SP_TitleBarCloseButton)), QObject::tr("&Close"),
                     q, SLOT(close()), QKeySequence(QKeySequence::Close));
 #else
     actions[CloseAction] = systemMenu
-        ->addAction(QIcon(style->standardPixmap(QStyle::SP_TitleBarCloseButton)), QObject::tr("&Close"),
+        ->addAction(QIcon(style->standardIcon(QStyle::SP_TitleBarCloseButton)), QObject::tr("&Close"),
                     q, SLOT(close()));
 #endif
     updateActions();

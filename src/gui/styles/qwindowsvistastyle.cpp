@@ -958,12 +958,12 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
             QRect titleRect = r;
 
             if (dwOpt->closable) {
-                QPixmap pm = standardPixmap(QStyle::SP_TitleBarCloseButton, dwOpt, widget);
+                QPixmap pm = standardIcon(QStyle::SP_TitleBarCloseButton, dwOpt, widget).pixmap(10, 10);
                 titleRect.adjust(0, 0, -pm.size().width() - mw - buttonMargin, 0);
             }
 
             if (dwOpt->floatable) {
-                QPixmap pm = standardPixmap(QStyle::SP_TitleBarMaxButton, dwOpt, widget);
+                QPixmap pm = standardIcon(QStyle::SP_TitleBarMaxButton, dwOpt, widget).pixmap(10, 10);
                 titleRect.adjust(0, 0, -pm.size().width() - mw - buttonMargin, 0);
             }
 

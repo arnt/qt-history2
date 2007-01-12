@@ -55,7 +55,7 @@ QMenuBarExtension::QMenuBarExtension(QWidget *parent)
 #ifndef QT_NO_MENU
     setPopupMode(QToolButton::InstantPopup);
 #endif
-    setIcon(style()->standardPixmap(QStyle::SP_ToolBarHorizontalExtensionButton));
+    setIcon(style()->standardIcon(QStyle::SP_ToolBarHorizontalExtensionButton));
 }
 
 QSize QMenuBarExtension::sizeHint() const

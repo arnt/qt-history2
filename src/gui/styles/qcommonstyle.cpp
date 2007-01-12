@@ -2530,9 +2530,9 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     || qobject_cast<const QDockWidget *>(widget)
 #endif
                     )
-                    pm = standardPixmap(SP_DockWidgetCloseButton, &tool, widget);
+                    pm = standardIcon(SP_DockWidgetCloseButton, &tool, widget).pixmap(10, 10);
                 else
-                    pm = standardPixmap(SP_TitleBarCloseButton, &tool, widget);
+                    pm = standardIcon(SP_TitleBarCloseButton, &tool, widget).pixmap(10, 10);
                 tool.rect = ir;
                 tool.state = down ? State_Sunken : State_Raised;
                 drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
@@ -2551,7 +2551,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 ir = subControlRect(CC_TitleBar, tb, SC_TitleBarMaxButton, widget);
 
                 down = tb->activeSubControls & SC_TitleBarMaxButton && (opt->state & State_Sunken);
-                pm = standardPixmap(SP_TitleBarMaxButton, &tool, widget);
+                pm = standardIcon(SP_TitleBarMaxButton, &tool, widget).pixmap(10, 10);
                 tool.rect = ir;
                 tool.state = down ? State_Sunken : State_Raised;
                 drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
@@ -2569,7 +2569,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     && !(tb->titleBarState & Qt::WindowMinimized)) {
                 ir = subControlRect(CC_TitleBar, tb, SC_TitleBarMinButton, widget);
                 down = tb->activeSubControls & SC_TitleBarMinButton && (opt->state & State_Sunken);
-                pm = standardPixmap(SP_TitleBarMinButton, &tool, widget);
+                pm = standardIcon(SP_TitleBarMinButton, &tool, widget).pixmap(10, 10);
                 tool.rect = ir;
                 tool.state = down ? State_Sunken : State_Raised;
                 drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
@@ -2591,7 +2591,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (drawNormalButton) {
                 ir = subControlRect(CC_TitleBar, tb, SC_TitleBarNormalButton, widget);
                 down = tb->activeSubControls & SC_TitleBarNormalButton && (opt->state & State_Sunken);
-                pm = standardPixmap(SP_TitleBarNormalButton, &tool, widget);
+                pm = standardIcon(SP_TitleBarNormalButton, &tool, widget).pixmap(10, 10);
                 tool.rect = ir;
                 tool.state = down ? State_Sunken : State_Raised;
                 drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
@@ -2609,7 +2609,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     && !(tb->titleBarState & Qt::WindowMinimized)) {
                 ir = subControlRect(CC_TitleBar, tb, SC_TitleBarShadeButton, widget);
                 down = (tb->activeSubControls & SC_TitleBarShadeButton && (opt->state & State_Sunken));
-                pm = standardPixmap(SP_TitleBarShadeButton, &tool, widget);
+                pm = standardIcon(SP_TitleBarShadeButton, &tool, widget).pixmap(10, 10);
                 tool.rect = ir;
                 tool.state = down ? State_Sunken : State_Raised;
                 drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
@@ -2627,7 +2627,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 ir = subControlRect(CC_TitleBar, tb, SC_TitleBarUnshadeButton, widget);
 
                 down = tb->activeSubControls & SC_TitleBarUnshadeButton  && (opt->state & State_Sunken);
-                pm = standardPixmap(SP_TitleBarUnshadeButton, &tool, widget);
+                pm = standardIcon(SP_TitleBarUnshadeButton, &tool, widget).pixmap(10, 10);
                 tool.rect = ir;
                 tool.state = down ? State_Sunken : State_Raised;
                 drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
@@ -2643,7 +2643,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 ir = subControlRect(CC_TitleBar, tb, SC_TitleBarContextHelpButton, widget);
 
                 down = tb->activeSubControls & SC_TitleBarContextHelpButton  && (opt->state & State_Sunken);
-                pm = standardPixmap(SP_TitleBarContextHelpButton, &tool, widget);
+                pm = standardIcon(SP_TitleBarContextHelpButton, &tool, widget).pixmap(10, 10);
                 tool.rect = ir;
                 tool.state = down ? State_Sunken : State_Raised;
                 drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
@@ -2659,7 +2659,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 if (!tb->icon.isNull()) {
                     tb->icon.paint(p, ir);
                 } else {
-                    pm = standardPixmap(SP_TitleBarMenuButton, &tool, widget);
+                    pm = standardIcon(SP_TitleBarMenuButton, &tool, widget).pixmap(10, 10);
                     tool.rect = ir;
                     p->save();
                     drawItemPixmap(p, ir, Qt::AlignCenter, pm);
@@ -2841,7 +2841,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 }
                 btnOpt.rect = subControlRect(CC_MDIControls, opt, SC_MDICloseButton, widget);
                 drawPrimitive(PE_PanelButtonCommand, &btnOpt, p, widget);
-                QPixmap pm = standardPixmap(SP_TitleBarCloseButton);
+                QPixmap pm = standardIcon(SP_TitleBarCloseButton).pixmap(8, 8);
                 drawItemPixmap(p, btnOpt.rect.translated(bsx, bsy), Qt::AlignCenter, pm);
             } 
             if (opt->subControls & QStyle::SC_MDINormalButton) {
@@ -2858,7 +2858,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 }
                 btnOpt.rect = subControlRect(CC_MDIControls, opt, SC_MDINormalButton, widget);
                 drawPrimitive(PE_PanelButtonCommand, &btnOpt, p, widget);
-                QPixmap pm = standardPixmap(SP_TitleBarNormalButton);
+                QPixmap pm = standardIcon(SP_TitleBarNormalButton).pixmap(8, 8);
                 drawItemPixmap(p, btnOpt.rect.translated(bsx, bsy), Qt::AlignCenter, pm);
             } 
             if (opt->subControls & QStyle::SC_MDIMinButton) {
@@ -2875,7 +2875,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 }
                 btnOpt.rect = subControlRect(CC_MDIControls, opt, SC_MDIMinButton, widget);
                 drawPrimitive(PE_PanelButtonCommand, &btnOpt, p, widget);
-                QPixmap pm = standardPixmap(SP_TitleBarMinButton);
+                QPixmap pm = standardIcon(SP_TitleBarMinButton).pixmap(8, 8);
                 drawItemPixmap(p, btnOpt.rect.translated(bsx, bsy), Qt::AlignCenter, pm);
             }
         }

@@ -499,7 +499,7 @@ void Q3DockWindowHandle::updateGui()
 #endif
         QStyleOption opt(0);
         opt.init(closeButton);
-        closeButton->setIcon(style()->standardPixmap(QStyle::SP_DockWidgetCloseButton, &opt,
+        closeButton->setIcon(style()->standardIcon(QStyle::SP_DockWidgetCloseButton, &opt,
                                                     closeButton));
         closeButton->setFixedSize(12, 12);
         connect(closeButton, SIGNAL(clicked()),
@@ -530,7 +530,7 @@ void Q3DockWindowHandle::changeEvent(QEvent *ev)
         if (closeButton) {
             QStyleOption opt(0);
             opt.init(closeButton);
-            closeButton->setIcon(style()->standardPixmap(QStyle::SP_DockWidgetCloseButton,
+            closeButton->setIcon(style()->standardIcon(QStyle::SP_DockWidgetCloseButton,
                                                         &opt, closeButton));
         }
     }
