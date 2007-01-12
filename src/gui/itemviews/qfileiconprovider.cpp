@@ -180,7 +180,7 @@ QIcon QFileIconProvider::icon(IconType type) const
 QIcon QFileIconProviderPrivate::getWinIcon(const QFileInfo &fileInfo) const
 {
     QIcon retIcon;
-    QString fileExtension = fileInfo.extension(FALSE).upper();
+    QString fileExtension = fileInfo.suffix().upper();
     fileExtension.prepend( QLatin1String(".") );
 
     QString key;
@@ -198,7 +198,7 @@ QIcon QFileIconProviderPrivate::getWinIcon(const QFileInfo &fileInfo) const
     static HRESULT comInit = CoInitialize(NULL);
     SHFILEINFO info;
     unsigned long val = 0;
-    val = SHGetFileInfo((const WCHAR *)QDir::toNativeSeparators(fileInfo.filePath()).ucs2(), 0, &info,
+    val = SHGetFileInfo((const WCHAR *)QDir::toNativeSeparators(fileInfo.filePath()).utf16(), 0, &info,
                         sizeof(SHFILEINFO), SHGFI_ICON|SHGFI_SMALLICON|SHGFI_SYSICONINDEX|SHGFI_ADDOVERLAYS);
     if (val) {
         pixmap = convertHIconToPixmap(info.hIcon);
