@@ -19,7 +19,7 @@
 
 #ifndef QT_NO_SOUND
 
-#ifdef __LP64__
+#if 1
 #include <AppKit/NSSound.h>
 
 typedef QHash<QSound *, NSSound const *> Sounds;
@@ -118,7 +118,7 @@ void QAuServerMac::stop(QSound *qSound)
 // Creates an NSSound object and installs a "sound finished" callack delegate on it.
 NSSound *QAuServerMac::createNSSound(const QString &fileName, QSound *qSound)
 {
-    NSString const *nsFileName = reinterpret_cast<NSString const *>(QCFString::toCFStringRef(fileName));
+    NSString *nsFileName = reinterpret_cast<NSString *>(QCFString::toCFStringRef(fileName));
     NSSound * const nsSound = [[NSSound alloc] initWithContentsOfFile: nsFileName byReference:YES];
     QMacSoundDelegate * const delegate = [[QMacSoundDelegate alloc] initWithQSound:qSound:this];
     [nsSound setDelegate:delegate];

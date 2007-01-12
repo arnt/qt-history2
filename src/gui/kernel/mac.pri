@@ -1,4 +1,4 @@
 !x11:mac {
-   LIBS += -framework Carbon -framework QuickTime -lz
+   LIBS += -framework Carbon -lz
    *-mwerks:INCLUDEPATH += compat
 }
