@@ -244,7 +244,9 @@ void QTextDocumentPrivate::setLayout(QAbstractTextDocumentLayout *layout)
         for (BlockMap::Iterator it = blocks.begin(); !it.atEnd(); ++it)
             it->free();
 
+    inContentsChange = true;
     emit q->contentsChange(0, 0, length());
+    inContentsChange = false;
     if (lout)
         lout->documentChanged(0, 0, length());
 }
