@@ -277,8 +277,6 @@ bool QGLPixelBufferPrivate::cleanup()
         wglReleasePbufferDCARB(pbuf, dc);
         wglDestroyPbufferARB(pbuf);
     }
-    wglMakeCurrent(dc, 0);
-    wglDeleteContext(ctx);
     return true;
 }
 
@@ -305,22 +303,6 @@ void QGLPixelBuffer::releaseFromDynamicTexture()
         (PFNWGLRELEASETEXIMAGEARBPROC) wglGetProcAddress("wglReleaseTexImageARB");
     if (wglReleaseTexImageARB)
         wglReleaseTexImageARB(d->pbuf, WGL_FRONT_LEFT_ARB);
-}
-
-bool QGLPixelBuffer::makeCurrent()
-{
-    Q_D(QGLPixelBuffer);
-    if (d->invalid)
-        return false;
-    return wglMakeCurrent(d->dc, d->ctx);
-}
-
-bool QGLPixelBuffer::doneCurrent()
-{
-    Q_D(QGLPixelBuffer);
-    if (d->invalid)
-        return false;
-    return wglMakeCurrent(d->dc, 0);
 }
 
 bool QGLPixelBuffer::hasOpenGLPbuffers()

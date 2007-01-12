@@ -1235,6 +1235,7 @@ void QGLContextPrivate::init(QPaintDevice *dev, const QGLFormat &format)
     valid = false;
     q->setDevice(dev);
 #if defined(Q_WS_X11)
+    pbuf = 0;
     gpm = 0;
 #endif
 #if defined(Q_WS_WIN)

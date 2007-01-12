@@ -135,8 +135,7 @@ static void qt_format_to_attrib_list(const QGLFormat &f, int attribs[])
     attribs[i] = XNone;
 }
 
-bool
-QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
+bool QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
 {
     if (!qt_resolve_pbuffer_extensions()) {
         qWarning("QGLPixelBuffer: pbuffers are not supported on this system.");
@@ -208,28 +207,10 @@ QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidget *sh
     }
 }
 
-bool
-QGLPixelBufferPrivate::cleanup()
+bool QGLPixelBufferPrivate::cleanup()
 {
-    glXDestroyContext(QX11Info::display(), ctx);
     glXDestroyPbuffer(QX11Info::display(), pbuf);
     return true;
-}
-
-bool QGLPixelBuffer::makeCurrent()
-{
-    Q_D(QGLPixelBuffer);
-    if (d->invalid)
-        return false;
-    return glXMakeContextCurrent(QX11Info::display(), d->pbuf, d->pbuf, d->ctx);
-}
-
-bool QGLPixelBuffer::doneCurrent()
-{
-    Q_D(QGLPixelBuffer);
-    if (d->invalid)
-        return false;
-    return glXMakeContextCurrent(QX11Info::display(), 0, 0, 0);
 }
 
 bool QGLPixelBuffer::bindToDynamicTexture(GLuint)

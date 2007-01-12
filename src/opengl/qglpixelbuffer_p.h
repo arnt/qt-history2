@@ -100,7 +100,7 @@ DECLARE_HANDLE(HPBUFFERARB);
 class QGLPixelBufferPrivate {
     Q_DECLARE_PUBLIC(QGLPixelBuffer)
 public:
-    QGLPixelBufferPrivate() : invalid(true), qctx(0), pbuf(0), ctx(0)
+    QGLPixelBufferPrivate(QGLPixelBuffer *q) : q_ptr(q), invalid(true), qctx(0), pbuf(0), ctx(0)
     {
         QGLExtensions::init();
 #ifdef Q_WS_WIN
@@ -113,9 +113,9 @@ public:
     void common_init(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget);
     bool cleanup();
 
+    QGLPixelBuffer *q_ptr;
     bool invalid;
     QGLContext *qctx;
-    QGLPixelBuffer *q_ptr;
     QGLFormat format;
 
     QGLFormat req_format;

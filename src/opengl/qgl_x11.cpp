@@ -607,15 +607,15 @@ void QGLContext::makeCurrent()
     }
     const QX11Info *xinfo = qt_x11Info(d->paintDevice);
     bool ok = true;
-    if (deviceIsPixmap())
+    if (d->paintDevice->devType() == QInternal::Pixmap) {
         ok = glXMakeCurrent(xinfo->display(), (GLXPixmap)d->gpm, (GLXContext)d->cx);
-
-    else
-        ok = glXMakeCurrent(xinfo->display(), ((QWidget *)d->paintDevice)->winId(),
-                             (GLXContext)d->cx);
+    } else if (d->paintDevice->devType() == QInternal::Pbuffer) {
+        ok = glXMakeCurrent(xinfo->display(), (GLXPbuffer)d->pbuf, (GLXContext)d->cx);
+    } else if (d->paintDevice->devType() == QInternal::Widget) {
+        ok = glXMakeCurrent(xinfo->display(), ((QWidget *)d->paintDevice)->winId(), (GLXContext)d->cx);
+    }
     if (!ok)
         qWarning("QGLContext::makeCurrent(): Failed.");
-
 
     if (ok) {
         if (!qgl_context_storage.hasLocalData() && QThread::currentThread())

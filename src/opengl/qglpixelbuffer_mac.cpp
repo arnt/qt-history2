@@ -46,15 +46,15 @@ bool QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidge
     attribs[i++] = 32;
     attribs[i++] = AGL_LEVEL;
     attribs[i++] = f.plane();
-    if (f.redBufferSize() != -1) {    
+    if (f.redBufferSize() != -1) {
         attribs[i++] = AGL_RED_SIZE;
         attribs[i++] = f.redBufferSize();
     }
-    if (f.greenBufferSize() != -1) {    
+    if (f.greenBufferSize() != -1) {
         attribs[i++] = AGL_GREEN_SIZE;
         attribs[i++] = f.greenBufferSize();
     }
-    if (f.blueBufferSize() != -1) {    
+    if (f.blueBufferSize() != -1) {
         attribs[i++] = AGL_BLUE_SIZE;
         attribs[i++] = f.blueBufferSize();
     }
@@ -177,12 +177,9 @@ bool QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidge
 #endif
 }
 
-bool
-QGLPixelBufferPrivate::cleanup()
+bool QGLPixelBufferPrivate::cleanup()
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    aglSetCurrentContext(0);
-    aglDestroyContext(ctx);
     aglDestroyPBuffer(pbuf);
     return true;
 #endif
@@ -207,31 +204,6 @@ bool QGLPixelBuffer::bindToDynamicTexture(GLuint texture_id)
 
 void QGLPixelBuffer::releaseFromDynamicTexture()
 {
-}
-
-bool QGLPixelBuffer::makeCurrent()
-{
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    Q_D(QGLPixelBuffer);
-    if (d->invalid)
-        return false;
-
-    return aglSetCurrentContext(d->ctx);
-#else
-    return false;
-#endif
-}
-
-bool QGLPixelBuffer::doneCurrent()
-{
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    Q_D(QGLPixelBuffer);
-    if (d->invalid)
-        return false;
-    return aglSetCurrentContext(0);
-#else
-    return false;
-#endif
 }
 
 GLuint QGLPixelBuffer::generateDynamicTexture() const

@@ -133,6 +133,7 @@ public:
     void* vi;
     void* cx;
 #if defined(Q_WS_X11)
+    void* pbuf;
     quint32 gpm;
 #endif
 #if defined(Q_WS_MAC)

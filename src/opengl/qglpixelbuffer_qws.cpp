@@ -23,20 +23,6 @@
 #define GL_TEXTURE_RECTANGLE_EXT 0x84F5
 #endif
 
-static int nearest_gl_texture_size(int v)
-{
-    int n = 0, last = 0;
-    for (int s = 0; s < 32; ++s) {
-        if (((v>>s) & 1) == 1) {
-            ++n;
-            last = s;
-        }
-    }
-    if (n > 1)
-        return 1 << (last+1);
-    return 1 << last;
-}
-
 bool QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
 {
     Q_UNUSED(size);
@@ -59,15 +45,6 @@ bool QGLPixelBuffer::bindToDynamicTexture(GLuint texture_id)
 void QGLPixelBuffer::releaseFromDynamicTexture()
 {
 }
-
-bool QGLPixelBuffer::makeCurrent()
-{
-    return false;
-}
-
-bool QGLPixelBuffer::doneCurrent()
-{
-    return false;
 }
 
 GLuint QGLPixelBuffer::generateDynamicTexture() const
