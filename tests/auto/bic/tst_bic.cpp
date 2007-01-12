@@ -84,6 +84,7 @@ void tst_Bic::initTestCase_data()
     QTest::newRow("Qt3Support") << "Qt3Support";
     QTest::newRow("QtTest") << "QtTest";
     QTest::newRow("QtDBus") << "QtDBus";
+    QTest::newRow("QtDesigner") << "QtDesigner";
 }
 
 void tst_Bic::initTestCase()
