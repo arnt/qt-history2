@@ -19,6 +19,7 @@
 #include "qscrollbar.h"
 #include "qdebug.h"
 #include <QStackedWidget>
+#include <QToolBox>
 
 #if !defined(QT_NO_ACCESSIBILITY) && !defined(QT_NO_TEXTEDIT)
 
@@ -231,6 +232,83 @@ int QAccessibleStackedWidget::navigate(RelationFlag relation, int entry, QAccess
 QStackedWidget *QAccessibleStackedWidget::stackedWidget() const
 {
     return static_cast<QStackedWidget *>(object());
+}
+
+// ======================= QAccessibleToolBox ======================
+QAccessibleToolBox::QAccessibleToolBox(QWidget *widget)
+    : QAccessibleWidgetEx(widget, LayeredPane)
+{
+    Q_ASSERT(qobject_cast<QToolBox *>(widget));
+}
+
+QString QAccessibleToolBox::text(Text textType, int child) const
+{
+    if (textType != Value || child <= 0 || child > toolBox()->count())
+        return QAccessibleWidgetEx::text(textType, child);
+    return toolBox()->itemText(child - 1);
+}
+
+void QAccessibleToolBox::setText(Text textType, int child, const QString &text)
+{
+    if (textType != Value || child <= 0 || child > toolBox()->count()) {
+        QAccessibleWidgetEx::setText(textType, child, text);
+        return;
+    }
+    toolBox()->setItemText(child - 1, text);
+}
+
+QAccessible::State QAccessibleToolBox::state(int child) const
+{
+    QWidget *childWidget = toolBox()->widget(child - 1);
+    if (!childWidget)
+        return QAccessibleWidgetEx::state(child);
+    QAccessible::State childState = QAccessible::Normal;
+    if (toolBox()->currentWidget() == childWidget)
+        childState |= QAccessible::Expanded;
+    else
+        childState |= QAccessible::Collapsed;
+    return childState;
+}
+
+QVariant QAccessibleToolBox::invokeMethodEx(QAccessible::Method, int, const QVariantList &)
+{
+    return QVariant();
+}
+
+int QAccessibleToolBox::childCount() const
+{
+    return toolBox()->count();
+}
+
+int QAccessibleToolBox::indexOfChild(const QAccessibleInterface *child) const
+{
+    if (!child)
+        return -1;
+    QWidget *childWidget = qobject_cast<QWidget *>(child->object());
+    if (!childWidget)
+        return -1;
+    int index = toolBox()->indexOf(childWidget);
+    if (index != -1)
+        ++index;
+    return index;
+}
+
+int QAccessibleToolBox::navigate(RelationFlag relation, int entry, QAccessibleInterface **target) const
+{
+    if (entry <= 0 || entry > toolBox()->count())
+        return QAccessibleWidgetEx::navigate(relation, entry, target);
+    int index = -1;
+    if (relation == QAccessible::Up)
+        index = entry - 2;
+    else if (relation == QAccessible::Down)
+        index = entry;
+    *target = QAccessible::queryAccessibleInterface(toolBox()->widget(index));
+    return *target ? index + 1: -1;
+}
+
+QToolBox * QAccessibleToolBox::toolBox() const
+{
+    return static_cast<QToolBox *>(object());
 }
 
 #endif // QT_NO_ACCESSIBILITY
