@@ -2520,7 +2520,7 @@ void tst_QTableView::tabFocus()
 
     qApp->processEvents();
 
-    WAIT_FOR_CONDITION(view->hasFocus(), true);
+    WAIT_FOR_CONDITION(window.hasFocus(), true);
 
     qApp->processEvents();
 
