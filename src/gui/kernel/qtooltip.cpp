@@ -346,8 +346,6 @@ void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w, cons
 
     if (!text.isEmpty()){ // no tip can be reused, create new tip:
         new QTipLabel(pos, text, w); // sets QTipLabel::instance to itself
-        QTipLabel::instance->show();
-        QTipLabel::instance->hide();
         QTipLabel::instance->setTipRect(w, rect);
         QTipLabel::instance->placeTip(pos, w);
         QTipLabel::instance->setObjectName(QLatin1String("qtooltip_label"));
