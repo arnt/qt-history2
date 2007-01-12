@@ -2321,11 +2321,8 @@ static inline bool isImplValid(const QDomNodePrivate *const impl,
 /*!
     Returns the name of the node.
 
-    Remember that use of this function is not namespace aware, which applies to element
-    and attribute nodes. The returned name can contain any prefix. For namespace aware
-    code, use localName() and namespaceURI().
-
     The meaning of the name depends on the subclass:
+
     \table
     \header \i Name \i Meaning
     \row \i QDomAttr \i The name of the attribute
@@ -2341,6 +2338,12 @@ static inline bool isImplValid(const QDomNodePrivate *const impl,
     \row \i QDomProcessingInstruction \i The target of the processing instruction
     \row \i QDomText \i The string "#text"
     \endtable
+
+    \bold{Note:} This function does not take the presence of namespaces into account
+    when processing the names of element and attribute nodes. As a result, the
+    returned name can contain any namespace prefix that may be present.
+    To obtain the node name of an element or attribute, use localName(); to
+    obtain the namespace prefix, use namespaceURI().
 
     \sa nodeValue()
 */
@@ -3666,8 +3669,9 @@ uint QDomNamedNodeMap::length() const
     Returns true if the map contains a node called \a name; otherwise
     returns false.
 
-    Remember that use of this function is not namespace aware. For namespace aware
-    code, use namedItemNS().
+    \bold{Note:} This function does not take the presence of namespaces into account.
+    Use namedItemNS() to test whether the map contains a node with a specific namespace
+    URI and name.
 */
 bool QDomNamedNodeMap::contains(const QString& name) const
 {
@@ -5172,10 +5176,12 @@ QDomNodeList QDomElement::elementsByTagName(const QString& tagname) const
     Returns true if this element has an attribute called \a name;
     otherwise returns false.
 
-    Remember that use of this function is not namespace aware. The
-    returned name can contain any prefix. For namespace aware
-    code, use hasAttributeNS().
+    \bold{Note:} This function does not take the presence of namespaces into account.
+    As a result, the specified name will be tested against fully-qualified attribute
+    names that include any namespace prefixes that may be present.
 
+    Use hasAttributeNS() to explicitly test for attributes with specific namespaces
+    and names.
 */
 bool QDomElement::hasAttribute(const QString& name) const
 {
