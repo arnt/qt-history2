@@ -130,7 +130,7 @@ void atWrapper::ftpMgetDone( bool error)
                 ftp.list(); //Only there to fill up a slot in the pendingCommands queue.
                 while ( ftp.hasPendingCommands() )
                     QCoreApplication::instance()->processEvents();
-                file->close();                            
+                file->close();
             } else {
                 qDebug() << "Couldn't open file for writing: " << file->fileName();
             }
@@ -166,15 +166,15 @@ bool atWrapper::setupFTP()
 
     QString dir = "";
     ftpMkDir( ftpBaseDir );
-    
+
     ftpBaseDir += "/" + QLibraryInfo::buildKey();
-    
+
     ftpMkDir( ftpBaseDir );
 
     ftpBaseDir += "/" + QString( qVersion() );
 
     ftpMkDir( ftpBaseDir );
-    
+
     QHashIterator<QString, QString> i(enginesToTest);
     QHashIterator<QString, QString> j(enginesToTest);
 
@@ -185,7 +185,7 @@ bool atWrapper::setupFTP()
         i.next();
         //qDebug() << "Creating dir with key:" << i.key();
         ftpMkDir( ftpBaseDir + "/" +  QString( i.key() ) + ".failed" );
-        ftpMkDir( ftpBaseDir + "/" +  QString( i.key() ) + ".diff" ); 
+        ftpMkDir( ftpBaseDir + "/" +  QString( i.key() ) + ".diff" );
         if (!ftpMkDir( ftpBaseDir + "/" + QString( i.key() ) + ".baseline" ))
             haveBaseline = false;
     }
@@ -206,20 +206,20 @@ bool atWrapper::setupFTP()
         ftp.rmdir( j.key() + ".failed" );
         ftp.mkdir( j.key() + ".failed" );
         ftp.list();
-        
+
         while ( ftp.hasPendingCommands() )
             QCoreApplication::instance()->processEvents();
-            
+
         rmDirList.clear();
         rmDirList << ftpBaseDir + "/" + j.key() + ".diff" + "/";
         ftpRmDir( j.key() + ".diff" );
         ftp.rmdir( j.key() + ".diff" );
         ftp.mkdir( j.key() + ".diff" );
         ftp.list();
-        
+
         while ( ftp.hasPendingCommands() )
             QCoreApplication::instance()->processEvents();
-                    
+
     }
 
     ftp.close();
@@ -368,7 +368,7 @@ void atWrapper::createBaseline()
             QFile file( QString( output ) + "/" + i.key() + "/" + fileInfo.fileName() );
             file.open( QIODevice::ReadOnly );
             QByteArray fileData = file.readAll();
-	    //qDebug() << "Sending up:" << fileInfo.fileName() << "with file size" << fileData.size();
+            //qDebug() << "Sending up:" << fileInfo.fileName() << "with file size" << fileData.size();
             file.close();
             ftp.put( fileData, fileInfo.fileName(), QFtp::Binary );
         }
@@ -410,15 +410,15 @@ void atWrapper::compareDirs( QString basedir, QString target )
         dir.mkdir( target + ".failed" );
     else
         dir.cdUp();
-    
+
     */
-    
+
      if ( !dir.cd( target + ".diff" ) )
          dir.mkdir( target + ".diff" );
      else
          dir.cdUp();
-                           
-    
+
+
 
     //Perform comparisons between the two directories.
 
@@ -487,30 +487,30 @@ void atWrapper::uploadDiff( QString basedir, QString dir, QString filename )
     qDebug() << basedir;
     QImage im1( basedir + ".baseline/" + filename );
     QImage im2( basedir + "/" + filename );
-    
+
     QImage im3(im1.size(), QImage::Format_ARGB32);
 
     im1 = im1.convertToFormat(QImage::Format_ARGB32);
     im2 = im2.convertToFormat(QImage::Format_ARGB32);
-    
-    for ( int y=0; y<im1.height(); ++y ) 
+
+    for ( int y=0; y<im1.height(); ++y )
     {
         uint *s = (uint *) im1.scanLine(y);
         uint *d = (uint *) im2.scanLine(y);
         uint *w = (uint *) im3.scanLine(y);
-        
-        for ( int x=0; x<im1.width(); ++x ) 
+
+        for ( int x=0; x<im1.width(); ++x )
         {
             if (*s != *d)
                 *w = 0xff000000;
             else
                 *w = 0xffffffff;
-        w++; 
-        s++; 
+        w++;
+        s++;
         d++;
         }
     }
-    
+
     im3.save( basedir + ".diff/" + filename ,"PNG");
 
     QFile file( basedir + ".diff/" + filename );
@@ -519,7 +519,7 @@ void atWrapper::uploadDiff( QString basedir, QString dir, QString filename )
     file.close();
 
     uploadFailed( dir + ".diff", filename, contents );
-       
+
 }
 
 bool atWrapper::loadConfig( QString path )
@@ -555,14 +555,7 @@ bool atWrapper::loadConfig( QString path )
     ftpHost = settings.value( "ftpHost" ).toString();
     ftpBaseDir = settings.value( "ftpBaseDir" ).toString();
 
-#ifdef Q_WS_MAC
-    output = "../../../" + output; //Thanks to the whole blah.app/blah/blah thing
-#endif
- 
-#ifdef Q_WS_WIN
-    output = "../" + output; //Hooray for /release/blah! :/
-#endif
- 
+
     QDir::current().mkdir( output );
 
     output += "/" + QLibraryInfo::buildKey();
@@ -593,9 +586,9 @@ bool atWrapper::runAutoTests()
 {
     //SVG needs this widget...
     QWidget dummy;
-    
+
     bool haveBaseline = false;
-    
+
     if (!initTests(&haveBaseline))
         return false;
     executeTests();
