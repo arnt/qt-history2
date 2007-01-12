@@ -595,6 +595,7 @@ int QIcon::serialNumber() const
     Returns a number that identifies the contents of this QIcon
     object. Distinct QIcon objects can have the same key if
     they refer to the same contents.
+    \since 4.3
 
     The cacheKey() will change when the icon is altered via
     addPixmap() or addFile().
