@@ -336,6 +336,7 @@ int main()
     QList<QStringPair> masks = readConf(QLatin1String("masks.conf"));
 
     QString painterSource = readSourceFile("painter.glsl");
+    QString painterNoMaskSource = readSourceFile("painter_nomask.glsl");
     QString fastPainterSource = readSourceFile("fast_painter.glsl");
     QString brushPainterSource = readSourceFile("brush_painter.glsl");
 
@@ -355,8 +356,10 @@ int main()
     foreach (QStringPair brush, brushes) {
         foreach (QStringPair mode, compositionModes) {
             QString combinedSource = brush.second + mode.second + painterSource;
-
             compiled[brush.first][mode.first] = compileSource(combinedSource);
+
+            combinedSource = brush.second + mode.second + painterNoMaskSource;
+            compiled[brush.first][mode.first + "_NOMASK"] = compileSource(combinedSource);
         }
 
         QString fastSource = brush.second + fastPainterSource;
@@ -365,6 +368,13 @@ int main()
         compiled[brush.first]["COMPOSITION_MODE_BLEND_MODE_MASK"] = compileSource(fastSource);
         compiled[brush.first]["COMPOSITION_MODE_BLEND_MODE_NOMASK"] = compileSource(brushSource);
     }
+
+    QList<QStringPair> temp;
+
+    foreach (QStringPair mode, compositionModes)
+        temp << QStringPair(mode.first + "_NOMASK", mode.second);
+
+    compositionModes += temp;
 
     compositionModes << QStringPair("COMPOSITION_MODE_BLEND_MODE_MASK", "")
                      << QStringPair("COMPOSITION_MODE_BLEND_MODE_NOMASK", "");
