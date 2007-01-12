@@ -1290,10 +1290,8 @@ void QTextLine::layout_helper(int maxGlyphs)
         }
         state = newState;
 
-        if (state == Characters || current.isTab) {
-            tmpData.ascent = qMax(tmpData.ascent, current.ascent);
-            tmpData.descent = qMax(tmpData.descent, current.descent);
-        }
+        tmpData.ascent = qMax(tmpData.ascent, current.ascent);
+        tmpData.descent = qMax(tmpData.descent, current.descent);
 
         if (current.isTab && (alignment & Qt::AlignLeft)) {
             QFixed x = line.x + line.textWidth;
