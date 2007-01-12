@@ -689,6 +689,17 @@ void tst_QScriptValue::call()
         }
     }
 
+    {
+        QScriptValue fun = eng.evaluate("function() { throw new Error('foo'); }");
+        QCOMPARE(fun.isFunction(), true);
+
+        {
+            QScriptValue result = fun.call();
+            QCOMPARE(result.isError(), true);
+            QCOMPARE(eng.uncaughtException(), true);
+        }
+    }
+
     QScriptValue inv;
     QCOMPARE(inv.call().isValid(), false);
 }
