@@ -15,11 +15,15 @@ class tst_StrCmp: public QObject
     Q_OBJECT
 
 private slots:
-    void compare_charstars();
-    void compare_bytearray();
+    void compareCharStars() const;
+    void compareByteArray() const;
+    void failByteArray() const;
+    void failByteArrayNull() const;
+    void failByteArrayEmpty() const;
+    void failByteArraySingleChars() const;
 };
 
-void tst_StrCmp::compare_charstars()
+void tst_StrCmp::compareCharStars() const
 {
     QCOMPARE((const char *)"foo", (const char *)"foo");
 
@@ -44,7 +48,7 @@ void tst_StrCmp::compare_charstars()
     QCOMPARE(str2, (const char *)str3);
 }
 
-void tst_StrCmp::compare_bytearray()
+void tst_StrCmp::compareByteArray() const
 {
     QByteArray ba = "foo";
     QEXPECT_FAIL("", "Next test should fail", Continue);
@@ -64,6 +68,36 @@ void tst_StrCmp::compare_bytearray()
     QEXPECT_FAIL("", "Next test should fail", Continue);
     QCOMPARE(ba.constData(), cbar);
     QCOMPARE(ba.constData(), cfoo);
+
+    /* Create QByteArrays of the size that makes the corresponding toString() crop output. */
+    const QByteArray b(500, 'A');
+    const QByteArray a(500, 'B');
+
+    QCOMPARE(a, b);
+}
+
+void tst_StrCmp::failByteArray() const
+{
+    /* Compare small, different byte arrays. */
+    QCOMPARE(QByteArray("abc"), QByteArray("cba"));
+}
+
+void tst_StrCmp::failByteArrayNull() const
+{
+    /* Compare null byte array against with content. */
+    QCOMPARE(QByteArray("foo"), QByteArray());
+}
+
+void tst_StrCmp::failByteArrayEmpty() const
+{
+    QCOMPARE(QByteArray(""), QByteArray("foo"));
+}
+
+void tst_StrCmp::failByteArraySingleChars() const
+{
+    /* Compare null byte array against with content. */
+    //QCOMPARE(QString(250, 'a'), QString(250, 'b'));
+    QCOMPARE(QByteArray("6"), QByteArray("7"));
 }
 
 QTEST_MAIN(tst_StrCmp)

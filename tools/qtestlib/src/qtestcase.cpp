@@ -1026,6 +1026,72 @@ void *fetchData(QTestData *data, const char *tagName, int typeId)
     return data->data(idx);
 }
 
+/*! \internal
+ 
+ Returns a pointer to a string which is \a ba represented as a
+ space separated sequence of hex characters. If the input is considered too long,
+ it is truncated which signalled by an ending ellipsis.
+
+ */
+char *toHexRepresentation(const char *ba, int length)
+{
+    if(length == 0)
+        return qstrdup("");
+
+    /* We output at maximum about maxLen characters in order to avoid
+     * running out of memory and flooding things when the byte array
+     * is large.
+     *
+     * maxLen can't be for example 200 because QTestLib is sprinkled with fixed
+     * size char arrays.
+     * */
+    const int maxLen = 50;
+    const int len = qMin(maxLen, length);
+    char *result = 0;
+
+    /* We output a space between each hex number, and also an elipsis if it's
+     * too long. */
+    if(length > maxLen) {
+        const int size = len * 3 + 4;
+        result = new char[size];
+
+        char *const forElipsis = result + size - 5;
+        forElipsis[0] = ' ';
+        forElipsis[1] = '.';
+        forElipsis[2] = '.';
+        forElipsis[3] = '.';
+        result[size - 1] = '\0';
+    }
+    else {
+        const int size = len * 3;
+        result = new char[size];
+        result[size - 1] = '\0';
+    }
+
+    const char toHex[] = "0123456789ABCDEF";
+    int i = 0;
+    int o = 0;
+
+    while(true) {
+        const char at = ba[i];
+
+        result[o] = toHex[at >> 4];
+        ++o;
+        result[o] = toHex[at & 0x0F];
+
+        ++i;
+        ++o;
+        if(i == len)
+            break;
+        else {
+            result[o] = ' ';
+            ++o;
+        }
+    }
+
+    return result;
+}
+
 } // namespace
 
 /*!

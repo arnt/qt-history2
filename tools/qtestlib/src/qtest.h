@@ -44,6 +44,12 @@ template<> inline char *toString(const QString &str)
     return qstrdup(str.toLatin1().constData());
 }
 
+template<> inline char *toString(const QByteArray &ba)
+{
+    /* This function is implemented in qtestdata.cpp. */
+    return QTest::toHexRepresentation(ba.constData(), ba.length());
+}
+
 template<> inline char *toString(const QTime &time)
 {
     return time.isValid()
