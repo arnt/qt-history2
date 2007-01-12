@@ -27,6 +27,8 @@
 
 #include "qunicodetables.cpp"
 
+#define LAST_UNICODE_CHAR 0x10ffff
+
 #ifndef QT_NO_CODEC_FOR_C_STRINGS
 #ifdef QT_NO_TEXTCODEC
 #define QT_NO_CODEC_FOR_C_STRINGS
@@ -667,6 +669,8 @@ int QChar::digitValue(ushort ucs2)
 
 int QChar::digitValue(uint ucs4)
 {
+    if (ucs4 > LAST_UNICODE_CHAR)
+        return 0;
     return qGetProp(ucs4)->digitValue;
 }
 
@@ -682,6 +686,8 @@ QChar::Category QChar::category() const
  */
 QChar::Category QChar::category(uint ucs4)
 {
+    if (ucs4 > LAST_UNICODE_CHAR)
+        return QChar::NoCategory;
     return (QChar::Category) qGetProp(ucs4)->category;
 }
 
@@ -705,6 +711,8 @@ QChar::Direction QChar::direction() const
  */
 QChar::Direction QChar::direction(uint ucs4)
 {
+    if (ucs4 > LAST_UNICODE_CHAR)
+        return QChar::DirL;
     return (QChar::Direction) qGetProp(ucs4)->direction;
 }
 
@@ -728,6 +736,8 @@ QChar::Joining QChar::joining() const
  */
 QChar::Joining QChar::joining(uint ucs4)
 {
+    if (ucs4 > LAST_UNICODE_CHAR)
+        return QChar::OtherJoining;
     return (QChar::Joining) qGetProp(ucs4)->joining;
 }
 
@@ -794,6 +804,8 @@ QChar QChar::mirroredChar() const
  */
 uint QChar::mirroredChar(uint ucs4)
 {
+    if (ucs4 > LAST_UNICODE_CHAR)
+        return ucs4;
     return ucs4 + qGetProp(ucs4)->mirrorDiff;
 }
 
@@ -820,13 +832,15 @@ enum {
 // buffer has to have a length of 3. It's needed for Hangul decomposition
 static const unsigned short * QT_FASTCALL decomposition(uint ucs4, int *length, int *tag, unsigned short *buffer)
 {
+    *length = 0;
+    if (ucs4 > LAST_UNICODE_CHAR)
+        return 0;
     if (ucs4 >= Hangul_SBase && ucs4 < Hangul_SBase + Hangul_SCount) {
         int SIndex = ucs4 - Hangul_SBase;
         buffer[0] = Hangul_LBase + SIndex / Hangul_NCount; // L
         buffer[1] = Hangul_VBase + (SIndex % Hangul_NCount) / Hangul_TCount; // V
         buffer[2] = Hangul_TBase + SIndex % Hangul_TCount; // T
         *length = buffer[2] == Hangul_TBase ? 2 : 3;
-        *tag = QChar::Canonical;
         return buffer;
     }
 
@@ -872,6 +886,8 @@ QChar::Decomposition QChar::decompositionTag() const
  */
 QChar::Decomposition QChar::decompositionTag(uint ucs4)
 {
+    if (ucs4 > LAST_UNICODE_CHAR)
+        return QChar::NoDecomposition;
     const unsigned short index = GET_DECOMPOSITION_INDEX(ucs4);
     if (index == 0xffff)
         return QChar::NoDecomposition;
@@ -895,6 +911,8 @@ unsigned char QChar::combiningClass() const
  */
 unsigned char QChar::combiningClass(uint ucs4)
 {
+    if (ucs4 > LAST_UNICODE_CHAR)
+        return 0;
     return (unsigned char) qGetProp(ucs4)->combiningClass;
 }
 
@@ -918,6 +936,8 @@ QChar::UnicodeVersion QChar::unicodeVersion() const
  */
 QChar::UnicodeVersion QChar::unicodeVersion(uint ucs4)
 {
+    if (ucs4 > LAST_UNICODE_CHAR)
+        return QChar::Unicode_Unassigned;
     return (QChar::UnicodeVersion) qGetProp(ucs4)->unicodeVersion;
 }
 
@@ -945,6 +965,8 @@ QChar QChar::toLower() const
  */
 uint QChar::toLower(uint ucs4)
 {
+    if (ucs4 > LAST_UNICODE_CHAR)
+        return ucs4;
     const QUnicodeTables::Properties *p = qGetProp(ucs4);
     if (!p->lowerCaseSpecial)
         return ucs4 + p->lowerCaseDiff;
@@ -977,6 +999,8 @@ QChar QChar::toUpper() const
  */
 uint QChar::toUpper(uint ucs4)
 {
+    if (ucs4 > LAST_UNICODE_CHAR)
+        return ucs4;
     const QUnicodeTables::Properties *p = qGetProp(ucs4);
     if (!p->upperCaseSpecial)
         return ucs4 + p->upperCaseDiff;
@@ -1007,6 +1031,8 @@ QChar QChar::toTitleCase() const
 
 uint QChar::toTitleCase(uint ucs4)
 {
+    if (ucs4 > LAST_UNICODE_CHAR)
+        return ucs4;
     const QUnicodeTables::Properties *p = qGetProp(ucs4);
     if (!p->titleCaseSpecial)
         return ucs4 + p->titleCaseDiff;
@@ -1055,6 +1081,8 @@ QChar QChar::toCaseFolded() const
 
 uint QChar::toCaseFolded(uint ucs4)
 {
+    if (ucs4 > LAST_UNICODE_CHAR)
+        return ucs4;
     return ucs4 + qGetProp(ucs4)->caseFoldDiff;
 }
 
