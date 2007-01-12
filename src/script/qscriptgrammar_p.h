@@ -14,17 +14,6 @@
 #ifndef QSCRIPTGRAMMAR_P_H
 #define QSCRIPTGRAMMAR_P_H
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
-
 class QScriptGrammar
 {
 public:
@@ -123,15 +112,14 @@ public:
     GOTO_CHECK_OFFSET = 1032,
   };
 
-  static const int lhs [];
-  static const int rhs [];
-  static const char *const spell [];
-
-  static const int goto_default [];
+  static const char  *const spell [];
+  static const int            lhs [];
+  static const int            rhs [];
+  static const int   goto_default [];
   static const int action_default [];
-  static const int action_index [];
-  static const int action_info [];
-  static const int action_check [];
+  static const int   action_index [];
+  static const int    action_info [];
+  static const int   action_check [];
 
   inline int nt_action (int state, int nt) const
   {
