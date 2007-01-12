@@ -426,7 +426,9 @@ static EventTypeSpec window_events[] = {
     { kEventClassWindow, kEventWindowDragCompleted },
     { kEventClassWindow, kEventWindowBoundsChanging },
     { kEventClassWindow, kEventWindowGetRegion },
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4
     { kEventClassWindow, kEventWindowGetClickModality },
+#endif
 
     { kEventClassMouse, kEventMouseDown }
 };
@@ -455,6 +457,7 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
         QWidget *widget = qt_mac_find_window(wid);
         if(!widget) {
             handled_event = false;
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4
         } else if(ekind == kEventWindowGetClickModality) {
             handled_event = false;
             if(QWidget *blocker = qt_mac_modal_blocked(widget)) {
@@ -466,6 +469,7 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
                     SetEventParameter(event, kEventParamModalClickResult, typeModalClickResult, sizeof(clickResult), &clickResult);
                 }
             }
+#endif
         } else if(ekind == kEventWindowClose) {
             widget->d_func()->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
         } else if(ekind == kEventWindowExpanded) {

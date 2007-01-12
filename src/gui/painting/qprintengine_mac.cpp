@@ -591,7 +591,7 @@ void QMacPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &va
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
         OSStatus status = PMPrintSettingsSetJobName(d->settings, QCFString(value.toString()));
 #else
-        OSStatus status = PMSetJobNameCFString(d->session, QCFString(value.toString()));
+        OSStatus status = PMSetJobNameCFString(d->settings, QCFString(value.toString()));
 #endif
         if (status == noErr)
             qWarning("QMacPrintEngine::setPrinterName: Error setting printer: %ld", long(status));
