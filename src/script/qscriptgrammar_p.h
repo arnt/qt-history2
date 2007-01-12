@@ -115,6 +115,12 @@ public:
   static const char  *const spell [];
   static const int            lhs [];
   static const int            rhs [];
+
+#ifndef QLALR_NO_QSCRIPTGRAMMAR_DEBUG_INFO
+  static const int     rule_index [];
+  static const int      rule_info [];
+#endif // QLALR_NO_QSCRIPTGRAMMAR_DEBUG_INFO
+
   static const int   goto_default [];
   static const int action_default [];
   static const int   action_index [];

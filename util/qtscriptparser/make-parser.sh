@@ -2,7 +2,7 @@
 
 me=$(dirname $0)
 mkdir -p $me/out
-(cd $me/out && ${QLALR-qlalr} --troll --no-lines --no-debug ../qscript.g)
+(cd $me/out && ${QLALR-qlalr} --troll --no-lines ../qscript.g)
 
 for f in $me/out/*.{h,cpp}; do
     n=$(basename $f)
