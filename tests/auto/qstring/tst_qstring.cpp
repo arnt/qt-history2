@@ -94,9 +94,7 @@ private slots:
     void mid();
     void right();
     void left();
-    void sub();
-    void rsub();
-    void lsub();
+    void stringRef();
     void contains();
     void lastIndexOf_data();
     void lastIndexOf();
@@ -1232,60 +1230,26 @@ void tst_QString::mid()
 
 }
 
-void tst_QString::lsub()
-{
-    QString a;
-    a="ABCDEFGHIEfGEFG"; // 15 chars
-    QVERIFY(a.lsub(3) == (QString)"ABC");
-    QVERIFY(!a.lsub(0).isNull());
-    QVERIFY(a.lsub(0) == (QString)"");
-
-    QString n;
-    QVERIFY(n.lsub(3).isNull());
-    QVERIFY(n.lsub(0).isNull());
-    QVERIFY(n.lsub(0).isNull());
-
-    QString l = "Left";
-    QVERIFY(l.lsub(-1) == l);
-    QVERIFY(l.lsub(100)== l);
-}
-
-void tst_QString::rsub()
-{
-    QString a;
-    a="ABCDEFGHIEfGEFG"; // 15 chars
-    QVERIFY(a.rsub(3) == (QString)"EFG");
-    QVERIFY(a.rsub(0) == (QString)"");
-
-    QString n;
-    QVERIFY(n.rsub(3).isNull());
-    QVERIFY(n.rsub(0).isNull());
-
-    QString r = "Right";
-    QVERIFY(r.rsub(-1) == r);
-    QVERIFY(r.rsub(100) == r);
-}
-
-void tst_QString::sub()
+void tst_QString::stringRef()
 {
     QString a;
     a="ABCDEFGHIEfGEFG"; // 15 chars
 
-    QVERIFY(a.sub(3,3) == (QString)"DEF");
-    QVERIFY(a.sub(0,0) == (QString)"");
-    QVERIFY(a.sub(9999).isNull());
-    QVERIFY(a.sub(9999,1).isNull());
+    QVERIFY(QStringRef(&a, 0, 0) == (QString)"");
 
-    QString n;
-    QVERIFY(n.sub(3,3).isNull());
-    QVERIFY(n.sub(0,0).isNull());
-    QVERIFY(n.sub(9999,0).isNull());
-    QVERIFY(n.sub(9999,1).isNull());
+    QVERIFY(QStringRef(&a, 3, 3) == (QString)"DEF");
+    QVERIFY(QStringRef(&a, 3, 3) == QLatin1String("DEF"));
+    QVERIFY(QStringRef(&a, 3, 3) == "DEF");
+    QVERIFY((QString)"DEF" == QStringRef(&a, 3, 3));
+    QVERIFY(QLatin1String("DEF") == QStringRef(&a, 3, 3));
+    QVERIFY("DEF" == QStringRef(&a, 3, 3));
 
-    QString x = "Nine pineapples";
-    QVERIFY(x.sub(5, 4) == QString("pine"));
-    QVERIFY(x.sub(5) == QString("pineapples"));
-
+    QVERIFY(QStringRef(&a, 3, 3) != (QString)"DE");
+    QVERIFY(QStringRef(&a, 3, 3) != QLatin1String("DE"));
+    QVERIFY(QStringRef(&a, 3, 3) != "DE");
+    QVERIFY((QString)"DE" != QStringRef(&a, 3, 3));
+    QVERIFY(QLatin1String("DE") != QStringRef(&a, 3, 3));
+    QVERIFY("DE" != QStringRef(&a, 3, 3));
 }
 
 void tst_QString::leftJustified()
