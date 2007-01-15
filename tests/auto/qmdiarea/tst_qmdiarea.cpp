@@ -387,9 +387,6 @@ void tst_QMdiArea::changeWindowTitle()
     mw->setWindowState(Qt::WindowNoState);
 #endif
     qApp->processEvents();
-#if !defined(Q_WS_MAC)
-    QCOMPARE( mw->caption(), QString::fromLatin1("%1 - [%2]").arg(mwc2).arg(wc2) );
-#endif
 #ifdef USE_SHOW
     widget->showNormal();
 #else
