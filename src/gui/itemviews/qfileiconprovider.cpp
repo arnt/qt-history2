@@ -93,7 +93,7 @@ QFileIconProviderPrivate::QFileIconProviderPrivate()
     desktop = style->standardIcon(QStyle::SP_DesktopIcon);
     trashcan = style->standardIcon(QStyle::SP_TrashIcon);
     home = style->standardIcon(QStyle::SP_DirHomeIcon);
-    homePath = QDir::home().path();
+    homePath = QDir::home().absolutePath();
 }
 
 QIcon QFileIconProviderPrivate::getIcon(QStyle::StandardPixmap name) const
@@ -291,7 +291,7 @@ QIcon QFileIconProvider::icon(const QFileInfo &info) const
     if (info.isSymLink()) {
       return d->getIcon(QStyle::SP_DirLinkIcon);
     } else {
-      if (info.filePath() == d->homePath) {
+      if (info.absoluteFilePath() == d->homePath) {
         return d->getIcon(QStyle::SP_DirHomeIcon);
       } else {
         return d->getIcon(QStyle::SP_DirIcon);
