@@ -2013,6 +2013,10 @@ void QFileDialogPrivate::createMenuActions()
     showHiddenAction->setObjectName(QLatin1String("qt_show_hidden_action"));
     showHiddenAction->setCheckable(true);
     QObject::connect(showHiddenAction, SIGNAL(triggered()), q, SLOT(_q_showHidden()));
+
+    newFolderAction = new QAction(QFileDialog::tr("&New Folder"), q);
+    newFolderAction->setObjectName(QLatin1String("qt_new_folder_action"));
+    QObject::connect(newFolderAction, SIGNAL(triggered()), q, SLOT(_q_createDirectory()));
 }
 
 void QFileDialogPrivate::_q_goHome()
@@ -2093,7 +2097,7 @@ void QFileDialogPrivate::_q_navigateToParent()
     Q_Q(QFileDialog);
     QDir dir(model->rootDirectory());
     if (dir.isRoot()) {
-        q->setDirectory(QFileSystemModel::tr("My Computer"));
+        q->setDirectory(model->myComputer().toString());
     } else {
         dir.cdUp();
         q->setDirectory(dir.absolutePath());
@@ -2177,6 +2181,8 @@ void QFileDialogPrivate::_q_showContextMenu(const QPoint &position)
         menu.addSeparator();
     }
     menu.addAction(showHiddenAction);
+    if (newFolderButton->isVisible())
+        menu.addAction(newFolderAction);
     menu.exec(view->viewport()->mapToGlobal(position));
 #endif // QT_NO_MENU
 }

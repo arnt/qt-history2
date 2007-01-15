@@ -221,6 +221,7 @@ public:
     QAction *renameAction;
     QAction *deleteAction;
     QAction *showHiddenAction;
+    QAction *newFolderAction;
 
     QTimeLine *vTimeLine;
     QTimeLine *hTimeLine;
