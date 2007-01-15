@@ -228,6 +228,19 @@ bool GLSLParser::parse()
         {
           int r = - act - 1;
 
+          int ridx = rule_index [r];
+          printf ("*** reduce using rule %d %s ::=", r + 1, spell[rule_info [ridx]]);
+          ++ridx;
+          for (int i = ridx; i < ridx + rhs [r]; ++i)
+            {
+              int symbol = rule_info [i];
+              if (const char *name = spell [symbol])
+                printf (" %s", name);
+              else
+                printf (" #%d", symbol);
+            }
+          printf ("\n");
+
           tos -= rhs [r];
           act = state_stack [tos++];
 
@@ -578,6 +591,7 @@ function_definition ::= function_prototype compound_statement_no_new_scope ;
 /////////////////////////////
 int main()
 {
+#if 0 // dump the GLSL grammar
     for (int r = 0; r < GLSLParserTable::RULE_COUNT; ++r)
       {
         int ridx = GLSLParserTable::rule_index [r];
@@ -594,6 +608,7 @@ int main()
           }
         printf ("\n");
       }
+#endif
 
     GLSLParser parser;
 
