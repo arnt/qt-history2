@@ -47,20 +47,20 @@ static inline void triggerSignal(QMdiSubWindow *window, QMdiArea *workspace,
         QVERIFY(!window->isShaded());
     } else if (signal == SIGNAL(aboutToBecomeActive())) {
         if (window->parent()) {
-            workspace->setActiveWindow(window->widget());
+            workspace->setActiveSubWindow(window);
             qApp->processEvents();
         }
     } else if (signal == SIGNAL(windowActivated())) {
         if (window->parent()) {
-            workspace->setActiveWindow(window->widget());
+            workspace->setActiveSubWindow(window);
             qApp->processEvents();
         }
     } else if (signal == SIGNAL(windowDeactivated())) {
         if (!window->parent())
             return;
-        workspace->setActiveWindow(window->widget());
+        workspace->setActiveSubWindow(window);
         qApp->processEvents();
-        workspace->setActiveWindow(0);
+        workspace->setActiveSubWindow(0);
         qApp->processEvents();
     }
 }
@@ -334,10 +334,10 @@ void tst_QMdiSubWindow::mainWindowSupport()
     return;
 #endif
 
-    workspace->activateNextWindow();
+    workspace->activateNextSubWindow();
     qApp->processEvents();
     foreach (QMdiSubWindow *window, windows) {
-        QCOMPARE(workspace->activeWindow(), window->widget());
+        QCOMPARE(workspace->activeSubWindow(), window);
         QVERIFY(window->isMaximized());
         QVERIFY(window->maximizedButtonsWidget());
         QCOMPARE(window->maximizedButtonsWidget(), mainWindow.menuBar()->cornerWidget(Qt::TopRightCorner));
@@ -346,7 +346,7 @@ void tst_QMdiSubWindow::mainWindowSupport()
                                                                    ->cornerWidget(Qt::TopLeftCorner)));
         QCOMPARE(mainWindow.windowTitle(), QString::fromLatin1("%1 - [%2]")
                                            .arg(originalWindowTitle, window->widget()->windowTitle()));
-        workspace->activateNextWindow();
+        workspace->activateNextSubWindow();
         qApp->processEvents();
     }
 }
@@ -376,7 +376,7 @@ void tst_QMdiSubWindow::emittingOfSignals()
     QMdiSubWindow *window = qobject_cast<QMdiSubWindow *>(workspace.addSubWindow(new QWidget));
     qApp->processEvents();
     window->show();
-    workspace.setActiveWindow(0);
+    workspace.setActiveSubWindow(0);
     qApp->processEvents();
 
     QSignalSpy spy(window, signal == SIGNAL(aboutToBecomeActive())
