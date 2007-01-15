@@ -537,7 +537,23 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
             QApplication::sendSpontaneousEvent(widget, &e);
         } else if(ekind == kEventWindowResizeStarted || ekind == kEventWindowDragStarted) {
             QMacBlockingFunction::addRef();
-        } else if(ekind == kEventWindowResizeCompleted || ekind == kEventWindowDragCompleted) {
+        } else if(ekind == kEventWindowResizeCompleted) {
+            // Create a mouse up event, since such an event is not send by carbon to the 
+            // application event handler (while a mouse down <b>is</b> on kEventWindowResizeStarted)
+            EventRef mouseUpEvent;
+            CreateEvent(0, kEventClassMouse, kEventMouseUp, 0, kEventAttributeUserEvent, &mouseUpEvent);                
+            UInt16 mbutton = kEventMouseButtonPrimary;
+            SetEventParameter(mouseUpEvent, kEventParamMouseButton, typeMouseButton, sizeof(mbutton), &mbutton);
+            WindowRef window;
+            GetEventParameter(event, kEventParamDirectObject, typeWindowRef, 0, sizeof(window), 0, &window);
+            Rect dragRect;
+            GetWindowBounds(window, kWindowGrowRgn, &dragRect);
+            Point pos = {dragRect.bottom, dragRect.right};
+            SetEventParameter(mouseUpEvent, kEventParamMouseLocation, typeQDPoint, sizeof(pos), &pos);
+            SendEventToApplication(mouseUpEvent);
+            ReleaseEvent(mouseUpEvent);
+            QMacBlockingFunction::subRef();
+        } else if(ekind == kEventWindowDragCompleted) {
             QMacBlockingFunction::subRef();
         } else if(ekind == kEventWindowBoundsChanging) {
             UInt32 flags = 0;
