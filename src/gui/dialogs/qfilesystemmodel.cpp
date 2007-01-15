@@ -167,13 +167,15 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
 
         // we couldn't find the path element, we create a new node since we
         // _know_ that the path is valid
-        if (row != -1 && (parent->children.count() == 0 || parent->children[row].fileName != element))
+        if (row != -1
+            && (parent->children.count() == 0 || parent->children[row].fileName != element))
             row = -1;
 
         if (row == -1) {
             // Someone might call ::index("file://cookie/monster/doesn't/like/veggies"),
             // a path that doesn't exists, I.E. don't blindly create directories.
-            QFileInfo info(path);
+            QStringList currentPath = pathElements.mid(0, i + 1);
+            QFileInfo info(currentPath.join("/"));
             if (!info.exists())
                 return const_cast<QFileSystemModelPrivate::QFileSystemNode*>(&root);
             QFileSystemModelPrivate *p = const_cast<QFileSystemModelPrivate*>(this);
