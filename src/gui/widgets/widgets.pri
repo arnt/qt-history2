@@ -31,6 +31,7 @@ HEADERS += \
         widgets/qmainwindow.h \
         widgets/qmainwindowlayout_p.h \
         widgets/qmdiarea.h \
+        widgets/qmdiarea_p.h \
         widgets/qmdisubwindow.h \
         widgets/qmdisubwindow_p.h \
         widgets/qmenu.h \
@@ -93,6 +94,7 @@ SOURCES += \
         widgets/qlineedit.cpp \
         widgets/qmainwindow.cpp \
         widgets/qmainwindowlayout.cpp \
+        widgets/qmdiarea.cpp \
         widgets/qmdisubwindow.cpp \
         widgets/qmenu.cpp \
         widgets/qmenubar.cpp \

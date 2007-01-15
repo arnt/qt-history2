@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWORKSPACE_P_H
-#define QWORKSPACE_P_H
+#ifndef QMDIAREA_P_H
+#define QMDIAREA_P_H
 
 //
 //  W A R N I N G
@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include "qworkspace.h"
+#include "qmdiarea.h"
 #include "qmdisubwindow.h"
 
 #include <QList>
@@ -91,11 +91,11 @@ class MinOverlapPlacer : public Placer
         const QRect &domain, const QList<QRect> &source, QList<QRect> &result);
 };
 
-class QWorkspacePrivate : public QAbstractScrollAreaPrivate
+class QMdiAreaPrivate : public QAbstractScrollAreaPrivate
 {
-    Q_DECLARE_PUBLIC(QWorkspace)
+    Q_DECLARE_PUBLIC(QMdiArea)
 public:
-    QWorkspacePrivate();
+    QMdiAreaPrivate();
 
     // Variables.
     QList< QPointer<QMdiSubWindow> > childWindows;
@@ -124,4 +124,4 @@ public:
     void internalRaise(QMdiSubWindow *child) const;
 };
 
-#endif // QWORKSPACE_P_H
+#endif // QMDIAREA_P_H
