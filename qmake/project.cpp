@@ -196,10 +196,8 @@ static QScriptValue qscript_projectWrapper(QScriptEngine *eng, QMakeProject *pro
 static QScriptValue qscript_toArray(QScriptEngine *eng, const QStringList &elts)
 {
     QScriptValue a = eng->newArray();
-    for (int i = 0; i < elts.count(); ++i) {
-        QScriptValue s = eng->scriptValue(elts.at(i));
-        a.impl()->setPropertyByIndex(i, s);
-    }
+    for (int i = 0; i < elts.count(); ++i)
+        a.setProperty(i, eng->scriptValue(elts.at(i)));
     return a;
 }
 #endif
