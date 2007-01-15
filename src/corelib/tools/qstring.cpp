@@ -763,16 +763,6 @@ QString::QString(const QChar *unicode, int size)
 }
 
 
-/*
-     Constructs a copy of the \a substring.
- */
-QString::QString(const QSubString &substring)
-    : d(&shared_null){
-    d->ref.ref();
-    operator=(substring.toString());
-}
-
-
 /*!
     Constructs a string of the given \a size with every character set
     to \a ch.
@@ -7011,26 +7001,31 @@ QDataStream &operator>>(QDataStream &in, QString &str)
 
 
 
-/*! \class QSubString
-    \brief The QSubString class provides a thin wrapper around QString sub strings
+/*! \class QStringRef
+    \brief The QStringRef class provides a thin wrapper around QString sub strings
 
 
-    QSubString provides a read-only subset of the QString API. There
-    are no semantically benefits of using QSubString over QString, in
-    fact, using QSubString probably makes your code more complex. The
-    only reason this class exists is a small performance optimization
-    when creating sub strings from existing QString instances. Where
-    QString::mid() has to create a deep copy of the data,
-    QString::sub() avoids the memory allocation and simply references
-    a part of the original string. This can prove to be advantageous
-    in low level code, e.g. parsing code.
+    QStringRef provides a read-only subset of the QString API,
+    including operator== and operator!=.  Calling toString() returns a
+    copy of the data as real QString instance.
+
+    There are no semantically benefits of using QStringRef over
+    QString, in fact, using QStringRef probably makes your code more
+    complex and introduces possible memory management bugs. The only
+    reason this class exists is a relatively small performance
+    optimization when creating sub strings from existing QString
+    instances. QStringRef avoids the memory allocation and reference
+    counting overhead of a standard string by simply referencing a
+    part of the original string. This can prove to be advantageous in
+    low level code, e.g. parsing code.
+
+
+    \warning A QStringRef is only valid as long as the referenced
+    string exists. If the original string gets deleted, the string
+    reference points to an invalid memory location.
 
     We suggest to not use this class unless you have profiled your
-    code and clearly identified malloc() as culprit.
-
-    Sub strings are created with QString::sub(), QString::lsub(), and
-    QString::rsub(). The function toString() returns a copy of the sub
-    string as mutable QString object.
+    code and clearly identified standard string operations as culprit.
 
     \ingroup text
     \reentrant
@@ -7038,172 +7033,33 @@ QDataStream &operator>>(QDataStream &in, QString &str)
 */
 
 
-/*  \fn QString QSubString::toString() const
-
-    Returns a copy of this sub string as mutable QString object.
-
-*/
-
-QString QSubString::toString() const
-{
-    QString::Data *x = 0;
-    if (d == &QString::shared_null) {
-        x = &QString::shared_null;
-        x->ref.ref();
-    } else if (m_size <= 0) {
-        x = &QString::shared_empty;
-        x->ref.ref();
-    } else if (m_position > 0 || m_size != d->size) {
-        x = (QString::Data*) qMalloc(sizeof(QString::Data)+m_size*sizeof(QChar));
-        x->ref.init(1);
-        x->alloc = x->size = m_size;
-        x->clean = x->asciiCache = x->simpletext = x->righttoleft = 0;
-        x->data = x->array;
-        memcpy(x->array, d->data + m_position, m_size * sizeof(QChar));
-        x->array[m_size] = '\0';
-    }
-    if (x) {
-        x = qAtomicSetPtr(const_cast<QString::Data **>(&d), x);
-        const_cast<QSubString*>(this)->m_position = 0;
-        if (!x->ref.deref())
-            QString::free(x);
-    }
-    d->ref.ref();
-    return QString(d, int(0));
-}
-
-
 /*
-    \fn QSubstring::QSubString()
-
-    Constructs a null string. Null strings are also empty.
-
-    \sa isEmpty()
+    Returns a copy of this string ref as QString object.
 */
 
-/*
-    \fn QSubstring::QSubString(const QString &string, int position, int n)
-
-    Constructs a sub string referencing \a n characters from \a string
-    starting at the specified \a position.
-
-    This operation takes \l{constant time}, because QString and QSubString are
-    \l{implicitly shared}.
-
-    Warning: This constructor is optimized for performance. In a
-    release build, there is no verififaction of the arguments
-    whatsoever. The caller must ensure that 0 <= \a position <
-    string.size() && 0 <= n <= string.size() - position.
-
-    \sa operator=()
-*/
-
-/*
-    \fn QSubstring::~QSubString()
-
-    Destroys the string.
-*/
-
-/*
-    \fn QSubstring::QSubString(const QSubString &other)
-
-    Constructs a copy of \a other.
-
-    This operation takes \l{constant time}, because QSubString is
-    \l{implicitly shared}. This makes returning a QSubString from a
-    function very fast.
-*/
-
-/*
-    \fn QSubstring::QSubString(const QString &other)
-
-    Constructs a copy of \a other.
-
-    This operation takes \l{constant time}, because QSubString and
-    QString are \l{implicitly shared}.
-*/
-
-
-
-static int subucstrcmp(const QChar *a, int alen, const QChar *b, int blen)
-{
-    if (a == b)
-        return 0;
-    int l = qMin(alen, blen);
-    while (l-- && *a == *b)
-        a++,b++;
-    if (l == -1)
-        return (alen-blen);
-    return a->unicode() - b->unicode();
+QString QStringRef::toString() const {
+    if (!m_string)
+        return QString();
+    if (m_size && m_position == 0 && m_size == m_string->size())
+        return *m_string;
+    return QString::fromUtf16(reinterpret_cast<const ushort*>(m_string->unicode() + m_position), m_size);
 }
 
+bool operator==(const QStringRef &s1,const QStringRef &s2)
+{ return (s1.size() == s2.size() &&
+          (memcmp((char*)s1.unicode(), (char*)s2.unicode(), s1.size()*sizeof(QChar))==0)); }
 
+bool operator==(const QString &s1,const QStringRef &s2)
+{ return (s1.size() == s2.size() &&
+          (memcmp((char*)s1.unicode(), (char*)s2.unicode(), s1.size()*sizeof(QChar))==0)); }
 
-/*!
-    Returns true if string \a other is equal to this string;
-    otherwise returns false.
-*/
-bool QSubString::operator==(const QSubString &other) const
+bool operator==(const QLatin1String &s1, const QStringRef &s2)
 {
-    return (size() == other.size() &&
-            (memcmp((char*)unicode(), (char*)other.unicode(), size()*sizeof(QChar))==0));
-}
-
-/*!
-    \overload
-*/
-bool QSubString::operator==(const QString &other) const
-{
-    return (size() == other.size()) &&
-        (memcmp((char*)unicode(),(char*)other.unicode(), size()*sizeof(QChar))==0);
-}
-
-/*!
-    Returns true if this string is lexically less than
-    string \a other; otherwise returns false.
-*/
-bool QSubString::operator<(const QSubString &other) const
-{
-    return subucstrcmp(unicode(), size(), other.unicode(), other.size()) < 0;
-}
-
-/*!
-    \overload
-*/
-bool QSubString::operator<(const QString &other) const
-{
-    return subucstrcmp(unicode(), size(), other.unicode(), other.size()) < 0;
-}
-
-/*!
-    \overload
-*/
-bool QString::operator==(const QSubString &other) const
-{
-    return (size() == other.size()) &&
-        (memcmp((char*)unicode(),(char*)other.unicode(), other.size()*sizeof(QChar))==0);
-}
-
-/*!
-    \overload
-*/
-bool QString::operator<(const QSubString &other) const
-{
-    return subucstrcmp(unicode(), size(), other.unicode(), other.size()) < 0;
-}
-
-
-/*!
-    \overload
-*/
-bool QSubString::operator==(const QLatin1String &other) const
-{
-    const ushort *uc = d->data + m_position;
-    const ushort *e = uc + m_size;
-    const uchar *c = (uchar *)other.latin1();
-
+    const ushort *uc = reinterpret_cast<const ushort *>(s2.unicode());
+    const ushort *e = uc + s2.size();
+    const uchar *c = reinterpret_cast<const uchar *>(s1.latin1());
     if (!c)
-        return isEmpty();
+        return s2.isEmpty();
 
     while (*c) {
         if (uc == e || *uc != *c)
@@ -7213,278 +7069,3 @@ bool QSubString::operator==(const QLatin1String &other) const
     }
     return (uc == e);
 }
-
-/*!
-    \overload
-*/
-bool QSubString::operator<(const QLatin1String &other) const
-{
-    const ushort *uc = d->data + m_position;
-    const ushort *e = uc + m_size;
-    const uchar *c = (uchar *) other.latin1();
-
-    if (!c || *c == 0)
-        return false;
-
-    while (*c) {
-        if (uc == e || *uc != *c)
-            break;
-        ++uc;
-        ++c;
-    }
-    return (uc == e ? *c : *uc < *c);
-}
-
-/*!
-    \overload
-*/
-bool QSubString::operator>(const QLatin1String &other) const
-{
-    const ushort *uc = d->data + m_position;
-    const ushort *e = uc + m_size;
-    const uchar *c = (uchar *) other.latin1();
-
-    if (!c || *c == '\0')
-        return false;
-
-    while (*c) {
-        if (uc == e || *uc != *c)
-            break;
-        ++uc;
-        ++c;
-    }
-    return (uc == e ? *c : *uc < *c);
-}
-/*!
-    Returns a substring that contains the \a n leftmost characters
-    of the string.
-
-    The entire string is returned if \a n is greater than size() or
-    less than zero.
-
-    \quotefromfile snippets/qstring/main.cpp
-    \skipto Widget::leftFunction()
-    \skipto QString x
-    \printuntil QString y = x.left(4)
-
-    \sa rsub(), sub()
-*/
-QSubString QString::lsub(int n)  const
-{
-    if (n >= d->size || n < 0)
-        n = d->size;
-    return QSubString(*this, 0, n);
-}
-
-/*!
-    Returns a substring that contains the \a n rightmost characters
-    of the string.
-
-    The entire string is returned if \a n is greater than size() or
-    less than zero.
-
-    \quotefromfile snippets/qstring/main.cpp
-    \skipto Widget::rightFunction()
-    \skipto QString x
-    \printuntil y == "apple"
-
-    \sa lsub(), sub()
-*/
-QSubString QString::rsub(int n) const
-{
-    if (n >= d->size || n < 0)
-        n = d->size;
-    return QSubString(*this, d->size - n, n);
-}
-
-/*!
-    Returns a string that contains \a n characters of this string,
-    starting at the specified \a position index.
-
-    Returns an empty string if the \a position index exceeds the
-    length of the string. If there are less than \a n characters
-    available in the string starting at the given \a position, or if
-    \a n is -1 (the default), the function returns all characters that
-    are available from the specified \a position.
-
-    Example:
-
-    \quotefromfile snippets/qstring/main.cpp
-    \skipto Widget::midFunction()
-    \skipto QString x
-    \printuntil QString z
-
-    \sa lsub(), rsub()
-*/
-
-QSubString QString::sub(int position, int n) const
-{
-    if (d == &shared_null || position >= d->size)
-        return QSubString();
-    if (n < 0)
-        n = d->size - position;
-    if (position < 0) {
-        n += position;
-        position = 0;
-    }
-    if (n + position > d->size)
-        n = d->size - position;
-    return QSubString(*this, position, n);
-}
-
-/*!
-
-    Assigns \a other to this sub string and returns a reference to this
-    sub string.
-*/
-
-QSubString &QSubString::operator=(const QSubString &other)
-{
-    QString::Data *x = other.d;
-    x->ref.ref();
-    x = qAtomicSetPtr(&d, x);
-    if (!x->ref.deref())
-        QString::free(x);
-    m_position = other.m_position;
-    m_size = other.m_size;
-    return *this;
-}
-
-/*!
-    \overload
-*/
-QSubString &QSubString::operator=(const QString &s)
-{
-    QString::Data *x = s.d;
-    x->ref.ref();
-    x = qAtomicSetPtr(&d, x);
-    if (!x->ref.deref())
-        QString::free(x);
-    m_position = 0;
-    m_size = s.size();
-    return *this;
-}
-
-/*!
-    \overload
-*/
-QSubString &QSubString::operator=(const QLatin1String &s)
-{
-    *this = QString::fromLatin1(s.latin1());
-    return *this;
-}
-
-
-/*!
-    \fn int QSubString::length() const
-
-    Returns the number of characters in this string.  Equivalent to
-    size().
-
-    \sa setLength()
-*/
-
-/*!
-    \fn int QSubString::size() const
-
-    Returns the number of characters in this string.
-
-
-    \sa isEmpty()
-*/
-
-/*! \fn bool QSubString::isNull() const
-
-    Returns true if this string is null; otherwise returns false.
-
-    Qt makes a distinction between null strings and empty strings for
-    historical reasons. For most applications, what matters is
-    whether or not a string contains any data, and this can be
-    determined using the isEmpty() function.
-
-    \sa isEmpty()
-*/
-
-/*! \fn bool QSubString::isEmpty() const
-
-    Returns true if the string has no characters; otherwise returns
-    false.
-
-    \sa size()
-*/
-
-
-
-/*! \fn const QChar QSubString::at(int position) const
-
-    Returns the character at the given index \a position in the
-    string.
-
-    The \a position must be a valid index position in the string
-    (i.e., 0 <= \a position < size()).
-
-    \sa operator[]()
-*/
-
-/*! \fn const QChar QSubString::operator[](int position) const
-
-    \overload
-
-*/
-
-
-/*! \fn const QChar QSubString::operator[](uint position) const
-
-    \overload
-*/
-
-
-
-/*!
-    \fn const QChar *QSubString::unicode() const
-
-    Returns a '\\0'-terminated Unicode representation of the string
-    string, where the first size() characters are part of the sub
-    string. The result remains valid until the string is modified.
-
-    \sa data()
-*/
-
-/*! \fn const QChar *QSubString::data() const
-
-    Returns a pointer to the data stored in the QSubString. The
-    pointer can be used to access the characters that compose the
-    string. For convenience, the data is '\\0'-terminated, but only
-    the first size() characters are part of the sub string itself.
-
-    Note that the pointer remains valid only as long as the string is
-    not modified.
-
-    \sa data(), operator[]()
-*/
-
-/*! \fn const QChar *QSubString::constData() const
-
-    Returns a pointer to the data stored in the QSubString. The
-    pointer can be used to access the characters that compose the
-    string. For convenience, the data is '\\0'-terminated, but only
-    the first size() characters are part of the sub string itself.
-
-    Note that the pointer remains valid only as long as the string is
-    not modified.
-
-    \sa data(), operator[]()
-*/
-
-
-/*! \fn static void QSubString::chopWithoutDetach(QString &string, int n)
-
-
-    Chops \a n characters from \a string, without detaching \a
-    string. This is a low level optimization function useful in
-    conjunction with a sub strings, where \a string is used as a
-    buffer that grows and shrinks.
-
-    In most cases, you want to use QString::chop() instead.
-
-*/

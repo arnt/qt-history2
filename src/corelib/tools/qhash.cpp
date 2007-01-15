@@ -60,22 +60,6 @@ uint qHash(const QString &key)
     return h;
 }
 
-uint qHash(const QSubString &key)
-{
-    const QChar *p = key.unicode();
-    int n = key.size();
-    uint h = 0;
-    uint g;
-
-    while (n--) {
-        h = (h << 4) + (*p++).unicode();
-        if ((g = (h & 0xf0000000)) != 0)
-            h ^= g >> 23;
-        h &= ~g;
-    }
-    return h;
-}
-
 /*
     The prime_deltas array is a table of selected prime values, even
     though it doesn't look like one. The primes we are using are 1,
