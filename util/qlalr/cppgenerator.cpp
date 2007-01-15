@@ -242,6 +242,10 @@ void CppGenerator::operator () ()
         }
 
       QTextStream out (&f);
+
+      if (troll_copyright)
+        out << trollCopyrightHeader();
+
       generateDecl (out);
       generateImpl (out);
       out << p.decls();

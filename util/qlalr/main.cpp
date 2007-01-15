@@ -24,7 +24,7 @@ static void help_me ()
        << "  --no-debug\t\tno debug information" << endl
        << "  --no-lines\t\tno #line directives" << endl
        << "  --dot\t\t\tno generate the graph" << endl
-       << "  --troll\t\t\tadd the Trolltech copyright header" << endl
+       << "  --troll\t\tadd the Trolltech copyright header" << endl
        << endl;
   exit (0);
 }
