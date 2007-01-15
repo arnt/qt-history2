@@ -772,6 +772,7 @@ void tst_QMdiSubWindow::mouseDoubleClick()
     QCOMPARE(window->geometry(), originalGeometry);
 
     // With Qt::WindowShadeButtonHint flag set
+    QSKIP("Until we have a QEvent::WindowFlagsChange event, this will skip", SkipAll);
     window->setWindowFlags(window->windowFlags() | Qt::WindowShadeButtonHint);
     QVERIFY(window->windowFlags() & Qt::WindowShadeButtonHint);
     originalGeometry = window->geometry();
