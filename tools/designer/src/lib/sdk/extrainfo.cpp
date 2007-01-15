@@ -56,14 +56,14 @@ void QDesignerExtraInfoExtension::setWorkingDirectory(const QString &workingDire
 */
 
 /*!
-    \fn virtual bool QDesignerExtraInfoExtension::saveUiExtraInfo(DomUi *ui) = 0
+    \fn virtual bool QDesignerExtraInfoExtension::saveUiExtraInfo(DomUI *ui) = 0
 
     Saves the information about the user interface specified by \a ui, and returns true if
     successful; otherwise returns false.
 */
 
 /*!
-    \fn virtual bool QDesignerExtraInfoExtension::loadUiExtraInfo(DomUi *ui) = 0
+    \fn virtual bool QDesignerExtraInfoExtension::loadUiExtraInfo(DomUI *ui) = 0
 
     Loads extra information about the user interface specified by \a ui, and returns true if
     successful; otherwise returns false.
