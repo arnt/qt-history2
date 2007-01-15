@@ -154,23 +154,6 @@ bool QDesignerWidgetDataBaseInterface::isCustom(QObject *object, bool resolveNam
     class.
 */
 
-
-/*!
-    \enum QDesignerWidgetDataBaseItemInterface::IncludeType
- 
-   This enum describes types of include files.
-
-    \value IncludeLocal  A local include file (C++).
-    \value IncludeGlobal A global include file (C++).
-*/
-
-
-/*!
-    \fn virtual  virtual QDesignerWidgetDataBaseItemInterface *clone()  const = 0;
-
-    Clones the instance.
-*/
-
 /*!
     \fn virtual QDesignerWidgetDataBaseItemInterface::~QDesignerWidgetDataBaseItemInterface()
 
@@ -225,16 +208,6 @@ bool QDesignerWidgetDataBaseInterface::isCustom(QObject *object, bool resolveNam
 
 /*!
     \fn virtual void QDesignerWidgetDataBaseItemInterface::setIncludeFile(const QString &includeFile) = 0
-*/
-
-/*!
-    \fn virtual IncludeType QDesignerWidgetDataBaseItemInterface::includeType() const = 0
-
-    Returns the type of the include file that the widget needs when being built from source.
-*/
-
-/*!
-    \fn virtual void QDesignerWidgetDataBaseItemInterface::setIncludeType(IncludeType includeType) = 0
 */
 
 /*!

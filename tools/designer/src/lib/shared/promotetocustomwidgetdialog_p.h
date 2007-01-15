@@ -52,8 +52,9 @@ public:
 
     virtual void accept();
     QString includeFile() const;
-    QString customClassName() const;
     bool isGlobalInclude() const;
+
+    QString customClassName() const;
 
 private slots:
     void checkInputs();
@@ -63,6 +64,7 @@ private:
 
     void warn(const QString &caption, const QString &what);
     bool ask(const QString &caption, const QString &what);
+
     const QString m_base_class_name;
     
     Ui::PromoteToCustomWidgetDialog *m_ui;

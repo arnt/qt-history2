@@ -17,6 +17,7 @@ TRANSLATOR qdesigner_internal::PromoteToCustomWidgetDialog
 
 #include "promotetocustomwidgetdialog_p.h"
 #include "ui_promotetocustomwidgetdialog.h"
+#include "widgetdatabase_p.h"
 
 #include <QtDesigner/QtDesigner>
 
@@ -64,8 +65,8 @@ PromoteToCustomWidgetDialog::PromoteToCustomWidgetDialog(QDesignerWidgetDataBase
     const WidgetDataBaseItemList::const_iterator cend = candidates.constEnd();
     for (WidgetDataBaseItemList::const_iterator it = candidates.constBegin(); it != cend; ++it) {
         const QString className = (*it)->name();
-        const bool global = (*it)->includeType() == QDesignerWidgetDataBaseItemInterface::IncludeGlobal;
-        m_promotedHash.insert(className ,  PromotedWidgetInfo((*it)->includeFile(),  global));
+        const IncludeSpecification  spec = includeSpecification((*it)->includeFile());
+        m_promotedHash.insert(className ,  PromotedWidgetInfo(spec.first, spec.second == IncludeGlobal));
         m_ui->m_class_name_input->addItem(className);
     }
 
@@ -190,15 +191,14 @@ QString PromoteToCustomWidgetDialog::includeFile() const
 {
     return m_ui->m_header_file_input->text();
 }
+    
+bool PromoteToCustomWidgetDialog::isGlobalInclude() const {
+    return m_ui->m_globalCheckBox->isChecked();
+}
 
 QString PromoteToCustomWidgetDialog::customClassName() const
 {
     return m_ui->m_class_name_input->lineEdit()->text();
 }
     
-bool  PromoteToCustomWidgetDialog::isGlobalInclude() const
-{
-    return m_ui->m_globalCheckBox->isChecked();
-}
-
 } // namespace qdesigner_internal

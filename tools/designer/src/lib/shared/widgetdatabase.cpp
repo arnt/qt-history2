@@ -36,17 +36,12 @@ namespace qdesigner_internal {
 WidgetDataBaseItem::WidgetDataBaseItem(const QString &name, const QString &group)
     : m_name(name),
       m_group(group),
-      m_includeType(IncludeGlobal),
       m_compat(0),
       m_container(0),
       m_form(0),
       m_custom(0),
       m_promoted(0)
 {
-}
-
-QDesignerWidgetDataBaseItemInterface *WidgetDataBaseItem::clone() const {
-    return new WidgetDataBaseItem(*this);
 }
 
 QString WidgetDataBaseItem::name() const
@@ -99,18 +94,6 @@ void WidgetDataBaseItem::setIncludeFile(const QString &includeFile)
     m_includeFile = includeFile;
 }
     
-QDesignerWidgetDataBaseItemInterface::IncludeType WidgetDataBaseItem::includeType() const 
-{
-    return m_includeType;
-}
-
-void WidgetDataBaseItem::setIncludeType(IncludeType includeType)
-{
-    m_includeType = includeType;
-}
-
-   
-
 QIcon WidgetDataBaseItem::icon() const
 {
     return m_icon;
@@ -189,6 +172,25 @@ void WidgetDataBaseItem::setDefaultPropertyValues(const QList<QVariant> &list)
 QList<QVariant> WidgetDataBaseItem::defaultPropertyValues() const
 {
     return m_defaultPropertyValues;
+}
+
+WidgetDataBaseItem *WidgetDataBaseItem::clone(const QDesignerWidgetDataBaseItemInterface *item) 
+{
+    WidgetDataBaseItem *rc = new WidgetDataBaseItem(item->name(), item->group());
+    
+    rc->setToolTip(item->toolTip());
+    rc->setWhatsThis(item->whatsThis());
+    rc->setIncludeFile(item->includeFile());
+    rc->setIcon(item->icon());
+    rc->setCompat(item->isCompat());
+    rc->setContainer(item->isContainer());
+    rc->setCustom(item->isCustom() );
+    rc->setPluginPath(item->pluginPath());
+    rc->setPromoted(item->isPromoted());
+    rc->setExtends(item->extends());
+    rc->setDefaultPropertyValues(item->defaultPropertyValues());
+    
+    return rc;
 }
 
 // ----------------------------------------------------------
@@ -274,11 +276,6 @@ int WidgetDataBase::indexOfObject(QObject *object, bool /*resolveName*/) const
     return QDesignerWidgetDataBaseInterface::indexOfClassName(id);
 }
 
-QDesignerWidgetDataBaseItemInterface *WidgetDataBase::item(int index) const
-{
-    return QDesignerWidgetDataBaseInterface::item(index);
-}
-
 void WidgetDataBase::loadPlugins()
 {
     QDesignerPluginManager *pluginManager = m_core->pluginManager();
@@ -320,21 +317,16 @@ WidgetDataBaseItem *WidgetDataBase::createCustomWidgetItem(const QDesignerCustom
     item->setContainer(c->isContainer());
     item->setCustom(true);
     item->setIcon(c->icon());
-    
-    // Try to figure out the include file type. If the file 
-    // is enclosed in <,>, store it as global.
-    QString includeFile = c->includeFile();
-    WidgetDataBaseItem::IncludeType includeType = WidgetDataBaseItem::IncludeLocal;
-    if (includeFile.startsWith(QLatin1Char('<')) && includeFile.endsWith(QLatin1Char('>'))) {
-        includeFile.remove(includeFile.size() - 1, 1);
-        includeFile.remove(0, 1);
-        includeType = WidgetDataBaseItem::IncludeGlobal;
-    }    
-    item->setIncludeFile(includeFile);
-    item->setIncludeType(includeType);
+    item->setIncludeFile(c->includeFile());
     item->setToolTip(c->toolTip());
     item->setWhatsThis(c->whatsThis());
     return item;
+}
+    
+void WidgetDataBase::remove(int index)
+{
+    Q_ASSERT(index < m_items.size());
+    delete m_items.takeAt(index);    
 }
 
 QList<QVariant> WidgetDataBase::defaultPropertyValues(const QString &name)
@@ -369,6 +361,27 @@ void WidgetDataBase::grabDefaultPropertyValues()
     }
 }
 
+QDESIGNER_SHARED_EXPORT IncludeSpecification  includeSpecification(QString includeFile)
+{
+    const bool global = !includeFile.isEmpty() && 
+                        includeFile[0] == QLatin1Char('<') &&
+                        includeFile[includeFile.size() - 1] ==  QLatin1Char('>');
+    if (global) {
+        includeFile.remove(includeFile.size() - 1, 1);
+        includeFile.remove(0, 1);
+    }
+    return IncludeSpecification(includeFile, global ? IncludeGlobal : IncludeLocal);
+}
+
+QDESIGNER_SHARED_EXPORT QString buildIncludeFile(QString includeFile, IncludeType includeType) {
+    if (includeType == IncludeGlobal) {
+        includeFile.append(QLatin1Char('>'));
+        includeFile.insert(0, QLatin1Char('<'));
+    }
+    return includeFile;
+}
+
+
 /* Appends a derived class to the database inheriting the data of the base class. Used
    for custom and promoted widgets.
 
@@ -380,7 +393,6 @@ QDESIGNER_SHARED_EXPORT QDesignerWidgetDataBaseItemInterface *
                       const QString &className, const QString &group,
                       const QString &baseClassName, 
                       const QString &includeFile,
-                      QDesignerWidgetDataBaseItemInterface::IncludeType includeType,
                       bool promoted, bool custom)
         {
     if (debugWidgetDataBase) 
@@ -415,10 +427,10 @@ QDESIGNER_SHARED_EXPORT QDesignerWidgetDataBaseItemInterface *
         return 0;
     }
     const QDesignerWidgetDataBaseItemInterface *baseItem = db->item(baseIndex);
-    derivedItem =baseItem->clone();
+    derivedItem = WidgetDataBaseItem::clone(baseItem);
     // Sort of hack: If base class is QWidget, we most likely
     // do not want to inherit the container attribute.
-    if (baseItem->name() == qWidgetName) 
+    if (baseItem->name() == qWidgetName)
         derivedItem->setContainer(false);
     // set new props
     derivedItem->setName(className);
@@ -427,7 +439,6 @@ QDESIGNER_SHARED_EXPORT QDesignerWidgetDataBaseItemInterface *
     derivedItem->setPromoted(promoted);
     derivedItem->setExtends(baseClassName);
     derivedItem->setIncludeFile(includeFile);
-    derivedItem->setIncludeType(includeType);
     db->append(derivedItem);
     return derivedItem;
 }

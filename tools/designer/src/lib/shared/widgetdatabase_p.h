@@ -44,8 +44,7 @@ class QDESIGNER_SHARED_EXPORT WidgetDataBaseItem: public QDesignerWidgetDataBase
 public:
     WidgetDataBaseItem(const QString &name = QString(),
                        const QString &group = QString());
-    
-    virtual QDesignerWidgetDataBaseItemInterface *clone() const;
+
 
     QString name() const;
     void setName(const QString &name);
@@ -61,9 +60,7 @@ public:
 
     QString includeFile() const;
     void setIncludeFile(const QString &includeFile);
-    
-    IncludeType includeType() const;
-    void setIncludeType(IncludeType includeType);
+
 
     QIcon icon() const;
     void setIcon(const QIcon &icon);
@@ -89,13 +86,13 @@ public:
     void setDefaultPropertyValues(const QList<QVariant> &list);
     QList<QVariant> defaultPropertyValues() const;
 
+    static WidgetDataBaseItem *clone(const QDesignerWidgetDataBaseItemInterface *item);
 private:
     QString m_name;
     QString m_group;
     QString m_toolTip;
     QString m_whatsThis;
     QString m_includeFile;
-    IncludeType m_includeType;
     QString m_pluginPath;
     QString m_extends;
     QIcon m_icon;
@@ -106,6 +103,13 @@ private:
     uint m_promoted: 1;
     QList<QVariant> m_defaultPropertyValues;
 };
+    
+enum IncludeType { IncludeLocal, IncludeGlobal  };
+
+typedef  QPair<QString, IncludeType> IncludeSpecification;
+    
+QDESIGNER_SHARED_EXPORT IncludeSpecification  includeSpecification(QString includeFile);
+QDESIGNER_SHARED_EXPORT QString buildIncludeFile(QString includeFile, IncludeType includeType);
 
 class QDESIGNER_SHARED_EXPORT WidgetDataBase: public QDesignerWidgetDataBaseInterface
 {
@@ -116,8 +120,10 @@ public:
 
     virtual QDesignerFormEditorInterface *core() const;
 
-    virtual QDesignerWidgetDataBaseItemInterface *item(int index) const;
     virtual int indexOfObject(QObject *o, bool resolveName = true) const;
+    
+    void remove(int index);
+    
 
     void grabDefaultPropertyValues();
     
@@ -138,7 +144,6 @@ QDESIGNER_SHARED_EXPORT QDesignerWidgetDataBaseItemInterface
                        const QString &group,
                        const QString &baseClassName,
                        const QString &includeFile,
-                       QDesignerWidgetDataBaseItemInterface::IncludeType includeType,
                        bool promoted,
                        bool custom);
     

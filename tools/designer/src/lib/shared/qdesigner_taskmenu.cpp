@@ -376,21 +376,16 @@ void QDesignerTaskMenu::promoteToNewCustomWidget()
         return;
 
     const QString custom_class_name = dialog.customClassName();
-    const QString include_file = dialog.includeFile();
-    const QDesignerWidgetDataBaseItemInterface::IncludeType 
-        includeType = dialog.isGlobalInclude() ?
-                      QDesignerWidgetDataBaseItemInterface::IncludeGlobal : 
-                      QDesignerWidgetDataBaseItemInterface::IncludeLocal;
+    const QString include_file = buildIncludeFile(dialog.includeFile(),
+                                                  dialog.isGlobalInclude() ? IncludeGlobal : IncludeLocal);
         
     QDesignerWidgetDataBaseItemInterface *item = 
         appendDerived(db,custom_class_name, tr("Promoted Widgets"),
-                      base_class_name, include_file, includeType,
+                      base_class_name, include_file,
                       true,true);
     Q_ASSERT(item);
     // To be a 100% sure, if item already exists.
     item->setIncludeFile(include_file);
-    item->setIncludeType(includeType);
-
     // ### use the undo stack
     promoteTo(fw, custom_class_name);
 }

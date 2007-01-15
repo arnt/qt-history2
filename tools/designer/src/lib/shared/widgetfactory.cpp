@@ -156,9 +156,7 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
             QString includeFile = widgetName.toLower();
             includeFile +=  QLatin1String(".h");
             item = appendDerived(db,widgetName,tr("%1 Widget").arg(widgetName),fallBackBaseClass, 
-                                 includeFile, 
-                                 QDesignerWidgetDataBaseItemInterface::IncludeLocal,
-                                 true, true);
+                                 includeFile, true, true);
             Q_ASSERT(item);
         }               
         QString baseClass = item->extends();
