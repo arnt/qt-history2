@@ -5533,12 +5533,19 @@ QDomNodePrivate* QDomCommentPrivate::cloneNode(bool deep)
     return p;
 }
 
-void QDomCommentPrivate::save(QTextStream& s, int /*depth*/, int /*indent*/) const
+void QDomCommentPrivate::save(QTextStream& s, int depth, int indent) const
 {
+    /* We don't output whitespace if we would pollute a text node. */
+    if (!(prev && prev->isText()))
+        s << QString(depth * indent, QLatin1Char(' '));
+
     s << "<!--" << value;
     if (value.endsWith(QLatin1Char('-')))
         s << ' '; // Ensures that XML comment doesn't end with --->
     s << "-->";
+
+    if (!(next && next->isText()))
+        s << endl;
 }
 
 /**************************************************************

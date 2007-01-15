@@ -76,6 +76,7 @@ private slots:
     void flagUndeclaredNamespace() const;
 
     void initTestCase();
+    void indentComments() const;
 private:
     static int hasAttributesHelper( const QDomNode& node );
     static bool compareDocuments( const QDomDocument &doc1, const QDomDocument &doc2 );
@@ -1579,6 +1580,40 @@ void tst_QDom::flagUndeclaredNamespace() const
     QDomDocument doc;
     QEXPECT_FAIL("", "The parser doesn't flag not declared prefixes. Fixing this would change behavior.", Continue);
     QVERIFY(!doc.setContent(&source, &reader));
+}
+
+void tst_QDom::indentComments() const
+{
+    /* We test that:
+     *
+     * - Whitespace is not added if a text node appears after a comment.
+     * - Whitespace is not added if a text node appears before a comment.
+     * - Indentation depth is linear with level depth.
+     */
+    const char *const input = "<e>"
+                                  "<!-- A Comment -->"
+                                  "<b><!-- deep --></b>"
+                                  "textNode"
+                                  "<!-- Another Comment -->"
+                                  "<!-- Another Comment2 -->"
+                                  "textNode2"
+                              "</e>";
+    const char *const expected = "<e>\n"
+                                 "     <!-- A Comment -->\n"
+                                 "     <b>\n"
+                                 "          <!-- deep -->\n"
+                                 "     </b>"
+                                 "textNode"
+                                 "<!-- Another Comment -->\n"
+                                 "     <!-- Another Comment2 -->"
+                                 "textNode2"
+                                 "</e>\n";
+    QDomDocument doc;
+    QVERIFY(doc.setContent(QString::fromLatin1(input)));
+
+    const QString serialized(doc.toString(5));
+
+    QCOMPARE(serialized, QString::fromLatin1(expected));
 }
 
 QTEST_MAIN(tst_QDom)
