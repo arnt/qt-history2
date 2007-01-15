@@ -807,7 +807,10 @@ QScriptValue QScriptValue::call(const QScriptValue &thisObject,
     Q_ASSERT(nested->stackPtr != 0);
 
     eng_p->newActivation(&nested->activation);
-    nested->activation.m_object_value->m_scope = m_object_value->m_scope;
+    if (m_object_value->m_scope.isValid())
+        nested->activation.m_object_value->m_scope = m_object_value->m_scope;
+    else
+        nested->activation.m_object_value->m_scope = engine()->globalObject();
 
     QScriptObject *activation_data = nested->activation.m_object_value;
 
@@ -832,7 +835,7 @@ QScriptValue QScriptValue::call(const QScriptValue &thisObject,
     QVector<QScriptValue> argsv = args.toVector();
     nested->args = const_cast<QScriptValue*> (argsv.constData());
 
-    if (thisObject.isValid() && thisObject.isObject())
+    if (thisObject.isObject())
         nested->thisObject = thisObject;
     else
         nested->thisObject = eng_p->globalObject;
