@@ -6370,8 +6370,8 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
     image that is to be drawn. The default is (0, 0).
 
     (\a{sw}, \a{sh}) specifies the size of the image that is to be drawn.
-    The default, (-1, -1), means all the way to the bottom-right of
-    the image.
+    The default, (0, 0) (and negative) means all the way to the
+    bottom-right of the image.
 */
 
 /*!
