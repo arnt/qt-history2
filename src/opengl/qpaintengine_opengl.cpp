@@ -136,8 +136,12 @@ void QGLDrawable::setDevice(QPaintDevice *pdev)
 
 inline void QGLDrawable::swapBuffers()
 {
-    if (widget && widget->autoBufferSwap())
-        widget->swapBuffers();
+    if (widget) {
+        if (widget->autoBufferSwap())
+            widget->swapBuffers();
+    } else {
+        glFlush();
+    }
 }
 
 inline void QGLDrawable::makeCurrent()
@@ -1172,7 +1176,6 @@ bool QOpenGLPaintEngine::end()
     glPopAttrib();
 #endif
 
-    glFlush();
     d->drawable.swapBuffers();
     d->drawable.doneCurrent();
     qt_mask_texture_cache()->maintainCache();
@@ -3575,6 +3578,23 @@ void QGLGlyphCache::allocTexture(int width, int height, GLuint texture)
 #endif
     free(tex_data);
 }
+
+#if 0
+// useful for debugging the glyph cache
+static QImage getCurrentTexture(const QColor &color, QGLFontTexture *font_tex)
+{
+    ushort *old_tex_data = (ushort *) malloc(font_tex->width*font_tex->height*2);
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, old_tex_data);
+    QImage im(font_tex->width, font_tex->height, QImage::Format_ARGB32);
+    for (int y=0; y<font_tex->height; ++y) {
+        for (int x=0; x<font_tex->width; ++x) {
+            im.setPixel(x, y, ((*(old_tex_data+x+y*font_tex->width)) << 24) | (0x00ffffff & color.rgb()));
+        }
+    }
+    delete old_tex_data;
+    return im;
+}
+#endif
 
 void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
                                 const QVarLengthArray<glyph_t> &glyphs)
