@@ -83,13 +83,14 @@ protected:
     void contextMenuEvent(QContextMenuEvent *contextMenuEvent);
 
 private:
+    Q_DISABLE_COPY(QMdiSubWindow)
     Q_DECLARE_PRIVATE(QMdiSubWindow)
-    Q_PRIVATE_SLOT(d_func(), void _q_updateStaysOnTopHint());
-    Q_PRIVATE_SLOT(d_func(), void _q_enterInteractiveMode());
-    Q_PRIVATE_SLOT(d_func(), void _q_processFocusChanged(QWidget *, QWidget *));
+    Q_PRIVATE_SLOT(d_func(), void _q_updateStaysOnTopHint())
+    Q_PRIVATE_SLOT(d_func(), void _q_enterInteractiveMode())
+    Q_PRIVATE_SLOT(d_func(), void _q_processFocusChanged(QWidget *, QWidget *))
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QMdiSubWindow::SubWindowOptions);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QMdiSubWindow::SubWindowOptions)
 
 QT_END_HEADER
 
