@@ -296,6 +296,7 @@ void QGLContext::reset()
     Q_D(QGLContext);
     if(!d->valid)
         return;
+    doneCurrent();    
     if(d->cx)
         aglDestroyContext((AGLContext)d->cx);
     d->cx = 0;

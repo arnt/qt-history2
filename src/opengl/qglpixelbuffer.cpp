@@ -75,6 +75,7 @@ void QGLPixelBufferPrivate::common_init(const QSize &size, const QGLFormat &form
         qctx->d_func()->vi = 0;
 #elif defined(Q_WS_MAC)
         qctx->d_func()->cx = ctx;
+        qctx->d_func()->vi = 0;
 #endif
     }
 }
@@ -134,9 +135,10 @@ QGLPixelBuffer::~QGLPixelBuffer()
     extern void qgl_cleanup_glyph_cache(QGLContext *);
 
     QGLContext *current = const_cast<QGLContext *>(QGLContext::currentContext());
-    makeCurrent();
+    if (current != d->qctx)
+        makeCurrent();
     qgl_cleanup_glyph_cache(d->qctx);
-    if (current)
+    if (current && current != d->qctx)
         current->makeCurrent();
     delete d->qctx;
     d->cleanup();
