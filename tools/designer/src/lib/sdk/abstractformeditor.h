@@ -38,6 +38,8 @@ class QWidget;
 
 class QExtensionManager;
 
+class  QDesignerFormEditorInterfacePrivate;
+
 class QDESIGNER_SDK_EXPORT QDesignerFormEditorInterface: public QObject
 {
     Q_OBJECT
@@ -80,11 +82,23 @@ protected:
     void setIconCache(QDesignerIconCacheInterface *cache);
 
 private:
-    QPointer<QWidget> m_pad[12];
-    struct QDesignerFormEditorInterfacePrivate;
-    QDesignerFormEditorInterfacePrivate *d;
+    QPointer<QWidget> m_pad1;
+    QPointer<QDesignerWidgetBoxInterface> m_pad2;
+    QPointer<QDesignerPropertyEditorInterface> m_pad3;
+    QPointer<QDesignerFormWindowManagerInterface> m_pad4;
+    QPointer<QExtensionManager> m_pad5;
+    QPointer<QDesignerMetaDataBaseInterface> m_pad6;
+    QPointer<QDesignerWidgetDataBaseInterface> m_pad7;
+    QPointer<QDesignerWidgetFactoryInterface> m_pad8;
+    QPointer<QDesignerObjectInspectorInterface> m_pad9;
+    QPointer<QDesignerBrushManagerInterface> m_pad10;
+    QPointer<QDesignerIconCacheInterface> m_pad11;
+    QPointer<QDesignerActionEditorInterface> m_pad12;
+    QDesignerPluginManager *m_pad13;
 
 private:
+    Q_DECLARE_PRIVATE(QDesignerFormEditorInterface)
+
     QDesignerFormEditorInterface(const QDesignerFormEditorInterface &other);
     void operator = (const QDesignerFormEditorInterface &other);
 };
