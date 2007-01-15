@@ -139,7 +139,7 @@ void tst_QMdiSubWindow::sizeHint()
     window->show();
     QCOMPARE(window->sizeHint(), window->minimumSizeHint());
     QMdiArea workspace;
-    workspace.addChildWindow(window);
+    workspace.addSubWindow(window);
     QCOMPARE(window->sizeHint(), window->minimumSizeHint());
 }
 
@@ -283,7 +283,7 @@ void tst_QMdiSubWindow::mainWindowSupport()
         window->setWidget(nestedWorkspace);
         window->widget()->setWindowTitle(QString::fromLatin1("Window %1").arg(i));
 
-        workspace->addChildWindow(window);
+        workspace->addSubWindow(window);
         QVERIFY(!window->maximizedButtonsWidget());
         QVERIFY(!window->maximizedSystemMenuIconWidget());
         window->show();
@@ -316,7 +316,7 @@ void tst_QMdiSubWindow::mainWindowSupport()
         nestedWorkspace->show();
         QMdiSubWindow *nestedWindow = new QMdiSubWindow;
         nestedWindow->setWidget(new QWidget);
-        nestedWorkspace->addChildWindow(nestedWindow);
+        nestedWorkspace->addSubWindow(nestedWindow);
         nestedWindow->widget()->setWindowTitle(QString::fromLatin1("NestedWindow %1").arg(i));
         nestedWindow->showMaximized();
         qApp->processEvents();
@@ -426,7 +426,7 @@ void tst_QMdiSubWindow::showShaded()
 {
     QMdiArea workspace;
     QMdiSubWindow *window = new QMdiSubWindow;
-    workspace.addChildWindow(window);
+    workspace.addSubWindow(window);
     qApp->processEvents();
     workspace.show();
     window->show();
@@ -451,7 +451,7 @@ void tst_QMdiSubWindow::iconSize()
     QCOMPARE(window->iconSize(), QSize(-1, -1));
 
     QMdiArea workspace;
-    workspace.addChildWindow(window);
+    workspace.addSubWindow(window);
     qApp->processEvents();
     QStyleOptionTitleBar options;
     options.initFrom(window);
