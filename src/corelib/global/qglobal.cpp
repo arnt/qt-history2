@@ -1082,6 +1082,111 @@ bool qSharedBuild()
 */
 
 /*!
+    \fn T qFromBigEndian(const uchar *src)
+    \relates <QtGlobal>
+
+    Reads a big-endian number from memory location \a src and returns the number in the host
+    byte order representation.
+    On machines where the host byte order is little-endian (such as x86) this will swap the 
+    byte order, otherwise it will just read from \a src.
+
+    Note that template type \c{T} can only be a integral data type (signed or unsigned).
+
+    There is no data alignment constraints for \a src.
+
+    \sa qFromLittleEndian()
+    \sa qToBigEndian()
+    \sa qToLittleEndian()
+*/
+/*!
+    \fn T qFromBigEndian(T src)
+    \relates <QtGlobal>
+    \overload
+    
+    Converts \a src from big-endian byte order and returns the number in host byte order 
+    representation of that number. 
+    On machines where the host byte order is little-endian (such as x86) this will return
+    \a src with the byte order swapped. Otherwise it will return \a src unmodified;
+*/
+/*!
+    \fn T qFromLittleEndian(const uchar *src)
+    \relates <QtGlobal>
+
+    Reads a little-endian number from memory location \a src and returns the number in the host
+    byte order representation.
+    On machines where the host byte order is big-endian (such as Macs PowerPC) this will swap 
+    the byte order, otherwise it will just read from \a src.
+
+    Note that template type \c{T} can only be a integral data type (signed or unsigned).
+    
+    There is no data alignment constraints for \a src.
+
+    \sa qFromBigEndian()
+    \sa qToBigEndian()
+    \sa qToLittleEndian()
+*/
+/*!
+    \fn T qFromLittleEndian(T src)
+    \relates <QtGlobal>
+    \overload
+    
+    Converts \a src from little-endian byte order and returns the number in host byte order 
+    representation of that number. 
+    On machines where the host byte order is big-endian (such as Mac PowerPC) this will return
+    \a src with the byte order swapped. Otherwise it will return \a src unmodified;
+*/
+/*!
+    \fn qToBigEndian(T src, uchar *dest)
+    \relates <QtGlobal>
+
+    Writes the number \a src with template type \c{T} to the memory location at \a dest in 
+    big-endian byte order.
+
+    Note that template type \c{T} can only be a integral data type (signed or unsigned).
+
+    There is no data alignment constraints for \a dest.
+
+    \sa qFromBigEndian()
+    \sa qFromLittleEndian()
+    \sa qToLittleEndian()
+*/
+/*!
+    \fn T qToBigEndian(T src)
+    \relates <QtGlobal>
+    \overload
+
+    Converts \a src from host byte order and returns the number in big-endian byte order 
+    representation of that number. 
+    On machines where the host byte order is little-endian (such as x86) this will return
+    \a src with the byte order swapped. Otherwise it will return \a src unmodified;
+*/
+/*!
+    \fn qToLittleEndian(T src, uchar *dest)
+    \relates <QtGlobal>
+
+    Writes the number \a src with template type \c{T} to the memory location at \a dest in 
+    little-endian byte order.
+
+    Note that template type \c{T} can only be a integral data type (signed or unsigned).
+
+    There is no data alignment constraints for \a dest.
+
+    \sa qFromBigEndian()
+    \sa qFromLittleEndian()
+    \sa qToBigEndian()
+*/
+/*!
+    \fn T qToLittleEndian(T src)
+    \relates <QtGlobal>
+    \overload
+    
+    Converts \a src from host byte order and returns the number in little-endian byte order 
+    representation of that number. 
+    On machines where the host byte order is big-endian (such as Mac PowerPC) this will return
+    \a src with the byte order swapped. Otherwise it will return \a src unmodified;
+*/
+
+/*!
     \macro Q_WS_MAC
     \relates <QtGlobal>
 
