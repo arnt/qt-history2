@@ -61,6 +61,9 @@ Qt::ItemFlags QUrlModel::flags(const QModelIndex &index) const
     if (index.data(Qt::DecorationRole).isNull())
         flags &= ~Qt::ItemIsEnabled;
 
+    if (invalidUrls.contains(index.data(UrlRole).toUrl()))
+        flags &= ~Qt::ItemIsEnabled;
+
     return flags;
 }
 
@@ -144,6 +147,8 @@ void QUrlModel::setUrl(const QModelIndex &index, const QUrl &url, const QModelIn
         if (!dirIndex.isValid()) {
             newIcon = fileSystemModel->iconProvider()->icon(QFileIconProvider::Folder);
             newName = QFileInfo(url.toLocalFile()).fileName();
+            if (!invalidUrls.contains(url))
+                invalidUrls.append(url);
         }
 
         // Make sure that we have at least 32x32 images
@@ -164,6 +169,8 @@ void QUrlModel::setUrl(const QModelIndex &index, const QUrl &url, const QModelIn
 void QUrlModel::setUrls(const QList<QUrl> &list)
 {
     removeRows(0, rowCount());
+    invalidUrls.clear();
+    watching.clear();
     addUrls(list, 0);
 }
 

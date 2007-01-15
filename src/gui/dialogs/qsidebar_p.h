@@ -55,6 +55,7 @@ private:
     void addIndexToWatch(const QString &path, const QModelIndex &index);
     QFileSystemModel *fileSystemModel;
     QList<QPair<QModelIndex, QString> > watching;
+    QList<QString> invalidUrls;
 };
 
 class Q_AUTOTEST_EXPORT QSidebar : public QListView
