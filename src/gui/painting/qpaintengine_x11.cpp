@@ -1631,7 +1631,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
             XFreePixmap(d->dpy, comb);
         } else {
             XSetClipMask(d->dpy, d->gc, pixmap.handle());
-            XSetClipOrigin(d->dpy, d->gc, x, y);
+            XSetClipOrigin(d->dpy, d->gc, x - sx, y - sy);
         }
 
         if (mono_dst) {
