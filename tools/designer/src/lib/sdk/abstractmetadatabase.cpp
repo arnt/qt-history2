@@ -13,14 +13,6 @@
 
 // sdk
 #include "abstractmetadatabase.h"
-#include "abstractformeditor.h"
-
-// extension
-#include <QtDesigner/qextensionmanager.h>
-#include <QtDesigner/propertysheet.h>
-
-// Qt
-#include <QtCore/qdebug.h>
 
 /*!
     \class QDesignerMetaDataBaseInterface
@@ -128,39 +120,6 @@ QDesignerMetaDataBaseInterface::~QDesignerMetaDataBaseInterface()
     \sa tabOrder()
 */
 
-
-/*!
-    \fn QString QDesignerMetaDataBaseItemInterface::customClassName() const
-
-    Returns the custom class name of the item in the database.
-
-    \sa setCustomClassName()
-*/
-
-/*!
-    \fn void QDesignerMetaDataBaseItemInterface::setCustomClassName(const QString &customClassName)
-
-    Sets the custom class name of the item to the given \a customClassName.
-
-    \sa customClassName()
-*/
-
-/*!
-    \fn void QDesignerMetaDataBaseItemInterface::propertyComment(const QString &name) const
-
-    Returns the comment associated with the textual property \a name.
-
-    \sa setPropertyComment()
-*/
-
-
-/*!
-    \fn void QDesignerMetaDataBaseItemInterface::setPropertyComment(const QString &name, const QString &comment)
-
-    Sets the comment associated with the textual property a name to \a comment.
-
-    \sa comments()
-*/
     
 /*!
     \fn bool QDesignerMetaDataBaseItemInterface::enabled() const

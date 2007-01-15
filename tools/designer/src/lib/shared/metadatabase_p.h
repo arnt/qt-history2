@@ -50,11 +50,11 @@ public:
     virtual bool enabled() const;
     virtual void setEnabled(bool b);
     
-    virtual QString customClassName() const;
-    virtual void setCustomClassName(const QString &customClassName);
+    QString customClassName() const;
+    void setCustomClassName(const QString &customClassName);
 
-    virtual QString propertyComment(const QString &name) const;
-    virtual void setPropertyComment(const QString &name, const QString &comment);
+    QString propertyComment(const QString &name) const;
+    void setPropertyComment(const QString &name, const QString &comment);
 
     typedef QHash<QString, QString> PropertyComments;
     
@@ -77,7 +77,7 @@ public:
 
     virtual QDesignerFormEditorInterface *core() const;
 
-    virtual QDesignerMetaDataBaseItemInterface *item(QObject *object) const;
+    virtual MetaDataBaseItem *item(QObject *object) const;
     virtual void add(QObject *object);
     virtual void remove(QObject *object);
 

@@ -101,7 +101,8 @@ MetaDataBase::~MetaDataBase()
     qDeleteAll(m_items);
 }
 
-QDesignerMetaDataBaseItemInterface *MetaDataBase::item(QObject *object) const
+    
+MetaDataBaseItem *MetaDataBase::item(QObject *object) const
 {
     MetaDataBaseItem *i = m_items.value(object);
     if (i == 0 || !i->enabled())
@@ -181,8 +182,10 @@ void MetaDataBase::dump()
 QDESIGNER_SHARED_EXPORT bool promoteWidget(QDesignerFormEditorInterface *core,QWidget *widget,const QString &customClassName)
 {
 
-    QDesignerMetaDataBaseInterface *db = core->metaDataBase();
-    QDesignerMetaDataBaseItemInterface *item = db->item(widget);
+    MetaDataBase *db = qobject_cast<MetaDataBase *>(core->metaDataBase());
+    if (!db)
+        return false;
+    MetaDataBaseItem *item = db->item(widget);
     if (!item) {
         db ->add(widget);
         item = db->item(widget);
@@ -202,7 +205,10 @@ QDESIGNER_SHARED_EXPORT bool promoteWidget(QDesignerFormEditorInterface *core,QW
 
 QDESIGNER_SHARED_EXPORT void demoteWidget(QDesignerFormEditorInterface *core,QWidget *widget)
 {
-    QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
+    MetaDataBase *db = qobject_cast<MetaDataBase *>(core->metaDataBase());
+    if (!db)
+        return;
+    MetaDataBaseItem *item = db->item(widget);
     item->setCustomClassName(QString());
     if (debugMetaDatabase) {
         qDebug() << "Demoting " << widget;
@@ -211,7 +217,10 @@ QDESIGNER_SHARED_EXPORT void demoteWidget(QDesignerFormEditorInterface *core,QWi
 
 QDESIGNER_SHARED_EXPORT bool isPromoted(QDesignerFormEditorInterface *core, QWidget* widget)
 {
-    const QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
+    const MetaDataBase *db = qobject_cast<const MetaDataBase *>(core->metaDataBase());
+    if (!db)
+        return false;
+    const MetaDataBaseItem *item = db->item(widget);
     if (!item)
         return false;
     return !item->customClassName().isEmpty();
@@ -219,7 +228,10 @@ QDESIGNER_SHARED_EXPORT bool isPromoted(QDesignerFormEditorInterface *core, QWid
 
 QDESIGNER_SHARED_EXPORT QString promotedCustomClassName(QDesignerFormEditorInterface *core, QWidget* widget)
 {
-    const QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(widget);
+    const MetaDataBase *db = qobject_cast<const MetaDataBase *>(core->metaDataBase());
+    if (!db)
+        return QString();
+    const MetaDataBaseItem *item = db->item(widget);
     if (!item)
         return QString();
     return item->customClassName();
@@ -237,14 +249,20 @@ QDESIGNER_SHARED_EXPORT QString promotedExtends(QDesignerFormEditorInterface *co
 }
     
 QDESIGNER_SHARED_EXPORT QString propertyComment(QDesignerFormEditorInterface* core, QObject *o, const QString &propertyName) {
-    const QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(o);
+    const MetaDataBase *db = qobject_cast<const MetaDataBase *>(core->metaDataBase());
+    if (!db)
+        return QString();
+    const MetaDataBaseItem *item = db->item(o);
     if (!item)
         return QString();
     return item->propertyComment(propertyName);
 }
 
 QDESIGNER_SHARED_EXPORT bool setPropertyComment(QDesignerFormEditorInterface* core, QObject *o, const QString &propertyName, const QString &value) {
-    QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(o);
+    MetaDataBase *db = qobject_cast<MetaDataBase *>(core->metaDataBase());
+    if (!db)
+        return false;
+    MetaDataBaseItem *item = db->item(o);
     if (!item)
         return false;  
     item->setPropertyComment(propertyName, value);
