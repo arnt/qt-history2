@@ -1,104 +1,50 @@
---/****************************************************************************
---**
---** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
---**
---** This file is part of the $MODULE$ of the Qt Toolkit.
---**
---** $TROLLTECH_DUAL_LICENSE$
---**
---** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
---** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
---**
---****************************************************************************/
+----------------------------------------------------------------------------
+--
+-- Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
+--
+-- This file is part of the $MODULE$ of the Qt Toolkit.
+--
+-- $TROLLTECH_DUAL_LICENSE$
+--
+-- This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+-- WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+--
+----------------------------------------------------------------------------
 
 %parser QScriptGrammar
 
-%expect 3
-%expect-rr 1
+%expect         3
+%expect-rr      1
+%decl           qscriptparser_p.h
+%impl           qscriptparser.cpp
 
-%decl qscriptparser_p.h
-%impl qscriptparser.cpp
-
-%token T_AND "&"
-%token T_AND_AND "&&"
-%token T_AND_EQ "&="
-%token T_BREAK "break"
-%token T_CASE "case"
-%token T_CATCH "catch"
-%token T_COLON ":"
-%token T_COMMA ";"
-%token T_CONTINUE "continue"
-%token T_DEFAULT "default"
-%token T_DELETE "delete"
-%token T_DIVIDE "/"
-%token T_DIVIDE_EQ "/="
-%token T_DO "do"
-%token T_DOT "."
-%token T_ELSE "else"
-%token T_EQ "="
-%token T_EQ_EQ "=="
-%token T_EQ_EQ_EQ "==="
-%token T_FINALLY "finally"
-%token T_FOR "for"
-%token T_FUNCTION "function"
-%token T_GE ">="
-%token T_GT ">"
-%token T_GT_GT ">>"
-%token T_GT_GT_EQ ">>="
-%token T_GT_GT_GT ">>>"
-%token T_GT_GT_GT_EQ ">>>="
-%token T_IDENTIFIER "identifier"
-%token T_IF "if"
-%token T_IN "in"
-%token T_INSTANCEOF "instanceof"
-%token T_LBRACE "{"
-%token T_LBRACKET "["
-%token T_LE "<="
-%token T_LPAREN "("
-%token T_LT "<"
-%token T_LT_LT "<<"
-%token T_LT_LT_EQ "<<="
-%token T_MINUS "-"
-%token T_MINUS_EQ "-="
-%token T_MINUS_MINUS "--"
-%token T_NEW "new"
-%token T_NOT "!"
-%token T_NOT_EQ "!="
-%token T_NOT_EQ_EQ "!=="
-%token T_NUMERIC_LITERAL "numeric literal"
-%token T_OR "|"
-%token T_OR_EQ "|="
-%token T_OR_OR "||"
-%token T_PLUS "+"
-%token T_PLUS_EQ "+="
-%token T_PLUS_PLUS "++"
-%token T_QUESTION "?"
-%token T_RBRACE "}"
-%token T_RBRACKET "]"
-%token T_REMAINDER "%"
-%token T_REMAINDER_EQ "%="
-%token T_RETURN "return"
-%token T_RPAREN ")"
-%token T_SEMICOLON ";"
-%token T_AUTOMATIC_SEMICOLON
-%token T_STAR "*"
-%token T_STAR_EQ "*="
-%token T_STRING_LITERAL "string literal"
-%token T_SWITCH "switch"
-%token T_THIS "this"
-%token T_THROW "throw"
-%token T_TILDE "~"
-%token T_TRY "try"
-%token T_TYPEOF "typeof"
-%token T_VAR "var"
-%token T_VOID "void"
-%token T_WHILE "while"
-%token T_WITH "with"
-%token T_XOR "^"
-%token T_XOR_EQ "^="
-%token T_NULL "null"
-%token T_TRUE "true"
-%token T_FALSE "false"
+%token T_AND "&"                T_AND_AND "&&"              T_AND_EQ "&="
+%token T_BREAK "break"          T_CASE "case"               T_CATCH "catch"
+%token T_COLON ":"              T_COMMA ";"                 T_CONTINUE "continue"
+%token T_DEFAULT "default"      T_DELETE "delete"           T_DIVIDE "/"
+%token T_DIVIDE_EQ "/="         T_DO "do"                   T_DOT "."
+%token T_ELSE "else"            T_EQ "="                    T_EQ_EQ "=="
+%token T_EQ_EQ_EQ "==="         T_FINALLY "finally"         T_FOR "for"
+%token T_FUNCTION "function"    T_GE ">="                   T_GT ">"
+%token T_GT_GT ">>"             T_GT_GT_EQ ">>="            T_GT_GT_GT ">>>"
+%token T_GT_GT_GT_EQ ">>>="     T_IDENTIFIER "identifier"   T_IF "if"
+%token T_IN "in"                T_INSTANCEOF "instanceof"   T_LBRACE "{"
+%token T_LBRACKET "["           T_LE "<="                   T_LPAREN "("
+%token T_LT "<"                 T_LT_LT "<<"                T_LT_LT_EQ "<<="
+%token T_MINUS "-"              T_MINUS_EQ "-="             T_MINUS_MINUS "--"
+%token T_NEW "new"              T_NOT "!"                   T_NOT_EQ "!="
+%token T_NOT_EQ_EQ "!=="        T_NUMERIC_LITERAL "numeric literal"     T_OR "|"
+%token T_OR_EQ "|="             T_OR_OR "||"                T_PLUS "+"
+%token T_PLUS_EQ "+="           T_PLUS_PLUS "++"            T_QUESTION "?"
+%token T_RBRACE "}"             T_RBRACKET "]"              T_REMAINDER "%"
+%token T_REMAINDER_EQ "%="      T_RETURN "return"           T_RPAREN ")"
+%token T_SEMICOLON ";"          T_AUTOMATIC_SEMICOLON       T_STAR "*"
+%token T_STAR_EQ "*="           T_STRING_LITERAL "string literal"
+%token T_SWITCH "switch"        T_THIS "this"               T_THROW "throw"
+%token T_TILDE "~"              T_TRY "try"                 T_TYPEOF "typeof"
+%token T_VAR "var"              T_VOID "void"               T_WHILE "while"
+%token T_WITH "with"            T_XOR "^"                   T_XOR_EQ "^="
+%token T_NULL "null"            T_TRUE "true"               T_FALSE "false"
 %token T_RESERVED "reserved word"
 
 %start Program
