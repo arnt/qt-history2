@@ -62,6 +62,9 @@ public:
         ObjectProperty      = 0x00000100,           // Stored in the member table
         NativeProperty      = 0x00000200,
         
+        PropertyGetter      = 0x00000400,
+        PropertySetter      = 0x00000800,
+
         UserRange           = 0xffff0000            // Users may use these as they see fit.
     };
     Q_DECLARE_FLAGS(PropertyFlags, PropertyFlag)

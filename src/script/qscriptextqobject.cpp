@@ -27,14 +27,15 @@
 
 // we use bits 15..12 of property flags
 enum {
-    ENUMERATOR_ID = 0 << 12,
-    PROPERTY_ID = 1 << 12,
-    DYNAPROPERTY_ID = 2 << 12,
-    METHOD_ID = 3 << 12,
-    CHILD_ID = 4 << 12,
-    ID_MASK = 7 << 12,
+    PROPERTY_ID      = 0 << 12,
+    DYNAPROPERTY_ID  = 1 << 12,
+    METHOD_ID        = 2 << 12,
+    CHILD_ID         = 3 << 12,
+    ID_MASK          = 7 << 12,
     MAYBE_OVERLOADED = 8 << 12
 };
+
+static const bool GeneratePropertyFunctions = true;
 
 namespace QScript {
 
@@ -148,6 +149,10 @@ public:
                 member->native(nameId, index,
                                QScriptValue::Undeletable
                                | QScriptValue::SkipInEnumeration
+                               | (GeneratePropertyFunctions
+                                  ? (QScriptValue::PropertyGetter
+                                     | QScriptValue::PropertySetter)
+                                  : QScriptValue::PropertyFlag(0))
                                | PROPERTY_ID);
                 return true;
             }
@@ -192,42 +197,35 @@ public:
             return false;
 
         QScriptEngine *eng = obj.engine();
-        QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
 
         ExtQObject::Instance *inst = ExtQObject::Instance::get(obj, m_classInfo);
         QObject *qobject = inst->value;
 
         switch (member.flags() & ID_MASK) {
-        case ENUMERATOR_ID:
-            eng_p->newNumber(result, member.id());
-            break;
-
         case PROPERTY_ID: {
-            const QMetaObject *meta = qobject->metaObject();
-            QMetaProperty prop = meta->property(member.id());
-            Q_ASSERT(prop.isScriptable());
-
-            QScriptable *scriptable = scriptableFromQObject(qobject);
-            QScriptEngine *oldEngine;
-            if (scriptable) {
-                oldEngine = QScriptablePrivate::get(scriptable)->engine;
+            if (GeneratePropertyFunctions) {
+                const int propertyIndex = member.id();
                 QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
-                QScriptContext *ctx = eng_p->pushContext();
-                ctx->setThisObject(obj);
-                // ### activation
-                ctx->setActivationObject(ctx->parentContext()->activationObject());
-                QScriptablePrivate::get(scriptable)->engine = eng;
+                *result = eng_p->createFunction(new QtPropertyFunction(qobject, propertyIndex));
+                
+                // make it persist
+                QScript::Member m;
+                QScriptObject *instance = obj.impl()->objectValue();
+                if (!instance->findMember(member.nameId(), &m)) {
+                    instance->createMember(member.nameId(), &m,
+                                           QScriptValue::Undeletable
+                                           | QScriptValue::SkipInEnumeration
+                                           | QScriptValue::PropertyGetter
+                                           | QScriptValue::PropertySetter);
+                }
+                instance->put(m, *result);
+            } else {
+                const QMetaObject *meta = qobject->metaObject();
+                QMetaProperty prop = meta->property(member.id());
+                Q_ASSERT(prop.isScriptable());
+                QVariant v = prop.read(qobject);
+                *result = valueFromVariant(eng, v);
             }
-
-            QVariant v = prop.read(qobject);
-
-            if (scriptable) {
-                QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
-                eng_p->popContext();
-                QScriptablePrivate::get(scriptable)->engine = oldEngine;
-            }
-
-            *result = valueFromVariant(eng, v);
         }   break;
 
         case DYNAPROPERTY_ID: {
@@ -270,7 +268,6 @@ public:
         QObject *qobject = inst->value;
 
         switch (member.flags() & ID_MASK) {
-        case ENUMERATOR_ID:
         case CHILD_ID:
             return false;
 
@@ -285,35 +282,18 @@ public:
             return true;
         }
 
-        case PROPERTY_ID: {
-            QScriptEngine *eng = object->engine();
-            const QMetaObject *meta = qobject->metaObject();
-            QMetaProperty prop = meta->property(member.id());
-            Q_ASSERT(prop.isScriptable());
-            QVariant v = variantFromValue(prop.userType(), value);
-
-            QScriptable *scriptable = scriptableFromQObject(qobject);
-            QScriptEngine *oldEngine = 0;
-            if (scriptable) {
-                oldEngine = QScriptablePrivate::get(scriptable)->engine;
-                QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
-                QScriptContext *ctx = eng_p->pushContext();
-                ctx->setThisObject(*object);
-                // ### activation
-                ctx->setActivationObject(ctx->parentContext()->activationObject());
-                QScriptablePrivate::get(scriptable)->engine = eng;
+        case PROPERTY_ID:
+            if (GeneratePropertyFunctions) {
+                Q_ASSERT(0);
+                return false;
+            } else {
+                const QMetaObject *meta = qobject->metaObject();
+                QMetaProperty prop = meta->property(member.id());
+                Q_ASSERT(prop.isScriptable());
+                QVariant v = variantFromValue(prop.userType(), value);
+                bool ok = prop.write(qobject, v);
+                return ok;
             }
-
-            bool ok = prop.write(qobject, v);
-
-            if (scriptable) {
-                QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
-                eng_p->popContext();
-                QScriptablePrivate::get(scriptable)->engine = oldEngine;
-            }
-
-            return ok;
-        }
 
         case DYNAPROPERTY_ID: {
             QByteArray name = qobject->dynamicPropertyNames().value(member.id());
@@ -731,6 +711,49 @@ bool QScript::ConnectionQObject::hasTarget(const QScriptValue &receiver,
 {
     return ((receiver.impl()->objectValue() == m_receiver.impl()->objectValue())
             && (slot.impl()->objectValue() == m_slot.impl()->objectValue()));
+}
+
+void QScript::QtPropertyFunction::execute(QScriptContext *context)
+{
+    QScriptEngine *eng = context->engine();
+    QScriptValue result = eng->undefinedScriptValue();
+
+    QMetaProperty prop = m_object->metaObject()->property(m_index);
+    Q_ASSERT(prop.isValid());
+    Q_ASSERT(prop.isScriptable());
+
+    if (context->argumentCount() == 0) {
+        // get
+        QScriptable *scriptable = scriptableFromQObject(m_object);
+        QScriptEngine *oldEngine = 0;
+        if (scriptable) {
+            oldEngine = QScriptablePrivate::get(scriptable)->engine;
+            QScriptablePrivate::get(scriptable)->engine = eng;
+        }
+        
+        QVariant v = prop.read(m_object);
+        
+        if (scriptable)
+            QScriptablePrivate::get(scriptable)->engine = oldEngine;
+        
+        result = valueFromVariant(eng, v);
+    } else {
+        // set
+        QVariant v = variantFromValue(prop.userType(), context->argument(0));
+        
+        QScriptable *scriptable = scriptableFromQObject(m_object);
+        QScriptEngine *oldEngine = 0;
+        if (scriptable) {
+            oldEngine = QScriptablePrivate::get(scriptable)->engine;
+            QScriptablePrivate::get(scriptable)->engine = eng;
+        }
+        
+        result = eng->scriptValue(prop.write(m_object, v));
+        
+        if (scriptable)
+            QScriptablePrivate::get(scriptable)->engine = oldEngine;
+    }
+    QScriptContextPrivate::get(context)->result = result;
 }
 
 void QScript::QtFunction::execute(QScriptContext *context)

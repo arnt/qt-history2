@@ -75,6 +75,40 @@ public:
         return false;
     }
 
+    // assumes that m already points to the setter
+    inline bool findGetter(QScript::Member *m) const
+    {
+        const QScript::Member *members = m_members.constData();
+        const QScript::Member *first = &members[-1];
+        const QScript::Member *last = &members[m->id() - 1];
+
+        for (const QScript::Member *it = last; it != first; --it) {
+            if (it->nameId() == m->nameId() && it->isValid() && it->isGetter()) {
+                *m = *it;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // assumes that m already points to the getter
+    inline bool findSetter(QScript::Member *m) const
+    {
+        const QScript::Member *members = m_members.constData();
+        const QScript::Member *first = &members[-1];
+        const QScript::Member *last = &members[m->id() - 1];
+
+        for (const QScript::Member *it = last; it != first; --it) {
+            if (it->nameId() == m->nameId() && it->isValid() && it->isSetter()) {
+                *m = *it;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     inline int memberCount() const
     {
         return m_members.size();

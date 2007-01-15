@@ -42,7 +42,8 @@ public:
         Unknown,
         C,
         C2,
-        Qt
+        Qt,
+        QtProperty
     };
 
     QScriptFunction(int len = 0)

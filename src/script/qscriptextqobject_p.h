@@ -133,6 +133,24 @@ private:
     bool m_maybeOverloaded;
 };
 
+class QtPropertyFunction: public QScriptFunction
+{
+public:
+    QtPropertyFunction(QObject *object, int index)
+        : m_object(object), m_index(index)
+        { }
+
+    ~QtPropertyFunction() { }
+
+    virtual void execute(QScriptContext *context);
+
+    virtual Type type() const { return QScriptFunction::QtProperty; }
+
+private:
+    QObject *m_object;
+    int m_index;
+};
+
 class ExtQClassData: public QScriptClassData
 {
 public:

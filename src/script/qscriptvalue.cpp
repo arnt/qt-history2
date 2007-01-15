@@ -88,6 +88,10 @@
 
     \value SkipInEnumeration The property is not to be enumerated by a \c{for-in} enumeration.
 
+    \value PropertyGetter The property is defined by a function which will be called to get the property value.
+
+    \value PropertySetter The property is defined by a function which will be called to set the property value.
+
     \value UserRange Flags in this range are not used by Qt Script, and can be used for custom purposes.
 */
 
@@ -571,8 +575,16 @@ QScriptValue QScriptValue::property(const QScriptNameId &nameId,
     if (! impl()->resolve(nameId, &member, &base, mode))
         return QScriptValue();
 
-    base.impl()->get(nameId, &base);
-    return base;
+    QScriptValue value;
+    base.impl()->get(nameId, &value);
+    if (member.isGetterOrSetter()) {
+        QScriptValue getter;
+        if (member.isObjectProperty() && !member.isGetter())
+            base.m_object_value->findGetter(&member);
+        base.impl()->get(member, &getter);
+        value = getter.call(*this);
+    }
+    return value;
 }
 
 /*!
@@ -587,18 +599,60 @@ void QScriptValue::setProperty(const QScriptNameId &nameId,
                                const QScriptValue &value,
                                const PropertyFlags &flags)
 {
-    if (!isValid())
+    if (!isObject())
         return;
 
     QScriptValue base;
     QScript::Member member;
 
-    QScriptValueImpl *i = impl();
+    ResolveFlags mode = ResolveLocal;
+    // if we are not setting a setter or getter, look in prototype too
+    if (!(flags & (PropertyGetter | PropertySetter)))
+        mode |= ResolvePrototype;
 
-    if (! i->resolve(nameId, &member, &base, ResolveLocal))
-        i->createMember(nameId, &member, flags);
+    if (impl()->resolve(nameId, &member, &base, mode)) {
+        // we resolved an existing property with that name
+        if (flags & (PropertyGetter | PropertySetter)) {
+            // setting the getter or setter of a property in this object
+            if (member.isSetter()) {
+                // the property we resolved is a setter
+                if (!(flags & PropertySetter)) {
+                    // find the getter, if not, create one
+                    if (!m_object_value->findGetter(&member))
+                        impl()->createMember(nameId, &member, flags);
+                }
+            } else {
+                // the property we resolved is a getter
+                if (!(flags & PropertyGetter)) {
+                    // find the setter, if not, create one
+                    if (!m_object_value->findSetter(&member))
+                        impl()->createMember(nameId, &member, flags);
+                }
+            }
+        } else {
+            // setting the value
+            if (member.isGetterOrSetter()) {
+                // call the setter
+                QScriptValue setter;
+                if (member.isObjectProperty() && !member.isSetter())
+                    base.m_object_value->findSetter(&member);
+                base.impl()->get(member, &setter);
+                setter.call(*this, QScriptValueList() << value);
+                return;
+            } else {
+                if (base.m_object_value != m_object_value) {
+                    impl()->createMember(nameId, &member, flags);
+                    base = *this;
+                }
+            }
+        }
+    } else {
+        // did not find it, create
+        impl()->createMember(nameId, &member, flags);
+        base = *this;
+    }
 
-    i->put(member, value);
+    base.impl()->put(member, value);
 }
 
 /*!

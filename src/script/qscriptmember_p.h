@@ -56,6 +56,13 @@ namespace QScript {
         inline bool isNativeProperty() const
             { return m_flags & QScriptValue::NativeProperty; }
 
+        inline bool isGetter() const
+            { return m_flags & QScriptValue::PropertyGetter; }
+        inline bool isSetter() const
+            { return m_flags & QScriptValue::PropertySetter; }
+        inline bool isGetterOrSetter() const
+            { return m_flags & (QScriptValue::PropertyGetter | QScriptValue::PropertySetter); }
+
         inline int id() const { return m_id; }
         inline QScriptNameIdImpl *nameId() const { return m_nameId; }
 

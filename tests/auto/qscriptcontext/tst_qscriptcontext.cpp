@@ -265,8 +265,8 @@ void tst_QScriptContext::recoverFromException()
 
 static QScriptValue evaluate(QScriptContext *, QScriptEngine *eng)
 {
-    eng->evaluate("a = 123");
-    return eng->evaluate("a");
+    return eng->evaluate("a = 123; a");
+//    return eng->evaluate("a");
 }
 
 void tst_QScriptContext::evaluateInFunction()
@@ -277,6 +277,9 @@ void tst_QScriptContext::evaluateInFunction()
     eng.globalObject().setProperty("evaluate", fun);
 
     QScriptValue result = eng.evaluate("evaluate()");
+    qDebug() << result.toString();
+    QCOMPARE(result.isError(), false);
+    QCOMPARE(result.isNumber(), true);
     QCOMPARE(result.toNumber(), 123.0);
     QCOMPARE(eng.uncaughtException(), false);
 

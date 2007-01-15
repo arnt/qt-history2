@@ -53,6 +53,11 @@ void Object::initialize()
                                 eng_p->createFunction(method_isPrototypeOf, 1, m_classInfo), flags);
     publicPrototype.setProperty(QLatin1String("propertyIsEnumerable"),
                                 eng_p->createFunction(method_propertyIsEnumerable, 1, m_classInfo), flags);
+
+    publicPrototype.setProperty(QLatin1String("__defineGetter__"),
+                                eng_p->createFunction(method_defineGetter, 2, m_classInfo), flags);
+    publicPrototype.setProperty(QLatin1String("__defineSetter__"),
+                                eng_p->createFunction(method_defineSetter, 2, m_classInfo), flags);
 }
 
 void Object::execute(QScriptContext *context)
@@ -175,6 +180,30 @@ QScriptValue Object::method_propertyIsEnumerable(QScriptEngine *eng, QScriptClas
     }
 
     return (eng->scriptValue(result));
+}
+
+QScriptValue Object::method_defineGetter(QScriptEngine *eng,
+                                         QScriptClassInfo *)
+{
+    QScriptContext *ctx = eng->currentContext();
+    QString propertyName = ctx->argument(0).toString();
+    QScriptValue getter = ctx->argument(1);
+    if (!getter.isFunction())
+        return ctx->throwError(QLatin1String("getter must be a function"));
+    ctx->thisObject().setProperty(propertyName, getter, QScriptValue::PropertyGetter);
+    return eng->undefinedScriptValue();
+}
+
+QScriptValue Object::method_defineSetter(QScriptEngine *eng,
+                                         QScriptClassInfo *)
+{
+    QScriptContext *ctx = eng->currentContext();
+    QString propertyName = ctx->argument(0).toString();
+    QScriptValue setter = ctx->argument(1);
+    if (!setter.isFunction())
+        return ctx->throwError(QLatin1String("setter must be a function"));
+    ctx->thisObject().setProperty(propertyName, setter, QScriptValue::PropertySetter);
+    return eng->undefinedScriptValue();
 }
 
 } } // namespace QScript::Ecma

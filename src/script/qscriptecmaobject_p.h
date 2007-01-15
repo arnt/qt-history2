@@ -56,6 +56,10 @@ protected:
                                              QScriptClassInfo *classInfo);
     static QScriptValue method_propertyIsEnumerable(QScriptEngine *eng,
                                                     QScriptClassInfo *classInfo);
+    static QScriptValue method_defineGetter(QScriptEngine *eng,
+                                            QScriptClassInfo *classInfo);
+    static QScriptValue method_defineSetter(QScriptEngine *eng,
+                                            QScriptClassInfo *classInfo);
 
 private:
     QScriptClassInfo *m_classInfo;
