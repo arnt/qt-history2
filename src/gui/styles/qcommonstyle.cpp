@@ -1055,14 +1055,14 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                         tr.adjust(pr.right(), 0, 0, 0);
                         pr.translate(shiftX, shiftY);
                         if (!hasArrow) {
-                            drawItemPixmap(p, pr, Qt::AlignCenter, pm);
+                            drawItemPixmap(p, QStyle::visualRect(opt->direction, rect, pr), Qt::AlignCenter, pm);
                         } else {
                             drawArrow(this, toolbutton, pr, p, widget);
                         }
                         alignment |= Qt::AlignLeft | Qt::AlignVCenter;
                     }
                     tr.translate(shiftX, shiftY);
-                    drawItemText(p, tr, alignment, toolbutton->palette,
+                    drawItemText(p, QStyle::visualRect(opt->direction, rect, tr), alignment, toolbutton->palette,
                                  toolbutton->state & State_Enabled, toolbutton->text,
                                  QPalette::ButtonText);
                 } else {
