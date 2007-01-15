@@ -2040,6 +2040,8 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
 #endif
 
     QPainterPath path = path_for_glyphs(glyphs, positions, ft);
+    if (path.elementCount() <= 1)
+        return;
     Q_ASSERT((path.elementCount() % 5) == 0);
     if (d->txop >= QTransform::TxScale) {
         painter()->save();
