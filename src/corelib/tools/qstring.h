@@ -1014,7 +1014,7 @@ public:
 
     inline const QChar *unicode() const {
         if (!m_string)
-            return reinterpret_cast<const QChar *>(QString::shared_null.array);
+            return reinterpret_cast<const QChar *>(QString::shared_null.data);
         return m_string->unicode() + m_position;
     }
     inline const QChar *data() const { return unicode(); }
