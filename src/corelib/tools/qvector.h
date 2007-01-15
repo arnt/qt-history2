@@ -78,7 +78,7 @@ public:
 
     inline int capacity() const { return d->alloc; }
     void reserve(int size);
-    inline void squeeze() { realloc(d->size, d->size); }
+    inline void squeeze() { realloc(d->size, d->size); d->capacity = 0; }
 
     inline void detach() { if (d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }
