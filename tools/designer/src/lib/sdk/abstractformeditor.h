@@ -80,20 +80,9 @@ protected:
     void setIconCache(QDesignerIconCacheInterface *cache);
 
 private:
-    QPointer<QWidget> m_topLevel;
-    QPointer<QDesignerWidgetBoxInterface> m_widgetBox;
-    QPointer<QDesignerPropertyEditorInterface> m_propertyEditor;
-    QPointer<QDesignerFormWindowManagerInterface> m_formWindowManager;
-    QPointer<QExtensionManager> m_extensionManager;
-    QPointer<QDesignerMetaDataBaseInterface> m_metaDataBase;
-    QPointer<QDesignerWidgetDataBaseInterface> m_widgetDataBase;
-    QPointer<QDesignerWidgetFactoryInterface> m_widgetFactory;
-    QPointer<QDesignerObjectInspectorInterface> m_objectInspector;
-    QPointer<QDesignerBrushManagerInterface> m_brushManager;
-    QPointer<QDesignerIntegrationInterface> m_integration;
-    QPointer<QDesignerIconCacheInterface> m_iconCache;
-    QPointer<QDesignerActionEditorInterface> m_actionEditor;
-    QDesignerPluginManager *m_pluginManager;
+    QPointer<QWidget> m_pad[12];
+    struct QDesignerFormEditorInterfacePrivate;
+    QDesignerFormEditorInterfacePrivate *d;
 
 private:
     QDesignerFormEditorInterface(const QDesignerFormEditorInterface &other);
