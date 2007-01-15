@@ -91,6 +91,9 @@ void tst_Bic::initTestCase()
 {
     QString qtDir = QString::fromLocal8Bit(getenv("QTDIR"));
     QVERIFY2(!qtDir.isEmpty(), "This test needs $QTDIR");
+
+    if (qgetenv("PATH").contains("teambuilder"))
+        QTest::qWarn("This test might not work with teambuilder, consider switching it off.");
 }
 
 void tst_Bic::sizesAndVTables_data()
