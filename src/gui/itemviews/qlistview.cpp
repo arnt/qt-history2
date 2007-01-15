@@ -2439,6 +2439,8 @@ void QDynamicListViewBase::doDynamicLayout(const QListViewLayoutInfo &info)
             }
 
             // set the position of the item
+            // ### idealy we should have some sort of alignment hint for the item
+            // ### (normally that would be a point between the icon and the text)
             if (!moved.testBit(row)) {
                 if (info.flow == QListView::LeftToRight) {
                     if (useItemSize) {
@@ -2446,15 +2448,15 @@ void QDynamicListViewBase::doDynamicLayout(const QListViewLayoutInfo &info)
                         item->y = segPosition;
                     } else { // use grid
                         item->x = flowPosition + ((deltaFlowPosition - item->w) / 2);
-                        item->y = segPosition +  ((deltaSegPosition - item->h) / 2);
+                        item->y = segPosition;
                     }
                 } else { // TopToBottom
                     if (useItemSize) {
                         item->y = flowPosition;
                         item->x = segPosition;
-                    } else {
+                    } else { // use grid
                         item->y = flowPosition + ((deltaFlowPosition - item->h) / 2);
-                        item->x = segPosition +  ((deltaSegPosition - item->w) / 2);
+                        item->x = segPosition;
                     }
                 }
             }
