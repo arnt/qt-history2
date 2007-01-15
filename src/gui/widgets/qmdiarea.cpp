@@ -972,8 +972,11 @@ QMdiSubWindow *QMdiArea::addSubWindow(QWidget *widget, Qt::WindowFlags windowFla
     }
 
     if (QMdiSubWindow *child = qobject_cast<QMdiSubWindow *>(widget)) {
-        child->setWindowFlags(windowFlags);
-        addChildWindow(child);
+        if (d_func()->childWindows.indexOf(child) != -1) {
+            qWarning("QMdiArea::addSubWindow: window is already added");
+            return child;
+        }
+        child->setParent(this, windowFlags ? windowFlags : child->windowFlags());
         return child;
     }
 
@@ -998,14 +1001,22 @@ void QMdiArea::removeSubWindow(QWidget *widget)
         return;
     }
 
-    if (QMdiSubWindow *child = qobject_cast<QMdiSubWindow *>(widget)) {
-        removeChildWindow(child);
-        return;
-    }
-
     Q_D(QMdiArea);
     if (d->childWindows.isEmpty())
         return;
+
+    if (QMdiSubWindow *child = qobject_cast<QMdiSubWindow *>(widget)) {
+        int index = d->childWindows.indexOf(child);
+        if (index == -1) {
+            qWarning("QMdiArea::removeSubWindow: window is not inside workspace");
+            return;
+        }
+        d->childWindows.removeAll(child);
+        d->indicesToStackedChildren.removeAll(index);
+        d->updateActiveWindow(index);
+        child->setParent(0);
+        return;
+    }
 
     bool found = false;
     foreach (QMdiSubWindow *child, d->childWindows) {
@@ -1021,55 +1032,6 @@ void QMdiArea::removeSubWindow(QWidget *widget)
 
     if (!found)
         qWarning("QMdiArea::removeSubWindow: widget is not child of any window inside QMdiArea");
-}
-
-/*!
-    Adds \a mdiChild to the workspace.
-
-    \sa removeChildWindow(), subWindowList()
-*/
-void QMdiArea::addChildWindow(QMdiSubWindow *mdiChild)
-{
-    if (!mdiChild) {
-        qWarning("QMdiArea::addChildWindow: null pointer to window");
-        return;
-    }
-
-    Q_D(QMdiArea);
-    if (d->childWindows.indexOf(mdiChild) != -1) {
-        qWarning("QMdiArea::addChildWindow: window is already added");
-        return;
-    }
-
-    mdiChild->setParent(this, mdiChild->windowFlags());
-}
-
-/*!
-    Removes \a mdiChild from the workspace.
-
-    \sa addChildWindow(), subWindowList()
-*/
-void QMdiArea::removeChildWindow(QMdiSubWindow *mdiChild)
-{
-    if (!mdiChild) {
-        qWarning("QMdiArea::removeWindow: null pointer to window");
-        return;
-    }
-
-    Q_D(QMdiArea);
-    if (d->childWindows.isEmpty())
-        return;
-
-    int index = d->childWindows.indexOf(mdiChild);
-    if (index == -1) {
-        qWarning("QMdiArea::removeWindow: window is not inside QMdiArea");
-        return;
-    }
-
-    d->childWindows.removeAll(mdiChild);
-    d->indicesToStackedChildren.removeAll(index);
-    d->updateActiveWindow(index);
-    mdiChild->setParent(0);
 }
 
 bool QMdiArea::scrollBarsEnabled() const

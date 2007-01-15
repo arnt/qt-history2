@@ -47,10 +47,6 @@ public:
     QMdiSubWindow *addSubWindow(QWidget *widget, Qt::WindowFlags flags = 0);
     void removeSubWindow(QWidget *widget);
 
-    // ### Remove
-    void addChildWindow(QMdiSubWindow *mdiChild);
-    void removeChildWindow(QMdiSubWindow *mdiChild);
-
     bool scrollBarsEnabled() const;
     void setScrollBarsEnabled(bool enable);
 
@@ -84,6 +80,7 @@ protected:
     void scrollContentsBy(int dx, int dy);
 
 private:
+    Q_DISABLE_COPY(QMdiArea)
     Q_DECLARE_PRIVATE(QMdiArea)
     Q_PRIVATE_SLOT(d_func(), void _q_deactivateAllWindows())
     Q_PRIVATE_SLOT(d_func(), void _q_processWindowStateChanged(Qt::WindowStates, Qt::WindowStates))
