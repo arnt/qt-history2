@@ -96,12 +96,14 @@ protected:
 
 void QAuServerMac::play(const QString &fileName)
 {
+    QMacCocoaAutoReleasePool pool;
     NSSound * const nsSound = createNSSound(fileName, 0);
     [nsSound play];
 }
 
 void QAuServerMac::play(QSound *qSound)
 {
+    QMacCocoaAutoReleasePool pool;
     NSSound * const nsSound = createNSSound(qSound->fileName(), qSound);
     [nsSound play];
     // Keep track of the nsSound object so we can find it again in stop().
@@ -118,7 +120,7 @@ void QAuServerMac::stop(QSound *qSound)
 // Creates an NSSound object and installs a "sound finished" callack delegate on it.
 NSSound *QAuServerMac::createNSSound(const QString &fileName, QSound *qSound)
 {
-    NSString *nsFileName = reinterpret_cast<const NSString *>(QCFString::toCFStringRef(fileName));
+    NSString *nsFileName = const_cast<NSString *>(reinterpret_cast<const NSString *>(QCFString::toCFStringRef(fileName)));
     NSSound * const nsSound = [[NSSound alloc] initWithContentsOfFile: nsFileName byReference:YES];
     QMacSoundDelegate * const delegate = [[QMacSoundDelegate alloc] initWithQSound:qSound:this];
     [nsSound setDelegate:delegate];
