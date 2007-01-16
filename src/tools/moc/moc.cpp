@@ -68,7 +68,8 @@ bool Moc::parseClassHead(ClassDef *def)
     // support "class IDENT name" and "class IDENT(IDENT) name"
     if (test(LPAREN)) {
         until(RPAREN);
-        next(IDENTIFIER);
+        if (!test(IDENTIFIER))
+            return false;
         name = lexem();
     } else  if (test(IDENTIFIER)) {
         name = lexem();
