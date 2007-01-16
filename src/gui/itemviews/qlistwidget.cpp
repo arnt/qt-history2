@@ -639,7 +639,7 @@ void QListWidgetItem::setData(int role, const QVariant &value)
 
 /*!
    This function returns the item's data for a given \a role (see
-   {Qt::ItemDataRole}). Reimplement this function if you need
+   Qt::ItemDataRole). Reimplement this function if you need
    extra roles or special behavior for certain roles.
 */
 QVariant QListWidgetItem::data(int role) const
