@@ -175,7 +175,6 @@ static inline ControlElement<T> *ptr(QWidget *widget)
     return qobject_cast<ControlElement<T> *>(widget);
 }
 
-// ### This should probably be smarter
 static inline QString originalWindowTitle(QMdiSubWindow *mdiChild)
 {
     Q_ASSERT(mdiChild);
@@ -892,7 +891,7 @@ void QMdiSubWindowPrivate::setMinimizeMode()
     Q_ASSERT(!(q->windowState() & Qt::WindowMaximized));
     Q_ASSERT(baseWidget ? baseWidget->isHidden() : true);
 
-    setActive(true); // ### This behavior seems strange to me
+    setActive(true);
 }
 
 /*!
@@ -923,7 +922,7 @@ void QMdiSubWindowPrivate::setNormalMode()
     Q_ASSERT(!(q_func()->windowState() & (Qt::WindowMinimized | Qt::WindowMaximized)));
     Q_ASSERT(!isShadeMode);
 
-    setActive(true); // ### This behavior seems strange to me
+    setActive(true);
 }
 
 /*!
@@ -1273,8 +1272,7 @@ bool QMdiSubWindowPrivate::drawTitleBarWhenMaximized() const
     if (q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q))
         return true;
     QMainWindow *mainWindow = qobject_cast<QMainWindow *>(q->window());
-    if (!mainWindow || !mainWindow->menuWidget()
-            || !mainWindow->menuWidget()->isVisible())
+    if (!mainWindow || !mainWindow->menuWidget() || !mainWindow->menuWidget()->isVisible())
         return true;
     return isChildOfQMdiSubWindow(q);
 #endif
@@ -1481,10 +1479,7 @@ void QMdiSubWindowPrivate::setFocusWidget()
 
 /*!
     \internal
-
-    // ### Try to find another solution for this.  setWindowFlags is not
-    // virtual. The Window Flags Example, however, reimplements setWindowFlags
-    // #$%. Won't work for QWidget *w = new QMdiSubWindow; w->setWindowFlags()
+    ### Please add QEvent::WindowFlagsChange event
 */
 void QMdiSubWindowPrivate::setWindowFlags(Qt::WindowFlags windowFlags)
 {
@@ -1540,10 +1535,6 @@ QMdiSubWindow::QMdiSubWindow(QWidget *parent, Qt::WindowFlags flags)
     setBackgroundRole(QPalette::Window);
     setAutoFillBackground(true);
     setMouseTracking(true);
-    // ...or something similar :-) ###
-    setWhatsThis(tr("This is a specialized QWidget which you can use to easily switch "
-                     "between SDI and MDI modus. In MDI modus it draws its own window frame "
-                     "and title bar, depending on the current window flags set."));
     setLayout(new QVBoxLayout);
     setFocusPolicy(Qt::ClickFocus);
     layout()->setMargin(0);
@@ -1656,8 +1647,7 @@ QSize QMdiSubWindow::iconSize() const
 {
     if (!parent() || windowFlags() & Qt::FramelessWindowHint)
         return QSize(-1, -1);
-    return QSize(style()->pixelMetric(QStyle::PM_MDIMinimizedWidth),
-                 d_func()->titleBarHeight());
+    return QSize(style()->pixelMetric(QStyle::PM_MDIMinimizedWidth), d_func()->titleBarHeight());
 }
 
 /*!
@@ -1808,7 +1798,6 @@ bool QMdiSubWindow::eventFilter(QObject *object, QEvent *event)
     switch (event->type()) {
     case QEvent::Show:
         d->updateGeometryConstraints();
-        // ### This behavior seems strange to me
         d->setActive(true);
         break;
     case QEvent::ShowToParent:
@@ -1817,7 +1806,6 @@ bool QMdiSubWindow::eventFilter(QObject *object, QEvent *event)
     case QEvent::Hide:
         d->updateGeometryConstraints();
         break;
-    // ### This behavior seems strange to me
     case QEvent::WindowStateChange: {
         QWindowStateChangeEvent *changeEvent = static_cast<QWindowStateChangeEvent*>(event);
         if (changeEvent->isOverride())
@@ -1836,7 +1824,6 @@ bool QMdiSubWindow::eventFilter(QObject *object, QEvent *event)
         d->currentOperation = QMdiSubWindowPrivate::None;
         d->updateCursor();
         break;
-    // ### This behavior seems strange to me
     case QEvent::Close:
         if (d->baseWidget->testAttribute(Qt::WA_DeleteOnClose))
             d->removeBaseWidget();
@@ -1850,11 +1837,13 @@ bool QMdiSubWindow::eventFilter(QObject *object, QEvent *event)
             break;
         }
         if (!isMaximized() || !d->controlContainer || !d->controlContainer->menuBar()
-                || !maximizedButtonsWidget())
+                || !maximizedButtonsWidget()) {
             break;
+        }
         if (d->controlContainer->menuBar()->cornerWidget(Qt::TopRightCorner)
-                == maximizedButtonsWidget())
+                == maximizedButtonsWidget()) {
             d->updateWindowTitle();
+        }
         break;
     case QEvent::ModifiedChange:
         if (isMaximized() && !d->drawTitleBarWhenMaximized())

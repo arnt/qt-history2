@@ -396,9 +396,10 @@ QPoint MinOverlapPlacer::place(const QSize &size, const QList<QRect> &rects,
 {
     if (size.isEmpty() || !domain.isValid())
         return QPoint();
-    foreach (QRect rect, rects)
+    foreach (QRect rect, rects) {
         if (!rect.isValid())
             return QPoint();
+    }
 
     QList<QRect> candidates;
     getCandidatePlacements(size, rects, domain, candidates);
@@ -443,7 +444,7 @@ void QMdiAreaPrivate::_q_deactivateAllWindows()
 }
 
 void QMdiAreaPrivate::_q_processWindowStateChanged(Qt::WindowStates oldState,
-                                                      Qt::WindowStates newState)
+                                                   Qt::WindowStates newState)
 {
     Q_Q(QMdiArea);
     QMdiSubWindow *child = qobject_cast<QMdiSubWindow *>(q->sender());
@@ -939,7 +940,7 @@ void QMdiArea::activatePreviousSubWindow()
         return;
 
     int index = d->indexToPreviousWindow >= 0 ? d->indexToPreviousWindow
-                                                : d->childWindows.size() - 1;
+                                              : d->childWindows.size() - 1;
     Q_ASSERT(index >= 0 && index < d->childWindows.size());
     if (!sanityCheck(d->childWindows.at(index), "QMdiArea::activatePreviousSubWindow"))
         return;
@@ -983,7 +984,6 @@ QMdiSubWindow *QMdiArea::addSubWindow(QWidget *widget, Qt::WindowFlags windowFla
     QMdiSubWindow *child = new QMdiSubWindow(this, windowFlags);
     child->setAttribute(Qt::WA_DeleteOnClose);
     child->setWidget(widget);
-    widget->setAutoFillBackground(true); // ### strange
     Q_ASSERT(child->testAttribute(Qt::WA_DeleteOnClose));
 
     return child;
