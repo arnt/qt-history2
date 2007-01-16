@@ -502,17 +502,28 @@ qint64 QFSFileEnginePrivate::readFdFh(char *data, qint64 len)
     if (fh) {
         qint64 readBytes = 0;
         qint64 read = 0;
+        int retry = 0;
 
         // Read in blocks of 4k to avoid platform limitations (Windows
         // commonly bails out if you read or write too large blocks at once).
+        qint64 bytesToRead;
         do {
-            qint64 bytesToRead = qMin<qint64>(4096, len - read);
+            if (retry == 1)
+                retry = 2;
+
+            bytesToRead = qMin<qint64>(4096, len - read);
             do {
                 readBytes = fread(data + read, 1, size_t(bytesToRead), fh);
             } while (readBytes == 0 && !feof(fh) && errno == EINTR);
-            if (readBytes > 0)
+
+            if (readBytes > 0) {
                 read += readBytes;
-        } while (readBytes > 0 && read < len);
+            } else if (!retry && feof(fh)) {
+                // Synchronize and try again (just once though).
+                if (++retry == 1)
+                    fseek(fh, ftell(fh), SEEK_SET);
+            }
+        } while (retry == 1 || (readBytes == bytesToRead && read < len));
 
         // Return the number of bytes read, or if nothing was read, return -1
         // if an error occurred, or 0 if we detected EOF.
