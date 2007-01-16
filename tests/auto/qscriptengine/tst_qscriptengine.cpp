@@ -181,13 +181,29 @@ void tst_QScriptEngine::createRegExp()
 void tst_QScriptEngine::createDate()
 {
     QScriptEngine eng;
-    QScriptValue date = eng.newDate(0);
-    QCOMPARE(date.isValid(), true);
-    QCOMPARE(date.isDate(), true);
-    QCOMPARE(date.isObject(), true);
-    // prototype should be Date.prototype
-    QCOMPARE(date.prototype().isValid(), true);
-    QCOMPARE(date.prototype().isDate(), true);
+
+    {
+        QScriptValue date = eng.newDate(0);
+        QCOMPARE(date.isValid(), true);
+        QCOMPARE(date.isDate(), true);
+        QCOMPARE(date.isObject(), true);
+        // prototype should be Date.prototype
+        QCOMPARE(date.prototype().isValid(), true);
+        QCOMPARE(date.prototype().isDate(), true);
+    }
+
+    {
+        QDateTime dt = QDateTime(QDate(1, 2, 3), QTime(4, 5, 6, 7));
+        QScriptValue date = eng.newDate(dt);
+        QCOMPARE(date.isValid(), true);
+        QCOMPARE(date.isDate(), true);
+        QCOMPARE(date.isObject(), true);
+        // prototype should be Date.prototype
+        QCOMPARE(date.prototype().isValid(), true);
+        QCOMPARE(date.prototype().isDate(), true);
+
+        QCOMPARE(date.toDateTime(), dt);
+    }
 }
 
 void tst_QScriptEngine::createQObject()

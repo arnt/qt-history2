@@ -479,6 +479,17 @@ QScriptValue QScriptEngine::newDate(qnumber value)
     return v;
 }
 
+/*!
+  Creates a QScriptValue object of class Date from the given
+  \a value.
+*/
+QScriptValue QScriptEngine::newDate(const QDateTime &value)
+{
+    QScriptValue v;
+    d_func()->dateConstructor->newDate(&v, value);
+    return v;
+}
+
 #ifndef QT_NO_QOBJECT
 /*!
   Creates a QScriptValue that represents a QObject class, using the

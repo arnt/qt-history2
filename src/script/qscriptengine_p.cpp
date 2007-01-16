@@ -35,6 +35,8 @@
 #include "qscriptextvariant_p.h"
 #include "qscriptextqobject_p.h"
 
+#include <QtCore/QDate>
+#include <QtCore/QDateTime>
 #include <QtCore/QStringList>
 
 Q_DECLARE_METATYPE(QScriptValue)
@@ -708,6 +710,11 @@ QScriptValue QScriptEnginePrivate::toPrimitive_helper(const QScriptValue &object
     return object;
 }
 
+QDateTime QScriptEnginePrivate::toDateTime(const QScriptValue &value)
+{
+    return dateConstructor->toDateTime(value);
+}
+
 void QScriptEnginePrivate::rehashStringRepository(bool resize)
 {
     if (resize) {
@@ -1010,6 +1017,14 @@ QScriptValue QScriptEnginePrivate::create(int type, const void *ptr)
         case QMetaType::QStringList:
             result = arrayFromStringList(*reinterpret_cast<const QStringList *>(ptr));
             break;
+        case QMetaType::QDateTime: {
+            QDateTime dateTime = *reinterpret_cast<const QDateTime *>(ptr);
+            dateConstructor->newDate(&result, dateTime);
+        } break;
+        case QMetaType::QDate: {
+            QDate date = *reinterpret_cast<const QDate *>(ptr);
+            dateConstructor->newDate(&result, date);
+        } break;
 #ifndef QT_NO_QOBJECT
         case QMetaType::QObjectStar:
         case QMetaType::QWidgetStar:
@@ -1056,6 +1071,12 @@ bool QScriptEnginePrivate::convert(const QScriptValue &value,
         return true;
     case QMetaType::Float:
         *reinterpret_cast<float*>(ptr) = value.toNumber();
+        return true;
+    case QMetaType::QDateTime:
+        *reinterpret_cast<QDateTime *>(ptr) = value.toDateTime();
+        return true;
+    case QMetaType::QDate:
+        *reinterpret_cast<QDate *>(ptr) = value.toDateTime().date();
         return true;
 #ifndef QT_NO_QOBJECT
     case QMetaType::QObjectStar:

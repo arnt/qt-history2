@@ -23,6 +23,8 @@
 #include "qscriptecmaregexp_p.h"
 #include "qscriptecmadate_p.h"
 
+#include <QtCore/QDateTime>
+
 /*!
   \since 4.3
   \class QScriptValue
@@ -495,6 +497,21 @@ QScriptValue QScriptValue::toObject() const
     if (!isValid())
         return QScriptValue();
     return QScriptEnginePrivate::get(engine())->toObject(*this);
+}
+
+/*!
+  Returns the QDateTime representation of this value.
+  If this QScriptValue is not a date, or the value of the
+  date is NaN (Not-a-Number), an invalid QDateTime is
+  returned.
+
+  \sa isDate()
+*/
+QDateTime QScriptValue::toDateTime() const
+{
+    if (!isDate())
+        return QDateTime();
+    return QScriptEnginePrivate::get(engine())->toDateTime(*this);
 }
 
 /*!

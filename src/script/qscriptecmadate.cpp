@@ -515,6 +515,43 @@ void Date::newDate(QScriptValue *result, qnumber t)
     result->impl()->setInternalValue(engine()->scriptValue(t));
 }
 
+void Date::newDate(QScriptValue *result, const QDateTime &dt)
+{
+    QDate date = dt.date();
+    QTime taim = dt.time();
+    int year = date.year();
+    int month = date.month() - 1;
+    int day = date.day();
+    int hours = taim.hour();
+    int mins = taim.minute();
+    int secs = taim.second();
+    int ms = taim.msec();
+    double t = MakeDate(MakeDay(year, month, day),
+                        MakeTime(hours, mins, secs, ms));
+    newDate(result, t);
+}
+
+void Date::newDate(QScriptValue *result, const QDate &d)
+{
+    newDate(result, QDateTime(d));
+}
+
+QDateTime Date::toDateTime(const QScriptValue &date)
+{
+    Q_ASSERT(date.impl()->classInfo() == m_classInfo);
+    qnumber t = date.impl()->internalValue().toNumber();
+    if (qIsNan(t))
+        return QDateTime();
+    int year = int(YearFromTime(t));
+    int month = int(MonthFromTime(t) + 1);
+    int day = int(DateFromTime(t));
+    int hours = HourFromTime(t);
+    int mins = MinFromTime(t);
+    int secs = SecFromTime(t);
+    int ms = msFromTime(t);
+    return QDateTime(QDate(year, month, day), QTime(hours, mins, secs, ms));
+}
+
 QScriptValue Date::method_parse(QScriptEngine *eng, QScriptClassInfo *)
 {
     QScriptContext *context = eng->currentContext();

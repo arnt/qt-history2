@@ -26,6 +26,8 @@
 //
 
 #include "qscriptecmacore_p.h"
+class QDate;
+class QDateTime;
 
 namespace QScript { namespace Ecma {
 
@@ -40,6 +42,10 @@ public:
     virtual void execute(QScriptContext *context);
 
     void newDate(QScriptValue *result, double t);
+    void newDate(QScriptValue *result, const QDateTime &dt);
+    void newDate(QScriptValue *result, const QDate &d);
+
+    QDateTime toDateTime(const QScriptValue &date);
 
 protected:
     static QScriptValue method_MakeTime(QScriptEngine *eng,

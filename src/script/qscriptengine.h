@@ -30,6 +30,7 @@ QT_BEGIN_HEADER
 
 QT_MODULE(Script)
 
+class QDateTime;
 class QScriptEnginePrivate;
 class QScriptNameIdImpl;
 
@@ -127,6 +128,7 @@ public:
     QScriptValue newArray(uint length = 0);
     QScriptValue newRegExp(const QString &pattern, const QString &flags);
     QScriptValue newDate(qnumber value);
+    QScriptValue newDate(const QDateTime &value);
 
     QScriptValue defaultPrototype(int metaTypeId) const;
     void setDefaultPrototype(int metaTypeId, const QScriptValue &prototype);

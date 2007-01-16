@@ -363,6 +363,8 @@ public:
     inline static quint32 toUint32(qnumber n);
     inline static quint16 toUint16(qnumber n);
 
+    QDateTime toDateTime(const QScriptValue &value);
+
     inline void newArray(QScriptValue *object, const QScript::Array &value)
     { arrayConstructor->newArray(object, value); }
 

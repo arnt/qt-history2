@@ -29,6 +29,7 @@ class QScriptNameId;
 class QScriptClassInfo;
 class QVariant;
 class QObject;
+class QDateTime;
 
 typedef QList<QScriptValue> QScriptValueList;
 
@@ -102,6 +103,7 @@ public:
     QVariant toVariant() const;
     QObject *toQObject() const;
     QScriptValue toObject() const;
+    QDateTime toDateTime() const;
     QScriptValue toPrimitive(TypeHint hint = NoTypeHint) const;
 
     void setVariantValue(const QVariant &v);
