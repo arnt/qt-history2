@@ -11,12 +11,11 @@
 --
 ----------------------------------------------------------------------------
 
-%parser QScriptGrammar
-
-%expect         3
-%expect-rr      1
+%parser         QScriptGrammar
 %decl           qscriptparser_p.h
 %impl           qscriptparser.cpp
+%expect         3
+%expect-rr      1
 
 %token T_AND "&"                T_AND_AND "&&"              T_AND_EQ "&="
 %token T_BREAK "break"          T_CASE "case"               T_CATCH "catch"
@@ -73,7 +72,9 @@
 #include "qscriptast_p.h"
 #include "qscriptnodepool_p.h"
 
-#define Q_SCRIPT_UPDATE_POSITION(node) do { node->startLine = location_stack [tos + 1]; } while (0)
+#define Q_SCRIPT_UPDATE_POSITION(node) do {         \
+    node->startLine = location_stack [tos];         \
+} while (0)
 
 ./
 
@@ -186,7 +187,9 @@ inline void QScriptParser::reallocateStack()
 
 inline static bool automatic(QScriptEnginePrivate *driver, int token)
 {
-    return token == $table::T_RBRACE || token == 0 || driver->lexer ()->prevTerminator();
+    return token == $table::T_RBRACE
+        || token == 0
+        || driver->lexer()->prevTerminator();
 }
 
 
@@ -227,7 +230,10 @@ bool QScriptParser::parse(QScriptEnginePrivate *driver)
       if (yytoken == -1 && - TERMINAL_COUNT != action_index [state])
         {
           if (saved_yytoken == -1)
-            yytoken = lexer->lex();
+            {
+              yytoken = lexer->lex();
+              location_stack [tos] = lexer->lineNo();
+            }
           else
             {
               yytoken = saved_yytoken;
@@ -257,6 +263,7 @@ bool QScriptParser::parse(QScriptEnginePrivate *driver)
 
           tos -= rhs [r];
           act = state_stack [tos++];
+          location_stack [tos] = location_stack [tos - 1];
 
           switch (r) {
 ./
@@ -1701,11 +1708,13 @@ PropertyNameAndValueListOpt: PropertyNameAndValueList ;
         {
           if (saved_yytoken == -1 && automatic (driver, yytoken) && t_action (state, T_AUTOMATIC_SEMICOLON) > 0)
             {
+              if (lexer->prevTerminator())
+                --location_stack[tos];
+
               saved_yytoken = yytoken;
               yytoken = T_SEMICOLON;
               continue;
             }
-
 
           int ers = state;
           int shifts = 0;

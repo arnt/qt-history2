@@ -40,7 +40,7 @@ bool SyntaxChecker::parse(const QString &code)
 {
   const int INITIAL_STATE = 0;
   QScript::Lexer lexer (/*engine=*/ 0);
-  lexer.setCode(code); // ### set the lineno
+  lexer.setCode(code, /*lineNo*/ 0);
 
   int yytoken = -1;
   int saved_yytoken = -1;

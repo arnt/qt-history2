@@ -282,9 +282,10 @@ void tst_QScriptEngine::evaluate_data()
     QTest::addColumn<bool>("expectHadError");
     QTest::addColumn<int>("expectErrorLineNumber");
 
-    QTest::newRow("0") << QString("0") << false << 0;
-    QTest::newRow("0=1") << QString("\n0=1\n") << true << 2;
-    QTest::newRow("a=1") << QString("a=1\n") << false << 0;
+    QTest::newRow("0")      << QString("0")             << false        << 0;
+    QTest::newRow("0=1")    << QString("\n0=1\n")       << true         << 1;
+    QTest::newRow("a=1")    << QString("a=1\n")         << false        << 0;
+    QTest::newRow("a=1;K")  << QString("a=1;\nK")       << true         << 1;
 }
 
 void tst_QScriptEngine::evaluate()
@@ -296,8 +297,6 @@ void tst_QScriptEngine::evaluate()
     QScriptEngine eng;
     (void)eng.evaluate(code);
     QCOMPARE(eng.uncaughtException(), expectHadError);
-    if (expectHadError)
-        QEXPECT_FAIL("", "linenumber is off by one", Continue);
     QCOMPARE(eng.uncaughtExceptionLineNumber(), expectErrorLineNumber);
 }
 

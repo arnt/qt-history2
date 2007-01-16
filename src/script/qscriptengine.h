@@ -36,27 +36,27 @@ class QScriptNameIdImpl;
 
 class Q_SCRIPT_EXPORT QScriptNameId
 {
-public:
-    inline QScriptNameId()
-        : m_id(0) { }
-    inline QScriptNameId(const QScriptNameId &other)
-        : m_id(other.m_id) { }
-    inline ~QScriptNameId()
-        { m_id = 0; }
-
-    inline bool isValid()
-        { return (m_id != 0); }
-    inline bool operator==(const QScriptNameId &other) const
-        { return m_id == other.m_id; }
-    inline bool operator!=(const QScriptNameId &other) const
-        { return !(*this == other); }
-    inline operator QScriptNameIdImpl*() const
-        { return m_id; }
-private:
-    inline QScriptNameId(QScriptNameIdImpl *id)
-        : m_id(id) { }
-    QScriptNameIdImpl *m_id;
     friend class QScriptEnginePrivate;
+
+public:
+    inline QScriptNameId():
+        m_id(0) {}
+
+    inline QScriptNameId(const QScriptNameId &other):
+        m_id(other.m_id) {}
+
+    inline ~QScriptNameId()                                     { m_id = 0; }
+
+    inline bool isValid() const                                 { return (m_id != 0); }
+    inline bool operator==(const QScriptNameId &other) const    { return m_id == other.m_id; }
+    inline bool operator!=(const QScriptNameId &other) const    { return !(*this == other); }
+
+    inline operator QScriptNameIdImpl*() const                  { return m_id; }
+
+private:
+    inline QScriptNameId(QScriptNameIdImpl *id) : m_id(id) {}
+
+    QScriptNameIdImpl *m_id;
 };
 
 #ifndef QT_NO_QOBJECT
@@ -97,7 +97,9 @@ public:
     QScriptContext *currentContext() const;
 
     bool canEvaluate(const QString &program) const;
+
     QScriptValue evaluate(const QString &program);
+    QScriptValue evaluate(const QString &program, int lineNumber);
 
     bool uncaughtException() const;
     int uncaughtExceptionLineNumber() const;
@@ -114,11 +116,8 @@ public:
 #ifndef QT_NO_CAST_FROM_ASCII
     QT_ASCII_CAST_WARN QScriptValue scriptValue(const char *value);
 #endif
-    QScriptValue scriptValue(QScriptFunctionSignature signature,
-                             int length = 0);
-    QScriptValue scriptValue(QScriptFunctionSignature signature,
-                             QScriptValue &prototype,
-                             int length = 0);
+    QScriptValue scriptValue(QScriptFunctionSignature signature, int length = 0);
+    QScriptValue scriptValue(QScriptFunctionSignature signature, QScriptValue &prototype, int length = 0);
 #ifndef QT_NO_REGEXP
     QScriptValue scriptValue(const QRegExp &regexp);
 #endif
@@ -185,7 +184,7 @@ protected:
 #else
     QScriptEngine(QScriptEnginePrivate &dd, QObject *parent = 0);
 #endif
- 
+
 #ifdef QT_NO_QOBJECT
     QScriptEnginePrivate *d_ptr;
 #endif

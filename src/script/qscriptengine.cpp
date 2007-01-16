@@ -565,13 +565,26 @@ bool QScriptEngine::canEvaluate(const QString &program) const
 
   \sa canEvaluate(), uncaughtException()
 */
-QScriptValue QScriptEngine::evaluate(const QString &program)
+QScriptValue QScriptEngine::evaluate(const QString &program, int lineNumber)
 {
-    // ### use lineno
     QScriptEnginePrivate *eng_p = d_func();
     QScriptContext *ctx = eng_p->context();
-    eng_p->evaluate(ctx, program);
+    eng_p->evaluate(ctx, program, lineNumber);
     return QScriptContextPrivate::get(ctx)->result;
+}
+
+/*!
+  Evaluates \a program and returns the result of the evaluation.
+
+  The script code will be evaluated in the current context.
+
+  \sa canEvaluate(), uncaughtException()
+*/
+QScriptValue QScriptEngine::evaluate(const QString &program)
+{
+    QScriptEnginePrivate *eng_p = d_func();
+    QScriptContextPrivate *ctx = QScriptContextPrivate::get(eng_p->context());
+    return evaluate(program, ctx->currentLine);
 }
 
 /*!

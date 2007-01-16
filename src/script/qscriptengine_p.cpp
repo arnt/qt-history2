@@ -55,20 +55,19 @@ public:
 
     virtual ~EvalFunction() {}
 
-    void evaluate(QScriptContext *context, QString contents,
-                  bool calledFromScript)
+    void evaluate(QScriptContext *context, QString contents, int lineNo, bool calledFromScript)
     {
-        if (! contents.endsWith(QLatin1Char('\n')))
-            contents += QLatin1Char('\n'); // ### kill me
+         if (! contents.endsWith(QLatin1Char('\n')))
+             contents += QLatin1Char('\n'); // ### kill me
 
-        QScript::AST::Node *program = m_driver->createAbstractSyntaxTree(contents);
+        QScript::AST::Node *program = m_driver->createAbstractSyntaxTree(contents, lineNo);
 
         if (! program) {
             context->throwError(QScriptContext::SyntaxError, m_driver->errorMessage());
             return;
         }
 
-        QScript:: CompilationUnit compilation = m_compiler.compile(program);
+        QScript::CompilationUnit compilation = m_compiler.compile(program);
         if (! compilation.isValid()) {
             context->throwError(compilation.errorMessage());
             return;
@@ -91,6 +90,7 @@ public:
     virtual void execute(QScriptContext *context)
     {
         QScriptEngine *eng = context->engine();
+        int lineNo = QScriptContextPrivate::get(context)->currentLine;
 
         if (context->argumentCount() == 0) {
             context->setReturnValue(eng->undefinedScriptValue());
@@ -98,7 +98,7 @@ public:
             QScriptValue arg = context->argument(0);
             if (arg.isString()) {
                 QString contents = arg.toString();
-                evaluate(context, contents, /*calledFromScript=*/true);
+                evaluate(context, contents, lineNo, /*calledFromScript=*/true);
             } else {
                 context->setReturnValue(arg);
             }
@@ -520,11 +520,11 @@ void QScriptEnginePrivate::maybeGC_helper(bool do_string_gc)
     m_oldTempStringRepositorySize = m_tempStringRepository.size();
 }
 
-void QScriptEnginePrivate::evaluate(QScriptContext *context, const QString &contents)
+void QScriptEnginePrivate::evaluate(QScriptContext *context, const QString &contents, int lineNumber)
 {
     // ### try to remove cast
-    static_cast<QScript::EvalFunction*>(m_evalFunction)->evaluate(context, contents,
-                                                                  /*calledFromScript=*/false);
+    QScript::EvalFunction *evalFunction = static_cast<QScript::EvalFunction*>(m_evalFunction);
+    evalFunction->evaluate(context, contents, lineNumber, /*calledFromScript=*/ false);
 }
 
 QScriptFunction *QScriptEnginePrivate::convertToNativeFunction(const QScriptValue &object)

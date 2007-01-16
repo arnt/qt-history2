@@ -173,7 +173,7 @@ public:
     static inline QScriptEnginePrivate *get(QScriptEngine *q)
         { return q->d_func(); }
 
-    QScript::AST::Node *createAbstractSyntaxTree(const QString &source, int lineNumber = 0);
+    QScript::AST::Node *createAbstractSyntaxTree(const QString &source, int lineNumber);
     QScript::AST::Node *changeAbstractSyntaxTree(QScript::AST::Node *program);
 
     inline QScript::AST::Node *abstractSyntaxTree() const;
@@ -217,7 +217,7 @@ public:
     QScriptValue createFunction(QScriptFunction *fun);
     QScriptValue newArray(const QScript::Array &value);
 
-    void evaluate(QScriptContext *context, const QString &contents);
+    void evaluate(QScriptContext *context, const QString &contents, int lineNumber);
 
     inline QScript::Code *findCode(QScript::AST::Node *node) const
     { return m_codeCache.value(node); }

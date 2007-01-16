@@ -64,9 +64,9 @@ void Function::execute(QScriptContext *context)
 {
     QScriptEngine *eng = context->engine();
     QScriptEnginePrivate *driver = QScriptEnginePrivate::get(eng);
-
+    int lineNumber = QScriptContextPrivate::get(context)->currentLine;
     QString contents = buildFunction(context);
-    driver->evaluate(context, contents);
+    driver->evaluate(context, contents, lineNumber);
 }
 
 QString Function::buildFunction(QScriptContext *context)
@@ -209,7 +209,7 @@ QScriptValue Function::method_disconnect(QScriptEngine *eng, QScriptClassInfo *)
             slot = arg1;
         }
     }
-    
+
     QScriptFunction *otherFun = slot.impl()->toFunction();
     if (otherFun == 0)
         return context->throwError(QScriptContext::TypeError,
@@ -219,7 +219,7 @@ QScriptValue Function::method_disconnect(QScriptEngine *eng, QScriptClassInfo *)
 
     QMetaMethod sig = qtSignal->metaObject()->method(qtSignal->initialIndex());
     if (sig.methodType() != QMetaMethod::Signal) {
-        return context->throwError(QScriptContext::TypeError, 
+        return context->throwError(QScriptContext::TypeError,
             QString::fromUtf8("Function.prototype.disconnect: %0::%1 is not a signal")
             .arg(QLatin1String(qtSignal->metaObject()->className()))
             .arg(QLatin1String(sig.signature())));
@@ -283,7 +283,7 @@ QScriptValue Function::method_connect(QScriptEngine *eng, QScriptClassInfo *clas
 
     QMetaMethod sig = qtSignal->metaObject()->method(qtSignal->initialIndex());
     if (sig.methodType() != QMetaMethod::Signal) {
-        return context->throwError(QScriptContext::TypeError, 
+        return context->throwError(QScriptContext::TypeError,
             QString::fromUtf8("Function.prototype.connect: %0::%1 is not a signal")
             .arg(QLatin1String(qtSignal->metaObject()->className()))
             .arg(QLatin1String(sig.signature())));

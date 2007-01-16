@@ -32,7 +32,7 @@ static void interactive(QScriptEngine &eng)
     const char *prompt = qscript_prompt;
 
     QString code;
-    int lineno = 0;
+    int lineno = 1;
 
     forever {
         QString line;
@@ -47,23 +47,30 @@ static void interactive(QScriptEngine &eng)
         code += line;
         code += QLatin1Char('\n');
 
-        if (line.trimmed().isEmpty())
+        if (line.trimmed().isEmpty()) {
+            ++lineno;
             continue;
+        }
 
         else if (! eng.canEvaluate(code))
             prompt = dot_prompt;
 
         else {
-            QScriptValue result = eng.evaluate(code);
+            QScriptValue result = eng.evaluate(code, lineno);
+            ++lineno;
 
             code.clear();
             prompt = qscript_prompt;
 
-            if (! result.isUndefined())
-                printf("%s\n", qPrintable(result.toString()));
+            if (! result.isUndefined()) {
+                if (eng.uncaughtException()) {
+                    int line = eng.uncaughtExceptionLineNumber();
+                    fprintf(stderr, "%d: %s\n", line, qPrintable(result.toString()));
+                } else {
+                    fprintf(stderr, "%s\n", qPrintable(result.toString()));
+                }
+            }
         }
-
-        ++lineno;
     }
 }
 
@@ -112,7 +119,7 @@ int main(int, char *argv[])
         QScriptValue r = eng.evaluate(contents);
         if (eng.uncaughtException()) {
             int line = eng.uncaughtExceptionLineNumber();
-            fprintf (stderr, "*** %d: %s\n\t%s\n\n", line, qPrintable(fn), qPrintable(r.toString()));
+            fprintf (stderr, "%d: %s\n\t%s\n\n", line, qPrintable(fn), qPrintable(r.toString()));
             return EXIT_FAILURE;
         }
     }

@@ -1142,7 +1142,8 @@ bool Compiler::visit(AST::LabelledStatement *node)
 
 bool Compiler::visit(AST::ExpressionStatement *node)
 {
-    iLine(node);
+    if (node->expression)
+        iLine(node->expression);
     return true;
 }
 

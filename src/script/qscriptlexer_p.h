@@ -39,10 +39,10 @@ public:
     Lexer(QScriptEngine *eng);
     ~Lexer();
 
-    void setCode(const QString &c, int lineno=0);
+    void setCode(const QString &c, int lineno);
     int lex();
 
-    int lineNo() const { return yylineno + 1; }
+    int lineNo() const { return yylineno; }
     bool prevTerminator() const { return terminator; }
 
     enum State { Start,

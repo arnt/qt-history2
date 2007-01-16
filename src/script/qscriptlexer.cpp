@@ -30,7 +30,7 @@
 
 QScript::Lexer::Lexer(QScriptEngine *eng)
     : driver(0),
-      yylineno(1),
+      yylineno(0),
       size8(128), size16(128), restrKeyword(false),
       extraIdentifiers(false),
       stackToken(-1), pos(0),
@@ -54,25 +54,17 @@ QScript::Lexer::~Lexer()
     delete [] buffer16;
 }
 
-/*!
-  Sets the code to be parsed.
-  \a lineno specifies which line which is to be interpreted
-  as line number zero. \a id specifies the unique identification
-  number for this source code unit.
-*/
 void QScript::Lexer::setCode(const QString &c, int lineno)
 {
     errmsg = QString();
-    yylineno = -lineno;
+    yylineno = lineno;
     restrKeyword = false;
     delimited = false;
     stackToken = -1;
     pos = 0;
     code = c.unicode();
     length = c.length();
-#ifndef QTSCRIPT_PURE_ECMA
     bol = true;
-#endif
 
     // read first characters
     current = (length > 0) ? code[0].unicode() : 0;
@@ -533,9 +525,7 @@ int QScript::Lexer::lex()
                 shiftWindowsLineBreak();
                 yylineno++;
                 terminator = true;
-#ifndef QTSCRIPT_PURE_ECMA
                 bol = true;
-#endif
                 if (restrKeyword) {
                     token = ';';
                     setDone(Other);
@@ -693,10 +683,6 @@ int QScript::Lexer::lex()
 
     restrKeyword = false;
     delimited = false;
-#ifdef QSDEBUGGER
-     yylloc.first_line = yylineno; // ???
-     yylloc.last_line = yylineno;
-#endif
 
     switch (state) {
     case Eof:
