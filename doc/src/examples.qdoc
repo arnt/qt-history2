@@ -138,7 +138,7 @@
     \section1 Rich Text Examples
 
     \list
-    \o \l{richtext/calendar}{Calendar}
+    \o \l{richtext/calendar}{Calendar}\raisedaster
     \o \l{richtext/orderform}{Order Form}
     \o \l{richtext/syntaxhighlighter}{Syntax Highlighter}\raisedaster
     \endlist
