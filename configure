@@ -489,7 +489,7 @@ CFG_XINERAMA=auto
 CFG_ZLIB=auto
 CFG_SQLITE=qt
 CFG_GIF=auto
-CFG_TIFF=no
+CFG_TIFF=auto
 CFG_PNG=yes
 CFG_LIBPNG=auto
 CFG_JPEG=auto
@@ -2622,8 +2622,8 @@ Third Party Libraries:
     -qt-gif ............ Compile the plugin for GIF reading support.
                          See also src/plugins/imageformats/gif/qgifhandler.h
 
- *  -no-libtiff ........ Do not compile the plugin for TIFF support.
-    -system-libtiff .... Use libtiff from the operating system.
+    -no-libtiff ........ Do not compile the plugin for TIFF support.
+ +  -system-libtiff .... Use libtiff from the operating system.
                          See http://www.libtiff.org
 
     -no-libpng ......... Do not compile in PNG support.
@@ -3495,7 +3495,7 @@ if [ "$CFG_GIF" = "auto" ]; then
 fi
 
 # detect tiff
-if [ "$CFG_TIFF" = "system" ]; then
+if [ "$CFG_TIFF" != "no" ]; then
     if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/libtiff "libtiff" $L_FLAGS $I_FLAGS $l_FLAGS; then
         CFG_TIFF=system
     else
