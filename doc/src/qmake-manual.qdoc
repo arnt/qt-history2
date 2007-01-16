@@ -4106,8 +4106,8 @@
     supported.  You should use these in your .pro file to specify
     information about the library.
 
-    When using the \c lib template, the following options determine the type of
-    library that is built:
+    When using the \c lib template, the following options can be added to the
+    \c CONFIG variable to determine the type of library that is built:
 
     \table
     \header \o Option    \o Description
@@ -4123,11 +4123,10 @@
     \target Plugin
     \section1 Building a Plugin
 
-    \section2 The plugin Template
-
-    The \c plugin template tells \c qmake to generate a Makefile that will
-    build a plugin, usually in the form of a library. As with the \c lib template,
-    the \c VERSION variable is supported. You should use this to specify
+    Plugins are built using the \c lib template, as described in the previous
+    section. This tells \c qmake to generate a Makefile for the project that will
+    build a plugin in a suitable form for each platform, usually in the form of a
+    library. As with ordinary libraries, the \c VERSION variable is used to specify
     information about the plugin.
 
     \list
