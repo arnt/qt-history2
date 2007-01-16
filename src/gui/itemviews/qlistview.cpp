@@ -1469,8 +1469,10 @@ void QListView::doItemsLayout()
         d->resetBatchStartRow();
         if (layoutMode() == SinglePass)
             d->doItemsLayout(d->model->rowCount(d->root)); // layout everything
-        else if (!d->batchLayoutTimer.isActive())
-            d->batchLayoutTimer.start(0, this); // do a new batch as fast as possible
+        else if (!d->batchLayoutTimer.isActive()) {
+            if (!d->doItemsLayout(d->batchSize)) // layout is done
+                d->batchLayoutTimer.start(0, this); // do a new batch as fast as possible
+        }
     }
     QAbstractItemView::doItemsLayout();
 }
