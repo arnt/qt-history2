@@ -771,10 +771,12 @@ QFile::copy(const QString &newName)
                 }
                 if (!error) {
                     char block[4096];
+                    qint64 totalRead = 0;
                     while(!atEnd()) {
                         qint64 in = read(block, sizeof(block));
-                        if(in == -1)
+                        if (in <= 0)
                             break;
+                        totalRead += in;
                         if(in != out.write(block, in)) {
                             d->setError(QFile::CopyError, QLatin1String("Failure to write block"));
                             error = true;
@@ -782,6 +784,11 @@ QFile::copy(const QString &newName)
                         }
                     }
 
+                    if (totalRead != size()) {
+                        // Unable to read from the source. The error string is
+                        // already set from read().
+                        error = true;
+                    }
                     if (!error && !out.rename(newName)) {
                         error = true;
                         QString errorMessage = QLatin1String("Cannot create %1 for output");
