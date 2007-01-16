@@ -716,6 +716,8 @@ void tst_QFile::copy()
     QByteArray data1 = in1.readAll(), data2 = in2.readAll();
     QCOMPARE(data1, data2);
     QFile::remove( "main_copy.cpp" );
+
+    QVERIFY(!QFile::copy(QDir::currentPath(), QDir::currentPath() + QLatin1String("/test2")));
 }
 
 void tst_QFile::copyShouldntOverwrite()
