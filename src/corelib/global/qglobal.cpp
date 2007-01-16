@@ -1026,7 +1026,7 @@ bool qSharedBuild()
 
     MS-DOS-based versions:
 
-    \value WV_32s   Windows 3.1 wth Win 32s
+    \value WV_32s   Windows 3.1 with Win 32s
     \value WV_95    Windows 95
     \value WV_98    Windows 98
     \value WV_Me    Windows Me
