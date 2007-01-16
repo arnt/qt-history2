@@ -50,7 +50,6 @@ public:
     bool scrollBarsEnabled() const;
     void setScrollBarsEnabled(bool enable);
 
-    // ### Change?
     QBrush background() const;
     void setBackground(const QBrush &background);
 
@@ -59,9 +58,9 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void setActiveSubWindow(QMdiSubWindow *window);
-    void tile();
-    void cascade();
-    void arrangeIcons();
+    void tileSubWindows();
+    void cascadeSubWindows();
+    void arrangeMinimizedSubWindows();
     void closeActiveSubWindow();
     void closeAllSubWindows();
     void activateNextSubWindow();

@@ -28,7 +28,7 @@ class Q_GUI_EXPORT QMdiSubWindow : public QWidget
     Q_PROPERTY(int keyboardPageStep READ keyboardPageStep WRITE setKeyboardPageStep)
 public:
     enum SubWindowOption {
-        AllowSubWindowsOutsideArea = 0x1,
+        AllowOutsideArea = 0x1,
         TransparentResize = 0x2,
         TransparentMove = 0x4,
     };
@@ -60,7 +60,7 @@ public:
 
 Q_SIGNALS:
     void windowStateChanged(Qt::WindowStates oldState, Qt::WindowStates newState);
-    void aboutToBecomeActive();
+    void aboutToActivate();
 
 public Q_SLOTS:
     void showMenu();

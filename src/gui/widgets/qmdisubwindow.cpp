@@ -38,7 +38,7 @@
     shaded. To enter shaded mode, call showShaded(). QMdiSubWindow emits the
     windowStateChanged() signal whenever the window state has changed (i.e.,
     when the window becomes minimized, or is restored). It also emits
-    aboutToBecomeActive() before it is activated.
+    aboutToActivate() before it is activated.
 
     \sa QWorkspace
 */
@@ -49,7 +49,7 @@
     This enum describes options that you can toggle to customize the behavior
     of QMdiSubWindow.
 
-    \value AllowSubWindowsOutsideArea If you enable this option, QWorkspace
+    \value AllowOutsideArea If you enable this option, QWorkspace
     will allow this window to move outside the workspace area. This option is
     disabled by default.
 
@@ -75,7 +75,7 @@
 */
 
 /*!
-    \fn QMdiSubWindow::aboutToBecomeActive()
+    \fn QMdiSubWindow::aboutToActivate()
 
     QMdiSubWindow emits this signal immediately before it is activated.    
 */
@@ -828,7 +828,7 @@ void QMdiSubWindowPrivate::setNewGeometry(const QPoint &pos)
     int posX = pos.x();
     int posY = pos.y();
 
-    if (!q->testOption(QMdiSubWindow::AllowSubWindowsOutsideArea)) {
+    if (!q->testOption(QMdiSubWindow::AllowOutsideArea)) {
         QRect parentRect = q->parentWidget()->rect();
         if (cflags & VResizeReverse || currentOperation == Move) {
             posY = qMin(qMax(mousePressPosition.y() - oldGeometry.y(), posY),
@@ -977,7 +977,7 @@ void QMdiSubWindowPrivate::setActive(bool activate)
     if (activate && !(q->windowState() & Qt::WindowActive) && q->isEnabled()) {
         Qt::WindowStates oldWindowState = q->windowState();
         ensureWindowState(Qt::WindowActive);
-        emit q->aboutToBecomeActive();
+        emit q->aboutToActivate();
         if (q->isMaximized() && !drawTitleBarWhenMaximized()) {
             if (QMainWindow *mainWindow = qobject_cast<QMainWindow *>(q->window()))
                 showButtonsInMenuBar(mainWindow->menuBar());

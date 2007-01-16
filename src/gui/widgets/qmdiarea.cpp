@@ -64,7 +64,7 @@
     available as part of the \l{Window Menu} Solution.
 
     QMdiArea provides two built-in layout strategies for child
-    windows: cascade() and tile(). Both are slots so you can easily
+    windows: cascadeSubWindows() and tileSubWindows(). Both are slots so you can easily
     connect menu entries to them.
 
     \img qmdiarea-arrange.png
@@ -459,7 +459,7 @@ void QMdiAreaPrivate::_q_processWindowStateChanged(Qt::WindowStates oldState,
 
     // windowMinimized
     if (!(oldState & Qt::WindowMinimized) && (newState & Qt::WindowMinimized))
-        q->arrangeIcons();
+        q->arrangeMinimizedSubWindows();
     // windowMaximized
     else if (!(oldState & Qt::WindowMaximized) && (newState & Qt::WindowMaximized))
         internalRaise(child);
@@ -485,9 +485,9 @@ void QMdiAreaPrivate::appendChild(QMdiSubWindow *child)
     place(MinOverlapPlacer(), child);
 
     if (q->scrollBarsEnabled())
-        child->setOption(QMdiSubWindow::AllowSubWindowsOutsideArea, true);
+        child->setOption(QMdiSubWindow::AllowOutsideArea, true);
     else
-        child->setOption(QMdiSubWindow::AllowSubWindowsOutsideArea, false);
+        child->setOption(QMdiSubWindow::AllowOutsideArea, false);
 
     internalRaise(child);
     indicesToStackedChildren.prepend(childWindows.size() - 1);
@@ -497,7 +497,7 @@ void QMdiAreaPrivate::appendChild(QMdiSubWindow *child)
         child->setWindowFlags(Qt::SubWindow);
     child->installEventFilter(q);
 
-    QObject::connect(child, SIGNAL(aboutToBecomeActive()), q, SLOT(_q_deactivateAllWindows()));
+    QObject::connect(child, SIGNAL(aboutToActivate()), q, SLOT(_q_deactivateAllWindows()));
     QObject::connect(child, SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates)),
                      q, SLOT(_q_processWindowStateChanged(Qt::WindowStates, Qt::WindowStates)));
 }
@@ -1066,7 +1066,7 @@ void QMdiArea::setScrollBarsEnabled(bool enable)
     foreach (QMdiSubWindow *child, d->childWindows) {
         if (!sanityCheck(child, "QMdiArea::setScrollBarsEnabled"))
             continue;
-        child->setOption(QMdiSubWindow::AllowSubWindowsOutsideArea, enable);
+        child->setOption(QMdiSubWindow::AllowOutsideArea, enable);
     }
     d->updateScrollBars();
 }
@@ -1114,7 +1114,7 @@ void QMdiArea::resizeEvent(QResizeEvent *resizeEvent)
         return;
     }
     d->updateScrollBars();
-    arrangeIcons();
+    arrangeMinimizedSubWindows();
 }
 
 /*!
@@ -1182,9 +1182,9 @@ void QMdiArea::scrollContentsBy(int dx, int dy)
 /*!
     Arranges all child windows in a tile pattern.
 
-    \sa cascade(), arrangeIcons()
+    \sa cascadeSubWindows(), arrangeMinimizedSubWindows()
 */
-void QMdiArea::tile()
+void QMdiArea::tileSubWindows()
 {
     d_func()->rearrange(RegularTiler(), false);
 }
@@ -1192,9 +1192,9 @@ void QMdiArea::tile()
 /*!
     Arranges all the child windows in a cascade pattern.
 
-    \sa tile(), arrangeIcons()
+    \sa tileSubWindows(), arrangeMinimizedSubWindows()
 */
-void QMdiArea::cascade()
+void QMdiArea::cascadeSubWindows()
 {
     d_func()->rearrange(SimpleCascader());
 }
@@ -1202,9 +1202,9 @@ void QMdiArea::cascade()
 /*!
     Arranges all iconified windows at the bottom of the workspace.
 
-    \sa cascade(), tile()
+    \sa cascadeSubWindows(), tileSubWindows()
 */
-void QMdiArea::arrangeIcons()
+void QMdiArea::arrangeMinimizedSubWindows()
 {
     if (QMdiSubWindow *child = qobject_cast<QMdiSubWindow *>(sender()))
         child->lower();
