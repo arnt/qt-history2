@@ -60,8 +60,8 @@ private slots:
     void setScrollBarsEnabled();
     void setBackground();
     void setViewport();
-    void tile();
-    void cascadeAndArrangeIcons();
+    void tileSubWindows();
+    void cascadeAndTileSubWindows();
     void resizeMaximizedChildWindows_data();
     void resizeMaximizedChildWindows();
 
@@ -508,7 +508,7 @@ void tst_QMdiArea::fixedSize()
         QCOMPARE(child->size(), fixed);
     }
 
-    ws->cascade();
+    ws->cascadeSubWindows();
     ws->resize(800, 800);
     for (i = 0; i < (int)windows.count(); ++i) {
         QMdiSubWindow *child = windows.at(i);
@@ -516,7 +516,7 @@ void tst_QMdiArea::fixedSize()
     }
     ws->resize(500, 500);
 
-    ws->tile();
+    ws->tileSubWindows();
     ws->resize(800, 800);
     for (i = 0; i < (int)windows.count(); ++i) {
         QMdiSubWindow *child = windows.at(i);
@@ -965,7 +965,7 @@ void tst_QMdiArea::setViewport()
     QVERIFY(!workspace.activeSubWindow());
 }
 
-void tst_QMdiArea::tile()
+void tst_QMdiArea::tileSubWindows()
 {
     QMdiArea workspace;
     workspace.show();
@@ -973,11 +973,11 @@ void tst_QMdiArea::tile()
     const int windowCount = 10;
     for (int i = 0; i < windowCount; ++i)
         workspace.addSubWindow(new QWidget)->show();
-    workspace.tile();
+    workspace.tileSubWindows();
     QCOMPARE(workspace.viewport()->childrenRect(), workspace.viewport()->rect());
 }
 
-void tst_QMdiArea::cascadeAndArrangeIcons()
+void tst_QMdiArea::cascadeAndTileSubWindows()
 {
     QMdiArea workspace;
     workspace.show();
@@ -996,9 +996,9 @@ void tst_QMdiArea::cascadeAndArrangeIcons()
         windows.append(window);
     }
 
-    // Cascade
+    // cascadeSubWindows
     qApp->processEvents();
-    workspace.cascade();
+    workspace.cascadeSubWindows();
     qApp->processEvents();
 
     for (int i = 0; i < windows.count(); ++i) {
@@ -1012,9 +1012,9 @@ void tst_QMdiArea::cascadeAndArrangeIcons()
         }
     }
 
-    // Arrange icons
+    // arrangeSubWindows icons
     qApp->processEvents();
-    workspace.arrangeIcons();
+    workspace.arrangeMinimizedSubWindows();
     qApp->processEvents();
 
     for (int i = 0; i < windows.count(); ++i) {

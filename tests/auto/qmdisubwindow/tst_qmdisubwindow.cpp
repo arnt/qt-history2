@@ -45,7 +45,7 @@ static inline void triggerSignal(QMdiSubWindow *window, QMdiArea *workspace,
         QVERIFY(!window->isMinimized());
         QVERIFY(!window->isMaximized());
         QVERIFY(!window->isShaded());
-    } else if (signal == SIGNAL(aboutToBecomeActive())) {
+    } else if (signal == SIGNAL(aboutToActivate())) {
         if (window->parent()) {
             workspace->setActiveSubWindow(window);
             qApp->processEvents();
@@ -360,7 +360,7 @@ void tst_QMdiSubWindow::emittingOfSignals_data()
     QTest::newRow("windowMaximized") << QByteArray(SIGNAL(windowMaximized())) << Qt::WindowMaximized;
     QTest::newRow("windowMinimized") << QByteArray(SIGNAL(windowMinimized())) << Qt::WindowMinimized;
     QTest::newRow("windowRestored") << QByteArray(SIGNAL(windowRestored())) << Qt::WindowNoState;
-    QTest::newRow("aboutToBecomeActive") << QByteArray(SIGNAL(aboutToBecomeActive())) << Qt::WindowNoState;
+    QTest::newRow("aboutToActivate") << QByteArray(SIGNAL(aboutToActivate())) << Qt::WindowNoState;
     QTest::newRow("windowActivated") << QByteArray(SIGNAL(windowActivated())) << Qt::WindowActive;
     QTest::newRow("windowDeactivated") << QByteArray(SIGNAL(windowDeactivated())) << Qt::WindowActive;
 }
@@ -379,7 +379,7 @@ void tst_QMdiSubWindow::emittingOfSignals()
     workspace.setActiveSubWindow(0);
     qApp->processEvents();
 
-    QSignalSpy spy(window, signal == SIGNAL(aboutToBecomeActive())
+    QSignalSpy spy(window, signal == SIGNAL(aboutToActivate())
                            ? signal.data()
                            : SIGNAL(windowStateChanged(Qt::WindowStates, Qt::WindowStates)));
     QVERIFY(spy.isEmpty());
@@ -390,7 +390,7 @@ void tst_QMdiSubWindow::emittingOfSignals()
         triggerSignal(window, &workspace, signal);
 
     int count = 0;
-    if (signal == SIGNAL(aboutToBecomeActive())) {
+    if (signal == SIGNAL(aboutToActivate())) {
         count += spy.count();
     } else {
         for (int i = 0; i < spy.count(); ++i) {
