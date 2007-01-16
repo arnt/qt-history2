@@ -32,6 +32,8 @@
 #include "qdebug.h"
 #include "qpaintengine.h"
 
+extern int qt_defaultDpi();
+
 // remove in Qt 5.0
 typedef void (*_qt_pixmap_cleanup_hook)(int);
 Q_GUI_EXPORT _qt_pixmap_cleanup_hook qt_pixmap_cleanup_hook = 0;
@@ -455,7 +457,9 @@ QPixmap QPixmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags )
         pixmap.data->image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
         break;
     }
-
+    // set the image dpi to the screen dpi
+    pixmap.data->image.setDotsPerMeterX(qt_defaultDpi()*100./2.54);
+    pixmap.data->image.setDotsPerMeterY(qt_defaultDpi()*100./2.54);
     return pixmap;
 }
 
