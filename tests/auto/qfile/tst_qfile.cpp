@@ -1654,9 +1654,9 @@ void tst_QFile::writeLargeDataBlock()
     QFile file(fileName);
     file.remove();
     if (file.open(QFile::WriteOnly)) {
-        file.write(array);
+        QCOMPARE(file.write(array), qint64(array.size()));
         file.close();
-        file.open(QFile::ReadOnly);
+        QVERIFY(file.open(QFile::ReadOnly));
         array.clear();
         array = file.readAll();
         file.remove();
@@ -1829,7 +1829,7 @@ void tst_QFile::appendAndRead()
     QVERIFY(readFile.open(QIODevice::ReadOnly));
 
     // Write to the end of the file, then read that character back, and so on.
-    for (int i = 0; i < 16384; ++i) {
+    for (int i = 0; i < 100; ++i) {
         char c = '\0';
         writeFile.putChar(char(i % 256));
         writeFile.flush();
