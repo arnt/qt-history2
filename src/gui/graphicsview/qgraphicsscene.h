@@ -122,6 +122,7 @@ public:
     { return itemAt(QPointF(x, y)); }
 
     QList<QGraphicsItem *> selectedItems() const;
+    QPainterPath selectionArea() const;
     void setSelectionArea(const QPainterPath &path);
     void clearSelection();
 

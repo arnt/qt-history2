@@ -1433,18 +1433,37 @@ QList<QGraphicsItem *> QGraphicsScene::selectedItems() const
 }
 
 /*!
-    Sets the selection area to \a path. All items within this area will be
-    marked as selected. You can get the list of all selected items by
-    calling selectedItems().
+    Returns the selection area that was previously set with
+    setSelectionArea(), or an empty QPainterPath if no selection area has been
+    set.
+
+    \sa setSelectionArea()
+*/
+QPainterPath QGraphicsScene::selectionArea() const
+{
+    Q_D(const QGraphicsScene);
+    return d->selectionArea;
+}
+
+/*!
+    Sets the selection area to \a path. All items within this area are
+    immediately selected, and all items outside are unselected. You can get
+    the list of all selected items by calling selectedItems().
 
     For an item to be selected, it must be marked as \e selectable
     (QGraphicsItem::ItemIsSelectable). Items are selectable by default.
 
-    \sa clearSelection()
+    \sa clearSelection(), selectionArea()
 */
 void QGraphicsScene::setSelectionArea(const QPainterPath &path)
 {
     Q_D(QGraphicsScene);
+
+    // Note: with boolean path operations, we can improve performance here
+    // quite a lot by "growing" the old path instead of replacing it. That
+    // allows us to only check the intersect area for changes, instead of
+    // reevaluating the whole path over again.
+    d->selectionArea = path;
 
     QSet<QGraphicsItem *> unselectItems = d->selectedItems;
 

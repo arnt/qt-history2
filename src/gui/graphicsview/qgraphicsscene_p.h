@@ -65,6 +65,7 @@ public:
     bool updateAll;
     bool calledEmitUpdated;
 
+    QPainterPath selectionArea;
     int selectionChanging;
     QSet<QGraphicsItem *> selectedItems;
     QList<QGraphicsItem *> unindexedItems;
