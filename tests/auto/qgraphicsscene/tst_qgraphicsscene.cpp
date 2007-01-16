@@ -758,6 +758,7 @@ void tst_QGraphicsScene::selection()
                 QPainterPath path;
                 path.addRect(QRectF(x, y, size, size));
                 scene.setSelectionArea(path);
+                QCOMPARE(scene.selectionArea(), path);
 
                 QList<int> indexes;
                 foreach (QGraphicsItem *item, scene.selectedItems())
@@ -784,6 +785,7 @@ void tst_QGraphicsScene::selection()
         QPainterPath path;
         path.addRect(QRectF(x, y, size, size));
         scene.setSelectionArea(path);
+        QCOMPARE(scene.selectionArea(), path);
 
         QList<int> indexes;
         foreach (QGraphicsItem *item, scene.selectedItems())
@@ -823,7 +825,9 @@ void tst_QGraphicsScene::selectionChanged()
 
     QPainterPath path;
     path.addRect(scene.sceneRect());
+    QCOMPARE(scene.selectionArea(), QPainterPath());
     scene.setSelectionArea(path);
+    QCOMPARE(scene.selectionArea(), path);
     QCOMPARE(spy.count(), 0); // selection didn't change
     QVERIFY(scene.selectedItems().isEmpty());
 
