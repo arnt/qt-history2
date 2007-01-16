@@ -222,12 +222,6 @@ public:
     inline QScript::Code *findCode(QScript::AST::Node *node) const
     { return m_codeCache.value(node); }
 
-    inline QScript::AST::Node* lookupAST(const QString &contents)
-    { return m_evaluatedCode.value(contents); }
-
-    inline void enterAST(const QString &contents, QScript::AST::Node* node)
-    { m_evaluatedCode.insert(contents, node); }
-
     inline QScript::DebuggerClient *debuggerClient() const { return m_debuggerClient; }
     inline void setDebuggerClient(QScript::DebuggerClient *client) { m_debuggerClient = client; }
 
@@ -464,7 +458,6 @@ public: // attributes
 
     QHash<int, QScriptCustomTypeInfo> m_customTypes;
 
-    QHash<QString, QScript::AST::Node*> m_evaluatedCode;
     QHash<QScript::AST::Node*, QScript::Code*> m_codeCache;
     QScriptFunction *m_evalFunction;
     QScript::DebuggerClient *m_debuggerClient;

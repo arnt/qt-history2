@@ -59,20 +59,12 @@ public:
         if (! contents.endsWith(QLatin1Char('\n')))
             contents += QLatin1Char('\n'); // ### kill me
 
-        QScript::AST::Node *program = m_driver->lookupAST(contents);
+        QScript::AST::Node *program = m_driver->createAbstractSyntaxTree(contents);
 
         if (! program) {
-            program = m_driver->createAbstractSyntaxTree(contents);
-            m_driver->enterAST(contents, program);
-
-            if (! program) {
-                context->throwError(QScriptContext::SyntaxError,
-                                    m_driver->errorMessage());
-                return;
-            }
+            context->throwError(QScriptContext::SyntaxError, m_driver->errorMessage());
+            return;
         }
-
-        Q_ASSERT(program != 0);
 
         QScript:: CompilationUnit compilation = m_compiler.compile(program);
         if (! compilation.isValid()) {
