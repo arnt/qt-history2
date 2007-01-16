@@ -13,6 +13,7 @@
 
 #include "qdesigner_resource.h"
 #include "formwindow.h"
+#include "dynamicpropertysheet.h"
 #include "qdesigner_tabwidget_p.h"
 #include "qdesigner_toolbox_p.h"
 #include "qdesigner_stackedbox_p.h"
@@ -441,6 +442,7 @@ void QDesignerResource::changeObjectName(QObject *o, QString objName)
 void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &properties)
 {
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), o)) {
+        QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core()->extensionManager(), o);
 
         for (int i=0; i<properties.size(); ++i) {
             DomProperty *p = properties.at(i);
@@ -483,10 +485,10 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
 
                 sheet->setProperty(index, v);
                 sheet->setChanged(index, true);
-            } else if (sheet->dynamicPropertiesAllowed()) {
-                sheet->addDynamicProperty(p->attributeName(), QVariant(v.type()));
-                sheet->setProperty(sheet->indexOf(p->attributeName()), v);
-                sheet->setChanged(sheet->indexOf(p->attributeName()), v != QVariant(v.type()));
+            } else if (dynamicSheet && dynamicSheet->dynamicPropertiesAllowed()) {
+                const int idx = dynamicSheet->addDynamicProperty(p->attributeName(), QVariant(v.type()));
+                sheet->setProperty(idx, v);
+                sheet->setChanged(idx, v != QVariant(v.type()));
             }
 
             if (propertyName == QLatin1String("objectName"))
@@ -1089,11 +1091,12 @@ bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
     }
 
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), obj)) {
+        QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core()->extensionManager(), obj);
         const int pindex = sheet->indexOf(prop);
         if (sheet->isAttribute(pindex))
             return false;
 
-        if (!sheet->isDynamicProperty(pindex))
+        if (!dynamicSheet || !dynamicSheet->isDynamicProperty(pindex))
             return sheet->isChanged(pindex);
         if (!sheet->isVisible(pindex))
             return false;
@@ -1293,6 +1296,7 @@ QList<DomProperty*> QDesignerResource::computeProperties(QObject *object)
 {
     QList<DomProperty*> properties;
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), object)) {
+        QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core()->extensionManager(), object);
         for (int index = 0; index < sheet->count(); ++index) {
             const QString propertyName = sheet->propertyName(index);
             QVariant value = sheet->property(index);
@@ -1310,7 +1314,7 @@ QList<DomProperty*> QDesignerResource::computeProperties(QObject *object)
                 }
             }
 
-            if (!sheet->isChanged(index) && !sheet->isDynamicProperty(index))
+            if (!sheet->isChanged(index) && (!dynamicSheet || !dynamicSheet->isDynamicProperty(index)))
                 continue;
 
             if (DomProperty *p = createProperty(object, propertyName, value)) {
@@ -1334,7 +1338,8 @@ DomProperty *QDesignerResource::applyProperStdSetAttribute(QObject *object, cons
 
     QExtensionManager *mgr = core()->extensionManager();
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(mgr, object)) {
-        if (sheet->isDynamicProperty(sheet->indexOf(propertyName)))
+        QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(mgr, object);
+        if (dynamicSheet && dynamicSheet->isDynamicProperty(sheet->indexOf(propertyName)))
             property->setAttributeStdset(0);
     }
     return property;

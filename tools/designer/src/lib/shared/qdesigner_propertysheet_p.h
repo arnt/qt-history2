@@ -26,6 +26,7 @@
 #define QDESIGNER_PROPERTYSHEET_H
 
 #include "shared_global_p.h"
+#include "dynamicpropertysheet.h"
 #include <QtDesigner/propertysheet.h>
 #include <QtDesigner/default_extensionfactory.h>
 #include <QtCore/QVariant>
@@ -33,10 +34,10 @@
 
 class QLayout;
 
-class QDESIGNER_SHARED_EXPORT QDesignerPropertySheet: public QObject, public QDesignerPropertySheetExtension
+class QDESIGNER_SHARED_EXPORT QDesignerPropertySheet: public QObject, public QDesignerPropertySheetExtension, public QDesignerDynamicPropertySheetExtension
 {
     Q_OBJECT
-    Q_INTERFACES(QDesignerPropertySheetExtension)
+    Q_INTERFACES(QDesignerPropertySheetExtension QDesignerDynamicPropertySheetExtension)
 public:
     QDesignerPropertySheet(QObject *object, QObject *parent = 0);
     virtual ~QDesignerPropertySheet();
@@ -65,10 +66,10 @@ public:
     virtual void setChanged(int index, bool changed);
 
     virtual bool dynamicPropertiesAllowed() const;
-    virtual bool addDynamicProperty(const QString &propertyName, const QVariant &value);
-    virtual bool removeDynamicProperty(const QString &propertyName);
+    virtual int addDynamicProperty(const QString &propertyName, const QVariant &value);
+    virtual bool removeDynamicProperty(int index);
     virtual bool isDynamicProperty(int index) const;
-    virtual bool canAddDynamicProperty(const QString &propertyName, const QVariant &value) const;
+    virtual bool canAddDynamicProperty(const QString &propertyName) const;
 
     void createFakeProperty(const QString &propertyName, const QVariant &value = QVariant());
 
@@ -128,8 +129,12 @@ class QDESIGNER_SHARED_EXPORT QDesignerPropertySheetFactory: public QExtensionFa
 public:
     QDesignerPropertySheetFactory(QExtensionManager *parent = 0);
 
-protected:
-    virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
+    QObject *extension(QObject *object, const QString &iid) const;
+private slots:
+    void objectDestroyed(QObject *object);
+private:
+    mutable QMap<QObject*, QObject*> m_extensions;
+    mutable QHash<QObject*, bool> m_extended;
 };
 
 #endif // QDESIGNER_PROPERTYSHEET_H

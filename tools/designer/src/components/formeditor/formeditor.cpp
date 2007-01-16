@@ -68,7 +68,9 @@ FormEditor::FormEditor(QObject *parent)
     mgr->registerExtensions(new QDesignerLayoutDecorationFactory(mgr),      Q_TYPEID(QDesignerLayoutDecorationExtension));
     mgr->registerExtensions(new QDesignerActionProviderFactory(mgr),        Q_TYPEID(QDesignerActionProviderExtension));
 
-    mgr->registerExtensions(new QDesignerPropertySheetFactory(mgr),         Q_TYPEID(QDesignerPropertySheetExtension));
+    QDesignerPropertySheetFactory *factory = new QDesignerPropertySheetFactory(mgr);
+    mgr->registerExtensions(factory,                                        Q_TYPEID(QDesignerPropertySheetExtension));
+    mgr->registerExtensions(factory,                                        Q_TYPEID(QDesignerDynamicPropertySheetExtension));
     mgr->registerExtensions(new QDesignerMemberSheetFactory(mgr),           Q_TYPEID(QDesignerMemberSheetExtension));
     mgr->registerExtensions(new QLayoutWidgetPropertySheetFactory(mgr),     Q_TYPEID(QDesignerPropertySheetExtension));
     mgr->registerExtensions(new SpacerPropertySheetFactory(mgr),            Q_TYPEID(QDesignerPropertySheetExtension));

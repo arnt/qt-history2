@@ -20,6 +20,7 @@ HEADERS += $$PWD/abstractformeditor.h \
     $$PWD/abstracticoncache.h \
     $$PWD/abstractlanguage.h \
     $$PWD/propertysheet.h \
+    $$PWD/dynamicpropertysheet.h \
     $$PWD/membersheet.h \
     $$PWD/taskmenu.h \
     $$PWD/extrainfo.h \

@@ -13,6 +13,7 @@
 
 #include "qdesigner_propertycommand_p.h"
 #include "qdesigner_utils_p.h"
+#include "dynamicpropertysheet.h"
 
 #include <QtDesigner/QtDesigner>
 
@@ -947,12 +948,15 @@ bool AddDynamicPropertyCommand::init(const QList<QObject *> &selection, QObject 
     m_propertyName = propertyName;
 
     QDesignerFormEditorInterface *core = formWindow()->core();
-    QDesignerPropertySheetExtension *propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), current);
-    Q_ASSERT(propertySheet);
+    QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core->extensionManager(), current);
+    Q_ASSERT(dynamicSheet);
 
     m_selection.clear();
 
-    if (!propertySheet->canAddDynamicProperty(m_propertyName, value))
+    if (!value.isValid())
+        return false;
+
+    if (!dynamicSheet->canAddDynamicProperty(m_propertyName))
         return false;
 
     m_selection.append(current);
@@ -964,9 +968,9 @@ bool AddDynamicPropertyCommand::init(const QList<QObject *> &selection, QObject 
         QObject *obj = it.next();
         if (m_selection.contains(obj))
             continue;
-        propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), obj);
-        Q_ASSERT(propertySheet);
-        if (propertySheet->canAddDynamicProperty(m_propertyName, m_value))
+        dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core->extensionManager(), obj);
+        Q_ASSERT(dynamicSheet);
+        if (dynamicSheet->canAddDynamicProperty(m_propertyName))
             m_selection.append(obj);
     }
 
@@ -980,8 +984,8 @@ void AddDynamicPropertyCommand::redo()
     QListIterator<QObject *> it(m_selection);
     while (it.hasNext()) {
         QObject *obj = it.next();
-        QDesignerPropertySheetExtension *propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), obj);
-        propertySheet->addDynamicProperty(m_propertyName, m_value);
+        QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core->extensionManager(), obj);
+        dynamicSheet->addDynamicProperty(m_propertyName, m_value);
         if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
             if (propertyEditor->object() == obj)
                 propertyEditor->setObject(obj);
@@ -995,8 +999,9 @@ void AddDynamicPropertyCommand::undo()
     QListIterator<QObject *> it(m_selection);
     while (it.hasNext()) {
         QObject *obj = it.next();
-        QDesignerPropertySheetExtension *propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), obj);
-        propertySheet->removeDynamicProperty(m_propertyName);
+        QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), obj);
+        QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core->extensionManager(), obj);
+        dynamicSheet->removeDynamicProperty(sheet->indexOf(m_propertyName));
         if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
             if (propertyEditor->object() == obj)
                 propertyEditor->setObject(obj);
@@ -1029,11 +1034,13 @@ bool RemoveDynamicPropertyCommand::init(const QList<QObject *> &selection, QObje
     QDesignerFormEditorInterface *core = formWindow()->core();
     QDesignerPropertySheetExtension *propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), current);
     Q_ASSERT(propertySheet);
+    QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core->extensionManager(), current);
+    Q_ASSERT(dynamicSheet);
 
     m_objectToValueAndChanged.clear();
 
     const int index = propertySheet->indexOf(m_propertyName);
-    if (!propertySheet->isDynamicProperty(index))
+    if (!dynamicSheet->isDynamicProperty(index))
         return false;
 
     m_objectToValueAndChanged[current] = qMakePair(propertySheet->property(index), propertySheet->isChanged(index));
@@ -1045,8 +1052,9 @@ bool RemoveDynamicPropertyCommand::init(const QList<QObject *> &selection, QObje
             continue;
 
         propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), obj);
+        dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core->extensionManager(), obj);
         const int idx = propertySheet->indexOf(m_propertyName);
-        if (propertySheet->isDynamicProperty(idx))
+        if (dynamicSheet->isDynamicProperty(idx))
             m_objectToValueAndChanged[obj] = qMakePair(propertySheet->property(idx), propertySheet->isChanged(idx));
     }
 
@@ -1060,8 +1068,9 @@ void RemoveDynamicPropertyCommand::redo()
     QMap<QObject *, QPair<QVariant, bool> >::ConstIterator it = m_objectToValueAndChanged.constBegin();
     while (it != m_objectToValueAndChanged.constEnd()) {
         QObject *obj = it.key();
-        QDesignerPropertySheetExtension *propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), obj);
-        propertySheet->removeDynamicProperty(m_propertyName);
+        QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core->extensionManager(), obj);
+        QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), obj);
+        dynamicSheet->removeDynamicProperty(sheet->indexOf(m_propertyName));
         if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
             if (propertyEditor->object() == obj)
                 propertyEditor->setObject(obj);
@@ -1077,8 +1086,9 @@ void RemoveDynamicPropertyCommand::undo()
     while (it != m_objectToValueAndChanged.constEnd()) {
         QObject *obj = it.key();
         QDesignerPropertySheetExtension *propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), obj);
-        propertySheet->addDynamicProperty(m_propertyName, it.value().first);
-        propertySheet->setChanged(propertySheet->indexOf(m_propertyName), it.value().second);
+        QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core->extensionManager(), obj);
+        const int index = dynamicSheet->addDynamicProperty(m_propertyName, it.value().first);
+        propertySheet->setChanged(index, it.value().second);
         if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
             if (propertyEditor->object() == obj)
                 propertyEditor->setObject(obj);

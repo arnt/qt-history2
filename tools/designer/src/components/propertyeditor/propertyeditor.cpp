@@ -16,6 +16,7 @@
 #include "qpropertyeditor_model_p.h"
 #include "qpropertyeditor_items_p.h"
 #include "newdynamicpropertydialog.h"
+#include "dynamicpropertysheet.h"
 #include "paletteeditorbutton.h"
 
 // sdk
@@ -957,16 +958,17 @@ void PropertyEditor::slotCustomContextMenuRequested(const QPoint &pos)
         nonfake = nonfake->parent();
 
     const QDesignerPropertySheetExtension *sheet = m_prop_sheet;
-    if (!sheet)
+    const QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(m_core->extensionManager(), m_object);;
+    if (!sheet || !dynamicSheet)
         return;
 
     int index = -1;
-    const bool addEnabled = sheet->dynamicPropertiesAllowed();
+    const bool addEnabled = dynamicSheet->dynamicPropertiesAllowed();
     bool insertRemoveEnabled = false;
     if (addEnabled) {
         if (nonfake) {
             const int idx = sheet->indexOf(nonfake->propertyName());
-            if (sheet->isDynamicProperty(idx)) {
+            if (dynamicSheet->isDynamicProperty(idx)) {
                 insertRemoveEnabled = true;
                 index = idx;
             }
@@ -986,7 +988,7 @@ void PropertyEditor::slotCustomContextMenuRequested(const QPoint &pos)
         NewDynamicPropertyDialog dlg(this);
         QStringList reservedNames;
         for (int i = 0; i < sheet->count(); i++) {
-            if (!sheet->isDynamicProperty(i) || sheet->isVisible(i))
+            if (!dynamicSheet->isDynamicProperty(i) || sheet->isVisible(i))
                 reservedNames.append(sheet->propertyName(i));
         }
         dlg.setReservedNames(reservedNames);

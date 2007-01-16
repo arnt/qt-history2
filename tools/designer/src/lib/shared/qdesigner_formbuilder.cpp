@@ -13,6 +13,7 @@
 
 #include "qdesigner_formbuilder_p.h"
 #include "qdesigner_widget_p.h"
+#include "dynamicpropertysheet.h"
 
 // sdk
 #include <QtDesigner/extrainfo.h>
@@ -102,6 +103,7 @@ QPixmap QDesignerFormBuilder::nameToPixmap(const QString &filePath, const QStrin
 void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &properties)
 {
     QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), o);
+    QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core()->extensionManager(), o);
     Q_ASSERT(sheet != 0);
 
     const QMetaObject *meta = o->metaObject();
@@ -129,7 +131,7 @@ void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*>
             // a fake property (but we have have to ignore QAxWidget)
             index = sheet->indexOf(p->attributeName());
             sheet->setProperty(index, v);
-        } else if (sheet->dynamicPropertiesAllowed()) {
+        } else if (dynamicSheet && dynamicSheet->dynamicPropertiesAllowed()) {
             o->setProperty(pname, v);
         }
     }

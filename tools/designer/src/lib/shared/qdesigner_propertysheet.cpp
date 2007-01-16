@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qdesigner_propertysheet_p.h"
+#include "dynamicpropertysheet.h"
 #include "qdesigner_utils_p.h"
 #include "layoutinfo_p.h"
 #include "qlayout_widget_p.h"
@@ -28,13 +29,6 @@
 #include <QtGui/QLayout>
 #include <QtGui/QDockWidget>
 #include <QtGui/QDialog>
-#include <QtGui/QStackedWidget>
-#include <QtGui/QToolBar>
-#include <QtGui/QStatusBar>
-#include <QtGui/QLabel>
-#include <QtGui/QCalendarWidget>
-#include <QtGui/QDialogButtonBox>
-#include <qdebug.h>
 
 namespace {
 
@@ -151,13 +145,11 @@ bool QDesignerPropertySheet::dynamicPropertiesAllowed() const
     return true;
 }
 
-bool QDesignerPropertySheet::canAddDynamicProperty(const QString &propName, const QVariant &value) const
+bool QDesignerPropertySheet::canAddDynamicProperty(const QString &propName) const
 {
     const int index = m_meta->indexOfProperty(propName.toUtf8());
     if (index != -1)
         return false; // property already exists and is not a dynamic one
-    if (!value.isValid())
-        return false; // property has invalid type
     if (m_addIndex.contains(propName)) {
         const int idx = m_addIndex.value(propName);
         if (isVisible(idx))
@@ -168,10 +160,12 @@ bool QDesignerPropertySheet::canAddDynamicProperty(const QString &propName, cons
     return true;
 }
 
-bool QDesignerPropertySheet::addDynamicProperty(const QString &propName, const QVariant &value)
+int QDesignerPropertySheet::addDynamicProperty(const QString &propName, const QVariant &value)
 {
-    if (!canAddDynamicProperty(propName, value))
-        return false;
+    if (!value.isValid())
+        return -1; // property has invalid type
+    if (!canAddDynamicProperty(propName))
+        return -1;
     if (m_addIndex.contains(propName)) {
         const int idx = m_addIndex.value(propName);
         // have to be invisible, this was checked in canAddDynamicProperty() method
@@ -180,7 +174,7 @@ bool QDesignerPropertySheet::addDynamicProperty(const QString &propName, const Q
         setChanged(idx, false);
         const int index = m_meta->indexOfProperty(propName.toUtf8());
         m_info[index].defaultValue = value;
-        return true;
+        return idx;
     }
 
     const int index = count();
@@ -191,14 +185,13 @@ bool QDesignerPropertySheet::addDynamicProperty(const QString &propName, const Q
     m_info[index].defaultValue = value;
 
     setPropertyGroup(index, tr("Dynamic Properties"));
-    return true;
+    return index;
 }
 
-bool QDesignerPropertySheet::removeDynamicProperty(const QString &propName)
+bool QDesignerPropertySheet::removeDynamicProperty(int index)
 {
-    if (!m_addIndex.contains(propName))
+    if (!m_addIndex.contains(propertyName(index)))
         return false;
-    const int index = m_addIndex[propName];
 
     setVisible(index, false);
     return true;
@@ -602,11 +595,41 @@ QDesignerPropertySheetFactory::QDesignerPropertySheetFactory(QExtensionManager *
 {
 }
 
-QObject *QDesignerPropertySheetFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
+QObject *QDesignerPropertySheetFactory::extension(QObject *object, const QString &iid) const
 {
-    if (iid == Q_TYPEID(QDesignerPropertySheetExtension))
-        return new QDesignerPropertySheet(object, parent);
+    if (!object)
+        return 0;
 
-    return 0;
+    if (iid != Q_TYPEID(QDesignerPropertySheetExtension) && iid != Q_TYPEID(QDesignerDynamicPropertySheetExtension))
+        return 0;
+
+    if (!m_extensions.contains(object)) {
+        if (QObject *ext = new QDesignerPropertySheet(object, const_cast<QDesignerPropertySheetFactory*>(this))) {
+            connect(ext, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)));
+            m_extensions.insert(object, ext);
+        }
+    }
+
+    if (!m_extended.contains(object)) {
+        connect(object, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)));
+        m_extended.insert(object, true);
+    }
+
+    return m_extensions.value(object);
+}
+
+void QDesignerPropertySheetFactory::objectDestroyed(QObject *object)
+{
+    QMutableMapIterator<QObject*, QObject*> it(m_extensions);
+    while (it.hasNext()) {
+        it.next();
+
+        QObject *o = it.key();
+        if (o == object || object == it.value()) {
+            it.remove();
+        }
+    }
+
+    m_extended.remove(object);
 }
 
