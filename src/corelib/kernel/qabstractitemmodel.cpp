@@ -2669,6 +2669,9 @@ bool QAbstractListModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
         return true;
     }
 
+    if (row == -1)
+        row = rowCount(parent);
+
     // otherwise insert new rows for the data
     return decodeData(row, column, parent, stream);
 }
