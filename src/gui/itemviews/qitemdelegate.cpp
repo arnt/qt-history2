@@ -45,7 +45,7 @@ class QItemDelegatePrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QItemDelegate)
 
 public:
-    QItemDelegatePrivate() : f(0), clipPainting(false) {}
+    QItemDelegatePrivate() : f(0), clipPainting(true) {}
 
     inline const QItemEditorFactory *editorFactory() const
         { return f ? f : QItemEditorFactory::defaultFactory(); }
@@ -262,7 +262,7 @@ QItemDelegate::~QItemDelegate()
   \since 4.2
 
   This property will set the paint clip to the size of the item.
-  The default value is off.  It is useful for cases such
+  The default value is on.  It is useful for cases such
   as when images are larger then the size of the item.
 */
 
