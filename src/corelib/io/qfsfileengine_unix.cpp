@@ -475,7 +475,7 @@ bool QFSFileEnginePrivate::isSymlink() const
 }
 
 #if defined (Q_WS_MAC)
-static bool _q_isMacHidden(const QString &path) const
+static bool _q_isMacHidden(const QString &path)
 {
     OSErr err = noErr;
     FSRef fsRef;
