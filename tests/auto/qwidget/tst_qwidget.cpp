@@ -933,7 +933,7 @@ void tst_QWidget::mapFromAndTo()
     QFETCH(bool, subSubWindowHidden);
     QFETCH(bool, windowMinimized);
     QFETCH(bool, subWindow1Minimized);
-    
+
     // create a toplevel and two overlapping siblings
     QWidget window;
     QWidget *subWindow1 = new QWidget(&window);
@@ -998,7 +998,7 @@ void tst_QWidget::mapFromAndTo()
     QCOMPARE(window.mapFromParent(QPoint(200, 200)), QPoint(100, 100));
     QCOMPARE(window.mapFromParent(QPoint(210, 200)), QPoint(110, 100));
     QCOMPARE(window.mapFromParent(QPoint(200, 210)), QPoint(100, 110));
-    
+
     // first subwindow
     QCOMPARE(subWindow1->mapToGlobal(QPoint(0, 0)), QPoint(150, 150));
     QCOMPARE(subWindow1->mapToGlobal(QPoint(10, 0)), QPoint(160, 150));
@@ -3296,7 +3296,7 @@ void tst_QWidget::setWindowGeometry()
         if (windowFlags != 0)
             widget.setWindowFlags(Qt::WindowFlags(windowFlags));
         widget.setGeometry(rect);
-        QTest::qWait(100);
+        QTestEventLoop::instance().enterLoop(1);
         QCOMPARE(widget.geometry(), rect);
     }
 
@@ -3310,12 +3310,12 @@ void tst_QWidget::setWindowGeometry()
 #ifdef Q_WS_X11
         qt_x11_wait_for_window_manager(&widget);
 #endif
-        QTest::qWait(100);
+        QTestEventLoop::instance().enterLoop(1);
         QCOMPARE(widget.geometry(), rect);
 
         // now hide
         widget.hide();
-        QTest::qWait(100);
+        QTestEventLoop::instance().enterLoop(1);
         QCOMPARE(widget.geometry(), rect);
     }
 
@@ -3329,12 +3329,12 @@ void tst_QWidget::setWindowGeometry()
         qt_x11_wait_for_window_manager(&widget);
 #endif
         widget.setGeometry(rect);
-        QTest::qWait(100);
+        QTestEventLoop::instance().enterLoop(1);
         QCOMPARE(widget.geometry(), rect);
 
         // now hide
         widget.hide();
-        QTest::qWait(100);
+        QTestEventLoop::instance().enterLoop(1);
         QCOMPARE(widget.geometry(), rect);
     }
 }
@@ -3375,7 +3375,7 @@ void tst_QWidget::windowMove()
         if (windowFlags != 0)
             widget.setWindowFlags(Qt::WindowFlags(windowFlags));
         widget.move(rect.topLeft());
-        QTest::qWait(100);
+        QTestEventLoop::instance().enterLoop(1);
         QCOMPARE(widget.pos(), rect.topLeft());
     }
 
@@ -3390,12 +3390,12 @@ void tst_QWidget::windowMove()
 #ifdef Q_WS_X11
         qt_x11_wait_for_window_manager(&widget);
 #endif
-        QTest::qWait(100);
+        QTestEventLoop::instance().enterLoop(1);
         QCOMPARE(widget.pos(), rect.topLeft());
 
         // now hide
         widget.hide();
-        QTest::qWait(100);
+        QTestEventLoop::instance().enterLoop(1);
         QCOMPARE(widget.pos(), rect.topLeft());
     }
 
@@ -3410,12 +3410,12 @@ void tst_QWidget::windowMove()
         qt_x11_wait_for_window_manager(&widget);
 #endif
         widget.move(rect.topLeft());
-        QTest::qWait(100);
+        QTestEventLoop::instance().enterLoop(1);
         QCOMPARE(widget.pos(), rect.topLeft());
 
         // now hide
         widget.hide();
-        QTest::qWait(100);
+        QTestEventLoop::instance().enterLoop(1);
         QCOMPARE(widget.pos(), rect.topLeft());
     }
 }
