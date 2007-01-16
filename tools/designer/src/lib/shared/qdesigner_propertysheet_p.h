@@ -111,9 +111,13 @@ protected:
     QHash<int, QVariant> m_addProperties;
     QHash<QString, int> m_addIndex;
 private:
-    QLayout* layout() const;
+    QLayout* layout(QDesignerPropertySheetExtension **layoutPropertySheet = 0) const;
+    
     const bool m_canHaveLayoutAttributes;
+    
+    // Variables used for caching the layout, access via layout().
     mutable QLayout *m_lastLayout;
+    mutable QDesignerPropertySheetExtension *m_lastLayoutPropertySheet;
     mutable bool m_LastLayoutByDesigner;
 };
 

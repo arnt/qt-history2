@@ -254,15 +254,10 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *parentLayout, int
     QLayout *layout = createUnmanagedLayout(parentWidget, type);
     metaDataBase->add(layout); // add the layout in the MetaDataBase
 
-    if (QLayoutWidget *layoutWidget = qobject_cast<QLayoutWidget*>(widget)) {
-        layoutWidget->setLayoutMargin(0);
-    }
+    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), layout);
 
-    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), layout)) {
-        sheet->setChanged(sheet->indexOf(QLatin1String("margin")), true);
-        sheet->setChanged(sheet->indexOf(QLatin1String("spacing")), true);
+    if (sheet)
         sheet->setChanged(sheet->indexOf(QLatin1String("alignment")), true);
-    }
 
     if (widget && metaDataBase->item(widget->layout()) == 0) {
         Q_ASSERT(layout->parent() == 0);

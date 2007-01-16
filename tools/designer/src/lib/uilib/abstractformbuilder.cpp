@@ -477,23 +477,14 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
 */
 void QAbstractFormBuilder::layoutInfo(DomLayout *ui_layout, QObject *parent, int *margin, int *spacing)
 {
+    Q_UNUSED(parent)
     const DomPropertyHash properties = propertyMap(ui_layout->elementProperty());
 
-    if (margin)
-        *margin = properties.contains(QLatin1String("margin"))
-            ? properties.value(QLatin1String("margin"))->elementNumber()
-            : m_defaultMargin;
+    if (margin && properties.contains(QLatin1String("margin")))
+        *margin = properties.value(QLatin1String("margin"))->elementNumber();
 
-    if (spacing)
-        *spacing = properties.contains(QLatin1String("spacing"))
-            ? properties.value(QLatin1String("spacing"))->elementNumber()
-            : m_defaultSpacing;
-
-    if (margin && m_defaultMargin == INT_MIN) {
-        Q_ASSERT(parent);
-        if (qstrcmp(parent->metaObject()->className(), "QLayoutWidget") == 0)
-            *margin = INT_MIN;
-    }
+    if (spacing && properties.contains(QLatin1String("spacing")))
+        *spacing = properties.value(QLatin1String("spacing"))->elementNumber();
 }
 
 /*!

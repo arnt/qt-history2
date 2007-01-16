@@ -467,9 +467,7 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
             if (index != -1) {
                 if (QLayout *layout = qobject_cast<QLayout*>(o)) {
                     if (propertyName == QLatin1String("margin")) {
-                        if (qobject_cast<QLayoutWidget*>(layout->parentWidget()))
-                            v = v.toInt() + 1;
-                        else if (QVBoxLayout *vbox = qobject_cast<QVBoxLayout*>(layout->parent())) {
+                        if (QVBoxLayout *vbox = qobject_cast<QVBoxLayout*>(layout->parent())) {
                             // special case for Q3GroupBox margin:
                             // the actual margin is set on the internal vboxlayout,
                             // whereas the margin of the child layout is set to 0
@@ -1231,14 +1229,6 @@ QList<QWidget*> QDesignerResource::paste(QIODevice *dev, QWidget *parentWidget)
 void QDesignerResource::layoutInfo(DomLayout *layout, QObject *parent, int *margin, int *spacing)
 {
     QAbstractFormBuilder::layoutInfo(layout, parent, margin, spacing);
-
-    QLayoutWidget *layoutWidget = qobject_cast<QLayoutWidget*>(parent);
-    if (layoutWidget && margin) {
-        if (*margin == INT_MIN)
-            *margin = 1;
-        else
-            *margin = *margin + 1;
-    }
 }
 
 QString QDesignerResource::qtify(const QString &name)
@@ -1309,9 +1299,7 @@ QList<DomProperty*> QDesignerResource::computeProperties(QObject *object)
 
             if (QLayout *layout = qobject_cast<QLayout*>(object)) {
                 if (propertyName == QLatin1String("margin")) {
-                    if (qobject_cast<QLayoutWidget*>(layout->parentWidget()))
-                        value = value.toInt() - 1;
-                    else if (QVBoxLayout *vbox = qobject_cast<QVBoxLayout*>(layout->parent())) {
+                    if (QVBoxLayout *vbox = qobject_cast<QVBoxLayout*>(layout->parent())) {
                         // special case Q3GroupBox margin:
                         // the margin we want to save is that of the internal vboxlayout
                         if (QWidget *pw = vbox->parentWidget()) {

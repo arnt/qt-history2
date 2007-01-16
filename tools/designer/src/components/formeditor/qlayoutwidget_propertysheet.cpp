@@ -46,12 +46,6 @@ bool QLayoutWidgetPropertySheet::isVisible(int index) const
 void QLayoutWidgetPropertySheet::setProperty(int index, const QVariant &value)
 {
     QDesignerPropertySheet::setProperty(index, value);
-
-    QLayoutWidget *l = static_cast<QLayoutWidget*>(m_object);
-    QDesignerFormEditorInterface *core = l->formWindow()->core();
-    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), l->layout())) {
-        sheet->setChanged(sheet->indexOf(propertyName(index)), true);
-    }
 }
 
 bool QLayoutWidgetPropertySheet::dynamicPropertiesAllowed() const

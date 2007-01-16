@@ -34,6 +34,8 @@
 
 namespace qdesigner_internal {
 
+const int ShiftValue = 1;
+
 class FriendlyLayout: public QLayout
 {
 public:
@@ -827,7 +829,7 @@ void QLayoutSupport::rebuildGridLayout(QHash<QLayoutItem*, QRect> *infos)
 
 QLayoutWidget::QLayoutWidget(QDesignerFormWindowInterface *formWindow, QWidget *parent)
     : QWidget(parent), m_formWindow(formWindow),
-      m_support(formWindow, this)
+      m_support(formWindow, this), m_margin(-1)
 {
 }
 
@@ -894,20 +896,20 @@ bool QLayoutWidget::event(QEvent *e)
 
 int QLayoutWidget::layoutMargin() const
 {
-    if (layout())
-        return layout()->margin() - 1;
-
-    return -1;
+    if (m_margin < 0 && layout())
+        return layout()->margin();
+    return m_margin;
 }
 
 void QLayoutWidget::setLayoutMargin(int layoutMargin)
 {
-    if (layout())
-        layout()->setMargin(layoutMargin + 1);
-
-    QList<QLayoutWidget*> lst = qFindChildren<QLayoutWidget*>(this);
-    foreach (QLayoutWidget *lay, lst)
-        lay->setLayoutMargin(layoutMargin);
+    m_margin = layoutMargin;
+    if (layout()) {
+        int newMargin = m_margin;
+        if (newMargin >= 0 && newMargin < ShiftValue)
+            newMargin = ShiftValue;
+        layout()->setMargin(newMargin);
+    }
 }
 
 int QLayoutWidget::layoutSpacing() const

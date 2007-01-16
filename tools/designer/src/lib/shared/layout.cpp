@@ -434,7 +434,15 @@ QLayout *Layout::createLayout(int type)
     if (m_useSplitter)
         return WidgetFactory::createUnmanagedLayout(m_layoutBase, type);
 
-    return m_formWindow->core()->widgetFactory()->createLayout(m_layoutBase, 0, type);
+    QLayout *layout = m_formWindow->core()->widgetFactory()->createLayout(m_layoutBase, 0, type);
+    if (qobject_cast<QLayoutWidget*>(m_layoutBase)) {
+        QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_formWindow->core()->extensionManager(), layout);
+        if (sheet) {
+            sheet->setProperty(sheet->indexOf(QLatin1String("margin")), 0);
+            sheet->setChanged(sheet->indexOf(QLatin1String("margin")), true);
+        }
+    }
+    return layout;
 }
 
 HorizontalLayout::HorizontalLayout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, bool splitter)

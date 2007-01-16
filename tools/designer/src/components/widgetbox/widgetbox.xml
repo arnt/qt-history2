@@ -25,7 +25,11 @@
                     <height>80</height>
                 </rect>
             </property>
-            <layout class="QVBoxLayout" />
+            <layout class="QVBoxLayout" >
+                <property name="margin" >
+                    <number>0</number>
+                </property>
+            </layout>
         </widget>
 
         <widget class="QWidget"  name="Horizontal Layout" icon="win/edithlayout.png">
@@ -40,7 +44,11 @@
                     <height>80</height>
                 </rect>
             </property>
-            <layout class="QHBoxLayout" />
+            <layout class="QHBoxLayout" >
+                <property name="margin" >
+                    <number>0</number>
+                </property>
+            </layout>
         </widget>
 
         <widget class="QWidget"  name="Grid Layout" icon="win/editgrid.png">
@@ -55,7 +63,11 @@
                     <height>80</height>
                 </rect>
             </property>
-            <layout class="QGridLayout" />
+            <layout class="QGridLayout" >
+                <property name="margin" >
+                    <number>0</number>
+                </property>
+            </layout>
         </widget>
 
     </category>
