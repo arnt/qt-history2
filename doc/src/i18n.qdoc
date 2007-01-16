@@ -508,6 +508,34 @@
     other application components can also force widgets to update themselves
     by posting the \l{QEvent::LanguageChange}{LanguageChange} event to them.
 
+    \section1 Translating Non-Qt Classes
+
+    It is sometimes necessary to provide internationalization support for
+    strings used in classes that do not inherit QObject or use the Q_OBJECT
+    macro to enable translation features. Since Qt translates strings at
+    run-time based on the class they are associated with and \c lupdate
+    looks for translatable strings in the source code, non-Qt classes must
+    use mechanisms that also provide this information.
+
+    One way to do this is to add translation support to a non-Qt class
+    using the Q_DECLARE_TR_FUNCTIONS() macro; for example:
+
+    \quotefromfile snippets/i18n-non-qt-class/myclass.h
+    \skipto class
+    \printto ...
+    \dots
+    \skipto /^\};/
+    \printuntil /^\};/
+
+    This provides the class with \l{QObject::}{tr()} functions that can
+    be used to translate strings associated with the class, and makes it
+    possible for \c lupdate to find translatable strings in the source
+    code.
+
+    Alternatively, the QCoreApplication::translate() function can be called
+    with a specific context, and this will be recognized by \c lupdate and
+    Qt Linguist.
+
     \section1 System Support
 
     Some of the operating systems and windowing systems that Qt runs on
