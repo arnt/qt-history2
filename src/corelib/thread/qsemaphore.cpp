@@ -183,4 +183,44 @@ bool QSemaphore::tryAcquire(int n)
     d->avail -= n;
     return true;
 }
+
+/*!
+    Tries to acquire \c n resources guarded by the semaphore and
+    returns true on success. If available() < \a n, this call will
+    wait for at most \a timeout milliseconds for resources to become
+    available.
+
+    Note: Passing a negative number as the \a timeout is equivalent to
+    calling acquire(), i.e. this function will wait forever for
+    resources to become available if \a timeout is negative.
+
+    Example:
+
+    \code
+        QSemaphore sem(5);            // sem.available() == 5
+        sem.tryAcquire(250, 1000);    // sem.available() == 5, waits 1000 milliseconds and returns false
+        sem.tryAcquire(3, 30000);     // sem.available() == 2, returns true without waiting
+    \endcode
+
+    \sa acquire()
+*/
+bool QSemaphore::tryAcquire(int n, int timeout)
+{
+    Q_ASSERT_X(n >= 0, "QSemaphore::tryAcquire", "parameter 'n' must be non-negative");
+    QMutexLocker locker(&d->mutex);
+    if (timeout < 0) {
+        while (n > d->avail)
+            d->cond.wait(locker.mutex());
+    } else {
+        while (n > d->avail) {
+            if (!d->cond.wait(locker.mutex(), timeout))
+                return false;
+        }
+    }
+    d->avail -= n;
+    return true;
+
+
+}
+
 #endif // QT_NO_THREAD

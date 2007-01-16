@@ -32,6 +32,7 @@ public:
 
     void acquire(int n = 1);
     bool tryAcquire(int n = 1);
+    bool tryAcquire(int n, int timeout);
 
     void release(int n = 1);
 
