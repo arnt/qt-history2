@@ -2482,6 +2482,15 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
             x = qFloor(trans_x);
             y = qFloor(trans_y);
             if (x >= left && x < right && y >= top && y < bottom) {
+                if (count > 0) {
+                    const QT_FT_Span &last = array[count - 1];
+                    // spans must be sorted on y (primary) and x (secondary)
+                    if (y < last.y || y == last.y && x < last.x) {
+                        d->penData.blend(count, array.constData(), &d->penData);
+                        count = 0;
+                    }
+                }
+
                 span.x = x;
                 span.y = y;
                 array[count++] = span;
@@ -2489,7 +2498,8 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
             ++points;
         }
 
-        d->penData.blend(count, array.constData(), &d->penData);
+        if (count > 0)
+            d->penData.blend(count, array.constData(), &d->penData);
     }
 }
 
