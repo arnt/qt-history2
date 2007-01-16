@@ -800,6 +800,21 @@ void tst_QGraphicsScene::selection()
 #endif
 }
 
+class CustomView : public QGraphicsView
+{
+public:
+    CustomView() : repaints(0)
+    { }
+
+    int repaints;
+protected:
+    void paintEvent(QPaintEvent *event)
+    {
+        ++repaints;
+        QGraphicsView::paintEvent(event);
+    }
+};
+
 void tst_QGraphicsScene::selectionChanged()
 {
     QGraphicsScene scene(0, 0, 1000, 1000);
@@ -874,7 +889,21 @@ void tst_QGraphicsScene::addItem()
         // 1) Create item, then scene, then add item
         QGraphicsItem *path = new QGraphicsEllipseItem(QRectF(-10, -10, 20, 20));
         QGraphicsScene scene;
+
+        CustomView view;
+        view.setScene(&scene);
+        view.show();
+        qApp->processEvents();
+        view.repaints = 0;
+
         scene.addItem(path);
+
+        // Adding an item should always issue a repaint.
+        qApp->processEvents(); // <- delayed update is called
+        qApp->processEvents(); // <- scene schedules pending update
+        qApp->processEvents(); // <- pending update is sent to view
+        QVERIFY(view.repaints > 0);
+        view.repaints = 0;
 
         QCOMPARE(scene.itemAt(0, 0), path);
 
@@ -884,6 +913,13 @@ void tst_QGraphicsScene::addItem()
         QCOMPARE(scene.itemAt(0, 0), path);
         QCOMPARE(scene.itemAt(100, 100), (QGraphicsItem *)0);
         scene.addItem(path2);
+
+        // Adding an item should always issue a repaint.
+        qApp->processEvents(); // <- delayed update is called
+        qApp->processEvents(); // <- scene schedules pending update
+        qApp->processEvents(); // <- pending update is sent to view
+        QVERIFY(view.repaints > 0);
+
         QCOMPARE(scene.itemAt(100, 100), path2);
     }
     {
