@@ -32,7 +32,11 @@
 #  ifndef S_ISSOCK
 #    define S_ISSOCK(x) false
 #  endif
+#  ifndef INVALID_FILE_ATTRIBUTES
+#    define INVALID_FILE_ATTRIBUTES (DWORD (-1))
+#  endif
 #endif
+
 
 /*! \class QFSFileEngine
     \brief The QFSFileEngine class implements Qt's default file engine.
@@ -260,7 +264,7 @@ bool QFSFileEnginePrivate::openFd(QIODevice::OpenMode openMode, int fd)
         do {
             ret = QT_LSEEK(fd, 0, SEEK_END);
         } while (ret == -1 && errno == EINTR);
-        
+
         if (ret == -1) {
             q->setError(errno == EMFILE ? QFile::ResourceError : QFile::OpenError,
                         qt_error_string(int(errno)));
@@ -354,7 +358,7 @@ bool QFSFileEnginePrivate::flushFh()
         return false;
 
     int ret = fflush(fh);
-    
+
     lastFlushFailed = (ret != 0);
     lastIOCommand = QFSFileEnginePrivate::IOFlushCommand;
 
