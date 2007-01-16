@@ -239,38 +239,18 @@ void QtPrivate::QStringList_sort(QStringList *that)
 
     This version of the function uses a QString as separator.
 
-    If \a sep is an empty string, the return value is a list of
-    one-character strings: split(QString(""), "four") returns the
-    four-item list, "f", "o", "u", "r".
-
-    If \a allowEmptyEntries is true, an empty string is inserted in
-    the list wherever the separator matches twice without intervening
-    text.
-
     \sa join() QString::section()
 */
 #ifndef QT_NO_REGEXP
 /*!
     \fn QStringList QStringList::split(const QRegExp &sep, const QString &str, bool allowEmptyEntries)
 
-    Splits the string \a str into strings wherever the regular
-    expression \a sep occurs, and returns the list of those strings.
+    Use QString::split(\a sep, QString::SkipEmptyParts) or
+    QString::split(\a sep, QString::KeepEmptyParts) instead.
 
-    If \a allowEmptyEntries is true, an empty string is inserted in
-    the list wherever the separator matches twice without intervening
-    text.
-
-    For example, if you split the string "a,,b,c" on commas, split()
-    returns the three-item list "a", "b", "c" if \a allowEmptyEntries
-    is false (the default), and the four-item list "a", "", "b", "c"
-    if \a allowEmptyEntries is true.
-
-    Use \c{split(QRegExp("\\s+"), str)} to split on arbitrary amounts
-    of whitespace.
-
-    If \a sep does not match anywhere in \a str, split() returns a
-    single element list with the element containing the original
-    string, \a str.
+    Be aware that the QString::split()'s return value is a
+    QStringList that always contains at least one element, even if \a
+    str is empty.
 
     \sa join() QString::section()
 */
