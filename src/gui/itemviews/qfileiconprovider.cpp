@@ -192,12 +192,16 @@ QIcon QFileIconProviderPrivate::getWinIcon(const QFileInfo &fileInfo) const
 
     if (!pixmap.isNull()) {
         retIcon.addPixmap(pixmap);
+        if (QPixmapCache::find(key + QLatin1Char('l'), pixmap))
+            retIcon.addPixmap(pixmap);
         return retIcon;
     }
 
     static HRESULT comInit = CoInitialize(NULL);
     SHFILEINFO info;
     unsigned long val = 0;
+
+    //Get the small icon
     val = SHGetFileInfo((const WCHAR *)QDir::toNativeSeparators(fileInfo.filePath()).utf16(), 0, &info,
                         sizeof(SHFILEINFO), SHGFI_ICON|SHGFI_SMALLICON|SHGFI_SYSICONINDEX|SHGFI_ADDOVERLAYS);
     if (val) {
@@ -207,8 +211,21 @@ QIcon QFileIconProviderPrivate::getWinIcon(const QFileInfo &fileInfo) const
             if (!key.isEmpty())
                 QPixmapCache::insert(key, pixmap);
         }
+        DestroyIcon(info.hIcon);
     }
-    DestroyIcon(info.hIcon);
+
+    //Get the big icon
+    val = SHGetFileInfo((const WCHAR *)QDir::toNativeSeparators(fileInfo.filePath()).utf16(), 0, &info,
+                        sizeof(SHFILEINFO), SHGFI_ICON|SHGFI_LARGEICON|SHGFI_SYSICONINDEX|SHGFI_ADDOVERLAYS);
+    if (val) {
+        pixmap = convertHIconToPixmap(info.hIcon);
+        if (!pixmap.isNull()) {
+            retIcon.addPixmap(pixmap);
+            if (!key.isEmpty())
+                QPixmapCache::insert(key + QLatin1Char('l'), pixmap);
+        }
+        DestroyIcon(info.hIcon);
+    }
     return retIcon;
 }
 
