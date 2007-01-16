@@ -418,6 +418,19 @@ void QGraphicsScenePrivate::_q_emitUpdated()
 /*!
     \internal
 
+    Updates all items in the pending update list. At this point, the list is
+    unlikely to contain partially constructed items.
+*/
+void QGraphicsScenePrivate::_q_updateLater()
+{
+    foreach (QGraphicsItem *item, pendingUpdateItems)
+        item->update();
+    pendingUpdateItems.clear();
+}
+
+/*!
+    \internal
+
     Schedules an item for removal. This function leaves some stale indexes
     around in the BSP tree; these will be cleaned up the next time someone
     triggers purgeRemovedItems().
@@ -470,6 +483,7 @@ void QGraphicsScenePrivate::_q_removeItemLater(QGraphicsItem *item)
     // Update selected & hovered item bookkeeping
     selectedItems.remove(item);
     hoverItems.removeAll(item);
+    pendingUpdateItems.removeAll(item);
     cachedItemsUnderMouse.removeAll(item);
 
     // Remove all children recursively.
@@ -870,6 +884,7 @@ void QGraphicsScenePrivate::sortItems(QList<QGraphicsItem *> *itemList)
 QGraphicsScene::QGraphicsScene(QObject *parent)
     : QObject(*new QGraphicsScenePrivate, parent)
 {
+    update();
 }
 
 /*!
@@ -883,6 +898,7 @@ QGraphicsScene::QGraphicsScene(const QRectF &sceneRect, QObject *parent)
     : QObject(*new QGraphicsScenePrivate, parent)
 {
     setSceneRect(sceneRect);
+    update();
 }
 
 /*!
@@ -897,6 +913,7 @@ QGraphicsScene::QGraphicsScene(qreal x, qreal y, qreal width, qreal height, QObj
     : QObject(*new QGraphicsScenePrivate, parent)
 {
     setSceneRect(x, y, width, height);
+    update();
 }
 
 /*!
@@ -1621,6 +1638,15 @@ void QGraphicsScene::addItem(QGraphicsItem *item)
         }
     }
 
+    // Add to list of items that require an update. We cannot assume that the
+    // item is fully constructed, so calling item->update() can lead to a pure
+    // virtual function call to boundingRect().
+    if (!d->updateAll) {
+        if (d->pendingUpdateItems.isEmpty())
+            QTimer::singleShot(0, this, SLOT(_q_updateLater()));
+        d->pendingUpdateItems << item;
+    }
+
     // Disable selectionChanged() for individual items
     ++d->selectionChanging;
     int oldSelectedItemSize = d->selectedItems.size();
@@ -1905,6 +1931,7 @@ void QGraphicsScene::removeItem(QGraphicsItem *item)
     // Update selected & hovered item bookkeeping
     d->selectedItems.remove(item);
     d->hoverItems.removeAll(item);
+    d->pendingUpdateItems.removeAll(item);
     d->cachedItemsUnderMouse.removeAll(item);
 
     // Remove all children recursively

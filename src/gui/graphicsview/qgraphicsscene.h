@@ -211,6 +211,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_generateBspTree())
     Q_PRIVATE_SLOT(d_func(), void _q_emitUpdated())
     Q_PRIVATE_SLOT(d_func(), void _q_removeItemLater(QGraphicsItem *item))
+    Q_PRIVATE_SLOT(d_func(), void _q_updateLater())
     friend class QGraphicsItem;
     friend class QGraphicsView;
     friend class QGraphicsViewPrivate;

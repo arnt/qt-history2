@@ -67,9 +67,11 @@ public:
 
     int selectionChanging;
     QSet<QGraphicsItem *> selectedItems;
-
     QList<QGraphicsItem *> unindexedItems;
     QList<QGraphicsItem *> indexedItems;
+    QList<QGraphicsItem *> pendingUpdateItems;
+    void _q_updateLater();
+
     QList<int> freeItemIndexes;
     bool regenerateIndex;
 
