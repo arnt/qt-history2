@@ -323,7 +323,7 @@
     \list 1
     \o Declare a plugin class.
     \o Implement the interfaces provided by the plugin.
-    \o Export the plugin using the \c Q_EXPORT_PLUGIN2() macro.
+    \o Export the plugin using the Q_EXPORT_PLUGIN2() macro.
     \o Build the plugin using an adequate \c .pro file.
     \endlist
 
@@ -452,7 +452,7 @@
     \section1 Exporting the Plugin
 
     Whereas applications have a \c main() function as their entry
-    point, plugins need to contain exactly one occurrence of the \c
+    point, plugins need to contain exactly one occurrence of the
     Q_EXPORT_PLUGIN2() macro to specify which class provides the
     plugin:
 
