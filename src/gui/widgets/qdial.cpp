@@ -363,10 +363,10 @@ bool QDial::wrapping() const
     \brief the current notch size
 
     The notch size is in range control units, not pixels, and if
-    possible it is a multiple of lineStep() that results in an
+    possible it is a multiple of singleStep() that results in an
     on-screen notch size near notchTarget().
 
-    \sa notchTarget, lineStep()
+    \sa notchTarget(), singleStep()
 */
 
 int QDial::notchSize() const
