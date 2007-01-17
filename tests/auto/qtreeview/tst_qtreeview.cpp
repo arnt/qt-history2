@@ -98,6 +98,13 @@ private slots:
     void editTriggers_data();
     void editTriggers();
     void hasAutoScroll();
+    void horizontalScrollMode();
+    void iconSize();
+    void indexAt();
+    void indexWidget();
+    void itemDelegate();
+    void itemDelegateForColumnOrRow();
+    void keyboardSearch();
 
     // specialized tests below
     void setHeader();
@@ -117,7 +124,6 @@ private slots:
     void setSelection();
     void indexAbove();
     void indexBelow();
-    void indexAt();
     void clicked();
     void mouseDoubleClick();
     void rowsAboutToBeRemoved();
@@ -700,6 +706,255 @@ void tst_QTreeView::hasAutoScroll()
     // viewport.
 }
 
+void tst_QTreeView::horizontalScrollMode()
+{
+    QStandardItemModel model;
+    for (int i = 0; i < 100; ++i) {
+        model.appendRow(QList<QStandardItem *>()
+                        << new QStandardItem("An item that has very long text and should"
+                                             " cause the horizontal scroll bar to appear.")
+                        << new QStandardItem("An item that has very long text and should"
+                                             " cause the horizontal scroll bar to appear."));
+    }
+
+    QTreeView view;
+    view.setModel(&model);
+    view.setFixedSize(100, 100);
+    view.header()->resizeSection(0, 200);
+    view.show();
+
+    QCOMPARE(view.horizontalScrollMode(), QAbstractItemView::ScrollPerPixel);
+    QCOMPARE(view.horizontalScrollBar()->minimum(), 0);
+    QVERIFY(view.horizontalScrollBar()->maximum() > 2);
+
+    view.setHorizontalScrollMode(QAbstractItemView::ScrollPerItem);
+    QCOMPARE(view.horizontalScrollMode(), QAbstractItemView::ScrollPerItem);
+    QCOMPARE(view.horizontalScrollBar()->minimum(), 0);
+    QCOMPARE(view.horizontalScrollBar()->maximum(), 1);
+
+    view.setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+    QCOMPARE(view.horizontalScrollMode(), QAbstractItemView::ScrollPerPixel);
+    QCOMPARE(view.horizontalScrollBar()->minimum(), 0);
+    QVERIFY(view.horizontalScrollBar()->maximum() > 2);
+}
+
+class RepaintTreeView : public QTreeView
+{
+public:
+    RepaintTreeView() : repainted(false) { }
+    bool repainted;
+
+protected:
+    void paintEvent(QPaintEvent *event)
+    { repainted = true; QTreeView::paintEvent(event); }
+};
+
+void tst_QTreeView::iconSize()
+{
+    RepaintTreeView view;
+    QCOMPARE(view.iconSize(), QSize());
+
+    view.setModel(newStandardTreeModel());
+    QCOMPARE(view.iconSize(), QSize());
+    QVERIFY(!view.repainted);
+
+    view.show();
+    qApp->processEvents();
+    qApp->processEvents();
+    QVERIFY(view.repainted);
+    QCOMPARE(view.iconSize(), QSize());
+
+    view.repainted = false;
+    view.setIconSize(QSize());
+    qApp->processEvents();
+    qApp->processEvents();
+    QVERIFY(!view.repainted);
+    QCOMPARE(view.iconSize(), QSize());
+
+    view.setIconSize(QSize(10, 10));
+    qApp->processEvents();
+    qApp->processEvents();
+    QVERIFY(view.repainted);
+    QCOMPARE(view.iconSize(), QSize(10, 10));
+
+    view.repainted = false;
+    view.setIconSize(QSize(10000, 10000));
+    qApp->processEvents();
+    qApp->processEvents();
+    QVERIFY(view.repainted);
+    QCOMPARE(view.iconSize(), QSize(10000, 10000));
+}
+
+void tst_QTreeView::indexAt()
+{
+    QtTestModel model;
+    model.rows = model.cols = 5;
+
+    QTreeView view;
+    QCOMPARE(view.indexAt(QPoint()), QModelIndex());
+    view.setModel(&model);
+    QVERIFY(view.indexAt(QPoint()) != QModelIndex());
+
+    QSize itemSize = view.visualRect(model.index(0, 0)).size();
+    for (int i = 0; i < model.rowCount(); ++i) {
+        QPoint pos(itemSize.width() / 2, (i * itemSize.height()) + (itemSize.height() / 2));
+        QModelIndex index = view.indexAt(pos);
+        QCOMPARE(index, model.index(i, 0));
+    }
+
+    for (int j = 0; j < model.rowCount(); ++j)
+        view.setIndexWidget(model.index(j, 0), new QPushButton);
+    for (int k = 0; k < model.rowCount(); ++k) {
+        QPoint pos(itemSize.width() / 2, (k * itemSize.height()) + (itemSize.height() / 2));
+        QModelIndex index = view.indexAt(pos);
+        QCOMPARE(index, model.index(k, 0));
+    }
+}
+
+void tst_QTreeView::indexWidget()
+{
+    QTreeView view;
+    view.setModel(newStandardTreeModel());
+
+    QVERIFY(!view.indexWidget(QModelIndex()));
+    QVERIFY(!view.indexWidget(view.model()->index(0, 0)));
+
+    QLabel *label = new QLabel("TestLabel");
+    view.setIndexWidget(QModelIndex(), label);
+    QVERIFY(!view.indexWidget(QModelIndex()));
+    QVERIFY(!label->parent());
+    view.setIndexWidget(view.model()->index(0, 0), label);
+    QCOMPARE(view.indexWidget(view.model()->index(0, 0)), (QWidget *)label);
+    QCOMPARE(label->parentWidget(), (QWidget *)view.viewport());
+}
+
+void tst_QTreeView::itemDelegate()
+{
+    QPointer<QAbstractItemDelegate> oldDelegate;
+    QPointer<QItemDelegate> otherItemDelegate;
+
+    {
+        QTreeView view;
+        QVERIFY(qobject_cast<QItemDelegate *>(view.itemDelegate()));
+        QPointer<QAbstractItemDelegate> oldDelegate = view.itemDelegate();
+        
+        otherItemDelegate = new QItemDelegate;
+        view.setItemDelegate(otherItemDelegate);
+        QVERIFY(!otherItemDelegate->parent());
+        QVERIFY(oldDelegate);
+        
+        QCOMPARE(view.itemDelegate(), (QAbstractItemDelegate *)otherItemDelegate);
+        
+        view.setItemDelegate(0);
+        QVERIFY(!view.itemDelegate()); // <- view does its own drawing?
+        QVERIFY(otherItemDelegate);
+        
+        view.show();
+        qApp->processEvents();
+    }
+
+    // This is strange. Why doesn't setItemDelegate() reparent the delegate?
+    QVERIFY(!oldDelegate);
+    QVERIFY(otherItemDelegate);
+
+    delete otherItemDelegate;
+}
+
+void tst_QTreeView::itemDelegateForColumnOrRow()
+{
+    QTreeView view;
+    QAbstractItemDelegate *defaultDelegate = view.itemDelegate();
+    QVERIFY(defaultDelegate);
+
+    QVERIFY(!view.itemDelegateForRow(0));
+    QVERIFY(!view.itemDelegateForColumn(0));
+    QCOMPARE(view.itemDelegate(QModelIndex()), defaultDelegate);
+
+    QStandardItemModel model;
+    for (int i = 0; i < 100; ++i) {
+        model.appendRow(QList<QStandardItem *>()
+                        << new QStandardItem("An item that has very long text and should"
+                                             " cause the horizontal scroll bar to appear.")
+                        << new QStandardItem("An item that has very long text and should"
+                                             " cause the horizontal scroll bar to appear.")
+                        << new QStandardItem("An item that has very long text and should"
+                                             " cause the horizontal scroll bar to appear."));
+    }
+    view.setModel(&model);
+
+    QVERIFY(!view.itemDelegateForRow(0));
+    QVERIFY(!view.itemDelegateForColumn(0));
+    QCOMPARE(view.itemDelegate(QModelIndex()), defaultDelegate);
+    QCOMPARE(view.itemDelegate(view.model()->index(0, 0)), defaultDelegate);
+
+    QPointer<QAbstractItemDelegate> rowDelegate = new QItemDelegate;
+    view.setItemDelegateForRow(0, rowDelegate);
+    QVERIFY(!rowDelegate->parent());
+    QCOMPARE(view.itemDelegateForRow(0), (QAbstractItemDelegate *)rowDelegate);
+    QCOMPARE(view.itemDelegate(view.model()->index(0, 0)), (QAbstractItemDelegate *)rowDelegate);
+    QCOMPARE(view.itemDelegate(view.model()->index(0, 1)), (QAbstractItemDelegate *)rowDelegate);
+    QCOMPARE(view.itemDelegate(view.model()->index(1, 0)), defaultDelegate);
+    QCOMPARE(view.itemDelegate(view.model()->index(1, 1)), defaultDelegate);
+
+    QPointer<QAbstractItemDelegate> columnDelegate = new QItemDelegate;
+    view.setItemDelegateForColumn(1, columnDelegate);
+    QVERIFY(!columnDelegate->parent());
+    QCOMPARE(view.itemDelegateForColumn(1), (QAbstractItemDelegate *)columnDelegate);
+    QCOMPARE(view.itemDelegate(view.model()->index(0, 0)), (QAbstractItemDelegate *)rowDelegate);
+    QCOMPARE(view.itemDelegate(view.model()->index(0, 1)), (QAbstractItemDelegate *)rowDelegate); // row wins
+    QCOMPARE(view.itemDelegate(view.model()->index(1, 0)), defaultDelegate);
+    QCOMPARE(view.itemDelegate(view.model()->index(1, 1)), (QAbstractItemDelegate *)columnDelegate);
+
+    view.setItemDelegateForRow(0, 0);
+    QVERIFY(!view.itemDelegateForRow(0));
+    QVERIFY(rowDelegate); // <- wasn't deleted
+
+    view.setItemDelegateForColumn(1, 0);
+    QVERIFY(!view.itemDelegateForColumn(1));
+    QVERIFY(columnDelegate); // <- wasn't deleted
+
+    delete rowDelegate;
+    delete columnDelegate;
+}
+
+void tst_QTreeView::keyboardSearch()
+{
+    QTreeView view;
+    QStandardItemModel model;
+    model.appendRow(new QStandardItem("Andreas"));
+    model.appendRow(new QStandardItem("Baldrian"));
+    model.appendRow(new QStandardItem("Cecilie"));
+    view.setModel(&model);
+    view.show();
+    qApp->processEvents();
+
+    // Nothing is selected
+    QCOMPARE(view.selectionModel()->currentIndex(), QModelIndex());
+    QVERIFY(!view.selectionModel()->isSelected(model.index(0, 0)));
+
+    // First item is selected
+    view.keyboardSearch(QLatin1String("A"));
+    qApp->processEvents();
+    QVERIFY(view.selectionModel()->isSelected(model.index(0, 0)));
+
+    // First item is still selected
+    view.keyboardSearch(QLatin1String("n"));
+    qApp->processEvents();
+    QVERIFY(view.selectionModel()->isSelected(model.index(0, 0)));
+
+    // No "AnB" item - keep the same selection.
+    view.keyboardSearch(QLatin1String("B"));
+    qApp->processEvents();
+    QVERIFY(view.selectionModel()->isSelected(model.index(0, 0)));
+
+    // Wait a bit.
+    QTest::qWait(QApplication::keyboardInputInterval() * 2);
+    
+    // The item that starts with B is selected.
+    view.keyboardSearch(QLatin1String("B"));
+    QVERIFY(view.selectionModel()->isSelected(model.index(1, 0)));
+}
+
 void tst_QTreeView::setHeader()
 {
     QTreeView view;
@@ -1255,32 +1510,6 @@ void tst_QTreeView::indexBelow()
     i = view.indexBelow(i);
     QVERIFY(i.isValid());
 #endif
-}
-
-void tst_QTreeView::indexAt()
-{
-    QtTestModel model;
-    model.rows = model.cols = 5;
-
-    QTreeView view;
-    QCOMPARE(view.indexAt(QPoint()), QModelIndex());
-    view.setModel(&model);
-    QVERIFY(view.indexAt(QPoint()) != QModelIndex());
-
-    QSize itemSize = view.visualRect(model.index(0, 0)).size();
-    for (int i = 0; i < model.rowCount(); ++i) {
-        QPoint pos(itemSize.width() / 2, (i * itemSize.height()) + (itemSize.height() / 2));
-        QModelIndex index = view.indexAt(pos);
-        QCOMPARE(index, model.index(i, 0));
-    }
-
-    for (int j = 0; j < model.rowCount(); ++j)
-        view.setIndexWidget(model.index(j, 0), new QPushButton);
-    for (int k = 0; k < model.rowCount(); ++k) {
-        QPoint pos(itemSize.width() / 2, (k * itemSize.height()) + (itemSize.height() / 2));
-        QModelIndex index = view.indexAt(pos);
-        QCOMPARE(index, model.index(k, 0));
-    }
 }
 
 void tst_QTreeView::clicked()
