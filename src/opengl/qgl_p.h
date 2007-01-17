@@ -170,6 +170,45 @@ public:
 
 };
 
+// ### make QGLContext a QObject in 5.0 and remove the proxy stuff
+class QGLSignalProxy : public QObject
+{
+    Q_OBJECT
+public:
+    QGLSignalProxy() : QObject() {}
+    void emitAboutToDestroyContext(const QGLContext *context) {
+        emit aboutToDestroyContext(context);
+    }
+
+Q_SIGNALS:
+    void aboutToDestroyContext(const QGLContext *context);
+};
+
+class QGLProxy
+{
+public:
+    QGLSignalProxy *pointer;
+    bool destroyed;
+
+    inline ~QGLProxy()
+    {
+        delete pointer;
+        pointer = 0;
+        destroyed = true;
+    }
+
+    static QGLSignalProxy *signalProxy()
+    {
+        static QGLProxy this_proxy = { 0 , false };
+        if (!this_proxy.pointer && !this_proxy.destroyed) {
+            QGLSignalProxy *x = new QGLSignalProxy;
+            if (!q_atomic_test_and_set_ptr(&this_proxy.pointer, 0, x))
+                delete x;
+        }
+        return this_proxy.pointer;
+    }
+};
+
 
 // GL extension definitions
 class QGLExtensions {
@@ -244,32 +283,5 @@ private:
 };
 
 extern QGLShareRegister* qgl_share_reg();
-
-
-class QGLContextRegister
-{
-public:
-    QGLContextRegister() {}
-    ~QGLContextRegister() {}
-
-    void addContext(const QGLContext* ctx) {
-        if (!contexts.contains(ctx))
-            contexts.append(ctx);
-    }
-
-    bool isContext(const QGLContext* ctx) {
-        return contexts.contains(ctx);
-    }
-
-    void removeContext(const QGLContext* ctx) {
-        contexts.removeAll(ctx);
-    }
-
-private:
-    QList<const QGLContext*> contexts;
-
-};
-
-extern QGLContextRegister* qgl_context_register();
 
 #endif // QGL_P_H

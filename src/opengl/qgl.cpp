@@ -1248,7 +1248,7 @@ void QGLContextPrivate::init(QPaintDevice *dev, const QGLFormat &format)
 #endif
 #if defined(Q_WS_MAC)
     update = false;
-    vi = 0;    
+    vi = 0;
 #endif
 #if defined(Q_WS_QWS)
     dpy = 0;
@@ -1339,12 +1339,6 @@ struct DDSFormat {
 #define GL_GENERATE_MIPMAP_SGIS       0x8191
 #define GL_GENERATE_MIPMAP_HINT_SGIS  0x8192
 #endif
-
-Q_GLOBAL_STATIC(QGLContextRegister, _qgl_context_reg);
-QGLContextRegister* qgl_context_register()
-{
-    return _qgl_context_reg();
-}
 
 Q_GLOBAL_STATIC(QGLShareRegister, _qgl_share_reg);
 QGLShareRegister* qgl_share_reg()
@@ -1459,8 +1453,7 @@ QGLContext::~QGLContext()
         }
     }
 
-    qgl_context_register()->removeContext(this);
-
+    QGLProxy::signalProxy()->emitAboutToDestroyContext(this);
     reset();
     delete d;
 }

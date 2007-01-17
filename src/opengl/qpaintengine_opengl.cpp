@@ -305,15 +305,22 @@ private:
 
 Q_GLOBAL_STATIC(QGLMaskTextureCache, qt_mask_texture_cache)
 
-class QGLOffscreen {
+class QGLOffscreen : public QObject
+{
+    Q_OBJECT
 public:
     QGLOffscreen()
-        : offscreen(0),
+        : QObject(),
+          offscreen(0),
           ctx(0),
           mask_dim(0),
           activated(false),
           bound(false)
-    {}
+    {
+        connect(QGLProxy::signalProxy(),
+                SIGNAL(aboutToDestroyContext(const QGLContext *)),
+                SLOT(cleanupGLContextRefs(const QGLContext *)));
+    }
 
     inline void setDevice(QPaintDevice *pdev);
 
@@ -337,6 +344,12 @@ public:
     inline void initialize();
 
     inline bool isValid() const;
+
+public Q_SLOTS:
+    void cleanupGLContextRefs(const QGLContext *context) {
+        if (context == ctx)
+            ctx = 0;
+    }
 
 private:
     QGLDrawable drawable;
@@ -397,21 +410,8 @@ void QGLOffscreen::initialize()
 
     if (needs_refresh) {
         DEBUG_ONCE qDebug() << "QGLOffscreen::initialize(): creating offscreen of size" << dim;
-
-        bool old_context_valid = ctx && qgl_context_register()->isContext(ctx);
-
-        // try to delete old FBO in old context if possible
-        if (!shared_context && old_context_valid)
-            ctx->makeCurrent();
-
         delete offscreen;
-
-        // make sure we are in the current context
-        if (!shared_context && old_context_valid)
-            drawable.context()->makeCurrent();
-
         offscreen = new QGLFramebufferObject(dim, dim);
-
         mask_dim = dim;
 
         if (!offscreen->isValid()) {
@@ -423,8 +423,6 @@ void QGLOffscreen::initialize()
 
     qt_mask_texture_cache()->setOffscreenSize(offscreenSize());
     qt_mask_texture_cache()->setDrawableSize(drawable.size());
-
-    qgl_context_register()->addContext(drawable.context());
     ctx = drawable.context();
 }
 
@@ -563,7 +561,28 @@ struct QDrawQueueItem
     QGLMaskTextureCache::CacheLocation location;
 };
 
-class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
+class QOpenGLPaintEnginePrivate;
+class QGLPrivateCleanup : public QObject
+{
+    Q_OBJECT
+public:
+    QGLPrivateCleanup(QOpenGLPaintEnginePrivate *priv)
+        : p(priv)
+    {
+        connect(QGLProxy::signalProxy(),
+                SIGNAL(aboutToDestroyContext(const QGLContext *)),
+                SLOT(cleanupGLContextRefs(const QGLContext *)));
+    }
+
+public Q_SLOTS:
+    void cleanupGLContextRefs(const QGLContext *context);
+
+private:
+    QOpenGLPaintEnginePrivate *p;
+};
+
+class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate
+{
     Q_DECLARE_PUBLIC(QOpenGLPaintEngine)
 public:
     QOpenGLPaintEnginePrivate()
@@ -580,6 +599,7 @@ public:
         , use_fragment_programs(false)
         , high_quality_antialiasing(false)
         , drawable_texture(0)
+        , ref_cleaner(this)
         {}
 
     inline void setGLPen(const QColor &c) {
@@ -615,6 +635,11 @@ public:
     void drawFastRect(const QRectF &rect);
     void strokePath(const QPainterPath &path, bool use_cache);
     void strokePathFastPen(const QPainterPath &path);
+
+    void cleanupGLContextRefs(const QGLContext *context) {
+        if (context == shader_ctx)
+            shader_ctx = 0;
+    }
 
     QPen cpen;
     QBrush cbrush;
@@ -713,8 +738,16 @@ public:
     GLuint drawable_texture;
     QSize drawable_texture_size;
 
+    QGLPrivateCleanup ref_cleaner;
     friend class QGLMaskTextureCache;
+
 };
+
+void QGLPrivateCleanup::cleanupGLContextRefs(const QGLContext *context)
+{
+    p->cleanupGLContextRefs(context);
+}
+
 
 static inline QPainterPath strokeForPath(const QPainterPath &path, const QPen &cpen) {
     QPainterPathStroker stroker;
@@ -793,8 +826,9 @@ protected:
 
 Q_GLOBAL_STATIC(QGLStrokeCache, qt_opengl_stroke_cache)
 
-class QGLGradientCache
+class QGLGradientCache : public QObject
 {
+    Q_OBJECT
     struct CacheInfo
     {
         inline CacheInfo(QGradientStops s, qreal op) :
@@ -808,20 +842,16 @@ class QGLGradientCache
     typedef QMultiHash<quint64, CacheInfo> QGLGradientColorTableHash;
 
 public:
-    QGLGradientCache() : buffer_ctx(0) {}
+    QGLGradientCache() : QObject(), buffer_ctx(0)
+    {
+        connect(QGLProxy::signalProxy(),
+                SIGNAL(aboutToDestroyContext(const QGLContext *)),
+                SLOT(cleanupGLContextRefs(const QGLContext *)));
+    }
 
     inline GLuint getBuffer(const QGradientStops &stops, qreal opacity, QGLContext *ctx) {
-        if (buffer_ctx && !qgl_share_reg()->checkSharing(buffer_ctx, ctx)) {
-            if (qgl_context_register()->isContext(buffer_ctx)) {
-                QGLGradientColorTableHash::const_iterator it = cache.constBegin();
-                for (; it != cache.constEnd(); ++it) {
-                    const CacheInfo &cache_info = it.value();
-                    glDeleteTextures(1, &cache_info.texId);
-                }
-            }
-
-            cache.clear();
-        }
+        if (buffer_ctx && !qgl_share_reg()->checkSharing(buffer_ctx, ctx))
+            cleanCache();
 
         buffer_ctx = ctx;
 
@@ -848,6 +878,7 @@ public:
     }
 
     inline int paletteSize() const { return 1024; }
+
 protected:
     inline int maxCacheSize() const { return 60; }
     inline void generateGradientColorTable(const QGradientStops& s,
@@ -876,9 +907,26 @@ protected:
         return cache.insert(hash_val, cache_entry).value().texId;
     }
 
+    void cleanCache() {
+        QGLGradientColorTableHash::const_iterator it = cache.constBegin();
+        for (; it != cache.constEnd(); ++it) {
+            const CacheInfo &cache_info = it.value();
+            glDeleteTextures(1, &cache_info.texId);
+        }
+        cache.clear();
+    }
+
     QGLGradientColorTableHash cache;
 
     QGLContext *buffer_ctx;
+
+public Q_SLOTS:
+    void cleanupGLContextRefs(const QGLContext *context) {
+        if (context == buffer_ctx) {
+            cleanCache();
+            buffer_ctx = 0;
+        }
+    }
 };
 
 void QGLGradientCache::generateGradientColorTable(const QGradientStops& s, uint *colorTable, int size, qreal opacity) const
@@ -1102,7 +1150,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     bool shared_ctx = qgl_share_reg()->checkSharing(d->drawable.context(), d->shader_ctx);
 
     if (!shared_ctx) {
-        if (d->shader_ctx && qgl_context_register()->isContext(d->shader_ctx)) {
+        if (d->shader_ctx) {
             d->shader_ctx->makeCurrent();
             glBindTexture(GL_TEXTURE_1D, 0);
             glDeleteTextures(1, &d->grad_palette);
@@ -1115,7 +1163,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
             d->drawable.context()->makeCurrent();
         }
         d->shader_ctx = d->drawable.context();
-        qgl_context_register()->addContext(d->drawable.context());
         glGenTextures(1, &d->grad_palette);
 
         qt_mask_texture_cache()->clearCache();

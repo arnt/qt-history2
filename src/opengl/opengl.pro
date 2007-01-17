@@ -13,6 +13,7 @@ contains(QT_CONFIG, opengl):CONFIG += opengl
 
 
 HEADERS += qgl.h \
+	   qgl_p.h \
 	   qglcolormap.h \
 	   qpaintengine_opengl_p.h \
 	   qglpixelbuffer.h \
@@ -25,7 +26,7 @@ SOURCES	+= qgl.cpp \
            qglextensions.cpp
 x11 {
     SOURCES += qgl_x11.cpp \
-	       qglpixelbuffer_x11.cpp 
+	       qglpixelbuffer_x11.cpp
  	contains(QT_CONFIG, fontconfig) {
  		include($$QT_SOURCE_TREE/config.tests/unix/freetype/freetype.pri)
 	} else {
@@ -45,7 +46,7 @@ win32 {
 
 embedded {
     SOURCES += qgl_qws.cpp \
-	       qglpixelbuffer_qws.cpp 
+	       qglpixelbuffer_qws.cpp
 
      	contains(QT_CONFIG, fontconfig) {
  		include($$QT_SOURCE_TREE/config.tests/unix/freetype/freetype.pri)
