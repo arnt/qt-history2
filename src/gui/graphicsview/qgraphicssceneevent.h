@@ -114,6 +114,9 @@ public:
     int delta() const;
     void setDelta(int delta);
 
+    Qt::Orientation orientation() const;
+    void setOrientation(Qt::Orientation orientation);
+
 private:
     Q_DECLARE_PRIVATE(QGraphicsSceneWheelEvent)
 };

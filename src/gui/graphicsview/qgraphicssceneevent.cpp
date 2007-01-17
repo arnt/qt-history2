@@ -558,7 +558,7 @@ class QGraphicsSceneWheelEventPrivate : public QGraphicsSceneEventPrivate
     Q_DECLARE_PUBLIC(QGraphicsSceneWheelEvent)
 public:
     inline QGraphicsSceneWheelEventPrivate()
-        : buttons(0), modifiers(0), delta(0)
+        : buttons(0), modifiers(0), delta(0), orientation(Qt::Horizontal)
     { }
 
     QPointF pos;
@@ -567,6 +567,7 @@ public:
     Qt::MouseButtons buttons;
     Qt::KeyboardModifiers modifiers;
     int delta;
+    Qt::Orientation orientation;
 };
 
 /*!
@@ -713,6 +714,24 @@ void QGraphicsSceneWheelEvent::setDelta(int delta)
 {
     Q_D(QGraphicsSceneWheelEvent);
     d->delta = delta;
+}
+
+/*!
+    Returns the wheel orientation.
+*/
+Qt::Orientation QGraphicsSceneWheelEvent::orientation() const
+{
+    Q_D(const QGraphicsSceneWheelEvent);
+    return d->orientation;
+}
+
+/*!
+    \internal
+*/
+void QGraphicsSceneWheelEvent::setOrientation(Qt::Orientation orientation)
+{
+    Q_D(QGraphicsSceneWheelEvent);
+    d->orientation = orientation;
 }
 
 class QGraphicsSceneContextMenuEventPrivate : public QGraphicsSceneEventPrivate
