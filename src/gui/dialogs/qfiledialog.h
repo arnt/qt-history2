@@ -245,6 +245,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_animateDialogV(int))
     Q_PRIVATE_SLOT(d_func(), void _q_animateDialogH(int))
     Q_PRIVATE_SLOT(d_func(), void _q_autoCompleteFileName(const QString &text))
+    Q_PRIVATE_SLOT(d_func(), void _q_rowsInserted(const QModelIndex & parent, int start, int end))
 };
 
 inline void QFileDialog::setDirectory(const QDir &adirectory)

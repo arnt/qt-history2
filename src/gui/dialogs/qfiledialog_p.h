@@ -141,6 +141,12 @@ public:
         return QDir::Drives | QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot;
     }
 
+    QAbstractItemView *currentView() const {
+        if (!stackedWidget)
+            return 0;
+        return qobject_cast<QAbstractItemView*>(stackedWidget->currentWidget());
+    }
+
     static inline QString toInternal(const QString &path)
     {
 #if defined(Q_FS_FAT) || defined(Q_OS_OS2EMX)
@@ -178,6 +184,7 @@ public:
     void _q_animateDialogV(int);
     void _q_animateDialogH(int);
     void _q_autoCompleteFileName(const QString &);
+    void _q_rowsInserted(const QModelIndex & parent, int start, int end);
 
     // layout
     QLabel *fileNameLabel;
