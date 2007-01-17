@@ -30,6 +30,21 @@
 
 #include "qfontengine_p.h"
 
+static inline QFixed leadingSpaceWidth(QTextEngine *eng, const QScriptLine &line)
+{
+    if (!line.hasTrailingSpaces
+        || (eng->option.flags() & QTextOption::IncludeTrailingSpaces)
+        || !(eng->option.alignment() & Qt::AlignRight)
+        || (eng->option.textDirection() != Qt::RightToLeft))
+        return QFixed();
+
+    int pos = line.length;
+    const QCharAttributes *attributes = eng->attributes();
+    while (pos > 0 && attributes[line.from + pos - 1].whiteSpace)
+        --pos;
+    return eng->width(line.from + pos, line.length - pos);
+}
+
 static QFixed alignLine(QTextEngine *eng, const QScriptLine &line)
 {
     QFixed x = 0;
@@ -39,7 +54,7 @@ static QFixed alignLine(QTextEngine *eng, const QScriptLine &line)
         if (align & Qt::AlignJustify && eng->option.textDirection() == Qt::RightToLeft)
             align = Qt::AlignRight;
         if (align & Qt::AlignRight)
-            x = line.width - line.textWidth;
+            x = line.width - (line.textWidth + leadingSpaceWidth(eng, line));
         else if (align & Qt::AlignHCenter)
             x = (line.width - line.textWidth)/2;
     }
@@ -1224,6 +1239,7 @@ void QTextLine::layout_helper(int maxGlyphs)
     QScriptLine &line = eng->lines[i];
     line.length = 0;
     line.textWidth = 0;
+    line.hasTrailingSpaces = false;
 
     if (!eng->layoutData->items.size() || line.from >= eng->layoutData->string.length()) {
         line.setDefaultHeight(eng);
@@ -1402,6 +1418,8 @@ found:
     if (eng->option.flags() & QTextOption::IncludeTrailingSpaces)
         line.textWidth += spaceData.textWidth;
     line.length += spaceData.length;
+    if (spaceData.length)
+        line.hasTrailingSpaces = true;
 
     line.justified = false;
     line.gridfitted = false;

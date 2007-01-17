@@ -393,7 +393,8 @@ struct QScriptLine
 {
     QScriptLine()
         : from(0), length(0),
-        justified(0), gridfitted(0) {}
+        justified(0), gridfitted(0),
+        hasTrailingSpaces(0) {}
     QFixed descent;
     QFixed ascent;
     QFixed x;
@@ -401,9 +402,10 @@ struct QScriptLine
     QFixed width;
     QFixed textWidth;
     int from;
-    signed int length : 30;
+    signed int length : 29;
     mutable uint justified : 1;
     mutable uint gridfitted : 1;
+    uint hasTrailingSpaces : 1;
     QFixed height() const { return ascent + descent + 1; }
     void setDefaultHeight(QTextEngine *eng);
     void operator+=(const QScriptLine &other);
