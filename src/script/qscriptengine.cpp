@@ -730,9 +730,13 @@ void QScriptEngine::registerCustomType(int type, MarshallFunction mf,
                                        const QScriptValue &prototype)
 {
     QScriptCustomTypeInfo info = d_func()->m_customTypes.value(type);
+    if (info.prototype.isValid())
+        removeRootObject(info.prototype);
     info.marshall = mf;
     info.demarshall = df;
     info.prototype = prototype;
+    if (prototype.isValid())
+        addRootObject(prototype);
     d_func()->m_customTypes.insert(type, info);
 }
 
