@@ -41,7 +41,7 @@ PhraseBookBox::PhraseBookBox(const QString& filename,
     phraseList->setSelectionBehavior(QAbstractItemView::SelectRows);
     phraseList->setSelectionMode(QAbstractItemView::SingleSelection);
     phraseList->setRootIsDecorated(false);
-    phraseList->header()->setResizeMode(QHeaderView::Stretch);
+    phraseList->header()->setResizeMode(QHeaderView::Interactive);
     phraseList->header()->setClickable(true);
 
     connect(sourceLed, SIGNAL(textChanged(QString)),
