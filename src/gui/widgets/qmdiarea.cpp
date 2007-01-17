@@ -105,6 +105,8 @@
 #include <QtAlgorithms>
 #include <QMutableListIterator>
 #include <QPainter>
+#include <QFontMetrics>
+#include <QStyleOption>
 #include <QDebug>
 #include <math.h>
 
@@ -208,7 +210,15 @@ void SimpleCascader::rearrange(QList<QWidget *> &widgets, const QRect &domain) c
     const int leftOffset = 0;
     const int rightOffset = 100;
     const int dx = 10;
-    const int dy = 20;
+
+    QStyleOptionTitleBar options;
+    options.initFrom(widgets.at(0));
+    int titleBarHeight = widgets.at(0)->style()->pixelMetric(QStyle::PM_TitleBarHeight, &options);
+    // ### Remove this after the mac style has been fixed
+    if (widgets.at(0)->style()->inherits("QMacStyle"))
+        titleBarHeight -= 4;
+    const QFontMetrics fontMetrics = QFontMetrics(QApplication::font("QWorkspaceTitleBar"));
+    const int dy = qMax(titleBarHeight - (titleBarHeight - fontMetrics.height()) / 2, 1);
 
     const int n = widgets.size();
     const int nrows = qMax((domain.height() - (topOffset + bottomOffset)) / dy, 1);
