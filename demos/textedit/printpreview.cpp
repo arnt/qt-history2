@@ -49,7 +49,7 @@ class PreviewView : public QAbstractScrollArea
 {
     Q_OBJECT
 public:
-    PreviewView(QTextDocument *document);
+    PreviewView(QTextDocument *document, PrintPreview *printPrev);
 
     inline void updateLayout() { resizeEvent(0); viewport()->update(); }
 
@@ -71,9 +71,11 @@ private:
     int interPageSpacing;
     QPoint mousePressPos;
     QPoint scrollBarValuesOnMousePress;
+    PrintPreview *printPreview;
 };
 
-PreviewView::PreviewView(QTextDocument *document)
+PreviewView::PreviewView(QTextDocument *document, PrintPreview *printPrev)
+    : printPreview(printPrev)
 {
     verticalScrollBar()->setSingleStep(20);
     horizontalScrollBar()->setSingleStep(20);
@@ -114,7 +116,7 @@ void PreviewView::paintEvent(QPaintEvent *)
         paintPage(&p, i);
 
         p.restore();
-        p.translate(0, interPageSpacing + doc->pageSize().height() * scale);
+        p.translate(0, interPageSpacing + printPreview->paperSize.height() * scale);
     }
 }
 
@@ -126,14 +128,16 @@ void PreviewView::paintPage(QPainter *painter, int page)
 
     painter->setPen(col);
     painter->setBrush(Qt::white);
-    painter->drawRect(QRectF(QPointF(0, 0), pgSize));
+    painter->drawRect(QRectF(QPointF(0, 0), printPreview->paperSize));
     painter->setBrush(Qt::NoBrush);
 
     col = col.light();
-    painter->drawLine(QLineF(pgSize.width(), 1, pgSize.width(), pgSize.height() - 1));
+    painter->drawLine(QLineF(printPreview->paperSize.width(), 1,
+                             printPreview->paperSize.width(), printPreview->paperSize.height() - 1));
 
     col = col.light();
-    painter->drawLine(QLineF(pgSize.width(), 2, pgSize.width(), pgSize.height() - 2));
+    painter->drawLine(QLineF(printPreview->paperSize.width(), 2,
+                             printPreview->paperSize.width(), printPreview->paperSize.height() - 2));
 
     QRectF docRect(QPointF(0, page * pgSize.height()), pgSize);
     QAbstractTextDocumentLayout::PaintContext ctx;
@@ -145,7 +149,9 @@ void PreviewView::paintPage(QPainter *painter, int page)
     ctx.palette.setColor(QPalette::Text, Qt::black);
 
     painter->translate(0, - page * pgSize.height());
-    painter->setClipRect(docRect);
+
+    painter->translate(printPreview->pageTopLeft);
+    painter->setClipRect(docRect);//.translated(printPreview->pageTopLeft));
     doc->documentLayout()->draw(painter, ctx);
 }
 
@@ -154,9 +160,9 @@ void PreviewView::resizeEvent(QResizeEvent *)
     const QSize viewportSize = viewport()->size();
 
     QSize docSize;
-    docSize.setWidth(qRound(doc->pageSize().width() * scale + 2 * interPageSpacing));
+    docSize.setWidth(qRound(printPreview->paperSize.width() * scale + 2 * interPageSpacing));
     const int pageCount = doc->pageCount();
-    docSize.setHeight(qRound(pageCount * doc->pageSize().height() * scale + (pageCount + 1) * interPageSpacing));
+    docSize.setHeight(qRound(pageCount * printPreview->paperSize.height() * scale + (pageCount + 1) * interPageSpacing));
 
     horizontalScrollBar()->setRange(0, docSize.width() - viewportSize.width());
     horizontalScrollBar()->setPageStep(viewportSize.width());
@@ -201,7 +207,7 @@ PrintPreview::PrintPreview(const QTextDocument *document, QWidget *parent)
     printer.setFullPage(true);
     doc = document->clone();
 
-    view = new PreviewView(doc);
+    view = new PreviewView(doc, this);
     setCentralWidget(view);
     resize(800, 600);
 
@@ -257,6 +263,14 @@ PrintPreview::PrintPreview(const QTextDocument *document, QWidget *parent)
 void PrintPreview::setup()
 {
     QSizeF page = printer.pageRect().size();
+    paperSize = printer.paperRect().size();
+    paperSize.rwidth() *= qreal(view->logicalDpiX()) / printer.logicalDpiX();
+    paperSize.rheight() *= qreal(view->logicalDpiY()) / printer.logicalDpiY();
+
+    pageTopLeft = printer.pageRect().topLeft();
+    pageTopLeft.rx() *= qreal(view->logicalDpiX()) / printer.logicalDpiX();
+    pageTopLeft.ry() *= qreal(view->logicalDpiY()) / printer.logicalDpiY();
+
     page.setWidth(page.width() * view->logicalDpiX() / printer.logicalDpiX());
     page.setHeight(page.height() * view->logicalDpiY() / printer.logicalDpiY());
 
