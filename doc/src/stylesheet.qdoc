@@ -1717,7 +1717,7 @@
            | \tt{#\e{rrggbb}} \BR
            | \l{QColor::setNamedColor()}{Color Name}
         \o Specifies a color as RGB (red, green, blue) or RGBA
-           (red, green, blue, alpha). The \c rgb() or \a rgba() syntax can be
+           (red, green, blue, alpha). The \c rgb() or \c rgba() syntax can be
            used with integer values between 0 and 255, or with
            percentages.
 
