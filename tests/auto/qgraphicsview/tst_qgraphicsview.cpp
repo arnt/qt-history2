@@ -94,6 +94,7 @@ private slots:
     void mapFromScenePoly();
     void mapFromScenePath();
     void sendEvent();
+    void wheelEvent();
     void cursor();
     void cursor2();
     void transformationAnchor();
@@ -1529,6 +1530,44 @@ void tst_QGraphicsView::sendEvent()
     QApplication::sendEvent(view.viewport(), &keyPress);
     QCOMPARE(item->events.size(), 5);
     QCOMPARE(item->events.last(), QEvent::KeyPress);
+}
+
+class MouseWheelScene : public QGraphicsScene
+{
+public:
+    Qt::Orientation orientation;
+
+    void wheelEvent(QGraphicsSceneWheelEvent *event)
+    {
+        orientation = event->orientation();
+    }
+};
+
+void tst_QGraphicsView::wheelEvent()
+{
+    // Create a scene with an invalid orientation.
+    MouseWheelScene scene;
+    scene.orientation = Qt::Orientation(-1);
+
+    // Assign a view.
+    QGraphicsView view(&scene);
+    view.show();
+
+    // Send a wheel event with horizontal orientation.
+    {
+        QWheelEvent event(view.viewport()->rect().center(),
+                          120, 0, 0, Qt::Horizontal);
+        QApplication::sendEvent(view.viewport(), &event);
+        QCOMPARE(scene.orientation, Qt::Horizontal);
+    }
+
+    // Send a wheel event with horizontal orientation.
+    {
+        QWheelEvent event(view.viewport()->rect().center(),
+                          120, 0, 0, Qt::Vertical);
+        QApplication::sendEvent(view.viewport(), &event);
+        QCOMPARE(scene.orientation, Qt::Vertical);
+    }
 }
 
 void tst_QGraphicsView::cursor()
