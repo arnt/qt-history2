@@ -601,20 +601,31 @@ void tst_QHeaderView::swapSections()
 
 void tst_QHeaderView::moveSection_data()
 {
+    QTest::addColumn<QList<int> >("hidden");
     QTest::addColumn<QList<int> >("from");
     QTest::addColumn<QList<int> >("to");
     QTest::addColumn<QList<bool> >("moved");
     QTest::addColumn<QList<int> >("logical");
     QTest::addColumn<int>("count");
 
-    QTest::newRow("bad args")
+    QTest::newRow("bad args, no hidden")
+        << (QList<int>())
         << (QList<int>() << -1 << 1 << 99999 << 1)
         << (QList<int>() << 1 << -1 << 1 << 99999)
         << (QList<bool>() << false << false << false << false)
         << (QList<int>() << 0 << 1 << 2 << 3)
         << 0;
 
-    QTest::newRow("good args")
+    QTest::newRow("good args, no hidden")
+        << (QList<int>())
+        << (QList<int>() << 1 << 1 << 2 << 1)
+        << (QList<int>() << 1 << 2 << 1 << 2)
+        << (QList<bool>() << false << true << true << true)
+        << (QList<int>() << 0 << 2 << 1 << 3)
+        << 3;
+
+    QTest::newRow("hidden sections")
+        << (QList<int>() << 0 << 3)
         << (QList<int>() << 1 << 1 << 2 << 1)
         << (QList<int>() << 1 << 2 << 1 << 2)
         << (QList<bool>() << false << true << true << true)
@@ -624,6 +635,7 @@ void tst_QHeaderView::moveSection_data()
 
 void tst_QHeaderView::moveSection()
 {
+    QFETCH(QList<int>, hidden);
     QFETCH(QList<int>, from);
     QFETCH(QList<int>, to);
     QFETCH(QList<bool>, moved);
@@ -636,6 +648,9 @@ void tst_QHeaderView::moveSection()
 
     QSignalSpy spy1(view, SIGNAL(sectionMoved(int, int, int)));
     QCOMPARE(view->sectionsMoved(), false);
+
+    for (int h = 0; h < hidden.count(); ++h)
+        view->setSectionHidden(hidden.at(h), true);
 
     for (int i = 0; i < from.count(); ++i) {
         view->moveSection(from.at(i), to.at(i));
