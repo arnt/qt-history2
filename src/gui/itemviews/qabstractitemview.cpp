@@ -579,6 +579,9 @@ QItemSelectionModel* QAbstractItemView::selectionModel() const
     This is useful if you want complete control over the editing and
     display of items.
 
+    Any existing delegate will be removed, but not deleted. QAbstractItemView
+    does not take ownership of \a delegate.
+
     \sa itemDelegate()
 */
 void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
@@ -625,12 +628,21 @@ QVariant QAbstractItemView::inputMethodQuery(Qt::InputMethodQuery query) const
 /*!
     \since 4.2
 
-    Sets the given item \a delegate used by this view and model for
-    the given \a row.
+    Sets the given item \a delegate used by this view and model for the given
+    \a row. All items on \a row will be drawn and managed by \a delegate
+    instead of using the default delegate (i.e., itemDelegate()).
+
+    Any existing row delegate for \a row will be removed, but not
+    deleted. QAbstractItemView does not take ownership of \a delegate.
+
+    Note: If a delegate has been assigned to both a row and a column, the row
+    delegate (i.e., this delegate) will take presedence and manage the
+    intersecting cell index.
+
+    \sa itemDelegateForRow(), setItemDelegateForColumn(), itemDelegate()
 */
 void QAbstractItemView::setItemDelegateForRow(int row, QAbstractItemDelegate *delegate)
 {
-    Q_ASSERT(delegate);
     Q_D(QAbstractItemView);
     if (QAbstractItemDelegate *rowDelegate = d->rowDelegates.value(row, 0)) {
         disconnect(rowDelegate, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)),
@@ -650,8 +662,11 @@ void QAbstractItemView::setItemDelegateForRow(int row, QAbstractItemDelegate *de
 /*!
    \since 4.2
 
-   Returns the item delegate used by this view and model for
-   the given \a row.
+   Returns the item delegate used by this view and model for the given \a row,
+   or 0 if no delegate has been assigned. You can call itemDelegate() to get a
+   pointer to the current delegate for a given index.
+
+   \sa setItemDelegateForRow(), itemDelegateForColumn(), setItemDelegate()
 */
 QAbstractItemDelegate *QAbstractItemView::itemDelegateForRow(int row) const
 {
@@ -662,12 +677,20 @@ QAbstractItemDelegate *QAbstractItemView::itemDelegateForRow(int row) const
 /*!
     \since 4.2
 
-    Sets the given item \a delegate used by this view and model for
-    the given \a column.
+    Sets the given item \a delegate used by this view and model for the given
+    \a column. All items on \a column will be drawn and managed by \a delegate
+    instead of using the default delegate (i.e., itemDelegate()).
+
+    Any existing column delegate for \a column will be removed, but not
+    deleted. QAbstractItemView does not take ownership of \a delegate.
+
+    Note: If a delegate has been assigned to both a row and a column, the row
+    delegate will take presedence and manage the intersecting cell index.
+
+    \sa itemDelegateForColumn(), setItemDelegateForRow(), itemDelegate()
 */
 void QAbstractItemView::setItemDelegateForColumn(int column, QAbstractItemDelegate *delegate)
 {
-    Q_ASSERT(delegate);
     Q_D(QAbstractItemView);
     if (QAbstractItemDelegate *columnDelegate = d->columnDelegates.value(column, 0)) {
         disconnect(columnDelegate, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)),
@@ -687,8 +710,11 @@ void QAbstractItemView::setItemDelegateForColumn(int column, QAbstractItemDelega
 /*!
    \since 4.2
 
-   Returns the item delegate used by this view and model for
-   the given \a column.
+   Returns the item delegate used by this view and model for the given \a
+   column.You can call itemDelegate() to get a pointer to the current delegate
+   for a given index.
+   
+    \sa setItemDelegateForColumn(), itemDelegateForRow(), itemDelegate()
 */
 QAbstractItemDelegate *QAbstractItemView::itemDelegateForColumn(int column) const
 {
@@ -1153,6 +1179,8 @@ bool QAbstractItemView::alternatingRowColors() const
 void QAbstractItemView::setIconSize(const QSize &size)
 {
     Q_D(QAbstractItemView);
+    if (size == d->iconSize)
+        return;
     d->iconSize = size;
     d->doDelayedItemsLayout();
 }
@@ -2475,6 +2503,9 @@ void QAbstractItemView::closePersistentEditor(const QModelIndex &index)
     Sets the given \a widget on the item at the given \a index,
     passing the ownership of the widget to the viewport.
 
+    If \a index is invalid (e.g., if you pass the root index), this function
+    will do nothing.    
+    
     Note that the given \a widget's \l
     {QWidget}{autoFillBackground} property must be set to true,
     otherwise the widget's background will be transparent, showing both
