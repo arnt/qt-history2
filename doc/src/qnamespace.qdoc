@@ -125,7 +125,9 @@
 
     \bold{Note:} On Mac OS X, the \c ControlModifier value corresponds to
     the Command keys on the Macintosh keyboard, and the \c MetaModifier value
-    corresponds to the Control keys.
+    corresponds to the Control keys. The \c KeypadModifier value will also be set 
+    when an arrow key is pressed as the arrow keys are considered part of the 
+    keypad.
 
     \value NoModifier       No modifier key is pressed.
     \value ShiftModifier    A Shift key on the keyboard is pressed.
