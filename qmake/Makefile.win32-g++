@@ -109,7 +109,8 @@ QTOBJS= \
 	qscriptparser.o \
 	qscriptprettypretty.o \
 	qscriptsyntaxchecker.o \
-	qscriptvalue.o
+	qscriptvalue.o \
+	qscriptvalueiterator.o
 
 
 qmake.exe: $(OBJS) $(QTOBJS)
@@ -394,3 +395,6 @@ qscriptsyntaxchecker.o: $(SOURCE_PATH)/src/script/qscriptsyntaxchecker.cpp
 
 qscriptvalue.o: $(SOURCE_PATH)/src/script/qscriptvalue.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/script/qscriptvalue.cpp
+
+qscriptvalueiterator.o: $(SOURCE_PATH)/src/script/qscriptvalueiterator.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/script/qscriptvalueiterator.cpp
