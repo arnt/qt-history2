@@ -981,6 +981,7 @@ void tst_QMdiArea::tileSubWindows()
 void tst_QMdiArea::cascadeAndTileSubWindows()
 {
     QMdiArea workspace;
+    workspace.resize(400, 400);
     workspace.show();
 
     const int windowCount = 10;
