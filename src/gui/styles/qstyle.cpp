@@ -1208,7 +1208,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_MenuHMargin  Additional border (used on left and right) for a QMenu.
     \value PM_MenuVMargin  Additional border (used for bottom and top) for a QMenu.
     \value PM_MenuScrollerHeight  Height of the scroller area in a QMenu.
-    \value PM_MenuScrollerHeight  Height of the scroller area in a QMenu.
     \value PM_MenuTearoffHeight  Height of a tear off area in a QMenu.
     \value PM_MenuDesktopFrameWidth The frame width for the menu on the desktop.
 
