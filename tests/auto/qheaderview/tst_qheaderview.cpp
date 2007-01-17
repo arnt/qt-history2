@@ -56,6 +56,8 @@ public slots:
 private slots:
     void getSetCheck();
     void visualIndex();
+
+    void visualIndexAt_data();
     void visualIndexAt();
 
     void noModel();
@@ -458,31 +460,55 @@ void tst_QHeaderView::visualIndex()
     QCOMPARE(view->visualIndex(2), 2);
 }
 
+void tst_QHeaderView::visualIndexAt_data()
+{
+    QTest::addColumn<QList<int> >("hidden");
+    QTest::addColumn<QList<int> >("from");
+    QTest::addColumn<QList<int> >("to");
+    QTest::addColumn<QList<int> >("coordinate");
+    QTest::addColumn<QList<int> >("visual");
+
+    QTest::newRow("no hidden, no moved sections")
+        << (QList<int>())
+        << (QList<int>())
+        << (QList<int>())
+        << (QList<int>() << -1 << 0 << 31 << 91 << 99999)
+        << (QList<int>() << -1 << 0 << 1 << 3 << -1);
+
+    QTest::newRow("no hidden, moved sections")
+        << (QList<int>())
+        << (QList<int>() << 0)
+        << (QList<int>() << 1)
+        << (QList<int>() << -1 << 0 << 31 << 91 << 99999)
+        << (QList<int>() << -1 << 0 << 1 << 3 << -1);
+
+    QTest::newRow("hidden, no moved sections")
+        << (QList<int>() << 0)
+        << (QList<int>())
+        << (QList<int>())
+        << (QList<int>() << -1 << 0 << 31 << 91 << 99999)
+        << (QList<int>() << -1 << 1 << 2 << 3 << -1);
+}
+
 void tst_QHeaderView::visualIndexAt()
 {
-    // Test bad arguments
-    QCOMPARE(view->visualIndexAt(999999), -1);
-    QCOMPARE(view->visualIndexAt(-1), -1);
+    QFETCH(QList<int>, hidden);
+    QFETCH(QList<int>, from);
+    QFETCH(QList<int>, to);
+    QFETCH(QList<int>, coordinate);
+    QFETCH(QList<int>, visual);
 
     view->setStretchLastSection(true);
     view->show();
 
-    // First item
-    QCOMPARE(view->visualIndexAt(0), 0);
-    QCOMPARE(view->visualIndexAt(view->sectionSize(0)+1), 1);
-    // Last item
-    int last = view->length() - 1;//view->viewport()->height() - 1;
-    QCOMPARE(view->visualIndexAt(last), 3);
-    // Not in widget
-    int outofbounds = view->length() + 1;//view->viewport()->height() + 1;
-    QCOMPARE(view->visualIndexAt(outofbounds), -1);
+    for (int i = 0; i < hidden.count(); ++i)
+        view->setSectionHidden(hidden.at(i), true);
 
-    view->moveSection(0,1);
-    // First item
-    QCOMPARE(view->visualIndexAt(0), 0);
-    // Last item
-    QCOMPARE(view->visualIndexAt(last), 3);
-    view->moveSection(1,0);
+    for (int j = 0; j < from.count(); ++j)
+        view->moveSection(from.at(j), to.at(j));
+
+    for (int k = 0; k < coordinate.count(); ++k)
+        QCOMPARE(view->visualIndexAt(coordinate.at(k)), visual.at(k));
 }
 
 void tst_QHeaderView::length()
