@@ -27,12 +27,11 @@ static void interactive(QScriptEngine &eng)
 {
     QTextStream qin(stdin, QFile::ReadOnly);
 
-    const char *qscript_prompt = "qscript> ";
+    const char *qscript_prompt = "qs> ";
     const char *dot_prompt = ".... ";
     const char *prompt = qscript_prompt;
 
     QString code;
-    int lineno = 1;
 
     forever {
         QString line;
@@ -48,28 +47,19 @@ static void interactive(QScriptEngine &eng)
         code += QLatin1Char('\n');
 
         if (line.trimmed().isEmpty()) {
-            ++lineno;
             continue;
-        }
 
-        else if (! eng.canEvaluate(code))
+        } else if (! eng.canEvaluate(code)) {
             prompt = dot_prompt;
 
-        else {
-            QScriptValue result = eng.evaluate(code, lineno);
-            ++lineno;
+        } else {
+            QScriptValue result = eng.evaluate(code);
 
             code.clear();
             prompt = qscript_prompt;
 
-            if (! result.isUndefined()) {
-                if (eng.uncaughtException()) {
-                    int line = eng.uncaughtExceptionLineNumber();
-                    fprintf(stderr, "%d: %s\n", line, qPrintable(result.toString()));
-                } else {
-                    fprintf(stderr, "%s\n", qPrintable(result.toString()));
-                }
-            }
+            if (! result.isUndefined())
+                fprintf(stderr, "%s\n", qPrintable(result.toString()));
         }
     }
 }
