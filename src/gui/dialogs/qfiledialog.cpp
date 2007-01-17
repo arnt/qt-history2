@@ -2592,8 +2592,14 @@ QStringList QFSCompletor::splitPath(const QString &path) const
     if (parts.count() == 1 || (parts.count() > 1 && path[0] != sep[0])) {
         const QFileSystemModel *dirModel = static_cast<const QFileSystemModel *>(model());
         QString currentLocation = dirModel->rootPath();
-        if (currentLocation.contains(sep))
-            return splitPath(currentLocation + sep + path);
+        if (currentLocation.contains(sep)) {
+            QStringList currentLocationList = splitPath(currentLocation);
+            while (parts.count() > 0 && parts.at(0) == "..") {
+                parts.removeFirst();
+                currentLocationList.removeLast();
+            }
+            return currentLocationList + parts;
+        }
     }
     return parts;
 }
