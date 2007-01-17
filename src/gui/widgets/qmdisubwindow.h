@@ -32,9 +32,9 @@ public:
     enum SubWindowOption {
         AllowOutsideArea = 0x1,
         TransparentResize = 0x2,
-        TransparentMove = 0x4,
+        TransparentMove = 0x4
     };
-    Q_DECLARE_FLAGS(SubWindowOptions, SubWindowOption);
+    Q_DECLARE_FLAGS(SubWindowOptions, SubWindowOption)
 
     QMdiSubWindow(QWidget *parent = 0, Qt::WindowFlags flags = 0);
     ~QMdiSubWindow();
