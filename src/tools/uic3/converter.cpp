@@ -114,7 +114,7 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
             author = n.firstChild().toText().data();
         } else if (tagName == QLatin1String("comment")) {
             comment = n.firstChild().toText().data();
-        } else if (tagName == QLatin1String("exportMacro")) {
+        } else if (tagName == QLatin1String("exportmacro")) {
             exportMacro = n.firstChild().toText().data();
         } else if ( n.tagName() == QLatin1String("includehints") ) {
             QDomElement n2 = n.firstChild().toElement();
