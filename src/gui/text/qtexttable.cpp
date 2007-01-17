@@ -681,7 +681,7 @@ void QTextTable::insertColumns(int pos, int num)
 
     QTextTableFormat tfmt = format();
     tfmt.setColumns(tfmt.columns()+num);
-    setFormat(tfmt);
+    QTextObject::setFormat(tfmt);
 
 //     qDebug() << "-------- end insertCols" << pos << num;
     p->endEditBlock();
@@ -796,7 +796,7 @@ void QTextTable::removeColumns(int pos, int num)
 
     QTextTableFormat tfmt = format();
     tfmt.setColumns(tfmt.columns()-num);
-    setFormat(tfmt);
+    QTextObject::setFormat(tfmt);
 
     p->endEditBlock();
 //     qDebug() << "-------- end removeCols" << pos << num;
@@ -1130,6 +1130,13 @@ QTextCursor QTextTable::rowEnd(const QTextCursor &c) const
 
     \sa format()
 */
+void QTextTable::setFormat(const QTextTableFormat &format)
+{
+    QTextTableFormat fmt = format;
+    // don't try to change the number of table columns from here
+    fmt.setColumns(columns());
+    QTextObject::setFormat(fmt);
+}
 
 /*!
     \fn QTextTableFormat QTextTable::format() const

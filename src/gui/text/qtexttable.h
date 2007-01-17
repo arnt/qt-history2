@@ -95,7 +95,7 @@ public:
     QTextCursor rowStart(const QTextCursor &c) const;
     QTextCursor rowEnd(const QTextCursor &c) const;
 
-    inline void setFormat(const QTextTableFormat &format);
+    void setFormat(const QTextTableFormat &format);
     QTextTableFormat format() const { return QTextObject::format().toTableFormat(); }
 
 private:
@@ -103,9 +103,6 @@ private:
     Q_DECLARE_PRIVATE(QTextTable)
     friend class QTextTableCell;
 };
-
-inline void QTextTable::setFormat(const QTextTableFormat &aformat)
-{ QTextObject::setFormat(aformat); }
 
 QT_END_HEADER
 

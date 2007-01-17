@@ -264,6 +264,12 @@ void tst_QTextTable::variousModifications2()
     table->removeColumns(5, 1);
     QVERIFY(table->rows() == 2);
     QVERIFY(table->columns() == 5);
+
+    tableFmt = table->format();
+    table->insertColumns(2, 1);
+    table->setFormat(tableFmt);
+    table->insertColumns(2, 1);
+    QVERIFY(table->columns() == 7);
 }
 
 void tst_QTextTable::tableManager_undo()

@@ -2163,8 +2163,7 @@ qreal QTextFrameFormat::rightMargin() const
     returns the number of columns with constraints, and the
     columnWidthConstraints() function returns the constraints defined for the
     table. These quantities can also be set by calling setColumnWidthConstraints()
-    with a vector containing new constraints. The setColumns() function can be
-    used to change the number of constraints in use. If no constraints are
+    with a vector containing new constraints. If no constraints are
     required, clearColumnWidthConstraints() can be used to remove them.
 
     \sa QTextTable QTextTableCell QTextLength
@@ -2196,12 +2195,11 @@ QTextTableFormat::QTextTableFormat()
     \fn int QTextTableFormat::columns() const
 
     Returns the number of columns specified by the table format.
-
-    \sa setColumns()
 */
 
 
 /*!
+    \internal
     \fn void QTextTableFormat::setColumns(int columns)
 
     Sets the number of \a columns required by the table format.
