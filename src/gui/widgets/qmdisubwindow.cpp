@@ -1235,7 +1235,7 @@ void QMdiSubWindowPrivate::sizeParameters(int *macMargin, int *margin, int *minW
     if (!q->style()->inherits("QMacStyle"))
         *macMargin = 0;
     else
-        *macMargin = q->style()->pixelMetric(QStyle::PM_SizeGripSize, 0, q) / 2;
+        *macMargin = q->style()->pixelMetric(QStyle::PM_SizeGripSize, 0, q) / 2 + 3;
     *margin = q->style()->pixelMetric(QStyle::PM_MDIFrameWidth);
 
     QStyleOptionTitleBar opt = this->titleBarOptions();
