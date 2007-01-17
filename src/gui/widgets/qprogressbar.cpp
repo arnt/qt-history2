@@ -528,7 +528,10 @@ bool QProgressBar::event(QEvent *e)
 void QProgressBar::setFormat(const QString &format)
 {
     Q_D(QProgressBar);
+    if (d->format == format)
+        return;
     d->format = format;
+    update();
 }
 
 QString QProgressBar::format() const
