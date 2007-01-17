@@ -105,10 +105,11 @@ private slots:
     void itemDelegate();
     void itemDelegateForColumnOrRow();
     void keyboardSearch();
+    void setModel();
+    void openPersistentEditor();
 
     // specialized tests below
     void setHeader();
-    void setModel();
     void columnHidden();
     void rowHidden();
     void noDelegate();
@@ -955,28 +956,6 @@ void tst_QTreeView::keyboardSearch()
     QVERIFY(view.selectionModel()->isSelected(model.index(1, 0)));
 }
 
-void tst_QTreeView::setHeader()
-{
-    QTreeView view;
-    QVERIFY(view.header() != 0);
-    QCOMPARE(view.header()->orientation(), Qt::Horizontal);
-    QCOMPARE(view.header()->parent(), (QObject *)&view);
-    for (int x = 0; x < 2; ++x) {
-        QSignalSpy destroyedSpy(view.header(), SIGNAL(destroyed()));
-        Qt::Orientation orient = x ? Qt::Vertical : Qt::Horizontal;
-        QHeaderView *head = new QHeaderView(orient);
-        view.setHeader(head);
-        QCOMPARE(destroyedSpy.count(), 1);
-        QCOMPARE(head->parent(), (QObject *)&view);
-        QCOMPARE(view.header(), head);
-        view.setHeader(head);
-        QCOMPARE(view.header(), head);
-        // Itemviews in Qt < 4.2 have asserts for this. Qt >= 4.2 should handle this gracefully
-        view.setHeader((QHeaderView *)0);
-        QCOMPARE(view.header(), head);
-    }
-}
-
 void tst_QTreeView::setModel()
 {
     QTreeView view;
@@ -1012,6 +991,45 @@ void tst_QTreeView::setModel()
         view.update();
         QApplication::processEvents();
         delete model;
+    }
+}
+
+void tst_QTreeView::openPersistentEditor()
+{
+    QTreeView view;
+    view.setModel(newStandardTreeModel());
+    view.show();
+
+    QVERIFY(!qFindChild<QLineEdit *>(view.viewport()));
+    view.openPersistentEditor(view.model()->index(0, 0));
+    QVERIFY(qFindChild<QLineEdit *>(view.viewport()));
+
+    view.closePersistentEditor(view.model()->index(0, 0));
+    QVERIFY(!qFindChild<QLineEdit *>(view.viewport())->isVisible());
+
+    qApp->processEvents(QEventLoop::DeferredDeletion);
+    QVERIFY(!qFindChild<QLineEdit *>(view.viewport()));
+}
+
+void tst_QTreeView::setHeader()
+{
+    QTreeView view;
+    QVERIFY(view.header() != 0);
+    QCOMPARE(view.header()->orientation(), Qt::Horizontal);
+    QCOMPARE(view.header()->parent(), (QObject *)&view);
+    for (int x = 0; x < 2; ++x) {
+        QSignalSpy destroyedSpy(view.header(), SIGNAL(destroyed()));
+        Qt::Orientation orient = x ? Qt::Vertical : Qt::Horizontal;
+        QHeaderView *head = new QHeaderView(orient);
+        view.setHeader(head);
+        QCOMPARE(destroyedSpy.count(), 1);
+        QCOMPARE(head->parent(), (QObject *)&view);
+        QCOMPARE(view.header(), head);
+        view.setHeader(head);
+        QCOMPARE(view.header(), head);
+        // Itemviews in Qt < 4.2 have asserts for this. Qt >= 4.2 should handle this gracefully
+        view.setHeader((QHeaderView *)0);
+        QCOMPARE(view.header(), head);
     }
 }
 
