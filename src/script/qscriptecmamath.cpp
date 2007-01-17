@@ -40,7 +40,7 @@ void Math::construct(QScriptValue *object, QScriptEngine *eng)
 
     Math *instance = new Math(eng, classInfo);
     *object = eng_p->createObject(classInfo);
-    object->impl()->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
+    QScriptValueImpl::get(*object)->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
 
     QScriptValue::PropertyFlags flags = QScriptValue::Undeletable
                                         | QScriptValue::ReadOnly

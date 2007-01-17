@@ -103,7 +103,7 @@ void Function::newFunction(QScriptValue *result, QScriptFunction *foo)
 QScriptValue Function::method_toString(QScriptEngine *eng, QScriptClassInfo *)
 {
     QScriptContext *context = eng->currentContext();
-    if (QScriptFunction *foo = context->thisObject().impl()->toFunction()) {
+    if (QScriptFunction *foo = QScriptValueImpl::get(context->thisObject())->toFunction()) {
         QString code = foo->toString(context);
         return eng->scriptValue(code);
     }
@@ -160,9 +160,10 @@ QScriptValue Function::method_apply(QScriptEngine *eng, QScriptClassInfo *)
             else
                 args << a;
         }
-    } else if (arg.impl()->classInfo() == eng_p->m_class_arguments) {
-        QScript::ArgumentsObjectData *arguments = static_cast<QScript::ArgumentsObjectData*> (arg.impl()->objectData().data());
-        QScriptObject *activation = arguments->activation.impl()->objectValue();
+    } else if (QScriptValueImpl::get(arg)->classInfo() == eng_p->m_class_arguments) {
+        QScript::ArgumentsObjectData *arguments;
+        arguments = static_cast<QScript::ArgumentsObjectData*> (QScriptValueImpl::get(arg)->objectData().data());
+        QScriptObject *activation = QScriptValueImpl::get(arguments->activation)->objectValue();
         for (uint i = 0; i < arguments->length; ++i)
             args << activation->m_objects[i];
     } else if (!(arg.isUndefined() || arg.isNull())) {
@@ -186,7 +187,7 @@ QScriptValue Function::method_disconnect(QScriptEngine *eng, QScriptClassInfo *)
         return context->engine()->scriptValue(false);
 
     QScriptValue self = context->thisObject();
-    QScriptFunction *fun = self.impl()->toFunction();
+    QScriptFunction *fun = QScriptValueImpl::get(self)->toFunction();
     if ((fun == 0) || (fun->type() != QScriptFunction::Qt))
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Function.prototype.disconnect"));
@@ -204,13 +205,13 @@ QScriptValue Function::method_disconnect(QScriptEngine *eng, QScriptClassInfo *)
             slot = arg1;
         else
             slot = receiver.property(arg1.toString());
-        if (slot.isFunction() && slot.impl()->toFunction()->type() == QScriptFunction::Qt) {
+        if (slot.isFunction() && QScriptValueImpl::get(slot)->toFunction()->type() == QScriptFunction::Qt) {
             receiver = self;
             slot = arg1;
         }
     }
 
-    QScriptFunction *otherFun = slot.impl()->toFunction();
+    QScriptFunction *otherFun = QScriptValueImpl::get(slot)->toFunction();
     if (otherFun == 0)
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Function.prototype.disconnect"));
@@ -250,7 +251,7 @@ QScriptValue Function::method_connect(QScriptEngine *eng, QScriptClassInfo *clas
         return context->engine()->scriptValue(false);
 
     QScriptValue self = context->thisObject();
-    QScriptFunction *fun = self.impl()->toFunction();
+    QScriptFunction *fun = QScriptValueImpl::get(self)->toFunction();
     if ((fun == 0) || (fun->type() != QScriptFunction::Qt))
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Function.prototype.connect"));
@@ -268,13 +269,13 @@ QScriptValue Function::method_connect(QScriptEngine *eng, QScriptClassInfo *clas
             slot = arg1;
         else
             slot = receiver.property(arg1.toString());
-        if (slot.isFunction() && slot.impl()->toFunction()->type() == QScriptFunction::Qt) {
+        if (slot.isFunction() && QScriptValueImpl::get(slot)->toFunction()->type() == QScriptFunction::Qt) {
             receiver = self;
             slot = arg1;
         }
     }
 
-    QScriptFunction *otherFun = slot.impl()->toFunction();
+    QScriptFunction *otherFun = QScriptValueImpl::get(slot)->toFunction();
     if (otherFun == 0)
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Function.prototype.connect"));

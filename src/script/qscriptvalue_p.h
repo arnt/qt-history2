@@ -33,6 +33,9 @@
 class QScriptValueImpl : public QScriptValue
 {
 public:
+    static inline QScriptValueImpl *get(const QScriptValue &value)
+        {  return const_cast<QScriptValueImpl*>(reinterpret_cast<const QScriptValueImpl*>(&value)); }
+
     inline QScriptEngine *engine() const
     {
         if (! m_class)

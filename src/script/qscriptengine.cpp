@@ -505,7 +505,7 @@ QScriptValue QScriptEngine::scriptValue(
     QScriptValue v;
     d_func()->newFunction(&v, new QScript::ExtQClass(metaObject, ctor));
     v.setPrototype(ctor); // ###
-    v.impl()->setClassInfo(d_func()->m_class_qclass);
+    QScriptValueImpl::get(v)->setClassInfo(d_func()->m_class_qclass);
     return v;
 }
 

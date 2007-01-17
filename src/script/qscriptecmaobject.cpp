@@ -85,10 +85,10 @@ QScriptValue Object::method_toString(QScriptEngine *eng, QScriptClassInfo *)
     QScriptContext *context = eng->currentContext();
     QScriptValue glo = eng->globalObject();
     QString s = QLatin1String("[object ");
-    if (context->thisObject().impl()->objectValue() == glo.impl()->objectValue())
+    if (QScriptValueImpl::get(context->thisObject())->objectValue() == QScriptValueImpl::get(glo)->objectValue())
         s += QLatin1String("global");
     else
-        s += context->thisObject().impl()->classInfo()->name();
+        s += QScriptValueImpl::get(context->thisObject())->classInfo()->name();
     s += QLatin1String("]");
     return (eng->scriptValue(s));
 }
@@ -115,7 +115,7 @@ QScriptValue Object::method_hasOwnProperty(QScriptEngine *eng, QScriptClassInfo 
 
         QScriptNameIdImpl *id = 0;
         if (arg.isString())
-            id = arg.impl()->stringValue();
+            id = QScriptValueImpl::get(arg)->stringValue();
 
         if (! id || ! id->unique) {
             QString str = arg.toString();
@@ -124,7 +124,7 @@ QScriptValue Object::method_hasOwnProperty(QScriptEngine *eng, QScriptClassInfo 
 
         QScript::Member member;
         QScriptValue base;
-        if (context->thisObject().impl()->resolve(id, &member, &base, QScriptValue::ResolveLocal))
+        if (QScriptValueImpl::get(context->thisObject())->resolve(id, &member, &base, QScriptValue::ResolveLocal))
             result = true;
     }
 
@@ -143,7 +143,7 @@ QScriptValue Object::method_isPrototypeOf(QScriptEngine *eng, QScriptClassInfo *
             QScriptValue proto = arg.prototype();
 
             if (proto.isObject())
-                result = context->thisObject().impl()->objectValue() == proto.impl()->objectValue();
+                result = QScriptValueImpl::get(context->thisObject())->objectValue() == QScriptValueImpl::get(proto)->objectValue();
         }
     }
 
@@ -160,7 +160,7 @@ QScriptValue Object::method_propertyIsEnumerable(QScriptEngine *eng, QScriptClas
 
         QScriptNameIdImpl *id = 0;
         if (arg.isString())
-            id = arg.impl()->stringValue();
+            id = QScriptValueImpl::get(arg)->stringValue();
 
         if (! id || ! id->unique) {
             QString str = arg.toString();
@@ -169,11 +169,11 @@ QScriptValue Object::method_propertyIsEnumerable(QScriptEngine *eng, QScriptClas
 
         QScript::Member member;
         QScriptValue base;
-        if (context->thisObject().impl()->resolve(id, &member, &base, QScriptValue::ResolveLocal)) {
+        if (QScriptValueImpl::get(context->thisObject())->resolve(id, &member, &base, QScriptValue::ResolveLocal)) {
             result = ! member.dontEnum();
             if (result) {
                 QScriptValue tmp;
-                base.impl()->get(member, &tmp);
+                QScriptValueImpl::get(base)->get(member, &tmp);
                 result = tmp.isValid();
             }
         }

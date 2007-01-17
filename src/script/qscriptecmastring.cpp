@@ -43,7 +43,7 @@ bool String::StringClassData::resolve(const QScriptValue &object,
                                       QScript::Member *member,
                                       QScriptValue *base)
 {
-    if (object.impl()->classInfo() != classInfo())
+    if (QScriptValueImpl::get(object)->classInfo() != classInfo())
         return false;
 
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(object.engine());
@@ -71,14 +71,14 @@ bool String::StringClassData::get(const QScriptValue &object,
 {
     Q_ASSERT(member.isValid());
 
-    if (object.impl()->classInfo() != classInfo())
+    if (QScriptValueImpl::get(object)->classInfo() != classInfo())
         return false;
 
     QScriptEnginePrivate *eng = QScriptEnginePrivate::get(object.engine());
     if (! member.isNativeProperty())
         return false;
 
-    QScriptNameIdImpl *ref = object.impl()->internalValue().impl()->stringValue();
+    QScriptNameIdImpl *ref = QScriptValueImpl::get(QScriptValueImpl::get(object)->internalValue())->stringValue();
     int len = ref->s.length();
 
     if (member.nameId() == eng->idTable()->id_length)
@@ -95,17 +95,17 @@ bool String::StringClassData::get(const QScriptValue &object,
 
 int String::StringClassData::extraMemberCount(const QScriptValue &object)
 {
-    if (object.impl()->classInfo() != classInfo())
+    if (QScriptValueImpl::get(object)->classInfo() != classInfo())
         return 0;
 
-    QScriptNameIdImpl *ref = object.impl()->internalValue().impl()->stringValue();
+    QScriptNameIdImpl *ref = QScriptValueImpl::get(QScriptValueImpl::get(object)->internalValue())->stringValue();
     return ref->s.length();
 }
 
 bool String::StringClassData::extraMember(const QScriptValue &object,
                                           int index, Member *member)
 {
-    if (object.impl()->classInfo() != classInfo())
+    if (QScriptValueImpl::get(object)->classInfo() != classInfo())
         return false;
 
     member->native(/*nameId=*/ 0, index, QScriptValue::Undeletable);
@@ -183,8 +183,8 @@ void String::execute(QScriptContext *context)
         context->setReturnValue(str);
     } else {
         QScriptValue &obj = QScriptContextPrivate::get(context)->thisObject;
-        obj.impl()->setClassInfo(classInfo());
-        obj.impl()->setInternalValue(str);
+        QScriptValueImpl::get(obj)->setClassInfo(classInfo());
+        QScriptValueImpl::get(obj)->setInternalValue(str);
         obj.setPrototype(publicPrototype);
     }
 }
@@ -192,25 +192,25 @@ void String::execute(QScriptContext *context)
 void String::newString(QScriptValue *result, const QString &value)
 {
     QScriptEnginePrivate::get(engine())->newObject(result, publicPrototype, classInfo());
-    result->impl()->setInternalValue(engine()->scriptValue(value));
+    QScriptValueImpl::get(*result)->setInternalValue(engine()->scriptValue(value));
 }
 
 QScriptValue String::method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() != classInfo)
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() != classInfo)
         return context->throwError(QScriptContext::TypeError, QLatin1String("String.prototype.toString"));
 
-    return (context->thisObject().impl()->internalValue());
+    return (QScriptValueImpl::get(context->thisObject())->internalValue());
 }
 
 QScriptValue String::method_valueOf(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() != classInfo)
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() != classInfo)
         return context->throwError(QScriptContext::TypeError, QLatin1String("String.prototype.valueOf"));
 
-    return (context->thisObject().impl()->internalValue());
+    return (QScriptValueImpl::get(context->thisObject())->internalValue());
 }
 
 QScriptValue String::method_charAt(QScriptEngine *eng, QScriptClassInfo *)
@@ -357,7 +357,7 @@ QScriptValue String::method_replace(QScriptEngine *eng, QScriptClassInfo *)
     QScriptValue replaceValue = context->argument(1);
 
     QString output;
-    if (searchValue.impl()->classInfo() == eng_p->regexpConstructor->classInfo()) {
+    if (QScriptValueImpl::get(searchValue)->classInfo() == eng_p->regexpConstructor->classInfo()) {
         // searchValue is a RegExp
         QScriptValue rx_exec = searchValue.property(QLatin1String("exec"), QScriptValue::ResolvePrototype);
         if (!rx_exec.isFunction())

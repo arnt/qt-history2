@@ -53,8 +53,8 @@ RegExp::~RegExp()
 
 RegExp::Instance *RegExp::Instance::get(const QScriptValue &object, QScriptClassInfo *klass)
 {
-    if (! klass || klass == object.impl()->classInfo())
-        return QExplicitlySharedDataPointer<Instance> (static_cast<Instance*> (object.impl()->objectData().data()));
+    if (! klass || klass == QScriptValueImpl::get(object)->classInfo())
+        return QExplicitlySharedDataPointer<Instance> (static_cast<Instance*> (QScriptValueImpl::get(object)->objectData().data()));
     
     return 0;
 }
@@ -138,7 +138,7 @@ void RegExp::newRegExp_helper(QScriptValue *result, const QRegExp &rx,
     QScriptEngine *eng = engine();
 
     QScriptEnginePrivate::get(eng)->newObject(result, publicPrototype, classInfo());
-    result->impl()->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
+    QScriptValueImpl::get(*result)->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
 
     QScriptValue::PropertyFlags propertyFlags = QScriptValue::SkipInEnumeration
                                                 | QScriptValue::Undeletable
@@ -160,7 +160,7 @@ void RegExp::newRegExp_helper(QScriptValue *result, const QRegExp &rx,
 QScriptValue RegExp::method_exec(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() != classInfo)
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() != classInfo)
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("RegExp.prototype.exec"));
 

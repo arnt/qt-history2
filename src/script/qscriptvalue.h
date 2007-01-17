@@ -133,7 +133,7 @@ public:
 
     void mark(int generation) const; // ### kill me
 
-public: // ### private
+private:
     friend class QScriptValueImpl;
     inline QScriptValueImpl *impl() const
     { return const_cast<QScriptValueImpl*>(reinterpret_cast<const QScriptValueImpl*>(this)); }

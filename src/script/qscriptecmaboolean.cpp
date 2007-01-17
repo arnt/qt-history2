@@ -58,8 +58,8 @@ void Boolean::execute(QScriptContext *context)
         context->setReturnValue(boolean);
     } else {
         QScriptValue &obj = QScriptContextPrivate::get(context)->thisObject;
-        obj.impl()->setClassInfo(classInfo());
-        obj.impl()->setInternalValue(boolean);
+        QScriptValueImpl::get(obj)->setClassInfo(classInfo());
+        QScriptValueImpl::get(obj)->setInternalValue(boolean);
         obj.setPrototype(publicPrototype);
     }
 }
@@ -67,18 +67,18 @@ void Boolean::execute(QScriptContext *context)
 void Boolean::newBoolean(QScriptValue *result, bool value)
 {
     QScriptEnginePrivate::get(engine())->newObject(result, publicPrototype, classInfo());
-    result->impl()->setInternalValue(engine()->scriptValue(value));
+    QScriptValueImpl::get(*result)->setInternalValue(engine()->scriptValue(value));
 }
 
 QScriptValue Boolean::method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() != classInfo)
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() != classInfo)
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Boolean.prototype.toString"));
 
     const QScript::IdTable *t = QScriptEnginePrivate::get(context->engine())->idTable();
-    bool v = context->thisObject().impl()->internalValue().toBoolean();
+    bool v = QScriptValueImpl::get(context->thisObject())->internalValue().toBoolean();
     QScriptValue result;
     QScriptEnginePrivate::get(eng)->newNameId(&result, v ? t->id_true : t->id_false);
     return result;
@@ -87,11 +87,11 @@ QScriptValue Boolean::method_toString(QScriptEngine *eng, QScriptClassInfo *clas
 QScriptValue Boolean::method_valueOf(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() != classInfo)
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() != classInfo)
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Boolean.prototype.valueOf"));
 
-    return context->thisObject().impl()->internalValue();
+    return QScriptValueImpl::get(context->thisObject())->internalValue();
 }
 
 } } // namespace QScript::Ecma

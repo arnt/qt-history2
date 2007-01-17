@@ -504,15 +504,15 @@ void Date::execute(QScriptContext *context)
     }
 
     QScriptValue &obj = QScriptContextPrivate::get(context)->thisObject;
-    obj.impl()->setClassInfo(classInfo());
-    obj.impl()->setInternalValue(engine()->scriptValue(t));
+    QScriptValueImpl::get(obj)->setClassInfo(classInfo());
+    QScriptValueImpl::get(obj)->setInternalValue(engine()->scriptValue(t));
     obj.setPrototype(publicPrototype);
 }
 
 void Date::newDate(QScriptValue *result, qnumber t)
 {
     QScriptEnginePrivate::get(engine())->newObject(result, publicPrototype, classInfo());
-    result->impl()->setInternalValue(engine()->scriptValue(t));
+    QScriptValueImpl::get(*result)->setInternalValue(engine()->scriptValue(t));
 }
 
 void Date::newDate(QScriptValue *result, const QDateTime &dt)
@@ -538,8 +538,8 @@ void Date::newDate(QScriptValue *result, const QDate &d)
 
 QDateTime Date::toDateTime(const QScriptValue &date)
 {
-    Q_ASSERT(date.impl()->classInfo() == m_classInfo);
-    qnumber t = date.impl()->internalValue().toNumber();
+    Q_ASSERT(QScriptValueImpl::get(date)->classInfo() == m_classInfo);
+    qnumber t = QScriptValueImpl::get(date)->internalValue().toNumber();
     if (qIsNan(t))
         return QDateTime();
     int year = int(YearFromTime(t));
@@ -582,8 +582,8 @@ QScriptValue Date::method_UTC(QScriptEngine *eng, QScriptClassInfo *)
 QScriptValue Date::method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         return eng->scriptValue(ToString(t));
     }
     return context->throwError(QScriptContext::TypeError,
@@ -628,8 +628,8 @@ QScriptValue Date::method_toLocaleTimeString(QScriptEngine *eng, QScriptClassInf
 QScriptValue Date::method_valueOf(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo)
-        return eng->scriptValue(context->thisObject().impl()->internalValue().toNumber());
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo)
+        return eng->scriptValue(QScriptValueImpl::get(context->thisObject())->internalValue().toNumber());
     return context->throwError(QScriptContext::TypeError,
                                QLatin1String("Date.prototype.valueOf"));
 }
@@ -637,8 +637,8 @@ QScriptValue Date::method_valueOf(QScriptEngine *eng, QScriptClassInfo *classInf
 QScriptValue Date::method_getTime(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo)
-        return eng->scriptValue(context->thisObject().impl()->internalValue().toNumber());
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo)
+        return eng->scriptValue(QScriptValueImpl::get(context->thisObject())->internalValue().toNumber());
     return context->throwError(QScriptContext::TypeError,
                                QLatin1String("Date.prototype.getTime"));
 }
@@ -646,8 +646,8 @@ QScriptValue Date::method_getTime(QScriptEngine *eng, QScriptClassInfo *classInf
 QScriptValue Date::method_getYear(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         if (! qIsNan(t))
             t = YearFromTime(LocalTime(t)) - 1900;
         return eng->scriptValue(t);
@@ -659,8 +659,8 @@ QScriptValue Date::method_getYear(QScriptEngine *eng, QScriptClassInfo *classInf
 QScriptValue Date::method_getFullYear(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         if (! qIsNan(t))
             t = YearFromTime(LocalTime(t));
         return eng->scriptValue(t);
@@ -672,8 +672,8 @@ QScriptValue Date::method_getFullYear(QScriptEngine *eng, QScriptClassInfo *clas
 QScriptValue Date::method_getUTCFullYear(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         if (! qIsNan(t))
             t = YearFromTime(t);
         return eng->scriptValue(t);
@@ -685,8 +685,8 @@ QScriptValue Date::method_getUTCFullYear(QScriptEngine *eng, QScriptClassInfo *c
 QScriptValue Date::method_getMonth(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         if (! qIsNan(t))
             t = MonthFromTime(LocalTime(t));
         return eng->scriptValue(t);
@@ -698,8 +698,8 @@ QScriptValue Date::method_getMonth(QScriptEngine *eng, QScriptClassInfo *classIn
 QScriptValue Date::method_getUTCMonth(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         if (! qIsNan(t))
             t = MonthFromTime(t);
         return eng->scriptValue(t);
@@ -711,8 +711,8 @@ QScriptValue Date::method_getUTCMonth(QScriptEngine *eng, QScriptClassInfo *clas
 QScriptValue Date::method_getDate(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         if (! qIsNan(t))
             t = DateFromTime(LocalTime(t));
         return eng->scriptValue(t);
@@ -724,8 +724,8 @@ QScriptValue Date::method_getDate(QScriptEngine *eng, QScriptClassInfo *classInf
 QScriptValue Date::method_getUTCDate(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         if (! qIsNan(t))
             t = DateFromTime(t);
         return eng->scriptValue(t);
@@ -736,8 +736,8 @@ QScriptValue Date::method_getUTCDate(QScriptEngine *eng, QScriptClassInfo *class
 QScriptValue Date::method_getDay(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         if (! qIsNan(t))
             t = WeekDay(LocalTime(t));
         return eng->scriptValue(t);
@@ -749,8 +749,8 @@ QScriptValue Date::method_getDay(QScriptEngine *eng, QScriptClassInfo *classInfo
 QScriptValue Date::method_getUTCDay(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         if (! qIsNan(t))
             t = WeekDay(t);
         return eng->scriptValue(t);
@@ -762,8 +762,8 @@ QScriptValue Date::method_getUTCDay(QScriptEngine *eng, QScriptClassInfo *classI
 QScriptValue Date::method_getHours(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         if (! qIsNan(t))
             t = HourFromTime(LocalTime(t));
         return eng->scriptValue(t);
@@ -775,8 +775,8 @@ QScriptValue Date::method_getHours(QScriptEngine *eng, QScriptClassInfo *classIn
 QScriptValue Date::method_getUTCHours(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         if (! qIsNan(t))
             t = HourFromTime(t);
         return eng->scriptValue(t);
@@ -788,8 +788,8 @@ QScriptValue Date::method_getUTCHours(QScriptEngine *eng, QScriptClassInfo *clas
 QScriptValue Date::method_getMinutes(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         if (! qIsNan(t))
             t = MinFromTime(LocalTime(t));
         return eng->scriptValue(t);
@@ -801,8 +801,8 @@ QScriptValue Date::method_getMinutes(QScriptEngine *eng, QScriptClassInfo *class
 QScriptValue Date::method_getUTCMinutes(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         if (! qIsNan(t))
             t = MinFromTime(t);
         return eng->scriptValue(t);
@@ -814,8 +814,8 @@ QScriptValue Date::method_getUTCMinutes(QScriptEngine *eng, QScriptClassInfo *cl
 QScriptValue Date::method_getSeconds(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         if (! qIsNan(t))
             t = SecFromTime(LocalTime(t));
         return eng->scriptValue(t);
@@ -827,8 +827,8 @@ QScriptValue Date::method_getSeconds(QScriptEngine *eng, QScriptClassInfo *class
 QScriptValue Date::method_getUTCSeconds(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         if (! qIsNan(t))
             t = SecFromTime(t);
         return eng->scriptValue(t);
@@ -840,8 +840,8 @@ QScriptValue Date::method_getUTCSeconds(QScriptEngine *eng, QScriptClassInfo *cl
 QScriptValue Date::method_getMilliseconds(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         if (! qIsNan(t))
             t = msFromTime(LocalTime(t));
         return eng->scriptValue(t);
@@ -853,8 +853,8 @@ QScriptValue Date::method_getMilliseconds(QScriptEngine *eng, QScriptClassInfo *
 QScriptValue Date::method_getUTCMilliseconds(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         if (! qIsNan(t))
             t = msFromTime(t);
         return eng->scriptValue(t);
@@ -866,8 +866,8 @@ QScriptValue Date::method_getUTCMilliseconds(QScriptEngine *eng, QScriptClassInf
 QScriptValue Date::method_getTimezoneOffset(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         if (! qIsNan(t))
             t = (t - LocalTime(t)) / msPerMinute;
         return eng->scriptValue(t);
@@ -879,10 +879,10 @@ QScriptValue Date::method_getTimezoneOffset(QScriptEngine *eng, QScriptClassInfo
 QScriptValue Date::method_setTime(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
         qnumber t = TimeClip(context->argument(0).toNumber());
         QScriptValue r = eng->scriptValue(t);
-        context->thisObject().impl()->setInternalValue(r);
+        QScriptValueImpl::get(context->thisObject())->setInternalValue(r);
         return r;
     }
     return context->throwError(QScriptContext::TypeError,
@@ -892,12 +892,12 @@ QScriptValue Date::method_setTime(QScriptEngine *eng, QScriptClassInfo *classInf
 QScriptValue Date::method_setMilliseconds(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = LocalTime(context->thisObject().impl()->internalValue().toNumber());
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = LocalTime(QScriptValueImpl::get(context->thisObject())->internalValue().toNumber());
         qnumber ms = context->argument(0).toNumber();
         t = TimeClip(UTC(MakeDate(Day(t), MakeTime(HourFromTime(t), MinFromTime(t), SecFromTime(t), ms))));
         QScriptValue r = eng->scriptValue(t);
-        context->thisObject().impl()->setInternalValue(r);
+        QScriptValueImpl::get(context->thisObject())->setInternalValue(r);
         return r;
     }
     return context->throwError(QScriptContext::TypeError,
@@ -907,12 +907,12 @@ QScriptValue Date::method_setMilliseconds(QScriptEngine *eng, QScriptClassInfo *
 QScriptValue Date::method_setUTCMilliseconds(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         qnumber ms = context->argument(0).toNumber();
         t = TimeClip(MakeDate(Day(t), MakeTime(HourFromTime(t), MinFromTime(t), SecFromTime(t), ms)));
         QScriptValue r = eng->scriptValue(t);
-        context->thisObject().impl()->setInternalValue(r);
+        QScriptValueImpl::get(context->thisObject())->setInternalValue(r);
         return r;
     }
     return context->throwError(QScriptContext::TypeError,
@@ -922,13 +922,13 @@ QScriptValue Date::method_setUTCMilliseconds(QScriptEngine *eng, QScriptClassInf
 QScriptValue Date::method_setSeconds(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = LocalTime(context->thisObject().impl()->internalValue().toNumber());
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = LocalTime(QScriptValueImpl::get(context->thisObject())->internalValue().toNumber());
         qnumber sec = context->argument(0).toNumber();
         qnumber ms = (context->argumentCount() < 2) ? msFromTime(t) : context->argument(1).toNumber();
         t = TimeClip(UTC(MakeDate(Day(t), MakeTime(HourFromTime(t), MinFromTime(t), sec, ms))));
         QScriptValue r = eng->scriptValue(t);
-        context->thisObject().impl()->setInternalValue(r);
+        QScriptValueImpl::get(context->thisObject())->setInternalValue(r);
         return r;
     }
     return context->throwError(QScriptContext::TypeError,
@@ -938,13 +938,13 @@ QScriptValue Date::method_setSeconds(QScriptEngine *eng, QScriptClassInfo *class
 QScriptValue Date::method_setUTCSeconds(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         qnumber sec = context->argument(0).toNumber();
         qnumber ms = (context->argumentCount() < 2) ? msFromTime(t) : context->argument(1).toNumber();
         t = TimeClip(MakeDate(Day(t), MakeTime(HourFromTime(t), MinFromTime(t), sec, ms)));
         QScriptValue r = eng->scriptValue(t);
-        context->thisObject().impl()->setInternalValue(r);
+        QScriptValueImpl::get(context->thisObject())->setInternalValue(r);
         return r;
     }
     return context->throwError(QScriptContext::TypeError,
@@ -954,14 +954,14 @@ QScriptValue Date::method_setUTCSeconds(QScriptEngine *eng, QScriptClassInfo *cl
 QScriptValue Date::method_setMinutes(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = LocalTime(context->thisObject().impl()->internalValue().toNumber());
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = LocalTime(QScriptValueImpl::get(context->thisObject())->internalValue().toNumber());
         qnumber min = context->argument(0).toNumber();
         qnumber sec = (context->argumentCount() < 2) ? SecFromTime(t) : context->argument(1).toNumber();
         qnumber ms = (context->argumentCount() < 3) ? msFromTime(t) : context->argument(2).toNumber();
         t = TimeClip(UTC(MakeDate(Day(t), MakeTime(HourFromTime(t), min, sec, ms))));
         QScriptValue r = eng->scriptValue(t);
-        context->thisObject().impl()->setInternalValue(r);
+        QScriptValueImpl::get(context->thisObject())->setInternalValue(r);
         return r;
     }
     return context->throwError(QScriptContext::TypeError,
@@ -971,14 +971,14 @@ QScriptValue Date::method_setMinutes(QScriptEngine *eng, QScriptClassInfo *class
 QScriptValue Date::method_setUTCMinutes(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         qnumber min = context->argument(0).toNumber();
         qnumber sec = (context->argumentCount() < 2) ? SecFromTime(t) : context->argument(1).toNumber();
         qnumber ms = (context->argumentCount() < 3) ? msFromTime(t) : context->argument(2).toNumber();
         t = TimeClip(MakeDate(Day(t), MakeTime(HourFromTime(t), min, sec, ms)));
         QScriptValue r = eng->scriptValue(t);
-        context->thisObject().impl()->setInternalValue(r);
+        QScriptValueImpl::get(context->thisObject())->setInternalValue(r);
         return r;
     }
     return context->throwError(QScriptContext::TypeError,
@@ -988,15 +988,15 @@ QScriptValue Date::method_setUTCMinutes(QScriptEngine *eng, QScriptClassInfo *cl
 QScriptValue Date::method_setHours(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = LocalTime(context->thisObject().impl()->internalValue().toNumber());
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = LocalTime(QScriptValueImpl::get(context->thisObject())->internalValue().toNumber());
         qnumber hour = context->argument(0).toNumber();
         qnumber min = (context->argumentCount() < 2) ? MinFromTime(t) : context->argument(1).toNumber();
         qnumber sec = (context->argumentCount() < 3) ? SecFromTime(t) : context->argument(2).toNumber();
         qnumber ms = (context->argumentCount() < 4) ? msFromTime(t) : context->argument(3).toNumber();
         t = TimeClip(UTC(MakeDate(Day(t), MakeTime(hour, min, sec, ms))));
         QScriptValue r = eng->scriptValue(t);
-        context->thisObject().impl()->setInternalValue(r);
+        QScriptValueImpl::get(context->thisObject())->setInternalValue(r);
         return r;
     }
     return context->throwError(QScriptContext::TypeError,
@@ -1006,15 +1006,15 @@ QScriptValue Date::method_setHours(QScriptEngine *eng, QScriptClassInfo *classIn
 QScriptValue Date::method_setUTCHours(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         qnumber hour = context->argument(0).toNumber();
         qnumber min = (context->argumentCount() < 2) ? MinFromTime(t) : context->argument(1).toNumber();
         qnumber sec = (context->argumentCount() < 3) ? SecFromTime(t) : context->argument(2).toNumber();
         qnumber ms = (context->argumentCount() < 4) ? msFromTime(t) : context->argument(3).toNumber();
         t = TimeClip(MakeDate(Day(t), MakeTime(hour, min, sec, ms)));
         QScriptValue r = eng->scriptValue(t);
-        context->thisObject().impl()->setInternalValue(r);
+        QScriptValueImpl::get(context->thisObject())->setInternalValue(r);
         return r;
     }
     return context->throwError(QScriptContext::TypeError,
@@ -1024,12 +1024,12 @@ QScriptValue Date::method_setUTCHours(QScriptEngine *eng, QScriptClassInfo *clas
 QScriptValue Date::method_setDate(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = LocalTime(context->thisObject().impl()->internalValue().toNumber());
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = LocalTime(QScriptValueImpl::get(context->thisObject())->internalValue().toNumber());
         qnumber date = context->argument(0).toNumber();
         t = TimeClip(UTC(MakeDate(MakeDay(YearFromTime(t), MonthFromTime(t), date), TimeWithinDay(t))));
         QScriptValue r = eng->scriptValue(t);
-        context->thisObject().impl()->setInternalValue(r);
+        QScriptValueImpl::get(context->thisObject())->setInternalValue(r);
         return r;
     }
     return context->throwError(QScriptContext::TypeError,
@@ -1039,12 +1039,12 @@ QScriptValue Date::method_setDate(QScriptEngine *eng, QScriptClassInfo *classInf
 QScriptValue Date::method_setUTCDate(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         qnumber date = context->argument(0).toNumber();
         t = TimeClip(MakeDate(MakeDay(YearFromTime(t), MonthFromTime(t), date), TimeWithinDay(t)));
         QScriptValue r = eng->scriptValue(t);
-        context->thisObject().impl()->setInternalValue(r);
+        QScriptValueImpl::get(context->thisObject())->setInternalValue(r);
         return r;
     }
     return context->throwError(QScriptContext::TypeError,
@@ -1054,13 +1054,13 @@ QScriptValue Date::method_setUTCDate(QScriptEngine *eng, QScriptClassInfo *class
 QScriptValue Date::method_setMonth(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = LocalTime(context->thisObject().impl()->internalValue().toNumber());
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = LocalTime(QScriptValueImpl::get(context->thisObject())->internalValue().toNumber());
         qnumber month = context->argument(0).toNumber();
         qnumber date = (context->argumentCount() < 2) ? DateFromTime(t) : context->argument(1).toNumber();
         t = TimeClip(UTC(MakeDate(MakeDay(YearFromTime(t), month, date), TimeWithinDay(t))));
         QScriptValue r = eng->scriptValue(t);
-        context->thisObject().impl()->setInternalValue(r);
+        QScriptValueImpl::get(context->thisObject())->setInternalValue(r);
         return r;
     }
     return context->throwError(QScriptContext::TypeError,
@@ -1070,13 +1070,13 @@ QScriptValue Date::method_setMonth(QScriptEngine *eng, QScriptClassInfo *classIn
 QScriptValue Date::method_setUTCMonth(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         qnumber month = context->argument(0).toNumber();
         qnumber date = (context->argumentCount() < 2) ? DateFromTime(t) : context->argument(1).toNumber();
         t = TimeClip(MakeDate(MakeDay(YearFromTime(t), month, date), TimeWithinDay(t)));
         QScriptValue r = eng->scriptValue(t);
-        context->thisObject().impl()->setInternalValue(r);
+        QScriptValueImpl::get(context->thisObject())->setInternalValue(r);
         return r;
     }
     return context->throwError(QScriptContext::TypeError,
@@ -1086,14 +1086,14 @@ QScriptValue Date::method_setUTCMonth(QScriptEngine *eng, QScriptClassInfo *clas
 QScriptValue Date::method_setFullYear(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = LocalTime(context->thisObject().impl()->internalValue().toNumber());
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = LocalTime(QScriptValueImpl::get(context->thisObject())->internalValue().toNumber());
         qnumber year = context->argument(0).toNumber();
         qnumber month = (context->argumentCount() < 2) ? MonthFromTime(t) : context->argument(1).toNumber();
         qnumber date = (context->argumentCount() < 3) ? DateFromTime(t) : context->argument(2).toNumber();
         t = TimeClip(UTC(MakeDate(MakeDay(year, month, date), TimeWithinDay(t))));
         QScriptValue r = eng->scriptValue(t);
-        context->thisObject().impl()->setInternalValue(r);
+        QScriptValueImpl::get(context->thisObject())->setInternalValue(r);
         return r;
     }
     return context->throwError(QScriptContext::TypeError,
@@ -1103,14 +1103,14 @@ QScriptValue Date::method_setFullYear(QScriptEngine *eng, QScriptClassInfo *clas
 QScriptValue Date::method_setUTCFullYear(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() == classInfo) {
-        qnumber t = context->thisObject().impl()->internalValue().toNumber();
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() == classInfo) {
+        qnumber t = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
         qnumber year = context->argument(0).toNumber();
         qnumber month = (context->argumentCount() < 2) ? MonthFromTime(t) : context->argument(1).toNumber();
         qnumber date = (context->argumentCount() < 3) ? DateFromTime(t) : context->argument(2).toNumber();
         t = TimeClip(MakeDate(MakeDay(year, month, date), TimeWithinDay(t)));
         QScriptValue r = eng->scriptValue(t);
-        context->thisObject().impl()->setInternalValue(r);
+        QScriptValueImpl::get(context->thisObject())->setInternalValue(r);
         return r;
     }
     return context->throwError(QScriptContext::TypeError,

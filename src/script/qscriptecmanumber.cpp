@@ -85,8 +85,8 @@ void Number::execute(QScriptContext *context)
         context->setReturnValue(num);
     } else {
         QScriptValue &obj = QScriptContextPrivate::get(context)->thisObject;
-        obj.impl()->setClassInfo(classInfo());
-        obj.impl()->setInternalValue(num);
+        QScriptValueImpl::get(obj)->setClassInfo(classInfo());
+        QScriptValueImpl::get(obj)->setInternalValue(num);
         obj.setPrototype(publicPrototype);
     }
 }
@@ -94,45 +94,45 @@ void Number::execute(QScriptContext *context)
 void Number::newNumber(QScriptValue *result, qnumber value)
 {
     QScriptEnginePrivate::get(engine())->newObject(result, publicPrototype, classInfo());
-    result->impl()->setInternalValue(engine()->scriptValue(value));
+    QScriptValueImpl::get(*result)->setInternalValue(engine()->scriptValue(value));
 }
 
 QScriptValue Number::method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() != classInfo)
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() != classInfo)
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Number.prototype.toString"));
 
-    QString str = context->thisObject().impl()->internalValue().toString();
+    QString str = QScriptValueImpl::get(context->thisObject())->internalValue().toString();
     return (eng->scriptValue(str));
 }
 
 QScriptValue Number::method_toLocaleString(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() != classInfo)
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() != classInfo)
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Number.prototype.toLocaleString"));
 
-    QString str = context->thisObject().impl()->internalValue().toString();
+    QString str = QScriptValueImpl::get(context->thisObject())->internalValue().toString();
     return (eng->scriptValue(str));
 }
 
 QScriptValue Number::method_valueOf(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() != classInfo)
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() != classInfo)
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Number.prototype.valueOf"));
 
-    return (context->thisObject().impl()->internalValue());
+    return (QScriptValueImpl::get(context->thisObject())->internalValue());
 }
 
 QScriptValue Number::method_toFixed(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() != classInfo)
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() != classInfo)
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Number.prototype.toFixed"));
 
@@ -144,14 +144,14 @@ QScriptValue Number::method_toFixed(QScriptEngine *eng, QScriptClassInfo *classI
     if (qIsNan(fdigits))
         fdigits = 0;
 
-    qnumber v = context->thisObject().impl()->internalValue().toNumber();
+    qnumber v = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
     return (eng->scriptValue(QString::number(v, 'f', int (fdigits))));
 }
 
 QScriptValue Number::method_toExponential(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() != classInfo)
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() != classInfo)
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Number.prototype.toExponential"));
 
@@ -160,7 +160,7 @@ QScriptValue Number::method_toExponential(QScriptEngine *eng, QScriptClassInfo *
     if (context->argumentCount() > 0)
         fdigits = context->argument(0).toInteger();
 
-    qnumber v = context->thisObject().impl()->internalValue().toNumber();
+    qnumber v = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
     QString z = QString::number(v, 'e', int (fdigits));
     return (eng->scriptValue(z));
 }
@@ -168,7 +168,7 @@ QScriptValue Number::method_toExponential(QScriptEngine *eng, QScriptClassInfo *
 QScriptValue Number::method_toPrecision(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (context->thisObject().impl()->classInfo() != classInfo)
+    if (QScriptValueImpl::get(context->thisObject())->classInfo() != classInfo)
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Number.prototype.toPrecision"));
 
@@ -177,7 +177,7 @@ QScriptValue Number::method_toPrecision(QScriptEngine *eng, QScriptClassInfo *cl
     if (context->argumentCount() > 0)
         fdigits = context->argument(0).toInteger();
 
-    qnumber v = context->thisObject().impl()->internalValue().toNumber();
+    qnumber v = QScriptValueImpl::get(context->thisObject())->internalValue().toNumber();
     return (eng->scriptValue(QString::number(v, 'g', int (fdigits))));
 }
 

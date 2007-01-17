@@ -57,8 +57,8 @@ Variant::~Variant()
 
 Variant::Instance *Variant::Instance::get(const QScriptValue &object, QScriptClassInfo *klass)
 {
-    if (! klass || klass == object.impl()->classInfo())
-        return static_cast<Instance*> (object.impl()->objectData().data());
+    if (! klass || klass == QScriptValueImpl::get(object)->classInfo())
+        return static_cast<Instance*> (QScriptValueImpl::get(object)->objectData().data());
 
     return 0;
 }
@@ -76,7 +76,7 @@ void Variant::newVariant(QScriptValue *result, const QVariant &value)
     instance->value = value;
 
     QScriptEnginePrivate::get(engine())->newObject(result, publicPrototype, classInfo());
-    result->impl()->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
+    QScriptValueImpl::get(*result)->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
 }
 
 QScriptValue Variant::method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo)

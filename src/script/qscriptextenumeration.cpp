@@ -74,8 +74,8 @@ Enumeration::~Enumeration()
 
 Enumeration::Instance *Enumeration::Instance::get(const QScriptValue &object, QScriptClassInfo *klass)
 {
-    if (! klass || klass == object.impl()->classInfo())
-        return static_cast<Instance*> (object.impl()->objectData().data());
+    if (! klass || klass == QScriptValueImpl::get(object)->classInfo())
+        return static_cast<Instance*> (QScriptValueImpl::get(object)->objectData().data());
     
     return 0;
 }
@@ -99,7 +99,7 @@ void Enumeration::newEnumeration(QScriptValue *result, const QScriptValue &objec
     instance->toFirst();
 
     QScriptEnginePrivate::get(engine())->newObject(result, publicPrototype, classInfo());
-    result->impl()->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
+    QScriptValueImpl::get(*result)->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
 }
 
 QScriptValue Enumeration::method_toFirst(QScriptEngine *eng, QScriptClassInfo *classInfo)
@@ -150,22 +150,22 @@ void Enumeration::Instance::hasNext(QScriptContext *context, QScriptValue *resul
 {
     QScriptEngine *eng = context->engine();
 Lagain:
-    int count = value.impl()->memberCount();
+    int count = QScriptValueImpl::get(value)->memberCount();
     bool found = false;
     while (! found && ++index < count) {
         QScript::Member member;
-        value.impl()->member(index, &member);
+        QScriptValueImpl::get(value)->member(index, &member);
         found = member.isValid() && ! member.dontEnum();
         if (found) {
             QScriptValue current;
-            value.impl()->get(member, &current);
+            QScriptValueImpl::get(value)->get(member, &current);
             found = current.isValid();
 
             if (found && member.nameId()) {
                 Member m;
                 QScriptValue b;
-                if (object.impl()->resolve(member.nameId(), &m, &b, QScriptValue::ResolvePrototype))
-                    found = (b.impl()->objectValue() == value.impl()->objectValue());
+                if (QScriptValueImpl::get(object)->resolve(member.nameId(), &m, &b, QScriptValue::ResolvePrototype))
+                    found = (QScriptValueImpl::get(b)->objectValue() == QScriptValueImpl::get(value)->objectValue());
             }
         }
     }
@@ -185,7 +185,7 @@ void Enumeration::Instance::next(QScriptContext *context, QScriptValue *result)
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
 
     QScript::Member member;
-    value.impl()->member(index, &member);
+    QScriptValueImpl::get(value)->member(index, &member);
 
     if (member.isObjectProperty() || member.nameId())
         eng_p->newNameId(result, member.nameId());

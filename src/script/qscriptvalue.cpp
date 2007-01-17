@@ -190,7 +190,7 @@ QDebug &operator<<(QDebug &d, const QScriptValue &object)
         return d;
     }
 
-    switch (object.impl()->type()) {
+    switch (QScriptValueImpl::get(object)->type()) {
     case QScript::BooleanType:
         d.nospace() << "bool=" << object.toBoolean();
         break;
@@ -221,8 +221,8 @@ QDebug &operator<<(QDebug &d, const QScriptValue &object)
 
     default:
         if (object.isObject()) {
-            d.nospace() << object.impl()->classInfo()->name() << ",{";
-            QScriptObject *od = object.impl()->objectValue();
+            d.nospace() << QScriptValueImpl::get(object)->classInfo()->name() << ",{";
+            QScriptObject *od = QScriptValueImpl::get(object)->objectValue();
             for (int i=0; i<od->memberCount(); ++i) {
                 if (i != 0)
                     d << ",";
@@ -235,18 +235,18 @@ QDebug &operator<<(QDebug &d, const QScriptValue &object)
                     QScriptValue o;
                     od->get(m, &o);
                     d.nospace() << QLatin1String(":")
-                                << (o.impl()->classInfo()
-                                    ? o.impl()->classInfo()->name()
+                                << (QScriptValueImpl::get(o)->classInfo()
+                                    ? QScriptValueImpl::get(o)->classInfo()->name()
                                     : QLatin1String("?"));
                 }
             }
 
             d.nospace() << "} scope={";
-            QScriptValue scope = object.impl()->scope();
+            QScriptValue scope = QScriptValueImpl::get(object)->scope();
             while (scope.isValid()) {
                 Q_ASSERT(scope.isObject());
-                d.nospace() << " " << scope.impl()->objectValue();
-                scope = scope.impl()->scope();
+                d.nospace() << " " << QScriptValueImpl::get(scope)->objectValue();
+                scope = QScriptValueImpl::get(scope)->scope();
             }
             d.nospace() << "}";
         } else {

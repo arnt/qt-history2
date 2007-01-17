@@ -124,7 +124,7 @@ bool WithClassData::resolve(const QScriptValue &object, QScriptNameIdImpl *nameI
     QScriptValue proto = object.prototype();
     Q_ASSERT(proto.isValid());
     Q_ASSERT(proto.isObject());
-    return proto.impl()->resolve(nameId, member, base, QScriptValue::ResolveScope);
+    return QScriptValueImpl::get(proto)->resolve(nameId, member, base, QScriptValue::ResolveScope);
 }
 
 
@@ -134,7 +134,7 @@ class ArgumentsClassData: public QScriptClassData
 public:
 
     static inline QScript::ArgumentsObjectData *get(const QScriptValue &object)
-        { return static_cast<QScript::ArgumentsObjectData*>(object.impl()->objectData().data()); }
+        { return static_cast<QScript::ArgumentsObjectData*>(QScriptValueImpl::get(object)->objectData().data()); }
 
     virtual bool resolve(const QScriptValue &object, QScriptNameIdImpl *nameId,
                          QScript::Member *member, QScriptValue *base);
@@ -185,7 +185,7 @@ bool ArgumentsClassData::get(const QScriptValue &object, const QScript::Member &
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(object.engine());
     QScript::ArgumentsObjectData *data = ArgumentsClassData::get(object);
     if (member.nameId() == 0) {
-        QScriptObject *activation_data = data->activation.impl()->objectValue();
+        QScriptObject *activation_data = QScriptValueImpl::get(data->activation)->objectValue();
         *out_value = activation_data->m_objects[member.id()];
         return true;
     } else if (member.nameId() == eng_p->idTable()->id_length) {
@@ -203,7 +203,7 @@ bool ArgumentsClassData::put(QScriptValue *object, const QScript::Member &member
 {
     Q_ASSERT(member.nameId() == 0);
     QScript::ArgumentsObjectData *data = ArgumentsClassData::get(*object);
-    QScriptObject *activation_data = data->activation.impl()->objectValue();
+    QScriptObject *activation_data = QScriptValueImpl::get(data->activation)->objectValue();
     activation_data->m_objects[member.id()] = value;
     return true;
 }

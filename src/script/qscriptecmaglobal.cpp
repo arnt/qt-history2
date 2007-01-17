@@ -298,7 +298,7 @@ void Global::construct(QScriptValue *object, QScriptEngine *eng)
     eng_p->newObject(object, eng->nullScriptValue(), classInfo);
 
     Global *instance = new Global(eng, classInfo);
-    object->impl()->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
+    QScriptValueImpl::get(*object)->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
 }
 
 void Global::initialize(QScriptValue *object, QScriptEngine *eng)

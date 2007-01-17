@@ -224,7 +224,7 @@ void Array::newArray(QScriptValue *result, const QScript::Array &value)
     instance->value = value;
 
     QScriptEnginePrivate::get(engine())->newObject(result, publicPrototype, classInfo());
-    result->impl()->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
+    QScriptValueImpl::get(*result)->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
 }
 
 QScriptValue Array::method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo)
@@ -331,9 +331,9 @@ QScriptValue Array::method_pop(QScriptEngine *eng, QScriptClassInfo *classInfo)
 
     QScript::Member member;
     QScriptValue base;
-    self.impl()->resolve(r6, &member, &base, QScriptValue::ResolveLocal);
+    QScriptValueImpl::get(self)->resolve(r6, &member, &base, QScriptValue::ResolveLocal);
     Q_ASSERT(member.isValid());
-    self.impl()->removeMember(member);
+    QScriptValueImpl::get(self)->removeMember(member);
     self.setProperty(id_length, eng->scriptValue(r2 - 1));
     return (r7);
 }
@@ -395,32 +395,32 @@ QScriptValue Array::method_reverse(QScriptEngine *eng, QScriptClassInfo *classIn
             QScript::Member imember;
             QScriptValue ibase;
             QScriptValue ival;
-            bool iok = self.impl()->resolve(iid, &imember, &ibase, QScriptValue::ResolveLocal);
+            bool iok = QScriptValueImpl::get(self)->resolve(iid, &imember, &ibase, QScriptValue::ResolveLocal);
             if (iok)
-                ibase.impl()->get(iid, &ival);
+                QScriptValueImpl::get(ibase)->get(iid, &ival);
             else
                 ival = eng->undefinedScriptValue();
 
             QScript::Member jmember;
             QScriptValue jbase;
             QScriptValue jval;
-            bool jok = self.impl()->resolve(jid, &jmember, &jbase, QScriptValue::ResolveLocal);
+            bool jok = QScriptValueImpl::get(self)->resolve(jid, &jmember, &jbase, QScriptValue::ResolveLocal);
             if (jok)
-                jbase.impl()->get(jid, &jval);
+                QScriptValueImpl::get(jbase)->get(jid, &jval);
             else
                 jval = eng->undefinedScriptValue();
 
             if (!jok) {
                 if (iok) {
-                    self.impl()->removeMember(imember);
+                    QScriptValueImpl::get(self)->removeMember(imember);
                     self.setProperty(jid, ival);
                 }
             } else if (!iok) {
                 self.setProperty(iid, jval);
-                self.impl()->removeMember(jmember);
+                QScriptValueImpl::get(self)->removeMember(jmember);
             } else {
-                self.impl()->put(imember, jval);
-                self.impl()->put(jmember, ival);
+                QScriptValueImpl::get(self)->put(imember, jval);
+                QScriptValueImpl::get(self)->put(jmember, ival);
             }
         }
     }
@@ -457,14 +457,14 @@ QScriptValue Array::method_shift(QScriptEngine *eng, QScriptClassInfo *)
         if (v.isValid())
             self.setProperty(k1, v);
 
-        else if (v1.isValid() && self.impl()->resolve(k1, &member, &base, QScriptValue::ResolveLocal))
-            self.impl()->removeMember(member);
+        else if (v1.isValid() && QScriptValueImpl::get(self)->resolve(k1, &member, &base, QScriptValue::ResolveLocal))
+            QScriptValueImpl::get(self)->removeMember(member);
     }
 
     QScriptValue len = eng->scriptValue(length - 1);
 
-    if (self.impl()->resolve(eng->nameId(len.toString()), &member, &base, QScriptValue::ResolveLocal))
-        self.impl()->removeMember(member);
+    if (QScriptValueImpl::get(self)->resolve(eng->nameId(len.toString()), &member, &base, QScriptValue::ResolveLocal))
+        QScriptValueImpl::get(self)->removeMember(member);
 
     self.setProperty(id_length, len);
     return (result);
@@ -555,8 +555,8 @@ QScriptValue Array::method_unshift(QScriptEngine *eng, QScriptClassInfo *)
             QScript::Member member;
             QScriptValue base;
 
-            if (self.impl()->resolve(r7, &member, &base, QScriptValue::ResolveLocal))
-                self.impl()->removeMember(member);
+            if (QScriptValueImpl::get(self)->resolve(r7, &member, &base, QScriptValue::ResolveLocal))
+                QScriptValueImpl::get(self)->removeMember(member);
         }
     }
 
@@ -572,8 +572,8 @@ QScriptValue Array::method_unshift(QScriptEngine *eng, QScriptClassInfo *)
 
 Array::Instance *Array::Instance::get(const QScriptValue &object, QScriptClassInfo *klass)
 {
-    if (! klass || klass == object.impl()->classInfo())
-        return static_cast<Instance*> (object.impl()->objectData().data());
+    if (! klass || klass == QScriptValueImpl::get(object)->classInfo())
+        return static_cast<Instance*> (QScriptValueImpl::get(object)->objectData().data());
     
     return 0;
 }
