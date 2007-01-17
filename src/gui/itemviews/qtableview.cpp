@@ -1390,6 +1390,12 @@ int QTableView::sizeHintForRow(int row) const
     QModelIndex index;
     for (int column = left; column <= right; ++column) {
         index = d->model->index(row, column, d->root);
+        if (d->wrapItemText) {// for wrapping boundries
+            option.rect.setY(rowViewportPosition(index.row()));
+            option.rect.setHeight(rowHeight(index.row()));
+            option.rect.setX(columnViewportPosition(index.column()));
+            option.rect.setWidth(columnWidth(index.column()));
+        }
         hint = qMax(hint, itemDelegate(index)->sizeHint(option, index).height());
     }
 

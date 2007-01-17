@@ -103,7 +103,7 @@ QRect QItemDelegatePrivate::textLayoutBounds(const QStyleOptionViewItemV2 &optio
     switch (option.decorationPosition) {
     case QStyleOptionViewItem::Left:
     case QStyleOptionViewItem::Right:
-        rect.setWidth(INT_MAX >> 6);
+        rect.setWidth(wrapText && rect.isValid() ? rect.width() : INT_MAX >> 6);
         break;
     case QStyleOptionViewItem::Top:
     case QStyleOptionViewItem::Bottom:
@@ -262,7 +262,7 @@ QItemDelegate::~QItemDelegate()
   \since 4.2
 
   This property will set the paint clip to the size of the item.
-  The default value is on.  It is useful for cases such
+  The default value is on. It is useful for cases such
   as when images are larger then the size of the item.
 */
 
@@ -1002,6 +1002,18 @@ QRect QItemDelegate::rect(const QStyleOptionViewItem &option,
 
 /*!
   \internal
+
+  Note that on Mac, if /usr/include/AssertMacros.h is included prior to QItemDelegate,
+  and the application is building in debug mode, the check(assertion) will conflict
+  with QItemDelegate::check.
+
+  To avoid this problem, add 
+
+  #ifdef check
+	#undef check
+  #endif
+
+  after including AssertMacros.h
 */
 QRect QItemDelegate::check(const QStyleOptionViewItem &option,
                            const QRect &bounding, const QVariant &value) const
