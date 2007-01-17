@@ -22,8 +22,6 @@
 #include <QTextStream>
 #include <QtDebug>
 
-#include <limits.h>
-
 namespace {
     // Fixup an enumeration name from class Qt.
     // They are currently stored as "BottomToolBarArea" instead of "Qt::BottomToolBarArea".
@@ -35,7 +33,7 @@ namespace {
     }
     // figure out the toolbar area of a DOM attrib list.
     // By legacy, it is stored as an integer. As of 4.3.0, it is the enumeration value.
-    QString toolBarAreaStringFromDOMAttributes(const QHash<QString, DomProperty*> &attributes) {
+    QString toolBarAreaStringFromDOMAttributes(const CPP::WriteInitialization::DomPropertyMap &attributes) {
         const DomProperty *pstyle = attributes.value(QLatin1String("toolBarArea"));
         if (!pstyle)
             return QString();
@@ -96,6 +94,12 @@ namespace {
         if (i1 > i2) return  1;
         return  0;
     }
+
+    // Write object->setFoo(x);
+    template <class Value>
+        void writeSetter(const QString &indent, const QString &varName,const QString &setter, Value v, QTextStream &str) {
+            str << indent << varName << "->" << setter << '(' << v << ");\n";
+        }
 }
 
 namespace CPP {
@@ -204,12 +208,93 @@ int SizePolicyHandle::compare(const SizePolicyHandle &rhs) const
     return attributeVSizeType.compare(rhsAttributeVSizeType);
 }
 
+// ---  WriteInitialization: LayoutDefaultHandler
+
+WriteInitialization::LayoutDefaultHandler::LayoutDefaultHandler()
+{
+    qFill(m_state, m_state + NumProperties, 0u);
+    qFill(m_defaultValues, m_defaultValues + NumProperties, 0);
+}
+
+
+
+void WriteInitialization::LayoutDefaultHandler::acceptLayoutDefault(DomLayoutDefault *node)
+{
+    if (!node)
+        return;
+    if (node->hasAttributeMargin()) {
+        m_state[Margin] |= HasDefaultValue;
+        m_defaultValues[Margin] = node->attributeMargin();
+    }
+    if (node->hasAttributeSpacing()) {
+        m_state[Spacing] |= HasDefaultValue;
+        m_defaultValues[Spacing]  = node->attributeSpacing();
+    }
+}
+
+void WriteInitialization::LayoutDefaultHandler::acceptLayoutFunction(DomLayoutFunction *node)
+{
+    if (!node)
+        return;
+    if (node->hasAttributeMargin()) {
+        m_state[Margin]     |= HasDefaultFunction;
+        m_functions[Margin] =  node->attributeMargin();
+        m_functions[Margin] += QLatin1String("()");
+    }
+    if (node->hasAttributeSpacing()) {
+        m_state[Spacing]     |= HasDefaultFunction;
+        m_functions[Spacing] =  node->attributeSpacing();
+        m_functions[Spacing] += QLatin1String("()");
+    }
+}
+
+
+bool WriteInitialization::LayoutDefaultHandler::writeProperty(int p, const QString &indent, const QString &objectName,
+                                                              const DomPropertyMap &properties, const QString &propertyName, const QString &setter,
+                                                              QTextStream &str) const
+{
+    // User value
+    const DomPropertyMap::const_iterator mit = properties.constFind(propertyName);
+    const bool found = mit != properties.constEnd();
+    if (found) {
+        const int value = mit.value()->elementNumber();
+        // Emulate the pre 4.3 behaviour: The value form default value was only used to determine
+        // the default value, layout properties were always written
+        const bool useLayoutFunctionPre43 = (m_state[p] & (HasDefaultFunction|HasDefaultFunction)) && value == m_defaultValues[p];
+        if (!useLayoutFunctionPre43) {
+            writeSetter(indent, objectName, setter, value, str);
+            return found;
+        }
+    }
+    // get default
+    if (m_state[p] & HasDefaultFunction) {
+        writeSetter(indent, objectName, setter, m_functions[p], str);
+        return found;
+    }
+    if (m_state[p] & HasDefaultValue) {
+        writeSetter(indent, objectName, setter, m_defaultValues[p], str);
+    }
+    return found;
+}
+
+
+unsigned WriteInitialization::LayoutDefaultHandler::writeProperties(const QString &indent, const QString &varName,
+                                                                const DomPropertyMap &properties, QTextStream &str) const
+{
+    // Write out properties and ignore the ones found in
+    // subsequent writing of the property list.
+    unsigned  rc = 0u;
+    if (writeProperty(Spacing, indent, varName, properties, QLatin1String("spacing"), QLatin1String("setSpacing"), str))
+        rc |= WritePropertyIgnoreSpacing;
+    if (writeProperty(Margin,  indent, varName, properties, QLatin1String("margin"),  QLatin1String("setMargin"),  str))
+        rc |= WritePropertyIgnoreMargin;
+    return rc;
+}
 
 // ---  WriteInitialization
 WriteInitialization::WriteInitialization(Uic *uic) :
       m_uic(uic),
       m_driver(uic->driver()), m_output(uic->output()), m_option(uic->option()),
-      m_defaultMargin(INT_MIN), m_defaultSpacing(INT_MIN),
       m_delayedOut(&m_delayedInitialization, QIODevice::WriteOnly),
       m_refreshOut(&m_refreshInitialization, QIODevice::WriteOnly),
       m_actionOut(&m_delayedActionInitialization, QIODevice::WriteOnly)
@@ -358,7 +443,7 @@ void WriteInitialization::acceptWidget(DomWidget *node)
     }
 
     if (m_uic->isButton(className)) {
-        const QHash<QString, DomProperty*> attributes = propertyMap(node->elementAttribute());
+        const DomPropertyMap attributes = propertyMap(node->elementAttribute());
         if (const DomProperty *prop = attributes.value(QLatin1String("buttonGroup"))) {
             const QString groupName = toString(prop->elementString());
             if (!m_buttonGroups.contains(groupName)) {
@@ -387,7 +472,7 @@ void WriteInitialization::acceptWidget(DomWidget *node)
     m_layoutChain.pop();
     m_widgetChain.pop();
 
-    const QHash<QString, DomProperty*> attributes = propertyMap(node->elementAttribute());
+    const DomPropertyMap attributes = propertyMap(node->elementAttribute());
 
     QString title = QLatin1String("Page");
     if (const DomProperty *ptitle = attributes.value(QLatin1String("title"))) {
@@ -499,9 +584,10 @@ void WriteInitialization::acceptLayout(DomLayout *node)
     const QString className = node->attributeClass();
     const QString varName = m_driver->findOrInsertLayout(node);
 
-    const QHash<QString, DomProperty*> properties = propertyMap(node->elementProperty());
+    const DomPropertyMap properties = propertyMap(node->elementProperty());
 
     bool isGroupBox = false;
+    unsigned writePropertyFlags = 0;
 
     if (m_widgetChain.top()) {
         const QString parentWidget = m_widgetChain.top()->attributeClass();
@@ -511,37 +597,11 @@ void WriteInitialization::acceptLayout(DomLayout *node)
             const QString parent = m_driver->findOrInsertWidget(m_widgetChain.top());
 
             isGroupBox = true;
-
             // special case for group box
-
-            int margin = m_defaultMargin;
-            int spacing = m_defaultSpacing;
-
-            if (properties.contains(QLatin1String("margin")))
-                margin = properties.value(QLatin1String("margin"))->elementNumber();
-
-            if (properties.contains(QLatin1String("spacing")))
-                spacing = properties.value(QLatin1String("spacing"))->elementNumber();
-
             m_output << m_option.indent << parent << "->setColumnLayout(0, Qt::Vertical);\n";
-
-            if (spacing != INT_MIN) {
-                QString value = QString::number(spacing);
-                if (!m_spacingFunction.isEmpty() && spacing == m_defaultSpacing) {
-                    value = m_spacingFunction;
-                    value += QLatin1String("()");
-                }
-                m_output << m_option.indent << parent << "->layout()->setSpacing(" << value << ");\n";
-            }
-
-            if (margin != INT_MIN) {
-                QString value = QString::number(margin);
-                if (!m_marginFunction.isEmpty() && margin == m_defaultMargin) {
-                    value = m_marginFunction;
-                    value += QLatin1String("()");
-                }
-                m_output << m_option.indent << parent << "->layout()->setMargin(" << value << ");\n";
-            }
+            QString objectName = parent;
+            objectName += "->layout()";
+            writePropertyFlags = m_LayoutDefaultHandler.writeProperties(m_option.indent, objectName, properties, m_output);
         }
     }
 
@@ -555,63 +615,13 @@ void WriteInitialization::acceptLayout(DomLayout *node)
 
     m_output << ");\n";
 
-    QList<DomProperty*> layoutProperties = node->elementProperty();
-
     if (isGroupBox) {
         m_output << m_option.indent << varName << "->setAlignment(Qt::AlignTop);\n";
-        if (properties.contains(QLatin1String("margin"))) {
-            DomProperty *p = properties.value(QLatin1String("margin"));
-            Q_ASSERT(p != 0);
-            layoutProperties.removeAt(layoutProperties.indexOf(p));
-        }
-
-        if (properties.contains(QLatin1String("spacing"))) {
-            DomProperty *p = properties.value(QLatin1String("spacing"));
-            Q_ASSERT(p != 0);
-            layoutProperties.removeAt(layoutProperties.indexOf(p));
-        }
-    } else {
-        int margin = m_defaultMargin;
-        int spacing = m_defaultSpacing;
-
-        if (properties.contains(QLatin1String("margin"))) {
-            DomProperty *p = properties.value(QLatin1String("margin"));
-            Q_ASSERT(p != 0);
-
-            margin = properties.value(QLatin1String("margin"))->elementNumber();
-            layoutProperties.removeAt(layoutProperties.indexOf(p));
-        }
-
-        if (properties.contains(QLatin1String("spacing"))) {
-            DomProperty *p = properties.value(QLatin1String("spacing"));
-            Q_ASSERT(p != 0);
-
-            spacing = properties.value(QLatin1String("spacing"))->elementNumber();
-            layoutProperties.removeAt(layoutProperties.indexOf(p));
-        }
-
-        if (spacing != INT_MIN) {
-            QString value = QString::number(spacing);
-            if (!m_spacingFunction.isEmpty() && spacing == m_defaultSpacing) {
-                value = m_spacingFunction;
-                value += QLatin1String("()");
-            }
-
-            m_output << m_option.indent << varName << "->setSpacing(" << value << ");\n";
-        }
-
-        if (margin != INT_MIN) {
-            QString value = QString::number(margin);
-            if (!m_marginFunction.isEmpty() && margin == m_defaultMargin) {
-                value = m_marginFunction;
-                value += QLatin1String("()");
-            }
-
-            m_output << m_option.indent << varName << "->setMargin(" << value << ");\n";
-        }
+    }  else {
+        writePropertyFlags = m_LayoutDefaultHandler.writeProperties(m_option.indent, varName, properties, m_output);
     }
 
-    writeProperties(varName, className, layoutProperties);
+    writeProperties(varName, className, node->elementProperty(), writePropertyFlags);
 
     m_layoutChain.push(node);
     TreeWalker::acceptLayout(node);
@@ -735,12 +745,13 @@ void WriteInitialization::acceptActionRef(DomActionRef *node)
 
 void WriteInitialization::writeProperties(const QString &varName,
                                           const QString &className,
-                                          const QList<DomProperty*> &lst)
+                                          const DomPropertyList &lst,
+                                          unsigned flags)
 {
     const bool isTopLevel = m_widgetChain.count() == 1;
 
     if (m_uic->customWidgetsInfo()->extends(className, QLatin1String("QAxWidget"))) {
-        QHash<QString, DomProperty*> properties = propertyMap(lst);
+        DomPropertyMap properties = propertyMap(lst);
         if (properties.contains(QLatin1String("control"))) {
             DomProperty *p = properties.value(QLatin1String("control"));
             m_output << m_option.indent << varName << "->setControl(QString::fromUtf8("
@@ -806,6 +817,10 @@ void WriteInitialization::writeProperties(const QString &varName,
 
             m_output << m_option.indent << varName << "->setFrameShape(" << shape << ");\n";
             m_output << m_option.indent << varName << "->setFrameShadow(QFrame::Sunken);\n";
+            continue;
+        } else if ((flags & WritePropertyIgnoreMargin)  && propertyName == QLatin1String("margin")) {
+            continue;
+        } else if ((flags & WritePropertyIgnoreSpacing) && propertyName == QLatin1String("spacing")) {
             continue;
         }
 
@@ -1328,36 +1343,6 @@ void WriteInitialization::acceptTabStops(DomTabStops *tabStops)
     }
 }
 
-void WriteInitialization::acceptLayoutDefault(DomLayoutDefault *node)
-{
-    m_defaultMargin = INT_MIN;
-    m_defaultSpacing = INT_MIN;
-
-    if (!node)
-        return;
-
-    if (node->hasAttributeMargin())
-        m_defaultMargin = node->attributeMargin();
-
-    if (node->hasAttributeSpacing())
-        m_defaultSpacing = node->attributeSpacing();
-}
-
-void WriteInitialization::acceptLayoutFunction(DomLayoutFunction *node)
-{
-    m_marginFunction.clear();
-    m_spacingFunction.clear();
-
-    if (!node)
-        return;
-
-    if (node->hasAttributeMargin())
-        m_marginFunction = node->attributeMargin();
-
-    if (node->hasAttributeSpacing())
-        m_spacingFunction = node->attributeSpacing();
-}
-
 void WriteInitialization::initializeQ3ListBox(DomWidget *w)
 {
     const QString varName = m_driver->findOrInsertWidget(w);
@@ -1373,7 +1358,7 @@ void WriteInitialization::initializeQ3ListBox(DomWidget *w)
     for (int i=0; i<items.size(); ++i) {
         const DomItem *item = items.at(i);
 
-        const QHash<QString, DomProperty*> properties = propertyMap(item->elementProperty());
+        const DomPropertyMap properties = propertyMap(item->elementProperty());
         const DomProperty *text = properties.value(QLatin1String("text"));
         const DomProperty *pixmap = properties.value(QLatin1String("pixmap"));
         if (!(text || pixmap))
@@ -1407,7 +1392,7 @@ void WriteInitialization::initializeQ3IconView(DomWidget *w)
     for (int i=0; i<items.size(); ++i) {
         const DomItem *item = items.at(i);
 
-        const QHash<QString, DomProperty*> properties = propertyMap(item->elementProperty());
+        const DomPropertyMap properties = propertyMap(item->elementProperty());
         const DomProperty *text = properties.value(QLatin1String("text"));
         const DomProperty *pixmap = properties.value(QLatin1String("pixmap"));
         if (!(text || pixmap))
@@ -1437,7 +1422,7 @@ void WriteInitialization::initializeQ3ListView(DomWidget *w)
     for (int i=0; i<columns.size(); ++i) {
         const DomColumn *column = columns.at(i);
 
-        const QHash<QString, DomProperty*> properties = propertyMap(column->elementProperty());
+        const DomPropertyMap properties = propertyMap(column->elementProperty());
         const DomProperty *text = properties.value(QLatin1String("text"));
         const DomProperty *pixmap = properties.value(QLatin1String("pixmap"));
         const DomProperty *clickable = properties.value(QLatin1String("clickable"));
@@ -1482,7 +1467,7 @@ void WriteInitialization::initializeQ3ListViewItems(const QString &className, co
         m_refreshOut << m_option.indent << "Q3ListViewItem *" << itemName << " = new Q3ListViewItem(" << varName << ");\n";
 
         int textCount = 0, pixCount = 0;
-        const QList<DomProperty*> properties = item->elementProperty();
+        const DomPropertyList properties = item->elementProperty();
         for (int i=0; i<properties.size(); ++i) {
             const DomProperty *p = properties.at(i);
             if (p->attributeName() == QLatin1String("text"))
@@ -1515,7 +1500,7 @@ void WriteInitialization::initializeTreeWidgetItems(const QString &className, co
         m_refreshOut << m_option.indent << "QTreeWidgetItem *" << itemName << " = new QTreeWidgetItem(" << varName << ");\n";
 
         int textCount = 0;
-        const QList<DomProperty*> properties = item->elementProperty();
+        const DomPropertyList properties = item->elementProperty();
         for (int i=0; i<properties.size(); ++i) {
             const DomProperty *p = properties.at(i);
             if (p->attributeName() == QLatin1String("text"))
@@ -1544,7 +1529,7 @@ void WriteInitialization::initializeQ3Table(DomWidget *w)
     for (int i=0; i<columns.size(); ++i) {
         const DomColumn *column = columns.at(i);
 
-        const QHash<QString, DomProperty*> properties = propertyMap(column->elementProperty());
+        const DomPropertyMap properties = propertyMap(column->elementProperty());
         const DomProperty *text = properties.value(QLatin1String("text"));
         const DomProperty *pixmap = properties.value(QLatin1String("pixmap"));
 
@@ -1560,7 +1545,7 @@ void WriteInitialization::initializeQ3Table(DomWidget *w)
     for (int i=0; i<rows.size(); ++i) {
         const DomRow *row = rows.at(i);
 
-        const QHash<QString, DomProperty*> properties = propertyMap(row->elementProperty());
+        const DomPropertyMap properties = propertyMap(row->elementProperty());
         const DomProperty *text = properties.value(QLatin1String("text"));
         const DomProperty *pixmap = properties.value(QLatin1String("pixmap"));
 
@@ -1633,7 +1618,7 @@ void WriteInitialization::initializeComboBox(DomWidget *w)
     for (int i=0; i<items.size(); ++i) {
         const DomItem *item = items.at(i);
 
-        const QHash<QString, DomProperty*> properties = propertyMap(item->elementProperty());
+        const DomPropertyMap properties = propertyMap(item->elementProperty());
         const DomProperty *text = properties.value(QLatin1String("text"));
         const DomProperty *pixmap = properties.value(QLatin1String("icon"));
         if (!(text || pixmap))
@@ -1672,7 +1657,7 @@ void WriteInitialization::initializeListWidget(DomWidget *w)
         m_refreshOut << "\n";
         m_refreshOut << m_option.indent << "QListWidgetItem *" << itemName << " = new QListWidgetItem(" << varName << ");\n";
 
-        const QList<DomProperty*> properties = item->elementProperty();
+        const DomPropertyList properties = item->elementProperty();
         for (int i=0; i<properties.size(); ++i) {
             const DomProperty *p = properties.at(i);
 
@@ -1695,7 +1680,7 @@ void WriteInitialization::initializeTreeWidget(DomWidget *w)
     for (int i=0; i<columns.size(); ++i) {
         const DomColumn *column = columns.at(i);
 
-        const QHash<QString, DomProperty*> properties = propertyMap(column->elementProperty());
+        const DomPropertyMap properties = propertyMap(column->elementProperty());
         const DomProperty *text = properties.value(QLatin1String("text"));
         const DomProperty *icon = properties.value(QLatin1String("icon"));
 
@@ -1731,7 +1716,7 @@ void WriteInitialization::initializeTableWidget(DomWidget *w)
     for (int i = 0; i < columns.size(); ++i) {
         const DomColumn *column = columns.at(i);
 
-        const QHash<QString, DomProperty*> properties = propertyMap(column->elementProperty());
+        const DomPropertyMap properties = propertyMap(column->elementProperty());
         const DomProperty *text = properties.value(QLatin1String("text"));
         const DomProperty *icon = properties.value(QLatin1String("icon"));
         if (text || icon) {
@@ -1763,7 +1748,7 @@ void WriteInitialization::initializeTableWidget(DomWidget *w)
     for (int i = 0; i < rows.size(); ++i) {
         const DomRow *row = rows.at(i);
 
-        const QHash<QString, DomProperty*> properties = propertyMap(row->elementProperty());
+        const DomPropertyMap properties = propertyMap(row->elementProperty());
         const DomProperty *text = properties.value(QLatin1String("text"));
         const DomProperty *icon = properties.value(QLatin1String("icon"));
         if (text || icon) {
@@ -1798,7 +1783,7 @@ void WriteInitialization::initializeTableWidget(DomWidget *w)
     for (int i = 0; i < items.size(); ++i) {
         const DomItem *item = items.at(i);
         if (item->hasAttributeRow() && item->hasAttributeColumn()) {
-            const QHash<QString, DomProperty*> properties = propertyMap(item->elementProperty());
+            const DomPropertyMap properties = propertyMap(item->elementProperty());
             const DomProperty *text = properties.value(QLatin1String("text"));
             const DomProperty *icon = properties.value(QLatin1String("icon"));
             if (text || icon) {
@@ -1862,7 +1847,7 @@ QString WriteInitialization::trCall(const QString &str, const QString &commentHi
 
 void WriteInitialization::initializeQ3SqlDataTable(DomWidget *w)
 {
-    const QHash<QString, DomProperty*> properties = propertyMap(w->elementProperty());
+    const DomPropertyMap properties = propertyMap(w->elementProperty());
 
     const DomProperty *frameworkCode = properties.value(QLatin1String("frameworkCode"), 0);
     if (frameworkCode && toBool(frameworkCode->elementBool()) == false)
@@ -1902,7 +1887,7 @@ void WriteInitialization::initializeQ3SqlDataTable(DomWidget *w)
 
 void WriteInitialization::initializeQ3SqlDataBrowser(DomWidget *w)
 {
-    const QHash<QString, DomProperty*> properties = propertyMap(w->elementProperty());
+    const DomPropertyMap properties = propertyMap(w->elementProperty());
 
     const DomProperty *frameworkCode = properties.value(QLatin1String("frameworkCode"), 0);
     if (frameworkCode && toBool(frameworkCode->elementBool()) == false)

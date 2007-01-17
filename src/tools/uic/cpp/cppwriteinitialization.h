@@ -55,6 +55,9 @@ namespace CPP {
 
 struct WriteInitialization : public TreeWalker
 {
+    typedef QList<DomProperty*> DomPropertyList;
+    typedef QHash<QString, DomProperty*> DomPropertyMap;
+
     WriteInitialization(Uic *uic);
 
 //
@@ -86,8 +89,8 @@ struct WriteInitialization : public TreeWalker
 //
 // layout defaults/functions
 //
-    void acceptLayoutDefault(DomLayoutDefault *node);
-    void acceptLayoutFunction(DomLayoutFunction *node);
+    void acceptLayoutDefault(DomLayoutDefault *node)   { m_LayoutDefaultHandler.acceptLayoutDefault(node); }
+    void acceptLayoutFunction(DomLayoutFunction *node) { m_LayoutDefaultHandler.acceptLayoutFunction(node); }
 
 //
 // signal/slot connections
@@ -106,8 +109,8 @@ private:
     QString trCall(const QString &str, const QString &comment = QString()) const;
     QString trCall(DomString *str) const;
 
-    void writeProperties(const QString &varName, const QString &className,
-                         const QList<DomProperty*> &lst);
+    enum { WritePropertyIgnoreMargin = 1, WritePropertyIgnoreSpacing = 2 };
+    void writeProperties(const QString &varName, const QString &className, const DomPropertyList &lst, unsigned flags = 0);
     void writeColorGroup(DomColorGroup *colorGroup, const QString &group, const QString &paletteName);
     void writeBrush(DomBrush *brush, const QString &brushName);
 
@@ -177,11 +180,31 @@ private:
     // Map from size policy to  variable for reuse
     typedef QMap<SizePolicyHandle, QString> SizePolicyNameMap;
     SizePolicyNameMap m_SizePolicyNameMap;
+
+    class LayoutDefaultHandler {
+    public:
+        LayoutDefaultHandler();
+        void acceptLayoutDefault(DomLayoutDefault *node);
+        void acceptLayoutFunction(DomLayoutFunction *node);
+
+        // Write out the layout margin and spacing properties applying the
+        // defaults. Returns a combination of ::writeProperty flags to prevent it from writing the margin
+        unsigned writeProperties(const QString &indent, const QString &varName,
+                                 const DomPropertyMap &pm, QTextStream &str) const;
+    private:
+        bool writeProperty(int p, const QString &indent, const QString &objectName, const DomPropertyMap &pm,
+                           const QString &propertyName, const QString &setter,
+                           QTextStream &str) const;
+
+        enum Properties { Margin, Spacing, NumProperties };
+        enum StateFlags { HasDefaultValue = 1, HasDefaultFunction = 2};
+        unsigned m_state[NumProperties];
+        int m_defaultValues[NumProperties];
+        QString m_functions[NumProperties];
+    };
+
     // layout defaults
-    int m_defaultMargin;
-    int m_defaultSpacing;
-    QString m_marginFunction;
-    QString m_spacingFunction;
+    LayoutDefaultHandler m_LayoutDefaultHandler;
 
     QString m_generatedClass;
 
