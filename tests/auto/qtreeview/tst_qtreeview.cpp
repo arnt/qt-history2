@@ -107,6 +107,7 @@ private slots:
     void keyboardSearch();
     void setModel();
     void openPersistentEditor();
+    void rootIndex();
 
     // specialized tests below
     void setHeader();
@@ -1009,6 +1010,19 @@ void tst_QTreeView::openPersistentEditor()
 
     qApp->processEvents(QEventLoop::DeferredDeletion);
     QVERIFY(!qFindChild<QLineEdit *>(view.viewport()));
+}
+
+void tst_QTreeView::rootIndex()
+{
+    QTreeView view;
+    QCOMPARE(view.rootIndex(), QModelIndex());
+    view.setModel(newStandardTreeModel());
+    QCOMPARE(view.rootIndex(), QModelIndex());
+
+    view.setRootIndex(view.model()->index(1, 0));
+
+    QCOMPARE(view.model()->data(view.model()->index(0, view.header()->visualIndex(0), view.rootIndex()), Qt::DisplayRole)
+             .toString(), QString("Row 2 Child Item"));
 }
 
 void tst_QTreeView::setHeader()
