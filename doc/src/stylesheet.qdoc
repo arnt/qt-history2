@@ -1726,7 +1726,7 @@
     \code
         QLabel { border-color: red }                    / * opaque red * /
         QLabel { border-color: #FF0000 }                / * opaque red * /
-        QLabel { border-color: rgba(255, 0, 0, 75%) }   / * 75% transparent red * /
+        QLabel { border-color: rgba(255, 0, 0, 75%) }   / * 75% opaque red * /
         QLabel { border-color: rgb(255, 0, 0) }         / * opaque red * /
         QLabel { border-color: rgb(100%, 0%, 0%) }      / * opaque red * /
     \endcode
