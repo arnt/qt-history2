@@ -28,7 +28,6 @@
 #include "shared_global_p.h"
 
 #include <QtGui/QStackedWidget>
-#include <QtCore/QList>
 
 class QAction;
 class QToolButton;
@@ -80,7 +79,8 @@ private slots:
     void slotCurrentChanged(int index);
 
 private:
-    QToolButton *prev, *next;
+    QToolButton *m_prev;
+    QToolButton *m_next;
     QAction *m_actionPreviousPage;
     QAction *m_actionNextPage;
     QAction *m_actionDeletePage;
