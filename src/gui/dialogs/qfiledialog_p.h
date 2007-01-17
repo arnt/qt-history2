@@ -184,7 +184,7 @@ public:
     void _q_animateDialogV(int);
     void _q_animateDialogH(int);
     void _q_autoCompleteFileName(const QString &);
-    void _q_rowsInserted(const QModelIndex & parent, int start, int end);
+    void _q_rowsInserted(const QModelIndex & parent);
 
     // layout
     QLabel *fileNameLabel;
@@ -259,6 +259,12 @@ class QFileDialogTreeView : public QTreeView
 {
 public:
     QFileDialogTreeView(QFileDialogPrivate *d_pointer);
+    void selectAnyIndex() {
+        QModelIndex idx = moveCursor(QAbstractItemView::MoveDown, Qt::NoModifier);
+        if (!idx.isValid())
+            idx = model()->index(0, 0, rootIndex());
+        selectionModel()->select(idx, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+    }
 protected:
     void keyPressEvent(QKeyEvent *e)
     {

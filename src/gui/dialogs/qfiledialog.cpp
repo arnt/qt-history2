@@ -351,10 +351,8 @@ void QFileDialog::setDirectory(const QString &directory)
     d->newFolderButton->setEnabled(d->model->flags(root) & Qt::ItemIsDropEnabled);
     d->listView->selectionModel()->clear();
 
-    if (d->model->rowCount(root) > 0) {
-        QModelIndex index = d->model->index(0, 0, root);
-        d->listView->selectionModel()->select(index, QItemSelectionModel::Select | QItemSelectionModel::Rows);
-    }
+    if (d->model->rowCount(root) > 0)
+        d->treeView->selectAnyIndex();
 }
 
 /*!
@@ -1683,7 +1681,7 @@ void QFileDialogPrivate::createWidgets()
     QFileDialog::connect(model, SIGNAL(rootPathChanged(const QString &)),
             q, SLOT(_q_pathChanged(const QString &)));
     QFileDialog::connect(model, SIGNAL(rowsInserted(const QModelIndex &, int, int)),
-            q, SLOT(_q_rowsInserted(const QModelIndex &, int, int)));
+            q, SLOT(_q_rowsInserted(const QModelIndex &)));
     model->setReadOnly(false);
 
     splitter = new QSplitter(q);
@@ -2443,16 +2441,14 @@ void QFileDialogPrivate::_q_showHidden()
     When parent is root and rows have been inserted when none was there before
     then select the first one.
 */
-void QFileDialogPrivate::_q_rowsInserted(const QModelIndex &parent, int start, int end)
+void QFileDialogPrivate::_q_rowsInserted(const QModelIndex &parent)
 {
-    QAbstractItemView *view = currentView();
-    if (!view
-        || parent != view->rootIndex()
-        || view->selectionModel()->hasSelection()
+    if (!treeView
+        || parent != treeView->rootIndex()
+        || treeView->selectionModel()->hasSelection()
         || model->rowCount(parent) == 0)
         return;
-    QModelIndex index = model->index(0, 0, parent);
-    view->selectionModel()->select(index, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+    treeView->selectAnyIndex();
 }
 
 /*!
