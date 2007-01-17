@@ -144,8 +144,8 @@ public:
     QStyle::SubControl hoveredSubControl;
     QStyle::SubControl activeSubControl;
     OperationInfoMap operationMap;
-    QMenu *systemMenu;
-    QAction *actions[NumWindowStateActions];
+    QPointer<QMenu> systemMenu;
+    QPointer<QAction> actions[NumWindowStateActions];
     QMdiSubWindow::SubWindowOptions options;
 
     // Slots.
@@ -184,6 +184,9 @@ public:
     void updateActions();
     void setFocusWidget();
     void setWindowFlags(Qt::WindowFlags windowFlags);
+    void setEnabled(WindowStateAction, bool enable = true);
+    void setVisible(WindowStateAction, bool visible = true);
+    void addToSystemMenu(WindowStateAction, const QString &text, const char *slot);
 
     inline int titleBarHeight() const
     {

@@ -470,7 +470,7 @@ ControlContainer::ControlContainer(QMdiSubWindow *mdiChild)
     connect(_controllerWidget, SIGNAL(_q_minimize()), mdiChild, SLOT(showMinimized()));
 
     _menuLabel = new ControlElement<ControlLabel>(mdiChild);
-    connect(_menuLabel, SIGNAL(_q_clicked()), mdiChild, SLOT(showMenu()));
+    connect(_menuLabel, SIGNAL(_q_clicked()), mdiChild, SLOT(showSystemMenu()));
     connect(_menuLabel, SIGNAL(_q_doubleClicked()), mdiChild, SLOT(close()));
 }
 
@@ -613,10 +613,10 @@ void QMdiSubWindowPrivate::_q_enterInteractiveMode()
         return;
 
     QPoint pressPos;
-    if (action == actions[MoveAction]) {
+    if (actions[MoveAction] && actions[MoveAction] == action) {
         currentOperation = Move;
         pressPos = QPoint(q->width() / 2, titleBarHeight() - 1);
-    } else if (action == actions[ResizeAction]) {
+    } else if (actions[ResizeAction] && actions[ResizeAction] == action) {
         currentOperation = q->isLeftToRight() ? BottomRightResize : BottomLeftResize;
         int offset = q->style()->pixelMetric(QStyle::PM_MDIFrameWidth) / 2;
         int x = q->isLeftToRight() ? q->width() - offset : offset;
@@ -715,30 +715,22 @@ void QMdiSubWindowPrivate::createSystemMenu()
                "You can NOT call this function before QMdiSubWindow's ctor");
     systemMenu = new QMenu(q);
     const QStyle *style = q->style();
-    actions[RestoreAction] = systemMenu
-        ->addAction(QIcon(style->standardIcon(QStyle::SP_TitleBarNormalButton)), QObject::tr("&Restore"),
-                    q, SLOT(showNormal()));
+    addToSystemMenu(RestoreAction, QObject::tr("&Restore"), SLOT(showNormal()));
+    actions[RestoreAction]->setIcon(style->standardIcon(QStyle::SP_TitleBarNormalButton));
     actions[RestoreAction]->setEnabled(false);
-    actions[MoveAction] = systemMenu->addAction(QObject::tr("&Move"), q, SLOT(_q_enterInteractiveMode()));
-    actions[ResizeAction] = systemMenu->addAction(QObject::tr("&Size"), q, SLOT(_q_enterInteractiveMode()));
-    actions[MinimizeAction] = systemMenu
-        ->addAction(QIcon(style->standardIcon(QStyle::SP_TitleBarMinButton)), QObject::tr("Mi&nimize"),
-                    q, SLOT(showMinimized()));
-    actions[MaximizeAction] = systemMenu
-        ->addAction(QIcon(style->standardIcon(QStyle::SP_TitleBarMaxButton)), QObject::tr("Ma&ximize"),
-                    q, SLOT(showMaximized()));
-    actions[StayOnTopAction] = systemMenu
-        ->addAction(QObject::tr("Stay on &Top"), q, SLOT(_q_updateStaysOnTopHint()));
+    addToSystemMenu(MoveAction, QObject::tr("&Move"), SLOT(_q_enterInteractiveMode()));
+    addToSystemMenu(ResizeAction, QObject::tr("&Size"), SLOT(_q_enterInteractiveMode()));
+    addToSystemMenu(MinimizeAction, QObject::tr("Mi&nimize"), SLOT(showMinimized()));
+    actions[MinimizeAction]->setIcon(style->standardIcon(QStyle::SP_TitleBarMinButton));
+    addToSystemMenu(MaximizeAction, QObject::tr("Ma&ximize"), SLOT(showMaximized()));
+    actions[MaximizeAction]->setIcon(style->standardIcon(QStyle::SP_TitleBarMaxButton));
+    addToSystemMenu(StayOnTopAction, QObject::tr("Stay on &Top"), SLOT(_q_updateStaysOnTopHint()));
     actions[StayOnTopAction]->setCheckable(true);
     systemMenu->addSeparator();
-#ifndef QT_NO_SHORTCUT
-    actions[CloseAction] = systemMenu
-        ->addAction(QIcon(style->standardIcon(QStyle::SP_TitleBarCloseButton)), QObject::tr("&Close"),
-                    q, SLOT(close()), QKeySequence(QKeySequence::Close));
-#else
-    actions[CloseAction] = systemMenu
-        ->addAction(QIcon(style->standardIcon(QStyle::SP_TitleBarCloseButton)), QObject::tr("&Close"),
-                    q, SLOT(close()));
+    addToSystemMenu(CloseAction, QObject::tr("&Close"), SLOT(close()));
+    actions[CloseAction]->setIcon(style->standardIcon(QStyle::SP_TitleBarCloseButton));
+#if !defined(QT_NO_SHORTCUT)
+    actions[CloseAction]->setShortcut(QKeySequence::Close);
 #endif
     updateActions();
 }
@@ -910,14 +902,15 @@ void QMdiSubWindowPrivate::setNormalMode()
     updateGeometryConstraints();
     setNewGeometry(&oldGeometry);
 
-    actions[MoveAction]->setEnabled(true);
-    actions[MaximizeAction]->setEnabled(true);
-    actions[MinimizeAction]->setEnabled(true);
-    actions[RestoreAction]->setEnabled(false);
+    setEnabled(MoveAction, true);
+    setEnabled(MoveAction, true);
+    setEnabled(MaximizeAction, true);
+    setEnabled(MinimizeAction, true);
+    setEnabled(RestoreAction, false);
     if (isResizeEnabled)
-        actions[ResizeAction]->setEnabled(true);
+        setEnabled(ResizeAction, true);
     else
-        actions[ResizeAction]->setEnabled(false);
+        setEnabled(ResizeAction, false);
 
     Q_ASSERT(!(q_func()->windowState() & (Qt::WindowMinimized | Qt::WindowMaximized)));
     Q_ASSERT(!isShadeMode);
@@ -952,11 +945,11 @@ void QMdiSubWindowPrivate::setMaximizeMode()
     setNewGeometry(&availableRect);
     ensureWindowState(Qt::WindowMaximized);
 
-    actions[MoveAction]->setEnabled(false);
-    actions[MaximizeAction]->setEnabled(false);
-    actions[MinimizeAction]->setEnabled(true);
-    actions[RestoreAction]->setEnabled(true);
-    actions[ResizeAction]->setEnabled(false);
+    setEnabled(MoveAction, false);
+    setEnabled(MaximizeAction, false);
+    setEnabled(MinimizeAction, true);
+    setEnabled(RestoreAction, true);
+    setEnabled(ResizeAction, false);
 
     Q_ASSERT(q->windowState() & Qt::WindowMaximized);
     Q_ASSERT(!(q->windowState() & Qt::WindowMinimized));
@@ -1007,7 +1000,7 @@ void QMdiSubWindowPrivate::processClickedSubControl()
     Q_Q(QMdiSubWindow);
     switch (activeSubControl) {
     case QStyle::SC_TitleBarSysMenu:
-        q->showMenu();
+        q->showSystemMenu();
         break;
     case QStyle::SC_TitleBarContextHelpButton:
         QWhatsThis::enterWhatsThisMode();
@@ -1429,28 +1422,28 @@ void QMdiSubWindowPrivate::updateActions()
     Qt::WindowFlags windowFlags = q_func()->windowFlags();
     // Hide all
     for (int i = 0; i < NumWindowStateActions; ++i)
-        actions[i]->setVisible(false);
+        setVisible(WindowStateAction(i), false);
 
-    actions[StayOnTopAction]->setVisible(true);
-    actions[CloseAction]->setVisible(true);
+    setVisible(StayOnTopAction, true);
+    setVisible(CloseAction, true);
 
     if (windowFlags & Qt::FramelessWindowHint)
         return;
 
-    actions[MoveAction]->setVisible(true);
-    actions[ResizeAction]->setVisible(true);
+    setVisible(MoveAction, true);
+    setVisible(ResizeAction, true);
 
     // RestoreAction
     if (windowFlags & (Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint))
-        actions[RestoreAction]->setVisible(true);
+        setVisible(RestoreAction, true);
 
     // MinimizeAction
     if (windowFlags & Qt::WindowMinimizeButtonHint)
-        actions[MinimizeAction]->setVisible(true);
+        setVisible(MinimizeAction, true);
 
     // MaximizeAction
     if (windowFlags & Qt::WindowMaximizeButtonHint)
-        actions[MaximizeAction]->setVisible(true);
+        setVisible(MaximizeAction, true);
 }
 
 void QMdiSubWindowPrivate::setFocusWidget()
@@ -1504,10 +1497,12 @@ void QMdiSubWindowPrivate::setWindowFlags(Qt::WindowFlags windowFlags)
     windowFlags &= ~windowType;
     windowFlags |= Qt::SubWindow;
 
-    if (windowFlags & Qt::WindowStaysOnTopHint)
-        actions[QMdiSubWindowPrivate::StayOnTopAction]->setChecked(true);
-    else
-        actions[QMdiSubWindowPrivate::StayOnTopAction]->setChecked(false);
+    if (QAction *stayOnTopAction = actions[QMdiSubWindowPrivate::StayOnTopAction]) {
+        if (windowFlags & Qt::WindowStaysOnTopHint)
+            stayOnTopAction->setChecked(true);
+        else
+            stayOnTopAction->setChecked(false);
+    }
 
     q->setWindowFlags(windowFlags);
     updateGeometryConstraints();
@@ -1517,6 +1512,26 @@ void QMdiSubWindowPrivate::setWindowFlags(Qt::WindowFlags windowFlags)
             || currentSize.height() < internalMinimumSize.height())) {
         q->resize(currentSize.expandedTo(internalMinimumSize));
     }
+}
+
+void QMdiSubWindowPrivate::setEnabled(WindowStateAction action, bool enable)
+{
+    if (actions[action])
+        actions[action]->setEnabled(enable);
+}
+
+void QMdiSubWindowPrivate::setVisible(WindowStateAction action, bool visible)
+{
+    if (actions[action])
+        actions[action]->setVisible(visible);
+}
+
+void QMdiSubWindowPrivate::addToSystemMenu(WindowStateAction action, const QString &text,
+                                           const char *slot)
+{
+    if (!systemMenu)
+        return;
+    actions[action] = systemMenu->addAction(text, q_func(), slot);
 }
 
 /*!
@@ -1630,7 +1645,7 @@ QWidget *QMdiSubWindow::maximizedSystemMenuIconWidget() const
     Returns true if this window is shaded; otherwise returns false.
 
     A window is shaded if it is collapsed so that only the title bar is
-    visible.    
+    visible.
 */
 bool QMdiSubWindow::isShaded() const
 {
@@ -1696,6 +1711,7 @@ int QMdiSubWindow::keyboardSingleStep() const
 {
     return d_func()->keyboardSingleStep;
 }
+
 void QMdiSubWindow::setKeyboardSingleStep(int step)
 {
     // Haven't done any boundary check here since negative step only
@@ -1722,6 +1738,7 @@ int QMdiSubWindow::keyboardPageStep() const
 {
     return d_func()->keyboardPageStep;
 }
+
 void QMdiSubWindow::setKeyboardPageStep(int step)
 {
     // Haven't done any boundary check here since negative step only
@@ -1730,12 +1747,40 @@ void QMdiSubWindow::setKeyboardPageStep(int step)
     d_func()->keyboardPageStep = step;
 }
 
+void QMdiSubWindow::setSystemMenu(QMenu *systemMenu)
+{
+    Q_D(QMdiSubWindow);
+    if (systemMenu && systemMenu == d->systemMenu) {
+        qWarning("QMdiSubWindow::setSystemMenu: system menu is already set");
+        return;
+    }
+
+    if (d->systemMenu) {
+        delete d->systemMenu;
+        d->systemMenu = 0;
+    }
+
+    if (!systemMenu)
+        return;
+
+    if (systemMenu->parent() != this)
+        systemMenu->setParent(this);
+    d->systemMenu = systemMenu;
+}
+
+QMenu *QMdiSubWindow::systemMenu() const
+{
+    return d_func()->systemMenu;
+}
+
 /*!
 
 */
-void QMdiSubWindow::showMenu()
+void QMdiSubWindow::showSystemMenu()
 {
     Q_D(QMdiSubWindow);
+    if (!d->systemMenu)
+        return;
     int frameWidth = 0;
     if (!(isMaximized() && !d->drawTitleBarWhenMaximized()))
         frameWidth += style()->pixelMetric(QStyle::PM_MDIFrameWidth);
@@ -1776,11 +1821,11 @@ void QMdiSubWindow::showShaded()
     d->isResizeEnabled = false;
     d->updateDirtyRegions();
 
-    d->actions[QMdiSubWindowPrivate::MinimizeAction]->setEnabled(false);
-    d->actions[QMdiSubWindowPrivate::ResizeAction]->setEnabled(false);
-    d->actions[QMdiSubWindowPrivate::MaximizeAction]->setEnabled(true);
-    d->actions[QMdiSubWindowPrivate::RestoreAction]->setEnabled(true);
-    d->actions[QMdiSubWindowPrivate::MoveAction]->setEnabled(true);
+    d->setEnabled(QMdiSubWindowPrivate::MinimizeAction, false);
+    d->setEnabled(QMdiSubWindowPrivate::ResizeAction, false);
+    d->setEnabled(QMdiSubWindowPrivate::MaximizeAction, true);
+    d->setEnabled(QMdiSubWindowPrivate::RestoreAction, true);
+    d->setEnabled(QMdiSubWindowPrivate::MoveAction, true);
 }
 
 /*!
@@ -2289,6 +2334,11 @@ void QMdiSubWindow::keyPressEvent(QKeyEvent *keyEvent)
 void QMdiSubWindow::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
 {
     Q_D(QMdiSubWindow);
+    if (!d->systemMenu) {
+        contextMenuEvent->ignore();
+        return;
+    }
+
     if (d->hoveredSubControl == QStyle::SC_TitleBarSysMenu
             || d->getRegion(QMdiSubWindowPrivate::Move).contains(contextMenuEvent->pos())) {
         d->systemMenu->exec(contextMenuEvent->globalPos());

@@ -20,6 +20,8 @@ QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
 
+class QMenu;
+
 class QMdiSubWindowPrivate;
 class Q_GUI_EXPORT QMdiSubWindow : public QWidget
 {
@@ -58,12 +60,15 @@ public:
     void setKeyboardPageStep(int step);
     int keyboardPageStep() const;
 
+    void setSystemMenu(QMenu *systemMenu);
+    QMenu *systemMenu() const;
+
 Q_SIGNALS:
     void windowStateChanged(Qt::WindowStates oldState, Qt::WindowStates newState);
     void aboutToActivate();
 
 public Q_SLOTS:
-    void showMenu();
+    void showSystemMenu();
     void showShaded();
 
 protected:
