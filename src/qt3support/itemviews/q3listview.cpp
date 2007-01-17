@@ -6318,7 +6318,8 @@ void Q3CheckListItem::activate()
             setState(Off);
             break;
         case Off:
-            if (!isTristate() && myType == CheckBox) {
+	    if ( (!isTristate() && myType == CheckBox) ||
+                 (myType == CheckBoxController && !childCount()) ) {
                 setState(On);
             } else {
                 setState(NoChange);
