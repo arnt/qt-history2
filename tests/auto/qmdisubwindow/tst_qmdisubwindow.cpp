@@ -16,6 +16,7 @@
 #include <QLineEdit>
 #include <QMainWindow>
 #include <QMenuBar>
+#include <QMenu>
 #include <QByteArray>
 #include <QStyle>
 #include <QStyleOptionTitleBar>
@@ -125,6 +126,7 @@ private slots:
     void setWindowFlags_data();
     void setWindowFlags();
     void mouseDoubleClick();
+    void setSystemMenu();
 };
 
 void tst_QMdiSubWindow::initTestCase()
@@ -786,6 +788,52 @@ void tst_QMdiSubWindow::mouseDoubleClick()
     QCOMPARE(window->geometry(), originalGeometry);
 
     // Add test for minimized window
+}
+
+void tst_QMdiSubWindow::setSystemMenu()
+{
+    QMdiSubWindow *subWindow = new QMdiSubWindow;
+    QPointer<QMenu>systemMenu = subWindow->systemMenu();
+    QVERIFY(systemMenu);
+    QCOMPARE(subWindow->actions(), systemMenu->actions());
+
+    QMdiArea mdiArea;
+    mdiArea.addSubWindow(subWindow);
+    qApp->processEvents();
+    mdiArea.show();
+    subWindow->show();
+    qApp->processEvents();
+
+    // Show system menu
+    QVERIFY(!qApp->activePopupWidget());
+    subWindow->showSystemMenu();
+    QCOMPARE(qApp->activePopupWidget(), qobject_cast<QMenu *>(systemMenu));
+
+    systemMenu->hide();
+    QVERIFY(!qApp->activePopupWidget());
+
+    QTest::ignoreMessage(QtWarningMsg, "QMdiSubWindow::setSystemMenu: system menu is already set");
+    subWindow->setSystemMenu(systemMenu);
+
+    subWindow->setSystemMenu(0);
+    QVERIFY(!systemMenu); // systemMenu is QPointer
+
+    systemMenu = new QMenu(subWindow);
+    systemMenu->addAction(QIcon(subWindow->style()->standardIcon(QStyle::SP_TitleBarCloseButton)),
+                          QObject::tr("&Close"), subWindow, SLOT(close()));
+    subWindow->setSystemMenu(systemMenu);
+    QCOMPARE(subWindow->systemMenu(), qobject_cast<QMenu *>(systemMenu));
+    QCOMPARE(subWindow->systemMenu()->parent(), subWindow);
+    QCOMPARE(subWindow->systemMenu()->actions().count(), 1);
+
+    // Show the new system menu
+    QVERIFY(!qApp->activePopupWidget());
+    subWindow->showSystemMenu();
+    QCOMPARE(qApp->activePopupWidget(), qobject_cast<QMenu *>(systemMenu));
+
+    delete systemMenu;
+    QVERIFY(!qApp->activePopupWidget());
+    QVERIFY(!subWindow->systemMenu());
 }
 
 QTEST_MAIN(tst_QMdiSubWindow)
