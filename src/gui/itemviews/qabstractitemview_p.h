@@ -129,6 +129,7 @@ public:
             QObject::disconnect(editor, SIGNAL(destroyed(QObject*)),
                                 q_func(), SLOT(editorDestroyed(QObject*)));
             editor->removeEventFilter(itemDelegate);
+            editor->hide();
             editor->deleteLater();
         }
     }
