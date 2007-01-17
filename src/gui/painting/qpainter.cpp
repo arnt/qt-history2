@@ -333,7 +333,6 @@ void QPainterPrivate::updateMatrix()
     }
     if (!redirection_offset.isNull()) {
         state->txop |= QTransform::TxTranslate;
-        state->WxF = true;
         // We want to translate in dev space so we do the adding of the redirection
         // offset manually.
         state->matrix = QTransform(state->matrix.m11(), state->matrix.m12(),
