@@ -198,19 +198,21 @@ void String::newString(QScriptValue *result, const QString &value)
 QScriptValue String::method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (QScriptValueImpl::get(context->thisObject())->classInfo() != classInfo)
+    QScriptValue self = context->thisObject();
+    if (QScriptValueImpl::get(self)->classInfo() != classInfo)
         return context->throwError(QScriptContext::TypeError, QLatin1String("String.prototype.toString"));
 
-    return (QScriptValueImpl::get(context->thisObject())->internalValue());
+    return (QScriptValueImpl::get(self)->internalValue());
 }
 
 QScriptValue String::method_valueOf(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (QScriptValueImpl::get(context->thisObject())->classInfo() != classInfo)
+    QScriptValue self = context->thisObject();
+    if (QScriptValueImpl::get(self)->classInfo() != classInfo)
         return context->throwError(QScriptContext::TypeError, QLatin1String("String.prototype.valueOf"));
 
-    return (QScriptValueImpl::get(context->thisObject())->internalValue());
+    return (QScriptValueImpl::get(self)->internalValue());
 }
 
 QScriptValue String::method_charAt(QScriptEngine *eng, QScriptClassInfo *)

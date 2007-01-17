@@ -85,10 +85,11 @@ QScriptValue Object::method_toString(QScriptEngine *eng, QScriptClassInfo *)
     QScriptContext *context = eng->currentContext();
     QScriptValue glo = eng->globalObject();
     QString s = QLatin1String("[object ");
-    if (QScriptValueImpl::get(context->thisObject())->objectValue() == QScriptValueImpl::get(glo)->objectValue())
+    QScriptValue self = context->thisObject();
+    if (QScriptValueImpl::get(self)->objectValue() == QScriptValueImpl::get(glo)->objectValue())
         s += QLatin1String("global");
     else
-        s += QScriptValueImpl::get(context->thisObject())->classInfo()->name();
+        s += QScriptValueImpl::get(self)->classInfo()->name();
     s += QLatin1String("]");
     return (eng->scriptValue(s));
 }
@@ -124,7 +125,8 @@ QScriptValue Object::method_hasOwnProperty(QScriptEngine *eng, QScriptClassInfo 
 
         QScript::Member member;
         QScriptValue base;
-        if (QScriptValueImpl::get(context->thisObject())->resolve(id, &member, &base, QScriptValue::ResolveLocal))
+        QScriptValue self = context->thisObject();
+        if (QScriptValueImpl::get(self)->resolve(id, &member, &base, QScriptValue::ResolveLocal))
             result = true;
     }
 
@@ -142,8 +144,10 @@ QScriptValue Object::method_isPrototypeOf(QScriptEngine *eng, QScriptClassInfo *
         if (arg.isObject()) {
             QScriptValue proto = arg.prototype();
 
-            if (proto.isObject())
-                result = QScriptValueImpl::get(context->thisObject())->objectValue() == QScriptValueImpl::get(proto)->objectValue();
+            if (proto.isObject()) {
+                QScriptValue self = context->thisObject();
+                result = QScriptValueImpl::get(self)->objectValue() == QScriptValueImpl::get(proto)->objectValue();
+            }
         }
     }
 
@@ -169,7 +173,8 @@ QScriptValue Object::method_propertyIsEnumerable(QScriptEngine *eng, QScriptClas
 
         QScript::Member member;
         QScriptValue base;
-        if (QScriptValueImpl::get(context->thisObject())->resolve(id, &member, &base, QScriptValue::ResolveLocal)) {
+        QScriptValue self = context->thisObject();
+        if (QScriptValueImpl::get(self)->resolve(id, &member, &base, QScriptValue::ResolveLocal)) {
             result = ! member.dontEnum();
             if (result) {
                 QScriptValue tmp;

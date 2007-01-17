@@ -103,7 +103,8 @@ void Function::newFunction(QScriptValue *result, QScriptFunction *foo)
 QScriptValue Function::method_toString(QScriptEngine *eng, QScriptClassInfo *)
 {
     QScriptContext *context = eng->currentContext();
-    if (QScriptFunction *foo = QScriptValueImpl::get(context->thisObject())->toFunction()) {
+    QScriptValue self = context->thisObject();
+    if (QScriptFunction *foo = QScriptValueImpl::get(self)->toFunction()) {
         QString code = foo->toString(context);
         return eng->scriptValue(code);
     }

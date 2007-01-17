@@ -160,11 +160,10 @@ void RegExp::newRegExp_helper(QScriptValue *result, const QRegExp &rx,
 QScriptValue RegExp::method_exec(QScriptEngine *eng, QScriptClassInfo *classInfo)
 {
     QScriptContext *context = eng->currentContext();
-    if (QScriptValueImpl::get(context->thisObject())->classInfo() != classInfo)
+    QScriptValue self = context->thisObject();
+    if (QScriptValueImpl::get(self)->classInfo() != classInfo)
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("RegExp.prototype.exec"));
-
-    QScriptValue self = context->thisObject();
 
     Instance *rx_data = Instance::get(self, classInfo);
     Q_ASSERT(rx_data != 0);
