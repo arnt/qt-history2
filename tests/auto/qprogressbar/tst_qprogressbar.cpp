@@ -108,23 +108,6 @@ void tst_QProgressBar::text()
     QCOMPARE(bar.text(), QString());
 }
 
-void tst_QProgressBar::format()
-{
-    QProgressBar bar;
-    bar.setRange(0, 10);
-    bar.setValue(1);
-    bar.setFormat("%v of %m (%p%)");
-    QCOMPARE(bar.text(), QString("1 of 10 (10%)"));
-    bar.setRange(5, 5);
-    bar.setValue(5);
-    QCOMPARE(bar.text(), QString("5 of 0 (100%)"));
-    bar.setRange(0, 5);
-    bar.setValue(0);
-    bar.setRange(5, 5);
-    QCOMPARE(bar.text(), QString());
-}
-
-
 class ProgressBar : public QProgressBar
 {
     void paintEvent(QPaintEvent *event)
@@ -135,6 +118,33 @@ class ProgressBar : public QProgressBar
 public:
     bool repainted;
 };
+
+void tst_QProgressBar::format()
+{
+    ProgressBar bar;
+    bar.setRange(0, 10);
+    bar.setValue(1);
+    bar.show();
+
+    qApp->processEvents();
+    bar.repainted = false;
+    bar.setFormat("%v of %m (%p%)");
+    qApp->processEvents();
+    QVERIFY(bar.repainted);
+    bar.repainted = false;
+    bar.setFormat("%v of %m (%p%)");
+    qApp->processEvents();
+    QVERIFY(!bar.repainted);
+
+    QCOMPARE(bar.text(), QString("1 of 10 (10%)"));
+    bar.setRange(5, 5);
+    bar.setValue(5);
+    QCOMPARE(bar.text(), QString("5 of 0 (100%)"));
+    bar.setRange(0, 5);
+    bar.setValue(0);
+    bar.setRange(5, 5);
+    QCOMPARE(bar.text(), QString());
+}
 
 void tst_QProgressBar::setValueRepaint()
 {
