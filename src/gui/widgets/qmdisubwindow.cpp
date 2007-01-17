@@ -1747,6 +1747,22 @@ void QMdiSubWindow::setKeyboardPageStep(int step)
     d_func()->keyboardPageStep = step;
 }
 
+/*!
+    Sets \a systemMenu as the current system menu for this subwindow.
+
+    QMdiSubWindow creates a system menu by default.
+
+    QActions for the system menu created by QMdiSubWindow will automatically
+    be updated depending on the current window state,
+    e.g. will the minimize action be disabled after the window is minimized.
+
+    QActions added by the user are not updated by QMdiSubWindow.
+
+    QMdiSubWindow takes ownership of \a systemMenu; you do not have to
+    delete it. Any existing menus will be deleted.
+
+    \sa systemMenu, showSystemMenu
+*/
 void QMdiSubWindow::setSystemMenu(QMenu *systemMenu)
 {
     Q_D(QMdiSubWindow);
@@ -1768,13 +1784,20 @@ void QMdiSubWindow::setSystemMenu(QMenu *systemMenu)
     d->systemMenu = systemMenu;
 }
 
+/*!
+    Returns a pointer to the current system menu or zero if not set.
+
+    \sa setSystemMenu, showSystemMenu
+*/
 QMenu *QMdiSubWindow::systemMenu() const
 {
     return d_func()->systemMenu;
 }
 
 /*!
+    Shows the system menu below the system menu icon in the title bar.
 
+    \sa setSystemMenu, systemMenu
 */
 void QMdiSubWindow::showSystemMenu()
 {
