@@ -52,7 +52,7 @@ public:
     QString path() const;
 
 private:
-    Q_DISABLE_COPY(QDirIterator);
+    Q_DISABLE_COPY(QDirIterator)
 
     QDirIteratorPrivate *d;
     friend class QDir;
