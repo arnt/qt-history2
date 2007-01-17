@@ -739,9 +739,9 @@
 
     Depending on configuration, compiler specific libraries must be
     redistributed along with your application. You can check which
-    libraries your application is linking against by using the \c
-    depends tool. To use the \c depends tool, all you need to do is to
-    run it like this:
+    libraries your application is linking against by using the
+    \l{Dependency Walker} tool. All you need to do is to run it like
+    this:
 
     \code
         depends <application executable>
