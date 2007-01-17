@@ -20,6 +20,9 @@
 typedef QList<int> IntList;
 Q_DECLARE_METATYPE(IntList)
 
+typedef QList<bool> BoolList;
+Q_DECLARE_METATYPE(BoolList)
+
 //TESTED_CLASS=
 //TESTED_FILES=gui/itemviews/qheaderview.h gui/itemviews/qheaderview.cpp
 
@@ -72,7 +75,10 @@ private slots:
     void logicalIndex();
     void logicalIndexAt();
     void swapSections();
+
+    void moveSection_data();
     void moveSection();
+
     void resizeMode();
     void resizeSection();
     void resizeAndMoveSection_data();
@@ -565,7 +571,6 @@ void tst_QHeaderView::logicalIndexAt()
 
 void tst_QHeaderView::swapSections()
 {
-#if QT_VERSION >= 0x040200
     view->swapSections(-1, 1);
     view->swapSections(99999, 1);
     view->swapSections(1, -1);
@@ -592,42 +597,55 @@ void tst_QHeaderView::swapSections()
     for (int j = 0; j < view->count(); ++j)
         QCOMPARE(view->logicalIndex(j), logical.at(j));
     QCOMPARE(spy1.count(), 6);
-#endif
+}
+
+void tst_QHeaderView::moveSection_data()
+{
+    QTest::addColumn<QList<int> >("from");
+    QTest::addColumn<QList<int> >("to");
+    QTest::addColumn<QList<bool> >("moved");
+    QTest::addColumn<QList<int> >("logical");
+    QTest::addColumn<int>("count");
+
+    QTest::newRow("bad args")
+        << (QList<int>() << -1 << 1 << 99999 << 1)
+        << (QList<int>() << 1 << -1 << 1 << 99999)
+        << (QList<bool>() << false << false << false << false)
+        << (QList<int>() << 0 << 1 << 2 << 3)
+        << 0;
+
+    QTest::newRow("good args")
+        << (QList<int>() << 1 << 1 << 2 << 1)
+        << (QList<int>() << 1 << 2 << 1 << 2)
+        << (QList<bool>() << false << true << true << true)
+        << (QList<int>() << 0 << 2 << 1 << 3)
+        << 3;
 }
 
 void tst_QHeaderView::moveSection()
 {
-#if QT_VERSION >= 0x040200
-    // Test bad arguments
-    view->moveSection(-1, 1);
-    view->moveSection(99999, 1);
-    view->moveSection(1, -1);
-    view->moveSection(1, 99999);
-#endif
+    QFETCH(QList<int>, from);
+    QFETCH(QList<int>, to);
+    QFETCH(QList<bool>, moved);
+    QFETCH(QList<int>, logical);
+    QFETCH(int, count);
 
-    QVector<int> logical = (QVector<int>() << 0 << 2 << 1 << 3);
+    QVERIFY(from.count() == to.count());
+    QVERIFY(from.count() == moved.count());
+    QVERIFY(view->count() == logical.count());
 
     QSignalSpy spy1(view, SIGNAL(sectionMoved(int, int, int)));
     QCOMPARE(view->sectionsMoved(), false);
-    view->moveSection(1, 1);
-    QCOMPARE(view->sectionsMoved(), false);
-    view->moveSection(1, 2);
-    QCOMPARE(view->sectionsMoved(), true);
-    view->moveSection(2, 1);
-    QCOMPARE(view->sectionsMoved(), true);
-    view->moveSection(1, 2);
-    QCOMPARE(view->sectionsMoved(), true);
-    for (int i = 0; i < view->count(); ++i)
-        QCOMPARE(view->logicalIndex(i), logical.at(i));
 
-    logical = (QVector<int>()  << 3 << 0 << 2 << 1);
-    view->moveSection(3, 0);
-    QCOMPARE(view->sectionsMoved(), true);
+    for (int i = 0; i < from.count(); ++i) {
+        view->moveSection(from.at(i), to.at(i));
+        QCOMPARE(view->sectionsMoved(), moved.at(i));
+    }
+
     for (int j = 0; j < view->count(); ++j)
         QCOMPARE(view->logicalIndex(j), logical.at(j));
 
-    view->moveSection(1,1);
-    QCOMPARE(spy1.count(), 4);
+    QCOMPARE(spy1.count(), count);
 }
 
 void tst_QHeaderView::resizeAndMoveSection_data()
