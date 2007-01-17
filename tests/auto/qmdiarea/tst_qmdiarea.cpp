@@ -17,6 +17,7 @@
 #include <QMenuBar>
 #include <QPushButton>
 #include <QStyle>
+#include <QStyleOption>
 
 #if defined(Q_WS_X11)
 extern void qt_x11_wait_for_window_manager(QWidget *w);
@@ -1000,6 +1001,17 @@ void tst_QMdiArea::cascadeAndTileSubWindows()
     qApp->processEvents();
     workspace.cascadeSubWindows();
     qApp->processEvents();
+
+    // Check dy between two cascaded windows
+    QStyleOptionTitleBar options;
+    options.initFrom(windows.at(1));
+    int titleBarHeight = windows.at(1)->style()->pixelMetric(QStyle::PM_TitleBarHeight, &options);
+    // ### Remove this after the mac style has been fixed
+    if (windows.at(1)->style()->inherits("QMacStyle"))
+        titleBarHeight -= 4;
+    const QFontMetrics fontMetrics = QFontMetrics(QApplication::font("QWorkspaceTitleBar"));
+    const int dy = qMax(titleBarHeight - (titleBarHeight - fontMetrics.height()) / 2, 1);
+    QCOMPARE(windows.at(2)->geometry().top() - windows.at(1)->geometry().top(), dy);
 
     for (int i = 0; i < windows.count(); ++i) {
         QMdiSubWindow *window = windows.at(i);
