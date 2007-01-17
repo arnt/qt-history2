@@ -47,6 +47,9 @@ public:
     static inline QScriptContextPrivate *get(QScriptContext *q)
         { return q->d_func(); }
 
+    static inline QScriptContext *create()
+        { return new QScriptContext; }
+
     inline QScriptEngine *engine() const
     { return activation.impl()->engine(); }
     inline QScriptEnginePrivate *enginePrivate() const

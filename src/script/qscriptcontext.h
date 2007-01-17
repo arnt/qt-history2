@@ -22,10 +22,6 @@ QT_BEGIN_HEADER
 
 QT_MODULE(Script)
 
-namespace QScript { // ### kill me
-    template <typename Tp> class Repository;
-}
-
 class QScriptInstruction;
 
 class QScriptContextPrivate;
@@ -86,11 +82,8 @@ public:
 
     int errorLineNumber() const;
 
-protected:
-    QScriptContext();
-
 private:
-    friend class QScript::Repository<QScriptContext>;
+    QScriptContext();
 
     QScriptContextPrivate *d_ptr;
 

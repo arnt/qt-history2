@@ -29,7 +29,7 @@
 
 namespace QScript {
 
-template <typename Tp>
+template <typename Tp, typename Factory>
 class Repository
 {
 public:
@@ -39,7 +39,7 @@ public:
     inline Tp *get()
     {
         if (cache.isEmpty())
-            return new Tp();
+            return Factory::create();
 
         return cache.takeLast();
     }

@@ -436,7 +436,7 @@ public: // attributes
     QScriptNameIdImpl **m_string_hash_base;
     int m_string_hash_size;
     QScript::GCAlloc<QScriptObject> objectAllocator;
-    QScript::Repository<QScriptContext> m_frameRepository;
+    QScript::Repository<QScriptContext, QScriptContextPrivate> m_frameRepository;
     QScriptContext *m_context;
     QScriptValue *tempStackBegin;
     QScriptValue *tempStackEnd;
