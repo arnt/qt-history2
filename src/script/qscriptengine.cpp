@@ -442,6 +442,19 @@ QScriptValue QScriptEngine::scriptValueFromQObject(QObject *object)
 
     QScriptValue v;
     d->qobjectConstructor->newQObject(&v, object);
+
+    if (object) {
+        // see if we have a default prototype
+        QByteArray typeString = object->metaObject()->className();
+        typeString.append('*');
+        int typeId = QMetaType::type(typeString);
+        if (typeId != 0) {
+            QScriptValue proto = defaultPrototype(typeId);
+            if (proto.isValid())
+                v.setPrototype(proto);
+        }
+    }
+
     return v;
 }
 #endif // QT_NO_QOBJECT
