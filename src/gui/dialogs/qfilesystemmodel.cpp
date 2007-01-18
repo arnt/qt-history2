@@ -175,7 +175,7 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
             // Someone might call ::index("file://cookie/monster/doesn't/like/veggies"),
             // a path that doesn't exists, I.E. don't blindly create directories.
             QStringList currentPath = pathElements.mid(0, i + 1);
-            QFileInfo info(currentPath.join("/"));
+            QFileInfo info(currentPath.join(QLatin1String("/")));
             if (!info.exists())
                 return const_cast<QFileSystemModelPrivate::QFileSystemNode*>(&root);
             QFileSystemModelPrivate *p = const_cast<QFileSystemModelPrivate*>(this);
@@ -935,10 +935,7 @@ QModelIndex QFileSystemModel::mkdir(const QModelIndex &parent, const QString &na
     int r = d->findChild(parentNode, QFileSystemModelPrivate::QFileSystemNode(name));
     Q_ASSERT(r >= 0);
     QFileSystemModelPrivate::QFileSystemNode *node = &parentNode->children[r];
-    QExtendedInformation extendedInfo;
-    extendedInfo.fileType = QExtendedInformation::Dir;
-    extendedInfo.permissions = QFile::WriteUser | QFile::ReadUser;
-    node->populate(extendedInfo);
+    node->populate(d->fileInfoGatherer.getInfo(QFileInfo(dir.absolutePath() + QDir::separator() + name)));
     d->addVisibleFiles(parentNode, QStringList(name));
     d->delayedSort();
     return d->index(node);
