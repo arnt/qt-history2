@@ -153,6 +153,7 @@ public:
     uint sharing : 1;
     uint initDone : 1;
     uint crWin : 1;
+    uint clear_on_painter_begin : 1;
     QPaintDevice *paintDevice;
     QColor transpColor;
     QGLContext *q_ptr;

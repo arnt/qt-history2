@@ -1259,6 +1259,7 @@ void QGLContextPrivate::init(QPaintDevice *dev, const QGLFormat &format)
     crWin = false;
     initDone = false;
     sharing = false;
+    clear_on_painter_begin = true;
 }
 
 QGLContext* QGLContext::currentCtx = 0;
@@ -3318,7 +3319,7 @@ static void qt_gl_draw_text(QPainter *p, int x, int y, const QString &str,
 
 void QGLWidget::renderText(int x, int y, const QString &str, const QFont &font, int)
 {
-    bool fill_background = autoFillBackground();
+    Q_D(QGLWidget);
     bool auto_swap = autoBufferSwap();
 
     QPaintEngine *engine = paintEngine();
@@ -3337,8 +3338,9 @@ void QGLWidget::renderText(int x, int y, const QString &str, const QFont &font, 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
     } else {
-        setAutoFillBackground(false);
         setAutoBufferSwap(false);
+        // disable glClear() as a result of QPainter::begin()
+        d->glcx->d_func()->clear_on_painter_begin = false;
         p = new QPainter(this);
     }
 
@@ -3349,8 +3351,8 @@ void QGLWidget::renderText(int x, int y, const QString &str, const QFont &font, 
     } else {
         p->end();
         delete p;
-        setAutoFillBackground(fill_background);
         setAutoBufferSwap(auto_swap);
+        d->glcx->d_func()->clear_on_painter_begin = true;
     }
 }
 
@@ -3363,7 +3365,7 @@ void QGLWidget::renderText(int x, int y, const QString &str, const QFont &font, 
 */
 void QGLWidget::renderText(double x, double y, double z, const QString &str, const QFont &font, int)
 {
-    bool fill_background = autoFillBackground();
+    Q_D(QGLWidget);
     bool auto_swap = autoBufferSwap();
 
     GLdouble model[4][4], proj[4][4];
@@ -3384,8 +3386,9 @@ void QGLWidget::renderText(double x, double y, double z, const QString &str, con
         p = engine->painter();
         qt_save_gl_state();
     } else {
-        setAutoFillBackground(false);
         setAutoBufferSwap(false);
+        // disable glClear() as a result of QPainter::begin()
+        d->glcx->d_func()->clear_on_painter_begin = false;
         p = new QPainter(this);
     }
 
@@ -3407,8 +3410,8 @@ void QGLWidget::renderText(double x, double y, double z, const QString &str, con
     } else {
         p->end();
         delete p;
-        setAutoFillBackground(fill_background);
         setAutoBufferSwap(auto_swap);
+        d->glcx->d_func()->clear_on_painter_begin = true;
     }
 }
 
