@@ -82,7 +82,10 @@ private slots:
     void moveSection();
 
     void resizeMode();
+
+    void resizeSection_data();
     void resizeSection();
+
     void resizeAndMoveSection_data();
     void resizeAndMoveSection();
     void resizeHiddenSection_data();
@@ -102,6 +105,8 @@ private slots:
     void moveSectionAndReset();
     void moveSectionAndRemove();
     void saveRestore();
+
+    void defaultAlignment_data();
     void defaultAlignment();
 
 protected:
@@ -837,77 +842,60 @@ void tst_QHeaderView::resizeMode()
     }
 }
 
+void tst_QHeaderView::resizeSection_data()
+{
+    QTest::addColumn<int>("initial");
+    QTest::addColumn<QList<int> >("logical");
+    QTest::addColumn<QList<int> >("size");
+    QTest::addColumn<QList<int> >("mode");
+    QTest::addColumn<int>("resized");
+    QTest::addColumn<QList<int> >("expected");
+
+    QTest::newRow("bad args")
+        << 100
+        << (QList<int>() << -1 << -1 << 99999 << 99999 << 4)
+        << (QList<int>() << -1 << 0 << 99999 << -1 << -1)
+        << (QList<int>()
+            << int(QHeaderView::Interactive)
+            << int(QHeaderView::Interactive)
+            << int(QHeaderView::Interactive)
+            << int(QHeaderView::Interactive))
+        << 0
+        << (QList<int>() << 0 << 0 << 0 << 0 << 0);
+}
+
 void tst_QHeaderView::resizeSection()
 {
-    view->resize(400, 400);
+    
+    QFETCH(int, initial);
+    QFETCH(QList<int>, logical);
+    QFETCH(QList<int>, size);
+    QFETCH(QList<int>, mode);
+    QFETCH(int, resized);
+    QFETCH(QList<int>, expected);
 
-    view->resizeSection(-1, -1);
-    view->resizeSection(-1, 0);
-    view->resizeSection(9999, 9999);
-    view->resizeSection(9999, -1);
-    view->resizeSection(view->count(), -1);
+    view->resize(400, 400);
 
     view->show();
     view->setMovable(true);
     view->setStretchLastSection(false);
-    view->setResizeMode(0, QHeaderView::Interactive);
-    view->setResizeMode(1, QHeaderView::Interactive);
-    view->setResizeMode(2, QHeaderView::Interactive);
-    view->setResizeMode(3, QHeaderView::Interactive);
 
-    int sectionSize = 100;
-    view->resizeSection(0, sectionSize);
-    view->resizeSection(1, sectionSize);
-    view->resizeSection(2, sectionSize);
-    view->resizeSection(3, sectionSize);
+    for (int i = 0; i < logical.count(); ++i)
+        if (logical.at(i) > -1 && logical.at(i) < view->count()) // for now
+            view->setResizeMode(logical.at(i), (QHeaderView::ResizeMode)mode.at(i));
 
-    QSignalSpy spy1(view, SIGNAL(sectionResized(int, int, int)));
-    view->resizeSection(2, sectionSize + 40);
+    for (int j = 0; j < logical.count(); ++j)
+        view->resizeSection(logical.at(j), initial);
 
-    QCOMPARE(spy1.count(), 1);
-    view->resizeSection(2, sectionSize);
-    QCOMPARE(spy1.count(), 2);
-    spy1.clear();
+    QSignalSpy spy(view, SIGNAL(sectionResized(int, int, int)));
 
-    view->setResizeMode(3, QHeaderView::Custom);
-    QCOMPARE(spy1.count(), 0);
-    spy1.clear();
+    for (int k = 0; k < logical.count(); ++k)
+        view->resizeSection(logical.at(k), size.at(k));
 
-    // Check if the stretched sections also generate "sectionResized" signals.
-    view->resizeSection(2, sectionSize - 40);
-    view->setResizeMode(3, QHeaderView::Stretch);
-    view->resizeSection(2, sectionSize);
-    QCOMPARE(spy1.count(), 4);
-    spy1.clear();
+    QCOMPARE(spy.count(), resized);
 
-    view->resizeSection(2, sectionSize + 40);
-    QCOMPARE(spy1.count(), 2);
-    view->resizeSection(2, sectionSize);
-    spy1.clear();
-
-    // section 1, 2 and 3 should generate "sectionResized" signal.
-    view->setResizeMode(1, QHeaderView::Stretch);
-    // at this point, section 1 and 3 are set to stretch
-    view->resizeSection(2, sectionSize + 40);
-
-    QCOMPARE(spy1.count(), 3);
-    view->resizeSection(2, sectionSize);
-    spy1.clear();
-
-    // Should resize the last section also. (in total, all of them)
-    view->setStretchLastSection(true);
-    view->resizeSection(2, sectionSize + 40);
-
-    QCOMPARE(spy1.count(), 3);
-    spy1.clear();
-
-    // "Reset" the view.
-    view->resizeSection(2, sectionSize);
-    view->setResizeMode(0, QHeaderView::Interactive);
-    view->setResizeMode(1, QHeaderView::Interactive);
-    view->setResizeMode(2, QHeaderView::Interactive);
-    view->setResizeMode(3, QHeaderView::Interactive);
-    view->hide();
+    for (int l = 0; l < logical.count(); ++l)
+        QCOMPARE(view->sectionSize(logical.at(l)), expected.at(l));
 }
 
 void tst_QHeaderView::highlightSections()
@@ -1268,31 +1256,47 @@ void tst_QHeaderView::saveRestore()
     QVERIFY(s1 == s2);
 }
 
+void tst_QHeaderView::defaultAlignment_data()
+{
+    QTest::addColumn<int>("direction");
+    QTest::addColumn<int>("initial");
+    QTest::addColumn<int>("alignment");
+
+    QTest::newRow("horizontal right aligned")
+        << int(Qt::Horizontal)
+        << int(Qt::AlignCenter)
+        << int(Qt::AlignRight);
+
+    QTest::newRow("horizontal left aligned")
+        << int(Qt::Horizontal)
+        << int(Qt::AlignCenter)
+        << int(Qt::AlignLeft);
+
+    QTest::newRow("vertical right aligned")
+        << int(Qt::Vertical)
+        << int(Qt::AlignLeft|Qt::AlignVCenter)
+        << int(Qt::AlignRight);
+
+    QTest::newRow("vertical left aligned")
+        << int(Qt::Vertical)
+        << int(Qt::AlignLeft|Qt::AlignVCenter)
+        << int(Qt::AlignLeft);
+}
+
 void tst_QHeaderView::defaultAlignment()
 {
+    QFETCH(int, direction);
+    QFETCH(int, initial);
+    QFETCH(int, alignment);
+
     SimpleModel m;
 
-    QHeaderView h1(Qt::Horizontal);
-    h1.setModel(&m);
+    QHeaderView header((Qt::Orientation)direction);
+    header.setModel(&m);
 
-    QCOMPARE(h1.defaultAlignment(), Qt::AlignCenter);
-
-    h1.setDefaultAlignment(Qt::AlignRight);
-    QCOMPARE(h1.defaultAlignment(), Qt::AlignRight);
-
-    h1.setDefaultAlignment(Qt::AlignLeft);
-    QCOMPARE(h1.defaultAlignment(), Qt::AlignLeft);
-
-    QHeaderView h2(Qt::Vertical);
-    h2.setModel(&m);
-
-    QCOMPARE(h2.defaultAlignment(), Qt::AlignVCenter);
-
-    h2.setDefaultAlignment(Qt::AlignRight);
-    QCOMPARE(h1.defaultAlignment(), Qt::AlignRight);
-
-    h2.setDefaultAlignment(Qt::AlignLeft);
-    QCOMPARE(h1.defaultAlignment(), Qt::AlignLeft);
+    QCOMPARE(header.defaultAlignment(), (Qt::Alignment)initial);
+    header.setDefaultAlignment((Qt::Alignment)alignment);
+    QCOMPARE(header.defaultAlignment(), (Qt::Alignment)alignment);
 }
 
 
