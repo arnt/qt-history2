@@ -1110,6 +1110,7 @@ void tst_QMdiArea::focusWidgetAfterAddSubWindow()
     mdiArea.addSubWindow(view);
     QCOMPARE(view->focusWidget(), lineEdit2);
 
+    mdiArea.show();
     view->show();
     qApp->setActiveWindow(&mdiArea);
     QCOMPARE(qApp->focusWidget(), lineEdit2);
