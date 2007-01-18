@@ -134,6 +134,11 @@ public:
     inline void setAttributeVersion(const QString& a) { m_attr_version = a; m_has_attr_version = true; }
     inline void clearAttributeVersion() { m_has_attr_version = false; }
 
+    inline bool hasAttributeLanguage() const { return m_has_attr_language; }
+    inline QString attributeLanguage() const { return m_attr_language; }
+    inline void setAttributeLanguage(const QString& a) { m_attr_language = a; m_has_attr_language = true; }
+    inline void clearAttributeLanguage() { m_has_attr_language = false; }
+
     inline bool hasAttributeStdSetDef() const { return m_has_attr_stdSetDef; }
     inline int attributeStdSetDef() const { return m_attr_stdSetDef; }
     inline void setAttributeStdSetDef(int a) { m_attr_stdSetDef = a; m_has_attr_stdSetDef = true; }
@@ -217,6 +222,9 @@ private:
     // attribute data
     QString m_attr_version;
     bool m_has_attr_version;
+
+    QString m_attr_language;
+    bool m_has_attr_language;
 
     int m_attr_stdSetDef;
     bool m_has_attr_stdSetDef;

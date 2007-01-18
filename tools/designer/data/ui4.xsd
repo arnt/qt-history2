@@ -21,6 +21,7 @@
                         <xs:element name="connections" type="Connections" />
                 </xs:sequence>
                 <xs:attribute name="version" type="xs:string" />
+                <xs:attribute name="language" type="xs:string" />
                 <xs:attribute name="stdSetDef" type="xs:integer" />
         </xs:complexType>
 

@@ -36,6 +36,7 @@ void DomUI::clear(bool clear_all)
     if (clear_all) {
     m_text = QString();
     m_has_attr_version = false;
+    m_has_attr_language = false;
     m_has_attr_stdSetDef = false;
     m_attr_stdSetDef = 0;
     }
@@ -56,6 +57,7 @@ DomUI::DomUI()
 {
     m_children = 0;
     m_has_attr_version = false;
+    m_has_attr_language = false;
     m_has_attr_stdSetDef = false;
     m_attr_stdSetDef = 0;
     m_widget = 0;
@@ -86,6 +88,8 @@ void DomUI::read(const QDomElement &node)
 {
     if (node.hasAttribute(QLatin1String("version")))
         setAttributeVersion(node.attribute(QLatin1String("version")));
+    if (node.hasAttribute(QLatin1String("language")))
+        setAttributeLanguage(node.attribute(QLatin1String("language")));
     if (node.hasAttribute(QLatin1String("stdsetdef")))
         setAttributeStdSetDef(node.attribute(QLatin1String("stdsetdef")).toInt());
 
@@ -185,6 +189,9 @@ QDomElement DomUI::write(QDomDocument &doc, const QString &tagName) const
 
     if (hasAttributeVersion())
         e.setAttribute(QLatin1String("version"), attributeVersion());
+
+    if (hasAttributeLanguage())
+        e.setAttribute(QLatin1String("language"), attributeLanguage());
 
     if (hasAttributeStdSetDef())
         e.setAttribute(QLatin1String("stdsetdef"), attributeStdSetDef());
