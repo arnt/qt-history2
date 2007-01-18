@@ -147,16 +147,28 @@ bool Uic::write(QIODevice *in)
         return false;
     }
 
+    QString language = ui->attributeLanguage();
+
+
     bool rtn = false;
 
     if (option().generator == Option::JavaGenerator) {
 #ifdef QT_UIC_JAVA_GENERATOR
+        if (language.toLower() != QLatin1String("jambi")) {
+            fprintf(stderr, "uic: File is not a 'jambi' form\n");
+            return false;
+        }
         rtn = jwrite (ui);
 #else
         fprintf(stderr, "uic: option to generate java code not compiled in\n");
 #endif
     } else {
 #ifdef QT_UIC_CPP_GENERATOR
+        if (!language.isEmpty() && language.toLower() != QLatin1String("c++")) {
+            fprintf(stderr, "uic: File is not a 'c++' ui file, language=%s\n", qPrintable(language));
+            return false;
+        }
+
         rtn = write (ui);
 #else
         fprintf(stderr, "uic: option to generate cpp code not compiled in\n");
