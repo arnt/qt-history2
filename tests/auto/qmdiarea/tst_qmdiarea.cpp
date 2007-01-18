@@ -18,6 +18,8 @@
 #include <QPushButton>
 #include <QStyle>
 #include <QStyleOption>
+#include <QVBoxLayout>
+#include <QLineEdit>
 
 #if defined(Q_WS_X11)
 extern void qt_x11_wait_for_window_manager(QWidget *w);
@@ -65,6 +67,7 @@ private slots:
     void cascadeAndTileSubWindows();
     void resizeMaximizedChildWindows_data();
     void resizeMaximizedChildWindows();
+    void focusWidgetAfterAddSubWindow();
 
 private:
     QMdiSubWindow *activeWindow;
@@ -1086,6 +1089,30 @@ void tst_QMdiArea::resizeMaximizedChildWindows()
     QCOMPARE(workspaceSize, QSize(newSize, newSize));
     foreach (QWidget *window, windows)
         QCOMPARE(window->rect(), workspace.contentsRect());
+}
+
+// QWidget::setParent clears focusWidget so make sure
+// we restore it after QMdiArea::addSubWindow.
+void tst_QMdiArea::focusWidgetAfterAddSubWindow()
+{
+    QWidget *view = new QWidget;
+    view->setLayout(new QVBoxLayout);
+
+    QLineEdit *lineEdit1 = new QLineEdit;
+    QLineEdit *lineEdit2 = new QLineEdit;
+    view->layout()->addWidget(lineEdit1);
+    view->layout()->addWidget(lineEdit2);
+
+    lineEdit2->setFocus();
+    QCOMPARE(view->focusWidget(), lineEdit2);
+
+    QMdiArea mdiArea;
+    mdiArea.addSubWindow(view);
+    QCOMPARE(view->focusWidget(), lineEdit2);
+
+    view->show();
+    qApp->setActiveWindow(&mdiArea);
+    QCOMPARE(qApp->focusWidget(), lineEdit2);
 }
 
 QTEST_MAIN(tst_QMdiArea)
