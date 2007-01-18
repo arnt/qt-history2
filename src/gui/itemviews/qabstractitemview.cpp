@@ -2791,8 +2791,10 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
             else
                 closeEditor(editor, QAbstractItemDelegate::NoHint);
         }
-        d->setDirtyRegion(visualRect(previous));
-        d->updateDirtyRegion();
+        if (isVisible()) {
+            d->setDirtyRegion(visualRect(previous));
+            d->updateDirtyRegion();
+        }
     }
     if (current.isValid() && !d->autoScrollTimer.isActive()) {
         if (d->autoScroll)
