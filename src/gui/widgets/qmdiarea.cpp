@@ -488,7 +488,8 @@ void QMdiAreaPrivate::appendChild(QMdiSubWindow *child)
     Q_ASSERT(child && childWindows.indexOf(child) == -1);
     Q_ASSERT(child->sizeHint().isValid());
 
-    child->setParent(q->viewport(), child->windowFlags());
+    if (child->parent() != q->viewport())
+        child->setParent(q->viewport(), child->windowFlags());
     childWindows.append(QPointer<QMdiSubWindow>(child));
 
     if (!child->testAttribute(Qt::WA_Resized))
@@ -982,18 +983,29 @@ QMdiSubWindow *QMdiArea::addSubWindow(QWidget *widget, Qt::WindowFlags windowFla
         return 0;
     }
 
+    Q_D(QMdiArea);
+    // QWidget::setParent clears focusWidget so store it
+    QWidget *childFocus = widget->focusWidget();
+
+    // Widget is already a QMdiSubWindow
     if (QMdiSubWindow *child = qobject_cast<QMdiSubWindow *>(widget)) {
         if (d_func()->childWindows.indexOf(child) != -1) {
             qWarning("QMdiArea::addSubWindow: window is already added");
             return child;
         }
-        child->setParent(this, windowFlags ? windowFlags : child->windowFlags());
+        child->setParent(viewport(), windowFlags ? windowFlags : child->windowFlags());
+        if (childFocus)
+            childFocus->setFocus();
+        d->appendChild(child);
         return child;
     }
 
-    QMdiSubWindow *child = new QMdiSubWindow(this, windowFlags);
+    QMdiSubWindow *child = new QMdiSubWindow(viewport(), windowFlags);
     child->setAttribute(Qt::WA_DeleteOnClose);
     child->setWidget(widget);
+    if (childFocus)
+        childFocus->setFocus();
+    d->appendChild(child);
     Q_ASSERT(child->testAttribute(Qt::WA_DeleteOnClose));
 
     return child;
