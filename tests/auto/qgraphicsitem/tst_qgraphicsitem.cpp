@@ -124,6 +124,8 @@ private slots:
     void prepareGeometryChange();
     void paint();
     void deleteItemInEventHandlers();
+    void itemClipsToShape();
+    void itemClipsChildrenToShape();
 
     // task specific tests below me
     void task141694_textItemEnsureVisible();
@@ -3400,6 +3402,93 @@ void tst_QGraphicsItem::deleteItemInEventHandlers()
         if (!item->dead)
             QTest::keyRelease(view.viewport(), Qt::Key_A);
     }
+}
+
+class ItemPaintsOutsideShape : public QGraphicsItem
+{
+public:
+    QRectF boundingRect() const
+    {
+        return QRectF(0, 0, 100, 100);
+    }
+    
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+    {
+        painter->fillRect(-50, -50, 200, 200, Qt::red);
+        painter->fillRect(0, 0, 100, 100, Qt::blue);
+    }
+};
+
+void tst_QGraphicsItem::itemClipsToShape()
+{
+    QGraphicsItem *clippedItem = new ItemPaintsOutsideShape;
+    clippedItem->setFlag(QGraphicsItem::ItemClipsToShape);
+
+    QGraphicsItem *unclippedItem = new ItemPaintsOutsideShape;
+    unclippedItem->setPos(200, 0);
+
+    QGraphicsScene scene(-50, -50, 400, 200);
+    scene.addItem(clippedItem);
+    scene.addItem(unclippedItem);
+
+    QImage image(400, 200, QImage::Format_ARGB32_Premultiplied);
+    image.fill(0);
+    QPainter painter(&image);
+    painter.setRenderHint(QPainter::Antialiasing);
+    scene.render(&painter);
+    painter.end();
+
+    QCOMPARE(image.pixel(45, 100), QRgb(0));
+    QCOMPARE(image.pixel(100, 45), QRgb(0));
+    QCOMPARE(image.pixel(155, 100), QRgb(0));
+    QCOMPARE(image.pixel(45, 155), QRgb(0));
+    QCOMPARE(image.pixel(55, 100), QColor(Qt::blue).rgba());
+    QCOMPARE(image.pixel(100, 55), QColor(Qt::blue).rgba());
+    QCOMPARE(image.pixel(145, 100), QColor(Qt::blue).rgba());
+    QCOMPARE(image.pixel(55, 145), QColor(Qt::blue).rgba());
+    QCOMPARE(image.pixel(245, 100), QColor(Qt::red).rgba());
+    QCOMPARE(image.pixel(300, 45), QColor(Qt::red).rgba());
+    QCOMPARE(image.pixel(355, 100), QColor(Qt::red).rgba());
+    QCOMPARE(image.pixel(245, 155), QColor(Qt::red).rgba());
+    QCOMPARE(image.pixel(255, 100), QColor(Qt::blue).rgba());
+    QCOMPARE(image.pixel(300, 55), QColor(Qt::blue).rgba());
+    QCOMPARE(image.pixel(345, 100), QColor(Qt::blue).rgba());
+    QCOMPARE(image.pixel(255, 145), QColor(Qt::blue).rgba());
+    
+    image.save("itemClipsToShape.png");
+}
+
+void tst_QGraphicsItem::itemClipsChildrenToShape()
+{
+    QGraphicsScene scene;
+    QGraphicsItem *rect = scene.addRect(0, 0, 50, 50, QPen(Qt::NoPen), QBrush(Qt::yellow));
+
+    QGraphicsItem *ellipse = scene.addEllipse(0, 0, 100, 100, QPen(Qt::NoPen), QBrush(Qt::green));
+    ellipse->setParentItem(rect);
+    
+    QGraphicsItem *clippedEllipse = scene.addEllipse(0, 0, 50, 50, QPen(Qt::NoPen), QBrush(Qt::blue));
+    clippedEllipse->setParentItem(ellipse);
+
+    QGraphicsItem *clippedEllipse2 = scene.addEllipse(0, 0, 25, 25, QPen(Qt::NoPen), QBrush(Qt::red));
+    clippedEllipse2->setParentItem(clippedEllipse);
+
+    QVERIFY(!(ellipse->flags() & QGraphicsItem::ItemClipsChildrenToShape));
+    ellipse->setFlag(QGraphicsItem::ItemClipsChildrenToShape);
+    QVERIFY((ellipse->flags() & QGraphicsItem::ItemClipsChildrenToShape));
+
+    QImage image(100, 100, QImage::Format_ARGB32_Premultiplied);
+    image.fill(0);
+    QPainter painter(&image);
+    painter.setRenderHint(QPainter::Antialiasing);
+    scene.render(&painter);
+    painter.end();
+
+    QCOMPARE(image.pixel(16, 16), QColor(255, 0, 0).rgba());
+    QCOMPARE(image.pixel(32, 32), QColor(0, 0, 255).rgba());
+    QCOMPARE(image.pixel(50, 50), QColor(0, 255, 0).rgba());
+    QCOMPARE(image.pixel(12, 12), QColor(255, 255, 0).rgba());
+
+    image.save("itemClipsChildrenToShape.png");
 }
 
 class ItemAddScene : public QGraphicsScene
