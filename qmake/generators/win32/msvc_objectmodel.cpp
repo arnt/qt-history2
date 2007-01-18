@@ -2038,6 +2038,7 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
                                                          inputs.join(" "),
                                                          out);
         } else {
+            deps += inFile; // input file itself too..
             cmd = Project->replaceExtraCompilerVariables(tmp_cmd,
                                                          inFile,
                                                          out);
