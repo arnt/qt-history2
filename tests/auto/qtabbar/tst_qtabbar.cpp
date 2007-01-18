@@ -188,7 +188,7 @@ void tst_QTabBar::removeTab_data()
 
     QTest::newRow("deleteEnd") << 0 << 2 << 0 << 0;
     QTest::newRow("deleteEndWithIndexOnEnd") << 2 << 2 << 1 << 1;
-    QTest::newRow("deleteMiddle") << 2 << 1 << 0 << 1;
+    QTest::newRow("deleteMiddle") << 2 << 1 << 1 << 1;
     QTest::newRow("deleteMiddleOnMiddle") << 1 << 1 << 1 << 1;
 }
 void tst_QTabBar::removeTab()

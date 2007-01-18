@@ -643,7 +643,7 @@ void QTabBar::removeTab(int index)
                 setCurrentIndex(d->validIndex(index) ? index : 0);
             }
         } else if (index < d->currentIndex) {
-            --d->currentIndex;
+            setCurrentIndex(d->currentIndex - 1);
         }
         d->refresh();
         tabRemoved(index);
