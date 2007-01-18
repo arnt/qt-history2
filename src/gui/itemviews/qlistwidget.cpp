@@ -1542,9 +1542,17 @@ void QListWidget::setItemSelected(const QListWidgetItem *item, bool select)
 {
     Q_D(QListWidget);
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
-    selectionModel()->select(index, select
-                             ? QItemSelectionModel::Select
-                             : QItemSelectionModel::Deselect);
+    
+    if (d->selectionMode == SingleSelection) {
+        selectionModel()->select(index, select 
+                                 ? QItemSelectionModel::ClearAndSelect
+                                 : QItemSelectionModel::Deselect);
+    } else if (d->selectionMode != NoSelection) {
+        selectionModel()->select(index, select
+                                 ? QItemSelectionModel::Select
+                                 : QItemSelectionModel::Deselect);
+    }
+
 }
 
 /*!

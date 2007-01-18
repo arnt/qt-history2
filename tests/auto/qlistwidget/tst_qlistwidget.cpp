@@ -715,6 +715,19 @@ void tst_QListWidget::selectedItems()
     for (int i=0; i<itemCount; ++i)
         new QListWidgetItem(QString("Item%1").arg(i), testWidget);
 
+    //test the selection
+    testWidget->setSelectionMode(QListWidget::SingleSelection);
+    for (int i=0; i<itemCount; ++i) {
+        QListWidgetItem *item = testWidget->item(i);
+        testWidget->setItemSelected(item, true);
+        QVERIFY(item->isSelected());
+        QCOMPARE(testWidget->selectedItems().count(), 1);
+    }
+    //let's clear the selection
+    testWidget->clearSelection();
+    //... and set the selection mode to allow more than 1 item to be selected
+    testWidget->setSelectionMode(QAbstractItemView::MultiSelection);
+
     //verify items are inserted
     QCOMPARE(testWidget->count(), itemCount);
     // hide items
