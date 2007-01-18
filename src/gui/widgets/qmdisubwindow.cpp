@@ -892,8 +892,7 @@ void QMdiSubWindowPrivate::setMinimizeMode()
 */
 void QMdiSubWindowPrivate::setNormalMode()
 {
-    Q_Q(QMdiSubWindow);
-    Q_ASSERT(q->parent());
+    Q_ASSERT(q_func()->parent());
 
     isShadeMode = false;
     ensureWindowState(Qt::WindowNoState);
@@ -1019,13 +1018,27 @@ void QMdiSubWindowPrivate::processClickedSubControl()
         q->showNormal();
         break;
     case QStyle::SC_TitleBarMinButton:
-        q->showMinimized();
+        if (q->style()->inherits("QMacStyle")) {
+            if (q->isMinimized())
+                q->showNormal();
+            else
+                q->showMinimized();
+        } else {
+            q->showMinimized();
+        }
         break;
     case QStyle::SC_TitleBarNormalButton:
         q->showNormal();
         break;
     case QStyle::SC_TitleBarMaxButton:
-        q->showMaximized();
+        if (q->style()->inherits("QMacStyle")) {
+            if (q->isMaximized())
+                q->showNormal();
+            else
+                q->showMaximized();
+        } else {
+            q->showMaximized();
+        }
         break;
     case QStyle::SC_TitleBarCloseButton:
         q->close();

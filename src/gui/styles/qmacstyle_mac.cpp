@@ -3913,18 +3913,8 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                 titleBarRect.origin.x += border;
                 titleBarRect.origin.y -= border;
 
-                SubControls subControls = titlebar->subControls;
-                if (titlebar->titleBarState & Qt::WindowMinimized) {
-                    subControls &= ~SC_TitleBarMinButton;
-                    subControls |= SC_TitleBarNormalButton;
-                }
-                if (titlebar->titleBarState & Qt::WindowMaximized) {
-                    subControls &= ~SC_TitleBarMaxButton;
-                    subControls |= SC_TitleBarNormalButton;
-                }
-
                 while (sc <= SC_TitleBarCloseButton) {
-                    if (sc & subControls) {
+                    if (sc & titlebar->subControls) {
                         uint tmp = sc;
                         wwdi.widgetState = savedControlState;
                         wwdi.widgetType = tbw;
@@ -4334,17 +4324,12 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                 wdi.attributes |= kThemeWindowHasCollapseBox;
             WindowRegionCode wrc = kWindowGlobalPortRgn;
 
-            bool isMinimized = titlebar->titleBarState & Qt::WindowMinimized;
-            bool isMaximized = titlebar->titleBarState & Qt::WindowMaximized;
-
             if (sc == SC_TitleBarCloseButton)
                 wrc = kWindowCloseBoxRgn;
-            else if (sc == SC_TitleBarMinButton && !isMinimized)
+            else if (sc == SC_TitleBarMinButton)
                 wrc = kWindowCollapseBoxRgn;
-            else if (sc == SC_TitleBarMaxButton && !isMaximized)
+            else if (sc == SC_TitleBarMaxButton)
                 wrc = kWindowZoomBoxRgn;
-            else if (sc == SC_TitleBarNormalButton && (isMinimized || isMaximized))
-                wrc = isMinimized ? kWindowCollapseBoxRgn : kWindowZoomBoxRgn;
             else if (sc == SC_TitleBarLabel)
                 wrc = kWindowTitleTextRgn;
             else if (sc == SC_TitleBarSysMenu)
