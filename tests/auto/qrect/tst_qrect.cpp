@@ -4238,6 +4238,10 @@ void tst_QRect::intersectsRectF_data()
     QTest::newRow("test 13") << QRectF() << QRectF(10, 10, 10, 10) << FALSE;
     QTest::newRow("test 14") << QRectF(10, 10, 10, 10) << QRectF() << FALSE;
     QTest::newRow("test 15") << QRectF() << QRectF() << FALSE;
+
+    QTest::newRow("test 16") << QRectF(0, 0, 10, 10) << QRectF(10, 10, 10, 10) << FALSE;
+    QTest::newRow("test 17") << QRectF(0, 0, 10, 10) << QRectF(0, 10, 10, 10) << FALSE;
+    QTest::newRow("test 18") << QRectF(0, 0, 10, 10) << QRectF(10, 0, 10, 10) << FALSE;
 }
 
 void tst_QRect::intersectsRectF()

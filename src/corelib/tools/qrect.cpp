@@ -1985,8 +1985,8 @@ QRectF QRectF::operator&(const QRectF &r) const
     \fn bool QRectF::intersects(const QRectF &rectangle) const
 
     Returns true if this rectangle intersects with the given \a
-    rectangle (i.e. there is at least one pixel that is within both
-    rectangles), otherwise returns false.
+    rectangle (i.e. there is a non-empty area of overlap between
+    them), otherwise returns false.
 
     The intersection rectangle can be retrieved using the intersected()
     function.
@@ -2000,8 +2000,8 @@ bool QRectF::intersects(const QRectF &r) const
         return false;
     QRectF r1 = normalized();
     QRectF r2 = r.normalized();
-    return qMax(r1.xp, r2.xp) <= qMin(r1.xp + r1.w, r2.xp + r2.w)
-        && qMax(r1.yp, r2.yp) <= qMin(r1.yp + r1.h, r2.yp + r2.h);
+    return qMax(r1.xp, r2.xp) < qMin(r1.xp + r1.w, r2.xp + r2.w)
+        && qMax(r1.yp, r2.yp) < qMin(r1.yp + r1.h, r2.yp + r2.h);
 }
 
 /*!
