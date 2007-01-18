@@ -176,9 +176,8 @@ protected:
     };
     virtual QVariant entryInfo(EntryInfoType type) const;
     
+private:            
     Q_DISABLE_COPY(QAbstractFileEngineIterator)
-        
-private:
     friend class QDirIterator;
     friend class QDirIteratorPrivate;
     void setPath(const QString &path);
