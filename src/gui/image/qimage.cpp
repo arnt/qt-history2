@@ -5528,8 +5528,6 @@ QImage QImage::transformed(const QTransform &matrix, Qt::TransformationMode mode
 
         hd = int(qAbs(mat.m22()) * hs + 0.9999);
         wd = int(qAbs(mat.m11()) * ws + 0.9999);
-        hd = qAbs(hd);
-        wd = qAbs(wd);
         scale_xform = true;
     } else if (mat.m11() == 0. && mat.m22() == 0.
                && ((mat.m12() == 1. && mat.m21() == -1.)        // 90 degrees
@@ -5552,7 +5550,15 @@ QImage QImage::transformed(const QTransform &matrix, Qt::TransformationMode mode
 
     // Make use of the pnmscale algorithm when we're scaling down
     if (scale_xform && mode == Qt::SmoothTransformation && (wd < ws || hd < hs)) {
-        return ::smoothScaled(*this, wd, hd);
+        if (mat.m11() < 0.0F && mat.m22() < 0.0F) { // horizontal/vertical flip
+            return ::smoothScaled(mirrored(true, true), wd, hd);
+        } else if (mat.m11() < 0.0F) { // horizontal flip
+            return ::smoothScaled(mirrored(true, false), wd, hd);
+        } else if (mat.m22() < 0.0F) { // vertical flip
+            return ::smoothScaled(mirrored(false, true), wd, hd);
+        } else { // no flipping
+            return ::smoothScaled(*this, wd, hd);
+        }
     }
 
     int bpp = depth();
