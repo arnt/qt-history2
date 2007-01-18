@@ -77,6 +77,8 @@ private slots:
 
     void initTestCase();
     void indentComments() const;
+    void checkLiveness() const;
+
 private:
     static int hasAttributesHelper( const QDomNode& node );
     static bool compareDocuments( const QDomDocument &doc1, const QDomDocument &doc2 );
@@ -1614,6 +1616,31 @@ void tst_QDom::indentComments() const
     const QString serialized(doc.toString(5));
 
     QCOMPARE(serialized, QString::fromLatin1(expected));
+}
+
+void tst_QDom::checkLiveness() const
+{
+    QDomImplementation impl;
+
+    QDomDocument doc(impl.createDocument(QString(), "doc", QDomDocumentType()));
+    QDomElement ele(doc.documentElement());
+
+    const QDomElement e1(doc.createElement("name"));
+    const QDomElement e2(doc.createElement("name"));
+    const QDomText t1(doc.createTextNode("content"));
+
+    ele.appendChild(e1);
+    ele.appendChild(t1);
+    ele.appendChild(e2);
+
+    const QDomNodeList children(ele.childNodes());
+    QCOMPARE(children.count(), 3);
+
+    ele.removeChild(e1);
+
+    QCOMPARE(children.count(), 2);
+    QCOMPARE(children.at(0), static_cast<const QDomNode &>(t1));
+    QCOMPARE(children.at(1), static_cast<const QDomNode &>(e2));
 }
 
 QTEST_MAIN(tst_QDom)
