@@ -99,6 +99,8 @@ void QDBusMetaTypeId::init()
         qDBusRegisterMetaType<QList<qlonglong> >();
         qDBusRegisterMetaType<QList<qulonglong> >();
         qDBusRegisterMetaType<QList<double> >();
+        qDBusRegisterMetaType<QList<QDBusObjectPath> >();
+        qDBusRegisterMetaType<QList<QDBusSignature> >();
 #endif
 
         initialized = true;
@@ -317,6 +319,12 @@ int QDBusMetaType::signatureToType(const char *signature)
 
         case DBUS_TYPE_VARIANT:
             return QVariant::List;
+
+        case DBUS_TYPE_OBJECT_PATH:
+            return qMetaTypeId<QList<QDBusObjectPath> >();
+
+        case DBUS_TYPE_SIGNATURE:
+            return qMetaTypeId<QList<QDBusSignature> >();
 
         }
         // fall through
