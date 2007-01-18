@@ -17,6 +17,10 @@
 #include <QMainWindow>
 #include <QMenuBar>
 #include <QMenu>
+#include <QGroupBox>
+#include <QTextEdit>
+#include <QLayout>
+#include <QHBoxLayout>
 #include <QByteArray>
 #include <QStyle>
 #include <QStyleOptionTitleBar>
@@ -127,6 +131,7 @@ private slots:
     void setWindowFlags();
     void mouseDoubleClick();
     void setSystemMenu();
+    void restoreFocus();
 };
 
 void tst_QMdiSubWindow::initTestCase()
@@ -834,6 +839,109 @@ void tst_QMdiSubWindow::setSystemMenu()
     delete systemMenu;
     QVERIFY(!qApp->activePopupWidget());
     QVERIFY(!subWindow->systemMenu());
+}
+
+void tst_QMdiSubWindow::restoreFocus()
+{
+    // Create complex layout.
+    QGroupBox *box = new QGroupBox(tr("GroupBox"));
+    box->setCheckable(true);
+
+    QGroupBox *box1 = new QGroupBox(tr("&TopLeft"));
+    box1->setLayout(new QHBoxLayout);
+    box1->layout()->addWidget(new QTextEdit);
+
+    QGroupBox *box2 = new QGroupBox(tr("&TopRight"));
+    box2->setLayout(new QHBoxLayout);
+    box2->layout()->addWidget(new QTextEdit);
+
+    QGroupBox *box3 = new QGroupBox(tr("&BottomLeft"));
+    box3->setLayout(new QHBoxLayout);
+    box3->layout()->addWidget(new QTextEdit);
+
+    QGroupBox *box4 = new QGroupBox(tr("&BottomRight"));
+    box4->setLayout(new QHBoxLayout);
+    QMdiArea *nestedWorkspace = new QMdiArea;
+    for (int i = 0; i < 4; ++i)
+        nestedWorkspace->addSubWindow(new QTextEdit)->show();
+    qApp->processEvents();
+    nestedWorkspace->setScrollBarsEnabled(true);
+    box4->layout()->addWidget(nestedWorkspace);
+
+    QGridLayout *layout = new QGridLayout;
+    layout->addWidget(box1, 0, 0);
+    layout->addWidget(box2, 0, 1);
+    layout->addWidget(box3, 1, 0);
+    layout->addWidget(box4, 1, 1);
+
+    box->setLayout(layout);
+
+    // Add complex widget to workspace.
+    QMdiArea topArea;
+    QMdiSubWindow *complexWindow = topArea.addSubWindow(box);
+    topArea.show();
+    box->show();
+
+    qApp->setActiveWindow(&topArea);
+    QMdiSubWindow *expectedFocusWindow = nestedWorkspace->subWindowList().last();
+    QVERIFY(expectedFocusWindow);
+    QVERIFY(expectedFocusWindow->widget());
+    QCOMPARE(qApp->focusWidget(), expectedFocusWindow->widget());
+
+    // Normal -> minimized
+    expectedFocusWindow->showMinimized();
+    qApp->processEvents();
+    QVERIFY(expectedFocusWindow->isMinimized());
+    QCOMPARE(qApp->focusWidget(), expectedFocusWindow);
+
+    // Minimized -> normal
+    expectedFocusWindow->showNormal();
+    qApp->processEvents();
+    QVERIFY(!expectedFocusWindow->isMinimized());
+    QCOMPARE(qApp->focusWidget(), expectedFocusWindow->widget());
+
+    // Normal -> maximized
+    expectedFocusWindow->showMaximized();
+    qApp->processEvents();
+    QVERIFY(expectedFocusWindow->isMaximized());
+    QCOMPARE(qApp->focusWidget(), expectedFocusWindow->widget());
+
+    // Maximized -> normal
+    expectedFocusWindow->showNormal();
+    qApp->processEvents();
+    QVERIFY(!expectedFocusWindow->isMaximized());
+    QCOMPARE(qApp->focusWidget(), expectedFocusWindow->widget());
+
+    // Minimized -> maximized
+    expectedFocusWindow->showMinimized();
+    qApp->processEvents();
+    QVERIFY(expectedFocusWindow->isMinimized());
+    expectedFocusWindow->showMaximized();
+    qApp->processEvents();
+    QVERIFY(expectedFocusWindow->isMaximized());
+    QCOMPARE(qApp->focusWidget(), expectedFocusWindow->widget());
+
+    // Maximized -> minimized
+    expectedFocusWindow->showNormal();
+    qApp->processEvents();
+    QVERIFY(!expectedFocusWindow->isMaximized());
+    expectedFocusWindow->showMaximized();
+    qApp->processEvents();
+    QVERIFY(expectedFocusWindow->isMaximized());
+    expectedFocusWindow->showMinimized();
+    qApp->processEvents();
+    QVERIFY(expectedFocusWindow->isMinimized());
+    QCOMPARE(qApp->focusWidget(), expectedFocusWindow);
+
+    complexWindow->showMinimized();
+    qApp->processEvents();
+    QVERIFY(complexWindow->isMinimized());
+    QCOMPARE(qApp->focusWidget(), complexWindow);
+
+    complexWindow->showNormal();
+    qApp->processEvents();
+    QVERIFY(!complexWindow->isMinimized());
+    QCOMPARE(qApp->focusWidget(), expectedFocusWindow);
 }
 
 QTEST_MAIN(tst_QMdiSubWindow)
