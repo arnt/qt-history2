@@ -374,7 +374,7 @@ QDESIGNER_SHARED_EXPORT IncludeSpecification  includeSpecification(QString inclu
 }
 
 QDESIGNER_SHARED_EXPORT QString buildIncludeFile(QString includeFile, IncludeType includeType) {
-    if (includeType == IncludeGlobal) {
+    if (includeType == IncludeGlobal && !includeFile.isEmpty()) {
         includeFile.append(QLatin1Char('>'));
         includeFile.insert(0, QLatin1Char('<'));
     }

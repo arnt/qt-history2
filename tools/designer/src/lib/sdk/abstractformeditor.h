@@ -28,6 +28,7 @@ class QDesignerWidgetDataBaseInterface;
 class QDesignerMetaDataBaseInterface;
 class QDesignerWidgetFactoryInterface;
 class QDesignerObjectInspectorInterface;
+class QDesignerPromotionInterface;
 class QDesignerBrushManagerInterface;
 class QDesignerIconCacheInterface;
 class QDesignerActionEditorInterface;
@@ -56,6 +57,7 @@ public:
     QDesignerFormWindowManagerInterface *formWindowManager() const;
     QDesignerWidgetDataBaseInterface *widgetDataBase() const;
     QDesignerMetaDataBaseInterface *metaDataBase() const;
+    QDesignerPromotionInterface *promotion() const;
     QDesignerWidgetFactoryInterface *widgetFactory() const;
     QDesignerBrushManagerInterface *brushManager() const;
     QDesignerIconCacheInterface *iconCache() const;
@@ -76,6 +78,7 @@ protected:
     void setFormManager(QDesignerFormWindowManagerInterface *formWindowManager);
     void setMetaDataBase(QDesignerMetaDataBaseInterface *metaDataBase);
     void setWidgetDataBase(QDesignerWidgetDataBaseInterface *widgetDataBase);
+    void setPromotion(QDesignerPromotionInterface *promotion);
     void setWidgetFactory(QDesignerWidgetFactoryInterface *widgetFactory);
     void setExtensionManager(QExtensionManager *extensionManager);
     void setBrushManager(QDesignerBrushManagerInterface *brushManager);

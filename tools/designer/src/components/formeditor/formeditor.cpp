@@ -37,6 +37,7 @@
 #include <qdesigner_taskmenu_p.h>
 #include <qdesigner_propertysheet_p.h>
 #include <qdesigner_membersheet_p.h>
+#include <qdesigner_promotion_p.h>
 
 using namespace qdesigner_internal;
 
@@ -86,9 +87,11 @@ FormEditor::FormEditor(QObject *parent)
 
     BrushManagerProxy *brushProxy = new BrushManagerProxy(this, this);
     brushProxy->setBrushManager(brushManager);
+    setPromotion(new QDesignerPromotion(this));
 }
 
 FormEditor::~FormEditor()
 {
     delete formWindowManager();
+    delete promotion();
 }

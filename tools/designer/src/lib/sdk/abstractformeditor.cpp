@@ -18,7 +18,7 @@
 
 class QDesignerFormEditorInterfacePrivate : public  QObjectPrivate {
 public:
-    QDesignerFormEditorInterfacePrivate() : m_pluginManager(0) {}
+    QDesignerFormEditorInterfacePrivate() : m_pluginManager(0),m_promotion(0) {}
 
     QPointer<QWidget> m_topLevel;
     QPointer<QDesignerWidgetBoxInterface> m_widgetBox;
@@ -34,6 +34,7 @@ public:
     QPointer<QDesignerIconCacheInterface> m_iconCache;
     QPointer<QDesignerActionEditorInterface> m_actionEditor;
     QDesignerPluginManager *m_pluginManager;
+    QDesignerPromotionInterface *m_promotion;
 };
 
 /*!
@@ -257,6 +258,30 @@ void QDesignerFormEditorInterface::setWidgetDataBase(QDesignerWidgetDataBaseInte
 {
     Q_D(QDesignerFormEditorInterface);
     d->m_widgetDataBase = widgetDataBase; 
+}
+
+/*!
+    \internal
+
+    Returns an interface to the designer promotion handler.
+*/
+
+QDesignerPromotionInterface *QDesignerFormEditorInterface::promotion() const
+{
+    Q_D(const QDesignerFormEditorInterface);
+    return d->m_promotion;
+}
+
+/*!
+    \internal
+
+    Sets the designer promotion handler.
+*/
+
+void QDesignerFormEditorInterface::setPromotion(QDesignerPromotionInterface *promotion)
+{
+    Q_D(QDesignerFormEditorInterface);
+    d->m_promotion = promotion;
 }
 
 /*!

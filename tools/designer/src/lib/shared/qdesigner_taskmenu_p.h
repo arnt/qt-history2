@@ -34,8 +34,9 @@
 #include <QtCore/QPointer>
 #include <QtCore/QList>
 
-class QWidget;
 class QDesignerFormWindowInterface;
+
+class QWidget;
 class QSignalMapper;
 
 namespace qdesigner_internal {
@@ -61,7 +62,6 @@ protected:
 
 private slots:
     void changeObjectName();
-    void promoteToNewCustomWidget();
     void promoteToCustomWidget(const QString &customClassName);
     
     void demoteFromCustomWidget();
@@ -72,6 +72,7 @@ private slots:
     void addToolBar();
     void createStatusBar();
     void removeStatusBar();
+    void editPromotedWidgets();
 
 private:
     void promoteTo(QDesignerFormWindowInterface *fw, const QString &customClassName);
@@ -93,6 +94,7 @@ private:
     QAction *m_addToolBar;
     QAction *m_addStatusBar;
     QAction *m_removeStatusBar;
+    QAction *m_promotionEditAction;
 
     mutable QSignalMapper *m_promotionMapper;
     mutable QList<QAction*> m_promotionActions;

@@ -4,9 +4,7 @@ INCLUDEPATH += $$PWD
 UI_DIR = $$PWD
 
 # Input
-FORMS += \
-    $$PWD/promotetocustomwidgetdialog.ui \
-    $$PWD/findicondialog.ui \
+FORMS += $$PWD/findicondialog.ui \
     $$PWD/orderdialog.ui \
     $$PWD/newactiondialog.ui \
     $$PWD/resourceeditor.ui
@@ -44,7 +42,9 @@ HEADERS += \
     $$PWD/qsimpleresource_p.h \
     $$PWD/widgetfactory_p.h \
     $$PWD/widgetdatabase_p.h \
-    $$PWD/promotetocustomwidgetdialog_p.h \
+    $$PWD/qdesigner_promotion_p.h \
+    $$PWD/promotionmodel_p.h \
+    $$PWD/qdesigner_promotiondialog_p.h \
     $$PWD/resourcefile_p.h \
     $$PWD/iconloader_p.h \
     $$PWD/findicondialog_p.h \
@@ -95,7 +95,9 @@ SOURCES += \
     $$PWD/qdesigner_toolbox.cpp \
     $$PWD/widgetfactory.cpp \
     $$PWD/widgetdatabase.cpp \
-    $$PWD/promotetocustomwidgetdialog.cpp \
+    $$PWD/qdesigner_promotion.cpp \
+    $$PWD/promotionmodel.cpp \
+    $$PWD/qdesigner_promotiondialog.cpp \
     $$PWD/resourcefile.cpp \
     $$PWD/findicondialog.cpp \
     $$PWD/richtexteditor.cpp \
