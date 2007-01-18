@@ -217,6 +217,16 @@ static inline bool isEmptyBlockAfterTable(const QTextBlock &block, const QTextFr
            ;
 }
 
+static inline bool isLineSeparatorBlockAfterTable(const QTextBlock &block, const QTextFrame *lastFrame)
+{
+    return qobject_cast<const QTextTable *>(lastFrame)
+           && block.isValid()
+           && block.length() > 1
+           && block.text().at(0) == QChar::LineSeparator
+           && lastFrame->lastPosition() == block.position() - 1
+           ;
+}
+
 /*
 
 Optimisation strategies:
@@ -1919,6 +1929,30 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
                 layoutStruct->y = origY;
                 layoutStruct->pageBottom = origPageBottom;
             }
+
+            // if the block right after a table starts with a line separator, shift it up by one line
+            if (isLineSeparatorBlockAfterTable(block, lastIt.currentFrame())) {
+                QTextTableData *td = static_cast<QTextTableData *>(data(lastIt.currentFrame()));
+                QTextLayout *layout = block.layout();
+
+                qreal height = layout->lineAt(0).height();
+
+                if (layoutStruct->pageBottom == origPageBottom) {
+                    layoutStruct->y -= height;
+                    layout->setPosition(layout->position() - QPointF(0, height));
+                } else {
+                    // relayout block to correctly handle page breaks
+                    layoutStruct->y = origY - height;
+                    layoutStruct->pageBottom = origPageBottom;
+                    layoutBlock(block, layoutStruct, layoutFrom, layoutTo, lastIt.currentBlock());
+                }
+
+                QPointF linePos(td->position.x() + td->size.width(),
+                                td->position.y() + td->size.height() - height);
+
+                layout->lineAt(0).setPosition(linePos - layout->position());
+            }
+
 
             if (block.blockFormat().pageBreakPolicy() & QTextFormat::PageBreak_AlwaysAfter)
                 layoutStruct->newPage();
