@@ -234,6 +234,18 @@
     an input item). Enabling this flag will allow the item to accept focus,
     which again allows the delivery of key events to
     QGraphicsItem::keyPressEvent() and QGraphicsItem::keyReleaseEvent().
+
+    \value ItemClipsToShape The item clips (i.e., restricts) its own painting
+    to inside its shape. Its paintEvent() function cannot draw outside its
+    shape. For complex shapes, this function can be expensive. It is disabled
+    by default. This behavior is enforced by QGraphicsView::drawItems() or
+    QGraphicsScene::drawItems().
+
+    \value ItemClipsChildrenToShape The item clips the painting of all its
+    descendents to its own shape. Items that are either direct or indirect
+    children of this item cannot draw outside this item's shape. By default,
+    this flag is disabled; children can draw anywhere. This behavior is
+    enforced by QGraphicsView::drawItems() or QGraphicsScene::drawItems().
 */
 
 /*!
@@ -414,6 +426,20 @@ void QGraphicsItemPrivate::setAncestorHandlesChildEvents(bool enabled)
         ancestorHandlesChildEvents = enabled;
         foreach (QGraphicsItem *child, children)
             child->d_func()->setAncestorHandlesChildEvents(enabled);
+    }
+}
+
+/*!
+    \internal
+
+    Propagates clipping for this item and all its children.
+*/
+void QGraphicsItemPrivate::setAncestorClipsChildren(bool enabled)
+{
+    ancestorClipsChildren = enabled;
+    foreach (QGraphicsItem *child, children) {
+        if (!(child->flags() & QGraphicsItem::ItemClipsChildrenToShape))
+            child->d_func()->setAncestorClipsChildren(enabled);
     }
 }
 
@@ -676,9 +702,19 @@ void QGraphicsItem::setParentItem(QGraphicsItem *parent)
             d_ptr->setAncestorHandlesChildEvents(parent->handlesChildEvents()
                                              || parent->d_func()->ancestorHandlesChildEvents);
         }
+
+        // Optionally inherit ancestor child clipping from the new parent.
+        if (d_ptr->ancestorClipsChildren != d_ptr->parent->d_ptr->ancestorClipsChildren)
+            d_ptr->setAncestorClipsChildren(d_ptr->parent->d_ptr->ancestorClipsChildren);
     } else {
         // Item is a top-level; clear the ancestor event handling flag
         d_ptr->setAncestorHandlesChildEvents(false);
+
+        // If it doesn't clip children, clear the ancestor clipping flag for
+        // all descendents.
+        if (!(d_ptr->flags & ItemClipsChildrenToShape))
+            d_ptr->setAncestorClipsChildren(false);
+        d_ptr->ancestorClipsChildren = false;
         update();
     }
 }
@@ -738,12 +774,38 @@ void QGraphicsItem::setFlag(GraphicsItemFlag flag, bool enabled)
 void QGraphicsItem::setFlags(GraphicsItemFlags flags)
 {
     if (GraphicsItemFlags(d_ptr->flags) != flags) {
+        GraphicsItemFlags oldFlags = GraphicsItemFlags(d_ptr->flags);
         d_ptr->flags = flags;
 
-        if (!(d_ptr->flags & ItemIsFocusable) && hasFocus())
+        if (!(d_ptr->flags & ItemIsFocusable) && hasFocus()) {
+            // Clear focus on the item if it has focus when the focusable flag
+            // is unset.
             clearFocus();
-        if (!(d_ptr->flags & ItemIsSelectable) && isSelected())
+        }
+
+        if (!(d_ptr->flags & ItemIsSelectable) && isSelected()) {
+            // Unselect the item if it is selected when the selectable flag is
+            // unset.
             setSelected(false);
+        }
+
+        if ((flags & ItemClipsChildrenToShape) != (oldFlags & ItemClipsChildrenToShape)) {
+            // Item children clipping changes.
+            if ((flags & ItemClipsChildrenToShape) && !d_ptr->ancestorClipsChildren) {
+                // If this item should clip its children and it doesn't
+                // already, then propagate the ancestorClipsChildren flag to
+                // all children, but keep this item's ancestor flag unchanged.
+                d_ptr->setAncestorClipsChildren(true);
+                d_ptr->ancestorClipsChildren = false;
+            } else if (!(flags & ItemClipsChildrenToShape)) {
+                // If this item should not clip its children, propagate the
+                // ancestorClipsChildren flag to all children, but keep this
+                // item's ancestor flag unchanged.
+                bool usedToClipChildren = d_ptr->ancestorClipsChildren;
+                d_ptr->setAncestorClipsChildren(false);
+                d_ptr->ancestorClipsChildren = usedToClipChildren;
+            }
+        }
 
         update();
     }

@@ -3071,7 +3071,21 @@ void QGraphicsScene::drawItems(QPainter *painter,
         QGraphicsItem *item = items[i];
         painter->save();
         painter->setTransform(item->sceneTransform(), true);
+
+        if (item->flags() & QGraphicsItem::ItemClipsToShape)
+            painter->setClipPath(item->shape(), Qt::IntersectClip);
+        if (item->d_ptr->ancestorClipsChildren) {
+            // Set a clip path on \a painter by walking up the parent item
+            // chain of \a item, intersecting clip paths as long as the item's
+            // ancestor clips children.
+            QGraphicsItem *target = item->parentItem();
+            do {
+                painter->setClipPath(item->mapFromItem(target, target->shape()), Qt::IntersectClip);
+            } while (target->d_ptr->ancestorClipsChildren && (target = target->parentItem()));
+        }
+
         item->paint(painter, &options[i], widget);
+
         painter->restore();
     }
 }

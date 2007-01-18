@@ -54,6 +54,7 @@ public:
         itemDiscovered = 0;
         hasTransform = 0;
         hasCursor = 0;
+        ancestorClipsChildren = 0;
         flags = 0;
         pad = 0;
     }
@@ -62,6 +63,7 @@ public:
     { }
 
     void setAncestorHandlesChildEvents(bool enabled);
+    void setAncestorClipsChildren(bool enabled);
     void setIsMemberOfGroup(bool enabled);
     void remapItemPos(QEvent *event, QGraphicsItem *item);
     
@@ -133,8 +135,9 @@ public:
     quint32 itemDiscovered : 1;
     quint32 hasTransform : 1;
     quint32 hasCursor : 1;
+    quint32 ancestorClipsChildren : 1;
     quint32 flags : 11;
-    quint32 pad : 5;
+    quint32 pad : 4;
 
     QGraphicsItem *q_ptr;
 };

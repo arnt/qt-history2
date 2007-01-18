@@ -55,7 +55,9 @@ public:
     enum GraphicsItemFlag {
         ItemIsMovable = 0x1,
         ItemIsSelectable = 0x2,
-        ItemIsFocusable = 0x4
+        ItemIsFocusable = 0x4,
+        ItemClipsToShape = 0x8,
+        ItemClipsChildrenToShape = 0x10
     };
     Q_DECLARE_FLAGS(GraphicsItemFlags, GraphicsItemFlag)
 
