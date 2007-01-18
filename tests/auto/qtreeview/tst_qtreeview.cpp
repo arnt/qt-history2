@@ -138,6 +138,7 @@ private slots:
     void removeAfterSelect();
     void hiddenItems();
     void spanningItems();
+    void rowSizeHint();
 
     void selection();
 };
@@ -1896,6 +1897,27 @@ void tst_QTreeView::selection()
 
     QTest::mousePress(treeView.viewport(), Qt::LeftButton, 0, treeView.visualRect(m.index(1, 0)).center());
     QTest::keyPress(treeView.viewport(), Qt::Key_Down);
+}
+
+void tst_QTreeView::rowSizeHint()
+{
+    //tests whether the correct visible columns are taken into account when
+    //calculating the height of a line
+    QStandardItemModel model(1,3);
+    model.setData( model.index(0,0), QSize(20,40), Qt::SizeHintRole);
+    model.setData( model.index(0,1), QSize(20,10), Qt::SizeHintRole);
+    model.setData( model.index(0,2), QSize(20,10), Qt::SizeHintRole);
+    QTreeView view;
+    view.setModel(&model);
+
+    view.header()->moveSection(1, 0); //the 2nd column goes to the 1st place
+
+    view.show();
+
+    //it must be 40 since the tallest item that defines the height of a line
+    QCOMPARE( view.visualRect(model.index(0,0)).height(), 40);
+    QCOMPARE( view.visualRect(model.index(0,1)).height(), 40);
+    QCOMPARE( view.visualRect(model.index(0,2)).height(), 40);
 }
 
 QTEST_MAIN(tst_QTreeView)

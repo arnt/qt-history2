@@ -2311,8 +2311,8 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
     int count = d->header->count();
     if (count) {
         // If the sections have moved, we end up checking too many or too few
-        start = d->header->logicalIndexAt(0);
-        end = d->header->logicalIndexAt(viewport()->width());
+        start = d->header->visualIndexAt(0);
+        end = d->header->visualIndexAt(viewport()->width());
     } else {
         // If the header has not been laid out yet, we use the model directly
         count = d->model->columnCount(index.parent());
@@ -2340,7 +2340,8 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
     option.rect.setWidth(-1);
     QModelIndex parent = d->model->parent(index);
     for (int column = start; column <= end; ++column) {
-        QModelIndex idx = d->model->index(index.row(), column, parent);
+        const int logicalColumn = d->header->count()? d->header->logicalIndex(column) : column;
+        QModelIndex idx = d->model->index(index.row(), logicalColumn, parent);
         if (idx.isValid()) {
             if (QWidget *editor = d->editorForIndex(idx))
                 height = qMax(height, editor->size().height());
