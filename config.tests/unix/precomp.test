@@ -18,6 +18,7 @@ EOF
 
 EOF
 
+    rm -f header.pchi
     icpc -create_pch header.pchi -include header.h -c header.cpp -o header.o >/dev/null 2>&1 \
         && icpc -use_pch header.pchi -include header.h -c source.cpp -o source.o >/dev/null 2>&1 \
         && PRECOMP_SUPPORT=yes
