@@ -260,7 +260,7 @@ bool WriteInitialization::LayoutDefaultHandler::writeProperty(int p, const QStri
         const int value = mit.value()->elementNumber();
         // Emulate the pre 4.3 behaviour: The value form default value was only used to determine
         // the default value, layout properties were always written
-        const bool useLayoutFunctionPre43 = (m_state[p] & (HasDefaultFunction|HasDefaultFunction)) && value == m_defaultValues[p];
+        const bool useLayoutFunctionPre43 = (m_state[p] & (HasDefaultFunction|HasDefaultValue)) && value == m_defaultValues[p];
         if (!useLayoutFunctionPre43) {
             writeSetter(indent, objectName, setter, value, str);
             return found;
