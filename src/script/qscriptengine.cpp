@@ -204,7 +204,8 @@ QScriptEngine::~QScriptEngine()
 */
 QScriptNameId QScriptEngine::nameId(const QString &name)
 {
-    return d_func()->publicNameId(name);
+    Q_D(QScriptEngine);
+    return d->publicNameId(name);
 }
 
 /*!
@@ -217,7 +218,8 @@ QScriptNameId QScriptEngine::nameId(const QString &name)
 */
 QScriptValue QScriptEngine::globalObject() const
 {
-    return d_func()->globalObject;
+    Q_D(const QScriptEngine);
+    return d->globalObject;
 }
 
 /*!
@@ -225,8 +227,9 @@ QScriptValue QScriptEngine::globalObject() const
 */
 QScriptValue QScriptEngine::nullScriptValue()
 {
+    Q_D(QScriptEngine);
     QScriptValue v;
-    d_func()->newNull(&v);
+    d->newNull(&v);
     return v;
 }
 
@@ -235,8 +238,9 @@ QScriptValue QScriptEngine::nullScriptValue()
 */
 QScriptValue QScriptEngine::undefinedScriptValue()
 {
+    Q_D(QScriptEngine);
     QScriptValue v;
-    d_func()->newUndefined(&v);
+    d->newUndefined(&v);
     return v;
 }
 
@@ -246,8 +250,9 @@ QScriptValue QScriptEngine::undefinedScriptValue()
 */
 QScriptValue QScriptEngine::scriptValue(bool value)
 {
+    Q_D(QScriptEngine);
     QScriptValue v;
-    d_func()->newBoolean(&v, value);
+    d->newBoolean(&v, value);
     return v;
 }
 
@@ -257,8 +262,9 @@ QScriptValue QScriptEngine::scriptValue(bool value)
 */
 QScriptValue QScriptEngine::scriptValue(qnumber value)
 {
+    Q_D(QScriptEngine);
     QScriptValue v;
-    d_func()->newNumber(&v, value);
+    d->newNumber(&v, value);
     return v;
 }
 
@@ -268,8 +274,9 @@ QScriptValue QScriptEngine::scriptValue(qnumber value)
 */
 QScriptValue QScriptEngine::scriptValue(int value)
 {
+    Q_D(QScriptEngine);
     QScriptValue v;
-    d_func()->newNumber(&v, value);
+    d->newNumber(&v, value);
     return v;
 }
 
@@ -279,8 +286,9 @@ QScriptValue QScriptEngine::scriptValue(int value)
 */
 QScriptValue QScriptEngine::scriptValue(uint value)
 {
+    Q_D(QScriptEngine);
     QScriptValue v;
-    d_func()->newNumber(&v, value);
+    d->newNumber(&v, value);
     return v;
 }
 
@@ -290,8 +298,9 @@ QScriptValue QScriptEngine::scriptValue(uint value)
 */
 QScriptValue QScriptEngine::scriptValue(qlonglong value)
 {
+    Q_D(QScriptEngine);
     QScriptValue v;
-    d_func()->newNumber(&v, value);
+    d->newNumber(&v, value);
     return v;
 }
 
@@ -301,12 +310,13 @@ QScriptValue QScriptEngine::scriptValue(qlonglong value)
 */
 QScriptValue QScriptEngine::scriptValue(qulonglong value)
 {
+    Q_D(QScriptEngine);
     QScriptValue v;
 #if defined(Q_OS_WIN) && _MSC_FULL_VER <= 12008804
 #pragma message("** NOTE: You need the Visual Studio Processor Pack to compile support for 64bit unsigned integers.")
-    d_func()->newNumber(&v, (qlonglong)value);
+    d->newNumber(&v, (qlonglong)value);
 #else
-    d_func()->newNumber(&v, value);
+    d->newNumber(&v, value);
 #endif
     return v;
 }
@@ -317,8 +327,9 @@ QScriptValue QScriptEngine::scriptValue(qulonglong value)
 */
 QScriptValue QScriptEngine::scriptValue(const QString &value)
 {
+    Q_D(QScriptEngine);
     QScriptValue v;
-    d_func()->newNameId(&v, value);
+    d->newNameId(&v, value);
     return v;
 }
 
@@ -329,8 +340,9 @@ QScriptValue QScriptEngine::scriptValue(const QString &value)
 */
 QScriptValue QScriptEngine::scriptValue(const char *value)
 {
+    Q_D(QScriptEngine);
     QScriptValue v;
-    d_func()->newNameId(&v, QLatin1String(value));
+    d->newNameId(&v, QLatin1String(value));
     return v;
 }
 #endif
@@ -383,8 +395,9 @@ QScriptValue QScriptEngine::scriptValue(QScriptFunctionSignature fun,
 */
 QScriptValue QScriptEngine::scriptValue(const QRegExp &regexp)
 {
+    Q_D(QScriptEngine);
     QScriptValue v;
-    d_func()->regexpConstructor->newRegExp(&v, regexp);
+    d->regexpConstructor->newRegExp(&v, regexp);
     return v;
 }
 #endif // QT_NO_REGEXP
@@ -401,10 +414,11 @@ QScriptValue QScriptEngine::scriptValue(const QRegExp &regexp)
 */
 QScriptValue QScriptEngine::scriptValueFromVariant(const QVariant &value)
 {
-    Q_ASSERT(d_func()->variantConstructor != 0);
+    Q_D(QScriptEngine);
+    Q_ASSERT(d->variantConstructor != 0);
 
     QScriptValue v;
-    d_func()->variantConstructor->newVariant(&v, value);
+    d->variantConstructor->newVariant(&v, value);
     QScriptValue proto = defaultPrototype(value.userType());
     if (proto.isValid())
         v.setPrototype(proto);
@@ -423,10 +437,11 @@ QScriptValue QScriptEngine::scriptValueFromVariant(const QVariant &value)
 */
 QScriptValue QScriptEngine::scriptValueFromQObject(QObject *object)
 {
-    Q_ASSERT(d_func()->qobjectConstructor != 0);
+    Q_D(QScriptEngine);
+    Q_ASSERT(d->qobjectConstructor != 0);
 
     QScriptValue v;
-    d_func()->qobjectConstructor->newQObject(&v, object);
+    d->qobjectConstructor->newQObject(&v, object);
     return v;
 }
 #endif // QT_NO_QOBJECT
@@ -439,8 +454,9 @@ QScriptValue QScriptEngine::scriptValueFromQObject(QObject *object)
 */
 QScriptValue QScriptEngine::newObject()
 {
+    Q_D(QScriptEngine);
     QScriptValue v;
-    d_func()->newObject(&v, d_func()->objectConstructor->publicPrototype);
+    d->newObject(&v, d->objectConstructor->publicPrototype);
     return v;
 }
 
@@ -449,10 +465,11 @@ QScriptValue QScriptEngine::newObject()
 */
 QScriptValue QScriptEngine::newArray(uint length)
 {
+    Q_D(QScriptEngine);
     QScriptValue v;
     QScript::Array a;
     a.resize(length);
-    d_func()->newArray(&v, a);
+    d->newArray(&v, a);
     return v;
 }
 
@@ -462,8 +479,9 @@ QScriptValue QScriptEngine::newArray(uint length)
 */
 QScriptValue QScriptEngine::newRegExp(const QString &pattern, const QString &flags)
 {
+    Q_D(QScriptEngine);
     QScriptValue v;
-    d_func()->regexpConstructor->newRegExp(&v, pattern, flags);
+    d->regexpConstructor->newRegExp(&v, pattern, flags);
     return v;
 }
 
@@ -474,8 +492,9 @@ QScriptValue QScriptEngine::newRegExp(const QString &pattern, const QString &fla
 */
 QScriptValue QScriptEngine::newDate(qnumber value)
 {
+    Q_D(QScriptEngine);
     QScriptValue v;
-    d_func()->dateConstructor->newDate(&v, value);
+    d->dateConstructor->newDate(&v, value);
     return v;
 }
 
@@ -485,8 +504,9 @@ QScriptValue QScriptEngine::newDate(qnumber value)
 */
 QScriptValue QScriptEngine::newDate(const QDateTime &value)
 {
+    Q_D(QScriptEngine);
     QScriptValue v;
-    d_func()->dateConstructor->newDate(&v, value);
+    d->dateConstructor->newDate(&v, value);
     return v;
 }
 
@@ -502,10 +522,11 @@ QScriptValue QScriptEngine::newDate(const QDateTime &value)
 QScriptValue QScriptEngine::scriptValue(
     const QMetaObject *metaObject, const QScriptValue &ctor)
 {
+    Q_D(QScriptEngine);
     QScriptValue v;
-    d_func()->newFunction(&v, new QScript::ExtQClass(metaObject, ctor));
+    d->newFunction(&v, new QScript::ExtQClass(metaObject, ctor));
     v.setPrototype(ctor); // ###
-    QScriptValueImpl::get(v)->setClassInfo(d_func()->m_class_qclass);
+    QScriptValueImpl::get(v)->setClassInfo(d->m_class_qclass);
     return v;
 }
 
@@ -567,9 +588,9 @@ bool QScriptEngine::canEvaluate(const QString &program) const
 */
 QScriptValue QScriptEngine::evaluate(const QString &program, int lineNumber)
 {
-    QScriptEnginePrivate *eng_p = d_func();
-    QScriptContext *ctx = eng_p->context();
-    eng_p->evaluate(ctx, program, lineNumber);
+    Q_D(QScriptEngine);
+    QScriptContext *ctx = d->context();
+    d->evaluate(ctx, program, lineNumber);
     return QScriptContextPrivate::get(ctx)->result;
 }
 
@@ -582,8 +603,8 @@ QScriptValue QScriptEngine::evaluate(const QString &program, int lineNumber)
 */
 QScriptValue QScriptEngine::evaluate(const QString &program)
 {
-    QScriptEnginePrivate *eng_p = d_func();
-    QScriptContextPrivate *ctx = QScriptContextPrivate::get(eng_p->context());
+    Q_D(QScriptEngine);
+    QScriptContextPrivate *ctx = QScriptContextPrivate::get(d->context());
     return evaluate(program, ctx->currentLine);
 }
 
@@ -595,7 +616,8 @@ QScriptValue QScriptEngine::evaluate(const QString &program)
 */
 QScriptContext *QScriptEngine::currentContext() const
 {
-    return d_func()->context();
+    Q_D(const QScriptEngine);
+    return d->context();
 }
 
 /*!
@@ -605,7 +627,8 @@ QScriptContext *QScriptEngine::currentContext() const
 */
 QList<QScriptValue> QScriptEngine::rootObjects() const
 {
-    return d_func()->rootObjects;
+    Q_D(const QScriptEngine);
+    return d->rootObjects;
 }
 
 /*!
@@ -666,7 +689,8 @@ int QScriptEngine::uncaughtExceptionLineNumber() const
 */
 QScriptValue QScriptEngine::defaultPrototype(int metaTypeId) const
 {
-    QScriptCustomTypeInfo info = d_func()->m_customTypes.value(metaTypeId);
+    Q_D(const QScriptEngine);
+    QScriptCustomTypeInfo info = d->m_customTypes.value(metaTypeId);
     return info.prototype;
 }
 
@@ -677,13 +701,14 @@ QScriptValue QScriptEngine::defaultPrototype(int metaTypeId) const
 */
 void QScriptEngine::setDefaultPrototype(int metaTypeId, const QScriptValue &prototype)
 {
-    QScriptCustomTypeInfo info = d_func()->m_customTypes.value(metaTypeId);
+    Q_D(QScriptEngine);
+    QScriptCustomTypeInfo info = d->m_customTypes.value(metaTypeId);
     if (info.prototype.isValid())
         removeRootObject(info.prototype);
     info.prototype = prototype;
     if (prototype.isValid())
         addRootObject(prototype);
-    d_func()->m_customTypes.insert(metaTypeId, info);
+    d->m_customTypes.insert(metaTypeId, info);
 }
 
 /*!
@@ -711,7 +736,8 @@ void QScriptEngine::setDefaultPrototype(int metaTypeId, const QScriptValue &prot
 */
 QScriptValue QScriptEngine::create(int type, const void *ptr)
 {
-    return d_func()->create(type, ptr);
+    Q_D(QScriptEngine);
+    return d->create(type, ptr);
 }
 
 /*!
@@ -719,7 +745,8 @@ QScriptValue QScriptEngine::create(int type, const void *ptr)
 */
 bool QScriptEngine::convert(const QScriptValue &value, int type, void *ptr)
 {
-    return d_func()->convert(value, type, ptr);
+    Q_D(QScriptEngine);
+    return d->convert(value, type, ptr);
 }
 
 /*!
@@ -729,7 +756,8 @@ void QScriptEngine::registerCustomType(int type, MarshallFunction mf,
                                        DemarshallFunction df,
                                        const QScriptValue &prototype)
 {
-    QScriptCustomTypeInfo info = d_func()->m_customTypes.value(type);
+    Q_D(QScriptEngine);
+    QScriptCustomTypeInfo info = d->m_customTypes.value(type);
     if (info.prototype.isValid())
         removeRootObject(info.prototype);
     info.marshall = mf;
@@ -737,7 +765,7 @@ void QScriptEngine::registerCustomType(int type, MarshallFunction mf,
     info.prototype = prototype;
     if (prototype.isValid())
         addRootObject(prototype);
-    d_func()->m_customTypes.insert(type, info);
+    d->m_customTypes.insert(type, info);
 }
 
 /*! \fn QScriptValue QScriptEngine::scriptValueFromValue(const T &value)
