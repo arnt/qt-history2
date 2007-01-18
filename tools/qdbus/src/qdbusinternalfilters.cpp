@@ -158,12 +158,25 @@ QDBusMessage qDBusPropertyGet(const QDBusConnectionPrivate::ObjectTreeNode *node
     if (node->flags & QDBusConnection::ExportAdaptors &&
         (connector = qDBusFindAdaptorConnector(node->obj))) {
 
-        // find the class that implements interface_name
-        QDBusAdaptorConnector::AdaptorMap::ConstIterator it;
-        it = qLowerBound(connector->adaptors.constBegin(), connector->adaptors.constEnd(),
-                         interface_name);
-        if (it != connector->adaptors.constEnd() && interface_name == QLatin1String(it->interface))
-            value = it->adaptor->property(property_name);
+        // find the class that implements interface_name or try until we've found the property
+        // in case of an empty interface
+        if (interface_name.isEmpty()) {
+            for (QDBusAdaptorConnector::AdaptorMap::ConstIterator it = connector->adaptors.constBegin(),
+                 end = connector->adaptors.constEnd(); it != end; ++it) {
+                const QMetaObject *mo = it->adaptor->metaObject();
+                int pidx = mo->indexOfProperty(property_name);
+                if (pidx != -1) {
+                    value = mo->property(pidx).read(it->adaptor);
+                    break;
+                }
+            }
+        } else {
+            QDBusAdaptorConnector::AdaptorMap::ConstIterator it;
+            it = qLowerBound(connector->adaptors.constBegin(), connector->adaptors.constEnd(),
+                             interface_name);
+            if (it != connector->adaptors.constEnd() && interface_name == QLatin1String(it->interface))
+                value = it->adaptor->property(property_name);
+        }
     }
 
     if (!value.isValid() && node->flags & (QDBusConnection::ExportScriptableProperties |
@@ -198,13 +211,26 @@ QDBusMessage qDBusPropertySet(const QDBusConnectionPrivate::ObjectTreeNode *node
     if (node->flags & QDBusConnection::ExportAdaptors &&
         (connector = qDBusFindAdaptorConnector(node->obj))) {
 
-        // find the class that implements interface_name
-        QDBusAdaptorConnector::AdaptorMap::ConstIterator it;
-        it = qLowerBound(connector->adaptors.constBegin(), connector->adaptors.constEnd(),
-                         interface_name);
-        if (it != connector->adaptors.end() && interface_name == QLatin1String(it->interface))
-            if (it->adaptor->setProperty(property_name, value))
-                return msg.createReply();
+        // find the class that implements interface_name or try until we've found the property
+        // in case of an empty interface
+        if (interface_name.isEmpty()) {
+            for (QDBusAdaptorConnector::AdaptorMap::ConstIterator it = connector->adaptors.constBegin(),
+                 end = connector->adaptors.constEnd(); it != end; ++it) {
+                const QMetaObject *mo = it->adaptor->metaObject();
+                int pidx = mo->indexOfProperty(property_name);
+                if (pidx != -1) {
+                    mo->property(pidx).write(it->adaptor, value);
+                    return msg.createReply();
+                }
+            }
+        } else {
+            QDBusAdaptorConnector::AdaptorMap::ConstIterator it;
+            it = qLowerBound(connector->adaptors.constBegin(), connector->adaptors.constEnd(),
+                             interface_name);
+            if (it != connector->adaptors.end() && interface_name == QLatin1String(it->interface))
+                if (it->adaptor->setProperty(property_name, value))
+                    return msg.createReply();
+        }
     }
 
     if (node->flags & (QDBusConnection::ExportScriptableProperties |
