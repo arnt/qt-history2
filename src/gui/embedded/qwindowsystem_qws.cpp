@@ -1893,12 +1893,10 @@ void QWSServer::setMaxWindowRect(const QRect &rect)
 
     for (int i = 0; i < subScreens.size(); ++i) {
         const QScreen *screen = subScreens.at(i);
-        const QRect screenRect = (screen->region() & rect).boundingRect();
-        if (screenRect.isEmpty())
+        const QRect r = (screen->region() & rect).boundingRect();
+        if (r.isEmpty())
             continue;
 
-        const QSize screenSize(screen->width(), screen->height());
-        const QRect r = screen->mapToDevice(screenRect, screenSize);
         QApplicationPrivate *ap = QApplicationPrivate::instance();
         if (ap->maxWindowRect(screen) != r) {
             ap->setMaxWindowRect(screen, r);
@@ -2325,7 +2323,7 @@ void QWSServer::endDisplayReconfigure()
 #endif
     QApplicationPrivate *ap = QApplicationPrivate::instance();
     ap->setMaxWindowRect(qt_screen,
-                         QRect(0, 0, qt_screen->deviceWidth(), qt_screen->deviceHeight()));
+                         QRect(0, 0, qt_screen->width(), qt_screen->height()));
     QSize olds = qApp->desktop()->size();
     qApp->desktop()->resize(qt_screen->width(), qt_screen->height());
     qApp->postEvent(qApp->desktop(), new QResizeEvent(qApp->desktop()->size(), olds));

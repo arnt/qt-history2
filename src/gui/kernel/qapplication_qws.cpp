@@ -195,11 +195,8 @@ static void setMaxWindowRect(const QRect &rect)
         }
     }
 
-    const QSize devSize(screen->deviceWidth(), screen->deviceHeight());
-    QRect r = screen->mapFromDevice(rect, devSize);
-
     QApplicationPrivate *ap = QApplicationPrivate::instance();
-    ap->setMaxWindowRect(screen, r);
+    ap->setMaxWindowRect(screen, rect);
 }
 
 void QApplicationPrivate::setMaxWindowRect(const QScreen *screen,
