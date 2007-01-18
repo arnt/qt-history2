@@ -2080,6 +2080,7 @@ void QTreeView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
 {
     Q_D(QTreeView);
     d->rowsRemoved(parent, start, end, false);
+    QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
 }
 
 /*!
