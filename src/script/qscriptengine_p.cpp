@@ -46,34 +46,35 @@ namespace QScript {
 class EvalFunction : public QScriptFunction
 {
 public:
-    EvalFunction(QScriptEngine *eng):
-        m_compiler(eng), m_driver(QScriptEnginePrivate::get(eng))
-    {
-        m_compiler.setTopLevelCompiler(true);
-        length = 1;
-    }
+    EvalFunction(QScriptEngine *)
+    { length = 1; }
 
     virtual ~EvalFunction() {}
 
     void evaluate(QScriptContext *context, QString contents, int lineNo, bool calledFromScript)
     {
-         if (! contents.endsWith(QLatin1Char('\n')))
-             contents += QLatin1Char('\n'); // ### kill me
+        if (! contents.endsWith(QLatin1Char('\n')))
+            contents += QLatin1Char('\n'); // ### kill me
 
-        QScript::AST::Node *program = m_driver->createAbstractSyntaxTree(contents, lineNo);
+        QScriptEngine *engine = context->engine();
+        QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine);
+
+        QScript::AST::Node *program = eng_p->createAbstractSyntaxTree(contents, lineNo);
 
         if (! program) {
-            context->throwError(QScriptContext::SyntaxError, m_driver->errorMessage());
+            context->throwError(QScriptContext::SyntaxError, eng_p->errorMessage());
             return;
         }
 
-        QScript::CompilationUnit compilation = m_compiler.compile(program);
+        QScript::Compiler compiler(engine);
+        compiler.setTopLevelCompiler(true);
+        QScript::CompilationUnit compilation = compiler.compile(program);
         if (! compilation.isValid()) {
             context->throwError(compilation.errorMessage());
             return;
         }
 
-        QScript::Code *code = m_driver->createCompiledCode(program, compilation);
+        QScript::Code *code = eng_p->createCompiledCode(program, compilation);
 
         if (calledFromScript) {
             if (QScriptContext *parentContext = context->parentContext()) {
@@ -104,10 +105,6 @@ public:
             }
         }
     }
-
-private:
-    QScript::Compiler m_compiler;
-    QScriptEnginePrivate *m_driver;
 };
 
 class WithClassData: public QScriptClassData
