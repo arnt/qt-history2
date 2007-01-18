@@ -127,6 +127,7 @@ public:
 
     // Variables.
     QPointer<QWidget> baseWidget;
+    QPointer<QWidget> restoreFocusWidget;
     QPointer<ControlContainer> controlContainer;
     QRubberBand *rubberBand;
     QPoint mousePressPosition;
@@ -183,6 +184,7 @@ public:
     QPalette desktopPalette() const;
     void updateActions();
     void setFocusWidget();
+    void restoreFocus();
     void setWindowFlags(Qt::WindowFlags windowFlags);
     void setEnabled(WindowStateAction, bool enable = true);
     void setVisible(WindowStateAction, bool visible = true);

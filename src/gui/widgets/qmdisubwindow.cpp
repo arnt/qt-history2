@@ -568,6 +568,7 @@ void ControlContainer::removeButtonsFromMenuBar()
 */
 QMdiSubWindowPrivate::QMdiSubWindowPrivate()
     : baseWidget(0),
+      restoreFocusWidget(0),
       controlContainer(0),
       rubberBand(0),
       isResizeEnabled(true),
@@ -891,7 +892,8 @@ void QMdiSubWindowPrivate::setMinimizeMode()
 */
 void QMdiSubWindowPrivate::setNormalMode()
 {
-    Q_ASSERT(q_func()->parent());
+    Q_Q(QMdiSubWindow);
+    Q_ASSERT(q->parent());
 
     isShadeMode = false;
     ensureWindowState(Qt::WindowNoState);
@@ -916,6 +918,7 @@ void QMdiSubWindowPrivate::setNormalMode()
     Q_ASSERT(!isShadeMode);
 
     setActive(true);
+    restoreFocus();
 }
 
 /*!
@@ -925,6 +928,9 @@ void QMdiSubWindowPrivate::setMaximizeMode()
 {
     Q_Q(QMdiSubWindow);
     Q_ASSERT(q->parent());
+
+    if (!restoreFocusWidget && q->isAncestorOf(QApplication::focusWidget()))
+        restoreFocusWidget = QApplication::focusWidget();
 
     ensureWindowState(Qt::WindowMaximized);
     if (baseWidget)
@@ -955,6 +961,7 @@ void QMdiSubWindowPrivate::setMaximizeMode()
     Q_ASSERT(!(q->windowState() & Qt::WindowMinimized));
 
     isShadeMode = false;
+    restoreFocus();
 }
 
 /*!
@@ -1454,8 +1461,14 @@ void QMdiSubWindowPrivate::setFocusWidget()
         return;
     }
 
-    if (baseWidget->focusWidget()) {
-        baseWidget->focusWidget()->setFocus();
+    if (QWidget *focusWidget = baseWidget->focusWidget()) {
+        if (!focusWidget->hasFocus() && q->isAncestorOf(focusWidget)
+                && focusWidget->isVisible()
+                && focusWidget->focusPolicy() != Qt::NoFocus) {
+            focusWidget->setFocus();
+        } else {
+            q->setFocus();
+        }
         return;
     }
 
@@ -1468,6 +1481,18 @@ void QMdiSubWindowPrivate::setFocusWidget()
         baseWidget->setFocus();
     else if (!q->hasFocus())
         q->setFocus();
+}
+
+void QMdiSubWindowPrivate::restoreFocus()
+{
+    if (!restoreFocusWidget)
+        return;
+    if (!restoreFocusWidget->hasFocus() && q_func()->isAncestorOf(restoreFocusWidget)
+            && restoreFocusWidget->isVisible()
+            && restoreFocusWidget->focusPolicy() != Qt::NoFocus) {
+        restoreFocusWidget->setFocus();
+    }
+    restoreFocusWidget = 0;
 }
 
 /*!
@@ -1825,20 +1850,27 @@ void QMdiSubWindow::showShaded()
     if (!d->isShadeRequestFromMinimizeMode && isShaded())
         return;
 
+    QWidget *currentFocusWidget = QApplication::focusWidget();
+    if (!d->restoreFocusWidget && isAncestorOf(currentFocusWidget))
+        d->restoreFocusWidget = currentFocusWidget;
+
     if (!d->isShadeRequestFromMinimizeMode) {
         d->isShadeMode = true;
         d->ensureWindowState(Qt::WindowMinimized);
     }
+
     d->removeButtonsFromMenuBar();
     if (d->baseWidget)
         d->baseWidget->hide();
+
     // showMinimized() will reset Qt::WindowActive, which makes sense
     // for top level widgets, but in MDI it makes sense to have an
     // active window which is minimized.
-    if (hasFocus() || isAncestorOf(QApplication::focusWidget()))
+    if (hasFocus() || isAncestorOf(currentFocusWidget))
         d->ensureWindowState(Qt::WindowActive);
-    d->updateGeometryConstraints();
+    setFocus();
 
+    d->updateGeometryConstraints();
     d->oldGeometry = geometry();
     resize(d->internalMinimumSize);
     d->isResizeEnabled = false;
