@@ -282,8 +282,15 @@ QScriptValue QScriptValue::prototype() const
 */
 void QScriptValue::setPrototype(const QScriptValue &prototype)
 {
-    if (isObject())
+    if (isObject()) {
+        if (prototype.isValid() && (prototype.engine() != engine())) {
+            qWarning("QScriptValue::setPrototype() failed: "
+                     "cannot set a prototype created in "
+                     "a different engine");
+            return;
+        }
         m_object_value->m_prototype = prototype;
+    }
 }
 
 /*!
@@ -342,6 +349,13 @@ bool QScriptValue::lessThan(const QScriptValue &other) const
     if (!isValid() || !other.isValid())
         return false;
 
+    if (other.engine() != engine()) {
+        qWarning("QScriptValue::lessThan: "
+                 "cannot compare to a value created in "
+                 "a different engine");
+        return false;
+    }
+
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
     return eng_p->lessThan(*this, other);
 }
@@ -357,6 +371,13 @@ bool QScriptValue::equalTo(const QScriptValue &other) const
     if (!isValid() || !other.isValid())
         return isValid() == other.isValid();
 
+    if (other.engine() != engine()) {
+        qWarning("QScriptValue::equalTo: "
+                 "cannot compare to a value created in "
+                 "a different engine");
+        return false;
+    }
+
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
     return eng_p->equalTo(*this, other);
 }
@@ -371,6 +392,13 @@ bool QScriptValue::strictEqualTo(const QScriptValue &other) const
 {
     if (!isValid() || !other.isValid())
         return isValid() == other.isValid();
+
+    if (other.engine() != engine()) {
+        qWarning("QScriptValue::strictEqualTo: "
+                 "cannot compare to a value created in "
+                 "a different engine");
+        return false;
+    }
 
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
     return eng_p->strictEqualTo(*this, other);
@@ -664,6 +692,12 @@ void QScriptValue::setProperty(const QScriptNameId &nameId,
     if (!isObject())
         return;
 
+    if (value.isValid() && (value.engine() != engine())) {
+        qWarning("QScriptValue::setProperty() failed: "
+                 "cannot set value created in a different engine");
+        return;
+    }
+
     QScriptValue base;
     QScript::Member member;
 
@@ -785,6 +819,12 @@ void QScriptValue::setProperty(quint32 arrayIndex, const QScriptValue &value,
     if (!isObject())
         return;
 
+    if (value.isValid() && (value.engine() != engine())) {
+        qWarning("QScriptValue::setProperty() failed: "
+                 "cannot set value created in a different engine");
+        return;
+    }
+
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
     QScript::Ecma::Array::Instance *instance = eng_p->arrayConstructor->get(*this);
     if (instance) {
@@ -859,6 +899,13 @@ QScriptValue QScriptValue::call(const QScriptValue &thisObject,
     if (!isFunction())
         return QScriptValue();
 
+    if (thisObject.isValid() && (thisObject.engine() != engine())) {
+        qWarning("QScriptValue::call() failed: "
+                 "cannot call function with thisObject created in "
+                 "a different engine");
+        return QScriptValue();
+    }
+
     QScriptEngine *eng = engine();
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
 
@@ -890,7 +937,14 @@ QScriptValue QScriptValue::call(const QScriptValue &thisObject,
             nameId = function->formals.at(i);
 
         activation_data->m_members[i].object(nameId, i, SkipInEnumeration);
-        activation_data->m_objects[i] = (i < argc) ? args.at(i) : undefined;
+        QScriptValue arg = (i < argc) ? args.at(i) : undefined;
+        if (arg.isValid() && (arg.engine() != eng)) {
+            qWarning("QScriptValue::call() failed: "
+                     "cannot call function with argument created in "
+                     "a different engine");
+            return QScriptValue();
+        }
+        activation_data->m_objects[i] = arg;
     }
 
     nested->argc = argc;

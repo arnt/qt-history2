@@ -615,6 +615,12 @@ void tst_QScriptValue::getSetProperty()
     array.setProperty("length", eng.scriptValue(1));
     QCOMPARE(array.property("length").toUInt32(), quint32(1));
     QCOMPARE(array.property(1).isValid(), false);
+
+    QScriptEngine otherEngine;
+    num = otherEngine.scriptValue(123);
+    QTest::ignoreMessage(QtWarningMsg, "QScriptValue::setProperty() failed: cannot set value created in a different engine");
+    object.setProperty("oof", num);
+    QCOMPARE(object.property("oof").isValid(), false);
 }
 
 void tst_QScriptValue::getSetPrototype()
@@ -622,17 +628,21 @@ void tst_QScriptValue::getSetPrototype()
     QScriptEngine eng;
 
     QScriptValue object = eng.newObject();
-    object.setProperty("foo", eng.scriptValue("bar"));
 
     QScriptValue object2 = eng.newObject();
     object2.setPrototype(object);
 
-    QCOMPARE(object2.prototype().isObject(), true);
-    QCOMPARE(object2.prototype().property("foo").toString(), object.property("foo").toString());
+    QCOMPARE(object2.prototype().strictEqualTo(object), true);
 
     QScriptValue inv;
     inv.setPrototype(object);
     QCOMPARE(inv.prototype().isValid(), false);
+
+    QScriptEngine otherEngine;
+    QScriptValue object3 = otherEngine.newObject();
+    QTest::ignoreMessage(QtWarningMsg, "QScriptValue::setPrototype() failed: cannot set a prototype created in a different engine");
+    object2.setPrototype(object3);
+    QCOMPARE(object2.prototype().strictEqualTo(object), true);
 }
 
 void tst_QScriptValue::call()
@@ -705,6 +715,19 @@ void tst_QScriptValue::call()
 
     QScriptValue inv;
     QCOMPARE(inv.call().isValid(), false);
+
+    {
+        QScriptEngine otherEngine;
+        QScriptValue fun = otherEngine.evaluate("function() { return 1; }");
+        QTest::ignoreMessage(QtWarningMsg, "QScriptValue::call() failed: "
+                             "cannot call function with thisObject created in "
+                             "a different engine");
+        QCOMPARE(fun.call(Object).isValid(), false);
+        QTest::ignoreMessage(QtWarningMsg, "QScriptValue::call() failed: "
+                             "cannot call function with argument created in "
+                             "a different engine");
+        QCOMPARE(fun.call(QScriptValue(), QScriptValueList() << eng.scriptValue(123)).isValid(), false);
+    }
 }
 
 void tst_QScriptValue::lessThan()
@@ -767,6 +790,12 @@ void tst_QScriptValue::lessThan()
     QCOMPARE(date1.lessThan(QScriptValue()), false);
 
     QCOMPARE(QScriptValue().lessThan(date2), false);
+
+    QScriptEngine otherEngine;
+    QTest::ignoreMessage(QtWarningMsg, "QScriptValue::lessThan: "
+                         "cannot compare to a value created in "
+                         "a different engine");
+    QCOMPARE(date1.lessThan(otherEngine.scriptValue(123)), false);
 }
 
 void tst_QScriptValue::equalTo()
@@ -816,6 +845,12 @@ void tst_QScriptValue::equalTo()
     QCOMPARE(obj2.equalTo(obj1), false);
     QCOMPARE(obj1.equalTo(obj1), true);
     QCOMPARE(obj2.equalTo(obj2), true);
+
+    QScriptEngine otherEngine;
+    QTest::ignoreMessage(QtWarningMsg, "QScriptValue::equalTo: "
+                         "cannot compare to a value created in "
+                         "a different engine");
+    QCOMPARE(date1.equalTo(otherEngine.scriptValue(123)), false);
 }
 
 void tst_QScriptValue::strictEqualTo()
@@ -861,6 +896,12 @@ void tst_QScriptValue::strictEqualTo()
     QCOMPARE(obj2.strictEqualTo(obj1), false);
     QCOMPARE(obj1.strictEqualTo(obj1), true);
     QCOMPARE(obj2.strictEqualTo(obj2), true);
+
+    QScriptEngine otherEngine;
+    QTest::ignoreMessage(QtWarningMsg, "QScriptValue::strictEqualTo: "
+                         "cannot compare to a value created in "
+                         "a different engine");
+    QCOMPARE(date1.strictEqualTo(otherEngine.scriptValue(123)), false);
 }
 
 QTEST_MAIN(tst_QScriptValue)
