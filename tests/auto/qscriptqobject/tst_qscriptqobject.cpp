@@ -230,36 +230,44 @@ void tst_QScriptExtQObject::getSetStaticProperty()
     QCOMPARE(m_engine->evaluate("myObject.noSuchProperty").isUndefined(), true);
 
     // initial value (set in MyQObject constructor)
-    QCOMPARE(m_engine->evaluate("myObject.intProperty").toNumber(), 123.0);
-    QCOMPARE(m_engine->evaluate("myObject.variantProperty").toString(), QLatin1String("foo"));
+    QCOMPARE(m_engine->evaluate("myObject.intProperty")
+             .strictEqualTo(m_engine->scriptValue(123.0)), true);
+    QCOMPARE(m_engine->evaluate("myObject.variantProperty")
+             .equalTo(m_engine->scriptValue(QLatin1String("foo"))), true);
 
     // property change in C++ should be reflected in script
     m_myObject->setIntProperty(456);
-    QCOMPARE(m_engine->evaluate("myObject.intProperty").toNumber(), 456.0);
+    QCOMPARE(m_engine->evaluate("myObject.intProperty")
+             .strictEqualTo(m_engine->scriptValue(456)), true);
     m_myObject->setIntProperty(789);
-    QCOMPARE(m_engine->evaluate("myObject.intProperty").toNumber(), 789.0);
+    QCOMPARE(m_engine->evaluate("myObject.intProperty")
+             .strictEqualTo(m_engine->scriptValue(789)), true);
 
     m_myObject->setVariantProperty(QLatin1String("bar"));
-    QCOMPARE(m_engine->evaluate("myObject.variantProperty").toString(), QLatin1String("bar"));
+    QCOMPARE(m_engine->evaluate("myObject.variantProperty")
+             .equalTo(m_engine->scriptValue(QLatin1String("bar"))), true);
     m_myObject->setVariantProperty(42);
-    QCOMPARE(m_engine->evaluate("myObject.variantProperty").toNumber(), 42.0);
+    QCOMPARE(m_engine->evaluate("myObject.variantProperty")
+             .equalTo(m_engine->scriptValue(42)), true);
 
     // property change in script should be reflected in C++
     QCOMPARE(m_engine->evaluate("myObject.intProperty = 123;"
-                          "myObject.intProperty").toNumber(), 123.0);
+                                "myObject.intProperty")
+             .strictEqualTo(m_engine->scriptValue(123)), true);
     QCOMPARE(m_myObject->intProperty(), 123);
     QCOMPARE(m_engine->evaluate("myObject.intProperty = \"ciao!\";"
-                          "myObject.intProperty").toNumber(), 0.0);
+                                "myObject.intProperty").toNumber(), 0.0);
     QCOMPARE(m_myObject->intProperty(), 0);
     QCOMPARE(m_engine->evaluate("myObject.intProperty = \"123\";"
-                          "myObject.intProperty").toNumber(), 123.0);
+                                "myObject.intProperty")
+             .strictEqualTo(m_engine->scriptValue(123)), true);
     QCOMPARE(m_myObject->intProperty(), 123);
 
     QCOMPARE(m_engine->evaluate("myObject.variantProperty = \"foo\";"
-                          "myObject.variantProperty").toString(), QLatin1String("foo"));
+                                "myObject.variantProperty").toString(), QLatin1String("foo"));
     QCOMPARE(m_myObject->variantProperty().toString(), QLatin1String("foo"));
     QCOMPARE(m_engine->evaluate("myObject.variantProperty = 42;"
-                          "myObject.variantProperty").toNumber(), 42.0);
+                                "myObject.variantProperty").toNumber(), 42.0);
     QCOMPARE(m_myObject->variantProperty().toDouble(), 42.0);
 
     // test setting properties where we can't convert the type natively but where the
@@ -299,16 +307,20 @@ void tst_QScriptExtQObject::getSetStaticProperty()
 void tst_QScriptExtQObject::getSetDynamicProperty()
 {
     // initially the object does not have the property
-    QCOMPARE(m_engine->evaluate("myObject.hasOwnProperty(\"dynamicProperty\")").toBoolean(), false);
+    QCOMPARE(m_engine->evaluate("myObject.hasOwnProperty(\"dynamicProperty\")")
+             .strictEqualTo(m_engine->scriptValue(false)), true);
 
     // add a dynamic property in C++
     QCOMPARE(m_myObject->setProperty("dynamicProperty", 123), false);
-    QCOMPARE(m_engine->evaluate("myObject.hasOwnProperty(\"dynamicProperty\")").toBoolean(), true);
-    QCOMPARE(m_engine->evaluate("myObject.dynamicProperty").toNumber(), 123.0);
+    QCOMPARE(m_engine->evaluate("myObject.hasOwnProperty(\"dynamicProperty\")")
+             .strictEqualTo(m_engine->scriptValue(true)), true);
+    QCOMPARE(m_engine->evaluate("myObject.dynamicProperty")
+             .strictEqualTo(m_engine->scriptValue(123)), true);
 
     // property change in script should be reflected in C++
     QCOMPARE(m_engine->evaluate("myObject.dynamicProperty = \"foo\";"
-                             "myObject.dynamicProperty").toString(), QLatin1String("foo"));
+                                "myObject.dynamicProperty")
+             .strictEqualTo(m_engine->scriptValue(QLatin1String("foo"))), true);
     QCOMPARE(m_myObject->property("dynamicProperty").toString(), QLatin1String("foo"));
 
     // delete the property
@@ -320,25 +332,30 @@ void tst_QScriptExtQObject::getSetDynamicProperty()
 void tst_QScriptExtQObject::getSetChildren()
 {
     // initially the object does not have the child
-    QCOMPARE(m_engine->evaluate("myObject.hasOwnProperty(\"child\")").toBoolean(), false);
+    QCOMPARE(m_engine->evaluate("myObject.hasOwnProperty(\"child\")")
+             .strictEqualTo(m_engine->scriptValue(false)), true);
 
     // add a child
     MyQObject *child = new MyQObject(m_myObject);
     child->setObjectName("child");
-    QCOMPARE(m_engine->evaluate("myObject.hasOwnProperty(\"child\")").toBoolean(), true);
+    QCOMPARE(m_engine->evaluate("myObject.hasOwnProperty(\"child\")")
+             .strictEqualTo(m_engine->scriptValue(true)), true);
 
     // add a grandchild
     MyQObject *grandChild = new MyQObject(child);
     grandChild->setObjectName("grandChild");
-    QCOMPARE(m_engine->evaluate("myObject.child.hasOwnProperty(\"grandChild\")").toBoolean(), true);
+    QCOMPARE(m_engine->evaluate("myObject.child.hasOwnProperty(\"grandChild\")")
+             .strictEqualTo(m_engine->scriptValue(true)), true);
 
     // delete grandchild
     delete grandChild;
-    QCOMPARE(m_engine->evaluate("myObject.child.hasOwnProperty(\"grandChild\")").toBoolean(), false);
+    QCOMPARE(m_engine->evaluate("myObject.child.hasOwnProperty(\"grandChild\")")
+             .strictEqualTo(m_engine->scriptValue(false)), true);
 
     // delete child
     delete child;
-    QCOMPARE(m_engine->evaluate("myObject.hasOwnProperty(\"child\")").toBoolean(), false);
+    QCOMPARE(m_engine->evaluate("myObject.hasOwnProperty(\"child\")")
+             .strictEqualTo(m_engine->scriptValue(false)), true);
 
 }
 
@@ -416,12 +433,14 @@ void tst_QScriptExtQObject::callQtInvokable()
     QCOMPARE(m_myObject->qtFunctionActuals().at(1).toInt(), 456);
 
     m_myObject->resetQtFunctionInvoked();
-    QCOMPARE(m_engine->evaluate("myObject.myInvokableReturningInt()").toNumber(), 123.0);
+    QCOMPARE(m_engine->evaluate("myObject.myInvokableReturningInt()")
+             .strictEqualTo(m_engine->scriptValue(123)), true);
     QCOMPARE(m_myObject->qtFunctionInvoked(), 7);
     QCOMPARE(m_myObject->qtFunctionActuals(), QVariantList());
 
     m_myObject->resetQtFunctionInvoked();
-    QCOMPARE(m_engine->evaluate("myObject.myInvokableReturningString()").toString(), QLatin1String("ciao"));
+    QCOMPARE(m_engine->evaluate("myObject.myInvokableReturningString()")
+             .strictEqualTo(m_engine->scriptValue(QLatin1String("ciao"))), true);
     QCOMPARE(m_myObject->qtFunctionInvoked(), 8);
     QCOMPARE(m_myObject->qtFunctionActuals(), QVariantList());
 

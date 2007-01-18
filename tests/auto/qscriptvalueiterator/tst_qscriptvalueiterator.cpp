@@ -84,7 +84,7 @@ void tst_QScriptValueIterator::iterateForward()
         QString name = it.next();
         QCOMPARE(pmap.contains(name), true);
         QCOMPARE(it.name(), name);
-        QCOMPARE(it.value().toString(), pmap.value(name));
+        QCOMPARE(it.value().strictEqualTo(engine.scriptValue(pmap.value(name))), true);
         pmap.remove(name);
         lst.append(name);
     }
@@ -137,7 +137,7 @@ void tst_QScriptValueIterator::iterateBackward()
         QString name = it.previous();
         QCOMPARE(pmap.contains(name), true);
         QCOMPARE(it.name(), name);
-        QCOMPARE(it.value().toString(), pmap.value(name));
+        QCOMPARE(it.value().strictEqualTo(engine.scriptValue(pmap.value(name))), true);
         pmap.remove(name);
         lst.append(name);
     }
@@ -174,7 +174,7 @@ void tst_QScriptValueIterator::iterateArray()
         QCOMPARE(it.hasNext(), true);
         QString indexStr = engine.scriptValue(i).toString();
         QCOMPARE(it.next(), indexStr);
-        QCOMPARE(it.value().toString(), array.property(indexStr).toString());
+        QCOMPARE(it.value().strictEqualTo(array.property(indexStr)), true);
     }
     QCOMPARE(it.hasNext(), false);
 }
@@ -205,10 +205,10 @@ void tst_QScriptValueIterator::setValue()
     QScriptValueIterator it(object);
     QCOMPARE(it.next(), QLatin1String("foo"));
     it.setValue(engine.scriptValue("baz"));
-    QCOMPARE(it.value().toString(), QLatin1String("baz"));
+    QCOMPARE(it.value().strictEqualTo(engine.scriptValue(QLatin1String("baz"))), true);
     QCOMPARE(object.property("foo").toString(), QLatin1String("baz"));
     it.setValue(engine.scriptValue("zab"));
-    QCOMPARE(it.value().toString(), QLatin1String("zab"));
+    QCOMPARE(it.value().strictEqualTo(engine.scriptValue(QLatin1String("zab"))), true);
     QCOMPARE(object.property("foo").toString(), QLatin1String("zab"));
 }
 

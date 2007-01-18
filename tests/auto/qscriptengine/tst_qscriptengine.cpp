@@ -326,21 +326,19 @@ void tst_QScriptEngine::addRemoveRootObject()
     QCOMPARE(eng.rootObjects().size(), 0);
 
     QScriptValue object = eng.newObject();
-    object.setProperty("foo", eng.scriptValue("bar"));
     eng.addRootObject(object);
     QCOMPARE(eng.rootObjects().size(), 1);
-    QCOMPARE(eng.rootObjects().at(0).property("foo").toString(), QString("bar"));
+    QCOMPARE(eng.rootObjects().at(0).strictEqualTo(object), true);
 
     QScriptValue object2 = eng.newObject();
-    object2.setProperty("bar", eng.scriptValue("baz"));
     eng.addRootObject(object2);
     QCOMPARE(eng.rootObjects().size(), 2);
-    QCOMPARE(eng.rootObjects().at(0).property("foo").toString(), QString("bar"));
-    QCOMPARE(eng.rootObjects().at(1).property("bar").toString(), QString("baz"));
+    QCOMPARE(eng.rootObjects().at(0).strictEqualTo(object), true);
+    QCOMPARE(eng.rootObjects().at(1).strictEqualTo(object2), true);
 
     eng.removeRootObject(object);
     QCOMPARE(eng.rootObjects().size(), 1);
-    QCOMPARE(eng.rootObjects().at(0).property("bar").toString(), QString("baz"));
+    QCOMPARE(eng.rootObjects().at(0).strictEqualTo(object2), true);
 
     eng.removeRootObject(object2);
     QCOMPARE(eng.rootObjects().size(), 0);
@@ -348,14 +346,15 @@ void tst_QScriptEngine::addRemoveRootObject()
     // test refcounting
     eng.addRootObject(object);
     QCOMPARE(eng.rootObjects().size(), 1);
-    QCOMPARE(eng.rootObjects().at(0).property("foo").toString(), QString("bar"));
+    QCOMPARE(eng.rootObjects().at(0).strictEqualTo(object), true);
 
     eng.addRootObject(object);
     QCOMPARE(eng.rootObjects().size(), 1);
-    QCOMPARE(eng.rootObjects().at(0).property("foo").toString(), QString("bar"));
+    QCOMPARE(eng.rootObjects().at(0).strictEqualTo(object), true);
 
     eng.removeRootObject(object);
     QCOMPARE(eng.rootObjects().size(), 1);
+    QCOMPARE(eng.rootObjects().at(0).strictEqualTo(object), true);
     eng.removeRootObject(object);
     QCOMPARE(eng.rootObjects().size(), 0);
 }

@@ -197,19 +197,19 @@ void tst_QScriptable::thisObject()
     m_engine.evaluate("o = { }; o.__proto__ = scriptable");
     {
         QScriptValue ret = m_engine.evaluate("o.setX(123); o.x");
-        QCOMPARE(ret.toNumber(), 123.0);
+        QCOMPARE(ret.strictEqualTo(m_engine.scriptValue(123)), true);
     }
     {
         QScriptValue ret = m_engine.evaluate("o.setX2(456); o.x");
-        QCOMPARE(ret.toNumber(), 456.0);
+        QCOMPARE(ret.strictEqualTo(m_engine.scriptValue(456)), true);
     }
     {
         QScriptValue ret = m_engine.evaluate("o.isBar()");
-        QCOMPARE(ret.toBoolean(), false);
+        QCOMPARE(ret.strictEqualTo(m_engine.scriptValue(false)), true);
     }
     {
         QScriptValue ret = m_engine.evaluate("o.toString = function() { return 'foo@bar'; }; o.isBar()");
-        QCOMPARE(ret.toBoolean(), true);
+        QCOMPARE(ret.strictEqualTo(m_engine.scriptValue(true)), true);
     }
 
     // property getter
