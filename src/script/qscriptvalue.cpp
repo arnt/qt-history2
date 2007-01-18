@@ -332,6 +332,51 @@ bool QScriptValue::instanceOf(const QScriptValue &ctorValue) const
 }
 
 /*!
+  Returns true if this QScriptValue is less than \a other, otherwise
+  returns false.  The comparison follows the behavior described in
+  \l{ECMA-262} section 11.8.5, "The Abstract Relational Comparison
+  Algorithm".
+*/
+bool QScriptValue::lessThan(const QScriptValue &other) const
+{
+    if (!isValid() || !other.isValid())
+        return false;
+
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+    return eng_p->lessThan(*this, other);
+}
+
+/*!
+  Returns true if this QScriptValue is equal to \a other, otherwise
+  returns false. The comparison follows the behavior described in
+  \l{ECMA-262} section 11.9.3, "The Abstract Equality Comparison
+  Algorithm".
+*/
+bool QScriptValue::equalTo(const QScriptValue &other) const
+{
+    if (!isValid() || !other.isValid())
+        return isValid() == other.isValid();
+
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+    return eng_p->equalTo(*this, other);
+}
+
+/*!
+  Returns true if this QScriptValue is equal to \a other using strict
+  comparison (no conversion), otherwise returns false. The comparison
+  follows the behavior described in \l{ECMA-262} section 11.9.6, "The
+  Strict Equality Comparison Algorithm".
+*/
+bool QScriptValue::strictEqualTo(const QScriptValue &other) const
+{
+    if (!isValid() || !other.isValid())
+        return isValid() == other.isValid();
+
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+    return eng_p->strictEqualTo(*this, other);
+}
+
+/*!
   Returns the string value of this QScriptValue, as defined in
   \l{ECMA-262} section 9.8, "ToString".
 

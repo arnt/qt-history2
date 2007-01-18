@@ -426,6 +426,10 @@ public:
     QScriptValue arrayFromStringList(const QStringList &lst);
     QStringList stringListFromArray(const QScriptValue &arr);
 
+    bool lessThan(const QScriptValue &lhs, const QScriptValue &rhs) const;
+    bool equalTo(const QScriptValue &lhs, const QScriptValue &rhs) const;
+    bool strictEqualTo(const QScriptValue &lhs, const QScriptValue &rhs) const;
+
 public: // attributes
     int m_gc_depth;
     QScriptValue globalObject;

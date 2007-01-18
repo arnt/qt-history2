@@ -250,7 +250,7 @@ public:
         return n1 <= n2;
     }
 
-    inline bool strict_eq_cmp(const QScriptValue &lhs, const QScriptValue &rhs)
+    inline static bool strict_eq_cmp(const QScriptValue &lhs, const QScriptValue &rhs)
     {
         if (type(lhs) != type(rhs))
             return false;

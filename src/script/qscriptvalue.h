@@ -110,6 +110,10 @@ public:
 
     bool instanceOf(const QScriptValue &ctor) const;
 
+    bool lessThan(const QScriptValue &other) const;
+    bool equalTo(const QScriptValue &other) const;
+    bool strictEqualTo(const QScriptValue &other) const;
+
     QScriptValue prototype() const;
     void setPrototype(const QScriptValue &prototype);
 

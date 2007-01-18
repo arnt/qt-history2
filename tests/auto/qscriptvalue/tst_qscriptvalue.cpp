@@ -42,6 +42,9 @@ private slots:
     void getSetProperty();
     void getSetPrototype();
     void call();
+    void lessThan();
+    void equalTo();
+    void strictEqualTo();
     // isXXX functions are tested in qscriptengine tests.
 };
 
@@ -702,6 +705,162 @@ void tst_QScriptValue::call()
 
     QScriptValue inv;
     QCOMPARE(inv.call().isValid(), false);
+}
+
+void tst_QScriptValue::lessThan()
+{
+    QScriptEngine eng;
+
+    QScriptValue num = eng.scriptValue(123);
+    QCOMPARE(num.lessThan(eng.scriptValue(124)), true);
+    QCOMPARE(num.lessThan(eng.scriptValue(122)), false);
+    QCOMPARE(num.lessThan(eng.scriptValue(123)), false);
+    QCOMPARE(num.lessThan(eng.scriptValue("124")), true);
+    QCOMPARE(num.lessThan(eng.scriptValue("122")), false);
+    QCOMPARE(num.lessThan(eng.scriptValue("123")), false);
+    QCOMPARE(num.lessThan(eng.scriptValue(qSNan())), false);
+    QCOMPARE(num.lessThan(eng.scriptValue(+qInf())), true);
+    QCOMPARE(num.lessThan(eng.scriptValue(-qInf())), false);
+    QCOMPARE(num.lessThan(num), false);
+    QCOMPARE(num.lessThan(eng.scriptValue(124).toObject()), true);
+    QCOMPARE(num.lessThan(eng.scriptValue(122).toObject()), false);
+    QCOMPARE(num.lessThan(eng.scriptValue(123).toObject()), false);
+    QCOMPARE(num.lessThan(eng.scriptValue("124").toObject()), true);
+    QCOMPARE(num.lessThan(eng.scriptValue("122").toObject()), false);
+    QCOMPARE(num.lessThan(eng.scriptValue("123").toObject()), false);
+    QCOMPARE(num.lessThan(eng.scriptValue(qSNan()).toObject()), false);
+    QCOMPARE(num.lessThan(eng.scriptValue(+qInf()).toObject()), true);
+    QCOMPARE(num.lessThan(eng.scriptValue(-qInf()).toObject()), false);
+    QCOMPARE(num.lessThan(num.toObject()), false);
+    QCOMPARE(num.lessThan(QScriptValue()), false);
+
+    QScriptValue str = eng.scriptValue("123");
+    QCOMPARE(str.lessThan(eng.scriptValue("124")), true);
+    QCOMPARE(str.lessThan(eng.scriptValue("122")), false);
+    QCOMPARE(str.lessThan(eng.scriptValue("123")), false);
+    QCOMPARE(str.lessThan(eng.scriptValue(124)), true);
+    QCOMPARE(str.lessThan(eng.scriptValue(122)), false);
+    QCOMPARE(str.lessThan(eng.scriptValue(123)), false);
+    QCOMPARE(str.lessThan(str), false);
+    QCOMPARE(str.lessThan(eng.scriptValue("124").toObject()), true);
+    QCOMPARE(str.lessThan(eng.scriptValue("122").toObject()), false);
+    QCOMPARE(str.lessThan(eng.scriptValue("123").toObject()), false);
+    QCOMPARE(str.lessThan(eng.scriptValue(124).toObject()), true);
+    QCOMPARE(str.lessThan(eng.scriptValue(122).toObject()), false);
+    QCOMPARE(str.lessThan(eng.scriptValue(123).toObject()), false);
+    QCOMPARE(str.lessThan(str.toObject()), false);
+    QCOMPARE(str.lessThan(QScriptValue()), false);
+
+    QScriptValue obj1 = eng.newObject();
+    QScriptValue obj2 = eng.newObject();
+    QCOMPARE(obj1.lessThan(obj2), false);
+    QCOMPARE(obj2.lessThan(obj1), false);
+    QCOMPARE(obj1.lessThan(obj1), false);
+    QCOMPARE(obj2.lessThan(obj2), false);
+
+    QScriptValue date1 = eng.newDate(QDateTime(QDate(2000, 1, 1)));
+    QScriptValue date2 = eng.newDate(QDateTime(QDate(1999, 1, 1)));
+    QCOMPARE(date1.lessThan(date2), false);
+    QCOMPARE(date2.lessThan(date1), true);
+    QCOMPARE(date1.lessThan(date1), false);
+    QCOMPARE(date2.lessThan(date2), false);
+    QCOMPARE(date1.lessThan(QScriptValue()), false);
+
+    QCOMPARE(QScriptValue().lessThan(date2), false);
+}
+
+void tst_QScriptValue::equalTo()
+{
+    QScriptEngine eng;
+
+    QScriptValue num = eng.scriptValue(123);
+    QCOMPARE(num.equalTo(eng.scriptValue(123)), true);
+    QCOMPARE(num.equalTo(eng.scriptValue(321)), false);
+    QCOMPARE(num.equalTo(eng.scriptValue("123")), true);
+    QCOMPARE(num.equalTo(eng.scriptValue("321")), false);
+    QCOMPARE(num.equalTo(eng.scriptValue(123).toObject()), true);
+    QCOMPARE(num.equalTo(eng.scriptValue(321).toObject()), false);
+    QCOMPARE(num.equalTo(eng.scriptValue("123").toObject()), true);
+    QCOMPARE(num.equalTo(eng.scriptValue("321").toObject()), false);
+    QCOMPARE(num.equalTo(QScriptValue()), false);
+
+    QScriptValue str = eng.scriptValue("123");
+    QCOMPARE(str.equalTo(eng.scriptValue("123")), true);
+    QCOMPARE(str.equalTo(eng.scriptValue("321")), false);
+    QCOMPARE(str.equalTo(eng.scriptValue(123)), true);
+    QCOMPARE(str.equalTo(eng.scriptValue(321)), false);
+    QCOMPARE(str.equalTo(eng.scriptValue("123").toObject()), true);
+    QCOMPARE(str.equalTo(eng.scriptValue("321").toObject()), false);
+    QCOMPARE(str.equalTo(eng.scriptValue(123).toObject()), true);
+    QCOMPARE(str.equalTo(eng.scriptValue(321).toObject()), false);
+    QCOMPARE(str.equalTo(QScriptValue()), false);
+
+    QScriptValue date1 = eng.newDate(QDateTime(QDate(2000, 1, 1)));
+    QScriptValue date2 = eng.newDate(QDateTime(QDate(1999, 1, 1)));
+    QCOMPARE(date1.equalTo(date2), false);
+    QCOMPARE(date1.equalTo(date1), true);
+    QCOMPARE(date2.equalTo(date2), true);
+
+    QScriptValue undefined = eng.undefinedScriptValue();
+    QScriptValue null = eng.nullScriptValue();
+    QCOMPARE(undefined.equalTo(undefined), true);
+    QCOMPARE(null.equalTo(null), true);
+    QCOMPARE(undefined.equalTo(null), true);
+    QCOMPARE(null.equalTo(undefined), true);
+    QCOMPARE(undefined.equalTo(QScriptValue()), false);
+    QCOMPARE(null.equalTo(QScriptValue()), false);
+
+    QScriptValue obj1 = eng.newObject();
+    QScriptValue obj2 = eng.newObject();
+    QCOMPARE(obj1.equalTo(obj2), false);
+    QCOMPARE(obj2.equalTo(obj1), false);
+    QCOMPARE(obj1.equalTo(obj1), true);
+    QCOMPARE(obj2.equalTo(obj2), true);
+}
+
+void tst_QScriptValue::strictEqualTo()
+{
+    QScriptEngine eng;
+
+    QScriptValue num = eng.scriptValue(123);
+    QCOMPARE(num.strictEqualTo(eng.scriptValue(123)), true);
+    QCOMPARE(num.strictEqualTo(eng.scriptValue(321)), false);
+    QCOMPARE(num.strictEqualTo(eng.scriptValue("123")), false);
+    QCOMPARE(num.strictEqualTo(eng.scriptValue("321")), false);
+    QCOMPARE(num.strictEqualTo(eng.scriptValue(123).toObject()), false);
+    QCOMPARE(num.strictEqualTo(eng.scriptValue(321).toObject()), false);
+    QCOMPARE(num.strictEqualTo(eng.scriptValue("123").toObject()), false);
+    QCOMPARE(num.strictEqualTo(eng.scriptValue("321").toObject()), false);
+
+    QScriptValue str = eng.scriptValue("123");
+    QCOMPARE(str.strictEqualTo(eng.scriptValue("123")), true);
+    QCOMPARE(str.strictEqualTo(eng.scriptValue("321")), false);
+    QCOMPARE(str.strictEqualTo(eng.scriptValue(123)), false);
+    QCOMPARE(str.strictEqualTo(eng.scriptValue(321)), false);
+    QCOMPARE(str.strictEqualTo(eng.scriptValue("123").toObject()), false);
+    QCOMPARE(str.strictEqualTo(eng.scriptValue("321").toObject()), false);
+    QCOMPARE(str.strictEqualTo(eng.scriptValue(123).toObject()), false);
+    QCOMPARE(str.strictEqualTo(eng.scriptValue(321).toObject()), false);
+
+    QScriptValue date1 = eng.newDate(QDateTime(QDate(2000, 1, 1)));
+    QScriptValue date2 = eng.newDate(QDateTime(QDate(1999, 1, 1)));
+    QCOMPARE(date1.strictEqualTo(date2), false);
+    QCOMPARE(date1.strictEqualTo(date1), true);
+    QCOMPARE(date2.strictEqualTo(date2), true);
+
+    QScriptValue undefined = eng.undefinedScriptValue();
+    QScriptValue null = eng.nullScriptValue();
+    QCOMPARE(undefined.strictEqualTo(undefined), true);
+    QCOMPARE(null.strictEqualTo(null), true);
+    QCOMPARE(undefined.strictEqualTo(null), false);
+    QCOMPARE(null.strictEqualTo(undefined), false);
+
+    QScriptValue obj1 = eng.newObject();
+    QScriptValue obj2 = eng.newObject();
+    QCOMPARE(obj1.strictEqualTo(obj2), false);
+    QCOMPARE(obj2.strictEqualTo(obj1), false);
+    QCOMPARE(obj1.strictEqualTo(obj1), true);
+    QCOMPARE(obj2.strictEqualTo(obj2), true);
 }
 
 QTEST_MAIN(tst_QScriptValue)

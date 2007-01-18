@@ -715,6 +715,21 @@ QDateTime QScriptEnginePrivate::toDateTime(const QScriptValue &value)
     return dateConstructor->toDateTime(value);
 }
 
+bool QScriptEnginePrivate::lessThan(const QScriptValue &lhs, const QScriptValue &rhs) const
+{
+    return QScriptContextPrivate::get(context())->lt_cmp(lhs, rhs);
+}
+
+bool QScriptEnginePrivate::equalTo(const QScriptValue &lhs, const QScriptValue &rhs) const
+{
+    return QScriptContextPrivate::get(context())->eq_cmp(lhs, rhs);
+}
+
+bool QScriptEnginePrivate::strictEqualTo(const QScriptValue &lhs, const QScriptValue &rhs) const
+{
+    return QScriptContextPrivate::strict_eq_cmp(lhs, rhs);
+}
+
 void QScriptEnginePrivate::rehashStringRepository(bool resize)
 {
     if (resize) {
