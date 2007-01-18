@@ -44,6 +44,7 @@ private slots:
     void nestedEvaluate();
     void addRemoveRootObject();
     void nameId();
+    void getSetDefaultPrototype();
 };
 
 tst_QScriptEngine::tst_QScriptEngine()
@@ -376,6 +377,48 @@ void tst_QScriptEngine::nameId()
     QVERIFY(id != otherId);
     otherId = eng.nameId(QLatin1String("Function"));
     QVERIFY(id != otherId);
+}
+
+struct Foo {
+private:
+    int x, y;
+public:
+    Foo() : x(-1), y(-1) { }
+};
+
+Q_DECLARE_METATYPE(Foo)
+
+void tst_QScriptEngine::getSetDefaultPrototype()
+{
+    QScriptEngine eng;
+    {
+        QScriptValue object = eng.newObject();
+        QCOMPARE(eng.defaultPrototype(qMetaTypeId<int>()).isValid(), false);
+        eng.setDefaultPrototype(qMetaTypeId<int>(), object);
+        QCOMPARE(eng.defaultPrototype(qMetaTypeId<int>()).strictEqualTo(object), true);
+        QScriptValue value = eng.scriptValueFromVariant(int(123));
+        QCOMPARE(value.prototype().isObject(), true);
+        QCOMPARE(value.prototype().strictEqualTo(object), true);
+
+        eng.setDefaultPrototype(qMetaTypeId<int>(), QScriptValue());
+        QCOMPARE(eng.defaultPrototype(qMetaTypeId<int>()).isValid(), false);
+        QScriptValue value2 = eng.scriptValueFromVariant(int(123));
+        QCOMPARE(value2.prototype().strictEqualTo(object), false);
+    }
+    {
+        QScriptValue object = eng.newObject();
+        QCOMPARE(eng.defaultPrototype(qMetaTypeId<Foo>()).isValid(), false);
+        eng.setDefaultPrototype(qMetaTypeId<Foo>(), object);
+        QCOMPARE(eng.defaultPrototype(qMetaTypeId<Foo>()).strictEqualTo(object), true);
+        QScriptValue value = eng.scriptValueFromVariant(qVariantFromValue(Foo()));
+        QCOMPARE(value.prototype().isObject(), true);
+        QCOMPARE(value.prototype().strictEqualTo(object), true);
+
+        eng.setDefaultPrototype(qMetaTypeId<Foo>(), QScriptValue());
+        QCOMPARE(eng.defaultPrototype(qMetaTypeId<Foo>()).isValid(), false);
+        QScriptValue value2 = eng.scriptValueFromVariant(qVariantFromValue(Foo()));
+        QCOMPARE(value2.prototype().strictEqualTo(object), false);
+    }
 }
 
 QTEST_MAIN(tst_QScriptEngine)
