@@ -79,6 +79,7 @@ private slots:
     void slotCurrentChanged(int index);
 
 private:
+    void gotoPage(int page);
     QToolButton *m_prev;
     QToolButton *m_next;
     QAction *m_actionPreviousPage;

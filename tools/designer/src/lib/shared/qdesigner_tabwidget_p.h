@@ -80,13 +80,17 @@ protected:
     virtual void tabRemoved(int index);
 
 private:
-    QPoint pressPoint;
-    QWidget *dropIndicator;
-    int dragIndex;
-    QWidget *dragPage;
-    QString dragLabel;
-    QIcon dragIcon;
-    bool mousePressed;
+
+private:
+    int pageFromPosition(const QPoint &pos, QRect &rect) const;
+
+    QPoint m_pressPoint;
+    QWidget *m_dropIndicator;
+    int m_dragIndex;
+    QWidget *m_dragPage;
+    QString m_dragLabel;
+    QIcon m_dragIcon;
+    bool m_mousePressed;
     QAction *m_actionDeletePage;
     QAction *m_actionInsertPage;
     QAction *m_actionInsertPageAfter;

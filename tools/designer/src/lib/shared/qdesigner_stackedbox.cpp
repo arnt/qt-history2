@@ -140,44 +140,18 @@ void QDesignerStackedWidget::updateButtons()
 
 void QDesignerStackedWidget::prevPage()
 {
-    if (count() == 0) {
-        // nothing to do
-        return;
-    }
-
-    if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this)) {
+    if (count() > 1) {
         int newIndex = currentIndex() - 1;
         if (newIndex < 0)
             newIndex = count() - 1;
-
-        qdesigner_internal::SetPropertyCommand *cmd = new qdesigner_internal::SetPropertyCommand(fw);
-        cmd->init(this, QLatin1String("currentIndex"), newIndex);
-        fw->commandHistory()->push(cmd);
-        updateButtons();
-        fw->emitSelectionChanged();
-    } else {
-        setCurrentIndex(qMax(0, currentIndex() - 1));
-        updateButtons();
+        gotoPage(newIndex);
     }
 }
 
 void QDesignerStackedWidget::nextPage()
 {
-    if (count() == 0) {
-        // nothing to do
-        return;
-    }
-
-    if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this)) {
-        qdesigner_internal::SetPropertyCommand *cmd = new qdesigner_internal::SetPropertyCommand(fw);
-        cmd->init(this, QLatin1String("currentIndex"), (currentIndex() + 1) % count());
-        fw->commandHistory()->push(cmd);
-        updateButtons();
-        fw->emitSelectionChanged();
-    } else {
-        setCurrentIndex((currentIndex() + 1) % count());
-        updateButtons();
-    }
+    if (count() > 1)
+        gotoPage((currentIndex() + 1) % count());
 }
 
 bool QDesignerStackedWidget::event(QEvent *e)
@@ -235,4 +209,16 @@ void QDesignerStackedWidget::slotCurrentChanged(int index)
             fw->selectWidget(this, true);
         }
     }
+}
+
+void QDesignerStackedWidget::gotoPage(int page) {
+    // Are we on a form or in a preview?
+    if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this)) {
+        qdesigner_internal::SetPropertyCommand *cmd = new  qdesigner_internal::SetPropertyCommand(fw);
+        cmd->init(this, QLatin1String("currentIndex"), page);
+        fw->commandHistory()->push(cmd);
+    } else {
+        setCurrentIndex(page);
+    }
+    updateButtons();
 }

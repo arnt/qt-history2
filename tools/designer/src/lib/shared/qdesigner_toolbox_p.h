@@ -27,7 +27,7 @@
 
 #include "shared_global_p.h"
 
-#include <QToolBox>
+#include <QtGui/QToolBox>
 
 class QAction;
 
