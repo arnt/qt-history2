@@ -109,6 +109,7 @@ void tst_QScriptEngine::createFunction()
     // prototype should be Function.prototype
     QCOMPARE(fun.prototype().isValid(), true);
     QCOMPARE(fun.prototype().isFunction(), true);
+    QCOMPARE(fun.prototype().strictEqualTo(eng.evaluate("Function.prototype")), true);
 }
 
 void tst_QScriptEngine::createObject()
@@ -121,10 +122,7 @@ void tst_QScriptEngine::createObject()
     // prototype should be Object.prototype
     QCOMPARE(object.prototype().isValid(), true);
     QCOMPARE(object.prototype().isObject(), true);
-
-    // prototype should be Object.prototype
-    QCOMPARE(object.prototype().isValid(), true);
-    QCOMPARE(object.prototype().isObject(), true);
+    QCOMPARE(object.prototype().strictEqualTo(eng.evaluate("Object.prototype")), true);
 }
 
 void tst_QScriptEngine::createString()
@@ -147,6 +145,7 @@ void tst_QScriptEngine::createArray()
     // prototype should be Array.prototype
     QCOMPARE(array.prototype().isValid(), true);
     QCOMPARE(array.prototype().isArray(), true);
+    QCOMPARE(array.prototype().strictEqualTo(eng.evaluate("Array.prototype")), true);
 }
 
 void tst_QScriptEngine::createOpaque()
@@ -175,6 +174,7 @@ void tst_QScriptEngine::createRegExp()
         // prototype should be RegExp.prototype
         QCOMPARE(rexp.prototype().isValid(), true);
         QCOMPARE(rexp.prototype().isRegExp(), true);
+        QCOMPARE(rexp.prototype().strictEqualTo(eng.evaluate("RegExp.prototype")), true);
     }
 }
 
@@ -190,6 +190,7 @@ void tst_QScriptEngine::createDate()
         // prototype should be Date.prototype
         QCOMPARE(date.prototype().isValid(), true);
         QCOMPARE(date.prototype().isDate(), true);
+        QCOMPARE(date.prototype().strictEqualTo(eng.evaluate("Date.prototype")), true);
     }
 
     {
@@ -201,6 +202,7 @@ void tst_QScriptEngine::createDate()
         // prototype should be Date.prototype
         QCOMPARE(date.prototype().isValid(), true);
         QCOMPARE(date.prototype().isDate(), true);
+        QCOMPARE(date.prototype().strictEqualTo(eng.evaluate("Date.prototype")), true);
 
         QCOMPARE(date.toDateTime(), dt);
     }
@@ -254,6 +256,7 @@ void tst_QScriptEngine::globalObject()
     // prototype should be Object.prototype
     QCOMPARE(glob.prototype().isValid(), true);
     QCOMPARE(glob.prototype().isObject(), true);
+    QCOMPARE(glob.prototype().strictEqualTo(eng.evaluate("Object.prototype")), true);
 }
 
 void tst_QScriptEngine::canEvaluate_data()
