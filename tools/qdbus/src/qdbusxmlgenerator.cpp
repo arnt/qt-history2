@@ -27,8 +27,22 @@ extern QDBUS_EXPORT QString qDBusGenerateMetaObjectXml(QString interface, const 
 
 static inline QString typeNameToXml(const char *typeName)
 {
-    QString retval = QLatin1String(typeName);
-    return retval.replace(QLatin1Char('<'), QLatin1String("&lt;"));
+    // ### copied from qtextdocument.cpp
+    // ### move this into QtCore at some point
+    QString plain = QLatin1String(typeName);
+    QString rich;
+    rich.reserve(int(plain.length() * 1.1));
+    for (int i = 0; i < plain.length(); ++i) {
+        if (plain.at(i) == QLatin1Char('<'))
+            rich += QLatin1String("&lt;");
+        else if (plain.at(i) == QLatin1Char('>'))
+            rich += QLatin1String("&gt;");
+        else if (plain.at(i) == QLatin1Char('&'))
+            rich += QLatin1String("&amp;");
+        else
+            rich += plain.at(i);
+    }
+    return rich;
 }
 
 // implement the D-Bus org.freedesktop.DBus.Introspectable interface
