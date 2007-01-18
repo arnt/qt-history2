@@ -667,7 +667,8 @@ bool QFSFileEnginePrivate::nativeSeek(qint64 pos)
     QFSFileEnginePrivate::resolveLibs();
     if (!ptrSetFilePointerEx) {
 #endif
-        DWORD newFilePointer = SetFilePointer(fileHandle, 0, NULL, FILE_CURRENT);
+        LONG seekToPos = LONG(pos); // <- lossy
+        DWORD newFilePointer = SetFilePointer(fileHandle, seekToPos, NULL, FILE_BEGIN);
         if (newFilePointer == 0xFFFFFFFF) {
             thatQ->setError(QFile::UnspecifiedError, qt_error_string());
             return false;
