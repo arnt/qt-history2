@@ -32,6 +32,7 @@ namespace {
          rc->setArrowType(at);
          rc->setAutoRaise(true);
          rc->setAutoRepeat(true);
+         rc->setContextMenuPolicy(Qt::PreventContextMenu);
          rc->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
          rc->setFixedSize(QSize(15, 15));
          return rc;
@@ -217,6 +218,7 @@ void QDesignerStackedWidget::gotoPage(int page) {
         qdesigner_internal::SetPropertyCommand *cmd = new  qdesigner_internal::SetPropertyCommand(fw);
         cmd->init(this, QLatin1String("currentIndex"), page);
         fw->commandHistory()->push(cmd);
+        fw->emitSelectionChanged(); // Magically prevent an endless loop triggered by auto-repeat.
     } else {
         setCurrentIndex(page);
     }
