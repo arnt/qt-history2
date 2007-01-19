@@ -59,6 +59,22 @@ public:
 */
 
 /*!
+    \fn void QTreeWidgetItem::setDisabled(bool disabled)
+
+    Disables the item if \a disabled is true, otherwise enables the item.
+
+    \sa setFlags()
+*/
+
+/*!
+    \fn bool QTreeWidgetItem::isDisabled()
+
+    Return true if the item is disabled, otherwise false.
+
+    \sa setFlags()
+*/
+
+/*!
   \internal
 
   Constructs a tree model with a \a parent object and the given
@@ -938,7 +954,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortO
   \fn void QTreeWidgetItem::setSpanning(bool span)
   \since 4.3
 
-  Sets the first section to span all columns if \a expand is true,
+  Sets the first section to span all columns if \a span is true,
   otherwise all item sections are shown.
 
   \sa isExpanded()
@@ -1454,7 +1470,7 @@ QTreeWidgetItem *QTreeWidgetItem::clone() const
    Sets the item indicator \a policy. This policy decides when the
    tree branch expand/collapse indicator is shown.
    The default value is ShowForChildren.
-   
+
    \sa childIndicatorPolicy()
 */
 void QTreeWidgetItem::setChildIndicatorPolicy(QTreeWidgetItem::ChildIndicatorPolicy policy)
@@ -1467,10 +1483,10 @@ void QTreeWidgetItem::setChildIndicatorPolicy(QTreeWidgetItem::ChildIndicatorPol
 }
 
 /*!
-   Sets the item indicator \a policy. This policy decides when the
+   Returns the item indicator policy. This policy decides when the
    tree branch expand/collapse indicator is shown.
-   
-   \sa childIndicatorPolicy()
+
+   \sa setChildIndicatorPolicy()
 */
 QTreeWidgetItem::ChildIndicatorPolicy QTreeWidgetItem::childIndicatorPolicy() const
 {
