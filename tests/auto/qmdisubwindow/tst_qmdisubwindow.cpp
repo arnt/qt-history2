@@ -814,6 +814,7 @@ void tst_QMdiSubWindow::setSystemMenu()
     // Show system menu
     QVERIFY(!qApp->activePopupWidget());
     subWindow->showSystemMenu();
+    QTest::qWait(250);
     QCOMPARE(qApp->activePopupWidget(), qobject_cast<QMenu *>(systemMenu));
 
     systemMenu->hide();
@@ -836,6 +837,7 @@ void tst_QMdiSubWindow::setSystemMenu()
     // Show the new system menu
     QVERIFY(!qApp->activePopupWidget());
     subWindow->showSystemMenu();
+    QTest::qWait(250);
     QCOMPARE(qApp->activePopupWidget(), qobject_cast<QMenu *>(systemMenu));
 
     delete systemMenu;
