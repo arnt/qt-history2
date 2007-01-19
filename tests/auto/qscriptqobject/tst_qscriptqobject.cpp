@@ -251,8 +251,9 @@ void tst_QScriptExtQObject::getSetStaticProperty()
              .equalTo(m_engine->scriptValue(42)), true);
 
     // property change in script should be reflected in C++
-    QCOMPARE(m_engine->evaluate("myObject.intProperty = 123;"
-                                "myObject.intProperty")
+    QCOMPARE(m_engine->evaluate("myObject.intProperty = 123")
+             .strictEqualTo(m_engine->scriptValue(123)), true);
+    QCOMPARE(m_engine->evaluate("myObject.intProperty")
              .strictEqualTo(m_engine->scriptValue(123)), true);
     QCOMPARE(m_myObject->intProperty(), 123);
     QCOMPARE(m_engine->evaluate("myObject.intProperty = \"ciao!\";"

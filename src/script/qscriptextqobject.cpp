@@ -748,10 +748,12 @@ void QScript::QtPropertyFunction::execute(QScriptContext *context)
             QScriptablePrivate::get(scriptable)->engine = eng;
         }
         
-        result = eng->scriptValue(prop.write(m_object, v));
-        
+        prop.write(m_object, v);
+
         if (scriptable)
             QScriptablePrivate::get(scriptable)->engine = oldEngine;
+
+        result = context->argument(0);
     }
     QScriptContextPrivate::get(context)->result = result;
 }
