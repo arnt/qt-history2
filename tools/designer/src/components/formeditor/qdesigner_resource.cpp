@@ -214,6 +214,9 @@ void QDesignerResource::saveDom(DomUI *ui, QWidget *widget)
 
 QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
 {
+    if (ui->hasAttributeLanguage() && ui->attributeLanguage() != QLatin1String("C++"))
+        return 0;
+
     const QString version = ui->attributeVersion();
     if (version != QLatin1String("4.0")) {
 
