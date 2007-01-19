@@ -1222,7 +1222,7 @@ void QTextDecoder::toUnicode(QString *target, const char *chars, int len)
         target->resize(len);
         ushort *data = (ushort*)target->data();
         for (int i = len; i >=0; --i)
-            data[i] = chars[i];
+            data[i] = (uchar) chars[i];
     } break;
     default:
         *target = c->toUnicode(chars, len, &state);
