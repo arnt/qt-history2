@@ -30,6 +30,13 @@ extern void qtsystray_sendActivated(QSystemTrayIcon *i, int r); //qsystemtrayico
 extern void qt_mac_get_accel(quint32 accel_key, quint32 *modif, quint32 *key); //qmenu_mac.cpp
 extern QString qt_mac_no_ampersands(QString str); //qmenu_mac.cpp
 
+
+void QApplication::beep()
+{
+    NSBeep();
+}
+
+
 @class QNSImageView;
 
 @interface QNSStatusItem : NSObject {

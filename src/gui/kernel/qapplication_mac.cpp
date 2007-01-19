@@ -1145,16 +1145,6 @@ static QWidget *qt_mac_recursive_widgetAt(QWidget *widget, int x, int y)
     return widget;
 }
 
-void QApplication::beep()
-{
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-    qWarning("QApplication::beep: Not implemented!");
-#else
-    SysBeep(0);
-#endif
-}
-
-
 /*****************************************************************************
   Main event loop
  *****************************************************************************/
