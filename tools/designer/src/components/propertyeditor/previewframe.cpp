@@ -15,15 +15,41 @@
 TRANSLATOR qdesigner_internal::PreviewWorkspace
 */
 
-#include <QtGui/QPainter>
-
 #include "previewframe.h"
 #include "previewwidget.h"
 
-using namespace qdesigner_internal;
+#include <QtGui/QPainter>
+#include <QtGui/QMdiArea>
+#include <QtGui/QMdiSubWindow>
+#include <QtGui/QPaintEvent>
 
-PreviewFrame::PreviewFrame(QWidget *parent)
-    : QFrame(parent)
+namespace {
+    class PreviewMdiArea: public QMdiArea {
+    public:
+        PreviewMdiArea(QWidget *parent = 0) : QMdiArea(parent) {}
+    protected:
+        bool viewportEvent ( QEvent * event );
+    };
+
+    bool PreviewMdiArea::viewportEvent (QEvent * event) {
+        if (event->type() != QEvent::Paint)
+            return QMdiArea::viewportEvent (event);
+        QPainter p(viewport());
+        p.fillRect(rect(), palette().color(backgroundRole()).dark());
+        p.setPen(QPen(Qt::white));
+        p.drawText(0, height() / 2,  width(), height(), Qt::AlignHCenter,
+                   tr("The moose in the noose\nate the goose who was loose."));
+        return true;
+    }
+}
+
+namespace qdesigner_internal {
+
+PreviewFrame::PreviewFrame(QWidget *parent) : 
+    QFrame(parent),
+    m_mdiArea(new PreviewMdiArea(this)),
+    m_previewWidget(new PreviewWidget(m_mdiArea)),
+    m_mdiSubWindow(m_mdiArea->addSubWindow(m_previewWidget, Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint))     
 {
     setMinimumSize(200, 200);
     setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
@@ -31,27 +57,20 @@ PreviewFrame::PreviewFrame(QWidget *parent)
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
-    PreviewWorkspace * w = new PreviewWorkspace( this );
-    vbox->addWidget(w);
+    vbox->addWidget(m_mdiArea);
 
-    previewWidget = new PreviewWidget(w);
-    QWidget *frame = w->addWindow(previewWidget,
-                Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint);
-    frame->move(10,10);
-    frame->show();
+    m_mdiSubWindow->move(10,10);
+    m_mdiSubWindow->show();
 }
 
 void PreviewFrame::setPreviewPalette(const QPalette &pal)
 {
-    previewWidget->setPalette(pal);
+    m_previewWidget->setPalette(pal);
 }
-
-void PreviewWorkspace::paintEvent(QPaintEvent*)
+    
+void PreviewFrame::setSubWindowActive(bool active)
 {
-    QPainter p(this);
-    p.fillRect(rect(), palette().color(backgroundRole()).dark());
-    p.setPen(QPen(Qt::white));
-    p.drawText(0, height() / 2,  width(), height(), Qt::AlignHCenter,
-        tr("The moose in the noose\nate the goose who was loose."));
+    m_mdiArea->setActiveSubWindow (active ? m_mdiSubWindow : static_cast<QMdiSubWindow *>(0));
 }
 
+}

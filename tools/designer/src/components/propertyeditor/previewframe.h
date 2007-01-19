@@ -14,25 +14,14 @@
 #ifndef PREVIEWFRAME_H
 #define PREVIEWFRAME_H
 
-#include <QtGui/QWorkspace>
 #include <QtGui/QFrame>
+
+class QMdiArea;
+class QMdiSubWindow;
 
 namespace qdesigner_internal {
 
 class PreviewWidget;
-
-class PreviewWorkspace: public QWorkspace
-{
-    Q_OBJECT
-public:
-    PreviewWorkspace(QWidget *parent)
-        : QWorkspace(parent) {}
-
-    virtual ~PreviewWorkspace() {}
-
-protected:
-    void paintEvent(QPaintEvent *);
-};
 
 class PreviewFrame: public QFrame
 {
@@ -41,9 +30,12 @@ public:
     PreviewFrame(QWidget *parent);
 
     void setPreviewPalette(const QPalette &palette);
-
+    void setSubWindowActive(bool active);
+    
 private:
-    PreviewWidget *previewWidget;
+    QMdiArea *m_mdiArea;
+    PreviewWidget *m_previewWidget;
+    QMdiSubWindow *m_mdiSubWindow;
 };
 
 }  // namespace qdesigner_internal
