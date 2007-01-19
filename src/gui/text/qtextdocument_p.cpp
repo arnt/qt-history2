@@ -161,6 +161,7 @@ QTextDocumentPrivate::QTextDocumentPrivate()
 
     useDesignMetrics = false;
     maximumBlockCount = 0;
+    unreachableCharacterCount = 0;
 }
 
 void QTextDocumentPrivate::init()
@@ -206,6 +207,7 @@ void QTextDocumentPrivate::clear()
     undoState = 0;
     truncateUndoStack();
     text = QString();
+    unreachableCharacterCount = 0;
     modifiedState = 0;
     modified = false;
     formats = QTextFormatCollection();
@@ -414,6 +416,9 @@ int QTextDocumentPrivate::remove_string(int pos, uint length, QTextUndoCommand::
     }
 
     const int w = fragments.erase_single(x);
+
+    if (!undoEnabled)
+        unreachableCharacterCount += length;
 
     adjustDocumentChangesAndCursors(pos, -int(length), op);
 
@@ -947,6 +952,8 @@ void QTextDocumentPrivate::enableUndoRedo(bool enable)
     }
     modifiedState = modified ? -1 : undoState;
     undoEnabled = enable;
+    if (!undoEnabled)
+        compressPieceTable();
 }
 
 void QTextDocumentPrivate::joinPreviousEditBlock()
@@ -986,6 +993,9 @@ void QTextDocumentPrivate::endEditBlock()
     }
 
     contentsChanged();
+
+    if (!undoEnabled && unreachableCharacterCount)
+        compressPieceTable();
 }
 
 void QTextDocumentPrivate::documentChange(int from, int length)
@@ -1358,6 +1368,39 @@ void QTextDocumentPrivate::contentsChanged()
     emit q->contentsChanged();
 }
 
+void QTextDocumentPrivate::compressPieceTable()
+{
+    if (undoEnabled)
+        return;
+
+    const uint garbageCollectionThreshold = 96 * 1024; // bytes
+
+    //qDebug() << "unreachable bytes:" << unreachableCharacterCount * sizeof(QChar) << " -- limit" << garbageCollectionThreshold << "text size =" << text.size() << "capacity:" << text.capacity();
+
+    bool compressTable = unreachableCharacterCount * sizeof(QChar) > garbageCollectionThreshold
+                         && text.size() >= text.capacity() * 0.9;
+    if (!compressTable)
+        return;
+
+    QString newText;
+    newText.resize(text.size());
+    QChar *newTextPtr = newText.data();
+    int newLen = 0;
+
+    for (FragmentMap::Iterator it = fragments.begin(); !it.atEnd(); ++it) {
+        qMemCopy(newTextPtr, text.constData() + it->stringPosition, it->size * sizeof(QChar));
+        it->stringPosition = newLen;
+        newTextPtr += it->size;
+        newLen += it->size;
+    }
+
+    newText.resize(newLen);
+    newText.squeeze();
+    //qDebug() << "removed" << text.size() - newText.size() << "characters";
+    text = newText;
+    unreachableCharacterCount = 0;
+}
+
 void QTextDocumentPrivate::setModified(bool m)
 {
     Q_Q(QTextDocument);
@@ -1386,11 +1429,15 @@ void QTextDocumentPrivate::ensureMaximumBlockCount()
     QTextCursor cursor(this, 0);
     cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor, blocksToRemove);
 
+    unreachableCharacterCount += cursor.selectionEnd() - cursor.selectionStart();
+
     // preserve the char format of the paragraph that is to become the new first one
     QTextCharFormat charFmt = cursor.blockCharFormat();
     cursor.removeSelectedText();
     cursor.setBlockCharFormat(charFmt);
 
     endEditBlock();
+
+    compressPieceTable();
 }
 

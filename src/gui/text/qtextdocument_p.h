@@ -249,7 +249,10 @@ private:
 
     void contentsChanged();
 
+    void compressPieceTable();
+
     QString text;
+    uint unreachableCharacterCount;
 
     QVector<QTextUndoCommand> undoStack;
     bool undoEnabled;
