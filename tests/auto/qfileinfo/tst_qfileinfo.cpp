@@ -691,7 +691,7 @@ void tst_QFileInfo::fileTimes_oldFile()
     QSKIP("This test doesn't work on WIN64.", SkipSingle);
 #endif
 #ifdef Q_OS_UNIX
-    QSKIP("Need to add utime code for unix", SkipSingle);
+    QSKIP("Windows only test.", SkipSingle);
 #endif
 
     QFile::remove("oldfile.txt");
