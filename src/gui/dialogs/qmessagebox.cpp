@@ -385,6 +385,7 @@ void QMessageBoxPrivate::updateSize()
                      ? q->layout()->totalHeightForWidth(width)
                      : q->layout()->totalMinimumSize().height();
     q->setFixedSize(width, height);
+    QCoreApplication::removePostedEvents(q, QEvent::LayoutRequest);
 }
 
 static int oldButton(int button)
