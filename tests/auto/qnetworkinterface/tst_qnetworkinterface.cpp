@@ -90,6 +90,12 @@ void tst_QNetworkInterface::interfaceFromXXX()
 
     foreach (QNetworkInterface iface, allInterfaces) {
         QVERIFY(QNetworkInterface::interfaceFromName(iface.name()).isValid());
+        foreach (QNetworkAddressEntry entry, iface.addressEntries()) {
+            if (entry.ip() == QHostAddress::LocalHost || entry.ip() == QHostAddress::LocalHostIPv6)
+                QVERIFY(entry.broadcast().isNull());
+            else
+                QVERIFY(!entry.broadcast().isNull());
+        }
     }
 }
 
