@@ -63,6 +63,7 @@ private:
     bool contextIsUtf8;
     bool messageIsUtf8;
     const QString m_URI;  // convenience and efficiency; urn:oasis:names:tc:xliff:document:1.1
+    const QString m_URI12;  // convenience and efficiency; urn:oasis:names:tc:xliff:document:1.1
     QStack<int> m_contextStack;
 };
 

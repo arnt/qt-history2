@@ -25,19 +25,56 @@
 /**
  * Implementation of XLIFF file format for Linguist
  */
+#define XLIFF11_PROFILE_PO_DRAFT
+#ifdef XLIFF11_PROFILE_PO_DRAFT
+static const char *restypeContext = "x-gettext-domain";
+static const char *restypePlurals = "x-gettext-plurals";
+static const char *dataTypeUIFile = "x-trolltech-designer-ui";
+static const char *contextNameLocation = "po-reference";    //###
+static const char *contextTypeComment = "x-po-transcomment";
+#else
 static const char *restypeContext = "x-trolltech-linguist-context";
 static const char *restypePlurals = "x-trolltech-linguist-plurals";
 static const char *dataTypeUIFile = "x-trolltech-designer-ui";
-static const char *XLIFFnamespaceURI = "urn:oasis:names:tc:xliff:document:1.1";
+static const char *contextNameLocation = "lineNo";
+#endif
+static const char *XLIFF11namespaceURI = "urn:oasis:names:tc:xliff:document:1.1";
+// try our best at XLIFF12 also
+static const char *XLIFF12namespaceURI = "urn:oasis:names:tc:xliff:document:1.2";
+
+#define COMBINE4CHARS(c1, c2, c3, c4) \
+    (int(c1) << 24 | int(c2) << 16 | int(c3) << 8 | int(c4) )
 
 static QString dataType(const MetaTranslatorMessage &m)
 {
-    QString fileName = m.fileName();
-    if (fileName.endsWith(QLatin1String(".cpp")))
-        return QLatin1String("cpp");
-    else
-        return QLatin1String(dataTypeUIFile);        //### form?
+    QByteArray fileName = m.fileName().toAscii();
+    unsigned int extHash = 0;
+    int pos = fileName.count() - 1;
+    for (int pass = 0; pass < 4 && pos >=0; ++pass, --pos) {
+        if (fileName.at(pos) == '.')
+            break;
+        extHash |= ((int)fileName.at(pos) << (8*pass));
+    }
 
+    switch (extHash) {
+        case COMBINE4CHARS(0,'c','p','p'):
+        case COMBINE4CHARS(0,'c','x','x'):
+        case COMBINE4CHARS(0,'c','+','+'):
+        case COMBINE4CHARS(0,'h','p','p'):
+        case COMBINE4CHARS(0,'h','x','x'):
+        case COMBINE4CHARS(0,'h','+','+'):
+            return QLatin1String("cpp");
+        case COMBINE4CHARS(0, 0 , 0 ,'c'):
+        case COMBINE4CHARS(0, 0 , 0 ,'h'):
+        case COMBINE4CHARS(0, 0 ,'c','c'):
+        case COMBINE4CHARS(0, 0 ,'c','h'):
+        case COMBINE4CHARS(0, 0 ,'h','h'):
+            return QLatin1String("c");
+        case COMBINE4CHARS(0, 0 ,'u','i'):
+            return QLatin1String(dataTypeUIFile);   //### form?
+        default:
+            return QLatin1String("plaintext");      // we give up
+    }
 }
 
 static void writeIndent(QTextStream *t, int indent)
@@ -151,7 +188,7 @@ static void writeLineNumber(QTextStream *t, const MetaTranslatorMessage &msg, in
 {
     if (msg.lineNumber() != -1) {
         writeIndent(t, indent);
-        (*t) << "<context-group name=\"lineNo\" purpose=\"location\"><context context-type=\"linenumber\">" 
+        (*t) << "<context-group name=\"" << contextNameLocation << "\" purpose=\"location\"><context context-type=\"linenumber\">" 
             << msg.lineNumber() << "</context></context-group>\n";
     }
 }
@@ -264,7 +301,7 @@ bool MetaTranslator::saveXLIFF( const QString& filename) const
     t.setFieldAlignment(QTextStream::AlignRight);
     t << "<?xml version=\"1.0\"";
     t << " encoding=\"utf-8\"?>\n";
-    t << "<xliff version=\"1.1\" xmlns=\"" << XLIFFnamespaceURI << "\">\n";
+    t << "<xliff version=\"1.1\" xmlns=\"" << XLIFF11namespaceURI << "\">\n";
     currentindent += indent;
     QMap<QString, MetaTranslatorMessage>::iterator mi = mtSortByFileName.begin();
     MetaTranslatorMessage msg;
@@ -334,7 +371,8 @@ XLIFFHandler::XLIFFHandler( MetaTranslator *translator )
       ferrorCount( 1 ), 
       contextIsUtf8( false ),
       messageIsUtf8( false ), 
-      m_URI(QLatin1String(XLIFFnamespaceURI))
+      m_URI(QLatin1String(XLIFF11namespaceURI)),
+      m_URI12(QLatin1String(XLIFF12namespaceURI))
 { 
     
 }
@@ -357,7 +395,9 @@ bool XLIFFHandler::popContext(XliffContext ctx)
 
 XLIFFHandler::XliffContext XLIFFHandler::currentContext() const
 {
-    return (XliffContext)m_contextStack.top();
+    if (!m_contextStack.isEmpty())
+        return (XliffContext)m_contextStack.top();
+    return XC_xliff;
 }
 
 // traverses to the top to check all of the parent contexes.
@@ -374,7 +414,7 @@ bool XLIFFHandler::startElement( const QString& namespaceURI,
                            const QString& localName, const QString& /*qName*/,
                            const QXmlAttributes& atts )
 {
-    if (namespaceURI == m_URI) {
+    if (namespaceURI == m_URI || namespaceURI == m_URI12) {
         if (localName == QLatin1String("xliff")) {
             // make sure that the stack is not empty during parsing
             pushContext(XC_xliff);
@@ -418,16 +458,17 @@ bool XLIFFHandler::startElement( const QString& namespaceURI,
             }
             pushContext(XC_ph);
         }
+        if (currentContext() != XC_ph)
+            accum.clear();
+        return true;
     }
-    if (currentContext() != XC_ph)
-        accum.clear();
-    return true;
+    return false;
 }
 
 bool XLIFFHandler::endElement(const QString& namespaceURI,
                               const QString& localName, const QString& /*qName*/ )
 {
-    if (namespaceURI == m_URI) {
+    if (namespaceURI == m_URI || namespaceURI == m_URI12) {
         if (localName == QLatin1String("xliff")) {
             popContext(XC_xliff);
         } else if (localName == QLatin1String("source")) {
@@ -466,8 +507,9 @@ bool XLIFFHandler::endElement(const QString& namespaceURI,
             }
             popContext(XC_group);
         }
+        return true;
     }
-    return true;
+    return false;
 }
 
 bool XLIFFHandler::characters( const QString& ch )
