@@ -64,6 +64,7 @@ private slots:
     void preservePreeditArea();
     void task108530();
     void avoidUnnecessaryRehighlight();
+    void noContentsChangedDuringHighlight();
 
 private:
     QTextDocument *doc;
@@ -164,7 +165,7 @@ public:
             commentFormat.setFontWeight(QFont::StyleItalic);
             commentFormat.setFontFixedPitch(true);
             int textLength = text.length();
-                
+
             if (text.startsWith(QLatin1Char(';'))){
                 // The entire line is a comment
                 setFormat(0, textLength, commentFormat);
@@ -424,13 +425,13 @@ void tst_QSyntaxHighlighter::preservePreeditArea()
 void tst_QSyntaxHighlighter::task108530()
 {
     TestHighlighter *hl = new TestHighlighter(doc);
-    
+
     cursor.insertText("test");
     hl->callCount = 0;
     hl->highlightedText.clear();
     cursor.movePosition(QTextCursor::Start);
     cursor.insertBlock();
-    
+
     QCOMPARE(hl->highlightedText, QString("test"));
     QCOMPARE(hl->callCount, 2);
 }
@@ -446,6 +447,28 @@ void tst_QSyntaxHighlighter::avoidUnnecessaryRehighlight()
     hl->highlighted = false;
     QApplication::processEvents();
     QVERIFY(!hl->highlighted);
+}
+
+void tst_QSyntaxHighlighter::noContentsChangedDuringHighlight()
+{
+    QList<QTextLayout::FormatRange> formats;
+    QTextLayout::FormatRange range;
+    range.start = 0;
+    range.length = 10;
+    range.format.setForeground(Qt::blue);
+    formats.append(range);
+
+    TestHighlighter *hl = new TestHighlighter(formats, doc);
+
+    lout->documentChangedCalled = false;
+    QTextCursor cursor(doc);
+
+    QSignalSpy contentsChangedSpy(doc, SIGNAL(contentsChanged()));
+    cursor.insertText("Hello World");
+
+    QCOMPARE(contentsChangedSpy.count(), 1);
+    QVERIFY(hl->highlighted);
+    QVERIFY(lout->documentChangedCalled);
 }
 
 QTEST_MAIN(tst_QSyntaxHighlighter)
