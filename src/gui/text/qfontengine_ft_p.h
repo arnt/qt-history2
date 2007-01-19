@@ -40,6 +40,8 @@
 #include <fontconfig/fontconfig.h>
 #endif
 
+#include <qmutex.h>
+
 struct QFreetypeFace
 {
     void computeSize(const QFontDef &fontDef, int *xsize, int *ysize, bool *outline_drawing);
@@ -49,14 +51,13 @@ struct QFreetypeFace
     static QFreetypeFace *getFace(const QFontEngine::FaceId &face_id);
     void release(const QFontEngine::FaceId &face_id);
 
-    void lock() {
-        Q_ASSERT(_lock == 0);
-        while (!_lock.testAndSet(0, 1))
-            usleep(100);
+    void lock()
+    {
+        _lock.lock();
     }
-    void unlock() {
-        if (!_lock.testAndSet(1, 0))
-            Q_ASSERT(false);
+    void unlock()
+    {
+        _lock.unlock();
     }
 
     FT_Face face;
@@ -81,7 +82,7 @@ private:
     QFreetypeFace() {}
     ~QFreetypeFace() {}
     QAtomic ref;
-    QAtomic _lock;
+    QMutex _lock;
     QByteArray fontData;
 };
 
