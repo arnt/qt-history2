@@ -102,7 +102,7 @@ struct WriteInitialization : public TreeWalker
 //
     void acceptImage(DomImage *image);
 
-protected:    
+public:
     // Flags to writeProperties()
     enum { WritePropertyIgnoreMargin = 1, WritePropertyIgnoreSpacing = 2 };
 private:
