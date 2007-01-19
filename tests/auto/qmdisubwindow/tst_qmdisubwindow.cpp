@@ -24,6 +24,7 @@
 #include <QByteArray>
 #include <QStyle>
 #include <QStyleOptionTitleBar>
+#include <QPushButton>
 
 #if defined(Q_WS_X11)
 extern void qt_x11_wait_for_window_manager(QWidget *w);
@@ -132,6 +133,7 @@ private slots:
     void mouseDoubleClick();
     void setSystemMenu();
     void restoreFocus();
+    void changeFocusWithTab();
 };
 
 void tst_QMdiSubWindow::initTestCase()
@@ -942,6 +944,57 @@ void tst_QMdiSubWindow::restoreFocus()
     qApp->processEvents();
     QVERIFY(!complexWindow->isMinimized());
     QCOMPARE(qApp->focusWidget(), expectedFocusWindow);
+}
+
+void tst_QMdiSubWindow::changeFocusWithTab()
+{
+    QWidget *widget = new QWidget;
+    widget->setLayout(new QVBoxLayout);
+
+    QLineEdit *firstLineEdit = new QLineEdit;
+    widget->layout()->addWidget(firstLineEdit);
+    QLineEdit *secondLineEdit = new QLineEdit;
+    widget->layout()->addWidget(secondLineEdit);
+    QLineEdit *thirdLineEdit = new QLineEdit;
+    widget->layout()->addWidget(thirdLineEdit);
+
+    QMdiArea mdiArea;
+    mdiArea.addSubWindow(widget);
+    mdiArea.show();
+    QCOMPARE(mdiArea.subWindowList().count(), 1);
+
+    qApp->setActiveWindow(&mdiArea);
+    QCOMPARE(qApp->focusWidget(), firstLineEdit);
+
+    // Next
+    QTest::keyPress(widget, Qt::Key_Tab);
+    QCOMPARE(qApp->focusWidget(), secondLineEdit);
+
+    // Next
+    QTest::keyPress(widget, Qt::Key_Tab);
+    QCOMPARE(qApp->focusWidget(), thirdLineEdit);
+
+    // Previous
+    QTest::keyPress(widget, Qt::Key_Backtab);
+    QCOMPARE(qApp->focusWidget(), secondLineEdit);
+
+    // Previous
+    QTest::keyPress(widget, Qt::Key_Backtab);
+    QCOMPARE(qApp->focusWidget(), firstLineEdit);
+
+    QMdiSubWindow *window = mdiArea.addSubWindow(new QPushButton);
+    window->show();
+    QCOMPARE(mdiArea.activeSubWindow(), window);
+
+    // Check that we don't give away focus to another window by
+    // just hitting tab if the child widget does not accept
+    // focus (which is the case for a QPushButton).
+    QTest::keyPress(window, Qt::Key_Tab);
+    QCOMPARE(mdiArea.activeSubWindow(), window);
+    QCOMPARE(qApp->focusWidget(), window->widget());
+    QTest::keyPress(window, Qt::Key_Tab);
+    QCOMPARE(mdiArea.activeSubWindow(), window);
+    QCOMPARE(qApp->focusWidget(), window->widget());
 }
 
 QTEST_MAIN(tst_QMdiSubWindow)
