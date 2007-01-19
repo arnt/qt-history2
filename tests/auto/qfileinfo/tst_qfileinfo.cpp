@@ -19,6 +19,9 @@
 #ifdef Q_OS_UNIX
 #include <unistd.h>
 #endif
+#ifdef Q_OS_WIN
+#include <qt_windows.h>
+#endif
 
 #include <qdebug.h>
 //TESTED_CLASS=
@@ -86,6 +89,7 @@ private slots:
 
     void fileTimes_data();
     void fileTimes();
+    void fileTimes_oldFile();
 
     void isSymLink();
 
@@ -633,12 +637,6 @@ void tst_QFileInfo::fileTimes()
     QTest::qSleep(1000);
     {
         QFile file(fileName);
-#if QT_VERSION < 0x040100
-#  ifdef Q_OS_WIN
-        QEXPECT_FAIL("longfile", "Fixed in 4.1", Continue);
-        QEXPECT_FAIL("longfile absolutepath", "Fixed in 4.1", Continue);
-#  endif
-#endif
         QVERIFY(file.open(QFile::WriteOnly | QFile::Text));
         QTextStream ts(&file);
         ts << fileName << endl;
@@ -685,6 +683,33 @@ void tst_QFileInfo::fileTimes()
     QVERIFY(fileInfo.lastModified() < beforeRead);
 
     QVERIFY(QFile::remove(fileName));
+}
+
+void tst_QFileInfo::fileTimes_oldFile()
+{
+#ifdef Q_OS_WIN64
+    QSKIP("This test doesn't work on WIN64.", SkipSingle);
+#endif
+#ifdef Q_OS_UNIX
+    QSKIP("Need to add utime code for unix", SkipSingle);
+#endif
+
+    QFile::remove("oldfile.txt");
+    QFile file("oldfile.txt");
+    QVERIFY(file.open(QIODevice::WriteOnly | QIODevice::Truncate));
+
+#ifdef Q_OS_WIN
+    // Set file times back to 1601.
+    FILETIME ctime;
+    ctime.dwLowDateTime = 1;
+    ctime.dwHighDateTime = 0;
+    FILETIME atime = ctime;
+    FILETIME mtime = atime;
+    QVERIFY((HANDLE)file.handle());
+    QVERIFY(SetFileTime((HANDLE)file.handle(), &ctime, &atime, &mtime) != 0);
+    QFileInfo info(file.fileName());
+    QCOMPARE(info.lastModified(), QDateTime(QDate(1601, 1, 1), QTime(1, 0)));
+#endif
 }
 
 void tst_QFileInfo::isSymLink()
