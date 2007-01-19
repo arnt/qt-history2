@@ -766,7 +766,6 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
     table.columns = 0;
 
     QVector<QTextLength> columnWidths;
-    QVector<int> rowSpanCellsPerRow;
 
     int tableHeaderRowCount = 0;
     QVector<int> rowNodes;
@@ -790,6 +789,7 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
         }
 
     QVector<RowColSpanInfo> rowColSpans;
+    QVector<RowColSpanInfo> rowColSpanForColumn;
 
     int effectiveRow = 0;
     foreach (int row, rowNodes) {
@@ -797,6 +797,16 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
 
         foreach (int cell, at(row).children)
             if (at(cell).isTableCell()) {
+                // skip all columns with spans from previous rows
+                while (colsInRow < rowColSpanForColumn.size()) {
+                    const RowColSpanInfo &spanInfo = rowColSpanForColumn[colsInRow];
+                    Q_ASSERT(spanInfo.col == colsInRow);
+
+                    if (spanInfo.row + spanInfo.rowSpan > effectiveRow)
+                        colsInRow += spanInfo.colSpan;
+                    else
+                        break;
+                }
 
                 const QTextHtmlParserNode &c = at(cell);
                 const int currentColumn = colsInRow;
@@ -810,23 +820,18 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
                 if (spanInfo.colSpan > 1 || spanInfo.rowSpan > 1)
                     rowColSpans.append(spanInfo);
 
-                if (c.tableCellRowSpan > 1) {
-                    rowSpanCellsPerRow.resize(effectiveRow + c.tableCellRowSpan + 1);
-
-                    for (int r = effectiveRow + 1; r < effectiveRow + c.tableCellRowSpan; ++r)
-                        rowSpanCellsPerRow[r]++;
-                }
-
                 columnWidths.resize(qMax(columnWidths.count(), colsInRow));
-                for (int i = currentColumn; i < currentColumn + c.tableCellColSpan; ++i)
+                rowColSpanForColumn.resize(columnWidths.size());
+                for (int i = currentColumn; i < currentColumn + c.tableCellColSpan; ++i) {
                     if (columnWidths.at(i).type() == QTextLength::VariableLength)
                         columnWidths[i] = c.width;
+                    rowColSpanForColumn[i] = spanInfo;
+                }
             }
 
-        table.columns = qMax(table.columns, colsInRow + rowSpanCellsPerRow.value(effectiveRow, 0));
+        table.columns = qMax(table.columns, colsInRow);
 
         ++effectiveRow;
-        rowSpanCellsPerRow.append(0);
     }
     table.rows = effectiveRow;
 
