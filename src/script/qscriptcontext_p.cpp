@@ -101,11 +101,12 @@ static inline void qscript_uint_to_string(qnumber i, QString &s)
         if (member.isGetterOrSetter()) { \
             if (member.isGetter()) { \
                 getter = value; \
-                if (!base.m_object_value->findSetter(&member)) { \
+                if (!member.isSetter() && !base.m_object_value->findSetter(&member)) { \
                     stackPtr -= 2; \
                     q->throwError(QLatin1String("No setter defined")); \
                     HandleException(); \
                 } \
+                base.impl()->get(member, &setter); \
             } else { \
                 setter = value; \
                 QScript::Member tmp = member; \
@@ -180,11 +181,12 @@ static inline void qscript_uint_to_string(qnumber i, QString &s)
         if (member.isGetterOrSetter()) { \
             if (member.isGetter()) { \
                 getter = lhs; \
-                if (!base.m_object_value->findSetter(&member)) { \
+                if (!member.isSetter() && !base.m_object_value->findSetter(&member)) { \
                     stackPtr -= 4; \
                     q->throwError(QLatin1String("No setter defined")); \
                     HandleException(); \
                 } \
+                base.impl()->get(member, &setter); \
             } else { \
                 setter = lhs; \
                 QScript::Member tmp = member; \
@@ -1374,11 +1376,12 @@ Ltop:
         if (member.isGetterOrSetter()) {
             if (member.isGetter()) {
                 getter = value;
-                if (!base.m_object_value->findSetter(&member)) {
+                if (!member.isSetter() && !base.m_object_value->findSetter(&member)) {
                     stackPtr -= 2;
                     q->throwError(QLatin1String("No setter defined"));
                     HandleException();
                 }
+                base.impl()->get(member, &setter);
             } else {
                 setter = value;
                 QScript::Member tmp = member;
@@ -1475,11 +1478,12 @@ Ltop:
         if (member.isGetterOrSetter()) {
             if (member.isGetter()) {
                 getter = value;
-                if (!base.m_object_value->findSetter(&member)) {
+                if (!member.isSetter() && !base.m_object_value->findSetter(&member)) {
                     stackPtr -= 2;
                     q->throwError(QLatin1String("No setter defined"));
                     HandleException();
                 }
+                base.impl()->get(member, &setter);
             } else {
                 setter = value;
                 QScript::Member tmp = member;
