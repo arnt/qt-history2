@@ -141,6 +141,7 @@ private slots:
     void rowSizeHint();
 
     void selection();
+    void removeAndInsertExpandedCol0();
 };
 
 class QtTestModel: public QAbstractItemModel
@@ -1918,6 +1919,30 @@ void tst_QTreeView::rowSizeHint()
     QCOMPARE( view.visualRect(model.index(0,0)).height(), 40);
     QCOMPARE( view.visualRect(model.index(0,1)).height(), 40);
     QCOMPARE( view.visualRect(model.index(0,2)).height(), 40);
+}
+
+// From Task 145199 (crash when column 0 having at least one expanded item is removed and then
+// inserted). The test passes simply iff it doesn't crash, hence there are no calls
+// to QCOMPARE() or QVERIFY().
+void tst_QTreeView::removeAndInsertExpandedCol0()
+{
+    QTreeView view;
+    QStandardItemModel model;
+    view.setModel(&model);
+
+    model.setColumnCount(1);
+
+    QStandardItem *item0 = new QStandardItem(QString("item 0"));
+    model.invisibleRootItem()->appendRow(item0);
+    view.expand(item0->index());
+    QStandardItem *item1 = new QStandardItem(QString("item 1"));
+    item0->appendRow(item1);
+
+    model.removeColumns(0, 1);
+    model.insertColumns(0, 1);
+
+    view.show();
+    qApp->processEvents();
 }
 
 QTEST_MAIN(tst_QTreeView)
