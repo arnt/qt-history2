@@ -59,6 +59,14 @@ public:
 */
 
 /*!
+    \enum QTreeWidgetItem::ChildIndicatorPolicy
+
+    \value ShowIndicator
+    \value HideIndicator
+    \value ShowForChildren
+*/
+
+/*!
     \fn void QTreeWidgetItem::setDisabled(bool disabled)
 
     Disables the item if \a disabled is true, otherwise enables the item.
@@ -67,7 +75,7 @@ public:
 */
 
 /*!
-    \fn bool QTreeWidgetItem::isDisabled()
+    \fn bool QTreeWidgetItem::isDisabled() const
 
     Return true if the item is disabled, otherwise false.
 
