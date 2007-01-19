@@ -95,6 +95,7 @@ private:
     QString dictFile, docListFile;
     bool alreadyHaveDocList;
     bool lastWindowClosed;
+    QHash<QString, QString> documentTitleCache;
 };
 
 #endif

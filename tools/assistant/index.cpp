@@ -336,6 +336,10 @@ QString Index::getDocumentTitle( const QString &fullFileName )
 {
     QUrl url(fullFileName);
     QString fileName = url.toLocalFile();
+
+    if (documentTitleCache.contains(fileName))
+        return documentTitleCache.value(fileName);
+
     QFile file( fileName );
     if ( !file.open( QFile::ReadOnly ) ) {
         qWarning( (QLatin1String("cannot open file ") + fileName).toAscii().constData() );
@@ -348,6 +352,7 @@ QString Index::getDocumentTitle( const QString &fullFileName )
     int end = text.indexOf(QLatin1String("</title>"), 0, Qt::CaseInsensitive);
 
     QString title = ( end - start <= 0 ? tr("Untitled") : text.mid( start, end - start ) );
+    documentTitleCache.insert(fileName, title);
     return title;
 }
 
