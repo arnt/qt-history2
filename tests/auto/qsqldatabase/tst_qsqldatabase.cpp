@@ -111,6 +111,9 @@ private slots:
     void ibase_numericFields_data() { generic_data(); }
     void ibase_numericFields(); // For task 125053
 
+    void formatValueTrimStrings_data() { generic_data(); }
+    void formatValueTrimStrings();
+
 private:
     void createTestTables(QSqlDatabase db);
     void dropTestTables(QSqlDatabase db);
@@ -1640,6 +1643,35 @@ void tst_QSqlDatabase::ibase_numericFields()
     QVERIFY(r.field(1).requiredStatus() == QSqlField::Optional);
 
     q.exec(QString("DROP TABLE %1").arg(tableName));
+
+}
+
+void tst_QSqlDatabase::formatValueTrimStrings()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    QSqlQuery q(db);
+
+    QVERIFY2(q.exec(QString("INSERT INTO %1 (id, t_varchar, t_char) values (50, 'Trim Test ', 'Trim Test 2   ')").arg(qTableName("qtest"))), q.lastError().text());
+    QVERIFY2(q.exec(QString("INSERT INTO %1 (id, t_varchar, t_char) values (51, 'TrimTest', 'Trim Test 2')").arg(qTableName("qtest"))), q.lastError().text());
+    QVERIFY2(q.exec(QString("INSERT INTO %1 (id, t_varchar, t_char) values (52, ' ', '    ')").arg(qTableName("qtest"))), q.lastError().text());
+    
+    QVERIFY2(q.exec(QString("SELECT t_varchar, t_char FROM %1 WHERE id >= 50 AND id <= 52 ORDER BY id").arg(qTableName("qtest"))), q.lastError().text());
+    
+    QVERIFY2(q.next(), q.lastError().text());
+
+    QCOMPARE(db.driver()->formatValue(q.record().field(0), true), QString("'Trim Test'"));
+    QCOMPARE(db.driver()->formatValue(q.record().field(1), true), QString("'Trim Test 2'"));
+
+    QVERIFY2(q.next(), q.lastError().text());
+    QCOMPARE(db.driver()->formatValue(q.record().field(0), true), QString("'TrimTest'"));
+    QCOMPARE(db.driver()->formatValue(q.record().field(1), true), QString("'Trim Test 2'"));
+
+    QVERIFY2(q.next(), q.lastError().text());
+    QCOMPARE(db.driver()->formatValue(q.record().field(0), true), QString("''"));
+    QCOMPARE(db.driver()->formatValue(q.record().field(1), true), QString("''"));
 
 }
 
