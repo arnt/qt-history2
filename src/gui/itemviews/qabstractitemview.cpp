@@ -708,12 +708,12 @@ void QAbstractItemView::setItemDelegateForColumn(int column, QAbstractItemDelega
 }
 
 /*!
-   \since 4.2
+    \since 4.2
 
-   Returns the item delegate used by this view and model for the given \a
-   column.You can call itemDelegate() to get a pointer to the current delegate
-   for a given index.
-   
+    Returns the item delegate used by this view and model for the given \a
+    column.  You can call itemDelegate() to get a pointer to the current delegate
+    for a given index.
+
     \sa setItemDelegateForColumn(), itemDelegateForRow(), itemDelegate()
 */
 QAbstractItemDelegate *QAbstractItemView::itemDelegateForColumn(int column) const
