@@ -226,14 +226,17 @@ Q_GUI_EXPORT HIViewRef qt_mac_hiview_for(const QWidget *w)
 {
     return (HIViewRef)w->data->winid;
 }
+
 Q_GUI_EXPORT HIViewRef qt_mac_hiview_for(WindowPtr w)
 {
     HIViewRef ret = 0;
-    OSStatus err = HIViewFindByID(HIViewGetRoot(w), kHIViewWindowContentID, &ret);
-    if(err == errUnknownControl)
+    OSStatus err = GetRootControl(w, &ret);  // Returns the window's content view (Apple QA1214)
+    if (err == errUnknownControl) {
         ret = HIViewGetRoot(w);
-    else if(err != noErr)
-        qWarning("That cannot happen! %d [%ld]", __LINE__, long(err));
+    } else if (err != noErr) {
+        qWarning("Qt:Could not get content or root view of window! %s:%d [%ld]",
+                 __FILE__, __LINE__, err);
+    }
     return ret;
 }
 
