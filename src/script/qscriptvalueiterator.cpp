@@ -98,7 +98,7 @@ bool QScriptValueIterator::hasNext() const
     while (! found && ++i < count) {
         QScript::Member member;
         QScriptValueImpl::get(v)->member(i, &member);
-        found = member.isValid() && ! member.dontEnum();
+        found = member.isValid();
         if (found) {
             QScriptValue vv;
             QScriptValueImpl::get(v)->get(member, &vv);
@@ -156,7 +156,7 @@ bool QScriptValueIterator::hasPrevious() const
     while (! found && --i >= 0) {
         QScript::Member member;
         QScriptValueImpl::get(v)->member(i, &member);
-        found = member.isValid() && ! member.dontEnum();
+        found = member.isValid();
         if (found) {
             QScriptValue vv;
             QScriptValueImpl::get(v)->get(member, &vv);

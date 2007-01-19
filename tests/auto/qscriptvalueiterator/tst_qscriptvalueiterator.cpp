@@ -184,7 +184,8 @@ void tst_QScriptValueIterator::iterateBackAndForth()
     QScriptEngine engine;
     QScriptValue object = engine.newObject();
     object.setProperty("foo", engine.scriptValue("bar"));
-    object.setProperty("rab", engine.scriptValue("oof"));
+    object.setProperty("rab", engine.scriptValue("oof"),
+                       QScriptValue::SkipInEnumeration); // should not affect iterator
     QScriptValueIterator it(object);
     QCOMPARE(it.next(), QLatin1String("foo"));
     QCOMPARE(it.previous(), QLatin1String("foo"));
@@ -216,7 +217,8 @@ void tst_QScriptValueIterator::remove()
 {
     QScriptEngine engine;
     QScriptValue object = engine.newObject();
-    object.setProperty("foo", engine.scriptValue("bar"));
+    object.setProperty("foo", engine.scriptValue("bar"),
+                       QScriptValue::SkipInEnumeration); // should not affect iterator
     object.setProperty("rab", engine.scriptValue("oof"));
     QScriptValueIterator it(object);
     QCOMPARE(it.next(), QLatin1String("foo"));
