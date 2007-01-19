@@ -272,6 +272,8 @@ QString QAbstractItemDelegate::elidedText(const QFontMetrics &fontMetrics, int w
     Whenever a help event occurs, this function is called with the \a event
     \a view \a option and the \a index that corresponds to the item where the
     event occurs.
+
+    Returns true if the event is successful otherwise false.
 */
 // ### Qt 5: Make this a virtual non-slot function
 bool QAbstractItemDelegate::helpEvent(QHelpEvent *event,
