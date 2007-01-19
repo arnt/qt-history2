@@ -1562,7 +1562,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             parentWidget->createWinId();
             parent = qt_mac_hiview_for(parentWidget);
         }
-        if(parent)
+        if(parent != hiview)
             HIViewAddSubview(parent, hiview);
         if(transfer)
             transferChildren();
@@ -2461,8 +2461,6 @@ void QWidgetPrivate::setGeometry_sys_helper(int x, int y, int w, int h, bool isM
 #undef SF
             SetWindowResizeLimits(qt_mac_window_for(q), &min, &max);
         }
-
-        //update the widget.
         HIRect bounds = CGRectMake(0, 0, w, h);
         HIViewSetFrame(qt_mac_hiview_for(q), &bounds);
     } else {
