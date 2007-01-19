@@ -41,7 +41,8 @@ struct Q_CORE_EXPORT QListData {
     };
     enum { DataHeaderSize = sizeof(Data) - sizeof(void *) };
 
-    Data *detach();
+    Data *detach(); // remove in 5.0
+    Data *detach2();
     void realloc(int alloc);
     static Data shared_null;
     Data *d;
@@ -486,10 +487,10 @@ template <typename T>
 Q_OUTOFLINE_TEMPLATE void QList<T>::detach_helper()
 {
     Node *n = reinterpret_cast<Node *>(p.begin());
-    QListData::Data *x = p.detach();
-    if (x)
-        free(x);
+    QListData::Data *x = p.detach2();
     node_copy(reinterpret_cast<Node *>(p.begin()), reinterpret_cast<Node *>(p.end()), n);
+    if (!x->ref.deref())
+        free(x);
 }
 
 template <typename T>

@@ -35,6 +35,9 @@ static int grow(int size)
     return x;
 }
 
+#if QT_VERSION >= 0x050000
+#  error "Remove QListData::detach(), it is only required for binary compatibility for 4.0.x to 4.2.x"
+#endif
 QListData::Data *QListData::detach()
 {
     Data *x = static_cast<Data *>(qMalloc(DataHeaderSize + d->alloc * sizeof(void *)));
@@ -52,6 +55,23 @@ QListData::Data *QListData::detach()
     if (!x->ref.deref())
         return x;
     return 0;
+}
+
+// Returns the old (shared) data, it is up to the caller to deref() and free()
+QListData::Data *QListData::detach2()
+{
+    Data *x = static_cast<Data *>(qMalloc(DataHeaderSize + d->alloc * sizeof(void *)));
+    if (!x)
+        qFatal("QList: Out of memory");
+
+    ::memcpy(x, d, DataHeaderSize + d->alloc * sizeof(void *));
+    x->alloc = d->alloc;
+    x->ref.init(1);
+    x->sharable = true;
+    if (!x->alloc)
+        x->begin = x->end = 0;
+
+    return qAtomicSetPtr(&d, x);
 }
 
 void QListData::realloc(int alloc)
