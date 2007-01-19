@@ -86,6 +86,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *mouseEvent);
     void keyPressEvent(QKeyEvent *keyEvent);
     void contextMenuEvent(QContextMenuEvent *contextMenuEvent);
+    void focusInEvent(QFocusEvent *focusInEvent);
 
 private:
     Q_DISABLE_COPY(QMdiSubWindow)

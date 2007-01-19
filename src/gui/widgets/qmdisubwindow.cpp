@@ -1480,6 +1480,20 @@ void QMdiSubWindowPrivate::setFocusWidget()
         return;
     }
 
+    // This will give focus to the next child if possible, otherwise
+    // do nothing, hence it's not possible to tab between windows with
+    // just hitting tab (unless Qt::TabFocus is removed from the focus policy).
+    if (focusInReason == Qt::TabFocusReason) {
+        q->focusNextChild();
+        return;
+    }
+
+    // Same as above, but gives focus to the previous child.
+    if (focusInReason == Qt::BacktabFocusReason) {
+        q->focusPreviousChild();
+        return;
+    }
+
     if (QWidget *focusWidget = baseWidget->focusWidget()) {
         if (!focusWidget->hasFocus() && q->isAncestorOf(focusWidget)
                 && focusWidget->isVisible()
@@ -1595,7 +1609,7 @@ QMdiSubWindow::QMdiSubWindow(QWidget *parent, Qt::WindowFlags flags)
     setAutoFillBackground(true);
     setMouseTracking(true);
     setLayout(new QVBoxLayout);
-    setFocusPolicy(Qt::ClickFocus);
+    setFocusPolicy(Qt::StrongFocus);
     layout()->setMargin(0);
     d->updateGeometryConstraints();
     connect(qApp, SIGNAL(focusChanged(QWidget *, QWidget *)),
@@ -2420,6 +2434,11 @@ void QMdiSubWindow::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
     } else {
         contextMenuEvent->ignore();
     }
+}
+
+void QMdiSubWindow::focusInEvent(QFocusEvent *focusInEvent)
+{
+    d_func()->focusInReason = focusInEvent->reason();
 }
 
 /*!

@@ -148,6 +148,7 @@ public:
     QPointer<QMenu> systemMenu;
     QPointer<QAction> actions[NumWindowStateActions];
     QMdiSubWindow::SubWindowOptions options;
+    Qt::FocusReason focusInReason;
 
     // Slots.
     void _q_updateStaysOnTopHint();
