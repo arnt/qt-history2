@@ -146,6 +146,7 @@ private slots:
     void html_tbody();
     void html_nestedTables();
     void html_rowSpans();
+    void html_rowSpans2();
     void html_implicitParagraphs();
     void html_missingCloseTag();
     void html_anchorColor();
@@ -2167,6 +2168,37 @@ void tst_QTextDocumentFragment::html_rowSpans()
     QCOMPARE(table->cellAt(3, 0).firstCursorPosition().block().text(), QString("blubb"));
     QCOMPARE(table->cellAt(3, 1).firstCursorPosition().block().text(), QString("baz"));
 #endif
+}
+
+void tst_QTextDocumentFragment::html_rowSpans2()
+{
+    setHtml(""
+            "<html><body>"
+            "<table border=\"1\">"
+            "<tr>"
+            "<td>Row 1 col 1</td>"
+            "</tr>"
+            "<tr>"
+            "<td rowspan=\"3\">Row 2 col 1, rowspan 3</td>"
+            "<td>Row 2 col 2</td>"
+            "</tr>"
+            "<tr>"
+            "<td rowspan=\"2\">Row 3 col 2, rowspan 2</td>"
+            "</tr>"
+            "<tr>"
+            "</tr>"
+            "</table>"
+            "</body></html>");
+
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::NextBlock);
+    QTextTable *table = cursor.currentTable();
+    QVERIFY(table);
+    QCOMPARE(table->rows(), 4);
+    QCOMPARE(table->columns(), 2);
+    QCOMPARE(table->cellAt(0, 1).rowSpan(), 1);
+    QCOMPARE(table->cellAt(1, 0).rowSpan(), 3);
+    QCOMPARE(table->cellAt(2, 1).rowSpan(), 2);
 }
 
 void tst_QTextDocumentFragment::html_implicitParagraphs()
