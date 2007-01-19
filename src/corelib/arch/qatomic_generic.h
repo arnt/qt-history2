@@ -66,6 +66,23 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
     return ret;
 }
 
+inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
+{
+    int originalValue = *ptr;
+    *ptr += value;
+    return originalValue;
+}
+
+inline int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value)
+{
+    return q_atomic_fetch_and_add(ptr, value);
+}
+
+inline int q_atomic_fetch_and_add_release(volatile int *ptr, int value)
+{
+    return q_atomic_fetch_and_add(ptr, value);
+}
+
 QT_END_HEADER
 
 #endif // GENERIC_QATOMIC_H

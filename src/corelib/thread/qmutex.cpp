@@ -166,14 +166,7 @@ void QMutex::lock()
 {
     ulong self = d->self();
 
-    int contender;
-    forever {
-        contender = d->contenders;
-        if (d->contenders.testAndSetAcquire(contender, contender + 1))
-            break;
-    }
-
-    bool isLocked = contender == 0;
+    bool isLocked = d->contenders.fetchAndAddAcquire(1) == 0;
     if (!isLocked) {
         isLocked = d->recursive && d->owner == self;
         if (!isLocked) {
@@ -243,14 +236,7 @@ bool QMutex::tryLock(int timeout)
 {
     ulong self = d->self();
 
-    int contender;
-    forever {
-        contender = d->contenders;
-        if (d->contenders.testAndSetAcquire(contender, contender + 1))
-            break;
-    }
-
-    bool isLocked = contender == 0;
+    bool isLocked = d->contenders.fetchAndAddAcquire(1) == 0;
     if (!isLocked) {
          isLocked = d->recursive && d->owner == self;
          if (!isLocked) {
@@ -474,7 +460,7 @@ void QMutex::unlock()
 /*!
     \fn void QMutexLocker::unlock()
 
-    Unlocks this mutex locker. You can use \c relock() to lock 
+    Unlocks this mutex locker. You can use \c relock() to lock
     it again. It does not need to be locked when destroyed.
 
     \sa relock()

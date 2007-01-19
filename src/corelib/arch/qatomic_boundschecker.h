@@ -109,8 +109,12 @@ inline void *q_atomic_set_ptr(volatile void *pointer, void *newval)
     *reinterpret_cast<void * volatile *>(pointer) = newval;
     q_atomic_unlock();
     return ret;
-
 }
+
+#error "fetch-and-add not implemented"
+// int q_atomic_fetch_and_add(volatile int *ptr, int value);
+// int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value);
+// int q_atomic_fetch_and_add_release(volatile int *ptr, int value);
 
 QT_END_HEADER
 

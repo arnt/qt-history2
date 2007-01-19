@@ -166,6 +166,59 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
     return old;
 }
 
+inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
+{
+    register int old, tmp;
+    asm volatile("1:\n"
+                 "ldl_l %0,%2\n"   /* old=*ptr;                               */
+                 "addl  %0,%3,%1\n"/* tmp=old+value;                          */
+                 "stl_c %1,%2\n"   /* if ((*ptr=tmp)!=tmp) tmp=0; else tmp=1; */
+                 "beq   %1,2f\n"   /* if (tmp == 0) goto 2;                   */
+                 "br    3f\n"      /* goto 3;                                 */
+                 "2: br 1b\n"      /* goto 1;                                 */
+                 "3:\n"
+                 : "=&r" (old), "=&r" (tmp), "+m"(*ptr)
+                 : "r" (value)
+                 : "memory");
+    return old != -1;
+}
+
+inline int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value)
+{
+    register int old, tmp;
+    asm volatile("1:\n"
+                 "ldl_l %0,%2\n"   /* old=*ptr;                               */
+                 "addl  %0,%3,%1\n"/* tmp=old+value;                          */
+                 "stl_c %1,%2\n"   /* if ((*ptr=tmp)!=tmp) tmp=0; else tmp=1; */
+                 "beq   %1,2f\n"   /* if (tmp == 0) goto 2;                   */
+                 "br    3f\n"      /* goto 3;                                 */
+                 "2: br 1b\n"      /* goto 1;                                 */
+                 "3:\n"
+                 "mb\n"
+                 : "=&r" (old), "=&r" (tmp), "+m"(*ptr)
+                 : "r" (value)
+                 : "memory");
+    return old != -1;
+}
+
+inline int q_atomic_fetch_and_add_release(volatile int *ptr, int value)
+{
+    register int old, tmp;
+    asm volatile("mb\n"
+                 "1:\n"
+                 "ldl_l %0,%2\n"   /* old=*ptr;                               */
+                 "addl  %0,%3,%1\n"/* tmp=old+value;                          */
+                 "stl_c %1,%2\n"   /* if ((*ptr=tmp)!=tmp) tmp=0; else tmp=1; */
+                 "beq   %1,2f\n"   /* if (tmp == 0) goto 2;                   */
+                 "br    3f\n"      /* goto 3;                                 */
+                 "2: br 1b\n"      /* goto 1;                                 */
+                 "3:\n"
+                 : "=&r" (old), "=&r" (tmp), "+m"(*ptr)
+                 : "r" (value)
+                 : "memory");
+    return old != -1;
+}
+
 #else // !Q_CC_GNU
 
 extern "C" {
@@ -177,6 +230,9 @@ extern "C" {
     Q_CORE_EXPORT int q_atomic_decrement(volatile int *ptr);
     Q_CORE_EXPORT int q_atomic_set_int(volatile int *ptr, int newval);
     Q_CORE_EXPORT void *q_atomic_set_ptr(volatile void *ptr, void *newval);
+    Q_CORE_EXPORT int q_atomic_fetch_and_add(volatile int *ptr, int value);
+    Q_CORE_EXPORT int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value);
+    Q_CORE_EXPORT int q_atomic_fetch_and_add_release(volatile int *ptr, int value);
 } // extern "C"
 
 #endif // Q_CC_GNU

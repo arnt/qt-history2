@@ -20,17 +20,6 @@
 
 
 static QBasicAtomic timerId = Q_ATOMIC_INIT(1);
-static int nextTimerId()
-{
-    register int id;
-    forever {
-        id = timerId;
-        if (timerId.testAndSet(id, id + 1))
-            break;
-    }
-    Q_ASSERT_X(id >= 1, "QTimer", "timer id overflow, please contact qt-bugs@trolltech.com");
-    return id;
-}
 
 
 void QAbstractEventDispatcherPrivate::init()
@@ -188,7 +177,7 @@ QAbstractEventDispatcher *QAbstractEventDispatcher::instance(QThread *thread)
 */
 int QAbstractEventDispatcher::registerTimer(int interval, QObject *object)
 {
-    int id = nextTimerId();
+    int id = timerId.fetchAndAdd(1);
     registerTimer(id, interval, object);
     return id;
 }

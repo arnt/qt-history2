@@ -144,3 +144,56 @@ q_atomic_set_ptr:
 2:	br    1b
 3:	ret   $31,($26),1
 	.end q_atomic_set_ptr
+
+	.align 2
+	.align 4
+	.globl q_atomic_fetch_and_add
+	.ent q_atomic_fetch_and_add
+q_atomic_fetch_and_add:
+	.frame $30,0,$26,0
+	.prologue 0
+1:	ldl_l $0,0($16)
+	addl  $0,$17,$1
+	stl_c $1,0($16)
+	beq   $1,2f
+	br    3f
+2:	br    1b
+3:	addl $31,$0,$0
+	ret $31,($26),1
+	.end q_atomic_fetch_and_add
+
+	.align 2
+	.align 4
+	.globl q_atomic_fetch_and_add_acquire
+	.ent q_atomic_fetch_and_add_acquire
+q_atomic_fetch_and_add_acquire:
+	.frame $30,0,$26,0
+	.prologue 0
+1:	ldl_l $0,0($16)
+	addl  $0,$17,$1
+	stl_c $1,0($16)
+	beq   $1,2f
+	br    3f
+2:	br    1b
+3:	mb
+        addl $31,$0,$0
+	ret $31,($26),1
+	.end q_atomic_fetch_and_add_acquire
+
+	.align 2
+	.align 4
+	.globl q_atomic_fetch_and_add_acquire
+	.ent q_atomic_fetch_and_add_acquire
+q_atomic_fetch_and_add_acquire:
+	.frame $30,0,$26,0
+	.prologue 0
+        mb
+1:	ldl_l $0,0($16)
+	addl  $0,$17,$1
+	stl_c $1,0($16)
+	beq   $1,2f
+	br    3f
+2:	br    1b
+3:      addl $31,$0,$0
+	ret $31,($26),1
+	.end q_atomic_fetch_and_add_acquire

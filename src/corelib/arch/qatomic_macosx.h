@@ -14,6 +14,12 @@
 #ifndef MACOSX_QATOMIC_H
 #define MACOSX_QATOMIC_H
 
+#if defined(__x86_64__)
+#  include <QtCore/qatomic_x86_64.h>
+#elif defined(__i386__)
+#  include <QtCore/qatomic_i386.h>
+#else // !__x86_64 && !__i386__
+
 #include <QtCore/qglobal.h>
 
 // Use the functions in OSAtomic.h if we are in 64-bit mode. This header is
@@ -70,6 +76,33 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
         ret = *reinterpret_cast<int64_t *>(const_cast<void *>(ptr));
     } while (OSAtomicCompareAndSwap64(ret, reinterpret_cast<int64_t>(newval), reinterpret_cast<int64_t *>(const_cast<void *>(ptr))) == false);
     return reinterpret_cast<void *>(ret);
+}
+
+inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
+{
+    register int ret;
+    do {
+        ret = *ptr;
+    } while (OSAtomicCompareAndSwap32(ret, ret + value, const_cast<int *>(ptr)) == false);
+    return ret;
+}
+
+inline int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value)
+{
+    register int ret;
+    do {
+        ret = *ptr;
+    } while (OSAtomicCompareAndSwap32Barrier(ret, ret + value, const_cast<int *>(ptr)) == false);
+    return ret;
+}
+
+inline int q_atomic_fetch_and_add_release(volatile int *ptr, int value)
+{
+    register int ret;
+    do {
+        ret = *ptr;
+    } while (OSAtomicCompareAndSwap32Barrier(ret, ret + value, const_cast<int *>(ptr)) == false);
+    return ret;
 }
 
 #elif defined(_ARCH_PPC) || defined(Q_CC_XLC)
@@ -212,11 +245,57 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
     return ret;
 }
 
+
 #undef LPARX
 #undef CMPP
 #undef STPCX
 
-#else
+inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
+{
+    register int tmp;
+    register int ret;
+    asm volatile("lwarx  %0, 0, %3\n"
+                 "add    %1, %4, %0\n"
+                 "stwcx. %1, 0, %3\n"
+                 "bne-   $-12\n"
+                 : "=&r" (ret), "=&r" (tmp), "=m" (*ptr)
+                 : "r" (ptr), "r" (value)
+                 : "cc", "memory");
+    return ret;
+}
+
+inline int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value)
+{
+    register int tmp;
+    register int ret;
+    asm volatile("lwarx  %0, 0, %3\n"
+                 "add    %1, %4, %0\n"
+                 "stwcx. %1, 0, %3\n"
+                 "bne-   $-12\n"
+                 "eieio\n"
+                 : "=&r" (ret), "=&r" (tmp), "=m" (*ptr)
+                 : "r" (ptr), "r" (value)
+                 : "cc", "memory");
+    return ret;
+}
+
+inline int q_atomic_fetch_and_add_release(volatile int *ptr, int value)
+{
+    register int tmp;
+    register int ret;
+    asm volatile("eieio\n"
+                 "lwarx  %0, 0, %3\n"
+                 "add    %1, %4, %0\n"
+                 "stwcx. %1, 0, %3\n"
+                 "bne-   $-12\n"
+                 : "=&r" (ret), "=&r" (tmp), "=m" (*ptr)
+                 : "r" (ptr), "r" (value)
+                 : "cc", "memory");
+    return ret;
+}
+
+#else // !Q_CC_GNU
+
 // TODO: Implement TAS with acquire/release semantics.
 extern "C" {
     int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
@@ -227,99 +306,20 @@ extern "C" {
     void *q_atomic_set_ptr(volatile void *, void *);
     int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval);
     int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval);
+
+#error "fetch-and-add not implemented"
+    // int q_atomic_fetch_and_add(volatile int *ptr, int value);
+    // int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value);
+    // int q_atomic_fetch_and_add_release(volatile int *ptr, int value);
+
 } // extern "C"
 
-#endif
+#endif // Q_CC_GNU
 
-#endif //_ARCH_PPC
-
-#if defined(__i386__)
-
-#if defined(Q_CC_GNU) || defined(Q_CC_INTEL)
-
-inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
-{
-    unsigned char ret;
-    asm volatile("lock\n"
-                 "cmpxchgl %2,%3\n"
-                 "sete %1\n"
-                 : "=a" (newval), "=qm" (ret)
-                 : "r" (newval), "m" (*ptr), "0" (expected)
-                 : "memory");
-    return static_cast<int>(ret);
-}
-
-inline int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval)
-{
-    return q_atomic_test_and_set_int(ptr, expected, newval);
-}
-
-inline int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval)
-{
-    return q_atomic_test_and_set_int(ptr, expected, newval);
-}
-
-inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)
-{
-    return q_atomic_test_and_set_int(reinterpret_cast<volatile int *>(ptr),
-                                     reinterpret_cast<int>(expected),
-                                     reinterpret_cast<int>(newval));
-}
-
-inline int q_atomic_increment(volatile int *ptr)
-{
-    unsigned char ret;
-    asm volatile("lock\n"
-                 "incl %0\n"
-                 "setne %1"
-                 : "=m" (*ptr), "=qm" (ret)
-                 : "m" (*ptr)
-                 : "memory");
-    return static_cast<int>(ret);
-}
-
-inline int q_atomic_decrement(volatile int *ptr)
-{
-    unsigned char ret;
-    asm volatile("lock\n"
-                 "decl %0\n"
-                 "setne %1"
-                 : "=m" (*ptr), "=qm" (ret)
-                 : "m" (*ptr)
-                 : "memory");
-    return static_cast<int>(ret);
-}
-
-inline int q_atomic_set_int(volatile int *ptr, int newval)
-{
-    asm volatile("xchgl %0,%1"
-                 : "=r" (newval)
-                 : "m" (*ptr), "0" (newval)
-                 : "memory");
-    return newval;
-}
-
-inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
-{
-    return reinterpret_cast<void *>(q_atomic_set_int(reinterpret_cast<volatile int *>(ptr),
-                                                     reinterpret_cast<int>(newval)));
-}
-
-#else
-
-extern "C" {
-    Q_CORE_EXPORT int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
-    Q_CORE_EXPORT int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
-    Q_CORE_EXPORT int q_atomic_increment(volatile int *ptr);
-    Q_CORE_EXPORT int q_atomic_decrement(volatile int *ptr);
-    Q_CORE_EXPORT int q_atomic_set_int(volatile int *ptr, int newval);
-    Q_CORE_EXPORT void *q_atomic_set_ptr(volatile void *ptr, void *newval);
-} // extern "C"
-
-#endif
-
-#endif //__i386__
+#endif // _ARCH_PPC || Q_CC_XLC
 
 QT_END_HEADER
+
+#endif // !__x86_64__ && !__i386__
 
 #endif // MACOSX_QATOMIC_H

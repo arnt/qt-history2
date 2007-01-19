@@ -172,6 +172,11 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
 #endif
 }
 
+#error "fetch-and-add not implemented"
+// int q_atomic_fetch_and_add(volatile int *ptr, int value);
+// int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value);
+// int q_atomic_fetch_and_add_release(volatile int *ptr, int value);
+
 QT_END_HEADER
 
 #endif // S390_QATOMIC_H

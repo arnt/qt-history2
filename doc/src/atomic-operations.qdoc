@@ -33,6 +33,9 @@
     \o \l {6}{int q_atomic_decrement()}
     \o \l {7}{int q_atomic_set_int()}
     \o \l {8}{int q_atomic_set_ptr()}
+    \o \l {9}{int q_atomic_fetch_and_add()}
+    \o \l {10}{int q_atomic_fetch_and_add_acquire()}
+    \o \l {11}{int q_atomic_fetch_and_add_release()}
     \endlist
 
     Note that these functions must be atomic with respect to both
@@ -45,10 +48,10 @@
     Q_SPECIALIZED_QATOMIC and implementing the following members:
 
     \list
-    \o \l {9}{struct QBasicAtomic}
-    \o \l {10}{template <typename T> struct QBasicAtomicPointer<T>}
-    \o \l {11}{int q_atomic_test_and_set_ptr()}
-    \o \l {12}{void *q_atomic_set_ptr()}
+    \o \l {12}{struct QBasicAtomic}
+    \o \l {13}{template <typename T> struct QBasicAtomicPointer<T>}
+    \o \l {14}{int q_atomic_test_and_set_ptr()}
+    \o \l {15}{void *q_atomic_set_ptr()}
     \endlist
 
 \endomit
@@ -232,19 +235,63 @@
 
     See also \l{7}{q_atomic_set_int()}.
 
-\omit
-
     \target 9
-    \section2 struct QBasicAtomic
+    \section2 int q_atomic_fetch_and_add (volatile int *ptr, int value)
+
+    Atomic fetch-and-add for integers.
+
+    \code
+    tmp = *ptr;
+    *ptr += value;
+    return tmp;
+    \endcode
+
+    Adds the value in memory pointed to by \a ptr with \a value and
+    returns the previous value of \a *ptr;
+
+    There are 3 variants of the test-and-set integer function: Each
+    variant implies a different memory semantic, i.e. the relation of
+    memory operations before or after the test-and-set
+    operation. Since modern hardware can reorder memory operations to
+    improve performance, these functions are used to ensure the order
+    of memory operations (often called a \e{memory barrier}).
+
+    \bold{Note:} This variant of the test-and-set integer function
+    implies that memory semantic is unspecified.
 
     \target 10
+    \section2
+    int q_atomic_fetch_and_add_acquire (volatile int *ptr, int value)
+
+    This function behaves essentially like the above function.
+
+    \bold{Note:} This variant of the fetch-and-add integer function
+    implies that the atomic fetch-and-add operation must be performed
+    before memory operations after the fetch-and-add.
+
+    \target 3
+    \section2
+    int q_atomic_fetch_and_add_release (volatile int *ptr, int value)
+
+    This function behaves essentially like the above function.
+
+    \bold{Note:} This variant of the fetch-and-add integer function
+    implies that all memory operations must be performed before the
+    fetch-and-add.
+
+\omit
+
+    \target 12
+    \section2 struct QBasicAtomic
+
+    \target 13
     \section2 template <typename T> struct QBasicAtomicPointer<T>
 
-    \target 11
+    \target 14
     \section2
     int q_atomic_test_and_set_ptr (volatile void *ptr, void *expected, void *newval)
 
-    \target 12
+    \target 15
     \section2 void *q_atomic_set_ptr (volatile void *ptr, void *newval)
 
 \endomit

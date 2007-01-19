@@ -91,6 +91,17 @@ inline void *q_atomic_set_ptr(volatile void *pointer, void *newval)
     return newval;
 }
 
+inline int q_atomic_fetch_and_add(volatile int *pointer, int value)
+{
+    __asm {
+        mov EDX,pointer
+        mov ECX,value
+        lock xadd dword ptr[EDX],ECX
+        mov value,ECX
+    }
+    return value;
+}
+
 #else
 // use compiler intrinsics for all atomic functions
 extern "C" {
@@ -98,11 +109,13 @@ extern "C" {
     long _InterlockedDecrement(volatile long *);
     long _InterlockedExchange(volatile long *, long);
     long _InterlockedCompareExchange(volatile long *, long, long);
+    long _InterlockedExchangeAdd(volatile long *, long);
 }
 #  pragma intrinsic (_InterlockedIncrement)
 #  pragma intrinsic (_InterlockedDecrement)
 #  pragma intrinsic (_InterlockedExchange)
 #  pragma intrinsic (_InterlockedCompareExchange)
+#  pragma intrinsic (_InterlockedExchangeAdd)
 
 #  ifndef _M_IX86
 extern "C" {
@@ -136,6 +149,11 @@ inline int q_atomic_set_int(volatile int *ptr, int newval)
 inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
 { return _InterlockedExchangePointer(reinterpret_cast<void * volatile *>(ptr), newval); }
 
+inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
+{
+    return _InterlockedExchangeAdd(reinterpret_cast<volatile long *>(ptr), value);
+}
+
 #endif // _MSC_VER ...
 
 #else
@@ -147,6 +165,7 @@ extern "C" {
     __declspec(dllimport) long __stdcall InterlockedIncrement(long *);
     __declspec(dllimport) long __stdcall InterlockedDecrement(long *);
     __declspec(dllimport) long __stdcall InterlockedExchange(long *, long);
+    __declspec(dllimport) long __stdcall InterlockedExchangeAdd(long *, long);
 }
 
 #else
@@ -156,6 +175,7 @@ extern "C" {
     __declspec(dllimport) long __stdcall InterlockedIncrement(long volatile*);
     __declspec(dllimport) long __stdcall InterlockedDecrement(long volatile*);
     __declspec(dllimport) long __stdcall InterlockedExchange(long volatile*, long);
+    __declspec(dllimport) long __stdcall InterlockedExchangeAdd(long volatile*, long);
 }
 
 #endif
@@ -181,6 +201,11 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
 { return reinterpret_cast<void *>(InterlockedExchange(reinterpret_cast<long *>(const_cast<void *>(ptr)),
                                   reinterpret_cast<long>(newval))); }
 
+inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
+{
+    return InterlockedExchangeAdd(reinterpret_cast<long *>(const_cast<int *>(ptr)), value);
+}
+
 #endif // Q_CC_GNU
 
 inline int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval)
@@ -191,6 +216,16 @@ inline int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, in
 inline int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval)
 {
     return q_atomic_test_and_set_int(ptr, expected, newval);
+}
+
+inline int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value)
+{
+    return q_atomic_fetch_and_add(ptr, value);
+}
+
+inline int q_atomic_fetch_and_add_release(volatile int *ptr, int value)
+{
+    return q_atomic_fetch_and_add(ptr, value);
 }
 
 QT_END_HEADER

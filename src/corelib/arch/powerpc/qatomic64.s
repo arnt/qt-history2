@@ -198,6 +198,81 @@ LT..q_atomic_set_ptr:
 	.short 16
 	.byte "q_atomic_set_ptr"
 	.align 2
+
+	.align 2
+	.globl q_atomic_fetch_and_add
+	.globl .q_atomic_fetch_and_add
+	.csect q_atomic_fetch_and_add[DS],3
+q_atomic_fetch_and_add:
+	.long .q_atomic_fetch_and_add,TOC[tc0],0
+	.csect .text[PR]
+.q_atomic_fetch_and_add:
+	lwarx  5,0,3
+	add    6,4,5
+        extsw  7,6
+	stwcx. 7,0,3
+	bne-   $-12
+        extsw  3,5
+	blr
+LT..q_atomic_fetch_and_add:
+	.long 0
+	.byte 0,9,32,64,0,0,1,0
+	.long 0
+	.long LT..q_atomic_fetch_and_add-.q_atomic_fetch_and_add
+	.short 18
+	.byte "q_atomic_fetch_and_add"
+	.align 2
+
+	.align 2
+	.globl q_atomic_fetch_and_add_acquire
+	.globl .q_atomic_fetch_and_add_acquire
+	.csect q_atomic_fetch_and_add_acquire[DS],3
+q_atomic_fetch_and_add_acquire:
+	.long .q_atomic_fetch_and_add_acquire,TOC[tc0],0
+	.csect .text[PR]
+.q_atomic_fetch_and_add_acquire:
+	lwarx  5,0,3
+	add    6,4,5
+        extsw  7,6
+	stwcx. 7,0,3
+	bne-   $-12
+        extsw  3,5
+	eieio
+	blr
+LT..q_atomic_fetch_and_add_acquire:
+	.long 0
+	.byte 0,9,32,64,0,0,1,0
+	.long 0
+	.long LT..q_atomic_fetch_and_add_acquire-.q_atomic_fetch_and_add_acquire
+	.short 18
+	.byte "q_atomic_fetch_and_add_acquire"
+	.align 2
+
+	.align 2
+	.globl q_atomic_fetch_and_add_release
+	.globl .q_atomic_fetch_and_add_release
+	.csect q_atomic_fetch_and_add_release[DS],3
+q_atomic_fetch_and_add_release:
+	.long .q_atomic_fetch_and_add_release,TOC[tc0],0
+	.csect .text[PR]
+.q_atomic_fetch_and_add_release:
+	eieio
+	lwarx  5,0,3
+	add    6,4,5
+        extws  7,6
+	stwcx. 7,0,3
+	bne-   $-12
+        extsw  3,5
+	blr
+LT..q_atomic_fetch_and_add_release:
+	.long 0
+	.byte 0,9,32,64,0,0,1,0
+	.long 0
+	.long LT..q_atomic_fetch_and_add_release-.q_atomic_fetch_and_add_release
+	.short 18
+	.byte "q_atomic_fetch_and_add_release"
+	.align 2
+
 _section_.text:
 	.csect .data[RW],3
 	.llong _section_.text

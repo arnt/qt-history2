@@ -20,7 +20,7 @@ QT_BEGIN_HEADER
 
 extern "C" {
     Q_CORE_EXPORT int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
-    Q_CORE_EXPORT int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval);    
+    Q_CORE_EXPORT int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval);
     Q_CORE_EXPORT int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval);
     Q_CORE_EXPORT int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
 } // extern "C"
@@ -63,6 +63,39 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
         if (q_atomic_test_and_set_ptr(ptr, expected, newval)) break;
     }
     return expected;
+}
+
+inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
+{
+    register int originalValue;
+    for (;;) {
+        originalValue = *ptr;
+        if (q_atomic_test_and_set_int(ptr, originalValue, originalValue + value))
+            break;
+    }
+    return originalValue;
+}
+
+inline int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value)
+{
+    register int originalValue;
+    for (;;) {
+        originalValue = *ptr;
+        if (q_atomic_test_and_set_acquire_int(ptr, originalValue, originalValue + value))
+            break;
+    }
+    return originalValue;
+}
+
+inline int q_atomic_fetch_and_add_release(volatile int *ptr, int value)
+{
+    register int originalValue;
+    for (;;) {
+        originalValue = *ptr;
+        if (q_atomic_test_and_set_release_int(ptr, originalValue, originalValue + value))
+            break;
+    }
+    return originalValue;
 }
 
 QT_END_HEADER

@@ -155,6 +155,50 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
     return ret;
 }
 
+inline int q_atomic_fetch_and_add(volatile int *ptr, int value)
+{
+    register int tmp;
+    register int ret;
+    asm volatile("lwarx  %0, 0, %3\n"
+                 "add    %1, %4, %0\n"
+                 "stwcx. %1, 0, %3\n"
+                 "bne-   $-12\n"
+                 : "=&r" (ret), "=&r" (tmp), "=m" (*ptr)
+                 : "r" (ptr), "r" (value)
+                 : "cc", "memory");
+    return ret;
+}
+
+inline int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value)
+{
+    register int tmp;
+    register int ret;
+    asm volatile("lwarx  %0, 0, %3\n"
+                 "add    %1, %4, %0\n"
+                 "stwcx. %1, 0, %3\n"
+                 "bne-   $-12\n"
+                 "eieio\n"
+                 : "=&r" (ret), "=&r" (tmp), "=m" (*ptr)
+                 : "r" (ptr), "r" (value)
+                 : "cc", "memory");
+    return ret;
+}
+
+inline int q_atomic_fetch_and_add_release(volatile int *ptr, int value)
+{
+    register int tmp;
+    register int ret;
+    asm volatile("eieio\n"
+                 "lwarx  %0, 0, %3\n"
+                 "add    %1, %4, %0\n"
+                 "stwcx. %1, 0, %3\n"
+                 "bne-   $-12\n"
+                 : "=&r" (ret), "=&r" (tmp), "=m" (*ptr)
+                 : "r" (ptr), "r" (value)
+                 : "cc", "memory");
+    return ret;
+}
+
 #undef LPARX
 #undef CMPP
 #undef STPCX
@@ -170,6 +214,9 @@ extern "C" {
     int q_atomic_decrement(volatile int *);
     int q_atomic_set_int(volatile int *, int);
     void *q_atomic_set_ptr(volatile void *, void *);
+    int q_atomic_fetch_and_add(volatile int *ptr, int value);
+    int q_atomic_fetch_and_add_acquire(volatile int *ptr, int value);
+    int q_atomic_fetch_and_add_release(volatile int *ptr, int value);
 } // extern "C"
 
 #endif

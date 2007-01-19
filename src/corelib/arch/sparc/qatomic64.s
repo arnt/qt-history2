@@ -108,3 +108,49 @@ q_atomic_set_ptr_retry:
 	mov %o1,%o0
 	.size q_atomic_set_ptr,.-q_atomic_set_ptr
 
+        .align 4
+	.type q_atomic_fetch_and_add,#function
+	.global q_atomic_fetch_and_add
+q_atomic_fetch_and_add:
+q_atomic_fetch_and_add_retry:
+	ld [%o0],%o3
+	add %o3,%o1,%o4
+	cas [%o0],%o3,%o4
+	cmp %o3,%o4
+	bne q_atomic_fetch_and_add_retry
+	nop
+	retl
+	mov %o3,%o0
+	.size q_atomic_fetch_and_add,.-q_atomic_fetch_and_add
+
+        .align 4
+	.type q_atomic_fetch_and_add_acquire,#function
+	.global q_atomic_fetch_and_add_acquire
+q_atomic_fetch_and_add_acquire:
+q_atomic_fetch_and_add_acquire_retry:
+	ld [%o0],%o3
+	add %o3,%o1,%o4
+	cas [%o0],%o3,%o4
+	cmp %o3,%o4
+	bne q_atomic_fetch_and_add_acquire_retry
+	nop
+	membar #LoadLoad | #LoadStore
+	retl
+	mov %o3,%o0
+	.size q_atomic_fetch_and_add_acquire,.-q_atomic_fetch_and_add_acquire
+
+        .align 4
+	.type q_atomic_fetch_and_add_release,#function
+	.global q_atomic_fetch_and_add_release
+q_atomic_fetch_and_add_release:
+q_atomic_fetch_and_add_release_retry:
+	membar #LoadLoad | #LoadStore
+	ld [%o0],%o3
+	add %o3,%o1,%o4
+	cas [%o0],%o3,%o4
+	cmp %o3,%o4
+	bne q_atomic_fetch_and_add_release_retry
+	nop
+	retl
+	mov %o3,%o0
+	.size q_atomic_fetch_and_add_release,.-q_atomic_fetch_and_add_release

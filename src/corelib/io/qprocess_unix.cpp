@@ -292,16 +292,6 @@ void QProcessManager::catchDeadChildren()
 }
 
 static QBasicAtomic idCounter = Q_ATOMIC_INIT(1);
-static int qt_qprocess_nextId()
-{
-    register int id;
-    for (;;) {
-        id = idCounter;
-        if (idCounter.testAndSet(id, id + 1))
-            break;
-    }
-    return id;
-}
 
 void QProcessManager::add(pid_t pid, QProcess *process)
 {
@@ -316,7 +306,7 @@ void QProcessManager::add(pid_t pid, QProcess *process)
     info->exitResult = 0;
     info->pid = pid;
 
-    int serial = qt_qprocess_nextId();
+    int serial = idCounter.fetchAndAdd(1);
     process->d_func()->serial = serial;
     children.insert(serial, info);
 }

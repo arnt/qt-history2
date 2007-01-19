@@ -57,6 +57,8 @@ private slots:
     void testAndSet();
     void exchange_data();
     void exchange();
+    void fetchAndAdd_data();
+    void fetchAndAdd();
 
     // stress tests
     void testAndSet_loop();
@@ -306,6 +308,57 @@ void tst_QAtomic::exchange()
     QAtomic atomic = value;
     QCOMPARE(atomic.exchange(newval), value);
     QCOMPARE(int(atomic), newval);
+}
+
+void tst_QAtomic::fetchAndAdd_data()
+{
+    QTest::addColumn<int>("value1");
+    QTest::addColumn<int>("value2");
+
+    QTest::newRow("0+1") << 0 << 1;
+    QTest::newRow("1+0") << 1 << 0;
+    QTest::newRow("1+2") << 1 << 2;
+    QTest::newRow("2+1") << 2 << 1;
+    QTest::newRow("10+21") << 10 << 21;
+    QTest::newRow("31+40") << 31 << 40;
+    QTest::newRow("51+62") << 51 << 62;
+    QTest::newRow("72+81") << 72 << 81;
+    QTest::newRow("810+721") << 810 << 721;
+    QTest::newRow("631+540") << 631 << 540;
+    QTest::newRow("451+362") << 451 << 362;
+    QTest::newRow("272+181") << 272 << 181;
+    QTest::newRow("1810+8721") << 810 << 721;
+    QTest::newRow("3631+6540") << 631 << 540;
+    QTest::newRow("5451+4362") << 451 << 362;
+    QTest::newRow("7272+2181") << 272 << 181;
+}
+
+void tst_QAtomic::fetchAndAdd()
+{
+    QFETCH(int, value1);
+    QFETCH(int, value2);
+    int result;
+
+    {
+        QAtomic atomic = value1;
+        result = atomic.fetchAndAdd(value2);
+        QCOMPARE(result, value1);
+        QCOMPARE(int(atomic), value1 + value2);
+    }
+
+    {
+        QAtomic atomic = value1;
+        result = atomic.fetchAndAddAcquire(value2);
+        QCOMPARE(result, value1);
+        QCOMPARE(int(atomic), value1 + value2);
+    }
+
+    {
+        QAtomic atomic = value1;
+        result = atomic.fetchAndAddRelease(value2);
+        QCOMPARE(result, value1);
+        QCOMPARE(int(atomic), value1 + value2);
+    }
 }
 
 void tst_QAtomic::testAndSet_loop()
