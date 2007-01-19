@@ -1046,8 +1046,21 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
 #ifdef QT_KEYPAD_NAVIGATION
     switch (e->key()) {
         case Qt::Key_Select:
-            if (QApplication::keypadNavigationEnabled())
-                setEditFocus(!hasEditFocus());
+            if (QApplication::keypadNavigationEnabled()) {
+                if (!(d->control->textInteractionFlags() & Qt::LinksAccessibleByKeyboard))
+                    setEditFocus(!hasEditFocus());
+                else {
+                    if (!hasEditFocus())
+                        setEditFocus(true);
+                    else {
+                        QTextCursor cursor = d->control->textCursor();
+                        QTextCharFormat charFmt = cursor.charFormat();
+                        if (!cursor.hasSelection() || charFmt.anchorHref().isEmpty()) {
+                            setEditFocus(false);
+                        }
+                    }
+                }
+            }
             break;
         case Qt::Key_Back:
         case Qt::Key_No:
