@@ -509,10 +509,13 @@ void QColor::setNamedColor(const QString &name)
         return;
     }
 
+#ifndef QT_NO_COLORNAMES
     QRgb rgb;
     if (qt_get_named_rgb(name.constData(), name.length(), &rgb)) {
         setRgb(rgb);
-    } else {
+    } else 
+#endif
+    {
 #ifdef Q_WS_X11
         XColor result;
         if (allowX11ColorNames()
@@ -536,7 +539,11 @@ void QColor::setNamedColor(const QString &name)
 */
 QStringList QColor::colorNames()
 {
+#ifndef QT_NO_COLORNAMES
     return qt_get_colornames();
+#else
+    return QStringList();
+#endif
 }
 
 /*!

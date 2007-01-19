@@ -13,7 +13,7 @@
 
 #include "qfileiconprovider.h"
 
-#ifndef QT_NO_DIRMODEL
+#ifndef QT_NO_FILEICONPROVIDER
 #include <qstyle.h>
 #include <qapplication.h>
 #include <qdir.h>

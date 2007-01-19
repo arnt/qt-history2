@@ -15,11 +15,11 @@
 #ifndef QSIDEBAR_H
 #define QSIDEBAR_H
 
-#ifndef QT_NO_FILEDIALOG
-
 #include <qlistwidget.h>
 #include <qstandarditemmodel.h>
 #include <qurl.h>
+
+#ifndef QT_NO_FILEDIALOG
 
 class QFileSystemModel;
 class Q_AUTOTEST_EXPORT QUrlModel : public QStandardItemModel

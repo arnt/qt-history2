@@ -420,6 +420,7 @@ void ControllerWidget::leaveEvent(QEvent * /*event*/)
 */
 bool ControllerWidget::event(QEvent *event)
 {
+#ifndef QT_NO_TOOLTIP
     if (event->type() != QEvent::ToolTip)
         return QWidget::event(event);
 
@@ -439,6 +440,7 @@ bool ControllerWidget::event(QEvent *event)
         QToolTip::hideText();
         break;
     }
+#endif // QT_NO_TOOLTIP
     return QWidget::event(event);
 }
 
@@ -627,7 +629,9 @@ void QMdiSubWindowPrivate::_q_enterInteractiveMode()
     }
 
     updateCursor();
+#ifndef QT_NO_CURSOR
     q->cursor().setPos(q->mapToGlobal(pressPos));
+#endif
     mousePressPosition = q->mapToParent(pressPos);
     oldGeometry = q->geometry();
     isInInteractiveMode = true;
@@ -741,6 +745,7 @@ void QMdiSubWindowPrivate::createSystemMenu()
 */
 void QMdiSubWindowPrivate::updateCursor()
 {
+#ifndef QT_NO_CURSOR
     Q_Q(QMdiSubWindow);
     if (q->style()->inherits("QMacStyle"))
         return;
@@ -754,6 +759,7 @@ void QMdiSubWindowPrivate::updateCursor()
         q->setCursor(operationMap.find(currentOperation).value().cursorShape);
         return;
     }
+#endif
 }
 
 /*!
@@ -2371,6 +2377,7 @@ void QMdiSubWindow::keyPressEvent(QKeyEvent *keyEvent)
         return;
     }
 
+#ifndef QT_NO_CURSOR
     QPoint newPosition = parentWidget()->mapFromGlobal(cursor().pos() + delta);
     QRect oldGeometry = geometry();
     d->setNewGeometry(newPosition);
@@ -2379,7 +2386,6 @@ void QMdiSubWindow::keyPressEvent(QKeyEvent *keyEvent)
         return;
 
     // Update cursor position
-    // ### Check QT_NO_CURSOR and all that stuff
 
     QPoint actualDelta;
     if (d->currentOperation == QMdiSubWindowPrivate::Move) {
@@ -2394,6 +2400,7 @@ void QMdiSubWindow::keyPressEvent(QKeyEvent *keyEvent)
     if (actualDelta != delta)
         newPosition += (actualDelta - delta);
     cursor().setPos(parentWidget()->mapToGlobal(newPosition));
+#endif
 }
 
 /*!

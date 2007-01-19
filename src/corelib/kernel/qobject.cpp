@@ -597,11 +597,11 @@ static bool check_parent_thread(QObject *parent,
         QThread *currentThread = currentThreadData->thread;
         qWarning("QObject: Cannot create children for a parent that is in a different thread.\n"
                  "(Parent is %s(%p), parent's thread is %s(%p), current thread is %s(%p)",
-                 parent->className(),
+                 parent->metaObject()->className(),
                  parent,
-                 parentThread ? parentThread->className() : "QThread",
+                 parentThread ? parentThread->metaObject()->className() : "QThread",
                  parentThread,
-                 currentThread ? currentThread->className() : "QThread",
+                 currentThread ? currentThread->metaObject()->className() : "QThread",
                  currentThread);
         return false;
     }

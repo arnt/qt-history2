@@ -21,7 +21,9 @@
 #include <QStackedWidget>
 #include <QToolBox>
 
-#if !defined(QT_NO_ACCESSIBILITY) && !defined(QT_NO_TEXTEDIT)
+#ifndef QT_NO_ACCESSIBILITY
+
+#ifndef QT_NO_TEXTEDIT
 
 /*!
   \class QAccessibleTextEdit qaccessiblewidget.h
@@ -175,7 +177,9 @@ int QAccessibleTextEdit::childCount() const
 {
     return childOffset + textEdit()->document()->blockCount();
 }
+#endif // QT_NO_TEXTEDIT
 
+#ifndef QT_NO_STACKEDWIDGET
 // ======================= QAccessibleStackedWidget ======================
 QAccessibleStackedWidget::QAccessibleStackedWidget(QWidget *widget)
     : QAccessibleWidgetEx(widget, LayeredPane)
@@ -233,7 +237,9 @@ QStackedWidget *QAccessibleStackedWidget::stackedWidget() const
 {
     return static_cast<QStackedWidget *>(object());
 }
+#endif // QT_NO_STACKEDWIDGET
 
+#ifndef QT_NO_TOOLBOX
 // ======================= QAccessibleToolBox ======================
 QAccessibleToolBox::QAccessibleToolBox(QWidget *widget)
     : QAccessibleWidgetEx(widget, LayeredPane)
@@ -310,5 +316,6 @@ QToolBox * QAccessibleToolBox::toolBox() const
 {
     return static_cast<QToolBox *>(object());
 }
+#endif // QT_NO_TOOLBOX
 
 #endif // QT_NO_ACCESSIBILITY
