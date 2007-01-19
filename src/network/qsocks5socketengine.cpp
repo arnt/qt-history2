@@ -843,22 +843,12 @@ QSocks5SocketEngine::~QSocks5SocketEngine()
 }
 
 static QBasicAtomic descriptorCounter = Q_ATOMIC_INIT(1);
-static int qt_socks5_new_socket_descriptor()
-{
-    register int descriptor;
-    for (;;) {
-        descriptor = descriptorCounter;
-        if (descriptorCounter.testAndSet(descriptor, descriptor + 1))
-            break;
-    }
-    return descriptor;
-}
 
 bool QSocks5SocketEngine::initialize(QAbstractSocket::SocketType type, QAbstractSocket::NetworkLayerProtocol protocol)
 {
     Q_D(QSocks5SocketEngine);
 
-    d->socketDescriptor = qt_socks5_new_socket_descriptor();
+    d->socketDescriptor = descriptorCounter.fetchAndAdd(1);
 
     d->socketType = type;
     d->socketProtocol = protocol;

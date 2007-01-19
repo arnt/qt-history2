@@ -216,32 +216,21 @@ public:
     bool is_ba;
 
     static QBasicAtomic idCounter;
-    static int nextId();
 };
 
 QBasicAtomic QFtpCommand::idCounter = Q_ATOMIC_INIT(1);
-int QFtpCommand::nextId()
-{
-    register int id;
-    for (;;) {
-        id = idCounter;
-        if (idCounter.testAndSet(id, id + 1))
-            break;
-    }
-    return id;
-}
 
 QFtpCommand::QFtpCommand(QFtp::Command cmd, QStringList raw, const QByteArray &ba)
     : command(cmd), rawCmds(raw), is_ba(true)
 {
-    id = nextId();
+    id = idCounter.fetchAndAdd(1);
     data.ba = new QByteArray(ba);
 }
 
 QFtpCommand::QFtpCommand(QFtp::Command cmd, QStringList raw, QIODevice *dev)
     : command(cmd), rawCmds(raw), is_ba(false)
 {
-    id = nextId();
+    id = idCounter.fetchAndAdd(1);
     data.dev = dev;
 }
 
@@ -562,7 +551,7 @@ static void _q_parseDosDir(const QStringList &tokens, const QString &userName, Q
     }
 
     info->setLastModified(dateTime);
-    
+
 }
 
 bool QFtpDTP::parseDir(const QByteArray &buffer, const QString &userName, QUrlInfo *info)

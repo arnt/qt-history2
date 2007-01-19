@@ -93,16 +93,6 @@ Q_GLOBAL_STATIC(QHostInfoAgent, agent)
 */
 
 static QBasicAtomic idCounter = Q_ATOMIC_INIT(1);
-static int qt_qhostinfo_newid()
-{
-    register int id;
-    for (;;) {
-        id = idCounter;
-        if (idCounter.testAndSet(id, id + 1))
-            break;
-    }
-    return id;
-}
 
 /*!
     Looks up the IP address(es) associated with host name \a name, and
@@ -175,7 +165,7 @@ int QHostInfo::lookupHost(const QString &name, QObject *receiver,
     QHostInfoResult *result = new QHostInfoResult;
     QObject::connect(result, SIGNAL(resultsReady(QHostInfo)),
                      receiver, member);
-    int id = result->lookupId = ::qt_qhostinfo_newid();
+    int id = result->lookupId = ::idCounter.fetchAndAdd(1);
     agent->addHostName(lookup, result);
 
 #if !defined QT_NO_THREAD

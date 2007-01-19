@@ -34,7 +34,7 @@ class QHttpRequest
 {
 public:
     QHttpRequest()
-    { id = nextId(); }
+    { id = idCounter.fetchAndAdd(1); }
     virtual ~QHttpRequest()
     { }
 
@@ -49,7 +49,6 @@ public:
 
 private:
     static QBasicAtomic idCounter;
-    static int nextId();
 };
 
 class QHttpPrivate : public QObjectPrivate
@@ -130,16 +129,6 @@ public:
 };
 
 QBasicAtomic QHttpRequest::idCounter = Q_ATOMIC_INIT(1);
-int QHttpRequest::nextId()
-{
-    register int id;
-    for (;;) {
-        id = idCounter;
-        if (idCounter.testAndSet(id, id + 1))
-            break;
-    }
-    return id;
-}
 
 bool QHttpRequest::hasRequestHeader()
 {

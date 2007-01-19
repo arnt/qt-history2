@@ -150,21 +150,10 @@ const QVector<QRgb> *qt_image_colortable(const QImage &image)
 extern int qt_defaultDpi();
 
 QBasicAtomic qimage_serial_number = Q_ATOMIC_INIT(1);
-int qimage_next_serial_number()
-{
-    register int id;
-    for (;;) {
-        id = qimage_serial_number;
-        if (qimage_serial_number.testAndSet(id, id + 1))
-            break;
-    }
-    return id;
-}
-
 
 QImageData::QImageData()
 {
-    ser_no = qimage_next_serial_number();
+    ser_no = qimage_serial_number.fetchAndAdd(1);
     detach_no = 0;
     ref = 0;
 
