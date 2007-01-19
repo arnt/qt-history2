@@ -506,8 +506,8 @@ QString QSqlDriver::formatValue(const QSqlField &field, bool trimStrings) const
         {
             QString result = field.value().toString();
             if (trimStrings) {
-                int end = result.length() - 1;
-                while (end && result.at(end).isSpace()) /* skip white space from end */
+                int end = result.length();
+                while (end && result.at(end-1).isSpace()) /* skip white space from end */
                     end--;
                 result.truncate(end);
             }

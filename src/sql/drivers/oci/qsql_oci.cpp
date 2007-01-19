@@ -2120,13 +2120,13 @@ QSqlIndex QOCIDriver::primaryIndex(const QString& tablename) const
     return QSqlIndex();
 }
 
-QString QOCIDriver::formatValue(const QSqlField &field, bool) const
+QString QOCIDriver::formatValue(const QSqlField &field, bool trimStrings) const
 {
     switch (field.type()) {
     case QVariant::String: {
         if (d->serverVersion >= 9) {
             QString encStr = QLatin1String("UNISTR('");
-            const QString srcStr = field.value().toString();
+            const QString srcStr = QSqlDriver::formatValue(field, trimStrings);
             for (int i = 0; i < srcStr.length(); ++i) {
                 encStr += QLatin1Char('\\') +
                           QString::number(srcStr.at(i).unicode(),
@@ -2135,7 +2135,7 @@ QString QOCIDriver::formatValue(const QSqlField &field, bool) const
             encStr += QLatin1String("')");
             return encStr;
         } else {
-            return QSqlDriver::formatValue(field);
+            return QSqlDriver::formatValue(field, trimStrings);
         }
         break;
     }
@@ -2186,7 +2186,7 @@ QString QOCIDriver::formatValue(const QSqlField &field, bool) const
     default:
         break;
     }
-    return QSqlDriver::formatValue(field);
+    return QSqlDriver::formatValue(field, trimStrings);
 }
 
 QVariant QOCIDriver::handle() const

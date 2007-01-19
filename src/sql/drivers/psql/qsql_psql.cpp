@@ -834,8 +834,7 @@ QSqlRecord QPSQLDriver::record(const QString& tablename) const
     return info;
 }
 
-QString QPSQLDriver::formatValue(const QSqlField &field,
-                                  bool) const
+QString QPSQLDriver::formatValue(const QSqlField &field, bool trimStrings) const
 {
     QString r;
     if (field.isNull()) {
@@ -874,7 +873,7 @@ QString QPSQLDriver::formatValue(const QSqlField &field,
         case QVariant::String:
         {
             // Escape '\' characters
-            r = QSqlDriver::formatValue(field);
+            r = QSqlDriver::formatValue(field, trimStrings);
             r.replace(QLatin1String("\\"), QLatin1String("\\\\"));
             break;
         }
@@ -895,7 +894,7 @@ QString QPSQLDriver::formatValue(const QSqlField &field,
             break;
         }
         default:
-            r = QSqlDriver::formatValue(field);
+            r = QSqlDriver::formatValue(field, trimStrings);
             break;
         }
     }
