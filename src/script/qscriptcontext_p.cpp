@@ -79,6 +79,76 @@ static inline void qscript_uint_to_string(qnumber i, QString &s)
     qscript_uint_to_string_helper(uint(i), s);
 }
 
+#define BEGIN_PREFIX_OPERATOR \
+    QScriptValue::ResolveFlags mode; \
+    mode = static_cast<QScriptValue::ResolveFlags> (stackPtr[0].m_int_value) \
+    | QScriptValue::ResolvePrototype; \
+    --stackPtr; \
+    const QScriptValue &object = stackPtr[-1]; \
+    QScriptNameIdImpl *memberName = 0; \
+    if (isString(stackPtr[0]) && stackPtr[0].m_string_value->unique) \
+        memberName = stackPtr[0].m_string_value; \
+    else \
+        memberName = eng->nameId(stackPtr[0].toString(), /*persistent=*/false); \
+    QScript::Member member; \
+    QScriptValue base; \
+    QScriptValue value; \
+    QScriptValue getter; \
+    QScriptValue setter; \
+    const bool isMemberAssignment = (object.m_object_value != scopeChain.m_object_value); \
+    if (object.impl()->resolve(memberName, &member, &base, mode)) { \
+        base.impl()->get(member, &value); \
+        if (member.isGetterOrSetter()) { \
+            if (member.isGetter()) { \
+                getter = value; \
+                if (!base.m_object_value->findSetter(&member)) { \
+                    stackPtr -= 2; \
+                    q->throwError(QLatin1String("No setter defined")); \
+                    HandleException(); \
+                } \
+            } else { \
+                setter = value; \
+                QScript::Member tmp = member; \
+                if (!base.m_object_value->findGetter(&member)) { \
+                    stackPtr -= 2; \
+                    q->throwError(QLatin1String("No getter defined")); \
+                    HandleException(); \
+                } \
+                base.impl()->get(member, &getter); \
+                member = tmp; \
+            } \
+            value = getter.call(object); \
+            if (engine()->uncaughtException()) \
+                Done(); \
+        } \
+    } else if (!isMemberAssignment) { \
+        stackPtr -= 2; \
+        throwNotDefined(memberName); \
+        HandleException(); \
+    } else { \
+        base = object; \
+        base.impl()->createMember(memberName, &member, /*flags=*/0); \
+        eng->newUndefined(&value); \
+    }
+
+#define END_PREFIX_OPERATOR \
+    if (member.isSetter()) { \
+        setter.call(object, QScriptValueList() << value); \
+        if (engine()->uncaughtException()) { \
+            stackPtr -= 2; \
+            Done(); \
+        } \
+    } else { \
+        if (isMemberAssignment && (base.m_object_value != object.m_object_value)) { \
+            base = object; \
+            base.impl()->createMember(memberName, &member, /*flags=*/0); \
+        } \
+        if (member.isWritable()) \
+            base.impl()->put(member, value); \
+    } \
+    *--stackPtr = value; \
+    ++iPtr;
+
 #define BEGIN_INPLACE_OPERATOR \
     if (! stackPtr[-1].impl()->isReference()) { \
         stackPtr -= 2; \
@@ -111,6 +181,7 @@ static inline void qscript_uint_to_string(qnumber i, QString &s)
             if (member.isGetter()) { \
                 getter = lhs; \
                 if (!base.m_object_value->findSetter(&member)) { \
+                    stackPtr -= 4; \
                     q->throwError(QLatin1String("No setter defined")); \
                     HandleException(); \
                 } \
@@ -118,6 +189,7 @@ static inline void qscript_uint_to_string(qnumber i, QString &s)
                 setter = lhs; \
                 QScript::Member tmp = member; \
                 if (!base.m_object_value->findGetter(&member)) { \
+                    stackPtr -= 4; \
                     q->throwError(QLatin1String("No getter defined")); \
                     HandleException(); \
                 } \
@@ -140,14 +212,17 @@ static inline void qscript_uint_to_string(qnumber i, QString &s)
     const QScriptValue &rhs = stackPtr[0];
 
 #define END_INPLACE_OPERATOR \
-    if (member.isWritable()) { \
-        if (member.isSetter()) { \
-            setter.call(object, QScriptValueList() << *stackPtr); \
-            if (engine()->uncaughtException()) \
-                Done(); \
-        } else { \
-            base.impl()->put(member, *stackPtr); \
+    if (member.isSetter()) { \
+        setter.call(object, QScriptValueList() << *stackPtr); \
+        if (engine()->uncaughtException()) \
+            Done(); \
+    } else { \
+        if (isMemberAssignment && (base.m_object_value != object.m_object_value)) { \
+            base = object; \
+            base.impl()->createMember(memberName, &member, /*flags=*/0); \
         } \
+        if (member.isWritable()) \
+            base.impl()->put(member, *stackPtr); \
     } \
     ++iPtr;
 
@@ -879,31 +954,30 @@ Ltop:
                 base.impl()->createMember(memberName, &member, /*flags=*/0);
             }
 
-            if (member.isWritable()) {
-                if (isString(value) && ! value.m_string_value->unique)
-                    eng->newNameId(&value, value.m_string_value->s);
-                if (object.m_class == eng->m_class_with)
-                    object = object.prototype();
-                if (member.isGetterOrSetter()) {
-                    // find and call setter(value)
-                    QScriptValue setter;
-                    if (!member.isSetter()) {
-                        if (!base.m_object_value->findSetter(&member)) {
-                            q->throwError(QLatin1String("no setter defined"));
-                            HandleException();
-                        }
+            if (isString(value) && ! value.m_string_value->unique)
+                eng->newNameId(&value, value.m_string_value->s);
+            if (object.m_class == eng->m_class_with)
+                object = object.prototype();
+            if (member.isGetterOrSetter()) {
+                // find and call setter(value)
+                QScriptValue setter;
+                if (!member.isSetter()) {
+                    if (!base.m_object_value->findSetter(&member)) {
+                        q->throwError(QLatin1String("no setter defined"));
+                        HandleException();
                     }
-                    base.impl()->get(member, &setter);
-                    value = setter.call(object, QScriptValueList() << value);
-                    if (engine()->uncaughtException())
-                        Done();
-                } else {
-                    if (isMemberAssignment && (base.m_object_value != object.m_object_value)) {
-                        base = object;
-                        base.impl()->createMember(memberName, &member, /*flags=*/0);
-                    }
-                    base.impl()->put(member, value);
                 }
+                base.impl()->get(member, &setter);
+                value = setter.call(object, QScriptValueList() << value);
+                if (engine()->uncaughtException())
+                    Done();
+            } else {
+                if (isMemberAssignment && (base.m_object_value != object.m_object_value)) {
+                    base = object;
+                    base.impl()->createMember(memberName, &member, /*flags=*/0);
+                }
+                if (member.isWritable())
+                    base.impl()->put(member, value);
             }
         }
 
@@ -1222,47 +1296,12 @@ Ltop:
             HandleException();
         }
 
-        QScriptValue::ResolveFlags mode = static_cast<QScriptValue::ResolveFlags> (stackPtr[0].m_int_value);
-
-        --stackPtr;
-
-        const QScriptValue &object = stackPtr[-1];
-        QScriptNameIdImpl *memberName = 0;
-        if (isString(stackPtr[0]) && stackPtr[0].m_string_value->unique)
-            memberName = stackPtr[0].m_string_value;
-        else
-            memberName = eng->nameId(stackPtr[0].toString(), /*persistent=*/false);
-
-        QScript::Member member;
-        QScriptValue base;
-        QScriptValue value;
-
-        QScriptObject *instance = object.m_object_value;
-        if (instance->findMember(memberName, &member)) {
-            instance->get(member, &value);
-            base = object;
-        } else {
-            if (! object.impl()->resolve_helper(memberName, &member, &base, mode)) {
-                stackPtr -= 2;
-                throwNotDefined(memberName);
-                HandleException();
-            }
-
-        }
-        base.impl()->get(member, &value);
+        BEGIN_PREFIX_OPERATOR
 
         qnumber x = eng->convertToNativeDouble(value);
         eng->newNumber(&value, x + 1);
 
-        if (! member.isWritable() && ! object.impl()->resolve(memberName, &member, &base, QScriptValue::ResolveScope)) {
-            base = object;
-            base.impl()->createMember(memberName, &member, /*flags=*/0);
-        }
-
-        base.impl()->put(member, value);
-        *--stackPtr = value;
-
-        ++iPtr;
+        END_PREFIX_OPERATOR
     }   Next();
 
     I(Decr):
@@ -1273,41 +1312,12 @@ Ltop:
             HandleException();
         }
 
-        QScriptValue::ResolveFlags mode = static_cast<QScriptValue::ResolveFlags> (stackPtr[0].m_int_value);
-
-        --stackPtr;
-
-        const QScriptValue &object = stackPtr[-1];
-        QScriptNameIdImpl *memberName = 0;
-        if (isString(stackPtr[0]) && stackPtr[0].m_string_value->unique)
-            memberName = stackPtr[0].m_string_value;
-        else
-            memberName = eng->nameId(stackPtr[0].toString(), /*persistent=*/false);
-
-        QScript::Member member;
-        QScriptValue base;
-
-        if (! object.impl()->resolve(memberName, &member, &base, mode)) {
-            stackPtr -= 2;
-            throwNotDefined(memberName);
-            HandleException();
-        }
-
-        QScriptValue value;
-        base.impl()->get(member, &value);
+        BEGIN_PREFIX_OPERATOR
 
         qnumber x = eng->convertToNativeDouble(value);
         eng->newNumber(&value, x - 1);
 
-        if (! member.isWritable() && ! object.impl()->resolve(memberName, &member, &base, QScriptValue::ResolveScope)) {
-            base = object;
-            base.impl()->createMember(memberName, &member, /*flags=*/0);
-        }
-
-        base.impl()->put(member, value);
-        *--stackPtr = value;
-
-        ++iPtr;
+        END_PREFIX_OPERATOR
     }   Next();
 
     I(PostIncr):
@@ -1318,7 +1328,9 @@ Ltop:
             HandleException();
         }
 
-        QScriptValue::ResolveFlags mode = static_cast<QScriptValue::ResolveFlags> (stackPtr[0].m_int_value);
+        QScriptValue::ResolveFlags mode;
+        mode = static_cast<QScriptValue::ResolveFlags> (stackPtr[0].m_int_value)
+               | QScriptValue::ResolvePrototype;
 
         --stackPtr;
 
@@ -1332,39 +1344,79 @@ Ltop:
         QScript::Member member;
         QScriptValue base;
         QScriptValue value;
-
         QScriptObject *instance = object.m_object_value;
-
+        const bool isMemberAssignment = (instance != scopeChain.m_object_value);
         if (instance->findMember(memberName, &member)) {
-            QScriptValue &r = instance->reference(member);
-            if (isNumber(r)) {
-                eng->newNumber(--stackPtr, r.m_number_value);
-                r.impl()->incr();
-                ++iPtr;
-                Next();
+            if (!member.isGetterOrSetter()) {
+                QScriptValue &r = instance->reference(member);
+                if (isNumber(r)) {
+                    eng->newNumber(--stackPtr, r.m_number_value);
+                    r.impl()->incr();
+                    ++iPtr;
+                    Next();
+                }
             }
             base = object;
-        } else {
-            if (! object.impl()->resolve_helper(memberName, &member, &base, mode)) {
+        } else if (!object.impl()->resolve_helper(memberName, &member, &base, mode)) {
+            if (!isMemberAssignment) {
                 stackPtr -= 2;
                 throwNotDefined(memberName);
                 HandleException();
             }
-
+            base = object;
+            base.impl()->createMember(memberName, &member, /*flags=*/0);
+            base.impl()->put(member, undefined);
         }
+
+        QScriptValue getter;
+        QScriptValue setter;
         base.impl()->get(member, &value);
+        if (member.isGetterOrSetter()) {
+            if (member.isGetter()) {
+                getter = value;
+                if (!base.m_object_value->findSetter(&member)) {
+                    stackPtr -= 2;
+                    q->throwError(QLatin1String("No setter defined"));
+                    HandleException();
+                }
+            } else {
+                setter = value;
+                QScript::Member tmp = member;
+                if (!base.m_object_value->findGetter(&member)) {
+                    stackPtr -= 2;
+                    q->throwError(QLatin1String("No getter defined"));
+                    HandleException();
+                }
+                base.impl()->get(member, &getter);
+                member = tmp;
+            }
+            value = getter.call(object);
+            if (engine()->uncaughtException()) {
+                stackPtr -= 2;
+                Done();
+            }
+        }
 
         qnumber x = eng->convertToNativeDouble(value);
-        eng->newNumber(--stackPtr, x);
 
         eng->newNumber(&value, x + 1);
 
-        if (! member.isWritable() && ! object.impl()->resolve(memberName, &member, &base, QScriptValue::ResolveScope)) {
-            base = object;
-            base.impl()->createMember(memberName, &member, /*flags=*/0);
+        if (member.isSetter()) {
+            setter.call(object, QScriptValueList() << value);
+            if (engine()->uncaughtException()) {
+                stackPtr -= 2;
+                Done();
+            }
+        } else {
+            if (isMemberAssignment && (base.m_object_value != object.m_object_value)) {
+                base = object;
+                base.impl()->createMember(memberName, &member, /*flags=*/0);
+            }
+            if (member.isWritable())
+                base.impl()->put(member, value);
         }
 
-        base.impl()->put(member, value);
+        eng->newNumber(--stackPtr, x);
 
         ++iPtr;
     }   Next();
@@ -1391,39 +1443,81 @@ Ltop:
         QScript::Member member;
         QScriptValue base;
         QScriptValue value;
-
         QScriptObject *instance = object.m_object_value;
-
+        const bool isMemberAssignment = (instance != scopeChain.m_object_value);
         if (instance->findMember(memberName, &member)) {
-            QScriptValue &r = instance->reference(member);
-            if (isNumber(r)) {
-                eng->newNumber(--stackPtr, r.m_number_value);
-                r.impl()->decr();
-                ++iPtr;
-                Next();
+            if (!member.isGetterOrSetter()) {
+                QScriptValue &r = instance->reference(member);
+                if (isNumber(r)) {
+                    eng->newNumber(--stackPtr, r.m_number_value);
+                    r.impl()->decr();
+                    ++iPtr;
+                    Next();
+                }
             }
             base = object;
         } else {
             if (! object.impl()->resolve_helper(memberName, &member, &base, mode)) {
-                stackPtr -= 2;
-                throwNotDefined(memberName);
-                HandleException();
+                if (!isMemberAssignment) {
+                    stackPtr -= 2;
+                    throwNotDefined(memberName);
+                    HandleException();
+                }
+                base = object;
+                base.impl()->createMember(memberName, &member, /*flags=*/0);
+                base.impl()->put(member, undefined);
             }
-
         }
+
+        QScriptValue getter;
+        QScriptValue setter;
         base.impl()->get(member, &value);
+        if (member.isGetterOrSetter()) {
+            if (member.isGetter()) {
+                getter = value;
+                if (!base.m_object_value->findSetter(&member)) {
+                    stackPtr -= 2;
+                    q->throwError(QLatin1String("No setter defined"));
+                    HandleException();
+                }
+            } else {
+                setter = value;
+                QScript::Member tmp = member;
+                if (!base.m_object_value->findGetter(&member)) {
+                    stackPtr -= 2;
+                    q->throwError(QLatin1String("No getter defined"));
+                    HandleException();
+                }
+                base.impl()->get(member, &getter);
+                member = tmp;
+            }
+            value = getter.call(object);
+            if (engine()->uncaughtException()) {
+                stackPtr -= 2;
+                Done();
+            }
+        }
 
         qnumber x = eng->convertToNativeDouble(value);
-        eng->newNumber(--stackPtr, x);
 
         eng->newNumber(&value, x - 1);
 
-        if (! member.isWritable() && ! object.impl()->resolve(memberName, &member, &base, QScriptValue::ResolveScope)) {
-            base = object;
-            base.impl()->createMember(memberName, &member, /*flags=*/0);
+        if (member.isSetter()) {
+            setter.call(object, QScriptValueList() << value);
+            if (engine()->uncaughtException()) {
+                stackPtr -= 2;
+                Done();
+            }
+        } else {
+            if (isMemberAssignment && (base.m_object_value != object.m_object_value)) {
+                base = object;
+                base.impl()->createMember(memberName, &member, /*flags=*/0);
+            }
+            if (member.isWritable())
+                base.impl()->put(member, value);
         }
 
-        base.impl()->put(member, value);
+        eng->newNumber(--stackPtr, x);
 
         ++iPtr;
     }   Next();
