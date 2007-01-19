@@ -442,6 +442,8 @@ bool QTextDocument::isUndoRedoEnabled() const
     Note that setting this property will apply the limit immediately to the document
     contents.
 
+    Setting this property also disables the undo redo history.
+
     This property is undefined in documents with tables or frames.
 */
 int QTextDocument::maximumBlockCount() const
@@ -455,6 +457,7 @@ void QTextDocument::setMaximumBlockCount(int maximum)
     Q_D(QTextDocument);
     d->maximumBlockCount = maximum;
     d->ensureMaximumBlockCount();
+    setUndoRedoEnabled(false);
 }
 
 /*!

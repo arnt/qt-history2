@@ -1655,6 +1655,7 @@ void tst_QTextDocument::defaultStyleSheet()
 void tst_QTextDocument::maximumBlockCount()
 {
     QCOMPARE(doc->maximumBlockCount(), 0);
+    QVERIFY(doc->isUndoRedoEnabled());
 
     cursor.insertBlock();
     cursor.insertText("Blah");
@@ -1664,6 +1665,8 @@ void tst_QTextDocument::maximumBlockCount()
     QCOMPARE(doc->toPlainText(), QString("\nBlah\nFoo"));
 
     doc->setMaximumBlockCount(1);
+    QVERIFY(!doc->isUndoRedoEnabled());
+
     QCOMPARE(doc->blockCount(), 1);
     QCOMPARE(doc->toPlainText(), QString("Foo"));
 
