@@ -171,6 +171,12 @@ static QList<QNetworkInterfacePrivate *> interfaceListingWinXP()
             if (pprefix) {
                 entry.setNetmask(netmaskFromPrefixLength(pprefix->PrefixLength, addr->Address.lpSockaddr->sa_family));
                 pprefix = pprefix->Next ? pprefix->Next : pprefix;
+
+                // calculate the broadcast address
+                quint32 ip = entry.ip().toIPv4Address();
+                quint32 mask = entry.netmask().toIPv4Address();
+                quint32 broadcast = (ip & mask) | (0xFFFFFFFFU & ~mask);
+                entry.setBroadcast(QHostAddress((broadcast)));
             }
 
             iface->addressEntries << entry;
