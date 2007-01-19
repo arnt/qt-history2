@@ -80,6 +80,7 @@ private slots:
     void clonePreservesDefaultFont();
     void clonePreservesRootFrameFormat();
     void clonePreservesResources();
+    void clonePreservesUserStates();
     void blockCount();
     void defaultStyleSheet();
 
@@ -1477,6 +1478,28 @@ void tst_QTextDocument::clonePreservesResources()
     doc->addResource(QTextDocument::ImageResource, testUrl, testResource);
     QTextDocument *clone = doc->clone();
     QVERIFY(clone->resource(QTextDocument::ImageResource, testUrl) == testResource);
+    delete clone;
+}
+
+void tst_QTextDocument::clonePreservesUserStates()
+{
+    QTextCursor cursor(doc);
+    cursor.insertText("bla bla bla");
+    cursor.block().setUserState(1);
+    cursor.insertBlock();
+    cursor.insertText("foo bar");
+    cursor.block().setUserState(2);
+    cursor.insertBlock();
+    cursor.insertText("no user state");
+
+    QTextDocument *clone = doc->clone();
+    QTextBlock b1 = doc->begin(), b2 = clone->begin();
+    while (b1 != doc->end()) {
+        b1 = b1.next();
+        b2 = b2.next();
+        QCOMPARE(b1.userState(), b2.userState());
+    }
+    QVERIFY(b2 == clone->end());
     delete clone;
 }
 
