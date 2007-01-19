@@ -298,7 +298,7 @@ void QFormBuilder::createConnections(DomConnections *ui_connections, QWidget *wi
 */
 QWidget *QFormBuilder::create(DomUI *ui, QWidget *parentWidget)
 {
-    if (ui->hasAttributeLanguage() && ui->attributeLanguage() != QLatin1String("C++"))
+    if (ui->hasAttributeLanguage() && ui->attributeLanguage().toLower() != QLatin1String("c++"))
         return 0;
 
     extraInfo(this).reset();
