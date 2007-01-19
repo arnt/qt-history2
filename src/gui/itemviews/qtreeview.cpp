@@ -195,6 +195,11 @@ void QTreeView::setModel(QAbstractItemModel *model)
     connect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
             this, SLOT(rowsRemoved(QModelIndex,int,int)));
 
+    connect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
+            this, SLOT(_q_columnsAboutToBeRemoved(QModelIndex,int,int)));
+    connect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
+            this, SLOT(_q_columnsRemoved(QModelIndex,int,int)));
+
     if (d->sortingEnabled)
         sortByColumn(header()->sortIndicatorSection());
 }
@@ -2560,6 +2565,20 @@ void QTreeViewPrivate::_q_currentChanged(const QModelIndex &current, const QMode
         }
         viewport->update(currentRect);
     }
+}
+
+void QTreeViewPrivate::_q_columnsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
+{
+    Q_UNUSED(parent);
+    if (start <= 0 && 0 <= end)
+        viewItems.clear();
+}
+
+void QTreeViewPrivate::_q_columnsRemoved(const QModelIndex &parent, int start, int end)
+{
+    Q_UNUSED(parent);
+    if (start <= 0 && 0 <= end)
+        doDelayedItemsLayout();
 }
 
 void QTreeViewPrivate::layout(int i)
