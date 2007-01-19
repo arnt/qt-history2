@@ -1724,6 +1724,8 @@ qreal QGraphicsItem::zValue() const
     that share the same Z-value will be drawn in an undefined order, although
     the order will stay the same for as long as the items live.
 
+    \img graphicsview-zorder.png
+    
     Children of different parents are stacked according to the Z-value of
     each item's ancestor item which is an immediate child of the two
     items' closest common ancestor. For example, a robot item might
