@@ -307,8 +307,18 @@ inline void QStroker::emitCubicTo(qfixed c1x, qfixed c1y,
                                   qfixed c2x, qfixed c2y,
                                   qfixed ex, qfixed ey)
 {
-    m_back2X = c2x;
-    m_back2Y = c2y;
+    if (c2x == ex && c2y == ey) {
+        if (c1x == ex && c1y == ey) {
+            m_back2X = m_back1X;
+            m_back2Y = m_back1Y;
+        } else {
+            m_back2X = c1x;
+            m_back2Y = c1y;
+        }
+    } else {
+        m_back2X = c2x;
+        m_back2Y = c2y;
+    }
     m_back1X = ex;
     m_back1Y = ey;
     QStrokerOps::emitCubicTo(c1x, c1y, c2x, c2y, ex, ey);

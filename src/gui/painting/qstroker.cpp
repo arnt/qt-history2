@@ -652,21 +652,22 @@ template <class Iterator> bool qt_stroke_side(Iterator *it,
 
             if (count) {
                 // If we are starting a new subpath, move to correct starting point
+                QLineF tangent = offsetCurves[0].startTangent();
                 if (first) {
                     QPointF pt = offsetCurves[0].pt1();
                     if (capFirst) {
                         stroker->joinPoints(prev.x, prev.y,
-                                            QLineF(pt, offsetCurves[0].pt2()),
+                                            tangent,
                                             stroker->capStyleMode());
                     } else {
                         stroker->emitMoveTo(qt_real_to_fixed(pt.x()),
                                             qt_real_to_fixed(pt.y()));
                     }
-                    *startTangent = QLineF(offsetCurves[0].pt1(), offsetCurves[0].pt2());
+                    *startTangent = tangent;
                     first = false;
                 } else {
                     stroker->joinPoints(prev.x, prev.y,
-                                        QLineF(offsetCurves[0].pt1(), offsetCurves[0].pt2()),
+                                        tangent,
                                         stroker->joinStyleMode());
                 }
 

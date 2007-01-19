@@ -58,6 +58,9 @@ public:
     inline QPointF midPoint() const;
     inline QLineF midTangent() const;
 
+    inline QLineF startTangent() const;
+    inline QLineF endTangent() const;
+
     void parameterSplitLeft(double t, QBezier *left);
     void split(QBezier *firstHalf, QBezier *secondHalf) const;
     int shifted(QBezier *curveSegments, int maxSegmets,
@@ -82,6 +85,26 @@ inline QLineF QBezier::midTangent() const
     QLineF dir(QLineF(x1, y1, x2, y2).pointAt(0.5), QLineF(x3, y3, x4, y4).pointAt(0.5));
     return QLineF(mid.x() - dir.dx(), mid.y() - dir.dy(),
                   mid.x() + dir.dx(), mid.y() + dir.dy());
+}
+
+inline QLineF QBezier::startTangent() const
+{
+    QLineF tangent(pt1(), pt2());
+    if (tangent.isNull())
+        tangent = QLineF(pt1(), pt3());
+    if (tangent.isNull())
+        tangent = QLineF(pt1(), pt4());
+    return tangent;
+}
+
+inline QLineF QBezier::endTangent() const
+{
+    QLineF tangent(pt4(), pt3());
+    if (tangent.isNull())
+        tangent = QLineF(pt4(), pt2());
+    if (tangent.isNull())
+        tangent = QLineF(pt4(), pt1());
+    return tangent;
 }
 
 inline QPointF QBezier::pointAt(qreal t) const
