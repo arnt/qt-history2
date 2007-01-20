@@ -1021,7 +1021,7 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *pain
     const QTextLayout *tl = bl.layout();
     QRectF r = tl->boundingRect();
     r.translate(offset + tl->position());
-    if (context.clip.isValid() && !r.intersects(context.clip))
+    if (context.clip.isValid() && (r.bottom() < context.clip.y() || r.top() > context.clip.bottom()))
         return;
 //      LDEBUG << debug_indent << "drawBlock" << bl.position() << "at" << offset << "br" << tl->boundingRect();
 
