@@ -110,19 +110,19 @@ Third party components
 
 - libpng
 
-  * Security fix CVE-2006-5793: Using smaller sizeof(png_sPLT_t)
-    instead of correct sizeof(png_sPLT_entry) to allocate memory may
-    result in overflows.
+  * Security fix (CVE-2006-5793): The sPLT chunk handling code
+    uses a sizeof operator on the wrong data type, which allows
+    context-dependent attackers to cause a denial of service (crash)
+    via malformed sPLT chunks that trigger an out-of-bounds read.
 
-  * Security fix (no CVE reference): Avoid profile larger than iCCP chunk.
-    One might crash a decoder by putting a larger profile inside the iCCP
-    profile than is actually expected.
+  * Security fix: Avoid profile larger than iCCP chunk.
+    One might crash a decoder by putting a larger profile inside the
+    iCCP profile than is actually expected.
 
-  * Security fix (no CVE reference): NULL pointer dereferences. Found by
-    Coverity scan of the Mozilla source code.
+  * Security fix: Avoid null dereference.
 
-  * Disabled MMX assembler code for Intel-Mac platforms to work around a
-    compiler bug.
+  * Disabled MMX assembler code for Intel-Mac platforms to work
+    around a compiler bug.
 
 
 ****************************************************************************
