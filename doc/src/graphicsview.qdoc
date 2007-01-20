@@ -160,7 +160,7 @@
         to provide your own collision detection, however, you can reimplement
         QGraphicsItem::collidesWith().
 
-        \img graphicsview-items2.png
+        \img graphicsview-items.png
 
     \section1 The Graphics View Coordinate System
 
