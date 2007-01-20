@@ -23,7 +23,7 @@
     painting implementation and item interaction through its event handlers.
     QGraphicsItem is part of \l{The Graphics View Framework}
 
-    \img graphicsview-items2.png
+    \img graphicsview-items.png
 
     For convenience, Qt provides a set of standard graphics items for the most
     common shapes. These are:
