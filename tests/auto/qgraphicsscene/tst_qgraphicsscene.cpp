@@ -1046,12 +1046,12 @@ void tst_QGraphicsScene::addRect()
     QCOMPARE(scene.itemAt(0, 0), rect);
     QCOMPARE(scene.itemAt(-10, -10), rect);
     QCOMPARE(scene.itemAt(-9.9, 0), rect);
-    QCOMPARE(scene.itemAt(-10, 10), rect);
+    QCOMPARE(scene.itemAt(-10, 10), (QGraphicsItem *)0);
     QCOMPARE(scene.itemAt(0, -9.9), rect);
     QCOMPARE(scene.itemAt(0, 9.9), rect);
-    QCOMPARE(scene.itemAt(10, -10), rect);
+    QCOMPARE(scene.itemAt(10, -10), (QGraphicsItem *)0);
     QCOMPARE(scene.itemAt(9.9, 0), rect);
-    QCOMPARE(scene.itemAt(10, 10), rect);
+    QCOMPARE(scene.itemAt(10, 10), (QGraphicsItem *)0);
 }
 
 void tst_QGraphicsScene::addText()
