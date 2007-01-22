@@ -107,6 +107,11 @@ void QSqlTableModelPrivate::clearEditBuffer()
     editBuffer = rec;
 }
 
+void QSqlTableModelPrivate::clearCache()
+{
+    cache.clear();
+}
+
 void QSqlTableModelPrivate::revertCachedRow(int row)
 {
     Q_Q(QSqlTableModel);
@@ -702,7 +707,7 @@ bool QSqlTableModel::submitAll()
                 break;
             }
         }
-        d->cache.clear();
+        d->clearCache();
         return select();
     }
     return false;

@@ -44,6 +44,8 @@ private slots:
     void filter();
     void sort();
     void revert();
+
+    void clearDisplayValuesCache();
 };
 
 
@@ -411,6 +413,46 @@ void tst_QSqlRelationalTableModel::revert()
     /* and again with OnManualSubmit */
     model.setEditStrategy(QSqlTableModel::OnManualSubmit);
     testRevert(model);
+}
+
+void tst_QSqlRelationalTableModel::clearDisplayValuesCache()
+{
+    QFETCH_GLOBAL(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    QSqlRelationalTableModel model(0, db);
+
+    model.setTable(qTableName("reltest1"));
+    model.setRelation(2, QSqlRelation(qTableName("reltest2"), "tid", "title"));
+    model.setRelation(3, QSqlRelation(qTableName("reltest2"), "tid", "title"));
+    model.setSort(1, Qt::AscendingOrder);
+    model.setEditStrategy(QSqlTableModel::OnManualSubmit);
+    
+    QVERIFY_SQL(model, model.select());
+
+    QCOMPARE(model.data(model.index(3, 0)).toInt(), 3);
+    QCOMPARE(model.data(model.index(3, 1)).toString(), QString("vohi"));
+    QCOMPARE(model.data(model.index(3, 2)).toString(), QString("herr"));
+    QCOMPARE(model.data(model.index(3, 3)).toString(), QString("mister"));
+
+    model.insertRow(model.rowCount());
+    QVERIFY(model.setData(model.index(4, 0), 5, Qt::EditRole));
+    QVERIFY(model.setData(model.index(4, 1), "anders", Qt::EditRole));
+    QVERIFY(model.setData(model.index(4, 2), 1, Qt::EditRole));
+    QVERIFY(model.setData(model.index(4, 2), "herr", Qt::DisplayRole));
+    QVERIFY(model.setData(model.index(4, 3), 1, Qt::EditRole));
+    QVERIFY(model.setData(model.index(4, 3), "herr", Qt::DisplayRole));
+    model.submitAll();
+
+    QCOMPARE(model.data(model.index(0, 0)).toInt(), 5);
+    QCOMPARE(model.data(model.index(0, 1)).toString(), QString("anders"));
+    QCOMPARE(model.data(model.index(0, 2)).toString(), QString("herr"));
+    QCOMPARE(model.data(model.index(0, 3)).toString(), QString("herr"));
+    QCOMPARE(model.data(model.index(4, 0)).toInt(), 3);
+    QCOMPARE(model.data(model.index(4, 1)).toString(), QString("vohi"));
+    QCOMPARE(model.data(model.index(4, 2)).toString(), QString("herr"));
+    QCOMPARE(model.data(model.index(4, 3)).toString(), QString("mister"));
 }
 
 QTEST_MAIN(tst_QSqlRelationalTableModel)

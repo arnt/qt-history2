@@ -111,6 +111,7 @@ public:
     QSqlRecord baseRec; // the record without relations
     void clearChanges();
     void clearEditBuffer();
+    void clearCache();
     void revertCachedRow(int row);
 
     void translateFieldNames(int row, QSqlRecord &values) const;
@@ -163,6 +164,17 @@ int QSqlRelationalTableModelPrivate::nameToIndex(const QString &name) const
 void QSqlRelationalTableModelPrivate::clearEditBuffer()
 {
     editBuffer = baseRec;
+}
+
+/*!
+    \reimp
+*/
+void QSqlRelationalTableModelPrivate::clearCache()
+{
+    for (int i = 0; i < relations.count(); ++i)
+        relations[i].displayValues.clear();
+
+    QSqlTableModelPrivate::clearCache();
 }
 
 /*!

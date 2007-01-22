@@ -41,6 +41,7 @@ public:
     void clear();
     QSqlRecord primaryValues(int index);
     virtual void clearEditBuffer();
+    virtual void clearCache();
     QSqlRecord record(const QVector<QVariant> &values) const;
 
     bool exec(const QString &stmt, bool prepStatement,
