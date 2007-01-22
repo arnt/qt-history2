@@ -1012,15 +1012,6 @@ void QWidgetPrivate::hide_sys()
     Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
     ShowWindow(q->internalWinId(), SW_HIDE);
     if (q->isWindow()) {
-        if (QTLWExtra *x = maybeTopData()) {
-            const QRect fs = x->frameStrut;
-            data.crect.moveTopLeft(QPoint(data.crect.x() - fs.left(),
-                                          data.crect.y() - fs.top()));
-
-            // zero the frame strut and mark it dirty
-            x->frameStrut.setCoords(0, 0, 0, 0);
-            data.fstrut_dirty = true;
-        }
         if (QWidgetBackingStore *bs = maybeBackingStore())
             bs->releaseBuffer();
     } else {
