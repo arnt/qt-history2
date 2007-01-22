@@ -263,7 +263,6 @@ bool QScriptParser::parse(QScriptEnginePrivate *driver)
 
           tos -= rhs [r];
           act = state_stack [tos++];
-          location_stack [tos] = location_stack [tos - 1];
 
           switch (r) {
 ./
@@ -1708,9 +1707,6 @@ PropertyNameAndValueListOpt: PropertyNameAndValueList ;
         {
           if (saved_yytoken == -1 && automatic (driver, yytoken) && t_action (state, T_AUTOMATIC_SEMICOLON) > 0)
             {
-              if (lexer->prevTerminator())
-                --location_stack[tos];
-
               saved_yytoken = yytoken;
               yytoken = T_SEMICOLON;
               continue;
