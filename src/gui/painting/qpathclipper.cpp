@@ -1846,3 +1846,10 @@ QPainterPath QPathClipper::clip(Operation op)
     return result;
 }
 
+bool QPathClipper::intersect()
+{
+    d->findIntersections();
+
+    return (!d->intersections.isEmpty());
+}
+

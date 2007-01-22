@@ -2920,3 +2920,15 @@ QPainterPath QPainterPath::subtractedInverted(const QPainterPath &p) const
     QPathClipper clipper(*this, p);
     return clipper.clip(QPathClipper::BoolInSub);
 }
+
+/*!
+  \since 4.3
+
+  Returns true if the current path intersects at any point the
+  given path \a p.
+ */
+bool QPainterPath::intersects(const QPainterPath &p) const
+{
+    QPathClipper clipper(*this, p);
+    return clipper.intersect();
+}

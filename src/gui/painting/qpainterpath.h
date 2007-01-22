@@ -131,6 +131,7 @@ public:
     qreal   angleAtPercent(qreal t) const;
     qreal   slopeAtPercent(qreal t) const;
 
+    bool intersects(const QPainterPath &p) const;
     QPainterPath united(const QPainterPath &r) const;
     QPainterPath intersected(const QPainterPath &r) const;
     QPainterPath subtracted(const QPainterPath &r) const;
