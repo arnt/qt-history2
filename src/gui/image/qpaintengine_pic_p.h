@@ -53,6 +53,7 @@ public:
     void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
     void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
     void updateRenderHints(QPainter::RenderHints hints);
+    void updateCompositionMode(QPainter::CompositionMode cmode);
 
     void drawPath(const QPainterPath &path);
     void drawPolygon(const QPointF *points, int numPoints, PolygonDrawMode mode);

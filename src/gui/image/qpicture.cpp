@@ -82,7 +82,7 @@ void qt_format_text(const QFont &fnt, const QRectF &_r,
 */
 
 const char  *qt_mfhdr_tag = "QPIC"; // header tag
-static const quint16 mfhdr_maj = 8; // major version #
+static const quint16 mfhdr_maj = 9; // major version #
 static const quint16 mfhdr_min = 0; // minor version #
 extern int qt_defaultDpi();
 
@@ -709,6 +709,10 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                                    bool(ul & QPainter::Antialiasing));
             painter->setRenderHint(QPainter::SmoothPixmapTransform,
                                    bool(ul & QPainter::SmoothPixmapTransform));
+            break;
+        case QPicturePrivate::PdcSetCompositionMode:
+            s >> ul;
+            painter->setCompositionMode((QPainter::CompositionMode)ul);
             break;
         default:
             qWarning("QPicture::play: Invalid command %d", c);

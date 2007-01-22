@@ -137,6 +137,18 @@ void QPicturePaintEngine::updatePen(const QPen &pen)
     writeCmdLength(pos, QRect(), false);
 }
 
+void QPicturePaintEngine::updateCompositionMode(QPainter::CompositionMode cmode)
+{
+    Q_D(QPicturePaintEngine);
+#ifdef QT_PICTURE_DEBUG
+    qDebug() << " -> updateCompositionMode():" << cmode;
+#endif
+    int pos;
+    SERIALIZE_CMD(QPicturePrivate::PdcSetCompositionMode);
+    d->s << (qint32)cmode;
+    writeCmdLength(pos, QRectF(), false);
+}
+
 void QPicturePaintEngine::updateBrush(const QBrush &brush, const QPointF &)
 {
     Q_D(QPicturePaintEngine);
@@ -378,6 +390,7 @@ void QPicturePaintEngine::updateState(const QPaintEngineState &state)
     if (flags & DirtyClipPath) updateClipPath(state.clipPath(), state.clipOperation());
     if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
     if (flags & DirtyHints) updateRenderHints(state.renderHints());
+    if (flags & DirtyCompositionMode) updateCompositionMode(state.compositionMode());
 }
 
 #endif // QT_NO_PICTURE

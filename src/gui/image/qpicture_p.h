@@ -102,6 +102,7 @@ public:
         PdcSetClipRegion = 61, // rgn
         PdcSetClipPath = 62, // path
         PdcSetRenderHint = 63, // ival
+        PdcSetCompositionMode = 64, // ival
 
         PdcReservedStart = 0, // codes 0-199 are reserved
         PdcReservedStop = 199 //   for Qt
