@@ -3227,14 +3227,22 @@ void tst_QWidget::showHideEvent()
     QCOMPARE(widget.numberOfHideEvents, expectedHideEvents);
 }
 
-bool wasWidget;
 class DestroyedSlotChecker : public QObject
 {
-Q_OBJECT
-    public slots:
+    Q_OBJECT
+
+public:
+    bool wasQWidget;
+
+    DestroyedSlotChecker()
+        : wasQWidget(false)
+    {
+    }
+
+public slots:
     void destroyedSlot(QObject *object)
     {
-        wasWidget = (qobject_cast<QWidget *>(object) != 0 || object->isWidgetType());
+        wasQWidget = (qobject_cast<QWidget *>(object) != 0 || object->isWidgetType());
     }
 };
 
@@ -3250,7 +3258,7 @@ void tst_QWidget::qobject_castInDestroyedSlot()
     QObject::connect(widget, SIGNAL(destroyed(QObject *)), &checker, SLOT(destroyedSlot(QObject *)));
     delete widget;
 
-    QVERIFY(wasWidget == false);
+    QVERIFY(checker.wasQWidget == true);
 }
 
 Q_DECLARE_METATYPE(QList<QRect>)
@@ -3278,7 +3286,7 @@ Q_DECLARE_METATYPE(QList<QRect>)
               << QRect(50, 100, 0, 200)
               << QRect(100, 50, 200, 0)
               << QRect(50, 50, 0, 0)
-              << QRect(100, 100, 200, 200)
+              << QRect(100, 100, 200, 200))
           << (QList<QRect>()
               << QRect(50, 100, 0, 200)
               << QRect(100, 50, 200, 0)
