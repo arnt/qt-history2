@@ -102,9 +102,6 @@ struct WriteInitialization : public TreeWalker
 //
     void acceptImage(DomImage *image);
 
-public:
-    // Flags to writeProperties()
-    enum { WritePropertyIgnoreMargin = 1, WritePropertyIgnoreSpacing = 2 };
 private:
     static QString domColor2QString(const DomColor *c);
 
@@ -112,6 +109,7 @@ private:
     QString trCall(const QString &str, const QString &comment = QString()) const;
     QString trCall(DomString *str) const;
 
+    enum { WritePropertyIgnoreMargin = 1, WritePropertyIgnoreSpacing = 2 };
     void writeProperties(const QString &varName, const QString &className, const DomPropertyList &lst, unsigned flags = 0);
     void writeColorGroup(DomColorGroup *colorGroup, const QString &group, const QString &paletteName);
     void writeBrush(DomBrush *brush, const QString &brushName);
@@ -189,14 +187,13 @@ private:
         void acceptLayoutDefault(DomLayoutDefault *node);
         void acceptLayoutFunction(DomLayoutFunction *node);
 
-        // Write out the layout margin and spacing properties applying the
-        // defaults. Returns a combination of ::writeProperty flags to prevent it from writing the margin
-        unsigned writeProperties(const QString &indent, const QString &varName,
-                                 const DomPropertyMap &pm, QTextStream &str) const;
+        // Write out the layout margin and spacing properties applying the defaults.
+        void writeProperties(const QString &indent, const QString &varName,
+                             const DomPropertyMap &pm, bool suppressMarginDefault, QTextStream &str) const;
     private:
-        bool writeProperty(int p, const QString &indent, const QString &objectName, const DomPropertyMap &pm,
+        void writeProperty(int p, const QString &indent, const QString &objectName, const DomPropertyMap &pm,
                            const QString &propertyName, const QString &setter,
-                           QTextStream &str) const;
+                           bool suppressDefault, QTextStream &str) const;
 
         enum Properties { Margin, Spacing, NumProperties };
         enum StateFlags { HasDefaultValue = 1, HasDefaultFunction = 2};

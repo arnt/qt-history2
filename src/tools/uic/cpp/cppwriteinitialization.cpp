@@ -248,10 +248,9 @@ void WriteInitialization::LayoutDefaultHandler::acceptLayoutFunction(DomLayoutFu
     }
 }
 
-
-bool WriteInitialization::LayoutDefaultHandler::writeProperty(int p, const QString &indent, const QString &objectName,
+void WriteInitialization::LayoutDefaultHandler::writeProperty(int p, const QString &indent, const QString &objectName,
                                                               const DomPropertyMap &properties, const QString &propertyName, const QString &setter,
-                                                              QTextStream &str) const
+                                                              bool suppressDefault, QTextStream &str) const
 {
     // User value
     const DomPropertyMap::const_iterator mit = properties.constFind(propertyName);
@@ -260,35 +259,37 @@ bool WriteInitialization::LayoutDefaultHandler::writeProperty(int p, const QStri
         const int value = mit.value()->elementNumber();
         // Emulate the pre 4.3 behaviour: The value form default value was only used to determine
         // the default value, layout properties were always written
-        const bool useLayoutFunctionPre43 = (m_state[p] == (HasDefaultFunction|HasDefaultValue)) && value == m_defaultValues[p];
+        const bool useLayoutFunctionPre43 = !suppressDefault && (m_state[p] == (HasDefaultFunction|HasDefaultValue)) && value == m_defaultValues[p];
         if (!useLayoutFunctionPre43) {
             writeSetter(indent, objectName, setter, value, str);
-            return found;
+            return;
         }
     }
+    if (suppressDefault)
+        return;
     // get default
     if (m_state[p] & HasDefaultFunction) {
         writeSetter(indent, objectName, setter, m_functions[p], str);
-        return found;
+        return;
     }
     if (m_state[p] & HasDefaultValue) {
         writeSetter(indent, objectName, setter, m_defaultValues[p], str);
     }
-    return found;
+    return;
 }
 
 
-unsigned WriteInitialization::LayoutDefaultHandler::writeProperties(const QString &indent, const QString &varName,
-                                                                const DomPropertyMap &properties, QTextStream &str) const
+void WriteInitialization::LayoutDefaultHandler::writeProperties(const QString &indent, const QString &varName,
+                                                                const DomPropertyMap &properties,
+                                                                bool suppressMarginDefault,
+                                                                QTextStream &str) const
 {
     // Write out properties and ignore the ones found in
     // subsequent writing of the property list.
-    unsigned  rc = 0u;
-    if (writeProperty(Spacing, indent, varName, properties, QLatin1String("spacing"), QLatin1String("setSpacing"), str))
-        rc |= WritePropertyIgnoreSpacing;
-    if (writeProperty(Margin,  indent, varName, properties, QLatin1String("margin"),  QLatin1String("setMargin"),  str))
-        rc |= WritePropertyIgnoreMargin;
-    return rc;
+    writeProperty(Spacing, indent, varName, properties, QLatin1String("spacing"), QLatin1String("setSpacing"),
+                  false, str);
+    writeProperty(Margin,  indent, varName, properties, QLatin1String("margin"),  QLatin1String("setMargin"),
+                  suppressMarginDefault, str);
 }
 
 // ---  WriteInitialization
@@ -587,7 +588,6 @@ void WriteInitialization::acceptLayout(DomLayout *node)
     const DomPropertyMap properties = propertyMap(node->elementProperty());
 
     bool isGroupBox = false;
-    unsigned writePropertyFlags = 0;
 
     if (m_widgetChain.top()) {
         const QString parentWidget = m_widgetChain.top()->attributeClass();
@@ -601,7 +601,7 @@ void WriteInitialization::acceptLayout(DomLayout *node)
             m_output << m_option.indent << parent << "->setColumnLayout(0, Qt::Vertical);\n";
             QString objectName = parent;
             objectName += "->layout()";
-            writePropertyFlags = m_LayoutDefaultHandler.writeProperties(m_option.indent, objectName, properties, m_output);
+            m_LayoutDefaultHandler.writeProperties(m_option.indent, objectName, properties, false, m_output);
         }
     }
 
@@ -618,10 +618,12 @@ void WriteInitialization::acceptLayout(DomLayout *node)
     if (isGroupBox) {
         m_output << m_option.indent << varName << "->setAlignment(Qt::AlignTop);\n";
     }  else {
-        writePropertyFlags = m_LayoutDefaultHandler.writeProperties(m_option.indent, varName, properties, m_output);
+        // Suppress margin on a read child layout
+        const bool suppressMarginDefault = m_layoutChain.top();
+        m_LayoutDefaultHandler.writeProperties(m_option.indent, varName, properties, suppressMarginDefault, m_output);
     }
 
-    writeProperties(varName, className, node->elementProperty(), writePropertyFlags);
+    writeProperties(varName, className, node->elementProperty(), WritePropertyIgnoreMargin|WritePropertyIgnoreSpacing);
 
     m_layoutChain.push(node);
     TreeWalker::acceptLayout(node);
