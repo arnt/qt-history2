@@ -3176,7 +3176,9 @@ QAbstractItemViewPrivate::contiguousSelectionCommand(const QModelIndex &index,
     case QItemSelectionModel::SelectCurrent:
         return flags;
     case QItemSelectionModel::NoUpdate:
-        if (event && event->type() == QEvent::MouseButtonRelease)
+        if (event &&
+            (event->type() == QEvent::MouseButtonPress
+             || event->type() == QEvent::MouseButtonRelease))
             return flags;
         return QItemSelectionModel::ClearAndSelect|selectionBehaviorFlags();
     default:
