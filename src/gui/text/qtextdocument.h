@@ -205,6 +205,7 @@ Q_SIGNALS:
     void redoAvailable(bool);
     void modificationChanged(bool m);
     void cursorPositionChanged(const QTextCursor &cursor);
+    void blockCountChanged(int newBlockCount);
 
 public Q_SLOTS:
     void undo();

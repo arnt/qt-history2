@@ -282,6 +282,7 @@ private:
     QString defaultStyleSheet;
 
     bool useDesignMetrics;
+    int lastBlockCount;
 
 public:
     QCss::StyleSheet parsedDefaultStyleSheet;

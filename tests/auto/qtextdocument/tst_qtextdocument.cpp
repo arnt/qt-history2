@@ -100,6 +100,8 @@ private slots:
 
     void html_defaultFont();
 
+    void blockCountChanged();
+
 private:
     QTextDocument *doc;
     QTextCursor cursor;
@@ -1766,6 +1768,40 @@ void tst_QTextDocument::html_defaultFont()
     if (html.contains("span"))
         qDebug() << "html:" << html;
     QVERIFY(!html.contains("<span style"));
+}
+
+void tst_QTextDocument::blockCountChanged()
+{
+    QSignalSpy spy(doc, SIGNAL(blockCountChanged(int)));
+
+    doc->setPlainText("Foo");
+
+    QCOMPARE(doc->blockCount(), 1);
+    QCOMPARE(spy.count(), 0);
+
+    spy.clear();
+
+    doc->setPlainText("Foo\nBar");
+    QCOMPARE(doc->blockCount(), 2);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).value(0).toInt(), 2);
+
+    spy.clear();
+
+    cursor.movePosition(QTextCursor::End);
+    cursor.insertText("Blahblah");
+
+    QCOMPARE(spy.count(), 0);
+
+    cursor.insertBlock();
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).value(0).toInt(), 3);
+
+    spy.clear();
+    doc->undo();
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).value(0).toInt(), 2);
 }
 
 QTEST_MAIN(tst_QTextDocument)

@@ -162,6 +162,7 @@ QTextDocumentPrivate::QTextDocumentPrivate()
     useDesignMetrics = false;
     maximumBlockCount = 0;
     unreachableCharacterCount = 0;
+    lastBlockCount = 0;
 }
 
 void QTextDocumentPrivate::init()
@@ -176,6 +177,7 @@ void QTextDocumentPrivate::init()
     undoEnabled = undoState;
     modified = false;
     modifiedState = 0;
+    lastBlockCount = blocks.numNodes();
 }
 
 void QTextDocumentPrivate::clear()
@@ -993,6 +995,11 @@ void QTextDocumentPrivate::endEditBlock()
     }
 
     contentsChanged();
+
+    if (blocks.numNodes() != lastBlockCount) {
+        lastBlockCount = blocks.numNodes();
+        emit q->blockCountChanged(lastBlockCount);
+    }
 
     if (!undoEnabled && unreachableCharacterCount)
         compressPieceTable();

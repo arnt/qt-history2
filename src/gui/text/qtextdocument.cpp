@@ -721,6 +721,14 @@ QString QTextDocument::defaultStyleSheet() const
 */
 
 /*!
+    \fn QTextDocument::blockCountChanged(int newBlockCount);
+    \since 4.3
+
+    This signal is emitted the total number of text blocks in the
+    document changes.
+*/
+
+/*!
     Returns true if undo is available; otherwise returns false.
 */
 bool QTextDocument::isUndoAvailable() const
