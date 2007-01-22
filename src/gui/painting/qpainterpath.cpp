@@ -1608,7 +1608,7 @@ static void qt_painterpath_isect_curve(const QBezier &bezier, const QPointF &pt,
 
         // hit lower limit... This is a rough threshold, but its a
         // tradeoff between speed and precision.
-        const qreal lower_bound = .01;
+        const qreal lower_bound = .001;
         if (bounds.width() < lower_bound && bounds.height() < lower_bound) {
             // We make the assumption here that the curve starts to
             // approximate a line after while (i.e. that it doesn't
