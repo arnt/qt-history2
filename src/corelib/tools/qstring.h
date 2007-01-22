@@ -1003,14 +1003,25 @@ class Q_CORE_EXPORT QStringRef {
     int m_size;
 public:
     inline QStringRef():m_string(0), m_position(0), m_size(0){}
-    inline QStringRef(const QString *string, int position, int size)
-        :m_string(string), m_position(position), m_size(size){}
+    inline QStringRef(const QString *string, int position, int size);
+    inline QStringRef(const QString *string);
+    inline QStringRef(const QStringRef &other)
+        :m_string(other.m_string), m_position(other.m_position), m_size(other.m_size)
+        {}
+
+    inline ~QStringRef(){}
     inline const QString *string() const { return m_string; }
     inline int position() const { return m_position; }
     inline int size() const { return m_size; }
+    inline int count() const { return m_size; }
+    inline int length() const { return m_size; }
 
-    inline QStringRef &operator=(const QString &string)
-        { m_string = &string; m_position = 0; m_size = string.size(); return *this; }
+    inline QStringRef &operator=(const QStringRef &other) {
+        m_string = other.m_string; m_position = other.m_position;
+        m_size = other.m_size; return *this;
+    }
+
+    inline QStringRef &operator=(const QString *string);
 
     inline const QChar *unicode() const {
         if (!m_string)
@@ -1025,11 +1036,21 @@ public:
     inline bool isEmpty() const { return m_size == 0; }
     inline bool isNull() const { return m_string == 0; }
 
+    QStringRef appendTo(QString *string) const;
+
     inline const QChar at(int i) const
         { Q_ASSERT(i >= 0 && i < size()); return m_string->at(i + m_position); }
 
-
 };
+
+inline QStringRef &QStringRef::operator=(const QString *aString)
+{ m_string = aString; m_position = 0; m_size = aString?aString->size():0; return *this; }
+
+inline QStringRef::QStringRef(const QString *aString, int aPosition, int aSize)
+        :m_string(aString), m_position(aPosition), m_size(aSize){}
+
+inline QStringRef::QStringRef(const QString *aString)
+    :m_string(aString), m_position(0), m_size(aString?aString->size() : 0){}
 
 Q_CORE_EXPORT bool operator==(const QStringRef &s1,const QStringRef &s2);
 inline bool operator!=(const QStringRef &s1,const QStringRef &s2)
@@ -1048,6 +1069,14 @@ inline bool operator==(const QStringRef &s1,const QLatin1String &s2)
 { return s2 == s1; }
 inline bool operator!=(const QStringRef &s1,const QLatin1String &s2)
 { return s2 != s1; }
+
+Q_CORE_EXPORT bool operator<(const QStringRef &s1,const QStringRef &s2);
+inline bool operator>(const QStringRef &s1, const QStringRef &s2)
+{ return s2 < s1; }
+inline bool operator<=(const QStringRef &s1, const QStringRef &s2)
+{ return !(s1 > s2); }
+inline bool operator>=(const QStringRef &s1, const QStringRef &s2)
+{ return !(s1 < s2); }
 
 inline bool qStringComparisonHelper(const QStringRef &s1, const char *s2)
 {

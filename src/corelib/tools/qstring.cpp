@@ -121,19 +121,29 @@ static int ucstricmp(const ushort *a, const ushort *ae, const uchar *b)
 }
 
 
-static int ucstrcmp(const QString &as, const QString &bs)
+static int ucstrcmp(const QChar *a, int alen, const QChar *b, int blen)
 {
-    const QChar *a = as.unicode();
-    const QChar *b = bs.unicode();
     if (a == b)
         return 0;
-    int l = qMin(as.length(),bs.length());
+    int l = qMin(alen, blen);
     while (l-- && *a == *b)
         a++,b++;
     if (l == -1)
-        return (as.length()-bs.length());
+        return (alen-blen);
     return a->unicode() - b->unicode();
 }
+
+inline int ucstrcmp(const QString &as, const QString &bs)
+{
+    return ucstrcmp(as.unicode(), as.length(), bs.unicode(), bs.length());
+}
+
+inline int ucstrcmp(const QStringRef &as, const QStringRef &bs)
+{
+    return ucstrcmp(as.unicode(), as.length(), bs.unicode(), bs.length());
+}
+
+
 
 static int ucstrncmp(const QChar *a, const QChar *b, int l)
 {
@@ -7006,8 +7016,11 @@ QDataStream &operator>>(QDataStream &in, QString &str)
 
 
     QStringRef provides a read-only subset of the QString API,
-    including operator== and operator!=.  Calling toString() returns a
-    copy of the data as real QString instance.
+    including operator== and operator!=.
+
+    A string reference explicitely references a portion of a string()
+    with a given size(), starting at a specific position(). Calling
+    toString() returns a copy of the data as real QString instance.
 
     There are no semantically benefits of using QStringRef over
     QString, in fact, using QStringRef probably makes your code more
@@ -7033,8 +7046,69 @@ QDataStream &operator>>(QDataStream &in, QString &str)
 */
 
 
+/* !\fn QStringRef::QStringRef()
+   Constructs an empty string referece.
+
+ */
+/* !\fn QStringRef::QStringRef(const QString *string, int position, int size)
+
+Constructs a string reference of \a string with \a size characters, starting at \a position.
+
+Note: This function exists for ultimate performance, no bounce
+checking is done. For program correctness the following constraints
+must be true: 0 <= \a position < string->size() && 0 <= size <=
+string->size() - position;
+*/
+
+/* !\fn QStringRef::QStringRef(const QString *string)
+
+Constructs a string reference of \a string.
+*/
+
+/* !\fn QStringRef::QStringRef(const QStringRef &other)
+
+Constructs a copy of \a other.
+ */
+/* !\fn QStringRef::~QStringRef()
+
+Destructor. No memory is free'd.
+
+ */
+
+
+/*!
+    \fn int QStringRef::size() const
+    Returns the number of characters in this string.
+*/
+/*!
+    \fn int QStringRef::count() const
+    Returns the number of characters in this string.
+*/
+/*!
+    \fn int QStringRef::length() const
+    Returns the number of characters in this string.
+*/
+
+/*!
+    \fn const QChar *QStringRef::data() const
+
+    Same as unicode()
+
+*/
+
+/*!
+    \fn const QChar *QStringRef::constData() const
+
+    Same as unicode()
+
+*/
+
 /*
     Returns a copy of this string ref as QString object.
+
+    Unless this string reference is a complete reference of \a string
+    (meaning that position() is 0 and size() equals string()->size()),
+    this function must allocate a new string.
 */
 
 QString QStringRef::toString() const {
@@ -7045,14 +7119,30 @@ QString QStringRef::toString() const {
     return QString::fromUtf16(reinterpret_cast<const ushort*>(m_string->unicode() + m_position), m_size);
 }
 
+
+/* \relates QStringRef
+
+   Returns true if string reference \a s1 is lexically equal to string reference \a s2; otherwise
+   returns false.
+*/
 bool operator==(const QStringRef &s1,const QStringRef &s2)
 { return (s1.size() == s2.size() &&
           (memcmp((char*)s1.unicode(), (char*)s2.unicode(), s1.size()*sizeof(QChar))==0)); }
 
+/* \relates QStringRef
+
+   Returns true if string \a s1 is lexically equal to string reference \a s2; otherwise
+   returns false.
+*/
 bool operator==(const QString &s1,const QStringRef &s2)
 { return (s1.size() == s2.size() &&
           (memcmp((char*)s1.unicode(), (char*)s2.unicode(), s1.size()*sizeof(QChar))==0)); }
 
+/* \relates QStringRef
+
+   Returns true if string  \a s1 is lexically equal to string reference \a s2; otherwise
+   returns false.
+*/
 bool operator==(const QLatin1String &s1, const QStringRef &s2)
 {
     const ushort *uc = reinterpret_cast<const ushort *>(s2.unicode());
@@ -7069,3 +7159,101 @@ bool operator==(const QLatin1String &s1, const QStringRef &s2)
     }
     return (uc == e);
 }
+
+/*!
+   \relates QStringRef
+
+    Returns true if string reference \a s1 is lexically less than
+    string reference \a s2; otherwise returns false.
+
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. Consider sorting user-interface strings using the
+    QString::localeAwareCompare() function.
+*/
+bool operator<(const QStringRef &s1,const QStringRef &s2)
+{
+    return ucstrcmp(s1, s2) < 0;
+}
+
+/*!\fn bool operator<=(const QStringRef &s1,const QStringRef &s2)
+
+   \relates QStringRef
+
+    Returns true if string reference \a s1 is lexically less than
+    or equal to string reference \a s2; otherwise returns false.
+
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. Consider sorting user-interface strings using the
+    QString::localeAwareCompare() function.
+*/
+
+/*!\fn bool operator>=(const QStringRef &s1,const QStringRef &s2)
+
+   \relates QStringRef
+
+    Returns true if string reference \a s1 is lexically greater than
+    or equal to string reference \a s2; otherwise returns false.
+
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. Consider sorting user-interface strings using the
+    QString::localeAwareCompare() function.
+*/
+
+/*!\fn bool operator>=(const QStringRef &s1,const QStringRef &s2)
+
+   \relates QStringRef
+
+    Returns true if string reference \a s1 is lexically greater than
+    string reference \a s2; otherwise returns false.
+
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. Consider sorting user-interface strings using the
+    QString::localeAwareCompare() function.
+*/
+
+
+/*! \fn const QChar QStringRef::at(int position) const
+
+    Returns the character at the given index \a position in the
+    string reference.
+
+    The \a position must be a valid index position in the string
+    (i.e., 0 <= \a position < size()).
+
+*/
+
+/*! \fn void QStringRef::clear()
+
+    Clears the contents of the string reference and makes it empty.
+
+    \sa isEmpty()
+*/
+
+/*! \fn QStringRef &QStringRef::operator=(const QStringRef &other)
+
+    Assigns \a other to this string reference and returns a reference
+    to this string reference.
+*/
+
+/*! \fn QStringRef &QStringRef::operator=(const QString &string)
+
+    Makes this string reference a reference to \a string.
+*/
+
+
+/*!  Appends this string reference to \a string, and returns a new
+  reference to the appended string data.
+ */
+QStringRef QStringRef::appendTo(QString *string) const
+{
+    if (!string)
+        return QStringRef();
+    int pos = string->size();
+    string->insert(pos, unicode(), size());
+    return QStringRef(string, pos, size());
+}
+

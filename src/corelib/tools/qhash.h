@@ -26,6 +26,7 @@ QT_MODULE(Core)
 
 class QByteArray;
 class QString;
+class QStringRef;
 
 inline uint qHash(char key) { return uint(key); }
 inline uint qHash(uchar key) { return uint(key); }
@@ -55,6 +56,7 @@ inline uint qHash(qint64 key) { return qHash(quint64(key)); }
 inline uint qHash(QChar key) { return qHash(key.unicode()); }
 Q_CORE_EXPORT uint qHash(const QByteArray &key);
 Q_CORE_EXPORT uint qHash(const QString &key);
+Q_CORE_EXPORT uint qHash(const QStringRef &key);
 
 #if defined(Q_CC_MSVC)
 #pragma warning( push )

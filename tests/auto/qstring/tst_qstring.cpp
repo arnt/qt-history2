@@ -1250,6 +1250,31 @@ void tst_QString::stringRef()
     QVERIFY((QString)"DE" != QStringRef(&a, 3, 3));
     QVERIFY(QLatin1String("DE") != QStringRef(&a, 3, 3));
     QVERIFY("DE" != QStringRef(&a, 3, 3));
+
+    QString s_alpha("alpha");
+    QString s_beta("beta");
+    QStringRef alpha(&s_alpha);
+    QStringRef beta(&s_beta);
+
+    QVERIFY(alpha < beta);
+    QVERIFY(alpha <= beta);
+    QVERIFY(alpha <= alpha);
+    QVERIFY(beta > alpha);
+    QVERIFY(beta >= alpha);
+    QVERIFY(beta >= beta);
+
+    QString s_alpha2("alpha");
+
+    QMap<QStringRef, QString> map;
+    map.insert(alpha, "alpha");
+    map.insert(beta, "beta");
+    QVERIFY(alpha == map.value(QStringRef(&s_alpha2)));
+
+    QHash<QStringRef, QString> hash;
+    hash.insert(alpha, "alpha");
+    hash.insert(beta, "beta");
+
+    QVERIFY(alpha == hash.value(QStringRef(&s_alpha2)));
 }
 
 void tst_QString::leftJustified()
