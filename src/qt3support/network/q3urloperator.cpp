@@ -23,6 +23,8 @@
 #include "qpointer.h"
 #include "q3valuelist.h"
 
+#include "qapplication.h"
+
 //#define Q3URLOPERATOR_DEBUG
 
 class Q3UrlOperatorPrivate
@@ -1072,6 +1074,13 @@ void Q3UrlOperator::continueCopy( Q3NetworkOperation *op )
 	if ( op->state() != Q3NetworkProtocol::StFailed ) {
 	    pProt->addOperation( put );
 	    d->currPut = pProt;
+        if (rm) { // we need the result of the put operation
+            qApp->processEvents(); // process posted operations
+            if (put->state() == Q3NetworkProtocol::StFailed) {
+                deleteOperation( rm );
+                rm = 0;
+            }
+        }
 	} else {
 	    deleteOperation( put );
 	}
