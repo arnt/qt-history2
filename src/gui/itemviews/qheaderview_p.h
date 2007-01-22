@@ -68,6 +68,8 @@ public:
           globalResizeMode(QHeaderView::Interactive)
     {}
 
+
+    int lastVisibleVisualIndex() const;
     int sectionHandleAt(int position);
     void setupSectionIndicator(int section, int position);
     void updateSectionIndicator(int section, int position);

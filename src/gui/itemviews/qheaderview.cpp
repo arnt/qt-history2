@@ -797,7 +797,7 @@ void QHeaderView::resizeSection(int logical, int size)
     int visual = visualIndex(logical);
     Q_ASSERT(visual != -1);
 
-    if (stretchLastSection() && visual == count() - 1)
+    if (stretchLastSection() && visual == d->lastVisibleVisualIndex())
         d->lastSectionSize = size;
 
     if (size != oldSize)
@@ -2563,6 +2563,22 @@ bool QHeaderViewPrivate::isSectionSelected(int section) const
 
 /*!
   \internal
+  Returns the last visible (ie. not hidden) visual index
+*/
+int QHeaderViewPrivate::lastVisibleVisualIndex() const
+{
+    Q_Q(const QHeaderView);
+    for(int visual = q->count()-1; visual >= 0; --visual) {
+        if (!q->isSectionHidden(q->logicalIndex(visual)))
+            return visual;
+    }
+
+    //default value if no section is actually visible
+    return -1;
+}
+
+/*!
+  \internal
   Go through and reize all of the sections appling stretchLastSection,
   manualy stretches, sizes, and useGlobalMode.
 
@@ -2637,6 +2653,8 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
 
     int spanStartSection = 0;
     int previousSectionLength = 0;
+    const int lastVisibleSection = lastVisibleVisualIndex();
+
     QHeaderView::ResizeMode previousSectionResizeMode = QHeaderView::Interactive;
 
     // resize each section along the total length
@@ -2656,7 +2674,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
                               ? QHeaderView::Stretch
                               : visualIndexResizeMode(i));
             if (resizeMode == QHeaderView::Stretch) {
-                if (i == sectionCount - 1)
+                if (i == lastVisibleSection)
                     newSectionLength = qMax(stretchSectionLength, lastSectionSize);
                 else
                     newSectionLength = stretchSectionLength;
