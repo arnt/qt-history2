@@ -3214,7 +3214,63 @@ void QObject::dumpObjectInfo()
 #if defined(QT_DEBUG)
     qDebug("OBJECT %s::%s", metaObject()->className(),
            objectName().isEmpty() ? "unnamed" : objectName().toLocal8Bit().data());
-    //#### signals and slots info missing
+
+    QConnectionList *list = ::connectionList();
+    QReadLocker locker(&list->lock);
+
+
+    // first, look for connections where this object is the sender
+    qDebug("  SIGNALS OUT");
+
+    QConnectionList::Hash::const_iterator it = list->sendersHash.constFind(this);
+    if (it != list->sendersHash.constEnd()) {
+        do {
+            const QConnection &c = list->connections.at(it.value());
+
+            // signal name
+            const QMetaMethod signal = metaObject()->method(c.signal);
+            qDebug("\tsignal: %s", signal.signature());
+
+            // receiver
+            const QMetaObject *receiverMetaObject = c.receiver->metaObject();
+            const QMetaMethod method = receiverMetaObject->method(c.method);
+            qDebug("\t  --> %s::%s %s",
+                   receiverMetaObject->className(),
+                   c.receiver->objectName().isEmpty() ? "unnamed" : qPrintable(c.receiver->objectName()),
+                   method.signature());
+
+            ++it;
+        } while (it != list->sendersHash.constEnd() && it.key() == this);
+    } else {
+	qDebug( "\t<None>" );
+    }
+
+    // now look for connections where this object is the receiver
+    qDebug("  SIGNALS IN");
+
+    it = list->receiversHash.constFind(this);
+    if (it != list->receiversHash.constEnd()) {
+        do {
+            const QConnection &c = list->connections.at(it.value());
+
+            // method name
+            const QMetaMethod method = metaObject()->method(c.method);
+            qDebug("\tmethod: %s", method.signature());
+
+            // sender
+            const QMetaObject *senderMetaObject = c.sender->metaObject();
+            const QMetaMethod signal = senderMetaObject->method(c.signal);
+            qDebug("\t  <-- %s::%s %s",
+                   senderMetaObject->className(),
+                   c.sender->objectName().isEmpty() ? "unnamed" : qPrintable(c.sender->objectName()),
+                   signal.signature());
+
+            ++it;
+        } while (it != list->sendersHash.constEnd() && it.key() == this);
+
+    } else {
+	qDebug("\t<None>");
+    }
 #endif
 }
 
