@@ -116,8 +116,8 @@ public:
 #ifndef QT_NO_CAST_FROM_ASCII
     QT_ASCII_CAST_WARN QScriptValue scriptValue(const char *value);
 #endif
-    QScriptValue scriptValue(QScriptFunctionSignature signature, int length = 0);
-    QScriptValue scriptValue(QScriptFunctionSignature signature, QScriptValue &prototype, int length = 0);
+    QScriptValue scriptValue(QScriptFunctionSignature esignature, int length = 0);
+    QScriptValue scriptValue(QScriptFunctionSignature signature, const QScriptValue &prototype, int length = 0);
 #ifndef QT_NO_REGEXP
     QScriptValue scriptValue(const QRegExp &regexp);
 #endif
