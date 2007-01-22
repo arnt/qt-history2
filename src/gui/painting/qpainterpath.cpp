@@ -29,6 +29,7 @@
 #include <private/qmath_p.h>
 #include <private/qnumeric_p.h>
 #include <private/qobject_p.h>
+#include <private/qpathclipper_p.h>
 #include <private/qstroker_p.h>
 #include <private/qtextengine_p.h>
 
@@ -2872,4 +2873,50 @@ void QPainterPath::addRoundRect(const QRectF &r, int xRnd, int yRnd)
     path.arcTo(x+w-rxx2, y, rxx2, ryy2, 0, 90);
     path.closeSubpath();
 
+}
+
+/*!
+    \since 4.3
+
+    Returns a path which is the union of this path and \a p.
+
+    \sa intersected(), subtracted(), subtractedInverted()
+*/
+QPainterPath QPainterPath::united(const QPainterPath &p) const
+{
+    QPathClipper clipper(*this, p);
+    return clipper.clip(QPathClipper::BoolOr);
+}
+
+/*!
+    \since 4.3
+
+    Returns a path which is the intersection of this path and \a p.
+*/
+QPainterPath QPainterPath::intersected(const QPainterPath &p) const
+{
+    QPathClipper clipper(*this, p);
+    return clipper.clip(QPathClipper::BoolAnd);
+}
+
+/*!
+    \since 4.3
+
+    Returns a path which is \a p subtracted from this path.
+*/
+QPainterPath QPainterPath::subtracted(const QPainterPath &p) const
+{
+    QPathClipper clipper(*this, p);
+    return clipper.clip(QPathClipper::BoolSub);
+}
+
+/*!
+    \since 4.3
+
+    Returns a path which is this path subtracted from \a p.
+*/
+QPainterPath QPainterPath::subtractedInverted(const QPainterPath &p) const
+{
+    QPathClipper clipper(*this, p);
+    return clipper.clip(QPathClipper::BoolInSub);
 }

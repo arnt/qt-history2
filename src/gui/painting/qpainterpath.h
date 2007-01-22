@@ -131,6 +131,11 @@ public:
     qreal   angleAtPercent(qreal t) const;
     qreal   slopeAtPercent(qreal t) const;
 
+    QPainterPath united(const QPainterPath &r) const;
+    QPainterPath intersected(const QPainterPath &r) const;
+    QPainterPath subtracted(const QPainterPath &r) const;
+    QPainterPath subtractedInverted(const QPainterPath &r) const;
+
     bool operator==(const QPainterPath &other) const;
     bool operator!=(const QPainterPath &other) const;
 
