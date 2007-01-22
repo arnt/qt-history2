@@ -273,7 +273,14 @@ QString QAbstractItemDelegate::elidedText(const QFontMetrics &fontMetrics, int w
     \a view \a option and the \a index that corresponds to the item where the
     event occurs.
 
-    Returns true if the event is successful otherwise false.
+    Returns true if the delegate can handle the event; otherwise returns false.
+    A return value of true indicates that the data obtained using the index had
+    the required role.
+
+    For QEvent::ToolTip and QEvent::WhatsThis events that were handled successfully,
+    the relevant popup may be shown depending on the user's system configuration.
+
+    \sa QHelpEvent
 */
 // ### Qt 5: Make this a virtual non-slot function
 bool QAbstractItemDelegate::helpEvent(QHelpEvent *event,
