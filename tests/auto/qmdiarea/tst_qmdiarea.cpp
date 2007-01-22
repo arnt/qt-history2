@@ -20,6 +20,7 @@
 #include <QStyleOption>
 #include <QVBoxLayout>
 #include <QLineEdit>
+#include <QDesktopWidget>
 
 #if defined(Q_WS_X11)
 extern void qt_x11_wait_for_window_manager(QWidget *w);
@@ -559,14 +560,18 @@ void tst_QMdiArea::sizeHint()
 {
     QMdiArea workspace;
     workspace.show();
-    QAbstractScrollArea dummyScrollArea;
-    QSize expectedSize = dummyScrollArea.sizeHint() + workspace.baseSize();
+    QSize desktopSize = QApplication::desktop()->size();
+    QSize expectedSize(desktopSize.width() * 2/3, desktopSize.height() * 2/3);
     QCOMPARE(workspace.sizeHint(), expectedSize.expandedTo(qApp->globalStrut()));
 
     QWidget *window = workspace.addSubWindow(new QWidget);
     qApp->processEvents();
     window->show();
     QCOMPARE(workspace.sizeHint(), expectedSize.expandedTo(window->sizeHint()));
+
+    QMdiSubWindow *nested = workspace.addSubWindow(new QMdiArea);
+    expectedSize = QSize(desktopSize.width() * 2/6, desktopSize.height() * 2/6);
+    QCOMPARE(nested->widget()->sizeHint(), expectedSize);
 }
 
 void tst_QMdiArea::setActiveSubWindow()
