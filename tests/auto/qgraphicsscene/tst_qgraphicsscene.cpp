@@ -371,12 +371,20 @@ void tst_QGraphicsScene::items_QPointF_data()
         << (QList<int>() << 0);
     QTest::newRow("3")
         << (QList<QRectF>() << QRectF(0, 0, 10, 10))
-        << QPointF(10, 10)
+        << QPointF(9.9, 9.9)
         << (QList<int>() << 0);
+    QTest::newRow("3.5")
+        << (QList<QRectF>() << QRectF(0, 0, 10, 10))
+        << QPointF(10, 10)
+        << QList<int>();
     QTest::newRow("4")
+        << (QList<QRectF>() << QRectF(0, 0, 10, 10) << QRectF(9.9, 9.9, 10, 10))
+        << QPointF(9.9, 9.9)
+        << (QList<int>() << 1 << 0);
+    QTest::newRow("4.5")
         << (QList<QRectF>() << QRectF(0, 0, 10, 10) << QRectF(10, 10, 10, 10))
         << QPointF(10, 10)
-        << (QList<int>() << 1 << 0);
+        << (QList<int>() << 1);
     QTest::newRow("5")
         << (QList<QRectF>() << QRectF(5, 5, 10, 10) << QRectF(10, 10, 10, 10))
         << QPointF(10, 10)
