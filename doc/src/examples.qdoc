@@ -50,6 +50,7 @@
     \o \l{widgets/calculator}{Calculator}\raisedaster
     \o \l{widgets/calendarwidget}{Calendar Widget}\raisedaster
     \o \l{widgets/charactermap}{Character Map}\raisedaster
+    \o \l{widgets/dialogbuttonbox}{Dialog Button Box}\raisedaster
     \o \l{widgets/digitalclock}{Digital Clock}\raisedaster
     \o \l{widgets/groupbox}{Group Box}\raisedaster
     \o \l{widgets/icons}{Icons}\raisedaster
@@ -129,6 +130,7 @@
 
     \list
     \o \l{graphicsview/collidingmice}{Colliding Mice}\raisedaster
+    \o \l{graphicsview/diagramscene}{Diagram Scene}\raisedaster
     \o \l{graphicsview/dragdroprobot}{Drag and Drop Robot}
     \o \l{graphicsview/elasticnodes}{Elastic Nodes}
     \o \l{graphicsview/portedasteroids}{Ported Asteroids}
