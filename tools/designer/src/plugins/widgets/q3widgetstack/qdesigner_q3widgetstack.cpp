@@ -30,6 +30,7 @@ QDesignerQ3WidgetStack::QDesignerQ3WidgetStack(QWidget *parent)
     prev->setArrowType(Qt::LeftArrow);
     prev->setAutoRaise(true);
     prev->setAutoRepeat(true);
+    prev->setContextMenuPolicy(Qt::PreventContextMenu);
     prev->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
     connect(prev, SIGNAL(clicked()), this, SLOT(prevPage()));
 
@@ -40,6 +41,7 @@ QDesignerQ3WidgetStack::QDesignerQ3WidgetStack(QWidget *parent)
     next->setArrowType(Qt::RightArrow);
     next->setAutoRaise(true);
     next->setAutoRepeat(true);
+    next->setContextMenuPolicy(Qt::PreventContextMenu);
     next->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
     connect(next, SIGNAL(clicked()), this, SLOT(nextPage()));
 
