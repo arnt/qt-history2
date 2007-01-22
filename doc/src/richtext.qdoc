@@ -1007,8 +1007,8 @@ Ideas for other sections:
             \o <length>px
             \o Right paragraph margin in pixels
     \row    \o \c vertical-alignment
-            \o baseline | sub | super
-            \o Vertical text alignment
+            \o baseline | sub | super | middle
+            \o Vertical text alignment. middle alignment is currently only supported for inline objects.
     \row    \o \c background
             \o [ <'background-color'> || <'background-image'> ]
             \o Background shorthand property

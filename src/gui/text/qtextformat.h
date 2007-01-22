@@ -305,7 +305,12 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QTextFormat::PageBreakFlags)
 class Q_GUI_EXPORT QTextCharFormat : public QTextFormat
 {
 public:
-    enum VerticalAlignment { AlignNormal = 0, AlignSuperScript, AlignSubScript };
+    enum VerticalAlignment {
+        AlignNormal = 0,
+        AlignSuperScript,
+        AlignSubScript,
+        AlignMiddle
+    };
     enum UnderlineStyle { // keep in sync with Qt::PenStyle!
         NoUnderline,
         SingleUnderline,

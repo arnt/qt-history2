@@ -1829,18 +1829,23 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
         }
     }
 
+    QString txt = fragment.text();
+    const bool isObject = (txt.count() == 1 && txt.at(0) == QChar::ObjectReplacementCharacter);
+    const bool isImage = isObject && format.isImageFormat();
+
     QLatin1String styleTag("<span style=\"");
     html += styleTag;
 
-    const bool attributesEmitted = emitCharFormatStyle(format);
+    bool attributesEmitted = false;
+    if (!isImage)
+        attributesEmitted = emitCharFormatStyle(format);
     if (attributesEmitted)
         html += QLatin1String("\">");
     else
         html.chop(qstrlen(styleTag.latin1()));
 
-    QString txt = fragment.text();
-    if (txt.count() == 1 && txt.at(0) == QChar::ObjectReplacementCharacter) {
-        if (format.isImageFormat()) {
+    if (isObject) {
+        if (isImage) {
             QTextImageFormat imgFmt = format.toImageFormat();
 
             html += QLatin1String("<img");
@@ -1853,6 +1858,9 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
 
             if (imgFmt.hasProperty(QTextFormat::ImageHeight))
                 emitAttribute("height", QString::number(imgFmt.height()));
+
+            if (imgFmt.verticalAlignment() == QTextCharFormat::AlignMiddle)
+                html += QLatin1String(" style=\"vertical-align: middle;\"");
 
             if (QTextFrame *imageFrame = qobject_cast<QTextFrame *>(doc->objectForFormat(imgFmt)))
                 emitFloatStyle(imageFrame->frameFormat().position());

@@ -1080,6 +1080,8 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
                             normal text.
     \value AlignSubScript   Characters are placed below the baseline for
                             normal text.
+    \value AlignMiddle This is currently only implemented for inline objects. The center
+                       of the object is vertically aligned with the base line.
 */
 
 /*!

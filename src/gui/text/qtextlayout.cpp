@@ -1738,7 +1738,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                                                         gf.width.toReal(), line.height().toReal()));
 
             QTextCharFormat::VerticalAlignment valign = chf.verticalAlignment();
-            if (valign != QTextCharFormat::AlignNormal) {
+            if (valign == QTextCharFormat::AlignSuperScript || valign == QTextCharFormat::AlignSubScript) {
                 QFontEngine *fe = f.d->engineForScript(si.analysis.script);
                 QFixed height = fe->ascent() + fe->descent();
                 if (valign == QTextCharFormat::AlignSubScript)

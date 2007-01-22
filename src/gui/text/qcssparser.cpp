@@ -166,6 +166,7 @@ static const QCssKnownValue values[NumKnownValues - 1] = {
     { "left", Value_Left },
     { "line-through", Value_LineThrough },
     { "medium", Value_Medium },
+    { "middle", Value_Middle },
     { "native", Value_Native },
     { "none", Value_None },
     { "normal", Value_Normal },

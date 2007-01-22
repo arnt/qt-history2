@@ -1198,6 +1198,7 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
                 switch (identifier) {
                     case QCss::Value_Sub: charFormat.setVerticalAlignment(QTextCharFormat::AlignSubScript); break;
                     case QCss::Value_Super: charFormat.setVerticalAlignment(QTextCharFormat::AlignSuperScript); break;
+                    case QCss::Value_Middle: charFormat.setVerticalAlignment(QTextCharFormat::AlignMiddle); break;
                     default: charFormat.setVerticalAlignment(QTextCharFormat::AlignNormal); break;
                 }
                 break;
@@ -1519,12 +1520,16 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
             else
                 alignmentSet = false;
 
-            // HTML4 compat
-            if (alignmentSet && node->id == Html_img) {
-                if (node->blockFormat.alignment() & Qt::AlignLeft)
-                    node->cssFloat = QTextFrameFormat::FloatLeft;
-                else if (node->blockFormat.alignment() & Qt::AlignRight)
-                    node->cssFloat = QTextFrameFormat::FloatRight;
+            if (node->id == Html_img) {
+                // HTML4 compat
+                if (alignmentSet) {
+                    if (node->blockFormat.alignment() & Qt::AlignLeft)
+                        node->cssFloat = QTextFrameFormat::FloatLeft;
+                    else if (node->blockFormat.alignment() & Qt::AlignRight)
+                        node->cssFloat = QTextFrameFormat::FloatRight;
+                } else if (value == QLatin1String("middle")) {
+                    node->charFormat.setVerticalAlignment(QTextCharFormat::AlignMiddle);
+                }
             }
         } else if (key == QLatin1String("dir")) {
             value = value.toLower();

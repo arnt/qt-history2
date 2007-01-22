@@ -204,6 +204,7 @@ private slots:
     void html_alignmentInheritance();
     void html_ignoreEmptyDivs();
     void html_dontInheritAlignmentForFloatingImages();
+    void html_verticalImageAlignment();
 
 private:
     inline void setHtml(const QString &html)
@@ -3147,6 +3148,30 @@ void tst_QTextDocumentFragment::html_dontInheritAlignmentForFloatingImages()
     QTextFormat f = o->format();
     QVERIFY(f.isFrameFormat());
     QVERIFY(f.toFrameFormat().position() == QTextFrameFormat::InFlow);
+}
+
+void tst_QTextDocumentFragment::html_verticalImageAlignment()
+{
+    doc->setHtml("<img src=\"foo\"/>");
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::NextCharacter);
+    QVERIFY(cursor.charFormat().isImageFormat());
+    QTextImageFormat fmt = cursor.charFormat().toImageFormat();
+    QVERIFY(fmt.verticalAlignment() == QTextCharFormat::AlignNormal);
+
+    doc->setHtml("<img src=\"foo\" align=middle />");
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::NextCharacter);
+    QVERIFY(cursor.charFormat().isImageFormat());
+    fmt = cursor.charFormat().toImageFormat();
+    QVERIFY(fmt.verticalAlignment() == QTextCharFormat::AlignMiddle);
+
+    doc->setHtml("<img src=\"foo\" style=\"vertical-align: middle\" />");
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::NextCharacter);
+    QVERIFY(cursor.charFormat().isImageFormat());
+    fmt = cursor.charFormat().toImageFormat();
+    QVERIFY(fmt.verticalAlignment() == QTextCharFormat::AlignMiddle);
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)

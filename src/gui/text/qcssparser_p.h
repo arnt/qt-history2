@@ -149,6 +149,7 @@ enum KnownValue {
     Value_DotDash,
     Value_DotDotDash,
     Value_Wave,
+    Value_Middle,
     Value_Auto,
     Value_Always,
     Value_None,

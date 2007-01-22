@@ -934,6 +934,18 @@ void tst_QTextDocument::toHtml_data()
     {
         CREATE_DOC_AND_CURSOR();
 
+        QTextImageFormat fmt;
+        fmt.setName("foo");
+        fmt.setVerticalAlignment(QTextCharFormat::AlignMiddle);
+        cursor.insertImage(fmt);
+
+        QTest::newRow("image-malign") << QTextDocumentFragment(&doc)
+                            << QString("<p DEFAULTBLOCKSTYLE><img src=\"foo\" style=\"vertical-align: middle;\" /></p>");
+    }
+
+    {
+        CREATE_DOC_AND_CURSOR();
+
         QString txt = QLatin1String("Blah");
         txt += QChar::LineSeparator;
         txt += QLatin1String("Bar");

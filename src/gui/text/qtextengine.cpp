@@ -1139,7 +1139,8 @@ QFont QTextEngine::font(const QScriptItem &si) const
         font = font.resolve(fnt);
     }
 
-    if (f.verticalAlignment() != QTextCharFormat::AlignNormal)
+    QTextCharFormat::VerticalAlignment valign = f.verticalAlignment();
+    if (valign == QTextCharFormat::AlignSuperScript || valign == QTextCharFormat::AlignSubScript)
         font.setPointSize((font.pointSize() * 2) / 3);
 
     return font;
@@ -1180,7 +1181,8 @@ QFontEngine *QTextEngine::fontEngine(const QScriptItem &si, QFixed *ascent, QFix
         if (engine->type() == QFontEngine::Box)
             engine = font.d->engineForScript(QUnicodeTables::Common);
 #endif
-        if (f.verticalAlignment() != QTextCharFormat::AlignNormal) {
+        QTextCharFormat::VerticalAlignment valign = f.verticalAlignment();
+        if (valign == QTextCharFormat::AlignSuperScript || valign == QTextCharFormat::AlignSubScript) {
             font.setPointSize((font.pointSize() * 2) / 3);
             scaledEngine = font.d->engineForScript(script);
 #if defined(Q_WS_WIN)

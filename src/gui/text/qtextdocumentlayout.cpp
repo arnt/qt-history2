@@ -2471,10 +2471,15 @@ void QTextDocumentLayout::resizeInlineObject(QTextInlineObject item, int posInDo
         data(frame)->size = intrinsic.toSize();
     }
 
-    item.setDescent(0);
     QSizeF inlineSize = (pos == QTextFrameFormat::InFlow ? intrinsic : QSizeF(0, 0));
     item.setWidth(inlineSize.width());
-    item.setAscent(inlineSize.height());
+    if (f.verticalAlignment() == QTextCharFormat::AlignMiddle) {
+        item.setDescent(inlineSize.height() / 2);
+        item.setAscent(inlineSize.height() / 2);
+    } else {
+        item.setDescent(0);
+        item.setAscent(inlineSize.height());
+    }
 }
 
 void QTextDocumentLayout::positionInlineObject(QTextInlineObject item, int posInDocument, const QTextFormat &format)
