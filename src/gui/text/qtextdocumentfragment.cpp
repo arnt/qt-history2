@@ -803,11 +803,11 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
                 // skip all columns with spans from previous rows
                 while (colsInRow < rowColSpanForColumn.size()) {
                     const RowColSpanInfo &spanInfo = rowColSpanForColumn[colsInRow];
-                    Q_ASSERT(spanInfo.col == colsInRow);
 
-                    if (spanInfo.row + spanInfo.rowSpan > effectiveRow)
+                    if (spanInfo.row + spanInfo.rowSpan > effectiveRow) {
+                        Q_ASSERT(spanInfo.col == colsInRow);
                         colsInRow += spanInfo.colSpan;
-                    else
+                    } else
                         break;
                 }
 
