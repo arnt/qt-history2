@@ -597,7 +597,7 @@ bool QScriptEngine::canEvaluate(const QString &program) const
 
   The script code will be evaluated in the current context.
 
-  \sa canEvaluate(), uncaughtException()
+  \sa canEvaluate(), hasUncaughtException()
 */
 QScriptValue QScriptEngine::evaluate(const QString &program, int lineNumber)
 {
@@ -612,7 +612,7 @@ QScriptValue QScriptEngine::evaluate(const QString &program, int lineNumber)
 
   The script code will be evaluated in the current context.
 
-  \sa canEvaluate(), uncaughtException()
+  \sa canEvaluate(), hasUncaughtException()
 */
 QScriptValue QScriptEngine::evaluate(const QString &program)
 {
@@ -679,7 +679,7 @@ void QScriptEngine::removeRootObject(const QScriptValue &object)
 
   \sa uncaughtExceptionLineNumber()
 */
-bool QScriptEngine::uncaughtException() const
+bool QScriptEngine::hasUncaughtException() const
 {
     return (currentContext()->state() == QScriptContext::Exception);
 }
@@ -687,7 +687,7 @@ bool QScriptEngine::uncaughtException() const
 /*!
   Returns the line number where the last uncaught exception occurred.
 
-  \sa uncaughtException()
+  \sa hasUncaughtException()
 */
 int QScriptEngine::uncaughtExceptionLineNumber() const
 {

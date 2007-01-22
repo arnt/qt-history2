@@ -107,7 +107,7 @@ int main(int, char *argv[])
             continue;
 
         QScriptValue r = eng.evaluate(contents);
-        if (eng.uncaughtException()) {
+        if (eng.hasUncaughtException()) {
             int line = eng.uncaughtExceptionLineNumber();
             fprintf (stderr, "%d: %s\n\t%s\n\n", line, qPrintable(fn), qPrintable(r.toString()));
             return EXIT_FAILURE;

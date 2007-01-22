@@ -416,9 +416,11 @@ void QContext2DCanvas::paintEvent(QPaintEvent *e)
         //qDebug()<<"Didn't find inter.";
         ret = m_engine.evaluate(m_script);
     }
-    if (!m_script.isEmpty() && m_engine.uncaughtException()) {
-        qDebug() << ret.toString() <<", at "<<m_engine.uncaughtExceptionLineNumber();
-        emit error(ret.toString(), m_engine.uncaughtExceptionLineNumber());
+    if (!m_script.isEmpty() && m_engine.hasUncaughtException()) {
+        int lineno = m_engine.uncaughtExceptionLineNumber();
+        QString msg = ret.toString();
+        qDebug() << msg <<", at "<< lineno;
+        emit error(msg, lineno);
         m_timer.stop();
         return;
     }
