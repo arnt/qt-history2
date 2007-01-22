@@ -1612,6 +1612,7 @@ QMdiSubWindow::QMdiSubWindow(QWidget *parent, Qt::WindowFlags flags)
     setFocusPolicy(Qt::StrongFocus);
     layout()->setMargin(0);
     d->updateGeometryConstraints();
+    setAttribute(Qt::WA_Resized, false);
     connect(qApp, SIGNAL(focusChanged(QWidget *, QWidget *)),
             this, SLOT(_q_processFocusChanged(QWidget *, QWidget *)));
 }
@@ -1651,6 +1652,7 @@ void QMdiSubWindow::setWidget(QWidget *widget)
         return;
     }
 
+    bool wasResized = testAttribute(Qt::WA_Resized);
     d->removeBaseWidget();
 
     if (QLayout *layout = this->layout())
@@ -1664,6 +1666,8 @@ void QMdiSubWindow::setWidget(QWidget *widget)
     setWindowTitle(d->baseWidget->windowTitle());
     d->ignoreWindowTitleChange = false;
     d->updateGeometryConstraints();
+    if (!wasResized && testAttribute(Qt::WA_Resized))
+        setAttribute(Qt::WA_Resized, false);
 }
 
 /*!
@@ -2019,6 +2023,7 @@ bool QMdiSubWindow::event(QEvent *event)
         d->setActive(false);
         break;
     case QEvent::ParentChange: {
+        bool wasResized = testAttribute(Qt::WA_Resized);
         d->removeButtonsFromMenuBar();
         d->currentOperation = QMdiSubWindowPrivate::None;
         d->activeSubControl = QStyle::SC_None;
@@ -2039,6 +2044,8 @@ bool QMdiSubWindow::event(QEvent *event)
         d->updateMask();
         d->updateDirtyRegions();
         d->updateActions();
+        if (!wasResized && testAttribute(Qt::WA_Resized))
+            setAttribute(Qt::WA_Resized, false);
         break;
     }
     case QEvent::WindowActivate:
@@ -2446,7 +2453,13 @@ void QMdiSubWindow::focusInEvent(QFocusEvent *focusInEvent)
 */
 QSize QMdiSubWindow::sizeHint() const
 {
-    return minimumSizeHint();
+    Q_D(const QMdiSubWindow);
+    int macMargin, margin, minWidth;
+    d->sizeParameters(&macMargin, &margin, &minWidth);
+    QSize size(2 * margin, d->titleBarHeight() + 2 * macMargin + margin);
+    if (d->baseWidget && d->baseWidget->sizeHint().isValid())
+        size += d->baseWidget->sizeHint();
+    return size.expandedTo(minimumSizeHint());
 }
 
 /*!

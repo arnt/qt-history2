@@ -107,6 +107,7 @@
 #include <QPainter>
 #include <QFontMetrics>
 #include <QStyleOption>
+#include <QDesktopWidget>
 #include <QDebug>
 #include <math.h>
 
@@ -768,7 +769,19 @@ QMdiArea::~QMdiArea()
 */
 QSize QMdiArea::sizeHint() const
 {
-    QSize size = QAbstractScrollArea::sizeHint() + baseSize();
+    // Calculate a proper scale factor for QDesktopWidget::size().
+    // This also takes into account that we can have nested workspaces.
+    int nestedCount = 0;
+    QWidget *widget = this->parentWidget();
+    while (widget) {
+        if (qobject_cast<QMdiArea *>(widget))
+            ++nestedCount;
+        widget = widget->parentWidget();
+    }
+    const int scaleFactor = 3 * (nestedCount + 1);
+
+    QSize desktopSize = QApplication::desktop()->size();
+    QSize size(desktopSize.width() * 2 / scaleFactor, desktopSize.height() * 2 / scaleFactor);
     foreach (QMdiSubWindow *child, d_func()->childWindows) {
         if (!sanityCheck(child, "QMdiArea::sizeHint"))
             continue;
@@ -1005,6 +1018,8 @@ QMdiSubWindow *QMdiArea::addSubWindow(QWidget *widget, Qt::WindowFlags windowFla
     child->setWidget(widget);
     if (childFocus)
         childFocus->setFocus();
+    if (child->testAttribute(Qt::WA_Resized))
+        child->setAttribute(Qt::WA_Resized, false);
     d->appendChild(child);
     Q_ASSERT(child->testAttribute(Qt::WA_DeleteOnClose));
 
