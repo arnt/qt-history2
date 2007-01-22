@@ -180,6 +180,7 @@ protected:
     virtual bool visit(AST::ThrowStatement *node);
     virtual bool visit(AST::TryStatement *node);
     virtual bool visit(AST::TrueLiteral *node);
+    virtual bool visit(AST::VariableStatement *node);
     virtual bool visit(AST::VariableDeclaration *node);
     virtual bool visit(AST::WhileStatement *node);
     virtual bool visit(AST::WithStatement *node);

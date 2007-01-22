@@ -491,6 +491,19 @@ void Compiler::endVisit(AST::ReturnStatement *node)
     iRet();
 }
 
+bool Compiler::visit(AST::VariableStatement *node)
+{
+    AST::VariableDeclarationList *lst = node->declarations;
+    while (lst) {
+        if (lst->declaration->expression) {
+            iLine(node);
+            break;
+        }
+        lst = lst->next;
+    }
+    return true;
+}
+
 bool Compiler::visit(AST::VariableDeclaration *node)
 {
     if (node->expression != 0) {
