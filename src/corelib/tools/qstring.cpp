@@ -6337,7 +6337,7 @@ void QString::updateProperties() const
 */
 
 
-/*! \fn QString &inline_append(QChar ch)
+/*! \fn QString &QString::inline_append(QChar ch)
 
     An inlined version of append().
 */
