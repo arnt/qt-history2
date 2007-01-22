@@ -782,12 +782,15 @@ bool QPen::isSolid() const
 
 
 /*!
-    Returns true if the pen is cosmetic, otherwise false.
+    Returns true if the pen is cosmetic; otherwise returns false.
 
-    A Cosmetic pen defines an outline which width does not transform
-    according to the matrices in the QPainter its used with. A 0-width
-    pen is cosmetic by default, pens with an actual width are
-    non-cosmetic.
+    Cosmetic pens are used to draw strokes that have a constant width
+    regardless of any transformations applied to the QPainter they are
+    used with. Drawing a shape with a cosmetic pen ensures that its
+    outline will have the same thickness at different scale factors.
+
+    A zero width pen is cosmetic by default; pens with a non-zero width
+    are non-cosmetic.
 
     \sa setCosmetic(), widthF()
 */
