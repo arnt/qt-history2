@@ -98,10 +98,7 @@ bool ProReader::parseline(QByteArray line)
             if (c == '#') {
                 insertComment(line.mid(i + 1));
                 break;
-            } else if (c == '\\' 
-                && ((i >= line.count() - 1)
-                || (line.at(i + 1) != '\"')))
-            {
+            } else if (c == '\\' && (i >= line.count() - 1)) {
                 updateItem();
                 contNextLine = true;
                 continue;
