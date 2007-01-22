@@ -49,7 +49,7 @@ public:
     void addIfClose(qreal *length, qreal error) const;
 
     qreal tAtLength(qreal len) const;
-    
+
     QPointF pt1() const { return QPointF(x1, y1); }
     QPointF pt2() const { return QPointF(x2, y2); }
     QPointF pt3() const { return QPointF(x3, y3); }
@@ -67,6 +67,8 @@ public:
                 qreal offset, float threshold) const;
 
     QVector< QList<QBezier> > splitAtIntersections(QBezier &a);
+
+    QBezier bezierOnInterval(qreal t0, qreal t1) const;
 
     static QVector< QList<qreal> > findIntersections(const QBezier &a,
                                                      const QBezier &b);

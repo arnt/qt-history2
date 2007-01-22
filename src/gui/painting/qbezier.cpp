@@ -531,6 +531,7 @@ int IntersectBB(const QBezier &a, const QBezier &b)
 #endif
 
 
+#ifdef QDEBUG_BEZIER
 static QDebug operator<<(QDebug dbg, const QBezier &bz)
 {
     dbg <<"["<<bz.x1<<", "<<bz.y1<<"], "
@@ -539,6 +540,7 @@ static QDebug operator<<(QDebug dbg, const QBezier &bz)
         <<"["<<bz.x4<<", "<<bz.y4<<"]";
     return dbg;
 }
+#endif
 
 void RecursivelyIntersect(const QBezier &a, double t0, double t1, int deptha,
 			  const QBezier &b, double u0, double u1, int depthb,
@@ -687,8 +689,11 @@ QVector< QList<qreal> > QBezier::findIntersections(const QBezier &a, const QBezi
 	RecursivelyIntersect(a, 0., 1., ra, b, 0., 1., rb, parameters);
     }
 
-    qSort(parameters[0].begin(), parameters[0].end(), qLess<qreal>());
-    qSort(parameters[1].begin(), parameters[1].end(), qLess<qreal>());
+    //Don't sort here because it breaks the orders of corresponding
+    //  intersections points. this way t's at the same locations correspond
+    //  to the same intersection point.
+    //qSort(parameters[0].begin(), parameters[0].end(), qLess<qreal>());
+    //qSort(parameters[1].begin(), parameters[1].end(), qLess<qreal>());
 
     return parameters;
 }
@@ -723,8 +728,12 @@ QVector< QList<QBezier> > QBezier::splitAtIntersections(QBezier &b)
 
     QVector< QList<qreal> > allInters = findIntersections(*this, b);
 
-    const QList<qreal> &inters1 = allInters[0];
-    const QList<qreal> &inters2 = allInters[1];
+    QList<qreal> &inters1 = allInters[0];
+    QList<qreal> &inters2 = allInters[1];
+
+    qSort(inters1.begin(), inters1.end(), qLess<qreal>());
+    qSort(inters2.begin(), inters2.end(), qLess<qreal>());
+
     Q_ASSERT(inters1.count() == inters2.count());
 
     int i;
@@ -809,4 +818,16 @@ qreal QBezier::tAtLength(qreal l) const
     }
     //qDebug()<<"number of iters is "<<iters;
     return t;
+}
+
+QBezier QBezier::bezierOnInterval(qreal t0, qreal t1) const
+{
+    QBezier bezier = *this;
+
+    QBezier result;
+    bezier.parameterSplitLeft(t0, &result);
+    qreal trueT = (t1-t0)/(1-t0);
+    bezier.parameterSplitLeft(trueT, &result);
+
+    return result;
 }
