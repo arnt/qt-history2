@@ -98,7 +98,7 @@ struct QPixmapData { // internal pixmap data
     Qt::HANDLE hd;
 #endif
 #ifdef Q_WS_X11
-    QBitmap mask_to_bitmap() const;
+    QBitmap mask_to_bitmap(int screen) const;
     static Qt::HANDLE bitmap_to_mask(const QBitmap &, int screen);
 #endif
     static int allocCell(const QPixmap *p);
