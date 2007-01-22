@@ -1815,11 +1815,12 @@ void tst_QGraphicsScene::mouseEventPropagation_mouseMove()
         QApplication::sendEvent(&scene, &event);
     }
 
-    QCOMPARE(scene.mouseMovePoints.size(), 17);
+    QCOMPARE(scene.mouseMovePoints.size(), 18);
     for (int i = 0; i < 15; ++i)
         QCOMPARE(scene.mouseMovePoints.at(i), QPointF(i, 5));
-    QCOMPARE(scene.mouseMovePoints.at(15), QPointF(28, 5));
-    QCOMPARE(scene.mouseMovePoints.at(16), QPointF(29, 5));
+    QCOMPARE(scene.mouseMovePoints.at(15), QPointF(27, 5));
+    QCOMPARE(scene.mouseMovePoints.at(16), QPointF(28, 5));
+    QCOMPARE(scene.mouseMovePoints.at(17), QPointF(29, 5));
 }
 
 class DndTester : public QGraphicsEllipseItem
