@@ -259,9 +259,6 @@ static bool        app_save_rootinfo = false;        // save root info
 static bool        app_do_modal        = false;        // modal mode
 static Window        curWin = 0;                        // current window
 
-// detect broken window managers
-bool                qt_broken_wm                = false;
-
 
 // function to update the workarea of the screen - in qdesktopwidget_x11.cpp
 extern void qt_desktopwidget_update_workarea();
@@ -658,9 +655,6 @@ bool QApplicationPrivate::x11_apply_settings()
         }
     }
     settings.endGroup();
-
-    qt_broken_wm =
-        settings.value(QLatin1String("brokenWindowManager"), qt_broken_wm).toBool();
 
     qt_use_rtl_extensions =
         settings.value(QLatin1String("useRtlExtensions"), false).toBool();
@@ -1699,7 +1693,6 @@ void qt_init(QApplicationPrivate *priv, int,
                                           0, 1, False, XA_WINDOW, &type, &format, &length, &after, &data) == Success
                        && length) {
                 X11->desktopEnvironment = DE_4DWM;
-                qt_broken_wm = true;
             }
             if (data)
                 XFree((char *)data);

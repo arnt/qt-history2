@@ -153,8 +153,6 @@ static void do_size_hints(QWidget* widget, QWExtra *x);
   QWidget member functions
  *****************************************************************************/
 
-extern bool qt_broken_wm;
-
 const uint stdWidgetEventMask =                        // X event mask
         (uint)(
             KeyPressMask | KeyReleaseMask |
@@ -2042,7 +2040,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         if (!q->isVisible())
             do_size_hints(q, extra);
         if (isMove) {
-            if (! qt_broken_wm)
+            if (X11->desktopEnvironment != DE_4DWM)
                 // pos() is right according to ICCCM 4.1.5
                 XMoveResizeWindow(dpy, data.winid, q->pos().x(), q->pos().y(), w, h);
             else
@@ -2070,7 +2068,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 
     if (q->isVisible()) {
         if (isMove && q->pos() != oldPos) {
-            if (! qt_broken_wm) {
+            if (X11->desktopEnvironment != DE_4DWM) {
                 // pos() is right according to ICCCM 4.1.5
                 QMoveEvent e(q->pos(), oldPos);
                 QApplication::sendEvent(q, &e);
