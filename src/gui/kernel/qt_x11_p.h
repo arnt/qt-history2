@@ -473,6 +473,7 @@ struct QX11Data
         _NET_VIRTUAL_ROOTS,
         _NET_WORKAREA,
 
+        _NET_MOVERESIZE_WINDOW,
         _NET_WM_MOVERESIZE,
 
         _NET_WM_NAME,
