@@ -95,6 +95,9 @@ public:
     inline void addText(qreal x, qreal y, const QFont &f, const QString &text);
     void addPath(const QPainterPath &path);
     void addRegion(const QRegion &region);
+    void addRoundRect(const QRectF &rect, int xRnd, int yRnd);
+    inline void addRoundRect(qreal x, qreal y, qreal w, qreal h,
+                             int xRnd, int yRnd);
 
     void connectPath(const QPainterPath &path);
 
@@ -252,6 +255,12 @@ inline void QPainterPath::addEllipse(qreal x, qreal y, qreal w, qreal h)
 inline void QPainterPath::addRect(qreal x, qreal y, qreal w, qreal h)
 {
     addRect(QRectF(x, y, w, h));
+}
+
+inline void QPainterPath::addRoundRect(qreal x, qreal y, qreal w, qreal h,
+                                       int xRnd, int yRnd)
+{
+    addRoundRect(QRectF(x, y, w, h), xRnd, yRnd);
 }
 
 inline void QPainterPath::addText(qreal x, qreal y, const QFont &f, const QString &text)

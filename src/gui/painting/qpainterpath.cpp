@@ -2834,3 +2834,42 @@ qreal QPainterPath::slopeAtPercent(qreal t) const
 
     return slope;
 }
+
+void QPainterPath::addRoundRect(const QRectF &r, int xRnd, int yRnd)
+{
+    
+    if(xRnd >= 100)                          // fix ranges
+        xRnd = 99;
+    if(yRnd >= 100)
+        yRnd = 99;
+    if(xRnd <= 0 || yRnd <= 0) {             // add normal rectangle
+        addRect(r);
+        return;
+    }
+
+    QRectF rect = r.normalized();
+
+    QPainterPath path;
+
+    qreal x = rect.x();
+    qreal y = rect.y();
+    qreal w = rect.width();
+    qreal h = rect.height();
+    qreal rxx = w*xRnd/200;
+    qreal ryy = h*yRnd/200;
+    // were there overflows?
+    if (rxx < 0)
+        rxx = w/200*xRnd;
+    if (ryy < 0)
+        ryy = h/200*yRnd;
+    qreal rxx2 = 2*rxx;
+    qreal ryy2 = 2*ryy;
+
+    path.arcMoveTo(x, y, rxx2, ryy2, 90);
+    path.arcTo(x, y, rxx2, ryy2, 90, 90);
+    path.arcTo(x, y+h-ryy2, rxx2, ryy2, 2*90, 90);
+    path.arcTo(x+w-rxx2, y+h-ryy2, rxx2, ryy2, 3*90, 90);
+    path.arcTo(x+w-rxx2, y, rxx2, ryy2, 0, 90);
+    path.closeSubpath();
+
+}
