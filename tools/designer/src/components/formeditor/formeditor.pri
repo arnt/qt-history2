@@ -3,8 +3,7 @@ QT += xml
 
 INCLUDEPATH += $$PWD
 
-HEADERS += \
-           $$PWD/qdesigner_resource.h \
+HEADERS += $$PWD/qdesigner_resource.h \
            $$PWD/formwindow.h \
            $$PWD/formwindow_widgetstack.h \
            $$PWD/formwindow_dnditem.h \
@@ -21,14 +20,14 @@ HEADERS += \
            $$PWD/qmainwindow_container.h \
            $$PWD/qdockwidget_container.h \
            $$PWD/qworkspace_container.h \
+           $$PWD/qmdiarea_container.h \
            $$PWD/default_layoutdecoration.h \
            $$PWD/qtbrushmanager.h \
            $$PWD/brushmanagerproxy.h \
            $$PWD/iconcache.h \
            $$PWD/tool_widgeteditor.h
 
-SOURCES += \
-           $$PWD/qdesigner_resource.cpp \
+SOURCES += $$PWD/qdesigner_resource.cpp \
            $$PWD/formwindow.cpp \
            $$PWD/formwindow_widgetstack.cpp \
            $$PWD/formwindow_dnditem.cpp \
@@ -42,6 +41,7 @@ SOURCES += \
            $$PWD/qmainwindow_container.cpp \
            $$PWD/qdockwidget_container.cpp \
            $$PWD/qworkspace_container.cpp \
+           $$PWD/qmdiarea_container.cpp \
            $$PWD/default_container.cpp \
            $$PWD/default_layoutdecoration.cpp \
            $$PWD/default_actionprovider.cpp \

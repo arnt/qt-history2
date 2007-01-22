@@ -19,6 +19,7 @@
 #include "qmainwindow_container.h"
 #include "qdockwidget_container.h"
 #include "qworkspace_container.h"
+#include "qmdiarea_container.h"
 #include "default_container.h"
 #include "default_layoutdecoration.h"
 #include "default_actionprovider.h"
@@ -39,13 +40,12 @@
 #include <qdesigner_membersheet_p.h>
 #include <qdesigner_promotion_p.h>
 
-using namespace qdesigner_internal;
+namespace qdesigner_internal {
 
 FormEditor::FormEditor(QObject *parent)
     : QDesignerFormEditorInterface(parent)
 {
-    QDesignerPluginManager *pluginManager = new QDesignerPluginManager(this);
-    setPluginManager(pluginManager);
+    QDesignerPluginManager *pluginManager = new QDesignerPluginManager(this);    setPluginManager(pluginManager);
 
     WidgetDataBase *widgetDatabase = new WidgetDataBase(this);
     setWidgetDataBase(widgetDatabase);
@@ -65,6 +65,7 @@ FormEditor::FormEditor(QObject *parent)
     mgr->registerExtensions(new QMainWindowContainerFactory(mgr),           Q_TYPEID(QDesignerContainerExtension));
     mgr->registerExtensions(new QDockWidgetContainerFactory(mgr),           Q_TYPEID(QDesignerContainerExtension));
     mgr->registerExtensions(new QWorkspaceContainerFactory(mgr),            Q_TYPEID(QDesignerContainerExtension));
+    mgr->registerExtensions(new QMdiAreaContainerFactory(mgr),              Q_TYPEID(QDesignerContainerExtension));
 
     mgr->registerExtensions(new QDesignerLayoutDecorationFactory(mgr),      Q_TYPEID(QDesignerLayoutDecorationExtension));
     mgr->registerExtensions(new QDesignerActionProviderFactory(mgr),        Q_TYPEID(QDesignerActionProviderExtension));
@@ -94,4 +95,5 @@ FormEditor::~FormEditor()
 {
     delete formWindowManager();
     delete promotion();
+}
 }

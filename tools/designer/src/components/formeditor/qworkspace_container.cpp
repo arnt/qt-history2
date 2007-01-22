@@ -13,14 +13,9 @@
 
 #include "qworkspace_container.h"
 
-#include <QtCore/qdebug.h>
-
 #include <QtGui/QWorkspace>
-#include <QtGui/QMenuBar>
-#include <QtGui/QToolBar>
-#include <QtGui/QStatusBar>
 
-using namespace qdesigner_internal;
+namespace qdesigner_internal {
 
 QWorkspaceContainer::QWorkspaceContainer(QWorkspace *widget, QObject *parent)
     : QObject(parent),
@@ -82,4 +77,4 @@ QObject *QWorkspaceContainerFactory::createExtension(QObject *object, const QStr
 
     return 0;
 }
-
+}

@@ -11,22 +11,22 @@
 **
 ****************************************************************************/
 
-#ifndef QWORKSPACE_CONTAINER_H
-#define QWORKSPACE_CONTAINER_H
+#ifndef QMDIAREA_CONTAINER_H
+#define QMDIAREA_CONTAINER_H
 
 #include <QtDesigner/QDesignerContainerExtension>
 #include <QtDesigner/QExtensionFactory>
 
-class QWorkspace;
+class QMdiArea;
 
 namespace qdesigner_internal {
 
-class QWorkspaceContainer: public QObject, public QDesignerContainerExtension
+class QMdiAreaContainer: public QObject, public QDesignerContainerExtension
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerContainerExtension)
 public:
-    QWorkspaceContainer(QWorkspace *widget, QObject *parent = 0);
+    QMdiAreaContainer(QMdiArea *widget, QObject *parent = 0);
 
     virtual int count() const;
     virtual QWidget *widget(int index) const;
@@ -37,14 +37,14 @@ public:
     virtual void remove(int index);
 
 private:
-    QWorkspace *m_workspace;
+    QMdiArea *m_mdiArea;
 };
 
-class QWorkspaceContainerFactory: public QExtensionFactory
+class QMdiAreaContainerFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:
-    QWorkspaceContainerFactory(QExtensionManager *parent = 0);
+    QMdiAreaContainerFactory(QExtensionManager *parent = 0);
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
@@ -52,4 +52,4 @@ protected:
 
 }  // namespace qdesigner_internal
 
-#endif // QWORKSPACE_CONTAINER_H
+#endif // QMDIAREA_CONTAINER_H
