@@ -1,5 +1,5 @@
 TEMPLATE      = subdirs
-SUBDIRS       = elasticnodes collidingmice dragdroprobot
+SUBDIRS       = elasticnodes collidingmice diagramscene dragdroprobot
 contains(QT_CONFIG, qt3support):SUBDIRS += portedcanvas portedasteroids
 
 # install

@@ -1,0 +1,191 @@
+<ui version="4.0" >
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>431</width>
+    <height>353</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Dialog Button Box Example</string>
+  </property>
+  <widget class="QWidget" name="myCentralWidget" />
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>431</width>
+     <height>29</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="dialogBoxMenu" >
+    <property name="title" >
+     <string>Dialog Box</string>
+    </property>
+    <widget class="QMenu" name="stylesMenu" >
+     <property name="title" >
+      <string>&amp;Styles</string>
+     </property>
+    </widget>
+    <widget class="QMenu" name="orientationMenu" >
+     <property name="title" >
+      <string>&amp;Orientation</string>
+     </property>
+     <addaction name="horizontalAction" />
+     <addaction name="verticalAction" />
+    </widget>
+    <addaction name="addButtonAction" />
+    <addaction name="deleteButtonAction" />
+    <addaction name="separator" />
+    <addaction name="orientationMenu" />
+    <addaction name="stylesMenu" />
+   </widget>
+   <widget class="QMenu" name="menuFile" >
+    <property name="title" >
+     <string>File</string>
+    </property>
+    <widget class="QMenu" name="menuNew" >
+     <property name="title" >
+      <string>New</string>
+     </property>
+     <addaction name="loadSaveChangesAction" />
+     <addaction name="loadReallyQuitAction" />
+     <addaction name="loadFileErrorAction" />
+     <addaction name="loadEmptyAction" />
+    </widget>
+    <addaction name="menuNew" />
+    <addaction name="separator" />
+    <addaction name="exitAction" />
+   </widget>
+   <addaction name="menuFile" />
+   <addaction name="dialogBoxMenu" />
+  </widget>
+  <widget class="QStatusBar" name="statusbar" />
+  <widget class="QDockWidget" name="dockWidget" >
+   <property name="sizePolicy" >
+    <sizepolicy>
+     <hsizetype>5</hsizetype>
+     <vsizetype>5</vsizetype>
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="windowTitle" >
+    <string>Buttons</string>
+   </property>
+   <attribute name="dockWidgetArea" >
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents" >
+    <layout class="QVBoxLayout" >
+     <property name="margin" >
+      <number>9</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <widget class="QTableWidget" name="tableWidget" >
+       <property name="enabled" >
+        <bool>true</bool>
+       </property>
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>7</hsizetype>
+         <vsizetype>7</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <column>
+        <property name="text" >
+         <string>Text</string>
+        </property>
+       </column>
+       <column>
+        <property name="text" >
+         <string>Role</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="deleteAddDialogBox" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="standardButtons" >
+        <set>QDialogButtonBox::NoButton</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <action name="actionSave_Dialog" >
+   <property name="text" >
+    <string>Save Dialog</string>
+   </property>
+  </action>
+  <action name="horizontalAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;Horizontal</string>
+   </property>
+  </action>
+  <action name="verticalAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>&amp;Vertical</string>
+   </property>
+  </action>
+  <action name="loadSaveChangesAction" >
+   <property name="text" >
+    <string>&amp;Save Changes Box</string>
+   </property>
+  </action>
+  <action name="loadReallyQuitAction" >
+   <property name="text" >
+    <string>&amp;Really Quit Box</string>
+   </property>
+  </action>
+  <action name="loadFileErrorAction" >
+   <property name="text" >
+    <string>&amp;File Error Box</string>
+   </property>
+  </action>
+  <action name="loadEmptyAction" >
+   <property name="text" >
+    <string>&amp;Empty Box</string>
+   </property>
+  </action>
+  <action name="exitAction" >
+   <property name="text" >
+    <string>E&amp;xit</string>
+   </property>
+  </action>
+  <action name="addButtonAction" >
+   <property name="text" >
+    <string>&amp;Add Button</string>
+   </property>
+  </action>
+  <action name="deleteButtonAction" >
+   <property name="text" >
+    <string>&amp;Delete Button</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

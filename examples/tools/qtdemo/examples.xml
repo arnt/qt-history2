@@ -30,6 +30,7 @@
   <category dirname="graphicsview" name="Graphics View">
     <example filename="elasticnodes" name="Elastic Nodes" />
     <example filename="collidingmice" name="Colliding Mice" />
+    <example filename="diagramscene" name="Diagram Scene" />
     <example filename="dragdroprobot" name="Drag and Drop Robot" />
     <example filename="portedcanvas" name="Ported Canvas" />
     <example filename="portedasteroids" name="Ported Asteroids" />
@@ -131,6 +132,7 @@
     <example filename="calculator" name="Calculator" />
     <example filename="calendarwidget" name="Calendar Widget" />
     <example filename="charactermap" name="Character Map" />
+    <example filename="dialogbuttonbox" name="Dialog Button Box" />
     <example filename="digitalclock" name="Digital Clock" />
     <example filename="groupbox" name="Group Box" />
     <example filename="icons" name="Icons" />

@@ -3,6 +3,7 @@ SUBDIRS       = analogclock \
                 calculator \
 		calendarwidget \
                 charactermap \
+		dialogbuttonbox \
                 digitalclock \
                 groupbox \
                 icons \
