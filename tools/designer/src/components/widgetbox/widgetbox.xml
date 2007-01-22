@@ -26,9 +26,6 @@
                 </rect>
             </property>
             <layout class="QVBoxLayout" >
-                <property name="margin" >
-                    <number>0</number>
-                </property>
             </layout>
         </widget>
 
@@ -45,9 +42,6 @@
                 </rect>
             </property>
             <layout class="QHBoxLayout" >
-                <property name="margin" >
-                    <number>0</number>
-                </property>
             </layout>
         </widget>
 
@@ -64,9 +58,6 @@
                 </rect>
             </property>
             <layout class="QGridLayout" >
-                <property name="margin" >
-                    <number>0</number>
-                </property>
             </layout>
         </widget>
 

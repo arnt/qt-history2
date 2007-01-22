@@ -470,22 +470,6 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
             }
 
             if (index != -1) {
-                if (QLayout *layout = qobject_cast<QLayout*>(o)) {
-                    if (propertyName == QLatin1String("margin")) {
-                        if (QVBoxLayout *vbox = qobject_cast<QVBoxLayout*>(layout->parent())) {
-                            // special case for Q3GroupBox margin:
-                            // the actual margin is set on the internal vboxlayout,
-                            // whereas the margin of the child layout is set to 0
-                            if (QWidget *pw = vbox->parentWidget()) {
-                                if (pw->inherits("Q3GroupBox")) {
-                                    vbox->setMargin(v.toInt());
-                                    v = 0;
-                                }
-                            }
-                        }
-                    }
-                }
-
                 sheet->setProperty(index, v);
                 sheet->setChanged(index, true);
             } else if (dynamicSheet && dynamicSheet->dynamicPropertiesAllowed()) {
@@ -1303,19 +1287,6 @@ QList<DomProperty*> QDesignerResource::computeProperties(QObject *object)
         for (int index = 0; index < sheet->count(); ++index) {
             const QString propertyName = sheet->propertyName(index);
             QVariant value = sheet->property(index);
-
-            if (QLayout *layout = qobject_cast<QLayout*>(object)) {
-                if (propertyName == QLatin1String("margin")) {
-                    if (QVBoxLayout *vbox = qobject_cast<QVBoxLayout*>(layout->parent())) {
-                        // special case Q3GroupBox margin:
-                        // the margin we want to save is that of the internal vboxlayout
-                        if (QWidget *pw = vbox->parentWidget()) {
-                            if (pw->inherits("Q3GroupBox"))
-                                value = vbox->margin();
-                        }
-                    }
-                }
-            }
 
             if (!sheet->isChanged(index) && (!dynamicSheet || !dynamicSheet->isDynamicProperty(index)))
                 continue;

@@ -439,7 +439,6 @@ QLayout *Layout::createLayout(int type)
         QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_formWindow->core()->extensionManager(), layout);
         if (sheet) {
             sheet->setProperty(sheet->indexOf(QLatin1String("margin")), 0);
-            sheet->setChanged(sheet->indexOf(QLatin1String("margin")), true);
         }
     }
     return layout;

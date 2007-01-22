@@ -40,7 +40,7 @@ bool QLayoutWidgetPropertySheet::isVisible(int index) const
 {
     QString name = propertyName(index);
 
-    return name == QLatin1String("margin") || name == QLatin1String("spacing");
+    return name == QLatin1String("layoutMargin") || name == QLatin1String("layoutSpacing");
 }
 
 void QLayoutWidgetPropertySheet::setProperty(int index, const QVariant &value)

@@ -256,6 +256,14 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *parentLayout, int
 
     QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), layout);
 
+    if (widget->inherits("Q3GroupBox")) {
+        //widget->setProperty("margin", 0);
+        layout->setMargin(widget->style()->pixelMetric(QStyle::PM_DefaultChildMargin));
+        layout->setSpacing(widget->style()->pixelMetric(QStyle::PM_DefaultLayoutSpacing));
+    } else if (widget->inherits("QLayoutWidget")) {
+        sheet->setProperty(sheet->indexOf(QLatin1String("margin")), 0);
+    }
+
     if (sheet)
         sheet->setChanged(sheet->indexOf(QLatin1String("alignment")), true);
 

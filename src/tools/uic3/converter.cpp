@@ -571,27 +571,6 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
             Q_ASSERT(lay != 0);
 
             if (ui_layout_list.isEmpty()) {
-                DomProperty *pmargin = 0;
-
-                if (inQ3GroupBox) {
-                    foreach (DomProperty *prop, lay->elementProperty()) {
-                        if (prop->attributeName() == QLatin1String("margin")) {
-                            pmargin = prop;
-                            break;
-                        }
-                    }
-
-                    if (! pmargin) {
-                        pmargin = new DomProperty();
-                        pmargin->setAttributeName(QLatin1String("margin"));
-                        pmargin->setElementNumber(0);
-
-                        QList<DomProperty*> plist = lay->elementProperty();
-                        plist.append(pmargin);
-                        lay->setElementProperty(plist);
-                    }
-                }
-
                 ui_layout_list.append(lay);
             } else {
                 // it's not possible to have more than one layout for widget!
@@ -833,20 +812,7 @@ DomLayoutItem *Ui3Reader::createLayoutItem(const QDomElement &e)
 
 void Ui3Reader::fixLayoutMargin(DomLayout *ui_layout)
 {
-    bool hasMargin = false;
-    QList<DomProperty*> properties = ui_layout->elementProperty();
-    foreach (DomProperty *p, properties) {
-        if (p->attributeName() == QLatin1String("margin"))
-            hasMargin = true;
-    }
-
-    if (!hasMargin) {
-        DomProperty *margin = new DomProperty();
-        margin->setAttributeName(QLatin1String("margin"));
-        margin->setElementNumber(0);
-        properties.append(margin);
-        ui_layout->setElementProperty(properties);
-    }
+    Q_UNUSED(ui_layout)
 }
 
 void Ui3Reader::findDerivedFontProperties(const QDomElement &n, DomFont &result) const

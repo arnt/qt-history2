@@ -150,6 +150,20 @@ bool LayoutInfo::isWidgetLaidout(QDesignerFormEditorInterface *core, QWidget *wi
     return false;
 }
 
+QLayout *LayoutInfo::internalLayout(QWidget *widget)
+{
+    QLayout *widgetLayout = widget->layout();
+    if (widgetLayout && widget->inherits("Q3GroupBox")) {
+        if (widgetLayout->count()) {
+            widgetLayout = widgetLayout->itemAt(0)->layout();
+        } else {
+            widgetLayout = 0;
+        }
+    }
+    return widgetLayout;
+}
+
+
 QLayout *LayoutInfo::managedLayout(QDesignerFormEditorInterface *core, QWidget *widget)
 {
     if (widget == 0)

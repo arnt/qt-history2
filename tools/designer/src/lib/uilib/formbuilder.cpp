@@ -223,6 +223,14 @@ QLayout *QFormBuilder::createLayout(const QString &layoutName, QObject *parent, 
 
     if (l) {
         l->setObjectName(name);
+        if (parentLayout) {
+            QWidget *w = qobject_cast<QWidget *>(parentLayout->parent());
+            if (w && w->inherits("Q3GroupBox")) {
+                //w->setProperty("margin", 0);
+                l->setMargin(w->style()->pixelMetric(QStyle::PM_DefaultChildMargin));
+                l->setSpacing(w->style()->pixelMetric(QStyle::PM_DefaultLayoutSpacing));
+            }
+        }
     } else {
         qWarning("layout `%s' not supported", layoutName.toUtf8().data());
     }
@@ -465,10 +473,6 @@ void QFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &proper
         } else if (!qstrcmp("QFrame", o->metaObject()->className ()) && p->attributeName() == QLatin1String("orientation")) {
             // ### special-casing for Line (QFrame) -- try to fix me
             o->setProperty("frameShape", v); // v is of QFrame::Shape enum
-        } else if (isQ3GroupBoxMarginProperty(o, p)) {
-            // set margin on internal layout, no margin on child layout
-            o->parent()->setProperty("margin", v);
-            o->setProperty("margin", 0);
         } else {
             o->setProperty(p->attributeName().toUtf8(), v);
         }

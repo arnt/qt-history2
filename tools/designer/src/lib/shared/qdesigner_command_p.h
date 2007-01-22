@@ -303,6 +303,8 @@ private:
     QPointer<Layout> m_layout;
     int m_margin;
     int m_spacing;
+    bool m_marginChanged;
+    bool m_spacingChanged;
 };
 
 class QDESIGNER_SHARED_EXPORT ToolBoxCommand: public QDesignerFormWindowCommand

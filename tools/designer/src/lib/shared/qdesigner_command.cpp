@@ -530,8 +530,13 @@ void BreakLayoutCommand::init(const QList<QWidget*> &widgets, QWidget *layoutBas
 
     m_layout->sort();
 
-    m_margin = m_layout->margin();
-    m_spacing = m_layout->spacing();
+    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), LayoutInfo::internalLayout(m_layoutBase));
+    if (sheet) {
+        m_margin = sheet->property(sheet->indexOf("margin")).toInt();
+        m_spacing = sheet->property(sheet->indexOf("spacing")).toInt();
+        m_marginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("margin")));
+        m_spacingChanged = sheet->isChanged(sheet->indexOf(QLatin1String("spacing")));
+    }
 }
 
 void BreakLayoutCommand::redo()
@@ -564,8 +569,14 @@ void BreakLayoutCommand::undo()
     m_layout->doLayout();
 
     if (m_layoutBase && m_layoutBase->layout()) {
-        m_layoutBase->layout()->setSpacing(m_spacing);
-        m_layoutBase->layout()->setMargin(m_margin);
+        QDesignerFormEditorInterface *core = formWindow()->core();
+        QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), LayoutInfo::internalLayout(m_layoutBase));
+        if (sheet) {
+            sheet->setProperty(sheet->indexOf("margin"), m_margin);
+            sheet->setChanged(sheet->indexOf("margin"), m_marginChanged);
+            sheet->setProperty(sheet->indexOf("spacing"), m_spacing);
+            sheet->setChanged(sheet->indexOf("spacing"), m_spacingChanged);
+        }
     }
 }
 

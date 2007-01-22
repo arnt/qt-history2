@@ -114,13 +114,6 @@ void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*>
         if (v.isNull())
             continue;
 
-        if (isQ3GroupBoxMarginProperty(o, p)) {
-            // set margin on internal layout, no margin on child layout
-            o->parent()->setProperty("margin", v);
-            o->setProperty("margin", 0);
-            continue;
-        }
-
         QByteArray pname = p->attributeName().toUtf8();
         int index = o->metaObject()->indexOfProperty(pname);
 
