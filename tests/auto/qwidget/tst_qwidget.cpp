@@ -3253,25 +3253,58 @@ void tst_QWidget::qobject_castInDestroyedSlot()
     QVERIFY(wasWidget == false);
 }
 
-void tst_QWidget::setWindowGeometry_data()
+Q_DECLARE_METATYPE(QList<QRect>)
+
+    void tst_QWidget::setWindowGeometry_data()
 {
-    QTest::addColumn<QRect>("rect");
+    QTest::addColumn<QList<QRect> >("rects");
     QTest::addColumn<int>("windowFlags");
 
-    QList<QRect> rects;
-    rects << QRect(100, 100, 200, 200)
-          << QApplication::desktop()->availableGeometry().adjusted(50, 100, -50, -100)
-          << QApplication::desktop()->availableGeometry().adjusted(100, 100, -100, -100)
-          << QRect(100, 100, 0, 200)
-          << QRect(100, 100, 200, 0)
-          << QRect(100, 100, 0, 0);
+    QList<QList<QRect> > rects;
+    rects << (QList<QRect>()
+              << QRect(100, 100, 200, 200)
+              << QApplication::desktop()->availableGeometry().adjusted(100, 100, -100, -100)
+              << QRect(50, 100, 0, 200)
+              << QRect(100, 50, 200, 0)
+              << QRect(50, 50, 0, 0))
+          << (QList<QRect>()
+              << QApplication::desktop()->availableGeometry().adjusted(100, 100, -100, -100)
+              << QRect(50, 100, 0, 200)
+              << QRect(100, 50, 200, 0)
+              << QRect(50, 50, 0, 0)
+              << QRect(100, 100, 200, 200))
+          << (QList<QRect>()
+              << QApplication::desktop()->availableGeometry().adjusted(100, 100, -100, -100)
+              << QRect(50, 100, 0, 200)
+              << QRect(100, 50, 200, 0)
+              << QRect(50, 50, 0, 0)
+              << QRect(100, 100, 200, 200)
+          << (QList<QRect>()
+              << QRect(50, 100, 0, 200)
+              << QRect(100, 50, 200, 0)
+              << QRect(50, 50, 0, 0)
+              << QRect(100, 100, 200, 200)
+              << QApplication::desktop()->availableGeometry().adjusted(100, 100, -100, -100))
+          << (QList<QRect>()
+              << QRect(100, 50, 200, 0)
+              << QRect(50, 50, 0, 0)
+              << QRect(100, 100, 200, 200)
+              << QApplication::desktop()->availableGeometry().adjusted(100, 100, -100, -100)
+              << QRect(50, 100, 0, 200))
+          << (QList<QRect>()
+              << QRect(50, 50, 0, 0)
+              << QRect(100, 100, 200, 200)
+              << QApplication::desktop()->availableGeometry().adjusted(100, 100, -100, -100)
+              << QRect(50, 100, 0, 200)
+              << QRect(100, 50, 200, 0));
 
     QList<int> windowFlags;
     windowFlags << 0
                 << Qt::FramelessWindowHint
                 << Qt::X11BypassWindowManagerHint;
 
-    foreach (QRect rect, rects) {
+    foreach (QList<QRect> l, rects) {
+        QRect rect = l.first();
         foreach (int windowFlag, windowFlags) {
             QTest::newRow(QString("%1,%2 %3x%4, flags %5")
                           .arg(rect.x())
@@ -3279,7 +3312,7 @@ void tst_QWidget::setWindowGeometry_data()
                           .arg(rect.width())
                           .arg(rect.height())
                           .arg(windowFlag, 0, 16))
-                << rect
+                << l
                 << windowFlag;
         }
     }
@@ -3287,17 +3320,26 @@ void tst_QWidget::setWindowGeometry_data()
 
 void tst_QWidget::setWindowGeometry()
 {
-    QFETCH(QRect, rect);
+    QFETCH(QList<QRect>, rects);
     QFETCH(int, windowFlags);
+    QRect rect = rects.takeFirst();
 
     {
         // test setGeometry() without actually showing the window
         QWidget widget;
         if (windowFlags != 0)
             widget.setWindowFlags(Qt::WindowFlags(windowFlags));
+
         widget.setGeometry(rect);
-        QTestEventLoop::instance().enterLoop(1);
+        QTest::qWait(100);
         QCOMPARE(widget.geometry(), rect);
+
+        // setGeometry() without showing
+        foreach (QRect r, rects) {
+            widget.setGeometry(r);
+            QTest::qWait(100);
+            QCOMPARE(widget.geometry(), r);
+        }
     }
 
     {
@@ -3305,18 +3347,36 @@ void tst_QWidget::setWindowGeometry()
         QWidget widget;
         if (windowFlags != 0)
             widget.setWindowFlags(Qt::WindowFlags(windowFlags));
+
         widget.setGeometry(rect);
         widget.show();
 #ifdef Q_WS_X11
         qt_x11_wait_for_window_manager(&widget);
 #endif
-        QTestEventLoop::instance().enterLoop(1);
+        QTest::qWait(100);
+        QCOMPARE(widget.geometry(), rect);
+
+        // setGeometry() while shown
+        foreach (QRect r, rects) {
+            widget.setGeometry(r);
+            QTest::qWait(100);
+            QCOMPARE(widget.geometry(), r);
+        }
+        widget.setGeometry(rect);
+        QTest::qWait(100);
         QCOMPARE(widget.geometry(), rect);
 
         // now hide
         widget.hide();
-        QTestEventLoop::instance().enterLoop(1);
+        QTest::qWait(100);
         QCOMPARE(widget.geometry(), rect);
+
+        // setGeometry() after hide()
+        foreach (QRect r, rects) {
+            widget.setGeometry(r);
+            QTest::qWait(100);
+            QCOMPARE(widget.geometry(), r);
+        }
     }
 
     {
@@ -3324,18 +3384,36 @@ void tst_QWidget::setWindowGeometry()
         QWidget widget;
         if (windowFlags != 0)
             widget.setWindowFlags(Qt::WindowFlags(windowFlags));
+
         widget.show();
 #ifdef Q_WS_X11
         qt_x11_wait_for_window_manager(&widget);
 #endif
         widget.setGeometry(rect);
-        QTestEventLoop::instance().enterLoop(1);
+        QTest::qWait(100);
+        QCOMPARE(widget.geometry(), rect);
+
+        // setGeometry() while shown
+        foreach (QRect r, rects) {
+            widget.setGeometry(r);
+            QTest::qWait(100);
+            QCOMPARE(widget.geometry(), r);
+        }
+        widget.setGeometry(rect);
+        QTest::qWait(100);
         QCOMPARE(widget.geometry(), rect);
 
         // now hide
         widget.hide();
-        QTestEventLoop::instance().enterLoop(1);
+        QTest::qWait(100);
         QCOMPARE(widget.geometry(), rect);
+
+        // setGeometry() after hide()
+        foreach (QRect r, rects) {
+            widget.setGeometry(r);
+            QTest::qWait(100);
+            QCOMPARE(widget.geometry(), r);
+        }
     }
 }
 
@@ -3365,8 +3443,10 @@ void tst_QWidget::windowMove_data()
 
 void tst_QWidget::windowMove()
 {
-    QFETCH(QRect, rect);
+    QFETCH(QList<QRect>, rects);
     QFETCH(int, windowFlags);
+
+    QRect rect = rects.takeFirst();
 
     {
         // test setGeometry() without actually showing the window
@@ -3374,9 +3454,17 @@ void tst_QWidget::windowMove()
         widget.resize(rect.size());
         if (windowFlags != 0)
             widget.setWindowFlags(Qt::WindowFlags(windowFlags));
+
         widget.move(rect.topLeft());
-        QTestEventLoop::instance().enterLoop(1);
+        QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
+
+        // move() without showing
+        foreach (QRect r, rects) {
+            widget.move(r.topLeft());
+            QTest::qWait(100);
+            QCOMPARE(widget.pos(), r.topLeft());
+        }
     }
 
     {
@@ -3385,18 +3473,36 @@ void tst_QWidget::windowMove()
         widget.resize(rect.size());
         if (windowFlags != 0)
             widget.setWindowFlags(Qt::WindowFlags(windowFlags));
+
         widget.move(rect.topLeft());
         widget.show();
 #ifdef Q_WS_X11
         qt_x11_wait_for_window_manager(&widget);
 #endif
-        QTestEventLoop::instance().enterLoop(1);
+        QTest::qWait(100);
+        QCOMPARE(widget.pos(), rect.topLeft());
+
+        // move() while shown
+        foreach (QRect r, rects) {
+            widget.move(r.topLeft());
+            QTest::qWait(100);
+            QCOMPARE(widget.pos(), r.topLeft());
+        }
+        widget.move(rect.topLeft());
+        QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
 
         // now hide
         widget.hide();
-        QTestEventLoop::instance().enterLoop(1);
+        QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
+
+        // move() after hide()
+        foreach (QRect r, rects) {
+            widget.move(r.topLeft());
+            QTest::qWait(100);
+            QCOMPARE(widget.pos(), r.topLeft());
+        }
     }
 
     {
@@ -3405,18 +3511,36 @@ void tst_QWidget::windowMove()
         widget.resize(rect.size());
         if (windowFlags != 0)
             widget.setWindowFlags(Qt::WindowFlags(windowFlags));
+
         widget.show();
 #ifdef Q_WS_X11
         qt_x11_wait_for_window_manager(&widget);
 #endif
         widget.move(rect.topLeft());
-        QTestEventLoop::instance().enterLoop(1);
+        QTest::qWait(100);
+        QCOMPARE(widget.pos(), rect.topLeft());
+
+        // move() while shown
+        foreach (QRect r, rects) {
+            widget.move(r.topLeft());
+            QTest::qWait(100);
+            QCOMPARE(widget.pos(), r.topLeft());
+        }
+        widget.move(rect.topLeft());
+        QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
 
         // now hide
         widget.hide();
-        QTestEventLoop::instance().enterLoop(1);
+        QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
+
+        // move() after hide()
+        foreach (QRect r, rects) {
+            widget.move(r.topLeft());
+            QTest::qWait(100);
+            QCOMPARE(widget.pos(), r.topLeft());
+        }
     }
 }
 
