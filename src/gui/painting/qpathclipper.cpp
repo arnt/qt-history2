@@ -17,6 +17,29 @@
 
 #include <math.h>
 
+/**
+   The algorithm used here is a little complicated. It's based on
+   the most recent research related to set operations/clipping of
+   polygons and extended a lot for paths. Introduction
+   of curves makes the algorithm quite complex. Removal of all the
+   special/corner cases of curves would make it a lot simpler.
+
+   To understand the basics please read the following research
+   papers:
+   "Efficient clipping of arbitrary polygons"
+   http://portal.acm.org/citation.cfm?id=274364&coll=portal&dl=ACM
+
+   And
+
+   "An Extension of Polygon Clipping To Resolve Degenerate Cases"
+   http://cadanda.com/CAD_A_3_1-4_48.PDF
+
+   The most involved parts of the algorithm are finding
+   intersections, marking them and finally pathFromList method
+   which is meant to combine them. Optimizations should start
+   with the findIntersections method which is quadratic atm.
+ */
+
 //#define QDEBUG_CLIPPER
 #ifdef QDEBUG_CLIPPER
 #include <qdebug.h>>
