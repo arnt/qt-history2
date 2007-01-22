@@ -203,6 +203,7 @@ private slots:
     void isEmpty();
     void html_alignmentInheritance();
     void html_ignoreEmptyDivs();
+    void html_dontInheritAlignmentForFloatingImages();
 
 private:
     inline void setHtml(const QString &html)
@@ -3134,6 +3135,18 @@ void tst_QTextDocumentFragment::html_ignoreEmptyDivs()
     doc->setHtml("<p><div/><b>Foo</b>");
     QCOMPARE(doc->blockCount(), 1);
     QCOMPARE(doc->begin().text(), QString("Foo"));
+}
+
+void tst_QTextDocumentFragment::html_dontInheritAlignmentForFloatingImages()
+{
+    doc->setHtml("<p align=right><img align=unknownignored src=\"foo\" /></p>");
+    QTextCharFormat fmt = doc->begin().begin().fragment().charFormat();
+    QVERIFY(fmt.isImageFormat());
+    QTextObject *o = doc->objectForFormat(fmt);
+    QVERIFY(o);
+    QTextFormat f = o->format();
+    QVERIFY(f.isFrameFormat());
+    QVERIFY(f.toFrameFormat().position() == QTextFrameFormat::InFlow);
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)

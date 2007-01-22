@@ -1506,6 +1506,8 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
             node->parseStyleAttribute(value, resourceProvider);
         } else if (key == QLatin1String("align")) {
             value = value.toLower();
+            bool alignmentSet = true;
+
             if (value == QLatin1String("left"))
                 node->blockFormat.setAlignment(Qt::AlignLeft|Qt::AlignAbsolute);
             else if (value == QLatin1String("right"))
@@ -1514,9 +1516,11 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
                 node->blockFormat.setAlignment(Qt::AlignHCenter);
             else if (value == QLatin1String("justify"))
                 node->blockFormat.setAlignment(Qt::AlignJustify);
+            else
+                alignmentSet = false;
 
             // HTML4 compat
-            if (node->id == Html_img && node->blockFormat.hasProperty(QTextFormat::BlockAlignment)) {
+            if (alignmentSet && node->id == Html_img) {
                 if (node->blockFormat.alignment() & Qt::AlignLeft)
                     node->cssFloat = QTextFrameFormat::FloatLeft;
                 else if (node->blockFormat.alignment() & Qt::AlignRight)
