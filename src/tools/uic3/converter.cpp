@@ -561,9 +561,7 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
     }
 
     QDomElement e = w.firstChild().toElement();
-    bool inQ3ToolBar = className == QLatin1String("Q3ToolBar");
-    bool inQ3GroupBox = (className == QLatin1String("Q3GroupBox")) || (className == QLatin1String("Q3ButtonGroup"));
-
+    const bool inQ3ToolBar = className == QLatin1String("Q3ToolBar");
     while (!e.isNull()) {
         QString t = e.tagName().toLower();
         if (t == QLatin1String("vbox") || t == QLatin1String("hbox") || t == QLatin1String("grid")) {
