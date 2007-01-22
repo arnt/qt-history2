@@ -528,7 +528,7 @@ const QString::Null QString::null = QString::Null();
     QString() compares equal to QString(""). We recommend that you
     always use the isEmpty() function and avoid isNull().
 
-    \sa fromRawData(), QChar, QLatin1String, QByteArray
+    \sa fromRawData(), QChar, QLatin1String, QByteArray, QStringRef
 */
 
 /*!
@@ -7012,11 +7012,10 @@ QDataStream &operator>>(QDataStream &in, QString &str)
 
 
 /*! \class QStringRef
-    \brief The QStringRef class provides a thin wrapper around QString sub strings
+    \brief The QStringRef class provides a thin wrapper around QString sub strings.
 
 
-    QStringRef provides a read-only subset of the QString API,
-    including operator== and operator!=.
+    QStringRef provides a read-only subset of the QString API.
 
     A string reference explicitely references a portion of a string()
     with a given size(), starting at a specific position(). Calling
@@ -7046,30 +7045,32 @@ QDataStream &operator>>(QDataStream &in, QString &str)
 */
 
 
-/* !\fn QStringRef::QStringRef()
-   Constructs an empty string referece.
+/*! \fn QStringRef::QStringRef()
+   Constructs an empty string reference.
 
  */
-/* !\fn QStringRef::QStringRef(const QString *string, int position, int size)
+/*! \fn QStringRef::QStringRef(const QString *string, int position, int size)
 
-Constructs a string reference of \a string with \a size characters, starting at \a position.
+Constructs a string reference of \a string starting at \a position and
+containing \a size characters,
 
 Note: This function exists for ultimate performance, no bounce
-checking is done. For program correctness the following constraints
-must be true: 0 <= \a position < string->size() && 0 <= size <=
-string->size() - position;
+checking is done. For program correctness \a position and \a size must
+describe a valid substring of \a string. This means \a position must
+be positive or 0 and smaller than \a string's size, and \a size must
+be positive or 0 but smaller than the string's size minus \a position.
 */
 
-/* !\fn QStringRef::QStringRef(const QString *string)
+/*! \fn QStringRef::QStringRef(const QString *string)
 
 Constructs a string reference of \a string.
 */
 
-/* !\fn QStringRef::QStringRef(const QStringRef &other)
+/*! \fn QStringRef::QStringRef(const QStringRef &other)
 
 Constructs a copy of \a other.
  */
-/* !\fn QStringRef::~QStringRef()
+/*! \fn QStringRef::~QStringRef()
 
 Destructor. No memory is free'd.
 
@@ -7077,16 +7078,61 @@ Destructor. No memory is free'd.
 
 
 /*!
+    \fn int QStringRef::position() const
+    Returns the position of this string reference in the referenced string().
+
+    \sa size()
+*/
+
+/*!
     \fn int QStringRef::size() const
     Returns the number of characters in this string.
+
+    \sa position()
 */
 /*!
     \fn int QStringRef::count() const
     Returns the number of characters in this string.
+
+    \sa position()
 */
 /*!
     \fn int QStringRef::length() const
     Returns the number of characters in this string.
+
+    \sa position()
+*/
+
+
+/*! \fn bool QStringRef::isEmpty() const
+
+    Returns true if the string reference has no characters; otherwise returns
+    false.
+
+    \sa size()
+*/
+
+/*! \fn bool QStringRef::isNull() const
+
+    Returns true if string() returns a 0-pointer, otherwise returns true.
+
+    \sa size()
+*/
+
+/*! \fn const QString *QStringRef::string() const
+
+    Returns a pointer to the string this reference is referencing, or
+    0 if this reference is not referencing any string.
+
+*/
+
+
+/*! \fn const QChar *QStringRef::unicode() const
+
+    Returns a Unicode representation of the string reference. Since
+    the data stems directly from the referenced string(), it is not
+    0-terminated unless this string reference references the string's
+    tail.
 */
 
 /*!
@@ -7103,7 +7149,7 @@ Destructor. No memory is free'd.
 
 */
 
-/*
+/*!
     Returns a copy of this string ref as QString object.
 
     Unless this string reference is a complete reference of \a string
@@ -7120,7 +7166,7 @@ QString QStringRef::toString() const {
 }
 
 
-/* \relates QStringRef
+/*! \relates QStringRef
 
    Returns true if string reference \a s1 is lexically equal to string reference \a s2; otherwise
    returns false.
@@ -7129,7 +7175,7 @@ bool operator==(const QStringRef &s1,const QStringRef &s2)
 { return (s1.size() == s2.size() &&
           (memcmp((char*)s1.unicode(), (char*)s2.unicode(), s1.size()*sizeof(QChar))==0)); }
 
-/* \relates QStringRef
+/*! \relates QStringRef
 
    Returns true if string \a s1 is lexically equal to string reference \a s2; otherwise
    returns false.
@@ -7138,7 +7184,7 @@ bool operator==(const QString &s1,const QStringRef &s2)
 { return (s1.size() == s2.size() &&
           (memcmp((char*)s1.unicode(), (char*)s2.unicode(), s1.size()*sizeof(QChar))==0)); }
 
-/* \relates QStringRef
+/*! \relates QStringRef
 
    Returns true if string  \a s1 is lexically equal to string reference \a s2; otherwise
    returns false.
@@ -7239,7 +7285,7 @@ bool operator<(const QStringRef &s1,const QStringRef &s2)
     to this string reference.
 */
 
-/*! \fn QStringRef &QStringRef::operator=(const QString &string)
+/*! \fn QStringRef &QStringRef::operator=(const QString *string)
 
     Makes this string reference a reference to \a string.
 */
