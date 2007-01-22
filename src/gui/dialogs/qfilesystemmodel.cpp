@@ -550,6 +550,19 @@ bool QFileSystemModel::setData(const QModelIndex &index, const QVariant &value, 
                                  QMessageBox::Ok);
 #endif // QT_NO_MESSAGEBOX
         return false;
+    } else {
+        QFileSystemModelPrivate::QFileSystemNode *indexNode = d->node(index);
+        QFileSystemModelPrivate::QFileSystemNode *parentNode = indexNode->parent;
+        int itemLocation = d->findChild(parentNode, *indexNode);
+        int visibleLocation = parentNode->visibleLocation(itemLocation);
+
+        parentNode->visibleChildren.removeAt(visibleLocation);
+        d->removeNode(parentNode, itemLocation);
+        itemLocation = d->addNode(parentNode, newName);
+        QFileInfo info(d->rootDir, newName);
+        parentNode->children[itemLocation].populate(d->fileInfoGatherer.getInfo(info));
+        parentNode->visibleChildren.insert(visibleLocation, itemLocation);
+        d->delayedSort();
     }
     return true;
 }
