@@ -22,6 +22,7 @@ TRANSLATOR qdesigner_internal::PreviewWorkspace
 #include <QtGui/QMdiArea>
 #include <QtGui/QMdiSubWindow>
 #include <QtGui/QPaintEvent>
+#include <qdebug.h>
 
 namespace {
     class PreviewMdiArea: public QMdiArea {
@@ -34,8 +35,9 @@ namespace {
     bool PreviewMdiArea::viewportEvent (QEvent * event) {
         if (event->type() != QEvent::Paint)
             return QMdiArea::viewportEvent (event);
-        QPainter p(viewport());
-        p.fillRect(rect(), palette().color(backgroundRole()).dark());
+        QWidget *paintWidget = viewport();
+        QPainter p(paintWidget);
+        p.fillRect(rect(), paintWidget->palette().color(backgroundRole()).dark());
         p.setPen(QPen(Qt::white));
         p.drawText(0, height() / 2,  width(), height(), Qt::AlignHCenter,
                    tr("The moose in the noose\nate the goose who was loose."));
@@ -47,9 +49,7 @@ namespace qdesigner_internal {
 
 PreviewFrame::PreviewFrame(QWidget *parent) : 
     QFrame(parent),
-    m_mdiArea(new PreviewMdiArea(this)),
-    m_previewWidget(new PreviewWidget(m_mdiArea)),
-    m_mdiSubWindow(m_mdiArea->addSubWindow(m_previewWidget, Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint))     
+    m_mdiArea(new PreviewMdiArea(this))
 {
     setMinimumSize(200, 200);
     setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
@@ -58,19 +58,27 @@ PreviewFrame::PreviewFrame(QWidget *parent) :
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
     vbox->addWidget(m_mdiArea);
-
-    m_mdiSubWindow->move(10,10);
-    m_mdiSubWindow->show();
+    
+    ensureMdiSubWindow();
 }
 
 void PreviewFrame::setPreviewPalette(const QPalette &pal)
 {
-    m_previewWidget->setPalette(pal);
+    ensureMdiSubWindow()->widget()->setPalette(pal);
 }
     
 void PreviewFrame::setSubWindowActive(bool active)
 {
-    m_mdiArea->setActiveSubWindow (active ? m_mdiSubWindow : static_cast<QMdiSubWindow *>(0));
+    m_mdiArea->setActiveSubWindow (active ? ensureMdiSubWindow() : static_cast<QMdiSubWindow *>(0));
 }
 
+QMdiSubWindow *PreviewFrame::ensureMdiSubWindow()
+{
+    if (!m_mdiSubWindow) {
+        m_mdiSubWindow = m_mdiArea->addSubWindow(new PreviewWidget(m_mdiArea), Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint);
+        m_mdiSubWindow->move(10,10);
+        m_mdiSubWindow->show();
+    }
+    return m_mdiSubWindow;
+}
 }

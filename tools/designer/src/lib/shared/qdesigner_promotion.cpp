@@ -39,7 +39,9 @@ namespace {
             rc.insert(QLatin1String("QDialog"));
             rc.insert(QLatin1String("QStatusBar"));
             rc.insert(QLatin1String("QToolBar"));
-            rc.insert(QLatin1String("QWorkSpace"));
+            rc.insert(QLatin1String("QWorkspace"));
+            rc.insert(QLatin1String("QMdiArea"));
+            rc.insert(QLatin1String("QMdiSubWindow"));
         }
         return rc;
     }

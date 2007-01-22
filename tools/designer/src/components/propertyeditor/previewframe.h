@@ -15,13 +15,12 @@
 #define PREVIEWFRAME_H
 
 #include <QtGui/QFrame>
+#include <QtCore/QPointer>
 
 class QMdiArea;
 class QMdiSubWindow;
 
 namespace qdesigner_internal {
-
-class PreviewWidget;
 
 class PreviewFrame: public QFrame
 {
@@ -33,9 +32,11 @@ public:
     void setSubWindowActive(bool active);
     
 private:
+    // The user can on some platforms close the mdi child by invoking the system menu.
+    // Ensure a child is present.
+    QMdiSubWindow *ensureMdiSubWindow();
     QMdiArea *m_mdiArea;
-    PreviewWidget *m_previewWidget;
-    QMdiSubWindow *m_mdiSubWindow;
+    QPointer<QMdiSubWindow> m_mdiSubWindow;
 };
 
 }  // namespace qdesigner_internal
