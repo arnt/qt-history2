@@ -1068,7 +1068,7 @@ void QWidgetPrivate::show_sys()
             }
         }
     }
-    if ((q->windowType() == Qt::Popup) || q->windowType() == Qt::ToolTip)
+    if ((q->windowType() == Qt::Popup) || (q->windowType() == Qt::ToolTip) || (q->windowType() == Qt::Tool))
         sm = SW_SHOWNOACTIVATE;
 
     ShowWindow(q->internalWinId(), sm);
