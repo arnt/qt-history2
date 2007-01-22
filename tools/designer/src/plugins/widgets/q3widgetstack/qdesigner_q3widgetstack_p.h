@@ -34,7 +34,6 @@ class QChildEvent;
 class QResizeEvent;
 class QShowEvent;
 class QEvent;
-class QWidget;
 
 class QDesignerQ3WidgetStack : public Q3WidgetStack
 {
@@ -66,11 +65,12 @@ protected:
     virtual bool event(QEvent *e);
 
 private:
+    void gotoPage(int page);
     QDesignerFormWindowInterface *formWindow();
     QDesignerContainerExtension *container();
     int count();
     QWidget *widget(int index);
-    QToolButton *prev, *next;
+    QToolButton *m_prev, *m_next;
 };
 
 #endif // !QDESIGNER_Q3WIDGETSTACK_P_H
