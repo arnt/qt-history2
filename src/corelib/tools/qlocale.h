@@ -535,9 +535,9 @@ inline QString QLocale::toString(uint i) const
 inline QString QLocale::toString(float i, char f, int prec) const
     { return toString(double(i), f, prec); }
 inline bool QLocale::operator==(const QLocale &other) const
-    { return d() == other.d(); }
+    { return d() == other.d() && numberOptions() == other.numberOptions(); }
 inline bool QLocale::operator!=(const QLocale &other) const
-    { return d() != other.d(); }
+    { return d() != other.d() || numberOptions() != other.numberOptions(); }
 
 #ifndef QT_NO_DATASTREAM
 Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QLocale &);
