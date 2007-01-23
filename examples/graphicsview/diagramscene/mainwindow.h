@@ -17,6 +17,7 @@ class QGraphicsTextItem;
 class QFont;
 class QToolButton;
 class QAbstractButton;
+class QGraphicsView;
 
 class MainWindow : public QMainWindow
 {
