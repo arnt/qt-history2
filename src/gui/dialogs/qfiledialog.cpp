@@ -337,7 +337,7 @@ static const qint32 QFileDialogMagic = 0xbe;
 QByteArray QFileDialog::saveState() const
 {
     Q_D(const QFileDialog);
-    int version = 1;
+    int version = 2;
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);
 
@@ -349,13 +349,7 @@ QByteArray QFileDialog::saveState() const
     stream << history();
     stream << directory().absolutePath();
     stream << isDetailsExpanded();
-
-    // TODO Task #127430 use the headerView->saveState() function when it is added
-    // which will also save hidden sections
-    stream << d->treeView->header()->sectionSize(0);
-    stream << d->treeView->header()->sectionSize(1);
-    stream << d->treeView->header()->sectionSize(2);
-    stream << d->treeView->header()->sectionSize(3);
+    stream << d->treeView->header()->saveState();
     return data;
 }
 
@@ -371,13 +365,14 @@ QByteArray QFileDialog::saveState() const
 bool QFileDialog::restoreState(const QByteArray &state)
 {
     Q_D(QFileDialog);
-    int version = 1;
+    int version = 2;
     QByteArray sd = state;
     QDataStream stream(&sd, QIODevice::ReadOnly);
     if (stream.atEnd())
         return true;
     QByteArray geometry;
     QByteArray splitterState;
+    QByteArray headerData;
     QList<QUrl> bookmarks;
     QStringList history;
     QString currentDirectory;
@@ -394,7 +389,8 @@ bool QFileDialog::restoreState(const QByteArray &state)
            >> bookmarks
            >> history
            >> currentDirectory
-           >> expanded;
+           >> expanded
+           >> headerData;
     if (d->acceptMode == AcceptSave)
         setDetailsExpanded(!expanded);
     if (!restoreGeometry(geometry))
@@ -405,15 +401,8 @@ bool QFileDialog::restoreState(const QByteArray &state)
     d->sidebar->setUrls(bookmarks);
     setHistory(history);
     setDirectory(currentDirectory);
-
-    // TODO use the headerView->restoreState() function when it is added
-    // which will also have hidden sections
-    int size0, size1, size2, size3;
-    stream >> size0 >> size1 >> size2 >> size3;
-    d->treeView->header()->resizeSection(0, size0);
-    d->treeView->header()->resizeSection(1, size0);
-    d->treeView->header()->resizeSection(2, size0);
-    d->treeView->header()->resizeSection(3, size0);
+    if (!d->treeView->header()->restoreState(headerData))
+        return false;
     return true;
 }
 
