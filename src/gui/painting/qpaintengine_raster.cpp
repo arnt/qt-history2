@@ -4522,6 +4522,17 @@ flush_and_return:
         span_func(current, ordered ? spans : spans + (NSPANS - current), data);
 }
 
+static void offset_pattern(int offset, bool *inDash, int *dashIndex, int *currentOffset, const QVarLengthArray<qreal> &pattern)
+{
+    while (offset--) {
+        if (--*currentOffset == 0) {
+            *inDash = !*inDash;
+            *dashIndex = ((*dashIndex + 1) % pattern.size());
+            *currentOffset = int(pattern[*dashIndex]);
+        }
+    }
+}
+
 static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
                                        QPen *pen,
                                        ProcessSpans span_func, QSpanData *data,
@@ -4576,14 +4587,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
     int currPattern = int(pattern[dashIndex]);
 
     // adjust pattern for offset
-    int adjust = *patternOffset;
-    while (adjust--) {
-        if (--currPattern == 0) {
-            inDash = !inDash;
-            dashIndex = ((dashIndex + 1) % pattern.size());
-            currPattern = int(pattern[dashIndex]);
-        }
-    }
+    offset_pattern(*patternOffset, &inDash, &dashIndex, &currPattern, pattern);
 
     const int NSPANS = 256;
     QT_FT_Span spans[NSPANS];
@@ -4593,12 +4597,16 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
     if (dy == 0) {
         // specialcase horizontal lines
         if (y1 >= 0 && y1 < devRect.height()) {
-            int start = qMax(0, qMin(x1, x2));
+            int start_unclipped = qMin(x1, x2);
+            int start = qMax(0, start_unclipped);
             int stop = qMax(x1, x2) + 1;
             int stop_clipped = qMin(devRect.width(), stop);
             int len = stop_clipped - start;
             if (style == LineDrawNormal && stop == stop_clipped)
                 len--;
+
+            // adjust pattern for starting offset
+            offset_pattern(start - start_unclipped, &inDash, &dashIndex, &currPattern, pattern);
 
             if (len > 0) {
                 int x = start;
@@ -4629,13 +4637,17 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
         goto flush_and_return;
     } else if (dx == 0) {
         if (x1 >= 0 && x1 < devRect.width()) {
-            int start = qMax(0, qMin(y1, y2));
+            int start_unclipped = qMin(y1, y2);
+            int start = qMax(0, start_unclipped);
             int stop = qMax(y1, y2) + 1;
             int stop_clipped = qMin(devRect.height(), stop);
             if (style == LineDrawNormal && stop == stop_clipped)
                 --stop;
             else
                 stop = stop_clipped;
+
+            // adjust pattern for starting offset
+            offset_pattern(start - start_unclipped, &inDash, &dashIndex, &currPattern, pattern);
 
             // loop over dashes
             int y = start;
@@ -4732,12 +4744,9 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
                 }
                 ++x;
 
-                if (x < 0 || y < 0)
-                    continue;
-
-                Q_ASSERT(x < devRect.width());
-                Q_ASSERT(y < devRect.height());
-                if (inDash) {
+                const bool skip = x < 0 || y < 0;
+                Q_ASSERT(skip || x < devRect.width() && y < devRect.height());
+                if (inDash && !skip) {
                     if (current == NSPANS) {
                         span_func(NSPANS, spans, data);
                         current = 0;
@@ -4780,11 +4789,9 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
                 }
                 ++x;
 
-                if (x < 0 || y > y1)
-                    continue;
-
-                Q_ASSERT(x < devRect.width() && y < devRect.height());
-                if (inDash) {
+                const bool skip = x < 0 || y > y1;
+                Q_ASSERT(skip || x < devRect.width() && y < devRect.height());
+                if (inDash && !skip) {
                     if (current == NSPANS) {
                         span_func(NSPANS, spans, data);
                         current = 0;
@@ -4867,10 +4874,9 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
                     d += incrE;
                 }
                 ++y;
-                if (x < 0 || y < 0)
-                    continue;
-                Q_ASSERT(x < devRect.width() && y < devRect.height());
-                if (inDash) {
+                const bool skip = x < 0 || y < 0;
+                Q_ASSERT(skip || x < devRect.width() && y < devRect.height());
+                if (inDash && !skip) {
                     if (current == NSPANS) {
                         span_func(NSPANS, spans, data);
                         current = 0;
@@ -4906,10 +4912,9 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
                     d += incrE;
                 }
                 ++y;
-                if (y < 0 || x > x1)
-                    continue;
-                Q_ASSERT(x >= 0 && x < devRect.width() && y >= 0 && y < devRect.height());
-                if (inDash) {
+                const bool skip = y < 0 || x > x1;
+                Q_ASSERT(skip || x >= 0 && x < devRect.width() && y < devRect.height());
+                if (inDash && !skip) {
                     if (current == NSPANS) {
                         span_func(NSPANS, spans, data);
                         current = 0;
