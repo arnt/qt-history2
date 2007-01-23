@@ -84,9 +84,10 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
     if (mouseEvent->button() != Qt::LeftButton)
 	return;
 
+    DiagramItem *item;
     switch (myMode) {
 	case InsertItem:  
-	    DiagramItem *item = new DiagramItem(myItemType, myItemMenu);
+	    item = new DiagramItem(myItemType, myItemMenu);
 	    item->setBrush(myItemColor);
 	    addItem(item); 
 	    item->setPos(mouseEvent->scenePos());

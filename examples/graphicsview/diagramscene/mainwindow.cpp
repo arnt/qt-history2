@@ -37,7 +37,6 @@ MainWindow::MainWindow()
 
 void MainWindow::backgroundButtonGroupClicked(QAbstractButton *button)
 {
-    qDebug("doin it");
     QList<QAbstractButton *> buttons = backgroundButtonGroup->buttons();
     foreach (QAbstractButton *myButton, buttons) {
 	if (myButton != button)
