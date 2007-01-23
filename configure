@@ -563,6 +563,7 @@ CFG_INOTIFY=auto
 CFG_RPATH=yes
 CFG_FRAMEWORK=auto
 CFG_MAC_ARCHS=
+CFG_MAC_DWARF2=no
 CFG_SXE=no
 CFG_PREFIX_INSTALL=yes
 CFG_SDK=
@@ -687,7 +688,7 @@ while [ "$#" -gt 0 ]; do
         VAL=no
         ;;
     #Qt style yes options
-        -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-separate-debug-info|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-fontconfig|-xkb|-nis|-qdbus|-glib|-cups|-iconv|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal|-prefix-install|-silent|-armfpa|-optimized-qmake)
+        -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-separate-debug-info|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-fontconfig|-xkb|-nis|-qdbus|-glib|-cups|-iconv|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal|-prefix-install|-silent|-armfpa|-optimized-qmake|-dwarf2)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         VAL=yes
         ;;
@@ -952,6 +953,13 @@ while [ "$#" -gt 0 ]; do
     sdk)
         if [ "$PLATFORM_MAC" = "yes" ]; then
             CFG_SDK="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+	;;
+     dwarf2)
+        if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+            CFG_MAC_DWARF2="$VAL"
         else
             UNKNOWN_OPT=yes
         fi
@@ -2174,11 +2182,11 @@ elif [ "$CFG_PRECOMPILE" = "yes" ] && [ ! -z "$CFG_MAC_ARCHS" ]; then
 fi
 
 #auto-detect DWARF2 on the mac
-if [ "$PLATFORM_MAC" = "yes" ]; then
+if [ "$PLATFORM_MAC" = "yes" ] && [ "$CFG_MAC_DWARF2" != "no" ]; then 
     if "$mactests/dwarf2.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then 
-        true
+        CFG_MAC_DWARF2=no
     else
-        QT_CONFIG="$QT_CONFIG dwarf2"
+        CFG_MAC_DWARF2=yes
     fi
 fi
 
@@ -2835,6 +2843,9 @@ Qt/Mac only:
  *  -framework ......... Build Qt as a series of frameworks and
                          link tools against those frameworks.
     -no-framework ...... Do not build Qt as a series of frameworks.
+
+    -dwarf2 ............ Enable dwarf2 debugging symbols.
+ *  -no-dwarf2 ......... Disable dwarf2 debugging symbols.
 
     -universal ......... Equivalent to -arch "ppc x86"
 
@@ -4287,6 +4298,11 @@ if [ -n "$CFG_QWS_DEPTHS" -a "$PLATFORM_QWS" = "yes" ]; then
 	    4|8|16|18|24|32) QCONFIG_FLAGS="$QCONFIG_FLAGS QT_QWS_DEPTH_$D";;
 	esac
     done
+fi
+
+# enable dwarf2 support on Mac 
+if [ "$CFG_MAC_DWARF2" = "yes" ]; then
+    QT_CONFIG="$QT_CONFIG dwarf2"
 fi
 
 # enable Qt 3 support functionality
