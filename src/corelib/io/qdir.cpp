@@ -26,7 +26,7 @@
 # include "qresource.h"
 #endif
 
-#include "private/qcoreglobaldata_p.h"
+#include "../kernel/qcoreglobaldata_p.h"
 #include <stdlib.h>
 
 static QString driveSpec(const QString &path)
