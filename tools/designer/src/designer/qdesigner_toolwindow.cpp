@@ -20,7 +20,6 @@
 #include <QtCore/qdebug.h>
 #include <QtGui/QAction>
 #include <QtGui/QCloseEvent>
-#include <QtGui/QWorkspace>
 
 QDesignerToolWindow::QDesignerToolWindow(QDesignerWorkbench *workbench, QWidget *parent, Qt::WindowFlags flags)
     : QMainWindow(parent, flags),

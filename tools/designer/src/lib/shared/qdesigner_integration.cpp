@@ -222,10 +222,11 @@ void QDesignerIntegration::activateWidget(QWidget *widget)
 
 QWidget *QDesignerIntegration::containerWindow(QWidget *widget) const
 {
+    // Find the parent window to apply a geometry to.
     while (widget) {
         if (widget->isWindow())
             break;
-        if (widget->parentWidget() && !qstrcmp(widget->parentWidget()->metaObject()->className(), "QWorkspaceChild"))
+        if (!qstrcmp(widget->metaObject()->className(), "QMdiSubWindow"))
             break;
 
         widget = widget->parentWidget();

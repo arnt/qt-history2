@@ -171,9 +171,7 @@ void NewForm::on_buttonBox_clicked(QAbstractButton *btn)
                 }
 
                 if (QWidget *container = editor->mainContainer()) {
-                    formWindow->resize(container->size());
-                    formWindow->setMinimumSize(container->minimumSize());
-                    formWindow->setMaximumSize(container->maximumSize());
+                    workbench()->resizeForm(formWindow, container );
                 }
             }
             QString newTitle = QLatin1String("untitled");
@@ -182,7 +180,7 @@ void NewForm::on_buttonBox_clicked(QAbstractButton *btn)
 
             if (maxUntitled) {
                 newTitle += QLatin1Char(' ');
-		newTitle += QString::number(maxUntitled + 1);
+                newTitle += QString::number(maxUntitled + 1);
                 if (!m_fileName.isEmpty())
                     m_fileName.replace(QFileInfo(m_fileName).fileName(), newTitle);
             }

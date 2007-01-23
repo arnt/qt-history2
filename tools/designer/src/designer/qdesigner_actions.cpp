@@ -49,6 +49,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 #include <QtGui/QIcon>
+#include <QtGui/QMdiSubWindow>
 
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QBuffer>
@@ -651,7 +652,13 @@ bool QDesignerActions::saveForm(QDesignerFormWindowInterface *fw)
 void QDesignerActions::closeForm()
 {
     if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow())
-        fw->parentWidget()->close();
+        if (QWidget *parent = fw->parentWidget()) {
+            if (QMdiSubWindow *mdiSubWindow = qobject_cast<QMdiSubWindow *>(parent->parentWidget())) {
+                mdiSubWindow->close();
+            } else {
+                parent->close();
+            }
+        }
 }
 
 void QDesignerActions::saveFormAs()
@@ -830,11 +837,8 @@ bool QDesignerActions::readInForm(const QString &fileName)
         }
 
         formWindow->updateWindowTitle(fn);
-        formWindow->resize(editor->mainContainer()->size());
+        workbench()->resizeForm(formWindow, editor->mainContainer());
         formWindowManager->setActiveFormWindow(editor);
-
-        formWindow->setMinimumSize(editor->mainContainer()->minimumSize());
-        formWindow->setMaximumSize(editor->mainContainer()->maximumSize());
     }
     formWindow->show();
     addRecentFile(fn);
@@ -1042,9 +1046,11 @@ void QDesignerActions::minimizeForm()
 {
     if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow()) {
         if (m_workbench->mode() == QDesignerWorkbench::DockedMode) {
-            // Yuck, I need to get to the QWorkspaceChild::showShaded(), but there is no way
-            // to do that legally, so I use the QMetaObject as my guide.
-            QMetaObject::invokeMethod(fw->parentWidget()->parentWidget(), "showShaded");
+            if (QWidget *formwindow = fw->parentWidget()) {
+                if (QMdiSubWindow *mdiSubWindow = qobject_cast<QMdiSubWindow *>(formwindow->parentWidget())) {
+                    mdiSubWindow ->showShaded();
+                }
+            }
         } else {
             fw->parentWidget()->showMinimized();
         }

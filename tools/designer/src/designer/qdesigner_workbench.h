@@ -30,7 +30,8 @@ class QDockWidget;
 class QMenu;
 class QMenuBar;
 class QToolBar;
-class QWorkspace;
+class QMdiArea;
+class QMdiSubWindow;
 class QCloseEvent;
 
 class QDesignerFormEditorInterface;
@@ -88,6 +89,7 @@ public:
     bool readInBackup();
     void updateBackup(QDesignerFormWindowInterface* fwi);
 
+    void resizeForm(QDesignerFormWindow *fw,  const QWidget *mainContainer) const;
 signals:
     void modeChanged(UIMode mode);
     void initialized();
@@ -108,7 +110,7 @@ public slots:
 
 private slots:
     void initialize();
-    void activateWorkspaceChildWindow(QWidget *widget);
+    void activateMdiAreaChildWindow(QMdiSubWindow*);
     void updateWindowMenu(QDesignerFormWindowInterface *fw);
     void formWindowActionTriggered(QAction *a);
     void showToolBars();
@@ -149,7 +151,7 @@ private:
     QList<QDesignerToolWindow*> m_toolWindows;
     QList<QDesignerFormWindow*> m_formWindows;
 
-    QWorkspace *m_workspace;
+    QMdiArea *m_mdiArea;
     QHash<QWidget*, bool> m_visibilities;
     QHash<QWidget*, QRect> m_geometries;
 

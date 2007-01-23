@@ -98,7 +98,12 @@ void QDesignerFormWindow::changeEvent(QEvent *e)
 
 QRect QDesignerFormWindow::geometryHint() const
 {
-    return QRect(0, 0, 400, 300);
+    return QRect(QPoint(0, 0), sizeHint());
+}
+
+QSize QDesignerFormWindow::sizeHint () const 
+{
+    return m_editor->sizeHint();
 }
 
 QDesignerFormWindowInterface *QDesignerFormWindow::editor() const

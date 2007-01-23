@@ -33,7 +33,8 @@ public:
     QDesignerWorkbench *workbench() const;
     QDesignerFormWindowInterface *editor() const;
 
-    virtual QRect geometryHint() const;
+    QRect geometryHint() const;
+    virtual QSize sizeHint () const;
 
 public slots:
     void updateWindowTitle(const QString &fileName);

@@ -37,6 +37,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QUrl>
 #include <QtCore/QPluginLoader>
+#include <QtCore/qdebug.h> // TODO
 
 #include <QtGui/QActionGroup>
 #include <QtGui/QCloseEvent>
@@ -47,10 +48,11 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
 #include <QtGui/QToolBar>
-#include <QtGui/QWorkspace>
+#include <QtGui/QMdiArea>
+#include <QtGui/QMdiSubWindow>
 
 QDesignerWorkbench::QDesignerWorkbench()
-    : m_mode(QDesignerWorkbench::NeutralMode), m_workspace(0)
+    : m_mode(QDesignerWorkbench::NeutralMode), m_mdiArea(0)
 {
     m_initializing = true;
     initialize();
@@ -65,8 +67,8 @@ QDesignerWorkbench::~QDesignerWorkbench()
     settings.clearBackup();
 
     if (m_mode == DockedMode) {
-        Q_ASSERT(m_workspace != 0);
-        QMainWindow *mw = qobject_cast<QMainWindow*>(m_workspace->window());
+        Q_ASSERT(m_mdiArea != 0);
+        QMainWindow *mw = qobject_cast<QMainWindow*>(m_mdiArea->window());
         Q_ASSERT(mw != 0);
 
         settings.setMainWindowState(mw->saveState(2));
@@ -264,7 +266,7 @@ Qt::WindowFlags QDesignerWorkbench::magicalWindowFlags(const QWidget *widgetForF
             return Qt::Window;
         }
         case DockedMode:
-            Q_ASSERT(m_workspace != 0);
+            Q_ASSERT(m_mdiArea != 0);
             return Qt::Window | Qt::WindowShadeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowTitleHint;
         case NeutralMode:
             return Qt::Window;
@@ -280,8 +282,8 @@ QWidget *QDesignerWorkbench::magicalParent() const
         case TopLevelMode:
             return 0;
         case DockedMode:
-            Q_ASSERT(m_workspace != 0);
-            return m_workspace;
+            Q_ASSERT(m_mdiArea != 0);
+            return m_mdiArea;
         case NeutralMode:
             return 0;
         default:
@@ -295,8 +297,8 @@ void QDesignerWorkbench::switchToNeutralMode()
     if (m_mode == NeutralMode) {
         return;
     } else if (m_mode == DockedMode) {
-        Q_ASSERT(m_workspace != 0);
-        QMainWindow *mw = qobject_cast<QMainWindow*>(m_workspace->window());
+        Q_ASSERT(m_mdiArea != 0);
+        QMainWindow *mw = qobject_cast<QMainWindow*>(m_mdiArea->window());
         QDesignerSettings settings;
         settings.setMainWindowState(mw->saveState(2));
     }
@@ -306,7 +308,7 @@ void QDesignerWorkbench::switchToNeutralMode()
     if (m_mode == TopLevelMode)
         desktopOffset = QApplication::desktop()->availableGeometry().topLeft();
     else if (m_mode == DockedMode)
-        workspaceOffset = m_workspace->mapToGlobal(QPoint(0, 0));
+        workspaceOffset = m_mdiArea->mapToGlobal(QPoint(0, 0));
     m_mode = NeutralMode;
 
     m_geometries.clear();
@@ -355,10 +357,10 @@ void QDesignerWorkbench::switchToNeutralMode()
     m_core->setTopLevel(0);
     qDesigner->setMainWindow(0);
 
-    if (m_workspace)
-        delete m_workspace->parentWidget();
+    if (m_mdiArea)
+        delete m_mdiArea->parentWidget();
 
-    m_workspace = 0;
+    m_mdiArea = 0;
 }
 
 void QDesignerWorkbench::switchToDockedMode()
@@ -376,20 +378,20 @@ void QDesignerWorkbench::switchToDockedMode()
         widgetBoxWrapper->setWindowTitle(tr("Widget Box"));
     }
 
-    Q_ASSERT(m_workspace == 0);
+    Q_ASSERT(m_mdiArea == 0);
 
     QDesignerSettings settings;
     QDesignerToolWindow *mw = new QDesignerToolWindow(this); // Just to have a copy of
     mw->setSaveSettingsOnClose(true);
     mw->setObjectName(QLatin1String("MDIWindow"));
     mw->setWindowTitle(tr("Qt Designer"));
-    m_workspace = new QWorkspace(mw);
-    m_workspace->setAcceptDrops(true);
-    m_workspace->installEventFilter(this);
-    m_workspace->setScrollBarsEnabled(true);
-    connect(m_workspace, SIGNAL(windowActivated(QWidget*)),
-            this, SLOT(activateWorkspaceChildWindow(QWidget*)));
-    mw->setCentralWidget(m_workspace);
+    m_mdiArea = new QMdiArea(mw);
+    m_mdiArea->setAcceptDrops(true);
+    m_mdiArea->installEventFilter(this);
+    m_mdiArea->setScrollBarsEnabled(true);
+    connect(m_mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)),
+            this, SLOT(activateMdiAreaChildWindow(QMdiSubWindow*)));
+    mw->setCentralWidget(m_mdiArea);
     m_core->setTopLevel(mw);
     (void) mw->statusBar();
     if (m_geometries.isEmpty()) {
@@ -438,7 +440,7 @@ void QDesignerWorkbench::switchToDockedMode()
     mw->restoreState(settings.mainWindowState(), 2);
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
-        QWidget *w = m_workspace->addWindow(fw, magicalWindowFlags(fw));
+        QMdiSubWindow *w = m_mdiArea->addSubWindow(fw, magicalWindowFlags(fw));
         w->setMinimumSize(QSize(0, 0));
         w->hide();
     }
@@ -454,7 +456,7 @@ void QDesignerWorkbench::switchToDockedMode()
 
 bool QDesignerWorkbench::eventFilter(QObject *object, QEvent *event)
 {
-    if (object == m_workspace) {
+    if (object == m_mdiArea) {
         if (event->type() == QEvent::DragEnter) {
             QDragEnterEvent *e = static_cast<QDragEnterEvent*>(event);
             if (e->mimeData()->hasFormat(QLatin1String("text/uri-list"))) {
@@ -478,19 +480,19 @@ bool QDesignerWorkbench::eventFilter(QObject *object, QEvent *event)
 
 void QDesignerWorkbench::adjustFormPositions()
 {
-    if (m_workspace == 0)
+    if (m_mdiArea == 0)
         return;
 
-    QPoint workspace_tl = m_workspace->mapToGlobal(QPoint(0, 0));
+    const QPoint workspace_tl = m_mdiArea->mapToGlobal(QPoint(0, 0));
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
-        QWidget *frame = fw->parentWidget();
-        if (frame == 0)
-            continue;
-        QRect g = m_geometries.value(fw, fw->geometryHint());
-        frame->move(g.topLeft() - workspace_tl);
-        fw->resize(g.size());
-        frame->show();
+        if (QMdiSubWindow *mdiSubWindow = qobject_cast<QMdiSubWindow *>(fw->parentWidget())) {
+            const QSize decorationSize = mdiSubWindow->geometry().size() - mdiSubWindow->contentsRect().size(); // TODO new API
+            const QRect g = m_geometries.value(fw, fw->geometryHint());
+            mdiSubWindow->move(g.topLeft() - workspace_tl);
+            mdiSubWindow->resize(g.size() + decorationSize);
+            mdiSubWindow->show();
+        }
     }
 }
 
@@ -567,25 +569,20 @@ QDesignerFormWindow *QDesignerWorkbench::createFormWindow()
 {
     QDesignerFormWindow *formWindow = new QDesignerFormWindow(/*formWindow=*/ 0, this);
 
-    if (m_workspace) {
-        QWidget *w = m_workspace->addWindow(formWindow, magicalWindowFlags(formWindow));
-        w->setMinimumSize(QSize(0, 0));
+    const QRect formWindowGeometryHint = formWindow->geometryHint();
+    if (m_mdiArea) {
+        QMdiSubWindow *newMdiSubWindow = m_mdiArea->addSubWindow(formWindow, magicalWindowFlags(formWindow));
+        newMdiSubWindow->setMinimumSize(QSize(0, 0));
+        m_mdiArea->setActiveSubWindow(newMdiSubWindow);
     } else {
+        const QRect formWindowGeometryHint = formWindow->geometryHint();
+        formWindow->setAttribute(Qt::WA_DeleteOnClose, true);
         formWindow->setParent(magicalParent(), magicalWindowFlags(formWindow));
+        formWindow->resize(formWindowGeometryHint.size());
+        formWindow->move(availableGeometry().center() - formWindowGeometryHint.center());
     }
-
-    formWindow->setAttribute(Qt::WA_DeleteOnClose, true);
 
     addFormWindow(formWindow);
-
-    QRect g = formWindow->geometryHint();
-    formWindow->resize(g.size());
-    formWindow->move(availableGeometry().center() - g.center());
-
-    if (m_workspace) {
-        m_workspace->setActiveWindow(formWindow);
-    }
-
     return formWindow;
 }
 
@@ -621,8 +618,8 @@ QDesignerFormWindow *QDesignerWorkbench::formWindow(int index) const
 
 QRect QDesignerWorkbench::availableGeometry() const
 {
-    if (m_workspace)
-        return m_workspace->geometry();
+    if (m_mdiArea)
+        return m_mdiArea->geometry();
 
     QDesktopWidget *desktop = qDesigner->desktop();
 
@@ -633,15 +630,17 @@ QRect QDesignerWorkbench::availableGeometry() const
 }
 
 int QDesignerWorkbench::marginHint() const
-{
-    return 20;
+{    return 20;
 }
 
-void QDesignerWorkbench::activateWorkspaceChildWindow(QWidget *widget)
+void QDesignerWorkbench::activateMdiAreaChildWindow(QMdiSubWindow *subWindow)
 {
-    if (QDesignerFormWindow *fw = qobject_cast<QDesignerFormWindow*>(widget)) {
-        core()->formWindowManager()->setActiveFormWindow(fw->editor());
-        m_workspace->setActiveWindow(widget);
+    if (subWindow) {
+        QWidget *widget = subWindow->widget();
+        if (QDesignerFormWindow *fw = qobject_cast<QDesignerFormWindow*>(widget)) {
+            core()->formWindowManager()->setActiveFormWindow(fw->editor());
+            m_mdiArea->setActiveSubWindow(subWindow);
+        }
     }
 }
 
@@ -703,7 +702,7 @@ void QDesignerWorkbench::saveSettings() const
 {
     QDesignerSettings settings;
     if (m_mode == DockedMode) {
-        if (qFindChild<QWorkspace *>(qDesigner->mainWindow())) {
+        if (qFindChild<QMdiArea *>(qDesigner->mainWindow())) {
             settings.saveGeometryFor(qDesigner->mainWindow());
             settings.setValue(qDesigner->mainWindow()->objectName() + QLatin1String("/visible"), false);
         }
@@ -835,7 +834,9 @@ void QDesignerWorkbench::formWindowActionTriggered(QAction *a)
     Q_ASSERT(widget != 0);
 
     if (m_mode == DockedMode) {
-        m_workspace->setActiveWindow(widget);
+        if (QMdiSubWindow *subWindow = qobject_cast<QMdiSubWindow *>(widget->parent())) {
+            m_mdiArea->setActiveSubWindow(subWindow);
+        }
     } else {
         widget->setWindowState(widget->windowState() & ~Qt::WindowMinimized);
         widget->activateWindow();
@@ -858,10 +859,10 @@ void QDesignerWorkbench::closeAllToolWindows()
 
 QDockWidget *QDesignerWorkbench::magicalDockWidget(QWidget *widget) const
 {
-    if (!m_workspace)
+    if (!m_mdiArea)
         return 0;
 
-    QDockWidget *dockWidget = qFindChild<QDockWidget*>(m_workspace->window(), widget->objectName() + QLatin1String("_dock"));
+    QDockWidget *dockWidget = qFindChild<QDockWidget*>(m_mdiArea->window(), widget->objectName() + QLatin1String("_dock"));
     return dockWidget;
 }
 
@@ -920,4 +921,30 @@ void QDesignerWorkbench::bringAllToFront()
         raiseWindow(tw);
     foreach(QDesignerFormWindow *dfw, m_formWindows)
         raiseWindow(dfw);
+}
+    
+// Resize a form window taking MDI decorations into account
+void QDesignerWorkbench::resizeForm(QDesignerFormWindow *fw, const QWidget *mainContainer) const
+{
+    const QSize containerSize = mainContainer->size();
+    const QSize containerMinimumSize = mainContainer->minimumSize();
+    const QSize containerMaximumSize = mainContainer->maximumSize();
+    if (m_mode != DockedMode) {
+        fw->resize(containerSize);
+        fw->setMinimumSize(containerMinimumSize);
+        fw->setMaximumSize(containerMaximumSize);
+        return;
+    }
+    // get decorations and resize MDI
+    QMdiSubWindow *mdiSubWindow = qobject_cast<QMdiSubWindow *>(fw->parent());
+    Q_ASSERT(mdiSubWindow);
+    const QSize decorationSize = mdiSubWindow->geometry().size() - mdiSubWindow->contentsRect().size(); // TODO new API
+    mdiSubWindow->resize(containerSize + decorationSize);
+    mdiSubWindow->setMinimumSize(containerMinimumSize + decorationSize);
+    
+    if (containerMaximumSize == QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX)) {
+        mdiSubWindow->setMaximumSize(containerMaximumSize);
+    } else {
+        mdiSubWindow->setMaximumSize(containerMaximumSize + decorationSize);
+    }
 }

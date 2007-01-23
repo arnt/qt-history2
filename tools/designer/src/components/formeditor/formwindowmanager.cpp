@@ -44,7 +44,8 @@ TRANSLATOR qdesigner_internal::FormWindowManager
 #include <QtGui/QMainWindow>
 #include <QtGui/QMenuBar>
 #include <QtGui/QClipboard>
-#include <QtGui/QWorkspace>
+#include <QtGui/QMdiArea>
+#include <QtGui/QMdiSubWindow>
 #include <QtGui/QDesktopWidget>
 
 #include <QtCore/qdebug.h>
@@ -250,16 +251,19 @@ void FormWindowManager::setActiveFormWindow(QDesignerFormWindowInterface *w)
     if (m_activeFormWindow) {
         m_activeFormWindow->emitSelectionChanged();
         m_activeFormWindow->commandHistory()->setActive();
-
-        QWidget *parent = m_activeFormWindow->parentWidget();
-        QWorkspace *workspace = 0;
-        while (parent != 0) {
-            if ((workspace = qobject_cast<QWorkspace*>(parent)))
-                break;
-            parent = parent->parentWidget();
+        // Trigger setActiveSubWindow on mdi area unless we are in toplevel mode
+        QMdiSubWindow *mdiSubWindow = 0;
+        if (QWidget *formwindow = m_activeFormWindow->parentWidget()) {
+            mdiSubWindow = qobject_cast<QMdiSubWindow *>(formwindow->parentWidget());
         }
-        if (workspace != 0)
-            workspace->setActiveWindow(m_activeFormWindow->parentWidget());
+        if (mdiSubWindow) {
+            for (QWidget *parent = mdiSubWindow->parentWidget(); parent; parent = parent->parentWidget()) {
+                if (QMdiArea *mdiArea = qobject_cast<QMdiArea*>(parent)) {
+                    mdiArea->setActiveSubWindow(mdiSubWindow);
+                    break;
+                }
+            }
+        }
     }
 }
 
