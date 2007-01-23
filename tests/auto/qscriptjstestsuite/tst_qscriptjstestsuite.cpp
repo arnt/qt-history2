@@ -91,7 +91,7 @@ void *tst_Suite::qt_metacast(const char *_clname)
 
 static QScriptValue qscript_void(QScriptContext *, QScriptEngine *eng)
 {
-    return eng->undefinedScriptValue();
+    return eng->undefinedValue();
 }
 
 int tst_Suite::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
@@ -107,9 +107,9 @@ int tst_Suite::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
             QString text = readFile(filename);
 
             QScriptEngine eng;
-            eng.globalObject().setProperty("print", eng.scriptValue(qscript_void));
+            eng.globalObject().setProperty("print", eng.newFunction(qscript_void));
             eng.evaluate(readFile(testsDir() + QDir::separator() + QLatin1String("shell.js")));
-            eng.globalObject().setProperty("test", eng.scriptValue(qscript_void));
+            eng.globalObject().setProperty("test", eng.newFunction(qscript_void));
             eng.evaluate(text);
 
             QScriptValue testcases = eng.globalObject().property("testcases");
