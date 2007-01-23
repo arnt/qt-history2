@@ -2577,14 +2577,17 @@ void QLineEditPrivate::init(const QString& txt)
 
 void QLineEditPrivate::updateTextLayout()
 {
-    // replace all non-printable characters with spaces (to avoid
+    // replace certain non-printable characters with spaces (to avoid
     // drawing boxes when using fonts that don't have glyphs for such
     // characters)
     Q_Q(QLineEdit);
     QString str = q->displayText();
     QChar* uc = str.data();
     for (int i = 0; i < (int)str.length(); ++i) {
-        if (!uc[i].isPrint() || uc[i] == QChar::LineSeparator)
+        if ((uc[i] < 0x20 && uc[i] != 0x09)
+            || uc[i] == QChar::LineSeparator
+            || uc[i] == QChar::ParagraphSeparator
+            || uc[i] == QChar::ObjectReplacementCharacter)
             uc[i] = QChar(0x0020);
     }
     textLayout.setFont(q->font());
