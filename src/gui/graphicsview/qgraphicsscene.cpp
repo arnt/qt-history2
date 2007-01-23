@@ -1254,6 +1254,38 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QPointF &pos) const
 }
 
 /*!
+    \internal
+
+    Inserts \a item into \a result if selectionPath collides with it according
+    to \a mode.
+*/
+static void _qt_pathIntersectsItem(const QPainterPath &selectionPath, QGraphicsItem *item,
+                                   Qt::ItemSelectionMode mode, QList<QGraphicsItem *> *result)
+{
+    if (selectionPath.isEmpty())
+        return;
+    
+    QPainterPath path;
+    if (mode == Qt::ContainsItemShape || mode == Qt::IntersectsItemShape) {
+        path = item->mapToScene(item->shape());
+    } else {
+        path.addPolygon(item->mapToScene(item->boundingRect()));
+    }
+    
+    if (path.isEmpty())
+        return;
+
+    bool intersects = selectionPath.intersects(path);
+    if (mode == Qt::IntersectsItemShape || mode == Qt::IntersectsItemBoundingRect) {
+        if (intersects || selectionPath.contains(path.elementAt(0)) || path.contains(selectionPath.elementAt(0))) {
+            *result << item;
+        }
+    } else if (!intersects && selectionPath.contains(path.elementAt(0))) {
+        *result << item;
+    }
+}
+
+/*!
     \fn QList<QGraphicsItem *> QGraphicsScene::items(const QRectF &rectangle, Qt::ItemSelectionMode mode) const
 
     \overload
@@ -1271,26 +1303,14 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QRectF &rect, Qt::ItemSelecti
     Q_D(const QGraphicsScene);
     QList<QGraphicsItem *> itemsInRect;
 
+    QPainterPath rectPath;
+    rectPath.addRect(rect);
+
     // The index returns a rough estimate of what items are inside the rect.
     // Refine it by iterating through all returned items.
-    foreach (QGraphicsItem *item, d->estimateItemsInRect(rect)) {
-        QPainterPath path;
-        if (mode == Qt::ContainsItemShape || mode == Qt::IntersectsItemShape) {
-            path = item->mapToScene(item->shape());
-        } else {
-            path.addPolygon(item->mapToScene(item->boundingRect()));
-        }
+    foreach (QGraphicsItem *item, d->estimateItemsInRect(rect))
+        _qt_pathIntersectsItem(rectPath, item, mode, &itemsInRect);
 
-        bool rectIntersectsItem = path.intersects(rect);
-        bool rectContainsItem = rectIntersectsItem && !path.isEmpty() && rect.contains(path.elementAt(0));
-        bool itemContainsRect = rectIntersectsItem && path.contains(rect.topLeft());
-
-        if (rectIntersectsItem && (mode == Qt::IntersectsItemShape
-                                   || mode == Qt::IntersectsItemBoundingRect
-                                   || (rectContainsItem && !itemContainsRect))) {
-            itemsInRect << item;
-        }
-    }
     d->sortItems(&itemsInRect);
     return itemsInRect;
 }
@@ -1317,14 +1337,14 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QPolygonF &polygon, Qt::ItemS
     Q_D(const QGraphicsScene);
     QList<QGraphicsItem *> itemsInPolygon;
 
+    QPainterPath polyPath;
+    polyPath.addPolygon(polygon);
+    
     // The index returns a rough estimate of what items are inside the rect.
     // Refine it by iterating through all returned items.
-    foreach (QGraphicsItem *item, d->estimateItemsInRect(polygon.boundingRect())) {
-        QPainterPath polyPath;
-        polyPath.addPolygon(polygon);
-        if (item->collidesWithPath(item->mapFromScene(polyPath), mode))
-            itemsInPolygon << item;
-    }
+    foreach (QGraphicsItem *item, d->estimateItemsInRect(polygon.boundingRect()))
+        _qt_pathIntersectsItem(polyPath, item, mode, &itemsInPolygon);
+
     d->sortItems(&itemsInPolygon);
     return itemsInPolygon;
 }
@@ -1347,10 +1367,9 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QPainterPath &path, Qt::ItemS
 
     // The index returns a rough estimate of what items are inside the rect.
     // Refine it by iterating through all returned items.
-    foreach (QGraphicsItem *item, d->estimateItemsInRect(path.controlPointRect())) {
-        if (item->collidesWithPath(item->mapFromScene(path), mode))
-            tmp << item;
-    }
+    foreach (QGraphicsItem *item, d->estimateItemsInRect(path.controlPointRect()))
+        _qt_pathIntersectsItem(path, item, mode, &tmp);
+
     d->sortItems(&tmp);
     return tmp;
 }

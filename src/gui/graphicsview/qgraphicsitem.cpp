@@ -1947,43 +1947,12 @@ bool QGraphicsItem::collidesWithPath(const QPainterPath &path, Qt::ItemSelection
         // Empty shape? No collision.
         return false;
     }
-    if (thisShape == path) {
-        // When precisely on top of eachother, they collide regardless.
-        return true;
-    }
 
-    // Check for intersections or whether one contains the other.
-    bool checkIntersections = (mode == Qt::IntersectsItemShape || mode == Qt::IntersectsItemBoundingRect);
-    bool pathIntersectsItem = path.contains(thisShape.elementAt(0));
-    if (checkIntersections && pathIntersectsItem)
-        return true;
-    bool itemIntersectsPath = thisShape.contains(path.elementAt(0));
-    if (checkIntersections && itemIntersectsPath)
-        return true;
-
-    // No complete intersections; we need to intersect the path outlines.
-    QPolygonF polyA = thisShape.toFillPolygon();
-    QPolygonF polyB = path.toFillPolygon();
-
-    // Check if any lines intersect, O(N^2).
-    bool outlineIntersects = false;
-    for (int a = 1; !outlineIntersects && a < polyA.size(); ++a) {
-        QLineF lineA(polyA.at(a - 1), polyA.at(a));
-        for (int b = 1; b < polyB.size(); ++b) {
-            QLineF lineB(polyB.at(b - 1), polyB.at(b));
-            if (lineA.intersect(lineB, 0) == QLineF::BoundedIntersection) {
-                outlineIntersects = true;
-                break;
-            }
-        }
-    }
-
-    // Only containment is OK.
-    if (mode == Qt::ContainsItemShape || mode == Qt::ContainsItemBoundingRect)
-        return !outlineIntersects && path.contains(polyA.first());
-
-    // Any intersection or containment is OK.
-    return outlineIntersects || path.contains(polyA.first()) || thisShape.contains(polyB.first());
+    // Use QPainterPath boolean operations to determine the collision, O(N*logN).
+    bool intersects = thisShape.intersects(path);
+    if (mode == Qt::IntersectsItemShape || mode == Qt::IntersectsItemBoundingRect)
+        return intersects || thisShape.contains(path.elementAt(0)) || path.contains(thisShape.elementAt(0));
+    return !intersects && thisShape.contains(path.elementAt(0));
 }
 
 /*!
