@@ -19,10 +19,13 @@
 
     \l {Qtopia Core} applications write directly to the framebuffer,
     eliminating the need for the X Window System and saving
-    memory. For development and debugging purposes, \l {Qtopia Core}
-    provides a virtual framebuffer allowing \l {Qtopia Core}
-    programs to be developed on a desktop machine, without switching
-    between consoles and X11.
+    memory. For development and debugging purposes, a virtual framebuffer
+    can be used, allowing \l {Qtopia Core} programs to be developed on a
+    desktop machine, without switching between consoles and X11.
+
+    QVFb is an X11 application supplied with Qt/X11 that provides a
+    virtual framebuffer for Qtopia Core to use. To use it, you need to
+    \l{Installing Qt/X11}{configure and install Qt/X11} according
 
     \image qtopiacore-virtualframebuffer.png
 
@@ -30,7 +33,7 @@
     memory region and the \c qvfb tool to display the framebuffer in a
     window. The \c qvfb tool also supports a feature known as a skin
     which can be used to change the look and feel of the display. The
-    tool is located in Qt's \c /tools/qvfb directory, and provides
+    tool is located in Qt's \c tools/qvfb directory, and provides
     several additional features accessible through its \gui File and
     \gui View menus.
 
