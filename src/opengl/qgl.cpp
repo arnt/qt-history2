@@ -3438,7 +3438,7 @@ const QGLContext *QGLWidget::context() const
 bool QGLWidget::doubleBuffer() const
 {
     Q_D(const QGLWidget);
-    return d->glcx->format().doubleBuffer();
+    return d->glcx->d_ptr->glFormat.testOption(QGL::DoubleBuffer);
 }
 
 void QGLWidget::setAutoBufferSwap(bool on)
