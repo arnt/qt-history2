@@ -1048,7 +1048,7 @@ while [ "$#" -gt 0 ]; do
 	    NATIVE_64_ARCH=
             case `uname -p` in
             i386) NATIVE_64_ARCH="x86_64" ;;
-            ppc) NATIVE_64_ARCH="ppc64" ;;
+            powerpc) NATIVE_64_ARCH="ppc64" ;;
             *)   echo "WARNING: Can't detect CPU architecture for macx-g++-64" ;;
             esac
 	    if [ ! -z "$NATIVE_64_ARCH" ]; then
