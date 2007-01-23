@@ -557,7 +557,7 @@ QScript::ConnectionQObject::ConnectionQObject(const QMetaMethod &method,
     QScriptEngine *eng = m_slot.engine();
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
     eng_p->qobjectConstructor->newQObject(&m_self, this, true);
-    eng->addRootObject(m_self);
+    m_self.ref();
 
     QObject *qobject = static_cast<QtFunction*>(QScriptValueImpl::get(sender)->toFunction())->object();
     Q_ASSERT(qobject);
@@ -566,9 +566,7 @@ QScript::ConnectionQObject::ConnectionQObject(const QMetaMethod &method,
 
 QScript::ConnectionQObject::~ConnectionQObject()
 {
-    QScriptEngine *eng = m_slot.engine();
-    if (!eng->rootObjects().isEmpty())
-        eng->removeRootObject(m_self);
+    m_self.deref();
 }
 
 static const uint qt_meta_data_ConnectionQObject[] = {

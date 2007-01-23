@@ -110,10 +110,6 @@
   scriptValueFromQObject() and QScriptable; see the documentation for
   QScriptable for details.
 
-  Use addRootObject() to register a QScriptValue as root object,
-  removeRootObject() to unregister it, and rootObjects() to get a list
-  of the engine's root objects.
-
   You can extend the C++ types recognized by QScriptEngine by calling
   qScriptRegisterMetaType(). You provide the engine with functions
   that convert between a QScriptValue and the C++ type. Once the type
@@ -636,46 +632,6 @@ QScriptContext *QScriptEngine::currentContext() const
 }
 
 /*!
-  Returns the list of root objects.
-
-  \sa addRootObject()
-*/
-QList<QScriptValue> QScriptEngine::rootObjects() const
-{
-    Q_D(const QScriptEngine);
-    return d->rootObjects;
-}
-
-/*!
-  Registers the given \a object as a root object.
-
-  By making an object a root object, you can ensure that it will not
-  be garbage-collected, even when there are no references to the object
-  in the QScriptEngine's environment (i.e. in the Global Object
-  and/or function activations). For example, if you store a QScriptValue
-  object as a member variable in your C++ class, you should call this
-  function.
-
-  \sa removeRootObject()
-*/
-void QScriptEngine::addRootObject(const QScriptValue &object)
-{
-    Q_D(QScriptEngine);
-    d->addRootObject(object);
-}
-
-/*!
-  Removes the given \a object from the engine's list of root objects.
-
-  \sa addRootObject()
-*/
-void QScriptEngine::removeRootObject(const QScriptValue &object)
-{
-    Q_D(QScriptEngine);
-    d->removeRootObject(object);
-}
-
-/*!
   Returns true if the last invocation of evaluate() resulted in an
   uncaught exception; otherwise returns false.
 
@@ -718,11 +674,9 @@ void QScriptEngine::setDefaultPrototype(int metaTypeId, const QScriptValue &prot
 {
     Q_D(QScriptEngine);
     QScriptCustomTypeInfo info = d->m_customTypes.value(metaTypeId);
-    if (info.prototype.isValid())
-        removeRootObject(info.prototype);
+    info.prototype.deref();
     info.prototype = prototype;
-    if (prototype.isValid())
-        addRootObject(prototype);
+    prototype.ref();
     d->m_customTypes.insert(metaTypeId, info);
 }
 
@@ -773,13 +727,11 @@ void QScriptEngine::registerCustomType(int type, MarshallFunction mf,
 {
     Q_D(QScriptEngine);
     QScriptCustomTypeInfo info = d->m_customTypes.value(type);
-    if (info.prototype.isValid())
-        removeRootObject(info.prototype);
+    info.prototype.deref();
     info.marshall = mf;
     info.demarshall = df;
     info.prototype = prototype;
-    if (prototype.isValid())
-        addRootObject(prototype);
+    prototype.ref();
     d->m_customTypes.insert(type, info);
 }
 

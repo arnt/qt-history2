@@ -147,10 +147,6 @@ public:
 
     QScriptNameId nameId(const QString &value);
 
-    QList<QScriptValue> rootObjects() const;
-    void addRootObject(const QScriptValue &object);
-    void removeRootObject(const QScriptValue &object);
-
 #ifndef QT_NO_MEMBER_TEMPLATES
     template <typename T>
     inline QScriptValue scriptValueFromValue(const T &value)

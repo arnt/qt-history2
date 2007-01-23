@@ -135,6 +135,9 @@ public:
     QScriptValue call(const QScriptValue &thisObject = QScriptValue(),
                       const QScriptValueList &args = QScriptValueList());
 
+    void ref() const;
+    void deref() const;
+
     void mark(int generation) const; // ### kill me
 
 private:

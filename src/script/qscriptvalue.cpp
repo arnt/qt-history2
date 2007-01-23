@@ -1170,3 +1170,43 @@ bool QScriptValue::isValid() const
 {
     return m_class && m_class->engine();
 }
+
+/*!
+  Increases the reference count of this QScriptValue by one.
+
+  This function provides a way to ensure that the value is not garbage
+  collected, even if the value is not reachable from the script
+  environment (e.g. by tracing properties of the Global Object or
+  local variables).
+
+  Call this function if you are storing the QScriptValue as a member
+  in your class, or otherwise need to make sure that this particular
+  value is not garbage collected over a period of time.
+
+  You should call deref() when the value is no longer needed.
+
+  \sa deref()
+*/
+void QScriptValue::ref() const
+{
+    if (isValid()) {
+        QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+        eng_p->addReference(*this);
+    }
+}
+
+/*!
+  Decreases the reference count of this QScriptValue by one.
+
+  Use this function in combination with ref() to ensure that
+  a QScriptValue is not garbage collected.
+
+  \sa ref()
+*/
+void QScriptValue::deref() const
+{
+    if (isValid()) {
+        QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+        eng_p->removeReference(*this);
+    }
+}

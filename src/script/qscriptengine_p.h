@@ -417,8 +417,8 @@ public:
     QScriptNameIdImpl *toStringEntry(const QString &s);
     QScriptNameIdImpl *insertStringEntry(const QString &s);
 
-    void addRootObject(const QScriptValue &object);
-    void removeRootObject(const QScriptValue &object);
+    void addReference(const QScriptValue &object);
+    void removeReference(const QScriptValue &object);
 
     QScriptValue create(int type, const void *ptr);
     bool convert(const QScriptValue &value, int type, void *ptr);

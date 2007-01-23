@@ -924,7 +924,7 @@ QScriptValue QScriptEnginePrivate::newArray(const QScript::Array &value)
     return v;
 }
 
-void QScriptEnginePrivate::addRootObject(const QScriptValue &object)
+void QScriptEnginePrivate::addReference(const QScriptValue &object)
 {
     if (! object.isObject())
         return;
@@ -945,9 +945,9 @@ void QScriptEnginePrivate::addRootObject(const QScriptValue &object)
     rootObjectRefs.append(1);
 }
 
-void QScriptEnginePrivate::removeRootObject(const QScriptValue &object)
+void QScriptEnginePrivate::removeReference(const QScriptValue &object)
 {
-    if (! object.isObject())
+    if (! object.isObject() || rootObjects.isEmpty())
         return;
 
     QMutexLocker locker(&rootMutex);
