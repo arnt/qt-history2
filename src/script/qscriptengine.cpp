@@ -196,6 +196,8 @@ QScriptEngine::~QScriptEngine()
 }
 
 /*!
+  \internal
+
   Returns a unique name identifier for the given \a name.
   The identifier can be used to access properties of a
   QScriptValue.

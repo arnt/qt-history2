@@ -644,6 +644,8 @@ QObject *QScriptValue::toQObject() const
 }
 
 /*!
+  \internal
+
   Returns the value of this QScriptValue's property identified by \a nameId,
   using the given \a mode to resolve the property.
 
@@ -678,6 +680,8 @@ QScriptValue QScriptValue::property(const QScriptNameId &nameId,
 }
 
 /*!
+  \internal
+
   Sets the value of this QScriptValue's property identified by \a nameId to
   the given \a value.
 
