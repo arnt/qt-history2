@@ -364,6 +364,8 @@ QByteArray QFileDialog::saveState() const
 
     Typically this is used in conjunction with QSettings to restore the size
     from a past session.
+
+    Returns false if there are errors
 */
 bool QFileDialog::restoreState(const QByteArray &state)
 {
@@ -431,6 +433,12 @@ void QFileDialogPrivate::_q_goToUrl(const QUrl &url)
 */
 
 /*!
+    \fn void QFileDialog::setDirectory(const QDir &directory)
+
+    \overload
+*/
+
+/*!
     Sets the file dialog's current \a directory.
 */
 void QFileDialog::setDirectory(const QString &directory)
@@ -482,7 +490,6 @@ void QFileDialog::selectFile(const QString &filename)
         text.remove(current);
     }
     index = d->model->index(text);
-
 
     if (index.isValid()) {
         d->listView->selectionModel()->select(index, QItemSelectionModel::Select | QItemSelectionModel::Rows);
