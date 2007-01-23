@@ -1,3 +1,4 @@
+
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
@@ -95,7 +96,8 @@ public:
         num_copies(1),
         printToFile(false),
         fullPage(false),
-        reinit(false)
+	reinit(false),
+	pageMarginsSet(false)
     {
     }
 
@@ -160,8 +162,9 @@ public:
     void updateOrigin();
 
     void initDevRects();
-
-
+    void setPageMargins(int margin_left, int margin_top, int margin_right, int margin_bottom);
+    QRect getPageMargins();
+    
     // Windows GDI printer references.
     HANDLE hPrinter;
 
@@ -186,7 +189,18 @@ public:
     QPrinter::PrinterState state;
     int resolution;
 
+    // This QRect is used to store the exact values
+    // entered into the PageSetup Dialog because those are
+    // entered in mm but are since converted to device coordinates.
+    // If they were to be converted back when displaying the dialog
+    // again, there would be inaccuracies so when the user entered 10
+    // it may show up as 9.99 the next time the dialog is opened.
+    // We don't want that confusion.
+    QRect previousDialogMargins;
+
+    bool pageMarginsSet;
     QRect devPageRect;
+    QRect devPhysicalPageRect;
     QRect devPaperRect;
     qreal stretch_x;
     qreal stretch_y;

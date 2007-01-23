@@ -28,8 +28,6 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
 
 }
 
-
-
 int QPageSetupDialog::exec()
 {
     Q_D(QPageSetupDialog);
@@ -55,10 +53,11 @@ int QPageSetupDialog::exec()
     QRect paperRect = d->printer->paperRect();
     QRect pageRect = d->printer->pageRect();
 
-    psd.rtMargin.left   = paperRect.left() - pageRect.left();
-    psd.rtMargin.top    = paperRect.top() - pageRect.top();
-    psd.rtMargin.right  = paperRect.right() - pageRect.right();
-    psd.rtMargin.bottom = paperRect.bottom() - pageRect.bottom();
+    QRect marginRect = ep->getPageMargins();
+    psd.rtMargin.left   = marginRect.left();
+    psd.rtMargin.top    = marginRect.top();
+    psd.rtMargin.right  = marginRect.width();
+    psd.rtMargin.bottom = marginRect.height();
 
     psd.Flags = PSD_INHUNDREDTHSOFMILLIMETERS
                 | PSD_MARGINS;
@@ -70,6 +69,16 @@ int QPageSetupDialog::exec()
     if (result) {
         ep->readDevnames(psd.hDevNames);
         ep->readDevmode(psd.hDevMode);
+
+        QRect theseMargins = QRect(psd.rtMargin.left, psd.rtMargin.top,
+                                   psd.rtMargin.right, psd.rtMargin.bottom);
+
+        if (theseMargins != marginRect) {
+            ep->setPageMargins(psd.rtMargin.left,
+                               psd.rtMargin.top,
+                               psd.rtMargin.right,
+                               psd.rtMargin.bottom);
+        }
     }
 
     GlobalFree(tempDevNames);
