@@ -104,8 +104,8 @@ bool Qt::mightBeRichText(const QString& text)
 
     \code
         QString plain = "#include <QtCore>"
-	QString html = Qt::escape(plain);
-	// html == "#include &lt;QtCore&gt;"
+        QString html = Qt::escape(plain);
+        // html == "#include &lt;QtCore&gt;"
     \endcode
 
     This function is defined in the \c <QTextDocument> header file.
@@ -1325,7 +1325,7 @@ void QTextDocument::print(QPrinter *printer) const
         scaledPageSize.rwidth() *= dpiScaleX;
         scaledPageSize.rheight() *= dpiScaleY;
 
-        const QSizeF printerPageSize(printer->width(), printer->height());
+        const QSizeF printerPageSize(printer->pageRect().size());
 
         // scale to page
         p.scale(printerPageSize.width() / scaledPageSize.width(),
