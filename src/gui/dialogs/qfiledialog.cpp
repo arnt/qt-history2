@@ -1173,7 +1173,6 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
 
     // create a qt dialog
     QFileDialog dialog(args);
-    dialog.setModal(true);
     if (selectedFilter)
         dialog.selectFilter(*selectedFilter);
     if (dialog.exec() == QDialog::Accepted) {
@@ -1269,7 +1268,6 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
 
     // create a qt dialog
     QFileDialog dialog(args);
-    dialog.setModal(true);
     if (selectedFilter)
         dialog.selectFilter(*selectedFilter);
     if (dialog.exec() == QDialog::Accepted) {
@@ -1350,7 +1348,6 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
 
     // create a qt dialog
     QFileDialog dialog(args);
-    dialog.setModal(true);
     dialog.setAcceptMode(AcceptSave);
     dialog.setDetailsExpanded(false);
     dialog.resize(dialog.width(), dialog.sizeHint().height());
@@ -1430,7 +1427,6 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
 
     // create a qt dialog
     QFileDialog dialog(args);
-    dialog.setModal(true);
     if (dialog.exec() == QDialog::Accepted) {
         QString result = dialog.selectedFiles().value(0);
         if (!result.isEmpty() && result.right(1) != QLatin1String("/"))
