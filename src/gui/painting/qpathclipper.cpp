@@ -1785,7 +1785,9 @@ QPainterPath QPathClipper::clip(Operation op)
             }
             break;
         case QPathClipper::BoolSub:
-            if (clipInSubject || subjectInClip) {
+            if (subjectInClip) {
+                return QPainterPath();
+            } else if (clipInSubject) {
                 result = d->subjectPath;
                 result.addPath(d->clipPath);
             } else {
