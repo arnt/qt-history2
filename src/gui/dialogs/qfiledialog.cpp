@@ -197,17 +197,25 @@
     \sa currentChanged()
 */
 
-
 /*!
-  \fn void QFileDialog::dirEntered(const QString &)
+    \fn void QFileDialog::currentChanged(const QString &path)
 
-  This signal is emitted when the user enters a directory.
+    When the current file changes, this signal is emitted with the
+    new file name as the \a path parameter.
+
+    \sa filesSelected()
 */
 
 /*!
-  \fn void QFileDialog::filterSelected(const QString &)
+  \fn void QFileDialog::dirEntered(const QString &directory)
 
-  This signal is emitted when the user selects a filter.
+  This signal is emitted when the user enters a \a directory.
+*/
+
+/*!
+  \fn void QFileDialog::filterSelected(const QString &filter)
+
+  This signal is emitted when the user selects a \a filter.
 */
 
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC)
@@ -254,7 +262,7 @@ QFileDialog::QFileDialog(QWidget *parent,
 }
 
 /*!
-    Destroys the file dialog.
+    \internal
 */
 QFileDialog::QFileDialog(const QFileDialogArgs &args)
     : QDialog(*new QFileDialogPrivate, args.parent, 0)
@@ -284,7 +292,7 @@ QFileDialog::QFileDialog(const QFileDialogArgs &args)
 }
 
 /*!
-    \reimp
+    Destroys the file dialog.
 */
 QFileDialog::~QFileDialog()
 {
