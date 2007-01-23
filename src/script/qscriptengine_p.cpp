@@ -303,10 +303,10 @@ void QScriptEnginePrivate::markObject(const QScriptValue &object, int generation
     if (QScriptClassData *data = object.m_class->data())
         data->mark(object, generation);
 
-    if (isValid(instance->m_prototype) && isObject(instance->m_prototype))
+    if (isObject(instance->m_prototype))
         markObject(instance->m_prototype, generation);
 
-    if (isValid(instance->m_scope) && isObject(instance->m_scope))
+    if (isObject(instance->m_scope))
         markObject(instance->m_scope, generation);
 
     const QScriptValue &internalValue = instance->m_internalValue;
@@ -382,16 +382,16 @@ void QScriptEnginePrivate::markFrame(QScriptContext *context, int generation)
     if (QScriptContextPrivate::get(context)->functionNameId)
         markString(QScriptContextPrivate::get(context)->functionNameId, generation);
 
-    if (isValid(activation) && isObject(activation))
+    if (isObject(activation))
         markObject(activation, generation);
 
-    if (isValid(scopeChain) && isObject(scopeChain))
+    if (isObject(scopeChain))
         markObject(scopeChain, generation);
 
-    if (isValid(thisObject) && isObject(thisObject))
+    if (isObject(thisObject))
         markObject(thisObject, generation);
 
-    if (isValid(callee) && isObject(callee))
+    if (isObject(callee))
         markObject(callee, generation);
 
     if (isValid(context->returnValue())) {
