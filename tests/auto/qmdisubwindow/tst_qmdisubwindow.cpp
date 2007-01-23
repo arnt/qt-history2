@@ -466,10 +466,12 @@ void tst_QMdiSubWindow::iconSize()
     options.initFrom(window);
     int width = window->style()->pixelMetric(QStyle::PM_MDIMinimizedWidth);
     int height = window->style()->pixelMetric(QStyle::PM_TitleBarHeight, &options);
-#if defined(Q_WS_MAC)
     // ### Remove this after Mac style has been fixed
-    height -= 4;
-#endif
+    if (window->style()->inherits("QMacStyle"))
+        height -= 4;
+    // has border
+    if (!window->style()->styleHint(QStyle::SH_TitleBar_NoBorder, &options, window))
+        height += window->isMinimized() ? 8 : 4;
     QCOMPARE(window->iconSize(), QSize(width, height));
 
     window->setWindowFlags(window->windowFlags() | Qt::FramelessWindowHint);
@@ -763,10 +765,12 @@ void tst_QMdiSubWindow::mouseDoubleClick()
     QStyleOptionTitleBar options;
     options.initFrom(window);
     int height = window->style()->pixelMetric(QStyle::PM_TitleBarHeight, &options);
-#if defined(Q_WS_MAC)
     // ### Remove this after mac style has been fixed
-    height -= 4;
-#endif
+    if (window->style()->inherits("QMacStyle"))
+        height -= 4;
+    // has border
+    if (!window->style()->styleHint(QStyle::SH_TitleBar_NoBorder, &options, window))
+        height += window->isMinimized() ? 8 : 4;
     QPoint mousePosition(window->width() / 2, height - 1);
     sendMouseMove(window, mousePosition, Qt::NoButton);
 
