@@ -134,6 +134,7 @@ private slots:
     void setSystemMenu();
     void restoreFocus();
     void changeFocusWithTab();
+    void closeEvent();
 };
 
 void tst_QMdiSubWindow::initTestCase()
@@ -1001,6 +1002,54 @@ void tst_QMdiSubWindow::changeFocusWithTab()
     QTest::keyPress(window, Qt::Key_Tab);
     QCOMPARE(mdiArea.activeSubWindow(), window);
     QCOMPARE(qApp->focusWidget(), window->widget());
+}
+
+class MyTextEdit : public QTextEdit
+{
+public:
+    MyTextEdit(QWidget *parent = 0) : QTextEdit(parent), acceptClose(false) {}
+    void setAcceptClose(bool enable = true) { acceptClose = enable; }
+protected:
+    void closeEvent(QCloseEvent *closeEvent)
+    {
+        if (!acceptClose)
+            closeEvent->ignore();
+    }
+
+private:
+    bool acceptClose;
+};
+
+void tst_QMdiSubWindow::closeEvent()
+{
+    QMdiArea mdiArea;
+    mdiArea.show();
+
+    MyTextEdit *textEdit = new MyTextEdit;
+    textEdit->setAcceptClose(false);
+    QMdiSubWindow *window = mdiArea.addSubWindow(textEdit);
+    EventSpy closeSpy(window->widget(), QEvent::Close);
+    window->show();
+
+    QCOMPARE(closeSpy.count(), 0);
+    QVERIFY(window->isVisible());
+    QVERIFY(textEdit->isVisible());
+
+    QVERIFY(!window->close());
+    QCOMPARE(closeSpy.count(), 1);
+    QVERIFY(window->isVisible());
+    QVERIFY(textEdit->isVisible());
+
+    QVERIFY(!textEdit->close());
+    QCOMPARE(closeSpy.count(), 2);
+    QVERIFY(window->isVisible());
+    QVERIFY(textEdit->isVisible());
+
+    textEdit->setAcceptClose(true);
+
+    QVERIFY(window->close());
+    QCOMPARE(closeSpy.count(), 3);
+    QCOMPARE(mdiArea.subWindowList().count(), 0);
 }
 
 QTEST_MAIN(tst_QMdiSubWindow)

@@ -168,7 +168,7 @@ void tst_QMdiArea::subWindowActivated()
         QCOMPARE(spy.count(), 1);
         spy.clear();
         QVERIFY( activeWindow == window );
-        widget->close();
+        window->close();
         qApp->processEvents();
         QCOMPARE(spy.count(), 1);
         spy.clear();
@@ -188,7 +188,7 @@ void tst_QMdiArea::subWindowActivated()
         QCOMPARE(spy.count(), 1);
         spy.clear();
         QVERIFY( activeWindow == window );
-        widget->close();
+        window->close();
         qApp->processEvents();
         QCOMPARE(spy.count(), 1);
         spy.clear();
@@ -204,7 +204,7 @@ void tst_QMdiArea::subWindowActivated()
         spy.clear();
         QVERIFY( activeWindow == window );
         QVERIFY(workspace->activeSubWindow() == window);
-        widget->close();
+        window->close();
         qApp->processEvents();
         QCOMPARE(spy.count(), 1);
         spy.clear();
@@ -236,11 +236,11 @@ void tst_QMdiArea::subWindowActivatedWithMinimize()
     widget2->showMinimized();
     QVERIFY( activeWindow == window2 );
 
-    widget2->close();
+    window2->close();
     qApp->processEvents();
     QVERIFY( activeWindow == window1 );
 
-    widget->close();
+    window1->close();
     qApp->processEvents();
     QVERIFY(workspace->activeSubWindow() == 0);
     QVERIFY( activeWindow == 0 );
@@ -718,10 +718,10 @@ void tst_QMdiArea::closeWindows()
 
     // Close widget
     QWidget *widget = new QWidget;
-    workspace.addSubWindow(widget);
+    QMdiSubWindow *subWindow = workspace.addSubWindow(widget);
     qApp->processEvents();
     QCOMPARE(workspace.subWindowList().count(), 1);
-    widget->close();
+    subWindow->close();
     QCOMPARE(workspace.subWindowList().count(), 0);
 
     // Close window
