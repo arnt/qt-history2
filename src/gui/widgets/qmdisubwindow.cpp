@@ -1961,11 +1961,6 @@ bool QMdiSubWindow::eventFilter(QObject *object, QEvent *event)
         d->currentOperation = QMdiSubWindowPrivate::None;
         d->updateCursor();
         break;
-    case QEvent::Close:
-        if (d->baseWidget->testAttribute(Qt::WA_DeleteOnClose))
-            d->removeBaseWidget();
-        close();
-        break;
     case QEvent::WindowTitleChange:
         if (d->ignoreWindowTitleChange)
             break;
@@ -2136,6 +2131,13 @@ void QMdiSubWindow::changeEvent(QEvent *changeEvent)
 void QMdiSubWindow::closeEvent(QCloseEvent *closeEvent)
 {
     Q_D(QMdiSubWindow);
+    bool acceptClose = true;
+    if (d->baseWidget)
+        acceptClose = d->baseWidget->close();
+    if (!acceptClose) {
+        closeEvent->ignore();
+        return;
+    }
     d->removeButtonsFromMenuBar();
     d->setActive(false);
     if (parentWidget() && testAttribute(Qt::WA_DeleteOnClose)) {
