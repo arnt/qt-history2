@@ -1558,6 +1558,14 @@ public:
 
     void findIntersections()
     {
+        QRectF subjControl = subjectPath.controlPointRect();
+        QRectF clipControl = clipPath.controlPointRect();
+
+        if (!subjControl.intersects(clipControl)) {
+            // no way we could intersect
+            return;
+        }
+
         PathVertex *lastSubjMove = 0, *lastClipMove = 0;
         for (VertexListHandle subj(*subject); subj ; subj.next()) {
             PathVertex *a = subj.getNode();
