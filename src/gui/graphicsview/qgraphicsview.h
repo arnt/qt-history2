@@ -243,8 +243,8 @@ inline QPoint QGraphicsView::mapFromScene(qreal ax, qreal ay) const
 inline QPolygon QGraphicsView::mapFromScene(qreal ax, qreal ay, qreal w, qreal h) const
 { return mapFromScene(QRectF(ax, ay, w, h)); }
 
-QT_END_HEADER
-
 #endif // QT_NO_GRAPHICSVIEW
 
-#endif
+QT_END_HEADER
+
+#endif // QGRAPHICSVIEW_H
