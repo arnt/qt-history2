@@ -57,7 +57,7 @@ public:
         DontConfirmOverwrite = 0x04,
         DontUseSheet = 0x08,
         DontUseNativeDialog = 0x10,
-        StoreState = 0x12
+        StoreState = 0x20
     };
     Q_DECLARE_FLAGS(Options, Option)
 
