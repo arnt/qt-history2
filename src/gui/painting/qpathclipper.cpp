@@ -1853,3 +1853,17 @@ bool QPathClipper::intersect()
     return (!d->intersections.isEmpty());
 }
 
+bool QPathClipper::contains()
+{
+    d->findIntersections();
+
+    //we have an intersection clearly we can't be fully contained
+    if (!d->intersections.isEmpty())
+        return false;
+
+    //if there's no intersections the path is already completely outside
+    //or fully inside. if the first element of the clip is inside then
+    //due to no intersections, the rest will be inside as well...
+    return d->subjectPath.contains(d->clipPath.elementAt(0));
+}
+

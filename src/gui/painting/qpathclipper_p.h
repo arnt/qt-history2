@@ -46,6 +46,7 @@ public:
 
     QPainterPath clip(Operation op=BoolAnd);
     bool intersect();
+    bool contains();
 private:
     Q_DISABLE_COPY(QPathClipper)
     class Private;

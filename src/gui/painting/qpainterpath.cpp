@@ -2925,10 +2925,24 @@ QPainterPath QPainterPath::subtractedInverted(const QPainterPath &p) const
   \since 4.3
 
   Returns true if the current path intersects at any point the
-  given path \a p.
+  given path \a p. The intersection will return false if the path
+  is fully contained within this path (use contains() to check for that
+  case).
  */
 bool QPainterPath::intersects(const QPainterPath &p) const
 {
     QPathClipper clipper(*this, p);
     return clipper.intersect();
+}
+
+/*!
+  \since 4.3
+
+  Returns true if the given path \p is contained within
+  the current path.
+ */
+bool QPainterPath::contains(const QPainterPath &p) const
+{
+    QPathClipper clipper(*this, p);
+    return clipper.contains();
 }
