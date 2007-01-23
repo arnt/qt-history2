@@ -133,75 +133,76 @@ void tst_QTextLayout::lineBreaking()
 	uchar breaks[32];
     };
     Breaks brks[] = {
-	{ "11", { false, false, 0xff } },
-	{ "aa", { false, false, 0xff } },
-	{ "++", { false, false, 0xff } },
-	{ "--", { false, false, 0xff } },
-	{ "((", { false, false, 0xff } },
-	{ "))", { false, false, 0xff } },
-	{ "..", { false, false, 0xff } },
-	{ "\"\"", { false, false, 0xff } },
-	{ "$$", { false, false, 0xff } },
-	{ "!!", { false, false, 0xff } },
-	{ "??", { false, false, 0xff } },
-	{ ",,", { false, false, 0xff } },
+	{ "11", { false, 0xff } },
+	{ "aa", { false, 0xff } },
+	{ "++", { false, 0xff } },
+	{ "--", { false, 0xff } },
+	{ "((", { false, 0xff } },
+	{ "))", { false, 0xff } },
+	{ "..", { false, 0xff } },
+	{ "\"\"", { false, 0xff } },
+	{ "$$", { false, 0xff } },
+	{ "!!", { false, 0xff } },
+	{ "??", { false, 0xff } },
+	{ ",,", { false, 0xff } },
 
-	{ ")()", { false, true, false, 0xff } },
-	{ "?!?", { false, false, false, 0xff } },
-	{ ".,.", { false, false, false, 0xff } },
-	{ "+-+", { false, false, false, 0xff } },
-	{ "+=+", { false, false, false, 0xff } },
-	{ "+(+", { false, false, false, 0xff } },
-	{ "+)+", { false, false, false, 0xff } },
+	{ ")()", { true, false, 0xff } },
+	{ "?!?", { false, false, 0xff } },
+	{ ".,.", { false, false, 0xff } },
+	{ "+-+", { false, false, 0xff } },
+	{ "+=+", { false, false, 0xff } },
+	{ "+(+", { false, false, 0xff } },
+	{ "+)+", { false, false, 0xff } },
 
-	{ "a b", { false, false, true, 0xff } },
-	{ "a(b", { false, false, false, 0xff } },
-	{ "a)b", { false, false, false, 0xff } },
-	{ "a-b", { false, false, false, 0xff } },
-	{ "a.b", { false, false, false, 0xff } },
-	{ "a+b", { false, false, false, 0xff } },
-	{ "a?b", { false, false, false, 0xff } },
-	{ "a!b", { false, false, false, 0xff } },
-	{ "a$b", { false, false, false, 0xff } },
-	{ "a,b", { false, false, false, 0xff } },
-	{ "a/b", { false, false, false, 0xff } },
-	{ "1/2", { false, false, false, 0xff } },
-	{ "./.", { false, false, false, 0xff } },
-	{ ",/,", { false, false, false, 0xff } },
-	{ "!/!", { false, false, false, 0xff } },
-	{ "\\/\\", { false, false, false, 0xff } },
-	{ "1 2", { false, false, true, 0xff } },
-	{ "1(2", { false, true, false, 0xff } },
-	{ "1)2", { false, false, true, 0xff } },
-	{ "1-2", { false, false, false, 0xff } },
-	{ "1.2", { false, false, false, 0xff } },
-	{ "1+2", { false, false, false, 0xff } },
-	{ "1?2", { false, false, false, 0xff } },
-	{ "1!2", { false, false, false, 0xff } },
-	{ "1$2", { false, false, false, 0xff } },
-	{ "1,2", { false, false, false, 0xff } },
-	{ "1/2", { false, false, false, 0xff } },
-	{ "\330\260\331\216\331\204\331\220\331\203\331\216", { false, false, false, false, false, false, 0xff } },
-	{ "\330\247\331\204\331\205 \330\247\331\204\331\205", { false, false, false, false, true, false, false, 0xff } },
-	{ "1#2", { false, false, false, 0xff } },
-	{ "!#!", { false, false, false, 0xff } },
+	{ "a b", { false, true, 0xff } },
+	{ "a(b", { false, false, 0xff } },
+	{ "a)b", { false, false, 0xff } },
+	{ "a-b", { false, true, 0xff } },
+	{ "a.b", { false, false, 0xff } },
+	{ "a+b", { false, false, 0xff } },
+	{ "a?b", { false, false, 0xff } },
+	{ "a!b", { false, false, 0xff } },
+	{ "a$b", { false, false, 0xff } },
+	{ "a,b", { false, false, 0xff } },
+	{ "a/b", { false, false, 0xff } },
+	{ "1/2", { false, false, 0xff } },
+	{ "./.", { false, false, 0xff } },
+	{ ",/,", { false, false, 0xff } },
+	{ "!/!", { false, false, 0xff } },
+	{ "\\/\\", { false, false, 0xff } },
+	{ "1 2", { false, true, 0xff } },
+	{ "1(2", { false, false, 0xff } },
+	{ "1)2", { false, false, 0xff } },
+	{ "1-2", { false, false, 0xff } },
+	{ "1.2", { false, false, 0xff } },
+	{ "1+2", { false, false, 0xff } },
+	{ "1?2", { false, true, 0xff } },
+	{ "1!2", { false, true, 0xff } },
+	{ "1$2", { false, false, 0xff } },
+	{ "1,2", { false, false, 0xff } },
+	{ "1/2", { false, false, 0xff } },
+	{ "\330\260\331\216\331\204\331\220\331\203\331\216", { false, false, false, false, false, 0xff } },
+	{ "\330\247\331\204\331\205 \330\247\331\204\331\205", { false, false, false, true, false, false, 0xff } },
+	{ "1#2", { false, false, 0xff } },
+	{ "!#!", { false, false, 0xff } },
 	{ 0, {} }
     };
     Breaks *b = brks;
     while (b->utf8) {
-	QString str = QString::fromUtf8(b->utf8);
-	QTextEngine engine(str, QFont());
-	const QCharAttributes *attrs = engine.attributes();
-	int i;
-	for (i = 0; i < (int)str.length(); ++i) {
-	    QVERIFY(b->breaks[i] != 0xff);
-	    if ( (bool)attrs[i].softBreak != (bool)b->breaks[i] ) {
-		qDebug("test case \"%s\" failed at char %d", b->utf8, i);
-		QCOMPARE( (bool)attrs[i].softBreak, (bool)b->breaks[i] );
-	    }
-	}
-	QCOMPARE(b->breaks[i], (uchar)0xff);
-	++b;
+        QString str = QString::fromUtf8(b->utf8);
+        QTextEngine engine(str, QFont());
+        const QCharAttributes *attrs = engine.attributes();
+        int i;
+        for (i = 0; i < (int)str.length() - 1; ++i) {
+            QVERIFY(b->breaks[i] != 0xff);
+            if ( (attrs[i].lineBreakType != QCharAttributes::NoBreak) != (bool)b->breaks[i] ) {
+                qDebug("test case \"%s\" failed at char %d; break type: %d", b->utf8, i, attrs[i].lineBreakType);
+                QCOMPARE( (attrs[i].lineBreakType != QCharAttributes::NoBreak), (bool)b->breaks[i] );
+            }
+        }
+        QVERIFY(attrs[i].lineBreakType == QCharAttributes::ForcedBreak);
+        QCOMPARE(b->breaks[i], (uchar)0xff);
+        ++b;
     }
 #else
     QSKIP("This test can not be run on non-X11 platforms", SkipAll);
