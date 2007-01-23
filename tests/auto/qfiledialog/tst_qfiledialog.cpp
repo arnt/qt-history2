@@ -286,7 +286,7 @@ void tst_QFiledialog::selectFile()
     QFileDialog fd;
 
     // default value
-    QCOMPARE(fd.selectedFiles(), QStringList());
+    QCOMPARE(fd.selectedFiles().count(), 1);
 }
 
 void tst_QFiledialog::viewMode()
