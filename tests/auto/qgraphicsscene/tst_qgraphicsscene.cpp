@@ -462,64 +462,65 @@ void tst_QGraphicsScene::items_QRectF_2_data()
     QTest::addColumn<QRectF>("sceneRect");
     QTest::addColumn<Qt::ItemSelectionMode>("selectionMode");
     QTest::addColumn<bool>("contained");
+    QTest::addColumn<bool>("containedRotated");
 
     // None of the rects contain the ellipse's shape nor bounding rect
-    QTest::newRow("1") << QRectF(0, 0, 100, 100) << QRectF(1, 1, 10, 10) << Qt::ContainsItemShape << false;
-    QTest::newRow("2") << QRectF(0, 0, 100, 100) << QRectF(1, 89, 10, 10) << Qt::ContainsItemShape << false;
-    QTest::newRow("3") << QRectF(0, 0, 100, 100) << QRectF(89, 1, 10, 10) << Qt::ContainsItemShape << false;
-    QTest::newRow("4") << QRectF(0, 0, 100, 100) << QRectF(89, 89, 10, 10) << Qt::ContainsItemShape << false;
-    QTest::newRow("5") << QRectF(0, 0, 100, 100) << QRectF(1, 1, 10, 10) << Qt::ContainsItemBoundingRect << false;
-    QTest::newRow("6") << QRectF(0, 0, 100, 100) << QRectF(1, 89, 10, 10) << Qt::ContainsItemBoundingRect << false;
-    QTest::newRow("7") << QRectF(0, 0, 100, 100) << QRectF(89, 1, 10, 10) << Qt::ContainsItemBoundingRect << false;
-    QTest::newRow("8") << QRectF(0, 0, 100, 100) << QRectF(89, 89, 10, 10) << Qt::ContainsItemBoundingRect << false;
-    QTest::newRow("9") << QRectF(0, 0, 100, 100) << QRectF(0, 0, 50, 50) << Qt::ContainsItemShape << false;
-    QTest::newRow("10") << QRectF(0, 0, 100, 100) << QRectF(0, 50, 50, 50) << Qt::ContainsItemShape << false;
-    QTest::newRow("11") << QRectF(0, 0, 100, 100) << QRectF(50, 0, 50, 50) << Qt::ContainsItemShape << false;
-    QTest::newRow("12") << QRectF(0, 0, 100, 100) << QRectF(50, 50, 50, 50) << Qt::ContainsItemShape << false;
-    QTest::newRow("13") << QRectF(0, 0, 100, 100) << QRectF(0, 0, 50, 50) << Qt::ContainsItemBoundingRect << false;
-    QTest::newRow("14") << QRectF(0, 0, 100, 100) << QRectF(0, 50, 50, 50) << Qt::ContainsItemBoundingRect << false;
-    QTest::newRow("15") << QRectF(0, 0, 100, 100) << QRectF(50, 0, 50, 50) << Qt::ContainsItemBoundingRect << false;
-    QTest::newRow("16") << QRectF(0, 0, 100, 100) << QRectF(50, 50, 50, 50) << Qt::ContainsItemBoundingRect << false;
-    QTest::newRow("17") << QRectF(0, 0, 100, 100) << QRectF(-50, -50, 100, 100) << Qt::ContainsItemShape << false;
-    QTest::newRow("18") << QRectF(0, 0, 100, 100) << QRectF(0, -50, 100, 100) << Qt::ContainsItemShape << false;
-    QTest::newRow("19") << QRectF(0, 0, 100, 100) << QRectF(-50, 0, 100, 100) << Qt::ContainsItemShape << false;
-    QTest::newRow("20") << QRectF(0, 0, 100, 100) << QRectF(0, 0, 100, 100) << Qt::ContainsItemShape << false;
-    QTest::newRow("21") << QRectF(0, 0, 100, 100) << QRectF(-50, -50, 100, 100) << Qt::ContainsItemBoundingRect << false;
-    QTest::newRow("22") << QRectF(0, 0, 100, 100) << QRectF(0, -50, 100, 100) << Qt::ContainsItemBoundingRect << false;
-    QTest::newRow("23") << QRectF(0, 0, 100, 100) << QRectF(-50, 0, 100, 100) << Qt::ContainsItemBoundingRect << false;
-    QTest::newRow("24") << QRectF(0, 0, 100, 100) << QRectF(0, 0, 100, 100) << Qt::ContainsItemBoundingRect << false;
+    QTest::newRow("1") << QRectF(0, 0, 100, 100) << QRectF(1, 1, 10, 10) << Qt::ContainsItemShape << false << false;
+    QTest::newRow("2") << QRectF(0, 0, 100, 100) << QRectF(1, 89, 10, 10) << Qt::ContainsItemShape << false << false;
+    QTest::newRow("3") << QRectF(0, 0, 100, 100) << QRectF(89, 1, 10, 10) << Qt::ContainsItemShape << false << false;
+    QTest::newRow("4") << QRectF(0, 0, 100, 100) << QRectF(89, 89, 10, 10) << Qt::ContainsItemShape << false << false;
+    QTest::newRow("5") << QRectF(0, 0, 100, 100) << QRectF(1, 1, 10, 10) << Qt::ContainsItemBoundingRect << false << false;
+    QTest::newRow("6") << QRectF(0, 0, 100, 100) << QRectF(1, 89, 10, 10) << Qt::ContainsItemBoundingRect << false << false;
+    QTest::newRow("7") << QRectF(0, 0, 100, 100) << QRectF(89, 1, 10, 10) << Qt::ContainsItemBoundingRect << false << false;
+    QTest::newRow("8") << QRectF(0, 0, 100, 100) << QRectF(89, 89, 10, 10) << Qt::ContainsItemBoundingRect << false << false;
+    QTest::newRow("9") << QRectF(0, 0, 100, 100) << QRectF(0, 0, 50, 50) << Qt::ContainsItemShape << false << false;
+    QTest::newRow("10") << QRectF(0, 0, 100, 100) << QRectF(0, 50, 50, 50) << Qt::ContainsItemShape << false << false;
+    QTest::newRow("11") << QRectF(0, 0, 100, 100) << QRectF(50, 0, 50, 50) << Qt::ContainsItemShape << false << false;
+    QTest::newRow("12") << QRectF(0, 0, 100, 100) << QRectF(50, 50, 50, 50) << Qt::ContainsItemShape << false << false;
+    QTest::newRow("13") << QRectF(0, 0, 100, 100) << QRectF(0, 0, 50, 50) << Qt::ContainsItemBoundingRect << false << false;
+    QTest::newRow("14") << QRectF(0, 0, 100, 100) << QRectF(0, 50, 50, 50) << Qt::ContainsItemBoundingRect << false << false;
+    QTest::newRow("15") << QRectF(0, 0, 100, 100) << QRectF(50, 0, 50, 50) << Qt::ContainsItemBoundingRect << false << false;
+    QTest::newRow("16") << QRectF(0, 0, 100, 100) << QRectF(50, 50, 50, 50) << Qt::ContainsItemBoundingRect << false << false;
+    QTest::newRow("17") << QRectF(0, 0, 100, 100) << QRectF(-50, -50, 100, 100) << Qt::ContainsItemShape << false << false;
+    QTest::newRow("18") << QRectF(0, 0, 100, 100) << QRectF(0, -50, 100, 100) << Qt::ContainsItemShape << false << false;
+    QTest::newRow("19") << QRectF(0, 0, 100, 100) << QRectF(-50, 0, 100, 100) << Qt::ContainsItemShape << false << false;
+    QTest::newRow("20") << QRectF(0, 0, 100, 100) << QRectF(0, 0, 100, 100) << Qt::ContainsItemShape << false << false;
+    QTest::newRow("21") << QRectF(0, 0, 100, 100) << QRectF(-50, -50, 100, 100) << Qt::ContainsItemBoundingRect << false << false;
+    QTest::newRow("22") << QRectF(0, 0, 100, 100) << QRectF(0, -50, 100, 100) << Qt::ContainsItemBoundingRect << false << false;
+    QTest::newRow("23") << QRectF(0, 0, 100, 100) << QRectF(-50, 0, 100, 100) << Qt::ContainsItemBoundingRect << false << false;
+    QTest::newRow("24") << QRectF(0, 0, 100, 100) << QRectF(0, 0, 100, 100) << Qt::ContainsItemBoundingRect << false << false;
 
     // None intersects with the item's shape, but they all intersects with the
     // item's bounding rect.
-    QTest::newRow("25") << QRectF(0, 0, 100, 100) << QRectF(1, 1, 10, 10) << Qt::IntersectsItemShape << false;
-    QTest::newRow("26") << QRectF(0, 0, 100, 100) << QRectF(1, 89, 10, 10) << Qt::IntersectsItemShape << false;
-    QTest::newRow("27") << QRectF(0, 0, 100, 100) << QRectF(89, 1, 10, 10) << Qt::IntersectsItemShape << false;
-    QTest::newRow("28") << QRectF(0, 0, 100, 100) << QRectF(89, 89, 10, 10) << Qt::IntersectsItemShape << false;
-    QTest::newRow("29") << QRectF(0, 0, 100, 100) << QRectF(1, 1, 10, 10) << Qt::IntersectsItemBoundingRect << true;
-    QTest::newRow("30") << QRectF(0, 0, 100, 100) << QRectF(1, 89, 10, 10) << Qt::IntersectsItemBoundingRect << true;
-    QTest::newRow("31") << QRectF(0, 0, 100, 100) << QRectF(89, 1, 10, 10) << Qt::IntersectsItemBoundingRect << true;
-    QTest::newRow("32") << QRectF(0, 0, 100, 100) << QRectF(89, 89, 10, 10) << Qt::IntersectsItemBoundingRect << true;
+    QTest::newRow("25") << QRectF(0, 0, 100, 100) << QRectF(1, 1, 10, 10) << Qt::IntersectsItemShape << false << false;
+    QTest::newRow("26") << QRectF(0, 0, 100, 100) << QRectF(1, 89, 10, 10) << Qt::IntersectsItemShape << false << true;
+    QTest::newRow("27") << QRectF(0, 0, 100, 100) << QRectF(89, 1, 10, 10) << Qt::IntersectsItemShape << false << false;
+    QTest::newRow("28") << QRectF(0, 0, 100, 100) << QRectF(89, 89, 10, 10) << Qt::IntersectsItemShape << false << false;
+    QTest::newRow("29") << QRectF(0, 0, 100, 100) << QRectF(1, 1, 10, 10) << Qt::IntersectsItemBoundingRect << true << true;
+    QTest::newRow("30") << QRectF(0, 0, 100, 100) << QRectF(1, 89, 10, 10) << Qt::IntersectsItemBoundingRect << true << true;
+    QTest::newRow("31") << QRectF(0, 0, 100, 100) << QRectF(89, 1, 10, 10) << Qt::IntersectsItemBoundingRect << true << false;
+    QTest::newRow("32") << QRectF(0, 0, 100, 100) << QRectF(89, 89, 10, 10) << Qt::IntersectsItemBoundingRect << true << false;
 
     // This rect does not contain the shape nor the bounding rect
-    QTest::newRow("33") << QRectF(0, 0, 100, 100) << QRectF(5, 5, 90, 90) << Qt::ContainsItemShape << false;
-    QTest::newRow("34") << QRectF(0, 0, 100, 100) << QRectF(5, 5, 90, 90) << Qt::ContainsItemBoundingRect << false;
+    QTest::newRow("33") << QRectF(0, 0, 100, 100) << QRectF(5, 5, 90, 90) << Qt::ContainsItemShape << false << false;
+    QTest::newRow("34") << QRectF(0, 0, 100, 100) << QRectF(5, 5, 90, 90) << Qt::ContainsItemBoundingRect << false << false;
 
     // It will, however, intersect with both
-    QTest::newRow("35") << QRectF(0, 0, 100, 100) << QRectF(5, 5, 90, 90) << Qt::IntersectsItemShape << true;
-    QTest::newRow("36") << QRectF(0, 0, 100, 100) << QRectF(5, 5, 90, 90) << Qt::IntersectsItemBoundingRect << true;
+    QTest::newRow("35") << QRectF(0, 0, 100, 100) << QRectF(5, 5, 90, 90) << Qt::IntersectsItemShape << true << true;
+    QTest::newRow("36") << QRectF(0, 0, 100, 100) << QRectF(5, 5, 90, 90) << Qt::IntersectsItemBoundingRect << true << true;
 
     // A rect that contains the whole ellipse will both contain and intersect
     // with both the ellipse's shape and bounding rect.
-    QTest::newRow("37") << QRectF(0, 0, 100, 100) << QRectF(-5, -5, 110, 110) << Qt::IntersectsItemBoundingRect << true;
-    QTest::newRow("38") << QRectF(0, 0, 100, 100) << QRectF(-5, -5, 110, 110) << Qt::IntersectsItemShape << true;
-    QTest::newRow("39") << QRectF(0, 0, 100, 100) << QRectF(-5, -5, 110, 110) << Qt::ContainsItemBoundingRect << true;
-    QTest::newRow("40") << QRectF(0, 0, 100, 100) << QRectF(-5, -5, 110, 110) << Qt::ContainsItemShape << true;
+    QTest::newRow("37") << QRectF(0, 0, 100, 100) << QRectF(-5, -5, 110, 110) << Qt::IntersectsItemBoundingRect << true << true;
+    QTest::newRow("38") << QRectF(0, 0, 100, 100) << QRectF(-5, -5, 110, 110) << Qt::IntersectsItemShape << true << true;
+    QTest::newRow("39") << QRectF(0, 0, 100, 100) << QRectF(-5, -5, 110, 110) << Qt::ContainsItemBoundingRect << true << false;
+    QTest::newRow("40") << QRectF(0, 0, 100, 100) << QRectF(-5, -5, 110, 110) << Qt::ContainsItemShape << true << false;
 
     // A rect that is fully contained within the ellipse will intersect only
-    QTest::newRow("41") << QRectF(0, 0, 100, 100) << QRectF(40, 40, 20, 20) << Qt::ContainsItemShape << false;
-    QTest::newRow("42") << QRectF(0, 0, 100, 100) << QRectF(40, 40, 20, 20) << Qt::ContainsItemBoundingRect << false;
-    QTest::newRow("43") << QRectF(0, 0, 100, 100) << QRectF(40, 40, 20, 20) << Qt::IntersectsItemShape << true;
-    QTest::newRow("44") << QRectF(0, 0, 100, 100) << QRectF(40, 40, 20, 20) << Qt::IntersectsItemBoundingRect << true;
+    QTest::newRow("41") << QRectF(0, 0, 100, 100) << QRectF(40, 40, 20, 20) << Qt::ContainsItemShape << false << false;
+    QTest::newRow("42") << QRectF(0, 0, 100, 100) << QRectF(40, 40, 20, 20) << Qt::ContainsItemBoundingRect << false << false;
+    QTest::newRow("43") << QRectF(0, 0, 100, 100) << QRectF(40, 40, 20, 20) << Qt::IntersectsItemShape << true << true;
+    QTest::newRow("44") << QRectF(0, 0, 100, 100) << QRectF(40, 40, 20, 20) << Qt::IntersectsItemBoundingRect << true << true;
 }
 
 void tst_QGraphicsScene::items_QRectF_2()
@@ -528,25 +529,14 @@ void tst_QGraphicsScene::items_QRectF_2()
     QFETCH(QRectF, sceneRect);
     QFETCH(Qt::ItemSelectionMode, selectionMode);
     QFETCH(bool, contained);
+    QFETCH(bool, containedRotated);
 
     QGraphicsScene scene;
     QGraphicsItem *item = scene.addEllipse(ellipseRect);
 
-    QEXPECT_FAIL("21", "Fix this when we get painterpath intersection determination, task 139782", Continue);
-    QEXPECT_FAIL("22", "Fix this when we get painterpath intersection determination, task 139782", Continue);
-    QEXPECT_FAIL("23", "Fix this when we get painterpath intersection determination, task 139782", Continue);
     QCOMPARE(!scene.items(sceneRect, selectionMode).isEmpty(), contained);
     item->rotate(45);
-    QEXPECT_FAIL("13", "Fix this when we get painterpath intersection determination, task 139782", Continue);
-    QEXPECT_FAIL("21", "Fix this when we get painterpath intersection determination, task 139782", Continue);
-    QEXPECT_FAIL("22", "Fix this when we get painterpath intersection determination, task 139782", Continue);
-    QEXPECT_FAIL("23", "Fix this when we get painterpath intersection determination, task 139782", Continue);
-    QEXPECT_FAIL("24", "Fix this when we get painterpath intersection determination, task 139782", Continue);
-    QEXPECT_FAIL("26", "Fix this when we get painterpath intersection determination, task 139782", Continue);
-    QEXPECT_FAIL("31", "Fix this when we get painterpath intersection determination, task 139782", Continue);
-    QEXPECT_FAIL("32", "Fix this when we get painterpath intersection determination, task 139782", Continue);
-    QEXPECT_FAIL("40", "Fix this when we get painterpath intersection determination, task 139782", Continue);
-    QCOMPARE(!scene.items(sceneRect, selectionMode).isEmpty(), contained);
+    QCOMPARE(!scene.items(sceneRect, selectionMode).isEmpty(), containedRotated);
 }
 
 void tst_QGraphicsScene::items_QPolygonF()
@@ -2474,7 +2464,6 @@ void tst_QGraphicsScene::task139782_containsItemBoundingRect()
     item->setPos(10.0, 10.0);
 
     // The (0, 0, 50, 50) scene rect should not include the item's bounding rect
-    QEXPECT_FAIL("", "We can fix this once we implement QPainterPath boolean operations.", Abort);
     QVERIFY(!scene.items(QRectF(0.0, 0.0, 50.0, 50.0), Qt::ContainsItemBoundingRect).contains(item));
 
     // The (9, 9, 500, 500) scene rect _should_ include the item's bounding rect
