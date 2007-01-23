@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     QScriptEngine engine;
 
     QPushButton button;
-    QScriptValue scriptButton = engine.scriptValueFromQObject(&button);
+    QScriptValue scriptButton = engine.newQObject(&button);
     engine.globalObject().setProperty("button", scriptButton);
 
     engine.evaluate("button.text = 'Hello World!'");

@@ -309,7 +309,7 @@ static QScriptValue getElementById(QScriptContext *context, QScriptEngine *env)
     }
     //qDebug()<<"serching element "<<el<<lst.count();
 
-    return env->scriptValueFromQObject(lst[0]);
+    return env->newQObject(lst[0]);
 }
 
 static QScriptValue setInterval(QScriptContext *context, QScriptEngine *env)
@@ -321,7 +321,7 @@ static QScriptValue setInterval(QScriptContext *context, QScriptEngine *env)
         qobject_cast<QContext2DCanvas*>(val.toQObject());
     if (!canvas) {
         qWarning("Couldn't find a QContext2DCanvas!");
-        return env->undefinedScriptValue();
+        return env->undefinedValue();
     }
     if (!func.isFunction()) {
         QString funcStr = func.toString();
@@ -333,13 +333,13 @@ static QScriptValue setInterval(QScriptContext *context, QScriptEngine *env)
     if (!func.isFunction()) {
         qDebug()<<"Couldn't find function "
                 <<context->argument(0).toString();
-        return env->undefinedScriptValue();
+        return env->undefinedValue();
     }
 
     //qDebug()<<"setInterval "<<func.isFunction()<<", "<<interval;
     canvas->setInterval(func, interval);
 
-    return env->undefinedScriptValue();
+    return env->undefinedValue();
 }
 
 
@@ -355,16 +355,16 @@ QContext2DCanvas::QContext2DCanvas(QWidget *parent)
     setObjectName("tutorial");
     m_context = new Context2D(this);
 
-    m_self = m_engine.scriptValueFromQObject(this);
-    m_engine.addRootObject(m_self);
+    m_self = m_engine.newQObject(this);
+    m_self.ref();
 
     FakeDomEvent::setup(&m_engine);
     DomImage::setup(&m_engine);
 
     m_doc = m_engine.newObject();
-    m_engine.addRootObject(m_doc);
+    m_doc.ref();
     m_doc.setProperty("getElementById",
-                    m_engine.scriptValue(::getElementById,
+                    m_engine.newFunction(::getElementById,
                                             /*argc = */ 1));
 
     m_engine.globalObject().setProperty("document", m_doc);
@@ -372,10 +372,10 @@ QContext2DCanvas::QContext2DCanvas(QWidget *parent)
 
     m_engine.globalObject().setProperty(
         "setInterval",
-        m_engine.scriptValue(::setInterval, 2));
+        m_engine.newFunction(::setInterval, 2));
     m_engine.globalObject().setProperty(
         "setTimeout",
-        m_engine.scriptValue(::setTimeout, 2));
+        m_engine.newFunction(::setTimeout, 2));
     m_engine.globalObject().setProperty("_qcontext", m_self);
 
     connect(&m_timer, SIGNAL(timeout()),
@@ -521,8 +521,8 @@ QObject * QContext2DCanvas::getContext(const QString &str) const
 
 QContext2DCanvas::~QContext2DCanvas()
 {
-    m_engine.removeRootObject(m_self);
-    m_engine.removeRootObject(m_doc);
+    m_self.deref();
+    m_doc.deref();
 }
 
 void QContext2DCanvas::setInterval(const QScriptValue &func,

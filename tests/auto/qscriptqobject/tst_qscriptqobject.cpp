@@ -215,7 +215,7 @@ void tst_QScriptExtQObject::init()
 {
     m_engine = new QScriptEngine();
     m_myObject = new MyQObject();
-    m_engine->globalObject().setProperty("myObject", m_engine->scriptValueFromQObject(m_myObject));
+    m_engine->globalObject().setProperty("myObject", m_engine->newQObject(m_myObject));
     m_engine->globalObject().setProperty("global", m_engine->globalObject());
 }
 
@@ -278,7 +278,7 @@ void tst_QScriptExtQObject::getSetStaticProperty()
         QScriptValue mobj = m_engine->globalObject().property("myObject");
 
         QVERIFY(m_myObject->shortcut().isEmpty());
-        mobj.setProperty("shortcut", m_engine->scriptValueFromVariant(sequence));
+        mobj.setProperty("shortcut", m_engine->newVariant(sequence));
         QVERIFY(m_myObject->shortcut() == sequence);
     }
     {
@@ -286,7 +286,7 @@ void tst_QScriptExtQObject::getSetStaticProperty()
         QScriptValue mobj = m_engine->globalObject().property("myObject");
 
         QVERIFY(m_myObject->propWithCustomType().string.isEmpty());
-        mobj.setProperty("propWithCustomType", m_engine->scriptValueFromVariant(qVariantFromValue(t)));
+        mobj.setProperty("propWithCustomType", m_engine->newVariant(qVariantFromValue(t)));
         QVERIFY(m_myObject->propWithCustomType().string == t.string);
     }
 
@@ -578,7 +578,7 @@ void tst_QScriptExtQObject::connectAndDisconnect()
 
 void tst_QScriptExtQObject::classEnums()
 {
-    QScriptValue myClass = m_engine->scriptValue(m_myObject->metaObject(), m_engine->undefinedScriptValue());
+    QScriptValue myClass = m_engine->newQMetaObject(m_myObject->metaObject(), m_engine->undefinedValue());
     m_engine->globalObject().setProperty("MyQObject", myClass);
 
     QCOMPARE(static_cast<MyQObject::Policy>(m_engine->evaluate("MyQObject.FooPolicy").toInt32()),
@@ -676,7 +676,7 @@ void tst_QScriptExtQObject::transferInvokable()
 
     MyOtherQObject other;
     m_engine->globalObject().setProperty(
-        "myOtherObject", m_engine->scriptValueFromQObject(&other));
+        "myOtherObject", m_engine->newQObject(&other));
     m_engine->evaluate("myOtherObject.foo = myObject.foozball");
     other.resetQtFunctionInvoked();
     m_engine->evaluate("myOtherObject.foo(456)");

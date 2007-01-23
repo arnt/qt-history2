@@ -265,7 +265,7 @@ public:
 
         else if (member.nameId() == eng_p->idTable()->id___proto__) {
             if (object.isNull()) // only Object.prototype.__proto__ can be null
-                setPrototype(engine()->undefinedScriptValue());
+                setPrototype(engine()->undefinedValue());
             else {
                 QScriptValue was = prototype();
                 setPrototype(object);

@@ -179,13 +179,13 @@ QScriptValue RegExp::method_exec(QScriptEngine *eng, QScriptClassInfo *classInfo
         i = 0;
 
     if (i < 0 || i >= length)
-        return (eng->nullScriptValue());
+        return (eng->nullValue());
 
 #ifndef QT_NO_REGEXP
     int index = rx_data->value.indexIn(S, i);
     if (index == -1)
 #endif // QT_NO_REGEXP
-        return eng->nullScriptValue();
+        return eng->nullValue();
 
 #ifndef QT_NO_REGEXP
     int e = index + rx_data->value.matchedLength();

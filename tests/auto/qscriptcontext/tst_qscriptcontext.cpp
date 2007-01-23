@@ -51,7 +51,7 @@ void tst_QScriptContext::callee()
 {
     QScriptEngine eng;
 
-    QScriptValue fun = eng.scriptValue(get_callee);
+    QScriptValue fun = eng.newFunction(get_callee);
     fun.setProperty("foo", eng.scriptValue("bar"));
     eng.globalObject().setProperty("get_callee", fun);
 
@@ -72,7 +72,7 @@ void tst_QScriptContext::arguments()
 {
     QScriptEngine eng;
 
-    QScriptValue fun = eng.scriptValue(get_arguments);
+    QScriptValue fun = eng.newFunction(get_arguments);
     eng.globalObject().setProperty("get_arguments", fun);
 
     {
@@ -111,7 +111,7 @@ void tst_QScriptContext::thisObject()
 {
     QScriptEngine eng;
 
-    QScriptValue fun = eng.scriptValue(get_thisObject);
+    QScriptValue fun = eng.newFunction(get_thisObject);
     eng.globalObject().setProperty("get_thisObject", fun);
 
     {
@@ -171,7 +171,7 @@ void tst_QScriptContext::throwError()
     QScriptEngine eng;
 
     {
-        QScriptValue fun = eng.scriptValue(throw_Error);
+        QScriptValue fun = eng.newFunction(throw_Error);
         eng.globalObject().setProperty("throw_Error", fun);
         QScriptValue result = eng.evaluate("throw_Error()");
         QCOMPARE(eng.hasUncaughtException(), true);
@@ -180,7 +180,7 @@ void tst_QScriptContext::throwError()
     }
 
     {
-        QScriptValue fun = eng.scriptValue(throw_TypeError);
+        QScriptValue fun = eng.newFunction(throw_TypeError);
         eng.globalObject().setProperty("throw_TypeError", fun);
         QScriptValue result = eng.evaluate("throw_TypeError()");
         QCOMPARE(eng.hasUncaughtException(), true);
@@ -189,7 +189,7 @@ void tst_QScriptContext::throwError()
     }
 
     {
-        QScriptValue fun = eng.scriptValue(throw_ReferenceError);
+        QScriptValue fun = eng.newFunction(throw_ReferenceError);
         eng.globalObject().setProperty("throw_ReferenceError", fun);
         QScriptValue result = eng.evaluate("throw_ReferenceError()");
         QCOMPARE(eng.hasUncaughtException(), true);
@@ -198,7 +198,7 @@ void tst_QScriptContext::throwError()
     }
 
     {
-        QScriptValue fun = eng.scriptValue(throw_SyntaxError);
+        QScriptValue fun = eng.newFunction(throw_SyntaxError);
         eng.globalObject().setProperty("throw_SyntaxError", fun);
         QScriptValue result = eng.evaluate("throw_SyntaxError()");
         QCOMPARE(eng.hasUncaughtException(), true);
@@ -207,7 +207,7 @@ void tst_QScriptContext::throwError()
     }
 
     {
-        QScriptValue fun = eng.scriptValue(throw_RangeError);
+        QScriptValue fun = eng.newFunction(throw_RangeError);
         eng.globalObject().setProperty("throw_RangeError", fun);
         QScriptValue result = eng.evaluate("throw_RangeError()");
         QCOMPARE(eng.hasUncaughtException(), true);
@@ -216,7 +216,7 @@ void tst_QScriptContext::throwError()
     }
 
     {
-        QScriptValue fun = eng.scriptValue(throw_URIError);
+        QScriptValue fun = eng.newFunction(throw_URIError);
         eng.globalObject().setProperty("throw_URIError", fun);
         QScriptValue result = eng.evaluate("throw_URIError()");
         QCOMPARE(eng.hasUncaughtException(), true);
@@ -234,7 +234,7 @@ void tst_QScriptContext::throwValue()
 {
     QScriptEngine eng;
 
-    QScriptValue fun = eng.scriptValue(throw_value);
+    QScriptValue fun = eng.newFunction(throw_value);
     eng.globalObject().setProperty("throw_value", fun);
 
     {
@@ -256,7 +256,7 @@ void tst_QScriptContext::recoverFromException()
 {
     QScriptEngine eng;
 
-    QScriptValue fun = eng.scriptValue(throw_and_recover);
+    QScriptValue fun = eng.newFunction(throw_and_recover);
     eng.globalObject().setProperty("throw_and_recover", fun);
     QScriptValue result = eng.evaluate("throw_and_recover(123)");
     QCOMPARE(eng.hasUncaughtException(), false);
@@ -273,7 +273,7 @@ void tst_QScriptContext::evaluateInFunction()
 {
     QScriptEngine eng;
 
-    QScriptValue fun = eng.scriptValue(evaluate);
+    QScriptValue fun = eng.newFunction(evaluate);
     eng.globalObject().setProperty("evaluate", fun);
 
     QScriptValue result = eng.evaluate("evaluate()");

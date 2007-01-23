@@ -309,7 +309,7 @@ QScriptValue Array::method_pop(QScriptEngine *eng, QScriptClassInfo *classInfo)
     if (Instance *instance = Instance::get(context->thisObject(), classInfo)) {
         QScriptValue elt = instance->value.pop();
         if (! elt.isValid())
-            elt = eng->undefinedScriptValue();
+            elt = eng->undefinedValue();
 
         return elt;
     }
@@ -322,12 +322,12 @@ QScriptValue Array::method_pop(QScriptEngine *eng, QScriptClassInfo *classInfo)
     quint32 r2 = QScriptEnginePrivate::toUint32(r1);
     if (! r2) {
         self.setProperty(id_length, eng->scriptValue(0));
-        return eng->undefinedScriptValue();
+        return eng->undefinedValue();
     }
     QScriptNameId r6 = eng->nameId(eng->scriptValue(r2 - 1).toString());
     QScriptValue r7 = self.property(r6);
     if (! r7.isValid())
-        return eng->undefinedScriptValue();
+        return eng->undefinedValue();
 
     QScript::Member member;
     QScriptValue base;
@@ -399,7 +399,7 @@ QScriptValue Array::method_reverse(QScriptEngine *eng, QScriptClassInfo *classIn
             if (iok)
                 QScriptValueImpl::get(ibase)->get(iid, &ival);
             else
-                ival = eng->undefinedScriptValue();
+                ival = eng->undefinedValue();
 
             QScript::Member jmember;
             QScriptValue jbase;
@@ -408,7 +408,7 @@ QScriptValue Array::method_reverse(QScriptEngine *eng, QScriptClassInfo *classIn
             if (jok)
                 QScriptValueImpl::get(jbase)->get(jid, &jval);
             else
-                jval = eng->undefinedScriptValue();
+                jval = eng->undefinedValue();
 
             if (!jok) {
                 if (iok) {
@@ -436,7 +436,7 @@ QScriptValue Array::method_shift(QScriptEngine *eng, QScriptClassInfo *)
     quint32 length = QScriptEnginePrivate::toUint32(context->thisObject().property(id_length).toNumber());
     if (length == 0) {
         context->thisObject().setProperty(id_length, eng->scriptValue(0));
-        return eng->undefinedScriptValue();
+        return eng->undefinedValue();
     }
 
     QScriptValue self = context->thisObject();
@@ -445,7 +445,7 @@ QScriptValue Array::method_shift(QScriptEngine *eng, QScriptClassInfo *)
 
     QScriptValue result = self.property(QLatin1String("0"));
     if (! result.isValid())
-        result = eng->undefinedScriptValue();
+        result = eng->undefinedValue();
 
     for (quint32 index = 1; index < length; ++index) {
         QScriptNameId k = eng->nameId(eng->scriptValue(index).toString());
@@ -512,7 +512,7 @@ QScriptValue Array::method_splice(QScriptEngine *eng, QScriptClassInfo *classInf
 {
     QScriptContext *context = eng->currentContext();
     if (context->argumentCount() < 2)
-        return eng->undefinedScriptValue();
+        return eng->undefinedValue();
 
     QScriptValue self = context->thisObject();
 
@@ -520,7 +520,7 @@ QScriptValue Array::method_splice(QScriptEngine *eng, QScriptClassInfo *classInf
     qnumber deleteCount = context->argument(1).toInteger();
 
     QScriptValue arrayCtor = eng->globalObject().property(QLatin1String("Array"));
-    QScriptValue a = arrayCtor.call(eng->nullScriptValue()); // ### construct()
+    QScriptValue a = arrayCtor.call(eng->nullValue()); // ### construct()
 
     if (Instance *instance = Instance::get(context->thisObject(), classInfo)) {
         QVector<QScriptValue> items;

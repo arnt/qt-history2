@@ -35,10 +35,10 @@ int main(int argc, char **argv)
     uiFile.close();
 
     QScriptValue calc = engine.newObject();
-    engine.addRootObject(calc);
+    calc.ref();
 
     QScriptValue ctor = engine.evaluate("Calculator");
-    QScriptValue scriptUi = engine.scriptValueFromQObject(ui);
+    QScriptValue scriptUi = engine.newQObject(ui);
     ctor.call(calc, QScriptValueList() << scriptUi);
 
     ui->show();

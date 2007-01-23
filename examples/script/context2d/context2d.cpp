@@ -123,7 +123,7 @@ static QPainter::CompositionMode compositeOperatorFromString(const QString &comp
 void CanvasGradientData::setup(QScriptEngine *e)
 {
     QScriptValue proto = e->newObject();
-    proto.setProperty("addColorStop", e->scriptValue(&CanvasGradientData::addColorStop, /*length=*/ 2));
+    proto.setProperty("addColorStop", e->newFunction(&CanvasGradientData::addColorStop, /*length=*/ 2));
     e->setDefaultPrototype(qRegisterMetaType<CanvasGradient>(), proto);
 }
 
@@ -137,7 +137,7 @@ QScriptValue CanvasGradientData::addColorStop(QScriptContext *ctx, QScriptEngine
         QColor color = colorFromString(ctx->argument(1).toString());
         g->gradient.setColorAt(pos, color);
     }
-    return e->undefinedScriptValue();
+    return e->undefinedValue();
 }
 
 void Context2D::save()

@@ -142,12 +142,12 @@ public:
 class QScriptCustomTypeInfo
 {
 public:
-    QScriptCustomTypeInfo() : signature(0, '\0'), marshall(0), demarshall(0)
+    QScriptCustomTypeInfo() : signature(0, '\0'), marshal(0), demarshal(0)
     { prototype.invalidate(); }
 
     QByteArray signature;
-    QScriptEngine::MarshallFunction marshall;
-    QScriptEngine::DemarshallFunction demarshall;
+    QScriptEngine::MarshalFunction marshal;
+    QScriptEngine::DemarshalFunction demarshal;
     QScriptValue prototype;
 };
 

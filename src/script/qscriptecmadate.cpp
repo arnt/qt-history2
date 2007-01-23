@@ -576,7 +576,7 @@ QScriptValue Date::method_UTC(QScriptEngine *eng, QScriptClassInfo *)
                             MakeTime(hours, mins, secs, ms));
         return eng->scriptValue(TimeClip(t));
     }
-    return (eng->undefinedScriptValue());
+    return (eng->undefinedValue());
 }
 
 QScriptValue Date::method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo)

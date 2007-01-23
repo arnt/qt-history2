@@ -223,7 +223,7 @@ QScriptValue QScriptEngine::globalObject() const
 /*!
   Returns a QScriptValue of the primitive type Null.
 */
-QScriptValue QScriptEngine::nullScriptValue()
+QScriptValue QScriptEngine::nullValue()
 {
     Q_D(QScriptEngine);
     QScriptValue v;
@@ -234,12 +234,28 @@ QScriptValue QScriptEngine::nullScriptValue()
 /*!
   Returns a QScriptValue of the primitive type Undefined.
 */
-QScriptValue QScriptEngine::undefinedScriptValue()
+QScriptValue QScriptEngine::undefinedValue()
 {
     Q_D(QScriptEngine);
     QScriptValue v;
     d->newUndefined(&v);
     return v;
+}
+
+/*!
+  \internal
+*/
+QScriptValue QScriptEngine::nullScriptValue()
+{
+    return nullValue();
+}
+
+/*!
+  \internal
+*/
+QScriptValue QScriptEngine::undefinedScriptValue()
+{
+    return undefinedValue();
 }
 
 /*!
@@ -360,7 +376,7 @@ QScriptValue QScriptEngine::scriptValue(const char *value)
 
   \sa QScriptValue::call()
 */
-QScriptValue QScriptEngine::scriptValue(QScriptFunctionSignature fun,
+QScriptValue QScriptEngine::newFunction(QScriptFunctionSignature fun,
                                         int length)
 {
     Q_D(QScriptEngine);
@@ -369,12 +385,21 @@ QScriptValue QScriptEngine::scriptValue(QScriptFunctionSignature fun,
 }
 
 /*!
+  \internal
+*/
+QScriptValue QScriptEngine::scriptValue(QScriptFunctionSignature fun,
+                                        int length)
+{
+    return newFunction(fun, length);
+}
+
+/*!
   Creates a constructor function from \a fun, with the given \a length.
   The \c{prototype} property of the resulting function is set to be the
   given \a prototype. The \c{constructor} property of \a prototype is
   set to be the resulting function.
 */
-QScriptValue QScriptEngine::scriptValue(QScriptFunctionSignature fun,
+QScriptValue QScriptEngine::newFunction(QScriptFunctionSignature fun,
                                         const QScriptValue &prototype,
                                         int length)
 {
@@ -385,18 +410,35 @@ QScriptValue QScriptEngine::scriptValue(QScriptFunctionSignature fun,
     return v;
 }
 
+/*!
+  \internal
+*/
+QScriptValue QScriptEngine::scriptValue(QScriptFunctionSignature fun,
+                                        const QScriptValue &prototype,
+                                        int length)
+{
+    return newFunction(fun, prototype, length);
+}
 
 #ifndef QT_NO_REGEXP
 /*!
   Creates a QScriptValue object of class RegExp with the given
   \a regexp.
 */
-QScriptValue QScriptEngine::scriptValue(const QRegExp &regexp)
+QScriptValue QScriptEngine::newRegExp(const QRegExp &regexp)
 {
     Q_D(QScriptEngine);
     QScriptValue v;
     d->regexpConstructor->newRegExp(&v, regexp);
     return v;
+}
+
+/*!
+  \internal
+*/
+QScriptValue QScriptEngine::scriptValue(const QRegExp &regexp)
+{
+    return newRegExp(regexp);
 }
 #endif // QT_NO_REGEXP
 
@@ -410,7 +452,7 @@ QScriptValue QScriptEngine::scriptValue(const QRegExp &regexp)
 
   \sa setDefaultPrototype()
 */
-QScriptValue QScriptEngine::scriptValueFromVariant(const QVariant &value)
+QScriptValue QScriptEngine::newVariant(const QVariant &value)
 {
     Q_D(QScriptEngine);
     Q_ASSERT(d->variantConstructor != 0);
@@ -423,6 +465,14 @@ QScriptValue QScriptEngine::scriptValueFromVariant(const QVariant &value)
     return v;
 }
 
+/*!
+  \internal
+*/
+QScriptValue QScriptEngine::scriptValueFromVariant(const QVariant &value)
+{
+    return newVariant(value);
+}
+
 #ifndef QT_NO_QOBJECT
 /*!
   Returns a QScriptValue that wraps the given QObject \a object.
@@ -433,7 +483,7 @@ QScriptValue QScriptEngine::scriptValueFromVariant(const QVariant &value)
 
   The engine does not take ownership of \a object.
 */
-QScriptValue QScriptEngine::scriptValueFromQObject(QObject *object)
+QScriptValue QScriptEngine::newQObject(QObject *object)
 {
     Q_D(QScriptEngine);
     Q_ASSERT(d->qobjectConstructor != 0);
@@ -454,6 +504,14 @@ QScriptValue QScriptEngine::scriptValueFromQObject(QObject *object)
     }
 
     return v;
+}
+
+/*!
+  \internal
+*/
+QScriptValue QScriptEngine::scriptValueFromQObject(QObject *object)
+{
+    return newQObject(object);
 }
 #endif // QT_NO_QOBJECT
 
@@ -530,7 +588,7 @@ QScriptValue QScriptEngine::newDate(const QDateTime &value)
   QScriptValue. When the class is called as a function, \a ctor will
   be called to create a new instance of the class.
 */
-QScriptValue QScriptEngine::scriptValue(
+QScriptValue QScriptEngine::newQMetaObject(
     const QMetaObject *metaObject, const QScriptValue &ctor)
 {
     Q_D(QScriptEngine);
@@ -539,6 +597,12 @@ QScriptValue QScriptEngine::scriptValue(
     v.setPrototype(ctor); // ###
     QScriptValueImpl::get(v)->setClassInfo(d->m_class_qclass);
     return v;
+}
+
+QScriptValue QScriptEngine::scriptValue(
+    const QMetaObject *metaObject, const QScriptValue &ctor)
+{
+    return newQMetaObject(metaObject, ctor);
 }
 
 /*!
@@ -691,12 +755,12 @@ void QScriptEngine::setDefaultPrototype(int metaTypeId, const QScriptValue &prot
 */
 
 /*!
-    \typedef QScriptEngine::MarshallFunction
+    \typedef QScriptEngine::MarshalFunction
     \internal
 */
 
 /*!
-    \typedef QScriptEngine::DemarshallFunction
+    \typedef QScriptEngine::DemarshalFunction
     \internal
 */
 
@@ -721,15 +785,15 @@ bool QScriptEngine::convert(const QScriptValue &value, int type, void *ptr)
 /*!
     \internal
 */
-void QScriptEngine::registerCustomType(int type, MarshallFunction mf,
-                                       DemarshallFunction df,
+void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
+                                       DemarshalFunction df,
                                        const QScriptValue &prototype)
 {
     Q_D(QScriptEngine);
     QScriptCustomTypeInfo info = d->m_customTypes.value(type);
     info.prototype.deref();
-    info.marshall = mf;
-    info.demarshall = df;
+    info.marshal = mf;
+    info.demarshal = df;
     info.prototype = prototype;
     prototype.ref();
     d->m_customTypes.insert(type, info);

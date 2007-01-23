@@ -147,7 +147,7 @@ QScriptValue Function::method_apply(QScriptEngine *eng, QScriptClassInfo *)
         thisObject = eng_p->globalObject;
 
     QScriptValueList args;
-    QScriptValue undefined = eng->undefinedScriptValue();
+    QScriptValue undefined = eng->undefinedValue();
 
     QScriptValue arg = context->argument(1);
 
@@ -177,7 +177,7 @@ QScriptValue Function::method_apply(QScriptEngine *eng, QScriptClassInfo *)
 
 QScriptValue Function::method_void(QScriptEngine *eng, QScriptClassInfo *)
 {
-    return eng->undefinedScriptValue();
+    return eng->undefinedValue();
 }
 
 QScriptValue Function::method_disconnect(QScriptEngine *eng, QScriptClassInfo *)

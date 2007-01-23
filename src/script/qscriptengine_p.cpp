@@ -94,7 +94,7 @@ public:
         int lineNo = QScriptContextPrivate::get(context)->currentLine;
 
         if (context->argumentCount() == 0) {
-            context->setReturnValue(eng->undefinedScriptValue());
+            context->setReturnValue(eng->undefinedValue());
         } else {
             QScriptValue arg = context->argument(0);
             if (arg.isString()) {
@@ -991,8 +991,8 @@ QScriptValue QScriptEnginePrivate::create(int type, const void *ptr)
     Q_ASSERT(ptr);
     QScriptValue result;
     QScriptCustomTypeInfo info = m_customTypes.value(type);
-    if (info.marshall) {
-        result = info.marshall(q, ptr);
+    if (info.marshal) {
+        result = info.marshal(q, ptr);
     } else {
         // check if it's one of the types we know
         switch (QMetaType::Type(type)) {
@@ -1040,14 +1040,14 @@ QScriptValue QScriptEnginePrivate::create(int type, const void *ptr)
 #ifndef QT_NO_QOBJECT
         case QMetaType::QObjectStar:
         case QMetaType::QWidgetStar:
-            result = q->scriptValueFromQObject(*reinterpret_cast<QObject* const *>(ptr));
+            result = q->newQObject(*reinterpret_cast<QObject* const *>(ptr));
             break;
 #endif
         default:
             if (type == qMetaTypeId<QScriptValue>())
                 result = *reinterpret_cast<const QScriptValue*>(ptr);
             else
-                result = q->scriptValueFromVariant(QVariant(type, ptr));
+                result = q->newVariant(QVariant(type, ptr));
         }
     }
     if (isObject(result) && isValid(info.prototype))
@@ -1059,8 +1059,8 @@ bool QScriptEnginePrivate::convert(const QScriptValue &value,
                                    int type, void *ptr)
 {
     QScriptCustomTypeInfo info = m_customTypes.value(type);
-    if (info.demarshall) {
-        info.demarshall(value, ptr);
+    if (info.demarshal) {
+        info.demarshal(value, ptr);
         return true;
     }
 

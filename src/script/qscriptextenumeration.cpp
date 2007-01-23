@@ -107,7 +107,7 @@ QScriptValue Enumeration::method_toFirst(QScriptEngine *eng, QScriptClassInfo *c
     QScriptContext *context = eng->currentContext();
     if (Instance *instance = Instance::get(context->thisObject(), classInfo)) {
         instance->toFirst();
-        return eng->undefinedScriptValue();
+        return eng->undefinedValue();
     } else {
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Enumeration.toFirst"));

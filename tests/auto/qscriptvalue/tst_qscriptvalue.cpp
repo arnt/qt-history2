@@ -81,17 +81,17 @@ void tst_QScriptValue::engine()
 
 static QScriptValue myFunction(QScriptContext *, QScriptEngine *eng)
 {
-    return eng->undefinedScriptValue();
+    return eng->undefinedValue();
 }
 
 void tst_QScriptValue::toString()
 {
     QScriptEngine eng;
 
-    QScriptValue undefined = eng.undefinedScriptValue();
+    QScriptValue undefined = eng.undefinedValue();
     QCOMPARE(undefined.toString(), QString("undefined"));
 
-    QScriptValue null = eng.nullScriptValue();
+    QScriptValue null = eng.nullValue();
     QCOMPARE(null.toString(), QString("null"));
 
     QScriptValue falskt = eng.scriptValue(false);
@@ -109,7 +109,7 @@ void tst_QScriptValue::toString()
     QScriptValue object = eng.newObject();
     QCOMPARE(object.toString(), QString("[object Object]"));
 
-    QScriptValue fun = eng.scriptValue(myFunction);
+    QScriptValue fun = eng.newFunction(myFunction);
     QCOMPARE(fun.toString(), QString("function () { [native] }"));
 
     QScriptValue inv = QScriptValue();
@@ -120,10 +120,10 @@ void tst_QScriptValue::toNumber()
 {
     QScriptEngine eng;
 
-    QScriptValue undefined = eng.undefinedScriptValue();
+    QScriptValue undefined = eng.undefinedValue();
     QCOMPARE(qIsNan(undefined.toNumber()), true);
 
-    QScriptValue null = eng.nullScriptValue();
+    QScriptValue null = eng.nullValue();
     QCOMPARE(null.toNumber(), 0.0);
 
     QScriptValue falskt = eng.scriptValue(false);
@@ -144,7 +144,7 @@ void tst_QScriptValue::toNumber()
     QScriptValue object = eng.newObject();
     QCOMPARE(qIsNan(object.toNumber()), true);
 
-    QScriptValue fun = eng.scriptValue(myFunction);
+    QScriptValue fun = eng.newFunction(myFunction);
     QCOMPARE(qIsNan(fun.toNumber()), true);
 
     QScriptValue inv = QScriptValue();
@@ -155,10 +155,10 @@ void tst_QScriptValue::toBoolean()
 {
     QScriptEngine eng;
 
-    QScriptValue undefined = eng.undefinedScriptValue();
+    QScriptValue undefined = eng.undefinedValue();
     QCOMPARE(undefined.toBoolean(), false);
 
-    QScriptValue null = eng.nullScriptValue();
+    QScriptValue null = eng.nullValue();
     QCOMPARE(null.toBoolean(), false);
 
     QScriptValue falskt = eng.scriptValue(false);
@@ -188,7 +188,7 @@ void tst_QScriptValue::toBoolean()
     QScriptValue object = eng.newObject();
     QCOMPARE(object.toBoolean(), true);
 
-    QScriptValue fun = eng.scriptValue(myFunction);
+    QScriptValue fun = eng.newFunction(myFunction);
     QCOMPARE(fun.toBoolean(), true);
 
     QScriptValue inv = QScriptValue();
@@ -325,10 +325,10 @@ void tst_QScriptValue::toVariant()
 {
     QScriptEngine eng;
 
-    QScriptValue undefined = eng.undefinedScriptValue();
+    QScriptValue undefined = eng.undefinedValue();
     QCOMPARE(undefined.toVariant(), QVariant());
 
-    QScriptValue null = eng.nullScriptValue();
+    QScriptValue null = eng.nullValue();
     QCOMPARE(null.toVariant(), QVariant(0));
 
     QScriptValue number = eng.scriptValue(123.0);
@@ -344,13 +344,13 @@ void tst_QScriptValue::toVariant()
     QCOMPARE(str.toVariant(), QVariant(QString("ciao")));
 
     QVariant var(QChar(0x007A));
-    QScriptValue opaque = eng.scriptValueFromVariant(var);
+    QScriptValue opaque = eng.newVariant(var);
     QCOMPARE(opaque.toVariant(), var);
 
     QScriptValue object = eng.newObject();
     QCOMPARE(object.toVariant(), QVariant(QString("[object Object]")));
 
-    QScriptValue qobject = eng.scriptValueFromQObject(0);
+    QScriptValue qobject = eng.newQObject(0);
     QCOMPARE(qobject.toVariant(), QVariant((QObject*)0));
 
     QScriptValue inv;
@@ -361,10 +361,10 @@ void tst_QScriptValue::toQObject()
 {
     QScriptEngine eng;
 
-    QScriptValue undefined = eng.undefinedScriptValue();
+    QScriptValue undefined = eng.undefinedValue();
     QCOMPARE(undefined.toQObject(), (QObject *)0);
 
-    QScriptValue null = eng.nullScriptValue();
+    QScriptValue null = eng.nullValue();
     QCOMPARE(null.toQObject(), (QObject *)0);
 
     QScriptValue falskt = eng.scriptValue(false);
@@ -382,10 +382,10 @@ void tst_QScriptValue::toQObject()
     QScriptValue object = eng.newObject();
     QCOMPARE(object.toQObject(), (QObject *)0);
 
-    QScriptValue qobject = eng.scriptValueFromQObject(this);
+    QScriptValue qobject = eng.newQObject(this);
     QCOMPARE(qobject.toQObject(), this);
 
-    QScriptValue qobject2 = eng.scriptValueFromQObject(0);
+    QScriptValue qobject2 = eng.newQObject(0);
     QCOMPARE(qobject2.toQObject(), (QObject *)0);
 
     QScriptValue inv;
@@ -396,10 +396,10 @@ void tst_QScriptValue::toObject()
 {
     QScriptEngine eng;
 
-    QScriptValue undefined = eng.undefinedScriptValue();
+    QScriptValue undefined = eng.undefinedValue();
     QCOMPARE(undefined.toObject().isValid(), false);
 
-    QScriptValue null = eng.nullScriptValue();
+    QScriptValue null = eng.nullValue();
     QCOMPARE(null.toObject().isValid(), false);
 
     QScriptValue falskt = eng.scriptValue(false);
@@ -436,7 +436,7 @@ void tst_QScriptValue::toObject()
         QCOMPARE(tmp.isObject(), true);
     }
 
-    QScriptValue qobject = eng.scriptValueFromQObject(this);
+    QScriptValue qobject = eng.newQObject(this);
     QCOMPARE(qobject.toObject().isValid(), true);
 
     QScriptValue inv;
@@ -447,7 +447,7 @@ void tst_QScriptValue::toPrimitive()
 {
     QScriptEngine eng;
 
-    QScriptValue undefined = eng.undefinedScriptValue();
+    QScriptValue undefined = eng.undefinedValue();
     {
         QScriptValue tmp;
         tmp = undefined.toPrimitive(QScriptValue::NoTypeHint);
@@ -458,7 +458,7 @@ void tst_QScriptValue::toPrimitive()
         QCOMPARE(tmp.isUndefined(), true);
     }
 
-    QScriptValue null = eng.nullScriptValue();
+    QScriptValue null = eng.nullValue();
     {
         QScriptValue tmp;
         tmp = null.toPrimitive(QScriptValue::NoTypeHint);
@@ -676,14 +676,14 @@ void tst_QScriptValue::call()
         QCOMPARE(fun.isFunction(), true);
 
         {
-            QScriptValue result = fun.call(eng.undefinedScriptValue());
+            QScriptValue result = fun.call(eng.undefinedValue());
             QCOMPARE(result.isUndefined(), true);
         }
 
         {
             QScriptValueList args;
             args << eng.scriptValue(123.0);
-            QScriptValue result = fun.call(eng.undefinedScriptValue(), args);
+            QScriptValue result = fun.call(eng.undefinedValue(), args);
             QCOMPARE(result.isNumber(), true);
             QCOMPARE(result.toNumber(), 123.0);
         }
@@ -696,7 +696,7 @@ void tst_QScriptValue::call()
         {
             QScriptValueList args;
             args << eng.scriptValue(123.0) << eng.scriptValue(456.0);
-            QScriptValue result = fun.call(eng.undefinedScriptValue(), args);
+            QScriptValue result = fun.call(eng.undefinedValue(), args);
             QCOMPARE(result.isNumber(), true);
             QCOMPARE(result.toNumber(), 456.0);
         }
@@ -830,8 +830,8 @@ void tst_QScriptValue::equalTo()
     QCOMPARE(date1.equalTo(date1), true);
     QCOMPARE(date2.equalTo(date2), true);
 
-    QScriptValue undefined = eng.undefinedScriptValue();
-    QScriptValue null = eng.nullScriptValue();
+    QScriptValue undefined = eng.undefinedValue();
+    QScriptValue null = eng.nullValue();
     QCOMPARE(undefined.equalTo(undefined), true);
     QCOMPARE(null.equalTo(null), true);
     QCOMPARE(undefined.equalTo(null), true);
@@ -883,8 +883,8 @@ void tst_QScriptValue::strictEqualTo()
     QCOMPARE(date1.strictEqualTo(date1), true);
     QCOMPARE(date2.strictEqualTo(date2), true);
 
-    QScriptValue undefined = eng.undefinedScriptValue();
-    QScriptValue null = eng.nullScriptValue();
+    QScriptValue undefined = eng.undefinedValue();
+    QScriptValue null = eng.nullValue();
     QCOMPARE(undefined.strictEqualTo(undefined), true);
     QCOMPARE(null.strictEqualTo(null), true);
     QCOMPARE(undefined.strictEqualTo(null), false);

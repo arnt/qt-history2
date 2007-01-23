@@ -356,7 +356,7 @@ inline void QScriptContextPrivate::init(QScriptContext *parent)
 inline QScriptValue QScriptContextPrivate::argument(int index) const
 {
     if (index >= argc)
-        return engine()->undefinedScriptValue();
+        return engine()->undefinedValue();
 
     else if (args != 0)
         return args[index];

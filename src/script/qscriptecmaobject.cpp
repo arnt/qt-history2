@@ -27,7 +27,7 @@ namespace QScript { namespace Ecma {
 Object::Object(QScriptEngine *eng, QScriptClassInfo *classInfo):
     Core(eng), m_classInfo(classInfo)
 {
-    newObject(&publicPrototype, eng->nullScriptValue());
+    newObject(&publicPrototype, eng->nullValue());
 }
 
 Object::~Object()
@@ -196,7 +196,7 @@ QScriptValue Object::method_defineGetter(QScriptEngine *eng,
     if (!getter.isFunction())
         return ctx->throwError(QLatin1String("getter must be a function"));
     ctx->thisObject().setProperty(propertyName, getter, QScriptValue::PropertyGetter);
-    return eng->undefinedScriptValue();
+    return eng->undefinedValue();
 }
 
 QScriptValue Object::method_defineSetter(QScriptEngine *eng,
@@ -208,7 +208,7 @@ QScriptValue Object::method_defineSetter(QScriptEngine *eng,
     if (!setter.isFunction())
         return ctx->throwError(QLatin1String("setter must be a function"));
     ctx->thisObject().setProperty(propertyName, setter, QScriptValue::PropertySetter);
-    return eng->undefinedScriptValue();
+    return eng->undefinedValue();
 }
 
 } } // namespace QScript::Ecma

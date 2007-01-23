@@ -57,7 +57,7 @@ tst_QScriptEngine::~tst_QScriptEngine()
 void tst_QScriptEngine::createNull()
 {
     QScriptEngine eng;
-    QScriptValue null = eng.nullScriptValue();
+    QScriptValue null = eng.nullValue();
     QCOMPARE(null.isValid(), true);
     QCOMPARE(null.isNull(), true);
     QCOMPARE(null.isObject(), false);
@@ -67,7 +67,7 @@ void tst_QScriptEngine::createNull()
 void tst_QScriptEngine::createUndefined()
 {
     QScriptEngine eng;
-    QScriptValue undefined = eng.undefinedScriptValue();
+    QScriptValue undefined = eng.undefinedValue();
     QCOMPARE(undefined.isValid(), true);
     QCOMPARE(undefined.isUndefined(), true);
     QCOMPARE(undefined.isObject(), false);
@@ -96,13 +96,13 @@ void tst_QScriptEngine::createNumber()
 
 static QScriptValue myFunction(QScriptContext *, QScriptEngine *eng)
 {
-    return eng->undefinedScriptValue();
+    return eng->undefinedValue();
 }
 
 void tst_QScriptEngine::createFunction()
 {
     QScriptEngine eng;
-    QScriptValue fun = eng.scriptValue(myFunction);
+    QScriptValue fun = eng.newFunction(myFunction);
     QCOMPARE(fun.isValid(), true);
     QCOMPARE(fun.isFunction(), true);
     QCOMPARE(fun.isObject(), true);
@@ -151,7 +151,7 @@ void tst_QScriptEngine::createArray()
 void tst_QScriptEngine::createOpaque()
 {
     QScriptEngine eng;
-    QScriptValue opaque = eng.scriptValueFromVariant(QVariant());
+    QScriptValue opaque = eng.newVariant(QVariant());
     QCOMPARE(opaque.isValid(), true);
     QCOMPARE(opaque.isVariant(), true);
     QCOMPARE(opaque.isObject(), true);
@@ -167,7 +167,7 @@ void tst_QScriptEngine::createRegExp()
         if (x == 0)
             rexp = eng.newRegExp("foo", "bar");
         else
-            rexp = eng.scriptValue(QRegExp("foo"));
+            rexp = eng.newRegExp(QRegExp("foo"));
         QCOMPARE(rexp.isValid(), true);
         QCOMPARE(rexp.isRegExp(), true);
         QCOMPARE(rexp.isObject(), true);
@@ -213,14 +213,14 @@ void tst_QScriptEngine::createQObject()
     QScriptEngine eng;
 
     {
-        QScriptValue qobject = eng.scriptValueFromQObject(0);
+        QScriptValue qobject = eng.newQObject(0);
         QCOMPARE(qobject.isValid(), true);
         QCOMPARE(qobject.isQObject(), true);
         QCOMPARE(qobject.isObject(), true);
         QCOMPARE(qobject.toQObject(), (QObject *)0);
     }
     {
-        QScriptValue qobject = eng.scriptValueFromQObject(this);
+        QScriptValue qobject = eng.newQObject(this);
         QCOMPARE(qobject.isValid(), true);
         QCOMPARE(qobject.isQObject(), true);
         QCOMPARE(qobject.isObject(), true);
@@ -316,7 +316,7 @@ static QScriptValue eval_nested(QScriptContext *ctx, QScriptEngine *eng)
 void tst_QScriptEngine::nestedEvaluate()
 {
     QScriptEngine eng;
-    eng.globalObject().setProperty("fun", eng.scriptValue(eval_nested));
+    eng.globalObject().setProperty("fun", eng.newFunction(eval_nested));
     QScriptValue result = eng.evaluate("o = { id:'foo'}; o.fun = fun; o.fun()");
     QCOMPARE(result.property("thisObjectIdBefore").toString(), QString("foo"));
     QCOMPARE(result.property("thisObjectIdAfter").toString(), QString("foo"));
@@ -356,13 +356,13 @@ void tst_QScriptEngine::getSetDefaultPrototype()
         QCOMPARE(eng.defaultPrototype(qMetaTypeId<int>()).isValid(), false);
         eng.setDefaultPrototype(qMetaTypeId<int>(), object);
         QCOMPARE(eng.defaultPrototype(qMetaTypeId<int>()).strictEqualTo(object), true);
-        QScriptValue value = eng.scriptValueFromVariant(int(123));
+        QScriptValue value = eng.newVariant(int(123));
         QCOMPARE(value.prototype().isObject(), true);
         QCOMPARE(value.prototype().strictEqualTo(object), true);
 
         eng.setDefaultPrototype(qMetaTypeId<int>(), QScriptValue());
         QCOMPARE(eng.defaultPrototype(qMetaTypeId<int>()).isValid(), false);
-        QScriptValue value2 = eng.scriptValueFromVariant(int(123));
+        QScriptValue value2 = eng.newVariant(int(123));
         QCOMPARE(value2.prototype().strictEqualTo(object), false);
     }
     {
@@ -370,13 +370,13 @@ void tst_QScriptEngine::getSetDefaultPrototype()
         QCOMPARE(eng.defaultPrototype(qMetaTypeId<Foo>()).isValid(), false);
         eng.setDefaultPrototype(qMetaTypeId<Foo>(), object);
         QCOMPARE(eng.defaultPrototype(qMetaTypeId<Foo>()).strictEqualTo(object), true);
-        QScriptValue value = eng.scriptValueFromVariant(qVariantFromValue(Foo()));
+        QScriptValue value = eng.newVariant(qVariantFromValue(Foo()));
         QCOMPARE(value.prototype().isObject(), true);
         QCOMPARE(value.prototype().strictEqualTo(object), true);
 
         eng.setDefaultPrototype(qMetaTypeId<Foo>(), QScriptValue());
         QCOMPARE(eng.defaultPrototype(qMetaTypeId<Foo>()).isValid(), false);
-        QScriptValue value2 = eng.scriptValueFromVariant(qVariantFromValue(Foo()));
+        QScriptValue value2 = eng.newVariant(qVariantFromValue(Foo()));
         QCOMPARE(value2.prototype().strictEqualTo(object), false);
     }
 }

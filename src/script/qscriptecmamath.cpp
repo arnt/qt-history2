@@ -66,41 +66,41 @@ void Math::construct(QScriptValue *object, QScriptEngine *eng)
     flags = QScriptValue::SkipInEnumeration;
 
     object->setProperty(QLatin1String("abs"),
-                        eng->scriptValue(method_abs, 1), flags);
+                        eng->newFunction(method_abs, 1), flags);
     object->setProperty(QLatin1String("acos"),
-                        eng->scriptValue(method_acos, 1), flags);
+                        eng->newFunction(method_acos, 1), flags);
     object->setProperty(QLatin1String("asin"),
-                        eng->scriptValue(method_asin, 0), flags);
+                        eng->newFunction(method_asin, 0), flags);
     object->setProperty(QLatin1String("atan"),
-                        eng->scriptValue(method_atan, 1), flags);
+                        eng->newFunction(method_atan, 1), flags);
     object->setProperty(QLatin1String("atan2"),
-                        eng->scriptValue(method_atan2, 2), flags);
+                        eng->newFunction(method_atan2, 2), flags);
     object->setProperty(QLatin1String("ceil"),
-                        eng->scriptValue(method_ceil, 1), flags);
+                        eng->newFunction(method_ceil, 1), flags);
     object->setProperty(QLatin1String("cos"),
-                        eng->scriptValue(method_cos, 1), flags);
+                        eng->newFunction(method_cos, 1), flags);
     object->setProperty(QLatin1String("exp"),
-                        eng->scriptValue(method_exp, 1), flags);
+                        eng->newFunction(method_exp, 1), flags);
     object->setProperty(QLatin1String("floor"),
-                        eng->scriptValue(method_floor, 1), flags);
+                        eng->newFunction(method_floor, 1), flags);
     object->setProperty(QLatin1String("log"),
-                        eng->scriptValue(method_log, 1), flags);
+                        eng->newFunction(method_log, 1), flags);
     object->setProperty(QLatin1String("max"),
-                        eng->scriptValue(method_max, 2), flags);
+                        eng->newFunction(method_max, 2), flags);
     object->setProperty(QLatin1String("min"),
-                        eng->scriptValue(method_min, 2), flags);
+                        eng->newFunction(method_min, 2), flags);
     object->setProperty(QLatin1String("pow"),
-                        eng->scriptValue(method_pow, 2), flags);
+                        eng->newFunction(method_pow, 2), flags);
     object->setProperty(QLatin1String("random"),
-                        eng->scriptValue(method_random, 0), flags);
+                        eng->newFunction(method_random, 0), flags);
     object->setProperty(QLatin1String("round"),
-                        eng->scriptValue(method_round, 1), flags);
+                        eng->newFunction(method_round, 1), flags);
     object->setProperty(QLatin1String("sin"),
-                        eng->scriptValue(method_sin, 1), flags);
+                        eng->newFunction(method_sin, 1), flags);
     object->setProperty(QLatin1String("sqrt"),
-                        eng->scriptValue(method_sqrt, 1), flags);
+                        eng->newFunction(method_sqrt, 1), flags);
     object->setProperty(QLatin1String("tan"),
-                        eng->scriptValue(method_tan, 1), flags);
+                        eng->newFunction(method_tan, 1), flags);
 }
 
 QScriptValue Math::method_abs(QScriptContext *context,

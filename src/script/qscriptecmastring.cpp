@@ -401,7 +401,7 @@ QScriptValue String::method_replace(QScriptEngine *eng, QScriptClassInfo *)
                 args << eng->scriptValue(input);
                 for (uint j = 0; j < length; ++j)
                     args << needle.property(eng->scriptValue(j).toString());
-                QScriptValue ret = replaceValue.call(eng->nullScriptValue(), args);
+                QScriptValue ret = replaceValue.call(eng->nullValue(), args);
                 output += ret.toString();
                 pos = index + args[0].toString().length();
             }
@@ -454,13 +454,13 @@ QScriptValue String::method_replace(QScriptEngine *eng, QScriptClassInfo *)
         if (replaceValue.isFunction()) {
             QScriptValueList args;
             args << eng->scriptValue(searchString);
-            args << eng->undefinedScriptValue(); // dummy
+            args << eng->undefinedValue(); // dummy
             args << eng->scriptValue(input);
             int index = input.indexOf(searchString, pos);
             while (index != -1) {
                 output += input.mid(pos, index - pos);
                 args[1] = eng->scriptValue(index);
-                QScriptValue ret = replaceValue.call(eng->nullScriptValue(), args);
+                QScriptValue ret = replaceValue.call(eng->nullValue(), args);
                 output += ret.toString();
                 pos = index + searchString.length();
                 index = input.indexOf(searchString, pos);

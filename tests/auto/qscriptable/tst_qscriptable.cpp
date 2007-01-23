@@ -89,7 +89,7 @@ void MyScriptable::evalIsBar()
 bool MyScriptable::useInAnotherEngine()
 {
     QScriptEngine eng;
-    eng.globalObject().setProperty("foo", eng.scriptValueFromQObject(this));
+    eng.globalObject().setProperty("foo", eng.newQObject(this));
     eng.evaluate("foo.baz()");
     m_lastEngine = engine();
     return (m_otherEngine == &eng);
@@ -150,7 +150,7 @@ tst_QScriptable::~tst_QScriptable()
 
 void tst_QScriptable::initTestCase()
 {
-    QScriptValue obj = m_engine.scriptValueFromQObject(&m_scriptable);
+    QScriptValue obj = m_engine.newQObject(&m_scriptable);
     m_engine.globalObject().setProperty("scriptable", obj);
 }
 

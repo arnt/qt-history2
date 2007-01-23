@@ -49,7 +49,7 @@ static inline QScriptValue valueFromVariant(QScriptEngine *eng, const QVariant &
 {
     QScriptValue result = QScriptEnginePrivate::get(eng)->create(v.userType(), v.data());
     if (!result.isValid())
-        result = eng->scriptValueFromVariant(v);
+        result = eng->newVariant(v);
     return result;
 }
 
@@ -251,7 +251,7 @@ public:
 
         case CHILD_ID: {
             QObject *child = qobject->children().at(member.id());
-            *result = eng->scriptValueFromQObject(child);
+            *result = eng->newQObject(child);
         }   break;
 
         } // switch
@@ -496,10 +496,10 @@ QScriptValue QScript::ExtQObject::method_findChild(QScriptEngine *eng, QScriptCl
         QString name = context->argument(0).toString();
         QObject *child = qFindChild<QObject*>(obj, name);
         if (! child)
-            return eng->nullScriptValue();
-        return eng->scriptValueFromQObject(child);
+            return eng->nullValue();
+        return eng->newQObject(child);
     }
-    return eng->undefinedScriptValue();
+    return eng->undefinedValue();
 }
 
 QScriptValue QScript::ExtQObject::method_findChildren(QScriptEngine *eng, QScriptClassInfo *classInfo)
@@ -521,12 +521,12 @@ QScriptValue QScript::ExtQObject::method_findChildren(QScriptEngine *eng, QScrip
         }
         QScriptValue result = eng->newArray(found.size());
         for (int i = 0; i < found.size(); ++i) {
-            QScriptValue value = eng->scriptValueFromQObject(found.at(i));
+            QScriptValue value = eng->newQObject(found.at(i));
             result.setProperty(i, value);
         }
         return result;
     }
-    return eng->undefinedScriptValue();
+    return eng->undefinedValue();
 }
 
 QScriptValue QScript::ExtQObject::method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo)
@@ -541,7 +541,7 @@ QScriptValue QScript::ExtQObject::method_toString(QScriptEngine *eng, QScriptCla
                       .arg(QLatin1String(meta->className())).arg(name);
         return eng->scriptValue(str);
     }
-    return eng->undefinedScriptValue();
+    return eng->undefinedValue();
 }
 
 QScript::ConnectionQObject::ConnectionQObject(const QMetaMethod &method,
@@ -656,7 +656,7 @@ void QScript::ConnectionQObject::execute(void **argv)
             int argType = QMetaType::type(parameterTypes.at(i));
             activation_data->m_objects[i] = eng_p->create(argType, argv[i + 1]);
         } else {
-            activation_data->m_objects[i] = eng->undefinedScriptValue();
+            activation_data->m_objects[i] = eng->undefinedValue();
         }
     }
 
@@ -714,7 +714,7 @@ bool QScript::ConnectionQObject::hasTarget(const QScriptValue &receiver,
 void QScript::QtPropertyFunction::execute(QScriptContext *context)
 {
     QScriptEngine *eng = context->engine();
-    QScriptValue result = eng->undefinedScriptValue();
+    QScriptValue result = eng->undefinedValue();
 
     QMetaProperty prop = m_object->metaObject()->property(m_index);
     Q_ASSERT(prop.isValid());
@@ -760,7 +760,7 @@ void QScript::QtFunction::execute(QScriptContext *context)
 {
     QScriptEngine *eng = context->engine();
 
-    QScriptValue result = eng->undefinedScriptValue();
+    QScriptValue result = eng->undefinedValue();
 
     Q_ASSERT(m_object);
     const QMetaObject *meta = m_object->metaObject();
@@ -880,9 +880,9 @@ void QScript::QtFunction::execute(QScriptContext *context)
                 if (returnType != 0) {
                     result = QScriptEnginePrivate::get(eng)->create(returnType, params[0]);
                     if (!result.isValid())
-                        result = eng->scriptValueFromVariant(QVariant(returnType, params[0]));
+                        result = eng->newVariant(QVariant(returnType, params[0]));
                 } else {
-                    result = eng->undefinedScriptValue();
+                    result = eng->undefinedValue();
                 }
             }
 

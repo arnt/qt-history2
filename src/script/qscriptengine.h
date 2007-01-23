@@ -104,8 +104,11 @@ public:
     bool hasUncaughtException() const;
     int uncaughtExceptionLineNumber() const;
 
-    QScriptValue nullScriptValue();
-    QScriptValue undefinedScriptValue();
+    QScriptValue nullValue();
+    QScriptValue undefinedValue();
+    Q_DECL_DEPRECATED QScriptValue nullScriptValue();
+    Q_DECL_DEPRECATED QScriptValue undefinedScriptValue();
+
     QScriptValue scriptValue(bool value);
     QScriptValue scriptValue(int value);
     QScriptValue scriptValue(uint value);
@@ -116,12 +119,16 @@ public:
 #ifndef QT_NO_CAST_FROM_ASCII
     QT_ASCII_CAST_WARN QScriptValue scriptValue(const char *value);
 #endif
-    QScriptValue scriptValue(QScriptFunctionSignature esignature, int length = 0);
-    QScriptValue scriptValue(QScriptFunctionSignature signature, const QScriptValue &prototype, int length = 0);
+    QScriptValue newFunction(QScriptFunctionSignature signature, int length = 0);
+    QScriptValue newFunction(QScriptFunctionSignature signature, const QScriptValue &prototype, int length = 0);
+    Q_DECL_DEPRECATED QScriptValue scriptValue(QScriptFunctionSignature signature, int length = 0);
+    Q_DECL_DEPRECATED QScriptValue scriptValue(QScriptFunctionSignature signature, const QScriptValue &prototype, int length = 0);
 #ifndef QT_NO_REGEXP
-    QScriptValue scriptValue(const QRegExp &regexp);
+    QScriptValue newRegExp(const QRegExp &regexp);
+    Q_DECL_DEPRECATED QScriptValue scriptValue(const QRegExp &regexp);
 #endif
-    QScriptValue scriptValueFromVariant(const QVariant &value);
+    QScriptValue newVariant(const QVariant &value);
+    Q_DECL_DEPRECATED QScriptValue scriptValueFromVariant(const QVariant &value);
 
     QScriptValue newObject();
     QScriptValue newArray(uint length = 0);
@@ -133,9 +140,12 @@ public:
     void setDefaultPrototype(int metaTypeId, const QScriptValue &prototype);
 
 #ifndef QT_NO_QOBJECT
-    QScriptValue scriptValueFromQObject(QObject *object);
-    QScriptValue scriptValue(const QMetaObject *metaObject,
-                             const QScriptValue &ctor);
+    QScriptValue newQObject(QObject *object);
+    QScriptValue newQMetaObject(const QMetaObject *metaObject,
+                                const QScriptValue &ctor);
+    Q_DECL_DEPRECATED QScriptValue scriptValueFromQObject(QObject *object);
+    Q_DECL_DEPRECATED QScriptValue scriptValue(const QMetaObject *metaObject,
+                                               const QScriptValue &ctor);
 #ifndef QT_NO_MEMBER_TEMPLATES
     template <class T>
     QScriptValue scriptValueFromQClass()
@@ -153,20 +163,20 @@ public:
     { return qScriptValueFromValue(this, value); }
 #endif // QT_NO_MEMBER_TEMPLATES
 
-    typedef QScriptValue (*MarshallFunction)(QScriptEngine *, const void *);
-    typedef void (*DemarshallFunction)(const QScriptValue &, void *);
+    typedef QScriptValue (*MarshalFunction)(QScriptEngine *, const void *);
+    typedef void (*DemarshalFunction)(const QScriptValue &, void *);
 
 private:
     QScriptValue create(int type, const void *ptr);
 
     bool convert(const QScriptValue &value, int type, void *ptr);
 
-    void registerCustomType(int type, MarshallFunction mf,
-                            DemarshallFunction df,
+    void registerCustomType(int type, MarshalFunction mf,
+                            DemarshalFunction df,
                             const QScriptValue &prototype);
 
     friend inline void qScriptRegisterMetaType_helper(
-        QScriptEngine *, int, MarshallFunction, DemarshallFunction,
+        QScriptEngine *, int, MarshalFunction, DemarshalFunction,
         const QScriptValue &);
     friend inline QScriptValue qScriptValueFromValue_helper(
         QScriptEngine *, int, const void *);
@@ -194,15 +204,15 @@ private:
 template <class T>
 inline QScriptValue qScriptValueFromQClass(QScriptEngine *engine)
 {
-    return engine->scriptValue(&T::staticMetaObject,
-                               engine->scriptValue(qscriptQClassConstructor<T>));
+    return engine->newQMetaObject(&T::staticMetaObject,
+                                  engine->newFunction(qscriptQClassConstructor<T>));
 }
 
 #define Q_SCRIPT_DECLARE_QCLASS(T, _Arg1) \
 template<> static inline QScriptValue qscriptQClassConstructor<T>(QScriptContext *ctx, QScriptEngine *eng) \
 { \
     _Arg1 arg1 = qscript_cast<_Arg1> (ctx->argument(0)); \
-    return eng->scriptValueFromQObject(new T(arg1)); \
+    return eng->newQObject(new T(arg1)); \
 }
 
 #endif // QT_NO_QOBJECT
@@ -246,8 +256,8 @@ T qscript_cast(const QScriptValue &value
 }
 
 inline void qScriptRegisterMetaType_helper(QScriptEngine *eng, int type,
-                                           QScriptEngine::MarshallFunction mf,
-                                           QScriptEngine::DemarshallFunction df,
+                                           QScriptEngine::MarshalFunction mf,
+                                           QScriptEngine::DemarshalFunction df,
                                            const QScriptValue &prototype)
 {
     eng->registerCustomType(type, mf, df, prototype);
@@ -266,8 +276,8 @@ int qScriptRegisterMetaType(
 {
     const int id = qRegisterMetaType<T>(); // make sure it's registered
     qScriptRegisterMetaType_helper(
-        eng, id, reinterpret_cast<QScriptEngine::MarshallFunction>(toValue),
-        reinterpret_cast<QScriptEngine::DemarshallFunction>(fromValue),
+        eng, id, reinterpret_cast<QScriptEngine::MarshalFunction>(toValue),
+        reinterpret_cast<QScriptEngine::DemarshalFunction>(fromValue),
         prototype);
     return id;
 }

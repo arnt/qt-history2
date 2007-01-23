@@ -57,7 +57,7 @@ static QScriptValue Image(QScriptContext *context, QScriptEngine *env)
 {
     QScriptValue val = context->thisObject();
     DomImage *image = new DomImage();
-    QScriptValue klass = env->scriptValueFromVariant(qVariantFromValue(image));
+    QScriptValue klass = env->newVariant(qVariantFromValue(image));
     klass.setPrototype(DomImage::s_self);
     return klass;
 }
@@ -96,7 +96,7 @@ static QScriptValue setSrc(QScriptContext *context, QScriptEngine *env)
     if (image)
         image->setSrc(src);
 
-    return env->undefinedScriptValue();
+    return env->undefinedValue();
 }
 
 
@@ -117,13 +117,13 @@ void DomImage::setup(QScriptEngine *e)
     qRegisterMetaType<DomImage>();
 
     e->globalObject().setProperty("Image",
-                                  e->scriptValue(::Image, 0));
+                                  e->newFunction(::Image, 0));
 
     s_self = e->newObject();
-    s_self.setProperty("setSrc", e->scriptValue(&::setSrc, 1));
-    s_self.setProperty("width", e->scriptValue(&::width));
-    s_self.setProperty("height", e->scriptValue(&::height));
-    s_self.setProperty("name", e->scriptValue(&::name));
+    s_self.setProperty("setSrc", e->newFunction(&::setSrc, 1));
+    s_self.setProperty("width", e->newFunction(&::width));
+    s_self.setProperty("height", e->newFunction(&::height));
+    s_self.setProperty("name", e->newFunction(&::name));
 
     e->setDefaultPrototype(qMetaTypeId<DomImage>(), s_self);
 }
