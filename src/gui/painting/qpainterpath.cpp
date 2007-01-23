@@ -2884,6 +2884,8 @@ void QPainterPath::addRoundRect(const QRectF &r, int xRnd, int yRnd)
 */
 QPainterPath QPainterPath::united(const QPainterPath &p) const
 {
+    if (isEmpty() || p.isEmpty())
+        return isEmpty() ? p : *this;
     QPathClipper clipper(*this, p);
     return clipper.clip(QPathClipper::BoolOr);
 }
@@ -2895,6 +2897,8 @@ QPainterPath QPainterPath::united(const QPainterPath &p) const
 */
 QPainterPath QPainterPath::intersected(const QPainterPath &p) const
 {
+    if (isEmpty() || p.isEmpty())
+        return QPainterPath();
     QPathClipper clipper(*this, p);
     return clipper.clip(QPathClipper::BoolAnd);
 }
@@ -2906,6 +2910,8 @@ QPainterPath QPainterPath::intersected(const QPainterPath &p) const
 */
 QPainterPath QPainterPath::subtracted(const QPainterPath &p) const
 {
+    if (isEmpty() || p.isEmpty())
+        return *this;
     QPathClipper clipper(*this, p);
     return clipper.clip(QPathClipper::BoolSub);
 }
@@ -2917,6 +2923,8 @@ QPainterPath QPainterPath::subtracted(const QPainterPath &p) const
 */
 QPainterPath QPainterPath::subtractedInverted(const QPainterPath &p) const
 {
+    if (isEmpty() || p.isEmpty())
+        return p;
     QPathClipper clipper(*this, p);
     return clipper.clip(QPathClipper::BoolInSub);
 }
@@ -2931,6 +2939,8 @@ QPainterPath QPainterPath::subtractedInverted(const QPainterPath &p) const
  */
 bool QPainterPath::intersects(const QPainterPath &p) const
 {
+    if (isEmpty() || p.isEmpty())
+        return false;
     QPathClipper clipper(*this, p);
     return clipper.intersect();
 }
@@ -2943,6 +2953,8 @@ bool QPainterPath::intersects(const QPainterPath &p) const
  */
 bool QPainterPath::contains(const QPainterPath &p) const
 {
+    if (isEmpty() || p.isEmpty())
+        return false;
     QPathClipper clipper(*this, p);
     return clipper.contains();
 }
