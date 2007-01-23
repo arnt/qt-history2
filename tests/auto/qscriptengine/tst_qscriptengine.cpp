@@ -42,7 +42,6 @@ private slots:
     void evaluate_data();
     void evaluate();
     void nestedEvaluate();
-    void addRemoveRootObject();
     void nameId();
     void getSetDefaultPrototype();
 };
@@ -300,7 +299,7 @@ void tst_QScriptEngine::evaluate()
 
     QScriptEngine eng;
     (void)eng.evaluate(code);
-    QCOMPARE(eng.uncaughtException(), expectHadError);
+    QCOMPARE(eng.hasUncaughtException(), expectHadError);
     QCOMPARE(eng.uncaughtExceptionLineNumber(), expectErrorLineNumber);
 }
 
@@ -322,45 +321,6 @@ void tst_QScriptEngine::nestedEvaluate()
     QCOMPARE(result.property("thisObjectIdBefore").toString(), QString("foo"));
     QCOMPARE(result.property("thisObjectIdAfter").toString(), QString("foo"));
     QCOMPARE(result.property("evaluatedThisObjectId").toString(), QString("foo"));
-}
-
-void tst_QScriptEngine::addRemoveRootObject()
-{
-    QScriptEngine eng;
-    QCOMPARE(eng.rootObjects().size(), 0);
-
-    QScriptValue object = eng.newObject();
-    eng.addRootObject(object);
-    QCOMPARE(eng.rootObjects().size(), 1);
-    QCOMPARE(eng.rootObjects().at(0).strictEqualTo(object), true);
-
-    QScriptValue object2 = eng.newObject();
-    eng.addRootObject(object2);
-    QCOMPARE(eng.rootObjects().size(), 2);
-    QCOMPARE(eng.rootObjects().at(0).strictEqualTo(object), true);
-    QCOMPARE(eng.rootObjects().at(1).strictEqualTo(object2), true);
-
-    eng.removeRootObject(object);
-    QCOMPARE(eng.rootObjects().size(), 1);
-    QCOMPARE(eng.rootObjects().at(0).strictEqualTo(object2), true);
-
-    eng.removeRootObject(object2);
-    QCOMPARE(eng.rootObjects().size(), 0);
-
-    // test refcounting
-    eng.addRootObject(object);
-    QCOMPARE(eng.rootObjects().size(), 1);
-    QCOMPARE(eng.rootObjects().at(0).strictEqualTo(object), true);
-
-    eng.addRootObject(object);
-    QCOMPARE(eng.rootObjects().size(), 1);
-    QCOMPARE(eng.rootObjects().at(0).strictEqualTo(object), true);
-
-    eng.removeRootObject(object);
-    QCOMPARE(eng.rootObjects().size(), 1);
-    QCOMPARE(eng.rootObjects().at(0).strictEqualTo(object), true);
-    eng.removeRootObject(object);
-    QCOMPARE(eng.rootObjects().size(), 0);
 }
 
 void tst_QScriptEngine::nameId()

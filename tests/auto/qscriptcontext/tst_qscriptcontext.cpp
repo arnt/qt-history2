@@ -174,7 +174,7 @@ void tst_QScriptContext::throwError()
         QScriptValue fun = eng.scriptValue(throw_Error);
         eng.globalObject().setProperty("throw_Error", fun);
         QScriptValue result = eng.evaluate("throw_Error()");
-        QCOMPARE(eng.uncaughtException(), true);
+        QCOMPARE(eng.hasUncaughtException(), true);
         QCOMPARE(result.isError(), true);
         QCOMPARE(result.toString(), QString("Error: foo"));
     }
@@ -183,7 +183,7 @@ void tst_QScriptContext::throwError()
         QScriptValue fun = eng.scriptValue(throw_TypeError);
         eng.globalObject().setProperty("throw_TypeError", fun);
         QScriptValue result = eng.evaluate("throw_TypeError()");
-        QCOMPARE(eng.uncaughtException(), true);
+        QCOMPARE(eng.hasUncaughtException(), true);
         QCOMPARE(result.isError(), true);
         QCOMPARE(result.toString(), QString("TypeError: foo"));
     }
@@ -192,7 +192,7 @@ void tst_QScriptContext::throwError()
         QScriptValue fun = eng.scriptValue(throw_ReferenceError);
         eng.globalObject().setProperty("throw_ReferenceError", fun);
         QScriptValue result = eng.evaluate("throw_ReferenceError()");
-        QCOMPARE(eng.uncaughtException(), true);
+        QCOMPARE(eng.hasUncaughtException(), true);
         QCOMPARE(result.isError(), true);
         QCOMPARE(result.toString(), QString("ReferenceError: foo"));
     }
@@ -201,7 +201,7 @@ void tst_QScriptContext::throwError()
         QScriptValue fun = eng.scriptValue(throw_SyntaxError);
         eng.globalObject().setProperty("throw_SyntaxError", fun);
         QScriptValue result = eng.evaluate("throw_SyntaxError()");
-        QCOMPARE(eng.uncaughtException(), true);
+        QCOMPARE(eng.hasUncaughtException(), true);
         QCOMPARE(result.isError(), true);
         QCOMPARE(result.toString(), QString("SyntaxError: foo"));
     }
@@ -210,7 +210,7 @@ void tst_QScriptContext::throwError()
         QScriptValue fun = eng.scriptValue(throw_RangeError);
         eng.globalObject().setProperty("throw_RangeError", fun);
         QScriptValue result = eng.evaluate("throw_RangeError()");
-        QCOMPARE(eng.uncaughtException(), true);
+        QCOMPARE(eng.hasUncaughtException(), true);
         QCOMPARE(result.isError(), true);
         QCOMPARE(result.toString(), QString("RangeError: foo"));
     }
@@ -219,7 +219,7 @@ void tst_QScriptContext::throwError()
         QScriptValue fun = eng.scriptValue(throw_URIError);
         eng.globalObject().setProperty("throw_URIError", fun);
         QScriptValue result = eng.evaluate("throw_URIError()");
-        QCOMPARE(eng.uncaughtException(), true);
+        QCOMPARE(eng.hasUncaughtException(), true);
         QCOMPARE(result.isError(), true);
         QCOMPARE(result.toString(), QString("URIError: foo"));
     }
@@ -241,7 +241,7 @@ void tst_QScriptContext::throwValue()
         QScriptValue result = eng.evaluate("throw_value(123)");
         QCOMPARE(result.isError(), false);
         QCOMPARE(result.toNumber(), 123.0);
-        QCOMPARE(eng.uncaughtException(), true);
+        QCOMPARE(eng.hasUncaughtException(), true);
     }
 }
 
@@ -259,7 +259,7 @@ void tst_QScriptContext::recoverFromException()
     QScriptValue fun = eng.scriptValue(throw_and_recover);
     eng.globalObject().setProperty("throw_and_recover", fun);
     QScriptValue result = eng.evaluate("throw_and_recover(123)");
-    QCOMPARE(eng.uncaughtException(), false);
+    QCOMPARE(eng.hasUncaughtException(), false);
     QCOMPARE(result.toNumber(), 456.0);
 }
 
@@ -280,7 +280,7 @@ void tst_QScriptContext::evaluateInFunction()
     QCOMPARE(result.isError(), false);
     QCOMPARE(result.isNumber(), true);
     QCOMPARE(result.toNumber(), 123.0);
-    QCOMPARE(eng.uncaughtException(), false);
+    QCOMPARE(eng.hasUncaughtException(), false);
 
     QCOMPARE(eng.evaluate("a").toNumber(), 123.0);
 }

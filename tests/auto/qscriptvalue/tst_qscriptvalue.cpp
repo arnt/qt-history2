@@ -709,7 +709,7 @@ void tst_QScriptValue::call()
         {
             QScriptValue result = fun.call();
             QCOMPARE(result.isError(), true);
-            QCOMPARE(eng.uncaughtException(), true);
+            QCOMPARE(eng.hasUncaughtException(), true);
         }
     }
 
