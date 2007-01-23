@@ -660,7 +660,13 @@ QStringList qmake_mkspec_paths()
 class QMakeProjectEnv
 {
     QStringList envs;
-    void init(const QMap<QString, QStringList> &values) {
+public:
+    QMakeProjectEnv() { }
+    QMakeProjectEnv(QMakeProject *p) { execute(p->variables()); }
+    QMakeProjectEnv(const QMap<QString, QStringList> &values) { execute(values); }
+
+    void execute(QMakeProject *p) { execute(p->variables()); }
+    void execute(const QMap<QString, QStringList> &values) {
 #ifdef Q_OS_UNIX
         for(QMap<QString, QStringList>::ConstIterator it = values.begin(); it != values.end(); ++it) {
             const QString var = it.key(), val = it.value().join(" ");
@@ -674,9 +680,6 @@ class QMakeProjectEnv
         Q_UNUSED(values);
 #endif
     }
-public:
-    QMakeProjectEnv(QMakeProject *p) { init(p->variables()); }
-    QMakeProjectEnv(const QMap<QString, QStringList> &variables) { init(variables); }
     ~QMakeProjectEnv() {
 #ifdef Q_OS_UNIX
         for(QStringList::ConstIterator it = envs.begin();it != envs.end(); ++it) {
@@ -2112,7 +2115,6 @@ QMakeProject::doProjectExpand(QString func, QList<QStringList> args_list,
                     parser.file.toLatin1().constData(), parser.line_no);
         } else {
             QMakeProjectEnv env(place);
-
             char buff[256];
             FILE *proc = QT_POPEN(args[0].toLatin1(), "r");
             bool singleLine = true;
@@ -2458,13 +2460,20 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
         }
         return false; }
     case T_SYSTEM: {
-        if(args.count() != 1) {
+        bool setup_env = true;
+        if(args.count() < 1 || args.count() > 2) {
             fprintf(stderr, "%s:%d: system(exec) requires one argument.\n", parser.file.toLatin1().constData(),
                     parser.line_no);
             return false;
         }
-        QMakeProjectEnv env(place);
-        bool ret = system(args.first().toLatin1().constData()) == 0;
+        if(args.count() == 2) {
+            const QString sarg = args[1];
+            setup_env = (sarg.toLower() == "true" || sarg.toInt());
+        }
+        QMakeProjectEnv env;
+        if(setup_env)
+            env.execute(place);
+        bool ret = system(args[0].toLatin1().constData()) == 0;
         return ret; }
     case T_RETURN:
         if(function_blocks.isEmpty()) {

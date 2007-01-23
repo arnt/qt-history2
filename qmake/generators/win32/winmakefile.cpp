@@ -270,6 +270,8 @@ void Win32MakefileGenerator::processVars()
         project->values("QMAKE_COPY_DIR").append("xcopy /s /q /y /i");
     if(project->isEmpty("QMAKE_INSTALL_FILE"))
         project->values("QMAKE_INSTALL_FILE").append("$(COPY_FILE)");
+    if(project->isEmpty("QMAKE_INSTALL_PROGRAM"))
+        project->values("QMAKE_INSTALL_PROGRAM").append("$(COPY_FILE)");
     if(project->isEmpty("QMAKE_INSTALL_DIR"))
         project->values("QMAKE_INSTALL_DIR").append("$(COPY_DIR)");
 
@@ -426,7 +428,7 @@ void Win32MakefileGenerator::processFileTagsVar()
 
 void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
 {
-    t << "clean: compiler_clean";
+    t << "clean: compiler_clean " << var("CLEAN_DEPS");
     {
         const char *clean_targets[] = { "OBJECTS", "QMAKE_CLEAN", "CLEAN_FILES", 0 };
         for(int i = 0; clean_targets[i]; ++i) {
@@ -534,8 +536,9 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     t << "MOVE          = " << var("QMAKE_MOVE") << endl;
     t << "CHK_DIR_EXISTS= " << var("QMAKE_CHK_DIR_EXISTS") << endl;
     t << "MKDIR         = " << var("QMAKE_MKDIR") << endl;
-    t << "INSTALL_FILE  = " << var("QMAKE_INSTALL_FILE") << endl;
-    t << "INSTALL_DIR   = " << var("QMAKE_INSTALL_DIR") << endl;
+    t << "INSTALL_FILE    = " << var("QMAKE_INSTALL_FILE") << endl;
+    t << "INSTALL_PROGRAM = " << var("QMAKE_INSTALL_PROGRAM") << endl;
+    t << "INSTALL_DIR     = " << var("QMAKE_INSTALL_DIR") << endl;
     t << endl;
 
     t << "####### Output directory" << endl << endl;
