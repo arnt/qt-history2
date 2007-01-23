@@ -2384,16 +2384,26 @@ void tst_QGraphicsScene::views()
     QGraphicsScene scene;
     QGraphicsView view(&scene);
 
-    QVERIFY(scene.views().size() == 1);
-    QVERIFY(scene.views().at(0) == &view);
+    QCOMPARE(scene.views().size(), 1);
+    QCOMPARE(scene.views().at(0), &view);
 
     QGraphicsView view1(&scene);
-    QVERIFY(scene.views().size() == 2);
-    QVERIFY(scene.views().at(0) == &view1 || scene.views().at(1) == &view1);
+    QCOMPARE(scene.views().size(), 2);
+    QVERIFY(scene.views().contains(&view1));
 
     view.setScene(0);
-    QVERIFY(scene.views().size() == 1);
-    QVERIFY(scene.views().at(0) == &view1);    
+    QCOMPARE(scene.views().size(), 1);
+    QCOMPARE(scene.views().at(0), &view1);
+
+    QGraphicsView *view2 = new QGraphicsView(&scene);
+    QCOMPARE(scene.views().size(), 2);
+    QCOMPARE(scene.views().at(0), &view1);
+    QCOMPARE(scene.views().at(1), view2);
+
+    delete view2;
+
+    QCOMPARE(scene.views().size(), 1);
+    QCOMPARE(scene.views().at(0), &view1);
 }
 
 class CustomScene : public QGraphicsScene
