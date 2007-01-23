@@ -36,7 +36,7 @@ contains(HOSTNAME,trueblue):LIBS = -nodefaultlibs /usr/local/ssl/lib/libssl.a /u
 #2. build i386 version on 10.4 with build_i386.sh script
 #3. merge them on 10.4 with build_uni.sh
 mac: {
-QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.2 #enables weak linking for 10.2 (exported)
+QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.3 #enables weak linking for 10.3 (exported)
 LIBS= /usr/lib/libz.dylib ./shadowqt/lib/libQtNetwork.a ./shadowqt/lib/libQtCore.a ./openssl/openssl-0.9.8b/libssl.a ./openssl/openssl-0.9.8b/libcrypto.a -dead_strip -framework Carbon
 CONFIG += x86 ppc
 }
