@@ -636,6 +636,8 @@ QGraphicsView::QGraphicsView(QGraphicsScene *scene, QWidget *parent)
 QGraphicsView::~QGraphicsView()
 {
     Q_D(QGraphicsView);
+    if (d->scene)
+        d->scene->d_func()->views.removeAll(this);
     delete d->lastDragDropEvent;
 }
 
