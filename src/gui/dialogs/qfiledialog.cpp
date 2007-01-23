@@ -125,6 +125,80 @@
 */
 
 /*!
+    \enum QFileDialog::AcceptMode
+
+    \value AcceptOpen
+    \value AcceptSave
+*/
+
+/*!
+    \enum QFileDialog::ViewMode
+
+    This enum describes the view mode of the file dialog; i.e. what
+    information about each file will be displayed.
+
+    \value Detail Displays an icon, a name, and details for each item in
+                  the directory.
+    \value List   Displays only an icon and a name for each item in the
+                  directory.
+
+    \sa setViewMode()
+*/
+
+/*!
+    \enum QFileDialog::FileMode
+
+    This enum is used to indicate what the user may select in the file
+    dialog; i.e. what the dialog will return if the user clicks OK.
+
+    \value AnyFile        The name of a file, whether it exists or not.
+    \value ExistingFile   The name of a single existing file.
+    \value Directory      The name of a directory. Both files and
+                          directories are displayed.
+    \value DirectoryOnly  The name of a directory. The file dialog will only display directories.
+    \value ExistingFiles  The names of zero or more existing files.
+
+    \sa setFileMode()
+*/
+
+/*!
+    \enum QFileDialog::Option
+
+    \value ShowDirsOnly Only show directories in the file dialog. By default both files and
+    directories are shown.
+    \value DontResolveSymlinks Don't resolve symlinks in the file dialog. By default symlinks
+    are resolved.
+    \value DontConfirmOverwrite Don't ask for confirmation if an existing file is selected.
+    By default confirmation is requested.
+    \value DontUseSheet Don't make the native file dialog a sheet. By default on Mac OS X, the
+    native file dialog is made a sheet if it has a parent that can take a sheet.
+    \value DontUseNativeDialog Don't use the native file dialog.  By default on Mac OS X and Windows,
+    the native file dialog is used.
+    \value StoreState When the dialog exists save the state of the dialog in the QSettings group
+    'General' and during initialization try to restore the state of the dialog from that group.
+*/
+
+/*!
+  \enum QFileDialog::DialogLabel
+
+  \value LookIn
+  \value FileName
+  \value FileType
+  \value Accept
+  \value Reject
+*/
+
+/*!
+    \fn void QFileDialog::filesSelected(const QStringList &selected)
+
+    When the selection changes, this signal is emitted with the
+    (possibly empty) list of \a selected files.
+
+    \sa currentChanged()
+*/
+
+
+/*!
   \fn void QFileDialog::dirEntered(const QString &)
 
   This signal is emitted when the user enters a directory.
@@ -149,6 +223,11 @@ bool Q_GUI_EXPORT qt_use_native_dialogs = true; // for the benefit of testing to
 #include <qmacstyle_mac.h>
 #endif
 
+/*!
+    \fn QFileDialog::QFileDialog(QWidget *parent, Qt::WindowFlags flags)
+
+    Constructs a file dialog with the given \a parent and widget \a flags.
+*/
 QFileDialog::QFileDialog(QWidget *parent, Qt::WindowFlags f)
     : QDialog(*new QFileDialogPrivate, parent, f)
 {
@@ -156,6 +235,13 @@ QFileDialog::QFileDialog(QWidget *parent, Qt::WindowFlags f)
     d->init();
 }
 
+/*!
+    Constructs a file dialog with the given \a parent and \a caption that
+    initially displays the contents of the specified \a directory.
+    The contents of the directory are filtered before being shown in the
+    dialog, using a semicolon-separated list of filters specified by
+    \a filter.
+*/
 QFileDialog::QFileDialog(QWidget *parent,
                      const QString &caption,
                      const QString &directory,
@@ -168,7 +254,7 @@ QFileDialog::QFileDialog(QWidget *parent,
 }
 
 /*!
-    \internal
+    Destroys the file dialog.
 */
 QFileDialog::QFileDialog(const QFileDialogArgs &args)
     : QDialog(*new QFileDialogPrivate, args.parent, 0)
@@ -331,6 +417,12 @@ void QFileDialogPrivate::_q_goToUrl(const QUrl &url)
 }
 
 /*!
+    \fn void QFileDialog::setDirectory(const QDir &directory)
+
+    \overload
+*/
+
+/*!
     Sets the file dialog's current \a directory.
 */
 void QFileDialog::setDirectory(const QString &directory)
@@ -367,7 +459,7 @@ QDir QFileDialog::directory() const
 /*!
     Selects the given \a filename in both the file dialog.
 
-    \sa selectedFiles();
+    \sa selectedFiles()
 */
 void QFileDialog::selectFile(const QString &filename)
 {
@@ -726,6 +818,15 @@ bool QFileDialog::isReadOnly() const
     return d->model->isReadOnly();
 }
 
+/*!
+    \property QFileDialog::detailsExpanded
+    \brief Whether the filedialog shows the current directory or not.
+
+    If this property is set to true, the filedialog will display the contents of
+    the current directory otherwise it will present a simplified file dialog.
+
+    \sa getSaveFileName()
+*/
 void QFileDialog::setDetailsExpanded(bool expanded)
 {
     Q_D(QFileDialog);
@@ -2599,6 +2700,93 @@ QStringList QFSCompletor::splitPath(const QString &path) const
     }
     return parts;
 }
+
+#ifdef QT3_SUPPORT
+/*!
+    Use selectedFiles() instead.
+
+    \oldcode
+       QString selected = dialog->selectedFile();
+    \newcode
+        QStringList files = dialog->selectedFiles();
+        QString selected;
+        if (!files.isEmpty())
+            selected = files[0];
+    \endcode
+*/
+QString QFileDialog::selectedFile() const
+{
+    QStringList files = selectedFiles();
+    return files.size() ? files.at(0) : QString();
+}
+
+/*!
+    \typedef QFileDialog::Mode
+
+    Use QFileDialog::FileMode instead.
+*/
+
+/*!
+    \fn void QFileDialog::setMode(FileMode m)
+
+    Use setFileMode() instead.
+*/
+
+/*!
+    \fn FileMode QFileDialog::mode() const
+
+    Use fileMode() instead.
+*/
+
+/*!
+    \fn void QFileDialog::setDir(const QString &directory)
+
+    Use setDirectory() instead.
+*/
+
+/*!
+    \fn void QFileDialog::setDir( const QDir &directory )
+
+    Use setDirectory() instead.
+*/
+
+/*!
+    \fn QStringList QFileDialog::getOpenFileNames(const QString &filter,
+        const QString &dir, QWidget *parent, const char* name,
+        const QString &caption, QString *selectedFilter, bool resolveSymlinks)
+
+    Use the getOpenFileNames() overload that takes \a parent as the first
+    argument instead.
+*/
+
+/*!
+    \fn QString QFileDialog::getOpenFileName(const QString &dir,
+        const QString &filter, QWidget *parent = 0, const char *name,
+        const QString &caption, QString *selectedFilter, bool resolveSymlinks)
+
+    Use the getOpenFileName() overload that takes \a parent as the first
+    argument instead.
+*/
+
+/*!
+    \fn QString QFileDialog::getSaveFileName(const QString &dir,
+        const QString &filter, QWidget *parent, const char *name,
+        const QString &caption, QString *selectedFilter, bool resolveSymlinks)
+
+    Use the getSaveFileName() overload that takes \a parent as the first
+    argument instead.
+*/
+
+/*!
+    \fn QString QFileDialog::getExistingDirectory(const QString &dir,
+        QWidget *parent, const char *name, const QString &caption,
+        bool dirOnly, bool resolveSymlinks)
+
+    Use the getExistingDirectory() overload that takes \a parent as
+    the first argument instead.
+*/
+
+#endif
 
 #include "moc_qfiledialog.cpp"
 
