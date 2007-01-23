@@ -2605,10 +2605,11 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
     if (topLeft == bottomRight && topLeft.isValid()) {
         if (d->hasEditor(topLeft)) {
             QAbstractItemDelegate *delegate = d->delegateForIndex(topLeft);
-            if (!delegate)
-                return;
-            delegate->setEditorData(d->editorForIndex(topLeft), topLeft);
-        } else if (isVisible() && !d->delayedLayout.isActive()) {
+            if (delegate) {
+                delegate->setEditorData(d->editorForIndex(topLeft), topLeft);
+            }
+        } 
+        if (isVisible() && !d->delayedLayout.isActive()) {
             // otherwise the items will be update later anyway
             d->viewport->update(visualRect(topLeft));
         }
@@ -3277,6 +3278,8 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
             delegate->setEditorData(w, index);
             addEditor(index, w);
             QWidget::setTabOrder(q, w);
+
+            if (q->currentIndex() == index) {
             // Special cases for some editors containing QLineEdit
 #ifndef QT_NO_LINEEDIT
             if (QLineEdit *le = ::qobject_cast<QLineEdit*>(w))
@@ -3286,6 +3289,7 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
             if (QSpinBox *sb = ::qobject_cast<QSpinBox*>(w))
                 sb->selectAll();
 #endif
+            }
         }
     }
     return w;
