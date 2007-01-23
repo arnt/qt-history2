@@ -361,6 +361,9 @@ Option::init(int argc, char **argv)
                 if ((*p).isEmpty())
                     continue;
                 QString candidate = currentDir.absoluteFilePath(*p + QLatin1Char('/') + argv0);
+#ifdef Q_OS_WIN
+                candidate += ".exe";
+#endif
                 if (QFile::exists(candidate)) {
                     Option::qmake_abslocation = candidate;
                     break;
