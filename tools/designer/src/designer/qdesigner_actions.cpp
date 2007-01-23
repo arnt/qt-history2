@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#include "qdesigner.h"
 #include "qdesigner_actions.h"
+#include "qdesigner.h"
 #include "qdesigner_workbench.h"
 #include "qdesigner_formwindow.h"
 #include "qdesigner_settings.h"
@@ -23,13 +23,23 @@
 #include "plugindialog.h"
 #include "formwindowsettings.h"
 
-// sdk
-#include <QtDesigner/QtDesigner>
-#include <qdesigner_formbuilder_p.h>
 #include <pluginmanager_p.h>
-#include <abstractlanguage.h>
+#include <qdesigner_formbuilder_p.h>
+// sdk
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerLanguageExtension>
+#include <QtDesigner/QDesignerWidgetDataBaseInterface>
+#include <QtDesigner/QDesignerMetaDataBaseInterface>
+#include <QtDesigner/QDesignerFormWindowManagerInterface>
+#include <QtDesigner/QDesignerFormWindowCursorInterface>
+#include <QtDesigner/QDesignerPropertySheetExtension>
+#include <QtDesigner/QDesignerPropertyEditorInterface>
+#include <QtDesigner/QDesignerFormEditorPluginInterface>
+#include <QtDesigner/QExtensionManager>
 
 #include <QtAssistant/QAssistantClient>
+
 #include <QtGui/QAction>
 #include <QtGui/QStyleFactory>
 #include <QtGui/QAction>
@@ -325,7 +335,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_windowActions->addAction(sep);
 
     m_bringToFrontAction = new QAction(tr("Bring All to Front"), this);
-    connect(m_bringToFrontAction, SIGNAL(triggered()), this, SLOT(bringAllToFront()));
+    connect(m_bringToFrontAction, SIGNAL(triggered()), m_workbench, SLOT(bringAllToFront()));
     m_windowActions->addAction(m_bringToFrontAction);
 
 //
@@ -1039,16 +1049,6 @@ void QDesignerActions::minimizeForm()
             fw->parentWidget()->showMinimized();
         }
     }
-}
-
-void QDesignerActions::bringAllToFront()
-{
-    int i;
-    for (i = 0; i < m_workbench->formWindowCount(); ++i)
-        m_workbench->formWindow(i)->raise();
-
-    for (i = 0; i < m_workbench->toolWindowCount(); ++i)
-        m_workbench->toolWindow(i)->raise();
 }
 
 QAction *QDesignerActions::minimizeAction() const

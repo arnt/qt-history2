@@ -15,7 +15,7 @@
 #define QDESIGNER_FORMWINDOW_H
 
 #include <QtCore/QPointer>
-#include <QtGui/QMainWindow>
+#include <QtGui/QWidget>
 
 class QDesignerWorkbench;
 class QDesignerFormWindowInterface;
@@ -49,7 +49,7 @@ private:
     QDesignerFormWindowInterface *m_editor;
     QPointer<QDesignerWorkbench> m_workbench;
     QAction *m_action;
-    bool initialized;
+    bool m_initialized;
 };
 
 #endif // QDESIGNER_FORMWINDOW_H

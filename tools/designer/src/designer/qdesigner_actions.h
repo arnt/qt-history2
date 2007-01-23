@@ -14,10 +14,8 @@
 #ifndef QDESIGNER_ACTIONS_H
 #define QDESIGNER_ACTIONS_H
 
-#include <QtCore/QPointer>
 #include <QtCore/QObject>
 
-class QDesignerMainWindow;
 class QDesignerWorkbench;
 
 class QDir;
@@ -138,7 +136,6 @@ private slots:
     void clearRecentFiles();
     void closeForm();
     void minimizeForm();
-    void bringAllToFront();
     void showDesignerHelp();
     void showWhatsNew();
     void aboutPlugins();

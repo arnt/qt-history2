@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#include "qdesigner.h"
 #include "qdesigner_workbench.h"
+#include "qdesigner.h"
 #include "qdesigner_actions.h"
 #include "qdesigner_toolwindow.h"
 #include "qdesigner_formwindow.h"
@@ -24,28 +24,30 @@
 #include "qdesigner_actioneditor.h"
 #include "qdesigner_resourceeditor.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormWindowManagerInterface>
+#include <QtDesigner/QDesignerFormEditorPluginInterface>
+#include <QtDesigner/QDesignerWidgetBoxInterface>
+
 #include <QtDesigner/QDesignerComponents>
 #include <QtDesigner/private/qdesigner_integration_p.h>
 #include <QtDesigner/private/pluginmanager_p.h>
+
+#include <QtCore/QDir>
+#include <QtCore/QUrl>
+#include <QtCore/QPluginLoader>
 
 #include <QtGui/QActionGroup>
 #include <QtGui/QCloseEvent>
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QDockWidget>
-#include <QtGui/QHeaderView>
-#include <QtGui/QLabel>
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
 #include <QtGui/QToolBar>
 #include <QtGui/QWorkspace>
-
-#include <QtCore/QVariant>
-#include <QtCore/QUrl>
-#include <QtCore/QPluginLoader>
-#include <QtCore/qdebug.h>
 
 QDesignerWorkbench::QDesignerWorkbench()
     : m_mode(QDesignerWorkbench::NeutralMode), m_workspace(0)
@@ -900,4 +902,22 @@ void QDesignerWorkbench::updateBackup(QDesignerFormWindowInterface* fwi)
     QMap<QString, QString> map = QDesignerSettings().backup();
     map.remove(fwn);
     QDesignerSettings().setBackup(map);
+}
+
+namespace {
+    void raiseWindow(QWidget *w) {
+        if (w->isMinimized())
+            w->setWindowState(w->windowState() & ~Qt::WindowMinimized);        
+        w->raise();
+    }
+}
+
+void QDesignerWorkbench::bringAllToFront() 
+{
+    if (m_mode !=  TopLevelMode)
+        return;
+    foreach(QDesignerToolWindow *tw, m_toolWindows)
+        raiseWindow(tw);
+    foreach(QDesignerFormWindow *dfw, m_formWindows)
+        raiseWindow(dfw);
 }

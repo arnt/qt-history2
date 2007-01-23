@@ -11,22 +11,22 @@
 **
 ****************************************************************************/
 
-#include "qdesigner_actions.h"
 #include "qdesigner_formwindow.h"
+#include "qdesigner_actions.h"
 #include "qdesigner_workbench.h"
 #include "qdesigner_settings.h"
 
 // sdk
-#include <QtDesigner/QtDesigner>
-
-// shared
-#include <QtGui/QUndoCommand>
-#include <qdesigner_command_p.h>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerPropertySheetExtension>
+#include <QtDesigner/QDesignerPropertyEditorInterface>
+#include <QtDesigner/QDesignerFormWindowManagerInterface>
+#include <QtDesigner/QExtensionManager>
 
 #include <QtCore/QEvent>
 #include <QtCore/QFile>
 #include <QtCore/QTimer>
-#include <QtCore/qdebug.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QCloseEvent>
@@ -34,12 +34,14 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QUndoCommand>
 
 QDesignerFormWindow::QDesignerFormWindow(QDesignerFormWindowInterface *editor, QDesignerWorkbench *workbench, QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags),
       m_editor(editor),
       m_workbench(workbench),
-      initialized(false)
+      m_action(new QAction(this)),
+      m_initialized(false)
 {
     Q_ASSERT(workbench);
 
@@ -55,7 +57,6 @@ QDesignerFormWindow::QDesignerFormWindow(QDesignerFormWindowInterface *editor, Q
     l->setMargin(0);
     l->addWidget(m_editor);
 
-    m_action = new QAction(this);
     m_action->setCheckable(true);
 
     connect(m_editor->commandHistory(), SIGNAL(indexChanged(int)), this, SLOT(updateChanged()));
@@ -125,7 +126,7 @@ void QDesignerFormWindow::updateWindowTitle(const QString &fileName)
         }
     }
 
-    if (QWidget *mc = m_editor->mainContainer()) {
+    if (const QWidget *mc = m_editor->mainContainer()) {
         setWindowIcon(mc->windowIcon());
         setWindowTitle(tr("%1 - %2[*]").arg(mc->windowTitle()).arg(fn));
     } else {
@@ -174,12 +175,12 @@ void QDesignerFormWindow::updateChanged()
 
 void QDesignerFormWindow::resizeEvent(QResizeEvent *rev)
 {
-    if(initialized) {
+    if(m_initialized) {
         m_editor->setDirty(true);
         setWindowModified(true);
     }
 
-    initialized = true;
+    m_initialized = true;
     QWidget::resizeEvent(rev);
 
     // update the maincontainer on resize

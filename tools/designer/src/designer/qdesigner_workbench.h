@@ -15,12 +15,11 @@
 #define QDESIGNER_WORKBENCH_H
 
 #include <QtCore/QObject>
-#include <QtCore/QPointer>
 #include <QtCore/QHash>
+#include <QtCore/QSet>
 #include <QtCore/QList>
 #include <QtCore/QRect>
 
-class QDesigner;
 class QDesignerActions;
 class QDesignerToolWindow;
 class QDesignerFormWindow;
@@ -30,7 +29,6 @@ class QActionGroup;
 class QDockWidget;
 class QMenu;
 class QMenuBar;
-class QVariant;
 class QToolBar;
 class QWorkspace;
 class QCloseEvent;
@@ -100,7 +98,7 @@ public slots:
     void removeToolWindow(QDesignerToolWindow *toolWindow);
     void removeFormWindow(QDesignerFormWindow *formWindow);
     void setUIMode(UIMode mode);
-
+    void bringAllToFront();
 // ### private slots:
     void switchToNeutralMode();
     void switchToDockedMode();
@@ -155,11 +153,8 @@ private:
     QHash<QWidget*, bool> m_visibilities;
     QHash<QWidget*, QRect> m_geometries;
 
-    class ToolWindowExtra {};
-    class FormWindowExtra {};
-
-    QHash<QDesignerToolWindow*, ToolWindowExtra> m_toolWindowExtras;
-    QHash<QDesignerFormWindow*, FormWindowExtra> m_formWindowExtras;
+    QSet<QDesignerToolWindow*> m_toolWindowExtras;
+    QSet<QDesignerFormWindow*> m_formWindowExtras;
     bool m_initializing;
 };
 
