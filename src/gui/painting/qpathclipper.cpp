@@ -1555,6 +1555,22 @@ public:
             intersectLines(a, b, c, d);
         }
     }
+    bool doEdgesIntersect(PathVertex *a, PathVertex *b,
+                          PathVertex *c, PathVertex *d)
+    {
+#ifdef QDEBUG_CLIPPER
+        Q_ASSERT(a->intersect == PathVertex::DNone);
+        Q_ASSERT(b->intersect == PathVertex::DNone);
+        Q_ASSERT(c->intersect == PathVertex::DNone);
+        Q_ASSERT(d->intersect == PathVertex::DNone);
+#endif
+
+        if (b->isCurveTo() || d->isCurveTo()) {
+            return intersectBeziers(a, b, c, d);
+        } else {
+            return intersectLines(a, b, c, d);
+        }
+    }
 
     void findIntersections()
     {
@@ -1596,6 +1612,47 @@ public:
             const Intersection &inter = (*itr);
             inter.insert();
         }
+    }
+
+    bool areIntersecting()
+    {
+        QRectF subjControl = subjectPath.controlPointRect();
+        QRectF clipControl = clipPath.controlPointRect();
+
+        bool intersects = false;
+        if (!subjControl.intersects(clipControl)) {
+            // no way we could intersect
+            return intersects;
+        }
+
+        PathVertex *lastSubjMove = 0, *lastClipMove = 0;
+        for (VertexListHandle subj(*subject); subj ; subj.next()) {
+            PathVertex *a = subj.getNode();
+            PathVertex *b = (subj.getNextNode())?subj.getNextNode():subj.getFirstNode();
+            if (!b)
+                break;
+            if (b->getType(0) == PathVertex::MoveTo)
+                b = lastSubjMove;
+            if (a->getType(0) == PathVertex::MoveTo)
+                lastSubjMove = a;
+
+            for (VertexListHandle obj(*clipper); obj ; obj.next()) {
+                PathVertex *c = obj.getNode();
+                PathVertex *d = (obj.getNextNode())?obj.getNextNode():obj.getFirstNode();;
+                if (!d)
+                    break;
+
+                if (d->getType(0) == PathVertex::MoveTo)
+                    d = lastClipMove;
+                if (c->getType(0) == PathVertex::MoveTo)
+                    lastClipMove = c;
+                intersects = doEdgesIntersect(a, b,
+                                              c, d);
+                if (intersects)
+                    return true;
+            }
+        }
+        return intersects;
     }
 
     QPainterPath pathFromList(const QList<PathVertex*> &lst)
@@ -1858,17 +1915,15 @@ QPainterPath QPathClipper::clip(Operation op)
 
 bool QPathClipper::intersect()
 {
-    d->findIntersections();
-
-    return (!d->intersections.isEmpty());
+    return d->areIntersecting();
 }
 
 bool QPathClipper::contains()
 {
-    d->findIntersections();
+    bool intersect = d->areIntersecting();
 
     //we have an intersection clearly we can't be fully contained
-    if (!d->intersections.isEmpty())
+    if (!intersect)
         return false;
 
     //if there's no intersections the path is already completely outside
