@@ -335,6 +335,8 @@ public:
     double tabStopWidth;
     int cursorWidth;
 
+    QSizeF lastReportedSize;
+
     mutable int currentLazyLayoutPosition;
     mutable int lazyLayoutStepSize;
     QBasicTimer layoutTimer;
@@ -2356,8 +2358,6 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
 
     QRectF updateRect;
 
-    const QSizeF oldSize = dynamicDocumentSize();
-
     d->lazyLayoutStepSize = 1000;
     d->sizeChangedTimer.stop();
     d->insideDocumentChange = true;
@@ -2393,8 +2393,10 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
 
     if (d->showLayoutProgress) {
         const QSizeF newSize = dynamicDocumentSize();
-        if (newSize != oldSize)
+        if (newSize != d->lastReportedSize) {
+            d->lastReportedSize = newSize;
             emit documentSizeChanged(newSize);
+        }
     }
 
     if (!updateRect.isValid()) {
@@ -2711,7 +2713,8 @@ void QTextDocumentLayout::timerEvent(QTimerEvent *e)
         if (d->currentLazyLayoutPosition != -1)
             d->layoutStep();
     } else if (e->timerId() == d->sizeChangedTimer.timerId()) {
-        emit documentSizeChanged(dynamicDocumentSize());
+        d->lastReportedSize = dynamicDocumentSize();
+        emit documentSizeChanged(d->lastReportedSize);
         d->sizeChangedTimer.stop();
 
         if (d->currentLazyLayoutPosition == -1) {
