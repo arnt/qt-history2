@@ -3164,6 +3164,10 @@ void QTreeViewPrivate::rowsRemoved(const QModelIndex &parent,
         if (after) {
             q->updateGeometries();
             viewport->update();
+        } else {
+            //we have removed items: we should at least update the scrollbar values.
+            // They are used to determine the item geometry.
+            updateScrollBars(); 
         }
     }
 }
