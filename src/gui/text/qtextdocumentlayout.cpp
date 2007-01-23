@@ -1122,7 +1122,7 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPointF &offset, QPainter *p
         return;
     QTextLine firstLine = layout->lineAt(0);
     Q_ASSERT(firstLine.isValid());
-    QPointF pos = (offset + layout->boundingRect().topLeft() + layout->position()).toPoint();
+    QPointF pos = (offset + layout->position()).toPoint();
     Qt::LayoutDirection dir = blockFormat.layoutDirection();
     {
         QRectF textRect = firstLine.naturalTextRect();

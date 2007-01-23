@@ -795,7 +795,13 @@ void QTextLayout::setPosition(const QPointF &p)
 */
 QRectF QTextLayout::boundingRect() const
 {
-    QFixed xmin, xmax, ymin, ymax;
+    if (d->lines.isEmpty())
+        return QRectF();
+
+    QFixed xmax, ymax;
+    QFixed xmin = d->lines.at(0).x;
+    QFixed ymin = d->lines.at(0).y;
+
     for (int i = 0; i < d->lines.size(); ++i) {
         const QScriptLine &si = d->lines[i];
         xmin = qMin(xmin, si.x);

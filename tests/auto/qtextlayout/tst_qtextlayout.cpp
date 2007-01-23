@@ -53,6 +53,7 @@ private slots:
     void cursorMovementInsideSpaces();
     void charWordStopOnLineSeparator();
     void xToCursorAtEndOfLine();
+    void boundingRectTopLeft();
 
 private:
     QFont testFont;
@@ -467,6 +468,25 @@ void tst_QTextLayout::xToCursorAtEndOfLine()
     QCOMPARE(line.xToCursor(100000), 9);
     line = layout.lineAt(1);
     QCOMPARE(line.xToCursor(100000), 20);
+}
+
+void tst_QTextLayout::boundingRectTopLeft()
+{
+    QString text = "FirstLine\nSecondLine";
+    text.replace('\n', QChar::LineSeparator);
+
+    QTextLayout layout(text, testFont);
+
+    layout.beginLayout();
+    QTextLine firstLine = layout.createLine();
+    QVERIFY(firstLine.isValid());
+    firstLine.setPosition(QPointF(10, 10));
+    QTextLine secondLine = layout.createLine();
+    QVERIFY(secondLine.isValid());
+    secondLine.setPosition(QPointF(20, 20));
+    layout.endLayout();
+
+    QCOMPARE(layout.boundingRect().topLeft(), firstLine.position());
 }
 
 QTEST_MAIN(tst_QTextLayout)
