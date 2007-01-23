@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "newform.h"
-#include "qdesigner.h"
 #include "qdesigner_workbench.h"
 #include "qdesigner_actions.h"
 #include "qdesigner_formwindow.h"
@@ -21,7 +20,7 @@
 #include <qdesigner_formbuilder_p.h>
 #include <sheet_delegate_p.h>
 
-#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/QDesignerFormWindowInterface>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -45,6 +44,8 @@ NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget, const QSt
 #endif
             Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
       m_workbench(workbench),
+      m_createButton(new QPushButton(QApplication::translate("NewForm", "C&reate", 0, QApplication::UnicodeUTF8))),
+      m_recentButton(new QPushButton(QApplication::translate("NewForm", "Recent", 0,  QApplication::UnicodeUTF8))),
       m_fileName(fileName)
 {
     ui.setupUi(this);
@@ -56,21 +57,19 @@ NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget, const QSt
     ui.buttonBox->clear();
     ui.buttonBox->addButton(QApplication::translate("NewForm", "&Close", 0,
                                         QApplication::UnicodeUTF8), QDialogButtonBox::RejectRole);
-    createButton = static_cast<QPushButton *>(ui.buttonBox->addButton(QApplication::translate("NewForm", "C&reate", 0,
-                           QApplication::UnicodeUTF8), QDialogButtonBox::AcceptRole));
-    createButton->setEnabled(false);
+    ui.buttonBox->addButton(m_createButton, QDialogButtonBox::AcceptRole);
+    m_createButton->setEnabled(false);
     ui.buttonBox->addButton(QApplication::translate("NewForm", "&Open...", 0,
                                     QApplication::UnicodeUTF8), QDialogButtonBox::ActionRole);
-    recentButton = static_cast<QPushButton *>(ui.buttonBox->addButton(QApplication::translate("NewForm", "Recent", 0,
-                           QApplication::UnicodeUTF8), QDialogButtonBox::ActionRole));
+    ui.buttonBox->addButton(m_recentButton, QDialogButtonBox::ActionRole);
     QDesignerActions *da = workbench->actionManager();
-    QMenu *recentFilesMenu = new QMenu(tr("&Recent Forms"), recentButton);
+    QMenu *recentFilesMenu = new QMenu(tr("&Recent Forms"), m_recentButton);
     // Pop the "Recent Files" stuff in here.
     foreach(QAction *recentAction, da->recentFilesActions()->actions()) {
         recentFilesMenu->addAction(recentAction);
         connect(recentAction, SIGNAL(triggered()), this, SLOT(recentFileChosen()));
     }
-    recentButton->setMenu(recentFilesMenu);
+    m_recentButton->setMenu(recentFilesMenu);
 
     loadFrom(QLatin1String(":/trolltech/designer/templates/forms"), true);
 
@@ -97,17 +96,17 @@ void NewForm::recentFileChosen()
 void NewForm::on_treeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *)
 {
     if (current && current->parent()) {
-        QIcon icon = formPreviewIcon(current->data(0, TemplateNameRole).toString());
+        const QIcon icon = formPreviewIcon(current->data(0, TemplateNameRole).toString());
         if (icon.isNull()) {
-            createButton->setEnabled(false);
+            m_createButton->setEnabled(false);
             ui.lblPreview->setText(tr("Error loading form"));
         } else {
-            createButton->setEnabled(true);
-            createButton->setDefault(true);
+            m_createButton->setEnabled(true);
+            m_createButton->setDefault(true);
             ui.lblPreview->setPixmap(icon.pixmap(QSize(256, 256)));
         }
     } else {
-        createButton->setEnabled(false);
+        m_createButton->setEnabled(false);
         ui.lblPreview->setText(tr("Choose a template for a preview"));
     }
 }
@@ -115,18 +114,17 @@ void NewForm::on_treeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWi
 void NewForm::on_treeWidget_itemActivated(QTreeWidgetItem *item)
 {
     if (item->data(0, TemplateNameRole).isValid())
-        createButton->animateClick(0);
+        m_createButton->animateClick(0);
 }
 
 void NewForm::on_buttonBox_clicked(QAbstractButton *btn)
 {
-    int role = ui.buttonBox->buttonRole(btn);
-    switch (role) {
+    switch (ui.buttonBox->buttonRole(btn)) {
     case QDialogButtonBox::RejectRole:
         close();
         break;
     case QDialogButtonBox::ActionRole:
-        if (btn != recentButton) {
+        if (btn != m_recentButton) {
             hide();
             m_fileName.clear();
             if (m_workbench->actionManager()->openForm())
@@ -140,13 +138,13 @@ void NewForm::on_buttonBox_clicked(QAbstractButton *btn)
             close();
 
             int maxUntitled = 0;
-            int totalWindows = m_workbench->formWindowCount();
+            const int totalWindows = m_workbench->formWindowCount();
             if(m_fileName.isEmpty()) {
                 // This will cause some problems with i18n, but for now I need the string to be "static"
                 QRegExp rx(QLatin1String("untitled( (\\d+))?"));
                 for (int i = 0; i < totalWindows; ++i) {
                     QString title = m_workbench->formWindow(i)->windowTitle();
-                    title = title.replace(QLatin1String("[*]"), QLatin1String(""));
+                    title.replace(QLatin1String("[*]"), QLatin1String(""));
                     if (rx.indexIn(title) != 1) {
                         if (maxUntitled == 0)
                             ++maxUntitled;
@@ -183,14 +181,15 @@ void NewForm::on_buttonBox_clicked(QAbstractButton *btn)
                 newTitle = QFileInfo(m_fileName).fileName();
 
             if (maxUntitled) {
-                newTitle += QLatin1String(" ") + QString::number(maxUntitled + 1);
+                newTitle += QLatin1Char(' ');
+		newTitle += QString::number(maxUntitled + 1);
                 if (!m_fileName.isEmpty())
                     m_fileName.replace(QFileInfo(m_fileName).fileName(), newTitle);
             }
 
             newTitle.append(QLatin1String("[*]"));
             formWindow->setWindowTitle(newTitle);
-            formWindow->editor()->setFileName(m_fileName.isEmpty() ? QLatin1String("") : m_fileName);
+            formWindow->editor()->setFileName(m_fileName);
             formWindow->show();
         }
         break;
@@ -222,10 +221,10 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
             widget->show();
             f.close();
 
-            int margin = 7;
-            int shadow = 7;
+            const int margin = 7;
+            const int shadow = 7;
 
-            QPixmap pix = QPixmap::grabWidget(widget);
+            const QPixmap pix = QPixmap::grabWidget(widget);
             QImage image = pix.toImage();
             image = image.scaled(256 - margin * 2,
                                  256 - margin * 2,
@@ -242,12 +241,12 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
 
             p.drawRect(margin-1, margin-1, image.width() + 1, image.height() + 1);
 
-            QColor dark(Qt::darkGray);
-            QColor light(Qt::transparent);
+            const QColor dark(Qt::darkGray);
+            const QColor light(Qt::transparent);
 
             // right shadow
             {
-                QRect rect(margin + image.width() + 1, margin + shadow, shadow, image.height() - shadow + 1);
+                const QRect rect(margin + image.width() + 1, margin + shadow, shadow, image.height() - shadow + 1);
                 QLinearGradient lg(rect.topLeft(), rect.topRight());
                 lg.setColorAt(0, dark);
                 lg.setColorAt(1, light);
@@ -256,7 +255,7 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
 
             // bottom shadow
             {
-                QRect rect(margin + shadow, margin + image.height() + 1, image.width() - shadow + 1, shadow);
+                const QRect rect(margin + shadow, margin + image.height() + 1, image.width() - shadow + 1, shadow);
                 QLinearGradient lg(rect.topLeft(), rect.bottomLeft());
                 lg.setColorAt(0, dark);
                 lg.setColorAt(1, light);
@@ -265,7 +264,7 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
 
             // bottom/right corner shadow
             {
-                QRect rect(margin + image.width() + 1, margin + image.height() + 1, shadow, shadow);
+                const QRect rect(margin + image.width() + 1, margin + image.height() + 1, shadow, shadow);
                 QRadialGradient g(rect.topLeft(), shadow);
                 g.setColorAt(0, dark);
                 g.setColorAt(1, light);
@@ -274,7 +273,7 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
 
             // top/right corner
             {
-                QRect rect(margin + image.width() + 1, margin, shadow, shadow);
+                const QRect rect(margin + image.width() + 1, margin, shadow, shadow);
                 QRadialGradient g(rect.bottomLeft(), shadow);
                 g.setColorAt(0, dark);
                 g.setColorAt(1, light);
@@ -283,7 +282,7 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
 
             // bottom/left corner
             {
-                QRect rect(margin, margin + image.height() + 1, shadow, shadow);
+                const QRect rect(margin, margin + image.height() + 1, shadow, shadow);
                 QRadialGradient g(rect.topRight(), shadow);
                 g.setColorAt(0, dark);
                 g.setColorAt(1, light);
@@ -303,26 +302,26 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
 
 void NewForm::loadFrom(const QString &path, bool resourceFile)
 {
-    QDir dir(path);
+    const QDir dir(path);
 
     if (!dir.exists())
         return;
 
     // Iterate through the directory and add the templates
-    QFileInfoList list = dir.entryInfoList(QStringList() << QLatin1String("*.ui"), QDir::Files);
+    const QFileInfoList list = dir.entryInfoList(QStringList(QLatin1String("*.ui")), QDir::Files);
 
     if (list.isEmpty())
         return;
 
-    QChar separator = resourceFile ? QChar(QLatin1Char('/'))
-                                   : QChar(QDir::separator());
+    const QChar separator = resourceFile ? QChar(QLatin1Char('/'))
+                                         : QDir::separator();
     QTreeWidgetItem *root = new QTreeWidgetItem(ui.treeWidget);
     // Try to get something that is easy to read.
     QString visiblePath = path;
     int index = visiblePath.lastIndexOf(separator);
     if (index != -1) {
         // try to find a second slash, just to be a bit better.
-        int index2 = visiblePath.lastIndexOf(separator, index - 1);
+        const int index2 = visiblePath.lastIndexOf(separator, index - 1);
         if (index2 != -1)
             index = index2;
         visiblePath = visiblePath.mid(index + 1);

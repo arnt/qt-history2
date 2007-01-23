@@ -43,8 +43,8 @@ private:
 private:
     QDesignerWorkbench *m_workbench;
     Ui::NewForm ui;
-    QPushButton *createButton;
-    QPushButton *recentButton;
+    QPushButton *m_createButton;
+    QPushButton *m_recentButton;
     QString m_fileName;
 };
 
