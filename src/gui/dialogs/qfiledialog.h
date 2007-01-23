@@ -127,8 +127,8 @@ public:
 Q_SIGNALS:
     void filesSelected(const QStringList &files);
     void currentChanged(const QString &path);
-    void dirEntered(const QString &);
-    void filterSelected(const QString &);
+    void dirEntered(const QString &directory);
+    void filterSelected(const QString &filter);
 
 public:
 #ifdef QT3_SUPPORT
@@ -214,6 +214,7 @@ protected:
     QFileDialog(const QFileDialogArgs &args);
     void done(int result);
     void accept();
+    void timerEvent(QTimerEvent *event);
 
 private:
     Q_DECLARE_PRIVATE(QFileDialog)

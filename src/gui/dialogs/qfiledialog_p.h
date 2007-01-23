@@ -45,7 +45,7 @@
 #include <qdialogbuttonbox.h>
 #include <qcompleter.h>
 #include <qtimeline.h>
-#include <qstandarditemmodel.h>
+#include <qdebug.h>
 
 class QFileDialogListView;
 class QFileDialogTreeView;
@@ -125,13 +125,7 @@ public:
     QLineEdit *lineEdit() const {
         if (acceptMode == QFileDialog::AcceptSave)
             return (QLineEdit*)fileNameEdit;
-        return lookInCombo->lineEdit();
-    }
-
-    // return true if the combo line edit text is not the currently selected item
-    // (i.e. no user input is contained there)
-    bool comboLineEditChanged() const {
-        return (lookInCombo->itemText(lookInCombo->currentIndex()) != lookInCombo->currentText());
+        return (QLineEdit*)quickLineEdit;
     }
 
     static inline QDir::Filters filterForMode(QFileDialog::FileMode mode)
@@ -189,6 +183,7 @@ public:
     // layout
     QLabel *fileNameLabel;
     QFileDialogLineEdit *fileNameEdit;
+    QFileDialogLineEdit *quickLineEdit;
     QToolButton *expandButton;
     QFrame *line;
     QToolButton *backButton;
@@ -214,7 +209,6 @@ public:
     QStringList watching;
     QFileSystemModel *model;
     QCompleter *completer;
-    QCompleter *comboCompleter;
 
     QFileDialog::FileMode fileMode;
     QFileDialog::AcceptMode acceptMode;
@@ -232,8 +226,20 @@ public:
 
     QTimeLine *vTimeLine;
     QTimeLine *hTimeLine;
+    QBasicTimer autoHideLineEdit;
     QSize oldSize;
     bool saveState;
+};
+
+class QFileDialogLineEdit : public QLineEdit
+{
+public:
+    QFileDialogLineEdit(QFileDialogPrivate *d_pointer) :
+     QLineEdit(qobject_cast<QWidget*>(d_pointer->q_ptr)), hideOnEsc(false), d_ptr(d_pointer){}
+    void keyPressEvent(QKeyEvent *e);
+    bool hideOnEsc;
+private:
+    QFileDialogPrivate *d_ptr;
 };
 
 class QFileDialogListView : public QListView
@@ -246,7 +252,15 @@ protected:
         if (d_ptr->itemViewKeyboardEvent(e)) {
             e->accept();
         } else {
+            if (e->text().isEmpty()
+                || e->key() == Qt::Key_Escape
+                || e->key() == Qt::Key_Enter
+                || e->key() == Qt::Key_Return) {
             QListView::keyPressEvent(e);
+            } else {
+                d_ptr->_q_chooseLocation();
+                d_ptr->quickLineEdit->keyPressEvent(e);
+            }
         }
     }
 private:
@@ -259,49 +273,34 @@ class QFileDialogTreeView : public QTreeView
 {
 public:
     QFileDialogTreeView(QFileDialogPrivate *d_pointer);
+
     void selectAnyIndex() {
         QModelIndex idx = moveCursor(QAbstractItemView::MoveDown, Qt::NoModifier);
         if (!idx.isValid())
             idx = model()->index(0, 0, rootIndex());
         selectionModel()->select(idx, QItemSelectionModel::Select | QItemSelectionModel::Rows);
     }
+
 protected:
     void keyPressEvent(QKeyEvent *e)
     {
         if (d_ptr->itemViewKeyboardEvent(e)) {
             e->accept();
         } else {
+            if (e->text().isEmpty()
+                || e->key() == Qt::Key_Escape
+                || e->key() == Qt::Key_Enter
+                || e->key() == Qt::Key_Return) {
             QTreeView::keyPressEvent(e);
+            } else {
+                d_ptr->_q_chooseLocation();
+                d_ptr->quickLineEdit->keyPressEvent(e);
+            }
         }
     }
     QSize sizeHint() const;
 private:
     QFileDialogPrivate *d_ptr;
-};
-
-class ComboLineEdit : public QLineEdit
-{
-public:
-    ComboLineEdit(QWidget *parent)
-        : QLineEdit(parent){}
-protected:
-    void mousePressEvent ( QMouseEvent * event ) {
-        QLineEdit::mousePressEvent(event);
-        clear();
-    }
-};
-
-
-class QFileDialogLineEdit : public QLineEdit
-{
-public:
-    QFileDialogLineEdit(QWidget *parent)
-        : QLineEdit(parent), key(0) {}
-    inline int lastKeyPressed() { return key; }
-protected:
-    void keyPressEvent(QKeyEvent *e);
-private:
-    int key;
 };
 
 /*!
