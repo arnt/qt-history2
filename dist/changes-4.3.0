@@ -12,3 +12,7 @@
         the document title or the document default font when it's created
         from a document or from HTML. Use QTextDocument's toHtml/setHtml
         if you want to propagate these properties to and from HTML.
+
+
+ - QTabBar 
+        Added int tabAt(const QPoint &pos) const
