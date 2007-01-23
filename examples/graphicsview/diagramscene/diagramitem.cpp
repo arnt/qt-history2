@@ -88,6 +88,7 @@ QVariant DiagramItem::itemChange(GraphicsItemChange change,
 {
     if (change == QGraphicsItem::ItemPositionChange) {
 	foreach (Arrow *arrow, arrows) {
+	    Q_ASSERT(arrow);
 	    arrow->updatePosition();
 	}
     }

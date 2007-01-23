@@ -78,7 +78,6 @@ void MainWindow::deleteItem()
 	    qgraphicsitem_cast<DiagramItem *>(item)->removeArrows();
 	}   
 	scene->removeItem(item);
-	delete item;
     }
 }
 

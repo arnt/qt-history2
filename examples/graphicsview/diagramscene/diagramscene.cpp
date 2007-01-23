@@ -23,6 +23,7 @@ void DiagramScene::setLineColor(const QColor &color)
 	Arrow *item =
 	    qgraphicsitem_cast<Arrow *>(selectedItems().first());
 	item->setColor(myLineColor);
+	update();
     }
 }
 
