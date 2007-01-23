@@ -302,7 +302,7 @@ void QTabBarPrivate::layoutTabs()
     tabChain[tabChainIndex].expansive = tabAlignment != Qt::AlignLeft;
     tabChain[tabChainIndex].empty = true;
     ++tabChainIndex;
-    
+
     // We now go through our list of tabs and set the minimum size and the size hint
     // This will allow us to elide text if necessary. Since we don't set
     // a maximum size, tabs will EXPAND to fill up the empty space.
@@ -865,6 +865,26 @@ QRect QTabBar::tabRect(int index) const
         return QStyle::visualRect(layoutDirection(), rect(), r);
     }
     return QRect();
+}
+
+/*! Returns the index of the tab that covers \a position or -1 if no
+  tab covers \a position;
+*/
+
+int QTabBar::tabAt(const QPoint &position) const
+{
+    Q_D(const QTabBar);
+    if (d->validIndex(d->currentIndex)
+        && tabRect(d->currentIndex).contains(position)) {
+        return d->currentIndex;
+    }
+    const int max = d->tabList.size();
+    for (int i = 0; i < max; ++i) {
+        if (tabRect(i).contains(position)) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 /*!

@@ -91,6 +91,8 @@ public:
     QVariant tabData(int index) const;
 
     QRect tabRect(int index) const;
+    int tabAt(const QPoint &pos) const;
+
 
     int currentIndex() const;
     int count() const;
