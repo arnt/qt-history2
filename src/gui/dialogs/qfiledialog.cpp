@@ -2590,7 +2590,7 @@ QStringList QFSCompletor::splitPath(const QString &path) const
         QString currentLocation = dirModel->rootPath();
         if (currentLocation.contains(sep)) {
             QStringList currentLocationList = splitPath(currentLocation);
-            while (parts.count() > 0 && parts.at(0) == "..") {
+            while (parts.count() > 0 && parts.at(0) == QLatin1String("..")) {
                 parts.removeFirst();
                 currentLocationList.removeLast();
             }
