@@ -500,6 +500,7 @@ CFG_XCURSOR=auto
 CFG_XRANDR=auto
 CFG_XRENDER=auto
 CFG_OPENGL=auto
+CFG_SSE=auto
 CFG_FONTCONFIG=auto
 CFG_QWS_FREETYPE=auto
 CFG_LIBFREETYPE=auto
@@ -689,7 +690,7 @@ while [ "$#" -gt 0 ]; do
         VAL=no
         ;;
     #Qt style yes options
-        -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-separate-debug-info|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-fontconfig|-xkb|-nis|-qdbus|-glib|-cups|-iconv|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal|-prefix-install|-silent|-armfpa|-optimized-qmake|-dwarf2|-reduce-relocations)
+        -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-separate-debug-info|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-fontconfig|-xkb|-nis|-qdbus|-glib|-cups|-iconv|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal|-prefix-install|-silent|-armfpa|-optimized-qmake|-dwarf2|-reduce-relocations|-sse)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         VAL=yes
         ;;
@@ -893,6 +894,13 @@ while [ "$#" -gt 0 ]; do
             CFG_EMBEDDED=no
         fi
         ;;
+    sse) 
+        if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+            CFG_SSE="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+	;;
     endian)
         if [ "$VAL" = "little" ]; then
             CFG_ENDIAN="Q_LITTLE_ENDIAN"
@@ -2239,10 +2247,12 @@ if [ "$CFG_REDUCE_RELOCATIONS" != "no" ]; then
 fi
 
 # detect SSE support
-if "$unixtests/sse.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
-    CFG_HAVE_SSE=no
-else
-    CFG_HAVE_SSE=yes
+if [ "$CFG_SSE" = "auto" ]; then
+    if "$unixtests/sse.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
+       CFG_SSE=no
+    else
+       CFG_SSE=yes
+    fi
 fi
 
 # check iWMMXt support
@@ -4410,7 +4420,7 @@ if [ "$CFG_SEPARATE_DEBUG_INFO" = "yes" ]; then
     QMakeVar add QMAKE_CXXFLAGS -g
     QMAKE_CONFIG="$QMAKE_CONFIG separate_debug_info"
 fi
-[ "$CFG_HAVE_SSE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG sse"
+[ "$CFG_SSE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG sse"
 [ "$CFG_IWMMXT" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG iwmmxt"
 [ "$PLATFORM_MAC" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG $CFG_MAC_ARCHS"
 if [ "$CFG_IPV6" = "yes" ]; then
@@ -5214,7 +5224,7 @@ echo "Qt 3 compatibility .. $CFG_QT3SUPPORT"
 echo "QtDBus module ....... $CFG_QDBUS"
 echo "STL support ......... $CFG_STL"
 echo "PCH support ......... $CFG_PRECOMPILE"
-echo "MMX/SSE support ..... $CFG_HAVE_SSE"
+echo "MMX/SSE support ..... $CFG_SSE"
 echo "IPv6 support ........ $CFG_IPV6"
 echo "IPv6 ifname support . $CFG_IPV6IFNAME"
 echo "getaddrinfo support . $CFG_GETADDRINFO"
