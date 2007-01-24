@@ -974,3 +974,12 @@ bool QToolBarAreaLayout::restoreState(QDataStream &stream, const QList<QToolBar*
 
     return stream.status() == QDataStream::Ok;
 }
+
+bool QToolBarAreaLayout::isEmpty() const
+{
+    for (int i = 0; i < QInternal::DockCount; ++i) {
+        if (!docks[i].lines.isEmpty())
+            return false;
+    }
+    return true;
+}

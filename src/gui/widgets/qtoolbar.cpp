@@ -359,7 +359,7 @@ QToolBar::~QToolBar()
     if (mainwindow) {
 #ifdef Q_WS_MAC
         QMainWindowLayout *mainwin_layout = qobject_cast<QMainWindowLayout *>(mainwindow->layout());
-        if (mainwin_layout && mainwin_layout->tb_layout_info.isEmpty()
+        if (mainwin_layout && mainwin_layout->layoutState.toolBarAreaLayout.isEmpty()
                 && mainwindow->testAttribute(Qt::WA_WState_Created))
             ChangeWindowAttributes(qt_mac_window_for(mainwindow), kWindowNoAttributes,
                                    kWindowToolbarButtonAttribute);

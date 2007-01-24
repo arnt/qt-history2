@@ -145,6 +145,7 @@ public:
 
     void saveState(QDataStream &stream) const;
     bool restoreState(QDataStream &stream, const QList<QToolBar*> &toolBars);
+    bool isEmpty() const;
 };
 
 #endif // QTOOLBARAREALAYOUT_P_H
