@@ -426,8 +426,6 @@ QMdiAreaPrivate::QMdiAreaPrivate()
       indexToNextWindow(-1),
       indexToPreviousWindow(-1)
 {
-    background.setColor(Qt::darkGray);
-    background.setStyle(Qt::SolidPattern);
 }
 
 /*!
@@ -750,7 +748,8 @@ void QMdiAreaPrivate::internalRaise(QMdiSubWindow *mdiChild) const
 QMdiArea::QMdiArea(QWidget *parent)
     : QAbstractScrollArea(*new QMdiAreaPrivate, parent)
 {
-    setBackgroundRole(QPalette::Base);
+    setBackgroundRole(QPalette::Dark);
+    setBackground(palette().brush(QPalette::Dark));
     setFrameStyle(QFrame::NoFrame);
     setScrollBarsEnabled(false);
     setViewport(0);
@@ -1280,10 +1279,13 @@ bool QMdiArea::eventFilter(QObject *object, QEvent *event)
 /*!
     \reimp
 */
-void QMdiArea::paintEvent(QPaintEvent * /*paintEvent*/)
+void QMdiArea::paintEvent(QPaintEvent *paintEvent)
 {
+    Q_D(QMdiArea);
     QPainter painter(viewport());
-    painter.fillRect(viewport()->rect(), d_func()->background);
+    const QVector<QRect> exposedRects = paintEvent->region().rects();
+    for (int i = 0; i < exposedRects.size(); ++i)
+        painter.fillRect(exposedRects.at(i), d->background);
 }
 
 /*!
