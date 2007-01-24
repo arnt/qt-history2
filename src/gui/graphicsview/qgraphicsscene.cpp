@@ -940,6 +940,10 @@ QGraphicsScene::~QGraphicsScene()
             }
         }
     }
+
+    // Remove this scene from all associated views.
+    for (int j = 0; j < d->views.size(); ++j)
+        d->views.at(j)->setScene(0);
 }
 
 /*!
