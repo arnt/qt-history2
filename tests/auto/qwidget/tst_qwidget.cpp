@@ -143,9 +143,9 @@ private slots:
     void setWindowGeometry_data();
     void setWindowGeometry();
 
-    // tests QWidget::move() on windows only
-    void windowMove_data();
-    void windowMove();
+    // tests QWidget::move() and resize() on windows only
+    void windowMoveResize_data();
+    void windowMoveResize();
 
 #ifdef Q_WS_WIN
     void getDC();
@@ -3470,12 +3470,12 @@ void tst_QWidget::setGeometry_win()
 }
 #endif
 
-void tst_QWidget::windowMove_data()
+void tst_QWidget::windowMoveResize_data()
 {
     setWindowGeometry_data();
 }
 
-void tst_QWidget::windowMove()
+void tst_QWidget::windowMoveResize()
 {
     QFETCH(QList<QRect>, rects);
     QFETCH(int, windowFlags);
@@ -3485,61 +3485,74 @@ void tst_QWidget::windowMove()
     {
         // test setGeometry() without actually showing the window
         QWidget widget;
-        widget.resize(rect.size());
         if (windowFlags != 0)
             widget.setWindowFlags(Qt::WindowFlags(windowFlags));
 
         widget.move(rect.topLeft());
+        widget.resize(rect.size());
         QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
+        QCOMPARE(widget.size(), rect.size());
 
         // move() without showing
         foreach (QRect r, rects) {
             widget.move(r.topLeft());
+            widget.resize(r.size());
             QTest::qWait(100);
             QCOMPARE(widget.pos(), r.topLeft());
+            QCOMPARE(widget.size(), r.size());
         }
     }
 
     {
         // move() first, then show()
         QWidget widget;
-        widget.resize(rect.size());
         if (windowFlags != 0)
             widget.setWindowFlags(Qt::WindowFlags(windowFlags));
 
         widget.move(rect.topLeft());
+        widget.resize(rect.size());
         widget.show();
 #ifdef Q_WS_X11
         qt_x11_wait_for_window_manager(&widget);
 #endif
         QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
+        QCOMPARE(widget.size(), rect.size());
 
         // move() while shown
         foreach (QRect r, rects) {
             widget.move(r.topLeft());
+            widget.resize(r.size());
             QTest::qWait(100);
             QCOMPARE(widget.pos(), r.topLeft());
+            QCOMPARE(widget.size(), r.size());
         }
         widget.move(rect.topLeft());
+        widget.resize(rect.size());
         QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
+        QCOMPARE(widget.size(), rect.size());
 
         // now hide
         widget.hide();
         QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
+        QCOMPARE(widget.size(), rect.size());
 
         // move() after hide()
         foreach (QRect r, rects) {
             widget.move(r.topLeft());
+            widget.resize(r.size());
             QTest::qWait(100);
             QCOMPARE(widget.pos(), r.topLeft());
+            QCOMPARE(widget.size(), r.size());
         }
         widget.move(rect.topLeft());
+        widget.resize(rect.size());
         QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
+        QCOMPARE(widget.size(), rect.size());
 
         // show() again, pos() should be the same
         widget.show();
@@ -3548,17 +3561,18 @@ void tst_QWidget::windowMove()
 #endif
         QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
+        QCOMPARE(widget.size(), rect.size());
 
         // final hide(), again pos() should be unchanged
         widget.hide();
         QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
+        QCOMPARE(widget.size(), rect.size());
     }
 
     {
         // show() first, then move()
         QWidget widget;
-        widget.resize(rect.size());
         if (windowFlags != 0)
             widget.setWindowFlags(Qt::WindowFlags(windowFlags));
 
@@ -3567,33 +3581,44 @@ void tst_QWidget::windowMove()
         qt_x11_wait_for_window_manager(&widget);
 #endif
         widget.move(rect.topLeft());
+        widget.resize(rect.size());
         QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
+        QCOMPARE(widget.size(), rect.size());
 
         // move() while shown
         foreach (QRect r, rects) {
             widget.move(r.topLeft());
+            widget.resize(r.size());
             QTest::qWait(100);
             QCOMPARE(widget.pos(), r.topLeft());
+            QCOMPARE(widget.size(), r.size());
         }
         widget.move(rect.topLeft());
+        widget.resize(rect.size());
         QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
+        QCOMPARE(widget.size(), rect.size());
 
         // now hide
         widget.hide();
         QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
+        QCOMPARE(widget.size(), rect.size());
 
         // move() after hide()
         foreach (QRect r, rects) {
             widget.move(r.topLeft());
+            widget.resize(r.size());
             QTest::qWait(100);
             QCOMPARE(widget.pos(), r.topLeft());
+            QCOMPARE(widget.size(), r.size());
         }
         widget.move(rect.topLeft());
+        widget.resize(rect.size());
         QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
+        QCOMPARE(widget.size(), rect.size());
 
         // show() again, pos() should be the same
         widget.show();
@@ -3602,11 +3627,13 @@ void tst_QWidget::windowMove()
 #endif
         QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
+        QCOMPARE(widget.size(), rect.size());
 
         // final hide(), again pos() should be unchanged
         widget.hide();
         QTest::qWait(100);
         QCOMPARE(widget.pos(), rect.topLeft());
+        QCOMPARE(widget.size(), rect.size());
     }
 }
 
