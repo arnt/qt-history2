@@ -57,7 +57,6 @@ public:
     int minimum() const;
     int maximum() const;
 
-    void setRange(int minimum, int maximum);
     int value() const;
 
     QSize sizeHint() const;
@@ -75,6 +74,7 @@ public Q_SLOTS:
     void reset();
     void setMaximum(int maximum);
     void setMinimum(int minimum);
+    void setRange(int minimum, int maximum);
     void setValue(int progress);
     void setLabelText(const QString &);
     void setCancelButtonText(const QString &);

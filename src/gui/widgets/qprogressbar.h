@@ -48,7 +48,6 @@ public:
     int minimum() const;
     int maximum() const;
 
-    void setRange(int minimum, int maximum);
     int value() const;
 
     virtual QString text() const;
@@ -73,6 +72,7 @@ public:
 
 public Q_SLOTS:
     void reset();
+    void setRange(int minimum, int maximum);
     void setMinimum(int minimum);
     void setMaximum(int maximum);
     void setValue(int value);
