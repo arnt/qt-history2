@@ -421,6 +421,8 @@ void QListView::setViewMode(ViewMode mode)
             d->movement = Static;
         if (!(d->modeProperties & QListViewPrivate::ResizeMode))
             d->resizeMode = Fixed;
+        if (!(d->modeProperties & QListViewPrivate::SelectionRectVisible))
+            d->showElasticBand = false;
     } else {
         delete d->staticListView;
         d->staticListView = 0;
@@ -438,6 +440,8 @@ void QListView::setViewMode(ViewMode mode)
             d->movement = Free;
         if (!(d->modeProperties & QListViewPrivate::ResizeMode))
             d->resizeMode = Fixed;
+        if (!(d->modeProperties & QListViewPrivate::SelectionRectVisible))
+            d->showElasticBand = true;
     }
 
 #ifndef QT_NO_DRAGANDDROP
@@ -509,7 +513,7 @@ void QListView::setRowHidden(int row, bool hide)
 QRect QListView::visualRect(const QModelIndex &index) const
 {
     Q_D(const QListView);
-    return d->mapToViewport(rectForIndex(index));
+    return d->mapToViewport(rectForIndex(index), d->viewMode == QListView::ListMode);
 }
 
 /*!
@@ -645,7 +649,7 @@ void QListView::scrollContentsBy(int dx, int dy)
     if (d->viewMode == ListMode)
         d->staticListView->scrollContentsBy(dx, dy);
     else if (state() == DragSelectingState)
-        d->dynamicListView->scrollElasticBandBy(dx, dy);
+        d->scrollElasticBandBy(dx, dy);
 
     d->scrollContentsBy(dx, dy);
 
@@ -737,13 +741,14 @@ void QListView::mouseMoveEvent(QMouseEvent *e)
 {
     Q_D(QListView);
     QAbstractItemView::mouseMoveEvent(e);
-    if (d->movement != Static
-        && state() == DragSelectingState
-        && d->selectionMode != SingleSelection) {
+    if (state() == DragSelectingState
+        && d->showElasticBand 
+        && d->selectionMode != SingleSelection
+        && d->selectionMode != NoSelection) {
         QRect rect(d->pressedPosition, e->pos() + QPoint(horizontalOffset(), verticalOffset()));
         rect = rect.normalized();
-        d->setDirtyRegion(d->mapToViewport(rect.united(d->dynamicListView->elasticBand)));
-        d->dynamicListView->elasticBand = rect;
+        d->setDirtyRegion(d->mapToViewport(rect.united(d->elasticBand), d->viewMode == QListView::ListMode));
+        d->elasticBand = rect;
     }
 }
 
@@ -755,10 +760,9 @@ void QListView::mouseReleaseEvent(QMouseEvent *e)
     Q_D(QListView);
     QAbstractItemView::mouseReleaseEvent(e);
     // #### move this implementation into a dynamic class
-    if (d->viewMode == IconMode)
-    if (d->dynamicListView->elasticBand.isValid()) {
-        d->setDirtyRegion(d->mapToViewport(d->dynamicListView->elasticBand));
-        d->dynamicListView->elasticBand = QRect();
+    if (d->showElasticBand && d->elasticBand.isValid()) {
+        d->setDirtyRegion(d->mapToViewport(d->elasticBand, d->viewMode == QListView::ListMode));
+        d->elasticBand = QRect();
     }
 }
 
@@ -909,7 +913,7 @@ void QListView::internalDrop(QDropEvent *event)
     for (int i = 0; i < indexes.count(); ++i) {
         QModelIndex index = indexes.at(i);
         QRect rect = rectForIndex(index);
-        d->setDirtyRegion(d->mapToViewport(rect));
+        d->setDirtyRegion(d->mapToViewport(rect, d->viewMode == QListView::ListMode));
         QPoint dest = rect.topLeft() + delta;
         if (isRightToLeft())
             dest.setX(d->flipX(dest.x()) - rect.width());
@@ -1086,13 +1090,12 @@ void QListView::paintEvent(QPaintEvent *e)
 
 #ifndef QT_NO_RUBBERBAND
     // #### move this implementation into a dynamic class
-    if (d->viewMode == IconMode)
-    if (d->dynamicListView->elasticBand.isValid()) {
+    if (d->showElasticBand && d->elasticBand.isValid()) {
         QStyleOptionRubberBand opt;
         opt.initFrom(this);
         opt.shape = QRubberBand::Rectangle;
         opt.opaque = false;
-        opt.rect = d->mapToViewport(d->dynamicListView->elasticBand).intersected(
+        opt.rect = d->mapToViewport(d->elasticBand, false).intersected(
             d->viewport->rect().adjusted(-16, -16, 16, 16));
         painter.save();
         style()->drawControl(QStyle::CE_RubberBand, &opt, &painter);
@@ -1656,6 +1659,31 @@ bool QListView::wordWrap() const
 }
 
 /*!
+    \property QListView::selectionRectVisible
+    \brief if the selection rectangle should be visible
+    \since 4.3
+
+    If this property is true then the selection rectangle is visible;
+    otherwise it will be hidden.
+    Note that the selection rectangle will only be visible if the selection mode
+    is in a mode where more than one item can be selected, i.e. it will not draw
+    a selection rectangle if the selection mode is QAbstractItemView::SingleSelection.
+
+*/
+void QListView::setSelectionRectVisible(bool show)
+{
+    Q_D(QListView);
+    d->modeProperties |= uint(QListViewPrivate::SelectionRectVisible);
+    d->setSelectionRectVisible(show);
+}
+
+bool QListView::isSelectionRectVisible() const
+{
+    Q_D(const QListView);
+    return d->isSelectionRectVisible();
+}
+
+/*!
     \reimp
 */
 bool QListView::event(QEvent *e)
@@ -1801,14 +1829,14 @@ int QListViewPrivate::itemIndex(const QListViewItem &item) const
     return dynamicListView->itemIndex(item);
 }
 
-QRect QListViewPrivate::mapToViewport(const QRect &rect) const
+QRect QListViewPrivate::mapToViewport(const QRect &rect, bool greedy) const
 {
     Q_Q(const QListView);
     if (!rect.isValid())
         return rect;
 
     QRect result = rect;
-    if (viewMode == QListView::ListMode)
+    if (greedy)
         result = staticListView->mapToViewport(rect);
 
     int dx = -q->horizontalOffset();
@@ -2652,7 +2680,7 @@ QRect QDynamicListViewBase::draggedItemsRect() const
     return rect;
 }
 
-void QDynamicListViewBase::scrollElasticBandBy(int dx, int dy)
+void QListViewPrivate::scrollElasticBandBy(int dx, int dy)
 {
     if (dx > 0) // right
         elasticBand.moveRight(elasticBand.right() + dx);

@@ -199,8 +199,6 @@ public:
     int batchStartRow;
     int batchSavedDeltaSeg;
 
-    QRect elasticBand;
-
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     bool doBatchedItemLayout(const QListViewLayoutInfo &info, int max);
 
@@ -282,13 +280,13 @@ public:
     inline QModelIndex listViewItemToIndex(const QListViewItem &item) const
         { return model->index(itemIndex(item), column, root); }
 
-    QRect mapToViewport(const QRect &rect) const;
+    QRect mapToViewport(const QRect &rect, bool greedy = false) const;
 
     QModelIndex closestIndex(const QPoint &target, const QVector<QModelIndex> &candidates) const;
     QSize itemSize(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
     bool selectionAllowed(const QModelIndex &index) const
-        { if (viewMode == QListView::ListMode) return index.isValid(); return true; }
+        { if (viewMode == QListView::ListMode && !showElasticBand) return index.isValid(); return true; }
 
     QStyleOptionViewItemV2 viewOptionsV2() const;
     int horizontalScrollToValue(const QModelIndex &index, const QRect &rect, QListView::ScrollHint hint) const;
@@ -304,6 +302,10 @@ public:
     inline bool isWrapping() const { return wrap; }
     inline void setSpacing(int s) { space = s; }
     inline int spacing() const { return space; }
+    inline void setSelectionRectVisible(bool visible) { showElasticBand = visible; }
+    inline bool isSelectionRectVisible() const { return showElasticBand; }
+
+    void scrollElasticBandBy(int dx, int dy);
 
     // ### FIXME: we only need one at a time
     QDynamicListViewBase *dynamicListView;
@@ -329,7 +331,8 @@ public:
         GridSize = 4,
         Flow = 8,
         Movement = 16,
-        ResizeMode = 32
+        ResizeMode = 32,
+        SelectionRectVisible = 64
     };
 
     uint modeProperties : 8;
@@ -350,6 +353,9 @@ public:
     mutable QSize cachedItemSize;
     int batchSize;
     bool wrapItemText;
+
+    QRect elasticBand;
+    bool showElasticBand;
 };
 
 // inline implementations

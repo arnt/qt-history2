@@ -40,6 +40,7 @@ class Q_GUI_EXPORT QListView : public QAbstractItemView
     Q_PROPERTY(bool uniformItemSizes READ uniformItemSizes WRITE setUniformItemSizes)
     Q_PROPERTY(int batchSize READ batchSize WRITE setBatchSize)
     Q_PROPERTY(bool wordWrap READ wordWrap WRITE setWordWrap)
+    Q_PROPERTY(bool selectionRectVisible READ isSelectionRectVisible WRITE setSelectionRectVisible)
 
 public:
     enum Movement { Static, Free, Snap };
@@ -91,6 +92,9 @@ public:
 
     void setWordWrap(bool on);
     bool wordWrap() const;
+
+    void setSelectionRectVisible(bool show);
+    bool isSelectionRectVisible() const;
 
     QRect visualRect(const QModelIndex &index) const;
     void scrollTo(const QModelIndex &index, ScrollHint hint = EnsureVisible);
