@@ -2782,8 +2782,12 @@ void QGraphicsView::resizeEvent(QResizeEvent *event)
     d->recalculateContentSize();
 
     // Restore the center point again.
-    d->lastCenterPoint = oldLastCenterPoint;
-    d->centerView(d->resizeAnchor);
+    if (d->resizeAnchor == NoAnchor) {
+        d->updateLastCenterPoint();
+    } else {
+        d->lastCenterPoint = oldLastCenterPoint;
+        d->centerView(d->resizeAnchor);
+    }
 
     if (d->cacheMode & CacheBackground) {
         // Invalidate the background pixmap
