@@ -1754,10 +1754,10 @@ void QWidgetPrivate::hide_sys()
         XFlush(X11->display);
     } else {
         invalidateBuffer(q->rect());
-        q->setAttribute(Qt::WA_Mapped, false);
         if (q->internalWinId()) // in nsplugin, may be 0
             XUnmapWindow(X11->display, q->internalWinId());
     }
+    q->setAttribute(Qt::WA_Mapped, false);
 }
 
 void QWidgetPrivate::raise_sys()
@@ -2029,41 +2029,41 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     if (q->isWindow()) {
         if (w == 0 || h == 0) {
             q->setAttribute(Qt::WA_OutsideWSRange, true);
-            q->setAttribute(Qt::WA_Mapped, false);
-            XUnmapWindow(dpy, data.winid);
+            if (q->isVisible() && q->testAttribute(Qt::WA_Mapped))
+                hide_sys();
         } else if (q->isVisible() && !q->testAttribute(Qt::WA_Mapped)) {
             q->setAttribute(Qt::WA_OutsideWSRange, false);
+
+            // put the window in its place and show it
             XMoveResizeWindow(dpy, data.winid, x, y, w, h);
+            topData()->posFromMove = false; // force StaticGravity
+            do_size_hints(q, extra);
             show_sys();
         } else {
             if (!q->isVisible())
                 do_size_hints(q, extra);
-            if (isMove) {
-                if (!q->isVisible()
-                    // work around 4Dwm's incompliance with ICCCM 4.1.5
-                    || X11->desktopEnvironment == DE_4DWM) {
-                    XMoveResizeWindow(dpy, data.winid, x, y, w, h);
-                } else if (X11->isSupportedByWM(ATOM(_NET_MOVERESIZE_WINDOW))) {
-                    XEvent e;
-                    e.xclient.type = ClientMessage;
-                    e.xclient.message_type = ATOM(_NET_MOVERESIZE_WINDOW);
-                    e.xclient.display = X11->display;
-                    e.xclient.window = q->internalWinId();
-                    e.xclient.format = 32;
-                    e.xclient.data.l[0] = StaticGravity | 1<<8 | 1<<9 | 1<<10 | 1<<11 | 1<<12;
-                    e.xclient.data.l[1] = x;
-                    e.xclient.data.l[2] = y;
-                    e.xclient.data.l[3] = w;
-                    e.xclient.data.l[4] = h;
-                    XSendEvent(X11->display, RootWindow(X11->display, q->x11Info().screen()),
-                               false, (SubstructureNotifyMask | SubstructureRedirectMask), &e);
-                } else {
-                    // pos() is right according to ICCCM 4.1.5
-                    XMoveResizeWindow(dpy, data.winid, q->pos().x(), q->pos().y(), w, h);
-                }
-            } else if (isResize)
-                XResizeWindow(dpy, data.winid, w, h);
-
+            if (!q->isVisible()
+                // work around 4Dwm's incompliance with ICCCM 4.1.5
+                || X11->desktopEnvironment == DE_4DWM) {
+                XMoveResizeWindow(dpy, data.winid, x, y, w, h);
+            } else if (X11->isSupportedByWM(ATOM(_NET_MOVERESIZE_WINDOW))) {
+                XEvent e;
+                e.xclient.type = ClientMessage;
+                e.xclient.message_type = ATOM(_NET_MOVERESIZE_WINDOW);
+                e.xclient.display = X11->display;
+                e.xclient.window = q->internalWinId();
+                e.xclient.format = 32;
+                e.xclient.data.l[0] = StaticGravity | 1<<8 | 1<<9 | 1<<10 | 1<<11 | 1<<12;
+                e.xclient.data.l[1] = x;
+                e.xclient.data.l[2] = y;
+                e.xclient.data.l[3] = w;
+                e.xclient.data.l[4] = h;
+                XSendEvent(X11->display, RootWindow(X11->display, q->x11Info().screen()),
+                           false, (SubstructureNotifyMask | SubstructureRedirectMask), &e);
+            } else {
+                // pos() is right according to ICCCM 4.1.5
+                XMoveResizeWindow(dpy, data.winid, q->pos().x(), q->pos().y(), w, h);
+            }
         }
         if (isResize) // set config pending only on resize, see qapplication_x11.cpp, translateConfigEvent()
             q->setAttribute(Qt::WA_WState_ConfigPending);

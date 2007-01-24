@@ -4015,7 +4015,9 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
             // withdrawn
             if (X11->deferred_map.removeAll(this)) {
                 XMapWindow(X11->display, internalWinId());
-            } else if (isVisible() && !testAttribute(Qt::WA_Mapped)) {
+            } else if (isVisible()
+                       && !testAttribute(Qt::WA_Mapped)
+                       && !testAttribute(Qt::WA_OutsideWSRange)) {
                 // so that show() will work again. As stated in the
                 // ICCCM section 4.1.4: "Only the client can effect a
                 // transition into or out of the Withdrawn state.",
@@ -4048,7 +4050,9 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                     // transition to withdrawn
                     if (X11->deferred_map.removeAll(this)) {
                         XMapWindow(X11->display, internalWinId());
-                    } else if (isVisible() && !testAttribute(Qt::WA_Mapped)) {
+                    } else if (isVisible()
+                               && !testAttribute(Qt::WA_Mapped)
+                               && !testAttribute(Qt::WA_OutsideWSRange)) {
                         // so that show() will work again. As stated
                         // in the ICCCM section 4.1.4: "Only the
                         // client can effect a transition into or out
@@ -4232,6 +4236,16 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
     Q_D(QWidget);
     bool wasResize = testAttribute(Qt::WA_WState_ConfigPending); // set in QWidget::setGeometry_sys()
     setAttribute(Qt::WA_WState_ConfigPending, false);
+
+    if (testAttribute(Qt::WA_OutsideWSRange)) {
+        // discard events for windows that have a geometry X can't handle
+        XEvent xevent;
+        while (XCheckTypedWindowEvent(X11->display,internalWinId(), ConfigureNotify,&xevent) &&
+               !qt_x11EventFilter(&xevent)  &&
+               !x11Event(&xevent)) // send event through filter
+            ;
+        return true;
+    }
 
     if (isWindow()) {
         QPoint newCPos(geometry().topLeft());
