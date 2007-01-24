@@ -947,10 +947,11 @@ static void fixToolBarOrientation(QLayoutItem *item, int dockPos)
         = static_cast<QInternal::DockPosition>(dockPos);
     Qt::Orientation o = pos == QInternal::TopDock || pos == QInternal::BottomDock
                         ? Qt::Horizontal : Qt::Vertical;
-    if (o != toolBar->orientation()) {
+    if (o != toolBar->orientation())
         toolBar->setOrientation(o);
-        toolBar->resize(item->sizeHint());
-    }
+    QSize hint = item->sizeHint();
+    if (toolBar->size() != hint)
+        toolBar->resize(hint);
 #else
     Q_UNUSED(item);
     Q_UNUSED(dockPos);
