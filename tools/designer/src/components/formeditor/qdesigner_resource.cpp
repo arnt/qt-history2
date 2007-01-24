@@ -65,7 +65,7 @@
 
 #include <QtXml/QDomDocument>
 
-using namespace qdesigner_internal;
+namespace qdesigner_internal {
 
 QDesignerResource::QDesignerResource(FormWindow *formWindow)
    : QSimpleResource(formWindow->core()), m_formWindow(formWindow)
@@ -212,46 +212,71 @@ void QDesignerResource::saveDom(DomUI *ui, QWidget *widget)
         extra->saveUiExtraInfo(ui);
 }
 
+
+
+// Convert uic3 files
+static bool convert3(const QString &fileName, QByteArray& ba, QString &errorMessage) {
+    QString binary = QLibraryInfo::location(QLibraryInfo::BinariesPath);
+    binary += QDir::separator();
+    binary += QLatin1String("uic3");
+    QStringList argv(QLatin1String("-convert"));
+    argv += fileName;
+    // Try to convert it ourselves.
+    QProcess uic3;
+    uic3.start(binary, argv);
+    if (!uic3.waitForStarted()) {
+        errorMessage = QApplication::translate("Designer", "Unable to launch %1.").arg(binary);
+        return false;
+    }
+    if (!uic3.waitForFinished()) {
+        errorMessage = QApplication::translate("Designer", "%1 timed out.").arg(binary);
+        return false;
+    }
+    if (uic3.exitCode()) {        
+        errorMessage =  uic3.readAllStandardError();
+        return false;
+    }
+    ba = uic3.readAllStandardOutput();
+    return true;
+}
+
 QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
-{
+
+            {
     if (ui->hasAttributeLanguage() && ui->attributeLanguage().toLower() != QLatin1String("c++"))
         return 0;
 
     const QString version = ui->attributeVersion();
     if (version != QLatin1String("4.0")) {
-
-        // Try to convert it ourselves.
-        QProcess uic3;
-        uic3.start(QLibraryInfo::location(QLibraryInfo::BinariesPath)
-                   + QDir::separator() + QLatin1String("uic3"), QStringList()
-                   << QLatin1String("-convert") << m_formWindow->fileName());
-        bool allOK = uic3.waitForFinished();
-        if (allOK) {
-            QByteArray ba = uic3.readAll();
+        QWidget *w = 0;
+        QString errorMessage;
+        QByteArray ba;
+        if (convert3( m_formWindow->fileName(), ba, errorMessage)) {
             QBuffer buffer(&ba);
-            m_formWindow->setFileName(QString());
-            QWidget *w = load(&buffer, parentWidget);
-            if (!w) {
-                allOK = false;
+            w = load(&buffer, parentWidget);
+            if (w) {
+                // Force the form to pop up a save file dialog
+                m_formWindow->setFileName(QString());
             } else {
-                QMessageBox::information(parentWidget->window(), QApplication::translate("Designer", "Qt Designer"),
-                   QApplication::translate("Designer", "This file was created using Designer from Qt-%1 and"
-                               " will be converted to a new form by Qt Designer.\n"
-                               "The old form has been untouched, but you will have to save this form"
-                               " under a new name.").arg(version), QMessageBox::Ok, 0);
-                return w;
+                errorMessage = QApplication::translate("Designer", "The converted file could not be read.");
             }
         }
-
-        if (!allOK) {
-            QMessageBox::warning(parentWidget->window(), QApplication::translate("Designer", "Qt Designer"),
-               QApplication::translate("Designer", "This file was created using Designer from Qt-%1 and "
-                           "could not be read. "
-                           "Please run it through <b>uic3 -convert</b> to convert "
-                           "it to Qt-4's ui format.").arg(version),
-                               QMessageBox::Ok, 0);
-            return 0;
+        if (w) {
+            QMessageBox::information(parentWidget->window(), QApplication::translate("Designer", "Qt Designer"),
+                                     QApplication::translate("Designer", "This file was created using Designer from Qt-%1 and"
+                                     " will be converted to a new form by Qt Designer.\n"
+                                     "The old form has been untouched, but you will have to save this form"
+                                     " under a new name.").arg(version), QMessageBox::Ok, 0);
+            return w;
         }
+
+        QMessageBox::warning(parentWidget->window(), QApplication::translate("Designer", "Qt Designer"),
+                             QApplication::translate("Designer", "This file was created using Designer from Qt-%1 and "
+                             "could not be read:<br>%2<br>"
+                             "Please run it through <b>uic3 -convert</b> to convert "
+                             "it to Qt-4's ui format.").arg(version).arg(errorMessage),
+                             QMessageBox::Ok, 0);
+        return 0;
     }
 
     qdesigner_internal::WidgetFactory *factory = qobject_cast<qdesigner_internal::WidgetFactory*>(core()->widgetFactory());
@@ -1525,4 +1550,5 @@ QActionGroup *QDesignerResource::createActionGroup(QObject *parent, const QStrin
 void QDesignerResource::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
     QAbstractFormBuilder::loadExtraInfo(ui_widget, widget, parentWidget);
+}
 }
