@@ -81,6 +81,9 @@ unix {
 			(cd config.tests/x11/xshape && $(MAKE) distclean); \
 			(cd config.tests/x11/opengl && $(MAKE) distclean); \
  			(cd qmake && $(MAKE) distclean); \
+			$(DEL_FILE) src/core/global/qconfig.h; \
+			$(DEL_FILE) src/core/global/qconfig.cpp; \
+			$(DEL_FILE) mkspecs/qconfig.pri; \
 			$(DEL_FILE) .qmake.cache
   QMAKE_EXTRA_UNIX_TARGETS += confclean
   qmakeclean.commands += (cd qmake && $(MAKE) clean)
