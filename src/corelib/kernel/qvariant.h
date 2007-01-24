@@ -237,7 +237,7 @@ class Q_CORE_EXPORT QVariant
 #ifndef QT_NO_REGEXP
     QRegExp toRegExp() const;
 #endif
-    
+
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT int &asInt();
     inline QT3_SUPPORT uint &asUInt();
@@ -360,6 +360,7 @@ class Q_CORE_EXPORT QVariant
 protected:
     friend inline bool qvariant_cast_helper(const QVariant &, QVariant::Type, void *);
     friend int qRegisterGuiVariant();
+    friend int qUnregisterGuiVariant();
     friend inline bool operator==(const QVariant &, const QVariantComparisonHelper &);
 #ifndef QT_NO_DEBUG_STREAM
     friend Q_CORE_EXPORT QDebug operator<<(QDebug, const QVariant &);

@@ -935,6 +935,10 @@ QApplication::~QApplication()
     QApplicationPrivate::animate_tooltip = false;
     QApplicationPrivate::fade_tooltip = false;
     QApplicationPrivate::widgetCount = false;
+
+    // trigger unregistering of QVariant's GUI types
+    extern int qUnregisterGuiVariant();
+    qUnregisterGuiVariant();
 }
 
 
