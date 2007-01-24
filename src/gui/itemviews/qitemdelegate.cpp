@@ -278,31 +278,6 @@ void QItemDelegate::setClipping(bool clip)
     d->clipPainting = clip;
 }
 
-/*!
-    Renders the delegate using the given \a painter and style \a option for
-    the item specified by \a index.
-
-    When reimplementing this function in a subclass, you should update the area
-    held by the option's \l{QStyleOption::rect}{rect} variable, using the
-    option's \l{QStyleOption::state}{state} variable to determine the state of
-    the item to be displayed, and adjust the way it is painted accordingly.
-
-    For example, a selected item may need to be displayed differently to
-    unselected items, as shown in the following code:
-
-    \quotefromfile itemviews/pixelator/pixeldelegate.cpp
-    \skipto QStyle::State_Selected
-    \printuntil else
-    \dots
-
-    After painting, you should ensure that the painter is returned to its
-    the state it was supplied in when this function was called. For example,
-    it may be useful to call QPainter::save() before painting and
-    QPainter::restore() afterwards.
-
-    \sa QStyle::State
-*/
-
 QString QItemDelegatePrivate::valueToText(const QVariant &value, const QStyleOptionViewItemV3 &option)
 {
     QString text;
@@ -336,6 +311,30 @@ QString QItemDelegatePrivate::valueToText(const QVariant &value, const QStyleOpt
     return text;
 }
 
+/*!
+    Renders the delegate using the given \a painter and style \a option for
+    the item specified by \a index.
+
+    When reimplementing this function in a subclass, you should update the area
+    held by the option's \l{QStyleOption::rect}{rect} variable, using the
+    option's \l{QStyleOption::state}{state} variable to determine the state of
+    the item to be displayed, and adjust the way it is painted accordingly.
+
+    For example, a selected item may need to be displayed differently to
+    unselected items, as shown in the following code:
+
+    \quotefromfile itemviews/pixelator/pixeldelegate.cpp
+    \skipto QStyle::State_Selected
+    \printuntil else
+    \dots
+
+    After painting, you should ensure that the painter is returned to its
+    the state it was supplied in when this function was called. For example,
+    it may be useful to call QPainter::save() before painting and
+    QPainter::restore() afterwards.
+
+    \sa QStyle::State
+*/
 void QItemDelegate::paint(QPainter *painter,
                           const QStyleOptionViewItem &option,
                           const QModelIndex &index) const
