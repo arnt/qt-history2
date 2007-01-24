@@ -33,6 +33,7 @@ QT_MODULE(Script)
 class QDateTime;
 class QScriptEnginePrivate;
 class QScriptNameIdImpl;
+class QScriptCustomTypeInfo;
 
 class Q_SCRIPT_EXPORT QScriptNameId
 {
@@ -106,6 +107,7 @@ public:
 
     QScriptValue nullValue();
     QScriptValue undefinedValue();
+
     Q_DECL_DEPRECATED QScriptValue nullScriptValue();
     Q_DECL_DEPRECATED QScriptValue undefinedScriptValue();
 
@@ -116,19 +118,23 @@ public:
     QScriptValue scriptValue(qulonglong value);
     QScriptValue scriptValue(qnumber value);
     QScriptValue scriptValue(const QString &value);
+
 #ifndef QT_NO_CAST_FROM_ASCII
     QT_ASCII_CAST_WARN QScriptValue scriptValue(const char *value);
 #endif
+
     QScriptValue newFunction(QScriptFunctionSignature signature, int length = 0);
     QScriptValue newFunction(QScriptFunctionSignature signature, const QScriptValue &prototype, int length = 0);
+    QScriptValue newVariant(const QVariant &value);
+
     Q_DECL_DEPRECATED QScriptValue scriptValue(QScriptFunctionSignature signature, int length = 0);
     Q_DECL_DEPRECATED QScriptValue scriptValue(QScriptFunctionSignature signature, const QScriptValue &prototype, int length = 0);
+    Q_DECL_DEPRECATED QScriptValue scriptValueFromVariant(const QVariant &value);
+
 #ifndef QT_NO_REGEXP
     QScriptValue newRegExp(const QRegExp &regexp);
     Q_DECL_DEPRECATED QScriptValue scriptValue(const QRegExp &regexp);
 #endif
-    QScriptValue newVariant(const QVariant &value);
-    Q_DECL_DEPRECATED QScriptValue scriptValueFromVariant(const QVariant &value);
 
     QScriptValue newObject();
     QScriptValue newArray(uint length = 0);
@@ -141,18 +147,21 @@ public:
 
 #ifndef QT_NO_QOBJECT
     QScriptValue newQObject(QObject *object);
+
     QScriptValue newQMetaObject(const QMetaObject *metaObject,
-                                const QScriptValue &ctor);
+                                const QScriptValue &ctor = QScriptValue());
+
     Q_DECL_DEPRECATED QScriptValue scriptValueFromQObject(QObject *object);
+
     Q_DECL_DEPRECATED QScriptValue scriptValue(const QMetaObject *metaObject,
                                                const QScriptValue &ctor);
-#ifndef QT_NO_MEMBER_TEMPLATES
-    template <class T>
-    QScriptValue scriptValueFromQClass()
+
+#  ifndef QT_NO_MEMBER_TEMPLATES
+    template <class T> QScriptValue scriptValueFromQClass()
     {
         return qScriptValueFromQClass<T>(this);
     }
-#endif // QT_NO_MEMBER_TEMPLATES
+#  endif // QT_NO_MEMBER_TEMPLATES
 #endif // QT_NO_QOBJECT
 
     QScriptNameId nameId(const QString &value);
@@ -160,7 +169,9 @@ public:
 #ifndef QT_NO_MEMBER_TEMPLATES
     template <typename T>
     inline QScriptValue scriptValueFromValue(const T &value)
-    { return qScriptValueFromValue(this, value); }
+    {
+        return qScriptValueFromValue(this, value);
+    }
 #endif // QT_NO_MEMBER_TEMPLATES
 
     typedef QScriptValue (*MarshalFunction)(QScriptEngine *, const void *);
@@ -175,24 +186,20 @@ private:
                             DemarshalFunction df,
                             const QScriptValue &prototype);
 
-    friend inline void qScriptRegisterMetaType_helper(
-        QScriptEngine *, int, MarshalFunction, DemarshalFunction,
-        const QScriptValue &);
-    friend inline QScriptValue qScriptValueFromValue_helper(
-        QScriptEngine *, int, const void *);
-    friend inline bool qscript_cast_helper(const QScriptValue &,
-                                           int, void *);
-    friend class QScriptCustomTypeInfo;
+    friend inline void qScriptRegisterMetaType_helper(QScriptEngine *,
+        int, MarshalFunction, DemarshalFunction, const QScriptValue &);
+
+    friend inline QScriptValue qScriptValueFromValue_helper(QScriptEngine *, int, const void *);
+
+    friend inline bool qscript_cast_helper(const QScriptValue &, int, void *);
 
 protected:
 #ifdef QT_NO_QOBJECT
+    QScriptEnginePrivate *d_ptr;
+
     QScriptEngine(QScriptEnginePrivate &dd);
 #else
     QScriptEngine(QScriptEnginePrivate &dd, QObject *parent = 0);
-#endif
-
-#ifdef QT_NO_QOBJECT
-    QScriptEnginePrivate *d_ptr;
 #endif
 
 private:
@@ -217,8 +224,7 @@ template<> static inline QScriptValue qscriptQClassConstructor<T>(QScriptContext
 
 #endif // QT_NO_QOBJECT
 
-inline QScriptValue qScriptValueFromValue_helper(QScriptEngine *engine,
-                                                 int type, const void *ptr)
+inline QScriptValue qScriptValueFromValue_helper(QScriptEngine *engine, int type, const void *ptr)
 {
     if (!engine)
         return QScriptValue();
