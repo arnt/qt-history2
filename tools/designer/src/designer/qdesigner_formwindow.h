@@ -47,7 +47,7 @@ protected:
     virtual void resizeEvent(QResizeEvent* rev);
 
 private:
-    QDesignerFormWindowInterface *m_editor;
+    QPointer<QDesignerFormWindowInterface> m_editor;
     QPointer<QDesignerWorkbench> m_workbench;
     QAction *m_action;
     bool m_initialized;

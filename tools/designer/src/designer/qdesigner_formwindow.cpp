@@ -174,8 +174,11 @@ void QDesignerFormWindow::closeEvent(QCloseEvent *ev)
 
 void QDesignerFormWindow::updateChanged()
 {
-    setWindowModified(m_editor->isDirty());
-    updateWindowTitle(m_editor->fileName());
+    // Sometimes called after form window destruction.
+    if (m_editor) {
+        setWindowModified(m_editor->isDirty());
+        updateWindowTitle(m_editor->fileName());
+    }    
 }
 
 void QDesignerFormWindow::resizeEvent(QResizeEvent *rev)
