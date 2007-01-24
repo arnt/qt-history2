@@ -322,10 +322,8 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
             }
         }
     }
-    if(!ignoreErrors && this->root == 0) {
+    if(!ignoreErrors && this->root == 0)
         fprintf(stderr, "RCC: Warning: No resources in resource description.\n");
-        return false;
-    }
     return true;
 }
 
@@ -425,17 +423,19 @@ bool RCCResourceLibrary::output(FILE *out)
         fprintf(stderr, "Couldn't write header\n");
         return false;
     }
-    if (!writeDataBlobs(out)) {
-        fprintf(stderr, "Couldn't write data blob\n");
-        return false;
-    }
-    if (!writeDataNames(out)) {
-        fprintf(stderr, "Couldn't write file names\n");
-        return false;
-    }
-    if (!writeDataStructure(out)) {
-        fprintf(stderr, "Couldn't write data tree\n");
-        return false;
+    if(this->root) {
+        if (!writeDataBlobs(out)) {
+            fprintf(stderr, "Couldn't write data blob\n");
+            return false;
+        }
+        if (!writeDataNames(out)) {
+            fprintf(stderr, "Couldn't write file names\n");
+            return false;
+        }
+        if (!writeDataStructure(out)) {
+            fprintf(stderr, "Couldn't write data tree\n");
+            return false;
+        }
     }
     if (!writeInitializer(out)) {
         fprintf(stderr, "Couldn't write footer\n");
@@ -606,10 +606,12 @@ RCCResourceLibrary::writeInitializer(FILE *out)
 
         //init
         fprintf(out, "int qInitResources%s()\n{\n", initName.toLatin1().constData());
-        fprintf(out, "    extern bool qRegisterResourceData(int, const unsigned char *, "
-                "const unsigned char *, const unsigned char *);\n");
-        fprintf(out, "    qRegisterResourceData(0x01, qt_resource_struct, "
-                     "qt_resource_name, qt_resource_data);\n");
+        if(this->root) {
+            fprintf(out, "    extern bool qRegisterResourceData(int, const unsigned char *, "
+                    "const unsigned char *, const unsigned char *);\n");
+            fprintf(out, "    qRegisterResourceData(0x01, qt_resource_struct, "
+                    "qt_resource_name, qt_resource_data);\n");
+        }
         fprintf(out, "    return 1;\n");
         fprintf(out, "}\n");
         fprintf(out, "Q_CONSTRUCTOR_FUNCTION(qInitResources%s)\n",
@@ -617,10 +619,12 @@ RCCResourceLibrary::writeInitializer(FILE *out)
 
         //cleanup
         fprintf(out, "int qCleanupResources%s()\n{\n", initName.toLatin1().constData());
-        fprintf(out, "    extern bool qUnregisterResourceData(int, const unsigned char *, "
-                "const unsigned char *, const unsigned char *);\n");
-        fprintf(out, "    qUnregisterResourceData(0x01, qt_resource_struct, "
-                     "qt_resource_name, qt_resource_data);\n");
+        if(this->root) {
+            fprintf(out, "    extern bool qUnregisterResourceData(int, const unsigned char *, "
+                    "const unsigned char *, const unsigned char *);\n");
+            fprintf(out, "    qUnregisterResourceData(0x01, qt_resource_struct, "
+                    "qt_resource_name, qt_resource_data);\n");
+        }
         fprintf(out, "    return 1;\n");
         fprintf(out, "}\n");
         fprintf(out, "Q_DESTRUCTOR_FUNCTION(qCleanupResources%s)\n",
