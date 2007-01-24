@@ -1,8 +1,6 @@
 TARGET  = qgif
 include(../../qpluginbase.pri)
 
-VERSION = 1.0.0
-
 HEADERS += qgifhandler.h
 
 SOURCES += main.cpp \

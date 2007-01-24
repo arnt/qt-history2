@@ -1,7 +1,6 @@
 TARGET  = qmng
 include(../../qpluginbase.pri)
 
-VERSION = 1.0.0
 QTDIR_build:REQUIRES = "!contains(QT_CONFIG, no-mng)"
 
 HEADERS += qmnghandler.h

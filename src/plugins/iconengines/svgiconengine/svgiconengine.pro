@@ -1,8 +1,6 @@
 TARGET  = qsvg
 include(../../qpluginbase.pri)
 
-VERSION = 1.0.0
-
 HEADERS += qsvgiconengine.h
 SOURCES += main.cpp \
            qsvgiconengine.cpp
