@@ -2043,6 +2043,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             if (!q->isVisible())
                 do_size_hints(q, extra);
             if (!q->isVisible()
+                || (data.window_flags & Qt::X11BypassWindowManagerHint) == Qt::X11BypassWindowManagerHint
                 // work around 4Dwm's incompliance with ICCCM 4.1.5
                 || X11->desktopEnvironment == DE_4DWM) {
                 XMoveResizeWindow(dpy, data.winid, x, y, w, h);
