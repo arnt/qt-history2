@@ -1640,10 +1640,15 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &orig_var, const 
                         base = fi.fileName();
                     val += base;
                 }
+            } else if(var == QLatin1String("QMAKE_FILE_PATH") || var == QLatin1String("QMAKE_FILE_IN_PATH")) {
+                filePath = true;
+                for(int i = 0; i < in.size(); ++i)
+                    val += fileInfo(Option::fixPathToLocalOS(in.at(i))).path();
             } else if(var == QLatin1String("QMAKE_FILE_NAME") || var == QLatin1String("QMAKE_FILE_IN")) {
                 filePath = true;
                 for(int i = 0; i < in.size(); ++i)
                     val += fileInfo(Option::fixPathToLocalOS(in.at(i))).filePath();
+
             }
         }
         if(val.isEmpty() && !out.isEmpty()) {
