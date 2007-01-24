@@ -35,6 +35,7 @@ private slots:
     void load2();
     void threadLoad();
     void testLanguageChange();
+    void plural();
 
 private:
     int languageChangeEventCounter;
@@ -168,6 +169,20 @@ void tst_QTranslator::testLanguageChange()
     qApp->sendPostedEvents();
     qApp->sendPostedEvents();
     QCOMPARE(languageChangeEventCounter, 6);
+}
+
+
+void tst_QTranslator::plural()
+{
+
+    QTranslator tor( 0 );
+    tor.load("hellotr_la");
+    QVERIFY(!tor.isEmpty());
+    QCoreApplication::installTranslator(&tor);
+    QCoreApplication::Encoding e = QCoreApplication::UnicodeUTF8;
+    QCOMPARE(QCoreApplication::translate("QPushButton", "Hello %n world(s)!", 0, e, 0), QString::fromLatin1("Hallo 0 Welten!"));
+    QCOMPARE(QCoreApplication::translate("QPushButton", "Hello %n world(s)!", 0, e, 1), QString::fromLatin1("Hallo 1 Welt!"));
+    QCOMPARE(QCoreApplication::translate("QPushButton", "Hello %n world(s)!", 0, e, 2), QString::fromLatin1("Hallo 2 Welten!"));
 }
 
 QTEST_MAIN(tst_QTranslator)
