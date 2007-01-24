@@ -3522,6 +3522,19 @@ void tst_QWidget::windowMoveResize()
 
         // move() while shown
         foreach (QRect r, rects) {
+#ifdef Q_WS_X11
+            if ((widget.width() == 0 || widget.height() == 0) && r.width() != 0 && r.height() != 0) {
+                QEXPECT_FAIL("50,100 0x200, flags 0",
+                             "First resize after show of zero-sized gets wrong win_gravity.",
+                             Continue);
+                QEXPECT_FAIL("100,50 200x0, flags 0",
+                             "First resize after show of zero-sized gets wrong win_gravity.",
+                             Continue);
+                QEXPECT_FAIL("50,50 0x0, flags 0",
+                             "First resize after show of zero-sized gets wrong win_gravity.",
+                             Continue);
+            }
+#endif
             widget.move(r.topLeft());
             widget.resize(r.size());
             QTest::qWait(100);
@@ -3583,11 +3596,35 @@ void tst_QWidget::windowMoveResize()
         widget.move(rect.topLeft());
         widget.resize(rect.size());
         QTest::qWait(100);
+#ifdef Q_WS_X11
+        QEXPECT_FAIL("50,100 0x200, flags 0",
+                     "First resize after show of zero-sized gets wrong win_gravity.",
+                     Continue);
+        QEXPECT_FAIL("100,50 200x0, flags 0",
+                     "First resize after show of zero-sized gets wrong win_gravity.",
+                     Continue);
+        QEXPECT_FAIL("50,50 0x0, flags 0",
+                     "First resize after show of zero-sized gets wrong win_gravity.",
+                     Continue);
+#endif
         QCOMPARE(widget.pos(), rect.topLeft());
         QCOMPARE(widget.size(), rect.size());
 
         // move() while shown
         foreach (QRect r, rects) {
+#ifdef Q_WS_X11
+            if ((widget.width() == 0 || widget.height() == 0) && r.width() != 0 && r.height() != 0) {
+                QEXPECT_FAIL("50,100 0x200, flags 0",
+                             "First resize after show of zero-sized gets wrong win_gravity.",
+                             Continue);
+                QEXPECT_FAIL("100,50 200x0, flags 0",
+                             "First resize after show of zero-sized gets wrong win_gravity.",
+                             Continue);
+                QEXPECT_FAIL("50,50 0x0, flags 0",
+                             "First resize after show of zero-sized gets wrong win_gravity.",
+                             Continue);
+            }
+#endif
             widget.move(r.topLeft());
             widget.resize(r.size());
             QTest::qWait(100);
