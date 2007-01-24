@@ -23,6 +23,37 @@
 
 #include <stdarg.h>
 
+//same as qt_painterpath_isect_line in qpainterpath.cpp
+static void qt_polygon_isect_line(const QPointF &p1, const QPointF &p2, const QPointF &pos,
+                                  int *winding)
+{
+    qreal x1 = p1.x();
+    qreal y1 = p1.y();
+    qreal x2 = p2.x();
+    qreal y2 = p2.y();
+    qreal y = pos.y();
+
+    int dir = 1;
+
+    if (qFuzzyCompare(y1, y2)) {
+        // ignore horizontal lines according to scan conversion rule
+        return;
+    } else if (y2 < y1) {
+        qreal x_tmp = x2; x2 = x1; x1 = x_tmp;
+        qreal y_tmp = y2; y2 = y1; y1 = y_tmp;
+        dir = -1;
+    }
+
+    if (y >= y1 && y < y2) {
+        qreal x = x1 + ((x2 - x1) / (y2 - y1)) * (y - y1);
+
+        // count up the winding number if we're
+        if (x<=pos.x()) {
+            (*winding) += dir;
+        }
+    }
+}
+
 /*!
     \class QPolygon
     \brief The QPolygon class provides a vector of points using
@@ -676,3 +707,63 @@ QDebug operator<<(QDebug dbg, const QPolygonF &a)
 }
 #endif
 
+
+/*!
+    \since 4.3
+
+    Returns true if the given \a point is inside the polygon according to
+    the specified winding rule, otherwise returns false.
+*/
+bool QPolygonF::contains(const QPointF &pt, Qt::FillRule fillRule) const
+{
+    if (isEmpty())
+        return false;
+
+    int winding_number = 0;
+
+    QPointF last_pt = at(0);
+    QPointF last_start = at(0);
+    for (int i = 1; i < size(); ++i) {
+        const QPointF &e = at(i);
+        qt_polygon_isect_line(last_pt, e, pt, &winding_number);
+        last_pt = e; 
+    }
+
+    // implicitly close last subpath
+    if (last_pt != last_start)
+        qt_polygon_isect_line(last_pt, last_start, pt, &winding_number);
+
+    return (fillRule == Qt::WindingFill
+            ? (winding_number != 0)
+            : ((winding_number % 2) != 0));
+}
+
+/*!
+    \since 4.3
+
+    Returns true if the given \a point is inside the polygon according to
+    the specified winding rule, otherwise returns false.
+*/
+bool QPolygon::contains(const QPointF &pt, Qt::FillRule fillRule) const
+{
+    if (isEmpty())
+        return false;
+
+    int winding_number = 0;
+
+    QPointF last_pt = at(0);
+    QPointF last_start = at(0);
+    for (int i = 1; i < size(); ++i) {
+        const QPointF &e = at(i);
+        qt_polygon_isect_line(last_pt, e, pt, &winding_number);
+        last_pt = e; 
+    }
+    
+    // implicitly close last subpath
+    if (last_pt != last_start)
+        qt_polygon_isect_line(last_pt, last_start, pt, &winding_number);
+    
+    return (fillRule == Qt::WindingFill
+            ? (winding_number != 0)
+            : ((winding_number % 2) != 0));   
+}

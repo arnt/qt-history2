@@ -52,6 +52,8 @@ public:
     void putPoints(int index, int nPoints, const int *points);
     void putPoints(int index, int nPoints, int firstx, int firsty, ...);
     void putPoints(int index, int nPoints, const QPolygon & from, int fromIndex=0);
+
+    bool contains(const QPointF &pt, Qt::FillRule fillRule) const;
 };
 
 inline QPolygon::QPolygon(int asize) : QVector<QPoint>(asize) {}
@@ -97,6 +99,8 @@ public:
     bool isClosed() const { return !isEmpty() && first() == last(); }
 
     QRectF boundingRect() const;
+
+    bool contains(const QPointF &pt, Qt::FillRule fillRule) const;
 };
 
 inline QPolygonF::QPolygonF(int asize) : QVector<QPointF>(asize) {}
