@@ -1530,12 +1530,13 @@ QString QXmlInputSource::fromRawData(const QByteArray &data, bool beginning)
         d->encMapper = 0;
     }
 
+    int mib = 106; // UTF-8
+
     // This is the initial UTF codec we will read the encoding declaration with
     if (d->encMapper == 0) {
         d->encodingDeclBytes.clear();
         d->encodingDeclChars.clear();
         d->lookingForEncodingDecl = true;
-        int mib = 106; // UTF-8
 
         // look for byte order mark and read the first 5 characters
         if (data.size() >= 2) {
@@ -1566,13 +1567,16 @@ QString QXmlInputSource::fromRawData(const QByteArray &data, bool beginning)
 
         if (!encoding.isEmpty()) {
             if (QTextCodec *codec = QTextCodec::codecForName(encoding.toLatin1())) {
-                delete d->encMapper;
-                d->encMapper = codec->makeDecoder();
+                /* If the encoding is the same, we don't have to do toUnicode() all over again. */
+                if(codec->mibEnum() != mib) {
+                    delete d->encMapper;
+                    d->encMapper = codec->makeDecoder();
 
-                // prime the decoder with the data so far
-                d->encMapper->toUnicode(d->encodingDeclBytes, d->encodingDeclBytes.size());
-                // now feed it the new data
-                input = d->encMapper->toUnicode(data, data.size());
+                    // prime the decoder with the data so far
+                    d->encMapper->toUnicode(d->encodingDeclBytes, d->encodingDeclBytes.size());
+                    // now feed it the new data
+                    input = d->encMapper->toUnicode(data, data.size());
+                }
             }
         }
 
