@@ -37,7 +37,7 @@ QDesigner::QDesigner(int &argc, char **argv)
     : QApplication(argc, argv),
       m_server(0),
       m_client(0),
-      m_workbench(0), suppressNewFormShow(false)
+      m_workbench(0), m_suppressNewFormShow(false)
 {
     setOrganizationName(QLatin1String("Trolltech"));
     setApplicationName(QLatin1String("Designer"));
@@ -122,13 +122,15 @@ void QDesigner::initialize()
 
     emit initialized();
 
-    suppressNewFormShow = m_workbench->readInBackup();
+    m_suppressNewFormShow = m_workbench->readInBackup();
 
     foreach (QString file, files) {
-        if (m_workbench->readInForm(file) && !suppressNewFormShow)
-            suppressNewFormShow = true;
+        m_workbench->readInForm(file);
     }
-    if (QDesignerSettings().showNewFormOnStartup())
+    if ( m_workbench->formWindowCount())
+        m_suppressNewFormShow = true;
+
+    if (!m_suppressNewFormShow && QDesignerSettings().showNewFormOnStartup())
         QTimer::singleShot(100, this, SLOT(callCreateForm())); // won't show anything if suppressed
 }
 
@@ -137,10 +139,10 @@ bool QDesigner::event(QEvent *ev)
     bool eaten;
     switch (ev->type()) {
     case QEvent::FileOpen:
-        // set it true first since, if it's a Qt 3 form, the messagebox from convert will fire the timer.
-        suppressNewFormShow = true;
+        // Set it true first since, if it's a Qt 3 form, the messagebox from convert will fire the timer.
+        m_suppressNewFormShow = true;
         if (!m_workbench->readInForm(static_cast<QFileOpenEvent *>(ev)->file()))
-            suppressNewFormShow = false;
+            m_suppressNewFormShow = false;
         eaten = true;
         break;
     case QEvent::Close: {
@@ -174,6 +176,6 @@ QDesignerToolWindow *QDesigner::mainWindow() const
 
 void QDesigner::callCreateForm()
 {
-    if (!suppressNewFormShow)
+    if (!m_suppressNewFormShow)
         m_workbench->actionManager()->createForm();
 }

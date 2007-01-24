@@ -65,6 +65,12 @@ public:
     QDesignerFormWindow *findFormWindow(QWidget *widget) const;
 
     QDesignerFormWindow *createFormWindow();
+    
+    QDesignerFormWindow *openForm(const QString &fileName, QString *errorMessage);
+    QDesignerFormWindow *openTemplate(const QString &templateFileName,
+                                      const QString &editorFileName,
+                                      const QString &title,
+                                      QString *errorMessage);
 
     int toolWindowCount() const;
     QDesignerToolWindow *toolWindow(int index) const;
@@ -89,7 +95,6 @@ public:
     bool readInBackup();
     void updateBackup(QDesignerFormWindowInterface* fwi);
 
-    void resizeForm(QDesignerFormWindow *fw,  const QWidget *mainContainer) const;
 signals:
     void modeChanged(UIMode mode);
     void initialized();
@@ -127,6 +132,9 @@ private:
     bool eventFilter(QObject *object, QEvent *event);
 
 private:
+    QDesignerFormWindow *loadForm(const QString &fileName, bool *uic3Converted, QString *errorMessage);
+    void resizeForm(QDesignerFormWindow *fw,  const QWidget *mainContainer) const;
+
     QDesignerFormEditorInterface *m_core;
     qdesigner_internal::QDesignerIntegration *m_integration;
 

@@ -29,15 +29,17 @@
 #include <QtDesigner/QDesignerFormWindowManagerInterface>
 #include <QtDesigner/QDesignerFormEditorPluginInterface>
 #include <QtDesigner/QDesignerWidgetBoxInterface>
+#include <QtDesigner/QDesignerMetaDataBaseInterface>
 
 #include <QtDesigner/QDesignerComponents>
 #include <QtDesigner/private/qdesigner_integration_p.h>
 #include <QtDesigner/private/pluginmanager_p.h>
 
 #include <QtCore/QDir>
+#include <QtCore/QFile>
 #include <QtCore/QUrl>
 #include <QtCore/QPluginLoader>
-#include <QtCore/qdebug.h> // TODO
+#include <QtCore/qdebug.h>
 
 #include <QtGui/QActionGroup>
 #include <QtGui/QCloseEvent>
@@ -871,10 +873,10 @@ bool QDesignerWorkbench::readInBackup()
     QMap<QString, QString> backupFileMap;
     backupFileMap = QDesignerSettings().backup();
     if(!backupFileMap.isEmpty()) {
-        if (QMessageBox::question(0, tr("Backup Information"), 
+        if (QMessageBox::question(0, tr("Backup Information"),
                                     tr("Designer was not correctly terminated during your last session."
                                        "There are existing Backup files, do you wan't to load them?"),
-                                    tr("&Yes"), tr("&No"), QString(), 0, 1) == 0) 
+                                    tr("&Yes"), tr("&No"), QString(), 0, 1) == 0)
         {
             QMapIterator<QString, QString> it(backupFileMap);
             while(it.hasNext()) {
@@ -908,12 +910,12 @@ void QDesignerWorkbench::updateBackup(QDesignerFormWindowInterface* fwi)
 namespace {
     void raiseWindow(QWidget *w) {
         if (w->isMinimized())
-            w->setWindowState(w->windowState() & ~Qt::WindowMinimized);        
+            w->setWindowState(w->windowState() & ~Qt::WindowMinimized);
         w->raise();
     }
 }
 
-void QDesignerWorkbench::bringAllToFront() 
+void QDesignerWorkbench::bringAllToFront()
 {
     if (m_mode !=  TopLevelMode)
         return;
@@ -922,7 +924,7 @@ void QDesignerWorkbench::bringAllToFront()
     foreach(QDesignerFormWindow *dfw, m_formWindows)
         raiseWindow(dfw);
 }
-    
+
 // Resize a form window taking MDI decorations into account
 void QDesignerWorkbench::resizeForm(QDesignerFormWindow *fw, const QWidget *mainContainer) const
 {
@@ -941,10 +943,82 @@ void QDesignerWorkbench::resizeForm(QDesignerFormWindow *fw, const QWidget *main
     const QSize decorationSize = mdiSubWindow->geometry().size() - mdiSubWindow->contentsRect().size(); // TODO new API
     mdiSubWindow->resize(containerSize + decorationSize);
     mdiSubWindow->setMinimumSize(containerMinimumSize + decorationSize);
-    
+
     if (containerMaximumSize == QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX)) {
         mdiSubWindow->setMaximumSize(containerMaximumSize);
     } else {
         mdiSubWindow->setMaximumSize(containerMaximumSize + decorationSize);
     }
+}
+
+
+// Load a form or return 0 and do cleanup. file name and editor file
+// name in case of loading a template file.
+
+QDesignerFormWindow * QDesignerWorkbench::loadForm(const QString &fileName,
+                                                   bool *uic3Converted,
+                                                   QString *errorMessage)
+{
+    QFile file(fileName);
+    if (!file.open(QFile::ReadOnly)) {
+        *errorMessage = tr("The file <b>%1</b> could not be opened.").arg(file.fileName());
+        return 0;
+    }
+    // Create a form
+     QDesignerFormWindowManagerInterface *formWindowManager = m_core->formWindowManager();
+
+    QDesignerFormWindow *formWindow = createFormWindow();
+    QDesignerFormWindowInterface *editor = formWindow->editor();
+    Q_ASSERT(editor);
+
+    
+    // Temporarily set the file name. It is needed when converting a UIC 3 file.
+    // In this case, the file name will we be cleared on return to force a save box.
+    editor->setFileName(fileName);
+    editor->setContents(&file);
+    if (!editor->mainContainer()) {
+        removeFormWindow(formWindow);
+        formWindowManager->removeFormWindow(editor);
+        m_core->metaDataBase()->remove(editor);
+        *errorMessage = tr("The file <b>%1</b> is not a valid Designer ui file.").arg(file.fileName());
+        return 0;
+    }
+    *uic3Converted = editor->fileName().isEmpty();
+    editor->setDirty(false);
+    resizeForm(formWindow, editor->mainContainer());
+    formWindowManager->setActiveFormWindow(editor);
+    return formWindow;
+}
+
+
+QDesignerFormWindow * QDesignerWorkbench::openForm(const QString &fileName, QString *errorMessage)
+{
+    bool uic3Converted;
+    QDesignerFormWindow *rc =loadForm(fileName, &uic3Converted, errorMessage);
+    if (!rc)
+        return 0;
+
+    rc->updateWindowTitle(fileName);
+    if (!uic3Converted)
+        rc->editor()->setFileName(fileName);
+
+    rc->show();
+    return rc;
+}
+
+QDesignerFormWindow * QDesignerWorkbench::openTemplate(const QString &templateFileName,
+                                                       const QString &editorFileName,
+                                                       const QString &title,
+                                                       QString *errorMessage)
+{
+    bool uic3Converted;
+    QDesignerFormWindow *rc =loadForm(templateFileName, &uic3Converted, errorMessage);
+    if (!rc)
+        return 0;
+
+    rc->setWindowTitle(title);
+    if (!uic3Converted)
+        rc->editor()->setFileName(editorFileName);
+    rc->show();
+    return rc;
 }

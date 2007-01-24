@@ -25,12 +25,12 @@
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
+#include <QtCore/qdebug.h>
 #include <QtGui/QHeaderView>
 #include <QtGui/QPainter>
 #include <QtGui/QPushButton>
 #include <QtGui/QMenu>
-
-#include <QtCore/qdebug.h>
+#include <QtGui/QMessageBox>
 
 enum NewForm_CustomRole
 {
@@ -134,61 +134,12 @@ void NewForm::on_buttonBox_clicked(QAbstractButton *btn)
         }
         break;
     case QDialogButtonBox::AcceptRole:
-        if (QTreeWidgetItem *item = ui.treeWidget->currentItem()) {
-            close();
-
-            int maxUntitled = 0;
-            const int totalWindows = m_workbench->formWindowCount();
-            if(m_fileName.isEmpty()) {
-                // This will cause some problems with i18n, but for now I need the string to be "static"
-                QRegExp rx(QLatin1String("untitled( (\\d+))?"));
-                for (int i = 0; i < totalWindows; ++i) {
-                    QString title = m_workbench->formWindow(i)->windowTitle();
-                    title.replace(QLatin1String("[*]"), QLatin1String(""));
-                    if (rx.indexIn(title) != 1) {
-                        if (maxUntitled == 0)
-                            ++maxUntitled;
-                        if (rx.numCaptures() > 1)
-                            maxUntitled = qMax(rx.cap(2).toInt(), maxUntitled);
-                    }
-                }
+        if (const QTreeWidgetItem *item = ui.treeWidget->currentItem()) { 
+            if (openTemplate(item->data(0, TemplateNameRole).toString())) {
+                close();
             } else {
-                for (int i = 0; i < totalWindows; ++i) {
-                    if (m_fileName == m_workbench->formWindow(i)->editor()->fileName())
-                        ++maxUntitled;
-                }
+                show();
             }
-
-            QDesignerFormWindow *formWindow = workbench()->createFormWindow();
-            if (QDesignerFormWindowInterface *editor = formWindow->editor()) {
-                QString formTemplateName = item->data(0, TemplateNameRole).toString();
-                QFile f(formTemplateName);
-                if (f.open(QFile::ReadOnly)) {
-                    editor->setContents(&f);
-                    f.close();
-                } else {
-                    editor->setContents(QString());
-                }
-
-                if (QWidget *container = editor->mainContainer()) {
-                    workbench()->resizeForm(formWindow, container );
-                }
-            }
-            QString newTitle = QLatin1String("untitled");
-            if (!m_fileName.isEmpty())
-                newTitle = QFileInfo(m_fileName).fileName();
-
-            if (maxUntitled) {
-                newTitle += QLatin1Char(' ');
-                newTitle += QString::number(maxUntitled + 1);
-                if (!m_fileName.isEmpty())
-                    m_fileName.replace(QFileInfo(m_fileName).fileName(), newTitle);
-            }
-
-            newTitle.append(QLatin1String("[*]"));
-            formWindow->setWindowTitle(newTitle);
-            formWindow->editor()->setFileName(m_fileName);
-            formWindow->show();
         }
         break;
     default:
@@ -350,4 +301,73 @@ void NewForm::on_treeWidget_itemPressed(QTreeWidgetItem *item)
 {
     if (item && !item->parent())
         ui.treeWidget->setItemExpanded(item, !ui.treeWidget->isItemExpanded(item));
+}
+
+// Figure out a title for a new file.
+QString NewForm::newUntitledTitle() const
+{    
+    int maxUntitled = 0;
+    const int totalWindows = m_workbench->formWindowCount();
+    // This will cause some problems with i18n, but for now I need the string to be "static"
+    QRegExp rx(QLatin1String("untitled( (\\d+))?"));
+    for (int i = 0; i < totalWindows; ++i) {
+        QString title = m_workbench->formWindow(i)->windowTitle();
+        title.replace(QLatin1String("[*]"), QLatin1String(""));
+        if (rx.indexIn(title) != 1) {
+            if (maxUntitled == 0)
+                ++maxUntitled;
+            if (rx.numCaptures() > 1)
+                maxUntitled = qMax(rx.cap(2).toInt(), maxUntitled);
+        }
+    }
+
+    QString newTitle = QLatin1String("untitled");
+
+    if (maxUntitled) {
+        newTitle += QLatin1Char(' ');
+        newTitle += QString::number(maxUntitled + 1);
+    }
+
+    newTitle.append(QLatin1String("[*]"));
+    return newTitle;
+}
+
+
+// Figure out a title for a new file.
+QString NewForm::newFileTitle(QString &fileName) const
+{    
+    int maxUntitled = 0;
+    const int totalWindows = m_workbench->formWindowCount();
+
+    for (int i = 0; i < totalWindows; ++i) {
+        if (fileName == m_workbench->formWindow(i)->editor()->fileName())
+            ++maxUntitled;
+    }
+     
+    const QString baseName  = QFileInfo(fileName).fileName();
+    QString newTitle = baseName;    
+
+    if (maxUntitled) {
+        newTitle += QLatin1Char(' ');
+        newTitle += QString::number(maxUntitled + 1);
+        fileName.replace(baseName, newTitle);
+    }
+    
+    newTitle.append(QLatin1String("[*]"));
+    return newTitle;
+}
+
+bool NewForm::openTemplate(const QString &templateFileName)
+{
+    
+    const QString  newTitle = m_fileName.isEmpty() ? newUntitledTitle() : newFileTitle(m_fileName);
+    QString errorMessage;
+    if (!workbench()->openTemplate(templateFileName,
+                                   m_fileName,
+                                   newTitle,
+                                   &errorMessage)) {        
+        QMessageBox::warning(this, tr("Read error"), errorMessage);        
+        return false;
+    }
+    return true;
 }

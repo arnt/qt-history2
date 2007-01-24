@@ -526,32 +526,20 @@ void QDesignerActions::createForm()
     showNewFormDialog(QString());
 }
 
-void QDesignerActions::showNewFormDialog(const QString &fileName) const
+void QDesignerActions::showNewFormDialog(const QString &fileName)
 {
     NewForm *dlg = new NewForm(workbench(), workbench()->core()->topLevel(), fileName);
     dlg->setAttribute(Qt::WA_DeleteOnClose);
     dlg->setAttribute(Qt::WA_ShowModal);
 
     dlg->setGeometry(fixDialogRect(dlg->rect()));
-    dlg->show();
+    dlg->exec();
 }
 
-void QDesignerActions::createForm(const QString &fileName)
-{
-    QFileInfo fInfo(fileName);
-    QString path = fInfo.absolutePath();
-
-    if (QDir(path).exists())
-        path += QLatin1Char('/') + fInfo.fileName();
-    else
-        path.clear();
-
-    showNewFormDialog(path);
-}
 
 bool QDesignerActions::openForm()
 {
-    QString extension = getFileExtension(core());
+    const QString extension = getFileExtension(core());
     const QStringList fileNames = QFileDialog::getOpenFileNames(core()->topLevel(), tr("Open Form"),
         m_openDirectory, tr("Designer UI files (*.%1);;All Files (*)").arg(extension), 0, QFileDialog::DontUseSheet);
 
@@ -784,65 +772,52 @@ bool QDesignerActions::readInForm(const QString &fileName)
         }
     }
 
-    QString extension = getFileExtension(core());
-
     // Otherwise load it.
-    QFile f(fn);
-    if (!f.open(QFile::ReadOnly)) {
-        QMessageBox box(QMessageBox::Warning, tr("Read error"),
-            tr("The specified ui file <b>%1</b> could not be found. Do you want to update the file location or generate a new form?").arg(fn),
-            QMessageBox::Cancel, core()->topLevel());
-        QPushButton *updateButton = box.addButton(tr("&Update"), QMessageBox::ActionRole);
-        QPushButton *newButton = box.addButton(tr("&New Form"), QMessageBox::ActionRole);
-        box.exec();
-
-        if (box.clickedButton() == box.button(QMessageBox::Cancel))
-            return false;
-
-        if (box.clickedButton() == updateButton) {
-           fn = QFileDialog::getOpenFileName(core()->topLevel(),
-               tr("Open Form"), m_openDirectory,
-               tr("Designer UI files (*.%1);;All Files (*)").arg(extension), 0, QFileDialog::DontUseSheet);
-
-            if (fn.isEmpty())
-                return false;
-
-            f.setFileName(fn);
-            if (!f.open(QFile::ReadOnly))
-                return false;
-        } else if (box.clickedButton() == newButton) {
-            QMetaObject::invokeMethod(this, "createForm", Qt::QueuedConnection, Q_ARG(QString, fn));
-            return false;
-        }
-    }
-
-    m_openDirectory = QFileInfo(f).absolutePath();
-
-    QDesignerFormWindow *formWindow = workbench()->createFormWindow();
-    if (QDesignerFormWindowInterface *editor = formWindow->editor()) {
-        editor->setFileName(fn);
-        editor->setContents(&f);
-
-        if (!editor->mainContainer()) {
-            workbench()->removeFormWindow(formWindow);
-            formWindowManager->removeFormWindow(editor);
-            formWindowManager->core()->metaDataBase()->remove(editor);
-
-            QMessageBox box(QMessageBox::Warning, tr("Read error"), tr("Couldn't open file"),
-                            QMessageBox::Ok, core()->topLevel());
-            box.setText(tr("%1 could not be opened.\nReason: %2").arg(f.fileName()).arg(QLatin1String("The file is not a valid Designer ui file!")));
+    do {
+        QString errorMessage;
+        if (workbench()->openForm(fn, &errorMessage)) {
+            addRecentFile(fn);
+            m_openDirectory = QFileInfo(fn).absolutePath();
+            return true;
+        } else {
+            // prompt to reload
+            QMessageBox box(QMessageBox::Warning, tr("Read error"),
+                            tr("%1\nDo you want to update the file location or generate a new form?").arg(errorMessage),
+                            QMessageBox::Cancel, core()->topLevel());
+            
+            QPushButton *updateButton = box.addButton(tr("&Update"), QMessageBox::ActionRole);
+            QPushButton *newButton    = box.addButton(tr("&New Form"), QMessageBox::ActionRole);
             box.exec();
+            if (box.clickedButton() == box.button(QMessageBox::Cancel))
+                return false;
+            
+            if (box.clickedButton() == updateButton) {
+                const QString extension = getFileExtension(core());
+                fn = QFileDialog::getOpenFileName(core()->topLevel(),
+                                                  tr("Open Form"), m_openDirectory,
+                                                  tr("Designer UI files (*.%1);;All Files (*)").arg(extension), 0, QFileDialog::DontUseSheet);
 
-            return false;
+                if (fn.isEmpty())
+                    return false;
+            } else if (box.clickedButton() == newButton) {
+                // If the file does not exist, but its directory, is valid, open the template with the editor file name set to it.
+                // (called from command line).
+                QString newFormFileName;
+                const  QFileInfo fInfo(fn);
+                if (!fInfo.exists()) {
+                    // Normalize file name
+                    const QString directory = fInfo.absolutePath();
+                    if (QDir(directory).exists()) {
+                        newFormFileName = directory;
+                        newFormFileName  += QLatin1Char('/');
+                        newFormFileName  += fInfo.fileName();
+                    }
+                }
+                showNewFormDialog(newFormFileName);
+                return false;
+            }
         }
-
-        formWindow->updateWindowTitle(fn);
-        workbench()->resizeForm(formWindow, editor->mainContainer());
-        formWindowManager->setActiveFormWindow(editor);
-    }
-    formWindow->show();
-    addRecentFile(fn);
-    formWindow->editor()->setDirty(false);
+    } while (true);
     return true;
 }
 

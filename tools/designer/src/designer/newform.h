@@ -41,6 +41,10 @@ private:
     void loadFrom(const QString &path, bool resourceFile);
 
 private:
+    bool openTemplate(const QString &templateFileName);
+    QString newUntitledTitle() const;
+    QString newFileTitle(QString &fileName) const;
+
     QDesignerWorkbench *m_workbench;
     Ui::NewForm ui;
     QPushButton *m_createButton;

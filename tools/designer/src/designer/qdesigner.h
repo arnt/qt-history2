@@ -54,7 +54,7 @@ private:
     QDesignerClient *m_client;
     QDesignerWorkbench *m_workbench;
     QPointer<QDesignerToolWindow> m_mainWindow;
-    bool suppressNewFormShow;
+    bool m_suppressNewFormShow;
 };
 
 #endif // QDESIGNER_H
