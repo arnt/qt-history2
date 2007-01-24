@@ -3282,12 +3282,6 @@ Q_DECLARE_METATYPE(QList<QRect>)
               << QRect(50, 50, 0, 0)
               << QRect(100, 100, 200, 200))
           << (QList<QRect>()
-              << QApplication::desktop()->availableGeometry().adjusted(100, 100, -100, -100)
-              << QRect(50, 100, 0, 200)
-              << QRect(100, 50, 200, 0)
-              << QRect(50, 50, 0, 0)
-              << QRect(100, 100, 200, 200))
-          << (QList<QRect>()
               << QRect(50, 100, 0, 200)
               << QRect(100, 50, 200, 0)
               << QRect(50, 50, 0, 0)
@@ -3385,6 +3379,22 @@ void tst_QWidget::setWindowGeometry()
             QTest::qWait(100);
             QCOMPARE(widget.geometry(), r);
         }
+        widget.setGeometry(rect);
+        QTest::qWait(100);
+        QCOMPARE(widget.geometry(), rect);
+
+        // show() again, geometry() should still be the same
+        widget.show();
+#ifdef Q_WS_X11
+        qt_x11_wait_for_window_manager(&widget);
+#endif
+        QTest::qWait(100);
+        QCOMPARE(widget.geometry(), rect);
+
+        // final hide(), again geometry() should be unchanged
+        widget.hide();
+        QTest::qWait(100);
+        QCOMPARE(widget.geometry(), rect);
     }
 
     {
@@ -3422,6 +3432,22 @@ void tst_QWidget::setWindowGeometry()
             QTest::qWait(100);
             QCOMPARE(widget.geometry(), r);
         }
+        widget.setGeometry(rect);
+        QTest::qWait(100);
+        QCOMPARE(widget.geometry(), rect);
+
+        // show() again, geometry() should still be the same
+        widget.show();
+#ifdef Q_WS_X11
+        qt_x11_wait_for_window_manager(&widget);
+#endif
+        QTest::qWait(100);
+        QCOMPARE(widget.geometry(), rect);
+
+        // final hide(), again geometry() should be unchanged
+        widget.hide();
+        QTest::qWait(100);
+        QCOMPARE(widget.geometry(), rect);
     }
 }
 
@@ -3511,6 +3537,22 @@ void tst_QWidget::windowMove()
             QTest::qWait(100);
             QCOMPARE(widget.pos(), r.topLeft());
         }
+        widget.move(rect.topLeft());
+        QTest::qWait(100);
+        QCOMPARE(widget.pos(), rect.topLeft());
+
+        // show() again, pos() should be the same
+        widget.show();
+#ifdef Q_WS_X11
+        qt_x11_wait_for_window_manager(&widget);
+#endif
+        QTest::qWait(100);
+        QCOMPARE(widget.pos(), rect.topLeft());
+
+        // final hide(), again pos() should be unchanged
+        widget.hide();
+        QTest::qWait(100);
+        QCOMPARE(widget.pos(), rect.topLeft());
     }
 
     {
@@ -3549,6 +3591,22 @@ void tst_QWidget::windowMove()
             QTest::qWait(100);
             QCOMPARE(widget.pos(), r.topLeft());
         }
+        widget.move(rect.topLeft());
+        QTest::qWait(100);
+        QCOMPARE(widget.pos(), rect.topLeft());
+
+        // show() again, pos() should be the same
+        widget.show();
+#ifdef Q_WS_X11
+        qt_x11_wait_for_window_manager(&widget);
+#endif
+        QTest::qWait(100);
+        QCOMPARE(widget.pos(), rect.topLeft());
+
+        // final hide(), again pos() should be unchanged
+        widget.hide();
+        QTest::qWait(100);
+        QCOMPARE(widget.pos(), rect.topLeft());
     }
 }
 
