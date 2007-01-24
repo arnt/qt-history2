@@ -13,7 +13,6 @@
 
 #include "qdesigner_menubar_p.h"
 #include "qdesigner_menu_p.h"
-#include "qdesigner_toolbar_p.h"
 #include "qdesigner_command_p.h"
 #include "qdesigner_propertycommand_p.h"
 #include "actionrepository_p.h"
@@ -21,17 +20,17 @@
 #include "actioneditor_p.h"
 #include "qdesigner_utils_p.h"
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerWidgetFactoryInterface>
+#include <QtDesigner/QExtensionManager>
 
-#include <QtCore/QTimer>
+#include <QtCore/QMimeData>
+
 #include <QtCore/qdebug.h>
 
-#include <QtGui/QAction>
 #include <QtGui/QApplication>
-#include <QtGui/QMenu>
-#include <QtGui/QToolButton>
 #include <QtGui/QDrag>
-#include <QtGui/QLayout>
 #include <QtGui/QLineEdit>
 #include <QtGui/QPainter>
 #include <QtGui/qevent.h>
@@ -59,19 +58,19 @@ SpecialMenuAction::~SpecialMenuAction()
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-QDesignerMenuBar::QDesignerMenuBar(QWidget *parent)
-    : QMenuBar(parent),
-      m_interactive(true)
+QDesignerMenuBar::QDesignerMenuBar(QWidget *parent)  :
+    QMenuBar(parent),
+    m_addMenu(new SpecialMenuAction(this)),
+    m_currentIndex(0),
+    m_interactive(true),
+    m_editor(new QLineEdit(this)),
+    m_dragging(false),
+    m_lastMenuActionIndex( -1)
 {
-    m_currentIndex = 0;
-    m_lastMenuActionIndex = -1;
-    m_dragging = false;
-
     setContextMenuPolicy(Qt::DefaultContextMenu);
 
     setAcceptDrops(true); // ### fake
 
-    m_addMenu = new SpecialMenuAction(this);
     m_addMenu->setText(tr("Type Here"));
     addAction(m_addMenu);
 
@@ -79,7 +78,6 @@ QDesignerMenuBar::QDesignerMenuBar(QWidget *parent)
     italic.setItalic(true);
     m_addMenu->setFont(italic);
 
-    m_editor = new QLineEdit(this);
     m_editor->setObjectName(QLatin1String("__qt__passive_editor"));
     m_editor->hide();
     m_editor->installEventFilter(this);
@@ -99,7 +97,7 @@ void QDesignerMenuBar::paintEvent(QPaintEvent *event)
 
     foreach (QAction *a, actions()) {
         if (qobject_cast<SpecialMenuAction*>(a)) {
-            QRect g = actionGeometry(a);
+            const QRect g = actionGeometry(a);
             QLinearGradient lg(g.left(), g.top(), g.left(), g.bottom());
             lg.setColorAt(0.0, Qt::transparent);
             lg.setColorAt(0.7, QColor(0, 0, 0, 32));
@@ -115,10 +113,10 @@ void QDesignerMenuBar::paintEvent(QPaintEvent *event)
         return;
 
     if (hasFocus()) {
-        QRect g = actionGeometry(action);
+        const QRect g = actionGeometry(action);
         QDesignerMenu::drawSelection(&p, g.adjusted(1, 1, -1, -1));
     } else if (action->menu() && action->menu()->isVisible()) {
-        QRect g = actionGeometry(action);
+        const QRect g = actionGeometry(action);
         p.drawRect(g.adjusted(1, 1, -1, -1));
     }
 }
@@ -281,7 +279,7 @@ bool QDesignerMenuBar::handleKeyPressEvent(QWidget *, QKeyEvent *e)
 
 void QDesignerMenuBar::startDrag(const QPoint &pos)
 {
-    int index = findAction(pos);
+    const int index = findAction(pos);
     if (m_currentIndex == -1 || index >= realActionCount())
         return;
 
@@ -302,7 +300,7 @@ void QDesignerMenuBar::startDrag(const QPoint &pos)
     data->items.append(action);
     drag->setMimeData(data);
 
-    int old_index = m_currentIndex;
+    const int old_index = m_currentIndex;
     m_currentIndex = -1;
 
     if (drag->start() == Qt::IgnoreAction) {
@@ -353,7 +351,7 @@ bool QDesignerMenuBar::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
     if (m_startPosition.isNull())
         return true;
 
-    QPoint pos = mapFromGlobal(event->globalPos());
+    const QPoint pos = mapFromGlobal(event->globalPos());
 
     if ((pos - m_startPosition).manhattanLength() < qApp->startDragDistance())
         return true;
@@ -421,7 +419,7 @@ void QDesignerMenuBar::slotRemoveSelectedAction()
     if (qobject_cast<SpecialMenuAction*>(a))
         return; // nothing to do
 
-    int pos = actions().indexOf(a);
+    const int pos = actions().indexOf(a);
     QAction *action_before = 0;
     if (pos != -1)
         action_before = safeActionAt(pos + 1);
@@ -499,7 +497,6 @@ void QDesignerMenuBar::leaveEditMode(LeaveEditMode mode)
     formWindow()->commandHistory()->push(cmd);
 
     formWindow()->endCommand();
-    //moveDown();
 }
 
 void QDesignerMenuBar::showLineEdit()
@@ -519,7 +516,7 @@ void QDesignerMenuBar::showLineEdit()
     m_lastFocusWidget = qApp->focusWidget();
 
     // open edit field for item name
-    QString text = action != m_addMenu ? action->text() : QString();
+    const QString text = action != m_addMenu ? action->text() : QString();
 
     m_editor->setText(text);
     m_editor->selectAll();
@@ -598,7 +595,7 @@ int QDesignerMenuBar::actionAtPosition(const QPoint &pos) const
 
 int QDesignerMenuBar::findAction(const QPoint &pos) const
 {
-    int index = actionAtPosition(pos);
+    const int index = actionAtPosition(pos);
     if (index == -1)
         return realActionCount();
 
@@ -607,7 +604,7 @@ int QDesignerMenuBar::findAction(const QPoint &pos) const
 
 void QDesignerMenuBar::adjustIndicator(const QPoint &pos)
 {
-    int index = findAction(pos);
+    const int index = findAction(pos);
     QAction *action = safeActionAt(index);
     Q_ASSERT(action != 0);
 
@@ -815,7 +812,7 @@ void QDesignerMenuBar::deleteMenu()
     QAction *action = currentAction();
 
     if (action && !qobject_cast<SpecialMenuAction*>(action)) {
-        int pos = actions().indexOf(action);
+        const int pos = actions().indexOf(action);
         QAction *action_before = 0;
         if (pos != -1)
             action_before = safeActionAt(pos + 1);
@@ -850,7 +847,7 @@ void QDesignerMenuBar::showMenu(int index)
 
         m_lastMenuActionIndex = index;
         QMenu *menu = action->menu();
-        QRect g = actionGeometry(action);
+        const QRect g = actionGeometry(action);
 
         if (!menu->isVisible()) {
             if ((menu->windowFlags() & Qt::Popup) != Qt::Popup)
@@ -876,7 +873,7 @@ QAction *QDesignerMenuBar::safeActionAt(int index) const
 
 bool QDesignerMenuBar::swap(int a, int b)
 {
-    int left = qMin(a, b);
+    const int left = qMin(a, b);
     int right = qMax(a, b);
 
     QAction *action_a = safeActionAt(left);

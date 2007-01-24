@@ -33,13 +33,11 @@
 #include <QtCore/QPointer>
 #include <QtCore/QMimeData>
 
-class QTimer;
-class QToolButton;
-class QLineEdit;
-
 class QDesignerFormWindowInterface;
 class QDesignerActionProviderExtension;
-class QDesignerMenuBar;
+
+class QLineEdit;
+class QMimeData;
 
 namespace qdesigner_internal {
 
