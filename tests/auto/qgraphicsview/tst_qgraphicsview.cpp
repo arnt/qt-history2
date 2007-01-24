@@ -283,9 +283,13 @@ void tst_QGraphicsView::scene()
     view.setScene(0);
     QVERIFY(!view.scene());
 
-    QGraphicsScene scene;
-    view.setScene(&scene);
-    QCOMPARE(view.scene(), &scene);
+    {
+        QGraphicsScene scene;
+        view.setScene(&scene);
+        QCOMPARE(view.scene(), &scene);
+    }
+
+    QCOMPARE(view.scene(), (QGraphicsScene *)0);
 }
 
 void tst_QGraphicsView::sceneRect()
