@@ -1,2 +1,2 @@
 load(default_post)
-!no_objective_c:load(objective_c)
+!no_objective_c:CONFIG += objective_c
