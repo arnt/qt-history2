@@ -140,6 +140,7 @@ static AEEventHandlerUPP app_proc_ae_handlerUPP = NULL;
 /*****************************************************************************
   External functions
  *****************************************************************************/
+extern void qt_mac_beep(); //qsound_mac.mm
 extern Qt::KeyboardModifiers qt_mac_get_modifiers(int keys); //qkeymapper_mac.cpp
 extern bool qt_mac_can_clickThrough(const QWidget *); //qwidget_mac.cpp
 extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
@@ -1560,7 +1561,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 }
             }
         }
-        if (inPopupMode == false 
+        if (inPopupMode == false
                 && (qt_button_down == 0 || qt_button_down_in_content == false)
                 && qt_mac_window_at(where.h, where.v, 0) != inContent) {
             inNonClientArea = true;
@@ -2185,6 +2186,11 @@ void QApplicationPrivate::closePopup(QWidget *popup)
     }
 }
 
+void QApplication::beep()
+{
+    qt_mac_beep();
+}
+
 void  QApplication::setCursorFlashTime(int msecs)
 {
     QApplicationPrivate::cursor_flash_time = msecs;
@@ -2262,7 +2268,7 @@ void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
     }
 
     if (enable)
-        QApplicationPrivate::animate_ui = true;    
+        QApplicationPrivate::animate_ui = true;
 }
 
 bool QApplication::isEffectEnabled(Qt::UIEffect effect)

@@ -16,6 +16,12 @@
 #include <private/qt_mac_p.h>
 #include <qhash.h>
 #include <qdebug.h>
+#import <AppKit/AppKit.h>
+
+void qt_mac_beep() 
+{
+    NSBeep();
+}
 
 #ifndef QT_NO_SOUND
 
@@ -23,6 +29,7 @@
 
 typedef QHash<QSound *, NSSound const *> Sounds;
 static Sounds sounds;
+
 
 class QAuServerMac : public QAuServer
 {

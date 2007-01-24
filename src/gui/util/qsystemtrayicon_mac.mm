@@ -31,12 +31,6 @@ extern void qt_mac_get_accel(quint32 accel_key, quint32 *modif, quint32 *key); /
 extern QString qt_mac_no_ampersands(QString str); //qmenu_mac.cpp
 
 
-void QApplication::beep()
-{
-    NSBeep();
-}
-
-
 @class QNSImageView;
 
 @interface QNSStatusItem : NSObject {
