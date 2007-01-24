@@ -257,13 +257,21 @@ void QTextEditPrivate::_q_adjustScrollbars()
         viewport->update();
 
     _q_showOrHideScrollBars();
-    ignoreAutomaticScrollbarAdjustment = false;
 
-    // has the document size been changed due to adding/removing scroll bars?
-    // in that case, call relayoutDocument instead of calling _q_adjustScrollbars()
-    // directly, to avoid possible infinite loops
-    if (documentSize(control) != docSize)
-        relayoutDocument();
+    // has the document/viewport size been changed due to adding/removing scroll bars?
+    // due to the recursion guard we have to adjust the scroll bars here
+    const QSize newSize = documentSize(control);
+    const QSize newViewportSize = viewport->size();
+    if (newSize != docSize || viewportSize != newViewportSize) {
+        hbar->setRange(0, newSize.width() - newViewportSize.width());
+        hbar->setPageStep(newViewportSize.width());
+
+        vbar->setRange(0, newSize.height() - newViewportSize.height());
+        vbar->setPageStep(newViewportSize.height());
+
+        _q_showOrHideScrollBars();
+    }
+    ignoreAutomaticScrollbarAdjustment = false;
 }
 #endif
 
