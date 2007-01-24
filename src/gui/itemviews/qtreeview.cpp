@@ -2314,7 +2314,7 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
     int start = -1;
     int end = -1;
     int count = d->header->count();
-    if (count) {
+    if (count && isVisible()) {
         // If the sections have moved, we end up checking too many or too few
         start = d->header->visualIndexAt(0);
         end = d->header->visualIndexAt(viewport()->width());
