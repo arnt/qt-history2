@@ -918,18 +918,21 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 QString header_prefix = project->first("QMAKE_PRECOMP_PREFIX");
 
                 pchOutput += Option::dir_sep;
-                QString pchOutputDir = pchOutput;
+                QString pchOutputDir = pchOutput, pchOutputFile;
 
                 if(comps[i] == "C") {
-                    pchOutput += header_prefix + "c";
+                    pchOutputFile = "c";
                 } else if(comps[i] == "CXX") {
-                    pchOutput += header_prefix + "c++";
+                    pchOutputFile = "c++";
                 } else if(project->isActiveConfig("objective_c")) {
                     if(comps[i] == "OBJC")
-                        pchOutput += header_prefix + "objective-c";
+                        pchOutputFile = "objective-c";
                     else if(comps[i] == "OBJCXX")
-                        pchOutput += header_prefix + "objective-c++";
+                        pchOutputFile = "objective-c++";
                 }
+                if(pchOutputFile.isEmpty())
+                    continue;
+                pchOutput += header_prefix + pchOutputFile;
 
                 t << pchOutput << ": " << pchInput << " " << findDependencies(pchInput).join(" \\\n\t\t")
                   << "\n\t" << mkdir_p_asstring(pchOutputDir);
