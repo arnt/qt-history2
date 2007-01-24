@@ -1744,12 +1744,12 @@ void Configure::generateCachefile()
 	if ( dictionary[ "RTTI" ] == "yes" )
 	    configStream << " rtti";
 	configStream << endl;
-        configStream << "QT_CONFIG += " << qtConfig.join(" ") << endl;
+        configStream << "QT_ARCH = " << dictionary[ "ARCHITECTURE" ] << endl;
         if (dictionary["QT_EDITION"].contains("OPENSOURCE"))
-            configStream << "QT_EDITION = " << QLatin1String("OpenSource");
+            configStream << "QT_EDITION = " << QLatin1String("OpenSource") << endl;
         else
-            configStream << "QT_EDITION = " << dictionary["EDITION"];
-	configStream << endl;
+            configStream << "QT_EDITION = " << dictionary["EDITION"] << endl;
+        configStream << "QT_CONFIG += " << qtConfig.join(" ") << endl;
 
 	configStream << "#versioning " << endl
 		     << "QT_VERSION = " << dictionary["VERSION"] << endl
