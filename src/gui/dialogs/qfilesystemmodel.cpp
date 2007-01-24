@@ -734,7 +734,8 @@ int QFileSystemModelPrivate::naturalCompare(const QString &s1, const QString &s2
     return QString::compare(s1, s2, cs);
 }
 
-/*!
+/*
+    \internal
     Helper functor used by sort()
 */
 class QFileSystemModelSorter
@@ -1065,7 +1066,7 @@ QDir::Filters QFileSystemModel::filter() const
 }
 
 /*!
-    \property resolveSymlinks
+    \property QFileSystemModel::resolveSymlinks
     \brief Whether the directory model should resolve symbolic links
 
     This is only relevant on operating systems that support symbolic links.
