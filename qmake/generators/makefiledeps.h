@@ -32,8 +32,7 @@ public:
     const QString &local() const;
 
     bool operator==(const QMakeLocalFileName &other) {
-        return (this->local_name == other.local_name)
-            && (this->real_name == other.real_name);
+        return (this->real_name == other.real_name);
     }
 };
 

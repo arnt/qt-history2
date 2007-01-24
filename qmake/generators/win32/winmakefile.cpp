@@ -91,13 +91,16 @@ Win32MakefileGenerator::findLibraries(const QString &where)
             dirs.append(QMakeLocalFileName(opt.mid(9)));
         } else if(opt.startsWith("-L") || opt.startsWith("/L")) {
             QString libpath = opt.mid(2);
-            dirs.append(QMakeLocalFileName(libpath));
-            modified_opt = true;
-            if (!quote.isNull()) {
-                libpath = quote + libpath + quote;
-                quote = QChar();
+            QMakeLocalFileName l(libpath);
+            if(!dirs.contains(l)) {
+                dirs.append(l);
+                modified_opt = true;
+                if (!quote.isNull()) {
+                    libpath = quote + libpath + quote;
+                    quote = QChar();
+                }
+                (*it) = "/LIBPATH:" + libpath;
             }
-            (*it) = "/LIBPATH:" + libpath;
         } else if(opt.startsWith("-l") || opt.startsWith("/l")) {
             QString lib = opt.right(opt.length() - 2), out;
             if(!lib.isEmpty()) {
@@ -194,8 +197,11 @@ Win32MakefileGenerator::processPrlFiles()
             if((opt[0] == '\'' || opt[0] == '"') && opt[(int)opt.length()-1] == opt[0])
                 opt = opt.mid(1, opt.length()-2);
             if(opt.startsWith("/")) {
-                if(opt.startsWith("/LIBPATH:"))
-                    libdirs.append(QMakeLocalFileName(opt.mid(9)));
+                if(opt.startsWith("/LIBPATH:")) {
+                    QMakeLocalFileName l(opt.mid(9));
+                    if(!libdirs.contains(l))
+                        libdirs.append(l);
+                }
             } else if(!processed.contains(opt)) {
                 if(processPrlFile(opt)) {
                     processed.insert(opt, true);

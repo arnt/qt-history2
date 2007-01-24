@@ -404,7 +404,9 @@ UnixMakefileGenerator::findLibraries()
             QString stub, dir, extn, opt = (*it).trimmed();
             if(opt.startsWith("-")) {
                 if(opt.startsWith("-L")) {
-                    libdirs.append(QMakeLocalFileName(opt.right(opt.length()-2)));
+                    QMakeLocalFileName f(opt.right(opt.length()-2));
+                    if(!libdirs.contains(f))
+                        libdirs.append(f);
                 } else if(opt.startsWith("-l")) {
                     stub = opt.mid(2);
                 } else if(Option::target_mode == Option::TARG_MACX_MODE && opt.startsWith("-F")) {
@@ -503,7 +505,9 @@ UnixMakefileGenerator::processPrlFiles()
             QString opt = l.at(lit).trimmed();
             if(opt.startsWith("-")) {
                 if(opt.startsWith("-L")) {
-                    libdirs.append(QMakeLocalFileName(opt.right(opt.length()-2)));
+                    QMakeLocalFileName l(opt.right(opt.length()-2));
+                    if(!libdirs.contains(l))
+                       libdirs.append(l);
                 } else if(opt.startsWith("-l")) {
                     QString lib = opt.right(opt.length() - 2);
                     for(int dep_i = 0; dep_i < libdirs.size(); ++dep_i) {
@@ -528,7 +532,9 @@ UnixMakefileGenerator::processPrlFiles()
                         }
                     }
                 } else if(Option::target_mode == Option::TARG_MACX_MODE && opt.startsWith("-F")) {
-                    frameworkdirs.append(QMakeLocalFileName(opt.right(opt.length()-2)));
+                    QMakeLocalFileName f(opt.right(opt.length()-2));
+                    if(!frameworkdirs.contains(f))
+                        frameworkdirs.append(f);
                 } else if(Option::target_mode == Option::TARG_MACX_MODE && opt.startsWith("-framework")) {
                     if(opt.length() > 11)
                         opt = opt.mid(11);
