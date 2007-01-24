@@ -29,6 +29,7 @@
 #if defined(Q_WS_X11)
 extern void qt_x11_wait_for_window_manager(QWidget *w);
 #endif
+extern bool qt_tab_all_widgets;
 
 static inline void triggerSignal(QMdiSubWindow *window, QMdiArea *workspace,
                                  const QByteArray &signal)
@@ -998,10 +999,10 @@ void tst_QMdiSubWindow::changeFocusWithTab()
     // focus (which is the case for a QPushButton).
     QTest::keyPress(window, Qt::Key_Tab);
     QCOMPARE(mdiArea.activeSubWindow(), window);
-    QCOMPARE(qApp->focusWidget(), window->widget());
+    QCOMPARE(qApp->focusWidget(), qt_tab_all_widgets ? window->widget() : window);
     QTest::keyPress(window, Qt::Key_Tab);
     QCOMPARE(mdiArea.activeSubWindow(), window);
-    QCOMPARE(qApp->focusWidget(), window->widget());
+    QCOMPARE(qApp->focusWidget(), qt_tab_all_widgets ? window->widget() : window);
 }
 
 class MyTextEdit : public QTextEdit
