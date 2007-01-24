@@ -182,7 +182,29 @@ inline QDebug &operator<<(QDebug &dbg, const QFixed &f)
 struct QFixedPoint {
     QFixed x;
     QFixed y;
+    inline QFixedPoint() {}
+    inline QFixedPoint(const QFixed &_x, const QFixed &_y) : x(_x), y(_y) {}
     QPointF toPointF() const { return QPointF(x.toReal(), y.toReal()); }
+    static QFixedPoint fromPointF(const QPointF &p) {
+        return QFixedPoint(QFixed::fromReal(p.x()), QFixed::fromReal(p.y()));
+    }
+};
+
+inline QFixedPoint operator-(const QFixedPoint &p1, const QFixedPoint &p2)
+{ return QFixedPoint(p1.x - p2.x, p1.y - p2.y); }
+inline QFixedPoint operator+(const QFixedPoint &p1, const QFixedPoint &p2)
+{ return QFixedPoint(p1.x + p2.x, p1.y + p2.y); }
+
+struct QFixedSize {
+    QFixed width;
+    QFixed height;
+    QSizeF toSizeF() const { return QSizeF(width.toReal(), height.toReal()); }
+    static QFixedSize fromSizeF(const QSizeF &s) {
+        QFixedSize size;
+        size.width = QFixed::fromReal(s.width());
+        size.height = QFixed::fromReal(s.height());
+        return size;
+    }
 };
 
 struct QScriptItem;
