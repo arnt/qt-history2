@@ -2802,7 +2802,7 @@ void QGraphicsView::scrollContentsBy(int dx, int dy)
     if (isRightToLeft())
         dx = -dx;
 
-    if (d->accelerateScrolling || d->viewportUpdateMode != FullViewportUpdate)
+    if (d->accelerateScrolling && d->viewportUpdateMode != FullViewportUpdate)
         viewport()->scroll(dx, dy);
     else
         viewport()->update();
