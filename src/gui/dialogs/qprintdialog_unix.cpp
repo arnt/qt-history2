@@ -845,7 +845,8 @@ static int getLprPrinters(QList<QPrinterDescription>& printers)
     // all printers hopefully known.  try to find a good default
     QString dollarPrinter;
     {
-        if (!qgetenv("PRINTER").isEmpty())
+        dollarPrinter = QString::fromLocal8Bit(qgetenv("PRINTER").constData());
+        if (dollarPrinter.isEmpty())
             dollarPrinter = QString::fromLocal8Bit(qgetenv("LPDEST").constData());
         if (!dollarPrinter.isEmpty())
             perhapsAddPrinter(&printers, dollarPrinter,
