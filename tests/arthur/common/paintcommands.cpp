@@ -1459,13 +1459,8 @@ void PaintCommands::command_setBrush(QRegExp re)
 {
     QStringList caps = re.capturedTexts();
 
-    if (QFileInfo(caps.at(1)).exists()) { // Assume pixmap
-        QPixmap pm = image_load<QPixmap>(caps.at(1));
-        if (pm.isNull()) {
-            fprintf(stderr, "ERROR(setBrush): pattern '%s' is not a pixmap\n", caps.at(1).latin1());
-            return;
-        }
-
+    QPixmap pm = image_load<QPixmap>(caps.at(1));
+    if (!pm.isNull()) { // Assume pixmap
         if (verboseMode)
             printf(" - setBrush(pixmap=%s, width=%d, height=%d)\n",
                    caps.at(1).latin1(), pm.width(), pm.height());
