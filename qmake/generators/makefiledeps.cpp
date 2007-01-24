@@ -629,7 +629,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                     dep->exists = exists;
                 }
             }
-            if(dep) {
+            if(dep && dep->file != file->file) {
                 dep->included_count++;
                 if(dep->exists) {
                     debug_msg(5, "%s:%d Found dependency to %s", file->file.real().toLatin1().constData(),

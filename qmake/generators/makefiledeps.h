@@ -34,6 +34,9 @@ public:
     bool operator==(const QMakeLocalFileName &other) {
         return (this->real_name == other.real_name);
     }
+    bool operator!=(const QMakeLocalFileName &other) {
+        return !(*this == other);
+    }
 };
 
 class QMakeSourceFileInfo
