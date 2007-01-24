@@ -42,12 +42,7 @@ table tr.even {
   color: black;
 }
 
-table.annotated {
-  border-spacing: 0px;
-}
-
 table.annotated th {
-  font-weight: bold;
   padding: 3px;
   text-align: left
 }
