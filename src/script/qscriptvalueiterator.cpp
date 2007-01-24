@@ -60,7 +60,7 @@
   set to be at the front of the sequence of properties (before the
   first property).
 */
-QScriptValueIterator::QScriptValueIterator(QScriptValue &object)
+QScriptValueIterator::QScriptValueIterator(const QScriptValue &object)
     : d_ptr(new QScriptValueIteratorPrivate(this, object))
 {
 }

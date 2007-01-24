@@ -26,7 +26,7 @@ class QScriptValueIteratorPrivate;
 class Q_SCRIPT_EXPORT QScriptValueIterator
 {
 public:
-    QScriptValueIterator(QScriptValue &value);
+    QScriptValueIterator(const QScriptValue &value);
     ~QScriptValueIterator();
 
     bool hasNext() const;
