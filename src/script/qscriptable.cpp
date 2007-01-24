@@ -29,7 +29,7 @@
   \ingroup script
   \mainclass
 
-  With QScriptEngine::scriptValueFromQObject(), you can expose the
+  With QScriptEngine::newQObject(), you can expose the
   signals and slots of any QObject (or subclass) to script
   code. QScriptable augments this functionality by giving slots
   access to the Qt Script environment they are invoked in;
@@ -87,7 +87,7 @@
   QScriptable is very convenient to use when implementing
   prototype objects; you implement the functions of your prototype as
   slots, then you wrap an instance of your class using
-  QScriptEngine::scriptValueFromQObject(), and set the result as the
+  QScriptEngine::newQObject(), and set the result as the
   \c{prototype} property of your constructor function.
 */
 

@@ -1139,7 +1139,7 @@ bool QScriptValue::isVariant() const
   Returns true if this QScriptValue is a QObject; otherwise returns
   false.
 
-  \sa toQObject(), QScriptEngine::scriptValueFromQObject()
+  \sa toQObject(), QScriptEngine::newQObject()
 */
 bool QScriptValue::isQObject() const
 {

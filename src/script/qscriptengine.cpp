@@ -48,7 +48,7 @@
 
   For QObjects (and subclasses), you can create a QScriptValue which
   represents a given object by calling
-  scriptValueFromQObject(). Properties, children and signals and slots
+  newQObject(). Properties, children and signals and slots
   of the object will then become available to script code as
   properties of the created QScriptValue.  No binding code is needed
   because it is done dynamically using the Qt meta object system. See
@@ -107,7 +107,7 @@
 
   A different approach to writing and exposing (either generic or
   non-generic) native functions is by using a combination of
-  scriptValueFromQObject() and QScriptable; see the documentation for
+  newQObject() and QScriptable; see the documentation for
   QScriptable for details.
 
   You can extend the C++ types recognized by QScriptEngine by calling
