@@ -193,10 +193,10 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "RTTI" ]	    = "yes";
 
     QString version;
-    QFile profile(sourcePath + "/src/qbase.pri");
-    if (profile.open(QFile::ReadOnly)) {
-	QTextStream read(&profile);
-	QRegExp version_regexp("^\\s*VERSION=(.*)$");
+    QFile qglobal_h(sourcePath + "/src/corelib/global/qglobal.h");
+    if (qglobal_h.open(QFile::ReadOnly)) {
+	QTextStream read(&qglobal_h);
+	QRegExp version_regexp("^# *define *QT_VERSION_STR *\"([^\"]*)\"");
 	QString line;
 	while (!read.atEnd()) {
 	    line = read.readLine();
@@ -206,13 +206,22 @@ Configure::Configure( int& argc, char** argv )
 		    break;
 	    }
 	}
-	profile.close();
+	qglobal_h.close();
     }
 
     if (version.isEmpty())
 	version = QString("%1.%2.%3").arg(QT_VERSION>>16).arg(((QT_VERSION>>8)&0xff)).arg(QT_VERSION&0xff);
 
     dictionary[ "VERSION" ]	    = version;
+    {
+	QRegExp version_re("([0-9]*)\\.([0-9]*)\\.([0-9]*)");
+	if(version_re.exactMatch(version)) {
+	    dictionary[ "VERSION_MAJOR" ] = version_re.cap(1);
+	    dictionary[ "VERSION_MINOR" ] = version_re.cap(2);
+	    dictionary[ "VERSION_PATCH" ] = version_re.cap(3);
+	}
+    }
+
     dictionary[ "REDO" ]	    = "no";
     dictionary[ "DEPENDENCIES" ]    = "no";
 
@@ -1740,6 +1749,13 @@ void Configure::generateCachefile()
             configStream << "QT_EDITION = " << QLatin1String("OpenSource");
         else
             configStream << "QT_EDITION = " << dictionary["EDITION"];
+	configStream << endl;
+
+	configStream << "#versioning " << endl
+		     << "QT_VERSION = " << dictionary["VERSION"] << endl
+		     << "QT_MAJOR_VERSION = " << dictionary["VERSION_MAJOR"] << endl
+		     << "QT_MINOR_VERSION = " << dictionary["VERSION_MINOR"] << endl
+		     << "QT_PATCH_VERSION = " << dictionary["VERSION_PATCH"] << endl;
 
         configStream.flush();
 	configFile.close();
