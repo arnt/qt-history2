@@ -90,7 +90,6 @@ public:
     void setLazyChildCount(bool enable);
     bool lazyChildCount() const;
 
-    void refresh(const QModelIndex &parent = QModelIndex());
     QModelIndex index(const QString &path, int column = 0) const;
 
     bool isDir(const QModelIndex &index) const;
@@ -108,6 +107,9 @@ public:
 #else
     using QObject::parent;
 #endif
+
+public Q_SLOTS:
+    void refresh(const QModelIndex &parent = QModelIndex());
 
 protected:
     QDirModel(QDirModelPrivate &, QObject *parent = 0);
