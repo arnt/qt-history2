@@ -284,6 +284,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                         if(!deps.isEmpty())
                             t << d_file << ": " << deps.join(" ") << endl;
                         t << "-include " << d_file << endl;
+                        project->values("QMAKE_DISTCLEAN") += d_file;
                     }
                 }
             }
