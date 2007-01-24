@@ -67,6 +67,8 @@ protected:
     void generateExampleFiles(const FakeNode *fake, CodeMarker *marker);
     void generateModuleWarning( const ClassNode *classe, CodeMarker *marker);
 
+    virtual int skipAtoms(const Atom *atom, Atom::Type type) const;
+
     const QString& outputDir() { return outDir; }
     QString indent( int level, const QString& markedCode );
     QString plainCode( const QString& markedCode );

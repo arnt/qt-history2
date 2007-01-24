@@ -844,3 +844,14 @@ void Generator::appendSortedNames(Text& text, const ClassNode *classe,
 	text << separator( index++, classes.count() );
     }
 }
+
+int Generator::skipAtoms(const Atom *atom, Atom::Type type) const
+{
+    int skipAhead = 0;
+    atom = atom->next();
+    while ( atom != 0 && atom->type() != type ) {
+        skipAhead++;
+        atom = atom->next();
+    }
+    return skipAhead;
+}
