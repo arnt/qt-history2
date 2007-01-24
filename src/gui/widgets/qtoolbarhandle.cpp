@@ -23,6 +23,7 @@
 #include <qevent.h>
 
 #include <private/qmainwindowlayout_p.h>
+#include <private/qwidget_p.h>
 
 void QToolBarHandle::initStyleOption(QStyleOption *option) const
 {
@@ -50,12 +51,6 @@ void QToolBarHandle::setOrientation(Qt::Orientation orientation)
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     }
 
-    // if we're dragging - swap the offset coords around as well
-    if (state) {
-	QPoint p = state->offset;
-	state->offset = QPoint(p.y(), p.x());
-    }
-
     update();
 }
 
@@ -78,80 +73,206 @@ void QToolBarHandle::paintEvent(QPaintEvent *)
     style()->drawPrimitive(QStyle::PE_IndicatorToolBarHandle, &opt, &p, this);
 }
 
+void QToolBarHandle::setWindowState(bool floating, bool unplug, const QRect &rect)
+{
+    bool visible = parentWidget()->isVisible();
+
+    parentWidget()->hide();
+
+    Qt::WindowFlags flags = floating ? Qt::Tool : Qt::Widget;
+
+    flags |= Qt::FramelessWindowHint;
+    if (unplug)
+        flags |= Qt::X11BypassWindowManagerHint;
+
+    parentWidget()->setWindowFlags(flags);
+
+    if (!rect.isNull())
+        parentWidget()->setGeometry(rect);
+
+    if (visible)
+        parentWidget()->show();
+}
+
+void QToolBarHandle::initDrag(const QPoint &pos)
+{
+    Q_ASSERT(state == 0);
+
+    state = new DragState;
+    state->pressPos = mapToParent(pos);
+    state->dragging = false;
+    state->widgetItem = 0;
+}
+
+void QToolBarHandle::startDrag()
+{
+    Q_ASSERT(state != 0);
+    if (state->dragging)
+        return;
+
+    QMainWindow *win = qobject_cast<QMainWindow*>(parentWidget()->parentWidget());
+    Q_ASSERT(win != 0);
+    QMainWindowLayout *layout = qobject_cast<QMainWindowLayout*>(win->layout());
+    Q_ASSERT(layout != 0);
+
+    state->widgetItem = layout->unplug(parentWidget());
+    Q_ASSERT(state->widgetItem != 0);
+    state->dragging = true;
+}
+
+void QToolBarHandle::endDrag()
+{
+    Q_ASSERT(state != 0);
+
+    if (state->dragging) {
+        QMainWindow *win = qobject_cast<QMainWindow*>(parentWidget()->parentWidget());
+        Q_ASSERT(win != 0);
+        QMainWindowLayout *layout = qobject_cast<QMainWindowLayout*>(win->layout());
+        Q_ASSERT(layout != 0);
+
+        if (!layout->plug(state->widgetItem))
+            layout->revert(state->widgetItem);
+    }
+    delete state;
+    state = 0;
+}
+
 void QToolBarHandle::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() != Qt::LeftButton)
         return;
 
-    QToolBar *toolBar = qobject_cast<QToolBar *>(parentWidget());
-    Q_ASSERT_X(toolBar != 0, "QToolBar", "internal error");
-    QMainWindow *mainWindow = qobject_cast<QMainWindow *>(toolBar->parentWidget());
-    Q_ASSERT_X(mainWindow != 0, "QMainWindow", "internal error");
-    QMainWindowLayout *layout = qobject_cast<QMainWindowLayout *>(mainWindow->layout());
-    Q_ASSERT_X(layout != 0, "QMainWindow", "internal error");
-
-    // cannot drag if the toolbar has not been added to the mainwindow
-    QLayoutItem *item;
-    bool found = false;
-    int index = 0;
-    while (!found && (item = layout->itemAt(index++)) != 0)
-        found = item->widget() == toolBar;
-    if (!found)
-        return;
-
-    if (state != 0)
-        delete state;
-
-    state = new DragState;
-    state->offset = mapTo(parentWidget(), event->pos());
-    if (orientation() == Qt::Horizontal) {
-	state->offset = QStyle::visualPos(QApplication::layoutDirection(),
-					  parentWidget()->rect(), state->offset);
-    }
+    initDrag(event->pos());
 }
 
-void QToolBarHandle::mouseReleaseEvent(QMouseEvent *event)
+void QToolBarHandle::mouseReleaseEvent(QMouseEvent*)
 {
-    if (event->button() != Qt::LeftButton)
-        return;
-    delete state;
-    state = 0;
+    releaseMouse();
+    endDrag();
 }
+
+#ifdef Q_OS_WIN
+// a hack to get at grabMouseWhileInWindow() in QWidgetPrivate
+class QWidgetPrivateHack : public QWidgetPrivate
+{
+public:
+    void grabMouseWhileInWindow()
+        { QWidgetPrivate::grabMouseWhileInWindow(); }
+};
+#endif
 
 void QToolBarHandle::mouseMoveEvent(QMouseEvent *event)
 {
     if (!state)
         return;
 
-    QToolBar *toolBar = qobject_cast<QToolBar *>(parentWidget());
-    Q_ASSERT_X(toolBar != 0, "QToolBar", "internal error");
-    QMainWindow *mainWindow = qobject_cast<QMainWindow *>(toolBar->parentWidget());
-    Q_ASSERT_X(mainWindow != 0, "QMainWindow", "internal error");
-    QMainWindowLayout *layout = qobject_cast<QMainWindowLayout *>(mainWindow->layout());
-    Q_ASSERT_X(layout != 0, "QMainWindow", "internal error");
+    QMainWindow *win = qobject_cast<QMainWindow*>(parentWidget()->parentWidget());
+    Q_ASSERT(win != 0);
+    QMainWindowLayout *layout = qobject_cast<QMainWindowLayout*>(win->layout());
+    Q_ASSERT(layout != 0);
 
-    QPoint p = toolBar->mapFromGlobal(event->globalPos());
-    if (orientation() == Qt::Horizontal)
-	p = QStyle::visualPos(QApplication::layoutDirection(), toolBar->rect(), p);
-    p -= state->offset;
-
-    // offset is measured from the widget origin
-    if (orientation() == Qt::Vertical)
-        p.setX(state->offset.x() + p.x());
-    else
-        p.setY(state->offset.y() + p.y());
-
-    // re-position toolbar
-    Qt::ToolBarArea oldArea = layout->toolBarArea(toolBar);
-    bool toolBarPositionSwapped = layout->dropToolBar(toolBar, event->globalPos(), p);
-    Qt::ToolBarArea newArea = layout->toolBarArea(toolBar);
-
-    // ensure modified toolbar areas are repainted
-    if (toolBarPositionSwapped) {
-        layout->updateToolbarsInArea(oldArea);
-        if (newArea != oldArea)
-            layout->updateToolbarsInArea(newArea);
+    if (!state->dragging
+        && layout->pluggingWidget == 0
+        && (event->pos() - state->pressPos).manhattanLength() > QApplication::startDragDistance()) {
+            startDrag();
+#ifdef Q_OS_WIN
+            static_cast<QWidgetPrivateHack*>(d_ptr)->grabMouseWhileInWindow();
+#else
+            grabMouse();
+#endif
     }
+
+    if (state->dragging) {
+        QPoint pos = event->globalPos() - state->pressPos;
+        parentWidget()->move(pos);
+        layout->hover(state->widgetItem, event->globalPos());
+    }
+}
+
+void QToolBarHandle::unplug(const QRect &_r)
+{
+    QRect r = _r;
+    r.moveTopLeft(parentWidget()->mapToGlobal(QPoint(0, 0)));
+    setWindowState(true, true, r);
+}
+
+void QToolBarHandle::plug(const QRect &r)
+{
+    setWindowState(false, false, r);
+}
+
+QToolBarWidgetItem::QToolBarWidgetItem(QToolBar *toolBar)
+    : QWidgetItem(toolBar)
+{
+}
+
+QSize QToolBarWidgetItem::sizeHint() const
+{
+    QWidget *w = const_cast<QToolBarWidgetItem*>(this)->widget();
+    QToolBar *tb = qobject_cast<QToolBar*>(w);
+    QBoxLayout *layout = qobject_cast<QBoxLayout*>(w->layout());
+    Qt::Orientation o = tb->orientation();
+    int spacing = layout->spacing();
+    int margin = layout->margin();
+
+    int a = 0, b = 0;
+    int i = 0;
+    while (QLayoutItem *item = layout->itemAt(i)) {
+        QSize hint = item->widget()->sizeHint();
+
+        if (i != 0)
+            a += spacing;
+
+        a += pick(o, hint);
+        b = qMax(b, perp(o, hint));
+        ++i;
+    }
+
+    if (i == 1) // only the toolbar grip is present
+        return QSize(0, 0);
+
+    QSize result;
+
+    rpick(o, result) = a + 2*margin;
+    rperp(o, result) = b + 2*margin;
+
+    return result;
+}
+
+QSize QToolBarWidgetItem::minimumSize() const
+{
+    QWidget *w = const_cast<QToolBarWidgetItem*>(this)->widget();
+    QToolBar *tb = qobject_cast<QToolBar*>(w);
+    QBoxLayout *layout = qobject_cast<QBoxLayout*>(w->layout());
+    QStyle *style = tb->parentWidget()->style();
+    Qt::Orientation o = tb->orientation();
+    int spacing = layout->spacing();
+    int margin = layout->margin();
+
+    int a = 0, b = 0;
+    int i = 0;
+    while (QLayoutItem *item = layout->itemAt(i)) {
+        QSize hint = item->widget()->sizeHint();
+
+        if (i != 0)
+            a += spacing;
+
+        if (i < 2)
+            a += pick(o, hint);
+        b = qMax(b, perp(o, hint));
+
+        ++i;
+    }
+
+    if (i == 1) // only the toolbar grip is present
+        return QSize(0, 0);
+
+    QSize result;
+    rpick(o, result) = a + 2*margin + spacing
+                        + style->pixelMetric(QStyle::PM_ToolBarExtensionExtent);
+    rperp(o, result) = b + 2*margin;
+
+    return result;
 }
 
 #endif // QT_NO_TOOLBAR

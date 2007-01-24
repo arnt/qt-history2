@@ -71,7 +71,8 @@ HEADERS += \
         widgets/qfocusframe.h \
         widgets/qscrollarea.h \
         widgets/qworkspace.h \
-        widgets/qwidgetanimator_p.h
+        widgets/qwidgetanimator_p.h \
+        widgets/qtoolbararealayout_p.h
 
 SOURCES += \
         widgets/qabstractbutton.cpp \
@@ -127,7 +128,8 @@ SOURCES += \
         widgets/qfocusframe.cpp \
         widgets/qscrollarea.cpp \
         widgets/qworkspace.cpp \
-        widgets/qwidgetanimator.cpp
+        widgets/qwidgetanimator.cpp \
+        widgets/qtoolbararealayout.cpp
 
 
 !embedded:mac {

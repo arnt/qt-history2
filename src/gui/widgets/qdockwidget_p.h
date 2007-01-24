@@ -45,8 +45,7 @@ class QDockWidgetPrivate : public QWidgetPrivate
     struct DragState {
         QPoint pressPos;
         bool dragging;
-        QWidgetItem *widgetItem;
-        QList<int> pathToGap;
+        QLayoutItem *widgetItem;
         bool ownWidgetItem;
         bool nca;
     };
@@ -89,7 +88,7 @@ public:
     void nonClientAreaMouseEvent(QMouseEvent *event);
     void initDrag(const QPoint &pos, bool nca);
     void startDrag();
-    void endDrag();
+    void endDrag(bool abort = false);
     void moveEvent(QMoveEvent *event);
 
     void unplug(const QRect &rect);

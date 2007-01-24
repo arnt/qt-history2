@@ -114,7 +114,7 @@ void QMainWindowPrivate::init()
     QMenuBar, and a QStatusBar. The layout has a center area that can
     be occupied by any kind of widget. You can see an image of the
     layout below.
-    
+
     \image mainwindowlayout.png 
  
     \section1 Creating Main Window Components
@@ -122,48 +122,48 @@ void QMainWindowPrivate::init()
     A central widget will typically be a standard Qt widget such
     as a QTextEdit or a QGraphicsView. Custom widgets can also be
     used for advanced applications. You set the central widget with \c
-    setCentralWidget(). 
-    
+    setCentralWidget().
+
     Main windows have either a single (SDI) or multiple (MDI)
     document interface. You create MDI applications in Qt by using a
     QWorkspace as the central widget.
-    
+
     We will now examine each of the other widgets that can be
     added to a main window. We give examples on how to create and add
     them.
-    
+
     \section2 Creating Menus
-    
+
     Qt implements menus in QMenu and QMainWindow keeps them in a
     QMenuBar. \l{QAction}{QAction}s are added to the menus, which
     display them as menu items.
-    
+
     You can add new menus to the main window's menu bar by calling
     \c menuBar(), which returns the QMenuBar for the window, and then
     add a menu with QMenuBar::addMenu().
-    
+
     QMainWindow comes with a default menu bar, but you can also
     set one yourself with \c setMenuBar(). If you wish to implement a
     custom menu bar (i.e., not use the QMenuBar widget), you can set it
     with \c setMenuWidget().
 
     An example of how to create menus follows:
-    
+
     \quotefromfile mainwindows/application/mainwindow.cpp
     \skipto /::createMenus/
     \printuntil /saveAct/
-    
+
     The \c createPopupMenu() function creates popup menus when the
     main window receives context menu events.  The default
     implementation generates a menu with the checkable actions from
     the dock widgets and toolbars. You can reimplement \c
     createPopupMenu() for a custom menu.
-    
+
     \section2 Creating Toolbars
-    
+
     Toolbars are implemented in the QToolBar class.  You add a
     toolbar to a main window with \c addToolBar().
-    
+
     You control the initial position of toolbars by assigning them
     to a specific Qt::ToolBarArea. You can split an area by inserting
     a toolbar break - think of this as a line break in text editing -
@@ -174,20 +174,20 @@ void QMainWindowPrivate::init()
     The size of toolbar icons can be retrieved with \c iconSize().
     The sizes are platform dependent; you can set a fixed size with \c
     setIconSize(). You can alter the appearance of all tool buttons in
-    the toolbars with \c setToolButtonStyle(). 
-    
+    the toolbars with \c setToolButtonStyle().
+
     An example of toolbar creation follows:
-    
+
     \quotefromfile mainwindows/application/mainwindow.cpp
     \skipto /::createToolBars/
     \printuntil /fileToolBar->addAction/
-    
+
     \section2 Creating Dock Widgets
-    
+
     Dock widgets are implemented in the QDockWidget class. A dock
     widget is a window that can be docked into the main window.  You
     add dock widgets to a main window with \c addDockWidget().
-    
+
     There are four dock widget areas as given by the
     Qt::DockWidgetArea enum: left, right, top, and bottom. You can
     specify which dock widget area that should occupy the corners
@@ -196,32 +196,32 @@ void QMainWindowPrivate::init()
     dock widgets, but if you enable nesting with \c
     setDockNestingEnabled(), dock widgets can be added in either
     direction.
-    
+
     Two dock widgets may also be stacked on top of each other. A
     QTabBar is then used to select which of the widgets that should be
     displayed.
-    
+
     We give an example of how to create and add dock widgets to a
     main window:
-    
+
     \quotefromfile snippets/mainwindowsnippet.cpp
     \skipto /QDockWidget \*dockWidget/
     \printuntil /addDockWidget/
 
-    \section2 The Status Bar    
+    \section2 The Status Bar
 
     You can set a status bar with \c setStatusBar(), but one is
     created the first time \c statusBar() (which returns the main
     window's status bar) is called. See QStatusBar for information on
     how to use it.
-    
+
     \section1 Storing State
-    
+
     QMainWindow can store the state of its layout with \c
     saveState(); it can later be retrieved with \c restoreState(). It
     is the position and size (relative to the size of the main window)
     of the toolbars and dock widgets that are stored.
-    
+
     \sa QMenuBar, QToolBar, QStatusBar, QDockWidget, {Application
     Example}, {Dock Widgets Example}, {MDI Example}, {SDI Example},
     {Menus Example}
@@ -565,9 +565,6 @@ void QMainWindow::addToolBar(Qt::ToolBarArea area, QToolBar *toolbar)
             toolbar, SLOT(_q_updateToolButtonStyle(Qt::ToolButtonStyle)));
 
     d->layout->addToolBar(area, toolbar);
-
-    if (isVisible())
-        d->layout->relayout();
 }
 
 /*! \overload
@@ -630,9 +627,6 @@ void QMainWindow::insertToolBar(QToolBar *before, QToolBar *toolbar)
             toolbar, SLOT(_q_updateToolButtonStyle(Qt::ToolButtonStyle)));
 
     d->layout->insertToolBar(before, toolbar);
-
-    if (isVisible())
-        d->layout->relayout();
 }
 
 /*!
@@ -812,8 +806,6 @@ void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget
 
     // add a window to an area, placing done relative to the previous
     d_func()->layout->addDockWidget(area, dockwidget, orientation);
-    if (isVisible())
-        d_func()->layout->relayout();
 }
 
 /*!
@@ -843,8 +835,6 @@ void QMainWindow::splitDockWidget(QDockWidget *after, QDockWidget *dockwidget,
     if (!dockwidget->isAreaAllowed(dockWidgetArea(after)))
         qWarning("QMainWindow::splitDockWidget(): specified 'area' is not an allowed for this widget");
     d_func()->layout->splitDockWidget(after, dockwidget, orientation);
-    if (isVisible())
-        d_func()->layout->relayout();
 }
 
 /*!
@@ -858,8 +848,6 @@ void QMainWindow::tabifyDockWidget(QDockWidget *first, QDockWidget *second)
     if (!second->isAreaAllowed(dockWidgetArea(first)))
         qWarning("QMainWindow::splitDockWidget(): specified 'area' is not an allowed for this widget");
     d_func()->layout->tabifyDockWidget(first, second);
-    if (isVisible())
-        d_func()->layout->relayout();
 }
 
 /*!
@@ -938,7 +926,7 @@ bool QMainWindow::restoreState(const QByteArray &state, int version)
 #if !defined(QT_NO_DOCKWIDGET) && !defined(QT_NO_CURSOR)
 QCursor QMainWindowPrivate::separatorCursor(const QList<int> &path) const
 {
-    QDockAreaLayoutInfo *info = layout->dockAreaLayout.info(path);
+    QDockAreaLayoutInfo *info = layout->layoutState.dockAreaLayout.info(path);
     Q_ASSERT(info != 0);
     if (path.size() == 1) {
         return info->o == Qt::Horizontal
@@ -957,23 +945,23 @@ void QMainWindowPrivate::adjustCursor(const QPoint &pos)
 
     if (pos == QPoint(0, 0)) {
         if (!hoverSeparator.isEmpty())
-            q->update(layout->dockAreaLayout.separatorRect(hoverSeparator));
+            q->update(layout->layoutState.dockAreaLayout.separatorRect(hoverSeparator));
         hoverSeparator.clear();
         q->unsetCursor();
     } else {
         QList<int> pathToSeparator
-            = layout->dockAreaLayout.findSeparator(pos);
+            = layout->layoutState.dockAreaLayout.findSeparator(pos);
 
         if (pathToSeparator != hoverSeparator) {
             if (!hoverSeparator.isEmpty())
-                q->update(layout->dockAreaLayout.separatorRect(hoverSeparator));
+                q->update(layout->layoutState.dockAreaLayout.separatorRect(hoverSeparator));
 
             hoverSeparator = pathToSeparator;
 
             if (hoverSeparator.isEmpty()) {
                 q->unsetCursor();
             } else {
-                q->update(layout->dockAreaLayout.separatorRect(hoverSeparator));
+                q->update(layout->layoutState.dockAreaLayout.separatorRect(hoverSeparator));
                 QCursor cursor = separatorCursor(hoverSeparator);
                 q->setCursor(cursor);
             }
@@ -992,7 +980,7 @@ bool QMainWindow::event(QEvent *event)
         case QEvent::Paint: {
             QPainter p(this);
             QRegion r = static_cast<QPaintEvent*>(event)->region();
-            d->layout->dockAreaLayout.paintSeparators(&p, this, r, d->hoverPos);
+            d->layout->layoutState.dockAreaLayout.paintSeparators(&p, this, r, d->hoverPos);
             break;
         }
 
@@ -1092,7 +1080,7 @@ bool QMainWindow::isSeparator(const QPoint &pos) const
 {
     Q_D(const QMainWindow);
 #ifndef QT_NO_DOCKWIDGET
-    return !d->layout->dockAreaLayout.findSeparator(pos).isEmpty();
+    return !d->layout->layoutState.dockAreaLayout.findSeparator(pos).isEmpty();
 #else
     return false;
 #endif
@@ -1173,7 +1161,7 @@ QMenu *QMainWindow::createPopupMenu()
         for (int i = 0; i < dockwidgets.size(); ++i) {
             QDockWidget *dockWidget = dockwidgets.at(i);
             if (dockWidget->parentWidget() == this
-                && d->layout->contains(dockWidget)) {
+                && !d->layout->layoutState.dockAreaLayout.indexOf(dockWidget).isEmpty()) {
                 menu->addAction(dockwidgets.at(i)->toggleViewAction());
             }
         }
@@ -1188,7 +1176,7 @@ QMenu *QMainWindow::createPopupMenu()
         for (int i = 0; i < toolbars.size(); ++i) {
             QToolBar *toolBar = toolbars.at(i);
             if (toolBar->parentWidget() == this
-                && d->layout->contains(toolBar)) {
+                && !d->layout->layoutState.toolBarAreaLayout.indexOf(toolBar).isEmpty()) {
                 menu->addAction(toolbars.at(i)->toggleViewAction());
             }
         }

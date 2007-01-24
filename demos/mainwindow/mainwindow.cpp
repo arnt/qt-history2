@@ -73,9 +73,11 @@ void MainWindow::actionTriggered(QAction *action)
 
 void MainWindow::setupToolBar()
 {
-    toolbar = new ToolBar(this);
-    toolbar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
-    addToolBar(toolbar);
+    for (int i = 0; i < 3; ++i) {
+        ToolBar *tb = new ToolBar(QString::fromLatin1("Tool Bar %1").arg(i + 1), this);
+        toolBars.append(tb);
+        addToolBar(tb);
+    }
 }
 
 void MainWindow::setupMenuBar()
@@ -95,7 +97,10 @@ void MainWindow::setupMenuBar()
 
     menu->addAction(tr("&Quit"), this, SLOT(close()));
 
-    menuBar()->addMenu(toolbar->menu);
+    QMenu *toolBarMenu = menuBar()->addMenu(tr("Tool bars"));
+    for (int i = 0; i < toolBars.count(); ++i)
+        toolBarMenu->addMenu(toolBars.at(i)->menu);
+
     dockWidgetMenu = menuBar()->addMenu(tr("&Dock Widgets"));
 }
 

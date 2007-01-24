@@ -35,7 +35,7 @@
 
 class QLayoutItem;
 class QWidget;
-class QWidgetItem;
+class QLayoutItem;
 class QDockAreaLayoutInfo;
 class QDockWidget;
 class QMainWindow;
@@ -44,15 +44,9 @@ class QMainWindowLayout;
 struct QLayoutStruct;
 class QTabBar;
 
-enum IndexOfFlag {
-    IndexOfFindsVisible,
-    IndexOfFindsInvisible,
-    IndexOfFindsAll
-};
-
 struct QDockAreaLayoutItem
 {
-    QDockAreaLayoutItem(QWidgetItem *_widgetItem = 0);
+    QDockAreaLayoutItem(QLayoutItem *_widgetItem = 0);
     QDockAreaLayoutItem(QDockAreaLayoutInfo *_subinfo);
     QDockAreaLayoutItem(const QDockAreaLayoutItem &other);
     ~QDockAreaLayoutItem();
@@ -65,7 +59,7 @@ struct QDockAreaLayoutItem
     QSize sizeHint() const;
     bool expansive(Qt::Orientation o) const;
 
-    QWidgetItem *widgetItem;
+    QLayoutItem *widgetItem;
     QDockAreaLayoutInfo *subinfo;
     int pos;
     int size;
@@ -84,14 +78,14 @@ public:
     QSize sizeHint() const;
     QSize size() const;
 
-    bool insertGap(QList<int> path, QWidgetItem *dockWidgetItem);
-    QWidgetItem *convertToGap(QList<int> path);
-    QRect convertToWidget(QList<int> path, QWidgetItem *dockWidget);
+    bool insertGap(QList<int> path, QLayoutItem *dockWidgetItem);
+    QLayoutItem *plug(QList<int> path);
+    QLayoutItem *unplug(QList<int> path);
     QList<int> gapIndex(const QPoint &pos, bool nestingEnabled) const;
     void remove(QList<int> path);
     void unnest(int index);
-    void split(int index, Qt::Orientation orientation, QWidgetItem *dockWidgetItem);
-    void tab(int index, QWidgetItem *dockWidgetItem);
+    void split(int index, Qt::Orientation orientation, QLayoutItem *dockWidgetItem);
+    void tab(int index, QLayoutItem *dockWidgetItem);
     QDockAreaLayoutItem &item(QList<int> path);
     QDockAreaLayoutInfo *info(QList<int> path);
     QDockAreaLayoutInfo *info(QWidget *widget);
@@ -118,7 +112,7 @@ public:
     int next(int idx) const;
     int prev(int idx) const;
 
-    QList<int> indexOf(QWidget *widget, IndexOfFlag flag = IndexOfFindsVisible) const;
+    QList<int> indexOf(QWidget *widget) const;
 
     void apply(bool animate);
 
@@ -158,62 +152,14 @@ public:
 #endif // QT_NO_TABBAR
 };
 
-// utilities
-
-#endif
-
-static inline int pick(Qt::Orientation o, const QPoint &pos)
-{ return o == Qt::Horizontal ? pos.x() : pos.y(); }
-
-static inline int pick(Qt::Orientation o, const QSize &size)
-{ return o == Qt::Horizontal ? size.width() : size.height(); }
-
-#ifndef QT_NO_DOCKWIDGET
-
-static inline int &rpick(Qt::Orientation o, QPoint &pos)
-{ return o == Qt::Horizontal ? pos.rx() : pos.ry(); }
-
-static inline int &rpick(Qt::Orientation o, QSize &size)
-{ return o == Qt::Horizontal ? size.rwidth() : size.rheight(); }
-
-static inline QSizePolicy::Policy pick(Qt::Orientation o, const QSizePolicy &policy)
-{ return o == Qt::Horizontal ? policy.horizontalPolicy() : policy.verticalPolicy(); }
-
-static inline int perp(Qt::Orientation o, const QPoint &pos)
-{ return o == Qt::Vertical ? pos.x() : pos.y(); }
-
-static inline int perp(Qt::Orientation o, const QSize &size)
-{ return o == Qt::Vertical ? size.width() : size.height(); }
-
-static inline int &rperp(Qt::Orientation o, QPoint &pos)
-{ return o == Qt::Vertical ? pos.rx() : pos.ry(); }
-
-static inline int &rperp(Qt::Orientation o, QSize &size)
-{ return o == Qt::Vertical ? size.rwidth() : size.rheight(); }
-
-// the rest of QMainWindow uses this instead...
-static inline int pick_perp(Qt::Orientation o, const QPoint &p)
-{ return o == Qt::Vertical ? p.x() : p.y(); }
-static inline int pick_perp(Qt::Orientation o, const QSize &s)
-{ return o == Qt::Vertical ? s.width() : s.height(); }
-
-class QWidgetItem;
 class Q_AUTOTEST_EXPORT QDockAreaLayout
 {
 public:
-    enum DockPos {
-        LeftPos,
-        RightPos,
-        TopPos,
-        BottomPos,
-        PosCount,
-        CenterPos = PosCount
-    };
     enum { EmptyDropAreaSize = 80 }; // when a dock area is empty, how "wide" is it?
 
     Qt::DockWidgetArea corners[4]; // use a Qt::Corner for indexing
     QRect rect;
-    QWidgetItem *centralWidgetItem;
+    QLayoutItem *centralWidgetItem;
     QMainWindow *mainWindow;
     QRect centralWidgetRect;
     QDockAreaLayout(QMainWindow *win);
@@ -226,20 +172,21 @@ public:
     void saveState(QDataStream &stream) const;
     bool restoreState(QDataStream &stream, const QList<QDockWidget*> &widgets);
 
-    QList<int> indexOf(QDockWidget *dockWidget, IndexOfFlag flag = IndexOfFindsVisible) const;
+    QList<int> indexOf(QDockWidget *dockWidget) const;
     QList<int> gapIndex(const QPoint &pos, bool nestingEnabled) const;
     QList<int> findSeparator(const QPoint &pos) const;
 
     QDockAreaLayoutItem &item(QList<int> path);
     QDockAreaLayoutInfo *info(QList<int> path);
+    const QDockAreaLayoutInfo *info(QList<int> path) const;
     QDockAreaLayoutInfo *info(QWidget *widget);
     QRect itemRect(QList<int> path) const;
     QRect separatorRect(int index) const;
     QRect separatorRect(QList<int> path) const;
 
-    bool insertGap(QList<int> path, QWidgetItem *dockWidgetItem);
-    QWidgetItem *convertToGap(QList<int> path);
-    QRect convertToWidget(QList<int> path, QWidgetItem *dockWidgetItem);
+    bool insertGap(QList<int> path, QLayoutItem *dockWidgetItem);
+    QLayoutItem *plug(QList<int> path);
+    QLayoutItem *unplug(QList<int> path);
     void remove(QList<int> path);
 
     void fitLayout();
@@ -249,7 +196,7 @@ public:
     QSize sizeHint() const;
     QSize minimumSize() const;
 
-    void addDockWidget(DockPos pos, QDockWidget *dockWidget, Qt::Orientation orientation);
+    void addDockWidget(QInternal::DockPosition pos, QDockWidget *dockWidget, Qt::Orientation orientation);
     void splitDockWidget(QDockWidget *after, QDockWidget *dockWidget,
                          Qt::Orientation orientation);
     void tabifyDockWidget(QDockWidget *first, QDockWidget *second);
@@ -271,13 +218,13 @@ public:
     void setGrid(QVector<QLayoutStruct> *ver_struct_list,
                     QVector<QLayoutStruct> *hor_struct_list);
 
-    QRect gapRect(QList<int> path);
+    QRect gapRect(QList<int> path) const;
 
     void keepSize(QDockWidget *w);
 
     QSet<QTabBar*> usedTabBars() const;
 };
 
-#endif // QT_NO_MAINWINDOW
+#endif // QT_NO_QDOCKWIDGET
 
 #endif // QDOCKAREALAYOUT_P_H

@@ -1429,6 +1429,14 @@ public:
         LastInternalFunction
     };
 
+    enum DockPosition {
+        LeftDock,
+        RightDock,
+        TopDock,
+        BottomDock,
+        DockCount
+    };
+
     static bool registerCallback(Callback, qInternalCallback);
     static bool unregisterCallback(Callback, qInternalCallback);
 

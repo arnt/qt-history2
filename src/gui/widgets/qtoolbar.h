@@ -133,6 +133,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_updateToolButtonStyle(Qt::ToolButtonStyle))
 
     friend class QMainWindow;
+    friend class QMainWindowLayout;
 };
 
 inline QAction *QToolBar::actionAt(int ax, int ay) const

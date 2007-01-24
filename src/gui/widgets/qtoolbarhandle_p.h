@@ -26,23 +26,25 @@
 //
 
 #include "QtGui/qwidget.h"
-
+#include "QtGui/qlayoutitem.h"
 #ifndef QT_NO_TOOLBAR
 
 class QStyleOption;
 class QToolBar;
+class QLayoutItem;
 
 class QToolBarHandle : public QWidget
 {
     Q_OBJECT
+public:
     Qt::Orientation orient;
     struct DragState {
-	QPoint offset;
-	bool canDrop;
+        QPoint pressPos;
+        bool dragging;
+        QLayoutItem *widgetItem;
     };
     DragState *state;
 
-public:
     explicit QToolBarHandle(QToolBar *parent);
 
     Qt::Orientation orientation() const;
@@ -55,8 +57,28 @@ public:
     void paintEvent(QPaintEvent *e);
     void initStyleOption(QStyleOption *option) const;
 
+    void setWindowState(bool floating, bool unplug = false, const QRect &rect = QRect());
+    void initDrag(const QPoint &pos);
+    void startDrag();
+    void endDrag();
+
+    void unplug(const QRect &r);
+    void plug(const QRect &r);
+
 public Q_SLOTS:
     void setOrientation(Qt::Orientation orientation);
+};
+
+/* A QToolBar uses a regular QBoxLayout. So its sizeHint() and minimumSize() return values
+   pertaining to the currently visible buttons, not the correct values for the tool bar.
+   This layout item returns the correct sizes. */
+
+class QToolBarWidgetItem : public QWidgetItem
+{
+public:
+    QToolBarWidgetItem(QToolBar *toolBar);
+    virtual QSize sizeHint() const;
+    virtual QSize minimumSize() const;
 };
 
 #endif // QT_NO_TOOLBAR

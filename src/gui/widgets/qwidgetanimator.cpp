@@ -70,6 +70,9 @@ void QWidgetAnimator::animate(QWidget *widget, const QRect &_final_geometry, boo
     if (r.isNull() || final_geometry.isNull())
         animate = false;
 
+//    if (r != final_geometry)
+//        qDebug() << "QWidgetAnimator::animate():" << widget << r << _final_geometry;
+
     AnimationMap::const_iterator it = m_animation_map.constFind(widget);
     if (it == m_animation_map.constEnd()) {
         if (r == final_geometry) {

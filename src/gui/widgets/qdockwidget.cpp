@@ -572,7 +572,7 @@ void QDockWidgetPrivate::startDrag()
     state->dragging = true;
 }
 
-void QDockWidgetPrivate::endDrag()
+void QDockWidgetPrivate::endDrag(bool abort)
 {
     Q_Q(QDockWidget);
     Q_ASSERT(state != 0);
@@ -582,17 +582,19 @@ void QDockWidgetPrivate::endDrag()
             qobject_cast<QMainWindowLayout *>(q->parentWidget()->layout());
         Q_ASSERT(layout != 0);
 
-        if (!state->pathToGap.isEmpty()) {
-            layout->plug(state->widgetItem, state->pathToGap);
-        } else {
-            layout->restore();
+        if (abort || !layout->plug(state->widgetItem)) {
+            if (::hasFeature(q, QDockWidget::DockWidgetFloatable)) {
+                if (state->ownWidgetItem)
+                    delete state->widgetItem;
+                layout->restore();
 
-            if (state->ownWidgetItem)
-                delete state->widgetItem;
 #ifdef Q_WS_X11
-            setWindowState(true); // gets rid of the X11BypassWindowManager window flag
+                setWindowState(true); // gets rid of the X11BypassWindowManager window flag
 #endif
-            undockedGeometry = q->geometry();
+                undockedGeometry = q->geometry();
+            } else {
+                layout->revert(state->widgetItem);
+            }
         }
     }
     delete state;
@@ -617,9 +619,6 @@ void QDockWidgetPrivate::mousePressEvent(QMouseEvent *event)
             return;
         // check if the tool window is movable... do nothing if it is not
         if (!::hasFeature(q, QDockWidget::DockWidgetMovable))
-            return;
-
-        if (!::hasFeature(q, QDockWidget::DockWidgetFloatable))
             return;
 
         if (qobject_cast<QMainWindow*>(q->parentWidget()) == 0)
@@ -695,7 +694,7 @@ void QDockWidgetPrivate::mouseMoveEvent(QMouseEvent *event)
         q->move(pos);
 
         if (!(event->modifiers() & Qt::ControlModifier))
-            state->pathToGap = layout->hover(state->widgetItem, event->globalPos());
+            layout->hover(state->widgetItem, event->globalPos());
     }
 
 #endif // !defined(QT_NO_MAINWINDOW)
@@ -756,7 +755,7 @@ void QDockWidgetPrivate::nonClientAreaMouseEvent(QMouseEvent *event)
 
                 q->move(event->globalPos() - state->pressPos);
                 if (!(event->modifiers() & Qt::ControlModifier))
-                state->pathToGap = layout->hover(state->widgetItem, event->globalPos());
+                    layout->hover(state->widgetItem, event->globalPos());
             }
 #endif
             break;
@@ -791,7 +790,7 @@ void QDockWidgetPrivate::moveEvent(QMoveEvent *event)
     Q_ASSERT(layout != 0);
 
     QPoint globalMousePos = event->pos() + state->pressPos;
-    state->pathToGap = layout->hover(state->widgetItem, globalMousePos);
+    layout->hover(state->widgetItem, globalMousePos);
 }
 
 void QDockWidgetPrivate::unplug(const QRect &rect)
@@ -1008,11 +1007,9 @@ void QDockWidget::setFloating(bool floating)
 {
     Q_D(QDockWidget);
 
-    if (d->state != 0) {
-        // the initial click of a double-click may have started a drag...
-        d->state->pathToGap.clear();
-        d->endDrag();
-    }
+    // the initial click of a double-click may have started a drag...
+    if (d->state != 0)
+        d->endDrag(true);
 
     if (floating && d->undockedGeometry.isNull()) {
         QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(this->layout());

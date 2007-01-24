@@ -47,8 +47,10 @@ class ToolBar : public QToolBar
     QAction *topAction;
     QAction *bottomAction;
 
+    QAction *toolBarBreakAction;
+
 public:
-    ToolBar(QWidget *parent);
+    ToolBar(const QString &title, QWidget *parent);
 
     QMenu *menu;
 
@@ -75,6 +77,7 @@ private slots:
     void placeBottom(bool p);
 
     void updateMenu();
+    void insertToolBarBreak();
 
 };
 

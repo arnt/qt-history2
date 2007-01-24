@@ -24,7 +24,7 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-    ToolBar *toolbar;
+    QList<ToolBar*> toolBars;
     QMenu *dockWidgetMenu;
     QSignalMapper *mapper;
 
