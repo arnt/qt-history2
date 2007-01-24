@@ -122,8 +122,8 @@ public:
     supports WAVE and AU files.
     \row
     \o Mac OS X
-    \o \l{http://quicktime.apple.com/}{QuickTime} is used. All QuickTime
-    formats are supported by Qt/Mac.
+    \o NSSound is used. All formats that NSSound supports, including QuickTime formats, 
+    are supported by Qt/Mac.
     \row
     \o Qtopia Core
     \o A built-in mixing sound server is used, accessing \c /dev/dsp
