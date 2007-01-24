@@ -1402,6 +1402,10 @@ static void QT_FASTCALL comp_func_XOR(uint *dest, const uint *src, int length, u
     }
 }
 
+static const uint AMASK = 0xff000000;
+static const uint RMASK = 0x00ff0000;
+static const uint GMASK = 0x0000ff00;
+static const uint BMASK = 0x000000ff;
 /*
   c = d+s;
   if c > 255 then result = 255 else result = c;
@@ -1410,48 +1414,40 @@ static void QT_FASTCALL comp_func_solid_Plus(uint *dest, int length, uint color,
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
-    uint sa = qAlpha(color);
-    uint sr = qRed(color);
-    uint sg = qGreen(color);
-    uint sb = qBlue(color);
-    
+    uint s = color;
+
     for (int i = 0; i < length; ++i) {
         uint d = dest[i];
-
-        short r =  qRed(d) + sr; if (r > 255) r = 255;
-        short b = qBlue(d) + sb; if (b > 255) b = 255;
-        short g = qGreen(d) + sg; if (g > 255) g = 255;
-        short a = qAlpha(d) + sa; if (a > 255) a = 255;
-
-        dest[i] = qRgba(r, g, b, a);
+#define MIX(mask) (qMin(((s&mask) + (d&mask)), mask))
+        d = (MIX(AMASK) | MIX(RMASK) | MIX(GMASK) | MIX(BMASK));
+#undef MIX
+        dest[i] = d;
     }
 }
 
 static void QT_FASTCALL comp_func_Plus(uint *dest, const uint *src, int length, uint const_alpha)
 {
+#define MIX(mask) (qMin(((s&mask) + (d&mask)), mask))
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i) {
             uint d = dest[i];
             uint s = src[i];
-            short r =  qRed(d) + qRed(s); if (r > 255) r = 255;
-            short b = qBlue(d) + qBlue(s); if (b > 255) b = 255;
-            short g = qGreen(d) + qGreen(s); if (g > 255) g = 255;
-            short a = qAlpha(d) + qAlpha(s); if (a > 255) a = 255;
 
-            dest[i] = qRgba(r, g, b, a);
+            d = (MIX(AMASK) | MIX(RMASK) | MIX(GMASK) | MIX(BMASK));
+
+            dest[i] = d;
         }
     } else {
         for (int i = 0; i < length; ++i) {
             uint d = dest[i];
             uint s = BYTE_MUL(src[i], const_alpha);
-            short r =  qRed(d) + qRed(s); if (r > 255) r = 255;
-            short b = qBlue(d) + qBlue(s); if (b > 255) b = 255;
-            short g = qGreen(d) + qGreen(s); if (g > 255) g = 255;
-            short a = qAlpha(d) + qAlpha(s); if (a > 255) a = 255;
 
-            dest[i] = qRgba(r, g, b, a);
+            d = (MIX(AMASK) | MIX(RMASK) | MIX(GMASK) | MIX(BMASK));
+
+            dest[i] = d;
         }
     }
+#undef MIX
 }
 
 /*

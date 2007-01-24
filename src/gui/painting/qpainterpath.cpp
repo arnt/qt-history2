@@ -2733,11 +2733,11 @@ QPointF QPainterPath::pointAtPercent(qreal t) const
     Returns the angle perpendicular to the slope of the path at the
     percentage \a t. The angle is constructed with the reference frame
     of the horizontal (x) axis and the left side of the path (left as
-    defined by the direction of the path.
+    defined by the direction of the path).
     The argument \a t has to be between 0 and 1.
 
-    Note that similarly to other percent methods, the percentage measurment
-    is not linear with regards to the length, if curves are present
+    Note that similarly to the other percent methods, the percentage measurment
+    is not linear with regards to the length if curves are present
     in the path. When curves are present the percentage argument is mapped
     to the t parameter of the Bezier equations.
 */
