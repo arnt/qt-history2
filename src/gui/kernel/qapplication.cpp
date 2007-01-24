@@ -2116,6 +2116,7 @@ QWidget *QApplicationPrivate::focusNextPrevChild_helper(QWidget *toplevel, bool 
         if ((test->focusPolicy() & focus_flag) == focus_flag
             && !(test->d_func()->extra && test->d_func()->extra->focus_proxy)
             && test->isVisibleTo(toplevel) && test->isEnabled()
+            && !(w->windowType() == Qt::SubWindow && !w->isAncestorOf(test))
             && (toplevel->windowType() != Qt::SubWindow || toplevel->isAncestorOf(test))) {
             w = test;
             if (next)
