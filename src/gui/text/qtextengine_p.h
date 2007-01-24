@@ -151,6 +151,8 @@ private:
 };
 Q_DECLARE_TYPEINFO(QFixed, Q_PRIMITIVE_TYPE);
 
+#define QFIXED_MAX (INT_MAX/256)
+
 inline int qRound(const QFixed &f) { return f.toInt(); }
 
 inline QFixed operator*(int i, const QFixed &d) { return d*i; }
