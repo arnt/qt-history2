@@ -182,13 +182,14 @@ void QSvgGradientStyle::apply(QPainter *p, const QRectF &rect, QSvgNode *)
         if (m_gradient->type() == QGradient::LinearGradient) {
             QLinearGradient *grad = (QLinearGradient*)(m_gradient);
             qreal xs, ys, xf, yf;
-            xs = rect.x();
-            ys = rect.y();
-            xf = (rect.x()+rect.width())  * grad->finalStop().x();
-            yf = (rect.y()+rect.height()) * grad->finalStop().y();
+            xs = rect.x() +  rect.width()  * grad->start().x();
+            ys = rect.y() +  rect.height() * grad->start().y();
+            xf =  rect.x() + rect.width()  * grad->finalStop().x();
+            yf =  rect.y() + rect.height() * grad->finalStop().y();
             QLinearGradient gradient(xs, ys,
                                      xf, yf);
             gradient.setStops(m_gradient->stops());
+            gradient.setSpread(m_gradient->spread());
             brush = QBrush(gradient);
         } else {
             QRadialGradient *grad = (QRadialGradient*)m_gradient;
@@ -207,6 +208,7 @@ void QSvgGradientStyle::apply(QPainter *p, const QRectF &rect, QSvgNode *)
             QRadialGradient gradient(cx, cy,
                                      r, fx, fy);
             gradient.setStops(m_gradient->stops());
+            gradient.setSpread(m_gradient->spread());
             brush = QBrush(gradient);
         }
     } else {
@@ -298,7 +300,7 @@ QSvgCompOpStyle::QSvgCompOpStyle(QPainter::CompositionMode mode)
     
 }
 
-void QSvgCompOpStyle::apply(QPainter *p, const QRectF &, QSvgNode *node)
+void QSvgCompOpStyle::apply(QPainter *p, const QRectF &, QSvgNode *)
 {
     m_oldMode = p->compositionMode();
     p->setCompositionMode(m_mode);

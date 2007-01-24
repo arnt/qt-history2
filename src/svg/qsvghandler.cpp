@@ -528,6 +528,15 @@ static qreal parseLength(const QString &str, QSvgHandler::LengthType &type,
     return len;
 }
 
+static inline qreal convertToNumber(const QString &str, QSvgHandler *handler)
+{
+    QSvgHandler::LengthType type;
+    qreal num = parseLength(str, type, handler);
+    if (type == QSvgHandler::PERCENT) {
+        num = num/100.0;
+    }
+    return num;
+}
 
 static bool createSvgGlyph(QSvgFont *font, const QXmlAttributes &attributes)
 {
@@ -2541,15 +2550,14 @@ static QSvgStyleProperty *createLinearGradientNode(QSvgNode *node,
     QString x2 = attributes.value(QLatin1String("x2"));
     QString y2 = attributes.value(QLatin1String("y2"));
     QString units = attributes.value(QLatin1String("gradientUnits"));
-    qreal nx1 = ::toDouble(x1);
-    qreal ny1 = ::toDouble(y1);
-    qreal nx2 = ::toDouble(x2);
-    qreal ny2 = ::toDouble(y2);
+    qreal nx1 = convertToNumber(x1, handler);
+    qreal ny1 = convertToNumber(y1, handler);
+    qreal nx2 = convertToNumber(x2, handler);
+    qreal ny2 = convertToNumber(y2, handler);
     bool  needsResolving = true;
 
-    if (nx2==0 && ny2==0) {
+    if (qFuzzyCompare(nx2, 0.)) {
         nx2 = 1;
-        ny2 = 1;
     } else if (units == QLatin1String("userSpaceOnUse")) {
         needsResolving = false;
     }
@@ -2558,7 +2566,6 @@ static QSvgStyleProperty *createLinearGradientNode(QSvgNode *node,
     while (itr && itr->type() != QSvgNode::DOC) {
         itr = itr->parent();
     }
-
 
     QLinearGradient *grad = new QLinearGradient(nx1, ny1, nx2, ny2);
     QSvgGradientStyle *prop = new QSvgGradientStyle(grad, needsResolving);
@@ -2847,19 +2854,13 @@ static bool parseStopNode(QSvgStyleProperty *parent,
     QString colorStr    = attrs.value(QLatin1String("stop-color"));
     QString opacityStr  = attrs.value(QLatin1String("stop-opacity"));
     QColor color;
-    QSvgHandler::LengthType type;
-    qreal offset = parseLength(offsetStr, type, handler);
-    //offset = convertToPixels(offset, true, type);
-    if (type == QSvgHandler::PERCENT) {
-        offset = offset/100.0;
-    }
+    qreal offset = convertToNumber(offsetStr, handler);
     if (colorStr.isEmpty()) {
         colorStr = QLatin1String("#000000");
     }
         
     bool colorOK = constructColor(colorStr, opacityStr, color, handler);
     QGradient *grad = style->qgradient();
-    //qDebug()<<"set color at"<<offset<<color;
     grad->setColorAt(offset, color);
     if (!colorOK)
         style->addResolve(offset);
