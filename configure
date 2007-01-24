@@ -24,8 +24,8 @@ outpath=`/bin/pwd`
 LICENSE_FILE="$QT_LICENSE_FILE"
 [ -z "$LICENSE_FILE" ] && LICENSE_FILE="$HOME/.qt-license"
 if [ -f "$LICENSE_FILE" ]; then
-    tr -d '\r' <$LICENSE_FILE >${LICENSE_FILE}.tmp
-    mv ${LICENSE_FILE}.tmp ${LICENSE_FILE}
+    tr -d '\r' <"$LICENSE_FILE" >"${LICENSE_FILE}.tmp"
+    diff "${LICENSE_FILE}.tmp" "${LICENSE_FILE}" >/dev/null 2>&1 || LICENSE_FILE="${LICENSE_FILE}.tmp"
 fi
 
 # later cache the command line in config.status
