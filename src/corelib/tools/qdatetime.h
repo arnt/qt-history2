@@ -115,6 +115,7 @@ public:
     int minute() const;
     int second() const;
     int msec() const;
+    int convertToMsec() const;
 #ifndef QT_NO_DATESTRING
     QString toString(Qt::DateFormat f = Qt::TextDate) const;
     QString toString(const QString &format) const;
@@ -147,7 +148,6 @@ public:
     void start();
     int restart();
     int elapsed() const;
-
 private:
     enum TimeFlag { NullTime = -1 };
     inline int ds() const { return mds == -1 ? 0 : mds; }
