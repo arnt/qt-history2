@@ -243,157 +243,6 @@ QScriptValue QScriptEngine::undefinedValue()
 }
 
 /*!
-  \internal
-*/
-QScriptValue QScriptEngine::nullScriptValue()
-{
-    return nullValue();
-}
-
-/*!
-  \internal
-*/
-QScriptValue QScriptEngine::undefinedScriptValue()
-{
-    return undefinedValue();
-}
-
-/*!
-  Returns a QScriptValue of the primitive type Boolean
-  with the given \a value.
-*/
-QScriptValue QScriptEngine::scriptValue(bool value)
-{
-    Q_D(QScriptEngine);
-    QScriptValue v;
-    d->newBoolean(&v, value);
-    return v;
-}
-
-/*!
-  Returns a QScriptValue of the primitive type Number
-  with the given \a value.
-*/
-QScriptValue QScriptEngine::scriptValue(qsreal value)
-{
-    Q_D(QScriptEngine);
-    QScriptValue v;
-    d->newNumber(&v, value);
-    return v;
-}
-
-/*!
-  Returns a QScriptValue of the primitive type Number
-  with the given \a value.
-*/
-QScriptValue QScriptEngine::scriptValue(int value)
-{
-    Q_D(QScriptEngine);
-    QScriptValue v;
-    d->newNumber(&v, value);
-    return v;
-}
-
-/*!
-  Returns a QScriptValue of the primitive type Number
-  with the given \a value.
-*/
-QScriptValue QScriptEngine::scriptValue(uint value)
-{
-    Q_D(QScriptEngine);
-    QScriptValue v;
-    d->newNumber(&v, value);
-    return v;
-}
-
-/*!
-  Returns a QScriptValue of the primitive type Number
-  with the given \a value.
-*/
-QScriptValue QScriptEngine::scriptValue(qlonglong value)
-{
-    Q_D(QScriptEngine);
-    QScriptValue v;
-    d->newNumber(&v, value);
-    return v;
-}
-
-/*!
-  Returns a QScriptValue of the primitive type Number
-  with the given \a value.
-*/
-QScriptValue QScriptEngine::scriptValue(qulonglong value)
-{
-    Q_D(QScriptEngine);
-    QScriptValue v;
-#if defined(Q_OS_WIN) && _MSC_FULL_VER <= 12008804
-#pragma message("** NOTE: You need the Visual Studio Processor Pack to compile support for 64bit unsigned integers.")
-    d->newNumber(&v, (qlonglong)value);
-#else
-    d->newNumber(&v, value);
-#endif
-    return v;
-}
-
-/*!
-  Returns a QScriptValue of the primitive type String
-  with the given \a value.
-*/
-QScriptValue QScriptEngine::scriptValue(const QString &value)
-{
-    Q_D(QScriptEngine);
-    QScriptValue v;
-    d->newNameId(&v, value);
-    return v;
-}
-
-#ifndef QT_NO_CAST_FROM_ASCII
-/*!
-  Returns a QScriptValue of the primitive type String
-  with the given \a value.
-*/
-QScriptValue QScriptEngine::scriptValue(const char *value)
-{
-    Q_D(QScriptEngine);
-    QScriptValue v;
-    d->newNameId(&v, QLatin1String(value));
-    return v;
-}
-#endif
-
-/*!
-  Creates a QScriptValue that wraps a native (C++) function. \a fun
-  must be a C++ function with signature QScriptFunctionSignature.  \a
-  length is the number of arguments that \a fun expects; this becomes
-  the \c{length} property of the created QScriptValue.
-
-  Note that \a length only gives an indication of the number of
-  arguments that the function expects; an actual invocation of a
-  function can include any number of arguments. You can check the
-  \l{QScriptContext::argumentCount()}{argumentCount()} of the
-  QScriptContext associated with the invocation to determine the
-  actual number of arguments passed.
-
-  \sa QScriptValue::call()
-*/
-QScriptValue QScriptEngine::newFunction(QScriptFunctionSignature fun,
-                                        int length)
-{
-    Q_D(QScriptEngine);
-    QScriptValue v = d->createFunction(new QScript::CFunction(fun, length));
-    return v;
-}
-
-/*!
-  \internal
-*/
-QScriptValue QScriptEngine::scriptValue(QScriptFunctionSignature fun,
-                                        int length)
-{
-    return newFunction(fun, length);
-}
-
-/*!
   Creates a constructor function from \a fun, with the given \a length.
   The \c{prototype} property of the resulting function is set to be the
   given \a prototype. The \c{constructor} property of \a prototype is
@@ -410,16 +259,6 @@ QScriptValue QScriptEngine::newFunction(QScriptFunctionSignature fun,
     return v;
 }
 
-/*!
-  \internal
-*/
-QScriptValue QScriptEngine::scriptValue(QScriptFunctionSignature fun,
-                                        const QScriptValue &prototype,
-                                        int length)
-{
-    return newFunction(fun, prototype, length);
-}
-
 #ifndef QT_NO_REGEXP
 /*!
   Creates a QScriptValue object of class RegExp with the given
@@ -433,13 +272,6 @@ QScriptValue QScriptEngine::newRegExp(const QRegExp &regexp)
     return v;
 }
 
-/*!
-  \internal
-*/
-QScriptValue QScriptEngine::scriptValue(const QRegExp &regexp)
-{
-    return newRegExp(regexp);
-}
 #endif // QT_NO_REGEXP
 
 /*!
@@ -463,14 +295,6 @@ QScriptValue QScriptEngine::newVariant(const QVariant &value)
     if (proto.isValid())
         v.setPrototype(proto);
     return v;
-}
-
-/*!
-  \internal
-*/
-QScriptValue QScriptEngine::scriptValueFromVariant(const QVariant &value)
-{
-    return newVariant(value);
 }
 
 #ifndef QT_NO_QOBJECT
@@ -506,13 +330,6 @@ QScriptValue QScriptEngine::newQObject(QObject *object)
     return v;
 }
 
-/*!
-  \internal
-*/
-QScriptValue QScriptEngine::scriptValueFromQObject(QObject *object)
-{
-    return newQObject(object);
-}
 #endif // QT_NO_QOBJECT
 
 /*!
@@ -528,6 +345,29 @@ QScriptValue QScriptEngine::newObject()
     d->newObject(&v, d->objectConstructor->publicPrototype);
     return v;
 }
+
+/*!
+  Creates a QScriptValue that wraps a native (C++) function. \a fun
+  must be a C++ function with signature QScriptFunctionSignature.  \a
+  length is the number of arguments that \a fun expects; this becomes
+  the \c{length} property of the created QScriptValue.
+
+  Note that \a length only gives an indication of the number of
+  arguments that the function expects; an actual invocation of a
+  function can include any number of arguments. You can check the
+  \l{QScriptContext::argumentCount()}{argumentCount()} of the
+  QScriptContext associated with the invocation to determine the
+  actual number of arguments passed.
+
+  \sa QScriptValue::call()
+*/
+QScriptValue QScriptEngine::newFunction(QScriptFunctionSignature fun, int length)
+{
+    Q_D(QScriptEngine);
+    QScriptValue v = d->createFunction(new QScript::CFunction(fun, length));
+    return v;
+}
+
 
 /*!
   Creates a QScriptValue object of class Array with the given \a length.
@@ -597,12 +437,6 @@ QScriptValue QScriptEngine::newQMetaObject(
     v.setPrototype(ctor); // ###
     QScriptValueImpl::get(v)->setClassInfo(d->m_class_qclass);
     return v;
-}
-
-QScriptValue QScriptEngine::scriptValue(
-    const QMetaObject *metaObject, const QScriptValue &ctor)
-{
-    return newQMetaObject(metaObject, ctor);
 }
 
 /*!

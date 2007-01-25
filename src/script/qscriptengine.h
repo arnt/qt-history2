@@ -108,32 +108,12 @@ public:
     QScriptValue nullValue();
     QScriptValue undefinedValue();
 
-    Q_DECL_DEPRECATED QScriptValue nullScriptValue();
-    Q_DECL_DEPRECATED QScriptValue undefinedScriptValue();
-
-    Q_DECL_DEPRECATED QScriptValue scriptValue(bool value);
-    Q_DECL_DEPRECATED QScriptValue scriptValue(int value);
-    Q_DECL_DEPRECATED QScriptValue scriptValue(uint value);
-    Q_DECL_DEPRECATED QScriptValue scriptValue(qlonglong value);
-    Q_DECL_DEPRECATED QScriptValue scriptValue(qulonglong value);
-    Q_DECL_DEPRECATED QScriptValue scriptValue(qsreal value);
-    Q_DECL_DEPRECATED QScriptValue scriptValue(const QString &value);
-
-#ifndef QT_NO_CAST_FROM_ASCII
-    Q_DECL_DEPRECATED QT_ASCII_CAST_WARN QScriptValue scriptValue(const char *value);
-#endif
-
     QScriptValue newFunction(QScriptFunctionSignature signature, int length = 0);
     QScriptValue newFunction(QScriptFunctionSignature signature, const QScriptValue &prototype, int length = 0);
     QScriptValue newVariant(const QVariant &value);
 
-    Q_DECL_DEPRECATED QScriptValue scriptValue(QScriptFunctionSignature signature, int length = 0);
-    Q_DECL_DEPRECATED QScriptValue scriptValue(QScriptFunctionSignature signature, const QScriptValue &prototype, int length = 0);
-    Q_DECL_DEPRECATED QScriptValue scriptValueFromVariant(const QVariant &value);
-
 #ifndef QT_NO_REGEXP
     QScriptValue newRegExp(const QRegExp &regexp);
-    Q_DECL_DEPRECATED QScriptValue scriptValue(const QRegExp &regexp);
 #endif
 
     QScriptValue newObject();
@@ -150,11 +130,6 @@ public:
 
     QScriptValue newQMetaObject(const QMetaObject *metaObject,
                                 const QScriptValue &ctor = QScriptValue());
-
-    Q_DECL_DEPRECATED QScriptValue scriptValueFromQObject(QObject *object);
-
-    Q_DECL_DEPRECATED QScriptValue scriptValue(const QMetaObject *metaObject,
-                                               const QScriptValue &ctor);
 
 #  ifndef QT_NO_MEMBER_TEMPLATES
     template <class T> QScriptValue scriptValueFromQClass()

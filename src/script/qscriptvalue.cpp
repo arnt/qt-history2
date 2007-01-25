@@ -162,7 +162,12 @@ QScriptValue::QScriptValue(QScriptEngine *engine, qlonglong val)
 */
 QScriptValue::QScriptValue(QScriptEngine *engine, qulonglong val)
 {
+#if defined(Q_OS_WIN) && _MSC_FULL_VER <= 12008804
+#pragma message("** NOTE: You need the Visual Studio Processor Pack to compile support for 64bit unsigned integers.")
+    QScriptEnginePrivate::get(engine)->newNumber(this, (qlonglong)val);
+#else
     QScriptEnginePrivate::get(engine)->newNumber(this, val);
+#endif
 }
 
 /*!
