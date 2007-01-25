@@ -1266,18 +1266,16 @@ QGLContext* QGLContext::currentCtx = 0;
 
 // returns the highest number closest to v, which is a power of 2
 // NB! assumes 32 bit ints
-int nearest_gl_texture_size(int v)
+int qt_next_power_of_two(int v)
 {
-    int n = 0, last = 0;
-    for (int s = 0; s < 32; ++s) {
-        if (((v>>s) & 1) == 1) {
-            ++n;
-            last = s;
-        }
-    }
-    if (n > 1)
-        return 1 << (last+1);
-    return 1 << last;
+    v--;
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    ++v;
+    return v;
 }
 
 class QGLTexture {
@@ -1663,8 +1661,8 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint 
     // Scale the pixmap if needed. GL textures needs to have the
     // dimensions 2^n+2(border) x 2^m+2(border).
     QImage tx;
-    int tx_w = nearest_gl_texture_size(image.width());
-    int tx_h = nearest_gl_texture_size(image.height());
+    int tx_w = qt_next_power_of_two(image.width());
+    int tx_h = qt_next_power_of_two(image.height());
 
     // Note: the clean param is only true when a texture is bound
     // from the QOpenGLPaintEngine - in that case we have to force
