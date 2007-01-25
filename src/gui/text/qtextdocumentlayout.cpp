@@ -608,7 +608,7 @@ QTextDocumentLayoutPrivate::hitTest(QTextBlock bl, const QFixedPoint &point, int
         return PointAfter;
     }
 
-    QPointF pos = point.toPointF() - textrect.topLeft();
+    QPointF pos = point.toPointF() - tl->position();
 
     // ### rtl?
 
