@@ -43,6 +43,7 @@ public:
 private:
     QScriptablePrivate *d_ptr;
 
+    Q_DISABLE_COPY(QScriptable)
     Q_DECLARE_PRIVATE(QScriptable)
 };
 
