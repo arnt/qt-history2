@@ -17,7 +17,7 @@
 
 QScriptValue fromLongLong(QScriptEngine *eng, const qlonglong &ll)
 {
-    return eng->scriptValue(ll);
+    return QScriptValue(eng, ll);
 }
     
 void toLongLong(const QScriptValue &value, qlonglong &ll)
@@ -231,37 +231,37 @@ void tst_QScriptExtQObject::getSetStaticProperty()
 
     // initial value (set in MyQObject constructor)
     QCOMPARE(m_engine->evaluate("myObject.intProperty")
-             .strictEqualTo(m_engine->scriptValue(123.0)), true);
+             .strictEqualTo(QScriptValue(m_engine, 123.0)), true);
     QCOMPARE(m_engine->evaluate("myObject.variantProperty")
-             .equalTo(m_engine->scriptValue(QLatin1String("foo"))), true);
+             .equalTo(QScriptValue(m_engine, QLatin1String("foo"))), true);
 
     // property change in C++ should be reflected in script
     m_myObject->setIntProperty(456);
     QCOMPARE(m_engine->evaluate("myObject.intProperty")
-             .strictEqualTo(m_engine->scriptValue(456)), true);
+             .strictEqualTo(QScriptValue(m_engine, 456)), true);
     m_myObject->setIntProperty(789);
     QCOMPARE(m_engine->evaluate("myObject.intProperty")
-             .strictEqualTo(m_engine->scriptValue(789)), true);
+             .strictEqualTo(QScriptValue(m_engine, 789)), true);
 
     m_myObject->setVariantProperty(QLatin1String("bar"));
     QCOMPARE(m_engine->evaluate("myObject.variantProperty")
-             .equalTo(m_engine->scriptValue(QLatin1String("bar"))), true);
+             .equalTo(QScriptValue(m_engine, QLatin1String("bar"))), true);
     m_myObject->setVariantProperty(42);
     QCOMPARE(m_engine->evaluate("myObject.variantProperty")
-             .equalTo(m_engine->scriptValue(42)), true);
+             .equalTo(QScriptValue(m_engine, 42)), true);
 
     // property change in script should be reflected in C++
     QCOMPARE(m_engine->evaluate("myObject.intProperty = 123")
-             .strictEqualTo(m_engine->scriptValue(123)), true);
+             .strictEqualTo(QScriptValue(m_engine, 123)), true);
     QCOMPARE(m_engine->evaluate("myObject.intProperty")
-             .strictEqualTo(m_engine->scriptValue(123)), true);
+             .strictEqualTo(QScriptValue(m_engine, 123)), true);
     QCOMPARE(m_myObject->intProperty(), 123);
     QCOMPARE(m_engine->evaluate("myObject.intProperty = \"ciao!\";"
                                 "myObject.intProperty").toNumber(), 0.0);
     QCOMPARE(m_myObject->intProperty(), 0);
     QCOMPARE(m_engine->evaluate("myObject.intProperty = \"123\";"
                                 "myObject.intProperty")
-             .strictEqualTo(m_engine->scriptValue(123)), true);
+             .strictEqualTo(QScriptValue(m_engine, 123)), true);
     QCOMPARE(m_myObject->intProperty(), 123);
 
     QCOMPARE(m_engine->evaluate("myObject.variantProperty = \"foo\";"
@@ -309,19 +309,19 @@ void tst_QScriptExtQObject::getSetDynamicProperty()
 {
     // initially the object does not have the property
     QCOMPARE(m_engine->evaluate("myObject.hasOwnProperty(\"dynamicProperty\")")
-             .strictEqualTo(m_engine->scriptValue(false)), true);
+             .strictEqualTo(QScriptValue(m_engine, false)), true);
 
     // add a dynamic property in C++
     QCOMPARE(m_myObject->setProperty("dynamicProperty", 123), false);
     QCOMPARE(m_engine->evaluate("myObject.hasOwnProperty(\"dynamicProperty\")")
-             .strictEqualTo(m_engine->scriptValue(true)), true);
+             .strictEqualTo(QScriptValue(m_engine, true)), true);
     QCOMPARE(m_engine->evaluate("myObject.dynamicProperty")
-             .strictEqualTo(m_engine->scriptValue(123)), true);
+             .strictEqualTo(QScriptValue(m_engine, 123)), true);
 
     // property change in script should be reflected in C++
     QCOMPARE(m_engine->evaluate("myObject.dynamicProperty = \"foo\";"
                                 "myObject.dynamicProperty")
-             .strictEqualTo(m_engine->scriptValue(QLatin1String("foo"))), true);
+             .strictEqualTo(QScriptValue(m_engine, QLatin1String("foo"))), true);
     QCOMPARE(m_myObject->property("dynamicProperty").toString(), QLatin1String("foo"));
 
     // delete the property
@@ -334,29 +334,29 @@ void tst_QScriptExtQObject::getSetChildren()
 {
     // initially the object does not have the child
     QCOMPARE(m_engine->evaluate("myObject.hasOwnProperty(\"child\")")
-             .strictEqualTo(m_engine->scriptValue(false)), true);
+             .strictEqualTo(QScriptValue(m_engine, false)), true);
 
     // add a child
     MyQObject *child = new MyQObject(m_myObject);
     child->setObjectName("child");
     QCOMPARE(m_engine->evaluate("myObject.hasOwnProperty(\"child\")")
-             .strictEqualTo(m_engine->scriptValue(true)), true);
+             .strictEqualTo(QScriptValue(m_engine, true)), true);
 
     // add a grandchild
     MyQObject *grandChild = new MyQObject(child);
     grandChild->setObjectName("grandChild");
     QCOMPARE(m_engine->evaluate("myObject.child.hasOwnProperty(\"grandChild\")")
-             .strictEqualTo(m_engine->scriptValue(true)), true);
+             .strictEqualTo(QScriptValue(m_engine, true)), true);
 
     // delete grandchild
     delete grandChild;
     QCOMPARE(m_engine->evaluate("myObject.child.hasOwnProperty(\"grandChild\")")
-             .strictEqualTo(m_engine->scriptValue(false)), true);
+             .strictEqualTo(QScriptValue(m_engine, false)), true);
 
     // delete child
     delete child;
     QCOMPARE(m_engine->evaluate("myObject.hasOwnProperty(\"child\")")
-             .strictEqualTo(m_engine->scriptValue(false)), true);
+             .strictEqualTo(QScriptValue(m_engine, false)), true);
 
 }
 
@@ -368,7 +368,7 @@ QScriptValue fromContainer(QScriptEngine *eng, const Container &cont)
     typename Container::const_iterator end = cont.end();
     typename Container::const_iterator it;
     for (it = begin; it != end; ++it)
-        a.setProperty(eng->scriptValue(quint32(it - begin)).toString(), qScriptValueFromValue(eng, *it));
+        a.setProperty(QScriptValue(eng, quint32(it - begin)).toString(), qScriptValueFromValue(eng, *it));
     return a;
 }
 
@@ -379,8 +379,8 @@ void toContainer(const QScriptValue &value, Container &cont)
     Q_ASSERT(eng);
     quint32 len = value.property("length").toUInt32();
     for (quint32 i = 0; i < len; ++i) {
-        QScriptValue item = value.property(eng->scriptValue(i).toString());
-        cont.push_back(qscript_cast<typename Container::value_type>(item));
+        QScriptValue item = value.property(QScriptValue(eng, i).toString());
+        cont.push_back(qscriptvalue_cast<typename Container::value_type>(item));
     }
 }
 
@@ -435,13 +435,13 @@ void tst_QScriptExtQObject::callQtInvokable()
 
     m_myObject->resetQtFunctionInvoked();
     QCOMPARE(m_engine->evaluate("myObject.myInvokableReturningInt()")
-             .strictEqualTo(m_engine->scriptValue(123)), true);
+             .strictEqualTo(QScriptValue(m_engine, 123)), true);
     QCOMPARE(m_myObject->qtFunctionInvoked(), 7);
     QCOMPARE(m_myObject->qtFunctionActuals(), QVariantList());
 
     m_myObject->resetQtFunctionInvoked();
     QCOMPARE(m_engine->evaluate("myObject.myInvokableReturningString()")
-             .strictEqualTo(m_engine->scriptValue(QLatin1String("ciao"))), true);
+             .strictEqualTo(QScriptValue(m_engine, QLatin1String("ciao"))), true);
     QCOMPARE(m_myObject->qtFunctionInvoked(), 8);
     QCOMPARE(m_myObject->qtFunctionActuals(), QVariantList());
 
@@ -615,12 +615,12 @@ void tst_QScriptExtQObject::classEnums()
     QCOMPARE(m_myObject->qtFunctionActuals().at(0).toInt(), int(MyQObject::BazPolicy));
 }
 
-Q_SCRIPT_DECLARE_QCLASS(MyQObject, QObject*)
-Q_SCRIPT_DECLARE_QCLASS(QObject, QObject*)
+Q_SCRIPT_DECLARE_QMETAOBJECT(MyQObject, QObject*)
+Q_SCRIPT_DECLARE_QMETAOBJECT(QObject, QObject*)
 
 void tst_QScriptExtQObject::classConstructor()
 {
-    QScriptValue myClass = qScriptValueFromQClass<MyQObject>(m_engine);
+    QScriptValue myClass = qScriptValueFromQMetaObject<MyQObject>(m_engine);
     m_engine->globalObject().setProperty("MyQObject", myClass);
 
     QScriptValue myObj = m_engine->evaluate("myObj = MyQObject()");
@@ -629,7 +629,7 @@ void tst_QScriptExtQObject::classConstructor()
     QCOMPARE(qobj->metaObject()->className(), "MyQObject");
     QCOMPARE(qobj->parent(), (QObject *)0);
 
-    QScriptValue qobjectClass = qScriptValueFromQClass<QObject>(m_engine);
+    QScriptValue qobjectClass = qScriptValueFromQMetaObject<QObject>(m_engine);
     m_engine->globalObject().setProperty("QObject", qobjectClass);
 
     QScriptValue otherObj = m_engine->evaluate("otherObj = QObject(myObj)");

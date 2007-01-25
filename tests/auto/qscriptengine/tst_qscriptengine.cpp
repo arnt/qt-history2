@@ -77,7 +77,7 @@ void tst_QScriptEngine::createUndefined()
 void tst_QScriptEngine::createBoolean()
 {
     QScriptEngine eng;
-    QScriptValue falskt = eng.scriptValue(false);
+    QScriptValue falskt = QScriptValue(&eng, false);
     QCOMPARE(falskt.isValid(), true);
     QCOMPARE(falskt.isBoolean(), true);
     QCOMPARE(falskt.isObject(), false);
@@ -87,7 +87,7 @@ void tst_QScriptEngine::createBoolean()
 void tst_QScriptEngine::createNumber()
 {
     QScriptEngine eng;
-    QScriptValue number = eng.scriptValue(123);
+    QScriptValue number = QScriptValue(&eng, 123);
     QCOMPARE(number.isValid(), true);
     QCOMPARE(number.isNumber(), true);
     QCOMPARE(number.isObject(), false);
@@ -128,7 +128,7 @@ void tst_QScriptEngine::createObject()
 void tst_QScriptEngine::createString()
 {
     QScriptEngine eng;
-    QScriptValue str = eng.scriptValue("ciao");
+    QScriptValue str = QScriptValue(&eng, "ciao");
     QCOMPARE(str.isValid(), true);
     QCOMPARE(str.isString(), true);
     QCOMPARE(str.isObject(), false);
@@ -231,7 +231,7 @@ void tst_QScriptEngine::createQObject()
     }
 }
 
-Q_SCRIPT_DECLARE_QCLASS(QObject, QObject*)
+Q_SCRIPT_DECLARE_QMETAOBJECT(QObject, QObject*)
 
 void tst_QScriptEngine::createQClass()
 {
@@ -239,7 +239,7 @@ void tst_QScriptEngine::createQClass()
 #if 0
     QScriptValue qclass = eng.createQClass<QObject>();
 #else
-    QScriptValue qclass = qScriptValueFromQClass<QObject>(&eng);
+    QScriptValue qclass = qScriptValueFromQMetaObject<QObject>(&eng);
 #endif
     QCOMPARE(qclass.isValid(), true);
     QCOMPARE(qclass.isObject(), true);

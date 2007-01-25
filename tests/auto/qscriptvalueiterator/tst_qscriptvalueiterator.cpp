@@ -73,7 +73,7 @@ void tst_QScriptValueIterator::iterateForward()
         QString name = propertyNames.at(i);
         QString value = propertyValues.at(i);
         pmap.insert(name, value);
-        object.setProperty(name, engine.scriptValue(value));
+        object.setProperty(name, QScriptValue(&engine, value));
     }
 
     QStringList lst;
@@ -84,7 +84,7 @@ void tst_QScriptValueIterator::iterateForward()
         QString name = it.next();
         QCOMPARE(pmap.contains(name), true);
         QCOMPARE(it.name(), name);
-        QCOMPARE(it.value().strictEqualTo(engine.scriptValue(pmap.value(name))), true);
+        QCOMPARE(it.value().strictEqualTo(QScriptValue(&engine, pmap.value(name))), true);
         pmap.remove(name);
         lst.append(name);
     }
@@ -125,7 +125,7 @@ void tst_QScriptValueIterator::iterateBackward()
         QString name = propertyNames.at(i);
         QString value = propertyValues.at(i);
         pmap.insert(name, value);
-        object.setProperty(name, engine.scriptValue(value));
+        object.setProperty(name, QScriptValue(&engine, value));
     }
 
     QStringList lst;
@@ -137,7 +137,7 @@ void tst_QScriptValueIterator::iterateBackward()
         QString name = it.previous();
         QCOMPARE(pmap.contains(name), true);
         QCOMPARE(it.name(), name);
-        QCOMPARE(it.value().strictEqualTo(engine.scriptValue(pmap.value(name))), true);
+        QCOMPARE(it.value().strictEqualTo(QScriptValue(&engine, pmap.value(name))), true);
         pmap.remove(name);
         lst.append(name);
     }
@@ -165,14 +165,14 @@ void tst_QScriptValueIterator::iterateArray()
 {
     QScriptEngine engine;
     QScriptValue array = engine.newArray();
-    array.setProperty("0", engine.scriptValue(123));
-    array.setProperty("1", engine.scriptValue(456));
-    array.setProperty("2", engine.scriptValue(789));
+    array.setProperty("0", QScriptValue(&engine, 123));
+    array.setProperty("1", QScriptValue(&engine, 456));
+    array.setProperty("2", QScriptValue(&engine, 789));
     int length = array.property("length").toInt32();
     QScriptValueIterator it(array);
     for (int i = 0; i < length; ++i) {
         QCOMPARE(it.hasNext(), true);
-        QString indexStr = engine.scriptValue(i).toString();
+        QString indexStr = QScriptValue(&engine, i).toString();
         QCOMPARE(it.next(), indexStr);
         QCOMPARE(it.value().strictEqualTo(array.property(indexStr)), true);
     }
@@ -183,8 +183,8 @@ void tst_QScriptValueIterator::iterateBackAndForth()
 {
     QScriptEngine engine;
     QScriptValue object = engine.newObject();
-    object.setProperty("foo", engine.scriptValue("bar"));
-    object.setProperty("rab", engine.scriptValue("oof"),
+    object.setProperty("foo", QScriptValue(&engine, "bar"));
+    object.setProperty("rab", QScriptValue(&engine, "oof"),
                        QScriptValue::SkipInEnumeration); // should not affect iterator
     QScriptValueIterator it(object);
     QCOMPARE(it.next(), QLatin1String("foo"));
@@ -202,14 +202,14 @@ void tst_QScriptValueIterator::setValue()
 {
     QScriptEngine engine;
     QScriptValue object = engine.newObject();
-    object.setProperty("foo", engine.scriptValue("bar"));
+    object.setProperty("foo", QScriptValue(&engine, "bar"));
     QScriptValueIterator it(object);
     QCOMPARE(it.next(), QLatin1String("foo"));
-    it.setValue(engine.scriptValue("baz"));
-    QCOMPARE(it.value().strictEqualTo(engine.scriptValue(QLatin1String("baz"))), true);
+    it.setValue(QScriptValue(&engine, "baz"));
+    QCOMPARE(it.value().strictEqualTo(QScriptValue(&engine, QLatin1String("baz"))), true);
     QCOMPARE(object.property("foo").toString(), QLatin1String("baz"));
-    it.setValue(engine.scriptValue("zab"));
-    QCOMPARE(it.value().strictEqualTo(engine.scriptValue(QLatin1String("zab"))), true);
+    it.setValue(QScriptValue(&engine, "zab"));
+    QCOMPARE(it.value().strictEqualTo(QScriptValue(&engine, QLatin1String("zab"))), true);
     QCOMPARE(object.property("foo").toString(), QLatin1String("zab"));
 }
 
@@ -217,9 +217,9 @@ void tst_QScriptValueIterator::remove()
 {
     QScriptEngine engine;
     QScriptValue object = engine.newObject();
-    object.setProperty("foo", engine.scriptValue("bar"),
+    object.setProperty("foo", QScriptValue(&engine, "bar"),
                        QScriptValue::SkipInEnumeration); // should not affect iterator
-    object.setProperty("rab", engine.scriptValue("oof"));
+    object.setProperty("rab", QScriptValue(&engine, "oof"));
     QScriptValueIterator it(object);
     QCOMPARE(it.next(), QLatin1String("foo"));
     it.remove();

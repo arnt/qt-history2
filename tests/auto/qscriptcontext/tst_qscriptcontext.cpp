@@ -30,7 +30,6 @@ private slots:
     void returnValue();
     void throwError();
     void throwValue();
-    void recoverFromException();
     void evaluateInFunction();
 };
 
@@ -52,7 +51,7 @@ void tst_QScriptContext::callee()
     QScriptEngine eng;
 
     QScriptValue fun = eng.newFunction(get_callee);
-    fun.setProperty("foo", eng.scriptValue("bar"));
+    fun.setProperty("foo", QScriptValue(&eng, "bar"));
     eng.globalObject().setProperty("get_callee", fun);
 
     QScriptValue result = eng.evaluate("get_callee()");
@@ -138,7 +137,7 @@ void tst_QScriptContext::returnValue()
 
 static QScriptValue throw_Error(QScriptContext *ctx, QScriptEngine *)
 {
-    return ctx->throwError(QScriptContext::GenericError, "foo");
+    return ctx->throwError(QScriptContext::UnknownError, "foo");
 }
 
 static QScriptValue throw_TypeError(QScriptContext *ctx, QScriptEngine *)
@@ -243,24 +242,6 @@ void tst_QScriptContext::throwValue()
         QCOMPARE(result.toNumber(), 123.0);
         QCOMPARE(eng.hasUncaughtException(), true);
     }
-}
-
-static QScriptValue throw_and_recover(QScriptContext *ctx, QScriptEngine *eng)
-{
-    ctx->throwValue(ctx->argument(0));
-    ctx->recoverFromException();
-    return eng->scriptValue(456.0);
-}
-
-void tst_QScriptContext::recoverFromException()
-{
-    QScriptEngine eng;
-
-    QScriptValue fun = eng.newFunction(throw_and_recover);
-    eng.globalObject().setProperty("throw_and_recover", fun);
-    QScriptValue result = eng.evaluate("throw_and_recover(123)");
-    QCOMPARE(eng.hasUncaughtException(), false);
-    QCOMPARE(result.toNumber(), 456.0);
 }
 
 static QScriptValue evaluate(QScriptContext *, QScriptEngine *eng)

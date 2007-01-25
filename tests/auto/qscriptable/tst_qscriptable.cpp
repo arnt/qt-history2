@@ -103,7 +103,7 @@ void MyScriptable::setOtherEngine()
 void MyScriptable::setX(int x)
 {
     m_lastEngine = engine();
-    thisObject().setProperty("x", engine()->scriptValue(x));
+    thisObject().setProperty("x", QScriptValue(engine(), x));
 }
 
 void MyScriptable::setX2(int)
@@ -197,19 +197,19 @@ void tst_QScriptable::thisObject()
     m_engine.evaluate("o = { }; o.__proto__ = scriptable");
     {
         QScriptValue ret = m_engine.evaluate("o.setX(123); o.x");
-        QCOMPARE(ret.strictEqualTo(m_engine.scriptValue(123)), true);
+        QCOMPARE(ret.strictEqualTo(QScriptValue(&m_engine, 123)), true);
     }
     {
         QScriptValue ret = m_engine.evaluate("o.setX2(456); o.x");
-        QCOMPARE(ret.strictEqualTo(m_engine.scriptValue(456)), true);
+        QCOMPARE(ret.strictEqualTo(QScriptValue(&m_engine, 456)), true);
     }
     {
         QScriptValue ret = m_engine.evaluate("o.isBar()");
-        QCOMPARE(ret.strictEqualTo(m_engine.scriptValue(false)), true);
+        QCOMPARE(ret.strictEqualTo(QScriptValue(&m_engine, false)), true);
     }
     {
         QScriptValue ret = m_engine.evaluate("o.toString = function() { return 'foo@bar'; }; o.isBar()");
-        QCOMPARE(ret.strictEqualTo(m_engine.scriptValue(true)), true);
+        QCOMPARE(ret.strictEqualTo(QScriptValue(&m_engine, true)), true);
     }
 
     // property getter
