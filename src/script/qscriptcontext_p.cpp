@@ -62,12 +62,12 @@ static inline void qscript_uint_to_string_helper(uint i, QString &s)
     }
 }
 
-static inline void qscript_uint_to_string(qnumber i, QString &s)
+static inline void qscript_uint_to_string(qsreal i, QString &s)
 {
     if (i < 0)
         return; // nothing to do
 
-    qnumber x = ::fmod(i, 10);
+    qsreal x = ::fmod(i, 10);
 
     if (x != 0.0 && x != 1.0
             && x != 2.0 && x != 3.0
@@ -1035,8 +1035,8 @@ Ltop:
 
     I(Mod):
     {
-        qnumber v1 = eng->convertToNativeDouble(stackPtr[-1]);
-        qnumber v2 = eng->convertToNativeDouble(stackPtr[0]);
+        qsreal v1 = eng->convertToNativeDouble(stackPtr[-1]);
+        qsreal v2 = eng->convertToNativeDouble(stackPtr[0]);
 
         eng->newNumber(--stackPtr, ::fmod(v1, v2));
         ++iPtr;
@@ -1110,7 +1110,7 @@ Ltop:
             tmp += eng->convertToNativeString(rhs);
             eng->newNameId(--stackPtr, tmp);
         } else {
-            qnumber tmp = eng->convertToNativeDouble(lhs);
+            qsreal tmp = eng->convertToNativeDouble(lhs);
             tmp += eng->convertToNativeDouble(rhs);
             eng->newNumber(--stackPtr, tmp);
         }
@@ -1120,8 +1120,8 @@ Ltop:
 
     I(Div):
     {
-        qnumber v1 = eng->convertToNativeDouble(stackPtr[-1]);
-        qnumber v2 = eng->convertToNativeDouble(stackPtr[0]);
+        qsreal v1 = eng->convertToNativeDouble(stackPtr[-1]);
+        qsreal v2 = eng->convertToNativeDouble(stackPtr[0]);
         eng->newNumber(--stackPtr, v1 / v2);
         ++iPtr;
     }   Next();
@@ -1170,8 +1170,8 @@ Ltop:
 
     I(Mul):
     {
-        qnumber v1 = eng->convertToNativeDouble(stackPtr[-1]);
-        qnumber v2 = eng->convertToNativeDouble(stackPtr[0]);
+        qsreal v1 = eng->convertToNativeDouble(stackPtr[-1]);
+        qsreal v2 = eng->convertToNativeDouble(stackPtr[0]);
         eng->newNumber(--stackPtr, v1 * v2);
         ++iPtr;
     }   Next();
@@ -1192,22 +1192,22 @@ Ltop:
 
     I(Sub):
     {
-        qnumber v1 = eng->convertToNativeDouble(stackPtr[-1]);
-        qnumber v2 = eng->convertToNativeDouble(stackPtr[0]);
+        qsreal v1 = eng->convertToNativeDouble(stackPtr[-1]);
+        qsreal v2 = eng->convertToNativeDouble(stackPtr[0]);
         eng->newNumber(--stackPtr, v1 - v2);
         ++iPtr;
     }   Next();
 
     I(UnaryMinus):
     {
-        qnumber v1 = eng->convertToNativeDouble(*stackPtr);
+        qsreal v1 = eng->convertToNativeDouble(*stackPtr);
         eng->newNumber(stackPtr, -v1);
         ++iPtr;
     }   Next();
 
     I(UnaryPlus):
     {
-        qnumber v1 = eng->convertToNativeDouble(*stackPtr);
+        qsreal v1 = eng->convertToNativeDouble(*stackPtr);
         eng->newNumber(stackPtr, +v1);
         ++iPtr;
     }   Next();
@@ -1300,7 +1300,7 @@ Ltop:
 
         BEGIN_PREFIX_OPERATOR
 
-        qnumber x = eng->convertToNativeDouble(value);
+        qsreal x = eng->convertToNativeDouble(value);
         eng->newNumber(&value, x + 1);
 
         END_PREFIX_OPERATOR
@@ -1316,7 +1316,7 @@ Ltop:
 
         BEGIN_PREFIX_OPERATOR
 
-        qnumber x = eng->convertToNativeDouble(value);
+        qsreal x = eng->convertToNativeDouble(value);
         eng->newNumber(&value, x - 1);
 
         END_PREFIX_OPERATOR
@@ -1400,7 +1400,7 @@ Ltop:
             }
         }
 
-        qnumber x = eng->convertToNativeDouble(value);
+        qsreal x = eng->convertToNativeDouble(value);
 
         eng->newNumber(&value, x + 1);
 
@@ -1502,7 +1502,7 @@ Ltop:
             }
         }
 
-        qnumber x = eng->convertToNativeDouble(value);
+        qsreal x = eng->convertToNativeDouble(value);
 
         eng->newNumber(&value, x - 1);
 
@@ -1542,7 +1542,7 @@ Ltop:
                 eng->newString(stackPtr, tmp);
             }
         } else {
-            qnumber tmp = eng->convertToNativeDouble(lhs);
+            qsreal tmp = eng->convertToNativeDouble(lhs);
             tmp += eng->convertToNativeDouble(rhs);
             stackPtr -= 3;
             eng->newNumber(stackPtr, tmp);
@@ -1555,8 +1555,8 @@ Ltop:
     {
         BEGIN_INPLACE_OPERATOR
 
-        qnumber v1 = eng->convertToNativeDouble(lhs);
-        qnumber v2 = eng->convertToNativeDouble(rhs);
+        qsreal v1 = eng->convertToNativeDouble(lhs);
+        qsreal v2 = eng->convertToNativeDouble(rhs);
 
         stackPtr -= 3;
         eng->newNumber(stackPtr, v1 - v2);
@@ -1581,8 +1581,8 @@ Ltop:
     {
         BEGIN_INPLACE_OPERATOR
 
-        qnumber v1 = eng->convertToNativeDouble(lhs);
-        qnumber v2 = eng->convertToNativeDouble(rhs);
+        qsreal v1 = eng->convertToNativeDouble(lhs);
+        qsreal v2 = eng->convertToNativeDouble(rhs);
 
         stackPtr -= 3;
         eng->newNumber(stackPtr, v1 / v2);
@@ -1607,8 +1607,8 @@ Ltop:
     {
         BEGIN_INPLACE_OPERATOR
 
-        qnumber v1 = eng->convertToNativeDouble(lhs);
-        qnumber v2 = eng->convertToNativeDouble(rhs);
+        qsreal v1 = eng->convertToNativeDouble(lhs);
+        qsreal v2 = eng->convertToNativeDouble(rhs);
 
         stackPtr -= 3;
         eng->newNumber(stackPtr, fmod (v1, v2));
@@ -1620,8 +1620,8 @@ Ltop:
     {
         BEGIN_INPLACE_OPERATOR
 
-        qnumber v1 = eng->convertToNativeDouble(lhs);
-        qnumber v2 = eng->convertToNativeDouble(rhs);
+        qsreal v1 = eng->convertToNativeDouble(lhs);
+        qsreal v2 = eng->convertToNativeDouble(rhs);
 
         stackPtr -= 3;
         eng->newNumber(stackPtr, v1 * v2);

@@ -240,7 +240,7 @@ QScriptValue String::method_charCodeAt(QScriptEngine *eng, QScriptClassInfo *)
     if (context->argumentCount() > 0)
         pos = int (context->argument(0).toInteger());
 
-    qnumber result = qSNan();
+    qsreal result = qSNan();
 
     if (pos >= 0 && pos < str.length())
         result = str.at(pos).unicode();
@@ -288,13 +288,13 @@ QScriptValue String::method_lastIndexOf(QScriptEngine *eng, QScriptClassInfo *)
     if (context->argumentCount() > 0)
         searchString = context->argument(0).toString();
 
-    qnumber position = context->argument(1).toNumber();
+    qsreal position = context->argument(1).toNumber();
     if (qIsNan(position))
         position = +qInf();
     else
         position = QScriptEnginePrivate::toInteger(position);
 
-    int pos = QScriptEnginePrivate::toInt32(qMin(qMax(position, 0.0), qnumber(value.length())));
+    int pos = QScriptEnginePrivate::toInt32(qMin(qMax(position, 0.0), qsreal(value.length())));
     if (!searchString.isEmpty() && pos == value.length())
         --pos;
     int index = value.lastIndexOf(searchString, pos);
@@ -337,11 +337,11 @@ QScriptValue String::method_match(QScriptEngine *eng, QScriptClassInfo *)
     pattern.setProperty(lastIndexId, QScriptValue(eng, 0));
     int n = 0;
     while (true) {
-        qnumber lastIndex = pattern.property(lastIndexId).toNumber();
+        qsreal lastIndex = pattern.property(lastIndexId).toNumber();
         QScriptValue r = rx_exec.call(pattern, args);
         if (r.isNull())
             break;
-        qnumber newLastIndex = pattern.property(lastIndexId).toNumber();
+        qsreal newLastIndex = pattern.property(lastIndexId).toNumber();
         if (newLastIndex == lastIndex)
             pattern.setProperty(lastIndexId, QScriptValue(eng, lastIndex + 1));
         result.assign(n++, r.property(zeroId));
@@ -377,11 +377,11 @@ QScriptValue String::method_replace(QScriptEngine *eng, QScriptClassInfo *)
             QScriptNameId lastIndexId = eng->nameId(QLatin1String("lastIndex"));
             searchValue.setProperty(lastIndexId, QScriptValue(eng, 0));
             while (true) {
-                qnumber lastIndex = searchValue.property(lastIndexId).toNumber();
+                qsreal lastIndex = searchValue.property(lastIndexId).toNumber();
                 QScriptValue r = rx_exec.call(searchValue, args);
                 if (r.isNull())
                     break;
-                qnumber newLastIndex = searchValue.property(lastIndexId).toNumber();
+                qsreal newLastIndex = searchValue.property(lastIndexId).toNumber();
                 if (newLastIndex == lastIndex)
                     searchValue.setProperty(lastIndexId, QScriptValue(eng, lastIndex + 1));
                 occurrences.append(r);
@@ -590,8 +590,8 @@ QScriptValue String::method_substring(QScriptEngine *eng, QScriptClassInfo *)
     QString value = context->thisObject().toString();
     int length = value.length();
 
-    qnumber start = 0;
-    qnumber end = length;
+    qsreal start = 0;
+    qsreal end = length;
 
     if (context->argumentCount() > 0)
         start = context->argument(0).toNumber();
@@ -612,7 +612,7 @@ QScriptValue String::method_substring(QScriptEngine *eng, QScriptClassInfo *)
         end = length;
 
     if (start > end) {
-        qnumber was = start;
+        qsreal was = start;
         start = end;
         end = was;
     }

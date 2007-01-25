@@ -265,7 +265,7 @@ public:
     inline void newReference(QScriptValue *object, int mode);
     inline void newActivation(QScriptValue *object);
     inline void newBoolean(QScriptValue *object, bool b);
-    inline void newNumber(QScriptValue *object, qnumber d);
+    inline void newNumber(QScriptValue *object, qsreal d);
     void newFunction(QScriptValue *object, QScriptFunction *function);
     void newConstructor(QScriptValue *ctor, QScriptFunction *function,
                         QScriptValue &proto);
@@ -280,23 +280,23 @@ public:
                       uint length, const QScriptValue &callee);
     inline QString convertToNativeString(const QScriptValue &object);
     QString convertToNativeString_helper(const QScriptValue &object);
-    inline qnumber convertToNativeDouble(const QScriptValue &object);
-    qnumber convertToNativeDouble_helper(const QScriptValue &object);
+    inline qsreal convertToNativeDouble(const QScriptValue &object);
+    qsreal convertToNativeDouble_helper(const QScriptValue &object);
     inline bool convertToNativeBoolean(const QScriptValue &object);
     bool convertToNativeBoolean_helper(const QScriptValue &object);
     inline qint32 convertToNativeInt32(const QScriptValue &object);
     QScriptFunction *convertToNativeFunction(const QScriptValue &object);
 
-    inline static qnumber toNumber(const QString &value);
-    inline static QString toString(qnumber value);
-    static QString toString_helper(qnumber d);
+    inline static qsreal toNumber(const QString &value);
+    inline static QString toString(qsreal value);
+    static QString toString_helper(qsreal d);
 
-    inline static qnumber Inf();
-    inline static qnumber SNaN();
-    inline static qnumber QNaN();
-    inline static bool isInf(qnumber d);
-    inline static bool isNaN(qnumber d);
-    inline static bool isFinite(qnumber d);
+    inline static qsreal Inf();
+    inline static qsreal SNaN();
+    inline static qsreal QNaN();
+    inline static bool isInf(qsreal d);
+    inline static bool isNaN(qsreal d);
+    inline static bool isFinite(qsreal d);
     inline const QScript::IdTable *idTable() const;
 
     static inline QScript::Type type(const QScriptValue &v)
@@ -355,13 +355,13 @@ public:
     QScriptValue toPrimitive_helper(const QScriptValue &object,
                                     QScriptValue::TypeHint hint);
 
-    static const qnumber D16;
-    static const qnumber D32;
+    static const qsreal D16;
+    static const qsreal D32;
 
-    inline static qnumber toInteger(qnumber n);
-    inline static qint32 toInt32(qnumber m);
-    inline static quint32 toUint32(qnumber n);
-    inline static quint16 toUint16(qnumber n);
+    inline static qsreal toInteger(qsreal n);
+    inline static qint32 toInt32(qsreal m);
+    inline static quint32 toUint32(qsreal n);
+    inline static quint16 toUint16(qsreal n);
 
     QDateTime toDateTime(const QScriptValue &value);
 
@@ -559,7 +559,7 @@ inline void QScriptEnginePrivate::newInteger(QScriptValue *o, int i)
     o->m_int_value = (i);
 }
 
-inline void QScriptEnginePrivate::newNumber(QScriptValue *o, qnumber d)
+inline void QScriptEnginePrivate::newNumber(QScriptValue *o, qsreal d)
 {
     Q_ASSERT(o);
     o->m_class = (m_class_double);
@@ -594,7 +594,7 @@ inline const QScript::IdTable *QScriptEnginePrivate::idTable() const
     return &m_id_table;
 }
 
-inline QString QScriptEnginePrivate::toString(qnumber d)
+inline QString QScriptEnginePrivate::toString(qsreal d)
 {
     if (isNaN(d))
         return QLatin1String("NaN");
@@ -608,10 +608,10 @@ inline QString QScriptEnginePrivate::toString(qnumber d)
     return toString_helper(d);
 }
 
-inline qnumber QScriptEnginePrivate::toNumber(const QString &repr)
+inline qsreal QScriptEnginePrivate::toNumber(const QString &repr)
 {
     bool converted = false;
-    qnumber v;
+    qsreal v;
 
     if (repr.length() > 2 && repr.at(0) == QLatin1Char('0') && repr.at(1).toUpper() == QLatin1Char('X'))
         v = repr.mid(2).toLongLong(&converted, 16);
@@ -642,7 +642,7 @@ inline qnumber QScriptEnginePrivate::toNumber(const QString &repr)
     return SNaN();
 }
 
-inline qnumber QScriptEnginePrivate::convertToNativeDouble(const QScriptValue &object)
+inline qsreal QScriptEnginePrivate::convertToNativeDouble(const QScriptValue &object)
 {
     Q_ASSERT (object.isValid());
 
@@ -680,39 +680,39 @@ inline QString QScriptEnginePrivate::convertToNativeString(const QScriptValue &o
     return convertToNativeString_helper(object);
 }
 
-inline qnumber QScriptEnginePrivate::Inf()
+inline qsreal QScriptEnginePrivate::Inf()
 {
     return qInf();
 }
 
 // Signaling NAN
-inline qnumber QScriptEnginePrivate::SNaN()
+inline qsreal QScriptEnginePrivate::SNaN()
 {
     return qSNan();
 }
 
 // Quiet NAN
-inline qnumber QScriptEnginePrivate::QNaN()
+inline qsreal QScriptEnginePrivate::QNaN()
 {
     return qQNan();
 }
 
-inline bool QScriptEnginePrivate::isInf(qnumber d)
+inline bool QScriptEnginePrivate::isInf(qsreal d)
 {
     return qIsInf(d);
 }
 
-inline bool QScriptEnginePrivate::isNaN(qnumber d)
+inline bool QScriptEnginePrivate::isNaN(qsreal d)
 {
     return qIsNan(d);
 }
 
-inline bool QScriptEnginePrivate::isFinite(qnumber d)
+inline bool QScriptEnginePrivate::isFinite(qsreal d)
 {
     return qIsFinite(d);
 }
 
-inline qnumber QScriptEnginePrivate::toInteger(qnumber n)
+inline qsreal QScriptEnginePrivate::toInteger(qsreal n)
 {
     if (isNaN(n))
         return 0;
@@ -724,13 +724,13 @@ inline qnumber QScriptEnginePrivate::toInteger(qnumber n)
     return sign * ::floor(::fabs(n));
 }
 
-inline qint32 QScriptEnginePrivate::toInt32(qnumber n)
+inline qint32 QScriptEnginePrivate::toInt32(qsreal n)
 {
     if (isNaN(n))
         return 0;
 
     double sign = (n < 0) ? -1.0 : 1.0;
-    qnumber abs_n = fabs(n);
+    qsreal abs_n = fabs(n);
     if (! abs_n || isInf(abs_n))
         return 0;
 
@@ -746,18 +746,18 @@ inline qint32 QScriptEnginePrivate::toInt32(qnumber n)
     return qint32 (n);
 }
 
-inline quint32 QScriptEnginePrivate::toUint32(qnumber n)
+inline quint32 QScriptEnginePrivate::toUint32(qsreal n)
 {
-    qnumber d = qRound64(n);
-    qnumber d32 = ::fmod(d, D32);
+    qsreal d = qRound64(n);
+    qsreal d32 = ::fmod(d, D32);
 
     return quint32 (d32);
 }
 
-inline quint16 QScriptEnginePrivate::toUint16(qnumber n)
+inline quint16 QScriptEnginePrivate::toUint16(qsreal n)
 {
-    qnumber d = qRound64(n);
-    qnumber d16 = ::fmod(d, D16);
+    qsreal d = qRound64(n);
+    qsreal d16 = ::fmod(d, D16);
 
     return quint16 (d16);
 }

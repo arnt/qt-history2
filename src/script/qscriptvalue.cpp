@@ -166,9 +166,9 @@ QScriptValue::QScriptValue(QScriptEngine *engine, qulonglong val)
 }
 
 /*!
-  Constructs a new QScriptValue with a qnumber value, \a val.
+  Constructs a new QScriptValue with a qsreal value, \a val.
 */
-QScriptValue::QScriptValue(QScriptEngine *engine, qnumber val)
+QScriptValue::QScriptValue(QScriptEngine *engine, qsreal val)
 {
     QScriptEnginePrivate::get(engine)->newNumber(this, val);
 }
@@ -277,7 +277,7 @@ QDebug &operator<<(QDebug &d, const QScriptValue &object)
         break;
 
     case QScript::NumberType:
-        d.nospace() << "qnumber=" << object.toNumber();
+        d.nospace() << "qsreal=" << object.toNumber();
         break;
 
     case QScript::StringType:
@@ -500,7 +500,7 @@ QString QScriptValue::toString() const
 
   \sa isNumber(), toInteger(), toInt32(), toUInt32(), toUInt16()
 */
-qnumber QScriptValue::toNumber() const
+qsreal QScriptValue::toNumber() const
 {
     if (!isValid())
         return 0;
@@ -568,7 +568,7 @@ quint16 QScriptValue::toUInt16() const
 
   \sa toNumber()
 */
-qnumber QScriptValue::toInteger() const
+qsreal QScriptValue::toInteger() const
 {
     if (!isValid())
         return 0;

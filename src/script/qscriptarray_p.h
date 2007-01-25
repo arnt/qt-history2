@@ -52,7 +52,7 @@ public:
     inline void concat(const Array &other);
     inline QScriptValue pop();
     inline void sort(const QScriptValue &comparefn);
-    inline void splice(qnumber start, qnumber deleteCount,
+    inline void splice(qsreal start, qsreal deleteCount,
                        const QVector<QScriptValue> &items,
                        Array &other);
 
@@ -325,16 +325,16 @@ inline void QScript::Array::sort(const QScriptValue &comparefn)
     }
 }
 
-inline void QScript::Array::splice(qnumber start, qnumber deleteCount,
+inline void QScript::Array::splice(qsreal start, qsreal deleteCount,
                                    const QVector<QScriptValue> &items,
                                    Array &other)
 {
-    const qnumber len = size();
+    const qsreal len = size();
     if (start < 0)
-        start = qMax(len + start, qnumber(0));
+        start = qMax(len + start, qsreal(0));
     else if (start > len)
         start = len;
-    deleteCount = qMax(qMin(deleteCount, len), qnumber(0));
+    deleteCount = qMax(qMin(deleteCount, len), qsreal(0));
 
     const uint st = uint(start);
     const uint dc = uint(deleteCount);

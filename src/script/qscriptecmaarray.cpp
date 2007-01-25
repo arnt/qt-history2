@@ -119,7 +119,7 @@ bool Array::ArrayClassData::put(QScriptValue *object,
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(object->engine());
 
     if (member.nameId() == eng_p->idTable()->id_length) {
-        qnumber length = value.toNumber();
+        qsreal length = value.toNumber();
         quint32 len = eng_p->toUint32(length);
         instance->value.resize(len);
     }
@@ -200,10 +200,10 @@ void Array::execute(QScriptContext *context)
     QScript::Array value;
 
     if (context->argumentCount() == 1 && context->argument(0).isNumber()) {
-        qnumber size = context->argument(0).toNumber();
+        qsreal size = context->argument(0).toNumber();
         quint32 isize = QScriptEnginePrivate::toUint32(size);
 
-        if (size != qnumber(isize)) {
+        if (size != qsreal(isize)) {
             context->throwError(QScriptContext::RangeError, QLatin1String("invalid array length"));
             return;
         }
@@ -278,7 +278,7 @@ QScriptValue Array::method_join(QScriptEngine *eng, QScriptClassInfo *)
     QScriptValue self = context->thisObject();
 
     QScriptValue length = self.property(QLatin1String("length"));
-    qnumber r1 = length.isValid() ? length.toNumber() : 0;
+    qsreal r1 = length.isValid() ? length.toNumber() : 0;
     quint32 r2 = QScriptEnginePrivate::toUint32(r1);
 
     if (! r2)
@@ -318,7 +318,7 @@ QScriptValue Array::method_pop(QScriptEngine *eng, QScriptClassInfo *classInfo)
 
     QScriptValue self = context->thisObject();
     QScriptValue length = self.property(id_length);
-    qnumber r1 = length.isValid() ? length.toNumber() : 0;
+    qsreal r1 = length.isValid() ? length.toNumber() : 0;
     quint32 r2 = QScriptEnginePrivate::toUint32(r1);
     if (! r2) {
         self.setProperty(id_length, QScriptValue(eng, 0));
@@ -479,7 +479,7 @@ QScriptValue Array::method_slice(QScriptEngine *eng, QScriptClassInfo *)
     QScriptValue end = context->argument(1);
 
     QScriptValue self = context->thisObject();
-    qnumber r2 = self.property(QLatin1String("length")).toNumber();
+    qsreal r2 = self.property(QLatin1String("length")).toNumber();
     quint32 r3 = QScriptEnginePrivate::toUint32(r2);
     qint32 r4 = qint32 (start.toInteger());
     quint32 r5 = r4 < 0 ? qMax(quint32(r3 + r4), quint32(0)) : qMin(quint32(r4), r3);
@@ -516,8 +516,8 @@ QScriptValue Array::method_splice(QScriptEngine *eng, QScriptClassInfo *classInf
 
     QScriptValue self = context->thisObject();
 
-    qnumber start = context->argument(0).toInteger();
-    qnumber deleteCount = context->argument(1).toInteger();
+    qsreal start = context->argument(0).toInteger();
+    qsreal deleteCount = context->argument(1).toInteger();
 
     QScriptValue arrayCtor = eng->globalObject().property(QLatin1String("Array"));
     QScriptValue a = arrayCtor.call(eng->nullValue()); // ### construct()

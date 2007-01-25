@@ -33,7 +33,7 @@ class QDateTime;
 
 typedef QList<QScriptValue> QScriptValueList;
 
-typedef double qnumber;
+typedef double qsreal;
 
 class QScriptValueImpl;
 
@@ -85,7 +85,7 @@ public:
     QScriptValue(QScriptEngine *engine, uint val);
     QScriptValue(QScriptEngine *engine, qlonglong val);
     QScriptValue(QScriptEngine *engine, qulonglong val);
-    QScriptValue(QScriptEngine *engine, qnumber val);
+    QScriptValue(QScriptEngine *engine, qsreal val);
     QScriptValue(QScriptEngine *engine, const QString &val);
 
 #ifndef QT_NO_CAST_FROM_ASCII
@@ -112,9 +112,9 @@ public:
     bool isError() const;
 
     QString toString() const;
-    qnumber toNumber() const;
+    qsreal toNumber() const;
     bool toBoolean() const;
-    qnumber toInteger() const;
+    qsreal toInteger() const;
     qint32 toInt32() const;
     quint32 toUInt32() const;
     quint16 toUInt16() const;
@@ -167,7 +167,7 @@ private:
     union {
         bool m_bool_value;
         int m_int_value;
-        qnumber m_number_value;
+        qsreal m_number_value;
         void *m_ptr_value;
         QScriptObject *m_object_value;
         QScriptNameIdImpl *m_string_value;

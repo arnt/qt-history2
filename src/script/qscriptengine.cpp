@@ -274,7 +274,7 @@ QScriptValue QScriptEngine::scriptValue(bool value)
   Returns a QScriptValue of the primitive type Number
   with the given \a value.
 */
-QScriptValue QScriptEngine::scriptValue(qnumber value)
+QScriptValue QScriptEngine::scriptValue(qsreal value)
 {
     Q_D(QScriptEngine);
     QScriptValue v;
@@ -559,7 +559,7 @@ QScriptValue QScriptEngine::newRegExp(const QString &pattern, const QString &fla
   \a value (the number of milliseconds since 01 January 1970,
   UTC).
 */
-QScriptValue QScriptEngine::newDate(qnumber value)
+QScriptValue QScriptEngine::newDate(qsreal value)
 {
     Q_D(QScriptEngine);
     QScriptValue v;

@@ -349,7 +349,7 @@ QScriptValue Global::method_parseInt(QScriptContext *context,
     if (context->argumentCount() == 0) {
         return QScriptValue(eng, qSNan());
     }
-    qnumber radix = 0;
+    qsreal radix = 0;
     if (context->argumentCount() > 1) {
         radix = context->argument(1).toInteger();
         if (qIsNan(radix) || (radix && (radix < 2 || radix > 36))) {
@@ -359,7 +359,7 @@ QScriptValue Global::method_parseInt(QScriptContext *context,
     QString str = context->argument(0).toString().trimmed();
 
     const char *startPtr = str.toUtf8().constData();
-    qnumber result;
+    qsreal result;
 #if defined(Q_WS_WIN) && !defined(Q_CC_MINGW)
     const char *endPtr = 0;
     bool ok;
@@ -392,7 +392,7 @@ QScriptValue Global::method_parseFloat(QScriptContext *context,
 
     QString str = context->argument(0).toString().trimmed();
     bool ok = false;
-    qnumber result = str.toFloat(&ok);
+    qsreal result = str.toFloat(&ok);
     if (!ok) {
         if (str == QLatin1String("Infinity"))
             result = +qInf();
@@ -414,7 +414,7 @@ QScriptValue Global::method_parseFloat(QScriptContext *context,
 QScriptValue Global::method_isNaN(QScriptContext *context,
                                   QScriptEngine *eng)
 {
-    qnumber v = qSNan();
+    qsreal v = qSNan();
     if (context->argumentCount() > 0)
         v = context->argument(0).toNumber();
     return (QScriptValue(eng, qIsNan(v)));
@@ -423,7 +423,7 @@ QScriptValue Global::method_isNaN(QScriptContext *context,
 QScriptValue Global::method_isFinite(QScriptContext *context,
                                      QScriptEngine *eng)
 {
-    qnumber v = qInf();
+    qsreal v = qInf();
     if (context->argumentCount() > 0)
         v = context->argument(0).toNumber();
     return (QScriptValue(eng, qIsFinite(v)));

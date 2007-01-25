@@ -199,8 +199,8 @@ public:
         if (isString(lhs) && isString(rhs))
             return eng->convertToNativeString(lhs) < eng->convertToNativeString(rhs);
 
-        qnumber n1 = eng->convertToNativeDouble(lhs);
-        qnumber n2 = eng->convertToNativeDouble(rhs);
+        qsreal n1 = eng->convertToNativeDouble(lhs);
+        qsreal n2 = eng->convertToNativeDouble(rhs);
         return n1 < n2;
     }
 
@@ -245,8 +245,8 @@ public:
         if (isString(lhs) && isString(rhs))
             return eng->convertToNativeString(lhs) <= eng->convertToNativeString(rhs);
 
-        qnumber n1 = eng->convertToNativeDouble(lhs);
-        qnumber n2 = eng->convertToNativeDouble(rhs);
+        qsreal n1 = eng->convertToNativeDouble(lhs);
+        qsreal n2 = eng->convertToNativeDouble(rhs);
         return n1 <= n2;
     }
 

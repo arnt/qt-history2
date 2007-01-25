@@ -116,7 +116,7 @@ public:
     Q_DECL_DEPRECATED QScriptValue scriptValue(uint value);
     Q_DECL_DEPRECATED QScriptValue scriptValue(qlonglong value);
     Q_DECL_DEPRECATED QScriptValue scriptValue(qulonglong value);
-    Q_DECL_DEPRECATED QScriptValue scriptValue(qnumber value);
+    Q_DECL_DEPRECATED QScriptValue scriptValue(qsreal value);
     Q_DECL_DEPRECATED QScriptValue scriptValue(const QString &value);
 
 #ifndef QT_NO_CAST_FROM_ASCII
@@ -139,7 +139,7 @@ public:
     QScriptValue newObject();
     QScriptValue newArray(uint length = 0);
     QScriptValue newRegExp(const QString &pattern, const QString &flags);
-    QScriptValue newDate(qnumber value);
+    QScriptValue newDate(qsreal value);
     QScriptValue newDate(const QDateTime &value);
 
     QScriptValue defaultPrototype(int metaTypeId) const;

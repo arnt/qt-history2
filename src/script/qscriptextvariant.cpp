@@ -119,15 +119,15 @@ QScriptValue Variant::method_valueOf(QScriptEngine *eng, QScriptClassInfo *class
             return (QScriptValue(eng, v.toUInt()));
 
         case QVariant::LongLong:
-            return QScriptValue(eng, qnumber(v.toLongLong())); // ###
+            return QScriptValue(eng, qsreal(v.toLongLong())); // ###
 
 
         case QVariant::ULongLong:
 #if defined(Q_OS_WIN) && _MSC_FULL_VER <= 12008804
 #pragma message("** NOTE: You need the Visual Studio Processor Pack to compile support for 64bit unsigned integers.")
-            return QScriptValue(eng, qnumber(v.toLongLong()));
+            return QScriptValue(eng, qsreal(v.toLongLong()));
 #else
-            return QScriptValue(eng, qnumber(v.toULongLong()));
+            return QScriptValue(eng, qsreal(v.toULongLong()));
 #endif
 
         default:

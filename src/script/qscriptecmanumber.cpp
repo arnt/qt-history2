@@ -74,7 +74,7 @@ Number::~Number()
 
 void Number::execute(QScriptContext *context)
 {
-    qnumber value;
+    qsreal value;
     if (context->argumentCount() > 0)
         value = context->argument(0).toNumber();
     else
@@ -91,7 +91,7 @@ void Number::execute(QScriptContext *context)
     }
 }
 
-void Number::newNumber(QScriptValue *result, qnumber value)
+void Number::newNumber(QScriptValue *result, qsreal value)
 {
     QScriptEnginePrivate::get(engine())->newObject(result, publicPrototype, classInfo());
     QScriptValueImpl::get(*result)->setInternalValue(QScriptValue(engine(), value));
@@ -140,7 +140,7 @@ QScriptValue Number::method_toFixed(QScriptEngine *eng, QScriptClassInfo *classI
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Number.prototype.toFixed"));
 
-    qnumber fdigits = 0;
+    qsreal fdigits = 0;
 
     if (context->argumentCount() > 0)
         fdigits = context->argument(0).toInteger();
@@ -148,7 +148,7 @@ QScriptValue Number::method_toFixed(QScriptEngine *eng, QScriptClassInfo *classI
     if (qIsNan(fdigits))
         fdigits = 0;
 
-    qnumber v = QScriptValueImpl::get(self)->internalValue().toNumber();
+    qsreal v = QScriptValueImpl::get(self)->internalValue().toNumber();
     return (QScriptValue(eng, QString::number(v, 'f', int (fdigits))));
 }
 
@@ -160,12 +160,12 @@ QScriptValue Number::method_toExponential(QScriptEngine *eng, QScriptClassInfo *
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Number.prototype.toExponential"));
 
-    qnumber fdigits = 0;
+    qsreal fdigits = 0;
 
     if (context->argumentCount() > 0)
         fdigits = context->argument(0).toInteger();
 
-    qnumber v = QScriptValueImpl::get(self)->internalValue().toNumber();
+    qsreal v = QScriptValueImpl::get(self)->internalValue().toNumber();
     QString z = QString::number(v, 'e', int (fdigits));
     return (QScriptValue(eng, z));
 }
@@ -178,12 +178,12 @@ QScriptValue Number::method_toPrecision(QScriptEngine *eng, QScriptClassInfo *cl
         return context->throwError(QScriptContext::TypeError,
                                    QLatin1String("Number.prototype.toPrecision"));
 
-    qnumber fdigits = 0;
+    qsreal fdigits = 0;
 
     if (context->argumentCount() > 0)
         fdigits = context->argument(0).toInteger();
 
-    qnumber v = QScriptValueImpl::get(self)->internalValue().toNumber();
+    qsreal v = QScriptValueImpl::get(self)->internalValue().toNumber();
     return (QScriptValue(eng, QString::number(v, 'g', int (fdigits))));
 }
 

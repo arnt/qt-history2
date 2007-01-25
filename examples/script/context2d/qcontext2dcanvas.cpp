@@ -315,7 +315,7 @@ static QScriptValue getElementById(QScriptContext *context, QScriptEngine *env)
 static QScriptValue setInterval(QScriptContext *context, QScriptEngine *env)
 {
     QScriptValue func = context->argument(0);
-    qnumber interval  = context->argument(1).toNumber();
+    qsreal interval  = context->argument(1).toNumber();
     QScriptValue val = env->globalObject().property("_qcontext");
     QContext2DCanvas *canvas =
         qobject_cast<QContext2DCanvas*>(val.toQObject());

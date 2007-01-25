@@ -35,52 +35,52 @@
 #include <windows.h>
 #endif
 
-static const qnumber HoursPerDay = 24.0;
-static const qnumber MinutesPerHour = 60.0;
-static const qnumber SecondsPerMinute = 60.0;
-static const qnumber msPerSecond = 1000.0;
-static const qnumber msPerMinute = 60000.0;
-static const qnumber msPerHour = 3600000.0;
-static const qnumber msPerDay = 86400000.0;
+static const qsreal HoursPerDay = 24.0;
+static const qsreal MinutesPerHour = 60.0;
+static const qsreal SecondsPerMinute = 60.0;
+static const qsreal msPerSecond = 1000.0;
+static const qsreal msPerMinute = 60000.0;
+static const qsreal msPerHour = 3600000.0;
+static const qsreal msPerDay = 86400000.0;
 
-static qnumber LocalTZA = 0.0; // initialized at startup
+static qsreal LocalTZA = 0.0; // initialized at startup
 
-static inline qnumber TimeWithinDay(qnumber t)
+static inline qsreal TimeWithinDay(qsreal t)
 {
-    qnumber r = ::fmod(t, msPerDay);
+    qsreal r = ::fmod(t, msPerDay);
     return (r >= 0) ? r : r + msPerDay;
 }
 
-static inline int HourFromTime(qnumber t)
+static inline int HourFromTime(qsreal t)
 {
     int r = int(::fmod(::floor(t / msPerHour), HoursPerDay));
     return (r >= 0) ? r : r + int(HoursPerDay);
 }
 
-static inline int MinFromTime(qnumber t)
+static inline int MinFromTime(qsreal t)
 {
     int r = int(::fmod(::floor(t / msPerMinute), MinutesPerHour));
     return (r >= 0) ? r : r + int(MinutesPerHour);
 }
 
-static inline int SecFromTime(qnumber t)
+static inline int SecFromTime(qsreal t)
 {
     int r = int(::fmod(::floor(t / msPerSecond), SecondsPerMinute));
     return (r >= 0) ? r : r + int(SecondsPerMinute);
 }
 
-static inline int msFromTime(qnumber t)
+static inline int msFromTime(qsreal t)
 {
     int r = int(::fmod(t, msPerSecond));
     return (r >= 0) ? r : r + int(msPerSecond);
 }
 
-static inline qnumber Day(qnumber t)
+static inline qsreal Day(qsreal t)
 {
     return ::floor(t / msPerDay);
 }
 
-static inline qnumber DaysInYear(qnumber y)
+static inline qsreal DaysInYear(qsreal y)
 {
     if (::fmod(y, 4))
         return 365;
@@ -94,7 +94,7 @@ static inline qnumber DaysInYear(qnumber y)
     return 366;
 }
 
-static inline qnumber DayFromYear(qnumber y)
+static inline qsreal DayFromYear(qsreal y)
 {
     return 365 * (y - 1970)
         + ::floor((y - 1969) / 4)
@@ -102,23 +102,23 @@ static inline qnumber DayFromYear(qnumber y)
         + ::floor((y - 1601) / 400);
 }
 
-static inline qnumber TimeFromYear(qnumber y)
+static inline qsreal TimeFromYear(qsreal y)
 {
     return msPerDay * DayFromYear(y);
 }
 
-static inline qnumber YearFromTime(qnumber t)
+static inline qsreal YearFromTime(qsreal t)
 {
     int y = 1970;
     y += (int) ::floor(t / (msPerDay * 365.2425));
 
-    qnumber t2 = TimeFromYear(y);
+    qsreal t2 = TimeFromYear(y);
     return (t2 > t) ? y - 1 : ((t2 + msPerDay * DaysInYear(y)) <= t) ? y + 1 : y;
 }
 
-static inline bool InLeapYear(qnumber t)
+static inline bool InLeapYear(qsreal t)
 {
-    qnumber x = DaysInYear(YearFromTime(t));
+    qsreal x = DaysInYear(YearFromTime(t));
     if (x == 365)
         return 0;
 
@@ -126,15 +126,15 @@ static inline bool InLeapYear(qnumber t)
     return 1;
 }
 
-static inline qnumber DayWithinYear(qnumber t)
+static inline qsreal DayWithinYear(qsreal t)
 {
     return Day(t) - DayFromYear(YearFromTime(t));
 }
 
-static inline qnumber MonthFromTime(qnumber t)
+static inline qsreal MonthFromTime(qsreal t)
 {
-    qnumber d = DayWithinYear(t);
-    qnumber l = InLeapYear(t);
+    qsreal d = DayWithinYear(t);
+    qsreal l = InLeapYear(t);
 
     if (d < 31.0)
         return 0;
@@ -175,11 +175,11 @@ static inline qnumber MonthFromTime(qnumber t)
     return qSNan(); // ### assert?
 }
 
-static inline qnumber DateFromTime(qnumber t)
+static inline qsreal DateFromTime(qsreal t)
 {
     int m = (int) QScriptEnginePrivate::toInteger(MonthFromTime(t));
-    qnumber d = DayWithinYear(t);
-    qnumber l = InLeapYear(t);
+    qsreal d = DayWithinYear(t);
+    qsreal l = InLeapYear(t);
 
     switch (m) {
     case 0: return d + 1.0;
@@ -199,19 +199,19 @@ static inline qnumber DateFromTime(qnumber t)
     return qSNan(); // ### assert
 }
 
-static inline qnumber WeekDay(qnumber t)
+static inline qsreal WeekDay(qsreal t)
 {
-    qnumber r = ::fmod (Day(t) + 4.0, 7.0);
+    qsreal r = ::fmod (Day(t) + 4.0, 7.0);
     return (r >= 0) ? r : r + 7.0;
 }
 
 
-static inline qnumber MakeTime(qnumber hour, qnumber min, qnumber sec, qnumber ms)
+static inline qsreal MakeTime(qsreal hour, qsreal min, qsreal sec, qsreal ms)
 {
     return ((hour * MinutesPerHour + min) * SecondsPerMinute + sec) * msPerSecond + ms;
 }
 
-static inline qnumber DayFromMonth(qnumber month, qnumber leap)
+static inline qsreal DayFromMonth(qsreal month, qsreal leap)
 {
     switch ((int) month) {
     case 0: return 0;
@@ -231,7 +231,7 @@ static inline qnumber DayFromMonth(qnumber month, qnumber leap)
     return qSNan(); // ### assert?
 }
 
-static qnumber MakeDay(qnumber year, qnumber month, qnumber day)
+static qsreal MakeDay(qsreal year, qsreal month, qsreal day)
 {
     year += ::floor(month / 12.0);
 
@@ -239,8 +239,8 @@ static qnumber MakeDay(qnumber year, qnumber month, qnumber day)
     if (month < 0)
         month += 12.0;
 
-    qnumber t = TimeFromYear(year);
-    qnumber leap = InLeapYear(t);
+    qsreal t = TimeFromYear(year);
+    qsreal leap = InLeapYear(t);
 
     day += ::floor(t / msPerDay);
     day += DayFromMonth(month, leap);
@@ -248,12 +248,12 @@ static qnumber MakeDay(qnumber year, qnumber month, qnumber day)
     return day - 1;
 }
 
-static inline qnumber MakeDate(qnumber day, qnumber time)
+static inline qsreal MakeDate(qsreal day, qsreal time)
 {
     return day * msPerDay + time;
 }
 
-static inline qnumber DaylightSavingTA(double t)
+static inline qsreal DaylightSavingTA(double t)
 {
 #ifndef Q_WS_WIN
     long int tt = (long int)(t / msPerSecond);
@@ -267,17 +267,17 @@ static inline qnumber DaylightSavingTA(double t)
 #endif
 }
 
-static inline qnumber LocalTime(qnumber t)
+static inline qsreal LocalTime(qsreal t)
 {
     return t + LocalTZA + DaylightSavingTA(t);
 }
 
-static inline qnumber UTC(qnumber t)
+static inline qsreal UTC(qsreal t)
 {
     return t - LocalTZA - DaylightSavingTA(t - LocalTZA);
 }
 
-static inline qnumber currentTime()
+static inline qsreal currentTime()
 {
 #ifndef Q_WS_WIN
     struct timeval tv;
@@ -296,14 +296,14 @@ static inline qnumber currentTime()
 #endif
 }
 
-static inline qnumber TimeClip(qnumber t)
+static inline qsreal TimeClip(qsreal t)
 {
     if (! qIsFinite(t) || fabs(t) > 8.64e15)
         return qSNan();
     return QScriptEnginePrivate::toInteger(t);
 }
 
-static inline qnumber ParseString(const QString &s)
+static inline qsreal ParseString(const QString &s)
 {
     QDateTime dt = QDateTime::fromString(s);
     int year = dt.date().year();
@@ -317,7 +317,7 @@ static inline qnumber ParseString(const QString &s)
     return t = TimeClip(UTC(t));
 }
 
-static inline QString ToString(qnumber t)
+static inline QString ToString(qsreal t)
 {
     t = LocalTime(t);
 
@@ -331,7 +331,7 @@ static inline QString ToString(qnumber t)
     return QDateTime (date, time).toString();
 }
 
-static qnumber getLocalTZA()
+static qsreal getLocalTZA()
 {
 #ifndef Q_WS_WIN
     struct tm* t;
@@ -476,7 +476,7 @@ void Date::execute(QScriptContext *context)
     }
 
     // called as constructor
-    qnumber t;
+    qsreal t;
 
     if (context->argumentCount() == 0)
         t = currentTime();
@@ -490,13 +490,13 @@ void Date::execute(QScriptContext *context)
     }
 
     else { // context->argumentCount() > 1
-        qnumber year  = context->argument(0).toNumber();
-        qnumber month = context->argument(1).toNumber();
-        qnumber day  = context->argumentCount() >= 3 ? context->argument(2).toNumber() : 1;
-        qnumber hours = context->argumentCount() >= 4 ? context->argument(3).toNumber() : 0;
-        qnumber mins = context->argumentCount() >= 5 ? context->argument(4).toNumber() : 0;
-        qnumber secs = context->argumentCount() >= 6 ? context->argument(5).toNumber() : 0;
-        qnumber ms    = context->argumentCount() >= 7 ? context->argument(6).toNumber() : 0;
+        qsreal year  = context->argument(0).toNumber();
+        qsreal month = context->argument(1).toNumber();
+        qsreal day  = context->argumentCount() >= 3 ? context->argument(2).toNumber() : 1;
+        qsreal hours = context->argumentCount() >= 4 ? context->argument(3).toNumber() : 0;
+        qsreal mins = context->argumentCount() >= 5 ? context->argument(4).toNumber() : 0;
+        qsreal secs = context->argumentCount() >= 6 ? context->argument(5).toNumber() : 0;
+        qsreal ms    = context->argumentCount() >= 7 ? context->argument(6).toNumber() : 0;
         if (year >= 0 && year <= 99)
             year += 1900;
         t = MakeDate(MakeDay(year, month, day), MakeTime(hours, mins, secs, ms));
@@ -509,7 +509,7 @@ void Date::execute(QScriptContext *context)
     obj.setPrototype(publicPrototype);
 }
 
-void Date::newDate(QScriptValue *result, qnumber t)
+void Date::newDate(QScriptValue *result, qsreal t)
 {
     QScriptEnginePrivate::get(engine())->newObject(result, publicPrototype, classInfo());
     QScriptValueImpl::get(*result)->setInternalValue(QScriptValue(engine(), t));
@@ -539,7 +539,7 @@ void Date::newDate(QScriptValue *result, const QDate &d)
 QDateTime Date::toDateTime(const QScriptValue &date)
 {
     Q_ASSERT(QScriptValueImpl::get(date)->classInfo() == m_classInfo);
-    qnumber t = QScriptValueImpl::get(date)->internalValue().toNumber();
+    qsreal t = QScriptValueImpl::get(date)->internalValue().toNumber();
     if (qIsNan(t))
         return QDateTime();
     int year = int(YearFromTime(t));
@@ -563,16 +563,16 @@ QScriptValue Date::method_UTC(QScriptEngine *eng, QScriptClassInfo *)
     QScriptContext *context = eng->currentContext();
     const int numArgs = context->argumentCount();
     if (numArgs >= 2) {
-        qnumber year  = context->argument(0).toNumber();
-        qnumber month = context->argument(1).toNumber();
-        qnumber day   = numArgs >= 3 ? context->argument(2).toNumber() : 1;
-        qnumber hours = numArgs >= 4 ? context->argument(3).toNumber() : 0;
-        qnumber mins  = numArgs >= 5 ? context->argument(4).toNumber() : 0;
-        qnumber secs  = numArgs >= 6 ? context->argument(5).toNumber() : 0;
-        qnumber ms    = numArgs >= 7 ? context->argument(6).toNumber() : 0;
+        qsreal year  = context->argument(0).toNumber();
+        qsreal month = context->argument(1).toNumber();
+        qsreal day   = numArgs >= 3 ? context->argument(2).toNumber() : 1;
+        qsreal hours = numArgs >= 4 ? context->argument(3).toNumber() : 0;
+        qsreal mins  = numArgs >= 5 ? context->argument(4).toNumber() : 0;
+        qsreal secs  = numArgs >= 6 ? context->argument(5).toNumber() : 0;
+        qsreal ms    = numArgs >= 7 ? context->argument(6).toNumber() : 0;
         if (year >= 0 && year <= 99)
             year += 1900;
-        qnumber t = MakeDate(MakeDay(year, month, day),
+        qsreal t = MakeDate(MakeDay(year, month, day),
                             MakeTime(hours, mins, secs, ms));
         return QScriptValue(eng, TimeClip(t));
     }
@@ -584,7 +584,7 @@ QScriptValue Date::method_toString(QScriptEngine *eng, QScriptClassInfo *classIn
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
         return QScriptValue(eng, ToString(t));
     }
     return context->throwError(QScriptContext::TypeError,
@@ -651,7 +651,7 @@ QScriptValue Date::method_getYear(QScriptEngine *eng, QScriptClassInfo *classInf
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
         if (! qIsNan(t))
             t = YearFromTime(LocalTime(t)) - 1900;
         return QScriptValue(eng, t);
@@ -665,7 +665,7 @@ QScriptValue Date::method_getFullYear(QScriptEngine *eng, QScriptClassInfo *clas
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
         if (! qIsNan(t))
             t = YearFromTime(LocalTime(t));
         return QScriptValue(eng, t);
@@ -679,7 +679,7 @@ QScriptValue Date::method_getUTCFullYear(QScriptEngine *eng, QScriptClassInfo *c
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
         if (! qIsNan(t))
             t = YearFromTime(t);
         return QScriptValue(eng, t);
@@ -693,7 +693,7 @@ QScriptValue Date::method_getMonth(QScriptEngine *eng, QScriptClassInfo *classIn
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
         if (! qIsNan(t))
             t = MonthFromTime(LocalTime(t));
         return QScriptValue(eng, t);
@@ -707,7 +707,7 @@ QScriptValue Date::method_getUTCMonth(QScriptEngine *eng, QScriptClassInfo *clas
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
         if (! qIsNan(t))
             t = MonthFromTime(t);
         return QScriptValue(eng, t);
@@ -721,7 +721,7 @@ QScriptValue Date::method_getDate(QScriptEngine *eng, QScriptClassInfo *classInf
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
         if (! qIsNan(t))
             t = DateFromTime(LocalTime(t));
         return QScriptValue(eng, t);
@@ -735,7 +735,7 @@ QScriptValue Date::method_getUTCDate(QScriptEngine *eng, QScriptClassInfo *class
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
         if (! qIsNan(t))
             t = DateFromTime(t);
         return QScriptValue(eng, t);
@@ -748,7 +748,7 @@ QScriptValue Date::method_getDay(QScriptEngine *eng, QScriptClassInfo *classInfo
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
         if (! qIsNan(t))
             t = WeekDay(LocalTime(t));
         return QScriptValue(eng, t);
@@ -762,7 +762,7 @@ QScriptValue Date::method_getUTCDay(QScriptEngine *eng, QScriptClassInfo *classI
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
         if (! qIsNan(t))
             t = WeekDay(t);
         return QScriptValue(eng, t);
@@ -776,7 +776,7 @@ QScriptValue Date::method_getHours(QScriptEngine *eng, QScriptClassInfo *classIn
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
         if (! qIsNan(t))
             t = HourFromTime(LocalTime(t));
         return QScriptValue(eng, t);
@@ -790,7 +790,7 @@ QScriptValue Date::method_getUTCHours(QScriptEngine *eng, QScriptClassInfo *clas
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
         if (! qIsNan(t))
             t = HourFromTime(t);
         return QScriptValue(eng, t);
@@ -804,7 +804,7 @@ QScriptValue Date::method_getMinutes(QScriptEngine *eng, QScriptClassInfo *class
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
         if (! qIsNan(t))
             t = MinFromTime(LocalTime(t));
         return QScriptValue(eng, t);
@@ -818,7 +818,7 @@ QScriptValue Date::method_getUTCMinutes(QScriptEngine *eng, QScriptClassInfo *cl
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
         if (! qIsNan(t))
             t = MinFromTime(t);
         return QScriptValue(eng, t);
@@ -832,7 +832,7 @@ QScriptValue Date::method_getSeconds(QScriptEngine *eng, QScriptClassInfo *class
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
         if (! qIsNan(t))
             t = SecFromTime(LocalTime(t));
         return QScriptValue(eng, t);
@@ -846,7 +846,7 @@ QScriptValue Date::method_getUTCSeconds(QScriptEngine *eng, QScriptClassInfo *cl
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
         if (! qIsNan(t))
             t = SecFromTime(t);
         return QScriptValue(eng, t);
@@ -860,7 +860,7 @@ QScriptValue Date::method_getMilliseconds(QScriptEngine *eng, QScriptClassInfo *
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
         if (! qIsNan(t))
             t = msFromTime(LocalTime(t));
         return QScriptValue(eng, t);
@@ -874,7 +874,7 @@ QScriptValue Date::method_getUTCMilliseconds(QScriptEngine *eng, QScriptClassInf
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
         if (! qIsNan(t))
             t = msFromTime(t);
         return QScriptValue(eng, t);
@@ -888,7 +888,7 @@ QScriptValue Date::method_getTimezoneOffset(QScriptEngine *eng, QScriptClassInfo
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
         if (! qIsNan(t))
             t = (t - LocalTime(t)) / msPerMinute;
         return QScriptValue(eng, t);
@@ -902,7 +902,7 @@ QScriptValue Date::method_setTime(QScriptEngine *eng, QScriptClassInfo *classInf
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = TimeClip(context->argument(0).toNumber());
+        qsreal t = TimeClip(context->argument(0).toNumber());
         QScriptValue r(eng, t);
         QScriptValueImpl::get(self)->setInternalValue(r);
         return r;
@@ -916,8 +916,8 @@ QScriptValue Date::method_setMilliseconds(QScriptEngine *eng, QScriptClassInfo *
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = LocalTime(QScriptValueImpl::get(self)->internalValue().toNumber());
-        qnumber ms = context->argument(0).toNumber();
+        qsreal t = LocalTime(QScriptValueImpl::get(self)->internalValue().toNumber());
+        qsreal ms = context->argument(0).toNumber();
         t = TimeClip(UTC(MakeDate(Day(t), MakeTime(HourFromTime(t), MinFromTime(t), SecFromTime(t), ms))));
         QScriptValue r(eng, t);
         QScriptValueImpl::get(self)->setInternalValue(r);
@@ -932,8 +932,8 @@ QScriptValue Date::method_setUTCMilliseconds(QScriptEngine *eng, QScriptClassInf
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
-        qnumber ms = context->argument(0).toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal ms = context->argument(0).toNumber();
         t = TimeClip(MakeDate(Day(t), MakeTime(HourFromTime(t), MinFromTime(t), SecFromTime(t), ms)));
         QScriptValue r(eng, t);
         QScriptValueImpl::get(self)->setInternalValue(r);
@@ -948,9 +948,9 @@ QScriptValue Date::method_setSeconds(QScriptEngine *eng, QScriptClassInfo *class
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = LocalTime(QScriptValueImpl::get(self)->internalValue().toNumber());
-        qnumber sec = context->argument(0).toNumber();
-        qnumber ms = (context->argumentCount() < 2) ? msFromTime(t) : context->argument(1).toNumber();
+        qsreal t = LocalTime(QScriptValueImpl::get(self)->internalValue().toNumber());
+        qsreal sec = context->argument(0).toNumber();
+        qsreal ms = (context->argumentCount() < 2) ? msFromTime(t) : context->argument(1).toNumber();
         t = TimeClip(UTC(MakeDate(Day(t), MakeTime(HourFromTime(t), MinFromTime(t), sec, ms))));
         QScriptValue r(eng, t);
         QScriptValueImpl::get(self)->setInternalValue(r);
@@ -965,9 +965,9 @@ QScriptValue Date::method_setUTCSeconds(QScriptEngine *eng, QScriptClassInfo *cl
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
-        qnumber sec = context->argument(0).toNumber();
-        qnumber ms = (context->argumentCount() < 2) ? msFromTime(t) : context->argument(1).toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal sec = context->argument(0).toNumber();
+        qsreal ms = (context->argumentCount() < 2) ? msFromTime(t) : context->argument(1).toNumber();
         t = TimeClip(MakeDate(Day(t), MakeTime(HourFromTime(t), MinFromTime(t), sec, ms)));
         QScriptValue r(eng, t);
         QScriptValueImpl::get(self)->setInternalValue(r);
@@ -982,10 +982,10 @@ QScriptValue Date::method_setMinutes(QScriptEngine *eng, QScriptClassInfo *class
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = LocalTime(QScriptValueImpl::get(self)->internalValue().toNumber());
-        qnumber min = context->argument(0).toNumber();
-        qnumber sec = (context->argumentCount() < 2) ? SecFromTime(t) : context->argument(1).toNumber();
-        qnumber ms = (context->argumentCount() < 3) ? msFromTime(t) : context->argument(2).toNumber();
+        qsreal t = LocalTime(QScriptValueImpl::get(self)->internalValue().toNumber());
+        qsreal min = context->argument(0).toNumber();
+        qsreal sec = (context->argumentCount() < 2) ? SecFromTime(t) : context->argument(1).toNumber();
+        qsreal ms = (context->argumentCount() < 3) ? msFromTime(t) : context->argument(2).toNumber();
         t = TimeClip(UTC(MakeDate(Day(t), MakeTime(HourFromTime(t), min, sec, ms))));
         QScriptValue r(eng, t);
         QScriptValueImpl::get(self)->setInternalValue(r);
@@ -1000,10 +1000,10 @@ QScriptValue Date::method_setUTCMinutes(QScriptEngine *eng, QScriptClassInfo *cl
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
-        qnumber min = context->argument(0).toNumber();
-        qnumber sec = (context->argumentCount() < 2) ? SecFromTime(t) : context->argument(1).toNumber();
-        qnumber ms = (context->argumentCount() < 3) ? msFromTime(t) : context->argument(2).toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal min = context->argument(0).toNumber();
+        qsreal sec = (context->argumentCount() < 2) ? SecFromTime(t) : context->argument(1).toNumber();
+        qsreal ms = (context->argumentCount() < 3) ? msFromTime(t) : context->argument(2).toNumber();
         t = TimeClip(MakeDate(Day(t), MakeTime(HourFromTime(t), min, sec, ms)));
         QScriptValue r(eng, t);
         QScriptValueImpl::get(self)->setInternalValue(r);
@@ -1018,11 +1018,11 @@ QScriptValue Date::method_setHours(QScriptEngine *eng, QScriptClassInfo *classIn
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = LocalTime(QScriptValueImpl::get(self)->internalValue().toNumber());
-        qnumber hour = context->argument(0).toNumber();
-        qnumber min = (context->argumentCount() < 2) ? MinFromTime(t) : context->argument(1).toNumber();
-        qnumber sec = (context->argumentCount() < 3) ? SecFromTime(t) : context->argument(2).toNumber();
-        qnumber ms = (context->argumentCount() < 4) ? msFromTime(t) : context->argument(3).toNumber();
+        qsreal t = LocalTime(QScriptValueImpl::get(self)->internalValue().toNumber());
+        qsreal hour = context->argument(0).toNumber();
+        qsreal min = (context->argumentCount() < 2) ? MinFromTime(t) : context->argument(1).toNumber();
+        qsreal sec = (context->argumentCount() < 3) ? SecFromTime(t) : context->argument(2).toNumber();
+        qsreal ms = (context->argumentCount() < 4) ? msFromTime(t) : context->argument(3).toNumber();
         t = TimeClip(UTC(MakeDate(Day(t), MakeTime(hour, min, sec, ms))));
         QScriptValue r(eng, t);
         QScriptValueImpl::get(self)->setInternalValue(r);
@@ -1037,11 +1037,11 @@ QScriptValue Date::method_setUTCHours(QScriptEngine *eng, QScriptClassInfo *clas
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
-        qnumber hour = context->argument(0).toNumber();
-        qnumber min = (context->argumentCount() < 2) ? MinFromTime(t) : context->argument(1).toNumber();
-        qnumber sec = (context->argumentCount() < 3) ? SecFromTime(t) : context->argument(2).toNumber();
-        qnumber ms = (context->argumentCount() < 4) ? msFromTime(t) : context->argument(3).toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal hour = context->argument(0).toNumber();
+        qsreal min = (context->argumentCount() < 2) ? MinFromTime(t) : context->argument(1).toNumber();
+        qsreal sec = (context->argumentCount() < 3) ? SecFromTime(t) : context->argument(2).toNumber();
+        qsreal ms = (context->argumentCount() < 4) ? msFromTime(t) : context->argument(3).toNumber();
         t = TimeClip(MakeDate(Day(t), MakeTime(hour, min, sec, ms)));
         QScriptValue r(eng, t);
         QScriptValueImpl::get(self)->setInternalValue(r);
@@ -1056,8 +1056,8 @@ QScriptValue Date::method_setDate(QScriptEngine *eng, QScriptClassInfo *classInf
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = LocalTime(QScriptValueImpl::get(self)->internalValue().toNumber());
-        qnumber date = context->argument(0).toNumber();
+        qsreal t = LocalTime(QScriptValueImpl::get(self)->internalValue().toNumber());
+        qsreal date = context->argument(0).toNumber();
         t = TimeClip(UTC(MakeDate(MakeDay(YearFromTime(t), MonthFromTime(t), date), TimeWithinDay(t))));
         QScriptValue r(eng, t);
         QScriptValueImpl::get(self)->setInternalValue(r);
@@ -1072,8 +1072,8 @@ QScriptValue Date::method_setUTCDate(QScriptEngine *eng, QScriptClassInfo *class
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
-        qnumber date = context->argument(0).toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal date = context->argument(0).toNumber();
         t = TimeClip(MakeDate(MakeDay(YearFromTime(t), MonthFromTime(t), date), TimeWithinDay(t)));
         QScriptValue r(eng, t);
         QScriptValueImpl::get(self)->setInternalValue(r);
@@ -1088,9 +1088,9 @@ QScriptValue Date::method_setMonth(QScriptEngine *eng, QScriptClassInfo *classIn
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = LocalTime(QScriptValueImpl::get(self)->internalValue().toNumber());
-        qnumber month = context->argument(0).toNumber();
-        qnumber date = (context->argumentCount() < 2) ? DateFromTime(t) : context->argument(1).toNumber();
+        qsreal t = LocalTime(QScriptValueImpl::get(self)->internalValue().toNumber());
+        qsreal month = context->argument(0).toNumber();
+        qsreal date = (context->argumentCount() < 2) ? DateFromTime(t) : context->argument(1).toNumber();
         t = TimeClip(UTC(MakeDate(MakeDay(YearFromTime(t), month, date), TimeWithinDay(t))));
         QScriptValue r(eng, t);
         QScriptValueImpl::get(self)->setInternalValue(r);
@@ -1105,9 +1105,9 @@ QScriptValue Date::method_setUTCMonth(QScriptEngine *eng, QScriptClassInfo *clas
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
-        qnumber month = context->argument(0).toNumber();
-        qnumber date = (context->argumentCount() < 2) ? DateFromTime(t) : context->argument(1).toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal month = context->argument(0).toNumber();
+        qsreal date = (context->argumentCount() < 2) ? DateFromTime(t) : context->argument(1).toNumber();
         t = TimeClip(MakeDate(MakeDay(YearFromTime(t), month, date), TimeWithinDay(t)));
         QScriptValue r(eng, t);
         QScriptValueImpl::get(self)->setInternalValue(r);
@@ -1122,10 +1122,10 @@ QScriptValue Date::method_setFullYear(QScriptEngine *eng, QScriptClassInfo *clas
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = LocalTime(QScriptValueImpl::get(self)->internalValue().toNumber());
-        qnumber year = context->argument(0).toNumber();
-        qnumber month = (context->argumentCount() < 2) ? MonthFromTime(t) : context->argument(1).toNumber();
-        qnumber date = (context->argumentCount() < 3) ? DateFromTime(t) : context->argument(2).toNumber();
+        qsreal t = LocalTime(QScriptValueImpl::get(self)->internalValue().toNumber());
+        qsreal year = context->argument(0).toNumber();
+        qsreal month = (context->argumentCount() < 2) ? MonthFromTime(t) : context->argument(1).toNumber();
+        qsreal date = (context->argumentCount() < 3) ? DateFromTime(t) : context->argument(2).toNumber();
         t = TimeClip(UTC(MakeDate(MakeDay(year, month, date), TimeWithinDay(t))));
         QScriptValue r(eng, t);
         QScriptValueImpl::get(self)->setInternalValue(r);
@@ -1140,10 +1140,10 @@ QScriptValue Date::method_setUTCFullYear(QScriptEngine *eng, QScriptClassInfo *c
     QScriptContext *context = eng->currentContext();
     QScriptValue self = context->thisObject();
     if (QScriptValueImpl::get(self)->classInfo() == classInfo) {
-        qnumber t = QScriptValueImpl::get(self)->internalValue().toNumber();
-        qnumber year = context->argument(0).toNumber();
-        qnumber month = (context->argumentCount() < 2) ? MonthFromTime(t) : context->argument(1).toNumber();
-        qnumber date = (context->argumentCount() < 3) ? DateFromTime(t) : context->argument(2).toNumber();
+        qsreal t = QScriptValueImpl::get(self)->internalValue().toNumber();
+        qsreal year = context->argument(0).toNumber();
+        qsreal month = (context->argumentCount() < 2) ? MonthFromTime(t) : context->argument(1).toNumber();
+        qsreal date = (context->argumentCount() < 3) ? DateFromTime(t) : context->argument(2).toNumber();
         t = TimeClip(MakeDate(MakeDay(year, month, date), TimeWithinDay(t)));
         QScriptValue r(eng, t);
         QScriptValueImpl::get(self)->setInternalValue(r);

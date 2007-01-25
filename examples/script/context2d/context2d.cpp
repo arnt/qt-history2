@@ -133,7 +133,7 @@ QScriptValue CanvasGradientData::addColorStop(QScriptContext *ctx, QScriptEngine
 
     if (qVariantCanConvert<CanvasGradient>(self)) {
         CanvasGradient g = qvariant_cast<CanvasGradient>(self);
-        qnumber pos = ctx->argument(0).toNumber();
+        qsreal pos = ctx->argument(0).toNumber();
         QColor color = colorFromString(ctx->argument(1).toString());
         g->gradient.setColorAt(pos, color);
     }

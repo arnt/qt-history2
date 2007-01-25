@@ -214,8 +214,8 @@ void ArgumentsClassData::mark(const QScriptValue &object, int generation)
 
 } // namespace QScript
 
-const qnumber QScriptEnginePrivate::D16 = 65536.0;
-const qnumber QScriptEnginePrivate::D32 = 4294967296.0;
+const qsreal QScriptEnginePrivate::D16 = 65536.0;
+const qsreal QScriptEnginePrivate::D32 = 4294967296.0;
 
 QScriptEnginePrivate::QScriptEnginePrivate()
 {
@@ -531,7 +531,7 @@ QScriptFunction *QScriptEnginePrivate::convertToNativeFunction(const QScriptValu
     return 0;
 }
 
-qnumber QScriptEnginePrivate::convertToNativeDouble_helper(const QScriptValue &object)
+qsreal QScriptEnginePrivate::convertToNativeDouble_helper(const QScriptValue &object)
 {
     QScriptClassInfo *klass = object.m_class;
     Q_ASSERT(klass != 0);
@@ -830,7 +830,7 @@ QScriptContext *QScriptEnginePrivate::pushContext()
 extern double qstrtod(const char *s00, const char **se, bool *ok);
 extern char *qdtoa(double d, int mode, int ndigits, int *decpt, int *sign, char **rve, char **digits_str);
 
-QString QScriptEnginePrivate::toString_helper(qnumber d)
+QString QScriptEnginePrivate::toString_helper(qsreal d)
 {
     QByteArray buf;
     buf.reserve(80);
@@ -1164,7 +1164,7 @@ void QScriptEnginePrivate::init()
     m_class_prev_id = QScript::CustomType;
     m_class_activation = registerClass(QLatin1String("activation"), QScript::ActivationType);
     m_class_boolean = registerClass(QLatin1String("boolean"), QScript::BooleanType);
-    m_class_double = registerClass(QLatin1String("qnumber"), QScript::NumberType);
+    m_class_double = registerClass(QLatin1String("qsreal"), QScript::NumberType);
     m_class_function = registerClass(QLatin1String("Function"), QScript::FunctionType);
     m_class_int = registerClass(QLatin1String("integer"), QScript::IntegerType);
     m_class_null = registerClass(QLatin1String("null"), QScript::NullType);
