@@ -168,14 +168,14 @@ void Error::newError(QScriptValue *result, const QScriptValue &proto,
                      const QString &message)
 {
     QScriptEnginePrivate::get(engine())->newObject(result, proto, classInfo());
-    result->setProperty(QLatin1String("message"), engine()->scriptValue(message));
+    result->setProperty(QLatin1String("message"), QScriptValue(engine(), message));
 }
 
 void Error::newErrorPrototype(QScriptValue *result, const QScriptValue &proto,
                               QScriptValue &ztor, const QString &name)
 {
     newError(result, proto);
-    result->setProperty(QLatin1String("name"), engine()->scriptValue(name));
+    result->setProperty(QLatin1String("name"), QScriptValue(engine(), name));
     result->setProperty(QLatin1String("constructor"), ztor,
                         QScriptValue::Undeletable
                         | QScriptValue::SkipInEnumeration);
@@ -203,7 +203,7 @@ QScriptValue Error::method_toString(QScriptEngine *eng, QScriptClassInfo *)
             result += str;
         }
     }
-    return (eng->scriptValue(result));
+    return (QScriptValue(eng, result));
 }
 
 } } // namespace QSA::Ecma

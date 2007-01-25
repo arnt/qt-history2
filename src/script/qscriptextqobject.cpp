@@ -207,7 +207,7 @@ public:
                 const int propertyIndex = member.id();
                 QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
                 *result = eng_p->createFunction(new QtPropertyFunction(qobject, propertyIndex));
-                
+
                 // make it persist
                 QScript::Member m;
                 QScriptObject *instance = QScriptValueImpl::get(obj)->objectValue();
@@ -431,7 +431,7 @@ bool ExtQClassData::get(const QScriptValue &obj, const QScript::Member &member,
     if (! member.isNativeProperty())
         return false;
 
-    *result = obj.engine()->scriptValue(member.id());
+    *result = QScriptValue(obj.engine(), member.id());
     return true;
 }
 
@@ -539,7 +539,7 @@ QScriptValue QScript::ExtQObject::method_toString(QScriptEngine *eng, QScriptCla
 
         QString str = QString::fromUtf8("%0(name = \"%1\")")
                       .arg(QLatin1String(meta->className())).arg(name);
-        return eng->scriptValue(str);
+        return QScriptValue(eng, str);
     }
     return eng->undefinedValue();
 }
@@ -728,24 +728,24 @@ void QScript::QtPropertyFunction::execute(QScriptContext *context)
             oldEngine = QScriptablePrivate::get(scriptable)->engine;
             QScriptablePrivate::get(scriptable)->engine = eng;
         }
-        
+
         QVariant v = prop.read(m_object);
-        
+
         if (scriptable)
             QScriptablePrivate::get(scriptable)->engine = oldEngine;
-        
+
         result = valueFromVariant(eng, v);
     } else {
         // set
         QVariant v = variantFromValue(prop.userType(), context->argument(0));
-        
+
         QScriptable *scriptable = scriptableFromQObject(m_object);
         QScriptEngine *oldEngine = 0;
         if (scriptable) {
             oldEngine = QScriptablePrivate::get(scriptable)->engine;
             QScriptablePrivate::get(scriptable)->engine = eng;
         }
-        
+
         prop.write(m_object, v);
 
         if (scriptable)

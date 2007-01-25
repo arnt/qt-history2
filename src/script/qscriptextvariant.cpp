@@ -88,7 +88,7 @@ QScriptValue Variant::method_toString(QScriptEngine *eng, QScriptClassInfo *clas
         QString str = QString::fromUtf8("variant(%0, %1)")
                       .arg(QLatin1String(instance->value.typeName()))
                       .arg(valueStr);
-        return eng->scriptValue(str);
+        return QScriptValue(eng, str);
     }
     return context->throwError(QScriptContext::TypeError,
                                QLatin1String("Variant.prototype.toString"));
@@ -101,33 +101,33 @@ QScriptValue Variant::method_valueOf(QScriptEngine *eng, QScriptClassInfo *class
         QVariant v = instance->value;
         switch (v.type ()) {
         case QVariant::String:
-            return (eng->scriptValue(v.toString()));
+            return (QScriptValue(eng, v.toString()));
 
         case QVariant::Int:
-            return (eng->scriptValue(v.toInt()));
+            return (QScriptValue(eng, v.toInt()));
 
         case QVariant::Bool:
-            return (eng->scriptValue(v.toBool()));
+            return (QScriptValue(eng, v.toBool()));
 
         case QVariant::Double:
-            return (eng->scriptValue(v.toDouble())); // ### hmmm
+            return (QScriptValue(eng, v.toDouble())); // ### hmmm
 
         case QVariant::Char:
-            return (eng->scriptValue(v.toChar().unicode()));
+            return (QScriptValue(eng, v.toChar().unicode()));
 
         case QVariant::UInt:
-            return (eng->scriptValue(v.toUInt()));
+            return (QScriptValue(eng, v.toUInt()));
 
         case QVariant::LongLong:
-            return eng->scriptValue(qnumber(v.toLongLong())); // ###
+            return QScriptValue(eng, qnumber(v.toLongLong())); // ###
 
 
         case QVariant::ULongLong:
 #if defined(Q_OS_WIN) && _MSC_FULL_VER <= 12008804
 #pragma message("** NOTE: You need the Visual Studio Processor Pack to compile support for 64bit unsigned integers.")
-            return eng->scriptValue(qnumber(v.toLongLong()));
+            return QScriptValue(eng, qnumber(v.toLongLong()));
 #else
-            return eng->scriptValue(qnumber(v.toULongLong()));
+            return QScriptValue(eng, qnumber(v.toULongLong()));
 #endif
 
         default:

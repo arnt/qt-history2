@@ -50,7 +50,7 @@
   toT() (e.g. toBoolean(), toString()) can be used to convert a
   QScriptValue to another type. You can also use the generic
   qscript_cast() function.
-  
+
   Object values have zero or more properties which are themselves
   QScriptValues. Use setProperty() to set a property of an object,
   and call property() to retrieve the value of a property.
@@ -113,9 +113,59 @@
 
 /*!
   \fn QScriptValue::QScriptValue()
-  
+
   Constructs an invalid QScriptValue.
 */
+
+QScriptValue::QScriptValue(QScriptEngine *engine, QScriptValue::SpecialValue value)
+{
+    if (value == NullValue)
+        QScriptEnginePrivate::get(engine)->newNull(this);
+    else if (value == UndefinedValue)
+        QScriptEnginePrivate::get(engine)->newUndefined(this);
+}
+
+QScriptValue::QScriptValue(QScriptEngine *engine, bool value)
+{
+    QScriptEnginePrivate::get(engine)->newBoolean(this, value);
+}
+
+QScriptValue::QScriptValue(QScriptEngine *engine, int value)
+{
+    QScriptEnginePrivate::get(engine)->newNumber(this, value);
+}
+
+QScriptValue::QScriptValue(QScriptEngine *engine, uint value)
+{
+    QScriptEnginePrivate::get(engine)->newNumber(this, value);
+}
+
+QScriptValue::QScriptValue(QScriptEngine *engine, qlonglong value)
+{
+    QScriptEnginePrivate::get(engine)->newNumber(this, value);
+}
+
+QScriptValue::QScriptValue(QScriptEngine *engine, qulonglong value)
+{
+    QScriptEnginePrivate::get(engine)->newNumber(this, value);
+}
+
+QScriptValue::QScriptValue(QScriptEngine *engine, qnumber value)
+{
+    QScriptEnginePrivate::get(engine)->newNumber(this, value);
+}
+
+QScriptValue::QScriptValue(QScriptEngine *engine, const QString &value)
+{
+    QScriptEnginePrivate::get(engine)->newString(this, value);
+}
+
+#ifndef QT_NO_CAST_FROM_ASCII
+QScriptValue::QScriptValue(QScriptEngine *engine, const char *value)
+{
+    QScriptEnginePrivate::get(engine)->newString(this, QLatin1String(value));
+}
+#endif
 
 /*!
   Returns true if this QScriptValue is an object of the Error class;
@@ -593,7 +643,7 @@ QDateTime QScriptValue::toDateTime() const
 
   If this QScriptValue is an object, the given \a hint can be used
   to indicate the desired primitive type.
-  
+
 */
 QScriptValue QScriptValue::toPrimitive(TypeHint hint) const
 {

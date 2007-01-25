@@ -59,10 +59,10 @@ public:
         ReadOnly            = 0x00000001,
         Undeletable         = 0x00000002,
         SkipInEnumeration   = 0x00000004,
-        
+
         ObjectProperty      = 0x00000100,           // Stored in the member table
         NativeProperty      = 0x00000200,
-        
+
         PropertyGetter      = 0x00000400,
         PropertySetter      = 0x00000800,
 
@@ -70,9 +70,27 @@ public:
     };
     Q_DECLARE_FLAGS(PropertyFlags, PropertyFlag)
 
+    enum SpecialValue {
+        NullValue,
+        UndefinedValue,
+    };
+
 public:
     inline QScriptValue()
         : m_class(0) {}
+
+    QScriptValue(QScriptEngine *engine, SpecialValue value);
+    QScriptValue(QScriptEngine *engine, bool value);
+    QScriptValue(QScriptEngine *engine, int value);
+    QScriptValue(QScriptEngine *engine, uint value);
+    QScriptValue(QScriptEngine *engine, qlonglong value);
+    QScriptValue(QScriptEngine *engine, qulonglong value);
+    QScriptValue(QScriptEngine *engine, qnumber value);
+    QScriptValue(QScriptEngine *engine, const QString &value);
+
+#ifndef QT_NO_CAST_FROM_ASCII
+    QT_ASCII_CAST_WARN QScriptValue(QScriptEngine *engine, const char *value);
+#endif
 
     bool isValid() const;
     void invalidate();

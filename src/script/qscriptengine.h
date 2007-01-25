@@ -111,16 +111,16 @@ public:
     Q_DECL_DEPRECATED QScriptValue nullScriptValue();
     Q_DECL_DEPRECATED QScriptValue undefinedScriptValue();
 
-    QScriptValue scriptValue(bool value);
-    QScriptValue scriptValue(int value);
-    QScriptValue scriptValue(uint value);
-    QScriptValue scriptValue(qlonglong value);
-    QScriptValue scriptValue(qulonglong value);
-    QScriptValue scriptValue(qnumber value);
-    QScriptValue scriptValue(const QString &value);
+    Q_DECL_DEPRECATED QScriptValue scriptValue(bool value);
+    Q_DECL_DEPRECATED QScriptValue scriptValue(int value);
+    Q_DECL_DEPRECATED QScriptValue scriptValue(uint value);
+    Q_DECL_DEPRECATED QScriptValue scriptValue(qlonglong value);
+    Q_DECL_DEPRECATED QScriptValue scriptValue(qulonglong value);
+    Q_DECL_DEPRECATED QScriptValue scriptValue(qnumber value);
+    Q_DECL_DEPRECATED QScriptValue scriptValue(const QString &value);
 
 #ifndef QT_NO_CAST_FROM_ASCII
-    QT_ASCII_CAST_WARN QScriptValue scriptValue(const char *value);
+    Q_DECL_DEPRECATED QT_ASCII_CAST_WARN QScriptValue scriptValue(const char *value);
 #endif
 
     QScriptValue newFunction(QScriptFunctionSignature signature, int length = 0);

@@ -109,7 +109,7 @@ void RegExp::newRegExp(QScriptValue *result, const QString &pattern, const QStri
 
     QScriptEnginePrivate::get(eng)->newObject(result, publicPrototype, classInfo());
     result->impl()->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
-    result->setProperty(QLatin1String("source"), eng->scriptValue(pattern), QScriptValue::ReadOnly);
+    result->setProperty(QLatin1String("source"), QScriptValue(eng, pattern), QScriptValue::ReadOnly);
 #endif // QT_NO_REGEXP
 }
 
@@ -144,15 +144,15 @@ void RegExp::newRegExp_helper(QScriptValue *result, const QRegExp &rx,
                                                 | QScriptValue::Undeletable
                                                 | QScriptValue::ReadOnly;
 
-    result->setProperty(QLatin1String("global"), eng->scriptValue(global),
+    result->setProperty(QLatin1String("global"), QScriptValue(eng, global),
                         propertyFlags);
-    result->setProperty(QLatin1String("ignoreCase"), eng->scriptValue(ignoreCase),
+    result->setProperty(QLatin1String("ignoreCase"), QScriptValue(eng, ignoreCase),
                         propertyFlags);
-    result->setProperty(QLatin1String("multiline"), eng->scriptValue(multiline),
+    result->setProperty(QLatin1String("multiline"), QScriptValue(eng, multiline),
                         propertyFlags);
-    result->setProperty(QLatin1String("source"), eng->scriptValue(rx.pattern()),
+    result->setProperty(QLatin1String("source"), QScriptValue(eng, rx.pattern()),
                         propertyFlags);
-    result->setProperty(QLatin1String("lastIndex"), eng->scriptValue(0),
+    result->setProperty(QLatin1String("lastIndex"), QScriptValue(eng, 0),
                         propertyFlags & ~QScriptValue::ReadOnly);
 }
 #endif // QT_NO_REGEXP
@@ -191,17 +191,17 @@ QScriptValue RegExp::method_exec(QScriptEngine *eng, QScriptClassInfo *classInfo
     int e = index + rx_data->value.matchedLength();
 
     if (global)
-        self.setProperty(QLatin1String("lastIndex"), eng->scriptValue(e));
+        self.setProperty(QLatin1String("lastIndex"), QScriptValue(eng, e));
 
     QScript::Array elts;
     QStringList capturedTexts = rx_data->value.capturedTexts();
     for (int i = 0; i < capturedTexts.count(); ++i)
-        elts.assign(i, eng->scriptValue(capturedTexts.at(i)));
+        elts.assign(i, QScriptValue(eng, capturedTexts.at(i)));
 
     QScriptValue r = QScriptEnginePrivate::get(eng)->newArray(elts);
 
-    r.setProperty(QLatin1String("index"), eng->scriptValue(index));
-    r.setProperty(QLatin1String("input"), eng->scriptValue(S));
+    r.setProperty(QLatin1String("index"), QScriptValue(eng, index));
+    r.setProperty(QLatin1String("input"), QScriptValue(eng, S));
 
     return r;
 #endif // QT_NO_REGEXP
@@ -212,7 +212,7 @@ QScriptValue RegExp::method_test(QScriptEngine *eng, QScriptClassInfo *classInfo
     QScriptContext *context = eng->currentContext();
 
     method_exec(eng, classInfo);
-    return (eng->scriptValue(! context->returnValue().isNull()));
+    return (QScriptValue(eng, ! context->returnValue().isNull()));
 }
 
 QScriptValue RegExp::method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo)
@@ -226,7 +226,7 @@ QScriptValue RegExp::method_toString(QScriptEngine *eng, QScriptClassInfo *class
 #endif
         pattern += QLatin1Char('/');
         pattern += instance->flags;
-        return (eng->scriptValue(pattern));
+        return (QScriptValue(eng, pattern));
     }
 
     return context->throwError(QScriptContext::TypeError,

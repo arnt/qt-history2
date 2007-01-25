@@ -178,7 +178,7 @@ void String::execute(QScriptContext *context)
     if (context->argumentCount() > 0)
         value = context->argument(0).toString();
 
-    QScriptValue str = engine()->scriptValue(value);
+    QScriptValue str(engine(), value);
     if (!context->calledAsConstructor()) {
         context->setReturnValue(str);
     } else {
@@ -192,7 +192,7 @@ void String::execute(QScriptContext *context)
 void String::newString(QScriptValue *result, const QString &value)
 {
     QScriptEnginePrivate::get(engine())->newObject(result, publicPrototype, classInfo());
-    QScriptValueImpl::get(*result)->setInternalValue(engine()->scriptValue(value));
+    QScriptValueImpl::get(*result)->setInternalValue(QScriptValue(engine(), value));
 }
 
 QScriptValue String::method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo)
@@ -228,7 +228,7 @@ QScriptValue String::method_charAt(QScriptEngine *eng, QScriptClassInfo *)
     if (pos >= 0 && pos < str.length())
         result += str.at(pos);
 
-    return (eng->scriptValue(result));
+    return (QScriptValue(eng, result));
 }
 
 QScriptValue String::method_charCodeAt(QScriptEngine *eng, QScriptClassInfo *)
@@ -245,7 +245,7 @@ QScriptValue String::method_charCodeAt(QScriptEngine *eng, QScriptClassInfo *)
     if (pos >= 0 && pos < str.length())
         result = str.at(pos).unicode();
 
-    return (eng->scriptValue(result));
+    return (QScriptValue(eng, result));
 }
 
 QScriptValue String::method_concat(QScriptEngine *eng, QScriptClassInfo *)
@@ -256,7 +256,7 @@ QScriptValue String::method_concat(QScriptEngine *eng, QScriptClassInfo *)
     for (int i = 0; i < context->argumentCount(); ++i)
         value += context->argument(i).toString();
 
-    return (eng->scriptValue(value));
+    return (QScriptValue(eng, value));
 }
 
 QScriptValue String::method_indexOf(QScriptEngine *eng, QScriptClassInfo *)
@@ -276,7 +276,7 @@ QScriptValue String::method_indexOf(QScriptEngine *eng, QScriptClassInfo *)
     if (! value.isEmpty())
         index = value.indexOf(searchString, qMax(pos, 0));
 
-    return (eng->scriptValue(index));
+    return (QScriptValue(eng, index));
 }
 
 QScriptValue String::method_lastIndexOf(QScriptEngine *eng, QScriptClassInfo *)
@@ -298,7 +298,7 @@ QScriptValue String::method_lastIndexOf(QScriptEngine *eng, QScriptClassInfo *)
     if (!searchString.isEmpty() && pos == value.length())
         --pos;
     int index = value.lastIndexOf(searchString, pos);
-    return (eng->scriptValue(index));
+    return (QScriptValue(eng, index));
 }
 
 QScriptValue String::method_localeCompare(QScriptEngine *eng, QScriptClassInfo *)
@@ -334,7 +334,7 @@ QScriptValue String::method_match(QScriptEngine *eng, QScriptClassInfo *)
     QScriptNameId lastIndexId = eng->nameId(QLatin1String("lastIndex"));
     QScriptNameId zeroId = eng->nameId(QLatin1String("0"));
 
-    pattern.setProperty(lastIndexId, eng->scriptValue(0));
+    pattern.setProperty(lastIndexId, QScriptValue(eng, 0));
     int n = 0;
     while (true) {
         qnumber lastIndex = pattern.property(lastIndexId).toNumber();
@@ -343,7 +343,7 @@ QScriptValue String::method_match(QScriptEngine *eng, QScriptClassInfo *)
             break;
         qnumber newLastIndex = pattern.property(lastIndexId).toNumber();
         if (newLastIndex == lastIndex)
-            pattern.setProperty(lastIndexId, eng->scriptValue(lastIndex + 1));
+            pattern.setProperty(lastIndexId, QScriptValue(eng, lastIndex + 1));
         result.assign(n++, r.property(zeroId));
     }
 
@@ -368,14 +368,14 @@ QScriptValue String::method_replace(QScriptEngine *eng, QScriptClassInfo *)
         QVector<QScriptValue> occurrences;
         QScriptValue global = searchValue.property(QLatin1String("global"));
         QScriptValueList args;
-        args << eng->scriptValue(input);
+        args << QScriptValue(eng, input);
         if (!global.toBoolean()) {
             QScriptValue r = rx_exec.call(searchValue, args);
             if (!r.isNull())
                 occurrences.append(r);
         } else {
             QScriptNameId lastIndexId = eng->nameId(QLatin1String("lastIndex"));
-            searchValue.setProperty(lastIndexId, eng->scriptValue(0));
+            searchValue.setProperty(lastIndexId, QScriptValue(eng, 0));
             while (true) {
                 qnumber lastIndex = searchValue.property(lastIndexId).toNumber();
                 QScriptValue r = rx_exec.call(searchValue, args);
@@ -383,7 +383,7 @@ QScriptValue String::method_replace(QScriptEngine *eng, QScriptClassInfo *)
                     break;
                 qnumber newLastIndex = searchValue.property(lastIndexId).toNumber();
                 if (newLastIndex == lastIndex)
-                    searchValue.setProperty(lastIndexId, eng->scriptValue(lastIndex + 1));
+                    searchValue.setProperty(lastIndexId, QScriptValue(eng, lastIndex + 1));
                 occurrences.append(r);
             }
         }
@@ -397,10 +397,10 @@ QScriptValue String::method_replace(QScriptEngine *eng, QScriptClassInfo *)
                 uint length = eng_p->toUint32(needle.property(lengthId).toNumber());
                 output += input.mid(pos, index - pos);
                 args.clear();
-                args << eng->scriptValue(index);
-                args << eng->scriptValue(input);
+                args << QScriptValue(eng, index);
+                args << QScriptValue(eng, input);
                 for (uint j = 0; j < length; ++j)
-                    args << needle.property(eng->scriptValue(j).toString());
+                    args << needle.property(QScriptValue(eng, j).toString());
                 QScriptValue ret = replaceValue.call(eng->nullValue(), args);
                 output += ret.toString();
                 pos = index + args[0].toString().length();
@@ -437,7 +437,7 @@ QScriptValue String::method_replace(QScriptEngine *eng, QScriptClassInfo *)
                                 cap = cap * 10;
                                 cap = replaceString.at(j++).toLatin1() - '0';
                             }
-                            output += needle.property(eng->scriptValue(cap).toString()).toString();
+                            output += needle.property(QScriptValue(eng, cap).toString()).toString();
                             continue;
                         }
                     }
@@ -453,13 +453,13 @@ QScriptValue String::method_replace(QScriptEngine *eng, QScriptClassInfo *)
         int pos = 0;
         if (replaceValue.isFunction()) {
             QScriptValueList args;
-            args << eng->scriptValue(searchString);
+            args << QScriptValue(eng, searchString);
             args << eng->undefinedValue(); // dummy
-            args << eng->scriptValue(input);
+            args << QScriptValue(eng, input);
             int index = input.indexOf(searchString, pos);
             while (index != -1) {
                 output += input.mid(pos, index - pos);
-                args[1] = eng->scriptValue(index);
+                args[1] = QScriptValue(eng, index);
                 QScriptValue ret = replaceValue.call(eng->nullValue(), args);
                 output += ret.toString();
                 pos = index + searchString.length();
@@ -498,7 +498,7 @@ QScriptValue String::method_replace(QScriptEngine *eng, QScriptClassInfo *)
             output += input.mid(pos);
         }
     }
-    return eng->scriptValue(output);
+    return QScriptValue(eng, output);
 }
 
 QScriptValue String::method_search(QScriptEngine *eng, QScriptClassInfo *)
@@ -515,7 +515,7 @@ QScriptValue String::method_search(QScriptEngine *eng, QScriptClassInfo *)
 
     QString value = context->thisObject().toString();
 #ifndef QT_NO_REGEXP
-    return (eng->scriptValue(value.indexOf(rx_data->value)));
+    return (QScriptValue(eng, value.indexOf(rx_data->value)));
 #else
     return eng->createNull();
 #endif
@@ -542,7 +542,7 @@ QScriptValue String::method_slice(QScriptEngine *eng, QScriptClassInfo *)
         end = qMin(end, length);
 
     int count = qMax(0, end - start);
-    return (eng->scriptValue(text.mid(start, count)));
+    return (QScriptValue(eng, text.mid(start, count)));
 }
 
 QScriptValue String::method_split(QScriptEngine *eng, QScriptClassInfo *)
@@ -561,7 +561,7 @@ QScriptValue String::method_split(QScriptEngine *eng, QScriptClassInfo *)
     // the argumentCount() check is for compatibility with spidermonkey;
     // it is not according to ECMA-262
     if (separator.isUndefined() && (context->argumentCount() == 0)) {
-        A.assign(0, eng->scriptValue(S));
+        A.assign(0, QScriptValue(eng, S));
     } else {
         QStringList matches;
 #ifndef QT_NO_REGEXP
@@ -578,7 +578,7 @@ QScriptValue String::method_split(QScriptEngine *eng, QScriptClassInfo *)
         }
         uint count = qMin(lim, uint(matches.count()));
         for (uint i = 0; i < count; ++i)
-            A.assign(i, eng->scriptValue(matches.at(i)));
+            A.assign(i, QScriptValue(eng, matches.at(i)));
     }
 
     return QScriptEnginePrivate::get(eng)->newArray(A);
@@ -620,14 +620,14 @@ QScriptValue String::method_substring(QScriptEngine *eng, QScriptClassInfo *)
     qint32 x = QScriptEnginePrivate::toInt32(start);
     qint32 y = QScriptEnginePrivate::toInt32(end - start);
 
-    return (eng->scriptValue(value.mid(x, y)));
+    return (QScriptValue(eng, value.mid(x, y)));
 }
 
 QScriptValue String::method_toLowerCase(QScriptEngine *eng, QScriptClassInfo *)
 {
     QScriptContext *context = eng->currentContext();
     QString value = context->thisObject().toString();
-    return (eng->scriptValue(value.toLower()));
+    return (QScriptValue(eng, value.toLower()));
 }
 
 QScriptValue String::method_toLocaleLowerCase(QScriptEngine *eng, QScriptClassInfo *classInfo)
@@ -639,7 +639,7 @@ QScriptValue String::method_toUpperCase(QScriptEngine *eng, QScriptClassInfo *)
 {
     QScriptContext *context = eng->currentContext();
     QString value = context->thisObject().toString();
-    return (eng->scriptValue(value.toUpper()));
+    return (QScriptValue(eng, value.toUpper()));
 }
 
 QScriptValue String::method_toLocaleUpperCase(QScriptEngine *eng, QScriptClassInfo *classInfo)
@@ -655,7 +655,7 @@ QScriptValue String::method_fromCharCode(QScriptEngine *eng, QScriptClassInfo *)
         QChar c(context->argument(i).toUInt16());
         str += c;
     }
-    return (eng->scriptValue(str));
+    return (QScriptValue(eng, str));
 }
 
 } } // namespace QScript::Ecma

@@ -176,7 +176,7 @@ Lagain:
         goto Lagain;
     }
 
-    *result = eng->scriptValue(found);
+    *result = QScriptValue(eng, found);
 }
 
 void Enumeration::Instance::next(QScriptContext *context, QScriptValue *result)

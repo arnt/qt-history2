@@ -106,7 +106,7 @@ QScriptValue Function::method_toString(QScriptEngine *eng, QScriptClassInfo *)
     QScriptValue self = context->thisObject();
     if (QScriptFunction *foo = QScriptValueImpl::get(self)->toFunction()) {
         QString code = foo->toString(context);
-        return eng->scriptValue(code);
+        return QScriptValue(eng, code);
     }
 
     return context->throwError(QScriptContext::TypeError,
@@ -185,7 +185,7 @@ QScriptValue Function::method_disconnect(QScriptEngine *eng, QScriptClassInfo *)
     QScriptContext *context = eng->currentContext();
 #ifndef QT_NO_QOBJECT
     if (context->argumentCount() == 0)
-        return context->engine()->scriptValue(false);
+        return QScriptValue(context->engine(), false);
 
     QScriptValue self = context->thisObject();
     QScriptFunction *fun = QScriptValueImpl::get(self)->toFunction();
@@ -235,7 +235,7 @@ QScriptValue Function::method_disconnect(QScriptEngine *eng, QScriptClassInfo *)
     } else {
         ok = qtSignal->destroyConnection(self, receiver, slot);
     }
-    return context->engine()->scriptValue(ok);
+    return QScriptValue(context->engine(), ok);
 #else
     return context->throwError(QScriptContext::TypeError,
                                QLatin1String("Function.prototype.disconnect"));
@@ -249,7 +249,7 @@ QScriptValue Function::method_connect(QScriptEngine *eng, QScriptClassInfo *clas
 
 #ifndef QT_NO_QOBJECT
     if (context->argumentCount() == 0)
-        return context->engine()->scriptValue(false);
+        return QScriptValue(context->engine(), false);
 
     QScriptValue self = context->thisObject();
     QScriptFunction *fun = QScriptValueImpl::get(self)->toFunction();
@@ -301,7 +301,7 @@ QScriptValue Function::method_connect(QScriptEngine *eng, QScriptClassInfo *clas
     } else {
         ok = qtSignal->createConnection(self, receiver, slot);
     }
-    return context->engine()->scriptValue(ok);
+    return QScriptValue(context->engine(), ok);
 #else
     Q_UNUSED(eng);
     Q_UNUSED(classInfo);

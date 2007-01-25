@@ -972,7 +972,7 @@ QScriptValue QScriptEnginePrivate::arrayFromStringList(const QStringList &lst)
     Q_Q(QScriptEngine);
     QScriptValue arr = q->newArray(lst.size());
     for (int i = 0; i < lst.size(); ++i)
-        arr.setProperty(i, q->scriptValue(lst.at(i)));
+        arr.setProperty(i, QScriptValue(q, lst.at(i)));
     return arr;
 }
 
@@ -997,34 +997,34 @@ QScriptValue QScriptEnginePrivate::create(int type, const void *ptr)
         // check if it's one of the types we know
         switch (QMetaType::Type(type)) {
         case QMetaType::Bool:
-            result = q->scriptValue(*reinterpret_cast<const bool*>(ptr));
+            result = QScriptValue(q, *reinterpret_cast<const bool*>(ptr));
             break;
         case QMetaType::Int:
-            result = q->scriptValue(*reinterpret_cast<const int*>(ptr));
+            result = QScriptValue(q, *reinterpret_cast<const int*>(ptr));
             break;
         case QMetaType::UInt:
-            result = q->scriptValue(*reinterpret_cast<const uint*>(ptr));
+            result = QScriptValue(q, *reinterpret_cast<const uint*>(ptr));
             break;
         case QMetaType::Double:
-            result = q->scriptValue(*reinterpret_cast<const double*>(ptr));
+            result = QScriptValue(q, *reinterpret_cast<const double*>(ptr));
             break;
         case QMetaType::QString:
-            result = q->scriptValue(*reinterpret_cast<const QString*>(ptr));
+            result = QScriptValue(q, *reinterpret_cast<const QString*>(ptr));
             break;
         case QMetaType::Float:
-            result = q->scriptValue(*reinterpret_cast<const float*>(ptr));
+            result = QScriptValue(q, *reinterpret_cast<const float*>(ptr));
             break;
         case QMetaType::Short:
-            result = q->scriptValue(*reinterpret_cast<const short*>(ptr));
+            result = QScriptValue(q, *reinterpret_cast<const short*>(ptr));
             break;
         case QMetaType::UShort:
-            result = q->scriptValue(*reinterpret_cast<const unsigned short*>(ptr));
+            result = QScriptValue(q, *reinterpret_cast<const unsigned short*>(ptr));
             break;
         case QMetaType::Char:
-            result = q->scriptValue(*reinterpret_cast<const char*>(ptr));
+            result = QScriptValue(q, *reinterpret_cast<const char*>(ptr));
             break;
         case QMetaType::UChar:
-            result = q->scriptValue(*reinterpret_cast<const unsigned char*>(ptr));
+            result = QScriptValue(q, *reinterpret_cast<const unsigned char*>(ptr));
             break;
         case QMetaType::QStringList:
             result = arrayFromStringList(*reinterpret_cast<const QStringList *>(ptr));

@@ -47,21 +47,21 @@ void Math::construct(QScriptValue *object, QScriptEngine *eng)
                                         | QScriptValue::SkipInEnumeration;
 
     object->setProperty(QLatin1String("E"),
-                        eng->scriptValue(::exp(1.0)), flags);
+                        QScriptValue(eng, ::exp(1.0)), flags);
     object->setProperty(QLatin1String("LN2"),
-                        eng->scriptValue(::log(2.0)), flags);
+                        QScriptValue(eng, ::log(2.0)), flags);
     object->setProperty(QLatin1String("LN10"),
-                        eng->scriptValue(::log(10.0)), flags);
+                        QScriptValue(eng, ::log(10.0)), flags);
     object->setProperty(QLatin1String("LOG2E"),
-                        eng->scriptValue(1.0/::log(2.0)), flags);
+                        QScriptValue(eng, 1.0/::log(2.0)), flags);
     object->setProperty(QLatin1String("LOG10E"),
-                        eng->scriptValue(1.0/::log(10.0)), flags);
+                        QScriptValue(eng, 1.0/::log(10.0)), flags);
     object->setProperty(QLatin1String("PI"),
-                        eng->scriptValue(2.0 * ::asin(1.0)), flags);
+                        QScriptValue(eng, 2.0 * ::asin(1.0)), flags);
     object->setProperty(QLatin1String("SQRT1_2"),
-                        eng->scriptValue(::sqrt(0.5)), flags);
+                        QScriptValue(eng, ::sqrt(0.5)), flags);
     object->setProperty(QLatin1String("SQRT2"),
-                        eng->scriptValue(::sqrt(2.0)), flags);
+                        QScriptValue(eng, ::sqrt(2.0)), flags);
 
     flags = QScriptValue::SkipInEnumeration;
 
@@ -108,30 +108,30 @@ QScriptValue Math::method_abs(QScriptContext *context,
 {
     qnumber v = context->argument(0).toNumber();
     if (v == 0) // 0 | -0
-        return (eng->scriptValue(0));
+        return (QScriptValue(eng, 0));
     else
-        return (eng->scriptValue(v < 0 ? -v : v));
+        return (QScriptValue(eng, v < 0 ? -v : v));
 }
 
 QScriptValue Math::method_acos(QScriptContext *context,
                                QScriptEngine *eng)
 {
     qnumber v = context->argument(0).toNumber();
-    return (eng->scriptValue(::acos(v)));
+    return (QScriptValue(eng, ::acos(v)));
 }
 
 QScriptValue Math::method_asin(QScriptContext *context,
                                QScriptEngine *eng)
 {
     qnumber v = context->argument(0).toNumber();
-    return (eng->scriptValue(::asin(v)));
+    return (QScriptValue(eng, ::asin(v)));
 }
 
 QScriptValue Math::method_atan(QScriptContext *context,
                                QScriptEngine *eng)
 {
     qnumber v = context->argument(0).toNumber();
-    return (eng->scriptValue(::atan(v)));
+    return (QScriptValue(eng, ::atan(v)));
 }
 
 QScriptValue Math::method_atan2(QScriptContext *context,
@@ -139,42 +139,42 @@ QScriptValue Math::method_atan2(QScriptContext *context,
 {
     qnumber v1 = context->argument(0).toNumber();
     qnumber v2 = context->argument(1).toNumber();
-    return (eng->scriptValue(::atan2(v1, v2)));
+    return (QScriptValue(eng, ::atan2(v1, v2)));
 }
 
 QScriptValue Math::method_ceil(QScriptContext *context,
                                QScriptEngine *eng)
 {
     qnumber v = context->argument(0).toNumber();
-    return (eng->scriptValue(::ceil(v)));
+    return (QScriptValue(eng, ::ceil(v)));
 }
 
 QScriptValue Math::method_cos(QScriptContext *context,
                               QScriptEngine *eng)
 {
     qnumber v = context->argument(0).toNumber();
-    return (eng->scriptValue(::cos(v)));
+    return (QScriptValue(eng, ::cos(v)));
 }
 
 QScriptValue Math::method_exp(QScriptContext *context,
                               QScriptEngine *eng)
 {
     qnumber v = context->argument(0).toNumber();
-    return (eng->scriptValue(::exp(v)));
+    return (QScriptValue(eng, ::exp(v)));
 }
 
 QScriptValue Math::method_floor(QScriptContext *context,
                                 QScriptEngine *eng)
 {
     qnumber v = context->argument(0).toNumber();
-    return (eng->scriptValue(::floor(v)));
+    return (QScriptValue(eng, ::floor(v)));
 }
 
 QScriptValue Math::method_log(QScriptContext *context,
                               QScriptEngine *eng)
 {
     qnumber v = context->argument(0).toNumber();
-    return (eng->scriptValue(::log(v)));
+    return (QScriptValue(eng, ::log(v)));
 }
 
 QScriptValue Math::method_max(QScriptContext *context,
@@ -186,7 +186,7 @@ QScriptValue Math::method_max(QScriptContext *context,
         if (x > mx || qIsNan(x))
             mx = x;
     }
-    return (eng->scriptValue(mx));
+    return (QScriptValue(eng, mx));
 }
 
 /* copies the sign from y to x and returns the result */
@@ -212,7 +212,7 @@ QScriptValue Math::method_min(QScriptContext *context,
             mx = x;
         }
     }
-    return (eng->scriptValue(mx));
+    return (QScriptValue(eng, mx));
 }
 
 QScriptValue Math::method_pow(QScriptContext *context,
@@ -220,13 +220,13 @@ QScriptValue Math::method_pow(QScriptContext *context,
 {
     qnumber arg0 = context->argument(0).toNumber();
     qnumber arg1 = context->argument(1).toNumber();
-    return (eng->scriptValue(::pow(arg0, arg1)));
+    return (QScriptValue(eng, ::pow(arg0, arg1)));
 }
 
 QScriptValue Math::method_random(QScriptContext *,
                                  QScriptEngine *eng)
 {
-    return (eng->scriptValue(::rand() / (qnumber) RAND_MAX));
+    return (QScriptValue(eng, ::rand() / (qnumber) RAND_MAX));
 }
 
 QScriptValue Math::method_round(QScriptContext *context,
@@ -234,28 +234,28 @@ QScriptValue Math::method_round(QScriptContext *context,
 {
     qnumber v = context->argument(0).toNumber();
     v = copySign(::floor(v + 0.5), v);
-    return (eng->scriptValue(v));
+    return (QScriptValue(eng, v));
 }
 
 QScriptValue Math::method_sin(QScriptContext *context,
                               QScriptEngine *eng)
 {
     qnumber v = context->argument(0).toNumber();
-    return (eng->scriptValue(::sin(v)));
+    return (QScriptValue(eng, ::sin(v)));
 }
 
 QScriptValue Math::method_sqrt(QScriptContext *context,
                                QScriptEngine *eng)
 {
     qnumber v = context->argument(0).toNumber();
-    return (eng->scriptValue(::sqrt(v)));
+    return (QScriptValue(eng, ::sqrt(v)));
 }
 
 QScriptValue Math::method_tan(QScriptContext *context,
                               QScriptEngine *eng)
 {
     qnumber v = context->argument(0).toNumber();
-    return (eng->scriptValue(::tan(v)));
+    return (QScriptValue(eng, ::tan(v)));
 }
 
 } } // namespace QScript::Ecma

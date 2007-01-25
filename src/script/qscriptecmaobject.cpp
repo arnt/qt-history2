@@ -91,7 +91,7 @@ QScriptValue Object::method_toString(QScriptEngine *eng, QScriptClassInfo *)
     else
         s += QScriptValueImpl::get(self)->classInfo()->name();
     s += QLatin1String("]");
-    return (eng->scriptValue(s));
+    return (QScriptValue(eng, s));
 }
 
 QScriptValue Object::method_toLocaleString(QScriptEngine *eng, QScriptClassInfo *classInfo)
@@ -130,7 +130,7 @@ QScriptValue Object::method_hasOwnProperty(QScriptEngine *eng, QScriptClassInfo 
             result = true;
     }
 
-    return (eng->scriptValue(result));
+    return (QScriptValue(eng, result));
 }
 
 QScriptValue Object::method_isPrototypeOf(QScriptEngine *eng, QScriptClassInfo *)
@@ -151,7 +151,7 @@ QScriptValue Object::method_isPrototypeOf(QScriptEngine *eng, QScriptClassInfo *
         }
     }
 
-    return (eng->scriptValue(result));
+    return (QScriptValue(eng, result));
 }
 
 QScriptValue Object::method_propertyIsEnumerable(QScriptEngine *eng, QScriptClassInfo *)
@@ -184,7 +184,7 @@ QScriptValue Object::method_propertyIsEnumerable(QScriptEngine *eng, QScriptClas
         }
     }
 
-    return (eng->scriptValue(result));
+    return (QScriptValue(eng, result));
 }
 
 QScriptValue Object::method_defineGetter(QScriptEngine *eng,

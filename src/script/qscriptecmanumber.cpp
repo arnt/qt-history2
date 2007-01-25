@@ -57,15 +57,15 @@ Number::Number(QScriptEngine *eng):
             | QScriptValue::SkipInEnumeration;
 
     ctor.setProperty(QLatin1String("NaN"),
-                     eng->scriptValue(qSNan()), flags);
+                     QScriptValue(eng, qSNan()), flags);
     ctor.setProperty(QLatin1String("NEGATIVE_INFINITY"),
-                     eng->scriptValue(-qInf()), flags);
+                     QScriptValue(eng, -qInf()), flags);
     ctor.setProperty(QLatin1String("POSITIVE_INFINITY"),
-                     eng->scriptValue(qInf()), flags);
+                     QScriptValue(eng, qInf()), flags);
     ctor.setProperty(QLatin1String("MAX_VALUE"),
-                     eng->scriptValue(1.7976931348623158e+308), flags);
+                     QScriptValue(eng, 1.7976931348623158e+308), flags);
     ctor.setProperty(QLatin1String("MIN_VALUE"),
-                     eng->scriptValue(2.2250738585072014e-308), flags);
+                     QScriptValue(eng, 2.2250738585072014e-308), flags);
 }
 
 Number::~Number()
@@ -80,7 +80,7 @@ void Number::execute(QScriptContext *context)
     else
         value = 0;
 
-    QScriptValue num = engine()->scriptValue(value);
+    QScriptValue num(engine(), value);
     if (!context->calledAsConstructor()) {
         context->setReturnValue(num);
     } else {
@@ -94,7 +94,7 @@ void Number::execute(QScriptContext *context)
 void Number::newNumber(QScriptValue *result, qnumber value)
 {
     QScriptEnginePrivate::get(engine())->newObject(result, publicPrototype, classInfo());
-    QScriptValueImpl::get(*result)->setInternalValue(engine()->scriptValue(value));
+    QScriptValueImpl::get(*result)->setInternalValue(QScriptValue(engine(), value));
 }
 
 QScriptValue Number::method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo)
@@ -106,7 +106,7 @@ QScriptValue Number::method_toString(QScriptEngine *eng, QScriptClassInfo *class
                                    QLatin1String("Number.prototype.toString"));
 
     QString str = QScriptValueImpl::get(self)->internalValue().toString();
-    return (eng->scriptValue(str));
+    return (QScriptValue(eng, str));
 }
 
 QScriptValue Number::method_toLocaleString(QScriptEngine *eng, QScriptClassInfo *classInfo)
@@ -118,7 +118,7 @@ QScriptValue Number::method_toLocaleString(QScriptEngine *eng, QScriptClassInfo 
                                    QLatin1String("Number.prototype.toLocaleString"));
 
     QString str = QScriptValueImpl::get(self)->internalValue().toString();
-    return (eng->scriptValue(str));
+    return (QScriptValue(eng, str));
 }
 
 QScriptValue Number::method_valueOf(QScriptEngine *eng, QScriptClassInfo *classInfo)
@@ -149,7 +149,7 @@ QScriptValue Number::method_toFixed(QScriptEngine *eng, QScriptClassInfo *classI
         fdigits = 0;
 
     qnumber v = QScriptValueImpl::get(self)->internalValue().toNumber();
-    return (eng->scriptValue(QString::number(v, 'f', int (fdigits))));
+    return (QScriptValue(eng, QString::number(v, 'f', int (fdigits))));
 }
 
 QScriptValue Number::method_toExponential(QScriptEngine *eng, QScriptClassInfo *classInfo)
@@ -167,7 +167,7 @@ QScriptValue Number::method_toExponential(QScriptEngine *eng, QScriptClassInfo *
 
     qnumber v = QScriptValueImpl::get(self)->internalValue().toNumber();
     QString z = QString::number(v, 'e', int (fdigits));
-    return (eng->scriptValue(z));
+    return (QScriptValue(eng, z));
 }
 
 QScriptValue Number::method_toPrecision(QScriptEngine *eng, QScriptClassInfo *classInfo)
@@ -184,7 +184,7 @@ QScriptValue Number::method_toPrecision(QScriptEngine *eng, QScriptClassInfo *cl
         fdigits = context->argument(0).toInteger();
 
     qnumber v = QScriptValueImpl::get(self)->internalValue().toNumber();
-    return (eng->scriptValue(QString::number(v, 'g', int (fdigits))));
+    return (QScriptValue(eng, QString::number(v, 'g', int (fdigits))));
 }
 
 } } // namespace QScript::Ecma

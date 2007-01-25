@@ -53,7 +53,7 @@ void Boolean::execute(QScriptContext *context)
     else
         value = false;
 
-    QScriptValue boolean = engine()->scriptValue(value);
+    QScriptValue boolean(engine(), value);
     if (!context->calledAsConstructor()) {
         context->setReturnValue(boolean);
     } else {
@@ -67,7 +67,7 @@ void Boolean::execute(QScriptContext *context)
 void Boolean::newBoolean(QScriptValue *result, bool value)
 {
     QScriptEnginePrivate::get(engine())->newObject(result, publicPrototype, classInfo());
-    QScriptValueImpl::get(*result)->setInternalValue(engine()->scriptValue(value));
+    QScriptValueImpl::get(*result)->setInternalValue(QScriptValue(engine(), value));
 }
 
 QScriptValue Boolean::method_toString(QScriptEngine *eng, QScriptClassInfo *classInfo)

@@ -311,8 +311,8 @@ void Global::initialize(QScriptValue *object, QScriptEngine *eng)
     const QScriptValue::PropertyFlags flags = QScriptValue::Undeletable
                                               | QScriptValue::SkipInEnumeration;
 
-    object->setProperty(QLatin1String("NaN"), eng->scriptValue(qSNan()), flags);
-    object->setProperty(QLatin1String("Infinity"), eng->scriptValue(qInf()), flags);
+    object->setProperty(QLatin1String("NaN"), QScriptValue(eng, qSNan()), flags);
+    object->setProperty(QLatin1String("Infinity"), QScriptValue(eng, qInf()), flags);
     object->setProperty(QLatin1String("undefined"), eng->undefinedValue(), flags);
 
     object->setProperty(QLatin1String("print"),
@@ -347,13 +347,13 @@ QScriptValue Global::method_parseInt(QScriptContext *context,
                                      QScriptEngine *eng)
 {
     if (context->argumentCount() == 0) {
-        return eng->scriptValue(qSNan());
+        return QScriptValue(eng, qSNan());
     }
     qnumber radix = 0;
     if (context->argumentCount() > 1) {
         radix = context->argument(1).toInteger();
         if (qIsNan(radix) || (radix && (radix < 2 || radix > 36))) {
-            return eng->scriptValue(qSNan());
+            return QScriptValue(eng, qSNan());
         }
     }
     QString str = context->argument(0).toString().trimmed();
@@ -381,14 +381,14 @@ QScriptValue Global::method_parseInt(QScriptContext *context,
             result = qSNan();
     }
 
-    return eng->scriptValue(result);
+    return QScriptValue(eng, result);
 }
 
 QScriptValue Global::method_parseFloat(QScriptContext *context,
                                        QScriptEngine *eng)
 {
     if (context->argumentCount() == 0)
-        return eng->scriptValue(qSNan());
+        return QScriptValue(eng, qSNan());
 
     QString str = context->argument(0).toString().trimmed();
     bool ok = false;
@@ -408,7 +408,7 @@ QScriptValue Global::method_parseFloat(QScriptContext *context,
             result = qSNan();
     }
 
-    return eng->scriptValue(result);
+    return QScriptValue(eng, result);
 }
 
 QScriptValue Global::method_isNaN(QScriptContext *context,
@@ -417,7 +417,7 @@ QScriptValue Global::method_isNaN(QScriptContext *context,
     qnumber v = qSNan();
     if (context->argumentCount() > 0)
         v = context->argument(0).toNumber();
-    return (eng->scriptValue(qIsNan(v)));
+    return (QScriptValue(eng, qIsNan(v)));
 }
 
 QScriptValue Global::method_isFinite(QScriptContext *context,
@@ -426,26 +426,26 @@ QScriptValue Global::method_isFinite(QScriptContext *context,
     qnumber v = qInf();
     if (context->argumentCount() > 0)
         v = context->argument(0).toNumber();
-    return (eng->scriptValue(qIsFinite(v)));
+    return (QScriptValue(eng, qIsFinite(v)));
 }
 
 QScriptValue Global::method_decodeURI(QScriptContext *context,
                                       QScriptEngine *eng)
 {
     QScriptValue result;
+
     if (context->argumentCount() > 0) {
         QString str = context->argument(0).toString();
         bool ok;
         QString out = decode(str, QString::fromUtf8(uriReserved) + QString::fromUtf8("#"), &ok);
         if (ok)
-            result = eng->scriptValue(out);
+            return QScriptValue(eng, out);
         else
-            result = context->throwError(QScriptContext::URIError,
+            return context->throwError(QScriptContext::URIError,
                                          QLatin1String("malformed URI sequence"));
-    } else {
-        result = eng->undefinedValue();
     }
-    return result;
+
+    return eng->undefinedValue();
 }
 
 QScriptValue Global::method_decodeURIComponent(QScriptContext *context,
@@ -457,7 +457,7 @@ QScriptValue Global::method_decodeURIComponent(QScriptContext *context,
         bool ok;
         QString out = decode(str, QString::fromUtf8(""), &ok);
         if (ok)
-            result = eng->scriptValue(out);
+            result = QScriptValue(eng, out);
         else
             result = context->throwError(QScriptContext::URIError,
                                          QLatin1String("malformed URI sequence"));
@@ -480,7 +480,7 @@ QScriptValue Global::method_encodeURI(QScriptContext *context,
                              + QString::fromUtf8("#"),
                              &ok);
         if (ok)
-            result = eng->scriptValue(out);
+            result = QScriptValue(eng, out);
         else
             result = context->throwError(QScriptContext::URIError,
                                          QLatin1String("malformed URI sequence"));
@@ -499,7 +499,7 @@ QScriptValue Global::method_encodeURIComponent(QScriptContext *context,
         bool ok;
         QString out = encode(str, QLatin1String(uriUnescaped), &ok);
         if (ok)
-            result = eng->scriptValue(out);
+            result = QScriptValue(eng, out);
         else
             result = context->throwError(QScriptContext::URIError,
                                          QLatin1String("malformed URI sequence"));
@@ -514,9 +514,9 @@ QScriptValue Global::method_escape(QScriptContext *context,
 {
     if (context->argumentCount() > 0) {
         QString str = context->argument(0).toString();
-        return eng->scriptValue(QLatin1String(escape(str)));
+        return QScriptValue(eng, QLatin1String(escape(str)));
     }
-    return eng->scriptValue(QLatin1String("undefined"));
+    return QScriptValue(eng, QLatin1String("undefined"));
 }
 
 QScriptValue Global::method_unescape(QScriptContext *context,
@@ -524,15 +524,15 @@ QScriptValue Global::method_unescape(QScriptContext *context,
 {
     if (context->argumentCount() > 0) {
         QByteArray data = context->argument(0).toString().toLatin1();
-        return eng->scriptValue(unescape(data));
+        return QScriptValue(eng, unescape(data));
     }
-    return eng->scriptValue(QLatin1String("undefined"));
+    return QScriptValue(eng, QLatin1String("undefined"));
 }
 
 QScriptValue Global::method_version(QScriptContext *,
                                     QScriptEngine *eng)
 {
-    return (eng->scriptValue(1));
+    return (QScriptValue(eng, 1));
 }
 
 QScriptValue Global::method_gc(QScriptContext *,
@@ -540,7 +540,7 @@ QScriptValue Global::method_gc(QScriptContext *,
 {
     QScriptEnginePrivate *envp = QScriptEnginePrivate::get(eng);
     envp->maybeGC_helper(true);
-    return eng->scriptValue(envp->objectAllocator.freeBlocks());
+    return QScriptValue(eng, envp->objectAllocator.freeBlocks());
 }
 
 
