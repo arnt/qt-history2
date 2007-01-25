@@ -33,7 +33,6 @@ QT_MODULE(Script)
 class QDateTime;
 class QScriptEnginePrivate;
 class QScriptNameIdImpl;
-class QScriptCustomTypeInfo;
 
 class Q_SCRIPT_EXPORT QScriptNameId
 {
