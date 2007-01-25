@@ -243,8 +243,14 @@ void tst_QDataWidgetMapper::changingValues()
     mapper.toFirst();
     QCOMPARE(edit1.text(), QString("item 0 0"));
 
+    QLineEdit edit2;
+    mapper.addMapping(&edit2, 0, "text");
+    mapper.toFirst();
+    QCOMPARE(edit2.text(), QString("item 0 0"));
+
     model->setData(model->index(0, 0), QString("changed"));
     QCOMPARE(edit1.text(), QString("changed"));
+    QCOMPARE(edit2.text(), QString("changed"));
 }
 
 void tst_QDataWidgetMapper::setData()
@@ -255,17 +261,25 @@ void tst_QDataWidgetMapper::setData()
 
     QLineEdit edit1;
     QLineEdit edit2;
+    QLineEdit edit3;
 
     mapper.addMapping(&edit1, 0);
     mapper.addMapping(&edit2, 1);
+    mapper.addMapping(&edit3, 0, "text");
     mapper.toFirst();
     QCOMPARE(edit1.text(), QString("item 0 0"));
     QCOMPARE(edit2.text(), QString("item 0 1"));
+    QCOMPARE(edit3.text(), QString("item 0 0"));
 
     edit1.setText("new text");
 
     mapper.submit();
     QCOMPARE(model->data(model->index(0, 0)).toString(), QString("new text"));
+
+    edit3.setText("more text");
+
+    mapper.submit();
+    QCOMPARE(model->data(model->index(0, 0)).toString(), QString("more text"));
 }
 
 // a combo box is evil since it is either read/only or read/write
@@ -278,31 +292,41 @@ void tst_QDataWidgetMapper::comboBox()
 
     QComboBox readOnlyBox;
     readOnlyBox.setEditable(false);
-    readOnlyBox.addItem("item -1 -1");
-    readOnlyBox.addItem("item 0 0");
-    readOnlyBox.addItem("item 0 x");
+    readOnlyBox.addItem("read only item 0");
+    readOnlyBox.addItem("read only item 1");
+    readOnlyBox.addItem("read only item 2");
 
     QComboBox readWriteBox;
     readWriteBox.setEditable(true);
+    readWriteBox.addItem("read write item 0");
+    readWriteBox.addItem("read write item 1");
+    readWriteBox.addItem("read write item 2");
 
     // populat the combo boxes with data
-    mapper.addMapping(&readOnlyBox, 0);
-    mapper.addMapping(&readWriteBox, 1);
+    mapper.addMapping(&readOnlyBox, 0, "currentIndex");
+    mapper.addMapping(&readWriteBox, 1, "currentText");
     mapper.toFirst();
 
-    QEXPECT_FAIL("", "See task 125493", Abort);
-    QCOMPARE(readOnlyBox.currentText(), QString("item 0 0"));
-    QCOMPARE(readWriteBox.currentText(), QString("item 0 1"));
+    QCOMPARE(readOnlyBox.currentText(), QString("read only item 0"));
+    QCOMPARE(readWriteBox.currentText(), QString("read write item 0"));
 
     // set some new values on the boxes
     readOnlyBox.setCurrentIndex(1);
-    readWriteBox.setEditText("item 0 y");
+    readWriteBox.setEditText("read write item y");
 
     mapper.submit();
 
     // make sure the new values are in the model
-    QCOMPARE(model->data(model->index(0, 0)).toString(), QString("1"));
-    QCOMPARE(model->data(model->index(0, 1)).toString(), QString("item 0 y"));
+    QCOMPARE(model->data(model->index(0, 0)).toInt(), 1);
+    QCOMPARE(model->data(model->index(0, 1)).toString(), QString("read write item y"));
+
+    // now test updating of the widgets
+    model->setData(model->index(0, 0), 2, Qt::EditRole);
+    model->setData(model->index(0, 1), QString("read write item z"), Qt::EditRole);
+
+    QCOMPARE(readOnlyBox.currentIndex(), 2);
+    QEXPECT_FAIL("", "See task 125493", Abort);
+    QCOMPARE(readWriteBox.currentText(), QString("read write item z"));
 }
 
 void tst_QDataWidgetMapper::mappedWidgetAt()
