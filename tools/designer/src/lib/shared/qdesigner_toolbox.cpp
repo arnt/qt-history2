@@ -14,6 +14,7 @@
 #include "qdesigner_toolbox_p.h"
 #include "qdesigner_command_p.h"
 #include "orderdialog_p.h"
+#include "promotiontaskmenu_p.h"
 
 #include <QtDesigner/QDesignerFormWindowInterface>
 
@@ -25,7 +26,8 @@ QDesignerToolBox::QDesignerToolBox(QWidget *parent) :
     m_actionDeletePage(new QAction(tr("Delete Page"), this)),
     m_actionInsertPage(new QAction(tr("Before Current Page"), this)),
     m_actionInsertPageAfter(new QAction(tr("After Current Page"), this)),
-    m_actionChangePageOrder(new QAction(tr("Change Page Order..."), this))
+    m_actionChangePageOrder(new QAction(tr("Change Page Order..."), this)),
+    m_pagePromotionTaskMenu(new qdesigner_internal::PromotionTaskMenu(0, qdesigner_internal::PromotionTaskMenu::ModeSingleWidget, this))
 {
     connect(m_actionDeletePage, SIGNAL(triggered()), this, SLOT(removeCurrentPage()));
     connect(m_actionInsertPage, SIGNAL(triggered()), this, SLOT(addPage()));
@@ -169,10 +171,20 @@ void QDesignerToolBox::slotCurrentChanged(int index)
     }
 }
 
-void QDesignerToolBox::addContextMenuActions(QMenu *popup)
+QMenu *QDesignerToolBox::addContextMenuActions(QMenu *popup)
 {
+    QMenu *pageMenu = 0;
     if (count()) {
-        popup->addAction(m_actionDeletePage);
+        const QString pageSubMenuLabel = tr("Page %1 of %2").arg(currentIndex() + 1).arg(count());
+        pageMenu = popup->addMenu(pageSubMenuLabel);
+        pageMenu->addAction(m_actionDeletePage);
+        // Set up promotion menu for current widget.
+        if (QWidget *page =  currentWidget ()) {
+            m_pagePromotionTaskMenu->setWidget(page);
+            m_pagePromotionTaskMenu->addActions(QDesignerFormWindowInterface::findFormWindow(this), 
+                                                qdesigner_internal::PromotionTaskMenu::SuppressGlobalEdit, 
+                                                pageMenu);
+        }
     }
     QMenu *insertPageMenu = popup->addMenu(tr("Insert Page"));
     insertPageMenu->addAction(m_actionInsertPageAfter);
@@ -181,4 +193,5 @@ void QDesignerToolBox::addContextMenuActions(QMenu *popup)
         popup->addAction(m_actionChangePageOrder);
     }
     popup->addSeparator();
+    return pageMenu;
 }

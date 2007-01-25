@@ -129,10 +129,8 @@ namespace qdesigner_internal {
         }
         // Clone derived item.
         QDesignerWidgetDataBaseItemInterface *promotedItem = WidgetDataBaseItem::clone(widgetDataBase->item(baseClassIndex));
-        // Sort of hack: If base class is QWidget, we most likely
-        // do not want to inherit the container attribute.
-        if (baseClass == QLatin1String("QWidget"))
-        promotedItem->setContainer(false);
+        // Also inherit the container flag in case of QWidget-derived classes
+        // as it is most likely intended for stacked pages.
         // set new props
         promotedItem->setName(className);
         promotedItem->setGroup(QCoreApplication::tr("Promoted Widgets"));

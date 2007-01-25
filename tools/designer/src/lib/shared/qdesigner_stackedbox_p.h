@@ -33,6 +33,10 @@ class QAction;
 class QMenu;
 class QToolButton;
 
+namespace qdesigner_internal {
+    class PromotionTaskMenu;
+}
+
 class QDESIGNER_SHARED_EXPORT QDesignerStackedWidget : public QStackedWidget
 {
     Q_OBJECT
@@ -40,7 +44,8 @@ class QDESIGNER_SHARED_EXPORT QDesignerStackedWidget : public QStackedWidget
 public:
     QDesignerStackedWidget(QWidget *parent);
     
-    void addContextMenuActions(QMenu *popup);
+    // Add context menu and return page submenu or 0.
+    QMenu *addContextMenuActions(QMenu *popup);
 
     QString currentPageName() const;
     void setCurrentPageName(const QString &pageName);
@@ -73,6 +78,7 @@ private:
     QAction *m_actionInsertPage;
     QAction *m_actionInsertPageAfter;
     QAction *m_actionChangePageOrder;
+    qdesigner_internal::PromotionTaskMenu* m_pagePromotionTaskMenu;
 };
 
 #endif // QDESIGNER_STACKEDBOX_H

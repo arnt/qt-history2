@@ -31,6 +31,10 @@
 
 class QDesignerFormWindowInterface;
 
+namespace qdesigner_internal {
+    class PromotionTaskMenu;
+}
+
 class QMenu;
 
 class QDESIGNER_SHARED_EXPORT QDesignerTabWidget : public QTabWidget
@@ -57,7 +61,8 @@ public:
     QIcon currentTabIcon() const;
     void setCurrentTabIcon(const QIcon &tabIcon);
 
-    void addContextMenuActions(QMenu *popup);
+    // Add context menu and return page submenu or 0.
+    QMenu *addContextMenuActions(QMenu *popup);
 
     bool eventFilter(QObject *o, QEvent *e);
 
@@ -89,6 +94,7 @@ private:
     QAction *m_actionDeletePage;
     QAction *m_actionInsertPage;
     QAction *m_actionInsertPageAfter;
+    qdesigner_internal::PromotionTaskMenu* m_pagePromotionTaskMenu;
 };
 
 #endif // QDESIGNER_TABWIDGET_H

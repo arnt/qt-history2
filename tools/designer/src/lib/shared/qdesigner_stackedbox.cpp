@@ -15,6 +15,7 @@
 #include "qdesigner_command_p.h"
 #include "qdesigner_propertycommand_p.h"
 #include "orderdialog_p.h"
+#include "promotiontaskmenu_p.h"
 
 #include <QtDesigner/QDesignerFormWindowInterface>
 
@@ -46,10 +47,11 @@ QDesignerStackedWidget::QDesignerStackedWidget(QWidget *parent) :
     m_next(createToolButton(this, Qt::RightArrow, QLatin1String("__qt__passive_next"))),
     m_actionPreviousPage(new QAction(tr("Previous Page"), this)),
     m_actionNextPage(new QAction(tr("Next Page"), this)),
-    m_actionDeletePage(new QAction(tr("Delete Page"), this)),
+    m_actionDeletePage(new QAction(tr("Delete"), this)),
     m_actionInsertPage(new QAction(tr("Before Current Page"), this)),
     m_actionInsertPageAfter(new QAction(tr("After Current Page"), this)),
-    m_actionChangePageOrder(new QAction(tr("Change Page Order..."), this))
+    m_actionChangePageOrder(new QAction(tr("Change Page Order..."), this)),
+    m_pagePromotionTaskMenu(new qdesigner_internal::PromotionTaskMenu(0, qdesigner_internal::PromotionTaskMenu::ModeSingleWidget, this))
 {
     connect(m_prev, SIGNAL(clicked()), this, SLOT(prevPage()));
     connect(m_next, SIGNAL(clicked()), this, SLOT(nextPage()));
@@ -226,10 +228,20 @@ void QDesignerStackedWidget::gotoPage(int page) {
     updateButtons();
 }
 
-void QDesignerStackedWidget::addContextMenuActions(QMenu *popup) 
+QMenu *QDesignerStackedWidget::addContextMenuActions(QMenu *popup) 
 {    
+    QMenu *pageMenu = 0;
     if (count()) {
-        popup->addAction(m_actionDeletePage);
+        const QString pageSubMenuLabel = tr("Page %1 of %2").arg(currentIndex() + 1).arg(count());
+        pageMenu = popup->addMenu(pageSubMenuLabel);
+        pageMenu->addAction(m_actionDeletePage);
+        // Set up promotion menu for current widget.
+        if (QWidget *page =  currentWidget ()) {
+            m_pagePromotionTaskMenu->setWidget(page);
+            m_pagePromotionTaskMenu->addActions(QDesignerFormWindowInterface::findFormWindow(this), 
+                                                qdesigner_internal::PromotionTaskMenu::SuppressGlobalEdit, 
+                                                pageMenu);
+        }
     }
     QMenu *insertPageMenu = popup->addMenu(tr("Insert Page"));
     insertPageMenu->addAction(m_actionInsertPageAfter);
@@ -240,4 +252,5 @@ void QDesignerStackedWidget::addContextMenuActions(QMenu *popup)
         popup->addAction(m_actionChangePageOrder);
     }
     popup->addSeparator();
+    return pageMenu;
 }

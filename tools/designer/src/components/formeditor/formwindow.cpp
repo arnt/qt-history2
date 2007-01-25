@@ -1683,15 +1683,17 @@ QMenu *FormWindow::createPopupMenu(QWidget *w)
     QDesignerFormWindowManagerInterface *manager = core()->formWindowManager();
     const bool isFormWindow = qobject_cast<const FormWindow*>(w);
 
+    // Check for special containers and obtain the page menu from them to add layout actions.
+    QMenu *layoutMenu =0;
     if (!isFormWindow) {
         if (QDesignerStackedWidget *stackedWidget  = qobject_cast<QDesignerStackedWidget*>(w)) {
-            stackedWidget->addContextMenuActions(popup);
+            layoutMenu = stackedWidget->addContextMenuActions(popup);
         } else {
             if (QDesignerTabWidget *tabWidget = qobject_cast<QDesignerTabWidget*>(w)) {
-                tabWidget->addContextMenuActions(popup);
+                layoutMenu = tabWidget->addContextMenuActions(popup);
             }  else {
                 if (QDesignerToolBox *toolBox = qobject_cast<QDesignerToolBox*>(w)) {
-                    toolBox->addContextMenuActions(popup);
+                    layoutMenu = toolBox->addContextMenuActions(popup);
                 }
             }
         }
@@ -1707,19 +1709,25 @@ QMenu *FormWindow::createPopupMenu(QWidget *w)
         popup->addAction(manager->actionDelete());
     }
 
-    popup->addSeparator();
-    QMenu *layoutMenu = popup->addMenu(tr("Lay out"));
+    // Layout on new submenu or use page menu
+    if (!layoutMenu) {
+        popup->addSeparator();
+        layoutMenu = popup->addMenu(tr("Lay out"));
+    } 
+
+    if (!layoutMenu->isEmpty()) 
+        layoutMenu->addSeparator();
+    
     layoutMenu->addAction(manager->actionAdjustSize());
     layoutMenu->addAction(manager->actionHorizontalLayout());
     layoutMenu->addAction(manager->actionVerticalLayout());
     layoutMenu->addAction(manager->actionGridLayout());
 
     if (!isFormWindow) {
-        popup->addAction(manager->actionSplitHorizontal());
-        popup->addAction(manager->actionSplitVertical());
+        layoutMenu->addAction(manager->actionSplitHorizontal());
+        layoutMenu->addAction(manager->actionSplitVertical());
     }
-
-    popup->addAction(manager->actionBreakLayout());
+    layoutMenu->addAction(manager->actionBreakLayout());
     
     return popup;
 }

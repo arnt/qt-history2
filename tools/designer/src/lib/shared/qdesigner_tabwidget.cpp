@@ -14,6 +14,7 @@
 #include "qdesigner_tabwidget_p.h"
 #include "qdesigner_command_p.h"
 #include "qdesigner_propertycommand_p.h"
+#include "promotiontaskmenu_p.h"
 
 #include <QtDesigner/QDesignerFormWindowInterface>
 
@@ -49,9 +50,10 @@ QDesignerTabWidget::QDesignerTabWidget(QWidget *parent) :
     m_dropIndicator(0),
     m_dragPage(0),
     m_mousePressed(false),
-    m_actionDeletePage(new QAction(tr("Delete Page"),  this)),
+    m_actionDeletePage(new QAction(tr("Delete"),  this)),
     m_actionInsertPage(new QAction(tr("Before Current Page"), this)),
-    m_actionInsertPageAfter(new QAction(tr("After Current Page"), this))
+    m_actionInsertPageAfter(new QAction(tr("After Current Page"), this)),
+    m_pagePromotionTaskMenu(new qdesigner_internal::PromotionTaskMenu(0, qdesigner_internal::PromotionTaskMenu::ModeSingleWidget, this))
 {
     tabBar()->setAcceptDrops(true);
     tabBar()->installEventFilter(this);
@@ -314,15 +316,27 @@ int QDesignerTabWidget::pageFromPosition(const QPoint &pos, QRect &rect) const {
     return index;
 }
 
-void QDesignerTabWidget::addContextMenuActions(QMenu *popup)
+QMenu *QDesignerTabWidget::addContextMenuActions(QMenu *popup)
 {
+    QMenu *pageMenu = 0;
     if (count()) {
-        popup->addAction(m_actionDeletePage);
+        const QString pageSubMenuLabel = tr("Page %1 of %2").arg(currentIndex() + 1).arg(count());
+        pageMenu = popup->addMenu(pageSubMenuLabel);
+        pageMenu->addAction(m_actionDeletePage);
+        // Set up promotion menu for current widget.
+        if (QWidget *page =  currentWidget ()) {
+            m_pagePromotionTaskMenu->setWidget(page);
+            m_pagePromotionTaskMenu->addActions(QDesignerFormWindowInterface::findFormWindow(this), 
+                                                qdesigner_internal::PromotionTaskMenu::SuppressGlobalEdit, 
+                                                pageMenu);
+        }
     }
+
     QMenu *insertPageMenu = popup->addMenu(tr("Insert Page"));
     insertPageMenu->addAction(m_actionInsertPageAfter);
     insertPageMenu->addAction(m_actionInsertPage);
     popup->addSeparator(); 
+    return pageMenu;
 }
 
 #include "qdesigner_tabwidget.moc" // required for MyMimeData

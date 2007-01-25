@@ -781,7 +781,8 @@ void QDesignerResource::addCustomWidgetsToWidgetDatabase(DomCustomWidgetList& cu
             if (item) {
                 // Hack to accommodate for old UI-files in which "contains" is not set properly:
                 // Apply "contains" from DOM only if true (else, eg classes from QFrame might not accept
-                // dropping child widgets on them as container=false)
+                // dropping child widgets on them as container=false). This also allows for
+                // QWidget-derived stacked pages.
                 if (domIsContainer) 
                     item->setContainer(domIsContainer);
                 custom_widget_list.removeAt(i);

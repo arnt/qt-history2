@@ -29,6 +29,10 @@
 
 #include <QtGui/QToolBox>
 
+namespace qdesigner_internal {
+    class PromotionTaskMenu;
+}
+
 class QAction;
 class QMenu;
 
@@ -57,7 +61,8 @@ public:
     QPalette::ColorRole currentItemBackgroundRole() const;
     void setCurrentItemBackgroundRole(QPalette::ColorRole role);
     
-    void addContextMenuActions(QMenu *popup);
+    // Add context menu and return page submenu or 0.
+    QMenu *addContextMenuActions(QMenu *popup);
 
 private slots:
     void removeCurrentPage();
@@ -74,6 +79,7 @@ private:
     QAction *m_actionInsertPage;
     QAction *m_actionInsertPageAfter;
     QAction *m_actionChangePageOrder;
+    qdesigner_internal::PromotionTaskMenu* m_pagePromotionTaskMenu;
 };
 
 #endif // QDESIGNER_TOOLBOX_H
