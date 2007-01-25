@@ -72,7 +72,7 @@
 
   In addition to exposing plain data, you can also write C++ functions
   that can be invoked from script code. Such functions must have the
-  signature QScriptFunctionSignature. You may then pass the function
+  signature QScriptEngine::FunctionSignature. You may then pass the function
   as argument to scriptValue(). Here is an example:
 
   \code
@@ -248,7 +248,7 @@ QScriptValue QScriptEngine::undefinedValue()
   given \a prototype. The \c{constructor} property of \a prototype is
   set to be the resulting function.
 */
-QScriptValue QScriptEngine::newFunction(QScriptFunctionSignature fun,
+QScriptValue QScriptEngine::newFunction(QScriptEngine::FunctionSignature fun,
                                         const QScriptValue &prototype,
                                         int length)
 {
@@ -348,7 +348,7 @@ QScriptValue QScriptEngine::newObject()
 
 /*!
   Creates a QScriptValue that wraps a native (C++) function. \a fun
-  must be a C++ function with signature QScriptFunctionSignature.  \a
+  must be a C++ function with signature QScriptEngine::FunctionSignature.  \a
   length is the number of arguments that \a fun expects; this becomes
   the \c{length} property of the created QScriptValue.
 
@@ -361,7 +361,7 @@ QScriptValue QScriptEngine::newObject()
 
   \sa QScriptValue::call()
 */
-QScriptValue QScriptEngine::newFunction(QScriptFunctionSignature fun, int length)
+QScriptValue QScriptEngine::newFunction(QScriptEngine::FunctionSignature fun, int length)
 {
     Q_D(QScriptEngine);
     QScriptValue v = d->createFunction(new QScript::CFunction(fun, length));
@@ -579,7 +579,7 @@ void QScriptEngine::setDefaultPrototype(int metaTypeId, const QScriptValue &prot
 }
 
 /*!
-    \typedef QScriptFunctionSignature
+    \typedef QScriptEngine::FunctionSignature
     \relates QScriptEngine
 
     The function signature \c{QScriptValue f(QScriptContext *, QScriptEngine *)}.

@@ -87,7 +87,7 @@
 
     \value URIError A URI error.
 
-    \value GenericError A generic error.
+    \value UnknownError An unknown error.
 */
 
 /*!
@@ -133,7 +133,7 @@ QScriptValue QScriptContext::throwError(Error error, const QString &text)
     case URIError:
         ctor->newURIError(&d->result, text);
         break;
-    case GenericError:
+    case UnknownError:
     default:
         ctor->newError(&d->result, text);
     }

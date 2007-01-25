@@ -151,8 +151,6 @@ public:
     QScriptValue prototype;
 };
 
-typedef QScriptValue (*QScriptInternalFunctionSignature)(QScriptEngine *, QScriptClassInfo *);
-
 class QScriptEnginePrivate
 #ifndef QT_NO_QOBJECT
     : public QObjectPrivate

@@ -35,7 +35,7 @@ public:
     };
 
     enum Error {
-        GenericError,
+        UnknownError,
         ReferenceError,
         SyntaxError,
         TypeError,

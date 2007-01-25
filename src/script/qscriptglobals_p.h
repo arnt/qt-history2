@@ -32,6 +32,7 @@ class QScriptClassInfo;
 class QScriptEngine;
 
 typedef QScriptValue (*QScriptInternalFunctionSignature)(QScriptEngine *, QScriptClassInfo *);
+typedef QScriptValue (*QScriptFunctionSignature)(QScriptContext *, QScriptEngine *);
 
 namespace QScript {
 

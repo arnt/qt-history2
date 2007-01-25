@@ -73,8 +73,6 @@ inline QScriptValue qScriptValueFromQMetaObject(QScriptEngine *engine);
 
 #endif // QT_NO_QOBJECT
 
-typedef QScriptValue (*QScriptFunctionSignature)(QScriptContext *, QScriptEngine *);
-
 #ifndef QT_NO_REGEXP
 class QRegExp;
 #endif
@@ -108,8 +106,10 @@ public:
     QScriptValue nullValue();
     QScriptValue undefinedValue();
 
-    QScriptValue newFunction(QScriptFunctionSignature signature, int length = 0);
-    QScriptValue newFunction(QScriptFunctionSignature signature, const QScriptValue &prototype, int length = 0);
+    typedef QScriptValue (*FunctionSignature)(QScriptContext *, QScriptEngine *);
+
+    QScriptValue newFunction(FunctionSignature signature, int length = 0);
+    QScriptValue newFunction(FunctionSignature signature, const QScriptValue &prototype, int length = 0);
     QScriptValue newVariant(const QVariant &value);
 
 #ifndef QT_NO_REGEXP
