@@ -2371,6 +2371,7 @@ void QFileDialogPrivate::_q_deleteCurrent()
 }
 
 void QFileDialogPrivate::_q_autoCompleteFileName(const QString &text) {
+    Q_Q(QFileDialog);
     QModelIndex idx;
 
     // text might contain the full path so try both
@@ -2391,6 +2392,8 @@ void QFileDialogPrivate::_q_autoCompleteFileName(const QString &text) {
     } else {
         listView->setCurrentIndex(idx);
     }
+    if (lineEdit() == quickLineEdit)
+        autoHideLineEdit.start(5000, q);
 }
 
 /*!
@@ -2684,8 +2687,6 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
         hide();
         d_ptr->currentView()->setFocus(Qt::ShortcutFocusReason);
     }
-    if (hideOnEsc)
-        d_ptr->autoHideLineEdit.start(5000, (qobject_cast<QWidget*>(d_ptr->q_ptr)));
 }
 
 QString QFSCompletor::pathFromIndex(const QModelIndex &index) const
