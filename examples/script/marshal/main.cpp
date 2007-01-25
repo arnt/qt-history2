@@ -32,7 +32,7 @@ void fromScriptValue(const QScriptValue &value, Container &cont)
     quint32 len = value.property("length").toUInt32();
     for (quint32 i = 0; i < len; ++i) {
         QScriptValue item = value.property(i);
-        cont.push_back(qscript_cast<typename Container::value_type>(item));
+        cont.push_back(qscriptvalue_cast<typename Container::value_type>(item));
     }
 }
 
@@ -55,9 +55,9 @@ int main(int argc, char *argv[])
 
     fprintf(stdout, "Script array: %s\n", qPrintable(val.toString()));
 
-    IntVector iv = qscript_cast<IntVector>(val);
+    IntVector iv = qscriptvalue_cast<IntVector>(val);
 
-    fprintf(stdout, "qscript_cast to QVector<int>: ");
+    fprintf(stdout, "qscriptvalue_cast to QVector<int>: ");
     for (int i = 0; i < iv.size(); ++i)
         fprintf(stdout, "%s%d", (i > 0) ? "," : "", iv.at(i));
     fprintf(stdout, "\n");
@@ -66,9 +66,9 @@ int main(int argc, char *argv[])
 
     fprintf(stdout, "Script array: %s\n", qPrintable(val.toString()));
 
-    StringVector sv = qscript_cast<StringVector>(val);
+    StringVector sv = qscriptvalue_cast<StringVector>(val);
 
-    fprintf(stdout, "qscript_cast to QVector<QString>: ");
+    fprintf(stdout, "qscriptvalue_cast to QVector<QString>: ");
     for (int i = 0; i < sv.size(); ++i)
         fprintf(stdout, "%s%s", (i > 0) ? "," : "", qPrintable(sv.at(i)));
     fprintf(stdout, "\n");

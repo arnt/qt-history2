@@ -132,13 +132,13 @@ static bool qscript_createQMakeProjectMap(QMap<QString, QStringList> &vars, QScr
 {
     foreach (QScriptNameIdImpl *nameId, js.impl()->propertyIds()) {
         QScriptValue v = js.property(nameId->s);
-        vars[nameId->s] = qscript_cast<QStringList>(v);
+        vars[nameId->s] = qscriptvalue_cast<QStringList>(v);
     }
 }
 
 static QScriptValue qscript_call_testfunction(QScriptContext *context, QScriptEngine *engine)
 {
-    QMakeProject *self = qscript_cast<QMakeProject*>(context->callee().property("qmakeProject"));
+    QMakeProject *self = qscriptvalue_cast<QMakeProject*>(context->callee().property("qmakeProject"));
     QString func = context->callee().property("functionName").toString();
     QStringList args;
     for(int i = 0; i < context->argumentCount(); ++i)
@@ -152,7 +152,7 @@ static QScriptValue qscript_call_testfunction(QScriptContext *context, QScriptEn
 
 static QScriptValue qscript_call_expandfunction(QScriptContext *context, QScriptEngine *engine)
 {
-    QMakeProject *self = qscript_cast<QMakeProject*>(context->callee().property("qmakeProject"));
+    QMakeProject *self = qscriptvalue_cast<QMakeProject*>(context->callee().property("qmakeProject"));
     QString func = context->callee().property("functionName").toString();
     QStringList args;
     for(int i = 0; i < context->argumentCount(); ++i)
@@ -2276,7 +2276,7 @@ QMakeProject::doProjectExpand(QString func, QList<QStringList> args_list,
                 for(int i = 0; i < args.size(); ++i)
                     jsArgs += eng.scriptValue(args.at(i));
                 QScriptValue jsRet = jsFunc.call(eng.globalObject(), jsArgs);
-                ret = qscript_cast<QStringList>(jsRet);
+                ret = qscriptvalue_cast<QStringList>(jsRet);
                 break;
             }
         }
@@ -2711,7 +2711,7 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
                 QScriptValue jsRet = jsFunc.call(eng.globalObject(), jsArgs);
                 if(eng.uncaughtException())
                     return false;
-                return qscript_cast<bool>(jsRet);
+                return qscriptvalue_cast<bool>(jsRet);
             }
         }
 #endif

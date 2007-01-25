@@ -170,7 +170,7 @@ private:
 
     friend inline QScriptValue qScriptValueFromValue_helper(QScriptEngine *, int, const void *);
 
-    friend inline bool qscript_cast_helper(const QScriptValue &, int, void *);
+    friend inline bool qscriptvalue_cast_helper(const QScriptValue &, int, void *);
 
 protected:
 #ifdef QT_NO_QOBJECT
@@ -197,7 +197,7 @@ inline QScriptValue qScriptValueFromQMetaObject(QScriptEngine *engine)
 #define Q_SCRIPT_DECLARE_QMETAOBJECT(T, _Arg1) \
 template<> static inline QScriptValue qscriptQMetaObjectConstructor<T>(QScriptContext *ctx, QScriptEngine *eng) \
 { \
-    _Arg1 arg1 = qscript_cast<_Arg1> (ctx->argument(0)); \
+    _Arg1 arg1 = qscriptvalue_cast<_Arg1> (ctx->argument(0)); \
     return eng->newQObject(new T(arg1)); \
 }
 
@@ -217,7 +217,7 @@ inline QScriptValue qScriptValueFromValue(QScriptEngine *engine, const T &t)
     return qScriptValueFromValue_helper(engine, qMetaTypeId<T>(), &t);
 }
 
-inline bool qscript_cast_helper(const QScriptValue &value, int type, void *ptr)
+inline bool qscriptvalue_cast_helper(const QScriptValue &value, int type, void *ptr)
 {
     if (QScriptEngine *eng = value.engine())
         return eng->convert(value, type, ptr);
@@ -226,7 +226,7 @@ inline bool qscript_cast_helper(const QScriptValue &value, int type, void *ptr)
 }
 
 template<typename T>
-T qscript_cast(const QScriptValue &value
+T qscriptvalue_cast(const QScriptValue &value
 #ifndef Q_QDOC
 , T * = 0
 #endif
@@ -235,7 +235,7 @@ T qscript_cast(const QScriptValue &value
     T t;
     const int id = qMetaTypeId<T>();
 
-    if (qscript_cast_helper(value, id, &t))
+    if (qscriptvalue_cast_helper(value, id, &t))
         return t;
     else if (value.isVariant())
         return qvariant_cast<T>(value.toVariant());

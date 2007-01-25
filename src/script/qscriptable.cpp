@@ -80,7 +80,7 @@
 
     double MyScriptableObject::doSomethingElse()
     {
-      return qscript_cast<double>(thisObject());
+      return qscriptvalue_cast<double>(thisObject());
     }
   \endcode
 

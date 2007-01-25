@@ -114,7 +114,7 @@
   qScriptRegisterMetaType(). You provide the engine with functions
   that convert between a QScriptValue and the C++ type. Once the type
   has been registered, you can use scriptValueFromValue() and
-  qscript_cast() to create and cast values in a convenient
+  qscriptvalue_cast() to create and cast values in a convenient
   manner. Additionally, the engine will call the proper conversion
   functions when calling slots in QObjects from script code, and when
   getting or setting a property of that type in the QObject.
@@ -641,7 +641,7 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
     qScriptValueFromValue() instead if you need to support that
     version of the compiler.
 
-    \sa qScriptRegisterMetaType(), qscript_cast()
+    \sa qScriptRegisterMetaType(), qscriptvalue_cast()
 */
 
 /*!
@@ -656,10 +656,10 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
     work-around for MSVC 6, which doesn't support member template
     functions.
 
-    \sa qscript_cast()
+    \sa qscriptvalue_cast()
 */
 
-/*! \fn T qscript_cast(const QScriptValue &value)
+/*! \fn T qscriptvalue_cast(const QScriptValue &value)
     \relates QScriptValue
 
     Returns the given \a value converted to the template type \c{T}.
@@ -686,7 +686,7 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
     Q_DECLARE_METATYPE().
 
     After a type has been registered, you can cast from a QScriptValue
-    to that type using qscript_cast(), and create a QScriptValue from
+    to that type using qscriptvalue_cast(), and create a QScriptValue from
     a value of that type using
     \l{QScriptEngine::scriptValueFromValue()}{scriptValueFromValue}(). The
     engine will take care of calling the proper conversion function
@@ -737,7 +737,7 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
 
     Working with \c{MyStruct} values is now easy:
     \code
-    MyStruct s = qscript_cast<MyStruct>(context->argument(0));
+    MyStruct s = qscriptvalue_cast<MyStruct>(context->argument(0));
 
     ...
 

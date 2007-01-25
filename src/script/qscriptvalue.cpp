@@ -49,7 +49,7 @@
   used to test if a value is of a certain type. The methods named
   toT() (e.g. toBoolean(), toString()) can be used to convert a
   QScriptValue to another type. You can also use the generic
-  qscript_cast() function.
+  qscriptvalue_cast() function.
 
   Object values have zero or more properties which are themselves
   QScriptValues. Use setProperty() to set a property of an object,
