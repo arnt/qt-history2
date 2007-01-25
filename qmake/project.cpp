@@ -145,7 +145,7 @@ static QScriptValue qscript_call_testfunction(QScriptContext *context, QScriptEn
         args += context->argument(i).toString();
     QMap<QString, QStringList> place = self->variables();
     qscript_createQMakeProjectMap(place, engine->globalObject().property("qmake"));
-    QScriptValue ret = engine->scriptValue(self->doProjectTest(func, args, place));
+    QScriptValue ret(engine, self->doProjectTest(func, args, place));
     engine->globalObject().setProperty("qmake", qscript_projectWrapper(engine, self, place));
     return ret;
 }
@@ -172,9 +172,9 @@ static QScriptValue qscript_projectWrapper(QScriptEngine *eng, QMakeProject *pro
         QStringList testFuncs = qmake_testFunctions().keys() + project->userTestFunctions();
         for(int i = 0; i < testFuncs.size(); ++i) {
             QString funcName = testFuncs.at(i);
-            QScriptValue fun = eng->scriptValue(qscript_call_testfunction);
-            fun.setProperty("qmakeProject", eng->scriptValueFromVariant(qVariantFromValue(project)));
-            fun.setProperty("functionName", eng->scriptValue(funcName));
+            QScriptValue fun = eng->newFunction(qscript_call_testfunction);
+            fun.setProperty("qmakeProject", eng->newVariant(qVariantFromValue(project)));
+            fun.setProperty("functionName", QScriptValue(eng, funcName));
             eng->globalObject().setProperty(funcName, fun);
         }
     }
@@ -182,9 +182,9 @@ static QScriptValue qscript_projectWrapper(QScriptEngine *eng, QMakeProject *pro
         QStringList testFuncs = qmake_expandFunctions().keys() + project->userExpandFunctions();
         for(int i = 0; i < testFuncs.size(); ++i) {
             QString funcName = testFuncs.at(i);
-            QScriptValue fun = eng->scriptValue(qscript_call_expandfunction);
-            fun.setProperty("qmakeProject", eng->scriptValueFromVariant(project));
-            fun.setProperty("functionName", eng->scriptValue(funcName));
+            QScriptValue fun = eng->newFunction(eng, qscript_call_expandfunction);
+            fun.setProperty("qmakeProject", eng->newVariant(project));
+            fun.setProperty("functionName", QScriptValue(eng, funcName));
             eng->globalObject().setProperty(funcName, fun);
         }
     }
@@ -197,7 +197,7 @@ static QScriptValue qscript_toArray(QScriptEngine *eng, const QStringList &elts)
 {
     QScriptValue a = eng->newArray();
     for (int i = 0; i < elts.count(); ++i)
-        a.setProperty(i, eng->scriptValue(elts.at(i)));
+        a.setProperty(i, QScriptValue(eng, elts.at(i)));
     return a;
 }
 #endif
