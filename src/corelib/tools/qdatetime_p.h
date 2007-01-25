@@ -158,8 +158,8 @@ public:
     SectionNode sectionNode(int index) const;
     Section sectionType(int index) const;
     QString sectionText(const QString &text, int sectionIndex, int index) const;
-    int getDigit(const QVariant &dt, Section s) const;
-    void setDigit(QVariant &t, Section s, int newval) const;
+    int getDigit(const QVariant &dt, int index) const;
+    void setDigit(QVariant &t, int index, int newval) const;
     int parseSection(int sectionIndex, QString &txt, int index,
                      QDateTimeParser::State &state, int *used = 0) const;
     int absoluteMax(int index) const;
