@@ -14,6 +14,7 @@ QTEST_NOOP_MAIN
 #else
 
 #include <private/qtextcontrol_p.h>
+#include <private/qgraphicsitem_p.h>
 #include <QAbstractTextDocumentLayout>
 #include <QBitmap>
 #include <QCursor>
@@ -66,7 +67,6 @@ class tst_QGraphicsItem : public QObject
     Q_OBJECT
 
 private slots:
-
     void construction();
     void constructionWithParent();
     void destruction();
@@ -126,6 +126,8 @@ private slots:
     void deleteItemInEventHandlers();
     void itemClipsToShape();
     void itemClipsChildrenToShape();
+    void ancestorFlags();
+    void untransformable();
 
     // task specific tests below me
     void task141694_textItemEnsureVisible();
@@ -3412,7 +3414,7 @@ public:
         return QRectF(0, 0, 100, 100);
     }
     
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
     {
         painter->fillRect(-50, -50, 200, 200, Qt::red);
         painter->fillRect(0, 0, 100, 100, Qt::blue);
@@ -3489,6 +3491,306 @@ void tst_QGraphicsItem::itemClipsChildrenToShape()
     QCOMPARE(image.pixel(12, 12), QColor(255, 255, 0).rgba());
 
     image.save("itemClipsChildrenToShape.png");
+}
+
+void tst_QGraphicsItem::ancestorFlags()
+{
+    QGraphicsItem *level1 = new QGraphicsRectItem;
+    QGraphicsItem *level21 = new QGraphicsRectItem;
+    level21->setParentItem(level1);
+    QGraphicsItem *level22 = new QGraphicsRectItem;
+    level22->setParentItem(level1);
+    QGraphicsItem *level31 = new QGraphicsRectItem;
+    level31->setParentItem(level21);
+    QGraphicsItem *level32 = new QGraphicsRectItem;
+    level32->setParentItem(level21);
+
+    QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level21->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level22->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level31->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level32->d_ptr->ancestorFlags), 0);
+
+    // HandlesChildEvents: 1) Root level sets a flag
+    level1->setHandlesChildEvents(true);
+    QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level21->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level22->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level31->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level32->d_ptr->ancestorFlags), 1);
+
+    // HandlesChildEvents: 2) Root level set it again
+    level1->setHandlesChildEvents(true);
+    QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level21->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level22->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level31->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level32->d_ptr->ancestorFlags), 1);
+    
+    // HandlesChildEvents: 3) Root level unsets a flag
+    level1->setHandlesChildEvents(false);
+    QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level21->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level22->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level31->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level32->d_ptr->ancestorFlags), 0);
+
+    // HandlesChildEvents: 4) Child item sets a flag
+    level21->setHandlesChildEvents(true);
+    QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level21->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level22->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level31->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level32->d_ptr->ancestorFlags), 1);
+
+    // HandlesChildEvents: 5) Parent item sets a flag
+    level1->setHandlesChildEvents(true);
+    QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level21->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level22->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level31->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level32->d_ptr->ancestorFlags), 1);
+
+    // HandlesChildEvents: 6) Child item unsets a flag
+    level21->setHandlesChildEvents(false);
+    QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level21->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level22->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level31->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level32->d_ptr->ancestorFlags), 1);
+    
+    // HandlesChildEvents: 7) Parent item unsets a flag
+    level21->setHandlesChildEvents(true);
+    level1->setHandlesChildEvents(false);
+    QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level21->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level22->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level31->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level32->d_ptr->ancestorFlags), 1);
+
+    // Reparent the child to root
+    level21->setParentItem(0);
+    QCOMPARE(int(level21->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level22->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level31->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level32->d_ptr->ancestorFlags), 1);
+
+    // Reparent the child to level1 again.
+    level1->setHandlesChildEvents(true);
+    level21->setParentItem(level1);
+    QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level21->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level22->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level31->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level32->d_ptr->ancestorFlags), 1);
+
+    // Reparenting level31 back to level1.
+    level31->setParentItem(level1);
+    QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level21->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level22->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level31->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level32->d_ptr->ancestorFlags), 1);
+
+    // Reparenting level31 back to level21.
+    level31->setParentItem(0);
+    QCOMPARE(int(level31->d_ptr->ancestorFlags), 0);
+    level31->setParentItem(level21);
+    QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level21->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level22->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level31->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level32->d_ptr->ancestorFlags), 1);
+
+    // Level1 doesn't handle child events
+    level1->setHandlesChildEvents(false);
+    QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level21->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level22->d_ptr->ancestorFlags), 0);
+    QCOMPARE(int(level31->d_ptr->ancestorFlags), 1);
+    QCOMPARE(int(level32->d_ptr->ancestorFlags), 1);
+    
+    // Nobody handles child events
+    level21->setHandlesChildEvents(false);
+
+    for (int i = 0; i < 2; ++i) {
+        QGraphicsItem::GraphicsItemFlag flag = !i ? QGraphicsItem::ItemClipsChildrenToShape
+                                               : QGraphicsItem::ItemIgnoresViewTransformations;
+        int ancestorFlag = !i ? QGraphicsItemPrivate::AncestorClipsChildren
+                           : QGraphicsItemPrivate::AncestorIgnoresViewTransformations;
+
+        QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level21->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level22->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level31->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level32->d_ptr->ancestorFlags), 0);
+
+        // HandlesChildEvents: 1) Root level sets a flag
+        level1->setFlag(flag, true);
+        QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level21->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level22->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level31->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level32->d_ptr->ancestorFlags), ancestorFlag);
+
+        // HandlesChildEvents: 2) Root level set it again
+        level1->setFlag(flag, true);
+        QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level21->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level22->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level31->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level32->d_ptr->ancestorFlags), ancestorFlag);
+    
+        // HandlesChildEvents: 3) Root level unsets a flag
+        level1->setFlag(flag, false);
+        QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level21->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level22->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level31->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level32->d_ptr->ancestorFlags), 0);
+
+        // HandlesChildEvents: 4) Child item sets a flag
+        level21->setFlag(flag, true);
+        QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level21->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level22->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level31->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level32->d_ptr->ancestorFlags), ancestorFlag);
+
+        // HandlesChildEvents: 5) Parent item sets a flag
+        level1->setFlag(flag, true);
+        QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level21->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level22->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level31->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level32->d_ptr->ancestorFlags), ancestorFlag);
+
+        // HandlesChildEvents: 6) Child item unsets a flag
+        level21->setFlag(flag, false);
+        QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level21->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level22->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level31->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level32->d_ptr->ancestorFlags), ancestorFlag);
+    
+        // HandlesChildEvents: 7) Parent item unsets a flag
+        level21->setFlag(flag, true);
+        level1->setFlag(flag, false);
+        QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level21->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level22->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level31->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level32->d_ptr->ancestorFlags), ancestorFlag);
+
+        // Reparent the child to root
+        level21->setParentItem(0);
+        QCOMPARE(int(level21->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level22->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level31->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level32->d_ptr->ancestorFlags), ancestorFlag);
+
+        // Reparent the child to level1 again.
+        level1->setFlag(flag, true);
+        level21->setParentItem(level1);
+        QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level21->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level22->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level31->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level32->d_ptr->ancestorFlags), ancestorFlag);
+
+        // Reparenting level31 back to level1.
+        level31->setParentItem(level1);
+        QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level21->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level22->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level31->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level32->d_ptr->ancestorFlags), ancestorFlag);
+
+        // Reparenting level31 back to level21.
+        level31->setParentItem(0);
+        QCOMPARE(int(level31->d_ptr->ancestorFlags), 0);
+        level31->setParentItem(level21);
+        QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level21->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level22->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level31->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level32->d_ptr->ancestorFlags), ancestorFlag);
+
+        // Level1 doesn't handle child events
+        level1->setFlag(flag, false);
+        QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level21->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level22->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level31->d_ptr->ancestorFlags), ancestorFlag);
+        QCOMPARE(int(level32->d_ptr->ancestorFlags), ancestorFlag);
+
+        // Nobody handles child events
+        level21->setFlag(flag, false);
+        QCOMPARE(int(level1->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level21->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level22->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level31->d_ptr->ancestorFlags), 0);
+        QCOMPARE(int(level32->d_ptr->ancestorFlags), 0);
+    }
+    
+    delete level1;
+}
+
+void tst_QGraphicsItem::untransformable()
+{
+    QGraphicsItem *item1 = new QGraphicsEllipseItem(QRectF(-50, -50, 100, 100));
+    item1->setZValue(1);
+    item1->setFlag(QGraphicsItem::ItemIgnoresViewTransformations);
+    item1->rotate(45);
+    ((QGraphicsEllipseItem *)item1)->setBrush(Qt::red);
+
+    QGraphicsItem *item2 = new QGraphicsEllipseItem(QRectF(-50, -50, 100, 100));
+    item2->setParentItem(item1);
+    item2->rotate(45);
+    item2->setPos(100, 0);
+    ((QGraphicsEllipseItem *)item2)->setBrush(Qt::green);
+
+    QGraphicsItem *item3 = new QGraphicsEllipseItem(QRectF(-50, -50, 100, 100));
+    item3->setParentItem(item2);
+    item3->setPos(100, 0);
+    ((QGraphicsEllipseItem *)item3)->setBrush(Qt::blue);
+
+    QGraphicsScene scene(-500, -500, 1000, 1000);
+    scene.addItem(item1);
+
+    QGraphicsView view(&scene);
+    view.resize(300, 300);
+    view.show();
+    view.scale(8, 8);
+    view.centerOn(0, 0);
+    view.setBackgroundBrush(QBrush(Qt::black, Qt::DiagCrossPattern));
+
+    for (int i = 0; i < 10; ++i) {
+        QPoint center = view.viewport()->rect().center();
+        QCOMPARE(view.itemAt(center), item1);
+        QCOMPARE(view.itemAt(center - QPoint(40, 0)), item1);
+        QCOMPARE(view.itemAt(center - QPoint(-40, 0)), item1);
+        QCOMPARE(view.itemAt(center - QPoint(0, 40)), item1);
+        QCOMPARE(view.itemAt(center - QPoint(0, -40)), item1);
+
+        center += QPoint(70, 70);
+        QCOMPARE(view.itemAt(center - QPoint(40, 0)), item2);
+        QCOMPARE(view.itemAt(center - QPoint(-40, 0)), item2);
+        QCOMPARE(view.itemAt(center - QPoint(0, 40)), item2);
+        QCOMPARE(view.itemAt(center - QPoint(0, -40)), item2);
+
+        center += QPoint(0, 100);
+        QCOMPARE(view.itemAt(center - QPoint(40, 0)), item3);
+        QCOMPARE(view.itemAt(center - QPoint(-40, 0)), item3);
+        QCOMPARE(view.itemAt(center - QPoint(0, 40)), item3);
+        QCOMPARE(view.itemAt(center - QPoint(0, -40)), item3);
+
+        view.scale(0.5, 0.5);
+        view.rotate(13);
+        view.shear(0.01, 0.01);
+        view.translate(10, 10);
+        QTest::qWait(250);
+    }
 }
 
 class ItemAddScene : public QGraphicsScene
