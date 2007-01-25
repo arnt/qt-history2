@@ -128,57 +128,57 @@ QScriptValue::QScriptValue(QScriptEngine *engine, QScriptValue::SpecialValue val
 /*!
   Constructs a new QScriptValue with a boolean value, \a val.
 */
-QScriptValue::QScriptValue(QScriptEngine *engine, bool value)
+QScriptValue::QScriptValue(QScriptEngine *engine, bool val)
 {
-    QScriptEnginePrivate::get(engine)->newBoolean(this, value);
+    QScriptEnginePrivate::get(engine)->newBoolean(this, val);
 }
 
 /*!
   Constructs a new QScriptValue with an integer value, \a val.
 */
-QScriptValue::QScriptValue(QScriptEngine *engine, int value)
+QScriptValue::QScriptValue(QScriptEngine *engine, int val)
 {
-    QScriptEnginePrivate::get(engine)->newNumber(this, value);
+    QScriptEnginePrivate::get(engine)->newNumber(this, val);
 }
 
 /*!
   Constructs a new QScriptValue with an unsigned integer value, \a val.
 */
-QScriptValue::QScriptValue(QScriptEngine *engine, uint value)
+QScriptValue::QScriptValue(QScriptEngine *engine, uint val)
 {
-    QScriptEnginePrivate::get(engine)->newNumber(this, value);
+    QScriptEnginePrivate::get(engine)->newNumber(this, val);
 }
 
 /*!
   Constructs a new QScriptValue with a qlonglong value, \a val.
 */
-QScriptValue::QScriptValue(QScriptEngine *engine, qlonglong value)
+QScriptValue::QScriptValue(QScriptEngine *engine, qlonglong val)
 {
-    QScriptEnginePrivate::get(engine)->newNumber(this, value);
+    QScriptEnginePrivate::get(engine)->newNumber(this, val);
 }
 
 /*!
   Constructs a new QScriptValue with a qulonglong value, \a val.
 */
-QScriptValue::QScriptValue(QScriptEngine *engine, qulonglong value)
+QScriptValue::QScriptValue(QScriptEngine *engine, qulonglong val)
 {
-    QScriptEnginePrivate::get(engine)->newNumber(this, value);
+    QScriptEnginePrivate::get(engine)->newNumber(this, val);
 }
 
 /*!
   Constructs a new QScriptValue with a qnumber value, \a val.
 */
-QScriptValue::QScriptValue(QScriptEngine *engine, qnumber value)
+QScriptValue::QScriptValue(QScriptEngine *engine, qnumber val)
 {
-    QScriptEnginePrivate::get(engine)->newNumber(this, value);
+    QScriptEnginePrivate::get(engine)->newNumber(this, val);
 }
 
 /*!
   Constructs a new QScriptValue with a string value, \a val.
 */
-QScriptValue::QScriptValue(QScriptEngine *engine, const QString &value)
+QScriptValue::QScriptValue(QScriptEngine *engine, const QString &val)
 {
-    QScriptEnginePrivate::get(engine)->newString(this, value);
+    QScriptEnginePrivate::get(engine)->newString(this, val);
 }
 
 /*!
@@ -188,9 +188,9 @@ QScriptValue::QScriptValue(QScriptEngine *engine, const QString &value)
 */
 
 #ifndef QT_NO_CAST_FROM_ASCII
-QScriptValue::QScriptValue(QScriptEngine *engine, const char *value)
+QScriptValue::QScriptValue(QScriptEngine *engine, const char *val)
 {
-    QScriptEnginePrivate::get(engine)->newString(this, QString::fromAscii(value));
+    QScriptEnginePrivate::get(engine)->newString(this, QString::fromAscii(val));
 }
 #endif
 
