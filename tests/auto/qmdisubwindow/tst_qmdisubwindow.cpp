@@ -136,6 +136,7 @@ private slots:
     void restoreFocus();
     void changeFocusWithTab();
     void closeEvent();
+    void setWindowTitle();
 };
 
 void tst_QMdiSubWindow::initTestCase()
@@ -1051,6 +1052,68 @@ void tst_QMdiSubWindow::closeEvent()
     QVERIFY(window->close());
     QCOMPARE(closeSpy.count(), 3);
     QCOMPARE(mdiArea.subWindowList().count(), 0);
+}
+
+// There exists more tests in QMdiArea which covers window title support
+// related to QMainWindow. This test is specific for QMdiSubWindow and its
+// widget.
+void tst_QMdiSubWindow::setWindowTitle()
+{
+    QString expectedWindowTitle = QLatin1String("This is teh shit[*]");
+    QTextEdit *textEdit = new QTextEdit;
+    textEdit->setWindowTitle(expectedWindowTitle);
+    QCOMPARE(textEdit->windowTitle(), expectedWindowTitle);
+    textEdit->setWindowModified(true);
+    QCOMPARE(textEdit->isWindowModified(), true);
+
+    QMdiArea mdiArea;
+    QMdiSubWindow *window = new QMdiSubWindow;
+    mdiArea.addSubWindow(window);
+    QCOMPARE(window->windowTitle(), QString());
+    QVERIFY(!window->isWindowModified());
+
+    window->setWidget(textEdit);
+    QVERIFY(window->isWindowModified());
+    QCOMPARE(textEdit->windowTitle(), expectedWindowTitle);
+    QCOMPARE(window->windowTitle(), window->widget()->windowTitle());
+
+    textEdit->setWindowModified(false);
+    QVERIFY(!textEdit->isWindowModified());
+    QVERIFY(!window->isWindowModified());
+    // This will return the title including the astrix, but the
+    // actual window title does not contain the astrix. This behavior
+    // seems a bit odd, but is equal to e.g. QTextEdit (and probably all
+    // other widgets which are not real top-level widgets).
+    QCOMPARE(window->windowTitle(), expectedWindowTitle);
+
+    textEdit->setWindowModified(true);;
+    expectedWindowTitle = QLatin1String("Override child title");
+    window->setWindowTitle(expectedWindowTitle);
+    QVERIFY(window->isWindowModified());
+    QCOMPARE(window->windowTitle(), expectedWindowTitle);
+
+    textEdit->setWindowTitle(QLatin1String("My parent overrides me"));
+    QCOMPARE(window->windowTitle(), expectedWindowTitle);
+
+    textEdit->setWindowModified(false);
+    QVERIFY(window->isWindowModified());
+    QCOMPARE(window->windowTitle(), expectedWindowTitle);
+
+    window->setWindowModified(false);
+    QVERIFY(!window->isWindowModified());
+    window->setWindowTitle(QString());
+    QCOMPARE(window->windowTitle(), QString());
+
+    expectedWindowTitle = QLatin1String("My parent doesn't have any title so now I can set one[*]");
+    textEdit->setWindowTitle(expectedWindowTitle);
+    QCOMPARE(window->windowTitle(), expectedWindowTitle);
+    textEdit->setWindowModified(true);
+    QVERIFY(window->isWindowModified());
+
+    window->setWidget(0);
+    QCOMPARE(window->windowTitle(), QString());
+    QVERIFY(!window->isWindowModified());
+    delete textEdit;
 }
 
 QTEST_MAIN(tst_QMdiSubWindow)
