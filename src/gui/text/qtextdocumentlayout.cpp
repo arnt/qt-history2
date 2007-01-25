@@ -664,18 +664,26 @@ static void drawFrameDecoration(QPainter *painter, QTextFrame *frame, QTextFrame
         painter->save();
         painter->setBrush(Qt::lightGray);
         painter->setPen(Qt::NoPen);
-        const qreal w = rect.width() - 2 * fd->border.toReal() - fd->leftMargin.toReal() - fd->rightMargin.toReal();
-        const qreal h = rect.height() - 2 * fd->border.toReal() - fd->topMargin.toReal() - fd->bottomMargin.toReal();
+
+        const qreal leftEdge = rect.left() + fd->leftMargin.toReal();
+        const qreal border = fd->border.toReal();
+        const qreal topMargin = fd->topMargin.toReal();
+        const qreal leftMargin = fd->leftMargin.toReal();
+        const qreal bottomMargin = fd->bottomMargin.toReal();
+        const qreal rightMargin = fd->rightMargin.toReal();
+        const qreal w = rect.width() - 2 * border - leftMargin - rightMargin;
+        const qreal h = rect.height() - 2 * border - topMargin - bottomMargin;
+
         // left
-        painter->drawRect(QRectF(rect.left() + fd->leftMargin.toReal(), rect.top() + fd->topMargin.toReal(), fd->border.toReal(), h + 2 * fd->border.toReal()));
+        painter->drawRect(QRectF(leftEdge, rect.top() + topMargin, border, h + 2 * border));
         // top
-        painter->drawRect(QRectF(rect.left() + fd->leftMargin.toReal() + fd->border.toReal(), rect.top() + fd->topMargin.toReal(), w + fd->border.toReal(), fd->border.toReal()));
+        painter->drawRect(QRectF(leftEdge + border, rect.top() + topMargin, w + border, border));
 
         painter->setBrush(Qt::darkGray);
         // right
-        painter->drawRect(QRectF(rect.left() + fd->leftMargin.toReal() + fd->border.toReal() + w, rect.top() + fd->topMargin.toReal() + fd->border.toReal(), fd->border.toReal(), h));
+        painter->drawRect(QRectF(leftEdge + border + w, rect.top() + topMargin + border, border, h));
         // bottom
-        painter->drawRect(QRectF(rect.left() + fd->leftMargin.toReal() + fd->border.toReal(), rect.top() + fd->topMargin.toReal() + fd->border.toReal() + h, w + fd->border.toReal(), fd->border.toReal()));
+        painter->drawRect(QRectF(leftEdge + border, rect.top() + topMargin + border + h, w + border, border));
 
         painter->restore();
     }
