@@ -2193,7 +2193,8 @@ void QTableViewPrivate::selectRow(int row, bool anchor)
         return;
 
     if (row >= 0 && row < model->rowCount(root)) {
-        QModelIndex index = model->index(row, 0, root);
+        int column = horizontalHeader->logicalIndexAt(q->isRightToLeft() ? viewport->width() : 0);
+        QModelIndex index = model->index(row, column, root);
         QItemSelectionModel::SelectionFlags command = q->selectionCommand(index);
         selectionModel->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
         if (!(command & QItemSelectionModel::Current) && anchor)
@@ -2217,7 +2218,8 @@ void QTableViewPrivate::selectColumn(int column, bool anchor)
         return;
 
     if (column >= 0 && column < model->columnCount(root)) {
-        QModelIndex index = model->index(0, column, root);
+        int row = verticalHeader->logicalIndexAt(0);
+        QModelIndex index = model->index(row, column, root);
         QItemSelectionModel::SelectionFlags command = q->selectionCommand(index);
         selectionModel->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
         if (!(command & QItemSelectionModel::Current) && anchor)
