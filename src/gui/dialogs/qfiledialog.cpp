@@ -1961,15 +1961,10 @@ void QFileDialogPrivate::_q_animateDialogV(int x)
     if (x != -1)
         q->resize(q->width(), x);
 
-    // You have to update after the fact because the hide/show events haven't
-    // been processed the first time sizeHint().height() was called.
-    if (vTimeLine->direction() == QTimeLine::Backward)
-        vTimeLine->setFrameRange(q->sizeHint().height(), vTimeLine->endFrame());
-
     if ((vTimeLine->endFrame() == x && vTimeLine->direction() == QTimeLine::Forward)
+       || (vTimeLine->startFrame() == x && vTimeLine->direction() == QTimeLine::Backward)
        || x == -1){
-        bool expanded = (vTimeLine->direction() == QTimeLine::Forward);
-        q->setDetailsExpanded(expanded);
+        q->setDetailsExpanded(expandButton->arrowType() == Qt::UpArrow);
     }
 }
 
@@ -1982,34 +1977,30 @@ void QFileDialogPrivate::_q_animateDialogH(int x)
 void QFileDialogPrivate::_q_animateDialog()
 {
     Q_Q(QFileDialog);
-    bool expanded = true;
-    if (expandButton->arrowType() == Qt::DownArrow) {
-        expandButton->setArrowType(Qt::UpArrow);
+
+    // flip button arrow
+    bool expanded = (expandButton->arrowType() == Qt::DownArrow);
+    expandButton->setArrowType(expanded ? Qt::UpArrow : Qt::DownArrow);
+
+    // initial size of oldSize is the big window
+    QSize newSize;
+    if (expanded) {
+        newSize = oldSize;
     } else {
-        expandButton->setArrowType(Qt::DownArrow);
-        expanded = false;
-    }
-    int newHeight;
-    int newWidth;
-    if (!expanded) {
         q->setDetailsExpanded(false);
-        newHeight = q->sizeHint().height();
-        newWidth = q->sizeHint().height();
-    } else {
-        newHeight = oldSize.height();
-        newWidth = oldSize.width();
+        newSize = q->sizeHint();
     }
 
     oldSize = q->size();
 
-    if (newHeight < q->height()) {
-        vTimeLine->setFrameRange(newHeight, q->height());
-        hTimeLine->setFrameRange(newWidth, q->height());
+    if (newSize.height() < q->height()) {
+        vTimeLine->setFrameRange(newSize.height(), q->height());
+        hTimeLine->setFrameRange(newSize.width(), q->width());
         vTimeLine->setDirection(QTimeLine::Backward);
         hTimeLine->setDirection(QTimeLine::Backward);
     } else {
-        vTimeLine->setFrameRange(q->height(), newHeight);
-        hTimeLine->setFrameRange(q->height(), newWidth);
+        vTimeLine->setFrameRange(q->height(), newSize.height());
+        hTimeLine->setFrameRange(q->width(), newSize.width());
         vTimeLine->setDirection(QTimeLine::Forward);
         hTimeLine->setDirection(QTimeLine::Forward);
     }
