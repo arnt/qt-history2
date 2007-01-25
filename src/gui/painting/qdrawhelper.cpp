@@ -1457,7 +1457,7 @@ static void QT_FASTCALL comp_func_solid_Multiply(uint *dest, int length, uint co
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
-    uint sa = qAlpha(color);
+    int sa = qAlpha(color);
     uint sr = qRed(color);
     uint sg = qGreen(color);
     uint sb = qBlue(color);
@@ -1465,10 +1465,10 @@ static void QT_FASTCALL comp_func_solid_Multiply(uint *dest, int length, uint co
     for (int i = 0; i < length; ++i) {
         uint d = dest[i];
 
-        short r =  (qRed(d) * sr)   >> 8; 
-        short b =  (qBlue(d) * sb)  >> 8; 
+        short r =  (qRed(d) * sr)   >> 8;
         short g =  (qGreen(d) * sg) >> 8; 
-        short a =  (qAlpha(d) * sa) >> 8;
+        short b =  (qBlue(d) * sb)  >> 8; 
+        short a =  qMin(qAlpha(d), sa);
 
         dest[i] = qRgba(r, g, b, a);
     }
@@ -1482,7 +1482,7 @@ static void QT_FASTCALL comp_func_Multiply(uint *dest, const uint *src, int leng
             short r = ( qRed(d)  * qRed(s))   >> 8;
             short b = (qBlue(d)  * qBlue(s))  >> 8;
             short g = (qGreen(d) * qGreen(s)) >> 8;
-            short a = (qAlpha(d) * qAlpha(s)) >> 8;
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -1493,7 +1493,7 @@ static void QT_FASTCALL comp_func_Multiply(uint *dest, const uint *src, int leng
             short r = ( qRed(d)  * qRed(s))  >> 8;
             short b = (qBlue(d)  * qBlue(s)) >> 8;
             short g = (qGreen(d) * qGreen(s))>> 8;
-            short a = (qAlpha(d) * qAlpha(s))>> 8;
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -1507,7 +1507,7 @@ static void QT_FASTCALL comp_func_solid_Screen(uint *dest, int length, uint colo
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
-    uint sa = qAlpha(color);
+    int sa = qAlpha(color);
     uint sr = qRed(color);
     uint sg = qGreen(color);
     uint sb = qBlue(color);
@@ -1519,7 +1519,7 @@ static void QT_FASTCALL comp_func_solid_Screen(uint *dest, int length, uint colo
         short r =  OP(  qRed(d), sr);
         short b =  OP( qBlue(d), sb);
         short g =  OP(qGreen(d), sg);
-        short a =  OP(qAlpha(d), sa);
+        short a =  qMin(qAlpha(d), sa);
 #undef OP
 
         dest[i] = qRgba(r, g, b, a);
@@ -1536,7 +1536,7 @@ static void QT_FASTCALL comp_func_Screen(uint *dest, const uint *src, int length
             short r = OP(  qRed(d),   qRed(s));
             short b = OP( qBlue(d),  qBlue(s));
             short g = OP(qGreen(d), qGreen(s));
-            short a = OP(qAlpha(d), qAlpha(s));
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -1548,7 +1548,7 @@ static void QT_FASTCALL comp_func_Screen(uint *dest, const uint *src, int length
             short r = OP(  qRed(d),   qRed(s));
             short b = OP( qBlue(d),  qBlue(s));
             short g = OP(qGreen(d), qGreen(s));
-            short a = OP(qAlpha(d), qAlpha(s));
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -1566,7 +1566,7 @@ static void QT_FASTCALL comp_func_solid_Overlay(uint *dest, int length, uint col
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
-    uint sa = qAlpha(color);
+    int sa = qAlpha(color);
     uint sr = qRed(color);
     uint sg = qGreen(color);
     uint sb = qBlue(color);
@@ -1578,7 +1578,7 @@ static void QT_FASTCALL comp_func_solid_Overlay(uint *dest, int length, uint col
         short r =  OP(  qRed(d), sr);
         short b =  OP( qBlue(d), sb);
         short g =  OP(qGreen(d), sg);
-        short a =  OP(qAlpha(d), sa);
+        short a =  qMin(qAlpha(d), sa);
 #undef OP
 
         dest[i] = qRgba(r, g, b, a);
@@ -1595,7 +1595,7 @@ static void QT_FASTCALL comp_func_Overlay(uint *dest, const uint *src, int lengt
             short r = OP(  qRed(d),   qRed(s));
             short b = OP( qBlue(d),  qBlue(s));
             short g = OP(qGreen(d), qGreen(s));
-            short a = OP(qAlpha(d), qAlpha(s));
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -1607,7 +1607,7 @@ static void QT_FASTCALL comp_func_Overlay(uint *dest, const uint *src, int lengt
             short r = OP(  qRed(d),   qRed(s));
             short b = OP( qBlue(d),  qBlue(s));
             short g = OP(qGreen(d), qGreen(s));
-            short a = OP(qAlpha(d), qAlpha(s));
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -1625,7 +1625,7 @@ static void QT_FASTCALL comp_func_solid_Darken(uint *dest, int length, uint colo
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
-    short sa = qAlpha(color);
+    int sa = qAlpha(color);
     short sr = qRed(color);
     short sg = qGreen(color);
     short sb = qBlue(color);
@@ -1637,7 +1637,7 @@ static void QT_FASTCALL comp_func_solid_Darken(uint *dest, int length, uint colo
         short r =  OP(  qRed(d), sr);
         short b =  OP( qBlue(d), sb);
         short g =  OP(qGreen(d), sg);
-        short a =  OP(qAlpha(d), sa);
+        short a =  qMin(qAlpha(d), sa);
 #undef OP
 
         dest[i] = qRgba(r, g, b, a);
@@ -1654,7 +1654,7 @@ static void QT_FASTCALL comp_func_Darken(uint *dest, const uint *src, int length
             short r = OP(  qRed(d),   qRed(s));
             short b = OP( qBlue(d),  qBlue(s));
             short g = OP(qGreen(d), qGreen(s));
-            short a = OP(qAlpha(d), qAlpha(s));
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -1666,7 +1666,7 @@ static void QT_FASTCALL comp_func_Darken(uint *dest, const uint *src, int length
             short r = OP(  qRed(d),   qRed(s));
             short b = OP( qBlue(d),  qBlue(s));
             short g = OP(qGreen(d), qGreen(s));
-            short a = OP(qAlpha(d), qAlpha(s));
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -1684,7 +1684,7 @@ static void QT_FASTCALL comp_func_solid_Lighten(uint *dest, int length, uint col
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
-    short sa = qAlpha(color);
+    int   sa = qAlpha(color);
     short sr = qRed(color);
     short sg = qGreen(color);
     short sb = qBlue(color);
@@ -1696,7 +1696,7 @@ static void QT_FASTCALL comp_func_solid_Lighten(uint *dest, int length, uint col
         short r =  OP(  qRed(d), sr);
         short b =  OP( qBlue(d), sb);
         short g =  OP(qGreen(d), sg);
-        short a =  OP(qAlpha(d), sa);
+        short a =  qMin(qAlpha(d), sa);
 #undef OP
 
         dest[i] = qRgba(r, g, b, a);
@@ -1713,7 +1713,7 @@ static void QT_FASTCALL comp_func_Lighten(uint *dest, const uint *src, int lengt
             short r = OP(  qRed(d),   qRed(s));
             short b = OP( qBlue(d),  qBlue(s));
             short g = OP(qGreen(d), qGreen(s));
-            short a = OP(qAlpha(d), qAlpha(s));
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -1725,7 +1725,7 @@ static void QT_FASTCALL comp_func_Lighten(uint *dest, const uint *src, int lengt
             short r = OP(  qRed(d),   qRed(s));
             short b = OP( qBlue(d),  qBlue(s));
             short g = OP(qGreen(d), qGreen(s));
-            short a = OP(qAlpha(d), qAlpha(s));
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -1757,7 +1757,7 @@ static void QT_FASTCALL comp_func_solid_ColorDodge(uint *dest, int length, uint 
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
-    uint sa = qAlpha(color);
+    int sa = qAlpha(color);
     uint sr = qRed(color);
     uint sg = qGreen(color);
     uint sb = qBlue(color);
@@ -1768,7 +1768,7 @@ static void QT_FASTCALL comp_func_solid_ColorDodge(uint *dest, int length, uint 
         short r = OP(qRed(d), sr);
         short b = OP(qBlue(d), sb);
         short g = OP(qGreen(d), sg);
-        short a = OP(qAlpha(d), sa);
+        short a = qMin(qAlpha(d), sa);
 #undef OP
 
         dest[i] = qRgba(r, g, b, a);
@@ -1785,7 +1785,7 @@ static void QT_FASTCALL comp_func_ColorDodge(uint *dest, const uint *src, int le
             short r = OP(  qRed(d),   qRed(s));
             short b = OP( qBlue(d),  qBlue(s));
             short g = OP(qGreen(d), qGreen(s));
-            short a = OP(qAlpha(d), qAlpha(s));
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -1797,7 +1797,7 @@ static void QT_FASTCALL comp_func_ColorDodge(uint *dest, const uint *src, int le
             short r = OP(  qRed(d),   qRed(s));
             short b = OP( qBlue(d),  qBlue(s));
             short g = OP(qGreen(d), qGreen(s));
-            short a = OP(qAlpha(d), qAlpha(s));
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -1829,7 +1829,7 @@ static void QT_FASTCALL comp_func_solid_ColorBurn(uint *dest, int length, uint c
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
-    uint sa = qAlpha(color);
+    int sa = qAlpha(color);
     uint sr = qRed(color);
     uint sg = qGreen(color);
     uint sb = qBlue(color);
@@ -1841,7 +1841,7 @@ static void QT_FASTCALL comp_func_solid_ColorBurn(uint *dest, int length, uint c
         short r =  OP(  qRed(d), sr);
         short b =  OP( qBlue(d), sb);
         short g =  OP(qGreen(d), sg);
-        short a =  OP(qAlpha(d), sa);
+        short a =  qMin(qAlpha(d), sa);
 #undef OP
 
         dest[i] = qRgba(r, g, b, a);
@@ -1858,7 +1858,7 @@ static void QT_FASTCALL comp_func_ColorBurn(uint *dest, const uint *src, int len
             short r = OP(  qRed(d),   qRed(s));
             short b = OP( qBlue(d),  qBlue(s));
             short g = OP(qGreen(d), qGreen(s));
-            short a = OP(qAlpha(d), qAlpha(s));
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -1870,7 +1870,7 @@ static void QT_FASTCALL comp_func_ColorBurn(uint *dest, const uint *src, int len
             short r = OP(  qRed(d),   qRed(s));
             short b = OP( qBlue(d),  qBlue(s));
             short g = OP(qGreen(d), qGreen(s));
-            short a = OP(qAlpha(d), qAlpha(s));
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -1888,7 +1888,7 @@ static void QT_FASTCALL comp_func_solid_HardLight(uint *dest, int length, uint c
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
-    uint sa = qAlpha(color);
+    int sa = qAlpha(color);
     uint sr = qRed(color);
     uint sg = qGreen(color);
     uint sb = qBlue(color);
@@ -1900,7 +1900,7 @@ static void QT_FASTCALL comp_func_solid_HardLight(uint *dest, int length, uint c
         short r =  OP(  qRed(d), sr);
         short b =  OP( qBlue(d), sb);
         short g =  OP(qGreen(d), sg);
-        short a =  OP(qAlpha(d), sa);
+        short a =  qMin(qAlpha(d), sa);
 #undef OP
 
         dest[i] = qRgba(r, g, b, a);
@@ -1917,7 +1917,7 @@ static void QT_FASTCALL comp_func_HardLight(uint *dest, const uint *src, int len
             short r = OP(  qRed(d),   qRed(s));
             short b = OP( qBlue(d),  qBlue(s));
             short g = OP(qGreen(d), qGreen(s));
-            short a = OP(qAlpha(d), qAlpha(s));
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -1929,7 +1929,7 @@ static void QT_FASTCALL comp_func_HardLight(uint *dest, const uint *src, int len
             short r = OP(  qRed(d),   qRed(s));
             short b = OP( qBlue(d),  qBlue(s));
             short g = OP(qGreen(d), qGreen(s));
-            short a = OP(qAlpha(d), qAlpha(s));
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -1950,7 +1950,7 @@ static void QT_FASTCALL comp_func_solid_SoftLight(uint *dest, int length, uint c
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
-    uint sa = qAlpha(color);
+    int sa = qAlpha(color);
     uint sr = qRed(color);
     uint sg = qGreen(color);
     uint sb = qBlue(color);
@@ -1962,7 +1962,7 @@ static void QT_FASTCALL comp_func_solid_SoftLight(uint *dest, int length, uint c
         short r =  OP(  qRed(d), sr);
         short b =  OP( qBlue(d), sb);
         short g =  OP(qGreen(d), sg);
-        short a =  OP(qAlpha(d), sa);
+        short a =  qMin(qAlpha(d), sa);
 #undef OP
 
         dest[i] = qRgba(r, g, b, a);
@@ -1979,7 +1979,7 @@ static void QT_FASTCALL comp_func_SoftLight(uint *dest, const uint *src, int len
             short r = OP(  qRed(d),   qRed(s));
             short b = OP( qBlue(d),  qBlue(s));
             short g = OP(qGreen(d), qGreen(s));
-            short a = OP(qAlpha(d), qAlpha(s));
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -1991,7 +1991,7 @@ static void QT_FASTCALL comp_func_SoftLight(uint *dest, const uint *src, int len
             short r = OP(  qRed(d),   qRed(s));
             short b = OP( qBlue(d),  qBlue(s));
             short g = OP(qGreen(d), qGreen(s));
-            short a = OP(qAlpha(d), qAlpha(s));
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -2006,7 +2006,7 @@ static void QT_FASTCALL comp_func_solid_Difference(uint *dest, int length, uint 
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
-    short sa = qAlpha(color);
+    int sa = qAlpha(color);
     short sr = qRed(color);
     short sg = qGreen(color);
     short sb = qBlue(color);
@@ -2018,12 +2018,13 @@ static void QT_FASTCALL comp_func_solid_Difference(uint *dest, int length, uint 
         short r =  OP(  qRed(d), sr);
         short b =  OP( qBlue(d), sb);
         short g =  OP(qGreen(d), sg);
-        short a =  OP(qAlpha(d), sa);
+        short a =  qMin(qAlpha(d), sa);
 #undef OP
 
         dest[i] = qRgba(r, g, b, a);
     }
 }
+
 static void QT_FASTCALL comp_func_Difference(uint *dest, const uint *src, int length, uint const_alpha)
 {
 #define OP(a, b) (qAbs(a-b))
@@ -2035,7 +2036,7 @@ static void QT_FASTCALL comp_func_Difference(uint *dest, const uint *src, int le
             short r = OP(  qRed(d),   qRed(s));
             short b = OP( qBlue(d),  qBlue(s));
             short g = OP(qGreen(d), qGreen(s));
-            short a = 255;//OP(qAlpha(d), qAlpha(s));
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -2047,7 +2048,7 @@ static void QT_FASTCALL comp_func_Difference(uint *dest, const uint *src, int le
             short r = OP(  qRed(d),   qRed(s));
             short b = OP( qBlue(d),  qBlue(s));
             short g = OP(qGreen(d), qGreen(s));
-            short a = 255;//OP(qAlpha(d), qAlpha(s));
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -2062,7 +2063,7 @@ static void QT_FASTCALL comp_func_solid_Exclusion(uint *dest, int length, uint c
 {
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
-    uint sa = qAlpha(color);
+    int sa = qAlpha(color);
     uint sr = qRed(color);
     uint sg = qGreen(color);
     uint sb = qBlue(color);
@@ -2074,7 +2075,7 @@ static void QT_FASTCALL comp_func_solid_Exclusion(uint *dest, int length, uint c
         short r =  OP(  qRed(d), sr);
         short b =  OP( qBlue(d), sb);
         short g =  OP(qGreen(d), sg);
-        short a =  255;//OP(qAlpha(d), sa);
+        short a =  qMin(qAlpha(d), sa);
 #undef OP
 
         dest[i] = qRgba(r, g, b, a);
@@ -2091,7 +2092,7 @@ static void QT_FASTCALL comp_func_Exclusion(uint *dest, const uint *src, int len
             short r = OP(  qRed(d),   qRed(s));
             short b = OP( qBlue(d),  qBlue(s));
             short g = OP(qGreen(d), qGreen(s));
-            short a = 255;//OP(qAlpha(d), qAlpha(s));
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
@@ -2103,7 +2104,7 @@ static void QT_FASTCALL comp_func_Exclusion(uint *dest, const uint *src, int len
             short r = OP(  qRed(d),   qRed(s));
             short b = OP( qBlue(d),  qBlue(s));
             short g = OP(qGreen(d), qGreen(s));
-            short a = OP(qAlpha(d), qAlpha(s));
+            short a = qMin(qAlpha(d), qAlpha(s));
 
             dest[i] = qRgba(r, g, b, a);
         }
