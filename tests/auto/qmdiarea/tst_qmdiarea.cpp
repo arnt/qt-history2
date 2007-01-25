@@ -919,7 +919,7 @@ void tst_QMdiArea::setScrollBarsEnabled()
 void tst_QMdiArea::setBackground()
 {
     QMdiArea workspace;
-    QCOMPARE(workspace.background(), QBrush(Qt::darkGray, Qt::SolidPattern));
+    QCOMPARE(workspace.background(), workspace.palette().brush(QPalette::Dark));
     workspace.setBackground(QBrush(Qt::green));
     QCOMPARE(workspace.background(), QBrush(Qt::green));
 }
