@@ -23,32 +23,6 @@
 #include <qstyle.h>
 #include <qstyle.h>
 #include <QStyleOptionSpinBox>
-#include <QDate>
-#include <QDateTime>
-#include <QTime>
-#include <QList>
-#include <QDateTimeEdit>
-#include <QWidget>
-#include <QLineEdit>
-#include <QObject>
-#include <QLocale>
-#include <QString>
-#include <QTest>
-#include <QSignalSpy>
-#include <QVariantList>
-#include <QTestEventList>
-#include <QVariant>
-#include <QApplication>
-#include <QPoint>
-#include <QVBoxLayout>
-#include <QRect>
-#include <QCursor>
-#include <QEventLoop>
-#include <QStyle>
-#include <QStyleOptionComboBox>
-#include <QTimeEdit>
-#include <QMetaType>
-#include <QDebug>
 
 #ifdef Q_OS_WIN
 # include <windows.h>
@@ -166,16 +140,12 @@ private slots:
     void calendarPopup();
 
     void hour12Test();
+    void yyTest();
 
+#if QT_VERSION >= 0x040200
     void setSelectedSection();
     void reverseTest();
-    void setCurrentSectionIndex();
-    void setCurrentSectionIndex_data();
-    void sectionCount_data();
-    void sectionCount();
-    void yyTest();
-    void separatorKeys();
-    void undoRedo();
+#endif
 private:
     EditorDateEdit* testWidget;
     QWidget *testFocusWidget;
@@ -2480,22 +2450,19 @@ void tst_QDateTimeEdit::task98554()
     QCOMPARE(testWidget->time(), QTime(0, 0, 10, 0));
 }
 
-static QList<int> makeList(int val1, int val2 = -1, int val3 = -1, int val4 = -1,
-                           int val5 = -1, int val6 = -1, int val7 = -1,
-                           int val8 = -1, int val9 = -1, int val10 = -1,
-                           int val11 = -1, int val12 = -1, int val13 = -1, int val14 = -1)
+static QList<int> makeList(int val1, int val2 = -1, int val3 = -1, int val4 = -1, int val5 = -1, int val6 = -1, int val7 = -1)
 {
     QList<int> ret;
-    const int *ints[] = { &val1, &val2, &val3, &val4, &val5, &val6, &val7, &val8,
-                          &val9, &val10, &val11, &val12, &val13, &val14, 0 };
-    int index = 0;
-    while (ints[index] && *ints[index] >= 0) {
-        ret.append(*ints[index]);
-        ++index;
-    }
+    Q_ASSERT(val1 >= 0);
+    ret << val1;
+    if (val2 < 0) {return ret;} else {ret << val2;}
+    if (val3 < 0) {return ret;} else {ret << val3;}
+    if (val4 < 0) {return ret;} else {ret << val4;}
+    if (val5 < 0) {return ret;} else {ret << val5;}
+    if (val6 < 0) {return ret;} else {ret << val6;}
+    if (val7 >= 0) {ret << val2;}
     return ret;
 }
-
 
 
 void tst_QDateTimeEdit::setCurrentSection_data()
@@ -2552,6 +2519,8 @@ void tst_QDateTimeEdit::setCurrentSection()
     }
 }
 
+
+#if QT_VERSION >= 0x040200
 
 void tst_QDateTimeEdit::setSelectedSection()
 {
@@ -2639,91 +2608,7 @@ void tst_QDateTimeEdit::reverseTest()
     QCOMPARE(testWidget->lineEdit()->displayText(), QString("2001/03/31"));
 }
 
-
-void tst_QDateTimeEdit::setCurrentSectionIndex_data()
-{
-    QTest::addColumn<QString>("format");
-    QTest::addColumn<QDateTime>("dateTime");
-    QTest::addColumn<QList<int> >("setCurrentSectionsIndex");
-    QTest::addColumn<QList<int> >("expectedSectionsAt");
-    QTest::addColumn<QList<int> >("expectedCursorPositions");
-
-    QTest::newRow("Test1") << QString("dd/MM/yyyy hh:mm:ss.zzz d/M/yy h:m:s.z")
-                           << QDateTime(QDate(2001, 1, 1), QTime(1, 2, 3, 4))
-                           << makeList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)
-                           << makeList(QDateTimeEdit::DaySection,
-                                       QDateTimeEdit::MonthSection,
-                                       QDateTimeEdit::YearSection,
-
-                                       QDateTimeEdit::HourSection,
-                                       QDateTimeEdit::MinuteSection,
-                                       QDateTimeEdit::SecondSection,
-                                       QDateTimeEdit::MSecSection,
-
-                                       QDateTimeEdit::DaySection,
-                                       QDateTimeEdit::MonthSection,
-                                       QDateTimeEdit::YearSection,
-
-                                       QDateTimeEdit::HourSection,
-                                       QDateTimeEdit::MinuteSection,
-                                       QDateTimeEdit::SecondSection,
-                                       QDateTimeEdit::MSecSection)
-                           << makeList(0, 3, 6,
-                                       11, 14, 17, 20,
-                                       24, 26, 28,
-                                       31, 33, 35, 37);
-
-    QTest::newRow("Test2") << QString("yyyy/123/MM")
-                           << QDateTime(QDate(2001, 1, 1), QTime())
-                           << makeList(1, 0)
-                           << makeList(QDateTimeEdit::MonthSection,
-                                       QDateTimeEdit::YearSection)
-                           << makeList(9, 0);
-}
-
-void tst_QDateTimeEdit::setCurrentSectionIndex()
-{
-    QFETCH(QString, format);
-    QFETCH(QDateTime, dateTime);
-    QFETCH(QList<int>, setCurrentSectionsIndex);
-    QFETCH(QList<int>, expectedSectionsAt);
-    QFETCH(QList<int>, expectedCursorPositions);
-
-    Q_ASSERT(setCurrentSectionsIndex.size() == expectedCursorPositions.size());
-    Q_ASSERT(expectedSectionsAt.size() == expectedCursorPositions.size());
-    testWidget->setDisplayFormat(format);
-    testWidget->setDateTime(dateTime);
-#ifdef Q_WS_MAC
-    QTest::keyClick(testWidget, Qt::Key_Left, Qt::ControlModifier);
-#else
-    QTest::keyClick(testWidget, Qt::Key_Home);
 #endif
-
-    testWidget->resize(400, 100);
-    for (int i=0; i<setCurrentSectionsIndex.size(); ++i) {
-        testWidget->setCurrentSectionIndex(setCurrentSectionsIndex.at(i));
-        QCOMPARE(testWidget->currentSectionIndex(), setCurrentSectionsIndex.at(i));
-        QCOMPARE(testWidget->sectionAt(setCurrentSectionsIndex.at(i)), (QDateTimeEdit::Section)expectedSectionsAt.at(i));
-        QCOMPARE(testWidget->lineEdit()->cursorPosition(), expectedCursorPositions.at(i));
-    }
-}
-
-void tst_QDateTimeEdit::sectionCount_data()
-{
-    QTest::addColumn<QString>("format");
-    QTest::addColumn<int>("expectedSectionCount");
-    QTest::newRow("yyyy/123/MM") << QString("yyyy/123/MM") << 2;
-    QTest::newRow("yyyy/yy/yyyy") << QString("yyyy/yy/yyyy") << 3;
-    QTest::newRow("h hh hhh hhhh") << QString("h hh hhh hhhh") << 6;
-}
-
-void tst_QDateTimeEdit::sectionCount()
-{
-    QFETCH(QString, format);
-    QFETCH(int, expectedSectionCount);
-    testWidget->setDisplayFormat(format);
-    QCOMPARE(testWidget->sectionCount(), expectedSectionCount);
-}
 
 void tst_QDateTimeEdit::hour12Test()
 {
@@ -2754,169 +2639,29 @@ void tst_QDateTimeEdit::hour12Test()
 
 void tst_QDateTimeEdit::yyTest()
 {
-    testWidget->setDisplayFormat("yy");
-    const int centuries[2] = {2000, 1900};
-    for (int i=0; i<2; ++i) {
-        testWidget->setDate(QDate(centuries[i], 1, 1));
-        QCOMPARE(testWidget->lineEdit()->displayText(), QString("00"));
-        QCOMPARE(testWidget->date(), QDate(centuries[i], 1, 1));
-        QTest::keyClick(testWidget, Qt::Key_Up);
-        QCOMPARE(testWidget->lineEdit()->displayText(), QString("01"));
-        QCOMPARE(testWidget->date(), QDate(centuries[i] + 1, 1, 1));
-        QTest::keyClick(testWidget, Qt::Key_Return);
-        QTest::keyClick(testWidget, Qt::Key_Delete);
-        QCOMPARE(testWidget->lineEdit()->displayText(), QString());
-        QTest::keyClick(testWidget, Qt::Key_7);
-        QCOMPARE(testWidget->lineEdit()->displayText(), QString("7"));
-        QTest::keyClick(testWidget, Qt::Key_1);
-        QCOMPARE(testWidget->lineEdit()->displayText(), QString("71"));
-        QCOMPARE(testWidget->date(), QDate(centuries[i] + 71, 1, 1));
-        QTest::keyClick(testWidget, Qt::Key_1);
-        QCOMPARE(testWidget->lineEdit()->displayText(), QString("71"));
-        QCOMPARE(testWidget->date(), QDate(centuries[i] + 71, 1, 1));
-    }
+    testWidget->setDisplayFormat("dd-MMM-yy");
+    testWidget->setTime(QTime(0, 0, 0));
+    testWidget->setDateRange(QDate(2005, 1, 1), QDate(2010, 12, 31));
+    testWidget->setDate(testWidget->minimumDate());
+    testWidget->setCurrentSection(QDateTimeEdit::YearSection);
+
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("01-Jan-05"));
+    QTest::keyClick(testWidget, Qt::Key_Up);
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("01-Jan-06"));
+    QTest::keyClick(testWidget, Qt::Key_Up);
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("01-Jan-07"));
+    QTest::keyClick(testWidget, Qt::Key_Up);
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("01-Jan-08"));
+    QTest::keyClick(testWidget, Qt::Key_Up);
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("01-Jan-09"));
+    QTest::keyClick(testWidget, Qt::Key_Up);
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("01-Jan-10"));
+    QTest::keyClick(testWidget, Qt::Key_Up);
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("01-Jan-10"));
+    testWidget->setWrapping(true);
+    QTest::keyClick(testWidget, Qt::Key_Up);
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("01-Jan-05"));
 }
-
-void tst_QDateTimeEdit::separatorKeys()
-{
-    testWidget->setDisplayFormat("dd/MMM yyyy hh:mm.ss 7 zzz");
-    testWidget->setDateTime(QDateTime(QDate(1980, 1, 5), QTime(12, 13, 14, 156)));
-#ifdef Q_WS_MAC
-    QTest::keyClick(testWidget, Qt::Key_Left, Qt::ControlModifier);
-#else
-    QTest::keyClick(testWidget, Qt::Key_Home);
-#endif
-    QTest::keyClick(testWidget, Qt::Key_Enter);
-    QTest::keyClick(testWidget, Qt::Key_3);
-    QTest::keyClick(testWidget, Qt::Key_Slash);
-    QCOMPARE(testWidget->lineEdit()->displayText(), QString("03/Jan 1980 12:13.14 7 156"));
-    QCOMPARE(testWidget->lineEdit()->cursorPosition(), 6);
-    QCOMPARE(testWidget->currentSectionIndex(), 1);
-
-    QTest::keyClick(testWidget, Qt::Key_Space);
-    QCOMPARE(testWidget->lineEdit()->cursorPosition(), 11);
-    QCOMPARE(testWidget->currentSectionIndex(), 2);
-
-    QTest::keyClick(testWidget, Qt::Key_Space);
-    QCOMPARE(testWidget->lineEdit()->cursorPosition(), 14);
-    QCOMPARE(testWidget->currentSectionIndex(), 3);
-
-    QTest::keyClick(testWidget, Qt::Key_Colon);
-    QCOMPARE(testWidget->lineEdit()->cursorPosition(), 17);
-    QCOMPARE(testWidget->currentSectionIndex(), 4);
-
-    QTest::keyClick(testWidget, Qt::Key_Period);
-    QCOMPARE(testWidget->lineEdit()->cursorPosition(), 20);
-    QCOMPARE(testWidget->currentSectionIndex(), 5);
-
-    QTest::keyClick(testWidget, Qt::Key_7);
-    QCOMPARE(testWidget->lineEdit()->cursorPosition(), 26);
-    QCOMPARE(testWidget->currentSectionIndex(), 6);
-}
-
-void tst_QDateTimeEdit::undoRedo()
-{
-    //test undo/redo feature (in conjunction with the "undoRedoEnabled" property)
-    EditorDateEdit dte(0);
-    dte.setDisplayFormat("yyyy/MM");
-    dte.show();
-
-    //the undo/redo is disabled by default
-
-    QCOMPARE(dte.date(), QDate(2000, 1, 1)); //this is the default value
-    QVERIFY(!dte.isUndoAvailable());
-    QVERIFY(!dte.isRedoAvailable());
-
-    dte.setSelectedSection(QDateTimeEdit::MonthSection);
-    QTest::keyClick(&dte, Qt::Key_0);
-    QTest::keyClick(&dte, Qt::Key_2);
-    QCOMPARE(dte.date(), QDate(2000, 2, 1));
-    QVERIFY(dte.isUndoAvailable());
-
-    //testing CTRL+Z (undo)
-    int val = QKeySequence(QKeySequence::Undo)[0];
-    Qt::KeyboardModifiers mods = (Qt::KeyboardModifiers)(val & Qt::KeyboardModifierMask);
-    QTest::keyClick(&dte, val & ~mods, mods);
-    QTest::keyClick(&dte, val & ~mods, mods);
-
-    QCOMPARE(dte.date(), QDate(2000, 1, 1));
-    QVERIFY(!dte.isUndoAvailable());
-    QVERIFY(dte.isRedoAvailable());
-
-    //testing CTRL+Y (redo)
-    val = QKeySequence(QKeySequence::Redo)[0];
-    mods = (Qt::KeyboardModifiers)(val & Qt::KeyboardModifierMask);
-    QTest::keyClick(&dte, val & ~mods, mods);
-    QTest::keyClick(&dte, val & ~mods, mods);
-    QCOMPARE(dte.date(), QDate(2000, 2, 1));
-    QVERIFY(!dte.isRedoAvailable());
-    QVERIFY(dte.isUndoAvailable());
-
-    dte.stepBy(1);
-    dte.undo();
-    QCOMPARE(dte.date(), QDate(2000, 2, 1));
-    dte.redo();
-    QCOMPARE(dte.date(), QDate(2000, 3, 1));
-    dte.setDate(QDate(2001, 2, 2));
-    QVERIFY(!dte.isUndoAvailable());
-    QVERIFY(!dte.isRedoAvailable());
-
-    dte.stepBy(1);
-    dte.stepBy(1);
-    dte.undo();
-    QVERIFY(dte.isUndoAvailable());
-    QVERIFY(dte.isRedoAvailable());
-    dte.setSpecialValueText(QString());
-    QVERIFY(!dte.isUndoAvailable());
-    QVERIFY(!dte.isRedoAvailable());
-
-    dte.stepBy(1);
-    dte.stepBy(1);
-    dte.undo();
-    QVERIFY(dte.isUndoAvailable());
-    QVERIFY(dte.isRedoAvailable());
-    dte.setDisplayFormat(dte.displayFormat());
-    QVERIFY(!dte.isUndoAvailable());
-    QVERIFY(!dte.isRedoAvailable());
-
-    dte.stepBy(1);
-    dte.stepBy(1);
-    dte.undo();
-    QVERIFY(dte.isUndoAvailable());
-    QVERIFY(dte.isRedoAvailable());
-    dte.setMinimumDate(dte.minimumDate());
-    QVERIFY(!dte.isUndoAvailable());
-    QVERIFY(!dte.isRedoAvailable());
-
-    dte.stepBy(1);
-    dte.stepBy(1);
-    dte.undo();
-    QVERIFY(dte.isUndoAvailable());
-    QVERIFY(dte.isRedoAvailable());
-    dte.setMaximumDate(dte.maximumDate());
-    QVERIFY(!dte.isUndoAvailable());
-    QVERIFY(!dte.isRedoAvailable());
-
-    dte.stepBy(1);
-    dte.stepBy(1);
-    dte.undo();
-    QVERIFY(dte.isUndoAvailable());
-    QVERIFY(dte.isRedoAvailable());
-    dte.setMinimumTime(dte.minimumTime());
-    QVERIFY(!dte.isUndoAvailable());
-    QVERIFY(!dte.isRedoAvailable());
-
-    dte.stepBy(1);
-    dte.stepBy(1);
-    dte.undo();
-    QVERIFY(dte.isUndoAvailable());
-    QVERIFY(dte.isRedoAvailable());
-    dte.setMaximumTime(dte.maximumTime());
-    QVERIFY(!dte.isUndoAvailable());
-    QVERIFY(!dte.isRedoAvailable());
-}
-
 
 QTEST_MAIN(tst_QDateTimeEdit)
 #include "tst_qdatetimeedit.moc"
-
