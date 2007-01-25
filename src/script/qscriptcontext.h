@@ -29,9 +29,9 @@ class QScriptContextPrivate;
 class Q_SCRIPT_EXPORT QScriptContext
 {
 public:
-    enum State {
-        Normal,
-        Exception
+    enum ExecutionState {
+        NormalState,
+        ExceptionState
     };
 
     enum Error {
@@ -40,7 +40,7 @@ public:
         SyntaxError,
         TypeError,
         RangeError,
-        URIError,
+        URIError
     };
 
     ~QScriptContext();
@@ -48,7 +48,7 @@ public:
     QScriptContext *parentContext() const;
     QScriptEngine *engine() const;
 
-    State state() const;
+    ExecutionState state() const;
     QScriptValue callee() const;
 
     int argumentCount() const;

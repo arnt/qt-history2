@@ -537,7 +537,7 @@ QScriptContext *QScriptEngine::currentContext() const
 */
 bool QScriptEngine::hasUncaughtException() const
 {
-    return (currentContext()->state() == QScriptContext::Exception);
+    return (currentContext()->state() == QScriptContext::ExceptionState);
 }
 
 /*!

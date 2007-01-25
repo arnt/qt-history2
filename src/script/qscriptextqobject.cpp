@@ -688,9 +688,10 @@ void QScript::ConnectionQObject::execute(void **argv)
     if (m_hasReceiver)
         m_receiver.setProperty(QLatin1String("sender"), tmp);
 
-    if (context->state() == QScriptContext::Exception) {
+    if (context->state() == QScriptContext::ExceptionState) {
         qWarning() << "***" << context->returnValue().toString(); // ### fixme
     }
+
     eng_p->popContext();
 }
 
@@ -873,7 +874,7 @@ void QScript::QtFunction::execute(QScriptContext *context)
             if (scriptable)
                 QScriptablePrivate::get(scriptable)->engine = oldEngine;
 
-            if (context->state() == QScriptContext::Exception) {
+            if (context->state() == QScriptContext::ExceptionState) {
                 result = context->returnValue(); // propagate
             } else {
                 int returnType = QMetaType::type(method.typeName());

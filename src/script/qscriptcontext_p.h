@@ -296,14 +296,15 @@ public:
     QScriptValue throwNotDefined(QScriptNameIdImpl *nameId);
 
     inline QScriptValue throwTypeError(const QString &text)
-        { return q_ptr->throwError(QScriptContext::TypeError, text); }
+    { return q_ptr->throwError(QScriptContext::TypeError, text); }
+
     inline QScriptValue throwSyntaxError(const QString &text)
-        { return q_ptr->throwError(QScriptContext::SyntaxError, text); }
+    { return q_ptr->throwError(QScriptContext::SyntaxError, text); }
 
 public:
     QScriptContext *previous;
     int argc;
-    QScriptContext::State state;
+    QScriptContext::ExecutionState state;
 
     QScriptValue activation;
     QScriptValue thisObject;
@@ -334,7 +335,7 @@ public:
 
 inline void QScriptContextPrivate::init(QScriptContext *parent)
 {
-    state = QScriptContext::Normal;
+    state = QScriptContext::NormalState;
     previous = parent;
     args = 0;
     argc = 0;
@@ -366,12 +367,12 @@ inline QScriptValue QScriptContextPrivate::argument(int index) const
 
 inline void QScriptContextPrivate::throwException()
 {
-    state = QScriptContext::Exception;
+    state = QScriptContext::ExceptionState;
 }
 
 inline void QScriptContextPrivate::recover()
 {
-    state = QScriptContext::Normal;
+    state = QScriptContext::NormalState;
     errorLineNumber = 0;
 }
 

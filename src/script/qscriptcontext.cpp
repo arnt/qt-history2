@@ -100,7 +100,7 @@ QScriptValue QScriptContext::throwValue(const QScriptValue &value)
 {
     Q_D(QScriptContext);
     d->result = value;
-    d->state = QScriptContext::Exception;
+    d->state = QScriptContext::ExceptionState;
     return value;
 }
 
@@ -137,7 +137,7 @@ QScriptValue QScriptContext::throwError(Error error, const QString &text)
     default:
         ctor->newError(&d->result, text);
     }
-    d->state = QScriptContext::Exception;
+    d->state = QScriptContext::ExceptionState;
     return d->result;
 }
 
@@ -154,7 +154,7 @@ QScriptValue QScriptContext::throwError(const QString &text)
     Q_D(QScriptContext);
     QScript::Ecma::Error *ctor = QScriptEnginePrivate::get(engine())->errorConstructor;
     ctor->newError(&d->result, text);
-    d->state = QScriptContext::Exception;
+    d->state = QScriptContext::ExceptionState;
     return d->result;
 }
 
@@ -355,7 +355,7 @@ const QScriptInstruction *QScriptContext::lastInstruction() const
 /*!
   Returns the state of this QScriptContext.
 */
-QScriptContext::State QScriptContext::state() const
+QScriptContext::ExecutionState QScriptContext::state() const
 {
     Q_D(const QScriptContext);
     return d->state;

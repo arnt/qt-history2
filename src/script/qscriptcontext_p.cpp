@@ -657,7 +657,7 @@ Ltop:
 
         eng->popContext();
 
-        if (nested_data->state == QScriptContext::Exception)
+        if (nested_data->state == QScriptContext::ExceptionState)
             Done();
 
         ++iPtr;
@@ -781,7 +781,7 @@ Ltop:
         else if (! isObject(nested_data->result))
             nested_data->result = nested_data->thisObject;
 
-        if (nested_data->state == QScriptContext::Exception) {
+        if (nested_data->state == QScriptContext::ExceptionState) {
             eng->popContext();
             Done();
         }
@@ -1869,7 +1869,7 @@ Ltop:
     {
         Q_ASSERT(stackPtr->isValid());
         result = *stackPtr--;
-        state = QScriptContext::Exception;
+        state = QScriptContext::ExceptionState;
     }   HandleException();
 
     I(Ret):
@@ -1880,14 +1880,14 @@ Ltop:
 //        }
         Q_ASSERT(stackPtr->isValid());
         result = *stackPtr--;
-        state = QScriptContext::Normal;
+        state = QScriptContext::NormalState;
 
         ++iPtr;
     }   Done();
 
     I(Halt):
     {
-        state = QScriptContext::Normal;
+        state = QScriptContext::NormalState;
 
         ++iPtr;
     }   Done();
@@ -1949,7 +1949,7 @@ Lhandle_exception:
 Ldone:
     Q_ASSERT(isValid(result));
 
-    if (state == QScriptContext::Exception) {
+    if (state == QScriptContext::ExceptionState) {
         if (catching) {
             // exception thrown in catch -- clean up scopechain
             QScriptValue object = scopeChain;
