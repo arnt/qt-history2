@@ -1407,6 +1407,17 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
         }
     }
 
+    // This is to acommodate for the fact that intersectingSet can be inaccurate
+    // for the last item in a segment or for items in the last segment.
+    const QModelIndexList candidates = selection.indexes();
+    QItemSelection ignore;
+    for (int i = 0; i < candidates.count(); ++i) {
+        QModelIndex idx = candidates.at(i);
+        if (!visualRect(idx).intersects(rect)) {
+            ignore.select(idx,idx);
+        }
+    }
+    selection.merge(ignore, QItemSelectionModel::Deselect);
     d->selectionModel->select(selection, command);
 }
 

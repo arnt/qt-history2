@@ -55,6 +55,8 @@ private slots:
     void hideFirstRow();
     void batchedMode();
     void setCurrentIndex();
+    void selection_data();
+    void selection();
 };
 
 // Testing get/set functions
@@ -750,6 +752,131 @@ void tst_QListView::setCurrentIndex()
             }
         }
     }
+}
+
+class PublicListView : public QListView
+{
+    public:
+    PublicListView(QWidget *parent = 0) : QListView(parent)
+    {
+
+    }
+    void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags flags) {
+        QListView::setSelection(rect, flags);
+    }
+};
+
+typedef QList<int> IntList;
+Q_DECLARE_METATYPE(IntList)
+
+void tst_QListView::selection_data()
+{
+    QTest::addColumn<int>("itemCount");
+    QTest::addColumn<int>("viewMode");
+    QTest::addColumn<int>("flow");
+    QTest::addColumn<bool>("wrapping");
+    QTest::addColumn<int>("spacing");
+    QTest::addColumn<QSize>("gridSize");
+    QTest::addColumn<IntList>("hiddenRows");
+    QTest::addColumn<QRect>("selectionRect");
+    QTest::addColumn<IntList>("expectedItems");
+
+    QTest::newRow("select all")
+        << 4                                    // itemCount
+        << int(QListView::ListMode)
+        << int(QListView::TopToBottom)
+        << false                                // wrapping
+        << 0                                    // spacing
+        << QSize()                              // gridSize
+        << IntList()                            // hiddenRows
+        << QRect(0,0, 10, 200)                  // selection rectangle
+        << (IntList() << 0 << 1 << 2 << 3);     // expected items
+    
+    QTest::newRow("select below, (on viewport)")
+        << 4                                    // itemCount
+        << int(QListView::ListMode)
+        << int(QListView::TopToBottom)
+        << false                                // wrapping
+        << 0                                    // spacing
+        << QSize()                              // gridSize
+        << IntList()                            // hiddenRows
+        << QRect(20, 100, 1, 1)                  // selection rectangle
+        << (IntList());     // expected items
+
+    QTest::newRow("select below, (on viewport)")
+        << 4                                    // itemCount
+        << int(QListView::ListMode)
+        << int(QListView::TopToBottom)
+        << true                                 // wrapping
+        << 0                                    // spacing
+        << QSize()                              // gridSize
+        << IntList()                            // hiddenRows
+        << QRect(20, 100, 1, 1)                  // selection rectangle
+        << (IntList());     // expected items
+    
+    QTest::newRow("select to the right, (on viewport)")
+        << 40                                   // itemCount
+        << int(QListView::ListMode)
+        << int(QListView::TopToBottom)
+        << true                                 // wrapping
+        << 0                                    // spacing
+        << QSize()                              // gridSize
+        << IntList()                            // hiddenRows
+        << QRect(300, 10, 1, 1)                 // selection rectangle
+        << (IntList());     // expected items
+    
+    QTest::newRow("select to the right, (on viewport)")
+        << 40                                   // itemCount
+        << int(QListView::ListMode)
+        << int(QListView::TopToBottom)
+        << true                                 // wrapping
+        << 0                                    // spacing
+        << QSize()                              // gridSize
+        << IntList()                            // hiddenRows
+        << QRect(300, 0, 1, 300)                 // selection rectangle
+        << (IntList());     // expected items
+}
+
+void tst_QListView::selection()
+{
+    QFETCH(int, itemCount);
+    QFETCH(int, viewMode);
+    QFETCH(int, flow);
+    QFETCH(bool, wrapping);
+    QFETCH(int, spacing);
+    QFETCH(QSize, gridSize);
+    QFETCH(IntList, hiddenRows);
+    QFETCH(QRect, selectionRect);
+    QFETCH(IntList, expectedItems);
+
+    PublicListView v;
+    QtTestModel model;
+    model.colCount = 1;
+    model.rCount = itemCount;
+
+    v.setModel(&model);
+    v.setViewMode(QListView::ViewMode(viewMode));
+    v.setFlow(QListView::Flow(flow));
+    v.setWrapping(wrapping);
+    v.setSpacing(spacing);
+    if (gridSize.isValid())
+        v.setGridSize(gridSize);
+    for (int j = 0; j < hiddenRows.count(); ++j) {
+        v.setRowHidden(hiddenRows.at(j), true);
+    }
+    v.resize(400,300);
+    v.show();
+    QApplication::processEvents();
+
+    v.setSelection(selectionRect, QItemSelectionModel::Select);
+
+    QModelIndexList selected = v.selectionModel()->selectedIndexes();
+    
+    QCOMPARE(selected.count(), expectedItems.count());
+    for (int i = 0; i < selected.count(); ++i) {
+        QVERIFY(expectedItems.contains(selected.at(i).row()));
+    }
+
 }
 
 
