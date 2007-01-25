@@ -1322,9 +1322,10 @@ QRectF QTextControl::selectionRect(const QTextCursor &cursor) const
 
             const int firstLine = qMin(posLine.lineNumber(), anchorLine.lineNumber());
             const int lastLine = qMax(posLine.lineNumber(), anchorLine.lineNumber());
+            const QTextLayout *layout = posBlock.layout();
             r = QRectF();
             for (int i = firstLine; i <= lastLine; ++i) {
-                r |= posBlock.layout()->lineAt(i).rect().toRect();
+                r |= layout->lineAt(i).rect();
             }
             r.translate(d->doc->documentLayout()->blockBoundingRect(posBlock).topLeft());
         } else {

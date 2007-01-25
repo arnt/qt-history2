@@ -2759,7 +2759,7 @@ QRectF QTextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
 
     const QTextLayout *layout = block.layout();
     QRectF rect = layout->boundingRect();
-    rect.translate(layout->position() + offset);
+    rect.setTopLeft(layout->position() + offset);
     return rect;
 }
 
