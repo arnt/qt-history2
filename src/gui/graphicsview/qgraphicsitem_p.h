@@ -29,7 +29,7 @@
 
 #if !defined(QT_NO_GRAPHICSVIEW) || (QT_EDITION & QT_MODULE_GRAPHICSVIEW) != QT_MODULE_GRAPHICSVIEW
 
-class QGraphicsItemPrivate
+class Q_AUTOTEST_EXPORT QGraphicsItemPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsItem)
 public:
@@ -37,6 +37,13 @@ public:
         ExtraTransform,
         ExtraToolTip,
         ExtraCursor
+    };
+
+    enum AncestorFlag {
+        NoFlag = 0,
+        AncestorHandlesChildEvents = 0x1,
+        AncestorClipsChildren = 0x2,
+        AncestorIgnoresTransformations = 0x4
     };
 
     inline QGraphicsItemPrivate()
@@ -50,11 +57,10 @@ public:
         acceptDrops = 0;
         isMemberOfGroup = 0;
         handlesChildEvents = 0;
-        ancestorHandlesChildEvents = 0;
         itemDiscovered = 0;
         hasTransform = 0;
         hasCursor = 0;
-        ancestorClipsChildren = 0;
+        ancestorFlags = 0;
         flags = 0;
         pad = 0;
     }
@@ -62,11 +68,14 @@ public:
     inline virtual ~QGraphicsItemPrivate()
     { }
 
-    void setAncestorHandlesChildEvents(bool enabled);
-    void setAncestorClipsChildren(bool enabled);
+    void updateAncestorFlag(QGraphicsItem::GraphicsItemFlag childFlag,
+                            AncestorFlag flag = NoFlag, bool enabled = false, bool root = true);
     void setIsMemberOfGroup(bool enabled);
     void remapItemPos(QEvent *event, QGraphicsItem *item);
-    
+    QTransform sceneTransform(const QTransform &worldTransform) const;
+    QPointF genericMapFromScene(const QPointF &pos, const QWidget *viewport) const;
+    bool itemIsUntransformable() const;
+
     inline QVariant extra(Extra type) const
     {
         for (int i = 0; i < extras.size(); ++i) {
@@ -131,13 +140,12 @@ public:
     quint32 acceptDrops : 1;
     quint32 isMemberOfGroup : 1;
     quint32 handlesChildEvents : 1;
-    quint32 ancestorHandlesChildEvents : 1;
     quint32 itemDiscovered : 1;
     quint32 hasTransform : 1;
     quint32 hasCursor : 1;
-    quint32 ancestorClipsChildren : 1;
+    quint32 ancestorFlags : 3;
     quint32 flags : 11;
-    quint32 pad : 4;
+    quint32 pad : 3;
 
     QGraphicsItem *q_ptr;
 };

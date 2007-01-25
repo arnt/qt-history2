@@ -57,7 +57,8 @@ public:
         ItemIsSelectable = 0x2,
         ItemIsFocusable = 0x4,
         ItemClipsToShape = 0x8,
-        ItemClipsChildrenToShape = 0x10
+        ItemClipsChildrenToShape = 0x10,
+        ItemIgnoresTransformations = 0x20
     };
     Q_DECLARE_FLAGS(GraphicsItemFlags, GraphicsItemFlag)
 
@@ -286,6 +287,8 @@ private:
     friend class QGraphicsScenePrivate;
     friend class QGraphicsSceneFindItemBspTreeVisitor;
     friend class QGraphicsView;
+    friend class QGraphicsViewPrivate;
+    friend class tst_QGraphicsItem;
     friend bool qt_closestLeaf(const QGraphicsItem *, const QGraphicsItem *);
     friend bool qt_closestItemFirst(const QGraphicsItem *, const QGraphicsItem *);
 };

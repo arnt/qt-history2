@@ -59,6 +59,7 @@ public:
     QRectF sceneRect;
     bool hasSceneRect;
     QRectF growingItemsBoundingRect;
+    QRectF largestUntransformableItem;
 
     void _q_emitUpdated();
     QList<QRectF> updatedRects;

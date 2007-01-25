@@ -387,12 +387,32 @@ void QGraphicsScenePrivate::_q_generateBspTree()
         unindexedItems = indexedItems;
         lastItemCount = indexedItems.size();
         q->update();
+
+        // Take this opportunity to reset our largest-item counter for
+        // untransformable items. When the items are inserted into the BSP
+        // tree, we'll get an accurate calculation.
+        largestUntransformableItem = QRectF();
     }
 
     // Insert all unindexed items into the tree.
     for (int i = 0; i < unindexedItems.size(); ++i) {
-        if (QGraphicsItem *item = unindexedItems.at(i))
-            bspTree.insertItem(item, item->sceneBoundingRect());
+        if (QGraphicsItem *item = unindexedItems.at(i)) {
+            QRectF rect = item->sceneBoundingRect();
+            bspTree.insertItem(item, rect);
+
+            // If the item ignores view transformations, update our
+            // largest-item-counter to ensure that the view can accurately
+            // discover untransformable items when drawing.
+            if (item->d_ptr->itemIsUntransformable()) {
+                QGraphicsItem *topmostUntransformable = item;
+                while (topmostUntransformable && (topmostUntransformable->d_ptr->ancestorFlags
+                                                  & QGraphicsItemPrivate::AncestorIgnoresTransformations)) {
+                    topmostUntransformable = topmostUntransformable->parentItem();
+                }
+                // ### Verify that this is the correct largest untransformable rectangle.
+                largestUntransformableItem |= item->mapToItem(topmostUntransformable, item->boundingRect()).boundingRect();
+            }
+        }
     }
     unindexedItems.clear();
 
@@ -588,7 +608,8 @@ void QGraphicsScenePrivate::storeMouseButtonsForMouseGrabber(QGraphicsSceneMouse
     for (int i = 0x1; i <= 0x10; i <<= 1) {
         if (event->buttons() & i) {
             mouseGrabberButtonDownPos.insert(Qt::MouseButton(i),
-                                             mouseGrabberItem->mapFromScene(event->scenePos()));
+                                             mouseGrabberItem->d_ptr->genericMapFromScene(event->scenePos(),
+                                                                                          event->widget()));
             mouseGrabberButtonDownScenePos.insert(Qt::MouseButton(i), event->scenePos());
             mouseGrabberButtonDownScreenPos.insert(Qt::MouseButton(i), event->screenPos());
         }
@@ -675,7 +696,7 @@ void QGraphicsScenePrivate::cloneDragDropEvent(QGraphicsSceneDragDropEvent *dest
 void QGraphicsScenePrivate::sendDragDropEvent(QGraphicsItem *item,
                                               QGraphicsSceneDragDropEvent *dragDropEvent)
 {
-    dragDropEvent->setPos(item->mapFromScene(dragDropEvent->scenePos()));
+    dragDropEvent->setPos(item->d_ptr->genericMapFromScene(dragDropEvent->scenePos(), dragDropEvent->widget()));
     sendEvent(item, dragDropEvent);
 }
 
@@ -687,7 +708,7 @@ void QGraphicsScenePrivate::sendHoverEvent(QEvent::Type type, QGraphicsItem *ite
 {
     QGraphicsSceneHoverEvent event(type);
     event.setWidget(hoverEvent->widget());
-    event.setPos(item->mapFromScene(hoverEvent->scenePos()));
+    event.setPos(item->d_ptr->genericMapFromScene(hoverEvent->scenePos(), hoverEvent->widget()));
     event.setScenePos(hoverEvent->scenePos());
     event.setScreenPos(hoverEvent->screenPos());
     sendEvent(item, &event);
@@ -708,12 +729,12 @@ void QGraphicsScenePrivate::sendMouseEvent(QGraphicsSceneMouseEvent *mouseEvent)
     
     for (int i = 0x1; i <= 0x10; i <<= 1) {
         Qt::MouseButton button = Qt::MouseButton(i);
-        mouseEvent->setButtonDownPos(button, mouseGrabberButtonDownPos.value(button, mouseGrabberItem->mapFromScene(mouseEvent->scenePos())));
+        mouseEvent->setButtonDownPos(button, mouseGrabberButtonDownPos.value(button, mouseGrabberItem->d_ptr->genericMapFromScene(mouseEvent->scenePos(), mouseEvent->widget())));
         mouseEvent->setButtonDownScenePos(button, mouseGrabberButtonDownScenePos.value(button, mouseEvent->scenePos()));
         mouseEvent->setButtonDownScreenPos(button, mouseGrabberButtonDownScreenPos.value(button, mouseEvent->screenPos()));
     }
-    mouseEvent->setPos(mouseGrabberItem->mapFromScene(mouseEvent->scenePos()));
-    mouseEvent->setLastPos(mouseGrabberItem->mapFromScene(mouseEvent->lastScenePos()));
+    mouseEvent->setPos(mouseGrabberItem->d_ptr->genericMapFromScene(mouseEvent->scenePos(), mouseEvent->widget()));
+    mouseEvent->setLastPos(mouseGrabberItem->d_ptr->genericMapFromScene(mouseEvent->lastScenePos(), mouseEvent->widget()));
     sendEvent(mouseGrabberItem, mouseEvent);
 }
 
@@ -2489,7 +2510,8 @@ void QGraphicsScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *contextMen
 {
     Q_D(QGraphicsScene);
     if (QGraphicsItem *item = itemAt(contextMenuEvent->scenePos())) {
-        contextMenuEvent->setPos(item->mapFromScene(contextMenuEvent->scenePos()));
+        contextMenuEvent->setPos(item->d_ptr->genericMapFromScene(contextMenuEvent->scenePos(),
+                                                                  contextMenuEvent->widget()));
         d->sendEvent(item, contextMenuEvent);
     }
 }
@@ -2976,7 +2998,8 @@ void QGraphicsScene::wheelEvent(QGraphicsSceneWheelEvent *wheelEvent)
     foreach (QGraphicsItem *item, d->itemsAtPosition(wheelEvent->screenPos(),
                                                      wheelEvent->scenePos(),
                                                      wheelEvent->widget())) {
-        wheelEvent->setPos(item->mapFromScene(wheelEvent->scenePos()));
+        wheelEvent->setPos(item->d_ptr->genericMapFromScene(wheelEvent->scenePos(),
+                                                            wheelEvent->widget()));
         wheelEvent->accept();
         d->sendEvent(item, wheelEvent);
         if (wheelEvent->isAccepted())
@@ -3093,18 +3116,24 @@ void QGraphicsScene::drawItems(QPainter *painter,
     for (int i = 0; i < numItems; ++i) {
         QGraphicsItem *item = items[i];
         painter->save();
-        painter->setTransform(item->sceneTransform(), true);
+
+        if (item->d_ptr->itemIsUntransformable()) {
+            painter->setTransform(item->d_ptr->sceneTransform(painter->worldTransform()), false);
+        } else {
+            painter->setTransform(item->sceneTransform(), true);
+        }
 
         if (item->flags() & QGraphicsItem::ItemClipsToShape)
             painter->setClipPath(item->shape(), Qt::IntersectClip);
-        if (item->d_ptr->ancestorClipsChildren) {
+        if (item->d_ptr->ancestorFlags & QGraphicsItemPrivate::AncestorClipsChildren) {
             // Set a clip path on \a painter by walking up the parent item
             // chain of \a item, intersecting clip paths as long as the item's
             // ancestor clips children.
             QGraphicsItem *target = item->parentItem();
             do {
                 painter->setClipPath(item->mapFromItem(target, target->shape()), Qt::IntersectClip);
-            } while (target->d_ptr->ancestorClipsChildren && (target = target->parentItem()));
+            } while ((target->d_ptr->ancestorFlags & QGraphicsItemPrivate::AncestorClipsChildren)
+                     && (target = target->parentItem()));
         }
 
         item->paint(painter, &options[i], widget);
@@ -3171,12 +3200,31 @@ void QGraphicsScene::itemUpdated(QGraphicsItem *item, const QRectF &rect)
     if (!rect.isNull())
         boundingRect &= rect;
 
-    QRectF sceneBoundingRect = item->sceneTransform().mapRect(boundingRect);
-
-    update(sceneBoundingRect);
-
     QRectF oldGrowingItemsBoundingRect = d->growingItemsBoundingRect;
-    d->growingItemsBoundingRect |= sceneBoundingRect;
+
+    if (item->d_ptr->itemIsUntransformable()) {
+        // Update d->largestUntransformableItem by mapping this item's
+        // bounding rect back to the topmost untransformable item's
+        // untransformed coordinate system (which sort of equals the 1:1
+        // coordinate system of an untransformed view).
+        QGraphicsItem *parent = item;
+        while (parent && (parent->d_ptr->ancestorFlags & QGraphicsItemPrivate::AncestorIgnoresTransformations))
+            parent = parent->parentItem();
+        d->largestUntransformableItem |= item->mapToItem(parent, item->boundingRect()).boundingRect();
+
+        // Update this item in all views, and compensate for
+        // antialiasing. Note: QRect isn't inclusive, so right/bottom need 3
+        // "pixels" of compensation.
+        foreach (QGraphicsView *view, d->views) {
+            QRectF viewportRect = item->d_ptr->sceneTransform(view->viewportTransform()).mapRect(boundingRect);
+            view->viewport()->update(viewportRect.adjusted(-2, -2, 3, 3).toRect());
+        }
+    } else {
+        QRectF sceneBoundingRect = item->sceneTransform().mapRect(boundingRect);
+        update(sceneBoundingRect);
+        d->growingItemsBoundingRect |= sceneBoundingRect;
+    }
+
     if (!d->hasSceneRect && d->growingItemsBoundingRect != oldGrowingItemsBoundingRect)
         emit sceneRectChanged(d->growingItemsBoundingRect);
 }

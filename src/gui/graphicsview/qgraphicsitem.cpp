@@ -239,13 +239,21 @@
     to inside its shape. Its paintEvent() function cannot draw outside its
     shape. For complex shapes, this function can be expensive. It is disabled
     by default. This behavior is enforced by QGraphicsView::drawItems() or
-    QGraphicsScene::drawItems().
+    QGraphicsScene::drawItems(). This flag was introduced in Qt 4.3.
 
     \value ItemClipsChildrenToShape The item clips the painting of all its
     descendents to its own shape. Items that are either direct or indirect
     children of this item cannot draw outside this item's shape. By default,
     this flag is disabled; children can draw anywhere. This behavior is
-    enforced by QGraphicsView::drawItems() or QGraphicsScene::drawItems().
+    enforced by QGraphicsView::drawItems() or
+    QGraphicsScene::drawItems(). This flag was introduced in Qt 4.3.
+
+    \value ItemIgnoresTransformations The item ignores inherited
+    transformations (i.e., its position is still relative to its parent, but
+    the parent or view rotation, zoom or shear transformations are
+    ignored). This flag is particularily useful for text label items, which
+    can become unreadable when the view zooms away from the scene. By default,
+    this flag is disabled. This flag was introduced in Qt 4.3.
 */
 
 /*!
@@ -418,29 +426,64 @@ static QPainterPath qt_graphicsItem_shapeFromPath(const QPainterPath &path, cons
 /*!
     \internal
 
-    Propagates child event handling for this item and all its children.
+    Propagates the ancestor flag \a flag with value \a enabled to all this
+    item's children. If \a root is false, the flag is also set on this item
+    (default is true).
 */
-void QGraphicsItemPrivate::setAncestorHandlesChildEvents(bool enabled)
+void QGraphicsItemPrivate::updateAncestorFlag(QGraphicsItem::GraphicsItemFlag childFlag,
+                                           AncestorFlag flag, bool enabled, bool root)
 {
-    if (!handlesChildEvents) {
-        ancestorHandlesChildEvents = enabled;
-        foreach (QGraphicsItem *child, children)
-            child->d_func()->setAncestorHandlesChildEvents(enabled);
-    }
-}
+    Q_Q(QGraphicsItem);
+    if (root) {
+        // For root items only. This is the item that has either enabled or
+        // disabled \a childFlag, or has been reparented.
+        switch (int(childFlag)) {
+        case -1:
+            flag = AncestorHandlesChildEvents;
+            enabled = q->handlesChildEvents();
+            break;
+        case QGraphicsItem::ItemClipsChildrenToShape:
+            flag = AncestorClipsChildren;
+            enabled = flags & QGraphicsItem::ItemClipsChildrenToShape;
+            break;
+        case QGraphicsItem::ItemIgnoresTransformations:
+            flag = AncestorIgnoresTransformations;
+            enabled = flags & QGraphicsItem::ItemIgnoresTransformations;
+            break;
+        default:
+            return;
+        }
 
-/*!
-    \internal
+        // Inherit the enabled-state from our parents.
+        if ((parent && ((parent->d_ptr->ancestorFlags & flag)
+                        || (int(parent->d_ptr->flags & childFlag) == childFlag)
+                        || (childFlag == -1 && parent->d_ptr->handlesChildEvents)))) {
+            enabled = true;
+            ancestorFlags |= flag;
+        }
 
-    Propagates clipping for this item and all its children.
-*/
-void QGraphicsItemPrivate::setAncestorClipsChildren(bool enabled)
-{
-    ancestorClipsChildren = enabled;
-    foreach (QGraphicsItem *child, children) {
-        if (!(child->flags() & QGraphicsItem::ItemClipsChildrenToShape))
-            child->d_func()->setAncestorClipsChildren(enabled);
+        // Top-level root items don't have any ancestors, so there are no
+        // ancestor flags either.
+        if (!parent)
+            ancestorFlags = 0;
+    } else {
+        // Don't set or propagate the ancestor flag if it's already correct.
+        if (((ancestorFlags & flag) && enabled) || (!(ancestorFlags & flag) && !enabled))
+            return;
+
+        // Set the flag.
+        if (enabled)
+            ancestorFlags |= flag;
+        else
+            ancestorFlags &= ~flag;
+
+        // Don't process children if the item has the main flag set on itself.
+        if ((childFlag != -1 &&  int(flags & childFlag) == childFlag) || (int(childFlag) == -1 && handlesChildEvents))
+            return;
     }
+
+    foreach (QGraphicsItem *child, children)
+        child->d_ptr->updateAncestorFlag(childFlag, flag, enabled, false);
 }
 
 /*!
@@ -500,6 +543,82 @@ void QGraphicsItemPrivate::remapItemPos(QEvent *event, QGraphicsItem *item)
     default:
         break;
     }
+}
+
+/*!
+    \internal
+
+    Returns this item's scene transform given \a worldTransform as the world
+    transformation matrix. This functionality only applies to items that
+    ignore transformations.
+*/
+QTransform QGraphicsItemPrivate::sceneTransform(const QTransform &worldTransform) const
+{
+    Q_Q(const QGraphicsItem);
+
+    // Find the topmost item that ignores view transformations.
+    const QGraphicsItem *untransformedAncestor = q;
+    QList<const QGraphicsItem *> parents;
+    while (untransformedAncestor && ((untransformedAncestor->d_ptr->ancestorFlags
+                                     & QGraphicsItemPrivate::AncestorIgnoresTransformations))) {
+        parents.prepend(untransformedAncestor);
+        untransformedAncestor = untransformedAncestor->parentItem();
+    }
+
+    if (!untransformedAncestor) {
+        // Assert in debug mode, continue in release.
+        Q_ASSERT_X(untransformedAncestor, "QGraphicsItemPrivate::sceneTransform",
+                   "Invalid object structure!");
+        return QTransform();
+    }
+
+    // First translate the base untransformable item.
+    QPointF mappedPoint = (untransformedAncestor->sceneTransform() * worldTransform).map(QPointF(0, 0));
+    QTransform matrix;
+    matrix.translate(mappedPoint.x(), mappedPoint.y());
+    matrix = untransformedAncestor->transform() * matrix;
+
+    // Then transform and translate all children.
+    for (int i = 0; i < parents.size(); ++i) {
+        const QGraphicsItem *parent = parents.at(i);
+        QPointF pos = parent->pos();
+        QTransform moveMatrix;
+        moveMatrix.translate(pos.x(), pos.y());
+        matrix = (parent->transform() * moveMatrix) * matrix;
+    }
+
+    return matrix;
+}
+
+/*!
+    \internal
+
+    Maps the point \a pos from scene to item coordinates. If \a view is passed and the item
+    is untransformable, this function will correctly map \a pos from the scene using the
+    view's transformation.
+*/
+QPointF QGraphicsItemPrivate::genericMapFromScene(const QPointF &pos,
+                                                  const QWidget *viewport) const
+{
+    Q_Q(const QGraphicsItem);
+    if (!itemIsUntransformable())
+        return q->mapFromScene(pos);
+    QGraphicsView *view = !viewport ? 0 : qobject_cast<QGraphicsView *>(viewport->parentWidget());
+    if (!view)
+        return q->mapFromScene(pos);
+    // ### More ping pong than needed.
+    return sceneTransform(view->viewportTransform()).inverted().map(view->mapFromScene(pos));
+}
+
+/*!
+    \internal
+
+    Returns true if this item or any of its ancestors are untransformable.
+*/
+bool QGraphicsItemPrivate::itemIsUntransformable() const
+{
+    return (flags & QGraphicsItem::ItemIgnoresTransformations)
+        || (ancestorFlags & AncestorIgnoresTransformations);
 }
 
 /*!
@@ -697,24 +816,16 @@ void QGraphicsItem::setParentItem(QGraphicsItem *parent)
         if (!implicitUpdate)
             update();
 
-        // Optionally inherit ancestor event handling from the new parent
-        if (!d_ptr->handlesChildEvents) {
-            d_ptr->setAncestorHandlesChildEvents(parent->handlesChildEvents()
-                                             || parent->d_func()->ancestorHandlesChildEvents);
-        }
-
-        // Optionally inherit ancestor child clipping from the new parent.
-        if (d_ptr->ancestorClipsChildren != d_ptr->parent->d_ptr->ancestorClipsChildren)
-            d_ptr->setAncestorClipsChildren(d_ptr->parent->d_ptr->ancestorClipsChildren);
+        // Inherit ancestor flags from the new parent.
+        d_ptr->updateAncestorFlag(QGraphicsItem::GraphicsItemFlag(-1));
+        d_ptr->updateAncestorFlag(ItemClipsChildrenToShape);
+        d_ptr->updateAncestorFlag(ItemIgnoresTransformations);
     } else {
-        // Item is a top-level; clear the ancestor event handling flag
-        d_ptr->setAncestorHandlesChildEvents(false);
+        // Inherit ancestor flags from the new parent.
+        d_ptr->updateAncestorFlag(QGraphicsItem::GraphicsItemFlag(-1));
+        d_ptr->updateAncestorFlag(ItemClipsChildrenToShape);
+        d_ptr->updateAncestorFlag(ItemIgnoresTransformations);
 
-        // If it doesn't clip children, clear the ancestor clipping flag for
-        // all descendents.
-        if (!(d_ptr->flags & ItemClipsChildrenToShape))
-            d_ptr->setAncestorClipsChildren(false);
-        d_ptr->ancestorClipsChildren = false;
         update();
     }
 }
@@ -759,6 +870,24 @@ void QGraphicsItem::setFlag(GraphicsItemFlag flag, bool enabled)
 }
 
 /*!
+    \internal
+
+    Sets the flag \a flag on \a item and all its children, to \a enabled.
+*/
+static void _q_qgraphicsItemSetFlag(QGraphicsItem *item, QGraphicsItem::GraphicsItemFlag flag,
+                                    bool enabled)
+{
+    if (item->flags() & flag) {
+        // If this item already has the correct flag set, we don't have to
+        // propagate it.
+        return;
+    }
+    item->setFlag(flag, enabled);
+    foreach (QGraphicsItem *child, item->children())
+        _q_qgraphicsItemSetFlag(child, flag, enabled);
+}
+
+/*!
     Sets the item flags to \a flags. All flags in \a flags are enabled; all
     flags not in \a flags are disabled.
 
@@ -790,23 +919,17 @@ void QGraphicsItem::setFlags(GraphicsItemFlags flags)
         }
 
         if ((flags & ItemClipsChildrenToShape) != (oldFlags & ItemClipsChildrenToShape)) {
-            // Item children clipping changes.
-            if ((flags & ItemClipsChildrenToShape) && !d_ptr->ancestorClipsChildren) {
-                // If this item should clip its children and it doesn't
-                // already, then propagate the ancestorClipsChildren flag to
-                // all children, but keep this item's ancestor flag unchanged.
-                d_ptr->setAncestorClipsChildren(true);
-                d_ptr->ancestorClipsChildren = false;
-            } else if (!(flags & ItemClipsChildrenToShape)) {
-                // If this item should not clip its children, propagate the
-                // ancestorClipsChildren flag to all children, but keep this
-                // item's ancestor flag unchanged.
-                bool usedToClipChildren = d_ptr->ancestorClipsChildren;
-                d_ptr->setAncestorClipsChildren(false);
-                d_ptr->ancestorClipsChildren = usedToClipChildren;
-            }
+            // Item children clipping changes. Propagate the ancestor flag to
+            // all children.
+            d_ptr->updateAncestorFlag(ItemClipsChildrenToShape);
         }
-
+       
+        if ((flags & ItemIgnoresTransformations) != (oldFlags & ItemIgnoresTransformations)) {
+            // Item children clipping changes. Propagate the ancestor flag to
+            // all children.
+            d_ptr->updateAncestorFlag(ItemIgnoresTransformations);
+        }
+        
         update();
     }
 }
@@ -1268,8 +1391,7 @@ void QGraphicsItem::setHandlesChildEvents(bool enabled)
         return;
 
     d_ptr->handlesChildEvents = enabled;
-    foreach (QGraphicsItem *item, d_ptr->children)
-        item->d_func()->setAncestorHandlesChildEvents(enabled);
+    d_ptr->updateAncestorFlag(QGraphicsItem::GraphicsItemFlag(-1));
 }
 
 /*!
@@ -2704,7 +2826,7 @@ bool QGraphicsItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
 */
 bool QGraphicsItem::sceneEvent(QEvent *event)
 {
-    if (d_ptr->ancestorHandlesChildEvents) {
+    if (d_ptr->ancestorFlags & QGraphicsItemPrivate::AncestorHandlesChildEvents) {
         if (event->type() == QEvent::HoverEnter || event->type() == QEvent::HoverLeave
             || event->type() == QEvent::DragEnter || event->type() == QEvent::DragLeave) {
             // Hover enter and hover leave events for children are ignored;

@@ -190,6 +190,7 @@ static const int QGRAPHICSVIEW_REGION_RECT_THRESHOLD = 50;
 #ifndef QT_NO_GRAPHICSVIEW
 
 #include "qgraphicsitem.h"
+#include "qgraphicsitem_p.h"
 #include "qgraphicsscene.h"
 #include "qgraphicsscene_p.h"
 #include "qgraphicssceneevent.h"
@@ -227,6 +228,9 @@ public:
     qint64 horizontalScroll() const;
     qint64 verticalScroll() const;
 
+    QList<QGraphicsItem *> itemsInArea(const QPainterPath &path,
+                                       Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
+    
     QPointF mousePressItemPoint;
     QPointF mousePressScenePoint;
     QPoint mousePressViewPoint;
@@ -1521,6 +1525,64 @@ QList<QGraphicsItem *> QGraphicsView::items() const
 }
 
 /*!
+    Returns all items in the area \a path, which is in viewport coordinates,
+    also taking untransformable items into consideration. This function is
+    considerably slower than just checking the scene directly. There is
+    certainly room for improvement.
+*/
+QList<QGraphicsItem *> QGraphicsViewPrivate::itemsInArea(const QPainterPath &path,
+                                                         Qt::ItemSelectionMode mode) const
+{
+    Q_Q(const QGraphicsView);
+
+    // Determine the size of the largest untransformable subtree of children
+    // mapped to scene coordinates.
+    QRectF ltri = matrix.inverted().mapRect(scene->d_func()->largestUntransformableItem);
+    QRectF rect = path.controlPointRect();
+
+    // Find all possible items in the relevant area.
+    // ### Improve this algorithm; it might be searching a too large area.
+    QRectF adjustedRect = rect;
+    adjustedRect.adjust(-qAbs(ltri.right()), -qAbs(ltri.bottom()), qAbs(ltri.left()), qAbs(ltri.top()));
+
+    // First build a (potentially large) list of all items in the vicinity
+    // that might be untransformable.
+    QList<QGraphicsItem *> allCandidates = scene->d_func()->estimateItemsInRect(q->mapToScene(adjustedRect.toRect()).boundingRect());
+
+    // Then find the minimal list of items that are inside \a path, and
+    // convert it to a set.
+    QList<QGraphicsItem *> regularCandidates = scene->items(q->mapToScene(path), mode);
+    QSet<QGraphicsItem *> candSet = QSet<QGraphicsItem *>::fromList(regularCandidates);
+
+    QTransform viewMatrix = q->viewportTransform();
+    
+    QList<QGraphicsItem *> result;
+
+    // Run through all candidates and keep all items that are in candSet, or
+    // are untransformable and collide with \a path. ### We can improve this
+    // algorithm.
+    QList<QGraphicsItem *>::Iterator it = allCandidates.begin();
+    while (it != allCandidates.end()) {
+        QGraphicsItem *item = *it;
+        if (item->d_ptr->itemIsUntransformable()) {
+            // Check if this untransformable item collides with the
+            // original selection rect.
+            QTransform itemTransform = item->d_ptr->sceneTransform(viewMatrix);
+            if (item->collidesWithPath(itemTransform.inverted().map(path), mode))
+                result << item;
+        } else {
+            if (candSet.contains(item))
+                result << item;
+        }
+        ++it;
+    }
+    
+    // ### Insertion sort would be faster.
+    QGraphicsScenePrivate::sortItems(&result);
+    return result;
+}
+
+/*!
     Returns a list of all the items at the position \a pos in the view. The
     items are listed in descending Z order (i.e., the first item in the list
     is the top-most item, and the last item is the bottom-most item). \a pos
@@ -1545,7 +1607,12 @@ QList<QGraphicsItem *> QGraphicsView::items(const QPoint &pos) const
     Q_D(const QGraphicsView);
     if (!d->scene)
         return QList<QGraphicsItem *>();
-    return d->scene->items(mapToScene(pos.x(), pos.y(), 2, 2));
+    if (d->scene->d_func()->largestUntransformableItem.isNull())
+        return d->scene->items(mapToScene(pos.x(), pos.y(), 2, 2));
+
+    QPainterPath path;
+    path.addRect(QRectF(pos.x(), pos.y(), 1, 1));
+    return d->itemsInArea(path);
 }
 
 /*!
@@ -1572,7 +1639,12 @@ QList<QGraphicsItem *> QGraphicsView::items(const QRect &rect, Qt::ItemSelection
     Q_D(const QGraphicsView);
     if (!d->scene)
         return QList<QGraphicsItem *>();
-    return d->scene->items(mapToScene(rect), mode);
+    if (d->scene->d_func()->largestUntransformableItem.isNull())
+        return d->scene->items(mapToScene(rect), mode);
+
+    QPainterPath path;
+    path.addRect(rect);
+    return d->itemsInArea(path);
 }
 
 /*!
@@ -1599,7 +1671,12 @@ QList<QGraphicsItem *> QGraphicsView::items(const QPolygon &polygon, Qt::ItemSel
     Q_D(const QGraphicsView);
     if (!d->scene)
         return QList<QGraphicsItem *>();
-    return d->scene->items(mapToScene(polygon), mode);
+    if (d->scene->d_func()->largestUntransformableItem.isNull())
+        return d->scene->items(mapToScene(polygon), mode);
+
+    QPainterPath path;
+    path.addPolygon(polygon);
+    return d->itemsInArea(path);
 }
 
 /*!
@@ -1619,7 +1696,9 @@ QList<QGraphicsItem *> QGraphicsView::items(const QPainterPath &path, Qt::ItemSe
     Q_D(const QGraphicsView);
     if (!d->scene)
         return QList<QGraphicsItem *>();
-    return d->scene->items(mapToScene(path), mode);
+    if (d->scene->d_func()->largestUntransformableItem.isNull())
+        return d->scene->items(mapToScene(path), mode);
+    return d->itemsInArea(path);
 }
 
 /*!
@@ -2594,10 +2673,7 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
                           d->renderHints & QPainter::Antialiasing);
     painter.setRenderHint(QPainter::SmoothPixmapTransform,
                           d->renderHints & QPainter::SmoothPixmapTransform);
-    QTransform moveMatrix;
-    moveMatrix.translate(-d->horizontalScroll(), -d->verticalScroll());
-    QTransform painterMatrix = d->matrix * moveMatrix;
-    painter.setTransform(painterMatrix);
+    painter.setTransform(viewportTransform());
 
 #ifdef QGRAPHICSVIEW_DEBUG
     QTime stopWatch;
@@ -2607,8 +2683,23 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
 
     // Transform the exposed viewport rects to scene polygons
     QList<QRectF> exposedRects;
-    foreach (QRect rect, exposedRegion.rects())
-        exposedRects << mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect();
+
+    // Map the largest untransformable item subtree boundingrect to viewport
+    // coordinates.
+    QRectF untransformableRect = d->matrix.mapRect(d->scene->d_func()->largestUntransformableItem);
+    foreach (QRect rect, exposedRegion.rects()) {
+        QRectF exposed = mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect();
+
+        if (!untransformableRect.isNull()) {
+            // If there are items that ignore view transformations in the
+            // scene, make sure we expand our exposed rectangles with half the
+            // width and height in viewport coordinates. Since these items are
+            // indexed by their position only, this is
+            QRectF r = untransformableRect;
+            exposed.adjust(-qAbs(r.right()), -qAbs(r.bottom()), qAbs(r.left()), qAbs(r.top()));
+        }
+        exposedRects << exposed;
+    }
 
     // Find all exposed items
     QList<QGraphicsItem *> itemList;
@@ -2648,7 +2739,7 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
 
         // Redraw exposed areas
         QPainter backgroundPainter(&d->backgroundPixmap);
-        backgroundPainter.setTransform(painterMatrix);
+        backgroundPainter.setTransform(viewportTransform());
         foreach (QRect rect, d->backgroundPixmapExposed.rects()) {
             backgroundPainter.save();
             QRectF exposedSceneRect = mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect();
@@ -2948,6 +3039,18 @@ QTransform QGraphicsView::transform() const
     return d->matrix;
 }
 
+/*!
+    Returns a matrix that maps viewport coordinates to scene coordinates.
+
+    \sa mapToScene(), mapFromScene()
+*/
+QTransform QGraphicsView::viewportTransform() const
+{
+    Q_D(const QGraphicsView);
+    QTransform moveMatrix;
+    moveMatrix.translate(-d->horizontalScroll(), -d->verticalScroll());
+    return d->matrix * moveMatrix;
+}
 
 /*!
     Sets the view's current transformation matrix to \a matrix.

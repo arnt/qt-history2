@@ -116,6 +116,7 @@ public:
     void setMatrix(const QMatrix &matrix, bool combine = false);
     void resetMatrix();
     QTransform transform() const;
+    QTransform viewportTransform() const;
     void setTransform(const QTransform &matrix, bool combine = false);
     void resetTransform();
     void rotate(qreal angle);
