@@ -1241,8 +1241,6 @@ void QMainWindowLayout::applyState(QMainWindowLayoutState &newState, bool animat
     QSet<QTabBar*> used = newState.dockAreaLayout.usedTabBars();
     QSet<QTabBar*> retired = usedTabBars - used;
     usedTabBars = used;
-    if (!retired.isEmpty())
-        qDebug() << "QMainWindowLayout::applyState() used:" << used << "retired:" << retired;
     foreach (QTabBar *tab_bar, retired) {
         tab_bar->hide();
         while (tab_bar->count() > 0)
