@@ -151,7 +151,7 @@ private:
     int m_index;
 };
 
-class ExtQClassData: public QScriptClassData
+class ExtQMetaObjectData: public QScriptClassData
 {
 public:
     virtual bool resolve(const QScriptValue &object, QScriptNameIdImpl *nameId,
@@ -161,10 +161,10 @@ public:
     virtual void mark(const QScriptValue &object, int generation);
 };
 
-class ExtQClass: public QScriptFunction
+class ExtQMetaObject: public QScriptFunction
 {
 public:
-    ExtQClass(const QMetaObject *meta, const QScriptValue &ctor);
+    ExtQMetaObject(const QMetaObject *meta, const QScriptValue &ctor);
 
     virtual void execute(QScriptContext *context);
 

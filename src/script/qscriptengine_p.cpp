@@ -1177,7 +1177,7 @@ void QScriptEnginePrivate::init()
     m_class_qobject = registerClass(QLatin1String("qobject"), QScript::QObjectType);
     m_class_qclass = registerClass(QLatin1String("qclass"), QScript::FunctionType);
 #ifndef QT_NO_QOBJECT
-    QExplicitlySharedDataPointer<QScriptClassData> data(new QScript::ExtQClassData());
+    QExplicitlySharedDataPointer<QScriptClassData> data(new QScript::ExtQMetaObjectData());
     m_class_qclass->setData(data);
 #endif
 

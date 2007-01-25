@@ -1210,7 +1210,7 @@ bool QScriptValue::isObject() const
   Returns true if this QScriptValue is a variant value;
   otherwise returns false.
 
-  \sa toVariant(), QScriptEngine::scriptValueFromVariant()
+  \sa toVariant(), QScriptEngine::newVariant()
 */
 bool QScriptValue::isVariant() const
 {

@@ -63,13 +63,13 @@ private:
 #ifndef QT_NO_QOBJECT
 
 template <class T>
-static inline QScriptValue qscriptQClassConstructor(QScriptContext *, QScriptEngine *)
+static inline QScriptValue qscriptQMetaObjectConstructor(QScriptContext *, QScriptEngine *)
 {
     return 0;
 }
 
 template <class T>
-inline QScriptValue qScriptValueFromQClass(QScriptEngine *engine);
+inline QScriptValue qScriptValueFromQMetaObject(QScriptEngine *engine);
 
 #endif // QT_NO_QOBJECT
 
@@ -132,9 +132,9 @@ public:
                                 const QScriptValue &ctor = QScriptValue());
 
 #  ifndef QT_NO_MEMBER_TEMPLATES
-    template <class T> QScriptValue scriptValueFromQClass()
+    template <class T> QScriptValue scriptValueFromQMetaObject()
     {
-        return qScriptValueFromQClass<T>(this);
+        return qScriptValueFromQMetaObject<T>(this);
     }
 #  endif // QT_NO_MEMBER_TEMPLATES
 #endif // QT_NO_QOBJECT
@@ -184,14 +184,14 @@ private:
 
 #ifndef QT_NO_QOBJECT
 template <class T>
-inline QScriptValue qScriptValueFromQClass(QScriptEngine *engine)
+inline QScriptValue qScriptValueFromQMetaObject(QScriptEngine *engine)
 {
     return engine->newQMetaObject(&T::staticMetaObject,
-                                  engine->newFunction(qscriptQClassConstructor<T>));
+                                  engine->newFunction(qscriptQMetaObjectConstructor<T>));
 }
 
-#define Q_SCRIPT_DECLARE_QCLASS(T, _Arg1) \
-template<> static inline QScriptValue qscriptQClassConstructor<T>(QScriptContext *ctx, QScriptEngine *eng) \
+#define Q_SCRIPT_DECLARE_QMETAOBJECT(T, _Arg1) \
+template<> static inline QScriptValue qscriptQMetaObjectConstructor<T>(QScriptContext *ctx, QScriptEngine *eng) \
 { \
     _Arg1 arg1 = qscript_cast<_Arg1> (ctx->argument(0)); \
     return eng->newQObject(new T(arg1)); \

@@ -392,10 +392,10 @@ struct StaticQtMetaObject : public QObject
         { return &static_cast<StaticQtMetaObject*> (0)->staticQtMetaObject; }
 };
 
-bool ExtQClassData::resolve(const QScriptValue &object, QScriptNameIdImpl *nameId,
+bool ExtQMetaObjectData::resolve(const QScriptValue &object, QScriptNameIdImpl *nameId,
                                  QScript::Member *member, QScriptValue *base)
 {
-    QScript::ExtQClass *self = static_cast<QScript::ExtQClass*> (QScriptValueImpl::get(object)->toFunction());
+    QScript::ExtQMetaObject *self = static_cast<QScript::ExtQMetaObject*> (QScriptValueImpl::get(object)->toFunction());
     const QMetaObject *meta = self->m_meta;
 
     QScriptEngine *eng = object.engine();
@@ -425,7 +425,7 @@ bool ExtQClassData::resolve(const QScriptValue &object, QScriptNameIdImpl *nameI
     return false;
 }
 
-bool ExtQClassData::get(const QScriptValue &obj, const QScript::Member &member,
+bool ExtQMetaObjectData::get(const QScriptValue &obj, const QScript::Member &member,
                              QScriptValue *result)
 {
     if (! member.isNativeProperty())
@@ -435,9 +435,9 @@ bool ExtQClassData::get(const QScriptValue &obj, const QScript::Member &member,
     return true;
 }
 
-void ExtQClassData::mark(const QScriptValue &object, int generation)
+void ExtQMetaObjectData::mark(const QScriptValue &object, int generation)
 {
-    QScript::ExtQClass *self = static_cast<QScript::ExtQClass*> (QScriptValueImpl::get(object)->toFunction());
+    QScript::ExtQMetaObject *self = static_cast<QScript::ExtQMetaObject*> (QScriptValueImpl::get(object)->toFunction());
     if (self->m_ctor.isObject())
         self->m_ctor.mark(generation);
 }
@@ -955,12 +955,12 @@ QScript::QtFunction::~QtFunction()
     qDeleteAll(m_connections);
 }
 
-QScript::ExtQClass::ExtQClass(const QMetaObject *meta, const QScriptValue &ctor):
+QScript::ExtQMetaObject::ExtQMetaObject(const QMetaObject *meta, const QScriptValue &ctor):
     m_meta(meta), m_ctor(ctor)
 {
 }
 
-void QScript::ExtQClass::execute(QScriptContext *context)
+void QScript::ExtQMetaObject::execute(QScriptContext *context)
 {
     if (m_ctor.isFunction()) {
         QScriptValueList args;
