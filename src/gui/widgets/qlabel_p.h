@@ -80,6 +80,7 @@ public:
     ushort align;
     short indent;
     uint scaledcontents :1;
+    mutable uint textLayoutDirty : 1;
     mutable uint textDirty : 1;
     Qt::TextFormat textformat;
     QTextDocument* doc;

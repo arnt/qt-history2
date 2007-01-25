@@ -256,6 +256,7 @@ void QLabelPrivate::init()
     align = Qt::AlignLeft | Qt::AlignVCenter | Qt::TextExpandTabs;
     indent = -1;
     scaledcontents = false;
+    textLayoutDirty = false;
     textDirty = false;
     textformat = Qt::AutoText;
     doc = 0;
@@ -305,8 +306,16 @@ void QLabel::setText(const QString &text)
     if (d->text == text)
         return;
 
+    // don't delete the document in clearContents() if we already have one, we're
+    // going to need it for sure.
+    QTextDocument *currentDoc = d->doc;
+    d->doc = 0;
+
     d->clearContents();
     d->text = text;
+    d->textDirty = true;
+
+    d->doc = currentDoc;
 
     if (!d->doc) {
         d->doc = new QTextDocument(this);
@@ -315,10 +324,8 @@ void QLabel::setText(const QString &text)
     }
 
     if (d->isRichText()) {
-        d->doc->setHtml(text);
         setMouseTracking(true);
     } else {
-        d->doc->setPlainText(text);
         // Note: mouse tracking not disabled intentionally
         if (d->textInteractionFlags & (Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard)) {
             d->ensureTextControl();
@@ -886,7 +893,7 @@ bool QLabel::event(QEvent *e)
     } else
 #endif
     if (type == QEvent::Resize && d->doc) {
-        d->textDirty = true;
+        d->textLayoutDirty = true;
     } else if (e->type() == QEvent::StyleChange) {
         d->updateLabel();
     }
@@ -1021,7 +1028,7 @@ void QLabelPrivate::updateLabel()
         policy.setHeightForWidth(wrap);
         if (policy != q->sizePolicy())
             q->setSizePolicy(policy);
-        textDirty = true;
+        textLayoutDirty = true;
     }
     q->updateGeometry();
     q->update(q->contentsRect());
@@ -1342,10 +1349,18 @@ QRect QLabelPrivate::documentRect() const
 
 void QLabelPrivate::ensureTextLayouted() const
 {
-    if (!textDirty)
+    if (!textLayoutDirty && !textDirty)
         return;
     Q_Q(const QLabel);
     if (doc) {
+        if (textDirty) {
+            if (isRichText())
+                doc->setHtml(text);
+            else
+                doc->setPlainText(text);
+            doc->setUndoRedoEnabled(false);
+        }
+
         QTextDocumentLayout *lout = qobject_cast<QTextDocumentLayout *>(doc->documentLayout());
         Q_ASSERT(lout);
 
@@ -1365,6 +1380,7 @@ void QLabelPrivate::ensureTextLayouted() const
         doc->rootFrame()->setFrameFormat(fmt);
         doc->setTextWidth(documentRect().width());
     }
+    textLayoutDirty = false;
     textDirty = false;
 }
 
