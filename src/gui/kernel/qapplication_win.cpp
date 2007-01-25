@@ -2592,7 +2592,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
             case QEvent::MouseButtonPress:
             case QEvent::MouseButtonDblClick:
             case QEvent::MouseButtonRelease:
-                popup->close();
+                target->close();
                 break;
             default:
                 break;
