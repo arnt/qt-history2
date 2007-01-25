@@ -35,12 +35,12 @@ public:
     };
 
     enum Error {
+        GenericError,
         ReferenceError,
         SyntaxError,
         TypeError,
         RangeError,
         URIError,
-        GenericError
     };
 
     ~QScriptContext();
@@ -77,8 +77,6 @@ public:
     QScriptValue throwValue(const QScriptValue &value);
     QScriptValue throwError(Error error, const QString &text);
     QScriptValue throwError(const QString &text);
-
-    void recoverFromException();
 
     int errorLineNumber() const;
 

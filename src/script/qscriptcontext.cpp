@@ -181,7 +181,8 @@ QScriptContext::~QScriptContext()
 */
 QScriptEngine *QScriptContext::engine() const
 {
-    return d_func()->engine();
+    Q_D(const QScriptContext);
+    return d->engine();
 }
 
 /*!
@@ -194,7 +195,8 @@ QScriptEngine *QScriptContext::engine() const
 */
 QScriptValue QScriptContext::argument(int index) const
 {
-    return d_func()->argument(index);
+    Q_D(const QScriptContext);
+    return d->argument(index);
 }
 
 /*!
@@ -203,7 +205,8 @@ QScriptValue QScriptContext::argument(int index) const
 */
 QScriptValue QScriptContext::callee() const
 {
-    return d_func()->callee;
+    Q_D(const QScriptContext);
+    return d->callee;
 }
 
 /*!
@@ -215,17 +218,8 @@ QScriptValue QScriptContext::callee() const
 */
 bool QScriptContext::calledAsConstructor() const
 {
-    return d_func()->calledAsConstructor;
-}
-
-/*!
-  Recovers from an exception; i.e. puts the context back in the Normal state.
-
-  \sa state(), throwError()
-*/
-void QScriptContext::recoverFromException()
-{
-    d_func()->recover();
+    Q_D(const QScriptContext);
+    return d->calledAsConstructor;
 }
 
 /*!
