@@ -2166,7 +2166,7 @@ void QTextHtmlExporter::emitTable(const QTextTable *table)
 
             QTextCharFormat::VerticalAlignment valign = cellFormat.verticalAlignment();
             if (valign >= QTextCharFormat::AlignMiddle && valign <= QTextCharFormat::AlignBottom) {
-                html += (" style=\" vertical-align:");
+                html += QLatin1String(" style=\" vertical-align:");
                 switch (valign) {
                 case QTextCharFormat::AlignMiddle:
                     html += QLatin1String("middle");
@@ -2176,6 +2176,8 @@ void QTextHtmlExporter::emitTable(const QTextTable *table)
                     break;
                 case QTextCharFormat::AlignBottom:
                     html += QLatin1String("bottom");
+                    break;
+                default:
                     break;
                 }
                 html += QLatin1String(";\"");
