@@ -1194,17 +1194,11 @@ QStyleOptionTitleBar QMdiSubWindowPrivate::titleBarOptions() const
     int paintHeight = titleBarHeight(titleBarOptions);
     paintHeight -= q->isMinimized() ? 2 * border : border;
     titleBarOptions.rect = QRect(border, border, q->width() - 2 * border, paintHeight);
-
-    if (baseWidget) {
-        int width = q->style()->subControlRect(QStyle::CC_TitleBar, &titleBarOptions,
-                                               QStyle::SC_TitleBarLabel, q).width();
-        QString title = q->isWindowModified()
-            ? q->windowTitle()
-            : qt_setWindowTitle_helperHelper(q->windowTitle(), const_cast<QMdiSubWindow *>(q));
-        titleBarOptions.text = titleBarOptions.fontMetrics.elidedText(title,
-                                                                      Qt::ElideRight,
-                                                                      width);
-    }
+    int width = q->style()->subControlRect(QStyle::CC_TitleBar, &titleBarOptions,
+                                           QStyle::SC_TitleBarLabel, q).width();
+    QString title = q->isWindowModified() ? q->windowTitle()
+                : qt_setWindowTitle_helperHelper(q->windowTitle(), const_cast<QMdiSubWindow *>(q));
+    titleBarOptions.text = titleBarOptions.fontMetrics.elidedText(title, Qt::ElideRight, width);
     return titleBarOptions;
 }
 
