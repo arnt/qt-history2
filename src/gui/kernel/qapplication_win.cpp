@@ -2375,7 +2375,7 @@ void QApplication::winMouseButtonUp()
 }
 
 void QETWidget::repolishStyle(QStyle &style)
-{ 
+{
     QEvent e(QEvent::StyleChange);
     QApplication::sendEvent(this, &e);
 }
@@ -2467,7 +2467,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
     if (type == QEvent::MouseMove || type == QEvent::NonClientAreaMouseMove) {
         if (!(state & Qt::MouseButtonMask))
             qt_button_down = 0;
-        
+
         QCursor *c = qt_grab_cursor();
         if (!c)
             c = QApplication::overrideCursor();
@@ -2568,23 +2568,36 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
                 break;                                // nothing for mouse move
         }
 
-        if (popupButtonFocus) {
-            target = popupButtonFocus;
-        } else if (popupChild) {
-            // forward mouse events to the popup child. mouse move events
-            // are only forwarded to popup children that enable mouse tracking.
-            if (type != QEvent::MouseMove || popupChild->hasMouseTracking())
-                target = popupChild;
-        }
-
         QPoint globalPos(gpos.x, gpos.y);
-        pos = target->mapFromGlobal(globalPos);
-	    QMouseEvent e(type, pos, globalPos,
-                        Qt::MouseButton(button),
-                        Qt::MouseButtons(state & Qt::MouseButtonMask),
-                        Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask));
-	    res = QApplication::sendSpontaneousEvent(target, &e);
-        res = res && e.isAccepted();
+        if (target->isEnabled()) {
+            if (popupButtonFocus) {
+                target = popupButtonFocus;
+            } else if (popupChild) {
+                // forward mouse events to the popup child. mouse move events
+                // are only forwarded to popup children that enable mouse tracking.
+                if (type != QEvent::MouseMove || popupChild->hasMouseTracking())
+                    target = popupChild;
+            }
+
+            pos = target->mapFromGlobal(globalPos);
+	        QMouseEvent e(type, pos, globalPos,
+                            Qt::MouseButton(button),
+                            Qt::MouseButtons(state & Qt::MouseButtonMask),
+                            Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask));
+	        res = QApplication::sendSpontaneousEvent(target, &e);
+            res = res && e.isAccepted();
+        } else {
+            // close disabled popups when a mouse button is pressed or released
+            switch (type) {
+            case QEvent::MouseButtonPress:
+            case QEvent::MouseButtonDblClick:
+            case QEvent::MouseButtonRelease:
+                popup->close();
+                break;
+            default:
+                break;
+            }
+        }
 
         if (releaseAfter) {
             popupButtonFocus = 0;

@@ -3555,19 +3555,32 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
 
         int oldOpenPopupCount = openPopupCount;
 
-        // deliver event
-        replayPopupMouseEvent = false;
-        if (qt_button_down) {
-            QMouseEvent e(type, qt_button_down->mapFromGlobal(globalPos),
-                          globalPos, button, buttons, modifiers);
-            QApplication::sendSpontaneousEvent(qt_button_down, &e);
-        } else if (popupChild) {
-            QMouseEvent e(type, popupChild->mapFromGlobal(globalPos),
-                          globalPos, button, buttons, modifiers);
-            QApplication::sendSpontaneousEvent(popupChild, &e);
+        if (popup->isEnabled()) {
+            // deliver event
+            replayPopupMouseEvent = false;
+            if (qt_button_down) {
+                QMouseEvent e(type, qt_button_down->mapFromGlobal(globalPos),
+                              globalPos, button, buttons, modifiers);
+                QApplication::sendSpontaneousEvent(qt_button_down, &e);
+            } else if (popupChild) {
+                QMouseEvent e(type, popupChild->mapFromGlobal(globalPos),
+                              globalPos, button, buttons, modifiers);
+                QApplication::sendSpontaneousEvent(popupChild, &e);
+            } else {
+                QMouseEvent e(type, pos, globalPos, button, buttons, modifiers);
+                QApplication::sendSpontaneousEvent(popup, &e);
+            }
         } else {
-            QMouseEvent e(type, pos, globalPos, button, buttons, modifiers);
-            QApplication::sendSpontaneousEvent(popup, &e);
+            // close disabled popups when a mouse button is pressed or released
+            switch (type) {
+            case QEvent::MouseButtonPress:
+            case QEvent::MouseButtonDblClick:
+            case QEvent::MouseButtonRelease:
+                popup->close();
+                break;
+            default:
+                break;
+            }
         }
 
         if (qApp->activePopupWidget() != activePopupWidget
