@@ -97,7 +97,7 @@ inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *n
                  "li     %1,1\n"
                  "b      $+8\n"
                  "li     %1,0\n"
-                 : "=&r" (tmp), "=&r" (ret), "=m" (*ptr)
+                 : "=&r" (tmp), "=&r" (ret), "=m" (*reinterpret_cast<volatile long *>(ptr))
                  : "r" (ptr), "r" (expected), "r" (newval)
                  : "cc", "memory");
     return ret;
@@ -149,7 +149,7 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
     asm volatile(LPARX"  %0, 0, %2\n"
                  STPCX"  %2, 0, %2\n"
                  "bne-   $-8\n"
-                 : "=&r" (ret), "=m" (*reinterpret_cast<volatile int*>(ptr))
+                 : "=&r" (ret), "=m" (*reinterpret_cast<volatile long *>(ptr))
                  : "r" (ptr), "r" (newval)
                  : "cc", "memory");
     return ret;
