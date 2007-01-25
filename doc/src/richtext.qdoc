@@ -947,6 +947,8 @@ Ideas for other sections:
     \o \c bgcolor (Qt \l{QColor::setNamedColor()}{color names} or \c #RRGGBB)
     \o \c colspan
     \o \c rowspan
+    \o \c align (\c left, \c right, \c center, \c justify)
+    \o \c valign (\c top, \c middle, \c bottom)
     \endlist
 
     \section1 CSS Properties
