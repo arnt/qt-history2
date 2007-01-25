@@ -57,8 +57,10 @@ public:
     SubmitPolicy submitPolicy() const;
 
     void addMapping(QWidget *widget, int section);
+    void addMapping(QWidget *widget, int section, const QByteArray &propertyName);
     void removeMapping(QWidget *widget);
     int mappedSection(QWidget *widget) const;
+    QByteArray mappedPropertyName(QWidget *widget) const;
     QWidget *mappedWidgetAt(int section) const;
     void clearMapping();
 
