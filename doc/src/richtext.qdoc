@@ -1006,9 +1006,9 @@ Ideas for other sections:
     \row    \o \c margin-right
             \o <length>px
             \o Right paragraph margin in pixels
-    \row    \o \c vertical-alignment
-            \o baseline | sub | super | middle
-            \o Vertical text alignment. middle alignment is currently only supported for inline objects.
+    \row    \o \c vertical-align
+            \o baseline | sub | super | middle | top | bottom
+            \o Vertical text alignment. For vertical alignment in text table cells only middle, top, and bottom apply.
     \row    \o \c background
             \o [ <'background-color'> || <'background-image'> ]
             \o Background shorthand property
