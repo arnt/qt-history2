@@ -801,7 +801,7 @@ void Q3DnsAnswer::notify()
 		((Q3DnsUgleHack*)dns)->ugle( true );
 	    } else {
 		QStringList n = dns->qualifiedNames();
-		if ( n.contains(query->l) )
+		if ( query && n.contains(query->l) )
 		    ((Q3DnsUgleHack*)dns)->ugle();
 #if defined(Q3DNS_DEBUG)
 		else
