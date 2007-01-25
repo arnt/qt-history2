@@ -77,7 +77,7 @@
 /*!
     \fn QMdiSubWindow::aboutToActivate()
 
-    QMdiSubWindow emits this signal immediately before it is activated.    
+    QMdiSubWindow emits this signal immediately before it is activated.
 */
 
 #include "qmdisubwindow_p.h"
@@ -687,6 +687,11 @@ void QMdiSubWindowPrivate::removeBaseWidget()
     q->removeEventFilter(baseWidget);
     if (QLayout *layout = q->layout())
         layout->removeWidget(baseWidget);
+    if (baseWidget->windowTitle() == q->windowTitle()) {
+        q->setWindowTitle(QString());
+        q->setWindowModified(false);
+    }
+    lastChildWindowTitle.clear();
     baseWidget->setParent(0);
     baseWidget = 0;
 }
@@ -1141,6 +1146,11 @@ QMdiSubWindowPrivate::Operation QMdiSubWindowPrivate::getOperation(const QPoint 
 }
 
 /*!
+    \internal from QWidget.cpp
+*/
+extern QString qt_setWindowTitle_helperHelper(const QString &, QWidget *);
+
+/*!
     \internal
 */
 QStyleOptionTitleBar QMdiSubWindowPrivate::titleBarOptions() const
@@ -1186,8 +1196,12 @@ QStyleOptionTitleBar QMdiSubWindowPrivate::titleBarOptions() const
     if (baseWidget) {
         int width = q->style()->subControlRect(QStyle::CC_TitleBar, &titleBarOptions,
                                                QStyle::SC_TitleBarLabel, q).width();
-        titleBarOptions.text = titleBarOptions.fontMetrics.elidedText(baseWidget->windowTitle(),
-                                                                      Qt::ElideRight, width);
+        QString title = q->isWindowModified()
+            ? q->windowTitle()
+            : qt_setWindowTitle_helperHelper(q->windowTitle(), const_cast<QMdiSubWindow *>(q));
+        titleBarOptions.text = titleBarOptions.fontMetrics.elidedText(title,
+                                                                      Qt::ElideRight,
+                                                                      width);
     }
     return titleBarOptions;
 }
@@ -1314,8 +1328,7 @@ void QMdiSubWindowPrivate::showButtonsInMenuBar(QMenuBar *menuBar)
     ignoreWindowTitleChange = false;
 
     QWidget *topLevelWindow = q->window();
-    if (baseWidget)
-        topLevelWindow->setWindowModified(baseWidget->isWindowModified());
+    topLevelWindow->setWindowModified(q->isWindowModified());
     topLevelWindow->installEventFilter(q);
 }
 
@@ -1339,15 +1352,25 @@ void QMdiSubWindowPrivate::removeButtonsFromMenuBar()
         topLevelWindow->setWindowModified(false);
 }
 
-void QMdiSubWindowPrivate::updateWindowTitle()
+void QMdiSubWindowPrivate::updateWindowTitle(bool isRequestFromChild)
 {
-    if (!baseWidget)
+    Q_Q(QMdiSubWindow);
+    if (isRequestFromChild && !q->windowTitle().isEmpty()
+            && lastChildWindowTitle != q->windowTitle()) {
+        return;
+    }
+
+    QWidget *titleWidget = 0;
+    if (isRequestFromChild)
+        titleWidget = baseWidget;
+    else
+        titleWidget = q;
+    if (!titleWidget || titleWidget->windowTitle().isEmpty())
         return;
 
-    Q_Q(QMdiSubWindow);
     ignoreWindowTitleChange = true;
-    q->setWindowTitle(baseWidget->windowTitle());
-    if (q->isMaximized() && !drawTitleBarWhenMaximized())
+    q->setWindowTitle(titleWidget->windowTitle());
+    if (q->maximizedButtonsWidget())
         setNewWindowTitle(q);
     ignoreWindowTitleChange = false;
 }
@@ -1662,9 +1685,18 @@ void QMdiSubWindow::setWidget(QWidget *widget)
 
     d->baseWidget = widget;
     d->baseWidget->installEventFilter(this);
+    bool isWindowModified = this->isWindowModified();
     d->ignoreWindowTitleChange = true;
-    setWindowTitle(d->baseWidget->windowTitle());
+    if (windowTitle().isEmpty()) {
+        d->updateWindowTitle(true);
+        isWindowModified = d->baseWidget->isWindowModified();
+    }
+    if (!this->isWindowModified() && isWindowModified
+            && windowTitle().contains(QLatin1String("[*]"))) {
+        setWindowModified(isWindowModified);
+    }
     d->ignoreWindowTitleChange = false;
+    d->lastChildWindowTitle = d->baseWidget->windowTitle();
     d->updateGeometryConstraints();
     if (!wasResized && testAttribute(Qt::WA_Resized))
         setAttribute(Qt::WA_Resized, false);
@@ -1962,24 +1994,21 @@ bool QMdiSubWindow::eventFilter(QObject *object, QEvent *event)
         d->updateCursor();
         break;
     case QEvent::WindowTitleChange:
-        if (d->ignoreWindowTitleChange)
-            break;
-        if (object == d->baseWidget) {
-            d->updateWindowTitle();
-            break;
-        }
-        if (!isMaximized() || !d->controlContainer || !d->controlContainer->menuBar()
-                || !maximizedButtonsWidget()) {
-            break;
-        }
-        if (d->controlContainer->menuBar()->cornerWidget(Qt::TopRightCorner)
-                == maximizedButtonsWidget()) {
-            d->updateWindowTitle();
+        if (!d->ignoreWindowTitleChange && object == d->baseWidget) {
+            d->updateWindowTitle(true);
+            d->lastChildWindowTitle = d->baseWidget->windowTitle();
         }
         break;
     case QEvent::ModifiedChange:
+        if (object != d->baseWidget)
+            break;
+        bool windowModified = d->baseWidget->isWindowModified();
+        if (!windowModified && d->baseWidget->windowTitle() != windowTitle())
+            break;
+        if (windowTitle().contains(QLatin1String("[*]")))
+            setWindowModified(windowModified);
         if (isMaximized() && !d->drawTitleBarWhenMaximized())
-            window()->setWindowModified(d->baseWidget->isWindowModified());
+            window()->setWindowModified(windowModified);
         break;
     default:
         break;
@@ -2051,7 +2080,7 @@ bool QMdiSubWindow::event(QEvent *event)
         break;
     case QEvent::WindowTitleChange:
         if (!d->ignoreWindowTitleChange)
-            d->updateWindowTitle();
+            d->updateWindowTitle(false);
         break;
     case QEvent::LayoutDirectionChange:
         d->updateDirtyRegions();

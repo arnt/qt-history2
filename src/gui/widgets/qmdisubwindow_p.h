@@ -149,6 +149,7 @@ public:
     QPointer<QAction> actions[NumWindowStateActions];
     QMdiSubWindow::SubWindowOptions options;
     Qt::FocusReason focusInReason;
+    QString lastChildWindowTitle;
 
     // Slots.
     void _q_updateStaysOnTopHint();
@@ -179,7 +180,7 @@ public:
     bool drawTitleBarWhenMaximized() const;
     void showButtonsInMenuBar(QMenuBar *menuBar);
     void removeButtonsFromMenuBar();
-    void updateWindowTitle();
+    void updateWindowTitle(bool requestFromChild);
     void enterRubberBandMode();
     void leaveRubberBandMode();
     QPalette desktopPalette() const;
