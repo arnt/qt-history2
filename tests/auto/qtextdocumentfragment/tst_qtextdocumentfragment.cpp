@@ -3177,18 +3177,45 @@ void tst_QTextDocumentFragment::html_verticalImageAlignment()
 
 void tst_QTextDocumentFragment::html_verticalCellAlignment()
 {
-    doc->setHtml("<table>"
-                 "<td style=\"vertical-align: middle\"></td>"
-                 "<td style=\"vertical-align: top\"></td>"
-                 "<td style=\"vertical-align: bottom\"></td>"
-                 "</table>");
+    const char *alt[] =
+    {
+        // vertical-align property
+        "<table>"
+        "<tr>"
+        "<td style=\"vertical-align: middle\"></td>"
+        "<td style=\"vertical-align: top\"></td>"
+        "<td style=\"vertical-align: bottom\"></td>"
+        "</tr>"
+        "</table>",
+        // valign property
+        "<table>"
+        "<tr>"
+        "<td valign=\"middle\"></td>"
+        "<td valign=\"top\"></td>"
+        "<td valign=\"bottom\"></td>"
+        "</tr>"
+        "</table>",
+        // test td override of tr property
+        "<table>"
+        "<tr valign=\"bottom\">"
+        "<td valign=\"middle\"></td>"
+        "<td valign=\"top\"></td>"
+        "<td></td>"
+        "</tr>"
+        "</table>"
+    };
 
-    QTextTable *table = qobject_cast<QTextTable *>(doc->rootFrame()->childFrames().at(0));
-    QVERIFY(table);
+    const int numTestCases = sizeof(alt) / sizeof(*alt);
+    for (int i = 0; i < numTestCases; ++i) {
+        doc->setHtml(alt[i]);
 
-    QCOMPARE(table->cellAt(0, 0).format().verticalAlignment(), QTextCharFormat::AlignMiddle);
-    QCOMPARE(table->cellAt(0, 1).format().verticalAlignment(), QTextCharFormat::AlignTop);
-    QCOMPARE(table->cellAt(0, 2).format().verticalAlignment(), QTextCharFormat::AlignBottom);
+        QTextTable *table = qobject_cast<QTextTable *>(doc->rootFrame()->childFrames().at(0));
+        QVERIFY(table);
+
+        QCOMPARE(table->cellAt(0, 0).format().verticalAlignment(), QTextCharFormat::AlignMiddle);
+        QCOMPARE(table->cellAt(0, 1).format().verticalAlignment(), QTextCharFormat::AlignTop);
+        QCOMPARE(table->cellAt(0, 2).format().verticalAlignment(), QTextCharFormat::AlignBottom);
+    }
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)

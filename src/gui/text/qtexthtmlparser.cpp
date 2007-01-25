@@ -1533,6 +1533,14 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
                     node->charFormat.setVerticalAlignment(QTextCharFormat::AlignMiddle);
                 }
             }
+        } else if (key == QLatin1String("valign")) {
+            value = value.toLower();
+            if (value == QLatin1String("top"))
+                node->charFormat.setVerticalAlignment(QTextCharFormat::AlignTop);
+            else if (value == QLatin1String("middle"))
+                node->charFormat.setVerticalAlignment(QTextCharFormat::AlignMiddle);
+            else if (value == QLatin1String("bottom"))
+                node->charFormat.setVerticalAlignment(QTextCharFormat::AlignBottom);
         } else if (key == QLatin1String("dir")) {
             value = value.toLower();
             if (value == QLatin1String("ltr"))
