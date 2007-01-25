@@ -163,7 +163,7 @@ QScriptValue::QScriptValue(QScriptEngine *engine, const QString &value)
 #ifndef QT_NO_CAST_FROM_ASCII
 QScriptValue::QScriptValue(QScriptEngine *engine, const char *value)
 {
-    QScriptEnginePrivate::get(engine)->newString(this, QLatin1String(value));
+    QScriptEnginePrivate::get(engine)->newString(this, QString::fromAscii(value));
 }
 #endif
 
