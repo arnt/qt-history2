@@ -688,7 +688,9 @@ void QMdiSubWindowPrivate::removeBaseWidget()
     if (QLayout *layout = q->layout())
         layout->removeWidget(baseWidget);
     if (baseWidget->windowTitle() == q->windowTitle()) {
+        ignoreWindowTitleChange = true;
         q->setWindowTitle(QString());
+        ignoreWindowTitleChange = false;
         q->setWindowModified(false);
     }
     lastChildWindowTitle.clear();
@@ -1355,7 +1357,7 @@ void QMdiSubWindowPrivate::removeButtonsFromMenuBar()
 void QMdiSubWindowPrivate::updateWindowTitle(bool isRequestFromChild)
 {
     Q_Q(QMdiSubWindow);
-    if (isRequestFromChild && !q->windowTitle().isEmpty()
+    if (isRequestFromChild && !q->windowTitle().isEmpty() && !lastChildWindowTitle.isEmpty()
             && lastChildWindowTitle != q->windowTitle()) {
         return;
     }
@@ -1994,9 +1996,18 @@ bool QMdiSubWindow::eventFilter(QObject *object, QEvent *event)
         d->updateCursor();
         break;
     case QEvent::WindowTitleChange:
-        if (!d->ignoreWindowTitleChange && object == d->baseWidget) {
+        if (d->ignoreWindowTitleChange)
+            break;
+        if (object == d->baseWidget) {
             d->updateWindowTitle(true);
             d->lastChildWindowTitle = d->baseWidget->windowTitle();
+        } else if (maximizedButtonsWidget() && d->controlContainer->menuBar()
+                                               ->cornerWidget(Qt::TopRightCorner)
+                                               == maximizedButtonsWidget()) {
+            if (d->baseWidget && d->baseWidget->windowTitle() == windowTitle())
+                d->updateWindowTitle(true);
+            else
+                d->updateWindowTitle(false);
         }
         break;
     case QEvent::ModifiedChange: {
