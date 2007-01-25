@@ -122,14 +122,10 @@ public:
     QScriptValue newDate(qsreal value);
     QScriptValue newDate(const QDateTime &value);
 
-    QScriptValue defaultPrototype(int metaTypeId) const;
-    void setDefaultPrototype(int metaTypeId, const QScriptValue &prototype);
-
 #ifndef QT_NO_QOBJECT
     QScriptValue newQObject(QObject *object);
 
-    QScriptValue newQMetaObject(const QMetaObject *metaObject,
-                                const QScriptValue &ctor = QScriptValue());
+    QScriptValue newQMetaObject(const QMetaObject *metaObject, const QScriptValue &ctor = QScriptValue());
 
 #  ifndef QT_NO_MEMBER_TEMPLATES
     template <class T> QScriptValue scriptValueFromQMetaObject()
@@ -139,7 +135,19 @@ public:
 #  endif // QT_NO_MEMBER_TEMPLATES
 #endif // QT_NO_QOBJECT
 
+
+
     QScriptNameId nameId(const QString &value);
+
+
+    QScriptValue defaultPrototype(int metaTypeId) const;
+    void setDefaultPrototype(int metaTypeId, const QScriptValue &prototype);
+
+
+    typedef QScriptValue (*MarshalFunction)(QScriptEngine *, const void *);
+    typedef void (*DemarshalFunction)(const QScriptValue &, void *);
+
+
 
 #ifndef QT_NO_MEMBER_TEMPLATES
     template <typename T>
@@ -149,16 +157,12 @@ public:
     }
 #endif // QT_NO_MEMBER_TEMPLATES
 
-    typedef QScriptValue (*MarshalFunction)(QScriptEngine *, const void *);
-    typedef void (*DemarshalFunction)(const QScriptValue &, void *);
-
 private:
     QScriptValue create(int type, const void *ptr);
 
     bool convert(const QScriptValue &value, int type, void *ptr);
 
-    void registerCustomType(int type, MarshalFunction mf,
-                            DemarshalFunction df,
+    void registerCustomType(int type, MarshalFunction mf, DemarshalFunction df,
                             const QScriptValue &prototype);
 
     friend inline void qScriptRegisterMetaType_helper(QScriptEngine *,
@@ -203,6 +207,7 @@ inline QScriptValue qScriptValueFromValue_helper(QScriptEngine *engine, int type
 {
     if (!engine)
         return QScriptValue();
+
     return engine->create(type, ptr);
 }
 
@@ -214,10 +219,10 @@ inline QScriptValue qScriptValueFromValue(QScriptEngine *engine, const T &t)
 
 inline bool qscript_cast_helper(const QScriptValue &value, int type, void *ptr)
 {
-    QScriptEngine *eng = value.engine();
-    if (!eng)
-        return false;
-    return eng->convert(value, type, ptr);
+    if (QScriptEngine *eng = value.engine())
+        return eng->convert(value, type, ptr);
+
+    return false;
 }
 
 template<typename T>
@@ -229,10 +234,12 @@ T qscript_cast(const QScriptValue &value
 {
     T t;
     const int id = qMetaTypeId<T>();
+
     if (qscript_cast_helper(value, id, &t))
         return t;
-    if (value.isVariant())
+    else if (value.isVariant())
         return qvariant_cast<T>(value.toVariant());
+
     return T();
 }
 
@@ -256,10 +263,12 @@ int qScriptRegisterMetaType(
 )
 {
     const int id = qRegisterMetaType<T>(); // make sure it's registered
+
     qScriptRegisterMetaType_helper(
         eng, id, reinterpret_cast<QScriptEngine::MarshalFunction>(toValue),
         reinterpret_cast<QScriptEngine::DemarshalFunction>(fromValue),
         prototype);
+
     return id;
 }
 
