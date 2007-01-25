@@ -1999,7 +1999,7 @@ bool QMdiSubWindow::eventFilter(QObject *object, QEvent *event)
             d->lastChildWindowTitle = d->baseWidget->windowTitle();
         }
         break;
-    case QEvent::ModifiedChange:
+    case QEvent::ModifiedChange: {
         if (object != d->baseWidget)
             break;
         bool windowModified = d->baseWidget->isWindowModified();
@@ -2010,6 +2010,7 @@ bool QMdiSubWindow::eventFilter(QObject *object, QEvent *event)
         if (isMaximized() && !d->drawTitleBarWhenMaximized())
             window()->setWindowModified(windowModified);
         break;
+    }
     default:
         break;
     }
