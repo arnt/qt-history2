@@ -3332,8 +3332,13 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     } else {
                         painter->setBrush(gradient2);
                         painter->setPen(QPen(activeHighlight.darker(150), 0));
-                        painter->drawRect(QRect(groove.left(), handle.bottom(), groove.width() ,
+
+                        if (slider->upsideDown)
+                            painter->drawRect(QRect(groove.left(), handle.bottom(), groove.width() ,
                                                 groove.height() - handle.bottom()));
+                        else
+                            painter->drawRect(QRect(groove.left(), groove.top(), groove.width() ,
+                                                handle.top() - groove.top()));
                     }
                 }
 
