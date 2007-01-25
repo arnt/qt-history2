@@ -61,7 +61,8 @@ HEADERS += \
     $$PWD/stylesheeteditor_p.h \
     $$PWD/shared_enums_p.h \
     $$PWD/textpropertyeditor_p.h \
-    $$PWD/propertylineedit_p.h
+    $$PWD/propertylineedit_p.h \
+    $$PWD/promotiontaskmenu_p.h
 
 SOURCES += \
     $$PWD/spacer_widget.cpp \
@@ -111,5 +112,5 @@ SOURCES += \
     $$PWD/resourceeditor.cpp \
     $$PWD/stylesheeteditor.cpp \
     $$PWD/textpropertyeditor.cpp \
-    $$PWD/propertylineedit.cpp
-
+    $$PWD/propertylineedit.cpp \
+    $$PWD/promotiontaskmenu.cpp

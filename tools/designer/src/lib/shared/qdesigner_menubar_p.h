@@ -40,6 +40,7 @@ class QLineEdit;
 class QMimeData;
 
 namespace qdesigner_internal {
+class PromotionTaskMenu;
 
 class SpecialMenuAction: public QAction
 {
@@ -135,6 +136,7 @@ private:
     bool m_dragging;
     int m_lastMenuActionIndex;
     QPointer<QWidget> m_lastFocusWidget;
+    qdesigner_internal::PromotionTaskMenu* m_promotionTaskMenu;
 };
 
 #endif // QDESIGNER_MENUBAR_H

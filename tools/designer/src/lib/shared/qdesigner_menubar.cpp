@@ -19,6 +19,7 @@
 #include "actionprovider_p.h"
 #include "actioneditor_p.h"
 #include "qdesigner_utils_p.h"
+#include "promotiontaskmenu_p.h"
 
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
@@ -65,7 +66,8 @@ QDesignerMenuBar::QDesignerMenuBar(QWidget *parent)  :
     m_interactive(true),
     m_editor(new QLineEdit(this)),
     m_dragging(false),
-    m_lastMenuActionIndex( -1)
+    m_lastMenuActionIndex( -1),
+    m_promotionTaskMenu(new PromotionTaskMenu(this, PromotionTaskMenu::ModeSingleWidget, this))
 {
     setContextMenuPolicy(Qt::DefaultContextMenu);
 
@@ -373,26 +375,28 @@ bool QDesignerMenuBar::handleContextMenuEvent(QWidget *, QContextMenuEvent *even
     event->accept();
 
     m_currentIndex = actionAtPosition(mapFromGlobal(event->globalPos()));
-    QAction *action = safeActionAt(m_currentIndex);
 
     update();
 
     QMenu menu(this);
+    if (QAction *action = safeActionAt(m_currentIndex)) {
+        if (!qobject_cast<SpecialMenuAction*>(action)) {
+            QVariant itemData;
+            qVariantSetValue(itemData, action);
 
-    if (action && !qobject_cast<SpecialMenuAction*>(action)) {
-        QVariant itemData;
-        qVariantSetValue(itemData, action);
+            QAction *remove_action = menu.addAction(tr("Remove Menu '%1'").arg(action->menu()->objectName()));
+            remove_action->setData(itemData);
+            connect(remove_action, SIGNAL(triggered()), this, SLOT(slotRemoveSelectedAction()));
 
-        QAction *remove_action = menu.addAction(tr("Remove Menu '%1'").arg(action->menu()->objectName()));
-        remove_action->setData(itemData);
-        connect(remove_action, SIGNAL(triggered()), this, SLOT(slotRemoveSelectedAction()));
-
-        menu.addSeparator();
+            menu.addSeparator();
+        }
     }
+
+    m_promotionTaskMenu->addActions(formWindow(), PromotionTaskMenu::TrailingSeparator, &menu);
 
     QAction *remove_menubar = menu.addAction(tr("Remove Menu Bar"));
     connect(remove_menubar, SIGNAL(triggered()), this, SLOT(slotRemoveMenuBar()));
-
+    
     menu.exec(event->globalPos());
 
     return true;

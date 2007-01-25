@@ -15,18 +15,18 @@
 #include "qdesigner_command_p.h"
 #include "richtexteditor_p.h"
 #include "stylesheeteditor_p.h"
-#include "widgetfactory_p.h"
-#include "widgetdatabase_p.h"
-#include "metadatabase_p.h"
 #include "qlayout_widget_p.h"
 #include "layout_p.h"
 #include "spacer_widget_p.h"
 #include "textpropertyeditor_p.h"
-#include "qdesigner_promotiondialog_p.h"
+#include "promotiontaskmenu_p.h"
 
 #include <shared_enums_p.h>
 
-#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormWindowCursorInterface>
+#include <QtDesigner/QDesignerPropertySheetExtension>
+#include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerLanguageExtension>
 #include <QtDesigner/QExtensionManager>
 
@@ -38,13 +38,8 @@
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QPushButton>
-#include <QtGui/QMenu>
-#include <QtCore/QSignalMapper>
-#include <QtCore/qdebug.h>
 
-namespace  {
-
-QMenuBar *findMenuBar(const QWidget *widget)
+static QMenuBar *findMenuBar(const QWidget *widget)
 {
     const QList<QObject*> children = widget->children();
     foreach (QObject *obj, widget->children()) {
@@ -56,7 +51,7 @@ QMenuBar *findMenuBar(const QWidget *widget)
     return 0;
 }
 
-QStatusBar *findStatusBar(const QWidget *widget)
+static QStatusBar *findStatusBar(const QWidget *widget)
 {
     const QList<QObject*> children = widget->children();
     foreach (QObject *obj, widget->children()) {
@@ -68,6 +63,7 @@ QStatusBar *findStatusBar(const QWidget *widget)
     return 0;
 }
 
+namespace  {
 class ObjectNameDialog : public QDialog
 {
      public:
@@ -80,7 +76,7 @@ class ObjectNameDialog : public QDialog
 
 ObjectNameDialog::ObjectNameDialog(QWidget *parent, const QString &oldName)
     : QDialog(parent),
-      m_editor( new qdesigner_internal::TextPropertyEditor(qdesigner_internal::TextPropertyEditor::EmbeddingNone, 
+      m_editor( new qdesigner_internal::TextPropertyEditor(qdesigner_internal::TextPropertyEditor::EmbeddingNone,
                                                            qdesigner_internal::ValidationObjectName, this))
 {
     setWindowTitle(tr("Change Object Name"));
@@ -112,7 +108,7 @@ QString ObjectNameDialog::newObjectName() const
 
 namespace qdesigner_internal {
 
-QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent) : 
+QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent) :
     QObject(parent),
     m_widget(widget),
     m_separator(createSeparator()),
@@ -126,8 +122,7 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent) :
     m_addToolBar(createAction(tr("Add Tool Bar"), this, SLOT(addToolBar()))),
     m_addStatusBar(createAction(tr("Create Status Bar"), this, SLOT(createStatusBar()))),
     m_removeStatusBar(createAction(tr("Remove Status Bar"), this, SLOT(removeStatusBar()))),
-    m_promotionEditAction(createAction(tr("Promoted widgets..."), this, SLOT(editPromotedWidgets()))),
-    m_promotionMapper(0)
+    m_promotionTaskMenu(new PromotionTaskMenu(widget, PromotionTaskMenu::ModeMultiSelection, this))
 {
     Q_ASSERT(qobject_cast<QDesignerFormWindowInterface*>(widget) == 0);
 }
@@ -135,18 +130,18 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent) :
 QDesignerTaskMenu::~QDesignerTaskMenu()
 {
 }
-    
+
 QAction *QDesignerTaskMenu::createSeparator() {
     QAction *rc = new QAction(this);
     rc->setSeparator(true);
     return rc;
 }
-    
+
 QAction *QDesignerTaskMenu::createAction(const QString &text, QObject *receiver, const char *receiverSlot)
 {
     QAction *rc = new QAction(text, this);
     connect(rc, SIGNAL(triggered()), receiver, receiverSlot);
-    return rc;        
+    return rc;
 }
 
 QWidget *QDesignerTaskMenu::widget() const
@@ -220,60 +215,6 @@ void QDesignerTaskMenu::removeStatusBar()
         fw->commandHistory()->push(cmd);
     }
 }
-    
-void QDesignerTaskMenu::createPromotionActions(QDesignerFormWindowInterface *formWindow) const
-{
-    // clear out old
-    if (!m_promotionActions.empty()) {
-        qDeleteAll(m_promotionActions);
-        m_promotionActions.clear();        
-    }
-    // No promotion of main container
-    if (formWindow->mainContainer() == m_widget)
-        return;
-
-    // Check for a homogenous selection
-    const PromotionSelectionList promotionSelection = promotionSelectionList(formWindow);
-    
-    if (promotionSelection.empty())
-        return;
-    
-    // Ugly, but we need to create actions
-    QDesignerTaskMenu *taskMenu = const_cast<QDesignerTaskMenu *>(this);
-    QDesignerFormEditorInterface *core = formWindow->core();
-    // if it is promoted: demote only.
-    if (isPromoted(formWindow->core(), m_widget)) {
-        QString demoteText = tr("Demote to ");
-        demoteText  +=  promotedExtends(core , m_widget);
-        m_promotionActions.push_back(taskMenu->createAction(demoteText, taskMenu, SLOT(demoteFromCustomWidget())));
-        return;
-    }
-    // figure out candidates
-    const QString baseClassName = WidgetFactory::classNameOf(core,  m_widget);
-    const WidgetDataBaseItemList candidates = promotionCandidates(core->widgetDataBase(), baseClassName );
-    if (candidates.empty()) 
-        return;    
-    // Set up a signal mapper to associate class names
-    if (!m_promotionMapper) {
-        m_promotionMapper = new QSignalMapper(taskMenu);
-        connect(m_promotionMapper, SIGNAL(mapped(QString)), taskMenu, SLOT(promoteToCustomWidget(QString)));
-    }
-
-    QMenu *candidatesMenu = new QMenu();
-    // Create a sub menu
-    const WidgetDataBaseItemList::const_iterator cend = candidates.constEnd();
-    // Set up actions and map class names
-    for (WidgetDataBaseItemList::const_iterator it = candidates.constBegin(); it != cend; ++it) {
-        const QString customClassName = (*it)->name();
-        QAction *action = taskMenu->createAction((*it)->name(), taskMenu->m_promotionMapper, SLOT(map()));
-        m_promotionMapper->setMapping(action, customClassName);
-        candidatesMenu->addAction(action);
-    }
-    // Sub menu action
-    QAction *subMenuAction = new QAction(tr("Promote to"), taskMenu);
-    subMenuAction->setMenu(candidatesMenu);
-    m_promotionActions.push_back(subMenuAction);
-}
 
 QList<QAction*> QDesignerTaskMenu::taskActions() const
 {
@@ -305,10 +246,7 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
     actions.append(m_changeWhatsThis);
     actions.append(m_changeStyleSheet);
 
-    createPromotionActions(formWindow );
-    actions.append(m_separator3);
-    actions += m_promotionActions;
-    actions.append(m_promotionEditAction);
+    m_promotionTaskMenu->addActions(formWindow, PromotionTaskMenu::LeadingSeparator, actions);
 
     return actions;
 }
@@ -351,37 +289,12 @@ QObject *QDesignerTaskMenuFactory::createExtension(QObject *object, const QStrin
 
     return new QDesignerTaskMenu(widget, parent);
 }
-    
-void QDesignerTaskMenu::promoteTo(QDesignerFormWindowInterface *fw, const QString &customClassName)
-{
-    PromoteToCustomWidgetCommand *cmd = new PromoteToCustomWidgetCommand(fw);
-    cmd->init(promotionSelectionList(fw), customClassName);
-    fw->commandHistory()->push(cmd);
-}
- 
-    
-void  QDesignerTaskMenu::promoteToCustomWidget(const QString &customClassName)
-{
-    promoteTo(formWindow(), customClassName);
-}
-
-void QDesignerTaskMenu::demoteFromCustomWidget()
-{
-    QDesignerFormWindowInterface *fw = formWindow();
-    const PromotionSelectionList promotedWidgets = promotionSelectionList(fw);
-    Q_ASSERT(!promotedWidgets.empty() && isPromoted(fw->core(), promotedWidgets.front()));
-
-    // ### use the undo stack
-    DemoteFromCustomWidgetCommand *cmd = new DemoteFromCustomWidgetCommand(fw);
-    cmd->init(promotedWidgets);
-    fw->commandHistory()->push(cmd);
-}
 
 void QDesignerTaskMenu::changeRichTextProperty(const QString &propertyName)
 {
     if (QDesignerFormWindowInterface *fw = formWindow()) {
         Q_ASSERT(m_widget->parentWidget() != 0);
-        
+
         RichTextEditorDialog dlg(fw);
         RichTextEditor *editor = dlg.editor();
 
@@ -400,35 +313,6 @@ void QDesignerTaskMenu::changeRichTextProperty(const QString &propertyName)
     }
 }
 
-QDesignerTaskMenu::PromotionSelectionList QDesignerTaskMenu::promotionSelectionList(QDesignerFormWindowInterface *formWindow) const
-{
-    // Check for a homogenous selection (same class, same promotion state)
-    // and return the list if this is the case. Also make sure m_widget
-    // is the last widget in the list so that it is re-selected as the last
-    // widget by the promotion commands.
-    const QString className = m_widget->metaObject()->className();
-    const bool promoted = isPromoted(formWindow->core(), m_widget);
-    
-    PromotionSelectionList rc;
-    
-    if (QDesignerFormWindowCursorInterface *cursor = formWindow->cursor()) {
-        const int selectedWidgetCount = cursor->selectedWidgetCount();
-        for (int i=0; i < selectedWidgetCount; i++) {
-            QWidget *w = cursor->selectedWidget(i);
-            // Check, put  m_widget last
-            if (w != m_widget) {
-                if (w->metaObject()->className() != className || isPromoted(formWindow->core(), w) !=  promoted) {
-                    return PromotionSelectionList();
-                }
-                rc.push_back(w);
-            }
-        }
-    }
-    rc.push_back(m_widget);
-    return rc;
-}
-
-
 void QDesignerTaskMenu::changeToolTip()
 {
     changeRichTextProperty(QLatin1String("toolTip"));
@@ -443,43 +327,7 @@ void QDesignerTaskMenu::changeStyleSheet()
 {
     if (QDesignerFormWindowInterface *fw = formWindow()) {
         StyleSheetEditorDialog dlg(fw, m_widget);
-        dlg.exec();       
+        dlg.exec();
     }
 }
-
-void QDesignerTaskMenu::editPromotedWidgets()
-{
-    QDesignerFormWindowInterface *fw = formWindow();
-    if (!fw)
-        return;
-    // Check whether invoked over a promotable widget
-    QDesignerFormEditorInterface *core = fw->core();
-    const QString base_class_name = WidgetFactory::classNameOf(core, m_widget);
-    const bool promotable = QDesignerPromotionDialog::baseClassNames(core->promotion()).contains(base_class_name);        
-    QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension*>(core->extensionManager(), core);
-    if (promotable) {
-        // Show over promotable widget
-        QString promoteToClassName;
-        QDialog *promotionEditor = 0;
-        if (lang)
-            promotionEditor = lang->createPromotionDialog(core, base_class_name, &promoteToClassName, m_widget);
-        if (!promotionEditor)
-            promotionEditor = new QDesignerPromotionDialog(core, m_widget, base_class_name, &promoteToClassName);
-        if (promotionEditor->exec() == QDialog::Accepted && !promoteToClassName.isEmpty()) {
-            promoteTo(fw, promoteToClassName);
-        }
-        delete promotionEditor;        
-    } else {
-        // Show over non-promotable widget
-        QDialog *promotionEditor =  0;
-        if (lang)
-            lang->createPromotionDialog(core, m_widget);
-        if (!promotionEditor)
-            promotionEditor = new QDesignerPromotionDialog(core, m_widget);
-        promotionEditor->exec();
-        delete promotionEditor;
-    }
-}
-
-
 } // namespace qdesigner_internal

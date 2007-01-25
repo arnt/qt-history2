@@ -40,6 +40,7 @@ class QWidget;
 class QSignalMapper;
 
 namespace qdesigner_internal {
+class PromotionTaskMenu;
 
 class QDESIGNER_SHARED_EXPORT QDesignerTaskMenu: public QObject, public QDesignerTaskMenuExtension
 {
@@ -56,15 +57,13 @@ public:
 protected:
     QDesignerFormWindowInterface *formWindow() const;
     void changeRichTextProperty(const QString &propertyName);
-    
+
     QAction *createAction(const QString &text, QObject *receiver, const char *receiverSlot);
     QAction *createSeparator();
 
 private slots:
     void changeObjectName();
-    void promoteToCustomWidget(const QString &customClassName);
-    
-    void demoteFromCustomWidget();
+
     void changeToolTip();
     void changeWhatsThis();
     void changeStyleSheet();
@@ -72,15 +71,8 @@ private slots:
     void addToolBar();
     void createStatusBar();
     void removeStatusBar();
-    void editPromotedWidgets();
 
 private:
-    void promoteTo(QDesignerFormWindowInterface *fw, const QString &customClassName);
-    void createPromotionActions(QDesignerFormWindowInterface *formWindow) const;
-    
-    typedef QList<QPointer<QWidget> > PromotionSelectionList;
-    PromotionSelectionList promotionSelectionList(QDesignerFormWindowInterface *formWindow) const;
-    
     QPointer<QWidget> m_widget;
     QAction *m_separator;
     QAction *m_separator2;
@@ -94,11 +86,7 @@ private:
     QAction *m_addToolBar;
     QAction *m_addStatusBar;
     QAction *m_removeStatusBar;
-    QAction *m_promotionEditAction;
-
-    mutable QSignalMapper *m_promotionMapper;
-    mutable QList<QAction*> m_promotionActions;
-    
+    mutable PromotionTaskMenu* m_promotionTaskMenu;
 };
 
 class QDESIGNER_SHARED_EXPORT QDesignerTaskMenuFactory: public QExtensionFactory
