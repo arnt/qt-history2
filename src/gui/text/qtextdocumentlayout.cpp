@@ -928,21 +928,23 @@ void QTextDocumentLayoutPrivate::drawTableCell(const QRectF &cellRect, QPainter 
         painter->setBrush(Qt::darkGray);
         painter->setPen(Qt::NoPen);
 
+        const qreal border = td->border.toReal();
+
         // top border
-        painter->drawRect(QRectF(cellRect.left(), cellRect.top() - td->border.toReal(),
-                    cellRect.width() + td->border.toReal(), td->border.toReal()));
+        painter->drawRect(QRectF(cellRect.left(), cellRect.top() - border,
+                          cellRect.width() + border, border));
         // left border
-        painter->drawRect(QRectF(cellRect.left() - td->border.toReal(), cellRect.top() - td->border.toReal(),
-                    td->border.toReal(), cellRect.height() + 2 * td->border.toReal()));
+        painter->drawRect(QRectF(cellRect.left() - border, cellRect.top() - border,
+                          border, cellRect.height() + 2 * border));
 
         painter->setBrush(Qt::lightGray);
 
         // bottom border
         painter->drawRect(QRectF(cellRect.left(), cellRect.top() + cellRect.height(),
-                    cellRect.width() + td->border.toReal(), td->border.toReal()));
+                          cellRect.width() + border, border));
         // right border
         painter->drawRect(QRectF(cellRect.left() + cellRect.width(), cellRect.top(),
-                    td->border.toReal(), cellRect.height()));
+                          border, cellRect.height()));
 
         painter->setBrush(oldBrush);
         painter->setPen(oldPen);
