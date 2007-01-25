@@ -191,22 +191,22 @@ struct FakeDomEvent
         setupDefaults(eng);
         setupModifiers(e, eng);
         m_proto.setProperty("type",
-                            eng->scriptValue(QLatin1String("mouseevent")));
+                            QScriptValue(eng, QLatin1String("mouseevent")));
         int button = 0;
         if (e->button() == Qt::RightButton)
             button = 2;
         else if (e->button() == Qt::MidButton)
             button = 1;
-        m_proto.setProperty("button", eng->scriptValue(button));
+        m_proto.setProperty("button", QScriptValue(eng, button));
 
-        m_proto.setProperty("clientX", eng->scriptValue(e->x()));
-        m_proto.setProperty("clientY", eng->scriptValue(e->y()));
-        m_proto.setProperty("layerX", eng->scriptValue(e->x()));
-        m_proto.setProperty("layerY", eng->scriptValue(e->y()));
-        m_proto.setProperty("pageX", eng->scriptValue(e->x()));
-        m_proto.setProperty("pageY", eng->scriptValue(e->y()));
-        m_proto.setProperty("screenX", eng->scriptValue(e->globalX()));
-        m_proto.setProperty("screenY", eng->scriptValue(e->globalY()));
+        m_proto.setProperty("clientX", QScriptValue(eng, e->x()));
+        m_proto.setProperty("clientY", QScriptValue(eng, e->y()));
+        m_proto.setProperty("layerX", QScriptValue(eng, e->x()));
+        m_proto.setProperty("layerY", QScriptValue(eng, e->y()));
+        m_proto.setProperty("pageX", QScriptValue(eng, e->x()));
+        m_proto.setProperty("pageY", QScriptValue(eng, e->y()));
+        m_proto.setProperty("screenX", QScriptValue(eng, e->globalX()));
+        m_proto.setProperty("screenY", QScriptValue(eng, e->globalY()));
 
         eng->setDefaultPrototype(qMetaTypeId<FakeDomEvent>(), m_proto);
     }
@@ -214,12 +214,12 @@ struct FakeDomEvent
     {
         setupDefaults(eng);
         setupModifiers(e, eng);
-        m_proto.setProperty("type", eng->scriptValue(QLatin1String("keyevent")));
+        m_proto.setProperty("type", QScriptValue(eng, QLatin1String("keyevent")));
 
-        m_proto.setProperty("isChar", eng->scriptValue(!e->text().isEmpty()));
-        m_proto.setProperty("charCode", eng->scriptValue(e->text()));
-        m_proto.setProperty("keyCode", eng->scriptValue(qtToDomKey(e->key())));
-        m_proto.setProperty("which", eng->scriptValue(e->key()));
+        m_proto.setProperty("isChar", QScriptValue(eng, !e->text().isEmpty()));
+        m_proto.setProperty("charCode", QScriptValue(eng, e->text()));
+        m_proto.setProperty("keyCode", QScriptValue(eng, qtToDomKey(e->key())));
+        m_proto.setProperty("which", QScriptValue(eng, e->key()));
 
         eng->setDefaultPrototype(qMetaTypeId<FakeDomEvent>(), m_proto);
     }
@@ -233,57 +233,57 @@ struct FakeDomEvent
 
         setupDefaults(e);
 
-        m_proto.setProperty("bubbles", e->scriptValue(0));
-        m_proto.setProperty("cancelBubble", e->scriptValue(0));
-        m_proto.setProperty("cancelable", e->scriptValue(0));
-        m_proto.setProperty("currentTarget", e->scriptValue(0));
-        m_proto.setProperty("detail", e->scriptValue(0));
-        m_proto.setProperty("eventPhase", e->scriptValue(0));
-        m_proto.setProperty("explicitOriginalTarget", e->scriptValue(0));
-        m_proto.setProperty("originalTarget", e->scriptValue(0));
-        m_proto.setProperty("relatedTarget", e->scriptValue(0));
-        m_proto.setProperty("target", e->scriptValue(0));
-        m_proto.setProperty("view", e->scriptValue(0));
+        m_proto.setProperty("bubbles", QScriptValue(e, 0));
+        m_proto.setProperty("cancelBubble", QScriptValue(e, 0));
+        m_proto.setProperty("cancelable", QScriptValue(e, 0));
+        m_proto.setProperty("currentTarget", QScriptValue(e, 0));
+        m_proto.setProperty("detail", QScriptValue(e, 0));
+        m_proto.setProperty("eventPhase", QScriptValue(e, 0));
+        m_proto.setProperty("explicitOriginalTarget", QScriptValue(e, 0));
+        m_proto.setProperty("originalTarget", QScriptValue(e, 0));
+        m_proto.setProperty("relatedTarget", QScriptValue(e, 0));
+        m_proto.setProperty("target", QScriptValue(e, 0));
+        m_proto.setProperty("view", QScriptValue(e, 0));
     }
 
     static void setupDefaults(QScriptEngine *e)
     {
-        m_proto.setProperty("timeStamp", e->scriptValue(QDateTime::currentDateTime().toTime_t()));
-        m_proto.setProperty("button", e->scriptValue(0));
-        m_proto.setProperty("charCode", e->scriptValue(0));
-        m_proto.setProperty("clientX", e->scriptValue(0));
-        m_proto.setProperty("clientY", e->scriptValue(0));
-        m_proto.setProperty("isChar", e->scriptValue(0));
-        m_proto.setProperty("keyCode", e->scriptValue(0));
-        m_proto.setProperty("layerX", e->scriptValue(0));
-        m_proto.setProperty("layerY", e->scriptValue(0));
-        m_proto.setProperty("pageX", e->scriptValue(0));
-        m_proto.setProperty("pageY", e->scriptValue(0));
-        m_proto.setProperty("screenX", e->scriptValue(0));
-        m_proto.setProperty("screenY", e->scriptValue(0));
-        m_proto.setProperty("which ", e->scriptValue(0));
+        m_proto.setProperty("timeStamp", QScriptValue(e, QDateTime::currentDateTime().toTime_t()));
+        m_proto.setProperty("button", QScriptValue(e, 0));
+        m_proto.setProperty("charCode", QScriptValue(e, 0));
+        m_proto.setProperty("clientX", QScriptValue(e, 0));
+        m_proto.setProperty("clientY", QScriptValue(e, 0));
+        m_proto.setProperty("isChar", QScriptValue(e, 0));
+        m_proto.setProperty("keyCode", QScriptValue(e, 0));
+        m_proto.setProperty("layerX", QScriptValue(e, 0));
+        m_proto.setProperty("layerY", QScriptValue(e, 0));
+        m_proto.setProperty("pageX", QScriptValue(e, 0));
+        m_proto.setProperty("pageY", QScriptValue(e, 0));
+        m_proto.setProperty("screenX", QScriptValue(e, 0));
+        m_proto.setProperty("screenY", QScriptValue(e, 0));
+        m_proto.setProperty("which ", QScriptValue(e, 0));
     }
     void setupModifiers(QInputEvent *e, QScriptEngine *eng)
     {
         if (e->modifiers() & Qt::AltModifier)
-            m_proto.setProperty("altKey", eng->scriptValue(true));
+            m_proto.setProperty("altKey", QScriptValue(eng, true));
         else
-            m_proto.setProperty("altKey", eng->scriptValue(false));
+            m_proto.setProperty("altKey", QScriptValue(eng, false));
 
         if (e->modifiers() & Qt::ControlModifier)
-            m_proto.setProperty("ctrlKey", eng->scriptValue(true));
+            m_proto.setProperty("ctrlKey", QScriptValue(eng, true));
         else
-            m_proto.setProperty("ctrlKey", eng->scriptValue(false));
+            m_proto.setProperty("ctrlKey", QScriptValue(eng, false));
 
         if (e->modifiers() & Qt::MetaModifier)
-            m_proto.setProperty("metaKey", eng->scriptValue(true));
+            m_proto.setProperty("metaKey", QScriptValue(eng, true));
         else
-            m_proto.setProperty("metaKey", eng->scriptValue(false));
+            m_proto.setProperty("metaKey", QScriptValue(eng, false));
 
         if (e->modifiers() & Qt::ShiftModifier)
-            m_proto.setProperty("shiftKey", eng->scriptValue(true));
+            m_proto.setProperty("shiftKey", QScriptValue(eng, true));
         else
-            m_proto.setProperty("shiftKey", eng->scriptValue(true));
+            m_proto.setProperty("shiftKey", QScriptValue(eng, true));
     }
 };
 

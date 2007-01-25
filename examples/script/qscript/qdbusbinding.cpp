@@ -89,15 +89,15 @@ static QScriptValue setupDBusInterface(QScriptEngine *engine, QDBusAbstractInter
                 continue;
 
             QScriptValue callWrapper = engine->newFunction(do_dbus_call);
-            callWrapper.setProperty("functionName", engine->scriptValue(QString::fromAscii(name)));
+            callWrapper.setProperty("functionName", QScriptValue(engine, QString::fromAscii(name)));
             v.setProperty(QString(name), callWrapper);
         }
     }
 
-    v.setProperty("service", engine->scriptValue(iface->service()), QScriptValue::ReadOnly);
-    v.setProperty("path", engine->scriptValue(iface->path()), QScriptValue::ReadOnly);
-    v.setProperty("interface", engine->scriptValue(iface->interface()), QScriptValue::ReadOnly);
-    v.setProperty("isValid", engine->scriptValue(iface->isValid()), QScriptValue::ReadOnly);
+    v.setProperty("service", QScriptValue(engine, iface->service()), QScriptValue::ReadOnly);
+    v.setProperty("path", QScriptValue(engine, iface->path()), QScriptValue::ReadOnly);
+    v.setProperty("interface", QScriptValue(engine, iface->interface()), QScriptValue::ReadOnly);
+    v.setProperty("isValid", QScriptValue(engine, iface->isValid()), QScriptValue::ReadOnly);
     v.setProperty("connection", engine->newQObject(new QScriptDBusConnection(iface->connection(), engine)), QScriptValue::ReadOnly);
 
     return v;
@@ -192,19 +192,19 @@ QDBusMessage QScriptDBusMessagePrototype::createError(const QString &name, const
 static QScriptValue messageToScriptValue(QScriptEngine *engine, const QDBusMessage &message)
 {
     QScriptValue v = engine->newVariant(QVariant::fromValue(message));
-    v.setProperty("service", engine->scriptValue(message.service()), QScriptValue::ReadOnly);
-    v.setProperty("path", engine->scriptValue(message.path()), QScriptValue::ReadOnly);
-    v.setProperty("interface", engine->scriptValue(message.interface()), QScriptValue::ReadOnly);
-    v.setProperty("member", engine->scriptValue(message.member()), QScriptValue::ReadOnly);
-    v.setProperty("type", engine->scriptValue(message.type()), QScriptValue::ReadOnly);
-    v.setProperty("signature", engine->scriptValue(message.signature()), QScriptValue::ReadOnly);
-    v.setProperty("isReplyRequired", engine->scriptValue(message.isReplyRequired()), QScriptValue::ReadOnly);
+    v.setProperty("service", QScriptValue(engine, message.service()), QScriptValue::ReadOnly);
+    v.setProperty("path", QScriptValue(engine, message.path()), QScriptValue::ReadOnly);
+    v.setProperty("interface", QScriptValue(engine, message.interface()), QScriptValue::ReadOnly);
+    v.setProperty("member", QScriptValue(engine, message.member()), QScriptValue::ReadOnly);
+    v.setProperty("type", QScriptValue(engine, message.type()), QScriptValue::ReadOnly);
+    v.setProperty("signature", QScriptValue(engine, message.signature()), QScriptValue::ReadOnly);
+    v.setProperty("isReplyRequired", QScriptValue(engine, message.isReplyRequired()), QScriptValue::ReadOnly);
 
-    v.setProperty("delayedReply", engine->scriptValue(message.isDelayedReply()));
+    v.setProperty("delayedReply", QScriptValue(engine, message.isDelayedReply()));
     QScriptValue argValue = engine->newArray();
     const QList<QVariant> args = message.arguments();
     for (int i = 0; i < args.count(); ++i)
-        argValue.setProperty(engine->scriptValue(i).toString(),
+        argValue.setProperty(QScriptValue(engine, i).toString(),
                              engine->newVariant(args.at(i)));
 
     v.setProperty("arguments", argValue);
@@ -214,8 +214,6 @@ static QScriptValue messageToScriptValue(QScriptEngine *engine, const QDBusMessa
 
 static void scriptValueToMessage(const QScriptValue &value, QDBusMessage &message)
 {
-    QScriptEngine *eng = value.engine();
-
     QVariant v = value.toVariant();
     message = qvariant_cast<QDBusMessage>(v);
     message.setDelayedReply(value.property("delayedReply").toBoolean());
@@ -223,7 +221,7 @@ static void scriptValueToMessage(const QScriptValue &value, QDBusMessage &messag
     QList<QVariant> args;
     quint32 len = value.property("length").toUInt32();
     for (quint32 i = 0; i < len; ++i) {
-        QScriptValue item = value.property(eng->scriptValue(i).toString());
+        QScriptValue item = value.property(i);
         args.append(item.toVariant());
     }
     message.setArguments(args);
@@ -259,7 +257,7 @@ QScriptValue QScriptDBusMessagePrototype::createErrorReply(QScriptContext *conte
 template <typename T>
 QScriptValue qDBusReplyToScriptValue(QScriptEngine *eng, const QDBusReply<T> &reply)
 {
-    return eng->scriptValue(reply.value());
+    return QScriptValue(eng, reply.value());
 }
 
 template <>
@@ -268,7 +266,7 @@ QScriptValue qDBusReplyToScriptValue(QScriptEngine *eng, const QDBusReply<QStrin
     QScriptValue v = eng->newArray();
     const QStringList &lst = reply.value();
     for (int i = 0; i < lst.count(); ++i)
-        v.setProperty(eng->scriptValue(i).toString(), eng->scriptValue(lst.at(i)));
+        v.setProperty(i, QScriptValue(eng, lst.at(i)));
     return v;
 }
 
@@ -281,10 +279,10 @@ void qDBusReplyFromScriptValue(const QScriptValue &, QDBusReply<T> &)
 QScriptValue qDBusErrorToScriptValue(QScriptEngine *engine, const QDBusError &error)
 {
     QScriptValue v = engine->newObject();
-    v.setProperty("type", engine->scriptValue(error.type()), QScriptValue::ReadOnly);
-    v.setProperty("name", engine->scriptValue(error.name()), QScriptValue::ReadOnly);
-    v.setProperty("message", engine->scriptValue(error.message()), QScriptValue::ReadOnly);
-    v.setProperty("isValid", engine->scriptValue(error.isValid()), QScriptValue::ReadOnly);
+    v.setProperty("type", QScriptValue(engine, error.type()), QScriptValue::ReadOnly);
+    v.setProperty("name", QScriptValue(engine, error.name()), QScriptValue::ReadOnly);
+    v.setProperty("message", QScriptValue(engine, error.message()), QScriptValue::ReadOnly);
+    v.setProperty("isValid", QScriptValue(engine, error.isValid()), QScriptValue::ReadOnly);
     return v;
 }
 
@@ -316,10 +314,10 @@ void registerDBusBindings(QScriptEngine *engine)
     engine->globalObject().setProperty("QDBusConnectionInterface", connIfaceProto);
 
     QScriptValue qdbus = engine->newObject();
-    qdbus.setProperty("NoBlock", engine->scriptValue(QDBus::NoBlock));
-    qdbus.setProperty("Block", engine->scriptValue(QDBus::Block));
-    qdbus.setProperty("BlockWithGui", engine->scriptValue(QDBus::BlockWithGui));
-    qdbus.setProperty("AutoDetect", engine->scriptValue(QDBus::AutoDetect));
+    qdbus.setProperty("NoBlock", QScriptValue(engine, QDBus::NoBlock));
+    qdbus.setProperty("Block", QScriptValue(engine, QDBus::Block));
+    qdbus.setProperty("BlockWithGui", QScriptValue(engine, QDBus::BlockWithGui));
+    qdbus.setProperty("AutoDetect", QScriptValue(engine, QDBus::AutoDetect));
     engine->globalObject().setProperty("QDBus", qdbus);
 
     (void)new QDBusConnectionPrototype(engine);

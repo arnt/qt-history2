@@ -69,9 +69,9 @@ static QScriptValue width(QScriptContext *context, QScriptEngine *env)
 
     DomImage *image = qvariant_cast<DomImage*> (val.toVariant());
     if (image)
-        env->scriptValue(image->width());
+        return QScriptValue(env, image->width());
 
-    return env->scriptValue(0);
+    return QScriptValue(env, 0);
 }
 
 
@@ -81,9 +81,9 @@ static QScriptValue height(QScriptContext *context, QScriptEngine *env)
 
     DomImage *image = qvariant_cast<DomImage*> (val.toVariant());
     if (image)
-        env->scriptValue(image->height());
+        return QScriptValue(env, image->height());
 
-    return env->scriptValue(0);
+    return QScriptValue(env, 0);
 }
 
 
@@ -106,9 +106,9 @@ static QScriptValue name(QScriptContext *context, QScriptEngine *env)
 
     DomImage *image = qvariant_cast<DomImage*> (val.toVariant());
     if (image)
-        env->scriptValue(image->name());
+        return QScriptValue(env, image->name());
 
-    return env->scriptValue(QString());
+    return QScriptValue(env, QString());
 }
 
 
