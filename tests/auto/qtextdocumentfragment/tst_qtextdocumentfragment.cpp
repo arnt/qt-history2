@@ -205,6 +205,7 @@ private slots:
     void html_ignoreEmptyDivs();
     void html_dontInheritAlignmentForFloatingImages();
     void html_verticalImageAlignment();
+    void html_verticalCellAlignment();
 
 private:
     inline void setHtml(const QString &html)
@@ -3172,6 +3173,22 @@ void tst_QTextDocumentFragment::html_verticalImageAlignment()
     QVERIFY(cursor.charFormat().isImageFormat());
     fmt = cursor.charFormat().toImageFormat();
     QVERIFY(fmt.verticalAlignment() == QTextCharFormat::AlignMiddle);
+}
+
+void tst_QTextDocumentFragment::html_verticalCellAlignment()
+{
+    doc->setHtml("<table>"
+                 "<td style=\"vertical-align: middle\"></td>"
+                 "<td style=\"vertical-align: top\"></td>"
+                 "<td style=\"vertical-align: bottom\"></td>"
+                 "</table>");
+
+    QTextTable *table = qobject_cast<QTextTable *>(doc->rootFrame()->childFrames().at(0));
+    QVERIFY(table);
+
+    QCOMPARE(table->cellAt(0, 0).format().verticalAlignment(), QTextCharFormat::AlignMiddle);
+    QCOMPARE(table->cellAt(0, 1).format().verticalAlignment(), QTextCharFormat::AlignTop);
+    QCOMPARE(table->cellAt(0, 2).format().verticalAlignment(), QTextCharFormat::AlignBottom);
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)

@@ -1222,6 +1222,32 @@ void tst_QTextDocument::toHtml_data()
                                  << QString("EMPTYBLOCK") +
                                     QString("<p OPENDEFAULTBLOCKSTYLE background-color:#0000ff;\">Blah</p>");
     }
+
+    {
+        CREATE_DOC_AND_CURSOR();
+
+        QTextTable *table = cursor.insertTable(2, 2);
+        QTextCharFormat fmt = table->cellAt(0, 0).format();
+        fmt.setVerticalAlignment(QTextCharFormat::AlignMiddle);
+        table->cellAt(0, 0).setFormat(fmt);
+        fmt = table->cellAt(0, 1).format();
+        fmt.setVerticalAlignment(QTextCharFormat::AlignTop);
+        table->cellAt(0, 1).setFormat(fmt);
+        fmt = table->cellAt(1, 0).format();
+        fmt.setVerticalAlignment(QTextCharFormat::AlignBottom);
+        table->cellAt(1, 0).setFormat(fmt);
+
+        table->cellAt(0, 0).firstCursorPosition().insertText("Blah");
+
+        QTest::newRow("table-vertical-alignment") << QTextDocumentFragment(&doc)
+                                  << QString("<table border=\"1\" cellspacing=\"2\">"
+                                             "\n<tr>\n<td style=\" vertical-align:middle;\">\n"
+                                             "<p DEFAULTBLOCKSTYLE>Blah</p></td>"
+                                             "\n<td style=\" vertical-align:top;\"></td></tr>"
+                                             "\n<tr>\n<td style=\" vertical-align:bottom;\"></td>"
+                                             "\n<td></td></tr>"
+                                             "</table>");
+    }
 }
 
 void tst_QTextDocument::toHtml()

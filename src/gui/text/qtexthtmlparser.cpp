@@ -1199,6 +1199,8 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
                     case QCss::Value_Sub: charFormat.setVerticalAlignment(QTextCharFormat::AlignSubScript); break;
                     case QCss::Value_Super: charFormat.setVerticalAlignment(QTextCharFormat::AlignSuperScript); break;
                     case QCss::Value_Middle: charFormat.setVerticalAlignment(QTextCharFormat::AlignMiddle); break;
+                    case QCss::Value_Top: charFormat.setVerticalAlignment(QTextCharFormat::AlignTop); break;
+                    case QCss::Value_Bottom: charFormat.setVerticalAlignment(QTextCharFormat::AlignBottom); break;
                     default: charFormat.setVerticalAlignment(QTextCharFormat::AlignNormal); break;
                 }
                 break;

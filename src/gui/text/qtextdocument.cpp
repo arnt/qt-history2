@@ -1723,7 +1723,9 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
         attributesEmitted = true;
     }
 
-    if (format.verticalAlignment() != defaultCharFormat.verticalAlignment()) {
+    if (format.verticalAlignment() != defaultCharFormat.verticalAlignment()
+        && format.verticalAlignment() != QTextCharFormat::AlignNormal)
+    {
         html += QLatin1String(" vertical-align:");
 
         QTextCharFormat::VerticalAlignment valign = format.verticalAlignment();
@@ -1731,6 +1733,12 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
             html += QLatin1String("sub");
         else if (valign == QTextCharFormat::AlignSuperScript)
             html += QLatin1String("super");
+        else if (valign == QTextCharFormat::AlignMiddle)
+            html += QLatin1String("middle");
+        else if (valign == QTextCharFormat::AlignTop)
+            html += QLatin1String("top");
+        else if (valign == QTextCharFormat::AlignBottom)
+            html += QLatin1String("bottom");
 
         html += QLatin1Char(';');
         attributesEmitted = true;
@@ -2154,11 +2162,36 @@ void QTextHtmlExporter::emitTable(const QTextTable *table)
             if (bg != Qt::NoBrush)
                 emitAttribute("bgcolor", bg.color().name());
 
+            QTextCharFormat oldDefaultCharFormat = defaultCharFormat;
+
+            QTextCharFormat::VerticalAlignment valign = cellFormat.verticalAlignment();
+            if (valign >= QTextCharFormat::AlignMiddle && valign <= QTextCharFormat::AlignBottom) {
+                html += (" style=\" vertical-align:");
+                switch (valign) {
+                case QTextCharFormat::AlignMiddle:
+                    html += QLatin1String("middle");
+                    break;
+                case QTextCharFormat::AlignTop:
+                    html += QLatin1String("top");
+                    break;
+                case QTextCharFormat::AlignBottom:
+                    html += QLatin1String("bottom");
+                    break;
+                }
+                html += QLatin1String(";\"");
+
+                QTextCharFormat temp;
+                temp.setVerticalAlignment(valign);
+                defaultCharFormat.merge(temp);
+            }
+
             html += QLatin1Char('>');
 
             emitFrame(cell.begin());
 
             html += QLatin1String("</td>");
+
+            defaultCharFormat = oldDefaultCharFormat;
         }
 
         html += QLatin1String("</tr>");

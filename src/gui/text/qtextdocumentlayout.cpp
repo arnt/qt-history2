@@ -120,6 +120,8 @@ public:
     QVector<int> rowsAfterPageBreak;
     QVector<QFixed> rowPositionsWithoutPageBreak;
 
+    QVector<QFixed> cellVerticalOffsets;
+
     inline QFixed cellWidth(int column, int colspan) const
     { return columnPositions.at(column + colspan - 1) + widths.at(column + colspan - 1)
              - columnPositions.at(column) - 2 * cellPadding; }
@@ -133,7 +135,7 @@ public:
     QRectF cellRect(const QTextTableCell &cell) const;
 
     inline QFixedPoint cellPosition(int row, int col) const
-    { return QFixedPoint(columnPositions.at(col) + cellPadding, rowPositions.at(row) + cellPadding); }
+    { return QFixedPoint(columnPositions.at(col) + cellPadding, rowPositions.at(row) + cellPadding + cellVerticalOffsets.at(col + row * widths.size())); }
     inline QFixedPoint cellPosition(const QTextTableCell &cell) const
     { return cellPosition(cell.row(), cell.column()); }
 
@@ -956,7 +958,10 @@ void QTextDocumentLayoutPrivate::drawTableCell(const QRectF &cellRect, QPainter 
             fillBackground(painter, cellRect, bg);
     }
 
-    const QPointF cellPos = QPointF(cellRect.left() + td->cellPadding.toReal(), cellRect.top() + td->cellPadding.toReal());
+    const QFixed verticalOffset = td->cellVerticalOffsets.at(c + r * table->columns());
+
+    const QPointF cellPos = QPointF(cellRect.left() + td->cellPadding.toReal(),
+                                    cellRect.top() + (td->cellPadding + verticalOffset).toReal());
 
     QTextBlock repaintBlock;
     drawFlow(cellPos, painter, cell_context, cell.begin(), &repaintBlock);
@@ -1467,6 +1472,10 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
 
     bool haveRowSpannedCells = false;
 
+    // need to keep track of cell heights for vertical alignment
+    QVector<QFixed> cellHeights;
+    cellHeights.reserve(rows * columns);
+
     // now that we have the column widths we can lay out all cells with the right
     // width, to calculate the row heights. we have to use two passes though, cells
     // which span more than one row have to be processed later to avoid them enlarging
@@ -1494,9 +1503,12 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
             QLayoutStruct layoutStruct = layoutCell(table, cell, width, layoutFrom, layoutTo, childFrameMap);
 
             td->heights[r] = qMax(td->heights.at(r), layoutStruct.y + 2 * td->cellPadding);
+
+            cellHeights.append(layoutStruct.y);
         }
     }
 
+    int cellIndex = 0;
     if (haveRowSpannedCells) {
         for (int r = 0; r < rows; ++r) {
             td->calcRowPosition(r);
@@ -1509,8 +1521,10 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
                 if (cspan > 1 && cell.column() != c)
                     continue;
 
-                if (rspan == 1)
+                if (rspan == 1) {
+                    ++cellIndex;
                     continue;
+                }
 
                 if (cell.row() != r)
                     continue;
@@ -1530,6 +1544,45 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
                 if (heightToDistribute > 0) {
                     const int lastRow = r + rspan - 1;
                     td->heights[lastRow] = qMax(td->heights.at(lastRow), heightToDistribute);
+                }
+
+                cellHeights.insert(cellIndex++, layoutStruct.y);
+            }
+        }
+    }
+
+    // now that all cells have been properly laid out, we can compute the
+    // vertical offsets for vertical alignment
+    td->cellVerticalOffsets.resize(rows * columns);
+    cellIndex = 0;
+    for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < columns; ++c) {
+            QTextTableCell cell = table->cellAt(r, c);
+            if (cell.row() != r || cell.column() != c)
+                continue;
+
+            const int rowSpan = cell.rowSpan();
+            const QFixed availableHeight = td->rowPositions.at(r + rowSpan - 1) + td->heights.at(r + rowSpan - 1) - td->rowPositions.at(r);
+
+            const QFixed cellHeight = cellHeights.at(cellIndex++) + 2 * td->cellPadding;
+            QTextCharFormat cellFormat = cell.format();
+
+            QFixed offset = 0;
+            switch (cellFormat.verticalAlignment()) {
+            case QTextCharFormat::AlignMiddle:
+                offset = (availableHeight - cellHeight) / 2;
+                break;
+            case QTextCharFormat::AlignBottom:
+                offset = availableHeight - cellHeight;
+                break;
+            default:
+                break;
+            };
+
+            for (int rd = 0; rd < cell.rowSpan(); ++rd) {
+                for (int cd = 0; cd < cell.columnSpan(); ++cd) {
+                    const int index = (c + cd) + (r + rd) * columns;
+                    td->cellVerticalOffsets[index] = offset;
                 }
             }
         }
