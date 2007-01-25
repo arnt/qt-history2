@@ -40,11 +40,17 @@ TRANSLATOR qdesigner_internal::FormWindow
 #include <connectionedit_p.h>
 #include <actionprovider_p.h>
 
-// sdk
-#include <QtDesigner/QtDesigner>
-
-#include <QtGui>
-#include <QtDebug>
+#include <QtCore/QtDebug>
+#include <QtCore/QBuffer>
+#include <QtCore/QTimer>
+#include <QtGui/QMenu>
+#include <QtGui/QClipboard>
+#include <QtGui/QUndoGroup>
+#include <QtGui/QScrollArea>
+#include <QtGui/QRubberBand>
+#include <QtGui/QApplication>
+#include <QtGui/QSplitter>
+#include <QtGui/QMessageBox>
 
 namespace {
 class BlockSelection
@@ -1462,30 +1468,6 @@ bool FormWindow::handleMouseButtonDblClickEvent(QWidget *, QWidget *managedWidge
     return true;
 }
 
-void FormWindow::finishContextMenu(QWidget *w, QWidget *, QContextMenuEvent *e)
-{
-    e->accept();
-    
-    QMenu *menu = createPopupMenu(w);
-    if (!menu)
-        return;
-    
-    if (const QDesignerTaskMenuExtension *taskMenu = qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(), w)) {
-        QList<QAction *> acts = taskMenu->taskActions();
-        if (!acts.empty()) {
-            QAction *sep = new QAction(menu);
-            sep->setSeparator(true);
-            acts.append(sep);
-            menu->insertActions(menu->actions().at(0), acts);
-        }
-    }
-
-    emit contextMenuRequested(menu, w);
-    menu->exec(e->globalPos());
-    delete menu;
-}
-
-
 bool FormWindow::handleContextMenu(QWidget *, QWidget *managedWidget, QContextMenuEvent *e)
 {
     e->accept();
@@ -1509,18 +1491,28 @@ bool FormWindow::handleContextMenu(QWidget *, QWidget *managedWidget, QContextMe
         QMetaObject::invokeMethod(core()->formWindowManager(), "slotUpdateActions");
     }
 
-    if (!isMainContainer(managedWidget)) { // press on a child widget
+    QWidget *contextMenuWidget = 0;
+
+    if (isMainContainer(managedWidget)) { // press on a child widget
+        contextMenuWidget = mainContainer();
+    } else {  // press on a child widget
         // if widget is laid out, find the first non-laid out super-widget
         QWidget *realWidget = managedWidget; // but store the original one
         QMainWindow *mw = qobject_cast<QMainWindow*>(mainContainer());
 
         if (mw && mw->centralWidget() == realWidget) {
-            finishContextMenu(managedWidget, this, e);
+            contextMenuWidget = managedWidget;
         } else {
-            finishContextMenu(realWidget, realWidget, e);
+            contextMenuWidget = realWidget;
         }
-    } else {
-        finishContextMenu(mainContainer(), mainContainer(), e);
+    } 
+
+    if (contextMenuWidget) {
+        if (QMenu *contextMenu = createPopupMenu(contextMenuWidget)) {
+            emit contextMenuRequested(contextMenu, contextMenuWidget);
+            contextMenu->exec(e->globalPos());
+            delete contextMenu;
+        }
     }
 
     return true;
@@ -1677,49 +1669,33 @@ void FormWindow::layoutVerticalSplit()
 
 QMenu *FormWindow::createPopupMenu(QWidget *w)
 {
-    QDesignerFormWindowManagerInterface *manager = core()->formWindowManager();
-    const bool isFormWindow = qobject_cast<FormWindow*>(w);
-
-    QMenu *popup = new QMenu(this);
-
-    if (qobject_cast<QDesignerTabWidget*>(w)) {
-        QDesignerTabWidget *tabWidget = static_cast<QDesignerTabWidget*>(w);
-        if (tabWidget->count()) {
-            popup->addAction(tabWidget->actionDeletePage());
+    QMenu *popup = new QMenu;
+    
+    // Query extension
+    if (const QDesignerTaskMenuExtension *taskMenu = qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(), w)) {
+        const QList<QAction *> acts = taskMenu->taskActions();
+        if (!acts.empty()) {
+            popup->addActions( acts);
+            popup->addSeparator();
         }
-        QMenu *insertPageMenu = popup->addMenu(tr("Insert Page"));
-        insertPageMenu->addAction(tabWidget->actionInsertPageAfter());
-        insertPageMenu->addAction(tabWidget->actionInsertPage());
-        popup->addSeparator();
-    } else if (qobject_cast<QDesignerStackedWidget*>(w)) {
-        QDesignerStackedWidget *stackedWidget = static_cast<QDesignerStackedWidget*>(w);
-        if (stackedWidget->count()) {
-            popup->addAction(stackedWidget->actionDeletePage());
-        }
-        QMenu *insertPageMenu = popup->addMenu(tr("Insert Page"));
-        insertPageMenu->addAction(stackedWidget->actionInsertPageAfter());
-        insertPageMenu->addAction(stackedWidget->actionInsertPage());
-        popup->addAction(stackedWidget->actionNextPage());
-        popup->addAction(stackedWidget->actionPreviousPage());
-        if (stackedWidget->count() > 1) {
-            popup->addAction(stackedWidget->actionChangePageOrder());
-        }
-        popup->addSeparator();
-    } else if (qobject_cast<QDesignerToolBox*>(w)) {
-        QDesignerToolBox *toolBox = static_cast<QDesignerToolBox*>(w);
-        if (toolBox->count()) {
-            popup->addAction(toolBox->actionDeletePage());
-        }
-        QMenu *insertPageMenu = popup->addMenu(tr("Insert Page"));
-        insertPageMenu->addAction(toolBox->actionInsertPageAfter());
-        insertPageMenu->addAction(toolBox->actionInsertPage());
-        if (toolBox->count() > 1) {
-            popup->addAction(toolBox->actionChangePageOrder());
-        }
-        popup->addSeparator();
     }
+    
+    QDesignerFormWindowManagerInterface *manager = core()->formWindowManager();
+    const bool isFormWindow = qobject_cast<const FormWindow*>(w);
 
     if (!isFormWindow) {
+        if (QDesignerStackedWidget *stackedWidget  = qobject_cast<QDesignerStackedWidget*>(w)) {
+            stackedWidget->addContextMenuActions(popup);
+        } else {
+            if (QDesignerTabWidget *tabWidget = qobject_cast<QDesignerTabWidget*>(w)) {
+                tabWidget->addContextMenuActions(popup);
+            }  else {
+                if (QDesignerToolBox *toolBox = qobject_cast<QDesignerToolBox*>(w)) {
+                    toolBox->addContextMenuActions(popup);
+                }
+            }
+        }
+        
         popup->addAction(manager->actionCut());
         popup->addAction(manager->actionCopy());
     }
@@ -1732,19 +1708,19 @@ QMenu *FormWindow::createPopupMenu(QWidget *w)
     }
 
     popup->addSeparator();
-    QMenu *menu = popup->addMenu(tr("Lay out"));
-    menu->addAction(manager->actionAdjustSize());
-    menu->addAction(manager->actionHorizontalLayout());
-    menu->addAction(manager->actionVerticalLayout());
-    menu->addAction(manager->actionGridLayout());
+    QMenu *layoutMenu = popup->addMenu(tr("Lay out"));
+    layoutMenu->addAction(manager->actionAdjustSize());
+    layoutMenu->addAction(manager->actionHorizontalLayout());
+    layoutMenu->addAction(manager->actionVerticalLayout());
+    layoutMenu->addAction(manager->actionGridLayout());
 
     if (!isFormWindow) {
-        menu->addAction(manager->actionSplitHorizontal());
-        menu->addAction(manager->actionSplitVertical());
+        popup->addAction(manager->actionSplitHorizontal());
+        popup->addAction(manager->actionSplitVertical());
     }
 
-    menu->addAction(manager->actionBreakLayout());
-
+    popup->addAction(manager->actionBreakLayout());
+    
     return popup;
 }
 

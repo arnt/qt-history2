@@ -21,6 +21,7 @@
 #include <QtGui/QTabBar>
 #include <QtGui/QAction>
 #include <QtGui/QMouseEvent>
+#include <QtGui/QMenu>
 
 #include <QtCore/qdebug.h>
 
@@ -311,6 +312,17 @@ int QDesignerTabWidget::pageFromPosition(const QPoint &pos, QRect &rect) const {
             index++;
     }
     return index;
+}
+
+void QDesignerTabWidget::addContextMenuActions(QMenu *popup)
+{
+    if (count()) {
+        popup->addAction(m_actionDeletePage);
+    }
+    QMenu *insertPageMenu = popup->addMenu(tr("Insert Page"));
+    insertPageMenu->addAction(m_actionInsertPageAfter);
+    insertPageMenu->addAction(m_actionInsertPage);
+    popup->addSeparator(); 
 }
 
 #include "qdesigner_tabwidget.moc" // required for MyMimeData

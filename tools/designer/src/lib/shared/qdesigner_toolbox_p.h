@@ -30,6 +30,7 @@
 #include <QtGui/QToolBox>
 
 class QAction;
+class QMenu;
 
 class QDESIGNER_SHARED_EXPORT QDesignerToolBox : public QToolBox
 {
@@ -55,18 +56,8 @@ public:
 
     QPalette::ColorRole currentItemBackgroundRole() const;
     void setCurrentItemBackgroundRole(QPalette::ColorRole role);
-
-    inline QAction *actionDeletePage() const
-    { return m_actionDeletePage; }
-
-    inline QAction *actionInsertPage() const
-    { return m_actionInsertPage; }
-
-    inline QAction *actionInsertPageAfter() const
-    { return m_actionInsertPageAfter; }
-
-    inline QAction *actionChangePageOrder() const
-    { return m_actionChangePageOrder; }
+    
+    void addContextMenuActions(QMenu *popup);
 
 private slots:
     void removeCurrentPage();

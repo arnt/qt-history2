@@ -18,6 +18,7 @@
 #include <QtDesigner/QDesignerFormWindowInterface>
 
 #include <QtGui/QAction>
+#include <QtGui/QMenu>
 
 QDesignerToolBox::QDesignerToolBox(QWidget *parent) :
     QToolBox(parent),
@@ -166,4 +167,18 @@ void QDesignerToolBox::slotCurrentChanged(int index)
             fw->selectWidget(this, true);
         }
     }
+}
+
+void QDesignerToolBox::addContextMenuActions(QMenu *popup)
+{
+    if (count()) {
+        popup->addAction(m_actionDeletePage);
+    }
+    QMenu *insertPageMenu = popup->addMenu(tr("Insert Page"));
+    insertPageMenu->addAction(m_actionInsertPageAfter);
+    insertPageMenu->addAction(m_actionInsertPage);
+    if (count() > 1) {
+        popup->addAction(m_actionChangePageOrder);
+    }
+    popup->addSeparator();
 }

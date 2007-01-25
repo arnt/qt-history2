@@ -31,6 +31,8 @@
 
 class QDesignerFormWindowInterface;
 
+class QMenu;
+
 class QDESIGNER_SHARED_EXPORT QDesignerTabWidget : public QTabWidget
 {
     Q_OBJECT
@@ -55,14 +57,7 @@ public:
     QIcon currentTabIcon() const;
     void setCurrentTabIcon(const QIcon &tabIcon);
 
-    inline QAction *actionDeletePage() const
-    { return m_actionDeletePage; }
-
-    inline QAction *actionInsertPage() const
-    { return m_actionInsertPage; }
-
-    inline QAction *actionInsertPageAfter() const
-    { return m_actionInsertPageAfter; }
+    void addContextMenuActions(QMenu *popup);
 
     bool eventFilter(QObject *o, QEvent *e);
 

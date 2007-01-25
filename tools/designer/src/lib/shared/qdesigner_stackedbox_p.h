@@ -30,6 +30,7 @@
 #include <QtGui/QStackedWidget>
 
 class QAction;
+class QMenu;
 class QToolButton;
 
 class QDESIGNER_SHARED_EXPORT QDesignerStackedWidget : public QStackedWidget
@@ -38,24 +39,8 @@ class QDESIGNER_SHARED_EXPORT QDesignerStackedWidget : public QStackedWidget
     Q_PROPERTY(QString currentPageName READ currentPageName WRITE setCurrentPageName STORED false DESIGNABLE true)
 public:
     QDesignerStackedWidget(QWidget *parent);
-
-    inline QAction *actionPreviousPage() const
-    { return m_actionPreviousPage; }
-
-    inline QAction *actionNextPage() const
-    { return m_actionNextPage; }
-
-    inline QAction *actionDeletePage() const
-    { return m_actionDeletePage; }
-
-    inline QAction *actionInsertPage() const
-    { return m_actionInsertPage; }
-
-    inline QAction *actionInsertPageAfter() const
-    { return m_actionInsertPageAfter; }
-
-    inline QAction *actionChangePageOrder() const
-    { return m_actionChangePageOrder; }
+    
+    void addContextMenuActions(QMenu *popup);
 
     QString currentPageName() const;
     void setCurrentPageName(const QString &pageName);
