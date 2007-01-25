@@ -79,17 +79,17 @@ public:
     inline QScriptValue()
         : m_class(0) {}
 
-    QScriptValue(QScriptEngine *engine, SpecialValue value);
-    QScriptValue(QScriptEngine *engine, bool value);
-    QScriptValue(QScriptEngine *engine, int value);
-    QScriptValue(QScriptEngine *engine, uint value);
-    QScriptValue(QScriptEngine *engine, qlonglong value);
-    QScriptValue(QScriptEngine *engine, qulonglong value);
-    QScriptValue(QScriptEngine *engine, qnumber value);
-    QScriptValue(QScriptEngine *engine, const QString &value);
+    QScriptValue(QScriptEngine *engine, SpecialValue val);
+    QScriptValue(QScriptEngine *engine, bool val);
+    QScriptValue(QScriptEngine *engine, int val);
+    QScriptValue(QScriptEngine *engine, uint val);
+    QScriptValue(QScriptEngine *engine, qlonglong val);
+    QScriptValue(QScriptEngine *engine, qulonglong val);
+    QScriptValue(QScriptEngine *engine, qnumber val);
+    QScriptValue(QScriptEngine *engine, const QString &val);
 
 #ifndef QT_NO_CAST_FROM_ASCII
-    QT_ASCII_CAST_WARN QScriptValue(QScriptEngine *engine, const char *value);
+    QT_ASCII_CAST_WARN QScriptValue(QScriptEngine *engine, const char *val);
 #endif
 
     bool isValid() const;
