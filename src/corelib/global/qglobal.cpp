@@ -1634,18 +1634,7 @@ static QSysInfo::MacVersion macVersion()
 {
     SInt32 gestalt_version;
     if (Gestalt(gestaltSystemVersion, &gestalt_version) == noErr) {
-        if (gestalt_version >= 0x1050 && gestalt_version < 0x1060)
-            return QSysInfo::MV_10_5;
-        else if (gestalt_version >= 0x1040 && gestalt_version < 0x1050)
-            return QSysInfo::MV_10_4;
-        else if (gestalt_version >= 0x1030 && gestalt_version < 0x1040)
-            return QSysInfo::MV_10_3;
-        else if (gestalt_version >= 0x1020 && gestalt_version < 0x1030)
-            return QSysInfo::MV_10_2;
-        else if (gestalt_version >= 0x1010 && gestalt_version < 0x1020)
-            return QSysInfo::MV_10_1;
-        else if (gestalt_version >= 0x1000 && gestalt_version < 0x1010)
-            return QSysInfo::MV_10_0;
+        return QSysInfo::MacVersion(((gestalt_version & 0x00F0) >> 4) + 2);
     }
     return QSysInfo::MV_Unknown;
 }
