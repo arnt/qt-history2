@@ -806,9 +806,10 @@ void QDoubleSpinBox::setRange(double minimum, double maximum)
      \brief the precision of the spin box, in decimals
 
      Sets how many decimals the spinbox will use for displaying and
-     interpreting doubles. The valid decimal range is 0-13. The
-     default is 2. \a decimals will be bounded to a value that is
-     within the valid range.
+     interpreting doubles.
+
+     \warning The results might not be reliable with very high values
+     for \a decimals.
 
      Note: The maximum, minimum and value might change as a result of
      changing this property.
@@ -824,7 +825,7 @@ int QDoubleSpinBox::decimals() const
 void QDoubleSpinBox::setDecimals(int decimals)
 {
     Q_D(QDoubleSpinBox);
-    d->decimals = qBound(0, decimals, 13);
+    d->decimals = qMax(0, decimals);
 
     setRange(minimum(), maximum()); // make sure values are rounded
     setValue(value());

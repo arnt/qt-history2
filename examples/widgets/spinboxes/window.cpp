@@ -138,7 +138,7 @@ void Window::createDoubleSpinBoxes()
     QLabel *precisionLabel = new QLabel(tr("Number of decimal places "
                                            "to show:"));
     QSpinBox *precisionSpinBox = new QSpinBox;
-    precisionSpinBox->setRange(0, 13);
+    precisionSpinBox->setRange(0, 100);
     precisionSpinBox->setValue(2);
 
     QLabel *doubleLabel = new QLabel(tr("Enter a value between "
