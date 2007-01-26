@@ -1537,17 +1537,20 @@ QList<QGraphicsItem *> QGraphicsViewPrivate::itemsInArea(const QPainterPath &pat
 
     // Determine the size of the largest untransformable subtree of children
     // mapped to scene coordinates.
-    QRectF ltri = matrix.inverted().mapRect(scene->d_func()->largestUntransformableItem);
+    QRectF untr = scene->d_func()->largestUntransformableItem;
+    QRectF ltri = matrix.inverted().mapRect(untr);
+    ltri.adjust(-untr.width(), -untr.height(), untr.width(), untr.height());
+
     QRectF rect = path.controlPointRect();
 
     // Find all possible items in the relevant area.
     // ### Improve this algorithm; it might be searching a too large area.
-    QRectF adjustedRect = rect;
-    adjustedRect.adjust(-qAbs(ltri.right()), -qAbs(ltri.bottom()), qAbs(ltri.left()), qAbs(ltri.top()));
+    QRectF adjustedRect = q->mapToScene(rect.adjusted(-1, -1, 1, 1).toRect()).boundingRect();
+    adjustedRect.adjust(-ltri.width(), -ltri.height(), ltri.width(), ltri.height());
 
     // First build a (potentially large) list of all items in the vicinity
     // that might be untransformable.
-    QList<QGraphicsItem *> allCandidates = scene->d_func()->estimateItemsInRect(q->mapToScene(adjustedRect.toRect()).boundingRect());
+    QList<QGraphicsItem *> allCandidates = scene->d_func()->estimateItemsInRect(adjustedRect);
 
     // Then find the minimal list of items that are inside \a path, and
     // convert it to a set.
@@ -2683,23 +2686,8 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
 
     // Transform the exposed viewport rects to scene polygons
     QList<QRectF> exposedRects;
-
-    // Map the largest untransformable item subtree boundingrect to viewport
-    // coordinates.
-    QRectF untransformableRect = d->matrix.mapRect(d->scene->d_func()->largestUntransformableItem);
-    foreach (QRect rect, exposedRegion.rects()) {
-        QRectF exposed = mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect();
-
-        if (!untransformableRect.isNull()) {
-            // If there are items that ignore view transformations in the
-            // scene, make sure we expand our exposed rectangles with half the
-            // width and height in viewport coordinates. Since these items are
-            // indexed by their position only, this is
-            QRectF r = untransformableRect;
-            exposed.adjust(-qAbs(r.right()), -qAbs(r.bottom()), qAbs(r.left()), qAbs(r.top()));
-        }
-        exposedRects << exposed;
-    }
+    foreach (QRect rect, exposedRegion.rects())
+        exposedRects << mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect();
 
     // Find all exposed items
     QList<QGraphicsItem *> itemList;
@@ -2709,6 +2697,36 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
             if (!tmp.contains(item)) {
                 tmp << item;
                 itemList << item;
+            }
+        }
+    }
+
+    // Check for items that ignore inherited transformations, and add them if
+    // necessary.
+    QRectF untr = d->scene->d_func()->largestUntransformableItem;
+    if (!untr.isNull()) {
+        // Map the largest untransformable item subtree boundingrect from view
+        // to scene coordinates, and use this to expand all exposed rects in
+        // search for untransformable items.
+        QRectF ltri = d->matrix.inverted().mapRect(untr);
+        ltri.adjust(-untr.width(), -untr.height(), untr.width(), untr.height());
+
+        foreach (QRect rect, exposedRegion.rects()) {
+            QRectF exposed = mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect();
+            exposed.adjust(-ltri.width(), -ltri.height(), ltri.width(), ltri.height());
+
+            foreach (QGraphicsItem *item, d->scene->d_func()->estimateItemsInRect(exposed)) {
+                if (item->d_ptr->itemIsUntransformable()) {
+                    if (!tmp.contains(item)) {
+                        QPainterPath rectPath;
+                        rectPath.addRect(rect);
+                        QPainterPath path = item->d_ptr->sceneTransform(viewportTransform()).inverted().map(rectPath);
+                        if (item->collidesWithPath(path, Qt::IntersectsItemBoundingRect)) {
+                            itemList << item;
+                            tmp << item;
+                        }
+                    }
+                }
             }
         }
     }
