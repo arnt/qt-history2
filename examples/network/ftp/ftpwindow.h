@@ -22,8 +22,8 @@ class QFile;
 class QFtp;
 class QLabel;
 class QLineEdit;
-class QListWidget;
-class QListWidgetItem;
+class QTreeWidget;
+class QTreeWidgetItem;
 class QProgressDialog;
 class QPushButton;
 class QUrlInfo;
@@ -34,6 +34,7 @@ class FtpWindow : public QDialog
 
 public:
     FtpWindow(QWidget *parent = 0);
+    QSize sizeHint() const;
 
 private slots:
     void connectOrDisconnect();
@@ -42,7 +43,7 @@ private slots:
 
     void ftpCommandFinished(int commandId, bool error);
     void addToList(const QUrlInfo &urlInfo);
-    void processItem(QListWidgetItem *item);
+    void processItem(QTreeWidgetItem *item, int column);
     void cdToParent();
     void updateDataTransferProgress(qint64 readBytes,
                                     qint64 totalBytes);
@@ -52,7 +53,7 @@ private:
     QLabel *ftpServerLabel;
     QLineEdit *ftpServerLineEdit;
     QLabel *statusLabel;
-    QListWidget *fileList;
+    QTreeWidget *fileList;
     QPushButton *cdToParentButton;
     QPushButton *connectButton;
     QPushButton *downloadButton;
