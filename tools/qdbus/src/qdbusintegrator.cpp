@@ -54,6 +54,18 @@ struct QDBusPendingCall
     QDBusMessage message;
 };
 
+struct QDBusSlotCache
+{
+    struct Data
+    {
+        int slotIdx;
+        QList<int> metaTypes;
+    };
+    typedef QHash<QString, Data> Hash;
+    Hash hash;
+};
+Q_DECLARE_METATYPE(QDBusSlotCache)
+
 class CallDeliveryEvent: public QEvent
 {
 public:
@@ -509,28 +521,54 @@ bool QDBusConnectionPrivate::activateCall(QObject* object, int flags,
     // slot, they must appear at the end and will be placed in the subsequent message
     // positions.
 
+    static const char cachePropertyName[] = "_qdbus_slotCache";
+
     if (!object)
         return false;
 
-    QList<int> metaTypes;
-    int idx;
+    QDBusSlotCache::Data slotData;
 
+    QDBusSlotCache slotCache =
+        qvariant_cast<QDBusSlotCache>(object->property(cachePropertyName));
+    QString cacheKey = msg.path();
+    cacheKey += msg.member();
+    cacheKey += QLatin1Char('.');
+    cacheKey += msg.signature();
+
+    QDBusSlotCache::Hash::ConstIterator cacheIt = slotCache.hash.constFind(cacheKey);
+    if (cacheIt == slotCache.hash.constEnd())
     {
+        // not cached, analyse the meta object
         const QMetaObject *mo = object->metaObject();
         QByteArray memberName = msg.member().toUtf8();
 
         // find a slot that matches according to the rules above
-        idx = ::findSlot(mo, memberName, flags, msg.signature(), metaTypes);
-        if (idx == -1) {
+        slotData.slotIdx = ::findSlot(mo, memberName, flags, msg.signature(), slotData.metaTypes);
+        if (slotData.slotIdx == -1) {
             // ### this is where we want to add the connection as an arg too
             // try with no parameters, but with a QDBusMessage
-            idx = ::findSlot(mo, memberName, flags, QString(), metaTypes);
-            if (metaTypes.count() != 2 || metaTypes.at(1) != QDBusMetaTypeId::message) {
+            slotData.slotIdx = ::findSlot(mo, memberName, flags, QString(), slotData.metaTypes);
+            if (slotData.metaTypes.count() != 2 ||
+                slotData.metaTypes.at(1) != QDBusMetaTypeId::message) {
+                // not found
+                // save the negative lookup
+                slotData.slotIdx = -1;
+                slotData.metaTypes.clear();
+                slotCache.hash.insert(cacheKey, slotData);
+                object->setProperty(cachePropertyName, qVariantFromValue(slotCache));
                 return false;
 	  }
         }
-    }
 
+        // save to the cache
+        slotCache.hash.insert(cacheKey, slotData);
+        object->setProperty(cachePropertyName, qVariantFromValue(slotCache));
+    } else if (cacheIt->slotIdx == -1) {
+        // negative cache
+        return false;
+    } else {
+        slotData = cacheIt.value();
+    }
 
     // found the slot to be called
     // prepare for the call:
@@ -542,8 +580,8 @@ bool QDBusConnectionPrivate::activateCall(QObject* object, int flags,
     call->message = msg;
 
     // save our state:
-    call->metaTypes = metaTypes;
-    call->slotIdx = idx;
+    call->metaTypes = slotData.metaTypes;
+    call->slotIdx = slotData.slotIdx;
 
     if (QDBusMessagePrivate::isLocal(msg)) {
         //qDebug() << "QDBusConnectionPrivate::activateCall" << msg.d_ptr->msg;
@@ -888,11 +926,9 @@ void QDBusConnectionPrivate::relaySignal(QObject *obj, const QMetaObject *mo, in
 void QDBusConnectionPrivate::_q_serviceOwnerChanged(const QString &name,
                                                     const QString &oldOwner, const QString &newOwner)
 {
-    Q_UNUSED(oldOwner);
-
-    if (isServiceRegisteredByThread(oldOwner))
+    if (oldOwner == baseService())
         unregisterService(name);
-    if (isServiceRegisteredByThread(newOwner))
+    if (newOwner == baseService())
         registerService(name);
 
     QMutableHashIterator<QString, SignalHook> it(signalHooks);
