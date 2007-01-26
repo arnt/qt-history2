@@ -479,11 +479,14 @@ static void qt_cleanlooks_draw_buttongradient(QPainter *painter, const QRect &re
         int x = rect.center().x();
         int y = rect.center().y();
         QLinearGradient *gradient;
+        bool horizontal = false;
         switch(direction) {
             case FromLeft:
+                horizontal = true;
                 gradient = new QLinearGradient(rect.left(), y, rect.right(), y);
                 break;
             case FromRight:
+                horizontal = true;
                 gradient = new QLinearGradient(rect.right(), y, rect.left(), y);
                 break;
             case BottomUp:
@@ -496,10 +499,14 @@ static void qt_cleanlooks_draw_buttongradient(QPainter *painter, const QRect &re
         if (bgBrush.gradient())
             gradient->setStops(bgBrush.gradient()->stops());
         else {
+            int size = horizontal ? rect.width() : rect.height() ;
+            if (size < 1)
+                size = 1.0;
+            float edge = 4.0/(float)size;
             gradient->setColorAt(0, gradientStart);
-            gradient->setColorAt(0.4, gradientMid);
-            gradient->setColorAt(0.6, gradientMid);
-            gradient->setColorAt(1, gradientStop);
+            gradient->setColorAt(edge, gradientMid.lighter(104));
+            gradient->setColorAt(1.0 - edge, gradientMid.darker(100));
+            gradient->setColorAt(1.0, gradientStop);
         }
         painter->fillRect(rect, *gradient);
         delete gradient;
@@ -1075,7 +1082,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             QColor gradientStopColor;
             gradientStopColor.setHsv(buttonColor.hue(),
                                      qMin(255, (int)(buttonColor.saturation()*1.9)),
-                                     qMin(255, (int)(buttonColor.value()*0.94)));
+                                     qMin(255, (int)(buttonColor.value()*0.93)));
 
             QRect gradRect = rect.adjusted(1, 2, -1, -2);
             if (isEnabled) {
