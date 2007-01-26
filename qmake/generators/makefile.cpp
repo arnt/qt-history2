@@ -1555,11 +1555,12 @@ QStringList
 MakefileGenerator::createObjectList(const QStringList &sources)
 {
     QStringList ret;
-    QString objdir, dir;
+    QString objdir;
     if(!project->values("OBJECTS_DIR").isEmpty())
         objdir = project->first("OBJECTS_DIR");
     for(QStringList::ConstIterator it = sources.begin(); it != sources.end(); ++it) {
         QFileInfo fi(fileInfo(Option::fixPathToLocalOS((*it))));
+        QString dir;
         if(objdir.isEmpty() && project->isActiveConfig("object_with_source")) {
             QString fName = Option::fixPathToTargetOS((*it), false);
             int dl = fName.lastIndexOf(Option::dir_sep);
