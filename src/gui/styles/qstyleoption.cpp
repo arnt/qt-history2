@@ -3027,6 +3027,33 @@ QStyleOptionDockWidget::QStyleOptionDockWidget(int version)
 {
 }
 
+QStyleOptionDockWidgetV2::QStyleOptionDockWidgetV2()
+    : QStyleOptionDockWidget(Version), verticalTitleBar(false)
+{
+}
+
+QStyleOptionDockWidgetV2::QStyleOptionDockWidgetV2(
+                                    const QStyleOptionDockWidget &other)
+    : QStyleOptionDockWidget(Version)
+{
+    (void)QStyleOptionDockWidgetV2::operator=(other);
+}
+
+QStyleOptionDockWidgetV2 &QStyleOptionDockWidgetV2::operator = (
+                                    const QStyleOptionDockWidget &other)
+{
+    QStyleOptionDockWidget::operator=(other);
+    const QStyleOptionDockWidgetV2 *v2
+        = qstyleoption_cast<const QStyleOptionDockWidgetV2*>(&other);
+    verticalTitleBar = v2 ? v2->verticalTitleBar : false;
+    return *this;
+}
+
+QStyleOptionDockWidgetV2::QStyleOptionDockWidgetV2(int version)
+    : QStyleOptionDockWidget(version), verticalTitleBar(false)
+{
+}
+
 /*!
     \fn QStyleOptionDockWidget::QStyleOptionDockWidget(const QStyleOptionDockWidget &other)
 

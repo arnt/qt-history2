@@ -39,6 +39,7 @@ class Q_GUI_EXPORT QMainWindow : public QWidget
     Q_PROPERTY(bool animated READ isAnimated WRITE setAnimated)
     Q_PROPERTY(bool dockNestingEnabled READ isDockNestingEnabled WRITE setDockNestingEnabled)
     Q_PROPERTY(bool verticalTabsEnabled READ verticalTabsEnabled WRITE setVerticalTabsEnabled)
+    Q_PROPERTY(bool verticalTitleBarsEnabled READ verticalTitleBarsEnabled WRITE setVerticalTitleBarsEnabled)
 #endif
 
 public:
@@ -55,6 +56,8 @@ public:
     bool isDockNestingEnabled() const;
     bool verticalTabsEnabled() const;
     void setVerticalTabsEnabled(bool enabled);
+    bool verticalTitleBarsEnabled() const;
+    void setVerticalTitleBarsEnabled(bool enabled);
 
     bool isSeparator(const QPoint &pos) const;
 

@@ -1192,12 +1192,10 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
     case PE_IndicatorArrowUp:
     case PE_IndicatorArrowDown:
     case PE_IndicatorArrowRight:
-    case PE_IndicatorArrowLeft: 
+    case PE_IndicatorArrowLeft:
         p->save();
         {
             QRect r = opt->rect;
-            int x = r.x();
-            int y = r.y();
             int size = qMin(r.height(), r.width());
             int border = size/5;
             size = 2*(size/2);
@@ -1224,7 +1222,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                 bsx = pixelMetric(PM_ButtonShiftHorizontal);
                 bsy = pixelMetric(PM_ButtonShiftVertical);
             }
-            
+
             QRect bounds = a.boundingRect();
             int sx = r.x() + r.width() / 2 - bounds.center().x() - 1;
             int sy = r.y() + r.height() / 2 - bounds.center().y() - 1;
@@ -1239,7 +1237,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                 p->translate(-1, -1);
                 p->setBrush(opt->palette.mid().color());
                 p->setPen(opt->palette.mid().color());
-            }   
+            }
             p->drawPolygon(a);
         }
         p->restore();
@@ -2255,7 +2253,25 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 
         if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(opt)) {
             Q_D(const QWindowsStyle);
-            QRect r = dwOpt->rect;
+
+            const QStyleOptionDockWidgetV2 *v2
+                = qstyleoption_cast<const QStyleOptionDockWidgetV2*>(opt);
+            bool verticalTitleBar = v2 == 0 ? false : v2->verticalTitleBar;
+
+            QRect rect = dwOpt->rect;
+            QRect r = rect;
+
+            if (verticalTitleBar) {
+                QSize s = r.size();
+                s.transpose();
+                r.setSize(s);
+
+                p->save();
+                p->translate(r.left(), r.top() + r.width());
+                p->rotate(-90);
+                p->translate(-r.left(), -r.top());
+            }
+
             bool floating = false;
             bool active = dwOpt->state & State_Active;
             int menuOffset = 0; //used to center text when floated
@@ -2276,14 +2292,14 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     menuOffset = 2;
                     QBrush fillBrush(left);
                     if (left != right) {
-                        QPoint p1(dwOpt->rect.x(), dwOpt->rect.top() + dwOpt->rect.height()/2);
-                        QPoint p2(dwOpt->rect.right(), dwOpt->rect.top() + dwOpt->rect.height()/2);
+                        QPoint p1(r.x(), r.top() + r.height()/2);
+                        QPoint p2(rect.right(), r.top() + r.height()/2);
                         QLinearGradient lg(p1, p2);
                         lg.setColorAt(0, left);
                         lg.setColorAt(1, right);
                         fillBrush = lg;
                     }
-                    p->fillRect(opt->rect.adjusted(0, 0, 0, -3), fillBrush);
+                    p->fillRect(r.adjusted(0, 0, 0, -3), fillBrush);
                 }
                 p->setPen(dwOpt->palette.color(QPalette::Light));
                 if (!widget || !widget->isWindow()) {
@@ -2301,12 +2317,20 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 QPalette palette = dwOpt->palette;
                 palette.setColor(QPalette::Window, inactiveCaptionTextColor);
                 QRect titleRect = subElementRect(SE_DockWidgetTitleBarText, opt, widget);
+                if (verticalTitleBar) {
+                    titleRect = QRect(r.left() + rect.bottom()
+                                        - titleRect.bottom(),
+                                    r.top() + titleRect.left() - rect.left(),
+                                    titleRect.height(), titleRect.width());
+                }
                 drawItemText(p, titleRect,
                             Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic, palette,
                             dwOpt->state & State_Enabled, dwOpt->title,
                             floating ? (active ? QPalette::BrightText : QPalette::Window) : QPalette::WindowText);
                 p->setFont(oldFont);
             }
+            if (verticalTitleBar)
+                p->restore();
         }
         return;
 #endif // QT_NO_DOCKWIDGET
@@ -2326,11 +2350,18 @@ QRect QWindowsStyle::subElementRect(SubElement sr, const QStyleOption *opt, cons
         break;
     case SE_DockWidgetTitleBarText: {
         r = QCommonStyle::subElementRect(sr, opt, w);
+        const QStyleOptionDockWidgetV2 *v2
+            = qstyleoption_cast<const QStyleOptionDockWidgetV2*>(opt);
+        bool verticalTitleBar = v2 == 0 ? false : v2->verticalTitleBar;
         int m = pixelMetric(PM_DockWidgetTitleMargin, opt, w);
-        if (QApplication::layoutDirection() == Qt::LeftToRight)
-            r.adjust(m, 0, 0, 0);
-        else
-            r.adjust(0, 0, -m, 0);
+        if (verticalTitleBar) {
+            r.adjust(0, 0, 0, -m);
+        } else {
+            if (QApplication::layoutDirection() == Qt::LeftToRight)
+                r.adjust(m, 0, 0, 0);
+            else
+                r.adjust(0, 0, -m, 0);
+        }
         break;
     }
     default:
@@ -2809,7 +2840,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
             QPalette shadePal(opt->palette);
             shadePal.setColor(QPalette::Button, opt->palette.light().color());
             shadePal.setColor(QPalette::Light, opt->palette.button().color());
-                    
+
             if (sb->subControls & SC_SpinBoxUp) {
                 copy.subControls = SC_SpinBoxUp;
                 QPalette pal2 = sb->palette;
@@ -2865,7 +2896,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
 
                 copy.rect = subControlRect(CC_SpinBox, sb, SC_SpinBoxDown, widget);
                 qDrawWinButton(p, copy.rect, shadePal, copy.state & (State_Sunken | State_On),
-                                &copy.palette.brush(QPalette::Button));                
+                                &copy.palette.brush(QPalette::Button));
                 copy.rect.adjust(4, 0, -5, -1);
                 if (!enabled || !(sb->stepEnabled & QAbstractSpinBox::StepDownEnabled) ) {
                     QStyleOptionSpinBox lightCopy = copy;
@@ -2873,7 +2904,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                     lightCopy.palette.setBrush(QPalette::ButtonText, copy.palette.light());
                     drawPrimitive(pe, &lightCopy, p, widget);
                 }
-                drawPrimitive(pe, &copy, p, widget);                
+                drawPrimitive(pe, &copy, p, widget);
             }
         }
         break;

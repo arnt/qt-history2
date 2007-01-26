@@ -77,7 +77,7 @@ public:
     QAction *toggleViewAction;
 #endif
 
-    QMainWindow *findMainWindow(QWidget *widget) const;
+//    QMainWindow *findMainWindow(QWidget *widget) const;
     QRect undockedGeometry;
 
     void mousePressEvent(QMouseEvent *event);
@@ -121,6 +121,10 @@ public:
     int minimumTitleWidth() const;
     int titleHeight() const;
     void updateMaxSize();
+
+    void setVerticalTitleBars(bool b);
+
+    bool verticalTitleBar;
 
 private:
     QVector<QLayoutItem*> item_list;

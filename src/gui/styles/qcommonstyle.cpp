@@ -1470,11 +1470,30 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             }
 
             if (!dwOpt->title.isEmpty()) {
+                const QStyleOptionDockWidgetV2 *v2
+                    = qstyleoption_cast<const QStyleOptionDockWidgetV2*>(opt);
+                bool verticalTitleBar = v2 == 0 ? false : v2->verticalTitleBar;
+
+                if (verticalTitleBar) {
+                    QSize s = r.size();
+                    s.transpose();
+                    r.setSize(s);
+
+                    p->save();
+                    p->save();
+                    p->translate(r.left(), r.top() + r.width());
+                    p->rotate(-90);
+                    p->translate(-r.left(), -r.top());
+                }
+
                 const int indent = p->fontMetrics().descent();
                 drawItemText(p, r.adjusted(indent + 1, 1, -indent - 1, -1),
                               Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic, dwOpt->palette,
                               dwOpt->state & State_Enabled, dwOpt->title,
                               QPalette::WindowText);
+
+                if (verticalTitleBar)
+                    p->restore();
             }
         }
         break;
@@ -2035,65 +2054,94 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
             = qstyleoption_cast<const QStyleOptionDockWidget*>(opt);
         bool canClose = dwOpt == 0 ? true : dwOpt->closable;
         bool canFloat = dwOpt == 0 ? false : dwOpt->floatable;
+        const QStyleOptionDockWidgetV2 *v2
+            = qstyleoption_cast<const QStyleOptionDockWidgetV2*>(opt);
+        bool verticalTitleBar = v2 == 0 ? false : v2->verticalTitleBar;
 
-        int right = rect.right();
-        int left = rect.left();
+        // If this is a vertical titlebar, we transpose and work as if it was
+        // horizontal, then transpose again.
 
-        QRect closeRect;
-        if (canClose) {
-            QPixmap pm = standardIcon(QStyle::SP_TitleBarCloseButton,
-                                        opt, widget).pixmap(iconSize);
-            QSize sz = pm.size() + QSize(buttonMargin, buttonMargin);
-            closeRect = QRect(right - sz.width(),
-                                rect.center().y() - sz.height()/2,
-                                sz.width(), sz.height());
-            right = closeRect.left() - 1;
-        }
-        if (sr == SE_DockWidgetCloseButton) {
-            r = visualRect(opt->direction, rect, closeRect);
-            break;
+        if (verticalTitleBar) {
+            QSize size = rect.size();
+            size.transpose();
+            rect.setSize(size);
         }
 
-        QRect floatRect;
-        if (canFloat) {
-            QPixmap pm = standardIcon(QStyle::SP_TitleBarNormalButton,
-                                        opt, widget).pixmap(iconSize);
-            QSize sz = pm.size() + QSize(buttonMargin, buttonMargin);
-            floatRect = QRect(right - sz.width(),
-                                rect.center().y() - sz.height()/2,
-                                sz.width(), sz.height());
-            right = floatRect.left() - 1;
-        }
-        if (sr == SE_DockWidgetFloatButton) {
-            r = visualRect(opt->direction, rect, floatRect);
-            break;
-        }
+        do {
 
-        QRect iconRect;
-        if (const QDockWidget *dw = qobject_cast<const QDockWidget*>(widget)) {
-            QIcon icon;
-            if (dw->isFloating())
-                icon = dw->windowIcon();
-            if (!icon.isNull()
-                    && icon.cacheKey() != qApp->windowIcon().cacheKey()) {
-                QSize sz = icon.pixmap(r.height()).size();
-                iconRect = QRect(left, rect.center().y() - sz.height()/2,
+            int right = rect.right();
+            int left = rect.left();
+
+            QRect closeRect;
+            if (canClose) {
+                QPixmap pm = standardIcon(QStyle::SP_TitleBarCloseButton,
+                                            opt, widget).pixmap(iconSize);
+                QSize sz = pm.size() + QSize(buttonMargin, buttonMargin);
+                if (verticalTitleBar)
+                    sz.transpose();
+                closeRect = QRect(right - sz.width(),
+                                    rect.center().y() - sz.height()/2,
                                     sz.width(), sz.height());
-                left = iconRect.right() + margin;
+                right = closeRect.left() - 1;
             }
-        }
-        if (sr == SE_DockWidgetIcon) {
-            r = visualRect(opt->direction, rect, iconRect);
-            break;
-        }
+            if (sr == SE_DockWidgetCloseButton) {
+                r = closeRect;
+                break;
+            }
 
-        QRect textRect = QRect(left, rect.top(),
-                                right - left, rect.height());
-        if (sr == SE_DockWidgetTitleBarText) {
-            r = visualRect(opt->direction, rect, textRect);
-            break;
-        }
+            QRect floatRect;
+            if (canFloat) {
+                QPixmap pm = standardIcon(QStyle::SP_TitleBarNormalButton,
+                                            opt, widget).pixmap(iconSize);
+                QSize sz = pm.size() + QSize(buttonMargin, buttonMargin);
+                if (verticalTitleBar)
+                    sz.transpose();
+                floatRect = QRect(right - sz.width(),
+                                    rect.center().y() - sz.height()/2,
+                                    sz.width(), sz.height());
+                right = floatRect.left() - 1;
+            }
+            if (sr == SE_DockWidgetFloatButton) {
+                r = floatRect;
+                break;
+            }
 
+            QRect iconRect;
+            if (const QDockWidget *dw = qobject_cast<const QDockWidget*>(widget)) {
+                QIcon icon;
+                if (dw->isFloating())
+                    icon = dw->windowIcon();
+                if (!icon.isNull()
+                        && icon.cacheKey() != qApp->windowIcon().cacheKey()) {
+                    QSize sz = icon.pixmap(r.height()).size();
+                    if (verticalTitleBar)
+                        sz.transpose();
+                    iconRect = QRect(left, rect.center().y() - sz.height()/2,
+                                        sz.width(), sz.height());
+                    left = iconRect.right() + margin;
+                }
+            }
+            if (sr == SE_DockWidgetIcon) {
+                r = iconRect;
+                break;
+            }
+
+            QRect textRect = QRect(left, rect.top(),
+                                    right - left, rect.height());
+            if (sr == SE_DockWidgetTitleBarText) {
+                r = textRect;
+                break;
+            }
+
+        } while (false);
+
+        if (verticalTitleBar) {
+            r = QRect(rect.left() + r.top() - rect.top(),
+                        rect.top() + rect.right() - r.right(),
+                        r.height(), r.width());
+        } else {
+            r = visualRect(opt->direction, rect, r);
+        }
         break;
     }
 #endif
@@ -2833,7 +2881,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     btnOpt.state &= ~State_Raised;
                     bsx = pixelMetric(PM_ButtonShiftHorizontal);
                     bsy = pixelMetric(PM_ButtonShiftVertical);
-                } else {     
+                } else {
                     btnOpt.state |= State_Raised;
                     btnOpt.state &= ~State_Sunken;
                     bsx = 0;
@@ -2843,14 +2891,14 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 drawPrimitive(PE_PanelButtonCommand, &btnOpt, p, widget);
                 QPixmap pm = standardIcon(SP_TitleBarCloseButton).pixmap(8, 8);
                 drawItemPixmap(p, btnOpt.rect.translated(bsx, bsy), Qt::AlignCenter, pm);
-            } 
+            }
             if (opt->subControls & QStyle::SC_MDINormalButton) {
                 if (opt->activeSubControls & QStyle::SC_MDINormalButton && (opt->state & State_Sunken)) {
                     btnOpt.state |= State_Sunken;
                     btnOpt.state &= ~State_Raised;
                     bsx = pixelMetric(PM_ButtonShiftHorizontal);
                     bsy = pixelMetric(PM_ButtonShiftVertical);
-                } else {     
+                } else {
                     btnOpt.state |= State_Raised;
                     btnOpt.state &= ~State_Sunken;
                     bsx = 0;
@@ -2860,14 +2908,14 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 drawPrimitive(PE_PanelButtonCommand, &btnOpt, p, widget);
                 QPixmap pm = standardIcon(SP_TitleBarNormalButton).pixmap(8, 8);
                 drawItemPixmap(p, btnOpt.rect.translated(bsx, bsy), Qt::AlignCenter, pm);
-            } 
+            }
             if (opt->subControls & QStyle::SC_MDIMinButton) {
                 if (opt->activeSubControls & QStyle::SC_MDIMinButton && (opt->state & State_Sunken)) {
                     btnOpt.state |= State_Sunken;
                     btnOpt.state &= ~State_Raised;
                     bsx = pixelMetric(PM_ButtonShiftHorizontal);
                     bsy = pixelMetric(PM_ButtonShiftVertical);
-                } else {     
+                } else {
                     btnOpt.state |= State_Raised;
                     btnOpt.state &= ~State_Sunken;
                     bsx = 0;
@@ -3403,12 +3451,12 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
         int buttonWidth = opt->rect.width()/3 - 1;
         int offset = 0;
         switch (sc) {
-        case SC_MDICloseButton: 
+        case SC_MDICloseButton:
             offset += buttonWidth + 2;
-            //FALL THROUGH   
+            //FALL THROUGH
         case SC_MDINormalButton:
-            offset += buttonWidth;    
-            //FALL THROUGH   
+            offset += buttonWidth;
+            //FALL THROUGH
         case SC_MDIMinButton:
             ret = QRect(offset, 2, buttonWidth, opt->rect.height() - 2);
             break;

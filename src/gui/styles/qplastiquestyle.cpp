@@ -3138,10 +3138,33 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         if (const QStyleOptionDockWidget *dockWidget = qstyleoption_cast<const QStyleOptionDockWidget *>(option)) {
             painter->save();
 
+            const QStyleOptionDockWidgetV2 *v2
+                = qstyleoption_cast<const QStyleOptionDockWidgetV2*>(dockWidget);
+            bool verticalTitleBar = v2 == 0 ? false : v2->verticalTitleBar;
+
             // Find text width and title rect
             int textWidth = option->fontMetrics.width(dockWidget->title);
             int margin = 4;
             QRect titleRect = subElementRect(SE_DockWidgetTitleBarText, option, widget);
+            QRect rect = dockWidget->rect;
+
+            if (verticalTitleBar) {
+                QRect r = rect;
+                QSize s = r.size();
+                s.transpose();
+                r.setSize(s);
+
+                titleRect = QRect(r.left() + rect.bottom()
+                                    - titleRect.bottom(),
+                                r.top() + titleRect.left() - rect.left(),
+                                titleRect.height(), titleRect.width());
+
+                painter->translate(r.left(), r.top() + r.width());
+                painter->rotate(-90);
+                painter->translate(-r.left(), -r.top());
+
+                rect = r;
+            }
 
             // Chop and insert ellide into title if text is too wide
             QString title = elliditide(dockWidget->title, dockWidget->fontMetrics, titleRect, &textWidth);
@@ -3158,17 +3181,17 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 #ifdef QT3_SUPPORT
                 // Q3DockWindow doesn't need space for buttons
                 if (widget && widget->inherits("Q3DockWindowTitleBar")) {
-                    r = dockWidget->rect;
+                    r = rect;
                 } else
 #endif
                     r.setRect(titleRect.left(), titleRect.top(), titleRect.width(), titleRect.bottom());
-                int nchunks = (r.width() / handle.width()) - 1;
-                int indent = (r.width() - (nchunks * handle.width())) / 2;
-                for (int i = 0; i < nchunks; ++i) {
-                    painter->drawImage(QPoint(r.left() + indent + i * handle.width(),
-                                              r.center().y() - handle.height() / 2),
-                                       handle);
-                }
+                    int nchunks = (r.width() / handle.width()) - 1;
+                    int indent = (r.width() - (nchunks * handle.width())) / 2;
+                    for (int i = 0; i < nchunks; ++i) {
+                        painter->drawImage(QPoint(r.left() + indent + i * handle.width(),
+                                                r.center().y() - handle.height() / 2),
+                                        handle);
+                    }
             } else {
                 // Handle pattern to the left of the title
                 QRect leftSide(titleRect.left(), titleRect.top(),
@@ -3176,8 +3199,10 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                 int nchunks = leftSide.width() / handle.width();
                 int indent = (leftSide.width() - (nchunks * handle.width())) / 2;
                 for (int i = 0; i < nchunks; ++i) {
-                    painter->drawImage(QPoint(leftSide.left() + indent + i * handle.width(),
-                                              leftSide.center().y() - handle.height() / 2),
+                    painter->drawImage(QPoint(leftSide.left() + indent
+                                                + i * handle.width(),
+                                              leftSide.center().y()
+                                                - handle.height() / 2),
                                        handle);
                 }
 
@@ -5302,7 +5327,7 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
             offset += buttonWidth + 2;
             //FALL THROUGH
         case SC_MDINormalButton:
-            offset += buttonWidth;    
+            offset += buttonWidth;
             //FALL THROUGH
         case SC_MDIMinButton:
             rect = QRect(offset, 0, buttonWidth, option->rect.height());

@@ -19,6 +19,7 @@
 #include <QPainterPath>
 #include <QSpinBox>
 #include <QLabel>
+#include <QToolTip>
 
 #include <stdlib.h>
 
@@ -44,6 +45,7 @@ static QPixmap genIcon(const QSize &iconSize, int number, const QColor &color)
 ToolBar::ToolBar(const QString &title, QWidget *parent)
     : QToolBar(parent), spinbox(0), spinboxAction(0)
 {
+    tip = 0;
     setWindowTitle(title);
     setObjectName(title);
 
@@ -63,9 +65,6 @@ ToolBar::ToolBar(const QString &title, QWidget *parent)
     two->setFont(boldFont);
 
     addAction(genIcon(iconSize(), 3, Qt::red), "Three");
-    QLabel *label = new QLabel(title);
-    label->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
-    addWidget(label);
     addAction(genIcon(iconSize(), 4, Qt::green), "Four");
     addAction(genIcon(iconSize(), 5, Qt::blue), "Five");
     addAction(genIcon(iconSize(), 6, Qt::yellow), "Six");
@@ -321,4 +320,32 @@ void ToolBar::insertToolBarBreak()
     Q_ASSERT(mainWindow != 0);
 
     mainWindow->insertToolBarBreak(this);
+}
+
+void ToolBar::enterEvent(QEvent*)
+{
+    if (tip == 0) {
+        tip = new QLabel(windowTitle(), this);
+        QPalette pal = tip->palette();
+        QColor c = Qt::black;
+        c.setAlpha(100);
+        pal.setColor(QPalette::Window, c);
+        pal.setColor(QPalette::Foreground, Qt::white);
+        tip->setPalette(pal);
+        tip->setAutoFillBackground(true);
+        tip->setMargin(3);
+        tip->setText(windowTitle());
+    }
+    QPoint c = rect().center();
+    QSize hint = tip->sizeHint();
+    tip->setGeometry(c.x() - hint.width()/2, c.y() - hint.height()/2,
+                        hint.width(), hint.height());
+
+    tip->show();
+}
+
+void ToolBar::leaveEvent(QEvent*)
+{
+    if (tip != 0)
+        tip->hide();
 }

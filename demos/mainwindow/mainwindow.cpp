@@ -207,6 +207,11 @@ void MainWindow::_setVerticalTabsEnabled(bool enabled)
     setVerticalTabsEnabled(enabled);
 }
 
+void MainWindow::_setVerticalTitleBarsEnabled(bool enabled)
+{
+    setVerticalTitleBarsEnabled(enabled);
+}
+
 void MainWindow::setupDockWidgets()
 {
     QAction *action = dockWidgetMenu->addAction(tr("Animation"));
@@ -223,6 +228,11 @@ void MainWindow::setupDockWidgets()
     action->setCheckable(true);
     action->setChecked(verticalTabsEnabled());
     connect(action, SIGNAL(toggled(bool)), this, SLOT(_setVerticalTabsEnabled(bool)));
+
+    action = dockWidgetMenu->addAction(tr("Vertical title bars"));
+    action->setCheckable(true);
+    action->setChecked(verticalTitleBarsEnabled());
+    connect(action, SIGNAL(toggled(bool)), this, SLOT(_setVerticalTitleBarsEnabled(bool)));
 
     dockWidgetMenu->addSeparator();
 

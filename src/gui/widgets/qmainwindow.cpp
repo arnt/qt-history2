@@ -103,7 +103,7 @@ void QMainWindowPrivate::init()
     \mainclass
 
     \tableofcontents
-    
+
     \section1 Qt Main Window Framework
 
     A main window provides a framework for building an
@@ -115,10 +115,10 @@ void QMainWindowPrivate::init()
     be occupied by any kind of widget. You can see an image of the
     layout below.
 
-    \image mainwindowlayout.png 
- 
+    \image mainwindowlayout.png
+
     \section1 Creating Main Window Components
-    
+
     A central widget will typically be a standard Qt widget such
     as a QTextEdit or a QGraphicsView. Custom widgets can also be
     used for advanced applications. You set the central widget with \c
@@ -169,8 +169,8 @@ void QMainWindowPrivate::init()
     a toolbar break - think of this as a line break in text editing -
     with \c addToolBarBreak() or \c insertToolBarBreak(). You can also
     restrict placement by the user with QToolBar::setAllowedAreas()
-    and QToolBar::setMovable(). 
-    
+    and QToolBar::setMovable().
+
     The size of toolbar icons can be retrieved with \c iconSize().
     The sizes are platform dependent; you can set a fixed size with \c
     setIconSize(). You can alter the appearance of all tool buttons in
@@ -736,6 +736,28 @@ bool QMainWindow::verticalTabsEnabled() const
 void QMainWindow::setVerticalTabsEnabled(bool enabled)
 {
     d_func()->layout->setVerticalTabsEnabled(enabled);
+}
+
+/*! \property QMainWindow::verticalTitleBarsEnabled
+    \brief whether dock widgets have vertical title bars
+    \since 4.3
+
+    If this property is set to false, dock widgets have horizontal
+    title bars on top.
+
+    If this property is set to true, dock widgets have vertical title
+    bars on their left. This can help increase the ammount of vertical
+    space available in a QMainWindow.
+*/
+
+bool QMainWindow::verticalTitleBarsEnabled() const
+{
+    return d_func()->layout->verticalTitleBarsEnabled();
+}
+
+void QMainWindow::setVerticalTitleBarsEnabled(bool b)
+{
+    return d_func()->layout->setVerticalTitleBarsEnabled(b);
 }
 
 static bool checkDockWidgetArea(Qt::DockWidgetArea area, const char *where)

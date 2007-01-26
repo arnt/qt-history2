@@ -20,6 +20,7 @@ class QAction;
 class QActionGroup;
 class QMenu;
 class QSpinBox;
+class QLabel;
 
 class ToolBar : public QToolBar
 {
@@ -54,9 +55,14 @@ public:
 
     QMenu *menu;
 
+protected:
+    void enterEvent(QEvent*);
+    void leaveEvent(QEvent*);
+
 private:
     void allow(Qt::ToolBarArea area, bool allow);
     void place(Qt::ToolBarArea area, bool place);
+    QLabel *tip;
 
 private slots:
     void order();

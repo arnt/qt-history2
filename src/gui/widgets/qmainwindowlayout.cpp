@@ -672,6 +672,9 @@ void QMainWindowLayout::addDockWidget(Qt::DockWidgetArea area,
                                              QDockWidget *dockwidget,
                                              Qt::Orientation orientation)
 {
+    QDockWidgetLayout *layout
+        = qobject_cast<QDockWidgetLayout*>(dockwidget->layout());
+    layout->setVerticalTitleBars(verticalTitleBars);
     addChildWidget(dockwidget);
     layoutState.dockAreaLayout.addDockWidget(toDockPos(area), dockwidget, orientation);
     invalidate();
@@ -679,6 +682,9 @@ void QMainWindowLayout::addDockWidget(Qt::DockWidgetArea area,
 
 void QMainWindowLayout::tabifyDockWidget(QDockWidget *first, QDockWidget *second)
 {
+    QDockWidgetLayout *layout
+        = qobject_cast<QDockWidgetLayout*>(second->layout());
+    layout->setVerticalTitleBars(verticalTitleBars);
     addChildWidget(second);
     layoutState.dockAreaLayout.tabifyDockWidget(first, second);
     invalidate();
@@ -704,6 +710,28 @@ bool QMainWindowLayout::verticalTabsEnabled() const
 {
     return layoutState.dockAreaLayout.docks[QInternal::LeftDock].tabBarShape
             == QTabBar::RoundedWest;
+}
+
+void QMainWindowLayout::setVerticalTitleBarsEnabled(bool enabled)
+{
+    if (enabled == verticalTitleBars)
+        return;
+    verticalTitleBars = enabled;
+
+    QMainWindow *win = qobject_cast<QMainWindow*>(parentWidget());
+    QList<QDockWidget*> dockWidgets = ::findChildren<QDockWidget*>(win);
+    for (int i = 0; i < dockWidgets.count(); ++i) {
+        QDockWidget *w = dockWidgets.at(i);
+        QDockWidgetLayout *layout
+            = qobject_cast<QDockWidgetLayout*>(w->layout());
+        layout->setVerticalTitleBars(verticalTitleBars);
+    }
+    invalidate();
+}
+
+bool QMainWindowLayout::verticalTitleBarsEnabled() const
+{
+    return verticalTitleBars;
 }
 
 void QMainWindowLayout::splitDockWidget(QDockWidget *after,
@@ -1075,6 +1103,7 @@ QMainWindowLayout::QMainWindowLayout(QMainWindow *mainwindow)
 {
 #ifndef QT_NO_DOCKWIDGET
     dockNestingEnabled = false;
+    verticalTitleBars = false;
     separatorMoveTimer = new QTimer(this);
     separatorMoveTimer->setSingleShot(true);
     separatorMoveTimer->setInterval(0);
@@ -1262,7 +1291,6 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
     savedState = layoutState;
     layoutState.clear();
 
-    QMainWindow *win = qobject_cast<QMainWindow*>(parentWidget());
     if (!layoutState.restoreState(stream, savedState)) {
         layoutState.deleteAllLayoutItems();
         layoutState = savedState;

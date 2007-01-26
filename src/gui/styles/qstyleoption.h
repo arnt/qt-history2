@@ -414,6 +414,23 @@ protected:
     QStyleOptionDockWidget(int version);
 };
 
+class Q_GUI_EXPORT QStyleOptionDockWidgetV2 : public QStyleOptionDockWidget
+{
+public:
+    enum StyleOptionVersion { Version = 2 };
+
+    bool verticalTitleBar;
+
+    QStyleOptionDockWidgetV2();
+    QStyleOptionDockWidgetV2(const QStyleOptionDockWidgetV2 &other)
+        : QStyleOptionDockWidget(Version) { *this = other; }
+    QStyleOptionDockWidgetV2(const QStyleOptionDockWidget &other);
+    QStyleOptionDockWidgetV2 &operator = (const QStyleOptionDockWidget &other);
+
+protected:
+    QStyleOptionDockWidgetV2(int version);
+};
+
 class Q_GUI_EXPORT QStyleOptionViewItem : public QStyleOption
 {
 public:
