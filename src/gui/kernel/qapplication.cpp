@@ -2987,6 +2987,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         } else if(e->type() == QEvent::MouseButtonPress
                   || e->type() == QEvent::MouseButtonRelease) {
             QMouseEvent *me = static_cast<QMouseEvent*>(e);
+            QApplicationPrivate::modifier_buttons = me->modifiers();
             if(me->type() == QEvent::MouseButtonPress)
                 QApplicationPrivate::mouse_buttons |= me->button();
             else
