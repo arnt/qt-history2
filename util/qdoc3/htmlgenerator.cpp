@@ -189,6 +189,11 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
     case Atom::BaseName:
         break;
     case Atom::BriefLeft:
+        if (relative->type() == Node::Fake) {
+            skipAhead = skipAtoms(atom, Atom::BriefRight);
+            break;
+        }
+
         out() << "<p>";
         if ( relative->type() == Node::Property || relative->type() == Node::Variable ) {
             QString str;
@@ -211,7 +216,8 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         }
         break;
     case Atom::BriefRight:
-        out() << "</p>\n";
+        if (relative->type() != Node::Fake)
+            out() << "</p>\n";
         break;
     case Atom::C:
         out() << formattingLeftMap()[ATOM_FORMATTING_TELETYPE];
@@ -322,7 +328,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
                 QMap<QString, const Node *> groupMembersMap;
                 foreach (Node *node, fake->groupMembers()) {
                     if (node->type() == Node::Fake)
-                        groupMembersMap[node->name()] = node;
+                        groupMembersMap[fullName(node, relative, marker)] = node;
                 }
                 generateAnnotatedList(fake, marker, groupMembersMap);
             }
@@ -339,7 +345,6 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
                     generateBody(node, marker );
             }
         }
-
         break;
     case Atom::Image:
     case Atom::InlineImage:
@@ -864,8 +869,11 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
     generateTitle(fake->fullTitle(), Text() << fake->subTitle(), subTitleSize,
                   fake, marker);
 
-    generateBrief(fake, marker);
-    generateStatus(fake, marker);
+    bool isGroup = fake->subType() == FakeNode::Group;
+    if (!isGroup) {
+        generateBrief(fake, marker);
+        generateStatus(fake, marker);
+    }
 
     if (fake->subType() == FakeNode::Module) {
         if (moduleNamespaceMap.contains(fake->name())) {
@@ -888,10 +896,10 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
     }
 
     Text brief = fake->doc().briefText();
-    if (!brief.isEmpty())
+    if (!isGroup && !brief.isEmpty())
         out() << "<a name=\"" << registerRef("details") << "\"></a>\n";
 
-    if (!fake->doc().isEmpty()) {
+    if (!isGroup && !fake->doc().isEmpty()) {
         if (!brief.isEmpty()) {
             if (fake->subType() != FakeNode::Module)
                 out() << "<hr />\n";
@@ -1390,30 +1398,35 @@ void HtmlGenerator::generateClassHierarchy(const Node *relative, CodeMarker *mar
 }
 
 void HtmlGenerator::generateAnnotatedList(const Node *relative, CodeMarker *marker,
-                                          const QMap<QString, const Node *> &nodeMap)
+                    const QMap<QString, const Node *> &nodeMap)
 {
-    out() << "<p><table width=\"100%\" class=\"annotated\">\n";
-    QMap<QString, const Node *>::ConstIterator n = nodeMap.begin();
+    out() << "<p><table width=\"100%\" class=\"annotated\" cellpadding=\"2\" cellspacing=\"1\" border=\"0\">\n";
+
     int row = 0;
-    while (n != nodeMap.end()) {
-        if (!((*n)->type() == Node::Fake)) {
-            if (++row % 2 == 1)
-                out() << "<tr valign=\"top\" class=\"odd\">";
-            else
-                out() << "<tr valign=\"top\" class=\"even\">";
-        } else
-            out() << "<tr valign=\"top\">";
+    foreach (QString name, nodeMap.keys()) {
+        const Node *node = nodeMap[name];
+
+        if (++row % 2 == 1)
+            out() << "<tr valign=\"top\" class=\"odd\">";
+        else
+            out() << "<tr valign=\"top\" class=\"even\">";
         out() << "<th>";
-        generateFullName(*n, relative, marker);
+        generateFullName(node, relative, marker);
         out() << "</th>";
-        Text brief = (*n)->doc().trimmedBriefText((*n)->name());
-        if (!brief.isEmpty()) {
+
+        if (!node->type() == Node::Fake) {
+            Text brief = node->doc().trimmedBriefText(name);
+            if (!brief.isEmpty()) {
+                out() << "<td>";
+                generateText(brief, node, marker);
+                out() << "</td>";
+            }
+        } else {
             out() << "<td>";
-            generateText(brief, *n, marker);
+            out() << protect(node->doc().briefText().toString());
             out() << "</td>";
         }
         out() << "</tr>\n";
-        ++n;
     }
     out() << "</table></p>\n";
 }
@@ -2209,15 +2222,7 @@ void HtmlGenerator::generateFullName(const Node *apparentNode, const Node *relat
     if ( actualNode == 0 )
         actualNode = apparentNode;
     out() << "<a href=\"" << linkForNode(actualNode, relative) << "\">";
-    if (apparentNode->type() == Node::Fake)
-        out() << protect(static_cast<const FakeNode *>(apparentNode)->title());
-    else if (apparentNode->type() == Node::Class &&
-             !(static_cast<const ClassNode *>(apparentNode))
-                ->serviceName().isEmpty())
-        out() << protect((static_cast<const ClassNode *>(apparentNode))
-                            ->serviceName());
-    else
-        out() << protect(marker->plainFullName(apparentNode, relative));
+    out() << protect(fullName(actualNode, relative, marker));
     out() << "</a>";
 }
 

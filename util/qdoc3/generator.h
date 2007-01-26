@@ -68,6 +68,8 @@ protected:
     void generateModuleWarning( const ClassNode *classe, CodeMarker *marker);
 
     virtual int skipAtoms(const Atom *atom, Atom::Type type) const;
+    virtual QString fullName(const Node *node, const Node *relative,
+                             CodeMarker *marker) const;
 
     const QString& outputDir() { return outDir; }
     QString indent( int level, const QString& markedCode );

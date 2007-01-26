@@ -855,3 +855,15 @@ int Generator::skipAtoms(const Atom *atom, Atom::Type type) const
     }
     return skipAhead;
 }
+
+QString Generator::fullName(const Node *node, const Node *relative,
+                            CodeMarker *marker) const
+{
+    if (node->type() == Node::Fake)
+        return static_cast<const FakeNode *>(node)->title();
+    else if (node->type() == Node::Class &&
+        !(static_cast<const ClassNode *>(node))->serviceName().isEmpty())
+        return (static_cast<const ClassNode *>(node))->serviceName();
+    else
+        return marker->plainFullName(node, relative);
+}
