@@ -37,10 +37,8 @@ class Q_AUTOTEST_EXPORT QTextDocumentLayout : public QAbstractTextDocumentLayout
 {
     Q_DECLARE_PRIVATE(QTextDocumentLayout)
     Q_OBJECT
-    Q_PROPERTY(double tabStopWidth READ tabStopWidth WRITE setTabStopWidth)
     Q_PROPERTY(int cursorWidth READ cursorWidth WRITE setCursorWidth)
     Q_PROPERTY(qreal idealWidth READ idealWidth)
-    Q_PROPERTY(int blockTextFlags READ blockTextFlags WRITE setBlockTextFlags)
 public:
     explicit QTextDocumentLayout(QTextDocument *doc);
 
@@ -50,16 +48,6 @@ public:
 
     int pageCount() const;
     QSizeF documentSize() const;
-
-    enum { LTR = 0x40000000, RTL = 0x80000000 };
-    // flags passed to QTextLayout objects of blocks
-    void setBlockTextFlags(int flags);
-    int blockTextFlags() const;
-    void setWordWrapMode(QTextOption::WrapMode mode);
-    QTextOption::WrapMode wordWrapMode() const;
-
-    void setTabStopWidth(double width);
-    double tabStopWidth() const;
 
     void setCursorWidth(int width);
     int cursorWidth() const;

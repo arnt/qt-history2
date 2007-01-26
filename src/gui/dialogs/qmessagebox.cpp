@@ -355,8 +355,11 @@ void QMessageBoxPrivate::updateSize()
 
         if (width > hardLimit) {
             label->d_func()->ensureTextControl();
-            if (QTextControl *control = label->d_func()->control)
-                control->setWordWrapMode(QTextOption::WrapAnywhere);
+            if (QTextDocument *doc = label->d_func()->doc) {
+                QTextOption opt = doc->defaultTextOption();
+                opt.setWrapMode(QTextOption::WrapAnywhere);
+                doc->setDefaultTextOption(opt);
+            }
             width = hardLimit;
         }
     }
@@ -365,8 +368,11 @@ void QMessageBoxPrivate::updateSize()
         label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
         if (layoutMinimumWidth() > hardLimit) { // longest word is really big, so wrap anywhere
             informativeLabel->d_func()->ensureTextControl();
-            if (QTextControl *control = informativeLabel->d_func()->control)
-                control->setWordWrapMode(QTextOption::WrapAnywhere);
+            if (QTextDocument *doc = informativeLabel->d_func()->doc) {
+                QTextOption opt = doc->defaultTextOption();
+                opt.setWrapMode(QTextOption::WrapAnywhere);
+                doc->setDefaultTextOption(opt);
+            }
         }
         QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         policy.setHeightForWidth(label->wordWrap());

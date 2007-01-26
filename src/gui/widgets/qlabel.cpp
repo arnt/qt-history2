@@ -1362,19 +1362,19 @@ void QLabelPrivate::ensureTextLayouted() const
             doc->setUndoRedoEnabled(false);
         }
 
-        QTextDocumentLayout *lout = qobject_cast<QTextDocumentLayout *>(doc->documentLayout());
-        Q_ASSERT(lout);
+        QTextOption opt = doc->defaultTextOption();
 
-        const bool wrap = align & Qt::TextWordWrap;
-        int align = QStyle::visualAlignment(q->layoutDirection(), QFlag(this->align));
-        int flags = (wrap? 0 : Qt::TextSingleLine) | align;
-        flags |= (q->layoutDirection() == Qt::RightToLeft) ? QTextDocumentLayout::RTL : QTextDocumentLayout::LTR;
-        lout->setBlockTextFlags(flags);
+        Qt::Alignment align = QStyle::visualAlignment(q->layoutDirection(), QFlag(this->align));
+        opt.setAlignment(align);
 
-        if (wrap && lout->wordWrapMode() == QTextOption::NoWrap) {
-            // don't overwrite wrap mode set behind our back by our friends
-            lout->setWordWrapMode(QTextOption::WordWrap);
-        }
+        if (this->align & Qt::TextWordWrap)
+            opt.setWrapMode(QTextOption::WordWrap);
+        else
+            opt.setWrapMode(QTextOption::ManualWrap);
+
+        opt.setTextDirection(q->layoutDirection());
+
+        doc->setDefaultTextOption(opt);
 
         QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
         fmt.setMargin(0);

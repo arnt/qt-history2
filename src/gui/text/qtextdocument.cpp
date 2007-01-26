@@ -305,7 +305,7 @@ QTextDocument *QTextDocument::clone(QObject *parent) const
     QTextDocumentPrivate *priv = doc->d_func();
     priv->title = d->title;
     priv->pageSize = d->pageSize;
-    priv->useDesignMetrics = d->useDesignMetrics;
+    priv->defaultTextOption = d->defaultTextOption;
     priv->setDefaultFont(d->defaultFont());
     priv->resources = d->resources;
     priv->defaultStyleSheet = d->defaultStyleSheet;
@@ -461,6 +461,28 @@ void QTextDocument::setMaximumBlockCount(int maximum)
 }
 
 /*!
+    \property QTextDocument::defaultTextOption
+    \since 4.3
+
+    The default text option is used on all QTextLayout objects in the document.
+    This allows setting global properties for the document such as the default
+    word wrap mode.
+*/
+QTextOption QTextDocument::defaultTextOption() const
+{
+    Q_D(const QTextDocument);
+    return d->defaultTextOption;
+}
+
+void QTextDocument::setDefaultTextOption(const QTextOption &option)
+{
+    Q_D(QTextDocument);
+    d->defaultTextOption = option;
+    if (d->lout)
+        d->lout->documentChanged(0, 0, d->length());
+}
+
+/*!
     \fn void QTextDocument::markContentsDirty(int position, int length)
 
     Marks the contents specified by the given \a position and \a length
@@ -485,7 +507,7 @@ void QTextDocument::markContentsDirty(int from, int length)
 void QTextDocument::setUseDesignMetrics(bool b)
 {
     Q_D(QTextDocument);
-    d->useDesignMetrics = b;
+    d->defaultTextOption.setUseDesignMetrics(b);
     if (d->lout)
         d->lout->documentChanged(0, 0, d->length());
 }
@@ -493,7 +515,7 @@ void QTextDocument::setUseDesignMetrics(bool b)
 bool QTextDocument::useDesignMetrics() const
 {
     Q_D(const QTextDocument);
-    return d->useDesignMetrics;
+    return d->defaultTextOption.useDesignMetrics();
 }
 
 /*!

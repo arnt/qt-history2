@@ -409,8 +409,10 @@ QBalloonTip::QBalloonTip(QSystemTrayIcon::MessageIcon icon, const QString& title
         msgLabel->setWordWrap(true);
         if (msgLabel->sizeHint().width() > limit) {
             msgLabel->d_func()->ensureTextControl();
-            if (QTextControl *control = msgLabel->d_func()->control) {
-                control->setWordWrapMode(QTextOption::WrapAnywhere);
+            if (QTextDocument *doc = msgLabel->d_func()->doc) {
+                QTextOption opt = doc->defaultTextOption();
+                opt.setWrapMode(QTextOption::WrapAnywhere);
+                doc->setDefaultTextOption(opt);
             }
         }
         msgLabel->setFixedSize(limit, msgLabel->heightForWidth(limit));

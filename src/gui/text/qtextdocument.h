@@ -39,6 +39,7 @@ class QTextCodec;
 class QUrl;
 class QVariant;
 class QRectF;
+class QTextOption;
 
 template<typename T> class QVector;
 
@@ -197,6 +198,9 @@ public:
 
     int maximumBlockCount() const;
     void setMaximumBlockCount(int maximum);
+
+    QTextOption defaultTextOption() const;
+    void setDefaultTextOption(const QTextOption &option);
 
 Q_SIGNALS:
     void contentsChange(int from, int charsRemoves, int charsAdded);

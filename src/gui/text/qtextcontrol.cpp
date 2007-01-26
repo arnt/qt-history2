@@ -1945,26 +1945,6 @@ void QTextControl::setOverwriteMode(bool overwrite)
     d->overwriteMode = overwrite;
 }
 
-int QTextControl::tabStopWidth() const
-{
-#ifndef QT_NO_PROPERTIES
-    Q_D(const QTextControl);
-    return qRound(d->doc->documentLayout()->property("tabStopWidth").toDouble());
-#else
-    return 80;
-#endif
-}
-
-void QTextControl::setTabStopWidth(int width)
-{
-#ifdef QT_NO_PROPERTIES
-    Q_UNUSED(width);
-#else
-    Q_D(QTextControl);
-    d->doc->documentLayout()->setProperty("tabStopWidth", QVariant(double(width)));
-#endif
-}
-
 int QTextControl::cursorWidth() const
 {
 #ifndef QT_NO_PROPERTIES
@@ -2525,21 +2505,6 @@ void QTextControl::adjustSize()
 {
     Q_D(QTextControl);
     d->doc->adjustSize();
-}
-
-QTextOption::WrapMode QTextControl::wordWrapMode() const
-{
-    Q_D(const QTextControl);
-    if (QTextDocumentLayout *layout = qobject_cast<QTextDocumentLayout *>(d->doc->documentLayout()))
-        return layout->wordWrapMode();
-    return QTextOption::WordWrap;
-}
-
-void QTextControl::setWordWrapMode(QTextOption::WrapMode mode)
-{
-    Q_D(QTextControl);
-    if (QTextDocumentLayout *layout = qobject_cast<QTextDocumentLayout *>(d->doc->documentLayout()))
-        layout->setWordWrapMode(mode);
 }
 
 bool QTextControl::find(const QString &exp, QTextDocument::FindFlags options)

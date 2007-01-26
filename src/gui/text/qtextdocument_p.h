@@ -32,6 +32,7 @@
 #include "private/qobject_p.h"
 #include "private/qfragmentmap_p.h"
 #include "QtGui/qtextlayout.h"
+#include "QtGui/qtextoption.h"
 #include "private/qtextformat_p.h"
 #include "QtGui/qtextdocument.h"
 #include "QtGui/qtextobject.h"
@@ -281,7 +282,7 @@ private:
     QMap<QUrl, QVariant> cachedResources;
     QString defaultStyleSheet;
 
-    bool useDesignMetrics;
+    QTextOption defaultTextOption;
     int lastBlockCount;
 
 public:

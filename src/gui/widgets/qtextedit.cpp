@@ -1261,11 +1261,6 @@ void QTextEditPrivate::relayoutDocument()
             tlayout->setFixedColumnWidth(lineWrapColumnOrWidth);
         else
             tlayout->setFixedColumnWidth(-1);
-
-        if (lineWrap == QTextEdit::NoWrap)
-            tlayout->setBlockTextFlags(Qt::TextSingleLine);
-        else
-            tlayout->setBlockTextFlags(0);
     }
 
     QTextDocumentLayout *tlayout = qobject_cast<QTextDocumentLayout *>(layout);
@@ -1675,14 +1670,17 @@ void QTextEdit::setOverwriteMode(bool overwrite)
 int QTextEdit::tabStopWidth() const
 {
     Q_D(const QTextEdit);
-    return d->control->tabStopWidth();
+    return qRound(d->control->document()->defaultTextOption().tabStop());
 }
 
 void QTextEdit::setTabStopWidth(int width)
 {
     Q_D(QTextEdit);
-    d->control->setTabStopWidth(width);
-    d->relayoutDocument();
+    QTextOption opt = d->control->document()->defaultTextOption();
+    if (opt.tabStop() == width)
+        return;
+    opt.setTabStop(width);
+    d->control->document()->setDefaultTextOption(opt);
 }
 
 /*!
@@ -2092,6 +2090,9 @@ void QTextEdit::setTabChangesFocus(bool b)
     FixedPixelWidth or FixedColumnWidth you should also call
     setWrapColumnOrWidth() with the width you want.
 
+    Note that setting NoWrap as line wrap mode will implicitly also
+    set QTextOption::NoWrap as word wrap mode.
+
     \sa lineWrapColumnOrWidth
 */
 
@@ -2107,6 +2108,8 @@ void QTextEdit::setLineWrapMode(LineWrapMode wrap)
     if (d->lineWrap == wrap)
         return;
     d->lineWrap = wrap;
+    if (d->lineWrap == NoWrap)
+        setWordWrapMode(QTextOption::ManualWrap);
     d->relayoutDocument();
 }
 
@@ -2146,14 +2149,17 @@ void QTextEdit::setLineWrapColumnOrWidth(int w)
 QTextOption::WrapMode QTextEdit::wordWrapMode() const
 {
     Q_D(const QTextEdit);
-    return d->control->wordWrapMode();
+    return d->control->document()->defaultTextOption().wrapMode();
 }
 
 void QTextEdit::setWordWrapMode(QTextOption::WrapMode mode)
 {
     Q_D(QTextEdit);
-    d->control->setWordWrapMode(mode);
-    d->relayoutDocument();
+    QTextOption opt = d->control->document()->defaultTextOption();
+    if (mode == opt.wrapMode())
+        return;
+    opt.setWrapMode(mode);
+    d->control->document()->setDefaultTextOption(opt);
 }
 
 /*!

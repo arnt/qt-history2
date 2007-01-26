@@ -323,14 +323,12 @@ class QTextDocumentLayoutPrivate : public QAbstractTextDocumentLayoutPrivate
 public:
     QTextDocumentLayoutPrivate();
 
-    int blockTextFlags;
     QTextOption::WrapMode wordWrapMode;
 #ifdef LAYOUT_DEBUG
     mutable QString debug_indent;
 #endif
 
     int fixedColumnWidth;
-    double tabStopWidth;
     int cursorWidth;
 
     QSizeF lastReportedSize;
@@ -406,9 +404,7 @@ public:
 };
 
 QTextDocumentLayoutPrivate::QTextDocumentLayoutPrivate()
-    : blockTextFlags(0), wordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere),
-      fixedColumnWidth(-1),
-      tabStopWidth(80), // same default as in qtextengine.cpp
+    : fixedColumnWidth(-1),
       cursorWidth(1),
       currentLazyLayoutPosition(-1),
       lazyLayoutStepSize(1000),
@@ -2068,26 +2064,20 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
 
     LDEBUG << "layoutBlock from=" << layoutFrom << "to=" << layoutTo;
 
-    Qt::LayoutDirection dir = blockFormat.layoutDirection();
-    if (blockTextFlags & ((int)QTextDocumentLayout::LTR|(int)QTextDocumentLayout::RTL)) {
-        if (!blockFormat.hasProperty(QTextFormat::LayoutDirection))
-            dir = blockTextFlags & QTextDocumentLayout::LTR ? Qt::LeftToRight : Qt::RightToLeft;
+    QTextOption option = doc->defaultTextOption();
+    if (blockFormat.hasProperty(QTextFormat::LayoutDirection))
+        option.setTextDirection(blockFormat.layoutDirection());
+    const Qt::LayoutDirection dir = option.textDirection();
+
+    if (blockFormat.hasProperty(QTextFormat::BlockAlignment)) {
+        Qt::Alignment align = QStyle::visualAlignment(dir, blockFormat.alignment());
+        option.setAlignment(align);
     }
-    Qt::Alignment align = QStyle::visualAlignment(dir, blockFormat.alignment());
-    if (blockTextFlags & Qt::AlignHorizontal_Mask) {
-        if (!blockFormat.hasProperty(QTextFormat::BlockAlignment))
-            align = (Qt::Alignment)(blockTextFlags & Qt::AlignHorizontal_Mask);
-    }
-    QTextOption option(align);
-    option.setTextDirection(dir);
-    if (blockTextFlags & Qt::TextSingleLine
-        || blockFormat.nonBreakableLines()
-        || doc->pageSize().width() < 0)
+
+    if (blockFormat.nonBreakableLines() || doc->pageSize().width() < 0) {
         option.setWrapMode(QTextOption::ManualWrap);
-    else
-        option.setWrapMode(wordWrapMode);
-    option.setTabStop(tabStopWidth);
-    option.setUseDesignMetrics(doc->useDesignMetrics());
+    }
+
     tl->setTextOption(option);
 
     const bool haveWordOrAnyWrapMode = (option.wrapMode() == QTextOption::WrapAtWordBoundaryOrAnywhere);
@@ -2652,44 +2642,6 @@ void QTextDocumentLayoutPrivate::layoutStep() const
 {
     ensureLayoutedByPosition(currentLazyLayoutPosition + lazyLayoutStepSize);
     lazyLayoutStepSize = qMin(200000, lazyLayoutStepSize * 2);
-}
-
-void QTextDocumentLayout::setBlockTextFlags(int flags)
-{
-    Q_D(QTextDocumentLayout);
-    d->blockTextFlags = flags;
-}
-
-int QTextDocumentLayout::blockTextFlags() const
-{
-    Q_D(const QTextDocumentLayout);
-    return d->blockTextFlags;
-}
-
-void QTextDocumentLayout::setWordWrapMode(QTextOption::WrapMode mode)
-{
-    Q_D(QTextDocumentLayout);
-    d->wordWrapMode = mode;
-}
-
-QTextOption::WrapMode QTextDocumentLayout::wordWrapMode() const
-{
-    Q_D(const QTextDocumentLayout);
-    return d->wordWrapMode;
-}
-
-void QTextDocumentLayout::setTabStopWidth(double width)
-{
-    Q_D(QTextDocumentLayout);
-    if (width < 0)
-        return;
-    d->tabStopWidth = width;
-}
-
-double QTextDocumentLayout::tabStopWidth() const
-{
-    Q_D(const QTextDocumentLayout);
-    return d->tabStopWidth;
 }
 
 void QTextDocumentLayout::setCursorWidth(int width)

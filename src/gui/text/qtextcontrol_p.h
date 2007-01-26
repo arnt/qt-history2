@@ -54,10 +54,8 @@ class Q_GUI_EXPORT QTextControl : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextControl)
-    QDOC_PROPERTY(QTextOption::WrapMode wordWrapMode READ wordWrapMode WRITE setWordWrapMode)
     Q_PROPERTY(QString html READ toHtml WRITE setHtml NOTIFY textChanged USER true)
     Q_PROPERTY(bool overwriteMode READ overwriteMode WRITE setOverwriteMode)
-    Q_PROPERTY(int tabStopWidth READ tabStopWidth WRITE setTabStopWidth)
     Q_PROPERTY(bool acceptRichText READ acceptRichText WRITE setAcceptRichText)
     Q_PROPERTY(int cursorWidth READ cursorWidth WRITE setCursorWidth)
     Q_PROPERTY(Qt::TextInteractionFlags textInteractionFlags READ textInteractionFlags WRITE setTextInteractionFlags)
@@ -81,9 +79,6 @@ public:
 
     void setCurrentCharFormat(const QTextCharFormat &format);
     QTextCharFormat currentCharFormat() const;
-
-    QTextOption::WrapMode wordWrapMode() const;
-    void setWordWrapMode(QTextOption::WrapMode policy);
 
     bool find(const QString &exp, QTextDocument::FindFlags options = 0);
 
@@ -112,9 +107,6 @@ public:
 
     bool overwriteMode() const;
     void setOverwriteMode(bool overwrite);
-
-    int tabStopWidth() const;
-    void setTabStopWidth(int width);
 
     int cursorWidth() const;
     void setCursorWidth(int width);

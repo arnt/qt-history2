@@ -158,8 +158,9 @@ QTextDocumentPrivate::QTextDocumentPrivate()
 
     undoEnabled = true;
     inContentsChange = false;
+    defaultTextOption.setTabStop(80); // same as in qtextengine.cpp
+    defaultTextOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
 
-    useDesignMetrics = false;
     maximumBlockCount = 0;
     unreachableCharacterCount = 0;
     lastBlockCount = 0;
