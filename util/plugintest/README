@@ -1,0 +1,1 @@
+Attempts to load a Qt plugin, shows the error message if the plugin could not be loaded.
