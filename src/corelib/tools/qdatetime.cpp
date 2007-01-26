@@ -3889,7 +3889,14 @@ int QDateTimeParser::parseSection(int sectionIndex, QString &text, int index,
                     }
                 } else {
                     num += last;
-                    const bool done = (used == sectionMaxSize(sectionIndex));
+                    const FieldInfo fi = fieldInfo(sectionIndex);
+                    const int sectionms = sectionMaxSize(sectionIndex);
+                    const bool done = (used == sectionms);
+                    if (!done && fi & Fraction) { // typing 2 in a zzz field should be .200, not .002
+                        for (int i=used; i<sectionms; ++i) {
+                            num *= 10;
+                        }
+                    }
                     if (num < absoluteMin(sectionIndex)) {
                         state = done ? Invalid : Intermediate;
                         if (done)
@@ -3973,9 +3980,14 @@ QDateTimeParser::StateNode QDateTimeParser::parse(const QString &inp,
             num = parseSection(index, input, pos, tmpstate, &used);
             QDTPDEBUG << "sectionValue" << sectionName(sectionType(index)) << input
                       << "pos" << pos << "used" << used << stateName(tmpstate);
-            if (fixup && tmpstate == Intermediate && (fieldInfo(index) & (Numeric|FixedWidth)) == (Numeric|FixedWidth) && used < sn.count) {
-                input.insert(pos, QString().fill(QLatin1Char('0'), sn.count - used)); // ### ltor?
-                num = parseSection(index, input, pos, tmpstate, &used);
+            if (fixup && tmpstate == Intermediate && used < sn.count) {
+                const FieldInfo fi = fieldInfo(index);
+                if ((fi & (Numeric|FixedWidth)) == (Numeric|FixedWidth)) {
+                    const QString newText = QString(QLatin1String("%1")).arg(num, sn.count, 10, QLatin1Char('0'));
+                    QString old = input;
+                    input.replace(pos, used, newText);
+                    used = sn.count;
+                }
             }
             pos += qMax(0, used);
 
@@ -4130,7 +4142,7 @@ QDateTimeParser::StateNode QDateTimeParser::parse(const QString &inp,
 
         }
         QDTPDEBUGN("'%s' => '%s'(%s)", input.toLatin1().constData(),
-                   tmp.toString().toLatin1().constData(), stateName(state).toLatin1().constData());
+                   tmp.toDateTime().toString(QLatin1String("yyyy/MM/dd hh:mm:ss.zzz")).toLatin1().constData(), stateName(state).toLatin1().constData());
     }
 end:
     if (tmp.toDateTime().isValid()) {
@@ -4400,6 +4412,8 @@ QDateTimeParser::FieldInfo QDateTimeParser::fieldInfo(int index) const
     const Section s = sn.type;
     switch (s) {
     case MSecSection:
+        ret |= Fraction;
+        // fallthrough
     case SecondSection:
     case MinuteSection:
     case Hour24Section:
@@ -4418,7 +4432,8 @@ QDateTimeParser::FieldInfo QDateTimeParser::fieldInfo(int index) const
         switch (sn.count) {
         case 2:
             ret |= FixedWidth;
-        case 1: // fallthrough
+            // fallthrough
+        case 1:
             ret |= (Numeric|AllowPartial);
             break;
         case 3:

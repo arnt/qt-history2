@@ -190,7 +190,8 @@ public:
     enum FieldInfoFlag {
         Numeric = 0x01,
         FixedWidth = 0x02,
-        AllowPartial = 0x04
+        AllowPartial = 0x04,
+        Fraction = 0x08
     };
     Q_DECLARE_FLAGS(FieldInfo, FieldInfoFlag)
 
