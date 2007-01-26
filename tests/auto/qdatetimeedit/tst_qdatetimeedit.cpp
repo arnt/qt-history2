@@ -1651,9 +1651,9 @@ void tst_QDateTimeEdit::userKeyPress_Time_data()
 
 void tst_QDateTimeEdit::userKeyPress_Time()
 {
+    QFETCH(bool, ampm);
     QFETCH(QTestEventList, keys);
     QFETCH(QTime, expected_time);
-    QFETCH(bool, ampm);
 
     if (ampm)
         testWidget->setDisplayFormat("hh:mm:ss ap");
