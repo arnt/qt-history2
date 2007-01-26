@@ -253,7 +253,6 @@ public:
     void storeMouseEvent(QMouseEvent *event);
 
     QPointF lastCenterPoint;
-    bool hasLastCenterPoint;
     Qt::Alignment alignment;
 
     QGraphicsView::ViewportAnchor transformationAnchor;
@@ -299,7 +298,7 @@ QGraphicsViewPrivate::QGraphicsViewPrivate()
       sceneInteractionAllowed(true), hasSceneRect(false), accelerateScrolling(true),
       leftIndent(0), topIndent(0), lastItemUnderCursor(0),
       lastMouseEvent(QEvent::None, QPoint(), Qt::NoButton, 0, 0),
-      useLastMouseEvent(false), hasLastCenterPoint(false), alignment(Qt::AlignCenter),
+      useLastMouseEvent(false), alignment(Qt::AlignCenter),
       transformationAnchor(QGraphicsView::AnchorViewCenter), resizeAnchor(QGraphicsView::NoAnchor),
       viewportUpdateMode(QGraphicsView::MinimalViewportUpdate),
       scene(0),
@@ -2892,8 +2891,11 @@ void QGraphicsView::resizeEvent(QResizeEvent *event)
     d->recalculateContentSize();
 
     // Restore the center point again.
-    d->hasLastCenterPoint = false;    
-    d->lastCenterPoint = oldLastCenterPoint;
+    if (d->resizeAnchor == NoAnchor) {
+        d->updateLastCenterPoint();
+    } else {
+        d->lastCenterPoint = oldLastCenterPoint;
+    }
     d->centerView(d->resizeAnchor);
 
     if (d->cacheMode & CacheBackground) {
@@ -3116,10 +3118,6 @@ void QGraphicsView::setTransform(const QTransform &matrix, bool combine )
         return;
 
     if (d->scene) {
-        if (!d->hasLastCenterPoint) {
-            d->hasLastCenterPoint = true;
-            d->updateLastCenterPoint();
-        }
         d->recalculateContentSize();
         d->centerView(d->transformationAnchor);
     } else {
