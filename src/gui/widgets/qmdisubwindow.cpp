@@ -182,15 +182,22 @@ static inline QString originalWindowTitle(QMdiSubWindow *mdiChild)
     int index = originalTitle.indexOf(QString::fromLatin1(" - ["));
     if (index != -1)
         return originalTitle.left(index);
+    if (originalTitle.isEmpty())
+        return originalTitle;
+    QList<QMdiSubWindow *> windows = qFindChildren<QMdiSubWindow *>(mdiChild->window());
+    foreach (QMdiSubWindow *window, windows) {
+        if (window->windowTitle() == originalTitle)
+            return QString();
+    }
     return originalTitle;
 }
 
 static inline void setNewWindowTitle(QMdiSubWindow *mdiChild)
 {
     Q_ASSERT(mdiChild);
-    if (!mdiChild->widget())
+    if (!mdiChild)
         return;
-    QString childTitle = mdiChild->widget()->windowTitle();
+    QString childTitle = mdiChild->windowTitle();
     if (childTitle.isEmpty())
         return;
     QString original = originalWindowTitle(mdiChild);
@@ -461,28 +468,28 @@ ControlContainer::ControlContainer(QMdiSubWindow *mdiChild)
     : QObject(mdiChild),
       previousLeft(0),
       previousRight(0),
-      _menuBar(0),
+      m_menuBar(0),
       mdiChild(mdiChild)
 {
     Q_ASSERT(mdiChild);
 
-    _controllerWidget = new ControlElement<ControllerWidget>(mdiChild);
-    connect(_controllerWidget, SIGNAL(_q_close()), mdiChild, SLOT(close()));
-    connect(_controllerWidget, SIGNAL(_q_restore()), mdiChild, SLOT(showNormal()));
-    connect(_controllerWidget, SIGNAL(_q_minimize()), mdiChild, SLOT(showMinimized()));
+    m_controllerWidget = new ControlElement<ControllerWidget>(mdiChild);
+    connect(m_controllerWidget, SIGNAL(_q_close()), mdiChild, SLOT(close()));
+    connect(m_controllerWidget, SIGNAL(_q_restore()), mdiChild, SLOT(showNormal()));
+    connect(m_controllerWidget, SIGNAL(_q_minimize()), mdiChild, SLOT(showMinimized()));
 
-    _menuLabel = new ControlElement<ControlLabel>(mdiChild);
-    connect(_menuLabel, SIGNAL(_q_clicked()), mdiChild, SLOT(showSystemMenu()));
-    connect(_menuLabel, SIGNAL(_q_doubleClicked()), mdiChild, SLOT(close()));
+    m_menuLabel = new ControlElement<ControlLabel>(mdiChild);
+    connect(m_menuLabel, SIGNAL(_q_clicked()), mdiChild, SLOT(showSystemMenu()));
+    connect(m_menuLabel, SIGNAL(_q_doubleClicked()), mdiChild, SLOT(close()));
 }
 
 ControlContainer::~ControlContainer()
 {
     removeButtonsFromMenuBar();
-    delete _menuLabel;
-    _menuLabel = 0;
-    delete _controllerWidget;
-    _controllerWidget = 0;
+    delete m_menuLabel;
+    m_menuLabel = 0;
+    delete m_controllerWidget;
+    m_controllerWidget = 0;
 }
 
 /*!
@@ -492,23 +499,27 @@ void ControlContainer::showButtonsInMenuBar(QMenuBar *menuBar)
 {
     if (!menuBar || !mdiChild)
         return;
-    _menuBar = menuBar;
+    m_menuBar = menuBar;
 
-    if (_menuLabel) {
+    if (m_menuLabel) {
         QWidget *currentLeft = menuBar->cornerWidget(Qt::TopLeftCorner);
-        if (currentLeft != _menuLabel) {
-            menuBar->setCornerWidget(_menuLabel, Qt::TopLeftCorner);
+        if (currentLeft)
+            currentLeft->hide();
+        if (currentLeft != m_menuLabel) {
+            menuBar->setCornerWidget(m_menuLabel, Qt::TopLeftCorner);
             previousLeft = currentLeft;
         }
-        _menuLabel->show();
+        m_menuLabel->show();
     }
-    if (_controllerWidget) {
+    if (m_controllerWidget) {
         QWidget *currentRight = menuBar->cornerWidget(Qt::TopRightCorner);
-        if (currentRight != _controllerWidget) {
-            menuBar->setCornerWidget(_controllerWidget, Qt::TopRightCorner);
+        if (currentRight)
+            currentRight->hide();
+        if (currentRight != m_controllerWidget) {
+            menuBar->setCornerWidget(m_controllerWidget, Qt::TopRightCorner);
             previousRight = currentRight;
         }
-        _controllerWidget->show();
+        m_controllerWidget->show();
     }
     setNewWindowTitle(mdiChild);
 }
@@ -518,47 +529,47 @@ void ControlContainer::showButtonsInMenuBar(QMenuBar *menuBar)
 */
 void ControlContainer::removeButtonsFromMenuBar()
 {
-    if (!_menuBar)
+    if (!m_menuBar)
         return;
 
     QMdiSubWindow *child = 0;
-    if (_controllerWidget) {
-        QWidget *currentRight = _menuBar->cornerWidget(Qt::TopRightCorner);
-        if (currentRight == _controllerWidget) {
-            if (ControlElement<QWidget> *ce = ptr<QWidget>(previousRight)) {
+    if (m_controllerWidget) {
+        QWidget *currentRight = m_menuBar->cornerWidget(Qt::TopRightCorner);
+        if (currentRight == m_controllerWidget) {
+            if (ControlElement<ControllerWidget> *ce = ptr<ControllerWidget>(previousRight)) {
                 if (!ce->mdiChild || !ce->mdiChild->isMaximized())
                     previousRight = 0;
                 else
                     child = ce->mdiChild;
             }
-            _menuBar->setCornerWidget(previousRight, Qt::TopRightCorner);
+            m_menuBar->setCornerWidget(previousRight, Qt::TopRightCorner);
             if (previousRight) {
                 previousRight->show();
                 previousRight = 0;
             }
         }
-        _controllerWidget->hide();
-        _controllerWidget->setParent(0);
+        m_controllerWidget->hide();
+        m_controllerWidget->setParent(0);
     }
-    if (_menuLabel) {
-        QWidget *currentLeft = _menuBar->cornerWidget(Qt::TopLeftCorner);
-        if (currentLeft == _menuLabel) {
+    if (m_menuLabel) {
+        QWidget *currentLeft = m_menuBar->cornerWidget(Qt::TopLeftCorner);
+        if (currentLeft == m_menuLabel) {
             if (ControlElement<ControlLabel> *ce = ptr<ControlLabel>(previousLeft)) {
                 if (!ce->mdiChild || !ce->mdiChild->isMaximized())
                     previousLeft = 0;
                 else if (!child)
                     child = mdiChild;
             }
-            _menuBar->setCornerWidget(previousLeft, Qt::TopLeftCorner);
+            m_menuBar->setCornerWidget(previousLeft, Qt::TopLeftCorner);
             if (previousLeft) {
                 previousLeft->show();
                 previousLeft = 0;
             }
         }
-        _menuLabel->hide();
-        _menuLabel->setParent(0);
+        m_menuLabel->hide();
+        m_menuLabel->setParent(0);
     }
-    _menuBar->update();
+    m_menuBar->update();
     if (child)
         setNewWindowTitle(child);
     else if (mdiChild)

@@ -57,16 +57,16 @@ public:
 
     void showButtonsInMenuBar(QMenuBar *menuBar);
     void removeButtonsFromMenuBar();
-    QMenuBar *menuBar() const { return _menuBar; }
-    QWidget *controllerWidget() const { return _controllerWidget; }
-    QWidget *systemMenuLabel() const { return _menuLabel; }
+    QMenuBar *menuBar() const { return m_menuBar; }
+    QWidget *controllerWidget() const { return m_controllerWidget; }
+    QWidget *systemMenuLabel() const { return m_menuLabel; }
 
 private:
     QPointer<QWidget> previousLeft;
     QPointer<QWidget> previousRight;
-    QPointer<QMenuBar> _menuBar;
-    QPointer<QWidget> _controllerWidget;
-    QPointer<QWidget> _menuLabel;
+    QPointer<QMenuBar> m_menuBar;
+    QPointer<QWidget> m_controllerWidget;
+    QPointer<QWidget> m_menuLabel;
     QPointer<QMdiSubWindow> mdiChild;
 };
 
