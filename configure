@@ -455,6 +455,9 @@ for varname in $SYSTEM_VARIABLES; do
 fi'`
     eval "$cmd"
 done
+# Use CC/CXX to run config.tests
+rm -f config.tests/.qmake.cache
+cp $QMAKE_VARS_FILE config.tests/.qmake.cache
 
 QMakeVar add styles "cde mac motif plastique cleanlooks windows"
 QMakeVar add decorations "default windows styled"
@@ -2179,7 +2182,8 @@ else
     CFG_FRAMEWORK=no
 fi
 
-TEST_COMPILER=`getQMakeConf "$XQMAKESPEC" | grep "^QMAKE_CC[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
+TEST_COMPILER="$CC"
+[ -z "$TEST_COMPILE" ] && TEST_COMPILER=`getQMakeConf "$XQMAKESPEC" | grep "^QMAKE_CC[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
 
 # auto-detect precompiled header support
 if [ "$CFG_PRECOMPILE" = "auto" ]; then
@@ -3396,12 +3400,14 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
         EXTRA_CXXFLAGS="\$(QMAKE_CXXFLAGS)"
         EXTRA_LFLAGS="\$(QMAKE_LFLAGS)"
 
+	[ -n "$CC" ] && echo "CC = $CC" >>$mkfile
+	[ -n "$CXX" ] && echo "CXX = $CXX" >>$mkfile
         if [ "$CFG_SILENT" = "yes" ]; then
-            setBootstrapVariable QMAKE_CC 's,QMAKE_CC.*=,CC=\@,'
-            setBootstrapVariable QMAKE_CXX 's,QMAKE_CXX.*=,CXX=\@,'
+            [ -z "$CC" ] && setBootstrapVariable QMAKE_CC 's,QMAKE_CC.*=,CC=\@,'
+            [ -z "$CXX" ] && setBootstrapVariable QMAKE_CXX 's,QMAKE_CXX.*=,CXX=\@,'
         else
-            setBootstrapVariable QMAKE_CC 's,QMAKE_CC,CC,'
-            setBootstrapVariable QMAKE_CXX 's,QMAKE_CXX,CXX,'
+            [ -z "$CC" ] && setBootstrapVariable QMAKE_CC 's,QMAKE_CC,CC,'
+            [ -z "$CXX" ] && setBootstrapVariable QMAKE_CXX 's,QMAKE_CXX,CXX,'
         fi
         setBootstrapVariable QMAKE_CFLAGS
         setBootstrapVariable QMAKE_CXXFLAGS 's,\$\$QMAKE_CFLAGS,\$(QMAKE_CFLAGS),'
