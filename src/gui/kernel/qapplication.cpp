@@ -3090,12 +3090,12 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 if (e->type() == QEvent::MouseButtonPress) {
                     QWidget *fw = w;
                     while (fw) {
+                        if (fw->isWindow())
+                            break;
                         if (fw->isEnabled() && (fw->focusPolicy() & Qt::ClickFocus)) {
                             fw->setFocus(Qt::MouseFocusReason);
                             break;
                         }
-                        if (fw->isWindow())
-                            break;
                         fw = fw->parentWidget();
                     }
                 }
