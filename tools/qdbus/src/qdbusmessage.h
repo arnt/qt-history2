@@ -73,15 +73,6 @@ public:
     QDBusMessage &operator<<(const QVariant &arg);
 
 private:
-#ifndef Q_QDOC
-    template<typename T> inline QVariant qvfv(const T &t);
-#ifndef QT_NO_CAST_FROM_ASCII
-    inline QVariant qvfv(const char *t)
-    { return QVariant(t); }
-#endif
-#endif
-
-    friend class QDBusConnectionPrivate; // ### remove me; just for debugging
     friend class QDBusMessagePrivate;
     QDBusMessagePrivate *d_ptr;
 };
