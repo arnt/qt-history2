@@ -1102,6 +1102,7 @@ void QLabelPrivate::updateShortcut()
     Q_Q(QLabel);
     Q_ASSERT(shortcutId == -1);
     Q_ASSERT(!isRichText());
+    ensureTextLayouted();
 
     // Underline the first character that follows an ampersand
     shortcutCursor = doc->find(QLatin1String("&"));
