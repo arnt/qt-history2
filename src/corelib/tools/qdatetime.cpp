@@ -4570,7 +4570,7 @@ QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, c
     for (int i=0; i<sectionNodes.size(); ++i) {
         const SectionNode &sn = sectionNodes.at(i);
         QString t = sectionText(s, i, sn.pos).toLower();
-        if (t.contains(space) || (t.size() < sectionMaxSize(i) && fieldInfo(i) & (FixedWidth|Numeric) != Numeric)) {
+        if (t.contains(space) || (t.size() < sectionMaxSize(i) && (((int)fieldInfo(i) & (FixedWidth|Numeric)) != Numeric))) {
             found = true;
             switch (sn.type) {
             case AmPmSection:
