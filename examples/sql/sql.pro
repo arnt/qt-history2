@@ -1,6 +1,7 @@
 TEMPLATE      = subdirs
 SUBDIRS       = cachedtable \
                 drilldown \
+                masterdetail \
                 querymodel \
                 tablemodel \
                 relationaltablemodel
