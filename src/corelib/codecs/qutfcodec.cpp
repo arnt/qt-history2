@@ -45,12 +45,11 @@ QByteArray QUtf8Codec::convertFromUnicode(const QChar *uc, int len, ConverterSta
         *cursor++ = 0xbf;
     }
 
-    for (int i=0; i < len; i++) {
+    const QChar *end = ch + len;
+    while (ch < end) {
         uint u = ch->unicode();
         if (surrogate_high >= 0) {
             if (u >= 0xdc00 && u < 0xe000) {
-                ++ch;
-                ++i;
                 u = (surrogate_high - 0xd800)*0x400 + (u - 0xdc00) + 0x10000;
                 surrogate_high = -1;
             } else {
