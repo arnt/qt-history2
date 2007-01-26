@@ -44,6 +44,7 @@ private slots:
     void nestedEvaluate();
     void nameId();
     void getSetDefaultPrototype();
+    void valueConversion();
 };
 
 tst_QScriptEngine::tst_QScriptEngine()
@@ -340,9 +341,8 @@ void tst_QScriptEngine::nameId()
 }
 
 struct Foo {
-private:
-    int x, y;
 public:
+    int x, y;
     Foo() : x(-1), y(-1) { }
 };
 
@@ -378,6 +378,79 @@ void tst_QScriptEngine::getSetDefaultPrototype()
         QCOMPARE(eng.defaultPrototype(qMetaTypeId<Foo>()).isValid(), false);
         QScriptValue value2 = eng.newVariant(qVariantFromValue(Foo()));
         QCOMPARE(value2.prototype().strictEqualTo(object), false);
+    }
+}
+
+static QScriptValue fooToScriptValue(QScriptEngine *eng, const Foo &foo)
+{
+    QScriptValue obj = eng->newObject();
+    obj.setProperty("x", QScriptValue(eng, foo.x));
+    obj.setProperty("y", QScriptValue(eng, foo.y));
+    return obj;
+}
+
+static void fooFromScriptValue(const QScriptValue &value, Foo &foo)
+{
+    foo.x = value.property("x").toInt32();
+    foo.y = value.property("y").toInt32();
+}
+
+void tst_QScriptEngine::valueConversion()
+{
+    QScriptEngine eng;
+    {
+        QScriptValue num = qScriptValueFromValue(&eng, 123);
+        QCOMPARE(num.isNumber(), true);
+        QCOMPARE(num.strictEqualTo(QScriptValue(&eng, 123)), true);
+
+        int inum = qScriptValueToValue<int>(num);
+        QCOMPARE(inum, 123);
+
+        QString snum = qScriptValueToValue<QString>(num);
+        QCOMPARE(snum, QLatin1String("123"));
+    }
+#ifndef QT_NO_MEMBER_TEMPLATES
+    {
+        QScriptValue num = eng.toScriptValue(123);
+        QCOMPARE(num.isNumber(), true);
+        QCOMPARE(num.strictEqualTo(QScriptValue(&eng, 123)), true);
+
+        int inum = eng.fromScriptValue<int>(num);
+        QCOMPARE(inum, 123);
+
+        QString snum = eng.fromScriptValue<QString>(num);
+        QCOMPARE(snum, QLatin1String("123"));
+    }
+#endif
+
+    {
+        Foo foo;
+        foo.x = 12;
+        foo.y = 34;
+        QScriptValue fooVal = qScriptValueFromValue(&eng, foo);
+        QCOMPARE(fooVal.isVariant(), true);
+
+        Foo foo2 = qScriptValueToValue<Foo>(fooVal);
+        QCOMPARE(foo2.x, foo.x);
+        QCOMPARE(foo2.y, foo.y);
+    }
+
+    qScriptRegisterMetaType<Foo>(&eng, fooToScriptValue, fooFromScriptValue);
+
+    {
+        Foo foo;
+        foo.x = 12;
+        foo.y = 34;
+        QScriptValue fooVal = qScriptValueFromValue(&eng, foo);
+        QCOMPARE(fooVal.isObject(), true);
+        QCOMPARE(fooVal.property("x").strictEqualTo(QScriptValue(&eng, 12)), true);
+        QCOMPARE(fooVal.property("y").strictEqualTo(QScriptValue(&eng, 34)), true);
+        fooVal.setProperty("x", QScriptValue(&eng, 56));
+        fooVal.setProperty("y", QScriptValue(&eng, 78));
+
+        Foo foo2 = qScriptValueToValue<Foo>(fooVal);
+        QCOMPARE(foo2.x, 56);
+        QCOMPARE(foo2.y, 78);
     }
 }
 

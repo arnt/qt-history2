@@ -113,7 +113,7 @@
   You can extend the C++ types recognized by QScriptEngine by calling
   qScriptRegisterMetaType(). You provide the engine with functions
   that convert between a QScriptValue and the C++ type. Once the type
-  has been registered, you can use scriptValueFromValue() and
+  has been registered, you can use toScriptValue() and
   qscriptvalue_cast() to create and cast values in a convenient
   manner. Additionally, the engine will call the proper conversion
   functions when calling slots in QObjects from script code, and when
@@ -633,7 +633,7 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
     d->m_customTypes.insert(type, info);
 }
 
-/*! \fn QScriptValue QScriptEngine::scriptValueFromValue(const T &value)
+/*! \fn QScriptValue QScriptEngine::toScriptValue(const T &value)
 
     Creates a QScriptValue with the given \a value.
 
@@ -641,7 +641,18 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
     qScriptValueFromValue() instead if you need to support that
     version of the compiler.
 
-    \sa qScriptRegisterMetaType(), qscriptvalue_cast()
+    \sa fromScriptValue(), qScriptRegisterMetaType()
+*/
+
+/*! \fn T QScriptEngine::fromScriptValue(const QScriptValue &value)
+
+    Returns the given \a value converted to the template type \c{T}.
+
+    \warning This function is not available with MSVC 6. Use
+    qScriptValueToValue() or qscriptvalue_cast() instead if you need
+    to support that version of the compiler.
+
+    \sa toScriptValue(), qScriptRegisterMetaType()
 */
 
 /*!
@@ -651,12 +662,24 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
     Creates a QScriptValue using the given \a engine with the given \a
     value of template type \c{T}.
 
-    This function is equivalent to
-    QScriptEngine::scriptValueFromValue(\a value). It is provided as a
-    work-around for MSVC 6, which doesn't support member template
-    functions.
+    This function is equivalent to QScriptEngine::toScriptValue(\a
+    value). It is provided as a work-around for MSVC 6, which doesn't
+    support member template functions.
 
-    \sa qscriptvalue_cast()
+    \sa qScriptValueToValue()
+*/
+
+/*!
+    \fn T qScriptValueToValue(const QScriptValue &value)
+    \relates QScriptEngine
+
+    Returns the given \a value converted to the template type \c{T}.
+
+    This function is equivalent to QScriptEngine::fromScriptValue(\a
+    value). It is provided as a work-around for MSVC 6, which doesn't
+    support member template functions.
+
+    \sa qScriptValueFromValue()
 */
 
 /*! \fn T qscriptvalue_cast(const QScriptValue &value)
@@ -664,19 +687,19 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
 
     Returns the given \a value converted to the template type \c{T}.
 
-    \sa qScriptRegisterMetaType(), QScriptEngine::scriptValueFromValue()
+    \sa qScriptRegisterMetaType(), QScriptEngine::toScriptValue()
 */
 
 /*! \fn int qScriptRegisterMetaType(
             QScriptEngine *engine,
-            QScriptValue (*toValue)(QScriptEngine *, const T &t),
-            void (*fromValue)(const QScriptValue &, T &t),
+            QScriptValue (*toScriptValue)(QScriptEngine *, const T &t),
+            void (*fromScriptValue)(const QScriptValue &, T &t),
             const QScriptValue &prototype = QScriptValue::invalid())
     \relates QScriptEngine
 
-    Registers the type \c{T} in the given \a engine. \a toValue must
+    Registers the type \c{T} in the given \a engine. \a toScriptValue must
     be a function that will convert from a value of type \c{T} to a
-    QScriptValue, and \a fromValue a function that does the
+    QScriptValue, and \a fromScriptValue a function that does the
     opposite. \a prototype, if valid, is the prototype that's set on
     QScriptValues returned by \a toValue.
 
@@ -685,10 +708,10 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
     You need to declare the custom type first with
     Q_DECLARE_METATYPE().
 
-    After a type has been registered, you can cast from a QScriptValue
-    to that type using qscriptvalue_cast(), and create a QScriptValue from
+    After a type has been registered, you can convert from a QScriptValue
+    to that type using fromScriptValue(), and create a QScriptValue from
     a value of that type using
-    \l{QScriptEngine::scriptValueFromValue()}{scriptValueFromValue}(). The
+    \l{QScriptEngine::toScriptValue()}{toScriptValue}(). The
     engine will take care of calling the proper conversion function
     when calling C++ slots, and when getting or setting a C++
     property; i.e. the custom type may be used seamlessly on both the
@@ -744,7 +767,7 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
     MyStruct s2;
     s2.x = s.x + 10;
     s2.y = s.y + 20;
-    return engine->scriptValueFromValue(s2);
+    QScriptValue v = engine->toScriptValue(s2);
     \endcode
 
     If you want to construct values of your custom type from script code,
@@ -756,7 +779,7 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
         MyStruct s;
         s.x = 123;
         s.y = 456;
-        return qScriptValueFromValue(eng, s);
+        return eng->toScriptValue(s);
     }
 
     ...

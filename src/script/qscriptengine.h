@@ -76,6 +76,14 @@ inline QScriptValue qScriptValueFromQMetaObject(QScriptEngine *engine);
 class QRegExp;
 #endif
 
+#ifndef QT_NO_MEMBER_TEMPLATES
+template <typename T>
+inline QScriptValue qScriptValueFromValue(QScriptEngine *, const T &);
+
+template <typename T>
+inline T qScriptValueToValue(const QScriptValue &);
+#endif
+
 class Q_SCRIPT_EXPORT QScriptEngine
 #ifndef QT_NO_QOBJECT
     : public QObject
@@ -150,9 +158,14 @@ public:
 
 #ifndef QT_NO_MEMBER_TEMPLATES
     template <typename T>
-    inline QScriptValue scriptValueFromValue(const T &value)
+    inline QScriptValue toScriptValue(const T &value)
     {
         return qScriptValueFromValue(this, value);
+    }
+    template <typename T>
+    inline T fromScriptValue(const QScriptValue &value)
+    {
+        return qScriptValueToValue<T>(value);
     }
 #endif // QT_NO_MEMBER_TEMPLATES
 
@@ -242,6 +255,12 @@ T qscriptvalue_cast(const QScriptValue &value
     return T();
 }
 
+template <typename T>
+inline T qScriptValueToValue(const QScriptValue &value)
+{
+    return qscriptvalue_cast<T>(value);
+}
+
 inline void qScriptRegisterMetaType_helper(QScriptEngine *eng, int type,
                                            QScriptEngine::MarshalFunction mf,
                                            QScriptEngine::DemarshalFunction df,
@@ -253,8 +272,8 @@ inline void qScriptRegisterMetaType_helper(QScriptEngine *eng, int type,
 template<typename T>
 int qScriptRegisterMetaType(
     QScriptEngine *eng,
-    QScriptValue (*toValue)(QScriptEngine *, const T &t),
-    void (*fromValue)(const QScriptValue &, T &t),
+    QScriptValue (*toScriptValue)(QScriptEngine *, const T &t),
+    void (*fromScriptValue)(const QScriptValue &, T &t),
     const QScriptValue &prototype = QScriptValue()
 #ifndef qdoc
     , T * /* dummy */ = 0
@@ -264,8 +283,8 @@ int qScriptRegisterMetaType(
     const int id = qRegisterMetaType<T>(); // make sure it's registered
 
     qScriptRegisterMetaType_helper(
-        eng, id, reinterpret_cast<QScriptEngine::MarshalFunction>(toValue),
-        reinterpret_cast<QScriptEngine::DemarshalFunction>(fromValue),
+        eng, id, reinterpret_cast<QScriptEngine::MarshalFunction>(toScriptValue),
+        reinterpret_cast<QScriptEngine::DemarshalFunction>(fromScriptValue),
         prototype);
 
     return id;
