@@ -34,10 +34,6 @@
 static bool isDebugging;
 #define qDBusDebug              if (!::isDebugging); else qDebug
 
-#ifndef USE_OUTSIDE_DISPATCH
-# define USE_OUTSIDE_DISPATCH    0
-#endif
-
 typedef void (*QDBusSpyHook)(const QDBusMessage&);
 typedef QVarLengthArray<QDBusSpyHook, 4> QDBusSpyHookList;
 Q_GLOBAL_STATIC(QDBusSpyHookList, qDBusSpyHookList)
@@ -254,30 +250,6 @@ void qDBusAddSpyHook(QDBusSpyHook hook)
     qDBusSpyHookList()->append(hook);
 }
 
-#if USE_OUTSIDE_DISPATCH
-# define HANDLED     DBUS_HANDLER_RESULT_HANDLED_OUTSIDE_DISPATCH
-static DBusHandlerResult qDBusSignalFilterOutside(DBusConnection *connection,
-                                                  DBusMessage *message, void *data)
-{
-    Q_ASSERT(data);
-    Q_UNUSED(connection);
-    Q_UNUSED(message);
-
-    QDBusConnectionPrivate *d = static_cast<QDBusConnectionPrivate *>(data);
-    if (d->mode == QDBusConnectionPrivate::InvalidMode)
-        return DBUS_HANDLER_RESULT_NOT_YET_HANDLED; // internal error, actually
-
-    CallDeliveryEvent *e = d->postedCallDeliveryEvent();
-
-    d->deliverCall(*e);
-    delete e;
-
-    return DBUS_HANDLER_RESULT_HANDLED;
-}
-#else
-# define HANDLED     DBUS_HANDLER_RESULT_HANDLED
-#endif
-
 extern "C" {
 static DBusHandlerResult
 qDBusSignalFilter(DBusConnection *connection, DBusMessage *message, void *data)
@@ -313,7 +285,7 @@ DBusHandlerResult QDBusConnectionPrivate::messageFilter(DBusConnection *connecti
         handled = d->handleObjectCall(amsg);
     }
 
-    return handled ? HANDLED :
+    return handled ? DBUS_HANDLER_RESULT_HANDLED :
         DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
 
@@ -598,36 +570,14 @@ void QDBusConnectionPrivate::sendCallDeliveryEvent(CallDeliveryEvent *data)
 {
     Q_ASSERT(data);
     data->conn = this;
-#if USE_OUTSIDE_DISPATCH
-    callDeliveryMutex.lock();
-    callDeliveryState = data;
-#else
     QCoreApplication::sendEvent(this, data);
-#endif
 }
 
 void QDBusConnectionPrivate::postCallDeliveryEvent(CallDeliveryEvent *data)
 {
     Q_ASSERT(data);
     data->conn = this;
-#if USE_OUTSIDE_DISPATCH
-    callDeliveryMutex.lock();
-    callDeliveryState = data;
-#else
     QCoreApplication::postEvent(this, data);
-#endif
-}
-
-CallDeliveryEvent *QDBusConnectionPrivate::postedCallDeliveryEvent()
-{
-    CallDeliveryEvent *e = callDeliveryState;
-    Q_ASSERT(e && e->conn == this);
-
-    // release it:
-    callDeliveryState = 0;
-    callDeliveryMutex.unlock();
-
-    return e;
 }
 
 void QDBusConnectionPrivate::deliverCall(const CallDeliveryEvent& data) const
@@ -1333,11 +1283,7 @@ void QDBusConnectionPrivate::setConnection(DBusConnection *dbc)
         qWarning("QDBusConnectionPrivate::SetConnection: Unable to get base service");
     }
 
-#if USE_OUTSIDE_DISPATCH
-    dbus_connection_add_filter_outside(connection, qDBusSignalFilter, qDBusSignalFilterOutside, this, 0);
-#else
     dbus_connection_add_filter(connection, qDBusSignalFilter, this, 0);
-#endif
 
     //qDebug("base service: %s", service);
 

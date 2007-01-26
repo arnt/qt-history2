@@ -157,7 +157,6 @@ public:
 
     void sendCallDeliveryEvent(CallDeliveryEvent *data);
     void postCallDeliveryEvent(CallDeliveryEvent *data);
-    CallDeliveryEvent *postedCallDeliveryEvent();
     void deliverCall(const CallDeliveryEvent &data) const;
 
     QDBusMetaObject *findMetaObject(const QString &service, const QString &path,
