@@ -924,6 +924,7 @@ QString QFileSystemModel::filePath(const QModelIndex &index) const
     Q_D(const QFileSystemModel);
     if (!index.isValid())
         return QString();
+    Q_ASSERT(index.model() == this);
 
     QStringList path;
     QModelIndex idx = index;

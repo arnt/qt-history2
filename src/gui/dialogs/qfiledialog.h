@@ -30,6 +30,7 @@ struct QFileDialogArgs;
 class QFileIconProvider;
 class QFileDialogPrivate;
 class QAbstractItemDelegate;
+class QAbstractProxyModel;
 class QUrl;
 
 class Q_GUI_EXPORT QFileDialog : public QDialog
@@ -123,6 +124,9 @@ public:
 
     void setLabelText(DialogLabel label, const QString &text);
     QString labelText(DialogLabel label) const;
+
+    void setProxyModel(QAbstractProxyModel *model);
+    QAbstractProxyModel *proxyModel() const;
 
 Q_SIGNALS:
     void filesSelected(const QStringList &files);

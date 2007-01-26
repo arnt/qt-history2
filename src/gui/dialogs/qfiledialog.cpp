@@ -438,12 +438,10 @@ void QFileDialog::setDirectory(const QString &directory)
     }
 
     QModelIndex root = d->model->setRootPath(directory);
-    d->listView->setRootIndex(root);
-    d->treeView->setRootIndex(root);
     d->newFolderButton->setEnabled(d->model->flags(root) & Qt::ItemIsDropEnabled);
+    d->setRootIndex(root);
     d->listView->selectionModel()->clear();
-
-    if (d->model->rowCount(root) > 0
+    if (d->treeView->model()->rowCount(d->treeView->rootIndex()) > 0
         && d->lineEdit()->text().isEmpty()
         && d->acceptMode == AcceptOpen)
         d->treeView->selectAnyIndex();
@@ -455,7 +453,7 @@ void QFileDialog::setDirectory(const QString &directory)
 QDir QFileDialog::directory() const
 {
     Q_D(const QFileDialog);
-    return d->model->rootDirectory();
+    return QDir(d->rootPath());
 }
 
 /*!
@@ -469,17 +467,13 @@ void QFileDialog::selectFile(const QString &filename)
     if (filename.isEmpty())
         return;
 
-    QModelIndex index;
     QString text = filename;
     if (QFileInfo(filename).isAbsolute()) {
-        QString current = d->model->filePath(d->listView->rootIndex());
+        QString current = d->rootPath();
         text.remove(current);
     }
-    index = d->model->index(text);
-
-    if (index.isValid()) {
-        d->listView->selectionModel()->select(index, QItemSelectionModel::Select | QItemSelectionModel::Rows);
-    } else {
+    QModelIndex index = d->select(d->model->index(text));
+    if (!index.isValid()) {
         d->listView->selectionModel()->clear();
         if (!d->lineEdit()->hasFocus())
             d->lineEdit()->setText(text);
@@ -510,7 +504,7 @@ QStringList QFileDialogPrivate::typedFiles() const
                 if (info.isAbsolute())
                     files.append(name);
                 else
-                    files.append(toInternal(model->rootPath() + QDir::separator() + name));
+                    files.append(toInternal(rootPath() + QDir::separator() + name));
             }
         }
     } else {
@@ -522,7 +516,7 @@ QStringList QFileDialogPrivate::typedFiles() const
         if (info.isAbsolute())
             files.append(name);
         else
-            files.append(toInternal(model->filePath(rootIndex()) + QDir::separator() + name));
+            files.append(toInternal(rootPath() + QDir::separator() + name));
     }
     return files;
 }
@@ -540,7 +534,7 @@ QStringList QFileDialog::selectedFiles() const
     QModelIndexList indexes = d->listView->selectionModel()->selectedRows();
     QStringList files;
     for (int i = 0; i < indexes.count(); ++i)
-        files.append(d->model->filePath(indexes.at(i)));
+        files.append(d->model->filePath(d->mapToSource(indexes.at(i))));
 
     if (files.isEmpty())
         files = d->typedFiles();
@@ -922,7 +916,7 @@ void QFileDialog::setHistory(const QStringList &paths)
 
     d->urlModel->setUrls(QList<QUrl>());
     QList<QUrl> list;
-    QModelIndex idx = d->model->index(d->model->rootPath());
+    QModelIndex idx = d->model->index(d->rootPath());
     while (idx.isValid()) {
         QUrl url = QUrl::fromLocalFile(d->model->filePath(idx));
         if (url.isValid())
@@ -1885,15 +1879,21 @@ void QFileDialogPrivate::createWidgets()
     showActionGroup->setExclusive(false);
     QObject::connect(showActionGroup, SIGNAL(triggered(QAction *)),
                      q, SLOT(_q_showHeader(QAction *)));;
-    for (int i = 1; i < model->columnCount(QModelIndex()); ++i) {
-        QAction *showHeader = new QAction(QFileDialog::tr("Show ") + model->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString(), showActionGroup);
+
+    QAbstractItemModel *abstractModel = model;
+    if (proxyModel)
+        abstractModel = proxyModel;
+    for (int i = 1; i < abstractModel->columnCount(QModelIndex()); ++i) {
+        QAction *showHeader = new QAction(QFileDialog::tr("Show ") + abstractModel->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString(), showActionGroup);
         showHeader->setCheckable(true);
         if (i != 1 && i != 2)
             showHeader->setChecked(true);
         treeHeader->addAction(showHeader);
     }
 
+    QItemSelectionModel *selModel = treeView->selectionModel();
     treeView->setSelectionModel(listView->selectionModel());
+    delete selModel;
     QObject::connect(treeView, SIGNAL(activated(QModelIndex)),
                      q, SLOT(_q_enterDirectory(QModelIndex)));
     QObject::connect(treeView, SIGNAL(customContextMenuRequested(QPoint)),
@@ -1972,6 +1972,61 @@ void QFileDialogPrivate::_q_animateDialogH(int x)
 {
     Q_Q(QFileDialog);
     q->resize(x, q->height());
+}
+
+/*!
+    Sets the model for the views to the given \proxyModel.  This is useful if you
+    want to modify the underlying model; for example, to add columns, filter
+    data or add drives.
+
+    Any existing proxy model will be removed, but not deleted.  The file dialog
+    will take ownership of the \proxyModel.
+
+    \sa proxyModel()
+*/
+void QFileDialog::setProxyModel(QAbstractProxyModel *proxyModel)
+{
+    Q_D(QFileDialog);
+    proxyModel->setParent(this);
+    QModelIndex idx = d->rootIndex();
+    if (d->proxyModel) {
+        idx = d->proxyModel->mapToSource(idx);
+        disconnect(d->proxyModel, SIGNAL(rowsInserted(const QModelIndex &, int, int)),
+            this, SLOT(_q_rowsInserted(const QModelIndex &)));
+    } else {
+        disconnect(d->model, SIGNAL(rowsInserted(const QModelIndex &, int, int)),
+            this, SLOT(_q_rowsInserted(const QModelIndex &)));
+    }
+
+    if (proxyModel != 0) {
+        d->proxyModel = proxyModel;
+        proxyModel->setSourceModel(d->model);
+        d->listView->setModel(d->proxyModel);
+        d->treeView->setModel(d->proxyModel);
+        connect(d->proxyModel, SIGNAL(rowsInserted(const QModelIndex &, int, int)),
+            this, SLOT(_q_rowsInserted(const QModelIndex &)));
+    } else {
+        d->proxyModel = 0;
+        d->listView->setModel(d->model);
+        d->treeView->setModel(d->model);
+        connect(d->model, SIGNAL(rowsInserted(const QModelIndex &, int, int)),
+            this, SLOT(_q_rowsInserted(const QModelIndex &)));
+    }
+    QItemSelectionModel *selModel = d->treeView->selectionModel();
+    d->treeView->setSelectionModel(d->listView->selectionModel());
+    delete selModel;
+    d->setRootIndex(idx);
+}
+
+/*!
+    Returns the proxy model used by the file dialog.  By default no proxy is set.
+
+    \sa setProxyModel();
+*/
+QAbstractProxyModel *QFileDialog::proxyModel() const
+{
+    Q_D(const QFileDialog);
+    return d->proxyModel;
 }
 
 void QFileDialogPrivate::_q_animateDialog()
@@ -2190,7 +2245,7 @@ void QFileDialogPrivate::_q_navigateBackward()
     Q_Q(QFileDialog);
     if (!backHistory.isEmpty()) {
         QString lastDirectory = backHistory.takeLast();
-        forwardHistory.append(model->filePath(rootIndex()));
+        forwardHistory.append(rootPath());
         q->setDirectory(lastDirectory);
     }
 }
@@ -2250,9 +2305,11 @@ void QFileDialogPrivate::_q_createDirectory()
     if (!index.isValid())
         return;
 
-    listView->selectionModel()->select(index, QItemSelectionModel::Select | QItemSelectionModel::Rows);
-    treeView->setCurrentIndex(index);
-    currentView()->edit(index);
+    index = select(index);
+    if (index.isValid()) {
+        treeView->setCurrentIndex(index);
+        currentView()->edit(index);
+    }
 }
 
 void QFileDialogPrivate::_q_showListView()
@@ -2288,7 +2345,7 @@ void QFileDialogPrivate::_q_showContextMenu(const QPoint &position)
     else
         view = listView;
     QModelIndex index = view->indexAt(position);
-    index = index.sibling(index.row(), 0);
+    index = mapToSource(index.sibling(index.row(), 0));
 
     QMenu menu(view);
     if (index.isValid()) {
@@ -2329,7 +2386,7 @@ void QFileDialogPrivate::_q_deleteCurrent()
 {
     Q_Q(QFileDialog);
     QModelIndex index = listView->currentIndex();
-    index = index.sibling(index.row(), 0);
+    index = mapToSource(index.sibling(index.row(), 0));
     if (!index.isValid() || model->isReadOnly())
         return;
 
@@ -2366,18 +2423,16 @@ void QFileDialogPrivate::_q_autoCompleteFileName(const QString &text) {
     QModelIndex idx;
 
     // text might contain the full path so try both
-    idx = model->index(text);
+    idx = mapFromSource(model->index(text));
     if (!idx.isValid())
-        idx = model->index(model->rootPath() + QDir::separator() + text);
+        idx = mapFromSource(model->index(rootPath() + QDir::separator() + text));
 
     if (!idx.isValid()) {
         listView->selectionModel()->clear();
         QStringList multipleFiles = typedFiles();
         if (multipleFiles.count() > 0) {
             for (int i = 0; i < multipleFiles.count(); ++i) {
-                QModelIndex idx = model->index(multipleFiles.at(i));
-                listView->selectionModel()->select(idx,
-                        QItemSelectionModel::Select | QItemSelectionModel::Rows);
+                select(model->index(multipleFiles.at(i)));
             }
         }
     } else {
@@ -2396,7 +2451,7 @@ void QFileDialogPrivate::_q_updateOkButton() {
                     ? QDialogButtonBox::Open : QDialogButtonBox::Save);
     if (!button)
         return;
-    QModelIndex index = treeView->currentIndex();
+    QModelIndex index = mapToSource(treeView->currentIndex());
     switch (fileMode) {
     case QFileDialog::DirectoryOnly:
     case QFileDialog::Directory:
@@ -2420,7 +2475,7 @@ void QFileDialogPrivate::_q_updateOkButton() {
 void QFileDialogPrivate::_q_currentChanged(const QModelIndex &index)
 {
     _q_updateOkButton();
-    emit q_func()->currentChanged(model->filePath(index));
+    emit q_func()->currentChanged(model->filePath(mapToSource(index)));
 }
 
 /*!
@@ -2433,8 +2488,9 @@ void QFileDialogPrivate::_q_enterDirectory(const QModelIndex &index)
 {
     Q_Q(QFileDialog);
     // My Computer or a directory
-    QString path = model->filePath(index);
-    if (path.isEmpty() || model->isDir(index)) {
+    QModelIndex sourceIndex = mapToSource(index);
+    QString path = model->filePath(sourceIndex);
+    if (path.isEmpty() || model->isDir(sourceIndex)) {
         q->setDirectory(path);
         emit q->dirEntered(path);
     } else {
@@ -2458,10 +2514,10 @@ void QFileDialogPrivate::_q_goToDirectory(const QString &path)
                                                     lookInCombo->rootModelIndex());
     QString path2 = path;
     if (!index.isValid())
-        index = model->index(getEnvironmentVariable(path));
+        index = mapFromSource(model->index(getEnvironmentVariable(path)));
     else {
         path2 = index.data(UrlRole).toUrl().toLocalFile();
-        index = model->index(path2);
+        index = mapFromSource(model->index(path2));
     }
     QDir dir(path2);
     if (!dir.exists())
@@ -2535,9 +2591,9 @@ void QFileDialogPrivate::_q_selectionChanged()
     bool addQuotes = indexes.count() > 1;
     QString allFiles;
     for (int i = 0; i < indexes.count(); ++i) {
-        if (stripDirs && model->isDir(indexes.at(i)))
+        if (stripDirs && model->isDir(mapToSource(indexes.at(i))))
             continue;
-        QString fileName = model->data(indexes.at(i)).toString();
+        QString fileName = indexes.at(i).data().toString();
         if (addQuotes)
             fileName = (QLatin1Char('"')) + fileName + QLatin1String("\" ");
         allFiles.append(fileName);
@@ -2572,7 +2628,7 @@ void QFileDialogPrivate::_q_rowsInserted(const QModelIndex &parent)
     if (!treeView
         || parent != treeView->rootIndex()
         || treeView->selectionModel()->hasSelection()
-        || model->rowCount(parent) == 0)
+        || treeView->model()->rowCount(parent) == 0)
         return;
     if (fileMode != QFileDialog::ExistingFile
         && lineEdit()->text().isEmpty()

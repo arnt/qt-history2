@@ -43,6 +43,7 @@
 #include <qstackedwidget.h>
 #include <qsplitter.h>
 #include <qdialogbuttonbox.h>
+#include <qabstractproxymodel.h>
 #include <qcompleter.h>
 #include <qtimeline.h>
 #include <qdebug.h>
@@ -97,6 +98,7 @@ public:
     fileTypeCombo(0),
     newFolderButton(0),
     buttonBox(0),
+    proxyModel(0),
     model(0),
     fileMode(QFileDialog::AnyFile),
     acceptMode(QFileDialog::AcceptOpen),
@@ -120,7 +122,12 @@ public:
     void updateFileTypeVisibility();
     QStringList typedFiles() const;
 
+    inline QModelIndex mapToSource(const QModelIndex &index) const;
+    inline QModelIndex mapFromSource(const QModelIndex &index) const;
     inline QModelIndex rootIndex() const;
+    inline void setRootIndex(const QModelIndex &index) const;
+    inline QModelIndex select(const QModelIndex &index) const;
+    inline QString rootPath() const;
 
     QLineEdit *lineEdit() const {
         if (acceptMode == QFileDialog::AcceptSave)
@@ -204,6 +211,7 @@ public:
     QComboBox *fileTypeCombo;
     QPushButton *newFolderButton;
     QDialogButtonBox *buttonBox;
+    QAbstractProxyModel *proxyModel;
 
     // data
     QStringList watching;
@@ -267,8 +275,6 @@ private:
     QFileDialogPrivate *d_ptr;
 };
 
-inline QModelIndex QFileDialogPrivate::rootIndex() const { return listView->rootIndex(); }
-
 class QFileDialogTreeView : public QTreeView
 {
 public:
@@ -302,6 +308,48 @@ protected:
 private:
     QFileDialogPrivate *d_ptr;
 };
+
+inline QModelIndex QFileDialogPrivate::mapToSource(const QModelIndex &index) const {
+    return proxyModel ? proxyModel->mapToSource(index) : index;
+}
+inline QModelIndex QFileDialogPrivate::mapFromSource(const QModelIndex &index) const {
+    return proxyModel ? proxyModel->mapFromSource(index) : index;
+}
+
+/*
+    Returns the file system model index that is the root index in the
+    views
+*/
+inline QModelIndex QFileDialogPrivate::rootIndex() const {
+    return mapToSource(listView->rootIndex());
+}
+
+/*
+    Sets the view root index to be the file system model index
+*/
+inline void QFileDialogPrivate::setRootIndex(const QModelIndex &index) const {
+    Q_ASSERT(index.isValid() ? index.model() == model : true);
+    QModelIndex idx = mapFromSource(index);
+    treeView->setRootIndex(idx);
+    listView->setRootIndex(idx);
+}
+
+/*
+    Select a file system model index
+    returns the index that was selected (or not depending upon sortfilterproxymodel)
+*/
+inline QModelIndex QFileDialogPrivate::select(const QModelIndex &index) const {
+    Q_ASSERT(index.isValid() ? index.model() == model : true);
+    QModelIndex idx = mapFromSource(index);
+    if (idx.isValid())
+    listView->selectionModel()->select(idx,
+            QItemSelectionModel::Select | QItemSelectionModel::Rows);
+    return idx;
+}
+
+inline QString QFileDialogPrivate::rootPath() const {
+    return model->rootPath();
+}
 
 /*!
     QCompleter that can deal with QFileSystemModel
