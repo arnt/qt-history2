@@ -312,11 +312,13 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 {
     Q_Q(QWidget);
     Qt::WindowType type = q->windowType();
-    Qt::WindowFlags flags = data.window_flags;
+    Qt::WindowFlags &flags = data.window_flags;
     QWidget *parentWidget = q->parentWidget();
 
     if (type == Qt::ToolTip)
         flags |= Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint;
+    if (type == Qt::Popup)
+        flags |= Qt::X11BypassWindowManagerHint;
 
     bool topLevel = (flags & Qt::Window);
     bool popup = (type == Qt::Popup);
