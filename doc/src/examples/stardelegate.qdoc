@@ -2,7 +2,7 @@
     \example itemviews/stardelegate
     \title Star Delegate Example
 
-    The Start Delegate example shows how to create a delegate that
+    The Star Delegate example shows how to create a delegate that
     can paint itself and that supports edition.
 
     \image stardelegate.png The Star Delegate Example
