@@ -289,6 +289,40 @@ QDBusConnectionInterface::unregisterService(const QString &serviceName)
     return reply;
 }
 
+/*!
+    \internal
+*/
+void QDBusConnectionInterface::connectNotify(const char *signalName)
+{
+    // translate the signal names to what we really want
+    // this avoids setting hooks for signals that don't exist on the bus
+    if (qstrcmp(signalName, SIGNAL(serviceRegistered(QString))) == 0)
+        QDBusAbstractInterface::connectNotify(SIGNAL(NameAcquired(QString)));
+
+    else if (qstrcmp(signalName, SIGNAL(serviceUnregistered(QString))) == 0)
+        QDBusAbstractInterface::connectNotify(SIGNAL(NameLost(QString)));
+
+    else if (qstrcmp(signalName, SIGNAL(serviceOwnerChanged(QString,QString,QString))) == 0)
+        QDBusAbstractInterface::connectNotify(SIGNAL(NameOwnerChanged(QString,QString,QString)));
+}
+
+/*!
+    \internal
+*/
+void QDBusConnectionInterface::disconnectNotify(const char *signalName)
+{
+    // translate the signal names to what we really want
+    // this avoids setting hooks for signals that don't exist on the bus
+    if (qstrcmp(signalName, SIGNAL(serviceRegistered(QString))) == 0)
+        QDBusAbstractInterface::disconnectNotify(SIGNAL(NameAcquired(QString)));
+
+    else if (qstrcmp(signalName, SIGNAL(serviceUnregistered(QString))) == 0)
+        QDBusAbstractInterface::disconnectNotify(SIGNAL(NameLost(QString)));
+
+    else if (qstrcmp(signalName, SIGNAL(serviceOwnerChanged(QString,QString,QString))) == 0)
+        QDBusAbstractInterface::disconnectNotify(SIGNAL(NameOwnerChanged(QString,QString,QString)));
+}
+
 // signals
 /*!
     \fn QDBusConnectionInterface::serviceRegistered(const QString &serviceName)
