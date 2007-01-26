@@ -77,6 +77,7 @@ void tst_QTextCodec::toUnicode_data()
     QTest::addColumn<QString>("codecName");
 
     QTest::newRow( "korean-eucKR" ) << "korean.txt" << "eucKR";
+    QTest::newRow( "UTF-8" ) << "utf8.txt" << "UTF-8";
 }
 
 void tst_QTextCodec::toUnicode()
@@ -87,16 +88,24 @@ void tst_QTextCodec::toUnicode()
     QFile file( fileName );
 
     if ( file.open( QIODevice::ReadOnly ) ) {
-    QByteArray ba = file.readAll();
-    QTextCodec *c = QTextCodec::codecForName( codecName.toLatin1() );
+        QByteArray ba = file.readAll();
+        QTextCodec *c = QTextCodec::codecForName( codecName.toLatin1() );
         QVERIFY(c != 0);
-    QString uniString = c->toUnicode( ba );
-    QCOMPARE( ba, c->fromUnicode( uniString ) );
-        char ch = '\0';
-        QVERIFY(c->toUnicode(&ch, 1).isEmpty());
-        QVERIFY(c->toUnicode(&ch, 1).isNull());
-    } else {
-        QFAIL("File could not be opened");
+        QString uniString = c->toUnicode( ba );
+        if (codecName == QLatin1String("UTF-8")) {
+            QCOMPARE(uniString, QString::fromUtf8(ba));
+            QCOMPARE(ba, uniString.toUtf8());
+        }
+        QCOMPARE( ba, c->fromUnicode( uniString ) );
+
+        if (codecName == QLatin1String("eucKR")) {
+            char ch = '\0';
+            QVERIFY(c->toUnicode(&ch, 1).isEmpty());
+            QVERIFY(c->toUnicode(&ch, 1).isNull());
+        }
+        else {
+            QFAIL("File could not be opened");
+        }
     }
 }
 
@@ -184,7 +193,7 @@ void tst_QTextCodec::fromUnicode()
             chars[i] = i + 128;
         QString s = codec->toUnicode(chars, 128);
         QByteArray c = codec->fromUnicode(s);
-        
+
         int numberOfQuestionMarks = 0;
         for (int i = 0; i < 128; ++i) {
             if (c.at(i) == '?')
