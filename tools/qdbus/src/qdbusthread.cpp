@@ -100,6 +100,9 @@ struct DBusCondVar: public QWaitCondition
 
 bool qDBusInitThreads()
 {
+    // ### Disable the recursive mutex functions,
+    // ### as they fail an assert in libdbus-0.94.
+
     static DBusThreadFunctions fcn = {
         DBUS_THREAD_FUNCTIONS_MUTEX_NEW_MASK |
         DBUS_THREAD_FUNCTIONS_MUTEX_FREE_MASK |
@@ -110,11 +113,13 @@ bool qDBusInitThreads()
         DBUS_THREAD_FUNCTIONS_CONDVAR_WAIT_MASK |
         DBUS_THREAD_FUNCTIONS_CONDVAR_WAIT_TIMEOUT_MASK |
         DBUS_THREAD_FUNCTIONS_CONDVAR_WAKE_ONE_MASK |
-        DBUS_THREAD_FUNCTIONS_CONDVAR_WAKE_ALL_MASK |
+        DBUS_THREAD_FUNCTIONS_CONDVAR_WAKE_ALL_MASK,
+#if 0
         DBUS_THREAD_FUNCTIONS_RECURSIVE_MUTEX_NEW_MASK |
         DBUS_THREAD_FUNCTIONS_RECURSIVE_MUTEX_FREE_MASK |
         DBUS_THREAD_FUNCTIONS_RECURSIVE_MUTEX_LOCK_MASK |
         DBUS_THREAD_FUNCTIONS_RECURSIVE_MUTEX_UNLOCK_MASK,
+#endif
         DBusMutex::mutex_new,
         DBusMutex::mutex_free,
         DBusMutex::mutex_lock,
@@ -125,15 +130,17 @@ bool qDBusInitThreads()
         DBusCondVar::condvar_wait_timeout,
         DBusCondVar::condvar_wake_one,
         DBusCondVar::condvar_wake_all,
+#if 0
         DBusMutex::recursive_mutex_new,
         DBusMutex::mutex_free,
         DBusMutex::recursive_mutex_lock,
         DBusMutex::recursive_mutex_unlock,
+#else
+        0, 0, 0, 0,
+#endif
         0, 0, 0, 0
     };
 
     dbus_threads_init(&fcn);
     return true;
 }
-
-
