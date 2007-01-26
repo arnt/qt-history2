@@ -252,10 +252,11 @@
     \printuntil /^\}/
 
     The \c main() function creates a QTableWidget and sets a \c
-    StarDelegate on it. \l{QAbstractItemView::}{DoubleClicked}
-    and \l{QAbstractItemView::}{SelectedClicked} are set as
-    \l{QAbstractItemView::editTriggers()}{edit triggers}, so that
-    the editor
+    StarDelegate on it. \l{QAbstractItemView::}{DoubleClicked} and
+    \l{QAbstractItemView::}{SelectedClicked} are set as
+    \l{QAbstractItemView::editTriggers()}{edit triggers}, so that the
+    editor is opened with a single click when the star rating item is
+    selected.
     
     The \c populateTableWidget() function fills the QTableWidget with
     data:
