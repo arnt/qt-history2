@@ -303,12 +303,12 @@ QGroupBox* MainWindow::createDetailsGroupBox()
 
     iconLabel = new QLabel();
     iconLabel->setAlignment(Qt::AlignBottom | Qt::AlignRight);
-    iconLabel->setPixmap(QPixmap("icon.png"));
+    iconLabel->setPixmap(QPixmap(":/images/icon.png"));
 
     imageLabel = new QLabel;
     imageLabel->setWordWrap(true);
     imageLabel->setAlignment(Qt::AlignCenter);
-    imageLabel->setPixmap(QPixmap("image.png"));
+    imageLabel->setPixmap(QPixmap(":/images/image.png"));
 
     trackList = new QListWidget;
 

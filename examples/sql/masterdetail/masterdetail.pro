@@ -1,6 +1,7 @@
 HEADERS   = database.h \
             dialog.h \
             mainwindow.h
+RESOURCES = masterdetail.qrc
 SOURCES   = dialog.cpp \
             main.cpp \
             mainwindow.cpp
