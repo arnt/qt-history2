@@ -276,12 +276,32 @@ void tst_QMdiSubWindow::mainWindowSupport()
     QList<QMdiSubWindow *> windows;
     QMdiArea *workspace = new QMdiArea;
     QMainWindow mainWindow;
-    QString originalWindowTitle = QString::fromLatin1("MainWindow");
-    mainWindow.setWindowTitle(originalWindowTitle);
     mainWindow.setCentralWidget(workspace);
     mainWindow.show();
-    mainWindow.menuBar();
+    mainWindow.menuBar()->setVisible(true);
     qApp->setActiveWindow(&mainWindow);
+
+    // QMainWindow's window title is empty
+#if !defined(Q_WS_MAC)
+    {
+    QCOMPARE(mainWindow.windowTitle(), QString());
+    QMdiSubWindow *window = workspace->addSubWindow(new QPushButton(QLatin1String("Test")));
+    QString expectedTitle = QLatin1String("MainWindow's title is empty");
+    window->setWindowTitle(expectedTitle);
+    QCOMPARE(window->windowTitle(), expectedTitle);
+    window->showMaximized();
+    QVERIFY(window->isMaximized());
+    QCOMPARE(window->windowTitle(), expectedTitle);
+    QCOMPARE(mainWindow.windowTitle(), expectedTitle);
+    window->showNormal();
+    QCOMPARE(window->windowTitle(), expectedTitle);
+    QCOMPARE(mainWindow.windowTitle(), QString());
+    window->close();
+    }
+#endif
+
+    QString originalWindowTitle = QString::fromLatin1("MainWindow");
+    mainWindow.setWindowTitle(originalWindowTitle);
 
     for (int i = 0; i < 5; ++i) {
         mainWindow.menuBar()->setVisible(false);
