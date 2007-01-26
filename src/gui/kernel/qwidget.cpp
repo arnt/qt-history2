@@ -3840,7 +3840,7 @@ void QWidget::unsetCursor()
     \brief the widget's locale
 
     As long as no special locale has been set, this is either
-    the parent's locale or (if this widget is a top level widget), 
+    the parent's locale or (if this widget is a top level widget),
     the default locale.
 
     If the widget displays dates or numbers, these should be formatted
@@ -4656,6 +4656,8 @@ void QWidget::move(const QPoint &p)
 {
     Q_D(QWidget);
     setAttribute(Qt::WA_Moved);
+    if (isWindow())
+        d->topData()->posFromMove = true;
     if (testAttribute(Qt::WA_WState_Created)) {
         d->setGeometry_sys(p.x() + geometry().x() - QWidget::x(),
                        p.y() + geometry().y() - QWidget::y(),
@@ -4664,8 +4666,6 @@ void QWidget::move(const QPoint &p)
         d->setDirtyOpaqueRegion();
 #endif
     } else {
-        if (isWindow())
-            d->topData()->posFromMove = true;
         data->crect.moveTopLeft(p); // no frame yet
         setAttribute(Qt::WA_PendingMoveEvent);
     }
@@ -4697,14 +4697,14 @@ void QWidget::setGeometry(const QRect &r)
     Q_D(QWidget);
     setAttribute(Qt::WA_Resized);
     setAttribute(Qt::WA_Moved);
+    if (isWindow())
+        d->topData()->posFromMove = false;
     if (testAttribute(Qt::WA_WState_Created)) {
         d->setGeometry_sys(r.x(), r.y(), r.width(), r.height(), true);
 #ifdef QT_EXPERIMENTAL_REGIONS
         d->setDirtyOpaqueRegion();
 #endif
     } else {
-        if (isWindow())
-            d->topData()->posFromMove = false;
         data->crect = r;
         setAttribute(Qt::WA_PendingMoveEvent);
         setAttribute(Qt::WA_PendingResizeEvent);
