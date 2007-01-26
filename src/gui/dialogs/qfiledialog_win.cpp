@@ -115,10 +115,13 @@ static QString qt_win_filter(const QString &filter)
     QStringList::Iterator it = filterLst.begin();
     QString winfilters;
     for (; it != filterLst.end(); ++it) {
-        winfilters += *it;
-        winfilters += QChar();
-        winfilters += qt_win_extract_filter(*it);
-        winfilters += QChar();
+        QString subfilter = *it;
+        if (!subfilter.isEmpty()) {
+            winfilters += subfilter;
+            winfilters += QChar();
+            winfilters += qt_win_extract_filter(subfilter);
+            winfilters += QChar();
+        }
     }
     winfilters += QChar();
     return winfilters;
