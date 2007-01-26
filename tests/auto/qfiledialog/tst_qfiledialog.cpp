@@ -21,6 +21,7 @@
 #include <qtoolbutton.h>
 #include <qtreeview.h>
 #include <qaction.h>
+#include <qsortfilterproxymodel.h>
 
 //TESTED_CLASS=
 //TESTED_FILES=qfiledialog.h
@@ -50,6 +51,8 @@ private slots:
     void selectFilter();
     void viewMode();
     void isDetailsExpanded();
+    void proxymodel();
+
 };
 
 tst_QFiledialog::tst_QFiledialog()
@@ -343,6 +346,15 @@ void tst_QFiledialog::isDetailsExpanded()
     fd.setDetailsExpanded(true);
     QCOMPARE(fd.isDetailsExpanded(), true);
     QCOMPARE(sidebar->isVisible(), true);
+}
+
+void tst_QFiledialog::proxymodel()
+{
+    QFileDialog fd;
+    QCOMPARE(fd.proxyModel(), (QAbstractProxyModel*)0);
+    QSortFilterProxyModel proxyModel;
+    fd.setProxyModel(&proxyModel);
+    QCOMPARE(fd.proxyModel(), &proxyModel);
 }
 
 QTEST_MAIN(tst_QFiledialog)
