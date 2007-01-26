@@ -3670,6 +3670,8 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
 
     case PM_TabBarTabShiftHorizontal:
         ret = 0;
+        break;
+
     case PM_TabBarTabShiftVertical:
         ret = 2;
         break;
