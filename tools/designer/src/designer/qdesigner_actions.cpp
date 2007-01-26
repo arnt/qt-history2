@@ -711,31 +711,22 @@ void QDesignerActions::previewForm(QAction *action)
         widget->setAttribute(Qt::WA_DeleteOnClose, true);
         widget->move(fw->window()->mapToGlobal(QPoint(0, 0)) + QPoint(10, 10));
 
-        QStyle *style = 0;
-
         if (action != 0 && action->objectName().startsWith(QLatin1String("__qt_action_style_"))) {
             const QString styleName = action->objectName().mid(QString::fromUtf8("__qt_action_style_").count());
-            style = QStyleFactory::create(styleName);
-
-            if (style != 0) {
+            if (QStyle *style = QStyleFactory::create(styleName)) {
                 style->setParent(widget);
                 widget->setStyle(style);
                 if (style->metaObject()->className() != QApplication::style()->metaObject()->className())
                     widget->setPalette(style->standardPalette());
 
                 const QList<QWidget*> lst = qFindChildren<QWidget*>(widget);
-                foreach (QWidget *w, lst) {
-                    if (w->windowType() == Qt::Popup)
-                        w->setPalette(style->standardPalette());
+                foreach (QWidget *w, lst)
                     w->setStyle(style);
-                }
             }
         }
 
         widget->setWindowTitle(tr("%1 - [Preview]").arg(widget->windowTitle()));
-
         widget->installEventFilter(this);
-
         widget->show();
     }
 }
