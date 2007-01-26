@@ -19,15 +19,20 @@
 
 struct DBusMutex: public QMutex
 {
-    inline DBusMutex()
-        : QMutex( QMutex::NonRecursive )
+    inline DBusMutex(QMutex::RecursionMode mode = QMutex::NonRecursive)
+        : QMutex(mode)
     { }
 
     static DBusMutex* mutex_new()
     {
         return new DBusMutex;
     }
-    
+
+    static DBusMutex* recursive_mutex_new()
+    {
+        return new DBusMutex(QMutex::Recursive);
+    }
+     
     static void mutex_free(DBusMutex *mutex)
     {
         delete mutex;
@@ -44,6 +49,17 @@ struct DBusMutex: public QMutex
         mutex->unlock();
         return true;
     }
+
+    static void recursive_mutex_lock(DBusMutex *mutex)
+    {
+        mutex_lock(mutex);
+    }
+
+    static void recursive_mutex_unlock(DBusMutex *mutex)
+    {
+        mutex_unlock(mutex);
+    }
+
 };
 
 struct DBusCondVar: public QWaitCondition
@@ -85,7 +101,20 @@ struct DBusCondVar: public QWaitCondition
 bool qDBusInitThreads()
 {
     static DBusThreadFunctions fcn = {
-        DBUS_THREAD_FUNCTIONS_ALL_MASK,
+        DBUS_THREAD_FUNCTIONS_MUTEX_NEW_MASK |
+        DBUS_THREAD_FUNCTIONS_MUTEX_FREE_MASK |
+        DBUS_THREAD_FUNCTIONS_MUTEX_LOCK_MASK |
+        DBUS_THREAD_FUNCTIONS_MUTEX_UNLOCK_MASK |
+        DBUS_THREAD_FUNCTIONS_CONDVAR_NEW_MASK |
+        DBUS_THREAD_FUNCTIONS_CONDVAR_FREE_MASK |
+        DBUS_THREAD_FUNCTIONS_CONDVAR_WAIT_MASK |
+        DBUS_THREAD_FUNCTIONS_CONDVAR_WAIT_TIMEOUT_MASK |
+        DBUS_THREAD_FUNCTIONS_CONDVAR_WAKE_ONE_MASK |
+        DBUS_THREAD_FUNCTIONS_CONDVAR_WAKE_ALL_MASK |
+        DBUS_THREAD_FUNCTIONS_RECURSIVE_MUTEX_NEW_MASK |
+        DBUS_THREAD_FUNCTIONS_RECURSIVE_MUTEX_FREE_MASK |
+        DBUS_THREAD_FUNCTIONS_RECURSIVE_MUTEX_LOCK_MASK |
+        DBUS_THREAD_FUNCTIONS_RECURSIVE_MUTEX_UNLOCK_MASK,
         DBusMutex::mutex_new,
         DBusMutex::mutex_free,
         DBusMutex::mutex_lock,
@@ -96,11 +125,15 @@ bool qDBusInitThreads()
         DBusCondVar::condvar_wait_timeout,
         DBusCondVar::condvar_wake_one,
         DBusCondVar::condvar_wake_all,
-        0, 0, 0, 0, 0, 0, 0, 0
+        DBusMutex::recursive_mutex_new,
+        DBusMutex::mutex_free,
+        DBusMutex::recursive_mutex_lock,
+        DBusMutex::recursive_mutex_unlock,
+        0, 0, 0, 0
     };
 
     dbus_threads_init(&fcn);
     return true;
 }
 
-        
+
