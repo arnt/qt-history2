@@ -51,7 +51,8 @@ public:
     inline bool operator<(const QModelIndex &other) const
         { if (r < other.r) return true;
           if (r == other.r && c < other.c) return true;
-          if (r == other.r && c == other.c) return p < other.p;
+          if (r == other.r && c == other.c && p < other.p) return true;
+          if (r == other.r && c == other.c && p == other.p) return m < other.m;
           return false; }
 private:
     inline QModelIndex(int row, int column, void *ptr, const QAbstractItemModel *model);
