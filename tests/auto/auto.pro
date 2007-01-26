@@ -318,4 +318,5 @@ unix:!embedded:contains(QT_CONFIG, qdbus):SUBDIRS += \
            qdbusmetaobject \
            qdbusmetatype \
            qdbusreply \
+           qdbuslocalcalls \
            qdbusxmlparser

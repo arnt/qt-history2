@@ -28,6 +28,7 @@
 #include <qatomic.h>
 #include <qstring.h>
 struct DBusMessage;
+class QDBusConnectionPrivate;
 
 class QDBusMessagePrivate
 {
@@ -41,9 +42,10 @@ public:
     DBusMessage *reply;
     int type;
     int timeout;
+    mutable QDBusMessage *localReply;
     QAtomic ref;
 
-    uint delayedReply : 1;
+    mutable uint delayedReply : 1;
     uint localMessage : 1;
 
     static DBusMessage *toDBusMessage(const QDBusMessage &message);
@@ -51,10 +53,11 @@ public:
     static QDBusMessage fromError(const QDBusError& error);
     static QDBusMessage updateSignature(const QDBusMessage &message, DBusMessage *dmsg);
 
-    static void setLocal(const QDBusMessage *message, bool local);
-    static bool isLocal(const QDBusMessage &message);
-    static void setArguments(const QDBusMessage *message, const QList<QVariant> &arguments);
-    static void setType(const QDBusMessage *message, QDBusMessage::MessageType type);
+    static bool isLocal(const QDBusMessage &msg);
+    static QDBusMessage makeLocal(const QDBusConnectionPrivate &conn,
+                                  const QDBusMessage &asSent);
+    static QDBusMessage makeLocalReply(const QDBusConnectionPrivate &conn,
+                                       const QDBusMessage &asSent);
 };
 
 #endif

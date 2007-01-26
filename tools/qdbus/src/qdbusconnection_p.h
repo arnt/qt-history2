@@ -121,7 +121,7 @@ public:
 
 public:
     // public methods
-    QDBusConnectionPrivate(QObject *parent = 0);
+    explicit QDBusConnectionPrivate(QObject *parent = 0);
     ~QDBusConnectionPrivate();
 
     void bindToApplication();
@@ -135,6 +135,7 @@ public:
 
     int send(const QDBusMessage &message) const;
     QDBusMessage sendWithReply(const QDBusMessage &message, int mode, int timeout = -1);
+    QDBusMessage sendWithReplyLocal(const QDBusMessage &message);
     int sendWithReplyAsync(const QDBusMessage &message, QObject *receiver,
                            const char *method, int timeout = -1);
     void connectSignal(const QString &key, const SignalHook &hook);
@@ -145,6 +146,7 @@ public:
     void disconnectRelay(const QString &service, const QString &path, const QString &interface,
                          QDBusAbstractInterface *receiver, const char *signal);
 
+    bool handleMessage(const QDBusMessage &msg);
     bool handleSignal(const QString &key, const QDBusMessage &msg);
     bool handleSignal(const QDBusMessage &msg);
     bool handleObjectCall(const QDBusMessage &message);
