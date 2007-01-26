@@ -141,6 +141,7 @@ private slots:
 
     void hour12Test();
     void yyTest();
+    void task108572();
 
 #if QT_VERSION >= 0x040200
     void setSelectedSection();
@@ -2662,6 +2663,24 @@ void tst_QDateTimeEdit::yyTest()
     QTest::keyClick(testWidget, Qt::Key_Up);
     QCOMPARE(testWidget->lineEdit()->displayText(), QString("01-Jan-05"));
 }
+
+void tst_QDateTimeEdit::task108572()
+{
+    testWidget->setDisplayFormat("hh:mm:ss.zzz");
+    testWidget->setTime(QTime(0, 1, 2, 0));
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("00:01:02.000"));
+
+    testWidget->setCurrentSection(QDateTimeEdit::MSecSection);
+    QTest::keyClick(testWidget, Qt::Key_Return);
+    QCOMPARE(testWidget->lineEdit()->selectedText(), QString("000"));
+    QTest::keyClick(testWidget, Qt::Key_2);
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("00:01:02.2"));
+    QTest::keyClick(testWidget, Qt::Key_Return);
+    QCOMPARE(testWidget->lineEdit()->displayText(), QString("00:01:02.200"));
+    QCOMPARE(testWidget->lineEdit()->selectedText(), QString("200"));
+    QCOMPARE(testWidget->time(), QTime(0, 1, 2, 200));
+}
+
 
 QTEST_MAIN(tst_QDateTimeEdit)
 #include "tst_qdatetimeedit.moc"
