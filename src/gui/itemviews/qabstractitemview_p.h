@@ -241,6 +241,7 @@ public:
 
     QAbstractItemView::State state;
     QAbstractItemView::EditTriggers editTriggers;
+    QAbstractItemView::EditTrigger lastTrigger;
 
     QPersistentModelIndex root;
     QPersistentModelIndex hover;

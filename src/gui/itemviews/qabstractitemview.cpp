@@ -41,6 +41,7 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         pressedPosition(QPoint(-1, -1)),
         state(QAbstractItemView::NoState),
         editTriggers(QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed),
+        lastTrigger(QAbstractItemView::NoEditTriggers),
         tabKeyNavigation(false),
 #ifndef QT_NO_DRAGANDDROP
         showDropIndicator(true),
@@ -1458,10 +1459,8 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
     setState(NoState);
 
     bool click = (index == d->pressedIndex && index.isValid());
-    EditTrigger trigger = (click
-                           && (event->button() & Qt::LeftButton)
-                           && d->pressedAlreadySelected
-                          ? SelectedClicked : NoEditTriggers);
+    bool selectedClicked = click && (event->button() & Qt::LeftButton) && d->pressedAlreadySelected;
+    EditTrigger trigger = (selectedClicked ? SelectedClicked : NoEditTriggers);
     bool edited = edit(index, trigger, event);
 
     if (d->selectionModel)
@@ -1484,6 +1483,7 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
 void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *event)
 {
     Q_D(QAbstractItemView);
+    
     QModelIndex index = indexAt(event->pos());
     if (!index.isValid() || (d->pressedIndex != index)) {
         mousePressEvent(event);
@@ -2075,13 +2075,23 @@ bool QAbstractItemView::edit(const QModelIndex &index, EditTrigger trigger, QEve
         return true;
     }
 
+    // save the previous trigger before updating
+    EditTriggers lastTrigger = d->lastTrigger;
+    d->lastTrigger = trigger;
+
     if (!d->shouldEdit(trigger, d->model->buddy(index)))
         return false;
 
     if (d->delayedEditing.isActive())
         return false;
 
-    if (trigger == SelectedClicked) // we may get a double click event later
+    // we will receive a mouseButtonReleaseEvent after a
+    // mouseDoubleClickEvent, so we need to check the previous trigger
+    if (lastTrigger == DoubleClicked && trigger == SelectedClicked)
+        return false;
+
+    // we may get a double click event later
+    if (trigger == SelectedClicked)
         d->delayedEditing.start(QApplication::doubleClickInterval(), this);
     else
         d->openEditor(index, d->shouldForwardEvent(trigger, event) ? event : 0);
