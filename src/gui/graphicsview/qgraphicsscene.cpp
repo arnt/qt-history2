@@ -1634,14 +1634,14 @@ void QGraphicsScene::destroyItemGroup(QGraphicsItemGroup *group)
 }
 
 /*!
-    Adds the item \a item and all its childen to the scene.
+    Adds or moves the item \a item and all its childen to the scene.
 
     If the item is visible (i.e., QGraphicsItem::isVisible() returns
     true), QGraphicsScene will emit changed() once control goes back
     to the event loop.
 
-    If the item is already associated with a scene, it will first be
-    removed from that scene, and then added to this scene.
+    If the item is already in a different scene, it will first be removed from
+    its old scene, and then added to this scene as a top-level.
 
     \sa removeItem(), addEllipse(), addLine(), addPath(), addPixmap(),
     addRect(), addText()
