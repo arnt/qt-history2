@@ -567,7 +567,7 @@ int QListViewPrivate::horizontalScrollToValue(const QModelIndex &index, const QR
                 if (leftOf)
                     horizontalValue -= rect.left();
                 else if (rightOf)
-                    horizontalValue += area.width() - rect.right();
+                    horizontalValue += qMin(rect.left(), area.width() - rect.right());
             }
        } else {
             if (hint == QListView::PositionAtCenter) {
@@ -576,7 +576,7 @@ int QListViewPrivate::horizontalScrollToValue(const QModelIndex &index, const QR
                 if (leftOf)
                     horizontalValue += rect.left();
                 else if (rightOf)
-                    horizontalValue += rect.right() - area.width();
+                    horizontalValue += qMin(rect.left(), rect.right() - area.width());
             }
         }
     }
@@ -606,7 +606,7 @@ int QListViewPrivate::verticalScrollToValue(const QModelIndex &index, const QRec
         if (hint == QListView::PositionAtTop || above)
             verticalValue += rect.top();
         else if (hint == QListView::PositionAtBottom || below)
-            verticalValue += rect.bottom() - area.height();
+            verticalValue +=  qMin(rect.top(), rect.bottom() - area.height());
         else if (hint == QListView::PositionAtCenter)
             verticalValue += rect.top() - ((area.height() - rect.height()) / 2);
     }
@@ -2276,22 +2276,21 @@ int QStaticListViewBase::perItemScrollToValue(int index, int scrollValue, int vi
     if (index < 0)
         return scrollValue;
     if (!wrap) {
-        const int flowCount = flowPositions.count() - 1;
-        const int topIndex = scrollValue;
-        const int topCoordinate = flowPositions.at(topIndex);
-        int bottomIndex = topIndex;
-        int bottomCoordinate = topCoordinate;
+        int topIndex = index;
+        const int bottomIndex = topIndex;
+        const int bottomCoordinate = flowPositions.at(index);
 
-        while ((bottomCoordinate - topCoordinate) <= (viewportSize)
-               && bottomIndex <= flowCount)
-            bottomCoordinate = flowPositions.at(bottomIndex++) + itemExtent;
+        while (topIndex > 0 && 
+            (bottomCoordinate - flowPositions.at(topIndex-1) + itemExtent) <= (viewportSize)) {
+            topIndex--;
+        }
 
-        const int itemCount = bottomIndex - topIndex - 1;
+        const int itemCount = bottomIndex - topIndex + 1;
         switch (hint) {
         case QAbstractItemView::PositionAtTop:
             return index;
         case QAbstractItemView::PositionAtBottom:
-            return index - itemCount + 1; // ###
+            return index - itemCount + 1;
         case QAbstractItemView::PositionAtCenter:
             return index - (itemCount / 2);
         default:
@@ -2305,20 +2304,21 @@ int QStaticListViewBase::perItemScrollToValue(int index, int scrollValue, int vi
             return flowPositions.at(index); // ### always pixel based for now
         } else if (!segmentStartRows.isEmpty()) { // we are scrolling in the "segment" direction
             int segment = qBinarySearch<int>(segmentStartRows, index, 0, segmentStartRows.count() - 1);
-            const int segmentPositionCount = segmentPositions.count() - 2;
-            const int leftSegment = segment;
-            const int leftCoordinate = segmentPositions.at(leftSegment);
-            int rightSegment = leftSegment;
-            int rightCoordinate = leftCoordinate;
-            while ((rightCoordinate - leftCoordinate) < (viewportSize - 1)
-                   && rightSegment < segmentPositionCount)
-                rightCoordinate = segmentPositions.at(++rightSegment);
-            const int segmentCount = rightSegment - leftSegment - 1;
+            int leftSegment = segment;
+            const int rightSegment = leftSegment;
+            const int bottomCoordinate = segmentPositions.at(segment);
+
+            while (leftSegment > scrollValue && 
+                (bottomCoordinate - segmentPositions.at(leftSegment-1) + itemExtent) <= (viewportSize)) {
+                    leftSegment--;
+            }
+
+            const int segmentCount = rightSegment - leftSegment + 1;
             switch (hint) {
             case QAbstractItemView::PositionAtTop:
                 return segment;
             case QAbstractItemView::PositionAtBottom:
-                return segment - segmentCount; // + 1 ###
+                return segment - segmentCount + 1;
             case QAbstractItemView::PositionAtCenter:
                 return segment - (segmentCount / 2);
             default:

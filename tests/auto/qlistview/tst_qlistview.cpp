@@ -57,6 +57,7 @@ private slots:
     void setCurrentIndex();
     void selection_data();
     void selection();
+    void scrollTo();
 };
 
 // Testing get/set functions
@@ -876,6 +877,111 @@ void tst_QListView::selection()
     for (int i = 0; i < selected.count(); ++i) {
         QVERIFY(expectedItems.contains(selected.at(i).row()));
     }
+
+}
+
+void tst_QListView::scrollTo()
+{
+    QListView lv;
+    QStringListModel model(&lv);
+    QStringList list;
+    list << "Short item 1";
+    list << "Short item 2";
+    list << "Short item 3";
+    list << "Short item 4";
+    list << "Short item 5";
+    list << "Short item 6";
+    list << "Begin This is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\n"
+            "This is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\n"
+            "This is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\n"
+            "This is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\n"
+            "This is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\n"
+            "This is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\n"
+            "This is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\n"
+            "This is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\n"
+            "This is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\n"
+            "This is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\n"
+            "This is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\n"
+            "This is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\n"
+            "This is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\n"
+            "This is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\n"
+            "This is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\n"
+            "This is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item\nThis is a very long item End\n";
+    list << "Short item";
+    list << "Short item";
+    list << "Short item";
+    list << "Short item";
+    list << "Short item";
+    list << "Short item";
+    list << "Short item";
+    list << "Short item";
+    model.setStringList(list);
+    lv.setModel(&model);
+    lv.setFixedSize(100, 200);
+    lv.show();
+
+    //by default, the list view scrolls per item and has no wrapping
+    QModelIndex index = model.index(6,0);
+
+    //we save the size of the item for later comparisons
+    const QSize itemsize = lv.visualRect(index).size();
+    QVERIFY(itemsize.height() > lv.height());
+    QVERIFY(itemsize.width() > lv.width());
+
+    //we click the item
+    QPoint p = lv.visualRect(index).center();
+    QTest::mouseClick(lv.viewport(), Qt::LeftButton, Qt::NoModifier, p);
+    //let's wait 1 second because the scrolling is delayed
+    QTest::qWait(1000);
+    QCOMPARE(lv.visualRect(index).y(),0);
+
+    //we scroll down. As the item is to tall for the view, it will disappear
+    QTest::keyClick(lv.viewport(), Qt::Key_Down, Qt::NoModifier);
+    QCOMPARE(lv.visualRect(index).y(), -itemsize.height());
+
+    QTest::keyClick(lv.viewport(), Qt::Key_Up, Qt::NoModifier);
+    QCOMPARE(lv.visualRect(index).y(), 0);
+
+    //Let's enable wrapping
+
+    lv.setWrapping(true);
+    lv.horizontalScrollBar()->setValue(0); //let's scroll to the beginning
+
+    //we click the item
+    p = lv.visualRect(index).center();
+    QTest::mouseClick(lv.viewport(), Qt::LeftButton, Qt::NoModifier, p);
+    //let's wait 1 second because the scrolling is delayed
+    QTest::qWait(1000);
+    QCOMPARE(lv.visualRect(index).x(),0);
+
+    //we scroll right. As the item is too wide for the view, it will disappear
+    QTest::keyClick(lv.viewport(), Qt::Key_Right, Qt::NoModifier);
+    QCOMPARE(lv.visualRect(index).x(), -itemsize.width());
+
+    QTest::keyClick(lv.viewport(), Qt::Key_Left, Qt::NoModifier);
+    QCOMPARE(lv.visualRect(index).x(), 0);
+
+    lv.setWrapping(false);
+
+    //Let's try with scrolling per pixel
+    lv.setHorizontalScrollMode( QListView::ScrollPerPixel);
+    lv.verticalScrollBar()->setValue(0); //scrolls back to the first item
+
+    //we click the item
+    p = lv.visualRect(index).center();
+    QTest::mouseClick(lv.viewport(), Qt::LeftButton, Qt::NoModifier, p);
+    //let's wait 1 second because the scrolling is delayed
+    QTest::qWait(1000);
+    QCOMPARE(lv.visualRect(index).y(),0);
+    
+    //we scroll down. As the item is too tall for the view, it will partially disappear
+    QTest::keyClick(lv.viewport(), Qt::Key_Down, Qt::NoModifier);
+    QVERIFY(lv.visualRect(index).y()<0);
+
+    QTest::keyClick(lv.viewport(), Qt::Key_Up, Qt::NoModifier);
+    QCOMPARE(lv.visualRect(index).y(), 0);
+
+
 
 }
 
